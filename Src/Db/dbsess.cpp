@@ -83,6 +83,7 @@ void * FASTCALL DbThreadLocalArea::DbRegList::GetBySupplementPtr(const void * pS
 
 SLAPI DbThreadLocalArea::DbThreadLocalArea() : P_StFileName(0), P_CurDict(0)
 {
+	PTR32(ClientID)[0] = 0; // @v10.3.0
 	Init();
 }
 
@@ -264,6 +265,7 @@ int SLAPI SLobType::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBu
 //
 SLAPI DbSession::DbSession() : LastThread(), Id__(1), TlsIdx(-1L), _Oe(0)
 {
+	memzero(__dbdata__, sizeof(__dbdata__)); // @v10.3.0
 	SetConfig(0); // Устанавливаем конфигурацию по умолчанию
 	InitProtectData();
 	TlsIdx = TlsAlloc();

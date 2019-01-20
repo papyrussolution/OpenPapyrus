@@ -1395,6 +1395,10 @@ int  SLAPI GeoTrackingFilt::IsEmpty() const
 //
 //
 //
+SLAPI GeoTrackingTotal::GeoTrackingTotal() : Count(0), ObjCount(0)
+{
+}
+
 SLAPI PPViewGeoTracking::PPViewGeoTracking() : PPView(0, &Filt, PPVIEW_GEOTRACKING)
 {
 	DefReportId = REPORT_GEOTRACKING;

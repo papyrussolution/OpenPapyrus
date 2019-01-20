@@ -1,5 +1,5 @@
 // V_QUOT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1766,7 +1766,7 @@ int SLAPI PPViewQuot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 					}
 					else {
 						PPQuotArray qary(hdr.GoodsID);
-						QuotIdent qi(hdr.LocID, hdr.QuotKindID, Filt.CurID, hdr.ArticleID);
+						const QuotIdent qi(hdr.LocID, hdr.QuotKindID, Filt.CurID, hdr.ArticleID);
 						GObj.GetQuotList(hdr.GoodsID, 0, qary);
 						qary.GetQuot(qi, &quot);
 						ViewQuotValueInfo(quot);
@@ -1807,16 +1807,14 @@ int SLAPI PPViewQuot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				}
 				break;
 			case PPVCMD_VIEWMTXBYGGRP:
-				{
-					if(oneof2(Filt.QkCls, PPQuot::clsMtx, PPQuot::clsMtxRestr)) {
-						QuotFilt filt = Filt;
-						filt.QkCls = PPQuot::clsMtx;
-						filt.GoodsGrpID = id;
-						filt.LocList.InitEmpty();
-						filt.LocList.Add(hdr.LocID);
-						ViewQuot(&filt);
-						ok = 1;
-					}
+				if(oneof2(Filt.QkCls, PPQuot::clsMtx, PPQuot::clsMtxRestr)) {
+					QuotFilt filt = Filt;
+					filt.QkCls = PPQuot::clsMtx;
+					filt.GoodsGrpID = id;
+					filt.LocList.InitEmpty();
+					filt.LocList.Add(hdr.LocID);
+					ViewQuot(&filt);
+					ok = 1;
 				}
 				break;
 			case PPVCMD_VIEWSERIES:
@@ -1836,12 +1834,8 @@ int SLAPI PPViewQuot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 					}
 				}
 				break;
-			case PPVCMD_TRANSMIT:
-				ok = Transmit(&hdr);
-				break;
-			case PPVCMD_DORECOVER:
-				ok = Recover();
-				break;
+			case PPVCMD_TRANSMIT: ok = Transmit(&hdr); break;
+			case PPVCMD_DORECOVER: ok = Recover(); break;
 			case PPVCMD_TB_CBX_SELECTED:
 				{
 					ok = -1;

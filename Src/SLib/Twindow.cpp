@@ -1,7 +1,7 @@
 // TWINDOW.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
 // WIN32
-// Modified and adopted by A.Sobolev 1996-2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018
+// Modified and adopted by A.Sobolev 1996-2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -12,7 +12,7 @@
 #define MPST_ERROR         0x0001
 #define MPST_PREVSEPARATOR 0x0002
 
-TMenuPopup::TMenuPopup() : State(0), Count(0), H((uint32)::CreatePopupMenu())
+TMenuPopup::TMenuPopup() : State(0), Count(0), H(::CreatePopupMenu())
 {
 }
 
@@ -1202,14 +1202,14 @@ TWindowBase::~TWindowBase()
 	}
 }
 
-int TWindowBase::Create(long parent, long createOptions)
+int TWindowBase::Create(void * hParentWnd, long createOptions)
 {
 	const HINSTANCE h_inst = TProgram::GetInst();
 	TWindowBase::RegWindowClass(102);
 
 	SString title_buf = getTitle();
 	title_buf.SetIfEmpty(ClsName).Transf(CTRANSF_INNER_TO_OUTER);
-	HWND  hw_parent = (HWND)parent;
+	HWND  hw_parent = (HWND)hParentWnd;
 	DWORD style = WS_HSCROLL | WS_VSCROLL /*| WS_CLIPSIBLINGS | WS_CLIPCHILDREN*/;
 	int   x = size.x ? origin.x : CW_USEDEFAULT;
 	int   y = size.y ? origin.y : CW_USEDEFAULT;
@@ -1277,7 +1277,7 @@ int TWindowBase::AddChild(TWindowBase * pWin, long createOptions, long zone)
 {
 	int    ok = 1;
 	if(pWin) {
-		pWin->Create((long)HW, createOptions);
+		pWin->Create(HW, createOptions);
 		if(zone)
 			Layout.InsertWindow(zone, pWin, 0, 0);
 		TWindow::Insert_(pWin);
@@ -1298,10 +1298,10 @@ IMPL_HANDLE_EVENT(TWindowBase)
 			::ShowWindow(APPL->H_MainWnd, SW_MAXIMIZE);
 		if(APPL->H_MainWnd) {
 			if(IsMDIClientWindow(APPL->H_MainWnd)) {
-				Create((long)APPL->H_MainWnd, coMDI);
+				Create(APPL->H_MainWnd, coMDI);
 			}
 			else {
-				Create((long)APPL->H_TopOfStack, coPopup | coMaxSize);
+				Create(APPL->H_TopOfStack, coPopup | coMaxSize);
 			}
 		}
 		::ShowWindow(HW, SW_NORMAL);
@@ -1426,7 +1426,7 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 					else if(p_hi->iContextType == HELPINFO_WINDOW)
 						he.ContextType = HelpEvent::ctxtWindow;
 					he.CtlId = p_hi->iCtrlId;
-					he.H_Item = (long)p_hi->hItemHandle;
+					he.H_Item = p_hi->hItemHandle;
 					he.ContextId = p_hi->dwContextId;
 					he.Mouse = p_hi->MousePos;
 				}
@@ -1444,8 +1444,8 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 					p_view->WbState |= wbsMDI;
 					cr_blk.Coord.setwidthrel(p_mdi_init_data->x, p_mdi_init_data->cx);
 					cr_blk.Coord.setheightrel(p_mdi_init_data->y, p_mdi_init_data->cy);
-					cr_blk.Param = p_mdi_init_data->lParam;
-					cr_blk.H_Process = (long)p_mdi_init_data->hOwner;
+					cr_blk.Param = (void *)p_mdi_init_data->lParam;
+					cr_blk.H_Process = p_mdi_init_data->hOwner;
 					cr_blk.Style = p_mdi_init_data->style;
 					cr_blk.ExStyle = 0;
 					cr_blk.H_Parent = 0;
@@ -1458,12 +1458,12 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 					p_view->WbState &= ~wbsMDI;
 					cr_blk.Coord.setwidthrel(p_init_data->x, p_init_data->cx);
 					cr_blk.Coord.setheightrel(p_init_data->y, p_init_data->cy);
-					cr_blk.Param = (long)p_init_data->lpCreateParams;
-					cr_blk.H_Process = (long)p_init_data->hInstance;
+					cr_blk.Param = p_init_data->lpCreateParams;
+					cr_blk.H_Process = p_init_data->hInstance;
 					cr_blk.Style = p_init_data->style;
 					cr_blk.ExStyle = p_init_data->dwExStyle;
-					cr_blk.H_Parent = (long)p_init_data->hwndParent;
-					cr_blk.H_Menu = (long)p_init_data->hMenu;
+					cr_blk.H_Parent = p_init_data->hwndParent;
+					cr_blk.H_Menu = p_init_data->hMenu;
 					cr_blk.P_WndCls = p_init_data->lpszClass; // @unicodeproblem
 					cr_blk.P_Title = p_init_data->lpszName; // @unicodeproblem
 				}
@@ -1494,9 +1494,7 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 			return 0;
 		case WM_SETFONT:
 			{
-				SetFontEvent sfe;
-				sfe.FontHandle = wParam;
-				sfe.DoRedraw = LOWORD(lParam);
+				SetFontEvent sfe((void *)wParam, LOWORD(lParam));
 				if(TView::messageCommand(p_view, cmSetFont, &sfe))
 					return 0;
 			}
@@ -1547,10 +1545,10 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 					h_bmp = CreateCompatibleBitmap(ps.hdc, cr.right - cr.left, cr.bottom - cr.top);
 					h_old_bmp = (HBITMAP)SelectObject(h_dc_mem, h_bmp);
 					use_draw_buf = 1;
-					pe.H_DeviceContext = (long)h_dc_mem;
+					pe.H_DeviceContext = h_dc_mem;
 				}
 				else
-					pe.H_DeviceContext = (long)ps.hdc;
+					pe.H_DeviceContext = ps.hdc;
 				void * p_ret = TView::messageCommand(p_view, cmPaint, &pe);
 				if(use_draw_buf) {
 					BitBlt(ps.hdc, 0, 0, cr.right - cr.left, cr.bottom - cr.top, h_dc_mem, 0, 0, SRCCOPY);
@@ -1569,7 +1567,7 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 				MEMSZERO(pe);
 				pe.PaintType = PaintEvent::tNcPaint;
 				HDC hdc = GetDCEx(hWnd, (HRGN)wParam, DCX_WINDOW|DCX_INTERSECTRGN);
-				pe.H_DeviceContext = (long)hdc;
+				pe.H_DeviceContext = hdc;
 				void * p_ret = TView::messageCommand(p_view, cmPaint, &pe);
 				ReleaseDC(hWnd, hdc);
 				if(p_ret)
@@ -1581,7 +1579,7 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 				PaintEvent pe;
 				MEMSZERO(pe);
 				pe.PaintType = PaintEvent::tEraseBackground;
-				pe.H_DeviceContext = (long)wParam;
+				pe.H_DeviceContext = (void *)wParam;
 				pe.Rect = p_view->getClientRect();
 				void * p_ret = TView::messageCommand(p_view, cmPaint, &pe);
 				//
@@ -1600,7 +1598,7 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 					se.Dir = DIREC_HORZ;
 				else if(message == WM_VSCROLL)
 					se.Dir = DIREC_VERT;
-				se.H_Wnd = lParam;
+				se.H_Wnd = (void *)lParam;
 				switch(LOWORD(wParam)) {
 					case SB_TOP:       se.Type = ScrollEvent::tTop; break;
 					case SB_BOTTOM:    se.Type = ScrollEvent::tBottom; break;

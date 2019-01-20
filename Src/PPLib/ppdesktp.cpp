@@ -1598,8 +1598,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 					if(p_cmd) {
 						if(!is_first) {
 							POINT coord;
-							PPCommandFolder::Direction direction;
-							MEMSZERO(coord);
+							PPCommandFolder::Direction direction = PPCommandFolder::nextUp; // @v10.3.0 @fix init
 							coord.x = p_cmd->P.x;
 							coord.y = p_cmd->P.y;
 							ZDELETE(p_cmd);

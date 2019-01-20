@@ -2426,7 +2426,7 @@ void OprKindDialog::editPaymList()
 
 class DiffByLocCntrDlg : public PPListDialog {
 public:
-	DiffByLocCntrDlg() : PPListDialog(DLG_DIFFCNTR, CTL_DIFFCNTR_LOCLIST)
+	DiffByLocCntrDlg() : PPListDialog(DLG_DIFFCNTR, CTL_DIFFCNTR_LOCLIST), LocID(0)
 	{
 		/*updateList(-1);*/
 	}

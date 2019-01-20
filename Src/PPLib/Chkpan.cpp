@@ -83,7 +83,7 @@ int SLAPI showInputLineCalc(TDialog *, uint);    // Prototype (VTBUTTON.CPP)
 //   ! 8 Очистить буфер ввода                   Escape
 //
 struct SaComplexEntry {
-	SaComplexEntry() : GoodsID(0), FinalGoodsID(0), Qtty(1.0), OrgPrice(0.0), FinalPrice(0.0), Flags(0)
+	SaComplexEntry(PPID goodsID, double qtty) : GoodsID(goodsID), FinalGoodsID(0), Qtty(qtty), OrgPrice(0.0), FinalPrice(0.0), Flags(0)
 	{
 	}
 	int    SaComplexEntry::IsComplete() const
@@ -1967,9 +1967,7 @@ int CPosProcessor::LoadComplex(PPID goodsID, SaComplex & rComplex)
 			for(uint p = 0; gs.EnumItemsExt(&p, &gs_item, 0, rComplex.Qtty, &item_qtty) > 0;) {
 				if(GObj.Fetch(gs_item.GoodsID, &item_goods_rec) > 0) {
 					{
-						SaComplexEntry entry;
-						entry.GoodsID = gs_item.GoodsID;
-						entry.Qtty = fabs(item_qtty);
+						SaComplexEntry entry(gs_item.GoodsID, fabs(item_qtty));
 						THROW_SL(rComplex.insert(&entry));
 					}
 					SaComplexEntry & r_entry = rComplex.at(rComplex.getCount()-1);
@@ -9378,8 +9376,8 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 	setCtrlReal(CTL_SCARDVIEW_SALDO,   sc_pack.Rec.Rest);
 	setCtrlString(CTL_SCARDVIEW_OWNER, psn_name);
 	setCtrlString(CTL_SCARDVIEW_CARD,  card);
-	enableCommand(cmCheckOpSwitch, LocalState & stCreditCard && ScObj.CheckRights(SCRDRT_VIEWOPS));
-	enableCommand(cmSCardMovCrd,   LocalState & stCreditCard && ScObj.CheckRights(SCRDRT_ADDOPS));
+	enableCommand(cmCheckOpSwitch, (LocalState & stCreditCard) && ScObj.CheckRights(SCRDRT_VIEWOPS));
+	enableCommand(cmSCardMovCrd,   (LocalState & stCreditCard) && ScObj.CheckRights(SCRDRT_ADDOPS));
 	SetupMode((LocalState & stCreditCard) ? modeOpView : modeCheckView, 0);
 	return 1;
 }

@@ -1,5 +1,5 @@
 // CPTRANSF.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 // @Kernel
 //
@@ -335,7 +335,7 @@ int SLAPI PPObjBill::InitDraftWrOffPacket(const PPDraftOpEx * pWrOffParam, const
 	return ok;
 }
 
-static int SLAPI InsertComplList(PPBillPacket * pPack, PPComplBlock & rList, int sign, SString * pSrcSerial, PUGL * pDfctList)
+static int SLAPI InsertComplList(PPBillPacket * pPack, PPComplBlock & rList, int sign, const SString * pSrcSerial, PUGL * pDfctList)
 {
 	int    ok = 1, incomplete = 0;
 	PPObjGoods goods_obj;
@@ -1053,26 +1053,18 @@ int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOf
 								THROW(p_pack->InsertRow(&ti, 0));
 								{
 									const uint dest_pos = p_pack->GetTCount()-1;
-									// @v9.8.11 blk.SrcDraftPack.ClbL.GetNumber(i, &clb_buf);
-									// @v9.8.11 blk.SrcDraftPack.SnL.GetNumber(i, &serial_buf);
-									// @v9.8.11 THROW(p_pack->ClbL.AddNumber(dest_pos, clb_buf));
-									// @v9.8.11 THROW(p_pack->SnL.AddNumber(dest_pos, serial_buf));
-									blk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_CLB, i, clb_buf); // @v9.8.11
-									THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, dest_pos, clb_buf)); // @v9.8.11
-									blk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial_buf); // @v9.8.11
-									THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_SN, dest_pos, serial_buf)); // @v9.8.11
+									blk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_CLB, i, clb_buf);
+									THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, dest_pos, clb_buf));
+									blk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial_buf);
+									THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_SN, dest_pos, serial_buf));
 									{
 										const ObjTagList * p_org_lot_tag_list = blk.SrcDraftPack.LTagL.Get(i);
 										THROW(p_pack->LTagL.Set(dest_pos, p_org_lot_tag_list));
 									}
-									// @v10.2.7 {
 									{
-										// @v10.2.9 blk.SrcDraftPack.XcL.Get(i+1, 0, ss_lotxcode);
-										// @v10.2.9 p_pack->XcL.Set(dest_pos+1, &ss_lotxcode);
-										blk.SrcDraftPack.XcL.Get(i+1, 0, lotxcode_set); // @v10.2.9 
-										p_pack->XcL.Set_2(dest_pos+1, &lotxcode_set); // @v10.2.9 
+										blk.SrcDraftPack.XcL.Get(i+1, 0, lotxcode_set);
+										p_pack->XcL.Set_2(dest_pos+1, &lotxcode_set);
 									}
-									// } @v10.2.7 
 								}
 							}
 						}
@@ -1245,7 +1237,7 @@ int SLAPI PPObjBill::RollbackWrOffDraft(PPID billID, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjBill::Helper_CreateDeficitTi(PPBillPacket & rPack, const PUGL * pPugl, const PUGI * pItem, PUGL::SupplSubstItem * pSupplSubstItem, PPID & rComplArID)
+int SLAPI PPObjBill::Helper_CreateDeficitTi(PPBillPacket & rPack, const PUGL * pPugl, const PUGI * pItem, const PUGL::SupplSubstItem * pSupplSubstItem, PPID & rComplArID)
 {
 	int    ok = 1;
 	double cost, price;

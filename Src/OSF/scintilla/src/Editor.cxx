@@ -4698,7 +4698,7 @@ void Editor::SetHoverIndicatorPoint(Point pt)
 		SetHoverIndicatorPosition(PositionFromLocation(pt, true, true));
 }
 
-void Editor::SetHotSpotRange(Point * pt)
+void Editor::SetHotSpotRange(const Point * pt)
 {
 	if(pt) {
 		int pos = PositionFromLocation(*pt, false, true);
@@ -5615,7 +5615,7 @@ int Editor::WrapCount(int line)
 	}
 }
 
-void Editor::AddStyledText(char * buffer, int appendLength)
+void Editor::AddStyledText(const char * buffer, int appendLength)
 {
 	// The buffer consists of alternating character bytes and style bytes
 	int textLength = appendLength / 2;

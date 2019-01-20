@@ -652,7 +652,7 @@ const RngType * RngDefault = &MtType;
 uint RngDefaultSeed = 0;
 
 void RngSet (const Rng * pR, uint seed) {(pR->P_Type->P_Set) (pR->P_State, seed);}
-Rng * RngAlloc (const RngType * pT)
+Rng * RngAlloc(const RngType * pT)
 {
 	Rng * pR = (Rng *)malloc(sizeof(Rng));
 	/*if (pR == 0) {

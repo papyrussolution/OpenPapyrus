@@ -1477,39 +1477,42 @@ int STextBrowser::SetEncoding(SCodepage cp)
 int STextBrowser::InsertWorkbookLink()
 {
 	int    ok = -1;
-	PPObjWorkbook wb_obj;
-	PPObjWorkbook::SelectLinkBlock link;
-	link.Type = PPWBTYP_MEDIA;
-	if(wb_obj.SelectLink(&link) > 0 && link.ID) {
-		WorkbookTbl::Rec rec, addendum_rec;
-		if(wb_obj.Fetch(link.ID, &rec) > 0) {
-			SString text;
-			if(link.Type == link.ltImage) {
-				(text = "#IMAGE").CatChar('(').CatChar('\'').Cat(rec.Symb).CatChar('\'').CatChar(')');
-				text.Transf(CTRANSF_INNER_TO_UTF8);
-				CallFunc(SCI_INSERTTEXT, -1, (int)text.cptr());
-			}
-			else if(link.Type == link.ltRef) {
-				(text = "#REF").CatChar('(').CatChar('\'').Cat(rec.Symb).CatChar('\'').CatChar(')');
-				text.Transf(CTRANSF_INNER_TO_UTF8);
-				CallFunc(SCI_INSERTTEXT, -1, (int)text.cptr());
-			}
-			else if(link.Type == link.ltLink) {
-				(text = "#LINK").CatChar('(').CatChar('\'').Cat(rec.Symb).CatChar('\'').CatChar(')');
-				text.Transf(CTRANSF_INNER_TO_UTF8);
-				CallFunc(SCI_INSERTTEXT, -1, (int)text.cptr());
-			}
-			else if(link.Type == link.ltAnnot) {
-				if(link.AddendumID && wb_obj.Fetch(link.AddendumID, &addendum_rec) > 0) {
-					text = "#ANNOTIMG";
-					(text = "#ANNOTIMG").CatChar('(').CatChar('\'').Cat(rec.Symb).CatChar('\'').CatDiv(',', 2).
-						CatChar('\'').Cat(addendum_rec.Symb).CatChar('\'').CatChar(')');
+	{
+		MemLeakTracer mlt;
+		PPObjWorkbook wb_obj;
+		PPObjWorkbook::SelectLinkBlock link;
+		link.Type = PPWBTYP_MEDIA;
+		if(wb_obj.SelectLink(&link) > 0 && link.ID) {
+			WorkbookTbl::Rec rec, addendum_rec;
+			if(wb_obj.Fetch(link.ID, &rec) > 0) {
+				SString text;
+				if(link.Type == link.ltImage) {
+					(text = "#IMAGE").CatChar('(').CatChar('\'').Cat(rec.Symb).CatChar('\'').CatChar(')');
+					text.Transf(CTRANSF_INNER_TO_UTF8);
+					CallFunc(SCI_INSERTTEXT, -1, (int)text.cptr());
 				}
-				else {
-					(text = "#ANNOT").CatChar('(').CatChar('\'').Cat(rec.Symb).CatChar('\'').CatChar(')');
+				else if(link.Type == link.ltRef) {
+					(text = "#REF").CatChar('(').CatChar('\'').Cat(rec.Symb).CatChar('\'').CatChar(')');
+					text.Transf(CTRANSF_INNER_TO_UTF8);
+					CallFunc(SCI_INSERTTEXT, -1, (int)text.cptr());
 				}
-				text.Transf(CTRANSF_INNER_TO_UTF8);
-				CallFunc(SCI_INSERTTEXT, -1, (int)text.cptr());
+				else if(link.Type == link.ltLink) {
+					(text = "#LINK").CatChar('(').CatChar('\'').Cat(rec.Symb).CatChar('\'').CatChar(')');
+					text.Transf(CTRANSF_INNER_TO_UTF8);
+					CallFunc(SCI_INSERTTEXT, -1, (int)text.cptr());
+				}
+				else if(link.Type == link.ltAnnot) {
+					if(link.AddendumID && wb_obj.Fetch(link.AddendumID, &addendum_rec) > 0) {
+						text = "#ANNOTIMG";
+						(text = "#ANNOTIMG").CatChar('(').CatChar('\'').Cat(rec.Symb).CatChar('\'').CatDiv(',', 2).
+							CatChar('\'').Cat(addendum_rec.Symb).CatChar('\'').CatChar(')');
+					}
+					else {
+						(text = "#ANNOT").CatChar('(').CatChar('\'').Cat(rec.Symb).CatChar('\'').CatChar(')');
+					}
+					text.Transf(CTRANSF_INNER_TO_UTF8);
+					CallFunc(SCI_INSERTTEXT, -1, (int)text.cptr());
+				}
 			}
 		}
 	}

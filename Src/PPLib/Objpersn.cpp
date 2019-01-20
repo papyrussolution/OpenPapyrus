@@ -912,6 +912,7 @@ int SLAPI PPObjPerson::EditConfig()
 			AddClusterAssoc(CTL_PSNCFG_FLAGS, 3, PPPersonConfig::fShowPsnImageAfterCmdAssoc);
 			AddClusterAssoc(CTL_PSNCFG_FLAGS, 4, PPPersonConfig::fSyncMergeRegList);
 			AddClusterAssoc(CTL_PSNCFG_FLAGS, 5, PPPersonConfig::fSendAttachment);
+			AddClusterAssoc(CTL_PSNCFG_FLAGS, 6, PPPersonConfig::fSyncAppendAbsKinds); // @v10.3.0
 			SetClusterData(CTL_PSNCFG_FLAGS, Data.Flags);
 			SetTimeRangeInput(this, CTL_PSNCFG_SMSPRTR, TIMF_HM, &Data.SmsProhibitedTr); // @v10.2.3
 			return 1;
@@ -2241,6 +2242,8 @@ int SLAPI PPObjPerson::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransm
 			}
 			if(*pID) {
 				if(!(r_cfg.Flags & PPPersonConfig::fSyncDeclineUpdate)) {
+					PPIDArray _absent_kind_list; // @v10.3.0
+					PPIDArray * p_absent_kind_list = (r_cfg.Flags & PPPersonConfig::fSyncAppendAbsKinds) ? &_absent_kind_list : 0; // @v10.3.0
 					p_pack->Rec.ID = *pID;
 					if(p_pack->LinkFiles.GetState() & ObjLinkFiles::stTransmissionNotSupported)
 						p_pack->UpdFlags |= PPPersonPacket::ufDontChgImgFlag;
@@ -2252,12 +2255,18 @@ int SLAPI PPObjPerson::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransm
 						org_reg_list.Merge(p_pack->Regs);
 						p_pack->Regs = org_reg_list;
 					}
-					if(!P_ArObj->CheckPersonPacket(p_pack)) {
+					if(!P_ArObj->CheckPersonPacket(p_pack, p_absent_kind_list)) {
 						pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTPERSON, p_pack->Rec.ID, p_pack->Rec.Name);
 						THROW(*pID);
 						ok = -1;
 					}
 					else {
+						// @v10.3.0 {
+						if(p_absent_kind_list && p_absent_kind_list->getCount()) {
+							p_absent_kind_list->sortAndUndup();
+							p_pack->Kinds.addUnique(p_absent_kind_list);
+						}
+						// } @v10.3.0 
 						ObjTagList org_tag_list;
 						PPRef->Ot.GetList(Obj, *pID, &org_tag_list);
 						org_tag_list.Merge(p_pack->TagL, ObjTagList::mumAdd|ObjTagList::mumUpdate);

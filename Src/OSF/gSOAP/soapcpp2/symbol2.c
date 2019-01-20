@@ -774,7 +774,7 @@ void compile(Table * table)
 	fprintf(fhead, "\nSOAP_FMAC3 int FASTCALL soap_putindependent(struct soap*);");
 	fprintf(fhead, "\nSOAP_FMAC3 int FASTCALL soap_getindependent(struct soap*);"); // @v9.8.8 SOAP_FMAC4-->FASTCALL
 	fprintf(fhead, "\n#endif");
-	fprintf(fhead, "\nSOAP_FMAC3 int SOAP_FMAC4 soap_ignore_element(struct soap*);");
+	fprintf(fhead, "\nSOAP_FMAC3 int FASTCALL soap_ignore_element(struct soap*);");
 
 	classflag = 0;
 	for(p = classtable->list; p; p = p->next) {
@@ -859,7 +859,7 @@ void compile(Table * table)
 					fprintf(fout, "\n\nSOAP_FMAC3 const char ** SOAP_FMAC4 soap_faultsubcode(struct soap *soap)\n{\n\tsoap_fault(soap);\n\tif(soap->version == 2) {\n\t\tif(!soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode) {\n\t\t\tsoap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode = (struct SOAP_ENV__Code*)soap_malloc(soap, sizeof(struct SOAP_ENV__Code));\n\t\t\tsoap_default_SOAP_ENV__Code(soap, soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode);\n\t\t}\n\t\treturn (const char**)&soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode->SOAP_ENV__Value;\n\t}\n\treturn (const char**)&soap->fault->faultcode;\n}");
 				else
 					fprintf(fout, "\n\nSOAP_FMAC3 const char ** SOAP_FMAC4 soap_faultsubcode(struct soap *soap)\n{\n\tsoap_fault(soap);\n\tif(soap->version == 2) {\n\t\tif(!soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode) {\n\t\t\tsoap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode = soap_new_SOAP_ENV__Code(soap, -1);\n\t\t\tsoap_default_SOAP_ENV__Code(soap, soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode);\n\t\t}\n\t\treturn (const char**)&soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode->SOAP_ENV__Value;\n\t}\n\treturn (const char**)&soap->fault->faultcode;\n}");
-				fprintf(fout, "\n\nSOAP_FMAC3 const char * SOAP_FMAC4 soap_check_faultsubcode(struct soap *soap)\n{\n\tsoap_fault(soap);\n\tif(soap->version == 2) {\n\t\tif(soap->fault->SOAP_ENV__Code && soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode && soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode)\n\t\t\treturn soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode->SOAP_ENV__Value;\n\t\treturn NULL;\n\t}\n\treturn soap->fault->faultcode;\n}");
+				fprintf(fout, "\n\nSOAP_FMAC3 const char * SOAP_FMAC4 soap_check_faultsubcode(struct soap *soap)\n{\n\tsoap_fault(soap);\n\tif(soap->version == 2) {\n\t\tif(soap->fault->SOAP_ENV__Code && soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode)\n\t\t\treturn soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode->SOAP_ENV__Value;\n\t\treturn NULL;\n\t}\n\treturn soap->fault->faultcode;\n}");
 				fprintf(fout, "\n\nSOAP_FMAC3 const char ** SOAP_FMAC4 soap_faultstring(struct soap *soap)\n{\n\tsoap_fault(soap);\n\tif(soap->version == 2)\n\t\treturn (const char**)&soap->fault->SOAP_ENV__Reason->SOAP_ENV__Text;\n\treturn (const char**)&soap->fault->faultstring;\n}");
 				fprintf(fout, "\n\nSOAP_FMAC3 const char ** SOAP_FMAC4 soap_faultdetail(struct soap *soap)\n{\n\tsoap_fault(soap);");
 				if(has_detail_string())
@@ -906,7 +906,7 @@ void compile(Table * table)
 				if(!cflag && !namespaceid)
 					fprintf(fout, "\n\n#ifdef __cplusplus\n}\n#endif");
 				fprintf(fout, "\n#endif");
-				fprintf(fout, "\n\nSOAP_FMAC3 int SOAP_FMAC4 soap_ignore_element(struct soap *soap)\n{");
+				fprintf(fout, "\n\nSOAP_FMAC3 int FASTCALL soap_ignore_element(struct soap *soap)\n{");
 				fprintf(fout, "\n\tif(!soap_peek_element(soap))");
 				fprintf(fout, " {\n\t\tint t;");
 				fprintf(fout, "\n\t\tDBGLOG(TEST, SOAP_MESSAGE(fdebug, \"Unexpected element '%%s' in input (level=%%u, %%d)\\n\", soap->tag, soap->level, soap->body));");
@@ -917,8 +917,8 @@ void compile(Table * table)
 				fprintf(fout, "\n\t\t{\tsoap->peeked = 0;");
 				fprintf(fout, "\n\t\t\tsoap->error = soap->fignore ? soap->fignore(soap, soap->tag) : SOAP_OK;");
 				fprintf(fout, "\n\t\t\tDBGLOG(TEST, if(!soap->error) SOAP_MESSAGE(fdebug, \"IGNORING element '%%s'\\n\", soap->tag));");
-				fprintf(fout, "\n\t\t\tif(!soap->error && soap->body)");
-				fprintf(fout, "\n\t\t\t{\tsoap->level++;");
+				fprintf(fout, "\n\t\t\tif(!soap->error && soap->body) {");
+				fprintf(fout, "\n\t\t\t\tsoap->level++;");
 				fprintf(fout, "\n\t\t\t\twhile(!soap_ignore_element(soap))");
 				fprintf(fout, "\n\t\t\t\t\t;");
 				fprintf(fout, "\n\t\t\t\tif(soap->error == SOAP_NO_TAG)");
@@ -1134,8 +1134,7 @@ void gen_class(FILE * fd, Entry * p)
 {
 	Entry * Eptr;
 	Tnode * typ = p->info.typ;
-	char * x;
-	x = xsi_type(typ);
+	char * x = xsi_type(typ);
 	if(!x || !*x)
 		x = wsdl_type(typ, "");
 	typ->classed = True;
@@ -1163,14 +1162,13 @@ void gen_class(FILE * fd, Entry * p)
 		Eptr = ((Table *)typ->ref)->list;
 		if(has_ns(typ) || is_untyped(typ))
 			fprintf(fd, "/* Sequence of %s schema type: */\n", x);
-		else {if(!eflag)      {
-			      sprintf(
-				      errbuf,
-				      "array '%s' is not compliant with WS-I Basic Profile 1.0a, reason: SOAP encoded array",
-				      c_type(typ));
-			      compliancewarn(errbuf);
-		      }
-		      fprintf(fd, "/* SOAP encoded array of %s schema type: */\n", x); }
+		else {
+			if(!eflag) {
+				sprintf(errbuf, "array '%s' is not compliant with WS-I Basic Profile 1.0a, reason: SOAP encoded array", c_type(typ));
+				compliancewarn(errbuf);
+			}
+			fprintf(fd, "/* SOAP encoded array of %s schema type: */\n", x); 
+		}
 	}
 	else if(is_primclass(typ))
 		fprintf(fd, "/* Primitive %s schema type: */\n", x);
@@ -9705,18 +9703,16 @@ void soap_put(Tnode * typ)
 		fprintf(fout, "\n\nSOAP_FMAC3 int SOAP_FMAC4 soap_put_%s(struct soap *soap, const %s, const char *tag, const char *type)\n{", ci, ctpa); 
 	}
 	fflush(fout);
-	fprintf(fout, "\n\tint id = ");
+	fprintf(fout, "\n\tint local_id = "); // @v10.3.0 id-->local_id
 	if(is_invisible(typ->id->name))
 		fprintf(fout, "0;");
 	else if((p = is_dynamic_array(typ)) != NULL) {
 		d = get_Darraydims(typ);
 		if(typ->type == Tclass && !is_external(typ) && !is_volatile(typ) && !is_typedef(typ)) {
 			if(d)
-				fprintf(fout, "soap_embed(soap, (void*)this, (struct soap_array*)&this->%s, %d, tag, %s);",
-					ident(p->sym->name), d, soap_type(typ));
+				fprintf(fout, "soap_embed(soap, (void*)this, (struct soap_array*)&this->%s, %d, tag, %s);", ident(p->sym->name), d, soap_type(typ));
 			else
-				fprintf(fout, "soap_embed(soap, (void*)this, (struct soap_array*)&this->%s, 1, tag, %s);",
-					ident(p->sym->name), soap_type(typ));
+				fprintf(fout, "soap_embed(soap, (void*)this, (struct soap_array*)&this->%s, 1, tag, %s);", ident(p->sym->name), soap_type(typ));
 		}
 		else if(d)
 			fprintf(fout, "soap_embed(soap, (void*)a, (struct soap_array*)&a->%s, %d, tag, %s);", ident(p->sym->name), d, soap_type(typ));
@@ -9741,9 +9737,9 @@ void soap_put(Tnode * typ)
 	//
 	fprintf(fout, "\n\treturn ");
 	if(typ->type == Tclass && !is_external(typ) && !is_volatile(typ) && !is_typedef(typ))
-		fprintf(fout, "this->soap_out(soap, tag?tag:\"%s\", id, type) ? soap->error : ", xml_tag(typ));
+		fprintf(fout, "this->soap_out(soap, tag?tag:\"%s\", local_id, type) ? soap->error : ", xml_tag(typ)); // @v10.3.0 id-->local_id
 	else
-		fprintf(fout, "soap_out_%s(soap, tag?tag:\"%s\", id, a, type) ? soap->error : ", ci, xml_tag(typ));
+		fprintf(fout, "soap_out_%s(soap, tag?tag:\"%s\", local_id, a, type) ? soap->error : ", ci, xml_tag(typ)); // @v10.3.0 id-->local_id
 	if(!is_invisible(typ->id->name))
 		fprintf(fout, "soap_putindependent(soap);\n}");
 	else
@@ -11746,7 +11742,7 @@ void soap_in(Tnode * typ)
 				      else {f = 1;
 					    if(!is_invisible(p->sym->name) && !is_primclass(typ) && p->info.typ->type != Tfun && !is_void(p->info.typ)) {
 						    if(is_string(p->info.typ) || is_wstring(p->info.typ) || is_stdstr(p->info.typ))
-							    fprintf(fout, "\n\t\t\tif(soap_flag_%s && (soap->error == SOAP_TAG_MISMATCH || soap->error == SOAP_NO_TAG))", ident(p->sym->name));
+							    fprintf(fout, "\n\t\t\tif(soap_flag_%s && oneof2(soap->error, SOAP_TAG_MISMATCH, SOAP_NO_TAG))", ident(p->sym->name));
 						    else if(is_template(p->info.typ))
 							    fprintf(fout, "\n\t\t\tif(soap->error == SOAP_TAG_MISMATCH)");
 						    else
@@ -11812,7 +11808,7 @@ void soap_in(Tnode * typ)
 					      }
 					      if(is_invisible(p->sym->name) && !(p->info.sto&(Sconst|Sprivate|Sprotected)) && !is_transient(p->info.typ) && !(p->info.sto&Sattribute)) {
 						      if(is_string(p->info.typ) || is_wstring(p->info.typ) || is_stdstr(p->info.typ))
-							      fprintf(fout, "\n\t\t\tif(soap_flag_%s && (soap->error == SOAP_TAG_MISMATCH || soap->error == SOAP_NO_TAG))", ident(p->sym->name));
+							      fprintf(fout, "\n\t\t\tif(soap_flag_%s && oneof2(soap->error, SOAP_TAG_MISMATCH, SOAP_NO_TAG))", ident(p->sym->name));
 						      else if(is_template(p->info.typ))
 							      fprintf(fout, "\n\t\t\tif(soap->error == SOAP_TAG_MISMATCH)");
 						      else
@@ -12312,7 +12308,7 @@ void soap_in(Tnode * typ)
 						f = 1;
 					      if(!is_invisible(p->sym->name) && !is_primclass(typ) && p->info.typ->type != Tfun && !is_void(p->info.typ)) {
 						      if(is_string(p->info.typ) || is_wstring(p->info.typ) || is_stdstr(p->info.typ))
-							      fprintf(fout, "\n\t\t\tif(soap_flag_%s%d && (soap->error == SOAP_TAG_MISMATCH || soap->error == SOAP_NO_TAG))",
+							      fprintf(fout, "\n\t\t\tif(soap_flag_%s%d && oneof2(soap->error, SOAP_TAG_MISMATCH, SOAP_NO_TAG))",
 								      ident(p->sym->name), i);
 						      else if(is_template(p->info.typ))
 							      fprintf(fout, "\n\t\t\tif(soap->error == SOAP_TAG_MISMATCH)");
@@ -12396,25 +12392,20 @@ void soap_in(Tnode * typ)
 						if(is_invisible(p->sym->name) && !(p->info.sto&(Sconst|Sprivate|Sprotected)) &&
 						   !is_transient(p->info.typ) && !(p->info.sto&Sattribute)) {
 							if(is_string(p->info.typ) || is_wstring(p->info.typ) || is_stdstr(p->info.typ))
-								fprintf(fout, "\n\t\t\tif(soap_flag_%s%d && (soap->error == SOAP_TAG_MISMATCH || soap->error == SOAP_NO_TAG))",
-									ident(p->sym->name), i);
+								fprintf(fout, "\n\t\t\tif(soap_flag_%s%d && oneof2(soap->error, SOAP_TAG_MISMATCH, SOAP_NO_TAG))", ident(p->sym->name), i);
 							else if(is_template(p->info.typ))
 								fprintf(fout, "\n\t\t\tif(soap->error == SOAP_TAG_MISMATCH)");
 							else
-								fprintf(fout, "\n\t\t\tif(soap_flag_%s%d && soap->error == SOAP_TAG_MISMATCH)",
-									ident(p->sym->name), i);
+								fprintf(fout, "\n\t\t\tif(soap_flag_%s%d && soap->error == SOAP_TAG_MISMATCH)", ident(p->sym->name), i);
 							if(is_XML(p->info.typ) && is_string(p->info.typ)) {
-								fprintf(fout, "\n\t\t\t\tif(soap_inliteral(soap, \"%s\", &(a->%s::%s)))",
-									ns_add_overridden(t, p, nse1), ident(t->sym->name), ident(p->sym->name));
+								fprintf(fout, "\n\t\t\t\tif(soap_inliteral(soap, \"%s\", &(a->%s::%s)))", ns_add_overridden(t, p, nse1), ident(t->sym->name), ident(p->sym->name));
 							}
 							else if(is_XML(p->info.typ) && is_wstring(p->info.typ)) {
-								fprintf(fout, "\n\t\t\t\tif(soap_inwliteral(soap, \"%s\", &(a->%s::%s)))",
-									ns_add_overridden(t, p, nse1), ident(t->sym->name), ident(p->sym->name));
+								fprintf(fout, "\n\t\t\t\tif(soap_inwliteral(soap, \"%s\", &(a->%s::%s)))", ns_add_overridden(t, p, nse1), ident(t->sym->name), ident(p->sym->name));
 							}
 							else if(p->info.typ->type==Tarray) {
 								fprintf(fout, "\n\t\t\t\tif(soap_in_%s(soap, \"%s\", a->%s::%s, \"%s\"))",
-									c_ident(p->info.typ), ns_add_overridden(t, p, nse1), ident(t->sym->name), ident(
-										p->sym->name), xsi_type(p->info.typ));
+									c_ident(p->info.typ), ns_add_overridden(t, p, nse1), ident(t->sym->name), ident(p->sym->name), xsi_type(p->info.typ));
 							}
 							else if(p->info.typ->type==Tclass && !is_external(p->info.typ) && !is_volatile(p->info.typ) && !is_typedef(p->info.typ)) {
 								fprintf(fout, "\n\t\t\t\tif((a->%s::%s).soap_in(soap, \"%s\", \"%s\"))",
@@ -12428,8 +12419,8 @@ void soap_in(Tnode * typ)
 								fprintf(fout, "\n\t\t\t\t\tcontinue;");
 							else {
 								fprintf(fout, " {\n\t\t\t\t\tsoap_flag_%s%d--;", ident(p->sym->name), i);
-							      fprintf(fout, "\n\t\t\t\t\tcontinue;");
-							      fprintf(fout, "\n\t\t\t\t}"); 
+								fprintf(fout, "\n\t\t\t\t\tcontinue;");
+								fprintf(fout, "\n\t\t\t\t}"); 
 							}
 						}
 					}
@@ -12974,8 +12965,7 @@ void soap_in(Tnode * typ)
 					"\n\t\t}\n\t\tsoap_update_pointers(soap, (char*)&n, (char*)&n + sizeof(n), (char*)&(*a->insert(a->end(), n)), (char*)&n);\n\t\tsoap_flag = 1;");
 		}
 		fprintf(fout, "\n\t}\n\twhile(tag && *tag != '-' && !soap_element_begin_in(soap, tag, 1, NULL));");
-		fprintf(fout,
-			"\n\tif(soap_flag && (soap->error == SOAP_TAG_MISMATCH || soap->error == SOAP_NO_TAG)) {\n\t\tsoap->error = SOAP_OK;\n\t\treturn a;\n\t}\n\treturn NULL;\n}");
+		fprintf(fout, "\n\tif(soap_flag && oneof2(soap->error, SOAP_TAG_MISMATCH, SOAP_NO_TAG)) {\n\t\tsoap->error = SOAP_OK;\n\t\treturn a;\n\t}\n\treturn NULL;\n}");
 		break;
 	    default: break;
 	}

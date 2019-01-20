@@ -352,7 +352,7 @@ int64 FASTCALL _zip_add_entry(zip_t * za)
 // ZIPBUFFER
 //
 uint8 * FASTCALL _zip_buffer_data(zip_buffer_t * buffer) { return buffer->data; }
-bool FASTCALL _zip_buffer_eof(zip_buffer_t * buffer) { return buffer->ok && buffer->offset == buffer->size; }
+bool FASTCALL _zip_buffer_eof(const zip_buffer_t * buffer) { return buffer->ok && buffer->offset == buffer->size; }
 
 void FASTCALL _zip_buffer_free(zip_buffer_t * buffer)
 {
@@ -405,7 +405,7 @@ uint8 FASTCALL _zip_buffer_get_8(zip_buffer_t * buffer)
 	return data ? data[0] : 0;
 }
 
-uint64 FASTCALL _zip_buffer_left(zip_buffer_t * buffer)
+uint64 FASTCALL _zip_buffer_left(const zip_buffer_t * buffer)
 {
 	return buffer->ok ? (buffer->size - buffer->offset) : 0;
 }
@@ -445,8 +445,8 @@ zip_buffer_t * _zip_buffer_new_from_source(zip_source_t * src, size_t size, uint
 	return buffer;
 }
 
-static uint64 FASTCALL _zip_buffer_offset(zip_buffer_t * buffer) { return buffer->ok ? buffer->offset : 0; }
-static bool   FASTCALL _zip_buffer_ok(zip_buffer_t * buffer) { return buffer->ok; }
+static uint64 FASTCALL _zip_buffer_offset(const zip_buffer_t * buffer) { return buffer->ok ? buffer->offset : 0; }
+static bool   FASTCALL _zip_buffer_ok(const zip_buffer_t * buffer) { return buffer->ok; }
 
 int FASTCALL _zip_buffer_put(zip_buffer_t * buffer, const void * src, size_t length)
 {
@@ -539,7 +539,7 @@ int FASTCALL _zip_buffer_skip(zip_buffer_t * buffer, uint64 length)
 		return _zip_buffer_set_offset(buffer, offset);
 }
 
-uint64 FASTCALL _zip_buffer_size(zip_buffer_t * buffer)
+uint64 FASTCALL _zip_buffer_size(const zip_buffer_t * buffer)
 {
 	return buffer->size;
 }

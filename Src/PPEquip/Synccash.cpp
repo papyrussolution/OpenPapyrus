@@ -1030,8 +1030,8 @@ int SLAPI SCS_SYNCCASH::PrintCheckCopy(CCheckPacket * pPack, const char * pForma
 int SLAPI SCS_SYNCCASH::LineFeed(int lineCount, int useReceiptRibbon, int useJournalRibbon)
 {
 	int    ok = 1;
-	int    cur_receipt;
-	int    cur_journal;
+	int    cur_receipt = 0;
+	int    cur_journal = 0;
 	SString temp_buf;
 	Arr_In.Z();
 	THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, 0));

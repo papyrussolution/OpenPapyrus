@@ -1,5 +1,5 @@
 // WINREG.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2013, 2014, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2013, 2014, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -233,7 +233,7 @@ int SLAPI WinRegKey::GetString(const char * pParam, char * pBuf, size_t bufLen)
 	if(Key == 0)
 		return 0;
 	DWORD type = 0;
-	DWORD size = bufLen;
+	DWORD size = (DWORD)bufLen;
 	LONG  r = RegQueryValueEx(Key, pParam, 0, &type, (LPBYTE)pBuf, &size); // @unicodeproblem
 	return oneof2(r, ERROR_SUCCESS, ERROR_MORE_DATA) ? 1 : SLS.SetOsError(pParam);
 }
@@ -247,11 +247,11 @@ int SLAPI WinRegKey::GetString(const char * pParam, SString & rBuf)
 	else {
 		DWORD type = 0;
 		STempBuffer temp_buf(1024);
-		DWORD size = temp_buf.GetSize();
+		DWORD size = (DWORD)temp_buf.GetSize();
 		LONG  r = ERROR_MORE_DATA;
 		while(r == ERROR_MORE_DATA) {
 			temp_buf.Alloc(size);
-			size = temp_buf.GetSize();
+			size = (DWORD)temp_buf.GetSize();
 			r = RegQueryValueEx(Key, pParam, 0, &type, (LPBYTE)(char *)temp_buf, &size); // @unicodeproblem
 		}
 		if(r == ERROR_SUCCESS)
@@ -267,7 +267,7 @@ int SLAPI WinRegKey::GetBinary(const char * pParam, void * pBuf, size_t bufLen)
 	if(Key == 0)
 		return 0;
 	DWORD type = 0;
-	DWORD size = bufLen;
+	DWORD size = (DWORD)bufLen;
 	LONG  r = RegQueryValueEx(Key, pParam, 0, &type, (LPBYTE)pBuf, &size); // @unicodeproblem
 	return oneof2(r, ERROR_SUCCESS, ERROR_MORE_DATA) ? 1 : SLS.SetOsError(pParam);
 }
@@ -303,7 +303,7 @@ int SLAPI WinRegKey::PutString(const char * pParam, const char * pBuf)
 {
 	if(Key == 0)
 		return 0;
-	LONG   r = RegSetValueEx(Key, pParam, 0, REG_SZ, (LPBYTE)pBuf, sstrlen(pBuf) + 1); // @unicodeproblem
+	LONG   r = RegSetValueEx(Key, pParam, 0, REG_SZ, (LPBYTE)pBuf, (DWORD)(sstrlen(pBuf) + 1)); // @unicodeproblem
 	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(pParam);
 }
 
@@ -311,7 +311,7 @@ int SLAPI WinRegKey::PutBinary(const char * pParam, const void * pBuf, size_t bu
 {
 	if(Key == 0)
 		return 0;
-	LONG   r = RegSetValueEx(Key, pParam, 0, REG_BINARY, (LPBYTE)pBuf, bufLen); // @unicodeproblem
+	LONG   r = RegSetValueEx(Key, pParam, 0, REG_BINARY, (LPBYTE)pBuf, (DWORD)bufLen); // @unicodeproblem
 	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(pParam);
 }
 
@@ -319,7 +319,7 @@ int SLAPI WinRegKey::PutValue(const char * pParam, const WinRegValue * pVal)
 {
 	if(Key == 0 || !pVal->GetType())
 		return 0;
-	LONG   r = RegSetValueEx(Key, pParam, 0, pVal->GetType(), (LPBYTE)pVal->P_Buf, pVal->DataSize); // @unicodeproblem
+	LONG   r = RegSetValueEx(Key, pParam, 0, pVal->GetType(), (LPBYTE)pVal->P_Buf, (DWORD)pVal->DataSize); // @unicodeproblem
 	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(pParam);
 }
 

@@ -1,5 +1,5 @@
 // COMDISP.CPP
-// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 // Интерфейс IDispatch для работы с COM-приложениями (режим InProcServer) (only WIN32)
 //
@@ -219,7 +219,8 @@ int SLAPI ComDispInterface::GetProperty(long propertyID, char * pBuf, size_t buf
 	VariantInit(&var_arg);
 	if(pBuf && bufLen > 0) {
 		var_arg.vt = VT_BSTR;
-		THROW_S(var_arg.bstrVal = SysAllocString(wstr), SLERR_NOMEM); //TODO: V614 https://www.viva64.com/en/w/v614/ Uninitialized buffer 'wstr' used. Consider checking the first actual argument of the 'SysAllocString' function.
+		PTR32(wstr)[0] = 0; // @v10.3.0 @fix
+		THROW_S(var_arg.bstrVal = SysAllocString(wstr), SLERR_NOMEM);
 		if((ok = _GetProperty(propertyID, &var_arg)) > 0) {
 			WideCharToMultiByte(1251, 0, var_arg.bstrVal, -1, pBuf, (int)bufLen, NULL, NULL);
 		}

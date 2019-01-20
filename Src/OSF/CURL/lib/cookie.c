@@ -947,7 +947,7 @@ static int cookie_sort(const void * p1, const void * p2)
 		}				     \
 	} while(0)
 
-static struct Cookie * dup_cookie(struct Cookie * src)
+static struct Cookie * dup_cookie(const struct Cookie * src)
 {
 	struct Cookie * d = (struct Cookie *)SAlloc::C(sizeof(struct Cookie), 1);
 	if(d) {
@@ -1003,16 +1003,13 @@ struct Cookie * Curl_cookie_getlist(struct CookieInfo * c, const char * host, co
 		   date AND that if the cookie requires we're secure we must only
 		   continue if we are! */
 		if((!co->expires || (co->expires > now)) && (co->secure ? secure : TRUE)) {
-			/* now check if the domain is correct */
+			// now check if the domain is correct 
 			if(!co->domain || (co->tailmatch && !is_ip && tailmatch(co->domain, host)) || ((!co->tailmatch || is_ip) && strcasecompare(host, co->domain)) ) {
-				/* the right part of the host matches the domain stuff in the
-				   cookie data */
-				/* now check the left part of the path with the cookies path
-				   requirement */
+				// the right part of the host matches the domain stuff in the cookie data 
+				//
+				// now check the left part of the path with the cookies path requirement 
 				if(!co->spath || pathmatch(co->spath, path) ) {
-					/* and now, we know this is a match and we should create an
-					   entry for the return-linked-list */
-
+					// and now, we know this is a match and we should create an entry for the return-linked-list 
 					newco = dup_cookie(co);
 					if(newco) {
 						/* then modify our next */
@@ -1033,13 +1030,12 @@ fail:
 		co = co->next;
 	}
 	if(matches) {
-		/* Now we need to make sure that if there is a name appearing more than
-		   once, the longest specified path version comes first. To make this
-		   the swiftest way, we just sort them all based on path length. */
-		struct Cookie ** array;
+		// Now we need to make sure that if there is a name appearing more than
+		// once, the longest specified path version comes first. To make this
+		// the swiftest way, we just sort them all based on path length. 
 		size_t i;
-		/* alloc an array and store all cookie pointers */
-		array = (struct Cookie **)SAlloc::M(sizeof(struct Cookie *) * matches);
+		// alloc an array and store all cookie pointers 
+		struct Cookie ** array = (struct Cookie **)SAlloc::M(sizeof(struct Cookie *) * matches);
 		if(!array)
 			goto fail;
 		co = mainco;

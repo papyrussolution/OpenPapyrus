@@ -1235,7 +1235,7 @@ int SLAPI PPObjSCardSeries::SelectRule(SCardChargeRule * pSelRule)
 }
 
 // static
-int SLAPI PPObjSCardSeries::SetSCardsByRule(SCardChargeRule * pSelRule)
+int SLAPI PPObjSCardSeries::SetSCardsByRule(const SCardChargeRule * pSelRule)
 {
 	int    ok = -1;
 	PPLogger logger;

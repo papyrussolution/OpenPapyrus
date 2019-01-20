@@ -77,7 +77,7 @@ PPStockOpt::~PPStockOpt()
 
 class StockOptCfgDialog : public TDialog {
 public:
-	explicit StockOptCfgDialog(uint dlgId) : TDialog(dlgId)
+	explicit StockOptCfgDialog(uint dlgId) : TDialog(dlgId), DataSrc(1)
 	{
 	}
 	int    setDTS(PPStockOpt::Config * pData)

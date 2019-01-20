@@ -199,7 +199,6 @@ void pdfsmooth(int * indexliste)
 		else {
 			next = FALSE;
 		}
-
 		if((crnt == TEX) && (i > 0)) {
 			/* not the first */
 			if(i == *(indexliste) - 1) {
@@ -213,8 +212,7 @@ void pdfsmooth(int * indexliste)
 				if(((last == BYT) && (next == BYT)) && (length < 5)) {
 					liste[1][i] = BYT;
 				}
-				if((((last == BYT) && (next != BYT)) || ((last != BYT)
-						    && (next == BYT))) && (length < 3)) {
+				if((((last == BYT) && (next != BYT)) || ((last != BYT) && (next == BYT))) && (length < 3)) {
 					liste[1][i] = BYT;
 				}
 			}

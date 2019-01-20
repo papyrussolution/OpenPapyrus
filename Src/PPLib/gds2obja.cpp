@@ -1,5 +1,5 @@
 // GDS2OBJA.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2014, 2015, 2016, 2017, 2018, 2019
 //
 // Список соответствий Товар(Группа товаров) - Объект
 // Используется для автоматического формирования документов
@@ -144,13 +144,15 @@ int SLAPI GoodsToObjAssoc::Get(PPID goodsID, PPID * pObjID)
 	Goods2Tbl::Rec goods_rec;
 	PPIDArray cycle_list;
 	for(PPID temp_id = goodsID; ok < 0 && temp_id;) {
-		if(cycle_list.lsearch(temp_id))
-			ok = PPSetError(PPERR_CYCLELINKGOODSGRP, goods_rec.Name);
-		else if(List.BSearch(temp_id, &obj_id, 0))
-			ok = 1;
-		else if(GObj.Fetch(temp_id, &goods_rec) > 0) {
-			cycle_list.add(temp_id);
-			temp_id = goods_rec.ParentID;
+		if(GObj.Fetch(temp_id, &goods_rec) > 0) {
+			if(cycle_list.lsearch(temp_id))
+				ok = PPSetError(PPERR_CYCLELINKGOODSGRP, goods_rec.Name);
+			else if(List.BSearch(temp_id, &obj_id, 0))
+				ok = 1;
+			else {
+				cycle_list.add(temp_id);
+				temp_id = goods_rec.ParentID;
+			}
 		}
 		else
 			temp_id = 0;

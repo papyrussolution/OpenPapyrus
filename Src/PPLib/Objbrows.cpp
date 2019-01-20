@@ -314,6 +314,10 @@ SLAPI PPListDialog::PPListDialog(uint rezID, uint aCtlList, long flags) : TDialo
 		if(flags & fOmitSearchByFirstChar)
 			P_Box->SetOmitSearchByFirstChar();
 		// } @v9.8.11 
+		// @v10.3.0 {
+		if(flags & fOwnerDraw)
+			P_Box->SetOwnerDrawState();
+		// } @v10.3.0 
 	}
 	if(isCurrCtlID(ctlList) && (Options & oHasOkButton) && (Options & oHasEditButton)) {
 		SetDefaultButton(STDCTL_OKBUTTON,   0);

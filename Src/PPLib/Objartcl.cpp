@@ -554,8 +554,8 @@ public:
 		setCtrlReadOnly(CTL_ARTICLE_NAME, BIN(P_Data->Options & ArticleDlgData::fDisableName));
 		if(!P_Data->Rec.ObjID || !P_Data->Rec.AccSheetID || !AccSheetFounded)
 			enableCommand(cmaMore, 0);
-		enableCommand(cmAgreement, AgtFlags & (ACSHF_USESUPPLAGT | ACSHF_USECLIAGT));
-		enableCommand(cmClearAgreement, AgtFlags & (ACSHF_USESUPPLAGT | ACSHF_USECLIAGT) && arobj.CheckRights(ARTRT_CLIAGT));
+		enableCommand(cmAgreement, AgtFlags & (ACSHF_USESUPPLAGT|ACSHF_USECLIAGT));
+		enableCommand(cmClearAgreement, (AgtFlags & (ACSHF_USESUPPLAGT|ACSHF_USECLIAGT)) && arobj.CheckRights(ARTRT_CLIAGT));
 		updateList(-1);
 	}
 private:
@@ -1950,7 +1950,7 @@ SString & SLAPI PPObjArticle::MakeCodeString(const ArticleTbl::Rec * pRec, long 
 	return rBuf;
 }
 
-int SLAPI PPObjArticle::CheckPersonPacket(const PPPersonPacket * pPack)
+int SLAPI PPObjArticle::CheckPersonPacket(const PPPersonPacket * pPack, PPIDArray * pAbsentKinds)
 {
 	int    ok = 1;
 	if(pPack && pPack->Rec.ID) {
@@ -1965,7 +1965,17 @@ int SLAPI PPObjArticle::CheckPersonPacket(const PPPersonPacket * pPack)
 				const PPID id = ar_id_list.get(i);
 				if(Search(id, &ar_rec) > 0) {
 					THROW(acs_obj.Fetch(ar_rec.AccSheetID, &acs_rec) > 0);
-					THROW_PP(pPack->Kinds.lsearch(acs_rec.ObjGroup), PPERR_AR_INVLINKPERSONKIND);
+					{
+						int exists = pPack->Kinds.lsearch(acs_rec.ObjGroup);
+						if(!exists) {
+							if(pAbsentKinds) {
+								pAbsentKinds->add(acs_rec.ObjGroup);
+							}
+							else {
+								CALLEXCEPT_PP_S(PPERR_AR_INVLINKPERSONKIND, acs_rec.Name); // @v10.3.0 acs_rec.Name
+							}
+						}
+					}
 				}
 			}
 		}
@@ -1990,7 +2000,7 @@ int SLAPI PPObjArticle::CheckObject(const ArticleTbl::Rec * pRec, SString * pMsg
 		THROW_PP(pRec->ObjID, PPERR_AR_ZEROLINK_PSN);
 		THROW_PP(psn_obj.Search(pRec->ObjID, &psn_rec) > 0, PPERR_AR_HANGLINK_PSN);
 		if(acs_rec.ObjGroup) {
-			THROW_PP(psn_obj.P_Tbl->IsBelongToKind(psn_rec.ID, acs_rec.ObjGroup) > 0, PPERR_AR_INVLINKPERSONKIND);
+			THROW_PP_S(psn_obj.P_Tbl->IsBelongToKind(psn_rec.ID, acs_rec.ObjGroup) > 0, PPERR_AR_INVLINKPERSONKIND, acs_rec.Name); // @v10.3.0 acs_rec.Name
 			THROW_PP(sstreq(psn_rec.Name, pRec->Name), PPERR_AR_UNEQNAME_PSN);
 		}
 	}

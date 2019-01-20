@@ -1837,7 +1837,7 @@ void ComboBox::setState(uint aState, bool enable)
 		Draw_();
 }
 
-int ComboBox::addItem(long id, char * pS, long * pPos)
+int ComboBox::addItem(long id, const char * pS, long * pPos)
 {
 	int    r = -1;
 	if(P_Def && (r = P_Def->addItem(id, pS, pPos)) > 0)

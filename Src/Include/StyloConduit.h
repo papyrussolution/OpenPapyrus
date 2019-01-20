@@ -120,7 +120,7 @@ int pwr10(int x);
 void WaitPercent(PROGRESSFN pFn, long iterN, long itersCount, const char * pMsg);
 char * convert_str(const char * pSrcBuf, int shrink, char * pDestBuf, size_t destBufLen);
 char * get_str_from_dbfrec(DbfRecord * pRec, int fldN, int shrink, char * pDestBuf, size_t destBufLen);
-int ScCreateDbfTable(DbfTable *, int numFlds, DBFCreateFld * pFlds, const char * pLogFile);
+int ScCreateDbfTable(DbfTable *, int numFlds, const DBFCreateFld * pFlds, const char * pLogFile);
 int ScCheckDbfOpening(DbfTable *, const char * pLogFile);
 int ScAddDbfRec(DbfTable * pTbl, DbfRecord * pRec, const char * pLogFile);
 

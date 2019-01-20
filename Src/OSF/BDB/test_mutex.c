@@ -325,7 +325,7 @@ int locker_wait()
 #if defined(MUTEX_THREAD_TEST)
 	// Wait for the threads to exit
 	for(uint i = 0; i < nthreads; i++) {
-		void * retp;
+		void * retp = 0;
 		os_thread_join(kidsp[i], &retp);
 		if(retp) {
 			fprintf(stderr, "%s: thread exited with error\n", progname);
@@ -449,10 +449,8 @@ int wakeup_start(ulong id)
 int wakeup_wait()
 {
 #if defined(MUTEX_THREAD_TEST)
-	void * retp;
-	/*
-	 * A file is created when the wakeup thread is no longer needed.
-	 */
+	void * retp = 0;
+	// A file is created when the wakeup thread is no longer needed.
 	os_thread_join(wakep, &retp);
 	if(retp != NULL) {
 		fprintf(stderr, "%s: wakeup thread exited with error\n", progname);
@@ -461,7 +459,6 @@ int wakeup_wait()
 #endif
 	return 0;
 }
-
 /*
  * run_wthread --
  *	Thread to wake up other threads that are sleeping.

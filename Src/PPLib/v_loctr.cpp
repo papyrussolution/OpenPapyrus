@@ -654,7 +654,7 @@ int SLAPI PPViewLocTransf::InitIteration()
 			idx = 0;
 			sp = spFirst;
 		}
-		if(Filt.Mode = LocTransfFilt::modeCurrent)
+		if(Filt.Mode == LocTransfFilt::modeCurrent) // @v10.3.0 @fix (Filt.Mode = LocTransfFilt::modeCurrent)-->(Filt.Mode == LocTransfFilt::modeCurrent)
 			dbq	 = &(*dbq && Tbl.Op == 0L && Tbl.RestByGoods > 0.0);
 		else
 			dbq	 = &(*dbq && Tbl.Op > 0L);

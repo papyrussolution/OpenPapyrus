@@ -865,11 +865,11 @@ static void addquoted(luaL_Buffer * b, const char * s, size_t len) {
 	}
 	luaL_addchar(b, '"');
 }
-
-/*
-** Ensures the 'buff' string uses a dot as the radix character.
-*/
-static void checkdp(char * buff, int nb) {
+//
+// Ensures the 'buff' string uses a dot as the radix character.
+//
+static void checkdp(char * buff, int nb) 
+{
 	if(memchr(buff, '.', nb) == NULL) { /* no dot? */
 		char point = lua_getlocaledecpoint(); /* try locale point */
 		char * ppoint = (char*)memchr(buff, point, nb);

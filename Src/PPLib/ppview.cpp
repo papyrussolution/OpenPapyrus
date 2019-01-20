@@ -2063,9 +2063,9 @@ int PPViewBrowser::GetToolbarComboRect(RECT * pRect)
 	RECT   rect;
 	MEMSZERO(rect);
 	if(hwnd) {
-		DWORD  btns_sz    = (DWORD)SendMessage(hwnd, (UINT)TB_GETBUTTONSIZE, 0, 0);
-		DWORD  btns_count = (DWORD)SendMessage(hwnd, (UINT)TB_BUTTONCOUNT,   0, 0);
-		DWORD  padding    = (DWORD)SendMessage(hwnd, (UINT)TB_GETPADDING,    0, 0);
+		DWORD  btns_sz    = (DWORD)::SendMessage(hwnd, (UINT)TB_GETBUTTONSIZE, 0, 0);
+		DWORD  btns_count = (DWORD)::SendMessage(hwnd, (UINT)TB_BUTTONCOUNT,   0, 0);
+		DWORD  padding    = (DWORD)::SendMessage(hwnd, (UINT)TB_GETPADDING,    0, 0);
 		RECT   tb_rect;
 		MEMSZERO(tb_rect);
 		rect.top    = 2;
@@ -2081,23 +2081,26 @@ int PPViewBrowser::GetToolbarComboRect(RECT * pRect)
 	return ok;
 }
 
-int PPViewBrowser::Helper_SetupToolbarCombo(PPID objType, PPID id, uint flags, void * extraPtr, const PPIDArray * pObjList)
+void * PPViewBrowser::Helper_InitToolbarCombo()
 {
-	int    ok = -1;
-	HWND   parent = (P_Toolbar) ? P_Toolbar->GetToolbarHWND() : 0;
-	if(parent) {
 #define CTL_TOOLBAR_BTN     1000
 #define CTL_TOOLBAR_INPUTLI (WINDOWS_ID_BIAS + 1)
+	HWND   parent = P_Toolbar ? P_Toolbar->GetToolbarHWND() : 0;
+	if(parent) {
 		TRect  r;
 		DWORD  style = WS_VISIBLE|WS_CHILD|WS_BORDER|WS_CLIPSIBLINGS;
 		RECT   rect;
 		HWND   hwnd_li = 0;
 		SString font_face;
 		GetToolbarComboRect(&rect);
-		if(P_InputLine)
+		if(P_InputLine) {
 			::DestroyWindow(P_InputLine->getHandle());
-		if(P_ComboBox)
+			ZDELETE(P_InputLine);
+		}
+		if(P_ComboBox) {
 			::DestroyWindow(P_ComboBox->getHandle());
+			ZDELETE(P_ComboBox);
+		}
 		hwnd_li = ::CreateWindow(_T("EDIT"), 0, style|ES_AUTOHSCROLL|ES_READONLY,
 			rect.left, rect.top, rect.right, rect.bottom, parent, (HMENU)CTL_TOOLBAR_INPUTLI, TProgram::GetInst(), 0);
 		::CreateWindow(_T("BUTTON"), 0, style|BS_PUSHBUTTON|BS_BITMAP|BS_FLAT, rect.left + rect.right - 1,
@@ -2105,8 +2108,6 @@ int PPViewBrowser::Helper_SetupToolbarCombo(PPID objType, PPID id, uint flags, v
 		PPGetSubStr(PPTXT_FONTFACE, PPFONT_MSSANSSERIF, font_face);
 		ZDeleteWinGdiObject(&H_ComboFont);
 		H_ComboFont = TView::setFont(hwnd_li, font_face, 8);
-		ZDELETE(P_InputLine);
-		ZDELETE(P_ComboBox);
 		P_ComboBox  = new ComboBox(r, cbxAllowEmpty|cbxDisposeData|cbxListOnly);
 		P_InputLine = new TInputLine(r, S_ZSTRING, MKSFMT(128, 0));
 		P_ComboBox->P_Owner = this;
@@ -2119,6 +2120,45 @@ int PPViewBrowser::Helper_SetupToolbarCombo(PPID objType, PPID id, uint flags, v
 		P_InputLine->setupCombo(P_ComboBox);
 		P_ComboBox->handleWindowsMessage(WM_INITDIALOG,  0, 0);
 		P_InputLine->handleWindowsMessage(WM_INITDIALOG, 0, 0);
+	}
+	return parent;
+#undef CTL_TOOLBAR_BTN
+#undef CTL_TOOLBAR_INPUTLI
+}
+
+int PPViewBrowser::Helper_SetupToolbarStringCombo(uint strID, PPID id)
+{
+	int    ok = -1;
+	HWND   hw_parent = (HWND)Helper_InitToolbarCombo();
+	if(hw_parent) {
+		SString item_buf, id_buf, txt_buf;
+		SString line_buf;
+		PPLoadText(strID, line_buf);
+		StrAssocArray * p_list = new StrAssocArray();
+		if(p_list) {
+			for(int idx = 0; PPGetSubStr(line_buf, idx, item_buf) > 0; idx++) {
+				long   id = 0;
+				if(item_buf.Divide(',', id_buf, txt_buf) > 0)
+					id = id_buf.ToLong();
+				else {
+					id = (idx+1);
+					txt_buf = item_buf;
+				}
+				p_list->Add(id, txt_buf);
+			}
+			P_ComboBox->setListWindow(CreateListWindow(p_list, lbtDisposeData|lbtDblClkNotify), id);
+		}
+		::UpdateWindow(hw_parent);
+		ok = 1;
+	}
+	return ok;
+}
+
+int PPViewBrowser::Helper_SetupToolbarCombo(PPID objType, PPID id, uint flags, void * extraPtr, const PPIDArray * pObjList)
+{
+	int    ok = -1;
+	HWND   hw_parent = (HWND)Helper_InitToolbarCombo();
+	if(hw_parent) {
 		if(pObjList) {
 			StrAssocArray * p_list = new StrAssocArray;
 			if(p_list) {
@@ -2151,7 +2191,7 @@ int PPViewBrowser::Helper_SetupToolbarCombo(PPID objType, PPID id, uint flags, v
 		}
 		else
 			SetupPPObjCombo(P_ComboBox, objType, id, flags, extraPtr);
-		::UpdateWindow(parent);
+		::UpdateWindow(hw_parent);
 		ok = 1;
 	}
 	return ok;
@@ -2161,6 +2201,8 @@ int PPViewBrowser::SetupToolbarCombo(PPID objType, PPID id, uint flags, void * e
 	{ return Helper_SetupToolbarCombo(objType, id, flags, extraPtr, 0); }
 int PPViewBrowser::SetupToolbarCombo(PPID objType, PPID id, uint flags, const PPIDArray & rObjList)
 	{ return Helper_SetupToolbarCombo(objType, id, flags, 0, &rObjList); }
+int PPViewBrowser::SetupToolbarStringCombo(uint strId, PPID id)
+	{ return Helper_SetupToolbarStringCombo(strId, id); }
 
 IMPL_HANDLE_EVENT(PPViewBrowser)
 {

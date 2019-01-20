@@ -977,7 +977,7 @@ public:
 	SLAPI  RevalArray(double cost, double price) : SVector(sizeof(Reval)), LotCost(cost), LotPrice(price)
 	{
 	}
-	int    SLAPI Add(TransferTbl::Rec * pRec, int first);
+	int    SLAPI Add(const TransferTbl::Rec * pRec, int first);
 	int    SLAPI Shift();
 	int    SLAPI GetPrices(LDATE dt, long oprno, double * pCost, double * pPrice, long * pRevalIdx);
 	//
@@ -985,7 +985,7 @@ public:
 	double LotPrice;
 };
 
-int SLAPI RevalArray::Add(TransferTbl::Rec * rec, int first)
+int SLAPI RevalArray::Add(const TransferTbl::Rec * rec, int first)
 {
 	Reval reval;
 	if(first) {

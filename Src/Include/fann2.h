@@ -319,13 +319,13 @@ __doublefann_h__ is not defined
 #define fann_sin_symmetric_derive(steepness, sum) (steepness*cos(steepness*sum))
 /* FANN_COS_SYMMETRIC */
 #define fann_cos_symmetric_real(sum) (FANN_COS(sum))
-#define fann_cos_symmetric_derive(steepness, sum) (steepness*-sin(steepness*sum))
+#define fann_cos_symmetric_derive(steepness, sum) ((steepness)*-sin((steepness)*(sum)))
 /* FANN_SIN */
 #define fann_sin_real(sum) (FANN_SIN(sum)/2.0f+0.5f)
 #define fann_sin_derive(steepness, sum) (steepness*cos(steepness*sum)/2.0f)
 /* FANN_COS */
 #define fann_cos_real(sum) (FANN_COS(sum)/2.0f+0.5f)
-#define fann_cos_derive(steepness, sum) (steepness*-sin(steepness*sum)/2.0f)
+#define fann_cos_derive(steepness, sum) ((steepness)*-sin((steepness)*(sum))/2.0f)
 
 #define fann_activation_switch(activation_function, value, result) \
 switch(activation_function) { \
@@ -866,7 +866,7 @@ FANN_EXTERNAL void FANN_API fann_scale_data_to_range(float ** data, uint num_dat
 
 #ifdef FIXEDFANN
 	#define fann_mult(x,y) ((x*y) >> decimal_point)
-	#define fann_div(x,y) (((x) << decimal_point)/y)
+	#define fann_div(x,y) (((x) << decimal_point)/(y))
 	#define fann_random_weight() (float)(fann_rand(0,multiplier/10))
 	#define fann_random_bias_weight() (float)(fann_rand((0-multiplier)/10,multiplier/10))
 #else

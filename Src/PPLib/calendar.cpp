@@ -1,5 +1,5 @@
 // CALENDAR.CPP
-// Copyright (c) A.Fedotkov, A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2018
+// Copyright (c) A.Fedotkov, A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1504,14 +1504,14 @@ void FASTCALL SetupCalCtrl(int buttCtlID, TDialog * pDlg, uint editCtlID, uint T
 	}
 }
 
-int ExecDateCalendar(/*HWND*/uint32 hParent, LDATE * pDate)
+int ExecDateCalendar(void * hParentWnd, LDATE * pDate)
 {
 	int    ok = -1;
 	LDATE  dt = pDate ? *pDate : getcurdate_();
 	TDateCalendar * p_pc = new TDateCalendar(0, 0);
 	if(p_pc) {
 		p_pc->setDTS(dt);
-		p_pc->ShowCalendar((HWND)hParent);
+		p_pc->ShowCalendar((HWND)hParentWnd);
 		if(p_pc->GetRetCmd() == cmOK) {
 			p_pc->getDTS(&dt);
 			ok = 1;

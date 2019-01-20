@@ -418,7 +418,7 @@ void SLAPI PPViewSalary::MakeTempRec(int order, const SalaryTbl::Rec * pRec, Tem
 	}
 }
 
-int SLAPI PPViewSalary::TempRecToViewItem(TempSalaryTbl::Rec * pTempRec, SalaryViewItem * pItem)
+int SLAPI PPViewSalary::TempRecToViewItem(const TempSalaryTbl::Rec * pTempRec, SalaryViewItem * pItem)
 {
 	if(pItem) {
 		memzero(pItem, sizeof(*pItem));
@@ -620,7 +620,7 @@ int SLAPI PPViewSalary::InitIteration(int order)
 			idx = 1;
 			k.k1.PostID = Filt.PostID;
 		}
-		else if((!Filt.Flags & SalaryFilt::fCrosstab) && Filt.SalChargeID) { // @v5.6.14 AHTOXA
+		else if(!(Filt.Flags & SalaryFilt::fCrosstab) && Filt.SalChargeID) { // @v5.6.14 AHTOXA @v10.3.0 @fix (!Filt.Flags & SalaryFilt::fCrosstab)-->!(Filt.Flags & SalaryFilt::fCrosstab)
 			idx = 3;
 			k.k3.SalChargeID = Filt.SalChargeID;
 		}
@@ -631,7 +631,7 @@ int SLAPI PPViewSalary::InitIteration(int order)
 		}
 		THROW_MEM(q = new BExtQuery(&Tbl, idx));
 		dbq = ppcheckfiltid(dbq, Tbl.PostID, Filt.PostID);
-		if((!Filt.Flags & SalaryFilt::fCrosstab) && Filt.SalChargeID)    // @v5.6.14 AHTOXA
+		if(!(Filt.Flags & SalaryFilt::fCrosstab) && Filt.SalChargeID)    // @v5.6.14 AHTOXA // @v10.3.0 @fix (!Filt.Flags & SalaryFilt::fCrosstab)-->!(Filt.Flags & SalaryFilt::fCrosstab)
 			dbq = ppcheckfiltid(dbq, Tbl.SalChargeID, Filt.SalChargeID); // @v5.6.14 AHTOXA
 		dbq = & (*dbq && daterange(Tbl.Beg, &Filt.Period));
 		q->where(*dbq);

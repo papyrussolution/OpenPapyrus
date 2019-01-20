@@ -766,14 +766,9 @@ int GoodsGroupView::delItem(long, long id)
 void GoodsGroupView::updateList(PPID id)
 {
 	if(P_Box) {
-		long   cur = -1, groups_type;
+		long   cur = -1;
 		ushort v = getCtrlUInt16(CTL_GGVIEW_GGRPTYPE);
-		if(v == 0)
-			groups_type = 0;
-		else if(v == 1)
-			groups_type = GGRTYP_SEL_NORMAL;
-		else if(v == 2)
-			groups_type = GGRTYP_SEL_ALT;
+		long   groups_type = (v == 1) ? GGRTYP_SEL_NORMAL : ((v == 2) ? GGRTYP_SEL_ALT : 0);
 		if(id < 0)
 			cur = P_Box->def ? P_Box->def->_curItem() : 0;
 		GGObj.UpdateSelector(P_Box->def, (void *)groups_type);

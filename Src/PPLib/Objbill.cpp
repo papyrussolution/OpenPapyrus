@@ -3421,21 +3421,23 @@ int SLAPI PPObjBill::GetComplete(PPID lotID, long flags, CompleteArray * pList)
 int PPObjBill::GetDeficitList(const DateRange * pPeriod, const PPIDArray * pLocList, RAssocArray * pAry)
 {
 	int    ok = 1;
-	PPID   bill_id = 0, prmr_id = 0;
+	PPID   prmr_id = 0;
 	LAssocArray pool_memb_ary;
 	RAssocArray ary;
 	CpTransfTbl::Key0 k0;
 	THROW(P_Tbl->GetPoolList(PPASS_CSDBILLPOOL, &pool_memb_ary));
 	for(uint i = 0; i < pool_memb_ary.getCount(); i++) {
 		BillTbl::Rec b_rec;
-		bill_id = pool_memb_ary.at(i).Val;
-		if((!pPeriod || (Search(bill_id, &b_rec) > 0 && pPeriod->CheckDate(b_rec.Dt))) && (!pLocList || pLocList->lsearch(b_rec.LocID))) {
-			BExtQuery q(P_CpTrfr, 0);
-			q.select(P_CpTrfr->GoodsID, P_CpTrfr->Qtty, 0).where(P_CpTrfr->BillID == bill_id);
-			MEMSZERO(k0);
-			k0.BillID = bill_id;
-			for(q.initIteration(0, &k0, spGt); q.nextIteration() > 0;)
-				THROW_SL(ary.Add(P_CpTrfr->data.GoodsID, fabs(P_CpTrfr->data.Qtty), 1));
+		const PPID bill_id = pool_memb_ary.at(i).Val;
+		if(Search(bill_id, &b_rec) > 0) {
+			if((!pPeriod || pPeriod->CheckDate(b_rec.Dt)) && (!pLocList || pLocList->lsearch(b_rec.LocID))) {
+				BExtQuery q(P_CpTrfr, 0);
+				q.select(P_CpTrfr->GoodsID, P_CpTrfr->Qtty, 0).where(P_CpTrfr->BillID == bill_id);
+				MEMSZERO(k0);
+				k0.BillID = bill_id;
+				for(q.initIteration(0, &k0, spGt); q.nextIteration() > 0;)
+					THROW_SL(ary.Add(P_CpTrfr->data.GoodsID, fabs(P_CpTrfr->data.Qtty), 1));
+			}
 		}
 	}
 	CATCHZOK
@@ -4448,9 +4450,9 @@ int SLAPI PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 	TDialog * dlg = 0;
 	SArray * p_qbo_ary = 0;
 	StdListBoxDef * def = 0;
-	PPID   ar_id = NZOR(forceArID, pPack->Rec.Object);
 	// @v9.3.12 PPOPT_GOODSORDER
 	if(pPack && oneof3(pPack->OpTypeID, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND, PPOPT_GOODSORDER) && /*pPack->SampleBillID &&*/ pPack->GetQuotKindList(&ql) > 0) {
+		PPID   ar_id = NZOR(forceArID, pPack->Rec.Object);
 		int    is_quot = 0;
 		PPTransferItem * p_ti;
 		PPID   loc_id = IsIntrExpndOp(pPack->Rec.OpID) ? PPObjLocation::ObjToWarehouse(ar_id) : pPack->Rec.LocID;
@@ -5812,7 +5814,6 @@ int SLAPI PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 	SString b;
 	const int is_intrexpnd = IsIntrExpndOp(pPack->Rec.OpID);
 	ZDELETE(pPack->P_MirrorLTagL);
-	// @v8.5.5 { // @v10.0.0 moved up
 	if(pPack->IsDraft()) {
 		// @v10.0.0 {
 		if(force == 2)
@@ -5850,7 +5851,6 @@ int SLAPI PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 			}
 		}
 	}
-	// } @v8.5.5
 	else if(oneof3(pPack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF, PPOPT_GOODSORDER) || is_intrexpnd || force) {
 		// @v9.1.5 PPOPT_GOODSORDER // @v10.0.0 else
 		PPTransferItem * p_ti;
@@ -5894,12 +5894,19 @@ int SLAPI PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 			}
 		}
 	}
-	// @v10.2.9 THROW(pPack->XcL.Load(P_LotXcT, pPack->Rec.ID)); // @v9.8.11
-	// @v10.2.9 {
 	if(P_LotXcT) {
+		SBuffer vxcl_buf;
 		THROW(P_LotXcT->GetContainer(pPack->Rec.ID, pPack->XcL));
+		// @v10.3.0 {
+		if(PPRef->GetPropSBuffer(Obj, pPack->Rec.ID, BILLPRP_VALXCL, vxcl_buf) > 0) {
+			SSerializeContext sctx;
+			if(!pPack->_VXcL.Serialize(-1, vxcl_buf, &sctx)) {
+				pPack->_VXcL.Release();
+				// @todo log error
+			}
+		}
+		// } @v10.3.0 
 	}
-	// } @v10.2.9
 	pPack->BTagL.Destroy();
 	THROW(GetTagList(pPack->Rec.ID, &pPack->BTagL));
 	CATCHZOK
@@ -6094,7 +6101,6 @@ int SLAPI PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 			}
 		}
 	}
-	// @v8.5.5 {
 	else if(oneof3(pPack->OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT)) {
         SBuffer sbuf;
         if(pPack->LTagL.GetCount()) {
@@ -6131,14 +6137,18 @@ int SLAPI PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
         }
         THROW(p_ref->PutPropSBuffer(Obj, pPack->Rec.ID, BILLPRP_DRAFTTAGLIST, sbuf, 0));
 	}
-	// } @v8.5.5
 	THROW(SetTagList(pPack->Rec.ID, &pPack->BTagL, 0));
-	// @v10.2.9 THROW(pPack->XcL.Store(P_LotXcT, pPack->Rec.ID, 0)); // @v9.8.11
-	// @v10.2.9 {
 	if(P_LotXcT) {
+		SBuffer vxcl_buf; // @v10.3.0
 		THROW(P_LotXcT->PutContainer(pPack->Rec.ID, &pPack->XcL, 0));
+		// @v10.3.0 {
+		if(pPack->_VXcL.GetCount()) {
+			SSerializeContext sctx;
+			THROW(pPack->_VXcL.Serialize(+1, vxcl_buf, &sctx));
+		}
+		THROW(p_ref->PutPropSBuffer(Obj, pPack->Rec.ID, BILLPRP_VALXCL, vxcl_buf, 0));
+		// } @v10.3.0 
 	}
-	// } @v10.2.9
 	CATCHZOK
 	delete p_tag_obj;
 	return ok;

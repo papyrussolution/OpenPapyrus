@@ -125,7 +125,10 @@ struct KeyDownCommand { // @flat @noctr @size=4
 // Descr: Структура, передаваемая с сообщением cmSetFont
 //
 struct SetFontEvent {
-	long   FontHandle;
+	SetFontEvent(void * pFontHandle, int doRedraw) : FontHandle(pFontHandle), DoRedraw(doRedraw)
+	{
+	}
+	void * FontHandle;
 	int    DoRedraw;
 };
 
@@ -136,7 +139,7 @@ struct HelpEvent {
 	};
 	int    ContextType; // ctxtXXX
 	int    CtlId;
-	long   H_Item;
+	void * H_Item;
 	uint32 ContextId;
 	TPoint Mouse;
 };
@@ -168,7 +171,7 @@ struct PaintEvent {
 		fErase = 0x0001
 	};
 	int    PaintType;
-	long   H_DeviceContext; // при PaintType == tPaint этот контекст нулевой.
+	void * H_DeviceContext; // при PaintType == tPaint этот контекст нулевой.
 		// HANDLE_EVENT должен самостоятельно получить контекст рисования у окна.
 	long   Flags;
 	TRect  Rect;
@@ -228,7 +231,7 @@ struct ScrollEvent {
 	uint   PageSize;
 	int    Pos;
 	int    TrackPos;
-	long   H_Wnd;
+	void * H_Wnd;
 };
 //
 // Descr: Структура, передаваемая с сообщением cmDragndropObj
@@ -696,6 +699,7 @@ public:
 	class CStyle : public Base { // @persistent @store(SSerializeContext)
 	public:
 		CStyle();
+		CStyle(int fontId, int penId, int brushId);
 		int    FASTCALL IsEqual(const CStyle & rS) const;
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 
@@ -899,7 +903,6 @@ public:
 	int    SetBitmap(int ident, uint bmpId);
 	int    SetFont(int ident, HFONT);
 	int    CreateCursor(int ident, uint cursorId);
-
 	int    CreateColor(int ident, SColor c);
 	int    CreatePen(int ident, int style, float width, SColor c);
 	int    CreateBrush(int ident, int style, SColor c, int32 hatch, int patternId = 0);
@@ -909,7 +912,6 @@ public:
 	int    AddGradientStop(int ident, float off, SColor c);
 	int    CreateParagraph(int ident, const SParaDescr * pDescr);
 	int    CreateCStyle(int ident, int fontId, int penId, int brushId);
-
 	COLORREF FASTCALL GetColor(int ident) const;
 	//
 	// Descr: Вариант функции получения цвета, возвращающий 0, если
@@ -919,7 +921,6 @@ public:
 	HGDIOBJ FASTCALL Get(int ident) const;
 	HCURSOR FASTCALL GetCursor(int ident) const;
 	HBITMAP FASTCALL GetBitmap(int ident) const;
-
 	SPaintObj::Font * GetFont(SDrawContext & rCtx, int fontIdent);
 	SPaintObj::Para * GetParagraph(int ident);
 	int    GetGlyphId(SDrawContext & rCtx, int fontIdent, wchar_t chr);
@@ -959,11 +960,14 @@ public:
 			// @#(fVCenter^fVBottom)
 	};
 	struct Item {
+		Item(FPoint p, const SGlyph * pGlyph, uint16 flags) : P(p), GlyphIdx(pGlyph ? pGlyph->Idx : -1), Flags(flags)
+		{
+		}
 		enum {
 			fUnderscore = 0x0001
 		};
 		int16  GlyphIdx; // -1 - не выводить символ
-		uint16 Flags;    // @v9.1.8 Специальаные опции отображения символа
+		uint16 Flags;    // @v9.1.8 Специальные опции отображения символа
 		FPoint P;
 	};
 	struct RenderGroup {
@@ -1381,7 +1385,7 @@ public:
 private:
 	struct Entry {
 		long   ID;
-		uint32 H;
+		void * H;
 	};
 	TSVector <Entry> List; // @v9.8.4 TSArray-->TSVector
 };
@@ -1710,7 +1714,7 @@ public:
 	};
 	int    Execute(HWND hWnd, long flags = 0);
 private:
-	uint32 H;
+	void * H;
 	long   State;
 	uint   Count; // Количество "живых" элементов (не сепараторов). Изменяется функциям Add и AddSubstr
 };
@@ -1951,13 +1955,13 @@ public:
 	//   (только для экземпляров, порожденных от TWindowBase).
 	//
 	struct CreateBlock {
-		long   H_Process;
-		long   H_Parent;
-		long   H_Menu;
+		void * H_Process;
+		void * H_Parent;
+		void * H_Menu;
 		TRect  Coord;
 		uint32 Style;
 		uint32 ExStyle;
-		long   Param;
+		void * Param;
 		const  char * P_WndCls;
 		const  char * P_Title;
 	};
@@ -1983,7 +1987,7 @@ public:
 	};
 
 	~TWindowBase();
-	int    Create(long parent, long createOptions);
+	int    Create(void * hParentWnd, long createOptions);
 	int    AddChild(TWindowBase *, long createOptions, long zone);
 protected:
 	TWindowBase(LPCTSTR pWndClsName, int capability);
@@ -3517,6 +3521,11 @@ public:
 	ComboBox(const TRect &, ushort aFlags);
 	ComboBox(const TRect &, ListBoxDef * aDef);
 	~ComboBox();
+	virtual void   setState(uint aState, bool enable);
+	virtual int    TransmitData(int dir, void * pData);
+	virtual void   selectItem(long item);
+	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	DECL_HANDLE_EVENT;
 	void   FASTCALL setDef(ListBoxDef*);
 	//
 	// Descr: Устанавливает признак ComboBox::Undef.
@@ -3535,18 +3544,11 @@ public:
 	void   setupTreeListWindow(int noUpdateSize);
 	void   search(const char * pFirstLetter, int srchMode);
 	int    search(const void * pPattern, CompFunc fcmp, int srchMode);
-	int    addItem(long id, char * pS, long * pPos = 0);
+	int    addItem(long id, const char * pS, long * pPos = 0);
 	int    removeItem(long pos);
 	void   freeAll();
 	TInputLine * link(void) const;
 	void   SetLink(TInputLine * pLink);
-
-	virtual void   setState(uint aState, bool enable);
-	virtual int    TransmitData(int dir, void * pData);
-	virtual void   selectItem(long item);
-
-	DECL_HANDLE_EVENT;
-	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 private:
 	void   Init(long flags);
 	void   Scroll(short);
@@ -3753,9 +3755,12 @@ public:
 		fOldModifSignSelection           = 0x0800, // Использовать технику выбора знака для строки документа модификации
 			// товара, применявшуюся до v8.4.12 (выбор товара - выбор знака)
 		fPollVoipService                 = 0x1000, // @v9.8.11 Опрашивать VoIP сервис для обработки событий вызовов и звонков
-		fExtGoodsSelMainName             = 0x2000  // @v9.9.1 В списке расширенного выбора товара всегда показывать полные наименования товаров
+		fExtGoodsSelMainName             = 0x2000, // @v9.9.1 В списке расширенного выбора товара всегда показывать полные наименования товаров
 			// Эта опция потенциально способно ускорить выборку поскольку не будет вынуждать программу лишний раз обращаться к записи товара
 			// когда сокращенное наименование не совпадает с полным (see PPObjGoods::_Selector2()).
+		fEnalbeBillMultiPrint            = 0x4000, // @v10.3.0 Локальная установка флага PPBillConfig::Flags BCF_ALLOWMULTIPRINT
+		fDisableBillMultiPrint           = 0x8000  // @v10.3.0 Локальное отключение флага PPBillConfig::Flags BCF_ALLOWMULTIPRINT
+			// If (fEnalbeBillMultiPrint ^ fDisableBillMultiPrint), то применяется общая конфигурация PPBillConfig
 	};
 	enum {
 		wndVKDefault = 0,
@@ -3769,7 +3774,6 @@ public:
 	void   Init();
 	void   SetVersion();
 	uint32 GetBrwColorSchema() const;
-
 	int    Save();
 	int    Restore();
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
@@ -3994,7 +3998,18 @@ public:
         tbiButtonBrush_F    = 50, // Идентификатор для Fancy-интерфейса (более развиваться не будет)
         tbiButtonPen_F      = 60, // Идентификатор для Fancy-интерфейса (более развиваться не будет)
 		//
-		tbiInvalInpBrush    = 70  // Кисть для индикации недопустимого ввода данных
+		tbiBlackPen         = 70,
+		tbiWhitePen         = 71,
+		//
+		tbiInvalInpBrush    = 80, // Кисть для индикации недопустимого ввода данных
+		tbiInvalInp2Brush   = 81, // Кисть для индикации недопустимого ввода данных (вариант 2)
+		tbiInvalInp3Brush   = 82, // Кисть для индикации недопустимого ввода данных (вариант 3)
+		tbiListBkgBrush     = 83, // Кисть отрисовки фона строки списка
+		tbiListBkgPen       = 84, // Перо отрисовки фона строки списка
+		tbiListFocBrush     = 85, // Кисть отрисовки focuses строки списка
+		tbiListFocPen       = 86, // Перо отрисовки focuses строки списка
+		tbiListSelBrush     = 87, // Кисть отрисовки selected строки списка
+		tbiListSelPen       = 88, // Перо отрисовки selected строки списка
 	};
 
     int    InitUiToolBox();

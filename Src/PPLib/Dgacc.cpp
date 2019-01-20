@@ -259,7 +259,7 @@ SLAPI ArticleCtrlGroup::Rec::Rec(PPID acsID, PPID opID, PPID arID) : AcsID(acsID
 }
 
 ArticleCtrlGroup::ArticleCtrlGroup(uint ctlselAcs, uint ctlselOp, uint ctlselAr, uint cmEditList, PPID accSheetID, long flags) :
-	CtrlGroup(), Data(accSheetID, 0, 0L), Flags(flags), CtlselAcs(ctlselAcs), CtlselOp(ctlselOp), CtlselAr(ctlselAr), CmEditList(cmEditList), AccSheetID(accSheetID)
+	CtrlGroup(), Data(accSheetID, 0, 0L), Flags(flags), CtlselAcs(ctlselAcs), CtlselOp(ctlselOp), CtlselAr(ctlselAr), CmEditList(cmEditList), AccSheetID(accSheetID), OpID(0)
 {
 }
 

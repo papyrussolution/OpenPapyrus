@@ -1962,7 +1962,7 @@ int ABCGrpStorageList::EnumItems(short * pABCGrp, TempGoodsOprTbl::Rec * pRec)
 	return is_valid;
 }
 
-int SLAPI PPViewGoodsOpAnalyze::PutBillToTempTable(PPBillPacket * pPack, double part, int sign, PPIDArray * pSupplBillList)
+int SLAPI PPViewGoodsOpAnalyze::PutBillToTempTable(PPBillPacket * pPack, double part, int sign, const PPIDArray * pSupplBillList)
 {
 	int    ok = 1;
 	PPBillPacket * p_link_pack = 0;

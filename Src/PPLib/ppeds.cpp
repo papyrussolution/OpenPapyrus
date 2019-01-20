@@ -1183,7 +1183,7 @@ int PPEds::GetSignerNamesInStore(StrAssocArray & rStrArray)
 	char   signer_name[MAX_NAME_LEN];
 	SString name;
 	THROW_PP(store = CertOpenSystemStore(0, CERTIFICATE_STORE_NAME), PPERR_EDS_OPENCERTSTORE); // @unicodeproblem
-	while(p_cert = CertEnumCertificatesInStore(store, p_cert)) {
+	while((p_cert = CertEnumCertificatesInStore(store, p_cert)) != 0) {
 		THROW_PP(CertGetNameString(p_cert, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, NULL, signer_name, MAX_NAME_LEN), PPERR_EDS_GETSIGNERNAMEFAILED); // @unicodeproblem
 		name.Z().Cat(signer_name);
 		rStrArray.Add(i - 1, name, 1);
@@ -2040,12 +2040,10 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	THROW_MEM(attr.rgValue->pbData = new BYTE[attr.rgValue->cbData]);
 	memzero(attr.rgValue->pbData, attr.rgValue->cbData);
 	memcpy(attr.rgValue->pbData, pb_stamp_decoded, attr.rgValue->cbData);
-	THROW_PP(CryptEncodeObject(MY_ENCODING_TYPE, PKCS_ATTRIBUTE, &attr,
-		NULL, &cb_stamp_encoded), PPERR_EDS_MSGOPENFAILED);
+	THROW_PP(CryptEncodeObject(MY_ENCODING_TYPE, PKCS_ATTRIBUTE, &attr, NULL, &cb_stamp_encoded), PPERR_EDS_MSGOPENFAILED);
     THROW_MEM(pb_stamp_encoded = new BYTE[cb_stamp_encoded]);
 	memzero(pb_stamp_encoded, cb_stamp_encoded);
-	THROW_PP(CryptEncodeObject(MY_ENCODING_TYPE, PKCS_ATTRIBUTE, &attr,
-		pb_stamp_encoded, &cb_stamp_encoded), PPERR_EDS_MSGOPENFAILED);
+	THROW_PP(CryptEncodeObject(MY_ENCODING_TYPE, PKCS_ATTRIBUTE, &attr, pb_stamp_encoded, &cb_stamp_encoded), PPERR_EDS_MSGOPENFAILED);
 
 	// Собственно добавляем штамп в неподписанные атрибуты подписи
 	THROW_MEM(attr_data.pbData = new BYTE[cb_stamp_encoded]);

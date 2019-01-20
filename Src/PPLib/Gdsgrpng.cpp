@@ -124,7 +124,7 @@ GoodsGrpngEntry & FASTCALL GoodsGrpngArray::at(uint p)
 	return *(GoodsGrpngEntry*)SVector::at(p); // @v9.8.11 SArray-->SVector
 }
 
-int SLAPI GoodsGrpngArray::Search(GoodsGrpngEntry * pGGE, uint * p)
+int SLAPI GoodsGrpngArray::Search(const GoodsGrpngEntry * pGGE, uint * p)
 {
 	GoodsGrpngEntry k;
 	k = *pGGE;

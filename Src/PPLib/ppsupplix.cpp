@@ -155,7 +155,7 @@ private:
 	int    SLAPI GetDlvrAddrHorecaCode(PPID * pDlvrAddrID, SString & rCode);
 	int    SLAPI GetConsigLocInfo(BillViewItem * pItem, PPID consigLocGrpID, LDATE * pParentDt, SString & rParentCode);
 	int    SLAPI GetInfoFromMemo(const char * pMemo, LDATE * pParentDt, SString & rParentCode, int simple = 0);
-	void   SLAPI GetInfoByLot(PPID lotID, PPTransferItem * pTi, LDATE * pBillDt, LDATE * pCreateDt, LDATE * pExpiry, SString * pSerial);
+	void   SLAPI GetInfoByLot(PPID lotID, const PPTransferItem * pTi, LDATE * pBillDt, LDATE * pCreateDt, LDATE * pExpiry, SString * pSerial);
 	int    SLAPI IsKegUnit(PPID goodsId);
 	const char * SLAPI GetEaText() const;
 	int    SLAPI GetSerial(PPID lotID, PPID goodsID, SString & rSerial);
@@ -713,7 +713,7 @@ IMPL_CMPFUNC(Sdr_Baltika_RestPartLine, i1, i2)
 	return r;
 }
 
-void SLAPI PPSupplExchange_Baltika::GetInfoByLot(PPID lotID, PPTransferItem * pTi, LDATE * pBillDt, LDATE * pCreateDt, LDATE * pExpiry, SString * pSerial)
+void SLAPI PPSupplExchange_Baltika::GetInfoByLot(PPID lotID, const PPTransferItem * pTi, LDATE * pBillDt, LDATE * pCreateDt, LDATE * pExpiry, SString * pSerial)
 {
 	//
 	// @v8.6.10 Извлечение срока годности скорректировано так, чтобы приоритет был у даты, установленной у порожденного лота против оригинального

@@ -108,11 +108,20 @@ static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPI
 	uint   res_id;
 	TDialog * dlg;
 	if(pAmtTypes == 0) {
-		PPBillConfig cfg;
-		if(PPObjBill::ReadConfig(&cfg) > 0 && cfg.Flags & BCF_ALLOWMULTIPRINT)
-			res_id = DLG_PRNGBILLM;
-		else
-			res_id = DLG_PRNGBILL;
+		// @v10.3.0 Теперь используется (с приоритетом) интерфейсная настройка для разрешения/запрета множественной печати
+		int    allow_mult_print = 0;
+		UserInterfaceSettings uis;
+		const int uis_r = uis.Restore();
+		if((uis.Flags & uis.fEnalbeBillMultiPrint) && !(uis.Flags & uis.fDisableBillMultiPrint))
+			allow_mult_print = 1;
+		else if(!(uis.Flags & uis.fEnalbeBillMultiPrint) && (uis.Flags & uis.fDisableBillMultiPrint))
+			allow_mult_print = 0;
+		else {
+			PPBillConfig cfg;
+			if(PPObjBill::ReadConfig(&cfg) > 0 && cfg.Flags & BCF_ALLOWMULTIPRINT)
+				allow_mult_print = 1;
+		}
+		res_id = allow_mult_print ? DLG_PRNGBILLM : DLG_PRNGBILL;
 	}
 	else if(f & OPKF_PRT_EXTFORMFLAGS)
 		res_id = DLG_PRNGBILL2;
@@ -595,7 +604,7 @@ int SLAPI PrintCashOrder(PPBillPacket * pPack, int pay_rcv, int prnflags)
 	return PPAlddPrint(rpt_id, &pf, &env);
 }
 
-int SLAPI IsPriceChanged(PPTransferItem * pTi, long procFlags)
+static int SLAPI IsPriceChanged(const PPTransferItem * pTi, long procFlags)
 {
 	int price_chng = 1; // Цена изменилась по отношению к предыдущему лоту. Если не установлен флаг pfPrintChangedPriceOnly, то игнорируется.
 	if(procFlags & PPBillPacket::pfPrintChangedPriceOnly) {

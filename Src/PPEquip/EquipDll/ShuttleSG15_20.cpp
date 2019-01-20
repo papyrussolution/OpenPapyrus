@@ -548,10 +548,10 @@ int PriceChecker::FormatPrice(SString & rPrice)
 int PriceChecker::FormatAnswer(StGoodInfo * pInfo, SString & rFormatedInfo, int type)
 {
 	SString format_str, price_str, id;
-	format_str = 0;
+	format_str.Z();
 	if(type == sg15)
 		format_str.Cat(IniParam.SG15Format);
-	else if(type = sg20)
+	else if(type == sg20) // @v10.3.0 @fix =-->==
 		format_str.Cat(IniParam.SG20Format);
 	else
 		format_str.Cat(IniParam.SG15Format); // По умолчанию возьмем формат SG15

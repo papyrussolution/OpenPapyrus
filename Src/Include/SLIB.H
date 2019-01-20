@@ -7639,7 +7639,7 @@ public:
 	// Descr: Добавляет новый указатель с идентификатором val в таблицу.
 	//
 	int    Add(void * ptr, uint val, uint * pPos);
-	int    Del(void * ptr, uint * pVal);
+	int    Del(const void * ptr, uint * pVal);
 	void * FASTCALL Get(uint pos) const;
 	void * FASTCALL GetByAssoc(uint val) const;
 	//
@@ -10333,7 +10333,6 @@ public:
 	};
 
 	static SRng * CreateInstance(Algorithm alg, uint level);
-
 	virtual void   Set(ulong seed) = 0;
 	virtual ulong  Get() = 0;
 	virtual double GetReal() = 0;
@@ -10345,7 +10344,6 @@ public:
 	double GetUniformPos();
 	ulong  GetMin() const;
 	ulong  GetMax() const;
-
 	double GetGaussian(double sigma);
 	double GetGaussianZiggurat(double sigma);
 	double GetGaussianPdf(double x, double sigma);
@@ -12451,9 +12449,9 @@ FORCEINLINE void * FASTCALL SGetTls(const long idx)
 //
 typedef int (*LoadStringFunc)(const char * pSignature, SString & rBuf);
 typedef int (*ExpandStringFunc)(SString & rBuf, int ctransf);
-typedef int (*CallHelpFunc)(uint32 hWnd, uint cmd, uint ctx);
-typedef int (*CallCalculatorFunc)(uint32 hParentWnd, const char * pInitValue);
-typedef int (*CallCalendarFunc)(uint32 hParentWnd, LDATE * pDate);
+typedef int (*CallHelpFunc)(void * hWnd, uint cmd, uint ctx);
+typedef int (*CallCalculatorFunc)(void * hParentWnd, const char * pInitValue);
+typedef int (*CallCalendarFunc)(void * hParentWnd, LDATE * pDate);
 typedef int (*GetGlobalSecureConfigFunc)(SGlobalSecureConfig * pCfg);
 typedef int (*GetDefaultEncrKeyFunc)(SString & rBuf);
 //
@@ -12646,7 +12644,7 @@ public:
 	int    SLAPI QueryPath(const char * pSignature, SString & rBuf) const;
 	int    FASTCALL SetCodepage(SCodepage cp);
 	SCodepage SLAPI GetCodepage() const;
-	int    SLAPI CallHelp(uint32 wnd, uint cmd, uint ctx);
+	int    SLAPI CallHelp(void * hWnd, uint cmd, uint ctx);
 	int    SLAPI RegisterTempFileName(const char *);
 	void   SLAPI RemoveTempFiles();
 	//
@@ -13090,7 +13088,7 @@ public:
 	void   SetStyle(int identPen, int identBrush, long flags);
 	int    GetPen() const;
 	int    GetBrush() const;
-	void   SetViewPort(SViewPort * pVp);
+	void   SetViewPort(const SViewPort * pVp);
 	void   SetSize(FPoint sz);
 	//
 	// Descr: Возвращает ссылку на внутреннюю структуру SViewPort (порт вывода).

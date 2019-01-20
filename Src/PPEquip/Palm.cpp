@@ -1692,26 +1692,29 @@ static SString & SLAPI MakeBillCode(const PPStyloPalm & rDvcRec, int orderCodeFo
 {
 	rBuf.Z();
 	const size_t max_len = sizeof(((BillTbl::Rec *)0)->Code)-1;
-	if(!oneof3(orderCodeFormatType, PPStyloPalmConfig::ordercodeIdHash, PPStyloPalmConfig::ordercodeSymbName, PPStyloPalmConfig::ordercodeNameSymb))
-		orderCodeFormatType = PPStyloPalmConfig::ordercodeSymbName;
-	if(orderCodeFormatType == PPStyloPalmConfig::ordercodeIdHash) {
-		rBuf.CatChar('A' + (char)((rDvcRec.ID > 1000) ? ((rDvcRec.ID - 1000) % 26) : (rDvcRec.ID % 26)));
-	}
-	else if(orderCodeFormatType == PPStyloPalmConfig::ordercodeSymbName) {
-		if(rDvcRec.Symb[0] && (sstrlen(rDvcRec.Symb) + sstrlen(pSrcCode) + 1) <= max_len)
-			(rBuf = rDvcRec.Symb).ToUpper();
-		else if((sstrlen(rDvcRec.Name) + sstrlen(pSrcCode) + 1) <= max_len)
-			(rBuf = rDvcRec.Name).ToUpper();
-		else
+	/*if(!oneof3(orderCodeFormatType, PPStyloPalmConfig::ordercodeIdHash, PPStyloPalmConfig::ordercodeSymbName, PPStyloPalmConfig::ordercodeNameSymb))
+		orderCodeFormatType = PPStyloPalmConfig::ordercodeSymbName;*/
+	switch(orderCodeFormatType) {
+		case PPStyloPalmConfig::ordercodeIdHash:
 			rBuf.CatChar('A' + (char)((rDvcRec.ID > 1000) ? ((rDvcRec.ID - 1000) % 26) : (rDvcRec.ID % 26)));
-	}
-	else if(orderCodeFormatType == PPStyloPalmConfig::ordercodeNameSymb) {
-		if(rDvcRec.Name[0] && (sstrlen(rDvcRec.Name) + sstrlen(pSrcCode) + 1) <= max_len)
-			(rBuf = rDvcRec.Name).ToUpper();
-		else if(rDvcRec.Symb[0] && (sstrlen(rDvcRec.Symb) + sstrlen(pSrcCode) + 1) <= max_len)
-			(rBuf = rDvcRec.Symb).ToUpper();
-		else
-			rBuf.CatChar('A' + (char)((rDvcRec.ID > 1000) ? ((rDvcRec.ID - 1000) % 26) : (rDvcRec.ID % 26)));
+			break;
+		case PPStyloPalmConfig::ordercodeNameSymb:
+			if(rDvcRec.Name[0] && (sstrlen(rDvcRec.Name) + sstrlen(pSrcCode) + 1) <= max_len)
+				(rBuf = rDvcRec.Name).ToUpper();
+			else if(rDvcRec.Symb[0] && (sstrlen(rDvcRec.Symb) + sstrlen(pSrcCode) + 1) <= max_len)
+				(rBuf = rDvcRec.Symb).ToUpper();
+			else
+				rBuf.CatChar('A' + (char)((rDvcRec.ID > 1000) ? ((rDvcRec.ID - 1000) % 26) : (rDvcRec.ID % 26)));
+			break;
+		case PPStyloPalmConfig::ordercodeSymbName:
+		default:
+			if(rDvcRec.Symb[0] && (sstrlen(rDvcRec.Symb) + sstrlen(pSrcCode) + 1) <= max_len)
+				(rBuf = rDvcRec.Symb).ToUpper();
+			else if((sstrlen(rDvcRec.Name) + sstrlen(pSrcCode) + 1) <= max_len)
+				(rBuf = rDvcRec.Name).ToUpper();
+			else
+				rBuf.CatChar('A' + (char)((rDvcRec.ID > 1000) ? ((rDvcRec.ID - 1000) % 26) : (rDvcRec.ID % 26)));
+			break;
 	}
 	rBuf.CatChar('-').Cat(pSrcCode);
 	return rBuf;
@@ -3747,12 +3750,9 @@ int SLAPI PPObjStyloPalm::ExportClients(PPID acsID, long palmFlags, ExportBlock 
 					}
 				}
 				{
-					// @v8.4.4 long   flags = ((palmFlags & PLMF_EXPSTOPFLAG) && (ar_item.Flags & ARTRF_STOPBILL)) ? CLIENTF_BLOCKED : 0;
-					// @v8.4.4 {
 					if((palmFlags & PLMF_EXPSTOPFLAG) && (ar_item.Flags & ARTRF_STOPBILL)) {
 						_flags |= CLIENTF_BLOCKED;
 					}
-					// } @v8.4.4
 					int    valid_debt = (rBlk.P_DebtView && rBlk.P_DebtView->GetItem(ar_item.ID, 0L, 0L, &debt_item) > 0) ? 1 : 0;
 					DbfRecord drec_ar(p_client_tbl);
 					drec_ar.empty();
@@ -4654,7 +4654,7 @@ int PPALDD_UhttStyloDevice::Set(long iterId, int commit)
 			}
 			if(id_by_name) {
 				temp_buf.Z().Cat(r_blk.Pack.Rec.Name).CatDiv(':', 1).Cat(r_blk.Pack.Rec.Symb);
-				THROW_PP_S(!id_by_name || !id_by_symb || id_by_name == id_by_symb, PPERR_STYLONAMESYMBCONFLICT, temp_buf);
+				THROW_PP_S(!id_by_symb || id_by_name == id_by_symb, PPERR_STYLONAMESYMBCONFLICT, temp_buf);
 				r_blk.Pack.Rec.ID = id_by_name;
 			}
 			else if(id_by_symb)

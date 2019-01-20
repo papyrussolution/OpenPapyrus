@@ -4471,7 +4471,7 @@ int SLAPI PPBillExporter::CheckBillsWasExported(ImpExpDll * pExpDll)
 class Generator_DocNalogRu {
 public:
 	struct HeaderInfo {
-		HeaderInfo() : SenderPersonID(0), ReceiverPersonID(0), ProviderPersonID(0), Flags(0)
+		HeaderInfo() : SenderPersonID(0), ReceiverPersonID(0), ProviderPersonID(0), Flags(0), CurDtm(ZERODATETIME)
 		{
 		}
 		PPID   SenderPersonID;

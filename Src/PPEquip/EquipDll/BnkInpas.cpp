@@ -231,7 +231,6 @@ int PPDrvINPASTrmnl::Init(SString & rCheck)
 	p_req = new ComDispInterface;
 	p_res = new ComDispInterface;
 	THROW(p_dclink);
-	THROW(p_dclink);
 	p_req->Init("DualConnector.SAPacket");
 	p_res->Init("DualConnector.SAPacket");
 	AsseptSAP(p_req);
@@ -313,7 +312,6 @@ int PPDrvINPASTrmnl::Pay(double amount, SString & rSlip)
 	// определение указателей на in-объект и out-объект SAPacket
 	p_req = new ComDispInterface;
 	p_res = new ComDispInterface;
-	THROW(p_dclink);
 	THROW(p_dclink);
 	p_req->Init("DualConnector.SAPacket");
 	p_res->Init("DualConnector.SAPacket");
@@ -404,7 +402,6 @@ int PPDrvINPASTrmnl::Refund(double amount, SString & rSlip)
 	p_req = new ComDispInterface;
 	p_res = new ComDispInterface;
 	THROW(p_dclink);
-	THROW(p_dclink);
 	p_req->Init("DualConnector.SAPacket");
 	p_res->Init("DualConnector.SAPacket");
 	AsseptSAP(p_req);
@@ -425,8 +422,8 @@ int PPDrvINPASTrmnl::Refund(double amount, SString & rSlip)
 
 	p_dclink->GetProperty(ErrorCode, &result_dc);
 	p_res->GetProperty(Status, &result_sar);
-																				 // Если не 1, значит ошибка. Отправляемся в обработку исключений
-	THROWERR(result_sar == 1, result_dc); 										 //   Надо доработать обработку исключений. 
+	// Если не 1, значит ошибка. Отправляемся в обработку исключений
+	THROWERR(result_sar == 1, result_dc); //   Надо доработать обработку исключений. 
 	{
 		char slip_ch[1024];                // массив для чека
 		p_res->GetProperty(ReceiptData, slip_ch, sizeof(slip_ch));
@@ -488,11 +485,9 @@ int PPDrvINPASTrmnl::GetSessReport(SString & rCheck)
 	p_dclink->Init("DualConnector.DCLink");
 	AsseptDC(p_dclink);
 	p_dclink->CallMethod(InitResources);
-
 	// определение указателей на in-объект и out-объект SAPacket
 	p_req = new ComDispInterface;
 	p_res = new ComDispInterface;
-	THROW(p_dclink);
 	THROW(p_dclink);
 	p_req->Init("DualConnector.SAPacket");
 	p_res->Init("DualConnector.SAPacket");

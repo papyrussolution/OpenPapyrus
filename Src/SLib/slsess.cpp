@@ -1,5 +1,5 @@
 // SLSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -953,9 +953,9 @@ int SLAPI SlSession::SetCallHelpFunc(CallHelpFunc fProc)
 
 #endif // } 0 @v9.1.2 replaced by SetExtraProcBlock()
 
-int SLAPI SlSession::CallHelp(uint32 wnd, uint cmd, uint ctx)
+int SLAPI SlSession::CallHelp(void * hWnd, uint cmd, uint ctx)
 {
-	return ExtraProcBlk.F_CallHelp ? ExtraProcBlk.F_CallHelp(wnd, cmd, ctx) : 0;
+	return ExtraProcBlk.F_CallHelp ? ExtraProcBlk.F_CallHelp(hWnd, cmd, ctx) : 0;
 }
 
 int SLAPI SlSession::SubstString(const char * pSrcStr, int ansiCoding, SString & rBuf)

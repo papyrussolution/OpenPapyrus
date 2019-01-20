@@ -1594,20 +1594,15 @@ static void sse2_combine_add_ca(pixman_implementation_t * imp,
     int w)
 {
 	uint32_t s, m, d;
-
 	__m128i xmm_src_lo, xmm_src_hi;
 	__m128i xmm_dst_lo, xmm_dst_hi;
 	__m128i xmm_mask_lo, xmm_mask_hi;
-
 	while(w && (uintptr_t)pd & 15) {
 		s = *ps++;
 		m = *pm++;
 		d = *pd;
-
 		*pd++ = pack_1x128_32(
-		    _mm_adds_epu8(pix_multiply_1x128(unpack_32_1x128(s),
-				    unpack_32_1x128(m)),
-			    unpack_32_1x128(d)));
+		    _mm_adds_epu8(pix_multiply_1x128(unpack_32_1x128(s), unpack_32_1x128(m)), unpack_32_1x128(d)));
 		w--;
 	}
 

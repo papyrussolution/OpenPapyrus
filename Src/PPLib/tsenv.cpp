@@ -42,7 +42,7 @@ POSITION_TYPE_SELL	1
 
 static const int TsStakeEnvironment_CurrentVersion = 1;
 
-SLAPI TsStakeEnvironment::AccountInfo::AccountInfo() : ID(0), ActualDtm(ZERODATETIME), Balance(0.0), Profit(0.0), MarginFree(0.0)
+SLAPI TsStakeEnvironment::AccountInfo::AccountInfo() : ID(0), ActualDtm(ZERODATETIME), Balance(0.0), Profit(0.0), Margin(0.0), MarginFree(0.0)
 {
 }
 
@@ -109,6 +109,8 @@ int SLAPI TsStakeEnvironment::Serialize(int dir, SBuffer & rBuf, SSerializeConte
 		THROW_SL(pSCtx->Serialize(dir, Acc.ActualDtm, rBuf));
 		THROW_SL(pSCtx->Serialize(dir, Acc.Balance, rBuf));
 		THROW_SL(pSCtx->Serialize(dir, Acc.Profit, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, Acc.Margin, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, Acc.MarginFree, rBuf));
 		THROW_SL(pSCtx->Serialize(dir, &TL, rBuf));
 		THROW_SL(pSCtx->Serialize(dir, &SL, rBuf));
 		THROW_SL(SStrGroup::SerializeS(dir, rBuf, pSCtx));

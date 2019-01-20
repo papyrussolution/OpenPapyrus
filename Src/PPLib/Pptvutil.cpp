@@ -123,7 +123,7 @@ int FASTCALL PPOpenBrowser(BrowserWindow * pW, int modeless)
 void FASTCALL PPCloseBrowser(TBaseBrowserWindow * pW) { CALLPTRMEMB(pW, endModal(cmCancel)); }
 uint SLAPI GetComboBoxLinkID(TDialog * dlg, uint comboBoxCtlID) { return dlg->getCtrlView(comboBoxCtlID)->GetId(); }
 
-int SLAPI SetComboBoxLinkText(TDialog * dlg, uint comboBoxCtlID, const char * pText)
+int FASTCALL SetComboBoxLinkText(TDialog * dlg, uint comboBoxCtlID, const char * pText)
 {
 	ComboBox * p_combo = (ComboBox *)dlg->getCtrlView(comboBoxCtlID);
 	if(p_combo) {
@@ -1581,7 +1581,7 @@ int FASTCALL SetupStrAssocCombo(TDialog * dlg, uint ctlID, const StrAssocArray *
 	return ok;
 }
 
-int SLAPI SetupSCollectionComboBox(TDialog * dlg, uint ctl, SCollection * pSC, long initID)
+int FASTCALL SetupSCollectionComboBox(TDialog * dlg, uint ctl, SCollection * pSC, long initID)
 {
 	int    ok = 1;
 	ComboBox * cb = (ComboBox*)dlg->getCtrlView(ctl);
@@ -2476,7 +2476,7 @@ int SLAPI BarcodeInputDialog(int initChar, SString & rBuf)
 	return ok;
 }
 
-int SLAPI SelectorDialog(uint dlgID, uint ctlID, uint * pVal /* IN,OUT */, const char * pTitle /*=0*/)
+int FASTCALL SelectorDialog(uint dlgID, uint ctlID, uint * pVal /* IN,OUT */, const char * pTitle /*=0*/)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(dlgID);
@@ -2535,7 +2535,7 @@ int ListBoxSelDlg::setDTS(PPID id)
 	return 1;
 }
 
-int SLAPI ListBoxSelDialog(PPID objID, PPID * pID, void * extraPtr)
+int FASTCALL ListBoxSelDialog(PPID objID, PPID * pID, void * extraPtr)
 {
 	int    ok = -1;
 	PPObject * ppobj = GetPPObject(objID, extraPtr);
@@ -2564,7 +2564,7 @@ int SLAPI ListBoxSelDialog(PPID objID, PPID * pID, void * extraPtr)
 	return ok;
 }
 
-int  SLAPI ListBoxSelDialog(uint dlgID, StrAssocArray * pAry, PPID * pID, uint flags)
+int FASTCALL ListBoxSelDialog(uint dlgID, StrAssocArray * pAry, PPID * pID, uint flags)
 {
 	int    ok = -1;
 	ListBoxSelDlg * p_dlg = 0;
@@ -2669,16 +2669,15 @@ int  SLAPI AdvComboBoxSeldialog(StrAssocArray * pAry, SString & rTitle, SString 
 	return ok;
 }
 
-int SLAPI ListBoxSelDialog(StrAssocArray * pAry, uint titleStrId, PPID * pID, uint flags)
+int FASTCALL ListBoxSelDialog(StrAssocArray * pAry, uint titleStrId, PPID * pID, uint flags)
 {
 	SString title;
 	if(titleStrId)
 		PPLoadText(titleStrId, title);
 	return ListBoxSelDialog(pAry, title, pID, flags);
-
 }
 
-int SLAPI ListBoxSelDialog(StrAssocArray * pAry, const char * pTitle, PPID * pID, uint flags)
+int FASTCALL ListBoxSelDialog(StrAssocArray * pAry, const char * pTitle, PPID * pID, uint flags)
 {
 	int    ok = -1;
 	ListBoxSelDlg * p_dlg = 0;
@@ -2782,13 +2781,22 @@ int UICfgDialog::setDTS(const UserInterfaceSettings * pUICfg)
 	AddClusterAssoc(CTL_UICFG_FLAGS,  4, UserInterfaceSettings::fDisableNotFoundWindow);
 	AddClusterAssoc(CTL_UICFG_FLAGS,  5, UserInterfaceSettings::fUpdateReminder);
 	AddClusterAssoc(CTL_UICFG_FLAGS,  6, UserInterfaceSettings::fTcbInterlaced);
-	AddClusterAssoc(CTL_UICFG_FLAGS,  7, UserInterfaceSettings::fDisableBeep);   // @v8.1.6
-	AddClusterAssoc(CTL_UICFG_FLAGS,  8, UserInterfaceSettings::fBasketItemFocusPckg); // @v8.3.7
-	AddClusterAssoc(CTL_UICFG_FLAGS,  9, UserInterfaceSettings::fOldModifSignSelection); // @v8.5.0
+	AddClusterAssoc(CTL_UICFG_FLAGS,  7, UserInterfaceSettings::fDisableBeep);
+	AddClusterAssoc(CTL_UICFG_FLAGS,  8, UserInterfaceSettings::fBasketItemFocusPckg);
+	AddClusterAssoc(CTL_UICFG_FLAGS,  9, UserInterfaceSettings::fOldModifSignSelection);
 	AddClusterAssoc(CTL_UICFG_FLAGS, 10, UserInterfaceSettings::fExtGoodsSelMainName); // @v9.9.1
 	AddClusterAssoc(CTL_UICFG_FLAGS, 11, UserInterfaceSettings::fPollVoipService); // @v9.8.11
 	INVERSEFLAG(UICfg.Flags, UserInterfaceSettings::fDontExitBrowserByEsc);
 	SetClusterData(CTL_UICFG_FLAGS, UICfg.Flags);
+	// @v10.3.0 {
+	{
+		const  long t = CHKXORFLAGS(UICfg.Flags, UserInterfaceSettings::fEnalbeBillMultiPrint, UserInterfaceSettings::fDisableBillMultiPrint);
+		AddClusterAssocDef(CTL_UICFG_MULTBILLPRINT, 0, 0);
+		AddClusterAssoc(CTL_UICFG_MULTBILLPRINT, 1, UserInterfaceSettings::fEnalbeBillMultiPrint);
+		AddClusterAssoc(CTL_UICFG_MULTBILLPRINT, 2, UserInterfaceSettings::fDisableBillMultiPrint);
+		SetClusterData(CTL_UICFG_MULTBILLPRINT, t);
+	}
+	// } @v10.3.0 
 	{
 		UICfg.TableFont.ToStr(temp_buf.Z(), 0);
 		setStaticText(CTL_UICFG_ST_TABLEFONT, temp_buf);
@@ -2812,7 +2820,17 @@ int UICfgDialog::getDTS(UserInterfaceSettings * pUICfg)
 	getCtrlData(CTL_UICFG_LISTELEMCOUNT, &UICfg.ListElemCount);
 	GetClusterData(CTL_UICFG_FLAGS, &UICfg.Flags);
 	INVERSEFLAG(UICfg.Flags, UserInterfaceSettings::fDontExitBrowserByEsc);
-	getCtrlString(CTL_UICFG_SPCINPDRV, UICfg.SpecialInputDeviceSymb); // @v8.1.11
+	// @v10.3.0 {
+	{
+		const long t = GetClusterData(CTL_UICFG_MULTBILLPRINT);
+		UICfg.Flags &= ~(UserInterfaceSettings::fEnalbeBillMultiPrint | UserInterfaceSettings::fDisableBillMultiPrint);
+		if(t & UserInterfaceSettings::fEnalbeBillMultiPrint)
+			UICfg.Flags |= UserInterfaceSettings::fEnalbeBillMultiPrint;
+		else if(t & UserInterfaceSettings::fDisableBillMultiPrint)
+			UICfg.Flags |= UserInterfaceSettings::fDisableBillMultiPrint;
+	}
+	// } @v10.3.0 
+	getCtrlString(CTL_UICFG_SPCINPDRV, UICfg.SpecialInputDeviceSymb);
 	ASSIGN_PTR(pUICfg, UICfg);
 	return 1;
 }
@@ -4861,7 +4879,7 @@ int SLAPI InputNumberDialog(const char * pTitle, const char * pInpTitle, double 
 	return ok;
 }
 
-int SLAPI EditSysjFilt2(SysJournalFilt * pFilt)
+int FASTCALL EditSysjFilt2(SysJournalFilt * pFilt)
 {
 	DIALOG_PROC_BODY_P1(SysJFiltDialog, DLG_SYSJFILT2, pFilt);
 }
@@ -6328,7 +6346,7 @@ int SendMailDialog::getDTS(Rec * pData)
 #include <htmlhelp.h>
 #pragma comment (lib, "htmlhelp.lib")
 
-int PPCallHelp(uint32 wnd, uint cmd, uint ctx)
+int PPCallHelp(void * hWnd, uint cmd, uint ctx)
 {
 	int    ok = 0;
 	if(oneof3(cmd, HH_HELP_CONTEXT, HH_INITIALIZE, HH_UNINITIALIZE)) {
@@ -6365,7 +6383,7 @@ int PPCallHelp(uint32 wnd, uint cmd, uint ctx)
 							path = local_path;
 					}
 				}
-				ok = BIN(HtmlHelp((HWND)wnd, path, cmd, ctx)); // @unicodeproblem
+				ok = BIN(HtmlHelp((HWND)hWnd, path, cmd, ctx)); // @unicodeproblem
 			}
 		}
 		else

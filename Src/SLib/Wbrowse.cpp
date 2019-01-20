@@ -146,7 +146,7 @@ void SLAPI SylkWriter::PutFormat(const char * pBuf, int fontId, int col, int row
 void SLAPI SylkWriter::PutFont(int symb, const char * pFontName, int size, uint fontStyle)
 {
 	char   temp_buf[128];
-	uint   p = 0;
+	size_t p = 0;
 	temp_buf[p++] = symb;
 	strnzcpy(temp_buf+p, pFontName, sizeof(temp_buf)-p);
 	p += sstrlen(temp_buf+p);
@@ -902,9 +902,6 @@ SLAPI BrowserWindow::~BrowserWindow()
 	}
 }
 
-// Prototype
-// @v9.1.2 int SLAPI PPCalculator();
-
 int BrowserWindow::CopyToClipboard()
 {
 	int    ok = -1;
@@ -987,7 +984,7 @@ int BrowserWindow::CopyToClipboard()
 						sw.PutVal(val_buf.cptr(), 1);
 					}
 					if(width_ary.BSearch(cn, &len, 0) > 0 && len < (long)val_buf.Len())
-						width_ary.Update(cn, val_buf.Len(), 1);
+						width_ary.Update(cn, (long)val_buf.Len(), 1);
 				}
 			}
 			row++;
@@ -1021,11 +1018,10 @@ IMPL_HANDLE_EVENT(BrowserWindow)
 		switch(TVCMD) {
 			case cmaCalculate:
 				{
-					// @v9.1.2 PPCalculator();
 					SlExtraProcBlock epb;
 					SLS.GetExtraProcBlock(&epb);
 					if(epb.F_CallCalc)
-						epb.F_CallCalc((uint32)H(), 0);
+						epb.F_CallCalc(H(), 0);
 				}
 				break;
 			case cmGetFocusedNumber:
@@ -1057,7 +1053,7 @@ IMPL_HANDLE_EVENT(BrowserWindow)
 					if(p_sfe) {
 						TEXTMETRIC tm;
 						HDC    dc = GetDC(H());
-						Font = p_sfe->FontHandle ? (HFONT)p_sfe->FontHandle : GetStockObject(DEFAULT_GUI_FONT);
+						Font = p_sfe->FontHandle ? p_sfe->FontHandle : GetStockObject(DEFAULT_GUI_FONT);
 						::DeleteObject(SelectObject(dc, Font));
 						::GetTextMetrics(dc, &tm);
 						ChrSz.Set(tm.tmAveCharWidth, tm.tmHeight + tm.tmExternalLeading);
@@ -1460,7 +1456,7 @@ void BrowserWindow::DrawMultiLinesText(HDC hdc, char * pBuf, RECT * pTextRect, i
 		RECT   rect = *pTextRect;
 		StringSet ss('\n', pBuf);
 		for(uint i = 0; ss.get(&i, buf, sizeof(buf)); rect.top += YCell, rect.bottom += YCell)
-			::DrawText(hdc, buf, sstrlen(buf), &rect, fmt); // @unicodeproblem 
+			::DrawText(hdc, buf, (int)sstrlen(buf), &rect, fmt); // @unicodeproblem 
 	}
 }
 
@@ -1619,7 +1615,7 @@ void BrowserWindow::Paint()
 		if(P_Header && SIntersectRect(ps.rcPaint, r)) {
 			((TStaticText *)P_Header)->getText(temp_buf);
 			temp_buf.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(buf, sizeof(buf));
-			::DrawText(ps.hdc, buf, sstrlen(buf), &r, DT_LEFT); // @unicodeproblem
+			::DrawText(ps.hdc, buf, (int)sstrlen(buf), &r, DT_LEFT); // @unicodeproblem
 		}
 		r.top     = r.left = 0;
 		r.bottom  = ChrSz.y * CapOffs - 3;
@@ -1646,7 +1642,7 @@ void BrowserWindow::Paint()
 				r.right -= 3;
 				r.bottom--;
 				(temp_buf = c.text).Transf(CTRANSF_INNER_TO_OUTER);
-				::DrawText(ps.hdc, temp_buf, temp_buf.Len(), &r, GetCapAlign(c.Options)); // @unicodeproblem
+				::DrawText(ps.hdc, temp_buf, (int)temp_buf.Len(), &r, GetCapAlign(c.Options)); // @unicodeproblem
 				cn = (++i == (UINT)Freeze) ? Left : (cn + 1);
 			}
 			if(r.right < CliSz.x) {
@@ -1673,7 +1669,7 @@ void BrowserWindow::Paint()
 					r.right--;
 					r.bottom--;
 					(temp_buf = p_grp->text).Transf(CTRANSF_INNER_TO_OUTER);
-					::DrawText(ps.hdc, temp_buf, temp_buf.Len(), &r, fmt); // @unicodeproblem
+					::DrawText(ps.hdc, temp_buf, (int)temp_buf.Len(), &r, fmt); // @unicodeproblem
 				}
 			}
 			SetBkColor(ps.hdc, oldColor);
@@ -2433,9 +2429,7 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 			return 0;
 		case WM_SETFONT:
 			{
-				SetFontEvent sfe;
-				sfe.FontHandle = wParam;
-				sfe.DoRedraw = LOWORD(lParam);
+				SetFontEvent sfe((void *)wParam, LOWORD(lParam));
 				TView::messageCommand(p_view, cmSetFont, &sfe);
 			}
 			return 0;

@@ -1,5 +1,5 @@
 // SDRAW.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -330,7 +330,7 @@ void SDrawFigure::SetTransform(LMatrix2D * pMtx)
 		Tf.InitUnit();
 }
 
-void SDrawFigure::SetViewPort(SViewPort * pVp)
+void SDrawFigure::SetViewPort(const SViewPort * pVp)
 {
 	if(!RVALUEPTR(Vp, pVp)) {
 		Vp.a = 0.0f;

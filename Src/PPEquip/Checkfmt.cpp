@@ -2203,14 +2203,14 @@ int PPSlipFormat::Parse(const char * pFileName, const char * pFormatName)
 				else if(token == tokTitle) {
 					THROW_PP_S(NextToken(file, tok_result) == tokEq, PPERR_TOKENEXPECTED, "=");
 					token = NextToken(file, tok_result);
-					THROW_PP_S(token = tokString, PPERR_TOKENEXPECTED, "string");
+					THROW_PP_S(token == tokString, PPERR_TOKENEXPECTED, "string"); // @v10.3.0 @fix =-->==
 					Title = tok_result.Transf(CTRANSF_INNER_TO_OUTER);
 					token = 0;
 				}
 				else if(token == tokHeadLines) {
 					THROW_PP_S(NextToken(file, tok_result) == tokEq, PPERR_TOKENEXPECTED, "=");
 					token = NextToken(file, tok_result);
-					THROW_PP_S(token = tokNumber, PPERR_TOKENEXPECTED, "number");
+					THROW_PP_S(token == tokNumber, PPERR_TOKENEXPECTED, "number"); // @v10.3.0 @fix =-->==
 					HeadLines = tok_result.ToLong();
 					token = 0;
 				}
@@ -2224,14 +2224,14 @@ int PPSlipFormat::Parse(const char * pFileName, const char * pFormatName)
 				else if(token == tokPageWidth) {
 					THROW_PP_S(NextToken(file, tok_result) == tokEq, PPERR_TOKENEXPECTED, "=");
 					token = NextToken(file, tok_result);
-					THROW_PP_S(token = tokNumber, PPERR_TOKENEXPECTED, "number");
+					THROW_PP_S(token == tokNumber, PPERR_TOKENEXPECTED, "number"); // @v10.3.0 @fix =-->==
 					PageWidth = tok_result.ToLong();
 					token = 0;
 				}
 				else if(token == tokPageLength) {
 					THROW_PP_S(NextToken(file, tok_result) == tokEq, PPERR_TOKENEXPECTED, "=");
 					token = NextToken(file, tok_result);
-					THROW_PP_S(token = tokNumber, PPERR_TOKENEXPECTED, "number");
+					THROW_PP_S(token == tokNumber, PPERR_TOKENEXPECTED, "number"); // @v10.3.0 @fix =-->==
 					PageLength = tok_result.ToLong();
 					token = 0;
 				}
@@ -2311,7 +2311,7 @@ int PPSlipFormat::Parse(const char * pFileName, const char * pFormatName)
 				else if(token == tokTextOutput) {
 					THROW_PP_S(NextToken(file, tok_result) == tokEq, PPERR_TOKENEXPECTED, "=");
 					token = NextToken(file, tok_result);
-					THROW_PP_S(token = tokNumber, PPERR_TOKENEXPECTED, "number");
+					THROW_PP_S(token == tokNumber, PPERR_TOKENEXPECTED, "number"); // @v10.3.0 @fix =-->==
 					TextOutput = tok_result.ToLong();
 					token = 0;
 				}

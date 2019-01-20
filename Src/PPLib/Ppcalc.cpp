@@ -1,5 +1,5 @@
 // PPCALC.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -582,7 +582,7 @@ int SLAPI CalcDiff(double amount, double * pDiff)
 //
 // Калькулятор общего назначения //
 //
-int SLAPI PPCalculator(uint32 parentWnd, const char * pInitData)
+int SLAPI PPCalculator(void * hParentWnd, const char * pInitData)
 {
 	class CalcDialog : public TDialog {
 	public:

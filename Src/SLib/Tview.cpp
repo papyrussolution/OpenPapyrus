@@ -249,7 +249,7 @@ HBITMAP FASTCALL TBitmapHash::Get(uint bmpId)
 		if(h) {
 			Entry new_entry;
 			new_entry.ID = bmpId;
-			new_entry.H = (uint32)h;
+			new_entry.H = h;
 			List.insert(&new_entry);
 		}
 	}
@@ -270,7 +270,7 @@ HBITMAP FASTCALL TBitmapHash::GetSystem(uint bmpId)
 		if(h) {
 			Entry new_entry;
 			new_entry.ID = bmpId;
-			new_entry.H = (uint32)h;
+			new_entry.H = h;
 			List.insert(&new_entry);
 		}
 	}
@@ -711,7 +711,7 @@ IMPL_HANDLE_EVENT(TView)
 	else if(TVKEYDOWN) {
 		if(TVKEY == kbF1) {
 			HWND hw_parent = APPL->H_MainWnd; // GetDesktopWindow()
-			SLS.CallHelp((uint32)hw_parent, HH_HELP_CONTEXT, HelpCtx);
+			SLS.CallHelp(hw_parent, HH_HELP_CONTEXT, HelpCtx);
 			clearEvent(event);
 		}
 	}

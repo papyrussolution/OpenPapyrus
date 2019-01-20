@@ -1,5 +1,5 @@
 // OBJSCALE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -289,7 +289,7 @@ int SLAPI PPScaleDevice::GetAddedMsgLines(const ScalePLU * pPlu, uint maxLineLen
 	return ok;
 }
 
-PPScaleDevice * SLAPI GetScaleDevice(PPScale * pScaleData);
+static PPScaleDevice * SLAPI GetScaleDevice(const PPScale * pScaleData);
 
 #define COM1            0
 #define COM2            1
@@ -4121,7 +4121,7 @@ $$$RPL
 		line_buf.Semicol();                                            // #22 Сертификат
 		line_buf.Semicol();                                            // #23 Масса тары
 		line_buf.CatCharN(';', 6);                                        // #24-#29
-		if(GetAddedMsgLines(pScalePLU, 255, 1, 0, ext_lines)) {
+		if(GetAddedMsgLines(pScalePLU, 255, 1, 0, ext_lines) > 0) {
             ext_lines.get((uint)0, temp_buf);
 			if(temp_buf.NotEmptyS()) {
 				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
@@ -4601,7 +4601,7 @@ static int SLAPI GetOutputFileName(PPID id, SString & rBuf)
 	return BIN(PPGetFilePath(PPPATH_OUT, path, rBuf));
 }
 
-int SLAPI PPObjScale::IsPassive(PPID id, PPScale * pScale)
+int SLAPI PPObjScale::IsPassive(PPID id, const PPScale * pScale)
 {
 	int    ok = 0;
 	PPScale scale;
@@ -5052,7 +5052,7 @@ int SLAPI PPObjScale::TransmitData(PPID id, long flags, PPLogger * pLogger)
 	return ok;
 }
 
-PPScaleDevice * SLAPI GetScaleDevice(PPScale * pScaleData)
+static PPScaleDevice * SLAPI GetScaleDevice(const PPScale * pScaleData)
 {
 	int    port = 0;
 	PPScaleDevice * p_comm = 0;

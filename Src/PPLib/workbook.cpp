@@ -1946,6 +1946,7 @@ int SLAPI PPObjWorkbook::SetupItemCombo(TDialog * dlg, uint ctlID, int itemType,
 	int    ok = 0;
 	ComboBox * p_combo = (ComboBox *)dlg->getCtrlView(ctlID);
 	if(p_combo) {
+		/* @v10.3.0 @fix (redundunt block with memory leak)
 		SString temp_buf;
 		StrAssocArray * p_list = new StrAssocArray;
 		WorkbookTbl::Rec rec;
@@ -1953,6 +1954,7 @@ int SLAPI PPObjWorkbook::SetupItemCombo(TDialog * dlg, uint ctlID, int itemType,
 			GetItemPath(rec.ID, temp_buf);
 			p_list->Add(rec.ID, temp_buf);
 		}
+		*/
 		{
 			PPObjListWindow * p_olw = 0;
 			PPObject * p_obj = GetPPObject(Obj, 0);

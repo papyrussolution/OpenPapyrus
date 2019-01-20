@@ -1692,29 +1692,23 @@ ptAttValComparator GetAttValComparator(TidyAttrSortStrategy strat)
 }
 
 /* The sort routine */
-static
-AttVal * SortAttVal(AttVal * list, TidyAttrSortStrategy strat)
+static AttVal * SortAttVal(AttVal * list, TidyAttrSortStrategy strat)
 {
 	ptAttValComparator ptComparator = GetAttValComparator(strat);
 	AttVal * p, * q, * e, * tail;
 	int insize, nmerges, psize, qsize, i;
-
 	/*
 	 * Silly special case: if `list' was passed in as NULL, return
 	 * NULL immediately.
 	 */
 	if(!list)
 		return NULL;
-
 	insize = 1;
-
 	while(1) {
 		p = list;
 		list = NULL;
 		tail = NULL;
-
 		nmerges = 0; /* count number of merges we do in this pass */
-
 		while(p) {
 			nmerges++; /* there exists a merge to be done */
 			/* step `insize' places along from p */
@@ -1725,25 +1719,27 @@ AttVal * SortAttVal(AttVal * list, TidyAttrSortStrategy strat)
 				q = q->next;
 				if(!q) break;
 			}
-
-			/* if q hasn't fallen off end, we have two lists to merge */
-			qsize = insize;
-
+			qsize = insize; // if q hasn't fallen off end, we have two lists to merge 
 			/* now we have two lists; merge them */
 			while(psize > 0 || (qsize > 0 && q)) {
 				/* decide whether next element of merge comes from p or q */
 				if(psize == 0) {
 					/* p is empty; e must come from q. */
-					e = q; q = q->next; qsize--;
+					e = q; 
+					q = q->next; 
+					qsize--;
 				}
 				else if(qsize == 0 || !q) {
 					/* q is empty; e must come from p. */
-					e = p; p = p->next; psize--;
+					e = p; 
+					p = p->next; 
+					psize--;
 				}
 				else if(ptComparator(p, q) <= 0) {
-					/* First element of p is lower (or same);
-					 * e must come from p. */
-					e = p; p = p->next; psize--;
+					// First element of p is lower (or same); e must come from p.
+					e = p; 
+					p = p->next; 
+					psize--;
 				}
 				else {
 					/* First element of q is lower; e must come from q. */

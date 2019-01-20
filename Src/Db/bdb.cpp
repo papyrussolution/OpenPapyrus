@@ -534,7 +534,7 @@ int BDbDatabase::IsFileExists(const char * pFileName)
 	return yes;
 }
 
-int BDbDatabase::Helper_Create(const char * pFileName, int createMode, BDbTable::Config * pCfg)
+int BDbDatabase::Helper_Create(const char * pFileName, int createMode, const BDbTable::Config * pCfg)
 {
 	int    ok = 1, r = 0;
 	DB   * p_db = 0;

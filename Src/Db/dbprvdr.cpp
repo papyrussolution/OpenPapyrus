@@ -698,7 +698,7 @@ int SLAPI DbProvider::Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ)
 	DBQuery * q = & selectAll().from(pTbl, 0L).where(rQ);
 	q->setDestroyTablesMode(0);
 	if(!useTa || DBS.GetTLA().StartTransaction()) {
-		for(int dir = spFirst; ok && q->single_fetch(0, 0, dir); dir = spNext) {
+		/* @v10.3.0 for(int dir = spFirst; ok && q->single_fetch(0, 0, dir); dir = spNext) {
 			uint8  key_buf[512];
 			DBRowId _dbpos;
 			if(!pTbl->getPosition(&_dbpos))
@@ -709,7 +709,19 @@ int SLAPI DbProvider::Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ)
 				if(pTbl->deleteRec() == 0) // @sfu
 					ok = 0;
 			}
-		}
+		}*/
+		// @v10.3.0 {
+		if(q->single_fetch(0, 0, spFirst)) do {
+			uint8  key_buf[512];
+			DBRowId _dbpos;
+			if(!pTbl->getPosition(&_dbpos))
+				ok = 0;
+			else if(!pTbl->getDirectForUpdate(pTbl->getCurIndex(), key_buf, _dbpos))
+				ok = 0;
+			else if(pTbl->deleteRec() == 0) // @sfu
+				ok = 0;
+		} while(ok && q->single_fetch(0, 0, spNext));
+		// } @v10.3.0 
 		if(q->error)
 			ok = 0;
 		if(useTa)

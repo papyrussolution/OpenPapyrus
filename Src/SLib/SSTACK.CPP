@@ -1,5 +1,5 @@
 // SSTACK.CPP
-// Copyright (c) Sobolev A. 1995..2000, 2002, 2003, 2007, 2008, 2010, 2016, 2017
+// Copyright (c) Sobolev A. 1995..2000, 2002, 2003, 2007, 2008, 2010, 2016, 2017, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -111,17 +111,12 @@ void * SLAPI SStack::peek() const
 //
 //
 //
-SLAPI SQueue::SQueue(uint itemSize, uint queueSize, uint o) : SArray(itemSize, /*8,*/ o)
+SLAPI SQueue::SQueue(uint itemSize, uint queueSize, uint o) : SArray(itemSize, /*8,*/ o), QueueSize(queueSize), Front(0), End(0)
 {
-	QueueSize = queueSize;
-	Front = End = 0;
 }
 
-SLAPI SQueue::SQueue(const SQueue & src) : SArray(src)
+SLAPI SQueue::SQueue(const SQueue & rS) : SArray(rS), QueueSize(rS.QueueSize), Front(rS.Front), End(rS.End)
 {
-	QueueSize = src.QueueSize;
-	Front     = src.Front;
-	End       = src.End;
 }
 
 int FASTCALL SQueue::copy(const SQueue & src)
@@ -134,8 +129,7 @@ int FASTCALL SQueue::copy(const SQueue & src)
 
 void SLAPI SQueue::clear()
 {
-	// @v8.9.12 freeAll();
-	SArray::clear(); // @v8.9.12
+	SArray::clear();
 	Front = End = 0;
 }
 

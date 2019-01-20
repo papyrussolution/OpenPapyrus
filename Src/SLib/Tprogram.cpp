@@ -1,6 +1,6 @@
 // TPROGRAM.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
-// Modified by A.Sobolev 1996, 1997, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Modified by A.Sobolev 1996, 1997, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -76,7 +76,7 @@ int TStatusWin::Update()
 		temp_buf = Items.at(i).str;
 		if(Items.at(i).Icon)
 			n_width += 24; // icon size + borders // @v9.2.1 18-->24
-        else if(temp_buf.NotEmpty() && GetTextExtentPoint32(hdc, temp_buf, temp_buf.Len(), &size)) // @unicodeproblem
+        else if(temp_buf.NotEmpty() && GetTextExtentPoint32(hdc, temp_buf, (int)temp_buf.Len(), &size)) // @unicodeproblem
 			n_width += size.cx;
 		// @v9.2.1 n_width += 5;
 		l_parts[i] = n_width;
@@ -229,7 +229,7 @@ int TProgram::DelItemFromMenu(void * ptr)
 						t_i.cbSize      = sizeof(TOOLINFO);
 						t_i.uFlags      = TTF_SUBCLASS;
 						t_i.hwnd        = hwnd_tab;
-						t_i.uId         = (UINT)ptr;
+						t_i.uId         = (UINT_PTR)ptr;
 						t_i.rect        = rc_item;
 						t_i.hinst       = TProgram::GetInst();
 						t_i.lpszText    = 0;
@@ -286,7 +286,7 @@ int TProgram::UpdateItemInMenu(const char * pTitle, void * ptr)
 				int    _upd = 0;
 				for(i = 0; i < count; i++) {
 					tci.mask = TCIF_PARAM;
-					if(TabCtrl_GetItem(hwnd_tab, i, &tci) && tci.lParam == (UINT)ptr) {
+					if(TabCtrl_GetItem(hwnd_tab, i, &tci) && tci.lParam == (LPARAM)ptr) {
 						char   temp_title_buf[SHCTSTAB_MAXTEXTLEN * 2];
 						STRNSCPY(temp_title_buf, title_buf);
 						if(title_len > SHCTSTAB_MAXTEXTLEN) {
@@ -303,7 +303,7 @@ int TProgram::UpdateItemInMenu(const char * pTitle, void * ptr)
 							t_i.cbSize      = sizeof(TOOLINFO);
 							t_i.uFlags      = TTF_SUBCLASS;
 							t_i.hwnd        = hwnd_tab;
-							t_i.uId         = (UINT)ptr;
+							t_i.uId         = (UINT_PTR)ptr;
 							t_i.rect        = rc_item;
 							t_i.hinst       = TProgram::GetInst();
 							t_i.lpszText    = title_buf; // @unicodeproblem
@@ -353,7 +353,7 @@ int TProgram::AddItemToMenu(const char * pTitle, void * ptr)
 			mii.cbSize = sizeof(MENUITEMINFO);
 			mii.fMask = MIIM_TYPE|MIIM_DATA|MIIM_ID;
 			mii.wID   = (UINT)ptr;
-			mii.dwItemData = (DWORD)ptr;
+			mii.dwItemData = (ULONG_PTR)ptr;
 			mii.dwTypeData = title_buf; // @unicodeproblem
 			InsertMenuItem(h_menu, (UINT)ptr, FALSE, &mii); // @unicodeproblem
 			CALLPTRMEMB(P_TreeWnd, AddItemCmdList(pTitle, ptr));
@@ -375,7 +375,7 @@ int TProgram::AddItemToMenu(const char * pTitle, void * ptr)
 				tci.mask = TCIF_TEXT|TCIF_PARAM;
 				tci.pszText = temp_title_buf; // @unicodeproblem
 				tci.cchTextMax = sizeof(temp_title_buf);
-				tci.lParam = (UINT)ptr;
+				tci.lParam = (LPARAM)ptr;
 				TabCtrl_InsertItem(hwnd_tab, idx, &tci); // @unicodeproblem
 				TabCtrl_SetCurSel(hwnd_tab, idx);
 				TabCtrl_HighlightItem(hwnd_tab, prev_sel, 0);
@@ -385,7 +385,7 @@ int TProgram::AddItemToMenu(const char * pTitle, void * ptr)
 					t_i.cbSize      = sizeof(TOOLINFO);
 					t_i.uFlags      = TTF_SUBCLASS;
 					t_i.hwnd        = hwnd_tab;
-					t_i.uId         = (UINT)ptr;
+					t_i.uId         = (UINT_PTR)ptr;
 					t_i.rect        = rc_item;
 					t_i.hinst       = TProgram::GetInst();
 					t_i.lpszText    = title_buf; // @unicodeproblem
@@ -1268,14 +1268,14 @@ int TProgram::SetWindowViewByKind(HWND hWnd, int wndType)
 				}
 			}
 			TView::SetWindowProp(hWnd, GWL_EXSTYLE, ex_style);
-			while(EnumChildWindows(hWnd, EnumCtrls, (long)&e) != 0)
+			while(EnumChildWindows(hWnd, EnumCtrls, (LPARAM)&e) != 0)
 				;
 		}
 		else if(oneof2(APPL->UICfg.WindowViewStyle, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector)) {
 			HDC dc = GetDC(hWnd);
 			SetBkColor(dc, RGB(0xDD, 0xDD, 0xF1));
 			ReleaseDC(hWnd, dc);
-			while(EnumChildWindows(hWnd, EnumCtrls, (long)&e) != 0)
+			while(EnumChildWindows(hWnd, EnumCtrls, (LPARAM)&e) != 0)
 				;
 		}
 	}
@@ -1312,13 +1312,21 @@ int TProgram::InitUiToolBox()
 		if(!(State & stUiToolBoxInited)) {
 			UiToolBox.CreateColor(tbiButtonTextColor, SColor(SClrBlack));
 			UiToolBox.CreateColor(tbiButtonTextColor+tbisDisable, SColor(SClrWhite));
-
-			UiToolBox.CreateColor(tbiIconRegColor, SColor(/*0x06, 0xAE, 0xD5*/0x00, 0x49, 0x82)); // 004982
-			UiToolBox.CreateColor(tbiIconAlertColor, SColor(0xDD, 0x1C, 0x1A));
-			UiToolBox.CreateColor(tbiIconAccentColor, SColor(0x2A, 0x9D, 0x8F));
+			UiToolBox.CreateColor(tbiIconRegColor,     SColor(/*0x06, 0xAE, 0xD5*/0x00, 0x49, 0x82)); // 004982
+			UiToolBox.CreateColor(tbiIconAlertColor,   SColor(0xDD, 0x1C, 0x1A));
+			UiToolBox.CreateColor(tbiIconAccentColor,  SColor(0x2A, 0x9D, 0x8F));
 			UiToolBox.CreateColor(tbiIconPassiveColor, SColor(0xFF, 0xF1, 0xD0));
-			
-			UiToolBox.CreateBrush(tbiInvalInpBrush, SPaintObj::bsSolid, SClrCrimson, 0); // @v10.2.4
+			UiToolBox.CreatePen(tbiBlackPen,         SPaintObj::psSolid, 1.0f, SClrBlack); // @v10.3.0
+			UiToolBox.CreatePen(tbiWhitePen,         SPaintObj::psSolid, 1.0f, SClrWhite); // @v10.3.0
+			UiToolBox.CreateBrush(tbiInvalInpBrush,  SPaintObj::bsSolid, SClrCrimson, 0); // @v10.2.4
+			UiToolBox.CreateBrush(tbiInvalInp2Brush, SPaintObj::bsSolid, SColor(0xff, 0x99, 0x00) /*https://www.colorhexa.com/ff9900*/, 0); // @v10.3.0
+			UiToolBox.CreateBrush(tbiInvalInp3Brush, SPaintObj::bsSolid, SColor(0xff, 0x33, 0xcc) /*https://www.colorhexa.com/ff33cc*/, 0); // @v10.3.0
+			UiToolBox.CreateBrush(tbiListBkgBrush,   SPaintObj::bsSolid, SClrWhite, 0); // @v10.3.0
+			UiToolBox.CreatePen(tbiListBkgPen,       SPaintObj::psSolid, 1.0f, SClrWhite); // @v10.3.0
+			UiToolBox.CreateBrush(tbiListFocBrush,   SPaintObj::bsSolid, SColor(0x00, 0x66, 0xcc) /*https://www.colorhexa.com/0066cc*/, 0); // @v10.3.0
+			UiToolBox.CreatePen(tbiListFocPen,       SPaintObj::psSolid, 1.0f, SColor(0x00, 0x66, 0xcc) /*https://www.colorhexa.com/0066cc*/); // @v10.3.0
+			UiToolBox.CreateBrush(tbiListSelBrush,   SPaintObj::bsSolid, SColor(0x00, 0x66, 0xcc) /*https://www.colorhexa.com/0066cc*/, 0); // @v10.3.0
+			UiToolBox.CreatePen(tbiListSelPen,       SPaintObj::psDot, 1.0f, SColor(0x00, 0x66, 0xcc) /*https://www.colorhexa.com/0066cc*/); // @v10.3.0
 //#ifdef USE_CANVAS2_DRAWING
 			{
 				// linear-gradient(to bottom, #f0f9ff 0%,#cbebff 47%,#a1dbff 100%)
@@ -1518,7 +1526,7 @@ int DrawCluster(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		old_font = (HFONT)SelectObject(p_di->hDC, (HFONT)SendMessage(p_di->hwndItem, WM_GETFONT, 0, 0));
 		SetBkMode(p_di->hDC, TRANSPARENT);
 		SetTextColor(p_di->hDC, text_color);
-		::DrawText(p_di->hDC, text_buf, text_buf.Len(), &out_r, text_out_fmt); // @unicodeproblem
+		::DrawText(p_di->hDC, text_buf, (int)text_buf.Len(), &out_r, text_out_fmt); // @unicodeproblem
 		if(old_font)
 			SelectObject(p_di->hDC, old_font);
 	}
@@ -1642,11 +1650,11 @@ int DrawButton(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			text_rect.left   = out_r.left;
 			text_rect.right  = out_r.right;
 			for(uint i = 0; ss.get(&i, text_buf) > 0; text_rect.top += height, text_rect.bottom += height)
-				::DrawText(pDi->hDC, text_buf, text_buf.Len(), &text_rect, text_out_fmt); // @unicodeproblem
+				::DrawText(pDi->hDC, text_buf, (int)text_buf.Len(), &text_rect, text_out_fmt); // @unicodeproblem
 		}
 		else {
 			text_out_fmt |= DT_SINGLELINE;
-			::DrawText(pDi->hDC, text_buf, text_buf.Len(), &out_r, text_out_fmt); // @unicodeproblem
+			::DrawText(pDi->hDC, text_buf, (int)text_buf.Len(), &out_r, text_out_fmt); // @unicodeproblem
 		}
 		if(old_font)
 			SelectObject(pDi->hDC, old_font);
@@ -2148,7 +2156,7 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			// @v9.2.4 TView::SSetWindowText(pDi->hwndItem, text_buf.Z());
 		}
 		else if(draw_text) {
-			HFONT hf = (HFONT)SendMessage(pDi->hwndItem, WM_GETFONT, 0, 0);
+			HFONT  hf = (HFONT)SendMessage(pDi->hwndItem, WM_GETFONT, 0, 0);
 			int    temp_font_id = 0;
 			if(hf) {
 				LOGFONT f;
@@ -2376,7 +2384,7 @@ int DrawStatusBarItem(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			SetTextColor(pDi->hDC, p_item->TextColor);
 			old_font = (HFONT)SelectObject(pDi->hDC, font);
 			InflateRect(&out_r, -1, -1);
-			::DrawText(pDi->hDC, p_item->str, sstrlen(p_item->str), &out_r, text_out_fmt); // @unicodeproblem
+			::DrawText(pDi->hDC, p_item->str, (int)sstrlen(p_item->str), &out_r, text_out_fmt); // @unicodeproblem
 			if(old_font)
 				::SelectObject(pDi->hDC, old_font);
 			if(delete_font)
@@ -2519,8 +2527,8 @@ void UserInterfaceSettings::Init()
 	ListElemCount = 0;
 	TableFont.Init();
 	ListFont.Init();
-	SupportMail = 0;
-	SpecialInputDeviceSymb = 0; // @v8.1.11
+	SupportMail.Z();
+	SpecialInputDeviceSymb.Z();
 }
 
 uint32 UserInterfaceSettings::GetBrwColorSchema() const
@@ -2530,7 +2538,7 @@ uint32 UserInterfaceSettings::GetBrwColorSchema() const
 
 void UserInterfaceSettings::SetVersion()
 {
-	Ver = UISETTINGS_VERSION_MINOR | (UISETTINGS_VERSION_MAJOR << 16);
+	Ver = (UISETTINGS_VERSION_MINOR|(UISETTINGS_VERSION_MAJOR << 16));
 	// @v7.9.9 Size = sizeof(UserInterfaceSettings);
 }
 

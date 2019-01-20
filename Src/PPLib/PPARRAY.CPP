@@ -126,7 +126,7 @@ int SLAPI PPCycleArray::init2(DateRange * pPeriod, PPCycleFilt * pCycl)
 int SLAPI PPCycleArray::concat(const PPCycleArray * pSrc)
 {
 	int    ok = 1;
-	if(Cycle = pSrc->Cycle) {
+	if(Cycle == pSrc->Cycle) { // @v10.3.0 @fix (Cycle = pSrc->Cycle)-->(Cycle == pSrc->Cycle)
 		Period.Set(MIN(Period.low, pSrc->Period.low), MAX(Period.upp, pSrc->Period.upp));
 		NumCycles += pSrc->NumCycles;
 		for(uint i = 0; i < pSrc->getCount(); i++)

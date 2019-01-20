@@ -1,5 +1,5 @@
 // V_GSTRUC.CPP
-// Copyright (c) A.Starodub 2007, 2008, 2009, 2014, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2007, 2008, 2009, 2014, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 // Таблица просмотра товарных структур
 //
@@ -7,7 +7,7 @@
 #pragma hdrstop
 
 //static 
-int FASTCALL PPViewGoodsStruc::Cmp_ItemEntry(PPViewGoodsStruc * pView, int order, const void * i1, const void * i2)
+int FASTCALL PPViewGoodsStruc::Cmp_ItemEntry(const PPViewGoodsStruc * pView, int order, const void * i1, const void * i2)
 {
 	int    si = 0;
 	if(pView && i1 && i2) {

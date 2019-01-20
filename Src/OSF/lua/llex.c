@@ -43,7 +43,8 @@ static const char * const luaX_tokens [] = {
 
 static l_noret lexerror(LexState * ls, const char * msg, int token);
 
-static void save(LexState * ls, int c) {
+static void save(LexState * ls, int c) 
+{
 	Mbuffer * b = ls->buff;
 	if(luaZ_bufflen(b) + 1 > luaZ_sizebuffer(b)) {
 		size_t newsize;
@@ -55,7 +56,8 @@ static void save(LexState * ls, int c) {
 	b->buffer[luaZ_bufflen(b)++] = cast(char, c);
 }
 
-void luaX_init(lua_State * L) {
+void luaX_init(lua_State * L) 
+{
 	int i;
 	TString * e = luaS_newliteral(L, LUA_ENV); /* create env name */
 	luaC_fix(L, obj2gco(e)); /* never collect this name */
@@ -66,7 +68,8 @@ void luaX_init(lua_State * L) {
 	}
 }
 
-const char * luaX_token2str(LexState * ls, int token) {
+const char * luaX_token2str(LexState * ls, int token) 
+{
 	if(token < FIRST_RESERVED) { /* single-byte symbols? */
 		lua_assert(token == cast_uchar(token));
 		return luaO_pushfstring(ls->L, "'%c'", token);
@@ -80,7 +83,8 @@ const char * luaX_token2str(LexState * ls, int token) {
 	}
 }
 
-static const char * txtToken(LexState * ls, int token) {
+static const char * txtToken(LexState * ls, int token) 
+{
 	switch(token) {
 		case TK_NAME: case TK_STRING:
 		case TK_FLT: case TK_INT:
@@ -91,7 +95,8 @@ static const char * txtToken(LexState * ls, int token) {
 	}
 }
 
-static l_noret lexerror(LexState * ls, const char * msg, int token) {
+static l_noret lexerror(LexState * ls, const char * msg, int token) 
+{
 	msg = luaG_addinfo(ls->L, msg, ls->source, ls->linenumber);
 	if(token)
 		luaO_pushfstring(ls->L, "%s near %s", msg, txtToken(ls, token));
@@ -107,7 +112,8 @@ l_noret luaX_syntaxerror(LexState * ls, const char * msg) {
 ** it will not be collected until the end of the compilation
 ** (by that time it should be anchored somewhere)
 */
-TString * luaX_newstring(LexState * ls, const char * str, size_t l) {
+TString * luaX_newstring(LexState * ls, const char * str, size_t l) 
+{
 	lua_State * L = ls->L;
 	TValue * o; /* entry for 'str' */
 	TString * ts = luaS_newlstr(L, str, l); /* create new string */

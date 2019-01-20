@@ -8,10 +8,10 @@
 
 SLAPI ClsdGoodsFilt::ClsdGoodsFilt()
 {
-	Clear();
+	Z();
 }
 
-ClsdGoodsFilt & SLAPI ClsdGoodsFilt::Clear()
+ClsdGoodsFilt & SLAPI ClsdGoodsFilt::Z()
 {
 	GdsClsID = 0;
 	Flags = 0;
@@ -1230,7 +1230,7 @@ int SLAPI GoodsCore::ReplaceExtDimScale(PPID clsID, int gcDim, long oldScale, lo
 	return ok;
 }
 
-int SLAPI GoodsCore::ReplaceExtObjRefs(PPID clsID, int gcProp, LAssocArray * pSubstList, int use_ta)
+int SLAPI GoodsCore::ReplaceExtObjRefs(PPID clsID, int gcProp, const LAssocArray * pSubstList, int use_ta)
 {
 	int    ok = 1;
 	SArray temp_list(sizeof(GoodsExtTbl::Rec));
@@ -1520,7 +1520,7 @@ int SLAPI GoodsCore::Helper_ReadArCodes(PPID goodsID, PPID arID, ArGoodsCodeArra
 			if(pCodeList)
 				THROW_SL(pCodeList->insert(&ACodT.data));
 			if(pIdList)
-				THROW_SL(pIdList->add(ACodT.data.GoodsID)); // @v8.1.0 addUnique-->add
+				THROW_SL(pIdList->add(ACodT.data.GoodsID));
 			ok = 1;
 		}
 	}
@@ -1530,7 +1530,7 @@ int SLAPI GoodsCore::Helper_ReadArCodes(PPID goodsID, PPID arID, ArGoodsCodeArra
 		k2.GoodsID = goodsID;
 		if(arID >= 0)
 			k2.ArID = arID;
-		for(int sp = spGe; ok && ACodT.search(2, &k2, sp) && k2.GoodsID == goodsID; sp = spNext) {
+		/* @v10.3.0 for(int sp = spGe; ok && ACodT.search(2, &k2, sp) && k2.GoodsID == goodsID; sp = spNext) {
 			if(arID < 0 || k2.ArID == arID) {
 				if(pCodeList)
 					THROW_SL(pCodeList->insert(&ACodT.data));
@@ -1538,7 +1538,18 @@ int SLAPI GoodsCore::Helper_ReadArCodes(PPID goodsID, PPID arID, ArGoodsCodeArra
 					THROW_SL(pIdList->add(ACodT.data.ArID));
 				ok = 1;
 			}
-		}
+		}*/
+		// @v10.3.0 {
+		if(ACodT.search(2, &k2, spGe) && k2.GoodsID == goodsID) do {
+			if(arID < 0 || k2.ArID == arID) {
+				if(pCodeList)
+					THROW_SL(pCodeList->insert(&ACodT.data));
+				if(pIdList)
+					THROW_SL(pIdList->add(ACodT.data.ArID));
+				ok = 1;
+			}
+		} while(ACodT.search(2, &k2, spNext) && k2.GoodsID == goodsID);
+		// } @v10.3.0 
 		THROW_DB(BTROKORNFOUND);
 	}
 	CATCHZOK

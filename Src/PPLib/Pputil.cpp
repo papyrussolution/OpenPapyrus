@@ -751,7 +751,7 @@ int FASTCALL CheckTblPtr(DBTable * tbl)
 		return 1;
 }
 
-int FASTCALL CheckQueryPtr(DBQuery * q)
+int FASTCALL CheckQueryPtr(const DBQuery * q)
 {
 	if(q == 0)
 		return PPSetErrorNoMem();

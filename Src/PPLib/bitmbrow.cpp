@@ -107,7 +107,7 @@ private:
 	// Ненулевой параметр только при вызове из конструктора
 	SArray * MakeList(PPBillPacket * = 0, int pckgPos = -1);
 	int    ConvertSupplRetLink(PPID locID);
-	int    checkForward(PPTransferItem *, LDATE, int reverse);
+	int    checkForward(const PPTransferItem * pTi, LDATE, int reverse);
 	int    editPackageData(LPackage *);
 	void   viewPckgItems(int activateNewRow);
 	int    getCurItemPos();
@@ -125,6 +125,7 @@ private:
 	int    SLAPI UpdatePriceDevList(long pos, int op);
 	int    SLAPI CheckRows(); // Проверяет список строк документа. Если есть проблемы, то они добавляются в список ProblemsList, который отображается при наведении на соотвествующую строку (колонка 1)
 	int    SLAPI EditExtCodeList(int rowIdx);
+	int    SLAPI ValidateExtCodeList();
 
 	enum {
 		stOrderSelector    = 0x0002, // Броузер используется как селектор из заказа
@@ -702,17 +703,15 @@ int SLAPI BillItemBrowser::CheckRows()
 	ProblemsList.Z();
 	for(uint idx = 0; P_Pack->EnumTItems(&idx, &p_ti) > 0;) {
 		ReceiptTbl::Rec lot_rec;
+		PPSupplDeal supl_deal;
 		if(p_ti->LotID && P_T->Rcpt.Search(p_ti->LotID, &lot_rec) <= 0) {
 			PPGetLastErrorMessage(DS.CheckExtFlag(ECF_SYSSERVICE), buf);
 			ProblemsList.Add(idx - 1, 0, buf);
 		}
-		{
-			PPSupplDeal supl_deal;
-			if(GObj.GetSupplDeal(p_ti->GoodsID, qi, &supl_deal) > 0) {
-				if(supl_deal.CheckCost(p_ti->Cost) <= 0) {
-					PPGetMessage(mfError, PPERR_SUPPLDEALVIOLATION, 0, DS.CheckExtFlag(ECF_SYSSERVICE), buf);
-					ProblemsList.Add(idx - 1, 0, buf);
-				}
+		if(GObj.GetSupplDeal(p_ti->GoodsID, qi, &supl_deal) > 0) {
+			if(supl_deal.CheckCost(p_ti->Cost) <= 0) {
+				PPGetMessage(mfError, PPERR_SUPPLDEALVIOLATION, 0, DS.CheckExtFlag(ECF_SYSSERVICE), buf);
+				ProblemsList.Add(idx - 1, 0, buf);
 			}
 		}
 	}
@@ -847,7 +846,7 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 		if(P_Pack->Rec.LinkBillID) {
 			BillTbl::Rec link_rec;
 			if(P_BObj->Search(P_Pack->Rec.LinkBillID, &link_rec) > 0) {
-				PPID   op_type_id = GetOpType(link_rec.OpID);
+				const PPID op_type_id = GetOpType(link_rec.OpID);
 				if(P_Pack->OpTypeID == PPOPT_GOODSACK || oneof2(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT)) {
 					THROW_MEM(P_LinkPack = new PPBillPacket);
 					THROW(P_BObj->ExtractPacket(P_Pack->Rec.LinkBillID, P_LinkPack));
@@ -2111,7 +2110,7 @@ void BillItemBrowser::editItem()
 	}
 }
 
-int BillItemBrowser::checkForward(PPTransferItem * pTI, LDATE dt, int reverse)
+int BillItemBrowser::checkForward(const PPTransferItem * pTI, LDATE dt, int reverse)
 {
 	int    ok = 0;
 	if(P_T->SearchByBill(pTI->BillID, reverse, pTI->RByBill, 0) > 0) {
@@ -2240,8 +2239,8 @@ void BillItemBrowser::selectPckg(PPID goodsID)
 
 class ValidateLotXCodeListDialog : public PPListDialog {
 public:
-	ValidateLotXCodeListDialog(const PPBillPacket * pPack) : PPListDialog(DLG_LOTXCCKLIST, CTL_LOTXCCKLIST_LIST, fOmitSearchByFirstChar),
-		P_Pack(pPack), P_LotXcT(BillObj->P_LotXcT), RowIdx(0)
+	ValidateLotXCodeListDialog(const PPBillPacket * pPack) : PPListDialog(DLG_LOTXCCKLIST, CTL_LOTXCCKLIST_LIST, fOmitSearchByFirstChar|fOwnerDraw),
+		P_Pack(pPack), P_LotXcT(BillObj->P_LotXcT), RowIdx(-1), FontId(0), CStyleId(0)
 	{
 		SetCtrlFont(CTL_LOTXCLIST_LIST, "Courier New", 14);
 	}
@@ -2257,6 +2256,88 @@ public:
 		return 1;
 	}
 private:
+	DECL_HANDLE_EVENT
+	{
+		PPListDialog::handleEvent(event);
+		if(event.isCmd(cmDrawItem)) {
+			TDrawItemData * p_draw_item = (TDrawItemData *)TVINFOPTR;
+			if(p_draw_item && p_draw_item->P_View) {
+				PPID   list_ctrl_id = p_draw_item->P_View->GetId();
+				if(list_ctrl_id == ctlList) {
+					SmartListBox * p_lbx = (SmartListBox *)p_draw_item->P_View;
+					const FRect  rect_elem = p_draw_item->ItemRect;
+					SPaintToolBox & r_tb = APPL->GetUiToolBox();
+					TCanvas2 canv(r_tb, p_draw_item->H_DC);
+					if(p_draw_item->ItemAction & TDrawItemData::iaBackground) {
+						canv.Rect(rect_elem, 0, TProgram::tbiListBkgBrush);
+						p_draw_item->ItemAction = 0; // Мы перерисовали фон
+					}
+					else {
+						SString code_buf;
+						SString box_code;
+						p_lbx->getText((long)p_draw_item->ItemID, code_buf);
+						int    err = 0;
+						int    row_idx = -1;
+						int    brush_id = TProgram::tbiListBkgBrush;
+						if(code_buf.NotEmpty()) {
+							int    vcr = P_Pack->XcL.ValidateCode(code_buf, 0, &err, &row_idx, &box_code);
+							if(!vcr) {
+								if(err == 2) // марка не найдена
+									brush_id = TProgram::tbiInvalInpBrush;
+								else if(err == 3) // не та коробка
+									brush_id = TProgram::tbiInvalInp2Brush;
+								else
+									brush_id = TProgram::tbiInvalInp3Brush;
+							}
+						}
+						canv.Rect(rect_elem, TProgram::tbiListBkgPen, brush_id);
+						{
+							int local_pen_id = 0;
+							if(p_draw_item->ItemState & ODS_FOCUS)
+								local_pen_id = TProgram::tbiListFocPen;
+							else if(p_draw_item->ItemState & ODS_SELECTED)
+								local_pen_id = TProgram::tbiListSelPen;
+							else
+								local_pen_id = TProgram::tbiListBkgPen;
+							FRect rect_elem_f(rect_elem);
+							rect_elem_f.Grow(-1.0f, -1.0f);
+							canv.Rect(rect_elem_f, local_pen_id, 0/*brush*/);
+						}
+						if(code_buf.NotEmpty()) {
+							if(FontId <= 0) {
+								HFONT  hf = (HFONT)SendMessage(p_draw_item->H_Item, WM_GETFONT, 0, 0);
+								LOGFONT f;
+								if(hf && ::GetObject(hf, sizeof(f), &f)) {
+									SFontDescr fd(0, 0, 0);
+									f.lfHeight = 12;
+									fd.SetLogFont(&f);
+									//fd.Size = (int16)MulDiv(fd.Size, 72, GetDeviceCaps(canv, LOGPIXELSY));
+									FontId = r_tb.CreateFont(0, fd.Face, fd.Size, fd.Flags);
+								}
+							}
+							if(FontId) {
+								SDrawContext dctx = canv;
+								if(CStyleId <= 0) {
+									int    tool_text_brush_id = 0; //SPaintToolBox::rbr3DFace;
+									CStyleId = r_tb.CreateCStyle(0, FontId, TProgram::tbiBlackPen, tool_text_brush_id);
+								}
+								SParaDescr pd;
+								int    tid_para = r_tb.CreateParagraph(0, &pd);
+								STextLayout tlo;
+								tlo.SetText(code_buf);
+								tlo.SetOptions(STextLayout::fOneLine|STextLayout::fVCenter, tid_para, CStyleId);
+								tlo.SetBounds(rect_elem);
+								tlo.Arrange(dctx, r_tb);
+								canv.DrawTextLayout(&tlo);
+							}
+						}
+					}
+				}
+				else
+					p_draw_item->ItemAction = 0; // Список не активен - строку не рисуем
+			}
+		}
+	}
 	virtual int setupList()
 	{
 		int    ok = 1;
@@ -2268,7 +2349,7 @@ private:
 		PPLotExtCodeContainer::MarkSet ms;
 		PPLotExtCodeContainer::MarkSet::Entry msentry;
 		LongArray idx_list;
-		Data.Get(0, &idx_list, ms);
+		Data.Get(RowIdx, &idx_list, ms);
 		long list_pos_idx = 0;
 		for(uint boxidx = 0; boxidx < ms.GetCount(); boxidx++) {
 			if(ms.GetByIdx(boxidx, msentry)) {
@@ -2315,7 +2396,7 @@ private:
 		rec.BillID = P_Pack->Rec.ID;
 		rec.RByBill = RowIdx;
 		while(ok < 0 && EditItemDialog(rec, 0, set) > 0) {
-			if(Data.Add(RowIdx, set)) {
+			if(Data.AddValidation(set)) {
 				ok = 1;
 			}
 			else
@@ -2391,10 +2472,6 @@ private:
 					PPErrorByDialog(dlg, sel);
 				}
 			}
-			else if(P_LotXcT) {
-				STRNSCPY(rRec.Code, mark_buf);
-				ok = 1;
-			}
 			else {
 				rSet.AddNum(0, mark_buf, 1);
 				STRNSCPY(rRec.Code, mark_buf);
@@ -2405,11 +2482,31 @@ private:
 		delete dlg;
 		return ok;
 	}
-	const int RowIdx;
-	const PPBillPacket * P_Pack;
+	const  int RowIdx;
+	const  PPBillPacket * P_Pack;
+	int    FontId;
+	int    CStyleId;
 	PPLotExtCodeContainer Data;
 	LotExtCodeCore * P_LotXcT;
 };
+
+int SLAPI BillItemBrowser::ValidateExtCodeList()
+{
+	int    ok = -1;
+	ValidateLotXCodeListDialog * dlg = 0;
+	if(P_Pack && P_Pack->XcL.GetCount()) {
+		dlg = new ValidateLotXCodeListDialog(P_Pack);
+		if(CheckDialogPtr(&dlg)) {
+			dlg->setDTS(&P_Pack->_VXcL);
+			if(ExecView(dlg) == cmOK) {
+				dlg->getDTS(&P_Pack->_VXcL);
+				ok = 1;
+			}
+		}
+	}
+	delete dlg;
+	return ok;
+}
 
 int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 {
@@ -2946,6 +3043,9 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 							EditExtCodeList(c+1);
 						}
 					}
+					else if(TVCHR == kbCtrlD) {
+						ValidateExtCodeList();
+					}
 					else if(TVCHR == kbCtrlL) {
 						if(!EventBarrier()) {
 							int    c = getCurItemPos();
@@ -3470,7 +3570,7 @@ int SLAPI PPObjBill::AddPckgToBillPacket(PPID pckgID, PPBillPacket * pPack)
 		LPackage pckg;
 		ReceiptTbl::Rec lot_rec;
 		if(pPack->P_PckgList)
-			THROW_PP(pPack->P_PckgList->GetByID(pckgID) <= 0, PPERR_PCKGINBILL);
+			THROW_PP(!pPack->P_PckgList->GetByID(pckgID), PPERR_PCKGINBILL);
 		THROW(P_PckgT->GetPckg(pckgID, &pckg) > 0);
 		if(trfr->Rcpt.Search(pckgID, &lot_rec) > 0) {
 			THROW_PP(pPack->Rec.LocID == 0 || lot_rec.LocID == pPack->Rec.LocID, PPERR_MISSPCKGLOC);

@@ -1,5 +1,5 @@
 // V_LOT.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1330,8 +1330,13 @@ int SLAPI PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 						THROW(ep);
 						PPWait(1);
 						if(selection == (PPEDIOP_EGAIS_ACTCHARGEONSHOP+1000)) {
-							MakeLotListForEgaisRetReg2ToWh(ep, ep.GetConfig().SupplRetOpID,  loc_id, ret_bill_lot_list);
-							MakeLotListForEgaisRetReg2ToWh(ep, ep.GetConfig().IntrExpndOpID, loc_id, ret_bill_lot_list);
+							// @v10.3.0 Защита на случай если ep.GetConfig().SupplRetOpID == ep.GetConfig().IntrExpndOpID
+							const PPID suppl_ret_op_id = ep.GetConfig().SupplRetOpID;
+							const PPID intr_expnd_op_id = ep.GetConfig().IntrExpndOpID;
+							if(suppl_ret_op_id)
+								MakeLotListForEgaisRetReg2ToWh(ep, suppl_ret_op_id,  loc_id, ret_bill_lot_list);
+							if(intr_expnd_op_id && intr_expnd_op_id != suppl_ret_op_id)
+								MakeLotListForEgaisRetReg2ToWh(ep, intr_expnd_op_id, loc_id, ret_bill_lot_list);
 						}
 						else {
 							for(InitIteration(); NextIteration(&item) > 0;) {
@@ -2505,17 +2510,17 @@ int SLAPI PPViewLot::RevalCostByLots()
 //
 // Global standalone functions
 //
-int SLAPI ViewLots(PPID goods, PPID loc, PPID suppl, PPID qcert, int modeless)
+int FASTCALL ViewLots(PPID goods, PPID loc, PPID suppl, PPID qcert, int modeless)
 {
 	LotFilt flt;
 	flt.GoodsID = goods;
 	flt.LocID   = loc;
 	flt.SupplID = suppl;
 	flt.QCertID = qcert;
-	return ViewLots(&flt, 0, modeless);
+	return ::ViewLots(&flt, 0, modeless);
 }
 
-int SLAPI ViewLots(const LotFilt * pFilt, int asOrders, int asModeless) { return PPView::Execute(PPVIEW_LOT, pFilt, asModeless, (void *)BIN(asOrders)); }
+int FASTCALL ViewLots(const LotFilt * pFilt, int asOrders, int asModeless) { return PPView::Execute(PPVIEW_LOT, pFilt, asModeless, (void *)BIN(asOrders)); }
 //
 // Implementation of PPALDD_Lot
 //

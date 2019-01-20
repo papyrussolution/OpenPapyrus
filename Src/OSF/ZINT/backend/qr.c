@@ -1924,7 +1924,7 @@ static void get_bitlength(int count[], char stream[])
 	} while(i < length);
 }
 
-static void microqr_expand_binary(char binary_stream[], char full_stream[], int version)
+static void microqr_expand_binary(const char binary_stream[], char full_stream[], int version)
 {
 	const int length = strlen(binary_stream);
 	int i = 0;

@@ -5546,10 +5546,8 @@ int SLAPI PPViewBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 					update = 1;
 				break;
 			case PPVCMD_VIEWOP:
-				{
-					PPObjOprKind op_obj;
-					ok = (P_BObj->Search(hdr.ID, &bill_rec) > 0 && op_obj.Edit(&bill_rec.OpID, 0) == cmOK) ? 1 : -1;
-				}
+				if(P_BObj->P_OpObj)
+					ok = (P_BObj->Search(hdr.ID, &bill_rec) > 0 && P_BObj->P_OpObj->Edit(&bill_rec.OpID, 0) == cmOK) ? 1 : -1;
 				break;
 			case PPVCMD_BILLSBYORDER:
 				if((ok = ViewBillsByOrder(hdr.ID)) > 0)
@@ -5831,7 +5829,7 @@ int FASTCALL ViewGoodsBills(BillFilt * pFilt, int asModeless)
 	return ok;
 }
 
-int SLAPI ViewBillsByPool(PPID poolType, PPID poolOwnerID)
+int FASTCALL ViewBillsByPool(PPID poolType, PPID poolOwnerID)
 {
 	int    ok = -1;
 	int    pool_bytype = BIN(poolOwnerID && oneof5(poolType, PPASS_OPBILLPOOL, PPASS_TODOBILLPOOL,

@@ -171,7 +171,7 @@ int ScCheckDbfOpening(DbfTable * pTbl, const char * pLogFile)
 		return 1;
 }
 
-int ScCreateDbfTable(DbfTable * pTbl, int numFlds, DBFCreateFld * pFlds, const char * pLogFile)
+int ScCreateDbfTable(DbfTable * pTbl, int numFlds, const DBFCreateFld * pFlds, const char * pLogFile)
 {
 	if(!pTbl->create(numFlds, pFlds)) {
 		char log_buf[128];
@@ -773,7 +773,7 @@ int SyncTable::TransmitCompressedFile(PROGRESSFN pFn, SpiiExchgContext * pCtx)
 	const size_t InitBlockSize = 24*1024;
 
 	int    ok = 1;
-	char   log_msg[128];
+	//char   log_msg[128];
 	SString wait_msg_buf;
 	SString msg_buf;
 	char   out_file_name[MAXPATH]; // @debug
@@ -830,7 +830,7 @@ int SyncTable::TransmitCompressedFile(PROGRESSFN pFn, SpiiExchgContext * pCtx)
 						fseek(f, (long)rec_size, SEEK_CUR);
 						PPLoadText(PPTXT_SKIPTOOBIGRECORD, msg_buf);
                         msg_buf.Transf(CTRANSF_INNER_TO_OUTER).Space().Cat(hdr.Name).Space().Cat(i+1);
-                        LogMessage(pCtx->LogFile, log_msg);
+                        LogMessage(pCtx->LogFile, msg_buf); // @v10.3.0 @fix log_msg-->msg_buf
 					}
 					else {
 						hdr_list.at(current_hdr_pos-1).NumRecs++;
@@ -906,12 +906,12 @@ int SyncTable::TransmitCompressedFile(PROGRESSFN pFn, SpiiExchgContext * pCtx)
 			{
 				long recv_size = (pCtx->PalmCfg.RecvBufSize) ? pCtx->PalmCfg.RecvBufSize : InitBlockSize/*PALMARCBUFSIZE*/;
 				long tail_len = 0;
-
 				SFileUtil::Stat fs;
 				SFileUtil::GetStat(out_file_name, &fs);
 				THROW_S_S(f_out = fopen(out_file_name, "rb"), SLERR_OPENFAULT, out_file_name);
 				numrecs = (long)(fs.Size / (int64)recv_size);
-				if(tail_len = (long)(fs.Size % (int64)recv_size))
+				tail_len = (long)(fs.Size % (int64)recv_size);
+				if(tail_len)
 					numrecs++;
 				PPLoadText(PPTXT_DATATRANSFTOPDA, wait_msg_buf);
 				wait_msg_buf.Transf(CTRANSF_INNER_TO_OUTER);
@@ -932,15 +932,15 @@ int SyncTable::TransmitCompressedFile(PROGRESSFN pFn, SpiiExchgContext * pCtx)
 		}
 		stbl.Close();
 		{
-			sprintf(log_msg, "SPII OK: %ld COMPRESSED DATA records exported", numrecs);
-			LogMessage(pCtx->LogFile, log_msg);
+			msg_buf.Printf("SPII OK: %ld COMPRESSED DATA records exported", numrecs);
+			LogMessage(pCtx->LogFile, msg_buf);
 		}
 	}
 	CATCH
 		ok = 0;
 		{
-			sprintf(log_msg, "SPII ERR: COMPRESSED DATA export failed");
-			LogMessage(pCtx->LogFile, log_msg);
+			msg_buf.Printf("SPII ERR: COMPRESSED DATA export failed");
+			LogMessage(pCtx->LogFile, msg_buf);
 		}
 	ENDCATCH
 	delete p_blk;

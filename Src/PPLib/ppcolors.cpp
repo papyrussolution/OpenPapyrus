@@ -869,7 +869,8 @@ void ColorCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 				ListWindowSmartListBox * p_lbx = (ListWindowSmartListBox *)p_di->P_View;
 				if(p_lbx && p_lbx->combo->TestId(CtlSel)) {
 					HDC      h_dc = p_di->H_DC;
-					HBRUSH   old_brush   = 0, brush = 0;
+					HBRUSH   old_brush = 0;
+					HBRUSH   brush = 0;
 					COLORREF old_color = 0;
 					RECT   rc = p_di->ItemRect;
 					if(p_di->ItemAction & TDrawItemData::iaBackground) {

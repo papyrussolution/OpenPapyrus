@@ -18,14 +18,14 @@ GoodsIterator::Ext & GoodsIterator::Ext::Z()
 }
 
 // static
-int SLAPI GoodsIterator::GetListByGroup(PPID grpID, PPIDArray * pList)
+int FASTCALL GoodsIterator::GetListByGroup(PPID grpID, PPIDArray * pList)
 {
 	GoodsIterator iter(grpID, 0);
 	return (!iter.P_List || pList->copy(*iter.P_List)) ? 1 : PPSetErrorSLib();
 }
 
 // static
-int SLAPI GoodsIterator::GetListByFilt(GoodsFilt * pFilt, PPIDArray * pList, PPIDArray * pDupDynGrpList)
+int FASTCALL GoodsIterator::GetListByFilt(const GoodsFilt * pFilt, PPIDArray * pList, PPIDArray * pDupDynGrpList)
 {
 	int    ok = -1;
 	if(pFilt && pList) {
@@ -47,7 +47,7 @@ int SLAPI GoodsIterator::GetListByFilt(GoodsFilt * pFilt, PPIDArray * pList, PPI
 }
 
 //static
-int SLAPI GoodsIterator::GetListByFilt(GoodsFilt * pFilt, StrAssocArray * pList, int byName)
+int FASTCALL GoodsIterator::GetListByFilt(const GoodsFilt * pFilt, StrAssocArray * pList, int byName)
 {
 	int    ok = -1;
 	if(pFilt && pList) {

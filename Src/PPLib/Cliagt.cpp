@@ -171,7 +171,7 @@ struct _PPClientAgt {      // @persistent @store(PropertyTbl) @#{size=PROPRECFIX
 };
 
 //static
-int SLAPI PPObjArticle::PropToClientAgt(const PropertyTbl::Rec * pPropRec, PPClientAgreement * pAgt, int loadDebtLimList /*=0*/)
+int FASTCALL PPObjArticle::PropToClientAgt(const PropertyTbl::Rec * pPropRec, PPClientAgreement * pAgt, int loadDebtLimList /*=0*/)
 {
 	int    ok = 1;
 	const _PPClientAgt * p_agt = (const _PPClientAgt *)pPropRec;
@@ -1237,31 +1237,30 @@ struct _PPSupplAgt {       // @persistent @store(PropertyTbl)
 };
 
 // static
-int SLAPI PPObjArticle::PropToSupplAgt(const PropertyTbl::Rec * pPropRec, PPSupplAgreement * pAgt)
+int FASTCALL PPObjArticle::PropToSupplAgt(const PropertyTbl::Rec & rPropRec, PPSupplAgreement * pAgt)
 {
-	const _PPSupplAgt * p_agt = (const _PPSupplAgt *)pPropRec;
-	pAgt->SupplID         = p_agt->ArtID;
-	pAgt->Flags           = (p_agt->Flags | AGTF_LOADED);
-	pAgt->BegDt           = p_agt->BegDt;
-	pAgt->Expiry          = p_agt->Expiry;
-	pAgt->DefPayPeriod    = p_agt->DefPayPeriod;
-	pAgt->DefAgentID      = p_agt->DefAgentID;
-	pAgt->CostQuotKindID  = p_agt->CostQuotKindID;
-	pAgt->DefDlvrTerm     = p_agt->DefDlvrTerm;
-	pAgt->PctRet          = p_agt->PctRet;
-	pAgt->PurchaseOpID    = p_agt->PurchaseOpID;
-	pAgt->DevUpQuotKindID = p_agt->DevUpQuotKindID;
-	pAgt->DevDnQuotKindID = p_agt->DevDnQuotKindID;
-	pAgt->MngrRelID       = p_agt->MngrRelID;
-	pAgt->InvPriceAction  = p_agt->InvPriceAction;
-	// @v8.5.2 pAgt->OrdPrdDays      = p_agt->OrdPrdDays;
-    pAgt->Dr.Init(p_agt->OrdDrPrd, p_agt->OrdDrKind);
-    pAgt->Dr.LongToDtl(p_agt->OrdDrDtl);
+	const _PPSupplAgt & r_agt = *(const _PPSupplAgt *)&rPropRec;
+	pAgt->SupplID         = r_agt.ArtID;
+	pAgt->Flags           = (r_agt.Flags | AGTF_LOADED);
+	pAgt->BegDt           = r_agt.BegDt;
+	pAgt->Expiry          = r_agt.Expiry;
+	pAgt->DefPayPeriod    = r_agt.DefPayPeriod;
+	pAgt->DefAgentID      = r_agt.DefAgentID;
+	pAgt->CostQuotKindID  = r_agt.CostQuotKindID;
+	pAgt->DefDlvrTerm     = r_agt.DefDlvrTerm;
+	pAgt->PctRet          = r_agt.PctRet;
+	pAgt->PurchaseOpID    = r_agt.PurchaseOpID;
+	pAgt->DevUpQuotKindID = r_agt.DevUpQuotKindID;
+	pAgt->DevDnQuotKindID = r_agt.DevDnQuotKindID;
+	pAgt->MngrRelID       = r_agt.MngrRelID;
+	pAgt->InvPriceAction  = r_agt.InvPriceAction;
+    pAgt->Dr.Init(r_agt.OrdDrPrd, r_agt.OrdDrKind);
+    pAgt->Dr.LongToDtl(r_agt.OrdDrDtl);
 	return 1;
 }
 
 // static
-int SLAPI PPObjArticle::HasSupplAgreement(PPID id)
+int FASTCALL PPObjArticle::HasSupplAgreement(PPID id)
 {
 	int    yes = 0;
 	if(id > 0) {
@@ -1277,7 +1276,7 @@ int SLAPI PPObjArticle::HasSupplAgreement(PPID id)
 }
 
 // static
-int SLAPI PPObjArticle::GetSupplAgreement(PPID id, PPSupplAgreement * pAgt, int useInheritance)
+int FASTCALL PPObjArticle::GetSupplAgreement(PPID id, PPSupplAgreement * pAgt, int useInheritance)
 {
 	int    ok = -1;
 	if(pAgt) {
@@ -1299,7 +1298,7 @@ int SLAPI PPObjArticle::GetSupplAgreement(PPID id, PPSupplAgreement * pAgt, int 
 				PPSupplExchangeCfg _ex_cfg;
 				THROW(p_ref->GetProperty(PPOBJ_ARTICLE, id, ARTPRP_SUPPLAGT_EXCH, &_ex_cfg, sizeof(_ex_cfg)));
 				pAgt->Ep = _ex_cfg;
-				PropToSupplAgt(&prop_rec, pAgt);
+				PropToSupplAgt(prop_rec, pAgt);
 				pAgt->SupplID = id;
 				ok = 1;
 			}
@@ -1313,22 +1312,11 @@ int SLAPI PPObjArticle::GetSupplAgreement(PPID id, PPSupplAgreement * pAgt, int 
 						PPObjArticle ar_obj;
 						if(ar_obj.GetRelPersonList(id, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0) {
 							for(uint i = 0; r < 0 && i < rel_list.getCount(); i++) {
-								PPID rel_ar_id = ObjectToPerson(rel_list.get(i), 0);
-								// @v8.5.0 {
+								const PPID rel_ar_id = ObjectToPerson(rel_list.get(i), 0);
 								if(GetSupplAgreement(rel_ar_id, pAgt, 0) > 0) { // @recursion не зависимо от версии хранения результат будет верным
 									pAgt->SupplID = id;
 									ok = 2;
 								}
-								// } @v8.5.0
-								/* @v8.5.0
-								THROW(r = p_ref->GetProp(PPOBJ_ARTICLE, rel_ar_id, ARTPRP_SUPPLAGT, &prop_rec, sizeof(prop_rec)));
-								if(r > 0) {
-									THROW(p_ref->GetProp(PPOBJ_ARTICLE, rel_ar_id, ARTPRP_SUPPLAGT_EXCH, &pAgt->ExchCfg, sizeof(pAgt->ExchCfg)));
-									PropToSupplAgt(&prop_rec, pAgt);
-									pAgt->SupplID = id;
-									ok = 2;
-								}
-								*/
 							}
 						}
 					}
@@ -2004,7 +1992,7 @@ int SupplAgtDialog::getDTS(PPSupplAgreement * pAgt)
 }
 
 // static
-int SLAPI PPObjArticle::EditSupplAgreement(PPSupplAgreement * pAgt) { DIALOG_PROC_BODY_P1(SupplAgtDialog, pAgt ? pAgt->SupplID : 0, pAgt); }
+int FASTCALL PPObjArticle::EditSupplAgreement(PPSupplAgreement * pAgt) { DIALOG_PROC_BODY_P1(SupplAgtDialog, pAgt ? pAgt->SupplID : 0, pAgt); }
 
 // static
 int SLAPI PPObjArticle::DefaultSupplAgreement()
@@ -2022,7 +2010,7 @@ int SLAPI PPObjArticle::DefaultSupplAgreement()
 }
 
 //static
-int SLAPI PPObjArticle::GetAgreementKind(const ArticleTbl::Rec * pArRec)
+int FASTCALL PPObjArticle::GetAgreementKind(const ArticleTbl::Rec * pArRec)
 {
 	int    ok = -1;
 	PPObjAccSheet acs_obj;

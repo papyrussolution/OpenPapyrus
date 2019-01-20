@@ -2196,7 +2196,6 @@ int PPPosProtocol::EndElement(const char * pName)
 				switch(type) {
 					case obSource:
 					case obDestination: Helper_AddStringToPool(&((RouteObjectBlock *)p_item)->CodeP); break;
-						break;
 				}
 				break;
 			case PPHS_SYSTEM:

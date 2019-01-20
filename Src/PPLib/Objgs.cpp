@@ -1587,20 +1587,18 @@ static int SLAPI EditGoodsStrucItem(const PPGoodsStruc * pStruc, PPGoodsStrucIte
 		dlg->getCtrlData(CTL_GSITEM_NETTO, &item.Netto);
 		dlg->getCtrlData(CTL_GSITEM_SYMB, item.Symb);
 		SETFLAG(item.Flags, GSIF_GOODSGROUP, dlg->getCtrlUInt16(CTL_GSITEM_GROUPONLY));
-		if(!item.SetEstimationString(temp_buf))
+		item.GoodsID = (item.Flags & GSIF_GOODSGROUP) ? rec.GrpID : rec.GoodsID;
+		if(!item.GoodsID || gobj.Fetch(item.GoodsID, &goods_rec) <= 0)
+			PPErrorByDialog(dlg, CTLSEL_GSITEM_GOODS, (item.Flags & GSIF_GOODSGROUP) ? PPERR_GOODSGROUPNEEDED : PPERR_GOODSNEEDED);
+		else if(!item.SetEstimationString(temp_buf))
 			PPErrorByDialog(dlg, CTL_GSITEM_VALUE);
 		else if(!item.SetFormula(formula, pStruc))
 			PPErrorByDialog(dlg, CTL_GSITEM_FORMULA);
 		else if(item.Flags & GSIF_PHUVAL && goods_rec.PhUPerU == 0) //TODO: V614 https://www.viva64.com/en/w/v614/ Uninitialized variable 'goods_rec.PhUPerU' used.
 			PPErrorByDialog(dlg, CTL_GSITEM_UNITS, PPERR_PHUFORGOODSWOPHU);
 		else {
-			item.GoodsID = (item.Flags & GSIF_GOODSGROUP) ? rec.GrpID : rec.GoodsID;
-			if(!item.GoodsID || gobj.Fetch(item.GoodsID, &goods_rec) <= 0)
-				PPErrorByDialog(dlg, CTLSEL_GSITEM_GOODS, (item.Flags & GSIF_GOODSGROUP) ? PPERR_GOODSGROUPNEEDED : PPERR_GOODSNEEDED);
-			else {
-				*pItem = item;
-				ok = valid_data = 1;
-			}
+			*pItem = item;
+			ok = valid_data = 1;
 		}
 	}
 	CATCHZOKPPERR

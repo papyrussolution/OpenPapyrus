@@ -67,17 +67,17 @@ static int FASTCALL _search_item(int count, const int * pArray, int item)
 	return -1;
 }
 
-int SLAPI DBQuery::_max_hdl(DBDataCell * c, int * list, int _max)
+int SLAPI DBQuery::_max_hdl(DBDataCell * c, const int * pList, int _max)
 {
 	if(c->GetId() > 0) {
-		const int tmp = _search_item(tblCount, list, c->GetId());
+		const int tmp = _search_item(tblCount, pList, c->GetId());
 		_max = MAX(_max, tmp);
 	}
 	else if(c->GetId() == DBE_ID) {
 		for(int i = 0; i < c->E.Count; i++) {
 			const int h = c->E.getTblHandle(i);
 			if(h > 0) {
-				const int tmp = _search_item(tblCount, list, h);
+				const int tmp = _search_item(tblCount, pList, h);
 				_max = MAX(_max, tmp);
 			}
 		}
@@ -85,9 +85,10 @@ int SLAPI DBQuery::_max_hdl(DBDataCell * c, int * list, int _max)
 	return _max;
 }
 
-int SLAPI DBQuery::arrangeTerms()
+void SLAPI DBQuery::arrangeTerms()
 {
 	int   list[32];
+	assert(tblCount <= sizeof(list));
 	uint  n;
 	for(n = 0; n < tblCount; n++)
 		list[n] = tbls[n].tbl->GetHandle();
@@ -97,7 +98,6 @@ int SLAPI DBQuery::arrangeTerms()
 		if(t->flags & DBQ_OUTER && t->tblIdx >= 0)
 			tbls[t->tblIdx].flg |= DBQTF_OUTER_JOIN;
 	}
-	return 1;
 }
 //
 #define BIND                      1
@@ -258,7 +258,8 @@ int FASTCALL DBQuery::chooseKey(int tblN)
 		}
 		SAlloc::F(p_best_trace);
 		t.tbl->setIndex(t.tbl->GetIndices()[t.key.P_h->keyNum].getKeyNumber());
-		if((t.keyBuf = new char[MAXKEYLEN]) == 0)
+		t.keyBuf = new char[MAXKEYLEN];
+		if(t.keyBuf == 0)
 			return 0;
 	}
 	return 1;
@@ -438,12 +439,12 @@ DBQuery & SLAPI selectAll()
 
 DBQuery & SLAPIV DBQuery::from(DBTable * first_arg, ...)
 {
-	register int i = 0;
-	va_list  list;
+	uint   i = 0;
 	DBTable * p_tbl;
-	list = (va_list)&first_arg;
-	while((p_tbl = va_arg(list, DBTable*)) != 0)
-		if((tbls = (Tbl*)SAlloc::R(tbls, sizeof(Tbl) * (i+1))) != 0) {
+	va_list  list = (va_list)&first_arg;
+	while((p_tbl = va_arg(list, DBTable*)) != 0) {
+		tbls = (Tbl*)SAlloc::R(tbls, sizeof(Tbl) * (i+1));
+		if(tbls) {
 			tbls[i].tbl    = p_tbl;
 			tbls[i].tree.init(0);
 			tbls[i].key.P_b  = 0;
@@ -455,6 +456,7 @@ DBQuery & SLAPIV DBQuery::from(DBTable * first_arg, ...)
 			i = 0;
 			break;
 		}
+	}
 	tblCount = i;
 	va_end(list);
 	syntax |= t_from;
@@ -527,19 +529,15 @@ int SLAPI DBQuery::checkWhereRestriction()
 DBQuery & FASTCALL DBQuery::where(DBQ & q)
 {
 	if(&q != 0) {
-		int isFirst = !(syntax & t_where);
+		const int is_first = !(syntax & t_where);
 		if(w_restrict) {
 			w_restrict->destroy(1);
 			delete w_restrict;
 		}
 		w_restrict = &q;
-		if(!arrangeTerms()) {
-			error = 1;
-			syntax |= t_where;
-			return *this;
-		}
+		arrangeTerms();
 		for(int i = tblCount-1; i >= 0; i--) {
-			if(!isFirst) {
+			if(!is_first) {
 				tbls[i].tree.destroy();
 				tbls[i].key.destroy();
 				if(tbls[i].keyBuf) {

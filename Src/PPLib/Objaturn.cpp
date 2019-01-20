@@ -1,5 +1,5 @@
 // OBJATURN.CPP
-// Copyright (c) A.Sobolev 1996-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2009, 2010, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2009, 2010, 2013, 2015, 2016, 2017, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -21,19 +21,11 @@ SLAPI PPObjAccTurn::~PPObjAccTurn()
 }
 
 int SLAPI PPObjAccTurn::ConvertStr(const char * pStr, PPID curID, Acct * pAcct, AcctID * pAcctId, PPID * pSheetID)
-{
-	return P_Tbl->ConvertStr(pStr, curID, pAcct, pAcctId, pSheetID);
-}
-
+	{ return P_Tbl->ConvertStr(pStr, curID, pAcct, pAcctId, pSheetID); }
 int SLAPI PPObjAccTurn::ConvertAcct(const Acct * pAcct, PPID curID, AcctID * pAcctId, PPID * pAccSheetID)
-{
-	return P_Tbl->ConvertAcct(pAcct, curID, pAcctId, pAccSheetID);
-}
-
+	{ return P_Tbl->ConvertAcct(pAcct, curID, pAcctId, pAccSheetID); }
 int SLAPI PPObjAccTurn::ConvertAcctID(const AcctID * acctid, Acct * acct, PPID * pCurID, int useCache)
-{
-	return P_Tbl->ConvertAcctID(acctid, acct, pCurID, useCache);
-}
+	{ return P_Tbl->ConvertAcctID(acctid, acct, pCurID, useCache); }
 
 int SLAPI PPObjAccTurn::VerifyRevokingCurFromAccount(PPID accID, PPID curID)
 {
@@ -88,12 +80,13 @@ int SLAPI PPObjAccTurn::CreateBlankAccTurn(PPID opID, PPBillPacket * pPack, long
 	return ok;
 }
 
-int SLAPI PPObjAccTurn::CreateBlankAccTurnBySample(PPBillPacket * pPack, PPBillPacket * pSamplePack, long * pFlags)
+int SLAPI PPObjAccTurn::CreateBlankAccTurnBySample(PPBillPacket * pPack, const PPBillPacket * pSamplePack, long * pFlags)
 {
 	int       ok = 1;
 	long      f = 0;
 	PPAccTurnTemplArray att_list;
-	PPAccTurn at, * p_sample_at = 0;
+	PPAccTurn at;
+	const PPAccTurn * p_sample_at = 0;
 	THROW(pPack->CreateBlankBySample(pSamplePack->Rec.ID, 1));
 	pPack->CreateAccTurn(&at);
 	if(pSamplePack->Turns.getCount() > 0)

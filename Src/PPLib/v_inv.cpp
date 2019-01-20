@@ -1312,7 +1312,7 @@ int SLAPI PPViewInventory::AddItem(TIDlgInitData * pInitData)
 	return ok;
 }
 
-#define INVDBQ_GOODSIDOFFS sizeof(long) * 2
+#define INVDBQ_GOODSIDOFFS (sizeof(long) * 2)
 
 /*static int SLAPI InvItemQuickInputDialog(int initChar, SString & rBuf, double & rQtty)
 {

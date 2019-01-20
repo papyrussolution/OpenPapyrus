@@ -143,7 +143,7 @@ private:
 	int    SLAPI ImportZRepList(SVector * pZRepList, int isLocalFiles);
 	int    SLAPI ConvertWareList(const SVector * pZRepList, const char *);
 	int    SLAPI ConvertWareListV10(const SVector * pZRepList, const char * pPath, const char *);
-	int    SLAPI ConvertCheckHeads(SVector * pZRepList, const char *);
+	int    SLAPI ConvertCheckHeads(const SVector * pZRepList, const char *);
 	int    SLAPI ConvertCheckRows(const char *);
 	int    SLAPI GetSeparatedFileSet(int filTyp);
 	int    SLAPI CreateSCardPaymTbl();
@@ -3065,13 +3065,9 @@ private:
 	xmlTextReader * P_Reader;
 };
 
-SLAPI XmlReader::XmlReader(const char * pPath, PPIDArray * pLogNumList, int subVer)
+SLAPI XmlReader::XmlReader(const char * pPath, PPIDArray * pLogNumList, int subVer) : P_Reader(0), P_LogNumList(pLogNumList), ChecksCount(0), P_CurRec(0), P_Doc(0)
 {
 	const char * p_chr_tag = "purchase";
-	P_LogNumList = pLogNumList;
-	ChecksCount = 0;
-	P_CurRec    = 0;
-	P_Doc       = 0;
 	if(pPath)
 		P_Reader = xmlReaderForFile(pPath, NULL, XML_PARSE_NOENT);
 	if(P_Reader) {
@@ -3806,7 +3802,7 @@ int SLAPI ACS_CRCSHSRV::ConvertWareList(const SVector * pZRepList, const char * 
 	return ok;
 }
 
-int SLAPI ACS_CRCSHSRV::ConvertCheckHeads(SVector * pZRepList, const char * pWaitMsg)
+int SLAPI ACS_CRCSHSRV::ConvertCheckHeads(const SVector * pZRepList, const char * pWaitMsg)
 {
 	int     ok = 1;
 	SString file_name, save_file_name;

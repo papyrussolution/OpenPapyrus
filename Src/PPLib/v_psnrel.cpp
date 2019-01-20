@@ -1,5 +1,5 @@
 // V_PSNREL.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2009, 2010, 2016, 2017
+// Copyright (c) A.Starodub 2006, 2007, 2009, 2010, 2016, 2017, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -217,7 +217,7 @@ int SLAPI PPViewPersonRel::MakeTempEntry(const PersonCore::RelationRecord * pRec
 	return ok;
 }
 
-int SLAPI PPViewPersonRel::MakeTempOrdEntry(long ord, TempPersonRelTbl::Rec * pTempRec, TempOrderTbl::Rec * pOrdRec)
+int SLAPI PPViewPersonRel::MakeTempOrdEntry(long ord, const TempPersonRelTbl::Rec * pTempRec, TempOrderTbl::Rec * pOrdRec)
 {
 	int    ok = -1;
 	if(pTempRec && pOrdRec) {
@@ -235,19 +235,19 @@ int SLAPI PPViewPersonRel::MakeTempOrdEntry(long ord, TempPersonRelTbl::Rec * pT
 	return ok;
 }
 
-int SLAPI PPViewPersonRel::UpdateTempTable(PPID prmrID, PPIDArray * pScndList, PPID relation, int reverse)
+int SLAPI PPViewPersonRel::UpdateTempTable(PPID prmrID, const PPIDArray & rScndList, PPID relation, int reverse)
 {
 	int    ok = 1;
 	if(P_TempTbl) {
 		PPTransaction tra(ppDbDependTransaction, 1);
 		THROW(tra);
-		for(uint i = 0; i < pScndList->getCount(); i++) {
+		for(uint i = 0; i < rScndList.getCount(); i++) {
 			int found = 0;
-			PPID id = 0, scnd_id = (reverse) ? prmrID : pScndList->at(i), prmr_id = (reverse) ? pScndList->at(i) : prmrID;
+			PPID id = 0;
+			PPID scnd_id = (reverse) ? prmrID : rScndList.at(i), prmr_id = (reverse) ? rScndList.at(i) : prmrID;
 			//ObjAssocTbl::Rec oa_rec;
 			PersonCore::RelationRecord rel_rec;
 			TempPersonRelTbl::Key1 k1;
-
 			MEMSZERO(rel_rec);
 			MEMSZERO(k1);
 			k1.PrmrPersonID   = prmr_id;
@@ -507,7 +507,7 @@ int SLAPI PPViewPersonRel::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 	}
 	if(ok > 0 && oneof4(ppvCmd, PPVCMD_ADDITEM, PPVCMD_ADDREVERSEITEM, PPVCMD_DELETEITEM, PPVCMD_EDITITEM)) {
 		scnd_list.sort();
-		UpdateTempTable(prmr_id, &scnd_list, rel, reverse);
+		UpdateTempTable(prmr_id, scnd_list, rel, reverse);
 		CALLPTRMEMB(pBrw, Update());
 	}
 	return ok;

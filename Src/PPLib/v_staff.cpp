@@ -1031,7 +1031,8 @@ StrAssocArray * FastEditSumByDivDlg::MakeSumList(long divID)
 			p_ret_list->SortByText();
 		}
 		if(ObjStaffCal.CheckRights(PPR_READ)) {
-			if(p_staffcal_list = ObjStaffCal.MakeStrAssocList((divt != divtTop) ? &sc_flt : 0)) {
+			p_staffcal_list = ObjStaffCal.MakeStrAssocList((divt != divtTop) ? &sc_flt : 0);
+			if(p_staffcal_list) {
 				p_staffcal_list->SortByText();
 				for(uint i = 0; i < p_staffcal_list->getCount(); i++)
 					p_ret_list->Add(p_staffcal_list->Get(i).Id, p_staffcal_list->Get(i).Txt);

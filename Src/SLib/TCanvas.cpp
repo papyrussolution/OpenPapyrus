@@ -1,5 +1,5 @@
 // TCANVAS.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -435,6 +435,7 @@ int SLAPI TCanvas2::Helper_SelectPen(SPaintToolBox * pTb, int penId)
 					double dashed[8];
 					cairo_set_line_width(P_Cr, p_pen->W__);
 					if(p_pen->S == SPaintObj::psSolid) {
+						dashed[0] = 0.0;
 						cairo_set_dash(P_Cr, dashed, 0, 0);
 					}
 					else if(p_pen->S == SPaintObj::psDash) {
@@ -2196,7 +2197,12 @@ int SPaintObj::Font::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx
 //
 SPaintObj::CStyle::CStyle() : SPaintObj::Base(), FontId(0), PenId(0), BrushId(0)
 {
-	memzero(Reserve, sizeof(Reserve));
+	// @v10.3.0 (@speedcritical) memzero(Reserve, sizeof(Reserve));
+}
+
+SPaintObj::CStyle::CStyle(int fontId, int penId, int brushId) : SPaintObj::Base(), FontId(fontId), PenId(penId), BrushId(brushId)
+{
+	// @v10.3.0 (@speedcritical) memzero(Reserve, sizeof(Reserve));
 }
 
 int FASTCALL SPaintObj::CStyle::IsEqual(const CStyle & rS) const
@@ -2492,10 +2498,7 @@ public:
 	int PushGlyph(const SGlyph * pGlyph, FPoint p, uint16 flags)
 	{
 		{
-			STextLayout::Item item;
-			item.P = p;
-			item.GlyphIdx = pGlyph ? pGlyph->Idx : -1;
-			item.Flags = flags;
+			STextLayout::Item item(p, pGlyph, flags);
 			R_List.insert(&item);
 		}
 		{
@@ -4214,10 +4217,7 @@ int SPaintToolBox::CreateCStyle(int ident, int fontId, int penId, int brushId)
 {
 	SPaintObj * p_obj = 0;
 	if(!ident) {
-		SPaintObj::CStyle key;
-		key.FontId = fontId;
-		key.PenId = penId;
-		key.BrushId = brushId;
+		SPaintObj::CStyle key(fontId, penId, brushId);
 		for(uint i = 0; !ident && i < getCount(); i++) {
 			const SPaintObj::CStyle * p_cs = at(i).GetCStyle();
 			if(p_cs && p_cs->IsEqual(key))

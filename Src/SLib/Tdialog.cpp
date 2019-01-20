@@ -19,9 +19,6 @@ int CtrlGroup::getData(TDialog*, void*) { return -1; }
 //
 //
 ODC OwnerDrawCtrls[32]; // @global
-
-// @v9.1.2 int SLAPI PPCalculator();
-//
 //
 //
 // static
@@ -670,11 +667,10 @@ IMPL_HANDLE_EVENT(TDialog)
 						break;
 					case cmaCalculate:
 						{
-							// @v9.1.2 PPCalculator();
 							SlExtraProcBlock epb;
 							SLS.GetExtraProcBlock(&epb);
 							if(epb.F_CallCalc)
-								epb.F_CallCalc((uint32)H(), 0);
+								epb.F_CallCalc(H(), 0);
 						}
 						clearEvent(event);
 						break;

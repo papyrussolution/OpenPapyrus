@@ -641,8 +641,7 @@ static int SLAPI RequestImportGoodsParam(ImportGoodsParam * pData)
 	return ok;
 }
 
-static int SLAPI GetHierarchyFields(PPIniFile * pIniFile, DbfTable * pTbl,
-	uint sectId, uint aliasId, int * pCodeFldN, int * pParentFldN)
+static int SLAPI GetHierarchyFields(PPIniFile * pIniFile, DbfTable * pTbl, uint sectId, uint aliasId, int * pCodeFldN, int * pParentFldN)
 {
 	int    ok = -1;
 	SString fld_name, fld_name_code, fld_name_parent;
@@ -801,6 +800,7 @@ SLAPI GoodsImportBillIdent::~GoodsImportBillIdent()
 {
 	delete P_ArObj;
 	ZDELETE(P_PackList);
+	delete P_CodeToPersonTab; // @v10.3.0 @fix
 }
 
 PPBillPacket * SLAPI GoodsImportBillIdent::GetPacket(PPID opID, PPID locID)

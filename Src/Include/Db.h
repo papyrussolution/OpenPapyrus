@@ -2825,10 +2825,8 @@ public:
 	//
 	DbRegList & GetBDbRegList() { return BDbTableReg; }
 	const DbRegList & GetBDbRegList_Const() const { return BDbTableReg; }
-	//
 	void   FASTCALL InitErrFileName(const char * pFileName);
 	const  char * SLAPI GetLastErrFileName() const;
-
 	int    SLAPI StartTransaction();
 	//
 	// Descr: Запускает транзакцию в случае, если провайдер БД (P_CurDict)
@@ -2860,7 +2858,6 @@ public:
 	int    LastDbErr;
 	SString AddedMsgString;
 	DbProvider * P_CurDict;
-
 	char   ClientID[16];
 private:
 	DbRegList DbTableReg;
@@ -2887,11 +2884,9 @@ public:
 	int    IsConsistent() const;
 	//void   SLAPI SetFlag(long f, int set);
 	//long   SLAPI GetFlag(long f) const;
-
 	void   SetConfig(const Config * pCfg);
 	// @v10.0.0 void   FASTCALL GetConfig(Config & rCfg);
 	const  Config & GetConfig() const { return Cfg; } // @v10.0.0
-
 	int    SLAPI GetTaState();
 	int    SLAPI InitThread();
 	void   SLAPI ReleaseThread();
@@ -2911,7 +2906,6 @@ public:
 	int    FASTCALL SetError(int errCode, const char * pAddedMsg);
 	int    SLAPI OpenDictionary2(DbProvider * pDb);
 	int    SLAPI CloseDictionary();
-
 	void   SLAPI GetProtectData(void * pBuf, int decr) const; // size of buffer must be at least 64 bytes
 	void   SLAPI SetProtectData(const void * pBuf);
 	void   FASTCALL SetAddedMsgString(const char *);
@@ -3553,7 +3547,6 @@ public:
 	//   1
 	//
 	void   SLAPI setSearchForUpdateMode(int set);
-
 	DBQuery & SLAPIV from(DBTable *,...);
 	DBQuery & SLAPIV groupBy(DBField,...);
 	DBQuery & SLAPIV orderBy(DBField,...);
@@ -3577,7 +3570,7 @@ public:
 	int    FASTCALL step(long);
 	int    SLAPI page();
 	int    SLAPI refresh();
-	char *  SLAPI tostr(void * rec, int fld, long fmt, char * buf);
+	char * SLAPI tostr(void * rec, int fld, long fmt, char * buf);
 	int    SLAPI search(const void * pPattern, CompFunc fcmp, int fld, uint srchMode, void * pExtraData = 0);
 
 	static long _defaultBufSize;
@@ -3585,8 +3578,8 @@ public:
 //private:
 	SLAPI  DBQuery();
 	int    SLAPI checkWhereRestriction();
-	int    SLAPI _max_hdl(DBDataCell *, int *, int);
-	int    SLAPI arrangeTerms();
+	int    SLAPI _max_hdl(DBDataCell *, const int * pList, int);
+	void   SLAPI arrangeTerms();
 	int    SLAPI makeNode(int tblN, int * pNode, int option, int * pPos);
 	int    FASTCALL analyzeOrder(int * pKeyArray);
 	int    FASTCALL chooseKey(int tblN);
@@ -3693,8 +3686,8 @@ DBE & __stdcall operator - (double,  DBItem &);
 DBE & __stdcall operator * (double,  DBItem &);
 DBE & __stdcall operator / (double,  DBItem &);
 DBE & __stdcall operator % (long,    DBItem &);
-DBE & __stdcall operator + (char *,  DBItem &);
-DBE & __stdcall operator + (DBItem &, char *);
+DBE & __stdcall operator + (const char *,  DBItem &);
+DBE & __stdcall operator + (DBItem &, const char * pS);
 DBE & __stdcall operator + (LDATE,   DBItem &);
 DBE & __stdcall operator - (LDATE,   DBItem &);
 DBE & __stdcall operator - (DBItem &, LDATE);
@@ -3871,7 +3864,7 @@ public:
 	// то fetchFirst полагается на ту позицию, которая установлена перед ее вызовом.
 	//
 	int    SLAPI fetchFirst(void * initKey = 0, int initSpMode = spFirst);
-	int    SLAPI initIteration(int reverse, void * pInitKey = 0, int initSpMode = spFirst);
+	int    SLAPI initIteration(int reverse, const void * pInitKey = 0, int initSpMode = spFirst);
 	int    SLAPI nextIteration();
 	long   SLAPI countIterations(int reverse, void * pInitKey = 0, int initSpMode = spFirst);
 	int    FASTCALL getRecPosition(DBRowId * pPos);
@@ -4370,7 +4363,7 @@ public:
 	int    GetSequence(long seqId, int64 * pVal);
 	SSerializeContext * GetSCtx() const;
 private:
-	int    Helper_Create(const char * pFileName, int createMode, BDbTable::Config * pCfg);
+	int    Helper_Create(const char * pFileName, int createMode, const BDbTable::Config * pCfg);
 	int    Helper_SetConfig(const char * pHomeDir, const Config & rCfg);
 	//
 	// Descr: Вспомогательная функция, реализующая открытие таблицы базы данных.

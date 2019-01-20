@@ -111,8 +111,8 @@ int SLAPI PPObjBarcodePrinter::Edit(PPID * pID, void * extraPtr)
 	dlg->AddClusterAssocDef(CTL_BCPRT_DATA, 0, 8);
 	dlg->AddClusterAssoc(CTL_BCPRT_DATA,    1, 7);
 	dlg->SetClusterData (CTL_BCPRT_DATA,    rec.Cpp.ByteSize);
-	dlg->setCtrlData(CTL_BCPRT_NARROWPT, &rec.BcNarrowPt); // @v8.0.9
-	dlg->setCtrlData(CTL_BCPRT_WIDEPT,   &rec.BcWidePt);   // @v8.0.9
+	dlg->setCtrlData(CTL_BCPRT_NARROWPT, &rec.BcNarrowPt);
+	dlg->setCtrlData(CTL_BCPRT_WIDEPT,   &rec.BcWidePt);
 	// @v9.2.7 {
 	{
 		ushort cpv = 0;

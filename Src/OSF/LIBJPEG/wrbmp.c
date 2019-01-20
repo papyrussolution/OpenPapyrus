@@ -129,9 +129,7 @@ static void write_bmp_header(j_decompress_ptr cinfo, bmp_dest_ptr dest)
 {
 	char bmpfileheader[14];
 	char bmpinfoheader[40];
-#define PUT_2B(array, offset, value)  \
-	(array[offset] = (char)((value) & 0xFF), \
-	    array[offset+1] = (char)(((value) >> 8) & 0xFF))
+#define PUT_2B(array, offset, value)  (array[offset] = (char)((value) & 0xFF), array[offset+1] = (char)(((value) >> 8) & 0xFF))
 #define PUT_4B(array, offset, value)  \
 	(array[offset] = (char)((value) & 0xFF), \
 	    array[offset+1] = (char)(((value) >> 8) & 0xFF), \

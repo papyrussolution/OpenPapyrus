@@ -4261,7 +4261,7 @@ namespace NArchive {
 			bool   Encrypted;
 			uint   GroupIndex;
 
-			CFilterMode2() : Encrypted(false) 
+			CFilterMode2() : Encrypted(false), GroupIndex(0)
 			{
 			}
 			int Compare(const CFilterMode2 &m) const

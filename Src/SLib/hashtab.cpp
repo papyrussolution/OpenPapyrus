@@ -1,5 +1,5 @@
 // HASHTAB.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -969,7 +969,7 @@ int PtrHashTable::Add(void * ptr, uint val, uint * pPos)
 	return c;
 }
 
-int PtrHashTable::Del(void * ptr, uint * pVal)
+int PtrHashTable::Del(const void * ptr, uint * pVal)
 {
 	int    ok = 0;
 	uint   val = 0;

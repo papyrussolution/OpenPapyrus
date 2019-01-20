@@ -2282,7 +2282,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_element_start_end_out(struct soap *, const char *
 SOAP_FMAC1 int SOAP_FMAC2 soap_attribute(struct soap *, const char *, const char *);
 SOAP_FMAC1 int /*SOAP_FMAC2*/ FASTCALL soap_element_begin_in(struct soap *, const char * tag, int nillable, const char * type);
 SOAP_FMAC1 int /*SOAP_FMAC2*/ FASTCALL soap_element_end_in(struct soap *, const char * tag);
-SOAP_FMAC1 int SOAP_FMAC2 soap_peek_element(struct soap *);
+SOAP_FMAC1 int /*SOAP_FMAC2*/ FASTCALL soap_peek_element(struct soap *);
 SOAP_FMAC1 void SOAP_FMAC2 soap_retry(struct soap *);
 SOAP_FMAC1 void /*SOAP_FMAC2*/ FASTCALL soap_revert(struct soap *);
 SOAP_FMAC1 char * /*SOAP_FMAC2*/ FASTCALL soap_strdup(struct soap *, const char *);

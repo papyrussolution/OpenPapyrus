@@ -398,8 +398,8 @@ SLAPI PPBill::PPBill() : P_PaymOrder(0), P_Freight(0), P_AdvRep(0), P_Agt(0), Ve
 
 void SLAPI PPBill::BaseDestroy()
 {
-	Pays.clear(); // @v9.8.4 freeAll-->clear
-	Amounts.clear(); // @v9.8.4 freeAll-->clear
+	Pays.clear();
+	Amounts.clear();
 	MEMSZERO(Rec);
 	MEMSZERO(Rent);
 	MEMSZERO(Ext);
@@ -408,12 +408,11 @@ void SLAPI PPBill::BaseDestroy()
 	ZDELETE(P_AdvRep);
 	ZDELETE(P_Agt); // @v10.1.12
 	//
-	Turns.clear(); // @v9.8.4 freeAll-->clear
+	Turns.clear();
 	AdvList.Clear();
-	//ClbL.Release();
-	//SnL.Release();
 	LTagL.Release();
 	XcL.Release(); // @v9.8.11
+	_VXcL.Release(); // @v10.3.0
 	BTagL.Destroy();
 	Ver = DS.GetVersion(); // @v9.8.11
 }
@@ -460,6 +459,8 @@ int FASTCALL PPBill::IsEqual(const PPBill & rS) const
 		else if(!BTagL.IsEqual(rS.BTagL))
 			yes = 0;
 		else if(!XcL.IsEqual(rS.XcL))
+			yes = 0;
+		else if(!_VXcL.IsEqual(rS._VXcL)) // @v10.3.0
 			yes = 0;
 		else {
 			const uint c1 = Turns.getCount();
@@ -1047,19 +1048,22 @@ int FASTCALL PPLotExtCodeContainer::IsEqual(const PPLotExtCodeContainer & rS) co
 	else if(_c) {
 		SString code_buf;
 		SString code_buf2;
-		LongArray found_idx_list;
+		// @v10.3.0 LongArray found_idx_list;
+		UintHashTable found_idx_list__; // @v10.3.0 
 		for(uint i = 0; eq && i < _c; i++) {
 			const InnerItem & r_item = *(const InnerItem *)at(i);
 			GetS(r_item.CodeP, code_buf);
 			int    is_found = 0;
 			for(uint j = 0; !is_found && j < _c; j++) {
-				if(!found_idx_list.lsearch(j+1)) {
+				// @v10.3.0 if(!found_idx_list.lsearch(j+1)) {
+				if(!found_idx_list__.Has(j+1)) { // @v10.3.0
 					const InnerItem & r_item2 = *(const InnerItem *)rS.at(i);
 					// @v10.2.9 if(r_item2.RowIdx == r_item.RowIdx && r_item2.Sign == r_item.Sign) {
 					if(r_item2.RowIdx == r_item.RowIdx && r_item2.Flags == r_item.Flags && r_item2.BoxId == r_item.BoxId) { // @v10.2.9
 						rS.GetS(r_item2.CodeP, code_buf2);
 						if(code_buf == code_buf2) {
-							found_idx_list.add(j+1);
+							// @v10.3.0 found_idx_list.add(j+1);
+							found_idx_list__.Add(j+1); // @v10.3.0 
 							is_found = 1;
 						}
 					}
@@ -1097,11 +1101,11 @@ void SLAPI PPLotExtCodeContainer::Release()
 	return ok;
 }*/
 
-int SLAPI PPLotExtCodeContainer::Add(int rowIdx, long boxId, int16 flags, const char * pCode, uint * pIdx)
+int SLAPI PPLotExtCodeContainer::Helper_Add(int rowIdx, long boxId, int16 flags, const char * pCode, int doVerifyUniq, uint * pIdx)
 {
 	int    ok = 1;
-    THROW(rowIdx >= 0 && !isempty(pCode));
-	THROW_PP_S(!Search(pCode, 0, 0), PPERR_DUPLOTEXTCODE, pCode);
+    THROW_PP(!isempty(pCode), PPERR_INVPARAM);
+	THROW_PP_S(!doVerifyUniq || !Search(pCode, 0, 0), PPERR_DUPLOTEXTCODE, pCode);
 	{
         InnerItem new_item;
         MEMSZERO(new_item);
@@ -1113,6 +1117,23 @@ int SLAPI PPLotExtCodeContainer::Add(int rowIdx, long boxId, int16 flags, const 
 		ASSIGN_PTR(pIdx, getCount()-1);
 		ok = 1;
     }
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPLotExtCodeContainer::Add(int rowIdx, long boxId, int16 flags, const char * pCode, uint * pIdx)
+{
+	int    ok = 1;
+    THROW_PP(rowIdx >= 0, PPERR_INVPARAM);
+	THROW(Helper_Add(rowIdx, boxId, flags, pCode, 1, pIdx));
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPLotExtCodeContainer::AddValidation(long boxId, int16 flags, const char * pCode, uint * pIdx)
+{
+	int    ok = 1;
+	THROW(Helper_Add(-1, boxId, flags, pCode, 1, pIdx));
 	CATCHZOK
 	return ok;
 }
@@ -1159,7 +1180,7 @@ int SLAPI PPLotExtCodeContainer::Delete(int rowIdx, uint itemIdx)
 	return ok;
 }
 
-int SLAPI PPLotExtCodeContainer::Add(int rowIdx, MarkSet & rS)
+int SLAPI PPLotExtCodeContainer::Add(int rowIdx, const MarkSet & rS)
 {
 	int    ok = -1;
 	MarkSet::Entry entry;
@@ -1167,6 +1188,19 @@ int SLAPI PPLotExtCodeContainer::Add(int rowIdx, MarkSet & rS)
 	for(uint i = 0; i < rS.GetCount(); i++) {
 		if(rS.GetByIdx(i, entry)) {
 			THROW(Add(rowIdx, entry.BoxID, (int16)entry.Flags, entry.Num, 0));
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPLotExtCodeContainer::AddValidation(const MarkSet & rS)
+{
+	int    ok = -1;
+	MarkSet::Entry entry;
+	for(uint i = 0; i < rS.GetCount(); i++) {
+		if(rS.GetByIdx(i, entry)) {
+			THROW(AddValidation(entry.BoxID, (int16)entry.Flags, entry.Num, 0));
 		}
 	}
 	CATCHZOK
@@ -1267,6 +1301,52 @@ int SLAPI PPLotExtCodeContainer::Search(const char * pCode, int * pRowIdx, uint 
             ok = 1;
         }
 	}
+	return ok;
+}
+
+int SLAPI PPLotExtCodeContainer::ValidateCode(const char * pCode, const char * pBox, int * pErr, int * pRowId, SString * pBoxCode) const
+{
+	int    ok = 1;
+	int    err = 0;
+	int    row_idx = -1;
+	const SString src_box_code = pBox;
+	SString box_code;
+	if(isempty(pCode)) {
+		err = 1;
+		ok = 0;
+	}
+	else {
+		const int iemr = PrcssrAlcReport::IsEgaisMark(pCode, 0);
+		uint   inner_idx = 0;
+		if(Search(pCode, &row_idx, &inner_idx)) {
+			const InnerItem * p_item = (InnerItem *)SVector::at(inner_idx);
+			assert(p_item);
+			if(p_item->Flags & fBox) {
+				GetS(p_item->CodeP, box_code);
+				ok = 2;
+			}
+			else if(p_item->BoxId) {
+				for(uint i = 0; i < getCount(); i++) {
+					const InnerItem * p_item2 = (InnerItem *)SVector::at(inner_idx);
+					if(p_item2->BoxId == p_item->BoxId && p_item2->Flags & fBox) {
+						GetS(p_item2->CodeP, box_code);
+						if(src_box_code.NotEmpty() && box_code != src_box_code) {
+							err = 3; // Не та коробка
+							ok = 0;
+						}
+						break;
+					}
+				}
+			}
+		}
+		else {
+			err = 2; // марка не найдена
+			ok = 0;
+		}
+	}
+	ASSIGN_PTR(pErr, err);
+	ASSIGN_PTR(pRowId, row_idx);
+	ASSIGN_PTR(pBoxCode, box_code);
 	return ok;
 }
 
@@ -4347,7 +4427,7 @@ int SLAPI PPBillPacket::GetMainOrgID_(PPID * pID) const
 //
 //
 //
-SLAPI CompleteArray::CompleteArray() : TSVector <CompleteItem> () // @v9.8.4 TSArray-->TSVector
+SLAPI CompleteArray::CompleteArray() : TSVector <CompleteItem> (), LotID(0), BillID(0) // @v9.8.4 TSArray-->TSVector
 {
 }
 

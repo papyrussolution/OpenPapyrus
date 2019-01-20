@@ -343,7 +343,7 @@ static bool FASTCALL IsInnerLevelFold(Sci_Position line, LexAccessor &styler)
 	return false;
 }
 
-static bool FASTCALL wordInArray(const std::string& value, std::string * array, int length)
+static bool FASTCALL wordInArray(const std::string& value, const std::string * array, int length)
 {
 	for(int i = 0; i < length; i++) {
 		if(value == array[i]) {

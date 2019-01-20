@@ -8,7 +8,7 @@
 #include <fann2.h>
 
 SLAPI PPTimeSeries::PPTimeSeries() : Tag(PPOBJ_TIMESERIES), ID(0), Flags(0), BuyMarg(0.0), SellMarg(0.0), 
-	SpikeQuant(0.0), Prec(0), AvgSpread(0.0), OptMaxDuck(0)
+	SpikeQuant(0.0), Prec(0), AvgSpread(0.0), OptMaxDuck(0), OptMaxDuck_S(0)
 {
 	PTR32(Name)[0] = 0;
 	PTR32(Symb)[0] = 0;

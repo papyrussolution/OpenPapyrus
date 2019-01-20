@@ -1,5 +1,5 @@
 // SETSTART.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019
 // @codepage UTF-8
 // Интерфейс (асинхронный) к драйверу SetStart (аналогичен ФРОНТОЛ'у)
 //
@@ -889,8 +889,7 @@ int SLAPI ACS_SETSTART::GetSessionData(int * pSessCount, int * pIsForwardSess, D
 		dlg = new TDialog(DLG_SELSESSRNG);
 		if(CheckDialogPtrErr(&dlg)) {
 			SString dt_buf;
-			ChkRepPeriod.low = LConfig.OperDate;
-			ChkRepPeriod.upp = LConfig.OperDate;
+			ChkRepPeriod.SetDate(LConfig.OperDate);
 			SetupCalCtrl(CTLCAL_DATERNG_PERIOD, dlg, CTL_DATERNG_PERIOD, 1);
 			SetPeriodInput(dlg, CTL_DATERNG_PERIOD, &ChkRepPeriod);
 			PPWait(0);

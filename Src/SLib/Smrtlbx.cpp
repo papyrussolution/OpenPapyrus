@@ -1179,7 +1179,7 @@ int SmartListBox::search(void * pPattern, CompFunc fcmp, int srchMode)
 #define UISEARCHTEXTBLOCK_MAXLEN 64
 
 UiSearchTextBlock::UiSearchTextBlock(HWND h, uint ctlId, char * pText, int firstLetter, WordSel_ExtraBlock * pBlk, int linkToList) :
-	H_Wnd(h), Id(ctlId), Text(pText), P_WordSel(0), P_WordSelBlk(pBlk), PrevInputCtlProc(0), LinkToList(linkToList), FirstLetter(firstLetter)
+	H_Wnd(h), Id(ctlId), Text(pText), P_WordSel(0), P_WordSelBlk(pBlk), PrevInputCtlProc(0), LinkToList(linkToList), FirstLetter(firstLetter), IsBnClicked(0)
 {
 }
 

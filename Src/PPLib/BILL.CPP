@@ -340,7 +340,7 @@ int SLAPI BillCore::GetRentCondition(PPID id, PPRentCondition * pRC)
 	return r;
 }
 
-int SLAPI BillCore::SetFreight(PPID id, PPFreight * pFreight, int use_ta)
+int SLAPI BillCore::SetFreight(PPID id, const PPFreight * pFreight, int use_ta)
 {
 	return PPRef->PutProp(PPOBJ_BILL, id, BILLPRP_FREIGHT, pFreight, sizeof(*pFreight), use_ta);
 }

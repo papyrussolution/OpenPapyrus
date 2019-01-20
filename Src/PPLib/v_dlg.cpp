@@ -736,7 +736,7 @@ int EditDialogSpec(DlContext * pCtx, uint dlgId)
 	PPDialogEditWindow * p_edit_win = 0;
 	FrameWindow * p_frame_win = new FrameWindow;
 	p_frame_win->changeBounds(TRect(10, 10, 900, 900));
-	p_frame_win->Create((long)APPL->H_MainWnd, TWindowBase::coPopup);
+	p_frame_win->Create(APPL->H_MainWnd, TWindowBase::coPopup);
 	{
 		THROW_MEM(p_tool_win = new PPWhatmanWindow(PPWhatmanWindow::modeToolbox));
 		p_frame_win->AddChild(p_tool_win, TWindowBase::coChild, FrameWindow::zoneLeft);

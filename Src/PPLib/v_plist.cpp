@@ -270,11 +270,10 @@ int SLAPI PPViewPriceList::SearchLine(PriceLineIdent * pIdent, PriceLineTbl::Rec
 	return SearchByKey(&Tbl.Lines, 0, &k, pRec);
 }
 
-int SLAPI PPViewPriceList::SetGoodsPrice(RecalcParamBlock * pRPB,
-	PPID quotKindID, double unitsPerPack, double price, int isPresent, int use_ta)
+int SLAPI PPViewPriceList::SetGoodsPrice(const RecalcParamBlock * pRPB, PPID quotKindID, double unitsPerPack, double price, int isPresent, int use_ta)
 {
 	int    ok = 1;
-	char   name[128]; // @v8.1.9 [64]-->[128]
+	char   name[128];
 	long   gds_code = 0;
     PPID   subst_id = pRPB->GoodsID;
 	SString memo;

@@ -1,5 +1,5 @@
 // ACCOUNT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019
 // @Kernel
 //
 #include <pp.h>
@@ -654,11 +654,18 @@ int SLAPI AcctRel::ReplaceAcct(int oldAc, int oldSb, int newAc, int newSb)
 	MEMSZERO(k);
 	k.Ac = oldAc;
 	k.Sb = oldSb;
-	for(int sp = spGe; searchForUpdate(3, &k, sp) && k.Ac == oldAc && k.Sb == oldSb; sp = spGt) {
+	/* @v10.3.0 for(int sp = spGe; searchForUpdate(3, &k, sp) && k.Ac == oldAc && k.Sb == oldSb; sp = spGt) {
 		data.Ac = newAc;
 		data.Sb = newSb;
 		THROW_DB(updateRec()); // @sfu-r
-	}
+	}*/
+	// @v10.3.0 {
+	if(searchForUpdate(3, &k, spGe) && k.Ac == oldAc && k.Sb == oldSb) do {
+		data.Ac = newAc;
+		data.Sb = newSb;
+		THROW_DB(updateRec()); // @sfu-r
+	} while(searchForUpdate(3, &k, spNext) && k.Ac == oldAc && k.Sb == oldSb);
+	// } @v10.3.0 
 	THROW_DB(BTROKORNFOUND);
 	CATCHZOK
 	return ok;

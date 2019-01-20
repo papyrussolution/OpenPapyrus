@@ -1,5 +1,5 @@
 // SDATE.CPP
-// Copyright (C) Sobolev A. 1994, 1995, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (C) Sobolev A. 1994, 1995, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -493,11 +493,11 @@ static void SLAPI CLALongToDate(long off, SDosDate * d)
 
 #endif /* USE_DF_CLARION */
 
-static void formatNotSupported(const char * pFormatName)
+/* @v10.3.0 static void formatNotSupported(const char * pFormatName)
 {
 	fprintf(stderr, "%s date format not supported", pFormatName);
 	exit(-1);
-}
+}*/
 
 void FASTCALL _encodedate(int day, int mon, int year, void * pBuf, int format)
 {
@@ -530,7 +530,10 @@ void FASTCALL _encodedate(int day, int mon, int year, void * pBuf, int format)
 				dt.da_year = year;
 				*(long *)pBuf = CLADateToLong(&dt);
 #else
-				formatNotSupported("Clarion");
+				*(long *)pBuf = 0;
+				const int clarion_date_format_not_supported = 0
+				assert(clarion_date_format_not_supported);
+				//formatNotSupported("Clarion");
 #endif
 			}
 			break;
@@ -573,7 +576,12 @@ void FASTCALL _decodedate(int * day, int * mon, int * year, const void * pBuf, i
 			*mon  = d.da_mon;
 			*year = d.da_year;
 #else
-			formatNotSupported("Clarion");
+			*day  = 0;
+			*mon  = 0;
+			*year = 0;
+			const int clarion_date_format_not_supported = 0
+			assert(clarion_date_format_not_supported);
+			//formatNotSupported("Clarion");
 #endif
 			break;
 		default:

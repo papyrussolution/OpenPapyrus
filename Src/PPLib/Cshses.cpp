@@ -2093,7 +2093,7 @@ SLAPI AsyncCashSCardsIterator::~AsyncCashSCardsIterator()
 	delete P_IterQuery;
 }
 
-int SLAPI AsyncCashSCardsIterator::Init(PPSCardSerPacket * pScsPack)
+int SLAPI AsyncCashSCardsIterator::Init(const PPSCardSerPacket * pScsPack)
 {
 	int    ok = 1;
 	ScsPack = *pScsPack;

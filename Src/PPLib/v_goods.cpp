@@ -878,8 +878,8 @@ int SLAPI GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 				p += sstrlen(p) + 1;
 			}
 			if(p_buf->VerTag <= -17) {
-				PPID   gds_cls_id = *(PPID *)p;
-				Ep.Clear();
+				const PPID gds_cls_id = *(PPID *)p;
+				Ep.Z();
 				if(gds_cls_id) {
 					ExtParams_Before24 _ep;
 					memcpy(&_ep, p, sizeof(_ep));
@@ -899,8 +899,8 @@ int SLAPI GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 				}
 			}
 			else if(p_buf->VerTag <= -16) {
-				PPID   gds_cls_id = *(PPID *)p;
-				Ep.Clear();
+				const PPID gds_cls_id = *(PPID *)p;
+				Ep.Z();
 				if(gds_cls_id) {
 					//
 					// В более поздних версиях добавились поля сверх перечисленных

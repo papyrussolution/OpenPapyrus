@@ -330,6 +330,7 @@
 #define PPPRP_WORKBOOKCFG          138L  // Конфигурация рабочих книг
 #define PPPRP_PERSONDETECTIONLIST  139L  // @vmiller Список конфигураций для определения новизны клиента
 #define PPPRP_ALCREPORTCFG         140L  // Конфигурация алкогольной декларации
+#define PPPRP_TSSTAKECFG           141L  // PPObjTimeSeries
 //
 // Layout of extra record of access rights
 //
@@ -1062,6 +1063,7 @@
 		// При списании приходного драфт-документа этот список привязывается к лотам создаваемого документа
 	#define BILLPRP_AGREEMENT    9L  // @v10.1.12 Блок, хранящий данные соглашения (договора) с контрагентом. Сопоставляется с документами,
 		// имеющими тип операции PPOPT_AGREEMENT
+	#define BILLPRP_VALXCL      10L  // @v10.3.0 Контейнер валидации расширенных кодов
 #define PPOBJ_ACCTURN       1012L  // Бухгалтерские проводки
 #define PPOBJ_QCERT         1013L  // Сертификаты качества
 #define PPOBJ_PRICELIST     1014L  // Прайс-листы
@@ -7070,6 +7072,7 @@
 	#define CTL_UICFG_ST_TABLEFONT       (7 + WINDOWS_ID_BIAS)
 	#define CTL_UICFG_ST_LISTFONT        (8 + WINDOWS_ID_BIAS)
 	#define CTL_UICFG_SPCINPDRV          (9 + WINDOWS_ID_BIAS)
+	#define CTL_UICFG_MULTBILLPRINT      (10 + WINDOWS_ID_BIAS)
 #define DLG_GRPSDSCNT             726
 	#define CTL_GRPSDSCNT_DISCOUNT       (1 + WINDOWS_ID_BIAS)
 	#define CTL_GRPSDSCNT_GRPLST         (2 + WINDOWS_ID_BIAS)
@@ -12476,8 +12479,8 @@
 // Installation (__SERG__)
 //
 #define PPINSTPATH_FIRST            2L
-#define PPINSTPATH_DRIVE            PPPATH_FIRST+0  // Дисковод
-#define PPINSTPATH_ROOT             PPPATH_FIRST+1  // Корневой каталог
+#define PPINSTPATH_DRIVE            (PPPATH_FIRST+0)  // Дисковод
+#define PPINSTPATH_ROOT             (PPPATH_FIRST+1)  // Корневой каталог
 
 #define DLG_INSTMODE              500
 	#define CTL_INSTMODE_OLD_VERSION     (1 + WINDOWS_ID_BIAS)

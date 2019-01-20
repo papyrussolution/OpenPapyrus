@@ -1742,22 +1742,16 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 							THROW(rPack.LTagL.Set(rj, p_org_lot_tag_list));
 						}
 						if(p_bobj->GetClbNumberByLot(lot_id, 0, clb_number) > 0) {
-							// @v9.8.11 THROW(rPack.ClbL.AddNumber(rj, clb_number));
-							THROW(rPack.LTagL.AddNumber(PPTAG_LOT_CLB, rj, clb_number)); // @v9.8.11
+							THROW(rPack.LTagL.AddNumber(PPTAG_LOT_CLB, rj, clb_number));
 						}
 						else {
-							// @v9.8.11 THROW(rPack.ClbL.AddNumber(rj, org_clb_number));
-							THROW(rPack.LTagL.AddNumber(PPTAG_LOT_CLB, rj, org_clb_number)); // @v9.8.11
+							THROW(rPack.LTagL.AddNumber(PPTAG_LOT_CLB, rj, org_clb_number));
 						}
-						// @v9.8.11 {
 						if(rows.getCount() == 1) { // Если при приеме строка не разъехалась на несколько, то переносим расширенные коды
-                            // @v10.2.9 rPack.XcL.Set(rj+1, &ss_lotxcode);
 							rPack.XcL.Set_2(rj+1, &lotxcode_set); // @v10.2.9
 						}
-						// } @v9.8.11
 						if(is_intr_expnd && p_bobj->GetSerialNumberByLot(lot_id, local_serial, 0) > 0) {
-							// @v9.8.11 THROW(rPack.SnL.AddNumber(rj, local_serial));
-							THROW(rPack.LTagL.AddNumber(PPTAG_LOT_SN, rj, local_serial)); // @v9.8.11
+							THROW(rPack.LTagL.AddNumber(PPTAG_LOT_SN, rj, local_serial));
 						}
 					}
 				}
@@ -2001,7 +1995,7 @@ int SLAPI BillTransmDeficit::PrintTotalDeficit(ObjTransmContext * pCtx)
 	return 1;
 }
 
-void SLAPI BillTransmDeficit::CalcReqSalesTax(ILTI * pIlti, LDATE dt, PPID opID, double * pSalesTax)
+void SLAPI BillTransmDeficit::CalcReqSalesTax(const ILTI * pIlti, LDATE dt, PPID opID, double * pSalesTax)
 {
 	double stax = 0.0;
 	if(pIlti->Flags & PPTFR_RMVEXCISE) {

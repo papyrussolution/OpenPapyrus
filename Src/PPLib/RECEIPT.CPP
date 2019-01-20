@@ -876,7 +876,8 @@ int SLAPI LotExtCodeCore::GetContainer(PPID billID, PPLotExtCodeContainer & rC)
 		copyBufTo(&rec);
 		code_buf = rec.Code;
 		if(rec.BillID == billID && code_buf.NotEmptyS()) {
-			THROW(rC.Add(rec.RByBill, rec.BoxNo, rec.Flags, code_buf, 0));
+			//THROW(rC.Add(rec.RByBill, rec.BoxNo, rec.Flags, code_buf, 0));
+			THROW(rC.Helper_Add(rec.RByBill, rec.BoxNo, rec.Flags, code_buf, 0, 0));
 			ok = 1;
 		}
 	}

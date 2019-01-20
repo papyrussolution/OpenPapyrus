@@ -3164,7 +3164,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ReceiveFile(int verb, const char 
 			PPMakeTempFileName("oimg", file_ext, 0, file_path);
 		}
 		else if(blk.TransmType == blk.ttWorkbookContent) {
-			THROW_PP_S(blk.ObjType = PPOBJ_WORKBOOK, PPERR_JOBSRV_OBJTYPENOTSUPP, temp_buf.Z().Cat(blk.ObjType));
+			THROW_PP_S(blk.ObjType == PPOBJ_WORKBOOK, PPERR_JOBSRV_OBJTYPENOTSUPP, temp_buf.Z().Cat(blk.ObjType)); // @v10.3.0 @fix (blk.ObjType = PPOBJ_WORKBOOK)-->(blk.ObjType == PPOBJ_WORKBOOK)
 			m |= SFile::mBinary;
 			PPMakeTempFileName("wbc", file_ext, 0, file_path);
 		}

@@ -9092,7 +9092,7 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_append_lab(struct soap * soap, const 
 
 /******************************************************************************/
 #ifndef PALM_2
-SOAP_FMAC1 int SOAP_FMAC2 soap_peek_element(struct soap * soap)
+SOAP_FMAC1 int FASTCALL soap_peek_element(struct soap * soap)
 {
  #ifdef WITH_DOM
 	struct soap_dom_attribute ** att = NULL;

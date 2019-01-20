@@ -390,7 +390,7 @@ int SLAPI PPViewLotOp::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return ok;
 }
 
-int SLAPI ViewOpersByLot(PPID lotID, int withZeroLotID)
+int FASTCALL ViewOpersByLot(PPID lotID, int withZeroLotID)
 {
 	int    ok = -1;
 	LotOpFilt flt;

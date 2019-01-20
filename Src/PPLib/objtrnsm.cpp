@@ -1,5 +1,5 @@
 // OBJTRNSM.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 // Передача объектов между разделами БД
 //
@@ -2890,7 +2890,7 @@ int ObjTranDialog::getDTS(ObjTransmitParam * pData)
 	return ok;
 }
 
-int SLAPI ObjTransmDialog(uint dlgID, ObjTransmitParam * pParam, long dlgFlags /*=0*/)
+int FASTCALL ObjTransmDialog(uint dlgID, ObjTransmitParam * pParam, long dlgFlags /*=0*/)
 {
 	DIALOG_PROC_BODY_P2(ObjTranDialog, dlgID, dlgFlags, pParam);
 }
@@ -2944,7 +2944,7 @@ int ObjTranDialogExt::getDTS(ObjTransmitParam * pParam, PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI ObjTransmDialogExt(uint dlgID, int viewId, ObjTransmitParam * pParam, PPBaseFilt * pFilt, long dlgFlags /*=0*/)
+int FASTCALL ObjTransmDialogExt(uint dlgID, int viewId, ObjTransmitParam * pParam, PPBaseFilt * pFilt, long dlgFlags /*=0*/)
 {
 	int    ok = -1;
 	ObjTranDialogExt * dlg = new ObjTranDialogExt(dlgID, viewId, dlgFlags);

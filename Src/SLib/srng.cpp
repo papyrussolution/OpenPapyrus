@@ -110,9 +110,8 @@ SRngMT::SRngMT(Algorithm alg, uint level) : SRng(alg, level)
 
 void SRngMT::Set(ulong seed)
 {
-	int    i;
-	if(seed == 0)
-		seed = 4357; // the default seed is 4357
+	int    i = 0;
+	SETIFZ(seed, 4357); // the default seed is 4357
 	if(Level == 0) {
 		Mt[0] = seed & 0xffffffffUL;
 		for(i = 1; i < MT_PERIOD_PARAM; i++) {

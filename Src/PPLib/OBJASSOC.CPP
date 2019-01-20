@@ -1,5 +1,5 @@
 // OBJASSOC.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019
 // @Kernel
 //
 #include <pp.h>
@@ -151,13 +151,18 @@ int SLAPI ObjAssoc::GetItemsListByPrmr(PPID asscTyp, PPID prmrID, TSVector <ObjA
 
 int SLAPI ObjAssoc::EnumByPrmr(PPID asscTyp, PPID prmrID, PPID * pScndID, ObjAssocTbl::Rec * b)
 {
+	int    ok = 1;
 	ObjAssocTbl::Key1 k;
 	k.AsscType  = asscTyp;
 	k.PrmrObjID = prmrID;
 	k.ScndObjID = *pScndID;
-	if(search(1, &k, spGt) && k.AsscType == asscTyp && k.PrmrObjID == prmrID)
-		return ((*pScndID = k.ScndObjID), copyBufTo(b), 1);
-	return PPDbSearchError();
+	if(search(1, &k, spGt) && k.AsscType == asscTyp && k.PrmrObjID == prmrID) {
+		*pScndID = k.ScndObjID;
+		copyBufTo(b);
+	}
+	else
+		ok = PPDbSearchError();
+	return ok;
 }
 
 SEnumImp * SLAPI ObjAssoc::Enum(PPID asscType, PPID keyID, int byScnd)

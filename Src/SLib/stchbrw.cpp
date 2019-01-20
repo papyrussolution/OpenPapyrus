@@ -1074,7 +1074,7 @@ void FASTCALL STimeChunkBrowser::GetStartPageDate(LDATE * pDt)
 	ASSIGN_PTR(pDt, view_time_bounds.Start.d);
 }
 
-int ExecDateCalendar(/*HWND*/uint32 hParent, LDATE * pDt); // @prototype
+int ExecDateCalendar(void * hParentWnd, LDATE * pDt); // @prototype
 
 int STimeChunkBrowser::SetupDate(LDATE dt)
 {
@@ -1143,7 +1143,7 @@ int STimeChunkBrowser::ProcessDblClk(TPoint p)
 			{
 				SlExtraProcBlock epb;
 				SLS.GetExtraProcBlock(&epb);
-				if(epb.F_CallCalendar && epb.F_CallCalendar((uint32)H(), &dt) > 0)
+				if(epb.F_CallCalendar && epb.F_CallCalendar(H(), &dt) > 0)
 					ok = SetupDate(dt);
 			}
 			// } @v9.1.3

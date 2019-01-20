@@ -2846,13 +2846,13 @@ protected: // ScintillaBase subclass needs access to much of Editor
 	int    ReplaceTarget(bool replacePatterns, const char * text, int length = -1);
 	bool   PositionIsHotspot(int position) const;
 	bool   PointIsHotspot(Point pt);
-	void   SetHotSpotRange(Point * pt);
+	void   SetHotSpotRange(const Point * pt);
 	Range  GetHotSpotRange() const;
 	void   SetHoverIndicatorPosition(int position);
 	void   SetHoverIndicatorPoint(Point pt);
 	int    CodePage() const;
 	int    WrapCount(int line);
-	void   AddStyledText(char * buffer, int appendLength);
+	void   AddStyledText(const char * buffer, int appendLength);
 	bool   ValidMargin(uptr_t wParam) const;
 	void   StyleSetMessage(uint iMessage, uptr_t wParam, sptr_t lParam);
 	sptr_t StyleGetMessage(uint iMessage, uptr_t wParam, sptr_t lParam);

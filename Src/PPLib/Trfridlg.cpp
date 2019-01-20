@@ -1314,7 +1314,8 @@ void TrfrItemDialog::setupCtrlsOnGoodsSelection()
 int TrfrItemDialog::replyGoodsSelection(int recurse)
 {
 	int    ok = 1;
-	int    r, dir, again = 0;
+	int    r, again = 0;
+	int    dir = 0;
 	int    all_lots_in_pckg = 0;
 	double quot = 0.0;
 	double suppl_deal_cost = 0.0;

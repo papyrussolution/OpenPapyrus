@@ -1,5 +1,5 @@
 // V_ARTCL.CPP
-// A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018
+// A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -19,7 +19,8 @@ ArticleFilt & FASTCALL ArticleFilt::operator = (const ArticleFilt & s)
 	return *this;
 }
 
-SLAPI PPViewArticle::PPViewArticle() : PPView(&ArObj, &Filt, 0), P_TempTbl(0), AgtProp(0), P_DebtDimList(0), LimitTerm(0), AddedLimitTerm(0), CtrlX(0)
+SLAPI PPViewArticle::PPViewArticle() : PPView(&ArObj, &Filt, 0), P_TempTbl(0), AgtProp(0), P_DebtDimList(0), 
+	LimitTerm(0), AddedLimitTerm(0), CtrlX(0), CurIterOrd(ordByName)
 {
 }
 
@@ -1054,13 +1055,10 @@ void SLAPI PPViewArticle::PreprocessBrowser(PPViewBrowser * pBrw)
 				grp.hight = 1;
 				grp.text = newStr(entry.Txt);
 				pBrw->view->getDef()->addGroup(&grp);
-
 				pBrw->InsColumn(-1, "@creditlimit",  pos++, 0L, MKSFMTD(12, 2, ALIGN_RIGHT|NMBF_NOZERO), 0);
-				// @v8.2.4 {
 				if(LimitTerm && AddedLimitTerm)
 					pBrw->InsColumn(-1, "@addcreditlimit",  pos, 0L, MKSFMTD(12, 2, ALIGN_RIGHT|NMBF_NOZERO), 0);
 				pos++;
-				// } @v8.2.4
 				pBrw->InsColumn(-1, "@stop", pos++, 0L, MKSFMT(3, 0), 0);
 			}
 		}

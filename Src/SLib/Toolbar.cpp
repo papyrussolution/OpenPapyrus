@@ -1,6 +1,6 @@
 // Toolbar.cpp
 // There's a mine born by Osolotkin, 2000, 2001
-// Modified by A.Sobolev, 2002, 2003, 2005, 2010, 2011, 2013, 2014, 2015, 2016, 2017
+// Modified by A.Sobolev, 2002, 2003, 2005, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -35,7 +35,7 @@ TToolbar::TToolbar(HWND hWnd, DWORD style) : PrevToolProc(0), H_MainWnd(hWnd), H
 	//PrevToolProc = (WNDPROC)SetWindowLong(H_Toolbar, GWLP_WNDPROC, (long)ToolbarProc);
 	PrevToolProc = (WNDPROC)TView::SetWindowProp(H_Toolbar, GWLP_WNDPROC, ToolbarProc);
 	CurrPos = 0;
-	DWORD s = SendMessage(H_Toolbar, TB_GETBUTTONSIZE, 0, 0);
+	DWORD s = (DWORD)::SendMessage(H_Toolbar, TB_GETBUTTONSIZE, 0, 0);
 	Width  = LOWORD(s);
 	Height = HIWORD(s) + 4;
 	PostMessage(H_Wnd, WM_USER, 0, 0);
@@ -124,7 +124,7 @@ LRESULT TToolbar::OnMainSize(int rightSpace/*=0*/)
 		*/
 		client_rect.right -= rightSpace;
 		if(CurrPos == TOOLBAR_ON_TOP || CurrPos == TOOLBAR_ON_BOTTOM) {
-			DWORD r = SendMessage(H_Toolbar, TB_GETROWS, 0, 0);
+			DWORD r = (DWORD)::SendMessage(H_Toolbar, TB_GETROWS, 0, 0);
 			if(CurrPos == TOOLBAR_ON_BOTTOM)
 				client_rect.top = client_rect.bottom-Height*r;
 			::MoveWindow(H_Wnd, 0, client_rect.top, client_rect.right, Height*r, 1);
@@ -142,7 +142,7 @@ LRESULT TToolbar::OnNotify(WPARAM wParam, LPARAM lParam)
 	NMHDR * phm = (NMHDR *)lParam;
 	if(phm->code == TTN_NEEDTEXT) {
 		uint idx = 0;
-		if(Items.searchKeyCode(wParam, &idx))
+		if(Items.searchKeyCode((ushort)wParam, &idx))
 			STRNSCPY(((TOOLTIPTEXT *)lParam)->szText, Items.getItem(idx).ToolTipText); // @unicodeproblem
 	}
 	// @v9.7.11 (experimental) {
@@ -206,7 +206,7 @@ LRESULT TToolbar::OnMove(WPARAM wParam, LPARAM lParam)
 		TView::SetWindowProp(H_Toolbar, GWL_STYLE, fl);
 		MoveWindow(H_Wnd, CurrRect.left, CurrRect.top, CurrRect.right, CurrRect.bottom, 1);
 		if(CurrPos == TOOLBAR_ON_FREE) {
-			DWORD r = SendMessage(H_Toolbar, TB_GETROWS, 0, 0);
+			DWORD r = (DWORD)::SendMessage(H_Toolbar, TB_GETROWS, 0, 0);
 			CurrRect.bottom = (Height + 2) * r;
 			MoveWindow(H_Wnd, CurrRect.left, CurrRect.top, CurrRect.right, CurrRect.bottom, 1);
 		}
@@ -392,7 +392,7 @@ LRESULT CALLBACK TToolbar::ToolbarProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 HMENU SetLocalMenu(HMENU * pMenu, HWND hToolbar)
 {
 	HMENU  h_menu = CreateMenu();
-	uint   cnt = SendMessage(hToolbar, TB_BUTTONCOUNT, 0, 0);
+	uint   cnt = (uint)::SendMessage(hToolbar, TB_BUTTONCOUNT, 0, 0);
 	for(uint i = 0; i < cnt; i++) {
 		TBBUTTON tb;
 		SendMessage(hToolbar, TB_GETBUTTON, i, (LPARAM)&tb);
@@ -492,7 +492,7 @@ int TToolbar::SetupToolbarWnd(DWORD style, const ToolbarList * pList)
 			::SendMessage(H_Toolbar, TB_DELETEBUTTON, idx, 0);
 		*/
 		// @v9.5.5 {
-		long _c = ::SendMessage(H_Toolbar, TB_BUTTONCOUNT, 0, 0);
+		long _c = (long)::SendMessage(H_Toolbar, TB_BUTTONCOUNT, 0, 0);
 		if(_c) do {
 			::SendMessage(H_Toolbar, TB_DELETEBUTTON, --_c, 0);
 		} while(_c);
@@ -517,7 +517,7 @@ int TToolbar::SetupToolbarWnd(DWORD style, const ToolbarList * pList)
 				MEMSZERO(btns);
 				if(item.KeyCode != TV_MENUSEPARATOR) {
 					btns.idCommand = item.KeyCode;
-					btns.dwData  = (DWORD)item.ToolTipText;
+					btns.dwData  = (DWORD_PTR)item.ToolTipText;
 					btns.fsStyle = TBSTYLE_BUTTON;
 					if(!h_menu || isFindMenuID(item.KeyCode, h_menu))
 						btns.fsState |= TBSTATE_ENABLED;
@@ -689,7 +689,7 @@ TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb)
 {
 	THISZERO();
 	P_Toolbar = pTb;
-	uint   cnt = SendMessage(P_Toolbar->H_Toolbar, TB_BUTTONCOUNT, 0, 0);
+	uint   cnt = (uint)::SendMessage(P_Toolbar->H_Toolbar, TB_BUTTONCOUNT, 0, 0);
 	LVITEM lvi;
 	P_Buttons = (TBBUTTON *)SAlloc::C(cnt, sizeof(TBBUTTON));
 	if(!P_Buttons) {
@@ -713,7 +713,7 @@ TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb)
 		for(uint i = 0; i < cnt; i++) {
 			TBBUTTON tb;
 			char   temp_buf[128];
-			int    ret = SendMessage(P_Toolbar->H_Toolbar, TB_GETBUTTON, i, (LPARAM)&tb);
+			int    ret = (int)::SendMessage(P_Toolbar->H_Toolbar, TB_GETBUTTON, i, (LPARAM)&tb);
 			P_Buttons[i] = tb;
 			lvi.iItem = i;
 			if(!(tb.fsStyle & TBSTYLE_SEP)) {
@@ -820,7 +820,7 @@ int TuneToolsDialog::OnUpDownArrow(int up)
 int TuneToolsDialog::Accept()
 {
 	HWND   h_toolbar = P_Toolbar->H_Toolbar;
-	uint   cnt = SendMessage(h_toolbar, TB_BUTTONCOUNT, 0, 0);
+	uint   cnt = (uint)::SendMessage(h_toolbar, TB_BUTTONCOUNT, 0, 0);
 	LVITEM lvi;
 	lvi.iSubItem = 0;
 	lvi.mask  = LVIF_PARAM | LVIF_IMAGE;
@@ -834,8 +834,8 @@ int TuneToolsDialog::Accept()
 		}
 		else
 			P_Buttons[lvi.lParam].fsState |= TBSTATE_HIDDEN;
-		SendMessage(h_toolbar, TB_DELETEBUTTON, i, 0);
-		SendMessage(h_toolbar, TB_INSERTBUTTON, i, (LPARAM)&P_Buttons[lvi.lParam]);
+		::SendMessage(h_toolbar, TB_DELETEBUTTON, i, 0);
+		::SendMessage(h_toolbar, TB_INSERTBUTTON, i, (LPARAM)&P_Buttons[lvi.lParam]);
 	}
 	return 1;
 }

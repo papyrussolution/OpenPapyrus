@@ -5655,6 +5655,8 @@ int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor:
 								edipartyq_whoami = EDIPARTYQ_SUPPLIER;
 							PPID   link_order_id = 0;
 							SString order_number;
+							SString delivery_note_number;
+							LDATE  delivery_note_date = ZERODATE;
 							LDATE  order_date = ZERODATE;
 							LDATETIME delivery_dtm = ZERODATETIME;
 							PPID   sender_psn_id = 0;
@@ -5906,8 +5908,13 @@ int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor:
 											order_date = dt;
 									}
 									else if(p_bf->Text.IsEqiAscii("DELIVERYNOTENUMBER")) {
+										delivery_note_number = temp_buf.Unescape().Transf(CTRANSF_UTF8_TO_INNER);
 									}
 									else if(p_bf->Text.IsEqiAscii("DELIVERYNOTEDATE")) {
+										LDATE dt = ZERODATE;
+										strtodate(temp_buf, DATF_ISO8601, &dt);
+										if(checkdate(dt))
+											delivery_note_date = dt;										
 									}
 									else if(p_bf->Text.IsEqiAscii("TTNNUMBER")) {
 									}
@@ -5967,8 +5974,17 @@ int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor:
 								}
 								if(order_number.NotEmptyS() && checkdate(order_date)) {
 									BillTbl::Rec ord_bill_rec;
-									if(SearchLinkedBill(order_number, order_date, p_bpack->Rec.Object, PPEDIOP_ORDER, &ord_bill_rec) > 0) {
+									if(SearchLinkedBill(order_number, order_date, p_bpack->Rec.Object, PPEDIOP_ORDER, &ord_bill_rec) > 0)
 										p_bpack->Rec.LinkBillID = ord_bill_rec.ID;
+								}
+								if(delivery_note_number.NotEmptyS()) {
+									if(!delivery_note_number.IsEqNC(p_bpack->Rec.Code)) {
+										p_bpack->BTagL.PutItemStr(PPTAG_BILL_OUTERCODE, delivery_note_number);
+									}
+									if(checkdate(delivery_note_date)) {
+										ObjTagItem tag_item;
+										if(tag_item.SetDate(PPTAG_BILL_OUTERDATE, delivery_note_date) > 0)
+											p_bpack->BTagL.PutItem(PPTAG_BILL_OUTERDATE, &tag_item);
 									}
 								}
 							}
@@ -6922,8 +6938,19 @@ int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_RECADV(xmlTextWriter 
 		}
 		n_docs.PutInner("DESADVNUMBER", (temp_buf = desadv_code).Transf(CTRANSF_INNER_TO_UTF8)); // Номер уведомления об отгрузке
 		n_docs.PutInner("DESADVDATE", temp_buf.Z().Cat(rRaPack.ABp.Rec.Dt, DATF_ISO8601|DATF_CENTURY)); // Дата уведомления об отгрузке
-		n_docs.PutInner("DELIVERYNOTENUMBER", (temp_buf = desadv_code).Transf(CTRANSF_INNER_TO_UTF8)); // Номер накладной
-		n_docs.PutInner("DELIVERYNOTEDATE", temp_buf.Z().Cat(rRaPack.ABp.Rec.Dt, DATF_ISO8601|DATF_CENTURY)); // Дата накладной
+		{
+			SString delivery_note_number;
+			if(rRaPack.ABp.BTagL.GetItemStr(PPTAG_BILL_OUTERCODE, delivery_note_number) <= 0)
+				delivery_note_number = desadv_code;
+			n_docs.PutInner("DELIVERYNOTENUMBER", (temp_buf = delivery_note_number).Transf(CTRANSF_INNER_TO_UTF8)); // Номер накладной
+		}
+		{
+			LDATE delivery_note_date = ZERODATE;
+			const ObjTagItem * p_tag_item = rRaPack.ABp.BTagL.GetItem(PPTAG_BILL_OUTERDATE);
+			if(!p_tag_item || p_tag_item->GetDate(&delivery_note_date) <= 0)
+				delivery_note_date = rRaPack.ABp.Rec.Dt;
+			n_docs.PutInner("DELIVERYNOTEDATE", temp_buf.Z().Cat(delivery_note_date, DATF_ISO8601|DATF_CENTURY)); // Дата накладной
+		}
 		//n_docs.PutInner("CAMPAIGNNUMBER", 0);
 		//n_docs.PutInner("SUPPLIERORDENUMBER", 0);
 		//n_docs.PutInner("SUPPLIERORDERDATE", 0);

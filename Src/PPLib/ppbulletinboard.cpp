@@ -179,6 +179,20 @@ public:
 		SLAPI  TimeSeriesBlock() : Flags(0), SpreadSum(0), SpreadCount(0), VolumeMin(0.0), VolumeMax(0.0), VolumeStep(0.0)
 		{
 		}
+		int FASTCALL GetLastValue(double * pValue) const
+		{
+			int    ok = 0;
+			double last_value = 0.0;
+			const  uint tsc = T_.GetCount();
+			if(tsc) {
+				uint   vec_idx = 0;
+				const  int  gvvir = T_.GetValueVecIndex("close", &vec_idx);
+				if(gvvir && T_.GetValue(tsc-1, vec_idx, &last_value) > 0 && last_value > 0.0)
+					ok = 1;
+			}
+			ASSIGN_PTR(pValue, last_value);
+			return ok;
+		}
 		enum {
 			fDirty = 0x0001
 		};
@@ -563,8 +577,8 @@ public:
 		const TsStakeEnvironment::Tick * p_tk = StkEnv.SearchTickBySymb(rPse.R_Blk.T_.GetSymb());
 		if(p_tk && rPse.R_Blk.T_.GetCount()) {
 			rPse.MarginReq = p_tk->MarginReq;
-			double margin_available = (StkEnv.Acc.MarginFree - StkEnv.Acc.Balance / 2) / 11.0;
-			if(margin_available >= rPse.MarginReq) {
+			double margin_available = (StkEnv.Acc.Margin + StkEnv.Acc.MarginFree - StkEnv.Acc.Balance / 2) / 10.0;
+			if(/*margin_available >= rPse.MarginReq &&*/ margin_available < StkEnv.Acc.MarginFree) {
 				double max_result = 0.0;
 				int    max_result_sidx = -1;
 				for(uint sidx = 0; sidx < rPse.R_Blk.Strategies.getCount(); sidx++) {
@@ -599,22 +613,60 @@ public:
 					}
 				}
 				if(max_result_sidx >= 0) {
+					const PPObjTimeSeries::Strategy & r_s = rPse.R_Blk.Strategies.at(max_result_sidx);
 					rPse.StrategyPos = (uint)max_result_sidx;
 					rPse.ResultPerDay = max_result;
-					double sc = round(margin_available / p_tk->MarginReq, 0, 1);
-					rPse.Volume = R0(rPse.R_Blk.VolumeStep * sc);
-					if(rPse.Volume > 0.0)
-						ok = 1;
+					double min_cost = EvaluateCost(rPse.R_Blk, ((r_s.BaseFlags & r_s.bfShort) ? true : false), rPse.R_Blk.VolumeMin);
+					if(min_cost) {
+						double sc = floor(margin_available / min_cost);
+						rPse.Volume = R0(rPse.R_Blk.VolumeStep * sc);
+						SETMIN(rPse.Volume, rPse.R_Blk.VolumeMax);
+						if(rPse.Volume > 0.0)
+							ok = 1;
+					}
 				}
 			}
 		}
 		return ok;
+	}
+	double SLAPI EvaluateCost(const TimeSeriesBlock & rBlk, bool sell, double volume) const
+	{
+		const char * p_base_symb = "USD";
+		double cost = 0.0;
+		double last_value = 0.0;
+		if(!isempty(rBlk.PPTS.CurrencySymb) && rBlk.GetLastValue(&last_value)) {
+			const SString symb = rBlk.T_.GetSymb();
+			const double margin = (sell ? rBlk.PPTS.SellMarg : rBlk.PPTS.BuyMarg);
+			if(!sstreqi_ascii(rBlk.PPTS.CurrencySymb, p_base_symb)) {
+				if(symb.CmpPrefix(p_base_symb, 1) == 0) {
+					cost = volume * margin / last_value;
+				}
+				else {
+					int    reverse_rate = 0;
+					double last_cvt_value = 0.0;
+					const TimeSeriesBlock * p_cvt_blk = SearchRateConvertionBlock(rBlk.PPTS.CurrencySymb, &reverse_rate);
+					if(p_cvt_blk && p_cvt_blk->GetLastValue(&last_cvt_value) && last_cvt_value > 0.0) {
+						if(reverse_rate) {
+							cost = volume * margin * last_value / last_cvt_value;
+						}
+						else {
+							cost = volume * margin * last_value * last_cvt_value;
+						}
+					}
+				}
+			}
+			else {
+				cost = volume * margin * last_value;
+			}
+		}
+		return cost;
 	}
 	int    SLAPI EvaluateStakes(TsStakeEnvironment::StakeRequestBlock & rResult)
 	{
 		int    ok = -1;
 		const  LDATETIME now = getcurdatetime_();
 		SString temp_buf;
+		SString log_msg;
 		SString tk_symb;
 		SString stk_symb;
 		SString stk_memo;
@@ -623,7 +675,7 @@ public:
 		for(uint i = 0; i < StkEnv.TL.getCount(); i++) {
 			const TsStakeEnvironment::Tick & r_tk = StkEnv.TL.at(i);
 			long d = diffdatetimesec(now, r_tk.Dtm);
-			if(d < 10) {
+			if(d < 600) { // must be 10 (600 - for debug)
 				StkEnv.GetS(r_tk.SymbP, tk_symb);
 				uint  blk_idx = 0;
 				const TimeSeriesBlock * p_blk = SearchBlockBySymb(tk_symb, &blk_idx);
@@ -684,32 +736,55 @@ public:
 			const uint pslc = potential_stake_list.getCount();
 			if(pslc) {
 				potential_stake_list.sort(PTR_CMPFUNC(double));
-				double margin_available = (StkEnv.Acc.MarginFree - StkEnv.Acc.Balance / 2);
+				double margin_available = (StkEnv.Acc.MarginFree - StkEnv.Acc.Balance/2.0);
 				if(margin_available > 0.0) {
 					uint _pslp = pslc;
 					do {
 						PotentialStakeEntry & r_pse = potential_stake_list.at(--_pslp);
-						uint   vec_idx = 0;
-						const  int  gvvir = r_pse.R_Blk.T_.GetValueVecIndex("close", &vec_idx);
-						if(gvvir) {
+						double last_value = 0.0;
+						//uint   vec_idx = 0;
+						//const  int  gvvir = r_pse.R_Blk.T_.GetValueVecIndex("close", &vec_idx);
+						//if(gvvir) {
+						if(r_pse.R_Blk.GetLastValue(&last_value)) {
 							const PPObjTimeSeries::Strategy & r_s = r_pse.R_Blk.Strategies.at(r_pse.StrategyPos);
-							{
-								TsStakeEnvironment::StakeRequestBlock::Req req;
-								req.Action = TsStakeEnvironment::traDeal;
-								req.Type = (r_s.BaseFlags & r_s.bfShort) ? TsStakeEnvironment::ordtSell : TsStakeEnvironment::ordtBuy;
-								req.TsID = r_pse.R_Blk.PPTS.ID;
-								rResult.AddS(r_pse.R_Blk.T_.GetSymb(), &req.SymbolP);
-								req.Volume = r_pse.Volume;
-
-								double last_value = 0.0;
-								r_pse.R_Blk.T_.GetValue(r_pse.R_Blk.T_.GetCount()-1, vec_idx, &last_value);
-								double sl = r_s.CalcSL(last_value);
-								req.SL = sl;
-
-								rResult.AddS("PPAT", &req.CommentP);
-								rResult.L.insert(&req);
+							stk_symb = r_pse.R_Blk.T_.GetSymb();
+							const double cost = EvaluateCost(r_pse.R_Blk, ((r_s.BaseFlags & r_s.bfShort) ? true : false), r_pse.Volume);
+							if(cost > 0.0) {
+								//r_pse.R_Blk.T_.GetValue(r_pse.R_Blk.T_.GetCount()-1, vec_idx, &last_value);
+								const double sl = r_s.CalcSL(last_value);
+								const double tp = 0.0;
+								log_msg.Z().Cat("Stake").CatDiv(':', 2).
+									Cat(stk_symb).CatChar('-').
+									Cat((r_s.BaseFlags & r_s.bfShort) ? "S" : "B").CatChar('/').
+									Cat(r_pse.Volume, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatChar('/').
+									Cat(last_value, MKSFMTD(0, 5, NMBF_NOTRAILZ)).CatChar('/').
+									Cat(sl, MKSFMTD(0, 7, NMBF_NOTRAILZ)).CatChar('/').
+									Cat(tp, MKSFMTD(0, 7, NMBF_NOTRAILZ));
+								log_msg.Space().Cat("Strategy").CatDiv(':', 2).
+									Cat(r_s.InputFrameSize).CatChar('/').
+									Cat(r_s.MaxDuckQuant).CatChar('/').
+									Cat(r_s.StakeMode).CatChar('/');
+								if(r_s.StakeMode == 1) {
+									log_msg.Cat(r_s.OptDeltaRange.low, MKSFMTD(0, 9, 0)).Dot().Dot().Cat(r_s.OptDeltaRange.upp, MKSFMTD(0, 9, 0)).Space();
+								}
+								else if(r_s.StakeMode == 2) {
+									log_msg.Cat(r_s.OptDelta2Stride).CatChar('/').
+										Cat(r_s.OptDelta2Range.low, MKSFMTD(0, 9, 0)).Dot().Dot().Cat(r_s.OptDelta2Range.upp, MKSFMTD(0, 9, 0)).Space();
+								}
+								PPLogMessage(PPFILNAM_TSSTAKE_LOG, log_msg, LOGMSGF_TIME|LOGMSGF_DBINFO);
+								/*{
+									TsStakeEnvironment::StakeRequestBlock::Req req;
+									req.Action = TsStakeEnvironment::traDeal;
+									req.Type = (r_s.BaseFlags & r_s.bfShort) ? TsStakeEnvironment::ordtSell : TsStakeEnvironment::ordtBuy;
+									req.TsID = r_pse.R_Blk.PPTS.ID;
+									rResult.AddS(stk_symb, &req.SymbolP);
+									req.Volume = r_pse.Volume;
+									req.SL = sl;
+									rResult.AddS("PPAT", &req.CommentP);
+									rResult.L.insert(&req);
+								}*/
+								margin_available -= cost;
 							}
-							margin_available -= (r_pse.Volume / r_pse.R_Blk.VolumeStep) * r_pse.MarginReq;
 						}
 					} while(_pslp && margin_available > 0.0);
 				}
@@ -721,6 +796,7 @@ private:
 	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
 	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 	TimeSeriesBlock * SLAPI SearchBlockBySymb(const char * pSymb, uint * pIdx) const;
+	const TimeSeriesBlock * SLAPI SearchRateConvertionBlock(const char * pSymb, int * pRevese) const;
 	TimeSeriesBlock * SLAPI InitBlock(const char * pSymb);
 	int    SLAPI EvaluateTrends(TimeSeriesBlock * pBlk, const STimeSeries * pFullTs);
 
@@ -831,6 +907,36 @@ void SLAPI TimeSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pDa
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
 	b.Get(p_data_rec->Symb, sizeof(p_data_rec->Symb));
 	b.Get(p_data_rec->CurrencySymb, sizeof(p_data_rec->CurrencySymb));
+}
+
+const TimeSeriesCache::TimeSeriesBlock * SLAPI TimeSeriesCache::SearchRateConvertionBlock(const char * pSymb, int * pRevese) const
+{
+	TimeSeriesBlock * p_result = 0;
+	int    reverse = 0;
+	const size_t symb_len = sstrlen(pSymb);
+	if(symb_len) {
+		const char * p_base_symb = "USD";
+		const size_t base_symb_len = sstrlen(p_base_symb);
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		for(uint i = 0; !p_result && i < TsC.getCount(); i++) {
+			TimeSeriesBlock * p_blk = TsC.at(i);
+			if(p_blk) {
+				r_temp_buf = p_blk->T_.GetSymb();
+				if(r_temp_buf.Len() == (symb_len+base_symb_len)) {
+					if(r_temp_buf.CmpPrefix(pSymb, 1) == 0 && r_temp_buf.CmpSuffix(p_base_symb, 1) == 0) {
+						p_result = p_blk;
+						reverse = 0;
+					}
+					else if(r_temp_buf.CmpPrefix(p_base_symb, 1) == 0 && r_temp_buf.CmpSuffix(pSymb, 1) == 0) {
+						p_result = p_blk;
+						reverse = 1;
+					}
+				}
+			}
+		}
+	}
+	ASSIGN_PTR(pRevese, reverse);
+	return p_result;
 }
 
 TimeSeriesCache::TimeSeriesBlock * SLAPI TimeSeriesCache::SearchBlockBySymb(const char * pSymb, uint * pIdx) const

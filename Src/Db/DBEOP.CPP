@@ -28,32 +28,27 @@ struct _2op_entry {
 	{ op_plus, BTS_STRING,  BTS_STRING,  dbq_add_ss },
 	{ op_plus, BTS_DATE, BTS_INT, dbq_add_di },
 	{ op_plus, BTS_DATE, BTS_REAL, dbq_add_di },
-
 	{ op_minus, BTS_INT, BTS_INT, dbq_sub_ii },
 	{ op_minus, BTS_INT, BTS_REAL, dbq_sub_rr },
 	{ op_minus, BTS_REAL, BTS_REAL, dbq_sub_rr },
 	{ op_minus, BTS_REAL, BTS_INT, dbq_sub_rr },
 	{ op_minus, BTS_DATE, BTS_DATE, dbq_sub_dd },
 	{ op_minus, BTS_TIME, BTS_TIME, dbq_sub_tt },
-
 	{ op_mult,  BTS_INT, BTS_INT, dbq_mul_ii },
 	{ op_mult,  BTS_INT, BTS_REAL, dbq_mul_rr },
 	{ op_mult,  BTS_REAL, BTS_REAL, dbq_mul_rr },
 	{ op_mult,  BTS_REAL, BTS_INT, dbq_mul_rr },
-
 	{ op_div,  BTS_INT, BTS_INT, dbq_div_ii },
 	{ op_div,  BTS_INT, BTS_REAL, dbq_div_rr },
 	{ op_div,  BTS_REAL, BTS_REAL, dbq_div_rr },
 	{ op_div,  BTS_REAL, BTS_INT, dbq_div_rr },
-
 	{ op_rem,  BTS_INT, BTS_INT, dbq_rem_ii },
-
 	{ op_bw_and, BTS_INT, BTS_INT, dbq_and }
 };
 
 #define _2op_tab_siz (sizeof(_2op_tab) / sizeof(_2op_entry))
 
-static DBFunc _fastcall get_2op(int op, int bt1, int bt2)
+static DBFunc FASTCALL get_2op(int op, int bt1, int bt2)
 {
 	for(_2op_entry * e = _2op_tab; e < _2op_tab + _2op_tab_siz; e++) {
 		if(e->op == op && e->typ1 == bt1 && e->typ2 == bt2)
@@ -62,14 +57,14 @@ static DBFunc _fastcall get_2op(int op, int bt1, int bt2)
 	return dbq_error;
 }
 
-static DBE & __stdcall newDBE()
+static DBE & FASTCALL newDBE()
 {
 	DBE & e = *new DBE;
 	e.init();
 	return e;
 }
 
-static int __stdcall adjust_type(DBItem & i, int baseTyp, int paramTyp)
+static int FASTCALL adjust_type(DBItem & i, int baseTyp, int paramTyp)
 {
 	if(i.Id == DBConst_ID && paramTyp != baseTyp) {
 		DBConst & c = *(DBConst *)&i;
@@ -85,7 +80,7 @@ static int __stdcall adjust_type(DBItem & i, int baseTyp, int paramTyp)
 	return 1;
 }
 
-static DBE & __stdcall unary_func(DBItem & i, DBFunc f)
+static DBE & FASTCALL unary_func(DBItem & i, DBFunc f)
 {
 	DBE & e = newDBE();
 	e.push(i);
@@ -93,7 +88,7 @@ static DBE & __stdcall unary_func(DBItem & i, DBFunc f)
 	return e;
 }
 
-static DBE & __stdcall binary_func(DBItem & i1, DBItem & i2, DBFunc f)
+static DBE & FASTCALL binary_func(DBItem & i1, DBItem & i2, DBFunc f)
 {
 	DBE & e = newDBE();
 	e.push(i1);
@@ -104,7 +99,7 @@ static DBE & __stdcall binary_func(DBItem & i1, DBItem & i2, DBFunc f)
 
 #pragma warn -aus
 
-static DBE & __stdcall binary_op(DBItem & i1, DBItem & i2, int op)
+static DBE & FASTCALL binary_op(DBItem & i1, DBItem & i2, int op)
 {
 	DBFunc f = get_2op(op, i1.baseType(), i2.baseType());
 	assert(f != dbq_error);
@@ -120,14 +115,14 @@ static DBE & __stdcall binary_op(DBItem & i1, DBItem & i2, int op)
 
 #pragma warn .aus
 
-static DBE & __stdcall binary_op(DBItem & i, double r, int op)
+static DBE & FASTCALL binary_op(DBItem & i, double r, int op)
 {
 	DBConst c;
 	c.init(r);
 	return binary_op(i, c, op);
 }
 
-static DBE & __stdcall binary_op(double r, DBItem & i, int op)
+static DBE & FASTCALL binary_op(double r, DBItem & i, int op)
 {
 	DBConst c;
 	if(ffrac(r) == 0.0)
@@ -137,8 +132,8 @@ static DBE & __stdcall binary_op(double r, DBItem & i, int op)
 	return binary_op(c, i, op);
 }
 
-static DBE & __stdcall binary_op(DBItem & i, long l, int op) { DBConst c; c.init(l); return binary_op(i, c, op); }
-static DBE & __stdcall binary_op(long l, DBItem & i, int op) { DBConst c; c.init(l); return binary_op(c, i, op); }
+static DBE & FASTCALL binary_op(DBItem & i, long l, int op) { DBConst c; c.init(l); return binary_op(i, c, op); }
+static DBE & FASTCALL binary_op(long l, DBItem & i, int op) { DBConst c; c.init(l); return binary_op(c, i, op); }
 
 DBE & __stdcall operator + (DBItem & i1, DBItem & i2) { return binary_op(i1, i2, op_plus);  }
 DBE & __stdcall operator - (DBItem & i1, DBItem & i2) { return binary_op(i1, i2, op_minus); }
@@ -157,8 +152,8 @@ DBE & __stdcall operator - (double  r,  DBItem & i) { return binary_op(r,  i,  o
 DBE & __stdcall operator * (double  r,  DBItem & i) { return binary_op(r,  i,  op_mult);  }
 DBE & __stdcall operator / (double  r,  DBItem & i) { return binary_op(r,  i,  op_div);   }
 DBE & __stdcall operator % (long    l,  DBItem & i) { return binary_op(l,  i,  op_rem);   }
-DBE & __stdcall operator + (char  * s,  DBItem & i) { DBConst c; c.init(s); return binary_op(c, i, op_plus); }
-DBE & __stdcall operator + (DBItem & i, char * s)   { DBConst c; c.init(s); return binary_op(i, c, op_plus); }
+DBE & __stdcall operator + (const char * s,  DBItem & i) { DBConst c; c.init(s); return binary_op(c, i, op_plus); }
+DBE & __stdcall operator + (DBItem & i, const char * s)   { DBConst c; c.init(s); return binary_op(i, c, op_plus); }
 DBE & __stdcall operator + (LDATE   d,  DBItem & i) { DBConst c; c.init(d); return binary_op(c, i, op_plus); }
 DBE & __stdcall operator - (LDATE   d,  DBItem & i) { DBConst c; c.init(d); return binary_op(c, i, op_minus); }
 DBE & __stdcall operator - (DBItem & i,  LDATE   d) { DBConst c; c.init(d); return binary_op(i, c, op_minus); }
@@ -238,14 +233,12 @@ DBE & __stdcall millisecond(DBItem & i) { assert(i.baseType() == BTS_TIME); retu
 //
 //
 //
-#define INLINE
-
-static INLINE DBQ & __stdcall _newdbq(DBItem & i1, int op, DBItem & i2)
+static DBQ & FASTCALL _newdbq(DBItem & i1, int op, DBItem & i2)
 {
 	return *new DBQ(i1, op, i2);
 }
 
-static INLINE DBQ & __stdcall _newdbq(DBItem & i, int op, double d)
+static DBQ & FASTCALL _newdbq(DBItem & i, int op, double d)
 {
 	DBConst c;
 	if(ffrac(d) == 0.0)
@@ -255,35 +248,35 @@ static INLINE DBQ & __stdcall _newdbq(DBItem & i, int op, double d)
 	return *new DBQ(i, op, c);
 }
 
-static INLINE DBQ & __stdcall _newdbq(DBItem & i, int op, long l)
+static DBQ & FASTCALL _newdbq(DBItem & i, int op, long l)
 {
 	DBConst c;
 	c.init(l);
 	return *new DBQ(i, op, c);
 }
 
-static INLINE DBQ & __stdcall _newdbq(DBItem & i, int op, LDATE d)
+static DBQ & FASTCALL _newdbq(DBItem & i, int op, LDATE d)
 {
 	DBConst c;
 	c.init(d);
 	return *new DBQ(i, op, c);
 }
 
-static INLINE DBQ & __stdcall _newdbq(DBItem & i, int op, LTIME t)
+static DBQ & FASTCALL _newdbq(DBItem & i, int op, LTIME t)
 {
 	DBConst c;
 	c.init(t);
 	return *new DBQ(i, op, c);
 }
 
-static INLINE DBQ & __stdcall _newdbq(DBItem & i, int op, LDATETIME t)
+static DBQ & FASTCALL _newdbq(DBItem & i, int op, LDATETIME t)
 {
 	DBConst c;
 	c.init(t);
 	return *new DBQ(i, op, c);
 }
 
-static INLINE DBQ & __stdcall _newdbq(DBItem & i, int op, const char * s)
+static DBQ & FASTCALL _newdbq(DBItem & i, int op, const char * s)
 {
 	DBConst c;
 	c.init(s);

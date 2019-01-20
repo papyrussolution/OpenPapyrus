@@ -1556,8 +1556,7 @@ int SLAPI SOraDbProvider::GetFileStat(const char * pFileName, long reqItems, DbT
 	fld_list.addField("TABLESPACE_NAME", MKSTYPE(S_ZSTRING, 32));
 	fld_list.addField("NUM_ROWS", T_INT32);
 	fld_list.addField("TEMPORARY", MKSTYPE(S_ZSTRING, 8));
-	SqlGen.Reset().Select(&fld_list).From("ALL_TABLES").Sp().Tok(Generator_SQL::tokWhere).Sp().
-		Eq("TABLE_NAME", name);
+	SqlGen.Reset().Select(&fld_list).From("ALL_TABLES").Sp().Tok(Generator_SQL::tokWhere).Sp().Eq("TABLE_NAME", name);
 	SSqlStmt stmt(this, (const SString &)SqlGen);
 	THROW(stmt.Exec(0, OCI_DEFAULT));
 	THROW(stmt.BindData(+1, 1, fld_list, &rec_buf, 0));

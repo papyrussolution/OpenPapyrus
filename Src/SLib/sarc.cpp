@@ -1,5 +1,5 @@
 // SARC.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -79,7 +79,7 @@ int SLAPI SCompressor::CompressBlock(const void * pSrc, size_t srcSize, SBuffer 
 			zlib_err = deflateInit(&stream, level);
 			THROW(zlib_err == Z_OK);
 			{
-				int    cb = deflateBound(&stream, current_src_size);
+				ulong cb = deflateBound(&stream, current_src_size);
 				const size_t temp_buf_size = MIN(MaxTempBufSize, cb);
 				STempBuffer temp_buf(temp_buf_size); // small buf for testing several iterations
 				THROW(temp_buf.IsValid());

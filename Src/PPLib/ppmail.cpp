@@ -484,8 +484,8 @@ int SLAPI PPObjInternetAccount::Put(PPID * pID, PPInternetAccount * pPack, int u
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(*pID) {
-			THROW(CheckDupName(*pID, pPack->Name));
 			if(pPack) {
+				THROW(CheckDupName(*pID, pPack->Name));
 				THROW(ref->UpdateItem(Obj, *pID, pPack, 1, 0));
 			}
 			else {

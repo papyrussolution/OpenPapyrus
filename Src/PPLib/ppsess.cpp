@@ -1759,9 +1759,8 @@ static void FpeCatcher(int sig, int fpe)
 	}
 }
 
-int PPCallHelp(uint32 wnd, uint cmd, uint ctx); // @prototype(pptvutil.cpp)
-int ExecDateCalendar(/*HWND*/uint32 hParent, LDATE * pDate); // @prototype(calendar.cpp)
-
+int PPCallHelp(void * hWnd, uint cmd, uint ctx); // @prototype(pptvutil.cpp)
+int ExecDateCalendar(void * hParentWnd, LDATE * pDate); // @prototype(calendar.cpp)
 static int PPLoadStringFunc(const char * pSignature, SString & rBuf) { return PPLoadString(pSignature, rBuf); }
 static int PPExpandStringFunc(SString & rBuf, int ctransf) { return PPExpandString(rBuf, ctransf); }
 

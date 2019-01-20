@@ -837,7 +837,6 @@ struct IterProcParam_CrtTmpTbl {
 	TempAccTrnovrTbl * P_TmpATTbl;
 	int    IsRegister;
 	AmtList InRest;
-
 	AmtList * P_CycleOutRests;
 };
 

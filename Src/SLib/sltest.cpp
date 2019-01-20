@@ -445,7 +445,7 @@ int STestCase::_check_range(float a, float low, float upp, const char * pA, cons
 //
 // STestCase {
 //
-STestCase::STestCase(STestSuite * pSuite) : P_Suite(pSuite)
+STestCase::STestCase(STestSuite * pSuite) : P_Suite(pSuite), CurrentStatus(1)
 {
 }
 
