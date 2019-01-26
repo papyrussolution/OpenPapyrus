@@ -1365,14 +1365,21 @@ int SLAPI PPObject::Identify(const char * pObjType, const char * pObjIdent, PPOb
 
 IMPL_CMPFUNC(Acct, k1, k2)
 {
-	const Acct * a1 = (const Acct *)k1;
+	const Acct * a1 = static_cast<const Acct *>(k1);
 	Acct a2;
-	a2.FromStr(0, (const char *)k2);
+	a2.FromStr(0, static_cast<const char *>(k2));
+	// @v10.3.1 {
+	int    si = 0;
+	CMPCASCADE2(si, a1, &a2, ac, sb);
+	return si;
+	// } @v10.3.1 
+	/* @v10.3.1
 	if(a1->ac < a2.ac) return -1;
 	if(a1->ac > a2.ac) return  1;
 	if(a1->sb < a2.sb) return -1;
-	if(a1->sb < a2.sb) return  1;
+	if(a1->sb > a2.sb) return  1; // @v10.3.1 @fix (<)-->(>)
 	return 0;
+	*/
 }
 
 ListWindow * FASTCALL GetPPObjList(PPID obj, uint flags, void * extraPtr)

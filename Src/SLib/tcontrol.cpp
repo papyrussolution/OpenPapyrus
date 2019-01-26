@@ -1009,7 +1009,7 @@ static BOOL CALLBACK ClusterDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 			break;
 		case WM_SETFOCUS:
 		case WM_KILLFOCUS:
-			TDialog::DialogProc(GetParent(hWnd), uMsg, wParam, (long)hWnd);
+			TDialog::DialogProc(GetParent(hWnd), uMsg, wParam, (LPARAM)hWnd);
 			break;
 		case WM_NCPAINT:
 		case BM_SETCHECK:

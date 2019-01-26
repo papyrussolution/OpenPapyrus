@@ -174,16 +174,16 @@ int SViewPort::FromStr(const char * pStr, int fmt)
 	SString temp_buf;
 	if(scan.GetNumber(temp_buf)) {
 		Flags &= ~fEmpty;
-		a.X = (float)temp_buf.ToReal();
+		a.X = temp_buf.ToFloat();
 		scan.SkipOptionalDiv(',');
 		THROW(scan.GetNumber(temp_buf));
-		a.Y = (float)temp_buf.ToReal();
+		a.Y = temp_buf.ToFloat();
 		scan.SkipOptionalDiv(',');
 		THROW(scan.GetNumber(temp_buf));
-		b.X = a.X + (float)temp_buf.ToReal();
+		b.X = a.X + temp_buf.ToFloat();
 		scan.SkipOptionalDiv(',');
 		THROW(scan.GetNumber(temp_buf));
-		b.Y = a.Y + (float)temp_buf.ToReal();
+		b.Y = a.Y + temp_buf.ToFloat();
 	}
 	else {
 		while(scan.Skip().GetIdent(temp_buf)) {
@@ -794,7 +794,7 @@ static int GetSvgPathNumber(SStrScan & rScan, SString & rTempBuf, float & rF)
 {
 	int    ok = 1;
 	if(rScan.Skip().GetDotPrefixedNumber(rTempBuf))
-		rF = (float)rTempBuf.ToReal();
+		rF = rTempBuf.ToFloat();
 	else
 		ok = 0;
 	return ok;
@@ -804,10 +804,10 @@ static int GetSvgPathPoint(SStrScan & rScan, SString & rTempBuf, FPoint & rP)
 {
 	int    ok = 1;
 	THROW(rScan.Skip().GetDotPrefixedNumber(rTempBuf));
-	rP.X = (float)rTempBuf.ToReal();
+	rP.X = rTempBuf.ToFloat();
 	rScan.Skip().IncrChr(',');
 	THROW(rScan.Skip().GetDotPrefixedNumber(rTempBuf));
-	rP.Y = (float)rTempBuf.ToReal();
+	rP.Y = rTempBuf.ToFloat();
 	CATCHZOK
 	return ok;
 }
@@ -3027,7 +3027,7 @@ int SDrawImage::LoadMime_Base64(const char * pFormatStr, const SString & rS)
 	return ok;
 }
 
-int SDrawImage::Store(SImageBuffer::StoreParam & rP, SFile & rF)
+int SDrawImage::Store(const SImageBuffer::StoreParam & rP, SFile & rF)
 {
 	return Buf.Store(rP, rF);
 }

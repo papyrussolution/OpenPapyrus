@@ -1,5 +1,5 @@
 // V_STCAL.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -15,9 +15,8 @@ IMPLEMENT_PPFILT_FACTORY(StaffCal); SLAPI StaffCalFilt::StaffCalFilt() : PPBaseF
 	Init(1, 0);
 }
 
-SLAPI PPViewStaffCal::PPViewStaffCal() : PPView(0, &Filt, PPVIEW_STAFFCAL), P_TempTbl(0)
+SLAPI PPViewStaffCal::PPViewStaffCal() : PPView(0, &Filt, PPVIEW_STAFFCAL), P_TempTbl(0), Grid(this)
 {
-	Grid.P_View = this;
 	ImplementFlags |= implChangeFilt;
 }
 
@@ -685,7 +684,7 @@ int SLAPI PPViewStaffCal::Print(const void *)
 //
 //
 //
-SLAPI PPViewStaffCal::StaffCalTimeChunkGrid::StaffCalTimeChunkGrid() : STimeChunkGrid(), P_View(0)
+SLAPI PPViewStaffCal::StaffCalTimeChunkGrid::StaffCalTimeChunkGrid(PPViewStaffCal * pV) : STimeChunkGrid(), P_View(pV)
 {
 }
 

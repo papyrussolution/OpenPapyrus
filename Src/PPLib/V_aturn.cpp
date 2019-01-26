@@ -290,8 +290,8 @@ int SLAPI PPViewAccturn::CreateGrouping()
 				continue;
 		else
 			rec.Dt = Filt.Period.low;
-		P_ATC->ConvertAcctID(&item.DbtID, &dbt_acct, &temp_cur_id, 1 /* useCache */);
-		P_ATC->ConvertAcctID(&item.CrdID, &crd_acct, &temp_cur_id, 1 /* useCache */);
+		P_ATC->ConvertAcctID(item.DbtID, &dbt_acct, &temp_cur_id, 1 /* useCache */);
+		P_ATC->ConvertAcctID(item.CrdID, &crd_acct, &temp_cur_id, 1 /* useCache */);
 		rec.CurID = cur_id;
 		if(Filt.GrpAco == ACO_1) {
 			int    r;

@@ -116,7 +116,7 @@ static bool FASTCALL IsNewline(const int ch);
 static int GetHexaChar(char hd1, char hd2);
 static int GetHexaChar(Sci_PositionU pos, Accessor &styler);
 static bool ForwardWithinLine(StyleContext &sc, Sci_Position nb = 1);
-static bool PosInSameRecord(Sci_PositionU pos1, Sci_PositionU pos2, Accessor &styler);
+//static bool PosInSameRecord(Sci_PositionU pos1, Sci_PositionU pos2, const Accessor & styler);
 static Sci_Position CountByteCount(Sci_PositionU startPos, Sci_Position uncountedDigits, Accessor &styler);
 static int CalcChecksum(Sci_PositionU startPos, Sci_Position cnt, bool twosCompl, Accessor &styler);
 
@@ -124,7 +124,7 @@ static int CalcChecksum(Sci_PositionU startPos, Sci_Position cnt, bool twosCompl
 static Sci_PositionU GetSrecRecStartPosition(Sci_PositionU pos, Accessor &styler);
 static int GetSrecByteCount(Sci_PositionU recStartPos, Accessor &styler);
 static Sci_Position CountSrecByteCount(Sci_PositionU recStartPos, Accessor &styler);
-static int GetSrecAddressFieldSize(Sci_PositionU recStartPos, Accessor &styler);
+//static int GetSrecAddressFieldSize(Sci_PositionU recStartPos, Accessor &styler);
 static int GetSrecAddressFieldType(Sci_PositionU recStartPos, Accessor &styler);
 static int GetSrecDataFieldType(Sci_PositionU recStartPos, Accessor &styler);
 static Sci_Position GetSrecRequiredDataFieldSize(Sci_PositionU recStartPos, Accessor &styler);
@@ -222,7 +222,7 @@ static bool ForwardWithinLine(StyleContext &sc, Sci_Position nb)
 }
 
 // Checks whether the given positions are in the same record.
-static bool PosInSameRecord(Sci_PositionU pos1, Sci_PositionU pos2, Accessor &styler)
+static bool PosInSameRecord(Sci_PositionU pos1, Sci_PositionU pos2, const Accessor & styler)
 {
 	return styler.GetLine(pos1) == styler.GetLine(pos2);
 }
@@ -299,7 +299,7 @@ static Sci_Position CountSrecByteCount(Sci_PositionU recStartPos, Accessor &styl
 }
 
 // Get the size of the "address" field.
-static int GetSrecAddressFieldSize(Sci_PositionU recStartPos, Accessor &styler)
+static int GetSrecAddressFieldSize(Sci_PositionU recStartPos, Accessor & styler)
 {
 	switch(styler.SafeGetCharAt(recStartPos + 1)) {
 		case '0':

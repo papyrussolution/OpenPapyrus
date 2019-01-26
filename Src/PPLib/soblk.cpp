@@ -928,7 +928,7 @@ GETOBJATTACHMENTINFO
 	ID
 
 */
-static int SLAPI Helper_ProcessTddo(long dataId, void * pAry, const char * pDataName, SString & rOutTemplate, PPJobSrvReply & rResult)
+static int SLAPI FASTCALL Helper_ProcessTddo(long dataId, void * pAry, const char * pDataName, const SString & rOutTemplate, PPJobSrvReply & rResult)
 {
 	int       ok = 1;
 	SString   temp_buf, txt_buf, file_name;

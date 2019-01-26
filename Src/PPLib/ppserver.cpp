@@ -1,5 +1,5 @@
 // PPSERVER.CPP
-// Copyright (c) A.Sobolev 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1929,7 +1929,7 @@ private:
 	virtual CmdRet SLAPI ProcessCommand(PPServerCmd * pEv, PPJobSrvReply & rReply);
 	CmdRet SLAPI Testing();
 	CmdRet SLAPI ReceiveFile(int verb, const char * pParam, PPJobSrvReply & rReply);
-	size_t SLAPI Helper_ReceiveFilePart(PPJobSrvReply::TransmitFileBlock & rBlk, SFile * pF);
+	size_t SLAPI Helper_ReceiveFilePart(const PPJobSrvReply::TransmitFileBlock & rBlk, SFile * pF);
 	CmdRet SLAPI SetTimeSeries(PPJobSrvReply & rReply);
 	CmdRet SLAPI SetTimeSeriesStakeEnvironment(PPJobSrvReply & rReply);
 	CmdRet SLAPI GetReqQuotes(PPJobSrvReply & rReply);
@@ -2259,7 +2259,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::TransmitFile(int verb, const char
 	return ret;
 }
 
-int SLAPI PPWorkerSession::FinishReceivingFile(PPJobSrvReply::TransmitFileBlock & rBlk, const SString & rFilePath, PPJobSrvReply & rReply)
+int SLAPI PPWorkerSession::FinishReceivingFile(const PPJobSrvReply::TransmitFileBlock & rBlk, const SString & rFilePath, PPJobSrvReply & rReply)
 {
 	int    ok = 1;
 	ObjLinkFiles lf;
@@ -3116,7 +3116,7 @@ SLAPI PPServerSession::~PPServerSession()
 	ZDELETE(P_SbiiBlk);
 }
 
-size_t SLAPI PPServerSession::Helper_ReceiveFilePart(PPJobSrvReply::TransmitFileBlock & rBlk, SFile * pF)
+size_t SLAPI PPServerSession::Helper_ReceiveFilePart(const PPJobSrvReply::TransmitFileBlock & rBlk, SFile * pF)
 {
 	size_t rd_size = 0;
 	uint   try_no = 0;

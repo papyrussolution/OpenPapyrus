@@ -171,8 +171,7 @@ void zbar_video_destroy(zbar_video_t * vdo)
 	SAlloc::F(vdo);
 }
 
-int zbar_video_open(zbar_video_t * vdo,
-    const char * dev)
+int zbar_video_open(zbar_video_t * vdo, const char * dev)
 {
 	char * ldev = NULL;
 	int rc;

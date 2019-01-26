@@ -1,5 +1,5 @@
 // V_PRCFRE.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -14,10 +14,9 @@ IMPLEMENT_PPFILT_FACTORY(PrcBusy); SLAPI PrcBusyFilt::PrcBusyFilt() : PPBaseFilt
 	Init(1, 0);
 }
 
-SLAPI PPViewPrcBusy::PPViewPrcBusy() : PPView(0, &Filt, PPVIEW_PRCBUSY), P_TempTbl(0)
+SLAPI PPViewPrcBusy::PPViewPrcBusy() : PPView(0, &Filt, PPVIEW_PRCBUSY), P_TempTbl(0), Grid(this)
 {
 	ImplementFlags |= implChangeFilt;
-	Grid.P_View = this;
 }
 
 SLAPI PPViewPrcBusy::~PPViewPrcBusy()
@@ -769,7 +768,7 @@ void PPALDD_PrcBusyView::Destroy() { DESTROY_PPVIEW_ALDD(PrcBusy); }
 //
 // STimeChunkBrowser {
 //
-SLAPI PPViewPrcBusy::PrcBusyTimeChunkGrid::PrcBusyTimeChunkGrid() : STimeChunkGrid(), P_View(0)
+SLAPI PPViewPrcBusy::PrcBusyTimeChunkGrid::PrcBusyTimeChunkGrid(PPViewPrcBusy * pV) : STimeChunkGrid(), P_View(pV)
 {
 }
 

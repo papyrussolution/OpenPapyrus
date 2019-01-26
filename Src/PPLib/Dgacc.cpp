@@ -1,5 +1,5 @@
 // DGACC.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 // Диалоговая группа ввода счета и аналитической статьи
 //
@@ -30,7 +30,7 @@ int AcctCtrlGroup::setData(TDialog * dlg, void * data)
 	if(AccSelParam != p_rec->AccSelParam)
 		acc_sel_param_changed = 1;
 	AccSelParam = p_rec->AccSelParam;
-	ppobj->ConvertAcctID(&AcctId, &acct, &CurID, 1 /* useCache */);
+	ppobj->ConvertAcctID(AcctId, &acct, &CurID, 1 /* useCache */);
 	setup(dlg, &acct, 1, acc_sel_param_changed);
 	return 1;
 }
@@ -62,7 +62,7 @@ int AcctCtrlGroup::getData(TDialog * dlg, void * pData)
 	return ok;
 }
 
-void AcctCtrlGroup::setup(TDialog * dlg, Acct * pAcct, int sheetChanged, int accSelParamChanged)
+void AcctCtrlGroup::setup(TDialog * dlg, const Acct * pAcct, int sheetChanged, int accSelParamChanged)
 {
 	char   b[32];
 	dlg->setCtrlData(ctl_acc, pAcct->ToStr(ACCF_DEFAULT|ACCF_BAL, b));

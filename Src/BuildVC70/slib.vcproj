@@ -794,6 +794,9 @@
 				RelativePath="..\SLib\sc_todo.cpp">
 			</File>
 			<File
+				RelativePath="..\SLib\sclipboard.cpp">
+			</File>
+			<File
 				RelativePath="..\SLib\Scomport.cpp">
 			</File>
 			<File

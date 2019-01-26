@@ -1784,13 +1784,11 @@ SLAPI PPObjSCard::Filt::Filt() : Signature(FiltSignature), SeriesID(0), OwnerID(
 
 TLP_IMPL(PPObjSCard, CCheckCore, P_CcTbl);
 
-SLAPI PPObjSCard::PPObjSCard(void * extraPtr) : PPObject(PPOBJ_SCARD)
+SLAPI PPObjSCard::PPObjSCard(void * extraPtr) : PPObject(PPOBJ_SCARD), ExtraPtr(extraPtr), P_CsObj(0)
 {
-	ExtraPtr = extraPtr;
 	TLP_OPEN(P_CcTbl);
 	P_Tbl = P_CcTbl ? &P_CcTbl->Cards : 0;
 	ImplementFlags |= implStrAssocMakeList;
-	P_CsObj = 0;
 	Cfg.Flags &= ~PPSCardConfig::fValid;
 }
 

@@ -13,7 +13,7 @@
  * PUBLIC: int __qam_vrfy_meta __P((DB *, VRFY_DBINFO *, QMETA *,
  * PUBLIC:     db_pgno_t, uint32));
  */
-int __qam_vrfy_meta(DB * dbp, VRFY_DBINFO * vdp, QMETA * meta, db_pgno_t pgno, uint32 flags)
+int __qam_vrfy_meta(DB * dbp, VRFY_DBINFO * vdp, const QMETA * meta, db_pgno_t pgno, uint32 flags)
 {
 	ENV * env;
 	QUEUE * qp;

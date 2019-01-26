@@ -981,7 +981,7 @@ static cairo_t * _cairo_surface_observer_create_context(void * target)
 }
 
 static const cairo_surface_backend_t _cairo_surface_observer_backend = {
-	CAIRO_INTERNAL_SURFACE_TYPE_OBSERVER,
+	CAIRO_INTERNAL_SURFACE_TYPE_OBSERVER, 
 	_cairo_surface_observer_finish,
 
 	_cairo_surface_observer_create_context,

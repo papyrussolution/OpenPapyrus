@@ -43,7 +43,7 @@ void __heap_print_cursor(DBC *);
 int __heap_stat_callback(DBC *, PAGE *, void *, int *);
 int __heap_traverse(DBC *, int (*)(DBC *, PAGE *, void *, int *), void *);
 int __db_no_heap_am(ENV *);
-int __heap_vrfy_meta(DB *, VRFY_DBINFO *, HEAPMETA *, db_pgno_t, uint32);
+int __heap_vrfy_meta(DB *, VRFY_DBINFO *, const HEAPMETA *, db_pgno_t, uint32);
 int __heap_vrfy(DB *, VRFY_DBINFO *, PAGE *, db_pgno_t, uint32);
 int __heap_vrfy_structure(DB *, VRFY_DBINFO *, uint32);
 int __heap_salvage(DB *, VRFY_DBINFO *, db_pgno_t, PAGE *, void *, int (*)(void *, const void *), uint32);

@@ -86,7 +86,8 @@ static void SetStateAndZoom(const int state, const Sci_Position length, const in
 }
 
 // Does the previous line have more than spaces and tabs?
-static bool HasPrevLineContent(StyleContext &sc) {
+static bool HasPrevLineContent(StyleContext &sc) 
+{
 	Sci_Position i = 0;
 	// Go back to the previous newline
 	while((--i + (Sci_Position)sc.currentPos) >= 0 && !IsNewline(sc.GetRelative(i)))
@@ -100,8 +101,9 @@ static bool HasPrevLineContent(StyleContext &sc) {
 	return false;
 }
 
-static bool AtTermStart(StyleContext &sc) {
-	return sc.currentPos == 0 || sc.chPrev == 0 || isspacechar(sc.chPrev);
+static bool FASTCALL AtTermStart(const StyleContext & sc) 
+{
+	return (sc.currentPos == 0 || sc.chPrev == 0 || isspacechar(sc.chPrev));
 }
 
 static bool IsValidHrule(const Sci_PositionU endPos, StyleContext &sc) {

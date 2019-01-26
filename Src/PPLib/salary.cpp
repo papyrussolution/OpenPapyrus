@@ -1842,7 +1842,6 @@ int SLAPI PrcssrSalary::Expr_ResolveFunc(int funcId, uint argCount, double * pAr
 		const char * p_time_msr = "";
 		int   inverse = 0;
 		DateRange period = P.ActualPeriod;
-		// @v6.2.4 {
 		if(argCount > 2)
 			GetArgPeriod(pArgList[2], period);
 		else if(cal_id != PPSTCAL_STANDARD) {
@@ -1851,7 +1850,6 @@ int SLAPI PrcssrSalary::Expr_ResolveFunc(int funcId, uint argCount, double * pAr
 			if(sc_rec.Flags & PPStaffCal::fUseNominalPeriod)
 				period = P.NominalPeriod;
 		}
-		// } @v6.2.4
 		if(proj_cal_id < 0) {
 			inverse = 1;
 			proj_cal_id = labs(proj_cal_id);

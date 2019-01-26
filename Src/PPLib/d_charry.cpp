@@ -1,5 +1,5 @@
 // D_CHARRY.CPP
-// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018
+// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1079,7 +1079,7 @@ int SLAPI PPDS_CrrAmountType::TransferField(long fldID, Tfd dir, uint * pIter, S
 					if(Pack.Rec.Flags & PPAmountType::fTax)
 						TempBuf.GetSubFrom(p_list, ';', Pack.Rec.Tax-1);
 					else
-						TempBuf = 0;
+						TempBuf.Z();
 				}
 				ok = TransferData(TempBuf, dir, rBuf);
 				if(dir == tfdBufToData) {
@@ -1107,7 +1107,7 @@ int SLAPI PPDS_CrrAmountType::TransferField(long fldID, Tfd dir, uint * pIter, S
 		case DSF_CRRAMOUNTTYPE_REFAMTTYPESYMB:
 			{
 				PPAmountType ref_rec;
-				TempBuf = 0;
+				TempBuf.Z();
 				if(dir == tfdDataToBuf) {
 					if(Pack.Rec.Flags & (PPAmountType::fInAmount|PPAmountType::fOutAmount))
 						if(AmtObj.Fetch(Pack.Rec.RefAmtTypeID, &ref_rec) > 0)
@@ -1268,14 +1268,14 @@ int SLAPI PPDS_CrrSalChargeGroup::TransferField(long fldID, Tfd dir, uint * pIte
 		case DSF_CRRSALCHARGEGROUP_SYMB: ok = TransferData(Data.Rec.Symb, sizeof(Data.Rec.Symb), dir, rBuf); break;
 		case DSF_CRRSALCHARGEGROUP_ITEMSYMBLIST:
 			{
-				TempBuf = 0;
+				TempBuf.Z();
 				if(dir == tfdDataToBuf) {
 					if((*pIter) < Data.GrpList.getCount()) {
 						PPSalCharge item_rec;
 						if(Obj.Search(Data.GrpList.get(*pIter), &item_rec) > 0)
 							TempBuf = item_rec.Symb;
 						else
-							TempBuf = 0;
+							TempBuf.Z();
 						ok = TransferData(TempBuf, dir, rBuf);
 					}
 					else
@@ -1563,7 +1563,7 @@ int SLAPI PPDS_CrrDbDiv::TransferField(long fldID, Tfd dir, uint * pIter, SStrin
 			break;
 		case DSF_CRRDBDIV_INTRRCPTOPSYMB:
 			{
-				TempBuf = 0;
+				TempBuf.Z();
 				if(dir == tfdDataToBuf) {
 					if(Data.Rec.IntrRcptOpr)
 						GetOpName(Data.Rec.IntrRcptOpr, TempBuf);
@@ -1582,7 +1582,7 @@ int SLAPI PPDS_CrrDbDiv::TransferField(long fldID, Tfd dir, uint * pIter, SStrin
 			break;
 		case DSF_CRRDBDIV_LOCSYMBLIST:
 			{
-				TempBuf = 0;
+				TempBuf.Z();
 				if(dir == tfdDataToBuf) {
 					if((*pIter) < Data.LocList.getCount()) {
 						LocationTbl::Rec loc_rec;
@@ -1592,7 +1592,7 @@ int SLAPI PPDS_CrrDbDiv::TransferField(long fldID, Tfd dir, uint * pIter, SStrin
 								TempBuf = loc_rec.Name;
 						}
 						else
-							TempBuf = 0;
+							TempBuf.Z();
 						ok = TransferData(TempBuf, dir, rBuf);
 					}
 					else
@@ -3167,7 +3167,7 @@ int SLAPI PPDS_CrrPersonRelType::TransferField(long fldID, Tfd dir, uint * pIter
 		case DSF_CRRPERSONRELTYPE_INHREGTYPELIST:
 			{
 				PPRegisterType regt_rec;
-				TempBuf = 0;
+				TempBuf.Z();
 				MEMSZERO(regt_rec);
 				if(dir == tfdDataToBuf) {
 					if((*pIter) < Data.InhRegTypeList.getCount()) {
@@ -3179,7 +3179,7 @@ int SLAPI PPDS_CrrPersonRelType::TransferField(long fldID, Tfd dir, uint * pIter
 							*/
 						}
 						else
-							TempBuf = 0;
+							TempBuf.Z();
 						ok = TransferData(TempBuf, dir, rBuf);
 					}
 					else

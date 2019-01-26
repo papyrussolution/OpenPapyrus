@@ -36,25 +36,27 @@ static int SLAPI PutCounter(PPID * pID, PPObjOpCounter * pOpcObj, PPOpCounterPac
 static int SLAPI PPObjProject_WriteConfig(PPProjectConfig * pCfg, PPOpCounterPacket * pPrjCntr, PPOpCounterPacket * pPhsCntr,
 	PPOpCounterPacket * pTodoCntr, PPOpCounterPacket * pTemplCntr)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
+	int    ta = 0;
 	int    is_new = 1;
+	Reference * p_ref = PPRef;
 	PPObjOpCounter opc_obj;
 	PPProjectConfig prev_cfg;
 	{
 		PPTransaction tra(1);
 		THROW(tra);
-		if(PPRef->GetPropMainConfig(PPPRP_PROJECTCFG, &prev_cfg, sizeof(prev_cfg)) > 0)
+		if(p_ref->GetPropMainConfig(PPPRP_PROJECTCFG, &prev_cfg, sizeof(prev_cfg)) > 0)
 			is_new = 0;
 		THROW(PutCounter(&pCfg->PrjCntrID, &opc_obj, pPrjCntr));
 		THROW(PutCounter(&pCfg->PhaseCntrID, &opc_obj, pPhsCntr));
 		THROW(PutCounter(&pCfg->TaskCntrID, &opc_obj, pTodoCntr));
 		THROW(PutCounter(&pCfg->TemplCntrID, &opc_obj, pTemplCntr));
-		pCfg->Flags &= ~PRJCFGF_VALID; // @v8.0.2 PRJCFGF_VALID - transient flag
-		THROW(PPRef->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PROJECTCFG, pCfg, sizeof(*pCfg), 0));
+		pCfg->Flags &= ~PRJCFGF_VALID;
+		THROW(p_ref->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PROJECTCFG, pCfg, sizeof(*pCfg), 0));
 		DS.LogAction(is_new ? PPACN_CONFIGCREATED : PPACN_CONFIGUPDATED, PPCFGOBJ_PROJECT, 0, 0, 0);
 		THROW(tra.Commit());
 	}
-	PPObjProject::DirtyConfig(); // @v8.0.2
+	PPObjProject::DirtyConfig();
 	CATCHZOK
 	return ok;
 }
@@ -2160,7 +2162,7 @@ private:
 	DECL_HANDLE_EVENT;
 	virtual int setupList();
 
-	int    GetText(PPID id, SString & rWord, SString & rBuf, int cat);
+	int    GetText(PPID id, const SString & rWord, SString & rBuf, int cat);
 	LostPrjTPersonItem * GetCurItem();
 	int ViewTasks(uint cm, LostPrjTPersonItem * pItem);
 	LostPrjTPersonArray Data;
@@ -2228,7 +2230,7 @@ LostPrjTPersonItem * RestoreLostPrjTPersonDlg::GetCurItem()
 	return p_item;
 }
 
-int RestoreLostPrjTPersonDlg::GetText(PPID id, SString & rWord, SString & rBuf, int cat)
+int RestoreLostPrjTPersonDlg::GetText(PPID id, const SString & rWord, SString & rBuf, int cat)
 {
 	int    ok = -1;
 	if(cat) {

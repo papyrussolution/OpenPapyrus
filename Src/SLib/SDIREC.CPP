@@ -1,5 +1,5 @@
 // SDIREC.CPP
-// Copyright (c) A.Sobolev 1999-2001, 2002, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1999-2001, 2002, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -7,15 +7,7 @@
 
 IMPL_CMPFUNC(SDirEntry_Time, i1, i2)
 {
-	LDATE d1 = ((const SDirEntry *)i1)->WriteTime.d;
-	LDATE d2 = ((const SDirEntry *)i2)->WriteTime.d;
-	LTIME t1 = ((const SDirEntry *)i1)->WriteTime.t;
-	LTIME t2 = ((const SDirEntry *)i2)->WriteTime.t;
-	if(d1 > d2) return 1;
-	if(d1 < d2) return -1;
-	if(t1 > t2) return 1;
-	if(t1 < t2) return -1;
-	return 0;
+	return cmp(static_cast<const SDirEntry *>(i1)->WriteTime, static_cast<const SDirEntry *>(i2)->WriteTime);
 }
 
 SLAPI SDirec::SDirec() : InitFlag(0), lPosData(-1), vPosData(0), PosDataSize(0)
@@ -276,11 +268,11 @@ int SLAPI SFileEntryPool::Get(uint pos, SFileEntryPool::Entry * pEntry, SString 
 		}
 		else if(pFullPath) {
 			pFullPath->Z();
-			SString temp_buf;
-			GetS(r_item.PathP, temp_buf);
-			pFullPath->Cat(temp_buf);
-			GetS(r_item.NameP, temp_buf);
-			pFullPath->SetLastSlash().Cat(temp_buf);
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			GetS(r_item.PathP, r_temp_buf);
+			pFullPath->Cat(r_temp_buf);
+			GetS(r_item.NameP, r_temp_buf);
+			pFullPath->SetLastSlash().Cat(r_temp_buf);
 		}
 		return 1;
     }
@@ -299,9 +291,8 @@ int SLAPI SFileEntryPool::Add(SFileEntryPool::Entry & rDe)
     new_entry.WriteTime = rDe.WriteTime;
     new_entry.Size = rDe.Size;
     if(rDe.Path.NotEmptyS()) {
-		SString temp_path;
-		SPathStruc::NormalizePath(rDe.Path, 0, temp_path);
-		THROW(AddS(temp_path, &new_entry.PathP));
+		SString & r_temp_path = SLS.AcquireRvlStr();
+		THROW(AddS(SPathStruc::NormalizePath(rDe.Path, 0, r_temp_path), &new_entry.PathP));
     }
     THROW(AddS(rDe.Name, &new_entry.NameP));
     THROW(L.insert(&new_entry));
@@ -309,7 +300,7 @@ int SLAPI SFileEntryPool::Add(SFileEntryPool::Entry & rDe)
     return ok;
 }
 
-int SLAPI SFileEntryPool::Add(const char * pPath, SDirEntry & rDe)
+int SLAPI SFileEntryPool::Add(const char * pPath, const SDirEntry & rDe)
 {
 	int    ok = 1;
     InnerEntry new_entry;
@@ -320,9 +311,8 @@ int SLAPI SFileEntryPool::Add(const char * pPath, SDirEntry & rDe)
     new_entry.WriteTime = rDe.WriteTime;
     new_entry.Size = rDe.Size;
     if(pPath) {
-		SString temp_path;
-		SPathStruc::NormalizePath(pPath, 0, temp_path);
-		THROW(AddS(temp_path, &new_entry.PathP));
+		SString & r_temp_path = SLS.AcquireRvlStr();
+		THROW(AddS(SPathStruc::NormalizePath(pPath, 0, r_temp_path), &new_entry.PathP));
     }
     THROW(AddS(rDe.FileName, &new_entry.NameP));
     THROW(L.insert(&new_entry));
@@ -351,9 +341,9 @@ struct SFileEntryPool_SortExtraBlock {
 IMPL_CMPCFUNC(SFileEntryPool_Entry, p1, p2)
 {
 	int    si = 0;
-	SFileEntryPool_SortExtraBlock * p_blk = (SFileEntryPool_SortExtraBlock *)pExtraData;
-    const SFileEntryPool::InnerEntry * p_entry1 = (const SFileEntryPool::InnerEntry *)p1;
-    const SFileEntryPool::InnerEntry * p_entry2 = (const SFileEntryPool::InnerEntry *)p2;
+	SFileEntryPool_SortExtraBlock * p_blk = static_cast<SFileEntryPool_SortExtraBlock *>(pExtraData);
+    const SFileEntryPool::InnerEntry * p_entry1 = static_cast<const SFileEntryPool::InnerEntry *>(p1);
+    const SFileEntryPool::InnerEntry * p_entry2 = static_cast<const SFileEntryPool::InnerEntry *>(p2);
     const int _desc = BIN(p_blk->Order & SFileEntryPool::scDesc);
     switch(p_blk->Order & ~SFileEntryPool::scDesc) {
     	case SFileEntryPool::scByName:
@@ -386,18 +376,10 @@ IMPL_CMPCFUNC(SFileEntryPool_Entry, p1, p2)
 				si = fp1.CmpNC(fp2);
     		}
     		break;
-    	case SFileEntryPool::scByCrTime:
-			si = cmp(p_entry1->CreateTime, p_entry2->CreateTime);
-    		break;
-    	case SFileEntryPool::scByAccsTime:
-    		si = cmp(p_entry1->AccessTime, p_entry2->AccessTime);
-    		break;
-    	case SFileEntryPool::scByWrTime:
-    		si = cmp(p_entry1->WriteTime, p_entry2->WriteTime);
-    		break;
-    	case SFileEntryPool::scBySize:
-    		si = CMPSIGN(p_entry1->Size, p_entry2->Size);
-    		break;
+    	case SFileEntryPool::scByCrTime: si = cmp(p_entry1->CreateTime, p_entry2->CreateTime); break;
+    	case SFileEntryPool::scByAccsTime: si = cmp(p_entry1->AccessTime, p_entry2->AccessTime); break;
+    	case SFileEntryPool::scByWrTime: si = cmp(p_entry1->WriteTime, p_entry2->WriteTime); break;
+    	case SFileEntryPool::scBySize: si = CMPSIGN(p_entry1->Size, p_entry2->Size); break;
     }
     return (si && _desc) ? -si : si;
 }

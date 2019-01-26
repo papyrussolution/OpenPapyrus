@@ -1,5 +1,5 @@
 // OBJCSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -75,10 +75,9 @@ int PPObjCSession::StringToRights(const char * pBuf, long * pRt, long * pOpRt)
 
 TLP_IMPL(PPObjCSession, CSessionCore, P_Tbl);
 
-SLAPI PPObjCSession::PPObjCSession(void * extraPtr) : PPObject(PPOBJ_CSESSION), P_EqCfg(0)
+SLAPI PPObjCSession::PPObjCSession(void * extraPtr) : PPObject(PPOBJ_CSESSION), P_EqCfg(0), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
-	ExtraPtr = extraPtr;
 }
 
 SLAPI PPObjCSession::~PPObjCSession()
@@ -1027,6 +1026,7 @@ int SLAPI EditDueToKeyboardRights()
 			if(!RVALUEPTR(KWKCfg, pCfg))
 				MEMSZERO(KWKCfg);
 			SString  key_pos;
+			SString temp_buf;
 			for(int i = 0; i < WKEYRTCOUNT; i++) {
 				StringSet key_pos_str(',', 0);
 				BitArray  key_pos_ary;
@@ -1034,7 +1034,8 @@ int SLAPI EditDueToKeyboardRights()
 				for(size_t pos = 0; pos < 32; pos++)
 					if(key_pos_ary.get(pos))
 						key_pos_str.add(key_pos.Z().Cat((long)(pos + 1)));
-				setCtrlData(CTL_CFGKBDWKEY1 + i, key_pos_str.getBuf());
+				temp_buf = key_pos_str.getBuf();
+				setCtrlString(CTL_CFGKBDWKEY1 + i, temp_buf);
 			}
 			return 1;
 		}
@@ -1673,7 +1674,7 @@ public:
 	virtual int Edit(int item, long rowID, const LDATETIME & rTm, long * pID);
 	virtual int MoveChunk(int mode, long id, long rowId, const STimeChunk & rNewChunk);
 	virtual int GetColor(long id, STimeChunkGrid::Color * pClr);
-
+private:
 	PPObjSCard ScObj;
 	PPID   PosNodeID;
 	CTableOrder * P_To; // @notowned

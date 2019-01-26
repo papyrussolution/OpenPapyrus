@@ -13,8 +13,8 @@ typedef struct {
 } BH_TRACK;
 
 static int __memp_pgwrite(ENV*, DB_MPOOLFILE*, DB_MPOOL_HASH*, BH *);
-static int __memp_get_clear_len(DB_MPOOLFILE*, uint32 *);
-static int __memp_get_lsn_offset(DB_MPOOLFILE*, int32 *);
+static int __memp_get_clear_len(const DB_MPOOLFILE*, uint32 *);
+static int __memp_get_lsn_offset(const DB_MPOOLFILE*, int32 *);
 static int __memp_get_maxsize(DB_MPOOLFILE*, uint32*, uint32 *);
 static int __memp_set_maxsize(DB_MPOOLFILE*, uint32, uint32);
 static int __memp_set_priority(DB_MPOOLFILE*, DB_CACHE_PRIORITY);
@@ -2157,7 +2157,7 @@ int __memp_fcreate(ENV * env, DB_MPOOLFILE ** retp)
  * __memp_get_clear_len --
  *	Get the clear length.
  */
-static int __memp_get_clear_len(DB_MPOOLFILE * dbmfp, uint32 * clear_lenp)
+static int __memp_get_clear_len(const DB_MPOOLFILE * dbmfp, uint32 * clear_lenp)
 {
 	*clear_lenp = dbmfp->clear_len;
 	return 0;
@@ -2176,7 +2176,7 @@ int __memp_set_clear_len(DB_MPOOLFILE * dbmfp, uint32 clear_len)
  * __memp_get_fileid --
  *	DB_MPOOLFILE->get_fileid.
  */
-int __memp_get_fileid(DB_MPOOLFILE * dbmfp, uint8 * fileid)
+int __memp_get_fileid(const DB_MPOOLFILE * dbmfp, uint8 * fileid)
 {
 	if(!F_ISSET(dbmfp, MP_FILEID_SET)) {
 		__db_errx(dbmfp->env, DB_STR("3030", "get_fileid: file ID not set"));
@@ -2251,7 +2251,7 @@ int __memp_set_flags(DB_MPOOLFILE * dbmfp, uint32 flags, int onoff)
  * __memp_get_ftype --
  *	Get the file type (as registered).
  */
-int __memp_get_ftype(DB_MPOOLFILE * dbmfp, int * ftypep)
+int __memp_get_ftype(const DB_MPOOLFILE * dbmfp, int * ftypep)
 {
 	*ftypep = dbmfp->ftype;
 	return 0;
@@ -2270,7 +2270,7 @@ int __memp_set_ftype(DB_MPOOLFILE * dbmfp, int ftype)
  * __memp_get_lsn_offset --
  *	Get the page's LSN offset.
  */
-static int __memp_get_lsn_offset(DB_MPOOLFILE * dbmfp, int32 * lsn_offsetp)
+static int __memp_get_lsn_offset(const DB_MPOOLFILE * dbmfp, int32 * lsn_offsetp)
 {
 	*lsn_offsetp = dbmfp->lsn_offset;
 	return 0;
@@ -2337,7 +2337,7 @@ static int __memp_set_maxsize(DB_MPOOLFILE * dbmfp, uint32 gbytes, uint32 bytes)
  * __memp_get_pgcookie --
  *	Get the pgin/pgout cookie.
  */
-int __memp_get_pgcookie(DB_MPOOLFILE * dbmfp, DBT * pgcookie)
+int __memp_get_pgcookie(const DB_MPOOLFILE * dbmfp, DBT * pgcookie)
 {
 	if(dbmfp->pgcookie == NULL) {
 		pgcookie->size = 0;
@@ -2374,7 +2374,7 @@ int __memp_set_pgcookie(DB_MPOOLFILE * dbmfp, DBT * pgcookie)
  * __memp_get_priority --
  *	Set the cache priority for pages from this file.
  */
-int __memp_get_priority(DB_MPOOLFILE * dbmfp, DB_CACHE_PRIORITY * priorityp)
+int __memp_get_priority(const DB_MPOOLFILE * dbmfp, DB_CACHE_PRIORITY * priorityp)
 {
 	switch(dbmfp->priority) {
 	    case MPOOL_PRI_VERY_LOW: *priorityp = DB_PRIORITY_VERY_LOW; break;

@@ -203,7 +203,7 @@ public:
 	// Получаем текущие флаги ККМ
 	int    GetCurFlags(int numFlags, int & rFlags);
 	int    RunCheck(int opertype);
-	int    ReturnCheckParam(SString & rInput, char * output, size_t size);
+	int    ReturnCheckParam(const SString & rInput, char * output, size_t size);
 	int    PutData(const char * pCommand, const char * pData);
 	int    GetData(SString & rData, SString & rError);
 	//
@@ -1701,7 +1701,7 @@ int PiritEquip::RunCheck(int opertype)
 	return ok;
 }
 
-int PiritEquip::ReturnCheckParam(SString & rInput, char * pOutput, size_t size)
+int PiritEquip::ReturnCheckParam(const SString & rInput, char * pOutput, size_t size)
 {
 	int    ok = 0;
 	int    r = 0;

@@ -1,5 +1,5 @@
 // V_DBDIV.CPP
-// Copyright (c) A.Starodub 2013, 2014, 2016
+// Copyright (c) A.Starodub 2013, 2014, 2016, 2019
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -18,9 +18,8 @@ DBDivFilt & FASTCALL DBDivFilt::operator=(const DBDivFilt & s)
 	return *this;
 }
 
-SLAPI PPViewDBDiv::PPViewDBDiv() : PPView(&ObjDBDiv, &Filt, PPVIEW_DBDIV)
+SLAPI PPViewDBDiv::PPViewDBDiv() : PPView(&ObjDBDiv, &Filt, PPVIEW_DBDIV), P_TempTbl(0)
 {
-	P_TempTbl = 0;
 	ImplementFlags |= PPView::implDontEditNullFilter;
 }
 

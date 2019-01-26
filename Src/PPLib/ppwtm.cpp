@@ -343,9 +343,9 @@ int WhatmanObjectBackground::HandleCommand(int cmd, void * pExt)
 	switch(cmd) {
 		case cmdSetupByTool:
 			{
-				const TWhatmanToolArray::Item * p_item = (const TWhatmanToolArray::Item *)pExt;
+				const TWhatmanToolArray::Item * p_item = static_cast<const TWhatmanToolArray::Item *>(pExt);
 				if(p_item) {
-					BkgOptions = *(long *)p_item->ExtData;
+					BkgOptions = *reinterpret_cast<const long *>(p_item->ExtData);
 					if(p_item->P_Owner) {
 						const SDrawFigure * p_fig = p_item->P_Owner->GetFig(1, p_item->Symb, 0);
 						if(p_fig) {
@@ -734,8 +734,6 @@ private:
 	virtual int GetTextLayout(STextLayout & rTl, int options) const;
 	virtual int HandleCommand(int cmd, void * pExt);
 
-	//int    BarcStd;
-	//SString Barcode;
 	PPBarcode::BarcodeImageParam P;
 };
 

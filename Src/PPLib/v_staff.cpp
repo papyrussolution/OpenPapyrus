@@ -404,9 +404,8 @@ IMPLEMENT_PPFILT_FACTORY(StaffPost); SLAPI StaffPostFilt::StaffPostFilt() :
 	Init(1, 0);
 }
 
-SLAPI PPViewStaffPost::PPViewStaffPost() : PPView(0, &Filt, PPVIEW_STAFFPOST)
+SLAPI PPViewStaffPost::PPViewStaffPost() : PPView(0, &Filt, PPVIEW_STAFFPOST), P_TempTbl(0)
 {
-	P_TempTbl = 0;
 }
 
 SLAPI PPViewStaffPost::~PPViewStaffPost()

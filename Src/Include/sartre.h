@@ -1053,7 +1053,7 @@ public:
 	//    0 - правило с именем pNameUtf8 не найдено.
 	//
 	const  Rule * FASTCALL SearchRuleByName(const char * NameUtf8) const;
-	int    SLAPI Parse(SString & rS);
+	int    SLAPI Parse(const SString & rS);
 
 	int    SLAPI ExprItemToStr(ExprStack & rS, const ExprItem & rI, SString & rBuf) const;
 	int    SLAPI ExprStackToStr(ExprStack & rS, SString & rBuf) const;

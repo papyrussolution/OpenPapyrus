@@ -190,7 +190,7 @@ int SLAPI BExtQuery::initIteration(int reverse, const void * pInitKey, int initS
 int SLAPI BExtQuery::fetchFirst(void * pInitKey, int initSpMode)
 {
 	const  int sp = (State & stReverse) ? spLast : spFirst;
-	int    ok = BIN(search_first((char *)pInitKey, initSpMode, sp) > 0 || (BTRNFOUND && ActCount));
+	int    ok = BIN(search_first(static_cast<char *>(pInitKey), initSpMode, sp) > 0 || (BTRNFOUND && ActCount));
 	if(ok > 0 && State & stFillBuf)
 		fillTblBuf();
 	return ok;
@@ -229,7 +229,7 @@ void SLAPI BExtQuery::resetEof()
 	State &= ~stEOF;
 }
 
-long SLAPI BExtQuery::countIterations(int reverse, void * pInitKey, int initSpMode)
+long SLAPI BExtQuery::countIterations(int reverse, const void * pInitKey, int initSpMode)
 {
 	long   c = 0;
 	initIteration(reverse, pInitKey, initSpMode);
@@ -305,20 +305,20 @@ int SLAPI BExtQuery::search_first(const char * pInitKey, int initSpMode, int spM
 		uint   fc = NZOR(fields_count, 1);
 		uint   tailLen = (fc + 1) * sizeof(BExtTailItem);
 		BExtTailItem * p_item = 0;
-		THROW_V(P_QBuf = (char *)SAlloc::R(P_QBuf, sizeof(BExtHeader)), BE_NOMEM);
+		THROW_V(P_QBuf = static_cast<char *>(SAlloc::R(P_QBuf, sizeof(BExtHeader))), BE_NOMEM);
 		memzero(P_QHead, sizeof(BExtHeader));
 		P_QHead->bufLen = sizeof(BExtHeader);
 		P_QHead->maxSkip = MaxReject; // 0xffffU;
 		THROW(add_tree(0, P_Tree ? P_Tree->Root : 0));
-		THROW_V(p_tail = (BExtTail *)SAlloc::M(tailLen), BE_NOMEM);
+		THROW_V(p_tail = static_cast<BExtTail *>(SAlloc::M(tailLen)), BE_NOMEM);
 		memzero(p_tail, sizeof(BExtTail));
 		p_tail->numFlds = fc;
 		if(fields_count) {
 			for(uint i = 0; i < fields_count; i++) {
 				p_item = ((BExtTailItem *)(p_tail + 1)) + i;
 				const BNField & f = Fields.GetField(i);
-				p_item->fldLen = (uint16)f.size();
-				p_item->fldOfs = (uint16)f.Offs;
+				p_item->fldLen = static_cast<uint16>(f.size());
+				p_item->fldOfs = static_cast<uint16>(f.Offs);
 				RecSize += p_item->fldLen;
 			}
 		}
@@ -329,7 +329,7 @@ int SLAPI BExtQuery::search_first(const char * pInitKey, int initSpMode, int spM
 			RecSize += p_item->fldLen;
 		}
 		TailOfs = P_QHead->bufLen;
-		THROW_V(P_QBuf = (char *)SAlloc::R(P_QBuf, P_QHead->bufLen + tailLen), BE_NOMEM);
+		THROW_V(P_QBuf = static_cast<char *>(SAlloc::R(P_QBuf, P_QHead->bufLen + tailLen)), BE_NOMEM);
 		memcpy(P_QBuf + TailOfs, p_tail, tailLen);
 		P_QHead->bufLen += tailLen;
 		//
@@ -392,7 +392,7 @@ __again:
 			}
 			else {
 				memcpy(Buf, P_QBuf, P_QHead->bufLen);
-				P_Tbl->setDataBuf(Buf, (RECORDSIZE)Buf.GetSize());
+				P_Tbl->setDataBuf(Buf, static_cast<RECORDSIZE>(Buf.GetSize()));
 				P_Tbl->setIndex(index);
 				r = P_Tbl->getExtended(_Key, spMode);
 				P_Tbl->setBuffer(saved_buf);
@@ -436,7 +436,7 @@ __again:
 
 void SLAPI BExtQuery::setMaxReject(uint maxRej)
 {
-	MaxReject = (uint16)maxRej;
+	MaxReject = static_cast<uint16>(maxRej);
 }
 
 BExtQuery & SLAPI BExtQuery::selectAll()
@@ -498,55 +498,60 @@ int FASTCALL _invertComp(int cmp);
 
 int FASTCALL BExtQuery::add_term(int link, int n)
 {
-	uint16 sz = 0;
-	int    cmp;
-	char   val[1024];
-	const  BNField * fld = 0;
+	int    ok = 0;
 	DBQ::T & t = P_Restrict->items[n];
-	assert(t.left.GetId() == P_Tbl->GetHandle() || t.right.GetId() == P_Tbl->GetHandle());
-	if(t.left.GetId() == P_Tbl->GetHandle()) {
-		fld = &t.left.F.getField();
-		cmp = t.cmp;
-		t.right.getValue(fld->T, val);
-	}
-	else if(t.right.GetId() == P_Tbl->GetHandle()) {
-		fld = &t.right.F.getField();
-		cmp = _invertComp(t.cmp);
-		t.left.getValue(fld->T, val);
-	}
-	sz = (uint16)fld->size();
-	P_QBuf = (char *)SAlloc::R(P_QBuf, P_QHead->bufLen + sizeof(BExtTerm) + sz);
-	if(P_QBuf) {
-		BExtTerm * p_term = (BExtTerm *)(P_QBuf + P_QHead->bufLen);
-		p_term->fldType = SLib2BtrType(GETSTYPE(fld->T));
-		p_term->fldLen  = sz;
-		p_term->fldOfs  = (uint16)fld->Offs;
-		p_term->cmp     = SlToBeqOp(cmp);
-		p_term->link    = 0;
-		memcpy(p_term+1, val, sz);
-		/*
-		p_term = get_term(P_QHead->numTerms-1);
-		if(p_term)
-			p_term->link = link;
-		*/
-		//BExtTerm * SLAPI BExtQuery::get_term(int n)
-		if(P_QHead->numTerms > 0) {
-			const  uint _n = (P_QHead->numTerms-1);
-			BExtHeader * p_h = (BExtHeader *)P_QBuf;
-			if(p_h && _n < p_h->numTerms) {
-				p_term = (BExtTerm *)(p_h+1);
-				for(uint i = 0; i < _n; i++) {
-					p_term = (BExtTerm *)(PTR8(p_term) + sizeofterm(p_term));
-				}
-				p_term->link = SlToBeqLink(link);
-			}
+	const  int tbl_hdl = P_Tbl->GetHandle();
+	assert(t.left.GetId() == tbl_hdl || t.right.GetId() == tbl_hdl);
+	if(t.left.GetId() == tbl_hdl || t.right.GetId() == tbl_hdl) {
+		int    cmp;
+		char   val[1024];
+		const  BNField * fld = 0;
+		if(t.left.GetId() == tbl_hdl) {
+			fld = &t.left.F.getField();
+			cmp = t.cmp;
+			t.right.getValue(fld->T, val);
 		}
-		P_QHead->numTerms++;
-		P_QHead->bufLen += (sizeof(BExtTerm) + sz);
-		return 1;
+		else /*if(t.right.GetId() == tbl_hdl)*/ {
+			fld = &t.right.F.getField();
+			cmp = _invertComp(t.cmp);
+			t.left.getValue(fld->T, val);
+		}
+		uint16 sz = (uint16)fld->size();
+		P_QBuf = static_cast<char *>(SAlloc::R(P_QBuf, P_QHead->bufLen + sizeof(BExtTerm) + sz));
+		if(P_QBuf) {
+			BExtTerm * p_term = (BExtTerm *)(P_QBuf + P_QHead->bufLen);
+			p_term->fldType = SLib2BtrType(GETSTYPE(fld->T));
+			p_term->fldLen  = sz;
+			p_term->fldOfs  = static_cast<uint16>(fld->Offs);
+			p_term->cmp     = SlToBeqOp(cmp);
+			p_term->link    = 0;
+			memcpy(p_term+1, val, sz);
+			/*
+			p_term = get_term(P_QHead->numTerms-1);
+			if(p_term)
+				p_term->link = link;
+			*/
+			//BExtTerm * SLAPI BExtQuery::get_term(int n)
+			if(P_QHead->numTerms > 0) {
+				const  uint _n = (P_QHead->numTerms-1);
+				BExtHeader * p_h = (BExtHeader *)P_QBuf;
+				if(p_h && _n < p_h->numTerms) {
+					p_term = (BExtTerm *)(p_h+1);
+					for(uint i = 0; i < _n; i++) {
+						p_term = (BExtTerm *)(PTR8(p_term) + sizeofterm(p_term));
+					}
+					p_term->link = SlToBeqLink(link);
+				}
+			}
+			P_QHead->numTerms++;
+			P_QHead->bufLen += (sizeof(BExtTerm) + sz);
+			ok = 1;
+		}
+		else {
+			BtrError = BE_NOMEM;
+		}
 	}
-	else
-		return (BtrError = BE_NOMEM, 0);
+	return ok;
 }
 
 int FASTCALL BExtQuery::add_tree(int link, int n)

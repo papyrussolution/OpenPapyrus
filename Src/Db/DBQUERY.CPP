@@ -220,8 +220,8 @@ int FASTCALL DBQuery::chooseKey(int tblN)
 				return 0;
 		uint   i;
 		uint   tc = (t.tree.Count+1) * sizeof(uint);
-		uint * p_trace      = (uint *)SAlloc::M(tc);
-		uint * p_best_trace = (uint *)SAlloc::M(tc);
+		uint * p_trace      = static_cast<uint *>(SAlloc::M(tc));
+		uint * p_best_trace = static_cast<uint *>(SAlloc::M(tc));
 		if(p_trace == 0 || p_best_trace == 0)
 			return 0;
 		p_best_trace[0] = 0;

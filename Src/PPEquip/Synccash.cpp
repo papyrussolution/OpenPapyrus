@@ -133,8 +133,8 @@ private:
 	void   SLAPI CutLongTail(SString & rBuf);
 	int    SLAPI LineFeed(int lineCount, int useReceiptRibbon, int useJournalRibbon);
 	int    SLAPI CheckForRibbonUsing(uint ribbonParam, StrAssocArray & rOut); // ribbonParam == SlipLineParam::RegTo
-	int    SLAPI ExecPrintOper(int cmd, StrAssocArray & rIn, StrAssocArray & rOut);
-	int    SLAPI ExecOper(int cmd, StrAssocArray & rIn, StrAssocArray & rOut);
+	int    SLAPI ExecPrintOper(int cmd, const StrAssocArray & rIn, StrAssocArray & rOut);
+	int    SLAPI ExecOper(int cmd, const StrAssocArray & rIn, StrAssocArray & rOut);
 	int    GetStatus(int & rStatus);
 	int    SetLogotype();
 	int    GetPort(const char * pPortName, int * pPortNo);
@@ -1414,7 +1414,7 @@ int SLAPI SCS_SYNCCASH::AllowPrintOper()
 	return ok;
 }
 
-int SLAPI SCS_SYNCCASH::ExecPrintOper(int cmd, StrAssocArray & rIn, StrAssocArray & rOut)
+int SLAPI SCS_SYNCCASH::ExecPrintOper(int cmd, const StrAssocArray & rIn, StrAssocArray & rOut)
 {
 	int    ok = 1;
 	int    r = 0;
@@ -1448,7 +1448,7 @@ int SLAPI SCS_SYNCCASH::ExecPrintOper(int cmd, StrAssocArray & rIn, StrAssocArra
 	return ok;
 }
 
-int SLAPI SCS_SYNCCASH::ExecOper(int cmd, StrAssocArray & rIn, StrAssocArray & rOut)
+int SLAPI SCS_SYNCCASH::ExecOper(int cmd, const StrAssocArray & rIn, StrAssocArray & rOut)
 {
 	int    ok = 1;
 	THROW(ok = P_AbstrDvc->RunCmd__(cmd, rIn, rOut));

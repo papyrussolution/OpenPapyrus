@@ -239,32 +239,18 @@ int SLAPI VCalendar::GetTodo(VCalendar::Todo * pData)
 		PrevTempBuf.Z();
 		while(!end_todo && ReadProp(&prop, val, attrs) > 0) {
 			switch(prop) {
-				case prpBeginTodo:
-					read_todo = 1;
-					break;
+				case prpBeginTodo: read_todo = 1; break;
 				case prpEndTodo:
 					end_todo = 1;
 					if(read_todo == 1)
 						ok = 1;
 					break;
-				case prpCreatedDtm:
-					GetDtm(val, &todo_rec.CreatedDtm);
-					break;
-				case prpCompletedDtm:
-					GetDtm(val, &todo_rec.CompletedDtm);
-					break;
-				case prpStartDtm:
-					GetDtm(val, &todo_rec.StartDtm);
-					break;
-				case prpEndDtm:
-					GetDtm(val, &todo_rec.EndDtm);
-					break;
-				case prpDueDtm:
-					GetDtm(val, &todo_rec.DueDtm);
-					break;
-				case prpSequence:
-					todo_rec.Sequence = (int16)val.ToLong();
-					break;
+				case prpCreatedDtm: GetDtm(val, &todo_rec.CreatedDtm); break;
+				case prpCompletedDtm: GetDtm(val, &todo_rec.CompletedDtm); break;
+				case prpStartDtm: GetDtm(val, &todo_rec.StartDtm); break;
+				case prpEndDtm: GetDtm(val, &todo_rec.EndDtm); break;
+				case prpDueDtm: GetDtm(val, &todo_rec.DueDtm); break;
+				case prpSequence: todo_rec.Sequence = (int16)val.ToLong(); break;
 				case prpStatus:
 					{
 						int status = Status.GetIdxBySub(val, ';');
@@ -311,7 +297,7 @@ int SLAPI VCalendar::GetTodo(VCalendar::Todo * pData)
 	return ok;
 }
 
-int SLAPI VCalendar::GetDtm(SString & rBuf, LDATETIME * pDtm)
+int SLAPI VCalendar::GetDtm(const SString & rBuf, LDATETIME * pDtm)
 {
 	int    ok = -1;
 	LDATETIME dtm = ZERODATETIME;
@@ -462,11 +448,10 @@ int SLAPI PrjTaskFilt::GetPriorList(PPIDArray * pList) const
 //
 //
 //
-SLAPI PPViewPrjTask::PPViewPrjTask() : PPView(&TodoObj, &Filt, PPVIEW_PRJTASK), P_TempOrd(0), P_TempTbl(0)
+SLAPI PPViewPrjTask::PPViewPrjTask() : PPView(&TodoObj, &Filt, PPVIEW_PRJTASK), P_TempOrd(0), P_TempTbl(0), Grid(this)
 {
 	ImplementFlags |= implChangeFilt;
 	UpdateTaskList.freeAll();
-	Grid.P_View = this;
 }
 
 SLAPI PPViewPrjTask::~PPViewPrjTask()
@@ -1972,7 +1957,7 @@ int SLAPI ViewPrjTask_ByReminder()
 //
 //
 //
-SLAPI PPViewPrjTask::PrjTaskTimeChunkGrid::PrjTaskTimeChunkGrid() : STimeChunkGrid(), P_View(0)
+SLAPI PPViewPrjTask::PrjTaskTimeChunkGrid::PrjTaskTimeChunkGrid(PPViewPrjTask * pV) : STimeChunkGrid(), P_View(pV)
 {
 }
 

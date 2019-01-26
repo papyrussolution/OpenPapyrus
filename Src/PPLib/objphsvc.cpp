@@ -298,7 +298,7 @@ int FASTCALL PPObjPhoneService::IsPhnChannelAcceptable(const SString & rFilter, 
 }
 
 //static 
-int SLAPI PPObjPhoneService::PhoneTo(SString & rPhone)
+int SLAPI PPObjPhoneService::PhoneTo(const SString & rPhone)
 {
 	int    ok = -1;
 	if(rPhone.NotEmpty()) {

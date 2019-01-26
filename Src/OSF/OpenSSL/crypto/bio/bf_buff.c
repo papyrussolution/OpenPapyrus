@@ -375,11 +375,8 @@ static long buffer_callback_ctrl(BIO * b, int cmd, bio_info_cb * fp)
 	long ret = 1;
 	if(!b->next_bio)
 		return 0;
-	switch(cmd) {
-		default:
-		    ret = BIO_callback_ctrl(b->next_bio, cmd, fp);
-		    break;
-	}
+	//switch(cmd) { default: ret = BIO_callback_ctrl(b->next_bio, cmd, fp); break; }
+	ret = BIO_callback_ctrl(b->next_bio, cmd, fp); // @default-only-switch
 	return ret;
 }
 

@@ -110,6 +110,7 @@
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Midl>
       <AdditionalIncludeDirectories>..\osf\pcre-8.41\build;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -203,6 +204,7 @@
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Midl>
       <AdditionalIncludeDirectories>..\osf\pcre-8.41\build;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

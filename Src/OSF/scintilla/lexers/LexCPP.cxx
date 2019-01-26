@@ -31,7 +31,7 @@ static bool FASTCALL IsSpaceEquiv(int state)
 // a = b+++/ptn/...
 // Putting a space between the '++' post-inc operator and the '+' binary op
 // fixes this, and is highly recommended for readability anyway.
-bool FollowsPostfixOperator(StyleContext &sc, LexAccessor &styler)
+static bool FollowsPostfixOperator(const StyleContext & sc, LexAccessor & styler)
 {
 	Sci_Position pos = (Sci_Position)sc.currentPos;
 	while(--pos > 0) {
@@ -43,7 +43,7 @@ bool FollowsPostfixOperator(StyleContext &sc, LexAccessor &styler)
 	return false;
 }
 
-bool followsReturnKeyword(StyleContext &sc, LexAccessor &styler)
+static bool followsReturnKeyword(const StyleContext & sc, LexAccessor &styler)
 {
 	// Don't look at styles, so no need to flush.
 	Sci_Position pos = (Sci_Position)sc.currentPos;

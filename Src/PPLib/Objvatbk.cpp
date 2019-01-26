@@ -95,10 +95,9 @@ int FASTCALL PPObjVATBook::IsValidKind(int kind)
 
 TLP_IMPL(PPObjVATBook, VATBookTbl, P_Tbl);
 
-SLAPI PPObjVATBook::PPObjVATBook(void * extraPtr) : PPObject(PPOBJ_VATBOOK)
+SLAPI PPObjVATBook::PPObjVATBook(void * extraPtr) : PPObject(PPOBJ_VATBOOK), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
-	ExtraPtr = extraPtr;
 	ReadConfig();
 }
 

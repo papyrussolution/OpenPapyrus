@@ -480,9 +480,8 @@ int SLAPI ObjCache::RefSymbArray::FetchBySymb(const char * pSymb, PPID * pID)
 //
 //
 SLAPI ObjCacheHash::ObjCacheHash(PPID objType, size_t entrySize, size_t cacheSize, uint maxTries, long flags) :
-	ObjCache(objType, entrySize, flags)
+	ObjCache(objType, entrySize, flags), P_Items(0)
 {
-	P_Items = 0;
 	Init(cacheSize, maxTries);
 }
 

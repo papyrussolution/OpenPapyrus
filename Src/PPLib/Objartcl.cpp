@@ -976,7 +976,7 @@ int SLAPI PPObjArticle::Edit(PPID * pID, void * extraPtr /*sheetID*/)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjArticle::AutoFill(PPAccSheet * pAccSheetRec)
+int SLAPI PPObjArticle::AutoFill(const PPAccSheet * pAccSheetRec)
 {
 	ArticleAutoAddDialog * dlg = new ArticleAutoAddDialog(pAccSheetRec->ID);
 	int    r = dlg->Ret;
@@ -1051,11 +1051,10 @@ int SLAPI PPObjArticle::NewArticle(PPID * pID, long sheetID)
 
 TLP_IMPL(PPObjArticle, ArticleCore, P_Tbl);
 
-SLAPI PPObjArticle::PPObjArticle(void * extraPtr) : PPObject(PPOBJ_ARTICLE)
+SLAPI PPObjArticle::PPObjArticle(void * extraPtr) : PPObject(PPOBJ_ARTICLE), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
 	ImplementFlags |= implStrAssocMakeList;
-	ExtraPtr = extraPtr;
 	RVALUEPTR(CurrFilt, (ArticleFilt *)ExtraPtr);
 }
 

@@ -55,7 +55,7 @@ int SLAPI GoodsMovTotal::Serialize(int dir, SBuffer & rBuf, SSerializeContext * 
 SLAPI PPViewGoodsMov::PPViewGoodsMov() : PPView(0, &Filt, PPVIEW_GOODSMOV), P_BObj(BillObj), P_TempTbl(0), P_GGIter(0), PrintWoPacks(0)
 {
 	ImplementFlags |= implUseServer;
-	DefReportId = REPORT_GOODSMOV; // @v8.5.7
+	DefReportId = REPORT_GOODSMOV;
 }
 
 SLAPI PPViewGoodsMov::~PPViewGoodsMov()

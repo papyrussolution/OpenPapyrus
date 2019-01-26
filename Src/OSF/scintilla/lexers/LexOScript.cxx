@@ -101,9 +101,9 @@ static bool IsDocCommentStart(StyleContext &sc)
 // QUESTIONAL ASSUMPTION: The complete #endif directive is not checked; just
 // the starting #e. However, there is no other preprocessor directive with
 // the same starting letter and thus this optimization should always work.
-static bool IsDocCommentEnd(StyleContext &sc)
+static bool IsDocCommentEnd(const StyleContext & sc)
 {
-	return sc.ch == '#' && sc.chNext == 'e';
+	return (sc.ch == '#' && sc.chNext == 'e');
 }
 
 class IdentifierClassifier {

@@ -1266,7 +1266,7 @@ SKeyAccelerator::SKeyAccelerator() : LAssocArray()
 {
 }
 
-int SKeyAccelerator::Set(KeyDownCommand & rK, int cmd)
+int SKeyAccelerator::Set(const KeyDownCommand & rK, int cmd)
 {
 	int    ok = 0;
 	long   key = rK;

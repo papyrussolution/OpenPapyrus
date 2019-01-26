@@ -144,8 +144,7 @@ int SLAPI CCheckFilt::SetLocList(const PPIDArray * pLocList)
 //
 int SLAPI PPViewCCheck::Helper_Construct()
 {
-	ImplementFlags |= implDontSetupCtColumnsOnChgFilt;
-	ImplementFlags |= implUseServer;
+	ImplementFlags |= (implDontSetupCtColumnsOnChgFilt|implUseServer);
 	P_CC = 0;
 	P_TmpTbl = 0;
 	P_TmpGrpTbl = 0;

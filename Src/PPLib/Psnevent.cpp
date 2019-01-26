@@ -1,5 +1,5 @@
 // PSNEVENT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -131,9 +131,8 @@ int SLAPI PersonEventCore::CalcCountForPeriod(PPID opID, PPID personID, const ST
 //
 //
 //
-PPPsnEventPacket::OnTurnBlock::OnTurnBlock()
+PPPsnEventPacket::OnTurnBlock::OnTurnBlock() : SCardID(0), SCardWrOffAmount(0.0), SCardRest(0.0), P_Pdb(0)
 {
-	THISZERO();
 }
 
 PPPsnEventPacket::OnTurnBlock::~OnTurnBlock()
@@ -141,10 +140,12 @@ PPPsnEventPacket::OnTurnBlock::~OnTurnBlock()
 	ZDELETE(P_Pdb);
 }
 
-PPPsnEventPacket::OnTurnBlock & PPPsnEventPacket::OnTurnBlock::Clear()
+PPPsnEventPacket::OnTurnBlock & PPPsnEventPacket::OnTurnBlock::Z()
 {
 	ZDELETE(P_Pdb);
-	THISZERO();
+	SCardID = 0;
+	SCardWrOffAmount = 0.0;
+	SCardRest = 0.0;
 	return *this;
 }
 //
@@ -154,7 +155,7 @@ SLAPI PPPsnEventPacket::PPPsnEventPacket()
 {
 	MEMSZERO(Rec);
 	MEMSZERO(Reg);
-	Otb.Clear();
+	Otb.Z();
 }
 
 void SLAPI PPPsnEventPacket::Destroy()
@@ -163,7 +164,7 @@ void SLAPI PPPsnEventPacket::Destroy()
 	MEMSZERO(Reg);
 	TagL.Destroy();
 	LinkFiles.Clear();
-	Otb.Clear();
+	Otb.Z();
 }
 
 int  FASTCALL PPPsnEventPacket::Init(PPID op)

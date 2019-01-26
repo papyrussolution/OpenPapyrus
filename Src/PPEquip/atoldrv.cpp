@@ -1,5 +1,5 @@
 // ATOLDRV.CPP
-// Copyright (c) A.Starodub 2010, 2011, 2013, 2015, 2016, 2018
+// Copyright (c) A.Starodub 2010, 2011, 2013, 2015, 2016, 2018, 2019
 // @codepage UTF-8
 // Интерфейс эмулятора синхронного кассового аппарата
 //
@@ -183,17 +183,16 @@ int  SCS_ATOLDRV::RefToIntrf = 0;          // @global
 
 class CM_ATOLDRV : public PPCashMachine {
 public:
-	SLAPI CM_ATOLDRV(PPID cashID) : PPCashMachine(cashID) {}
+	SLAPI CM_ATOLDRV(PPID cashID) : PPCashMachine(cashID) 
+	{
+	}
 	PPSyncCashSession * SLAPI SyncInterface();
 };
 
 PPSyncCashSession * SLAPI CM_ATOLDRV::SyncInterface()
 {
-	PPSyncCashSession * cs = 0;
-	if(IsValid()) {
-		cs = (PPSyncCashSession*)new SCS_ATOLDRV(NodeID, NodeRec.Name, NodeRec.Port);
-		CALLPTRMEMB(cs, Init(NodeRec.Name, NodeRec.Port));
-	}
+	PPSyncCashSession * cs = IsValid() ? new SCS_ATOLDRV(NodeID, NodeRec.Name, NodeRec.Port) : 0;
+	CALLPTRMEMB(cs, Init(NodeRec.Name, NodeRec.Port));
 	return cs;
 }
 
@@ -552,7 +551,7 @@ int SLAPI SCS_ATOLDRV::AllowPrintOper(uint id)
 
 int SLAPI SCS_ATOLDRV::Exec(uint id)
 {
-	int ok = 1;
+	int    ok = 1;
 	THROW_INVARG(P_Disp);
 	THROW(SetProp(Password, CashierPassword));
 	THROW(P_Disp->CallMethod(id) > 0);
@@ -908,12 +907,8 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 			{
 				//#define PAYTYPE_CASH           0L
 				//#define PAYTYPE_BANKING        3L
-				int   atol_paytype_cash = 0;
-				int   atol_paytype_bank = 3;
-				// @v10.0.02 {
-				if(SCn.DrvVerMajor > 8 || (SCn.DrvVerMajor == 8 && SCn.DrvVerMinor >= 15))
-					atol_paytype_bank = 1;
-				// } @v10.0.02 
+				const int atol_paytype_cash = 0;
+				const int atol_paytype_bank = (SCn.DrvVerMajor > 8 || (SCn.DrvVerMajor == 8 && SCn.DrvVerMinor >= 15)) ? 1 : 3;
 				if(nonfiscal > 0.0) {
 					if(fiscal > 0.0) {
 						const double _paym_cash = R2(fiscal - _paym_bnk);
@@ -933,6 +928,42 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 				else {
 					const double _paym_cash = R2(sum - _paym_bnk);
 					debug_log_buf.Space().CatEq("PAYMBANK", _paym_bnk).Space().CatEq("PAYMCASH", _paym_cash);
+					// @v10.3.1 {
+					if(_paym_bnk > 0.0) {
+						double  add_paym = 0.0; 
+						const double add_paym_epsilon = 0.01;
+						const double add_paym_delta = (add_paym - sum);
+						if(add_paym_delta > 0.0 || fabs(add_paym_delta) < add_paym_epsilon)
+							add_paym = 0.0;
+						if(add_paym != 0.0) {
+							if(_paym_cash > 0.0) {
+								THROW(SetProp(Summ, _paym_cash + add_paym));
+								THROW(SetProp(TypeClose, atol_paytype_cash));
+								THROW(ExecOper(Payment));
+							}
+							THROW(SetProp(Summ, _paym_bnk - add_paym));
+							THROW(SetProp(TypeClose, atol_paytype_bank));
+							THROW(ExecOper(Payment));
+						}
+						else {
+							if(_paym_cash > 0.0) {
+								THROW(SetProp(Summ, _paym_cash));
+								THROW(SetProp(TypeClose, atol_paytype_cash));
+								THROW(ExecOper(Payment));
+							}
+							THROW(SetProp(Summ, _paym_bnk));
+							THROW(SetProp(TypeClose, atol_paytype_bank));
+							THROW(ExecOper(Payment));
+						}
+					}
+					else {
+						THROW(SetProp(Summ, sum));
+						THROW(SetProp(TypeClose, atol_paytype_cash));
+						THROW(ExecOper(Payment));
+					}
+					// } @v10.3.1 
+					/* @v10.3.1
+					
 					if(_paym_cash > 0.0) {
 						THROW(SetProp(Summ, _paym_cash));
 						THROW(SetProp(TypeClose, atol_paytype_cash));
@@ -943,6 +974,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 						THROW(SetProp(TypeClose, atol_paytype_bank));
 						THROW(ExecOper(Payment));
 					}
+					*/
 				}
 			}
 		}

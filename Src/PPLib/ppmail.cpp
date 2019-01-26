@@ -123,11 +123,11 @@ SLAPI PPInternetAccount::PPInternetAccount2()
 
 void SLAPI PPInternetAccount::Init()
 {
-	ExtStr = 0;
+	ExtStr.Z();
 	memzero(this, offsetof(PPInternetAccount, ExtStr)-0);
 }
 
-int SLAPI PPInternetAccount::Cmp(PPInternetAccount * pAccount)
+int SLAPI PPInternetAccount::Cmp(const PPInternetAccount * pAccount) const
 {
 	int    ok = 1;
 	if(!(Flags & fFtpAccount) && pAccount) {

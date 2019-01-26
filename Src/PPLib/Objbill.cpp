@@ -689,7 +689,7 @@ void SLAPI PPObjBill::DiagGoodsTurnError(const PPBillPacket * pPack)
 			Acct   acct;
 			acctid.ac = r_item.AccID;
 			acctid.ar = r_item.ArID;
-			atobj->P_Tbl->ConvertAcctID(&acctid, &acct, 0, 0);
+			atobj->P_Tbl->ConvertAcctID(acctid, &acct, 0, 0);
 			acct.ToStr(ACCF_DEFAULT, acc_buf);
 		}
 		PPFormatS(PPMSG_INFORMATION, PPINF_BILLADVLINE, &msg_buf, ln+1, advbillkind_buf.cptr(), r_item.Amount, acc_buf.cptr());
@@ -4449,7 +4449,7 @@ int SLAPI PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 	PPID   qk_id = 0;
 	TDialog * dlg = 0;
 	SArray * p_qbo_ary = 0;
-	StdListBoxDef * def = 0;
+	//StdListBoxDef * def = 0;
 	// @v9.3.12 PPOPT_GOODSORDER
 	if(pPack && oneof3(pPack->OpTypeID, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND, PPOPT_GOODSORDER) && /*pPack->SampleBillID &&*/ pPack->GetQuotKindList(&ql) > 0) {
 		PPID   ar_id = NZOR(forceArID, pPack->Rec.Object);
@@ -4555,8 +4555,7 @@ int SLAPI PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 	CATCHZOKPPERR
 	if(dlg)
 		delete dlg;
-	else if(def)
-		delete def;
+	/*else if(def) delete def;*/
 	else
 		delete p_qbo_ary;
 	return ok;
@@ -5900,9 +5899,22 @@ int SLAPI PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 		// @v10.3.0 {
 		if(PPRef->GetPropSBuffer(Obj, pPack->Rec.ID, BILLPRP_VALXCL, vxcl_buf) > 0) {
 			SSerializeContext sctx;
-			if(!pPack->_VXcL.Serialize(-1, vxcl_buf, &sctx)) {
-				pPack->_VXcL.Release();
-				// @todo log error
+			const size_t actual_size = vxcl_buf.GetAvailableSize();
+			const size_t cs_size = SSerializeContext::GetCompressPrefix(0);
+			if(actual_size > cs_size && SSerializeContext::IsCompressPrefix(vxcl_buf.GetBuf(vxcl_buf.GetRdOffs()))) {
+				SCompressor compr(SCompressor::tZLib);
+				SBuffer dbuf;
+				THROW_SL(compr.DecompressBlock(vxcl_buf.GetBuf(vxcl_buf.GetRdOffs()+cs_size), actual_size-cs_size, dbuf));
+				if(!pPack->_VXcL.Serialize(-1, dbuf, &sctx)) {
+					pPack->_VXcL.Release();
+					// @todo log error
+				}
+			}
+			else {
+				if(!pPack->_VXcL.Serialize(-1, vxcl_buf, &sctx)) {
+					pPack->_VXcL.Release();
+					// @todo log error
+				}
 			}
 		}
 		// } @v10.3.0 
@@ -6139,14 +6151,25 @@ int SLAPI PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 	}
 	THROW(SetTagList(pPack->Rec.ID, &pPack->BTagL, 0));
 	if(P_LotXcT) {
-		SBuffer vxcl_buf; // @v10.3.0
+		SBuffer cbuf;
 		THROW(P_LotXcT->PutContainer(pPack->Rec.ID, &pPack->XcL, 0));
 		// @v10.3.0 {
 		if(pPack->_VXcL.GetCount()) {
+			SBuffer vxcl_buf; // @v10.3.0
+			SCompressor compr(SCompressor::tZLib);
 			SSerializeContext sctx;
 			THROW(pPack->_VXcL.Serialize(+1, vxcl_buf, &sctx));
+			if(vxcl_buf.GetAvailableSize() > 128) {
+				uint8 cs[32];
+				size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
+				THROW_SL(cbuf.Write(cs, cs_size));
+				THROW_SL(compr.CompressBlock(vxcl_buf.GetBuf(0), vxcl_buf.GetAvailableSize(), cbuf, 0, 0));
+			}
+			else {
+				cbuf = vxcl_buf;
+			}
 		}
-		THROW(p_ref->PutPropSBuffer(Obj, pPack->Rec.ID, BILLPRP_VALXCL, vxcl_buf, 0));
+		THROW(p_ref->PutPropSBuffer(Obj, pPack->Rec.ID, BILLPRP_VALXCL, cbuf, 0));
 		// } @v10.3.0 
 	}
 	CATCHZOK

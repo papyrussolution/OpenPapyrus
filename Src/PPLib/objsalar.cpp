@@ -1895,7 +1895,7 @@ int SLAPI PPObjStaffCal::RemoveEntry(const StaffCalendarTbl::Rec & rEntry, int u
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::SetEntry(StaffCalendarTbl::Rec & rEntry, int use_ta)
+int SLAPI PPObjStaffCal::SetEntry(const StaffCalendarTbl::Rec & rEntry, int use_ta)
 {
 	int    ok = 1;
 	int    allow_day_gap = 0;

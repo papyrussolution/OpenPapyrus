@@ -1,5 +1,5 @@
 // OBJSYNC.CPP
-// Copyright (c) A.Sobolev 1997-2001, 2002, 2003, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1997-2001, 2002, 2003, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019
 //
 // Поддержка синхронизации объектов в распределенной базе данных
 //
@@ -639,7 +639,7 @@ int SLAPI ObjSyncQueueCore::Clear()
 	int    ok = 1;
 	SString file_path;
 	PPObjectTransmit::GetQueueFilePath(file_path);
-	THROW_DB(deleteFrom(this, 1, *(DBQ *)0));
+	THROW_DB(deleteFrom(this, 1, *reinterpret_cast<DBQ *>(0)));
 	PPRemoveFilesByExt(file_path, 0, 0, 0); // Все файлы - без расширений
 	CATCHZOK
 	return ok;

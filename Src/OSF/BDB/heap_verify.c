@@ -16,7 +16,7 @@ static int __heap_verify_offset_cmp(const void *, const void *);
  * PUBLIC: int __heap_vrfy_meta __P((DB *, VRFY_DBINFO *, HEAPMETA *,
  * PUBLIC:     db_pgno_t, uint32));
  */
-int __heap_vrfy_meta(DB * dbp, VRFY_DBINFO * vdp, HEAPMETA * meta, db_pgno_t pgno, uint32 flags)
+int __heap_vrfy_meta(DB * dbp, VRFY_DBINFO * vdp, const HEAPMETA * meta, db_pgno_t pgno, uint32 flags)
 {
 	HEAP * h;
 	VRFY_PAGEINFO * pip;

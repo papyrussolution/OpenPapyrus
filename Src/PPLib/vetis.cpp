@@ -2988,7 +2988,7 @@ public:
 	};
 
 	int    SLAPI GetEntityQuery(int queryType, const char * pQueryParam, VetisApplicationBlock & rReply);
-	int    SLAPI ProcessUnresolvedEntityList(TSVector <VetisEntityCore::UnresolvedEntity> & rList);
+	int    SLAPI ProcessUnresolvedEntityList(const TSVector <VetisEntityCore::UnresolvedEntity> & rList);
 	int    SLAPI SetupOutgoingEntries(PPID locID, const DateRange & rPeriod);
 
 	VetisEntityCore PeC;
@@ -5791,12 +5791,12 @@ static void Debug_OutputEntItem(const VetisEnterprise & rItem, SString & rBuf)
 	}
 }
 
-int SLAPI PPVetisInterface::ProcessUnresolvedEntityList(TSVector <VetisEntityCore::UnresolvedEntity> & rList)
+int SLAPI PPVetisInterface::ProcessUnresolvedEntityList(const TSVector <VetisEntityCore::UnresolvedEntity> & rList)
 {
 	int    ok = 1;
 	SString temp_buf;
 	for(uint i = 0; i < rList.getCount(); i++) {
-		VetisEntityCore::UnresolvedEntity & r_entry = rList.at(i);
+		const VetisEntityCore::UnresolvedEntity & r_entry = rList.at(i);
 		VetisApplicationBlock reply(1, 0);
 		S_GUID guid;
 		int    rr = 1;

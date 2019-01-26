@@ -51,7 +51,7 @@ SLAPI ExecVDosParam::ExecVDosParam() : Flags(0)
 {
 }
 
-int SLAPI ExecVDos(ExecVDosParam & rParam)
+int SLAPI ExecVDos(const ExecVDosParam & rParam)
 {
 	int   ok = 1;
 	int   r = 0;

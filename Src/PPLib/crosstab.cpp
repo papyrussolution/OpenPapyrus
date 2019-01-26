@@ -978,10 +978,10 @@ int SLAPI Crosstab::Read(DBTable * pTbl, SBuffer & rBuf, SSerializeContext * pCt
 	return ok;
 }
 
-int SLAPI Crosstab::WriteDbFieldList(DBFieldList & rList, SBuffer & rBuf, SSerializeContext * pCtx)
+int SLAPI Crosstab::WriteDbFieldList(const DBFieldList & rList, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
-	int32  c = (int32)rList.GetCount();
+	int32  c = static_cast<int32>(rList.GetCount());
 	THROW_SL(pCtx->Serialize(+1, c, rBuf));
 	for(int32 i = 0; i < c; i++) {
 		int32  f = rList.Get(i).fld;

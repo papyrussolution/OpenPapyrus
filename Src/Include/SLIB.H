@@ -1,5 +1,5 @@
 // SLIB.H
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #ifndef __SLIB_H
@@ -1448,7 +1448,6 @@ public:
 	static const char   TrailingBytesForUTF8[256];
 	static const uint32 OffsetsFromUTF8[6];
 	static const uint8  FirstByteMark[7];
-
 	static const uint32 HalfBase;
 	static const uint32 HalfMask;
 	static const int    HalfShift; // used for shifting by 10 bits
@@ -1595,9 +1594,9 @@ struct LDATE { // @noctr
 	time_t SLAPI GetTimeT() const;
 	LDATE  operator = (OleDate);
 	LDATE  operator = (double); // OleDate
-	int    day()   const { return (int)(v & 0x00ff); }
-	int    month() const { return (int)((v & 0xff00) >> 8); }
-	int    year()  const { return (int)(v >> 16); }
+	int    day()   const { return static_cast<int>(v & 0x00ff); }
+	int    month() const { return static_cast<int>((v & 0xff00) >> 8); }
+	int    year()  const { return static_cast<int>(v >> 16); }
 	int    weekno() const;
 	int    dayspermonth() const;
 	//
@@ -1666,10 +1665,10 @@ struct LTIME {
 	LTIME  operator = (OleDate);
 	LTIME  operator = (double); // OleDate
 	LTIME  SLAPI encode(int h, int m, int s, int ms);
-	int    SLAPI hour()  const { return (int)(((uint8 *)&v)[3]); }
-	int    SLAPI minut() const { return (int)(((uint8 *)&v)[2]); }
-	int    SLAPI sec()   const { return (int)(((uint8 *)&v)[1]); }
-	int    SLAPI hs()    const { return (int)(((uint8 *)&v)[0]); }
+	int    SLAPI hour()  const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[3]); }
+	int    SLAPI minut() const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[2]); }
+	int    SLAPI sec()   const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[1]); }
+	int    SLAPI hs()    const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[0]); }
 	long   SLAPI totalsec() const { return (sec() + minut() * 60 + hour() * 3600); }
 	//
 	// Descr: Устанавливает время в соответствии с количеством секунд, заданных параметром s.
@@ -2708,10 +2707,8 @@ inline TYPEID SLAPI GetSTypeID(char *,  int s) { return MKSTYPE(S_ZSTRING, s); }
 inline TYPEID SLAPI GetSTypeID(LDATE)  { return MKSTYPE(S_DATE, 4); }
 inline TYPEID SLAPI GetSTypeID(LTIME)  { return MKSTYPE(S_TIME, 4); }
 inline TYPEID SLAPI GetSTypeID(LDATETIME)  { return MKSTYPE(S_DATETIME, 8); }
-
 DataType & FASTCALL stype(TYPEID t, DataType *);
 TYPEID     FASTCALL bt2st(int baseType);
-
 int    FASTCALL btnumber(int bt);
 uint32 FASTCALL stsize(TYPEID t); // @v10.2.1 size_t-->uint32
 int    FASTCALL stcomp(TYPEID t, const void * i1, const void * i2);
@@ -2757,8 +2754,8 @@ SString & GetBinaryTypeString(TYPEID typ, int style, SString & rBuf, const char 
 // Returns:
 //   rBuf
 //
-SString & GetBaseTypeString(int baseTyp, long flags, SString & rBuf);
-TYPEID IsSTypeName(SStrScan & rScan);
+SString & FASTCALL GetBaseTypeString(int baseTyp, long flags, SString & rBuf);
+TYPEID FASTCALL IsSTypeName(SStrScan & rScan);
 //
 // User-defined types support
 //
@@ -3207,7 +3204,6 @@ public:
 	};
 
 	static USize & Convert(const USize & rUszFrom, USize & rUszTo, const SUnit::Context * pCtx = 0);
-
 	SUnit();
 	explicit SUnit(int id);
 	SUnit(const char * pName, const SUnit::Context * pCtx);
@@ -3388,7 +3384,7 @@ public:
 		fNoCase = 0x0001, // Поиск без учета регистра символов
 		fDebug  = 0x8000  // Класс собирает отладочную статистику и проверяет корректность алгоритмов
 	};
-	SSrchPattern(const char * pPattern, long flags = 0, int algorithm = algBmGoodSfx);
+	explicit SSrchPattern(const char * pPattern, long flags = 0, int algorithm = algBmGoodSfx);
 	~SSrchPattern();
 	int    Init(const char * pPattern, long flags = 0, int algorithm = algBmGoodSfx);
 	size_t GetLen() const;
@@ -3493,11 +3489,11 @@ public:
 	//   из-за того, что существующие использования класса столкнутся с неоднозначностью
 	//   преобразования.
 	//
-	const uchar * ucptr() const { return (uchar *)P_Buf; }
+	const uchar * ucptr() const { return reinterpret_cast<const uchar *>(P_Buf); }
 	//
 	// Descr: Сокращенная версия operator const char * ()
 	//
-	const char  * cptr() const { return (char *)P_Buf; }
+	const char  * cptr() const { return reinterpret_cast<const char *>(P_Buf); }
 	//
 	// Descr: Сравнивает строку this со строкой pS.
 	// ARG(pS         IN): Строка, с которой сравнивается this
@@ -3608,6 +3604,7 @@ public:
 	ulong  SLAPI ToULong() const;
 	int64  SLAPI ToInt64() const;
 	double SLAPI ToReal() const;
+	float  SLAPI ToFloat() const;
 	//
 	// Descr: Флаги функции ToIntRange
 	//
@@ -4111,7 +4108,7 @@ public:
 	StringSet & FASTCALL operator =  (const StringSet &);
 	StringSet & FASTCALL operator +  (const char * s);
 	StringSet & FASTCALL operator += (const char * s);
-	char * SLAPI getBuf() const;
+	const char * SLAPI getBuf() const;
 	//
 	// Descr: Возвращает размер данных в буфере.
 	//
@@ -4962,7 +4959,7 @@ struct ExecVDosParam {
 	StringSet Batch;
 };
 
-int SLAPI ExecVDos(ExecVDosParam & rParam);
+int SLAPI ExecVDos(const ExecVDosParam & rParam);
 //
 //
 //
@@ -5019,7 +5016,7 @@ struct SDirEntry {
 class SDirec {
 public:
 	SLAPI  SDirec();
-	SLAPI  SDirec(const char * pathname, int enumDirs = 0);
+	explicit SLAPI SDirec(const char * pathname, int enumDirs = 0);
 	SLAPI ~SDirec();
 	int    SLAPI Init(const char * pathname, int enumDirs = 0);
 	int    FASTCALL Next(SDirEntry *);
@@ -5864,7 +5861,7 @@ public:
 	uint   SLAPI getCount() const { return count; }
 	//int    FASTCALL checkIndex(uint) const;
 	//int    FASTCALL checkIndex(long) const;
-	int    SLAPI getEnd() const { return (int)(count-1); }
+	int    SLAPI getEnd() const { return static_cast<int>(count-1); }
 	uint   SLAPI getItemSize() const { return isize; }
 	uint   SLAPI getFlags() const;
 	void   SLAPI setFlag(uint val, int set);
@@ -6086,7 +6083,7 @@ template <class T> class TSVector : public SVector {
 public:
 	TSVector() : SVector(sizeof(T)) {}
 	TSVector(const TSVector & src) : SVector(src) {}
-	T &    FASTCALL at(uint pos) const { return *(T *)SVector::at(pos); }
+	T &    FASTCALL at(uint pos) const { return *reinterpret_cast<T *>(SVector::at(pos)); }
 };
 //
 // SArray
@@ -6260,7 +6257,7 @@ template <class T> class TSArray : public SArray {
 public:
 	explicit TSArray(uint o = O_ARRAY) : SArray(sizeof(T), /*8,*/ o) {}
 	TSArray(const TSArray & src) : SArray(src) {}
-	T &    FASTCALL at(uint pos) const { return *(T *)SArray::at(pos); }
+	T &    FASTCALL at(uint pos) const { return *reinterpret_cast<T *>(SArray::at(pos)); }
 };
 
 template <class T> class TSCollection : public SCollection {
@@ -6274,11 +6271,11 @@ public:
 	}
 	T *    FASTCALL at(uint pos) const
 	{
-		return (T *)SCollection::at(pos);
+		return static_cast<T *>(SCollection::at(pos));
 	}
 	virtual void FASTCALL freeItem(void * pItem)
 	{
-		delete (T *)pItem;
+		delete reinterpret_cast<T *>(pItem);
 	}
 	//
 	// Descr: Распределяет память для нового элемента T и вставляет его
@@ -6352,7 +6349,7 @@ public:
 	TSStack() : SStack(sizeof(T), O_ARRAY) {}
 	void   FASTCALL push(const T & t) { SStack::push(&t); }
 	int    FASTCALL pop(T & t) { return SStack::pop(&t); }
-	T &    FASTCALL peek() const { return *(T *)SStack::peek(); }
+	T &    FASTCALL peek() const { return *static_cast<T *>(SStack::peek()); }
 };
 
 template <class T> class TSRingStack : public SStack {
@@ -6364,7 +6361,7 @@ public:
 	}
 	void   FASTCALL push(const T & t) { SStack::push(&t); }
 	int    FASTCALL pop(T & t)  { return SStack::pop(&t); }
-	T &    FASTCALL peek() const { return *(T *)SStack::peek(); }
+	T &    FASTCALL peek() const { return *static_cast<T *>(SStack::peek()); }
 };
 //
 //
@@ -6374,9 +6371,9 @@ public:
 	explicit TSQueue(uint queueSize) : SQueue(sizeof(T), queueSize) {}
 	TSQueue(const TSQueue & src) : SQueue(src) {}
 	int    FASTCALL push(const T & t) { return SQueue::push(&t); }
-	T &    FASTCALL pop() { return *(T *)SQueue::pop(); }
-	T &    FASTCALL peek() const { return *(T *)SQueue::peek(); }
-	T &    FASTCALL get(uint p) const { return *(T *)SQueue::get(p); }
+	T &    FASTCALL pop() { return *static_cast<T *>(SQueue::pop()); }
+	T &    FASTCALL peek() const { return *static_cast<T *>(SQueue::peek()); }
+	T &    FASTCALL get(uint p) const { return *static_cast<T *>(SQueue::get(p)); }
 };
 //
 // Descr: Шаблон для револьверных структур, обеспечивающих повторное использование
@@ -7153,7 +7150,7 @@ public:
 	//   0  - ошибка
 	//
 	int    SLAPI Scan(const char * pPath, const char * pWildcard, long flags);
-	int    SLAPI Add(const char * pPath, SDirEntry & rDe);
+	int    SLAPI Add(const char * pPath, const SDirEntry & rDe);
 	int    SLAPI Add(SFileEntryPool::Entry & rDe);
     uint   SLAPI GetCount() const;
     int    SLAPI Get(uint pos, SFileEntryPool::Entry * pEntry, SString * pFullPath) const;
@@ -7811,7 +7808,7 @@ public:
 	}
 	T * FASTCALL Get(uint pos) const
 	{
-		return (T *)STree::GetData(pos);
+		return static_cast<T *>(STree::GetData(pos));
 	}
 };
 //
@@ -7830,7 +7827,7 @@ public:
 	int    Search(uint val, uint * pPos) const;
 	uint   GetCount() const;
 	uint32 FASTCALL Get(uint idx) const;
-	uint32 operator [] (size_t idx) const { return Get((uint)idx); }
+	uint32 operator [] (size_t idx) const { return Get(static_cast<uint>(idx)); }
 	int    FASTCALL Write(SBuffer & rBuf) const;
 	int    FASTCALL Read(SBuffer & rBuf);
 
@@ -9205,11 +9202,11 @@ public:
 	//
 	// Descr: Returns index into the searched string that corresponds to the  beginning pointer
 	//
-	long   start() const { return (long)(startp[0] - P_Text); }
+	long   start() const { return static_cast<long>(startp[0] - P_Text); }
 	//
 	// Descr: Returns index into the searched string that corresponds to the  end pointer
 	//
-	long   end() const { return (long)(endp[0] - P_Text); }
+	long   end() const { return static_cast<long>(endp[0] - P_Text); }
 	int    FASTCALL operator == (const CRegExp & r) const;
 	int    FASTCALL operator != (const CRegExp & r) const { return(!(*this == r)); }
 	int    FASTCALL deep_equal(const CRegExp & r) const; // Same regexp and state?
@@ -9847,7 +9844,7 @@ public:
 private:
 	double * SLAPI sget(LMIDX, LMIDX) const;
 	int    SLAPI add(const LMatrix &, int minus);
-	size_t SLAPI dim() const { return (size_t)(NumRows * NumCols); }
+	size_t SLAPI dim() const { return static_cast<size_t>(NumRows * NumCols); }
 
 	char * P_Name;
 	LMIDX  NumRows;
@@ -10095,8 +10092,8 @@ public:
 	int    SLAPI SearchEntry(const SUniTime & rUt, uint startPos, uint * pIdx) const;
 	//
 	// Descr: Ищет первый элемент, время которого больше или равно rSince.
-	// Note: Смысл (но не формальное поведение) функции предполагает, что элементы отсортированы 
-	//   по мере возрастания времени. Если это не так, то функция отработает, однако 
+	// Note: Смысл (но не формальное поведение) функции предполагает, что элементы отсортированы
+	//   по мере возрастания времени. Если это не так, то функция отработает, однако
 	//   нет никакой гарантии, что элементы с индексами большими, чем *pIdx, имеют большее
 	//   значение времени, чем rSince.
 	// Returns:
@@ -10125,9 +10122,10 @@ public:
 	int    SLAPI GetTimeArray(uint startItemIdx, uint idxCount, DateTimeArray & rV) const;
     int    SLAPI AddItem(SUniTime tm, uint * pItemIdx);
 	int    SLAPI AddItemFromSample(const STimeSeries & rSample, uint samplePos);
+	int    SLAPI RemoveItem(uint idx);
 	//
 	// Descr: Структура, предназначенная для хранения одного элемента серии
-	//   с целью обеспечения интерфеса. 
+	//   с целью обеспечения интерфеса.
 	//
 	struct SnapshotEntry {
 		SLAPI  SnapshotEntry();
@@ -10187,6 +10185,7 @@ public:
 	};
 
 	int    SLAPI AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam & rP, RealArray * pTrendList, RealArray * pSumSqList) const;
+	int    SLAPI Repair(const char * pCriticalVecSymb);
 	//
 	// Descr: Опции нормализации фрейма временного ряда
 	//
@@ -11547,7 +11546,7 @@ public:
 		fcmStdCall,
 		fcmFastCall
 	};
-	Generator_CPP(const char * pFileName);
+	explicit Generator_CPP(const char * pFileName);
 	int    Open(const char * pFileName);
 	int    Wr_Include(const char * pFileName, int quot = 0);
 	int    Wr_Define(const char * pMacro, const char * pVal);
@@ -11581,6 +11580,21 @@ private:
 //
 //
 //
+class SClipboard {
+public:
+	static int FASTCALL OpenClipboardRetry(void * hWnd);
+	static int FASTCALL Copy_Text(const char * pText, size_t len);
+	static int FASTCALL Copy_TextUnicode(const wchar_t * pText, size_t len);
+	static int FASTCALL Copy_SYLK(const SString & rText);
+	static int FASTCALL Past_Text(SStringU & rBuf);
+	static int SLAPI CopyPaste(HWND hWnd, int copy, const char * pPath); // @todo to_remake
+private:
+	static int FASTCALL Helper_OpenClipboardForCopy(int & rHasBeenOpened);
+	static int FASTCALL Helper_CloseClipboard(int hasBeenOpened);
+};
+//
+//
+//
 class SPrinting {
 public:
 	struct PrnInfo { // @flat
@@ -11595,7 +11609,7 @@ public:
 		char   ShareName[128];
 	};
 	static int SLAPI GetListOfPrinters(TSVector <PrnInfo> * pInfoList); // @v9.8.4 TSArray-->TSVector
-	SPrinting(HWND);
+	explicit SPrinting(HWND);
 	~SPrinting();
 	int    Init(const char * pPort);
 	int    PrintImage(const char * pImgPath);
@@ -12304,7 +12318,7 @@ public:
 
 template <class T> class TSClassWrapper : public SClassWrapper {
 	virtual void * Create() { return new T; }
-	virtual void Destroy(void * ptr) { delete (T *)ptr; }
+	virtual void Destroy(void * ptr) { delete static_cast<T *>(ptr); }
 };
 //
 //
@@ -12582,8 +12596,8 @@ public:
 	void   SLAPI ReleaseThread();
 	//SlThreadLocalArea & SLAPI GetTLA();
 	//const  SlThreadLocalArea & SLAPI GetConstTLA() const;
-	FORCEINLINE SlThreadLocalArea & SLAPI GetTLA() { return *(SlThreadLocalArea *)SGetTls(TlsIdx); }
-	FORCEINLINE const SlThreadLocalArea & SLAPI GetConstTLA() const { return *(SlThreadLocalArea *)SGetTls(TlsIdx); }
+	FORCEINLINE SlThreadLocalArea & SLAPI GetTLA() { return *static_cast<SlThreadLocalArea *>(SGetTls(TlsIdx)); }
+	FORCEINLINE const SlThreadLocalArea & SLAPI GetConstTLA() const { return *static_cast<SlThreadLocalArea *>(SGetTls(TlsIdx)); }
 	const SString & SLAPI GetExePath() const;
 	const SString & SLAPI GetAppName() const;
 	void   SLAPI SetUiLanguageId(int languageId, int currentThreadOnly);
@@ -12791,8 +12805,6 @@ private:
 	SString FileName;
 	void * P_Image;
 };
-
-int    CopyPaste(HWND hWnd, int copy, const char * pPath);
 //
 //
 //
@@ -13156,24 +13168,21 @@ public:
 		opClose     // arg_count=0
 	};
 	struct Item {
-		const  FPoint & Pnt(uint p) const { return *(const FPoint *)(P_ArgList+p); }
+		const  FPoint & Pnt(uint p) const { return *reinterpret_cast<const FPoint *>(P_ArgList+p); }
 		int    Op;
 		uint   ArgCount;
 		const  float * P_ArgList;
 	};
-	SDrawPath(const char * pSid = 0);
+	explicit SDrawPath(const char * pSid = 0);
 	virtual SDrawFigure * Dup() const;
 	virtual int  Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
-
 	int    FASTCALL Copy(const SDrawPath & rS);
 	int    IsEmpty() const;
 	int    HasCurrent() const;
 	const  FPoint & GetCurrent();
 	void   Clear();
-	//
 	uint   GetCount() const;
 	const Item * FASTCALL Get(uint i, Item &) const;
-	//
 	int    Nop();
 	int    FASTCALL Move(const FPoint &);
 	int    FASTCALL Line(const FPoint &);
@@ -13214,7 +13223,7 @@ public:
 	int    LoadFile(const char * pFileName);
 	int    LoadBuf(int fm, SBuffer & rInBuf);
 	int    LoadMime_Base64(const char * pFormatStr, const SString & rS);
-	int    Store(SImageBuffer::StoreParam & rP, SFile & rF);
+	int    Store(const SImageBuffer::StoreParam & rP, SFile & rF);
 	int    TransformToBounds(TPoint size, const SViewPort * pVp);
 	int    TransformToGrayscale();
 private:
@@ -13438,7 +13447,7 @@ public:
 	int    SLAPI GetTodo(VCalendar::Todo *);
 private:
 	int    SLAPI PutTodoProperty(TodoProperty prop, const void * pVal, long addedParam);
-	int    SLAPI GetDtm(SString & rBuf, LDATETIME * pDtm);
+	int    SLAPI GetDtm(const SString & rBuf, LDATETIME * pDtm);
 	int    SLAPI ReadProp(TodoProperty * pProp, SString & rVal, SString & rAttrib);
 
 	int    Export;

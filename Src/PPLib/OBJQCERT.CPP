@@ -1,5 +1,5 @@
 // OBJQCERT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2019
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -7,10 +7,9 @@
 
 TLP_IMPL(PPObjQCert, QualityCertTbl, P_Tbl);
 
-SLAPI PPObjQCert::PPObjQCert(void * extraPtr) : PPObject(PPOBJ_QCERT)
+SLAPI PPObjQCert::PPObjQCert(void * extraPtr) : PPObject(PPOBJ_QCERT), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
-	ExtraPtr = extraPtr;
 }
 
 SLAPI PPObjQCert::~PPObjQCert()

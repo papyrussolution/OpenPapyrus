@@ -9,10 +9,9 @@ long FASTCALL ATTF_TO_ATDF(long attf); // Defined in objbill.cpp
 
 TLP_IMPL(PPObjAccTurn, AccTurnCore, P_Tbl);
 
-SLAPI PPObjAccTurn::PPObjAccTurn(void * extraPtr) : PPObject(PPOBJ_ACCTURN)
+SLAPI PPObjAccTurn::PPObjAccTurn(void * extraPtr) : PPObject(PPOBJ_ACCTURN), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
-	ExtraPtr = extraPtr;
 }
 
 SLAPI PPObjAccTurn::~PPObjAccTurn()
@@ -24,8 +23,8 @@ int SLAPI PPObjAccTurn::ConvertStr(const char * pStr, PPID curID, Acct * pAcct, 
 	{ return P_Tbl->ConvertStr(pStr, curID, pAcct, pAcctId, pSheetID); }
 int SLAPI PPObjAccTurn::ConvertAcct(const Acct * pAcct, PPID curID, AcctID * pAcctId, PPID * pAccSheetID)
 	{ return P_Tbl->ConvertAcct(pAcct, curID, pAcctId, pAccSheetID); }
-int SLAPI PPObjAccTurn::ConvertAcctID(const AcctID * acctid, Acct * acct, PPID * pCurID, int useCache)
-	{ return P_Tbl->ConvertAcctID(acctid, acct, pCurID, useCache); }
+int SLAPI PPObjAccTurn::ConvertAcctID(const AcctID & rAci, Acct * acct, PPID * pCurID, int useCache)
+	{ return P_Tbl->ConvertAcctID(rAci, acct, pCurID, useCache); }
 
 int SLAPI PPObjAccTurn::VerifyRevokingCurFromAccount(PPID accID, PPID curID)
 {
@@ -113,14 +112,13 @@ int SLAPI PPObjAccTurn::CreateBlankAccTurnBySample(PPBillPacket * pPack, const P
 	return ok;
 }
 
-int SLAPI PPObjAccTurn::SearchAccturnInPacketByCorrAcc(
-	const PPBillPacket * pPack, int side, int ac, Acct * pCorrAcc, uint * pPos)
+int SLAPI PPObjAccTurn::SearchAccturnInPacketByCorrAcc(const PPBillPacket * pPack, int side, int ac, Acct * pCorrAcc, uint * pPos)
 {
 	for(uint i = 0; i < pPack->Turns.getCount(); i++) {
 		Acct   dbt, crd;
 		PPID   cur_id = 0;
-		ConvertAcctID(&pPack->Turns.at(i).DbtID, &dbt, &cur_id, 1 /* useCache */);
-		ConvertAcctID(&pPack->Turns.at(i).CrdID, &crd, &cur_id, 1 /* useCache */);
+		ConvertAcctID(pPack->Turns.at(i).DbtID, &dbt, &cur_id, 1 /* useCache */);
+		ConvertAcctID(pPack->Turns.at(i).CrdID, &crd, &cur_id, 1 /* useCache */);
 		if(side == PPDEBIT && dbt.ac == ac) {
 			ASSIGN_PTR(pCorrAcc, crd);
 			ASSIGN_PTR(pPos, i);
@@ -179,16 +177,14 @@ int SLAPI PPObjAccTurn::EditRecoverBalanceParam(RecoverBalanceParam * pParam)
 	PPID   cur_id = 0;
 	AcctID acct_id;
 	TDialog * dlg = 0;
-
 	acct_id.ac = pParam->BalAccID;
 	acct_id.ar = 0;
 	MEMSZERO(acct);
-
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_CBAL))));
 	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_CBAL_LOG, CTL_CBAL_LOG, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
 	dlg->SetupCalPeriod(CTLCAL_CBAL_PERIOD, CTL_CBAL_PERIOD);
 	SetPeriodInput(dlg, CTL_CBAL_PERIOD, &pParam->Period);
-	ConvertAcctID(&acct_id, &acct, &cur_id, 1 /* useCache */);
+	ConvertAcctID(acct_id, &acct, &cur_id, 1 /* useCache */);
 	dlg->setCtrlData(CTL_CBAL_BAL, &acct);
 	dlg->setCtrlString(CTL_CBAL_LOG, pParam->LogFileName);
 	dlg->AddClusterAssoc(CTL_CBAL_FLAGS, 0, RecoverBalanceParam::fCorrect);

@@ -2002,12 +2002,9 @@ void SLAPI BillTransmDeficit::CalcReqSalesTax(const ILTI * pIlti, LDATE dt, PPID
 		PPGoodsTaxEntry gtx;
 		GObj.FetchTax(labs(pIlti->GoodsID), dt, opID, &gtx);
 		if(gtx.SalesTax > 0) {
-			double st_rate = fdiv100i(gtx.SalesTax); // @divtax
-			double net_price_rate = pIlti->Price * st_rate;
-			if(CConfig.Flags & CCFLG_PRICEWOEXCISE)
-				stax = net_price_rate / (100.0 + st_rate);
-			else
-				stax = fdiv100r(-net_price_rate);
+			const double st_rate = fdiv100i(gtx.SalesTax); // @divtax
+			const double net_price_rate = pIlti->Price * st_rate;
+			stax = (CConfig.Flags & CCFLG_PRICEWOEXCISE) ? (net_price_rate / (100.0 + st_rate)) : fdiv100r(-net_price_rate);
 		}
 	}
 	ASSIGN_PTR(pSalesTax, stax);
@@ -2171,7 +2168,7 @@ int SLAPI BillTransmDeficit::TurnDeficitDialog(double * pPctAddition)
 		{
 			SetupCalDate(CTLCAL_TDEFICIT_DATE, CTL_TDEFICIT_DATE);
 		}
-		int setDTS(TSVector <LocPeriod> & rList, double pctAddition) // @v9.8.6 TSArray-->TSVector
+		int setDTS(const TSVector <LocPeriod> & rList, double pctAddition) // @v9.8.6 TSArray-->TSVector
 		{
 			OrgLocPeriodList = rList;
 			LocPeriodList = rList;
@@ -3109,14 +3106,12 @@ int SLAPI PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, Obj
 			}
 			else if(op_type_id == PPOPT_INVENTORY)
 				ok = 1;
-			// @v8.0.3 {
 			else if(oneof2(op_type_id, PPOPT_GOODSREVAL, PPOPT_CORRECTION)) { // @v8.5.4 PPOPT_CORRECTION
 				if(CConfig.Flags2 & CCFLG2_SYNCLOT)
 					ok = 1;
 				else
 					msg_id = PPTXT_LOG_NTRANS_BILLRVLLS;
 			}
-			// } @v8.0.3
 			else if((bill_rec.Flags & (BILLF_GEXPEND|BILLF_GRECEIPT|BILLF_GMODIF)) ||
 				oneof5(op_type_id, PPOPT_GOODSORDER, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_GOODSACK)) {
 				if(rDestDbDivPack.ResponsibleForLoc(bill_rec.LocID, 0))

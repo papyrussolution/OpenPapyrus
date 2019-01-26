@@ -7,21 +7,21 @@
 //
 //
 //
-int FASTCALL GetAcctName(Acct * acct, PPID curID, long fmt, SString & rBuf)
+int FASTCALL GetAcctName(const Acct * acct, PPID curID, long fmt, SString & rBuf)
 {
 	AcctID acctid;
 	rBuf.Z();
-	return (BillObj->atobj->ConvertAcct(acct, curID, &acctid, 0) > 0) ? GetAcctIDName(&acctid, fmt, rBuf) : -1;
+	return (BillObj->atobj->ConvertAcct(acct, curID, &acctid, 0) > 0) ? GetAcctIDName(acctid, fmt, rBuf) : -1;
 }
 
-int FASTCALL GetAcctIDName(AcctID * acctid, long, SString & rBuf)
+int FASTCALL GetAcctIDName(const AcctID & rAci, long, SString & rBuf)
 {
 	int    ok = -1;
 	rBuf.Z();
-	if(acctid->ar) {
+	if(rAci.ar) {
 		PPObjArticle ar_obj;
 		ArticleTbl::Rec ar_rec;
-		if(ar_obj.Fetch(acctid->ar, &ar_rec) > 0) {
+		if(ar_obj.Fetch(rAci.ar, &ar_rec) > 0) {
 			rBuf = ar_rec.Name;
 			ok = 1;
 		}
@@ -29,7 +29,7 @@ int FASTCALL GetAcctIDName(AcctID * acctid, long, SString & rBuf)
 	else {
 		PPObjAccount acc_obj;
 		PPAccount acc_rec;
-		if(acc_obj.Fetch(acctid->ac, &acc_rec) > 0) {
+		if(acc_obj.Fetch(rAci.ac, &acc_rec) > 0) {
 			rBuf = acc_rec.Name;
 			ok = 1;
 		}
@@ -589,7 +589,7 @@ int SLAPI AcctRel::SearchAcctID(const AcctID * pAcctId, AcctRelTbl::Rec * pRec)
 	return SearchByKey(this, 1, &k1, pRec);
 }
 
-int SLAPI AcctRel::SearchNum(int closed, Acct * pAcct, PPID curID, AcctRelTbl::Rec * pRec)
+int SLAPI AcctRel::SearchNum(int closed, const Acct * pAcct, PPID curID, AcctRelTbl::Rec * pRec)
 {
 	int    sp;
 	AcctRelTbl::Key3 k3;
@@ -611,7 +611,7 @@ int SLAPI AcctRel::SearchNum(int closed, Acct * pAcct, PPID curID, AcctRelTbl::R
 		return PPDbSearchError();
 }
 
-int SLAPI AcctRel::OpenAcct(PPID * pID, Acct * pAcct, PPID curID, AcctID * pAcctId, int accKind, int accsLevel)
+int SLAPI AcctRel::OpenAcct(PPID * pID, const Acct * pAcct, PPID curID, const AcctID * pAcctId, int accKind, int accsLevel)
 {
 	clearDataBuf();
 	data.AccID    = pAcctId->ac;

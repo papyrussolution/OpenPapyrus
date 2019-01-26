@@ -1,5 +1,5 @@
 // WHATMAN.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2010, 2011, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -79,7 +79,7 @@ int WhatmanObjectRegTable::Get(uint pos, Item & rItem) const
 {
 	int    ok = 1;
 	if(pos < getCount()) {
-		const Entry * p_entry = (const Entry *)at(pos);
+		const Entry * p_entry = static_cast<const Entry *>(at(pos));
 		memzero(&rItem, sizeof(rItem));
 		rItem.Id = p_entry->Id;
 		rItem.Factory = p_entry->Factory;
@@ -223,7 +223,7 @@ int TWhatmanObject::HandleCommand(int cmd, void * pExt)
 {
 	int    ok = -1;
 	if(cmd == cmdGetSelRetBlock) {
-		SelectObjRetBlock * p_blk = (SelectObjRetBlock *)pExt;
+		SelectObjRetBlock * p_blk = static_cast<SelectObjRetBlock *>(pExt);
 		if(p_blk) {
 			p_blk->WtmObjTypeSymb = Symb;
 			p_blk->Val1 = p_blk->Val2 = 0;
@@ -281,55 +281,55 @@ int TWhatmanObject::SetTextOptions(const TextParam * pParam)
 TRect TWhatmanObject::GetTextBounds() const
 {
 	TRect  rc;
-	const  float wd = (float)Bounds.width();
-	const  float ht = (float)Bounds.height();
+	const  float wd = static_cast<float>(Bounds.width());
+	const  float ht = static_cast<float>(Bounds.height());
 	FPoint size(wd, ht);
 	if(oneof2(TextOptions.Side, SIDE_BOTTOM, SIDE_TOP)) {
 		if(TextOptions.AlongSize < 0.0f)
 			size.X *= -TextOptions.AlongSize;
 		else if(TextOptions.AlongSize > 0.0f)
 			size.X = TextOptions.AlongSize;
-		rc.a.x = (int16)(Bounds.a.x + (wd / 2.0f) - (size.X / 2.0f));
-		rc.b.x = (int16)(Bounds.b.x - (wd / 2.0f) + (size.X / 2.0f));
+		rc.a.x = static_cast<int16>(Bounds.a.x + (wd / 2.0f) - (size.X / 2.0f));
+		rc.b.x = static_cast<int16>(Bounds.b.x - (wd / 2.0f) + (size.X / 2.0f));
 		//
 		if(TextOptions.AcrossSize < 0.0f)
 			size.Y *= -TextOptions.AcrossSize;
 		else if(TextOptions.AcrossSize > 0.0f)
 			size.Y = TextOptions.AcrossSize;
 		if(TextOptions.Side == SIDE_BOTTOM)
-			rc.setheightrel((int)(Bounds.b.y+1), (int)size.Y);
+			rc.setheightrel(static_cast<int>(Bounds.b.y+1), static_cast<int>(size.Y));
 		else
-			rc.setheightrel((int)(Bounds.a.y - size.Y - 1), (int)size.Y);
+			rc.setheightrel(static_cast<int>(Bounds.a.y - size.Y - 1), static_cast<int>(size.Y));
 	}
 	else if(oneof2(TextOptions.Side, SIDE_LEFT, SIDE_RIGHT)) {
 		if(TextOptions.AlongSize < 0.0f)
 			size.Y *= -TextOptions.AlongSize;
 		else if(TextOptions.AlongSize > 0.0f)
 			size.Y = TextOptions.AlongSize;
-		rc.a.y = (int16)(Bounds.a.y + (ht / 2.0f) - (size.Y / 2.0f));
-		rc.b.y = (int16)(Bounds.b.y - (ht / 2.0f) + (size.Y / 2.0f));
+		rc.a.y = static_cast<int16>(Bounds.a.y + (ht / 2.0f) - (size.Y / 2.0f));
+		rc.b.y = static_cast<int16>(Bounds.b.y - (ht / 2.0f) + (size.Y / 2.0f));
 		//
 		if(TextOptions.AcrossSize < 0.0f)
 			size.X *= -TextOptions.AcrossSize;
 		else if(TextOptions.AcrossSize > 0.0f)
 			size.X = TextOptions.AcrossSize;
-		rc.a.x = (int16)(Bounds.a.x + (wd / 2.0f) - (size.X / 2.0f));
-		rc.b.x = (int16)(Bounds.b.x - (wd / 2.0f) + (size.X / 2.0f));
+		rc.a.x = static_cast<int16>(Bounds.a.x + (wd / 2.0f) - (size.X / 2.0f));
+		rc.b.x = static_cast<int16>(Bounds.b.x - (wd / 2.0f) + (size.X / 2.0f));
 	}
 	else { // SIDE_CENTER
 		if(TextOptions.AlongSize < 0.0f)
 			size.X *= -TextOptions.AlongSize;
 		else if(TextOptions.AlongSize > 0.0f)
 			size.X = TextOptions.AlongSize;
-		rc.a.x = (int16)(Bounds.a.x + (wd / 2.0f) - (size.X / 2.0f));
-		rc.b.x = (int16)(Bounds.b.x - (wd / 2.0f) + (size.X / 2.0f));
+		rc.a.x = static_cast<int16>(Bounds.a.x + (wd / 2.0f) - (size.X / 2.0f));
+		rc.b.x = static_cast<int16>(Bounds.b.x - (wd / 2.0f) + (size.X / 2.0f));
 		//
 		if(TextOptions.AcrossSize < 0.0f)
 			size.Y *= -TextOptions.AcrossSize;
 		else if(TextOptions.AcrossSize > 0.0f)
 			size.Y = TextOptions.AcrossSize;
-		rc.a.y = (int16)(Bounds.a.y + (ht / 2.0f) - (size.Y / 2.0f));
-		rc.b.y = (int16)(Bounds.b.y - (ht / 2.0f) + (size.Y / 2.0f));
+		rc.a.y = static_cast<int16>(Bounds.a.y + (ht / 2.0f) - (size.Y / 2.0f));
+		rc.b.y = static_cast<int16>(Bounds.b.y - (ht / 2.0f) + (size.Y / 2.0f));
 	}
 	return rc;
 }
@@ -388,7 +388,7 @@ TArrangeParam::TArrangeParam()
 TArrangeParam & TArrangeParam::Init(int dir)
 {
 	THISZERO();
-	Dir = (int16)dir;
+	Dir = static_cast<int16>(dir);
 	return *this;
 }
 
@@ -508,10 +508,10 @@ int TWhatman::InsertObject(TWhatmanObject * pObj, int beforeIdx)
 			CurObjPos++;
 		ObjList.atInsert(0, pObj);
 	}
-	else if(beforeIdx >= 0 && beforeIdx <= (int)ObjList.getCount()) {
+	else if(beforeIdx >= 0 && beforeIdx <= static_cast<int>(ObjList.getCount())) {
 		if(CurObjPos >= beforeIdx)
 			CurObjPos++;
-		ok = ObjList.atInsert((uint)beforeIdx, pObj);
+		ok = ObjList.atInsert(static_cast<uint>(beforeIdx), pObj);
 	}
 	else
 		ok = ObjList.insert(pObj);
@@ -525,7 +525,7 @@ int TWhatman::InsertObject(TWhatmanObject * pObj, int beforeIdx)
 int TWhatman::RemoveObject(int idx)
 {
 	int    ok = -1;
-	if(idx >= 0 && idx < (int)ObjList.getCount()) {
+	if(idx >= 0 && idx < static_cast<int>(ObjList.getCount())) {
 		if(CurObjPos == idx)
 			SetCurrentObject(-1, 0);
 		else if(CurObjPos > idx)
@@ -541,7 +541,7 @@ int TWhatman::BringObjToFront(int idx)
 	int    ok = -1;
 	const uint c = ObjList.getCount();
 	if(c > 1 && idx >= 0 && !(ObjList.at(idx)->Options & TWhatmanObject::oBackground)) {
-		for(uint i = (uint)idx; (i+1) < c; i++) {
+		for(uint i = static_cast<uint>(idx); (i+1) < c; i++) {
 			ObjList.swap(i, i+1);
 			ok = 1;
 		}
@@ -553,8 +553,8 @@ int TWhatman::SendObjToBack(int idx)
 {
 	int    ok = -1;
 	const uint c = ObjList.getCount();
-	if(c > 1 && idx < (int)c) {
-		for(uint i = (uint)idx; i > 0; i--) {
+	if(c > 1 && idx < static_cast<int>(c)) {
+		for(uint i = static_cast<uint>(idx); i > 0; i--) {
 			if(i != 1 || !(ObjList.at(0)->Options & TWhatmanObject::oBackground)) {
 				ObjList.swap(i, i-1);
 				ok = 1;
@@ -566,13 +566,13 @@ int TWhatman::SendObjToBack(int idx)
 
 int TWhatman::SnapX(float p, float * pDest) const
 {
-	int    ok = RuleY.GetNearest(p, (float)Area.width(), pDest);
+	int    ok = RuleY.GetNearest(p, static_cast<float>(Area.width()), pDest);
 	return ok;
 }
 
 int TWhatman::SnapY(float p, float * pDest) const
 {
-	int    ok = RuleX.GetNearest(p, (float)Area.height(), pDest);
+	int    ok = RuleX.GetNearest(p, static_cast<float>(Area.height()), pDest);
 	return ok;
 }
 
@@ -585,15 +585,15 @@ int TWhatman::MoveObject(TWhatmanObject * pObj, const TRect & rRect)
 			//result.move(-ScrollPos.x, -ScrollPos.y);
 			FPoint p;
 			if(SnapX(rRect.a.x, &p.X) > 0)
-				result.setwidthrel((int)p.X, rRect.width());
+				result.setwidthrel(static_cast<int>(p.X), rRect.width());
 			else if(SnapX(rRect.b.x, &p.X) > 0) {
-				result.b.x = (int)p.X;
+				result.b.x = static_cast<int>(p.X);
 				result.a.x = result.b.x - rRect.width();
 			}
 			if(SnapY(rRect.a.y, &p.Y) > 0)
-				result.setheightrel((int)p.Y, rRect.height());
+				result.setheightrel(static_cast<int>(p.Y), rRect.height());
 			else if(SnapY(rRect.b.y, &p.Y) > 0) {
-				result.b.y = (int)p.Y;
+				result.b.y = static_cast<int>(p.Y);
 				result.a.y = result.b.y - rRect.height();
 			}
 			ok = pObj->SetBounds(result);
@@ -617,7 +617,7 @@ int TWhatman::ArrangeObjects(const LongArray * pObjPosList, TArrangeParam & rPar
 	uint   item_in_row = 0;
 	int    row_bound = 0; // Минимальный отступ от предыдущего ряда.
 	for(uint i = 0; i < ObjList.getCount(); i++) {
-		if(!pObjPosList || pObjPosList->lsearch((long)i)) {
+		if(!pObjPosList || pObjPosList->lsearch(static_cast<long>(i))) {
 			TWhatmanObject * p_obj = ObjList.at(i);
 			if(p_obj) {
 				const TRect obj_bounds = p_obj->Bounds;
@@ -683,7 +683,7 @@ int FASTCALL TWhatman::GetCurrentObject(int * pIdx) const
 {
 	int    ok = 0;
 	int    idx = -1;
-	if(CurObjPos >= 0 && CurObjPos < (int)ObjList.getCount()) {
+	if(CurObjPos >= 0 && CurObjPos < static_cast<int>(ObjList.getCount())) {
 		idx = CurObjPos;
 		ok = 1;
 	}
@@ -695,13 +695,13 @@ int TWhatman::SetCurrentObject(int idx, int * pPrevCurObjIdx)
 {
 	int    ok = -1;
 	int    prev_idx = -1;
-	if(CurObjPos >= 0 && CurObjPos < (int)ObjList.getCount()) {
+	if(CurObjPos >= 0 && CurObjPos < static_cast<int>(ObjList.getCount())) {
 		ObjList.at(CurObjPos)->State &= ~TWhatmanObject::stCurrent;
 		prev_idx = CurObjPos;
 		CurObjPos = -1;
 		ok = 1;
 	}
-	if(idx >= 0 && idx < (int)ObjList.getCount()) {
+	if(idx >= 0 && idx < static_cast<int>(ObjList.getCount())) {
 		CurObjPos = idx;
 		ObjList.at(idx)->State |= TWhatmanObject::stCurrent;
 		ok = 1;
@@ -791,30 +791,29 @@ int TWhatman::FindObjectByPoint(TPoint p, int * pIdx) const
 	int    ok = 0;
 	uint   c = ObjList.getCount();
 	p += ScrollPos;
-	if(c)
-		do {
-			const TWhatmanObject * p_obj = ObjList.at(--c);
-			if(p_obj) {
-				ObjZone zone_list[16];
-				if(p_obj->State & TWhatmanObject::stCurrent) {
-					GetResizeRectList(p_obj, zone_list);
-					for(uint i = 0; !ok && i < 8; i++)
-						if(zone_list[i].R.Contains(p))
-							ok = 100 + zone_list[i].I;
-				}
-				if(!ok) {
-					if(p_obj->HasOption(TWhatmanObject::oFrame)) {
-						GetFrameRectList(p_obj, zone_list);
-						for(uint i = 0; !ok && i < 4; i++)
-							if(zone_list[i].R.Contains(p))
-								ok = 10 + zone_list[i].I;
-					}
-					else if(p_obj->Bounds.contains(p))
-						ok = 1;
-				}
+	if(c) do {
+		const TWhatmanObject * p_obj = ObjList.at(--c);
+		if(p_obj) {
+			ObjZone zone_list[16];
+			if(p_obj->State & TWhatmanObject::stCurrent) {
+				GetResizeRectList(p_obj, zone_list);
+				for(uint i = 0; !ok && i < 8; i++)
+					if(zone_list[i].R.Contains(p))
+						ok = 100 + zone_list[i].I;
 			}
-		} while(!ok && c);
-	ASSIGN_PTR(pIdx, (int)c);
+			if(!ok) {
+				if(p_obj->HasOption(TWhatmanObject::oFrame)) {
+					GetFrameRectList(p_obj, zone_list);
+					for(uint i = 0; !ok && i < 4; i++)
+						if(zone_list[i].R.Contains(p))
+							ok = 10 + zone_list[i].I;
+				}
+				else if(p_obj->Bounds.contains(p))
+					ok = 1;
+			}
+		}
+	} while(!ok && c);
+	ASSIGN_PTR(pIdx, static_cast<int>(c));
 	return ok;
 }
 
@@ -837,7 +836,7 @@ int TWhatman::SetTool(int toolId, int paintObjIdent)
 	return ok;
 }
 
-int TWhatman::SetArea(TRect & rArea)
+int TWhatman::SetArea(const TRect & rArea)
 {
 	Area = rArea;
 	CalcScrollRange();
@@ -958,7 +957,7 @@ void TWhatman::GetResizeRectList(const TWhatmanObject * pObj, ObjZone * pList) c
 int TWhatman::EditObject(int objIdx)
 {
 	int    ok = -1;
-	if(objIdx >= 0 && objIdx < (int)ObjList.getCount()) {
+	if(objIdx >= 0 && objIdx < static_cast<int>(ObjList.getCount())) {
 		TWhatmanObject * p_obj = ObjList.at(objIdx);
 		if(p_obj)
 			ok = p_obj->Edit();
@@ -979,43 +978,43 @@ int TWhatman::ResizeObject(TWhatmanObject * pObj, int dir, TPoint toPoint, TRect
 			switch(dir) {
 				case SOW_NORD:
 					if(fp.Y <= b.b.y)
-						b.a.y = (int16)fp.Y;
+						b.a.y = static_cast<int16>(fp.Y);
 					break;
 				case SOW_NORDEAST:
 					if(fp.X >= b.a.x)
-						b.b.x = (int16)fp.X;
+						b.b.x = static_cast<int16>(fp.X);
 					if(fp.Y <= b.b.y)
-						b.a.y = (int16)fp.Y;
+						b.a.y = static_cast<int16>(fp.Y);
 					break;
 				case SOW_EAST:
 					if(fp.X >= b.a.x)
-						b.b.x = (int16)fp.X;
+						b.b.x = static_cast<int16>(fp.X);
 					break;
 				case SOW_SOUTHEAST:
 					if(fp.X >= b.a.x)
-						b.b.x = (int16)fp.X;
+						b.b.x = static_cast<int16>(fp.X);
 					if(fp.Y >= b.a.y)
-						b.b.y = (int16)fp.Y;
+						b.b.y = static_cast<int16>(fp.Y);
 					break;
 				case SOW_SOUTH:
 					if(fp.Y >= b.a.y)
-						b.b.y = (int16)fp.Y;
+						b.b.y = static_cast<int16>(fp.Y);
 					break;
 				case SOW_SOUTHWEST:
 					if(fp.X <= b.b.x)
-						b.a.x = (int16)fp.X;
+						b.a.x = static_cast<int16>(fp.X);
 					if(fp.Y >= b.a.y)
-						b.b.y = (int16)fp.Y;
+						b.b.y = static_cast<int16>(fp.Y);
 					break;
 				case SOW_WEST:
 					if(fp.X <= b.b.x)
-						b.a.x = (int16)fp.X;
+						b.a.x = static_cast<int16>(fp.X);
 					break;
 				case SOW_NORDWEST:
 					if(fp.X <= b.b.x)
-						b.a.x = (int16)fp.X;
+						b.a.x = static_cast<int16>(fp.X);
 					if(fp.Y <= b.b.y)
-						b.a.y = (int16)fp.Y;
+						b.a.y = static_cast<int16>(fp.Y);
 					break;
 			}
 		}
@@ -1088,8 +1087,8 @@ TPoint FASTCALL TWhatman::TransformPointToScreen(TPoint p) const
 
 FPoint FASTCALL TWhatman::TransformPointToScreen(FPoint p) const
 {
-	p.X -= (float)ScrollPos.x;
-	p.Y -= (float)ScrollPos.y;
+	p.X -= static_cast<float>(ScrollPos.x);
+	p.Y -= static_cast<float>(ScrollPos.y);
 	return p;
 }
 
@@ -1126,7 +1125,7 @@ int TWhatman::DrawSingleObject(TCanvas2 & rCanv, TWhatmanObject * pObj)
 	return ok;
 }
 
-int TWhatman::DrawObjectContour(TCanvas2 & rCanv, TWhatmanObject * pObj, TPoint * pOffs)
+int TWhatman::DrawObjectContour(TCanvas2 & rCanv, const TWhatmanObject * pObj, const TPoint * pOffs)
 {
 	int    ok = 1;
 	if(pObj) {
@@ -1159,7 +1158,7 @@ int FASTCALL TWhatman::InvalidateObjScope(const TWhatmanObject * pObj)
 }
 
 
-int TWhatman::InvalidateMultSelContour(TPoint * pOffs)
+int TWhatman::InvalidateMultSelContour(const TPoint * pOffs)
 {
 	int    ok = -1;
 	if(P_MultObjPosList && P_Wnd) {
@@ -1238,10 +1237,10 @@ int TWhatman::GetNotchList(const Rule & rRule, float size, float offs, int kind,
 {
 	int    ok = 1;
 	rList.clear();
-	const float limit = (float)(((size + offs) / rRule.OneUnitDots) + 1.0f);
+	const float limit = static_cast<float>(((size + offs) / rRule.OneUnitDots) + 1.0f);
 	const uint nc = rRule.NotchList.getCount();
 	for(float t = -offs; t < limit; t += 1.0f) {
-		const float start = (float)(t * rRule.OneUnitDots) + GetRuleWidth() - offs;
+		const float start = static_cast<float>(t * rRule.OneUnitDots) + GetRuleWidth() - offs;
 		for(uint i = 0; i < nc; i++) {
 			RuleNotch notch = rRule.NotchList.at(i);
 			if(kind == 0 || (kind == 1 && notch.H == 1.0f) || (kind == 2 && notch.H >= 0.5f && notch.H < 1.0f)) {
@@ -1315,7 +1314,7 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 	if(P.Flags & Param::fRule)
 		rCanv.Rect(vrr, TidPenRule, TidBrushRule);
 	//
-	notch_area.Set((float)Area.width(), (float)Area.height());
+	notch_area.Set(static_cast<float>(Area.width()), static_cast<float>(Area.height()));
 	notch_offs = ScrollPos;
 	//
 	if(P.Flags & Param::fGrid) {
@@ -1328,7 +1327,7 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 			for(i = 0; i < nc; i++) {
 				FPoint p(notch_list.at(i).P, hrr.b.Y);
 				rCanv.MoveTo(p);
-				p.Y = (float)Area.height();
+				p.Y = static_cast<float>(Area.height());
 				rCanv.Line(p);
 			}
 			//
@@ -1339,7 +1338,7 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 			for(i = 0; i < nc; i++) {
 				FPoint p(vrr.b.X, notch_list.at(i).P);
 				rCanv.MoveTo(p);
-				p.X = (float)Area.width();
+				p.X = static_cast<float>(Area.width());
 				rCanv.Line(p);
 			}
 			//
@@ -1356,7 +1355,7 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 			for(i = 0; i < nc; i++) {
 				FPoint p(notch_list.at(i).P, hrr.b.Y);
 				rCanv.MoveTo(p);
-				p.Y = (float)Area.height();
+				p.Y = static_cast<float>(Area.height());
 				rCanv.Line(p);
 			}
 			//
@@ -1367,7 +1366,7 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 			for(i = 0; i < nc; i++) {
 				FPoint p(vrr.b.X, notch_list.at(i).P);
 				rCanv.MoveTo(p);
-				p.X = (float)Area.width();
+				p.X = static_cast<float>(Area.width());
 				rCanv.Line(p);
 			}
 			//
@@ -1465,7 +1464,7 @@ int TWhatman::Rule::AddNotchList(uint c, float subDelta, const float * pHiList)
 {
 	for(uint i = 1; i < c; i++) {
 		float h = pHiList[i-1];
-		AddNotch((float)round(i * subDelta, 1.0, 0), h, 0);
+		AddNotch(static_cast<float>(round(i * subDelta, 1.0, 0)), h, 0);
 	}
 	return 1;
 }
@@ -1476,9 +1475,9 @@ int TWhatman::Rule::GetNearest(float p, float size, float * pNearestP) const
 	const  uint nc = NotchList.getCount();
 	uint   lower_idx = 0;
 	float  lower_p = 0.0f;
-	const float limit = (float)((size / OneUnitDots) + 1.0f);
+	const float limit = static_cast<float>((size / OneUnitDots) + 1.0f);
 	for(float t = 0.0f; ok < 0 && t < limit; t += 1.0f) {
-		const float start = (float)(t * OneUnitDots) + TWhatman::GetRuleWidth() - 0.5f;
+		const float start = static_cast<float>(t * OneUnitDots) + TWhatman::GetRuleWidth() - 0.5f;
 		for(uint i = 0; ok < 0 && i < nc; i++) {
 			const RuleNotch & r_n = NotchList.at(i);
 			if(r_n.F & RuleNotch::fSnap) {
@@ -1537,28 +1536,28 @@ int TWhatman::CalcRule(double ptPerInch, Rule & rRule) const
 			if(nd < min_notch_dots) {
 				nd = rRule.OneUnitDots / 5;
 				if(nd < min_notch_dots) {
-					rRule.ScrollDelta = (int)nd;
+					rRule.ScrollDelta = static_cast<int>(nd);
 				}
 				else {
 					nn = 5;
 					const float hl[4] = { 0.3f, 0.4f, 0.3f, 0.4f };
-					rRule.AddNotchList(nn, (float)(rRule.OneUnitDots / nn), hl);
-					rRule.ScrollDelta = (int)(2.0 * rRule.OneUnitDots / nn);
+					rRule.AddNotchList(nn, static_cast<float>(rRule.OneUnitDots / nn), hl);
+					rRule.ScrollDelta = static_cast<int>(2.0 * rRule.OneUnitDots / nn);
 				}
 			}
 			else {
 				nn = 10;
 				const float hl[9] = { 0.3f, 0.4f, 0.3f, 0.4f, 0.75f, 0.4f, 0.3f, 0.4f, 0.3f };
-				rRule.AddNotchList(nn, (float)(rRule.OneUnitDots / nn), hl);
-				rRule.ScrollDelta = (int)(4.0 * rRule.OneUnitDots / nn);
+				rRule.AddNotchList(nn, static_cast<float>(rRule.OneUnitDots / nn), hl);
+				rRule.ScrollDelta = static_cast<int>(4.0 * rRule.OneUnitDots / nn);
 			}
 		}
 		else {
 			nn = 20;
 			//                     1     2     3     4     5     6     7     8     9     10     11    12    13    14    15    16    17    18    19
 			const float hl[19] = { 0.3f, 0.2f, 0.3f, 0.2f, 0.5f, 0.2f, 0.3f, 0.2f, 0.3f, 0.75f, 0.3f, 0.2f, 0.3f, 0.2f, 0.5f, 0.2f, 0.3f, 0.2f, 0.3f };
-			rRule.AddNotchList(nn, (float)(rRule.OneUnitDots / nn), hl);
-			rRule.ScrollDelta = (int)(8.0 * rRule.OneUnitDots / nn);
+			rRule.AddNotchList(nn, static_cast<float>(rRule.OneUnitDots / nn), hl);
+			rRule.ScrollDelta = static_cast<int>(8.0 * rRule.OneUnitDots / nn);
 		}
 	}
 	return 1;
@@ -1693,7 +1692,7 @@ int TWhatmanToolArray::Remove(uint pos)
 	return atFree(pos);
 }
 
-int TWhatmanToolArray::CreateFigure(Item & rItem, const char * pPath, int pic)
+int TWhatmanToolArray::CreateFigure(const Item & rItem, const char * pPath, int pic)
 {
 	int    ok = 1;
 	SDrawFigure * p_fig = 0;
@@ -1754,7 +1753,7 @@ int TWhatmanToolArray::Set(Item & rItem, uint * pPos)
 	SString temp_buf;
 	if(!rItem.Symb.NotEmptyS()) {
 		if(rItem.Id && SearchById(rItem.Id, &pos_by_id)) {
-			Entry & r_entry = *(Entry *)at(pos_by_id);
+			Entry & r_entry = *static_cast<Entry *>(at(pos_by_id));
 			Pool.getnz(r_entry.SymbP, rItem.Symb);
 			pos = pos_by_id;
 			is_exists = 1;
@@ -1774,7 +1773,7 @@ int TWhatmanToolArray::Set(Item & rItem, uint * pPos)
 	}
 	if(is_exists) {
 		int    upd = 0;
-		Entry & r_entry = *(Entry *)at(pos);
+		Entry & r_entry = *static_cast<Entry *>(at(pos));
 		Item ex_item(this);
 		Get(pos, &ex_item);
 		if(ex_item.Id != rItem.Id) {
@@ -1783,14 +1782,14 @@ int TWhatmanToolArray::Set(Item & rItem, uint * pPos)
 		}
 		if(ex_item.Text != rItem.Text) {
 			if(rItem.Text.NotEmpty())
-				Pool.add(rItem.Text, (uint *)&r_entry.TextP);
+				Pool.add(rItem.Text, reinterpret_cast<uint *>(&r_entry.TextP));
 			else
 				r_entry.TextP = 0;
 			upd = 1;
 		}
 		if(ex_item.WtmObjSymb != rItem.WtmObjSymb) {
 			if(rItem.WtmObjSymb.NotEmpty())
-				Pool.add(rItem.WtmObjSymb, (uint *)&r_entry.WtmObjSymbP);
+				Pool.add(rItem.WtmObjSymb, reinterpret_cast<uint *>(&r_entry.WtmObjSymbP));
 			else
 				r_entry.WtmObjSymbP = 0;
 			upd = 1;
@@ -1801,14 +1800,14 @@ int TWhatmanToolArray::Set(Item & rItem, uint * pPos)
 		}
 		if(ex_item.FigPath != rItem.FigPath) {
 			if(rItem.FigPath.NotEmpty())
-				Pool.add(rItem.FigPath, (uint *)&r_entry.FigPathP);
+				Pool.add(rItem.FigPath, reinterpret_cast<uint *>(&r_entry.FigPathP));
 			else
 				r_entry.FigPathP = 0;
 			upd = 1;
 		}
 		if(ex_item.PicPath != rItem.PicPath) {
 			if(rItem.PicPath.NotEmpty())
-				Pool.add(rItem.PicPath, (uint *)&r_entry.PicPathP);
+				Pool.add(rItem.PicPath, reinterpret_cast<uint *>(&r_entry.PicPathP));
 			else
 				r_entry.PicPathP = 0;
 			upd = 1;
@@ -1818,7 +1817,7 @@ int TWhatmanToolArray::Set(Item & rItem, uint * pPos)
 			if(ex_item.ExtSize != extsz || (extsz && memcmp(ex_item.ExtData, rItem.ExtData, extsz) != 0)) {
 				if(extsz) {
 					temp_buf.Z().EncodeMime64(rItem.ExtData, extsz);
-					Pool.add(temp_buf, (uint *)&r_entry.ExtDataP);
+					Pool.add(temp_buf, reinterpret_cast<uint *>(&r_entry.ExtDataP));
 				}
 				else
 					r_entry.ExtDataP = 0;
@@ -1965,7 +1964,7 @@ struct WtHeader {
 #define WTA_VER  0
 #define WTM_VER  0
 
-static int StoreWtBuffer(const char * pFileName, SBuffer & rBuf, uint32 sign, uint32 ver)
+static int StoreWtBuffer(const char * pFileName, const SBuffer & rBuf, uint32 sign, uint32 ver)
 {
 	int    ok = 1;
 	WtHeader hdr;

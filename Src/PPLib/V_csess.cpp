@@ -2358,7 +2358,7 @@ int SLAPI PPViewCSessExc::_MakeTempTable(int clearBefore)
 	int    ok = 1;
 	if(P_TempTbl) {
 		if(clearBefore) {
-			THROW_DB(deleteFrom(P_TempTbl, 0, *(DBQ *)0));
+			THROW_DB(deleteFrom(P_TempTbl, 0, *reinterpret_cast<DBQ *>(0)));
 		}
 		if(Filt.SessIDList.getCount()) {
 			for(uint i = 0; i < Filt.SessIDList.getCount(); i++)

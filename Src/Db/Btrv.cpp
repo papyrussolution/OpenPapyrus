@@ -1,5 +1,5 @@
 // BTRV.CPP
-// Copyright (c) A. Sobolev 1994-1999, 2001, 2003, 2009, 2010, 2013, 2014, 2016, 2017, 2018
+// Copyright (c) A. Sobolev 1994-1999, 2001, 2003, 2009, 2010, 2013, 2014, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -106,12 +106,15 @@ int SLAPI Btrieve::CommitWork()
 }
 
 //static
-int SLAPI Btrieve::AddContinuous(char * pFileName /* "volume:\path[,volume:\path]*" */)
+int SLAPI Btrieve::AddContinuous(const char * pFileName /* "volume:\path[,volume:\path]*" */)
 {
 	int    index = 0;
-	uint16 bl = (uint16)(sstrlen(pFileName) + 1);
+	const  size_t fnlen = sstrlen(pFileName);
+	uint16 bl = static_cast<uint16>(fnlen + 1);
 	DBS.SetAddedMsgString(pFileName);
-	return BRet(BTRV(B_CONTINUOUSOPR, 0, pFileName, &bl, 0, WBTRVTAIL_Z));
+	STempBuffer temp_buf(fnlen+1);
+	strnzcpy(temp_buf, pFileName, temp_buf.GetSize());
+	return BRet(BTRV(B_CONTINUOUSOPR, 0, temp_buf, &bl, 0, WBTRVTAIL_Z));
 }
 
 //static
@@ -249,7 +252,7 @@ int SLAPI Btrieve::CreateTable(const char * pFileName, DBFileSpec & rTblDesc, in
 			fn_buf[fn_len] = 0;
 		}
 		do {
-			be = BTRV(B_CREATE, fpb, p_buf, (uint16 *)&buf_size, fn_buf, WBTRVTAIL);
+			be = BTRV(B_CREATE, fpb, p_buf, (uint16 *)(&buf_size), fn_buf, WBTRVTAIL);
 		} while(oneof2(be, BE_INVKEYLEN, BE_INVRECLEN) && (((DBFileSpec *)p_buf)->PageSize += 512) <= 8192);
 		ok = BRet(be);
 		DBTable::InitErrFileName(pFileName);
@@ -307,12 +310,12 @@ int SLAPI DbDict_Btrieve::LoadTableSpec(DBTable * pTbl, const char * pTblName)
 	long   tbl_id = 0;
 	DbTableStat tbl_stat;
 	THROW(GetTableID(pTblName, &tbl_id, &tbl_stat));
-	pTbl->tableID = (BTBLID)tbl_id;
+	pTbl->tableID = static_cast<BTBLID>(tbl_id);
 	STRNSCPY(pTbl->tableName, pTblName);
 	pTbl->fileName = tbl_stat.Location;
 	pTbl->flags = tbl_stat.Flags;
-	pTbl->PageSize = (uint16)tbl_stat.PageSize;
-	p_clone = DBS.GetTLA().GetCloneEntry((BTBLID)tbl_id);
+	pTbl->PageSize = static_cast<uint16>(tbl_stat.PageSize);
+	p_clone = DBS.GetTLA().GetCloneEntry(static_cast<BTBLID>(tbl_id));
 	if(p_clone) {
 		pTbl->fields.copy(&p_clone->fields);
 		pTbl->indexes.copy(&p_clone->indexes);
@@ -320,8 +323,8 @@ int SLAPI DbDict_Btrieve::LoadTableSpec(DBTable * pTbl, const char * pTblName)
 	else {
 		pTbl->fields.reset();
 		pTbl->indexes.reset();
-		THROW(getFieldList((BTBLID)tbl_id, &pTbl->fields));
-		THROW(getIndexList((BTBLID)tbl_id, &pTbl->indexes));
+		THROW(getFieldList(static_cast<BTBLID>(tbl_id), &pTbl->fields));
+		THROW(getIndexList(static_cast<BTBLID>(tbl_id), &pTbl->indexes));
 		//
 		// Функция getIndexList инициализирует сегменты
 		// индексов через внутренние идентификаторы полей. Здесь

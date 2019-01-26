@@ -2237,10 +2237,10 @@ void BillItemBrowser::selectPckg(PPID goodsID)
 	}
 }
 
-class ValidateLotXCodeListDialog : public PPListDialog {
+class LotXCodeListDialog_Base : public PPListDialog {
 public:
-	ValidateLotXCodeListDialog(const PPBillPacket * pPack) : PPListDialog(DLG_LOTXCCKLIST, CTL_LOTXCCKLIST_LIST, fOmitSearchByFirstChar|fOwnerDraw),
-		P_Pack(pPack), P_LotXcT(BillObj->P_LotXcT), RowIdx(-1), FontId(0), CStyleId(0)
+	LotXCodeListDialog_Base(uint dlgId, uint listCtlId, const PPBillPacket * pPack, int rowIdx, long flags) : PPListDialog(dlgId, listCtlId, flags),
+		P_Pack(pPack), P_LotXcT(BillObj->P_LotXcT), RowIdx(rowIdx)
 	{
 		SetCtrlFont(CTL_LOTXCLIST_LIST, "Courier New", 14);
 	}
@@ -2255,11 +2255,129 @@ public:
 		ASSIGN_PTR(pData, Data);
 		return 1;
 	}
-private:
+protected:
 	DECL_HANDLE_EVENT
 	{
 		PPListDialog::handleEvent(event);
-		if(event.isCmd(cmDrawItem)) {
+		if(event.isCmd(cmCopyToClipboard)) {
+			int   row_idx = 0;
+			uint  inner_idx = 0;
+			long  cur_pos = 0;
+			long  cur_id = 0;
+			SString text_buf;
+			if(getCurItem(&cur_pos, &cur_id)) {
+				if(getText(cur_pos, text_buf)) {
+					SClipboard::Copy_Text(text_buf, text_buf.Len());
+				}
+				/*if(GetItem(cur_pos, &row_idx, &inner_idx)) {
+					PPLotExtCodeContainer::Item2 item;
+					if(Data.GetByIdx(inner_idx, item)) {
+						SClipboard::Copy_Text(item.Num, item.Num.Len());
+					}
+				}*/
+			}
+		}
+		else if(event.isCmd(cmCopyToClipboardAll)) {
+			SString buf_to_copy;
+			SString temp_buf;
+			StringSet ss;
+			PPLotExtCodeContainer::MarkSet ms;
+			PPLotExtCodeContainer::MarkSet::Entry msentry;
+			Data.Get(RowIdx, 0, ms);
+			for(uint boxidx = 0; boxidx < ms.GetCount(); boxidx++) {
+				if(ms.GetByIdx(boxidx, msentry) && msentry.Flags & PPLotExtCodeContainer::fBox) {
+					temp_buf.Z().Cat("box").CatDiv(':', 2).Cat(msentry.Num);
+					buf_to_copy.Cat(temp_buf).CRB();
+					ms.GetByBoxID(msentry.BoxID, ss);
+					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+						temp_buf.Insert(0, " ");
+						buf_to_copy.Cat(temp_buf).CRB();
+					}
+				}
+			}
+			ms.GetByBoxID(0, ss);
+			for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+				buf_to_copy.Cat(temp_buf).CRB();
+			}
+			if(buf_to_copy.NotEmpty()) {
+				SClipboard::Copy_Text(buf_to_copy, buf_to_copy.Len());
+			}
+		}
+		else
+			return;
+		clearEvent(event);
+	}
+	int    GetItem(long pos, int * pRowIdx, uint * pInnerIdx)
+	{
+		int    ok = 0;
+		int   row_idx = 0;
+		uint  inner_idx = 0;
+		SString text_buf;
+		if(getText(pos, text_buf)) {
+			if(text_buf.CmpPrefix("box:", 1) == 0)
+				text_buf.ShiftLeft(4);
+			text_buf.Strip();
+			if(Data.Search(text_buf, &row_idx, &inner_idx)) {
+				ASSIGN_PTR(pRowIdx, row_idx);
+				ASSIGN_PTR(pInnerIdx, inner_idx);
+				ok = 1;
+			}
+		}
+		return ok;
+	}
+	virtual int delItem(long pos, long id)
+	{
+		int    ok = -1;
+		int    row_idx = 0;
+		uint   inner_idx = 0;
+		if(GetItem(pos, &row_idx, &inner_idx)) {
+			if(Data.Delete(row_idx, inner_idx))
+				ok = 1;
+		}
+		return ok;
+	}
+	const  int RowIdx;
+	const  PPBillPacket * P_Pack;
+	PPLotExtCodeContainer Data;
+	LotExtCodeCore * P_LotXcT;
+};
+
+class ValidateLotXCodeListDialog : public LotXCodeListDialog_Base {
+public:
+	ValidateLotXCodeListDialog(const PPBillPacket * pPack) : LotXCodeListDialog_Base(DLG_LOTXCCKLIST, CTL_LOTXCCKLIST_LIST, pPack, -1, fOmitSearchByFirstChar|fOwnerDraw),
+		FontId(0), CStyleId(0), ViewFlags(0)
+	{
+		AddClusterAssoc(CTL_LOTXCCKLIST_FLAGS, 0, vfShowUncheckedItems);
+		SetClusterData(CTL_LOTXCCKLIST_FLAGS, 0);
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		if(TVKEYDOWN) {
+			uchar  c = TVCHR;
+			if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || isdec(c)) {
+				LotExtCodeTbl::Rec rec;
+				PPLotExtCodeContainer::MarkSet set;
+				if(EditItemDialog(rec, c, set) > 0) {
+					//uint   idx = 0;
+					//if(Data.Add(RowIdx, 0, 0, rec.Code, &idx))
+					if(Data.Add(RowIdx, set))
+						updateList(-1);
+					else
+						PPError();
+				}
+				clearEvent(event);
+			}
+		}
+		LotXCodeListDialog_Base::handleEvent(event);
+		if(event.isClusterClk(CTL_LOTXCCKLIST_FLAGS)) {
+			const long preserve_view_flags = ViewFlags;
+			GetClusterData(CTL_LOTXCCKLIST_FLAGS, &ViewFlags);
+			if(ViewFlags != preserve_view_flags) {
+				updateList(-1);
+			}
+		}
+		else if(event.isCmd(cmDrawItem)) {
 			TDrawItemData * p_draw_item = (TDrawItemData *)TVINFOPTR;
 			if(p_draw_item && p_draw_item->P_View) {
 				PPID   list_ctrl_id = p_draw_item->P_View->GetId();
@@ -2275,33 +2393,42 @@ private:
 					else {
 						SString code_buf;
 						SString box_code;
-						p_lbx->getText((long)p_draw_item->ItemID, code_buf);
+						p_lbx->getText((long)p_draw_item->ItemData, code_buf);
 						int    err = 0;
 						int    row_idx = -1;
 						int    brush_id = TProgram::tbiListBkgBrush;
 						if(code_buf.NotEmpty()) {
-							int    vcr = P_Pack->XcL.ValidateCode(code_buf, 0, &err, &row_idx, &box_code);
-							if(!vcr) {
-								if(err == 2) // марка не найдена
-									brush_id = TProgram::tbiInvalInpBrush;
-								else if(err == 3) // не та коробка
-									brush_id = TProgram::tbiInvalInp2Brush;
-								else
-									brush_id = TProgram::tbiInvalInp3Brush;
+							uint  inner_idx = 0;
+							if(!(ViewFlags & vfShowUncheckedItems) || Data.Search(code_buf, &row_idx, &inner_idx)) {
+								int    vcr = P_Pack->XcL.ValidateCode(code_buf, 0, &err, &row_idx, &box_code);
+								if(!vcr) {
+									if(err == 2) // марка не найдена
+										brush_id = TProgram::tbiInvalInpBrush;
+									else if(err == 3) // не та коробка
+										brush_id = TProgram::tbiInvalInp2Brush;
+									else
+										brush_id = TProgram::tbiInvalInp3Brush;
+								}
+							}
+							else {
+								brush_id = TProgram::tbiInvalInp3Brush;
 							}
 						}
-						canv.Rect(rect_elem, TProgram::tbiListBkgPen, brush_id);
+						if(brush_id)
+							canv.Rect(rect_elem, TProgram::tbiListBkgPen, brush_id);
 						{
 							int local_pen_id = 0;
 							if(p_draw_item->ItemState & ODS_FOCUS)
 								local_pen_id = TProgram::tbiListFocPen;
 							else if(p_draw_item->ItemState & ODS_SELECTED)
 								local_pen_id = TProgram::tbiListSelPen;
-							else
-								local_pen_id = TProgram::tbiListBkgPen;
-							FRect rect_elem_f(rect_elem);
-							rect_elem_f.Grow(-1.0f, -1.0f);
-							canv.Rect(rect_elem_f, local_pen_id, 0/*brush*/);
+							/*else
+								local_pen_id = TProgram::tbiListBkgPen;*/
+							if(local_pen_id) {
+								FRect rect_elem_f(rect_elem);
+								rect_elem_f.Grow(-1.0f, -1.0f);
+								canv.Rect(rect_elem_f, local_pen_id, 0/*brush*/);
+							}
 						}
 						if(code_buf.NotEmpty()) {
 							if(FontId <= 0) {
@@ -2337,6 +2464,9 @@ private:
 					p_draw_item->ItemAction = 0; // Список не активен - строку не рисуем
 			}
 		}
+		else
+			return;
+		clearEvent(event);
 	}
 	virtual int setupList()
 	{
@@ -2376,6 +2506,20 @@ private:
 				THROW(addStringToList(list_pos_idx, temp_buf));
 			}
 		}
+		if(ViewFlags & vfShowUncheckedItems) {
+			uint oc = P_Pack->XcL.GetCount();
+			PPLotExtCodeContainer::Item2 oi;
+			for(uint i = 0; i < oc; i++) {
+				if(P_Pack->XcL.GetByIdx(i, oi)) {
+					int   row_idx = 0;
+					uint  inner_idx = 0;
+					if(!Data.Search(oi.Num, &row_idx, &inner_idx)) {
+						++list_pos_idx;
+						THROW(addStringToList(list_pos_idx, oi.Num));
+					}
+				}
+			}
+		}
 		{
 			temp_buf.Z();
 			if(mark_count)
@@ -2401,35 +2545,6 @@ private:
 			}
 			else
 				PPError();
-		}
-		return ok;
-	}
-	int    GetItem(long pos, int * pRowIdx, uint * pInnerIdx)
-	{
-		int    ok = 0;
-		int   row_idx = 0;
-		uint  inner_idx = 0;
-		SString text_buf;
-		if(getText(pos, text_buf)) {
-			if(text_buf.CmpPrefix("box:", 1) == 0)
-				text_buf.ShiftLeft(4);
-			text_buf.Strip();
-			if(Data.Search(text_buf, &row_idx, &inner_idx)) {
-				ASSIGN_PTR(pRowIdx, row_idx);
-				ASSIGN_PTR(pInnerIdx, inner_idx);
-				ok = 1;
-			}
-		}
-		return ok;
-	}
-	virtual int delItem(long pos, long id)
-	{
-		int    ok = -1;
-		int   row_idx = 0;
-		uint  inner_idx = 0;
-		if(GetItem(pos, &row_idx, &inner_idx)) {
-			if(Data.Delete(row_idx, inner_idx))
-				ok = 1;
 		}
 		return ok;
 	}
@@ -2482,12 +2597,12 @@ private:
 		delete dlg;
 		return ok;
 	}
-	const  int RowIdx;
-	const  PPBillPacket * P_Pack;
 	int    FontId;
 	int    CStyleId;
-	PPLotExtCodeContainer Data;
-	LotExtCodeCore * P_LotXcT;
+	enum {
+		vfShowUncheckedItems = 0x0001
+	};
+	long   ViewFlags;
 };
 
 int SLAPI BillItemBrowser::ValidateExtCodeList()
@@ -2510,23 +2625,10 @@ int SLAPI BillItemBrowser::ValidateExtCodeList()
 
 int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 {
-	class LotXCodeListDialog : public PPListDialog {
+	class LotXCodeListDialog : public LotXCodeListDialog_Base {
 	public:
-		LotXCodeListDialog(const PPBillPacket * pPack, int rowIdx) : PPListDialog(DLG_LOTXCLIST, CTL_LOTXCLIST_LIST, fOmitSearchByFirstChar), 
-			P_Pack(pPack), RowIdx(rowIdx), P_LotXcT(BillObj->P_LotXcT)
+		LotXCodeListDialog(const PPBillPacket * pPack, int rowIdx) : LotXCodeListDialog_Base(DLG_LOTXCLIST, CTL_LOTXCLIST_LIST, pPack, rowIdx, fOmitSearchByFirstChar)
 		{
-			SetCtrlFont(CTL_LOTXCLIST_LIST, "Courier New", 14);
-		}
-		int    setDTS(const PPLotExtCodeContainer * pData)
-		{
-			RVALUEPTR(Data, pData);
-			updateList(-1);
-			return 1;
-		}
-		int    getDTS(PPLotExtCodeContainer * pData)
-		{
-			ASSIGN_PTR(pData, Data);
-			return 1;
 		}
 	private:
 		DECL_HANDLE_EVENT
@@ -2547,67 +2649,7 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 					clearEvent(event);
 				}
 			}
-			PPListDialog::handleEvent(event);
-			if(event.isCmd(cmCopyToClipboard)) {
-				int   row_idx = 0;
-				uint  inner_idx = 0;
-				long  cur_pos = 0;
-				long  cur_id = 0;
-				if(getCurItem(&cur_pos, &cur_id) && GetItem(cur_pos, &row_idx, &inner_idx)) {
-					PPLotExtCodeContainer::Item2 item;
-					if(Data.GetByIdx(inner_idx, item)) {
-						::OpenClipboard(APPL->H_MainWnd);
-						::EmptyClipboard();
-						{
-							HGLOBAL h_glb = h_glb = ::GlobalAlloc(GMEM_MOVEABLE, (item.Num.Len() + 1));
-							char * p_buf = (char *)GlobalLock(h_glb);
-							item.Num.CopyTo(p_buf, item.Num.Len()+1);
-							::GlobalUnlock(h_glb);
-							::SetClipboardData(CF_TEXT, h_glb);
-						}
-						::CloseClipboard();
-					}
-				}
-			}
-			else if(event.isCmd(cmCopyToClipboardAll)) {
-				SString buf_to_copy;
-				SString temp_buf;
-				StringSet ss;
-				PPLotExtCodeContainer::MarkSet ms;
-				PPLotExtCodeContainer::MarkSet::Entry msentry;
-				Data.Get(RowIdx, 0, ms);
-				for(uint boxidx = 0; boxidx < ms.GetCount(); boxidx++) {
-					if(ms.GetByIdx(boxidx, msentry)) {
-						if(msentry.Flags & PPLotExtCodeContainer::fBox) {
-							temp_buf.Z().Cat("box").CatDiv(':', 2).Cat(msentry.Num);
-							buf_to_copy.Cat(temp_buf).CRB();
-							ms.GetByBoxID(msentry.BoxID, ss);
-							for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-								temp_buf.Insert(0, " ");
-								buf_to_copy.Cat(temp_buf).CRB();
-							}
-						}
-					}
-				}
-				{
-					ms.GetByBoxID(0, ss);
-					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-						buf_to_copy.Cat(temp_buf).CRB();
-					}
-				}
-				if(buf_to_copy.NotEmpty()) {
-					::OpenClipboard(APPL->H_MainWnd);
-					::EmptyClipboard();
-					{
-						HGLOBAL h_glb = h_glb = ::GlobalAlloc(GMEM_MOVEABLE, (buf_to_copy.Len() + 1));
-						char * p_buf = (char *)GlobalLock(h_glb);
-						buf_to_copy.CopyTo(p_buf, buf_to_copy.Len()+1);
-						::GlobalUnlock(h_glb);
-						::SetClipboardData(CF_TEXT, h_glb);
-					}
-					::CloseClipboard();
-				}
-			}
+			LotXCodeListDialog_Base::handleEvent(event);
 		}
 		virtual int setupList()
 		{
@@ -2682,35 +2724,6 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 			}
 			return ok;
 		}
-		int    GetItem(long pos, int * pRowIdx, uint * pInnerIdx)
-		{
-			int    ok = 0;
-			int   row_idx = 0;
-			uint  inner_idx = 0;
-			SString text_buf;
-			if(getText(pos, text_buf)) {
-				if(text_buf.CmpPrefix("box:", 1) == 0)
-					text_buf.ShiftLeft(4);
-				text_buf.Strip();
-				if(Data.Search(text_buf, &row_idx, &inner_idx)) {
-					ASSIGN_PTR(pRowIdx, row_idx);
-					ASSIGN_PTR(pInnerIdx, inner_idx);
-					ok = 1;
-				}
-			}
-			return ok;
-		}
-		virtual int delItem(long pos, long id)
-		{
-			int    ok = -1;
-			int   row_idx = 0;
-			uint  inner_idx = 0;
-			if(GetItem(pos, &row_idx, &inner_idx)) {
-				if(Data.Delete(row_idx, inner_idx))
-					ok = 1;
-			}
-			return ok;
-		}
 		int    SLAPI EditItemDialog(LotExtCodeTbl::Rec & rRec, char firstChar, PPLotExtCodeContainer::MarkSet & rSet)
 		{
 			int    ok = -1;
@@ -2782,10 +2795,6 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 			delete dlg;
 			return ok;
 		}
-		const PPBillPacket * P_Pack;
-		const int RowIdx;
-		PPLotExtCodeContainer Data;
-		LotExtCodeCore * P_LotXcT;
 	};
 	int    ok = -1;
 	LotXCodeListDialog * dlg = new LotXCodeListDialog(P_Pack, rowIdx);

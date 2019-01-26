@@ -1,5 +1,5 @@
 // OBJBIZSC.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -731,7 +731,7 @@ BizScoreFilt & FASTCALL BizScoreFilt::operator = (const BizScoreFilt & s)
 //
 SLAPI PPViewBizScore::PPViewBizScore() : PPView(&BscObj, &Filt, PPVIEW_BIZSCORE)
 {
-	ImplementFlags |= implDontEditNullFilter; // @v8.3.5
+	ImplementFlags |= implDontEditNullFilter;
 }
 
 int SLAPI PPViewBizScore::EditBaseFilt(PPBaseFilt * pBaseFilt)

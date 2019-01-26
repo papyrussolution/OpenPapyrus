@@ -1284,7 +1284,7 @@ public:
 	static int FASTCALL StartTransaction(int concurrent = 0, int lock = 0);
 	static int SLAPI RollbackWork();
 	static int SLAPI CommitWork();
-	static int SLAPI AddContinuous(char * fname /* "volume:\path[,volume:\path]*" */);
+	static int SLAPI AddContinuous(const char * fname /* "volume:\path[,volume:\path]*" */);
 	static int SLAPI RemoveContinuous(const char * fname /* if fname == 0 then remove all files */);
 	static int SLAPI GetVersion(int * pMajor, int * pMinor, int * pIsNet);
 	static int SLAPI Reset(int station);
@@ -1667,7 +1667,7 @@ public:
 	int    FASTCALL HasLob(DBField * pLastFld) const;
 
 	void   FASTCALL setDataBuf(void * aBuf, RECORDSIZE aBufLen);
-	char * FASTCALL getDataBuf() { return (char *)P_DBuf; }
+	char * FASTCALL getDataBuf() { return static_cast<char *>(P_DBuf); }
 	void   FASTCALL setBuffer(SBaseBuffer &);
 	const  SBaseBuffer FASTCALL getBuffer() const;
 	int    allocOwnBuffer(int size = -1);
@@ -1700,7 +1700,7 @@ public:
 	RECORDSIZE SLAPI getBufLen() const;
 	RECORDSIZE SLAPI getRetBufLen() const { return retBufLen; }
 	int    SLAPI getCurIndex() const { return index; }
-	void   FASTCALL setIndex(int i) { index = (int16)i; }
+	void   FASTCALL setIndex(int i) { index = static_cast<int16>(i); }
 	//
 	// Descr: Флаги поиска (DbProvider::Implement_Search)
 	//
@@ -1936,7 +1936,7 @@ public:
 	// Функция callbackProc должна вернуть значение (>0) если следует
 	// продолжить процесс и 0 - если процесс следует прервать
 	//
-	virtual int SLAPI callbackProc(int event, void * lp1 = 0, void * lp2 = 0, void * vp = 0);
+	virtual int SLAPI callbackProc(int event, const void * lp1 = 0, const void * lp2 = 0, const void * vp = 0);
 	// IN {
 	const  char * P_DestPath;
 	const  char * P_BakPath;
@@ -2710,9 +2710,9 @@ private:
 		{
 		}
 		int    operator !() const { return (T == 0); }
-		operator OCIDateTime * () const { return (OCIDateTime *)H; }    // OCI_DTYPE_TIMESTAMP
-		operator OCIRowid * () const { return (OCIRowid*)H; }           // OCI_DTYPE_ROWID
-		operator OCILobLocator * () const { return (OCILobLocator*)H; } // OCI_DTYPE_LOB
+		operator OCIDateTime * () const { return static_cast<OCIDateTime *>(H); }    // OCI_DTYPE_TIMESTAMP
+		operator OCIRowid * () const { return static_cast<OCIRowid*>(H); }           // OCI_DTYPE_ROWID
+		operator OCILobLocator * () const { return static_cast<OCILobLocator*>(H); } // OCI_DTYPE_LOB
 		void * H;
 		uint32 T;
 	};
@@ -2817,7 +2817,7 @@ public:
 	int    FASTCALL AddTableEntry(DBTable *);
 	int    FASTCALL FreeTableEntry(int handle);
 	uint   GetTabEntriesCount() const;
-	DBTable * FASTCALL GetTableEntry(int handle) const { return (DBTable *)DbTableReg.GetPtr(handle); }
+	DBTable * FASTCALL GetTableEntry(int handle) const { return static_cast<DBTable *>(DbTableReg.GetPtr(handle)); }
 	DBTable * SLAPI GetCloneEntry(BTBLID) const;
 	//
 	// Descr: Временная функция (до завершения разработки интерфейса с BerkeleyDB).
@@ -3558,7 +3558,7 @@ public:
 	int    FASTCALL addTable(DBTable *);
 	int    SLAPI addOrderField(const DBField & rFld);
 	int    SLAPI getFieldPosByName(const char * pFldName, uint * pPos) const;
-	int    SLAPI setFrame(uint viewHight, uint = (uint)_defaultBufSize, uint = (uint)_defaultBufDelta);
+	int    SLAPI setFrame(uint viewHight, uint = static_cast<uint>(_defaultBufSize), uint = static_cast<uint>(_defaultBufDelta));
 	void * SLAPI getBuffer();
 	void * FASTCALL getRecord(uint);
 	void * SLAPI getCurrent();
@@ -3866,7 +3866,7 @@ public:
 	int    SLAPI fetchFirst(void * initKey = 0, int initSpMode = spFirst);
 	int    SLAPI initIteration(int reverse, const void * pInitKey = 0, int initSpMode = spFirst);
 	int    SLAPI nextIteration();
-	long   SLAPI countIterations(int reverse, void * pInitKey = 0, int initSpMode = spFirst);
+	long   SLAPI countIterations(int reverse, const void * pInitKey = 0, int initSpMode = spFirst);
 	int    FASTCALL getRecPosition(DBRowId * pPos);
 	uint   SLAPI getActualCount() const { return ActCount; }
 	int    SLAPI CreateSqlExpr(Generator_SQL * pSg, int reverse, const char * pInitKey, int initSpMode) const;
@@ -4117,7 +4117,7 @@ public:
 		explicit Buffer(size_t initSize = 128);
 		Buffer(const DBT * pB);
 		void   Reset();
-		operator DBT * () const { return (DBT *)this; }
+		operator DBT * () { return reinterpret_cast<DBT *>(this); }
 		int    FASTCALL Alloc(size_t sz);
 		//
 		// Descr: Если ULen < Size и Flags & fUserMem, то увеличивает распределенный

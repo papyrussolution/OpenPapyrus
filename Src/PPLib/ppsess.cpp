@@ -545,11 +545,7 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 									SetupPhoneEvent(ev, r_ev, temp_buf);
 									ev.ExtDtm  = rPrevRunTime;
 									adv_blk.Proc(PPAdviseBlock::evPhoneRinging, &ev, adv_blk.ProcExtPtr);
-									{ // finalize {
-										ev.SetFinishTag();
-										ev.ExtDtm = rPrevRunTime;
-										adv_blk.Proc(PPAdviseBlock::evPhoneRinging, &ev, adv_blk.ProcExtPtr);
-									} // } finalize
+									adv_blk.Proc(PPAdviseBlock::evPhoneRinging, &ev.Finalize(rPrevRunTime, 0), adv_blk.ProcExtPtr); // finalize
 									ok = 1;
 								}
 							}
@@ -560,11 +556,7 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 									SetupPhoneEvent(ev, r_ev, temp_buf);
 									ev.ExtDtm  = rPrevRunTime;
 									adv_blk.Proc(PPAdviseBlock::evPhoneUp, &ev, adv_blk.ProcExtPtr);
-									{ // finalize {
-										ev.SetFinishTag();
-										ev.ExtDtm = rPrevRunTime;
-										adv_blk.Proc(PPAdviseBlock::evPhoneUp, &ev, adv_blk.ProcExtPtr);
-									} // } finalize
+									adv_blk.Proc(PPAdviseBlock::evPhoneUp, &ev.Finalize(rPrevRunTime, 0), adv_blk.ProcExtPtr); // finalize
 									ok = 1;
 								}
 							}
@@ -603,9 +595,8 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 					else if(evqc) {
 						for(uint i = 0; i < evqc; i++) {
 							const PPAdviseEvent & r_ev = EvqList.at(i);
-							if(r_ev.Action && ((ObjTypeID == -1) || r_ev.Oid.Obj == ObjTypeID)) {
+							if(r_ev.Action && ((ObjTypeID == -1) || r_ev.Oid.Obj == ObjTypeID))
 								IdList.add(r_ev.Oid.Id);
-							}
 						}
 						IdList.sortAndUndup();
 					}
@@ -624,11 +615,7 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 										ev.ExtDtm  = prev_dtm;
 										adv_blk.Proc(NotifyID, &ev, adv_blk.ProcExtPtr);
 									}
-									{ // finalize {
-										ev.SetFinishTag();
-										ev.ExtDtm = prev_dtm;
-										adv_blk.Proc(NotifyID, &ev, adv_blk.ProcExtPtr);
-									} // } finalize
+									adv_blk.Proc(NotifyID, &ev.Finalize(prev_dtm, 0), adv_blk.ProcExtPtr); // finalize
 								}
 							}
 							ok = 1;
@@ -641,6 +628,68 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 	private:
 		PPID   ObjTypeID;
 		PPID   NotifyID;
+		PPIDArray IdList;
+	};
+	class IdleCmdConfigUpdated : public IdleCommand, private PPAdviseEventQueue::Client { // @v10.3.1
+	public:
+		IdleCmdConfigUpdated(long refreshPeriod, PPID configID, PPID notifyID) : IdleCommand(refreshPeriod), ConfigID(configID), NotifyID(notifyID)
+		{
+		}
+		virtual int FASTCALL Run(const LDATETIME & rPrevRunTime)
+		{
+			int    ok = -1;
+			if(NotifyID) {
+				PPAdviseList adv_list;
+				PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(this);
+				//
+				// Установить маркер очереди необходимо даже если подписчиков на события нет.
+				//
+				const uint evqc = (p_queue && p_queue->Get(Marker, EvqList) > 0) ? EvqList.getCount() : 0;
+				if(evqc)
+					Marker = EvqList.at(evqc-1).Ident;
+				if(DS.GetAdviseList(NotifyID, 0, adv_list) > 0) {
+					PPThreadLocalArea & r_tla = DS.GetTLA();
+					IdList.clear();
+					if(!p_queue) {
+						SysJournal * p_sj = r_tla.P_SysJ;
+						CALLPTRMEMB(p_sj, GetUpdatedConfigListSince((ConfigID > 0) ? ConfigID : 0, rPrevRunTime, IdList));
+					}
+					else if(evqc) {
+						for(uint i = 0; i < evqc; i++) {
+							const PPAdviseEvent & r_ev = EvqList.at(i);
+							if(r_ev.Action && (!ConfigID || r_ev.Oid.Obj == ConfigID))
+								IdList.add(r_ev.Oid.Obj);
+						}
+						IdList.sortAndUndup();
+					}
+					{
+						const uint c = IdList.getCount();
+						if(c) {
+							PPNotifyEvent ev;
+							PPAdviseBlock adv_blk;
+							const LDATETIME prev_dtm = rPrevRunTime;
+							for(uint j = 0; adv_list.Enum(&j, &adv_blk);) {
+								if(adv_blk.Proc) {
+									for(uint i = 0; i < c; i++) {
+										ev.Clear();
+										ev.ObjType = IdList.get(i);
+										ev.ObjID   = 0;
+										ev.ExtDtm  = prev_dtm;
+										adv_blk.Proc(NotifyID, &ev, adv_blk.ProcExtPtr);
+									}
+									adv_blk.Proc(NotifyID, &ev.Finalize(prev_dtm, 0), adv_blk.ProcExtPtr); // finalize
+								}
+							}
+							ok = 1;
+						}
+					}
+				}
+			}
+			return ok;
+		}
+	private:
+		PPID   NotifyID;
+		PPID   ConfigID;
 		PPIDArray IdList;
 	};
 	class IdleCmdUpdateTSessList : public IdleCommand, private PPAdviseEventQueue::Client {
@@ -701,19 +750,15 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 								if(adv_blk.Proc) {
 									for(uint i = 0; i < rlc; i++) {
 										const PPAdviseEvent & r_ev = result_list.at(i);
+										assert(r_ev.Oid.Obj == PPOBJ_TSESSION);
 										nev.Clear();
 										nev.Action  = r_ev.Action;
-										assert(r_ev.Oid.Obj == PPOBJ_TSESSION);
 										nev.ObjType = r_ev.Oid.Obj;
 										nev.ObjID   = r_ev.Oid.Id;
 										nev.ExtInt_ = r_ev.SjExtra;
 										adv_blk.Proc(NotifyID, &nev, adv_blk.ProcExtPtr);
 									}
-									// finalize {
-									nev.SetFinishTag();
-									nev.ExtDtm = prev_dtm;
-									adv_blk.Proc(NotifyID, &nev, adv_blk.ProcExtPtr);
-									// } finalize
+									adv_blk.Proc(NotifyID, &nev.Finalize(prev_dtm, 0), adv_blk.ProcExtPtr); // finalize
 								}
 							}
 							ok = 1;
@@ -846,12 +891,7 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 							ev.ObjID   = -1;
 							ev.ExtDtm  = rPrevRunTime;
 							adv_blk.Proc(NotifyID, &ev, adv_blk.ProcExtPtr);
-							// finalize {
-							ev.SetFinishTag();
-							ev.ExtInt_ = 0;
-							ev.ExtDtm = rPrevRunTime;
-							adv_blk.Proc(NotifyID, &ev, adv_blk.ProcExtPtr);
-							// } finalize
+							adv_blk.Proc(NotifyID, &ev.Finalize(rPrevRunTime, 0), adv_blk.ProcExtPtr); // finalize
 						}
 					}
 				}
@@ -903,7 +943,7 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 	IdleCmdList.insert(new IdleCmdUpdateLogsMon(10, -1, PPAdviseBlock::evLogsChanged));
 	IdleCmdList.insert(new IdleCmdQuartz(PPAdviseBlock::evQuartz));
 	IdleCmdList.insert(new IdleCmdPhoneSvc(2, 0)); // @v9.8.12
-
+	IdleCmdList.insert(new IdleCmdConfigUpdated(60, 0, PPAdviseBlock::evConfigChanged)); // @v10.3.1
 #if USE_ADVEVQUEUE==2
 	IdleCmdList.insert(new IdleCmdTestAdvEvQueue); // @debug
 #endif
@@ -3672,7 +3712,7 @@ int SLAPI PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAd
 									adv_blk.Proc(PPAdviseBlock::evDirtyCacheBySysJ, &ev, adv_blk.ProcExtPtr);
 								}
 							}
-							adv_blk.Proc(PPAdviseBlock::evDirtyCacheBySysJ, &ev.SetFinishTag(), adv_blk.ProcExtPtr); // finalize
+							adv_blk.Proc(PPAdviseBlock::evDirtyCacheBySysJ, &ev.Finalize(ZERODATETIME, 0), adv_blk.ProcExtPtr); // finalize
 						}
 					}
 				}
@@ -4185,9 +4225,17 @@ void SLAPI PPNotifyEvent::Clear()
 	ExtString.Z();
 }
 
-PPNotifyEvent & SLAPI PPNotifyEvent::SetFinishTag()
+/*PPNotifyEvent & SLAPI PPNotifyEvent::SetFinishTag()
 {
 	Action = -1;
+	return *this;
+}*/
+
+PPNotifyEvent & SLAPI PPNotifyEvent::Finalize(const LDATETIME & rExtDtm, long extInt)
+{
+	Action = -1;
+	ExtDtm = rExtDtm;
+	ExtInt_ = extInt;
 	return *this;
 }
 

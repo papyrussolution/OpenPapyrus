@@ -1292,8 +1292,10 @@ char * FASTCALL SString::CopyTo(char * pS, size_t bufLen) const
 					pS[bufLen-1] = 0;
 				}
 			}
-			else
-				strcpy(pS, P_Buf);
+			else {
+				// @v10.3.1 strcpy(pS, P_Buf);
+				memcpy(pS, P_Buf, src_len+1); // @v10.3.1
+			}
 		}
 		else
 			pS[0] = 0;
@@ -2892,6 +2894,15 @@ double SLAPI SString::ToReal() const
 	if(L > 1)
 		strtodoub(P_Buf, &v);
 	return v;
+}
+
+float SLAPI SString::ToFloat() const
+{
+	// @todo Полностью перевести на float (реализовать strtofloat)
+	double v = 0.0;
+	if(L > 1)
+		strtodoub(P_Buf, &v);
+	return static_cast<float>(v);
 }
 
 int SLAPI SString::ToIntRange(IntRange & rRange, long flags) const

@@ -531,7 +531,7 @@ FANN_EXTERNAL Fann2 * FANN_API fann_create_sparse_array(float connection_rate, u
 			for(neuron_it = (layer_it - 1)->first_neuron; neuron_it != last_neuron; neuron_it++) {
 				// random neuron in the output layer that has space for more connections 
 				do {
-					random_number = (int)(0.5f + fann_rand(0, num_neurons_out - 1));
+					random_number = static_cast<int>(0.5f + fann_rand(0, num_neurons_out - 1));
 					random_neuron = layer_it->first_neuron + random_number;
 					/* checks the last space in the connections array for room */
 				} while(ann->connections[random_neuron->last_con - 1]);
@@ -554,7 +554,7 @@ FANN_EXTERNAL Fann2 * FANN_API fann_create_sparse_array(float connection_rate, u
 						continue;
 					do {
 						found_connection = 0;
-						random_number = (int)(0.5f + fann_rand(0, num_neurons_in - 1));
+						random_number = static_cast<int>(0.5f + fann_rand(0, num_neurons_in - 1));
 						random_neuron = (layer_it - 1)->first_neuron + random_number;
 						// check to see if this connection is allready there 
 						for(j = neuron_it->first_con; j < i; j++) {
@@ -1350,22 +1350,22 @@ FANN_EXTERNAL void FANN_API fann_print_parameters(Fann2 * ann)
 FANN_GET(uint, num_input)
 FANN_GET(uint, num_output)
 
-FANN_EXTERNAL uint FANN_API fann_get_total_neurons(Fann2 * ann)
+FANN_EXTERNAL uint FANN_API fann_get_total_neurons(const Fann2 * ann)
 {
 	return ann->network_type ? ann->total_neurons : (ann->total_neurons-1)/* -1, because there is always an unused bias neuron in the last layer */;
 }
 
 FANN_GET(uint, total_connections)
 
-FANN_EXTERNAL enum fann_nettype_enum FANN_API fann_get_network_type(Fann2 * ann)
+FANN_EXTERNAL enum fann_nettype_enum FANN_API fann_get_network_type(const Fann2 * ann)
 {
 	/* Currently two types: LAYER = 0, SHORTCUT = 1 */
 	/* Enum network_types must be set to match the return values  */
 	return ann->network_type;
 }
 
-FANN_EXTERNAL float FANN_API fann_get_connection_rate(Fann2 * ann) { return ann->connection_rate; }
-FANN_EXTERNAL uint FANN_API fann_get_num_layers(Fann2 * ann) { return (uint)(ann->last_layer - ann->first_layer); }
+FANN_EXTERNAL float FANN_API fann_get_connection_rate(const Fann2 * ann) { return ann->connection_rate; }
+FANN_EXTERNAL uint FANN_API fann_get_num_layers(const Fann2 * ann) { return (uint)(ann->last_layer - ann->first_layer); }
 
 FANN_EXTERNAL void FANN_API fann_get_layer_array(Fann2 * ann, uint * layers)
 {
@@ -1454,7 +1454,7 @@ FANN_EXTERNAL void FANN_API fann_get_connection_array(Fann2 * ann, struct fann_c
 	}
 }
 
-FANN_EXTERNAL void FANN_API fann_set_weight_array(Fann2 * ann, struct fann_connection * connections, uint num_connections)
+FANN_EXTERNAL void FANN_API fann_set_weight_array(Fann2 * ann, const struct fann_connection * connections, uint num_connections)
 {
 	for(uint idx = 0; idx < num_connections; idx++) {
 		fann_set_weight(ann, connections[idx].from_neuron, connections[idx].to_neuron, connections[idx].weight);
@@ -1494,9 +1494,9 @@ FANN_EXTERNAL void FANN_API fann_set_weight(Fann2 * ann, uint from_neuron, uint 
 	}
 }
 
-FANN_EXTERNAL void FANN_API fann_get_weights(Fann2 * ann, float * weights)
+FANN_EXTERNAL void FANN_API fann_get_weights(const Fann2 * ann, float * weights)
 	{ memcpy(weights, ann->weights, sizeof(float)*ann->total_connections); }
-FANN_EXTERNAL void FANN_API fann_set_weights(Fann2 * ann, float * weights)
+FANN_EXTERNAL void FANN_API fann_set_weights(Fann2 * ann, const float * weights)
 	{ memcpy(ann->weights, weights, sizeof(float)*ann->total_connections); }
 
 FANN_GET_SET(void *, user_data)
@@ -1623,7 +1623,7 @@ FANN_EXTERNAL void FANN_API fann_reset_errstr(struct fann_error *errdat)
 // 
 // returns the last error number
 // 
-FANN_EXTERNAL enum fann_errno_enum FANN_API fann_get_errno(struct fann_error *errdat)
+FANN_EXTERNAL enum fann_errno_enum FANN_API fann_get_errno(const struct fann_error *errdat)
 {
 	return errdat->errno_f;
 }
@@ -1820,7 +1820,7 @@ static FORCEINLINE float fann_activation_derived(uint activation_function, float
 /* #define CASCADE_DEBUG */
 /* #define CASCADE_DEBUG_FULL */
 
-void fann_print_connections_raw(Fann2 * ann)
+void fann_print_connections_raw(const Fann2 * ann)
 {
 	for(uint i = 0; i < ann->total_connections_allocated; i++) {
 		if(i == ann->total_connections) {
@@ -2524,7 +2524,7 @@ void fann_install_candidate(Fann2 * ann)
 
 #endif // } FIXEDFANN 
 
-FANN_EXTERNAL uint FANN_API fann_get_cascade_num_candidates(Fann2 * ann)
+FANN_EXTERNAL uint FANN_API fann_get_cascade_num_candidates(const Fann2 * ann)
 {
 	return ann->cascade_activation_functions_count * ann->cascade_activation_steepnesses_count * ann->cascade_num_candidate_groups;
 }
@@ -2563,7 +2563,7 @@ FANN_EXTERNAL void FANN_API fann_set_cascade_activation_functions(Fann2 * ann, F
 FANN_GET(uint, cascade_activation_steepnesses_count)
 FANN_GET(float *, cascade_activation_steepnesses)
 
-FANN_EXTERNAL void FANN_API fann_set_cascade_activation_steepnesses(Fann2 * ann, float * cascade_activation_steepnesses, uint cascade_activation_steepnesses_count)
+FANN_EXTERNAL void FANN_API fann_set_cascade_activation_steepnesses(Fann2 * ann, const float * cascade_activation_steepnesses, uint cascade_activation_steepnesses_count)
 {
 	if(ann->cascade_activation_steepnesses_count != cascade_activation_steepnesses_count) {
 		ann->cascade_activation_steepnesses_count = cascade_activation_steepnesses_count;
@@ -3371,12 +3371,12 @@ FANN_EXTERNAL float * FANN_API fann_test(Fann2 * ann, float * input, float * des
 // 
 // get the mean square error.
 // 
-FANN_EXTERNAL float FANN_API fann_get_MSE(Fann2 * ann)
+FANN_EXTERNAL float FANN_API fann_get_MSE(const Fann2 * ann)
 {
 	return ann->num_MSE ? (ann->MSE_value / (float)ann->num_MSE) : 0.0f;
 }
 
-FANN_EXTERNAL uint FANN_API fann_get_bit_fail(Fann2 * ann)
+FANN_EXTERNAL uint FANN_API fann_get_bit_fail(const Fann2 * ann)
 {
 	return ann->num_bit_fail;
 }
@@ -4346,7 +4346,7 @@ FANN_EXTERNAL void FANN_API fann_scale_train_data(struct fann_train_data * train
 // 
 // merges training data into a single struct.
 // 
-FANN_EXTERNAL struct fann_train_data * FANN_API fann_merge_train_data(struct fann_train_data * data1, struct fann_train_data * data2)
+FANN_EXTERNAL struct fann_train_data * FANN_API fann_merge_train_data(struct fann_train_data * data1, const struct fann_train_data * data2)
 {
 	uint i;
 	float * data_input, * data_output;
@@ -4506,9 +4506,9 @@ FANN_EXTERNAL struct fann_train_data * FANN_API fann_subset_train_data(struct fa
 	return dest;
 }
 
-FANN_EXTERNAL uint FANN_API fann_length_train_data(struct fann_train_data * data) { return data->num_data; }
-FANN_EXTERNAL uint FANN_API fann_num_input_train_data(struct fann_train_data * data) { return data->num_input; }
-FANN_EXTERNAL uint FANN_API fann_num_output_train_data(struct fann_train_data * data) { return data->num_output; }
+FANN_EXTERNAL uint FANN_API fann_length_train_data(const struct fann_train_data * data) { return data->num_data; }
+FANN_EXTERNAL uint FANN_API fann_num_input_train_data(const struct fann_train_data * data) { return data->num_input; }
+FANN_EXTERNAL uint FANN_API fann_num_output_train_data(const struct fann_train_data * data) { return data->num_output; }
 // 
 // Creates an empty set of training data
 // 
@@ -4652,7 +4652,7 @@ struct fann_train_data * fann_read_train_from_fd(FILE * file, const char * filen
 // 
 // INTERNAL FUNCTION returns 0 if the desired error is reached and -1 if it is not reached
 // 
-int fann_desired_error_reached(Fann2 * ann, float desired_error)
+int fann_desired_error_reached(const Fann2 * ann, float desired_error)
 {
 	switch(ann->train_stop_function) {
 		case FANN_STOPFUNC_MSE:
@@ -4894,7 +4894,7 @@ FANN_EXTERNAL int FANN_API fann_clear_scaling_params(Fann2 * ann)
 
 #endif
 
-int fann_check_input_output_sizes(Fann2 * ann, struct fann_train_data * data)
+int fann_check_input_output_sizes(Fann2 * ann, const struct fann_train_data * data)
 {
 	if(ann->num_input != data->num_input) {
 		fann_error_2((struct fann_error *)ann, FANN_E_INPUT_NO_MATCH, ann->num_input, data->num_input);
@@ -4965,7 +4965,7 @@ static void train_on_steepness_file(Fann2 * ann, const char * filename, uint max
 	fann_destroy_train(data);
 }
 
-static int FANN_API xor_train_test_callback(Fann2 * ann, struct fann_train_data * train, uint max_epochs, uint epochs_between_reports, float desired_error, uint epochs)
+static int FANN_API xor_train_test_callback(const Fann2 * ann, struct fann_train_data * train, uint max_epochs, uint epochs_between_reports, float desired_error, uint epochs)
 {
 	SString log_buf;
 	FannLogMessage(log_buf.Printf("Epochs     %8d. MSE: %.5f. Desired-MSE: %.5f", epochs, fann_get_MSE(ann), desired_error));

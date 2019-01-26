@@ -443,10 +443,9 @@ int FASTCALL PPObjProcessor::ReadConfig(PPProcessorConfig * pCfg)
 	return r;
 }
 
-SLAPI PPObjProcessor::PPObjProcessor(void * extraPtr) : PPObject(PPOBJ_PROCESSOR)
+SLAPI PPObjProcessor::PPObjProcessor(void * extraPtr) : PPObject(PPOBJ_PROCESSOR), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
-	ExtraPtr = extraPtr;
 	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 }
 
@@ -1918,7 +1917,7 @@ int SLAPI ProcessorFilt::Init(int fullyDestroy, long extraData)
 
 SLAPI PPViewProcessor::PPViewProcessor() : PPView(&PrcObj, &Filt, PPVIEW_PROCESSOR)
 {
-	ImplementFlags |= implDontEditNullFilter; // @v8.7.0
+	ImplementFlags |= implDontEditNullFilter;
 	DefReportId = REPORT_PROCESSOR;
 }
 

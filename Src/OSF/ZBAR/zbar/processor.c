@@ -327,8 +327,7 @@ int zbar_processor_init(zbar_processor_t * proc, const char * dev, int enable_di
 			zbar_video_request_size(proc->video, proc->req_width, proc->req_height);
 		if(proc->req_intf)
 			zbar_video_request_interface(proc->video, proc->req_intf);
-		if((proc->req_iomode && zbar_video_request_iomode(proc->video, proc->req_iomode)) ||
-		    zbar_video_open(proc->video, dev)) {
+		if((proc->req_iomode && zbar_video_request_iomode(proc->video, proc->req_iomode)) || zbar_video_open(proc->video, dev)) {
 			rc = err_copy(proc, proc->video);
 			goto done;
 		}

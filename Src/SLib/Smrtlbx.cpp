@@ -1142,16 +1142,17 @@ void FASTCALL SmartListBox::focusItem(long item)
 			SelectTreeItem();
 		else {
 			const  HWND h_lb = getHandle();
+			const long cur__item = def->_curItem();
 			if(Columns.getCount()) {
 				LVITEM lvi;
 				lvi.mask  = LVIF_STATE;
 				lvi.state = LVIS_FOCUSED | LVIS_SELECTED;
 				lvi.stateMask = LVIS_FOCUSED | LVIS_SELECTED;
-				::SendMessage(h_lb, LVM_SETITEMSTATE, def ? def->_curItem() : 0, (LPARAM)&lvi);
-				ListView_EnsureVisible(h_lb, def ? def->_curItem() : 0, 0); // AHTOXA
+				::SendMessage(h_lb, LVM_SETITEMSTATE, cur__item, (LPARAM)&lvi);
+				ListView_EnsureVisible(h_lb, cur__item, 0); // AHTOXA
 			}
 			else
-				::SendMessage(h_lb, LB_SETCURSEL, def ? (def->_curItem()-def->_topItem()) : 0, 0);
+				::SendMessage(h_lb, LB_SETCURSEL, cur__item-def->_topItem(), 0);
 		}
 		if(def->Options & lbtFocNotify)
 			MessageCommandToOwner(cmLBItemFocused);

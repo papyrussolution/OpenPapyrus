@@ -91,7 +91,8 @@ int FASTCALL _strtodate(const char * pBuf, int style, int * pDay, int * pMon, in
 			// без всяких пробелов и разделителей.
 			//
 			int    dig_count = 0;
-			int    year_start = 0, year_end = 0;
+			int    year_start = 0;
+			int    year_end = 0;
 			while(isdec(c[dig_count]))
 				dig_count++;
 			if(dig_count == 6)
@@ -132,7 +133,7 @@ int FASTCALL _strtodate(const char * pBuf, int style, int * pDay, int * pMon, in
 			ord = _decode_date_fmt(style, &div);
 			if(year_start) {
 				if(!year_end)
-					ord = 2;
+					ord = 2; // YMD
 				else {
 					//
 					// Если и префикс и суффикс строки может быть трактован как год, то
@@ -140,8 +141,8 @@ int FASTCALL _strtodate(const char * pBuf, int style, int * pDay, int * pMon, in
 					//
 					const LDATE cdate = getcurdate_();
 					const int  _cy = cdate.year();
-					if(abs(_cy - year_end) < abs(_cy - year_end))
-						ord = 2;
+					if(abs(_cy - year_start) < abs(_cy - year_end)) // @v10.3.1 @fix (abs(_cy - year_end) < abs(_cy - year_end))-->(abs(_cy - year_start) < abs(_cy - year_end))
+						ord = 2; // YMD
 				}
 			}
 			for(cnt = 0; cnt < 3; cnt++) {

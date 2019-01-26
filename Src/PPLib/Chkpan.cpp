@@ -200,7 +200,7 @@ CPosProcessor::Packet::Packet()
 	Clear();
 }
 
-CPosProcessor::Packet & FASTCALL CPosProcessor::Packet::operator = (CCheckItemArray & rS)
+CPosProcessor::Packet & FASTCALL CPosProcessor::Packet::operator = (const CCheckItemArray & rS)
 {
 	*(CCheckItemArray *)this = rS;
 	return *this;

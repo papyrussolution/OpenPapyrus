@@ -568,7 +568,7 @@ uint SLAPI StringSet::getCount() const
 	return count;
 }
 
-char * SLAPI StringSet::getBuf() const { return P_Buf; }
+const char * SLAPI StringSet::getBuf() const { return P_Buf; }
 size_t SLAPI StringSet::getSize() const { return Size; }
 //
 //

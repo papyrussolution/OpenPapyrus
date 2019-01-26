@@ -1,5 +1,5 @@
 // WBROWSE.CPP
-// Copyright (c) Sobolev A. 1994-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) Sobolev A. 1994-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 // WIN32
 //
@@ -926,8 +926,6 @@ int BrowserWindow::CopyToClipboard()
 			if(cn >= 0 && cn < (long)P_Def->getCount())
 				col_types.add((long)GETSTYPE(P_Def->at(cn).T));
 		}
-		::OpenClipboard(APPL->H_MainWnd);
-		::EmptyClipboard();
 		sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
 		sw.PutFont('F', p_fontface_tnr, 8,  0);
 		sw.PutRec('F', "G");
@@ -996,15 +994,7 @@ int BrowserWindow::CopyToClipboard()
 		WMHScroll(SB_VERT, SB_BOTTOM, 0);
 		sw.PutLine("E");
 		sw.GetBuf(&out_buf);
-		{
-			HGLOBAL h_glb = h_glb = ::GlobalAlloc(GMEM_MOVEABLE, (out_buf.Len() + 1));
-			char * p_buf = (char *)GlobalLock(h_glb);
-			out_buf.CopyTo(p_buf, out_buf.Len());
-			p_buf[out_buf.Len()] = '\0';
-			GlobalUnlock(h_glb);
-			SetClipboardData(CF_SYLK, h_glb);
-		}
-		CloseClipboard();
+		SClipboard::Copy_SYLK(out_buf);
 		ok = 1;
 	}
 	return ok;

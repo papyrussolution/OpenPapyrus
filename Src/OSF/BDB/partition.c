@@ -19,7 +19,7 @@ static int __partc_get_pp(DBC*, DBT*, DBT*, uint32);
 static int __partc_put(DBC*, DBT*, DBT*, uint32, db_pgno_t *);
 static int __partc_writelock(DBC *);
 static int __partition_chk_meta(DB*, DB_THREAD_INFO*, DB_TXN*, uint32);
-static int __partition_setup_keys(DBC*, DB_PARTITION*, DBMETA*, uint32);
+static int __partition_setup_keys(DBC*, DB_PARTITION*, const DBMETA*, uint32);
 static int __part_key_cmp(const void *, const void *);
 static inline void __part_search(DB*, DB_PARTITION*, DBT*, uint32 *);
 
@@ -389,7 +389,7 @@ static int __part_key_cmp(const void * a, const void * b)
  *	Get the partition keys into memory, or put them to disk if we
  * are creating a partitioned database.
  */
-static int __partition_setup_keys(DBC * dbc, DB_PARTITION * part, DBMETA * meta, uint32 flags)
+static int __partition_setup_keys(DBC * dbc, DB_PARTITION * part, const DBMETA * meta, uint32 flags)
 {
 	BTREE * t;
 	DBT data, key, * keys, * kp;

@@ -1048,7 +1048,7 @@ int SLAPI EAddrCore::Search(PPID id, EAddrTbl::Rec * pRec)
 	return SearchByID(this, PPOBJ_EADDR, id, pRec);
 }
 
-int SLAPI EAddrCore::Put(PPID * pID, PPEAddr * pAddr, const PPObjID * pObjId, int use_ta)
+int SLAPI EAddrCore::Put(PPID * pID, const PPEAddr * pAddr, const PPObjID * pObjId, int use_ta)
 {
 	int    ok = 1, r = 0;
 	{

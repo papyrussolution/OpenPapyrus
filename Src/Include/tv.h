@@ -94,7 +94,7 @@ struct KeyDownCommand { // @flat @noctr @size=4
 	//SLAPI  KeyDownCommand();
 	void   SLAPI Clear();
 	int    FASTCALL operator == (const KeyDownCommand & rS) const { return (State == rS.State && Code == rS.Code); }
-	operator long() const { return *(long *)this; }
+	operator long() const { return *reinterpret_cast<const long *>(this); }
 	int    SLAPI GetKeyName(SString & rBuf, int onlySpecKeys = 0) const;
 	int    SLAPI SetKeyName(const char * pStr, uint * pLen);
 	void   FASTCALL SetWinMsgCode(uint32 wParam);
@@ -1039,7 +1039,7 @@ class TCanvas2 {
 public:
 	struct Surface {
 		Surface();
-		uint32 HCtx;   // Контекст устройства
+		void * HCtx;  // Контекст устройства // @v10.3.1 uint32-->void *
 		SImageBuffer * P_Img;
 	};
 	struct Capability {
@@ -1155,12 +1155,8 @@ public:
 	void   SLAPI ClosePath();
 	void   SLAPI SubPath();
 	void   FASTCALL GetClipExtents(FRect & rR);
-	//
-	//
-	//
 	void   SLAPI SetColorReplacement(SColor original, SColor replacement);
 	void   SLAPI ResetColorReplacement();
-	//
 	int    FASTCALL SetOperator(int opr);
 	int    SLAPI GetOperator() const;
 	//
@@ -1194,9 +1190,6 @@ public:
 	//   которая до этого была там сохранена вызовом PushTransform().
 	//
 	int    SLAPI PopTransform();
-	//
-	//
-	//
 	void   SLAPI LineVert(int x, int yFrom, int yTo);
 	void   SLAPI LineHorz(int xFrom, int xTo, int y);
 	void   SLAPI Rect(const TRect & rRect, int penIdent, int brushIdent);
@@ -1207,15 +1200,11 @@ public:
 	int    FASTCALL SetBkColor(COLORREF);
 	int    FASTCALL SetTextColor(COLORREF);
 	void   SLAPI SetBkTranparent();
-
 	TPoint SLAPI GetTextSize(const char * pStr);
 		// @>>BOOL GetTextExtentPoint32(HDC hdc, LPCTSTR lpString, int cbString, LPSIZE lpSize);
 	int    SLAPI TextOut(TPoint p, const char * pText);
 	int    SLAPI _DrawText(const TRect & rRect, const char * pText, uint options);
 	int    SLAPI DrawTextLayout(STextLayout * pTlo);
-	//
-	//
-	//
 	int    FASTCALL Draw(const SImageBuffer * pImg);
 	int    FASTCALL Draw(const SDrawFigure * pDraw);
 	int    FASTCALL Draw(const SDrawPath * pPath);
@@ -1262,7 +1251,6 @@ public:
 	};
 	int    SLAPI DrawEdge(TRect & rR, long edge, long flags);
 	int    SLAPI DrawFrame(const TRect & rR, int clFrame, int brushId);
-
 	int    FASTCALL SelectFont(SPaintObj::Font * pFont);
 private:
 	enum {
@@ -1284,7 +1272,7 @@ private:
 		void * P;
 	};
 
-	void   Init(); // @<<TCanvas2::TCanvas2()
+	//void   Init(); // @<<TCanvas2::TCanvas2()
 	int    FASTCALL SetCairoColor(SColor c);
 	int    SLAPI Helper_SelectPen(SPaintToolBox * pTb, int penId);
 	int    SLAPI Helper_SelectBrush(SPaintToolBox * pTb, int brushId, PatternWrapper & rPw);
@@ -1729,7 +1717,7 @@ public:
 	void * SLAPI  messageToCtrl(ushort ctl, ushort command, void * ptr);
 	TView * FASTCALL getCtrlView(ushort ctl);
 	TView * FASTCALL getCtrlByHandle(HWND h);
-	HWND   SLAPI H() const { return this ? /*hWnd*/HW : (HWND)0; }
+	HWND   SLAPI H() const { return this ? HW : static_cast<HWND>(0); }
 	HWND   FASTCALL getCtrlHandle(ushort ctlID);
 	void   FASTCALL setCtrlReadOnly(ushort ctlID, int set);
 	void   FASTCALL disableCtrl(ushort ctl, int toDisable);
@@ -2104,7 +2092,7 @@ public:
 	//int    LockStorage(const char * pFileName);
 private:
 	SString & MakeUniqueSymb(SString & rBuf) const;
-	int    CreateFigure(Item & rItem, const char * pPath, int pic);
+	int    CreateFigure(const Item & rItem, const char * pPath, int pic);
 	int    UpdateFigures(Item & rItem);
 
 	struct Entry { // @persistent @flat
@@ -2427,14 +2415,14 @@ public:
 	//   объекта, не включенного в коллекцию this.
 	//
 	int    DrawSingleObject(TCanvas2 & rCanv, TWhatmanObject * pObj);
-	int    DrawObjectContour(TCanvas2 & rCanv, TWhatmanObject * pObj, TPoint * pOffs);
+	int    DrawObjectContour(TCanvas2 & rCanv, const TWhatmanObject * pObj, const TPoint * pOffs);
 	int    DrawMultSelContour(TCanvas2 & rCanv, TPoint * pOffs);
-	int    InvalidateMultSelContour(TPoint * pOffs);
+	int    InvalidateMultSelContour(const TPoint * pOffs);
 	//
 	// @ARG(dir IN): SOW_XXX
 	//
 	int    ResizeObject(TWhatmanObject * pObj, int dir, TPoint toPoint, TRect * pResult);
-	int    SetArea(TRect & rArea);
+	int    SetArea(const TRect & rArea);
 	const TRect & GetArea() const;
 	//
 	// ARG(mode):
@@ -2961,7 +2949,7 @@ public:
 	int    setDataAssoc(long);
 	int    getDataAssoc(long *);
 	int    getItemByAssoc(long val, int * pItem) const;
-	int    getKind() const { return (int)Kind; }
+	int    getKind() const { return static_cast<int>(Kind); }
 	// @v9.1.3 virtual int Paint_(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 protected:
 	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -3105,7 +3093,7 @@ public:
 	// Descr: Устанавливает ассоциацию элемента списка, имеющего идентификатор itemID, с векторной иконкой,
 	//   идентифицируемой как imageID.
 	//   Значение imageID должно быть либо нулевым, либо ссылаться на ресурс векторных изображений PPDV_XXX.
-	// Note: Идентификатор imageID хранится в списке ImageAssoc с дополнительным битом 0x40000000 чтобы 
+	// Note: Идентификатор imageID хранится в списке ImageAssoc с дополнительным битом 0x40000000 чтобы
 	//   можно было отличить векторную иконку от растровой.
 	//
 	int    SLAPI AddVecImageAssoc(long itemID, long imageID);
@@ -3132,7 +3120,7 @@ protected:
 private:
 	uint32 Sign;               // Подпись экземпляра класса. Используется для идентификации порожденных классов и инвалидных экземпляров
 	long   CFlags;
-	SBaseBuffer UserData;      // 
+	SBaseBuffer UserData;      //
 	LAssocArray ImageAssoc;    // Список ид элементов и ассоциированных с ним id иконок
 	LAssocArray ImageIdxAssoc; // Список ид элементов и ассоциированных с ним индексов картинок содержащихся в HIMAGELIST
 	struct ColorItem {
@@ -3355,7 +3343,6 @@ public:
 	void   RemoveColumns();
 	int    SetupColumns(const char * pColsBuf);
 	int    GetOrgColumnsDescr(SString & rBuf) const;
-
 	void   setHorzRange(int);
 	void   setRange(long aRange);
 	void   search(char * firstLetter, int srchMode);
@@ -3451,7 +3438,7 @@ public:
 	void   setCompFunc(CompFunc f);
 	ListWindowSmartListBox * listBox() const;
 	int    MoveWindow(HWND linkHwnd, long right);
-	int    MoveWindow(RECT & rRect);
+	int    MoveWindow(const RECT & rRect);
 	ListBoxDef * getDef() const { return P_Def; }
 	void   SetToolbar(uint tbId);
 	uint   GetToolbar() const { return TbId; }
@@ -4931,7 +4918,7 @@ protected:
 class SKeyAccelerator : public LAssocArray {
 public:
 	SKeyAccelerator();
-	int    Set(KeyDownCommand & rK, int cmd);
+	int    Set(const KeyDownCommand & rK, int cmd);
 };
 
 int SLAPI ImpLoadToolbar(TVRez & rez, ToolbarList * pList);

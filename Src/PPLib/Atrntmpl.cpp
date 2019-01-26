@@ -1,5 +1,5 @@
 // ATRNTMPL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 // Шаблон бухгалтерской проводки
@@ -422,7 +422,7 @@ int SLAPI PPAccTurnTempl::SubstAcct(int side, PPAccTurn * at, const ATSubstObjec
 					SString msg_buf, name_buf;
 					Acct   acct;
 					PPID   cur_id = 0;
-					p_atobj->ConvertAcctID(&r_acctid, &acct, &cur_id, 0);
+					p_atobj->ConvertAcctID(r_acctid, &acct, &cur_id, 0);
 					GetArticleName(foreign_ar_id, msg_buf);
 					msg_buf.Quot('\'', '\'').CatChar('-').CatChar('>').Cat(acct.ToStr(0, name_buf));
 					GetObjectName(PPOBJ_ACCSHEET, r_sheet_id, name_buf, 0);
@@ -971,14 +971,14 @@ int SLAPI PPAccTurnTempl::SubstToStrings(SString & rPrimStr, SString & rForeignS
 	return 1;
 }
 
-int SLAPI PPAccTurnTempl::AccTemplToStr(int side, SString & rBuf)
+int SLAPI PPAccTurnTempl::AccTemplToStr(int side, SString & rBuf) const
 {
 	Acct   acct;
 	PPID   cur_id = 0;
-	AcctID * p_acctid = (side == PPDEBIT) ? &DbtID : &CrdID;
+	const AcctID & r_acctid = (side == PPDEBIT) ? DbtID : CrdID;
 	const long ac_fixed = (side == PPDEBIT) ? (Flags & ATTF_DACCFIX) : (Flags & ATTF_CACCFIX);
 	const long ar_fixed = (side == PPDEBIT) ? (Flags & ATTF_DARTFIX) : (Flags & ATTF_CARTFIX);
-	BillObj->atobj->ConvertAcctID(p_acctid, &acct, &cur_id, 1 /* useCache */);
+	BillObj->atobj->ConvertAcctID(r_acctid, &acct, &cur_id, 1 /* useCache */);
 	acct.ToStr(ACCF_DEFAULT, rBuf).Space();
 	if(ac_fixed)
 		rBuf.CatChar('X');

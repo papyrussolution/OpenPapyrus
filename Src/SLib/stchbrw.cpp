@@ -2320,8 +2320,6 @@ int STimeChunkBrowser::CopyToClipboard()
 			::GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buf, sizeof(buf));
 			dec.Cat(buf);
 		}
-		::OpenClipboard(APPL->H_MainWnd);
-		EmptyClipboard();
 		sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
 		sw.PutFont('F', p_fontface_tnr, 8,  0);
 		sw.PutRec('F', "G");
@@ -2392,15 +2390,7 @@ int STimeChunkBrowser::CopyToClipboard()
 		}
 		sw.PutLine("E");
 		sw.GetBuf(&out_buf);
-		{
-			HGLOBAL h_glb = ::GlobalAlloc(GMEM_MOVEABLE, (out_buf.Len() + 1));
-			char * p_buf = (char *)GlobalLock(h_glb);
-			out_buf.CopyTo(p_buf, out_buf.Len());
-			p_buf[out_buf.Len()] = '\0';
-			GlobalUnlock(h_glb);
-			SetClipboardData(CF_SYLK, h_glb);
-		}
-		CloseClipboard();
+		SClipboard::Copy_SYLK(out_buf);
 	}
 	else
 		ok = -1;

@@ -1,5 +1,5 @@
 // STYLOPALM.H
-// Copyright (c) A.Sobolev 2005, 2008
+// Copyright (c) A.Sobolev 2005, 2008, 2019
 // @codepage windows-1251
 // Файл определений, общих для Papyrus, StyloConduit и StyloPalmII
 //
@@ -54,47 +54,11 @@
 //
 struct PalmArcHdr { // size = 64
 	int    Check() const;
-	void   ToPalmRec()
-	{
-		Ver     = htons(Ver);
-		NumRecs = htonl(NumRecs);
-	}
-	void   ToHostRec()
-	{
-		Ver     = ntohs(Ver);
-		NumRecs = ntohl(NumRecs);
-	}
-	int ToBuf(void * pBuf, size_t * pBufSize)
-	{
-		int ok = 0;
-		if(pBufSize) {
-			if(*pBufSize < 64) {
-				*pBufSize = 64;
-				ok = -1;
-			}
-			else {
-				char * p_buf = (char*)pBuf;
-				size_t bytes = 0;
-				memcpy(p_buf,                               &Ver,     sizeof(Ver));
-				memcpy(p_buf + (bytes += sizeof(Ver)),      &NumRecs, sizeof(NumRecs));
-				memcpy(p_buf + (bytes += sizeof(NumRecs)),  Reserve,  sizeof(Reserve));
-				memcpy(p_buf + (bytes += sizeof(Reserve)),  Name,     sizeof(Name));
-				*pBufSize = 64;
-				ok = 1;
-			}
-		}
-		return ok;
-	}
-	int FromBuf(const void * pBuf)
-	{
-		const char * p_buf = (const char*)pBuf;
-		size_t bytes = 0;
-		memcpy(&Ver,     p_buf,                              sizeof(Ver));
-		memcpy(&NumRecs, p_buf + (bytes += sizeof(Ver)),     sizeof(NumRecs));
-		memcpy(Reserve,  p_buf + (bytes += sizeof(NumRecs)), sizeof(Reserve));
-		memcpy(Name,     p_buf + (bytes += sizeof(Reserve)), sizeof(Name));
-		return 1;
-	}
+	void   ToPalmRec();
+	void   ToHostRec();
+	int    ToBuf(void * pBuf, size_t * pBufSize);
+	int    FromBuf(const void * pBuf);
+
 	int16  Ver;         // 1..
 	uint32 NumRecs;     // Количество записей в таблице (этот заголовок записью не считается)
 	char   Reserve[26]; // zero (int8 -> char)
@@ -107,28 +71,11 @@ struct PalmArcHdr { // size = 64
 typedef long SpiiDbHandler[2];
 
 struct SpiiCmdBuf { // @persistent
-	SpiiCmdBuf()
-	{
-		memzero(this, sizeof(SpiiCmdBuf));
-	}
+	SpiiCmdBuf();
 #ifndef __palmos__
-	void ToPalmRec()
-	{
-		Cmd     = htons(Cmd);
-		BufSize = htonl(BufSize);
-		RetCode = htonl(RetCode);
-	}
-	void ToHostRec()
-	{
-		Cmd     = ntohs(Cmd);
-		BufSize = ntohl(BufSize);
-		RetCode = ntohl(RetCode);
-	}
-	SString & ToStr(SString & rBuf) const
-	{
-		return rBuf.Z().Cat((long)Cmd).CatDiv(';', 0).Cat(RetCode).CatDiv(';', 0).
-			Cat(Hdl[0]).CatChar('-').Cat(Hdl[1]).CatDiv(';', 0).Cat(BufSize);
-	}
+	void ToPalmRec();
+	void ToHostRec();
+	SString & ToStr(SString & rBuf) const;
 #endif
 	enum {
 		cmOpen          =  1,
@@ -169,135 +116,16 @@ struct SpiiCmdBuf { // @persistent
 struct PalmConfig { // size = 96 // @persistent
 	PalmConfig();
 	void   Init();
-	int    CompressData() const
-	{
-		return BIN(Flags & CFGF_COMPRESSDATA);
-	}
-	int    PalmCompressedData() const
-	{
-		return BIN(Flags & CFGF_PALMCOMPRESSEDDATA);
-	}
+	int    CompressData() const;
+	int    PalmCompressedData() const;
 	int    Write(const char * pPath);
 	int    Read(const char * pPath);
-	void   ToHostRec()
-	{
-		Size    = ntohl(Size);
-		Ver     = ntohl(Ver);
-		InvCode = ntohl(InvCode);
-		OrdCode = ntohl(OrdCode);
-		Shift   = ntohl(Shift);
-		Flags   = ntohl(Flags);
-		TmLastXchg.d.v = (ulong)ntohl(TmLastXchg.d.v);
-		TmClient.d.v   = (ulong)ntohl(TmClient.d.v);
-		TmGoods.d.v    = (ulong)ntohl(TmGoods.d.v);
-		TmCliDebt.d.v  = (ulong)ntohl(TmCliDebt.d.v);
-		TmCliSell.d.v  = (ulong)ntohl(TmCliSell.d.v);
-		TmToDo.d.v     = (ulong)ntohl(TmToDo.d.v);
-		/*
-		TmLastXchg.t.v = (ulong)ntohl(TmLastXchg.t.v);
-		TmClient.t.v   = (ulong)ntohl(TmClient.t.v);
-		TmGoods.t.v    = (ulong)ntohl(TmGoods.t.v);
-		TmCliDebt.t.v  = (ulong)ntohl(TmCliDebt.t.v);
-		TmCliSell.t.v  = (ulong)ntohl(TmCliSell.t.v);
-		TmToDo.t.v     = (ulong)ntohl(TmToDo.t.v);
-		*/
-		RecvBufSize = ntohl(RecvBufSize);
-		SendBufSize = ntohl(SendBufSize);
-	}
-	void ToPalmRec()
-	{
-		Size    = htonl(Size);
-		Ver     = htonl(Ver);
-		InvCode = htonl(InvCode);
-		OrdCode = htonl(OrdCode);
-		Shift   = htonl(Shift);
-		Flags   = htonl(Flags);
-		TmLastXchg.d.v = htonl(TmLastXchg.d.v);
-		TmClient.d.v   = htonl(TmClient.d.v);
-		TmGoods.d.v    = htonl(TmGoods.d.v);
-		TmCliDebt.d.v  = htonl(TmCliDebt.d.v);
-		TmCliSell.d.v  = htonl(TmCliSell.d.v);
-		TmToDo.d.v     = htonl(TmToDo.d.v);
-		/*
-		TmLastXchg.t.v = htonl(TmLastXchg.t.v);
-		TmClient.t.v   = htonl(TmClient.t.v);
-		TmGoods.t.v    = htonl(TmGoods.t.v);
-		TmCliDebt.t.v  = htonl(TmCliDebt.t.v);
-		TmCliSell.t.v  = htonl(TmCliSell.t.v);
-		TmToDo.t.v     = htonl(TmToDo.t.v);
-		*/
-		SendBufSize    = htonl(SendBufSize);
-		RecvBufSize    = htonl(RecvBufSize);
-	}
-	int ToBuf(void * pBuf, size_t * pBufSize)
-	{
-		int ok = 0;
-		if(pBufSize) {
-			if(*pBufSize < 96) {
-				*pBufSize = 96;
-				ok = -1;
-			}
-			else {
-				char * p_buf = (char*)pBuf;
-				size_t bytes = 0;
+	void   ToHostRec();
+	void   ToPalmRec();
+	int    ToBuf(void * pBuf, size_t * pBufSize);
+	int    FromBuf(const void * pBuf);
+	void   SetupBuffers(uint32 recvBufSize, uint32 sendBufSize);
 
-				memcpy(p_buf + bytes,                             &Size,           sizeof(Size));
-				memcpy(p_buf + (bytes += sizeof(Size)),           &Ver,            sizeof(Ver));
-				memcpy(p_buf + (bytes += sizeof(Ver)),            &InvCode,        sizeof(InvCode));
-				memcpy(p_buf + (bytes += sizeof(InvCode)),        &OrdCode,        sizeof(OrdCode));
-				memcpy(p_buf + (bytes += sizeof(OrdCode)),        &Shift,          sizeof(Shift));
-				memcpy(p_buf + (bytes += sizeof(Shift)),          &Flags,          sizeof(Flags));
-				memcpy(p_buf + (bytes += sizeof(Flags)),          &TmLastXchg,     sizeof(TmLastXchg));
-				memcpy(p_buf + (bytes += sizeof(TmLastXchg)),     &TmClient,       sizeof(TmClient));
-				memcpy(p_buf + (bytes += sizeof(TmClient)),       &TmGoods,        sizeof(TmGoods));
-				memcpy(p_buf + (bytes += sizeof(TmGoods)),        &TmCliDebt,      sizeof(TmCliDebt));
-				memcpy(p_buf + (bytes += sizeof(TmCliDebt)),      &TmCliSell,      sizeof(TmCliSell));
-				memcpy(p_buf + (bytes += sizeof(TmCliSell)),      &GTblViewColsID, sizeof(GTblViewColsID));
-				memcpy(p_buf + (bytes += sizeof(GTblViewColsID)), &TmToDo,         sizeof(TmToDo));
-				memcpy(p_buf + (bytes += sizeof(TmToDo)),         &NumSellWeeks,   sizeof(NumSellWeeks));
-				memcpy(p_buf + (bytes += sizeof(NumSellWeeks)),   &CardNo,         sizeof(CardNo));
-				memcpy(p_buf + (bytes += sizeof(CardNo)),         &ActiveNetCfgID, sizeof(ActiveNetCfgID));
-				memcpy(p_buf + (bytes += sizeof(ActiveNetCfgID)), &SendBufSize,    sizeof(SendBufSize));
-				memcpy(p_buf + (bytes += sizeof(SendBufSize)),    &RecvBufSize,    sizeof(RecvBufSize));
-				memcpy(p_buf + (bytes += sizeof(RecvBufSize)),    &MaxNotSentOrd,  sizeof(MaxNotSentOrd));
-				memcpy(p_buf + (bytes += sizeof(MaxNotSentOrd)),  &Reserve2,       sizeof(Reserve2));
-				*pBufSize = 96;
-				ok = 1;
-			}
-		}
-		return ok;
-	}
-	int FromBuf(const void * pBuf)
-	{
-		const char * p_buf = (const char*)pBuf;
-		size_t bytes = 0;
-		memcpy(&Size,           p_buf + bytes,                             sizeof(Size));
-		memcpy(&Ver,            p_buf + (bytes += sizeof(Size)),           sizeof(Ver));
-		memcpy(&InvCode,        p_buf + (bytes += sizeof(Ver)),            sizeof(InvCode));
-		memcpy(&OrdCode,        p_buf + (bytes += sizeof(InvCode)),        sizeof(OrdCode));
-		memcpy(&Shift,          p_buf + (bytes += sizeof(OrdCode)),        sizeof(Shift));
-		memcpy(&Flags,          p_buf + (bytes += sizeof(Shift)),          sizeof(Flags));
-		memcpy(&TmLastXchg,     p_buf + (bytes += sizeof(Flags)),          sizeof(TmLastXchg));
-		memcpy(&TmClient,       p_buf + (bytes += sizeof(TmLastXchg)),     sizeof(TmClient));
-		memcpy(&TmGoods,        p_buf + (bytes += sizeof(TmClient)),       sizeof(TmGoods));
-		memcpy(&TmCliDebt,      p_buf + (bytes += sizeof(TmGoods)),        sizeof(TmCliDebt));
-		memcpy(&TmCliSell,      p_buf + (bytes += sizeof(TmCliDebt)),      sizeof(TmCliSell));
-		memcpy(&GTblViewColsID, p_buf + (bytes += sizeof(TmCliSell)),      sizeof(GTblViewColsID));
-		memcpy(&TmToDo,         p_buf + (bytes += sizeof(GTblViewColsID)), sizeof(TmToDo));
-		memcpy(&NumSellWeeks,   p_buf + (bytes += sizeof(TmToDo)),         sizeof(NumSellWeeks));
-		memcpy(&CardNo,         p_buf + (bytes += sizeof(NumSellWeeks)),   sizeof(CardNo));
-		memcpy(&ActiveNetCfgID, p_buf + (bytes += sizeof(CardNo)),         sizeof(ActiveNetCfgID));
-		memcpy(&SendBufSize,    p_buf + (bytes += sizeof(ActiveNetCfgID)), sizeof(SendBufSize));
-		memcpy(&RecvBufSize,    p_buf + (bytes += sizeof(SendBufSize)),    sizeof(RecvBufSize));
-		memcpy(&MaxNotSentOrd,  p_buf + (bytes += sizeof(RecvBufSize)),    sizeof(MaxNotSentOrd));
-		memcpy(&Reserve2,       p_buf + (bytes += sizeof(MaxNotSentOrd)),  sizeof(Reserve2));
-		return 1;
-	}
-	void SetupBuffers(uint32 recvBufSize, uint32 sendBufSize)
-	{
-		RecvBufSize = (recvBufSize >= MIN_RECVBUFSIZE && recvBufSize <= PALMARCBUFSIZE) ? recvBufSize : PALMARCBUFSIZE;
-		SendBufSize = (sendBufSize >= MIN_SENDBUFSIZE && sendBufSize <= PALMPACKRECLEN) ? sendBufSize : PALMPACKRECLEN;
-	}
 	uint32 Size;           // Размер структуры
 	uint32 Ver;            // 4 // Номер версии структуры. Начинается с 1.
 	// Любое изменение структуры должно влечь за собой увеличение этого номера на единицу.
@@ -324,7 +152,6 @@ struct PalmConfig { // size = 96 // @persistent
 
 extern const char * P_PalmConfigFileName; // defined in StyloPalm.cpp
 extern const char * P_StyloPalmCreatorID; // "SPII"
-
 extern const char * P_PalmArcTblName; // "SpiiUcl.pdb"
 extern const char * P_PalmPackedDataTblName; // "SpiiPD.pdb"
 extern const char * P_PalmProgramFileName;   // "StyloWce.exe" обновление файлов поддерживают только устройства с ОС Windows Mobile
@@ -342,7 +169,10 @@ struct SpiiTblOpenParams {
 		omCreate    = 4
 	};
 #ifndef __palmos__
-	void ToPalmRec() {Mode = htonl(Mode);}
+	void ToPalmRec() 
+	{
+		Mode = htonl(Mode);
+	}
 #endif
 	char  TblName[32];
 	long  Mode;
@@ -393,7 +223,10 @@ struct SpiiTblDelParams {
 };
 
 struct SpiiTblRecParams {
-	SpiiTblRecParams() {memset(this, 0, sizeof(SpiiTblRecParams));}
+	SpiiTblRecParams() 
+	{
+		memset(this, 0, sizeof(SpiiTblRecParams));
+	}
 #ifndef __palmos__
 	void ToHostRec() {/*RecID = ntohl(RecID);*/ Pos = ntohl(Pos);}
 	void ToPalmRec() {/*RecID = htonl(RecID);*/ Pos= htonl(Pos);}
@@ -419,75 +252,17 @@ struct SpBaseStruc {
 };
 
 struct Quot { // Size = 8
-	int32 QuotKindID; // -> QuotKind.ID
-	int32 Price;
+	int32  QuotKindID; // -> QuotKind.ID
+	int32  Price;
 };
 
 struct SpGoodsStruc : public SpBaseStruc {
-	SpGoodsStruc() {P_Quots = 0; Init();}
-	~SpGoodsStruc() {ZDELETE(P_Quots);}
-	virtual void ToHostRec()
-	{
-		ID           = ntohl(ID);
-		GoodsGrpID   = ntohl(GoodsGrpID);
-		Pack         = ntohl(Pack);
-		Price        = ntohl(Price);
-		Rest         = ntohl(Rest);
-		BrandID      = ntohl(BrandID);
-		BrandOwnerID = ntohl(BrandOwnerID);
-		MinOrd       = ntohl(MinOrd);
-		// MultMinOrd   = ntohs(MultMinOrd);
-		QuotCount    = ntohs(QuotCount);
-		for(int16 i = 0; i < QuotCount; i++) {
-			P_Quots[i].QuotKindID = ntohl(P_Quots[i].QuotKindID);
-			P_Quots[i].Price      = ntohl(P_Quots[i].Price);
-		}
-	}
-	virtual int FromBuf(const void * pBuf)
-	{
-		int ok = 1;
-		const char * p_buf = (const char*)pBuf;
-		size_t bytes = 0;
-		memcpy(&ID,           p_buf,                                   sizeof(ID));
-		memcpy(Code,          p_buf + (bytes += sizeof(ID)),           sizeof(Code));
-		memcpy(&GoodsGrpID,   p_buf + (bytes += sizeof(Code)),         sizeof(GoodsGrpID));
-		memcpy(&Pack,         p_buf + (bytes += sizeof(GoodsGrpID)),   sizeof(Pack));
-		memcpy(&Price,        p_buf + (bytes += sizeof(Pack)),         sizeof(Price));
-		memcpy(&Rest,         p_buf + (bytes += sizeof(Price)),        sizeof(Rest));
-		memcpy(Name,          p_buf + (bytes += sizeof(Rest)),         sizeof(Name));
-		memcpy(&BrandID,      p_buf + (bytes += sizeof(Name)),         sizeof(BrandID));
-		memcpy(&BrandOwnerID, p_buf + (bytes += sizeof(BrandID)),      sizeof(BrandOwnerID));
-		memcpy(&MinOrd,       p_buf + (bytes += sizeof(BrandOwnerID)), sizeof(MinOrd));
-		memcpy(&MultMinOrd,   p_buf + (bytes += sizeof(MinOrd)),       sizeof(MultMinOrd));
-		memcpy(&QuotCount,    p_buf + (bytes += sizeof(MultMinOrd)),   sizeof(QuotCount));
-		QuotCount = ntohs(QuotCount);
-		bytes += sizeof(QuotCount);
-		ZDELETE(P_Quots);
-		if(QuotCount) {
-			size_t quot_size = 8;
-			THROW(P_Quots = new Quot[QuotCount * sizeof(Quot)]);
-			for(int16 i = 0; i < QuotCount; i++) {
-				Quot * p_q = &P_Quots[i];
-				memcpy(&p_q->QuotKindID, p_buf + bytes,                           sizeof(p_q->QuotKindID));
-				memcpy(&p_q->Price,      p_buf + bytes + sizeof(p_q->QuotKindID), sizeof(p_q->Price));
-				bytes += quot_size;
-			}
-		}
-		CATCH
-			ok = 0;
-		ENDCATCH
-		QuotCount = htons(QuotCount);
-		return ok;
-	}
-	void Init()
-	{
-		ID = GoodsGrpID = Pack = Price = Rest = BrandID = BrandOwnerID = MinOrd = 0;
-		MultMinOrd = 0;
-		QuotCount = 0;
-		ZDELETE(P_Quots);
-		memzero(Code, sizeof(Code));
-		memzero(Name, sizeof(Name));
-	}
+	SpGoodsStruc();
+	~SpGoodsStruc();
+	virtual void ToHostRec();
+	virtual int FromBuf(const void * pBuf);
+	void   Init();
+
 	int32  ID;
 	char   Code[16];
 	int32  GoodsGrpID;
@@ -504,29 +279,11 @@ struct SpGoodsStruc : public SpBaseStruc {
 };
 
 struct SpBrandStruc : public SpBaseStruc {
-	SpBrandStruc() {Init();}
-	virtual void ToHostRec()
-	{
-		ID      = ntohl(ID);
-		OwnerID = ntohl(OwnerID);
-	}
-	virtual int FromBuf(const void * pBuf)
-	{
-		int ok = 1;
-		const char * p_buf = (const char*)pBuf;
-		size_t bytes = 0;
-		memcpy(&ID,       p_buf,                              sizeof(ID));
-		memcpy(&OwnerID,  p_buf + (bytes += sizeof(ID)),      sizeof(OwnerID));
-		memcpy(Name,      p_buf + (bytes += sizeof(OwnerID)), sizeof(Name));
-		memcpy(OwnerName, p_buf + (bytes += sizeof(Name)),    sizeof(OwnerName));
-		return ok;
-	}
-	void Init()
-	{
-		ID = OwnerID = 0;
-		memzero(Name,      sizeof(Name));
-		memzero(OwnerName, sizeof(OwnerName));
-	}
+	SpBrandStruc();
+	virtual void ToHostRec();
+	virtual int FromBuf(const void * pBuf);
+	void  Init();
+
 	int32 ID;
 	int32 OwnerID;
 	char  Name[64];
@@ -534,53 +291,20 @@ struct SpBrandStruc : public SpBaseStruc {
 };
 
 struct SpLocStruc : public SpBaseStruc {
-	SpLocStruc() {Init();}
-	virtual void ToHostRec()
-	{
-		ID = ntohl(ID);
-	}
-	virtual int FromBuf(const void * pBuf)
-	{
-		int ok = 1;
-		const char * p_buf = (const char*)pBuf;
-		size_t bytes = 0;
-		memcpy(&ID,       p_buf,                         sizeof(ID));
-		memcpy(Name,      p_buf + (bytes += sizeof(ID)), sizeof(Name));
-		return ok;
-	}
-	void Init()
-	{
-		ID = 0;
-		memzero(Name, sizeof(Name));
-	}
-	int32 ID;
-	char  Name[64];
+	SpLocStruc(); 
+	virtual void ToHostRec();
+	virtual int FromBuf(const void * pBuf);
+	void   Init();
+
+	int32  ID;
+	char   Name[64];
 };
 
 struct SpGoodsGrpStruc  : public SpBaseStruc {
-	SpGoodsGrpStruc()
-	{
-		Init();
-	}
-	virtual void ToHostRec()
-	{
-		ID = ntohl(ID);
-	}
-	virtual int FromBuf(const void * pBuf)
-	{
-		const char * p_buf = (const char*)pBuf;
-		size_t bytes = 0;
-		memcpy(&ID,   p_buf, sizeof(ID));
-		memcpy(&Code, p_buf + (bytes += sizeof(ID)), sizeof(Code));
-		memcpy(Name,  p_buf + (bytes += sizeof(Code)), sizeof(Name));
-		return 1;
-	}
-	void    Init()
-	{
-		ID = 0;
-		Code = 0;
-		memzero(Name, sizeof(Name));
-	}
+	SpGoodsGrpStruc();
+	virtual void ToHostRec();
+	virtual int FromBuf(const void * pBuf);
+	void   Init();
 	int32  ID;
 	int16  Code;
 	char   Name[64];
@@ -594,115 +318,26 @@ struct Addr { // size = 68
 };
 
 struct SpClientStruc : public SpBaseStruc {
-	SpClientStruc() {P_Addrs = 0; Init();}
-	~SpClientStruc() {ZDELETE(P_Addrs);}
-	virtual void ToHostRec()
-	{
-		ID         = ntohl(ID);
-		QuotKindID = ntohl(QuotKindID);
-		Debt       = ntohl(Debt);
-		AddrCount  = ntohs(AddrCount);
-		for(int16 i = 0; i < AddrCount; i++)
-			P_Addrs[i].ID = ntohl(P_Addrs[i].ID);
-		Flags = ntohl(Flags);
-	}
-	virtual int FromBuf(const void * pBuf)
-	{
-		int ok = 1;
-		const char * p_buf = (const char*)pBuf;
-		size_t bytes = 0;
-		memcpy(&ID,         p_buf,                                 sizeof(ID));
-		memcpy(&QuotKindID, p_buf + (bytes += sizeof(ID)),         sizeof(QuotKindID));
-		memcpy(&Debt,       p_buf + (bytes += sizeof(QuotKindID)), sizeof(Debt));
-		memcpy(Code,        p_buf + (bytes += sizeof(Debt)),       sizeof(Code));
-		memcpy(Name,        p_buf + (bytes += sizeof(Code)),       sizeof(Name));
-		memcpy(&Flags,      p_buf + (bytes += sizeof(Name)),       sizeof(Flags));
-		memcpy(&AddrCount,  p_buf + (bytes += sizeof(Flags)),      sizeof(AddrCount));
-		AddrCount = ntohs(AddrCount);
-		bytes += sizeof(AddrCount);
-		ZDELETE(P_Addrs);
-		if(AddrCount) {
-			size_t addr_size = 68;
-			THROW(P_Addrs = new Addr[AddrCount * sizeof(Addr)]);
-			for(int16 i = 0; i < AddrCount; i++) {
-				Addr * p_addr = &P_Addrs[i];
-				memcpy(&p_addr->ID,  p_buf + bytes,                      sizeof(p_addr->ID));
-				memcpy(&p_addr->Loc, p_buf + bytes + sizeof(p_addr->ID), sizeof(p_addr->Loc));
-				bytes += addr_size;
-			}
-		}
-		CATCH
-			ok = 0;
-		ENDCATCH
-		AddrCount = htons(AddrCount);
-		return ok;
-	}
-	void Init()
-	{
-		ID = QuotKindID = Debt = Flags = 0;
-		memzero(Code, sizeof(Code));
-		memzero(Name, sizeof(Name));
-		AddrCount = 0;
-		ZDELETE(P_Addrs);
-	}
-	int32 ID;
-	int32 QuotKindID; // -> QuotKind.ID
-	int32 Debt;
-	char  Code[16];
-	char  Name[48];
-	int16 AddrCount;
+	SpClientStruc();
+	~SpClientStruc();
+	virtual void ToHostRec();
+	virtual int FromBuf(const void * pBuf);
+	void   Init();
+	int32  ID;
+	int32  QuotKindID; // -> QuotKind.ID
+	int32  Debt;
+	char   Code[16];
+	char   Name[48];
+	int16  AddrCount;
 	Addr  * P_Addrs;
-	int32 Flags;
+	int32  Flags;
 };
 
 struct SpOrdHeaderStruc : public SpBaseStruc { // size = 200
-	SpOrdHeaderStruc() {Init();}
-	void Init()
-	{
-		ID = ClientID = DlvrAddrID = QuotKindID = Amount = PctDis = 0;
-		LocID = 0;
-		Date = 0;
-		memzero(Code, sizeof(Code));
-		memzero(Memo, sizeof(Memo));
-	}
-	virtual int ToBuf(void * pBuf, size_t * pBufSize)
-	{
-		int ok = 0;
-		if(pBufSize) {
-			if(*pBufSize < 200) {
-				*pBufSize = 200;
-				ok = -1;
-			}
-			else {
-				char * p_buf = (char*)pBuf;
-				size_t bytes = 0;
-				memcpy(p_buf,                                 &ID,         sizeof(ID));
-				memcpy(p_buf + (bytes += sizeof(ID)),         &Date,       sizeof(Date));
-				memcpy(p_buf + (bytes += sizeof(Date)),       Code,        sizeof(Code));
-				memcpy(p_buf + (bytes += sizeof(Code)),       &ClientID,   sizeof(ClientID));
-				memcpy(p_buf + (bytes += sizeof(ClientID)),   &DlvrAddrID, sizeof(DlvrAddrID));
-				memcpy(p_buf + (bytes += sizeof(DlvrAddrID)), &QuotKindID, sizeof(QuotKindID));
-				memcpy(p_buf + (bytes += sizeof(QuotKindID)), &Amount,     sizeof(Amount));
-				memcpy(p_buf + (bytes += sizeof(Amount)),     &PctDis,     sizeof(PctDis));
-				memcpy(p_buf + (bytes += sizeof(PctDis)),     Memo,        sizeof(Memo));
-				memcpy(p_buf + (bytes += sizeof(Memo)),       &LocID,      sizeof(LocID));
-				*pBufSize = 200;
-				ok = 1;
-			}
-		}
-		return ok;
-	}
-	virtual void ToPalmRec()
-	{
-		ID         = htonl(ID);
-		Date       = htons(Date);
-		ClientID   = htonl(ClientID);
-		DlvrAddrID = htonl(DlvrAddrID);
-		QuotKindID = htonl(QuotKindID);
-		Amount     = htonl(Amount);
-		PctDis     = htonl(PctDis);
-		LocID      = htonl(LocID);
-	}
+	SpOrdHeaderStruc();
+	void Init();
+	virtual int ToBuf(void * pBuf, size_t * pBufSize);
+	virtual void ToPalmRec();
 
 	int32  ID;
 	uint16 Date;
@@ -717,38 +352,11 @@ struct SpOrdHeaderStruc : public SpBaseStruc { // size = 200
 };
 
 struct SpOrdLineStruc : public SpBaseStruc { // size = 20
-	SpOrdLineStruc() {Init();}
-	void Init() {ID = OrderID = GoodsID = Price = Qtty = 0;}
-	virtual int ToBuf(void * pBuf, size_t * pBufSize)
-	{
-		int ok = 0;
-		if(pBufSize) {
-			if(*pBufSize < 20) {
-				*pBufSize = 20;
-				ok = -1;
-			}
-			else {
-				char * p_buf = (char*)pBuf;
-				size_t bytes = 0;
-				memcpy(p_buf,                              &ID,      sizeof(ID));
-				memcpy(p_buf + (bytes += sizeof(ID)),      &OrderID, sizeof(OrderID));
-				memcpy(p_buf + (bytes += sizeof(OrderID)), &GoodsID, sizeof(GoodsID));
-				memcpy(p_buf + (bytes += sizeof(GoodsID)), &Price,   sizeof(Price));
-				memcpy(p_buf + (bytes += sizeof(Price)),   &Qtty,    sizeof(Qtty));
-				*pBufSize = 20;
-				ok = 1;
-			}
-		}
-		return ok;
-	}
-	virtual void ToPalmRec()
-	{
-		ID       = htonl(ID);
-		OrderID  = htonl(OrderID);
-		GoodsID  = htonl(GoodsID);
-		Price    = htonl(Price);
-		Qtty     = htonl(Qtty);
-	}
+	SpOrdLineStruc();
+	void Init();
+	virtual int ToBuf(void * pBuf, size_t * pBufSize);
+	virtual void ToPalmRec();
+
 	int32 ID;
 	int32 OrderID;
 	int32 GoodsID;
@@ -757,8 +365,15 @@ struct SpOrdLineStruc : public SpBaseStruc { // size = 20
 };
 
 struct SpQuotKindStruc : public SpBaseStruc {
-	SpQuotKindStruc() {Init();}
-	void Init() {ID = 0; memzero(Name, sizeof(Name));}
+	SpQuotKindStruc() 
+	{
+		Init();
+	}
+	void Init() 
+	{
+		ID = 0; 
+		memzero(Name, sizeof(Name));
+	}
 	int FromBuf(const void * pBuf)
 	{
 		const char * p_buf = (const char*)pBuf;
@@ -780,7 +395,10 @@ struct SpQuotKindStruc : public SpBaseStruc {
 };
 
 struct SpClientDebtStruc : public SpBaseStruc {
-	SpClientDebtStruc() {Init();}
+	SpClientDebtStruc() 
+	{
+		Init();
+	}
 	virtual void ToHostRec()
 	{
 		ClientID = ntohl(ClientID);
@@ -818,8 +436,14 @@ struct SalesItem {
 };
 
 struct SpClientSalesStruc : public SpBaseStruc {
-	SpClientSalesStruc() {P_Items = 0; Init();}
-	~SpClientSalesStruc() {ZDELETE(P_Items);}
+	SpClientSalesStruc() : P_Items(0)
+	{
+		Init();
+	}
+	~SpClientSalesStruc() 
+	{
+		ZDELETE(P_Items);
+	}
 	virtual void ToHostRec()
 	{
 		ClientID   = ntohl(ClientID);
@@ -851,9 +475,7 @@ struct SpClientSalesStruc : public SpBaseStruc {
 				bytes += sales_item_size;
 			}
 		}
-		CATCH
-			ok = 0;
-		ENDCATCH
+		CATCHZOK
 		ItemsCount = htons(ItemsCount);
 		return ok;
 	}
@@ -871,7 +493,10 @@ struct SpClientSalesStruc : public SpBaseStruc {
 };
 
 struct SpInvHeaderStruc : public SpBaseStruc { // size = 184
-	SpInvHeaderStruc() {Init();}
+	SpInvHeaderStruc() 
+	{
+		Init();
+	}
 	void Init()
 	{
 		ID = ClientID = DlvrAddrID = 0;
@@ -918,8 +543,14 @@ struct SpInvHeaderStruc : public SpBaseStruc { // size = 184
 };
 
 struct SpInvLineStruc : public SpBaseStruc {
-	SpInvLineStruc() {Init();}
-	void Init()	{InvID = GoodsID = Qtty = 0;}
+	SpInvLineStruc() 
+	{
+		Init();
+	}
+	void Init()	
+	{
+		InvID = GoodsID = Qtty = 0;
+	}
 	virtual int ToBuf(void * pBuf, size_t * pBufSize)
 	{
 		int ok = 0;
@@ -958,38 +589,38 @@ struct SpInvLineStruc : public SpBaseStruc {
 // Tables names
 //
 #define SPTBLNAM_GOODS                 "Goods.tbl"
-#	define SPTBLNAM_GOODSIDIDX         "GdsID.idx"
-#	define SPTBLNAM_GOODSNAMIDX        "GdsName.idx"
-#	define SPTBLNAM_GOODSGRPIDNAMIDX   "GdsGNam.idx"
-#	define SPTBLNAM_GOODSGRPIDIDIDX    "GdsGID.idx"
-#	define SPTBLNAM_GOODSCODEIDX       "GdsCode.idx"
+	#define SPTBLNAM_GOODSIDIDX         "GdsID.idx"
+	#define SPTBLNAM_GOODSNAMIDX        "GdsName.idx"
+	#define SPTBLNAM_GOODSGRPIDNAMIDX   "GdsGNam.idx"
+	#define SPTBLNAM_GOODSGRPIDIDIDX    "GdsGID.idx"
+	#define SPTBLNAM_GOODSCODEIDX       "GdsCode.idx"
 #define SPTBLNAM_GOODSGRP              "GoodsGrp.tbl"
-#	define SPTBLNAM_GOODSGRPIDIDX      "GroupID.idx"
-#	define SPTBLNAM_GOODSGRPNAMIDX     "GroupNam.idx"
+	#define SPTBLNAM_GOODSGRPIDIDX      "GroupID.idx"
+	#define SPTBLNAM_GOODSGRPNAMIDX     "GroupNam.idx"
 #define SPTBLNAM_CLIENT                "Client.tbl"
-#	define SPTBLNAM_CLIENTIDIDX        "ClID.idx"
-#	define SPTBLNAM_CLIENTNAMIDX       "ClNam.idx"
+	#define SPTBLNAM_CLIENTIDIDX        "ClID.idx"
+	#define SPTBLNAM_CLIENTNAMIDX       "ClNam.idx"
 #define SPTBLNAM_QUOTKIND              "QuotKind.tbl"
 #define SPTBLNAM_CLIENTDEBT            "CliDebt.tbl"
-#	define SPTBLNAM_CLIENTDEBTIDDTCODE "CdIdDtC.idx"
+	#define SPTBLNAM_CLIENTDEBTIDDTCODE "CdIdDtC.idx"
 #define SPTBLNAM_ORDHEADER             "OrdHdr.tbl"
-#	define SPTBLNAM_ORDHEADERIDIDX     "OrdHID.idx"
-#	define SPTBLNAM_ORDHEADERDATEIDIDX "OrdHDtID.idx"
+	#define SPTBLNAM_ORDHEADERIDIDX     "OrdHID.idx"
+	#define SPTBLNAM_ORDHEADERDATEIDIDX "OrdHDtID.idx"
 #define SPTBLNAM_ORDLINE               "OrdLine.tbl"
-#	define SPTBLNAM_ORDLINEORDGOODSIDX "OLOGoods.idx"
-#	define SPTBLNAM_ORDLINEORDIDIDX    "OLOID.idx"
+	#define SPTBLNAM_ORDLINEORDGOODSIDX "OLOGoods.idx"
+	#define SPTBLNAM_ORDLINEORDIDIDX    "OLOID.idx"
 #define SPTBLNAM_INVHEADER             "InvHdr.tbl"
-#	define SPTBLNAM_INVHEADERIDIDX     "InvHID.idx"
-#	define SPTBLNAM_INVHEADERDATEIDX   "InvHDt.idx"
-#	define SPTBLNAM_INVHEADERCLIDADRID "InvHClAdr.idx"
+	#define SPTBLNAM_INVHEADERIDIDX     "InvHID.idx"
+	#define SPTBLNAM_INVHEADERDATEIDX   "InvHDt.idx"
+	#define SPTBLNAM_INVHEADERCLIDADRID "InvHClAdr.idx"
 #define SPTBLNAM_INVLINE               "InvLine.tbl"
-#	define SPTBLNAM_INVLINEINVGOODSIDX "ILIGoods.idx"
+	#define SPTBLNAM_INVLINEINVGOODSIDX "ILIGoods.idx"
 #define SPTBLNAM_SALES                 "CliSell.tbl"
 #define SPTBLNAM_CFG                   "Config.tbl"
 #define SPTBLNAM_TODO                  "ToDoDB"
 #define SPTBLNAM_TODOASSOC             "ToDoSPII.dat"
 #define SPTBLNAM_NETCONFIG             "NetCSPII.tbl"
-#	define SPTBLNAM_NETCONFIGIDIDX     "NetCID.idx"
+	#define SPTBLNAM_NETCONFIGIDIDX     "NetCID.idx"
 #define SPTBLNAM_BRAND                 "Brand.tbl"
 #define SPTBLNAM_LOC                   "Location.tbl"
 #endif

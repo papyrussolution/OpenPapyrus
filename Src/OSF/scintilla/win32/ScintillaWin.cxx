@@ -2021,11 +2021,12 @@ public:
 private:
 	HGLOBAL hand;
 };
-
+//
 // OpenClipboard may fail if another application has opened the clipboard.
 // Try up to 8 times, with an initial delay of 1 ms and an exponential back off
 // for a maximum total delay of 127 ms (1+2+4+8+16+32+64).
-static bool OpenClipboardRetry(HWND hwnd)
+//
+/* @v10.3.1 (replaced with SClipboard::OpenClipboardRetry) static bool OpenClipboardRetry(HWND hwnd)
 {
 	for(int attempt = 0; attempt<8; attempt++) {
 		if(attempt > 0) {
@@ -2036,11 +2037,11 @@ static bool OpenClipboardRetry(HWND hwnd)
 		}
 	}
 	return false;
-}
+}*/
 
 void ScintillaWin::Paste()
 {
-	if(::OpenClipboardRetry(MainHWND())) {
+	if(SClipboard::OpenClipboardRetry(MainHWND())) {
 		UndoGroup ug(pdoc);
 		const bool isLine = SelectionEmpty() && (::IsClipboardFormatAvailable(cfLineSelect) || ::IsClipboardFormatAvailable(cfVSLineTag));
 		ClearSelection(multiPasteMode == SC_MULTIPASTE_EACH);
@@ -2600,7 +2601,7 @@ void ScintillaWin::GetIntelliMouseParameters()
 
 void ScintillaWin::CopyToClipboard(const SelectionText & selectedText)
 {
-	if(::OpenClipboardRetry(MainHWND())) {
+	if(SClipboard::OpenClipboardRetry(MainHWND())) {
 		::EmptyClipboard();
 		GlobalMemory uniText;
 		// Default Scintilla behaviour in Unicode mode

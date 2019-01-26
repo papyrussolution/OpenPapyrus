@@ -308,6 +308,29 @@ int SLAPI SysJournal::GetLastObjEvent(PPID objType, PPID objID, const PPIDArray 
 	return ok;
 }
 
+int SLAPI SysJournal::GetUpdatedConfigListSince(PPID cfgType, const LDATETIME & rSince, PPIDArray & rCfgIdList)
+{
+	int    ok = -1;
+	SysJournalTbl::Key0 k;
+	DBQ * dbq = 0;
+	k.Dt = rSince.d;
+	k.Tm = rSince.t;
+	BExtQuery q(this, 0, 16);
+	dbq = &(*dbq && this->Dt >= rSince.d && this->Action == PPACN_CONFIGUPDATED);
+	dbq = ppcheckfiltid(dbq, this->ObjType, cfgType);
+	q.select(this->Dt, this->Tm, this->ObjID, this->Action, 0L);
+	q.where(*dbq);
+	for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
+		if(cmp(rSince, data.Dt, data.Tm) < 0 && data.Action == PPACN_CONFIGUPDATED) {
+			THROW(rCfgIdList.add(data.ObjType));
+			ok = 1;
+		}
+	}
+	rCfgIdList.sortAndUndup();
+	CATCHZOK
+	return ok;
+}
+
 int SLAPI SysJournal::GetObjListByEventSince(PPID objType, const PPIDArray * pActList, const LDATETIME & rSince, PPIDArray & rObjList)
 {
 	int    ok = -1;

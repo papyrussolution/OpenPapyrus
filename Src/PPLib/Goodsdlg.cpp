@@ -22,7 +22,7 @@ struct UhttSearchGoodsParam {
 	SString Barcode;
 };
 
-int SLAPI PPObjGoods::SearchUhttInteractive(SString & rName, SString & rBarcode, UhttGoodsPacket * pResultItem)
+int SLAPI PPObjGoods::SearchUhttInteractive(const SString & rName, const SString & rBarcode, UhttGoodsPacket * pResultItem)
 {
 	class UhttSearchGoodsDialog : public TDialog {
 	public:
@@ -3405,8 +3405,8 @@ public:
 	int    getDTS(ClsdGoodsFilt * pData);
 private:
 	DECL_HANDLE_EVENT;
-	void   setupGdsClsProp(uint selID, uint labelID, uint flag, PPGdsClsProp *, ObjIdListFilt & rList);
-	void   setupGdsClsDim(uint inpID, uint labelID, uint flag, PPGdsClsDim *, const RealRange & rV);
+	void   setupGdsClsProp(uint selID, uint labelID, uint flag, const PPGdsClsProp * pProp, const ObjIdListFilt & rList);
+	void   setupGdsClsDim(uint inpID, uint labelID, uint flag, const PPGdsClsDim & rDim, const RealRange & rV);
 	void   getRange(uint ctlID, RealRange * pRng, long scale);
 	PPGdsClsPacket GcPack;
 	ClsdGoodsFilt Data;
@@ -3427,7 +3427,7 @@ IMPL_HANDLE_EVENT(EditExtParamsDlg)
 	}
 }
 
-void EditExtParamsDlg::setupGdsClsProp(uint selID, uint labelID, uint flag, PPGdsClsProp * pProp, ObjIdListFilt & rList)
+void EditExtParamsDlg::setupGdsClsProp(uint selID, uint labelID, uint flag, const PPGdsClsProp * pProp, const ObjIdListFilt & rList)
 {
 	const char * p_name = (GcPack.Rec.Flags & flag) ? pProp->Name : 0;
 	disableCtrls(p_name ? 0 : 1, selID, labelID, 0);
@@ -3436,13 +3436,13 @@ void EditExtParamsDlg::setupGdsClsProp(uint selID, uint labelID, uint flag, PPGd
 		SetupPPObjCombo(this, selID, pProp->ItemsListID, rList.GetSingle(), OLW_CANINSERT, 0);
 }
 
-void EditExtParamsDlg::setupGdsClsDim(uint inpID, uint labelID, uint flag, PPGdsClsDim * pDim, const RealRange & rV)
+void EditExtParamsDlg::setupGdsClsDim(uint inpID, uint labelID, uint flag, const PPGdsClsDim & rDim, const RealRange & rV)
 {
-	const char * p_name = (GcPack.Rec.Flags & flag) ? pDim->Name : 0;
+	const char * p_name = (GcPack.Rec.Flags & flag) ? rDim.Name : 0;
 	disableCtrls(p_name ? 0 : 1, inpID, labelID, 0);
 	setStaticText(labelID, p_name);
 	if(p_name)
-		SetRealRangeInput(this, inpID, rV.low, rV.upp, (int)pDim->Scale);
+		SetRealRangeInput(this, inpID, rV.low, rV.upp, static_cast<int>(rDim.Scale));
 }
 
 int EditExtParamsDlg::setDTS(ClsdGoodsFilt * pData)
@@ -3456,10 +3456,10 @@ int EditExtParamsDlg::setDTS(ClsdGoodsFilt * pData)
 		setupGdsClsProp(CTLSEL_GFEXTOPT_ADDPROP,  CTL_GFEXTOPT_L_ADDPROP,  PPGdsCls::fUsePropAdd,   &GcPack.PropAdd,   Data.AddObjList);
 		setupGdsClsProp(CTLSEL_GFEXTOPT_GRADE,    CTL_GFEXTOPT_L_GRADE,    PPGdsCls::fUsePropGrade, &GcPack.PropGrade, Data.GradeList);
 		setupGdsClsProp(CTLSEL_GFEXTOPT_ADD2PROP, CTL_GFEXTOPT_L_ADD2PROP, PPGdsCls::fUsePropAdd2,  &GcPack.PropAdd2,  Data.AddObj2List);
-		setupGdsClsDim(CTL_GFEXTOPT_DIMX, CTL_GFEXTOPT_L_DIMX, PPGdsCls::fUseDimX, &GcPack.DimX, Data.DimX_Rng);
-		setupGdsClsDim(CTL_GFEXTOPT_DIMY, CTL_GFEXTOPT_L_DIMY, PPGdsCls::fUseDimY, &GcPack.DimY, Data.DimY_Rng);
-		setupGdsClsDim(CTL_GFEXTOPT_DIMZ, CTL_GFEXTOPT_L_DIMZ, PPGdsCls::fUseDimZ, &GcPack.DimZ, Data.DimZ_Rng);
-		setupGdsClsDim(CTL_GFEXTOPT_DIMW, CTL_GFEXTOPT_L_DIMW, PPGdsCls::fUseDimW, &GcPack.DimW, Data.DimW_Rng);
+		setupGdsClsDim(CTL_GFEXTOPT_DIMX, CTL_GFEXTOPT_L_DIMX, PPGdsCls::fUseDimX, GcPack.DimX, Data.DimX_Rng);
+		setupGdsClsDim(CTL_GFEXTOPT_DIMY, CTL_GFEXTOPT_L_DIMY, PPGdsCls::fUseDimY, GcPack.DimY, Data.DimY_Rng);
+		setupGdsClsDim(CTL_GFEXTOPT_DIMZ, CTL_GFEXTOPT_L_DIMZ, PPGdsCls::fUseDimZ, GcPack.DimZ, Data.DimZ_Rng);
+		setupGdsClsDim(CTL_GFEXTOPT_DIMW, CTL_GFEXTOPT_L_DIMW, PPGdsCls::fUseDimW, GcPack.DimW, Data.DimW_Rng);
 		SetupPPObjCombo(this, CTLSEL_GFEXTOPT_GDSCLS, PPOBJ_GOODSCLASS, Data.GdsClsID, 0, 0);
 		ok = 1;
 	}

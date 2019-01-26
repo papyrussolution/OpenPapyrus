@@ -1,5 +1,5 @@
 // V_LOCTR.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -553,7 +553,7 @@ int SLAPI PPViewLocTransf::Helper_BuildDispTable(int clearBefore, int use_ta)
 		PPTransaction tra(ppDbDependTransaction, 1);
 		THROW(tra);
 		if(clearBefore)
-			THROW_DB(deleteFrom(P_TempTbl, 0, *(DBQ *)0));
+			THROW_DB(deleteFrom(P_TempTbl, 0, *reinterpret_cast<DBQ *>(0)));
 		for(uint i = 0; i < DispBillList.getCount(); i++) {
 			THROW(ProcessDispBill(DispBillList.get(i), &bei, 0));
 		}

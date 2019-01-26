@@ -34,7 +34,7 @@ public:
 	SLAPI PPRecoverParam() : BRecoverParam(), Stop(0)
 	{
 	}
-	virtual int SLAPI callbackProc(int ev, void * lp1, void * lp2, void * vp);
+	virtual int SLAPI callbackProc(int ev, const void * lp1, const void * lp2, const void * vp);
 	int    Stop;
 	SString LogFileName;
 };
@@ -44,7 +44,7 @@ static int SLAPI LoadRcvrMsg(int msgID, SString & rBuf)
 	return PPLoadText(msgID, rBuf);
 }
 
-int SLAPI PPRecoverParam::callbackProc(int ev, void * lp1, void * lp2, void * vp)
+int SLAPI PPRecoverParam::callbackProc(int ev, const void * lp1, const void * lp2, const void * vp)
 {
 	int    ok = 1, do_log_msg = 0;
 	SString fmt_buf, msg_buf;
@@ -53,7 +53,7 @@ int SLAPI PPRecoverParam::callbackProc(int ev, void * lp1, void * lp2, void * vp
 			if(!PPCheckUserBreak())
 				ok = 0;
 			else if(LoadRcvrMsg(PPTXT_RCVR_START, fmt_buf))
-				msg_buf.Printf(fmt_buf, (const char*)lp1, (const char*)lp2);
+				msg_buf.Printf(fmt_buf, static_cast<const char*>(lp1), static_cast<const char*>(lp2));
 			break;
 		case BREV_FINISH:
 			if(!PPCheckUserBreak())
@@ -65,27 +65,27 @@ int SLAPI PPRecoverParam::callbackProc(int ev, void * lp1, void * lp2, void * vp
 			if(!PPCheckUserBreak())
 				ok = 0;
 			else
-				PPWaitPercent((long)lp1, (long)lp2, (char*)vp);
+				PPWaitPercent(reinterpret_cast<long>(lp1), reinterpret_cast<long>(lp2), static_cast<const char *>(vp));
 			break;
 		case BREV_ERRCREATE:
 			if(LoadRcvrMsg(PPTXT_RCVR_ERRCREATE, fmt_buf))
-				msg_buf.Printf(fmt_buf, (const char *)lp1);
+				msg_buf.Printf(fmt_buf, static_cast<const char *>(lp1));
 			break;
 		case BREV_ERRINS:
 			if(LoadRcvrMsg(PPTXT_RCVR_ERRINS, fmt_buf))
-				msg_buf.Printf(fmt_buf, BtrError, (RECORDNUMBER)lp1);
+				msg_buf.Printf(fmt_buf, BtrError, reinterpret_cast<RECORDNUMBER>(lp1));
 			break;
 		case BREV_ERRSTEP:
 			if(LoadRcvrMsg(PPTXT_RCVR_ERRSTEP, fmt_buf))
-				msg_buf.Printf(fmt_buf, BtrError, (RECORDNUMBER)lp1);
+				msg_buf.Printf(fmt_buf, BtrError, reinterpret_cast<RECORDNUMBER>(lp1));
 			break;
 		case BREV_ERRDELPREV:
 			if(LoadRcvrMsg(PPTXT_RCVR_ERRDELPREV, fmt_buf))
-				msg_buf.Printf(fmt_buf, (const char *)lp1);
+				msg_buf.Printf(fmt_buf, static_cast<const char *>(lp1));
 			break;
 		case BREV_ERRRENAME:
 			if(LoadRcvrMsg(PPTXT_RCVR_ERRRENAME, fmt_buf))
-				msg_buf.Printf(fmt_buf, (const char *)lp1, (const char *)lp2);
+				msg_buf.Printf(fmt_buf, static_cast<const char *>(lp1), static_cast<const char *>(lp2));
 			break;
 		default:
 			break;
@@ -136,7 +136,7 @@ static int SLAPI _Recover(BTBLID tblID, PPRecoverParam * pParam, SArray * pRecov
 		else {
 			DbTableStat ts;
 			p_db->GetTableInfo(tblID, &ts);
-			msg_buf.Printf(PPLoadTextS(PPTXT_SUCCRCVRTBL, fmt_buf), (const char*)ts.TblName);
+			msg_buf.Printf(PPLoadTextS(PPTXT_SUCCRCVRTBL, fmt_buf), ts.TblName.cptr());
 			PPLogMessage(pParam->LogFileName, msg_buf, LOGMSGF_TIME);
 		}
 		r_info.OrgNumRecs = pParam->OrgNumRecs;
@@ -181,7 +181,7 @@ static int CallbackBuLog(int event, const char * pInfo, long initParam)
 	int    msg_code = 0;
 	long   log_options = LOGMSGF_TIME;
 	SString inv_addinfo, err_msg_buf;
-	const  char * p_addinfo = p_addinfo = isempty(pInfo) ? PPLoadTextS(PPTXT_BACKUPLOG_INVADVOPT, inv_addinfo) : pInfo;
+	const  char * p_addinfo = isempty(pInfo) ? PPLoadTextS(PPTXT_BACKUPLOG_INVADVOPT, inv_addinfo) : pInfo;
 	switch(event) {
 		case BACKUPLOG_BEGIN:            msg_code = PPTXT_BACKUPLOG_BEGIN;            break;
 		case BACKUPLOG_END:              msg_code = PPTXT_BACKUPLOG_END;              break;
@@ -215,7 +215,7 @@ static int CallbackBuLog(int event, const char * pInfo, long initParam)
 }
 
 // static
-PPBackup * SLAPI PPBackup::CreateInstance(PPDbEntrySet2 * dbes)
+PPBackup * SLAPI PPBackup::CreateInstance(const PPDbEntrySet2 * dbes)
 {
 	PPBackup * ppb = 0;
 	PPID   db_id = dbes->GetSelection();

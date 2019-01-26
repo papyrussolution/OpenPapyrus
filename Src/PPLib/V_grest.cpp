@@ -182,7 +182,7 @@ void SLAPI GoodsRestTotal::Init()
 	Amounts.freeAll();
 }
 
-GoodsRestTotal & FASTCALL GoodsRestTotal::operator = (GoodsRestTotal & src)
+GoodsRestTotal & FASTCALL GoodsRestTotal::operator = (const GoodsRestTotal & src)
 {
 	Count         = src.Count;
 	Quantity      = src.Quantity;
@@ -1535,7 +1535,7 @@ int SLAPI PPViewGoodsRest::AddTotal(const PPViewGoodsRest::CacheItem & rItem)
 	return ok;
 }
 
-int SLAPI PPViewGoodsRest::ProcessGoods(PPID goodsID, BExtInsert * pBei, PPIDArray * pAgentBillList)
+int SLAPI PPViewGoodsRest::ProcessGoods(PPID goodsID, BExtInsert * pBei, const PPIDArray * pAgentBillList)
 {
 	int    ok = 1;
 	const  long ff = Filt.Flags;

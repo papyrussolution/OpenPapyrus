@@ -1,5 +1,5 @@
 // PPSOAPCALLER-SFA-HEINEKEN.CPP
-// Copyright (c) A.Sobolev 2018
+// Copyright (c) A.Sobolev 2018, 2019
 //
 #include <ppsoapclient.h>
 #include "heineken\heinekenSoapDRPServiceSoapProxy.h"
@@ -106,7 +106,7 @@ extern "C" __declspec(dllexport) SString * SfaHeineken_SendWarehousesBalance(PPS
 	return p_result;
 }
 
-static ns1__ArrayOfDeliveryPosition * CreateDeliveryPositions(const TSCollection <SfaHeinekenDeliveryPosition> & rSrcList, TSCollection <InParamString> & rArgStrPool)
+static ns1__ArrayOfDeliveryPosition * FASTCALL CreateDeliveryPositions(const TSCollection <SfaHeinekenDeliveryPosition> & rSrcList, TSCollection <InParamString> & rArgStrPool)
 {
 	ns1__ArrayOfDeliveryPosition * p_result = 0;
 	SString temp_buf;
@@ -133,7 +133,7 @@ static ns1__ArrayOfDeliveryPosition * CreateDeliveryPositions(const TSCollection
 	return p_result;
 }
 
-static void DestroyDeliveryPositions(ns1__ArrayOfDeliveryPosition * pList)
+static void FASTCALL DestroyDeliveryPositions(ns1__ArrayOfDeliveryPosition * pList)
 {
 	if(pList) {
 		for(int i = 0; i < pList->__sizeDeliveryPosition; i++) {
@@ -142,6 +142,26 @@ static void DestroyDeliveryPositions(ns1__ArrayOfDeliveryPosition * pList)
 		ZFREE(pList->DeliveryPosition);
 		ZDELETE(pList);
 	}
+}
+
+extern "C" __declspec(dllexport) SString * SfaHeineken_DeleteSellout(PPSoapClientSession & rSess, const SString & rCode, LDATE date) // DRP_DeleteSellout
+{
+	SString * p_result = 0;
+	SString temp_buf;
+	DRPServiceSoapProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
+	TSCollection <InParamString> arg_str_pool;
+	_ns1__DRP_USCOREDeleteSellOut param;
+	_ns1__DRP_USCOREDeleteSellOutResponse resp;
+	param._USCORElogin = GetDynamicParamString(rSess.GetUser(), arg_str_pool);
+	param._USCOREpass = GetDynamicParamString(rSess.GetPassword(), arg_str_pool);
+	param._USCOREinvoiceNum = GetDynamicParamString(rCode, arg_str_pool);
+	param._USCOREinvoiceDate = GetDynamicParamString(temp_buf.Z().Cat(date, DATF_ISO8601|DATF_CENTURY), arg_str_pool);
+	THROW(PreprocessCall(proxi, rSess, proxi.DRP_USCOREDeleteSellOut(rSess.GetUrl(), 0 /* soap_action */, &param, &resp)));
+	p_result = PreprocessAnyResult(resp.DRP_USCOREDeleteSellOutResult->__any);
+	CATCH
+		ZDELETE(p_result);
+	ENDCATCH
+	return p_result;
 }
 
 extern "C" __declspec(dllexport) SString * SfaHeineken_SendSellout(PPSoapClientSession & rSess, const TSCollection <SfaHeinekenInvoice> & rList) // DRP_SendSellout

@@ -3186,12 +3186,12 @@ IMPLEMENT_JOB_HDL_FACTORY(EXPORTVIEW);
 //
 //
 // @Muxa {
-int UhttIndexGoods(uint setSz, SString & rOutPath);
-int UhttIndexRandomGoods(uint setSz, SString & rOutPath);
-int UhttIndexChangedGoods(SString & rOutPath);
-int UhttIndexBrands(SString & rOutPath);
-int UhttIndexStores(SString & rOutPath);
-int UhttIndexPersons(uint setSz, PPID personKindID, SString & rOutPath);
+int UhttIndexGoods(uint setSz, const SString & rOutPath);
+int UhttIndexRandomGoods(uint setSz, const SString & rOutPath);
+int UhttIndexChangedGoods(const SString & rOutPath);
+int UhttIndexBrands(const SString & rOutPath);
+int UhttIndexStores(const SString & rOutPath);
+int UhttIndexPersons(uint setSz, PPID personKindID, const SString & rOutPath);
 
 class JOB_HDL_CLS(EXPORTOBJLISTTOHTML) : public PPJobHandler {
 public:

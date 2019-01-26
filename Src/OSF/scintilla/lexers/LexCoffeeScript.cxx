@@ -59,7 +59,7 @@ static int exitInnerExpression(int  * p_inner_string_types,
 // a = b+++/ptn/...
 // Putting a space between the '++' post-inc operator and the '+' binary op
 // fixes this, and is highly recommended for readability anyway.
-static bool FollowsPostfixOperator(StyleContext &sc, Accessor &styler) 
+static bool FollowsPostfixOperator(const StyleContext & sc, Accessor & styler) 
 {
 	Sci_Position pos = (Sci_Position)sc.currentPos;
 	while(--pos > 0) {
@@ -70,7 +70,7 @@ static bool FollowsPostfixOperator(StyleContext &sc, Accessor &styler)
 	return false;
 }
 
-static bool followsKeyword(StyleContext &sc, Accessor &styler) 
+static bool followsKeyword(const StyleContext & sc, Accessor &styler) 
 {
 	Sci_Position pos = (Sci_Position)sc.currentPos;
 	Sci_Position currentLine = styler.GetLine(pos);

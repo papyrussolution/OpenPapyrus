@@ -299,14 +299,14 @@ int FASTCALL GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 	return idx;  // Failure
 }
 
-int CopyPaste(HWND hWnd, int copy, const char * pPath)
+int SClipboard::CopyPaste(HWND hWnd, int copy, const char * pPath)
 {
 	Gdiplus::Bitmap * p_bmp = 0;
 	OLECHAR wstr[MAXPATH];
 	HBITMAP h_bmp = 0;
 	if(::OpenClipboard(hWnd)) {
 		if(copy) {
-			EmptyClipboard();
+			::EmptyClipboard();
 			MultiByteToWideChar(1251, MB_PRECOMPOSED, (const char*)pPath, -1, wstr, SIZEOFARRAY(wstr) - 1);
 			p_bmp = new Gdiplus::Bitmap(wstr);
 			p_bmp->GetHBITMAP(0, &h_bmp);
@@ -322,6 +322,8 @@ int CopyPaste(HWND hWnd, int copy, const char * pPath)
 			MultiByteToWideChar(1251, MB_PRECOMPOSED, pPath, -1, wstr, SIZEOFARRAY(wstr) - 1);
 			p_bmp->Save(wstr, &enc_clsid, 0);
 		}
+		else
+			CloseClipboard();
 	}
 	ZDELETE(p_bmp);
 	return 1;

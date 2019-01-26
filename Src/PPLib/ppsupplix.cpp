@@ -144,7 +144,7 @@ private:
 	int    SLAPI ExportSpoilageRest(PPID locID, uint filesIdx);
 	int    SLAPI ExportBills(const BillExpParam &, const char * pClientCode, PPLogger & rLogger);
 	int    SLAPI ExportSaldo2(const PPIDArray & rExclArList, const char * pClientCode, PPLogger * pLog);
-	void   SLAPI DelFiles(const char * pFileName);
+	// @v10.3.1 (inlined) void   SLAPI DelFiles(const char * pFileName);
 	PPID   SLAPI GetSaleChannelTagID();
 	PPID   SLAPI GetConsigLocGroupID();
 	long   SLAPI GetSaleChannelExtFld();
@@ -482,15 +482,13 @@ private:
 				if(!field_name.NotEmptyS())
 					field_name.Cat(fld.ID);
 				base_type = stbase(fld.T.Typ);
-				field_type = 0;
-				if(base_type == BTS_DATE)
-					field_type = "Date";
-				else if(base_type == BTS_INT)
-					field_type = "Integer";
-				else if(base_type == BTS_REAL)
-					field_type = "Currency";
-				else if(base_type == BTS_STRING)
-					field_type = "String";
+				switch(base_type) {
+					case BTS_DATE: field_type = "Date"; break;
+					case BTS_INT:  field_type = "Integer"; break;
+					case BTS_REAL: field_type = "Currency"; break;
+					case BTS_STRING: field_type = "String"; break;
+					default: field_type.Z(); break;
+				}
 				// @v9.1.4 buf.Printf("<f name=\"%s\" type=\"%s\"/>", (const char*)field_name, (const char*)field_type);
 				buf.Z().CatChar('<').Cat("f").Space().CatEqQ("name", field_name).Space().CatEqQ("type", field_type).Cat("/>"); // @v9.1.4
 				F.WriteLine(buf);
@@ -560,7 +558,7 @@ private:
 	SFile  F;
 };
 
-void SLAPI PPSupplExchange_Baltika::DelFiles(const char * pFileName)
+/* @v10.3.1 (inlined) void SLAPI PPSupplExchange_Baltika::DelFiles(const char * pFileName)
 {
 	SString wc_path, wild_card;
 	SString full_path;
@@ -577,23 +575,40 @@ void SLAPI PPSupplExchange_Baltika::DelFiles(const char * pFileName)
 		(full_path = wc_path).SetLastSlash().Cat(sde.FileName);
 		SFile::Remove(full_path.cptr());
 	}
-}
+}*/
 
 int SLAPI PPSupplExchange_Baltika::Export(PPLogger & rLogger)
 {
 	int    ok = 1;
-	SString buf;
+	SString temp_buf;
 	PPIniFile ini_file(0, 0, 0, 1);
 	//const long filt_flags = Filt.Flags;
 	SString client_code /*= Filt.ClientCode*/;
 	Ep.GetExtStrData(Ep.extssClientCode, client_code);
-
-	DelFiles("spprice.xml");
-	DelFiles("sprest.xml");
-	DelFiles("spbills.xml");
-	DelFiles("spbills1.xml");
-	DelFiles("spbills2.xml");
-	DelFiles("spdlvadr.xml");
+	{
+		SString wc_path;
+		SPathStruc sp;
+		static const char * p_fn_to_remove[] = { "spprice", "sprest", "spbills", "spbills1", "spbills2", "spdlvadr" };
+		for(uint fntridx = 0; fntridx < SIZEOFARRAY(p_fn_to_remove); fntridx++) {
+			SDirEntry sde;
+			PPGetFilePath(PPPATH_OUT, p_fn_to_remove[fntridx], wc_path);
+			sp.Split(wc_path);
+			sp.Nam.CatChar('*');
+			sp.Ext = "xml";
+			sp.Merge(temp_buf);
+			sp.Merge(0, SPathStruc::fNam|SPathStruc::fExt, wc_path);
+			for(SDirec sd(temp_buf); sd.Next(&sde) > 0;) {
+				(temp_buf = wc_path).SetLastSlash().Cat(sde.FileName);
+				SFile::Remove(temp_buf.cptr());
+			}
+		}
+		//DelFiles("spprice.xml");
+		//DelFiles("sprest.xml");
+		//DelFiles("spbills.xml");
+		//DelFiles("spbills1.xml");
+		//DelFiles("spbills2.xml");
+		//DelFiles("spdlvadr.xml");
+	}
 	if(P.Actions & P.opExportPrices) {
 		THROW(ExportPrice());
 	}
@@ -604,24 +619,24 @@ int SLAPI PPSupplExchange_Baltika::Export(PPLogger & rLogger)
 	if(P.Actions & P.opExportBills) {
 		THROW(ExportBills(expEtc, client_code, rLogger));
 		if(ini_file.IsValid()) {
-			if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BALTIKAWEAKALCCODE, buf) > 0) {
-				THROW(ExportBills(expWeakAlc, buf, rLogger));
+			if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BALTIKAWEAKALCCODE, temp_buf) > 0) {
+				THROW(ExportBills(expWeakAlc, temp_buf, rLogger));
 			}
-			if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BALTIKAWOTAREBEERCODE, buf) > 0) {
-				THROW(ExportBills(expWoTareBeer, buf, rLogger));
+			if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BALTIKAWOTAREBEERCODE, temp_buf) > 0) {
+				THROW(ExportBills(expWoTareBeer, temp_buf, rLogger));
 			}
 		}
 	}
 	if(P.Actions & P.opExportDebts) {
 		PPIDArray excl_ar_list;
 		SString temp_client_code = client_code;
-		if(ini_file.IsValid() && ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BALTIKASALDOCODE, buf.Z()) > 0) {
-			temp_client_code = buf;
+		if(ini_file.IsValid() && ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BALTIKASALDOCODE, temp_buf.Z()) > 0) {
+			temp_client_code = temp_buf;
 		}
-		if(ini_file.IsValid() && ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BALTIKAEXCLSALDOCONTRAGENTS, buf.Z()) > 0) {
-			StringSet ss(',', buf);
-			for(uint p = 0; ss.get(&p, buf);)
-				excl_ar_list.add(buf.ToLong());
+		if(ini_file.IsValid() && ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BALTIKAEXCLSALDOCONTRAGENTS, temp_buf.Z()) > 0) {
+			StringSet ss(',', temp_buf);
+			for(uint p = 0; ss.get(&p, temp_buf);)
+				excl_ar_list.add(temp_buf.ToLong());
 			excl_ar_list.sort();
 		}
 		THROW(ExportSaldo2(excl_ar_list, temp_client_code, &rLogger)); // @v9.1.5 ExportSaldo-->ExportSaldo2
@@ -705,8 +720,8 @@ int SLAPI PPSupplExchange_Baltika::ExportPrice()
 
 IMPL_CMPFUNC(Sdr_Baltika_RestPartLine, i1, i2)
 {
-	const Sdr_Baltika_RestPartLine * p_i1 = (const Sdr_Baltika_RestPartLine*)i1;
-	const Sdr_Baltika_RestPartLine * p_i2 = (const Sdr_Baltika_RestPartLine*)i2;
+	const Sdr_Baltika_RestPartLine * p_i1 = static_cast<const Sdr_Baltika_RestPartLine*>(i1);
+	const Sdr_Baltika_RestPartLine * p_i2 = static_cast<const Sdr_Baltika_RestPartLine*>(i2);
 	int r = stricmp866(p_i1->WareId, p_i2->WareId);
 	if(r == 0)
 		r = stricmp866(p_i1->PartNumber, p_i2->PartNumber);
@@ -1457,9 +1472,9 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 			}
 		}
 		if(doc_type_str.NotEmpty()) {
-			PPID   obj_id = oneof2(item.OpID, Ep.MovInOp, Ep.MovOutOp) ? 0L : bpack.Rec.Object;
-			PPID   loc_id = bpack.Rec.LocID;
-			PPID   loc2_id = PPObjLocation::ObjToWarehouse(bpack.Rec.Object);
+			const PPID obj_id = oneof2(item.OpID, Ep.MovInOp, Ep.MovOutOp) ? 0L : bpack.Rec.Object;
+			const PPID loc_id = bpack.Rec.LocID;
+			const PPID loc2_id = PPObjLocation::ObjToWarehouse(bpack.Rec.Object);
 			RetailPriceExtractor rtl_price_extr(bpack.Rec.LocID, 0, obj_id, ZERODATETIME, RTLPF_GETCURPRICE);
 			RetailPriceExtractor::ExtQuotBlock eqb(Ep.PriceQuotID);
 			RetailPriceExtractor price_by_quot_extr(bpack.Rec.LocID, &eqb, obj_id, ZERODATETIME, RTLPF_PRICEBYQUOT);
@@ -2543,7 +2558,7 @@ private:
 	int    SLAPI GetGoodsStoreFileName(SString & rBuf) const;
 	int    SLAPI StoreGoods(TSCollection <iSalesGoodsPacket> & rList);
 	int    SLAPI RestoreGoods(TSCollection <iSalesGoodsPacket> & rList);
-	int    SLAPI LogErrors(TSCollection <iSalesPepsi::ResultItem> & rResultList, const SString * pMsg);
+	int    SLAPI LogErrors(const TSCollection <iSalesPepsi::ResultItem> & rResultList, const SString * pMsg);
 	const iSalesGoodsPacket * SearchGoodsMappingEntry(const char * pOuterCode) const
 	{
 		const iSalesGoodsPacket * p_result = 0;
@@ -2682,7 +2697,7 @@ int SLAPI iSalesPepsi::ParseResultString(const char * pText, TSCollection <iSale
 	return ok;
 }
 
-int SLAPI iSalesPepsi::LogErrors(TSCollection <iSalesPepsi::ResultItem> & rResultList, const SString * pMsg)
+int SLAPI iSalesPepsi::LogErrors(const TSCollection <iSalesPepsi::ResultItem> & rResultList, const SString * pMsg)
 {
 	int    ok = 1;
 	SString msg_buf;
@@ -5341,7 +5356,6 @@ class SfaHeineken : public PrcssrSupplInterchange::ExecuteBlock {
 public:
 	SLAPI  SfaHeineken(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger);
 	SLAPI ~SfaHeineken();
-
 	void   SLAPI Init();
 	int    SLAPI ReceiveGoods();
 	int    SLAPI ReceiveOrders();
@@ -6027,8 +6041,7 @@ int SLAPI SfaHeineken::Helper_MakeBillList(PPID opID, int outerDocType, TSCollec
 			if(!force_bill_list.bsearch(view_item.ID)) {
 				int    dont_send = 0;
 				if(outerDocType == 6 && !P_BObj->CheckStatusFlag(view_item.StatusID, BILSTF_READYFOREDIACK)) {
-					// Статус не позволяет отправку
-					dont_send = 1;
+					dont_send = 1; // Статус не позволяет отправку
 				}
 				else if(p_ref->Ot.GetTagStr(PPOBJ_BILL, view_item.ID, bill_ack_tag_id, temp_buf) > 0 && !test_uuid.FromStr(temp_buf)) {
 					dont_send = 1; // не отправляем документы, которые уже были отправлены ранее
@@ -6252,23 +6265,18 @@ SupplInterchangeFilt & FASTCALL SupplInterchangeFilt::operator = (const SupplExp
 	SupplID = rS.SupplID;
 	ExpPeriod = rS.Period;
 	MaxTransmitSize = rS.MaxFileSizeKB;
-
-	SpcDisPct1 = (float)rS.PctDis1;
-	SpcDisPct2 = (float)rS.PctDis2;
-
+	SpcDisPct1 = static_cast<float>(rS.PctDis1);
+	SpcDisPct2 = static_cast<float>(rS.PctDis2);
 	SETFLAG(Actions, opExportStocks, rS.Flags & rS.expRest);
 	SETFLAG(Actions, opExportBills, rS.Flags & rS.expBills);
 	SETFLAG(Actions, opExportPrices, rS.Flags & rS.expPrice);
 	SETFLAG(Actions, opExportDebts, rS.Flags & rS.expSaldo);
 	SETFLAG(Actions, opExportGoodsDebts, rS.Flags & rS.expSaldo);
-
 	SETFLAG(Flags, fDeleteRecentBills, rS.Flags & rS.expDelRecentBills);
 	SETFLAG(Flags, fFlatStruc, rS.Flags & rS.expFlatStruc);
-
 	PutExtStrData(extssAddScheme, rS.AddScheme);
 	PutExtStrData(extssEncodeStr, rS.EncodeStr);
 	PutExtStrData(extssClientCode, rS.ClientCode);
-
 	LocList = rS.LocList;
 	return *this;
 }
@@ -6528,135 +6536,141 @@ int SLAPI PrcssrSupplInterchange::Run()
 	SString log_file_name;
 	PPLogger logger;
 	THROW_PP(State & stInited && P_Eb, PPERR_SUPPLIXNOTINITED);
-	P_Eb->Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, temp_buf);
-	if(temp_buf.IsEqiAscii("MONOLIT-BALTIKA")) {
-		int    max_size_kb = 0;
-		PPIniFile ini_file;
-		if(ini_file.IsValid()) {
-			ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SUPPLEXP_BILLFILEMAXSIZE, &max_size_kb);
-			ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_SPECENCODESYMBS, temp_buf.Z());
-			P_Eb->P.PutExtStrData(SupplInterchangeFilt::extssEncodeStr, temp_buf);
+	{
+		ExecuteBlock & r_eb = *P_Eb;
+		r_eb.Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, temp_buf);
+		if(temp_buf.IsEqiAscii("MONOLIT-BALTIKA")) {
+			int    max_size_kb = 0;
+			PPIniFile ini_file;
+			if(ini_file.IsValid()) {
+				ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SUPPLEXP_BILLFILEMAXSIZE, &max_size_kb);
+				ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_SPECENCODESYMBS, temp_buf.Z());
+				r_eb.P.PutExtStrData(SupplInterchangeFilt::extssEncodeStr, temp_buf);
+			}
+			r_eb.P.MaxTransmitSize = (size_t)max_size_kb;
+			{
+				PPSupplExchange_Baltika s_e(r_eb);
+				PPWait(1);
+				THROW(s_e.Init(/*&filt*/));
+				if(r_eb.P.Actions & SupplInterchangeFilt::opImportGoods) {
+					PPGetFilePath(PPPATH_OUT, "monolit-baltica.xml", temp_buf.Z());
+					//
+					THROW(s_e.Import(temp_buf));
+					ok = 1;
+				}
+				if(r_eb.P.Actions & SupplInterchangeFilt::opExportBills|SupplInterchangeFilt::opExportClients|
+					SupplInterchangeFilt::opExportDebts|SupplInterchangeFilt::opExportGoodsDebts|
+					SupplInterchangeFilt::opExportPrices|SupplInterchangeFilt::opExportStocks) {
+					THROW(s_e.Export(logger));
+					ok = 1;
+				}
+			}
 		}
-		P_Eb->P.MaxTransmitSize = (size_t)max_size_kb;
-		{
-			PPSupplExchange_Baltika s_e(*P_Eb);
+		else if(temp_buf.IsEqiAscii("ISALES-PEPSI")) {
+			const int rcv_goods_force_settings = BIN(r_eb.P.Actions & SupplInterchangeFilt::opImportGoods);
+			iSalesPepsi cli(r_eb, logger);
+			TSCollection <iSalesRoutePacket> routs;
 			PPWait(1);
-			THROW(s_e.Init(/*&filt*/));
-			if(P_Eb->P.Actions & SupplInterchangeFilt::opImportGoods) {
-				PPGetFilePath(PPPATH_OUT, "monolit-baltica.xml", temp_buf.Z());
-				//
-				THROW(s_e.Import(temp_buf));
-				ok = 1;
+			THROW(cli.Init(/*p_eb->P.SupplID*/)); // ООО "ПепсиКо Холдингс"
+			if(r_eb.P.Actions & (SupplInterchangeFilt::opExportBills|SupplInterchangeFilt::opExportStocks|
+				SupplInterchangeFilt::opExportPrices|SupplInterchangeFilt::opImportDesadv|SupplInterchangeFilt::opImportOrders))
+				r_eb.P.Actions |= SupplInterchangeFilt::opImportGoods;
+			const long actions = r_eb.P.Actions;
+			if(actions & SupplInterchangeFilt::opImportGoods) {
+				THROW(cli.ReceiveGoods(rcv_goods_force_settings, 1));
 			}
-			if(P_Eb->P.Actions & SupplInterchangeFilt::opExportBills|SupplInterchangeFilt::opExportClients|
-				SupplInterchangeFilt::opExportDebts|SupplInterchangeFilt::opExportGoodsDebts|
-				SupplInterchangeFilt::opExportPrices|SupplInterchangeFilt::opExportStocks) {
-				THROW(s_e.Export(logger));
-				ok = 1;
+			if(actions & SupplInterchangeFilt::opImportRouts) {
+				if(!cli.ReceiveRouts(routs))
+					logger.LogLastError();
 			}
+			if(actions & SupplInterchangeFilt::opImportOrders) {
+				if(!cli.ReceiveOrders())
+					logger.LogLastError();
+			}
+			if(actions & SupplInterchangeFilt::opImportDesadv) {
+				if(!cli.ReceiveReceipts())
+					logger.LogLastError();
+			}
+			if(actions & SupplInterchangeFilt::opExportBills) {
+				if(!cli.SendInvoices())
+					logger.LogLastError();
+			}
+			if(actions & SupplInterchangeFilt::opExportStocks) {
+				if(!cli.SendStocks())
+					logger.LogLastError();
+			}
+			if(actions & SupplInterchangeFilt::opExportPrices) {
+				if(!cli.SendPrices())
+					logger.LogLastError();
+			}
+			if(actions & SupplInterchangeFilt::opExportDebts) {
+				if(!cli.SendDebts())
+					logger.LogLastError();
+			}
+			cli.GetLogFileName(log_file_name);
+			PPWait(0);
 		}
-	}
-	else if(temp_buf.IsEqiAscii("ISALES-PEPSI")) {
-		const int rcv_goods_force_settings = BIN(P_Eb->P.Actions & SupplInterchangeFilt::opImportGoods);
-		iSalesPepsi cli(*P_Eb, logger);
-		TSCollection <iSalesRoutePacket> routs;
-		PPWait(1);
-		THROW(cli.Init(/*P_Eb->P.SupplID*/)); // ООО "ПепсиКо Холдингс"
-		if(P_Eb->P.Actions & (SupplInterchangeFilt::opExportBills|SupplInterchangeFilt::opExportStocks|
-			SupplInterchangeFilt::opExportPrices|SupplInterchangeFilt::opImportDesadv|SupplInterchangeFilt::opImportOrders))
-			P_Eb->P.Actions |= SupplInterchangeFilt::opImportGoods;
-		if(P_Eb->P.Actions & SupplInterchangeFilt::opImportGoods) {
-			THROW(cli.ReceiveGoods(rcv_goods_force_settings, 1));
+		else if(temp_buf.IsEqiAscii("SAP-EFES")) {
+			SapEfes cli(r_eb, logger);
+			PPWait(1);
+			cli.Init();
+			const long actions = r_eb.P.Actions;
+			if(actions & SupplInterchangeFilt::opImportOrders) {
+				if(!cli.ReceiveOrders())
+					logger.LogLastError();
+			}
+			if(actions & SupplInterchangeFilt::opExportBills) {
+				if(!cli.SendInvoices())
+					logger.LogLastError();
+			}
+			if(actions & SupplInterchangeFilt::opExportStocks) {
+				if(!cli.SendStocks())
+					logger.LogLastError();
+			}
+			if(actions & SupplInterchangeFilt::opExportDebts) {
+				if(!cli.SendDebts())
+					logger.LogLastError();
+			}
+			if(actions & SupplInterchangeFilt::opExportSales) {
+				if(!cli.SendSales_ByGoods())
+					logger.LogLastError();
+				if(!cli.SendSales_ByDlvrLoc())
+					logger.LogLastError();
+			}
+			cli.GetLogFileName(log_file_name);
+			PPWait(0);
 		}
-		if(P_Eb->P.Actions & SupplInterchangeFilt::opImportRouts) {
-			if(!cli.ReceiveRouts(routs))
-				logger.LogLastError();
+		else if(temp_buf.IsEqiAscii("SFA-HEINEKEN")) { // @construction
+			SfaHeineken cli(r_eb, logger);
+			PPWait(1);
+			cli.Init();
+			const long actions = r_eb.P.Actions;
+			if(actions & SupplInterchangeFilt::opImportGoods) {
+				if(!cli.ReceiveGoods())
+					logger.LogLastError();
+			}
+			if(actions & SupplInterchangeFilt::opImportOrders) {
+				if(!cli.ReceiveOrders())
+					logger.LogLastError();
+			}
+			if(actions & SupplInterchangeFilt::opExportStocks) {
+				if(!cli.SendStocks())
+					logger.LogLastError();
+			}
+			if(actions & SupplInterchangeFilt::opExportSales) {
+				if(!cli.SendSales())
+					logger.LogLastError();
+			}
+			if(actions & SupplInterchangeFilt::opExportDebts) {
+				if(!cli.SendDebts())
+					logger.LogLastError();
+			}
+			cli.GetLogFileName(log_file_name);
+			PPWait(0);
 		}
-		if(P_Eb->P.Actions & SupplInterchangeFilt::opImportOrders) {
-			if(!cli.ReceiveOrders())
-				logger.LogLastError();
+		else {
+			; //
 		}
-		if(P_Eb->P.Actions & SupplInterchangeFilt::opImportDesadv) {
-			if(!cli.ReceiveReceipts())
-				logger.LogLastError();
-		}
-		if(P_Eb->P.Actions & SupplInterchangeFilt::opExportBills) {
-			if(!cli.SendInvoices())
-				logger.LogLastError();
-		}
-		if(P_Eb->P.Actions & SupplInterchangeFilt::opExportStocks) {
-			if(!cli.SendStocks())
-				logger.LogLastError();
-		}
-		if(P_Eb->P.Actions & SupplInterchangeFilt::opExportPrices) {
-			if(!cli.SendPrices())
-				logger.LogLastError();
-		}
-		if(P_Eb->P.Actions & SupplInterchangeFilt::opExportDebts) {
-			if(!cli.SendDebts())
-				logger.LogLastError();
-		}
-		cli.GetLogFileName(log_file_name);
-		PPWait(0);
-	}
-	else if(temp_buf.IsEqiAscii("SAP-EFES")) {
-		SapEfes cli(*P_Eb, logger);
-		PPWait(1);
-		cli.Init();
-		if(P_Eb->P.Actions & SupplInterchangeFilt::opImportOrders) {
-			if(!cli.ReceiveOrders())
-				logger.LogLastError();
-		}
-		if(P_Eb->P.Actions & SupplInterchangeFilt::opExportBills) {
-			if(!cli.SendInvoices())
-				logger.LogLastError();
-		}
-		if(P_Eb->P.Actions & SupplInterchangeFilt::opExportStocks) {
-			if(!cli.SendStocks())
-				logger.LogLastError();
-		}
-		if(P_Eb->P.Actions & SupplInterchangeFilt::opExportDebts) {
-			if(!cli.SendDebts())
-				logger.LogLastError();
-		}
-		if(P_Eb->P.Actions & SupplInterchangeFilt::opExportSales) {
-			if(!cli.SendSales_ByGoods())
-				logger.LogLastError();
-			if(!cli.SendSales_ByDlvrLoc())
-				logger.LogLastError();
-		}
-		cli.GetLogFileName(log_file_name);
-		PPWait(0);
-	}
-	else if(temp_buf.IsEqiAscii("SFA-HEINEKEN")) { // @construction
-		SfaHeineken cli(*P_Eb, logger);
-		PPWait(1);
-		cli.Init();
-		if(P_Eb->P.Actions & SupplInterchangeFilt::opImportGoods) {
-			if(!cli.ReceiveGoods())
-				logger.LogLastError();
-		}
-		if(P_Eb->P.Actions & SupplInterchangeFilt::opImportOrders) {
-			if(!cli.ReceiveOrders())
-				logger.LogLastError();
-		}
-		if(P_Eb->P.Actions & SupplInterchangeFilt::opExportStocks) {
-			if(!cli.SendStocks())
-				logger.LogLastError();
-		}
-		if(P_Eb->P.Actions & SupplInterchangeFilt::opExportSales) {
-			if(!cli.SendSales())
-				logger.LogLastError();
-		}
-		if(P_Eb->P.Actions & SupplInterchangeFilt::opExportDebts) {
-			if(!cli.SendDebts())
-				logger.LogLastError();
-		}
-		cli.GetLogFileName(log_file_name);
-		PPWait(0);
-	}
-	else {
-		; //
 	}
 	CATCH
 		logger.LogLastError();

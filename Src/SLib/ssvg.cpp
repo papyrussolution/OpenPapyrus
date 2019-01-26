@@ -1,5 +1,5 @@
 // SSVG.CPP
-// Copyright (c) A.Sobolev 2010, 2012, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2010, 2012, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -116,7 +116,7 @@ private:
 	int    _GetGradientCoord(const char * pStr, float & rF, int & rPct);
 	int    _GetPoints(SStrScan & rScan, const char * pTxt, FloatArray & rList);
 	int    _GetCommonFigAttrAndInsert(const StrAssocArray & rAttrList, CommonFigAttr & rA, SDrawFigure * pFig, SDrawGroup * pParent);
-	int    GetAttr(xmlNode * pNode, const char * pAttr, SString & rVal);
+	int    GetAttr(const xmlNode * pNode, const char * pAttr, SString & rVal);
 	int    GetAttrList(xmlNode * pNode, StrAssocArray & rList);
 	int    GetColor(const SString & rProp, SColor & rC) const;
 
@@ -129,7 +129,7 @@ private:
 	int    ProcessStyleItem(int token, const SString & rVal, StyleBlock & rBlk);
 	int    ParseStyle(xmlNode * pNode, SDraw & rDraw, StyleBlock & rBlk);
 	int    ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & rTempScan);
-	int    GetViewPortAttr(StrAssocArray & rAttrList, SViewPort & rVp);
+	int    GetViewPortAttr(const StrAssocArray & rAttrList, SViewPort & rVp);
 
 	SColor CurColor;
 	SymbHashTable TTab;
@@ -182,12 +182,12 @@ SSvg::~SSvg()
 {
 }
 
-int SSvg::GetAttr(xmlNode * pNode, const char * pAttr, SString & rVal)
+int SSvg::GetAttr(const xmlNode * pNode, const char * pAttr, SString & rVal)
 {
 	int    ok = 0;
 	xmlChar * p_val = xmlGetProp(pNode, (const xmlChar *)pAttr);
 	if(p_val) {
-		rVal = (const char *)p_val;
+		rVal.Set(p_val);
 		SAlloc::F(p_val);
 		ok = 1;
 	}
@@ -333,7 +333,7 @@ SString & FASTCALL SSvg::MakePaintObjSymb(const char * pOrgSymb)
 	return TempBuf;
 }
 
-int SSvg::GetViewPortAttr(StrAssocArray & rAttrList, SViewPort & rVp)
+int SSvg::GetViewPortAttr(const StrAssocArray & rAttrList, SViewPort & rVp)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -365,9 +365,9 @@ int SSvg::ProcessStyleItem(int token, const SString & rVal, StyleBlock & rBlk)
 				}
 			}
 			break;
-		case tOpacity:   rBlk.Opacity = (float)rVal.ToReal(); break;
+		case tOpacity:   rBlk.Opacity = rVal.ToFloat(); break;
 		case tStopColor: GetColor(rVal, rBlk.GradientColor); break;
-		case tStopOpacity: rBlk.GradientColor.Alpha = (uint8)((float)rVal.ToReal() * rBlk.Opacity * 255.0f); break;
+		case tStopOpacity: rBlk.GradientColor.Alpha = (uint8)(rVal.ToFloat() * rBlk.Opacity * 255.0f); break;
 		case tFill:
 			if(rVal != "none") {
 				if(rVal.CmpPrefix("url", 0) == 0) {
@@ -413,7 +413,7 @@ int SSvg::ProcessStyleItem(int token, const SString & rVal, StyleBlock & rBlk)
 				rBlk.Brush.Rule = SPaintObj::frEvenOdd;
 			break;
 		case tFillOpacity:
-			rBlk.Brush.C.Alpha = (uint8)(rVal.ToReal() * rBlk.Opacity * 255.0f);
+			rBlk.Brush.C.Alpha = (uint8)(rVal.ToFloat() * rBlk.Opacity * 255.0f);
 			// @todo inherit
 			break;
 		case tStroke:
@@ -438,14 +438,14 @@ int SSvg::ProcessStyleItem(int token, const SString & rVal, StyleBlock & rBlk)
 				Scan.Set(rVal, 0);
 				Scan.Skip();
 				while(Scan.Skip().GetDotPrefixedNumber(temp_buf)) {
-					rBlk.Pen.AddDashItem((float)temp_buf.ToReal());
+					rBlk.Pen.AddDashItem(temp_buf.ToFloat());
 					Scan.Skip().IncrChr(',');
 				}
 				rBlk.Pen.S = SPaintObj::psDash;
 			}
 			break;
 		case tStrokeDashOffset:
-			rBlk.Pen.DashOffs = (float)rVal.ToReal();
+			rBlk.Pen.DashOffs = rVal.ToFloat();
 			break;
 		case tStrokeLineCap:
 			switch(GetToken(rVal)) {
@@ -462,10 +462,10 @@ int SSvg::ProcessStyleItem(int token, const SString & rVal, StyleBlock & rBlk)
 			}
 			break;
 		case tStrokeMiterLimit:
-			rBlk.Pen.MiterLimit = (float)rVal.ToReal();
+			rBlk.Pen.MiterLimit = rVal.ToFloat();
 			break;
 		case tStrokeOpacity:
-			rBlk.Pen.C.Alpha = (uint8)((float)rVal.ToReal() * rBlk.Opacity * 255.0f);
+			rBlk.Pen.C.Alpha = (uint8)(rVal.ToFloat() * rBlk.Opacity * 255.0f);
 			break;
 		case tStrokeWidth:
 			_GetUSize(rVal, DIREC_UNKN, rBlk.Pen.W__);
@@ -515,7 +515,7 @@ int SSvg::_GetPoints(SStrScan & rScan, const char * pTxt, FloatArray & rList)
 	SString temp_buf;
 	rScan.Skip();
 	while(rScan.GetDotPrefixedNumber(temp_buf)) {
-		rList.add((float)temp_buf.ToReal());
+		rList.add(temp_buf.ToFloat());
 		rScan.Skip().IncrChr(',');
 		rScan.Skip();
 	}

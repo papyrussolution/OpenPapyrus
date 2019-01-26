@@ -278,7 +278,7 @@ int ListWindow::MoveWindow(HWND linkHwnd, long right)
 	return 1;
 }
 
-int ListWindow::MoveWindow(RECT & rRect)
+int ListWindow::MoveWindow(const RECT & rRect)
 {
 	uint   list_ctl = (isTreeList()) ? CTL_TREELBX_TREELIST : CTL_LBX_LIST;
 	HWND   h_list = GetDlgItem(H(), list_ctl);

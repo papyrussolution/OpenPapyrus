@@ -1257,7 +1257,7 @@ const SString & FASTCALL PPPosProtocol::EncText(const char * pS)
 	return EncBuf.Transf(CTRANSF_INNER_TO_UTF8);
 }
 
-int SLAPI PPPosProtocol::WritePosNode(WriteBlock & rB, const char * pScopeXmlTag, PPCashNode & rInfo)
+int SLAPI PPPosProtocol::WritePosNode(WriteBlock & rB, const char * pScopeXmlTag, const PPCashNode & rInfo)
 {
     int    ok = 1;
 	SString temp_buf;
@@ -4607,7 +4607,7 @@ static int FASTCALL MakePosProtocolFileProcessedListName(const char * pPath, SSt
 	return 1;
 }
 
-static int FASTCALL AppendPosProtocolFileProcessedListEntry(const char * pPath, PosProtocolFileProcessedEntry & rEntry)
+static int FASTCALL AppendPosProtocolFileProcessedListEntry(const char * pPath, const PosProtocolFileProcessedEntry & rEntry)
 {
 	int    ok = -1;
 	if((!rEntry.FileUUID.IsZero() || checkdate(rEntry.FileDtm.d, 0)) && !rEntry.DestRouteUUID.IsZero()) {

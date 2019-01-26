@@ -1548,7 +1548,7 @@ int SLAPI PPRights::SetObjRights(PPID objType, const ObjRights * rt, int replace
 	return ok;
 }
 
-int SLAPI PPRights::SetAccessRestriction(PPAccessRestriction * accsr)
+int SLAPI PPRights::SetAccessRestriction(const PPAccessRestriction * accsr)
 {
 	if(accsr && P_Rt) {
 		P_Rt->WeekDays    = accsr->WeekDays;
@@ -2114,7 +2114,7 @@ int SLAPI UuidRefCore::GetUuid(const S_GUID & rUuid, long * pID, int options, in
 	return ok;
 }
 
-int SLAPI UuidRefCore::PutChunk(TSVector <S_GUID> & rChunk, uint maxCount, int use_ta) // @v9.8.4 TSArray-->TSVector
+int SLAPI UuidRefCore::PutChunk(const TSVector <S_GUID> & rChunk, uint maxCount, int use_ta) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = 1;
 	const  uint cc = rChunk.getCount();
@@ -2140,7 +2140,7 @@ int SLAPI UuidRefCore::PutChunk(TSVector <S_GUID> & rChunk, uint maxCount, int u
 	return ok;
 }
 
-int SLAPI UuidRefCore::RemoveUuid(S_GUID & rUuid, int use_ta)
+int SLAPI UuidRefCore::RemoveUuid(const S_GUID & rUuid, int use_ta)
 {
 	int    ok = 1;
 	PPID   id = 0;
@@ -2670,6 +2670,9 @@ int SLAPI UnxTextRefCore::SetTimeSeries(const TextRefIdent & rI, STimeSeries * p
 			size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
 			THROW_SL(cbuf.Write(cs, cs_size));
 			THROW_SL(compr.CompressBlock(sbuf.GetBuf(0), sbuf.GetAvailableSize(), cbuf, 0, 0));
+		}
+		else {
+			cbuf = sbuf; // @v10.3.1 @fix
 		}
     }
 	const  size_t tl = cbuf.GetAvailableSize();

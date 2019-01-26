@@ -1,5 +1,5 @@
 // V_GDSMOV2.CPP
-// Copyright (c) A.Starodub 2011, 2015, 2016, 2018
+// Copyright (c) A.Starodub 2011, 2015, 2016, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -7,7 +7,7 @@
 SLAPI PPViewGoodsMov2::PPViewGoodsMov2() : PPView(0, &Filt, PPVIEW_GOODSMOV2), P_BObj(BillObj), P_TempTbl(0), PrintWoPacks(0)
 {
 	ImplementFlags |= implUseServer;
-	DefReportId = REPORT_GOODSMOV2; // @v8.5.7
+	DefReportId = REPORT_GOODSMOV2;
 	PPLoadString("inrest", InRestText);
 	PPLoadString("outrest", OutRestText);
 }

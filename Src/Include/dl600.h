@@ -1212,7 +1212,6 @@ public:
 	int    SLAPI Export(ExportParam & rParam);
 	int    SLAPI ExportXML(ExportParam & rParam, SString & rOutFileName);
 	int    SLAPI PutToXmlBuffer(ExportParam & rParam, SString & rBuf);
-	//
 	int    SLAPI Helper_PutScopeToJson(const DlScope * pScope, json_t * pJsonObj) const;
 	int    SLAPI Helper_PutItemToJson(ExportParam & rParam/*PPFilt * pFilt*/, json_t * pRoot);
 	int    SLAPI PutToJsonBuffer(StrAssocArray * pAry, SString & rBuf, int flags);

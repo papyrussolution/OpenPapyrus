@@ -242,7 +242,7 @@ static DBQ & FASTCALL _newdbq(DBItem & i, int op, double d)
 {
 	DBConst c;
 	if(ffrac(d) == 0.0)
-		c.init((long)d);
+		c.init(static_cast<long>(d));
 	else
 		c.init(d);
 	return *new DBQ(i, op, c);
@@ -328,9 +328,9 @@ DBQ & __stdcall operator >= (DBItem & i, const char * s) { return _newdbq(i, _GE
 DBQ &  __stdcall operator && (DBQ & left, DBQ & right)
 	{ return ((&left) == 0) ? right : (((&right) == 0) ? left : *new DBQ(_AND___, left, right)); }
 DBQ &  __stdcall operator || (DBQ & l, DBQ & r)
-	{ return (&l && &r) ? *new DBQ(_OR___,  l, r) : *(DBQ *)0; }
+	{ return (&l && &r) ? *new DBQ(_OR___,  l, r) : *reinterpret_cast<DBQ *>(0); }
 DBQ & __stdcall daterange(DBItem & i, const DateRange * pDR)
-	{ return pDR ? daterange(i, pDR->low, pDR->upp) : *(DBQ *)0; }
+	{ return pDR ? daterange(i, pDR->low, pDR->upp) : *reinterpret_cast<DBQ *>(0); }
 
 DBQ & __stdcall daterange(DBItem & i, LDATE beg, LDATE end)
 {
@@ -352,7 +352,7 @@ DBQ & __stdcall daterange(DBItem & i, LDATE beg, LDATE end)
 	}
 	else {
 		if(beg == end)
-			return beg ? (i == beg) : *(DBQ *)0;
+			return beg ? (i == beg) : *reinterpret_cast<DBQ *>(0);
 		else {
 			DBQ * dbq = 0;
 			if(beg)
@@ -365,12 +365,12 @@ DBQ & __stdcall daterange(DBItem & i, LDATE beg, LDATE end)
 }
 
 DBQ & __stdcall timerange(DBItem & i, const TimeRange * pTR)
-	{ return pTR ? timerange(i, pTR->low, pTR->upp) : *(DBQ *)0; }
+	{ return pTR ? timerange(i, pTR->low, pTR->upp) : *reinterpret_cast<DBQ *>(0); }
 
 DBQ & __stdcall timerange(DBItem & i, LTIME beg, LTIME end)
 {
 	if(beg == end)
-		return beg ? (i == beg) : *(DBQ *)0;
+		return beg ? (i == beg) : *reinterpret_cast<DBQ *>(0);
 	else {
 		DBQ * dbq = 0;
 		if(beg)
@@ -384,7 +384,7 @@ DBQ & __stdcall timerange(DBItem & i, LTIME beg, LTIME end)
 DBQ & __stdcall realrange(DBItem & i, double lo, double up)
 {
 	if(lo == up)
-		return lo ? (i == lo) : *(DBQ *)0;
+		return lo ? (i == lo) : *reinterpret_cast<DBQ *>(0);
 	else {
 		DBQ * dbq = 0;
 		if(lo)
@@ -398,13 +398,13 @@ DBQ & __stdcall realrange(DBItem & i, double lo, double up)
 DBQ & __stdcall intrange(DBItem & i, const IntRange & rR)
 {
 	if(rR.low == rR.upp)
-		return rR.low ? (i == (long)rR.low) : *(DBQ *)0;
+		return rR.low ? (i == (long)rR.low) : *reinterpret_cast<DBQ *>(0);
 	else {
 		DBQ * dbq = 0;
 		if(rR.low)
-			dbq = & (i >= (long)rR.low);
+			dbq = & (i >= static_cast<long>(rR.low));
 		if(rR.upp)
-			dbq = & (*dbq && i <= (long)rR.upp);
+			dbq = & (*dbq && i <= static_cast<long>(rR.upp));
 		return *dbq;
 	}
 }
@@ -452,7 +452,7 @@ IMPL_DBE_PROC(_not_ii) { RES(~IPAR(0)); }
 IMPL_DBE_PROC(_ltoa_i)
 {
 	if(option == CALC_SIZE)
-		RES((long)12);
+		RES(12L);
 	else {
 		char s[48];
 		ltoa(IPAR(0), s, 10)[12-1] = 0;
@@ -463,18 +463,18 @@ IMPL_DBE_PROC(_ltoa_i)
 IMPL_DBE_PROC(_enumtoa_iii)
 {
 	int    i;
-	const char ** p = (const char **)IPAR(2);
+	const char ** p = reinterpret_cast<const char **>(IPAR(2));
 	if(option == CALC_SIZE) {
-		uint   m = 1;
+		size_t m = 1;
 		for(i = 0; i < IPAR(1); i++) {
 			if((sstrlen(p[i]+2)+1) > m)
 				m = sstrlen(p[i]+2) + 1;
 		}
-		RES((long)m);
+		RES(static_cast<long>(m));
 	}
 	else {
 		for(i = 0; i < IPAR(1); i++) {
-			if(*(int16*)p[i] == IPAR(0)) {
+			if(*reinterpret_cast<const int16*>(p[i]) == IPAR(0)) {
 				RES(p[i]+2);
 				return;
 			}
@@ -486,13 +486,13 @@ IMPL_DBE_PROC(_enumtoa_iii)
 IMPL_DBE_PROC(_flagtoa_iii)
 {
 	int    i;
-	char ** p = (char **)IPAR(2);
+	const char ** p = reinterpret_cast<const char **>(IPAR(2));
 	if(option == CALC_SIZE) {
 		uint   m = 1;
 		for(i = 0; i < 2; i++)
 			if((sstrlen(p[i]+2)+1) > m)
 				m = sstrlen(p[i]+2) + 1;
-		RES((long)m);
+		RES(static_cast<long>(m));
 	}
 	else {
 		if(IPAR(0) & IPAR(1)) {
@@ -509,8 +509,8 @@ IMPL_DBE_PROC(_add_ss)
 	if(option == CALC_SIZE)
 		RES(IPAR(0)+IPAR(1));
 	else {
-		int len = sstrlen(SPAR(0))+sstrlen(SPAR(1));
-		char * s = (char *)SAlloc::M(len+1);
+		const size_t len = sstrlen(SPAR(0))+sstrlen(SPAR(1));
+		char * s = static_cast<char *>(SAlloc::M(len+1));
 		strcpy(stpcpy(s, SPAR(0)), SPAR(1));
 		if(len > 254)
 			s[254] = 0;
@@ -596,12 +596,12 @@ IMPL_DBE_PROC(_add_di)
 	RES(dt);
 	//result->copy(params[0]); 
 }
-IMPL_DBE_PROC(_sub_dd) { RES((long)diffdate(&DPAR(0), &DPAR(1), 0)); }
+IMPL_DBE_PROC(_sub_dd) { RES(diffdate(&DPAR(0), &DPAR(1), 0)); }
 
 IMPL_DBE_PROC(_count_v)
 {
 	switch(option) {
-		case AGGR_BEGIN: RES((long)0L); break;
+		case AGGR_BEGIN: RES(0L); break;
 		case AGGR_NEXT: IRES++; break;
 		case AGGR_END: break;
 	}
@@ -612,7 +612,7 @@ IMPL_DBE_PROC(_count_v)
 IMPL_DBE_PROC(_sum_i)
 {
 	switch(option) {
-		case AGGR_BEGIN: RES((long)0L); break;
+		case AGGR_BEGIN: RES(0L); break;
 		case AGGR_NEXT: IRES+=IPAR(0); break;
 		case AGGR_END: break;
 	}
@@ -629,20 +629,27 @@ IMPL_DBE_PROC(_sum_r)
 
 IMPL_DBE_PROC(_avg_r)
 {
-	struct Temp { double sum; long count; };
+	struct Temp { 
+		double sum; 
+		long   count; 
+	};
+	Temp * p_temp = 0;
 	switch(option) {
 		case AGGR_BEGIN:
 			result->sptr = new char[sizeof(Temp)];
-			((Temp*)result->sptr)->count = 0L;
-			((Temp*)result->sptr)->sum = 0.0;
+			p_temp = reinterpret_cast<Temp*>(result->sptr);
+			p_temp->count = 0L;
+			p_temp->sum = 0.0;
 			break;
 		case AGGR_NEXT:
-			((Temp*)result->sptr)->count++;
-			((Temp*)result->sptr)->sum += RPAR(0);
+			p_temp = reinterpret_cast<Temp*>(result->sptr);
+			p_temp->count++;
+			p_temp->sum += RPAR(0);
 			break;
 		case AGGR_END:
-			double avg = ((Temp*)result->sptr)->sum / ((Temp*)result->sptr)->count;
-			delete result->sptr;
+			p_temp = reinterpret_cast<Temp*>(result->sptr);
+			double avg = p_temp->sum / p_temp->count;
+			delete [] result->sptr;
 			result->sptr = 0;
 			RES(avg);
 			break;

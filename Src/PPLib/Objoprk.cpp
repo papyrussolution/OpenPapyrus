@@ -219,7 +219,7 @@ void SLAPI PPBillPoolOpEx::Init()
 	OpList.freeAll();
 }
 
-PPBillPoolOpEx & FASTCALL PPBillPoolOpEx::operator = (PPBillPoolOpEx & src)
+PPBillPoolOpEx & FASTCALL PPBillPoolOpEx::operator = (const PPBillPoolOpEx & src)
 {
 	Init();
 	Flags = src.Flags;
@@ -1349,7 +1349,7 @@ private:
 
 	void   prnOptDialog();
 	void   exAmountList();
-	int    setAccTextToList(AcctID *, long, long, long, SString & rBuf);
+	int    setAccTextToList(const AcctID & rAci, long, long, long, SString & rBuf);
 
 	SmartListBox * P_ListBox;
 	PPObjOprKind OpObj;
@@ -1600,12 +1600,12 @@ void OprKindDialog::delGenOp()
 	}
 }
 
-int OprKindDialog::setAccTextToList(AcctID * acctid, long flgs, long accFixMask, long artFixMask, SString & rBuf)
+int OprKindDialog::setAccTextToList(const AcctID & rAci, long flgs, long accFixMask, long artFixMask, SString & rBuf)
 {
 	int    ok = 1;
 	Acct   acct;
 	PPID   cur_id = 0;
-	if(P_AtObj->ConvertAcctID(acctid, &acct, &cur_id, 1 /* useCache */)) {
+	if(P_AtObj->ConvertAcctID(rAci, &acct, &cur_id, 1 /* useCache */)) {
 		acct.ToStr(MKSFMT(0, ACCF_DEFAULT | ALIGN_LEFT), rBuf);
 		rBuf.Space().CatChar((flgs & accFixMask) ? 'X' : ' ').CatChar((flgs & artFixMask) ? 'X' : ' ');
 	}
@@ -1640,9 +1640,9 @@ void OprKindDialog::updateList()
 			PPAccTurnTempl * e;
 			for(uint i = 0; P_Data->ATTmpls.enumItems(&i, (void**)&e);) {
 				StringSet ss(SLBColumnDelim);
-				THROW(setAccTextToList(&e->DbtID, e->Flags, ATTF_DACCFIX, ATTF_DARTFIX, sub));
+				THROW(setAccTextToList(e->DbtID, e->Flags, ATTF_DACCFIX, ATTF_DARTFIX, sub));
 				ss.add(sub);
-				THROW(setAccTextToList(&e->CrdID, e->Flags, ATTF_CACCFIX, ATTF_CARTFIX, sub));
+				THROW(setAccTextToList(e->CrdID, e->Flags, ATTF_CACCFIX, ATTF_CARTFIX, sub));
 				ss.add(sub);
 				ss.add(e->Expr);
 				THROW_SL(P_ListBox->addItem(i, ss.getBuf()));

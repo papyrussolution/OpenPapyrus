@@ -1449,6 +1449,7 @@
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
       </BrowseInformation>
     </ClCompile>
+    <ClCompile Include="..\SLib\sclipboard.cpp" />
     <ClCompile Include="..\SLib\Scomport.cpp" />
     <ClCompile Include="..\SLib\sc_cfg.cpp" />
     <ClCompile Include="..\SLib\sc_cli.cpp" />

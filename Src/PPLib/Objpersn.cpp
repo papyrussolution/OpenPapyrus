@@ -7219,9 +7219,10 @@ int PPALDD_Global::InitData(PPFilt & rFilt, long rsrv)
 			H.IsPrivateEnt = BIN(psn_rec.Status == PPPRS_FREE);
 		{
 			DS.GetTLA().InitMainOrgData(0);
-			if(psnobj.Fetch(CConfig.MainOrgDirector_, &psn_rec) > 0)
+			const PPCommConfig & r_ccfg = CConfig;
+			if(psnobj.Fetch(r_ccfg.MainOrgDirector_, &psn_rec) > 0)
 				STRNSCPY(H.Director, psn_rec.Name);
-			if(psnobj.Fetch(CConfig.MainOrgAccountant_, &psn_rec) > 0)
+			if(psnobj.Fetch(r_ccfg.MainOrgAccountant_, &psn_rec) > 0)
 				STRNSCPY(H.Accountant, psn_rec.Name);
 		}
 		STRNSCPY(H.INN,  req.TPID);

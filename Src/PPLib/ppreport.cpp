@@ -20,7 +20,7 @@ int  SLAPI SaveDataStruct(const char *pDataName, const char *pTempPath, const ch
 //
 //
 //
-static int FindExeByExt(const char * pExt, char * pExe, size_t buflen, char * pAddedSearchString)
+static int FindExeByExt(const char * pExt, char * pExe, size_t buflen, const char * pAddedSearchString)
 {
 	//
 	// @todo Перестроить функцию с использованием WinRegKey

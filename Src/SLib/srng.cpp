@@ -102,7 +102,7 @@ private:
 
 SRngMT::SRngMT(Algorithm alg, uint level) : SRng(alg, level)
 {
-	assert(alg = algMT);
+	assert(alg == algMT); // @v10.3.1 @fix (=)-->(==)
 	assert(oneof3(level, 0, 1999, 1998));
 	RandMin = 0;
 	RandMax = 0xffffffffUL;
@@ -664,7 +664,7 @@ double SRng::GetGaussianZiggurat(double sigma)
 double SRng::GetGammaKnuth(double a, double b)
 {
 	/* assume a > 0 */
-	uint na = (uint)floor(a);
+	uint na = static_cast<uint>(floor(a));
 	if(a == na)
 		return b * GetGammaInt(na);
 	else if (na == 0)
@@ -692,7 +692,7 @@ double SRng::GetGammaInt(uint a)
 		// faster one, we are told, can be found in: J. H. Ahrens and
 		// U. Dieter, Computing 12 (1974) 223-246.
 		//
-		double a_1 = (double)(a-1);
+		double a_1 = static_cast<double>(a-1);
 		double x, y, v;
 		double sqa = sqrt(2 * a_1);
 		do {
@@ -883,7 +883,7 @@ ulong SRng::GetBinomial(double p, ulong n)
 		/* For n >= SMALL_MEAN, we invoke the BTPE algorithm */
 		int    k;
 		double ffm = np + p;      /* ffm = n*p+p             */
-		int    m = (int) ffm;     /* m = int floor[n*p+p]    */
+		int    m = static_cast<int>(ffm); //m = int floor[n*p+p]
 		double fm = m;            /* fm = double m;          */
 		double xm = fm + 0.5;     /* xm = half integer mean (tip of triangle)  */
 		double npq = np * q;      /* npq = n*p*q            */

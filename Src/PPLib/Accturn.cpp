@@ -41,12 +41,11 @@ int SLAPI AccTurnCore::AcctRelToID(PPID relID, AcctID * pAcctId, PPID * pAccShee
 
 int SLAPI AccTurnCore::UpdateItemInExtGenAccList(PPID objID, long f, PPID accID, ObjRestrictArray * pAccList, PPIDArray * pCurList)
 {
-	if(!pAccList->UpdateItemByID(objID, f))
-		return 0;
-	if(pCurList)
-		if(!AccObj.GetCurList(accID, 0, pCurList))
-			return 0;
-	return 1;
+	int    ok = 1;
+	THROW(pAccList->UpdateItemByID(objID, f));
+	THROW(!pCurList || AccObj.GetCurList(accID, 0, pCurList));
+	CATCHZOK
+	return ok;
 }
 
 int SLAPI AccTurnCore::GetExtentAccListByGen(PPID genAccID, ObjRestrictArray * pAccList, PPIDArray * pCurList)
@@ -118,35 +117,35 @@ int SLAPI AccTurnCore::ConvertAcct(const Acct * pAcct, PPID curID, AcctID * pAcc
 	return ok;
 }
 
-int SLAPI AccTurnCore::ConvertAcctID(const AcctID * pAcctId, Acct * pAcct, PPID * pCurID, int useCache)
+int SLAPI AccTurnCore::ConvertAcctID(const AcctID & rAci, Acct * pAcct, PPID * pCurID, int useCache)
 {
 	int    ok = 1;
 	pAcct->Clear();
 	PPAccount acc_rec;
 	if(useCache) {
 		PPObjAccount acc_obj;
-		THROW(ok = acc_obj.Fetch(pAcctId->ac, &acc_rec));
+		THROW(ok = acc_obj.Fetch(rAci.ac, &acc_rec));
 	}
 	else {
-		THROW(ok = AccObj.Search(pAcctId->ac, &acc_rec));
+		THROW(ok = AccObj.Search(rAci.ac, &acc_rec));
 	}
 	if(ok > 0) {
 		pAcct->ac = acc_rec.A.Ac;
 		pAcct->sb = acc_rec.A.Sb;
 		ASSIGN_PTR(pCurID, acc_rec.CurID);
-		if(pAcctId->ar) {
+		if(rAci.ar) {
 			ArticleTbl::Rec ar_rec;
 			AcctRelTbl::Rec acr_rec;
 			if(useCache) {
 				PPObjArticle ar_obj;
-				THROW(ok = ar_obj.Fetch(pAcctId->ar, &ar_rec));
+				THROW(ok = ar_obj.Fetch(rAci.ar, &ar_rec));
 			}
 			else {
-				THROW(ok = Art.Search(pAcctId->ar, &ar_rec));
+				THROW(ok = Art.Search(rAci.ar, &ar_rec));
 			}
 			if(ok > 0)
 				pAcct->ar = ar_rec.Article;
-			else if(AccRel.SearchAcctID(pAcctId, &acr_rec) > 0)
+			else if(AccRel.SearchAcctID(&rAci, &acr_rec) > 0)
 				pAcct->ar = acr_rec.Ar;
 		}
 	}
@@ -744,10 +743,10 @@ inline int SLAPI AccTurnCore::_OprNo(LDATE date, long * pOprNo)
 	return IncDateKey(this, 2, date, pOprNo);
 }
 
-int SLAPI AccTurnCore::_UpdateForward(LDATE date, long oprno, PPID accRel, AccTurnParam * param)
+int SLAPI AccTurnCore::_UpdateForward(LDATE date, long oprno, PPID accRel, const AccTurnParam & rParam)
 {
 	int    ok = 1;
-	if(!IsFRRLocked() && param->Amt != 0.0) {
+	if(!IsFRRLocked() && rParam.Amt != 0.0) {
 		int    sp = spGt;
 		AccTurnTbl::Key1 k1;
 		double rest;
@@ -760,16 +759,14 @@ int SLAPI AccTurnCore::_UpdateForward(LDATE date, long oprno, PPID accRel, AccTu
 		// сохранения текущей позиции поскольку поле Rest не входит ни в один
 		// индекс.
 		//
-		while(search(1, &k1, sp) && k1.Acc == accRel) { // @v8.1.4 searchForUpdate-->search
-			// @v8.1.4 {
+		while(search(1, &k1, sp) && k1.Acc == accRel) { 
 			DBRowId _dbpos;
 			THROW_DB(getPosition(&_dbpos));
 			THROW_DB(getDirectForUpdate(1, &k1, _dbpos));
-			// } @v8.1.4
-			LDBLTOMONEY(rest = MONEYTOLDBL(data.Rest) + param->Amt, data.Rest);
+			LDBLTOMONEY(rest = MONEYTOLDBL(data.Rest) + rParam.Amt, data.Rest);
 			if(DS.RestCheckingStatus(-1)) {
-				THROW_PP(rest >= param->Low, PPERR_FWTURNLOWBOUND);
-				THROW_PP(rest <= param->Upp, PPERR_FWTURNUPPBOUND);
+				THROW_PP(rest >= rParam.Low, PPERR_FWTURNLOWBOUND);
+				THROW_PP(rest <= rParam.Upp, PPERR_FWTURNUPPBOUND);
 			}
 			THROW_DB(updateRec()); // @sfu
 			sp = spNext;
@@ -785,28 +782,28 @@ int SLAPI AccTurnCore::_UpdateForward(LDATE date, long oprno, PPID accRel, AccTu
 //
 // Заносит проводку в AccTurnCore и модифицирует AcctRel без транзакции
 //
-int SLAPI AccTurnCore::_Turn(const PPAccTurn * pAt, PPID accRel, PPID corrAccRel, AccTurnParam * param)
+int SLAPI AccTurnCore::_Turn(const PPAccTurn * pAt, PPID accRel, PPID corrAccRel, const AccTurnParam & rParam)
 {
 	int    ok = 1;
 	long   oprno;
 	double rest;
 	THROW(GetAcctRest(pAt->Date, accRel, &rest, 0));
-	rest += param->Amt;
+	rest += rParam.Amt;
 	if(DS.RestCheckingStatus(-1)) {
-		THROW_PP(rest >= param->Low, PPERR_TURNLOWBOUND);
-		THROW_PP(rest <= param->Upp, PPERR_TURNUPPBOUND);
+		THROW_PP(rest >= rParam.Low, PPERR_TURNLOWBOUND);
+		THROW_PP(rest <= rParam.Upp, PPERR_TURNUPPBOUND);
 	}
 	THROW(_OprNo(pAt->Date, &oprno));
 	clearDataBuf();
-	if(param->Side == PPDEBIT) {
+	if(rParam.Side == PPDEBIT) {
 		data.Bal     = pAt->DbtID.ac;
 		data.Reverse = 0;
-		LDBLTOMONEY(param->Amt, data.Amount);
+		LDBLTOMONEY(rParam.Amt, data.Amount);
 	}
 	else {
 		data.Bal     = pAt->CrdID.ac;
 		data.Reverse = 1;
-		LDBLTOMONEY(-param->Amt, data.Amount);
+		LDBLTOMONEY(-rParam.Amt, data.Amount);
 	}
 	data.Acc     = accRel;
 	data.Dt      = pAt->Date;
@@ -816,7 +813,7 @@ int SLAPI AccTurnCore::_Turn(const PPAccTurn * pAt, PPID accRel, PPID corrAccRel
 	data.CorrAcc = corrAccRel;
 	LDBLTOMONEY(rest, data.Rest);
 	THROW_DB(insertRec());
-	THROW(_UpdateForward(pAt->Date, MAXLONG, accRel, param));
+	THROW(_UpdateForward(pAt->Date, MAXLONG, accRel, rParam));
 	CATCHZOK
 	return ok;
 }
@@ -1015,7 +1012,7 @@ int SLAPI AccTurnCore::_RollbackTurn(int side, LDATE date, long oprNo, PPID bal,
 	SetupAccTurnParam(&p, side,  kind);
 	THROW(LockFRR(rel, date));
 	THROW(BalTurn.RollbackTurn(bal, date, &p, 0));
-	THROW(_UpdateForward(date, oprNo, rel, &p));
+	THROW(_UpdateForward(date, oprNo, rel, p));
 	CATCHZOK
 	return ok;
 }
@@ -1023,7 +1020,7 @@ int SLAPI AccTurnCore::_RollbackTurn(int side, LDATE date, long oprNo, PPID bal,
 int SLAPI AccTurnCore::_UpdateTurn(PPID billID, short rByBill, double newAmt, double cRate, int use_ta)
 {
 	int    ok = 1;
-	int    remove = BIN(newAmt == 0.0);
+	const  int do_remove = BIN(newAmt == 0.0);
 	int    zero_crd_acc = 0;
 	AccTurnTbl::Key0 k0;
 	LDATE  date;
@@ -1055,12 +1052,12 @@ int SLAPI AccTurnCore::_UpdateTurn(PPID billID, short rByBill, double newAmt, do
 			if(acc_rec.Type != ACY_BAL && crd_rel_id == 0)
 				zero_crd_acc = 1;
 		}
-		if(remove) {
-			THROW(rereadForUpdate(0, 0)); // @v8.2.0
+		if(do_remove) {
+			THROW(rereadForUpdate(0, 0));
 			THROW_DB(deleteRec()); // @sfu
 		}
 		else if(_amt != 0.0) {
-			THROW(rereadForUpdate(0, 0)); // @v8.2.0
+			THROW(rereadForUpdate(0, 0));
 			LDBLTOMONEY(newAmt, data.Amount);
 			LDBLTOMONEY(MONEYTOLDBL(data.Rest) + _amt, data.Rest);
 			THROW_DB(updateRec()); // @sfu
@@ -1069,19 +1066,19 @@ int SLAPI AccTurnCore::_UpdateTurn(PPID billID, short rByBill, double newAmt, do
 			k0.Bill    = billID;
 			k0.RByBill = rByBill;
 			k0.Reverse = 1;
-			if(!search(0, &k0, spEq)) { // @v8.2.0 searchForUpdate-->search
+			if(!search(0, &k0, spEq)) {
 				CALLEXCEPT_PP((BTROKORNFOUND) ? PPERR_TURNBYBILLNFOUND : PPERR_DBENGINE);
 			}
 			THROW_PP(data.Acc == crd_rel_id && data.CorrAcc == dbt_rel_id &&
 				dbl_cmp(MONEYTOLDBL(data.Amount), amt) == 0 && data.Dt == date, PPERR_TURNMIRRORINGFAULT);
 			crd_acc_id = data.Bal;
 			crd_oprno  = data.OprNo;
-			if(remove) {
-				THROW(rereadForUpdate(0, 0)); // @v8.2.0
+			if(do_remove) {
+				THROW(rereadForUpdate(0, 0));
 				THROW_DB(deleteRec()); // @sfu
 			}
 			else if(_amt != 0.0) {
-				THROW(rereadForUpdate(0, 0)); // @v8.2.0
+				THROW(rereadForUpdate(0, 0));
 				LDBLTOMONEY(newAmt, data.Amount);
 				LDBLTOMONEY(MONEYTOLDBL(data.Rest) - _amt, data.Rest);
 				THROW_DB(updateRec()); // @sfu
@@ -1151,9 +1148,9 @@ int SLAPI AccTurnCore::Turn(PPAccTurn * pAturn, int use_ta)
 		if(!zero_crd_acc) {
 			THROW(BalTurn.Turn(pAturn->CrdID.ac, pAturn->Date, &crd_param, 0));
 		}
-		THROW(_Turn(pAturn, dbt_rel, crd_rel, &dbt_param));
+		THROW(_Turn(pAturn, dbt_rel, crd_rel, dbt_param));
 		if(!zero_crd_acc) {
-			THROW(_Turn(pAturn, crd_rel, dbt_rel, &crd_param));
+			THROW(_Turn(pAturn, crd_rel, dbt_rel, crd_param));
 		}
 		if(pAturn->CurID) {
 			PPAccTurn base_aturn = *pAturn;

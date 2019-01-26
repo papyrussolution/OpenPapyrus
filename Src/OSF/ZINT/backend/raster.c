@@ -824,8 +824,8 @@ static int plot_raster_maxicode(struct ZintSymbol * symbol, int rotate_angle, in
 	int    hexagon_size;
 	int    xoffset = symbol->border_width + symbol->whitespace_width;
 	int    yoffset = symbol->border_width;
-	int    image_width = (int)((300 + (2 * xoffset * 2)) * scaler);
-	int    image_height = (int)((300 + (2 * yoffset * 2)) * scaler);
+	int    image_width  = static_cast<int>((300 + (2 * xoffset * 2)) * scaler);
+	int    image_height = static_cast<int>((300 + (2 * yoffset * 2)) * scaler);
 	if(!(pixelbuf = (char*)SAlloc::M(image_width * image_height))) {
 		printf("Insufficient memory for pixel buffer (F55)");
 		return ZINT_ERROR_ENCODING_PROBLEM;

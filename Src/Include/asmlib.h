@@ -113,12 +113,9 @@ static inline void cpuid_abcd (int abcd[4], int eax)
 
 // Define overloaded versions if compiling as C++
 
-static inline int Round (double x) {   // Overload name Round
-   return RoundD(x);}
-static inline int Round (float  x) {   // Overload name Round
-   return RoundF(x);}
-static inline const char * A_strstr(const char * haystack, const char * needle) {
-   return A_strstr((char*)haystack, needle);} // Overload A_strstr with const char * version
+static inline int Round (double x) { return RoundD(x); } // Overload name Round
+static inline int Round (float  x) { return RoundF(x); } // Overload name Round
+static inline const char * A_strstr(const char * haystack, const char * needle) { return A_strstr((char*)haystack, needle); } // Overload A_strstr with const char * version
 
 #endif // __cplusplus
 

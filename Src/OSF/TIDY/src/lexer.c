@@ -728,10 +728,9 @@ static void ChangeChar(Lexer * lexer, tmbchar c)
 /* store character c as UTF-8 encoded byte stream */
 void TY_(AddCharToLexer) (Lexer *lexer, uint c)
 {
-	int i, err, count = 0;
+	int i, count = 0;
 	tmbchar buf[10] = {0};
-
-	err = TY_(EncodeCharToUTF8Bytes) (c, buf, NULL, &count);
+	int err = TY_(EncodeCharToUTF8Bytes) (c, buf, NULL, &count);
 	if(err) {
 #if 0 && defined(_DEBUG)
 		fprintf(stderr, "lexer UTF-8 encoding error for U+%x : ", c);
@@ -742,7 +741,6 @@ void TY_(AddCharToLexer) (Lexer *lexer, uint c)
 		buf[2] = (byte)0xBD;
 		count = 3;
 	}
-
 	for(i = 0; i < count; ++i)
 		AddByte(lexer, buf[i]);
 }
@@ -759,7 +757,7 @@ static void AddStringToLexer(Lexer * lexer, ctmbstr str)
 		TY_(AddCharToLexer) (lexer, c);
 }
 
-static void SetLexerLocus(TidyDocImpl* doc, Lexer * lexer)
+static void FASTCALL SetLexerLocus(const TidyDocImpl* doc, Lexer * lexer)
 {
 	lexer->lines = doc->docIn->curline;
 	lexer->columns = doc->docIn->curcol;

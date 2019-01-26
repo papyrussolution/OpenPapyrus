@@ -230,7 +230,7 @@ FANN_EXTERNAL void FANN_API fann_set_error_log(struct fann_error * errdat, FILE 
 // See also: <fann_errno_enum>, <fann_reset_errno>
 // This function appears in FANN >= 1.1.0.
 // 
-FANN_EXTERNAL enum fann_errno_enum FANN_API fann_get_errno(struct fann_error * errdat);
+FANN_EXTERNAL enum fann_errno_enum FANN_API fann_get_errno(const struct fann_error * errdat);
 // 
 // Resets the last error number.
 // This function appears in FANN >= 1.1.0.
@@ -297,23 +297,23 @@ __doublefann_h__ is not defined
 
 /* FANN_GAUSSIAN */
 /* #define fann_gaussian(steepness, sum) (exp(-sum * steepness * sum * steepness)) */
-#define fann_gaussian_real(sum) (FANN_EXP(-sum * sum))
+#define fann_gaussian_real(sum) (FANN_EXP(-(sum) * (sum)))
 #define fann_gaussian_derive(steepness, value, sum) (-2.0f * sum * value * steepness * steepness)
 
 /* FANN_GAUSSIAN_SYMMETRIC */
 /* #define fann_gaussian_symmetric(steepness, sum) ((exp(-sum * steepness * sum * steepness)*2.0)-1.0) */
-#define fann_gaussian_symmetric_real(sum) ((FANN_EXP(-sum * sum)*2.0f)-1.0f)
+#define fann_gaussian_symmetric_real(sum) ((FANN_EXP(-(sum) * (sum))*2.0f)-1.0f)
 #define fann_gaussian_symmetric_derive(steepness, value, sum) (-2.0f * sum * (value+1.0f) * steepness * steepness)
 
 /* FANN_ELLIOT */
 /* #define fann_elliot(steepness, sum) (((sum * steepness) / 2.0f) / (1.0f + fabsf(sum * steepness)) + 0.5f) */
 #define fann_elliot_real(sum) (((sum) / 2.0f) / (1.0f + fabsf(sum)) + 0.5f)
-#define fann_elliot_derive(steepness, value, sum) (steepness * 1.0f / (2.0f * (1.0f + fabsf(sum)) * (1.0f + fabsf(sum))))
+#define fann_elliot_derive(steepness, value, sum) ((steepness) * 1.0f / (2.0f * (1.0f + fabsf(sum)) * (1.0f + fabsf(sum))))
 
 /* FANN_ELLIOT_SYMMETRIC */
 /* #define fann_elliot_symmetric(steepness, sum) ((sum * steepness) / (1.0f + fabsf(sum * steepness)))*/
 #define fann_elliot_symmetric_real(sum) ((sum) / (1.0f + fabsf(sum)))
-#define fann_elliot_symmetric_derive(steepness, value, sum) (steepness * 1.0f / ((1.0f + fabsf(sum)) * (1.0f + fabsf(sum))))
+#define fann_elliot_symmetric_derive(steepness, value, sum) ((steepness) * 1.0f / ((1.0f + fabsf(sum)) * (1.0f + fabsf(sum))))
 /* FANN_SIN_SYMMETRIC */
 #define fann_sin_symmetric_real(sum) (FANN_SIN(sum))
 #define fann_sin_symmetric_derive(steepness, sum) (steepness*cos(steepness*sum))
@@ -810,7 +810,7 @@ struct fann_connection {
 #else
 	#define FANN_CONF_VERSION FANN_FLO_VERSION
 #endif
-#define FANN_GET(type, name) FANN_EXTERNAL type FANN_API fann_get_ ## name(Fann2 *ann) { return ann->name; }
+#define FANN_GET(type, name) FANN_EXTERNAL type FANN_API fann_get_ ## name(const Fann2 *ann) { return ann->name; }
 #define FANN_SET(type, name) FANN_EXTERNAL void FANN_API fann_set_ ## name(Fann2 *ann, type value) { ann->name = value; }
 #define FANN_GET_SET(type, name) FANN_GET(type, name) FANN_SET(type, name)
 
@@ -838,7 +838,7 @@ void fann_update_weights_sarprop(Fann2 *ann, uint epoch, uint first_weight, uint
 void fann_clear_train_arrays(Fann2 *ann);
 float fann_activation(Fann2 * ann, uint activation_function, float steepness, float value);
 //float fann_activation_derived(uint activation_function, float steepness, float value, float sum);
-int fann_desired_error_reached(Fann2 *ann, float desired_error);
+int fann_desired_error_reached(const Fann2 *ann, float desired_error);
 //
 // Some functions for cascade 
 //
@@ -847,7 +847,7 @@ float fann_train_outputs_epoch(Fann2 *ann, struct fann_train_data *data);
 int fann_train_candidates(Fann2 *ann, struct fann_train_data *data);
 float fann_train_candidates_epoch(Fann2 *ann, struct fann_train_data *data);
 void fann_install_candidate(Fann2 *ann);
-int fann_check_input_output_sizes(Fann2 *ann, struct fann_train_data *data);
+int fann_check_input_output_sizes(Fann2 *ann, const struct fann_train_data *data);
 int fann_initialize_candidates(Fann2 *ann);
 void fann_set_shortcut_connections(Fann2 *ann);
 //int fann_allocate_scale(Fann2 *ann);
@@ -871,7 +871,7 @@ FANN_EXTERNAL void FANN_API fann_scale_data_to_range(float ** data, uint num_dat
 	#define fann_random_bias_weight() (float)(fann_rand((0-multiplier)/10,multiplier/10))
 #else
 	#define fann_mult(x,y) (x*y)
-	#define fann_div(x,y) (x/y)
+	#define fann_div(x,y) ((x)/(y))
 	#define fann_random_weight() (fann_rand(-0.1f,0.1f))
 	#define fann_random_bias_weight() (fann_rand(-0.1f,0.1f))
 #endif
@@ -953,7 +953,7 @@ FANN_EXTERNAL float * FANN_API fann_test(Fann2 * ann, float * input, float * des
 
         This function appears in FANN >= 1.1.0.
  */
-FANN_EXTERNAL float FANN_API fann_get_MSE(Fann2 * ann);
+FANN_EXTERNAL float FANN_API fann_get_MSE(const Fann2 * ann);
 
 /* Function: fann_get_bit_fail
 
@@ -969,7 +969,7 @@ FANN_EXTERNAL float FANN_API fann_get_MSE(Fann2 * ann);
 
         This function appears in FANN >= 2.0.0
  */
-FANN_EXTERNAL uint FANN_API fann_get_bit_fail(Fann2 * ann);
+FANN_EXTERNAL uint FANN_API fann_get_bit_fail(const Fann2 * ann);
 
 /* Function: fann_reset_MSE
    Resets the mean square error from the network.
@@ -1394,7 +1394,7 @@ FANN_EXTERNAL void FANN_API fann_scale_train_data(struct fann_train_data * train
 
    This function appears in FANN >= 1.1.0.
  */
-FANN_EXTERNAL struct fann_train_data * FANN_API fann_merge_train_data(struct fann_train_data * data1, struct fann_train_data * data2);
+FANN_EXTERNAL struct fann_train_data * FANN_API fann_merge_train_data(struct fann_train_data * data1, const struct fann_train_data * data2);
 
 /* Function: fann_duplicate_train_data
 
@@ -1425,19 +1425,19 @@ FANN_EXTERNAL struct fann_train_data * FANN_API fann_subset_train_data(struct fa
 
    This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL uint FANN_API fann_length_train_data(struct fann_train_data * data);
+FANN_EXTERNAL uint FANN_API fann_length_train_data(const struct fann_train_data * data);
 // 
 // Descr: Returns the number of inputs in each of the training patterns in the <struct fann_train_data>.
 // See also: <fann_num_train_data>, <fann_num_output_train_data>
 // This function appears in FANN >= 2.0.0.
 // 
-FANN_EXTERNAL uint FANN_API fann_num_input_train_data(struct fann_train_data * data);
+FANN_EXTERNAL uint FANN_API fann_num_input_train_data(const struct fann_train_data * data);
 // 
 // Descr: Returns the number of outputs in each of the training patterns in the <struct fann_train_data>.
 // See also: <fann_num_train_data>, <fann_num_input_train_data>
 // This function appears in FANN >= 2.0.0.
 // 
-FANN_EXTERNAL uint FANN_API fann_num_output_train_data(struct fann_train_data * data);
+FANN_EXTERNAL uint FANN_API fann_num_output_train_data(const struct fann_train_data * data);
 // 
 // Descr: Save the training structure to a file, with the format as specified in <fann_read_train_from_file>
 // Return:
@@ -2292,7 +2292,7 @@ FANN_EXTERNAL void FANN_API fann_set_cascade_min_cand_epochs(Fann2 * ann, uint c
 
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL uint FANN_API fann_get_cascade_num_candidates(Fann2 * ann);
+FANN_EXTERNAL uint FANN_API fann_get_cascade_num_candidates(const Fann2 * ann);
 
 /* Function: fann_get_cascade_activation_functions_count
 
@@ -2367,7 +2367,7 @@ FANN_EXTERNAL float * FANN_API fann_get_cascade_activation_steepnesses(Fann2 * a
 
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_cascade_activation_steepnesses(Fann2 * ann, float * cascade_activation_steepnesses, uint cascade_activation_steepnesses_count);
+FANN_EXTERNAL void FANN_API fann_set_cascade_activation_steepnesses(Fann2 * ann, const float * cascade_activation_steepnesses, uint cascade_activation_steepnesses_count);
 
 /* Function: fann_get_cascade_num_candidate_groups
    The number of candidate groups is the number of groups of identical candidates which will be used
@@ -2676,7 +2676,7 @@ FANN_EXTERNAL uint FANN_API fann_get_num_output(Fann2 * ann);
 //   bias neurons, so a 2-4-2 network has 2+4+2 +2(bias) = 10 neurons.
 // This function appears in FANN >= 1.0.0.
 // 
-FANN_EXTERNAL uint FANN_API fann_get_total_neurons(Fann2 * ann);
+FANN_EXTERNAL uint FANN_API fann_get_total_neurons(const Fann2 * ann);
 // 
 // Get the total number of connections in the entire network.
 // This function appears in FANN >= 1.0.0.
@@ -2691,7 +2691,7 @@ FANN_EXTERNAL uint FANN_API fann_get_total_connections(Fann2 * ann);
 // See Also: <fann_network_type_enum>
 // This function appears in FANN >= 2.1.0
 // 
-FANN_EXTERNAL enum fann_nettype_enum FANN_API fann_get_network_type(Fann2 * ann);
+FANN_EXTERNAL enum fann_nettype_enum FANN_API fann_get_network_type(const Fann2 * ann);
 
 /* Function: fann_get_connection_rate
 
@@ -2706,7 +2706,7 @@ FANN_EXTERNAL enum fann_nettype_enum FANN_API fann_get_network_type(Fann2 * ann)
 
    This function appears in FANN >= 2.1.0
  */
-FANN_EXTERNAL float FANN_API fann_get_connection_rate(Fann2 * ann);
+FANN_EXTERNAL float FANN_API fann_get_connection_rate(const Fann2 * ann);
 
 /* Function: fann_get_num_layers
 
@@ -2726,7 +2726,7 @@ FANN_EXTERNAL float FANN_API fann_get_connection_rate(Fann2 * ann);
 
    This function appears in FANN >= 2.1.0
  */
-FANN_EXTERNAL uint FANN_API fann_get_num_layers(Fann2 * ann);
+FANN_EXTERNAL uint FANN_API fann_get_num_layers(const Fann2 * ann);
 
 /*Function: fann_get_layer_array
 
@@ -2790,7 +2790,7 @@ FANN_EXTERNAL void FANN_API fann_get_connection_array(Fann2 * ann, struct fann_c
 
    This function appears in FANN >= 2.1.0
  */
-FANN_EXTERNAL void FANN_API fann_set_weight_array(Fann2 * ann, struct fann_connection * connections, uint num_connections);
+FANN_EXTERNAL void FANN_API fann_set_weight_array(Fann2 * ann, const struct fann_connection * connections, uint num_connections);
 
 /* Function: fann_set_weight
 
@@ -2820,7 +2820,7 @@ FANN_EXTERNAL void FANN_API fann_set_weight(Fann2 * ann,
 
    This function appears in FANN >= x.y.z
  */
-FANN_EXTERNAL void FANN_API fann_get_weights(Fann2 * ann, float * weights);
+FANN_EXTERNAL void FANN_API fann_get_weights(const Fann2 * ann, float * weights);
 
 /* Function: fann_set_weights
 
@@ -2835,7 +2835,7 @@ FANN_EXTERNAL void FANN_API fann_get_weights(Fann2 * ann, float * weights);
 
    This function appears in FANN >= x.y.z
  */
-FANN_EXTERNAL void FANN_API fann_set_weights(Fann2 * ann, float * weights);
+FANN_EXTERNAL void FANN_API fann_set_weights(Fann2 * ann, const float * weights);
 
 /* Function: fann_set_user_data
 

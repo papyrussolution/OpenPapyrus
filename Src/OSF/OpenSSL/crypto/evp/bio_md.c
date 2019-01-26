@@ -173,11 +173,8 @@ static long md_callback_ctrl(BIO * b, int cmd, bio_info_cb * fp)
 	BIO * next = BIO_next(b);
 	if(!next)
 		return 0;
-	switch(cmd) {
-		default:
-		    ret = BIO_callback_ctrl(next, cmd, fp);
-		    break;
-	}
+	//switch(cmd) { default: ret = BIO_callback_ctrl(next, cmd, fp); break; }
+	ret = BIO_callback_ctrl(next, cmd, fp); // @default-only-switch
 	return ret;
 }
 

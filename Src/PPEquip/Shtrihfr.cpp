@@ -50,7 +50,7 @@ int SLAPI BillTaxArray::Insert(BillTaxEntry * e, uint * p)
 
 BillTaxEntry & SLAPI BillTaxArray::at(uint p)
 {
-	return *(BillTaxEntry *)SVector::at(p);
+	return *static_cast<BillTaxEntry *>(SVector::at(p));
 }
 
 int SLAPI BillTaxArray::Add(BillTaxEntry * e)

@@ -631,9 +631,9 @@ static int SetAdvBillItemEntry(AdvBillItemEntry * pEntry, const PPAdvBillItemLis
 	temp_buf.CopyTo(pEntry->BillKind, sizeof(pEntry->BillKind));
 	acctid.ac = pItem->AccID;
 	acctid.ar = pItem->ArID;
-	pBObj->atobj->P_Tbl->ConvertAcctID(&acctid, &acct, 0, 0);
+	pBObj->atobj->P_Tbl->ConvertAcctID(acctid, &acct, 0, 0);
 	acct.ToStr(ACCF_DEFAULT, acc_buf);
-	GetAcctIDName(&acctid, 0, temp_buf);
+	GetAcctIDName(acctid, 0, temp_buf);
 	(result_buf = acc_buf).Space().Space().Cat(temp_buf).CopyTo(pEntry->Account, sizeof(pEntry->Account));
 	CATCHZOK
 	return ok;

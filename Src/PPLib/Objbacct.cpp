@@ -1,5 +1,5 @@
 // OBJBACCT.CPP
-// Copyright (c) A.Sobolev 1996, 1997-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2019
 // @codepage windows-1251
 // ќбъект, управл€ющий банковскими счетами
 //
@@ -13,10 +13,9 @@
 //
 TLP_IMPL(PPObjBnkAcct, BankAccountTbl, P_Tbl); // BankAccountCore-->BankAccountTbl
 
-SLAPI PPObjBnkAcct::PPObjBnkAcct(void * extraPtr) : PPObject(PPOBJ_BACCT)
+SLAPI PPObjBnkAcct::PPObjBnkAcct(void * extraPtr) : PPObject(PPOBJ_BACCT), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
-	ExtraPtr = extraPtr;
 	ImplementFlags |= implStrAssocMakeList;
 }
 

@@ -1379,6 +1379,72 @@ int SLAPI STimeSeries::Analyze(const char * pVecSymb, Stat & rS) const
 	return ok;
 }
 
+int SLAPI STimeSeries::RemoveItem(uint idx)
+{
+	int    ok = -1;
+	if(idx < GetCount()) {
+		for(uint vec_idx = 0; vec_idx < VL.getCount(); vec_idx++) {
+			ValuVec * p_vec = VL.at(vec_idx);
+			if(p_vec) {
+				THROW(p_vec->getCount() == GetCount());
+				p_vec->atFree(idx);
+			}
+		}
+		T.atFree(idx);
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI STimeSeries::Repair(const char * pCriticalVecSymb)
+{
+	int    ok = -1;
+	const  uint _c = GetCount();
+	if(_c) {
+		LongArray pos_to_remove;
+		Sort();
+		SUniTime prev_utm;
+		SUniTime utm;
+		double value = 0.0;
+		double prev_value = 0.0;
+		STimeSeries::ValuVec * p_vec = 0;
+		uint   vec_idx = 0;
+		if(!isempty(pCriticalVecSymb)) {
+			THROW(p_vec = GetVecBySymb(pCriticalVecSymb, &vec_idx));
+		}
+		for(uint i = 0; i < _c; i++) {
+			THROW(GetTime(i, &utm));
+			if(p_vec) {
+				const void * p_value_buf = p_vec->at(i);
+				value = p_vec->ConvertInnerToDouble(p_value_buf);
+			}
+			if(i) {
+				int   sq = 0;
+				int   si = utm.Compare(prev_utm, &sq);
+				if(si == 0 && sq == SUniTime::cmprSureTrue) {
+					/*if(p_vec) {
+						assert(feqeps(value, prev_value, 1e-6));
+					}*/
+					pos_to_remove.add(i);
+				}
+			}
+			prev_utm = utm;
+			prev_value = value;
+		}
+		{
+			uint rp = pos_to_remove.getCount();
+			if(rp) do {
+				const uint idx_to_remove = static_cast<const uint>(pos_to_remove.get(--rp));
+				THROW(RemoveItem(idx_to_remove));
+				ok = 1;
+			} while(rp);
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 SLAPI STimeSeries::AnalyzeFitParam::AnalyzeFitParam(uint distance, uint firstIdx, uint count) : Distance(distance), FirstIdx(firstIdx), IdxCount(count), Flags(0)
 {
 }

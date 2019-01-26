@@ -640,7 +640,7 @@ int SLAPI PPObjectTransmit::GetHeader(const char * pFileName, PPObjectTransmit::
 	return ok;
 }
 
-int SLAPI PPObjectTransmit::Write(FILE * stream, void * p, size_t s)
+int SLAPI PPObjectTransmit::Write(FILE * stream, const void * p, size_t s)
 	{ return (stream && fwrite(p, s, 1, stream) == 1) ? 1 : PPSetError(PPERR_PPOSWRITEFAULT); }
 int SLAPI PPObjectTransmit::Read(FILE * stream, void * p, size_t s)
 	{ return (stream && fread(p, s, 1, stream) == 1) ? 1 : PPSetError(PPERR_PPOSREADFAULT); }
@@ -1087,7 +1087,7 @@ SString & SLAPI PPObjectTransmit::GetQueueFilePath(SString & rBuf)
 	return rBuf.SetLastSlash().Cat("SYNCQUE").SetLastSlash();
 }
 
-int SLAPI PPObjectTransmit::Helper_PushObjectsToQueue(PPObjectTransmit::Header & rHdr, long sysFileId, const TSVector <ObjSyncQueueTbl::Rec> & rList, int use_ta) // @v9.8.6 TSArray-->TSVector
+int SLAPI PPObjectTransmit::Helper_PushObjectsToQueue(const PPObjectTransmit::Header & rHdr, long sysFileId, const TSVector <ObjSyncQueueTbl::Rec> & rList, int use_ta) // @v9.8.6 TSArray-->TSVector
 {
 	int    ok = 1;
 	SString msg_buf;

@@ -174,7 +174,7 @@ static /*inline*/ int8 FASTCALL aux_end(zbar_decoder_t * dcode, uchar fwd)
 // determine possible auxiliary pattern
 // using current 4 as possible character
 //
-static /*inline*/ int8 FASTCALL aux_start(zbar_decoder_t * dcode)
+static /*inline*/ int8 FASTCALL aux_start(const zbar_decoder_t * dcode)
 {
 	/* FIXME NB add-on has no guard in reverse */
 	uint e1, e2 = get_width(dcode, 5) + get_width(dcode, 6);
@@ -219,7 +219,7 @@ static /*inline*/ int8 FASTCALL aux_start(zbar_decoder_t * dcode)
 //
 // check addon delimiter using current 4 as character
 //
-static /*inline*/ int8 FASTCALL aux_mid(zbar_decoder_t * dcode)
+static /*inline*/ int8 FASTCALL aux_mid(const zbar_decoder_t * dcode)
 {
 	uint e = get_width(dcode, 4) + get_width(dcode, 5);
 	return(decode_e(e, dcode->ean.s4, 7));
@@ -227,7 +227,7 @@ static /*inline*/ int8 FASTCALL aux_mid(zbar_decoder_t * dcode)
 //
 // attempt to decode previous 4 widths (2 bars and 2 spaces) as a character 
 //
-static /*inline*/ int8 FASTCALL decode4(zbar_decoder_t * dcode)
+static /*inline*/ int8 FASTCALL decode4(const zbar_decoder_t * dcode)
 {
 	int8 code;
 	/* calculate similar edge measurements */
@@ -237,8 +237,7 @@ static /*inline*/ int8 FASTCALL decode4(zbar_decoder_t * dcode)
 	if(dcode->ean.s4 < 6)
 		return -1;
 	/* create compacted encoding for direct lookup */
-	code = ((decode_e(e1, dcode->ean.s4, 7) << 2) |
-	    decode_e(e2, dcode->ean.s4, 7));
+	code = ((decode_e(e1, dcode->ean.s4, 7) << 2) | decode_e(e2, dcode->ean.s4, 7));
 	if(code < 0)
 		return -1;
 	dbprintf(2, " code=%x", code);
@@ -251,13 +250,9 @@ static /*inline*/ int8 FASTCALL decode4(zbar_decoder_t * dcode)
 	if((1 << code) & 0x0660) {
 		uchar mid, alt;
 		/* use sum of bar widths */
-		uint d2 = ((get_color(dcode) == ZBAR_BAR)
-		    ? get_width(dcode, 0) + get_width(dcode, 2)
-		    : get_width(dcode, 1) + get_width(dcode, 3));
+		uint d2 = ((get_color(dcode) == ZBAR_BAR) ? get_width(dcode, 0) + get_width(dcode, 2) : get_width(dcode, 1) + get_width(dcode, 3));
 		d2 *= 7;
-		mid = (((1 << code) & 0x0420)
-		    ? 3              /* E1E2 in 33,44 */
-		    : 4);            /* E1E2 in 34,43 */
+		mid = (((1 << code) & 0x0420) ? 3 /* E1E2 in 33,44 */ : 4 /* E1E2 in 34,43 */);
 		alt = d2 > (mid * dcode->ean.s4);
 		if(alt)
 			code = ((code >> 1) & 3) | 0x10;  /* compress code space */

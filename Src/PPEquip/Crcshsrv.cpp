@@ -1,5 +1,5 @@
 // CRCSHSRV.CPP
-// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 // Интерфейс (асинхронный) к драйверу кассового сервера (ООО Кристалл Сервис)
 //
@@ -2804,7 +2804,7 @@ int SLAPI ACS_CRCSHSRV::SearchCardCode(SCardCore * pSc, const char * pCode, SCar
 	return 0;
 }
 
-static void ReplaceFilePath(SString & destFileName, SString & srcFileName)
+static void FASTCALL ReplaceFilePath(SString & destFileName, const SString & srcFileName)
 {
 	SString   file_path, slash = "\\/";
 	(file_path = srcFileName).TrimToDiv(srcFileName.Len() - 1, slash);

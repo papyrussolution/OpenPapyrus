@@ -1,5 +1,5 @@
 // V_BUDGET.CPP
-// Copyright (c) A.Starodub 2010, 2011, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019
 //
 // PPViewBudget
 //
@@ -1100,7 +1100,7 @@ PPBaseFilt * SLAPI PPViewBudget::CreateFilt(void * extraPtr) const
 {
 	BudgetFilt * p_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_BUDGET, (PPBaseFilt**)&p_filt))
-		p_filt->Kind = (uint16)extraPtr; // @valid
+		p_filt->Kind = reinterpret_cast<uint16>(extraPtr); // @valid
 	return (PPBaseFilt*)p_filt;
 }
 
@@ -1216,7 +1216,7 @@ int SLAPI PPViewBudget::CheckForFilt(void * pRec)
 {
 	int ok = 1;
 	if(Filt.Kind == BudgetFilt::kBudget) {
-		PPBudget * p_rec = (PPBudget*)pRec;
+		PPBudget * p_rec = static_cast<PPBudget *>(pRec);
 		if(p_rec->ParentID != 0)
 			ok = 0;
 		else if(!Filt.Period.CheckDate(p_rec->LowDt) || !Filt.Period.CheckDate(p_rec->UppDt))
@@ -1224,7 +1224,7 @@ int SLAPI PPViewBudget::CheckForFilt(void * pRec)
 	}
 	else {
 		PPAccount acc_rec;
-		BudgetItemTbl::Rec * p_rec = (BudgetItemTbl::Rec*)pRec;
+		BudgetItemTbl::Rec * p_rec = static_cast<BudgetItemTbl::Rec *>(pRec);
 		if(Filt.BudgetID != p_rec->BudgetID)
 			ok = 0;
 		else if(Filt.ParentKind != -1 && Filt.ParentKind != p_rec->Kind)
@@ -1240,12 +1240,12 @@ int SLAPI PPViewBudget::CheckForFilt(void * pRec)
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempBudget);
 PP_CREATE_TEMP_FILE_PROC(CreateTempItemFile, TempBudgItem);
 
-int SLAPI PPViewBudget::UpdateTempTable(PPIDArray & rIdList)
+int SLAPI PPViewBudget::UpdateTempTable(const PPIDArray & rIdList)
 {
 	int    ok = 1;
 	PPID  id = 0;
 	if(P_TempBudgTbl) {
-		id = (rIdList.getCount()) ? rIdList.at(0) : 0;
+		id = rIdList.getCount() ? rIdList.at(0) : 0;
 		PPBudget budg_rec;
 		TempBudgetTbl::Key0 k0;
 		TempBudgetTbl::Rec  temp_rec;
@@ -1270,7 +1270,7 @@ int SLAPI PPViewBudget::UpdateTempTable(PPIDArray & rIdList)
 	else {
 		uint count = rIdList.getCount();
 		for(uint i = 0; i < count; i++) {
-			PPID id = rIdList.at(i);
+			const PPID id = rIdList.at(i);
 			BudgetItemTbl::Rec rec;
 			TempBudgItemTbl::Rec  temp_rec;
 			TempBudgItemTbl::Key0 k0;
@@ -1300,6 +1300,7 @@ int SLAPI PPViewBudget::UpdateTempTable(PPIDArray & rIdList)
 				if(rec.Acc && ObjAcct.Search(rec.Acc, &acc_rec) > 0 && acc_rec.ParentID != Filt.ParentAcctID) {
 					StrAssocArray list;
 					if(ObjAcct.GetParentList(rec.Acc, &list) > 0) {
+						PPIDArray idlist;
 						for(uint i = 0, stop = 0; !stop && i < list.getCount(); i++) {
 							StrAssocArray::Item _item = list.Get(i);
 							if(_item.ParentId == Filt.ParentAcctID) {
@@ -1307,7 +1308,7 @@ int SLAPI PPViewBudget::UpdateTempTable(PPIDArray & rIdList)
 								MEMSZERO(par_rec);
 								stop = 1;
 								if(ObjBudg.ItemsTbl.Search(rec.BudgetID, _item.Id, rec.Kind, rec.Dt, &par_rec) > 0) {
-									PPIDArray idlist;
+									idlist.clear();
 									idlist.add(par_rec.ID);
 									UpdateTempTable(idlist); // @recursion
 								}
@@ -1349,7 +1350,6 @@ int SLAPI PPViewBudget::Init_(const PPBaseFilt * pFilt)
 			PPBudget budget;
 			BExtInsert bei(P_TempBudgTbl);
 			PPTransaction tra(ppDbDependTransaction, 1);
-
 			for(ObjBudg.ref->InitEnum(PPOBJ_BUDGET, 0, &h); ObjBudg.ref->NextEnum(h, &budget) > 0;) {
 				if(CheckForFilt(&budget) > 0) {
 					TempBudgetTbl::Rec temp_rec;

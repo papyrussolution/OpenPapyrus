@@ -1,5 +1,5 @@
 // DBDICT.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2017, 2018
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -171,7 +171,7 @@ SString & SLAPI BDictionary::MakeFileName_(const char * pTblName, SString & rFil
 		BNKey k = pTbl->indexes.getKey(i);
 		for(int j = 0; j < k.getNumSeg(); j++) {
 			const BNField & f = pTbl->fields[k.getFieldID(j)];
-			int16  offs = (int16)(f.Offs + 1);
+			int16  offs = static_cast<int16>(f.Offs + 1);
 			if(GETSTYPE(f.T) == S_DATETIME) {
 				//
 				// Для типа S_DATETIME в btrieve-таблице придется создать два сегмента: S_DATE; S_TIME
@@ -190,7 +190,7 @@ SString & SLAPI BDictionary::MakeFileName_(const char * pTblName, SString & rFil
 				{
 					DBIdxSpec & r_idx = *new DBIdxSpec;
 					MEMSZERO(r_idx);
-					r_idx.position  = offs + (int16)sizeof(LDATE);
+					r_idx.position  = offs + static_cast<int16>(sizeof(LDATE));
 					r_idx.length    = sizeof(LTIME);
 					r_idx.flags     = k.getFlags(j);
 					r_idx.extType   = SLib2BtrType(S_TIME);
@@ -203,7 +203,7 @@ SString & SLAPI BDictionary::MakeFileName_(const char * pTblName, SString & rFil
 				DBIdxSpec & r_idx = *new DBIdxSpec;
 				MEMSZERO(r_idx);
 				r_idx.position  = offs;
-				r_idx.length    = (int16)stsize(f.T);
+				r_idx.length    = static_cast<int16>(stsize(f.T));
 				r_idx.flags     = k.getFlags(j);
 				r_idx.extType   = SLib2BtrType(GETSTYPE(f.T));
 				r_idx.keyNumber = k.getKeyNumber();
@@ -362,7 +362,7 @@ SLAPI BRecoverParam::BRecoverParam() : P_DestPath(0), P_BakPath(0), Format(0), F
 {
 }
 
-int SLAPI BRecoverParam::callbackProc(int, void *, void *, void *)
+int SLAPI BRecoverParam::callbackProc(int, const void * lp1, const void * lp2, const void * vp)
 {
 	return -1;
 }
@@ -379,7 +379,8 @@ int SLAPI BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 	char   acs[265];
 	char   buf[MAXPATH];
 	STempBuffer rec_buf(8192);
-	long   s_bak_ext = 0x5F5F5FL;
+	//long   s_bak_ext = 0x5F5F5FL;
+	static const char * p_bak_ext = "___";
 	SString path, dest, spart;
 	TablePartsEnum tpe(0);
 	DBTable tbl, newtbl;
@@ -393,7 +394,7 @@ int SLAPI BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 				SString tbl_name = ts.TblName;
 				DBS.GetProtectData(buf, 1);
 				THROW(tbl.open(tbl_name, path, omReadOnly));
-				tbl.setDataBuf(rec_buf, (RECORDSIZE)rec_buf.GetSize());
+				tbl.setDataBuf(rec_buf, static_cast<RECORDSIZE>(rec_buf.GetSize()));
 				tbl.getNumRecs(&pParam->OrgNumRecs);
 				fix_rec_size = tbl.getRecSize();
 				if(pParam->P_DestPath && pParam->P_DestPath[0]) {
@@ -424,7 +425,7 @@ int SLAPI BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 						newtbl.GetLobField(newtbl.GetLobCount()-1, &lob_fld);
 					else
 						lob_fld.Id = 0;
-					pParam->callbackProc(BREV_START, (void *)path.cptr(), (void *)dest.cptr());
+					pParam->callbackProc(BREV_START, path.cptr(), dest.cptr());
 					if(tbl.step(sp_first) || BtrError == BE_VLRPAGE) {
 						do {
 							RECORDSIZE retBufLen = tbl.getRetBufLen();
@@ -437,13 +438,13 @@ int SLAPI BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 								newtbl.setDataBuf(tbl.getDataBuf(), retBufLen);
 							if(newtbl.insertRec()) {
 								pParam->ActNumRecs++;
-								if(!pParam->callbackProc(BREV_PROGRESS, (void *)pParam->ActNumRecs, (void *)pParam->OrgNumRecs, (void *)path.cptr())) {
+								if(!pParam->callbackProc(BREV_PROGRESS, (const void *)pParam->ActNumRecs, (const void *)pParam->OrgNumRecs, path.cptr())) {
 									ok = -1;
 									break;
 								}
 							}
 							else {
-								if(!pParam->callbackProc(BREV_ERRINS, (void *)(RECORDNUMBER)pos, (void *)retBufLen, tbl.getDataBuf())) {
+								if(!pParam->callbackProc(BREV_ERRINS, (const void *)(RECORDNUMBER)pos, (const void *)retBufLen, tbl.getDataBuf())) {
 									ok = -1;
 									break;
 								}
@@ -452,14 +453,14 @@ int SLAPI BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 					}
 					if(ok >= 0) {
 						if(!BTRNFOUND) {
-							pParam->callbackProc(BREV_ERRSTEP, (void *)(RECORDNUMBER)pos);
+							pParam->callbackProc(BREV_ERRSTEP, (const void *)(RECORDNUMBER)pos);
 							ok = 0;
 						}
-						pParam->callbackProc(BREV_FINISH, (void *)pParam->ActNumRecs, (void *)pParam->OrgNumRecs);
+						pParam->callbackProc(BREV_FINISH, (const void *)pParam->ActNumRecs, (const void *)pParam->OrgNumRecs);
 					}
 				}
 				else {
-					pParam->callbackProc(BREV_ERRCREATE, (void *)dest.cptr()); // @badcast
+					pParam->callbackProc(BREV_ERRCREATE, dest.cptr());
 					ok = 0;
 				}
 			}
@@ -480,7 +481,7 @@ int SLAPI BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 			for(tpe.Init(path); ok && tpe.Next(spart, &first) > 0;) {
 				SPathStruc::ReplacePath(temp_buf = spart, pParam->P_BakPath, 1);
 				if(!SFile::Rename(spart, temp_buf)) {
-					pParam->callbackProc(BREV_ERRRENAME, (void *)dest.cptr()); // @badcast
+					pParam->callbackProc(BREV_ERRRENAME, dest.cptr());
 					ok = 0;
 				}
 			}
@@ -495,7 +496,7 @@ int SLAPI BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 		else {
 			int    renm = 1;
 			STRNSCPY(buf, path);
-			SPathStruc::ReplaceExt(path, (const char *)&s_bak_ext, 1);
+			SPathStruc::ReplaceExt(path, p_bak_ext, 1);
 			for(tpe.Init(path); tpe.Next(spart, &first) > 0;) {
 				tpe.ReplaceExt(first, spart, temp_buf);
 				if(fileExists(spart)) {

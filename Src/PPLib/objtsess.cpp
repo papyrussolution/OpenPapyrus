@@ -647,9 +647,8 @@ void * FASTCALL PPObjTSession::MakeExtraParam(PPID superSessID, PPID prcID, int 
 //
 TLP_IMPL(PPObjTSession, TSessionCore, P_Tbl);
 
-SLAPI PPObjTSession::PPObjTSession(void * extraPtr) : PPObject(PPOBJ_TSESSION), P_BhtCurSess(0)
+SLAPI PPObjTSession::PPObjTSession(void * extraPtr) : PPObject(PPOBJ_TSESSION), P_BhtCurSess(0), ExtraPtr(extraPtr)
 {
-	ExtraPtr = extraPtr;
 	TLP_OPEN(P_Tbl);
 	MEMSZERO(Cfg);
 	ImplementFlags |= implStrAssocMakeList;

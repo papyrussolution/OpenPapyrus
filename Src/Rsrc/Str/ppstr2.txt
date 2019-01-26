@@ -2098,6 +2098,7 @@ PPERR_NOSCARDSERRSRVPOOL         "Не удалось найти серию ка
 PPERR_SCARDSERMUSTBERSRVPOOL     "Серия карт (%s) должна быть резервным пулом"
 PPERR_SCARDSERMUSTBEREGTYPE      "Серия карт (%s) должна иметь регулярный тип (дисконтная, кредитная или бонусная)"
 PPERR_SCARDSERRSRVPOOLISEMPTY    "Нет доступных карт в резервном пуле %s"
+PPERR_TIMSERNEEDED               "Необходимо указать временную серию"
 // LastError
 
 [102] // confirmation
@@ -3701,7 +3702,7 @@ PPTXT_POVERB       "1,Присвоить персоналии вид;2,Отоз�
 PPTXT_CFGNAMES               "@{cfg_goods};@{cfg_bill};@{cfg_project};@{cfg_techsess};@{cfg_predictsales};@{cfg_predictholydays};@{cfg_albatros};@{cfg_inetconn};\
 @{cfg_vatbooksell};@{cfg_vatbookbuy};@{cfg_simpleledger};@{cfg_pricelist};@{cfg_dbxchng};@{cfg_equip};@{cfg_stylopalm};@{cfg_clibnkas};\
 @{cfg_jobpool};@{cfg_clientdeal};@{cfg_suppldeal};@{cfg_commconfig};@{cfg_keybwkeycfg};@{cfg_csessimpexpcfg};@{cfg_scard};@{cfg_person};\
-@{cfg_dbmaintain};@{cfg_transp};@{cfg_debtorstat};@{cfg_location};@{cfg_stockopt};@{cfg_globaluseracc};@{cfg_workbook};@{cfg_alcreport}"
+@{cfg_dbmaintain};@{cfg_transp};@{cfg_debtorstat};@{cfg_location};@{cfg_stockopt};@{cfg_globaluseracc};@{cfg_workbook};@{cfg_alcreport};@{cfg_timeseries}"
 
 PPTXT_GOODSGRPNGLIST         "1,@{trfranlzfilt_g_goods};2,@{trfranlzfilt_g_cntragent};3,@{trfranlzfilt_g_cntragentdate};\
 4,@{trfranlzfilt_g_goodscntragent};5,@{trfranlzfilt_g_goodscntragentdate};6,@{trfranlzfilt_g_goodsbill};\
@@ -5549,6 +5550,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_rtacclist         "48,L,@account;8,L,Доступен"
 @lbt_rtquotkindlist    "48,L,@quotkind;8,L,Доступен"
 @lbt_phncpaneinfolist  "10,L,A;10,L,B" // placeholder
+@lbt_cfgvatbooklist    "44,L,@oprkind;4,L"
+@lbt_cfgtimser         "14,L,Symbol;10,L,Flags;40,L,Name"
 
 @entmanagementsys        "Система управления предприятием"
 @pgmcopylic_owner        "Владелец лицензии"
@@ -6468,6 +6471,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfg_workbook           "Конфигурация рабочих книг"
 @cfg_alcreport          "Конфигурация алкогольной декларации"
 @cfg_supplixcfg         "Конфигурация обмена данными с поставщиком"
+@cfg_timeseries         "Конфигурация временных рядов"
 //
 // Наименования зарезервированных типов операций
 //
@@ -7104,6 +7108,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_timeseries                           "Временные серии"
 //@cmd_timeseriesnntrain                    "Обучение нейронной сети по временным сериям"
 @cmd_tsstrategyanalyze                    "@{tsstrategyanalyze}"
+@cmd_timeseriesconfig                     "Конфигурация временных серий"
 
 @cmdpu_admin           			          "Админ"
 @cmdpu_salesanalyze    			          "Анализ продаж"
@@ -9453,6 +9458,12 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @person_position                          "Должность"
 @person_rloc                              "@{paddress}"
 @person_status                            "Юридический статус"
+
+@personrt                                  "Права доступа к персоналиям"
+@personrt_unite                            "@{unite_persons}"
+@personrt_updimage                         "Изменение изображений"
+@personrt_uniteaddr                        "Объединение адресов"
+@personrt_multupd                          "Массовое изменение персоналий"
 
 @personevent_dt                           "@{date}"
 @personevent_tm                           "@{time}"

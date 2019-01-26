@@ -161,7 +161,7 @@ SString & FASTCALL PPFormatPeriod(const DateRange * pPeriod, SString & rBuf)
 	return rBuf.Transf(CTRANSF_OUTER_TO_INNER);
 }
 
-SString & FASTCALL PPFormatPeriod(const LDATETIME & rBeg, LDATETIME & rEnd, SString & rBuf)
+SString & FASTCALL PPFormatPeriod(const LDATETIME & rBeg, const LDATETIME & rEnd, SString & rBuf)
 {
 	rBuf.Z();
 	if(rBeg.d) {
@@ -2391,7 +2391,7 @@ void ImageBrowseCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 		if(!IsDirectory(temp_dir))
 			createDir(temp_dir);
 		MakeTempFileName(temp_dir, "pst", "jpg", &start, temp_path);
-		if(CopyPaste(GetDlgItem(pDlg->H(), CtlImage), 0, temp_path) > 0) {
+		if(SClipboard::CopyPaste(GetDlgItem(pDlg->H(), CtlImage), 0, temp_path) > 0) {
 			Data.Flags |= Rec::fUpdated;
 			pDlg->setCtrlString(CtlImage, Data.Path = temp_path);
 			pDlg->clearEvent(event);
@@ -4333,9 +4333,9 @@ void PosNodeCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 
 int PosNodeCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
-	Data = *(Rec*)pData;
-	PPObjCashNode::SelFilt sf; // @v8.2.3
-	sf.Flags |= sf.fSkipPassive; // @v8.2.3
+	Data = *static_cast<Rec *>(pData);
+	PPObjCashNode::SelFilt sf;
+	sf.Flags |= sf.fSkipPassive;
 	SetupPPObjCombo(pDlg, Ctlsel, PPOBJ_CASHNODE, 0, OLW_CANSELUPLEVEL, &sf);
 	SetupComboByBuddyList(pDlg, Ctlsel, Data.List);
 	return 1;
@@ -4343,7 +4343,7 @@ int PosNodeCtrlGroup::setData(TDialog * pDlg, void * pData)
 
 int PosNodeCtrlGroup::getData(TDialog * pDlg, void * pData)
 {
-	Rec * p_rec = (Rec*)pData;
+	Rec * p_rec = static_cast<Rec *>(pData);
 	if(Data.List.GetCount() <= 1) {
 		PPID   temp_id = pDlg->getCtrlLong(Ctlsel);
 		Data.List.FreeAll();
@@ -5285,7 +5285,7 @@ int SLAPI ViewImageInfo(const char * pImagePath, const char * pInfo, const char 
 	return ok;
 }
 
-int SLAPI SetupComboByBuddyList(TDialog * pDlg, uint ctlCombo, ObjIdListFilt & rList)
+int SLAPI SetupComboByBuddyList(TDialog * pDlg, uint ctlCombo, const ObjIdListFilt & rList)
 {
 	pDlg->setCtrlLong(ctlCombo, rList.GetSingle());
 	if(rList.GetCount() > 1) {
@@ -5399,7 +5399,7 @@ int EditMemosDialog::delItem(long pos, long id)
 	return 1;
 }
 
-int SLAPI PutObjMemos(PPID objTypeID, PPID prop, PPID objID, SString & rMemos, int useTa)
+int SLAPI PutObjMemos(PPID objTypeID, PPID prop, PPID objID, const SString & rMemos, int useTa)
 {
 	int    ok = 1;
 	{

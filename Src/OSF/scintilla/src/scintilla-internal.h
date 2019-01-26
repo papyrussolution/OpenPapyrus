@@ -1913,7 +1913,7 @@ public:
 	void Init(const char *textForm);
 	void Init(const char *const *linesForm);
 	/// Decompose image into runs and use FillRectangle for each run
-	void Draw(Surface *surface, PRectangle &rc);
+	void Draw(Surface *surface, const PRectangle &rc);
 	int GetHeight() const { return height; }
 	int GetWidth() const { return width; }
 	void PixelAt(int x, int y, ColourDesired &colour, bool &transparent) const;

@@ -396,11 +396,8 @@ static long ok_callback_ctrl(BIO * b, int cmd, bio_info_cb * fp)
 	BIO * next = BIO_next(b);
 	if(!next)
 		return 0;
-	switch(cmd) {
-		default:
-		    ret = BIO_callback_ctrl(next, cmd, fp);
-		    break;
-	}
+	//switch(cmd) { default: ret = BIO_callback_ctrl(next, cmd, fp); break; }
+	ret = BIO_callback_ctrl(next, cmd, fp); // @default-only-switch
 	return ret;
 }
 
@@ -412,12 +409,9 @@ static void longswap(void * _ptr, size_t len)
 	} is_endian = {
 		1
 	};
-
 	if(is_endian.little) {
-		size_t i;
 		uchar * p = (uchar*)_ptr, c;
-
-		for(i = 0; i < len; i += 4) {
+		for(size_t i = 0; i < len; i += 4) {
 			c = p[0], p[0] = p[3], p[3] = c;
 			c = p[1], p[1] = p[2], p[2] = c;
 		}

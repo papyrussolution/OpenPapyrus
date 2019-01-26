@@ -610,13 +610,11 @@ struct ImportGoodsParam {
 static int SLAPI RequestImportGoodsParam(ImportGoodsParam * pData)
 {
 	int    ok = -1, valid_data = 0;
-	TDialog * dlg = 0;
 	PPGoodsConfig goods_cfg;
 	PPObjGoods::ReadConfig(&goods_cfg);
-
 	SETIFZ(pData->RcptOpID, CConfig.ReceiptOp);
 	SETIFZ(pData->DefUnitID, goods_cfg.DefUnitID);
-	dlg = new TDialog(DLG_IMPGOODS);
+	TDialog * dlg = new TDialog(DLG_IMPGOODS);
 	if(CheckDialogPtrErr(&dlg)) {
 		SetupPPObjCombo(dlg, CTLSEL_IMPGOODS_GRP, PPOBJ_GOODSGROUP, pData->DefParentID, OLW_CANINSERT);
 		SetupPPObjCombo(dlg, CTLSEL_IMPGOODS_OP,  PPOBJ_OPRKIND,    pData->RcptOpID, 0, (void *)PPOPT_GOODSRECEIPT);
@@ -1797,7 +1795,7 @@ int SLAPI ImportSpecSeries()
 				*/
 				if(clear_data) {
 					logger.LogString(PPTXT_IMPSPOIL_CLEAR, 0);
-					THROW(deleteFrom(&ss_tbl, 0, *(DBQ *)0));
+					THROW(deleteFrom(&ss_tbl, 0, *reinterpret_cast<DBQ *>(0)));
 				}
 				MEMSZERO(src_rec);
 				while((r = p_impexp->ReadRecord(&src_rec, sizeof(src_rec))) > 0) {
@@ -4973,7 +4971,7 @@ int SLAPI ImportFias()
 }
 */
 
-int SLAPI FiasImporter::Run(FiasImporter::Param & rP)
+int SLAPI FiasImporter::Run(const FiasImporter::Param & rP)
 {
 	int    ok = 1;
 	P = rP;

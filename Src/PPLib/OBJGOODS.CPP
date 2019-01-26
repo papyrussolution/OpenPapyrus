@@ -4365,7 +4365,7 @@ int SLAPI PPObjGoodsInfo::PutPacket(PPID * pID, PPGoodsInfo * pPack, int use_ta)
 #define STORES_INDEX_FILE_NAME       "stores_index.xml"
 #define PERSON_INDEX_FILE_NAME       "person_index.xml"
 
-int UhttIndexPersons(uint setSz, PPID personKindID, SString & rOutPath)
+int UhttIndexPersons(uint setSz, PPID personKindID, const SString & rOutPath)
 {
 	int        ok = 1;
 	int        closed = 0;
@@ -4423,7 +4423,7 @@ int UhttIndexPersons(uint setSz, PPID personKindID, SString & rOutPath)
 	return ok;
 }
 
-int UhttIndexGoods(uint setSz, SString & rOutPath)
+int UhttIndexGoods(uint setSz, const SString & rOutPath)
 {
 	int        ok = 1;
 	int        closed = 0;
@@ -4441,8 +4441,7 @@ int UhttIndexGoods(uint setSz, SString & rOutPath)
 		while(goods_iter.Next(&goods_rec) > 0) {
 			id_list.add(goods_rec.ID);
 		}
-		// @v8.4.0 id_list.sort();
-		id_list.shuffle(); // @v8.4.0
+		id_list.shuffle();
 		xmlTextWriterSetIndent(p_writer, 1);
 		xmlTextWriterSetIndentString(p_writer, (const xmlChar*)"\t");
 		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
@@ -4475,7 +4474,7 @@ int UhttIndexGoods(uint setSz, SString & rOutPath)
 	return ok;
 }
 
-int UhttIndexRandomGoods(uint setSz, SString & rOutPath)
+int UhttIndexRandomGoods(uint setSz, const SString & rOutPath)
 {
 	int        ok = 1;
 	uint       i = 0, iter_total, set_size;
@@ -4522,7 +4521,7 @@ int UhttIndexRandomGoods(uint setSz, SString & rOutPath)
 	return ok;
 }
 
-int UhttIndexChangedGoods(SString & rOutPath)
+int UhttIndexChangedGoods(const SString & rOutPath)
 {
 	int     ok = 1;
 	PPViewGoods   view;
@@ -4563,7 +4562,7 @@ int UhttIndexChangedGoods(SString & rOutPath)
 	return ok;
 }
 
-int UhttIndexBrands(SString & rOutPath)
+int UhttIndexBrands(const SString & rOutPath)
 {
 	int        ok = 1;
 	int        goods_n = 0;
@@ -4631,7 +4630,7 @@ int UhttIndexBrands(SString & rOutPath)
 	return ok;
 }
 
-int UhttIndexStores(SString & rOutPath)
+int UhttIndexStores(const SString & rOutPath)
 {
 	int    ok = 1;
 	int    foreign = 0;
@@ -4672,7 +4671,7 @@ int UhttIndexStores(SString & rOutPath)
 //
 //
 //
-int SLAPI PPObjGoods::ProcessName(ProcessNameBlock & rBlk, SString & rResult)
+int SLAPI PPObjGoods::ProcessName(const ProcessNameBlock & rBlk, SString & rResult)
 {
 	int    ok = -1;
 	SString temp_buf;

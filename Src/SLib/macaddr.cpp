@@ -119,7 +119,7 @@ int SLAPI MACAddrArray::addUnique(const MACAddr & rItem)
 	return found ? -1 : (insert(&rItem) ? 1 : 0);
 }
 
-int GetMacByIP(SString &rIP, MACAddr * pMAC)
+static int GetMacByIP(const SString & rIP, MACAddr * pMAC)
 {
 	int    ok = -1;
 	if(pMAC) {

@@ -2073,7 +2073,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 		// [03/19] append scheme to result; 
 		const int charsToWrite =(int)(uri->Scheme.P_AfterLast-uri->Scheme.P_First);
 		if(dest) {
-			if(written+charsToWrite <= maxChars) {
+			if((written+charsToWrite) <= maxChars) {
 				memcpy(dest+written, uri->Scheme.P_First, charsToWrite*sizeof(char));
 				written += charsToWrite;
 			}
@@ -2983,7 +2983,7 @@ const char * FASTCALL UriParserState::ParseIpLit2(const char * first, const char
 			case _UT(':'):
 			case _UT(']'):
 			case URI_SET_HEXDIG:
-				P_Uri->HostData.ip6 =(UriUri::UriIp6 *)SAlloc::M(1*sizeof(UriUri::UriIp6)); // Freed when stopping on parse error 
+				P_Uri->HostData.ip6 = static_cast<UriUri::UriIp6 *>(SAlloc::M(1*sizeof(UriUri::UriIp6))); // Freed when stopping on parse error 
 				if(!P_Uri->HostData.ip6)
 					StopMalloc();
 				else
@@ -3023,7 +3023,7 @@ const char * FASTCALL UriParserState::ParseIPv6address2(const char * first, cons
 						StopSyntax(first);
 						return NULL;
 					}
-					digitHistory[digitCount++] =(uchar)(9+*first-_UT('9'));
+					digitHistory[digitCount++] =static_cast<uchar>(9+*first-_UT('9'));
 					break;
 
 				    case _UT('.'):
@@ -3109,7 +3109,7 @@ const char * FASTCALL UriParserState::ParseIPv6address2(const char * first, cons
 							StopSyntax(first);
 							return NULL;
 						}
-						digitHistory[digitCount] =(uchar)(15+*first-_UT('f'));
+						digitHistory[digitCount] = static_cast<uchar>(15+*first-_UT('f'));
 						digitCount++;
 						break;
 				    case URI_SET_HEX_LETTER_UPPER:
@@ -3118,7 +3118,7 @@ const char * FASTCALL UriParserState::ParseIPv6address2(const char * first, cons
 							StopSyntax(first);
 							return NULL;
 						}
-						digitHistory[digitCount] =(uchar)(15+*first-_UT('F'));
+						digitHistory[digitCount] = static_cast<uchar>(15+*first-_UT('F'));
 						digitCount++;
 						break;
 				    case URI_SET_DIGIT:
@@ -3126,7 +3126,7 @@ const char * FASTCALL UriParserState::ParseIPv6address2(const char * first, cons
 							StopSyntax(first);
 							return NULL;
 						}
-						digitHistory[digitCount] =(uchar)(9+*first-_UT('9'));
+						digitHistory[digitCount] = static_cast<uchar>(9+*first-_UT('9'));
 						digitCount++;
 						break;
 				    case _UT(':'):
@@ -3343,7 +3343,7 @@ int FASTCALL UriParserState::OnExitOwnHost2(const char * first)
 {
 	P_Uri->HostText.P_AfterLast = first; // HOST END 
 	// Valid IPv4 or just a regname? 
-	P_Uri->HostData.ip4 = (UriUri::UriIp4 *)SAlloc::M(1*sizeof(UriUri::UriIp4)); // Freed when stopping on parse error 
+	P_Uri->HostData.ip4 = static_cast<UriUri::UriIp4 *>(SAlloc::M(1*sizeof(UriUri::UriIp4))); // Freed when stopping on parse error 
 	if(P_Uri->HostData.ip4 == NULL)
 		return FALSE; // Raises SAlloc::M error 
 	else {
@@ -3398,7 +3398,7 @@ int FASTCALL UriParserState::OnExitOwnHostUserInfo(const char * first)
 	P_Uri->UserInfo.P_First = NULL; // Not a userInfo, reset 
 	P_Uri->HostText.P_AfterLast = first; // HOST END 
 	// Valid IPv4 or just a regname? 
-	P_Uri->HostData.ip4 =(UriUri::UriIp4 *)SAlloc::M(1*sizeof(UriUri::UriIp4)); // Freed when stopping on parse error 
+	P_Uri->HostData.ip4 = static_cast<UriUri::UriIp4 *>(SAlloc::M(1*sizeof(UriUri::UriIp4))); // Freed when stopping on parse error 
 	if(P_Uri->HostData.ip4 == NULL) {
 		ok = 0; /* Raises SAlloc::M error */
 	}
@@ -3489,7 +3489,7 @@ int FASTCALL UriParserState::OnExitOwnPortUserInfo(const char * pFirst)
 	P_Uri->UserInfo.P_First = NULL; // Not a userInfo, reset 
 	P_Uri->PortText.P_AfterLast = pFirst; // PORT END 
 	// Valid IPv4 or just a regname? 
-	P_Uri->HostData.ip4 = (UriUri::UriIp4 *)SAlloc::M(1*sizeof(UriUri::UriIp4)); // Freed when stopping on parse error 
+	P_Uri->HostData.ip4 = static_cast<UriUri::UriIp4 *>(SAlloc::M(1*sizeof(UriUri::UriIp4))); // Freed when stopping on parse error 
 	if(P_Uri->HostData.ip4 == NULL) {
 		ok = 0; // Raises SAlloc::M error 
 	}
@@ -4206,7 +4206,7 @@ int Uri_TESTING_ONLY_ParseIpSix(const char * pText)
 	parser.Reset();
 	UriResetUri(&uri);
 	parser.P_Uri = &uri;
-	parser.P_Uri->HostData.ip6 =(UriUri::UriIp6 *)SAlloc::M(1*sizeof(UriUri::UriIp6));
+	parser.P_Uri->HostData.ip6 = static_cast<UriUri::UriIp6 *>(SAlloc::M(1*sizeof(UriUri::UriIp6)));
 	res = parser.ParseIPv6address2(pText, p_after_ip_six);
 	uri.Destroy();
 	return (res == p_after_ip_six) ? TRUE : FALSE;

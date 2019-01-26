@@ -59,20 +59,21 @@ TCanvas2::Surface::Surface() : HCtx(0), P_Img(0)
 {
 }
 
-void TCanvas2::Init()
+/*void TCanvas2::Init()
 {
 	S.HCtx = 0;
 	P_Cr = 0;
 	P_CrS = 0;
 	Flags = 0;
 	P_SelectedFont = 0;
-}
+}*/
 
-SLAPI TCanvas2::TCanvas2(SPaintToolBox & rTb, HDC hDc) : GdiObjStack(sizeof(HGDIOBJ)), R_Tb(rTb)
+SLAPI TCanvas2::TCanvas2(SPaintToolBox & rTb, HDC hDc) : GdiObjStack(sizeof(HGDIOBJ)), R_Tb(rTb), 
+	P_Cr(0), P_CrS(0), Flags(fOuterSurface), P_SelectedFont(0)
 {
-	Init();
-	S.HCtx = (uint32)hDc;
-	Flags |= fOuterSurface;
+	//Init();
+	S.HCtx = hDc;
+	//Flags |= fOuterSurface;
 	P_CrS = cairo_win32_surface_create(hDc);
 	assert(P_CrS);
 	P_Cr = cairo_create(P_CrS);
@@ -80,11 +81,12 @@ SLAPI TCanvas2::TCanvas2(SPaintToolBox & rTb, HDC hDc) : GdiObjStack(sizeof(HGDI
 	assert(P_Cr);
 }
 
-SLAPI TCanvas2::TCanvas2(SPaintToolBox & rTb, SImageBuffer & rBuf) : GdiObjStack(sizeof(HGDIOBJ)), R_Tb(rTb)
+SLAPI TCanvas2::TCanvas2(SPaintToolBox & rTb, SImageBuffer & rBuf) : GdiObjStack(sizeof(HGDIOBJ)), R_Tb(rTb),
+	P_Cr(0), P_CrS(0), Flags(fOuterSurface), P_SelectedFont(0)
 {
-	Init();
+	//Init();
 	S.P_Img = &rBuf;
-	Flags |= fOuterSurface;
+	//Flags |= fOuterSurface;
 	P_CrS = (cairo_surface_t *)S.P_Img->CreateSurface(dsysCairo);
 	assert(P_CrS);
 	P_Cr = cairo_create(P_CrS);
@@ -101,7 +103,7 @@ SLAPI TCanvas2::~TCanvas2()
 			ZDELETE(S.P_Img);
 		}
 		else if(S.HCtx) {
-			DeleteDC((HDC)S.HCtx);
+			DeleteDC(static_cast<HDC>(S.HCtx));
 			S.HCtx = 0;
 		}
 	}
@@ -109,7 +111,7 @@ SLAPI TCanvas2::~TCanvas2()
 
 TCanvas2::operator HDC() const
 {
-	return (HDC)S.HCtx;
+	return static_cast<HDC>(S.HCtx);
 }
 
 TCanvas2::operator SDrawContext () const
@@ -902,7 +904,7 @@ void SLAPI TCanvas2::LineHorz(int xFrom, int xTo, int y)
 
 TPoint SLAPI TCanvas2::GetTextSize(const char * pStr)
 {
-	int    len;
+	size_t len;
 	char   zero[16];
 	if(pStr)
 		len = sstrlen(pStr);
@@ -913,7 +915,7 @@ TPoint SLAPI TCanvas2::GetTextSize(const char * pStr)
 	}
 	TPoint p;
 	SIZE   sz;
-	return ::GetTextExtentPoint32((HDC)S.HCtx, pStr, len, &sz) ? p.Set(sz.cx, sz.cy) : p.Set(0, 0); // @unicodeproblem
+	return ::GetTextExtentPoint32((HDC)S.HCtx, pStr, static_cast<int>(len), &sz) ? p.Set(sz.cx, sz.cy) : p.Set(0, 0); // @unicodeproblem
 }
 
 int FASTCALL TCanvas2::SetBkColor(COLORREF c)
@@ -2370,7 +2372,7 @@ int STextLayout::SetTextStyle(uint startPos, uint len, int cstyleId)
 int STextLayout::Preprocess(SDrawContext & rCtx, SPaintToolBox & rTb)
 {
 	int    ok = 1;
-	const uint cc = Text.Len();
+	const uint cc = static_cast<const uint>(Text.Len());
 	assert(!(State & stPreprocessed) || cc == GlyphIdList.getCount());
 	if(!(State & stPreprocessed)) {
 		const uint cslc = CStyleList.getCount();

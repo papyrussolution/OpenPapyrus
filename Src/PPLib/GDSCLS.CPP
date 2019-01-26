@@ -62,7 +62,7 @@ int SLAPI PPObjGoodsClass::PutProp(SString & rBuf, uint fldID, PPGdsClsProp * pP
 }
 
 // static
-int SLAPI PPObjGoodsClass::GetProp(SString & rBuf, uint fldID, PPGdsClsProp * pProp)
+int SLAPI PPObjGoodsClass::GetProp(const SString & rBuf, uint fldID, PPGdsClsProp * pProp)
 {
 	SString temp_buf;
 	PPGetExtStrData(10*fldID+1, rBuf, temp_buf);

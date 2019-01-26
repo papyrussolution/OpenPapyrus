@@ -1359,11 +1359,8 @@ static int check_escape(const pcre_uchar ** ptrptr, uint32 * chptr, int * errorc
 			   be again in future, so I haven't "optimized" it. */
 			default:
 			    if((options & PCRE_EXTRA) != 0) {
-					switch(c) {
-					    default:
-							*errorcodeptr = ERR3;
-							break;
-				    }
+					// switch(c) { default: *errorcodeptr = ERR3; break; }
+					*errorcodeptr = ERR3; // @default-only-switch
 				}
 			    break;
 		}

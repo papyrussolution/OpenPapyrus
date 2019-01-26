@@ -1974,9 +1974,10 @@ int32 DL6ICLS_PPSession::GetStatusInfo(SPpySessionInfo* pInfo)
 		pInfo->UserID  = DS.LCfg().User;
 		GetMainOrgID(&pInfo->MainOrgID);
 		{
-			r_tla.InitMainOrgData(0); // @v8.6.1
-			pInfo->MainOrgDirector   = CConfig.MainOrgDirector_;
-			pInfo->MainOrgAccountant = CConfig.MainOrgAccountant_;
+			r_tla.InitMainOrgData(0);
+			const PPCommConfig & r_ccfg = CConfig;
+			pInfo->MainOrgDirector   = r_ccfg.MainOrgDirector_;
+			pInfo->MainOrgAccountant = r_ccfg.MainOrgAccountant_;
 		}
 	}
 	return 1;
@@ -7696,7 +7697,7 @@ struct AlcRepOpList {
 		}
 		return 1;
 	}
-	int Check(PPID opID, PPIDArray & rList) const
+	int Check(PPID opID, const PPIDArray & rList) const
 	{
 		return BIN(rList.bsearch(opID, 0) > 0);
 	}

@@ -208,10 +208,9 @@ SString & SLAPI PPObjWorld::GetNativeCountryName(SString & rBuf)
 //
 TLP_IMPL(PPObjWorld, WorldTbl, P_Tbl);
 
-SLAPI PPObjWorld::PPObjWorld(void * extraPtr) : PPObject(PPOBJ_WORLD)
+SLAPI PPObjWorld::PPObjWorld(void * extraPtr) : PPObject(PPOBJ_WORLD), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
-	ExtraPtr = extraPtr;
 	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 }
 

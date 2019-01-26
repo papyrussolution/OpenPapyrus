@@ -114,15 +114,10 @@ int post_plot(struct ZintSymbol * symbol, uchar source[], int length)
 	char height_pattern[256]; /* 5 + 38 * 5 + 5 + 5 +  1 ~ 256 */
 	uint loopey, h;
 	int writer;
-	int error_number;
-
-	error_number = 0;
-
-	error_number = postnet(symbol, source, height_pattern, length);
+	int error_number = postnet(symbol, source, height_pattern, length);
 	if(error_number != 0) {
 		return error_number;
 	}
-
 	writer = 0;
 	h = strlen(height_pattern);
 	for(loopey = 0; loopey < h; loopey++) {
@@ -176,11 +171,7 @@ int planet_plot(struct ZintSymbol * symbol, uchar source[], int length)
 	char height_pattern[256]; /* 5 + 38 * 5 + 5 + 5 +  1 ~ 256 */
 	uint loopey, h;
 	int writer;
-	int error_number;
-
-	error_number = 0;
-
-	error_number = planet(symbol, source, height_pattern, length);
+	int error_number = planet(symbol, source, height_pattern, length);
 	if(error_number != 0) {
 		return error_number;
 	}
@@ -506,17 +497,14 @@ int japan_post(struct ZintSymbol * symbol, uchar source[], int length)
 		sstrcpy(symbol->errtxt, "Input too long (D8G)");
 		return ZINT_ERROR_TOO_LONG;
 	}
-
 	inter_posn = 0;
 	error_number = 0;
-
 	sstrcpy(local_source, (char*)source);
 	for(i = 0; i < length; i++) {
 		local_source[i] = source[i];
 	}
 	to_upper((uchar*)local_source);
 	error_number = is_sane(SHKASUTSET, (uchar*)local_source, length);
-
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
 		sstrcpy(symbol->errtxt, "Invalid characters in data (D8H)");
 		return error_number;

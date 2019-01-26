@@ -997,11 +997,11 @@ int FASTCALL getcurdatetime(LDATE * pDt, LTIME * pTm)
 		pDt->encode(st.wDay, st.wMonth, st.wYear); // @v10.0.02
 	}
 	if(pTm) {
-		char * _tm = (char *)pTm;
-		_tm[0] = (char)(st.wMilliseconds/10);
-		_tm[1] = (char)st.wSecond;
-		_tm[2] = (char)st.wMinute;
-		_tm[3] = (char)st.wHour;
+		char * _tm = reinterpret_cast<char *>(pTm);
+		_tm[0] = static_cast<char>(st.wMilliseconds/10);
+		_tm[1] = static_cast<char>(st.wSecond);
+		_tm[2] = static_cast<char>(st.wMinute);
+		_tm[3] = static_cast<char>(st.wHour);
 	}
 #else
 	struct date d;
@@ -1568,7 +1568,6 @@ LDATE SLAPI LDATE::Helper_GetActual(LDATE rel, LDATE cmp) const
 			SETIFZ(rel, getcurdate_());
 			result = (LoWord(v) == 0x8000) ? ZERODATE : plusdate(rel, (int16)v);
 		}
-		// @v8.7.2 {
 		else if(y == 0x2000) {
 			SETIFZ(rel, getcurdate_());
 			int    thrs = LoWord(v);
@@ -1590,7 +1589,6 @@ LDATE SLAPI LDATE::Helper_GetActual(LDATE rel, LDATE cmp) const
 			else
 				result = ZERODATE;
 		}
-		// } @v8.7.2
 		else {
 			int    m = month();
 			int    d = day();

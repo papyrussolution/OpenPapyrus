@@ -439,35 +439,26 @@ static void TrimInitialSpace(TidyDocImpl* doc, Node * element, Node * text)
 static bool IsPreDescendant(Node* node)
 {
 	Node * parent = node->parent;
-
 	while(parent) {
 		if(parent->tag && parent->tag->parser == TY_(ParsePre))
 			return true;
-
 		parent = parent->parent;
 	}
-
 	return false;
 }
 
 static bool CleanTrailingWhitespace(TidyDocImpl* doc, Node* node)
 {
 	Node* next;
-
 	if(!TY_(nodeIsText) (node))
 		return false;
-
 	if(node->parent->type == DocTypeTag)
 		return false;
-
 	if(IsPreDescendant(node))
 		return false;
-
 	if(node->parent->tag && node->parent->tag->parser == TY_(ParseScript))
 		return false;
-
 	next = node->next;
-
 	/* <p>... </p> */
 	if(!next && !TY_(nodeHasCM) (node->parent, CM_INLINE))
 		return true;

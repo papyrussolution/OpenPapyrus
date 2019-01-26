@@ -8190,7 +8190,7 @@ int PPALDD_Warrant::InitData(PPFilt & rFilt, long rsrv)
 {
 	LDATE  dt;
 	Extra[0].Ptr = rFilt.Ptr;
-	PPBillPacket * p_pack = (PPBillPacket *)Extra[0].Ptr;
+	const PPBillPacket * p_pack = (const PPBillPacket *)Extra[0].Ptr;
 	MEMSZERO(H);
 	H.BillID = p_pack->Rec.ID;
 	STRNSCPY(H.WarrantNo,  p_pack->Rec.Code);

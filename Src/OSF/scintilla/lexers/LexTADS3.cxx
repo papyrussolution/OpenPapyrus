@@ -114,10 +114,9 @@ static bool FASTCALL IsADirectiveChar(int ch)
 	return isalnum(ch) || isspace(ch) || ch == '-' || ch == '/';
 }
 
-static bool FASTCALL IsANumberStart(StyleContext &sc)
+static bool FASTCALL IsANumberStart(const StyleContext & sc)
 {
-	return isdec(sc.ch)
-	       || (!isdec(sc.chPrev) && sc.ch == '.' && isdec(sc.chNext));
+	return (isdec(sc.ch) || (!isdec(sc.chPrev) && sc.ch == '.' && isdec(sc.chNext)));
 }
 
 inline static void ColouriseTADS3Operator(StyleContext &sc)

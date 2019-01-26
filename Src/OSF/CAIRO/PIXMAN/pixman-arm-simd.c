@@ -36,24 +36,13 @@ PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (armv6, src_0565_0565,
                                    uint16, 1, uint16, 1)
 PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (armv6, src_8_8,
                                    uint8, 1, uint8, 1)
-PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (armv6, src_0565_8888,
-                                   uint16, 1, uint32_t, 1)
-
-PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (armv6, add_8_8,
-                                   uint8, 1, uint8, 1)
-PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (armv6, over_8888_8888,
-                                   uint32_t, 1, uint32_t, 1)
-
-PIXMAN_ARM_BIND_FAST_PATH_SRC_N_DST (SKIP_ZERO_MASK, armv6, over_8888_n_8888,
-                                     uint32_t, 1, uint32_t, 1)
-
-PIXMAN_ARM_BIND_FAST_PATH_N_MASK_DST (SKIP_ZERO_SRC, armv6, over_n_8_8888,
-                                      uint8, 1, uint32_t, 1)
-
-PIXMAN_ARM_BIND_SCALED_NEAREST_SRC_DST (armv6, 0565_0565, SRC,
-                                        uint16, uint16)
-PIXMAN_ARM_BIND_SCALED_NEAREST_SRC_DST (armv6, 8888_8888, SRC,
-                                        uint32_t, uint32_t)
+PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (armv6, src_0565_8888, uint16, 1, uint32_t, 1)
+PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (armv6, add_8_8, uint8, 1, uint8, 1)
+PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (armv6, over_8888_8888, uint32_t, 1, uint32_t, 1)
+PIXMAN_ARM_BIND_FAST_PATH_SRC_N_DST (SKIP_ZERO_MASK, armv6, over_8888_n_8888, uint32_t, 1, uint32_t, 1)
+PIXMAN_ARM_BIND_FAST_PATH_N_MASK_DST (SKIP_ZERO_SRC, armv6, over_n_8_8888, uint8, 1, uint32_t, 1)
+PIXMAN_ARM_BIND_SCALED_NEAREST_SRC_DST (armv6, 0565_0565, SRC, uint16, uint16)
+PIXMAN_ARM_BIND_SCALED_NEAREST_SRC_DST (armv6, 8888_8888, SRC, uint32_t, uint32_t)
 
 void
 pixman_composite_src_n_8888_asm_armv6 (int32_t   w,

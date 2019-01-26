@@ -1136,6 +1136,7 @@ typedef SString * (*SFAHEINEKENGETORDERS_PROC)(PPSoapClientSession & rSess, LDAT
 typedef SString * (*SFAHEINEKENSENDORDERSSTATUSES_PROC)(PPSoapClientSession & rSess, const TSCollection <SfaHeinekenOrderStatusEntry> & rList);
 typedef SString * (*SFAHEINEKENSENDWAREHOUSEBALANCE_PROC)(PPSoapClientSession & rSess, const TSVector <SfaHeinekenWarehouseBalanceEntry> & rList);
 typedef SString * (*SFAHEINEKENSENDSELLOUT_PROC)(PPSoapClientSession & rSess, const TSCollection <SfaHeinekenInvoice> & rList);
+typedef SString * (*SFAHEINEKENDELETESELLOUT_PROC)(PPSoapClientSession & rSess, const SString & rCode, LDATE date);
 typedef SString * (*SFAHEINEKENSENDALLCONTRAGENTDEBET_PROC)(PPSoapClientSession & rSess, const TSCollection <SfaHeinekenDebetEntry> & rList);
 //extern "C" __declspec(dllexport) SString * SfaHeineken_SendAllContragentDebet(PPSoapClientSession & rSess, const TSCollection <SfaHeinekenDebetEntry> & rList) // DRP_SendAllContragentDebet
 //extern "C" __declspec(dllexport) SString * SfaHeineken_GetOrders(PPSoapClientSession & rSess, LDATE dt, int demo) // DRP_GetOrders

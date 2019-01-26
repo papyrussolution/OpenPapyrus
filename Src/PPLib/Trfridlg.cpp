@@ -197,7 +197,9 @@ int TrfrItemDialog::ProcessRevalOnAllLots(const PPTransferItem * pItem)
 int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pInitData, const PPTransferItem * pOrder, int sign)
 {
 	const PPConfig & r_cfg = LConfig;
-	const int    allow_suppl_sel = BIN(CanUpdateSuppl(pPack, itemNo) && BillObj->CheckRights(BILLOPRT_ACCSSUPPL, 1));
+	PPObjBill * p_bobj = BillObj;
+	const long   ccfgflags = CConfig.Flags;
+	const int    allow_suppl_sel = BIN(CanUpdateSuppl(pPack, itemNo) && p_bobj->CheckRights(BILLOPRT_ACCSSUPPL, 1));
 	const int    goods_fixed     = BIN(itemNo >= 0 || (pInitData && pInitData->GoodsID));
 	const PPID   op_id = pPack->Rec.OpID;
 	int    r = cmCancel;
@@ -296,11 +298,12 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 			p_item->Flags   |= PPTFR_ONORDER;
 		}
 		if(pPack->OpTypeID == PPOPT_GOODSRECEIPT || (pPack->OpTypeID == PPOPT_GOODSMODIF && sign > 0))
-			if(CConfig.Flags & CCFLG_COSTWOVATBYDEF)
+			if(ccfgflags & CCFLG_COSTWOVATBYDEF)
 				p_item->Flags |= PPTFR_COSTWOVAT;
 	}
 	else {
 		p_item = &pPack->TI(itemNo);
+		dlg->EditMode = 1;
 		if(p_item->Flags & PPTFR_ONORDER)
 			if(pPack->SearchShLot(p_item->OrdLotID, &(i = 0))) // @ordlotid
 				pOrder = &pPack->P_ShLots->at(i);
@@ -308,7 +311,6 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 				pOrder = 0;
 				p_item->Flags &= ~PPTFR_ONORDER;
 			}
-		dlg->EditMode = 1;
 	}
 	SETFLAG(dlg->St, TrfrItemDialog::stGoodsByPrice, goods_by_price);
 	dlg->ItemNo       = itemNo;
@@ -345,7 +347,7 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 		//
 		if(oneof6(pPack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF,
 			PPOPT_GOODSRETURN, PPOPT_GOODSORDER)) {
-			if(!BillObj->CheckRights(BILLOPRT_MODTRANSM, 1))
+			if(!p_bobj->CheckRights(BILLOPRT_MODTRANSM, 1))
 				rt_to_modif = 0;
 		}
 	}
@@ -358,7 +360,7 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 			for(i = 0; valid_data && pPack->EnumTItems(&i, &p_ti);)
 				if((i-1) != (uint)itemNo && p_ti->LotID && p_ti->LotID == p_item->LotID)
 					valid_data = (PPError(PPERR_DUPLOTSINPACKET, 0), 0);
-		if(CConfig.Flags & CCFLG_CHECKSPOILAGE && valid_data && oneof2(pPack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND)) {
+		if(ccfgflags & CCFLG_CHECKSPOILAGE && valid_data && oneof2(pPack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND)) {
 			SString serial;
 			SETIFZ(p_spc_core, new SpecSeriesCore);
 			if(p_spc_core) {

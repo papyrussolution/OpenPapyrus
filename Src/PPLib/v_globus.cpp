@@ -1,5 +1,5 @@
 // V_GLOBUS.CPP
-// Copyright (c) A.Starodub 2012, 2016, 2017
+// Copyright (c) A.Starodub 2012, 2016, 2017, 2019
 //
 // PPViewGlobalUserAcc
 //
@@ -19,9 +19,8 @@ GlobalUserAccFilt & FASTCALL GlobalUserAccFilt::operator = (const GlobalUserAccF
 	return *this;
 }
 
-SLAPI PPViewGlobalUserAcc::PPViewGlobalUserAcc() : PPView(&ObjGlobAcc, &Filt, PPVIEW_GLOBALUSERACC)
+SLAPI PPViewGlobalUserAcc::PPViewGlobalUserAcc() : PPView(&ObjGlobAcc, &Filt, PPVIEW_GLOBALUSERACC), P_TempTbl(0)
 {
-	P_TempTbl = 0;
 }
 
 SLAPI PPViewGlobalUserAcc::~PPViewGlobalUserAcc()

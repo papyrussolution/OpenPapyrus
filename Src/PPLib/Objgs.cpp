@@ -659,7 +659,7 @@ static int SLAPI IsNumber(const char * pStr, size_t * pPos)
 		if(pStr[pos] == '.' || pStr[pos] == ',') {
 			if(was_dot) {
 				ASSIGN_PTR(pPos, pos);
-				return (temp_buf.ToReal() != 0) ? 1 : 0;
+				return BIN(temp_buf.ToReal() != 0.0);
 			}
 			was_dot = 1;
 		}

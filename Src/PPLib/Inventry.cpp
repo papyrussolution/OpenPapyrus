@@ -40,9 +40,7 @@ InventoryDialog::InventoryDialog(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 	SString temp_buf;
 	PPObjArticle ar_obj;
 	PPObjOprKind op_obj;
-	//PPOprKind op_rec;
 	PPOprKindPacket op_pack;
-	//GetOpData(pData->Rec.OpID, &op_rec);
 	op_obj.GetPacket(pData->Rec.OpID, &op_pack);
 	selExistsGoodsOnly = 0;
 	P_Data = pData;
@@ -65,13 +63,11 @@ InventoryDialog::InventoryDialog(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 		showCtrl(CTLSEL_BILL_OBJ2,  !dsbl_object2);
 		showCtrl(CTL_BILL_OBJ2NAME, !dsbl_object2);
 	}
-	// @v8.8.5 {
 	{
 		const PPID strg_loc_id = P_Data->P_Freight ? P_Data->P_Freight->StorageLocID : 0;
 		LocationFilt loc_filt(LOCTYP_WAREPLACE, 0, P_Data->Rec.LocID);
 		SetupLocationCombo(this, CTLSEL_BILL_STRGLOC, strg_loc_id, OLW_CANSELUPLEVEL, &loc_filt);
 	}
-	// } @v8.8.5
 	setCtrlData(CTL_BILL_MEMO,   P_Data->Rec.Memo);
 	setCtrlReal(CTL_BILL_AMOUNT, P_Data->GetAmount());
 	setCtrlData(CTL_BILL_SELEXSGOODS, &selExistsGoodsOnly);
@@ -117,15 +113,13 @@ int InventoryDialog::getDTS(PPBillPacket * /*_data*/)
 	getCtrlData(CTL_BILL_DUEDATE, &P_Data->Rec.DueDate);
 	getCtrlData(CTL_BILL_AMOUNT, &P_Data->Rec.Amount);
 	getCtrlData(CTLSEL_BILL_OBJECT, &P_Data->Rec.Object);
-	getCtrlData(CTLSEL_BILL_OBJ2,   &P_Data->Rec.Object2); // @v8.6.12
-	// @v8.8.5 {
+	getCtrlData(CTLSEL_BILL_OBJ2,   &P_Data->Rec.Object2);
 	{
 		PPFreight freight;
 		RVALUEPTR(freight, P_Data->P_Freight);
 		getCtrlData(CTLSEL_BILL_STRGLOC, &freight.StorageLocID);
 		P_Data->SetFreight(&freight);
 	}
-	// } @v8.8.5
 	getCtrlData(CTL_BILL_MEMO, P_Data->Rec.Memo);
 	return 1;
 }
@@ -235,8 +229,6 @@ class InventoryOptionsDialog : public TDialog {
 public:
 	InventoryOptionsDialog() : TDialog(DLG_OPKINVE)
 	{
-		//@v9.7.6 setCtrlOption(CTL_OPKINVE_FRAME1, ofFramed, 1);
-		//@v9.7.6 setCtrlOption(CTL_OPKINVE_FRAME2, ofFramed, 1);
 	}
 	int    setDTS(const PPInventoryOpEx *);
 	int    getDTS(PPInventoryOpEx *);
@@ -249,7 +241,7 @@ private:
 void InventoryOptionsDialog::setupAccSheet(uint opSelCtl, uint objSelCtl, PPID arID)
 {
 	PPOprKind op_rec;
-	PPID   op_id = getCtrlLong(opSelCtl);
+	const PPID op_id = getCtrlLong(opSelCtl);
 	GetOpData(op_id, &op_rec);
 	SetupArCombo(this, objSelCtl, arID, OLW_LOADDEFONOPEN | OLW_CANINSERT, op_rec.AccSheetID, sacfDisableIfZeroSheet);
 }
@@ -433,11 +425,11 @@ int SLAPI PPObjBill::LoadInventoryArray(PPID billID, InventoryArray & rList)
 	return ok;
 }
 
-int SLAPI PPObjBill::GetInventoryStockRest(InvBlock & rBlk, InvItem * pItem, GoodsRestParam * pRestParam)
+int SLAPI PPObjBill::GetInventoryStockRest(const InvBlock & rBlk, InvItem * pItem, GoodsRestParam * pRestParam)
 {
 	int    ok = 1;
 	ReceiptTbl::Rec lot_rec;
-	PPUserFuncProfiler ufp(PPUPRF_GETINVSTOCKREST); // @v8.1.12
+	PPUserFuncProfiler ufp(PPUPRF_GETINVSTOCKREST);
 	switch(rBlk.Ioe.AmountCalcMethod) {
 		case PPInventoryOpEx::acmFIFO: pRestParam->CalcMethod = GoodsRestParam::pcmFirstLot; break;
 		case PPInventoryOpEx::acmLIFO: pRestParam->CalcMethod = GoodsRestParam::pcmLastLot; break;
@@ -493,7 +485,7 @@ int SLAPI PPObjBill::GetInventoryStockRest(InvBlock & rBlk, InvItem * pItem, Goo
 	}
 	pItem->FinalRest = rest;
 	pItem->StockPrice = (rBlk.Ioe.Flags & INVOPF_COSTNOMINAL) ? pRestParam->Total.Cost : pRestParam->Total.Price;
-	ufp.Commit(); // @v8.1.12
+	ufp.Commit();
 	CATCHZOK
 	return ok;
 }

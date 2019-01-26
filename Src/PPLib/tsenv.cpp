@@ -144,3 +144,6 @@ const TsStakeEnvironment::Tick * FASTCALL TsStakeEnvironment::SearchTickBySymb(c
 	}
 	return p_result;
 }
+//
+//
+//

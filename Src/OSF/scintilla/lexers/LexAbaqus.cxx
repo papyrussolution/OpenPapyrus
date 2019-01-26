@@ -325,12 +325,10 @@ static bool IsIdentifier(int c)
 
 static int LowerCase(int c)
 {
-	if(c >= 'A' && c <= 'Z')
-		return 'a' + c - 'A';
-	return c;
+	return (c >= 'A' && c <= 'Z') ? ('a' + c - 'A') : c;
 }
 
-static Sci_Position LineEnd(Sci_Position line, Accessor &styler)
+static Sci_Position LineEnd(Sci_Position line, const Accessor & styler)
 {
 	const Sci_Position docLines = styler.GetLine(styler.Length() - 1); // Available last line
 	Sci_Position eol_pos;

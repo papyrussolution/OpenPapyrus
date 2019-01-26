@@ -1,5 +1,5 @@
 // STYPE.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017
+// Copyright (c) Sobolev A. 1995, 1996, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -345,7 +345,7 @@ static const TypeName TypeNameList[] = {
 	{T_BOOL,                "boolean,bool,logical", "Логический"}
 };
 
-TYPEID IsSTypeName(SStrScan & rScan)
+TYPEID FASTCALL IsSTypeName(SStrScan & rScan)
 {
 	rScan.Skip();
 	SString text = rScan;
@@ -533,7 +533,7 @@ SString & GetBinaryTypeString(TYPEID typ, int style, SString & rBuf, const char 
 	return rBuf;
 }
 
-SString & GetBaseTypeString(int baseTyp, long flags, SString & rBuf)
+SString & FASTCALL GetBaseTypeString(int baseTyp, long flags, SString & rBuf)
 {
 	if(baseTyp == BTS_STRING)
 		rBuf = (flags & BTSF_NATIVE) ? "Строка" : "string";

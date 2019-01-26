@@ -74,7 +74,7 @@ char * SLAPI AccAnlzFilt::GetAccText(char * pBuf, size_t bufLen) const
 //
 SLAPI PPViewAccAnlz::PPViewAccAnlz() : PPView(0, &Filt, PPVIEW_ACCANLZ), P_BObj(BillObj), P_TmpAATbl(0), P_TmpATTbl(0)
 {
-	P_ATC  = P_BObj->atobj->P_Tbl;
+	P_ATC = P_BObj->atobj->P_Tbl;
 }
 
 SLAPI PPViewAccAnlz::~PPViewAccAnlz()

@@ -4227,7 +4227,7 @@ int SLAPI PPViewDebtorStat::UpdateTempTable()
 		BExtInsert bei(p_o);
 		PPTransaction tra(ppDbDependTransaction, 1);
 		THROW(tra);
-		THROW_DB(deleteFrom(p_o, 0, *(DBQ *)0));
+		THROW_DB(deleteFrom(p_o, 0, *reinterpret_cast<DBQ *>(0)));
 		for(InitIteration(0); NextIteration(&item) > 0;) {
 			TempOrderTbl::Rec temp_rec;
 			MakeTempRec(Filt.Order, &item, &temp_rec);

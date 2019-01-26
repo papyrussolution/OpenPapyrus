@@ -493,7 +493,7 @@ int SyncTable::ReadRecByIdx(uint16 idx, uint32 * pRecId, void * pBuf, size_t * p
 				RecInfo.m_TotalBytes = (WORD)*pBufLen;
 				P_Ctx->LastErr = SyncReadRecordByIndex(RecInfo);
 				THROW(!P_Ctx->LastErr);
-				ASSIGN_PTR(pBufLen, (size_t)RecInfo.m_RecSize);
+				ASSIGN_PTR(pBufLen, static_cast<size_t>(RecInfo.m_RecSize));
 				ASSIGN_PTR(pRecId, SyncHHToHostDWord(RecInfo.m_RecId));
 				ok = 1;
 			}
@@ -522,13 +522,13 @@ int SyncTable::ReadRecByID(uint32 recId, void * pBuf, size_t * pBufLen  /* IN/OU
 		}
 		else {
 			MEMSZERO(RecInfo);
-			RecInfo.m_FileHandle = (uint8)Handle[0];
-			RecInfo.m_pBytes = (BYTE *)pBuf;
+			RecInfo.m_FileHandle = static_cast<uint8>(Handle[0]);
+			RecInfo.m_pBytes = static_cast<BYTE *>(pBuf);
 			RecInfo.m_RecId = SyncHostToHHDWord(recId);
-			RecInfo.m_TotalBytes = (WORD)*pBufLen;
+			RecInfo.m_TotalBytes = static_cast<WORD>(*pBufLen);
 			P_Ctx->LastErr = SyncReadRecordById(RecInfo);
 			THROW(!P_Ctx->LastErr);
-			ASSIGN_PTR(pBufLen, (size_t)RecInfo.m_RecSize);
+			ASSIGN_PTR(pBufLen, static_cast<size_t>(RecInfo.m_RecSize));
 			ok = 1;
 		}
 	}

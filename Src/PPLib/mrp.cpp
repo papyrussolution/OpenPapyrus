@@ -1,5 +1,5 @@
 // MRP.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -976,10 +976,9 @@ void SLAPI PPObjMrpTab::GenerateName(PPID linkObjType, PPID linkObjID, SString *
 
 TLP_IMPL(PPObjMrpTab, MrpTabCore, P_Tbl);
 
-SLAPI PPObjMrpTab::PPObjMrpTab(void * extraPtr) : PPObject(PPOBJ_MRPTAB)
+SLAPI PPObjMrpTab::PPObjMrpTab(void * extraPtr) : PPObject(PPOBJ_MRPTAB), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
-	ExtraPtr = extraPtr;
 }
 
 SLAPI PPObjMrpTab::~PPObjMrpTab()

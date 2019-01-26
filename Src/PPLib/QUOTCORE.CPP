@@ -969,7 +969,7 @@ int SLAPI QuotationCore::SetCurr(PPID * pID, const PPQuot * pQuot, int logSj, in
 	return ok;
 }
 
-int SLAPI QuotationCore::SetCurrList(PPQuotArray & rQuotList, const PPQuotArray * pTemplate, int noRmv, int use_ta)
+int SLAPI QuotationCore::SetCurrList(const PPQuotArray & rQuotList, const PPQuotArray * pTemplate, int noRmv, int use_ta)
 {
 	assert(!pTemplate || pTemplate->GoodsID == rQuotList.GoodsID);
 	int    ok = 1, r = 0;
@@ -2602,7 +2602,7 @@ int SLAPI Quotation2Core::GetMatrix(PPID mtxQkID, PPID locID, PPIDArray * pList)
 	return Helper_GetMatrix(2, this, mtxQkID, locID, pList);
 }
 
-int SLAPI Quotation2Core::Set(PPQuotArray & rQList, long qtaID, const PPQuotArray * pTemplate, int noRmv, int use_ta)
+int SLAPI Quotation2Core::Set(const PPQuotArray & rQList, long qtaID, const PPQuotArray * pTemplate, int noRmv, int use_ta)
 {
 	assert(!pTemplate || pTemplate->GoodsID == rQList.GoodsID);
 	int    ok = 1;

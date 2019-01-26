@@ -4797,7 +4797,7 @@ int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int
 	return ok;
 }
 
-int SLAPI SrSyntaxRuleSet::Parse(SString & rS)
+int SLAPI SrSyntaxRuleSet::Parse(const SString & rS)
 {
 	int    ok = 1;
 	SString temp_buf;

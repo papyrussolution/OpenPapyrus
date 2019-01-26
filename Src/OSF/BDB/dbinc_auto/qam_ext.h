@@ -54,7 +54,7 @@ int __qam_stat_print(DBC *, uint32);
 int __db_no_queue_am(ENV *);
 int __qam_31_qammeta(DB *, char *, uint8 *);
 int __qam_32_qammeta(DB *, char *, uint8 *);
-int __qam_vrfy_meta(DB *, VRFY_DBINFO *, QMETA *, db_pgno_t, uint32);
+int __qam_vrfy_meta(DB *, VRFY_DBINFO *, const QMETA *, db_pgno_t, uint32);
 int __qam_meta2pgset(DB *, VRFY_DBINFO *, DB *);
 int __qam_vrfy_data(DB *, VRFY_DBINFO *, QPAGE *, db_pgno_t, uint32);
 int __qam_vrfy_structure(DB *, VRFY_DBINFO *, uint32);

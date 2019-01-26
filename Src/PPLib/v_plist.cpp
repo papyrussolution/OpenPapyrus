@@ -874,7 +874,7 @@ int SLAPI PPViewPriceList::UpdateTempTbl(PriceLineIdent * pIdent)
 		else {
 			BExtInsert bei(P_TempTbl);
 			PriceLineTbl::Key0 k;
-			THROW_DB(deleteFrom(P_TempTbl, 0, *(DBQ *)0));
+			THROW_DB(deleteFrom(P_TempTbl, 0, *reinterpret_cast<DBQ *>(0)));
 			MEMSZERO(k);
 			k.ListID = Filt.PListID;
 			BExtQuery q(&Tbl.Lines, 0);

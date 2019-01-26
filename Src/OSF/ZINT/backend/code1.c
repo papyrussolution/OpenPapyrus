@@ -341,21 +341,19 @@ static int c1_look_ahead_test(const uchar source[], int sourcelen, int position,
 		/* Step K */
 		best_count = (int)edi_count;
 		if(text_count <= best_count) {
-			best_count = (int)text_count;
+			best_count = static_cast<int>(text_count);
 			best_scheme = C1_TEXT;
 		}
 		if(c40_count <= best_count) {
-			best_count = (int)c40_count;
+			best_count = static_cast<int>(c40_count);
 			best_scheme = C1_C40;
 		}
-
 		if(ascii_count <= best_count) {
-			best_count = (int)ascii_count;
+			best_count = static_cast<int>(ascii_count);
 			best_scheme = C1_ASCII;
 		}
-
 		if(byte_count <= best_count) {
-			best_count = (int)byte_count;
+			best_count = static_cast<int>(byte_count);
 			best_scheme = C1_BYTE;
 		}
 	}
@@ -383,23 +381,19 @@ static int c1_look_ahead_test(const uchar source[], int sourcelen, int position,
 				}
 			}
 		}
-
 		if(((text_count + 1.0 <= ascii_count) && (text_count + 1.0 <= c40_count)) &&
 		    ((text_count + 1.0 <= byte_count) && (text_count + 1.0 <= edi_count))) {
 			best_scheme = C1_TEXT;
 		}
-
 		if(((ascii_count + 1.0 <= byte_count) && (ascii_count + 1.0 <= c40_count)) &&
 		    ((ascii_count + 1.0 <= text_count) && (ascii_count + 1.0 <= edi_count))) {
 			best_scheme = C1_ASCII;
 		}
-
 		if(((byte_count + 1.0 <= ascii_count) && (byte_count + 1.0 <= c40_count)) &&
 		    ((byte_count + 1.0 <= text_count) && (byte_count + 1.0 <= edi_count))) {
 			best_scheme = C1_BYTE;
 		}
 	}
-
 	return best_scheme;
 }
 

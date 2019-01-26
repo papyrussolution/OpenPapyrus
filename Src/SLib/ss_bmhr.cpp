@@ -57,13 +57,13 @@ int SSrchPattern::Calc_Z(uint16 * pZ, int test)
 			size_t p_   = p - L;
 			size_t beta = R - p + 1;
 			int    z_ = pZ[p_];
-			if(z_ < (int)beta)
+			if(z_ < static_cast<int>(beta))
 				pZ[p] = z_;
 			else {
 				size_t i = beta;
 				while((p+i) < len && pS[i] == pS[p+i])
 					i++;
-				pZ[p] = (uint16)i;
+				pZ[p] = static_cast<uint16>(i);
 				if(i > 0) {
 					size_t r = p+i-1;
 					if(r > R) {
@@ -90,7 +90,7 @@ int SSrchPattern::Calc_N(uint16 * pN, int test)
 			size_t i = 0;
 			while((p+i) < len && pS[len_one-i] == pS[len_one_p-i])
 				i++;
-			pN[len_one_p] = (uint16)i;
+			pN[len_one_p] = static_cast<uint16>(i);
 			if(i > 0) {
 				size_t r = p + i - 1;
 				if(r > R) {
@@ -103,14 +103,14 @@ int SSrchPattern::Calc_N(uint16 * pN, int test)
 			size_t p_   = p - L;
 			size_t beta = R - p + 1;
 			int    z_ = pN[len_one-p_];
-			if(z_ < (int)beta) {
+			if(z_ < static_cast<int>(beta)) {
 				pN[len_one_p] = z_;
 			}
 			else {
 				size_t i = beta;
 				while((p+i) < len && pS[len_one-i] == pS[len_one_p-i])
 					i++;
-				pN[len_one_p] = (uint16)i;
+				pN[len_one_p] = static_cast<uint16>(i);
 				if(i > 0) {
 					size_t r = p + i - 1;
 					if(r > R) {
@@ -126,7 +126,8 @@ int SSrchPattern::Calc_N(uint16 * pN, int test)
 
 int SSrchPattern::Calc_L(const uint16 * pN, uint16 * pL, uint16 * pl)
 {
-	size_t p, len = Len;
+	size_t p;
+	const size_t len = Len;
 	//
 	// max_j - максимальный префикс pS, который одновременно
 	// является суффиксом pS.
@@ -151,7 +152,7 @@ int SSrchPattern::Calc_L(const uint16 * pN, uint16 * pL, uint16 * pl)
 		//
 		const size_t N = pN[p];
 		if(N) {
-			pL[len-N] = (uint16)p;
+			pL[len-N] = static_cast<uint16>(p);
 			if(N == p+1)
 				max_j = N;
 		}
@@ -171,12 +172,12 @@ int SSrchPattern::Calc_L(const uint16 * pN, uint16 * pL, uint16 * pl)
 	//
 	if(max_j == len) {
 		for(p = 0; p < len; p++)
-			*pl++ = (uint16)(len - p);
+			*pl++ = static_cast<uint16>(len - p);
 	}
 	else if(max_j > 0) {
 		size_t lim = (len-max_j+1);
 		for(p = 0; p < lim; p++)
-			*pl++ = (uint16)max_j;
+			*pl++ = static_cast<uint16>(max_j);
 	}
 	return 1;
 }
@@ -212,7 +213,7 @@ int SSrchPattern::AllocPreprocBuf()
 	if(Flags & fNoCase)
 		sz += 256; // collation sequence
 	if(sz > PreprocSize) {
-		P_PreprocBuf = (uint16 *)SAlloc::R(P_PreprocBuf, sz);
+		P_PreprocBuf = static_cast<uint16 *>(SAlloc::R(P_PreprocBuf, sz));
 		if(P_PreprocBuf)
 			PreprocSize = sz;
 		else
@@ -237,7 +238,7 @@ int SSrchPattern::Preprocess()
 				i = 256 * sizeof(uint16);
 			else
 				i = 0;
-			uint8 * p_coll = ((uint8 *)P_PreprocBuf) + i;
+			uint8 * p_coll = reinterpret_cast<uint8 *>(P_PreprocBuf) + i;
 			for(i = 0; i < 256;) {
 				DO8(p_coll[i++] = ToLower866(i));
 			}
@@ -248,14 +249,14 @@ int SSrchPattern::Preprocess()
 			//
 			// Препроцессинг по правилу плохого символа
 			//
-			uint32 * p_buf32 = (uint32 *)P_PreprocBuf;
+			uint32 * p_buf32 = reinterpret_cast<uint32 *>(P_PreprocBuf);
 			long   f = MakeLong(len, len);
 			for(i = 0; i < 256/2;) {
 				DO8(p_buf32[i++] = f);
 			}
-			uint16 * p_buf16 = (uint16 *)P_PreprocBuf;
+			uint16 * p_buf16 = P_PreprocBuf;
 			for(i = 0; i < len-1; i++)
-				p_buf16[P_Pat[i]] = (uint16)(len - 1 - i);
+				p_buf16[P_Pat[i]] = static_cast<uint16>(len - 1 - i);
 		}
 		if(Alg == algBmGoodSfx) {
 			//
@@ -271,7 +272,7 @@ int SSrchPattern::Preprocess()
 			//
 			for(i = 0; i < len; i++) {
 				uint16 v = p_L[i];
-				p_L[i] = (uint16)(v ? (len - 1 - v) : (len - p_l[i]));
+				p_L[i] = static_cast<uint16>(v ? (len - 1 - v) : (len - p_l[i]));
 			}
 		}
 	}
@@ -285,7 +286,7 @@ int SSrchPattern::Init(const char * pPattern, long flags, int alg)
 	Alg = alg;
 	if((Len+4) > PatSize) {
 		PatSize = SnapUpSize(Len+4);
-		P_PatAlloc = (uint8 *)SAlloc::R(P_PatAlloc, PatSize);
+		P_PatAlloc = static_cast<uint8 *>(SAlloc::R(P_PatAlloc, PatSize));
 		if(!P_PatAlloc) {
 			PatSize = 0;
 			return 0;
@@ -315,9 +316,9 @@ int SSrchPattern::Search(const char * pText, size_t start, size_t end, size_t * 
 					text_len = (256 + Len * 3) * sizeof(uint16);
 				else if(Alg == algBmBadChr)
 					text_len = 256 * sizeof(uint16);
-			const uint8 * p_coll = ((uint8 *)P_PreprocBuf) + text_len;
+			const uint8 * p_coll = (reinterpret_cast<const uint8 *>(P_PreprocBuf) + text_len);
 			do {
-				const  uint8 * p_text = (const uint8 *)pText+start;
+				const  uint8 * p_text = reinterpret_cast<const uint8 *>(pText)+start;
 				text_len = end-start;
 				if(U != pat0) {
 					size_t s8 = text_len / 8;
@@ -346,7 +347,7 @@ __fail:
 
 				}
 				else
-					p = (const uint8 *)memchr(p_text, pat0, text_len);
+					p = static_cast<const uint8 *>(memchr(p_text, pat0, text_len));
 				if(p) {
 __succ:
 					if(Len == 1) {
@@ -387,12 +388,12 @@ __succ:
 
 int SSrchPattern::Search_GS(const char * pText, size_t start, size_t end, size_t * pPos) const
 {
-	const  uint8 * p_text = (const uint8 *)pText;
+	const  uint8 * p_text = reinterpret_cast<const uint8 *>(pText);
 	const  size_t le   = Len - 1;
 	const  uint8  last  = P_Pat[le];
 	const  uint16 * p_gs_shift_ptr = P_PreprocBuf+256+Len+1;
 	if(Flags & fNoCase) {
-		const uint8 * p_coll = ((uint8 *)P_PreprocBuf) + (256 + Len * 3) * sizeof(uint16);
+		const uint8 * p_coll = reinterpret_cast<const uint8 *>(P_PreprocBuf) + (256 + Len * 3) * sizeof(uint16);
 		for(size_t i = start+le; i < end;) {
 			uint8  cur = p_coll[p_text[i]];
 			if(cur == last) {
@@ -431,13 +432,13 @@ int SSrchPattern::Search_GS(const char * pText, size_t start, size_t end, size_t
 
 int SSrchPattern::Search_BC(const char * pText, size_t start, size_t end, size_t * pPos) const
 {
-	const  uint8 * p_text = (const uint8 *)pText;
+	const  uint8 * p_text = reinterpret_cast<const uint8 *>(pText);
 	int    minus_one = (int)(Len - 2);
 	size_t le = Len - 1;
 	uint8  last  = P_Pat[le];
 	uint8  first = P_Pat[0];
 	if(Flags & fNoCase) {
-		const uint8 * p_coll = ((uint8 *)P_PreprocBuf) + 256 * sizeof(uint16);
+		const uint8 * p_coll = reinterpret_cast<const uint8 *>(P_PreprocBuf) + 256 * sizeof(uint16);
 		for(size_t i = le + start; i < end;) {
 			uint8 cur = p_coll[p_text[i]];
 			if(cur == last) {

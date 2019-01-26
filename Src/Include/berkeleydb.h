@@ -687,15 +687,15 @@ struct __db_mpoolfile {
 	/* DB_MPOOLFILE PUBLIC HANDLE LIST BEGIN */
 	int (*close)(DB_MPOOLFILE*, uint32);
 	int (*get)(DB_MPOOLFILE*, db_pgno_t*, DB_TXN*, uint32, void *);
-	int (*get_clear_len)(DB_MPOOLFILE*, uint32 *);
-	int (*get_fileid)(DB_MPOOLFILE*, uint8 *);
+	int (*get_clear_len)(const DB_MPOOLFILE*, uint32 *);
+	int (*get_fileid)(const DB_MPOOLFILE*, uint8 *);
 	int (*get_flags)(DB_MPOOLFILE*, uint32 *);
-	int (*get_ftype)(DB_MPOOLFILE*, int *);
+	int (*get_ftype)(const DB_MPOOLFILE*, int *);
 	int (*get_last_pgno)(DB_MPOOLFILE*, db_pgno_t *);
-	int (*get_lsn_offset)(DB_MPOOLFILE*, int32 *);
+	int (*get_lsn_offset)(const DB_MPOOLFILE*, int32 *);
 	int (*get_maxsize)(DB_MPOOLFILE*, uint32*, uint32 *);
-	int (*get_pgcookie)(DB_MPOOLFILE*, DBT *);
-	int (*get_priority)(DB_MPOOLFILE*, DB_CACHE_PRIORITY *);
+	int (*get_pgcookie)(const DB_MPOOLFILE*, DBT *);
+	int (*get_priority)(const DB_MPOOLFILE*, DB_CACHE_PRIORITY *);
 	int (*open)(DB_MPOOLFILE*, const char *, uint32, int, size_t);
 	int (*put)(DB_MPOOLFILE*, void *, DB_CACHE_PRIORITY, uint32);
 	int (*set_clear_len)(DB_MPOOLFILE*, uint32);

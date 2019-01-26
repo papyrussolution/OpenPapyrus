@@ -4098,10 +4098,10 @@ int SLAPI PPEgaisProcessor::Read_WayBillAct(xmlNode * pFirstNode, PPID locID, Pa
     BillTbl::Rec bhdr;
     MEMSZERO(bhdr);
     TSVector <WayBillActRecadvItem> items; // @v9.8.4 TSArray-->TSVector
-    for(xmlNode * p_n = pFirstNode; ok > 0 && p_n; p_n = p_n->next) {
+    for(xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
 		if(SXml::IsName(p_n, "Header")) {
 			was_header_accepted = 1;
-            for(xmlNode * p_h = p_n->children; ok > 0 && p_h; p_h = p_h->next) {
+            for(xmlNode * p_h = p_n->children; p_h; p_h = p_h->next) {
 				if(SXml::GetContentByName(p_h, "IsAccept", temp_buf)) {
 					if(temp_buf.IsEqiAscii("Accepted"))
 						is_accepted = 1;
@@ -4119,10 +4119,10 @@ int SLAPI PPEgaisProcessor::Read_WayBillAct(xmlNode * pFirstNode, PPID locID, Pa
             }
         }
 		else if(SXml::IsName(p_n, "Content")) {
-			for(xmlNode * p_c = p_n->children; ok > 0 && p_c; p_c = p_c->next) {
+			for(xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
 				WayBillActRecadvItem item;
 				if(SXml::IsName(p_c, "Position")) {
-					for(xmlNode * p_pos = p_c->children; ok > 0 && p_pos; p_pos = p_pos->next) {
+					for(xmlNode * p_pos = p_c->children; p_pos; p_pos = p_pos->next) {
 						if(SXml::GetContentByName(p_pos, "Identity", temp_buf))
 							item.P = temp_buf.ToLong();
 						else if(SXml::GetContentByName(p_pos, "InformBRegId", temp_buf))
@@ -5496,16 +5496,27 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 									TransferTbl::Rec trfr_rec;
 									for(DateIter di; P_BObj->trfr->EnumByLot(temp_lot_id, &di, &trfr_rec) > 0;) {
 										if(trfr_rec.BillID == lot_bill_id) {
-											const int16 rbb = trfr_rec.RByBill;
-											LotExtCodeTbl::Key2 k2;
-											MEMSZERO(k2);
-											k2.BillID = lot_bill_id;
-											k2.RByBill = rbb;
-											if(P_LecT->search(2, &k2, spGe) && P_LecT->data.BillID == lot_bill_id && P_LecT->data.RByBill == rbb) do {
-												if(P_LecT->data.Code[0])
-													is_lot_in_3format = 1;
-											} while(!is_lot_in_3format && P_LecT->search(2, &k2, spGe) && P_LecT->data.BillID == lot_bill_id && P_LecT->data.RByBill == rbb);
-											break;
+											// @v10.3.1 @fix {
+											int16 row_idx = 0;
+											int   row_is_found = 0;
+											for(int   rbb_iter = 0; !row_is_found && P_BObj->trfr->EnumItems(lot_bill_id, &rbb_iter, 0) > 0;) {
+												row_idx++;
+												if(rbb_iter == trfr_rec.RByBill)
+													row_is_found = 1;
+											}
+											if(row_is_found) {
+												//const int16 rbb = trfr_rec.RByBill;
+												// } @v10.3.1 @fix 
+												LotExtCodeTbl::Key2 k2;
+												MEMSZERO(k2);
+												k2.BillID = lot_bill_id;
+												k2.RByBill = /*rbb*/row_idx;
+												if(P_LecT->search(2, &k2, spGe) && P_LecT->data.BillID == lot_bill_id && P_LecT->data.RByBill == row_idx) do {
+													if(P_LecT->data.Code[0])
+														is_lot_in_3format = 1;
+												} while(!is_lot_in_3format && P_LecT->search(2, &k2, spGe) && P_LecT->data.BillID == lot_bill_id && P_LecT->data.RByBill == row_idx);
+												break;
+											}
 										}
 									}
 									// } @v10.2.6
@@ -6558,8 +6569,7 @@ int SLAPI PPEgaisProcessor::Helper_CollectRefs(void * pCtx, TSCollection <PPEgai
     for(uint i = 0; i < rReplyList.getCount(); i++) {
 		PPEgaisProcessor::Reply * p_reply = rReplyList.at(i);
 		int    doc_type = 0;
-		temp_buf = p_reply->Url;
-		temp_buf.Strip().RmvLastSlash();
+		(temp_buf = p_reply->Url).Strip().RmvLastSlash();
 		ss_url_tok.clear();
 		temp_buf.Tokenize("/", ss_url_tok);
 		ss_url_tok.reverse();
@@ -7429,13 +7439,11 @@ int SLAPI PPEgaisProcessor::GetBillListForTransmission(const PPBillExportFilt & 
 			if(edi_ack.NotEmpty() && edi_ident.NotEmpty() && bill_rec.Flags2 & BILLF2_DECLINED && edi_rejectack.Empty()) {
 				for_reject = 1; // По документу необходимо отправить отказ от проведения //
 			}
-			else {
-				if(suited && edi_ack.NotEmpty()) { 
+			else if(suited) {
+				if(edi_ack.NotEmpty())
 					suited = 0; // По документам с установленным тегом PPTAG_BILL_EDIACK уже отправлены подтверждения
-				}
-				if(suited && (flags & (bilstfExpend|bilstfIntrExpend)) && edi_ident.NotEmpty()) {
+				else if((flags & (bilstfExpend|bilstfIntrExpend)) && edi_ident.NotEmpty())
 					suited = 0; // Документ уже отправлен
-				}
 			}
 			if(suited) {
 				PPBillPacket pack;
@@ -7452,7 +7460,6 @@ int SLAPI PPEgaisProcessor::GetBillListForTransmission(const PPBillExportFilt & 
 							else if(r_ti.Quantity_ < 0.0)
 								has_minus = 1;
 							suited = 1;
-
 						}
 					}
 					if(suited) {
@@ -8483,7 +8490,7 @@ int SLAPI PPEgaisProcessor::EditInformAReg(InformAReg & rData)
 }
 
 // static
-int SLAPI PPEgaisProcessor::InputMark(PrcssrAlcReport::GoodsItem * pAgi, SString & rMark)
+int SLAPI PPEgaisProcessor::InputMark(const PrcssrAlcReport::GoodsItem * pAgi, SString & rMark)
 {
 	class EgaisMakrDialog : public TDialog {
 	public:

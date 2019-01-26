@@ -1448,6 +1448,7 @@
 #define PPCMD_VETISDOCUMENT               1333
 #define PPCMD_VETISINTERCHANGE            1334
 #define PPCMD_TIMESERIESSA                1335
+#define PPCMD_TIMESERIESCONFIG            1336
 //
 // PPJOB definitions
 //
