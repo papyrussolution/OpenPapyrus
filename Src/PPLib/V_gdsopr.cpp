@@ -3462,11 +3462,11 @@ void SLAPI PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 		else if(brw_id == BROWSER_ABCANLZ) {
 			if(Filt.Flags & GoodsOpAnalyzeFilt::fCalcRest) {
 				BroGroup grp;
-				grp.first = 7;
-				grp.count = 2;
-				grp.hight = 1;
+				grp.First = 7;
+				grp.Count = 2;
+				grp.Height = 1;
 				PPGetWord(PPWORD_REST_IN, 0, temp_buf);
-				grp.text = newStr(temp_buf);
+				grp.P_Text = newStr(temp_buf);
 				pBrw->view->getDef()->addGroup(&grp);
 				pBrw->InsColumnWord(-1, PPWORD_COST, 16, 0, MKSFMTD(11, 2, NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT);
 				pBrw->InsColumnWord(-1, PPWORD_PRICE_P, 17, 0, MKSFMTD(10, 2, NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT);
@@ -3577,11 +3577,11 @@ void SLAPI PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 					BrowserDef * p_def = pBrw->getDef();
 					if(p_def) {
 						BroGroup grp;
-						grp.first = first_c;
-						grp.count = cols_count;
-						grp.hight = 1;
-						grp.text = newStr(c_title);
-						c_title.CopyTo(grp.text, c_title.Len() + 1);
+						grp.First = first_c;
+						grp.Count = cols_count;
+						grp.Height = 1;
+						grp.P_Text = newStr(c_title);
+						c_title.CopyTo(grp.P_Text, c_title.Len() + 1);
 						p_def->addGroup(&grp);
 					}
 				}

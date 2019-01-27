@@ -321,6 +321,15 @@ IMPL_HANDLE_EVENT(TBaseBrowserWindow)
 			else {
 				HW = CreateWindow(ClsName, buf, style, r.left, r.top, r.right, r.bottom, (APPL->H_TopOfStack), NULL, TProgram::GetInst(), this); // @unicodeproblem
 			}
+			// @v10.3.1 {
+			if(HW) {
+				TEvent event;
+				event.what = TEvent::evCommand;
+				event.message.command = cmModalPostCreate;
+				event.message.infoPtr = this;
+				this->handleEvent(event); // @recursion
+			}
+			// } @v10.3.1 
 		}
 		/*
 		if(InitPos > 0)
@@ -570,9 +579,9 @@ int BrowserWindow::LoadResource(uint rezID, void * pData, int dataKind, uint uOp
 						columns_count++;
 						break;
 					case TV_BROGROUP:
-						grp.text  = newStr(rez.getString(buf, 2));
-						grp.hight = rez.getUINT();
-						grp.first = columns_count;
+						grp.P_Text  = newStr(rez.getString(buf, 2));
+						grp.Height = rez.getUINT();
+						grp.First = columns_count;
 						is_group = 1;
 						break;
 					case TV_TOOLBAR:
@@ -610,7 +619,7 @@ int BrowserWindow::LoadResource(uint rezID, void * pData, int dataKind, uint uOp
 						break;
 					case TV_END:
 						if(is_group) {
-							grp.count = columns_count - grp.first;
+							grp.Count = columns_count - grp.First;
 							p_def->addGroup(&grp);
 							is_group = 0;
 						}
@@ -935,8 +944,8 @@ int BrowserWindow::CopyToClipboard()
 		for(i = 0; i < P_Def->GetGroupCount(); i++) {
 			uint   pos = 0;
 			const  BroGroup * p_grp = P_Def->GetGroup(i);
-			val_buf = p_grp->text;
-			if(SelectedColumns.lsearch(p_grp->first, &pos) > 0) {
+			val_buf = p_grp->P_Text;
+			if(SelectedColumns.lsearch(p_grp->First, &pos) > 0) {
 				sw.PutFormat("FC0L", 1, pos + 1, 1);
 				sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
 				sw.PutVal(val_buf, 1);
@@ -1623,7 +1632,7 @@ void BrowserWindow::Paint()
 				r.left    = c.x - 1;
 				r.right   = CellRight(c);
 				r.bottom  = YCell * P_Def->GetCapHeight();
-				r.top     = P_Def->isColInGroup(cn, &gidx) ? (YCell * P_Def->GetGroup(gidx)->hight + 1) : 0;
+				r.top     = P_Def->isColInGroup(cn, &gidx) ? (YCell * P_Def->GetGroup(gidx)->Height + 1) : 0;
 				r.top    += hdr_width;
 				r.bottom += hdr_width;
 				DrawCapBk(ps.hdc, &r, FALSE);
@@ -1645,21 +1654,21 @@ void BrowserWindow::Paint()
 			}
 			for(i = 0; i < P_Def->GetGroupCount(); i++) {
 				const BroGroup * p_grp = P_Def->GetGroup(i);
-				lt = MAX(p_grp->first, Left);
+				lt = MAX(p_grp->First, Left);
 				rt = MIN(p_grp->NextColumn()-1, Right);
 				if(lt <= rt) {
 					r.left    = P_Def->at(lt).x - 1;
 					r.right   = CellRight(P_Def->at(rt));
 					r.top     = hdr_width;
-					r.bottom  = YCell * p_grp->hight + hdr_width;
+					r.bottom  = YCell * p_grp->Height + hdr_width;
 					fmt = DT_CENTER|DT_EXTERNALLEADING;
 					DrawCapBk(ps.hdc, &r, FALSE);
 					r.left++;
 					r.top++;
 					r.right--;
 					r.bottom--;
-					(temp_buf = p_grp->text).Transf(CTRANSF_INNER_TO_OUTER);
-					::DrawText(ps.hdc, temp_buf, (int)temp_buf.Len(), &r, fmt); // @unicodeproblem
+					(temp_buf = p_grp->P_Text).Transf(CTRANSF_INNER_TO_OUTER);
+					::DrawText(ps.hdc, temp_buf, static_cast<int>(temp_buf.Len()), &r, fmt); // @unicodeproblem
 				}
 			}
 			SetBkColor(ps.hdc, oldColor);
@@ -1963,7 +1972,7 @@ void BrowserWindow::Resize(TPoint p, int mode)
 				uint   gidx;
 				if(P_Def->isColInGroup(ResizedCol - 1, &gidx)) {
 					const BroGroup * p_grp = P_Def->GetGroup(gidx);
-					gidx = MAX(p_grp->first, Left);
+					gidx = MAX(p_grp->First, Left);
 					r.left = P_Def->at(gidx).x + 1;
 				}
 				else

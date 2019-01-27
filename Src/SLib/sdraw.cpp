@@ -1425,13 +1425,13 @@ int SImageBuffer::PixF::GetUniform(const void * pSrc, void * pUniformBuf, uint w
 		*/
 		else if(S == s16Idx) {
 			for(i = 0; i < width; ++i)
-				*p_ufb++ = pPalette->GetColor(PTR16(pSrc)[i]);
+				*p_ufb++ = pPalette->GetColor(PTR16C(pSrc)[i]);
 		}
 		else if(S == s8Idx) {
 			const uint oct_count = width / 8;
 			const uint oct_tail = (oct_count * 8) + (width % 8);
 			const uint32 * p_palette_buf = pPalette->GetBufferC();
-			const uint8 * p_src8 = PTR8(pSrc);
+			const uint8 * p_src8 = PTR8C(pSrc);
 			for(i = 0; i < oct_count; i += 8) {
 				p_ufb[0] = p_palette_buf[p_src8[i]];
 				p_ufb[1] = p_palette_buf[p_src8[i+1]];
@@ -1452,14 +1452,14 @@ int SImageBuffer::PixF::GetUniform(const void * pSrc, void * pUniformBuf, uint w
 		}
 		else if(S == s4Idx) {
 			for(i = 0; i < width/2; ++i) {
-				uint8 b = PTR8(pSrc)[i];
+				uint8 b = PTR8C(pSrc)[i];
 				*p_ufb++ = pPalette->GetColor((b & 0xf0) >> 4);
 				*p_ufb++ = pPalette->GetColor(b & 0x0f);
 			}
 		}
 		else if(S == s2Idx) {
 			for(i = 0; i < q; ++i) {
-				uint8 b = PTR8(pSrc)[i];
+				uint8 b = PTR8C(pSrc)[i];
 				*p_ufb++ = pPalette->GetColor((b & 0xc0) >> 6);
 				*p_ufb++ = pPalette->GetColor((b & 0x30) >> 4);
 				*p_ufb++ = pPalette->GetColor((b & 0x0c) >> 2);
@@ -1468,7 +1468,7 @@ int SImageBuffer::PixF::GetUniform(const void * pSrc, void * pUniformBuf, uint w
 		}
 		else if(S == s1Idx) {
 			for(i = 0; i < width/8; ++i) {
-				uint8 b = PTR8(pSrc)[i];
+				uint8 b = PTR8C(pSrc)[i];
 				*p_ufb++ = pPalette->GetColor((b & 0x80) >> 7);
 				*p_ufb++ = pPalette->GetColor((b & 0x40) >> 6);
 				*p_ufb++ = pPalette->GetColor((b & 0x20) >> 5);
@@ -1985,7 +1985,7 @@ int SImageBuffer::AddLines(const void * pSrc, SImageBuffer::PixF s, uint count, 
 		THROW(stride);
 		THROW(Alloc(stride * new_h));
 		for(uint j = 0; j < count; j++) {
-			THROW(s.GetUniform(PTR8(pSrc) + j * src_stride, PTR32(P_Buf)+((S.y+j)*S.x), S.x, pPalette));
+			THROW(s.GetUniform(PTR8C(pSrc) + j * src_stride, PTR32(P_Buf)+((S.y+j)*S.x), S.x, pPalette));
 		}
 		S.y = new_h;
 	}
@@ -2096,7 +2096,7 @@ void * SImageBuffer::TransformToIcon() const
 		THROW(F.GetUniform(GetScanline(y), uniform_buf, S.x, 0));
 		for(int x = 0; x < _w; x++) {
 			COLORREF and_mask = RGB(0, 0, 0);
-			COLORREF xor_mask = SImageBuffer::PixF::UniformToRGB(*PTR32(uniform_buf.ucptr() + uboffs));
+			COLORREF xor_mask = SImageBuffer::PixF::UniformToRGB(*PTR32C(uniform_buf.ucptr() + uboffs));
 			::SetPixel(hAndMaskDC, x, y, and_mask);
 			::SetPixel(hXorMaskDC, x, y, xor_mask);
 			uboffs += 4;

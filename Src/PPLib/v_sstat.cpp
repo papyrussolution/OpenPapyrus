@@ -1142,13 +1142,13 @@ int SLAPI PPViewSStat::CellStyleFunc_(const void * pData, long col, int paintAct
 							size_t offs = 0;
 							for(uint i = 0; i < 15; i++)
 								offs += stsize(p_q->flds[i].type);
-							memcpy(&is_trust, PTR8(pData) + offs, sizeof(short));
+							memcpy(&is_trust, PTR8C(pData) + offs, sizeof(short));
 						}
 						if(p_q->fldCount > 3) { // #03 - поле запроса, содержащее количество элементов статистики
 							size_t offs = 0;
 							for(uint i = 0; i < 3; i++)
 								offs += stsize(p_q->flds[i].type);
-							memcpy(&stat_count, PTR8(pData) + offs, sizeof(long));
+							memcpy(&stat_count, PTR8C(pData) + offs, sizeof(long));
 						}
 					}
 					if(stat_count == 0) {

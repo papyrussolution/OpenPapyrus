@@ -1,5 +1,5 @@
 // OBJSCARD.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 // Модуль, управляющий объектом PPObjSCard - персональные карты
 //
@@ -922,7 +922,7 @@ public:
 		pDest->freeAll();
 		if(ItemSize == pDest->getItemSize()) {
 			for(uint i = 0; i < ItemsCount; i++) {
-				pDest->insert(PTR8(this+1)+(i * ItemSize));
+				pDest->insert(PTR8C(this+1)+(i * ItemSize));
 			}
 		}
 		else

@@ -922,7 +922,7 @@ SLAPI SdRecordBuffer::SdRecordBuffer(size_t maxSize) : MaxSize(NZOR(maxSize, 409
 {
 	SBaseBuffer::Init();
 	if(Alloc(MaxSize)) {
-		*PTR16(P_Buf) = 0; // Обнуляем счетчик записей.
+		PTR16(P_Buf)[0] = 0; // Обнуляем счетчик записей.
 		Pos = sizeof(uint16);
 	}
 	else
@@ -939,7 +939,7 @@ int SLAPI SdRecordBuffer::Reset()
 	MaxRecSize = 0;
 	Flags = fEqRec;
 	if(P_Buf) {
-		*PTR16(P_Buf) = 0;
+		PTR16(P_Buf)[0] = 0;
 		Pos = sizeof(uint16);
 		return 1;
 	}

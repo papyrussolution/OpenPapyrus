@@ -501,7 +501,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 {
 	int    ok = -1;
 	if(pData && pStyle && paintAction == BrowserWindow::paintNormal) {
-		const long flags = *(long *)(PTR8(pData)+sizeof(LDATE));
+		const long flags = *(long *)(PTR8C(pData)+sizeof(LDATE));
 		if(flags & 0x0001) {
 			pStyle->Color = GetGrayColorRef(0.9f);
 			pStyle->Flags = 0;

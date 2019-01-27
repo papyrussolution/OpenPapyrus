@@ -174,14 +174,14 @@ static void SLAPI insmem(void * pDest, const void * pSrc, size_t blkOffs, size_t
 		uint8 * d = PTR8(pDest) + blkOffs * sizeof(uint32);
 		if(destSize > blkOffs)
 			memmove(d + blkSize, d, (destSize - blkOffs) * sizeof(uint32));
-		PTR32(d)[0] = PTR32(pSrc)[0];
+		PTR32(d)[0] = PTR32C(pSrc)[0];
 	}
 	else if(blkSize == sizeof(uint32)*2) {
 		uint8 * d = PTR8(pDest) + (blkOffs * sizeof(uint32) * 2);
 		if(destSize > blkOffs)
 			memmove(d + blkSize, d, ((destSize - blkOffs) * sizeof(uint32) * 2));
-		PTR32(d)[0] = PTR32(pSrc)[0];
-		PTR32(d)[1] = PTR32(pSrc)[1];
+		PTR32(d)[0] = PTR32C(pSrc)[0];
+		PTR32(d)[1] = PTR32C(pSrc)[1];
 	}
 	else {
 		uint8 * d = PTR8(pDest) + blkOffs * blkSize;
@@ -207,11 +207,11 @@ int FASTCALL SVectorBase::insert(const void * pItem)
 			const void * p_intr = _INTRPTR(pItem);
 			uint8 * d = PTR8(data) + _c * quant;
 			if(quant == sizeof(uint32)) {
-				PTR32(d)[0] = PTR32(p_intr)[0];
+				PTR32(d)[0] = PTR32C(p_intr)[0];
 			}
 			else if(quant == sizeof(uint32)*2) {
-				PTR32(d)[0] = PTR32(p_intr)[0];
-				PTR32(d)[1] = PTR32(p_intr)[1];
+				PTR32(d)[0] = PTR32C(p_intr)[0];
+				PTR32(d)[1] = PTR32C(p_intr)[1];
 			}
 			else {
 				memmove(d, p_intr, quant);
@@ -662,11 +662,11 @@ double SLAPI SVectorBase::sumDouble(uint offs, uint firstIdx, uint lastIdx) cons
 		uint  i = firstIdx;
 		const uint8 * p = (data + offs + _is1 * firstIdx);
 		for(; i < _c8; i += 8) {
-			result += (*PTRDBL(p) + *PTRDBL(p + _is1) + *PTRDBL(p + _is2) + *PTRDBL(p + _is3) + *PTRDBL(p + _is4) + *PTRDBL(p + _is5) + *PTRDBL(p + _is6) + *PTRDBL(p + _is7));
+			result += (*PTRDBLC(p) + *PTRDBLC(p + _is1) + *PTRDBLC(p + _is2) + *PTRDBLC(p + _is3) + *PTRDBLC(p + _is4) + *PTRDBLC(p + _is5) + *PTRDBLC(p + _is6) + *PTRDBLC(p + _is7));
 			p += (_is1 * 8);
 		}
 		for(; i <= lastIdx; i++) {
-			result += *PTRDBL(p);
+			result += *PTRDBLC(p);
 			p += _is1;
 		}
 	}
@@ -757,7 +757,7 @@ int SLAPI SVectorBase::isItemEq(const void * pKey, uint pos, CompFunc fcmp, size
 {
 	if(pos < count) {
 		const void * p_data = _USERPTR(data + pos * isize);
-		if(p_data && fcmp(PTR8(p_data) + ofs, pKey, pExtraData) == 0)
+		if(p_data && fcmp(PTR8C(p_data) + ofs, pKey, pExtraData) == 0)
 			return 1;
 	}
 	return 0;
@@ -782,17 +782,17 @@ int SLAPI SVectorBase::lsearch(const void * pcKey, uint * pIdx, CompFunc fcmp, s
 			// Так как функция сравнения 4-байтовых значений очень популярна,
 			// применяем для такого случая специальную обработку (без вызова, собственно, функции сравнения).
 			//
-			const uint32 test = *PTR32(pcKey);
+			const uint32 test = *PTR32C(pcKey);
 			for(; i < lim; i += isize)
-				if(*PTR32(p_org + i) == test) {
+				if(*PTR32C(p_org + i) == test) {
 					ASSIGN_PTR(pIdx, i / isize);
 					return 1;
 				}
 		}
 		else if(fcmp == CMPF_INT64) {
-			const uint64 test = *PTR64(pcKey);
+			const uint64 test = *PTR64C(pcKey);
 			for(; i < lim; i += isize)
-				if(*PTR64(p_org + i) == test) {
+				if(*PTR64C(p_org + i) == test) {
 					ASSIGN_PTR(pIdx, i / isize);
 					return 1;
 				}
@@ -2955,7 +2955,7 @@ int FASTCALL RealArray::dim(uint numItems)
 double SLAPI RealArray::StrideDifference(uint idx, uint stride) const
 {
 	assert(idx < count && idx >= stride);
-	return (idx < count && idx >= stride) ? (PTRDBL(data)[idx] - PTRDBL(data)[idx-stride]) : 0.0;
+	return (idx < count && idx >= stride) ? (PTRDBLC(data)[idx] - PTRDBLC(data)[idx-stride]) : 0.0;
 }
 
 double SLAPI RealArray::Sum() const

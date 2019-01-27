@@ -1,5 +1,5 @@
 // BPAKCORE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 // @Kernel
 //
@@ -20,9 +20,9 @@ int FASTCALL PayPlanArray::IsEqual(const PayPlanArray & rS) const
 	if(getCount() == rS.getCount()) {
 		PayPlanTbl::Rec * p_e1, * p_e2;
 		LongArray saw_list;
-		for(uint i = 0; ok && enumItems(&i, (void **)&p_e1);) {
+		for(uint i = 0; ok && enumItems(&i, reinterpret_cast<void**>(&p_e1));) {
 			int    found = 0;
-			for(uint j = 0; !found && rS.enumItems(&j, (void **)&p_e2);) {
+			for(uint j = 0; !found && rS.enumItems(&j, reinterpret_cast<void**>(&p_e2));) {
 				long   p = (long)j;
 				if(!saw_list.lsearch(p) && memcmp(p_e1, p_e2, sizeof(*p_e1)) == 0) {
 					saw_list.add(p);
@@ -4449,7 +4449,7 @@ CompleteArray & FASTCALL CompleteArray::operator = (const CompleteArray & s)
 int SLAPI CompleteArray::SearchLotID(PPID lotID, uint * pPos, CompleteItem * pItem) const
 {
 	CompleteItem * p_item;
-	for(uint i = 0; enumItems(&i, (void **)&p_item);)
+	for(uint i = 0; enumItems(&i, reinterpret_cast<void**>(&p_item));)
 		if(p_item->LotID == lotID && !(p_item->Flags & CompleteItem::fExclude)) {
 			ASSIGN_PTR(pPos, i-1);
 			ASSIGN_PTR(pItem, *p_item);
@@ -4461,7 +4461,7 @@ int SLAPI CompleteArray::SearchLotID(PPID lotID, uint * pPos, CompleteItem * pIt
 int SLAPI CompleteArray::SearchGoodsID(PPID goodsID, uint * pPos, CompleteItem * pItem) const
 {
 	CompleteItem * p_item;
-	for(uint i = 0; enumItems(&i, (void **)&p_item);)
+	for(uint i = 0; enumItems(&i, reinterpret_cast<void**>(&p_item));)
 		if(p_item->LotID == goodsID && !(p_item->Flags & CompleteItem::fExclude)) {
 			ASSIGN_PTR(pPos, i-1);
 			ASSIGN_PTR(pItem, *p_item);
@@ -4473,7 +4473,7 @@ int SLAPI CompleteArray::SearchGoodsID(PPID goodsID, uint * pPos, CompleteItem *
 int SLAPI CompleteArray::IsExcludedLot(PPID lotID) const
 {
 	CompleteItem * p_item;
-	for(uint i = 0; enumItems(&i, (void **)&p_item);)
+	for(uint i = 0; enumItems(&i, reinterpret_cast<void**>(&p_item));)
 		if(p_item->LotID == lotID && p_item->Flags & CompleteItem::fExclude)
 			return 1;
 	return 0;
@@ -4483,7 +4483,7 @@ int SLAPI CompleteArray::RemoveExludedItems(PPID exclLotID)
 {
 	int    ok = -1;
 	CompleteItem * p_item;
-	for(uint i = 0; enumItems(&i, (void **)&p_item);)
+	for(uint i = 0; enumItems(&i, reinterpret_cast<void**>(&p_item));)
 		if(p_item->LotID == exclLotID) {
 			atFree(--i);
 			ok = 1;

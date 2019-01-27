@@ -1,5 +1,5 @@
 // HASHFUNC.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2016
+// Copyright (c) A.Sobolev 2012, 2013, 2016, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -14,7 +14,7 @@ uint32 FASTCALL RSHash(const void * pData, size_t len)
 	uint a = 63689;
 	uint32 hash = 0;
 	for(uint i = 0; i < len; i++) {
-		hash = hash * a + PTR8(pData)[i];
+		hash = hash * a + PTR8C(pData)[i];
 		a = a * b;
 	}
 	return hash;
@@ -27,7 +27,7 @@ uint32 FASTCALL JSHash(const void * pData, size_t len)
 {
 	uint32 hash = 1315423911;
 	for(uint i = 0; i < len; i++) {
-		hash ^= ((hash << 5) + PTR8(pData)[i] + (hash >> 2));
+		hash ^= ((hash << 5) + PTR8C(pData)[i] + (hash >> 2));
 	}
 	return hash;
 }
@@ -46,7 +46,7 @@ uint32 FASTCALL PJWHash(const void * pData, size_t len)
 	uint32 hash = 0;
 	uint32 test = 0;
 	for(uint i = 0; i < len; i++) {
-		hash = (hash << OneEighth) + PTR8(pData)[i];
+		hash = (hash << OneEighth) + PTR8C(pData)[i];
 		if((test = hash & HighBits)  != 0) {
 			hash = (( hash ^ (test >> ThreeQuarters)) & (~HighBits));
 		}
@@ -63,7 +63,7 @@ uint32 FASTCALL ELFHash(const void * pData, size_t len)
 	uint32 hash = 0;
 	uint   x = 0;
 	for(uint i = 0; i < len; i++) {
-		hash = (hash << 4) + PTR8(pData)[i];
+		hash = (hash << 4) + PTR8C(pData)[i];
 		if((x = hash & 0xF0000000L) != 0) {
 			hash ^= (x >> 24);
 		}
@@ -82,7 +82,7 @@ uint32 FASTCALL BKDRHash(const void * pData, size_t len)
 	uint32 seed = 131; /* 31 131 1313 13131 131313 etc.. */
 	uint32 hash = 0;
 	for(uint i = 0; i < len; i++) {
-		hash = (hash * seed) + PTR8(pData)[i];
+		hash = (hash * seed) + PTR8C(pData)[i];
 	}
 	return hash;
 }
@@ -96,7 +96,7 @@ uint32 FASTCALL SDBMHash(const void * pData, size_t len)
 {
 	uint32 hash = 0;
 	for(uint i = 0; i < len; i++) {
-		hash = PTR8(pData)[i] + (hash << 6) + (hash << 16) - hash;
+		hash = PTR8C(pData)[i] + (hash << 6) + (hash << 16) - hash;
 	}
 	return hash;
 }
@@ -109,7 +109,7 @@ uint32 FASTCALL DJBHash(const void * pData, size_t len)
 {
 	uint32 hash = 5381;
 	for(uint i = 0; i < len; i++) {
-		hash = ((hash << 5) + hash) + PTR8(pData)[i];
+		hash = ((hash << 5) + hash) + PTR8C(pData)[i];
 	}
 	return hash;
 }
@@ -122,7 +122,7 @@ uint32 FASTCALL DEKHash(const void * pData, size_t len)
 {
 	uint32 hash = len;
 	for(uint i = 0; i < len; i++) {
-		hash = ((hash << 5) ^ (hash >> 27)) ^ PTR8(pData)[i];
+		hash = ((hash << 5) ^ (hash >> 27)) ^ PTR8C(pData)[i];
 	}
 	return hash;
 }
@@ -133,7 +133,7 @@ uint32 FASTCALL BPHash(const void * pData, size_t len)
 {
 	uint32 hash = 0;
 	for(uint i = 0; i < len; i++) {
-		hash = hash << 7 ^ PTR8(pData)[i];
+		hash = hash << 7 ^ PTR8C(pData)[i];
 	}
 	return hash;
 }
@@ -146,7 +146,7 @@ uint32 FASTCALL FNVHash(const void * pData, size_t len)
 	uint32 hash = 0;
 	for(uint i = 0; i < len; i++) {
 		hash *= fnv_prime;
-		hash ^= PTR8(pData)[i];
+		hash ^= PTR8C(pData)[i];
 	}
 	return hash;
 }
@@ -169,7 +169,7 @@ uint32 FASTCALL APHash(const void * pData, size_t len)
 {
 	uint32 hash = 0xAAAAAAAA;
 	for(uint i = 0; i < len; i++) {
-		hash ^= ((i & 1) == 0) ? ((hash <<  7) ^ PTR8(pData)[i] * (hash >> 3)) : (~((hash << 11) + (PTR8(pData)[i] ^ (hash >> 5))));
+		hash ^= ((i & 1) == 0) ? ((hash <<  7) ^ PTR8C(pData)[i] * (hash >> 3)) : (~((hash << 11) + (PTR8C(pData)[i] ^ (hash >> 5))));
 	}
 	return hash;
 }

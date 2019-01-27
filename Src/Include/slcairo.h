@@ -208,7 +208,6 @@ typedef enum _cairo_content {
 	{
 		return (cairo_content_t)(((int)a)|((int)b));
 	}
-
 #endif
 
 #endif // } __SLCAIRO_H

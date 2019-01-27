@@ -1858,8 +1858,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 										setCtrlData(CTL_BILL_MEMO, P_Pack->Rec.Memo);
 										{
 											SString text;
-											PPLoadString("but_linkbill", text);
-											setButtonText(cmLinkedBill, text.Transf(CTRANSF_INNER_TO_OUTER));
+											setButtonText(cmLinkedBill, PPLoadStringS("but_linkbill", text).Transf(CTRANSF_INNER_TO_OUTER));
 											setupDebt();
 										}
 									}
@@ -2461,8 +2460,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	enableCommand(cmExAmountList, BIN(Flags & fHasAmtIDList));
 	if(P_Pack->OpTypeID == PPOPT_PAYMENT) {
 		if(P_Pack->Rec.LinkBillID == 0) {
-			PPLoadString("but_dolinkbill", temp_buf);
-			setButtonText(cmLinkedBill, temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
+			setButtonText(cmLinkedBill, PPLoadStringS("but_dolinkbill", temp_buf).Transf(CTRANSF_INNER_TO_OUTER));
 		}
 		else
 			enableCommand(cmLinkedBill, 1);
@@ -2528,16 +2526,12 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 			if(sc_obj.IsCreditCard(sc_rec.ID) > 0) {
 				double rest = 0.0;
 				sc_obj.P_Tbl->GetRest(sc_rec.ID, P_Pack->Rec.Dt, &rest);
-				PPLoadString("crdcard", temp_buf);
-				info_buf.Cat(temp_buf).CatDiv(':', 2).Cat(sc_rec.Code).CatDiv('.', 2);
-				PPLoadString("rest", temp_buf);
-				info_buf.Cat(temp_buf).CatDiv('=', 1).Cat(rest);
+				info_buf.Cat(PPLoadStringS("crdcard", temp_buf)).CatDiv(':', 2).Cat(sc_rec.Code).CatDiv('.', 2);
+				info_buf.Cat(PPLoadStringS("rest", temp_buf)).CatDiv('=', 1).Cat(rest);
 			}
 			else {
-				PPLoadString("discard", temp_buf);
-				info_buf.Cat(temp_buf).CatDiv(':', 2).Cat(sc_rec.Code).CatDiv('.', 2);
-				PPLoadString("discount", temp_buf);
-				info_buf.Cat(temp_buf).CatDiv('=', 1).Cat(fdiv100i(sc_rec.PDis)).CatChar('%');
+				info_buf.Cat(PPLoadStringS("discard", temp_buf)).CatDiv(':', 2).Cat(sc_rec.Code).CatDiv('.', 2);
+				info_buf.Cat(PPLoadStringS("discount", temp_buf)).CatDiv('=', 1).Cat(fdiv100i(sc_rec.PDis)).CatChar('%');
 			}
 			setStaticText(CTL_BILL_ST_SCARD, info_buf);
 		}

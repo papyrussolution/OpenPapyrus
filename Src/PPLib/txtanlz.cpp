@@ -1,5 +1,5 @@
 // TXTANLZ.CPP
-// Copyright (c) A.Sobolev 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -286,9 +286,9 @@ int SLAPI PPTextAnalyzer::GetTrT(const PPTextAnalyzer::Replacer & rReplacer, SSt
 			return (cnext-'0');
 		}
 		else {
-			const uint16 s = *PTR16((const char *)rScan);
+			const uint16 s = *PTR16C((const char *)rScan);
 			for(uint i = 0; i < SIZEOFARRAY(TrList); i++) {
-				if(*PTR16(TrList[i].S) == s) {
+				if(*PTR16C(TrList[i].S) == s) {
 					rScan.Incr(2);
 					int  term = TrList[i].Term;
 					if(term == PPTextAnalyzer::Replacer::stHyphenOpt) {

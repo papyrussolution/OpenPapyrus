@@ -1,5 +1,5 @@
 // CHKPAN.CPP
-// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 // Панель ввода кассовых чеков
 //
@@ -296,33 +296,27 @@ void FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack) con
 
 void CPosProcessor::Packet::SetupInfo(SString & rBuf)
 {
-	SString word;
+	SString temp_buf;
 	rBuf.Z();
 	if(GetAgentID(1)) {
-		//PPGetWord(PPWORD_SALER, 0, rBuf).CatDiv(':', 2);
-		PPLoadString("seller", rBuf);
-		rBuf.CatDiv(':', 2);
-		GetArticleName(GetAgentID(1), word);
+		PPLoadStringS("seller", rBuf).CatDiv(':', 2);
+		GetArticleName(GetAgentID(1), temp_buf);
 		if(rBuf.NotEmpty())
 			rBuf.CatCharN(' ', 4);
-		rBuf.Cat(word);
+		rBuf.Cat(temp_buf);
 	}
 	if(TableCode) {
 		if(rBuf.NotEmpty())
 			rBuf.CatCharN(' ', 4);
-		PPLoadString("ftable", word);
-		rBuf.Cat(word).CatDiv(':', 2).Cat(TableCode);
+		rBuf.Cat(PPLoadStringS("ftable", temp_buf)).CatDiv(':', 2).Cat(TableCode);
 		if(GuestCount) {
-			PPLoadString("guestcount", word);
-			rBuf.CatCharN(' ', 4).Cat(word).CatDiv(':', 2).Cat(GuestCount);
+			rBuf.CatCharN(' ', 4).Cat(PPLoadStringS("guestcount", temp_buf)).CatDiv(':', 2).Cat(GuestCount);
 		}
 	}
 	if(GetCur().Division) {
 		if(rBuf.NotEmpty())
 			rBuf.CatCharN(' ', 4);
-		// @v9.2.7 PPGetWord(PPWORD_POSDIVISION, 0, word);
-		PPLoadString("department", word); // @v9.2.7
-		rBuf.Cat(word).CatDiv(':', 2).Cat(GetCur().Division);
+		rBuf.Cat(PPLoadStringS("department", temp_buf)).CatDiv(':', 2).Cat(GetCur().Division);
 	}
 }
 
@@ -3274,9 +3268,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 					SETFLAG(Flags, fPrintSlipDoc, ts_pack.Rec.Flags & TSF_PRINTSLIPDOC);
 				}
 			}
-			//setTitle(PPGetWord(PPWORD_CASHNODE, 0, temp_buf).CatDiv(':', 2).Cat(CnName));
-			PPLoadString("posnode", temp_buf);
-			setTitle(temp_buf.CatDiv(':', 2).Cat(CnName));
+			setTitle(PPLoadStringS("posnode", temp_buf).CatDiv(':', 2).Cat(CnName));
 		}
 		PPGetSubStr(PPTXT_FONTFACE, PPFONT_IMPACT, font_face);
 		SetCtrlFont(CTL_CHKPAN_TOTAL, font_face, 54);
@@ -3579,8 +3571,7 @@ void CheckPaneDialog::ViewStoragePlaces(PPID goodsId)
 				(out_msg = tag_name).CR().CR();
 			if(loc_name.Len()) {
 				SString buf;
-				PPLoadString("storageplace", buf);
-				buf.CatChar(':');
+				PPLoadStringS("storageplace", buf).CatChar(':');
 				out_msg.Cat(buf).CR();
 				out_msg.Cat(loc_name);
 			}
@@ -4872,8 +4863,7 @@ int SelCheckListDialog::SetupItemList()
 					enableCommand(cmUniteChecks, to_disable);
 				}
 				{
-					PPLoadString(memo_has_addr ? "address" : "memo", sub);
-					setLabelText(CTL_SELCHECK_MEMO, sub);
+					setLabelText(CTL_SELCHECK_MEMO, PPLoadStringS(memo_has_addr ? "address" : "memo", sub));
 					setCtrlString(CTL_SELCHECK_MEMO, memo_buf);
 				}
 				p_list->focusItem(0);
@@ -5650,7 +5640,7 @@ private:
 					ss.clear();
 					sc_list.clear();
 					if(r_entry.ObjType == PPOBJ_LOCATION) {
-						PPLoadString("address", temp_buf);
+						PPLoadStringS("address", temp_buf);
 						ScObj.P_Tbl->GetListByLoc(r_entry.ObjID, 0, &sc_list);
 					}
 					else if(r_entry.ObjType == PPOBJ_PERSON) {
@@ -6059,7 +6049,7 @@ int CheckPaneDialog::SelectGuestCount(int tableCode, long * pGuestCount)
 	class SelectGuestCountDialog : public TDialog {
 	public:
 		struct Param {
-			Param() : TableNo(0), GuestCount(0)
+			explicit Param(int tableNo = 0) : TableNo(tableNo), GuestCount(0)
 			{
 			}
 			int    TableNo;
@@ -6091,10 +6081,8 @@ int CheckPaneDialog::SelectGuestCount(int tableCode, long * pGuestCount)
 	};
 	int    ok = -1;
 	SelectGuestCountDialog * dlg = 0;
-	SelectGuestCountDialog::Param param;
-	if(tableCode) {
-		param.TableNo = tableCode;
-		param.GuestCount = 0;
+	SelectGuestCountDialog::Param param(tableCode);
+	if(param.TableNo) {
 		if(CheckDialogPtrErr(&(dlg = new SelectGuestCountDialog))) {
 			dlg->setDTS(&param);
 			while(ok < 0 && ExecView(dlg) == cmOK) {
@@ -6281,14 +6269,11 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 						}
 					}
 					if(CnSpeciality == PPCashNode::spCafe) {
-						PPLoadString("guestcount", name);
-						SetCtrlToolTip(CTL_CHKPAN_BYPRICE, name.Transf(CTRANSF_INNER_TO_OUTER));
-						PPLoadString("ftableorders", name);
-						SetCtrlToolTip(CTL_CHKPAN_DIVISION, name.Transf(CTRANSF_INNER_TO_OUTER));
+						SetCtrlToolTip(CTL_CHKPAN_BYPRICE, PPLoadStringS("guestcount", name).Transf(CTRANSF_INNER_TO_OUTER));
+						SetCtrlToolTip(CTL_CHKPAN_DIVISION, PPLoadStringS("ftableorders", name).Transf(CTRANSF_INNER_TO_OUTER));
 					}
 					else if(CnSpeciality == PPCashNode::spDelivery) {
-						PPLoadString("delivery", name);
-						SetCtrlToolTip(CTL_CHKPAN_DIVISION, name.Transf(CTRANSF_INNER_TO_OUTER));
+						SetCtrlToolTip(CTL_CHKPAN_DIVISION, PPLoadStringS("delivery", name).Transf(CTRANSF_INNER_TO_OUTER));
 					}
 				}
 				break;
@@ -7702,9 +7687,7 @@ void CheckPaneDialog::SetupInfo(const char * pErrMsg)
 			if(ScObj.Fetch(CSt.GetID(), &sc_rec) > 0) {
 				if(buf.NotEmpty())
 					buf.Space();
-				// @v9.0.2 PPGetWord(PPWORD_CARD, 0, word);
-				PPLoadString("card", word); // @v9.0.2
-				buf.Cat(word).Space().Cat(sc_rec.Code).Space();
+				buf.Cat(PPLoadStringS("card", word)).Space().Cat(sc_rec.Code).Space();
 				if(CSt.Flags & CSt.fUhtt)
 					buf.CatParStr("UHTT").Space();
 				if(F(fRetCheck)) {
@@ -7729,8 +7712,7 @@ void CheckPaneDialog::SetupInfo(const char * pErrMsg)
 					if(single_qk_id) {
 						PPObjQuotKind qk_obj;
 						PPQuotKind qk_rec;
-						PPLoadString("quote", word);
-						buf.Space().Cat(word).CatDiv(':', 2);
+						buf.Space().Cat(PPLoadStringS("quote", word)).CatDiv(':', 2);
 						if(qk_obj.Fetch(single_qk_id, &qk_rec) > 0)
 							buf.Cat(qk_rec.Name);
 						else
@@ -7748,8 +7730,7 @@ void CheckPaneDialog::SetupInfo(const char * pErrMsg)
 	if(CnFlags & CASHF_SHOWREST && P.GetCur().GoodsID) {
 		if(buf.NotEmpty())
 			buf.CatCharN(' ', 4);
-		PPLoadString("rest", word);
-		buf.Cat(word).CatDiv(':', 2).Cat(P.GetRest(), MKSFMTD(0, 3, NMBF_NOTRAILZ));
+		buf.Cat(PPLoadStringS("rest", word)).CatDiv(':', 2).Cat(P.GetRest(), MKSFMTD(0, 3, NMBF_NOTRAILZ));
 	}
 	setStaticText(CTL_CHKPAN_CAFE_STATUS, buf);
 	// @v9.9.0 {
@@ -9007,12 +8988,8 @@ public:
 		Ptb.SetBrush(brOrange, SPaintObj::psSolid, GetColorRef(SClrOrange), 0);
 		Ptb.SetBrush(brMovCrdRest, SPaintObj::psSolid, SClrDarkviolet,  0);
 
-		// @v9.1.11 PPGetWord(PPWORD_CHECKS,     1, ChecksText);
-		PPLoadString("check_pl", ChecksText);
-		ChecksText.Transf(CTRANSF_INNER_TO_OUTER); // @v9.1.11
-		// @v9.1.11 PPGetWord(PPWORD_OPERATIONS, 1, OperationsText);
-		PPLoadString("op_pl", OperationsText); // @v9.1.11
-		OperationsText.Transf(CTRANSF_INNER_TO_OUTER); // @v9.1.11
+		PPLoadStringS("check_pl", ChecksText).Transf(CTRANSF_INNER_TO_OUTER);
+		PPLoadStringS("op_pl", OperationsText).Transf(CTRANSF_INNER_TO_OUTER);
 		if(!(LocalState & stAsSelector))
 			showCtrl(STDCTL_OKBUTTON, 0);
 		showButton(cmActivate, 0);
@@ -9236,13 +9213,11 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 			// @v10.1.4 {
 			sc_pack.GetExtStrData(PPSCardPacket::extssPhone, sc_phone);
 			if(sc_phone.NotEmptyS()) {
-				PPLoadString("phone", temp_buf);
-				info_buf.CatDivIfNotEmpty(' ', 0).Cat(temp_buf).CatDiv(':', 2).Cat(sc_phone);
+				info_buf.CatDivIfNotEmpty(' ', 0).Cat(PPLoadStringS("phone", temp_buf)).CatDiv(':', 2).Cat(sc_phone);
 			}
 			// } @v10.1.4 
 			if(r_sc_rec.Expiry) {
-				PPLoadString("validuntil-fem", temp_buf);
-				info_buf.CatDivIfNotEmpty(' ', 0).Cat(temp_buf).CatDiv(':', 2).Cat(r_sc_rec.Expiry, DATF_DMY);
+				info_buf.CatDivIfNotEmpty(' ', 0).Cat(PPLoadStringS("validuntil-fem", temp_buf)).CatDiv(':', 2).Cat(r_sc_rec.Expiry, DATF_DMY);
 				if(r_sc_rec.Expiry < cur_dtm.d)
 					LocalState |= stWarnCardInfo;
 			}
@@ -9271,8 +9246,7 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 				}
 			}
 			if(r_sc_rec.UsageTmStart || r_sc_rec.UsageTmEnd) {
-				PPLoadString("time", temp_buf);
-				info_buf.CatDivIfNotEmpty(' ', 0).Cat(temp_buf).CatDiv(':', 2);
+				info_buf.CatDivIfNotEmpty(' ', 0).Cat(PPLoadStringS("time", temp_buf)).CatDiv(':', 2);
 				if(r_sc_rec.UsageTmStart) {
 					info_buf.Cat(r_sc_rec.UsageTmStart, TIMF_HM);
 					if(r_sc_rec.UsageTmStart > cur_dtm.t)
@@ -11931,14 +11905,11 @@ int InfoKioskDialog::SetupInfo()
 {
 	int    ok = 1;
 	SString status_buf, word;
-	if(St.Rest > 0.0) {
-		PPLoadString("rest", word);
-		status_buf.Space().Cat(word).CatDiv(':', 2).Cat(St.Rest, MKSFMTD(0, 3, NMBF_NOTRAILZ)).Space();
-	}
-	if(St.Qtty > 0.0) {
-		PPLoadString("qtty", word);
-		status_buf.Space().Cat(word).CatDiv(':', 2).Cat(St.Qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ));
-	}
+	const  long fmt = MKSFMTD(0, 3, NMBF_NOTRAILZ);
+	if(St.Rest > 0.0)
+		status_buf.Space().Cat(PPLoadStringS("rest", word)).CatDiv(':', 2).Cat(St.Rest, fmt).Space();
+	if(St.Qtty > 0.0)
+		status_buf.Space().Cat(PPLoadStringS("qtty", word)).CatDiv(':', 2).Cat(St.Qtty, fmt);
 	setStaticText(CTL_INFKIOSK_STATUS, status_buf);
 	return ok;
 }
@@ -12120,7 +12091,7 @@ void InfoKioskDialog::UpdateGList(int updGdsList)
 			}
 			else if(updGdsList == -3) {
 				if(GetInput()) {
-					SString   pattern;
+					SString pattern;
 					if(Input.Len() >= INSTVSRCH_THRESHOLD)
 						pattern.CatChar('!').Cat(Input);
 					else
@@ -12181,10 +12152,10 @@ void InfoKioskDialog::ResetListWindows()
 {
 	if(Flags & fTouchScreen) {
 		SString font_face;
-		int   sx  = GetSystemMetrics((DlgFlags & fResizeable) ? SM_CXSIZEFRAME : SM_CXFIXEDFRAME);
-		int   sy  = GetSystemMetrics((DlgFlags & fResizeable) ? SM_CYSIZEFRAME : SM_CYFIXEDFRAME);
-		int   cy  = GetSystemMetrics(SM_CYCAPTION);
-		int   vsx = GetSystemMetrics(SM_CXVSCROLL);
+		const int   sx  = GetSystemMetrics((DlgFlags & fResizeable) ? SM_CXSIZEFRAME : SM_CXFIXEDFRAME);
+		const int   sy  = GetSystemMetrics((DlgFlags & fResizeable) ? SM_CYSIZEFRAME : SM_CYFIXEDFRAME);
+		const int   cy  = GetSystemMetrics(SM_CYCAPTION);
+		const int   vsx = GetSystemMetrics(SM_CXVSCROLL);
 		RECT  dlg_rect, ctrl_rect;
 		HWND  ctrl_wnd = GetDlgItem(H(), CTL_INFKIOSK_GDSLIST);
 		::GetWindowRect(H(), &dlg_rect);
@@ -12212,78 +12183,46 @@ int InfoKioskDialog::SetDlgResizeParams()
 		SetCtrlResizeParam(CTL_INFKIOSK_GDSLIST, CTL_INFKIOSK_GRPNAME, 0, 0, 0, crfLinkLeft | crfResizeable);
 		SetCtrlResizeParam(MAKE_BUTTON_ID(CTL_INFKIOSK_GDSLIST, 1), -1, 0, 0, 0, crfResizeable);
 		SetCtrlResizeParam(CTL_INFKIOSK_GRPLIST, CTL_INFKIOSK_GRPNAME, 0, 0, 0, crfLinkLeft | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_CODE, CTL_INFKIOSK_GOODS, 0, CTL_INFKIOSK_PRICE, -1,
-			crfLinkLeft | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_PRICE, CTL_INFKIOSK_CODE, 0, CTL_INFKIOSK_GOODS, -1,
-			crfLinkRight | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_STATUS, CTL_INFKIOSK_CODE, 0, CTL_INFKIOSK_CODE, -1,
-			CRF_LINK_LEFTRIGHT | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_DSCNTPRICE, CTL_INFKIOSK_PRICE, 0, CTL_INFKIOSK_PRICE, -1,
-			CRF_LINK_LEFTRIGHT | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_IMAGE, 0, 0, CTL_INFKIOSK_CODE, CTL_INFKIOSK_LOTS,
-			CRF_LINK_LEFTRIGHT | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_LOTS, 0, CTL_INFKIOSK_IMAGE, CTL_INFKIOSK_GOODS, 0,
-			crfLinkRight | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_GRPBOX1, CTL_INFKIOSK_PRICE, 0, CTL_INFKIOSK_GOODS, CTL_INFKIOSK_IMAGE,
-			CRF_LINK_LEFTRIGHTBOTTOM | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_ADDINF1, CTL_INFKIOSK_GRPBOX1, CTL_INFKIOSK_GRPBOX1, CTL_INFKIOSK_GRPBOX1,
-			CTL_INFKIOSK_ADDINF2, CRF_LINK_LEFTRIGHTTOP | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_ADDINF2, CTL_INFKIOSK_GRPBOX1, CTL_INFKIOSK_ADDINF1, CTL_INFKIOSK_GRPBOX1,
-			CTL_INFKIOSK_ADDINF3, CRF_LINK_LEFTRIGHT | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_ADDINF3, CTL_INFKIOSK_GRPBOX1, CTL_INFKIOSK_ADDINF2, CTL_INFKIOSK_GRPBOX1,
-			CTL_INFKIOSK_ADDINF4, CRF_LINK_LEFTRIGHT | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_ADDINF4, CTL_INFKIOSK_GRPBOX1, CTL_INFKIOSK_ADDINF3, CTL_INFKIOSK_GRPBOX1,
-			CTL_INFKIOSK_ADDINF5, CRF_LINK_LEFTRIGHT | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_ADDINF5, CTL_INFKIOSK_GRPBOX1, CTL_INFKIOSK_ADDINF4, CTL_INFKIOSK_GRPBOX1,
-			CTL_INFKIOSK_GRPBOX1, CRF_LINK_LEFTRIGHTBOTTOM | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_GOODS, CTL_INFKIOSK_LOTS, CTL_INFKIOSK_GOODS,
-			CTL_INFKIOSK_IMAGE, CRF_LINK_ALL | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_SCARD, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_BYPRICE,
-			CTL_INFKIOSK_GRPBOX2, CRF_LINK_LEFTTOPBOTTOM | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_BYPRICE, CTL_INFKIOSK_SCARD, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_BYNAME,
-			CTL_INFKIOSK_GRPBOX2, CRF_LINK_TOPBOTTOM | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_BYNAME, CTL_INFKIOSK_BYPRICE, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_PRINTLBL,
-			CTL_INFKIOSK_GRPBOX2, CRF_LINK_TOPBOTTOM | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_PRINTLBL, CTL_INFKIOSK_BYNAME, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_ENTER,
-			CTL_INFKIOSK_GRPBOX2, CRF_LINK_TOPBOTTOM | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_ENTER, CTL_INFKIOSK_PRINTLBL, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_GRPBOX2,
-			CTL_INFKIOSK_GRPBOX2, CRF_LINK_RIGHTTOPBOTTOM | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_CODE, CTL_INFKIOSK_GOODS, 0, CTL_INFKIOSK_PRICE, -1, crfLinkLeft | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_PRICE, CTL_INFKIOSK_CODE, 0, CTL_INFKIOSK_GOODS, -1, crfLinkRight | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_STATUS, CTL_INFKIOSK_CODE, 0, CTL_INFKIOSK_CODE, -1, CRF_LINK_LEFTRIGHT | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_DSCNTPRICE, CTL_INFKIOSK_PRICE, 0, CTL_INFKIOSK_PRICE, -1, CRF_LINK_LEFTRIGHT | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_IMAGE, 0, 0, CTL_INFKIOSK_CODE, CTL_INFKIOSK_LOTS, CRF_LINK_LEFTRIGHT | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_LOTS, 0, CTL_INFKIOSK_IMAGE, CTL_INFKIOSK_GOODS, 0, crfLinkRight | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_GRPBOX1, CTL_INFKIOSK_PRICE, 0, CTL_INFKIOSK_GOODS, CTL_INFKIOSK_IMAGE, CRF_LINK_LEFTRIGHTBOTTOM | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_ADDINF1, CTL_INFKIOSK_GRPBOX1, CTL_INFKIOSK_GRPBOX1, CTL_INFKIOSK_GRPBOX1, CTL_INFKIOSK_ADDINF2, CRF_LINK_LEFTRIGHTTOP | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_ADDINF2, CTL_INFKIOSK_GRPBOX1, CTL_INFKIOSK_ADDINF1, CTL_INFKIOSK_GRPBOX1, CTL_INFKIOSK_ADDINF3, CRF_LINK_LEFTRIGHT | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_ADDINF3, CTL_INFKIOSK_GRPBOX1, CTL_INFKIOSK_ADDINF2, CTL_INFKIOSK_GRPBOX1, CTL_INFKIOSK_ADDINF4, CRF_LINK_LEFTRIGHT | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_ADDINF4, CTL_INFKIOSK_GRPBOX1, CTL_INFKIOSK_ADDINF3, CTL_INFKIOSK_GRPBOX1, CTL_INFKIOSK_ADDINF5, CRF_LINK_LEFTRIGHT | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_ADDINF5, CTL_INFKIOSK_GRPBOX1, CTL_INFKIOSK_ADDINF4, CTL_INFKIOSK_GRPBOX1, CTL_INFKIOSK_GRPBOX1, CRF_LINK_LEFTRIGHTBOTTOM | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_GOODS, CTL_INFKIOSK_LOTS, CTL_INFKIOSK_GOODS, CTL_INFKIOSK_IMAGE, CRF_LINK_ALL | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_SCARD, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_BYPRICE, CTL_INFKIOSK_GRPBOX2, CRF_LINK_LEFTTOPBOTTOM | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_BYPRICE, CTL_INFKIOSK_SCARD, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_BYNAME, CTL_INFKIOSK_GRPBOX2, CRF_LINK_TOPBOTTOM | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_BYNAME, CTL_INFKIOSK_BYPRICE, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_PRINTLBL, CTL_INFKIOSK_GRPBOX2, CRF_LINK_TOPBOTTOM | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_PRINTLBL, CTL_INFKIOSK_BYNAME, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_ENTER, CTL_INFKIOSK_GRPBOX2, CRF_LINK_TOPBOTTOM | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_ENTER, CTL_INFKIOSK_PRINTLBL, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_GRPBOX2, CRF_LINK_RIGHTTOPBOTTOM | crfResizeable);
 		SetCtrlResizeParam(CTL_INFKIOSK_INPUT, 0, -1, CTL_INFKIOSK_IMAGE, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
 		SetCtrlResizeParam(CTL_INFKIOSK_GRPBOX3, 0, -1, CTL_INFKIOSK_GRPBOX4, 0, crfResizeable);
 		SetCtrlResizeParam(CTL_INFKIOSK_GRPBOX4, CTL_INFKIOSK_GRPBOX3, -1, 0, 0, crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_INFO, CTL_INFKIOSK_GRPBOX1, -1, CTL_INFKIOSK_GRPBOX3, 0,
-			CRF_LINK_LEFTRIGHT | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_SELGDSGRP, CTL_INFKIOSK_GRPBOX4, -1, CTL_INFKIOSK_GRPBYDEF, 0,
-			crfLinkLeft | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_GRPBYDEF, CTL_INFKIOSK_SELGDSGRP, -1, CTL_INFKIOSK_GRPBOX4, 0,
-			crfLinkRight | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_INFO, CTL_INFKIOSK_GRPBOX1, -1, CTL_INFKIOSK_GRPBOX3, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_SELGDSGRP, CTL_INFKIOSK_GRPBOX4, -1, CTL_INFKIOSK_GRPBYDEF, 0, crfLinkLeft | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_GRPBYDEF, CTL_INFKIOSK_SELGDSGRP, -1, CTL_INFKIOSK_GRPBOX4, 0, crfLinkRight | crfResizeable);
 	}
 	else {
 		SetCtrlResizeParam(CTL_INFKIOSK_GOODS, 0, 0, CTL_INFKIOSK_IMAGE, -1, crfResizeable);
 		SetCtrlResizeParam(CTL_INFKIOSK_IMAGE, CTL_INFKIOSK_GOODS, 0, 0, CTL_INFKIOSK_LOTS, crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_LOTS, CTL_INFKIOSK_IMAGE, CTL_INFKIOSK_IMAGE, CTL_INFKIOSK_IMAGE, 0,
-			CRF_LINK_LEFTRIGHT | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_CODE, CTL_INFKIOSK_GOODS, 0, CTL_INFKIOSK_GOODS, -1,
-			CRF_LINK_LEFTRIGHT | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_PRICE, CTL_INFKIOSK_GOODS, 0, CTL_INFKIOSK_DSCNTPRICE, -1,
-			crfLinkLeft | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_DSCNTPRICE, CTL_INFKIOSK_PRICE, 0, CTL_INFKIOSK_GOODS, -1,
-			crfLinkRight | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_STATUS, CTL_INFKIOSK_GOODS, 0, CTL_INFKIOSK_GOODS, -1,
-			CRF_LINK_LEFTRIGHT | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_LOTS, CTL_INFKIOSK_IMAGE, CTL_INFKIOSK_IMAGE, CTL_INFKIOSK_IMAGE, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_CODE, CTL_INFKIOSK_GOODS, 0, CTL_INFKIOSK_GOODS, -1, CRF_LINK_LEFTRIGHT | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_PRICE, CTL_INFKIOSK_GOODS, 0, CTL_INFKIOSK_DSCNTPRICE, -1, crfLinkLeft | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_DSCNTPRICE, CTL_INFKIOSK_PRICE, 0, CTL_INFKIOSK_GOODS, -1, crfLinkRight | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_STATUS, CTL_INFKIOSK_GOODS, 0, CTL_INFKIOSK_GOODS, -1, CRF_LINK_LEFTRIGHT | crfResizeable);
 		SetCtrlResizeParam(CTL_INFKIOSK_GRPBOX1, 0, 0, 0, 0, crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_GOODS, 0, CTL_INFKIOSK_GOODS, 0,
-			CRF_LINK_LEFTRIGHT | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_ADDINF1, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_GRPBOX2,
-			CTL_INFKIOSK_ADDINF2, CRF_LINK_LEFTRIGHTTOP | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_ADDINF2, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_ADDINF1, CTL_INFKIOSK_GRPBOX2,
-			CTL_INFKIOSK_ADDINF3, CRF_LINK_LEFTRIGHT | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_ADDINF3, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_ADDINF2, CTL_INFKIOSK_GRPBOX2,
-			CTL_INFKIOSK_ADDINF4, CRF_LINK_LEFTRIGHT | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_ADDINF4, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_ADDINF3, CTL_INFKIOSK_GRPBOX2,
-			CTL_INFKIOSK_ADDINF5, CRF_LINK_LEFTRIGHT | crfResizeable);
-		SetCtrlResizeParam(CTL_INFKIOSK_ADDINF5, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_ADDINF4, CTL_INFKIOSK_GRPBOX2,
-			CTL_INFKIOSK_GRPBOX2, CRF_LINK_LEFTRIGHTBOTTOM | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_GOODS, 0, CTL_INFKIOSK_GOODS, 0, CRF_LINK_LEFTRIGHT | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_ADDINF1, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_ADDINF2, CRF_LINK_LEFTRIGHTTOP | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_ADDINF2, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_ADDINF1, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_ADDINF3, CRF_LINK_LEFTRIGHT | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_ADDINF3, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_ADDINF2, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_ADDINF4, CRF_LINK_LEFTRIGHT | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_ADDINF4, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_ADDINF3, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_ADDINF5, CRF_LINK_LEFTRIGHT | crfResizeable);
+		SetCtrlResizeParam(CTL_INFKIOSK_ADDINF5, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_ADDINF4, CTL_INFKIOSK_GRPBOX2, CTL_INFKIOSK_GRPBOX2, CRF_LINK_LEFTRIGHTBOTTOM | crfResizeable);
 		SetCtrlResizeParam(CTL_INFKIOSK_INPUT, 0, -1, CTL_INFKIOSK_INFO, 0, crfResizeable);
 		SetCtrlResizeParam(CTL_INFKIOSK_INFO, CTL_INFKIOSK_INPUT, -1, 0, 0, crfResizeable);
 		LinkCtrlsToDlgBorders(CRF_LINK_RIGHTBOTTOM, STDCTL_OKBUTTON, CTL_INFKIOSK_PRINTLBL, STDCTL_CANCELBUTTON, 0L);

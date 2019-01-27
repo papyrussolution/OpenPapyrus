@@ -1,5 +1,5 @@
 // SSTRING.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -2026,10 +2026,10 @@ int FASTCALL SString::IsEqual(const SString & rS) const
 		switch(len) {
 			case 0: return 1;
 			case 1: return BIN(p_buf[0] == p_sbuf[0]);
-			case 2: return BIN(PTR16(p_buf)[0] == PTR16(p_sbuf)[0]);
+			case 2: return BIN(PTR16C(p_buf)[0] == PTR16C(p_sbuf)[0]);
 			case 3: return BIN(p_buf[0] == p_sbuf[0] && p_buf[1] == p_sbuf[1] && p_buf[2] == p_sbuf[2]);
-			case 4: return BIN(PTR32(p_buf)[0] == PTR32(p_sbuf)[0]);
-			case 8: return BIN(PTR64(p_buf)[0] == PTR64(p_sbuf)[0]);
+			case 4: return BIN(PTR32C(p_buf)[0] == PTR32C(p_sbuf)[0]);
+			case 8: return BIN(PTR64C(p_buf)[0] == PTR64C(p_sbuf)[0]);
 			default: return BIN(memcmp(p_buf, p_sbuf, len) == 0);
 		}
 	}
@@ -2047,10 +2047,10 @@ int FASTCALL SString::IsEqual(const char * pS) const
 		switch(len) {
 			case 0: return 1;
 			case 1: return BIN(p_buf[0] == pS[0]);
-			case 2: return BIN(PTR16(p_buf)[0] == PTR16(pS)[0]);
+			case 2: return BIN(PTR16C(p_buf)[0] == PTR16C(pS)[0]);
 			case 3: return BIN(p_buf[0] == pS[0] && p_buf[1] == pS[1] && p_buf[2] == pS[2]);
-			case 4: return BIN(PTR32(p_buf)[0] == PTR32(pS)[0]);
-			case 8: return BIN(PTR64(p_buf)[0] == PTR64(pS)[0]);
+			case 4: return BIN(PTR32C(p_buf)[0] == PTR32C(pS)[0]);
+			case 8: return BIN(PTR64C(p_buf)[0] == PTR64C(pS)[0]);
 			default: return BIN(memcmp(p_buf, pS, len) == 0);
 		}
 	}
@@ -3538,10 +3538,10 @@ int FASTCALL SStringU::IsEqual(const wchar_t * pS) const
 		switch(len) {
 			case 0: return 1;
 			case 1: return BIN(P_Buf[0] == pS[0]);
-			case 2: return BIN(PTR32(P_Buf)[0] == PTR32(pS)[0]);
+			case 2: return BIN(PTR32C(P_Buf)[0] == PTR32C(pS)[0]);
 			case 3: return BIN(P_Buf[0] == pS[0] && P_Buf[1] == pS[1] && P_Buf[2] == pS[2]);
-			case 4: return BIN(PTR64(P_Buf)[0] == PTR64(pS)[0]);
-			case 8: return BIN(PTR64(P_Buf)[0] == PTR64(pS)[0] && PTR64(P_Buf)[1] == PTR64(pS)[1]);
+			case 4: return BIN(PTR64C(P_Buf)[0] == PTR64C(pS)[0]);
+			case 8: return BIN(PTR64C(P_Buf)[0] == PTR64C(pS)[0] && PTR64C(P_Buf)[1] == PTR64C(pS)[1]);
 			default: return BIN(memcmp(P_Buf, pS, len) == 0);
 		}
 	}

@@ -4321,7 +4321,7 @@ private:
 struct PPGoodsConfig { // @persistent @store(PropertyTbl)
 	SLAPI  PPGoodsConfig();
 	PPGoodsConfig & Clear();
-	size_t GetSize_Pre770() const { return (size_t)(PTR8(&Ver__) - PTR8(this)); }
+	size_t GetSize_Pre770() const { return (size_t)(PTR8C(&Ver__) - PTR8C(this)); }
 	//
 	// Descr: Определяет, является ли заданный штрихкод весовым
 	// Returns:
@@ -35761,12 +35761,14 @@ class LinkedBillFilt : public PPBaseFilt {
 public:
 	SLAPI  LinkedBillFilt();
 	enum {
+		//PPTXT_LINKBILLVIEWKINDS                "1,Оплаты по документу;2,Начисления ренты по документу;3,Зачеты по документу;4,Зачитывающие документы;6,Документы списания драфт-документа"
 		// @v10.3.0 Значения (кроме 100) увеличены на 1 для того, чтобы нулевое значение стало сигнализировать неопределенность
 		lkPayments   =   1,  // Оплаты по документу
 		lkCharge     =   2,  // Начисления ренты по документу
 		lkReckon     =   3,  // Зачеты по документу
 		lkByReckon   =   4,  // Зачитывающие документы
 		lkWrOffDraft =   6,  // Документы списания драфт-документа
+		lkCorrection =   7,  // @v10.3.1 Документы корректировки
 		lkSelection  = 100   // Режим выбора просмотра связанных документов при котором программа
 			// самостоятельно пытается выбрать существующие связанные документы и при неоднозначности предоставляет выбор пользователю
 	};
@@ -35778,10 +35780,10 @@ public:
 };
 
 struct LinkedBillViewItem : public BillTbl::Rec {
-	double Payment;
-	double Rest;
-	int16  LinkKind;
-	int16  Pad;
+	double Payment;    //
+	double Rest;       //
+	int16  LinkKind;   // 1 - link, 2 - pool, 3 - writeoff link
+	int16  Pad;        // @alignment
 	PPID   LinkBillID; //
 	PPID   RcknBillID; //
 };
@@ -50380,6 +50382,7 @@ void   SLAPI PPReleaseStrings();
 int    FASTCALL PPLoadString(int group, int code, SString & s); // @cs
 SString & FASTCALL PPLoadStringS(int group, int code, SString & s); // @cs
 int    FASTCALL PPLoadString(const char * pSignature, SString & s);
+SString & FASTCALL PPLoadStringS(const char * pSignature, SString & s);
 //
 // Descr: Возвращает хэш-таблицу символов, ассоциированную с группой group
 //   из внутреннего глобального хранилища.

@@ -1,5 +1,5 @@
 // PPVIEW.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1968,9 +1968,9 @@ int PPViewBrowser::Export()
 		// Выводим название групп столбцов
 		for(i = 0; i < (long)p_def->GetGroupCount(); i++) {
 			const BroGroup * p_grp = p_def->GetGroup(i);
-			(temp_buf = p_grp->text).Transf(CTRANSF_INNER_TO_OUTER);
-			THROW(p_sheet->SetValue(beg_row, p_grp->first + 1, temp_buf) > 0);
-			THROW(p_sheet->SetBold(beg_row, p_grp->first + 1, 1) > 0);
+			(temp_buf = p_grp->P_Text).Transf(CTRANSF_INNER_TO_OUTER);
+			THROW(p_sheet->SetValue(beg_row, p_grp->First + 1, temp_buf) > 0);
+			THROW(p_sheet->SetBold(beg_row, p_grp->First + 1, 1) > 0);
 			/*
 			if(beg_row == 1)
 				beg_row++;
@@ -2240,6 +2240,7 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 			KBF10 = 1;
 	}
 	if(!skip_inherited_processing) {
+		/* @v10.3.1
 		if(event.isCmd(cmExecute)) {
 			const int  r = P_View ? P_View->OnExecBrowser(this) : -1;
 			if(r >= 0) {
@@ -2251,6 +2252,7 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 				; // Управление передается базовому классу
 			}
 		}
+		*/
 		BrowserWindow::handleEvent(event);
 	}
 	if(!P_View || !P_View->IsConsistent())
@@ -2283,6 +2285,9 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 	else if(TVCOMMAND) {
 		const void * p_row = view ? view->getCurItem() : 0;
 		switch(TVCMD) {
+			case cmModalPostCreate: // @v10.3.1
+				P_View->OnExecBrowser(this);
+				break;
 			case cmaInsert:
 				if(P_View->ProcessCommand(PPVCMD_ADDITEM, p_row, this) > 0)
 					updateView();

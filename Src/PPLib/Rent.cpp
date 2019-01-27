@@ -62,7 +62,7 @@ int SLAPI PctChargeArray::Add(LDATE dt, double amount)
 
 double SLAPI PctChargeArray::GetRest(LDATE dt)
 {
-	for(int i = (int)getCount()-1; i >= 0; i--)
+	for(int i = static_cast<int>(getCount())-1; i >= 0; i--)
 		if(at(i).Dt <= dt)
 			return at(i).Rest;
 	return 0;

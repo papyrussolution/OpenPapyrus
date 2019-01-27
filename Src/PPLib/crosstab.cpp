@@ -693,10 +693,10 @@ int SLAPI Crosstab::Helper_SetupBrowserCtColumn(BrowserWindow * pBrw, uint ctVal
 	}
 	if(aggr_count > 1) {
 		BroGroup grp;
-		grp.first = first_col_in_group;
-		grp.count = aggr_count;
-		grp.hight = 1;
-		grp.text = newStr(rTitle);
+		grp.First = first_col_in_group;
+		grp.Count = aggr_count;
+		grp.Height = 1;
+		grp.P_Text = newStr(rTitle);
 		pBrw->getDef()->addGroup(&grp);
 	}
 	return ok;
@@ -800,7 +800,7 @@ int SLAPI Crosstab::GetIdxFieldVal(uint idxFldN, const void * pDataBuf, void * p
 		for(uint i = 0; i < idxFldN; i++)
 			offs += GETSSIZE(IdxFldList.Get(i).stype());
 		if(pBuf)
-			memcpy(pBuf, PTR8(pDataBuf)+offs, MIN(sz, bufSize));
+			memcpy(pBuf, PTR8C(pDataBuf)+offs, MIN(sz, bufSize));
 		ok = 1;
 	}
 	return ok;
@@ -826,7 +826,7 @@ int SLAPI Crosstab::GetAggrFieldVal(uint tabIdx, uint aggrFldN, const void * pDa
 			offs += GETSSIZE(FixFldList[i].T);
 		offs += (tabIdx * aggr_flds_count + aggrFldN) * sizeof(double); // Так как на данный момент все агрегированные поля имеют тип double
 		if(pBuf)
-			memcpy(pBuf, PTR8(pDataBuf)+offs, MIN(sz, bufSize));
+			memcpy(pBuf, PTR8C(pDataBuf)+offs, MIN(sz, bufSize));
 		ok = 1;
 	}
 	return ok;

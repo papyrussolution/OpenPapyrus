@@ -2539,7 +2539,7 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 				break;
 			case PPVCMD_DELETEITEM:
 				if(Filt.AttribType == PPPSNATTR_HANGEDADDR) {
-					PPID   loc_id = (PPID)(pHdr ? PTR32(pHdr)[1] : 0);
+					PPID   loc_id = (PPID)(pHdr ? PTR32C(pHdr)[1] : 0);
 					if(loc_id && CONFIRM(PPCFM_DELETE)) {
 						if(!PsnObj.LocObj.PutRecord(&loc_id, 0, 1) || !UpdateHungedAddr(loc_id))
 							PPError();
@@ -2558,7 +2558,7 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 				break;
 			case PPVCMD_EDITITEM:
 				if(oneof2(Filt.AttribType, PPPSNATTR_HANGEDADDR, PPPSNATTR_STANDALONEADDR)) {
-					PPID   loc_id = (PPID)(pHdr ? PTR32(pHdr)[1] : 0);
+					PPID   loc_id = (PPID)(pHdr ? PTR32C(pHdr)[1] : 0);
 					if(loc_id) {
 						if(PsnObj.LocObj.Edit(&loc_id, 0) > 0) {
 							if(!UpdateHungedAddr(loc_id))
@@ -2578,7 +2578,7 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 					PPID    obj_id = 0;
 					if(Filt.IsLocAttr() && Filt.Flags & PersonFilt::fLocTagF) {
 						obj_type = PPOBJ_LOCATION;
-						obj_id = (PPID)(pHdr ? PTR32(pHdr)[1] : 0);
+						obj_id = (PPID)(pHdr ? PTR32C(pHdr)[1] : 0);
 					}
 					else {
 						obj_type = PPOBJ_PERSON;
@@ -2590,7 +2590,7 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 				break;
 			case PPVCMD_CURREG:
 				if(Filt.IsLocAttr()) {
-					PPID   loc_id = (PPID)(pHdr ? PTR32(pHdr)[1] : 0);
+					PPID   loc_id = (PPID)(pHdr ? PTR32C(pHdr)[1] : 0);
 					if(loc_id)
 						ok = (PsnObj.LocObj.Edit(&loc_id, 0) == cmOK) ? 1 : -1;
 				}
@@ -2599,7 +2599,7 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 				break;
 			case PPVCMD_DLVRADDREXFLDS:
 				if(Filt.IsLocAttr()) {
-					PPID   loc_id = (PPID)(pHdr ? PTR32(pHdr)[1] : 0);
+					PPID   loc_id = (PPID)(pHdr ? PTR32C(pHdr)[1] : 0);
 					if(loc_id)
 						if((ok = EditDlvrAddrExtFlds(loc_id)) == 0)
 							PPError();
@@ -2649,7 +2649,7 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 				break;
 			case PPVCMD_UNITEOBJ:
 				if(oneof4(Filt.AttribType, PPPSNATTR_ALLADDR, PPPSNATTR_HANGEDADDR, PPPSNATTR_DLVRADDR, PPPSNATTR_DUPDLVRADDR)) {
-					PPID   loc_id = (PPID)(pHdr ? PTR32(pHdr)[1] : 0);
+					PPID   loc_id = (PPID)(pHdr ? PTR32C(pHdr)[1] : 0);
 					if(loc_id)
 						ok = PPObjPerson::ReplaceDlvrAddr(loc_id);
 				}
@@ -2750,7 +2750,7 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 			case PPVCMD_VIEWCCHECKS:
 				ok = -1;
 				if(Filt.AttribType == PPPSNATTR_STANDALONEADDR) {
-					PPID   loc_id = (PPID)(pHdr ? PTR32(pHdr)[1] : 0);
+					PPID   loc_id = (PPID)(pHdr ? PTR32C(pHdr)[1] : 0);
 					if(loc_id) {
 						CCheckFilt cc_filt;
 						cc_filt.DlvrAddrID = loc_id;

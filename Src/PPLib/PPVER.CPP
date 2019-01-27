@@ -1,5 +1,5 @@
 // PPVER.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017, 2019
 // @Kernel
 //
 #include <pp.h>
@@ -83,7 +83,7 @@ int SLAPI PPVersionInfo::Decrypt()
 		if(P_OuterFileName) {
 			p_file = fopen(P_OuterFileName, "rb");
 			if(p_file) {
-				offs = SearchStrInFile(p_file, 0L, (const char *)(PTR32(VERDATA)+1), 0);
+				offs = SearchStrInFile(p_file, 0L, (const char *)(PTR32C(VERDATA)+1), 0);
 				if(offs > (long)sizeof(uint32)) {
 					STempBuffer tbuf(sizeof(VERDATA));
 					THROW_SL(tbuf.IsValid());

@@ -25,15 +25,15 @@ int FASTCALL BNField::getValue(const void * pDataBuf, void * pBuf, size_t * pSiz
 	if(pDataBuf && pBuf) {
 		const size_t sz = stsize(T);
 		if(sz == sizeof(uint32))
-			PTR32(pBuf)[0] = PTR32(PTR8(pDataBuf)+Offs)[0];
+			PTR32(pBuf)[0] = PTR32C(PTR8C(pDataBuf)+Offs)[0];
 		else if(sz == sizeof(uint32) * 2) {
-			PTR32(pBuf)[0] = PTR32(PTR8(pDataBuf)+Offs)[0];
-			PTR32(pBuf)[1] = PTR32(PTR8(pDataBuf)+Offs)[1];
+			PTR32(pBuf)[0] = PTR32C(PTR8C(pDataBuf)+Offs)[0];
+			PTR32(pBuf)[1] = PTR32C(PTR8C(pDataBuf)+Offs)[1];
 		}
 		else if(sz == sizeof(uint16))
-			PTR16(pBuf)[0] = PTR16(PTR8(pDataBuf)+Offs)[0];
+			PTR16(pBuf)[0] = PTR16C(PTR8C(pDataBuf)+Offs)[0];
 		else
-			memcpy(pBuf, PTR8(pDataBuf)+Offs, sz);
+			memcpy(pBuf, PTR8C(pDataBuf)+Offs, sz);
 		ASSIGN_PTR(pSize, sz);
 		return 1;
 	}
@@ -54,7 +54,7 @@ int SLAPI BNField::setValue(void * pDataBuf, const void * pBuf) const
 int SLAPI BNField::putValueToString(const void * pDataBuf, char * pBuf) const
 {
 	if(pDataBuf && pBuf) {
-		const void * p_data = PTR8(pDataBuf)+Offs;
+		const void * p_data = PTR8C(pDataBuf)+Offs;
 		sttostr(T, p_data, 0, pBuf);
 		return 1;
 	}
@@ -224,7 +224,7 @@ int SLAPI BNFieldList::IsEqualRecords(const void * pRec1, const void * pRec2, Lo
 	else {
 		for(uint i = 0; i < count; i++) {
 			const BNField & r_fld = fields[i];
-			if(stcomp(r_fld.T, PTR8(pRec1)+r_fld.Offs, PTR8(pRec2)+r_fld.Offs) != 0) {
+			if(stcomp(r_fld.T, PTR8C(pRec1)+r_fld.Offs, PTR8C(pRec2)+r_fld.Offs) != 0) {
 				eq = 0;
 				if(pNeqFldList)
 					pNeqFldList->add(r_fld.Id);

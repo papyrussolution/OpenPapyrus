@@ -1,5 +1,5 @@
 // V_TSANLZ.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -95,7 +95,7 @@ public:
 	}
 	int    SLAPI CompletePlan(PPID prmrGoodsID, PPID prcID, const RAssocArray * pPlanList);
 	TSessAnlzEntry & FASTCALL GetTotalRow(PPID goodsID);
-	int    SLAPI ProcessTotalPlan();
+	void   SLAPI ProcessTotalPlan();
 	int    SLAPI ProcessCompParts();
 
 	SubstGrpGoods Sgg;
@@ -118,8 +118,8 @@ SLAPI TSessAnlzList::~TSessAnlzList()
 
 IMPL_CMPFUNC(TSessAnlzEntry, i1, i2)
 {
-	TSessAnlzEntry * p1 = (TSessAnlzEntry *)i1;
-	TSessAnlzEntry * p2 = (TSessAnlzEntry *)i2;
+	const TSessAnlzEntry * p1 = static_cast<const TSessAnlzEntry *>(i1);
+	const TSessAnlzEntry * p2 = static_cast<const TSessAnlzEntry *>(i2);
 	if(p1->DtVal < p2->DtVal)
 		return -1;
 	else if(p1->DtVal > p2->DtVal)
@@ -179,25 +179,24 @@ TSessAnlzEntry & FASTCALL TSessAnlzList::GetTotalRow(PPID goodsID)
 	return at(pos);
 }
 
-int SLAPI TSessAnlzList::ProcessTotalPlan()
+void SLAPI TSessAnlzList::ProcessTotalPlan()
 {
 	uint   i;
 	for(i = 0; i < getCount(); i++) {
 		TSessAnlzEntry & r_entry = at(i);
 		if(r_entry.IsTotalRow()) {
-			r_entry.PlanInQtty = 0;
-			r_entry.PlanOutQtty = 0;
+			r_entry.PlanInQtty = 0.0;
+			r_entry.PlanOutQtty = 0.0;
 		}
 	}
 	for(i = 0; i < getCount(); i++) {
-		TSessAnlzEntry & r_entry = at(i);
+		const TSessAnlzEntry & r_entry = at(i);
 		if(!r_entry.IsTotalRow()) {
 			TSessAnlzEntry & r_total_entry = GetTotalRow(r_entry.GoodsID);
 			r_total_entry.PlanInQtty  += r_entry.PlanInQtty;
 			r_total_entry.PlanOutQtty += r_entry.PlanOutQtty;
 		}
 	}
-	return 1;
 }
 
 int SLAPI TSessAnlzList::Search(long dtVal, PPID prcID, PPID prmrGoodsID, PPID goodsID, uint * pPos, int useSubst)
@@ -315,7 +314,7 @@ int SLAPI TSessAnlzList::ProcessCompParts()
 	uint   i, pos;
 	SVector total_list(sizeof(E)); // @v9.9.3 SArray-->SVector
 	TSessAnlzEntry * p_entry;
-	for(i = 0; enumItems(&i, (void **)&p_entry);) {
+	for(i = 0; enumItems(&i, reinterpret_cast<void**>(&p_entry));) {
 		if(total_list.lsearch(&p_entry->PrmrGoodsID, &(pos = 0), CMPF_LONG)) {
 			E * p_e = (E *)total_list.at(pos);
 			p_e->In  += p_entry->InCompPart;
@@ -329,7 +328,7 @@ int SLAPI TSessAnlzList::ProcessCompParts()
 			total_list.insert(&e);
 		}
 	}
-	for(i = 0; enumItems(&i, (void **)&p_entry);) {
+	for(i = 0; enumItems(&i, reinterpret_cast<void**>(&p_entry));) {
 		if(total_list.lsearch(&p_entry->PrmrGoodsID, &(pos = 0), CMPF_LONG)) {
 			E * p_e2 = (E *)total_list.at(pos);
 			if(p_e2->In)
@@ -897,7 +896,7 @@ int SLAPI PPViewTSessAnlz::Init_(const PPBaseFilt * pBaseFilt)
 			TempTSessRepTbl::Rec rec;
 			PPObjArticle ar_obj;
 			BExtInsert bei(P_TempTbl);
-			for(i = 0; result.enumItems(&i, (void **)&p_entry);) {
+			for(i = 0; result.enumItems(&i, reinterpret_cast<void**>(&p_entry));) {
 				MEMSZERO(rec);
 				rec.DtVal       = p_entry->DtVal;
 				rec.PrcID       = p_entry->PrcID;

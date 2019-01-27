@@ -1,5 +1,5 @@
 // SBUFFER.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -19,14 +19,14 @@ int FASTCALL SBuffer::Alloc(size_t sz)
 		char * p = 0;
 		if((7 * Size) < (8 * WrOffs)) { // Assume probability of a non-moving realloc is 0.125
 			// If L is close to Size in size then use realloc to reduce the memory defragmentation
-			p = (char *)SAlloc::R(P_Buf, new_size);
+			p = static_cast<char *>(SAlloc::R(P_Buf, new_size));
 		}
 		else {
 			// If L is not close to Size then avoid the penalty of copying
 			// the extra bytes that are allocated, but not considered part of the string
-			p = (char *)SAlloc::M(new_size);
+			p = static_cast<char *>(SAlloc::M(new_size));
 			if(!p)
-				p = (char *)SAlloc::R(P_Buf, new_size);
+				p = static_cast<char *>(SAlloc::R(P_Buf, new_size));
 			else {
 				if(WrOffs)
 					memcpy(p, P_Buf, WrOffs);
@@ -135,8 +135,8 @@ SBuffer & SLAPI SBuffer::Z()
 	return *this;
 }
 
-void * FASTCALL SBuffer::Ptr(size_t offs) const { return (((int8 *)P_Buf)+offs); }
-const  void * FASTCALL SBuffer::GetBuf(size_t offs) const { return (const void *)Ptr(offs); }
+void * FASTCALL SBuffer::Ptr(size_t offs) const { return (static_cast<int8 *>(P_Buf)+offs); }
+const  void * FASTCALL SBuffer::GetBuf(size_t offs) const { return static_cast<const void *>(Ptr(offs)); }
 void   FASTCALL SBuffer::SetRdOffs(size_t offs) { RdOffs = MIN(offs, WrOffs); }
 void   FASTCALL SBuffer::SetWrOffs(size_t offs) { WrOffs = MAX(MIN(offs, Size), RdOffs); }
 size_t SLAPI SBuffer::GetAvailableSize() const { return (WrOffs > RdOffs) ? (WrOffs - RdOffs) : 0; }
@@ -155,20 +155,20 @@ int FASTCALL SBuffer::Write(const void * pBuf, size_t size)
 		if((new_size <= Size) || Alloc(new_size)) { // @v9.4.1 (new_size <= Size) с целью ускорения
 			void * _ptr = Ptr(WrOffs);
 			switch(size) {
-				case 1: *PTR8(_ptr) = *PTR8(pBuf); break;
-				case 2: *PTR16(_ptr) = *PTR16(pBuf); break;
-				case 4: *PTR32(_ptr) = *PTR32(pBuf); break;
-				case 8: *PTR64(_ptr) = *PTR64(pBuf); break;
+				case 1: *PTR8(_ptr) = *PTR8C(pBuf); break;
+				case 2: *PTR16(_ptr) = *PTR16C(pBuf); break;
+				case 4: *PTR32(_ptr) = *PTR32C(pBuf); break;
+				case 8: *PTR64(_ptr) = *PTR64C(pBuf); break;
 				case 12:
-					PTR32(_ptr)[0] = PTR32(pBuf)[0];
-					PTR32(_ptr)[1] = PTR32(pBuf)[1];
-					PTR32(_ptr)[2] = PTR32(pBuf)[2];
+					PTR32(_ptr)[0] = PTR32C(pBuf)[0];
+					PTR32(_ptr)[1] = PTR32C(pBuf)[1];
+					PTR32(_ptr)[2] = PTR32C(pBuf)[2];
 					break;
 				case 16:
-					PTR32(_ptr)[0] = PTR32(pBuf)[0];
-					PTR32(_ptr)[1] = PTR32(pBuf)[1];
-					PTR32(_ptr)[2] = PTR32(pBuf)[2];
-					PTR32(_ptr)[3] = PTR32(pBuf)[3];
+					PTR32(_ptr)[0] = PTR32C(pBuf)[0];
+					PTR32(_ptr)[1] = PTR32C(pBuf)[1];
+					PTR32(_ptr)[2] = PTR32C(pBuf)[2];
+					PTR32(_ptr)[3] = PTR32C(pBuf)[3];
 					break;
 				default:
 					memcpy(_ptr, pBuf, size);
@@ -1005,7 +1005,7 @@ int SLAPI SSerializeContext::Serialize(const char * pDbtName, BNFieldList * pFld
 		memzero(p_ind_list, ind_len);
 		for(uint i = 0; i < fld_count; i++) {
 			const BNField & r_fld = pFldList->getField(i);
-			THROW(Serialize(+1, r_fld.T, PTR8(pData)+r_fld.Offs, p_ind_list+i, temp_buf));
+			THROW(Serialize(+1, r_fld.T, const_cast<uint8 *>(PTR8C(pData)+r_fld.Offs), p_ind_list+i, temp_buf)); // @badcast
 		}
 		rBuf.Write(p_ind_list, ind_len);
 		rBuf.Write(temp_buf);

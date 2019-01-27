@@ -1,5 +1,5 @@
 // BHT.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -3845,11 +3845,8 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 					}
 				}
 				else if(pLog) {
-					PPLoadString("date", buf);
-					(add_info = buf).CatChar('[').Cat(bill_rec.Dt).CatChar(']').CatDiv(',', 2);
-					// @v9.3.10 PPGetWord(PPWORD_BILLCODE, 0, buf);
-					PPLoadString("billno", buf); // @v9.3.10
-					add_info.Cat(buf).CatChar('[').Cat(bill_code).CatChar(']');
+					PPLoadStringS("date", add_info).CatChar('[').Cat(bill_rec.Dt).CatChar(']').CatDiv(',', 2);
+					add_info.Cat(PPLoadStringS("billno", buf)).CatChar('[').Cat(bill_code).CatChar(']');
 					PPGetMessage(mfError, PPERR_DOC_ALREADY_EXISTS, add_info, DS.CheckExtFlag(ECF_SYSSERVICE), buf.Z());
 					buf.ShiftLeft();
 					pLog->Log(buf);
@@ -3964,16 +3961,10 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 								}
 							}
 							else if(pLog) {
-								// @v9.5.5 GetGoodsName(sdr_brow.GoodsID, goods_name);
-								goods_obj.FetchNameR(sdr_brow.GoodsID, goods_name); // @v9.5.5
-								// @v9.0.2 PPGetWord(PPWORD_GOODS, 0, buf);
-								PPLoadString("ware", buf); // @v9.0.2
-								(add_info = buf).CatBrackStr(goods_name).CatDiv(',', 2);
-								PPLoadString("date", buf);
-								add_info.Cat(buf).CatChar('[').Cat(bill_rec.Dt).CatChar(']').CatDiv(',', 2);
-								// @v9.3.10 PPGetWord(PPWORD_BILLCODE, 0, buf.Z());
-								PPLoadString("billno", buf); // @v9.3.10
-								add_info.Cat(buf).CatBrackStr(bill_code);
+								goods_obj.FetchNameR(sdr_brow.GoodsID, goods_name);
+								PPLoadStringS("ware", add_info).CatBrackStr(goods_name).CatDiv(',', 2);
+								add_info.Cat(PPLoadStringS("date", buf)).CatChar('[').Cat(bill_rec.Dt).CatChar(']').CatDiv(',', 2);
+								add_info.Cat(PPLoadStringS("billno", buf)).CatBrackStr(bill_code);
 								PPGetMessage(mfError, PPERR_ZEROQTTY, add_info, DS.CheckExtFlag(ECF_SYSSERVICE), buf.Z());
 								buf.ShiftLeft();
 								pLog->Log(buf);

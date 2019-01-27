@@ -745,8 +745,7 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 			show_barcode_or_serial |= 0x01;
 		}
 		if(P_BObj->Cfg.Flags & BCF_SHOWSERIALSINGBLINES) {
-			PPLoadString("serial", temp_buf);
-			insertColumn(_brw_pos++, temp_buf, 28, MKSTYPE(S_ZSTRING, 20), 0, BCO_USERPROC);
+			insertColumn(_brw_pos++, PPLoadStringS("serial", temp_buf), 28, MKSTYPE(S_ZSTRING, 20), 0, BCO_USERPROC);
 			show_barcode_or_serial |= 0x02;
 		}
 	}
@@ -2473,6 +2472,8 @@ private:
 		int    ok = 1;
 		uint   mark_count = 0;
 		uint   box_count = 0;
+		uint   org_box_count = 0;
+		uint   org_mark_count = 0;
 		SString temp_buf;
 		SString box_num;
 		StringSet ss;
@@ -2506,16 +2507,22 @@ private:
 				THROW(addStringToList(list_pos_idx, temp_buf));
 			}
 		}
-		if(ViewFlags & vfShowUncheckedItems) {
+		{
 			uint oc = P_Pack->XcL.GetCount();
 			PPLotExtCodeContainer::Item2 oi;
 			for(uint i = 0; i < oc; i++) {
 				if(P_Pack->XcL.GetByIdx(i, oi)) {
-					int   row_idx = 0;
-					uint  inner_idx = 0;
-					if(!Data.Search(oi.Num, &row_idx, &inner_idx)) {
-						++list_pos_idx;
-						THROW(addStringToList(list_pos_idx, oi.Num));
+					if(oi.Flags & PPLotExtCodeContainer::fBox)
+						org_box_count++;
+					else
+						org_mark_count++;
+					if(ViewFlags & vfShowUncheckedItems) {
+						int   row_idx = 0;
+						uint  inner_idx = 0;
+						if(!Data.Search(oi.Num, &row_idx, &inner_idx)) {
+							++list_pos_idx;
+							THROW(addStringToList(list_pos_idx, oi.Num));
+						}
 					}
 				}
 			}
@@ -2526,6 +2533,12 @@ private:
 				temp_buf.CatDivIfNotEmpty(' ', 0).CatEq("Marks", mark_count);
 			if(box_count)
 				temp_buf.CatDivIfNotEmpty(' ', 0).CatEq("Boxes", box_count);
+			if(org_mark_count || org_box_count)
+				temp_buf.CatDivIfNotEmpty('-', 1);
+			if(org_mark_count)
+				temp_buf.CatDivIfNotEmpty(' ', 0).CatEq("OriginalMarks", org_mark_count);
+			if(org_box_count)
+				temp_buf.CatDivIfNotEmpty(' ', 0).CatEq("OriginalBoxes", org_box_count);
 			setStaticText(CTL_LOTXCLIST_INFO, temp_buf);
 		}
 		CATCHZOK

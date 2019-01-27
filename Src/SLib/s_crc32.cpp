@@ -773,7 +773,7 @@ int FASTCALL SBdtFunct::Implement_Transform(TransformBlock & rBlk)
 						uint32 crc = Ste.O.B4;
 						crc = crc ^ 0xffffffffL;
 						size_t len = rBlk.InBufLen;
-						const uint8 * p_buf = PTR8(rBlk.P_InBuf);
+						const uint8 * p_buf = PTR8C(rBlk.P_InBuf);
 						while(len >= 8) {
 							DO8(p_buf);
 							len -= 8;
@@ -855,7 +855,7 @@ int FASTCALL SBdtFunct::Implement_Transform(TransformBlock & rBlk)
 						#define DO8(buf, i)  DO4(buf, i); DO4(buf, i+4);
 						#define DO16(buf)    DO8(buf, 0); DO8(buf, 8);
 						ulong value = Ste.O.B4;
-						const uint8 * p_buf = PTR8(rBlk.P_InBuf);
+						const uint8 * p_buf = PTR8C(rBlk.P_InBuf);
 						size_t len = rBlk.InBufLen;
 						const uint _base_ = 65521U; // largest prime smaller than 65536
 						const uint _nmax_ = 5552;   // _nmax_ is the largest n such that 255n(n+1)/2 + (n+1)(BASE-1) <= 2^32-1

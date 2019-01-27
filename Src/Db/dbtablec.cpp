@@ -32,7 +32,7 @@ DBRowId::DBRowId()
 
 int DBRowId::IsLong() const
 {
-	return BIN(PTR32(S)[0] && PTR32(S)[1]);
+	return BIN(PTR32C(S)[0] && PTR32C(S)[1]);
 }
 
 DBRowId::operator RECORDNUMBER() const
@@ -61,7 +61,7 @@ void DBRowId::SetMaxVal()
 SString & FASTCALL DBRowId::ToStr(SString & rBuf) const
 {
 	if(B != 0)
-		if(PTR32(S)[1] == 0)
+		if(PTR32C(S)[1] == 0)
 			rBuf.Z().Cat(B);
 		else
 			rBuf = (const char *)S;

@@ -1,5 +1,5 @@
 // SUC.CPP
-// Copyright (c) A.Sobolev 2017
+// Copyright (c) A.Sobolev 2017, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -622,7 +622,7 @@ int SLAPI SCodepageMapPool::CpMap::CpUToBHash::Helper_TranslateResultToBuf(const
 		case 1:
 			{
 				for(uint i = 0; i < resultBufSize; i++) {
-					uchar c = PTR8(pResultBuf)[i];
+					uchar c = PTR8C(pResultBuf)[i];
 					if(c)
 						rBuf.CatChar(c);
 					else
@@ -633,10 +633,10 @@ int SLAPI SCodepageMapPool::CpMap::CpUToBHash::Helper_TranslateResultToBuf(const
 		case 2:
 			{
 				for(uint i = 0; i < resultBufSize; i++) {
-					uint8 c0 = PTR8(pResultBuf)[i*2];
+					uint8 c0 = PTR8C(pResultBuf)[i*2];
 					if(c0) {
 						rBuf.CatChar(c0);
-						uint8 c1 = PTR8(pResultBuf)[i*2+1];
+						uint8 c1 = PTR8C(pResultBuf)[i*2+1];
 						if(c1)
 							rBuf.CatChar(c1);
 					}
@@ -648,13 +648,13 @@ int SLAPI SCodepageMapPool::CpMap::CpUToBHash::Helper_TranslateResultToBuf(const
 		case 3:
 			{
 				for(uint i = 0; i < resultBufSize; i++) {
-					uint8 c0 = PTR8(pResultBuf)[i*3];
+					uint8 c0 = PTR8C(pResultBuf)[i*3];
 					if(c0) {
 						rBuf.CatChar(c0);
-						uint8 c1 = PTR8(pResultBuf)[i*3+1];
+						uint8 c1 = PTR8C(pResultBuf)[i*3+1];
 						if(c1) {
 							rBuf.CatChar(c1);
-							uint8 c2 = PTR8(pResultBuf)[i*3+2];
+							uint8 c2 = PTR8C(pResultBuf)[i*3+2];
 							if(c2)
 								rBuf.CatChar(c2);
 						}
@@ -667,16 +667,16 @@ int SLAPI SCodepageMapPool::CpMap::CpUToBHash::Helper_TranslateResultToBuf(const
 		case 4:
 			{
 				for(uint i = 0; i < resultBufSize; i++) {
-					uint8 c0 = PTR8(pResultBuf)[i*4];
+					uint8 c0 = PTR8C(pResultBuf)[i*4];
 					if(c0) {
 						rBuf.CatChar(c0);
-						uint8 c1 = PTR8(pResultBuf)[i*4+1];
+						uint8 c1 = PTR8C(pResultBuf)[i*4+1];
 						if(c1) {
 							rBuf.CatChar(c1);
-							uint8 c2 = PTR8(pResultBuf)[i*4+2];
+							uint8 c2 = PTR8C(pResultBuf)[i*4+2];
 							if(c2) {
 								rBuf.CatChar(c2);
-								uint8 c3 = PTR8(pResultBuf)[i*4+3];
+								uint8 c3 = PTR8C(pResultBuf)[i*4+3];
 								if(c3)
 									rBuf.CatChar(c3);
 							}
@@ -708,7 +708,7 @@ int SLAPI SCodepageMapPool::CpMap::CpUToBHash::FillUpHash(const uint mapCount, c
 				break;
 			case 2:
 				if(PTR16(pHash)[h] == 0)
-					PTR16(pHash)[h] = PTR16(p_b)[0];
+					PTR16(pHash)[h] = PTR16C(p_b)[0];
 				else
 					is_dup = 1;
 				break;
@@ -726,7 +726,7 @@ int SLAPI SCodepageMapPool::CpMap::CpUToBHash::FillUpHash(const uint mapCount, c
 				break;
 			case 4:
 				if(PTR32(pHash)[h] == 0)
-					PTR32(pHash)[h] = PTR32(p_b)[0];
+					PTR32(pHash)[h] = PTR32C(p_b)[0];
 				else
 					is_dup = 1;
 				break;
@@ -794,7 +794,7 @@ const SCodepageMapPool::MapEntry * FASTCALL SCodepageMapPool::CpMap::SearchC(con
 	if(bw <= MbMl) {
 		const uint32 local_b32 = PTR32(local_b)[0];
 		for(uint i = 0; i < MapCount; i++) {
-			if(PTR32(P_Map[i].B)[0] == local_b32)
+			if(PTR32C(P_Map[i].B)[0] == local_b32)
 				return (P_Map+i);
 		}
 	}
@@ -926,7 +926,7 @@ IMPL_CMPCFUNC(CPMCPENTRY, p1, p2)
 {
 	const SCodepageMapPool::MapEntry * i1 = (const SCodepageMapPool::MapEntry *)p1;
 	const SCodepageMapPool::MapEntry * i2 = (const SCodepageMapPool::MapEntry *)p2;
-	return CMPSIGN(PTR32(i1->B)[0], PTR32(i2->B)[0]);
+	return CMPSIGN(PTR32C(i1->B)[0], PTR32C(i2->B)[0]);
 }
 
 IMPL_CMPCFUNC(CPMCPENTRY_U, p1, p2)
@@ -940,7 +940,7 @@ IMPL_CMPCFUNC(CPMCPENTRYFULLY, p1, p2)
 {
 	const SCodepageMapPool::MapEntry * i1 = (const SCodepageMapPool::MapEntry *)p1;
 	const SCodepageMapPool::MapEntry * i2 = (const SCodepageMapPool::MapEntry *)p2;
-	int   si = CMPSIGN(PTR32(i1->B)[0], PTR32(i2->B)[0]);
+	int   si = CMPSIGN(PTR32C(i1->B)[0], PTR32C(i2->B)[0]);
 	if(si == 0)
 		si = CMPSIGN(i1->U2, i2->U2);
 	return si;
@@ -971,7 +971,7 @@ int FASTCALL SCodepageMapPool::MapEntry::operator != (const MapEntry & rS) const
 
 int FASTCALL SCodepageMapPool::MapEntry::Cmp(const MapEntry & rS) const
 {
-	int    si = CMPSIGN(*PTR32(B), *PTR32(rS.B));
+	int    si = CMPSIGN(*PTR32C(B), *PTR32C(rS.B));
 	return si ? si : CMPSIGN(U2, rS.U2);
 }
 
@@ -1342,7 +1342,7 @@ int FASTCALL SCodepageMapPool::CpMap::Helper_BSearchB(uint32 b4, wchar_t * pU) c
 	const  MapEntry * p_org = P_Map;
 	for(uint i = StraightCount, lo = StraightCount, up = MapCount-1; lo <= up;) {
 		const MapEntry * p = p_org + (i = (lo + up) >> 1);
-		const int cmp = CMPSIGN(PTR32(p->B)[0], b4);
+		const int cmp = CMPSIGN(PTR32C(p->B)[0], b4);
 		if(cmp < 0)
 			lo = i + 1;
 		else if(cmp) {
@@ -1656,7 +1656,7 @@ int SLAPI SCodepageMapPool::TranslIndex::Setup(const SCodepageMapPool::CMapTrans
 						PTR8(P_Tab)[_p2*maxdlen+2] = r_tcm_entry.D[2];
 						break;
 					case 4:
-						PTR32(P_Tab)[_p2] = PTR32(r_tcm_entry.D)[0];
+						PTR32(P_Tab)[_p2] = PTR32C(r_tcm_entry.D)[0];
 						break;
 				}
 			}
@@ -1674,7 +1674,7 @@ int SLAPI SCodepageMapPool::TranslIndex::Setup(const SCodepageMapPool::CMapTrans
                 uint8 * t = PTR8(P_Tab)+tab_ptr;
                 switch(rIdx.MaxSLen) {
                     case 2:
-                        *PTR16(t) = *PTR16(r_tcm_entry.S);
+                        *PTR16(t) = *PTR16C(r_tcm_entry.S);
                         break;
 					case 3:
                         t[0] = r_tcm_entry.S[0];
@@ -1682,7 +1682,7 @@ int SLAPI SCodepageMapPool::TranslIndex::Setup(const SCodepageMapPool::CMapTrans
                         t[2] = r_tcm_entry.S[2];
                         break;
 					case 4:
-						*PTR32(t) = *PTR32(r_tcm_entry.S);
+						*PTR32(t) = *PTR32C(r_tcm_entry.S);
                         break;
                 }
                 t += rIdx.MaxSLen;
@@ -1700,7 +1700,7 @@ int SLAPI SCodepageMapPool::TranslIndex::Setup(const SCodepageMapPool::CMapTrans
 						t[2] = r_tcm_entry.D[2];
 						break;
 					case 4:
-						*PTR32(t) = *PTR32(r_tcm_entry.D);
+						*PTR32(t) = *PTR32C(r_tcm_entry.D);
 						break;
                 }
                 tab_ptr += entry_size;
@@ -1750,13 +1750,13 @@ int FASTCALL SCodepageMapPool::CpMap::Helper_BSearchB(uint32 b4, wchar_t * pU) c
 static size_t FASTCALL _GetMbQuantLen(const void * pS)
 {
 	size_t src_len = 0;
-	if(pS && PTR8(pS)[0]) {
+	if(pS && PTR8C(pS)[0]) {
 		src_len++;
-		if(PTR8(pS)[1]) {
+		if(PTR8C(pS)[1]) {
 			src_len++;
-			if(PTR8(pS)[2]) {
+			if(PTR8C(pS)[2]) {
 				src_len++;
-				if(PTR8(pS)[3])
+				if(PTR8C(pS)[3])
 					src_len++;
 			}
 		}
@@ -1869,15 +1869,15 @@ int SLAPI SCodepageMapPool::Helper_MakeTranslIndex(const CpMap & rFrom, const Cp
 		const wchar_t u = rFrom.P_Map[i].U2;
 		const  MapEntry * p_to_entry = rTo.SearchU(u, &to_idx);
 		CMapTranslEntry tcm_entry;
-		*PTR32(tcm_entry.S) = *PTR32(rFrom.P_Map[i].B);
+		*PTR32(tcm_entry.S) = *PTR32C(rFrom.P_Map[i].B);
 		if(p_to_entry) {
-			*PTR32(tcm_entry.D) = *PTR32(p_to_entry->B);
+			*PTR32(tcm_entry.D) = *PTR32C(p_to_entry->B);
 			rIdx.SuccCount++;
 		}
 		else {
 			const SCodepageMapPool::MapEntry * p_fb = rTo.SearchFallback(u);
 			if(p_fb) {
-				*PTR32(tcm_entry.D) = *PTR32(p_fb->B);
+				*PTR32(tcm_entry.D) = *PTR32C(p_fb->B);
 				tcm_entry.F |= tcm_entry.fFallback;
 				rIdx.FallbackCount++;
 			}
@@ -1978,11 +1978,11 @@ uint SLAPI SCodepageMapPool::Compare(const CpMap & rS1, const CpMap & rS2) const
     	}
     	int    is_eq = 1;
     	for(uint i = 0; is_eq && i < p1->MapCount; i++) {
-			const uint32 c1 = *PTR32(p1->P_Map[i].B);
+			const uint32 c1 = *PTR32C(p1->P_Map[i].B);
 			const uint16 u1 = p1->P_Map[i].U2;
 			int    found = 0;
 			for(uint j = 0; !found && j < p2->MapCount; j++) {
-				const uint32 c2 = *PTR32(p2->P_Map[j].B);
+				const uint32 c2 = *PTR32C(p2->P_Map[j].B);
 				if(c2 == c1) {
 					if(p2->P_Map[j].U2 != u1)
 						is_eq = 0;

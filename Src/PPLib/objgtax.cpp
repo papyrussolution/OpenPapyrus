@@ -112,7 +112,7 @@ int SLAPI PPGoodsTaxPacket::PutEntry(int pos, const PPGoodsTaxEntry * pEntry)
 			long idx = ((r_item.TaxGrpID & 0xff000000L) >> 24);
 			max_idx = MAX(max_idx, idx);
 		}
-		if(pos < 0 || pos >= (int)getCount()) {
+		if(pos < 0 || pos >= static_cast<int>(getCount())) {
 			PPGoodsTaxEntry item = *pEntry;
 			item.TaxGrpID &= 0x00ffffffL;
 			item.TaxGrpID |= ((max_idx+1) << 24);
@@ -123,7 +123,7 @@ int SLAPI PPGoodsTaxPacket::PutEntry(int pos, const PPGoodsTaxEntry * pEntry)
 		}
 	}
 	else {
-		assert(pos >= 0 && pos < (int)getCount());
+		assert(pos >= 0 && pos < static_cast<int>(getCount()));
 		THROW_SL(atFree((uint)pos));
 	}
 	CATCHZOK

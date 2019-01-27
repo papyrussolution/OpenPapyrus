@@ -1,5 +1,5 @@
 // CHKINPSN.CPP
-// Copyright (c) A.Sobolev 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2013, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1269,16 +1269,11 @@ int CheckInPersonListDialog::setupList()
 		Data.Count(rcount);
 		temp_buf.Z();
 		if(rcount.RegCount) {
-			PPLoadString("registered", word_buf);
-			temp_buf.CatEq(word_buf, (ulong)rcount.RegCount);
-			if(rcount.CiCount) {
-				PPLoadString("checkedin", word_buf);
-				temp_buf.CatDiv(';', 2).CatEq(word_buf, (ulong)rcount.CiCount);
-			}
-			if(rcount.CalceledCount) {
-				PPLoadString("canceled", word_buf);
-				temp_buf.CatDiv(';', 2).CatEq(word_buf, (ulong)rcount.CalceledCount);
-			}
+			temp_buf.CatEq(PPLoadStringS("registered", word_buf), (ulong)rcount.RegCount);
+			if(rcount.CiCount)
+				temp_buf.CatDiv(';', 2).CatEq(PPLoadStringS("checkedin", word_buf), (ulong)rcount.CiCount);
+			if(rcount.CalceledCount)
+				temp_buf.CatDiv(';', 2).CatEq(PPLoadStringS("canceled", word_buf), (ulong)rcount.CalceledCount);
 		}
 		setStaticText(CTL_CHKINPLIST_ST_TOTAL, temp_buf);
 	}

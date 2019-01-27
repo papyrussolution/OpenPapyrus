@@ -1050,10 +1050,10 @@ void SLAPI PPViewArticle::PreprocessBrowser(PPViewBrowser * pBrw)
 			for(uint i = 0, pos = beg_fld_pos; i < count; i++) {
 				const StrAssocArray::Item entry = P_DebtDimList->Get(i);
 				BroGroup grp;
-				grp.first = beg_dim_col + (i * col_in_grp);
-				grp.count = col_in_grp;
-				grp.hight = 1;
-				grp.text = newStr(entry.Txt);
+				grp.First = beg_dim_col + (i * col_in_grp);
+				grp.Count = col_in_grp;
+				grp.Height = 1;
+				grp.P_Text = newStr(entry.Txt);
 				pBrw->view->getDef()->addGroup(&grp);
 				pBrw->InsColumn(-1, "@creditlimit",  pos++, 0L, MKSFMTD(12, 2, ALIGN_RIGHT|NMBF_NOZERO), 0);
 				if(LimitTerm && AddedLimitTerm)

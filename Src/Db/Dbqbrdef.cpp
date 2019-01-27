@@ -1,5 +1,5 @@
 // DBQBRO.CPP
-// Copyright (c) Sobolev A. 1996, 1997-2000, 2003, 2005, 2008, 2010, 2011, 2013, 2018
+// Copyright (c) Sobolev A. 1996, 1997-2000, 2003, 2005, 2008, 2010, 2011, 2013, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -55,10 +55,10 @@ int SLAPI DBQBrowserDef::insertColumn(int atPos, const char * pTxt, uint fldNo, 
 		if(atPos >= 0 && P_Groups)
 			for(uint j = 0; j < NumGroups; j++) {
 				BroGroup & grp = P_Groups[j];
-				if(atPos <= (int)grp.first)
-					grp.first++;
-				else if(atPos > (int)grp.first && atPos <= (int)grp.NextColumn())
-					grp.count++;
+				if(atPos <= static_cast<int>(grp.First))
+					grp.First++;
+				else if(atPos > static_cast<int>(grp.First) && atPos <= static_cast<int>(grp.NextColumn()))
+					grp.Count++;
 			}
 		return 1;
 	}

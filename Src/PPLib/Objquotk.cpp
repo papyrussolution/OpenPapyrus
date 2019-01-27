@@ -39,14 +39,14 @@ int SLAPI PPQuotKind2::GetTimeRange(TimeRange & rRange) const
 	rRange.low = ZEROTIME;
 	rRange.upp = ZEROTIME;
 	if(BeginTm) {
-		int    h = PTR8(&BeginTm)[0];
-		int    m = PTR8(&BeginTm)[1];
+		int    h = PTR8C(&BeginTm)[0];
+		int    m = PTR8C(&BeginTm)[1];
 		if(h >= 0 && h <= 23 && m >= 0 && m <= 59)
 			rRange.low = encodetime(h, m, 0, 0);
 	}
 	if(EndTm) {
-		int    h = PTR8(&EndTm)[0];
-		int    m = PTR8(&EndTm)[1];
+		int    h = PTR8C(&EndTm)[0];
+		int    m = PTR8C(&EndTm)[1];
 		if(h >= 0 && h <= 23 && m >= 0 && m <= 59)
 			rRange.upp = encodetime(h, m, 0, 0);
 	}

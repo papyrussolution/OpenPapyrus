@@ -1,5 +1,5 @@
 // SMEM.CPP
-// Copyright (c) Sobolev A. 1993-2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017
+// Copyright (c) Sobolev A. 1993-2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2019
 // @codepage windows-1251
 //
 #include <slib.h>
@@ -21,54 +21,58 @@ void FASTCALL memmovo(void * pDest, const void * pSrc, size_t sz)
 #define INCPTR8(p)  (p) = (PTR8(p)+1)
 #define DECPTR32(p) (p) = (PTR32(p)-1)
 #define DECPTR8(p)  (p) = (PTR8(p)-1)
+#define INCPTR32C(p) (p) = (PTR32C(p)+1)
+#define INCPTR8C(p)  (p) = (PTR8C(p)+1)
+#define DECPTR32C(p) (p) = (PTR32C(p)-1)
+#define DECPTR8C(p)  (p) = (PTR8C(p)-1)
 	// Алгоритм заточен на выравнивание адреса источника по границе 32 байт (2^5)
 	if(pDest != pSrc) {
 		switch(sz) {
-			case 1: *PTR8(pDest)  = *PTR8(pSrc);  return;
-			case 2: *PTR16(pDest) = *PTR16(pSrc); return;
-			case 4: *PTR32(pDest) = *PTR32(pSrc); return;
+			case 1: *PTR8(pDest)  = *PTR8C(pSrc);  return;
+			case 2: *PTR16(pDest) = *PTR16C(pSrc); return;
+			case 4: *PTR32(pDest) = *PTR32C(pSrc); return;
 			case 8:
 				{
 					uint32 t1, t2;
-					t1 = PTR32(pSrc)[0];
-					t2 = PTR32(pSrc)[1];
+					t1 = PTR32C(pSrc)[0];
+					t2 = PTR32C(pSrc)[1];
 					PTR32(pDest)[0] = t1;
 					PTR32(pDest)[1] = t2;
 				}
 				return;
 		}
-		if(pDest < pSrc || (PTR8(pDest) - PTR8(pSrc)) >= (int)sz) {
-			size_t delta = MIN(PTR8(ALIGNSIZE((ulong)pSrc, 5)) - PTR8(pSrc), (int)sz);
+		if(pDest < pSrc || (PTR8C(pDest) - PTR8C(pSrc)) >= (int)sz) {
+			size_t delta = MIN(PTR8C(ALIGNSIZE((ulong)pSrc, 5)) - PTR8C(pSrc), (int)sz);
 			if(delta) {
-				switch(delta / 4) { REP_CASE7(*PTR32(pDest) = *PTR32(pSrc); INCPTR32(pDest); INCPTR32(pSrc); ) }
-				switch(delta % 4) { REP_CASE3(*PTR8(pDest)  = *PTR8(pSrc);  INCPTR8(pDest);  INCPTR8(pSrc);)  }
+				switch(delta / 4) { REP_CASE7(*PTR32(pDest) = *PTR32C(pSrc); INCPTR32(pDest); INCPTR32C(pSrc); ) }
+				switch(delta % 4) { REP_CASE3(*PTR8(pDest)  = *PTR8C(pSrc);  INCPTR8(pDest);  INCPTR8C(pSrc);)  }
 				sz -= delta;
 			}
 			if(sz) {
 				while(sz / 32) {
-					REP8(*PTR32(pDest) = *PTR32(pSrc); INCPTR32(pDest); INCPTR32(pSrc));
+					REP8(*PTR32(pDest) = *PTR32C(pSrc); INCPTR32(pDest); INCPTR32C(pSrc));
 					sz -= 32;
 				}
-				switch(sz / 4) { REP_CASE7(*PTR32(pDest) = *PTR32(pSrc); INCPTR32(pDest); INCPTR32(pSrc)) }
-				switch(sz % 4) { REP_CASE3(*PTR8(pDest)  = *PTR8(pSrc);  INCPTR8(pDest);  INCPTR8(pSrc))  }
+				switch(sz / 4) { REP_CASE7(*PTR32(pDest) = *PTR32C(pSrc); INCPTR32(pDest); INCPTR32C(pSrc)) }
+				switch(sz % 4) { REP_CASE3(*PTR8(pDest)  = *PTR8C(pSrc);  INCPTR8(pDest);  INCPTR8C(pSrc))  }
 			}
 		}
 		else { // (pDest - pSrc) < sz
 			pDest = PTR8(pDest) + sz;
-			pSrc  = PTR8(pSrc)  + sz;
+			pSrc  = PTR8C(pSrc)  + sz;
 			size_t delta = MIN(((ulong)pSrc) - ALIGNDOWN((ulong)pSrc, 5), sz);
 			if(delta) {
-				switch(delta % 4) { REP_CASE3(DECPTR8(pDest); DECPTR8(pSrc); *PTR8(pDest) = *PTR8(pSrc))  }
-				switch(delta / 4) { REP_CASE7(DECPTR32(pDest); DECPTR32(pSrc); *PTR32(pDest) = *PTR32(pSrc)) }
+				switch(delta % 4) { REP_CASE3(DECPTR8(pDest); DECPTR8C(pSrc); *PTR8(pDest) = *PTR8C(pSrc))  }
+				switch(delta / 4) { REP_CASE7(DECPTR32(pDest); DECPTR32C(pSrc); *PTR32(pDest) = *PTR32C(pSrc)) }
 				sz -= delta;
 			}
 			if(sz) {
 				while(sz / 32) {
-					REP8(DECPTR32(pDest); DECPTR32(pSrc); *PTR32(pDest) = *PTR32(pSrc));
+					REP8(DECPTR32(pDest); DECPTR32C(pSrc); *PTR32(pDest) = *PTR32C(pSrc));
 					sz -= 32;
 				}
-				switch(sz % 4) { REP_CASE3(DECPTR8(pDest);  DECPTR8(pSrc); *PTR8(pDest)  = *PTR8(pSrc)) }
-				switch(sz / 4) { REP_CASE7(DECPTR32(pDest); DECPTR32(pSrc); *PTR32(pDest) = *PTR32(pSrc)) }
+				switch(sz % 4) { REP_CASE3(DECPTR8(pDest);  DECPTR8C(pSrc); *PTR8(pDest)  = *PTR8C(pSrc)) }
+				switch(sz / 4) { REP_CASE7(DECPTR32(pDest); DECPTR32C(pSrc); *PTR32(pDest) = *PTR32C(pSrc)) }
 			}
 		}
 	}
@@ -77,22 +81,22 @@ void FASTCALL memmovo(void * pDest, const void * pSrc, size_t sz)
 int FASTCALL ismemzero(const void * p, size_t s)
 {
 	switch(s) {
-		case  1: return BIN(PTR8(p)[0] == 0);
-		case  2: return BIN(PTR16(p)[0] == 0);
-		case  4: return BIN(PTR32(p)[0] == 0);
-		case  8: return BIN(PTR32(p)[0] == 0 && PTR32(p)[1] == 0);
-		case 12: return BIN(PTR32(p)[0] == 0 && PTR32(p)[1] == 0 && PTR32(p)[2] == 0);
-		case 16: return BIN(PTR32(p)[0] == 0 && PTR32(p)[1] == 0 && PTR32(p)[2] == 0 && PTR32(p)[3] == 0);
+		case  1: return BIN(PTR8C(p)[0] == 0);
+		case  2: return BIN(PTR16C(p)[0] == 0);
+		case  4: return BIN(PTR32C(p)[0] == 0);
+		case  8: return BIN(PTR32C(p)[0] == 0 && PTR32C(p)[1] == 0);
+		case 12: return BIN(PTR32C(p)[0] == 0 && PTR32C(p)[1] == 0 && PTR32C(p)[2] == 0);
+		case 16: return BIN(PTR32C(p)[0] == 0 && PTR32C(p)[1] == 0 && PTR32C(p)[2] == 0 && PTR32C(p)[3] == 0);
 	}
 	size_t v = s / 4;
 	size_t m = s % 4;
 	size_t i;
 	for(i = 0; i < v; i++) {
-		if(PTR32(p)[i] != 0)
+		if(PTR32C(p)[i] != 0)
 			return 0;
 	}
 	for(i = 0; i < m; i++)
-		if(PTR8(p)[(v*4)+i] != 0)
+		if(PTR8C(p)[(v*4)+i] != 0)
 			return 0;
 	return 1;
 }

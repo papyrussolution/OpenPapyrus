@@ -522,7 +522,7 @@ int SLAPI BNKey::compareKey(const DBTable * tbl, const void * k1, const void * k
 	for(int i = 0; i < ns; i++) {
 		BNKeySeg s = SEG(i);
 		const BNField & f = tbl->GetFields()[s.fldID];
-		int    c = stcomp(f.T, PTR8(k1) + ofs, PTR8(k2) + ofs);
+		int    c = stcomp(f.T, PTR8C(k1) + ofs, PTR8C(k2) + ofs);
 		if(c)
 			return (s.flags & XIF_DESC) ? -c : c;
 		if(i < (ns - 1))

@@ -1,5 +1,5 @@
 // SFXTREE2.CPP
-// Copyright (c) A.Sobolev 2016, 2018
+// Copyright (c) A.Sobolev 2016, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -238,10 +238,10 @@ IMPL_CMPFUNC(SfxTreeChr, p1, p2)
     if(p_st) {
 		const uint item_size = p_st->GetItemSize();
         switch(item_size) {
-			case 1: result = CMPSIGN(*PTR8(p1), *PTR8(p2)); break;
-			case 2: result = CMPSIGN(*PTR16(p1), *PTR16(p2)); break;
-			case 4: result = CMPSIGN(*PTR32(p1), *PTR32(p2)); break;
-			case 8: result = CMPSIGN(*PTR64(p1), *PTR64(p2)); break;
+			case 1: result = CMPSIGN(*PTR8C(p1), *PTR8C(p2)); break;
+			case 2: result = CMPSIGN(*PTR16C(p1), *PTR16C(p2)); break;
+			case 4: result = CMPSIGN(*PTR32C(p1), *PTR32C(p2)); break;
+			case 8: result = CMPSIGN(*PTR64C(p1), *PTR64C(p2)); break;
 			default: result = memcmp(p1, p2, item_size); break;
         }
     }
@@ -774,16 +774,16 @@ int SSuffixTree::IsEqChr(const void * p1, const void * p2) const
 	int    yes = 0;
 	switch(GetItemSize()) {
 		case 1:
-			yes = BIN(*PTR8(p1) == *PTR8(p2));
+			yes = BIN(*PTR8C(p1) == *PTR8C(p2));
 			break;
 		case 2:
-			yes = BIN(*PTR16(p1) == *PTR16(p2));
+			yes = BIN(*PTR16C(p1) == *PTR16C(p2));
 			break;
 		case 4:
-			yes = BIN(*PTR32(p1) == *PTR32(p2));
+			yes = BIN(*PTR32C(p1) == *PTR32C(p2));
 			break;
 		case 8:
-			yes = BIN(PTR32(p1)[0] == PTR32(p2)[0] && PTR32(p1)[1] == PTR32(p2)[1]);
+			yes = BIN(PTR32C(p1)[0] == PTR32C(p2)[0] && PTR32C(p1)[1] == PTR32C(p2)[1]);
 			break;
 		default:
 			yes = BIN(memcmp(p1, p2, GetItemSize()) == 0);
@@ -1381,7 +1381,7 @@ void SSuffixTree::OutputChr(const SSuffixTree::String * pStr, uint chrIdx, long 
 				default:
 					{
 						for(uint i = 0; i < ItemSize; i++) {
-							rBuf.CatHex(PTR8(p_chr)[0]);
+							rBuf.CatHex(PTR8C(p_chr)[0]);
 						}
 					}
 					break;

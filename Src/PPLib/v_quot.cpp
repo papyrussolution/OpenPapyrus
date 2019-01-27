@@ -429,7 +429,7 @@ SString & SLAPI PPViewQuot::GetQuotTblBuf(const TempQuotTbl::Rec * pRec, uint po
 	rBuf.Z();
 	if(pos < MAX_QUOTS_PER_TERM_REC) {
 		size_t offs = offsetof(TempQuotTbl::Rec, QuotP1);
-		uint   p = *(uint *)(PTR8(pRec) + offs + pos * sizeof(pRec->QuotP1));
+		uint   p = *(const uint *)(PTR8C(pRec) + offs + pos * sizeof(pRec->QuotP1));
 		StrPool.GetS(p, rBuf);
 	}
 	return rBuf;

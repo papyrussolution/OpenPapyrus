@@ -86,7 +86,7 @@ int SLAPI SCompressor::CompressBlock(const void * pSrc, size_t srcSize, SBuffer 
 				do {
 					stream.next_out = (Bytef *)(char *)temp_buf;
 					stream.avail_out = temp_buf.GetSize();
-					stream.next_in = (z_const Bytef*)(PTR8(pSrc)+current_src_offs);
+					stream.next_in = (z_const Bytef*)(PTR8C(pSrc)+current_src_offs);
 					stream.avail_in = current_src_size;
 					const uint prev_total_out = stream.total_out;
 					const uint prev_total_in = stream.total_in;

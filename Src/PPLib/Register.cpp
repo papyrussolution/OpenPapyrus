@@ -203,7 +203,7 @@ int SLAPI RegisterArray::SelectRegister(PPID regTyp, LDATE dt, uint * pPos, Regi
         }
 	}
 	if(ok > 0) {
-		assert(optimal_pos >= 0 && optimal_pos < (int)getCount());
+		assert(optimal_pos >= 0 && optimal_pos < static_cast<int>(getCount()));
 		ASSIGN_PTR(pPos, (uint)(optimal_pos+1));
 		ASSIGN_PTR(pRec, at(optimal_pos));
 	}

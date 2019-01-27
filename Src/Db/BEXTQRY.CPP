@@ -122,7 +122,7 @@ int SLAPI BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char 
 			else if(oneof2(initSpMode, spGe, spFirst))
 				cmps = _GE_;
 			pSg->_Symb(cmps);
-			sttostr(fld.T, PTR8(pInitKey)+offs, COMF_SQL, temp);
+			sttostr(fld.T, PTR8C(pInitKey)+offs, COMF_SQL, temp);
 			pSg->Text(temp);
 
 			if(i > 0 && initSpMode != spEq) {
@@ -148,7 +148,7 @@ int SLAPI BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char 
 						pSg->Text(fld2.Name);
 					pSg->_Symb(_NE_);
 					//sttostr(fld2.T, PTR8(pInitKey) + P_Tbl->indexes.getSegOffset(index, j), COMF_SQL, temp);
-					sttostr(fld2.T, PTR8(pInitKey) + P_Tbl->GetIndices().getSegOffset(index, j), COMF_SQL, temp);
+					sttostr(fld2.T, PTR8C(pInitKey) + P_Tbl->GetIndices().getSegOffset(index, j), COMF_SQL, temp);
 					pSg->Text(temp);
 					pSg->Sp();
 				}

@@ -1,5 +1,5 @@
 // SBRODEF.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -20,10 +20,7 @@ SLAPI BroGroup::BroGroup()
 	THISZERO();
 }
 
-uint SLAPI BroGroup::NextColumn() const
-{
-	return (first+count);
-}
+uint SLAPI BroGroup::NextColumn() const { return (First+Count); }
 //
 //
 //
@@ -38,7 +35,7 @@ SLAPI BrowserDef::~BrowserDef()
 	freeAll();
 	if(P_Groups) {
 		for(uint i = 0; i < NumGroups; i++)
-			delete P_Groups[i].text;
+			delete P_Groups[i].P_Text;
 		delete P_Groups;
 	}
 	if(P_CtList) {
@@ -91,7 +88,7 @@ int FASTCALL BrowserDef::isColInGroup(uint col, uint * pIdx) const
 {
 	for(uint i = 0, c = NumGroups; i < c; i++) {
 		const BroGroup * p_group = GetGroup(i);
-		if(col >= p_group->first && col < p_group->NextColumn()) {
+		if(col >= p_group->First && col < p_group->NextColumn()) {
 			*pIdx = i;
 			return 1;
 		}
@@ -107,7 +104,7 @@ int SLAPI BrowserDef::removeColumn(int pos) { return atFree(pos); }
 
 int SLAPI BrowserDef::setColumnTitle(int colN, const char * pText)
 {
-	if(colN >= 0 && colN < (int)getCount()) {
+	if(colN >= 0 && colN < static_cast<int>(getCount())) {
 		BroColumn & r_column = at(colN);
 		ZDELETE(r_column.text);
 		r_column.text = newStr(pText);
@@ -135,12 +132,12 @@ int SLAPI BrowserDef::addGroup(BroGroup * pGroup)
 	if(pGroup) {
 		SArray array(P_Groups, sizeof(BroGroup), NumGroups);
 		SString subst;
-		if(SLS.SubstString(pGroup->text, 0, subst) > 0) {
-			delete pGroup->text;
-			pGroup->text = newStr(subst);
+		if(SLS.SubstString(pGroup->P_Text, 0, subst) > 0) {
+			delete pGroup->P_Text;
+			pGroup->P_Text = newStr(subst);
 		}
 		ok = array.ordInsert(pGroup, 0, PTR_CMPFUNC(int));
-		P_Groups = (BroGroup *)array.dataPtr();
+		P_Groups = static_cast<BroGroup *>(array.dataPtr());
 		NumGroups = array.getCount();
 	}
 	return ok;
@@ -148,19 +145,10 @@ int SLAPI BrowserDef::addGroup(BroGroup * pGroup)
 
 int SLAPI BrowserDef::AddCrosstab(BroCrosstab * pCt)
 {
-	/* @v9.8.0
-	if(P_CtList == 0) {
-		P_CtList = new SArray(sizeof(BroCrosstab));
-		if(!P_CtList)
-			return (SLibError = SLERR_NOMEM, 0);
-	}
-	return P_CtList->insert(pCt);
-	*/
-	return SETIFZ(P_CtList, new SArray(sizeof(BroCrosstab))) ? P_CtList->insert(pCt) : 0; // @v9.8.0
+	return SETIFZ(P_CtList, new SArray(sizeof(BroCrosstab))) ? P_CtList->insert(pCt) : 0;
 }
 
 uint  SLAPI BrowserDef::GetCrosstabCount() const
-	//{ return P_CtList ? P_CtList->getCount() : 0; }
 	{ return SVectorBase::GetCount(P_CtList); }
 const BroCrosstab * SLAPI BrowserDef::GetCrosstab(uint ctN) const
 	{ return (P_CtList && ctN < P_CtList->getCount()) ? (const BroCrosstab *)P_CtList->at(ctN) : 0; }
@@ -179,8 +167,8 @@ int SLAPI BrowserDef::FreeAllCrosstab()
 
 void SLAPI BrowserDef::getScrollData(long * pScrollDelta, long * pScrollPos)
 {
-	*pScrollDelta = scrollDelta;
-	*pScrollPos = curItem;
+	ASSIGN_PTR(pScrollDelta, scrollDelta);
+	ASSIGN_PTR(pScrollPos, curItem);
 }
 
 int    SLAPI BrowserDef::GetCapHeight() const { return capHight; }
@@ -191,10 +179,10 @@ const  BroGroup * FASTCALL BrowserDef::GetGroup(uint grpN) const { return (grpN 
 void SLAPI BrowserDef::ClearGroupIndexies()
 {
 	for(uint i = 0; i < NumGroups; i++)
-		P_Groups[i].index = 0;
+		P_Groups[i].Index = 0;
 }
 
-uint * SLAPI BrowserDef::GetGroupIndexPtr(uint grpN) { return (grpN < NumGroups) ? &P_Groups[grpN].index : 0; }
+uint * SLAPI BrowserDef::GetGroupIndexPtr(uint grpN) { return (grpN < NumGroups) ? &P_Groups[grpN].Index : 0; }
 int    SLAPI BrowserDef::IsBOQ() const { return isBOQ; }
 int    SLAPI BrowserDef::IsEOQ() const { return isEOQ; }
 int    SLAPI BrowserDef::CheckFlag(uint f) const { return BIN(options & f); }
@@ -216,7 +204,7 @@ const BroGroup * SLAPI BrowserDef::groupOf(uint column, uint * pGrpPos) const
 {
 	for(uint i = 0; i < NumGroups; i++) {
 		BroGroup * p_gr = P_Groups + i;
-		if(column >= p_gr->first && column < p_gr->NextColumn()) {
+		if(column >= p_gr->First && column < p_gr->NextColumn()) {
 			ASSIGN_PTR(pGrpPos, i);
 			return p_gr;
 		}
@@ -243,8 +231,8 @@ int SLAPI BrowserDef::GetCellData(long row, int column, TYPEID * pType, void * p
 {
 	int    ok = 0;
 	TYPEID typ = 0;
-	char * p_src_data = (char *)getRow(row);
-	if(p_src_data && column >= 0 && column < (int)getCount()) {
+	char * p_src_data = static_cast<char *>(getRow(row));
+	if(p_src_data && column >= 0 && column < static_cast<int>(getCount())) {
 		const  BroColumn & c = at(column);
 		int    r = 1;
 		char   dest_data[256];
@@ -275,8 +263,8 @@ char * SLAPI BrowserDef::getText(long row, int column, char * pBuf)
 {
 	if(pBuf) {
 		*pBuf = 0;
-		if(column >= 0 && column < (int)getCount()) {
-			char * p_src_data = (char *)getRow(row);
+		if(column >= 0 && column < static_cast<int>(getCount())) {
+			char * p_src_data = static_cast<char *>(getRow(row));
 			if(p_src_data) {
 				const  BroColumn & c = at(column);
 				int    r = 1;
@@ -308,7 +296,7 @@ char * SLAPI BrowserDef::getText(long row, int column, char * pBuf)
 SString & SLAPI BrowserDef::getFullText(const void * pRowData, int column, SString & rBuf)
 {
 	rBuf.Z();
-	if(pRowData && column >= 0 && column < (int)getCount()) {
+	if(pRowData && column >= 0 && column < static_cast<int>(getCount())) {
 		const  BroColumn & r_c = at(column);
 		int    r = 1;
 		char   dest_data[1024];
@@ -331,7 +319,7 @@ SString & SLAPI BrowserDef::getFullText(const void * pRowData, int column, SStri
 			}
 			else {
 				//DpB.P_DestData = p_src_data + c.Offs;
-				p_bin_data = PTR8(pRowData) + r_c.Offs;
+				p_bin_data = PTR8C(pRowData) + r_c.Offs;
 			}
 			if(r) {
 				char   dest_text[1024];
@@ -348,47 +336,7 @@ SString & SLAPI BrowserDef::getFullText(const void * pRowData, int column, SStri
 
 SString & SLAPI BrowserDef::getFullText(long row, int column, SString & rBuf)
 {
-	return getFullText(getRow(row), column, rBuf); // @v9.5.5
-	/* @v9.5.5
-	rBuf.Z();
-	const char * p_src_data = (const char *)getRow(row);
-	if(p_src_data && column >= 0 && column < (int)getCount()) {
-		const  BroColumn & c = at(column);
-		int    r = 1;
-		char   dest_data[1024];
-		DpB.ExtraPtr  = ExtraPtr;
-		DpB.ColumnN   = c.Offs;
-		DpB.TypeID    = c.T;
-		DpB.P_SrcData = p_src_data;
-		DpB.Color     = 0;
-		DpB.P_DestData = dest_data;
-		{
-			const char * p_bin_data = 0;
-			if(c.Options & BCO_USERPROC) {
-				if(UserProc)
-					r = UserProc(&DpB);
-				else if(c.UserProc)
-					r = c.UserProc(&DpB);
-				else
-					r = 0;
-				p_bin_data = (const char *)DpB.P_DestData;
-			}
-			else {
-				//DpB.P_DestData = p_src_data + c.Offs;
-				p_bin_data = p_src_data + c.Offs;
-			}
-			if(r) {
-				char   dest_text[1024];
-				dest_text[0] = 0;
-				long   fmt = c.format;
-				SETSFMTLEN(fmt, 0);
-				sttostr(c.T, p_bin_data, fmt, dest_text);
-				rBuf = dest_text;
-			}
-		}
-	}
-	return rBuf;
-	*/
+	return getFullText(getRow(row), column, rBuf);
 }
 
 // AHTOXA {
@@ -458,9 +406,9 @@ char * SLAPI BrowserDef::getMultiLinesText(long row, int column, char * pBuf, ui
 {
 	char   ptr[1024]; // @v9.0.5 [256]-->[1024]
 	char   buf[1024];
-	buf[0] = 0;
-	char * p_src_data = (char *)getRow(row);
-	if(p_src_data && column >= 0 && column < (int)getCount()) {
+	PTR32(buf)[0] = 0;
+	char * p_src_data = static_cast<char *>(getRow(row));
+	if(p_src_data && column >= 0 && column < static_cast<int>(getCount())) {
 		const  BroColumn & c = at(column);
 		int    r = 1;
 		DpB.ExtraPtr  = ExtraPtr;
@@ -510,7 +458,7 @@ char * SLAPI BrowserDef::getMultiLinesText(long row, int column, char * pBuf, ui
 int SLAPI BrowserDef::setText(long row, int column, const char * b)
 {
 	int    ok = 1;
-	if(column >= 0 && column < (int)getCount()) {
+	if(column >= 0 && column < static_cast<int>(getCount())) {
 		const BroColumn & c = at(column);
 		if(c.Options & BCO_USERPROC)
 			ok = 0;
@@ -658,10 +606,10 @@ int SLAPI AryBrowserDef::insertColumn(int atPos, const char * pTxt, uint fldNo, 
 		if(P_Groups)
 			for(uint i = 0; i < NumGroups; i++) {
 				BroGroup & grp = P_Groups[i];
-				if(atPos <= (int)grp.first)
-					grp.first++;
-				else if(atPos > (int)grp.first && atPos <= (int)grp.NextColumn())
-					grp.count++;
+				if(atPos <= static_cast<int>(grp.First))
+					grp.First++;
+				else if(atPos > static_cast<int>(grp.First) && atPos <= static_cast<int>(grp.NextColumn()))
+					grp.Count++;
 			}
 		return 1;
 	}

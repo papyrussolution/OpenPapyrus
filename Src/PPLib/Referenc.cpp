@@ -616,7 +616,7 @@ int SLAPI Reference::PreparePropBuf(PPID obj, PPID id, PPID prop, const void * b
 	if(b) {
 		Prop.copyBufFrom(b, fix_rec_size);
 		if(s)
-			THROW(Prop.writeLobData(Prop.VT, PTR8(b)+fix_rec_size, (s > fix_rec_size) ? (s-fix_rec_size) : 0));
+			THROW(Prop.writeLobData(Prop.VT, PTR8C(b)+fix_rec_size, (s > fix_rec_size) ? (s-fix_rec_size) : 0));
 	}
 	else {
 		THROW(Prop.setLobSize(Prop.VT, (s > fix_rec_size) ? (s-fix_rec_size) : 0));
@@ -1166,7 +1166,7 @@ int SLAPI PPRights::Merge(const PPRights & rS, long flags)
 		//
 		const _PPRights * p_s = rS.P_Rt;
 		for(uint s = 0; s < rS.P_Rt->ORTailSize;) {
-			const ObjRights * p_so = (ObjRights*)(PTR8(p_s + 1) + s);
+			const ObjRights * p_so = reinterpret_cast<const ObjRights *>(PTR8C(p_s + 1) + s);
 			if(!(p_so->OprFlags & PPORF_INHERITED)) {
 				int   _found = 0;
 				for(uint t = 0; !_found && t < P_Rt->ORTailSize;) {

@@ -2565,7 +2565,7 @@ int SLAPI SMailMessage::WriterBlock::Read(size_t maxChunkSize, SBuffer & rBuf)
 				// для того, чтобы сохранить константность объекта.
 				//
 				int    is_broken = 0; // Признак того, что процесс чтения был искусственно прерван
-				const uint8 * p_src_buf = PTR8(P_Cb->Data.GetBuf(P_Cb->Data.GetRdOffs()));
+				const uint8 * p_src_buf = PTR8C(P_Cb->Data.GetBuf(P_Cb->Data.GetRdOffs()));
 				while(!is_broken && RdDataOff < avail_size) {
 					const size_t actual_size = MIN((avail_size-RdDataOff), 57);
 					memcpy(mime_buf, (p_src_buf + RdDataOff), actual_size);

@@ -3089,7 +3089,7 @@ int SLAPI PPViewLotExtCode::GetRec(const void * pHdr, LotExtCodeTbl::Rec & rRec)
 		LotExtCodeTbl::Key0 k0;
 		MEMSZERO(k0);
 		k0.LotID = *(long *)pHdr;
-		STRNSCPY(k0.Code, (const char *)(PTR8(pHdr)+sizeof(long)));
+		STRNSCPY(k0.Code, (const char *)(PTR8C(pHdr)+sizeof(long)));
 		if(Tbl.search(0, &k0, spEq)) {
 			Tbl.copyBufTo(&rRec);
 			ok = 1;

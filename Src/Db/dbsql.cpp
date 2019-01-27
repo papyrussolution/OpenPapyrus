@@ -378,7 +378,7 @@ int SSqlStmt::BindData(int dir, uint count, const BNFieldList & rFldList, const 
 	assert(count > 0 && count <= 1024);
 	for(uint i = 0; i < fld_count; i++) {
 		const BNField & r_fld = rFldList.getField(i);
-		BindItem((dir < 0) ? -(int16)(i+1) : +(int16)(i+1), count, r_fld.T, PTR8(pDataBuf) + r_fld.Offs);
+		BindItem((dir < 0) ? -(int16)(i+1) : +(int16)(i+1), count, r_fld.T, const_cast<uint8 *>(PTR8C(pDataBuf) + r_fld.Offs)); // @badcast
 	}
 	THROW(P_Db->Binding(*this, dir));
 	CATCHZOK
@@ -399,7 +399,7 @@ int SSqlStmt::BindData(int dir, uint count, const DBFieldList & rFldList, const 
 	assert(count > 0 && count <= 1024);
 	for(uint i = 0; i < fld_count; i++) {
 		const BNField & r_fld = rFldList.GetField(i);
-		BindItem((dir < 0) ? -(int16)(i+1) : +(int16)(i+1), count, r_fld.T, PTR8(pDataBuf) + offs);
+		BindItem((dir < 0) ? -(int16)(i+1) : +(int16)(i+1), count, r_fld.T, const_cast<uint8 *>(PTR8C(pDataBuf) + offs)); // @badcast
 		offs += r_fld.size();
 	}
 	THROW(P_Db->Binding(*this, dir));
@@ -417,7 +417,7 @@ int SSqlStmt::BindKey(const BNKeyList & rKeyList, int idxN, const void * pDataBu
 		Bind b;
 		b.Pos = -(int16)(i+1);
 		b.Typ = r_fld.T;
-		b.P_Data = PTR8(pDataBuf) + r_fld.Offs;
+		b.P_Data = const_cast<uint8 *>(PTR8C(pDataBuf) + r_fld.Offs); // @badcast
 		uint   lp = 0;
 		if(BL.lsearch(&b.Pos, &lp, PTR_CMPFUNC(int16)))
 			BL.atFree(lp);

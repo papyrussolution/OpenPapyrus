@@ -1,5 +1,5 @@
 // BITSTR.CPP
-// Copyright (c) Sobolev A. 1995-2001, 2004, 2005, 2006, 2008, 2010, 2013, 2016, 2017, 2018
+// Copyright (c) Sobolev A. 1995-2001, 2004, 2005, 2006, 2008, 2010, 2013, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -63,14 +63,14 @@ void FASTCALL resetbit32(void * pBuf, size_t len, size_t pos)
 int FASTCALL getbit32(const void * pBuf, size_t len, size_t pos)
 {
 	size_t idx = BLKIDX(pos);
-	return (idx < (len>>2)) ? BIN(PTR32(pBuf)[idx] & (1U << BLKBIT(pos))) : 0;
+	return (idx < (len>>2)) ? BIN(PTR32C(pBuf)[idx] & (1U << BLKBIT(pos))) : 0;
 }
 
 int FASTCALL getbit8(const void * pBuf, size_t len, size_t pos)
 {
 	size_t idx = (pos >> 3);
 	pos = pos & 0x7;
-	return (idx < len) ? ((PTR8(pBuf)[idx] >> pos) & 1) : 0;
+	return (idx < len) ? ((PTR8C(pBuf)[idx] >> pos) & 1) : 0;
 }
 
 uint32 getbits(const void * pBuf, size_t len, size_t pos, size_t count)
@@ -105,10 +105,10 @@ int FASTCALL findbit(const void * pBuf, size_t count, int val, size_t * pPos)
 	size_t i = 0;
 	size_t last_word = BLKIDX(count);
 	if(val) {
-		while(i <= last_word && PTR32(pBuf)[i] == 0)
+		while(i <= last_word && PTR32C(pBuf)[i] == 0)
 			++i;
 		if(i <= last_word) {
-			uint32 dw = PTR32(pBuf)[i];
+			uint32 dw = PTR32C(pBuf)[i];
 			for(uint j = 0; j < 32; j++) {
 				// @project if(dw & map[j]) {
 				if(dw & (1U << j)) {
@@ -119,10 +119,10 @@ int FASTCALL findbit(const void * pBuf, size_t count, int val, size_t * pPos)
 		}
 	}
 	else {
-		while(i <= last_word && PTR32(pBuf)[i] == 0xffffffffUL)
+		while(i <= last_word && PTR32C(pBuf)[i] == 0xffffffffUL)
 			++i;
 		if(i <= last_word) {
-			uint32 dw = PTR32(pBuf)[i];
+			uint32 dw = PTR32C(pBuf)[i];
 			for(uint j = 0; j < 32; j++)
 				// @project if((dw & map[j]) == 0) {
 				if((dw & (1U << j)) == 0) {

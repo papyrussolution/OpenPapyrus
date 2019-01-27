@@ -1,5 +1,5 @@
 // PRIME.CPP
-// Copyright (c) A.Sobolev 2004, 2008, 2010, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2004, 2008, 2010, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -30,9 +30,9 @@ uint FASTCALL sshrinkuint64(uint64 value, void * pBuf)
 uint64 FASTCALL sexpanduint64(const void * pBuf, uint size)
 {
 	uint64 result = 0;
-	if(size > 1 || PTR8(pBuf)[0] != 0) {
+	if(size > 1 || PTR8C(pBuf)[0] != 0) {
 		for(uint i = 0; i < size; i++) {
-			PTR8(&result)[i] = PTR8(pBuf)[i];
+			PTR8(&result)[i] = PTR8C(pBuf)[i];
 		}
 	}
 	return result;

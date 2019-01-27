@@ -2902,11 +2902,11 @@ static const uint8 Utf_k_Boms[][3] = {
 SUnicodeMode FASTCALL SDetermineUtfEncoding(const void * pBuf, size_t bufLen)
 {
 	// detect UTF-16 big-endian with BOM
-	if(bufLen > 1 && PTR8(pBuf)[0] == Utf_k_Boms[suni16BE][0] && PTR8(pBuf)[1] == Utf_k_Boms[suni16BE][1])
+	if(bufLen > 1 && PTR8C(pBuf)[0] == Utf_k_Boms[suni16BE][0] && PTR8C(pBuf)[1] == Utf_k_Boms[suni16BE][1])
 		return suni16BE;
-	else if(bufLen > 1 && PTR8(pBuf)[0] == Utf_k_Boms[suni16LE][0] && PTR8(pBuf)[1] == Utf_k_Boms[suni16LE][1]) // detect UTF-16 little-endian with BOM
+	else if(bufLen > 1 && PTR8C(pBuf)[0] == Utf_k_Boms[suni16LE][0] && PTR8C(pBuf)[1] == Utf_k_Boms[suni16LE][1]) // detect UTF-16 little-endian with BOM
 		return suni16LE;
-	else if(bufLen > 2 && PTR8(pBuf)[0] == Utf_k_Boms[suniUTF8][0] && PTR8(pBuf)[1] == Utf_k_Boms[suniUTF8][1] && PTR8(pBuf)[2] == Utf_k_Boms[suniUTF8][2]) // detect UTF-8 with BOM
+	else if(bufLen > 2 && PTR8C(pBuf)[0] == Utf_k_Boms[suniUTF8][0] && PTR8C(pBuf)[1] == Utf_k_Boms[suniUTF8][1] && PTR8C(pBuf)[2] == Utf_k_Boms[suniUTF8][2]) // detect UTF-8 with BOM
 		return suniUTF8;
 	else
 		return suni8Bit;
@@ -2915,13 +2915,13 @@ SUnicodeMode FASTCALL SDetermineUtfEncoding(const void * pBuf, size_t bufLen)
 SEOLFormat FASTCALL SDetermineEOLFormat(const void * pBuf, size_t bufLen)
 {
 	for(size_t i = 0 ; i < bufLen; i++) {
-		if(PTR8(pBuf)[i] == '\xD') {
-			if((i+1) < bufLen && PTR8(pBuf)[i+1] == '\xA')
+		if(PTR8C(pBuf)[i] == '\xD') {
+			if((i+1) < bufLen && PTR8C(pBuf)[i+1] == '\xA')
 				return eolWindows;
 			else
 				return eolMac;
 		}
-		else if(PTR8(pBuf)[i] == '\xA')
+		else if(PTR8C(pBuf)[i] == '\xA')
 			return eolUnix;
 	}
 	return eolUndef;

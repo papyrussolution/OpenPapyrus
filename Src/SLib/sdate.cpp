@@ -1832,7 +1832,7 @@ IMPL_CMPFUNC(STimeChunk, i1, i2) { return pExtraData ? ((const STimeChunk *)i2)-
 int FASTCALL DateRepeating::IsValidPrd(int prd)
 	{ return oneof6(prd, PRD_DAY, PRD_WEEK, PRD_MONTH, PRD_QUART, PRD_SEMIAN, PRD_ANNUAL); }
 static inline int FASTCALL DateRepeating_IsEqual(const DateRepeating & rS1, const DateRepeating & rS2)
-	{ return (rS1.Prd == rS2.Prd && rS1.RepeatKind == rS2.RepeatKind && *PTR32(&rS1.Dtl) == *PTR32(&rS2.Dtl)); }
+	{ return (rS1.Prd == rS2.Prd && rS1.RepeatKind == rS2.RepeatKind && *PTR32C(&rS1.Dtl) == *PTR32C(&rS2.Dtl)); }
 int FASTCALL DateRepeating::operator == (const DateRepeating & rS) const
 	{ return DateRepeating_IsEqual(*this, rS); }
 int FASTCALL DateRepeating::operator != (const DateRepeating & rS) const
@@ -2784,7 +2784,7 @@ static int FASTCALL __TimeFieldsToEpochTime(const SUniTime_Inner * pTimeFields, 
 
 static inline uint8 SUniTime_Decode(const uint8 * pD, uint64 * pValue)
 {
-	*pValue = (pD[7] & 0x80) ? (PTR64(pD)[0] & UNITIME_VALUE_MASK) : PTR64(pD)[0];
+	*pValue = (pD[7] & 0x80) ? (PTR64C(pD)[0] & UNITIME_VALUE_MASK) : PTR64C(pD)[0];
 	return pD[7];
 }
 

@@ -93,7 +93,7 @@ int FASTCALL DBTable::copyBufLobFrom(const void * pBuf, size_t srcBufSize)
 			DBField last_fld;
 			THROW(getField(fields.getCount()-1, &last_fld));
 			if(srcBufSize)
-				THROW(writeLobData(last_fld, PTR8(pBuf)+frs, (srcBufSize > frs) ? (srcBufSize-frs) : 0));
+				THROW(writeLobData(last_fld, PTR8C(pBuf)+frs, (srcBufSize > frs) ? (srcBufSize-frs) : 0));
 		}
 		else {
 			size_t s = (srcBufSize && srcBufSize < bufLen) ? srcBufSize : bufLen;

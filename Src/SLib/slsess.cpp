@@ -574,13 +574,13 @@ SString & SLAPI SlSession::GetLogPath(SString & rPath) const { return (rPath = G
 struct GlobalObjectEntry {
 	void   FASTCALL operator = (SClassWrapper & rCls)
 	{
-		VT = *(void **)&rCls;
+		VT = *reinterpret_cast<void **>(&rCls);
 	}
 	int    Create()
 	{
 		if(VT) {
 			uint8  stub[32];
-			SClassWrapper * p_cls = (SClassWrapper *)stub;
+			SClassWrapper * p_cls = reinterpret_cast<SClassWrapper *>(stub);
 			(*(void **)p_cls) = VT;
 			Ptr = p_cls->Create();
 		}
@@ -590,8 +590,8 @@ struct GlobalObjectEntry {
 	{
 		if(VT && Ptr) {
 			uint8  stub[32];
-			SClassWrapper * p_cls = (SClassWrapper *)stub;
-			(*(void **)p_cls) = VT;
+			SClassWrapper * p_cls = reinterpret_cast<SClassWrapper *>(stub);
+			*reinterpret_cast<void **>(p_cls) = VT;
 			p_cls->Destroy(Ptr);
 		}
 		Ptr = 0;
@@ -607,7 +607,7 @@ SlSession::GlobalObjectArray::GlobalObjectArray() : SVector(sizeof(GlobalObjectE
 	//
 	TSClassWrapper <int> zero_cls;
 	GlobalObjectEntry zero_entry;
-	zero_entry.VT = *(void **)&zero_cls;
+	zero_entry.VT = *reinterpret_cast<void **>(&zero_cls);
 	zero_entry.Ptr = 0;
 	insert(&zero_entry);
 }
@@ -616,7 +616,7 @@ SlSession::GlobalObjectArray::~GlobalObjectArray()
 {
 	Cs.Enter();
 	for(uint i = 1; i < count; i++) {
-		GlobalObjectEntry * p_entry = (GlobalObjectEntry *)at(i);
+		GlobalObjectEntry * p_entry = static_cast<GlobalObjectEntry *>(at(i));
 		CALLPTRMEMB(p_entry, Destroy());
 	}
 	Cs.Leave();
@@ -628,7 +628,7 @@ uint SlSession::GlobalObjectArray::CreateObject(SClassWrapper & rCls)
 	assert(count > 0);
 	Cs.Enter();
 	for(uint i = 1; !new_idx && i < count; i++) {
-		GlobalObjectEntry * p_entry = (GlobalObjectEntry *)at(i);
+		GlobalObjectEntry * p_entry = static_cast<GlobalObjectEntry *>(at(i));
 		if(p_entry->Ptr == 0) {
 			*p_entry = rCls;
 			THROW_S(p_entry->Create(), SLERR_NOMEM);
@@ -654,7 +654,7 @@ int SlSession::GlobalObjectArray::DestroyObject(uint idx)
 	int    ok = 1;
 	Cs.Enter();
 	if(idx && idx < count)
-		((GlobalObjectEntry *)at(idx))->Destroy();
+		static_cast<GlobalObjectEntry *>(at(idx))->Destroy();
 	Cs.Leave();
 	return ok;
 }
@@ -664,7 +664,7 @@ void * FASTCALL SlSession::GlobalObjectArray::GetObject(uint idx)
 	void * ptr = 0;
 	Cs.Enter();
 	if(idx && idx < getCount())
-		ptr = ((GlobalObjectEntry *)at(idx))->Ptr;
+		ptr = static_cast<GlobalObjectEntry *>(at(idx))->Ptr;
 	Cs.Leave();
 	if(!ptr) {
 		SString temp_buf;
@@ -689,7 +689,7 @@ long SLAPI SlSession::GetGlobalSymbol(const char * pSymb, long ident, SString * 
 		uint   val = 0;
 		if(pSymb) {
 			if(GlobSymbList.Search(pSymb, &val, 0)) {
-				_i = (long)val;
+				_i = static_cast<long>(val);
 				assert(ident <= 0 || _i == ident);
 				if(ident > 0 && _i != ident) {
 					_i = 0;
@@ -698,7 +698,7 @@ long SLAPI SlSession::GetGlobalSymbol(const char * pSymb, long ident, SString * 
 			else if(ident >= 0) {
 				val = (uint)NZOR(ident, /*LastGlobSymbId*/SeqValue.Incr()); // @v9.8.1 LastGlobSymbId-->SeqValue
 				if(GlobSymbList.Add(pSymb, val, 0)) {
-					_i = (long)val;
+					_i = static_cast<long>(val);
 				}
 			}
 			else
@@ -745,7 +745,7 @@ int SLAPI SlSession::SetupDragndropObj(int ddoType, void * pObj)
 	if(ddoType) {
 		TSClassWrapper <DdoEntry> ptr_cls;
 		DragndropObjIdx = CreateGlobalObject(ptr_cls);
-        DdoEntry * p_item = DragndropObjIdx ? (DdoEntry *)SLS.GetGlobalObject(DragndropObjIdx) : 0;
+        DdoEntry * p_item = DragndropObjIdx ? static_cast<DdoEntry *>(SLS.GetGlobalObject(DragndropObjIdx)) : 0;
 		if(p_item) {
 			 p_item->Type = ddoType;
 			 p_item->P_Obj = pObj;

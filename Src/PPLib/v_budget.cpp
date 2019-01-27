@@ -1092,7 +1092,7 @@ SLAPI PPViewBudget::~PPViewBudget()
 // virtual
 void * SLAPI PPViewBudget::GetEditExtraParam()
 {
-	return (void *)Filt.Kind;
+	return reinterpret_cast<void *>(Filt.Kind);
 }
 
 // virtual
@@ -1113,16 +1113,9 @@ public:
 	int setDTS(const BudgetFilt *);
 	int getDTS(BudgetFilt *);
 private:
-	DECL_HANDLE_EVENT;
-
 	BudgetFilt  Data;
 	PPObjBudget BudgObj;
 };
-
-IMPL_HANDLE_EVENT(BudgetFiltDialog)
-{
-	TDialog::handleEvent(event);
-}
 
 int BudgetFiltDialog::setDTS(const BudgetFilt * pData)
 {
@@ -1193,7 +1186,6 @@ void SLAPI PPViewBudget::MakeTempRec(void * pRec, void * pTempRec)
 		if(p_rec) {
 			SString buf;
 			PPAccount acc_rec;
-
 			MEMSZERO(temp_rec);
 			temp_rec.ID       = p_rec->ID;
 			temp_rec.BudgetID = p_rec->BudgetID;

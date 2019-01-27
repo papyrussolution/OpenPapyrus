@@ -4191,11 +4191,11 @@ struct BroGroup {
 	SLAPI  BroGroup();
 	uint   SLAPI NextColumn() const;
 
-	uint   first;
-	uint   count;
-	uint   hight;
-	char * text;
-	uint   index;    // Internal use
+	uint   First;
+	uint   Count;
+	uint   Height;
+	char * P_Text;
+	uint   Index;    // Internal use
 };
 
 struct BroCrosstab {
