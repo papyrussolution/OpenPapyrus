@@ -11,14 +11,13 @@
 #define CLOSEBTN_BITMAPID  132 // defined in ppdefs.h as IDB_CLOSE
 #define MENUTREE_LIST     1014
 #define ROUNDRECT_RADIUS     2 // @v8.7.2 3-->2
-
 #define USE_CANVAS2_DRAWING
 //
 //
 //
 BOOL CALLBACK StatusWinDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	TStatusWin * p_view = (TStatusWin *)TView::GetWindowUserData(hWnd);
+	TStatusWin * p_view = static_cast<TStatusWin *>(TView::GetWindowUserData(hWnd));
 	switch(uMsg) {
 		case WM_DESTROY:
 			if(p_view) {
@@ -70,7 +69,7 @@ int TStatusWin::Update()
 	HWND   hw = H();
 	::SendMessage(hw, WM_SIZE, 0, 0);
 	HDC    hdc = ::GetDC(hw);
-	::SendMessage(hw, SB_SETBKCOLOR, 0, (LPARAM)RGB(0xD4, 0xD0, 0xC8));
+	::SendMessage(hw, SB_SETBKCOLOR, 0, static_cast<LPARAM>(RGB(0xD4, 0xD0, 0xC8)));
 	for(i = 0; i < n_parts; i++)  {
 		SIZE   size;
 		temp_buf = Items.at(i).str;
@@ -81,7 +80,7 @@ int TStatusWin::Update()
 		// @v9.2.1 n_width += 5;
 		l_parts[i] = n_width;
 	}
-	::SendMessage(hw, SB_SETPARTS, (WPARAM)n_parts, (LPARAM)l_parts);
+	::SendMessage(hw, SB_SETPARTS, static_cast<WPARAM>(n_parts), reinterpret_cast<LPARAM>(l_parts));
 	for(i = 0; i < n_parts; i++) {
 		temp_buf = Items.at(i).str;
 		const long icon_id = Items.at(i).Icon;
@@ -92,16 +91,16 @@ int TStatusWin::Update()
 			// решив проблему кэширования изображения (DestroyIcon (@2) не дает отрисовать изображение)
 			// HICON h_icon = (HICON)::LoadImage(TProgram::GetInst(), MAKEINTRESOURCE(icon_id), IMAGE_ICON, 0, 0, 0);
 			//
-			::SendMessage(hw, SB_SETICON, i, (LPARAM)h_icon);
+			::SendMessage(hw, SB_SETICON, i, reinterpret_cast<LPARAM>(h_icon));
 			::DestroyIcon(h_icon); // @2
-			::SendMessage(hw, SB_SETTIPTEXT, i, (LPARAM)temp_buf.cptr());
+			::SendMessage(hw, SB_SETTIPTEXT, i, reinterpret_cast<LPARAM>(temp_buf.cptr()));
 		}
 		else {
 			COLORREF color = Items.at(i).Color;
 			if(color || Items.at(i).TextColor)
-				::SendMessage(hw, SB_SETTEXT, (WPARAM)(SBT_OWNERDRAW|i), (LPARAM)&Items.at(i));
+				::SendMessage(hw, SB_SETTEXT, static_cast<WPARAM>(SBT_OWNERDRAW|i), reinterpret_cast<LPARAM>(&Items.at(i)));
 			else
-				::SendMessage(hw, SB_SETTEXT, i, (LPARAM)temp_buf.cptr());
+				::SendMessage(hw, SB_SETTEXT, i, reinterpret_cast<LPARAM>(temp_buf.cptr()));
 		}
 	}
 	::ReleaseDC(hw, hdc);
@@ -142,7 +141,7 @@ uint TStatusWin::GetCmdByCoord(POINT coord, TStatusWin::StItem * pItem /*=0*/)
 	uint   n_parts = Items.getCount();
 	for(uint i = 0; !cmd && i < n_parts; i++)  {
 		RECT rect;
-		SendMessage(H(), SB_GETRECT, i, (LPARAM)&rect);
+		SendMessage(H(), SB_GETRECT, i, reinterpret_cast<LPARAM>(&rect));
 		if(coord.x >= rect.left && coord.x <= rect.right)
 			cmd = Items.at(i).Cmd;
 	}
@@ -154,7 +153,7 @@ IMPL_HANDLE_EVENT(TStatusWin)
 	TWindow::handleEvent(event);
 	if(TVCOMMAND && TVCMD == cmaEdit) {
 		if(APPL->P_DeskTop) {
-			uint cmd = GetCmdByCoord(*(POINT*)event.message.infoPtr);
+			uint cmd = GetCmdByCoord(*static_cast<const POINT *>(event.message.infoPtr));
 			if(cmd)
 				TView::messageCommand(APPL, cmd);
 		}
@@ -167,7 +166,7 @@ IMPL_HANDLE_EVENT(TStatusWin)
 TProgram * TProgram::application;     // @global
 HINSTANCE  TProgram::hInstance;       // @global @threadsafe
 
-int TProgram::SelectTabItem(void * ptr)
+int TProgram::SelectTabItem(const void * ptr)
 {
 	if(H_ShortcutsWnd) {
 		HWND   hwnd_tab = GetDlgItem(H_ShortcutsWnd, CTL_SHORTCUTS_ITEMS);
@@ -233,7 +232,7 @@ int TProgram::DelItemFromMenu(void * ptr)
 						t_i.rect        = rc_item;
 						t_i.hinst       = TProgram::GetInst();
 						t_i.lpszText    = 0;
-						SendMessage(hwnd_tt, (UINT)TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i);
+						SendMessage(hwnd_tt, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&t_i));
 						count--;
 						break;
 					}
@@ -254,7 +253,7 @@ int TProgram::DelItemFromMenu(void * ptr)
 							t_i.rect        = rc_item;
 							t_i.hinst       = TProgram::GetInst();
 							t_i.lpszText    = 0;
-							SendMessage(hwnd_tt, (UINT)TTM_NEWTOOLRECT, 0, (LPARAM)(LPTOOLINFO)&t_i);
+							SendMessage(hwnd_tt, (UINT)TTM_NEWTOOLRECT, 0, reinterpret_cast<LPARAM>(&t_i));
 						}
 					}
 				}
@@ -307,8 +306,8 @@ int TProgram::UpdateItemInMenu(const char * pTitle, void * ptr)
 							t_i.rect        = rc_item;
 							t_i.hinst       = TProgram::GetInst();
 							t_i.lpszText    = title_buf; // @unicodeproblem
-							SendMessage(hwnd_tt, (UINT)TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
-							SendMessage(hwnd_tt, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
+							SendMessage(hwnd_tt, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
+							SendMessage(hwnd_tt, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
 						}
 						_upd = 1;
 						break;
@@ -327,7 +326,7 @@ int TProgram::UpdateItemInMenu(const char * pTitle, void * ptr)
 							t_i.rect        = rc_item;
 							t_i.hinst       = TProgram::GetInst();
 							t_i.lpszText    = 0;
-							SendMessage(hwnd_tt, (UINT)TTM_NEWTOOLRECT, 0, (LPARAM)(LPTOOLINFO)&t_i);
+							SendMessage(hwnd_tt, (UINT)TTM_NEWTOOLRECT, 0, reinterpret_cast<LPARAM>(&t_i));
 						}
 					}
 				}
@@ -389,8 +388,8 @@ int TProgram::AddItemToMenu(const char * pTitle, void * ptr)
 					t_i.rect        = rc_item;
 					t_i.hinst       = TProgram::GetInst();
 					t_i.lpszText    = title_buf; // @unicodeproblem
-					SendMessage(hwnd_tt, (UINT)TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
-					SendMessage(hwnd_tt, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
+					SendMessage(hwnd_tt, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
+					SendMessage(hwnd_tt, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
 				}
 				if(H_ShortcutsWnd)
 					ShowWindow(H_ShortcutsWnd, SW_SHOW);
@@ -459,11 +458,13 @@ int TProgram::GetClientRect(RECT * pClientRC)
 			switch(P_Toolbar->GetCurrPos()) {
 				case TOOLBAR_ON_TOP:
 					pClientRC->top += rc_toolbar.bottom;
+					// @fallthrough
 				case TOOLBAR_ON_BOTTOM:
 					pClientRC->bottom -= rc_toolbar.bottom;
 					break;
 				case TOOLBAR_ON_LEFT:
 					pClientRC->left += rc_toolbar.right;
+					// @fallthrough
 				case TOOLBAR_ON_RIGHT:
 					pClientRC->right -= rc_toolbar.right;
 					break;
@@ -538,14 +539,14 @@ INT_PTR CALLBACK ShortcutsWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
  			break;
 		case WM_NOTIFY:
 			{
-				NMHDR * nm = (LPNMHDR)lParam;
+				const NMHDR * nm = reinterpret_cast<const NMHDR *>(lParam);
 				if(wParam == CTL_SHORTCUTS_ITEMS && (nm->code == TCN_SELCHANGE)) {
 					HWND tab_hwnd = GetDlgItem(hWnd, CTL_SHORTCUTS_ITEMS);
 					int idx = TabCtrl_GetCurSel(tab_hwnd);
 					TCITEM tci;
 					tci.mask = TCIF_PARAM;
 					if(TabCtrl_GetItem(tab_hwnd, idx, &tci)) {
-						APPL->SelectTabItem((void *)tci.lParam);
+						APPL->SelectTabItem(reinterpret_cast<const void *>(tci.lParam));
 						PostMessage(APPL->H_MainWnd, WM_COMMAND, tci.lParam, 0);
 					}
 					break;
@@ -570,7 +571,7 @@ INT_PTR CALLBACK ShortcutsWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 						tci.mask = TCIF_PARAM;
 						idx = TabCtrl_HitTest(tab_hwnd, &ti);
 						if(TabCtrl_GetItem(tab_hwnd, idx, &tci))
-							DestroyWindow(((BrowserWindow*)tci.lParam)->H());
+							DestroyWindow(reinterpret_cast<BrowserWindow *>(tci.lParam)->H());
 					}
 					break;
 				}
@@ -596,7 +597,7 @@ INT_PTR CALLBACK ShortcutsWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 //static
 BOOL CALLBACK TProgram::CloseWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	TProgram * p_pgm = (TProgram *)TView::GetWindowUserData(hWnd);
+	TProgram * p_pgm = static_cast<TProgram *>(TView::GetWindowUserData(hWnd));
 	switch(message) {
 		case WM_SETFOCUS:
 			return 0;
@@ -742,7 +743,7 @@ static BOOL CALLBACK IsBrowsersExists(HWND hwnd, LPARAM lParam)
 	SString cls_name;
 	TView::SGetWindowClassName(hwnd, cls_name);
 	if(cls_name.Cmp(BrowserWindow::WndClsName, 0) == 0) { // @unicodeproblem
-		*(long*)lParam = 1;
+		*reinterpret_cast<long *>(lParam) = 1;
 		return FALSE;
 	}
 	else
@@ -1184,7 +1185,7 @@ BOOL CALLBACK EnumCtrls(HWND hWnd, LPARAM lParam)
 //static
 BOOL CALLBACK SpecTitleWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	WNDPROC prev_wnd_proc = (WNDPROC)TView::GetWindowUserData(hWnd);
+	WNDPROC prev_wnd_proc = reinterpret_cast<WNDPROC>(TView::GetWindowUserData(hWnd));
 	switch(message) {
 		case WM_DESTROY:
 			TView::SetWindowProp(hWnd, GWLP_WNDPROC, prev_wnd_proc);
@@ -1222,7 +1223,7 @@ int TProgram::SetWindowViewByKind(HWND hWnd, int wndType)
 				ex_style &= ~WS_EX_DLGMODALFRAME;
 				if(wndType == TProgram::wndtypDialog) {
 					HWND btn_hwnd = 0, title_hwnd = 0;
-					TDialog * p_dlg = (TDialog*)TView::GetWindowUserData(hWnd);
+					TDialog * p_dlg = reinterpret_cast<TDialog *>(TView::GetWindowUserData(hWnd));
 					RECT r;
 					MEMSZERO(r);
 					GetWindowRect(hWnd, &r);
@@ -1258,7 +1259,7 @@ int TProgram::SetWindowViewByKind(HWND hWnd, int wndType)
 							r.right - r.left - 30, -e.CaptionHeight, 16, 16, hWnd, 0, TProgram::hInstance, 0);
 						{
 							HBITMAP h_bm = APPL->FetchBitmap(CLOSEBTN_BITMAPID);
-							::SendMessage(btn_hwnd, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)h_bm);
+							::SendMessage(btn_hwnd, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_bm));
 						}
 						TView::SetWindowProp(btn_hwnd, GWL_STYLE, TView::GetWindowStyle(btn_hwnd) & ~WS_TABSTOP);
 						TView::SetWindowProp(btn_hwnd, GWL_ID, SPEC_TITLEWND_ID + 1);
@@ -1275,7 +1276,7 @@ int TProgram::SetWindowViewByKind(HWND hWnd, int wndType)
 			HDC dc = GetDC(hWnd);
 			SetBkColor(dc, RGB(0xDD, 0xDD, 0xF1));
 			ReleaseDC(hWnd, dc);
-			while(EnumChildWindows(hWnd, EnumCtrls, (LPARAM)&e) != 0)
+			while(EnumChildWindows(hWnd, EnumCtrls, reinterpret_cast<LPARAM>(&e)) != 0)
 				;
 		}
 	}
@@ -1397,10 +1398,10 @@ void TProgram::DrawTransparentBitmap(HDC hdc, HBITMAP hBitmap, const RECT & rDes
 	bmAndMem    = CreateCompatibleBitmap(hdc, ptSize.x, ptSize.y);
 	bmSave      = CreateCompatibleBitmap(hdc, ptSize.x, ptSize.y);
 	// В каждом DC должен быть выбран объект битмапа для хранения пикселей.
-	bmBackOld   = (HBITMAP)SelectObject(hdcBack, bmAndBack);
-	bmObjectOld = (HBITMAP)SelectObject(hdcObject, bmAndObject);
-	bmMemOld    = (HBITMAP)SelectObject(hdcMem, bmAndMem);
-	bmSaveOld   = (HBITMAP)SelectObject(hdcSave, bmSave);
+	bmBackOld   = static_cast<HBITMAP>(SelectObject(hdcBack, bmAndBack));
+	bmObjectOld = static_cast<HBITMAP>(SelectObject(hdcObject, bmAndObject));
+	bmMemOld    = static_cast<HBITMAP>(SelectObject(hdcMem, bmAndMem));
+	bmSaveOld   = static_cast<HBITMAP>(SelectObject(hdcSave, bmSave));
 	SetMapMode(hdcTemp, GetMapMode(hdc)); // Устанавливаем режим маппинга.
 	BitBlt(hdcSave, 0, 0, ptSize.x, ptSize.y, hdcTemp, 0, 0, SRCCOPY); // Сохраняем битмап, переданный в параметре функции, так как он будет изменён.
 	cColor = SetBkColor(hdcTemp, cTransparentColor); // Устанавливаем фоновый цвет (в исходном DC) тех частей, которые будут прозрачными.
@@ -1451,7 +1452,7 @@ int DrawCluster(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	int    ok = -1;
 	int    draw_checkbox = 0, draw_radiobtn = 0;
 	long   checkbox_size = 14;
-	DRAWITEMSTRUCT * p_di = (DRAWITEMSTRUCT*)lParam;
+	const DRAWITEMSTRUCT * p_di = reinterpret_cast<const DRAWITEMSTRUCT *>(lParam);
 	int    focused = BIN(p_di->itemAction == ODA_FOCUS || (p_di->itemState & ODS_FOCUS));
 	int    selected = BIN(p_di->itemState & ODS_SELECTED && p_di->itemAction == ODA_SELECT);
 	int    disabled = BIN(p_di->itemState & ODS_DISABLED);

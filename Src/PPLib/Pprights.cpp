@@ -1046,13 +1046,13 @@ int SLAPI SecurCollection::copy(const SecurCollection & aSrc)
 {
 	int    ok = 1;
 	PPSecurPacket * p_pack = 0;
-	if(aSrc.flags & aryDataOwner) {
+	if(aSrc.VFlags & aryDataOwner) {
 		freeAll();
 		isize = aSrc.isize;
 		//delta = aSrc.delta;
 		Limit = 0;
 		count = 0;
-		flags = aSrc.flags;
+		VFlags = aSrc.VFlags;
 		for(uint i = 0; i < aSrc.getCount(); i++) {
 			p_pack = new PPSecurPacket;
 			*p_pack = *aSrc.at(i);

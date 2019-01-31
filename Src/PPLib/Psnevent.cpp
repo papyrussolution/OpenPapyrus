@@ -1891,13 +1891,13 @@ int SLAPI PPObjPersonEvent::Read(PPObjPack * p, PPID id, void * stream, ObjTrans
 {
 	int    ok = 1;
 	THROW_MEM(p->Data = new PPPsnEventPacket);
-	PPPsnEventPacket * p_pack = (PPPsnEventPacket *)p->Data;
+	PPPsnEventPacket * p_pack = static_cast<PPPsnEventPacket *>(p->Data);
 	if(stream == 0) {
 		THROW(GetPacket(id, p_pack) > 0);
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
@@ -1908,7 +1908,7 @@ int SLAPI PPObjPersonEvent::Write(PPObjPack * p, PPID * pID, void * stream, ObjT
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPPsnEventPacket * p_pack = (PPPsnEventPacket*)p->Data;
+		PPPsnEventPacket * p_pack = static_cast<PPPsnEventPacket *>(p->Data);
 		SString added_buf;
 		if(stream == 0) {
 			if(p_pack->Reg.RegTypeID) {
@@ -1950,7 +1950,7 @@ int SLAPI PPObjPersonEvent::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, in
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPPsnEventPacket * p_pack = (PPPsnEventPacket *)p->Data;
+		PPPsnEventPacket * p_pack = static_cast<PPPsnEventPacket *>(p->Data);
 		ProcessObjRefInArray(PPOBJ_PERSONOPKIND,  &p_pack->Rec.OpID, ary, replace);
 		ProcessObjRefInArray(PPOBJ_PERSON,        &p_pack->Rec.PersonID, ary, replace);
 		ProcessObjRefInArray(PPOBJ_PERSON,        &p_pack->Rec.SecondID, ary, replace);

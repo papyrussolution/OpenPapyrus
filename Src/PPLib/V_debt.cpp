@@ -1970,7 +1970,7 @@ int SLAPI PPViewDebtTrnovr::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
-	DebtTrnovrFilt * p_filt = (DebtTrnovrFilt *)pBaseFilt;
+	DebtTrnovrFilt * p_filt = static_cast<DebtTrnovrFilt *>(pBaseFilt);
 	DIALOG_PROC_BODY(DebtTrnovrFiltDialog, p_filt);
 }
 
@@ -4187,7 +4187,7 @@ private:
 
 int SLAPI PPViewDebtorStat::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
-	return Filt.IsA(pBaseFilt) ? PPDialogProcBody <DebtorStatFiltDialog, DebtorStatFilt> ((DebtorStatFilt *)pBaseFilt) : 0;
+	return Filt.IsA(pBaseFilt) ? PPDialogProcBody <DebtorStatFiltDialog, DebtorStatFilt> (static_cast<DebtorStatFilt *>(pBaseFilt)) : 0;
 }
 
 void SLAPI PPViewDebtorStat::MakeTempRec(long order, const DebtorStatViewItem * pItem, TempOrderTbl::Rec * pRec)

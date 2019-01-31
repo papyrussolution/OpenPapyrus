@@ -1172,6 +1172,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 				case symbDivision:
 					if(Src == srcCCheck && GetCurCheckItem(pIter, &cc_item))
 						rResult.Cat((long)((cc_item.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? cc_item.DivID - CHECK_LINE_IS_PRINTED_BIAS : cc_item.DivID));
+					break; // @v10.3.2 @fix (отсутствовал break)
 				case symbInitTime:          // INITTIME
 					if(Src == srcCCheck)
 						rResult.Cat(p_ccp->Ext.CreationDtm, DATF_DMY|DATF_NOZERO, TIMF_HMS|TIMF_NOZERO);

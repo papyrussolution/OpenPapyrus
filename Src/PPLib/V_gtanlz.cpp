@@ -189,7 +189,7 @@ int SLAPI PPViewGoodsTaxAnalyze::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
-	DIALOG_PROC_BODY(GoodsTaxAnalyzeFiltDialog, (GoodsTaxAnalyzeFilt *)pBaseFilt);
+	DIALOG_PROC_BODY(GoodsTaxAnalyzeFiltDialog, static_cast<GoodsTaxAnalyzeFilt *>(pBaseFilt));
 }
 
 int SLAPI PPViewGoodsTaxAnalyze::MakeTaxStr(GoodsGrpngEntry * pGGE, char * pBuf, size_t bufLen)

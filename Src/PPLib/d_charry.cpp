@@ -2263,6 +2263,7 @@ int SLAPI PPDS_CrrScale::InitData(Ido op, void * dataPtr, long addedParam)
 							break;
 						case DSF_CRRSCALE_ALTGOODSGRP:
 							rec.AltGoodsGrp = Data.AltGoodsGrp;
+							break; // @v10.3.2 @fix (отсутствовал break)
 						case DSF_CRRSCALE_FSTRIPWP:
 							SETFLAGBYSAMPLE(rec.Flags, SCALF_STRIPWP, Data.Flags); break;
 						case DSF_CRRSCALE_FEXSGOODS:
@@ -3828,6 +3829,7 @@ int SLAPI PPDS_CrrArticle::InitData(Ido op, void * dataPtr, long addedParam)
 								break;
 							case DSF_CRRARTICLE_ASSOCACCOUNT:
 								rec.ObjID = Data.ObjID;
+								break; // @v10.3.2 @fix (отсутствовал break)
 							case DSF_CRRARTICLE_FGROUP:
 								SETFLAGBYSAMPLE(rec.Flags, ARTRF_GROUP, Data.Flags);
 								break;

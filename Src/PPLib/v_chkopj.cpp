@@ -177,7 +177,7 @@ int SLAPI PPViewCheckOpJrnl::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
-	CheckOpJrnlFilt * p_filt = (CheckOpJrnlFilt *)pBaseFilt;
+	CheckOpJrnlFilt * p_filt = static_cast<CheckOpJrnlFilt *>(pBaseFilt);
 	DIALOG_PROC_BODYERR(CheckOpJFiltDialog, p_filt);
 }
 

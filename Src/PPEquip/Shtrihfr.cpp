@@ -422,7 +422,7 @@ PPSyncCashSession * SLAPI CM_SHTRIHFRF::SyncInterface()
 {
 	PPSyncCashSession * cs = 0;
 	if(IsValid()) {
-		cs = (PPSyncCashSession*)new SCS_SHTRIHFRF(NodeID, NodeRec.Name, NodeRec.Port);
+		cs = new SCS_SHTRIHFRF(NodeID, NodeRec.Name, NodeRec.Port);
 		CALLPTRMEMB(cs, Init(NodeRec.Name, NodeRec.Port));
 	}
 	return cs;
@@ -817,7 +817,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 					SString fmt_buf, msg_buf, added_buf;
 					PPLoadText(PPTXT_SHTRIH_RUNNGTOTALGTAMT, fmt_buf);
 					const char * p_sign = (running_total > amt) ? " > " : ((running_total < amt) ? " < " : " ?==? ");
-					added_buf.Z().Cat(running_total, MKSFMTD(0, 20, NMBF_NOTRAILZ)).Cat(p_sign).Cat(amt, MKSFMTD(0, 20, NMBF_NOTRAILZ));
+					added_buf.Z().Cat(running_total, MKSFMTD(0, 12, NMBF_NOTRAILZ)).Cat(p_sign).Cat(amt, MKSFMTD(0, 12, NMBF_NOTRAILZ));
 					msg_buf.Printf(fmt_buf, added_buf.cptr());
 					PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 				}

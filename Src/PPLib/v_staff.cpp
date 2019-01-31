@@ -1,5 +1,5 @@
 // V_STAFF.CPP
-// Copyright (c) A.Sobolev 2007, 2009, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2007, 2009, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -436,7 +436,7 @@ int SLAPI PPViewStaffPost::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	THROW(Filt.IsA(pBaseFilt));
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_PPOSTFLT))));
 	{
-		StaffPostFilt * p_filt = (StaffPostFilt *)pBaseFilt;
+		StaffPostFilt * p_filt = static_cast<StaffPostFilt *>(pBaseFilt);
 		dlg->SetupCalPeriod(CTLCAL_PPOSTFLT_PERIOD, CTL_PPOSTFLT_PERIOD);
 		dlg->SetupCalPeriod(CTLCAL_PPOSTFLT_FNPERIOD, CTL_PPOSTFLT_FNPERIOD);
 		dlg->addGroup(GRP_DIV, new DivisionCtrlGroup(CTLSEL_PPOSTFLT_ORG, CTLSEL_PPOSTFLT_DIV, CTLSEL_PPOSTFLT_STAFF, 0));

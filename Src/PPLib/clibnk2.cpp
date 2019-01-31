@@ -1,5 +1,5 @@
 // CLIBNK2.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 // Модуль формирования данных для передачи в системы клиент-банк
@@ -1529,7 +1529,7 @@ int SLAPI GenerateCliBnkImpData()
 		SRandGenerator rg;
 		rg.Set(getcurtime_().v);
 		for(uint i = 0, c = 0; _count > 0 && c < (uint)max_items; i++) {
-			long d = (long)R0(rg.GetGamma(alpha, beta));
+			long d = R0i(rg.GetGamma(alpha, beta));
 			_count = 0;
 			int checked = 0;
 			for(uint j = 0; j < bill_list.getCount(); j++) {

@@ -54,7 +54,7 @@ int BIO_dump_indent_cb(int (* cb)(const void * data, size_t len, void * u),
 		rows++;
 	for(i = 0; i < rows; i++) {
 		OPENSSL_strlcpy(buf, str, sizeof buf);
-		BIO_snprintf(tmp, sizeof tmp, "%04x - ", i * dump_width);
+		BIO_snprintf(tmp, sizeof(tmp), "%04x - ", i * dump_width);
 		OPENSSL_strlcat(buf, tmp, sizeof buf);
 		for(j = 0; j < dump_width; j++) {
 			if(((i * dump_width) + j) >= len) {
@@ -62,8 +62,7 @@ int BIO_dump_indent_cb(int (* cb)(const void * data, size_t len, void * u),
 			}
 			else {
 				ch = ((uchar)*(s + i * dump_width + j)) & 0xff;
-				BIO_snprintf(tmp, sizeof tmp, "%02x%c", ch,
-				    j == 7 ? '-' : ' ');
+				BIO_snprintf(tmp, sizeof(tmp), "%02x%c", ch, j == 7 ? '-' : ' ');
 				OPENSSL_strlcat(buf, tmp, sizeof buf);
 			}
 		}
@@ -73,10 +72,10 @@ int BIO_dump_indent_cb(int (* cb)(const void * data, size_t len, void * u),
 				break;
 			ch = ((uchar)*(s + i * dump_width + j)) & 0xff;
 #ifndef CHARSET_EBCDIC
-			BIO_snprintf(tmp, sizeof tmp, "%c",
+			BIO_snprintf(tmp, sizeof(tmp), "%c",
 			    ((ch >= ' ') && (ch <= '~')) ? ch : '.');
 #else
-			BIO_snprintf(tmp, sizeof tmp, "%c",
+			BIO_snprintf(tmp, sizeof(tmp), "%c",
 			    ((ch >= os_toascii[' ']) && (ch <= os_toascii['~']))
 			    ? os_toebcdic[ch]
 			    : '.');

@@ -71,11 +71,10 @@ public:
 
 REGISTER_CMT(SHTRIHMFRK, 0, 1);
 
-SLAPI ACS_SHTRIHMFRK::ACS_SHTRIHMFRK(PPID id) : PPAsyncCashSession(id)
+SLAPI ACS_SHTRIHMFRK::ACS_SHTRIHMFRK(PPID id) : PPAsyncCashSession(id), UseInnerAutoDscnt(0)
 {
 	PPIniFile ini_file;
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIHMFRK_TIMEOUT, &ImpExpTimeout);
-	UseInnerAutoDscnt = 0;
 	ChkRepPeriod.Z();
 }
 

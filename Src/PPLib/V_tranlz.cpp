@@ -3337,7 +3337,7 @@ IMPL_HANDLE_EVENT(TrfrAnlzFiltDialog)
 int SLAPI PPViewTrfrAnlz::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(Filt.IsA(pBaseFilt)) {
-		DIALOG_PROC_BODY(TrfrAnlzFiltDialog, (TrfrAnlzFilt *)pBaseFilt);
+		DIALOG_PROC_BODY(TrfrAnlzFiltDialog, static_cast<TrfrAnlzFilt *>(pBaseFilt));
 	}
 	else
 		return 0;

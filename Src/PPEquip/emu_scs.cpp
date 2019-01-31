@@ -60,7 +60,7 @@ PPSyncCashSession * SLAPI CM_SYNCSYM::SyncInterface()
 {
 	PPSyncCashSession * cs = 0;
 	if(IsValid()) {
-		cs = (PPSyncCashSession*)new SCS_SYNCSYM(NodeID, NodeRec.Name, NodeRec.Port);
+		cs = new SCS_SYNCSYM(NodeID, NodeRec.Name, NodeRec.Port);
 		CALLPTRMEMB(cs, Init(NodeRec.Name, NodeRec.Port));
 	}
 	return cs;

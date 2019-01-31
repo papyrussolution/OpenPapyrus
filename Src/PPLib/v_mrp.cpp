@@ -1,5 +1,5 @@
 // V_MRP.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -34,7 +34,7 @@ int SLAPI PPViewMrpTab::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	if(!Filt.IsA(pBaseFilt))
 		ok = 0;
 	else if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_MRPTABFLT)))) {
-		MrpTabFilt * p_filt = (MrpTabFilt *)pBaseFilt;
+		MrpTabFilt * p_filt = static_cast<MrpTabFilt *>(pBaseFilt);
 		PPObjMrpTab::SetupLinkObjTypeCombo(dlg, CTLSEL_MRPTABFLT_OBJTYPE, p_filt->LinkObjType);
 		SetupPPObjCombo(dlg, CTLSEL_MRPTABFLT_LOC, PPOBJ_LOCATION, p_filt->LocID, 0, 0);
 		dlg->SetupCalPeriod(CTLCAL_MRPTABFLT_PERIOD, CTL_MRPTABFLT_PERIOD);
@@ -346,7 +346,7 @@ int SLAPI PPViewMrpLine::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	if(!Filt.IsA(pBaseFilt))
 		ok = 0;
 	else if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_MRPLINEFLT)))) {
-		MrpLineFilt * p_filt = (MrpLineFilt *)pBaseFilt;
+		MrpLineFilt * p_filt = static_cast<MrpLineFilt *>(pBaseFilt);
 		ushort v = 0;
 		if(p_filt->SrcGoodsID == MRPSRCV_TOTAL && p_filt->Flags & MrpLineFilt::fShowTotalReq)
 			v = 0;

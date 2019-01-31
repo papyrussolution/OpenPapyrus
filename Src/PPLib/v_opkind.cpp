@@ -1,5 +1,5 @@
 // V_OPKIND.CPP
-// Copyright (c) A.Starodub 2004, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2004, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -98,7 +98,7 @@ int SLAPI PPViewOprKind::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	TDialog * p_dlg = 0;
 	THROW(Filt.IsA(pBaseFilt));
 	{
-		OprKindFilt * p_filt = (OprKindFilt *)pBaseFilt;
+		OprKindFilt * p_filt = static_cast<OprKindFilt *>(pBaseFilt);
 		THROW(CheckDialogPtr(&(p_dlg = new TDialog(DLG_OPKINDFLT))));
 		SetupPPObjCombo(p_dlg, CTLSEL_OPKINDFLT_TYPE, PPOBJ_OPRTYPE, p_filt->OpTypeID, 0, 0);
 		SetupPPObjCombo(p_dlg, CTLSEL_OPKINDFLT_ACCSHT, PPOBJ_ACCSHEET,	p_filt->AccSheetID, OLW_CANINSERT, 0);

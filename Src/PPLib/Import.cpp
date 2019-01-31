@@ -5126,7 +5126,7 @@ int SLAPI PrcssrOsm::InitParam(PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	if(P.IsA(pBaseFilt)) {
-		PrcssrOsmFilt * p_filt = (PrcssrOsmFilt *)pBaseFilt;
+		PrcssrOsmFilt * p_filt = static_cast<PrcssrOsmFilt *>(pBaseFilt);
 		if(p_filt->IsEmpty()) {
 		}
 	}
@@ -5171,7 +5171,7 @@ int SLAPI PrcssrOsm::EditParam(PPBaseFilt * pBaseFilt)
 {
 	if(!P.IsA(pBaseFilt))
 		return 0;
-	PrcssrOsmFilt * p_filt = (PrcssrOsmFilt *)pBaseFilt;
+	PrcssrOsmFilt * p_filt = static_cast<PrcssrOsmFilt *>(pBaseFilt);
 	DIALOG_PROC_BODY(PrcssrOsmFiltDialog, p_filt);
 }
 
@@ -5179,7 +5179,7 @@ int SLAPI PrcssrOsm::Init(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	THROW(P.IsA(pBaseFilt));
-	P = *(PrcssrOsmFilt *)pBaseFilt;
+	P = *static_cast<const PrcssrOsmFilt *>(pBaseFilt);
 	CATCHZOK
 	return ok;
 }
@@ -5192,19 +5192,15 @@ void SLAPI PrcssrOsm::Reset()
 	TempCaSet.Reset();
 	CurrentTagList.clear();
 	TokPath.clear();
-
 	Stat.Clear();
-
 	TempTagKeyList.clear();
 	TagKeyList.clear();
-
 	LatAccum.clear();
 	LonAccum.clear();
 	NodeAccum.clear();
 	NodeWayAssocAccum.clear();
 	LastNodeToWayAssoc.Key = 0;
 	LastNodeToWayAssoc.Val = 0;
-
 	ZDELETE(P_RoadStoneStat);
 	ZDELETE(P_LatOutF);
 	ZDELETE(P_LonOutF);

@@ -79,7 +79,7 @@ double FASTCALL round(double v, double prec, int dir)
 }
 
 double FASTCALL R0(double v)  { return implement_round(v, 0); }
-long   FASTCALL R0i(double v) { return (long)implement_round(v, 0); }
+long   FASTCALL R0i(double v) { return static_cast<long>(implement_round(v, 0)); }
 double FASTCALL R2(double v)  { return implement_round(v, 2); }
 double FASTCALL R3(double v)  { return implement_round(v, 3); }
 double FASTCALL R4(double v)  { return implement_round(v, 4); }

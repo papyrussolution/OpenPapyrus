@@ -1,5 +1,5 @@
 // V_SELL.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2013, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -386,7 +386,7 @@ int SLAPI PPViewPredictSales::EditBaseFilt(PPBaseFilt * pBaseFilt /*PredictSales
 	TDialog * dlg = 0;
 	PredictSalesFilt * p_filt = 0;
 	THROW(Filt.IsA(pBaseFilt));
-	p_filt = (PredictSalesFilt *)pBaseFilt;
+	p_filt = static_cast<PredictSalesFilt *>(pBaseFilt);
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_PSALESFLT))));
 	{
 		dlg->SetupCalPeriod(CTLCAL_PSALESFLT_PERIOD, CTL_PSALESFLT_PERIOD);

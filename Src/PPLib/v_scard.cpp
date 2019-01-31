@@ -1158,15 +1158,14 @@ int SLAPI PPViewSCard::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	int    ok = 0;
 	if(Filt.IsA(pBaseFilt)) {
-		ok = SCObj.CheckRights(PPR_READ) ? Helper_EditSCardFilt((SCardFilt *)pBaseFilt, 0) : PPErrorZ();
+		ok = SCObj.CheckRights(PPR_READ) ? Helper_EditSCardFilt(static_cast<SCardFilt *>(pBaseFilt), 0) : PPErrorZ();
 	}
 	return ok;
 }
 
 void * SLAPI PPViewSCard::GetEditExtraParam()
 {
-	//return (void *)Filt.SeriesID;
-	return (void *)SeriesList.GetSingle();
+	return reinterpret_cast<void *>(SeriesList.GetSingle());
 }
 
 int SLAPI PPViewSCard::DeleteItem(PPID id)
@@ -2594,7 +2593,7 @@ int SLAPI PPViewSCardOp::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	};
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
-	SCardOpFilt * p_filt = (SCardOpFilt *)pBaseFilt;
+	SCardOpFilt * p_filt = static_cast<SCardOpFilt *>(pBaseFilt);
 	DIALOG_PROC_BODY(SCardOpFiltDialog, p_filt);
 }
 

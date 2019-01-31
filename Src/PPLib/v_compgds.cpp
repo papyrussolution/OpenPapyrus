@@ -1,5 +1,5 @@
 // V_COMPGDS.CPP
-// Copyright (c) V.Miller 2013, 2016, 2017
+// Copyright (c) V.Miller 2013, 2016, 2017, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -24,8 +24,8 @@ IMPLEMENT_PPFILT_FACTORY(SuprWare); SLAPI SuprWareFilt::SuprWareFilt() : PPBaseF
 // virtual
 int SLAPI SuprWareFilt::Describe(long flags, SString & rBuf) const
 {
-	PutMembToBuf((long)SuprWareType, STRINGIZE(SuprWareType), rBuf);
-	PutMembToBuf((long)SuprWareCat, STRINGIZE(SuprWareCat), rBuf);
+	PutMembToBuf(SuprWareType, STRINGIZE(SuprWareType), rBuf);
+	PutMembToBuf(SuprWareCat, STRINGIZE(SuprWareCat), rBuf);
 	PutMembToBuf(SrchStr, STRINGIZE(SrchStr), rBuf);
 	return 1;
 }
@@ -99,7 +99,7 @@ int SLAPI PPViewSuprWare::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		SuprWareFilt Data;
 	};
 	if(Filt.IsA(pBaseFilt)) {
-		DIALOG_PROC_BODYERR(SuprWareFilterDlg, (SuprWareFilt *)pBaseFilt);
+		DIALOG_PROC_BODYERR(SuprWareFilterDlg, static_cast<SuprWareFilt *>(pBaseFilt));
 	}
 	else
 		return 0;
@@ -127,7 +127,7 @@ DBQuery * SLAPI PPViewSuprWare::CreateBrowserQuery(uint * pBrwId, SString * pSub
 		dbe_strexst.push(p_tbl->Name);
 		dbe_strexst.push(dbc_substr);
 		dbe_strexst.push((DBFunc)PPDbqFuncPool::IdStrExistSubStr);
-		dbq = &(*dbq && dbe_strexst == (long)1);
+		dbq = &(*dbq && dbe_strexst == 1L);
 	}
 	dbe_brand = enumtoa(p_tbl->WrOffGrpID, 2, type_subst.Get(PPTXT_COMPGDS_TYPES));
 	q = & select(p_tbl->ID, 0L);
@@ -137,7 +137,7 @@ DBQuery * SLAPI PPViewSuprWare::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	q->where(*dbq).orderBy(p_tbl->Kind, p_tbl->Name, 0L);
 	THROW(CheckQueryPtr(q));
 	if(pSubTitle)
-		PPGetSubStr(PPTXT_COMPGDS_TYPES, (uint)Filt.SuprWareType, *pSubTitle);
+		PPGetSubStr(PPTXT_COMPGDS_TYPES, Filt.SuprWareType, *pSubTitle);
 	CATCH
 		if(q)
 			ZDELETE(q);

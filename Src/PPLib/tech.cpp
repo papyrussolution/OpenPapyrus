@@ -1,5 +1,5 @@
 // TECH.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1270,7 +1270,7 @@ int  SLAPI PPObjTech::Read(PPObjPack * p, PPID id, void * stream, ObjTransmConte
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
 	}
 	p->Data = p_pack;
@@ -1284,7 +1284,7 @@ int  SLAPI PPObjTech::Read(PPObjPack * p, PPID id, void * stream, ObjTransmConte
 int  SLAPI PPObjTech::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
-	PPTechPacket * p_pack = p ? (PPTechPacket *)p->Data : 0;
+	PPTechPacket * p_pack = p ? static_cast<PPTechPacket *>(p->Data) : 0;
 	if(p_pack) {
 		if(stream == 0) {
 			TechTbl::Rec same_rec;
@@ -1325,7 +1325,7 @@ int  SLAPI PPObjTech::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repl
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPTechPacket * p_pack = (PPTechPacket *)p->Data;
+		PPTechPacket * p_pack = static_cast<PPTechPacket *>(p->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_PROCESSOR, &p_pack->Rec.PrcID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_GOODS, &p_pack->Rec.GoodsID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_GOODSSTRUC, &p_pack->Rec.GStrucID, ary, replace));
@@ -1524,7 +1524,7 @@ int SLAPI PPViewTech::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
-	TechFilt * p_filt = (TechFilt *)pBaseFilt;
+	TechFilt * p_filt = static_cast<TechFilt *>(pBaseFilt);
 	DIALOG_PROC_BODY(TechFiltDialog, p_filt);
 }
 

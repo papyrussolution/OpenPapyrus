@@ -316,7 +316,7 @@ int SLAPI PPViewSStat::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	TDialog * dlg = 0;
 	SStatFilt * p_filt = 0;
 	THROW(Filt.IsA(pBaseFilt));
-	p_filt = (SStatFilt *)pBaseFilt;
+	p_filt = static_cast<SStatFilt *>(pBaseFilt);
 	if(p_filt->Flags & SStatFilt::fSupplOrderForm) {
 		ok = EditDlvrOrderFilt(p_filt);
 		if(!(p_filt->Flags & SStatFilt::fOverrideCfgParams))

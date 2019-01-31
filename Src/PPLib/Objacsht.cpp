@@ -331,7 +331,7 @@ int SLAPI PPObjAccSheet::Write(PPObjPack * p, PPID * pID, void * stream, ObjTran
 	int    ok = 1;
 	if(p && p->Data)
 		if(stream == 0) {
-			PPAccSheet * p_rec = (PPAccSheet*)p->Data;
+			PPAccSheet * p_rec = static_cast<PPAccSheet *>(p->Data);
 			if(*pID == 0) {
 				PPID   same_id = 0;
 				if(ref->SearchSymb(Obj, &same_id, p_rec->Name, offsetof(PPAccSheet, Name)) > 0) {
@@ -366,7 +366,7 @@ int SLAPI PPObjAccSheet::Write(PPObjPack * p, PPID * pID, void * stream, ObjTran
 			}
 		}
 		else {
-			THROW(Serialize_(+1, (ReferenceTbl::Rec *)p->Data, stream, pCtx));
+			THROW(Serialize_(+1, static_cast<ReferenceTbl::Rec *>(p->Data), stream, pCtx));
 		}
 	CATCHZOK
 	return ok;
@@ -376,7 +376,7 @@ int SLAPI PPObjAccSheet::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int r
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPAccSheet * p_rec = (PPAccSheet*)p->Data;
+		PPAccSheet * p_rec = static_cast<PPAccSheet *>(p->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_REGISTERTYPE, &p_rec->CodeRegTypeID, ary, replace));
 		if(p_rec->Assoc == PPOBJ_PERSON) {
 			THROW(ProcessObjRefInArray(PPOBJ_PRSNKIND, &p_rec->ObjGroup, ary, replace));

@@ -2303,9 +2303,8 @@ int ExtOpenFileDialog(SString & rPath, StringSet * pPatterns, SString * pDefWait
 //
 //
 //
-ImageBrowseCtrlGroup::Rec::Rec(SString * pBuf) : Flags(0)
+SLAPI ImageBrowseCtrlGroup::Rec::Rec(const SString * pBuf) : Flags(0), Path(pBuf ? *pBuf : 0)
 {
-	RVALUEPTR(Path, pBuf);
 }
 
 ImageBrowseCtrlGroup::ImageBrowseCtrlGroup(/* @v9.5.6 uint patternsID,*/ uint ctlImage,

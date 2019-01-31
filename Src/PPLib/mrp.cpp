@@ -636,8 +636,8 @@ int SLAPI MrpTabCore::Aggregate(PPID destTabID, PPID srcTabID, int use_ta)
 //
 IMPL_CMPFUNC(CMrpRow, i1, i2)
 {
-	CMrpTab::Row * p1 = (CMrpTab::Row *)i1;
-	CMrpTab::Row * p2 = (CMrpTab::Row *)i2;
+	const CMrpTab::Row * p1 = static_cast<const CMrpTab::Row *>(i1);
+	const CMrpTab::Row * p2 = static_cast<const CMrpTab::Row *>(i2);
 	int    r = cmp_long(p1->TabID, p2->TabID);
 	return NZOR(NZOR(r, cmp_long(p1->DestID, p2->DestID)), cmp_long(p1->SrcID, p2->SrcID));
 }
@@ -648,7 +648,7 @@ SLAPI CMrpTab::CMrpTab() : SArray(sizeof(Row))
 
 CMrpTab::Row & FASTCALL CMrpTab::at(uint i) const
 {
-	return *(Row *)SArray::at(i);
+	return *static_cast<Row *>(SArray::at(i));
 }
 
 int SLAPI CMrpTab::SetFlag(PPID tabID, PPID destID, PPID srcID, long flag, int set)
@@ -675,7 +675,7 @@ int SLAPI CMrpTab::Search(PPID tabID, PPID destID, PPID srcID, uint * pPos, CMrp
 	pat.TabID  = tabID;
 	pat.DestID = destID;
 	pat.SrcID  = srcID;
-	int    sr = (SArray::flags & arySorted) ? bsearch(&pat, &pos, PTR_CMPFUNC(CMrpRow)) : lsearch(&pat, &pos, PTR_CMPFUNC(CMrpRow));
+	int    sr = (SArray::VFlags & arySorted) ? bsearch(&pat, &pos, PTR_CMPFUNC(CMrpRow)) : lsearch(&pat, &pos, PTR_CMPFUNC(CMrpRow));
 	if(sr) {
 		ASSIGN_PTR(pPos, pos);
 		ASSIGN_PTR(pRow, at(pos));

@@ -1,5 +1,5 @@
 // V_OPGRP.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -242,8 +242,8 @@ int SLAPI PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 						}
 					rec.Qtty     = GetStatItem(0, op_id, sign, siQtty, stat_list);
 					rec.PhQtty   = GetStatItem(0, op_id, sign, siPhQtty, stat_list);
-					rec.Count    = (long)R0(GetStatItem(0, op_id, sign, siCount, stat_list));
-					rec.AvgLn    = (long)R0(GetStatItem(0, op_id, sign, siAvgLn, stat_list));
+					rec.Count    = R0i(GetStatItem(0, op_id, sign, siCount, stat_list));
+					rec.AvgLn    = R0i(GetStatItem(0, op_id, sign, siAvgLn, stat_list));
 					rec.Amount   = GetStatItem(0, op_id, sign, siAmount, stat_list);
 					rec.Cost     = GetStatItem(0, op_id, sign, siCost, stat_list);
 					rec.Price    = GetStatItem(0, op_id, sign, siPrice, stat_list);

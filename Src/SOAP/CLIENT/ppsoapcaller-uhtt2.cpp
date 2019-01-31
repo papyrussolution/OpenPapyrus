@@ -1087,7 +1087,7 @@ static void FASTCALL UhttQuotPacketTo_ns1__quote(const UhttQuotPacket * pSrc, ns
 	pDest->LocationID = pSrc->LocID;
 	pDest->BuyerID = pSrc->BuyerID;
 	pDest->CurrencyID = pSrc->CurrID;
-	pDest->MinQtty = (int)R0(pSrc->MinQtty);
+	pDest->MinQtty = R0(pSrc->MinQtty);
 	pDest->Value = pSrc->Value;
 	pDest->Flags = pSrc->Flags;
 }

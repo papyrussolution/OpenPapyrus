@@ -4579,7 +4579,7 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 												SXml::WNode n_tn(srb, SXml::nst("d9p1", "transportNumber"));
 												PutNonEmptyText(n_tn, "d9p1", "vehicleNumber", temp_buf = r_doc.CertifiedConsignment.TransportInfo.TransportNumber.VehicleNumber);
 												PutNonEmptyText(n_tn, "d9p1", "trailerNumber", temp_buf = r_doc.CertifiedConsignment.TransportInfo.TransportNumber.TrailerNumber);
-												PutNonEmptyText(n_tn, "d9p1", "containerNumber", temp_buf = r_doc.CertifiedConsignment.TransportInfo.TransportNumber.ContainerNumber);
+												// @v10.3.2 PutNonEmptyText(n_tn, "d9p1", "containerNumber", temp_buf = r_doc.CertifiedConsignment.TransportInfo.TransportNumber.ContainerNumber);
 												PutNonEmptyText(n_tn, "d9p1", "wagonNumber", temp_buf = r_doc.CertifiedConsignment.TransportInfo.TransportNumber.WagonNumber);
 												PutNonEmptyText(n_tn, "d9p1", "shipName", temp_buf = r_doc.CertifiedConsignment.TransportInfo.TransportNumber.ShipName);
 												PutNonEmptyText(n_tn, "d9p1", "flightNumber", temp_buf = r_doc.CertifiedConsignment.TransportInfo.TransportNumber.FlightNumber);
@@ -6895,7 +6895,7 @@ int SLAPI PPViewVetisDocument::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return PPErrorZ();
-	VetisDocumentFilt * p_filt = (VetisDocumentFilt *)pBaseFilt;
+	VetisDocumentFilt * p_filt = static_cast<VetisDocumentFilt *>(pBaseFilt);
 	DIALOG_PROC_BODY(VetisDocumentFiltDialog, p_filt);
 }
 

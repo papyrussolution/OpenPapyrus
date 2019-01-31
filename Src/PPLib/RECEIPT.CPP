@@ -546,16 +546,16 @@ int SLAPI ReceiptCore::EnumByGoods(PPID goodsID, DateIter * pIter, ReceiptTbl::R
 		return PPDbSearchError();
 }
 
-IMPL_CMPFUNC(Receipt_DtOprNo_Asc, i1, i2)  { RET_CMPCASCADE2((const ReceiptTbl::Rec *)i1, (const ReceiptTbl::Rec *)i2, Dt, OprNo); }
-IMPL_CMPFUNC(Receipt_DtOprNo_Desc, i1, i2) { RET_CMPCASCADE2((const ReceiptTbl::Rec *)i2, (const ReceiptTbl::Rec *)i1, Dt, OprNo); }
+IMPL_CMPFUNC(Receipt_DtOprNo_Asc, i1, i2)  { RET_CMPCASCADE2(static_cast<const ReceiptTbl::Rec *>(i1), static_cast<const ReceiptTbl::Rec *>(i2), Dt, OprNo); }
+IMPL_CMPFUNC(Receipt_DtOprNo_Desc, i1, i2) { RET_CMPCASCADE2(static_cast<const ReceiptTbl::Rec *>(i2), static_cast<const ReceiptTbl::Rec *>(i1), Dt, OprNo); }
 
 IMPL_CMPFUNC(Receipt_DtOprNo_FEFO_Asc, i1, i2)
 {
 	int    si = 0;
-	const  LDATE  expiry1 = NZOR(((ReceiptTbl::Rec *)i1)->Expiry, MAXDATE);
-	const  LDATE  expiry2 = NZOR(((ReceiptTbl::Rec *)i2)->Expiry, MAXDATE);
+	const  LDATE  expiry1 = NZOR(static_cast<const ReceiptTbl::Rec *>(i1)->Expiry, MAXDATE);
+	const  LDATE  expiry2 = NZOR(static_cast<const ReceiptTbl::Rec *>(i2)->Expiry, MAXDATE);
 	if(expiry1 == expiry2) {
-		CMPCASCADE2(si, (const ReceiptTbl::Rec *)i1, (const ReceiptTbl::Rec *)i2, Dt, OprNo);
+		CMPCASCADE2(si, static_cast<const ReceiptTbl::Rec *>(i1), static_cast<const ReceiptTbl::Rec *>(i2), Dt, OprNo);
 	}
 	else
         si = cmp_ulong(expiry1, expiry2);
@@ -565,10 +565,10 @@ IMPL_CMPFUNC(Receipt_DtOprNo_FEFO_Asc, i1, i2)
 IMPL_CMPFUNC(Receipt_DtOprNo_FEFO_Desc, i1, i2)
 {
 	int    si = 0;
-	const  LDATE  expiry1 = NZOR(((ReceiptTbl::Rec *)i1)->Expiry, MAXDATE);
-	const  LDATE  expiry2 = NZOR(((ReceiptTbl::Rec *)i2)->Expiry, MAXDATE);
+	const  LDATE  expiry1 = NZOR(static_cast<const ReceiptTbl::Rec *>(i1)->Expiry, MAXDATE);
+	const  LDATE  expiry2 = NZOR(static_cast<const ReceiptTbl::Rec *>(i2)->Expiry, MAXDATE);
 	if(expiry1 == expiry2) {
-		CMPCASCADE2(si, (const ReceiptTbl::Rec *)i2, (const ReceiptTbl::Rec *)i1, Dt, OprNo);
+		CMPCASCADE2(si, static_cast<const ReceiptTbl::Rec *>(i2), static_cast<const ReceiptTbl::Rec *>(i1), Dt, OprNo);
 	}
 	else
 		si = cmp_ulong(expiry1, expiry2);
@@ -919,7 +919,7 @@ int SLAPI LotExtCodeCore::FindMarkToTransfer(const char * pCode, PPID goodsID, P
 		BillTbl::Rec bill_rec;
 		TransferTbl::Rec trfr_rec;
 		LotExtCodeTbl::Key1 k1;
-		int    is_box = 0;
+		LotExtCodeTbl::Rec rec;
 		int    goods_detected = 0;
 		int    lot_detected = 0;
 		MEMSZERO(k1);
@@ -929,29 +929,41 @@ int SLAPI LotExtCodeCore::FindMarkToTransfer(const char * pCode, PPID goodsID, P
 			PPID  first_bill_id = 0;
 			int   first_rbb = 0;
 			long  box_no = 0;
-			if(data.Flags & PPLotExtCodeContainer::fBox)
-				is_box = 1;
+			const int is_box = BIN(data.Flags & PPLotExtCodeContainer::fBox);
 			do {
-				if(data.BillID && p_bobj->Fetch(data.BillID, &bill_rec) > 0) {
+				copyBufTo(&rec);
+				if(rec.BillID && p_bobj->Fetch(rec.BillID, &bill_rec) > 0) {
 					const PPID op_type_id = GetOpType(bill_rec.OpID);
 					if(oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND)) {
-						if(data.RByBill && p_bobj->trfr->SearchByBill(data.BillID, 0, data.RByBill, &trfr_rec) > 0) {
-							if(trfr_rec.Flags & PPTFR_RECEIPT) {
-								if(lotID && trfr_rec.LotID == lotID)
-									lot_detected = 1;
-								if(goodsID && trfr_rec.GoodsID == goodsID)
-									goods_detected = 1;
+						if(rec.RByBill) {
+							//
+							int16 row_idx = 0;
+							int   rbb_target = 0;
+							PPTransferItem ti_iter;
+							for(int rbb_iter = 0; !rbb_target && p_bobj->trfr->EnumItems(rec.BillID, &rbb_iter, &ti_iter) > 0;) {
+								row_idx++;
+								if(row_idx == rec.RByBill)
+									rbb_target = ti_iter.RByBill;
 							}
-							if(trfr_rec.Quantity > 0.0) {
-								if(!first_bill_id) {
-									first_bill_id = data.BillID;
-									first_rbb = data.RByBill;
-									box_no = data.BoxNo;
+							//if(p_bobj->trfr->SearchByBill(rec.BillID, 0, rec.RByBill, &trfr_rec) > 0) {
+							if(rbb_target && p_bobj->trfr->SearchByBill(rec.BillID, 0, rbb_target, &trfr_rec) > 0) {
+								if(trfr_rec.Flags & PPTFR_RECEIPT) {
+									if(lotID && trfr_rec.LotID == lotID)
+										lot_detected = 1;
+									if(goodsID && trfr_rec.GoodsID == goodsID)
+										goods_detected = 1;
 								}
-								parity++;
+								if(trfr_rec.Quantity > 0.0) {
+									if(!first_bill_id) {
+										first_bill_id = rec.BillID;
+										first_rbb = rec.RByBill;
+										box_no = rec.BoxNo;
+									}
+									parity++;
+								}
+								else if(trfr_rec.Quantity < 0.0)
+									parity--;
 							}
-							else if(trfr_rec.Quantity < 0.0)
-								parity--;
 						}
 					}
 				}

@@ -1726,13 +1726,13 @@ public:
 		{
 			const uint c = pQuotList->getCount();
 			size_t s = sz + (pQuotList ? (sizeof(Entry) * c) : 0);
-			CacheEntry * p = (CacheEntry *)new char[s];
+			CacheEntry * p = reinterpret_cast<CacheEntry *>(new char[s]);
 			if(p) {
 				memzero(p, s);
 				p->GoodsID = pQuotList->GoodsID;
 				for(uint i = 0; i < c; i++) {
 					const PPQuot & r_quot = pQuotList->at(i);
-					Entry & r_entry = ((Entry *)(p+1))[i];
+					Entry & r_entry = reinterpret_cast<Entry *>(p+1)[i];
 					pQuotCache->GetQuotParamID(&r_quot, &r_entry.ParamID);
 					r_entry.Flags = r_quot.Flags;
 					r_entry.MinQtty = r_quot.MinQtty;
@@ -1749,7 +1749,7 @@ public:
 			pQuotList->freeAll();
 			for(uint16 i = 0; i < EntryCount; i++) {
 				PPQuot quot(GoodsID);
-				const Entry & r_entry = ((Entry *)(this+1))[i];
+				const Entry & r_entry = reinterpret_cast<Entry *>(this+1)[i];
 				quot.Flags = r_entry.Flags;
 				quot.MinQtty = r_entry.MinQtty;
 				quot.Quot = r_entry.Val;
@@ -1766,7 +1766,7 @@ public:
 	class QuotCacheCollection : public SCollection {
 	public:
 		SLAPI  QuotCacheCollection() : SCollection() {}
-		virtual void FASTCALL freeItem(void * pItem) { delete ((CacheEntry *)pItem); }
+		virtual void FASTCALL freeItem(void * pItem) { delete static_cast<CacheEntry *>(pItem); }
 	};
 	SLAPI  QuotCache();
 	SLAPI ~QuotCache();
@@ -1804,7 +1804,7 @@ int QuotCache::OnSysJ(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 	if(kind == PPAdviseBlock::evDirtyCacheBySysJ) {
 		if(pEv->Action == PPACN_GOODSQUOTUPD) {
 			if(oneof2(pEv->ObjType, PPOBJ_GOODS, PPOBJ_GOODSGROUP) && pEv->ObjID) {
-				((QuotCache *)procExtPtr)->Dirty_(pEv->ObjID);
+				static_cast<QuotCache *>(procExtPtr)->Dirty_(pEv->ObjID);
 				ok = 1;
 			}
 		}
@@ -1837,7 +1837,7 @@ int QuotCache::OnSysJ(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 	return ok;
 }
 
-static long _AdviseQuotCacheUpdate(long acn, PPAdviseProc proc, void * extraPtr)
+static long FASTCALL _AdviseQuotCacheUpdate(long acn, PPAdviseProc proc, void * extraPtr)
 {
 	long   cookie = 0;
 	PPAdviseBlock adv_blk;

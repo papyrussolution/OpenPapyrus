@@ -94,7 +94,7 @@ int SLAPI ObjCache::ExtTextBlock::Implement_Get(PPID id, SString & rBuf, void * 
 //
 SLAPI ObjCache::ObjCache(PPID objType, size_t entrySize, long flags) : ObjType(objType), EntrySize(entrySize), UnusedNameSpace(0), Flags(flags), LastPackNamesClock(0)
 {
-	P_Ary = (flags & fOwnerArray) ? 0 : new SArray(EntrySize, O_ARRAY); // @v8.1.6 1-->128
+	P_Ary = (flags & fOwnerArray) ? 0 : new SArray(EntrySize, O_ARRAY);
 	PPLoadText(PPTXT_STATLOG_OBJCACHE, StatLogMsg);
 	MEMSZERO(StatData);
 	Ss.add("$"); // zero index - is empty string

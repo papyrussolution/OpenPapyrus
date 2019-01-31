@@ -19,6 +19,33 @@ void FASTCALL BExtQuery::ZDelete(BExtQuery ** ppQ)
 	}
 }
 
+//static 
+int FASTCALL BExtQuery::SlToBeqOp(int s)
+{
+	switch(s) {
+		case _EQ_: return opEq;
+		case _GT_: return opGt;
+		case _LT_: return opLt;
+		case _NE_: return opNe;
+		case _GE_: return opGe;
+		case _LE_: return opLe;
+	}
+	assert(0);
+	return 0;
+}
+	
+//static 
+int FASTCALL BExtQuery::SlToBeqLink(int s)
+{
+	switch(s) {
+		case _AND___: return linkAnd;
+		case _OR___:  return linkOr;
+		case _END___: return linkEnd;
+	}
+	assert(0);
+	return 0;
+}
+
 void SLAPI BExtQuery::Init(DBTable * pTbl, int idx, uint aBufSize)
 {
 	P_Tbl    = pTbl;
@@ -258,8 +285,8 @@ int SLAPI BExtQuery::search_first(const char * pInitKey, int initSpMode, int spM
 		{
 			int    r;
 			uint   actual = 0;
-			SSqlStmt stmt(P_Tbl->GetDb(), (const SString &)sg);
-			THROW_V(P_Stmt = new SSqlStmt(P_Tbl->GetDb(), (const SString &)sg), BE_NOMEM);
+			SSqlStmt stmt(P_Tbl->GetDb(), static_cast<const SString &>(sg));
+			THROW_V(P_Stmt = new SSqlStmt(P_Tbl->GetDb(), static_cast<const SString &>(sg)), BE_NOMEM);
 			THROW(P_Stmt->Exec(0, OCI_DEFAULT));
 			//
 			// Распределяем буфер для хранения записи.
@@ -315,7 +342,7 @@ int SLAPI BExtQuery::search_first(const char * pInitKey, int initSpMode, int spM
 		p_tail->numFlds = fc;
 		if(fields_count) {
 			for(uint i = 0; i < fields_count; i++) {
-				p_item = ((BExtTailItem *)(p_tail + 1)) + i;
+				p_item = (reinterpret_cast<BExtTailItem *>(p_tail + 1)) + i;
 				const BNField & f = Fields.GetField(i);
 				p_item->fldLen = static_cast<uint16>(f.size());
 				p_item->fldOfs = static_cast<uint16>(f.Offs);
@@ -323,7 +350,7 @@ int SLAPI BExtQuery::search_first(const char * pInitKey, int initSpMode, int spM
 			}
 		}
 		else {
-			p_item = (BExtTailItem *)(p_tail + 1);
+			p_item = reinterpret_cast<BExtTailItem *>(p_tail + 1);
 			p_item->fldLen = P_Tbl->GetFields().getRecSize();
 			p_item->fldOfs = 0;
 			RecSize += p_item->fldLen;
@@ -381,7 +408,7 @@ __again:
 		SETMAX(s, P_QHead->bufLen);
 		Buf.Alloc(s);
 		if(Buf.IsValid()) {
-			((BExtTail *)(P_QBuf + TailOfs))->numRecs = MaxRecs;
+			reinterpret_cast<BExtTail *>(P_QBuf + TailOfs)->numRecs = MaxRecs;
 			SBaseBuffer saved_buf = P_Tbl->getBuffer();
 			//
 			// Если до этого текущая позиция записи была сохранена, то восстанавливаем ее
@@ -396,7 +423,7 @@ __again:
 				P_Tbl->setIndex(index);
 				r = P_Tbl->getExtended(_Key, spMode);
 				P_Tbl->setBuffer(saved_buf);
-				ActCount = *(uint16 *)(char *)Buf;
+				ActCount = *reinterpret_cast<const uint16 *>(static_cast<char *>(Buf));
 				State &= ~stRejectLimit;
 				if(r == 0)
 					if(BTRNFOUND) {
@@ -455,7 +482,7 @@ BExtQuery & SLAPIV BExtQuery::select(DBField first_arg, ...)
 {
 	va_list list;
 	DBField f;
-	list = (va_list)&first_arg;
+	list = reinterpret_cast<va_list>(&first_arg);
 	Fields.Destroy();
 	while((f = va_arg(list, DBField)).Id != 0)
 		Fields.Add(f);
@@ -516,10 +543,10 @@ int FASTCALL BExtQuery::add_term(int link, int n)
 			cmp = _invertComp(t.cmp);
 			t.left.getValue(fld->T, val);
 		}
-		uint16 sz = (uint16)fld->size();
+		uint16 sz = static_cast<uint16>(fld->size());
 		P_QBuf = static_cast<char *>(SAlloc::R(P_QBuf, P_QHead->bufLen + sizeof(BExtTerm) + sz));
 		if(P_QBuf) {
-			BExtTerm * p_term = (BExtTerm *)(P_QBuf + P_QHead->bufLen);
+			BExtTerm * p_term = reinterpret_cast<BExtTerm *>(P_QBuf + P_QHead->bufLen);
 			p_term->fldType = SLib2BtrType(GETSTYPE(fld->T));
 			p_term->fldLen  = sz;
 			p_term->fldOfs  = static_cast<uint16>(fld->Offs);
@@ -534,11 +561,11 @@ int FASTCALL BExtQuery::add_term(int link, int n)
 			//BExtTerm * SLAPI BExtQuery::get_term(int n)
 			if(P_QHead->numTerms > 0) {
 				const  uint _n = (P_QHead->numTerms-1);
-				BExtHeader * p_h = (BExtHeader *)P_QBuf;
+				BExtHeader * p_h = reinterpret_cast<BExtHeader *>(P_QBuf);
 				if(p_h && _n < p_h->numTerms) {
-					p_term = (BExtTerm *)(p_h+1);
+					p_term = reinterpret_cast<BExtTerm *>(p_h+1);
 					for(uint i = 0; i < _n; i++) {
-						p_term = (BExtTerm *)(PTR8(p_term) + sizeofterm(p_term));
+						p_term = reinterpret_cast<BExtTerm *>(PTR8(p_term) + sizeofterm(p_term));
 					}
 					p_term->link = SlToBeqLink(link);
 				}
@@ -583,14 +610,14 @@ char * SLAPI BExtQuery::getRecImage()
 			}
 		}
 		else {
-			if(n < *(uint16 *)(char *)Buf) {
+			if(n < *reinterpret_cast<const uint16 *>(static_cast<char *>(Buf))) {
 				size_t offs = sizeof(BExtResultHeader);
 				if(State & stHasNote) {
 					p_ret = Buf + offs;
 					uint i = n;
 					if(i)
 						do {
-							offs += ((BExtResultItem *)p_ret)->recLen + sizeof(BExtResultItem);
+							offs += reinterpret_cast<const BExtResultItem *>(p_ret)->recLen + sizeof(BExtResultItem);
 							p_ret = Buf + offs;
 						} while(--i);
 				}
@@ -604,7 +631,7 @@ char * SLAPI BExtQuery::getRecImage()
 
 int FASTCALL BExtQuery::getRecPosition(DBRowId * pPos)
 {
-	BExtResultItem * ri = (BExtResultItem *)getRecImage();
+	BExtResultItem * ri = reinterpret_cast<BExtResultItem *>(getRecImage());
 	if(ri) {
 		ASSIGN_PTR(pPos, ri->position);
 		return 1;
@@ -615,13 +642,13 @@ int FASTCALL BExtQuery::getRecPosition(DBRowId * pPos)
 
 int SLAPI BExtQuery::fillTblBuf()
 {
-	char * p = getRecImage();
+	const char * p = getRecImage();
 	char * b = P_Tbl ? P_Tbl->getDataBuf() : 0;
 	if(p && b) {
 		size_t rs = 0;
 		if(!(State & stSqlProvider)) {
 			if(State & stHasNote)
-				rs = ((BExtResultItem *)p)->recLen;
+				rs = reinterpret_cast<const BExtResultItem *>(p)->recLen;
 			p += sizeof(BExtResultItem);
 		}
 		const  uint c = Fields.GetCount();
@@ -630,10 +657,10 @@ int SLAPI BExtQuery::fillTblBuf()
 				const  BNField & f = Fields.GetField(i);
 				const  uint s = f.size();
 				if(s == sizeof(uint32))
-					*(uint32 *)(b + f.Offs) = *(uint32 *)p;
+					*reinterpret_cast<uint32 *>(b + f.Offs) = *reinterpret_cast<const uint32 *>(p);
 				else if(s == (sizeof(uint32) * 2)) {
-					*(uint32 *)(b + f.Offs) = *(uint32 *)p;
-					*(uint32 *)(b + f.Offs + sizeof(uint32)) = *(uint32 *)(p + sizeof(uint32));
+					*reinterpret_cast<uint32 *>(b + f.Offs) = *reinterpret_cast<const uint32 *>(p);
+					*reinterpret_cast<uint32 *>(b + f.Offs + sizeof(uint32)) = *reinterpret_cast<const uint32 *>(p + sizeof(uint32));
 				}
 				else
 					memcpy(b + f.Offs, p, s);

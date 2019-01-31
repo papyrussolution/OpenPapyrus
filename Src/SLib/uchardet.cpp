@@ -5469,7 +5469,7 @@ protected:
 
 uchardet_t uchardet_new()
 {
-	return reinterpret_cast<uchardet_t> (new HandleUniversalDetector());
+	return reinterpret_cast<uchardet_t>(new HandleUniversalDetector());
 }
 
 void uchardet_delete(uchardet_t ud)

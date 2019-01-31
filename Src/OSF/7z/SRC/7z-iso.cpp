@@ -1125,7 +1125,7 @@ namespace NArchive {
 						ReadVolumeDescriptor(vd);
 						if(sig[0] == NVolDescType::kPrimaryVol) {
 							// some burners write "Joliet" Escape Sequence to primary volume
-							memset(vd.EscapeSequence, 0, sizeof(vd.EscapeSequence));
+							memzero(vd.EscapeSequence, sizeof(vd.EscapeSequence));
 						}
 						VolDescs.Add(vd);
 						break;

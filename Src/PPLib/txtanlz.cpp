@@ -2266,7 +2266,7 @@ int SLAPI PrcssrObjText::InitParam(PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	if(P.IsA(pBaseFilt)) {
-		PrcssrObjTextFilt * p_filt = (PrcssrObjTextFilt *)pBaseFilt;
+		PrcssrObjTextFilt * p_filt = static_cast<PrcssrObjTextFilt *>(pBaseFilt);
 		if(p_filt->IsEmpty()) {
 			p_filt->ObjType = PPOBJ_GOODS;
 			p_filt->ObjTextIdent = PrcssrObjTextFilt::otiName;
@@ -2282,7 +2282,7 @@ int SLAPI PrcssrObjText::EditParam(PPBaseFilt * pBaseFilt)
 {
 	if(!P.IsA(pBaseFilt))
 		return 0;
-	PrcssrObjTextFilt * p_filt = (PrcssrObjTextFilt *)pBaseFilt;
+	PrcssrObjTextFilt * p_filt = static_cast<PrcssrObjTextFilt *>(pBaseFilt);
 	DIALOG_PROC_BODY(ObjTextFiltDialog, p_filt);
 }
 
@@ -2293,7 +2293,7 @@ int SLAPI PrcssrObjText::Init(const PPBaseFilt * pBaseFilt)
 	int    ok = 1;
 	SString temp_buf, line_buf;
 	THROW(P.IsA(pBaseFilt));
-	P = *(PrcssrObjTextFilt *)pBaseFilt;
+	P = *static_cast<const PrcssrObjTextFilt *>(pBaseFilt);
 	Ta.Reset(STokenizer::coClearSymbTab);
 	LogF.Close();
 	ZDELETE(P_Rpl);

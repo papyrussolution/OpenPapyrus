@@ -3824,6 +3824,7 @@ public:
 	SString & SLAPI Cat(double v, long fmt);
 	SString & SLAPI Cat(double v); // MKSFMTD(0, 6, NMBF_NOTRAILZ)
 	SString & SLAPI CatReal(double v);
+	SString & SLAPI Cat(const RealRange & rR, long fmt);
 	SString & FASTCALL Cat(LDATE, long fmt); // @v9.6.4 defargremoved
 	SString & FASTCALL Cat(LTIME, long fmt); // @v9.6.4 defargremoved
 	//
@@ -6007,8 +6008,8 @@ protected:
 	uint   pointer; // Указатель на текущий элемент массива (используется в стеках и очередях)
 	uint   isize;   // Размер одного элемента (bytes)
 	uint   Limit;   // Максимальное количество элементов (not bytes), которое может вместить буфер
-	uint   flags;
-	uint8 * data;   //
+	uint   VFlags;
+	uint8 * P_VData;   //
 };
 //
 // Descr: Массив с "плоскими" элементами. Не имеет механизма индивидуального
@@ -10468,6 +10469,8 @@ double FASTCALL fint(double v); // @>>modf
 // Descr: Возвращает дробную часть аргумента v
 //
 double FASTCALL ffrac(double v); // @>>modf
+int __forceinline fceili(double v)  { return static_cast<int>(ceil(v)); }
+int __forceinline ffloori(double v) { return static_cast<int>(floor(v)); }
 //
 // Descr: Если sign < 0, возвращает (val-addendum)
 //   Если sign > 0, возвращает (val+addendum)
@@ -13095,7 +13098,7 @@ public:
 
 	virtual ~SDrawFigure();
 	virtual SDrawFigure * Dup() const = 0;
-	virtual void SetTransform(LMatrix2D * pMtx);
+	virtual void SetTransform(const LMatrix2D * pMtx);
 	virtual int  Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    GetKind() const;
 	long   GetFlags() const;

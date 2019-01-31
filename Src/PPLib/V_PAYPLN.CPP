@@ -516,7 +516,7 @@ int SLAPI PPViewPaymPlan::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
-	PaymPlanFilt * p_filt = (PaymPlanFilt*)pBaseFilt;
+	PaymPlanFilt * p_filt = static_cast<PaymPlanFilt *>(pBaseFilt);
 	DIALOG_PROC_BODY(PaymPlanFiltDialog, p_filt);
 }
 

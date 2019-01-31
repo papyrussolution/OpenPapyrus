@@ -1,5 +1,5 @@
 // V_BCMP.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -35,7 +35,7 @@ PPBaseFilt * SLAPI PPViewGoodsBillCmp::CreateFilt(void * extraPtr) const
 	GoodsBillCmpFilt * p_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_GOODSBILLCMP, (PPBaseFilt**)&p_filt)) {
 		if(extraPtr) {
-			const GoodsBillCmpFilt * p_sample_filt = (const GoodsBillCmpFilt *)extraPtr;
+			const GoodsBillCmpFilt * p_sample_filt = static_cast<const GoodsBillCmpFilt *>(extraPtr);
 			if(p_filt->IsA(p_sample_filt))
 				*p_filt = *p_sample_filt;
 		}
@@ -119,7 +119,7 @@ int SLAPI PPViewGoodsBillCmp::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	ushort v = 0;
 	SString lh_code, rh_code;
 	TDialog * dlg = 0;
-	GoodsBillCmpFilt * p_filt = (GoodsBillCmpFilt *)pBaseFilt;
+	GoodsBillCmpFilt * p_filt = static_cast<GoodsBillCmpFilt *>(pBaseFilt);
 	THROW(Filt.IsA(pBaseFilt));
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_GBILLCMPFLT))));
 	GetBillCodes(p_filt, lh_code, rh_code);

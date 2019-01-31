@@ -1216,7 +1216,7 @@ PPBaseFilt * SLAPI PPViewGoods::CreateFilt(void * extraPtr) const
 
 int SLAPI PPViewGoods::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
-	return Filt.IsA(pBaseFilt) ? GoodsFilterDialog((GoodsFilt *)pBaseFilt) : 0;
+	return Filt.IsA(pBaseFilt) ? GoodsFilterDialog(static_cast<GoodsFilt *>(pBaseFilt)) : 0;
 }
 
 int SLAPI PPViewGoods::OnExecBrowser(PPViewBrowser * pBrw)

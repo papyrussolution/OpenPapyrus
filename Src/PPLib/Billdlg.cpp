@@ -1013,27 +1013,26 @@ int SLAPI PPLinkFile::Init(const char * pPath)
 
 size_t SLAPI PPLinkFile::Size() const
 {
-	return sizeof(Id) + sizeof(Flags) + sizeof(Ext.Len()) + Ext.Len() + 1 + sizeof(Path.Len()) +
-		Path.Len() + 1 + sizeof(Description.Len()) + Description.Len() + 1;
+	return sizeof(Id) + sizeof(Flags) + sizeof(uint32) + Ext.Len() + 1 + sizeof(uint32) +
+		Path.Len() + 1 + sizeof(uint32) + Description.Len() + 1; 
+	// @v10.3.2 sizeof(Ext.Len())-->sizeof(uint32)
+	// @v10.3.2 sizeof(Description.Len())-->sizeof(uint32)
+	// @v10.3.2 sizeof(Path.Len())-->sizeof(uint32)
 }
 
 int SLAPI PPLinkFile::CopyTo(void ** ppBuf)
 {
-	size_t ext_len  = Ext.Len()  + 1;
-	size_t path_len = Path.Len() + 1;
-	size_t descr_len = Description.Len() + 1;
-	char * p = (char*)*ppBuf;
-
+	const uint32 ext_len  = Ext.Len()  + 1; // @v10.3.2 size_t-->const uint32
+	const uint32 path_len = Path.Len() + 1; // @v10.3.2 size_t-->const uint32
+	const uint32 descr_len = Description.Len() + 1; // @v10.3.2 size_t-->const uint32
+	char * p = static_cast<char *>(*ppBuf);
 	Flags &= ~PPLNKFILE_ISNEW;
 	memcpy(p, &Id, sizeof(Id));
 	memcpy(p += sizeof(Id), &Flags, sizeof(Flags));
-
 	memcpy(p += sizeof(Flags), &ext_len, sizeof(ext_len));
 	memcpy(p += sizeof(ext_len), (const char*)Ext, ext_len);
-
 	memcpy(p += ext_len, &path_len, sizeof(path_len));
 	memcpy(p += sizeof(path_len), (const char*)Path, path_len);
-
 	memcpy(p += path_len, &descr_len, sizeof(descr_len));
 	memcpy(p += sizeof(descr_len), (const char*)Description, descr_len);
 	return 1;
@@ -1041,20 +1040,16 @@ int SLAPI PPLinkFile::CopyTo(void ** ppBuf)
 
 int FASTCALL PPLinkFile::CopyFrom(const void * pBuf)
 {
-	const char * p = (const char*)pBuf;
-	size_t ext_len  = 0;
-	size_t path_len = 0;
-	size_t descr_len = 0;
-
+	const char * p = static_cast<const char *>(pBuf);
+	uint32 ext_len  = 0; // @v10.3.2 size_t-->uint32
+	uint32 path_len = 0; // @v10.3.2 size_t-->uint32
+	uint32 descr_len = 0; // @v10.3.2 size_t-->uint32
 	memcpy(&Id, p, sizeof(Id));
 	memcpy(&Flags, p += sizeof(Id), sizeof(Flags));
-
 	memcpy(&ext_len, p += sizeof(Flags), sizeof(ext_len));
 	Ext.CopyFromN(p += sizeof(ext_len), ext_len);
-
 	memcpy(&path_len, p += ext_len, sizeof(path_len));
 	Path.CopyFromN(p += sizeof(path_len), path_len);
-
 	memcpy(&descr_len, p += path_len, sizeof(descr_len));
 	Description.CopyFromN(p += sizeof(descr_len), descr_len);
 	return 1;

@@ -1145,7 +1145,7 @@ int SLAPI PPViewBudget::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	uint   v = 0;
 	BudgetFiltDialog * p_dlg = 0;
 	if(Filt.IsA(pBaseFilt)) {
-		BudgetFilt * p_filt = (BudgetFilt*)pBaseFilt;
+		BudgetFilt * p_filt = static_cast<BudgetFilt *>(pBaseFilt);
 		p_dlg = new BudgetFiltDialog;
 		if(CheckDialogPtrErr(&p_dlg) && p_dlg->setDTS(p_filt)) {
 			while(ok <= 0 && ExecView(p_dlg) == cmOK)

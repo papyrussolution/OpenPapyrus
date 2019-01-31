@@ -1,5 +1,5 @@
 // V_SYSJ.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -151,7 +151,7 @@ int SLAPI PPViewSysJournal::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
-	DIALOG_PROC_BODY_P1(SysJFiltDialog, DLG_SYSJFILT, (SysJournalFilt *)pBaseFilt);
+	DIALOG_PROC_BODY_P1(SysJFiltDialog, DLG_SYSJFILT, static_cast<SysJournalFilt *>(pBaseFilt));
 }
 
 SLAPI PPViewSysJournal::PPViewSysJournal() : PPView(0, &Filt, PPVIEW_SYSJOURNAL), P_TmpTbl(0), P_SubstTbl(0), /*P_NamesTbl(0),*/
@@ -1392,7 +1392,7 @@ int SLAPI PPViewGtaJournal::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	};
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
-	DIALOG_PROC_BODY(GtaJFiltDialog, (GtaJournalFilt *)pBaseFilt);
+	DIALOG_PROC_BODY(GtaJFiltDialog, static_cast<GtaJournalFilt *>(pBaseFilt));
 }
 
 int SLAPI PPViewGtaJournal::IsTempTblNeeded() const

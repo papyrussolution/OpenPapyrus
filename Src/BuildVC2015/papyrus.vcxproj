@@ -2004,9 +2004,8 @@
     <ProjectReference Include="BDB.vcxproj">
       <Project>{151f44bb-2aaa-4e54-91a6-79ba38f41639}</Project>
     </ProjectReference>
-    <ProjectReference Include="cairo-1.14.2.vcxproj">
-      <Project>{1022ff32-79e9-44df-b5e3-9130f0c4252d}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    <ProjectReference Include="cairo-1.16.0.vcxproj">
+      <Project>{530693b1-8b95-4993-8bcf-c0d0e225f4df}</Project>
     </ProjectReference>
     <ProjectReference Include="libcurl.vcxproj">
       <Project>{da6f56b4-06a4-441d-ad70-ac5a7d51fadb}</Project>

@@ -224,7 +224,7 @@ int SLAPI PPViewCSess::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	};
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
-	CSessFilt * p_filt = (CSessFilt *)pBaseFilt;
+	CSessFilt * p_filt = static_cast<CSessFilt *>(pBaseFilt);
 	DIALOG_PROC_BODY(CSessFiltDialog, p_filt);
 }
 //

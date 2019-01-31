@@ -1,5 +1,5 @@
 // V_TRANSP.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2012, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2009, 2010, 2012, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -151,7 +151,7 @@ int TransportFilterDlg::getDTS(TransportFilt * pData)
 int SLAPI PPViewTransport::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(Filt.IsA(pBaseFilt)) {
-		DIALOG_PROC_BODYERR(TransportFilterDlg, (TransportFilt *)pBaseFilt);
+		DIALOG_PROC_BODYERR(TransportFilterDlg, static_cast<TransportFilt *>(pBaseFilt));
 	}
 	else
 		return 0;

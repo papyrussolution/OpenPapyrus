@@ -1,5 +1,5 @@
 // V_LOGSMON.CPP
-// A. Kurilov 2008, 2009, 2015, 2016, 2018
+// A. Kurilov 2008, 2009, 2015, 2016, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -9,7 +9,7 @@ int LogsMonitorFilt::Describe(long flags, SString & rBuff) const
 {
 	int    ok = 1;
 	rBuff.Z();
-	for(uint i=0; i<Selected.getCount(); i++) {
+	for(uint i = 0; i < Selected.getCount(); i++) {
 		if(i>2) {
 			rBuff.CatCharN('.', 3);
 			break;
@@ -171,7 +171,7 @@ int SLAPI PPViewLogsMonitor::EditBaseFilt(PPBaseFilt *pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
-	LogsMonitorFilt *p_filt = (LogsMonitorFilt *)pBaseFilt;
+	LogsMonitorFilt *p_filt = static_cast<LogsMonitorFilt *>(pBaseFilt);
 	DIALOG_PROC_BODY_P1(LogsMonitorFiltDialog, DLG_LOGSMON, p_filt);
 }
 //

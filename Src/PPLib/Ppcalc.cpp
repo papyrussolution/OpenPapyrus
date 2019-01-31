@@ -854,7 +854,7 @@ PosPaymentBlock & PosPaymentBlock::Clear()
 {
 	Amount = 0.0;
 	CashAmt = BankAmt = ScAmt = 0.0;
-	NoteAmt = DeliveryAmt = 0.0;
+	NoteAmt = 0.0;
 	SCardID = 0;
 	SCardRest = 0.0;
 	BonusRest = 0.0;

@@ -298,13 +298,9 @@ FontCached::FontCached(const FontParameters &fp) : next(0), usage(0), size(1.0),
 		UTF16FromUTF8(fp.faceName, sstrlen(fp.faceName)+1, wszFace, faceSize);
 		FLOAT fHeight = fp.size;
 		DWRITE_FONT_STYLE style = fp.italic ? DWRITE_FONT_STYLE_ITALIC : DWRITE_FONT_STYLE_NORMAL;
-		HRESULT hr = pIDWriteFactory->CreateTextFormat(wszFace, NULL,
-		    static_cast<DWRITE_FONT_WEIGHT>(fp.weight),
-		    style,
-		    DWRITE_FONT_STRETCH_NORMAL, fHeight, L"en-us", &pTextFormat);
+		HRESULT hr = pIDWriteFactory->CreateTextFormat(wszFace, NULL, static_cast<DWRITE_FONT_WEIGHT>(fp.weight), style, DWRITE_FONT_STRETCH_NORMAL, fHeight, L"en-us", &pTextFormat);
 		if(SUCCEEDED(hr)) {
 			pTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
-
 			const int maxLines = 2;
 			DWRITE_LINE_METRICS lineMetrics[maxLines];
 			UINT32 lineCount = 0;
@@ -312,14 +308,12 @@ FontCached::FontCached(const FontParameters &fp) : next(0), usage(0), size(1.0),
 			FLOAT yDescent = 1.0f;
 			FLOAT yInternalLeading = 0.0f;
 			IDWriteTextLayout * pTextLayout = 0;
-			hr = pIDWriteFactory->CreateTextLayout(L"X", 1, pTextFormat,
-			    100.0f, 100.0f, &pTextLayout);
+			hr = pIDWriteFactory->CreateTextLayout(L"X", 1, pTextFormat, 100.0f, 100.0f, &pTextLayout);
 			if(SUCCEEDED(hr)) {
 				hr = pTextLayout->GetLineMetrics(lineMetrics, maxLines, &lineCount);
 				if(SUCCEEDED(hr)) {
 					yAscent = lineMetrics[0].baseline;
 					yDescent = lineMetrics[0].height - lineMetrics[0].baseline;
-
 					FLOAT emHeight;
 					hr = pTextLayout->GetFontSize(0, &emHeight);
 					if(SUCCEEDED(hr)) {
@@ -328,12 +322,9 @@ FontCached::FontCached(const FontParameters &fp) : next(0), usage(0), size(1.0),
 				}
 				pTextLayout->Release();
 				pTextFormat->SetLineSpacing(DWRITE_LINE_SPACING_METHOD_UNIFORM,
-				    lineMetrics[0].height,
-				    lineMetrics[0].baseline);
+				    lineMetrics[0].height, lineMetrics[0].baseline);
 			}
-			fid =
-			    static_cast<void *>(new FormatAndMetrics(pTextFormat, fp.extraFontFlag, fp.characterSet, yAscent, yDescent,
-				    yInternalLeading));
+			fid = static_cast<void *>(new FormatAndMetrics(pTextFormat, fp.extraFontFlag, fp.characterSet, yAscent, yDescent, yInternalLeading));
 		}
 #endif
 	}

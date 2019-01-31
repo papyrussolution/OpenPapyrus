@@ -181,9 +181,9 @@ SLAPI PPViewGoodsToObjAssoc::~PPViewGoodsToObjAssoc()
 {
 	delete P_Assoc;
 	delete P_AsscObj;
-	if(Filt.Flags & GoodsToObjAssocFilt::fDestroyExtraParam && Filt.ExtraParam) {
-		SAlloc::F((void *)Filt.ExtraParam);
-		Filt.ExtraParam = 0;
+	if(Filt.Flags & GoodsToObjAssocFilt::fDestroyExtraParam && Filt.ExtraPtr) {
+		SAlloc::F(Filt.ExtraPtr);
+		Filt.ExtraPtr = 0;
 	}
 }
 
@@ -198,7 +198,7 @@ PPBaseFilt * SLAPI PPViewGoodsToObjAssoc::CreateFilt(void * extraPtr) const
 	if(PPView::CreateFiltInstance(PPFILT_GOODSTOOBJASSOC, &p_base_filt)) {
 		GoodsToObjAssocFilt * p_filt = (GoodsToObjAssocFilt *)p_base_filt;
 		if(extraPtr) {
-			p_filt->AsscType = ((long)extraPtr);
+			p_filt->AsscType = reinterpret_cast<long>(extraPtr);
 			if(p_filt->AsscType == PPASS_GOODS2WAREPLACE) {
 				p_filt->ObjType = PPOBJ_LOCATION;
 				p_filt->P_LocF = new LocationFilt(LOCTYP_WAREPLACE);
@@ -208,7 +208,7 @@ PPBaseFilt * SLAPI PPViewGoodsToObjAssoc::CreateFilt(void * extraPtr) const
 			}
 			else if(p_filt->AsscType == PPASS_GOODS2SUPPL) {
 				p_filt->ObjType = PPOBJ_ARTICLE;
-				p_filt->ExtraParam = GetSupplAccSheet();
+				p_filt->ExtraPtr = reinterpret_cast<void *>(GetSupplAccSheet());
 			}
 			else if(p_filt->AsscType == PPASS_GOODS2CASHNODE) {
 				p_filt->ObjType = PPOBJ_CASHNODE;
@@ -223,7 +223,7 @@ PPBaseFilt * SLAPI PPViewGoodsToObjAssoc::CreateFilt(void * extraPtr) const
 							p_filt->P_LocF = new LocationFilt(noa_rec.ScndObjGrp);
 						}
 						else
-							p_filt->ExtraParam = noa_rec.ScndObjGrp;
+							p_filt->ExtraPtr = reinterpret_cast<void *>(noa_rec.ScndObjGrp);
 					}
 					else {
 						ZDELETE(p_base_filt);
@@ -287,7 +287,7 @@ int FASTCALL PPViewGoodsToObjAssoc::NextIteration(GoodsToObjAssocViewItem * pIte
 //static 
 int FASTCALL PPViewGoodsToObjAssoc::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	PPViewGoodsToObjAssoc * p_v = (PPViewGoodsToObjAssoc *)pBlk->ExtraPtr;
+	PPViewGoodsToObjAssoc * p_v = static_cast<PPViewGoodsToObjAssoc *>(pBlk->ExtraPtr);
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
@@ -297,7 +297,7 @@ int SLAPI PPViewGoodsToObjAssoc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
 		ok = 1;
 		SString temp_buf;
-		const LAssoc * p_item = (LAssoc *)pBlk->P_SrcData;
+		const LAssoc * p_item = static_cast<const LAssoc *>(pBlk->P_SrcData);
 		switch(pBlk->ColumnN) {
 			case 0: pBlk->Set(p_item->Key); break; // GoodsID
 			case 1: pBlk->Set(p_item->Val); break; // ObjID
@@ -340,7 +340,7 @@ SArray * SLAPI PPViewGoodsToObjAssoc::CreateBrowserArray(uint * pBrwId, SString 
 	return p_array;
 }
 
-int SLAPI PPViewGoodsToObjAssoc::EditGoodsToObjAssoc(LAssoc * pData, PPID objType, long extraParam, int newItem)
+int SLAPI PPViewGoodsToObjAssoc::EditGoodsToObjAssoc(LAssoc * pData, PPID objType, void * extraPtr, int newItem)
 {
 	int    ok = -1;
 	PPObjGoods goods_obj;
@@ -362,7 +362,7 @@ int SLAPI PPViewGoodsToObjAssoc::EditGoodsToObjAssoc(LAssoc * pData, PPID objTyp
 		if(objType == PPOBJ_LOCATION && Filt.P_LocF)
 			SetupLocationCombo(dlg, CTLSEL_G2OA_OBJ, pData->Val, OLW_CANSELUPLEVEL, Filt.P_LocF);
 		else
-			SetupPPObjCombo(dlg, CTLSEL_G2OA_OBJ, objType, pData->Val, OLW_CANSELUPLEVEL, (void *)extraParam);
+			SetupPPObjCombo(dlg, CTLSEL_G2OA_OBJ, objType, pData->Val, OLW_CANSELUPLEVEL, extraPtr);
 		if(!newItem)
 			dlg->disableCtrls(1, CTLSEL_G2OA_GOODSGRP, CTLSEL_G2OA_GOODS, 0);
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
@@ -391,7 +391,7 @@ int SLAPI PPViewGoodsToObjAssoc::AddItem(PPViewBrowser * pBrw)
 	int    ok = -1;
 	LAssoc assc;
 	MEMSZERO(assc);
-	while(EditGoodsToObjAssoc(&assc, Filt.ObjType, Filt.ExtraParam, 1) > 0) {
+	while(EditGoodsToObjAssoc(&assc, Filt.ObjType, Filt.ExtraPtr, 1) > 0) {
 		uint pos = 0;
 		if(!P_Assoc->Add(assc.Key, assc.Val, &pos) || !P_Assoc->Save())
 			PPError();
@@ -415,7 +415,7 @@ int SLAPI PPViewGoodsToObjAssoc::EditItem(PPViewBrowser * pBrw, const BrwHdr * p
 			LAssoc assc;
 			assc.Key = pHdr->GoodsID;
 			assc.Val = pHdr->ObjID;
-			while(ok < 0 && EditGoodsToObjAssoc(&assc, Filt.ObjType, Filt.ExtraParam, 0) > 0) {
+			while(ok < 0 && EditGoodsToObjAssoc(&assc, Filt.ObjType, Filt.ExtraPtr, 0) > 0) {
 				uint   pos = 0;
 				if(P_Assoc->SearchPair(assc.Key, assc.Val, &pos)) {
 					if(!P_Assoc->UpdateByPos(pos, assc.Key, assc.Val) || !P_Assoc->Save())
@@ -459,7 +459,7 @@ int SLAPI PPViewGoodsToObjAssoc::DeleteItem(const BrwHdr * pHdr)
 void SLAPI PPViewGoodsToObjAssoc::UpdateOnEdit(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
-		AryBrowserDef * p_def = (AryBrowserDef *)pBrw->getDef();
+		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
 		if(p_def) {
 			SArray * p_array = P_Assoc ? new SArray(*P_Assoc) : 0;
 			p_def->setArray(p_array, 0, 0/*setupPosition*/);
@@ -475,15 +475,10 @@ int SLAPI PPViewGoodsToObjAssoc::ProcessCommand(uint ppvCmd, const void * pHdr, 
 		MEMSZERO(hdr);
 		RVALUEPTR(hdr, (BrwHdr *)pHdr);
 		switch(ppvCmd) {
-			case PPVCMD_ADDITEM:
-				ok = AddItem(pBrw);
-				break;
-			case PPVCMD_EDITITEM:
-				ok = EditItem(pBrw, &hdr);
-				break;
-			case PPVCMD_DELETEITEM:
-				ok = DeleteItem(&hdr);
-				break;
+			case PPVCMD_ADDITEM: ok = AddItem(pBrw); break;
+			case PPVCMD_EDITITEM: ok = EditItem(pBrw, &hdr); break;
+			case PPVCMD_DELETEITEM: ok = DeleteItem(&hdr); break;
+			case PPVCMD_EDITOBJ: ok = EditPPObj(Filt.ObjType, hdr.ObjID); break;
 			case PPVCMD_EDITGOODS:
 				ok = -1;
 				if(hdr.GoodsID){
@@ -491,9 +486,6 @@ int SLAPI PPViewGoodsToObjAssoc::ProcessCommand(uint ppvCmd, const void * pHdr, 
 					if(goods_obj.Edit(&hdr.GoodsID, 0) == cmOK)
 						ok = 1;
 				}
-				break;
-			case PPVCMD_EDITOBJ:
-				ok = EditPPObj(Filt.ObjType, hdr.ObjID);
 				break;
 		}
 	}
@@ -505,13 +497,13 @@ int SLAPI PPViewGoodsToObjAssoc::ProcessCommand(uint ppvCmd, const void * pHdr, 
 	return ok;
 }
 
-int SLAPI ViewGoodsToObjAssoc(PPID objType, PPID objID, PPID asscType, long extraParam, long options)
+int SLAPI ViewGoodsToObjAssoc(PPID objType, PPID objID, PPID asscType, void * extraPtr, long options)
 {
 	GoodsToObjAssocFilt flt;
 	flt.ObjType = objType;
 	flt.ObjID   = objID;
 	flt.AsscType = asscType;
-	flt.ExtraParam = extraParam;
+	flt.ExtraPtr = extraPtr;
 	SETFLAG(flt.Flags, GoodsToObjAssocFilt::fDestroyExtraParam, options & goafFreeExtraAsPtr);
 	return PPView::Execute(PPVIEW_GOODSTOOBJASSOC, &flt, 1, 0);
 }

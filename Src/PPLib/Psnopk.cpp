@@ -969,7 +969,7 @@ StrAssocArray * SLAPI PPObjPsnOpKind::MakeList(const PsnOpKindFilt * pFilt)
 		}
 	}
 	THROW(r);
-	p_list->RemoveRecursion(0); // @v8.3.0
+	p_list->RemoveRecursion(0);
 	p_list->SortByText();
 	CATCH
 		ZDELETE(p_list);
@@ -979,14 +979,14 @@ StrAssocArray * SLAPI PPObjPsnOpKind::MakeList(const PsnOpKindFilt * pFilt)
 
 StrAssocArray * SLAPI PPObjPsnOpKind::MakeStrAssocList(void * extraPtr)
 {
-	return MakeList((const PsnOpKindFilt*)extraPtr);
+	return MakeList(static_cast<const PsnOpKindFilt *>(extraPtr));
 }
 
 int SLAPI PPObjPsnOpKind::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	THROW_MEM(p->Data = new PPPsnOpKindPacket);
-	PPPsnOpKindPacket * p_pack = (PPPsnOpKindPacket *)p->Data;
+	PPPsnOpKindPacket * p_pack = static_cast<PPPsnOpKindPacket *>(p->Data);
 	if(stream == 0) {
 		THROW(GetPacket(id, p_pack) > 0);
 	}
@@ -1003,7 +1003,7 @@ int SLAPI PPObjPsnOpKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 {
 	int    ok = 1, ta = 0;
 	if(p && p->Data) {
-		PPPsnOpKindPacket * p_pack = (PPPsnOpKindPacket *)p->Data;
+		PPPsnOpKindPacket * p_pack = static_cast<PPPsnOpKindPacket *>(p->Data);
 		SString added_buf;
 		if(stream == 0) {
 			PPID   same_id = 0;
@@ -1070,7 +1070,7 @@ int SLAPI PPObjPsnOpKind::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int 
 	int    ok = 1;
 	if(p && p->Data) {
 		uint   i;
-		PPPsnOpKindPacket * p_pack = (PPPsnOpKindPacket *)p->Data;
+		PPPsnOpKindPacket * p_pack = static_cast<PPPsnOpKindPacket *>(p->Data);
 		ProcessObjRefInArray(PPOBJ_PERSONOPKIND,  &p_pack->Rec.ParentID,     ary, replace);
 		ProcessObjRefInArray(PPOBJ_REGISTERTYPE,  &p_pack->Rec.RegTypeID,    ary, replace);
 		ProcessObjRefInArray(PPOBJ_OPRKIND,       &p_pack->Rec.LinkBillOpID, ary, replace);
@@ -1079,11 +1079,9 @@ int SLAPI PPObjPsnOpKind::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int 
 		ProcessObjRefInArray(PPOBJ_PRSNKIND,      &p_pack->PCPrmr.PersonKindID,  ary, replace);
 		ProcessObjRefInArray(PPOBJ_PERSON,        &p_pack->PCPrmr.DefaultID,     ary, replace);
 		ProcessObjRefInArray(PPOBJ_TAG,           &p_pack->PCPrmr.RestrictTagID, ary, replace);
-		// @v8.2.3 {
 		for(i = 0; i < p_pack->PCPrmr.RestrictScSerList.getCount(); i++) {
 			ProcessObjRefInArray(PPOBJ_SCARDSERIES, &p_pack->PCPrmr.RestrictScSerList.at(i), ary, replace);
 		}
-		// } @v8.2.3
 		//
 		ProcessObjRefInArray(PPOBJ_PRSNKIND,      &p_pack->PCScnd.PersonKindID,  ary, replace);
 		ProcessObjRefInArray(PPOBJ_PERSON,        &p_pack->PCScnd.DefaultID,     ary, replace);

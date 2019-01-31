@@ -393,7 +393,7 @@ int WordSelector::CheckVisible() const { return IsVisible; }
 WordSelector::WordSelector(WordSel_ExtraBlock * pBlk) : IsActive(0), IsVisible(0), P_Blk(pBlk)
 {
 	P_Def = new StrAssocListBoxDef(new StrAssocArray(), lbtDisposeData|lbtDblClkNotify|lbtSelNotify|lbtOwnerDraw);
-	P_Lb = (WordSelectorSmartListBox*)new WordSelectorSmartListBox(TRect(0, 0, 11, 11), P_Def);
+	P_Lb = new WordSelectorSmartListBox(TRect(0, 0, 11, 11), P_Def);
 	P_Lb->SetOwnerDrawState();
 	setDef(P_Def);
 	TButton * b = new TButton(TRect(0, 0, 20, 20), "OK", cmOK, bfDefault);

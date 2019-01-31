@@ -428,7 +428,7 @@ int SLAPI PPViewArticle::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	ArticleFiltDialog * dlg = 0;
 	ArticleFilt * p_filt = 0;
 	THROW(Filt.IsA(pBaseFilt));
-	p_filt = (ArticleFilt *)pBaseFilt;
+	p_filt = static_cast<ArticleFilt *>(pBaseFilt);
 	THROW(ArObj.CheckRights(PPR_READ));
 	THROW(CheckDialogPtr(&(dlg = new ArticleFiltDialog)));
 	dlg->setDTS(p_filt);

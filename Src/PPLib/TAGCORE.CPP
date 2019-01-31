@@ -1,5 +1,5 @@
 // TAGCORE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000-2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1998, 1999, 2000-2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2019
 // @codepage windows-1251
 // @Kernel
 // Теги объектов
@@ -453,7 +453,7 @@ int SLAPI ObjTagItem::AddReal(double rVal)
 			if(!Val.DtVal)
 				Val.DtVal = getcurdate_();
 			else
-				Val.DtVal = plusdate(Val.DtVal, (long)R0(rVal));
+				Val.DtVal = plusdate(Val.DtVal, R0i(rVal));
 			break;
 		case OTTYP_TIMESTAMP:
 			if(!Val.DtmVal.d) {

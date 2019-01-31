@@ -117,7 +117,7 @@ int SLAPI PPViewPersonRel::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
-	PersonRelFilt * p_filt = (PersonRelFilt *)pBaseFilt;
+	PersonRelFilt * p_filt = static_cast<PersonRelFilt *>(pBaseFilt);
 	DIALOG_PROC_BODYERR(PersonRelFiltDialog, p_filt);
 }
 

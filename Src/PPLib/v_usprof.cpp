@@ -83,7 +83,7 @@ int SLAPI PPViewUserProfile::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		return 0;
 	TSArray <PPUserProfileCore::UfpDbEntry> ufp_db_list;
 	Tbl.GetDbEntyList(ufp_db_list);
-	DIALOG_PROC_BODY_P1ERR(UserProfileFiltDialog, ufp_db_list, (UserProfileFilt*)pBaseFilt)
+	DIALOG_PROC_BODY_P1ERR(UserProfileFiltDialog, ufp_db_list, static_cast<UserProfileFilt *>(pBaseFilt))
 }
 
 // virtual

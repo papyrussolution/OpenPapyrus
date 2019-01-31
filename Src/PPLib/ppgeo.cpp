@@ -1,5 +1,5 @@
 // PPGEO.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1480,7 +1480,7 @@ int  SLAPI PPViewGeoTracking::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	};
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
-	GeoTrackingFilt * p_filt = (GeoTrackingFilt *)pBaseFilt;
+	GeoTrackingFilt * p_filt = static_cast<GeoTrackingFilt *>(pBaseFilt);
 	DIALOG_PROC_BODY(GeoTrackFiltDialog, p_filt);
 }
 
@@ -1735,9 +1735,9 @@ int SLAPI PPViewGeoTracking::Export()
 					assert(p_n_trkseg != 0);
                     {
                     	SXml::WNode n_trkpt(p_writer, "trkpt");
-							n_trkpt.PutAttrib("lat", out_buf.Z().Cat(item.Latitude, MKSFMTD(0, 20, NMBF_NOTRAILZ)));
-							n_trkpt.PutAttrib("lon", out_buf.Z().Cat(item.Longitude, MKSFMTD(0, 20, NMBF_NOTRAILZ)));
-							n_trkpt.PutInner("ele", out_buf.Z().Cat((double)item.Altitude, MKSFMTD(0, 20, NMBF_NOTRAILZ)));
+							n_trkpt.PutAttrib("lat", out_buf.Z().Cat(item.Latitude, MKSFMTD(0, 12, NMBF_NOTRAILZ)));
+							n_trkpt.PutAttrib("lon", out_buf.Z().Cat(item.Longitude, MKSFMTD(0, 12, NMBF_NOTRAILZ)));
+							n_trkpt.PutInner("ele", out_buf.Z().Cat((double)item.Altitude, MKSFMTD(0, 12, NMBF_NOTRAILZ)));
 							out_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0);
 							n_trkpt.PutInner("time", out_buf);
                     }

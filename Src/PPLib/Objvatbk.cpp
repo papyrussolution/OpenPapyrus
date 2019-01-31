@@ -1537,7 +1537,7 @@ int SLAPI PPViewVatBook::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return PPErrorZ();
-	VatBookFilt * p_filt = (VatBookFilt *)pBaseFilt;
+	VatBookFilt * p_filt = static_cast<VatBookFilt *>(pBaseFilt);
 	VBObj.ReadConfig();
 	DIALOG_PROC_BODY_P2(VATBFiltDialog, DLG_VATBFLT, &VBObj, p_filt);
 }

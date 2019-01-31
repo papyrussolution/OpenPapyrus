@@ -323,7 +323,7 @@ int SLAPI PPObjProject::Read(PPObjPack * p, PPID id, void * stream, ObjTransmCon
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0));
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0));
 		THROW_SL(P_Tbl->SerializeRecord(-1, p->Data, buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
@@ -335,7 +335,7 @@ int SLAPI PPObjProject::Write(PPObjPack * p, PPID * pID, void * stream, ObjTrans
 	int    ok = 1;
 	ProjectTbl::Rec * p_pack = 0;
 	THROW(p && p->Data);
-	p_pack = (ProjectTbl::Rec *)p->Data;
+	p_pack = static_cast<ProjectTbl::Rec *>(p->Data);
 	if(stream == 0) {
 		p_pack->ID = *pID;
 		if(!PutPacket(pID, p_pack, 1)) {
@@ -357,7 +357,7 @@ int SLAPI PPObjProject::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int re
 	int    ok = 1;
 	THROW(p && p->Data);
 	{
-		ProjectTbl::Rec * p_pack = (ProjectTbl::Rec *)p->Data;
+		ProjectTbl::Rec * p_pack = static_cast<ProjectTbl::Rec *>(p->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_PROJECT, &p_pack->ParentID,   ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_PERSON,  &p_pack->MngrID,     ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_PERSON,  &p_pack->ClientID,   ary, replace));
@@ -535,7 +535,7 @@ int SLAPI PPViewProject::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	TDialog * dlg = 0;
 	ProjectFilt filt;
 	THROW(Filt.IsA(pBaseFilt));
-	filt = *(ProjectFilt *)pBaseFilt;
+	filt = *static_cast<const ProjectFilt *>(pBaseFilt);
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_PRJFLT))));
 	SetupCalCtrl(CTLCAL_PRJFLT_PRDSTART, dlg, CTL_PRJFLT_PRDSTART, 1);
 	SetupCalCtrl(CTLCAL_PRJFLT_PRDESTFINISH, dlg, CTL_PRJFLT_PRDESTFINISH, 1);
@@ -557,7 +557,7 @@ int SLAPI PPViewProject::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		dlg->GetClusterData(CTL_PRJFLT_FLAGS,   &filt.Flags);
 		dlg->GetClusterData(CTL_PRJFLT_SORTORD, &filt.SortOrd);
 		if(pBaseFilt)
-			*(ProjectFilt *)pBaseFilt = filt;
+			*static_cast<ProjectFilt *>(pBaseFilt) = filt;
 		ok = valid_data = 1;
 	}
 	CATCHZOKPPERR
@@ -1350,7 +1350,7 @@ int SLAPI PPObjPrjTask::Read(PPObjPack * p, PPID id, void * stream, ObjTransmCon
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0));
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0));
 		THROW_SL(P_Tbl->SerializeRecord(-1, p->Data, buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
@@ -1362,7 +1362,7 @@ int SLAPI PPObjPrjTask::Write(PPObjPack * p, PPID * pID, void * stream, ObjTrans
 	int    ok = 1;
 	PrjTaskTbl::Rec * p_pack = 0;
 	THROW(p && p->Data);
-	p_pack = (PrjTaskTbl::Rec *)p->Data;
+	p_pack = static_cast<PrjTaskTbl::Rec *>(p->Data);
 	if(stream == 0) {
 		p_pack->ID = *pID;
 		if(!PutPacket(pID, p_pack, 1)) {
@@ -1373,7 +1373,7 @@ int SLAPI PPObjPrjTask::Write(PPObjPack * p, PPID * pID, void * stream, ObjTrans
 	else {
 		SBuffer buffer;
 		THROW_SL(P_Tbl->SerializeRecord(+1, p->Data, buffer, &pCtx->SCtx));
-		THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0));
+		THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0));
 	}
 	CATCHZOK
 	return ok;
@@ -1389,7 +1389,7 @@ int SLAPI PPObjPrjTask::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int re
 	int    ok = 1;
 	THROW(p && p->Data);
 	{
-		PrjTaskTbl::Rec * p_pack = (PrjTaskTbl::Rec *)p->Data;
+		PrjTaskTbl::Rec * p_pack = static_cast<PrjTaskTbl::Rec *>(p->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_PROJECT,  &p_pack->ProjectID,   ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_PERSON,   &p_pack->CreatorID,   ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_PERSON,   &p_pack->EmployerID,  ary, replace));
@@ -1930,7 +1930,8 @@ int SLAPI PPObjPrjTask::Edit(PPID * pID, void * extraPtr)
 {
 	const  long extra_param = (long)extraPtr;
 	int    ok = cmCancel, r = 0, is_new = 0, task_finished = 0;
-	PPID   prev_employer = 0, parent_prj = 0, client = 0, employer = 0;
+	PPID   prev_employer = 0, parent_prj = 0, client = 0;
+	PPID   employer = 0;
 	PrjTaskTbl::Rec rec;
 	MEMSZERO(rec);
 	THROW(CheckRightsModByID(pID));
@@ -1973,7 +1974,7 @@ int SLAPI PPObjPrjTask::Edit(PPID * pID, void * extraPtr)
    			output_to_status_win = 1;
 		}
 		else if(!is_new && ok != 0 && Search(*pID, &rec) > 0) {
-			PPID   employer = 0;
+			employer = 0; // @v10.3.2 PPID employer-->employer
 			SysJournal * p_sj = DS.GetTLA().P_SysJ;
 			rec.OpenCount++;
 			rec.Flags |= TODOF_ACTIONVIEWED;

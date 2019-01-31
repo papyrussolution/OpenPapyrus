@@ -973,7 +973,7 @@ int SLAPI PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 			}
 			THROW(tra.Commit());
 		}
-		delete p_bei;
+		ZDELETE(p_bei);
 		delete p_ct_prcssr;
 		Filt.TabType = filt.TabType;
 		P_TempOrd = p_ord;
@@ -1192,7 +1192,7 @@ int SLAPI PPViewPrjTask::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
-	DIALOG_PROC_BODY(PrjTaskFiltDialog, (PrjTaskFilt *)pBaseFilt);
+	DIALOG_PROC_BODY(PrjTaskFiltDialog, static_cast<PrjTaskFilt *>(pBaseFilt));
 }
 
 int SLAPI PPViewPrjTask::InitIteration()

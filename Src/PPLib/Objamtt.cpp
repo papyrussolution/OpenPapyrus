@@ -1,5 +1,5 @@
 // OBJAMTT.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -479,7 +479,7 @@ int  SLAPI PPObjAmountType::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, in
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPAmountTypePacket * p_pack = (PPAmountTypePacket *)p->Data;
+		PPAmountTypePacket * p_pack = static_cast<PPAmountTypePacket *>(p->Data);
 		if(p_pack->Rec.Flags & (PPAmountType::fInAmount | PPAmountType::fOutAmount))
 			THROW(ProcessObjRefInArray(PPOBJ_AMOUNTTYPE, &p_pack->Rec.RefAmtTypeID, ary, replace));
 	}
@@ -504,12 +504,12 @@ int  SLAPI PPObjAmountType::Read(PPObjPack * p, PPID id, void * stream, ObjTrans
 	int    ok = 1;
 	THROW_MEM(p->Data = new PPAmountTypePacket);
 	if(stream == 0) {
-		THROW(GetPacket(id, (PPAmountTypePacket *)p->Data) > 0);
+		THROW(GetPacket(id, static_cast<PPAmountTypePacket *>(p->Data)) > 0);
 	}
 	else {
 		SBuffer buffer;
 		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
-		THROW(SerializePacket(-1, (PPAmountTypePacket *)p->Data, buffer, &pCtx->SCtx));
+		THROW(SerializePacket(-1, static_cast<PPAmountTypePacket *>(p->Data), buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -519,7 +519,7 @@ int  SLAPI PPObjAmountType::Write(PPObjPack * p, PPID * pID, void * stream, ObjT
 {
 	int    ok = 1, r;
 	if(p && p->Data) {
-		PPAmountTypePacket * p_pack = (PPAmountTypePacket *)p->Data;
+		PPAmountTypePacket * p_pack = static_cast<PPAmountTypePacket *>(p->Data);
 		if(stream == 0) {
 			if(*pID == 0) {
 				PPID   same_id = 0;

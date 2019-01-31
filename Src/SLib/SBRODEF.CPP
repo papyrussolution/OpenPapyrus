@@ -6,12 +6,12 @@
 #pragma hdrstop
 //
 void   SBrowserDataProcBlock::SetZero() { PTR8(P_DestData)[0] = 0; }
-void   FASTCALL SBrowserDataProcBlock::Set(int32 i) { *(int32 *)P_DestData = i; }
-void   SBrowserDataProcBlock::Set(double r) { *(double *)P_DestData = r; }
-void   FASTCALL SBrowserDataProcBlock::Set(const char * pS) { strnzcpy((char *)P_DestData, pS, stsize(TypeID)); }
-void   FASTCALL SBrowserDataProcBlock::Set(const SString & rS) { rS.CopyTo((char *)P_DestData, stsize(TypeID)); }
-void   FASTCALL SBrowserDataProcBlock::Set(LDATE dt) { *(LDATE *)P_DestData = dt; }
-void   FASTCALL SBrowserDataProcBlock::Set(LTIME tm) { *(LTIME *)P_DestData = tm; }
+void   FASTCALL SBrowserDataProcBlock::Set(int32 i) { *static_cast<int32 *>(P_DestData) = i; }
+void   SBrowserDataProcBlock::Set(double r) { *static_cast<double *>(P_DestData) = r; }
+void   FASTCALL SBrowserDataProcBlock::Set(const char * pS) { strnzcpy(static_cast<char *>(P_DestData), pS, stsize(TypeID)); }
+void   FASTCALL SBrowserDataProcBlock::Set(const SString & rS) { rS.CopyTo(static_cast<char *>(P_DestData), stsize(TypeID)); }
+void   FASTCALL SBrowserDataProcBlock::Set(LDATE dt) { *static_cast<LDATE *>(P_DestData) = dt; }
+void   FASTCALL SBrowserDataProcBlock::Set(LTIME tm) { *static_cast<LTIME *>(P_DestData) = tm; }
 //
 //
 //
@@ -40,14 +40,14 @@ SLAPI BrowserDef::~BrowserDef()
 	}
 	if(P_CtList) {
 		for(uint i = 0; i < P_CtList->getCount(); i++)
-			delete ((BroCrosstab *)P_CtList->at(i))->P_Text;
+			delete static_cast<BroCrosstab *>(P_CtList->at(i))->P_Text;
 		delete P_CtList;
 	}
 }
 
 BroColumn & FASTCALL BrowserDef::at(uint pos) const
 {
-	return *(BroColumn *)SArray::at(pos);
+	return *static_cast<BroColumn *>(SArray::at(pos));
 }
 
 #pragma warn -rng // Prevent warn "Constant out of range..." at (pos == UNDEF)
@@ -197,7 +197,7 @@ void SLAPI BrowserDef::SetUserProc(SBrowserDataProc proc, void * extraPtr)
 void FASTCALL BrowserDef::freeItem(void * pItem)
 {
 	if(pItem)
-		delete ((BroColumn *)pItem)->text;
+		delete static_cast<BroColumn *>(pItem)->text;
 }
 
 const BroGroup * SLAPI BrowserDef::groupOf(uint column, uint * pGrpPos) const

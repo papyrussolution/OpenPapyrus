@@ -1,5 +1,5 @@
 // OBJWORLD.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2003, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev, A.Starodub 2003, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -19,7 +19,7 @@ int SLAPI PPObjWorldObjStatus::SearchByCode(long code, long kind, PPID * pID, PP
 		k3.ObjType = Obj;
 		k3.Val2 = code;
 		if(ref->search(3, &k3, spEq)) {
-			const PPWorldObjStatus * p_wos = (const PPWorldObjStatus *)&ref->data;
+			const PPWorldObjStatus * p_wos = reinterpret_cast<const PPWorldObjStatus *>(&ref->data);
 			do {
 				if((!kind || p_wos->Kind == kind) && !(pID && *pID && p_wos->ID == *pID)) {
 					ASSIGN_PTR(pID, p_wos->ID);
@@ -1297,7 +1297,7 @@ int SLAPI PPObjWorld::SearchMaxLike(PPWorldPacket * pPack, long flags, PPID * pI
 		if(GetListByCode(pPack->Rec.Kind, pPack->Rec.Code, &list) > 0) {
 			uint count = list.getCount();
 			for(uint i = 0; ok < 0 && i < count; i++) {
-				rec = *((WorldTbl::Rec*)list.at(i));
+				rec = *static_cast<const WorldTbl::Rec *>(list.at(i));
 				if(rec.ID != pPack->Rec.ID)
 					CHECK_PARAM;
 			}
@@ -1308,7 +1308,7 @@ int SLAPI PPObjWorld::SearchMaxLike(PPWorldPacket * pPack, long flags, PPID * pI
 		if(GetListByName(pPack->Rec.Kind, pPack->Rec.Name, &list) > 0) {
 			uint count = list.getCount();
 			for(uint i = 0; ok < 0 && i < count; i++) {
-				rec = *((WorldTbl::Rec*)list.at(i));
+				rec = *static_cast<const WorldTbl::Rec *>(list.at(i));
 				if(rec.ID != pPack->Rec.ID)
 					CHECK_PARAM;
 			}
@@ -1324,7 +1324,7 @@ int SLAPI PPObjWorld::Read(PPObjPack * p, PPID id, void * stream, ObjTransmConte
 	int    ok = 1;
 	THROW_MEM(p->Data = new PPWorldPacket);
 	{
-		PPWorldPacket * p_pack = (PPWorldPacket*)p->Data;
+		PPWorldPacket * p_pack = static_cast<PPWorldPacket *>(p->Data);
 		if(stream == 0) {
 			THROW(GetPacket(id, p_pack) > 0);
 		}
@@ -1342,7 +1342,7 @@ int SLAPI PPObjWorld::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPWorldPacket * p_pack = (PPWorldPacket *)p->Data;
+		PPWorldPacket * p_pack = static_cast<PPWorldPacket *>(p->Data);
 		if(stream == 0) {
 			if(*pID || SearchMaxLike(p_pack, 0, pID) > 0) {
 				p_pack->Rec.ID = *pID;
@@ -1378,7 +1378,7 @@ int SLAPI PPObjWorld::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 int SLAPI PPObjWorld::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	if(p && p->Data) {
-		PPWorldPacket * gp = (PPWorldPacket*)p->Data;
+		PPWorldPacket * gp = static_cast<PPWorldPacket *>(p->Data);
 		ProcessObjRefInArray(PPOBJ_WORLD, &gp->Rec.ParentID,  ary, replace);
 		ProcessObjRefInArray(PPOBJ_WORLD, &gp->Rec.CountryID, ary, replace);
 		ProcessObjRefInArray(PPOBJ_CURRENCY, &gp->Rec.CurrencyID, ary, replace);

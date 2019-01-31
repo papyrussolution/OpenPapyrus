@@ -1841,7 +1841,7 @@ int SLAPI PPObjProcessor::Read(PPObjPack * p, PPID id, void * stream, ObjTransmC
 int  SLAPI PPObjProcessor::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
-	PPProcessorPacket * p_pack = p ? (PPProcessorPacket *)p->Data : 0;
+	PPProcessorPacket * p_pack = p ? static_cast<PPProcessorPacket *>(p->Data) : 0;
 	if(p_pack) {
 		if(stream == 0) {
 			PPID   same_id = 0;
@@ -1885,7 +1885,7 @@ int  SLAPI PPObjProcessor::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPProcessorPacket * p_pack = (PPProcessorPacket *)p->Data;
+		PPProcessorPacket * p_pack = static_cast<PPProcessorPacket *>(p->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_PROCESSOR, &p_pack->Rec.ParentID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_LOCATION, &p_pack->Rec.LocID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_UNIT, &p_pack->Rec.TimeUnitID, ary, replace));
@@ -1936,7 +1936,7 @@ int SLAPI PPViewProcessor::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	int    ok = -1;
 	TDialog * dlg = 0;
 	if(Filt.IsA(pBaseFilt)) {
-		ProcessorFilt * p_filt = (ProcessorFilt *)pBaseFilt;
+		ProcessorFilt * p_filt = static_cast<ProcessorFilt *>(pBaseFilt);
 		if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_PRCFILT)))) {
 			dlg->AddClusterAssoc(CTL_PRCFILT_KIND, 0, PPPRCK_GROUP);
 			dlg->AddClusterAssoc(CTL_PRCFILT_KIND, 1, PPPRCK_PROCESSOR);

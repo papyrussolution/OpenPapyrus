@@ -269,7 +269,7 @@ int SLAPI PPViewSalary::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	THROW(Filt.IsA(pBaseFilt));
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_SALARYFLT))));
 	{
-		SalaryFilt * p_filt = (SalaryFilt *)pBaseFilt;
+		SalaryFilt * p_filt = static_cast<SalaryFilt *>(pBaseFilt);
 		dlg->SetupCalPeriod(CTLCAL_SALARYFLT_PERIOD, CTL_SALARYFLT_PERIOD);
 		dlg->addGroup(GRP_DIV, new DivisionCtrlGroup(CTLSEL_SALARYFLT_ORG, CTLSEL_SALARYFLT_DIV,
 			CTLSEL_SALARYFLT_STAFF, CTLSEL_SALARYFLT_POST));

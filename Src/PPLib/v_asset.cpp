@@ -48,7 +48,7 @@ int SLAPI PPViewAsset::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	AssetFilt filt;
 	TDialog * dlg = new TDialog(DLG_ASSETFLT);
 	THROW(Filt.IsA(pBaseFilt));
-	filt = *(AssetFilt *)pBaseFilt;
+	filt = *static_cast<AssetFilt *>(pBaseFilt);
 	THROW(CheckDialogPtrErr(&dlg));
 	SetupCalCtrl(CTLCAL_ASSETFLT_PERIOD, dlg, CTL_ASSETFLT_PERIOD, 1);
 	SetupCalCtrl(CTLCAL_ASSETFLT_OPERAT, dlg, CTL_ASSETFLT_OPERAT, 2);
@@ -88,7 +88,7 @@ int SLAPI PPViewAsset::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			dlg->GetClusterData(CTL_ASSETFLT_FLAGS, &filt.Flags);
 			dlg->GetClusterData(CTL_ASSETFLT_INEXPL, &temp_long);
 			filt.Ft_InExpl = (int16)temp_long;
-			*(AssetFilt *)pBaseFilt = filt;
+			*static_cast<AssetFilt *>(pBaseFilt) = filt;
 			ok = 1;
 		}
 	}

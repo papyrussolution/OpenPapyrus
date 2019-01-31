@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147492559
+LastSignatureCode=2147492605
 LastAutoCodeList=1,11257;102,10168;103,10071;110,10000;111,11740;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10088;120,10005;1001,10000;121,10000;122,10000;123,10335;1002,10000;1003,10000;1004,10000;1005,10000;124,10097
 
 [SignatureList]
@@ -4947,6 +4947,7 @@ goodsrestfilt_fforcenullrest=2147488468
 goodsrestfilt_flags2=2147488894
 goodsrestfilt_f2calcprognosis=2147488895
 goodsrestfilt_f2costbyquot=2147488896
+goodsrestfilt_f2retailprice=2147492589
 goodsrestfilt_quotusage=2147488897
 goodsrestfilt_quotusage_no=2147488898
 goodsrestfilt_quotusage_asprice=2147488899
@@ -5569,6 +5570,7 @@ gsfilt_ordbyprmrgoodsname=2147489721
 gsfilt_ordbyscndgoodsname=2147489722
 gsfilt_ordbystructypeprmrgoodsname=2147489723
 gsfilt_fshowunrefs=2147490842
+gsfilt_fskipbypassiveowner=2147492590
 objtransm=2147488371
 objtransmmod=2147488386
 objtransm_destdbdivlist=2147488372

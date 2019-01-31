@@ -39,7 +39,7 @@ PPSyncCashSession * SLAPI CM_AMC100::SyncInterface()
 {
 	PPSyncCashSession * cs = 0;
 	if(IsValid()) {
-		cs = (PPSyncCashSession*)new SCS_AMC100(NodeID, NodeRec.Name, NodeRec.Port);
+		cs = new SCS_AMC100(NodeID, NodeRec.Name, NodeRec.Port);
 		CALLPTRMEMB(cs, Init(NodeRec.Name, NodeRec.Port));
 	}
 	return cs;
@@ -292,7 +292,7 @@ PPSyncCashSession * SLAPI CM_AMC200::SyncInterface()
 {
 	PPSyncCashSession * p_cs = 0;
 	if(IsValid()) {
-		p_cs = (PPSyncCashSession*)new SCS_AMC200(NodeID, NodeRec.Name, NodeRec.Port);
+		p_cs = new SCS_AMC200(NodeID, NodeRec.Name, NodeRec.Port);
 		CALLPTRMEMB(p_cs, Init(NodeRec.Name, NodeRec.Port));
 	}
 	return p_cs;

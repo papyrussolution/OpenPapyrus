@@ -27,7 +27,7 @@ public:
 	int    SLAPI SearchByPrc(PPID prcID, uint * pPos) const { return lsearch(&prcID, pPos, CMPF_LONG, offsetof(PSE, PrcID)); }
 	int    SLAPI SearchByBill(PPID billID, uint * pPos) const { return lsearch(&billID, pPos, CMPF_LONG, offsetof(PSE, BillID)); }
 	int    SLAPI SearchBySess(PPID sessID, uint * pPos) const { return lsearch(&sessID, pPos, CMPF_LONG, offsetof(PSE, SessID)); }
-	PPID   SLAPI GetLastUsedSessID() const { return (LastUsedEntryPos < getCount()) ? ((PSE *)at(LastUsedEntryPos))->SessID : 0; }
+	PPID   SLAPI GetLastUsedSessID() const { return (LastUsedEntryPos < getCount()) ? static_cast<const PSE *>(at(LastUsedEntryPos))->SessID : 0; }
 	int    SLAPI Add(const TSessionTbl::Rec * pSessRec, int isProper);
 	int    SLAPI SetLastLine(PPID sessID, long oprNo)
 	{
@@ -75,7 +75,7 @@ private:
 	};
 	PSE &  SLAPI Get(uint pos) const
 	{
-		return *(BhtTSess::PSE *)at(pos);
+		return *static_cast<BhtTSess::PSE *>(at(pos));
 	}
 	int    SLAPI CreateSess(PPID * pSessID, const BhtTSessRec * pRec, const ProcessorTbl::Rec * pPrcRec);
 	int    SLAPI CloseSess(uint entryPos);
@@ -97,9 +97,9 @@ void SLAPI PPObjTSession::PlaceStatus::Init()
 	RegPersonID = 0;
 	CipID = 0;
 	Price = 0.0;
-	PlaceCode = 0;
-	Descr = 0;
-	PinCode = 0;
+	PlaceCode.Z();
+	Descr.Z();
+	PinCode.Z();
 }
 //
 //
@@ -172,7 +172,7 @@ int FASTCALL PPObjTSession::WriteConfig(PPTSessConfig * pCfg, int use_ta)
 			}
 			const size_t ext_size = buf.GetAvailableSize();
 			sz += ext_size;
-			THROW_MEM(p_cfg = (Storage_PPTSessionConfig *)SAlloc::M(sz));
+			THROW_MEM(p_cfg = static_cast<Storage_PPTSessionConfig *>(SAlloc::M(sz)));
 			memzero(p_cfg, sz);
 			p_cfg->Tag = PPOBJ_CONFIG;
 			p_cfg->ID = PPCFG_MAIN;
@@ -4680,7 +4680,7 @@ int SLAPI PPObjTSession::Read(PPObjPack * p, PPID id, void * stream, ObjTransmCo
 int SLAPI PPObjTSession::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
-	TSessionPacket * p_pack = p ? (TSessionPacket *)p->Data : 0;
+	TSessionPacket * p_pack = p ? static_cast<TSessionPacket *>(p->Data) : 0;
 	if(p_pack)
 		if(stream == 0) {
 			PPID   same_id = 0;
@@ -4718,7 +4718,7 @@ int SLAPI PPObjTSession::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int r
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		TSessionPacket * p_pack = (TSessionPacket *)p->Data;
+		TSessionPacket * p_pack = static_cast<TSessionPacket *>(p->Data);
 		uint   i;
 		THROW(ProcessObjRefInArray(PPOBJ_TSESSION, &p_pack->Rec.ParentID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_TECH, &p_pack->Rec.TechID, ary, replace));

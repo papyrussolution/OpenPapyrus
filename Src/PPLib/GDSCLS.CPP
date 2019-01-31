@@ -1,5 +1,5 @@
 // GDSCLS.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -134,12 +134,12 @@ int SLAPI PPObjGoodsClass::Read(PPObjPack * p, PPID id, void * stream, ObjTransm
 	int    ok = 1;
 	THROW_MEM(p->Data = new PPGdsClsPacket);
 	if(stream == 0) {
-		THROW(GetPacket(id, (PPGdsClsPacket*)p->Data) > 0);
+		THROW(GetPacket(id, static_cast<PPGdsClsPacket *>(p->Data)) > 0);
 	}
 	else {
 		SBuffer buffer;
 		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
-		THROW(SerializePacket(-1, (PPGdsClsPacket*)p->Data, buffer, &pCtx->SCtx));
+		THROW(SerializePacket(-1, static_cast<PPGdsClsPacket *>(p->Data), buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -149,7 +149,7 @@ int SLAPI PPObjGoodsClass::Write(PPObjPack * p, PPID * pID, void * stream, ObjTr
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPGdsClsPacket * p_pack = (PPGdsClsPacket*)p->Data;
+		PPGdsClsPacket * p_pack = static_cast<PPGdsClsPacket *>(p->Data);
 		if(stream == 0) {
 			if(*pID == 0) {
 				PPID   same_id = 0;
@@ -187,7 +187,7 @@ int SLAPI PPObjGoodsClass::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPGdsClsPacket * p_pack = (PPGdsClsPacket*)p->Data;
+		PPGdsClsPacket * p_pack = static_cast<PPGdsClsPacket *>(p->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_UNIT, &p_pack->Rec.DefUnitID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_UNIT, &p_pack->Rec.DefPhUnitID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_GOODSTAX, &p_pack->Rec.DefTaxGrpID, ary, replace));

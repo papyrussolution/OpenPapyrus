@@ -246,16 +246,16 @@ PPEgaisProcessor::Packet::~Packet()
 {
 	switch(DocType) {
 		case PPEDIOP_EGAIS_QUERYCLIENTS:
-		case PPEDIOP_EGAIS_QUERYAP: delete ((StrStrAssocArray *)P_Data); break;
+		case PPEDIOP_EGAIS_QUERYAP: delete static_cast<StrStrAssocArray *>(P_Data); break;
 		case PPEDIOP_EGAIS_QUERYRESENDDOC: // @v10.2.12
 		case PPEDIOP_EGAIS_QUERYFORMA:
-		case PPEDIOP_EGAIS_QUERYFORMB: delete ((SString *)P_Data); break;
-		case PPEDIOP_EGAIS_TICKET: delete ((Ticket *)P_Data); break;
+		case PPEDIOP_EGAIS_QUERYFORMB: delete static_cast<SString *>(P_Data); break;
+		case PPEDIOP_EGAIS_TICKET: delete static_cast<Ticket *>(P_Data); break;
 		case PPEDIOP_EGAIS_TTNINFORMBREG:
-		case PPEDIOP_EGAIS_TTNINFORMF2REG: delete ((InformB *)P_Data); break;
-		case PPEDIOP_EGAIS_REPLYCLIENT: delete ((TSCollection <PPPersonPacket> *)P_Data); break;
-		case PPEDIOP_EGAIS_REPLYAP: delete ((TSCollection <PPGoodsPacket> *)P_Data); break;
-		case PPEDIOP_EGAIS_REPLYFORMA: delete ((EgaisRefATbl::Rec *)P_Data); break;
+		case PPEDIOP_EGAIS_TTNINFORMF2REG: delete static_cast<InformB *>(P_Data); break;
+		case PPEDIOP_EGAIS_REPLYCLIENT: delete static_cast<TSCollection <PPPersonPacket> *>(P_Data); break;
+		case PPEDIOP_EGAIS_REPLYAP: delete static_cast<TSCollection <PPGoodsPacket> *>(P_Data); break;
+		case PPEDIOP_EGAIS_REPLYFORMA: delete static_cast<EgaisRefATbl::Rec *>(P_Data); break;
 		case PPEDIOP_EGAIS_WAYBILL:
 		case PPEDIOP_EGAIS_WAYBILL_V2: // @v9.5.5
 		case PPEDIOP_EGAIS_WAYBILL_V3: // @v9.9.5
@@ -273,14 +273,14 @@ PPEgaisProcessor::Packet::~Packet()
 		case PPEDIOP_EGAIS_ACTWRITEOFF_V3: // @v9.9.5
 		case PPEDIOP_EGAIS_ACTWRITEOFFSHOP: // @v9.4.0
 		case PPEDIOP_EGAIS_TRANSFERTOSHOP:
-		case PPEDIOP_EGAIS_TRANSFERFROMSHOP: delete ((PPBillPacket *)P_Data); break;
-		case PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG: delete ((ActInform *)P_Data); break;
-		case PPEDIOP_EGAIS_CONFIRMTICKET: delete ((ConfirmTicket *)P_Data); break;
+		case PPEDIOP_EGAIS_TRANSFERFROMSHOP: delete static_cast<PPBillPacket *>(P_Data); break;
+		case PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG: delete static_cast<ActInform *>(P_Data); break;
+		case PPEDIOP_EGAIS_CONFIRMTICKET: delete static_cast<ConfirmTicket *>(P_Data); break;
 		case PPEDIOP_EGAIS_REQUESTREPEALWB:
 		case PPEDIOP_EGAIS_REQUESTREPEALAWO: // @v10.0.07
-		case PPEDIOP_EGAIS_CONFIRMREPEALWB: delete ((RepealWb *)P_Data); break;
+		case PPEDIOP_EGAIS_CONFIRMREPEALWB: delete static_cast<RepealWb *>(P_Data); break;
         case PPEDIOP_EGAIS_QUERYBARCODE:
-		case PPEDIOP_EGAIS_REPLYBARCODE: delete ((TSCollection <QueryBarcode> *)P_Data); break;
+		case PPEDIOP_EGAIS_REPLYBARCODE: delete static_cast<TSCollection <QueryBarcode> *>(P_Data); break;
 	}
 }
 
@@ -297,7 +297,7 @@ int PPEgaisProcessor::LogSended(const Packet & rPack)
 			PPEgaisProcessor::GetDocTypeTag(rPack.DocType, temp_buf);
 			msg_buf.CatDiv(':', 2).Cat(temp_buf);
 			if(rPack.P_Data) {
-				const StrStrAssocArray * p_list = (const StrStrAssocArray *)rPack.P_Data;
+				const StrStrAssocArray * p_list = static_cast<const StrStrAssocArray *>(rPack.P_Data);
 				if(p_list->getCount()) {
 					msg_buf.CatDiv('-', 2);
 					for(uint i = 0; i < p_list->getCount(); i++) {
@@ -324,7 +324,7 @@ int PPEgaisProcessor::LogSended(const Packet & rPack)
 			if(msg_buf.Empty())
 				PPLoadText(PPTXT_EGAIS_QS_CHARGEON, msg_buf);
 			{
-				const PPBillPacket * p_pack = (const PPBillPacket *)rPack.P_Data;
+				const PPBillPacket * p_pack = static_cast<const PPBillPacket *>(rPack.P_Data);
 				if(p_pack) {
 					PPObjBill::MakeCodeString(&p_pack->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, temp_buf);
 					msg_buf.CatDiv(':', 2).Cat(temp_buf);
@@ -336,7 +336,7 @@ int PPEgaisProcessor::LogSended(const Packet & rPack)
 		case PPEDIOP_EGAIS_CONFIRMTICKET:
 			PPLoadText(PPTXT_EGAIS_QS_CFMTICKET, msg_buf);
 			{
-				const ConfirmTicket * p_ct = (const ConfirmTicket *)rPack.P_Data;
+				const ConfirmTicket * p_ct = static_cast<const ConfirmTicket *>(rPack.P_Data);
 				if(p_ct) {
 					BillTbl::Rec bill_rec;
 					if(p_ct->BillID && BillObj->Search(p_ct->BillID, &bill_rec) > 0) {
@@ -362,7 +362,7 @@ int PPEgaisProcessor::LogSended(const Packet & rPack)
 int SLAPI PPEgaisProcessor::GetReplyList(void * pCtx, PPID locID, int direction /* +1 out, -1 - in */, TSCollection <PPEgaisProcessor::Reply> & rList)
 {
     int    ok = 1;
-    xmlParserCtxt * p_ctx = (xmlParserCtxt *)pCtx;
+    xmlParserCtxt * p_ctx = static_cast<xmlParserCtxt *>(pCtx);
 	xmlDoc * p_doc = 0;
 	xmlNode * p_root = 0;
 	ScURL  c;
@@ -374,7 +374,7 @@ int SLAPI PPEgaisProcessor::GetReplyList(void * pCtx, PPID locID, int direction 
 		SFile wr_stream(ack_buf, SFile::mWrite);
 		THROW_SL(c.HttpGet(url, 0, &wr_stream));
 		{
-			SBuffer * p_ack_buf = (SBuffer *)wr_stream;
+			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 			if(p_ack_buf) {
 				SString temp_buf;
 				const int avl_size = (int)p_ack_buf->GetAvailableSize();
@@ -455,7 +455,7 @@ int SLAPI PPEgaisProcessor::ReadAck(SBuffer * pBuf, PPEgaisProcessor::Ack & rAck
 						rAck.Status &= ~Ack::stError;
 				}
 				else if(SXml::GetContentByName(p_c, "sign", temp_buf)) {
-					strnzcpy((char *)rAck.Sign, temp_buf, sizeof(rAck.Sign));
+					strnzcpy(reinterpret_cast<char *>(rAck.Sign), temp_buf, sizeof(rAck.Sign));
 					rAck.SignSize = (uint8)temp_buf.Len();
 				}
 				else if(SXml::GetContentByName(p_c, "ver", temp_buf)) {
@@ -672,8 +672,8 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 			// 91F2257133C70DC649E903F203ED461D91AC9E3D4E363DF95A48BCA416FC374E4926C22F3E7002B135819AC5A7AEBD681CB81688B0AD2389EE1777412089AF86
 			rAck.Status = 0;
 			rAck.Ver = 2;
-			strnzcpy((char *)rAck.Sign, "91F2257133C70DC649E903F203ED461D91AC9E3D4E363DF95A48BCA416FC374E4926C22F3E7002B135819AC5A7AEBD681CB81688B0AD2389EE1777412089AF86", sizeof(rAck.Sign));
-			rAck.SignSize = (uint8)sstrlen(rAck.Sign);
+			strnzcpy(reinterpret_cast<char *>(rAck.Sign), "91F2257133C70DC649E903F203ED461D91AC9E3D4E363DF95A48BCA416FC374E4926C22F3E7002B135819AC5A7AEBD681CB81688B0AD2389EE1777412089AF86", sizeof(rAck.Sign));
+			rAck.SignSize = static_cast<uint8>(sstrlen(rAck.Sign));
 			rAck.Id.Generate();
 			rAck.Url = "http://check.egais.ru?id=a4a702b9-3f03-49f4-800c-e69874bf3302&dt=1906162019&cn=020000448086";
 			//rAck.Url = "91F2257133C70DC649E903F203ED461D91AC9E3D4E363DF95A48BCA416FC374E4926C22F3E7002B135819AC5A7AEBD681CB81688B0AD2389EE1777412089AF86";
@@ -842,7 +842,7 @@ int SLAPI PPEgaisProcessor::QueryClients(PPID locID, int queryby, const char * p
 			else
 				assert(0);
 			if(code_txt_id && PPLoadText(code_txt_id, code_buf)) {
-				((StrStrAssocArray *)qp.P_Data)->Add(code_buf, pQ);
+				static_cast<StrStrAssocArray *>(qp.P_Data)->Add(code_buf, pQ);
 			}
 		}
 		THROW(PutQuery(qp, locID, "QueryPartner", ack));
@@ -890,7 +890,7 @@ int SLAPI PPEgaisProcessor::QueryProducts(PPID locID, int queryby, const char * 
 			else
 				assert(0);
 			if(code_txt_id && PPLoadText(code_txt_id, code_buf)) {
-				((StrStrAssocArray *)qp.P_Data)->Add(code_buf, pQ);
+				static_cast<StrStrAssocArray *>(qp.P_Data)->Add(code_buf, pQ);
 			}
 		}
 		THROW(PutQuery(qp, locID, "QueryAP", ack));
@@ -905,7 +905,7 @@ int SLAPI PPEgaisProcessor::QueryInfA(PPID locID, const char * pInfA)
 	Ack    ack;
     Packet qp(PPEDIOP_EGAIS_QUERYFORMA);
 	if(qp.P_Data) {
-        *(SString *)qp.P_Data = pInfA;
+        *static_cast<SString *>(qp.P_Data) = pInfA;
 	}
 	THROW(PutQuery(qp, locID, "QueryFormA", ack));
 	CATCHZOK
@@ -918,7 +918,7 @@ int SLAPI PPEgaisProcessor::QueryInfB(PPID locID, const char * pInfB)
 	Ack    ack;
     Packet qp(PPEDIOP_EGAIS_QUERYFORMB);
 	if(qp.P_Data) {
-		*(SString *)qp.P_Data = pInfB;
+		*static_cast<SString *>(qp.P_Data) = pInfB;
 	}
 	THROW(PutQuery(qp, locID, "QueryFormB", ack));
 	CATCHZOK
@@ -992,34 +992,17 @@ SLAPI PPEgaisProcessor::~PPEgaisProcessor()
 		delete P_Logger;
 }
 
-int SLAPI PPEgaisProcessor::operator !() const
-{
-	return BIN(State & stError);
-}
-
-void SLAPI PPEgaisProcessor::SetTestSendingMode(int set)
-{
-	SETFLAG(State, stTestSendingMode, set);
-}
-
-void SLAPI PPEgaisProcessor::SetNonRvmTagMode(int set)
-{
-	SETFLAG(State, stDontRemoveTags, set);
-}
-
-int SLAPI PPEgaisProcessor::CheckLic() const
-{
-	return (State & stValidLic) ? 1 : PPSetError(PPERR_EGAIS_NOLIC);
-}
+int  SLAPI PPEgaisProcessor::operator !() const { return BIN(State & stError); }
+void SLAPI PPEgaisProcessor::SetTestSendingMode(int set) { SETFLAG(State, stTestSendingMode, set); }
+void SLAPI PPEgaisProcessor::SetNonRvmTagMode(int set) { SETFLAG(State, stDontRemoveTags, set); }
+int  SLAPI PPEgaisProcessor::CheckLic() const { return (State & stValidLic) ? 1 : PPSetError(PPERR_EGAIS_NOLIC); }
 
 void FASTCALL PPEgaisProcessor::Log(const SString & rMsg)
 {
-	if(P_Logger) {
+	if(P_Logger)
 		P_Logger->Log(rMsg);
-	}
-	else if(State & stDirectFileLogging) {
+	else if(State & stDirectFileLogging)
 		PPLogMessage(PPFILNAM_EGAIS_LOG, rMsg, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-	}
 }
 
 void SLAPI PPEgaisProcessor::LogTextWithAddendum(int msgCode, const SString & rAddendum)
@@ -1034,9 +1017,8 @@ void SLAPI PPEgaisProcessor::LogLastError()
 {
 	if(P_Logger)
 		P_Logger->LogLastError();
-	else if(State & stDirectFileLogging) {
+	else if(State & stDirectFileLogging)
 		PPLogMessage(PPFILNAM_EGAIS_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-	}
 }
 
 const SString & FASTCALL PPEgaisProcessor::EncText(const char * pS)
@@ -1053,11 +1035,6 @@ const SString & FASTCALL PPEgaisProcessor::EncText(const SString & rS)
 	PROFILE(XMLReplaceSpecSymb(EncBuf, "&<>\'"));
 	return EncBuf.Transf(CTRANSF_INNER_TO_UTF8);
 }
-
-/*struct EgaisDocTypeEntry {
-	int    DocType;
-	const  char * P_Tag;
-};*/
 
 static const SIntToSymbTabEntry _EgaisDocTypes[] = {
 	{ PPEDIOP_EGAIS_TICKET,           "Ticket" },
@@ -1113,16 +1090,6 @@ static const SIntToSymbTabEntry _EgaisDocTypes[] = {
 	{ PPEDIOP_EGAIS_QUERYRESENDDOC,   "QueryResendDoc" } // @v10.2.12
 };
 
-/*const char * FASTCALL PPEgaisProcessor::GetDocTypeTag(int docType)
-{
-    for(uint i = 0; i < SIZEOFARRAY(_EgaisDocTypes); i++) {
-		const EgaisDocTypeEntry & r_entry = _EgaisDocTypes[i];
-		if(r_entry.DocType == docType)
-			return r_entry.P_Tag;
-    }
-    return 0;
-}*/
-
 //static
 int FASTCALL PPEgaisProcessor::GetDocTypeTag(int docType, SString & rTag)
 {
@@ -1140,11 +1107,6 @@ int FASTCALL PPEgaisProcessor::RecognizeDocTypeTag(const char * pTag)
 			tag = ntag;
 		}
 		if(tag.NotEmptyS()) {
-			/*for(uint i = 0; !doc_type && i < SIZEOFARRAY(_EgaisDocTypes); i++) {
-				const EgaisDocTypeEntry & r_entry = _EgaisDocTypes[i];
-				if(tag.CmpNC(r_entry.P_Tag) == 0)
-					doc_type = r_entry.DocType;
-			}*/
 			doc_type = SIntToSymbTab_GetId(_EgaisDocTypes, SIZEOFARRAY(_EgaisDocTypes), tag);
 			// @v9.5.5 {
 			if(!doc_type) {
@@ -1171,11 +1133,6 @@ int FASTCALL PPEgaisProcessor::RecognizeDocTypeTag(const char * pTag)
 //
 //
 //
-/*struct EgaisWayBillTypeEntry {
-	int    Wbt;
-	const char * P_Text;
-};*/
-
 static const SIntToSymbTabEntry _EgaisWayBillTypes[] = {
 	{ PPEgaisProcessor::wbtInvcFromMe, "WBInvoiceFromMe" },
 	{ PPEgaisProcessor::wbtInvcToMe, "WBInvoiceToMe" },
@@ -1185,32 +1142,9 @@ static const SIntToSymbTabEntry _EgaisWayBillTypes[] = {
 
 //static
 int FASTCALL PPEgaisProcessor::GetWayBillTypeText(int wbType, SString & rBuf) // @v10.0.05
-{
-	return SIntToSymbTab_GetSymb(_EgaisWayBillTypes, SIZEOFARRAY(_EgaisWayBillTypes), wbType, rBuf);
-}
-
-/*const char * FASTCALL PPEgaisProcessor::GetWayBillTypeText(int wbType)
-{
-    for(uint i = 0; i < SIZEOFARRAY(_EgaisWayBillTypes); i++) {
-		const EgaisWayBillTypeEntry & r_entry = _EgaisWayBillTypes[i];
-		if(r_entry.Wbt == wbType)
-			return r_entry.P_Text;
-    }
-    return 0;
-}*/
-
+	{ return SIntToSymbTab_GetSymb(_EgaisWayBillTypes, SIZEOFARRAY(_EgaisWayBillTypes), wbType, rBuf); }
 int FASTCALL PPEgaisProcessor::RecognizeWayBillTypeText(const char * pText)
-{
-	/*if(!isempty(pText)) {
-		for(uint i = 0; i < SIZEOFARRAY(_EgaisWayBillTypes); i++) {
-			const EgaisWayBillTypeEntry & r_entry = _EgaisWayBillTypes[i];
-			if(stricmp(pText, r_entry.P_Text) == 0)
-				return r_entry.Wbt;
-		}
-	}
-    return 0;*/
-	return SIntToSymbTab_GetId(_EgaisWayBillTypes, SIZEOFARRAY(_EgaisWayBillTypes), pText);
-}
+	{ return SIntToSymbTab_GetId(_EgaisWayBillTypes, SIZEOFARRAY(_EgaisWayBillTypes), pText); }
 
 int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags)
 {
@@ -1474,15 +1408,13 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 	SString rar_id = rRefcItem.RarIdent;
 	int   j_status = 0; // 1 - росс юр, 2 - росс ип, 3 - иностранец (не ТС), 4 - иностранец (таможенный союз)
 	const char * p_j_scope = 0;
-	{
-		if(flags & woifStrict) {
-			THROW_PP_S(rar_id.NotEmptyS(), PPERR_EGAIS_PERSONFSRARIDUNDEF, rRefcItem.Name);
-		}
-		else if(flags & woifDontSendWithoutFSRARID) {
-			if(!rar_id.NotEmptyS()) {
-				LogTextWithAddendum(PPTXT_EGAIS_PERSONHASNTRARID, temp_buf = rRefcItem.Name);
-                ok = -1;
-			}
+	if(flags & woifStrict) {
+		THROW_PP_S(rar_id.NotEmptyS(), PPERR_EGAIS_PERSONFSRARIDUNDEF, rRefcItem.Name);
+	}
+	else if(flags & woifDontSendWithoutFSRARID) {
+		if(!rar_id.NotEmptyS()) {
+			LogTextWithAddendum(PPTXT_EGAIS_PERSONHASNTRARID, temp_buf = rRefcItem.Name);
+            ok = -1;
 		}
 	}
 	if(ok > 0) {
@@ -1645,30 +1577,6 @@ int SLAPI PPEgaisProcessor::WriteProductInfo(SXml::WDoc & rXmlDoc, const char * 
 		if(flags & wpifPutManufInfo) {
 			const  long woif = (flags & wpifVersion2) ? (woifDontSendWithoutFSRARID|woifVersion2) : woifDontSendWithoutFSRARID;
 			if(use_refc_data && (agi.RefcImporterCode.NotEmpty() || agi.RefcManufCode.NotEmpty())) {
-				/*
-				TSVector <EgaisPersonTbl::Rec> epr_list; // @v9.8.4 TSArray-->TSVector
-				if(agi.RefcManufCode.NotEmpty()) {
-					const int idx = P_RefC->PsC.SearchByCode(agi.RefcManufCode, epr_list);
-					if(idx > 0) {
-                        const EgaisPersonTbl::Rec & r_rec = epr_list.at(idx-1);
-                        EgaisPersonCore::Item epr_item;
-                        P_RefC->PsC.RecToItem(r_rec, epr_item);
-						WriteOrgInfo(rXmlDoc, "pref:Producer", epr_item, woif);
-						manuf_done = 1;
-					}
-				}
-				if(agi.RefcImporterCode.NotEmpty() && !(flags & wpifVersion2)) {
-					const int idx = P_RefC->PsC.SearchByCode(agi.RefcImporterCode, epr_list);
-					if(idx > 0) {
-						const EgaisPersonTbl::Rec & r_rec = epr_list.at(idx-1);
-						EgaisPersonCore::Item epr_item;
-						P_RefC->PsC.RecToItem(r_rec, epr_item);
-						WriteOrgInfo(rXmlDoc, "pref:Importer", epr_item, woif);
-						manuf_done = 1;
-					}
-				}
-				*/
-				// @v10.0.06 {
 				EgaisPersonCore::Item epr_item;
 				if(GetEgaisPersonByCode(agi.RefcManufCode, epr_item) > 0) {
 					WriteOrgInfo(rXmlDoc, SXml::nst("pref", "Producer"), epr_item, woif);
@@ -1678,7 +1586,6 @@ int SLAPI PPEgaisProcessor::WriteProductInfo(SXml::WDoc & rXmlDoc, const char * 
 					WriteOrgInfo(rXmlDoc, SXml::nst("pref", "Importer"), epr_item, woif);
 					manuf_done = 1;
 				}
-				// } @v10.0.06
 			}
 			if(!manuf_done) {
 				if(lotID) {
@@ -1924,39 +1831,6 @@ int SLAPI PPEgaisProcessor::GetFSRARID(PPID locID, SString & rBuf, PPID * pMainO
 		PPSetError(PPERR_EGAIS_FSRARIDUNDEF);
 	return ok;
 }
-
-/* @v10.2.9 (moved to LotExtCodeCore) int SLAPI PPEgaisProcessor::Helper_MakeMarkList(PPID lotID, StringSet & rSsExtCodes, uint * pExtCodeCount)
-{
-	rSsExtCodes.clear();
-
-	int    ok = -1;
-	uint   ext_code_count = 0;
-	THROW_MEM(SETIFZ(P_LecT, new LotExtCodeCore)); // @v10.2.9 LotExtCodeTbl-->LotExtCodeCore
-	if(lotID) {
-		LotExtCodeTbl::Key0 k0;
-		MEMSZERO(k0);
-		k0.LotID = lotID;
-		if(P_LecT->search(0, &k0, spGe) && P_LecT->data.LotID == lotID && P_LecT->data.BillID == 0) {
-			ok = 1;
-			SString temp_buf;
-			do {
-				temp_buf = P_LecT->data.Code;
-				if(!ExclChrgOnMarks.search(temp_buf, 0, 1)) {
-					ext_code_count++;
-					rSsExtCodes.add(temp_buf);
-				}
-			} while(P_LecT->search(0, &k0, spNext) && P_LecT->data.LotID == lotID && P_LecT->data.BillID == 0);
-		}
-	}
-	CATCHZOK
-	ASSIGN_PTR(pExtCodeCount, ext_code_count);
-	return ok;
-}*/
-/*int SLAPI PPEgaisProcessor::IsAcsLinkedToMainOrg(PPID acsID)
-{
-	PPAccSheet acs_rec;
-	return BIN(acsID && AcsObj.Fetch(acsID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup == PPPRK_MAIN);
-}*/
 
 int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * pX)
 {
@@ -2832,7 +2706,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 											// Если в сопровождении с лотом идут коды марок, то в качестве количества применяем количество этих марок.
 											// В противном случае берем количество из строки документа (остаток по лоту на момент формирования документа).
 											//
-											const long org_qtty = (long)R0(fabs(r_ti.Qtty()));
+											const long org_qtty = R0i(fabs(r_ti.Qtty()));
 											const long sqtty = /*ext_code_count*/ext_code_exists ? (long)ext_code_count : org_qtty;
 											w_p.PutInner(SXml::nst("ainp", "Quantity"), EncText(temp_buf.Z().Cat(sqtty)));
 											if(/*ext_code_count*/ext_code_exists && sqtty != org_qtty) {
@@ -2873,7 +2747,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						}
 					}
 					else if(doc_type == PPEDIOP_EGAIS_ACTCHARGEON) {
-						const PPBillPacket * p_bp = (const PPBillPacket *)rPack.P_Data;
+						const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(rPack.P_Data);
 						{
 							SXml::WNode n_h(_doc, SXml::nst("ain", "Header"));
 							n_h.PutInner(SXml::nst("ain", "Number"), EncText(temp_buf = p_bp->Rec.Code));
@@ -2909,7 +2783,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 											// Если в сопровождении с лотом идут коды марок, то в качестве количества применяем количество этих марок.
 											// В противном случае берем количество из строки документа (остаток по лоту на момент формирования документа).
 											//
-											const long org_qtty = (long)R0(fabs(r_ti.Qtty()));
+											const long org_qtty = R0i(fabs(r_ti.Qtty()));
 											const long sqtty = /*ext_code_count*/ext_code_exists ? (long)ext_code_count : org_qtty;
 											w_p.PutInner(SXml::nst("ain", "Quantity"), EncText(temp_buf.Z().Cat(sqtty)));
 											if(/*ext_code_count*/ext_code_exists && sqtty != org_qtty) {

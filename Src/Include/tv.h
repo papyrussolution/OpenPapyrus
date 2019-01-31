@@ -3930,7 +3930,7 @@ public:
 	int    AddItemToMenu(const char * pTitle, void * ptr);
 	int    UpdateItemInMenu(const char * pTitle, void * ptr);
 	int    DelItemFromMenu(void * ptr);
-	int    SelectTabItem(void * ptr);
+	int    SelectTabItem(const void * ptr);
 	int    SetWindowViewByKind(HWND hWnd, int wndType);
 	int    DrawControl(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	int    EraseBackground(TView * pView, HWND hWnd, HDC hDC, int ctlType);

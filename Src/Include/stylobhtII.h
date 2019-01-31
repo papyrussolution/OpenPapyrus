@@ -922,9 +922,8 @@ struct SBIILocOp : public SBIIRec { // size = 28
 				ok = -1;
 			}
 			else {
-				char * p_buf = (char*)pBuf;
+				char * p_buf = static_cast<char *>(pBuf);
 				size_t bytes = 0;
-
 				memcpy(p_buf + bytes,                           &BillID,      sizeof(BillID));
 				memcpy(p_buf + (bytes += sizeof(BillID)),       &RByBill,     sizeof(RByBill));
 				memcpy(p_buf + (bytes += sizeof(RByBill)),      &GoodsID,     sizeof(GoodsID));
@@ -939,16 +938,14 @@ struct SBIILocOp : public SBIIRec { // size = 28
 	}
 	virtual int FromBuf(const void * pBuf)
 	{
-		const char * p_buf = (const char*)pBuf;
+		const char * p_buf = static_cast<const char *>(pBuf);
 		size_t bytes = 0;
-
 		memcpy(&BillID,    p_buf + bytes,                        sizeof(BillID));
 		memcpy(&RByBill,   p_buf + (bytes += sizeof(BillID)),    sizeof(RByBill));
 		memcpy(&GoodsID,   p_buf + (bytes += sizeof(RByBill)),   sizeof(GoodsID));
 		memcpy(&LocCellID, p_buf + (bytes += sizeof(GoodsID)),   sizeof(LocCellID));
 		memcpy(&Op,        p_buf + (bytes += sizeof(LocCellID)), sizeof(Op));
 		memcpy(&Qtty,      p_buf + (bytes += sizeof(Op)),        sizeof(Qtty));
-
 		return 1;
 	}
 	int32  BillID;

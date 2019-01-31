@@ -1,5 +1,5 @@
 // SGEO.CPP
-// Copyright (c) A.Sobolev 2009, 2010, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2009, 2010, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -289,8 +289,8 @@ int FASTCALL SGeoPosLL_Int::Cmp(const SGeoPosLL & rS) const
 
 int SGeoPosLL_Int::Set(double lat, double lon)
 {
-    Lat = (long)R0(lat * IntGeoCoordScale);
-    Lon = (long)R0(lon * IntGeoCoordScale);
+    Lat = R0i(lat * IntGeoCoordScale);
+    Lon = R0i(lon * IntGeoCoordScale);
 	return Valid();
 }
 

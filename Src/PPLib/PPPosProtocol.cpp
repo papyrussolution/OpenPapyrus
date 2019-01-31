@@ -808,7 +808,7 @@ SLAPI PPPosProtocol::SCardSeriesBlock::SCardSeriesBlock() : ObjectBlock(), RefP(
 	{}
 SLAPI PPPosProtocol::SCardBlock::SCardBlock() : ObjectBlock(), CodeP(0), OwnerBlkP(0), SeriesBlkP(0), Discount(0.0)
 	{}
-SLAPI PPPosProtocol::CSessionBlock::CSessionBlock() : ObjectBlock(), ID(0), Code(0), PosBlkP(0), Dtm(ZERODATETIME)
+SLAPI PPPosProtocol::CSessionBlock::CSessionBlock() : ObjectBlock(), /*ID(0),*/ Code(0), PosBlkP(0), Dtm(ZERODATETIME)
 	{}
 SLAPI PPPosProtocol::CCheckBlock::CCheckBlock() : ObjectBlock(), Code(0), CcFlags(0), SaCcFlags(0), CTableN(0), GuestCount(0), CSessionBlkP(0),
 	AddrBlkP(0), AgentBlkP(0), Amount(0.0), Discount(0.0), Dtm(ZERODATETIME), CreationDtm(ZERODATETIME), SCardBlkP(0), MemoP(0)

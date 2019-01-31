@@ -3584,7 +3584,6 @@ int SLAPI PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAd
 		static PPIDArray * p_ev_list = 0;
 		static PPIDArray * p_comm_dirty_cache_ev_list = 0;
 		static PPIDArray * p_addendum_ev_list = 0;
-		//
 		if(!CMng.IsDeferredState(dbPathID)) {
 			ENTER_CRITICAL_SECTION
 			{
@@ -3615,11 +3614,7 @@ int SLAPI PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAd
 						0L);
 					p_comm_dirty_cache_ev_list->sort();
 					p_addendum_ev_list = new PPIDArray;
-					p_addendum_ev_list->addzlist(
-						PPACN_OBJTAGUPD,
-						PPACN_OBJTAGRMV,
-						PPACN_OBJTAGADD,
-						0L);
+					p_addendum_ev_list->addzlist(PPACN_OBJTAGUPD, PPACN_OBJTAGRMV, PPACN_OBJTAGADD, PPACN_CONFIGUPDATED, 0L); // @v10.3.2 PPACN_CONFIGUPDATED
 					p_addendum_ev_list->sort();
 					p_ev_list = new PPIDArray;
 					p_ev_list->addUnique(p_comm_dirty_cache_ev_list);
@@ -3631,17 +3626,15 @@ int SLAPI PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAd
 			const uint64 tm_start = SLS.GetProfileTime();
 			const LDATETIME cur = getcurdatetime_();
 			LDATETIME last_cache_update = CMng.GetLastUpdate(dbPathID);
-
 			uint   dirty_call_count = 0;
 			PPAdviseList adv_list;
 			struct SjEntry { // @flat
-				int16  Action;
-				int16  ObjType;
+				PPID   Action;  // @v10.3.2 int16-->PPID
+				PPID   ObjType; // @v10.3.2 int16-->PPID
 				PPID   ObjID;
 				long   Extra;
 			};
-			SVector list(sizeof(SjEntry), O_ARRAY); // @v9.8.4 SArray-->SVector
-			//TSVector <PPAdviseEvent> evq_list; // @v9.8.4 TSArray-->TSVector
+			SVector list(sizeof(SjEntry), O_ARRAY);
 			PPAdviseEventVector evq_list;
 			PPAdviseEventQueue * p_queue = (pCli && !CheckExtFlag(ECF_DISABLEASYNCADVQUEUE)) ? CMng.GetAdviseEventQueue(dbPathID) : 0;
 			if(pCli && p_queue)
@@ -3663,8 +3656,8 @@ int SLAPI PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAd
 						for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
 							if(cmp(last_cache_update, p_sj->data.Dt, p_sj->data.Tm) < 0 && p_ev_list->bsearch(p_sj->data.Action)) {
 								SjEntry entry;
-								entry.Action  = (int16)p_sj->data.Action;
-								entry.ObjType = (int16)p_sj->data.ObjType;
+								entry.Action  = p_sj->data.Action;
+								entry.ObjType = p_sj->data.ObjType;
 								entry.ObjID   = p_sj->data.ObjID;
 								entry.Extra   = p_sj->data.Extra;
 								list.insert(&entry);
@@ -3677,8 +3670,8 @@ int SLAPI PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAd
 				for(uint i = 0; i < evqc; i++) {
 					const PPAdviseEvent & r_ev = evq_list.at(i);
 					SjEntry entry;
-					entry.Action  = (int16)r_ev.Action;
-					entry.ObjType = (int16)r_ev.Oid.Obj;
+					entry.Action  = r_ev.Action;
+					entry.ObjType = r_ev.Oid.Obj;
 					entry.ObjID   = r_ev.Oid.Id;
 					entry.Extra   = r_ev.SjExtra;
 					list.insert(&entry);
@@ -3688,7 +3681,7 @@ int SLAPI PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAd
 			if(ev_count) {
 				SjEntry * p_item;
 				uint   i = 0;
-				while(list.enumItems(&i, (void **)&p_item)) {
+				while(list.enumItems(&i, reinterpret_cast<void **>(&p_item))) {
 					if(p_item->ObjType && p_item->ObjID && p_comm_dirty_cache_ev_list->bsearch(p_item->Action)) {
 						ObjCache * p_cache = GetDbLocalObjCache(p_item->ObjType);
 						if(p_cache) {
@@ -3702,7 +3695,7 @@ int SLAPI PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAd
 					PPAdviseBlock adv_blk;
 					for(uint j = 0; adv_list.Enum(&j, &adv_blk);) {
 						if(adv_blk.Proc) {
-							for(i = 0; list.enumItems(&i, (void **)&p_item);) {
+							for(i = 0; list.enumItems(&i, reinterpret_cast<void **>(&p_item));) {
 								if((!adv_blk.Action || p_item->Action == adv_blk.Action) && (!adv_blk.ObjType || adv_blk.ObjType == p_item->ObjType)) {
 									ev.Clear();
 									ev.Action  = p_item->Action;
@@ -3720,8 +3713,8 @@ int SLAPI PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAd
 			uint64 tm_finish = SLS.GetProfileTime();
 			{
 				SString msg_buf;
-				(msg_buf = "Cache was updated").CatDiv(':', 2).CatEq("events", (long)ev_count).Space().
-					CatEq("calls", (long)dirty_call_count).Space().CatEq("time", (int64)(tm_finish-tm_start));
+				(msg_buf = "Cache was updated").CatDiv(':', 2).CatEq("events", ev_count).Space().
+					CatEq("calls", dirty_call_count).Space().CatEq("time", (int64)(tm_finish-tm_start));
 				SetThreadNotification(PPSession::stntMessage, msg_buf);
 			}
 			CMng.SetLastUpdate(dbPathID, cur);

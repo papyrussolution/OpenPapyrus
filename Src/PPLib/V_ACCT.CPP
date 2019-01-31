@@ -1,5 +1,5 @@
 // V_ACCT.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2011, 2016, 2018
+// Copyright (c) A.Sobolev, A.Starodub 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2011, 2016, 2018, 2019
 // @codepage UTF-8
 // PPViewAccount
 //
@@ -43,7 +43,7 @@ PPBaseFilt * SLAPI PPViewAccount::CreateFilt(void * extraPtr) const
 	AccountFilt * p_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_ACCOUNT, (PPBaseFilt**)&p_filt))
 		p_filt->Type = ((long)extraPtr);
-	return (PPBaseFilt*)p_filt;
+	return static_cast<PPBaseFilt *>(p_filt);
 }
 
 // virtual
@@ -52,7 +52,7 @@ int SLAPI PPViewAccount::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	int    ok = -1;
 	uint   v = 0;
 	if(Filt.IsA(pBaseFilt)) {
-		AccountFilt * p_filt = (AccountFilt*)pBaseFilt;
+		AccountFilt * p_filt = static_cast<AccountFilt *>(pBaseFilt);
 		switch(p_filt->Type) {
 			case ACY_BAL:  v = 0; break;
 			case ACY_OBAL: v = 1; break;
@@ -294,7 +294,7 @@ SArray * SLAPI PPViewAccount::CreateBrowserArray(uint * pBrwId, SString * pSubTi
 	else
 		brw_id = PPMaster ? BROWSER_ACCOUNT_SYS : BROWSER_ACCOUNT;
 	if(pSubTitle)
-		PPGetSubStr(PPTXT_ACCTITLES, (uint)Filt.Type, *pSubTitle);
+		PPGetSubStr(PPTXT_ACCTITLES, Filt.Type, *pSubTitle);
 	ASSIGN_PTR(pBrwId, brw_id);
 	return p_array;
 }
@@ -359,7 +359,7 @@ DBQuery * SLAPI PPViewAccount::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		q->orderBy(a->Code, a->Ac, a->Sb, 0L);
 	THROW(CheckQueryPtr(q));
 	if(pSubTitle)
-		PPGetSubStr(PPTXT_ACCTITLES, (uint)Filt.Type, *pSubTitle);
+		PPGetSubStr(PPTXT_ACCTITLES, Filt.Type, *pSubTitle);
 	CATCH
 		if(q)
 			ZDELETE(q);

@@ -452,7 +452,7 @@ int SLAPI PPViewLot::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
-	LotFilt * p_filt = (LotFilt *)pBaseFilt;
+	LotFilt * p_filt = static_cast<LotFilt *>(pBaseFilt);
 	uint   dlg_id = (p_filt->Flags & LotFilt::fOrders) ? DLG_FLTLOTORD : DLG_FLTLOT;
 	DIALOG_PROC_BODY_P1(LotFiltDialog, dlg_id, p_filt);
 }
@@ -1449,12 +1449,12 @@ int SLAPI PPViewLot::Debug()
 	PPWait(1);
 	PPLogMessage(PPFILNAM_DEBUG_LOG, PPSTR_TEXT, PPTXT_LOG_LOTPRICEROUNDTEST_BEG, LOGMSGF_TIME|LOGMSGF_USER);
 	for(InitIteration(); NextIteration(&item) > 0;) {
-		buf.Z().CR().Cat(item.Cost, MKSFMTD(0, 20, 0)).Space().CatCharN('-', 2).Space().Cat(item.Price, MKSFMTD(0, 20, 0));
+		buf.Z().CR().Cat(item.Cost, MKSFMTD(0, 12, 0)).Space().CatCharN('-', 2).Space().Cat(item.Price, MKSFMTD(0, 12, 0));
 		PPLogMessage(PPFILNAM_DEBUG_LOG, buf, 0);
 		for(int i = 2; i <= 6; i++) {
 			double c = round(item.Cost, i);
 			double p = round(item.Price, i);
-			buf.Z().Cat(i).CatDiv(':', 2).Cat(c, MKSFMTD(0, 20, 0)).Space().CatCharN('-', 2).Space().Cat(p, MKSFMTD(0, 20, 0));
+			buf.Z().Cat(i).CatDiv(':', 2).Cat(c, MKSFMTD(0, 12, 0)).Space().CatCharN('-', 2).Space().Cat(p, MKSFMTD(0, 12, 0));
 			PPLogMessage(PPFILNAM_DEBUG_LOG, buf, 0);
 		}
 		PPWaitPercent(Counter.Increment());

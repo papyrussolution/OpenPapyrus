@@ -1150,7 +1150,7 @@ int SLAPI PPViewGoodsOpAnalyze::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
-	GoodsOpAnalyzeFilt * p_filt = (GoodsOpAnalyzeFilt *)pBaseFilt;
+	GoodsOpAnalyzeFilt * p_filt = static_cast<GoodsOpAnalyzeFilt *>(pBaseFilt);
 	DIALOG_PROC_BODY(GoodsOpAnlzFiltDialog, p_filt);
 }
 
@@ -3546,6 +3546,7 @@ void SLAPI PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 						c  = 7;
 						c2 = 28;
 						c3 = 39;
+						break; // @v10.3.2 @fix (отсутствовал break)
 					case GoodsOpAnalyzeFilt::fldidPctProfitable:
 						PPLoadString("income", c_title);
 						c_title.Space().CatChar('%');

@@ -2497,14 +2497,14 @@ struct SUniTime_Inner {
 	#define TICKSTO1980         0x01a8e79fe1d58000i64
 #endif
 
-#define _IS_LEAP_EPOCH_YEAR(y) (((y % 4 == 0) && (y % 100 != 0)) || ((y + 1900) % 400 == 0))
+#define _IS_LEAP_EPOCH_YEAR(y) ((((y) % 4 == 0) && ((y) % 100 != 0)) || (((y) + 1900) % 400 == 0))
 #define _LEAP_YEAR_ADJUST  17 // Leap years 1900 - 1970
 #define _MAX__TIME64_T     0x100000000000i64 // number of seconds from 00:00:00, 01/01/1970 UTC to 23:59:59. 12/31/2999 UTC
 //
 // Number of leap years from 1970 up to, but not including, the specified year
 // (expressed as the number of years since 1900).
 //
-#define _ELAPSED_LEAP_YEARS(y) (((y - 1)/4) - ((y - 1)/100) + ((y + 299)/400) - _LEAP_YEAR_ADJUST)
+#define _ELAPSED_LEAP_YEARS(y) ((((y)-1)/4) - (((y)-1)/100) + (((y)+299)/400) - _LEAP_YEAR_ADJUST)
 //
 //  ULONG
 //  NumberOfLeapYears (IN ULONG ElapsedYears);
@@ -2514,7 +2514,7 @@ struct SUniTime_Inner {
 //  that every four years is a leap year except centuries, and the
 //  exception to the exception is the quadricenturies
 //
-#define NumberOfLeapYears(YEARS) (((YEARS)/4) - ((YEARS)/100) + ((YEARS)/400))
+#define NumberOfLeapYears(y) (((y)/4) - ((y)/100) + ((y)/400))
 //
 //  ULONG ElapsedYearsToDays (IN ULONG ElapsedYears);
 //
@@ -2522,7 +2522,7 @@ struct SUniTime_Inner {
 //  of years times 365 (because every year has at least 365 days) plus
 //  the number of leap years there are (i.e., the number of 366 days years)
 //
-#define ElapsedYearsToDays(YEARS) (((YEARS) * 365) + NumberOfLeapYears(YEARS))
+#define ElapsedYearsToDays(y) (((y) * 365) + NumberOfLeapYears(y))
 
 static int FASTCALL DaysSinceEpoch(int year)
 {

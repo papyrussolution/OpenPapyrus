@@ -1,5 +1,5 @@
 // DLS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -470,7 +470,7 @@ int SLAPI PPViewDvcLoadingStat::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
-	DvcLoadingStatFilt * p_filt = (DvcLoadingStatFilt *)pBaseFilt;
+	DvcLoadingStatFilt * p_filt = static_cast<DvcLoadingStatFilt *>(pBaseFilt);
 	DIALOG_PROC_BODY(DLSFiltDialog, p_filt);
 }
 

@@ -567,7 +567,7 @@ int PPApp::processCommand(uint cmd)
 		case cmDefaultCliAgt:        PPObjArticle::DefaultClientAgreement();  break;
 		case cmDefaultSupplAgt:      PPObjArticle::DefaultSupplAgreement();   break;
 		case cmGoods2LocAssoc:       ViewGoodsToLocAssoc(0, PPASS_GOODS2LOC, 0, 0); break;
-		case cmGoods2SupplAssoc:     ViewGoodsToObjAssoc(PPOBJ_ARTICLE,  0, PPASS_GOODS2SUPPL, GetSupplAccSheet()); break;
+		case cmGoods2SupplAssoc:     ViewGoodsToObjAssoc(PPOBJ_ARTICLE,  0, PPASS_GOODS2SUPPL, reinterpret_cast<void *>(GetSupplAccSheet())); break;
 		case cmGoods2CashNodeAssoc:  ViewGoodsToObjAssoc(PPOBJ_CASHNODE, 0, PPASS_GOODS2CASHNODE, 0); break;
 		case cmAccAnalyze:           ViewAccAnlz(0, aakndGeneric);            break;
 		case cmCashBook:             ViewAccAnlz(0, aakndCashBook);           break;

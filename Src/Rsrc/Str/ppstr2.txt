@@ -10646,6 +10646,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodsrestfilt_flags2                     "Дополнительные флаги"
 @goodsrestfilt_f2calcprognosis            "Рассчитывать прогноз продаж"
 @goodsrestfilt_f2costbyquot               "Котировку трактовать как цены поступления"
+@goodsrestfilt_f2retailprice              "Розничные цены реализации"
 
 @goodsrestfilt_quotusage                  "Использование котировки" // generic
 @goodsrestfilt_quotusage_no               "@{no}" // generic
@@ -11312,6 +11313,7 @@ public:
 @gsfilt_ordbyscndgoodsname                "По наименованию вторичного товара"
 @gsfilt_ordbystructypeprmrgoodsname       "По типу структуры"
 @gsfilt_fshowunrefs                       "Показывать структуры, на которые не ссылаются товары"
+@gsfilt_fskipbypassiveowner               "Не показывать структуры с пассивным владельцем"
 
 @objtransm                                "Перенос объектов"
 @objtransmmod                             "Перенос измененных объектов"

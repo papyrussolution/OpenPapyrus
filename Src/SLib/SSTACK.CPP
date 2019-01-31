@@ -7,15 +7,15 @@
 //
 // Definitions same as in sarray.cpp
 //
-#define _USERPTR(ptr) ((flags&aryPtrContainer)?(*(void **)(ptr)):(ptr))
-#define _INTRPTR(ptr) ((flags&aryPtrContainer)?&(ptr):(ptr))
-#define _BDATA        PTR8(data)
+#define _USERPTR(ptr) ((VFlags&aryPtrContainer)?(*static_cast<void **>(ptr)):(ptr))
+#define _INTRPTR(ptr) ((VFlags&aryPtrContainer)?&(ptr):(ptr))
+#define _BDATA        PTR8(P_VData)
 
 SLAPI SStack::SStack(uint itemSize, uint o) : SArray(itemSize, o)
 {
 	pointer = 0;
 	// @v9.8.1 {
-	if(flags & aryRing/* && delta*/) {
+	if(VFlags & aryRing/* && delta*/) {
 		// @v9.8.4 expand(/*delta*/32);
 	}
 	// } @v9.8.1 
@@ -25,20 +25,20 @@ int FASTCALL SStack::push(const void * pItem)
 {
 	int    ok = 0;
 	if(pointer < count) {
-		if(flags & aryEachItem) {
+		if(VFlags & aryEachItem) {
 			void * p_item = _BDATA + pointer * isize;
 			freeItem(_USERPTR(p_item));
 		}
 		atPut(pointer++, pItem);
 		ok = 1;
 	}
-	else if(flags & aryRing && Limit && count >= Limit) {
+	else if(VFlags & aryRing && Limit && count >= Limit) {
 		//
 		// Для кольцевого стека при достижении первого лимита (размер кольца
 		// задается параметром delta) начинаем заносить элементы в начало массива.
 		//
 		assert(count == Limit);
-		if(flags & aryEachItem) {
+		if(VFlags & aryEachItem) {
 			void * p_item = _BDATA + pointer * isize;
 			freeItem(_USERPTR(p_item));
 		}
@@ -57,7 +57,7 @@ void * SLAPI SStack::pop()
 {
 	if(pointer)
 		return at(--pointer);
-	else if(flags & aryRing && Limit && count >= Limit) {
+	else if(VFlags & aryRing && Limit && count >= Limit) {
 		//
 		// Для кольцевого стека при достижении нулевой границы массива
 		// (если массив распределен более чем на 0 элементов) извлекаем
@@ -81,7 +81,7 @@ int FASTCALL SStack::pop(void * pItem)
 			memcpy(pItem, at(pointer), isize);
 		return 1;
 	}
-	else if(flags & aryRing && Limit && count >= Limit) {
+	else if(VFlags & aryRing && Limit && count >= Limit) {
 		assert(count == Limit);
 		pointer = Limit-1;
 		if(pItem)
@@ -101,7 +101,7 @@ void * SLAPI SStack::peek() const
 {
 	if(pointer)
 		return at(pointer-1);
-	else if(flags & aryRing && Limit && count >= Limit) {
+	else if(VFlags & aryRing && Limit && count >= Limit) {
 		assert(count == Limit);
 		return at(Limit-1);
 	}

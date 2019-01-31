@@ -172,7 +172,7 @@ int SLAPI TagFilt::SelectIndicator(PPID objID, SColor & rClr) const
 				select_ok = BIN(restrict.ToLong() == item.Val.IntVal);
 			else if(item.TagDataType == OTTYP_NUMBER) {
 				RealRange rr;
-				strtorrng((const char*)restrict, &rr.low, &rr.upp);
+				strtorrng(restrict.cptr(), &rr.low, &rr.upp);
 				select_ok = rr.CheckVal(item.Val.RealVal);
 			}
 			else if(oneof2(item.TagDataType, OTTYP_STRING, OTTYP_GUID)) {
@@ -1431,7 +1431,7 @@ int SLAPI PPObjTag::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext
 		THROW(Search(id, p->Data) > 0);
 	}
 	else {
-		THROW(Serialize_(-1, (ReferenceTbl::Rec *)p->Data, stream, pCtx));
+		THROW(Serialize_(-1, static_cast<ReferenceTbl::Rec *>(p->Data), stream, pCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -1441,7 +1441,7 @@ int SLAPI PPObjTag::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replac
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPObjectTag * p_rec = (PPObjectTag *)p->Data;
+		PPObjectTag * p_rec = static_cast<PPObjectTag *>(p->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_TAG, &p_rec->TagGroupID, ary, replace));
 		if(IS_DYN_OBJTYPE(p_rec->TagEnumID)) {
 			THROW(ProcessObjRefInArray(PPOBJ_DYNAMICOBJS, &p_rec->TagEnumID, ary, replace));
@@ -2156,7 +2156,7 @@ int SLAPI TagDlgParam::SetDlgData(TDialog * dlg, const ObjTagItem * pItem)
 	}
 	else if(typ == OTTYP_IMAGE) {
 		val.s[0] = 0;
-		SString path(pItem->Val.PStr);
+		const SString path(pItem->Val.PStr);
 		ImageBrowseCtrlGroup::Rec grp_rec(&path);
 		if(dlg->getGroup(GRP_IMG) == 0)
 			dlg->addGroup(GRP_IMG, new ImageBrowseCtrlGroup(/*PPTXT_FILPAT_PICT,*/ValImgCtl, cmAddImage, cmDelImage));
@@ -2690,11 +2690,10 @@ private:
 		}
 		virtual void FASTCALL freeItem(void * pItem)
 		{
-			((TagTypeEntry *)pItem)->UndefList.Destroy();
+			static_cast<TagTypeEntry *>(pItem)->UndefList.Destroy();
 		}
 	};
 	TagTypeArray TagTypeList;
-	//
 	Entry * P_Items;
 	long   AdvCookie;
 	StringSet Ss;
@@ -2708,7 +2707,7 @@ int ObjTagCache::OnSysJ(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 	int    ok = -1;
 	if(kind == PPAdviseBlock::evDirtyCacheBySysJ) {
 		if(oneof3(pEv->Action, PPACN_OBJTAGUPD, PPACN_OBJTAGRMV, PPACN_OBJTAGADD)) {
-			ObjTagCache * p_cache = (ObjTagCache *)procExtPtr;
+			ObjTagCache * p_cache = static_cast<ObjTagCache *>(procExtPtr);
 			if(p_cache) {
 				p_cache->Dirty(pEv->ObjType, pEv->ObjID, pEv->ExtInt_);
 				ok = 1;

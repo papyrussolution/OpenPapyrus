@@ -11,8 +11,8 @@ int FASTCALL PPViewGoodsStruc::Cmp_ItemEntry(const PPViewGoodsStruc * pView, int
 {
 	int    si = 0;
 	if(pView && i1 && i2) {
-		const ItemEntry * p1 = (const ItemEntry *)i1;
-		const ItemEntry * p2 = (const ItemEntry *)i2;
+		const ItemEntry * p1 = static_cast<const ItemEntry *>(i1);
+		const ItemEntry * p2 = static_cast<const ItemEntry *>(i2);
 		const uint slc = pView->StrucList.getCount();
 		SString n1, n2;
 		switch(order) {
@@ -75,7 +75,7 @@ int FASTCALL PPViewGoodsStruc::Cmp_ItemEntry(const PPViewGoodsStruc * pView, int
 
 static IMPL_CMPCFUNC(GoodsStrucView_ItemEntry_CurrentOrder, i1, i2)
 {
-	PPViewGoodsStruc * p_view = (PPViewGoodsStruc *)pExtraData;
+	PPViewGoodsStruc * p_view = static_cast<PPViewGoodsStruc *>(pExtraData);
 	return p_view ? PPViewGoodsStruc::Cmp_ItemEntry(p_view, p_view->GetCurrentViewOrder(), i1, i2) : 0;
 }
 
@@ -109,6 +109,7 @@ public:
 		AddClusterAssocDef(CTL_GSFILT_ORDER, 3, PPViewGoodsStruc::OrdByStrucTypePrmrGoodsName);
 		SetClusterData(CTL_GSFILT_ORDER, Data.InitOrder);
 		AddClusterAssoc(CTL_GSFILT_FLAGS, 0, GoodsStrucFilt::fShowUnrefs);
+		AddClusterAssoc(CTL_GSFILT_FLAGS, 1, GoodsStrucFilt::fSkipByPassiveOwner); // @v10.3.2
 		SetClusterData(CTL_GSFILT_FLAGS, Data.Flags);
 		return ok;
 	}
@@ -129,7 +130,6 @@ public:
 		}
 		GetClusterData(CTL_GSFILT_ORDER, &Data.InitOrder);
 		GetClusterData(CTL_GSFILT_FLAGS, &Data.Flags);
-		//
 		ASSIGN_PTR(pData, Data);
 		CATCHZOK
 		return ok;
@@ -152,7 +152,7 @@ int SLAPI PPViewGoodsStruc::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
-	GoodsStrucFilt * p_filt = (GoodsStrucFilt *)pBaseFilt;
+	GoodsStrucFilt * p_filt = static_cast<GoodsStrucFilt *>(pBaseFilt);
 	DIALOG_PROC_BODY(GoodsStrucFiltDialog, p_filt);
 }
 
@@ -195,7 +195,9 @@ int SLAPI PPViewGoodsStruc::Init_(const PPBaseFilt * pBaseFilt)
 			goods_filt.GrpIDList.Add(Filt.PrmrGoodsGrpID);
 			goods_filt.Flags |= GoodsFilt::fWithStrucOnly;
 			for(GoodsIterator gi(&goods_filt, 0); gi.Next(&grec) > 0;) {
-				THROW(AddItem(grec.ID, grec.StrucID, 0));
+				if(!(Filt.Flags & Filt.fSkipByPassiveOwner) || !(grec.Flags & GF_PASSIV)) { // @v10.3.2
+					THROW(AddItem(grec.ID, grec.StrucID, 0));
+				}
 				PPWaitPercent(gi.GetIterCounter());
 			}
 			if(!Filt.PrmrGoodsGrpID && !Filt.PrmrGoodsID && Filt.Flags & Filt.fShowUnrefs) {

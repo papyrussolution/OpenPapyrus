@@ -1141,7 +1141,7 @@ int SLAPI PPLotExtCodeContainer::AddValidation(long boxId, int16 flags, const ch
 int SLAPI PPLotExtCodeContainer::Delete(int rowIdx, uint itemIdx)
 {
 	int    ok = 1;
-    THROW(rowIdx >= 0);
+    //THROW(rowIdx >= 0);
 	THROW(itemIdx < SVector::getCount());
 	{
 		Item2 item;

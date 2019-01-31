@@ -2621,15 +2621,12 @@ private:
 int SLAPI BillItemBrowser::ValidateExtCodeList()
 {
 	int    ok = -1;
-	ValidateLotXCodeListDialog * dlg = 0;
-	if(P_Pack && P_Pack->XcL.GetCount()) {
-		dlg = new ValidateLotXCodeListDialog(P_Pack);
-		if(CheckDialogPtr(&dlg)) {
-			dlg->setDTS(&P_Pack->_VXcL);
-			if(ExecView(dlg) == cmOK) {
-				dlg->getDTS(&P_Pack->_VXcL);
-				ok = 1;
-			}
+	ValidateLotXCodeListDialog * dlg = (P_Pack && P_Pack->XcL.GetCount()) ? new ValidateLotXCodeListDialog(P_Pack) : 0;
+	if(dlg && CheckDialogPtr(&dlg)) {
+		dlg->setDTS(&P_Pack->_VXcL);
+		if(ExecView(dlg) == cmOK) {
+			dlg->getDTS(&P_Pack->_VXcL);
+			ok = 1;
 		}
 	}
 	delete dlg;
@@ -2652,8 +2649,6 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 					LotExtCodeTbl::Rec rec;
 					PPLotExtCodeContainer::MarkSet set;
 					if(EditItemDialog(rec, c, set) > 0) {
-						//uint   idx = 0;
-						//if(Data.Add(RowIdx, 0, 0, rec.Code, &idx))
 						if(Data.Add(RowIdx, set))
 							updateList(-1);
 						else
@@ -2675,7 +2670,6 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 			PPLotExtCodeContainer::MarkSet ms;
 			PPLotExtCodeContainer::MarkSet::Entry msentry;
 			LongArray idx_list;
-			//Data.Get(RowIdx, &idx_list, ss);
 			Data.Get(RowIdx, &idx_list, ms);
 			long list_pos_idx = 0;
 			for(uint boxidx = 0; boxidx < ms.GetCount(); boxidx++) {

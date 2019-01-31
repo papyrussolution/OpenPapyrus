@@ -472,7 +472,7 @@ static cairo_int_status_t _cairo_win32_save_initial_clip(HDC hdc, cairo_win32_di
 	if(clipBoxType == ERROR) {
 		_cairo_win32_print_gdi_error(__FUNCTION__);
 		SetGraphicsMode(hdc, gm);
-		/* XXX: Can we make a more reasonable guess at the error cause here? */
+		// XXX: Can we make a more reasonable guess at the error cause here? 
 		return _cairo_error(CAIRO_STATUS_DEVICE_ERROR);
 	}
 	surface->win32.extents.x = rect.left;

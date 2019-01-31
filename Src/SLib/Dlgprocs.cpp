@@ -338,16 +338,15 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 			}
 			break;
 		case WM_MOUSEMOVE:
-			{
-				p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
-				if(p_dlg) {
-					event.what = TEvent::evMouseMove;
-					event.mouse.buttons = (uchar)wParam;
-					event.mouse.WhereX = LOWORD(lParam);
-					event.mouse.WhereY = HIWORD(lParam);
-					p_dlg->handleEvent(event);
-				}
+			p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
+			if(p_dlg) {
+				event.what = TEvent::evMouseMove;
+				event.mouse.buttons = (uchar)wParam;
+				event.mouse.WhereX = LOWORD(lParam);
+				event.mouse.WhereY = HIWORD(lParam);
+				p_dlg->handleEvent(event);
 			}
+			break; // @v10.3.2 @fix (отсутствовал break)
 		case WM_VKEYTOITEM:
 			if(PassMsgToCtrl(hwndDlg, uMsg, wParam, lParam) == -1) {
 				p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);

@@ -90,9 +90,8 @@ static pixman_bool_t have_cpuid(void)
 	    : "%eax", "%ecx");
 
 	return !!result;
-
 #else
-#error "Unknown compiler"
+	#error "Unknown compiler"
 #endif
 }
 
@@ -100,7 +99,6 @@ static pixman_bool_t have_cpuid(void)
 static void pixman_cpuid(uint32_t feature, uint32_t * a, uint32_t * b, uint32_t * c, uint32_t * d)
 {
 #if defined (__GNUC__)
-
 #if _PIXMAN_X86_64
 	__asm__ volatile (
 	    "cpuid"                         "\n\t"
@@ -197,7 +195,6 @@ pixman_implementation_t * _pixman_x86_get_implementations(pixman_implementation_
 #define MMX_BITS  (X86_MMX | X86_MMX_EXTENSIONS)
 #define SSE2_BITS (X86_MMX | X86_MMX_EXTENSIONS | X86_SSE | X86_SSE2)
 #define SSSE3_BITS (X86_SSE | X86_SSE2 | X86_SSSE3)
-
 #ifdef USE_X86_MMX
 	if(!_pixman_disabled("mmx") && have_feature(MMX_BITS))
 		imp = _pixman_implementation_create_mmx(imp);

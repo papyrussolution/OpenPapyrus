@@ -150,7 +150,7 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	PrcTechCtrlGroup::Rec ptcg_rec;
 	TSessionFilt * p_filt = 0;
 	THROW(Filt.IsA(pBaseFilt));
-	p_filt = (TSessionFilt *)pBaseFilt;
+	p_filt = static_cast<TSessionFilt *>(pBaseFilt);
 	dlg_id = (p_filt->Flags & TSessionFilt::fManufPlan) ? DLG_TSESSPLANFILT : DLG_TSESSFILT;
 	THROW(CheckDialogPtr(&(dlg = new TSessFiltDialog(dlg_id))));
 	MEMSZERO(ptcg_rec);

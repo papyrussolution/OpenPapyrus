@@ -1,5 +1,5 @@
 // PPCMD.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @Kernel
 //
 #include <pp.h>
@@ -445,28 +445,29 @@ int SLAPI PPCommandFolder::Read(SBuffer & rBuf, long extraParam)
 	THROW(PPCommandItem::Read(rBuf, extraParam));
 	THROW_SL(rBuf.Read(&c, sizeof(c)));
 	for(i = 0; i < c; i++) {
-		char * ptr = 0;
+		//char * ptr = 0;
+		PPCommandItem * ptr = 0;
 		size_t offs = rBuf.GetRdOffs();
 		PPCommandItem item;
 		THROW(item.Read(rBuf, extraParam));
 		rBuf.SetRdOffs(offs);
 		if(item.Kind == PPCommandItem::kCommand) {
-			ptr = (char*)new PPCommand;
+			ptr = /*(char*)*/new PPCommand;
 			((PPCommand*)ptr)->Read(rBuf, extraParam);
 		}
 		else if(item.Kind == PPCommandItem::kFolder) {
-			ptr = (char*)new PPCommandFolder;
+			ptr = /*(char*)*/new PPCommandFolder;
 			((PPCommandFolder*)ptr)->Read(rBuf, extraParam);
 		}
 		else if(item.Kind == PPCommandItem::kGroup) {
-			ptr = (char*)new PPCommandGroup;
+			ptr = /*(char*)*/new PPCommandGroup;
 			((PPCommandGroup*)ptr)->Read(rBuf, extraParam);
 		}
 		else if(item.Kind == PPCommandItem::kSeparator) {
-			ptr = (char*)new PPCommandItem;
+			ptr = /*(char*)*/new PPCommandItem;
 			((PPCommandItem*)ptr)->Read(rBuf, extraParam);
 		}
-		THROW_SL(List.insert((PPCommandItem*)ptr));
+		THROW_SL(List.insert(/*(PPCommandItem*)*/ptr));
 	}
 	CATCHZOK
 	return ok;
@@ -2172,49 +2173,51 @@ public:
 	virtual int SLAPI Run(SBuffer * pParam, long cmdID, long extra)
 	{
 		int    ok = -1;
-		if((D.MenuCm || cmdID) && APPL) {
-			int    r = 1;
-			SBuffer param;
-			AddBillFiltDlg::Param filt;
-			((PPApp*)APPL)->LastCmd = (cmdID) ? (cmdID + ICON_COMMAND_BIAS) : D.MenuCm;
-			RVALUEPTR(param, pParam);
-			if(!param.GetAvailableSize()) {
-				if(EditParam(&param, cmdID, extra) > 0) {
-					filt.Read(param, 0);
-					r = 1;
+		if(APPL) {
+			if(D.MenuCm || cmdID) {
+				int    r = 1;
+				SBuffer param;
+				AddBillFiltDlg::Param filt;
+				static_cast<PPApp *>(APPL)->LastCmd = (cmdID) ? (cmdID + ICON_COMMAND_BIAS) : D.MenuCm;
+				RVALUEPTR(param, pParam);
+				if(!param.GetAvailableSize()) {
+					if(EditParam(&param, cmdID, extra) > 0) {
+						filt.Read(param, 0);
+						r = 1;
+					}
+					else
+						r = -1;
 				}
 				else
-					r = -1;
-			}
-			else
-				filt.Read(param, 0);
-			if(r > 0 && filt.Bbt >= 0) {
-				if(!filt.LocID || !filt.OpID) {
-					PPIDArray op_type_list;
-					SETIFZ(filt.LocID, LConfig.Location);
-					AddBillFiltDlg::OpTypeListByBbt(filt.Bbt, &op_type_list);
-					r = BillPrelude(&op_type_list, 0, 0, &filt.OpID, &filt.LocID);
-				}
-				if(r > 0) {
-					PPID   id = 0;
-					PPObjBill * p_bobj = BillObj;
-					const  PPID save_loc_id = LConfig.Location;
-					DS.SetLocation(filt.LocID);
-					if(GetOpType(filt.OpID) == PPOPT_ACCTURN && !CheckOpFlags(filt.OpID, OPKF_EXTACCTURN))
-						r = p_bobj->AddGenAccturn(&id, filt.OpID, 0);
-					else {
-						BillFilt bill_filt;
-						bill_filt.SetupBrowseBillsType((BrowseBillsType)filt.Bbt);
-						bill_filt.OpID = filt.OpID;
-						bill_filt.LocList.Add(filt.LocID);
-						r = p_bobj->AddGoodsBillByFilt(&id, &bill_filt, filt.OpID);
+					filt.Read(param, 0);
+				if(r > 0 && filt.Bbt >= 0) {
+					if(!filt.LocID || !filt.OpID) {
+						PPIDArray op_type_list;
+						SETIFZ(filt.LocID, LConfig.Location);
+						AddBillFiltDlg::OpTypeListByBbt(filt.Bbt, &op_type_list);
+						r = BillPrelude(&op_type_list, 0, 0, &filt.OpID, &filt.LocID);
 					}
-					DS.SetLocation(save_loc_id);
-					ok = (r == cmOK) ? 1 : -1;
+					if(r > 0) {
+						PPID   id = 0;
+						PPObjBill * p_bobj = BillObj;
+						const  PPID save_loc_id = LConfig.Location;
+						DS.SetLocation(filt.LocID);
+						if(GetOpType(filt.OpID) == PPOPT_ACCTURN && !CheckOpFlags(filt.OpID, OPKF_EXTACCTURN))
+							r = p_bobj->AddGenAccturn(&id, filt.OpID, 0);
+						else {
+							BillFilt bill_filt;
+							bill_filt.SetupBrowseBillsType((BrowseBillsType)filt.Bbt);
+							bill_filt.OpID = filt.OpID;
+							bill_filt.LocList.Add(filt.LocID);
+							r = p_bobj->AddGoodsBillByFilt(&id, &bill_filt, filt.OpID);
+						}
+						DS.SetLocation(save_loc_id);
+						ok = (r == cmOK) ? 1 : -1;
+					}
 				}
 			}
+			static_cast<PPApp *>(APPL)->LastCmd = 0;
 		}
-		((PPApp*)APPL)->LastCmd = 0;
 		return ok;
 	}
 };
@@ -2625,27 +2628,29 @@ public:
 	virtual int SLAPI Run(SBuffer * pParam, long cmdID, long extra)
 	{
 		int    ok = -1;
-		if((D.MenuCm || cmdID) && APPL) {
-			int  r = 1;
-			ObjTransmitParam trnsm_param;
-			SBuffer param;
-			((PPApp*)APPL)->LastCmd = (cmdID) ? (cmdID + ICON_COMMAND_BIAS) : D.MenuCm;
-			THROW_INVARG(pParam);
-			param = *pParam;
-			if(!param.GetAvailableSize()) {
-				if(EditParam(&param, cmdID, extra) > 0) {
-					trnsm_param.Read(param, 0);
-					r = 1;
+		if(APPL) {
+			if(D.MenuCm || cmdID) {
+				int  r = 1;
+				ObjTransmitParam trnsm_param;
+				SBuffer param;
+				static_cast<PPApp *>(APPL)->LastCmd = (cmdID) ? (cmdID + ICON_COMMAND_BIAS) : D.MenuCm;
+				THROW_INVARG(pParam);
+				param = *pParam;
+				if(!param.GetAvailableSize()) {
+					if(EditParam(&param, cmdID, extra) > 0) {
+						trnsm_param.Read(param, 0);
+						r = 1;
+					}
+					else
+						r = -1;
 				}
 				else
-					r = -1;
+					trnsm_param.Read(param, 0);
+				if(r > 0)
+					PPObjectTransmit::TransmitModificationsByDBDivList(&trnsm_param);
 			}
-			else
-				trnsm_param.Read(param, 0);
-			if(r > 0)
-				PPObjectTransmit::TransmitModificationsByDBDivList(&trnsm_param);
+			static_cast<PPApp *>(APPL)->LastCmd = 0;
 		}
-		((PPApp*)APPL)->LastCmd = 0;
 		CATCHZOK
 		return ok;
 	}

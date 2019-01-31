@@ -3,9 +3,9 @@
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
-#include <CAIRO/cairo.h>
-#include <CAIRO/cairo-test-private.h>
-#include <CAIRO/buffer-diff.h>
+#include <cairo-1160/cairo.h>
+#include <cairo/cairo-test-private.h>
+#include <cairo/buffer-diff.h>
 //
 // @construction
 // Test of cairo module

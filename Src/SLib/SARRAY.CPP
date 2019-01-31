@@ -7,10 +7,10 @@
 #pragma hdrstop
 
 #define _USERPTR___(ptr) (ptr)
-#define _USERPTR_PC(ptr) (*(void **)(ptr))
-#define _USERPTR(ptr)    ((flags&aryPtrContainer)?(*(void **)(ptr)):(ptr))
-#define _USERPTR_C(ptr)  ((flags&aryPtrContainer)?(*(const void **)(ptr)):(ptr))
-#define _INTRPTR(ptr)    ((flags&aryPtrContainer)?&(ptr):(ptr))
+#define _USERPTR_PC(ptr) (*static_cast<void **>(ptr))
+#define _USERPTR(ptr)    ((VFlags&aryPtrContainer)?(*reinterpret_cast<void **>(ptr)):(ptr))
+#define _USERPTR_C(ptr)  ((VFlags&aryPtrContainer)?(*reinterpret_cast<const void * const *>(ptr)):(ptr))
+#define _INTRPTR(ptr)    ((VFlags&aryPtrContainer)?&(ptr):(ptr))
 
 //static
 uint FASTCALL SVectorBase::GetCount(const SVectorBase * pB)
@@ -18,7 +18,7 @@ uint FASTCALL SVectorBase::GetCount(const SVectorBase * pB)
 	return pB ? pB->getCount() : 0;
 }
 
-SLAPI SVectorBase::SVectorBase(uint itemSize, /*uint aDelta,*/ uint o) : isize(itemSize), flags(o), data(0), count(0), pointer(0), Limit(0)
+SLAPI SVectorBase::SVectorBase(uint itemSize, uint o) : isize(itemSize), VFlags(o), P_VData(0), count(0), pointer(0), Limit(0)
 {
 }
 
@@ -35,12 +35,12 @@ int FASTCALL SVectorBase::CopyS(const SVectorBase & rS)
 		Limit = 0;
 		count = 0;
 		pointer = rS.pointer;
-		flags = rS.flags;
-		if(flags & aryDataOwner) {
-			data = 0;
+		VFlags = rS.VFlags;
+		if(VFlags & aryDataOwner) {
+			P_VData = 0;
 			if(expand(rS.count)) {
 				count = rS.count;
-				memcpy(data, rS.data, isize * count);
+				memcpy(P_VData, rS.P_VData, isize * count);
 			}
 			else
 				ok = 0;
@@ -48,7 +48,7 @@ int FASTCALL SVectorBase::CopyS(const SVectorBase & rS)
 		else {
 			Limit = rS.Limit;
 			count = rS.count;
-			data  = rS.data;
+			P_VData = rS.P_VData;
 		}
 	}
 	return ok;
@@ -94,19 +94,19 @@ int FASTCALL SVectorBase::expand(uint numNewRecs)
 		const  size_t _is = (size_t)isize;
 		uint   new_limit = SnapUpCount(new_count, _is);
 		assert(new_limit >= new_count);
-		void * ptr = SAlloc::R(data, new_limit * _is);
+		void * ptr = SAlloc::R(P_VData, new_limit * _is);
 		while(!ptr && (new_limit > new_count)) {
 			const uint minus_delta = ((new_limit - new_count) / 2);
 			if(minus_delta) {
 				new_limit -= minus_delta;
-				ptr = SAlloc::R(data, new_limit * _is);
+				ptr = SAlloc::R(P_VData, new_limit * _is);
 			}
 			else
 				break;
 		}
 		if(ptr) {
 			memzero(PTR8(ptr) + count * _is, (new_limit - count) * _is);
-			data = (uint8 *)ptr;
+			P_VData = static_cast<uint8 *>(ptr);
 			Limit = new_limit;
 		}
 		else
@@ -154,8 +154,8 @@ void SLAPI SVectorBase::shrink()
 void SLAPI SVectorBase::atPut(uint idx, const void * pItem)
 {
 	assert(idx < count);
-	memmove(data + idx * isize, _INTRPTR(pItem), isize);
-	flags &= ~arySorted;
+	memmove(P_VData + idx * isize, _INTRPTR(pItem), isize);
+	VFlags &= ~arySorted;
 }
 //
 // Descr: Вставляет в середину блока памяти pDest новый блок pSrc.
@@ -205,7 +205,7 @@ int FASTCALL SVectorBase::insert(const void * pItem)
 		//static void SLAPI insmem(void * pDest, const void * pSrc, size_t blkOffs, size_t blkSize, size_t destSize)
 		{
 			const void * p_intr = _INTRPTR(pItem);
-			uint8 * d = PTR8(data) + _c * quant;
+			uint8 * d = PTR8(P_VData) + _c * quant;
 			if(quant == sizeof(uint32)) {
 				PTR32(d)[0] = PTR32C(p_intr)[0];
 			}
@@ -218,7 +218,7 @@ int FASTCALL SVectorBase::insert(const void * pItem)
 			}
 		}
 		count++;
-		flags &= ~arySorted;
+		VFlags &= ~arySorted;
 	}
 	else
 		ok = 0;
@@ -230,10 +230,10 @@ int FASTCALL SVectorBase::atInsert(uint idx, const void * pItem)
 	int    ok = 1;
 	const  uint _c = count;
 	assert(idx <= _c);
-	if(_c < Limit || expand(1)) { // @v8.1.11 (count < limit ||) так быстрее ибо придется реже входить в функцию expand
-		insmem(data, _INTRPTR(pItem), idx, isize, _c);
+	if(_c < Limit || expand(1)) {
+		insmem(P_VData, _INTRPTR(pItem), idx, isize, _c);
 		count++;
-		flags &= ~arySorted;
+		VFlags &= ~arySorted;
 	}
 	else
 		ok = 0;
@@ -244,13 +244,13 @@ int SLAPI SVectorBase::insertChunk(uint numItemsToInsert, const void * pItems)
 {
 	int    ok = 1;
 	if(expand(numItemsToInsert)) {
-		uint8 * d = PTR8(data) + count * isize;
+		uint8 * d = PTR8(P_VData) + count * isize;
 		if(pItems)
 			memmove(d, pItems, isize * numItemsToInsert);
 		else
 			memzero(d, isize * numItemsToInsert);
 		count += numItemsToInsert;
-		flags &= ~arySorted;
+		VFlags &= ~arySorted;
 	}
 	else
 		ok = 0;
@@ -288,23 +288,23 @@ uint FASTCALL SVectorBase::incPointerSafe(int incr)
     return _prev;
 }
 
-uint   SLAPI SVectorBase::getFlags() const { return flags; }
-void   SLAPI SVectorBase::setFlag(uint val, int set) { SETFLAG(flags, val, set); }
+uint   SLAPI SVectorBase::getFlags() const { return VFlags; }
+void   SLAPI SVectorBase::setFlag(uint val, int set) { SETFLAG(VFlags, val, set); }
 uint   SLAPI SVectorBase::incPointer() { return pointer++; }
-void * SLAPI SVectorBase::dataPtr() const { return data; }
+void * SLAPI SVectorBase::dataPtr() const { return P_VData; }
 //void   SLAPI SVectorBase::setLimit(uint aLimit) { Limit = aLimit; }
 
 void * FASTCALL SVectorBase::at(uint idx) const
 {
 	assert(idx < count);
-	return _USERPTR(data + idx * isize);
+	return _USERPTR(P_VData + idx * isize);
 }
 
 void * SLAPI SVectorBase::next()
 {
 	if(pointer < count) {
 		pointer++;
-		return _USERPTR(data + (pointer-1) * isize);
+		return _USERPTR(P_VData + (pointer-1) * isize);
 	}
 	else
 		return 0;
@@ -314,7 +314,7 @@ int FASTCALL SVectorBase::enumItems(uint * pIdx, void ** ppItem) const
 {
 	uint   i = *pIdx;
 	if(i < count) {
-		*ppItem = _USERPTR(data + i * isize);
+		*ppItem = _USERPTR(P_VData + i * isize);
 		*pIdx  = i+1;
 		return 1;
 	}
@@ -328,8 +328,8 @@ int SLAPI SVectorBase::swap(uint p1, uint p2)
 	if(p1 != p2) {
 		const uint c = getCount();
 		if(p1 < c && p2 < c) {
-			void * ptr1 = (data + p1 * isize);
-			void * ptr2 = (data + p2 * isize);
+			void * ptr1 = (P_VData + p1 * isize);
+			void * ptr2 = (P_VData + p2 * isize);
 			memswap(ptr1, ptr2, isize);
 		}
 		else
@@ -389,7 +389,7 @@ int SLAPI SVectorBase::shuffle()
 
 int SLAPI SVectorBase::Helper_Cmp(const void * i1, const void * i2, CompFunc fcmp, void * pExtraData) const
 {
-	return (flags & aryPtrContainer) ? fcmp(*(void **)i1, *(void **)i2, pExtraData) : fcmp(i1, i2, pExtraData);
+	return (VFlags & aryPtrContainer) ? fcmp(*(void **)i1, *(void **)i2, pExtraData) : fcmp(i1, i2, pExtraData);
 }
 
 static int substFCMP(const void * i1, const void * i2)
@@ -411,17 +411,17 @@ void SLAPI SVectorBase::sort(CompFunc fcmp, void * pExtraData /*=0*/)
 	if(count > 1) {
 #ifndef _WIN32_WCE
 		SlThreadLocalArea & tla = SLS.GetTLA();
-		tla.SAry_PtrContainer  = (flags & aryPtrContainer);
+		tla.SAry_PtrContainer  = (VFlags & aryPtrContainer);
 		tla.SAry_OrgFCMP       = fcmp;
 		tla.SAry_SortExtraData = pExtraData;
 #else
-		SAry_PtrContainer  = (flags & aryPtrContainer);
+		SAry_PtrContainer  = (VFlags & aryPtrContainer);
 		SAry_OrgFCMP       = fcmp;
 		SAry_SortExtraData = pExtraData;
 #endif
-		qsort(data, count, isize, substFCMP);
+		qsort(P_VData, count, isize, substFCMP);
 	}
-	flags |= arySorted;
+	VFlags |= arySorted;
 }
 //
 // Реализация сортировки массива без вызова стандартной функции qsort.
@@ -452,7 +452,7 @@ void SLAPI SVectorBase::sort2(CompFunc fcmp, void * pExtraData /*=0*/)
 	if(num > 1 && width > 0) {
 		int    stkptr = 0; // stack for saving sub-array to be processed
 		// lo and hi - ends of sub-array currently sorting
-		uint8 * base = PTR8(data);
+		uint8 * base = PTR8(P_VData);
 		uint8 * lo = base;
 		uint8 * hi = base + width * (num-1); // initialize limits
 		//
@@ -660,7 +660,7 @@ double SLAPI SVectorBase::sumDouble(uint offs, uint firstIdx, uint lastIdx) cons
 		const uint  _cr = lastIdx - firstIdx + 1;
 		const uint _c8 = (_cr & ~0x07);
 		uint  i = firstIdx;
-		const uint8 * p = (data + offs + _is1 * firstIdx);
+		const uint8 * p = (P_VData + offs + _is1 * firstIdx);
 		for(; i < _c8; i += 8) {
 			result += (*PTRDBLC(p) + *PTRDBLC(p + _is1) + *PTRDBLC(p + _is2) + *PTRDBLC(p + _is3) + *PTRDBLC(p + _is4) + *PTRDBLC(p + _is5) + *PTRDBLC(p + _is6) + *PTRDBLC(p + _is7));
 			p += (_is1 * 8);
@@ -685,12 +685,12 @@ int SLAPI SVectorBase::imp_bsearch(const void * key, uint * pIdx, CompFunc fcmp,
 	if(count) {
 		uint   lo  = 0;
 		uint   up  = count - 1;
-		const  uint8 * p_org = data/* + ofs*/;
+		const  uint8 * p_org = P_VData/* + ofs*/;
 		//
 		// Из-за популярности функции CMPF_LONG в простых массивах (без aryPtrContainer) выделяем в
 		// отдельную ветку такой случай - это даст значительное ускорение.
 		//
-		if(fcmp == CMPF_LONG && !(flags & aryPtrContainer)) {
+		if(fcmp == CMPF_LONG && !(VFlags & aryPtrContainer)) {
 			const long test = *(long *)key;
 			while(lo <= up) {
 				const uint8 * p = p_org + (i = (lo + up) >> 1) * isize;
@@ -721,7 +721,7 @@ int SLAPI SVectorBase::imp_bsearch(const void * key, uint * pIdx, CompFunc fcmp,
 		else {
 			while(lo <= up) {
 				const uint8 * p = p_org + (i = (lo + up) >> 1) * isize;
-				cmp = fcmp(((const char *)_USERPTR_C(p))+ofs, key, pExtraData);
+				cmp = fcmp(PTR8C(_USERPTR_C(p))+ofs, key, pExtraData);
 				if(cmp < 0)
 					lo = i + 1;
 				else if(cmp && i)
@@ -734,7 +734,7 @@ int SLAPI SVectorBase::imp_bsearch(const void * key, uint * pIdx, CompFunc fcmp,
 					//
 					for(uint j = i; j > 0;) {
 						p -= isize;
-						if(fcmp(((const char *)_USERPTR_C(p))+ofs, key, pExtraData) == 0)
+						if(fcmp(PTR8C(_USERPTR_C(p))+ofs, key, pExtraData) == 0)
 							i = --j;
 						else
 							j = 0; // exit loop
@@ -756,7 +756,7 @@ int SLAPI SVectorBase::bsearch(const void * key, uint * pIdx, CompFunc fcmp) con
 int SLAPI SVectorBase::isItemEq(const void * pKey, uint pos, CompFunc fcmp, size_t ofs, void * pExtraData /*=0*/) const
 {
 	if(pos < count) {
-		const void * p_data = _USERPTR(data + pos * isize);
+		const void * p_data = _USERPTR(P_VData + pos * isize);
 		if(p_data && fcmp(PTR8C(p_data) + ofs, pKey, pExtraData) == 0)
 			return 1;
 	}
@@ -767,8 +767,8 @@ int SLAPI SVectorBase::lsearch(const void * pcKey, uint * pIdx, CompFunc fcmp, s
 {
 	uint   i = pIdx ? (*pIdx * isize) : 0;
 	const  uint    lim = count * isize;
-	const  uint8 * p_org = PTR8(data)/* + ofs*/;
-	if(flags & aryPtrContainer) {
+	const  uint8 * p_org = PTR8(P_VData);
+	if(VFlags & aryPtrContainer) {
 		for(; i < lim; i += sizeof(void *))
 			if(fcmp(PTR8(*(void **)(p_org + i)) + ofs, pcKey, pExtraData) == 0) {
 				ASSIGN_PTR(pIdx, i / sizeof(void *));
@@ -823,10 +823,10 @@ int SLAPI SVectorBase::ordInsert(const void * item, uint * idx, CompFunc fcmp, v
 	uint   pos = 0;
 	int    cmp;
 	if(count) {
-		if(!(flags & arySorted))
+		if(!(VFlags & arySorted))
 			sort(fcmp, pExtraData);
 		if((cmp = imp_bsearch(item, &pos, fcmp, 0, pExtraData)) == 0)
-			if(flags & aryUnique) {
+			if(VFlags & aryUnique) {
 				ASSIGN_PTR(idx, pos);
 				ok = (SLibError = SLERR_ARYDUPITEM, 0);
 			}
@@ -838,7 +838,7 @@ int SLAPI SVectorBase::ordInsert(const void * item, uint * idx, CompFunc fcmp, v
 	if(ok) {
 		if(atInsert(pos, item)) {
 			ASSIGN_PTR(idx, pos);
-			flags |= arySorted;
+			VFlags |= arySorted;
 		}
 		else
 			ok = 0;
@@ -862,24 +862,24 @@ SLAPI SVector::SVector(void * pData, uint itemSize, uint aCount, uint o) : SVect
 	assert(!(o & aryEachItem));
 	count = aCount;
 	Limit = aCount;
-	data = (uint8 *)pData;
+	P_VData = static_cast<uint8 *>(pData);
 }
 
-SLAPI SVector::SVector(const SVector & rS) : SVectorBase(rS.isize, rS.flags)
+SLAPI SVector::SVector(const SVector & rS) : SVectorBase(rS.isize, rS.VFlags)
 {
-	assert(!(rS.flags & aryEachItem));
+	assert(!(rS.VFlags & aryEachItem));
 	copy(rS);
 }
 
 SLAPI SVector::~SVector()
 {
-	if(flags & aryDataOwner && data) // (&& data) ради ускорения //
+	if(VFlags & aryDataOwner && P_VData) // (&& P_VData) ради ускорения //
 		freeAll();
 }
 
 int FASTCALL SVector::copy(const SVector & rS)
 {
-	assert(!(rS.flags & aryEachItem));
+	assert(!(rS.VFlags & aryEachItem));
 	freeAll();
     return SVectorBase::CopyS(rS);
 }
@@ -893,16 +893,16 @@ SVector & FASTCALL SVector::operator = (const SVector & rS)
 int FASTCALL SVector::IsEqual(const SVector & rS) const
 {
 	const uint16 tf = (aryPtrContainer|aryEachItem);
-	if(!(flags & tf) && !(rS.flags & tf))
+	if(!(VFlags & tf) && !(rS.VFlags & tf))
 		if(count == rS.count && isize == rS.isize)
-			return BIN(memcmp(data, rS.data, isize * count) == 0);
+			return BIN(memcmp(P_VData, rS.P_VData, isize * count) == 0);
 	return 0;
 }
 
 int FASTCALL SVector::atFree(uint idx)
 {
 	if(idx < count) {
-		uint8 * org = data;
+		uint8 * org = P_VData;
 		void * item = org + idx * isize;
 		count--;
 		if(idx < count)
@@ -921,8 +921,8 @@ int SLAPI SVector::freeLast()
 
 void SLAPI SVector::freeAll()
 {
-	if(data) //@speedcritical
-		ZFREE(data);
+	if(P_VData) //@speedcritical
+		ZFREE(P_VData);
 	count = 0;
 	pointer = 0;
 	Limit = 0;
@@ -945,7 +945,7 @@ int SLAPI SVector::freeChunk(uint lowPos, uint uppPos)
 			freeAll();
 		}
 		else {
-			uint8 * p_org = data;
+			uint8 * p_org = P_VData;
 			void * p_low_item = p_org + lowPos * isize;
 			count -= _fc;
 			if(upp_pos < (org_count-1)) {
@@ -1029,10 +1029,10 @@ SLAPI SArray::SArray(void * pData, uint itemSize, uint aCount, uint o) : SVector
 {
 	count = aCount;
 	Limit = aCount;
-	data = (uint8 *)pData;
+	P_VData = static_cast<uint8 *>(pData);
 }
 
-SLAPI SArray::SArray(const SArray & rS) : SVectorBase(rS.isize, rS.flags)
+SLAPI SArray::SArray(const SArray & rS) : SVectorBase(rS.isize, rS.VFlags)
 {
 	copy(rS);
 }
@@ -1044,44 +1044,44 @@ SLAPI SArray::SArray(const SVector & rS) : SVectorBase(rS.getItemSize(), rS.getF
 
 SLAPI SArray::~SArray()
 {
-	if(flags & aryDataOwner && data) // @v8.7.5 (&& data) ради ускорения //
+	if(VFlags & aryDataOwner && P_VData)
 		freeAll();
 }
 
-SArray & FASTCALL SArray::operator = (const SArray & src)
+SArray & FASTCALL SArray::operator = (const SArray & rS)
 {
-	copy(src);
+	copy(rS);
 	return *this;
 }
 
-int FASTCALL SArray::copy(const SArray & src)
+int FASTCALL SArray::copy(const SArray & rS)
 {
 	freeAll();
-    return SVectorBase::CopyS(src);
+    return SVectorBase::CopyS(rS);
 }
 
 int FASTCALL SArray::IsEqual(const SArray & src) const
 {
 	const uint16 tf = (aryPtrContainer|aryEachItem);
-	if(!(flags & tf) && !(src.flags & tf))
+	if(!(VFlags & tf) && !(src.VFlags & tf))
 		if(count == src.count && isize == src.isize)
-			return BIN(memcmp(data, src.data, isize * count) == 0);
+			return BIN(memcmp(P_VData, src.P_VData, isize * count) == 0);
 	return 0;
 }
 
 //virtual
 void FASTCALL SArray::freeItem(void * pItem)
 {
-	if(flags & aryPtrContainer)
+	if(VFlags & aryPtrContainer)
 		delete pItem;
 }
 
 int FASTCALL SArray::atFree(uint idx)
 {
 	if(idx < count) {
-		uint8 * org = data;
+		uint8 * org = P_VData;
 		void * item = org + idx * isize;
-		if(flags & aryEachItem)
+		if(VFlags & aryEachItem)
 			freeItem(_USERPTR(item));
 		count--;
 		if(idx < count)
@@ -1104,9 +1104,9 @@ int SLAPI SArray::freeChunk(uint lowPos, uint uppPos)
 		if(_fc == org_count)
 			freeAll();
 		else {
-			uint8 * p_org = data;
+			uint8 * p_org = P_VData;
 			void * p_low_item = p_org + lowPos * isize;
-			if(flags & aryEachItem) {
+			if(VFlags & aryEachItem) {
 				for(uint i = lowPos; i <= upp_pos; i++) {
 					void * p_item = p_org + i * isize;
 					freeItem(_USERPTR(p_item));
@@ -1132,8 +1132,8 @@ int SLAPI SArray::freeLast()
 
 void SLAPI SArray::clear()
 {
-	if(data && flags & aryEachItem) {
-		uint8 * p_org = data;
+	if(P_VData && VFlags & aryEachItem) {
+		uint8 * p_org = P_VData;
 		const uint lim = count * isize;
 		for(uint i = 0; i < lim; i += isize)
 			freeItem(_USERPTR(p_org + i));
@@ -1143,14 +1143,14 @@ void SLAPI SArray::clear()
 
 void SLAPI SArray::freeAll()
 {
-	if(data) {
-		uint8 * p_org = data;
+	if(P_VData) {
+		uint8 * p_org = P_VData;
 		const uint lim = count * isize;
-		if(flags & aryEachItem) {
+		if(VFlags & aryEachItem) {
 			for(uint i = 0; i < lim; i += isize)
 				freeItem(_USERPTR(p_org + i));
 		}
-		ZFREE(data);
+		ZFREE(P_VData);
 	}
 	count = 0;
 	pointer = 0;
@@ -2842,10 +2842,10 @@ StrStrAssocArray::Item FASTCALL StrStrAssocArray::at(uint pos) const
 	MEMSZERO(item);
 	if(pos < L.getCount()) {
 		const  LAssoc & r_assc = L.at(pos);
-		uint   key_pos = (uint)r_assc.Key;
+		const uint key_pos = static_cast<uint>(r_assc.Key);
+		const uint val_pos = static_cast<uint>(r_assc.Val);
 		if(key_pos && key_pos < Pool.getDataLen())
 			item.Key = Pool.getBuf() + key_pos;
-		uint   val_pos = (uint)r_assc.Val;
 		if(val_pos && val_pos < Pool.getDataLen())
 			item.Val = Pool.getBuf() + val_pos;
 	}
@@ -2955,7 +2955,7 @@ int FASTCALL RealArray::dim(uint numItems)
 double SLAPI RealArray::StrideDifference(uint idx, uint stride) const
 {
 	assert(idx < count && idx >= stride);
-	return (idx < count && idx >= stride) ? (PTRDBLC(data)[idx] - PTRDBLC(data)[idx-stride]) : 0.0;
+	return (idx < count && idx >= stride) ? (PTRDBLC(P_VData)[idx] - PTRDBLC(P_VData)[idx-stride]) : 0.0;
 }
 
 double SLAPI RealArray::Sum() const
@@ -3658,7 +3658,7 @@ SString & SLAPI STypArray::itemToString(uint idx, long fmt, SString & rBuf) cons
 
 int SLAPI STypArray::search(const void * pKey, uint * pPos) const
 {
-	return (flags & arySorted) ? bsearch(pKey, pPos, Subst, 0, (void *)type) : lsearch(pKey, pPos, Subst, 0, (void *)type);
+	return (VFlags & arySorted) ? bsearch(pKey, pPos, Subst, 0, (void *)type) : lsearch(pKey, pPos, Subst, 0, (void *)type);
 }
 
 void SLAPI STypArray::sort()

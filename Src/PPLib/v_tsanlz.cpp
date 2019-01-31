@@ -453,7 +453,7 @@ int SLAPI PPViewTSessAnlz::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
-	DIALOG_PROC_BODY(TSessAnlzFilt3Dialog, (TSessAnlzFilt *)pBaseFilt);
+	DIALOG_PROC_BODY(TSessAnlzFilt3Dialog, static_cast<TSessAnlzFilt *>(pBaseFilt));
 }
 
 int SLAPI PPViewTSessAnlz::IsGoodsBelongToGen(PPID goodsID, PPID * pGenID)

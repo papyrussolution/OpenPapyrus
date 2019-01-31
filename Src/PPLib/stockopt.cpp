@@ -665,7 +665,7 @@ int SLAPI PPViewStockOpt::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return PPErrorZ();
-	StockOptFilt * p_filt = (StockOptFilt *)pBaseFilt;
+	StockOptFilt * p_filt = static_cast<StockOptFilt *>(pBaseFilt);
 	return p_filt ? PPDialogProcBody <StockOptCfgDialog, StockOptFilt> (DLG_STOCKOPTFLT, p_filt) : 0;
 }
 
@@ -750,7 +750,7 @@ int SLAPI PPViewStockOpt::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 			case 23: pBlk->Set(p_result ? p_result->R0 : 0.0); break;
 			case 24: pBlk->Set(p_result ? p_result->R0p : 0.0); break;
 			case 25: pBlk->Set(p_result ? p_result->R : 0.0); break;
-			case 26: pBlk->Set(p_result ? (long)R0(p_result->Period) : 0L); break;
+			case 26: pBlk->Set(p_result ? R0i(p_result->Period) : 0L); break;
 			case 27: pBlk->Set(p_result ? p_result->Income : 0.0); break;
 			case 28: pBlk->Set(p_result ? p_result->Expend : 0.0); break;
 			case 29: pBlk->Set(p_result ? (p_result->Income - p_result->Expend) : 0.0); break;

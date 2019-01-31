@@ -1640,7 +1640,7 @@ int WordSelectorSmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPA
 					}
 				}
 				else
-					short code  = LOWORD(wParam);
+					code  = LOWORD(wParam); // @v10.3.2 (short code)-->code
 				if(def->_curItem() == 0 && oneof3(code, SB_LINEUP, SB_PAGEUP, SB_TOP)) {
 					HWND parent = GetParent(getHandle());
 					WordSelector * p_selector = (WordSelector *)TView::GetWindowUserData(parent);

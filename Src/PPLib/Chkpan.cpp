@@ -6688,6 +6688,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					}
 					Barrier(1);
 				}
+				break; // @v10.3.2 @fix (отсутствовал break)
 			case kbF7:
 				BARRIER(PrintCheckCopy());
 				break;

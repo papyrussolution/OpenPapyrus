@@ -1156,7 +1156,7 @@ int SLAPI PPObjAccount::Write(PPObjPack * p, PPID * pID, void * stream, ObjTrans
 	int    ok = 1;
 	PPAccountPacket * p_pack = 0;
 	THROW(p && p->Data);
-	p_pack = (PPAccountPacket *)p->Data;
+	p_pack = static_cast<PPAccountPacket *>(p->Data);
 	if(stream == 0) {
 		if(*pID == 0) {
 			PPAccount same_rec;
@@ -1227,7 +1227,7 @@ int SLAPI PPObjAccount::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int re
 	int    ok = 1;
 	if(p && p->Data) {
 		uint i;
-		PPAccountPacket * p_pack = (PPAccountPacket *)p->Data;
+		PPAccountPacket * p_pack = static_cast<PPAccountPacket *>(p->Data);
 		for(i = 0; i < p_pack->CurList.getCount(); i++) {
 			PPID & r_cur_id = p_pack->CurList.at(i);
 			THROW(ProcessObjRefInArray(PPOBJ_CURRENCY, &r_cur_id, ary, replace));

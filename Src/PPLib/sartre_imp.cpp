@@ -2160,7 +2160,7 @@ int SLAPI PrcssrSartre::InitParam(PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	if(P.IsA(pBaseFilt)) {
-		PrcssrSartreFilt * p_filt = (PrcssrSartreFilt *)pBaseFilt;
+		PrcssrSartreFilt * p_filt = static_cast<PrcssrSartreFilt *>(pBaseFilt);
 		if(p_filt->IsEmpty()) {
 		}
 	}
@@ -2173,7 +2173,7 @@ int SLAPI PrcssrSartre::Init(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	THROW(P.IsA(pBaseFilt));
-	P = *(PrcssrSartreFilt *)pBaseFilt;
+	P = *static_cast<const PrcssrSartreFilt *>(pBaseFilt);
 	CATCHZOK
 	return ok;
 }
@@ -2182,7 +2182,7 @@ int SLAPI PrcssrSartre::EditParam(PPBaseFilt * pBaseFilt)
 {
 	if(!P.IsA(pBaseFilt))
 		return 0;
-	PrcssrSartreFilt * p_filt = (PrcssrSartreFilt *)pBaseFilt;
+	PrcssrSartreFilt * p_filt = static_cast<PrcssrSartreFilt *>(pBaseFilt);
 	DIALOG_PROC_BODY(PrcssrSartreFiltDialog, p_filt);
 }
 

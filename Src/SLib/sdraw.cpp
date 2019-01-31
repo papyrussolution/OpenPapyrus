@@ -7,8 +7,8 @@
 #include <setjmp.h> // jpeg && png
 //
 #define CAIRO_WIN32_STATIC_BUILD 1
-#include <cairo\cairo.h>
-#include <cairo\cairo-win32.h>
+#include <cairo-1160\cairo.h>
+#include <cairo-1160\cairo-win32.h>
 
 #define DEFAULT_UCTX_FONTSIZE 10
 //
@@ -61,13 +61,13 @@ int SDrawContext::UC::Describe(int unitId, int dir, int * pCls, double * pToBase
 uint SDrawContext::CalcScreenFontSizePt(uint pt)
 {
 	uint   s = 0;
-	SDrawContext dctx((cairo_t *)0);
+	SDrawContext dctx(static_cast<cairo_t *>(0));
 	SDrawContext::UC * p_uc = dctx.GetUnitContext();
 	if(p_uc) {
 		USize pt_size;
 		USize px_size;
 		SUnit::Convert(pt_size.Set(pt, UNIT_GR_PT, DIREC_VERT), px_size.Set(1, UNIT_GR_PIXEL, DIREC_VERT), p_uc);
-		s = (uint)ceil(px_size);
+		s = fceili(px_size);
 		delete p_uc;
 	}
 	return s;
@@ -77,13 +77,13 @@ SDrawContext::SDrawContext(cairo_t * pCr) : S(dsysCairo), P(pCr)
 {
 }
 
-SDrawContext::SDrawContext(HDC hDc) : S(dsysWinGdi), P((void *)hDc)
+SDrawContext::SDrawContext(HDC hDc) : S(dsysWinGdi), P(static_cast<void *>(hDc))
 {
 }
 
 SDrawContext::operator cairo_t * () const
 {
-	return (S == dsysCairo) ? (cairo_t *)P : 0;
+	return (S == dsysCairo) ? static_cast<cairo_t *>(P) : 0;
 }
 
 SDrawContext::UC * SDrawContext::GetUnitContext() const
@@ -92,7 +92,7 @@ SDrawContext::UC * SDrawContext::GetUnitContext() const
 	if(oneof2(S, dsysWinGdi, dsysCairo)) {
 		p_uc = new SDrawContext::UC;
 		if(p_uc) {
-			HDC    h_dc = (S == dsysWinGdi && P) ? (HDC)P : SLS.GetTLA().GetFontDC();
+			HDC    h_dc = (S == dsysWinGdi && P) ? static_cast<HDC>(P) : SLS.GetTLA().GetFontDC();
 			float pt_per_inch_h = (float)GetDeviceCaps(h_dc, LOGPIXELSX);
 			float pt_per_inch_v = (float)GetDeviceCaps(h_dc, LOGPIXELSY);
 			p_uc->Dpi.Set(pt_per_inch_h, pt_per_inch_v);
@@ -324,7 +324,7 @@ int SDrawFigure::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	return ok;
 }
 
-void SDrawFigure::SetTransform(LMatrix2D * pMtx)
+void SDrawFigure::SetTransform(const LMatrix2D * pMtx)
 {
 	if(!RVALUEPTR(Tf, pMtx))
 		Tf.InitUnit();
@@ -2629,19 +2629,19 @@ struct PngSupport {
 	}
 	static void PNGAPI ReadFunc(png_structp pPng, png_bytep pData, size_t length)
 	{
-		SFile * p_file = (SFile *)png_get_io_ptr(pPng);
+		SFile * p_file = static_cast<SFile *>(png_get_io_ptr(pPng));
 		if(!p_file || !p_file->ReadV(pData, length))
 			png_error(pPng, 0);
 	}
 	static void PNGAPI WriteFunc(png_structp pPng, png_bytep pData, size_t length)
 	{
-		SFile * p_file = (SFile *)png_get_io_ptr(pPng);
+		SFile * p_file = static_cast<SFile *>(png_get_io_ptr(pPng));
 		if(!p_file || !p_file->Write(pData, length))
 			png_error(pPng, 0);
 	}
 	static void PNGAPI FlushFunc(png_structp pPng)
 	{
-		SFile * p_file = (SFile *)png_get_io_ptr(pPng);
+		SFile * p_file = static_cast<SFile *>(png_get_io_ptr(pPng));
 		if(!p_file || !p_file->Flush())
 			png_error(pPng, 0);
 	}
@@ -2769,9 +2769,9 @@ int SImageBuffer::StorePng(const StoreParam & rP, SFile & rF)
 	uint8 ** volatile pp_rows = 0;
 	const uint stride = F.GetStride(S.x);
 	THROW_S((S.x >= 1 && S.x <= 30000) && (S.y >= 1 && S.y <= 30000), SLERR_INVIMAGESIZE); // no image
-	THROW(pp_rows = (uint8 **)SAlloc::M(S.y * sizeof(uint8*)));
+	THROW(pp_rows = static_cast<uint8 **>(SAlloc::M(S.y * sizeof(uint8*))));
 	for(int i = 0; i < S.y; i++) {
-		pp_rows[i] = (uint8 *)P_Buf+i*stride;
+		pp_rows[i] = PTR8(P_Buf)+i*stride;
 	}
 	THROW(p_png = png_create_write_struct(PNG_LIBPNG_VER_STRING, 0, PngSupport::StoreErrFunc, 0));
 	err_code = setjmp(png_jmpbuf(p_png));
@@ -2817,7 +2817,7 @@ int SImageBuffer::StorePng(const StoreParam & rP, SFile & rF)
 static int GifReadFunc(GifFileType * pF, GifByteType * pData, int size)
 {
 	size_t actual_size = 0;
-	SFile * p_f = (SFile *)pF->UserData;
+	SFile * p_f = static_cast<SFile *>(pF->UserData);
 	if(p_f && !p_f->Read(pData, (size_t)size, &actual_size))
 		actual_size = 0;
 	return actual_size;

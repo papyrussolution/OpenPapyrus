@@ -2664,6 +2664,7 @@ long SLAPI DlContext::ParseFormat(const char * pFmtStr, TYPEID tp) const
 			break;
 		case S_ZSTRING:
 			fs.len = (short)GETSSIZE(tp);
+			break; // @v10.3.2 @fix (отсутствовал break)
 		case S_DATE:
 		case S_TIME:
 			if(pFmtStr && !oneof3(first, '>', '|', '<'))

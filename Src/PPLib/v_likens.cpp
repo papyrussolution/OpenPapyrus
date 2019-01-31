@@ -1,5 +1,5 @@
 // V_LIKENS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2016, 2018
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2016, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -73,7 +73,7 @@ int SLAPI PPViewObjLikeness::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
-	DIALOG_PROC_BODYERR(ObjLikenessFiltDialog, (ObjLikenessFilt *)pBaseFilt);
+	DIALOG_PROC_BODYERR(ObjLikenessFiltDialog, static_cast<ObjLikenessFilt *>(pBaseFilt));
 }
 
 int SLAPI PPViewObjLikeness::Init_(const PPBaseFilt * pFilt)

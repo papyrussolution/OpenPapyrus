@@ -1,5 +1,5 @@
 // ADVBILL.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -51,7 +51,7 @@ int SLAPI PPObjAdvBillKind::Edit(PPID * pID, void * extraPtr)
 int SLAPI PPObjAdvBillKind::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	if(p && p->Data) {
-		PPAdvBillKind * p_rec = (PPAdvBillKind *)p->Data;
+		PPAdvBillKind * p_rec = static_cast<PPAdvBillKind *>(p->Data);
 		return ProcessObjRefInArray(PPOBJ_OPRKIND, &p_rec->LinkOpID, ary, replace) ? 1 : 0;
 	}
 	else
@@ -120,7 +120,7 @@ uint SLAPI PPAdvBillItemList::GetCount() const
 
 PPAdvBillItemList::Item & FASTCALL PPAdvBillItemList::Get(uint pos) const
 {
-	return (pos < getCount()) ? *(Item *)at(pos) : *(Item *)0;
+	return (pos < getCount()) ? *static_cast<Item *>(SArray::at(pos)) : *static_cast<Item *>(0);
 }
 
 int SLAPI PPAdvBillItemList::SearchBillLink(PPID billID, uint * pPos) const
@@ -192,7 +192,7 @@ void SLAPI PPAdvBillItemList::Clear()
 
 int SLAPI PPAdvBillItemList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
-	return pCtx->Serialize(dir, (SArray *)this, rBuf) ? 1 : PPSetErrorSLib();
+	return pCtx->Serialize(dir, static_cast<SArray *>(this), rBuf) ? 1 : PPSetErrorSLib();
 }
 //
 // AdvBillItemDialog

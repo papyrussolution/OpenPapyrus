@@ -147,7 +147,6 @@ namespace NCompress {
 			} while(data != end);
 			return size;
 		}
-
 		REGISTER_FILTER_CREATE(CreateFilter2, CByteSwap2())
 		REGISTER_FILTER_CREATE(CreateFilter4, CByteSwap4())
 		REGISTER_CODECS_VAR {

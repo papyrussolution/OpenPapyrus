@@ -842,7 +842,7 @@ int SLAPI DBQuery::allocFrame(uint bufSize)
 		P_Frame->size = bufSize;
 		P_Frame->count = MIN(P_Frame->count, bufSize);
 		if(options & save_positions) {
-			P_Frame->posBuf = (ulong *)SAlloc::R(P_Frame->posBuf, P_Frame->size * tblCount * sizeof(RECORDNUMBER));
+			P_Frame->posBuf = static_cast<ulong *>(SAlloc::R(P_Frame->posBuf, P_Frame->size * tblCount * sizeof(RECORDNUMBER)));
 			if(!P_Frame->posBuf) {
 				options &= ~save_positions;
 				return 0;
@@ -1084,7 +1084,7 @@ int FASTCALL DBQuery::step(long delta)
 	uint c = P_Frame->count;
 	uint s = P_Frame->size;
 	if(delta > 0) {
-		delta = MIN((ulong)delta, s);
+		delta = MIN(static_cast<ulong>(delta), s);
 		diff = (_cur+delta-c);
 		if(diff >= 0) {
 			if(!EOQ) {
@@ -1110,7 +1110,7 @@ int FASTCALL DBQuery::step(long delta)
 		P_Frame->spos = P_Frame->srange / 2;
 	}
 	else {
-		delta = MIN((ulong)-delta, ht);
+		delta = MIN(static_cast<ulong>(-delta), ht);
 		if(P_Frame->cur < (ulong)delta) {
 			if(!BOQ) {
 				normalizeFrame(spPrev);
@@ -1124,7 +1124,7 @@ int FASTCALL DBQuery::step(long delta)
 			}
 			if(BOQ) {
 				if(P_Frame->cur) {
-					P_Frame->sdelta = -(long)P_Frame->top;
+					P_Frame->sdelta = -static_cast<long>(P_Frame->top);
 					P_Frame->top = P_Frame->cur = 0;
 					P_Frame->spos = 0;
 				}
@@ -1259,7 +1259,7 @@ int FASTCALL deleteFrom(DBTable * pTbl, int useTa, DBQ & query)
 //
 //
 //
-DBUpdateSet::DBUpdateSet() : SArray(sizeof(DBUpdateSetItem), /*8,*/ O_ARRAY|aryEachItem)
+DBUpdateSet::DBUpdateSet() : SArray(sizeof(DBUpdateSetItem), O_ARRAY|aryEachItem)
 {
 }
 
@@ -1275,13 +1275,13 @@ uint SLAPI DBUpdateSet::GetCount() const
 
 DBUpdateSetItem & DBUpdateSet::Get(uint pos) const
 {
-	return *(DBUpdateSetItem *)SArray::at(pos);
+	return *static_cast<DBUpdateSetItem *>(SArray::at(pos));
 }
 
 //virtual
 void FASTCALL DBUpdateSet::freeItem(void * pItem)
 {
-	DBUpdateSetItem * p_item = (DBUpdateSetItem *)pItem;
+	DBUpdateSetItem * p_item = static_cast<DBUpdateSetItem *>(pItem);
 	p_item->Val.I.destroy();
 }
 
@@ -1299,14 +1299,14 @@ DBUpdateSet & FASTCALL DBUpdateSet::set(DBField f, DBItem & val)
 	item.Fld = f;
 	// DBItem
 	if(val.Id == DBConst_ID) {
-		item.Val.C = *(DBConst *)&val;
+		item.Val.C = *static_cast<DBConst *>(&val);
 	}
 	else if(val.Id == DBE_ID) {
-		item.Val.E = *(DBE *)&val;
-		delete (DBE *)&val;
+		item.Val.E = *static_cast<DBE *>(&val);
+		delete static_cast<DBE *>(&val);
 	}
 	else if(val.Id > 0) {
-		item.Val.F = *(DBField *)&val;
+		item.Val.F = *static_cast<DBField *>(&val);
 	}
 	else {
 		assert(0);

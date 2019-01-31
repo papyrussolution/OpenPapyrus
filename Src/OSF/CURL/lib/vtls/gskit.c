@@ -504,30 +504,25 @@ static int inetsocketpair(int sv[2])
 		close(lfd);
 		return -1;
 	}
-
 	/* Get the allocated port. */
 	len = sizeof addr1;
 	if(getsockname(lfd, (struct sockaddr*)&addr1, &len) < 0) {
 		close(lfd);
 		return -1;
 	}
-
 	/* Create the client socket. */
 	cfd = socket(AF_INET, SOCK_STREAM, 0);
 	if(cfd < 0) {
 		close(lfd);
 		return -1;
 	}
-
 	/* Request unblocking connection to the listening socket. */
 	curlx_nonblock(cfd, TRUE);
-	if(connect(cfd, (struct sockaddr*)&addr1, sizeof addr1) < 0 &&
-	    errno != EINPROGRESS) {
+	if(connect(cfd, (struct sockaddr*)&addr1, sizeof addr1) < 0 && errno != EINPROGRESS) {
 		close(lfd);
 		close(cfd);
 		return -1;
 	}
-
 	/* Get the client dynamic port for intrusion check below. */
 	len = sizeof addr2;
 	if(getsockname(cfd, (struct sockaddr*)&addr2, &len) < 0) {

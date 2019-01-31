@@ -6419,7 +6419,7 @@ int SLAPI PrcssrSupplInterchange::InitParam(PPBaseFilt * pBaseFilt)
 	SupplInterchangeFilt temp_filt;
 	THROW(temp_filt.IsA(pBaseFilt));
 	{
-		// SupplInterchangeFilt * p_filt = (SupplInterchangeFilt *)pBaseFilt;
+		// SupplInterchangeFilt * p_filt = static_cast<SupplInterchangeFilt *>(pBaseFilt);
 	}
 	CATCHZOK
 	return ok;
@@ -6430,7 +6430,7 @@ int SLAPI PrcssrSupplInterchange::EditParam(PPBaseFilt * pBaseFilt)
 	SupplInterchangeFilt temp_filt;
 	if(!temp_filt.IsA(pBaseFilt))
 		return 0;
-	SupplInterchangeFilt * p_filt = (SupplInterchangeFilt *)pBaseFilt;
+	SupplInterchangeFilt * p_filt = static_cast<SupplInterchangeFilt *>(pBaseFilt);
 	DIALOG_PROC_BODY(SupplInterchangeFiltDialog, p_filt);
 }
 
@@ -6463,7 +6463,7 @@ int SLAPI PrcssrSupplInterchange::Init(const PPBaseFilt * pBaseFilt)
 	State &= ~stInited; // @v10.0.03 @fix stInited-->~stInited
 	ZDELETE(P_Eb);
 	THROW(temp_filt.IsA(pBaseFilt));
-	temp_filt = *(SupplInterchangeFilt *)pBaseFilt;
+	temp_filt = *static_cast<const SupplInterchangeFilt *>(pBaseFilt);
 	THROW_PP(temp_filt.SupplID, PPERR_INVSUPPL);
 	THROW(ArObj.Search(temp_filt.SupplID, &ar_rec) > 0);
 	THROW_PP_S(ArObj.GetSupplAgreement(temp_filt.SupplID, &suppl_agt, 0) > 0, PPERR_ARHASNTAGREEMENT, ar_rec.Name);

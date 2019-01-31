@@ -168,7 +168,7 @@ int SLAPI PPObjPersonRelType::Write(PPObjPack * p, PPID * pID, void * stream, Ob
 {
 	int    ok = -1;
 	if(p->Data) {
-		PPPersonRelTypePacket * p_pack = (PPPersonRelTypePacket *)p->Data;
+		PPPersonRelTypePacket * p_pack = static_cast<PPPersonRelTypePacket *>(p->Data);
 		if(stream == 0) {
 			PPID   same_id = 0;
 			if(*pID == 0)
@@ -208,7 +208,7 @@ int SLAPI PPObjPersonRelType::Write(PPObjPack * p, PPID * pID, void * stream, Ob
 int  SLAPI PPObjPersonRelType::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	if(p && p->Data) {
-		PPPersonRelTypePacket * p_pack = (PPPersonRelTypePacket *)p->Data;
+		PPPersonRelTypePacket * p_pack = static_cast<PPPersonRelTypePacket *>(p->Data);
 		return ProcessObjListRefInArray(PPOBJ_REGISTERTYPE, p_pack->InhRegTypeList, ary, replace);
 	}
 	return -1;
@@ -220,7 +220,7 @@ int SLAPI PPObjPersonRelType::GetGroupingList(PPIDArray * pList)
 	SArray list(sizeof(PPPersonRelType));
 	THROW(ref->LoadItems(Obj, &list));
 	for(uint i = 0; i < list.getCount(); i++) {
-		const PPPersonRelType * p_item = (const PPPersonRelType *)list.at(i);
+		const PPPersonRelType * p_item = static_cast<const PPPersonRelType *>(list.at(i));
 		if(p_item && p_item->Flags & PPPersonRelType::fGrouping) {
 			if(pList)
 				THROW_SL(pList->add(p_item->ID));

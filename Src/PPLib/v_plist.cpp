@@ -1678,7 +1678,7 @@ int SLAPI PPViewPriceList::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	PListFiltDialog * dlg = 0;
 	PriceListFilt * p_filt = 0;
 	THROW(Filt.IsA(pBaseFilt));
-	p_filt = (PriceListFilt *)pBaseFilt;
+	p_filt = static_cast<PriceListFilt *>(pBaseFilt);
 	THROW(CheckDialogPtr(&(dlg = new PListFiltDialog(this))));
 	THROW(dlg->setDTS(p_filt));
 	while(!valid_data && ExecView(dlg) == cmOK)

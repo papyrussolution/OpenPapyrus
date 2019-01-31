@@ -1,5 +1,5 @@
 // V_SPCSER.CPP
-// Copyright (c) A.Starodub 2012, 2015, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2012, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -78,7 +78,7 @@ int SLAPI PPViewSpecSeries::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
-	DIALOG_PROC_BODYERR(SpecSerFiltDlg, (SpecSeriesFilt *)pBaseFilt);
+	DIALOG_PROC_BODYERR(SpecSerFiltDlg, static_cast<SpecSeriesFilt *>(pBaseFilt));
 }
 
 // virtual

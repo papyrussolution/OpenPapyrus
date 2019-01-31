@@ -418,7 +418,7 @@ int SLAPI PPViewLocTransf::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	};
 	int    ok = -1;
 	THROW(Filt.IsA(pBaseFilt));
-	ok = PPDialogProcBody <LocTransfFiltDialog, LocTransfFilt> ((LocTransfFilt *)pBaseFilt);
+	ok = PPDialogProcBody <LocTransfFiltDialog, LocTransfFilt> (static_cast<LocTransfFilt *>(pBaseFilt));
 	CATCHZOKPPERR
 	return ok;
 }

@@ -2579,6 +2579,15 @@ SString & SLAPI SString::Cat(double v, long fmt)
 	return Cat(realfmt(v, fmt, temp_buf));
 }
 
+SString & SLAPI SString::Cat(const RealRange & rR, long fmt)
+{
+	char   temp_buf[512];
+	Cat(realfmt(rR.low, fmt, temp_buf));
+	Dot().Dot();
+	Cat(realfmt(rR.upp, fmt, temp_buf));
+	return *this;
+}
+
 SString & SLAPI SString::Cat(double v)
 {
 	char   temp_buf[512];

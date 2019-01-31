@@ -3807,29 +3807,8 @@ public:
 		linkAnd = 1,
 		linkOr  = 2
 	};
-	static int FASTCALL SlToBeqOp(int s)
-	{
-		switch(s) {
-			case _EQ_: return opEq;
-			case _GT_: return opGt;
-			case _LT_: return opLt;
-			case _NE_: return opNe;
-			case _GE_: return opGe;
-			case _LE_: return opLe;
-		}
-		assert(0);
-		return 0;
-	}
-	static int FASTCALL SlToBeqLink(int s)
-	{
-		switch(s) {
-			case _AND___: return linkAnd;
-			case _OR___:  return linkOr;
-			case _END___: return linkEnd;
-		}
-		assert(0);
-		return 0;
-	}
+	static int FASTCALL SlToBeqOp(int s);
+	static int FASTCALL SlToBeqLink(int s);
 	//
 	// Descr: Удаляет экземпляр *ppQ с обнулением.
 	// Note: Реализована для замещения частых вызовов ZDELETE(q)
@@ -4115,7 +4094,7 @@ public:
 		DECL_INVARIANT_C();
 
 		explicit Buffer(size_t initSize = 128);
-		Buffer(const DBT * pB);
+		explicit Buffer(const DBT * pB);
 		void   Reset();
 		operator DBT * () { return reinterpret_cast<DBT *>(this); }
 		int    FASTCALL Alloc(size_t sz);
@@ -4153,7 +4132,6 @@ public:
 		uint32 DOff;
 		void * P_AppData;
 		uint32 Flags;
-		//
 		STempBuffer B;
 	};
 
@@ -4338,7 +4316,7 @@ public:
 	static int FASTCALL ProcessError(int bdbErrCode, const DB * pDb, const char * pAddedMsg);
 	static int FASTCALL ProcessError(int bdbErrCode);
 
-	BDbDatabase(const char * pHomeDir, Config * pCfg = 0, long options = 0);
+	explicit BDbDatabase(const char * pHomeDir, Config * pCfg = 0, long options = 0);
 	~BDbDatabase();
 	int    operator ! () const;
 	operator DB_ENV * ();

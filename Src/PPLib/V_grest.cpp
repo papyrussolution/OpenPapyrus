@@ -1,5 +1,5 @@
 // V_GREST.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -224,9 +224,9 @@ int GoodsRestTotal::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 //
 #define DEFAULT_GROUPRESTCALCTHRESHOLD 100
 
-SLAPI PPViewGoodsRest::PPViewGoodsRest() : PPView(0, &Filt, PPVIEW_GOODSREST),
-	P_GGIter(0), P_Tbl(0), P_BObj(BillObj), P_Predictor(0), P_TempOrd(0), P_OpGrpngFilt(0), Flags(0),
-	ScalePrefixID(0), SellOpID(0), LastCacheCounter(0), GroupCalcThreshold(CConfig.GRestCalcThreshold)
+SLAPI PPViewGoodsRest::PPViewGoodsRest() : PPView(0, &Filt, PPVIEW_GOODSREST), P_GGIter(0), P_Tbl(0), P_BObj(BillObj), 
+	P_Predictor(0), P_TempOrd(0), P_OpGrpngFilt(0), Flags(0), ScalePrefixID(0), SellOpID(0), LastCacheCounter(0), 
+	GroupCalcThreshold(CConfig.GRestCalcThreshold), P_Rpe(0)
 {
 	DefReportId = REPORT_GOODSREST;
 	SETFLAG(Flags, fAccsCost, P_BObj->CheckRights(BILLRT_ACCSCOST));
@@ -241,6 +241,7 @@ SLAPI PPViewGoodsRest::~PPViewGoodsRest()
 	delete P_Tbl;
 	delete P_Predictor;
 	delete P_TempOrd;
+	delete P_Rpe;
 	if(!(BaseState & bsServerInst))
 		DBRemoveTempFiles();
 	ZDELETE(P_OpGrpngFilt);
@@ -251,7 +252,7 @@ PPBaseFilt * PPViewGoodsRest::CreateFilt(void * extraPtr) const
 	const PPConfig & r_cfg = LConfig;
 	GoodsRestFilt * p_filt = new GoodsRestFilt;
 	p_filt->LocList.Add(r_cfg.Location);
-	if(((long)extraPtr) & 0x0001)
+	if((reinterpret_cast<long>(extraPtr)) & 0x0001)
 		p_filt->Flags2 |= GoodsRestFilt::f2CalcPrognosis; // // @v9.5.8 CalcPrognosis-->Flags2
 	if(r_cfg.Flags & CFGFLG_USEGOODSMATRIX)
 		p_filt->Flags |= GoodsRestFilt::fUseGoodsMatrix;
@@ -285,12 +286,23 @@ int SLAPI PPViewGoodsRest::Init_(const PPBaseFilt * pFilt)
 		SellOpID = CConfig.RetailOp;
 		Total.Init();
 		ZDELETE(P_Predictor);
+		ZDELETE(P_Rpe); // @v10.3.2
 		GoodsIDs.Clear();
 		StrPool.ClearS(); // @v9.8.3
 		if(Filt.Flags & GoodsRestFilt::fNullRestsOnly)
 			Filt.Flags |= GoodsRestFilt::fNullRest;
 		if(Filt.Flags & GoodsRestFilt::fNoZeroOrderOnly)
 			Filt.Flags |= GoodsRestFilt::fCalcOrder;
+		// @v10.3.2 {
+		if(Filt.Flags2 & GoodsRestFilt::f2RetailPrice && (Filt.GetQuotUsage() != 1 || !Filt.QuotKindID)) {
+			PPID   loc_id = Filt.LocList.GetSingle();
+			if(loc_id) {
+				RetailPriceExtractor::ExtQuotBlock eqb(Filt.QuotKindID);
+				long   rtlpf = 0;
+				P_Rpe = new RetailPriceExtractor(loc_id, &eqb, 0, ZERODATETIME, rtlpf);
+			}
+		}
+		// } @v10.3.2 
 		Goods2Tbl::Rec gg_rec;
 		if(Filt.GoodsGrpID && GObj.Fetch(Filt.GoodsGrpID, &gg_rec) > 0) {
 			if(gg_rec.Flags & GF_FOLDER && gg_rec.Flags & GF_EXCLALTFOLD)
@@ -435,7 +447,6 @@ int GoodsRestFiltDlg::setDTS(const GoodsRestFilt * pFilt)
 		Data.Init(1, 0);
 	else
 		Data = *pFilt;
-
 	int    ok = 1;
 	setCtrlData(CTL_GOODSREST_DATE, &Data.Date);
 	LocationCtrlGroup::Rec loc_rec(&Data.LocList);
@@ -444,7 +455,7 @@ int GoodsRestFiltDlg::setDTS(const GoodsRestFilt * pFilt)
 	GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel);
 	setGroupData(GRP_GOODSFILT, &gf_rec);
 	SetupPPObjCombo(this, CTLSEL_GOODSREST_BRAND, PPOBJ_BRAND, Data.BrandID, OLW_LOADDEFONOPEN);
-	SetupPPObjCombo(this, CTLSEL_GOODSREST_QUOTK, PPOBJ_QUOTKIND, ((Data.QuotKindID > 0) ? Data.QuotKindID : 0L), 0, (void *)1);
+	SetupPPObjCombo(this, CTLSEL_GOODSREST_QUOTK, PPOBJ_QUOTKIND, ((Data.QuotKindID > 0) ? Data.QuotKindID : 0L), 0, reinterpret_cast<void *>(1));
 	disableCtrl(CTLSEL_GOODSREST_QUOTK, Data.GetQuotUsage() ? 0 : 1);
 	SetupSubstGoodsCombo(this, CTLSEL_GOODSREST_SUBST, Data.Sgg);
 	AddClusterAssoc(CTL_GOODSREST_DIFFBYLOC, 0, GoodsRestFilt::fEachLocation);
@@ -481,9 +492,7 @@ int GoodsRestFiltDlg::setDTS(const GoodsRestFilt * pFilt)
 	AddClusterAssoc(CTL_GOODSREST_FLAGS,  3, GoodsRestFilt::fCalcOrder);
 	AddClusterAssoc(CTL_GOODSREST_FLAGS,  4, GoodsRestFilt::fBarCode);
 	AddClusterAssoc(CTL_GOODSREST_FLAGS,  5, GoodsRestFilt::fCWoVat);
-
 	AddClusterAssoc(CTL_GOODSREST_FLAGS,  6, GoodsRestFilt::fCalcCVat);
-
 	AddClusterAssoc(CTL_GOODSREST_FLAGS,  7, GoodsRestFilt::fUnderMinStock);
 	AddClusterAssoc(CTL_GOODSREST_FLAGS,  8, GoodsRestFilt::fDisplayWoPacks);
 	AddClusterAssoc(CTL_GOODSREST_FLAGS,  9, GoodsRestFilt::fShowMinStock);
@@ -499,6 +508,10 @@ int GoodsRestFiltDlg::setDTS(const GoodsRestFilt * pFilt)
 	AddClusterAssoc(CTL_GOODSREST_BYQUOT2, 2, 2);
 	SetClusterData(CTL_GOODSREST_BYQUOT2, Data.GetQuotUsage());
 	// } @v9.5.8
+	// @v10.3.2 {
+	AddClusterAssoc(CTL_GOODSREST_RTLPRICES, 0, GoodsRestFilt::f2RetailPrice);
+	SetClusterData(CTL_GOODSREST_RTLPRICES, Data.Flags2); 
+	// } @v10.3.2 
 	AddClusterAssoc(CTL_GOODSREST_SPLIT, 0, GoodsRestParam::_diffCost);
 	AddClusterAssoc(CTL_GOODSREST_SPLIT, 1, GoodsRestParam::_diffPrice);
 	AddClusterAssoc(CTL_GOODSREST_SPLIT, 2, GoodsRestParam::_diffPack);
@@ -559,6 +572,7 @@ int GoodsRestFiltDlg::getDTS(GoodsRestFilt * pFilt)
 		Data.SetQuotUsage(quot_usage);
 	}
 	// } @v9.5.8
+	GetClusterData(CTL_GOODSREST_RTLPRICES, &Data.Flags2); // @v10.3.2
 	if(Data.Flags & GoodsRestFilt::fNullRestsOnly)
 		Data.Flags |= GoodsRestFilt::fNullRest;
 	Data.DiffParam = GetClusterData(CTL_GOODSREST_SPLIT);
@@ -635,6 +649,21 @@ IMPL_HANDLE_EVENT(GoodsRestFiltDlg)
 		else if(Data.QuotKindID >= 0)
 			Data.QuotKindID = -1L;
 		disableCtrl(CTLSEL_GOODSREST_QUOTK, (quot_usage ? 0 : 1));
+		DisableClusterItem(CTL_GOODSREST_RTLPRICES, 0, quot_usage == 1);
+	}
+	else if(event.isClusterClk(CTL_GOODSREST_RTLPRICES)) {
+		const long preserve_flags2 = Data.Flags2;
+		GetClusterData(CTL_GOODSREST_RTLPRICES, &Data.Flags2);
+		Data.SetQuotUsage(GetClusterData(CTL_GOODSREST_BYQUOT2));
+		const long quot_usage = Data.GetQuotUsage();
+		if(quot_usage == 1) {
+			if(Data.Flags2 & Data.f2RetailPrice) {
+				Data.Flags2 &= ~Data.f2RetailPrice;
+				SetClusterData(CTL_GOODSREST_RTLPRICES, Data.Flags2);
+			}
+		}
+		else
+			DisableClusterItem(CTL_GOODSREST_BYQUOT2, 1, (Data.Flags2 & Data.f2RetailPrice));
 	}
 	// } @v9.5.8
 	else if(event.isClusterClk(CTL_GOODSREST_FLAGS))
@@ -681,8 +710,8 @@ int GoodsRestFiltDlg::editAdvOptions()
 			p_dlg->getCtrlData(CTL_GRESTFLTA_DEFICDT,   &Data.DeficitDt);
 			p_dlg->GetClusterData(CTL_GRESTFLTA_CALCDEFIC, &Data.Flags);
 			p_dlg->getCtrlData(CTL_GRESTFLTA_PRGNDAYS, &Data.PrgnTerm);
-			Data.ExtViewFlags = (uint16)p_dlg->GetClusterData(CTL_GRESTFLTA_EVF); // v8.7.3
-			Data.UhttExpFlags = (int16)p_dlg->GetClusterData(CTL_GRESTFLTA_UHTTEXPF);
+			Data.ExtViewFlags = static_cast<uint16>(p_dlg->GetClusterData(CTL_GRESTFLTA_EVF));
+			Data.UhttExpFlags = static_cast<uint16>(p_dlg->GetClusterData(CTL_GRESTFLTA_UHTTEXPF));
 			Data.UhttExpLocID = p_dlg->getCtrlLong(CTLSEL_GRESTFLTA_UHTTLOC);
 			if(!checkdate(Data.DeficitDt, 1))
 				PPErrorByDialog(p_dlg, CTL_GRESTFLTA_DEFICDT, PPERR_SLIB);
@@ -725,7 +754,7 @@ IMPL_HANDLE_EVENT(GoodsRestWPrgnFltDlg)
 	if(event.isKeyDown(kbF2)) {
 		LDATE  dt = getCtrlDate(CTL_GRWPRGNFLT_DATE);
 		SETIFZ(dt, LConfig.OperDate);
-		TInputLine * p_il = (TInputLine *)getCtrlView(CTL_GRWPRGNFLT_PRGNPRD);
+		TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_GRWPRGNFLT_PRGNPRD));
 		int    num_days = p_il ? atoi(p_il->getText()) : 0;
 		if(num_days > 0 && dt) {
 			DateRange period;
@@ -801,7 +830,7 @@ int SLAPI PPViewGoodsRest::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	if(!Filt.IsA(pFilt))
 		return 0;
-	GoodsRestFilt * p_filt = (GoodsRestFilt*)pFilt;
+	GoodsRestFilt * p_filt = static_cast<GoodsRestFilt *>(pFilt);
 	if(p_filt->Flags2 & GoodsRestFilt::f2CalcPrognosis) { // @v9.5.8 CalcPrognosis-->Flags2
 		DIALOG_PROC_BODY(GoodsRestWPrgnFltDlg, p_filt);
 	}
@@ -838,7 +867,10 @@ int SLAPI PPViewGoodsRest::Cache::SetupCacheItemLotTag(PPViewGoodsRest::CacheIte
 int SLAPI PPViewGoodsRest::Cache::GetCacheItemLotTag(const PPViewGoodsRest::CacheItem & rItem, SString & rBuf) const
 	{ return GetS(rItem.LotTagP, rBuf); }
 
-IMPL_CMPFUNC(GoodsRestCacheItem, _i1, _i2) { RET_CMPCASCADE5((const PPViewGoodsRest::CacheItem *)_i1, (const PPViewGoodsRest::CacheItem *)_i2, GoodsID, LocID, Cost, Price, UnitPerPack); }
+IMPL_CMPFUNC(GoodsRestCacheItem, _i1, _i2) 
+{ 
+	RET_CMPCASCADE5(static_cast<const PPViewGoodsRest::CacheItem *>(_i1), static_cast<const PPViewGoodsRest::CacheItem *>(_i2), GoodsID, LocID, Cost, Price, UnitPerPack); 
+}
 
 void SLAPI PPViewGoodsRest::InitCache()
 {
@@ -856,8 +888,8 @@ struct _lru_item_tag { // @flat
 
 IMPL_CMPFUNC(_lru_item_tag, _i1, _i2)
 {
-	const _lru_item_tag * i1 = (const _lru_item_tag*)_i1;
-	const _lru_item_tag * i2 = (const _lru_item_tag*)_i2;
+	const _lru_item_tag * i1 = static_cast<const _lru_item_tag *>(_i1);
+	const _lru_item_tag * i2 = static_cast<const _lru_item_tag *>(_i2);
 	return CMPFUNC(int16, &i2->pos, &i1->pos); // descending order
 }
 
@@ -1487,7 +1519,7 @@ int SLAPI PPViewGoodsRest::CalcOrder(PPID goodsID, GoodsRestParam * pOutData)
 {
 	int    ok = 1;
 	GoodsRestParam p;
-	p.Set(Filt);
+	p.Set(Filt, 0);
 	p.CalcMethod = GoodsRestParam::pcmAvg;
 	p.GoodsID = -labs(goodsID);
 	p.LocID   = LocList.GetSingle();
@@ -1542,15 +1574,13 @@ int SLAPI PPViewGoodsRest::ProcessGoods(PPID goodsID, BExtInsert * pBei, const P
 	const  int  each_loc   = BIN(ff & GoodsRestFilt::fEachLocation);
 	const  int  draft_rcpt = BIN(ff & GoodsRestFilt::fShowDraftReceipt);
 	const  int  calc_uncompl_sess = BIN(ff & GoodsRestFilt::fCalcUncompleteSess);
-	//const  int  calc_price_by_quot = (Filt.QuotKindID > 0 && ff & GoodsRestFilt::fPriceByQuot);
 	const int quot_usage = (Filt.QuotKindID > 0) ? Filt.GetQuotUsage() : 0;
-
 	PPID   goods_id = goodsID;
 	int    is_subst = 0;
 	double order = 0.0, ph_u_per_u = 0.0, min_stock = 0.0;
 	GoodsRestParam p;
 	GoodsRestParam ord_p;
-	p.Set(Filt);
+	p.Set(Filt, P_Rpe);
 	if(each_loc)
 		p.DiffParam |= GoodsRestParam::_diffLoc;
 	p.LocID  = LocList.GetSingle();
@@ -1559,7 +1589,7 @@ int SLAPI PPViewGoodsRest::ProcessGoods(PPID goodsID, BExtInsert * pBei, const P
 	p.GoodsID = goods_id;
 	THROW(PPCheckUserBreak());
 	if(ff & (GoodsRestFilt::fNoZeroOrderOnly|GoodsRestFilt::fCalcOrder)) {
-		ord_p.Set(Filt);
+		ord_p.Set(Filt, 0);
 		ord_p.Flags_ &= ~(GoodsRestParam::fCostByQuot|GoodsRestParam::fPriceByQuot|GoodsRestParam::fCWoVat|GoodsRestParam::fLabelOnly);
 		ord_p.CalcMethod = GoodsRestParam::pcmAvg;
 		ord_p.SupplID    = 0;
@@ -1597,7 +1627,7 @@ int SLAPI PPViewGoodsRest::ProcessGoods(PPID goodsID, BExtInsert * pBei, const P
 		GObj.GetPhUPerU(goods_id, 0, &ph_u_per_u);
 		if(p.Total.Rest == 0.0 && p.Total.DraftRcpt == 0.0) {
 			// В цикле для каждого склада Х
-			PPID   temp_loc_id = LocList.GetSingle();
+			const  PPID temp_loc_id = LocList.GetSingle();
 			const  int llr = GetLastLot_(goodsID, temp_loc_id, rrec);
 			if(llr > 0 || (ff & (GoodsRestFilt::fUseGoodsMatrix|GoodsRestFilt::fForceNullRest))) {
 				p.Total.Init(&rrec);
@@ -1631,7 +1661,7 @@ int SLAPI PPViewGoodsRest::ProcessGoods(PPID goodsID, BExtInsert * pBei, const P
 						ord_loc_list.add(ord_p.at(i).LocID);
 					ord_loc_list.sortAndUndup();
 				}
-				for(uint j = 0; p.enumItems(&j, (void **)&p_val);) {
+				for(uint j = 0; p.enumItems(&j, reinterpret_cast<void **>(&p_val));) {
 					PPID   loc_id = 0;
 					double temp_order = order;
 					if(each_loc) {
@@ -1912,14 +1942,12 @@ int SLAPI PPViewGoodsRest::Helper_ProcessLot(ProcessLotBlock & rBlk, ReceiptTbl:
 			grci.Price = R5(rRec.Price);
 			if(Filt.CalcMethod == GoodsRestParam::pcmMostRecent)
 				::GetCurGoodsPrice(goods_id, rRec.LocID, GPRET_MOSTRECENT, &grci.Price, 0);
-			//const int calc_price_by_quot = (Filt.QuotKindID > 0 && Filt.Flags & GoodsRestFilt::fPriceByQuot);
 			const int quot_usage = (Filt.QuotKindID > 0) ? Filt.GetQuotUsage() : 0;
 			if((rRec.Flags & (LOTF_COSTWOVAT|LOTF_PRICEWOTAXES)) || oneof2(quot_usage, 1, 2)) {
 				if(oneof2(quot_usage, 1, 2)) {
-					//double price = grci.Price;
 					double qv = 0.0;
 					const QuotIdent qi(rRec.LocID, Filt.QuotKindID);
-					if(GObj.GetQuotExt(rRec.GoodsID, qi, grci.Cost, grci.Price, &qv/*&grci.Price*/, 1) > 0) {
+					if(GObj.GetQuotExt(rRec.GoodsID, qi, grci.Cost, grci.Price, &qv, 1) > 0) {
 						if(quot_usage == 1)
 							grci.Price = qv;
 						else if(quot_usage == 2)
@@ -2036,7 +2064,7 @@ int SLAPI PPViewGoodsRest::Helper_ProcessLot(ProcessLotBlock & rBlk, ReceiptTbl:
 	return ok;
 }
 
-IMPL_CMPFUNC(ReceiptTbl_DtOprNo, i1, i2) { RET_CMPCASCADE2((const ReceiptTbl::Rec *)i1, (const ReceiptTbl::Rec *)i2, Dt, OprNo); }
+IMPL_CMPFUNC(ReceiptTbl_DtOprNo, i1, i2) { RET_CMPCASCADE2(static_cast<const ReceiptTbl::Rec *>(i1), static_cast<const ReceiptTbl::Rec *>(i2), Dt, OprNo); }
 
 PPViewGoodsRest::LotQueryBlock::LotQueryBlock() : Idx(-1), SpMode(-1), Reverse(0), P_Q(0)
 {
@@ -2048,7 +2076,7 @@ PPViewGoodsRest::LotQueryBlock::~LotQueryBlock()
 	BExtQuery::ZDelete(&P_Q);
 }
 
-int SLAPI PPViewGoodsRest::MakeLotQuery(LotQueryBlock & rBlk, int lcr, ulong lowId, ulong uppId)
+int SLAPI PPViewGoodsRest::MakeLotQuery(LotQueryBlock & rBlk, int lcr, long lowId, long uppId)
 {
 	assert(!lcr || Filt.Date);
 	int    ok = 1;
@@ -2069,8 +2097,8 @@ int SLAPI PPViewGoodsRest::MakeLotQuery(LotQueryBlock & rBlk, int lcr, ulong low
 		assert(lowId < uppId);
 		rBlk.Idx = 0;
 		rBlk.SpMode = spGe;
-		kx.k0.ID = (long)lowId;
-		dbq = &(r_t->ID >= (long)lowId && r_t->ID <= (long)uppId);
+		kx.k0.ID = lowId;
+		dbq = &(r_t->ID >= lowId && r_t->ID <= uppId);
 		query_buf_capacity = MIN(256, (uppId-lowId+1));
 	}
 	else {
@@ -2227,7 +2255,7 @@ int SLAPI PPViewGoodsRest::ProcessLots2(const PPIDArray * pGrpGoodsList)
 					THROW(SelectLcrLots(id_list, lcr_lot_list, lot_list));
 					id_list.clear();
 				}
-				id_list.add((long)lot_id_);
+				id_list.add(static_cast<long>(lot_id_));
 				PPWaitPercent(cntr.Increment(), msg_buf);
 			}
 			THROW(SelectLcrLots(id_list, lcr_lot_list, lot_list));
@@ -2236,7 +2264,7 @@ int SLAPI PPViewGoodsRest::ProcessLots2(const PPIDArray * pGrpGoodsList)
 		{
 			const uint lc = lot_list.getCount();
 			for(uint i = 0; i < lc; i++) {
-				ReceiptTbl::Rec & r_lot_rec = *(ReceiptTbl::Rec *)lot_list.at(i);
+				ReceiptTbl::Rec & r_lot_rec = *static_cast<ReceiptTbl::Rec *>(lot_list.at(i));
 				double rest = 0.0;
 				r = lcr_rest_list.Search(r_lot_rec.ID, &rest, 0, 1);
 				assert(r);
@@ -2256,7 +2284,7 @@ int SLAPI PPViewGoodsRest::ProcessLots2(const PPIDArray * pGrpGoodsList)
 			PPLoadText(PPTXT_GRESTOPENEDLOTEXTRACT, msg_buf);
 			THROW(MakeLotQuery(q_blk, 1, 0, 0));
 			for(q_blk.P_Q->initIteration(q_blk.Reverse, q_blk.Key, q_blk.SpMode); q_blk.P_Q->nextIteration() > 0;) {
-				if(!lcr_lot_list.Has((ulong)r_t->data.ID))
+				if(!lcr_lot_list.Has(static_cast<ulong>(r_t->data.ID)))
 					THROW_SL(lot_list.insert(&r_t->data));
 				PPWaitMsg((temp_buf = msg_buf).Space().Cat(r_t->data.Dt));
 			}
@@ -2285,7 +2313,7 @@ int SLAPI PPViewGoodsRest::ProcessLots2(const PPIDArray * pGrpGoodsList)
 				// позиции, которые не входят в ограничивающий список.
 				//
 				for(ulong id_ = 0; full_goods_list.Enum(&id_);) {
-					if(!pGrpGoodsList->bsearch((long)id_))
+					if(!pGrpGoodsList->bsearch(static_cast<long>(id_)))
 						full_goods_list.Remove(id_);
 				}
 			}
@@ -2296,10 +2324,10 @@ int SLAPI PPViewGoodsRest::ProcessLots2(const PPIDArray * pGrpGoodsList)
 				//
 				const uint lc = lot_list.getCount();
 				for(uint i = 0; i < lc; i++) {
-					const ReceiptTbl::Rec * p_rec = (ReceiptTbl::Rec *)lot_list.at(i);
+					const ReceiptTbl::Rec * p_rec = static_cast<const ReceiptTbl::Rec *>(lot_list.at(i));
 					const PPID goods_id = p_rec->GoodsID;
 					if(goods_id > 0 && p_rec->Rest > 0.0)
-						full_goods_list.Remove((ulong)goods_id);
+						full_goods_list.Remove(static_cast<ulong>(goods_id));
 				}
 			}
 			{
@@ -2308,7 +2336,7 @@ int SLAPI PPViewGoodsRest::ProcessLots2(const PPIDArray * pGrpGoodsList)
 				//
 				PPIDArray goods_list;
 				for(ulong id_ = 0; full_goods_list.Enum(&id_);)
-					goods_list.add((PPID)id_);
+					goods_list.add(static_cast<PPID>(id_));
 				THROW(ProcessGroup(&goods_list));
 			}
 		}
@@ -2321,7 +2349,7 @@ int SLAPI PPViewGoodsRest::ProcessLots2(const PPIDArray * pGrpGoodsList)
 				blk.Cntr.Init(lc);
 				if(Filt.CalcMethod == GoodsRestParam::pcmLastLot) {
 					do {
-						ReceiptTbl::Rec & r_rec = *(ReceiptTbl::Rec *)lot_list.at(--lc);
+						ReceiptTbl::Rec & r_rec = *static_cast<ReceiptTbl::Rec *>(lot_list.at(--lc));
 						if(r_rec.Rest > 0.0) {
 							THROW(Helper_ProcessLot(blk, r_rec));
 						}
@@ -2329,7 +2357,7 @@ int SLAPI PPViewGoodsRest::ProcessLots2(const PPIDArray * pGrpGoodsList)
 				}
 				else {
 					for(uint i = 0; i < lc; i++) {
-						ReceiptTbl::Rec & r_rec = *(ReceiptTbl::Rec *)lot_list.at(i);
+						ReceiptTbl::Rec & r_rec = *static_cast<ReceiptTbl::Rec *>(lot_list.at(i));
 						if(r_rec.Rest > 0.0) {
 							THROW(Helper_ProcessLot(blk, r_rec));
 						}
@@ -2386,13 +2414,13 @@ public:
 private:
 	virtual int SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 	{
-		return (pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V) ? P_V->GetTabTitle(*(const long *)pVal, rBuf) : 0;
+		return (pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V) ? P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf) : 0;
 	}
 	virtual int SLAPI CalcSummary(int action, CalcSummaryBlock & rBlk)
 	{
 		PPID loc_id = 0;
 		PPID goods_id = 0;
-		TotalItem * p_total_item = (TotalItem *)rBlk.P_ExtData;
+		TotalItem * p_total_item = static_cast<TotalItem *>(rBlk.P_ExtData);
 		assert(p_total_item);
 		if(action == 0) {
 			int in_mtx = 0;
@@ -3220,7 +3248,7 @@ void SLAPI PPViewGoodsRest::GetEditIds(const void * pRow, PPID * pLocID, PPID * 
 				P_Ct->GetIdxFieldVal(0, pRow, &goods_id, sizeof(goods_id));
 		}
 		else {
-			BrwHdr hdr = *(BrwHdr*)pRow;
+			BrwHdr hdr = *static_cast<const BrwHdr *>(pRow);
 			loc_id   = hdr.LocID;
 			goods_id = hdr.GoodsID;
 		}
@@ -3231,7 +3259,7 @@ void SLAPI PPViewGoodsRest::GetEditIds(const void * pRow, PPID * pLocID, PPID * 
 
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, void * extraPtr)
 {
-	PPViewGoodsRest * p_view = (PPViewGoodsRest*)extraPtr;
+	PPViewGoodsRest * p_view = static_cast<PPViewGoodsRest *>(extraPtr);
 	return p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pCellStyle) : -1;
 }
 
@@ -3456,7 +3484,7 @@ DBQuery * SLAPI PPViewGoodsRest::CreateBrowserQuery(uint * pBrwId, SString * pSu
 			cq.push(dbc_long); // Trust
 			dbc_long.init(ff);
 			cq.push(dbc_long); // Formatting flags
-			cq.push((DBFunc)PPDbqFuncPool::IdCQtty);
+			cq.push(static_cast<DBFunc>(PPDbqFuncPool::IdCQtty));
 			q->addField(cq);             // #22
 		}
 		{
@@ -3470,7 +3498,7 @@ DBQuery * SLAPI PPViewGoodsRest::CreateBrowserQuery(uint * pBrwId, SString * pSu
 				cq.push(dbc_long); // Trust
 				dbc_long.init(ff);
 				cq.push(dbc_long); // Formatting flags
-				cq.push((DBFunc)PPDbqFuncPool::IdCQtty);
+				cq.push(static_cast<DBFunc>(PPDbqFuncPool::IdCQtty));
 				q->addField(cq);               // #23
 			}
 			else
@@ -3548,9 +3576,8 @@ int SLAPI PPViewGoodsRest::ViewTotal()
 	class GoodsRestTotalDialog : public AmtListDialog {
 	public:
 		GoodsRestTotalDialog(GoodsRestTotal * pTotal, PPViewGoodsRest * pV) :
-			AmtListDialog(DLG_GRESTTOTAL, CTL_GRESTTOTAL_AMTLIST, 0, &pTotal->Amounts, 0, 0, 0)
+			AmtListDialog(DLG_GRESTTOTAL, CTL_GRESTTOTAL_AMTLIST, 0, &pTotal->Amounts, 0, 0, 0), P_Total(pTotal), P_V(pV)
 		{
-			P_Total = pTotal;
 			setCtrlData(CTL_GRESTTOTAL_COUNT,  &pTotal->Count);
 			setCtrlData(CTL_GRESTTOTAL_REST,   &pTotal->Quantity);
 			setCtrlData(CTL_GRESTTOTAL_PHREST, &pTotal->PhQtty);
@@ -3562,7 +3589,6 @@ int SLAPI PPViewGoodsRest::ViewTotal()
 			setCtrlData(CTL_GRESTTOTAL_DRAFTRCPT,  &pTotal->DraftRcpt);
 			setCtrlData(CTL_GRESTTOTAL_DRAFCOST,   &pTotal->SumDraftCost);
 			setCtrlData(CTL_GRESTTOTAL_DRAFPRICE,  &pTotal->SumDraftPrice);
-			P_V = pV;
 		}
 	protected:
 		DECL_HANDLE_EVENT
@@ -3839,14 +3865,14 @@ int SLAPI PPViewGoodsRest::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 	if(ok == -2) {
 		BrwHdr hdr;
 		if(pHdr && ppvCmd != PPVCMD_INPUTCHAR)
-			hdr = *(PPViewGoodsRest::BrwHdr *)pHdr;
+			hdr = *static_cast<const PPViewGoodsRest::BrwHdr *>(pHdr);
 		else
 			MEMSZERO(hdr);
 		switch(ppvCmd) {
 			case PPVCMD_INPUTCHAR:
 				ok = -1;
 				if(pHdr && pBrw) {
-					char   init_char = ((const char *)pHdr)[0];
+					char   init_char = (static_cast<const char *>(pHdr))[0];
 					if(isdec(init_char)) {
 						Goods2Tbl::Rec goods_rec;
 						double qtty = 0.0;
@@ -4005,7 +4031,7 @@ int SLAPI PPViewGoodsRest::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 	return ok;
 }
 
-int SLAPI ViewGoodsRest(const GoodsRestFilt * pFilt, int calcPrognosis) { return PPView::Execute(PPVIEW_GOODSREST, pFilt, 1, (void *)BIN(calcPrognosis)); }
+int SLAPI ViewGoodsRest(const GoodsRestFilt * pFilt, int calcPrognosis) { return PPView::Execute(PPVIEW_GOODSREST, pFilt, 1, reinterpret_cast<void *>(BIN(calcPrognosis))); }
 
 int SLAPI GoodsRestTest()
 {
@@ -4071,7 +4097,7 @@ int SLAPI PPViewGoodsRest::SetContractPrices()
 			uint   pos = 0;
 			double cost = 0.0;
 			if(suppl_cost_ary.lsearch(&item.GoodsID, &pos, PTR_CMPFUNC(long)) > 0) {
-				_E * p_e = (_E*)suppl_cost_ary.at(pos);
+				_E * p_e = static_cast<_E *>(suppl_cost_ary.at(pos));
 				p_e->Cost = (item.Cost < p_e->Cost) ? item.Cost : p_e->Cost;
 			}
 			else {
@@ -4085,7 +4111,7 @@ int SLAPI PPViewGoodsRest::SetContractPrices()
 		PPWait(1);
 		for(uint i = 0; i < suppl_cost_ary.getCount(); i++) {
 			int    r = 0;
-			_E   * p_e = (_E*)suppl_cost_ary.at(i);
+			_E   * p_e = static_cast<_E *>(suppl_cost_ary.at(i));
 			if(p_e->Cost != 0.0) {
 				for(uint j = 0; j < locs_ary.getCount(); j++) {
 					const QuotIdent qi(locs_ary.at(j), 0, 0, Filt.SupplID);
@@ -4106,7 +4132,7 @@ int SLAPI PPViewGoodsRest::SetContractPrices()
 int SLAPI PPViewGoodsRest::Print(const void * pExtra)
 {
 	int    ok = 1;
-	const  int use_option_dlg = pExtra ? *(int *)pExtra : 0;
+	const  int use_option_dlg = pExtra ? *static_cast<const int *>(pExtra) : 0;
 	PPViewGoodsRest::IterOrder ord = OrdByDefault;
 	long   flags = 0;
 	int    reply = -1;
@@ -4206,8 +4232,7 @@ int SLAPI PPViewGoodsRest::Print(const void * pExtra)
 		if(flags & GoodsRestReport::fInPacks)
 			pf.ID |= 0x10000l;
 		env.Sort = ord;
-		env.PrnFlags = (flags & GoodsRestReport::fDisableGrpng) ?
-			(SReport::DisableGrouping | SReport::NoRepError) : SReport::NoRepError;
+		env.PrnFlags = (flags & GoodsRestReport::fDisableGrpng) ? (SReport::DisableGrouping | SReport::NoRepError) : SReport::NoRepError;
 		THROW(PPAlddPrint(rpt_id, &pf, &env));
 	}
 	CATCHZOKPPERR

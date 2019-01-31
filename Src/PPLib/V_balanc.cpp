@@ -1,5 +1,5 @@
 // V_BALANCE.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2018, 2019
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -289,7 +289,7 @@ int SLAPI PPViewBalance::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
-	BalanceFilt * p_filt = (BalanceFilt *)pBaseFilt;
+	BalanceFilt * p_filt = static_cast<BalanceFilt *>(pBaseFilt);
 	DIALOG_PROC_BODY(BalanceFiltDialog, p_filt);
 }
 

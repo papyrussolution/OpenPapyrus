@@ -2818,6 +2818,7 @@
 	#define CTL_GOODSREST_BYQUOT2       (23 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSREST_LOTTAG        (24 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GOODSREST_LOTTAG     (25 + WINDOWS_ID_BIAS)
+	#define CTL_GOODSREST_RTLPRICES     (26 + WINDOWS_ID_BIAS)
 #define DLG_PRNCASH               136 // Выбор формы кассового ордера
 	#define CTL_PRNCASH_FORM             (1 + WINDOWS_ID_BIAS)
 #define DLG_ATFLT                 137 // Фильтр описи бух. проводок

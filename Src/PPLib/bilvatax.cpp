@@ -1,5 +1,5 @@
 // BILVATAX.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2005, 2006, 2007, 2009, 2010, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2005, 2006, 2007, 2009, 2010, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 // Расчет НДС по документам, соответствующим заданному запросу
 //
@@ -8,14 +8,14 @@
 
 IMPL_CMPFUNC(BVATAccm, p1, p2)
 {
-	int    r = cmp_long(((BVATAccm*)p2)->IsVatFree, ((BVATAccm*)p1)->IsVatFree); // descending order
-	return NZOR(r, cmp_double(((BVATAccm*)p1)->PRate, ((BVATAccm*)p2)->PRate));
+	int    r = cmp_long(static_cast<const BVATAccm *>(p2)->IsVatFree, static_cast<const BVATAccm *>(p1)->IsVatFree); // descending order
+	return NZOR(r, cmp_double(static_cast<const BVATAccm *>(p1)->PRate, static_cast<const BVATAccm *>(p2)->PRate));
 }
 
 IMPL_CMPFUNC(BVATAccm_DiffByCVat, p1, p2)
 {
-	int    r = cmp_long(((BVATAccm*)p2)->IsVatFree, ((BVATAccm*)p1)->IsVatFree); // descending order
-	return NZOR(r, cmp_double(((BVATAccm*)p1)->CRate, ((BVATAccm*)p2)->CRate));
+	int    r = cmp_long(static_cast<const BVATAccm *>(p2)->IsVatFree, static_cast<const BVATAccm *>(p1)->IsVatFree); // descending order
+	return NZOR(r, cmp_double(static_cast<const BVATAccm *>(p1)->CRate, static_cast<const BVATAccm *>(p2)->CRate));
 }
 
 SLAPI BVATAccm::BVATAccm()
@@ -61,7 +61,7 @@ int SLAPI BVATAccmArray::Add(const PPTransferItem * pTI, PPID opID)
 	BVATAccm item;
 	GTaxVect vect;
 	item.IsVatFree = IsVataxableSuppl(pTI->Suppl) ? 0 : 1;
-	if(item.IsVatFree && flags & BVATF_SUMZEROVAT) {
+	if(item.IsVatFree && Flags & BVATF_SUMZEROVAT) {
 	   	vect.CalcTI(pTI, opID, TIAMT_PRICE);
 		item.PRate   = vect.GetTaxRate(GTAX_VAT, 0);
 		item.Cost    = 0.0;
@@ -185,5 +185,5 @@ int SLAPI BVATAccmArray::CalcBill(PPID id)
 
 int SLAPI BVATAccmArray::IsVataxableSuppl(PPID suppl)
 {
-	return (!(flags & BVATF_IGNORESUPPL) && suppl && IsSupplVATFree(suppl) > 0) ? 0 : 1;
+	return (!(Flags & BVATF_IGNORESUPPL) && suppl && IsSupplVATFree(suppl) > 0) ? 0 : 1;
 }

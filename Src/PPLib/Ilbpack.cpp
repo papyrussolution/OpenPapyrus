@@ -1,5 +1,5 @@
 // ILBPACK.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -498,7 +498,7 @@ public:
 			const double _part_qtty = fabs(part_ti.Quantity_);
 			if(pPrL) {
 				ulong  _step_mult = 1;
-				long   _sl = (long)R0(log10(_part_qtty));
+				long   _sl = R0i(log10(_part_qtty));
 				if(_sl < 0 || (_sl == 0 && _part_qtty < 1.0)) {
 					_step_mult = (ulong)R0(1.0 / _part_qtty);
 					_sl = 0;
@@ -2600,7 +2600,7 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 	SString msg_buf, fmt_buf;
 	uint   i;
 	PPTransferItem * p_ti;
-	ILBillPacket   * p_pack = (ILBillPacket*)p->Data;
+	ILBillPacket   * p_pack = static_cast<ILBillPacket *>(p->Data);
 	const short save_rlz_order = r_cfg.RealizeOrder;
 	if(p_pack) {
 		if(stream == 0) {
@@ -2944,7 +2944,7 @@ int SLAPI PPObjBill::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repla
 		PPID   goods_id = 0;
 		PPAccTurn * at;
 		AmtEntry  * p_ae;
-		ILBillPacket * p_pack = (ILBillPacket*)p->Data;
+		ILBillPacket * p_pack = static_cast<ILBillPacket *>(p->Data);
 		ILTI * ilti;
 		THROW(ProcessObjRefInArray(PPOBJ_OPRKIND,  &p_pack->Rec.OpID,        ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_ARTICLE,  &p_pack->LocObj,          ary, replace));

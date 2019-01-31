@@ -3335,6 +3335,7 @@ int SLAPI PPObjGoods::EditClsdGoods(PPGoodsPacket * pPack, int modifyOnlyExtRec)
 
 int SLAPI PPObjGoods::Helper_Edit(PPID * pID, PPGoodsPacket * pPack, GoodsPacketKind gpk, int isNew, int viewOnly /*=0*/)
 {
+	MemLeakTracer mlt;
 	int    r = cmCancel;
 	int    use_std_dialog = 1;
 	GoodsDialog * dlg = 0;

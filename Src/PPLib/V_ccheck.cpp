@@ -587,7 +587,7 @@ int SLAPI PPViewCCheck::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
-	CCheckFilt * p_filt = (CCheckFilt *)pBaseFilt;
+	CCheckFilt * p_filt = static_cast<CCheckFilt *>(pBaseFilt);
 	DIALOG_PROC_BODY_P1(CCheckFiltDialog, BIN(State & stHasExt), p_filt);
 }
 

@@ -1,5 +1,5 @@
 // TRANSFER.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 // @Kernel
 //
@@ -434,9 +434,14 @@ void SLAPI GoodsRestVal::Init(const ReceiptTbl::Rec * pLotRec, double r)
 }
 
 SLAPI GoodsRestParam::GoodsRestParam() : CalcMethod(0), Flags_(0), DiffParam(_diffNone), Date(ZERODATE), Md_(ZERODATE), OprNo(0), Mo_(0),
-	LocID(0), GoodsID(0), SupplID(0), AgentID(0), GoodsTaxGrpID(0), DiffLotTagID(0), P_SupplAgentBillList(0)
+	LocID(0), GoodsID(0), SupplID(0), AgentID(0), GoodsTaxGrpID(0), DiffLotTagID(0), P_SupplAgentBillList(0), P_Rpe(0)
 {
 	InitVal();
+}
+
+SLAPI GoodsRestParam::GoodsRestParam(const GoodsRestParam & rS) : P_SupplAgentBillList(0), P_Rpe(0)
+{
+	Copy(rS);
 }
 
 void SLAPI GoodsRestParam::Init()
@@ -458,33 +463,39 @@ void SLAPI GoodsRestParam::Init()
 	Md_ = ZERODATE;
 	Mo_ = 0;
 	GoodsTaxGrpID = 0;
-
+	P_Rpe = 0;
 	InitVal();
 }
 
-GoodsRestParam & FASTCALL GoodsRestParam::operator = (const GoodsRestParam & src)
+void FASTCALL GoodsRestParam::Copy(const GoodsRestParam & rS)
 {
-	copy(src);
-	CalcMethod = src.CalcMethod;
-	Flags_     = src.Flags_;
-	DiffParam  = src.DiffParam;
-	Date       = src.Date;
-	OprNo      = src.OprNo;
-	LocID      = src.LocID;
-	GoodsID    = src.GoodsID;
-	SupplID    = src.SupplID;
-	AgentID    = src.AgentID;
-	Total      = src.Total;
+	SVector::copy(rS);
+	CalcMethod = rS.CalcMethod;
+	Flags_     = rS.Flags_;
+	DiffParam  = rS.DiffParam;
+	Date       = rS.Date;
+	OprNo      = rS.OprNo;
+	LocID      = rS.LocID;
+	GoodsID    = rS.GoodsID;
+	SupplID    = rS.SupplID;
+	AgentID    = rS.AgentID;
+	Total      = rS.Total;
 	Md_        = ZERODATE; //src.Md;
 	Mo_        = 0; //src.Mo;
-	GoodsTaxGrpID = src.GoodsTaxGrpID;
-	DiffLotTagID = src.DiffLotTagID;
-	LocList.copy(src.LocList);
+	GoodsTaxGrpID = rS.GoodsTaxGrpID;
+	DiffLotTagID = rS.DiffLotTagID;
+	LocList.copy(rS.LocList);
 	//
 	// Копируем сам указатель, поскольку GoodsRestParam не является владельцем
 	// объекта, на который этот указатель ссылается.
 	//
-	P_SupplAgentBillList = src.P_SupplAgentBillList;
+	P_SupplAgentBillList = rS.P_SupplAgentBillList;
+	P_Rpe = rS.P_Rpe; // @v10.3.2
+}
+
+GoodsRestParam & FASTCALL GoodsRestParam::operator = (const GoodsRestParam & rS)
+{
+	Copy(rS);
 	return *this;
 }
 
@@ -502,21 +513,27 @@ void SLAPI GoodsRestParam::InitVal()
 	}
 }
 
-void SLAPI GoodsRestParam::Set(const GoodsRestFilt & rF)
+void SLAPI GoodsRestParam::Set(const GoodsRestFilt & rF, RetailPriceExtractor * pRpe)
 {
 	Init();
+	P_Rpe = pRpe; // @v10.3.2
 	const  long ff = rF.Flags;
 	const  int quot_usage = rF.GetQuotUsage();
 	if(rF.QuotKindID) {
-		if(rF.QuotKindID && quot_usage == 1) {
+		if(quot_usage == 1) {
 			Flags_ |= fPriceByQuot;
 			QuotKindID = rF.QuotKindID;
 		}
-		else if(rF.QuotKindID && quot_usage == 2) {
+		else if(quot_usage == 2) {
 			Flags_ |= fCostByQuot;
 			QuotKindID = rF.QuotKindID;
 		}
 	}
+	// @v10.3.2 {
+	if(P_Rpe && !(Flags_ & fPriceByQuot) && (rF.Flags2 & rF.f2RetailPrice)) {
+		Flags_ |= fRetailPrice;
+	}
+	// } @v10.3.2 
 	SETFLAG(Flags_, fCWoVat, ff & GoodsRestFilt::fCWoVat);
 	SETFLAG(Flags_, fZeroAgent, ff & GoodsRestFilt::fZeroSupplAgent);
 	SETFLAG(Flags_, fLabelOnly, ff & GoodsRestFilt::fLabelOnly);
@@ -572,9 +589,9 @@ int SLAPI GoodsRestParam::AddToItem(int p, LDATE dt, long opn, GoodsRestVal * pA
 	}
 	else {
 		GoodsRestVal * v = (p >= 0) ? &at(p) : &Total;
-		int    uc = (v->Cost  != pAdd->Cost);
-		int    up = (v->Price != pAdd->Price);
-		double nr = v->Rest + pAdd->Rest;
+		const bool   uc = (v->Cost  != pAdd->Cost);
+		const bool   up = (v->Price != pAdd->Price);
+		const double nr = v->Rest + pAdd->Rest;
 		v->Count++;
 		v->UnitsPerPack = pAdd->UnitsPerPack;
 		v->LocID = pAdd->LocID;
@@ -623,11 +640,25 @@ int SLAPI GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotR
 	const  int pricewotaxes = BIN(pLotRec->Flags & LOTF_PRICEWOTAXES);
 	const  int byquot_price = BIN(QuotKindID > 0 && Flags_ & GoodsRestParam::fPriceByQuot);
 	const  int byquot_cost  = BIN(QuotKindID > 0 && Flags_ & GoodsRestParam::fCostByQuot);
+	const  int retail_price = BIN(Flags_ & fRetailPrice); // @v10.3.2
 	const  int setcostwovat = BIN(Flags_ & fCWoVat);
-	if(costwovat || pricewotaxes || byquot_price || byquot_cost|| setcostwovat) {
+	if(costwovat || pricewotaxes || byquot_price || byquot_cost|| retail_price || setcostwovat) {
 		double tax_factor = 1.0;
 		PPObjGoods gobj;
-		if(byquot_price || byquot_cost) {
+		// @v10.3.2 {
+		if(retail_price) {
+			assert(P_Rpe);
+			assert(!byquot_price);
+			if(P_Rpe) {
+				RetailExtrItem  rtl_ext_item;
+				if(P_Rpe->GetPrice(pLotRec->GoodsID, 0, 0.0, &rtl_ext_item))
+					add.Price = rtl_ext_item.Price;
+				else
+					add.Price = 0.0; // Явно сигнализируем о том, что цены нет
+			}
+		}
+		// } @v10.3.2 
+		else if(byquot_price || byquot_cost) {
 			double q_price;
 			const QuotIdent qi(QIDATE(getcurdate_()), (DiffParam & _diffLoc) ? pLotRec->LocID : LocID, QuotKindID);
 			if(gobj.GetQuotExt(pLotRec->GoodsID, qi, add.Cost, add.Price, &q_price, 1) > 0) {

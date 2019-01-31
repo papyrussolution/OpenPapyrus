@@ -343,7 +343,6 @@ int SLAPI PPViewScale::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 					for(InitIteration(); NextIteration(&item) > 0;)
 						id_list.add(item.ID);
 					if(ObjTransmDialog(DLG_OBJTRANSM, &param) > 0) {
-						PPID   id = 0;
 						const PPIDArray & rary = param.DestDBDivList.Get();
 						PPObjIDArray objid_ary;
 						PPWait(1);

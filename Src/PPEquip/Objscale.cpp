@@ -197,7 +197,7 @@ public:
 			MEMSZERO(Data);
 		}
 	}
-	SLAPI ~PPScaleDevice()
+	virtual SLAPI ~PPScaleDevice() // @v10.3.2 @fix non-virtual-->virtual
 	{
 		if(H_Port != INVALID_HANDLE_VALUE)
 			CloseHandle(H_Port);

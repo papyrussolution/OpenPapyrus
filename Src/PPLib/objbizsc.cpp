@@ -759,7 +759,7 @@ int SLAPI PPViewBizScore::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	};
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
-	BizScoreFilt * p_filt = (BizScoreFilt *)pBaseFilt;
+	BizScoreFilt * p_filt = static_cast<BizScoreFilt *>(pBaseFilt);
 	DIALOG_PROC_BODY(BizScoreFiltDialog, p_filt);
 }
 
@@ -1373,7 +1373,7 @@ int SLAPI PPViewBizScoreVal::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	};
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
-	BizScoreValFilt * p_filt = (BizScoreValFilt *)pBaseFilt;
+	BizScoreValFilt * p_filt = static_cast<BizScoreValFilt *>(pBaseFilt);
 	DIALOG_PROC_BODY(BizScoreValFiltDialog, p_filt);
 }
 

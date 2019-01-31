@@ -75,7 +75,7 @@ int FASTCALL StaffAmtList::IsEqual(const StaffAmtList & rS) const
 int SLAPI StaffAmtList::Search(PPID amtTypeID, PPID curID, LDATE dt, uint * pPos) const
 {
 	StaffAmtEntry * p_entry = 0;
-	for(uint i = 0; enumItems(&i, (void **)&p_entry);) {
+	for(uint i = 0; enumItems(&i, reinterpret_cast<void **>(&p_entry));) {
 		if(p_entry->AmtTypeID == amtTypeID && p_entry->CurID == curID && p_entry->Period.CheckDate(dt)) {
 			ASSIGN_PTR(pPos, (i-1));
 			return 1;
@@ -254,12 +254,12 @@ int SLAPI PPObjStaffList::Read(PPObjPack * p, PPID id, void * stream, ObjTransmC
 	int    ok = 1;
 	THROW_MEM(p->Data = new PPStaffPacket);
 	if(stream == 0) {
-		THROW(GetPacket(id, (PPStaffPacket *)p->Data) > 0);
+		THROW(GetPacket(id, static_cast<PPStaffPacket *>(p->Data)) > 0);
 	}
 	else {
 		SBuffer buffer;
 		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
-		THROW(SerializePacket(-1, (PPStaffPacket *)p->Data, buffer, &pCtx->SCtx));
+		THROW(SerializePacket(-1, static_cast<PPStaffPacket *>(p->Data), buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -269,7 +269,7 @@ int SLAPI PPObjStaffList::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPStaffPacket * p_pack = (PPStaffPacket *)p->Data;
+		PPStaffPacket * p_pack = static_cast<PPStaffPacket *>(p->Data);
 		if(stream == 0) {
 			if(*pID == 0) {
 				PPID   same_id = 0;
@@ -321,7 +321,7 @@ int SLAPI PPObjStaffList::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int 
 {
 	int    ok = -1;
 	if(p && p->Data) {
-		PPStaffPacket * p_pack = (PPStaffPacket *)p->Data;
+		PPStaffPacket * p_pack = static_cast<PPStaffPacket *>(p->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_PERSON,  &p_pack->Rec.OrgID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_LOCATION, &p_pack->Rec.DivisionID, ary, replace));
 		for(uint i = 0; i < p_pack->Amounts.getCount(); i++) {

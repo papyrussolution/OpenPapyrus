@@ -1,5 +1,5 @@
 // V_PANLZ.CPP
-// Copyright (c) A.Starodub 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -146,7 +146,7 @@ int SLAPI PPViewPriceAnlz::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
-	PriceAnlzFilt * p_filt = (PriceAnlzFilt *)pBaseFilt;
+	PriceAnlzFilt * p_filt = static_cast<PriceAnlzFilt *>(pBaseFilt);
 	DIALOG_PROC_BODY(PriceAnlzFiltDialog, p_filt);
 }
 

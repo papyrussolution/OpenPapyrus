@@ -848,20 +848,15 @@ static CURLcode display_conn_info(struct connectdata * conn, PRFileDesc * sock)
 	CERTCertificate * cert3;
 	PRTime now;
 	int i;
-
-	if(SSL_GetChannelInfo(sock, &channel, sizeof channel) ==
-	    SECSuccess && channel.length == sizeof channel &&
-	    channel.cipherSuite) {
+	if(SSL_GetChannelInfo(sock, &channel, sizeof channel) == SECSuccess && channel.length == sizeof channel && channel.cipherSuite) {
 		if(SSL_GetCipherSuiteInfo(channel.cipherSuite,
 			    &suite, sizeof suite) == SECSuccess) {
 			infof(conn->data, "SSL connection using %s\n", suite.cipherSuiteName);
 		}
 	}
-
 	cert = SSL_PeerCertificate(sock);
 	if(cert) {
 		infof(conn->data, "Server certificate:\n");
-
 		if(!conn->data->set.ssl.certinfo) {
 			display_cert_info(conn->data, cert);
 			CERT_DestroyCertificate(cert);
@@ -887,24 +882,19 @@ static CURLcode display_conn_info(struct connectdata * conn, PRFileDesc * sock)
 			result = Curl_ssl_init_certinfo(conn->data, i);
 			if(!result) {
 				for(i = 0; cert; cert = cert2) {
-					result = Curl_extract_certinfo(conn, i++, (char*)cert->derCert.data,
-					    (char*)cert->derCert.data +
-					    cert->derCert.len);
+					result = Curl_extract_certinfo(conn, i++, (char*)cert->derCert.data, (char*)cert->derCert.data + cert->derCert.len);
 					if(result)
 						break;
-
 					if(cert->isRoot) {
 						CERT_DestroyCertificate(cert);
 						break;
 					}
-
 					cert2 = CERT_FindCertIssuer(cert, now, certUsageSSLCA);
 					CERT_DestroyCertificate(cert);
 				}
 			}
 		}
 	}
-
 	return result;
 }
 
@@ -914,17 +904,14 @@ static SECStatus BadCertHandler(void * arg, PRFileDesc * sock)
 	struct Curl_easy * data = conn->data;
 	PRErrorCode err = PR_GetError();
 	CERTCertificate * cert;
-
 	/* remember the cert verification result */
 	if(SSL_IS_PROXY())
 		data->set.proxy_ssl.certverifyresult = err;
 	else
 		data->set.ssl.certverifyresult = err;
-
 	if(err == SSL_ERROR_BAD_CERT_DOMAIN && !SSL_CONN_CONFIG(verifyhost))
 		/* we are asked not to verify the host name */
 		return SECSuccess;
-
 	/* print only info about the cert, the error is printed off the callback */
 	cert = SSL_PeerCertificate(sock);
 	if(cert) {

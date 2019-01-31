@@ -390,6 +390,7 @@ struct VetisSubProduct;
 struct VetisStockEntry;
 struct Fann2;
 class  TsStakeEnvironment;
+class  RetailPriceExtractor;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -999,7 +1000,7 @@ public:
 		afMax,
 	};
 	SLAPI  Crosstab();
-	SLAPI ~Crosstab();
+	virtual SLAPI ~Crosstab(); // @v10.3.2 @fix non-virtual-->virtual
 	int    SLAPI SetTable(DBTable * pTbl, const DBField & crssFld);
 	int    SLAPI AddIdxField(const DBField &);
 	int    SLAPI AddAggrField(const DBField &, AggrFunc af = afSum, const char * pColName = 0, long format = 0, long options = 0);
@@ -7851,7 +7852,7 @@ protected:
 };
 
 #define IMPL_DESTROY_OBJ_PACK(obj, typ) \
-	void FASTCALL obj::Destroy(PPObjPack * p) { if(p && p->Data) { delete ((typ *)p->Data); p->Data = 0; } }
+	void FASTCALL obj::Destroy(PPObjPack * p) { if(p && p->Data) { delete (static_cast<typ *>(p->Data)); p->Data = 0; } }
 #define IMPL_OBJ_FETCH(obj_cls, obj_rec, cache_cls) \
 	int FASTCALL obj_cls::Fetch(PPID id, obj_rec * pRec) \
 	{ cache_cls * p_cache = GetDbLocalCachePtr <cache_cls> (Obj); return p_cache ? p_cache->Get(id, pRec) : Search(id, pRec); }
@@ -7887,7 +7888,7 @@ struct PPGeoTrackItem { // @flat
 
 	enum {
         fNetworkProvider = 0x0001
-	} ;
+	};
 
 	PPObjID Oid;
 	PPObjID ExtOid;
@@ -8060,7 +8061,6 @@ public:
 	int    SLAPI GetByPerson(PPID personID, RegisterArray * pList);
 	int    SLAPI GetByLocation(PPID locID, RegisterArray * pList);
 	int    SLAPI GetByEvent(PPID eventID, RegisterArray * pList);
-
 	int    SLAPI PutByEvent(PPID eventID, RegisterArray * pList, int use_ta);
 	int    SLAPI PutByPerson(PPID personID, RegisterArray * pList, int use_ta);
 	int    SLAPI PutByLocation(PPID locID, RegisterArray * pList, int use_ta);
@@ -8129,6 +8129,8 @@ private:
 
 class PersonCore : public PersonTbl {
 public:
+	static int    SLAPI PutELinks(PPID id, PPELinkArray *, int use_ta);
+	static int    SLAPI GetELinks(PPID id, PPELinkArray *);
 	SLAPI  PersonCore();
 	//
 	// Descr: Определяет, принадлежит ли персоналия personID виду kindID.
@@ -8161,10 +8163,6 @@ public:
 	//
 	int    SLAPI GetRelList(PPID id, LAssocArray * pList, int reverse = 0);
 	int    SLAPI UpdateFlags(PPID id, long setF, long resetF, int use_ta);
-
-	static int    SLAPI PutELinks(PPID id, PPELinkArray *, int use_ta);
-	static int    SLAPI GetELinks(PPID id, PPELinkArray *);
-
 	int    SLAPI GetELinkList(int elnkrt, PPID personKindID, StrAssocArray & rList);
 
 	PersonKindTbl Kind;
@@ -8324,8 +8322,7 @@ public:
 private:
 	static int FASTCALL Helper_IsEqExField(const LocationTbl::Rec & rRec1, const LocationTbl::Rec & rRec2, int fldId, SString & rBuf1, SString & rBuf2);
 	int    SLAPI InitEnum(PPID locTyp, PPID parentID, int flags, long * pHandle);
-	int    SLAPI Helper_GetCodeByTempl(const char * pPrfx, const char * pSfx, int len,
-		long low, long upp, int addChkDig, SString & rCode);
+	int    SLAPI Helper_GetCodeByTempl(const char * pPrfx, const char * pSfx, int len, long low, long upp, int addChkDig, SString & rCode);
 
 	PPTblEnumList EnumList;
 	EAddrCore * P_Eac;
@@ -11344,7 +11341,7 @@ public:
 //
 //
 struct GoodsRestVal {
-	SLAPI  GoodsRestVal(const ReceiptTbl::Rec * = 0, double = 0.0);
+	explicit SLAPI GoodsRestVal(const ReceiptTbl::Rec * = 0, double = 0.0);
 	void   SLAPI Init(const ReceiptTbl::Rec * = 0, double = 0.0);
 
 	int    Count;
@@ -11364,10 +11361,12 @@ struct GoodsRestVal {
 class GoodsRestParam : public TSVector <GoodsRestVal> { // @v9.8.4 TSArray-->TSVector
 public:
 	SLAPI  GoodsRestParam();
+	SLAPI  GoodsRestParam(const GoodsRestParam & rS);
 	GoodsRestParam & FASTCALL operator = (const GoodsRestParam &);
+	void   FASTCALL Copy(const GoodsRestParam & rS);
 	void   SLAPI Init();
 	void   SLAPI InitVal();
-	void   SLAPI Set(const GoodsRestFilt & rF);
+	void   SLAPI Set(const GoodsRestFilt & rF, RetailPriceExtractor * pRpe);
 	PPID   SLAPI DiffByTag() const;
 	int    FASTCALL CanMerge(const GoodsRestVal *, const GoodsRestVal *) const;
 	int    SLAPI AddToItem(int p, LDATE dt, long opn, GoodsRestVal *);
@@ -11381,14 +11380,15 @@ public:
 		pcmLastLot    = 2, // По последнему лоту
 		pcmSum        = 3, // Суммарное значение
 		pcmDiff       = 4, // Возвращать все лоты с ненулевым остатком
-		pcmMostRecent = 5  // По самому последнему лоту (не смотря на остаток)
+		pcmMostRecent = 5, // По самому последнему лоту (не смотря на остаток)
 	};
 	enum { // flags (Опции)
 		fLabelOnly    = 0x00000040, // Только лоты, созданные помеченными документами
 		fPriceByQuot  = 0x00000080, // Цены по котировке
 		fCostByQuot   = 0x00000100, // @v9.5.8 Цены поступления по котировке
+		fRetailPrice  = 0x00000200, // @v10.3.2 Цены реализации рассчины по правилам, применяемым для определения розничных цен
 		fCWoVat		  = 0x00004000, // Цены поступления без НДС
-		fZeroAgent    = 0x00010000  // @v7.5.11 Только с нулевым агентом поставщика
+		fZeroAgent    = 0x00010000, // Только с нулевым агентом поставщика
 	};
 	enum {
 		_diffNone     = 0,
@@ -11411,7 +11411,7 @@ public:
 	PPID   SupplID;
 	PPID   AgentID;        // Агент, связанный с документом прихода товара (агент поставщика)
 	PPID   QuotKindID;     //
-	PPID   DiffLotTagID;   // @v7.2.8 Тип тега лотов, по значениям которого следует дифференцировать отчет
+	PPID   DiffLotTagID;   // Тип тега лотов, по значениям которого следует дифференцировать отчет
 	PPIDArray LocList;
 	GoodsRestVal Total;
 	//
@@ -11429,6 +11429,7 @@ private:
 	LDATE  Md_;
 	long   Mo_;
 	PPID   GoodsTaxGrpID;
+	RetailPriceExtractor * P_Rpe; // @v10.3.2 @notowned
 };
 //
 //
@@ -14231,7 +14232,7 @@ template <class T> inline T * CreateTempFile()
 		PPSetErrorDB();
 	}
 	return t;*/
-	return (T *)__PreprocessCreatedDbTable(new T(DBTable::CrTempFileNamePtr));
+	return static_cast<T *>(__PreprocessCreatedDbTable(new T(DBTable::CrTempFileNamePtr)));
 }
 
 template <class T> int SerializeDbTableByFileName(int dir, T ** ppT, SBuffer & rBuf, SSerializeContext * pCtx)
@@ -15772,10 +15773,6 @@ struct PPTimeSeries { // @persistent @store(Reference2Tbl)
 class PPObjTimeSeries : public PPObjReference {
 public:
 	struct Config { // @persistent
-		SLAPI  Config();
-		Config & SLAPI Z();
-		int    FASTCALL IsEqual(const Config & rS) const;
-		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 		enum {
 			fTestMode = 0x0001
 		};
@@ -15790,12 +15787,19 @@ public:
 			long   Flags;
 			uint8  Reserve[32];
 		};
+
+		SLAPI  Config();
+		Config & SLAPI Z();
+		int    FASTCALL IsEqual(const Config & rS) const;
+		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+		const  Config::Entry * FASTCALL SearchEntry(PPID tsID) const;
+
 		SVerT  Ver;
 		long   Flags;
 		uint   MaxStakeCount;
 		double AvailableLimitPart;
 		double AvailableLimitAbs;
-		double MinPerDayPotential; 
+		double MinPerDayPotential;
 		struct ExtBlock {
 			uint8  Reserve[64];
 		};
@@ -15822,6 +15826,12 @@ public:
 		double Result;
 		uint64 TmCount;
 		uint64 TmSec;
+	};
+	struct StrategyResultValueEx : public StrategyResultValue {
+		SLAPI  StrategyResultValueEx();
+		StrategyResultValueEx & SLAPI Z();
+		double Peak;   // Максимальное значение, которого достигла котировка в течении сессии
+		double Bottom; // Минимальное значение, которого достигла котировка в течении сессии
 	};
 	struct Strategy { // @flat @persistent
 		static double SLAPI CalcSL_withExternalFactors(double peak, bool isShort, int prec, uint maxDuckQuant, double spikeQuant);
@@ -15856,7 +15866,9 @@ public:
 		uint32 WinCount;         // Количество выигрышей в результате тестирования
 		StrategyResultValue V;   // Результат тестирования
 		uint16 StakeCloseMode;   // clsmodXXX Режим закрытия
-		uint8  Reserve[30];
+		uint16 PeakAvgQuant;
+		uint16 BottomAvgQuant;
+		uint8  Reserve[26];
 	};
 	class StrategyContainer : public TSVector <Strategy> {
 	public:
@@ -15898,7 +15910,7 @@ public:
 		double OptDeltaResult;
 		double OptDelta2Result;
 	};
-	
+
 	static int SLAPI EditConfig(PPObjTimeSeries::Config * pCfg);
 	static int SLAPI WriteConfig(PPObjTimeSeries::Config * pCfg, int use_ta);
 	static int SLAPI ReadConfig(PPObjTimeSeries::Config * pCfg);
@@ -15916,11 +15928,11 @@ public:
 	int    SLAPI SetExternTimeSeriesProp(const char * pSymb, const char * pPropSymb, const char * pPropVal);
 	int    SLAPI SetExternStakeEnvironment(const TsStakeEnvironment & rEnv, TsStakeEnvironment::StakeRequestBlock & rRet);
 	int    SLAPI GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry> & rList);
-	int    SLAPI LoadQuoteReqList(TSVector <QuoteReqEntry> & rList);
+	//int    SLAPI LoadQuoteReqList(TSVector <QuoteReqEntry> & rList);
 	int    SLAPI Test(); // @experimental
 	int    SLAPI AnalyzeTsAftershocks();
 	int    SLAPI AnalyzeAftershock(const STimeSeries & rTs, const TrainNnParam & rP);
-	int    SLAPI CalcStrategyResult2(const DateTimeArray & rTmList, const RealArray & rValList, const Strategy & rS, uint valueIdx, StrategyResultValue & rV) const;
+	int    SLAPI CalcStrategyResult2(const DateTimeArray & rTmList, const RealArray & rValList, const Strategy & rS, uint valueIdx, StrategyResultValueEx & rV) const;
 	int    SLAPI TestStrategy2(const DateTimeArray & rTmList, const RealArray & rValList, const RealArray & rTrendList, const Strategy & rS, StrategyResultEntry & rResult);
 
 	struct MaxDuckToResultRelation {
@@ -19241,7 +19253,7 @@ protected:
 // Макросы для регистрации кассового аппарата
 //
 #define REGISTER_CMT(nm,sync,async) \
-static PPCashMachine * SLAPI Create_##nm(PPID cashID) { return (PPCashMachine*)new CM_##nm(cashID); } \
+static PPCashMachine * SLAPI Create_##nm(PPID cashID) { return /*(PPCashMachine*)*/new CM_##nm(cashID); } \
 struct Registrar_##nm { Registrar_##nm(); }; \
 void _Register_##nm() { PPCashMachine::RegisterMachine(PPCMT_##nm, Create_##nm, sync, async); } \
 Registrar_##nm::Registrar_##nm() { _Register_##nm(); }
@@ -20071,7 +20083,7 @@ struct PPInternetAccount2 { // @persistent @store(Reference2Tbl+)
 	enum {
 		fFtpAccount = 0x0001L,
 		fFtpPassive = 0x0002L, // Пассивный режим
-		fUseSSL     = 0x0004L  // 
+		fUseSSL     = 0x0004L  //
 	};
 	SLAPI  PPInternetAccount2();
 	void   SLAPI Init();
@@ -28242,12 +28254,13 @@ class GoodsStrucFilt : public PPBaseFilt {
 public:
 	SLAPI  GoodsStrucFilt();
 	enum {
-		fShowComplDecompl = 0x0001, // Показывать структуры комплектации/декомплектации
-		fShowPartitial    = 0x0002, // Показывать частичные структуры
-		fShowSubst        = 0x0004, // Показывать подстановочные структуры
-		fShowGift         = 0x0008, // Показывать подарочные структуры
-		fShowComplex      = 0x0010, // Показывать комплексные структуры
-		fShowUnrefs       = 0x0020  // @v10.0.10 Показывать структуры, на которые не ссылается ни один товар
+		fShowComplDecompl   = 0x0001, // Показывать структуры комплектации/декомплектации
+		fShowPartitial      = 0x0002, // Показывать частичные структуры
+		fShowSubst          = 0x0004, // Показывать подстановочные структуры
+		fShowGift           = 0x0008, // Показывать подарочные структуры
+		fShowComplex        = 0x0010, // Показывать комплексные структуры
+		fShowUnrefs         = 0x0020, // @v10.0.10 Показывать структуры, на которые не ссылается ни один товар
+		fSkipByPassiveOwner = 0x0040  // @v10.3.2 Не показывать структуры, все товары-владельцы которых пассивные
 	};
 	char   ReserveStart[32]; // @anchor
 	PPID   PrmrGoodsGrpID;
@@ -28362,7 +28375,7 @@ struct GoodsToObjAssocFilt : public PPBaseFilt {
 	PPID   AsscType;         //
 	PPID   ObjType;          //
 	PPID   ObjID;            //
-	long   ExtraParam;       //
+	void * ExtraPtr;         // @v10.3.2 long-->(void *)
 	long   Flags;            //
 	long   Reserve;          // @anchor
 	LocationFilt * P_LocF;   // @v8.1.9
@@ -28397,7 +28410,7 @@ private:
 	int    SLAPI AddItem(PPViewBrowser * pBrw);
 	int    SLAPI EditItem(PPViewBrowser * pBrw, const BrwHdr *);
 	int    SLAPI DeleteItem(const BrwHdr *);
-	int    SLAPI EditGoodsToObjAssoc(LAssoc * pData, PPID objType, long extraParam, int newItem);
+	int    SLAPI EditGoodsToObjAssoc(LAssoc * pData, PPID objType, void * extraPtr, int newItem);
 	void   SLAPI UpdateOnEdit(PPViewBrowser * pBrw);
 
 	GoodsToObjAssocFilt Filt;
@@ -35629,12 +35642,10 @@ public:
 
 	SLAPI  PPViewBill();
 	SLAPI ~PPViewBill();
-
 	virtual int   SLAPI EditBaseFilt(PPBaseFilt *);
 	virtual int   SLAPI Init_(const PPBaseFilt * pFilt);
 	virtual int   SLAPI ViewTotal();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
-
 	int    SLAPI EditFilt(BillFilt *, long) const;
 	int    SLAPI Browse(int modeless);
 	int    SLAPI AddItem(PPID * pID, PPID opID = 0);
@@ -35651,14 +35662,11 @@ public:
 	int    SLAPI CalcTotal(BillTotal *);
 	int    SLAPI CalcItemTotal(PPID billID, BillTotalData * pTotal);
 	int    SLAPI ExportBnkOrder();
-
 	int    SLAPI ViewPayments(PPID, int kind);
 	int    SLAPI ViewBillsByOrder(PPID);
 	int    SLAPI WriteOffDraft(PPID);
-
 	int    SLAPI DeleteBillFromPool(PPID billID);
 	int    SLAPI AddBillToPool();
-
 	int    SLAPI AttachBillToOrder(PPID billID);
 	int    SLAPI AttachBillToDraft(PPID billID, BrowserWindow * pBrw);
 	int    SLAPI CalcBillVATax(BVATAccmArray *);
@@ -35681,11 +35689,9 @@ public:
 	int    SLAPI CreateMrpTab(PPID billID);
 	int    SLAPI GetPacket(PPID billID, PPBillPacket * pPack) const; // <<PPALDD_BillInfoList::NextIteration
 	int    SLAPI CheckIDForFilt(PPID, const BillTbl::Rec *);
-
 	int    SLAPI SetIterState(const void *, size_t sz);
 	const void * SLAPI GetIterState() const;
 	static int TransmitByFilt(const BillFilt * pFilt, const ObjTransmitParam * pParam);
-
 	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw);
 
 	struct PoolInsertionParam {
@@ -35699,7 +35705,6 @@ private:
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual void  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int   SLAPI HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
-
 	int    SLAPI IsTempTblNeeded() const;
 	int    SLAPI CreateTempTable(IterOrder ord, int * pIsOrdTbl);
 	int    SLAPI UpdateTempTable(PPID id);
@@ -35773,9 +35778,9 @@ public:
 			// самостоятельно пытается выбрать существующие связанные документы и при неоднозначности предоставляет выбор пользователю
 	};
 	uint8  ReserveStart[32]; // @anchor
-	PPID   BillID;
+	PPID   BillID;           //  
 	int32  Kind__;           // PPTXT_LINKBILLVIEWKINDS
-	long   Flags;
+	long   Flags;            // @flags 
 	long   ReserveEnd;       // @anchor
 };
 
@@ -35784,7 +35789,7 @@ struct LinkedBillViewItem : public BillTbl::Rec {
 	double Rest;       //
 	int16  LinkKind;   // 1 - link, 2 - pool, 3 - writeoff link
 	int16  Pad;        // @alignment
-	PPID   LinkBillID; //
+	PPID   LinkBillID__; // @v10.3.2 @fix LinkBillID-->LinkBillID__ (дублирует BillTbl::Rec::LinkBillID)
 	PPID   RcknBillID; //
 };
 
@@ -37104,7 +37109,6 @@ public:
 		fCalcSStatSales         = 0x00100000, // Заполнять поле среднедневных продаж из статистики продаж
 		fOuterGsl               = 0x00200000, // PPViewGoodsRest::Gsl инициализирован вне функции PPViewGoodsRest::Init_
 		fUseGoodsMatrix         = 0x00400000, // Применять товарную матрицу при выборе товаров для отчета
-
 		fExtByArCode            = 0x00800000, // Выборка товаров, по которым строится отчет ДОПОЛНЯЕТСЯ //
 			// теми товарами, которые имеют связанные с поставщиком SupplID коды (ArCodes).
 		fRestrictByArCode       = 0x01000000, // Выборка товаров, по которым строится отчет ОГРАНИЧИВАЕТСЯ //
@@ -37124,7 +37128,8 @@ public:
 	//
 	enum {
 		f2CalcPrognosis         = 0x00000001, // Рассчитывать прогноз продаж (специальная форма диалога фильтра и отчета)
-		f2CostByQuot            = 0x00000002  // Котировку трактовать как цены поступления
+		f2CostByQuot            = 0x00000002, // Котировку трактовать как цены поступления
+		f2RetailPrice           = 0x00000004  // @v10.3.2 Цены реализации рассчитывать по правилам, применяемым для определения розничных цен
 	};
 	//
 	// Descr: Опции экспорта Universe-HTT
@@ -37132,7 +37137,7 @@ public:
 	enum {
 		uefRest          = 0x0001, // Экспортировать значения остатков
 		uefPrice         = 0x0002, // Экспортировать цены
-		uefZeroAbsPrices = 0x0004  // @v8.4.0 Обнулять цены для позиций, которые есть на сервере, но отсутствуют в отчете
+		uefZeroAbsPrices = 0x0004  // Обнулять цены для позиций, которые есть на сервере, но отсутствуют в отчете
 	};
 	enum {
 		evfShowLastSaleDate = 0x0001 // Показывать дату последней продажи
@@ -37296,7 +37301,6 @@ private:
 	struct LotQueryBlock {
 		LotQueryBlock();
 		~LotQueryBlock();
-
 		int   Idx;
 		int   SpMode;
 		int   Reverse;
@@ -37305,15 +37309,13 @@ private:
 	};
 	class ProcessLotBlock {
 	public:
-		ProcessLotBlock(int forceUseLotRest);
+		explicit ProcessLotBlock(int forceUseLotRest);
 		~ProcessLotBlock();
-
 		int    ForceUseLotRest; // Остаток брать из лота (ReceiptTbl::Rec::Rest) даже если в фильтре установлена дата
 		const PPIDArray * P_GrpGoodsList;
 		PPIDArray ExtBillList;
 		Transfer::GetLotPricesCache * P_LpCache;
 		IterCounter Cntr;
-		//
 		PPIDArray GrpGoodsList;
 	};
 public:
@@ -37364,8 +37366,7 @@ private:
 	int    SLAPI CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl);
 	int    SLAPI ProcessLots2(const PPIDArray * pGrpGoodsList);
 	int    SLAPI ProcessGroup(const PPIDArray * pGroupGoodsList);
-	int    SLAPI AddGoodsThruCache(PPID goodsID, PPID locID, int isGenGoods,
-		double order, double phUPerU, const GoodsRestVal *, BExtInsert *);
+	int    SLAPI AddGoodsThruCache(PPID goodsID, PPID locID, int isGenGoods, double order, double phUPerU, const GoodsRestVal *, BExtInsert *);
 		// @<<PPViewGoodsRest::CreateTempTable
 		// @<<PPViewGoodsRest::ProcessGoods
 	int    SLAPI AddTotal(const PPViewGoodsRest::CacheItem & rItem);
@@ -37375,7 +37376,6 @@ private:
 	int    SLAPI InitIterQuery(PPID grpID);
 	int    SLAPI NextOuterIteration();
 	int    SLAPI InitAppBuff(const TempGoodsRestTbl::Rec *, GoodsRestViewItem *);
-
 	void   SLAPI InitCache();
 	int    FASTCALL AddCacheItem(PPViewGoodsRest::CacheItem & rItem);
 	int    SLAPI CompareNthCacheItem(uint n, const PPViewGoodsRest::CacheItem *) const;
@@ -37394,7 +37394,7 @@ private:
 	double SLAPI EnumUncompleteSessQtty(PPID goodsID, uint * pIdx, DraftRcptItem * pItem);
 	int    SLAPI InitProcessLotBlock(ProcessLotBlock & rBlk, const PPIDArray * pGrpGoodsList);
 	int    SLAPI Helper_ProcessLot(ProcessLotBlock & rBlk, ReceiptTbl::Rec & rRec);
-	int    SLAPI MakeLotQuery(LotQueryBlock & rBlk, int lcr, ulong lowId, ulong uppId);
+	int    SLAPI MakeLotQuery(LotQueryBlock & rBlk, int lcr, long lowId, long uppId);
 	int    SLAPI SelectLcrLots(const PPIDArray & rIdList, const UintHashTable & rLcrList, SVector & rList); // @v9.8.8 SArray-->SVector
 	int    SLAPI UpdateGoods(PPID goodsID);
 	int    SLAPI SetContractPrices();
@@ -37462,6 +37462,7 @@ private:
 	LAssocArray    ExclUncompleteSessQttyList;
 	ObjIdListFilt  LocList;           // @!PPViewGoodsRest::Init_
 		// Проекция Filt.LocList (LocList = PPObjLocation::ResolveWarehouseList(&Filt.LocList.Get()))
+	RetailPriceExtractor * P_Rpe; // @v10.3.2 @transient
 };
 //
 //
@@ -44247,7 +44248,7 @@ private:
 	};
 	struct CSessionBlock : public ObjectBlock { // @flat
 		SLAPI  CSessionBlock();
-        long   ID;
+        // @v10.3.2 @fix long   ID;
         long   Code;
         uint   PosBlkP;
         LDATETIME Dtm;
@@ -48297,7 +48298,7 @@ public:
 		enum {
 			fUpdated = 0x0001 // Изображение было изменено
 		};
-		Rec(SString * pBuf = 0);
+		explicit SLAPI Rec(const SString * pBuf = 0);
 
 		int    Flags;
 		SString Path;
@@ -49313,7 +49314,7 @@ public:
 		SString Memo;
 	};
 	CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOuterPack, int isTouchScreen);
-	~CPosProcessor();
+	virtual ~CPosProcessor(); // @v10.3.2 @fix non-virtual-->virtual
 	enum {
 		eomMsgWindow = 1,
 		eomStatusLine,      // Сообщение выдается в стоке состояния //
@@ -51304,7 +51305,7 @@ enum {
 // ARG(extraParam IN): Дополнительный параметр для выбора объекта
 // ARG(options    IN): Опции (goafXXX)
 //
-int    SLAPI ViewGoodsToObjAssoc(PPID objType, PPID objID, PPID asscType, long extraParam, long options = 0);
+int    SLAPI ViewGoodsToObjAssoc(PPID objType, PPID objID, PPID asscType, void * extraPtr, long options = 0);
 	// @uses(PPViewGoodsToObjAssoc)
 int    SLAPI ViewGoodsToLocAssoc(PPID locID, PPID asscType, const LocationFilt * pLocFilt, long options = 0);
 int    SLAPI ViewGoodsToObjAssoc(long extraParam);
@@ -51383,7 +51384,7 @@ int    SLAPI ImportInventory();
 int    SLAPI ImportSR25(); // @vmiller
 int    SLAPI ImportCompGS(); // @vmiller
 int    SLAPI ImportPhoneList();
-int    SLAPI ImportWorkbook(); // @v8.1.2
+int    SLAPI ImportWorkbook();
 int    SLAPI ImportSCard();
 //int    SLAPI ImportPosRefs(TSCollection <PPPosProtocol::QueryProcessBlock> * pQpBlkList);
 int    SLAPI SetDatabaseChain();
@@ -51530,7 +51531,6 @@ int    SLAPI EditInventoryImpExpParams();
 int    SLAPI EditGoodsImpExpParams(const char * pIniSection);
 int    SLAPI EditGoodsImpExpParams();
 int    SLAPI EditImpExpConfigs();
-
 int    SLAPI ImportBills(PPBillImpExpParam * pBillParam, PPBillImpExpParam * pBRowParam, PPID opID, PPID locID);
 int    SLAPI ImportEmailAccts();
 int    SLAPI ExportEmailAccts(PPIDArray * pMailAcctsList);

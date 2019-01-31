@@ -698,7 +698,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 						{
 							const double pq = R3(_q);
 							const double pp = R2(_p);
-							debug_log_buf.CatChar('[').CatEq("QTY", pq).Space().CatEq("PRICE", pp).CatChar(']');
+							debug_log_buf.CatChar('[').CatEq("QTY", pq).Space().CatEq("PRICE", pp, MKSFMTD(0, 10, 0)).CatChar(']');
 							THROW(SetProp(Quantity, pq));
 							THROW(SetProp(Price, pp));
 						}
@@ -838,7 +838,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 						{
 							const double pq = 1.0;
 							const double pp = fabs(amt);
-							debug_log_buf.CatChar('[').CatEq("QTY", pq).Space().CatEq("PRICE", pp).CatChar(']');
+							debug_log_buf.CatChar('[').CatEq("QTY", pq).Space().CatEq("PRICE", pp, MKSFMTD(0, 10, 0)).CatChar(']');
 							THROW(SetProp(Quantity, pq));
 							THROW(SetProp(Price, pp));
 						}
@@ -850,7 +850,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 						{
 							const double pq = 1.0;
 							const double pp = fabs(fiscal);
-							debug_log_buf.CatChar('[').CatEq("QTY", pq).Space().CatEq("PRICE", pp).CatChar(']');
+							debug_log_buf.CatChar('[').CatEq("QTY", pq).Space().CatEq("PRICE", pp, MKSFMTD(0, 10, 0)).CatChar(']');
 							THROW(SetProp(Quantity, pq));
 							THROW(SetProp(Price, pp));
 						}
@@ -861,7 +861,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 				}
 				else if(running_total > amt) {
 					SString fmt_buf, msg_buf, added_buf;
-					added_buf.Z().Cat(running_total, MKSFMTD(0, 20, NMBF_NOTRAILZ)).CatChar('>').Cat(amt, MKSFMTD(0, 20, NMBF_NOTRAILZ));
+					added_buf.Z().Cat(running_total, MKSFMTD(0, 12, NMBF_NOTRAILZ)).CatChar('>').Cat(amt, MKSFMTD(0, 12, NMBF_NOTRAILZ));
 					msg_buf.Printf(PPLoadTextS(PPTXT_SHTRIH_RUNNGTOTALGTAMT, fmt_buf), added_buf.cptr());
 					PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 				}
@@ -888,8 +888,8 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 			THROW(SetProp(Caption, buf.Trim(CheckStrLen)));
 			THROW(ExecOper(PrintString));
 		}
-		debug_log_buf.Space().CatEq("SUM", sum).Space().CatEq("RUNNINGTOTAL", running_total);
-		if(running_total > sum)
+		debug_log_buf.Space().CatEq("SUM", sum, MKSFMTD(0, 10, 0)).Space().CatEq("RUNNINGTOTAL", running_total, MKSFMTD(0, 10, 0));
+		if(!feqeps(running_total, sum, 1E-5)) // @v10.3.1 (running_total > sum)-->feqeps(running_total, sum, 1E-5)
 			sum = running_total;
 		{
 			double _paym_bnk = 0;
@@ -912,7 +912,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 				if(nonfiscal > 0.0) {
 					if(fiscal > 0.0) {
 						const double _paym_cash = R2(fiscal - _paym_bnk);
-						debug_log_buf.Space().CatEq("PAYMBANK", _paym_bnk).Space().CatEq("PAYMCASH", _paym_cash);
+						debug_log_buf.Space().CatEq("PAYMBANK", _paym_bnk, MKSFMTD(0, 10, 0)).Space().CatEq("PAYMCASH", _paym_cash, MKSFMTD(0, 10, 0));
 						if(_paym_cash > 0.0) {
 							THROW(SetProp(Summ, R2(_paym_cash)));
 							THROW(SetProp(TypeClose, atol_paytype_cash));
@@ -926,44 +926,12 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 					}
 				}
 				else {
-					const double _paym_cash = R2(sum - _paym_bnk);
-					debug_log_buf.Space().CatEq("PAYMBANK", _paym_bnk).Space().CatEq("PAYMCASH", _paym_cash);
 					// @v10.3.1 {
-					if(_paym_bnk > 0.0) {
-						double  add_paym = 0.0; 
-						const double add_paym_epsilon = 0.01;
-						const double add_paym_delta = (add_paym - sum);
-						if(add_paym_delta > 0.0 || fabs(add_paym_delta) < add_paym_epsilon)
-							add_paym = 0.0;
-						if(add_paym != 0.0) {
-							if(_paym_cash > 0.0) {
-								THROW(SetProp(Summ, _paym_cash + add_paym));
-								THROW(SetProp(TypeClose, atol_paytype_cash));
-								THROW(ExecOper(Payment));
-							}
-							THROW(SetProp(Summ, _paym_bnk - add_paym));
-							THROW(SetProp(TypeClose, atol_paytype_bank));
-							THROW(ExecOper(Payment));
-						}
-						else {
-							if(_paym_cash > 0.0) {
-								THROW(SetProp(Summ, _paym_cash));
-								THROW(SetProp(TypeClose, atol_paytype_cash));
-								THROW(ExecOper(Payment));
-							}
-							THROW(SetProp(Summ, _paym_bnk));
-							THROW(SetProp(TypeClose, atol_paytype_bank));
-							THROW(ExecOper(Payment));
-						}
-					}
-					else {
-						THROW(SetProp(Summ, sum));
-						THROW(SetProp(TypeClose, atol_paytype_cash));
-						THROW(ExecOper(Payment));
-					}
-					// } @v10.3.1 
-					/* @v10.3.1
-					
+					if(feqeps(sum, _paym_bnk, 1E-5))
+						_paym_bnk = sum;
+					// } @v10.3.1
+					const double _paym_cash = R2(sum - _paym_bnk);
+					debug_log_buf.Space().CatEq("PAYMBANK", _paym_bnk, MKSFMTD(0, 10, 0)).Space().CatEq("PAYMCASH", _paym_cash, MKSFMTD(0, 10, 0));
 					if(_paym_cash > 0.0) {
 						THROW(SetProp(Summ, _paym_cash));
 						THROW(SetProp(TypeClose, atol_paytype_cash));
@@ -974,7 +942,6 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 						THROW(SetProp(TypeClose, atol_paytype_bank));
 						THROW(ExecOper(Payment));
 					}
-					*/
 				}
 			}
 		}
@@ -1002,7 +969,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 			Exec(Beep);
 			if(Flags & sfOpenCheck)
 				ErrCode = SYNCPRN_ERROR_WHILE_PRINT;
-			PPLogMessage(PPFILNAM_SHTRIH_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER); // @v8.5.3
+			PPLogMessage(PPFILNAM_SHTRIH_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
 			ok = 0;
 		}
 		if(Flags & sfOpenCheck)
