@@ -1,0 +1,722 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllDebug|Win32">
+      <Configuration>MtDllDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllRelease|Win32">
+      <Configuration>MtDllRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerDebug|Win32">
+      <Configuration>ServerDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerRelease|Win32">
+      <Configuration>ServerRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Universe-HTT|Win32">
+      <Configuration>Universe-HTT</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{530693B1-8B95-4993-8BCF-C0D0E225F4DF}</ProjectGuid>
+    <RootNamespace>cairo</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>14.0.25431.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO-1160;..\INCLUDE\Cairo-1160\PIXMAN;..\INCLUDE\LIBPNG;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=;PACKAGE_BUGREPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling />
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4996;4146;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO-1160;..\INCLUDE\Cairo-1160\PIXMAN;..\INCLUDE\LIBPNG;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=;PACKAGE_BUGREPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling />
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat />
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4996;4146;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO-1160;..\INCLUDE\Cairo-1160\PIXMAN;..\INCLUDE\LIBPNG;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=;PACKAGE_BUGREPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling />
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4996;4146;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO-1160;..\INCLUDE\Cairo-1160\PIXMAN;..\INCLUDE\LIBPNG;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=;PACKAGE_BUGREPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling />
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat />
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4996;4146;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO-1160;..\INCLUDE\Cairo-1160\PIXMAN;..\INCLUDE\LIBPNG;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=;PACKAGE_BUGREPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling />
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4996;4146;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO-1160;..\INCLUDE\Cairo-1160\PIXMAN;..\INCLUDE\LIBPNG;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=;PACKAGE_BUGREPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling />
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat />
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4996;4146;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO-1160;..\INCLUDE\Cairo-1160\PIXMAN;..\INCLUDE\LIBPNG;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-access-accessors.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-access.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-arm-neon.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-arm-simd.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-arm.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-bits-image.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-combine-float.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-combine32.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-conical-gradient.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-edge-accessors.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-edge.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-fast-path.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-filter.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-general.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-glyph.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-gradient-walker.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-image.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-implementation.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-linear-gradient.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-matrix.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-mips-dspr2.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-mips.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-mmx.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-noop.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-ppc.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-radial-gradient.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-region16.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-region32.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-solid-fill.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-sse2.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-ssse3.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-timer.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-trap.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-utils.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-x86.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-analysis-surface.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-arc.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-array.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-atomic.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-base64-stream.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-base85-stream.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-bentley-ottmann-rectangular.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-bentley-ottmann-rectilinear.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-bentley-ottmann.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-botor-scan-converter.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-boxes-intersect.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-boxes.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-cache.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-cff-subset.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-clip-boxes.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-clip-polygon.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-clip-region.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-clip-surface.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-clip-tor-scan-converter.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-clip.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-color.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-composite-rectangles.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-contour.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-damage.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-debug.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-default-context.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-deflate-stream.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-device.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-directfb-surface.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-egl-context.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-error.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-fallback-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-fixed.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-font-face-twin-data.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-font-face-twin.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-font-face.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-font-options.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-freed-pool.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-freelist.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-ft-font.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-gl-composite.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-gl-device.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-gl-dispatch.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-gl-glyphs.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-gl-gradient.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-gl-info.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-gl-msaa-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-gl-operand.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-gl-shaders.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-gl-source.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-gl-spans-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-gl-surface.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-gl-traps-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-glx-context.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-gstate.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-hash.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-hull.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-image-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-image-info.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-image-source.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-image-surface.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-line.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-lzw.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-mask-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-matrix.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-mempool.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-mesh-pattern-rasterizer.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-misc.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-mono-scan-converter.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-mutex.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-no-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-observer.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-output-stream.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-paginated-surface.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-path-bounds.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-path-fill.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-path-fixed.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-path-in-fill.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-path-stroke-boxes.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-path-stroke-polygon.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-path-stroke-traps.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-path-stroke-tristrip.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-path-stroke.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-path.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-pattern.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+    </ClCompile>
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-pdf-operators.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-pdf-shading.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-pdf-surface.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-pen.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-png.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-polygon-intersect.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-polygon-reduce.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-polygon.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-ps-surface.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-qt-surface.cpp" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-quartz-font.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-quartz-image-surface.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-quartz-surface.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-raster-source-pattern.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-recording-surface.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-rectangle.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-rectangular-scan-converter.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-region.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-rtree.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-scaled-font-subsets.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-scaled-font.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-script-surface.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-shape-mask-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-slope.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-spans-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-spans.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-spline.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-stroke-dash.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-stroke-style.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-surface-clipper.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-surface-fallback.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-surface-observer.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-surface-offset.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-surface-snapshot.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-surface-subsurface.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-surface-wrapper.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-surface.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-svg-surface.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-tee-surface.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-time.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-tor-scan-converter.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-tor22-scan-converter.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-toy-font-face.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-traps-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-traps.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-tristrip.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-truetype-subset.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-type1-fallback.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-type1-glyph-names.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-type1-subset.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-type3-glyph-surface.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-unicode.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-user-font.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-vg-surface.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-wgl-context.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-wideint.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-win32-debug.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-win32-device.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-win32-display-surface.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-win32-font.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-win32-gdi-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-win32-printing-surface.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-win32-surface.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-win32-system.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-xcb-connection-core.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-xcb-connection-render.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-xcb-connection-shm.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-xcb-connection.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-xcb-resources.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-xcb-screen.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-xcb-shm.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-xcb-surface-core.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-xcb-surface-render.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-xcb-surface.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-xlib-core-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-xlib-display.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-xlib-fallback-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-xlib-render-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-xlib-screen.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-xlib-source.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-xlib-surface-shm.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-xlib-surface.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-xlib-visual.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-xlib-xcb-surface.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-xml-surface.c" />
+    <ClCompile Include="..\Osf\Cairo-1160\Src\cairo.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-analysis-surface-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-arc-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-array-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-atomic-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-backend-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-beos.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-box-inline.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-boxes-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-cache-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-clip-inline.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-clip-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-cogl-context-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-cogl-gradient-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-cogl-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-cogl-utils-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-cogl.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-combsort-inline.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-compiler-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-composite-rectangles-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-compositor-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-contour-inline.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-contour-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-damage-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-default-context-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-deprecated.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-device-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-directfb.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-drm-i915-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-drm-i965-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-drm-intel-brw-defines.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-drm-intel-brw-eu.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-drm-intel-brw-structs.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-drm-intel-command-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-drm-intel-ioctl-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-drm-intel-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-drm-ioctl-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-drm-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-drm-radeon-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-drm.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-error-inline.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-error-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-features.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-fixed-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-fixed-type-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-fontconfig-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-freed-pool-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-freelist-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-freelist-type-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-ft-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-ft.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-gl-dispatch-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-gl-ext-def-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-gl-gradient-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-gl-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-gl.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-gstate-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-hash-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-image-info-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-image-surface-inline.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-image-surface-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-line-inline.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-line-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-list-inline.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-list-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-malloc-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-mempool-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-mutex-impl-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-mutex-list-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-mutex-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-mutex-type-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-os2-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-os2.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-output-stream-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-paginated-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-paginated-surface-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-path-fixed-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-path-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-pattern-inline.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-pattern-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-pdf-operators-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-pdf-shading-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-pdf-surface-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-pdf.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-pixman-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-ps-surface-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-ps.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-qt.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-quartz-image.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-quartz-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-quartz.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-recording-surface-inline.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-recording-surface-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-reference-count-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-region-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-rtree-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-scaled-font-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-scaled-font-subsets-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-script-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-script.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-skia-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-skia.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-slope-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-spans-compositor-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-spans-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-stroke-dash-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-surface-backend-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-surface-clipper-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-surface-fallback-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-surface-inline.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-surface-observer-inline.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-surface-observer-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-surface-offset-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-surface-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-surface-snapshot-inline.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-surface-snapshot-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-surface-subsurface-inline.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-surface-subsurface-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-surface-wrapper-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-svg-surface-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-svg.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-tag-attributes-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-tag-stack-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-tee-surface-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-tee.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-time-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-traps-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-tristrip-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-truetype-subset-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-type1-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-type3-glyph-surface-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-types-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-user-font-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-version.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-vg.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-wideint-private.h" />
+    <ClInclude Include="..\Include\CAIRO-1160\cairo-wideint-type-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-win32-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-win32.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-xcb-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-xcb.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-xlib-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-xlib-surface-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-xlib-xrender-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-xlib-xrender.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-xlib.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo-xml.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairo.h" />
+    <ClInclude Include="..\Include\Cairo-1160\cairoint.h" />
+    <ClInclude Include="..\Include\Cairo-1160\Pixman\loongson-mmintrin.h" />
+    <ClInclude Include="..\Include\Cairo-1160\Pixman\pixman-accessor.h" />
+    <ClInclude Include="..\Include\Cairo-1160\Pixman\pixman-arm-common.h" />
+    <ClInclude Include="..\Include\Cairo-1160\Pixman\pixman-arm-neon-asm.h" />
+    <ClInclude Include="..\Include\Cairo-1160\Pixman\pixman-arm-simd-asm.h" />
+    <ClInclude Include="..\Include\Cairo-1160\Pixman\pixman-combine32.h" />
+    <ClInclude Include="..\Include\Cairo-1160\Pixman\pixman-compiler.h" />
+    <ClInclude Include="..\Include\Cairo-1160\Pixman\pixman-edge-imp.h" />
+    <ClInclude Include="..\Include\Cairo-1160\Pixman\pixman-inlines.h" />
+    <ClInclude Include="..\Include\Cairo-1160\Pixman\pixman-mips-dspr2-asm.h" />
+    <ClInclude Include="..\Include\Cairo-1160\Pixman\pixman-mips-dspr2.h" />
+    <ClInclude Include="..\Include\Cairo-1160\Pixman\pixman-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\Pixman\pixman-version.h" />
+    <ClInclude Include="..\Include\Cairo-1160\Pixman\pixman.h" />
+    <ClInclude Include="..\Include\Cairo-1160\test-compositor-surface-private.h" />
+    <ClInclude Include="..\Include\Cairo-1160\test-compositor-surface.h" />
+    <ClInclude Include="..\Include\Cairo-1160\test-null-compositor-surface.h" />
+    <ClInclude Include="..\Include\Cairo-1160\test-paginated-surface.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
