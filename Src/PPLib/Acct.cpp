@@ -1,5 +1,5 @@
 // ACCT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2007, 2008, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2007, 2008, 2016, 2017, 2019
 // @Kernel
 //
 #include <pp.h>
@@ -227,7 +227,8 @@ int SLAPI IsAccBelongToList(const Acct * pAcct, int side, const char * pList)
 	return found;
 }
 
-int SLAPI IsSuitableAcc(Acct * pAcc, int aco /* ACO_X */, Acct * pPattern)
+#if 0 // @v10.3.2 @unused {
+int SLAPI IsSuitableAcc(const Acct * pAcc, int aco /* ACO_X */, Acct * pPattern)
 {
 	if(aco == ACO_1)
 		return (pAcc->ac == pPattern->ac) ? 1 : 0;
@@ -235,6 +236,7 @@ int SLAPI IsSuitableAcc(Acct * pAcc, int aco /* ACO_X */, Acct * pPattern)
 		return (pAcc->ac == pPattern->ac && pAcc->sb == pPattern->sb) ? 1 : 0;
 	return (pAcc->ac == pPattern->ac && pAcc->sb == pPattern->sb && pAcc->ar == pPattern->ar) ? 1 : 0;
 }
+#endif // } 0
 //
 //
 //

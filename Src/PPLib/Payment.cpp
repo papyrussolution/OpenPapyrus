@@ -60,16 +60,13 @@ SArray * SLAPI PPObjBill::MakePaymentList(PPID id, int kind)
 	THROW_MEM(p_ary = new SArray(sizeof(entry)));
 	THROW(P_Tbl->Search(id, &bill_rec) > 0);
 	debt = BR2(bill_rec.Amount);
-	if(kind == LinkedBillFilt::lkPayments)
-		blnk = (BLNK_PAYMRETN | BLNK_CHARGEPAYM);
-	else if(kind == LinkedBillFilt::lkCharge)
-		blnk = BLNK_CHARGE;
-	else if(kind == LinkedBillFilt::lkWrOffDraft)
-		blnk = BLNK_WROFFDRAFT;
-	else if(kind == LinkedBillFilt::lkCorrection) // @v10.3.1
-		blnk = BLNK_CORRECTION;
-	else
-		blnk = BLNK_PAYMRETN;
+	switch(kind) {
+		case LinkedBillFilt::lkPayments:   blnk = (BLNK_PAYMRETN | BLNK_CHARGEPAYM); break;
+		case LinkedBillFilt::lkCharge:     blnk = BLNK_CHARGE; break;
+		case LinkedBillFilt::lkWrOffDraft: blnk = BLNK_WROFFDRAFT; break;
+		case LinkedBillFilt::lkCorrection: blnk = BLNK_CORRECTION; break; // @v10.3.1
+		default: blnk = BLNK_PAYMRETN; break;
+	}
 	while(1) {
 		int    is_paym_charge = 0;
 		int16  link_kind = 0;
@@ -151,7 +148,7 @@ SArray * SLAPI PPObjBill::MakePaymentList(PPID id, int kind)
 	THROW(r);
 	p_ary->sort(CMPF_LONG);
 	if(kind != 1)
-		for(i = 0; p_ary->enumItems(&i, (void**)&p_entry);)
+		for(i = 0; p_ary->enumItems(&i, reinterpret_cast<void **>(&p_entry));)
 			p_entry->Rest = (debt -= p_entry->Payment);
 	CATCH
 		ZDELETE(p_ary);
@@ -693,36 +690,39 @@ SLAPI ReckonOpArList::~ReckonOpArList()
 
 void SLAPI ReckonOpArList::Destroy()
 {
-	ReckonOpArItem * p_item;
-	for(uint i = 0; enumItems(&i, reinterpret_cast<void**>(&p_item));)
-		ZDELETE(p_item->P_BillIDList);
+	for(uint i = 0; i < getCount(); i++) {
+		ZDELETE(at(i).P_BillIDList);
+	}
 }
 
 PPID FASTCALL ReckonOpArList::GetPaymOpIDByBillID(PPID billID) const
 {
-	ReckonOpArItem * p_item = 0;
-	for(uint i = 0; enumItems(&i, reinterpret_cast<void**>(&p_item));)
-		if(p_item->P_BillIDList && p_item->P_BillIDList->lsearch(billID))
-			return p_item->PaymentOpID;
-	return 0L;
+	for(uint i = 0; i < getCount(); i++) {
+		const ReckonOpArItem & r_item = at(i);
+		if(r_item.P_BillIDList && r_item.P_BillIDList->lsearch(billID))
+			return r_item.PaymentOpID;
+	}
+	return 0;
 }
 
 int SLAPI ReckonOpArList::IsBillListSortingNeeded() const
 {
-	ReckonOpArItem * p_item = 0;
 	int    c = 0;
-	for(uint i = 0; enumItems(&i, reinterpret_cast<void**>(&p_item));)
-		if(p_item->P_BillIDList && p_item->P_BillIDList->getCount())
+	for(uint i = 0; i < getCount(); i++) {
+		const ReckonOpArItem & r_item = at(i);
+		if(r_item.P_BillIDList && r_item.P_BillIDList->getCount())
 			c++;
+	}
 	return (c > 1) ? 1 : 0;
 }
 
-int SLAPI PPObjBill::Reckon(PPID paymBillID, PPID debtBillID, PPID reckonOpKindID, PPID * pReckonBillID,
-	int dateOption /* RECKON_DATE_XXX */, LDATE reckonDate, int use_ta)
+int SLAPI PPObjBill::Reckon(PPID paymBillID, PPID debtBillID, PPID reckonOpID, PPID * pReckonBillID, 
+	int negativePayment, int dateOption /* RECKON_DATE_XXX */, LDATE reckonDate, int use_ta)
 {
 	int    ok = 1;
 	PPID   cur_id = 0;
-	double amt_debt = 0.0, amt_tmp = 0.0;
+	double amt_debt = 0.0;
+	double amt_tmp = 0.0;
 	double amt_paym = 0.0;
 	double amt_reckon = 0.0;
 	BillTbl::Rec bill_rec, paym_bill_rec;
@@ -737,27 +737,27 @@ int SLAPI PPObjBill::Reckon(PPID paymBillID, PPID debtBillID, PPID reckonOpKindI
 		P_Tbl->GetAmount(paymBillID, PPAMT_MAIN,    cur_id, &amt_paym);
 		P_Tbl->GetAmount(paymBillID, PPAMT_PAYMENT, cur_id, &amt_tmp);
 		amt_paym  -= amt_tmp;
+		// @v10.3.2 {
+		if(negativePayment)
+			amt_paym = -amt_paym;
+		// } @v10.3.2
 		P_Tbl->GetAmount(debtBillID, PPAMT_PAYMENT, cur_id, &amt_tmp);
 		amt_debt   = BR2(bill_rec.Amount) - amt_tmp;
 		amt_reckon = MIN(amt_debt, amt_paym);
 		if(amt_reckon > 0.0) {
 			AmtList al;
 			PPBillPacket pack;
-			THROW(pack.CreateBlank(reckonOpKindID, debtBillID, bill_rec.LocID, 0));
+			THROW(pack.CreateBlank(reckonOpID, debtBillID, bill_rec.LocID, 0));
 			pack.SetPoolMembership(PPBillPacket::bpkReckon, paymBillID);
 			pack.Rec.LocID = bill_rec.LocID;
-			if(dateOption == RECKON_DATE_CURR)
-				pack.Rec.Dt = LConfig.OperDate;
-			else if(dateOption == RECKON_DATE_PAYM)
-				pack.Rec.Dt = paym_bill_rec.Dt;
-			else if(dateOption == RECKON_DATE_DEBT)
-				pack.Rec.Dt = bill_rec.Dt;
-			else if(dateOption == RECKON_DATE_USER)
-				pack.Rec.Dt = reckonDate;
-			else
-				pack.Rec.Dt = bill_rec.Dt;
-			if(pack.Rec.Dt < bill_rec.Dt)
-				pack.Rec.Dt = bill_rec.Dt;
+			switch(dateOption) {
+				case RECKON_DATE_CURR: pack.Rec.Dt = LConfig.OperDate; break;
+				case RECKON_DATE_PAYM: pack.Rec.Dt = paym_bill_rec.Dt; break;
+				case RECKON_DATE_DEBT: pack.Rec.Dt = bill_rec.Dt; break;
+				case RECKON_DATE_USER: pack.Rec.Dt = reckonDate; break;
+				default: pack.Rec.Dt = bill_rec.Dt; break;
+			}
+			SETMAX(pack.Rec.Dt, bill_rec.Dt);
 			pack.Rec.CurID  = cur_id;
 			pack.Rec.Amount = BR2(amt_reckon);
 			al.Put(PPAMT_MAIN, cur_id, amt_reckon, 0, 0);
@@ -1050,21 +1050,23 @@ void CfmReckoningDialog::setupDate()
 {
 	ushort v;
 	LDATE  dt;
-	if(Data.DateOption == RECKON_DATE_CURR) {
-		v = 0;
-		dt = LConfig.OperDate;
-	}
-	else if(Data.DateOption == RECKON_DATE_PAYM) {
-		v = 1;
-		dt = Data.DebtOrPaym ? ZERODATE : Data.BillDt;
-	}
-	else if(Data.DateOption == RECKON_DATE_DEBT) {
-		v = 2;
-		dt = Data.DebtOrPaym ? Data.BillDt : ZERODATE;
-	}
-	else if(Data.DateOption == RECKON_DATE_USER) {
-		v  = 3;
-		dt = Data.Dt;
+	switch(Data.DateOption) {
+		case RECKON_DATE_CURR:
+			v = 0;
+			dt = LConfig.OperDate;
+			break;
+		case RECKON_DATE_PAYM:
+			v = 1;
+			dt = Data.DebtOrPaym ? ZERODATE : Data.BillDt;
+			break;
+		case RECKON_DATE_DEBT:
+			v = 2;
+			dt = Data.DebtOrPaym ? Data.BillDt : ZERODATE;
+			break;
+		case RECKON_DATE_USER:
+			v  = 3;
+			dt = Data.Dt;
+			break;
 	}
 	setCtrlData(CTL_CFM_RECKONING_DTSEL, &v);
 	setCtrlData(CTL_CFM_RECKONING_DT, &dt);
@@ -1073,9 +1075,8 @@ void CfmReckoningDialog::setupDate()
 
 int CfmReckoningDialog::setDTS(CfmReckoningParam * pCRP)
 {
-	SString obj_name;
 	Data = *pCRP;
-
+	SString obj_name;
 	SString info_buf;
 	SString fmt_buf;
 	SString debt_buf, amt_buf;
@@ -1181,9 +1182,9 @@ static int SLAPI SortBillListByDate(PPIDArray * pList, PPObjBill * pBObj)
 	} item;
 	int    ok = 1;
 	uint   i;
+	BillTbl::Rec bill_rec;
 	SVector temp_list(sizeof(item));
 	for(i = 0; i < pList->getCount(); i++) {
-		BillTbl::Rec bill_rec;
 		if(pBObj->Search(pList->get(i), &bill_rec) > 0) {
 			item.dt = bill_rec.Dt;
 			item.id = bill_rec.ID;
@@ -1193,33 +1194,37 @@ static int SLAPI SortBillListByDate(PPIDArray * pList, PPObjBill * pBObj)
 	pList->freeAll();
 	temp_list.sort(PTR_CMPFUNC(_2long));
 	for(i = 0; i < temp_list.getCount(); i++)
-		THROW_SL(pList->add(((_i*)temp_list.at(i))->id));
+		THROW_SL(pList->add(static_cast<const _i *>(temp_list.at(i))->id));
 	CATCHZOK
 	return ok;
 }
 
-int SLAPI PPObjBill::Helper_Reckon(PPID billID, ReckonOpArList * pOpList, CfmReckoningParam * pParam, int dontConfirm, int use_ta)
+int SLAPI PPObjBill::Helper_Reckon(PPID billID, const ReckonOpArList & rOpList, CfmReckoningParam & rParam, int negativePayment, int dontConfirm, int use_ta)
 {
 	int    ok = -1, r = 1;
-	uint   i;
-	PPID   op_id = 0, rckn_id = 0, debt_id = 0, paym_id = 0;
-	if(pOpList->IsBillListSortingNeeded() > 0)
-		if(!SortBillListByDate(pParam->P_BillList, this))
+	PPID   op_id = 0;
+	PPID   rckn_id = 0;
+	PPID   debt_id = 0;
+	PPID   paym_id = 0;
+	if(rOpList.IsBillListSortingNeeded() > 0)
+		if(!SortBillListByDate(rParam.P_BillList, this))
 			ok = 0;
 	if(ok) {
-		if(pParam->ForceBillID) {
+		if(rParam.ForceBillID) {
 			r = 2;
 			dontConfirm = 1;
 		}
-		if(dontConfirm || (r = ConfirmReckoning(this, pParam)) > 0) {
+		if(dontConfirm || (r = ConfirmReckoning(this, &rParam)) > 0) {
 			if(r == 1) {
-				PPID * p_id;
-				for(i = 0; pParam->P_BillList->enumItems(&i, reinterpret_cast<void**>(&p_id));) {
-					if((op_id = pOpList->GetPaymOpIDByBillID(*p_id)) != 0) {
-						debt_id = pParam->DebtOrPaym ? billID : *p_id;
-						paym_id = pParam->DebtOrPaym ? *p_id : billID;
-						if(Reckon(paym_id, debt_id, op_id, &(rckn_id = 0), pParam->DateOption, pParam->Dt, use_ta)) {
-							pParam->ResultBillList.addnz(rckn_id);
+				for(uint i = 0; i < rParam.P_BillList->getCount(); i++) {
+					const PPID bill_id = rParam.P_BillList->get(i);
+					op_id = rOpList.GetPaymOpIDByBillID(bill_id);
+					if(op_id) {
+						debt_id = rParam.DebtOrPaym ? billID : bill_id;
+						paym_id = rParam.DebtOrPaym ? bill_id : billID;
+						rckn_id = 0;
+						if(Reckon(paym_id, debt_id, op_id, &rckn_id, negativePayment, rParam.DateOption, rParam.Dt, use_ta)) {
+							rParam.ResultBillList.addnz(rckn_id);
 							ok = 1;
 						}
 						else {
@@ -1230,14 +1235,13 @@ int SLAPI PPObjBill::Helper_Reckon(PPID billID, ReckonOpArList * pOpList, CfmRec
 				}
 			}
 			else if(r == 2) {
-				PPID   id = NZOR(pParam->ForceBillID, pParam->SelectedBillID);
-				if(id > 0 && (op_id = pOpList->GetPaymOpIDByBillID(id)) != 0) {
-					debt_id = pParam->DebtOrPaym ? billID : id;
-					paym_id = pParam->DebtOrPaym ? id : billID;
-					ok = Reckon(paym_id, debt_id, op_id, &rckn_id, pParam->DateOption, pParam->Dt, use_ta) ?
-						(pParam->ForceBillID ? 3 : 2) : 0;
+				PPID   id = NZOR(rParam.ForceBillID, rParam.SelectedBillID);
+				if(id > 0 && (op_id = rOpList.GetPaymOpIDByBillID(id)) != 0) {
+					debt_id = rParam.DebtOrPaym ? billID : id;
+					paym_id = rParam.DebtOrPaym ? id : billID;
+					ok = Reckon(paym_id, debt_id, op_id, &rckn_id, negativePayment, rParam.DateOption, rParam.Dt, use_ta) ? (rParam.ForceBillID ? 3 : 2) : 0;
 					if(ok > 0 && rckn_id)
-						pParam->ResultBillList.add(rckn_id);
+						rParam.ResultBillList.add(rckn_id);
 				}
 			}
 		}
@@ -1322,15 +1326,16 @@ void SLAPI PPObjBill::Helper_PopupReckonInfo(PPIDArray & rResultBillList)
 			}
 		}
 	}
-	if(result_count) {
-		PPFormatT(PPTXT_RECKON_NZ_INFO, &msg_buf, result_count, result_amount);
-		PPTooltipMessage(msg_buf, 0, 0, 20000, GetColorRef(SClrGreen),
-			SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus);
-	}
-	else {
-		PPLoadText(PPTXT_RECKON_ZERO_INFO, msg_buf);
-		PPTooltipMessage(msg_buf, 0, 0, 10000, GetColorRef(SClrPink),
-			SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus);
+	{
+		const long ttmsgf = SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus;
+		if(result_count) {
+			PPFormatT(PPTXT_RECKON_NZ_INFO, &msg_buf, result_count, result_amount);
+			PPTooltipMessage(msg_buf, 0, 0, 20000, GetColorRef(SClrGreen), ttmsgf);
+		}
+		else {
+			PPLoadText(PPTXT_RECKON_ZERO_INFO, msg_buf);
+			PPTooltipMessage(msg_buf, 0, 0, 10000, GetColorRef(SClrPink), ttmsgf);
+		}
 	}
 	PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 }
@@ -1344,86 +1349,99 @@ int SLAPI PPObjBill::ReckoningPaym(PPID billID, const ReckonParam & rParam, int 
 	ReckonOpArList op_list;
 	THROW(Search(billID, &bill_rec) > 0);
 	if(bill_rec.Object && CheckOpFlags(bill_rec.OpID, OPKF_RECKON)) {
-		double paym_amt = 0.0;
-		P_Tbl->GetAmount(billID, PPAMT_PAYMENT, bill_rec.CurID, &paym_amt);
-		paym_amt = R2(bill_rec.Amount - paym_amt);
-		if(paym_amt > 0.0) {
-			PPID   debtor_id = bill_rec.Object;
-			PPReckonOpEx reckon_data;
-			ReckonParam param;
-			param = rParam;
-			int    dont_cfm = BIN(param.Flags & ReckonParam::fDontConfirm);
-			THROW(P_OpObj->GetReckonExData(bill_rec.OpID, &reckon_data));
-			if(reckon_data.Flags & ROXF_REQALTOBJ && !(param.Flags & ReckonParam::fAutomat))
-				if(SelectAltObject(&debtor_id) <= 0)
-					debtor_id = 0;
-			if(debtor_id && (!(param.Flags & ReckonParam::fAutomat) || (reckon_data.Flags & ROXF_AUTOPAYM))) {
-				int    r = 1;
-				const  PPID loc_id  = (reckon_data.Flags & ROXF_THISLOCONLY) ? bill_rec.LocID : 0;
-				const  PPID obj2_id = (reckon_data.Flags & ROXF_THISALTOBJONLY) ? bill_rec.Object2 : -1;
-				PPIDArray result_bill_list;
-				PPIDArray bill_list;
-				DateRange period;
-				reckon_data.GetDebtPeriod(bill_rec.Dt, &period);
-				// @v9.0.0 {
-				if(!period.low) {
-					DateRange cdp;
-					GetDefaultClientDebtPeriod(cdp);
-					if(checkdate(cdp.low, 0))
-						period.low = cdp.low;
-				}
-				// } @v9.0.0
-				if(reckon_data.Flags & ROXF_BYEXTOBJ && bill_rec.Object2 && bill_rec.Object2 != debtor_id)
-					debtor_id = bill_rec.Object2;
-				THROW(GetPayableOpListByReckonOp(&reckon_data, debtor_id, &op_list));
-				do {
-					uint   i;
-					double total_debt = 0.0;
-					bill_list.clear();
-					r = 1;
-					for(i = 0; op_list.enumItems(&i, (void**)&p_item);) {
-						THROW_MEM(SETIFZ(p_item->P_BillIDList, new PPIDArray));
-						p_item->P_BillIDList->clear();
-						THROW(GatherPayableBills(p_item, bill_rec.CurID, loc_id, obj2_id, &period, &total_debt));
-						THROW(bill_list.add(p_item->P_BillIDList));
+		const double nominal = bill_rec.Amount;
+		PPReckonOpEx reckon_data;
+		THROW(P_OpObj->GetReckonExData(bill_rec.OpID, &reckon_data));
+		const bool reckon_neg_only = (reckon_data.Flags & ROXF_RECKONNEGONLY) ? true : false;
+		if((nominal > 0.0 && !reckon_neg_only) || (nominal < 0.0 && reckon_neg_only)) {
+			double effective_paym_amt = 0.0;
+			{
+				double __paym_amt = 0.0;
+				P_Tbl->GetAmount(billID, PPAMT_PAYMENT, bill_rec.CurID, &__paym_amt);
+				__paym_amt = R2(nominal - __paym_amt);
+				if(__paym_amt > 0.0 && !reckon_neg_only)
+					effective_paym_amt = __paym_amt;
+				else if(__paym_amt < 0.0 && reckon_neg_only)
+					effective_paym_amt = -__paym_amt;
+			}
+			if(effective_paym_amt > 0.0) {
+				PPID   debtor_id = bill_rec.Object;
+				ReckonParam param = rParam;
+				int    dont_cfm = BIN(param.Flags & ReckonParam::fDontConfirm);
+				if(reckon_data.Flags & ROXF_REQALTOBJ && !(param.Flags & ReckonParam::fAutomat))
+					if(SelectAltObject(&debtor_id) <= 0)
+						debtor_id = 0;
+				if(debtor_id && (!(param.Flags & ReckonParam::fAutomat) || (reckon_data.Flags & ROXF_AUTOPAYM))) {
+					int    r = 1;
+					const  PPID loc_id  = (reckon_data.Flags & ROXF_THISLOCONLY) ? bill_rec.LocID : 0;
+					const  PPID obj2_id = (reckon_data.Flags & ROXF_THISALTOBJONLY) ? bill_rec.Object2 : -1;
+					PPIDArray result_bill_list;
+					PPIDArray bill_list;
+					DateRange period;
+					reckon_data.GetDebtPeriod(bill_rec.Dt, period);
+					if(!period.low) {
+						DateRange cdp;
+						GetDefaultClientDebtPeriod(cdp);
+						if(checkdate(cdp.low, 0))
+							period.low = cdp.low;
 					}
-					if(total_debt > 0.0) {
-						CfmReckoningParam crp;
-						crp.Init(0, &bill_rec, total_debt, paym_amt, &bill_list);
-						crp.ArticleID = debtor_id;
-						if(!(reckon_data.Flags & ROXF_CFM_PAYM))
-							dont_cfm = 1;
-						if(param.ForceBillID || (param.ForceBillDate && !isempty(param.ForceBillCode))) {
-							for(i = 0; i < bill_list.getCount(); i++) {
-								if(param.ForceBillID && bill_list.get(i) == param.ForceBillID) {
-									crp.ForceBillID = param.ForceBillID;
-									break;
-								}
-								else if(param.ForceBillDate && !isempty(param.ForceBillCode)) {
-									BillTbl::Rec sel_bill_rec;
-									if(Search(bill_list.get(i), &sel_bill_rec) > 0) {
+					if(reckon_data.Flags & ROXF_BYEXTOBJ && bill_rec.Object2 && bill_rec.Object2 != debtor_id)
+						debtor_id = bill_rec.Object2;
+					THROW(GetPayableOpListByReckonOp(&reckon_data, debtor_id, &op_list));
+					do {
+						uint   i;
+						double total_debt = 0.0;
+						bill_list.clear();
+						r = 1;
+						for(i = 0; op_list.enumItems(&i, reinterpret_cast<void **>(&p_item));) {
+							THROW_MEM(SETIFZ(p_item->P_BillIDList, new PPIDArray));
+							p_item->P_BillIDList->clear();
+							THROW(GatherPayableBills(p_item, bill_rec.CurID, loc_id, obj2_id, &period, &total_debt));
+							THROW(bill_list.add(p_item->P_BillIDList));
+						}
+						if(total_debt > 0.0) {
+							CfmReckoningParam crp;
+							crp.Init(0, &bill_rec, total_debt, effective_paym_amt, &bill_list);
+							crp.ArticleID = debtor_id;
+							if(!(reckon_data.Flags & ROXF_CFM_PAYM))
+								dont_cfm = 1;
+							if(param.ForceBillID || (param.ForceBillDate && !isempty(param.ForceBillCode))) {
+								BillTbl::Rec sel_bill_rec;
+								for(i = 0; i < bill_list.getCount(); i++) {
+									if(param.ForceBillID && bill_list.get(i) == param.ForceBillID) {
+										crp.ForceBillID = param.ForceBillID;
+										break;
+									}
+									else if(param.ForceBillDate && !isempty(param.ForceBillCode) && Search(bill_list.get(i), &sel_bill_rec) > 0) {
 										if(sel_bill_rec.Dt == param.ForceBillDate && stricmp(sel_bill_rec.Code, param.ForceBillCode) == 0) {
 											crp.ForceBillID = sel_bill_rec.ID;
 											break;
 										}
 									}
 								}
+								if(crp.ForceBillID == 0)
+									ok = r = -2;
 							}
-							if(crp.ForceBillID == 0)
-								ok = r = -2;
-						}
-						if(r > 0) {
-							THROW(r = Helper_Reckon(billID, &op_list, &crp, dont_cfm, use_ta));
-							if(r == 2) {
-								P_Tbl->GetAmount(billID, PPAMT_PAYMENT, bill_rec.CurID, &paym_amt);
-								paym_amt = R2(bill_rec.Amount - paym_amt);
+							if(r > 0) {
+								THROW(r = Helper_Reckon(billID, op_list, crp, reckon_neg_only, dont_cfm, use_ta));
+								if(r == 2) {
+									double __paym_amt = 0.0;
+									P_Tbl->GetAmount(billID, PPAMT_PAYMENT, bill_rec.CurID, &__paym_amt);
+									__paym_amt = R2(nominal - __paym_amt);
+									// @v10.3.2 {
+									if(__paym_amt > 0.0 && !reckon_neg_only)
+										effective_paym_amt = __paym_amt;
+									else if(__paym_amt < 0.0 && reckon_neg_only)
+										effective_paym_amt = -__paym_amt;
+									// } @v10.3.2
+								}
+								result_bill_list.add(&crp.ResultBillList);
 							}
-							result_bill_list.add(&crp.ResultBillList);
 						}
-					}
-				} while(r == 2 && paym_amt > 0);
-				if(rParam.Flags & rParam.fPopupInfo)
-					Helper_PopupReckonInfo(result_bill_list);
+					} while(r == 2 && effective_paym_amt > 0);
+					if(rParam.Flags & rParam.fPopupInfo)
+						Helper_PopupReckonInfo(result_bill_list);
+				}
 			}
 		}
 	}
@@ -1466,15 +1484,13 @@ int SLAPI PPObjBill::ReckoningDebt(PPID billID, const ReckonParam & rParam, int 
 						const  PPID loc_id  = (reckon_data.Flags & ROXF_THISLOCONLY) ? bill_rec.LocID : 0L;
 						const  PPID obj2_id = (reckon_data.Flags & ROXF_THISALTOBJONLY) ? bill_rec.Object2 : -1;
 						DateRange period;
-						if(reckon_data.GetReckonPeriod(bill_rec.Dt, &period) > 0) {
-							// @v9.0.0 {
+						if(reckon_data.GetReckonPeriod(bill_rec.Dt, period) > 0) {
 							if(!period.low) {
 								DateRange cdp;
 								GetDefaultClientDebtPeriod(cdp);
 								if(checkdate(cdp.low, 0))
 									period.low = cdp.low;
 							}
-							// } @v9.0.0
 							THROW_MEM(SETIFZ(p_item->P_BillIDList, new PPIDArray));
 							p_item->P_BillIDList->clear();
 		   		    		THROW(GatherPayableBills(p_item, bill_rec.CurID, loc_id, obj2_id, &period, &total_amount));
@@ -1485,7 +1501,7 @@ int SLAPI PPObjBill::ReckoningDebt(PPID billID, const ReckonParam & rParam, int 
 				if(total_amount > 0.0) {
 					CfmReckoningParam crp;
 					crp.Init(1, &bill_rec, total_amount, debt_amt, &bill_list);
-					THROW(r = Helper_Reckon(billID, &op_list, &crp, dont_cfm, use_ta));
+					THROW(r = Helper_Reckon(billID, op_list, crp, 0/*negativePayment*/, dont_cfm, use_ta));
 					if(r == 2) {
 						P_Tbl->GetAmount(billID, PPAMT_PAYMENT, bill_rec.CurID, &debt_amt);
 						debt_amt = R2(bill_rec.Amount - debt_amt);
@@ -1862,9 +1878,9 @@ int SLAPI PPObjBill::CreateBankingOrders(const PPIDArray & rBillList, long flags
 		double amount = 0.0;
 		PPObjPerson psn_obj;
 		PPIDArray link_bill_list;
-		CBO_BillEntry * p_prev_entry = 0;
+		const CBO_BillEntry * p_prev_entry = 0;
 		for(uint i = 0; i < list.getCount(); i++) {
-			CBO_BillEntry * p_entry = (CBO_BillEntry *)list.at(i);
+			const CBO_BillEntry * p_entry = static_cast<const CBO_BillEntry *>(list.at(i));
 			if(last_ar_id && last_ar_id != p_entry->ArID) {
 				if(amount > 0.0) {
 					PPID   payer_id = 0;
@@ -1970,7 +1986,7 @@ int FASTCALL PPViewPaymBill::NextIteration(PaymBillViewItem * pItem)
 	int    ok = -1;
 	if(pItem && P_PaymBillList && P_BObj) {
 		if(Counter < Counter.GetTotal()) {
-			const _PaymentEntry * p_be = (const PaymBillViewItem *)P_PaymBillList->at(Counter);
+			const _PaymentEntry * p_be = static_cast<const PaymBillViewItem *>(P_PaymBillList->at(Counter));
 			BillTbl::Rec bill_rec;
 			if(P_BObj->Search(p_be->ID, &bill_rec) > 0)
 				STRNSCPY(pItem->Memo, bill_rec.Memo);

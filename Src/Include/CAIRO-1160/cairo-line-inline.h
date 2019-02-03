@@ -33,8 +33,8 @@
 #ifndef CAIRO_LINE_INLINE_H
 #define CAIRO_LINE_INLINE_H
 
-#include "cairo-types-private.h"
-#include "cairo-compiler-private.h"
+//#include "cairo-types-private.h"
+//#include "cairo-compiler-private.h"
 #include "cairo-fixed-private.h"
 #include "cairo-line-private.h"
 

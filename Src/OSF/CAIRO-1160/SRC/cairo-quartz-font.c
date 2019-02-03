@@ -41,7 +41,7 @@
 #include "cairo-image-surface-private.h"
 #include "cairo-quartz.h"
 #include "cairo-quartz-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 
 /**
  * SECTION:cairo-quartz-fonts
@@ -749,7 +749,7 @@ static ulong _cairo_quartz_ucs4_to_index(void * abstract_font,
 static cairo_int_status_t _cairo_quartz_load_truetype_table(void * abstract_font,
     ulong tag,
     long offset,
-    unsigned char * buffer,
+    uchar * buffer,
     ulong * length)
 {
 	cairo_quartz_font_face_t * font_face = _cairo_quartz_scaled_to_face(abstract_font);

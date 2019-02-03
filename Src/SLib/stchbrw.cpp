@@ -272,13 +272,13 @@ LRESULT CALLBACK STimeChunkBrowser::WndProc(HWND hWnd, UINT message, WPARAM wPar
 	STimeChunkBrowser * p_view = 0;
 	switch(message) {
 		case WM_CREATE:
-			p_init_data = (CREATESTRUCT *)lParam;
+			p_init_data = reinterpret_cast<CREATESTRUCT *>(lParam);
 			if(TWindow::IsMDIClientWindow(p_init_data->hwndParent)) {
-				p_view = (STimeChunkBrowser *)((LPMDICREATESTRUCT)(p_init_data->lpCreateParams))->lParam;
+				p_view = reinterpret_cast<STimeChunkBrowser *>(static_cast<LPMDICREATESTRUCT>(p_init_data->lpCreateParams)->lParam);
 				p_view->BbState |= bbsIsMDI;
 			}
 			else {
-				p_view = (STimeChunkBrowser *)p_init_data->lpCreateParams;
+				p_view = static_cast<STimeChunkBrowser *>(p_init_data->lpCreateParams);
 				p_view->BbState &= ~bbsIsMDI;
 			}
 			if(p_view) {
@@ -302,7 +302,7 @@ LRESULT CALLBACK STimeChunkBrowser::WndProc(HWND hWnd, UINT message, WPARAM wPar
 			else
 				return -1;
 		case WM_DESTROY:
-			p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
+			p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
 			if(p_view) {
 				p_view->SaveParameters();
 				SETIFZ(p_view->EndModalCmd, cmCancel);
@@ -312,7 +312,7 @@ LRESULT CALLBACK STimeChunkBrowser::WndProc(HWND hWnd, UINT message, WPARAM wPar
 					APPL->P_DeskTop->remove(p_view);
 					delete p_view;
 					//SetWindowLong(hWnd, GWLP_USERDATA, 0);
-					TView::SetWindowProp(hWnd, GWLP_USERDATA, (void *)0);
+					TView::SetWindowProp(hWnd, GWLP_USERDATA, static_cast<void *>(0));
 				}
 			}
 			return 0;
@@ -321,7 +321,7 @@ LRESULT CALLBACK STimeChunkBrowser::WndProc(HWND hWnd, UINT message, WPARAM wPar
 				SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 				APPL->NotifyFrame(0);
 			}
-			p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
+			p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
 			if(p_view) {
 				APPL->SelectTabItem(p_view);
 				TView::messageBroadcast(p_view, cmReceivedFocus);
@@ -331,23 +331,23 @@ LRESULT CALLBACK STimeChunkBrowser::WndProc(HWND hWnd, UINT message, WPARAM wPar
 		case WM_KILLFOCUS:
 			if(!(TView::GetWindowStyle(hWnd) & WS_CAPTION))
 				APPL->NotifyFrame(0);
-			p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
+			p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
 			if(p_view) {
 				TView::messageBroadcast(p_view, cmReleasedFocus);
 				p_view->ResetOwnerCurrent();
 			}
 			break;
 		case WM_SIZE:
-			p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
+			p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
 			CALLPTRMEMB(p_view, SetupScroll());
 			break;
 		case WM_PAINT:
-			p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
+			p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
 			CALLPTRMEMB(p_view, Paint());
 			break;
 		case WM_HSCROLL:
 		case WM_VSCROLL:
-			p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
+			p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
 			CALLPTRMEMB(p_view, Scroll((message == WM_HSCROLL) ? SB_HORZ : SB_VERT, LoWord(wParam), HiWord(wParam)));
 			break;
 		case WM_KEYDOWN:
@@ -356,37 +356,37 @@ LRESULT CALLBACK STimeChunkBrowser::WndProc(HWND hWnd, UINT message, WPARAM wPar
 				kdc.SetWinMsgCode(wParam);
 				const uint16 tvk = kdc.GetTvKeyCode();
 				if(/*wParam == VK_ESCAPE*/tvk == kbEsc) {
-					p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
+					p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
 					if(p_view) {
 						p_view->endModal(cmCancel);
 						return 0;
 					}
 				}
 				else if(/*wParam == VK_TAB*/tvk == kbCtrlTab) {
-					p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
+					p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
 					if(/*GetKeyState(VK_CONTROL) & 0x8000 &&*/ p_view && !p_view->IsInState(sfModal)) {
 						SetFocus(GetNextBrowser(hWnd, (GetKeyState(VK_SHIFT) & 0x8000) ? 0 : 1));
 						return 0;
 					}
 				}
 				else if(/*LOWORD(wParam) == VK_INSERT && 0x8000 & GetKeyState(VK_CONTROL)*/tvk == kbCtrlIns) {
-					p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
+					p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
 					CALLPTRMEMB(p_view, CopyToClipboard());
 				}
 				// @v9.8.7 {
 				else if(/*LOWORD(wParam) == VK_F10 && 0x8000 & GetKeyState(VK_CONTROL)*/tvk == kbCtrlF11) {
-					p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
+					p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
 					CALLPTRMEMB(p_view, ExportToExcel());
 				}
 				// } @v9.8.7 
 			}
 			return 0;
 		case WM_LBUTTONDBLCLK:
-			p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
+			p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
 			CALLPTRMEMB(p_view, ProcessDblClk(p.setwparam(lParam)));
 			break;
 		case WM_LBUTTONDOWN:
-			p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
+			p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
 			if(p_view) {
 				if(hWnd != GetFocus())
 					SetFocus(hWnd);
@@ -396,11 +396,11 @@ LRESULT CALLBACK STimeChunkBrowser::WndProc(HWND hWnd, UINT message, WPARAM wPar
 			return 0;
 		case WM_LBUTTONUP:
 			ReleaseCapture();
-			p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
+			p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
 			CALLPTRMEMB(p_view, Resize(0, p.setwparam(lParam)));
 			break;
 		case WM_MOUSELEAVE:
-			p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
+			p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
 			if(p_view) {
 				if(p_view->InvalidateChunk(p_view->St.SelChunkId) > 0) {
 					p_view->St.SelChunkId = -1;
@@ -412,7 +412,7 @@ LRESULT CALLBACK STimeChunkBrowser::WndProc(HWND hWnd, UINT message, WPARAM wPar
 			}
 			return 0;
 		case WM_MOUSEWHEEL:
-			p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
+			p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
 			if(p_view) {
 				short delta = (short)HIWORD(wParam);
 				if(p_view->P.ViewType == STimeChunkBrowser::Param::vHourDay) {
@@ -424,7 +424,7 @@ LRESULT CALLBACK STimeChunkBrowser::WndProc(HWND hWnd, UINT message, WPARAM wPar
 			}
 			break;
 		case WM_MOUSEMOVE:
-			p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
+			p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
 			if(p_view) {
 				TPoint tp;
 				tp.setwparam(lParam);
@@ -563,7 +563,7 @@ STimeChunkBrowser::STimeChunkBrowser() : TBaseBrowserWindow(WndClsName), BmpId_M
 	Ptb.CreateCursor(curResizeRoze, IDC_ARR_ROZE);
 	Ptb.CreateCursor(curCalendar,   IDC_CALENDAR);
 	Ptb.CreateCursor(curHand,       IDC_PPYPOINT);
-	options |= ofSelectable;
+	ViewOptions |= ofSelectable;
 }
 
 STimeChunkBrowser::~STimeChunkBrowser()
@@ -645,10 +645,10 @@ int STimeChunkBrowser::RestoreParameters(STimeChunkBrowser::Param & rParam)
 					StrAssocArray::Item item = param_list.Get(i);
 					if(temp_buf.Divide('=', left, right) > 0 && left.Strip().CmpNC(item.Txt) == 0) {
 						switch(item.Id) {
-							case kpPixQuant:     rParam.PixQuant = (uint)right.ToLong(); break;
-							case kpPixRow:       rParam.PixRow = (uint)right.ToLong(); break;
-							case kpPixRowMargin: rParam.PixRowMargin = (uint)right.ToLong(); break;
-							case kpTextZonePart: rParam.TextZonePart = (uint)right.ToLong(); break;
+							case kpPixQuant:     rParam.PixQuant = static_cast<uint>(right.ToLong()); break;
+							case kpPixRow:       rParam.PixRow = static_cast<uint>(right.ToLong()); break;
+							case kpPixRowMargin: rParam.PixRowMargin = static_cast<uint>(right.ToLong()); break;
+							case kpTextZonePart: rParam.TextZonePart = static_cast<uint>(right.ToLong()); break;
 						}
 					}
 				}
@@ -874,7 +874,7 @@ int FASTCALL STimeChunkBrowser::IsQuantVisible(long q) const
 			STimeChunkArray isect_list;
 			if(p_collapse_list->Intersect(chunk, &isect_list)) {
 				for(uint i = 0; yes && i < isect_list.getCount(); i++) {
-					const STimeChunk * p_ic = (const STimeChunk *)isect_list.at(i);
+					const STimeChunk * p_ic = static_cast<const STimeChunk *>(isect_list.at(i));
 					if(*p_ic == chunk)
 						yes = 0;
 				}
@@ -942,7 +942,7 @@ void STimeChunkBrowser::Scroll(int sbType, int sbEvent, int thumbPos)
 			case SB_THUMBTRACK:
 				if(thumbPos < 0)
 					St.ScrollY = 0;
-				else if(thumbPos > (int)GetScrollLimitY())
+				else if(thumbPos > static_cast<int>(GetScrollLimitY()))
 					St.ScrollY = GetScrollLimitY();
 				else
 					St.ScrollY = thumbPos;
@@ -970,7 +970,7 @@ void STimeChunkBrowser::Scroll(int sbType, int sbEvent, int thumbPos)
 						delta = (delta * St.QBounds / 32000);
 					else {
 						for(int i = 1; i <= delta; i++)
-							if((int)St.ScrollX > i && !IsQuantVisible(St.ScrollX-i))
+							if(static_cast<int>(St.ScrollX) > i && !IsQuantVisible(St.ScrollX-i))
 								delta++;
 					}
 					if((int)St.ScrollX > delta)
@@ -983,7 +983,7 @@ void STimeChunkBrowser::Scroll(int sbType, int sbEvent, int thumbPos)
 				if(St.QBounds > 32000)
 					delta = (int)(St.QBounds / 32000);
 				else {
-					for(delta = 1; (int)St.ScrollX > delta && !IsQuantVisible(St.ScrollX-delta);)
+					for(delta = 1; static_cast<int>(St.ScrollX) > delta && !IsQuantVisible(St.ScrollX-delta);)
 						delta++;
 				}
 				if((int)St.ScrollX > delta)
@@ -1596,7 +1596,6 @@ int STimeChunkBrowser::Locate(TPoint p, Loc * pLoc) const
 				loc.TmQuant = loc.Tm;
 			}
 			else {
-				loc.Tm = loc.TmQuant = view_time_bounds.Start;
 				loc.Tm = AddTime(view_time_bounds.Start, PixToSec(p.x - left_edge));
 				loc.TmQuant = AddTime(view_time_bounds.Start, (PixToSec(p.x - left_edge) / P.Quant) * P.Quant);
 				uint   upp_edge = a2.Right.a.y;

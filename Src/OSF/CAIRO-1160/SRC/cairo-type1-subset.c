@@ -41,8 +41,8 @@
 #include "cairoint.h"
 #pragma hdrstop
 #define _DEFAULT_SOURCE /* for snprintf(), strdup() */
-#include "cairo-array-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-array-private.h"
+//#include "cairo-error-private.h"
 
 #if CAIRO_HAS_FONT_SUBSET
 
@@ -190,11 +190,11 @@ static const char * find_token(const char * buffer, const char * end, const char
 
 static cairo_status_t cairo_type1_font_subset_find_segments(cairo_type1_font_subset_t * font)
 {
-	unsigned char * p;
+	uchar * p;
 	const char * eexec_token;
 	int size, i;
 
-	p = (unsigned char*)font->type1_data;
+	p = (uchar*)font->type1_data;
 	font->type1_end = font->type1_data + font->type1_length;
 	if(p[0] == 0x80 && p[1] == 0x01) {
 		font->header_segment_size =
@@ -208,7 +208,7 @@ static cairo_status_t cairo_type1_font_subset_find_segments(cairo_type1_font_sub
 		font->eexec_segment_is_ascii = (p[1] == 1);
 
 		p += 6 + font->eexec_segment_size;
-		while(p < (unsigned char*)(font->type1_end) && p[1] != 0x03) {
+		while(p < (uchar*)(font->type1_end) && p[1] != 0x03) {
 			size = p[2] | (p[3] << 8) | (p[4] << 16) | (p[5] << 24);
 			p += 6 + size;
 		}
@@ -479,8 +479,8 @@ static cairo_status_t FASTCALL cairo_type1_font_subset_write_encrypted(cairo_typ
 	int c, p;
 	static const char hex_digits[/*16*/] = "0123456789abcdef";
 	char digits[3];
-	const unsigned char * in = (const unsigned char*)data;
-	const unsigned char * end = (const unsigned char*)data + length;
+	const uchar * in = (const uchar*)data;
+	const uchar * end = (const uchar*)data + length;
 	while(in < end) {
 		p = *in++;
 		c = p ^ (font->eexec_key >> 8);
@@ -512,13 +512,13 @@ static cairo_status_t FASTCALL cairo_type1_font_subset_write_encrypted(cairo_typ
 static cairo_status_t cairo_type1_font_subset_decrypt_eexec_segment(cairo_type1_font_subset_t * font)
 {
 	unsigned short r = CAIRO_TYPE1_PRIVATE_DICT_KEY;
-	unsigned char * in, * end;
+	uchar * in, * end;
 	char * out;
 	int c, p;
 	int i;
 
-	in = (unsigned char*)font->eexec_segment;
-	end = (unsigned char*)in + font->eexec_segment_size;
+	in = (uchar*)font->eexec_segment;
+	end = (uchar*)in + font->eexec_segment_size;
 
 	font->cleartext = (char*)_cairo_malloc(font->eexec_segment_size + 1);
 	if(unlikely(font->cleartext == NULL))
@@ -579,7 +579,7 @@ static const char * skip_token(const char * p, const char * end)
 	return p;
 }
 
-static void cairo_type1_font_subset_decrypt_charstring(const unsigned char * in, int size, unsigned char * out)
+static void cairo_type1_font_subset_decrypt_charstring(const uchar * in, int size, uchar * out)
 {
 	unsigned short r = CAIRO_TYPE1_CHARSTRING_KEY;
 	int c, p, i;
@@ -592,7 +592,7 @@ static void cairo_type1_font_subset_decrypt_charstring(const unsigned char * in,
 	}
 }
 
-static const unsigned char * cairo_type1_font_subset_decode_integer(const unsigned char * p, int * integer)
+static const uchar * cairo_type1_font_subset_decode_integer(const uchar * p, int * integer)
 {
 	if(*p <= 246) {
 		*integer = *p++ - 139;
@@ -672,16 +672,16 @@ static cairo_status_t cairo_type1_font_subset_parse_charstring(cairo_type1_font_
     int encrypted_charstring_length)
 {
 	cairo_status_t status;
-	unsigned char * charstring;
-	const unsigned char * end;
-	const unsigned char * p;
+	uchar * charstring;
+	const uchar * end;
+	const uchar * p;
 	int command;
 
-	charstring = (unsigned char *)_cairo_malloc(encrypted_charstring_length);
+	charstring = (uchar *)_cairo_malloc(encrypted_charstring_length);
 	if(unlikely(charstring == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
-	cairo_type1_font_subset_decrypt_charstring((const unsigned char*)
+	cairo_type1_font_subset_decrypt_charstring((const uchar*)
 	    encrypted_charstring,
 	    encrypted_charstring_length,
 	    charstring);
@@ -1369,7 +1369,7 @@ static cairo_status_t cairo_type1_font_subset_write_trailer(cairo_type1_font_sub
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t type1_font_write(void * closure, const unsigned char * data, uint length)
+static cairo_status_t type1_font_write(void * closure, const uchar * data, uint length)
 {
 	cairo_type1_font_subset_t * font = (cairo_type1_font_subset_t *)closure;
 	return _cairo_array_append_multiple(&font->contents, data, length);
@@ -1427,7 +1427,7 @@ static cairo_status_t cairo_type1_font_subset_write(cairo_type1_font_subset_t * 
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_bool_t check_fontdata_is_type1(const unsigned char * data, long length)
+static cairo_bool_t check_fontdata_is_type1(const uchar * data, long length)
 {
 	/* Test for  Type 1 Binary (PFB) */
 	if(length > 2 && data[0] == 0x80 && data[1] == 0x01)
@@ -1455,10 +1455,10 @@ static cairo_status_t cairo_type1_font_subset_generate(void * abstract_font, con
 	font->type1_data = (char*)_cairo_malloc(font->type1_length);
 	if(unlikely(font->type1_data == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-	status = scaled_font->backend->load_type1_data(scaled_font, 0, (unsigned char*)font->type1_data, &data_length);
+	status = scaled_font->backend->load_type1_data(scaled_font, 0, (uchar*)font->type1_data, &data_length);
 	if(unlikely(status))
 		return status;
-	if(!check_fontdata_is_type1((unsigned char*)font->type1_data, data_length))
+	if(!check_fontdata_is_type1((uchar*)font->type1_data, data_length))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	status = _cairo_array_grow_by(&font->contents, 4096);
 	if(unlikely(status))
@@ -1571,7 +1571,7 @@ cairo_bool_t _cairo_type1_scaled_font_is_type1(cairo_scaled_font_t * scaled_font
 {
 	cairo_status_t status;
 	ulong length;
-	unsigned char buf[64];
+	uchar buf[64];
 
 	if(!scaled_font->backend->load_type1_data)
 		return FALSE;

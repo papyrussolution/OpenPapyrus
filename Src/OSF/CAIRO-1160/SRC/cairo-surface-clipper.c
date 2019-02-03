@@ -34,7 +34,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-clip-inline.h"
+//#include "cairo-clip-inline.h"
 #include "cairo-surface-clipper-private.h"
 
 /* A collection of routines to facilitate vector surface clipping */

@@ -38,7 +38,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-image-surface-private.h"
 #include "cairo-surface-snapshot-inline.h"
 

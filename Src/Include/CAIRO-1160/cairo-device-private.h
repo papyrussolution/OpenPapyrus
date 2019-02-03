@@ -36,10 +36,10 @@
 #ifndef _CAIRO_DEVICE_PRIVATE_H_
 #define _CAIRO_DEVICE_PRIVATE_H_
 
-#include "cairo-compiler-private.h"
-#include "cairo-mutex-private.h"
-#include "cairo-reference-count-private.h"
-#include "cairo-types-private.h"
+//#include "cairo-compiler-private.h"
+//#include "cairo-mutex-private.h"
+//#include "cairo-reference-count-private.h"
+//#include "cairo-types-private.h"
 
 struct _cairo_device {
 	cairo_reference_count_t ref_count;

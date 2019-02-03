@@ -46,12 +46,12 @@
 # define _WIN32_WINNT 0x0500
 #endif
 #include "cairo-default-context-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-paginated-private.h"
-#include "cairo-clip-private.h"
-#include "cairo-composite-rectangles-private.h"
+//#include "cairo-clip-private.h"
+//#include "cairo-composite-rectangles-private.h"
 #include "cairo-win32-private.h"
-#include "cairo-recording-surface-inline.h"
+//#include "cairo-recording-surface-inline.h"
 #include "cairo-scaled-font-subsets-private.h"
 #include "cairo-image-info-private.h"
 #include "cairo-image-surface-inline.h"
@@ -183,7 +183,7 @@ static cairo_status_t _cairo_win32_printing_surface_acquire_image_pattern(cairo_
     cairo_surface_pattern_t * image_pattern,
     int * width,
     int * height,
-    void           ** image_extra)
+    void      ** image_extra)
 {
 	cairo_status_t status;
 	cairo_image_surface_t * image;
@@ -655,9 +655,9 @@ err:
 }
 
 static cairo_int_status_t _cairo_win32_printing_surface_check_jpeg(cairo_win32_printing_surface_t * surface,
-    cairo_surface_t * source, const unsigned char ** data, ulong * length, cairo_image_info_t * info)
+    cairo_surface_t * source, const uchar ** data, ulong * length, cairo_image_info_t * info)
 {
-	const unsigned char * mime_data;
+	const uchar * mime_data;
 	ulong mime_data_length;
 	cairo_int_status_t status;
 	DWORD result;
@@ -680,9 +680,9 @@ static cairo_int_status_t _cairo_win32_printing_surface_check_jpeg(cairo_win32_p
 }
 
 static cairo_int_status_t _cairo_win32_printing_surface_check_png(cairo_win32_printing_surface_t * surface,
-    cairo_surface_t * source, const unsigned char ** data, ulong * length, cairo_image_info_t * info)
+    cairo_surface_t * source, const uchar ** data, ulong * length, cairo_image_info_t * info)
 {
-	const unsigned char * mime_data;
+	const uchar * mime_data;
 	ulong mime_data_length;
 	cairo_int_status_t status;
 	DWORD result;
@@ -720,7 +720,7 @@ static cairo_status_t _cairo_win32_printing_surface_paint_image_pattern(cairo_wi
 	int pattern_width, pattern_height;
 	RECT clip;
 	const cairo_color_t * background_color;
-	const unsigned char * mime_data;
+	const uchar * mime_data;
 	ulong mime_size;
 	cairo_image_info_t mime_info;
 	cairo_bool_t use_mime;
@@ -1123,9 +1123,7 @@ static cairo_status_t _cairo_win32_printing_surface_path_curve_to(void * closure
 static cairo_status_t _cairo_win32_printing_surface_path_close_path(void * closure)
 {
 	win32_path_info_t * path_info = (win32_path_info_t *)closure;
-
 	CloseFigure(path_info->surface->win32.dc);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -1133,12 +1131,8 @@ static cairo_status_t _cairo_win32_printing_surface_emit_path(cairo_win32_printi
 {
 	win32_path_info_t path_info;
 	path_info.surface = surface;
-	return _cairo_path_fixed_interpret(path,
-		   _cairo_win32_printing_surface_path_move_to,
-		   _cairo_win32_printing_surface_path_line_to,
-		   _cairo_win32_printing_surface_path_curve_to,
-		   _cairo_win32_printing_surface_path_close_path,
-		   &path_info);
+	return _cairo_path_fixed_interpret(path, _cairo_win32_printing_surface_path_move_to, _cairo_win32_printing_surface_path_line_to, 
+		_cairo_win32_printing_surface_path_curve_to, _cairo_win32_printing_surface_path_close_path, &path_info);
 }
 
 static cairo_int_status_t _cairo_win32_printing_surface_show_page(void * abstract_surface)

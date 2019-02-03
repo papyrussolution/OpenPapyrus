@@ -47,7 +47,7 @@
 #include "cairo-xlib-private.h"
 #include "cairo-xlib-surface-private.h"
 
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-image-surface-inline.h"
 #include "cairo-paginated-private.h"
 #include "cairo-pattern-inline.h"

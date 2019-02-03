@@ -76,8 +76,8 @@ int BDbDatabase::GetCurrentConfig(Config & rCfg)
 			uint32 gb = 0, b = 0;
 			int    n = 0;
 			THROW(ProcessError(E->get_cachesize(E, &gb, &b, &n)));
-			rCfg.CacheSize = SGIGABYTE((int64)gb) + b;
-			rCfg.CacheCount = (uint)n;
+			rCfg.CacheSize = SGIGABYTE(static_cast<int64>(gb)) + b;
+			rCfg.CacheCount = static_cast<uint>(n);
 		}
 		{
 			uint32 v = 0;
@@ -180,7 +180,7 @@ int BDbDatabase::Helper_SetConfig(const char * pHomeDir, const Config & rCfg)
 			THROW(ProcessError(E->mutex_set_increment(E, rCfg.MutexCountIncr)));
 		}
 		if(rCfg.LogBufSize) {
-			THROW(ProcessError(E->set_lg_bsize(E, (uint32)rCfg.LogBufSize)));
+			THROW(ProcessError(E->set_lg_bsize(E, rCfg.LogBufSize)));
 		}
 		if(rCfg.LogFileSize) {
 			THROW(ProcessError(E->set_lg_max(E, rCfg.LogFileSize)));
@@ -350,7 +350,7 @@ int FASTCALL BDbDatabase::ProcessError(int bdbErrCode, const DB * pDb, const cha
 
 void BDbDatabase::Helper_Close(void * pH)
 {
-	DB * p_db = (DB *)pH;
+	DB * p_db = static_cast<DB *>(pH);
 	CALLPTRMEMB(p_db, close(p_db, 0));
 }
 
@@ -384,14 +384,12 @@ int BDbDatabase::RollbackWork()
 	if(T.T) {
 		int r = T.T->abort(T.T);
 		T.T = 0;
-		//
 		for(uint i = 0; i < T.TblList.getCount(); i++) {
-			BDbTable * p_tbl = (BDbTable *)T.TblList.at(i);
+			BDbTable * p_tbl = static_cast<BDbTable *>(T.TblList.at(i));
 			if(p_tbl && p_tbl->IsConsistent())
 				p_tbl->Helper_EndTransaction();
 		}
 		T.TblList.freeAll();
-		//
 		THROW(ProcessError(r));
 	}
 	else
@@ -407,14 +405,12 @@ int BDbDatabase::CommitWork()
 		uint32 commit_flags = 0;
 		int r = T.T->commit(T.T, commit_flags);
 		T.T = 0;
-		//
 		for(uint i = 0; i < T.TblList.getCount(); i++) {
-			BDbTable * p_tbl = (BDbTable *)T.TblList.at(i);
+			BDbTable * p_tbl = static_cast<BDbTable *>(T.TblList.at(i));
 			if(p_tbl && p_tbl->IsConsistent())
 				p_tbl->Helper_EndTransaction();
 		}
 		T.TblList.freeAll();
-		//
 		THROW(ProcessError(r));
 	}
 	else
@@ -526,7 +522,7 @@ void * BDbDatabase::Helper_Open(const char * pFileName, BDbTable * pTbl, int fla
 int BDbDatabase::IsFileExists(const char * pFileName)
 {
 	int    yes = 0;
-	DB * p_db = (DB *)Helper_Open(pFileName, 0, BDbTable::ofReadOnly); // @v9.7.11 BDbTable::ofReadOnly
+	DB * p_db = static_cast<DB *>(Helper_Open(pFileName, 0, BDbTable::ofReadOnly)); // @v9.7.11 BDbTable::ofReadOnly
 	if(p_db) {
 		Helper_Close(p_db);
 		yes = 1;
@@ -582,7 +578,7 @@ int BDbDatabase::Helper_Create(const char * pFileName, int createMode, const BDb
 	return ok;
 }
 
-int BDbDatabase::CreateDataFile(const char * pFileName, int createMode, BDbTable::Config * pCfg)
+int BDbDatabase::CreateDataFile(const char * pFileName, int createMode, const BDbTable::Config * pCfg)
 {
 	return Helper_Create(pFileName, createMode, pCfg);
 }
@@ -595,7 +591,7 @@ int BDbDatabase::Implement_Open(BDbTable * pTbl, const char * pFileName, int ope
 		open_flags |= BDbTable::ofReadOnly;
 	if(State & stExclusive)
 		open_flags |= BDbTable::ofExclusive;
-	pTbl->H = (DB *)Helper_Open(pFileName, pTbl, open_flags);
+	pTbl->H = static_cast<DB *>(Helper_Open(pFileName, pTbl, open_flags));
 	if(pTbl->H) {
 		CheckInTxnTable(pTbl);
 		pTbl->State |= BDbTable::stOpened;
@@ -868,7 +864,7 @@ int FASTCALL BDbTable::Buffer::Alloc(size_t sz)
 	Reset();
 	if(sz < B.GetSize() || (r = B.Alloc(sz))) {
 		P_Data = B;
-		ULen = (uint32)B.GetSize();
+		ULen = static_cast<uint32>(B.GetSize());
 		Flags |= fUserMem;
 	}
 	if(!r)
@@ -973,7 +969,7 @@ int FASTCALL BDbTable::Buffer::Get(SString & rBuf) const
 	int    ok = 1;
 	assert(InvariantC(0));
 	if(Size) {
-		rBuf.Z().CatN((const char *)P_Data, Size);
+		rBuf.Z().CatN(static_cast<const char *>(P_Data), Size);
 	}
 	return ok;
 }
@@ -983,7 +979,7 @@ int FASTCALL BDbTable::Buffer::Get(SStringU & rBuf) const
 	int    ok = 1;
 	assert(InvariantC(0));
 	if(Size) {
-		rBuf.Z().CatN((const wchar_t *)(const char *)P_Data, Size/2);
+		rBuf.Z().CatN(static_cast<const wchar_t *>(P_Data), Size/2);
 	}
 	return ok;
 }
@@ -1063,7 +1059,7 @@ BDbTable::Statistics::ISz::ISz() : Count(0), Total(0), Min(UINT_MAX), Max(0)
 void FASTCALL BDbTable::Statistics::ISz::Put(const BDbTable::Buffer & rB)
 {
     Count++;
-    uint32 _s = (uint32)rB.GetSize();
+    uint32 _s = static_cast<uint32>(rB.GetSize());
     Total += _s;
     SETMIN(Min, _s);
     SETMAX(Max, _s);
@@ -1122,7 +1118,7 @@ int BDbTable::ScndIdxCallback(DB * pSecondary, const DBT * pKey, const DBT * pDa
 	int    _found = 0;
 	DbThreadLocalArea::DbRegList & r_reg = DBS.GetTLA().GetBDbRegList();
 	for(int i = 1; i <= r_reg.GetMaxEntries(); i++) {
-		BDbTable * p_tbl = (BDbTable *)r_reg.GetPtr(i);
+		BDbTable * p_tbl = static_cast<BDbTable *>(r_reg.GetPtr(i));
 		if(p_tbl && p_tbl->H == pSecondary) {
 			if(p_tbl->P_IdxHandle) {
 				BDbTable::Buffer key(pKey);
@@ -1150,11 +1146,11 @@ int BDbTable::CmpCallback(DB * pDb, const DBT * pDbt1, const DBT * pDbt2)
 	int    c = 0;
 	if(pDbt1 != 0 || pDbt2 != 0) {
 		const DbThreadLocalArea::DbRegList & r_reg = DBS.GetConstTLA().GetBDbRegList_Const();
-		BDbTable * p_target_tbl = (BDbTable *)r_reg.GetBySupplementPtr(pDb);
+		BDbTable * p_target_tbl = static_cast<BDbTable *>(r_reg.GetBySupplementPtr(pDb));
 #ifndef NDEBUG
 		// testing {
 		for(int i = 1; i <= r_reg.GetMaxEntries(); i++) {
-			BDbTable * p_tbl = (BDbTable *)r_reg.GetPtr(i);
+			BDbTable * p_tbl = static_cast<BDbTable *>(r_reg.GetPtr(i));
 			if(p_tbl && p_tbl->H == pDb) {
 				assert(p_target_tbl == p_tbl);
 				//p_target_tbl = p_tbl;
@@ -1178,11 +1174,11 @@ uint32 BDbTable::PartitionCallback(DB * pDb, DBT * pDbt)
 	uint32 partition = 0;
 	if(pDb && pDbt) {
 		const DbThreadLocalArea::DbRegList & r_reg = DBS.GetConstTLA().GetBDbRegList_Const();
-		BDbTable * p_target_tbl = (BDbTable *)r_reg.GetBySupplementPtr(pDb);
+		BDbTable * p_target_tbl = static_cast<BDbTable *>(r_reg.GetBySupplementPtr(pDb));
 #ifndef NDEBUG
 		// testing {
 		for(int i = 1; i <= r_reg.GetMaxEntries(); i++) {
-			BDbTable * p_tbl = (BDbTable *)r_reg.GetPtr(i);
+			BDbTable * p_tbl = static_cast<BDbTable *>(r_reg.GetPtr(i));
 			if(p_tbl && p_tbl->H == pDb) {
 				assert(p_target_tbl == p_tbl);
 				//p_target_tbl = p_tbl;

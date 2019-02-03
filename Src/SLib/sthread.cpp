@@ -1,5 +1,5 @@
 // STHREAD.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -49,7 +49,10 @@ int SLAPI SWaitableObject::IsValid() const
 int FASTCALL SWaitableObject::Wait(long timeout)
 {
 	int    ok = 0;
-	if(timeout < 0) {
+	if(timeout >= 0) {
+		ok = WaitForSingleObject(H, timeout);
+	}
+	else {
 		int    r = WaitForSingleObject(H, _CheckTimeout);
 		if(r < 0) {
 			; // @todo 
@@ -57,9 +60,6 @@ int FASTCALL SWaitableObject::Wait(long timeout)
 		}
 		else
 			ok = r;
-	}
-	else {
-		ok = WaitForSingleObject(H, (timeout >= 0) ? timeout : INFINITE);
 	}
 	if(ok == WAIT_OBJECT_0)
 		ok = 1;

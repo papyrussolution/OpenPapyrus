@@ -142,7 +142,7 @@ void CRevalDialog::editCRate()
 	SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_CREVAL_CRATELIST);
 	if(p_list) {
 		const long pos = p_list->def->_curItem();
-		if(pos >= 0 && pos < (long)Data.CRateList.getCount()) {
+		if(pos >= 0 && pos < static_cast<long>(Data.CRateList.getCount())) {
 			AmtEntry * p_entry = &Data.CRateList.at((uint)pos);
 			const LDATE dt = getCtrlDate(CTL_CREVAL_DT);
 			double rate = p_entry->Amt;

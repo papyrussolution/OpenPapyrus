@@ -1369,7 +1369,7 @@ public:
 	uint   SLAPI setBound(int key, int seg, int min_max /*0 - min, !0 - max*/, void * dest) const;
 	void   FASTCALL setTableRef(uint);
 private:
-	DBTable * SLAPI table() const;
+	const  DBTable & SLAPI table() const;
 	int    FASTCALL findKey(int key) const;
 	int    FASTCALL findKeyByNumber(int keyNumber) const;
 	uint   SLAPI GetNumCells() const;
@@ -4324,7 +4324,7 @@ public:
 	int    SetupErrLog(const char * pFileName);
 	int    GetCurrentConfig(Config & rCfg);
 	int    IsFileExists(const char * pFileName);
-	int    CreateDataFile(const char * pFileName, int createMode, BDbTable::Config * pCfg);
+	int    CreateDataFile(const char * pFileName, int createMode, const BDbTable::Config * pCfg);
 	int    Implement_Open(BDbTable * pTbl, const char * pFileName, int openMode, char * pPassword);
 	int    Implement_Close(BDbTable * pTbl);
 	int    WriteStat(const BDbTable * pTbl);

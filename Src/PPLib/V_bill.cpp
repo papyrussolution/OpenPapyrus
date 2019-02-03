@@ -313,7 +313,7 @@ int SLAPI BillFilterDialog(uint dlgID, BillFilt * pFilt, TDialog ** ppDlg, const
 		*ppDlg = dlg;
 	}
 	else
-		dlg = (BillFiltDialog *)*ppDlg;
+		dlg = static_cast<BillFiltDialog *>(*ppDlg);
 	dlg->setDTS(pFilt);
 	while(!valid_data && (r = ExecView(dlg)) == cmOK)
 		valid_data = dlg->getDTS(pFilt);
@@ -323,7 +323,7 @@ int SLAPI BillFilterDialog(uint dlgID, BillFilt * pFilt, TDialog ** ppDlg, const
 int SLAPI BillFilterDialog(uint dlgID, BillFilt * pFilt, const char * pAddText)
 {
 	BillFiltDialog * dlg = 0;
-	int    r = BillFilterDialog(dlgID, pFilt, (TDialog**)&dlg, pAddText);
+	int    r = BillFilterDialog(dlgID, pFilt, reinterpret_cast<TDialog**>(&dlg), pAddText);
 	delete dlg;
 	return r;
 }
@@ -2242,7 +2242,7 @@ void SLAPI PPViewBill::PreprocessBrowser(PPViewBrowser * pBrw)
 			show_debt = BIN(Filt.Flags & BillFilt::fShowDebt);
 		else
 			show_debt = BIN(Filt.Flags & (BillFilt::fShowDebt | BillFilt::fDebtOnly));
-		pBrw->options |= (ofCenterX | ofCenterY);
+		pBrw->ViewOptions |= (ofCenterX | ofCenterY);
 		if(Filt.Flags & BillFilt::fCashOnly) {
 			const PPConfig & r_cfg = LConfig;
 			GetObjectName(PPOBJ_CASHNODE, r_cfg.Cash, sub_title, 1);
@@ -3969,22 +3969,21 @@ int SLAPI PPViewBill::CreateTempPoolPacket(PPBillPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPViewBill::ShowPoolDetail(PPBillPacket * pBillPack)
+int SLAPI PPViewBill::ShowPoolDetail(const PPBillPacket & rBillPack)
 {
 	int    ok = 1;
-	if(pBillPack->Rec.ID)
-		if(GetOpType(pBillPack->Rec.OpID) == PPOPT_POOL) {
-			BillFilt   flt;
-			PPViewBill bv;
-			flt.Bbt = bbtUndef;
-			flt.PoolBillID = pBillPack->Rec.ID;
-			flt.AssocID    = PPASS_OPBILLPOOL;
-			flt.Flags |= BillFilt::fEditPoolByType;
-			if(bv.Init_(&flt))
-				ok = bv.Browse(0);
-			else
-				ok = PPErrorZ();
-		}
+	if(rBillPack.Rec.ID && GetOpType(rBillPack.Rec.OpID) == PPOPT_POOL) {
+		BillFilt   flt;
+		PPViewBill bv;
+		flt.Bbt = bbtUndef;
+		flt.PoolBillID = rBillPack.Rec.ID;
+		flt.AssocID    = PPASS_OPBILLPOOL;
+		flt.Flags |= BillFilt::fEditPoolByType;
+		if(bv.Init_(&flt))
+			ok = bv.Browse(0);
+		else
+			ok = PPErrorZ();
+	}
 	return ok;
 }
 
@@ -4010,7 +4009,7 @@ int SLAPI PPViewBill::ShowDetails(PPID billID)
 			is_lock = 0;
 		}
 		else if(GetOpType(pack.Rec.OpID) == PPOPT_POOL) {
-			ShowPoolDetail(&pack);
+			ShowPoolDetail(pack);
 			ok = 1;
 		}
 		else
@@ -4535,7 +4534,7 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 				THROW(ep);
 				THROW(ep.CheckLic());
 				{
-					PPBillExportFilt sbp;
+					PPBillIterchangeFilt sbp;
 					sbp.IdList = bill_id_list;
 					sbp.LocID = (single_loc_id > 0) ? single_loc_id : Filt.LocList.GetSingle();
 					TSVector <PPEgaisProcessor::UtmEntry> utm_list; // @v9.8.11 TSArray-->TSVector

@@ -296,14 +296,14 @@ IMPL_HANDLE_EVENT(TBaseBrowserWindow)
 			const int border_y = GetSystemMetrics(SM_CYBORDER);
 			const int menu_y = GetSystemMetrics(SM_CYMENU);
 			const int cap_y = GetSystemMetrics(SM_CYCAPTION);
-			r.left   = par_wd * origin.x / 80 + tree_width;
-			r.right  = par_wd * size.x / 80 - border_x * 2 - tree_width;
-			r.top    = par_ht * origin.y / 23;
-			r.bottom = par_ht * size.y / 23 - border_y * 2 - cap_y - menu_y - status_height;
+			r.left   = par_wd * ViewOrigin.x / 80 + tree_width;
+			r.right  = par_wd * ViewSize.x / 80 - border_x * 2 - tree_width;
+			r.top    = par_ht * ViewOrigin.y / 23;
+			r.bottom = par_ht * ViewSize.y / 23 - border_y * 2 - cap_y - menu_y - status_height;
 			r.left += border_x + parent.left;
 			r.top  += border_y + cap_y + menu_y + parent.top;
 		}
-		DWORD  style = WS_POPUP|WS_CAPTION|WS_HSCROLL|WS_VSCROLL|WS_SYSMENU|WS_THICKFRAME|WS_VISIBLE|WS_CLIPSIBLINGS;
+		const DWORD  style = WS_POPUP|WS_CAPTION|WS_HSCROLL|WS_VSCROLL|WS_SYSMENU|WS_THICKFRAME|WS_VISIBLE|WS_CLIPSIBLINGS;
 		if(!H() && APPL->H_MainWnd) {
 			if(IsMDIClientWindow(APPL->H_MainWnd)) {
 				MDICREATESTRUCT child;
@@ -315,8 +315,8 @@ IMPL_HANDLE_EVENT(TBaseBrowserWindow)
 				child.cx = CW_USEDEFAULT;	// rect->Right;
 				child.cy = CW_USEDEFAULT;	// rect->bottom;
 				child.style  = style;
-				child.lParam = (LPARAM)(BrowserWindow*)this;
-				HW = (HWND)LOWORD(SendMessage(APPL->H_MainWnd, WM_MDICREATE, 0, (LPARAM)&child)); // @unicodeproblem
+				child.lParam = reinterpret_cast<LPARAM>(static_cast<BrowserWindow *>(this));
+				HW = (HWND)LOWORD(SendMessage(APPL->H_MainWnd, WM_MDICREATE, 0, reinterpret_cast<LPARAM>(&child))); // @unicodeproblem
 			}
 			else {
 				HW = CreateWindow(ClsName, buf, style, r.left, r.top, r.right, r.bottom, (APPL->H_TopOfStack), NULL, TProgram::GetInst(), this); // @unicodeproblem
@@ -753,7 +753,7 @@ void BrowserWindow::SetCellStyleFunc(CellStyleFunc func, void * extraPtr)
 void * BrowserWindow::getItemByPos(long pos) { return (P_Def) ? P_Def->getRow(/*P_Def->_topItem() + */pos) : 0; }
 void * BrowserWindow::getCurItem() { return P_Def ? P_Def->getRow(P_Def->_curItem()) : 0; }
 const  UserInterfaceSettings * BrowserWindow::GetUIConfig() const { return &UICfg; }
-long   BrowserWindow::CalcHdrWidth(int plusToolbar) const { return (P_Header ? (P_Header->size.y * ChrSz.y) : 0) + (plusToolbar ? ToolBarWidth : 0); }
+long   BrowserWindow::CalcHdrWidth(int plusToolbar) const { return (P_Header ? (P_Header->ViewSize.y * ChrSz.y) : 0) + (plusToolbar ? ToolBarWidth : 0); }
 int BrowserWindow::GetCurColumn() const
 	{ return (int)HScrollPos; }
 int BrowserWindow::SetCurColumn(int col)
@@ -789,7 +789,7 @@ void BrowserWindow::Insert_(TView *p)
 	TGroup::Insert_(p);
 	P_Header = p;
 	// @v9.0.1 P_Def->setViewHight((CliSz.y - CapOffs) / YCell - p->getExtent().b.y - 1);
-	P_Def->setViewHight((CliSz.y - CapOffs) / YCell - p->size.y - 1); // @v9.0.1
+	P_Def->setViewHight((CliSz.y - CapOffs) / YCell - p->ViewSize.y - 1); // @v9.0.1
 }
 
 SLAPI BrowserWindow::BrowserWindow(uint _rezID, DBQuery * pQuery, uint broDefOptions /*=0*/) :
@@ -799,7 +799,7 @@ SLAPI BrowserWindow::BrowserWindow(uint _rezID, DBQuery * pQuery, uint broDefOpt
 	initWin();
 	RezID = ResourceID = _rezID;
 	LoadResource(_rezID, pQuery, 2, broDefOptions);
-	options |= ofSelectable;
+	ViewOptions |= ofSelectable;
 	HelpCtx = _rezID; // @Muxa
 }
 
@@ -810,7 +810,7 @@ SLAPI BrowserWindow::BrowserWindow(uint _rezID, SArray * pAry, uint broDefOption
 	initWin();
 	RezID = ResourceID = _rezID;
 	LoadResource(_rezID, pAry, 1, broDefOptions);
-	options |= ofSelectable;
+	ViewOptions |= ofSelectable;
 	HelpCtx = _rezID; // @Muxa
 }
 
@@ -837,7 +837,7 @@ int BrowserWindow::ChangeResource(uint resID, DBQuery * pQuery, int force)
 		RezID = ResourceID = resID;
 		P_Header = 0;
 		LoadResource(resID, pQuery, 2);
-		options |= ofSelectable;
+		ViewOptions |= ofSelectable;
 		WMHCreate(0);
 		ok = 2;
 	}
@@ -861,7 +861,7 @@ int BrowserWindow::ChangeResource(uint resID, SArray * pAry, int force)
 		RezID = ResourceID = resID;
 		P_Header = 0;
 		LoadResource(resID, pAry, 1);
-		options |= ofSelectable;
+		ViewOptions |= ofSelectable;
 		WMHCreate(0);
 		ok = 2;
 	}

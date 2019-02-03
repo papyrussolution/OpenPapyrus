@@ -37,8 +37,8 @@
 #ifndef CAIRO_MEMPOOL_PRIVATE_H
 #define CAIRO_MEMPOOL_PRIVATE_H
 
-#include "cairo-compiler-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-compiler-private.h"
+//#include "cairo-error-private.h"
 
 #include <stddef.h> /* for size_t */
 
@@ -54,7 +54,7 @@ struct _cairo_mempool {
 	} * blocks;
 
 	cairo_list_t free[32];
-	unsigned char * map;
+	uchar * map;
 
 	uint num_blocks;
 	int min_bits; /* Minimum block size is 1 << min_bits */

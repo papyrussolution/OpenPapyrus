@@ -38,7 +38,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-box-inline.h"
+//#include "cairo-box-inline.h"
 
 const cairo_rectangle_int_t _cairo_empty_rectangle = { 0, 0, 0, 0 };
 const cairo_rectangle_int_t _cairo_unbounded_rectangle = {
@@ -55,7 +55,7 @@ cairo_private void _cairo_box_from_doubles(cairo_box_t * box, double * x1, doubl
 	box->p2.y = _cairo_fixed_from_double(*y2);
 }
 
-cairo_private void _cairo_box_to_doubles(const cairo_box_t * box, double * x1, double * y1, double * x2, double * y2)
+cairo_private void FASTCALL _cairo_box_to_doubles(const cairo_box_t * box, double * x1, double * y1, double * x2, double * y2)
 {
 	*x1 = _cairo_fixed_to_double(box->p1.x);
 	*y1 = _cairo_fixed_to_double(box->p1.y);
@@ -92,7 +92,7 @@ void _cairo_boxes_get_extents(const cairo_box_t * boxes, int num_boxes, cairo_bo
  * this function could be renamed to the more reasonable
  * _cairo_rectangle_fixed_round.
  */
-void _cairo_box_round_to_rectangle(const cairo_box_t * box, cairo_rectangle_int_t * rectangle)
+void FASTCALL _cairo_box_round_to_rectangle(const cairo_box_t * box, cairo_rectangle_int_t * rectangle)
 {
 	rectangle->x = _cairo_fixed_integer_floor(box->p1.x);
 	rectangle->y = _cairo_fixed_integer_floor(box->p1.y);

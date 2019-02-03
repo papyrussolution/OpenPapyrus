@@ -1,5 +1,5 @@
 // PPJOB.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 // @Kernel
 //
@@ -39,7 +39,7 @@ PPJobHandler * SLAPI PPJobMngr::CreateInstance(PPID jobID, const PPJobDescr * pD
 		THROW(LoadResource(jobID, &jd));
 	PPSetAddedMsgString(jd.Text);
 	jd.GetFactoryFuncName(ffn);
-	FN_JOB_FACTORY f = (FN_JOB_FACTORY)GetProcAddress(SLS.GetHInst(), ffn);
+	FN_JOB_FACTORY f = reinterpret_cast<FN_JOB_FACTORY>(GetProcAddress(SLS.GetHInst(), ffn));
 	THROW(f);
 	THROW(p_jh = f(&jd));
 	CATCH
@@ -115,7 +115,7 @@ int SLAPI PPJobMngr::LoadResource(PPID jobID, PPJobDescr * pJob)
 		P_Rez->getString(pJob->Text = 0, 2);
 		SLS.ExpandString(pJob->Text, CTRANSF_UTF8_TO_INNER);
 		// } @v9.2.1
-		pJob->Flags = (long)P_Rez->getUINT();
+		pJob->Flags = static_cast<long>(P_Rez->getUINT());
 	}
 	CATCHZOK
 	return ok;
@@ -152,7 +152,7 @@ int SLAPI PPJobMngr::Helper_ReadHeader(SFile & rF, void * pHdr, int lockMode)
 {
 	int    ok = 1;
 	uint32 locking_stub = 0;
-	JobStrgHeader * p_hdr = (JobStrgHeader *)pHdr;
+	JobStrgHeader * p_hdr = static_cast<JobStrgHeader *>(pHdr);
 	p_hdr->Locking = 0;
 	THROW_SL(rF.Seek(0, SEEK_SET));
 	THROW_SL(rF.Read(&p_hdr->Signature, sizeof(p_hdr->Signature)));
@@ -2322,7 +2322,7 @@ public:
 		PPViewSStat view;
 		THROW_INVARG(pParam);
 		sav_offs = pParam->GetRdOffs();
-		THROW_MEM(p_filt = (SStatFilt*)view.CreateFilt((void *)1));
+		THROW_MEM(p_filt = static_cast<SStatFilt *>(view.CreateFilt(reinterpret_cast<void *>(1))));
 		if(pParam->GetAvailableSize() != 0)
 			p_filt->Read(*pParam, 0);
 		if(view.EditBaseFilt(p_filt) > 0) {
@@ -2375,10 +2375,10 @@ public:
 		setCtrlData(CTL_RFIDDEV_NUMBER, &Data.DeviceNumber);
 		setCtrlData(CTL_RFIDDEV_NAME, Data.Name);
 		setCtrlData(CTL_RFIDDEV_PORT, Data.Port);
-		SetupStringCombo(this, CTLSEL_RFIDDEV_CBR,      PPTXT_COMBAUDRATE, (long)Data.Cpp.Cbr);
-		SetupStringCombo(this, CTLSEL_RFIDDEV_STOPBITS, PPTXT_COMSTOPBITS, (long)(Data.Cpp.StopBits + 1));
-		SetupStringCombo(this, CTLSEL_RFIDDEV_DATABITS, PPTXT_COMBYTESIZE, (long)Data.Cpp.ByteSize);
-		SetupStringCombo(this, CTLSEL_RFIDDEV_PARITY,   PPTXT_COMPARITY,   (long)Data.Cpp.Parity);
+		SetupStringCombo(this, CTLSEL_RFIDDEV_CBR,      PPTXT_COMBAUDRATE, static_cast<long>(Data.Cpp.Cbr));
+		SetupStringCombo(this, CTLSEL_RFIDDEV_STOPBITS, PPTXT_COMSTOPBITS, static_cast<long>(Data.Cpp.StopBits + 1));
+		SetupStringCombo(this, CTLSEL_RFIDDEV_DATABITS, PPTXT_COMBYTESIZE, static_cast<long>(Data.Cpp.ByteSize));
+		SetupStringCombo(this, CTLSEL_RFIDDEV_PARITY,   PPTXT_COMPARITY,   static_cast<long>(Data.Cpp.Parity));
 		setCtrlData(CTL_RFIDDEV_GETTRIES,   &Data.Get_NumTries);
 		setCtrlData(CTL_RFIDDEV_GETTRIES,   &Data.Put_NumTries);
 		setCtrlData(CTL_RFIDDEV_GETTIMEOUT, &Data.Get_Timeout);
@@ -2648,7 +2648,6 @@ class RFIDDevPrcssr {
 public:
 	RFIDDevPrcssr();
 	~RFIDDevPrcssr();
-
 	int Add(PPRFIDDevice & rRec);
 	int Run();
 private:
@@ -3244,8 +3243,8 @@ public:
 			return ok;
 		}
 		uint8   ReserveStart[24];
-		long    PersonKindForExport; // @v8.2.3
-		long    PersonSetSz;         // @v8.2.3
+		long    PersonKindForExport;
+		long    PersonSetSz;
 		long    Flags;
 		SString OutPath;
 		long    GoodsFlags;

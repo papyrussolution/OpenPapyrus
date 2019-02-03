@@ -1,5 +1,5 @@
 // DLGPROCS.CPP
-// Copyright (c) V.Antonov, A.Osolotkin 1999-2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2018
+// Copyright (c) V.Antonov, A.Osolotkin 1999-2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -105,9 +105,9 @@ int TView::HandleKeyboardEvent(WPARAM wParam, int isPpyCodeType)
 int FASTCALL TDialog::PassMsgToCtrl(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	int    ok = 0;
-	TDialog * p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
+	TDialog * p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 	if(p_dlg) {
-		const short  cntlid = GetDlgCtrlID((HWND)lParam);
+		const short  cntlid = GetDlgCtrlID(reinterpret_cast<HWND>(lParam));
 		TView * v = p_dlg->P_Last;
 		if(v) do {
 			if(v->TestId(CLUSTER_ID(LOWORD(cntlid)))) {
@@ -179,7 +179,7 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 	switch(uMsg) {
 		case WM_INITDIALOG:
 			if(lParam) {
-				TView::SetWindowUserData(hwndDlg, (void *)lParam);
+				TView::SetWindowUserData(hwndDlg, reinterpret_cast<void *>(lParam));
 				p_dlg = (TDialog *)lParam;
 				p_dlg->HW = hwndDlg;
 				TView::messageCommand(p_dlg, cmInit);
@@ -201,7 +201,7 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 			}
 			return 1;
 		case WM_DESTROY:
-			p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
+			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
 				if((v = p_dlg->P_Last) != 0)  // @todo Практически всегда, за редкими исключениями, 0. Из-за того, что p_dlg->P_Last обнуляется раньше, чем уничтожается данное окно. Требуется исправить.
 					do {
@@ -210,12 +210,12 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 						v->handleWindowsMessage(uMsg, wParam, lParam);
 					} while((v = v->prev()) != p_dlg->P_Last);
 			}
-			TView::SetWindowUserData(hwndDlg, (void *)0);
+			TView::SetWindowUserData(hwndDlg, static_cast<void *>(0));
 			break;
 		case WM_KILLFOCUS:
-			p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
+			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
-				long prev_id = CLUSTER_ID(GetDlgCtrlID((HWND)lParam));
+				long prev_id = CLUSTER_ID(GetDlgCtrlID(reinterpret_cast<HWND>(lParam)));
 				if((v = p_dlg->P_Last) != 0)
 					do {
 						if(v->TestId(prev_id)) {
@@ -231,10 +231,10 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 			}
 			break;
 		case WM_SETFOCUS:
-			p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
+			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
 				if(lParam) {
-					long prev_id = CLUSTER_ID(GetDlgCtrlID((HWND)lParam));
+					long prev_id = CLUSTER_ID(GetDlgCtrlID(reinterpret_cast<HWND>(lParam)));
 					if((v = p_dlg->P_Last) != 0)
 						do {
 							if(v->TestId(prev_id)) {
@@ -256,7 +256,7 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 			{
 				uint16 hiw = HIWORD(wParam);
 				uint16 low = LOWORD(wParam);
-				p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
+				p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 #if 0 // {
 				if(APPL->UICfg.WndViewKindID == UserInterfaceSettings::wndVKFancy && hiw == 0 && low != IDCANCEL) {
 					if(p_dlg && p_dlg->P_Current && p_dlg->P_Current->IsSubSign(TV_SUBSIGN_BUTTON))
@@ -292,7 +292,7 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 			}
 			break;
 		case WM_LBUTTONDBLCLK:
-			p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
+			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
 				event.what              = TEvent::evMouseDown;
 				event.mouse.buttons     = (uchar)wParam;
@@ -303,7 +303,7 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 			}
 			break;
 		case WM_LBUTTONDOWN:
-			p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
+			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
 				event.what = TEvent::evMouseDown;
 				event.mouse.buttons = (uchar)wParam;
@@ -313,14 +313,14 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 			}
 			break;
 		case WM_RBUTTONDOWN:
-			p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
+			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg && HIWORD(wParam) == 1) {
 				if((v = p_dlg->P_Current) != 0)
 					v->handleWindowsMessage(uMsg, wParam, lParam);
 			}
 			break;
 		case WM_LBUTTONUP:
-			p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
+			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
 				event.what = TEvent::evMouseUp;
 				event.mouse.buttons = (uchar)wParam;
@@ -330,7 +330,7 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 			}
 			break;
 		case WM_RBUTTONUP:
-			p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
+			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg && HIWORD(wParam) != 1) {
 				event.what = TEvent::evKeyDown;
 				event.keyDown.keyCode = kbShiftF10;
@@ -338,7 +338,7 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 			}
 			break;
 		case WM_MOUSEMOVE:
-			p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
+			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
 				event.what = TEvent::evMouseMove;
 				event.mouse.buttons = (uchar)wParam;
@@ -349,7 +349,7 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 			break; // @v10.3.2 @fix (отсутствовал break)
 		case WM_VKEYTOITEM:
 			if(PassMsgToCtrl(hwndDlg, uMsg, wParam, lParam) == -1) {
-				p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
+				p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 				CALLPTRMEMB(p_dlg, HandleKeyboardEvent(LOWORD(wParam)));
 			}
 			::SendMessage(hwndDlg, WM_USER_KEYDOWN, wParam, lParam);
@@ -360,7 +360,7 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 		case WM_USER_KEYDOWN:
 			{
 				if((wParam >= VK_F1 && wParam <= VK_F12) || (wParam >= 48 && wParam <= 57) || (wParam >= 65 && wParam <= 90) || (wParam >= 97 && wParam <= 122)) {
-					TDialog * p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
+					TDialog * p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 					KeyDownCommand key_cmd;
 					key_cmd.State = 0;
 					if(GetKeyState(VK_MENU) & 0x8000)
@@ -378,9 +378,9 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 			}
 			return 0;
 		case WM_CHAR:
-			p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
+			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
-				short  ctrl_id = GetDlgCtrlID((HWND)lParam);
+				short  ctrl_id = GetDlgCtrlID(reinterpret_cast<HWND>(lParam));
 				short  def_inln_id = (p_dlg->DefInputLine && GetDlgItem(hwndDlg, p_dlg->DefInputLine)) ? p_dlg->DefInputLine : 0;
 				if(def_inln_id && def_inln_id != ctrl_id) {
 					::SetFocus(GetDlgItem(hwndDlg, def_inln_id));
@@ -394,7 +394,7 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 			}
 			if(PassMsgToCtrl(hwndDlg, uMsg, wParam, lParam) == -1) {
 				if(wParam != VK_RETURN) {
-					p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
+					p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 					CALLPTRMEMB(p_dlg, HandleKeyboardEvent(LOWORD(wParam), 1));
 					return -2;
 				}
@@ -405,7 +405,7 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 			PassMsgToCtrl(hwndDlg, uMsg, wParam, lParam);
 			break;
 		case WM_NOTIFY:
-			p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
+			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg && (v = p_dlg->P_Last) != 0) {
 				do {
 					if(v->TestId(wParam)) {
@@ -419,7 +419,7 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 			return TRUE;
 		case WM_SIZE:
 		case WM_SIZING:
-			p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
+			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
 				event.what = TEvent::evCommand;
 				event.message.command = cmResize;
@@ -429,7 +429,7 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 			}
 			break;
 		case WM_GETMINMAXINFO:
-			p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
+			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			CALLPTRMEMB(p_dlg, SetDlgTrackingSize((MINMAXINFO *)lParam));
 			return 0;
 		case WM_MEASUREITEM:
@@ -445,13 +445,13 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 			return TRUE;
 		case WM_ERASEBKGND:
 			/*
-			p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
+			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg && APPL->EraseBackground(p_dlg, hwndDlg, (HDC)wParam, 0) > 0)
 				return 1;
 			*/
 			return 0;
 		case WM_DRAWITEM:
-			p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
+			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
 				DRAWITEMSTRUCT * p_dis = (DRAWITEMSTRUCT *)lParam;
 				TDrawItemData di;
@@ -480,7 +480,7 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 		case WM_CTLCOLORSTATIC:
 		case WM_CTLCOLOREDIT:
 		case WM_CTLCOLORSCROLLBAR:
-			p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
+			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
 				TDrawCtrlData dc;
 				if(uMsg == WM_CTLCOLORSTATIC)
@@ -491,7 +491,7 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 					dc.Src = TDrawCtrlData::cScrollBar;
 				else
 					dc.Src = 0;
-				dc.H_Ctl = (HWND)lParam;
+				dc.H_Ctl = reinterpret_cast<HWND>(lParam);
 				dc.H_DC  = (HDC)wParam;
 				dc.H_Br  = 0;
 				if(TView::messageCommand(p_dlg, cmCtlColor, &dc))
@@ -522,7 +522,7 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 			}
 			// no break: ret FALSE by default
 		case WM_PAINT:
-			p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
+			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(TView::messageCommand(p_dlg, cmPaint))
 				return (BOOL)0;
 		default:

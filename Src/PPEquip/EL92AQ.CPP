@@ -1,5 +1,5 @@
 // EL92AQ.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2010, 2011, 2015, 2016
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2010, 2011, 2015, 2016, 2019
 // @codepage windows-1251
 // Интерфейс (асинхронный) с ККМ Електроника-92-Аквариус
 //
@@ -106,10 +106,10 @@ int SLAPI ACS_EL92AQ::ConvertCashList(int num)
 			amt += a;
 			amt = R2(fdiv100r(amt));
 			if(opr == 0) {
-				THROW(AddTempCheck(&check_id, 0, 0, csh, chk, usr, 0, &dttm, amt, 0));
+				THROW(AddTempCheck(&check_id, 0, 0, csh, chk, usr, 0, dttm, amt, 0));
 			}
 			else if(opr == 2) {
-				THROW(AddTempCheck(&check_id, chk, CCHKF_ZCHECK, csh, chk, usr, 0, &dttm, amt, 0));
+				THROW(AddTempCheck(&check_id, chk, CCHKF_ZCHECK, csh, chk, usr, 0, dttm, amt, 0));
 			}
 		} while(dbft->next());
 	}

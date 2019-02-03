@@ -104,7 +104,7 @@ int TProgram::TestWindowForEndModal(TWindow * pV)
 	assert(pV);
 	void * p_prev = ModalStack.SStack::peek();
 	if(p_prev) {
-		HWND   h_prev = *(HWND *)p_prev;
+		HWND   h_prev = *static_cast<HWND *>(p_prev);
 		if(h_prev == pV->H()) {
 			ok = 1;
 		}
@@ -180,7 +180,7 @@ int TProgram::PopModalWindow(TWindow * pV, HWND * pH)
 		H_TopOfStack = pV->PrevInStack;
 		EnableWindow(pV->PrevInStack, 1);
 		if(p_prev) {
-			HWND   h_prev = *(HWND *)p_prev;
+			HWND   h_prev = *static_cast<HWND *>(p_prev);
 #if TV_DEBUG_STACK
 			// @debug {
 			if(h_prev != pV->PrevInStack) {
@@ -228,7 +228,7 @@ int TDialog::SetCtlSymb(uint id, const char * pSymb)
 	if(!isempty(pSymb) && id > 0) {
 		SETIFZ(P_SymbList, new StrAssocArray);
 		if(P_SymbList) {
-			P_SymbList->Add((long)id, pSymb);
+			P_SymbList->Add(static_cast<long>(id), pSymb);
 			ok = 1;
 		}
 		else
@@ -488,7 +488,7 @@ void SLAPI TDialog::Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc,
 		// TView::messageCommand(APPL->P_DeskTop, cmGetFocusedNumber, &c); в калькуляторе).
 		//
 		TView * preserve_current = APPL->P_DeskTop->GetCurrentView();
-		HW = APPL->CreateDlg(resourceID, APPL->H_TopOfStack, (DLGPROC)TDialog::DialogProc, (LPARAM)this);
+		HW = APPL->CreateDlg(resourceID, APPL->H_TopOfStack, (DLGPROC)TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
 		::ShowWindow(H(), SW_HIDE);
 		APPL->P_DeskTop->SetCurrentView(preserve_current, leaveSelect);
 	}
@@ -730,7 +730,7 @@ int FASTCALL TDialog::valid(ushort command)
 	if(command == cmCancel)
 		return 1;
 	else if(command == cmValid) {
-		if((size.x | size.y) == 0)
+		if((ViewSize.x | ViewSize.y) == 0)
 			return 0;
 	}
 	return TGroup::valid(command);
@@ -972,7 +972,7 @@ int TDialog::SetCtrlToolTip(uint ctrlID, const char * pToolTipText)
 		ti.rect.top    = ctrl_rect.top;
 		ti.rect.right  = ctrl_rect.right;
 		ti.rect.bottom = ctrl_rect.bottom;
-		SendMessage(ToolTipsWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti); // @unicodeproblem
+		SendMessage(ToolTipsWnd, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&ti)); // @unicodeproblem
 		ok = 1;
 	}
 	return ok;

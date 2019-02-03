@@ -42,13 +42,13 @@
 #pragma hdrstop
 #define _DEFAULT_SOURCE /* for snprintf() */
 #include "cairo-svg.h"
-#include "cairo-array-private.h"
+//#include "cairo-array-private.h"
 #include "cairo-analysis-surface-private.h"
 #include "cairo-default-context-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-image-info-private.h"
 #include "cairo-image-surface-private.h"
-#include "cairo-recording-surface-inline.h"
+//#include "cairo-recording-surface-inline.h"
 #include "cairo-output-stream-private.h"
 #include "cairo-path-fixed-private.h"
 #include "cairo-paginated-private.h"
@@ -477,12 +477,12 @@ static cairo_status_t _cairo_svg_surface_add_source_surface(cairo_svg_surface_t 
 {
 	cairo_svg_source_surface_t source_key;
 	cairo_svg_source_surface_t * source_entry;
-	unsigned char * unique_id = NULL;
+	uchar * unique_id = NULL;
 	ulong unique_id_length = 0;
 	cairo_status_t status;
 	source_key.id  = source_surface->unique_id;
 	cairo_surface_get_mime_data(source_surface, CAIRO_MIME_TYPE_UNIQUE_ID,
-	    (const unsigned char**)&source_key.unique_id,
+	    (const uchar**)&source_key.unique_id,
 	    &source_key.unique_id_length);
 	_cairo_svg_source_surface_init_key(&source_key);
 	source_entry = (cairo_svg_source_surface_t *)_cairo_hash_table_lookup(surface->source_surfaces, &source_key.base);
@@ -492,7 +492,7 @@ static cairo_status_t _cairo_svg_surface_add_source_surface(cairo_svg_surface_t 
 		return CAIRO_STATUS_SUCCESS;
 	}
 	if(source_key.unique_id && source_key.unique_id_length > 0) {
-		unique_id = (unsigned char*)_cairo_malloc(source_key.unique_id_length);
+		unique_id = (uchar*)_cairo_malloc(source_key.unique_id_length);
 		if(unique_id == NULL) {
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}
@@ -1087,16 +1087,16 @@ typedef struct {
 	cairo_output_stream_t * output;
 	uint in_mem;
 	uint trailing;
-	unsigned char src[3];
+	uchar src[3];
 } base64_write_closure_t;
 
 static char const base64_table[/*64*/] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-static cairo_status_t base64_write_func(void * closure, const unsigned char * data, uint length)
+static cairo_status_t base64_write_func(void * closure, const uchar * data, uint length)
 {
 	base64_write_closure_t * info = (base64_write_closure_t*)closure;
 	uint i;
-	unsigned char * src = info->src;
+	uchar * src = info->src;
 	if(info->in_mem + length < 3) {
 		for(i = 0; i < length; i++) {
 			src[i + info->in_mem] = *data++;
@@ -1105,7 +1105,7 @@ static cairo_status_t base64_write_func(void * closure, const unsigned char * da
 		return CAIRO_STATUS_SUCCESS;
 	}
 	do {
-		unsigned char dst[4];
+		uchar dst[4];
 
 		for(i = info->in_mem; i < 3; i++) {
 			src[i] = *data++;
@@ -1140,7 +1140,7 @@ static cairo_status_t base64_write_func(void * closure, const unsigned char * da
 static cairo_int_status_t _cairo_surface_base64_encode_jpeg(cairo_surface_t * surface,
     cairo_output_stream_t * output)
 {
-	const unsigned char * mime_data;
+	const uchar * mime_data;
 	ulong mime_data_length;
 	cairo_image_info_t image_info;
 	base64_write_closure_t info;
@@ -1172,7 +1172,7 @@ static cairo_int_status_t _cairo_surface_base64_encode_jpeg(cairo_surface_t * su
 static cairo_int_status_t _cairo_surface_base64_encode_png(cairo_surface_t * surface,
     cairo_output_stream_t * output)
 {
-	const unsigned char * mime_data;
+	const uchar * mime_data;
 	ulong mime_data_length;
 	base64_write_closure_t info;
 	cairo_status_t status;
@@ -1254,11 +1254,11 @@ static void _cairo_svg_surface_emit_operator_for_style(cairo_output_stream_t * o
  * attribute's value context: &amp; and &quot;.
  **/
 static void _cairo_svg_surface_emit_attr_value(cairo_output_stream_t * stream,
-    const unsigned char * value,
+    const uchar * value,
     uint length)
 {
-	const unsigned char * p;
-	const unsigned char * q;
+	const uchar * p;
+	const uchar * q;
 	uint i;
 
 	/* we'll accumulate non-special chars in [q, p) range */
@@ -1291,7 +1291,7 @@ static cairo_status_t _cairo_svg_surface_emit_surface(cairo_svg_document_t * doc
 	cairo_rectangle_int_t extents;
 	cairo_bool_t is_bounded;
 	cairo_status_t status;
-	const unsigned char * uri;
+	const uchar * uri;
 	ulong uri_len;
 
 	is_bounded = _cairo_surface_get_extents(surface, &extents);

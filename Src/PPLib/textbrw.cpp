@@ -1,5 +1,5 @@
 // TEXTBRW.CPP
-// Copyright (c) A.Starodub 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // STextBrowser
 //
 #include <pp.h>
@@ -426,7 +426,7 @@ void SScEditorBase::SetSpecialStyle(const SScEditorStyleSet::Style & rStyle)
 	if(!rStyle.BgC.IsEmpty())
 		CallFunc(SCI_STYLESETBACK, styleID, rStyle.BgC);
 	if(rStyle.FontFace.NotEmpty()) {
-		CallFunc(SCI_STYLESETFONT, styleID, (LPARAM)rStyle.FontFace.cptr());
+		CallFunc(SCI_STYLESETFONT, styleID, reinterpret_cast<LPARAM>(rStyle.FontFace.cptr()));
 	}
 	int font_style = rStyle.FontStyle;
 	if(font_style != -1/*STYLE_NOT_USED*/) {
@@ -535,7 +535,7 @@ int SScEditorBase::SetLexer(const char * pLexerName)
 							if(p_kw && p_kw->KeywordClass.CmpNC(p_style->KeywordClass) == 0) {
 								int kw_n = GetKwClassFromName(p_kw->KeywordClass, pLexerName);
 								if(kw_n >= 0 && kw_n <= 8) {
-									CallFunc(SCI_SETKEYWORDS, kw_n, (LPARAM)p_kw->KeywordList.cptr());
+									CallFunc(SCI_SETKEYWORDS, kw_n, reinterpret_cast<LPARAM>(p_kw->KeywordList.cptr()));
 									break;
 								}
 							}
@@ -547,13 +547,13 @@ int SScEditorBase::SetLexer(const char * pLexerName)
 			if(sstreq(pLexerName, "cpp")) {
 				//width = NppParameters::getInstance()->_dpiManager.scaleX(100) >= 150 ? 18 : 14;
 				//CallFunc(SCI_SETMARGINWIDTHN, 2/*folding*/, 14); // @v10.2.0
-				CallFunc(SCI_SETPROPERTY, (WPARAM)"fold", (LPARAM)"1");
-				CallFunc(SCI_SETPROPERTY, (WPARAM)"fold.compact", (LPARAM)"0");
-				CallFunc(SCI_SETPROPERTY, (WPARAM)"fold.comment", (LPARAM)"1");
-				CallFunc(SCI_SETPROPERTY, (WPARAM)"fold.preprocessor", (LPARAM)"1");
+				CallFunc(SCI_SETPROPERTY, (WPARAM)"fold", reinterpret_cast<LPARAM>("1"));
+				CallFunc(SCI_SETPROPERTY, (WPARAM)"fold.compact", reinterpret_cast<LPARAM>("0"));
+				CallFunc(SCI_SETPROPERTY, (WPARAM)"fold.comment", reinterpret_cast<LPARAM>("1"));
+				CallFunc(SCI_SETPROPERTY, (WPARAM)"fold.preprocessor", reinterpret_cast<LPARAM>("1"));
 				// Disable track preprocessor to avoid incorrect detection.
 				// In the most of cases, the symbols are defined outside of file.
-				CallFunc(SCI_SETPROPERTY, (WPARAM)"lexer.cpp.track.preprocessor", (LPARAM)"0");
+				CallFunc(SCI_SETPROPERTY, (WPARAM)"lexer.cpp.track.preprocessor", reinterpret_cast<LPARAM>("0"));
 			}
 			ok = 1;
 		}
@@ -716,7 +716,7 @@ int FASTCALL SScEditorBase::GetSelectionText(SString & rBuf)
 	if(sz > 0) {
 		STempBuffer temp_b(sz);
 		if(temp_b.IsValid()) {
-			sz = CallFunc(SCI_GETSELTEXT, 0, (LPARAM)(char *)temp_b);
+			sz = CallFunc(SCI_GETSELTEXT, 0, reinterpret_cast<LPARAM>((char *)temp_b));
 			rBuf = temp_b;
 		}
 		else
@@ -1769,12 +1769,12 @@ int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 						}
 						if(Doc.OrgCp == cpUTF8) {
 							// Pass through UTF-8 (this does not check validity of characters, thus inserting a multi-byte character in two halfs is working)
-							CallFunc(SCI_APPENDTEXT, actual_size, (LPARAM)(const char *)buffer);
+							CallFunc(SCI_APPENDTEXT, actual_size, reinterpret_cast<LPARAM>((const char *)buffer));
 						}
 						else {
 							ubuf.CopyFromMb(Doc.OrgCp, buffer, actual_size);
 							ubuf.CopyToUtf8(utfbuf, 0);
-							CallFunc(SCI_APPENDTEXT, utfbuf.Len(), (LPARAM)(const char *)utfbuf);
+							CallFunc(SCI_APPENDTEXT, utfbuf.Len(), reinterpret_cast<LPARAM>(utfbuf.cptr()));
 						}
 						THROW(CallFunc(SCI_GETSTATUS, 0, 0) == SC_STATUS_OK);
 					}

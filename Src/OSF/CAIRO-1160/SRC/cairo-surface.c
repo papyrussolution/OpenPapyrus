@@ -37,16 +37,16 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-array-private.h"
-#include "cairo-clip-inline.h"
-#include "cairo-clip-private.h"
+//#include "cairo-array-private.h"
+//#include "cairo-clip-inline.h"
+//#include "cairo-clip-private.h"
 #include "cairo-damage-private.h"
-#include "cairo-device-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-device-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-list-inline.h"
 #include "cairo-image-surface-inline.h"
 #include "cairo-recording-surface-private.h"
-#include "cairo-region-private.h"
+//#include "cairo-region-private.h"
 #include "cairo-surface-inline.h"
 #include "cairo-tee-surface-private.h"
 /**
@@ -73,7 +73,7 @@
  * void
  * modify_image_surface (cairo_surface_t *surface)
  * {
- *   unsigned char *data;
+ *   uchar *data;
  *   int width, height, stride;
  *
  *   // flush to ensure all writing to the image was done
@@ -805,21 +805,16 @@ cairo_surface_t * _cairo_surface_create_scratch(cairo_surface_t * other,
  *
  * Since: 1.0
  **/
-cairo_surface_t * cairo_surface_reference(cairo_surface_t * surface)
+cairo_surface_t * FASTCALL cairo_surface_reference(cairo_surface_t * surface)
 {
-	if(surface == NULL ||
-	    CAIRO_REFERENCE_COUNT_IS_INVALID(&surface->ref_count))
+	if(surface == NULL || CAIRO_REFERENCE_COUNT_IS_INVALID(&surface->ref_count))
 		return surface;
-
 	assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&surface->ref_count));
-
 	_cairo_reference_count_inc(&surface->ref_count);
-
 	return surface;
 }
 
 slim_hidden_def(cairo_surface_reference);
-
 /**
  * cairo_surface_destroy:
  * @surface: a #cairo_surface_t
@@ -830,44 +825,31 @@ slim_hidden_def(cairo_surface_reference);
  *
  * Since: 1.0
  **/
-void cairo_surface_destroy(cairo_surface_t * surface)
+void FASTCALL cairo_surface_destroy(cairo_surface_t * surface)
 {
-	if(surface == NULL ||
-	    CAIRO_REFERENCE_COUNT_IS_INVALID(&surface->ref_count))
+	if(surface == NULL || CAIRO_REFERENCE_COUNT_IS_INVALID(&surface->ref_count))
 		return;
-
 	assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&surface->ref_count));
-
 	if(!_cairo_reference_count_dec_and_test(&surface->ref_count))
 		return;
-
 	assert(surface->snapshot_of == NULL);
-
 	if(!surface->finished) {
 		_cairo_surface_finish_snapshots(surface);
-		/* We may have been referenced by a snapshot prior to have
-		 * detaching it with the copy-on-write.
-		 */
+		// We may have been referenced by a snapshot prior to have detaching it with the copy-on-write.
 		if(CAIRO_REFERENCE_COUNT_GET_VALUE(&surface->ref_count))
 			return;
-
 		_cairo_surface_finish(surface);
 	}
-
 	if(surface->damage)
 		_cairo_damage_destroy(surface->damage);
-
 	_cairo_user_data_array_fini(&surface->user_data);
 	_cairo_user_data_array_fini(&surface->mime_data);
-
 	if(surface->owns_device)
 		cairo_device_destroy(surface->device);
-
 	assert(surface->snapshot_of == NULL);
 	assert(!_cairo_surface_has_snapshots(surface));
 	/* paranoid check that nobody took a reference whilst finishing */
 	assert(!CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&surface->ref_count));
-
 	SAlloc::F(surface);
 }
 
@@ -886,40 +868,32 @@ slim_hidden_def(cairo_surface_destroy);
  **/
 uint cairo_surface_get_reference_count(cairo_surface_t * surface)
 {
-	if(surface == NULL ||
-	    CAIRO_REFERENCE_COUNT_IS_INVALID(&surface->ref_count))
+	if(surface == NULL || CAIRO_REFERENCE_COUNT_IS_INVALID(&surface->ref_count))
 		return 0;
-
 	return CAIRO_REFERENCE_COUNT_GET_VALUE(&surface->ref_count);
 }
 
 static void _cairo_surface_finish_snapshots(cairo_surface_t * surface)
 {
-	cairo_status_t status;
-
-	/* update the snapshots *before* we declare the surface as finished */
+	// update the snapshots *before* we declare the surface as finished 
 	surface->_finishing = TRUE;
-	status = _cairo_surface_flush(surface, 0);
+	cairo_status_t status = _cairo_surface_flush(surface, 0);
 	(void)status;
 }
 
 static void _cairo_surface_finish(cairo_surface_t * surface)
 {
 	cairo_status_t status;
-
 	/* call finish even if in error mode */
 	if(surface->backend->finish) {
 		status = surface->backend->finish(surface);
 		if(unlikely(status))
 			_cairo_surface_set_error(surface, status);
 	}
-
 	surface->finished = TRUE;
-
 	assert(surface->snapshot_of == NULL);
 	assert(!_cairo_surface_has_snapshots(surface));
 }
-
 /**
  * cairo_surface_finish:
  * @surface: the #cairo_surface_t to finish
@@ -945,20 +919,15 @@ void cairo_surface_finish(cairo_surface_t * surface)
 {
 	if(surface == NULL)
 		return;
-
 	if(CAIRO_REFERENCE_COUNT_IS_INVALID(&surface->ref_count))
 		return;
-
 	if(surface->finished)
 		return;
-
 	/* We have to be careful when decoupling potential reference cycles */
 	cairo_surface_reference(surface);
-
 	_cairo_surface_finish_snapshots(surface);
 	/* XXX need to block and wait for snapshot references */
 	_cairo_surface_finish(surface);
-
 	cairo_surface_destroy(surface);
 }
 
@@ -1056,7 +1025,7 @@ cairo_status_t cairo_surface_set_user_data(cairo_surface_t * surface,
  **/
 void cairo_surface_get_mime_data(cairo_surface_t * surface,
     const char * mime_type,
-    const unsigned char ** data,
+    const uchar ** data,
     ulong * length)
 {
 	cairo_user_data_slot_t * slots;
@@ -1286,7 +1255,7 @@ cairo_bool_t _cairo_surface_has_mime_image(cairo_surface_t * surface)
  **/
 cairo_status_t cairo_surface_set_mime_data(cairo_surface_t * surface,
     const char * mime_type,
-    const unsigned char * data,
+    const uchar * data,
     ulong length,
     cairo_destroy_func_t destroy,
     void * closure)
@@ -1316,7 +1285,7 @@ cairo_status_t cairo_surface_set_mime_data(cairo_surface_t * surface,
 
 		CAIRO_REFERENCE_COUNT_INIT(&mime_data->ref_count, 1);
 
-		mime_data->data = (unsigned char*)data;
+		mime_data->data = (uchar*)data;
 		mime_data->length = length;
 		mime_data->destroy = destroy;
 		mime_data->closure = closure;
@@ -1460,27 +1429,21 @@ void _cairo_surface_set_font_options(cairo_surface_t * surface,
  *
  * Since: 1.0
  **/
-void cairo_surface_get_font_options(cairo_surface_t * surface,
-    cairo_font_options_t * options)
+void cairo_surface_get_font_options(cairo_surface_t * surface, cairo_font_options_t * options)
 {
 	if(cairo_font_options_status(options))
 		return;
-
 	if(surface->status) {
 		_cairo_font_options_init_default(options);
 		return;
 	}
-
 	if(!surface->has_font_options) {
 		surface->has_font_options = TRUE;
-
 		_cairo_font_options_init_default(&surface->font_options);
-
 		if(!surface->finished && surface->backend->get_font_options) {
 			surface->backend->get_font_options(surface, &surface->font_options);
 		}
 	}
-
 	_cairo_font_options_init_copy(options, &surface->font_options);
 }
 
@@ -1493,10 +1456,8 @@ cairo_status_t _cairo_surface_flush(cairo_surface_t * surface, unsigned flags)
 	if(surface->snapshot_of != NULL)
 		_cairo_surface_detach_snapshot(surface);
 	_cairo_surface_detach_mime_data(surface);
-
 	return __cairo_surface_flush(surface, flags);
 }
-
 /**
  * cairo_surface_flush:
  * @surface: a #cairo_surface_t
@@ -1512,15 +1473,9 @@ cairo_status_t _cairo_surface_flush(cairo_surface_t * surface, unsigned flags)
  **/
 void cairo_surface_flush(cairo_surface_t * surface)
 {
-	cairo_status_t status;
-
-	if(surface->status)
+	if(surface->status || surface->finished)
 		return;
-
-	if(surface->finished)
-		return;
-
-	status = _cairo_surface_flush(surface, 0);
+	cairo_status_t status = _cairo_surface_flush(surface, 0);
 	if(unlikely(status))
 		_cairo_surface_set_error(surface, status);
 }
@@ -1540,18 +1495,14 @@ slim_hidden_def(cairo_surface_flush);
 void cairo_surface_mark_dirty(cairo_surface_t * surface)
 {
 	cairo_rectangle_int_t extents;
-
 	if(unlikely(surface->status))
 		return;
 	if(unlikely(surface->finished)) {
 		_cairo_surface_set_error(surface, _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 		return;
 	}
-
 	_cairo_surface_get_extents(surface, &extents);
-	cairo_surface_mark_dirty_rectangle(surface,
-	    extents.x, extents.y,
-	    extents.width, extents.height);
+	cairo_surface_mark_dirty_rectangle(surface, extents.x, extents.y, extents.width, extents.height);
 }
 
 slim_hidden_def(cairo_surface_mark_dirty);
@@ -1574,51 +1525,39 @@ slim_hidden_def(cairo_surface_mark_dirty);
  *
  * Since: 1.0
  **/
-void cairo_surface_mark_dirty_rectangle(cairo_surface_t * surface,
-    int x,
-    int y,
-    int width,
-    int height)
+void cairo_surface_mark_dirty_rectangle(cairo_surface_t * surface, int x, int y, int width, int height)
 {
 	cairo_status_t status;
-
 	if(unlikely(surface->status))
 		return;
-
 	assert(surface->snapshot_of == NULL);
-
 	if(unlikely(surface->finished)) {
 		_cairo_surface_set_error(surface, _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 		return;
 	}
-
 	/* The application *should* have called cairo_surface_flush() before
 	 * modifying the surface independently of cairo (and thus having to
 	 * call mark_dirty()). */
 	assert(!_cairo_surface_has_snapshots(surface));
 	assert(!_cairo_surface_has_mime_data(surface));
-
 	surface->is_clear = FALSE;
 	surface->serial++;
-
 	if(surface->damage) {
 		cairo_box_t box;
-
 		box.p1.x = x;
 		box.p1.y = y;
 		box.p2.x = x + width;
 		box.p2.y = y + height;
-
 		surface->damage = _cairo_damage_add_box(surface->damage, &box);
 	}
-
 	if(surface->backend->mark_dirty_rectangle != NULL) {
 		/* XXX: FRAGILE: We're ignoring the scaling component of
 		 * device_transform here. I don't know what the right thing to
 		 * do would actually be if there were some scaling here, but
 		 * we avoid this since device_transfom scaling is not exported
 		 * publicly and mark_dirty is not used internally. */
-		status = surface->backend->mark_dirty_rectangle(surface, x + surface->device_transform.x0, y + surface->device_transform.y0, width, height);
+		status = surface->backend->mark_dirty_rectangle(surface, static_cast<int>(x + surface->device_transform.x0), 
+			static_cast<int>(y + surface->device_transform.y0), width, height);
 		if(unlikely(status))
 			_cairo_surface_set_error(surface, status);
 	}
@@ -2357,27 +2296,21 @@ slim_hidden_def(cairo_surface_show_page);
  * This behavior would have to be changed is we ever exported a public
  * variant of this function.
  **/
-cairo_bool_t _cairo_surface_get_extents(cairo_surface_t * surface,
-    cairo_rectangle_int_t * extents)
+cairo_bool_t FASTCALL _cairo_surface_get_extents(cairo_surface_t * surface, cairo_rectangle_int_t * extents)
 {
 	cairo_bool_t bounded;
-
 	if(unlikely(surface->status))
 		goto zero_extents;
 	if(unlikely(surface->finished)) {
 		_cairo_surface_set_error(surface, CAIRO_STATUS_SURFACE_FINISHED);
 		goto zero_extents;
 	}
-
 	bounded = FALSE;
 	if(surface->backend->get_extents != NULL)
 		bounded = surface->backend->get_extents(surface, extents);
-
 	if(!bounded)
 		_cairo_unbounded_rectangle_init(extents);
-
 	return bounded;
-
 zero_extents:
 	extents->x = extents->y = 0;
 	extents->width = extents->height = 0;

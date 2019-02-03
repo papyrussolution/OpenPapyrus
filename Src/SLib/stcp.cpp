@@ -21,7 +21,7 @@ ulong SLAPI InetAddr::IPToULong(const char * pIP)
 	for(uint i = 0, j = 4; j > 0 && ss.get(&i, buf) > 0; j--) {
 		const ulong elem = buf.ToLong();
 		THROW(elem >= 0 && elem <= 255);
-		addr |= elem << 8 * (j - 1);
+		addr |= (elem << (8 * (j - 1)));
 	}
 	CATCH
 		addr = 0;
@@ -34,7 +34,7 @@ void SLAPI InetAddr::ULongToIP(ulong ip, SString & rIP)
 {
 	rIP.Z();
 	for(uint i = 4; i > 0; i--) {
-		rIP.Cat((ip >> 8 * (i - 1)) & 0x000000FF);
+		rIP.Cat((ip >> (8 * (i - 1))) & 0x000000FF);
 		if(i != 1)
 			rIP.Dot();
 	}
@@ -3079,7 +3079,7 @@ size_t ScURL::CbRead(char * pBuffer, size_t size, size_t nitems, void * pExtra)
 {
 	size_t ret = CURL_READFUNC_ABORT;
 	if(pExtra) {
-        SFile * p_f = (SFile *)pExtra;
+        SFile * p_f = static_cast<SFile *>(pExtra);
         size_t actual_size = 0;
         if(p_f->Read(pBuffer, size * nitems, &actual_size))
 			ret = actual_size;
@@ -3092,7 +3092,7 @@ size_t ScURL::CbWrite(char * pBuffer, size_t size, size_t nmemb, void * pExtra)
 {
 	size_t ret = CURLE_WRITE_ERROR;
 	if(pExtra) {
-		SFile * p_f = (SFile *)pExtra;
+		SFile * p_f = static_cast<SFile *>(pExtra);
 		if(p_f->Write(pBuffer, size * nmemb))
 			ret = (size * nmemb);
 	}
@@ -4100,7 +4100,7 @@ static size_t CbRead_EMailMessage(char * pBuffer, size_t size, size_t nitems, vo
 	return written_sz;
 }
 
-int ScURL::SmtpSend(const InetUrl & rUrl, int mflags, SMailMessage & rMsg)
+int ScURL::SmtpSend(const InetUrl & rUrl, int mflags, const SMailMessage & rMsg)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -4149,7 +4149,7 @@ int ScURL::SmtpSend(const InetUrl & rUrl, int mflags, SMailMessage & rMsg)
 			}
 			THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_MAIL_RCPT, p_recipients)));
 		}
-		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_USE_SSL, (long)CURLUSESSL_TRY))); // @v9.9.1 CURLUSESSL_ALL-->CURLUSESSL_TRY
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_USE_SSL, static_cast<long>(CURLUSESSL_TRY)))); // @v9.9.1 CURLUSESSL_ALL-->CURLUSESSL_TRY
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_READFUNCTION, CbRead_EMailMessage)));
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_READDATA, &rd_blk)));
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_UPLOAD, 1L)));

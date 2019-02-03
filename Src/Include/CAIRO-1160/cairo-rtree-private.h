@@ -37,9 +37,9 @@
 #ifndef CAIRO_RTREE_PRIVATE_H
 #define CAIRO_RTREE_PRIVATE_H
 
-#include "cairo-compiler-private.h"
-#include "cairo-error-private.h"
-#include "cairo-types-private.h"
+//#include "cairo-compiler-private.h"
+//#include "cairo-error-private.h"
+//#include "cairo-types-private.h"
 
 #include "cairo-freelist-private.h"
 #include "cairo-list-inline.h"

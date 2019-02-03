@@ -149,19 +149,19 @@ void _cairo_image_surface_write_to_ppm(cairo_image_surface_t * isurf, const char
 
 	fprintf(fp, "%s %d %d 255\n", fmt, isurf->width, isurf->height);
 	for(int j = 0; j < isurf->height; j++) {
-		unsigned char * row = isurf->data + isurf->stride * j;
+		uchar * row = isurf->data + isurf->stride * j;
 		for(int i = 0; i < isurf->width; i++) {
 			if(isurf->format == CAIRO_FORMAT_ARGB32 || isurf->format == CAIRO_FORMAT_RGB24) {
-				unsigned char r = *row++;
-				unsigned char g = *row++;
-				unsigned char b = *row++;
+				uchar r = *row++;
+				uchar g = *row++;
+				uchar b = *row++;
 				*row++;
 				putc(r, fp);
 				putc(g, fp);
 				putc(b, fp);
 			}
 			else {
-				unsigned char a = *row++;
+				uchar a = *row++;
 				putc(a, fp);
 			}
 		}

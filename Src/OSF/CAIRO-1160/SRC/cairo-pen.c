@@ -37,8 +37,8 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-error-private.h"
-#include "cairo-slope-private.h"
+//#include "cairo-error-private.h"
+//#include "cairo-slope-private.h"
 
 static void _cairo_pen_compute_slopes(cairo_pen_t * pen);
 
@@ -79,9 +79,7 @@ cairo_status_t _cairo_pen_init(cairo_pen_t * pen, double radius, double toleranc
 		v->point.x = _cairo_fixed_from_double(dx);
 		v->point.y = _cairo_fixed_from_double(dy);
 	}
-
 	_cairo_pen_compute_slopes(pen);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -89,7 +87,6 @@ void _cairo_pen_fini(cairo_pen_t * pen)
 {
 	if(pen->vertices != pen->vertices_embedded)
 		SAlloc::F(pen->vertices);
-
 	VG(VALGRIND_MAKE_MEM_UNDEFINED(pen, sizeof(cairo_pen_t)));
 }
 
@@ -229,10 +226,7 @@ cairo_status_t _cairo_pen_add_points(cairo_pen_t * pen, cairo_point_t * point, i
    Note that this also equation works for M == m (a circle) as it
    doesn't matter where on the circle the error is computed.
  */
-
-int _cairo_pen_vertices_needed(double tolerance,
-    double radius,
-    const cairo_matrix_t * matrix)
+int _cairo_pen_vertices_needed(double tolerance, double radius, const cairo_matrix_t * matrix)
 {
 	/*
 	 * the pen is a circle that gets transformed to an ellipse by matrix.
@@ -261,13 +255,11 @@ int _cairo_pen_vertices_needed(double tolerance,
 
 static void _cairo_pen_compute_slopes(cairo_pen_t * pen)
 {
-	int i, i_prev;
-	cairo_pen_vertex_t * prev, * v, * next;
-	for(i = 0, i_prev = pen->num_vertices - 1; i < pen->num_vertices; i_prev = i++) {
-		prev = &pen->vertices[i_prev];
-		v = &pen->vertices[i];
-		next = &pen->vertices[(i + 1) % pen->num_vertices];
-
+	//cairo_pen_vertex_t * prev, * v, * next;
+	for(int i = 0, i_prev = pen->num_vertices - 1; i < pen->num_vertices; i_prev = i++) {
+		const cairo_pen_vertex_t * prev = &pen->vertices[i_prev];
+		cairo_pen_vertex_t * v = &pen->vertices[i];
+		const cairo_pen_vertex_t * next = &pen->vertices[(i + 1) % pen->num_vertices];
 		_cairo_slope_init(&v->slope_cw, &prev->point, &v->point);
 		_cairo_slope_init(&v->slope_ccw, &v->point, &next->point);
 	}

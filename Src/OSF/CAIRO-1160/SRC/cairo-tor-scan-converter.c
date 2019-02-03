@@ -95,8 +95,8 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-spans-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-spans-private.h"
+//#include "cairo-error-private.h"
 //#include <stdlib.h>
 //#include <string.h>
 //#include <limits.h>
@@ -535,7 +535,7 @@ static void * _pool_alloc_from_new_chunk(struct pool * pool,
 		chunk = _pool_chunk_create(pool, capacity);
 	pool->current = chunk;
 
-	obj = ((unsigned char*)&chunk->data + chunk->size);
+	obj = ((uchar*)&chunk->data + chunk->size);
 	chunk->size += size;
 	return obj;
 }
@@ -551,7 +551,7 @@ inline static void * pool_alloc(struct pool * pool, size_t size)
 	struct _pool_chunk * chunk = pool->current;
 
 	if(size <= chunk->capacity - chunk->size) {
-		void * obj = ((unsigned char*)&chunk->data + chunk->size);
+		void * obj = ((uchar*)&chunk->data + chunk->size);
 		chunk->size += size;
 		return obj;
 	}

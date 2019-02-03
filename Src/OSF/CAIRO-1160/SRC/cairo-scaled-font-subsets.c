@@ -42,7 +42,7 @@
 #include "cairoint.h"
 #pragma hdrstop
 #define _DEFAULT_SOURCE /* for snprintf(), strdup() */
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 
 #if CAIRO_HAS_FONT_SUBSET
 
@@ -1227,7 +1227,7 @@ cairo_int_status_t _cairo_escape_ps_name(char ** ps_name)
 		char * dst = buf;
 
 		while(*src && dst < buf + 127) {
-			unsigned char c = *src;
+			uchar c = *src;
 			if(c < 0x21 || c > 0x7e || strchr(reserved, c)) {
 				if(dst + 4 > buf + 127)
 					break;

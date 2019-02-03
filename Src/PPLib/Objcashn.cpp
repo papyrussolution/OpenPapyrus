@@ -540,7 +540,7 @@ PPID SLAPI PPObjCashNode::Select(PPID locID, int syncGroup, int * pIsSingle, int
 		THROW(lw = new ListWindow(new StrAssocListBoxDef(p_ary, lbtDisposeData|lbtDblClkNotify), 0, 0));
 		THROW(PPLoadText(PPTXT_SELECTCASHNODE, title));
 		lw->setTitle(title);
-		lw->options |= (ofCenterX | ofCenterY);
+		lw->ViewOptions |= (ofCenterX | ofCenterY);
 		while(!valid_data && ExecView(lw) == cmOK) {
 			lw->getResult(&id);
 			if(id == PPCMT_OKA500) {
@@ -1267,7 +1267,7 @@ int SLAPI SelectPrinterFromWinPool(SString & rPrinter)
 		THROW(p_lw = new ListWindow(new StrAssocListBoxDef(p_list, lbtDisposeData|lbtDblClkNotify), 0, 0));
 		THROW(PPLoadText(PPTXT_SELECTPRINTER, title));
 		p_lw->setTitle(title);
-		p_lw->options |= (ofCenterX | ofCenterY);
+		p_lw->ViewOptions |= (ofCenterX | ofCenterY);
 		while(!valid_data && ExecView(p_lw) == cmOK) {
 			p_lw->getResult(&sel_prn_id);
 			if(sel_prn_id && sel_prn_id <= (long)prn_list.getCount())

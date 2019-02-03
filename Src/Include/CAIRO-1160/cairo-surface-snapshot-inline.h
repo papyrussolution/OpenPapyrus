@@ -36,32 +36,27 @@
 #ifndef CAIRO_SURFACE_SNAPSHOT_INLINE_H
 #define CAIRO_SURFACE_SNAPSHOT_INLINE_H
 
-#include "cairo-surface-snapshot-private.h"
-#include "cairo-surface-inline.h"
+//#include "cairo-surface-snapshot-private.h"
+//#include "cairo-surface-inline.h"
 
-static inline cairo_bool_t
-_cairo_surface_snapshot_is_reused (cairo_surface_t *surface)
+static inline cairo_bool_t _cairo_surface_snapshot_is_reused(cairo_surface_t * surface)
 {
-    return CAIRO_REFERENCE_COUNT_GET_VALUE (&surface->ref_count) > 2;
+	return CAIRO_REFERENCE_COUNT_GET_VALUE(&surface->ref_count) > 2;
 }
 
-static inline cairo_surface_t *
-_cairo_surface_snapshot_get_target (cairo_surface_t *surface)
+static inline cairo_surface_t * _cairo_surface_snapshot_get_target(cairo_surface_t * surface)
 {
-    cairo_surface_snapshot_t *snapshot = (cairo_surface_snapshot_t *) surface;
-    cairo_surface_t *target;
-
-    CAIRO_MUTEX_LOCK (snapshot->mutex);
-    target = _cairo_surface_reference (snapshot->target);
-    CAIRO_MUTEX_UNLOCK (snapshot->mutex);
-
-    return target;
+	cairo_surface_snapshot_t * snapshot = (cairo_surface_snapshot_t*)surface;
+	cairo_surface_t * target;
+	CAIRO_MUTEX_LOCK(snapshot->mutex);
+	target = _cairo_surface_reference(snapshot->target);
+	CAIRO_MUTEX_UNLOCK(snapshot->mutex);
+	return target;
 }
 
-static inline cairo_bool_t
-_cairo_surface_is_snapshot (cairo_surface_t *surface)
+static inline cairo_bool_t _cairo_surface_is_snapshot(cairo_surface_t * surface)
 {
-    return surface->backend->type == (cairo_surface_type_t)CAIRO_INTERNAL_SURFACE_TYPE_SNAPSHOT;
+	return surface->backend->type == (cairo_surface_type_t)CAIRO_INTERNAL_SURFACE_TYPE_SNAPSHOT;
 }
 
 #endif /* CAIRO_SURFACE_SNAPSHOT_INLINE_H */

@@ -274,7 +274,7 @@ private:
 	int    FASTCALL GetItemByPos(long itemPos)
 	{
 		uint   pos = 0;
-		P_Item = lsearch(&itemPos, &pos, CMPF_LONG) ? (BillGoodsBrwItem *)at(pos) : 0;
+		P_Item = lsearch(&itemPos, &pos, CMPF_LONG) ? static_cast<BillGoodsBrwItem *>(at(pos)) : 0;
 		return BIN(P_Item);
 	}
 	BillGoodsBrwItem * P_Item; // Временный указатель
@@ -323,7 +323,7 @@ int SLAPI ViewBillDetails(PPBillPacket * pack, long options, PPObjBill * pBObj)
 		res_id = BROWSER_ID(GOODSITEM_W);
 	int    r = -1;
 	if(!oneof2(pack->OpTypeID, PPOPT_ACCTURN, PPOPT_PAYMENT)) {
-		BillItemBrowser * p_brw = new BillItemBrowser(res_id, pBObj, pack, 0, -1, 0, (int)options);
+		BillItemBrowser * p_brw = new BillItemBrowser(res_id, pBObj, pack, 0, -1, 0, options);
 		if(p_brw == 0)
 			r = (PPError(PPERR_NOMEM), 0);
 		else {
@@ -346,7 +346,7 @@ int SLAPI ViewBillDetails(PPBillPacket * pack, long options, PPObjBill * pBObj)
 
 static int test_lot(ReceiptTbl::Rec * pLotRec, void * extraPtr)
 {
-	const PPID loc_id = (PPID)extraPtr;
+	const PPID loc_id = reinterpret_cast<const PPID>(extraPtr);
 	return (pLotRec->LocID == loc_id && !pLotRec->Closed);
 }
 //
@@ -366,8 +366,8 @@ int BillItemBrowser::ConvertSupplRetLink(PPID locID)
 	for(i = 0; P_LinkPack->EnumTItems(&i, &p_ti);) {
 		if(p_ti->LocID == locID)
 			THROW_SL(temp.insert(p_ti));
-		THROW(P_T->Rcpt.GatherChilds(p_ti->LotID, &childs, test_lot, (void *)locID));
-		for(j = 0; childs.enumItems(&j, (void**)&p_lot_id);) {
+		THROW(P_T->Rcpt.GatherChilds(p_ti->LotID, &childs, test_lot, reinterpret_cast<void *>(locID)));
+		for(j = 0; childs.enumItems(&j, reinterpret_cast<void **>(&p_lot_id));) {
 			t       = *p_ti;
 			t.LocID = locID;
 			t.LotID = *p_lot_id;
@@ -377,7 +377,7 @@ int BillItemBrowser::ConvertSupplRetLink(PPID locID)
 		P_LinkPack->RemoveRow(--i);
 	}
 	P_LinkPack->RemoveRows(0);
-	for(i = 0; temp.enumItems(&i, (void**)&p_ti);)
+	for(i = 0; temp.enumItems(&i, reinterpret_cast<void **>(&p_ti));)
 		THROW(P_LinkPack->InsertRow(p_ti, 0));
 	CATCHZOK
 	return ok;
@@ -411,7 +411,7 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 	int    ok = -1;
 	if(oneof5(RezID, BROWSER_ID(GOODSITEM_W), BROWSER_ID(GOODSITEMPH_W), BROWSER_ID(GOODSITEMPH_CUR_W),
 		BROWSER_ID(GOODSITEM_CUR_W), BROWSER_ID(ORDERITEM_W))) {
-		AryBrowserDef * p_def = (AryBrowserDef *)view->getDef();
+		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(view->getDef());
 		if(p_def) {
 			for(uint i = 0; i < p_def->getCount(); i++) {
 				const BroColumn & r_col = p_def->at(i);
@@ -436,16 +436,16 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 static int PriceDevColorFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
-	BillItemBrowser * p_brw = (BillItemBrowser *)extraPtr;
+	BillItemBrowser * p_brw = static_cast<BillItemBrowser *>(extraPtr);
 	if(p_brw && pData && pStyle) {
 		BillItemBrowser::ColumnPosBlock posblk;
-		const BillGoodsBrwItem * p_item = pData ? (const BillGoodsBrwItem *)pData : 0;
-		long   pos = p_item ? p_item->Pos : -1;
+		const BillGoodsBrwItem * p_item = static_cast<const BillGoodsBrwItem *>(pData);
+		long   pos = p_item->Pos;
 		const  LongArray & r_price_dev_list = p_brw->GetPriceDevList();
 		if(p_brw->GetColPos(posblk) > 0) {
 			if(col == posblk.QttyPos && pos >= 0) {
 				const PPBillPacket * p_pack = p_brw->GetPacket();
-				if(p_pack && pos < (int)p_pack->GetTCount()) {
+				if(p_pack && pos < static_cast<int>(p_pack->GetTCount())) {
 					const PPTransferItem & r_ti = p_pack->ConstTI(pos);
 					if(r_ti.Flags & PPTFR_LOTSYNC) {
 						pStyle->Color2 = GetColorRef(SClrIndigo);
@@ -461,7 +461,7 @@ static int PriceDevColorFunc(const void * pData, long col, int paintAction, Brow
 			}
 			else if(col == posblk.OrdQttyPos && pos >= 0) {
 				const PPBillPacket * p_pack = p_brw->GetPacket();
-				if(p_pack && pos < (int)p_pack->GetTCount()) {
+				if(p_pack && pos < static_cast<int>(p_pack->GetTCount())) {
 					const PPTransferItem & r_ti = p_pack->ConstTI(pos);
 					double ord_qtty = p_brw->GetOrderedQtty(r_ti);
 					if((ord_qtty - fabs(r_ti.Qtty())) > 1E-6) {
@@ -472,10 +472,10 @@ static int PriceDevColorFunc(const void * pData, long col, int paintAction, Brow
 			}
 			else if(col == posblk.ShippedQttyPos && pos >= 0) { // @v10.1.5
 				const PPBillPacket * p_pack = p_brw->GetPacket();
-				if(p_pack && pos < (int)p_pack->GetTCount()) {
+				if(p_pack && pos < static_cast<int>(p_pack->GetTCount())) {
 					const PPTransferItem & r_ti = p_pack->ConstTI(pos);
-					AryBrowserDef * p_def = (AryBrowserDef *)p_brw->getDef();
-					BillGoodsBrwItemArray * p_list = p_def ? (BillGoodsBrwItemArray *)p_def->getArray() : 0;
+					AryBrowserDef * p_def = static_cast<AryBrowserDef *>(p_brw->getDef());
+					BillGoodsBrwItemArray * p_list = p_def ? (BillGoodsBrwItemArray *)(p_def->getArray()) : 0; // @badcast
 					double shp_qtty = 0.0;
 					p_brw->CalcShippedQtty(p_item, p_list, &shp_qtty);
 					if(fabs(shp_qtty - fabs(r_ti.Quantity_)) > 1E-6) {
@@ -515,7 +515,7 @@ static int PriceDevColorFunc(const void * pData, long col, int paintAction, Brow
 					pStyle->Color = GetColorRef(SClrYellow);
 				ok = 1;
 			}
-			if(pos >= 0 && pos < (long)r_price_dev_list.getCount()) {
+			if(pos >= 0 && pos < static_cast<long>(r_price_dev_list.getCount())) {
 				long   price_flags = r_price_dev_list.at(pos);
 				if(price_flags && oneof3(col, posblk.QttyPos, posblk.CostPos, posblk.PricePos)) {
 					if(col == posblk.QttyPos && price_flags & LOTSF_FIRST) {
@@ -566,14 +566,14 @@ static int PriceDevColorFunc(const void * pData, long col, int paintAction, Brow
 				}
 			}
 			if(posblk.SerialPos >= 0 && col == posblk.SerialPos) {
-				if(p_item && p_item->Flags & BillGoodsBrwItem::fSerialBad) {
+				if(p_item->Flags & BillGoodsBrwItem::fSerialBad) {
 					pStyle->Color = GetColorRef(SClrOrange);
 					pStyle->Flags = BrowserWindow::CellStyle::fCorner;
 					ok = 1;
 				}
 			}
 			if(posblk.CodePos >= 0 && col == posblk.CodePos) {
-				if(p_item && p_item->Flags & BillGoodsBrwItem::fCodeWarn) {
+				if(p_item->Flags & BillGoodsBrwItem::fCodeWarn) {
 					pStyle->Color = GetColorRef(SClrOrange);
 					pStyle->Flags = BrowserWindow::CellStyle::fCorner;
 					ok = 1;
@@ -588,7 +588,7 @@ static int PriceDevColorFunc(const void * pData, long col, int paintAction, Brow
 				ok = 1;
 			}
 			const PPBillPacket * p_pack = p_brw->GetPacket();
-			if(p_pack && pos >= 0 && pos < (int)p_pack->GetTCount() && p_pack->TI(pos).TFlags & PPTransferItem::tfForceRemove) {
+			if(p_pack && pos >= 0 && pos < static_cast<int>(p_pack->GetTCount()) && p_pack->TI(pos).TFlags & PPTransferItem::tfForceRemove) {
 				pStyle->Color = GetColorRef(SClrGrey);
 				pStyle->Flags = BrowserWindow::CellStyle::fCorner;
 				ok = 1;
@@ -606,7 +606,7 @@ int SLAPI BillItemBrowser::GetPriceRestrictions(int itemPos, const PPTransferIte
 long FASTCALL BillItemBrowser::CalcPriceDevItem(long pos, long flags)
 {
 	long   price_flags = 0;
-	if(P_Pack && pos >= 0 && pos < (long)P_Pack->GetTCount()) {
+	if(P_Pack && pos >= 0 && pos < static_cast<long>(P_Pack->GetTCount())) {
 		const PPTransferItem & r_ti = P_Pack->ConstTI(pos);
 		RealRange restr_bounds;
 		if(!(flags & cpdifRestrOnly)) {
@@ -674,18 +674,18 @@ int SLAPI BillItemBrowser::UpdatePriceDevList(long pos, int op)
 			}
 			else {
 				if(op == 0) {
-					if(pos < (long)PriceDevList.getCount())
+					if(pos < static_cast<long>(PriceDevList.getCount()))
 						PriceDevList.at(pos) = CalcPriceDevItem(pos, cpdif);
 				}
 				else if(op > 0) {
-					if(pos <= (long)PriceDevList.getCount()) {
+					if(pos < static_cast<long>(PriceDevList.getCount())) { // @v10.3.2 @fix (<=)--(<)
 						long   price_flags = CalcPriceDevItem(pos, cpdif);
-						PriceDevList.atInsert((uint)pos, &price_flags);
+						PriceDevList.atInsert(static_cast<uint>(pos), &price_flags);
 					}
 				}
-				else if(op < 0) {
-					if(pos < (long)PriceDevList.getCount())
-						PriceDevList.atFree((uint)pos);
+				else { // if(op < 0) {
+					if(pos < static_cast<long>(PriceDevList.getCount()))
+						PriceDevList.atFree(static_cast<uint>(pos));
 				}
 			}
 		}
@@ -886,7 +886,7 @@ inline BillItemBrowser::~BillItemBrowser()
 
 int BillItemBrowser::getCurItemPos()
 {
-	int16  c = (int16)view->getDef()->_curItem();
+	int16  c = static_cast<int16>(view->getDef()->_curItem());
 	int16  rp = 0;
 	if(c >= 0) {
 		PPTransferItem * p_ti;
@@ -900,7 +900,7 @@ int BillItemBrowser::getCurItemPos()
 					continue;
 			}
 			if(rp == c)
-				return (int16)(i-1);
+				return static_cast<int16>(i-1);
 			rp++;
 		}
 	}
@@ -947,7 +947,7 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 		else {
 			double phuperu;
 			// @v10.1.8 {
-			const int gphupur = goods_rec.ID ? GObj.GetPhUPerU(&goods_rec, 0, &phuperu) : GObj.GetPhUPerU((Goods2Tbl::Rec *)0, 0, &phuperu);
+			const int gphupur = goods_rec.ID ? GObj.GetPhUPerU(&goods_rec, 0, &phuperu) : GObj.GetPhUPerU(static_cast<const Goods2Tbl::Rec *>(0), 0, &phuperu);
 			if(gphupur > 0)
 				Total.PhQtty += __q * phuperu;
 			// } @v10.1.8 
@@ -1008,7 +1008,7 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 			if(upp > 0.0) {
 				item.UnitPerPack = upp;
 				p_packed_list->HasUpp = 1;
-				Total.PckgCount += (long)(fabs(qtty) / upp);
+				Total.PckgCount += static_cast<long>(fabs(qtty) / upp);
 			}
 		}
 		item.Pos = i-1;
@@ -1056,7 +1056,7 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 		Total.ShippedQtty = 0.0;
 		Total.OrderRest = 0.0;
 		double q;
-		for(i = 0; p_packed_list->enumItems(&i, (void **)&p_item);)
+		for(i = 0; p_packed_list->enumItems(&i, reinterpret_cast<void **>(&p_item));)
 			if(CalcShippedQtty(p_item, p_packed_list, &q)) {
 				Total.ShippedQtty += q;
 				p_packed_list->GetOrderRest(p_item->Pos, &(q = 0.0));
@@ -1064,7 +1064,7 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 			}
 	}
 	PPGetWord(PPWORD_TOTAL, 0, Total.Text).Space().CatChar('(').Cat(PPGetWord(PPWORD_LINES, 0, lines)).
-		Space().Cat((long)lines_count).CatChar(')');
+		Space().Cat(static_cast<long>(lines_count)).CatChar(')');
 	MEMSZERO(item);
 	item.Pos = -1;
 	THROW_SL(p_packed_list->insert(&item)); // Total row
@@ -1080,7 +1080,7 @@ int SLAPI BillItemBrowser::CalcShippedQtty(const BillGoodsBrwItem * pItem, BillG
 	int    ok = 1;
 	double real_val = 0.0;
 	if(pList && pItem) {
-		AryBrowserDef * p_def = (AryBrowserDef *)getDef();
+		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(getDef());
 		const PPTransferItem & r_ti = P_Pack->ConstTI(pItem->Pos);
 		if(pList->GetOrderRest(pItem->Pos, &real_val) < 0) {
 			if(State & stOrderSelector) {
@@ -1150,12 +1150,12 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	int    ok = 0;
 	if(pBlk->P_SrcData && pBlk->P_DestData && P_Pack) {
 		SString temp_buf;
-		BillGoodsBrwItem * p_item = (BillGoodsBrwItem *)pBlk->P_SrcData;
+		const BillGoodsBrwItem * p_item = static_cast<const BillGoodsBrwItem *>(pBlk->P_SrcData);
 		const  int is_total = (p_item->Pos == -1);
 		if(is_total || (p_item->Pos >= 0 && p_item->Pos < (PPID)P_Pack->GetTCount())) {
 			ok = 1;
-			AryBrowserDef * p_def = (AryBrowserDef *)getDef();
-			BillGoodsBrwItemArray * p_list = p_def ? (BillGoodsBrwItemArray *)p_def->getArray() : 0;
+			AryBrowserDef * p_def = static_cast<AryBrowserDef *>(getDef());
+			BillGoodsBrwItemArray * p_list = p_def ? (BillGoodsBrwItemArray *)(p_def->getArray()) : 0;
 			const PPTransferItem * p_ti = 0;
 			if(is_total) {
 				CurLine = -1;
@@ -1263,7 +1263,7 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						ok = 0;
 					else {
 						GetObjectName(PPOBJ_GOODSTAX, ClGoodsRec.TaxGrpID, pBlk->TempBuf);
-						pBlk->TempBuf.CopyTo((char *)pBlk->P_DestData, stsize(pBlk->TypeID));
+						pBlk->TempBuf.CopyTo(static_cast<char *>(pBlk->P_DestData), stsize(pBlk->TypeID));
 					}
 					break;
 				case 13: // Ставка НДС
@@ -1483,18 +1483,18 @@ double FASTCALL BillItemBrowser::GetOrderedQtty(const PPTransferItem & rTi) cons
 //static
 int FASTCALL BillItemBrowser::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	BillItemBrowser * p_brw = (BillItemBrowser *)pBlk->ExtraPtr;
+	BillItemBrowser * p_brw = static_cast<BillItemBrowser *>(pBlk->ExtraPtr);
 	return p_brw ? p_brw->_GetDataForBrowser(pBlk) : 0;
 }
 
 void BillItemBrowser::update(int pos)
 {
-	AryBrowserDef * p_def = (AryBrowserDef *)view->getDef();
+	AryBrowserDef * p_def = static_cast<AryBrowserDef *>(view->getDef());
 	if(p_def) {
-		int16  c = (int16)p_def->_curItem();
+		int16  c = static_cast<int16>(p_def->_curItem());
 		p_def->setArray(0, 0, 1);
 		BillGoodsBrwItemArray * a = 0;
-		PROFILE(a = (BillGoodsBrwItemArray *)MakeList());
+		PROFILE(a = static_cast<BillGoodsBrwItemArray *>(MakeList()));
 		if(a) {
 			p_def->SetUserProc(BillItemBrowser::GetDataForBrowser, this);
 			// {
@@ -1575,7 +1575,7 @@ void BillItemBrowser::update(int pos)
 				view->go(c);
 			else if(pos == pos_bottom)
 				view->go(a->getCount() - 2);
-			else if(pos >= 0 && pos < (int)a->getCount())
+			else if(pos >= 0 && pos < static_cast<int>(a->getCount()))
 				view->go(pos);
 			// }
 		}
@@ -2377,11 +2377,11 @@ private:
 			}
 		}
 		else if(event.isCmd(cmDrawItem)) {
-			TDrawItemData * p_draw_item = (TDrawItemData *)TVINFOPTR;
+			TDrawItemData * p_draw_item = static_cast<TDrawItemData *>(TVINFOPTR);
 			if(p_draw_item && p_draw_item->P_View) {
 				PPID   list_ctrl_id = p_draw_item->P_View->GetId();
 				if(list_ctrl_id == ctlList) {
-					SmartListBox * p_lbx = (SmartListBox *)p_draw_item->P_View;
+					SmartListBox * p_lbx = static_cast<SmartListBox *>(p_draw_item->P_View);
 					const FRect  rect_elem = p_draw_item->ItemRect;
 					SPaintToolBox & r_tb = APPL->GetUiToolBox();
 					TCanvas2 canv(r_tb, p_draw_item->H_DC);
@@ -2392,7 +2392,7 @@ private:
 					else {
 						SString code_buf;
 						SString box_code;
-						p_lbx->getText((long)p_draw_item->ItemData, code_buf);
+						p_lbx->getText(static_cast<long>(p_draw_item->ItemData), code_buf);
 						int    err = 0;
 						int    row_idx = -1;
 						int    brush_id = TProgram::tbiListBkgBrush;
@@ -3326,7 +3326,7 @@ void BillItemBrowser::addItemBySerial()
 	else {
 		isd_param.P_Wse = new ObjTagSelExtra(PPOBJ_LOT, PPTAG_LOT_SN);
 		{
-			const long _flags = opened_only ? ObjTagSelExtra::fOpenedSerialsOnly : 0;
+			const long _flags = opened_only ? ObjTagSelExtra::lfOpenedSerialsOnly : 0;
 			((ObjTagSelExtra *)isd_param.P_Wse)->SetupLotSerialParam(P_Pack->Rec.LocID, _flags);
 		}
 		if(InputStringDialog(&isd_param, serial) > 0 && serial.NotEmptyS()) {
@@ -3626,7 +3626,7 @@ public:
 	CompleteBrowser(PPObjBill * pBObj, const CompleteArray * s, int asSelector) :
 		AsSelector(asSelector), BrowserWindow(BROWSER_COMPLETE, (SArray *)0), Data(*s), P_BObj(pBObj), CmplAryPos(0), SelectedPos(-1)
 	{
-		AryBrowserDef * p_def = (AryBrowserDef *)view->getDef();
+		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(view->getDef());
 		if(p_def) {
 			p_def->setArray(0, 0, 1);
 			SArray * p_list = MakeList();
@@ -3678,9 +3678,9 @@ private:
 int CompleteBrowser::CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
-	CompleteBrowser * p_brw = (CompleteBrowser *)extraPtr;
+	CompleteBrowser * p_brw = static_cast<CompleteBrowser *>(extraPtr);
 	if(p_brw && pData && pStyle) {
-		const _Entry * p_entry = (const _Entry *)pData;
+		const _Entry * p_entry = static_cast<const _Entry *>(pData);
 		const long goods_col = 1;
 		if(col == goods_col) {
 			if(p_entry->Flags & CompleteItem::fSource) {
@@ -3700,9 +3700,9 @@ int CompleteBrowser::CellStyleFunc(const void * pData, long col, int paintAction
 
 void CompleteBrowser::update(int pos)
 {
-	AryBrowserDef * p_def = (AryBrowserDef *)view->getDef();
+	AryBrowserDef * p_def = static_cast<AryBrowserDef *>(view->getDef());
 	if(p_def) {
-		int16  c = (int16)p_def->_curItem();
+		int16  c = static_cast<int16>(p_def->_curItem());
 		p_def->setArray(0, 0, 1);
 		CompleteArray compl_list;
 		Data.freeAll();
@@ -3790,7 +3790,7 @@ int CompleteBrowser::GetSelectedItem(CompleteItem * pItem)
 int FASTCALL CompleteBrowser::NextIteration(CompleteItem * pItem)
 {
 	CompleteItem * p_item = 0;
-	int    ok = Data.enumItems(&CmplAryPos, (void **)&p_item);
+	int    ok = Data.enumItems(&CmplAryPos, reinterpret_cast<void **>(&p_item));
 	if(ok)
 		ASSIGN_PTR(pItem, *p_item);
 	return ok;
@@ -3804,7 +3804,7 @@ SArray * CompleteBrowser::MakeList()
 	CompleteItem * p_item;
 	SArray * p_list = new SArray(sizeof(_Entry));
 	THROW_MEM(p_list);
-	for(uint i = 0; Data.enumItems(&i, (void **)&p_item);) {
+	for(uint i = 0; Data.enumItems(&i, reinterpret_cast<void **>(&p_item));) {
 		BillTbl::Rec bill_rec;
 		_Entry  entry;
 		MEMSZERO(entry);
@@ -3888,9 +3888,9 @@ int PPALDD_Complete::InitData(PPFilt & rFilt, long rsrv)
 {
 	CompleteBrowser * p_cb = 0;
 	if(rsrv)
-		Extra[1].Ptr = p_cb = (CompleteBrowser *)rFilt.Ptr;
+		Extra[1].Ptr = p_cb = static_cast<CompleteBrowser *>(rFilt.Ptr);
 	else
-		Extra[0].Ptr = p_cb = new CompleteBrowser(BillObj, (const CompleteArray *)rFilt.Ptr, 0);
+		Extra[0].Ptr = p_cb = new CompleteBrowser(BillObj, static_cast<const CompleteArray *>(rFilt.Ptr), 0);
 	H.ParentLotID = p_cb->GetParentLot();
 	H.BillID = p_cb->GetBillID();
 	return DlRtm::InitData(rFilt, rsrv);
@@ -3924,7 +3924,7 @@ int PPALDD_Complete::NextIteration(PPIterID iterId)
 void PPALDD_Complete::Destroy()
 {
 	if(Extra[0].Ptr) {
-		delete (CompleteBrowser *)Extra[0].Ptr;
+		delete static_cast<CompleteBrowser *>(Extra[0].Ptr);
 		Extra[0].Ptr = 0;
 	}
 	Extra[1].Ptr = 0;

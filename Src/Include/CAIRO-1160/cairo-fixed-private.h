@@ -38,9 +38,8 @@
 #define CAIRO_FIXED_PRIVATE_H
 
 #include "cairo-fixed-type-private.h"
-
 #include "cairo-wideint-private.h"
-#include "cairoint.h"
+//#include "cairoint.h"
 
 /* Implementation */
 

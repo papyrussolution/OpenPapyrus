@@ -47,8 +47,8 @@
 #if !defined(_WIN32_WINNT) || (_WIN32_WINNT < 0x0500)
 	#define _WIN32_WINNT 0x0500
 #endif
-#include "cairo-atomic-private.h"
-#include "cairo-device-private.h"
+//#include "cairo-atomic-private.h"
+//#include "cairo-device-private.h"
 #include "cairo-win32-private.h"
 //#include <wchar.h>
 //#include <windows.h>

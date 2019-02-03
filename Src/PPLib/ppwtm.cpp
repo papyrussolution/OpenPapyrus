@@ -40,7 +40,7 @@ int BaseWtmToolDialog::setDTS(const TWhatmanToolArray::Item * pData)
 	AddClusterAssoc(CTL_WTMTOOL_FLAGS, 2, TWhatmanToolArray::Item::fGrayscale); // @v9.5.4
 	SetClusterData(CTL_WTMTOOL_FLAGS, Data.Flags);
 	{
-		ComboBox * p_combo = (ComboBox *)getCtrlView(CTLSEL_WTMTOOL_WTMOBJ);
+		ComboBox * p_combo = static_cast<ComboBox *>(getCtrlView(CTLSEL_WTMTOOL_WTMOBJ));
 		if(p_combo) {
 			p_combo->setListWindow(CreateListWindow(TWhatmanObject::MakeStrAssocList(), lbtDisposeData|lbtDblClkNotify),
 				TWhatmanObject::GetRegIdBySymb(Data.WtmObjSymb));
@@ -1873,7 +1873,7 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 				return;
 		}
 		else if(event.isCmd(cmSize)) {
-			SizeEvent * p_se = (SizeEvent *)TVINFOPTR;
+			const SizeEvent * p_se = static_cast<const SizeEvent *>(TVINFOPTR);
 			W.SetArea(getClientRect());
 			W.GetScrollRange(&Sb.Rx, &Sb.Ry);
 			Sb.SetupWindow(H());
@@ -1885,15 +1885,15 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 			}
 			else {
 				if(p_se->NewSize.x > p_se->PrevSize.x)
-					invalidateRect(b.set(p_se->PrevSize.x, 0, size.x, size.y), 1);
+					invalidateRect(b.set(p_se->PrevSize.x, 0, ViewSize.x, ViewSize.y), 1);
 				if(p_se->NewSize.y > p_se->PrevSize.y)
-					invalidateRect(b.set(0, p_se->PrevSize.y, size.x, size.y), 1);
+					invalidateRect(b.set(0, p_se->PrevSize.y, ViewSize.x, ViewSize.y), 1);
 			}
 			::UpdateWindow(H());
 			return;
 		}
 		else if(event.isCmd(cmDragndropObj)) {
-			DragndropEvent * p_ev = (DragndropEvent *)TVINFOPTR;
+			DragndropEvent * p_ev = static_cast<DragndropEvent *>(TVINFOPTR);
 			if(p_ev) {
 				if(p_ev->Action == DragndropEvent::acnGet) {
 					if(St.Rsz.P_MovedObjCopy) {

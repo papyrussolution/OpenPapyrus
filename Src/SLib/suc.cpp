@@ -1059,7 +1059,7 @@ int SLAPI SCodepageMapPool::SearchMapSeq(const TSVector <MapEntry> & rSeq, uint 
     return ok;
 }
 
-int SLAPI SCodepageMapPool::ParseXmlSingle(void * pXmlContext, const char * pFileName, SUnicodeTable * pUt)
+int SLAPI SCodepageMapPool::ParseXmlSingle(void * pXmlContext, const char * pFileName, const SUnicodeTable * pUt)
 {
     int    ok = 1;
     xmlParserCtxt * p_ctx = 0;

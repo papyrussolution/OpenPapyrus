@@ -2203,7 +2203,7 @@ PPID SLAPI PPObjDebtDim::Select()
 	THROW(p_lw = CreateListWindow(p_ary, lbtDisposeData|lbtDblClkNotify));
 	THROW(PPLoadText(PPTXT_SELECTDEBTDIM, sub_title));
 	p_lw->setTitle(sub_title);
-	p_lw->options |= (ofCenterX | ofCenterY);
+	p_lw->ViewOptions |= (ofCenterX | ofCenterY);
 	if(ExecView(p_lw) == cmOK)
 		p_lw->getResult(&id);
 	else

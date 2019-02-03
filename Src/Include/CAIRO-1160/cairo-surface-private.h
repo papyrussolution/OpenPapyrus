@@ -38,12 +38,12 @@
 #ifndef CAIRO_SURFACE_PRIVATE_H
 #define CAIRO_SURFACE_PRIVATE_H
 
-#include "cairo.h"
-#include "cairo-types-private.h"
-#include "cairo-list-private.h"
-#include "cairo-reference-count-private.h"
-#include "cairo-clip-private.h"
-#include "cairo-surface-backend-private.h"
+//#include "cairo.h"
+//#include "cairo-types-private.h"
+//#include "cairo-list-private.h"
+//#include "cairo-reference-count-private.h"
+////#include "cairo-clip-private.h"
+//#include "cairo-surface-backend-private.h"
 
 typedef void (* cairo_surface_func_t) (cairo_surface_t *);
 

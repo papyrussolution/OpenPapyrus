@@ -1128,7 +1128,7 @@ int SLAPI ACS_SETSTART::ConvertWareList(const char * pImpPath)
 						long   fl  = (chk_type == FRONTOL_CHK_RETURN) ? CCHKF_RETURN : 0;
 						if(!ZRepList.Search(cash_no, nsmena, &(pos = 0)))
 							fl |= CCHKF_TEMPSESS;
-						THROW(AddTempCheck(&id, nsmena, fl, cash_no, chk_no, 0, 0, &dttm2, 0, 0));
+						THROW(AddTempCheck(&id, nsmena, fl, cash_no, chk_no, 0, 0, dttm2, 0, 0));
 					}
 					if(card_code.NotEmptyS() && sc_obj.P_Tbl->SearchCode(0, card_code, &sc_rec) > 0)
 						THROW(AddTempCheckSCardID(id, sc_rec.ID));

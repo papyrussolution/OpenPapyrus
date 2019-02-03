@@ -325,7 +325,7 @@ toolbar export ACCBILL TB_FIRST_TOOLBAR {
 	CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "@{dochangebillstatus}\tCtrl-F6"
 	SYSINFO          :  kbCtrlF3,   TBBM_SYSTEMINFO,      "Просмотр системной информации по документу\tCtrl-F3"
 	SYSJ             :  kbCtrlJ,    TBBM_SYSJ,            "Просмотр событий по документу\tCtrl-J"
-	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,        "Изменить флаги\tShift-F3"
+	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,        "@{doupdateflags}\tShift-F3"
 	SETWLABEL        :  kbF8,       TBBM_MARK,            "Пометить\tF8"
 	separator
 	PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Оплаты по документу\tF5"
@@ -381,7 +381,7 @@ toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
 	CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "@{dochangebillstatus}\tCtrl-F6"
 	SYSINFO          :  kbCtrlF3,   TBBM_SYSTEMINFO,      "Просмотр системной информации по документу\tCtrl-F3"
 	SYSJ             :  kbCtrlJ,    TBBM_SYSJ,            "Просмотр событий по документу\tCtrl-J"
-	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,        "Изменить флаги\tShift-F3"
+	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,        "@{doupdateflags}\tShift-F3"
 	SETWLABEL        :  kbF8,       TBBM_MARK,            "Пометить\tF8"
 	separator
 	PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Оплаты по документу\tF5"
@@ -439,7 +439,7 @@ toolbar export ORDERBILL TB_FIRST_TOOLBAR {
 	CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "@{dochangebillstatus}\tCtrl-F6"
 	SYSINFO          :  kbCtrlF3,   TBBM_SYSTEMINFO,      "Просмотр системной информации по документу\tCtrl-F3"
 	SYSJ             :  kbCtrlJ,    TBBM_SYSJ,            "Просмотр событий по документу\tCtrl-J"
-	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,        "Изменить флаги\tShift-F3"
+	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,        "@{doupdateflags}\tShift-F3"
 	SETWLABEL        :  kbF8,       TBBM_MARK,            "Пометить\tF8"
 	separator
 	PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Оплаты по документу\tF5"
@@ -491,7 +491,7 @@ toolbar export INVENTBILL TB_FIRST_TOOLBAR {
 	CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "@{dochangebillstatus}\tCtrl-F6"
 	SYSINFO          :  kbCtrlF3,   TBBM_SYSTEMINFO,      "Просмотр системной информации по документу\tCtrl-F3"
 	SYSJ             :  kbCtrlJ,    TBBM_SYSJ,            "Просмотр событий по документу\tCtrl-J"
-	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,        "Изменить флаги\tShift-F3"
+	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,        "@{doupdateflags}\tShift-F3"
 	SETWLABEL        :  kbF8,       TBBM_MARK,            "Пометить\tF8"
 	separator
 	PAYMENT          :  kbF5,       TBBM_BILLS,           "@{document_wroff_pl}\tF5"
@@ -530,7 +530,7 @@ toolbar export GOODSBILL TB_FIRST_TOOLBAR {
 	CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "@{dochangebillstatus}\tCtrl-F6"
 	SYSINFO          :  kbCtrlF3,   TBBM_SYSTEMINFO,      "Просмотр системной информации по документу\tCtrl-F3"
 	SYSJ             :  kbCtrlJ,    TBBM_SYSJ,            "Просмотр событий по документу\tCtrl-J"
-	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,        "Изменить флаги\tShift-F3"
+	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,        "@{doupdateflags}\tShift-F3"
 	SETWLABEL        :  kbF8,       TBBM_MARK,            hidden, "Пометить\tF8"
 	separator
 	PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Оплаты по документу\tF5"
@@ -780,7 +780,7 @@ toolbar export GOODS TB_FIRST_TOOLBAR {
 	TRANSMIT       : kbCtrlH,     TBBM_SENDOBJ,          "@{dotransmit}\tCtrl-H"
 	TOTAL          : kbF9,        TBBM_SIGM,             "@{totals}\tF9"
 	REPLACEMENT    : kbCtrlF9,    TBBM_REPLACE,          "Замена наименований/массовое изменение брэнда\tCtrl-F9"
-	CHNGFLAGS      : kbShiftF3,   TBBM_CHGFLAGS,         hidden, "Изменить флаги\tShift-F3"
+	CHNGFLAGS      : kbShiftF3,   TBBM_CHGFLAGS,         hidden, "@{doupdateflags}\tShift-F3"
 	DORECOVER      : kbCtrlR,     TBBM_HAMMER,           hidden, "@{verificationandrecovery}\tCtrl-R"
 	separator
 	CHANGEFILT     : kbCtrlV,     TBBM_FILTER,           "@{filter}\tCtrl-V"
@@ -4052,7 +4052,7 @@ browser STAFFCAL_DT north(100), 3, 1, "@{view_staffcal} {%s}", OWNER|GRID, 0
 		PRINT         : kbF7,     TBBM_PRINT,     "@{print}\tF7"
 		separator
 		CHANGEFILT    : kbCtrlV,  TBBM_FILTER,    "@{filter}\tCtrl-V"
-		TIMEGRAPH     : kbCtrlA,  TBBM_TIMEGRAPH, "Временная диаграмма\tCtrl-A"
+		TIMEGRAPH     : kbCtrlA,  TBBM_TIMEGRAPH, "@{timechart}\tCtrl-A"
 	}
 }
 
@@ -4072,7 +4072,7 @@ browser STAFFCAL_OBJ north(100), 3, 1, "@{view_staffcal} {%s}", OWNER|GRID, 0
 		PRINT         : kbF7,     TBBM_PRINT,     "@{print}\tF7"
 		separator
 		CHANGEFILT    : kbCtrlV,  TBBM_FILTER,    "@{filter}\tCtrl-V"
-		TIMEGRAPH     : kbCtrlA,  TBBM_TIMEGRAPH, "Временная диаграмма\tCtrl-A"
+		TIMEGRAPH     : kbCtrlA,  TBBM_TIMEGRAPH, "@{timechart}\tCtrl-A"
 	}
 }
 
@@ -4275,7 +4275,7 @@ toolbar export SCARD TB_FIRST_TOOLBAR {
 	DELETEALL   : kbCtrlF8,  TBBM_DELETEALL, "Удалить выборку\tCtrl-F8"
 	REPLACECARD : kbCtrlM,   TBBM_REPLACE,   "Заменить в чеках\tCtrl-M"
 	AFILLDEFPSN : kbCtrlP,   TBBM_NOICON,    "Авотозаполнение персоналии по умолч.\tCtrl-P"
-	// @v7.7.3 CHNGFLAGS   : kbShiftF3, TBBM_CHGFLAGS,  "Изменить флаги\tShift-F3"
+	// @v7.7.3 CHNGFLAGS   : kbShiftF3, TBBM_CHGFLAGS,  "@{doupdateflags}\tShift-F3"
 	RENAMEDUP   : kbCtrlX,   TBBM_NOICON,    "Переименовать дублирующиеся карты\tCtrl-X"
 	PROCESSSELECTION : kbCtrlA, TBBM_NOICON, "Обработать выборку\tCtrl-A"
 	separator
@@ -4830,7 +4830,7 @@ browser PRJTASK north(100), 2, 1, "Задачи {%s}", OWNER|GRID, 0
 		TOTAL       : kbF9,     TBBM_SIGM,         "@{totals}\tF9"
 		separator
 		CHANGEFILT  : kbCtrlV,  TBBM_FILTER,       "@{filter}\tCtrl-V"
-		TIMEGRAPH   : kbCtrlA,  TBBM_TIMEGRAPH,   "Временная диаграмма\tCtrl-A"
+		TIMEGRAPH   : kbCtrlA,  TBBM_TIMEGRAPH,    "@{timechart}\tCtrl-A"
 	}
 }
 
@@ -5541,7 +5541,7 @@ browser PRCBUSY north(100), 3, 1, "@{view_prcbusy} {%s}", OWNER|GRID, 0
 		CHANGEFILT     : kbCtrlV,   TBBM_FILTER,      "@{filter}\tCtrl-V"
 		separator
 		TOGGLE         : kbCtrlT,   TBBM_TEST,        "Свободные процессоры\tCtrl-T"
-		TIMEGRAPH      : kbCtrlA,   TBBM_TIMEGRAPH,   "Временная диаграмма\tCtrl-A"
+		TIMEGRAPH      : kbCtrlA,   TBBM_TIMEGRAPH,   "@{timechart}\tCtrl-A"
 	}
 }
 
@@ -5561,7 +5561,7 @@ browser PRCFREE north(100), 3, 1, "Свободные процессоры {%s}", OWNER|GRID, 0
 		CHANGEFILT : kbCtrlV,  TBBM_FILTER,      "@{filter}\tCtrl-V"
 		separator
 		TOGGLE     : kbCtrlT,  TBBM_TEST,        "Занятые процессоры\tCtrl-T"
-		TIMEGRAPH  : kbCtrlA,  TBBM_TIMEGRAPH,   "Временная диаграмма\tCtrl-A"
+		TIMEGRAPH  : kbCtrlA,  TBBM_TIMEGRAPH,   "@{timechart}\tCtrl-A"
 	}
 }
 

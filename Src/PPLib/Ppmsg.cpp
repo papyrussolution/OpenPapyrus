@@ -679,8 +679,8 @@ int SLAPI PPThreadLocalArea::WaitBlock::Stop()
 	if(WaitDlg) {
 	   	uint32 save;
 		if(PrevView && PrevView->IsConsistent()) {
-			save = PrevView->options;
-			PrevView->options |= ofSelectable;
+			save = PrevView->ViewOptions;
+			PrevView->ViewOptions |= ofSelectable;
 		}
 		DestroyWindow(WaitDlg);
 		WaitDlg = 0;
@@ -688,7 +688,7 @@ int SLAPI PPThreadLocalArea::WaitBlock::Stop()
 		if(OrgCur)
 			SetCursor(OrgCur);
 		if(PrevView && PrevView->IsConsistent())
-			PrevView->options = save;
+			PrevView->ViewOptions = save;
 	}
 	else
 		ok = -1;

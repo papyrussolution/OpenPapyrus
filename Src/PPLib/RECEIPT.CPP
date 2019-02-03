@@ -1,5 +1,6 @@
 // RECEIPT.CPP
 // Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8
 // @Kernel
 //
 #include <pp.h>
@@ -25,12 +26,11 @@ int SLAPI ReceiptCore::LotDimensions::EditTag(const PPGdsClsPacket * pGcPack, Ob
 				dfZ = 0x0004
 			};
 			long   disable_flags = 0;
-			if(p_gc_pack->Rec.LotDimCount == 0)
-				disable_flags = dfX|dfY|dfZ;
-			else if(p_gc_pack->Rec.LotDimCount == 1)
-				disable_flags = dfY|dfZ;
-			else if(p_gc_pack->Rec.LotDimCount == 2)
-				disable_flags = dfZ;
+			switch(p_gc_pack->Rec.LotDimCount) {
+				case 0: disable_flags = dfX|dfY|dfZ; break;
+				case 1: disable_flags = dfY|dfZ; break;
+				case 2: disable_flags = dfZ; break;
+			}
 			dlg->setCtrlReadOnly(CTL_TAGLOTDIM_X, (disable_flags & dfX));
 			dlg->setCtrlReadOnly(CTL_TAGLOTDIM_Y, (disable_flags & dfY));
 			dlg->setCtrlReadOnly(CTL_TAGLOTDIM_Z, (disable_flags & dfZ));
@@ -351,7 +351,7 @@ int SLAPI ReceiptCore::Helper_GetLastLot(PPID goodsID, PPID locID, LDATE dt, Rec
 	k.Dt      = dt;
 	k.OprNo   = MAXLONG;
 	//
-	// Предпринимаем попытку сходу найти нужный лот.
+	// РџСЂРµРґРїСЂРёРЅРёРјР°РµРј РїРѕРїС‹С‚РєСѓ СЃС…РѕРґСѓ РЅР°Р№С‚Рё РЅСѓР¶РЅС‹Р№ Р»РѕС‚.
 	//
 	if(search(2, &k, spLt) && data.GoodsID == goodsID) {
 		if(!locID || data.LocID == locID) {
@@ -360,25 +360,25 @@ int SLAPI ReceiptCore::Helper_GetLastLot(PPID goodsID, PPID locID, LDATE dt, Rec
 		}
 		else {
 			//
-			// В этом блоке точно (locID != 0)
+			// Р’ СЌС‚РѕРј Р±Р»РѕРєРµ С‚РѕС‡РЅРѕ (locID != 0)
 			//
 
 			//
 			// @v6.3.14
-			// Похоже, следующий участок кода все-таки дает значительную задержку при
-			// большом количестве лотов.
-			// В связи с этим заменяем его на блок ниже.
+			// РџРѕС…РѕР¶Рµ, СЃР»РµРґСѓСЋС‰РёР№ СѓС‡Р°СЃС‚РѕРє РєРѕРґР° РІСЃРµ-С‚Р°РєРё РґР°РµС‚ Р·РЅР°С‡РёС‚РµР»СЊРЅСѓСЋ Р·Р°РґРµСЂР¶РєСѓ РїСЂРё
+			// Р±РѕР»СЊС€РѕРј РєРѕР»РёС‡РµСЃС‚РІРµ Р»РѕС‚РѕРІ.
+			// Р’ СЃРІСЏР·Рё СЃ СЌС‚РёРј Р·Р°РјРµРЅСЏРµРј РµРіРѕ РЅР° Р±Р»РѕРє РЅРёР¶Рµ.
 			//
 #if 0 // {
 			{
 				//
-				// Попытка быстро найти лот, соответствующий нашим требованиям провалилась.
-				// Так как лоты по товару, соответствующие заданному складу могут быть разбросаны
-				// очень хаотично, то отдадим серверу задачу по нахождению требуемой записи.
-				// Он с этим справится намного быстрее чем мы, перебирающие запись за записью.
+				// РџРѕРїС‹С‚РєР° Р±С‹СЃС‚СЂРѕ РЅР°Р№С‚Рё Р»РѕС‚, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ РЅР°С€РёРј С‚СЂРµР±РѕРІР°РЅРёСЏРј РїСЂРѕРІР°Р»РёР»Р°СЃСЊ.
+				// РўР°Рє РєР°Рє Р»РѕС‚С‹ РїРѕ С‚РѕРІР°СЂСѓ, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёРµ Р·Р°РґР°РЅРЅРѕРјСѓ СЃРєР»Р°РґСѓ РјРѕРіСѓС‚ Р±С‹С‚СЊ СЂР°Р·Р±СЂРѕСЃР°РЅС‹
+				// РѕС‡РµРЅСЊ С…Р°РѕС‚РёС‡РЅРѕ, С‚Рѕ РѕС‚РґР°РґРёРј СЃРµСЂРІРµСЂСѓ Р·Р°РґР°С‡Сѓ РїРѕ РЅР°С…РѕР¶РґРµРЅРёСЋ С‚СЂРµР±СѓРµРјРѕР№ Р·Р°РїРёСЃРё.
+				// РћРЅ СЃ СЌС‚РёРј СЃРїСЂР°РІРёС‚СЃСЏ РЅР°РјРЅРѕРіРѕ Р±С‹СЃС‚СЂРµРµ С‡РµРј РјС‹, РїРµСЂРµР±РёСЂР°СЋС‰РёРµ Р·Р°РїРёСЃСЊ Р·Р° Р·Р°РїРёСЃСЊСЋ.
 				//
-				// Обращаю внимание на параметр reverse = 1 в функции initIteration: нам надо
-				// перебирать лоты в порядке, обратном к индексации.
+				// РћР±СЂР°С‰Р°СЋ РІРЅРёРјР°РЅРёРµ РЅР° РїР°СЂР°РјРµС‚СЂ reverse = 1 РІ С„СѓРЅРєС†РёРё initIteration: РЅР°Рј РЅР°РґРѕ
+				// РїРµСЂРµР±РёСЂР°С‚СЊ Р»РѕС‚С‹ РІ РїРѕСЂСЏРґРєРµ, РѕР±СЂР°С‚РЅРѕРј Рє РёРЅРґРµРєСЃР°С†РёРё.
 				//
 				BExtQuery q(this, 2, 1);
 				q.selectAll().where(this->GoodsID == goodsID && this->Dt <= dt && this->LocID == locID);
@@ -430,8 +430,8 @@ int SLAPI ReceiptCore::Helper_GetLastLot(PPID goodsID, PPID locID, LDATE dt, Rec
 				}
 				if(r == 1) {
 					//
-					// Второй вызов search переписал буфер данных таблицы
-					// в результате, вызывающая функция может использовать не верное значение.
+					// Р’С‚РѕСЂРѕР№ РІС‹Р·РѕРІ search РїРµСЂРµРїРёСЃР°Р» Р±СѓС„РµСЂ РґР°РЅРЅС‹С… С‚Р°Р±Р»РёС†С‹
+					// РІ СЂРµР·СѓР»СЊС‚Р°С‚Рµ, РІС‹Р·С‹РІР°СЋС‰Р°СЏ С„СѓРЅРєС†РёСЏ РјРѕР¶РµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РЅРµ РІРµСЂРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ.
 					//
 					copyBufFrom(&rec[0]);
 					ASSIGN_PTR(pRec, rec[0]);
@@ -473,7 +473,7 @@ int SLAPI ReceiptCore::GetFirstLot(PPID goodsID, PPID locID, ReceiptTbl::Rec * p
 		ReceiptTbl::Key2 k2;
 		MEMSZERO(k2);
 		k2.GoodsID = goodsID;
-		if(search(2, &k2, spGt) && data.GoodsID == goodsID) { // Лоты с нулевой датой не интересны - по 'тому spGt (не spGe)
+		if(search(2, &k2, spGt) && data.GoodsID == goodsID) { // Р›РѕС‚С‹ СЃ РЅСѓР»РµРІРѕР№ РґР°С‚РѕР№ РЅРµ РёРЅС‚РµСЂРµСЃРЅС‹ - РїРѕ 'С‚РѕРјСѓ spGt (РЅРµ spGe)
 			ASSIGN_PTR(pLotRec, data);
 			ok = 1;
 		}
@@ -489,7 +489,7 @@ int SLAPI ReceiptCore::GetFirstLot(PPID goodsID, PPID locID, ReceiptTbl::Rec * p
 		k3.Closed = 0;
 		k3.GoodsID = goodsID;
 		k3.LocID = locID;
-		if(search(3, &k3, spGt) && data.Closed == 0 && data.GoodsID == goodsID && data.LocID == locID) { // Лоты с нулевой датой не интересны - по 'тому spGt (не spGe)
+		if(search(3, &k3, spGt) && data.Closed == 0 && data.GoodsID == goodsID && data.LocID == locID) { // Р›РѕС‚С‹ СЃ РЅСѓР»РµРІРѕР№ РґР°С‚РѕР№ РЅРµ РёРЅС‚РµСЂРµСЃРЅС‹ - РїРѕ 'С‚РѕРјСѓ spGt (РЅРµ spGe)
 			s_o = 1;
 			copyBufTo(&rec_o);
 		}
@@ -497,7 +497,7 @@ int SLAPI ReceiptCore::GetFirstLot(PPID goodsID, PPID locID, ReceiptTbl::Rec * p
 		k3.Closed = 1;
 		k3.GoodsID = goodsID;
 		k3.LocID = locID;
-		if(search(0, &k3, spGt) && data.Closed == 1 && data.GoodsID == goodsID && data.LocID == locID) { // Лоты с нулевой датой не интересны - по 'тому spGt (не spGe)
+		if(search(0, &k3, spGt) && data.Closed == 1 && data.GoodsID == goodsID && data.LocID == locID) { // Р›РѕС‚С‹ СЃ РЅСѓР»РµРІРѕР№ РґР°С‚РѕР№ РЅРµ РёРЅС‚РµСЂРµСЃРЅС‹ - РїРѕ 'С‚РѕРјСѓ spGt (РЅРµ spGe)
 			s_c = 1;
 			copyBufTo(&rec_c);
 		}
@@ -806,7 +806,6 @@ int SLAPI LotExtCodeCore::PutContainer(PPID billID, PPLotExtCodeContainer * pC, 
 {
 	int    ok = -1;
 	LongArray found_idx_list;
-	//SString code_buf;
 	PPLotExtCodeContainer::Item2 citem;
 	LotExtCodeTbl::Key2 k2;
 	{

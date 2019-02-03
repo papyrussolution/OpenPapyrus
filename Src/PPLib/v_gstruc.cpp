@@ -163,7 +163,7 @@ IMPLEMENT_PPFILT_FACTORY(GoodsStruc); SLAPI GoodsStrucFilt::GoodsStrucFilt() : P
 	Init(1, 0);
 }
 
-SLAPI PPViewGoodsStruc::PPViewGoodsStruc() : PPView(0, &Filt, PPVIEW_GOODSSTRUC), CurrentViewOrder(OrdByDefault)
+SLAPI PPViewGoodsStruc::PPViewGoodsStruc() : PPView(0, &Filt, PPVIEW_GOODSSTRUC), CurrentViewOrder(OrdByDefault), IterIdx(0)
 {
 	DefReportId = REPORT_GOODSSTRUCLIST;
 	ImplementFlags |= implBrowseArray;
@@ -182,7 +182,7 @@ int SLAPI PPViewGoodsStruc::Init_(const PPBaseFilt * pBaseFilt)
 	StrucList.clear();
 	ItemList.clear();
 	StrPool.ClearS();
-	CurrentViewOrder = (IterOrder)Filt.InitOrder;
+	CurrentViewOrder = static_cast<IterOrder>(Filt.InitOrder);
 	{
 		Goods2Tbl::Rec grec;
 		if(Filt.PrmrGoodsID) {
@@ -337,31 +337,29 @@ int FASTCALL PPViewGoodsStruc::NextIteration(GoodsStrucViewItem * pItem)
 	if(pItem && IterIdx < ItemList.getCount()) {
 		memzero(pItem, sizeof(*pItem));
 		const ItemEntry & r_item = ItemList.at(IterIdx);
-		if(pItem) {
-			pItem->GStrucID = r_item.GStrucID;
-			if(r_item.StrucEntryP < StrucList.getCount()) {
-				SString temp_buf;
-				const StrucEntry & r_struc_entry = StrucList.at(r_item.StrucEntryP);
-				pItem->PrmrGoodsID = r_struc_entry.PrmrGoodsID;
-				pItem->CommDenom = r_struc_entry.CommDenom;
-				pItem->GiftAmtRestrict = r_struc_entry.GiftAmtRestrict;
-				pItem->GiftLimit = r_struc_entry.GiftLimit;
-				pItem->GiftQuotKindID = r_struc_entry.GiftQuotKindID;
-				pItem->ParentStrucID = r_struc_entry.ParentStrucID;
-				pItem->Period = r_struc_entry.Period;
-				pItem->StrucFlags = r_struc_entry.Flags;
-				pItem->VariedPropObjType = r_struc_entry.VariedPropObjType;
-				StrPool.GetS(r_struc_entry.NameP, temp_buf);
-				STRNSCPY(pItem->StrucName, temp_buf);
-				StrPool.GetS(r_struc_entry.SymbP, temp_buf);
-				STRNSCPY(pItem->StrucSymb, temp_buf);
-			}
-			pItem->GoodsID = r_item.GoodsID;
-			pItem->Median = r_item.Median;
-			pItem->Denom = r_item.Denom;
-			pItem->Netto = r_item.Netto;
-			pItem->ItemFlags = r_item.Flags;
+		pItem->GStrucID = r_item.GStrucID;
+		if(r_item.StrucEntryP < StrucList.getCount()) {
+			SString temp_buf;
+			const StrucEntry & r_struc_entry = StrucList.at(r_item.StrucEntryP);
+			pItem->PrmrGoodsID = r_struc_entry.PrmrGoodsID;
+			pItem->CommDenom = r_struc_entry.CommDenom;
+			pItem->GiftAmtRestrict = r_struc_entry.GiftAmtRestrict;
+			pItem->GiftLimit = r_struc_entry.GiftLimit;
+			pItem->GiftQuotKindID = r_struc_entry.GiftQuotKindID;
+			pItem->ParentStrucID = r_struc_entry.ParentStrucID;
+			pItem->Period = r_struc_entry.Period;
+			pItem->StrucFlags = r_struc_entry.Flags;
+			pItem->VariedPropObjType = r_struc_entry.VariedPropObjType;
+			StrPool.GetS(r_struc_entry.NameP, temp_buf);
+			STRNSCPY(pItem->StrucName, temp_buf);
+			StrPool.GetS(r_struc_entry.SymbP, temp_buf);
+			STRNSCPY(pItem->StrucSymb, temp_buf);
 		}
+		pItem->GoodsID = r_item.GoodsID;
+		pItem->Median = r_item.Median;
+		pItem->Denom = r_item.Denom;
+		pItem->Netto = r_item.Netto;
+		pItem->ItemFlags = r_item.Flags;
 		IterIdx++;
 		Counter.Increment();
 		ok = 1;
@@ -374,7 +372,7 @@ int SLAPI FASTCALL PPViewGoodsStruc::_GetDataForBrowser(SBrowserDataProcBlock * 
 	int    ok = 0;
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
 		ok = 1;
-		const ItemEntry * p_item = (ItemEntry *)pBlk->P_SrcData;
+		const ItemEntry * p_item = static_cast<const ItemEntry *>(pBlk->P_SrcData);
 		SString temp_buf;
 		int    r = 0;
 		switch(pBlk->ColumnN) {
@@ -418,16 +416,16 @@ int SLAPI FASTCALL PPViewGoodsStruc::_GetDataForBrowser(SBrowserDataProcBlock * 
 // static
 int FASTCALL PPViewGoodsStruc::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	PPViewGoodsStruc * p_v = (PPViewGoodsStruc *)pBlk->ExtraPtr;
+	PPViewGoodsStruc * p_v = static_cast<PPViewGoodsStruc *>(pBlk->ExtraPtr);
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
-	PPViewBrowser * p_brw = (PPViewBrowser *)extraPtr;
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
 	if(p_brw) {
-		PPViewGoodsStruc * p_view = (PPViewGoodsStruc *)p_brw->P_View;
+		PPViewGoodsStruc * p_view = static_cast<PPViewGoodsStruc *>(p_brw->P_View);
 		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
 	}
 	return ok;
@@ -438,9 +436,9 @@ int SLAPI PPViewGoodsStruc::CellStyleFunc_(const void * pData, long col, int pai
 	int    ok = -1;
 	if(pBrw && pData && pStyle) {
 		const  BrowserDef * p_def = pBrw->getDef();
-		if(col >= 0 && col < (long)p_def->getCount()) {
+		if(col >= 0 && col < static_cast<long>(p_def->getCount())) {
 			const BroColumn & r_col = p_def->at(col);
-			ItemEntry * p_item = (ItemEntry *)pData;
+			const ItemEntry * p_item = static_cast<const ItemEntry *>(pData);
 			if(r_col.OrgOffs == 0) { // id
 				if(Problems.getCount() && Problems.bsearch(&p_item->GStrucID, 0, CMPF_LONG)) {
 					pStyle->Color = GetColorRef(SClrRed);
@@ -671,7 +669,7 @@ int SLAPI PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 	ItemEntry brw_hdr;
 	if(ok == -2) {
 		if(pHdr)
-			brw_hdr = *(ItemEntry *)pHdr;
+			brw_hdr = *static_cast<const ItemEntry *>(pHdr);
 		else
 			MEMSZERO(brw_hdr);
 		switch(ppvCmd) {
@@ -784,7 +782,7 @@ int SLAPI PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 	}
 	if(ok > 0) {
 		if(ppvCmd == PPVCMD_EDITITEM) {
-			AryBrowserDef * p_def = (AryBrowserDef *)pBrw->getDef();
+			AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
 			if(p_def) {
 				p_def->setArray(new SArray(ItemList), 0, 1);
 				pBrw->search2(&brw_hdr.GStrucID, CMPF_LONG, srchFirst, 0);

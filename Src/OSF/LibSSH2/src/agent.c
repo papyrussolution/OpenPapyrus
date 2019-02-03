@@ -269,7 +269,7 @@ static int agent_transact_pageant(LIBSSH2_AGENT * agent, agent_transaction_ctx_t
 	cds.dwData = PAGEANT_COPYDATA_ID;
 	cds.cbData = 1 + strlen(mapname);
 	cds.lpData = mapname;
-	id = SendMessage(hwnd, WM_COPYDATA, (WPARAM)NULL, (LPARAM)&cds);
+	id = SendMessage(hwnd, WM_COPYDATA, (WPARAM)NULL, reinterpret_cast<LPARAM>(&cds));
 	if(id > 0) {
 		transctx->response_len = _libssh2_ntohu32(p);
 		if(transctx->response_len > PAGEANT_MAX_MSGLEN) {

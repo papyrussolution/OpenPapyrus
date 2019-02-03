@@ -1,5 +1,5 @@
 // SMRTLBX.CPP
-// Copyright (c) Sobolev A. 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) Sobolev A. 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 // Release for WIN32
 //
@@ -54,17 +54,17 @@ INT_PTR CALLBACK ListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 				return 0;
 			case WM_KEYDOWN:
 			case WM_SYSKEYDOWN:
-				::SendMessage(GetParent(hWnd), WM_VKEYTOITEM, MAKEWPARAM((WORD)wParam, 0), (LPARAM)hWnd);
+				::SendMessage(GetParent(hWnd), WM_VKEYTOITEM, MAKEWPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd));
 				return 0;
 			case WM_SETFOCUS:
 			case WM_KILLFOCUS:
-				::SendMessage(GetParent(hWnd), uMsg, wParam, (LPARAM)hWnd);
+				::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd));
 				break;
 			case WM_CHAR:
-				::SendMessage(GetParent(hWnd), uMsg, wParam, (LPARAM)hWnd);
+				::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd));
 				return 0;
 			case WM_MOUSEWHEEL:
-				::SendMessage(GetParent(hWnd), uMsg, wParam, (LPARAM)hWnd);
+				::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd));
 				return 0;
 				/*
 				{
@@ -115,10 +115,10 @@ INT_PTR CALLBACK TreeListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 	switch(uMsg) {
 		case WM_DESTROY: CALLPTRMEMB(p_view, OnDestroy(hWnd)); return 0; // Не вызывается. Непонятно правда почему.
 		case WM_KEYDOWN:
-		case WM_SYSKEYDOWN: ::SendMessage(GetParent(hWnd), WM_VKEYTOITEM, MAKEWPARAM((WORD)wParam, 0), (LPARAM)hWnd); break; // Process by default
+		case WM_SYSKEYDOWN: ::SendMessage(GetParent(hWnd), WM_VKEYTOITEM, MAKEWPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd)); break; // Process by default
 		case WM_SETFOCUS:
-		case WM_KILLFOCUS: ::SendMessage(GetParent(hWnd), uMsg, wParam, (LPARAM)hWnd); break;
-		case WM_CHAR: ::SendMessage(GetParent(hWnd), uMsg, wParam, (LPARAM)hWnd); return 0;
+		case WM_KILLFOCUS: ::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); break;
+		case WM_CHAR: ::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); return 0;
 		case WM_NOTIFY: ::SendMessage(GetParent(hWnd), uMsg, wParam, lParam); return 0;
 		case WM_ERASEBKGND:
 			if(p_view && p_view->HasState(SmartListBox::stOwnerDraw)) {
@@ -159,20 +159,20 @@ INT_PTR CALLBACK ListViewDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 			return 0;
 		case WM_KEYDOWN:
 		case WM_SYSKEYDOWN:
-			::SendMessage(GetParent(hWnd), WM_VKEYTOITEM, MAKEWPARAM((WORD)wParam, 0), (LPARAM)hWnd);
+			::SendMessage(GetParent(hWnd), WM_VKEYTOITEM, MAKEWPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd));
 			break; // Process by default
 		case WM_SETFOCUS:
 		case WM_KILLFOCUS:
-			::SendMessage(GetParent(hWnd), uMsg, wParam, (LPARAM)hWnd);
+			::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd));
 			break;
 		case WM_CHAR:
-			::SendMessage(GetParent(hWnd), uMsg, wParam, (LPARAM)hWnd);
+			::SendMessage(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd));
 			return 0;
 		case WM_LBUTTONDOWN:
-			::PostMessage(GetParent(hWnd), WM_COMMAND, MAKEWPARAM((WORD)GetDlgCtrlID(hWnd), (WORD)LBN_SELCHANGE), (LPARAM)hWnd);
+			::PostMessage(GetParent(hWnd), WM_COMMAND, MAKEWPARAM((WORD)GetDlgCtrlID(hWnd), (WORD)LBN_SELCHANGE), reinterpret_cast<LPARAM>(hWnd));
 			break;
 		case WM_LBUTTONDBLCLK:
-			::SendMessage(GetParent(hWnd), WM_COMMAND, MAKEWPARAM((WORD)GetDlgCtrlID(hWnd), (WORD)LBN_DBLCLK), (LPARAM)hWnd);
+			::SendMessage(GetParent(hWnd), WM_COMMAND, MAKEWPARAM((WORD)GetDlgCtrlID(hWnd), (WORD)LBN_DBLCLK), reinterpret_cast<LPARAM>(hWnd));
 			return 0;
 		case WM_RBUTTONDOWN:
 			CALLPTRMEMB(p_view, handleWindowsMessage(uMsg, wParam, lParam));
@@ -195,7 +195,7 @@ SmartListBox::SmartListBox(const TRect & bounds, ListBoxDef * aDef, int isTreeLi
 	SubSign = TV_SUBSIGN_LISTBOX;
 	StrPool.add("$"); // zero index - is empty string
 	SetTreeListState(isTreeList);
-	options |= ofSelectable | ofFirstClick;
+	ViewOptions |= ofSelectable | ofFirstClick;
 	setDef(aDef);
 }
 
@@ -1206,7 +1206,7 @@ int UiSearchTextBlock::ExecDialog(HWND hWnd, uint ctlId, SString & rText, int is
 		char   text[512];
 		rText.CopyTo(text, sizeof(text));
 		UiSearchTextBlock sd(hWnd, ctlId, text, (isFirstLetter ? text[0] : 0), pBlk, linkToList);
-		r = APPL->DlgBoxParam(MAKE_BUTTON_ID(0,1)-2, hWnd, (DLGPROC)UiSearchTextBlock::DialogProc, (LONG)&sd);
+		r = APPL->DlgBoxParam(MAKE_BUTTON_ID(0,1)-2, hWnd, (DLGPROC)UiSearchTextBlock::DialogProc, reinterpret_cast<LPARAM>(&sd));
 		rText = sd.Text;
 	}
 	return r;

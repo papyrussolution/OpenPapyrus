@@ -282,21 +282,21 @@ int SLAPI PPObjBudget::GetPacket(PPID id, PPBudgetPacket * pPack)
 
 int SLAPI PPObjBudget::PutRec(PPID * pID, PPBudget * pRec, int use_ta)
 {
-	int    ok = 1, ta = 0;
-	THROW(PPStartTransaction(&ta, use_ta));
-	if(*pID && pRec == 0) {
-		THROW(ref->RemoveItem(PPOBJ_BUDGET, *pID, 0));
+	int    ok = 1;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(*pID && pRec == 0) {
+			THROW(ref->RemoveItem(PPOBJ_BUDGET, *pID, 0));
+		}
+		else if(pRec) {
+			pRec->ObjType = PPOBJ_BUDGET;
+			THROW(EditItem(PPOBJ_BUDGET, *pID, pRec, 0));
+			*pID = pRec->ID = ref->data.ObjID;
+		}
+		THROW(tra.Commit());
 	}
-	else {
-		pRec->ObjType = PPOBJ_BUDGET;
-		THROW(EditItem(PPOBJ_BUDGET, *pID, pRec, 0));
-		*pID = pRec->ID = ref->data.ObjID;
-	}
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -1818,7 +1818,7 @@ PPALDD_CONSTRUCTOR(BudgetItem)
 PPALDD_DESTRUCTOR(BudgetItem)
 {
 	Destroy();
-	delete (BudgetItemCore*)Extra[0].Ptr;
+	delete static_cast<BudgetItemCore *>(Extra[0].Ptr);
 }
 
 int PPALDD_BudgetItem::InitData(PPFilt & rFilt, long rsrv)

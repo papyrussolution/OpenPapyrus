@@ -39,7 +39,7 @@
 #if !CAIRO_HAS_XLIB_XCB_FUNCTIONS
 
 #include "cairo-xlib-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-list-inline.h"
 
 /* A perceptual distance metric between two colors. No sqrt needed
@@ -70,7 +70,7 @@ cairo_status_t _cairo_xlib_visual_info_create(Display * dpy, int screen, VisualI
 	XColor colors[256];
 	unsigned short cube_index_to_short[CUBE_SIZE];
 	unsigned short ramp_index_to_short[RAMP_SIZE];
-	unsigned char gray_to_pseudocolor[RAMP_SIZE];
+	uchar gray_to_pseudocolor[RAMP_SIZE];
 	for(i = 0; i < CUBE_SIZE; i++)
 		cube_index_to_short[i] = (0xffff * i + ((CUBE_SIZE-1)>>1)) / (CUBE_SIZE-1);
 	for(i = 0; i < RAMP_SIZE; i++)

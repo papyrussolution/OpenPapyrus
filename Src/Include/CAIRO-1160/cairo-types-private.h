@@ -39,10 +39,10 @@
 #ifndef CAIRO_TYPES_PRIVATE_H
 #define CAIRO_TYPES_PRIVATE_H
 
-#include "cairo.h"
-#include "cairo-fixed-type-private.h"
-#include "cairo-list-private.h"
-#include "cairo-reference-count-private.h"
+//#include "cairo.h"
+//#include "cairo-fixed-type-private.h"
+//#include "cairo-list-private.h"
+//#include "cairo-reference-count-private.h"
 
 CAIRO_BEGIN_DECLS
 
@@ -118,7 +118,7 @@ struct _cairo_observer {
  * A #cairo_hash_entry_t contains both a key and a value for
  * #cairo_hash_table_t. User-derived types for #cairo_hash_entry_t must
  * be type-compatible with this structure (eg. they must have an
- * unsigned long as the first parameter. The easiest way to get this
+ * ulong as the first parameter. The easiest way to get this
  * is to use:
  *
  *      typedef _my_entry {
@@ -147,7 +147,7 @@ struct _cairo_observer {
  * the entry need not be initialized if so desired.
  **/
 struct _cairo_hash_entry {
-	unsigned long hash;
+	ulong hash;
 };
 
 struct _cairo_array {
@@ -375,10 +375,10 @@ typedef struct _cairo_stroke_style {
 
 typedef struct _cairo_format_masks {
 	int bpp;
-	unsigned long alpha_mask;
-	unsigned long red_mask;
-	unsigned long green_mask;
-	unsigned long blue_mask;
+	ulong alpha_mask;
+	ulong red_mask;
+	ulong green_mask;
+	ulong blue_mask;
 } cairo_format_masks_t;
 
 typedef enum {
@@ -404,8 +404,8 @@ typedef enum _cairo_image_color {
 
 struct _cairo_mime_data {
 	cairo_reference_count_t ref_count;
-	unsigned char * data;
-	unsigned long length;
+	uchar * data;
+	ulong length;
 	cairo_destroy_func_t destroy;
 	void * closure;
 };

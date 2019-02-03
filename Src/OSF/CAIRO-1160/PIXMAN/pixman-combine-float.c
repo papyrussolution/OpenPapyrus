@@ -123,9 +123,9 @@ static force_inline void combine_inner(pixman_bool_t component,
 	static void                                                         \
 	combine_ ## name ## _float(pixman_implementation_t *imp,           \
 	    pixman_op_t op,            \
-	    float                   * dest,          \
-	    const float             * src,           \
-	    const float             * mask,          \
+	    float * dest,          \
+	    const float * src,           \
+	    const float * mask,          \
 	    int n_pixels)      \
 	{                                                                   \
 		combine_inner(component, dest, src, mask, n_pixels,            \
@@ -894,9 +894,9 @@ static force_inline void blend_hsl_luminosity(rgb_t * res,
 	static void                                                         \
 	combine_ ## name ## _u_float(pixman_implementation_t *imp,         \
 	    pixman_op_t op,          \
-	    float                   * dest,        \
-	    const float             * src,         \
-	    const float             * mask,        \
+	    float * dest,        \
+	    const float * src,         \
+	    const float * mask,        \
 	    int n_pixels)    \
 	{                                                                   \
 		int i;                                                          \

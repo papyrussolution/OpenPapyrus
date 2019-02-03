@@ -89,7 +89,7 @@
 	// @v9.6.4 #define farfree free
 	#define stricmp         _stricmp
 	#define strnicmp        _strnicmp
-	#define stpcpy(s1, s2) (strcpy(s1, s2), s1 + strlen(s2))
+	#define stpcpy(s1, s2) (strcpy((s1), (s2)), s1 + strlen((s2)))
 	#define strcmpi         stricmp
 	#define strset          _strset
 	#define strupr          _strupr
@@ -2866,17 +2866,17 @@ void FASTCALL RegisterSType(TYPEID, DataType *);
 #define SFFLAGMASK  0x0000ffffL
 #define SFLENMASK   0x0fff0000L
 #define SFPRCMASK   0xf0000000L
-#define SFALIGNMASK  ((unsigned long)(ALIGN_LEFT|ALIGN_RIGHT|ALIGN_CENTER))
-#define SFCOMMONMASK ((unsigned long)(SFALIGNMASK|COMF_FILLOVF))
-#define MKSFMT(l,f)           ((((long)(l))<<16)|(long)(f))
-#define MKSFMTD(l,p,f)        ((((long)(p))<<28)|(((long)(l))<<16)|(long)(f))
-#define SFMTFLAG(fmt)         (unsigned)((fmt)&SFFLAGMASK)
+#define SFALIGNMASK  (static_cast<unsigned long>(ALIGN_LEFT|ALIGN_RIGHT|ALIGN_CENTER))
+#define SFCOMMONMASK (static_cast<unsigned long>(SFALIGNMASK|COMF_FILLOVF))
+#define MKSFMT(l,f)           (((static_cast<long>(l))<<16)|(static_cast<long>(f)))
+#define MKSFMTD(l,p,f)        (((static_cast<long>(p))<<28)|((static_cast<long>(l))<<16)|(static_cast<long>(f)))
+#define SFMTFLAG(fmt)         (static_cast<unsigned>((fmt)&SFFLAGMASK))
 #define SFMTLEN(fmt)          ((uint16)(((fmt)&SFLENMASK)>>16))
 #define SFMTPRC(fmt)          (((fmt)&SFPRCMASK)>>28)
 #define SFMTALIGN(fmt)        ((fmt)&SFALIGNMASK)
-#define SETSFMTLEN(fmt,l)     (fmt)=((((long)(l))<<16)|(long)((fmt)&~SFLENMASK))
-#define SETSFMTPRC(fmt,p)     (fmt)=((((long)(p))<<28)|(long)((fmt)&~SFPRCMASK))
-#define SETSFMTFLAG(fmt,f)    (fmt)=(((long)(f))|(long)((fmt)&~SFFLAGMASK))
+#define SETSFMTLEN(fmt,l)     (fmt)=(((static_cast<long>(l))<<16)|(static_cast<long>((fmt)&~SFLENMASK)))
+#define SETSFMTPRC(fmt,p)     (fmt)=(((static_cast<long>(p))<<28)|(static_cast<long>((fmt)&~SFPRCMASK)))
+#define SETSFMTFLAG(fmt,f)    (fmt)=((static_cast<long>(f))|(static_cast<long>((fmt)&~SFFLAGMASK)))
 
 #define SFMT_MONEY            MKSFMTD(0,2,0)
 #define SFMT_QTTY             MKSFMTD(0,3,0)
@@ -3847,7 +3847,7 @@ public:
 	//
 	SString & SLAPI CatTagBrace(const char * pTag, int kind);
 	SString & SLAPI CatTag(const char * pTag, const char * pData);
-	SString & SLAPI CatXmlElem(const char * pName, int typ, StringSet * pList);
+	SString & SLAPI CatXmlElem(const char * pName, int typ, const StringSet * pList);
 	SString & SLAPI CatEq(const char * pKey, const char * pVal);
 	SString & SLAPI CatEqQ(const char * pKey, const char * pVal);
 	SString & SLAPI CatEq(const char * pKey, uint16 val);
@@ -6760,6 +6760,7 @@ public:
 	double SLAPI Get(long key, int binary = 0) const; // @>>RAssocArray::Search
 	int    SLAPI GetList(LongArray & rList, int unique) const;
 	void   SLAPI Scale(double rate);
+	int    SLAPI SearchMaxVal(uint * pPos) const;
 
 	enum {
 		dfRound = 0x0001, // Округлять каждое распределенное значение до точность prec
@@ -9009,7 +9010,7 @@ public:
 	uint   SLAPI Translate(const CpMap & rFrom, const CpMap & rTo, const uint8 * pSrc, size_t srcLen, SString & rDest);
 
 	int    SLAPI ParseXml(const char * pPath, SUnicodeTable * pUt);
-	int    SLAPI ParseXmlSingle(void * pXmlContext, const char * pFileName, SUnicodeTable * pUt);
+	int    SLAPI ParseXmlSingle(void * pXmlContext, const char * pFileName, const SUnicodeTable * pUt);
 	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    SLAPI Test(const SUnicodeTable * pUt, const char * pMapPoolFileName, const char * pMapTranslFileName);
 	int    SLAPI MakeTranslIndex(const CpMap & rFrom, const CpMap & rTo, TranslIndex & rIdx);

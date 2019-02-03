@@ -40,7 +40,7 @@
 #include "cairoint.h"
 #pragma hdrstop
 #include "cairo-line-inline.h"
-#include "cairo-slope-private.h"
+//#include "cairo-slope-private.h"
 
 static int line_compare_for_y_against_x(const cairo_line_t * a, int32_t y, int32_t x)
 {

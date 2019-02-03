@@ -441,12 +441,12 @@ int SLAPI getScenList(SArray * scenList)
 static int SLAPI SetupListBox(TView * pList, uint sz, uint fl, uint lbfl)
 {
 	if(pList) {
-		pList->options |= lbfl;
+		pList->ViewOptions |= lbfl;
 		StringListBoxDef * def = new StringListBoxDef(sz, NZOR(fl, (lbtDisposeData | lbtDblClkNotify)));
 		if(def == 0)
 			return PPSetErrorNoMem();
 		else {
-			((SmartListBox*)pList)->setDef(def);
+			static_cast<SmartListBox *>(pList)->setDef(def);
 			return 1;
 		}
 	}

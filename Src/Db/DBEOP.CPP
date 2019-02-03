@@ -52,7 +52,7 @@ static DBFunc FASTCALL get_2op(int op, int bt1, int bt2)
 {
 	for(_2op_entry * e = _2op_tab; e < _2op_tab + _2op_tab_siz; e++) {
 		if(e->op == op && e->typ1 == bt1 && e->typ2 == bt2)
-			return (DBFunc)e->func;
+			return static_cast<DBFunc>(e->func);
 	}
 	return dbq_error;
 }
@@ -67,12 +67,12 @@ static DBE & FASTCALL newDBE()
 static int FASTCALL adjust_type(DBItem & i, int baseTyp, int paramTyp)
 {
 	if(i.Id == DBConst_ID && paramTyp != baseTyp) {
-		DBConst & c = *(DBConst *)&i;
+		DBConst & c = *static_cast<DBConst *>(&i);
 		if(baseTyp == BTS_REAL && paramTyp == BTS_INT) {
-			c.init((double)c.lval);
+			c.init(static_cast<double>(c.lval));
 		}
 		else if(baseTyp == BTS_INT && paramTyp == BTS_REAL) {
-			c.init((long)c.rval);
+			c.init(static_cast<long>(c.rval));
 		}
 		else
 			return 0;
@@ -126,7 +126,7 @@ static DBE & FASTCALL binary_op(double r, DBItem & i, int op)
 {
 	DBConst c;
 	if(ffrac(r) == 0.0)
-		c.init((long)r);
+		c.init(static_cast<long>(r));
 	else
 		c.init(r);
 	return binary_op(c, i, op);
@@ -170,7 +170,7 @@ DBE & __stdcall contains(DBItem & i, const char * s)
 	DBE & e = newDBE();
 	e.push(i);
 	e.push(dbconst(s));
-	e.push((DBFunc)dbq_contains);
+	e.push(static_cast<DBFunc>(dbq_contains));
 	return e;
 }
 
@@ -179,13 +179,13 @@ DBE & __stdcall enumtoa(DBItem & i, int n, char ** str_array)
 	assert(i.baseType() == BTS_INT);
 	DBConst ic;
 	DBConst sc;
-	ic.init((long)n);
-	sc.init((long)str_array);
+	ic.init(static_cast<long>(n));
+	sc.init(reinterpret_cast<long>(str_array)); // @todo Использовать преобразование к DBConst::ptrval
 	DBE & e = newDBE();
 	e.push(i);
 	e.push(ic);
 	e.push(sc);
-	e.push((DBFunc)dbq_enumtoa);
+	e.push(static_cast<DBFunc>(dbq_enumtoa));
 	return e;
 }
 
@@ -195,12 +195,12 @@ DBE & __stdcall flagtoa(DBItem & i, long mask, char ** str_array)
 	DBConst ic;
 	DBConst sc;
 	ic.init(mask);
-	sc.init((long)str_array);
+	sc.init(reinterpret_cast<long>(str_array)); // @todo Использовать преобразование к DBConst::ptrval
 	DBE & e = newDBE();
 	e.push(i);
 	e.push(ic);
 	e.push(sc);
-	e.push((DBFunc)dbq_flagtoa);
+	e.push(static_cast<DBFunc>(dbq_flagtoa));
 	return e;
 }
 //
@@ -210,7 +210,7 @@ DBE & __stdcall left(DBItem & i, int n)
 {
 	assert(i.baseType() == BTS_STRING);
 	DBConst c;
-	c.init((long)n);
+	c.init(static_cast<long>(n));
 	return binary_func(i, c, dbq_left);
 }
 
@@ -218,7 +218,7 @@ DBE & __stdcall right(DBItem & i, int n)
 {
 	assert(i.baseType() == BTS_STRING);
 	DBConst c;
-	c.init((long)n);
+	c.init(static_cast<long>(n));
 	return binary_func(i, c, dbq_right);
 }
 
@@ -398,7 +398,7 @@ DBQ & __stdcall realrange(DBItem & i, double lo, double up)
 DBQ & __stdcall intrange(DBItem & i, const IntRange & rR)
 {
 	if(rR.low == rR.upp)
-		return rR.low ? (i == (long)rR.low) : *reinterpret_cast<DBQ *>(0);
+		return rR.low ? (i == static_cast<long>(rR.low)) : *reinterpret_cast<DBQ *>(0);
 	else {
 		DBQ * dbq = 0;
 		if(rR.low)
@@ -479,7 +479,7 @@ IMPL_DBE_PROC(_enumtoa_iii)
 				return;
 			}
 		}
-		RES((char *)&(i = 0));
+		RES(reinterpret_cast<char *>(&(i = 0)));
 	}
 }
 
@@ -585,10 +585,10 @@ IMPL_DBE_PROC(_upper_s)
 		RES(strupr866(SPAR(0)));
 }
 
-IMPL_DBE_PROC(_day_d)  {int d,m,y; decodedate(&d, &m, &y, &DPAR(0)); RES((long)d);}
-IMPL_DBE_PROC(_mon_d)  {int d,m,y; decodedate(&d, &m, &y, &DPAR(0)); RES((long)m);}
-IMPL_DBE_PROC(_year_d) {int d,m,y; decodedate(&d, &m, &y, &DPAR(0)); RES((long)y);}
-IMPL_DBE_PROC(_weekday_d) { RES((long)dayofweek(&DPAR(0), 1)); }
+IMPL_DBE_PROC(_day_d)  {int d,m,y; decodedate(&d, &m, &y, &DPAR(0)); RES(static_cast<long>(d));}
+IMPL_DBE_PROC(_mon_d)  {int d,m,y; decodedate(&d, &m, &y, &DPAR(0)); RES(static_cast<long>(m));}
+IMPL_DBE_PROC(_year_d) {int d,m,y; decodedate(&d, &m, &y, &DPAR(0)); RES(static_cast<long>(y));}
+IMPL_DBE_PROC(_weekday_d) { RES(static_cast<long>(dayofweek(&DPAR(0), 1))); }
 IMPL_DBE_PROC(_add_di) 
 { 
 	LDATE dt = DPAR(0);
@@ -832,7 +832,7 @@ DBFuncInfo * FASTCALL DbqFuncTab::GetFuncPtr(int funcId)
 	if(P_Tab) {
 		uint   pos = 0;
 		if(P_Tab->bsearch(&funcId, &pos, CMPF_LONG))
-			return (DBFuncInfo *)P_Tab->at(pos);
+			return static_cast<DBFuncInfo *>(P_Tab->at(pos));
 	}
 	return 0;
 }
@@ -842,7 +842,7 @@ int SLAPI DbqFuncTab::SearchFunc(int funcId, DBFuncInfo * pInfo)
 	if(P_Tab) {
 		uint pos = 0;
 		if(P_Tab->bsearch(&funcId, &pos, PTR_CMPFUNC(int))) {
-			ASSIGN_PTR(pInfo, *(DBFuncInfo*)P_Tab->at(pos));
+			ASSIGN_PTR(pInfo, *static_cast<DBFuncInfo *>(P_Tab->at(pos)));
 			return 1;
 		}
 	}

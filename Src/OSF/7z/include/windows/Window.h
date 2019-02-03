@@ -271,8 +271,9 @@ public:
 	{
 		return BOOLToBool(::KillTimer(_window, idEvent));
 	}
-	HICON SetIcon(WPARAM sizeType, HICON icon) {
-		return (HICON)SendMsg(WM_SETICON, sizeType, (LPARAM)icon);
+	HICON SetIcon(WPARAM sizeType, HICON icon) 
+	{
+		return (HICON)SendMsg(WM_SETICON, sizeType, reinterpret_cast<LPARAM>(icon));
 	}
 };
 

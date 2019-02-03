@@ -591,8 +591,8 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 					Arr_In.Z();
 					if(sl_param.Flags & SlipLineParam::fRegFiscal) {
 						CheckForRibbonUsing(SlipLineParam::fRegRegular | SlipLineParam::fRegJournal, Arr_In);
-						double _q = sl_param.Qtty;
-						double _p = sl_param.Price;
+						const double _q = sl_param.Qtty;
+						const double _p = sl_param.Price;
 						running_total += (_q * _p);
 						PROFILE_START_S("DVCCMD_PRINTFISCAL")
 						THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, sl_param.Text)); // @v9.5.7

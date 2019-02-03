@@ -665,7 +665,7 @@ int SLAPI Crosstab::GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) c
 	return ok;
 }
 
-int SLAPI Crosstab::Helper_SetupBrowserCtColumn(BrowserWindow * pBrw, uint ctValPos, SString & rTitle) const
+int SLAPI Crosstab::Helper_SetupBrowserCtColumn(BrowserWindow * pBrw, uint ctValPos, const SString & rTitle) const
 {
 	int    ok = 1;
 	const  uint aggr_count = AggrFldList.GetCount();
@@ -760,7 +760,7 @@ int SLAPI Crosstab::GetTab(uint tabIdx, void * pTabVal)
 		(memcpy(pTabVal, P_CtValList->at(tabIdx), sz), 1) : -1;
 }
 
-int SLAPI Crosstab::SetFixFieldValByCTID(long ctID, uint fldPos, void * pBuf)
+int SLAPI Crosstab::SetFixFieldValByCTID(long ctID, uint fldPos, const void * pBuf)
 {
 	int    ok = -1;
 	const  int ci = P_RTbl->getCurIndex();
@@ -991,7 +991,7 @@ int SLAPI Crosstab::WriteDbFieldList(const DBFieldList & rList, SBuffer & rBuf, 
 	return ok;
 }
 
-int SLAPI Crosstab::ReadDbFieldList(DBTable * pTbl, DBFieldList & rList, SBuffer & rBuf, SSerializeContext * pCtx)
+int SLAPI Crosstab::ReadDbFieldList(const DBTable * pTbl, DBFieldList & rList, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	int32  c = 0;

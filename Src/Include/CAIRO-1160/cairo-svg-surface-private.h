@@ -51,7 +51,7 @@ typedef struct cairo_svg_document cairo_svg_document_t;
 typedef struct _cairo_svg_source_surface {
     cairo_hash_entry_t base;
     uint id;
-    unsigned char *unique_id;
+    uchar *unique_id;
     ulong unique_id_length;
 } cairo_svg_source_surface_t;
 

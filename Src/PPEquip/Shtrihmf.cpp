@@ -1,5 +1,5 @@
 // SHTRIHMF.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 // Интерфейс (асинхронный) к драйверу "Штрих-М-ФР-К"
 //
@@ -879,7 +879,7 @@ int SLAPI ACS_SHTRIHMFRK::ConvertWareList(const char * pImpPath, int numSmena)
 							long   fl  = (chk_type == CHK_RETURN) ? CCHKF_RETURN : 0;
 							fl |= CCHKF_TEMPSESS;
 							SETFLAG(fl, CCHKF_BANKING, check_pack.Rec.Flags & CCHKF_BANKING);
-							THROW(AddTempCheck(&id, numSmena, fl, cash_no, chk_no, 0, 0, &dttm, 0, 0));
+							THROW(AddTempCheck(&id, numSmena, fl, cash_no, chk_no, 0, 0, dttm, 0, 0));
 						}
 						if(check_pack.Rec.SCardID)
 							THROW(AddTempCheckSCardID(id, check_pack.Rec.SCardID));
@@ -942,7 +942,7 @@ int SLAPI ACS_SHTRIHMFRK::ConvertWareList(const char * pImpPath, int numSmena)
 					ss.get(&pos, buf);                // #11 - Пропускаем
 					ss.get(&pos, buf);                // #12 - Сумма чека
 					amount = R2(buf.ToReal());
-					r = AddTempCheck(&chk_id, numSmena, CCHKF_ZCHECK, cash_no, chk_no, 0, 0, &dttm, amount, 0);
+					r = AddTempCheck(&chk_id, numSmena, CCHKF_ZCHECK, cash_no, chk_no, 0, 0, dttm, amount, 0);
 					THROW(r);
 					break;
 				}
@@ -959,9 +959,9 @@ int SLAPI ACS_SHTRIHMFRK::ImportSession(int idx)
 {
 	int    ok = 1;
 	SString path;
-	if(idx >= 0 && (uint)idx < ZRepList.getCount()) {
-		long file_no   = ZRepList.at(idx).Key;
-		long num_smena = ZRepList.at(idx).Val;
+	if(idx >= 0 && idx < static_cast<int>(ZRepList.getCount())) {
+		const long file_no   = ZRepList.at(idx).Key;
+		const long num_smena = ZRepList.at(idx).Val;
 		if(path.GetSubFrom(ImportedFiles, ';', file_no) > 0 && fileExists(path)) {
 			THROW(CreateTables());
 			THROW(ConvertWareList(path, num_smena));

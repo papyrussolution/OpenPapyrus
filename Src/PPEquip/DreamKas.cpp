@@ -1,5 +1,5 @@
 // DREAMKAS.CPP
-// Copyright (c) A.Sobolev 2018
+// Copyright (c) A.Sobolev 2018, 2019
 // @codepage UTF-8
 // Интерфейс с кассовым порталом DreamKas
 //
@@ -722,7 +722,7 @@ int SLAPI ACS_DREAMKAS::AcceptCheck(const json_t * pJsonObj)
 	}
 	if(Scb.SessList.lsearch(&sess_n, 0, CMPF_LONG, offsetof(SessEntry, N))) {
 		int    ccr = 0;
-		THROW(ccr = AddTempCheck(&cc_id, sess_n, cc_flags, device_id, cc_number, cashier_id, sc_id, &cc_dtm, cc_amount, cc_discount));
+		THROW(ccr = AddTempCheck(&cc_id, sess_n, cc_flags, device_id, cc_number, cashier_id, sc_id, cc_dtm, cc_amount, cc_discount));
 		if(ccr > 0) {
 			assert(cc_id);
 			if(p_positions_ary) {

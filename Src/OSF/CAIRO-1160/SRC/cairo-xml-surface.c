@@ -43,13 +43,13 @@
 #pragma hdrstop
 
 #include "cairo-xml.h"
-#include "cairo-clip-private.h"
-#include "cairo-device-private.h"
+//#include "cairo-clip-private.h"
+//#include "cairo-device-private.h"
 #include "cairo-default-context-private.h"
 #include "cairo-image-surface-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-output-stream-private.h"
-#include "cairo-recording-surface-inline.h"
+//#include "cairo-recording-surface-inline.h"
 
 #define static cairo_warn static
 
@@ -547,7 +547,7 @@ static cairo_status_t _cairo_xml_emit_radial(cairo_xml_t * xml,
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _write_func(void * closure, const unsigned char * data, unsigned len)
+static cairo_status_t _write_func(void * closure, const uchar * data, unsigned len)
 {
 	_cairo_output_stream_write((cairo_output_stream_t *)closure, data, len);
 	return CAIRO_STATUS_SUCCESS;

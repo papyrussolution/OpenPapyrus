@@ -37,7 +37,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-output-stream-private.h"
 
 typedef struct _cairo_base64_stream {
@@ -45,15 +45,15 @@ typedef struct _cairo_base64_stream {
 	cairo_output_stream_t * output;
 	uint in_mem;
 	uint trailing;
-	unsigned char src[3];
+	uchar src[3];
 } cairo_base64_stream_t;
 
 static char const base64_table[/*64*/] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-static cairo_status_t _cairo_base64_stream_write(cairo_output_stream_t * base, const unsigned char * data, uint length)
+static cairo_status_t _cairo_base64_stream_write(cairo_output_stream_t * base, const uchar * data, uint length)
 {
 	cairo_base64_stream_t * stream = (cairo_base64_stream_t*)base;
-	unsigned char * src = stream->src;
+	uchar * src = stream->src;
 	uint i;
 	if(stream->in_mem + length < 3) {
 		for(i = 0; i < length; i++) {
@@ -64,7 +64,7 @@ static cairo_status_t _cairo_base64_stream_write(cairo_output_stream_t * base, c
 	}
 
 	do {
-		unsigned char dst[4];
+		uchar dst[4];
 
 		for(i = stream->in_mem; i < 3; i++) {
 			src[i] = *data++;

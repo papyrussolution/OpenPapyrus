@@ -30,7 +30,7 @@ BOOL CALLBACK StatusWinDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 				POINT  coord;
 				coord.x = LOWORD(lParam);
 				coord.y = HIWORD(lParam);
-				TView::messageCommand(p_view, cmaEdit, (void*)&coord);
+				TView::messageCommand(p_view, cmaEdit, static_cast<void *>(&coord));
 			}
 			return 0;
 		default:
@@ -43,9 +43,9 @@ TStatusWin::TStatusWin() : TWindow(TRect(1,1,50,20), 0, 1)
 {
 	HW = ::CreateWindowEx(WS_EX_TOPMOST, STATUSCLASSNAME, 0,
 		WS_CHILD|WS_VISIBLE|WS_CLIPSIBLINGS|SBT_TOOLTIPS, 0, 0, 0, 0,
-		APPL->H_MainWnd, (HMENU)0/*111*/, TProgram::GetInst(), 0);
+		APPL->H_MainWnd, static_cast<HMENU>(0)/*111*/, TProgram::GetInst(), 0);
 	TView::SetWindowProp(H(), GWLP_USERDATA, this);
-	PrevWindowProc = (WNDPROC)TView::SetWindowProp(H(), GWLP_WNDPROC, StatusWinDialogProc);
+	PrevWindowProc = static_cast<WNDPROC>(TView::SetWindowProp(H(), GWLP_WNDPROC, StatusWinDialogProc));
 }
 //
 // Returns:
@@ -71,12 +71,12 @@ int TStatusWin::Update()
 	HDC    hdc = ::GetDC(hw);
 	::SendMessage(hw, SB_SETBKCOLOR, 0, static_cast<LPARAM>(RGB(0xD4, 0xD0, 0xC8)));
 	for(i = 0; i < n_parts; i++)  {
-		SIZE   size;
+		SIZE local_size;
 		temp_buf = Items.at(i).str;
 		if(Items.at(i).Icon)
 			n_width += 24; // icon size + borders // @v9.2.1 18-->24
-        else if(temp_buf.NotEmpty() && GetTextExtentPoint32(hdc, temp_buf, (int)temp_buf.Len(), &size)) // @unicodeproblem
-			n_width += size.cx;
+        else if(temp_buf.NotEmpty() && GetTextExtentPoint32(hdc, temp_buf, static_cast<int>(temp_buf.Len()), &local_size)) // @unicodeproblem
+			n_width += local_size.cx;
 		// @v9.2.1 n_width += 5;
 		l_parts[i] = n_width;
 	}
@@ -285,7 +285,7 @@ int TProgram::UpdateItemInMenu(const char * pTitle, void * ptr)
 				int    _upd = 0;
 				for(i = 0; i < count; i++) {
 					tci.mask = TCIF_PARAM;
-					if(TabCtrl_GetItem(hwnd_tab, i, &tci) && tci.lParam == (LPARAM)ptr) {
+					if(TabCtrl_GetItem(hwnd_tab, i, &tci) && tci.lParam == reinterpret_cast<LPARAM>(ptr)) {
 						char   temp_title_buf[SHCTSTAB_MAXTEXTLEN * 2];
 						STRNSCPY(temp_title_buf, title_buf);
 						if(title_len > SHCTSTAB_MAXTEXTLEN) {
@@ -374,7 +374,7 @@ int TProgram::AddItemToMenu(const char * pTitle, void * ptr)
 				tci.mask = TCIF_TEXT|TCIF_PARAM;
 				tci.pszText = temp_title_buf; // @unicodeproblem
 				tci.cchTextMax = sizeof(temp_title_buf);
-				tci.lParam = (LPARAM)ptr;
+				tci.lParam = reinterpret_cast<LPARAM>(ptr);
 				TabCtrl_InsertItem(hwnd_tab, idx, &tci); // @unicodeproblem
 				TabCtrl_SetCurSel(hwnd_tab, idx);
 				TabCtrl_HighlightItem(hwnd_tab, prev_sel, 0);
@@ -620,7 +620,7 @@ void SLAPI AlignWaitDlg(HWND hw = 0);
 
 BOOL CALLBACK SendMainWndSizeMessage(HWND hwnd, LPARAM lParam)
 {
-	if(GetParent(hwnd) == (HWND)lParam)
+	if(GetParent(hwnd) == reinterpret_cast<HWND>(lParam))
 		SendMessage(hwnd, WM_USER_MAINWND_MOVE_SIZE, 0, 0);
 	return TRUE;
 }
@@ -792,12 +792,12 @@ LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, L
 		case WM_ERASEBKGND:
 			{
 				long brw_exists = 0;
-				EnumChildWindows(APPL->H_FrameWnd,	IsBrowsersExists, (LPARAM)&brw_exists);
+				EnumChildWindows(APPL->H_FrameWnd,	IsBrowsersExists, reinterpret_cast<LPARAM>(&brw_exists));
 				return brw_exists ? 1 : DefWindowProc(hWnd, message, wParam, lParam);
 			}
 			break;
 		case WM_USER:
-			p_pgm = (TProgram *)TView::GetWindowUserData(hWnd);
+			p_pgm = static_cast<TProgram *>(TView::GetWindowUserData(hWnd));
 			p_pgm->SetupTreeWnd(GetMenu(hWnd), TVI_ROOT);
 			CALLPTRMEMB(p_pgm->P_Toolbar, Init(TOOLBAR_MAIN, TV_GLBTOOLBAR));
 			CALLPTRMEMB(p_pgm->P_TreeWnd, Show(1));
@@ -879,7 +879,7 @@ LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, L
 				// @v9.1.3 AlignWaitDlg();
 				p_pgm = (TProgram *)TView::GetWindowUserData(hWnd);
 				p_pgm->SizeMainWnd(hWnd);
-				EnumWindows(SendMainWndSizeMessage, (LPARAM)hWnd);
+				EnumWindows(SendMainWndSizeMessage, reinterpret_cast<LPARAM>(hWnd));
 			}
 			break;
 		case WM_DRAWITEM:
@@ -954,17 +954,17 @@ LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, L
 			break;
 		case WM_GETMINMAXINFO:
 			{
-				LPMINMAXINFO p_min_max = (LPMINMAXINFO)lParam;
+				LPMINMAXINFO p_min_max = reinterpret_cast<LPMINMAXINFO>(lParam);
 				p_min_max->ptMinTrackSize.x = 420;
 				p_min_max->ptMinTrackSize.y = 300;
 			}
 			break;
 		case WM_MOVE:
-			p_pgm = (TProgram *)TView::GetWindowUserData(hWnd);
+			p_pgm = static_cast<TProgram *>(TView::GetWindowUserData(hWnd));
 			// @v9.1.3 AlignWaitDlg();
 			if(p_pgm->H_FrameWnd)
 				PostMessage(p_pgm->H_FrameWnd, WM_MOVE, 0, 0);
-			EnumWindows(SendMainWndSizeMessage, (LPARAM)hWnd);
+			EnumWindows(SendMainWndSizeMessage, reinterpret_cast<LPARAM>(hWnd));
 			return (DefWindowProc(hWnd, message, wParam, lParam));
 		/*
 		case WM_INPUTLANGCHANGE: // @v6.4.4 AHTOXA
@@ -974,7 +974,7 @@ LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, L
 		*/
 		case WM_SYSCOMMAND:
 			if(wParam == SC_CLOSE) {
-				TView::messageCommand((TProgram *)TView::GetWindowUserData(hWnd), cmQuit, &lParam);
+				TView::messageCommand(static_cast<TProgram *>(TView::GetWindowUserData(hWnd)), cmQuit, &lParam);
 				break;
 			}
 		default:
@@ -1010,7 +1010,7 @@ TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitl
 	UICfg.Restore();
 	(AppTitle = pAppTitle).SetIfEmpty(AppSymbol);
 	Sf = (sfVisible | sfSelected | sfFocused | sfModal);
-	options = 0;
+	ViewOptions = 0;
 	P_DeskTop = new TGroup(TRect());
 	application = this;
 	HWND      hWnd;
@@ -1089,8 +1089,8 @@ void TProgram::run()
 
 TRect SLAPI TProgram::MakeCenterRect(int width, int height) const
 {
-	const int dx = (P_DeskTop->size.x - width) / 2;
-	const int dy = (P_DeskTop->size.y - height) / 2;
+	const int dx = (P_DeskTop->ViewSize.x - width) / 2;
+	const int dy = (P_DeskTop->ViewSize.y - height) / 2;
 	TRect r(dx, dy, width + dx, height + dy);
 	return r;
 }
@@ -1269,7 +1269,7 @@ int TProgram::SetWindowViewByKind(HWND hWnd, int wndType)
 				}
 			}
 			TView::SetWindowProp(hWnd, GWL_EXSTYLE, ex_style);
-			while(EnumChildWindows(hWnd, EnumCtrls, (LPARAM)&e) != 0)
+			while(EnumChildWindows(hWnd, EnumCtrls, reinterpret_cast<LPARAM>(&e)) != 0)
 				;
 		}
 		else if(oneof2(APPL->UICfg.WindowViewStyle, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector)) {

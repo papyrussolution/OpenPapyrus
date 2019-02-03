@@ -67,7 +67,7 @@ int STooltip::Remove(long id)
 
 #define MSGWND_CLOSETIMER 1L
 
-SMessageWindow::SMessageWindow() : HWnd(0), Cmd(0), Extra(0), Brush(0), Font(0), P_Image(0), PrevImgProc(0)
+SMessageWindow::SMessageWindow() : HWnd(0), Cmd(0), Extra(0), Brush(0), Font(0), P_Image(0), PrevImgProc(0), Flags(0)
 {
 	PrevMouseCoord.x = 0;
 	PrevMouseCoord.y = 0;
@@ -105,7 +105,7 @@ BOOL CALLBACK FindWindowByID(HWND hwnd, LPARAM lParam)
 
 static BOOL CALLBACK CloseTooltipWnd(HWND hwnd, LPARAM lParam)
 {
-	if(!lParam || ::GetParent(hwnd) == (HWND)lParam)
+	if(!lParam || ::GetParent(hwnd) == reinterpret_cast<HWND>(lParam))
 		SendMessage(hwnd, WM_USER_CLOSE_TOOLTIPMSGWIN, (WPARAM)0, (LPARAM)0);
 	return TRUE;
 }

@@ -37,14 +37,14 @@
 #ifndef CAIRO_MALLOC_PRIVATE_H
 #define CAIRO_MALLOC_PRIVATE_H
 
-#include "cairo-wideint-private.h"
+//#include "cairo-wideint-private.h"
 //#include <stdlib.h>
 
 #if HAVE_MEMFAULT
-#include <memfault.h>
-#define CAIRO_INJECT_FAULT() MEMFAULT_INJECT_FAULT()
+	#include <memfault.h>
+	#define CAIRO_INJECT_FAULT() MEMFAULT_INJECT_FAULT()
 #else
-#define CAIRO_INJECT_FAULT() 0
+	#define CAIRO_INJECT_FAULT() 0
 #endif
 
 /**

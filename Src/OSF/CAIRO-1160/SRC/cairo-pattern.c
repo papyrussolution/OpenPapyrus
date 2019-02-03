@@ -29,15 +29,15 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-array-private.h"
-#include "cairo-error-private.h"
-#include "cairo-freed-pool-private.h"
-#include "cairo-image-surface-private.h"
-#include "cairo-list-inline.h"
-#include "cairo-path-private.h"
-#include "cairo-pattern-private.h"
-#include "cairo-recording-surface-inline.h"
-#include "cairo-surface-snapshot-inline.h"
+////#include "cairo-array-private.h"
+//#include "cairo-error-private.h"
+//#include "cairo-freed-pool-private.h"
+//#include "cairo-image-surface-private.h"
+//#include "cairo-list-inline.h"
+//#include "cairo-path-private.h"
+//#include "cairo-pattern-private.h"
+////#include "cairo-recording-surface-inline.h"
+//#include "cairo-surface-snapshot-inline.h"
 //#include <float.h>
 
 #define PIXMAN_MAX_INT ((pixman_fixed_1 >> 1) - pixman_fixed_e) /* need to ensure deltas also fit */
@@ -170,87 +170,62 @@ static void _cairo_pattern_notify_observers(cairo_pattern_t * pattern, uint flag
  * breakpoint in _cairo_error() to generate a stack trace for when the
  * user causes cairo to detect an error.
  **/
-static cairo_status_t _cairo_pattern_set_error(cairo_pattern_t * pattern, cairo_status_t status)
+static cairo_status_t FASTCALL _cairo_pattern_set_error(cairo_pattern_t * pattern, cairo_status_t status)
 {
 	if(status == CAIRO_STATUS_SUCCESS)
 		return status;
-	/* Don't overwrite an existing error. This preserves the first
-	 * error, which is the most significant. */
+	// Don't overwrite an existing error. This preserves the first error, which is the most significant. 
 	_cairo_status_set_error(&pattern->status, status);
-
 	return _cairo_error(status);
 }
 
-void _cairo_pattern_init(cairo_pattern_t * pattern, cairo_pattern_type_t type)
+void FASTCALL _cairo_pattern_init(cairo_pattern_t * pattern, cairo_pattern_type_t type)
 {
 #if HAVE_VALGRIND
 	switch(type) {
-		case CAIRO_PATTERN_TYPE_SOLID:
-		    VALGRIND_MAKE_MEM_UNDEFINED(pattern, sizeof(cairo_solid_pattern_t));
-		    break;
-		case CAIRO_PATTERN_TYPE_SURFACE:
-		    VALGRIND_MAKE_MEM_UNDEFINED(pattern, sizeof(cairo_surface_pattern_t));
-		    break;
-		case CAIRO_PATTERN_TYPE_LINEAR:
-		    VALGRIND_MAKE_MEM_UNDEFINED(pattern, sizeof(cairo_linear_pattern_t));
-		    break;
-		case CAIRO_PATTERN_TYPE_RADIAL:
-		    VALGRIND_MAKE_MEM_UNDEFINED(pattern, sizeof(cairo_radial_pattern_t));
-		    break;
-		case CAIRO_PATTERN_TYPE_MESH:
-		    VALGRIND_MAKE_MEM_UNDEFINED(pattern, sizeof(cairo_mesh_pattern_t));
-		    break;
-		case CAIRO_PATTERN_TYPE_RASTER_SOURCE:
-		    break;
+		case CAIRO_PATTERN_TYPE_SOLID: VALGRIND_MAKE_MEM_UNDEFINED(pattern, sizeof(cairo_solid_pattern_t)); break;
+		case CAIRO_PATTERN_TYPE_SURFACE: VALGRIND_MAKE_MEM_UNDEFINED(pattern, sizeof(cairo_surface_pattern_t)); break;
+		case CAIRO_PATTERN_TYPE_LINEAR: VALGRIND_MAKE_MEM_UNDEFINED(pattern, sizeof(cairo_linear_pattern_t)); break;
+		case CAIRO_PATTERN_TYPE_RADIAL: VALGRIND_MAKE_MEM_UNDEFINED(pattern, sizeof(cairo_radial_pattern_t)); break;
+		case CAIRO_PATTERN_TYPE_MESH: VALGRIND_MAKE_MEM_UNDEFINED(pattern, sizeof(cairo_mesh_pattern_t)); break;
+		case CAIRO_PATTERN_TYPE_RASTER_SOURCE: break;
 	}
 #endif
-
 	pattern->type      = type;
 	pattern->status    = CAIRO_STATUS_SUCCESS;
-
 	/* Set the reference count to zero for on-stack patterns.
 	 * Callers needs to explicitly increment the count for heap allocations. */
 	CAIRO_REFERENCE_COUNT_INIT(&pattern->ref_count, 0);
-
 	_cairo_user_data_array_init(&pattern->user_data);
-
-	if(type == CAIRO_PATTERN_TYPE_SURFACE ||
-	    type == CAIRO_PATTERN_TYPE_RASTER_SOURCE)
+	if(type == CAIRO_PATTERN_TYPE_SURFACE || type == CAIRO_PATTERN_TYPE_RASTER_SOURCE)
 		pattern->extend = CAIRO_EXTEND_SURFACE_DEFAULT;
 	else
 		pattern->extend = CAIRO_EXTEND_GRADIENT_DEFAULT;
-
 	pattern->filter    = CAIRO_FILTER_DEFAULT;
 	pattern->opacity   = 1.0;
-
 	pattern->has_component_alpha = FALSE;
-
 	cairo_matrix_init_identity(&pattern->matrix);
-
 	cairo_list_init(&pattern->observers);
 }
 
-static cairo_status_t _cairo_gradient_pattern_init_copy(cairo_gradient_pattern_t * pattern,
-    const cairo_gradient_pattern_t * other)
+static cairo_status_t _cairo_gradient_pattern_init_copy(cairo_gradient_pattern_t * pattern, const cairo_gradient_pattern_t * other)
 {
 	if(CAIRO_INJECT_FAULT())
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	if(other->base.type == CAIRO_PATTERN_TYPE_LINEAR) {
-		cairo_linear_pattern_t * dst = (cairo_linear_pattern_t*)pattern;
-		cairo_linear_pattern_t * src = (cairo_linear_pattern_t*)other;
-
+		cairo_linear_pattern_t * dst = reinterpret_cast<cairo_linear_pattern_t *>(pattern);
+		const cairo_linear_pattern_t * src = reinterpret_cast<const cairo_linear_pattern_t *>(other);
 		*dst = *src;
 	}
 	else {
-		cairo_radial_pattern_t * dst = (cairo_radial_pattern_t*)pattern;
-		cairo_radial_pattern_t * src = (cairo_radial_pattern_t*)other;
+		cairo_radial_pattern_t * dst = reinterpret_cast<cairo_radial_pattern_t *>(pattern);
+		const cairo_radial_pattern_t * src = reinterpret_cast<const cairo_radial_pattern_t *>(other);
 		*dst = *src;
 	}
 	if(other->stops == other->stops_embedded)
 		pattern->stops = pattern->stops_embedded;
 	else if(other->stops) {
-		pattern->stops = (cairo_gradient_stop_t *)_cairo_malloc_ab(other->stops_size, sizeof(cairo_gradient_stop_t));
+		pattern->stops = static_cast<cairo_gradient_stop_t *>(_cairo_malloc_ab(other->stops_size, sizeof(cairo_gradient_stop_t)));
 		if(unlikely(pattern->stops == NULL)) {
 			pattern->stops_size = 0;
 			pattern->n_stops = 0;
@@ -493,15 +468,13 @@ cairo_status_t _cairo_pattern_create_copy(cairo_pattern_t ** pattern_out, const 
 	return CAIRO_STATUS_SUCCESS;
 }
 
-void _cairo_pattern_init_solid(cairo_solid_pattern_t * pattern,
-    const cairo_color_t * color)
+void FASTCALL _cairo_pattern_init_solid(cairo_solid_pattern_t * pattern, const cairo_color_t * color)
 {
 	_cairo_pattern_init(&pattern->base, CAIRO_PATTERN_TYPE_SOLID);
 	pattern->color = *color;
 }
 
-void _cairo_pattern_init_for_surface(cairo_surface_pattern_t * pattern,
-    cairo_surface_t * surface)
+void _cairo_pattern_init_for_surface(cairo_surface_pattern_t * pattern, cairo_surface_t * surface)
 {
 	if(surface->status) {
 		/* Force to solid to simplify the pattern_fini process. */
@@ -509,9 +482,7 @@ void _cairo_pattern_init_for_surface(cairo_surface_pattern_t * pattern,
 		_cairo_pattern_set_error(&pattern->base, surface->status);
 		return;
 	}
-
 	_cairo_pattern_init(&pattern->base, CAIRO_PATTERN_TYPE_SURFACE);
-
 	pattern->surface = cairo_surface_reference(surface);
 }
 
@@ -555,7 +526,7 @@ cairo_pattern_t * _cairo_pattern_create_solid(const cairo_color_t * color)
 	cairo_solid_pattern_t * pattern = _freed_pool_get(&freed_pattern_pool[CAIRO_PATTERN_TYPE_SOLID]);
 	if(unlikely(pattern == NULL)) {
 		/* None cached, need to create a new pattern. */
-		pattern = (cairo_solid_pattern_t *)_cairo_malloc(sizeof(cairo_solid_pattern_t));
+		pattern = static_cast<cairo_solid_pattern_t *>(_cairo_malloc(sizeof(cairo_solid_pattern_t)));
 		if(unlikely(pattern == NULL)) {
 			_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 			return (cairo_pattern_t*)&_cairo_pattern_nil;
@@ -566,17 +537,15 @@ cairo_pattern_t * _cairo_pattern_create_solid(const cairo_color_t * color)
 	return &pattern->base;
 }
 
-cairo_pattern_t * _cairo_pattern_create_in_error(cairo_status_t status)
+cairo_pattern_t * FASTCALL _cairo_pattern_create_in_error(cairo_status_t status)
 {
 	cairo_pattern_t * pattern;
 	if(status == CAIRO_STATUS_NO_MEMORY)
 		return (cairo_pattern_t*)&_cairo_pattern_nil.base;
 	CAIRO_MUTEX_INITIALIZE();
-
 	pattern = _cairo_pattern_create_solid(CAIRO_COLOR_BLACK);
 	if(pattern->status == CAIRO_STATUS_SUCCESS)
 		status = _cairo_pattern_set_error(pattern, status);
-
 	return pattern;
 }
 
@@ -955,7 +924,6 @@ cairo_pattern_t * cairo_pattern_create_mesh(void)
 	CAIRO_REFERENCE_COUNT_INIT(&pattern->base.ref_count, 1);
 	return &pattern->base;
 }
-
 /**
  * cairo_pattern_reference:
  * @pattern: a #cairo_pattern_t
@@ -973,14 +941,10 @@ cairo_pattern_t * cairo_pattern_create_mesh(void)
  **/
 cairo_pattern_t * cairo_pattern_reference(cairo_pattern_t * pattern)
 {
-	if(pattern == NULL ||
-	    CAIRO_REFERENCE_COUNT_IS_INVALID(&pattern->ref_count))
+	if(pattern == NULL || CAIRO_REFERENCE_COUNT_IS_INVALID(&pattern->ref_count))
 		return pattern;
-
 	assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&pattern->ref_count));
-
 	_cairo_reference_count_inc(&pattern->ref_count);
-
 	return pattern;
 }
 
@@ -997,11 +961,10 @@ slim_hidden_def(cairo_pattern_reference);
  *
  * Since: 1.2
  **/
-cairo_pattern_type_t cairo_pattern_get_type(cairo_pattern_t * pattern)
+cairo_pattern_type_t cairo_pattern_get_type(const cairo_pattern_t * pattern)
 {
 	return pattern->type;
 }
-
 /**
  * cairo_pattern_status:
  * @pattern: a #cairo_pattern_t
@@ -1015,7 +978,7 @@ cairo_pattern_type_t cairo_pattern_get_type(cairo_pattern_t * pattern)
  *
  * Since: 1.0
  **/
-cairo_status_t cairo_pattern_status(cairo_pattern_t * pattern)
+cairo_status_t cairo_pattern_status(const cairo_pattern_t * pattern)
 {
 	return pattern->status;
 }
@@ -1030,23 +993,17 @@ cairo_status_t cairo_pattern_status(cairo_pattern_t * pattern)
  *
  * Since: 1.0
  **/
-void cairo_pattern_destroy(cairo_pattern_t * pattern)
+void FASTCALL cairo_pattern_destroy(cairo_pattern_t * pattern)
 {
 	cairo_pattern_type_t type;
-
-	if(pattern == NULL ||
-	    CAIRO_REFERENCE_COUNT_IS_INVALID(&pattern->ref_count))
+	if(pattern == NULL || CAIRO_REFERENCE_COUNT_IS_INVALID(&pattern->ref_count))
 		return;
-
 	assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&pattern->ref_count));
-
 	if(!_cairo_reference_count_dec_and_test(&pattern->ref_count))
 		return;
-
 	type = pattern->type;
 	_cairo_pattern_fini(pattern);
-
-	/* maintain a small cache of freed patterns */
+	// maintain a small cache of freed patterns 
 	if(type < ARRAY_LENGTH(freed_pattern_pool))
 		_freed_pool_put(&freed_pattern_pool[type], pattern);
 	else
@@ -1066,12 +1023,10 @@ slim_hidden_def(cairo_pattern_destroy);
  *
  * Since: 1.4
  **/
-uint cairo_pattern_get_reference_count(cairo_pattern_t * pattern)
+uint cairo_pattern_get_reference_count(const cairo_pattern_t * pattern)
 {
-	if(pattern == NULL ||
-	    CAIRO_REFERENCE_COUNT_IS_INVALID(&pattern->ref_count))
+	if(pattern == NULL || CAIRO_REFERENCE_COUNT_IS_INVALID(&pattern->ref_count))
 		return 0;
-
 	return CAIRO_REFERENCE_COUNT_GET_VALUE(&pattern->ref_count);
 }
 

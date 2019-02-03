@@ -41,10 +41,10 @@
 #pragma hdrstop
 #if CAIRO_HAS_GL_SURFACE // {
 #include "cairo-gl-private.h"
-#include "cairo-composite-rectangles-private.h"
-#include "cairo-compositor-private.h"
+//#include "cairo-composite-rectangles-private.h"
+//#include "cairo-compositor-private.h"
 #include "cairo-default-context-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-image-surface-inline.h"
 #include "cairo-surface-backend-private.h"
 
@@ -306,7 +306,7 @@ static cairo_status_t _cairo_gl_surface_extract_image_data(cairo_image_surface_t
 	int cpp = PIXMAN_FORMAT_BPP(image->pixman_format) / 8;
 	char * data = _cairo_malloc_ab(width * height, cpp);
 	char * dst = data;
-	unsigned char * src = image->data + y * image->stride + x * cpp;
+	uchar * src = image->data + y * image->stride + x * cpp;
 	int i;
 
 	if(unlikely(data == NULL))

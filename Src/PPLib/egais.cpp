@@ -783,7 +783,7 @@ int SLAPI PPEgaisProcessor::PutQuery(PPEgaisProcessor::Packet & rPack, PPID locI
                     }
 				}
 				else if(edi_op_list.lsearch(rPack.DocType)) {
-					PPBillPacket * p_bp = (PPBillPacket *)rPack.P_Data;
+					PPBillPacket * p_bp = static_cast<PPBillPacket *>(rPack.P_Data);
 					if(p_bp) {
 						THROW(P_BObj->Search(p_bp->Rec.ID, &bill_rec) > 0);
 						{
@@ -1952,7 +1952,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 					(temp_buf = "ns").CatChar(':').Cat(doc_type_tag);
 					SXml::WNode n_dt(_doc, temp_buf);
 					if(oneof3(doc_type, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3)) { // @v9.9.5 PPEDIOP_EGAIS_WAYBILL_V3
-						const  PPBillPacket * p_bp = (const PPBillPacket *)rPack.P_Data;
+						const  PPBillPacket * p_bp = static_cast<const PPBillPacket *>(rPack.P_Data);
 						int    wb_type = 0;
 						PPOprKind op_rec;
 						PPOprKind link_op_rec;
@@ -2347,7 +2347,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						n_h.PutInnerSkipEmpty(SXml::nst("wt", "Note"), EncText(temp_buf = p_ticket->Comment));
 					}
 					else if(oneof3(doc_type, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3)) {
-						PPBillPacket * p_bp = (PPBillPacket *)rPack.P_Data;
+						PPBillPacket * p_bp = static_cast<PPBillPacket *>(rPack.P_Data);
 						PPBillPacket * p_link_bp = 0;
 						PPBillPacket _link_bp;
 						int    is_status_suited = 0;
@@ -2571,7 +2571,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						}
 					}
 					else if(doc_type == PPEDIOP_EGAIS_ACTCHARGEONSHOP) {
-						const PPBillPacket * p_bp = (const PPBillPacket *)rPack.P_Data;
+						const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(rPack.P_Data);
 						n_dt.PutInner(SXml::nst("ainp", "Identity"), temp_buf.Z().Cat(p_bp->Rec.ID));
 						{
 							SXml::WNode n_h(_doc, SXml::nst("ainp", "Header"));
@@ -2609,7 +2609,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						}
 					}
 					else if(doc_type == PPEDIOP_EGAIS_ACTWRITEOFFSHOP) { // @v9.4.0
-						const PPBillPacket * p_bp = (const PPBillPacket *)rPack.P_Data;
+						const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(rPack.P_Data);
 						n_dt.PutInner(SXml::nst("awr", "Identity"), temp_buf.Z().Cat(p_bp->Rec.ID));
 						{
 							SXml::WNode n_h(_doc, SXml::nst("awr", "Header"));
@@ -2659,7 +2659,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						}
 					}
 					else if(doc_type == PPEDIOP_EGAIS_ACTCHARGEON_V2) { // @v9.3.12
-						const PPBillPacket * p_bp = (const PPBillPacket *)rPack.P_Data;
+						const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(rPack.P_Data);
 						{
 							SXml::WNode n_h(_doc, SXml::nst("ainp", "Header"));
 							n_h.PutInner(SXml::nst("ainp", "Number"), EncText(temp_buf = p_bp->Rec.Code));
@@ -2829,7 +2829,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						}
 					}
 					else if(oneof3(doc_type, PPEDIOP_EGAIS_ACTWRITEOFF, PPEDIOP_EGAIS_ACTWRITEOFF_V2, PPEDIOP_EGAIS_ACTWRITEOFF_V3)) {
-						const PPBillPacket * p_bp = (const PPBillPacket *)rPack.P_Data;
+						const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(rPack.P_Data);
 						n_dt.PutInner(SXml::nst("awr", "Identity"), temp_buf.Z().Cat(p_bp->Rec.ID));
 						{
 							SXml::WNode n_h(_doc, SXml::nst("awr", "Header"));
@@ -2892,7 +2892,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						}
 					}
 					else if(doc_type == PPEDIOP_EGAIS_TRANSFERTOSHOP) {
-						const PPBillPacket * p_bp = (const PPBillPacket *)rPack.P_Data;
+						const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(rPack.P_Data);
 						n_dt.PutInner(SXml::nst("tts", "Identity"), temp_buf.Z().Cat(p_bp->Rec.ID));
 						{
 							SXml::WNode n_h(_doc, SXml::nst("tts", "Header"));
@@ -2934,7 +2934,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						}
 					}
 					else if(doc_type == PPEDIOP_EGAIS_TRANSFERFROMSHOP) {
-						const PPBillPacket * p_bp = (const PPBillPacket *)rPack.P_Data;
+						const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(rPack.P_Data);
 						n_dt.PutInner(SXml::nst("tfs", "Identity"), temp_buf.Z().Cat(p_bp->Rec.ID));
 						{
 							SXml::WNode n_h(_doc, SXml::nst("tfs", "Header"));
@@ -3963,7 +3963,7 @@ int SLAPI PPEgaisProcessor::Read_WayBillAct(xmlNode * pFirstNode, PPID locID, Pa
     int    is_accepted = -1;
     LDATE  act_date = ZERODATE;
     SString act_code;
-    PPBillPacket * p_bp = (PPBillPacket *)pPack->P_Data;
+    PPBillPacket * p_bp = static_cast<PPBillPacket *>(pPack->P_Data);
     SString bill_ident;
 	SString bill_text;
     SString memo_note; // <note>
@@ -4157,7 +4157,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
     PPPersonPacket psn_suppl;
     PPPersonPacket psn_consignee;
 	PPLocationPacket loc_pack;
-	PPBillPacket * p_bp = pPack ? (PPBillPacket *)pPack->P_Data : 0;
+	PPBillPacket * p_bp = pPack ? static_cast<PPBillPacket *>(pPack->P_Data) : 0;
     PPFreight freight;
     SString bill_ident;
     SString memo_base; // <base>
@@ -4615,7 +4615,7 @@ int SLAPI PPEgaisProcessor::Helper_AreArticlesEq(PPID ar1ID, PPID ar2ID)
 int SLAPI PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, TSCollection <PPEgaisProcessor::Packet> * pPackList, uint packIdx)
 {
 	int    ok = -1;
-	PPBillPacket * p_bp = pPack ? (PPBillPacket *)pPack->P_Data : 0;
+	PPBillPacket * p_bp = pPack ? static_cast<PPBillPacket *>(pPack->P_Data) : 0;
 	if(p_bp && !(pPack->Flags & (Packet::fAcceptedBill|Packet::fFaultObj))) {
 		const  int use_dt_in_bill_analog = BIN(ACfg.Hdr.Flags & PPAlbatrosCfgHdr::fUseDateInBillAnalog);
 		int    do_skip = 0;
@@ -4632,7 +4632,7 @@ int SLAPI PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, TSCollection
 				for(uint pi = packIdx+1; pi < pPackList->getCount(); pi++) {
                     const Packet * p_pack = pPackList->at(pi);
                     if(p_pack && p_pack->P_Data && oneof3(p_pack->DocType, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3) && !(p_pack->Flags & Packet::fFaultObj)) {
-						PPBillPacket * p_other_bp = (PPBillPacket *)p_pack->P_Data;
+						PPBillPacket * p_other_bp = static_cast<PPBillPacket *>(p_pack->P_Data);
 						if((!use_dt_in_bill_analog || p_other_bp->Rec.Dt == p_bp->Rec.Dt) && sstreq(p_other_bp->Rec.Code, p_bp->Rec.Code)) {
                             if(p_other_bp->BTagL.GetItemStr(PPTAG_BILL_OUTERCODE, temp_buf) > 0 && temp_buf == bill_ident) {
 								if(Helper_AreArticlesEq(p_other_bp->Rec.Object, p_bp->Rec.Object)) {
@@ -5529,7 +5529,7 @@ int SLAPI PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const D
 	DateRange period;
 	BillTbl::Rec bill_rec;
     LDATETIME rest_dtm = ZERODATETIME;
-	PPBillPacket * p_bp = pPack ? (PPBillPacket *)pPack->P_Data : 0;
+	PPBillPacket * p_bp = pPack ? static_cast<PPBillPacket *>(pPack->P_Data) : 0;
 	PPBillPacket * p_shop_rest_bp = 0;
     SString temp_buf;
 	PPGoodsPacket goods_pack;
@@ -5709,7 +5709,7 @@ int SLAPI PPEgaisProcessor::Write(Packet & rPack, PPID locID, SBuffer & rBuffer)
     THROW(p_x = xmlNewTextWriterMemory(p_x_buf, 0));
     THROW(ok = Helper_Write(rPack, locID, p_x));
 	xmlTextWriterFlush(p_x);
-	THROW_SL(rBuffer.Write((char *)p_x_buf->content, p_x_buf->use));
+	THROW_SL(rBuffer.Write(p_x_buf->content, p_x_buf->use));
     CATCHZOK
     xmlFreeTextWriter(p_x);
     xmlBufferFree(p_x_buf);
@@ -5794,7 +5794,7 @@ int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, lon
 		file_no = ps.Nam.ToLong();
 	}
 	int    ok = -1;
-	xmlParserCtxt * p_ctx = (xmlParserCtxt *)pCtx;
+	xmlParserCtxt * p_ctx = static_cast<xmlParserCtxt *>(pCtx);
 	xmlDoc * p_doc = 0;
 	xmlNode * p_root = 0;
 	Packet * p_new_pack = 0;
@@ -6436,7 +6436,7 @@ int SLAPI PPEgaisProcessor::DeleteSrcPacket(const Packet * pPack, TSCollection <
 int SLAPI PPEgaisProcessor::Helper_CollectRefs(void * pCtx, TSCollection <PPEgaisProcessor::Reply> & rReplyList, RefCollection & rRefC)
 {
 	int    ok = 1;
-	xmlParserCtxt * p_ctx = (xmlParserCtxt *)pCtx;
+	xmlParserCtxt * p_ctx = static_cast<xmlParserCtxt *>(pCtx);
 	SString temp_buf;
 	SString temp_path;
 	StringSet ss_url_tok;
@@ -6654,7 +6654,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 			Packet * p_pack = pack_list.at(packidx);
 			if(p_pack && p_pack->P_Data && !skip_packidx_list.lsearch((long)packidx)) {
 				if(oneof3(p_pack->DocType, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTS_V2, PPEDIOP_EGAIS_REPLYRESTSSHOP)) {
-					const PPBillPacket * p_rbp = (const PPBillPacket *)p_pack->P_Data;
+					const PPBillPacket * p_rbp = static_cast<const PPBillPacket *>(p_pack->P_Data);
 					if(p_rbp && p_rbp->Rec.ID) {
 						DateIter tdi;
 						tdi.dt = p_rbp->Rec.Dt;
@@ -6847,7 +6847,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 			}
 			if(last_restshop_pos >= 0 && last_restshop_pos < (int)pack_list.getCount()) {
 				Packet * p_pack = pack_list.at(last_restshop_pos);
-				PPBillPacket * p_bp = p_pack ? (PPBillPacket *)p_pack->P_Data : 0;
+				PPBillPacket * p_bp = p_pack ? static_cast<PPBillPacket *>(p_pack->P_Data) : 0;
 				THROW(Helper_CreateTransferToShop(p_bp));
 				THROW(Helper_CreateWriteOffShop(p_bp, pPeriod));
 			}
@@ -7066,7 +7066,7 @@ int SLAPI PPEgaisProcessor::CreateActChargeOnBill(PPID * pBillID, int ediOp, PPI
 	return ok;
 }*/
 
-int SLAPI PPEgaisProcessor::GetAcceptedBillList(const PPBillExportFilt & rP, long flags, PPIDArray & rList)
+int SLAPI PPEgaisProcessor::GetAcceptedBillList(const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList)
 {
 	rList.clear();
 	int    ok = -1;
@@ -7161,7 +7161,7 @@ int SLAPI PPEgaisProcessor::GetAcceptedBillList(const PPBillExportFilt & rP, lon
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::SendBillActs(const PPBillExportFilt & rP)
+int SLAPI PPEgaisProcessor::SendBillActs(const PPBillIterchangeFilt & rP)
 {
 	int    ok = -1;
 	PPIDArray accepted_bill_list;
@@ -7169,7 +7169,7 @@ int SLAPI PPEgaisProcessor::SendBillActs(const PPBillExportFilt & rP)
 	for(uint i = 0; i < accepted_bill_list.getCount(); i++) {
 		const PPID bill_id = accepted_bill_list.get(i);
 		PPEgaisProcessor::Packet pack(PPEDIOP_EGAIS_WAYBILLACT);
-		PPBillPacket * p_bp = (PPBillPacket *)pack.P_Data;
+		PPBillPacket * p_bp = static_cast<PPBillPacket *>(pack.P_Data);
 		if(P_BObj->ExtractPacket(bill_id, p_bp) > 0) {
             Ack ack;
 			const char * p_suffix = 0;
@@ -7196,7 +7196,7 @@ int SLAPI PPEgaisProcessor::SendBillActs(const PPBillExportFilt & rP)
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::SendBillRepeals(const PPBillExportFilt & rP)
+int SLAPI PPEgaisProcessor::SendBillRepeals(const PPBillIterchangeFilt & rP)
 {
 	int    ok = -1;
 	PPIDArray accepted_bill_list;
@@ -7225,7 +7225,7 @@ int SLAPI PPEgaisProcessor::SendBillRepeals(const PPBillExportFilt & rP)
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::GetBillListForTransmission(const PPBillExportFilt & rP, long flags, PPIDArray & rList, PPIDArray * pRejectList)
+int SLAPI PPEgaisProcessor::GetBillListForTransmission(const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList, PPIDArray * pRejectList)
 {
 	rList.clear();
 	int    ok = -1;
@@ -7368,7 +7368,7 @@ int SLAPI PPEgaisProcessor::CheckBillForMainOrgID(const BillTbl::Rec & rRec, con
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::GetBillListForConfirmTicket(const PPBillExportFilt & rP, long flags, PPIDArray & rList)
+int SLAPI PPEgaisProcessor::GetBillListForConfirmTicket(const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList)
 {
 	rList.clear();
 	int    ok = -1;
@@ -7460,7 +7460,7 @@ int SLAPI PPEgaisProcessor::Helper_SendBills(PPID billID, int ediOp, PPID locID,
 {
 	int    ok = -1;
 	PPEgaisProcessor::Packet pack(ediOp);
-	if(P_BObj->ExtractPacketWithFlags(billID, (PPBillPacket *)pack.P_Data, BPLD_FORCESERIALS) > 0) {
+	if(P_BObj->ExtractPacketWithFlags(billID, static_cast<PPBillPacket *>(pack.P_Data), BPLD_FORCESERIALS) > 0) {
 		Ack ack;
 		const int r = PutQuery(pack, locID, pUrlSuffix, ack);
 		if(r > 0)
@@ -7471,7 +7471,7 @@ int SLAPI PPEgaisProcessor::Helper_SendBills(PPID billID, int ediOp, PPID locID,
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::Helper_SendBillsByPattern(const PPBillExportFilt & rP, const PPEgaisProcessor::BillTransmissionPattern & rPattern)
+int SLAPI PPEgaisProcessor::Helper_SendBillsByPattern(const PPBillIterchangeFilt & rP, const PPEgaisProcessor::BillTransmissionPattern & rPattern)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -7553,7 +7553,7 @@ int SLAPI PPEgaisProcessor::Helper_SendBillsByPattern(const PPBillExportFilt & r
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::SendBills(const PPBillExportFilt & rP)
+int SLAPI PPEgaisProcessor::SendBills(const PPBillIterchangeFilt & rP)
 {
 	int    ok = -1;
 	const  int __v2 = BIN(Cfg.E.Flags & Cfg.fEgaisVer2Fmt);
@@ -7612,7 +7612,7 @@ int SLAPI PPEgaisProcessor::SendBills(const PPBillExportFilt & rP)
 			for(uint i = 0; i < reject_bill_list.getCount(); i++) {
 				const PPID bill_id = reject_bill_list.get(i);
 				PPEgaisProcessor::Packet pack(PPEDIOP_EGAIS_WAYBILLACT);
-				PPBillPacket * p_bp = (PPBillPacket *)pack.P_Data;
+				PPBillPacket * p_bp = static_cast<PPBillPacket *>(pack.P_Data);
 				if(P_BObj->ExtractPacketWithFlags(bill_id, p_bp, BPLD_FORCESERIALS) > 0) {
 					if(p_bp->Rec.Flags2 & BILLF2_DECLINED && p_bp->BTagL.GetItemStr(PPTAG_BILL_EDIIDENT, temp_buf) > 0) {
 						Ack ack;
@@ -7652,7 +7652,7 @@ int SLAPI PPEgaisProcessor::SendBills(const PPBillExportFilt & rP)
 				const char * p_url_sfx = __v3 ? "WayBill_v3" : (__v2 ? "WayBill_v2" : "WayBill");
 				PPEgaisProcessor::Packet pack(edi_op);
 				pack.Flags |= PPEgaisProcessor::Packet::fReturnBill;
-				PPBillPacket * p_bp = (PPBillPacket *)pack.P_Data;
+				PPBillPacket * p_bp = static_cast<PPBillPacket *>(pack.P_Data);
 				if(P_BObj->ExtractPacketWithFlags(bill_id, p_bp, BPLD_FORCESERIALS) > 0) {
 					Ack ack;
 					const int r = PutQuery(pack, rP.LocID, p_url_sfx, ack);
@@ -7669,7 +7669,7 @@ int SLAPI PPEgaisProcessor::SendBills(const PPBillExportFilt & rP)
 				const int edi_op = __v3 ? PPEDIOP_EGAIS_WAYBILLACT_V3 : (__v2 ? PPEDIOP_EGAIS_WAYBILLACT_V2 : PPEDIOP_EGAIS_WAYBILLACT);
 				PPEgaisProcessor::Packet pack(edi_op);
 				pack.Flags |= PPEgaisProcessor::Packet::fReturnBill;
-				PPBillPacket * p_bp = (PPBillPacket *)pack.P_Data;
+				PPBillPacket * p_bp = static_cast<PPBillPacket *>(pack.P_Data);
 				if(P_BObj->ExtractPacketWithFlags(bill_id, p_bp, BPLD_FORCESERIALS) > 0) {
 					if(p_bp->Rec.Flags2 & BILLF2_DECLINED && p_bp->BTagL.GetItemStr(PPTAG_BILL_EDIIDENT, temp_buf) > 0) {
 						Ack ack;

@@ -43,8 +43,8 @@
 # define _WIN32_WINNT 0x0500
 #endif
 #include "cairo-win32-private.h"
-#include "cairo-array-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-array-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-image-surface-private.h"
 #include "cairo-pattern-private.h"
 #include "cairo-scaled-font-subsets-private.h"
@@ -358,7 +358,7 @@ static cairo_status_t _win32_scaled_font_get_scaled_hfont(cairo_win32_scaled_fon
 {
 	if(!scaled_font->scaled_hfont) {
 		LOGFONTW logfont = scaled_font->logfont;
-		logfont.lfHeight = -scaled_font->logical_size;
+		logfont.lfHeight = static_cast<LONG>(-scaled_font->logical_size);
 		logfont.lfWidth = 0;
 		logfont.lfEscapement = 0;
 		logfont.lfOrientation = 0;
@@ -616,7 +616,7 @@ static cairo_int_status_t _cairo_win32_scaled_font_text_to_glyphs(void * abstrac
 	gcp_results.lpOrder = NULL;
 	gcp_results.lpCaretPos = NULL;
 	gcp_results.lpClass = NULL;
-	buffer_size = MAX(n16 * 1.2, 16);       /* Initially guess number of chars plus a few */
+	buffer_size = static_cast<uint>(MAX(n16 * 1.2, 16)); // Initially guess number of chars plus a few 
 	if(buffer_size > INT_MAX) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto FAIL1;
@@ -940,15 +940,12 @@ static cairo_status_t _cairo_win32_scaled_font_glyph_bbox(void * abstract_font,
 			if(i == 0 || y2 < y - metrics.gmptGlyphOrigin.y + (int)metrics.gmBlackBoxY)
 				y2 = y - metrics.gmptGlyphOrigin.y + (int)metrics.gmBlackBoxY;
 		}
-
 		cairo_win32_scaled_font_done_font(&scaled_font->base);
 	}
-
 	bbox->p1.x = _cairo_fixed_from_int(x1);
 	bbox->p1.y = _cairo_fixed_from_int(y1);
 	bbox->p2.x = _cairo_fixed_from_int(x2);
 	bbox->p2.y = _cairo_fixed_from_int(y2);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -957,33 +954,27 @@ static cairo_status_t _cairo_win32_scaled_font_glyph_bbox(void * abstract_font,
 typedef struct {
 	cairo_win32_scaled_font_t * scaled_font;
 	HDC hdc;
-
 	cairo_array_t glyphs;
 	cairo_array_t dx;
-
 	int start_x;
 	int last_x;
 	int last_y;
 } cairo_glyph_state_t;
 
-static void _start_glyphs(cairo_glyph_state_t * state,
-    cairo_win32_scaled_font_t * scaled_font,
-    HDC hdc)
+static void _start_glyphs(cairo_glyph_state_t * state, cairo_win32_scaled_font_t * scaled_font, HDC hdc)
 {
 	state->hdc = hdc;
 	state->scaled_font = scaled_font;
-
 	_cairo_array_init(&state->glyphs, sizeof(WCHAR));
 	_cairo_array_init(&state->dx, sizeof(int));
 }
 
 static cairo_status_t _flush_glyphs(cairo_glyph_state_t * state)
 {
-	cairo_status_t status;
 	int dx = 0;
 	WCHAR * elements;
 	int * dx_elements;
-	status = _cairo_array_append(&state->dx, &dx);
+	cairo_status_t status = _cairo_array_append(&state->dx, &dx);
 	if(status)
 		return status;
 	elements = (WCHAR *)_cairo_array_index(&state->glyphs, 0);
@@ -997,10 +988,8 @@ static cairo_status_t _flush_glyphs(cairo_glyph_state_t * state)
 	    dx_elements)) {
 		return _cairo_win32_print_gdi_error("_flush_glyphs");
 	}
-
 	_cairo_array_truncate(&state->glyphs, 0);
 	_cairo_array_truncate(&state->dx, 0);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -1009,7 +998,7 @@ static cairo_status_t _add_glyph(cairo_glyph_state_t * state, ulong index, doubl
 	cairo_status_t status;
 	double user_x = device_x;
 	double user_y = device_y;
-	WCHAR glyph_index = index;
+	WCHAR glyph_index = static_cast<WCHAR>(index);
 	int logical_x, logical_y;
 	cairo_matrix_transform_point(&state->scaled_font->device_to_logical, &user_x, &user_y);
 	logical_x = _cairo_lround(user_x);
@@ -1116,7 +1105,7 @@ static cairo_int_status_t _cairo_win32_scaled_font_glyph_init(void * abstract_fo
 static cairo_int_status_t _cairo_win32_scaled_font_load_truetype_table(void * abstract_font,
     ulong tag,
     long offset,
-    unsigned char * buffer,
+    uchar * buffer,
     ulong * length)
 {
 	cairo_win32_scaled_font_t * scaled_font = (cairo_win32_scaled_font_t *)abstract_font;
@@ -1288,7 +1277,7 @@ static cairo_int_status_t _cairo_win32_scaled_font_index_to_glyph_name(void * ab
 
 static cairo_int_status_t _cairo_win32_scaled_font_load_type1_data(void * abstract_font,
     long offset,
-    unsigned char * buffer,
+    uchar * buffer,
     ulong * length)
 {
 	cairo_win32_scaled_font_t * scaled_font = (cairo_win32_scaled_font_t *)abstract_font;
@@ -1389,9 +1378,7 @@ FAIL:
 	return status;
 }
 
-static void _cairo_win32_transform_FIXED_to_fixed(cairo_matrix_t * matrix,
-    FIXED Fx, FIXED Fy,
-    cairo_fixed_t * fx, cairo_fixed_t * fy)
+static void FASTCALL _cairo_win32_transform_FIXED_to_fixed(const cairo_matrix_t * matrix, FIXED Fx, FIXED Fy, cairo_fixed_t * fx, cairo_fixed_t * fy)
 {
 	double x = Fx.value + Fx.fract / 65536.0;
 	double y = Fy.value + Fy.fract / 65536.0;
@@ -1407,7 +1394,7 @@ static cairo_status_t _cairo_win32_scaled_font_init_glyph_path(cairo_win32_scale
 	GLYPHMETRICS metrics;
 	HDC hdc;
 	DWORD bytesGlyph;
-	unsigned char * buffer, * ptr;
+	uchar * buffer, * ptr;
 	cairo_path_fixed_t * path;
 	cairo_matrix_t transform;
 	cairo_fixed_t x, y;
@@ -1418,7 +1405,6 @@ static cairo_status_t _cairo_win32_scaled_font_init_glyph_path(cairo_win32_scale
 	path = _cairo_path_fixed_create();
 	if(!path)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	if(scaled_font->base.options.hint_style == CAIRO_HINT_STYLE_NONE) {
 		status = _cairo_win32_scaled_font_select_unscaled_font(&scaled_font->base, hdc);
 		transform = scaled_font->base.scale;
@@ -1440,16 +1426,13 @@ static cairo_status_t _cairo_win32_scaled_font_init_glyph_path(cairo_win32_scale
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto CLEANUP_FONT;
 	}
-	if(GetGlyphOutlineW(hdc, _cairo_scaled_glyph_index(scaled_glyph),
-	    GGO_NATIVE | GGO_GLYPH_INDEX,
-	    &metrics, bytesGlyph, buffer, &matrix) == GDI_ERROR) {
+	if(GetGlyphOutlineW(hdc, _cairo_scaled_glyph_index(scaled_glyph), GGO_NATIVE | GGO_GLYPH_INDEX, &metrics, bytesGlyph, buffer, &matrix) == GDI_ERROR) {
 		status = _cairo_win32_print_gdi_error("_cairo_win32_scaled_font_glyph_path");
 		goto CLEANUP_BUFFER;
 	}
-
 	while(ptr < (buffer + bytesGlyph)) {
 		TTPOLYGONHEADER * header = (TTPOLYGONHEADER*)ptr;
-		unsigned char * endPoly = ptr + header->cb;
+		uchar * endPoly = ptr + header->cb;
 		ptr += sizeof(TTPOLYGONHEADER);
 		_cairo_win32_transform_FIXED_to_fixed(&transform, header->pfxStart.x, header->pfxStart.y, &x, &y);
 		status = _cairo_path_fixed_move_to(path, x, y);
@@ -1462,10 +1445,7 @@ static cairo_status_t _cairo_win32_scaled_font_init_glyph_path(cairo_win32_scale
 			switch(curve->wType) {
 				case TT_PRIM_LINE:
 				    for(i = 0; i < curve->cpfx; i++) {
-					    _cairo_win32_transform_FIXED_to_fixed(&transform,
-						points[i].x,
-						points[i].y,
-						&x, &y);
+					    _cairo_win32_transform_FIXED_to_fixed(&transform, points[i].x, points[i].y, &x, &y);
 					    status = _cairo_path_fixed_line_to(path, x, y);
 					    if(status)
 						    goto CLEANUP_BUFFER;
@@ -1476,24 +1456,14 @@ static cairo_status_t _cairo_win32_scaled_font_init_glyph_path(cairo_win32_scale
 					    cairo_fixed_t p1x, p1y, p2x, p2y, cx, cy, c1x, c1y, c2x, c2y;
 					    if(!_cairo_path_fixed_get_current_point(path, &p1x, &p1y))
 						    goto CLEANUP_BUFFER;
-					    _cairo_win32_transform_FIXED_to_fixed(&transform,
-						points[i].x,
-						points[i].y,
-						&cx, &cy);
-
+					    _cairo_win32_transform_FIXED_to_fixed(&transform, points[i].x, points[i].y, &cx, &cy);
 					    if(i + 1 == curve->cpfx - 1) {
-						    _cairo_win32_transform_FIXED_to_fixed(&transform,
-							points[i + 1].x,
-							points[i + 1].y,
-							&p2x, &p2y);
+						    _cairo_win32_transform_FIXED_to_fixed(&transform, points[i + 1].x, points[i + 1].y, &p2x, &p2y);
 					    }
 					    else {
 						    /* records with more than one curve use interpolation for
 						       control points, per http://support.microsoft.com/kb/q87115/ */
-						    _cairo_win32_transform_FIXED_to_fixed(&transform,
-							points[i + 1].x,
-							points[i + 1].y,
-							&x, &y);
+						    _cairo_win32_transform_FIXED_to_fixed(&transform, points[i + 1].x, points[i + 1].y, &x, &y);
 						    p2x = (cx + x) / 2;
 						    p2y = (cy + y) / 2;
 					    }

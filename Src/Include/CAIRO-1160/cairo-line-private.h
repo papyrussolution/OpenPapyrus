@@ -35,9 +35,9 @@
 #ifndef CAIRO_LINE_PRIVATE_H
 #define CAIRO_LINE_PRIVATE_H
 
-#include "cairo-types-private.h"
-#include "cairo-error-private.h"
-#include "cairo-compiler-private.h"
+//#include "cairo-types-private.h"
+//#include "cairo-error-private.h"
+//#include "cairo-compiler-private.h"
 
 CAIRO_BEGIN_DECLS
 

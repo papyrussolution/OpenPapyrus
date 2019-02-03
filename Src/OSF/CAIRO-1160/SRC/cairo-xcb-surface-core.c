@@ -32,7 +32,7 @@
 #include "cairoint.h"
 #pragma hdrstop
 #if CAIRO_HAS_XCB_SURFACE // {
-#include "cairo-boxes-private.h"
+//#include "cairo-boxes-private.h"
 #include "cairo-xcb-private.h"
 #include "cairo-image-surface-private.h"
 #include "cairo-surface-backend-private.h"

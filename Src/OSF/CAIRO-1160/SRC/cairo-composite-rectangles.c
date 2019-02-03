@@ -34,9 +34,9 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-clip-inline.h"
-#include "cairo-error-private.h"
-#include "cairo-composite-rectangles-private.h"
+//#include "cairo-clip-inline.h"
+//#include "cairo-error-private.h"
+//#include "cairo-composite-rectangles-private.h"
 #include "cairo-pattern-private.h"
 
 /* A collection of routines to facilitate writing compositors. */
@@ -231,46 +231,29 @@ cairo_int_status_t _cairo_composite_rectangles_intersect_mask_extents(cairo_comp
 	extents->clip = _cairo_clip_reduce_for_composite(clip, extents);
 	if(clip != extents->clip)
 		_cairo_clip_destroy(clip);
-
 	if(_cairo_clip_is_all_clipped(extents->clip))
 		return CAIRO_INT_STATUS_NOTHING_TO_DO;
-
-	if(!_cairo_rectangle_intersect(&extents->unbounded,
-	    _cairo_clip_get_extents(extents->clip)))
+	if(!_cairo_rectangle_intersect(&extents->unbounded, _cairo_clip_get_extents(extents->clip)))
 		return CAIRO_INT_STATUS_NOTHING_TO_DO;
-
 	if(extents->source_pattern.base.type != CAIRO_PATTERN_TYPE_SOLID)
-		_cairo_pattern_sampled_area(&extents->source_pattern.base,
-		    &extents->bounded,
-		    &extents->source_sample_area);
+		_cairo_pattern_sampled_area(&extents->source_pattern.base, &extents->bounded, &extents->source_sample_area);
 	if(extents->mask_pattern.base.type != CAIRO_PATTERN_TYPE_SOLID) {
-		_cairo_pattern_sampled_area(&extents->mask_pattern.base,
-		    &extents->bounded,
-		    &extents->mask_sample_area);
-		if(extents->mask_sample_area.width == 0 ||
-		    extents->mask_sample_area.height == 0)
+		_cairo_pattern_sampled_area(&extents->mask_pattern.base, &extents->bounded, &extents->mask_sample_area);
+		if(extents->mask_sample_area.width == 0 || extents->mask_sample_area.height == 0)
 			return CAIRO_INT_STATUS_NOTHING_TO_DO;
 	}
-
 	return CAIRO_INT_STATUS_SUCCESS;
 }
 
-cairo_int_status_t _cairo_composite_rectangles_init_for_mask(cairo_composite_rectangles_t * extents,
-    cairo_surface_t * surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_pattern_t * mask,
-    const cairo_clip_t * clip)
+cairo_int_status_t _cairo_composite_rectangles_init_for_mask(cairo_composite_rectangles_t * extents, cairo_surface_t * surface,
+    cairo_operator_t op, const cairo_pattern_t * source, const cairo_pattern_t * mask, const cairo_clip_t * clip)
 {
-	if(!_cairo_composite_rectangles_init(extents,
-	    surface, op, source, clip)) {
+	if(!_cairo_composite_rectangles_init(extents, surface, op, source, clip)) {
 		return CAIRO_INT_STATUS_NOTHING_TO_DO;
 	}
-
 	extents->original_mask_pattern = mask;
 	_cairo_composite_reduce_pattern(mask, &extents->mask_pattern);
 	_cairo_pattern_get_extents(&extents->mask_pattern.base, &extents->mask, surface->is_vector);
-
 	return _cairo_composite_rectangles_intersect(extents, clip);
 }
 
@@ -287,9 +270,7 @@ cairo_int_status_t _cairo_composite_rectangles_init_for_stroke(cairo_composite_r
 	    surface, op, source, clip)) {
 		return CAIRO_INT_STATUS_NOTHING_TO_DO;
 	}
-
 	_cairo_path_fixed_approximate_stroke_extents(path, style, ctm, surface->is_vector, &extents->mask);
-
 	return _cairo_composite_rectangles_intersect(extents, clip);
 }
 
@@ -304,9 +285,7 @@ cairo_int_status_t _cairo_composite_rectangles_init_for_fill(cairo_composite_rec
 	    surface, op, source, clip)) {
 		return CAIRO_INT_STATUS_NOTHING_TO_DO;
 	}
-
 	_cairo_path_fixed_approximate_fill_extents(path, &extents->mask);
-
 	return _cairo_composite_rectangles_intersect(extents, clip);
 }
 

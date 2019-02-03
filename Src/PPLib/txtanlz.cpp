@@ -13,7 +13,7 @@ PPTextAnalyzer::Replacer::SrcItem::SrcItem() : Op(0), Flags(0), TargetIdx(0)
 
 const SSzChunk * FASTCALL PPTextAnalyzer::Replacer::SrcItem::GetTermGroup(uint termIdx, uint * pGrpIdx) const
 {
-	const  int idx = (int)termIdx;
+	const  int idx = static_cast<int>(termIdx);
 	for(uint i = 0; i < GL.getCount(); i++) {
 		const SSzChunk & r_chunk = GL.at(i);
 		if(idx >= r_chunk.Begin && idx <= r_chunk.GetEnd()) {
@@ -38,8 +38,8 @@ int PPTextAnalyzer::Replacer::Chain::Add(int type, int tok, uint32 id)
 {
 	assert(!Replacer::IsOp(type));
 	Replacer::Term t;
-	t.Type = (int16)type;
-	t.Tok  = (int16)tok;
+	t.Type = static_cast<int16>(type);
+	t.Tok  = static_cast<int16>(tok);
 	t.Id = id;
 	return insert(&t) ? 1 : PPSetErrorSLib();
 }
@@ -52,7 +52,7 @@ int PPTextAnalyzer::Replacer::Chain::Add(int type, const PPTextAnalyzer::Replace
 	assert(inner_c);
 	if(type) {
 		Replacer::Term t;
-		t.Type = (int16)type;
+		t.Type = static_cast<int16>(type);
 		t.Tok  = 0;
 		t.Id = inner_c;
 		THROW_SL(insert(&t));
@@ -139,7 +139,7 @@ int PPTextAnalyzer::Replacer::BuildSrcIndex()
 		for(uint i = 0; i < SrcList.getCount(); i++) {
 			const SrcItem * p_src_item = SrcList.at(i);
 			if(oneof2(p_src_item->Op, stOpTo, stOpSignal))
-				SrcListIndex.add((long)i);
+				SrcListIndex.add(static_cast<long>(i));
 		}
 	}
 	{
@@ -149,7 +149,7 @@ int PPTextAnalyzer::Replacer::BuildSrcIndex()
 		for(uint i = 0; i < SrcList.getCount(); i++) {
 			const SrcItem * p_src_item = SrcList.at(i);
 			if(oneof3(p_src_item->Op, stOpLower, stOpUpper, stOpCapital))
-				SrcListIndex.add((long)i);
+				SrcListIndex.add(static_cast<long>(i));
 		}
 	}
 	return 1;
@@ -443,7 +443,7 @@ int SLAPI PPTextAnalyzer::Match(PPTextAnalyzer::FindBlock & rBlk, uint termIdx, 
 					break;
 				case Replacer::stNumL:
 					{
-						const uint tok_len = (uint)r_term.Tok;
+						const uint tok_len = static_cast<const uint>(r_term.Tok);
 						if(rBlk.P_Idx && tok_len > 0 && tok_len < 100)
 							idx_spc = (TextIndex::spcDigL_First + 1) - tok_len; // Processing after switch
 						else {
@@ -666,7 +666,7 @@ int SLAPI PPTextAnalyzer::Match(PPTextAnalyzer::FindBlock & rBlk, uint termIdx, 
 						//
 						// Позиции, где встречается токен r_term.Id в индексе должны быть упорядочены
 						//
-						assert(i == 0 || (long)p > p_pos_list->get(i-1));
+						assert(i == 0 || static_cast<long>(p) > p_pos_list->get(i-1));
 						//
 						if(p == idx) {
 							idx++;
@@ -752,8 +752,8 @@ int FASTCALL PPTextAnalyzer::TextIndex::Add_(uint position, int textId)
 			Item * p_idx_item = L.at(p);
 			assert(p_idx_item);
 			assert(p_idx_item->TextId == textId);
-			assert(p_idx_item->PosList.lsearch((long)position) == 0);
-			THROW_SL(p_idx_item->PosList.add((long)position));
+			assert(p_idx_item->PosList.lsearch(static_cast<long>(position)) == 0);
+			THROW_SL(p_idx_item->PosList.add(static_cast<long>(position)));
 		}
 		else {
 			//
@@ -767,15 +767,15 @@ int FASTCALL PPTextAnalyzer::TextIndex::Add_(uint position, int textId)
 				Item * p_idx_item = L.at(p);
 				assert(p_idx_item);
 				assert(p_idx_item->TextId == 0);
-				assert(p_idx_item->PosList.lsearch((long)position) == 0);
+				assert(p_idx_item->PosList.lsearch(static_cast<long>(position)) == 0);
 				p_idx_item->TextId = textId;
-				THROW_SL(p_idx_item->PosList.add((long)position));
+				THROW_SL(p_idx_item->PosList.add(static_cast<long>(position)));
 			}
 			else {
 				Item * p_new_idx_item = new Item;
 				THROW_MEM(p_new_idx_item);
 				p_new_idx_item->TextId = textId;
-				THROW_SL(p_new_idx_item->PosList.add((long)position));
+				THROW_SL(p_new_idx_item->PosList.add(static_cast<long>(position)));
 				THROW_SL(L.insert(p_new_idx_item));
 			}
 		}
@@ -1170,7 +1170,7 @@ int SLAPI PPTextAnalyzer::ParseContext(const PPTextAnalyzer::Replacer & rReplace
 				case Replacer::stEnd:
 				case Replacer::stAny:
 					if(term == Replacer::stNumL) {
-						int16  len = (int16)term_ext_buf.ToLong();
+						int16  len = static_cast<int16>(term_ext_buf.ToLong());
 						THROW_PP(len > 0 && len < 100, PPERR_TXT_TERMD_NEED2DIGIT);
 						THROW(current_chain.Add(term, len, 0));
 					}
@@ -1355,7 +1355,7 @@ int SLAPI PPTextAnalyzer::ParseReplacerLine(const SString & rLine, PPTextAnalyze
 					SETIFZ(p_current_chain, new Replacer::SrcItem);
 					THROW_MEM(p_current_chain);
 					if(term == Replacer::stNumL) {
-						const int16 len = (int16)term_ext_buf.ToLong();
+						const int16 len = static_cast<int16>(term_ext_buf.ToLong());
 						THROW_PP(len > 0 && len < 100, PPERR_TXT_TERMD_NEED2DIGIT);
 						THROW(p_current_chain->List.Add(term, len, 0));
 					}
@@ -1548,7 +1548,7 @@ int SLAPI PPTextAnalyzer::ParseReplacerLine(const SString & rLine, PPTextAnalyze
 			{
 				const LongArray * p_list = rReplacer.SearchCortege(p_item->TargetIdx);
 				assert(p_list);
-				assert(p_list->lsearch((long)i));
+				assert(p_list->lsearch(static_cast<long>(i)));
 			}
 		}
 		else if(p_item->TargetIdx) {
@@ -1969,7 +1969,7 @@ int SLAPI PPTextAnalyzer::ProcessString(const PPTextAnalyzer::Replacer & rRpl, c
 			// разбора файла правил в функции PPTextAnalyzer::ParseReplacerFile(const char *, Replacer &)
 			//
 			for(i = 0; i < rRpl.SrcListIndex.getCount(); i++) {
-				const uint src_pos = (uint)rRpl.SrcListIndex.get(i);
+				const uint src_pos = static_cast<uint>(rRpl.SrcListIndex.get(i));
 				const Replacer::SrcItem * p_src_item = rRpl.SrcList.at(src_pos);
 				PROFILE_START
 				if(DoReplacement(rRpl, p_fb->Init(p_src_item, idx_first, idx_first + idx_count - 1), temp_buf) > 0) {
@@ -2012,7 +2012,7 @@ struct TestSignalProcExtra {
 
 static int TestSignalProc(const char * pResource, int64 orgOffs, const char * pOrgStr, const char * pSignalStr, void * pExtraPtr)
 {
-	TestSignalProcExtra * p_blk = (TestSignalProcExtra *)pExtraPtr;
+	TestSignalProcExtra * p_blk = static_cast<TestSignalProcExtra *>(pExtraPtr);
 	if(p_blk)
 		p_blk->OutF.WriteLine(p_blk->LineBuf.Z().Cat(pResource).Tab().Cat(pOrgStr).Tab().Cat(pSignalStr).CR());
 	return 1;
@@ -2242,14 +2242,14 @@ private:
 			getCtrlData(CTLSEL_OBJTEXTFILT_OBJ, &Data.ObjType);
 			if(Data.ObjType == PPOBJ_GOODS) {
 				PPViewGoods view_goods;
-				SETIFZ(Data.P_GoodsF, (GoodsFilt *)view_goods.CreateFilt(0));
+				SETIFZ(Data.P_GoodsF, static_cast<GoodsFilt *>(view_goods.CreateFilt(0)));
 				if(view_goods.EditBaseFilt(Data.P_GoodsF) > 0) {
 					;
 				}
 			}
 			else if(Data.ObjType == PPOBJ_PERSON) {
 				PPViewPerson view_psn;
-				SETIFZ(Data.P_PsnF, (PersonFilt *)view_psn.CreateFilt(0));
+				SETIFZ(Data.P_PsnF, static_cast<PersonFilt *>(view_psn.CreateFilt(0)));
 				if(view_psn.EditBaseFilt(Data.P_PsnF) > 0) {
 					;
 				}
@@ -2346,7 +2346,7 @@ int SLAPI PrcssrObjText::Init(const PPBaseFilt * pBaseFilt)
 int PrcssrObjText::SignalProc(const char * pResource, int64 orgOffs, const char * pOrgStr, const char * pSignalStr, void * pExtraPtr)
 {
 	int    ok = 1;
-	SignalProcBlock * p_blk = (SignalProcBlock *)pExtraPtr;
+	SignalProcBlock * p_blk = static_cast<SignalProcBlock *>(pExtraPtr);
 	PPObjID oi;
 	oi.Set(0, 0);
 	if(p_blk && oi.FromStr(pResource)) {
@@ -2471,7 +2471,7 @@ int SLAPI PrcssrObjText::Run()
 	return ok;
 }
 
-int SLAPI DoProcessObjText(PrcssrObjTextFilt * pFilt)
+int SLAPI DoProcessObjText(const PrcssrObjTextFilt * pFilt)
 {
 	int    ok = -1;
 	PrcssrObjText prcssr;
@@ -2601,7 +2601,7 @@ int SLAPI PPObjectTokenizer::SearchObjects(const char * pText, PPID objType, lon
 		if(Search(flags, result)) {
 			uint   i;
 			RAssocArray score_list;
-			const double order_div = (double)result.getCount();
+			const double order_div = static_cast<double>(result.getCount());
 			for(i = 0; i < result.getCount(); i++) {
 				const double order_coeff = (2.0 - ((i+1) / order_div));
 				const SearchBlockEntry * p_entry = result.at(i);
@@ -2733,11 +2733,9 @@ int SLAPI PPObjectTokenizer::SearchGoodsAnalogs(PPID goodsID, PPIDArray & rList,
 													prev_analog_score = r_analog_item.Val;
 													if(r_analog_item.Key != goodsID) {
 														rList.add(r_analog_item.Key);
-														{
-															PPID   _c_id = 0;
-															if(target_to_component_list.Search(r_a.Key, &_c_id, 0))
-																transit_component_list.add(_c_id);
-														}
+														PPID   _c_id = 0;
+														if(target_to_component_list.Search(r_a.Key, &_c_id, 0))
+															transit_component_list.add(_c_id);
 														ok = 1;
 													}
 												}
@@ -3058,13 +3056,12 @@ int SLAPI PPKeywordListGenerator::GenerateByGroup(uint grpPos, const SString * p
 					if(temp_buf.NotEmpty()) {
 						rSs.add(temp_buf, &(ss_pos = 0));
 						rSsPosList.add(ss_pos);
-						if(pStat)
-							pStat->AddItem(temp_buf);
+						CALLPTRMEMB(pStat, AddItem(temp_buf));
 					}
 				}
 				if(pf_ > ztolerance) {
 					const ulong rn = SLS.GetTLA().Rg.GetUniformInt(0x7ffffff);
-					const double m = (double)(rn % _Divider);
+					const double m = static_cast<double>(rn % _Divider);
 					if((m / (double)_Divider) <= pf_) {
 						if(special == spcRandom) {
 							GetRandomWord(temp_buf);
@@ -3080,8 +3077,7 @@ int SLAPI PPKeywordListGenerator::GenerateByGroup(uint grpPos, const SString * p
 						if(temp_buf.NotEmpty()) {
 							rSs.add(temp_buf, &(ss_pos = 0));
 							rSsPosList.add(ss_pos);
-							if(pStat)
-								pStat->AddItem(temp_buf);
+							CALLPTRMEMB(pStat, AddItem(temp_buf));
 						}
 					}
 				}
@@ -3417,14 +3413,14 @@ static PPKeywordListGenerator * _GetGlobalKeywordListGeneratorInstance()
 	if(symbol_id < 0) {
 		TSClassWrapper <PPKeywordListGenerator> cls;
 		THROW_SL(symbol_id = SLS.CreateGlobalObject(cls));
-		THROW_SL(p_gen = (PPKeywordListGenerator *)SLS.GetGlobalObject(symbol_id));
+		THROW_SL(p_gen = static_cast<PPKeywordListGenerator *>(SLS.GetGlobalObject(symbol_id)));
 		{
 			long s = SLS.GetGlobalSymbol(P_KeywordListGeneratorGlobalSymbol, symbol_id, 0);
 			assert(symbol_id == s);
 		}
 	}
 	else if(symbol_id > 0) {
-		THROW_SL(p_gen = (PPKeywordListGenerator *)SLS.GetGlobalObject(symbol_id));
+		THROW_SL(p_gen = static_cast<PPKeywordListGenerator *>(SLS.GetGlobalObject(symbol_id)));
 	}
 	CATCH
 		p_gen = 0;
@@ -3455,7 +3451,7 @@ int PPGenerateKeywordSequence(const char * pContext, SString & rResult, void * p
 		context = pContext;
 		ENTER_CRITICAL_SECTION
 			PPKeywordListGenerator * p_gen = _GetGlobalKeywordListGeneratorInstance();
-			ok = p_gen ? p_gen->Run(context, rResult, (PPKeywordListGenerator::RunStat *)pStat) : 0;
+			ok = p_gen ? p_gen->Run(context, rResult, static_cast<PPKeywordListGenerator::RunStat *>(pStat)) : 0;
 		LEAVE_CRITICAL_SECTION
 	}
 	return ok;

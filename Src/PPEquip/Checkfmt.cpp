@@ -1,5 +1,5 @@
 // CHECKFMT.CPP
-// Copyright (c) V.Nasonov 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) V.Nasonov 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -81,7 +81,7 @@ public:
 	};
 	explicit PPSlipFormatZone(int kind) : TSCollection <PPSlipFormatEntry> (), Kind(kind), Condition(0), P_Next(0)
 	{
-		assert(oneof5(kind, kInner, kHeader, kFooter, kDetail, kPaymDetail)); // @v8.4.1 kPaymDetail
+		assert(oneof5(kind, kInner, kHeader, kFooter, kDetail, kPaymDetail));
 	}
 	~PPSlipFormatZone()
 	{
@@ -114,7 +114,7 @@ public:
 			if(P_Zone) {
 				zone_kind = P_Zone->Kind;
 				for(uint stk_ptr = Stack.getPointer(); stk_ptr && zone_kind == PPSlipFormatZone::kInner;) {
-					const SI * p_si = (const SI *)Stack.at(--stk_ptr);
+					const SI * p_si = static_cast<const SI *>(Stack.at(--stk_ptr));
 					zone_kind = (p_si && p_si->P_Zone) ? p_si->P_Zone->Kind : -1;
 				}
 			}
@@ -122,7 +122,6 @@ public:
 		}
 		long   SrcItemNo;
 		long   EntryNo;
-		//
 		long   SrcItemsCount;
 		long   PrintedLineNo; // Номер строки на листе
 		uint   PageWidth;     // ==PPSlipFormat::PageWidth  Справочное поле
@@ -421,7 +420,7 @@ int PPSlipFormat::GetCurCheckPaymItem(const Iter * pIter, CcAmountEntry * pPaymE
 
 int PPSlipFormat::GetCurBillItem(const Iter * pIter, PPTransferItem * pRec)
 {
-	if(pIter->SrcItemNo < (long)P_BillPack->GetTCount()) {
+	if(pIter->SrcItemNo < static_cast<long>(P_BillPack->GetTCount())) {
 		ASSIGN_PTR(pRec, P_BillPack->TI(pIter->SrcItemNo));
 		return 1;
 	}
@@ -626,18 +625,14 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					}
 					break;
 				case symbDirector: // @v9.7.6
-					{
-						DS.GetTLA().InitMainOrgData(0);
-						if(P_Od->PsnObj.Fetch(CConfig.MainOrgDirector_, &psn_rec) > 0)
-							rResult.Cat(psn_rec.Name);
-					}
+					DS.GetTLA().InitMainOrgData(0);
+					if(P_Od->PsnObj.Fetch(CConfig.MainOrgDirector_, &psn_rec) > 0)
+						rResult.Cat(psn_rec.Name);
 					break;
 				case symbAccountant: // @v9.7.6
-					{
-						DS.GetTLA().InitMainOrgData(0);
-						if(P_Od->PsnObj.Fetch(CConfig.MainOrgAccountant_, &psn_rec) > 0)
-							rResult.Cat(psn_rec.Name);
-					}
+					DS.GetTLA().InitMainOrgData(0);
+					if(P_Od->PsnObj.Fetch(CConfig.MainOrgAccountant_, &psn_rec) > 0)
+						rResult.Cat(psn_rec.Name);
 					break;
 				case symbTable:
 					if(Src == srcCCheck) {
@@ -835,24 +830,22 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					temp_id = GetSCardID(pIter);
 					if(temp_id) {
 						SCardTbl::Rec sc_rec;
-						if(P_Od->ScObj.Search(temp_id, &sc_rec) > 0) {
-							PersonTbl::Rec psn_rec;
-							if(sc_rec.PersonID && P_Od->PsnObj.Fetch(sc_rec.PersonID, &psn_rec) > 0)
-								rResult.Cat(psn_rec.Name);
-						}
+						PersonTbl::Rec psn_rec;
+						if(P_Od->ScObj.Search(temp_id, &sc_rec) > 0 && sc_rec.PersonID && P_Od->PsnObj.Fetch(sc_rec.PersonID, &psn_rec) > 0)
+							rResult.Cat(psn_rec.Name);
 					}
 					break;
 				case symbIsCreditSCard:
 					temp_id = GetSCardID(pIter);
 					{
-						int    is_credit = BIN(temp_id && P_Od->ScObj.IsCreditCard(temp_id));
+						const int is_credit = BIN(temp_id && P_Od->ScObj.IsCreditCard(temp_id));
 						rResult.Cat(is_credit);
 					}
 					break;
 				case symbSCardType:
 					temp_id = GetSCardID(pIter);
 					{
-						int    sc_type = temp_id ? P_Od->ScObj.GetCardType(temp_id) : 0;
+						const int sc_type = temp_id ? P_Od->ScObj.GetCardType(temp_id) : 0;
 						rResult.Cat(sc_type);
 					}
 					break;
@@ -2622,18 +2615,18 @@ PPSlipFormatter::PPSlipFormatter(const char * pFmtFileName)
 
 PPSlipFormatter::~PPSlipFormatter()
 {
-	delete ((PPSlipFormat *)P_SlipFormat);
+	delete static_cast<PPSlipFormat *>(P_SlipFormat);
 }
 
 int PPSlipFormatter::Init(const char * pFormatName, SlipDocCommonParam * pParam)
-	{ return P_SlipFormat ? ((PPSlipFormat *)P_SlipFormat)->Init(SlipFmtPath, pFormatName, pParam) : -1; }
+	{ return P_SlipFormat ? static_cast<PPSlipFormat *>(P_SlipFormat)->Init(SlipFmtPath, pFormatName, pParam) : -1; }
 int PPSlipFormatter::InitIteration(const CCheckPacket * pPack)
-	{ return P_SlipFormat ? (((PPSlipFormat *)P_SlipFormat)->InitIteration(pPack), 1) : -1; }
+	{ return P_SlipFormat ? (static_cast<PPSlipFormat *>(P_SlipFormat)->InitIteration(pPack), 1) : -1; }
 int PPSlipFormatter::InitIteration(const PPBillPacket * pPack)
-	{ return P_SlipFormat ? (((PPSlipFormat *)P_SlipFormat)->InitIteration(pPack), 1) : -1; }
+	{ return P_SlipFormat ? (static_cast<PPSlipFormat *>(P_SlipFormat)->InitIteration(pPack), 1) : -1; }
 int PPSlipFormatter::InitIteration(const CSessInfo * pInfo)
-	{ return P_SlipFormat ? (((PPSlipFormat *)P_SlipFormat)->InitIteration(pInfo), 1) : -1; }
+	{ return P_SlipFormat ? (static_cast<PPSlipFormat *>(P_SlipFormat)->InitIteration(pInfo), 1) : -1; }
 int PPSlipFormatter::NextIteration(SString & rBuf, SlipLineParam * pParam)
-	{ return P_SlipFormat ? ((PPSlipFormat *)P_SlipFormat)->NextIteration(rBuf, pParam) : -1; }
+	{ return P_SlipFormat ? static_cast<PPSlipFormat *>(P_SlipFormat)->NextIteration(rBuf, pParam) : -1; }
 int PPSlipFormatter::GetFormList(StrAssocArray * pList, int getSlipDocForms /* = 0*/)
-	{ return P_SlipFormat ? ((PPSlipFormat *)P_SlipFormat)->GetFormList(SlipFmtPath, pList, getSlipDocForms) : -1; }
+	{ return P_SlipFormat ? static_cast<PPSlipFormat *>(P_SlipFormat)->GetFormList(SlipFmtPath, pList, getSlipDocForms) : -1; }

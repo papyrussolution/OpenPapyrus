@@ -75,12 +75,12 @@ _cairo_type3_glyph_surface_set_font_subsets_callback (void				    *abstract_surf
 
 cairo_private cairo_status_t
 _cairo_type3_glyph_surface_analyze_glyph (void		     *abstract_surface,
-					  unsigned long	      glyph_index);
+					  ulong	      glyph_index);
 
 cairo_private cairo_status_t
 _cairo_type3_glyph_surface_emit_glyph (void		     *abstract_surface,
 				       cairo_output_stream_t *stream,
-				       unsigned long	      glyph_index,
+				       ulong	      glyph_index,
 				       cairo_box_t           *bbox,
 				       double                *width);
 

@@ -1023,7 +1023,7 @@ public:
 	const  DBFieldList & SLAPI GetTabFieldList() const;
 	int    SLAPI GetIdxFields(PPID id, DBFieldList * pFldList);
 	int    SLAPI GetTab(uint tabIdx, void * pTabVal);
-	int    SLAPI SetFixFieldValByCTID(long ctID, uint fldPos, void * pBuf);
+	int    SLAPI SetFixFieldValByCTID(long ctID, uint fldPos, const void * pBuf);
 	int    SLAPI GetFixFieldValByCTID(long ctID, uint fldPos, void * pBuf, size_t bufSize);
 	//
 	// Descr: Извлекает индексное поле с номером idxFldN из строки буфера записи pDataBuf.
@@ -1055,7 +1055,7 @@ protected:
 	};
 	virtual int SLAPI SetupFixFields(int initialCall);
 	virtual int SLAPI CalcSummary(int action, CalcSummaryBlock & rBlk);
-	int    SLAPI Helper_SetupBrowserCtColumn(BrowserWindow * pBrw, uint ctValPos, SString & rTitle) const;
+	int    SLAPI Helper_SetupBrowserCtColumn(BrowserWindow * pBrw, uint ctValPos, const SString & rTitle) const;
 		// @<<Crosstab::SetupBrowserCtColumns
 	uint   SLAPI GetFixFieldOffs() const;
 	uint   SLAPI GetTabFldPos(uint ctValPos, uint aggrFldPos) const;
@@ -1076,7 +1076,7 @@ private:
 	int    SLAPI SetAggrSummaryRow();
 	int    SLAPI SetSummaryRows();
 	int    SLAPI WriteDbFieldList(const DBFieldList & rList, SBuffer & rBuf, SSerializeContext * pCtx);
-	int    SLAPI ReadDbFieldList(DBTable * pTbl, DBFieldList & rList, SBuffer & rBuf, SSerializeContext * pCtx);
+	int    SLAPI ReadDbFieldList(const DBTable * pTbl, DBFieldList & rList, SBuffer & rBuf, SSerializeContext * pCtx);
 
 	long   Flags;              // @viewstate
 	DBTable * P_Tbl;           // Исходная таблица для построения кросс-таба
@@ -4856,7 +4856,7 @@ struct Acct {
 	long   ar;            // Аналитическая статья //
 };
 
-int SLAPI IsSuitableAcc(Acct * pAcc, int aco /* ACO_X */, Acct * pPattern);
+// @v10.3.2 @unused int SLAPI IsSuitableAcc(const Acct * pAcc, int aco /* ACO_X */, Acct * pPattern);
 //
 // Бух. счет в форме ид-ров баз данных (DB format);
 //
@@ -6028,7 +6028,7 @@ protected:
 template <class T> class PPThrLocPtr : public __PPThrLocPtr {
 public:
 	SLAPI  PPThrLocPtr() : __PPThrLocPtr() {}
-	T *    SLAPI Open() { return (T *)Helper_Open(Cw); }
+	T *    SLAPI Open() { return static_cast<T *>(Helper_Open(Cw)); }
 	void   SLAPI Close(T * p) { Helper_Close(Cw, p); }
 	TSClassWrapper <T> Cw;
 };
@@ -15849,7 +15849,7 @@ public:
 		};
 		uint32 InputFrameSize;   // Количество периодов с отсчетом назад, на основании которых принимается прогноз
 		int16  Prec;             // Точность представления значений (количество знаков после десятичной точки)
-		uint16 TargetQuant_Unused; // Максимальный рост в квантах SpikeQuant
+		uint16 TargetQuant;      // Максимальный рост в квантах SpikeQuant
 		uint16 MaxDuckQuant;     // Максимальная величина "проседания" в квантах SpikeQuant
 		uint16 OptDelta2Stride;  // Оптимальный шаг назад при расчете изменения тренда
 		int16  StakeMode;        // Режим покупки: 0 - сплошной (случайный); 1 - по значению тренда; 2 - по изменению тренда, 3 - по значению и изменению тренда
@@ -15868,7 +15868,8 @@ public:
 		uint16 StakeCloseMode;   // clsmodXXX Режим закрытия
 		uint16 PeakAvgQuant;
 		uint16 BottomAvgQuant;
-		uint8  Reserve[26];
+		uint16 PeakMaxQuant;
+		uint8  Reserve[24];
 	};
 	class StrategyContainer : public TSVector <Strategy> {
 	public:
@@ -15902,6 +15903,7 @@ public:
 		float  LearningRate;     // Фактор скорости обучения
 	};
 	struct StrategyResultEntry : public Strategy {
+		SLAPI  StrategyResultEntry();
 		SLAPI  StrategyResultEntry(const PPObjTimeSeries::TrainNnParam & rTnnp, int stakeMode);
 
 		char   Symb[32];
@@ -15914,6 +15916,7 @@ public:
 	static int SLAPI EditConfig(PPObjTimeSeries::Config * pCfg);
 	static int SLAPI WriteConfig(PPObjTimeSeries::Config * pCfg, int use_ta);
 	static int SLAPI ReadConfig(PPObjTimeSeries::Config * pCfg);
+	static SString & SLAPI StrategyOutput(const PPObjTimeSeries::StrategyResultEntry * pSre, SString & rBuf);
 
 	SLAPI  PPObjTimeSeries(void * extraPtr = 0);
 	virtual int SLAPI Browse(void * extraPtr);
@@ -15941,9 +15944,13 @@ public:
 	};
 	int    SLAPI FindOptimalMaxDuck2(const DateTimeArray & rTmList, const RealArray & rValList, const TrainNnParam & rS, const IntRange & rMdRange, int mdStep,
 		TSVector <MaxDuckToResultRelation> * pSet, MaxDuckToResultRelation & rResult);
+	int    SLAPI FindOptimalPeak(const DateTimeArray & rTmList, const RealArray & rValList, const RealArray & rTrendList, 
+		const PPObjTimeSeries::TrainNnParam & rS, int stakeMode, const IntRange & rTargetRange, RAssocArray & rResultList);
 private:
 	virtual int SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam);
 	int    SLAPI EditDialog(PPTimeSeries * pEntry);
+	uint   SLAPI Helper_FindOptimalPeak(const DateTimeArray & rTmList, const RealArray & rValList, const RealArray & rTrendList, 
+		const PPObjTimeSeries::TrainNnParam & rS, int stakeMode, int32 targetQuant, RAssocArray & rResultList);
 	//int    SLAPI IsCase(const STimeSeries & rTs, const TrainNnParam & rP, uint vecIdx, uint lastIdx) const;
 };
 //
@@ -16616,6 +16623,8 @@ struct PPDebtInventOpEx {    // @persistent @store(PropertyTbl)
 #define ROXF_REQALTOBJ       0x0100L // If !automat then request user for alternate object for reckoning
 #define ROXF_THISALTOBJONLY  0x0200L // Зачитывать документы только по той же дополнительной статье документа
 	// Если доп статья нулевая, то зачитывать только на нулевые доп статьи
+#define ROXF_RECKONNEGONLY   0x0400L // @v10.3.2 Операция трактуется как зачетная только при отрицательной номинальной
+	// сумме документа (сумма зачета при этом меняет знак на положительный)
 
 #define ROX_HDR_DW_COUNT     8
 
@@ -16624,8 +16633,8 @@ struct PPReckonOpEx {
 	void   SLAPI Init();
 	int    SLAPI IsEmpty() const;
 	PPReckonOpEx & FASTCALL operator = (const PPReckonOpEx &);
-	int    SLAPI GetReckonPeriod(LDATE debtDate, DateRange *) const;
-	void   SLAPI GetDebtPeriod(LDATE paymDate, DateRange *) const;
+	int    SLAPI GetReckonPeriod(LDATE debtDate, DateRange & rPeriod) const;
+	void   SLAPI GetDebtPeriod(LDATE paymDate, DateRange & rPeriod) const;
 	void   SLAPI PeriodToStr(SString & rBuf) const;
 	int    SLAPI StrToPeriod(const char *);
 	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
@@ -18769,7 +18778,7 @@ public:
 	//   0  - Error (PPERR_NOMEM, PPERR_SLIB, PPERR_ACCNGEN)
 	//
 	int    SLAPI GetExtentAccListByGen(PPID genAccID, ObjRestrictArray *, PPIDArray * pCurList);
-	int    SLAPI GetBaseAcctID(AcctID * pCurAcctId, AcctID * pBaseAcctId);
+	int    SLAPI GetBaseAcctID(const AcctID & rCurAcctId, AcctID * pBaseAcctId);
 	int    SLAPI ConvertAcct(const Acct *, PPID curID, AcctID *, PPID * pSheetID);
 	int    SLAPI ConvertAcctID(const AcctID & rAci, Acct *, PPID * pCurID, int useCache);
 	int    SLAPI ConvertStr(const char *, PPID curID, Acct *, AcctID *, PPID * pSheetID);
@@ -18835,7 +18844,7 @@ private:
 	int    SLAPI _RecByBill(PPID billID, short * rByBill);
 	int    SLAPI _UpdateForward(LDATE, long, PPID accRel, const AccTurnParam & rParam);
 	int    SLAPI _Turn(const PPAccTurn * pAt, PPID accRel, PPID corrAccRel, const AccTurnParam & rParam);
-	int    SLAPI _ProcessAcct(int side, PPID curID, AcctID *, PPID * pAccRelID, AccTurnParam *);
+	int    SLAPI _ProcessAcct(int side, PPID curID, const AcctID &, PPID * pAccRelID, AccTurnParam *);
 	int    SLAPI _RollbackTurn(int side, LDATE date, long oprNo, PPID bal, PPID rel, double);
 	int    SLAPI _UpdateTurn(PPID billID, short rByBill, double newAmt, double cRate, int use_ta);
 
@@ -19155,7 +19164,7 @@ protected:
 	int    SLAPI SearchTempCheckByCode(PPID cashID, PPID code, PPID sessNo = -1L);
 	int    SLAPI SearchTempCheckByTime(PPID cashID, const LDATETIME *);
 	int    SLAPI AddTempCheck(PPID * pID, long sessNumber, long flags /* CCHKF_XXX */,
-		PPID cash, PPID code, PPID user, PPID cardID, LDATETIME *, double amt, double dscnt/*, double addPaym = 0, double extAmt = 0*/);
+		PPID cash, PPID code, PPID user, PPID cardID, const LDATETIME & rDtm, double amt, double dscnt/*, double addPaym = 0, double extAmt = 0*/);
 	int    SLAPI AddTempCheckAmounts(PPID checkID, double amt, double dis);
 	int    SLAPI AddTempCheckPaym(long checkID, int paymType, double amount, long scardID);
 	int    SLAPI UpdateTempCheckFlags(long checkID, long flags);
@@ -27372,7 +27381,7 @@ public:
 	int    SLAPI Import(int use_ta);
 	static int SLAPI SetOwner(PPID id, long curOwner, long newOwner);
 	static int SLAPI RemoveTempAlt(PPID id, long owner, int forceDel = 0, int useTa = 1);
-	static int SLAPI AddDynamicAltGroupByFilt(GoodsFilt * pFilt, PPID * pDynamicAltGrpID, long owner, int useTa);
+	static int SLAPI AddDynamicAltGroupByFilt(const GoodsFilt * pFilt, PPID * pDynamicAltGrpID, long owner, int useTa);
 	static int SLAPI SetDynamicOwner(PPID id, long curOwner, long newOwner);
 	static int SLAPI RemoveDynamicAlt(PPID id, long owner, int forceDel = 0, int useTa = 1);
 private:
@@ -28314,7 +28323,7 @@ public:
 	virtual int  SLAPI ViewTotal();
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(GoodsStrucViewItem *);
-	int    SLAPI GetCurrentViewOrder() const { return CurrentViewOrder; }
+	IterOrder SLAPI GetCurrentViewOrder() const { return CurrentViewOrder; }
 	int    SLAPI CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw);
 private:
 	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
@@ -29574,8 +29583,7 @@ public:
 //
 #define RECKON_DATE_CURR                1 // Зачитывать текущей датой
 #define RECKON_DATE_PAYM                2 // Зачитывать датой платежного документа.
-// Если дата платежного документа меньше даты долгового, то зачет
-// проводится датой долгового документа.
+	// Если дата платежного документа меньше даты долгового, то зачет проводится датой долгового документа.
 #define RECKON_DATE_DEBT                3 // Зачитывать датой долгового документа
 #define RECKON_DATE_USER                4 // Зачитывать указанной пользователем датой
 //
@@ -29981,8 +29989,8 @@ public:
 // Descr: Вспомогательная стурктура, используемая в специализиованных
 //   модулях экспорта документов (ЕГАИС, EDI)
 //
-struct PPBillExportFilt {
-	SLAPI  PPBillExportFilt();
+struct PPBillIterchangeFilt {
+	SLAPI  PPBillIterchangeFilt();
 
 	PPID   LocID;
 	DateRange Period;
@@ -29992,7 +30000,7 @@ struct PPBillExportFilt {
 class PPBillImpExpBaseProcessBlock {
 public:
 	PPBillImpExpBaseProcessBlock();
-	PPBillImpExpBaseProcessBlock & Reset();
+	PPBillImpExpBaseProcessBlock & Z();
 	int    SLAPI Select(int import);
 	int    SLAPI SerializeParam(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 
@@ -30013,12 +30021,12 @@ public:
 	long   DisabledOptions; // @v9.2.10 @transient
 	PPID   OpID;
 	PPID   LocID;
-	PPID   PosNodeID;    // @v8.3.2
-	DateRange Period;    // @v7.6.3 Период за который следует импортировать документы
+	PPID   PosNodeID;
+	DateRange Period;    // Период за который следует импортировать документы
 	PPBillImpExpParam BillParam;
 	PPBillImpExpParam BRowParam;
-	SString CfgNameBill; // @v7.6.3
-	SString CfgNameBRow; // @v7.6.3
+	SString CfgNameBill;
+	SString CfgNameBRow;
 
 	struct TransmitParam {
 		TransmitParam();
@@ -30029,7 +30037,7 @@ public:
 		SString Subject;
 	};
 
-	TransmitParam Tp; // @v8.9.11
+	TransmitParam Tp;
 
 	struct SearchBlock {
 		SearchBlock();
@@ -30227,7 +30235,7 @@ public:
 		};
 		SLAPI  ProviderImplementation(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags);
 		virtual SLAPI ~ProviderImplementation();
-		virtual int    SLAPI  GetDocumentList(DocumentInfoList & rList) { return -1; }
+		virtual int    SLAPI  GetDocumentList(const PPBillIterchangeFilt & rP, DocumentInfoList & rList) { return -1; }
 		virtual int    SLAPI  ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList) { return -1; }
 		virtual int    SLAPI  SendDocument(DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack) { return -1; }
 		int    SLAPI GetTempOutputPath(int docType, SString & rBuf);
@@ -30259,13 +30267,13 @@ public:
 	static ProviderImplementation * SLAPI CreateProviderImplementation(PPID ediPrvID, PPID mainOrgID, long flags);
 	explicit SLAPI PPEdiProcessor(ProviderImplementation * pImp, PPLogger * pLogger);
 	SLAPI ~PPEdiProcessor();
-	int    SLAPI SendOrders(const PPBillExportFilt & rP, const PPIDArray & rArList);
-	int    SLAPI SendOrderRsp(const PPBillExportFilt & rP, const PPIDArray & rArList);
-	int    SLAPI SendDESADV(int ediOp, const PPBillExportFilt & rP, const PPIDArray & rArList);
-	int    SLAPI SendRECADV(const PPBillExportFilt & rP, const PPIDArray & rArList);
+	int    SLAPI SendOrders(const PPBillIterchangeFilt & rP, const PPIDArray & rArList);
+	int    SLAPI SendOrderRsp(const PPBillIterchangeFilt & rP, const PPIDArray & rArList);
+	int    SLAPI SendDESADV(int ediOp, const PPBillIterchangeFilt & rP, const PPIDArray & rArList);
+	int    SLAPI SendRECADV(const PPBillIterchangeFilt & rP, const PPIDArray & rArList);
 	int    SLAPI SendDocument(DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
 	int    SLAPI ReceiveDocument(const DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
-	int    SLAPI GetDocumentList(DocumentInfoList & rList);
+	int    SLAPI GetDocumentList(const PPBillIterchangeFilt & rP, DocumentInfoList & rList);
 private:
 	int    SLAPI CheckBillStatusForRecadvSending(const BillTbl::Rec & rBillRec);
 
@@ -30854,7 +30862,8 @@ public:
 	//
 	// Reckoning functions
 	//
-	int    SLAPI Reckon(PPID paymBillID, PPID debtBillID, PPID reckonOpKindID, PPID * pReckonBillID, int dateOption /* RECKON_DATE_XXX */, LDATE reckonDate, int use_ta);
+	int    SLAPI Reckon(PPID paymBillID, PPID debtBillID, PPID reckonOpID, PPID * pReckonBillID, 
+		int negativePayment, int dateOption /* RECKON_DATE_XXX */, LDATE reckonDate, int use_ta);
 	int    SLAPI GatherPayableBills(ReckonOpArItem * pItem, PPID curID, PPID locID, PPID obj2ID, const DateRange *, double * pDebt);
 	struct ReckonParam {
 		explicit SLAPI  ReckonParam(int automat = 1, int dontConfirm = 0);
@@ -31221,7 +31230,7 @@ private:
 	int    SLAPI ReplyArticleReplace(PPID destID, PPID srcID);
 	int    SLAPI OrderLots(const PPBillPacket *, PPIDArray *, PPID, double, double, double);
 	void   SLAPI RegisterTransmitProblems(PPBillPacket *, ILBillPacket *, int skipped, ObjTransmContext * pCtx);
-	int    SLAPI Helper_Reckon(PPID, ReckonOpArList *, CfmReckoningParam *, int dontConfirm, int use_ta);
+	int    SLAPI Helper_Reckon(PPID billID, const ReckonOpArList & rOpList, CfmReckoningParam & rParam, int negativePayment, int dontConfirm, int use_ta);
 	void   SLAPI Helper_PopupReckonInfo(PPIDArray & rResultBillList);
 	int    SLAPI GetPoolsMembership(PPID id, PPBillPacket *);
 		// @<<PPObjBill::ExtractPacket
@@ -35672,7 +35681,7 @@ public:
 	int    SLAPI CalcBillVATax(BVATAccmArray *);
 	int    SLAPI ViewVATaxList();
 	int    SLAPI ShowDetails(PPID billID);
-	int    SLAPI ShowPoolDetail(PPBillPacket *);
+	int    SLAPI ShowPoolDetail(const PPBillPacket &);
 	int    SLAPI ChangeFlags();
 	int    SLAPI PrintBill(PPID billID/* @v10.0.0 , int addCashSummator*/);
 	int    SLAPI PrintAllBills();
@@ -35778,9 +35787,9 @@ public:
 			// самостоятельно пытается выбрать существующие связанные документы и при неоднозначности предоставляет выбор пользователю
 	};
 	uint8  ReserveStart[32]; // @anchor
-	PPID   BillID;           //  
+	PPID   BillID;           //
 	int32  Kind__;           // PPTXT_LINKBILLVIEWKINDS
-	long   Flags;            // @flags 
+	long   Flags;            // @flags
 	long   ReserveEnd;       // @anchor
 };
 
@@ -39692,22 +39701,6 @@ private:
 //
 class CCheckFilt : public PPBaseFilt { // @persistent
 public:
-	static int FASTCALL HasGoodsGrouping(int grp)
-		{ return BIN(oneof8(grp, gGoods, gGoodsDate, gAgentsNGoods, gCashiersNGoods, gGoodsSCSer, gAmountNGoods, gAgentGoodsSCSer, gGoodsDateSerial)); }
-	SLAPI  CCheckFilt();
-	virtual int SLAPI ReadPreviosVer(SBuffer & rBuf, int ver);
-	CCheckFilt & FASTCALL operator = (const CCheckFilt & src);
-	//
-	// Descr: Устанавливает список кассовых узлов (NodeList) в соотвествии
-	//   со списком идентификаторов складов pLocList. Для каждого идентификатора
-	//   склада из списка извлекается список кассовых узлов, принадлежащих ему
-	//   и вставляется в список NodeList.
-	//
-	int    SLAPI SetLocList(const PPIDArray * pLocList);
-	int    SLAPI HasGoodsGrouping() const { return CCheckFilt::HasGoodsGrouping(Grp); }
-	int    SLAPI HasExtFiltering() const
-		{ return BIN(AgentID || TableCode || GuestCount > 0 || (Flags & fStartOrderPeriod && !Period.IsZero()) || (DlvrAddrID || Flags & fZeroDlvrAddr)); }
-
 	enum Grouping {
 		gNone = 0,        //
 		gTime,            //
@@ -39786,6 +39779,22 @@ public:
 		ctvChecksCount,
 		ctvSKUCount
 	};
+	static int FASTCALL HasGoodsGrouping(Grouping grp)
+		{ return BIN(oneof8(grp, gGoods, gGoodsDate, gAgentsNGoods, gCashiersNGoods, gGoodsSCSer, gAmountNGoods, gAgentGoodsSCSer, gGoodsDateSerial)); }
+	SLAPI  CCheckFilt();
+	virtual int SLAPI ReadPreviosVer(SBuffer & rBuf, int ver);
+	CCheckFilt & FASTCALL operator = (const CCheckFilt & src);
+	//
+	// Descr: Устанавливает список кассовых узлов (NodeList) в соотвествии
+	//   со списком идентификаторов складов pLocList. Для каждого идентификатора
+	//   склада из списка извлекается список кассовых узлов, принадлежащих ему
+	//   и вставляется в список NodeList.
+	//
+	int    SLAPI SetLocList(const PPIDArray * pLocList);
+	int    SLAPI HasGoodsGrouping() const { return CCheckFilt::HasGoodsGrouping(Grp); }
+	int    SLAPI HasExtFiltering() const
+		{ return BIN(AgentID || TableCode || GuestCount > 0 || (Flags & fStartOrderPeriod && !Period.IsZero()) || (DlvrAddrID || Flags & fZeroDlvrAddr)); }
+
 	uint8  ReserveStart[8]; // @#0 !Использовать начиная со старших адресов
 	uint32 CountOfLastItems; // @v10.2.1 Специализированный критерий, предписывающий извлекать не более CountOfLastItems
 		// последних чеков выборки. Нужен для оптимизации информационных списков, где полная выборка менее важна,
@@ -44796,9 +44805,9 @@ public:
 		bilstfV2               = 0x00008000, // @v9.7.5  Документы 2-й версии ЕГАИС
 		bilstfV3               = 0x00010000, // @v9.9.5  Документы 3-й версии ЕГАИС
 	};
-	int    SLAPI GetAcceptedBillList(const PPBillExportFilt & rP, long flags, PPIDArray & rList);
-	int    SLAPI GetBillListForTransmission(const PPBillExportFilt & rP, long flags, PPIDArray & rList, PPIDArray * pRejectList);
-	int    SLAPI GetBillListForConfirmTicket(/*PPID locID, const DateRange & rPeriod*/const PPBillExportFilt & rP, long flags, PPIDArray & rList);
+	int    SLAPI GetAcceptedBillList(const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList);
+	int    SLAPI GetBillListForTransmission(const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList, PPIDArray * pRejectList);
+	int    SLAPI GetBillListForConfirmTicket(/*PPID locID, const DateRange & rPeriod*/const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList);
 	int    SLAPI GetTempFileName(const char * pPath, const char * pSubPath, const char * pPrefix, SString & rFn);
 
 	enum {
@@ -44811,9 +44820,9 @@ public:
 	int    SLAPI RemoveOutputMessages(PPID locID, int debugMode);
 	//int    SLAPI SendBillActs(PPID locID, const DateRange * pPeriod);
 	//int    SLAPI SendBills(PPID locID, const DateRange * pPeriod);
-	int    SLAPI SendBillActs(const PPBillExportFilt & rP);
-	int    SLAPI SendBillRepeals(const PPBillExportFilt & rP);
-	int    SLAPI SendBills(const PPBillExportFilt & rP);
+	int    SLAPI SendBillActs(const PPBillIterchangeFilt & rP);
+	int    SLAPI SendBillRepeals(const PPBillIterchangeFilt & rP);
+	int    SLAPI SendBills(const PPBillIterchangeFilt & rP);
 	int    SLAPI CreateActChargeOnBill(PPID * pBillID, int ediOp, PPID locID, LDATE restDate, const PPIDArray & rLotList, int use_ta);
 	int    SLAPI CollectRefs();
 private:
@@ -44822,7 +44831,7 @@ private:
 		int    EdiOp;
 		const  char * P_UrlSuffix;
 	};
-	int    SLAPI Helper_SendBillsByPattern(const PPBillExportFilt & rP, const BillTransmissionPattern & rPattern);
+	int    SLAPI Helper_SendBillsByPattern(const PPBillIterchangeFilt & rP, const BillTransmissionPattern & rPattern);
     int    SLAPI GetReplyList(void * pCtx, PPID locID, int direction /* +1 out, -1 - in */, TSCollection <PPEgaisProcessor::Reply> & rList);
 	int    SLAPI Helper_Read(void * pCtx, const char * pFileName, long flags,
 		PPID locID, const DateRange * pPeriod, uint srcReplyPos, TSCollection <PPEgaisProcessor::Packet> * pPackList, PrcssrAlcReport::RefCollection * pRefC);
@@ -47078,7 +47087,7 @@ private:
 //
 template <class C> C * FASTCALL GetDbLocalCachePtr(PPID objType, int doCreate = 1)
 {
-	C * p_cache = (C *)DS.GetDbLocalObjCache(objType);
+	C * p_cache = static_cast<C *>(DS.GetDbLocalObjCache(objType));
 	if(doCreate && !p_cache) {
 		ENTER_CRITICAL_SECTION
 		if(!p_cache && !DS.SetDbLocalObjCache(p_cache = new C)) ZDELETE(p_cache);
@@ -47533,7 +47542,7 @@ private:
 class ObjTagSelExtra : public WordSel_ExtraBlock {
 public:
 	enum {
-		fOpenedSerialsOnly = 0x0001 // Только для objType == PPOBJ_LOT и tagID == PPTAG_LOT_SN: отображать только серии открытых лотов
+		lfOpenedSerialsOnly = 0x0001 // Только для objType == PPOBJ_LOT и tagID == PPTAG_LOT_SN: отображать только серии открытых лотов
 	};
 	ObjTagSelExtra(PPID objType, PPID tagID);
 	void   SetupLotSerialParam(PPID locID, long flags);
@@ -47543,7 +47552,7 @@ public:
 private:
 	PPID   ObjType;
 	PPID   TagID;
-	long   Flags; //TODO: V703 https://www.viva64.com/en/w/v703/ It is odd that the 'Flags' field in derived class 'ObjTagSelExtra' overwrites field in base class 'WordSel_ExtraBlock'. Check lines: Pp.h:47520, tv.h:68.
+	long   LocalFlags;
 	PPID   LocID;
 	PPObjTag TagObj;
 	StrAssocArray TextBlock;
@@ -47886,8 +47895,11 @@ private:
 class MailAccCtrlGroup : public CtrlGroup {
 public:
 	struct Rec {
+		Rec() : MailAccID(0), ExtraPtr(0)
+		{
+		}
 		PPID   MailAccID;
-		long   Extra;
+		void * ExtraPtr;
 	};
 	MailAccCtrlGroup(uint ctlSelInput, uint editCmd = cmEditMailAcc);
 	virtual int setData(TDialog *, void *); // (MailAccCtrlGroup::Rec*)
@@ -51533,7 +51545,7 @@ int    SLAPI EditGoodsImpExpParams();
 int    SLAPI EditImpExpConfigs();
 int    SLAPI ImportBills(PPBillImpExpParam * pBillParam, PPBillImpExpParam * pBRowParam, PPID opID, PPID locID);
 int    SLAPI ImportEmailAccts();
-int    SLAPI ExportEmailAccts(PPIDArray * pMailAcctsList);
+int    SLAPI ExportEmailAccts(const PPIDArray * pMailAcctsList);
 //
 // @v9.1.3 int SLAPI EditCSessImpExpParams(int onlyAltImport = 0);
 // @v9.1.3 int SLAPI SelCSessImpExpParams(PPImpExpParam * pCSessParam, PPImpExpParam * pCCheckParam, PPImpExpParam * pCCLineParam, int import);
@@ -51644,7 +51656,7 @@ int SLAPI Convert10209(); // @10.2.9
 int SLAPI DoChargeSalary();
 int SLAPI DoDebtRate();
 int SLAPI DoBizScore(PPID bzsID);
-int SLAPI DoProcessObjText(PrcssrObjTextFilt * pFilt);
+int SLAPI DoProcessObjText(const PrcssrObjTextFilt * pFilt);
 int SLAPI DoProcessOsm(PrcssrOsmFilt * pFilt);
 int SLAPI DoProcessSartre(PrcssrSartreFilt * pFilt);
 int SLAPI DoConstructionTest();

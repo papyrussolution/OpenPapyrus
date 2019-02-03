@@ -1,5 +1,5 @@
 // PPCOLORS.CPP
-// Copyright (c) A.Starodub 2007, 2009, 2010, 2011, 2013, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2007, 2009, 2010, 2011, 2013, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -236,15 +236,15 @@ static BOOL CALLBACK BrightViewProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 		case WM_PAINT:
 				if(p_struc && p_struc->P_Dlg) {
 					PAINTSTRUCT ps;
-					BeginPaint(hWnd, (LPPAINTSTRUCT)&ps);
+					BeginPaint(hWnd, &ps);
 					p_struc->P_Dlg->Paint();
-					EndPaint(hWnd, (LPPAINTSTRUCT)&ps);
+					EndPaint(hWnd, &ps);
 					return 0;
 				}
 			break;
 		case WM_SETFOCUS:
 		case WM_KILLFOCUS:
-			TDialog::DialogProc(GetParent(hWnd), uMsg, wParam, (long)hWnd);
+			TDialog::DialogProc(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd));
 			break;
 	}
 	return (prev_proc) ? CallWindowProc(prev_proc, hWnd, uMsg, wParam, lParam) : 0;

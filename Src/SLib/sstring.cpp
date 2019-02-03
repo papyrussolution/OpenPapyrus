@@ -129,7 +129,7 @@ int SRegExpSet::RegisterRe(const char * pRe, long * pHandler)
 	CRegExp * p_re = new CRegExp(pRe);
 	if(p_re && p_re->IsValid()) {
 		ReList.insert(p_re);
-		handler = (long)ReList.getCount();
+		handler = static_cast<long>(ReList.getCount());
 	}
 	ASSIGN_PTR(pHandler, handler);
 	return BIN(handler);
@@ -209,7 +209,7 @@ int FASTCALL SStrScan::Pop(uint prevPos)
 
 int FASTCALL SStrScan::IsRe(long reHandler)
 {
-	if(reHandler > 0 && reHandler <= (long)ReList.getCount()) {
+	if(reHandler > 0 && reHandler <= static_cast<long>(ReList.getCount())) {
 		CRegExp * p_re = ReList.at(reHandler-1);
 		if(p_re)
 			return BIN(p_re->Find(P_Buf+Offs));
@@ -219,7 +219,7 @@ int FASTCALL SStrScan::IsRe(long reHandler)
 
 int SLAPI SStrScan::GetRe(long reHandler, SString & rBuf)
 {
-	if(reHandler > 0 && reHandler <= (long)ReList.getCount()) {
+	if(reHandler > 0 && reHandler <= static_cast<long>(ReList.getCount())) {
 		CRegExp * p_re = ReList.at(reHandler-1);
 		if(p_re && p_re->Find(this)) {
 			Get(rBuf);
@@ -243,7 +243,7 @@ int FASTCALL SStrScan::Is(char c) const
 
 int SStrScan::IsLegalUtf8() const
 {
-	const uint8 * p = (const uint8 *)(P_Buf + Offs);
+	const uint8 * p = reinterpret_cast<const uint8 *>(P_Buf + Offs);
 	const size_t extra = SUtfConst::TrailingBytesForUTF8[*p];
 	if(extra == 0)
 		return 1;
@@ -260,7 +260,7 @@ int SStrScan::IsLegalUtf8() const
 		}
 		else {
 			const size_t tail = sstrlen(p);
-			return ((extra+1) <= tail && SUnicode::IsLegalUtf8(p, extra+1)) ? (int)(1+extra) : 0;
+			return ((extra+1) <= tail && SUnicode::IsLegalUtf8(p, extra+1)) ? static_cast<int>(1+extra) : 0;
 		}
 	}
 }
@@ -865,7 +865,7 @@ int    FASTCALL SString::C(size_t n) const { return (n < Len()) ? P_Buf[n] : 0; 
 int    SLAPI SString::Single() const { return (L == 2) ? P_Buf[0] : 0; }
 SString & FASTCALL SString::operator = (const SString & s) { return CopyFrom(s); }
 SString & FASTCALL SString::operator = (const char * pS) { return CopyFrom(pS); }
-SString & FASTCALL SString::Set(const uchar * pS) { return CopyFrom((const char *)pS); }
+SString & FASTCALL SString::Set(const uchar * pS) { return CopyFrom(reinterpret_cast<const char *>(pS)); }
 int    FASTCALL SString::operator == (const char * pS) const { return IsEqual(pS); }
 int    FASTCALL SString::operator != (const char * pS) const { return BIN(!IsEqual(pS)); }
 int    FASTCALL SString::operator == (const SString & rS) const { return IsEqual(rS); }
@@ -889,14 +889,14 @@ SString & FASTCALL SString::CatQStr(const char * pStr) { return CatChar('\"').Ca
 SString & FASTCALL SString::CatParStr(const char * pStr) { return CatChar('(').Cat(pStr).CatChar(')'); }
 SString & FASTCALL SString::CatParStr(long val) { return CatChar('(').Cat(val).CatChar(')'); }
 SString & FASTCALL SString::CatBrackStr(const char * pStr) { return CatChar('[').Cat(pStr).CatChar(']'); }
-SString & FASTCALL SString::CatLongZ(int    val, uint numDigits) { return CatLongZ((long)val, numDigits); }
-SString & FASTCALL SString::CatLongZ(uint   val, uint numDigits) { return CatLongZ((long)val, numDigits); }
-SString & FASTCALL SString::CatLongZ(uint32 val, uint numDigits) { return CatLongZ((long)val, numDigits); }
+SString & FASTCALL SString::CatLongZ(int    val, uint numDigits) { return CatLongZ(static_cast<long>(val), numDigits); }
+SString & FASTCALL SString::CatLongZ(uint   val, uint numDigits) { return CatLongZ(static_cast<long>(val), numDigits); }
+SString & FASTCALL SString::CatLongZ(uint32 val, uint numDigits) { return CatLongZ(static_cast<long>(val), numDigits); }
 SString & FASTCALL SString::SetInt(int val) { return Z().Cat(val); }
 SString & SLAPI SString::ToUtf8() { return Helper_MbToMb(CP_ACP, CP_UTF8); }
 SString & SLAPI SString::Utf8ToChar() { return Helper_MbToMb(CP_UTF8, CP_ACP); }
 SString & SLAPI SString::Utf8ToOem() { return Helper_MbToMb(CP_UTF8, CP_OEMCP); }
-SString & FASTCALL SString::Utf8ToCp(SCodepageIdent cp) { return Helper_MbToMb(CP_UTF8, (int)cp); }
+SString & FASTCALL SString::Utf8ToCp(SCodepageIdent cp) { return Helper_MbToMb(CP_UTF8, static_cast<int>(cp)); }
 SString & SLAPI SString::CatEq(const char * pKey,  const char * pVal) { return Cat(pKey).CatChar('=').Cat(pVal); }
 SString & SLAPI SString::CatEqQ(const char * pKey, const char * pVal) { return Cat(pKey).CatChar('=').CatChar('\"').Cat(pVal).CatChar('\"'); }
 SString & SLAPI SString::CatEq(const char * pKey, uint16 val) { return Cat(pKey).CatChar('=').Cat(val); }
@@ -915,7 +915,7 @@ void SLAPI SString::Obfuscate()
 	if(Size && P_Buf) {
 		SlThreadLocalArea & r_tla = SLS.GetTLA();
 		r_tla.Rg.ObfuscateBuffer(P_Buf, Size);
-		const char * p_zero = (const char *)memchr(P_Buf, '\0', Size);
+		const char * p_zero = static_cast<const char *>(memchr(P_Buf, '\0', Size));
 		if(p_zero) {
 			L = (p_zero - P_Buf);
 		}
@@ -929,9 +929,9 @@ const char * SLAPI SString::StrChr(int c, size_t * pPos) const
 	size_t pos = 0;
 	const  char * p = 0;
 	if(L) {
-		p = (char *)memchr(P_Buf, (uchar)c, Len());
+		p = static_cast<const char *>(memchr(P_Buf, (uchar)c, Len()));
 		if(p)
-			pos = (size_t)(p - P_Buf);
+			pos = static_cast<size_t>(p - P_Buf);
 	}
 	ASSIGN_PTR(pPos, pos);
 	return p;
@@ -950,7 +950,7 @@ int FASTCALL SString::HasChr(int c) const
 			case 3:  return (p_buf[0] == c || p_buf[1] == c);
 			case 4:  return (p_buf[0] == c || p_buf[1] == c || p_buf[2] == c);
 			case 5:  return (p_buf[0] == c || p_buf[1] == c || p_buf[2] == c || p_buf[3] == c);
-			default: return BIN(memchr(p_buf, (uchar)c, L-1));
+			default: return BIN(memchr(p_buf, static_cast<uchar>(c), L-1));
 		}
 	}
 }
@@ -980,7 +980,7 @@ int SLAPI SString::GetWord(size_t * pPos, SString & rBuf) const
 			break;
 	}
 	ASSIGN_PTR(pPos, pos);
-	return (int)rBuf.Len();
+	return static_cast<int>(rBuf.Len());
 }
 
 int SLAPI SString::Tokenize(const char * pDelimChrSet, StringSet & rResult) const
@@ -1044,7 +1044,7 @@ int SLAPI SString::Search(const char * pPattern, size_t startPos, int ignoreCase
 		const size_t _pat_len = sstrlen(pPattern);
 		if(_pat_len) {
 			if(_pat_len == 1 && !ignoreCase) {
-				const char * p = (const char *)memchr(P_Buf+startPos, pPattern[0], _len - startPos);
+				const char * p = static_cast<const char *>(memchr(P_Buf+startPos, pPattern[0], _len - startPos));
 				if(p) {
 					ASSIGN_PTR(pPos, (p - P_Buf));
 					ok = 1;
@@ -1161,14 +1161,14 @@ int FASTCALL SString::Alloc(size_t sz)
 		char * p = 0;
 		if((7 * Size) < (8 * L)) { // Assume probability of a non-moving realloc is 0.125
 			// If L is close to Size in size then use realloc to reduce the memory defragmentation
-			p = (char *)SAlloc::R(P_Buf, new_size);
+			p = static_cast<char *>(SAlloc::R(P_Buf, new_size));
 		}
 		else {
 			// If L is not close to Size then avoid the penalty of copying
 			// the extra bytes that are allocated, but not considered part of the string
-			p = (char *)SAlloc::M(new_size);
+			p = static_cast<char *>(SAlloc::M(new_size));
 			if(!p)
-				p = (char *)SAlloc::R(P_Buf, new_size);
+				p = static_cast<char *>(SAlloc::R(P_Buf, new_size));
 			else {
 				if(L)
 					memcpy(p, P_Buf, L);
@@ -1210,7 +1210,7 @@ SString & FASTCALL SString::CopyFromN(const char * pS, size_t maxLen)
 	size_t new_len = 1;
 	if(pS) {
 		if(maxLen) {
-			const char * p_zero = (const char *)memchr(pS, 0, maxLen);
+			const char * p_zero = static_cast<const char *>(memchr(pS, 0, maxLen));
 			new_len += p_zero ? (p_zero - pS) : maxLen;
 		}
 	}
@@ -1308,15 +1308,17 @@ BSTR FASTCALL SString::CopyToOleStr(BSTR * pBuf) const
 {
 	size_t wbuflen = Len()+1;
 	WCHAR  wname_stk_buf[256];
-	WCHAR * p_wname = (wbuflen > SIZEOFARRAY(wname_stk_buf)) ? (WCHAR *)SAlloc::M(wbuflen * sizeof(WCHAR)) : wname_stk_buf;
+	WCHAR * p_wname = (wbuflen > SIZEOFARRAY(wname_stk_buf)) ? static_cast<WCHAR *>(SAlloc::M(wbuflen * sizeof(WCHAR))) : wname_stk_buf;
 	if(p_wname) {
 		p_wname[0] = 0;
 #ifndef _WIN32_WCE // {
-		if(pBuf && *pBuf)
-			SysFreeString(*pBuf);
-		MultiByteToWideChar(CP_OEMCP, 0, P_Buf, (int)Len(), p_wname, (int)wbuflen);
-		p_wname[wbuflen-1] = 0;
-		*pBuf = SysAllocString(p_wname);
+		if(pBuf) {
+			if(*pBuf)
+				SysFreeString(*pBuf);
+			MultiByteToWideChar(CP_OEMCP, 0, P_Buf, static_cast<int>(Len()), p_wname, static_cast<int>(wbuflen));
+			p_wname[wbuflen-1] = 0;
+			*pBuf = SysAllocString(p_wname);
+		}
 #endif // } _WIN32_WCE
 	}
 	if(p_wname != wname_stk_buf)
@@ -1331,7 +1333,7 @@ SString & FASTCALL SString::CopyFromOleStr(const BSTR s)
 	size_t new_len = len+1;
 	if(Alloc(new_len)) {
 		if(len) {
-			WideCharToMultiByte(CP_OEMCP, 0, s, -1, P_Buf, (int)new_len, 0, 0);
+			WideCharToMultiByte(CP_OEMCP, 0, s, -1, P_Buf, static_cast<int>(new_len), 0, 0);
 			L = new_len;
 			P_Buf[new_len-1] = 0;
 		}
@@ -1650,7 +1652,7 @@ SString & SLAPI SString::Escape()
 						if(c < 0) // non-BMP character
 							CatChar(c);
 						else if(c < 0x20)
-							Cat("\\u00").CatHex((uint8)c);
+							Cat("\\u00").CatHex(static_cast<uint8>(c));
 						else
 							CatChar(c);
 						break;
@@ -1691,35 +1693,35 @@ SString & SLAPI SString::Unescape()
 							ubuf[4] = 0;
 							int64  unicode = strtol(ubuf, NULL, 16);
 							if(unicode < 0x80) // ASCII: map to UTF-8 literally
-								CatChar((char)(unicode&0xff));
+								CatChar(static_cast<char>(unicode&0xff));
 							else if(unicode < 0x800) { // two-byte-encoding
-								char one = (char)0xC0; /* 110 00000 */
-								char two = (char)0x80; /* 10 000000 */
-								two += (char)(unicode & 0x3F);
+								char one = static_cast<char>(0xC0); /* 110 00000 */
+								char two = static_cast<char>(0x80); /* 10 000000 */
+								two += static_cast<char>(unicode & 0x3F);
 								unicode >>= 6;
-								one += (char)(unicode & 0x1F);
+								one += static_cast<char>(unicode & 0x1F);
 								CatChar(one).CatChar(two);
 							}
 							else if(unicode < 0x10000) {
 								if(unicode < 0xD800 || 0xDBFF < unicode) { // three-byte-encoding
-									char one = (char)0xE0;   /* 1110 0000 */
-									char two = (char)0x80;   /* 10 000000 */
-									char three = (char)0x80; /* 10 000000 */
-									three += (char)(unicode & 0x3F);
+									char one = static_cast<char>(0xE0);   // 1110 0000 
+									char two = static_cast<char>(0x80);   // 10 000000 
+									char three = static_cast<char>(0x80); // 10 000000 
+									three += static_cast<char>(unicode & 0x3F);
 									unicode >>= 6;
-									two += (char)(unicode & 0x3F);
+									two += static_cast<char>(unicode & 0x3F);
 									unicode >>= 6;
-									one += (char)(unicode & 0xF);
+									one += static_cast<char>(unicode & 0xF);
 									CatChar(one).CatChar(two).CatChar(three);
 								}
 								else {
 									// unicode is a UTF-16 high surrogate, continue with the low surrogate
 									int64 high_surrogate = unicode;	// 110110 00;00000000
 									int64 low_surrogate;
-									char one   = (char)0xF0; // 11110 000
-									char two   = (char)0x80; // 10 000000
-									char three = (char)0x80; // 10 000000
-									char four  = (char)0x80; // 10 000000
+									char one   = static_cast<char>(0xF0); // 11110 000
+									char two   = static_cast<char>(0x80); // 10 000000
+									char three = static_cast<char>(0x80); // 10 000000
+									char four  = static_cast<char>(0x80); // 10 000000
 									if(P_Buf[++i] != '\\')
 										break;
 									if(P_Buf[++i] != 'u')
@@ -1740,13 +1742,13 @@ SString & SLAPI SString::Unescape()
 									unicode = (high_surrogate << 10) + (low_surrogate) + 0x10000;
 
 									// now encode into four-byte UTF-8 (as we are larger than 0x10000)
-									four += (char)(unicode & 0x3F);
+									four += static_cast<char>(unicode & 0x3F);
 									unicode >>= 6;
-									three += (char)(unicode & 0x3F);
+									three += static_cast<char>(unicode & 0x3F);
 									unicode >>= 6;
-									two += (char)(unicode & 0x3F);
+									two += static_cast<char>(unicode & 0x3F);
 									unicode >>= 6;
-									one += (char)(unicode & 0x7);
+									one += static_cast<char>(unicode & 0x7);
 									CatChar(one).CatChar(two).CatChar(three).CatChar(four);
 								}
 							}
@@ -1789,7 +1791,7 @@ SString & SLAPI SString::ToUrl()
             for(i = cvt_offs; i < _len; i++) {
 				const char c = P_Buf[i];
 				if(!NORMURLC(c)) {
-					temp_buf.CatChar('%').CatHex((uint8)c);
+					temp_buf.CatChar('%').CatHex(static_cast<uint8>(c));
 				}
 				else {
 					temp_buf.CatChar(c);
@@ -1830,7 +1832,7 @@ SString & SLAPI SString::FromUrl()
 						// мы их встретить не можем.
 						assert((i+2) < _len && ishex(P_Buf[i+1]) && ishex(P_Buf[i+2]));
                         const uint8 real_c = hextobyte(P_Buf+i+1);
-                        temp_buf.CatChar((char)real_c);
+                        temp_buf.CatChar(static_cast<char>(real_c));
                         i++;
                         i++;
 					}
@@ -1897,10 +1899,10 @@ SString & SLAPI SString::Helper_MbToMb(uint srcCodepage, uint destCodepage)
 		Trim(0);
 		for(size_t offs = 0; offs < len;) {
 			size_t s = MIN((len-offs), middle_buf_len/2);
-			int ret = WideCharToMultiByte(destCodepage, 0, ((const wchar_t *)r_temp_ustr)+offs, (int)s, text, (int)sizeof(text), 0, 0);
+			int ret = WideCharToMultiByte(destCodepage, 0, static_cast<const wchar_t *>(r_temp_ustr)+offs, static_cast<int>(s), text, static_cast<int>(sizeof(text)), 0, 0);
 			if(ret > 0) {
 				offs += s;
-				CatN(text, (size_t)ret);
+				CatN(text, static_cast<size_t>(ret));
 			}
 			else
 				break;
@@ -1912,7 +1914,7 @@ SString & SLAPI SString::Helper_MbToMb(uint srcCodepage, uint destCodepage)
 		const size_t len = Len();
 		for(size_t offs = 0; offs < len;) {
 			size_t s = MIN((len-offs), middle_buf_len/2);
-			int    ret = MultiByteToWideChar(srcCodepage, 0, P_Buf+offs, (int)s, wtext, SIZEOFARRAY(wtext));
+			int    ret = MultiByteToWideChar(srcCodepage, 0, P_Buf+offs, static_cast<int>(s), wtext, SIZEOFARRAY(wtext));
 			if(ret > 0) {
 				offs += s;
 				ret = WideCharToMultiByte(destCodepage, 0, wtext, ret, text, sizeof(text), 0, 0);
@@ -1923,10 +1925,10 @@ SString & SLAPI SString::Helper_MbToMb(uint srcCodepage, uint destCodepage)
 						// Отдельная проверка на окончание цикла для того, чтобы
 						// избежать лишнего копирования во временный буфер.
 						//
-						return CopyFrom(r_temp_buf).CatN(text, (size_t)ret);
+						return CopyFrom(r_temp_buf).CatN(text, static_cast<size_t>(ret));
 					}
 					else
-						r_temp_buf.CatN(text, (size_t)ret);
+						r_temp_buf.CatN(text, static_cast<size_t>(ret));
 				}
 			}
 			else
@@ -2127,8 +2129,8 @@ int FASTCALL SString::CmpSuffix(const char * pS, int ignoreCase) const
 	if(P_Buf == 0 || pS == 0)
 		return -1;
 	else {
-		size_t len = sstrlen(pS);
-		int    delta = ((int)Len())-((int)len);
+		const  size_t len = sstrlen(pS);
+		const  int delta = static_cast<int>(Len())-static_cast<int>(len);
 		if(len && delta >= 0)
 			return ignoreCase ? strnicmp866(P_Buf+delta, pS, len) : strncmp(P_Buf+delta, pS, len);
 		else
@@ -2396,7 +2398,7 @@ SString & FASTCALL SString::Cat(const char * pS)
 SString & FASTCALL SString::CatN(const char * pS, size_t maxLen)
 {
 	if(pS && maxLen) {
-		const char * p_zero = (const char *)memchr(pS, 0, maxLen);
+		const char * p_zero = static_cast<const char *>(memchr(pS, 0, maxLen));
 		size_t add_len = p_zero ? (p_zero - pS) : maxLen;
 		if(add_len) {
 			const size_t new_len = (L ? L : 1) + add_len;
@@ -2413,7 +2415,7 @@ SString & FASTCALL SString::CatN(const char * pS, size_t maxLen)
 SString & FASTCALL SString::Cat(SBuffer & rS)
 {
 	size_t prev_len = Len();
-	CatN((const char *)rS.GetBuf(rS.GetRdOffs()), rS.GetAvailableSize());
+	CatN(static_cast<const char *>(rS.GetBuf(rS.GetRdOffs())), rS.GetAvailableSize());
 	if(Len() > prev_len)
 		rS.SetRdOffs(Len()-prev_len);
 	return *this;
@@ -2570,7 +2572,7 @@ SString & SLAPI SString::CatPercentMsg(long p, long t, const char * pMsg)
 {
 	if(pMsg)
 		Cat(pMsg).Space();
-	return Cat((long)(t ? (100.0 * ((double)p / (double)t)) : 100.0)).CatChar('%');
+	return Cat(static_cast<long>(t ? (100.0 * (static_cast<double>(p) / static_cast<double>(t))) : 100.0)).CatChar('%');
 }
 
 SString & SLAPI SString::Cat(double v, long fmt)
@@ -2668,7 +2670,7 @@ SString & SLAPI SString::CatTagBrace(const char * pTag, int kind)
 	return *this;
 }
 
-SString & SLAPI SString::CatXmlElem(const char * pName, int kind, StringSet * pList)
+SString & SLAPI SString::CatXmlElem(const char * pName, int kind, const StringSet * pList)
 {
 	CatChar('<').CatChar('!').Cat("ELEMENT").Space().Cat(pName).Space().CatChar('(');
 	if(kind == 0)
@@ -2833,7 +2835,7 @@ long SLAPI SString::ToLong() const
 				do {
 					len++;
 				} while(ishex(_p[src_pos+len]));
-				result = (long)_texttohex32(_p+src_pos, len);
+				result = static_cast<long>(_texttohex32(_p+src_pos, len));
 			}
 		}
 		else {
@@ -2842,7 +2844,7 @@ long SLAPI SString::ToLong() const
 				do {
 					len++;
 				} while(isdec(_p[src_pos+len]));
-				result = (long)_texttodec32(_p+src_pos, len);
+				result = static_cast<long>(_texttodec32(_p+src_pos, len));
 			}
 		}
 		if(is_neg && result)
@@ -2980,12 +2982,12 @@ int SLAPI SString::ToIntRange(IntRange & rRange, long flags) const
 			if(upp_is_done) {
 				rRange.low = lo;
 				rRange.upp = up;
-				result = (int)src_pos;
+				result = static_cast<int>(src_pos);
 			}
 			else {
 				rRange.low = lo;
 				rRange.upp = lo;
-				result = (int)preserve_upp_src_pos;
+				result = static_cast<int>(preserve_upp_src_pos);
 			}
 		}
 		assert(src_pos <= Len());
@@ -3090,7 +3092,7 @@ SString & SLAPI SString::EncodeMime64(const void * pBuf, size_t dataLen)
 	size_t needed_size = (dataLen * 2) + 2;
 	size_t real_size = 0;
 	Alloc(needed_size);
-	if(encode64((const char *)pBuf, dataLen, P_Buf, Size, &real_size)) {
+	if(encode64(static_cast<const char *>(pBuf), dataLen, P_Buf, Size, &real_size)) {
 		L = real_size;
 		assert(Len() == sstrlen(P_Buf));
 	}
@@ -3107,7 +3109,7 @@ size_t FASTCALL SString::CharToQp(char c)
 		n = 1;
 	}
 	else {
-		CatChar('=').CatHexUpper((uchar)c);
+		CatChar('=').CatHexUpper(static_cast<uchar>(c));
 		n = 3;
 	}
 	return n;
@@ -3197,7 +3199,7 @@ int FASTCALL SString::Decode_XMLENT(SString & rBuf) const
 	size_t amp_pos = 0;
 	const char * p_buf = P_Buf;
 	while(cp < len) {
-		const char * p = (p_buf[cp] == '&') ? (p_buf+cp) : (const char *)memchr(p_buf+cp, '&', len-cp);
+		const char * p = (p_buf[cp] == '&') ? (p_buf+cp) : static_cast<const char *>(memchr(p_buf+cp, '&', len-cp));
 		if(p) {
 			rBuf.CatN(p_buf+cp, (p-p_buf-cp));
 			uint ofs = (p-p_buf);
@@ -3223,7 +3225,7 @@ int FASTCALL SString::Decode_XMLENT(SString & rBuf) const
 					// concat code to rBuf
 					char  utf8_buf[16];
 					uint  utf8_len = SUnicode::Utf32ToUtf8(code, utf8_buf);
-					rBuf.Cat_((uint8 *)utf8_buf, utf8_len);
+					rBuf.Cat_(reinterpret_cast<const uint8 *>(utf8_buf), utf8_len);
 					cp = ofs+nd;
 				}
 				else {
@@ -3250,7 +3252,7 @@ int SLAPI SString::DecodeMime64(void * pBuf, size_t bufLen, size_t * pRealLen) c
 	size_t out_len = bufLen;
 	char   zero_buf[32];
 	zero_buf[0] = 0;
-	int    ok = decode64(NZOR(P_Buf, zero_buf), Len(), (char *)pBuf, &out_len);
+	int    ok = decode64(NZOR(P_Buf, zero_buf), Len(), static_cast<char *>(pBuf), &out_len);
 	ASSIGN_PTR(pRealLen, out_len);
 	return ok;
 }
@@ -3329,7 +3331,7 @@ size_t SLAPI SString::Decode_EncodedWordRFC2047(SString & rBuf, SCodepageIdent *
 								temp_buf.DecodeMime64(bin_buf, bin_buf.GetSize(), &actual_size);
 								temp_buf.Z();
 								for(uint j = 0; j < actual_size; j++) {
-									char b = ((const char *)bin_buf)[j];
+									char b = static_cast<const char *>(bin_buf)[j];
 									if(b != 0)
 										sub.CatChar(b);
 									else {
@@ -3371,7 +3373,7 @@ SString & SLAPI SString::EncodeUrl(const char * pSrc, int mode)
 		else if(mode == 0 && oneof7(c, '#', '&', ',', ':', ';', '=', '?'))
 			CatChar(c);
 		else
-			CatChar('%').CatHexUpper((uchar)c);
+			CatChar('%').CatHexUpper(static_cast<uchar>(c));
 	}
 	return *this;
 }
@@ -3423,7 +3425,7 @@ SString & SString::EncodeString(const char * pSrc, const char * pEncodeStr, int 
 	StringSet ss(';', pEncodeStr);
 	uint   p;
 	for(p = 0; ss.get(&p, buf) > 0;)
-		list.AddFast(MAXLONG - (long)buf.Len(), buf); // Без проверки на дублирование идентификатора
+		list.AddFast(MAXLONG - static_cast<long>(buf.Len()), buf); // Без проверки на дублирование идентификатора
 	list.SortByID();
 	ss.setDelim(",");
 	for(p = 0; p < list.getCount(); p++) {
@@ -3488,14 +3490,14 @@ int FASTCALL SStringU::Alloc(size_t sz)
 		wchar_t * p = 0;
 		if((7 * Size) < (8 * L)) { // Assume probability of a non-moving realloc is 0.125
 			// If L is close to Size in size then use realloc to reduce the memory defragmentation
-			p = (wchar_t *)SAlloc::R(P_Buf, new_size*sizeof(wchar_t));
+			p = static_cast<wchar_t *>(SAlloc::R(P_Buf, new_size*sizeof(wchar_t)));
 		}
 		else {
 			// If L is not close to Size then avoid the penalty of copying
 			// the extra bytes that are allocated, but not considered part of the string
-			p = (wchar_t *)SAlloc::M(new_size*sizeof(wchar_t));
+			p = static_cast<wchar_t *>(SAlloc::M(new_size*sizeof(wchar_t)));
 			if(!p)
-				p = (wchar_t *)SAlloc::R(P_Buf, new_size*sizeof(wchar_t));
+				p = static_cast<wchar_t *>(SAlloc::R(P_Buf, new_size*sizeof(wchar_t)));
 			else {
 				if(L)
 					memcpy(p, P_Buf, L*sizeof(wchar_t));
@@ -3523,15 +3525,22 @@ int FASTCALL SStringU::IsEqual(const SStringU & rS) const
 {
 	const size_t len = Len();
 	if(len == rS.Len()) {
-		assert(len == 0 || (P_Buf && rS.P_Buf));
-		switch(len) {
-			case 0: return 1;
-			case 1: return BIN(P_Buf[0] == rS.P_Buf[0]);
-			case 2: return BIN(PTR32(P_Buf)[0] == PTR32(rS.P_Buf)[0]);
-			case 3: return BIN(P_Buf[0] == rS.P_Buf[0] && P_Buf[1] == rS.P_Buf[1] && P_Buf[2] == rS.P_Buf[2]);
-			case 4: return BIN(PTR64(P_Buf)[0] == PTR64(rS.P_Buf)[0]);
-			case 8: return BIN(PTR64(P_Buf)[0] == PTR64(rS.P_Buf)[0] && PTR64(P_Buf)[1] == PTR64(rS.P_Buf)[1]);
-			default: return BIN(memcmp(P_Buf, rS.P_Buf, len) == 0);
+		if(len == 0)
+			return 1;
+		else {
+			assert(P_Buf && rS.P_Buf);
+			if(P_Buf && rS.P_Buf) {
+				switch(len) {
+					case 1: return BIN(P_Buf[0] == rS.P_Buf[0]);
+					case 2: return BIN(PTR32(P_Buf)[0] == PTR32(rS.P_Buf)[0]);
+					case 3: return BIN(P_Buf[0] == rS.P_Buf[0] && P_Buf[1] == rS.P_Buf[1] && P_Buf[2] == rS.P_Buf[2]);
+					case 4: return BIN(PTR64(P_Buf)[0] == PTR64(rS.P_Buf)[0]);
+					case 8: return BIN(PTR64(P_Buf)[0] == PTR64(rS.P_Buf)[0] && PTR64(P_Buf)[1] == PTR64(rS.P_Buf)[1]);
+					default: return BIN(memcmp(P_Buf, rS.P_Buf, len) == 0);
+				}
+			}
+			else
+				return 0;
 		}
 	}
 	else
@@ -3543,15 +3552,22 @@ int FASTCALL SStringU::IsEqual(const wchar_t * pS) const
 	const size_t len = Len();
 	const size_t len2 = sstrlen(pS);
 	if(len == len2) {
-		assert(len == 0 || P_Buf);
-		switch(len) {
-			case 0: return 1;
-			case 1: return BIN(P_Buf[0] == pS[0]);
-			case 2: return BIN(PTR32C(P_Buf)[0] == PTR32C(pS)[0]);
-			case 3: return BIN(P_Buf[0] == pS[0] && P_Buf[1] == pS[1] && P_Buf[2] == pS[2]);
-			case 4: return BIN(PTR64C(P_Buf)[0] == PTR64C(pS)[0]);
-			case 8: return BIN(PTR64C(P_Buf)[0] == PTR64C(pS)[0] && PTR64C(P_Buf)[1] == PTR64C(pS)[1]);
-			default: return BIN(memcmp(P_Buf, pS, len) == 0);
+		if(len == 0)
+			return 1;
+		else {
+			assert(P_Buf);
+			if(P_Buf) {
+				switch(len) {
+					case 1: return BIN(P_Buf[0] == pS[0]);
+					case 2: return BIN(PTR32C(P_Buf)[0] == PTR32C(pS)[0]);
+					case 3: return BIN(P_Buf[0] == pS[0] && P_Buf[1] == pS[1] && P_Buf[2] == pS[2]);
+					case 4: return BIN(PTR64C(P_Buf)[0] == PTR64C(pS)[0]);
+					case 8: return BIN(PTR64C(P_Buf)[0] == PTR64C(pS)[0] && PTR64C(P_Buf)[1] == PTR64C(pS)[1]);
+					default: return BIN(memcmp(P_Buf, pS, len) == 0);
+				}
+			}
+			else
+				return 0;
 		}
 	}
 	else
@@ -3642,7 +3658,7 @@ SStringU & FASTCALL SStringU::CatChar(wchar_t chr)
 SStringU & FASTCALL SStringU::CatN(const wchar_t * pS, size_t maxLen)
 {
 	if(pS && maxLen) {
-		const wchar_t * p_zero = (const wchar_t *)wmemchr(pS, 0, maxLen);
+		const wchar_t * p_zero = static_cast<const wchar_t *>(wmemchr(pS, 0, maxLen));
 		size_t add_len = p_zero ? (p_zero - pS) : maxLen;
 		if(add_len) {
 			const size_t new_len = (L ? L : 1) + add_len;
@@ -3687,7 +3703,7 @@ SStringU & FASTCALL SStringU::CopyFromN(const wchar_t * pS, size_t maxLen)
 	size_t new_len = 1;
 	if(pS) {
 		if(maxLen) {
-			const wchar_t * p_zero = (const wchar_t *)wmemchr(pS, 0, maxLen);
+			const wchar_t * p_zero = static_cast<const wchar_t *>(wmemchr(pS, 0, maxLen));
 			new_len += p_zero ? (p_zero - pS) : maxLen;
 		}
 	}
@@ -3721,7 +3737,7 @@ SStringU & FASTCALL SStringU::CopyFromMb(int cp, const char * pS, size_t srcLen)
 	else {
 		for(size_t offs = 0; offs < srcLen;) {
 			size_t s = MIN((srcLen-offs), middle_buf_len/2);
-			int    ret = MultiByteToWideChar(cp, 0, pS+offs, (int)s, wtext, SIZEOFARRAY(wtext));
+			int    ret = MultiByteToWideChar(cp, 0, pS+offs, static_cast<int>(s), wtext, SIZEOFARRAY(wtext));
 			if(ret > 0) {
 				CatN(wtext, ret);
 				offs += s;
@@ -3844,7 +3860,7 @@ uint FASTCALL SUnicode::Utf32ToUtf16(uint32 u32, wchar_t * pU16Buf)
 uint  FASTCALL SUnicode::Utf32ToUtf8(uint32 u32, char * pUtf8Buf)
 {
 	uint    k = 0;
-	const uint16 u16l = (uint16)(u32 & 0x0000ffff);
+	const uint16 u16l = static_cast<const uint16>(u32 & 0x0000ffff);
 	if(u32 < 0x80) {
 		pUtf8Buf[k++] = static_cast<char>(u32);
 	}
@@ -3898,7 +3914,7 @@ int SString::IsLegalUtf8() const
 	int    ok = 1;
 	const  size_t _len = Len();
 	for(size_t idx = 0; ok && idx < _len;) {
-		const uint8 * p = (const uint8 *)(P_Buf+idx);
+		const uint8 * p = reinterpret_cast<const uint8 *>(P_Buf+idx);
 		const size_t extra = SUtfConst::TrailingBytesForUTF8[*p];
 		if(extra == 0)
 			idx++;
@@ -4001,32 +4017,32 @@ int SLAPI SString::CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, i
 			}
 		}
 		// Figure out how many bytes the result will require
-		if(ch < (uint32)0x80) {
-			CatChar((uint8)ch);
+		if(ch < static_cast<uint32>(0x80)) {
+			CatChar(static_cast<uint8>(ch));
 		}
-		else if(ch < (uint32)0x800) {
-			temp_mb[0] = (uint8)((ch >> 6) | SUtfConst::FirstByteMark[2]);
-			temp_mb[1] = (uint8)((ch | byteMark) & byteMask);
+		else if(ch < static_cast<uint32>(0x800)) {
+			temp_mb[0] = static_cast<uint8>((ch >> 6) | SUtfConst::FirstByteMark[2]);
+			temp_mb[1] = static_cast<uint8>((ch | byteMark) & byteMask);
 			Cat_(temp_mb, 2);
 		}
-		else if(ch < (uint32)0x10000) {
-			temp_mb[0] = (uint8)((ch >> 12) | SUtfConst::FirstByteMark[3]);
-			temp_mb[1] = (uint8)(((ch >> 6) | byteMark) & byteMask);
-			temp_mb[2] = (uint8)((ch | byteMark) & byteMask);
+		else if(ch < static_cast<uint32>(0x10000)) {
+			temp_mb[0] = static_cast<uint8>((ch >> 12) | SUtfConst::FirstByteMark[3]);
+			temp_mb[1] = static_cast<uint8>(((ch >> 6) | byteMark) & byteMask);
+			temp_mb[2] = static_cast<uint8>((ch | byteMark) & byteMask);
 			Cat_(temp_mb, 3);
 		}
-		else if(ch < (uint32)0x110000) {
-			temp_mb[0] = (uint8)((ch >> 18) | SUtfConst::FirstByteMark[4]);
-			temp_mb[1] = (uint8)(((ch >> 12) | byteMark) & byteMask);
-			temp_mb[2] = (uint8)(((ch >> 6) | byteMark) & byteMask);
-			temp_mb[3] = (uint8)((ch | byteMark) & byteMask);
+		else if(ch < static_cast<uint32>(0x110000)) {
+			temp_mb[0] = static_cast<uint8>((ch >> 18) | SUtfConst::FirstByteMark[4]);
+			temp_mb[1] = static_cast<uint8>(((ch >> 12) | byteMark) & byteMask);
+			temp_mb[2] = static_cast<uint8>(((ch >> 6) | byteMark) & byteMask);
+			temp_mb[3] = static_cast<uint8>((ch | byteMark) & byteMask);
 			Cat_(temp_mb, 4);
 		}
 		else {
 			ch = UNI_REPLACEMENT_CHAR;
-			temp_mb[0] = (uint8)((ch >> 12) | SUtfConst::FirstByteMark[3]);
-			temp_mb[1] = (uint8)(((ch >> 6) | byteMark) & byteMask);
-			temp_mb[2] = (uint8)((ch | byteMark) & byteMask);
+			temp_mb[0] = static_cast<uint8>((ch >> 12) | SUtfConst::FirstByteMark[3]);
+			temp_mb[1] = static_cast<uint8>(((ch >> 6) | byteMark) & byteMask);
+			temp_mb[2] = static_cast<uint8>((ch | byteMark) & byteMask);
 			Cat_(temp_mb, 3);
 		}
 	}
@@ -4049,7 +4065,7 @@ int FASTCALL SStringU::Helper_CopyFromUtf8(const char * pSrc, size_t srcSize, in
 {
 	int    ok = 1;
 	Trim(0);
-	const uint8 * p_src = (const uint8 *)pSrc;
+	const uint8 * p_src = reinterpret_cast<const uint8 *>(pSrc);
 	wchar_t line[1024];
 	size_t line_ptr = 0;
 	size_t i = 0;
@@ -4079,20 +4095,20 @@ int FASTCALL SStringU::Helper_CopyFromUtf8(const char * pSrc, size_t srcSize, in
 	    	// UTF-16 surrogate values are illegal in UTF-32
 	    	if(ch >= UNI_SUR_HIGH_START && ch <= UNI_SUR_LOW_END) {
 				THROW_S(!strictConversion, SLERR_UTFCVT_ILLUTF8);
-				line[line_ptr++] = (wchar_t)UNI_REPLACEMENT_CHAR;
+				line[line_ptr++] = static_cast<wchar_t>(UNI_REPLACEMENT_CHAR);
 	    	}
 			else
-				line[line_ptr++] = (wchar_t)ch; // normal case
+				line[line_ptr++] = static_cast<wchar_t>(ch); // normal case
 		}
 		else if(ch > UNI_MAX_UTF16) {
 	    	THROW_S(!strictConversion, SLERR_UTFCVT_ILLUTF8);
-			line[line_ptr++] = (wchar_t)UNI_REPLACEMENT_CHAR;
+			line[line_ptr++] = static_cast<wchar_t>(UNI_REPLACEMENT_CHAR);
 		}
 		else {
 			// target is a character in range 0xFFFF - 0x10FFFF.
     		ch -= SUtfConst::HalfBase;
-			line[line_ptr++] = (wchar_t)((ch >> SUtfConst::HalfShift) + UNI_SUR_HIGH_START);
-    		line[line_ptr++] = (wchar_t)((ch & SUtfConst::HalfMask) + UNI_SUR_LOW_START);
+			line[line_ptr++] = static_cast<wchar_t>((ch >> SUtfConst::HalfShift) + UNI_SUR_HIGH_START);
+    		line[line_ptr++] = static_cast<wchar_t>((ch & SUtfConst::HalfMask) + UNI_SUR_LOW_START);
 		}
 	}
 	CATCHZOK
@@ -4109,9 +4125,9 @@ long SLAPI SStringU::ToLong() const
 			p++;
 		wchar_t * p_end = 0;
 		if(p[0] == '0' && oneof2(p[1], L'x', L'X'))
-			return (long)wcstoul(p, &p_end, 16);
+			return static_cast<long>(wcstoul(p, &p_end, 16));
 		else
-			return (long)wcstoul(p, &p_end, 10);
+			return static_cast<long>(wcstoul(p, &p_end, 10));
 	}
 	else
 		return 0;
@@ -6808,53 +6824,53 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 				rResultList.Add(SNTOK_DIGITCODE, 1.0f);
 				switch(stat.Len) {
 					case 6:
-						if(_ProbeDate(temp_buf.Z().CatN((const char *)pToken, stat.Len))) {
+						if(_ProbeDate(temp_buf.Z().CatN(reinterpret_cast<const char *>(pToken), stat.Len))) {
 							rResultList.Add(SNTOK_DATE, 0.5f);
 						}
 						break;
 					case 8:
-						cd = SCalcBarcodeCheckDigitL((const char *)pToken, stat.Len-1);
+						cd = SCalcBarcodeCheckDigitL(reinterpret_cast<const char *>(pToken), stat.Len-1);
 						if((uchar)cd == (last-'0')) {
 							if(pToken[0] == '0')
 								rResultList.Add(SNTOK_UPCE, 0.9f);
 							else
 								rResultList.Add(SNTOK_EAN8, 0.9f);
 						}
-						if(_ProbeDate(temp_buf.Z().CatN((const char *)pToken, stat.Len))) {
+						if(_ProbeDate(temp_buf.Z().CatN(reinterpret_cast<const char *>(pToken), stat.Len))) {
 							rResultList.Add(SNTOK_DATE, 0.8f);
 						}
 						break;
 					case 10:
-						if(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, (const char *)pToken, stat.Len)) {
+						if(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), stat.Len)) {
 							rResultList.Add(SNTOK_RU_INN, 1.0f);
 						}
 						break;
 					case 12:
-						cd = SCalcBarcodeCheckDigitL((const char *)pToken, stat.Len-1);
-						if((uchar)cd == (last-'0')) {
+						cd = SCalcBarcodeCheckDigitL(reinterpret_cast<const char *>(pToken), stat.Len-1);
+						if(static_cast<uchar>(cd) == (last-'0')) {
 							if(pToken[0] == '0')
 								rResultList.Add(SNTOK_UPCE, 1.0f);
 							else
 								rResultList.Add(SNTOK_EAN8, 1.0f);
 						}
-						else if(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, (const char *)pToken, stat.Len)) {
+						else if(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), stat.Len)) {
 							rResultList.Add(SNTOK_RU_INN, 1.0f);
 						}
 						break;
 					case 13:
-						cd = SCalcBarcodeCheckDigitL((const char *)pToken, stat.Len-1);
+						cd = SCalcBarcodeCheckDigitL(reinterpret_cast<const char *>(pToken), stat.Len-1);
 						if((uchar)cd == (last-'0')) {
 							rResultList.Add(SNTOK_EAN13, 1.0f);
 						}
 						break;
 					case 15:
-						if(SCalcCheckDigit(SCHKDIGALG_LUHN|SCHKDIGALG_TEST, (const char *)pToken, stat.Len)) {
+						if(SCalcCheckDigit(SCHKDIGALG_LUHN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), stat.Len)) {
 							rResultList.Add(SNTOK_IMEI, 0.9f);
 							rResultList.Add(SNTOK_DIGITCODE, 0.1f);
 						}
 						break;
 					case 19:
-						if(SCalcCheckDigit(SCHKDIGALG_LUHN|SCHKDIGALG_TEST, (const char *)pToken, stat.Len)) {
+						if(SCalcCheckDigit(SCHKDIGALG_LUHN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), stat.Len)) {
 							rResultList.Add(SNTOK_LUHN, 0.9f);
 							rResultList.Add(SNTOK_EGAISWARECODE, 0.1f);
 						}
@@ -6882,7 +6898,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 			if(h & (SNTOKSEQ_DECHYPHEN|SNTOKSEQ_DECSLASH|SNTOKSEQ_DECDOT)) {
 				// 1-1-1 17-12-2016
 				if(stat.Len >= 5 && stat.Len <= 10) {
-					temp_buf.CatN((const char *)pToken, stat.Len);
+					temp_buf.CatN(reinterpret_cast<const char *>(pToken), stat.Len);
 					StringSet ss;
 					const char * p_div = 0;
 					if(h & SNTOKSEQ_DECHYPHEN)
@@ -6894,7 +6910,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 					temp_buf.Tokenize(p_div, ss);
 					const uint ss_count = ss.getCount();
 					if(ss_count == 3) {
-						if(_ProbeDate(temp_buf.Z().CatN((const char *)pToken, stat.Len))) {
+						if(_ProbeDate(temp_buf.Z().CatN(reinterpret_cast<const char *>(pToken), stat.Len))) {
 							rResultList.Add(SNTOK_DATE, 0.8f);
 						}
 					}
@@ -6902,7 +6918,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 			}
 			if(h & SNTOKSEQ_DECDOT) {
 				// 1.1.1.1 255.255.255.255
-				temp_buf.Z().CatN((const char *)pToken, stat.Len);
+				temp_buf.Z().CatN(reinterpret_cast<const char *>(pToken), stat.Len);
 				StringSet ss('.', temp_buf);
 				const uint ss_count = ss.getCount();
 				if(ss_count == 2) {
@@ -6959,7 +6975,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 			if(h & SNTOKSEQ_ASCII) {
 				uint   pos = 0;
 				long   val = 0;
-				if(chr_list.BSearch((long)'@', &val, &pos) && val == 1 && InitReEmail() && P_ReEMail->Find((const char *)pToken)) {
+				if(chr_list.BSearch((long)'@', &val, &pos) && val == 1 && InitReEmail() && P_ReEMail->Find(reinterpret_cast<const char *>(pToken))) {
 					size_t _offs = P_ReEMail->start();
 					size_t _len = P_ReEMail->end() - P_ReEMail->start();
 					if(_offs == 0 && _len == stat.Len)

@@ -38,11 +38,11 @@
 #ifndef CAIRO_SCALED_FONT_PRIVATE_H
 #define CAIRO_SCALED_FONT_PRIVATE_H
 
-#include "cairo.h"
-#include "cairo-types-private.h"
-#include "cairo-list-private.h"
-#include "cairo-mutex-type-private.h"
-#include "cairo-reference-count-private.h"
+//#include "cairo.h"
+//#include "cairo-types-private.h"
+//#include "cairo-list-private.h"
+//#include "cairo-mutex-type-private.h"
+//#include "cairo-reference-count-private.h"
 
 CAIRO_BEGIN_DECLS
 
@@ -139,7 +139,6 @@ struct _cairo_scaled_glyph_private {
 };
 
 cairo_private cairo_scaled_font_private_t * _cairo_scaled_font_find_private(cairo_scaled_font_t * scaled_font, const void * key);
-
 cairo_private void _cairo_scaled_font_attach_private(cairo_scaled_font_t * scaled_font,
     cairo_scaled_font_private_t * priv, const void * key, void (* destroy)(cairo_scaled_font_private_t *, cairo_scaled_font_t *));
 cairo_private cairo_scaled_glyph_private_t * _cairo_scaled_glyph_find_private(cairo_scaled_glyph_t * scaled_glyph, const void * key);

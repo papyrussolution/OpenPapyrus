@@ -83,7 +83,7 @@ int TStaticText::setText(const char * s)
 TLabel::TLabel(const TRect & bounds, const char *aText, TView * aLink) : TStaticText(bounds, aText), link(aLink)
 {
 	SubSign = TV_SUBSIGN_LABEL;
-	options |= (ofPreProcess|ofPostProcess);
+	ViewOptions |= (ofPreProcess|ofPostProcess);
 }
 
 IMPL_HANDLE_EVENT(TLabel)
@@ -98,7 +98,7 @@ IMPL_HANDLE_EVENT(TLabel)
 //
 static BOOL CALLBACK ButtonDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	TButton * p_view = (TButton *)TView::GetWindowUserData(hWnd);
+	TButton * p_view = static_cast<TButton *>(TView::GetWindowUserData(hWnd));
 	switch(uMsg) {
 		case WM_DESTROY:
 			p_view->OnDestroy(hWnd);
@@ -106,7 +106,7 @@ static BOOL CALLBACK ButtonDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 			if((wParam >= VK_F1 && wParam <= VK_F12) || wParam == VK_ESCAPE || (wParam == VK_RETURN && (0x8000 & GetKeyState(VK_CONTROL))))  {
-				p_view->SendToParent(hWnd, WM_VKEYTOITEM, MAKELPARAM((WORD)wParam, 0), (long)hWnd);
+				p_view->SendToParent(hWnd, WM_VKEYTOITEM, MAKELPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd));
 				return 0;
 			}
 			else {
@@ -115,17 +115,17 @@ static BOOL CALLBACK ButtonDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 					BYTE   kb_state[256];
 					GetKeyboardState(kb_state);
 					ToAscii(MAKEWPARAM((WORD)wParam, 0), lParam, kb_state, buf, 0);
-					p_view->SendToParent(hWnd, WM_CHAR, buf[0], (long)hWnd);
+					p_view->SendToParent(hWnd, WM_CHAR, buf[0], reinterpret_cast<LPARAM>(hWnd));
 				}
 				if(wParam != VK_ESCAPE && wParam != VK_RETURN)
-					p_view->SendToParent(hWnd, WM_USER_KEYDOWN, MAKELPARAM((WORD)wParam, 0), (long)hWnd);
+					p_view->SendToParent(hWnd, WM_USER_KEYDOWN, MAKELPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd));
 				return 0;
 			}
 			break;
 		case WM_SETFOCUS:
 		case WM_KILLFOCUS:
 			if(p_view->IsInState(sfMsgToParent))
-				TDialog::DialogProc(GetParent(hWnd), uMsg, wParam, (long)hWnd);
+				TDialog::DialogProc(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd));
 			break;
 		case WM_ERASEBKGND:
 			/*
@@ -137,7 +137,7 @@ static BOOL CALLBACK ButtonDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_SETTEXT: // @debug
 			{
 				SString text;
-				text = (const char *)lParam;
+				text = reinterpret_cast<const char *>(lParam);
 			}
 			break;
 		case WM_GETDLGCODE:
@@ -172,7 +172,7 @@ const int cmReleaseDefault = 62;
 TButton::TButton(const TRect& bounds, const char *aTitle, ushort aCommand, ushort aFlags, uint bmpID) : TView(bounds), flags(aFlags), command(aCommand)
 {
 	SubSign = TV_SUBSIGN_BUTTON;
-	options |= (ofSelectable|ofPreProcess|ofPostProcess);
+	ViewOptions |= (ofSelectable|ofPreProcess|ofPostProcess);
 	Title = aTitle;
 	if(!commandEnabled(aCommand))
 		Sf |= sfDisabled;
@@ -218,7 +218,7 @@ int TButton::SetBitmap(uint bmpID)
 {
 	int    ok = LoadBitmap(bmpID);
 	if(ok)
-		::SendMessage(getHandle(), BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)HBmp);
+		::SendMessage(getHandle(), BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(HBmp));
 	return ok;
 }
 
@@ -231,10 +231,10 @@ int TButton::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			h_wnd = getHandle();
 			EnableWindow(h_wnd, !IsInState(sfDisabled));
 			TView::SetWindowProp(h_wnd, GWLP_USERDATA, this);
-			PrevWindowProc = (WNDPROC)TView::SetWindowProp(h_wnd, GWLP_WNDPROC, ButtonDialogProc);
+			PrevWindowProc = static_cast<WNDPROC>(TView::SetWindowProp(h_wnd, GWLP_WNDPROC, ButtonDialogProc));
 			if(BmpID > 0 && TView::GetWindowStyle(h_wnd) & BS_BITMAP) {
 				LoadBitmap(BmpID);
-				SendDlgItemMessage(Parent, Id, BM_SETIMAGE, IMAGE_BITMAP, (long)HBmp);
+				SendDlgItemMessage(Parent, Id, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(HBmp));
 			}
 			SetupText(&Title);
 			break;
@@ -286,7 +286,7 @@ IMPL_HANDLE_EVENT(TButton)
 					break;
 				case cmSearchButton:
 					// @v9.5.5 if(command && event.message.infoWord == command)
-					if(command && event.message.infoPtr == (void *)command) // @v9.5.5
+					if(command && event.message.infoPtr == reinterpret_cast<void *>(command)) // @v9.5.5
 						clearEvent(event);
 					break;
 			}
@@ -388,12 +388,12 @@ LRESULT CALLBACK TInputLine::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 			if(p_view->GetCombo() || p_view->hasWordSelector()) {
 				if(!oneof2(wParam, VK_ESCAPE, VK_RETURN)) {
 					if(!oneof2(wParam, '+', '-'))
-						p_view->SendToParent(hWnd, uMsg, wParam, (long)hWnd);
+						p_view->SendToParent(hWnd, uMsg, wParam, reinterpret_cast<LPARAM>(hWnd));
 					return 0;
 				}
 			}
 			break;
-		case WM_KEYUP: p_view->SendToParent(hWnd, uMsg, wParam, (long)hWnd); break;
+		case WM_KEYUP: p_view->SendToParent(hWnd, uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); break;
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 			{
@@ -404,11 +404,11 @@ LRESULT CALLBACK TInputLine::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 					(!_ml && oneof6(_k, VK_ADD, VK_SUBTRACT, VK_DOWN, VK_UP, VK_PRIOR, VK_NEXT)) ||
 					((p_view->GetCombo() || p_view->hasWordSelector()) && _k == VK_DELETE) ||
 					(_k == VK_RETURN && (0x8000 & GetKeyState(VK_CONTROL)))) {
-					p_view->SendToParent(hWnd, WM_VKEYTOITEM, MAKELPARAM((WORD)_k, 0), (long)hWnd);
+					p_view->SendToParent(hWnd, WM_VKEYTOITEM, MAKELPARAM((WORD)_k, 0), reinterpret_cast<LPARAM>(hWnd));
 					return 0;
 				}
 				else if(!oneof2(_k, VK_ESCAPE, VK_RETURN))
-					p_view->SendToParent(hWnd, WM_USER_KEYDOWN, MAKELPARAM((WORD)_k, 0), (long)hWnd);
+					p_view->SendToParent(hWnd, WM_USER_KEYDOWN, MAKELPARAM((WORD)_k, 0), reinterpret_cast<LPARAM>(hWnd));
 			}
 			break;
 		case WM_LBUTTONDBLCLK:
@@ -416,20 +416,20 @@ LRESULT CALLBACK TInputLine::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 			break;
 		case WM_MBUTTONDOWN:
 			if(p_view->GetCombo() || p_view->hasWordSelector()) {
-				p_view->SendToParent(hWnd, WM_VKEYTOITEM, MAKELPARAM((WORD)VK_DELETE, 0), (long)hWnd);
+				p_view->SendToParent(hWnd, WM_VKEYTOITEM, MAKELPARAM((WORD)VK_DELETE, 0), reinterpret_cast<LPARAM>(hWnd));
 				return 0;
 			}
 			break;
 		case WM_MOUSEWHEEL:
 			if(p_view->GetCombo())
-				p_view->SendToParent(hWnd, WM_VKEYTOITEM, MAKELPARAM((WORD)VK_DOWN, 0), (long)hWnd);
+				p_view->SendToParent(hWnd, WM_VKEYTOITEM, MAKELPARAM((WORD)VK_DOWN, 0), reinterpret_cast<LPARAM>(hWnd));
 			else
 				p_view->OnMouseWheel((short)HIWORD(wParam));
 			break;
 		case WM_SETFOCUS:
 		case WM_KILLFOCUS:
 			if(p_view->IsInState(sfMsgToParent))
-				TDialog::DialogProc(GetParent(hWnd), uMsg, wParam, (long)hWnd);
+				TDialog::DialogProc(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd));
 			if(oneof2(APPL->UICfg.WindowViewStyle, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector))
 				SetWindowPos(hWnd, 0, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOACTIVATE|SWP_FRAMECHANGED|SWP_DRAWFRAME);
 			break;
@@ -452,7 +452,7 @@ LRESULT CALLBACK TInputLine::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 				SETFLAG(di.itemState, ODS_FOCUS, focus_hwnd == hWnd);
 				SETFLAG(di.itemState, ODS_DISABLED, !IsWindowEnabled(hWnd));
 				lParam = (long)&di;
-				if(APPL->DrawControl(hWnd, uMsg, wParam, (long)&di) > 0) {
+				if(APPL->DrawControl(hWnd, uMsg, wParam, reinterpret_cast<LPARAM>(&di)) > 0) {
 					ReleaseDC(hWnd, di.hDC);
 					/* Если в DrawControl используется RoundRect, то этот кусок необходимо включить в код
 					InvalidateRect(hWnd, 0, TRUE);
@@ -481,7 +481,7 @@ int TInputLine::OnPaste()
 		if(::OpenClipboard(0)) {
 			HANDLE h_cb = ::GetClipboardData(CF_TEXT);
 			if(h_cb) {
-				LPTSTR p_str = (LPTSTR)::GlobalLock(h_cb); // @unicodeproblem
+				LPTSTR p_str = static_cast<LPTSTR>(::GlobalLock(h_cb)); // @unicodeproblem
 				if(p_str) {
 					(symb = p_str).Transf(CTRANSF_OUTER_TO_INNER); // @unicodeproblem
 					::GlobalUnlock(h_cb);
@@ -661,7 +661,7 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				Draw_();
 				HWND h_wnd = getHandle();
 				TView::SetWindowProp(h_wnd, GWLP_USERDATA, this);
-				PrevWindowProc = (WNDPROC)TView::SetWindowProp(h_wnd, GWLP_WNDPROC, TInputLine::DlgProc);
+				PrevWindowProc = static_cast<WNDPROC>(TView::SetWindowProp(h_wnd, GWLP_WNDPROC, TInputLine::DlgProc));
 				if(TView::GetWindowStyle(h_wnd) & ES_READONLY)
 					Sf |= sfReadOnly;
 			}
@@ -738,7 +738,7 @@ void TInputLine::Init()
 	SubSign = TV_SUBSIGN_INPUTLINE;
 	maxLen = DEFAULT_MAX_LEN;
 	Sf      |= sfMsgToParent;
-	options |= ofSelectable;
+	ViewOptions |= ofSelectable;
 	format   = 0;
 	type     = 0;
 	P_Combo = 0;
@@ -817,9 +817,9 @@ int TInputLine::TransmitData(int dir, void * pData)
 {
 	int    s = stsize(type);
 	if(dir > 0) {
-		char   temp[4096]; // @v8.3.11 [1024]-->[4096]
+		char   temp[4096];
 		if(hasWordSelector() && !P_WordSelBlk->IsTextMode()) {
-			P_WordSelBlk->SetupData(pData ? *(long*)pData : 0);
+			P_WordSelBlk->SetupData(pData ? *static_cast<long *>(pData) : 0);
 		}
 		else {
 			if(pData == 0)
@@ -839,7 +839,7 @@ int TInputLine::TransmitData(int dir, void * pData)
 			SString buf;
 			P_WordSelBlk->GetData(&id, buf);
 			s = 4;
-			ASSIGN_PTR((long*)pData, id);
+			ASSIGN_PTR(static_cast<long *>(pData), id);
 		}
 		else {
 			if(Data.cptr() == 0)
@@ -886,9 +886,9 @@ IMPL_HANDLE_EVENT(TInputLine)
 	else if(TVCOMMAND && IsInState(sfSelected)) {
 		if(event.message.infoPtr)
 			if(event.message.command == cmGetFocusedNumber)
-				*(double*)event.message.infoPtr = Data.ToReal();
+				*static_cast<double *>(event.message.infoPtr) = Data.ToReal();
 			else if(event.message.command == cmGetFocusedText)
-				Data.CopyTo((char *)event.message.infoPtr, 0);
+				Data.CopyTo(static_cast<char *>(event.message.infoPtr), 0);
 			else
 				return;
 		else
@@ -911,7 +911,7 @@ int TInputLine::GetStatistics(Statistics * pStat) const
 	int    ok = 1;
 	if(pStat) {
 		memzero(pStat, sizeof(*pStat));
-		pStat->SymbCount = (int)Data.Len();
+		pStat->SymbCount = static_cast<int>(Data.Len());
 		SETFLAG(pStat->Flags, Statistics::fSerialized, InlSt & stSerialized);
 		SETFLAG(pStat->Flags, Statistics::fPaste, InlSt & stPaste);
 		const int count = (pStat->SymbCount-1);
@@ -993,7 +993,7 @@ int TInfoPane::handleWindowsMessage(UINT  uMsg, WPARAM  wParam, LPARAM  lParam)
 //
 static BOOL CALLBACK ClusterDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	TCluster * p_view = (TCluster *)TView::GetWindowUserData(hWnd);
+	TCluster * p_view = static_cast<TCluster *>(TView::GetWindowUserData(hWnd));
 	switch(uMsg) {
 		case WM_DESTROY:
 			p_view->OnDestroy(hWnd);
@@ -1001,15 +1001,15 @@ static BOOL CALLBACK ClusterDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 			if(wParam >= VK_F1 && wParam <= VK_F12 || wParam==VK_ESCAPE || (wParam == VK_RETURN && (0x8000 & GetKeyState(VK_CONTROL)))) {
-				::SendMessage(GetParent(hWnd), WM_VKEYTOITEM, MAKELPARAM((WORD)wParam, 0), (LPARAM)hWnd);
+				::SendMessage(GetParent(hWnd), WM_VKEYTOITEM, MAKELPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd));
 				return 0;
 			}
 			else if(wParam != VK_ESCAPE && wParam != VK_RETURN)
-				p_view->SendToParent(hWnd, WM_USER_KEYDOWN, MAKELPARAM((WORD)wParam, 0), (LPARAM)hWnd);
+				p_view->SendToParent(hWnd, WM_USER_KEYDOWN, MAKELPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd));
 			break;
 		case WM_SETFOCUS:
 		case WM_KILLFOCUS:
-			TDialog::DialogProc(GetParent(hWnd), uMsg, wParam, (LPARAM)hWnd);
+			TDialog::DialogProc(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd));
 			break;
 		case WM_NCPAINT:
 		case BM_SETCHECK:
@@ -1036,7 +1036,7 @@ TCluster::TCluster(const TRect & bounds, int aClusterKind, const StringSet * pSt
 {
 	assert(oneof2(aClusterKind, RADIOBUTTONS, CHECKBOXES));
 	SubSign = TV_SUBSIGN_CLUSTER;
-	options |= (ofSelectable|ofPreProcess|ofPostProcess);
+	ViewOptions |= (ofSelectable|ofPreProcess|ofPostProcess);
 	if(pStrings) {
 		SString temp_buf;
 		for(uint i = 0; pStrings->get(&i, temp_buf);)
@@ -1162,7 +1162,7 @@ int TCluster::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 								rc_prev = rc_item;
 							}
 							TView::SetWindowProp(h_wnd, GWLP_USERDATA, this);
-							WNDPROC prev_proc = (WNDPROC)TView::SetWindowProp(h_wnd, GWLP_WNDPROC, ClusterDialogProc);
+							WNDPROC prev_proc = static_cast<WNDPROC>(TView::SetWindowProp(h_wnd, GWLP_WNDPROC, ClusterDialogProc));
 							SETIFZ(PrevWindowProc, prev_proc);
 							if(Kind == RADIOBUTTONS) {
 								WPARAM state = (i == Value) ? BST_CHECKED : BST_UNCHECKED;
@@ -1234,7 +1234,7 @@ int TCluster::TransmitData(int dir, void * pData)
 		WPARAM state;
 		for(uint i = 0; i < Strings.getCount(); i++) {
 			if(Kind == RADIOBUTTONS)
-				state = (i == (uint)Sel) ? BST_CHECKED : BST_UNCHECKED;
+				state = (static_cast<int>(i) == Sel) ? BST_CHECKED : BST_UNCHECKED;
 			else
 				state = (Value & (1 << i)) ? BST_CHECKED : BST_UNCHECKED;
 			SendDlgItemMessage(Parent, MAKE_BUTTON_ID(Id, i+1), BM_SETCHECK, state, 0);
@@ -1304,15 +1304,15 @@ int TCluster::isChecked(ushort item) const
 int TCluster::column(int item) const
 {
 	int    col = 0;
-	if(item >= size.y) {
+	if(item >= ViewSize.y) {
 		col = -6;
 		for(int i = 0, l = 0, width = 0; i <= item; i++) {
-			if(i % size.y == 0) {
+			if((i % ViewSize.y) == 0) {
 				col += width + 6;
 				width = 0;
 			}
-			if(i < (int)Strings.getCount())
-				l = sstrlen((char *)(Strings.at(i)));
+			if(i < static_cast<int>(Strings.getCount()))
+				l = sstrlen(Strings.at(i));
 			if(l > width)
 				width = l;
 		}
@@ -1322,7 +1322,7 @@ int TCluster::column(int item) const
 
 int TCluster::row(int item) const
 {
-	return (item % size.y);
+	return (item % ViewSize.y);
 }
 
 uint TCluster::getNumItems() const
@@ -1332,11 +1332,14 @@ uint TCluster::getNumItems() const
 
 void TCluster::addItem(int item, const char * pStr)
 {
-	if(item == -1)
-		Strings.insert(newStr(pStr));
-	else
-		Strings.atInsert(item, newStr(pStr));
-	size.y = Strings.getCount();
+	char * p_dup_str = newStr(pStr);
+	if(p_dup_str) {
+		if(item == -1)
+			Strings.insert(p_dup_str);
+		else
+			Strings.atInsert(item, p_dup_str);
+		ViewSize.y = Strings.getCount();
+	}
 }
 
 int TCluster::isItemEnabled(int item) const
@@ -1347,7 +1350,7 @@ int TCluster::isItemEnabled(int item) const
 void TCluster::deleteItem(int item)
 {
 	Strings.atFree(item);
-	size.y = Strings.getCount();
+	ViewSize.y = Strings.getCount();
 }
 
 void TCluster::disableItem(int item, int disable)
@@ -1359,7 +1362,7 @@ void TCluster::disableItem(int item, int disable)
 int TCluster::getText(int pos, char * buf, uint bufLen)
 {
 	int    ok = 0;
-	if(pos >= 0 && pos < (int)getNumItems()) {
+	if(pos >= 0 && pos < static_cast<int>(getNumItems())) {
 		strnzcpy(buf, Strings.at(pos), bufLen);
 		ok = 1;
 	}
@@ -1369,7 +1372,7 @@ int TCluster::getText(int pos, char * buf, uint bufLen)
 int TCluster::setText(int pos, const char * pText)
 {
 	int    ok = 0;
-	if(pos >= 0 && pos < (int)getNumItems()) {
+	if(pos >= 0 && pos < static_cast<int>(getNumItems())) {
 		// @v9.1.5 char   temp_buf[512];
 		// @v9.1.5 OemToChar(buf, temp_buf);
 		// @v9.1.5 SendDlgItemMessage(Parent, MAKE_BUTTON_ID(Id, pos+1), WM_SETTEXT, 0, (long)temp_buf);
@@ -1567,7 +1570,7 @@ int ComboBox::setListWindow(ListWindow * pListWin, long dataVal)
 // static
 LRESULT CALLBACK ComboBox::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	ComboBox * p_view = (ComboBox *)TView::GetWindowUserData(hWnd);
+	ComboBox * p_view = static_cast<ComboBox *>(TView::GetWindowUserData(hWnd));
 	switch(uMsg) {
 		case WM_DESTROY:
 			p_view->OnDestroy(hWnd);
@@ -1585,7 +1588,7 @@ LRESULT CALLBACK ComboBox::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 			if(!oneof2(wParam, VK_ESCAPE, VK_RETURN))
-				p_view->SendToParent(hWnd, WM_USER_KEYDOWN, MAKELPARAM((WORD)wParam, 0), (long)hWnd);
+				p_view->SendToParent(hWnd, WM_USER_KEYDOWN, MAKELPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd));
 			break;
 		case WM_ERASEBKGND:
 			/*
@@ -1612,7 +1615,7 @@ int ComboBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				PrevWindowProc = (WNDPROC)TView::SetWindowProp(hcb, GWLP_WNDPROC, ComboBox::DlgProc); 
 				{
 					HBITMAP h_bm = APPL->FetchSystemBitmap(OBM_COMBO);
-					::SendMessage(hcb, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)h_bm);
+					::SendMessage(hcb, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_bm));
 				}
 				SetWindowLong(hcb, GWL_STYLE, TView::GetWindowStyle(hcb) & ~WS_TABSTOP);
 				if(P_ILink) {
@@ -1637,7 +1640,7 @@ int ComboBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_USER_COMBO_ACTIVATEBYCHAR:
 			if(!P_ListWin)
 				break;
-			P_ListWin->prepareForSearching((int)wParam);
+			P_ListWin->prepareForSearching(static_cast<int>(wParam));
 		case WM_COMMAND:
 			{
 				ListWindow * p_list_win = P_ListWin;
@@ -1764,7 +1767,7 @@ int ComboBox::TransmitData(int dir, void * pData)
 	}
 	else if(dir > 0) {
 		if(P_Def == 0 && NoDefID) {
-			NoDefID = pData ? *(long *)pData : 0;
+			NoDefID = pData ? *static_cast<long *>(pData) : 0;
 			SETFLAG(State, stNoDefZero, !NoDefID);
 		}
 		else if(P_ListWin) {
@@ -1784,17 +1787,17 @@ int ComboBox::TransmitData(int dir, void * pData)
 		if(P_ListWin && !(State & stUndef) && P_ListWin->listBox()->def)
 			P_ListWin->listBox()->TransmitData(dir, pData);
 		else if(P_Def == 0 && NoDefID)
-			*(long *)pData = NoDefID;
+			*static_cast<long *>(pData) = NoDefID;
 		else if(P_Def == 0 && State & stNoDefZero)
-			*(long *)pData = 0;
+			*static_cast<long *>(pData) = 0;
 		else {
 			const int ds = TransmitData(0, 0); // @recursion
 			if(ds == sizeof(short))
-				*(short*)pData = 0;
+				*static_cast<short *>(pData) = 0;
 			else if(ds == sizeof(long))
-				*(long*)pData = 0;
+				*static_cast<long *>(pData) = 0;
 			else if(ds)
-				*(char*)pData = 0;
+				*static_cast<char *>(pData) = 0;
 		}
 	}
 	return s;
@@ -1876,7 +1879,7 @@ void ComboBox::SetLink(TInputLine * pLink)
 // static
 LRESULT CALLBACK TImageView::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	TImageView * p_view = (TImageView *)TView::GetWindowUserData(hWnd);
+	TImageView * p_view = static_cast<TImageView *>(TView::GetWindowUserData(hWnd));
 	switch(uMsg) {
 		case WM_DESTROY:
 			if(p_view && p_view->IsSubSign(TV_SUBSIGN_IMAGEVIEW)) {
@@ -1893,7 +1896,7 @@ LRESULT CALLBACK TImageView::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 		case WM_PAINT:
 			if(p_view && p_view->IsSubSign(TV_SUBSIGN_IMAGEVIEW)) {
 				PAINTSTRUCT ps;
-				::BeginPaint(hWnd, (LPPAINTSTRUCT)&ps);
+				::BeginPaint(hWnd, &ps);
 				//p_view->draw();
 				if(p_view->P_Fig) {
 					RECT rc;
@@ -1933,15 +1936,15 @@ LRESULT CALLBACK TImageView::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 				}
 #ifndef TIMAGEVIEW_USE_FIG
 				else if(p_view->P_Image_GDIP) {
-					((SImage*)p_view->P_Image_GDIP)->Draw(hWnd, 0);
+					static_cast<SImage *>(p_view->P_Image_GDIP)->Draw(hWnd, 0);
 				}
 #endif
-				::EndPaint(hWnd, (LPPAINTSTRUCT)&ps);
+				::EndPaint(hWnd, &ps);
 			}
 			return 0;
 		case WM_SETFOCUS:
 		case WM_KILLFOCUS:
-			TDialog::DialogProc(GetParent(hWnd), uMsg, wParam, (long)hWnd);
+			TDialog::DialogProc(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd));
 			break;
 	}
 	return CallWindowProc(p_view->PrevWindowProc, hWnd, uMsg, wParam, lParam);
@@ -2074,7 +2077,7 @@ int TToolTip::AddTool(ToolItem & rItem)
 			ti.rect = (RECT)rItem.R;
 		}
 		ti.lParam = rItem.Param;
-		::SendMessage(H, TTM_ADDTOOL, 0, (LPARAM)&ti); // @unicodeproblem
+		::SendMessage(H, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&ti)); // @unicodeproblem
 	}
 	else
 		ok = 0;
@@ -2100,7 +2103,7 @@ int TToolTip::GetTool(uint idx, ToolItem & rItem)
 		MEMSZERO(ti);
 		ti.lpszText = text_buf; // @unicodeproblem
 		ti.cbSize = sizeof(TOOLINFO);
-		if(::SendMessage(H, TTM_ENUMTOOLS, idx, (LPARAM)&ti)) { // @unicodeproblem
+		if(::SendMessage(H, TTM_ENUMTOOLS, idx, reinterpret_cast<LPARAM>(&ti))) { // @unicodeproblem
 			rItem.Id = ti.uId;
 			rItem.H = ti.hwnd;
 			rItem.Param = ti.lParam;
@@ -2123,7 +2126,7 @@ int TToolTip::RemoveTool(uint idx)
 			ti.cbSize = sizeof(TOOLINFO);
 			ti.hwnd = item.H;
 			ti.uId = idx+1; //item.Id;
-			::SendMessage(H, TTM_DELTOOL, 0, (LPARAM)&ti);
+			::SendMessage(H, TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&ti));
 			ok = 1;
 		}
 	}

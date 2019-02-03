@@ -123,60 +123,37 @@
 /*
  * Macros private to this header file.
  */
-
-#define CurlchkszEQ(t, s) sizeof(t) == s ? 1 : -1
-
+#define CurlchkszEQ(t, s) sizeof(t) == (s) ? 1 : -1
 #define CurlchkszGE(t1, t2) sizeof(t1) >= sizeof(t2) ? 1 : -1
-
 /*
  * Verify that the size previously defined and expected for long
  * is the same as the one reported by sizeof() at compile time.
  */
-
-typedef char
-  __curl_rule_01__
-    [CurlchkszEQ(long, CURL_SIZEOF_LONG)];
-
+typedef char __curl_rule_01__[CurlchkszEQ(long, CURL_SIZEOF_LONG)];
 /*
  * Verify that the size previously defined and expected for
  * curl_off_t is actually the the same as the one reported
  * by sizeof() at compile time.
  */
-
-typedef char
-  __curl_rule_02__
-    [CurlchkszEQ(curl_off_t, CURL_SIZEOF_CURL_OFF_T)];
-
+typedef char __curl_rule_02__[CurlchkszEQ(curl_off_t, CURL_SIZEOF_CURL_OFF_T)];
 /*
  * Verify at compile time that the size of curl_off_t as reported
  * by sizeof() is greater or equal than the one reported for long
  * for the current compilation.
  */
-
-typedef char
-  __curl_rule_03__
-    [CurlchkszGE(curl_off_t, long)];
-
+typedef char __curl_rule_03__[CurlchkszGE(curl_off_t, long)];
 /*
  * Verify that the size previously defined and expected for
  * curl_socklen_t is actually the the same as the one reported
  * by sizeof() at compile time.
  */
-
-typedef char
-  __curl_rule_04__
-    [CurlchkszEQ(curl_socklen_t, CURL_SIZEOF_CURL_SOCKLEN_T)];
-
+typedef char __curl_rule_04__[CurlchkszEQ(curl_socklen_t, CURL_SIZEOF_CURL_SOCKLEN_T)];
 /*
  * Verify at compile time that the size of curl_socklen_t as reported
  * by sizeof() is greater or equal than the one reported for int for
  * the current compilation.
  */
-
-typedef char
-  __curl_rule_05__
-    [CurlchkszGE(curl_socklen_t, int)];
-
+typedef char __curl_rule_05__[CurlchkszGE(curl_socklen_t, int)];
 /* ================================================================ */
 /*          EXTERNALLY AND INTERNALLY VISIBLE DEFINITIONS           */
 /* ================================================================ */

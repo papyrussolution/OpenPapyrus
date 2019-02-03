@@ -1588,9 +1588,8 @@ int FASTCALL strnicmp866(const char * s1, const char * s2, size_t maxlen)
 char * FASTCALL strlwr1251(char * str)
 {
 	if(str) {
-		char * s = str;
-		while(*s)
-			*s++ = ToLower1251(*s);
+		for(char * s = str; *s; s++)
+			*s = ToLower1251(*s);
 	}
 	return str;
 }
@@ -1598,9 +1597,8 @@ char * FASTCALL strlwr1251(char * str)
 char * FASTCALL strupr1251(char * str)
 {
 	if(str) {
-		char * s = str;
-		while(*s)
-			*s++ = ToUpper1251(*s);
+		for(char * s = str; *s; s++)
+			*s = ToUpper1251(*s);
 	}
 	return str;
 }
@@ -1609,9 +1607,8 @@ char * FASTCALL strupr1251(char * str)
 char * FASTCALL strlwr866(char * str)
 {
 	if(str) {
-		char * s = str;
-		while(*s)
-			*s++ = ToLower866(*s);
+		for(char * s = str; *s; s++)
+			*s = ToLower866(*s);
 	}
 	return str;
 }
@@ -1620,9 +1617,8 @@ char * FASTCALL strlwr866(char * str)
 char * FASTCALL strupr866(char * str)
 {
 	if(str) {
-		char * s = str;
-		while(*s)
-			*s++ = ToUpper866(*s);
+		for(char * s = str; *s; s++)
+			*s = ToUpper866(*s);
 	}
 	return str;
 }
@@ -1797,14 +1793,13 @@ int FASTCALL __866_to_koi7(int c)
 		"\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F"
 		"\x72\x73\x74\x75\x66\x68\x63\x7E\x7B\x7D\x27\x79\x78\x7C\x60\x71"
 		"\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x7F";
-	return koi7tab[(uchar)c];
+	return koi7tab[static_cast<uchar>(c)];
 }
 
 char * FASTCALL _s_866_to_koi7(char * s)
 {
-	char * p = s;
-	while(*p)
-		*p++ = (uchar)__866_to_koi7(*p);
+	for(char * p = s; *p; p++)
+		*p = static_cast<uchar>(__866_to_koi7(*p));
 	return s;
 }
 
@@ -1827,13 +1822,12 @@ int FASTCALL _koi8_to_866(int c)
 		"\xAF\xEF\xE0\xE1\xE2\xE3\xA6\xA2\xEC\xEB\xA7\xE8\xED\xE9\xE7\xEA"
 		"\x9E\x80\x81\x96\x84\x85\x94\x83\x95\x88\x89\x8A\x8B\x8C\x8D\x8E"
 		"\x8F\x9F\x90\x91\x92\x93\x86\x82\x9C\x9B\x87\x98\x9D\x99\x97\x9A";
-	int    i = 0;
 	if(c < 128)
-		return koi8tab[(uchar)c];
+		return koi8tab[static_cast<size_t>(c)];
 	else
-		for(i = 0; i < 256; i++)
+		for(size_t i = 0; i < 256; i++)
 			if((int)koi8tab[i] == c)
-				return koi8tab[(uchar)i];
+				return koi8tab[i];
 	return c;
 }
 //
@@ -1908,15 +1902,15 @@ int    FASTCALL isempty(const char * pStr) { return BIN(pStr == 0 || pStr[0] == 
 int    FASTCALL isempty(const uchar * pStr) { return BIN(pStr == 0 || pStr[0] == 0); }
 int    FASTCALL isempty(const wchar_t * pStr) { return BIN(pStr == 0 || pStr[0] == 0); }
 size_t FASTCALL sstrlen(const char * pStr) { return (pStr && pStr[0]) ? /*xeos_*/strlen(pStr) : 0; }
-size_t FASTCALL sstrlen(const uchar * pStr) { return (pStr && pStr[0]) ? /*xeos_*/strlen((const char *)pStr) : 0; }
+size_t FASTCALL sstrlen(const uchar * pStr) { return (pStr && pStr[0]) ? /*xeos_*/strlen(reinterpret_cast<const char *>(pStr)) : 0; }
 size_t FASTCALL sstrlen(const wchar_t * pStr) { return (pStr && pStr[0]) ? wcslen(pStr) : 0; }
 
 char * FASTCALL sstrdup(const char * pStr)
 {
 	if(pStr) {
 		size_t len = sstrlen(pStr) + 1;
-		char * p = (char *)SAlloc::M(len);
-		return p ? (char *)memcpy(p, pStr, len) : 0;
+		char * p = static_cast<char *>(SAlloc::M(len));
+		return p ? static_cast<char *>(memcpy(p, pStr, len)) : 0;
 	}
 	else
 		return 0;
@@ -1925,9 +1919,9 @@ char * FASTCALL sstrdup(const char * pStr)
 uchar * FASTCALL sstrdup(const uchar * pStr)
 {
 	if(pStr) {
-		size_t len = sstrlen((const char *)pStr) + 1;
-		uchar * p = (uchar *)SAlloc::M(len);
-		return p ? (uchar *)memcpy(p, pStr, len) : 0;
+		size_t len = sstrlen(reinterpret_cast<const char *>(pStr)) + 1;
+		uchar * p = static_cast<uchar *>(SAlloc::M(len));
+		return p ? static_cast<uchar *>(memcpy(p, pStr, len)) : 0;
 	}
 	else
 		return 0;

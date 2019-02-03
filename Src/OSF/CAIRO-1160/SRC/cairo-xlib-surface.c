@@ -53,18 +53,18 @@
 #include "cairo-xlib-private.h"
 #include "cairo-xlib-surface-private.h"
 
-#include "cairo-compositor-private.h"
-#include "cairo-clip-private.h"
+//#include "cairo-compositor-private.h"
+//#include "cairo-clip-private.h"
 #include "cairo-damage-private.h"
 #include "cairo-default-context-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-image-surface-private.h"
 #include "cairo-list-inline.h"
 #include "cairo-pattern-private.h"
 #include "cairo-pixman-private.h"
-#include "cairo-region-private.h"
-#include "cairo-scaled-font-private.h"
-#include "cairo-surface-snapshot-private.h"
+//#include "cairo-region-private.h"
+//#include "cairo-scaled-font-private.h"
+//#include "cairo-surface-snapshot-private.h"
 #include "cairo-surface-subsurface-private.h"
 
 #include <X11/Xutil.h> /* for XDestroyImage */
@@ -862,7 +862,7 @@ static cairo_surface_t * _get_image_surface(cairo_xlib_surface_t * surface,
 	    ximage->bitmap_unit == 32 && ximage->bitmap_pad == 32 &&
 	    (surface->visual == NULL || surface->visual->class == TrueColor)) {
 		image = (cairo_image_surface_t*)
-		    _cairo_image_surface_create_with_pixman_format((unsigned char*)ximage->data,
+		    _cairo_image_surface_create_with_pixman_format((uchar*)ximage->data,
 			pixman_format,
 			ximage->width,
 			ximage->height,
@@ -881,7 +881,7 @@ static cairo_surface_t * _get_image_surface(cairo_xlib_surface_t * surface,
 		 * to a supported format. */
 
 		cairo_format_t format;
-		unsigned char * data;
+		uchar * data;
 		uint32_t * row;
 		uint32_t in_pixel, out_pixel;
 		uint rowstride;
@@ -1351,7 +1351,7 @@ static cairo_surface_t * _cairo_xlib_surface_source(void * abstract_surface,
 
 static cairo_status_t _cairo_xlib_surface_acquire_source_image(void * abstract_surface,
     cairo_image_surface_t ** image_out,
-    void         ** image_extra)
+    void    ** image_extra)
 {
 	cairo_xlib_surface_t * surface = abstract_surface;
 	cairo_rectangle_int_t extents;

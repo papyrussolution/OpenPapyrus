@@ -308,13 +308,13 @@ void TView::SendToParent(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 TView::TView(const TRect & bounds) : Sign(SIGN_TVIEW), SubSign(0), Id(0), Reserve(0), Sf(sfVisible | sfMsgToParent),
-	options(0), EndModalCmd(0), HelpCtx(0), P_Next(0), P_Owner(0), Parent(0), PrevWindowProc(0), P_CmdSet(0), P_WordSelBlk(0)
+	ViewOptions(0), EndModalCmd(0), HelpCtx(0), P_Next(0), P_Owner(0), Parent(0), PrevWindowProc(0), P_CmdSet(0), P_WordSelBlk(0)
 {
 	setBounds(bounds);
 }
 
 TView::TView() : Sign(SIGN_TVIEW), SubSign(0), Id(0), Reserve(0), Sf(sfVisible | sfMsgToParent),
-	options(0), EndModalCmd(0), HelpCtx(0), P_Next(0), P_Owner(0), Parent(0), PrevWindowProc(0), P_CmdSet(0), P_WordSelBlk(0)
+	ViewOptions(0), EndModalCmd(0), HelpCtx(0), P_Next(0), P_Owner(0), Parent(0), PrevWindowProc(0), P_CmdSet(0), P_WordSelBlk(0)
 {
 }
 
@@ -458,7 +458,7 @@ int FASTCALL TView::SGetWindowText(HWND hWnd, SString & rBuf)
 		}
 		else
 			p_text_ptr = static_buf;
-		::SendMessage(hWnd, WM_GETTEXT, text_len+1, (LPARAM)p_text_ptr);
+		::SendMessage(hWnd, WM_GETTEXT, text_len+1, reinterpret_cast<LPARAM>(p_text_ptr));
 		rBuf = (const char *)p_text_ptr;
 #endif // UNICODE
 		if(is_allocated)
@@ -476,7 +476,7 @@ int FASTCALL TView::SSetWindowText(HWND hWnd, const char * pText)
 	temp_buf_u.CopyFromMb(cpANSI, pText, sstrlen(pText));
 	ok = BIN(::SendMessage(hWnd, WM_SETTEXT, 0, (LPARAM)(const wchar_t *)temp_buf_u));
 #else
-	ok = BIN(::SendMessage(hWnd, WM_SETTEXT, 0, (LPARAM)pText));
+	ok = BIN(::SendMessage(hWnd, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(pText)));
 #endif // UNICODE
 	return ok;
 }
@@ -548,15 +548,11 @@ int TView::SetupText(SString * pText)
 	if(P_Owner && P_Owner->IsSubSign(TV_SUBSIGN_DIALOG) && ((TDialog *)P_Owner)->CheckFlag(TDialog::fExport))
 		ok = -1;
 	else {
-		//char   temp_buf[1024];
 		SString temp_buf;
 		SString subst;
-		//temp_buf[0] = 0;
-		//int    nc = SendDlgItemMessage(Parent, Id, WM_GETTEXT, sizeof(temp_buf), (long)temp_buf);
-		TView::SGetWindowText(GetDlgItem(Parent, Id), temp_buf); // @v9.1.5
+		TView::SGetWindowText(GetDlgItem(Parent, Id), temp_buf);
 		if(SLS.SubstString(temp_buf, 1, subst) > 0) {
-			//SendDlgItemMessage(Parent, Id, WM_SETTEXT, 0, (LPARAM)(const char *)subst);
-			TView::SSetWindowText(GetDlgItem(Parent, Id), subst); // @v9.1.5
+			TView::SSetWindowText(GetDlgItem(Parent, Id), subst);
 			ASSIGN_PTR(pText, subst);
 			ok = 1;
 		}
@@ -756,8 +752,8 @@ TView * TView::TopView()
 void TView::changeBounds(const TRect & rBounds)
 {
 	TRect new_bounds = rBounds;
-	origin = new_bounds.a;
-	size = new_bounds.b - new_bounds.a;
+	ViewOrigin = new_bounds.a;
+	ViewSize = new_bounds.b - new_bounds.a;
 	{
 		static int _lock = 0; // Блокировка от рекурсии
 		ENTER_CRITICAL_SECTION
@@ -772,8 +768,8 @@ void TView::changeBounds(const TRect & rBounds)
 
 void TView::setBounds(const TRect & bounds)
 {
-	origin = bounds.a;
-	size = bounds.b - bounds.a;
+	ViewOrigin = bounds.a;
+	ViewSize = bounds.b - bounds.a;
 }
 
 void TView::SetWordSelBlock(WordSel_ExtraBlock * pBlk)
@@ -1285,14 +1281,14 @@ int SLAPI TEvent::wasFocusChanged3(uint ctl01, uint ctl02, uint ctl03) const
 SLAPI TGroup::TGroup(const TRect & bounds) : TView(bounds), P_Last(0), P_Current(0), MsgLockFlags(0)
 {
 	// @v9.0.1 Phase_ = phFocused;
-	options |= ofSelectable;
+	ViewOptions |= ofSelectable;
 }
 
 SLAPI TGroup::~TGroup()
 {
 	TView * p = P_Last;
 	if(p) do {
-		if(p->IsConsistent()) { // @v8.0.6
+		if(p->IsConsistent()) {
 			TView * p_prev = p->prev();
 			delete p;
 			p = p_prev;
@@ -1402,14 +1398,14 @@ ushort TGroup::execView(TWindow * p)
 {
 	ushort retval = cmCancel;
 	if(p) {
-		const uint32 save_options = p->options;
+		const uint32 save_options = p->ViewOptions;
 		TGroup  * save_owner = p->P_Owner;
 		TWindow * save_top_view = APPL->P_TopView;
 		TView   * save_current = P_Current;
 		TCommandSet save_commands;
 		getCommands(save_commands);
 		APPL->P_TopView = p;
-		p->options &= ~ofSelectable;
+		p->ViewOptions &= ~ofSelectable;
 		p->setState(sfModal, true);
 		SetCurrentView(p, enterSelect);
 		if(save_owner == 0)
@@ -1426,7 +1422,7 @@ ushort TGroup::execView(TWindow * p)
 			remove(p);
 		SetCurrentView(save_current, leaveSelect);
 		p->setState(sfModal, false);
-		p->options = save_options;
+		p->ViewOptions = save_options;
 		APPL->P_TopView = save_top_view;
 		setCommands(save_commands);
 	}
@@ -1450,11 +1446,11 @@ static void doHandleEvent(TView * p, void *s)
 	if(ptr->event->what && p && p->IsConsistent() && !(p->IsInState(sfDisabled) && (ptr->event->what & (positionalEvents|focusedEvents)))) {
 		switch(ptr->phase) {
 			case TView::phPreProcess:
-				if(p->options & ofPreProcess)
+				if(p->ViewOptions & ofPreProcess)
 					p->handleEvent(*ptr->event);
 				break;
 			case TView::phPostProcess:
-				if(p->options & ofPostProcess)
+				if(p->ViewOptions & ofPostProcess)
 					p->handleEvent(*ptr->event);
 				break;
 			default:
@@ -1537,7 +1533,7 @@ void TGroup::selectNext(/*Boolean forwards*/ /*false*/)
 		TView * p = P_Current;
 		do {
 			p = p->prev();
-		} while(!(p == P_Current || (p->IsInState(sfVisible) && !p->IsInState(sfDisabled) && p->options & ofSelectable)));
+		} while(!(p == P_Current || (p->IsInState(sfVisible) && !p->IsInState(sfDisabled) && p->ViewOptions & ofSelectable)));
 		p->select();
 	}
 }

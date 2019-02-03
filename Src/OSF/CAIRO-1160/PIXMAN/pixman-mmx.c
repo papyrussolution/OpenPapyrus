@@ -2386,7 +2386,7 @@ static void mmx_composite_over_pixbuf_0565(pixman_implementation_t * imp,
 
 		while(w >= 4) {
 			uint32_t s0, s1, s2, s3;
-			unsigned char a0, a1, a2, a3;
+			uchar a0, a1, a2, a3;
 
 			s0 = *src;
 			s1 = *(src + 1);
@@ -2489,7 +2489,7 @@ static void mmx_composite_over_pixbuf_8888(pixman_implementation_t * imp,
 
 		while(w >= 2) {
 			uint32_t s0, s1;
-			unsigned char a0, a1;
+			uchar a0, a1;
 			__m64 d0, d1;
 
 			s0 = *src;

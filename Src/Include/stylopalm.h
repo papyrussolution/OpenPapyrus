@@ -110,8 +110,8 @@ struct SpiiCmdBuf { // @persistent
 #define PALMARCBUFSIZE (24*1024)
 #define PALMPACKRECLEN (4 * 1024)
 
-#define MIN_SENDBUFSIZE sizeof(SpiiCmdBuf) + 32                       // Минимальный размер буфера для отправки данных с кпк
-#define MIN_RECVBUFSIZE sizeof(SpiiCmdBuf) + sizeof(PalmArcHdr) + 128 // Минимальный размер буфера для приема данных с кпк
+#define MIN_SENDBUFSIZE (sizeof(SpiiCmdBuf) + 32)                       // Минимальный размер буфера для отправки данных с кпк
+#define MIN_RECVBUFSIZE (sizeof(SpiiCmdBuf) + sizeof(PalmArcHdr) + 128) // Минимальный размер буфера для приема данных с кпк
 
 struct PalmConfig { // size = 96 // @persistent
 	PalmConfig();
@@ -376,7 +376,7 @@ struct SpQuotKindStruc : public SpBaseStruc {
 	}
 	int FromBuf(const void * pBuf)
 	{
-		const char * p_buf = (const char*)pBuf;
+		const char * p_buf = static_cast<const char *>(pBuf);
 		size_t bytes = 0;
 		memcpy(&ID,  p_buf,                         sizeof(ID));
 		memcpy(Name, p_buf + (bytes += sizeof(ID)), sizeof(Name));
@@ -408,7 +408,7 @@ struct SpClientDebtStruc : public SpBaseStruc {
 	}
 	virtual int FromBuf(const void * pBuf)
 	{
-		const char * p_buf = (const char*)pBuf;
+		const char * p_buf = static_cast<const char *>(pBuf);
 		size_t bytes = 0;
 		memcpy(&ClientID, p_buf,                               sizeof(ClientID));
 		memcpy(&Dt,       p_buf + (bytes += sizeof(ClientID)), sizeof(Dt));
@@ -456,7 +456,7 @@ struct SpClientSalesStruc : public SpBaseStruc {
 	virtual int FromBuf(const void * pBuf)
 	{
 		int ok = 1;
-		const char * p_buf = (const char*)pBuf;
+		const char * p_buf = static_cast<const char *>(pBuf);
 		size_t bytes = 0;
 		memcpy(&ClientID,   p_buf,                                 sizeof(ClientID));
 		memcpy(&DlvrAddrID, p_buf + (bytes += sizeof(ClientID)),   sizeof(DlvrAddrID));
@@ -513,7 +513,7 @@ struct SpInvHeaderStruc : public SpBaseStruc { // size = 184
 				ok = -1;
 			}
 			else {
-				char * p_buf = (char*)pBuf;
+				char * p_buf = static_cast<char *>(pBuf);
 				size_t bytes = 0;
 				memcpy(p_buf,                                 &ID,         sizeof(ID));
 				memcpy(p_buf + (bytes += sizeof(ID)),         &Date,       sizeof(Date));
@@ -560,7 +560,7 @@ struct SpInvLineStruc : public SpBaseStruc {
 				ok = -1;
 			}
 			else {
-				char * p_buf = (char*)pBuf;
+				char * p_buf = static_cast<char *>(pBuf);
 				size_t bytes = 0;
 				memcpy(p_buf,                              &InvID,   sizeof(InvID));
 				memcpy(p_buf + (bytes += sizeof(InvID)),   &GoodsID, sizeof(GoodsID));

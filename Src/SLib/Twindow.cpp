@@ -253,7 +253,7 @@ int TWindow::IsMDIClientWindow(HWND h)
 
 SLAPI TWindow::TWindow(const TRect & bounds, const char * pTitle, short aNumber) : TGroup(bounds), P_Lmp(0), HW(0), PrevInStack(0)
 {
-	options  |= ofSelectable;
+	ViewOptions  |= ofSelectable;
 	Title = pTitle;
 }
 
@@ -442,8 +442,7 @@ int SLAPI TWindow::setButtonText(uint cmd, const char * pText)
 	const uint ctl_id = p_ctl ? p_ctl->GetId() : 0;
 	if(ctl_id) {
 		p_ctl->Title = pText;
-		// @v9.1.5 SendDlgItemMessage(HW, ctl_id, WM_SETTEXT, 0, (LPARAM)(const char *)p_ctl->Title);
-		TView::SSetWindowText(GetDlgItem(HW, ctl_id), p_ctl->Title); // @v9.1.5
+		TView::SSetWindowText(GetDlgItem(HW, ctl_id), p_ctl->Title);
 	}
 	else
 		ok = 0;
@@ -603,7 +602,7 @@ void SLAPI TWindow::setCtrlOption(ushort ctlID, ushort flags, int s)
 {
 	TView * v = getCtrlView(ctlID);
 	if(v)
-		SETFLAG(v->options, flags, s);
+		SETFLAG(v->ViewOptions, flags, s);
 }
 
 int SLAPI TWindow::getStaticText(ushort ctlID, SString & rBuf)
@@ -757,10 +756,10 @@ HWND TWindow::showToolbar()
 				btns.fsStyle   = TBSTYLE_SEP;
 				btns.idCommand = 0;
 			}
-			SendMessage(h_tool_bar, TB_ADDBUTTONS, 1, (LPARAM)(&btns));
+			::SendMessage(h_tool_bar, TB_ADDBUTTONS, 1, reinterpret_cast<LPARAM>(&btns));
 		}
 	}
-	SendMessage(h_tool_bar, TB_SETIMAGELIST, 0, (LPARAM)himl);
+	::SendMessage(h_tool_bar, TB_SETIMAGELIST, 0, reinterpret_cast<LPARAM>(himl));
 	ShowWindow(h_tool_bar, SW_SHOW);
 	return h_tool_bar;
 }
@@ -1211,10 +1210,10 @@ int TWindowBase::Create(void * hParentWnd, long createOptions)
 	title_buf.SetIfEmpty(ClsName).Transf(CTRANSF_INNER_TO_OUTER);
 	HWND  hw_parent = (HWND)hParentWnd;
 	DWORD style = WS_HSCROLL | WS_VSCROLL /*| WS_CLIPSIBLINGS | WS_CLIPCHILDREN*/;
-	int   x = size.x ? origin.x : CW_USEDEFAULT;
-	int   y = size.y ? origin.y : CW_USEDEFAULT;
-	int   cx = NZOR(size.x, CW_USEDEFAULT);
-	int   cy = NZOR(size.y, CW_USEDEFAULT);
+	int   x = ViewSize.x ? ViewOrigin.x : CW_USEDEFAULT;
+	int   y = ViewSize.y ? ViewOrigin.y : CW_USEDEFAULT;
+	int   cx = NZOR(ViewSize.x, CW_USEDEFAULT);
+	int   cy = NZOR(ViewSize.y, CW_USEDEFAULT);
 	if(APPL->H_MainWnd && createOptions & coMaxSize) {
 		RECT par_rect, r;
 		GetWindowRect(APPL->H_MainWnd, &par_rect);
@@ -1263,8 +1262,8 @@ int TWindowBase::Create(void * hParentWnd, long createOptions)
 			child.cx = CW_USEDEFAULT;
 			child.cy = CW_USEDEFAULT;
 			child.style  = style;
-			child.lParam = (LPARAM)this;
-			HW = (HWND)LOWORD(SendMessage(hw_parent, WM_MDICREATE, 0, (LPARAM)&child)); // @unicodeproblem
+			child.lParam = reinterpret_cast<LPARAM>(this);
+			HW = (HWND)LOWORD(SendMessage(hw_parent, WM_MDICREATE, 0, reinterpret_cast<LPARAM>(&child))); // @unicodeproblem
 		}
 		else {
 			HW = CreateWindowEx(0, P_SLibWindowBaseClsName, title_buf, style, x, y, cx, cy, hw_parent, 0, h_inst, this); // @unicodeproblem
@@ -1469,8 +1468,8 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 				}
 				if(p_view) {
 					p_view->HW = hWnd;
-					p_view->origin.Set(p_init_data->x, p_init_data->y);
-					p_view->size.Set(p_init_data->cx, p_init_data->cy);
+					p_view->ViewOrigin.Set(p_init_data->x, p_init_data->y);
+					p_view->ViewSize.Set(p_init_data->cx, p_init_data->cy);
 					//p_view->RegisterMouseTracking(1);
 					TView::SetWindowUserData(hWnd, p_view);
 					TView::messageCommand(p_view, cmInit, &cr_blk);
@@ -1510,15 +1509,15 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 					case SIZE_RESTORED:  se.ResizeType = SizeEvent::tRestored;  break;
 					default: se.ResizeType = 0; break;
 				}
-				se.PrevSize = p_view->size;
-				p_view->size = se.NewSize.setwparam(lParam);
+				se.PrevSize = p_view->ViewSize;
+				p_view->ViewSize = se.NewSize.setwparam(lParam);
 				if(TView::messageCommand(p_view, cmSize, &se))
 					return 0;
 			}
 			break;
 		case WM_MOVE:
 			{
-				p_view->origin.setwparam(lParam);
+				p_view->ViewOrigin.setwparam(lParam);
 				if(TView::messageCommand(p_view, cmMove))
 					return 0;
 			}

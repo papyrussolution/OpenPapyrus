@@ -70,15 +70,12 @@ int SLAPI FiasAddrCache::GetAddrObjListByText(const char * pText, PPIDArray & rL
 		PPID   text_ref_id = 0;
 		uint   pos = 0;
 		if(PPRef->TrT.FetchSelfRefText(pText, &text_ref_id) > 0) {
-			//TxlLock.ReadLock();
 			SRWLOCKER(TxlLock, SReadWriteLocker::Read);
 			if(TextList.lsearch(&text_ref_id, &(pos = 0), CMPF_LONG)) {
 				rList = TextList.at(pos)->AddrList;
 				ok = 1;
 			}
 			else {
-				//TxlLock.Unlock();
-				//TxlLock.WriteLock();
 				SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 				if(TextList.lsearch(&text_ref_id, &(pos = 0), CMPF_LONG)) { // Повторная попытка после блокировки
 					rList = TextList.at(pos)->AddrList;
@@ -100,7 +97,6 @@ int SLAPI FiasAddrCache::GetAddrObjListByText(const char * pText, PPIDArray & rL
 					}
 				}
 			}
-			//TxlLock.Unlock();
 		}
 	}
 	return ok;
@@ -109,7 +105,7 @@ int SLAPI FiasAddrCache::GetAddrObjListByText(const char * pText, PPIDArray & rL
 int SLAPI FiasAddrCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 {
 	int    ok = 1;
-	Data * p_cache_rec = (Data *)pEntry;
+	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	FiasAddrObjTbl::Rec data_rec;
 	if(id && P_T && P_T->SearchObjByID(id, &data_rec, 0) > 0) {
 		#define CPY(f) p_cache_rec->f = data_rec.f
@@ -140,9 +136,9 @@ int SLAPI FiasAddrCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraD
 
 void SLAPI FiasAddrCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	FiasAddrObjTbl::Rec * p_data_rec = (FiasAddrObjTbl::Rec *)pDataRec;
+	FiasAddrObjTbl::Rec * p_data_rec = static_cast<FiasAddrObjTbl::Rec *>(pDataRec);
 	if(p_data_rec) {
-		const Data * p_cache_rec = (const Data *)pEntry;
+		const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 		memzero(p_data_rec, sizeof(*p_data_rec));
 		#define CPY(f) p_data_rec->f = p_cache_rec->f
 		CPY(RecUuID);
@@ -186,9 +182,8 @@ PPCountryBlock & PPCountryBlock::Clear()
 //
 SLAPI PPLocationPacket::PPLocationPacket()
 {
-	memzero((LocationTbl::Rec *)this, sizeof(LocationTbl::Rec));
+	memzero(static_cast<LocationTbl::Rec *>(this), sizeof(LocationTbl::Rec));
 	TagL.ObjType = PPOBJ_LOCATION;
-	//MEMSZERO(Rec);
 }
 
 SLAPI PPLocationPacket::PPLocationPacket(const PPLocationPacket & rS)
@@ -198,7 +193,7 @@ SLAPI PPLocationPacket::PPLocationPacket(const PPLocationPacket & rS)
 
 int FASTCALL PPLocationPacket::Copy(const PPLocationPacket & rS)
 {
-	*(LocationTbl::Rec *)this = *(LocationTbl::Rec *)&rS;
+	*static_cast<LocationTbl::Rec *>(this) = *static_cast<const LocationTbl::Rec *>(&rS);
 	Regs = rS.Regs;
 	TagL = rS.TagL;
 	return 1;
@@ -206,8 +201,7 @@ int FASTCALL PPLocationPacket::Copy(const PPLocationPacket & rS)
 
 void SLAPI PPLocationPacket::destroy()
 {
-	memzero((LocationTbl::Rec *)this, sizeof(LocationTbl::Rec));
-	//MEMSZERO(Rec);
+	memzero(static_cast<LocationTbl::Rec *>(this), sizeof(LocationTbl::Rec));
 	Regs.freeAll();
 	TagL.Destroy();
 	TagL.ObjType = PPOBJ_LOCATION;
@@ -215,7 +209,7 @@ void SLAPI PPLocationPacket::destroy()
 
 PPLocationPacket & FASTCALL PPLocationPacket::operator = (const LocationTbl::Rec & rS)
 {
-	*((LocationTbl::Rec *)this) = rS;
+	*static_cast<LocationTbl::Rec *>(this) = rS;
 	return *this;
 }
 
@@ -639,11 +633,11 @@ int SLAPI PPObjLocation::GetCityByName(const char * pName, PPID * pCityID)
 		SArray w_list(sizeof(WorldTbl::Rec));
 		P_WObj->GetListByName(WORLDOBJ_CITY, pName, &w_list);
 		if(w_list.getCount() == 1) {
-			ASSIGN_PTR(pCityID, ((WorldTbl::Rec *)w_list.at(0))->ID);
+			ASSIGN_PTR(pCityID, static_cast<const WorldTbl::Rec *>(w_list.at(0))->ID);
 			ok = 1;
 		}
 		else if(w_list.getCount()) {
-			ASSIGN_PTR(pCityID, ((WorldTbl::Rec *)w_list.at(0))->ID);
+			ASSIGN_PTR(pCityID, static_cast<const WorldTbl::Rec *>(w_list.at(0))->ID);
 			ok = 2;
 		}
 	}
@@ -933,7 +927,7 @@ int SLAPI PPObjLocation::AssignImages(ListBoxDef * pDef)
 {
 	if(pDef && pDef->valid() && (ImplementFlags & implTreeSelector)) {
 		LongArray list;
-		StdTreeListBoxDef * p_def = (StdTreeListBoxDef*)pDef;
+		StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(pDef);
 		p_def->ClearImageAssocList();
 		if(p_def->getIdList(list) > 0) {
 			for(uint i = 0; i < list.getCount(); i++) {
@@ -941,18 +935,14 @@ int SLAPI PPObjLocation::AssignImages(ListBoxDef * pDef)
 				long   img_id = ICON_WH;
 				LocationTbl::Rec rec;
 				if(Fetch(id, &rec) > 0) {
-					if(rec.Type == LOCTYP_WAREHOUSE)
-						img_id = ICON_WH;
-					else if(rec.Type == LOCTYP_WAREHOUSEGROUP)
-						img_id = ICON_FOLDERGRP;
-					else if(rec.Type == LOCTYP_WHZONE)
-						img_id = ICON_WHZONE;
-					else if(rec.Type == LOCTYP_WHCOLUMN)
-						img_id = ICON_WHCOLUMN;
-					else if(rec.Type == LOCTYP_WHCELL)
-						img_id = ICON_WHCELL;
-					else if(rec.Type == LOCTYP_DIVISION)
-						img_id = ICON_DIVISION_16;
+					switch(rec.Type) {
+						case LOCTYP_WAREHOUSE: img_id = ICON_WH; break;
+						case LOCTYP_WAREHOUSEGROUP: img_id = ICON_FOLDERGRP; break;
+						case LOCTYP_WHZONE: img_id = ICON_WHZONE; break;
+						case LOCTYP_WHCOLUMN: img_id = ICON_WHCOLUMN; break;
+						case LOCTYP_WHCELL: img_id = ICON_WHCELL; break;
+						case LOCTYP_DIVISION: img_id = ICON_DIVISION_16; break;
+					}
 				}
 				p_def->AddImageAssoc(id, img_id);
 			}
@@ -4223,7 +4213,6 @@ SLAPI PPLocAddrStruc::PPLocAddrStruc(const char * pText, PPFiasReference * pFr) 
 SLAPI PPLocAddrStruc::PPLocAddrStruc(ConditionalConstructWithFias ccwf) : StrAssocArray()
 {
 	Helper_Construct();
-
 	PPLocationConfig loc_cfg;
 	PPObjLocation::FetchConfig(&loc_cfg);
 	if(loc_cfg.Flags & PPLocationConfig::fUseFias) {
@@ -4240,25 +4229,9 @@ SLAPI PPLocAddrStruc::~PPLocAddrStruc()
 		ZDELETE(P_Fr);
 }
 
-int SLAPI PPLocAddrStruc::HasAmbiguity() const
-{
-	if(P_AmbigMatchEntry)
-		return 1;
-	else if(P_AmbigMatchList)
-		return 2;
-	else
-		return 0;
-}
-
-const TSCollection <PPLocAddrStruc_MatchEntry> * SLAPI PPLocAddrStruc::GetAmbiguityMatchList() const
-{
-	return P_AmbigMatchList;
-}
-
-const PPLocAddrStruc_MatchEntry * SLAPI PPLocAddrStruc::GetAmbiguityMatchEntry() const
-{
-	return P_AmbigMatchEntry;
-}
+int SLAPI PPLocAddrStruc::HasAmbiguity() const { return P_AmbigMatchEntry ? 1 : (P_AmbigMatchList ? 2 : 0); }
+const TSCollection <PPLocAddrStruc_MatchEntry> * SLAPI PPLocAddrStruc::GetAmbiguityMatchList() const { return P_AmbigMatchList; }
+const PPLocAddrStruc_MatchEntry * SLAPI PPLocAddrStruc::GetAmbiguityMatchEntry() const { return P_AmbigMatchEntry; }
 
 int SLAPI PPLocAddrStruc::MatchEntryToStr(const PPLocAddrStruc_MatchEntry * pEntry, SString & rBuf)
 {

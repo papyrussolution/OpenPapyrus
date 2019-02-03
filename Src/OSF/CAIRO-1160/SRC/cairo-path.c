@@ -35,9 +35,9 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-private.h"
+//#include "cairo-private.h"
 #include "cairo-backend-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-path-private.h"
 #include "cairo-path-fixed-private.h"
 
@@ -88,36 +88,19 @@ static cairo_status_t _cpc_close_path(void * closure)
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static int _cairo_path_count(cairo_path_t * path,
-    cairo_path_fixed_t * path_fixed,
-    double tolerance,
-    cairo_bool_t flatten)
+static int _cairo_path_count(cairo_path_t * path, cairo_path_fixed_t * path_fixed, double tolerance, cairo_bool_t flatten)
 {
 	cairo_status_t status;
 	cpc_t cpc;
-
 	cpc.count = 0;
-
 	if(flatten) {
-		status = _cairo_path_fixed_interpret_flat(path_fixed,
-			_cpc_move_to,
-			_cpc_line_to,
-			_cpc_close_path,
-			&cpc,
-			tolerance);
+		status = _cairo_path_fixed_interpret_flat(path_fixed, _cpc_move_to, _cpc_line_to, _cpc_close_path, &cpc, tolerance);
 	}
 	else {
-		status = _cairo_path_fixed_interpret(path_fixed,
-			_cpc_move_to,
-			_cpc_line_to,
-			_cpc_curve_to,
-			_cpc_close_path,
-			&cpc);
+		status = _cairo_path_fixed_interpret(path_fixed, _cpc_move_to, _cpc_line_to, _cpc_curve_to, _cpc_close_path, &cpc);
 	}
-
 	if(unlikely(status))
 		return -1;
-
 	return cpc.count;
 }
 

@@ -1,5 +1,5 @@
 // ATOL.CPP
-// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 // Интерфейс (асинхронный) к драйверу "Атол"
 //
@@ -896,7 +896,7 @@ int SLAPI ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath
 					long   fl  = (chk_type == CHK_RETURN) ? CCHKF_RETURN : 0;
 					if(!zrep_ary.SearchPair(cash_no, nsmena, &(pos = 0)))
 						fl |= CCHKF_TEMPSESS;
-					THROW(AddTempCheck(&id, nsmena, fl, cash_no, chk_no, 0, 0, &dttm2, 0, 0));
+					THROW(AddTempCheck(&id, nsmena, fl, cash_no, chk_no, 0, 0, dttm2, 0, 0));
 				}
 				if(card_code.NotEmptyS() && sc_core.SearchCode(0, card_code, &sc_rec) > 0)
 					THROW(AddTempCheckSCardID(id, sc_rec.ID));

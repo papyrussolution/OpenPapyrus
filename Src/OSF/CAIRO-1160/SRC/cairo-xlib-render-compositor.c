@@ -46,7 +46,7 @@
 #if !CAIRO_HAS_XLIB_XCB_FUNCTIONS
 
 #include "cairo-xlib-private.h"
-#include "cairo-compositor-private.h"
+//#include "cairo-compositor-private.h"
 #include "cairo-damage-private.h"
 #include "cairo-image-surface-private.h"
 #include "cairo-list-inline.h"
@@ -1146,7 +1146,7 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 {
 	XGlyphInfo glyph_info;
 	ulong glyph_index;
-	unsigned char * data;
+	uchar * data;
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
 	cairo_scaled_glyph_t * glyph = *pscaled_glyph;
 	cairo_image_surface_t * glyph_surface = glyph->surface;
@@ -1245,8 +1245,8 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 		    /* local bitmaps are always stored with bit == byte */
 		    if(_cairo_is_little_endian() != (BitmapBitOrder(display->display) == LSBFirst)) {
 			    int c = glyph_surface->stride * glyph_surface->height;
-			    unsigned char * d;
-			    unsigned char * new, * n;
+			    uchar * d;
+			    uchar * new, * n;
 
 			    if(c == 0)
 				    break;

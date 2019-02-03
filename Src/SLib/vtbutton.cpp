@@ -1,5 +1,5 @@
 // VTBUTTON.CPP
-// Copyright (c) V.Nasonov 2002, 2003, 2005, 2006, 2007, 2010, 2011, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) V.Nasonov 2002, 2003, 2005, 2006, 2007, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -150,7 +150,7 @@ InputLineCalc::InputLineCalc(uint dlgID, TDialog *pParentDlg, uint fieldCtlId) :
 		GetWindowRect(H(), &DlgRect);
 	}
 	P_ParentDlg->getCtrlData(CtlId, InLnNumber);
-	P_Il = (TInputLine *)P_ParentDlg->getCtrlView(CtlId);
+	P_Il = static_cast<TInputLine *>(P_ParentDlg->getCtrlView(CtlId));
 	const long ln_fmt = P_Il->getFormat();
 	MaxLen  = SFMTLEN(ln_fmt);
 	NType   = MKSTYPE(S_FLOAT, 8);
@@ -158,14 +158,14 @@ InputLineCalc::InputLineCalc(uint dlgID, TDialog *pParentDlg, uint fieldCtlId) :
 	sttostr(P_Il->getType(), InLnNumber, ln_fmt, CharNumber);
 	stfromstr(NType, &Number[0], NFormat, CharNumber);
 	//
-	origin.x = P_ParentDlg->origin.x + P_Il->origin.x;
-	if(size.x < P_Il->size.x)
-		origin.x += P_Il->size.x - size.x;
-	if(origin.x + size.x > 80)
-		origin.x = 80 - size.x;
-	origin.y = P_ParentDlg->origin.y + P_Il->origin.y + P_Il->size.y;
-	if(origin.y + size.y > 23)
-		origin.y = P_ParentDlg->origin.y + P_Il->origin.y - size.y -1;
+	ViewOrigin.x = P_ParentDlg->ViewOrigin.x + P_Il->ViewOrigin.x;
+	if(ViewSize.x < P_Il->ViewSize.x)
+		ViewOrigin.x += P_Il->ViewSize.x - ViewSize.x;
+	if((ViewOrigin.x + ViewSize.x) > 80)
+		ViewOrigin.x = 80 - ViewSize.x;
+	ViewOrigin.y = P_ParentDlg->ViewOrigin.y + P_Il->ViewOrigin.y + P_Il->ViewSize.y;
+	if(ViewOrigin.y + ViewSize.y > 23)
+		ViewOrigin.y = P_ParentDlg->ViewOrigin.y + P_Il->ViewOrigin.y - ViewSize.y -1;
 	//
 	IsNumber = 0;
 	IsDot = 0;

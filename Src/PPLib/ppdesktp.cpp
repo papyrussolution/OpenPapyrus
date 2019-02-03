@@ -602,11 +602,9 @@ int PPDesktop::Init__(long desktopID)
 		p_item = desk_list.SearchByID(desktopID, 0);
 		P_ActiveDesktop = (p_item && p_item->Kind == PPCommandItem::kGroup) ? (PPCommandGroup *)p_item->Dup() : 0;
 		THROW_PP(P_ActiveDesktop && P_ActiveDesktop->IsDbSymbEq(db_symb), PPERR_DESKNOTFOUND);
-
 		PrivateCp.ReadFromProp(desktopID);
 		CommonCp.ReadFromProp(0);
-
-		options |= ofSelectable;
+		ViewOptions |= ofSelectable;
 		Selected = 0;
 		//IsIconMove = 0;
 		State &= ~stIconMove;

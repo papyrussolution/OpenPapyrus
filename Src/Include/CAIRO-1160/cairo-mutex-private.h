@@ -41,7 +41,7 @@
 #ifndef CAIRO_MUTEX_PRIVATE_H
 #define CAIRO_MUTEX_PRIVATE_H
 
-#include "cairo-mutex-type-private.h"
+//#include "cairo-mutex-type-private.h"
 
 CAIRO_BEGIN_DECLS
 

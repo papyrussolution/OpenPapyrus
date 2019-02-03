@@ -37,7 +37,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 /*
  * An entry can be in one of three states:
  *

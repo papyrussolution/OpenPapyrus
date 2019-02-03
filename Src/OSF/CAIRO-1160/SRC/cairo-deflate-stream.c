@@ -37,7 +37,7 @@
 #pragma hdrstop
 #if CAIRO_HAS_DEFLATE_STREAM
 
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-output-stream-private.h"
 #include <zlib.h>
 
@@ -47,8 +47,8 @@ typedef struct _cairo_deflate_stream {
 	cairo_output_stream_t base;
 	cairo_output_stream_t * output;
 	z_stream zlib_stream;
-	unsigned char input_buf[BUFFER_SIZE];
-	unsigned char output_buf[BUFFER_SIZE];
+	uchar input_buf[BUFFER_SIZE];
+	uchar output_buf[BUFFER_SIZE];
 } cairo_deflate_stream_t;
 
 static void cairo_deflate_stream_deflate(cairo_deflate_stream_t * stream, cairo_bool_t flush)
@@ -74,11 +74,11 @@ static void cairo_deflate_stream_deflate(cairo_deflate_stream_t * stream, cairo_
 	stream->zlib_stream.next_in = stream->input_buf;
 }
 
-static cairo_status_t _cairo_deflate_stream_write(cairo_output_stream_t * base, const unsigned char * data, uint length)
+static cairo_status_t _cairo_deflate_stream_write(cairo_output_stream_t * base, const uchar * data, uint length)
 {
 	cairo_deflate_stream_t * stream = (cairo_deflate_stream_t*)base;
 	uint count;
-	const unsigned char * p = data;
+	const uchar * p = data;
 	while(length) {
 		count = length;
 		if(count > BUFFER_SIZE - stream->zlib_stream.avail_in)

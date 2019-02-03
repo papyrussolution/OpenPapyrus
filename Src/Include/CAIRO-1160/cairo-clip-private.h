@@ -37,13 +37,12 @@
 #ifndef CAIRO_CLIP_PRIVATE_H
 #define CAIRO_CLIP_PRIVATE_H
 
-#include "cairo-types-private.h"
-#include "cairo-boxes-private.h"
-#include "cairo-error-private.h"
-#include "cairo-compiler-private.h"
-#include "cairo-error-private.h"
-#include "cairo-path-fixed-private.h"
-#include "cairo-reference-count-private.h"
+//#include "cairo-types-private.h"
+////#include "cairo-boxes-private.h"
+////#include "cairo-error-private.h"
+//#include "cairo-compiler-private.h"
+//#include "cairo-path-fixed-private.h"
+//#include "cairo-reference-count-private.h"
 
 extern const cairo_private cairo_rectangle_list_t _cairo_rectangles_nil;
 
@@ -68,8 +67,8 @@ struct _cairo_clip {
 
 cairo_private cairo_clip_t * _cairo_clip_create(void);
 cairo_private cairo_clip_path_t * _cairo_clip_path_reference(cairo_clip_path_t * clip_path);
-cairo_private void _cairo_clip_path_destroy(cairo_clip_path_t * clip_path);
-cairo_private void _cairo_clip_destroy(cairo_clip_t * clip);
+cairo_private void FASTCALL _cairo_clip_path_destroy(cairo_clip_path_t * clip_path);
+cairo_private void FASTCALL _cairo_clip_destroy(cairo_clip_t * clip);
 cairo_private extern const cairo_clip_t __cairo_clip_all;
 cairo_private cairo_clip_t * _cairo_clip_copy(const cairo_clip_t * clip);
 cairo_private cairo_clip_t * _cairo_clip_copy_region(const cairo_clip_t * clip);

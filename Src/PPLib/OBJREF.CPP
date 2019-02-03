@@ -17,11 +17,11 @@ ObjViewDialog::ObjViewDialog(uint dlgRez, PPObject * aObj, void * extraPtr) : TD
 	set_rt_flag(P_Obj, &Rt, PPR_INS);
 	set_rt_flag(P_Obj, &Rt, PPR_MOD);
 	set_rt_flag(P_Obj, &Rt, PPR_DEL);
-	P_List = (SmartListBox *)getCtrlView(CTL_OBJVIEW_LIST);
-	if(size.x && size.y && P_List) {
+	P_List = static_cast<SmartListBox *>(getCtrlView(CTL_OBJVIEW_LIST));
+	if(ViewSize.x && ViewSize.y && P_List) {
 		SString obj_title;
 		setTitle(GetObjectTitle(P_Obj->Obj, obj_title));
-		P_List->options |= ofFramed;
+		P_List->ViewOptions |= ofFramed;
 		P_List->setDef(P_Obj->Selector(ExtraPtr));
 		P_List->Draw_();
 		enableCommand(cmaInsert, Rt & PPR_INS);
@@ -96,7 +96,7 @@ int ObjViewDialog::transmit(PPID)
 			const PPIDArray & rary = param.DestDBDivList.Get();
 			PPObjIDArray objid_ary;
 			PPWait(1);
-			for(id = 0; ((PPObjReference *)P_Obj)->EnumItems(&id, 0) > 0;)
+			for(id = 0; static_cast<PPObjReference *>(P_Obj)->EnumItems(&id, 0) > 0;)
 				objid_ary.Add(P_Obj->Obj, id);
 			THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
 			ok = 1;
@@ -118,7 +118,7 @@ IMPL_HANDLE_EVENT(ObjViewDialog)
 					if(P_List->def && P_List->isTreeList()) {
 						PPID cur_id = 0;
 						P_List->def->getCurID(&cur_id);
-						if(((StdTreeListBoxDef*)P_List->def)->HasChild(cur_id))
+						if(static_cast<StdTreeListBoxDef *>(P_List->def)->HasChild(cur_id))
 							edit = 0;
 					}
 					if(edit)
@@ -162,7 +162,7 @@ IMPL_HANDLE_EVENT(RefObjViewDialog)
 		if(TVCMD == cmTransmitCharry || TVCMD == cmTransmit) {
 			PPIDArray id_list;
 			ReferenceTbl::Rec rec;
-			for(PPID id = 0; ((PPObjReference *)P_Obj)->EnumItems(&id, &rec) > 0;)
+			for(PPID id = 0; static_cast<PPObjReference *>(P_Obj)->EnumItems(&id, &rec) > 0;)
 				id_list.add(rec.ObjID);
 			if(id_list.getCount()) {
 				if(TVCMD == cmTransmitCharry) {
@@ -309,8 +309,8 @@ PPID SLAPI PPObjReference::GetSingle()
 int SLAPI PPObjReference::AddItem(PPID * pID, void * pBuf, int use_ta)
 {
 	int    ok = -1;
-	if((ok = ref->AddItem(Obj, &((ReferenceTbl::Rec*)pBuf)->ObjID, pBuf, 0)) > 0)
-		ASSIGN_PTR(pID, ((ReferenceTbl::Rec*)pBuf)->ObjID);
+	if((ok = ref->AddItem(Obj, &static_cast<ReferenceTbl::Rec *>(pBuf)->ObjID, pBuf, 0)) > 0)
+		ASSIGN_PTR(pID, static_cast<ReferenceTbl::Rec *>(pBuf)->ObjID);
 	return ok;
 }
 
@@ -337,7 +337,7 @@ int SLAPI PPObjReference::EditItem(PPID obj, PPID id, void * pRec, int use_ta)
 				ok = -1;
 		}
 		else {
-			THROW(ref->AddItem(obj, &((ReferenceTbl::Rec*)pRec)->ObjID, pRec, 0));
+			THROW(ref->AddItem(obj, &static_cast<ReferenceTbl::Rec *>(pRec)->ObjID, pRec, 0));
 		}
 		THROW(tra.Commit());
 	}

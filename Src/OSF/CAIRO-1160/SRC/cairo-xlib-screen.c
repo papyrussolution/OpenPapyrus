@@ -60,7 +60,7 @@
 #include "cairo-xlib-private.h"
 #include "cairo-xlib-xrender-private.h"
 #include "cairo-xlib-surface-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-list-inline.h"
 #include "cairo-fontconfig-private.h"
 

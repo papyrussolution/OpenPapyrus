@@ -22,8 +22,8 @@
 #ifndef CAIRO_FREELIST_H
 #define CAIRO_FREELIST_H
 
-#include "cairo-types-private.h"
-#include "cairo-compiler-private.h"
+//#include "cairo-types-private.h"
+//#include "cairo-compiler-private.h"
 #include "cairo-freelist-type-private.h"
 
 /* for stand-alone compilation*/

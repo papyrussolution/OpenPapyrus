@@ -37,7 +37,7 @@
 #ifndef CAIRO_LIST_PRIVATE_H
 #define CAIRO_LIST_PRIVATE_H
 
-#include "cairo-compiler-private.h"
+//#include "cairo-compiler-private.h"
 
 /* Basic circular, doubly linked list implementation */
 

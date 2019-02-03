@@ -34,8 +34,8 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-device-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-device-private.h"
+//#include "cairo-error-private.h"
 /**
  * SECTION:cairo-device
  * @Title: cairo_device_t
@@ -317,25 +317,17 @@ slim_hidden_def(cairo_device_finish);
 void cairo_device_destroy(cairo_device_t * device)
 {
 	cairo_user_data_array_t user_data;
-
-	if(device == NULL ||
-	    CAIRO_REFERENCE_COUNT_IS_INVALID(&device->ref_count)) {
+	if(device == NULL || CAIRO_REFERENCE_COUNT_IS_INVALID(&device->ref_count)) {
 		return;
 	}
-
 	assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&device->ref_count));
 	if(!_cairo_reference_count_dec_and_test(&device->ref_count))
 		return;
-
 	cairo_device_finish(device);
-
 	assert(device->mutex_depth == 0);
 	CAIRO_MUTEX_FINI(device->mutex);
-
 	user_data = device->user_data;
-
 	device->backend->destroy(device);
-
 	_cairo_user_data_array_fini(&user_data);
 }
 

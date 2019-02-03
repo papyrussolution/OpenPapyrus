@@ -41,14 +41,12 @@
 #ifndef CAIRO_MUTEX_IMPL_PRIVATE_H
 #define CAIRO_MUTEX_IMPL_PRIVATE_H
 
-#include "cairo.h"
-
+//#include "cairo.h"
 #if HAVE_CONFIG_H
-#include "config.h"
+	#include "config.h"
 #endif
-
 #if HAVE_LOCKDEP
-#include <lockdep.h>
+	#include <lockdep.h>
 #endif
 
 /* A fully qualified no-operation statement */

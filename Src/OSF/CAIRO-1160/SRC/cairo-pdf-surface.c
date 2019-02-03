@@ -45,11 +45,11 @@
 #include "cairo-pdf-surface-private.h"
 #include "cairo-pdf-operators-private.h"
 #include "cairo-pdf-shading-private.h"
-#include "cairo-array-private.h"
+//#include "cairo-array-private.h"
 #include "cairo-analysis-surface-private.h"
-#include "cairo-composite-rectangles-private.h"
+//#include "cairo-composite-rectangles-private.h"
 #include "cairo-default-context-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-image-surface-inline.h"
 #include "cairo-image-info-private.h"
 #include "cairo-recording-surface-private.h"
@@ -1341,7 +1341,7 @@ static cairo_int_status_t _cairo_pdf_surface_add_source_surface(cairo_pdf_surfac
 	cairo_pdf_source_surface_entry_t * surface_entry;
 	cairo_int_status_t status = CAIRO_STATUS_SUCCESS;
 	cairo_bool_t interpolate;
-	unsigned char * unique_id = NULL;
+	uchar * unique_id = NULL;
 	ulong unique_id_length = 0;
 	cairo_image_surface_t * image;
 	void * image_extra;
@@ -1398,7 +1398,7 @@ static cairo_int_status_t _cairo_pdf_surface_add_source_surface(cairo_pdf_surfac
 	surface_key.id  = source_surface->unique_id;
 	surface_key.interpolate = interpolate;
 	cairo_surface_get_mime_data(source_surface, CAIRO_MIME_TYPE_UNIQUE_ID,
-	    (const unsigned char**)&surface_key.unique_id,
+	    (const uchar**)&surface_key.unique_id,
 	    &surface_key.unique_id_length);
 	_cairo_pdf_source_surface_init_key(&surface_key);
 	surface_entry = (cairo_pdf_source_surface_entry_t *)_cairo_hash_table_lookup(surface->all_surfaces, &surface_key.base);
@@ -1417,7 +1417,7 @@ static cairo_int_status_t _cairo_pdf_surface_add_source_surface(cairo_pdf_surfac
 		return status;
 	}
 	if(surface_key.unique_id && surface_key.unique_id_length > 0) {
-		unique_id = (unsigned char *)_cairo_malloc(surface_key.unique_id_length);
+		unique_id = (uchar *)_cairo_malloc(surface_key.unique_id_length);
 		if(unique_id == NULL) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto fail1;
@@ -2679,7 +2679,7 @@ CLEANUP:
 }
 
 static cairo_int_status_t _cairo_pdf_surface_lookup_jbig2_global(cairo_pdf_surface_t * surface,
-    const unsigned char * global_id,
+    const uchar * global_id,
     ulong global_id_length,
     cairo_pdf_jbig2_global_t ** entry)
 {
@@ -2696,7 +2696,7 @@ static cairo_int_status_t _cairo_pdf_surface_lookup_jbig2_global(cairo_pdf_surfa
 		}
 	}
 
-	global.id = (unsigned char *)_cairo_malloc(global_id_length);
+	global.id = (uchar *)_cairo_malloc(global_id_length);
 	if(unlikely(global.id == NULL)) {
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -2725,12 +2725,12 @@ static cairo_int_status_t _cairo_pdf_surface_emit_jbig2_image(cairo_pdf_surface_
     cairo_bool_t test)
 {
 	cairo_int_status_t status;
-	const unsigned char * mime_data;
+	const uchar * mime_data;
 	ulong mime_data_length;
 	cairo_image_info_t info;
-	const unsigned char * global_id;
+	const uchar * global_id;
 	ulong global_id_length;
-	const unsigned char * global_data;
+	const uchar * global_data;
 	ulong global_data_length;
 	cairo_pdf_jbig2_global_t * global_entry = NULL; /* hide compiler warning */
 	char smask_buf[30];
@@ -2839,7 +2839,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_jpx_image(cairo_pdf_surface_t 
     cairo_bool_t test)
 {
 	cairo_int_status_t status;
-	const unsigned char * mime_data;
+	const uchar * mime_data;
 	ulong mime_data_length;
 	cairo_image_info_t info;
 	char smask_buf[30];
@@ -2919,7 +2919,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_jpeg_image(cairo_pdf_surface_t
     cairo_bool_t test)
 {
 	cairo_int_status_t status;
-	const unsigned char * mime_data;
+	const uchar * mime_data;
 	ulong mime_data_length;
 	cairo_image_info_t info;
 	const char * colorspace;
@@ -3017,9 +3017,9 @@ static cairo_int_status_t _cairo_pdf_surface_emit_ccitt_image(cairo_pdf_surface_
     cairo_bool_t test)
 {
 	cairo_status_t status;
-	const unsigned char * ccitt_data;
+	const uchar * ccitt_data;
 	ulong ccitt_data_len;
-	const unsigned char * ccitt_params_string;
+	const uchar * ccitt_params_string;
 	ulong ccitt_params_string_len;
 	char * params, * p, * end;
 	cairo_ccitt_params_t ccitt_params;
@@ -5032,7 +5032,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_unicode_for_glyph(cairo_pdf_su
 		c -= a; c -= b; c ^= (b>>15);       \
 	}
 
-static uint32_t _hash_data(const unsigned char * data, int length, uint32_t initval)
+static uint32_t _hash_data(const uchar * data, int length, uint32_t initval)
 {
 	uint32_t a, b, c, len;
 
@@ -5073,8 +5073,8 @@ static void _create_font_subset_tag(cairo_scaled_font_subset_t * font_subset, co
 	int i;
 	long numerator;
 	ldiv_t d;
-	hash = _hash_data((unsigned char*)font_name, strlen(font_name), 0);
-	hash = _hash_data((unsigned char*)(font_subset->glyphs), font_subset->num_glyphs * sizeof(ulong), hash);
+	hash = _hash_data((uchar*)font_name, strlen(font_name), 0);
+	hash = _hash_data((uchar*)(font_subset->glyphs), font_subset->num_glyphs * sizeof(ulong), hash);
 	numerator = abs((long)hash);
 	for(i = 0; i < 6; i++) {
 		d = ldiv(numerator, 26);
@@ -5210,33 +5210,21 @@ static cairo_int_status_t _cairo_pdf_surface_emit_cff_font(cairo_pdf_surface_t *
 		font_subset->subset_id);
 	if(subset_resource.id == 0)
 		return CAIRO_STATUS_SUCCESS;
-
-	status = _cairo_pdf_surface_open_stream(surface,
-		NULL,
-		TRUE,
-		font_subset->is_latin ?
-		"   /Subtype /Type1C\n" :
-		"   /Subtype /CIDFontType0C\n");
+	status = _cairo_pdf_surface_open_stream(surface, NULL, TRUE,
+		font_subset->is_latin ? "   /Subtype /Type1C\n" : "   /Subtype /CIDFontType0C\n");
 	if(unlikely(status))
 		return status;
-
 	stream = surface->pdf_stream.self;
-	_cairo_output_stream_write(surface->output,
-	    subset->data, subset->data_length);
+	_cairo_output_stream_write(surface->output, subset->data, subset->data_length);
 	status = _cairo_pdf_surface_close_stream(surface);
 	if(unlikely(status))
 		return status;
-
-	status = _cairo_pdf_surface_emit_to_unicode_stream(surface,
-		font_subset,
-		&to_unicode_stream);
+	status = _cairo_pdf_surface_emit_to_unicode_stream(surface, font_subset, &to_unicode_stream);
 	if(_cairo_int_status_is_error(status))
 		return status;
-
 	descriptor = _cairo_pdf_surface_new_object(surface);
 	if(descriptor.id == 0)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	_cairo_output_stream_printf(surface->output,
 	    "%d 0 obj\n"
 	    "<< /Type /FontDescriptor\n"
@@ -5247,19 +5235,15 @@ static cairo_int_status_t _cairo_pdf_surface_emit_cff_font(cairo_pdf_surface_t *
 
 	if(subset->family_name_utf8) {
 		char * pdf_str;
-
 		status = _cairo_utf8_to_pdf_string(subset->family_name_utf8, &pdf_str);
 		if(likely(status == CAIRO_INT_STATUS_SUCCESS)) {
-			_cairo_output_stream_printf(surface->output,
-			    "   /FontFamily %s\n",
-			    pdf_str);
+			_cairo_output_stream_printf(surface->output, "   /FontFamily %s\n", pdf_str);
 			SAlloc::F(pdf_str);
 		}
 		else if(status != CAIRO_STATUS_INVALID_STRING) {
 			return status;
 		}
 	}
-
 	_cairo_output_stream_printf(surface->output,
 	    "   /Flags 4\n"
 	    "   /FontBBox [ %ld %ld %ld %ld ]\n"
@@ -5647,24 +5631,18 @@ static cairo_int_status_t _cairo_pdf_surface_emit_truetype_font_subset(cairo_pdf
 		_cairo_truetype_subset_fini(&subset);
 		return status;
 	}
-
 	stream = surface->pdf_stream.self;
-	_cairo_output_stream_write(surface->output,
-	    subset.data, subset.data_length);
+	_cairo_output_stream_write(surface->output, subset.data, subset.data_length);
 	status = _cairo_pdf_surface_close_stream(surface);
 	if(unlikely(status)) {
 		_cairo_truetype_subset_fini(&subset);
 		return status;
 	}
-
-	status = _cairo_pdf_surface_emit_to_unicode_stream(surface,
-		font_subset,
-		&to_unicode_stream);
+	status = _cairo_pdf_surface_emit_to_unicode_stream(surface, font_subset, &to_unicode_stream);
 	if(_cairo_int_status_is_error(status)) {
 		_cairo_truetype_subset_fini(&subset);
 		return status;
 	}
-
 	descriptor = _cairo_pdf_surface_new_object(surface);
 	if(descriptor.id == 0) {
 		_cairo_truetype_subset_fini(&subset);
@@ -7622,10 +7600,8 @@ static cairo_int_status_t _cairo_pdf_surface_stroke(void * abstract_surface,
 		if(unlikely(status))
 			goto cleanup;
 	}
-
 	_cairo_composite_rectangles_fini(&extents);
 	return _cairo_output_stream_get_status(surface->output);
-
 cleanup:
 	_cairo_composite_rectangles_fini(&extents);
 	return status;
@@ -7641,39 +7617,25 @@ static cairo_int_status_t _cairo_pdf_surface_fill(void * abstract_surface,
     const cairo_clip_t * clip)
 {
 	cairo_pdf_surface_t * surface = (cairo_pdf_surface_t *)abstract_surface;
-	cairo_int_status_t status;
 	cairo_pdf_smask_group_t * group;
 	cairo_pdf_resource_t pattern_res, gstate_res;
 	cairo_composite_rectangles_t extents;
-
-	status = _cairo_composite_rectangles_init_for_fill(&extents,
-		&surface->base,
-		op, source, path,
-		clip);
+	cairo_int_status_t status = _cairo_composite_rectangles_init_for_fill(&extents, &surface->base, op, source, path, clip);
 	if(unlikely(status))
 		return status;
-
 	/* use the more accurate extents */
 	if(extents.is_bounded) {
 		cairo_rectangle_int_t mask;
 		cairo_box_t box;
-
-		_cairo_path_fixed_fill_extents(path,
-		    fill_rule,
-		    tolerance,
-		    &mask);
-
+		_cairo_path_fixed_fill_extents(path, fill_rule, tolerance, &mask);
 		_cairo_box_from_rectangle(&box, &mask);
-		status = _cairo_composite_rectangles_intersect_mask_extents(&extents,
-			&box);
+		status = _cairo_composite_rectangles_intersect_mask_extents(&extents, &box);
 		if(unlikely(status))
 			goto cleanup;
 	}
-
 	status = _cairo_pdf_interchange_add_operation_extents(surface, &extents.bounded);
 	if(unlikely(status))
 		goto cleanup;
-
 	if(surface->paginated_mode == CAIRO_PAGINATED_MODE_ANALYZE) {
 		status = _cairo_pdf_surface_analyze_operation(surface, op, source, &extents.bounded);
 		goto cleanup;
@@ -7880,76 +7842,42 @@ static cairo_int_status_t _cairo_pdf_surface_fill_stroke(void * abstract_surface
 	if(extents.is_bounded) {
 		cairo_rectangle_int_t mask;
 		cairo_box_t box;
-
-		_cairo_path_fixed_fill_extents(path,
-		    fill_rule,
-		    fill_tolerance,
-		    &mask);
-
+		_cairo_path_fixed_fill_extents(path, fill_rule, fill_tolerance, &mask);
 		_cairo_box_from_rectangle(&box, &mask);
-		status = _cairo_composite_rectangles_intersect_mask_extents(&extents,
-			&box);
+		status = _cairo_composite_rectangles_intersect_mask_extents(&extents, &box);
 		if(unlikely(status))
 			goto cleanup;
 	}
-
 	status = _cairo_pdf_interchange_add_operation_extents(surface, &extents.bounded);
 	if(unlikely(status))
 		goto cleanup;
-
 	fill_pattern_res.id = 0;
 	gstate_res.id = 0;
-	status = _cairo_pdf_surface_add_pdf_pattern(surface, fill_source,
-		fill_op,
-		&extents.bounded,
-		&fill_pattern_res,
-		&gstate_res);
+	status = _cairo_pdf_surface_add_pdf_pattern(surface, fill_source, fill_op, &extents.bounded, &fill_pattern_res, &gstate_res);
 	if(unlikely(status))
 		goto cleanup;
-
 	assert(gstate_res.id == 0);
-
 	stroke_pattern_res.id = 0;
 	gstate_res.id = 0;
-	status = _cairo_pdf_surface_add_pdf_pattern(surface,
-		stroke_source,
-		stroke_op,
-		&extents.bounded,
-		&stroke_pattern_res,
-		&gstate_res);
+	status = _cairo_pdf_surface_add_pdf_pattern(surface, stroke_source, stroke_op, &extents.bounded, &stroke_pattern_res, &gstate_res);
 	if(unlikely(status))
 		goto cleanup;
-
 	assert(gstate_res.id == 0);
-
-	/* As PDF has separate graphics state for fill and stroke we can
-	 * select both at the same time */
-	status = _cairo_pdf_surface_select_pattern(surface, fill_source,
-		fill_pattern_res, FALSE);
+	// As PDF has separate graphics state for fill and stroke we can select both at the same time 
+	status = _cairo_pdf_surface_select_pattern(surface, fill_source, fill_pattern_res, FALSE);
 	if(unlikely(status))
 		goto cleanup;
-
-	status = _cairo_pdf_surface_select_pattern(surface, stroke_source,
-		stroke_pattern_res, TRUE);
+	status = _cairo_pdf_surface_select_pattern(surface, stroke_source, stroke_pattern_res, TRUE);
 	if(unlikely(status))
 		goto cleanup;
-
-	status = _cairo_pdf_operators_fill_stroke(&surface->pdf_operators,
-		path,
-		fill_rule,
-		stroke_style,
-		stroke_ctm,
-		stroke_ctm_inverse);
+	status = _cairo_pdf_operators_fill_stroke(&surface->pdf_operators, path, fill_rule, stroke_style, stroke_ctm, stroke_ctm_inverse);
 	if(unlikely(status))
 		goto cleanup;
-
 	status = _cairo_pdf_surface_unselect_pattern(surface);
 	if(unlikely(status))
 		goto cleanup;
-
 	_cairo_composite_rectangles_fini(&extents);
 	return _cairo_output_stream_get_status(surface->output);
-
 cleanup:
 	_cairo_composite_rectangles_fini(&extents);
 	return status;

@@ -37,7 +37,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-image-surface-private.h"
 #include "cairo-output-stream-private.h"
 //#include <stdio.h>
@@ -478,7 +478,7 @@ static void convert_bytes_to_data(png_structp png, png_row_infop row_info, png_b
 	}
 }
 
-static cairo_status_t stdio_read_func(void * closure, unsigned char * data, uint size)
+static cairo_status_t stdio_read_func(void * closure, uchar * data, uint size)
 {
 	FILE * file = (FILE *)closure;
 	while(size) {
@@ -517,7 +517,7 @@ static cairo_surface_t * read_png(struct png_read_closure_t * png_closure)
 	uint i;
 	cairo_format_t format;
 	cairo_status_t status;
-	unsigned char * mime_data;
+	uchar * mime_data;
 	ulong mime_data_length;
 
 	png_closure->png_data = _cairo_memory_stream_create();

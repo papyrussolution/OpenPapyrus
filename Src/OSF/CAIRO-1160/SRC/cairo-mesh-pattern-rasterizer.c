@@ -35,7 +35,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-array-private.h"
+//#include "cairo-array-private.h"
 #include "cairo-pattern-private.h"
 /*
  * Rasterizer for mesh patterns.
@@ -434,7 +434,7 @@ static inline int intersect_interval(double a, double b, double c, double d)
  * If the pixel to be set is outside the image, this function does
  * nothing.
  */
-static inline void draw_pixel(unsigned char * data, int width, int height, int stride,
+static inline void draw_pixel(uchar * data, int width, int height, int stride,
     int x, int y, uint16_t r, uint16_t g, uint16_t b, uint16_t a)
 {
 	if(likely(0 <= x && 0 <= y && x < width && y < height)) {
@@ -478,7 +478,7 @@ static inline void draw_pixel(unsigned char * data, int width, int height, int s
  * to drawing the curve for values of the interpolation parameter in
  * [0,1] (including both extremes).
  */
-static inline void rasterize_bezier_curve(unsigned char * data, int width, int height, int stride,
+static inline void rasterize_bezier_curve(uchar * data, int width, int height, int stride,
     int ushift, double dxu[4], double dyu[4],
     uint16_t r0, uint16_t g0, uint16_t b0, uint16_t a0,
     uint16_t r3, uint16_t g3, uint16_t b3, uint16_t a3)
@@ -551,7 +551,7 @@ static inline void rasterize_bezier_curve(unsigned char * data, int width, int h
  * consecutive points (which is needed to ensure that no hole can
  * appear when using this function to rasterize a patch).
  */
-static void draw_bezier_curve(unsigned char * data, int width, int height, int stride,
+static void draw_bezier_curve(uchar * data, int width, int height, int stride,
     cairo_point_double_t p[4], double c0[4], double c3[4])
 {
 	double top, bottom, left, right, steps_sq;
@@ -671,7 +671,7 @@ static void draw_bezier_curve(unsigned char * data, int width, int height, int s
  * to drawing the patch for values of the interpolation parameter in
  * [0,1] (including both extremes).
  */
-static inline void rasterize_bezier_patch(unsigned char * data, int width, int height, int stride, int vshift,
+static inline void rasterize_bezier_patch(uchar * data, int width, int height, int stride, int vshift,
     cairo_point_double_t p[4][4], double col[4][4])
 {
 	double pv[4][2][4], cstart[4], cend[4], dcstart[4], dcend[4];
@@ -766,7 +766,7 @@ static inline void rasterize_bezier_patch(unsigned char * data, int width, int h
  * This function can be used to rasterize a tile of PDF type 7
  * shadings (see http://www.adobe.com/devnet/pdf/pdf_reference.html).
  */
-static void draw_bezier_patch(unsigned char * data, int width, int height, int stride,
+static void draw_bezier_patch(uchar * data, int width, int height, int stride,
     cairo_point_double_t p[4][4], double c[4][4])
 {
 	double top, bottom, left, right, steps_sq;
@@ -906,7 +906,7 @@ void _cairo_mesh_pattern_rasterize(const cairo_mesh_pattern_t * mesh, void * dat
 		colors[3][2] = c->blue;
 		colors[3][3] = c->alpha;
 
-		draw_bezier_patch((unsigned char *)data, width, height, stride, nodes, colors);
+		draw_bezier_patch((uchar *)data, width, height, stride, nodes, colors);
 		patch++;
 	}
 }

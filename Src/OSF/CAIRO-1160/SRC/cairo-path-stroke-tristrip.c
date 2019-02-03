@@ -39,11 +39,11 @@
 #include "cairoint.h"
 #pragma hdrstop
 #define _DEFAULT_SOURCE /* for hypot() */
-#include "cairo-box-inline.h"
-#include "cairo-boxes-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-box-inline.h"
+//#include "cairo-boxes-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-path-fixed-private.h"
-#include "cairo-slope-private.h"
+//#include "cairo-slope-private.h"
 #include "cairo-tristrip-private.h"
 
 struct stroker {
@@ -711,10 +711,8 @@ static void compute_face(const cairo_point_t * point,
 	 */
 	if(!_cairo_matrix_is_identity(stroker->ctm_inverse)) {
 		/* Normalize the matrix! */
-		cairo_matrix_transform_distance(stroker->ctm_inverse,
-		    &slope_dx, &slope_dy);
+		cairo_matrix_transform_distance(stroker->ctm_inverse, &slope_dx, &slope_dy);
 		normalize_slope(&slope_dx, &slope_dy);
-
 		if(stroker->ctm_det_positive) {
 			face_dx = -slope_dy * (stroker->style.line_width / 2.0);
 			face_dy = slope_dx * (stroker->style.line_width / 2.0);
@@ -723,7 +721,6 @@ static void compute_face(const cairo_point_t * point,
 			face_dx = slope_dy * (stroker->style.line_width / 2.0);
 			face_dy = -slope_dx * (stroker->style.line_width / 2.0);
 		}
-
 		/* back to device space */
 		cairo_matrix_transform_distance(stroker->ctm, &face_dx, &face_dy);
 	}
@@ -731,43 +728,31 @@ static void compute_face(const cairo_point_t * point,
 		face_dx = -slope_dy * (stroker->style.line_width / 2.0);
 		face_dy = slope_dx * (stroker->style.line_width / 2.0);
 	}
-
 	offset_ccw.x = _cairo_fixed_from_double(face_dx);
 	offset_ccw.y = _cairo_fixed_from_double(face_dy);
 	offset_cw.x = -offset_ccw.x;
 	offset_cw.y = -offset_ccw.y;
-
 	face->ccw = *point;
 	translate_point(&face->ccw, &offset_ccw);
-
 	face->point = *point;
-
 	face->cw = *point;
 	translate_point(&face->cw, &offset_cw);
-
 	face->usr_vector.x = slope_dx;
 	face->usr_vector.y = slope_dy;
-
 	face->dev_vector = *dev_slope;
 }
 
 static void add_caps(struct stroker * stroker)
 {
 	/* check for a degenerative sub_path */
-	if(stroker->has_sub_path &&
-	    !stroker->has_first_face &&
-	    !stroker->has_current_face &&
-	    stroker->style.line_cap == CAIRO_LINE_CAP_ROUND) {
+	if(stroker->has_sub_path && !stroker->has_first_face && !stroker->has_current_face && stroker->style.line_cap == CAIRO_LINE_CAP_ROUND) {
 		/* pick an arbitrary slope to use */
 		cairo_slope_t slope = { CAIRO_FIXED_ONE, 0 };
 		cairo_stroke_face_t face;
-
 		/* arbitrarily choose first_point */
 		compute_face(&stroker->first_point, &slope, stroker, &face);
-
 		add_leading_cap(stroker, &face);
 		add_trailing_cap(stroker, &face);
-
 		/* ensure the circle is complete */
 		//_cairo_contour_add_point (&stroker->ccw.contour,
 		//_cairo_contour_first_point (&stroker->ccw.contour));
@@ -775,10 +760,8 @@ static void add_caps(struct stroker * stroker)
 	else {
 		if(stroker->has_current_face)
 			add_trailing_cap(stroker, &stroker->current_face);
-
 		//_cairo_polygon_add_contour (stroker->polygon, &stroker->ccw.contour);
 		//_cairo_contour_reset (&stroker->ccw.contour);
-
 		if(stroker->has_first_face) {
 			//_cairo_contour_add_point (&stroker->ccw.contour,
 			//&stroker->first_face.cw);

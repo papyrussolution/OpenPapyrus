@@ -32,7 +32,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-atomic-private.h"
+//#include "cairo-atomic-private.h"
 #include "cairo-mutex-private.h"
 
 #ifdef HAS_ATOMIC_OPS

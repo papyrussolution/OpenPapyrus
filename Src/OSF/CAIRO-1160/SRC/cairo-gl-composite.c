@@ -46,9 +46,9 @@
 #pragma hdrstop
 #if CAIRO_HAS_GL_SURFACE // {
 #include "cairo-gl-private.h"
-#include "cairo-composite-rectangles-private.h"
-#include "cairo-clip-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-composite-rectangles-private.h"
+//#include "cairo-clip-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-image-surface-private.h"
 
 /* FIXME: Copy of same routine in cairo-gl-msaa-compositor.c */

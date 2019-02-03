@@ -834,7 +834,7 @@ int SLAPI SetupTreeListBox(TDialog * dlg, uint ctl, StrAssocArray * pData, uint 
 	int    ok = -1;
 	SmartListBox * p_box = (SmartListBox *)dlg->getCtrlView(ctl);
 	if(p_box) {
-		p_box->options |= lbfl;
+		p_box->ViewOptions |= lbfl;
 		StdTreeListBoxDef * p_def = new StdTreeListBoxDef(pData, NZOR(fl, (lbtDisposeData|lbtDblClkNotify)), 0);
 		if(p_def == 0)
 			ok = PPSetErrorNoMem();
@@ -3273,7 +3273,7 @@ int SCardSelExtra::Search(long id, SString & rBuf)
 //
 //
 //
-ObjTagSelExtra::ObjTagSelExtra(PPID objType, PPID tagID) : WordSel_ExtraBlock(0, 0, 0, 0, 3), ObjType(objType), TagID(tagID), Flags(0), LocID(0)
+ObjTagSelExtra::ObjTagSelExtra(PPID objType, PPID tagID) : WordSel_ExtraBlock(0, 0, 0, 0, 3), ObjType(objType), TagID(tagID), LocalFlags(0), LocID(0)
 {
 	CtrlTextMode = true;
 	if(objType == PPOBJ_LOT && tagID == PPTAG_LOT_SN) {
@@ -3317,7 +3317,7 @@ StrAssocArray * ObjTagSelExtra::GetList(const char * pText)
 							if(by_lot_serial) {
 								ReceiptTbl::Rec lot_rec;
 								if(p_bobj->trfr->Rcpt.Search(item.Id, &lot_rec) > 0) {
-									if((!LocID || lot_rec.LocID == LocID) && (!(Flags & fOpenedSerialsOnly) || lot_rec.Closed == 0)) {
+									if((!LocID || lot_rec.LocID == LocID) && (!(LocalFlags & lfOpenedSerialsOnly) || lot_rec.Closed == 0)) {
 										ReceiptCore::MakeCodeString(&lot_rec, 0, obj_name_buf);
 										do_add = 1;
 									}
@@ -5899,7 +5899,7 @@ void SLAPI SetupTimePicker(TDialog * pDlg, uint editCtlID, int buttCtlID)
 			SETIFZ(hbm_clock, APPL->LoadBitmap(IDB_CLOCK));
 			LEAVE_CRITICAL_SECTION
 		}
-		::SendMessage(hwnd, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hbm_clock);
+		::SendMessage(hwnd, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(hbm_clock));
 	}
 }
 //
@@ -6525,7 +6525,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 				line_buf.Z().CatChar('\\').Cat("begin").CatChar('{').Cat("description").CatChar('}').CR();
 				f_out_manual.WriteLine(line_buf);
 			}
-			if(EnumChildWindows(dlg->H(), GetChildWindowsList, (LPARAM)&child_list)) {
+			if(EnumChildWindows(dlg->H(), GetChildWindowsList, reinterpret_cast<LPARAM>(&child_list))) {
 				for(uint i = 0; i < child_list.getCount(); i++) {
 					if(!seen_pos_list.lsearch((long)i)) {
 						prop_list.Z();

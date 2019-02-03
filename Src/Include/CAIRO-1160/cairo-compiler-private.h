@@ -38,10 +38,10 @@
 #ifndef CAIRO_COMPILER_PRIVATE_H
 #define CAIRO_COMPILER_PRIVATE_H
 
-#include "cairo.h"
-#if HAVE_CONFIG_H
-	#include "config.h"
-#endif
+//#include "cairo.h"
+//#if HAVE_CONFIG_H
+	//#include "config.h"
+//#endif
 
 /* Size in bytes of buffer to use off the stack per functions.
  * Mostly used by text functions.  For larger allocations, they'll
@@ -90,41 +90,34 @@
   extern __typeof (name) name						\
 	__asm__ (slim_hidden_asmname (internal))
 # define slim_hidden_def1(name, internal)				\
-  extern __typeof (name) EXT_##name __asm__(slim_hidden_asmname(name))	\
-	__attribute__((__alias__(slim_hidden_asmname(internal))))
+  extern __typeof (name) EXT_##name __asm__(slim_hidden_asmname(name)) __attribute__((__alias__(slim_hidden_asmname(internal))))
 # define slim_hidden_ulp		slim_hidden_ulp1(__USER_LABEL_PREFIX__)
 # define slim_hidden_ulp1(x)		slim_hidden_ulp2(x)
 # define slim_hidden_ulp2(x)		#x
 # define slim_hidden_asmname(name)	slim_hidden_asmname1(name)
 # define slim_hidden_asmname1(name)	slim_hidden_ulp #name
 #else
-# define slim_hidden_proto(name)		int _cairo_dummy_prototype(void)
-# define slim_hidden_proto_no_warn(name)	int _cairo_dummy_prototype(void)
-# define slim_hidden_def(name)			int _cairo_dummy_prototype(void)
+	#define slim_hidden_proto(name)		int _cairo_dummy_prototype(void)
+	#define slim_hidden_proto_no_warn(name)	int _cairo_dummy_prototype(void)
+	#define slim_hidden_def(name)			int _cairo_dummy_prototype(void)
 #endif
-
 #if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ > 4)
-#define CAIRO_PRINTF_FORMAT(fmt_index, va_index) \
-	__attribute__((__format__(__printf__, fmt_index, va_index)))
+	#define CAIRO_PRINTF_FORMAT(fmt_index, va_index) __attribute__((__format__(__printf__, fmt_index, va_index)))
 #else
-#define CAIRO_PRINTF_FORMAT(fmt_index, va_index)
+	#define CAIRO_PRINTF_FORMAT(fmt_index, va_index)
 #endif
-
 /* slim_internal.h */
 #define CAIRO_HAS_HIDDEN_SYMBOLS 1
-#if (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 3)) && \
-    (defined(__ELF__) || defined(__APPLE__)) &&			\
-    !defined(__sun)
-#define cairo_private_no_warn	__attribute__((__visibility__("hidden")))
+#if (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 3)) && (defined(__ELF__) || defined(__APPLE__)) && !defined(__sun)
+	#define cairo_private_no_warn	__attribute__((__visibility__("hidden")))
 #elif defined(__SUNPRO_C) && (__SUNPRO_C >= 0x550)
-#define cairo_private_no_warn	__hidden
+	#define cairo_private_no_warn	__hidden
 #else /* not gcc >= 3.3 and not Sun Studio >= 8 */
-#define cairo_private_no_warn
-#undef CAIRO_HAS_HIDDEN_SYMBOLS
+	#define cairo_private_no_warn
+	#undef CAIRO_HAS_HIDDEN_SYMBOLS
 #endif
-
 #ifndef WARN_UNUSED_RESULT
-#define WARN_UNUSED_RESULT
+	#define WARN_UNUSED_RESULT
 #endif
 /* Add attribute(warn_unused_result) if supported */
 #define cairo_warn	    WARN_UNUSED_RESULT
@@ -142,12 +135,11 @@
    function.
 */
 #if __GNUC__ >= 2 && defined(__ELF__)
-# define CAIRO_FUNCTION_ALIAS(old, new)		\
-	extern __typeof (new) old		\
+# define CAIRO_FUNCTION_ALIAS(old, new) extern __typeof (new) old		\
 	__asm__ ("" #old)			\
 	__attribute__((__alias__("" #new)))
 #else
-# define CAIRO_FUNCTION_ALIAS(old, new)
+	#define CAIRO_FUNCTION_ALIAS(old, new)
 #endif
 
 /*
@@ -171,45 +163,41 @@
  * do not change across the function call.
  */
 #if __GNUC__ >= 3
-#define cairo_pure __attribute__((pure))
-#define cairo_const __attribute__((const))
-#define cairo_always_inline inline __attribute__((always_inline))
+	#define cairo_pure __attribute__((pure))
+	#define cairo_const __attribute__((const))
+	#define cairo_always_inline inline __attribute__((always_inline))
 #else
-#define cairo_pure
-#define cairo_const
-#define cairo_always_inline inline
+	#define cairo_pure
+	#define cairo_const
+	#define cairo_always_inline inline
 #endif
-
 #if defined(__GNUC__) && (__GNUC__ > 2) && defined(__OPTIMIZE__)
-#define likely(expr) (__builtin_expect (!!(expr), 1))
-#define unlikely(expr) (__builtin_expect (!!(expr), 0))
+	#define likely(expr) (__builtin_expect (!!(expr), 1))
+	#define unlikely(expr) (__builtin_expect (!!(expr), 0))
 #else
-#define likely(expr) (expr)
-#define unlikely(expr) (expr)
+	#define likely(expr) (expr)
+	#define unlikely(expr) (expr)
 #endif
-
 #ifndef __GNUC__
-#undef __attribute__
-#define __attribute__(x)
+	#undef __attribute__
+	#define __attribute__(x)
 #endif
-
 #if (defined(__WIN32__) && !defined(__WINE__)) || defined(_MSC_VER)
-#define access _access
-#define fdopen _fdopen
-#define hypot _hypot
-#define pclose _pclose
-#define popen _popen
-#define snprintf _snprintf
-#define strdup _strdup
-#define unlink _unlink
-#define vsnprintf _vsnprintf
+	#define access _access
+	#define fdopen _fdopen
+	#define hypot _hypot
+	#define pclose _pclose
+	#define popen _popen
+	#define snprintf _snprintf
+	#define strdup _strdup
+	#define unlink _unlink
+	#define vsnprintf _vsnprintf
 #endif
-
 #ifdef _MSC_VER
-#ifndef __cplusplus
-#undef inline
-#define inline __inline
-#endif
+	#ifndef __cplusplus
+		#undef inline
+		#define inline __inline
+	#endif
 #endif
 
 #if defined(_MSC_VER) && defined(_M_IX86)
@@ -231,12 +219,11 @@
 	};                                        \
     } while (0)
 #else
-#define CAIRO_ENSURE_UNIQUE    do { } while (0)
+	#define CAIRO_ENSURE_UNIQUE    do { } while (0)
 #endif
-
 #ifdef __STRICT_ANSI__
-#undef inline
-#define inline __inline__
+	#undef inline
+	#define inline __inline__
 #endif
 
 #endif

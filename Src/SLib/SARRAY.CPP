@@ -1671,6 +1671,23 @@ int SLAPI RAssocArray::GetList(LongArray & rList, int unique) const
 	return ok;
 }
 
+int SLAPI RAssocArray::SearchMaxVal(uint * pPos) const
+{
+	int    ok = 0;
+	double max_val = -MAXDOUBLE;
+	uint   max_val_pos = 0;
+	for(uint i = 0; i < getCount(); i++) {
+		const RAssoc & r_item = at(i);
+		if(max_val < r_item.Val) {
+			max_val = r_item.Val;
+			max_val_pos = i;
+			ok = 1;
+		}
+	}
+	ASSIGN_PTR(pPos, max_val_pos);
+	return ok;
+}
+
 #define OPTIMIZE_LOOP
 
 void SLAPI RAssocArray::Scale(double rate)

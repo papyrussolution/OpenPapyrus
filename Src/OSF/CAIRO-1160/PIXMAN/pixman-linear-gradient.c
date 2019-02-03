@@ -69,7 +69,7 @@ static pixman_bool_t linear_gradient_is_horizontal(pixman_image_t * image, int x
 	return FALSE;
 }
 
-static uint32_t * linear_get_scanline_narrow(pixman_iter_t  * iter, const uint32_t * mask)
+static uint32_t * linear_get_scanline_narrow(pixman_iter_t * iter, const uint32_t * mask)
 {
 	pixman_image_t * image  = iter->image;
 	int x      = iter->x;
@@ -165,7 +165,7 @@ static uint32_t * linear_get_scanline_wide(pixman_iter_t * iter, const uint32_t 
 	return buffer;
 }
 
-void _pixman_linear_gradient_iter_init(pixman_image_t * image, pixman_iter_t  * iter)
+void _pixman_linear_gradient_iter_init(pixman_image_t * image, pixman_iter_t * iter)
 {
 	if(linear_gradient_is_horizontal(iter->image, iter->x, iter->y, iter->width, iter->height)) {
 		if(iter->iter_flags & ITER_NARROW)

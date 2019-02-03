@@ -1,5 +1,5 @@
 // TRANSP.CPP
-// Copyright (c) A.Sobolev 1999, 2006, 2010, 2016, 2017
+// Copyright (c) A.Sobolev 1999, 2006, 2010, 2016, 2017, 2019
 // Transpositions
 //
 #include <slib.h>
@@ -9,7 +9,7 @@
 struct Transpos {
 	Transpos();
 	~Transpos();
-	void   Init(long sz, long stop, long pattern[]);
+	void   Init(long sz, long stop, const long pattern[]);
 	int    CheckForTermination();
 	void   Swap(long i, long j);
 	int    Transposition(long order);
@@ -33,7 +33,7 @@ Transpos::~Transpos()
 	SAlloc::F(P_Pattern);
 }
 
-void Transpos::Init(long sz, long stop, long pattern[])
+void Transpos::Init(long sz, long stop, const long pattern[])
 {
 	int    i;
 	Size = sz;
@@ -82,8 +82,8 @@ void Transpos::Print()
 
 void Transpos::Swap(long _i, long _j)
 {
-	const size_t i = (size_t)_i;
-	const size_t j = (size_t)_j;
+	const size_t i = static_cast<const size_t>(_i);
+	const size_t j = static_cast<const size_t>(_j);
 	//long   t = P_List[i-1];
    	//P_List[i-1] = P_List[j-1];
 	//P_List[j-1] = t;

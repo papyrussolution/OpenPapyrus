@@ -182,27 +182,27 @@ int SLAPI PPReckonOpEx::StrToPeriod(const char * pBuf)
 	return 1;
 }
 
-int SLAPI PPReckonOpEx::GetReckonPeriod(LDATE debtDate, DateRange * pPeriod) const
+int SLAPI PPReckonOpEx::GetReckonPeriod(LDATE debtDate, DateRange & rPeriod) const
 {
 	if(checkdrange(debtDate, Beg, End)) {
-		pPeriod->low = (Beg == 0 && Flags & ROXF_BEGISBILLDT) ? debtDate : ZERODATE;
-		pPeriod->upp = (End == 0 && Flags & ROXF_ENDISBILLDT) ? debtDate : ZERODATE;
+		rPeriod.low = (Beg == 0 && Flags & ROXF_BEGISBILLDT) ? debtDate : ZERODATE;
+		rPeriod.upp = (End == 0 && Flags & ROXF_ENDISBILLDT) ? debtDate : ZERODATE;
 		return 1;
 	}
 	else {
-		pPeriod->low.v = pPeriod->upp.v = MAXLONG;
+		rPeriod.SetDate(MAXDATE);
 		return -1;
 	}
 }
 
-void SLAPI PPReckonOpEx::GetDebtPeriod(LDATE paymDate, DateRange * pPeriod) const
+void SLAPI PPReckonOpEx::GetDebtPeriod(LDATE paymDate, DateRange & rPeriod) const
 {
-	pPeriod->low = Beg;
-	pPeriod->upp = End;
-	if(pPeriod->low == 0 && Flags & ROXF_BEGISBILLDT)
-		pPeriod->low = paymDate;
-	if(pPeriod->upp == 0 && Flags & ROXF_ENDISBILLDT)
-		pPeriod->upp = paymDate;
+	rPeriod.low = Beg;
+	rPeriod.upp = End;
+	if(rPeriod.low == 0 && Flags & ROXF_BEGISBILLDT)
+		rPeriod.low = paymDate;
+	if(rPeriod.upp == 0 && Flags & ROXF_ENDISBILLDT)
+		rPeriod.upp = paymDate;
 }
 //
 // PPBillPoolOpEx
@@ -335,8 +335,8 @@ struct OpkListEntry {
 
 static IMPL_CMPFUNC(OpkListEntry, i1, i2)
 {
-	const OpkListEntry * p_i1 = (const OpkListEntry *)i1;
-	const OpkListEntry * p_i2 = (const OpkListEntry *)i2;
+	const OpkListEntry * p_i1 = static_cast<const OpkListEntry *>(i1);
+	const OpkListEntry * p_i2 = static_cast<const OpkListEntry *>(i2);
 	if(p_i1->rank > p_i2->rank)
 		return -1;
 	else if(p_i1->rank < p_i2->rank)
@@ -375,7 +375,7 @@ StrAssocArray * SLAPI PPObjOprKind::MakeOprKindList(PPID linkOprKind, const PPID
 	{
 		THROW_MEM(p_list = new StrAssocArray);
 		for(uint i = 0; i < temp_list.getCount(); i++) {
-			const OpkListEntry * p_entry = (const OpkListEntry *)temp_list.at(i);
+			const OpkListEntry * p_entry = static_cast<const OpkListEntry *>(temp_list.at(i));
 			THROW_SL(p_list->Add(p_entry->id, p_entry->name));
 		}
 	}
@@ -388,7 +388,7 @@ StrAssocArray * SLAPI PPObjOprKind::MakeOprKindList(PPID linkOprKind, const PPID
 int FASTCALL SetupOprKindCombo(TDialog * dlg, uint ctl, PPID id, uint /*olwFlags*/, const PPIDArray * pOpList, uint opklFlags)
 {
 	int    ok = 0;
-	ComboBox * p_combo = (ComboBox *)dlg->getCtrlView(ctl);
+	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctl));
 	if(p_combo) {
 		StrAssocArray * p_list = PPObjOprKind::MakeOprKindList(0, pOpList, opklFlags);
 		PPObjListWindow * p_lw = new PPObjListWindow(PPOBJ_OPRKIND, p_list, lbtDisposeData|lbtDblClkNotify, 0);
@@ -418,7 +418,7 @@ PPID SLAPI SelectOpKind(PPID linkOpID, PPIDArray * pOpList, uint opklFlags)
 		THROW(p_lw = CreateListWindow(p_ary, lbtDisposeData|lbtDblClkNotify));
 		THROW(PPLoadText(PPTXT_SELECTOPRKIND, title_buf));
 		p_lw->setTitle(title_buf);
-		p_lw->options |= (ofCenterX | ofCenterY);
+		p_lw->ViewOptions |= (ofCenterX | ofCenterY);
 		if(ExecView(p_lw) == cmOK)
 			p_lw->getResult(&id);
 		else
@@ -542,7 +542,7 @@ int SLAPI PPObjOprKind::PutPacket(PPID * pID, PPOprKindPacket * pack, int use_ta
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		if(pack->Rec.OpTypeID == PPOPT_INVENTORY)
+		if(pack->Rec.OpTypeID == PPOPT_INVENTORY) {
 			if(pack->P_IOE && pack->P_IOE->Flags & INVOPF_COSTNOMINAL) {
 				pack->Rec.Flags |= OPKF_BUYING;
 				pack->Rec.Flags &= ~OPKF_SELLING;
@@ -551,6 +551,7 @@ int SLAPI PPObjOprKind::PutPacket(PPID * pID, PPOprKindPacket * pack, int use_ta
 				pack->Rec.Flags |= OPKF_SELLING;
 				pack->Rec.Flags &= ~OPKF_BUYING;
 			}
+		}
 		// AHTOXA
 		THROW(r = opc_obj.GetPacket(pack->Rec.OpCounterID, &opc_pack));
 		if(r > 0) {
@@ -642,12 +643,12 @@ int SLAPI PPObjOprKind::SetReckonExData(PPID id, PPReckonOpEx * pData, int use_t
 		THROW_SL(temp.add((long)pData->End));
 		THROW_SL(temp.add(pData->Flags));
 		THROW_SL(temp.add(pData->PersonRelTypeID));
-		for(i = 0; i < sizeof(pData->Reserve) / sizeof(long); i++)
+		for(i = 0; i < SIZEOFARRAY(pData->Reserve); i++)
 			THROW_SL(temp.add(pData->Reserve[i]));
 		for(i = 0; i < pData->OpList.getCount(); i++)
 			THROW_SL(temp.add(pData->OpList.at(i)));
 	}
-	THROW(ref->PutPropArray(Obj, id, OPKPRP_PAYMOPLIST, (pData ? &temp : (PPIDArray*)0), use_ta));
+	THROW(ref->PutPropArray(Obj, id, OPKPRP_PAYMOPLIST, (pData ? &temp : static_cast<PPIDArray *>(0)), use_ta));
 	CATCHZOK
 	return ok;
 }
@@ -683,7 +684,6 @@ struct PPDraftOpEx_Strg {
 	PPID   Tag;              // Const = PPOBJ_OPRKIND
 	PPID   ID;               // -> PPOprKind::ID
 	PPID   Prop;             // Const = OPKPRP_DRAFT
-
 	long   ReserveCnt;
 	PPID   WrOffOpID;
 	long   Flags;
@@ -740,7 +740,7 @@ int SLAPI PPObjOprKind::SetPoolExData(PPID id, PPBillPoolOpEx * pData, int use_t
 	if(pData) {
 		uint   i;
 		THROW_SL(temp.add(pData->Flags));
-		for(i = 0; i < sizeof(pData->Reserve) / sizeof(long); i++)
+		for(i = 0; i < SIZEOFARRAY(pData->Reserve); i++)
 			THROW(temp.add(pData->Reserve[i]));
 		for(i = 0; i < pData->OpList.getCount(); i++)
 			THROW(temp.add(pData->OpList.at(i)));
@@ -795,8 +795,7 @@ int FASTCALL GetOpList(PPID opTypeID, PPIDArray * pList)
 	PPOprKind op_rec;
 	for(SEnum en = PPRef->Enum(PPOBJ_OPRKIND, 0); en.Next(&op_rec) > 0;) {
 		if(!opTypeID || op_rec.OpTypeID == opTypeID) {
-			if(pList)
-				pList->addUnique(op_rec.ID);
+			CALLPTRMEMB(pList, addUnique(op_rec.ID));
 			ok = 1;
 		}
 	}
@@ -1089,7 +1088,7 @@ int SLAPI PPObjOprKind::MakeReserved(long flags)
 // virtual
 StrAssocArray * SLAPI PPObjOprKind::MakeStrAssocList(void * extraPtr)
 {
-	const PPID op_type_id = (PPID)extraPtr;
+	const PPID op_type_id = reinterpret_cast<const PPID>(extraPtr);
 	PPIDArray op_list;
 	op_list.add(op_type_id);
 	return MakeOprKindList(0, (op_type_id ? &op_list : 0), 0);
@@ -1117,15 +1116,14 @@ private:
 	virtual int  delItem(long pos, long id);
 	void   addBySample();
 
-	int    ExtDataKind;
+	const int ExtDataKind;
 	PPID   OpTypeID;
 	PPID   LinkOpID_;
 	PPID   OpCounterID;
 	PPObjOprKind OpObj;
 };
 
-OprKindView::OprKindView(PPID extData, int extDataKind) :
-	PPListDialog(((extDataKind == 2) ? DLG_OPLINKSVIEW : DLG_OPKVIEW), CTL_OPKVIEW_LIST),
+OprKindView::OprKindView(PPID extData, int extDataKind) : PPListDialog(((extDataKind == 2) ? DLG_OPLINKSVIEW : DLG_OPKVIEW), CTL_OPKVIEW_LIST),
 	ExtDataKind(extDataKind), OpTypeID(0), LinkOpID_(0)
 {
 	if(ExtDataKind == 3) {
@@ -1389,7 +1387,7 @@ void OprKindDialog::setup()
 	else {
 		types.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, 0L);
 		if(P_Data->Rec.OpTypeID == PPOPT_PAYMENT) {
-			types.addzlist(PPOPT_ACCTURN, PPOPT_CHARGE, PPOPT_GOODSACK, PPOPT_POOL, PPOPT_GOODSORDER, PPOPT_DRAFTRECEIPT, 
+			types.addzlist(PPOPT_ACCTURN, PPOPT_CHARGE, PPOPT_GOODSACK, PPOPT_POOL, PPOPT_GOODSORDER, PPOPT_DRAFTRECEIPT,
 				PPOPT_DRAFTEXPEND, PPOPT_CORRECTION, 0L); // @v10.3.2 PPOPT_CORRECTION
 		}
 		else if(P_Data->Rec.OpTypeID == PPOPT_CHARGE)
@@ -1620,7 +1618,7 @@ void OprKindDialog::updateList()
 		if(IsGeneric) {
 			if(P_Data->P_GenList) {
 				ObjRestrictItem * p_ori;
-				for(uint i = 0; P_Data->P_GenList->enumItems(&i, (void**)&p_ori);) {
+				for(uint i = 0; P_Data->P_GenList->enumItems(&i, reinterpret_cast<void **>(&p_ori));) {
 					StringSet ss(SLBColumnDelim);
 					GetOpName(p_ori->ObjID, sub);
 					ss.add(sub);
@@ -1634,7 +1632,7 @@ void OprKindDialog::updateList()
 		}
 		else {
 			PPAccTurnTempl * e;
-			for(uint i = 0; P_Data->ATTmpls.enumItems(&i, (void**)&e);) {
+			for(uint i = 0; P_Data->ATTmpls.enumItems(&i, reinterpret_cast<void **>(&e));) {
 				StringSet ss(SLBColumnDelim);
 				THROW(setAccTextToList(e->DbtID, e->Flags, ATTF_DACCFIX, ATTF_DARTFIX, sub));
 				ss.add(sub);
@@ -1946,14 +1944,12 @@ void OprKindDialog::editOptions2(uint dlgID, int useMainAmt, const PPIDArray * p
 				v = i;
 			dlg->setCtrlData(CTL_OPKMORE_SUBTYPE, &v);
 		}
-		// @v8.8.6 {
 		if(dlg->getCtrlView(CTL_OPKMORE_MCR)) {
 			dlg->AddClusterAssoc(CTL_OPKMORE_MCR, 0, OPKFX_MCR_GROUP);
 			dlg->AddClusterAssoc(CTL_OPKMORE_MCR, 1, OPKFX_MCR_SUBSTSTRUC);
 			dlg->AddClusterAssoc(CTL_OPKMORE_MCR, 2, OPKFX_MCR_EQQTTY);
 			dlg->SetClusterData(CTL_OPKMORE_MCR, ext_f);
 		}
-		// } @v8.8.6
 		while(!valid_data && ExecView(dlg) == cmOK) {
 			dlg->getCtrlData(CTL_OPKMORE_FLAGS,  &(v = 0));
 			for(i = 0; i < options.getCount(); i++) {
@@ -1966,11 +1962,9 @@ void OprKindDialog::editOptions2(uint dlgID, int useMainAmt, const PPIDArray * p
 				ext_o = (ulong)ext_options.at(i);
 				SETFLAG(ext_f, ext_o, v & (1 << i));
 			}
-			// @v8.8.6 {
 			if(dlg->getCtrlView(CTL_OPKMORE_MCR)) {
 				dlg->GetClusterData(CTL_OPKMORE_MCR, &ext_f);
 			}
-			// } @v8.8.6
 			if(useMainAmt) {
 				// ahtoxa {
 				PPBillPacket bill_pack;
@@ -2166,13 +2160,11 @@ void OprKindDialog::editExtension()
 			GoodsCtrlGroup::Rec wu_goods_rec(0, rec.WrUpGoodsID, 0, GoodsCtrlGroup::enableInsertGoods);
 			dlg->addGroup(1, new GoodsCtrlGroup(CTLSEL_OPKDINVE_WD_GRP, CTLSEL_OPKDINVE_WD_GOODS));
 			dlg->addGroup(2, new GoodsCtrlGroup(CTLSEL_OPKDINVE_WU_GRP, CTLSEL_OPKDINVE_WU_GOODS));
-			op_type_list.add(PPOPT_ACCTURN);
-			op_type_list.add(PPOPT_GOODSRECEIPT);
-			op_type_list.add(PPOPT_GOODSEXPEND);
+			op_type_list.addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, 0);
 			SetupOprKindCombo(dlg, CTLSEL_OPKDINVE_WRDNOP, rec.WrDnOp, 0, &op_type_list, 0);
 			dlg->setGroupData(1, &wd_goods_rec);
 			dlg->setGroupData(2, &wu_goods_rec);
-			SetupPPObjCombo(dlg, CTLSEL_OPKDINVE_WRUPOP, PPOBJ_OPRKIND, rec.WrUpOp, 0, (void *)PPOPT_ACCTURN);
+			SetupPPObjCombo(dlg, CTLSEL_OPKDINVE_WRUPOP, PPOBJ_OPRKIND, rec.WrUpOp, 0, reinterpret_cast<void *>(PPOPT_ACCTURN));
 			if(ExecView(dlg) == cmOK) {
 				dlg->getCtrlData(CTLSEL_OPKDINVE_WRDNOP, &rec.WrDnOp);
 				dlg->getGroupData(1, &wd_goods_rec);
@@ -2301,7 +2293,7 @@ int OpListDialog::setupList()
 {
 	SString name_buf;
 	for(uint i = 0; i < OpListData.getCount(); i++) {
-		PPID   id = OpListData.at(i);
+		const PPID id = OpListData.at(i);
 		if(GetObjectName(PPOBJ_OPRKIND, id, name_buf = 0, 0) <= 0)
 			ideqvalstr(id, name_buf);
 		if(!addStringToList(id, name_buf))
@@ -2352,8 +2344,8 @@ int OpListDialog::editItem(long /*pos*/, long id)
 int OpListDialog::delItem(long pos, long /*id*/)
 {
 	int    ok = 0;
-	if(pos >= 0 && pos < (long)OpListData.getCount()) {
-		OpListData.atFree((uint)pos);
+	if(pos >= 0 && pos < static_cast<long>(OpListData.getCount())) {
+		OpListData.atFree(static_cast<uint>(pos));
 		ok = 1;
 	}
 	return ok;
@@ -2365,8 +2357,7 @@ void OprKindDialog::editPaymList()
 {
 	class OpkPaymListDialog : public OpListDialog {
 	public:
-		OpkPaymListDialog(PPReckonOpEx * pData, PPIDArray * pOpTypesList) :
-			OpListDialog(DLG_OPRPOP, CTL_OPRPOP_LIST, &pData->OpList, pOpTypesList)
+		OpkPaymListDialog(PPReckonOpEx * pData, PPIDArray * pOpTypesList) : OpListDialog(DLG_OPRPOP, CTL_OPRPOP_LIST, &pData->OpList, pOpTypesList)
 		{
 			setDTS(pData);
 		}
@@ -2384,6 +2375,7 @@ void OprKindDialog::editPaymList()
 			AddClusterAssoc(CTL_OPRPOP_FLAGS, 5, ROXF_BYEXTOBJ);
 			AddClusterAssoc(CTL_OPRPOP_FLAGS, 6, ROXF_REQALTOBJ);
 			AddClusterAssoc(CTL_OPRPOP_FLAGS, 7, ROXF_THISALTOBJONLY);
+			AddClusterAssoc(CTL_OPRPOP_FLAGS, 8, ROXF_RECKONNEGONLY); // @v10.3.2
 			SetClusterData(CTL_OPRPOP_FLAGS, data.Flags);
 			SetupPPObjCombo(this, CTLSEL_OPRPOP_PSNRELTYPE, PPOBJ_PERSONRELTYPE, data.PersonRelTypeID, 0, 0);
 			setOpList(&data.OpList);
@@ -2853,12 +2845,12 @@ int SLAPI PPObjOprKind::Read(PPObjPack * p, PPID id, void * stream, ObjTransmCon
 	int    ok = 1;
 	THROW_MEM(p->Data = new PPOprKindPacket);
 	if(stream == 0) {
-		THROW(GetPacket(id, (PPOprKindPacket*)p->Data) > 0);
+		THROW(GetPacket(id, static_cast<PPOprKindPacket *>(p->Data)) > 0);
 	}
 	else {
 		SBuffer buffer;
 		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
-		THROW(SerializePacket(-1, (PPOprKindPacket *)p->Data, buffer, &pCtx->SCtx));
+		THROW(SerializePacket(-1, static_cast<PPOprKindPacket *>(p->Data), buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -2868,7 +2860,7 @@ int SLAPI PPObjOprKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTrans
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPOprKindPacket * p_pack = (PPOprKindPacket*)p->Data;
+		PPOprKindPacket * p_pack = static_cast<PPOprKindPacket *>(p->Data);
 		if(stream == 0) {
 			PPID   same_id = 0;
 			PPOprKind same_rec;

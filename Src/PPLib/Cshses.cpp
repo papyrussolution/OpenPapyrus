@@ -1,5 +1,5 @@
 // CSHSES.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 // Интерфейс с асинхронными кассовыми устройствами
@@ -128,7 +128,7 @@ const PPGoodsConfig & SLAPI PPAsyncCashSession::GetGoodsCfg()
 		P_GCfg = new PPGoodsConfig;
 		PPObjGoods::ReadConfig(P_GCfg);
 	}
-	return P_GCfg ? *P_GCfg : (PPSetErrorNoMem(), *(PPGoodsConfig *)0);
+	return P_GCfg ? *P_GCfg : (PPSetErrorNoMem(), *static_cast<PPGoodsConfig *>(0));
 }
 
 PPID SLAPI PPAsyncCashSession::GetLocation()
@@ -170,7 +170,7 @@ void SLAPI PPAsyncCashSession::SetupTempCcLineRec(TempCCheckLineTbl::Rec * pRec,
 	pRec->CheckID   = ccID;
 	pRec->CheckCode = ccCode;
 	pRec->Dt        = dt;
-	pRec->DivID     = (int16)div;
+	pRec->DivID     = static_cast<int16>(div);
 	pRec->GoodsID   = goodsID;
 }
 
@@ -247,18 +247,18 @@ int SLAPI PPAsyncCashSession::SearchTempCheckByTime(PPID cashID, const LDATETIME
 }
 
 int SLAPI PPAsyncCashSession::AddTempCheck(PPID * pID, long sessNumber, long flags,
-	PPID cashID, PPID code, PPID user, PPID cardID, LDATETIME * pDT, double amt, double dscnt/*, double addPaym, double extAmt*/)
+	PPID cashID, PPID code, PPID user, PPID cardID, const LDATETIME & rDT, double amt, double dscnt/*, double addPaym, double extAmt*/)
 {
 	int    ok = 1;
 	SString msg_buf;
 	if(CConfig.Flags & CCFLG_DEBUG) {
-		PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf.Cat(cashID).CatDiv('-', 1).Cat(code).CatDiv('-', 1).Cat(*pDT), 0);
+		PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf.Cat(cashID).CatDiv('-', 1).Cat(code).CatDiv('-', 1).Cat(rDT), 0);
 	}
 	PPID   temp_replace_id = 0;
-	const  int ice = IsCheckExistence(cashID, code, pDT, &temp_replace_id);
+	const  int ice = IsCheckExistence(cashID, code, &rDT, &temp_replace_id);
 	assert(ice != 100 || temp_replace_id);
 	if(!ice || ice == 100) {
-		const int is_temp_check_exists = BIN(SearchTempCheckByTime(cashID, pDT) > 0);
+		const int is_temp_check_exists = BIN(SearchTempCheckByTime(cashID, &rDT) > 0);
 		if(!is_temp_check_exists) {
 			TempCCheckTbl::Rec new_rec;
 			MEMSZERO(new_rec);
@@ -267,8 +267,8 @@ int SLAPI PPAsyncCashSession::AddTempCheck(PPID * pID, long sessNumber, long fla
 			new_rec.Code   = code;
 			new_rec.UserID = user;
 			new_rec.SCardID = cardID;
-			new_rec.Dt     = pDT->d;
-			new_rec.Tm     = pDT->t;
+			new_rec.Dt     = rDT.d;
+			new_rec.Tm     = rDT.t;
 			LDBLTOMONEY(amt,   new_rec.Amount);
 			LDBLTOMONEY(dscnt, new_rec.Discount);
 			if(ice == 100) {
@@ -283,7 +283,7 @@ int SLAPI PPAsyncCashSession::AddTempCheck(PPID * pID, long sessNumber, long fla
 		else {
 			SString chk_buf;
 			SString fmt_buf;
-			chk_buf.Z().Cat(cashID).CatDiv('-', 1).Cat(code).CatDiv('-', 1).Cat(*pDT);
+			chk_buf.Z().Cat(cashID).CatDiv('-', 1).Cat(code).CatDiv('-', 1).Cat(rDT);
 			msg_buf.Printf(PPLoadTextS(PPTXT_DUPTEMPCCHECK, fmt_buf), chk_buf.cptr());
 			PPLogMessage(PPFILNAM_ACS_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 			ASSIGN_PTR(pID, 0);

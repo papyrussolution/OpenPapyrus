@@ -51,7 +51,7 @@ typedef struct _cairo_os2_surface
     HPS                    hps_client_window;
     HWND                   hwnd_client_window;
     BITMAPINFO2            bitmap_info;
-    unsigned char         *pixels;
+    uchar         *pixels;
     cairo_image_surface_t *image_surface;
     int                    pixel_array_lend_count;
     HEV                    hev_pixel_array_came_back;

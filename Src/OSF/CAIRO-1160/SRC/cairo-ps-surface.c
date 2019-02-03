@@ -58,10 +58,10 @@
 #include "cairo-ps-surface-private.h"
 #include "cairo-pdf-operators-private.h"
 #include "cairo-pdf-shading-private.h"
-#include "cairo-array-private.h"
-#include "cairo-composite-rectangles-private.h"
+//#include "cairo-array-private.h"
+//#include "cairo-composite-rectangles-private.h"
 #include "cairo-default-context-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-image-surface-inline.h"
 #include "cairo-list-inline.h"
 #include "cairo-scaled-font-subsets-private.h"
@@ -2152,11 +2152,11 @@ typedef struct _string_array_stream {
 } string_array_stream_t;
 
 static cairo_status_t _base85_string_wrap_stream_write(cairo_output_stream_t * base,
-    const unsigned char * data,
+    const uchar * data,
     uint length)
 {
 	string_array_stream_t * stream = (string_array_stream_t*)base;
-	unsigned char c;
+	uchar c;
 
 	if(length == 0)
 		return CAIRO_STATUS_SUCCESS;
@@ -2310,13 +2310,13 @@ static cairo_status_t _cairo_ps_surface_flatten_image_transparency(cairo_ps_surf
 }
 
 static cairo_status_t _cairo_ps_surface_emit_base85_string(cairo_ps_surface_t * surface,
-    const unsigned char * data,
+    const uchar * data,
     ulong length,
     cairo_ps_compress_t compress,
     cairo_bool_t use_strings)
 {
 	cairo_output_stream_t * base85_stream, * string_array_stream, * deflate_stream;
-	unsigned char * data_compressed;
+	uchar * data_compressed;
 	ulong data_compressed_size;
 	cairo_status_t status, status2;
 
@@ -2345,7 +2345,7 @@ static cairo_status_t _cairo_ps_surface_emit_base85_string(cairo_ps_surface_t * 
 		    /* XXX: Should fix cairo-lzw to provide a stream-based interface
 		 * instead. */
 		    data_compressed_size = length;
-		    data_compressed = _cairo_lzw_compress((unsigned char*)data, &data_compressed_size);
+		    data_compressed = _cairo_lzw_compress((uchar*)data, &data_compressed_size);
 		    if(unlikely(data_compressed == NULL)) {
 			    status = _cairo_output_stream_destroy(string_array_stream);
 			    status = _cairo_output_stream_destroy(base85_stream);
@@ -2403,7 +2403,7 @@ static cairo_status_t _cairo_ps_surface_emit_image(cairo_ps_surface_t * surface,
     cairo_emit_surface_params_t * params)
 {
 	cairo_status_t status;
-	unsigned char * data;
+	uchar * data;
 	ulong data_size;
 	cairo_image_surface_t * ps_image;
 	int x, y, i, a;
@@ -2510,7 +2510,7 @@ static cairo_status_t _cairo_ps_surface_emit_image(cairo_ps_surface_t * surface,
 	if(use_mask)
 		data_size += (ps_image->width + 7)/8;
 	data_size *= ps_image->height;
-	data = (unsigned char *)_cairo_malloc(data_size);
+	data = (uchar *)_cairo_malloc(data_size);
 	if(unlikely(data == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto bail1;
@@ -2796,7 +2796,7 @@ static cairo_int_status_t _cairo_ps_surface_emit_jpeg_image(cairo_ps_surface_t *
     cairo_emit_surface_params_t * params)
 {
 	cairo_status_t status;
-	const unsigned char * mime_data;
+	const uchar * mime_data;
 	ulong mime_data_length;
 	cairo_image_info_t info;
 	const char * colorspace;
@@ -2914,9 +2914,9 @@ static cairo_int_status_t _cairo_ps_surface_emit_ccitt_image(cairo_ps_surface_t 
     cairo_emit_surface_params_t * params)
 {
 	cairo_status_t status;
-	const unsigned char * ccitt_data;
+	const uchar * ccitt_data;
 	ulong ccitt_data_len;
-	const unsigned char * ccitt_params_data;
+	const uchar * ccitt_params_data;
 	ulong ccitt_params_data_len;
 	char * ccitt_params_string;
 	cairo_ccitt_params_t ccitt_params;
@@ -3046,10 +3046,10 @@ static cairo_int_status_t _cairo_ps_surface_emit_ccitt_image(cairo_ps_surface_t 
 #define SUBFILE_FILTER_EOD "|EOD|"
 
 /* Count number of non overlapping occurrences of SUBFILE_FILTER_EOD in data. */
-static int count_eod_strings(const unsigned char * data, ulong data_len)
+static int count_eod_strings(const uchar * data, ulong data_len)
 {
-	const unsigned char * p = data;
-	const unsigned char * end;
+	const uchar * p = data;
+	const uchar * end;
 	int count;
 	const char * eod_str = SUBFILE_FILTER_EOD;
 	int first_char = eod_str[0];
@@ -3058,7 +3058,7 @@ static int count_eod_strings(const unsigned char * data, ulong data_len)
 	end = data + data_len - len + 1;
 	count = 0;
 	while(p < end) {
-		p = (const unsigned char *)memchr(p, first_char, end - p);
+		p = (const uchar *)memchr(p, first_char, end - p);
 		if(!p)
 			break;
 		if(memcmp(p, eod_str, len) == 0) {
@@ -3075,9 +3075,9 @@ static cairo_status_t _cairo_ps_surface_emit_eps(cairo_ps_surface_t * surface,
     cairo_emit_surface_params_t * params)
 {
 	cairo_status_t status;
-	const unsigned char * eps_data = NULL;
+	const uchar * eps_data = NULL;
 	ulong eps_data_len;
-	const unsigned char * eps_params_string = NULL;
+	const uchar * eps_params_string = NULL;
 	ulong eps_params_string_len;
 	char * params_string = NULL;
 	cairo_eps_params_t eps_params;
@@ -3307,7 +3307,7 @@ static cairo_int_status_t _cairo_ps_surface_use_form(cairo_ps_surface_t * surfac
 {
 	cairo_ps_form_t source_key;
 	cairo_ps_form_t * source_entry;
-	unsigned char * unique_id = NULL;
+	uchar * unique_id = NULL;
 	ulong unique_id_length = 0;
 	cairo_status_t status;
 	long max_size;
@@ -3319,7 +3319,7 @@ static cairo_int_status_t _cairo_ps_surface_use_form(cairo_ps_surface_t * surfac
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 
 	cairo_surface_get_mime_data(params->src_surface, CAIRO_MIME_TYPE_UNIQUE_ID,
-	    (const unsigned char**)&source_key.unique_id,
+	    (const uchar**)&source_key.unique_id,
 	    &source_key.unique_id_length);
 	if(source_key.unique_id == NULL || source_key.unique_id_length == 0)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
@@ -3343,7 +3343,7 @@ static cairo_int_status_t _cairo_ps_surface_use_form(cairo_ps_surface_t * surfac
 	if(surface->total_form_size + params->approx_size > max_size)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	surface->total_form_size += params->approx_size > max_size;
-	unique_id = (unsigned char *)_cairo_malloc(source_key.unique_id_length);
+	unique_id = (uchar *)_cairo_malloc(source_key.unique_id_length);
 	if(unique_id == NULL)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	unique_id_length = source_key.unique_id_length;
@@ -3489,7 +3489,7 @@ static cairo_int_status_t _cairo_ps_surface_emit_surface(cairo_ps_surface_t * su
 	}
 
 	if(mode == CAIRO_EMIT_SURFACE_ANALYZE) {
-		unsigned char * data;
+		uchar * data;
 		ulong length;
 
 		status = _cairo_pdf_operators_flush(&surface->pdf_operators);
@@ -4834,47 +4834,30 @@ static cairo_int_status_t _cairo_ps_surface_fill(void * abstract_surface,
 {
 	cairo_ps_surface_t * surface = (cairo_ps_surface_t *)abstract_surface;
 	cairo_composite_rectangles_t extents;
-	cairo_int_status_t status;
-
-	status = _cairo_composite_rectangles_init_for_fill(&extents,
-		&surface->base,
-		op, source, path,
-		clip);
+	cairo_int_status_t status = _cairo_composite_rectangles_init_for_fill(&extents, &surface->base, op, source, path, clip);
 	if(unlikely(status))
 		return status;
-
 	/* use the more accurate extents */
 	{
 		cairo_rectangle_int_t r;
 		cairo_box_t b;
-
-		_cairo_path_fixed_fill_extents(path,
-		    fill_rule,
-		    tolerance,
-		    &r);
-
+		_cairo_path_fixed_fill_extents(path, fill_rule, tolerance, &r);
 		_cairo_box_from_rectangle(&b, &r);
 		status = _cairo_composite_rectangles_intersect_mask_extents(&extents, &b);
 		if(unlikely(status))
 			goto cleanup_composite;
 	}
-
 	if(surface->paginated_mode == CAIRO_PAGINATED_MODE_ANALYZE) {
 		status = _cairo_ps_surface_analyze_operation(surface, op, source, NULL, &extents.bounded);
 		goto cleanup_composite;
 	}
-
 	assert(_cairo_ps_surface_operation_supported(surface, op, source, NULL, &extents.bounded));
-
 #if DEBUG_PS
-	_cairo_output_stream_printf(surface->stream,
-	    "%% _cairo_ps_surface_fill\n");
+	_cairo_output_stream_printf(surface->stream, "%% _cairo_ps_surface_fill\n");
 #endif
-
 	status = _cairo_pdf_operators_flush(&surface->pdf_operators);
 	if(unlikely(status))
 		goto cleanup_composite;
-
 	status = _cairo_ps_surface_set_clip(surface, &extents);
 	if(unlikely(status))
 		goto cleanup_composite;

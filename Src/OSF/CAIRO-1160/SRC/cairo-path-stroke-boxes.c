@@ -39,11 +39,11 @@
 #define _DEFAULT_SOURCE /* for hypot() */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-box-inline.h"
-#include "cairo-boxes-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-box-inline.h"
+//#include "cairo-boxes-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-path-fixed-private.h"
-#include "cairo-slope-private.h"
+//#include "cairo-slope-private.h"
 #include "cairo-stroke-dash-private.h"
 
 typedef struct _segment_t {

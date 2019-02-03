@@ -39,8 +39,8 @@
 #ifndef CAIRO_CACHE_PRIVATE_H
 #define CAIRO_CACHE_PRIVATE_H
 
-#include "cairo-compiler-private.h"
-#include "cairo-types-private.h"
+//#include "cairo-compiler-private.h"
+//#include "cairo-types-private.h"
 
 /**
  * _cairo_cache_entry:
@@ -84,8 +84,8 @@
  * not be initialized if so desired.
  **/
 typedef struct _cairo_cache_entry {
-    unsigned long hash;
-    unsigned long size;
+    ulong hash;
+    ulong size;
 } cairo_cache_entry_t;
 
 typedef cairo_bool_t (*cairo_cache_predicate_func_t) (const void *entry);
@@ -96,8 +96,8 @@ struct _cairo_cache {
     cairo_cache_predicate_func_t predicate;
     cairo_destroy_func_t entry_destroy;
 
-    unsigned long max_size;
-    unsigned long size;
+    ulong max_size;
+    ulong size;
 
     int freeze_count;
 };
@@ -114,7 +114,7 @@ _cairo_cache_init (cairo_cache_t *cache,
 	           cairo_cache_keys_equal_func_t keys_equal,
 		   cairo_cache_predicate_func_t  predicate,
 		   cairo_destroy_func_t	   entry_destroy,
-		   unsigned long		   max_size);
+		   ulong		   max_size);
 
 cairo_private void
 _cairo_cache_fini (cairo_cache_t *cache);

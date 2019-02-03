@@ -269,7 +269,7 @@ int SImage::InsertBitmap(HWND hwnd, const char * pPath, COLORREF bkgnd)
 			((Gdiplus::Bitmap *)p_sized_img)->GetHBITMAP(color, &hbmp);
 			delete (Gdiplus::Image *)P_Image;
 			P_Image = p_sized_img;
-			::SendMessage(hwnd, BM_SETIMAGE, IMAGE_BITMAP,(LPARAM)hbmp);
+			::SendMessage(hwnd, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(hbmp));
 		}
 		ok = 1;
 	}

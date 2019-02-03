@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147492605
+LastSignatureCode=2147492649
 LastAutoCodeList=1,11257;102,10168;103,10071;110,10000;111,11740;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10088;120,10005;1001,10000;121,10000;122,10000;123,10335;1002,10000;1003,10000;1004,10000;1005,10000;124,10097
 
 [SignatureList]
@@ -732,6 +732,8 @@ sendemail=2147488252
 searchbybarcode=2147488601
 dochangebillstatus=2147489342
 tsstrategyanalyze=2147492226
+doupdateflags=2147492614
+timechart=2147492615
 rptlocal=2147486841
 rptstd=2147486842
 repsubst=2147483956
@@ -815,6 +817,8 @@ closed_fem=2147488576
 closed_mas=2147489448
 closed_pl=2147489449
 strnfound=2147484013
+create=2147492616
+update=2147492617
 gvrbar_mainaronly=2147484014
 gvrbar_mainardisable=2147484015
 gvrbar_extaronly=2147484016
@@ -3765,6 +3769,7 @@ oprkind_droxf_selsupploncompl=2147486984
 oprkind_personreltype=2147487012
 oprkind_oplist=2147487013
 oprkind_pool_oplist=2147488404
+oprkind_rox=2147492619
 oprkind_roxf_autopaym=2147487014
 oprkind_roxf_cfm_paym=2147487015
 oprkind_roxf_autodebt=2147487016
@@ -3773,6 +3778,8 @@ oprkind_roxf_thisloconly=2147487018
 oprkind_roxf_byextobj=2147487019
 oprkind_roxf_reqaltobj=2147487020
 oprkind_roxf_thisaltobjonly=2147487021
+oprkind_roxf_reckonnegonly=2147492622
+oprkind_rox_period=2147492620
 oprkind_bpoxf_oneop=2147487022
 oprkind_bpoxf_onedate=2147487023
 oprkind_bpoxf_oneobject=2147487024

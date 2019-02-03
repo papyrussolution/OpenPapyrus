@@ -53,8 +53,7 @@ SLAPI ObjTagItem::~ObjTagItem()
 
 int FASTCALL ObjTagItem::Init(PPID tagID)
 {
-	// @v8.9.1 @fix THISZERO();
-	Destroy(); // @v8.9.1 @fix
+	Destroy();
 	if(tagID) {
 		PPObjTag tagobj;
 		PPObjectTag tagrec;

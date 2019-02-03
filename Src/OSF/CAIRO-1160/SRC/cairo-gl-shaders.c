@@ -42,7 +42,7 @@
 #pragma hdrstop
 #if CAIRO_HAS_GL_SURFACE // {
 #include "cairo-gl-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-output-stream-private.h"
 
 static cairo_status_t _cairo_gl_shader_compile_and_link(cairo_gl_context_t * ctx,
@@ -289,7 +289,7 @@ static cairo_status_t cairo_gl_shader_get_vertex_source(cairo_gl_var_type_t src,
     char ** out)
 {
 	cairo_output_stream_t * stream = _cairo_memory_stream_create();
-	unsigned char * source;
+	uchar * source;
 	ulong length;
 	cairo_status_t status;
 
@@ -310,14 +310,10 @@ static cairo_status_t cairo_gl_shader_get_vertex_source(cairo_gl_var_type_t src,
 	cairo_gl_shader_emit_vertex(stream, mask, CAIRO_GL_TEX_MASK);
 	if(use_coverage)
 		cairo_gl_shader_def_coverage(stream);
-
-	_cairo_output_stream_write(stream,
-	    "}\n\0", 3);
-
+	_cairo_output_stream_write(stream, "}\n\0", 3);
 	status = _cairo_memory_stream_destroy(stream, &source, &length);
 	if(unlikely(status))
 		return status;
-
 	*out = (char*)source;
 	return CAIRO_STATUS_SUCCESS;
 }
@@ -630,7 +626,7 @@ static cairo_status_t cairo_gl_shader_get_fragment_source(cairo_gl_context_t * c
     char ** out)
 {
 	cairo_output_stream_t * stream = _cairo_memory_stream_create();
-	unsigned char * source;
+	uchar * source;
 	ulong length;
 	cairo_status_t status;
 	const char * coverage_str;
@@ -668,29 +664,22 @@ static cairo_status_t cairo_gl_shader_get_fragment_source(cairo_gl_context_t * c
 		default:
 		    ASSERT_NOT_REACHED;
 		case CAIRO_GL_SHADER_IN_NORMAL:
-		    _cairo_output_stream_printf(stream,
-			"    gl_FragColor = get_source() * get_mask().a%s;\n",
+		    _cairo_output_stream_printf(stream, "    gl_FragColor = get_source() * get_mask().a%s;\n",
 			coverage_str);
 		    break;
 		case CAIRO_GL_SHADER_IN_CA_SOURCE:
-		    _cairo_output_stream_printf(stream,
-			"    gl_FragColor = get_source() * get_mask()%s;\n",
+		    _cairo_output_stream_printf(stream, "    gl_FragColor = get_source() * get_mask()%s;\n",
 			coverage_str);
 		    break;
 		case CAIRO_GL_SHADER_IN_CA_SOURCE_ALPHA:
-		    _cairo_output_stream_printf(stream,
-			"    gl_FragColor = get_source().a * get_mask()%s;\n",
+		    _cairo_output_stream_printf(stream, "    gl_FragColor = get_source().a * get_mask()%s;\n",
 			coverage_str);
 		    break;
 	}
-
-	_cairo_output_stream_write(stream,
-	    "}\n\0", 3);
-
+	_cairo_output_stream_write(stream, "}\n\0", 3);
 	status = _cairo_memory_stream_destroy(stream, &source, &length);
 	if(unlikely(status))
 		return status;
-
 	*out = (char*)source;
 	return CAIRO_STATUS_SUCCESS;
 }

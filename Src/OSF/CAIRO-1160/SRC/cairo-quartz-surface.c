@@ -39,10 +39,10 @@
 
 #define _GNU_SOURCE /* required for RTLD_DEFAULT */
 #include "cairo-quartz-private.h"
-#include "cairo-composite-rectangles-private.h"
-#include "cairo-compositor-private.h"
+//#include "cairo-composite-rectangles-private.h"
+//#include "cairo-compositor-private.h"
 #include "cairo-default-context-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-image-surface-inline.h"
 #include "cairo-pattern-private.h"
 #include "cairo-surface-backend-private.h"

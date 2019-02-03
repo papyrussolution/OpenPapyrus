@@ -25,8 +25,8 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-spans-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-spans-private.h"
+//#include "cairo-error-private.h"
 //#include <stdlib.h>
 //#include <string.h>
 //#include <limits.h>

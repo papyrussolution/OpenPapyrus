@@ -215,7 +215,7 @@ _cairo_scaled_font_subsets_enable_latin_subset (cairo_scaled_font_subsets_t *fon
 cairo_private cairo_status_t
 _cairo_scaled_font_subsets_map_glyph (cairo_scaled_font_subsets_t	*font_subsets,
 				      cairo_scaled_font_t		*scaled_font,
-				      unsigned long			 scaled_font_glyph_index,
+				      ulong			 scaled_font_glyph_index,
 				      const char *			 utf8,
 				      int				 utf8_len,
                                       cairo_scaled_font_subsets_glyph_t *subset_glyph_ret);
@@ -351,7 +351,7 @@ typedef struct _cairo_cff_subset {
     double x_min, y_min, x_max, y_max;
     double ascent, descent;
     char *data;
-    unsigned long data_length;
+    ulong data_length;
 } cairo_cff_subset_t;
 
 /**
@@ -432,10 +432,10 @@ typedef struct _cairo_truetype_subset {
     double *widths;
     double x_min, y_min, x_max, y_max;
     double ascent, descent;
-    unsigned char *data;
-    unsigned long data_length;
-    unsigned long *string_offsets;
-    unsigned long num_string_offsets;
+    uchar *data;
+    ulong data_length;
+    ulong *string_offsets;
+    ulong num_string_offsets;
 } cairo_truetype_subset_t;
 
 /**
@@ -495,7 +495,7 @@ cairo_private const char *
 _cairo_ps_standard_encoding_to_glyphname (int glyph);
 
 cairo_private int
-_cairo_unicode_to_winansi (unsigned long unicode);
+_cairo_unicode_to_winansi (ulong unicode);
 
 cairo_private const char *
 _cairo_winansi_to_glyphname (int glyph);
@@ -506,9 +506,9 @@ typedef struct _cairo_type1_subset {
     double x_min, y_min, x_max, y_max;
     double ascent, descent;
     char *data;
-    unsigned long header_length;
-    unsigned long data_length;
-    unsigned long trailer_length;
+    ulong header_length;
+    ulong data_length;
+    ulong trailer_length;
 } cairo_type1_subset_t;
 
 
@@ -663,7 +663,7 @@ _cairo_type2_charstrings_fini (cairo_type2_charstrings_t *charstrings);
  **/
 cairo_private cairo_int_status_t
 _cairo_truetype_index_to_ucs4 (cairo_scaled_font_t *scaled_font,
-                               unsigned long        index,
+                               ulong        index,
                                uint32_t            *ucs4);
 
 /**

@@ -31,10 +31,10 @@ SLAPI BExtInsert::~BExtInsert()
 
 int FASTCALL BExtInsert::insert(const void * b)
 {
-	size_t s;
 	if(State & stValid) {
+		size_t s;
 		if(State & stHasNote) {
-			const char * p_note = ((const char *)b) + FixRecSize;
+			const uchar * p_note = PTR8C(b) + FixRecSize;
 			size_t note_len = p_note[0] ? (sstrlen(p_note)+1) : 0;
 			s = FixRecSize + note_len;
 		}

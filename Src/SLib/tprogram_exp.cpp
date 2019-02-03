@@ -1,5 +1,5 @@
 // TPROGRAM_EXP.CPP
-// Copyright (c) A.Sobolev 2016, 2018
+// Copyright (c) A.Sobolev 2016, 2018, 2019
 //
 //
 #include <slib.h>
@@ -25,7 +25,7 @@ TBaseBrowserWindow * TProgram::FindBrowser(uint resID, int kind, const char * pF
 		res_offs = TBaseBrowserWindow::IdBiasBrowser;
 	if(res_id == 0) {
 		if(hw) {
-			brw = (TBaseBrowserWindow *)TView::GetWindowUserData(hw);
+			brw = static_cast<TBaseBrowserWindow *>(TView::GetWindowUserData(hw));
 			if(brw)
 				res_id = brw->GetResID();
 		}
@@ -34,15 +34,15 @@ TBaseBrowserWindow * TProgram::FindBrowser(uint resID, int kind, const char * pF
 		res_id += res_offs;
 	while(hw) {
 		if(hw != APPL->H_Desktop)  {
-			brw = (TBaseBrowserWindow *)TView::GetWindowUserData(hw);
+			brw = static_cast<TBaseBrowserWindow *>(TView::GetWindowUserData(hw));
 			if(brw) {
 				const long _r = brw->GetResID();
 				if(kind == 3 && _r >= TBaseBrowserWindow::IdBiasTextBrowser) {
 					if(((STextBrowser*)brw)->CmpFileName(pFileName) == 0)
-						return (TBaseBrowserWindow *)brw;
+						return static_cast<TBaseBrowserWindow *>(brw);
 				}
 				else if(_r == res_id /*|| _r == (res_id - res_offs)*/)
-					return (TBaseBrowserWindow *)brw;
+					return static_cast<TBaseBrowserWindow *>(brw);
 			}
 		}
 		hw = GetNextWindow(hw, GW_HWNDNEXT);

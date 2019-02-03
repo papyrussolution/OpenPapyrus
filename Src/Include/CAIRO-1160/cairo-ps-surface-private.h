@@ -51,7 +51,7 @@
 
 typedef struct _cairo_ps_form {
     cairo_hash_entry_t base;
-    unsigned char *unique_id;
+    uchar *unique_id;
     ulong unique_id_length;
     cairo_bool_t is_image;
     int id;

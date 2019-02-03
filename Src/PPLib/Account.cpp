@@ -635,7 +635,7 @@ int SLAPI AcctRel::CloseAcct(PPID id, int use_ta)
 		THROW(tra);
 		THROW(Search(id) > 0);
 		THROW_PP(data.Closed == 0, PPERR_ACCTCLOSED);
-		acct = *(Acct*)&data.Ac;
+		acct = *reinterpret_cast<const Acct *>(&data.Ac);
 		THROW(r = SearchNum(-1, &acct, data.CurID));
 		closed = (r > 0) ? (data.Closed+1) : 1;
 		THROW(Search(id) > 0);
@@ -763,7 +763,7 @@ public:
 int SLAPI AcctRelCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	Data * p_cache_rec = (Data *)pEntry;
+	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	AcctRel * p_tbl = &BillObj->atobj->P_Tbl->AccRel;
 	AcctRelTbl::Rec rec;
 	if(p_tbl->Search(id, &rec) > 0) {
@@ -786,8 +786,8 @@ int SLAPI AcctRelCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI AcctRelCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	AcctRelTbl::Rec * p_data_pack = (AcctRelTbl::Rec *)pDataRec;
-	const Data * p_cache_rec = (const Data *)pEntry;
+	AcctRelTbl::Rec * p_data_pack = static_cast<AcctRelTbl::Rec *>(pDataRec);
+	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 #define CPY_FLD(Fld) p_data_pack->Fld=p_cache_rec->Fld
 	CPY_FLD(ID);
 	CPY_FLD(AccID);

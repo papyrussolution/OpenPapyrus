@@ -81,7 +81,7 @@ int SLAPI CpTransfCore::LoadItems(PPID billID, PPBillPacket * pPack, const PPIDA
 				ti.LocID    = data.LocID;
 				ti.GoodsID  = data.GoodsID;
 				ti.OrdLotID = data.OrdLotID;
-				ti.CurID    = (int16)data.CurID;
+				ti.CurID    = static_cast<int16>(data.CurID);
 				ti.UnitPerPack = data.UnitPerPack;
 				ti.Quantity_ = data.Qtty;
 				ti.Cost     = data.Cost;
@@ -121,7 +121,7 @@ int SLAPI CpTransfCore::EnumItems(PPID billID, int * pRByBill, PPTransferItem * 
 			pTi->LocID    = data.LocID;
 			pTi->GoodsID  = data.GoodsID;
 			pTi->OrdLotID = data.OrdLotID;
-			pTi->CurID    = (int16)data.CurID;
+			pTi->CurID    = static_cast<int16>(data.CurID);
 			pTi->UnitPerPack = data.UnitPerPack;
 			pTi->Quantity_ = data.Qtty;
 			pTi->Cost     = data.Cost;
@@ -414,11 +414,11 @@ int SLAPI PPObjBill::CreateModifByPUGL(PPID modifOpID, PPID * pID, PUGL * pPugl,
 	//
 	if(pPugl->getCount() == 1) {
 		SString memo_buf;
-		GetGoodsName(((PUGI *)pPugl->at(0))->GoodsID, memo_buf);
+		GetGoodsName(static_cast<const PUGI *>(pPugl->at(0))->GoodsID, memo_buf);
 		memo_buf.CopyTo(pack.Rec.Memo, sizeof(pack.Rec.Memo));
 	}
 	for(i = 0; i < pPugl->getCount();) {
-		PUGI   pugi = *(PUGI *)pPugl->at(i++);
+		PUGI   pugi = *static_cast<const PUGI *>(pPugl->at(i++));
 		PPGoodsStruc gs;
 		const  PPGoodsStruc::Ident gs_ident(pugi.GoodsID, GSF_COMPL, GSF_PARTITIAL, pack.Rec.Dt);
 		uint   acpos = 0;
@@ -426,10 +426,8 @@ int SLAPI PPObjBill::CreateModifByPUGL(PPID modifOpID, PPID * pID, PUGL * pPugl,
 		if(lgs_r > 0) {
 			int    r = 0;
 			pPugl->atFree(--i);
-
 			ReceiptTbl::Rec lot_rec;
 			PPTransferItem ti;
-
 			THROW(ti.Init(&pack.Rec, 1, 1));
 			THROW(ti.SetupGoods(pugi.GoodsID));
 			ti.SetupLot(0, 0, 0);
@@ -453,7 +451,7 @@ int SLAPI PPObjBill::CreateModifByPUGL(PPID modifOpID, PPID * pID, PUGL * pPugl,
 		}
 	}
 	for(i = 0; i < compl_pugl.getCount(); i++) {
-		THROW(pPugl->Add((PUGI *)compl_pugl.at(i), pack.Rec.Dt));
+		THROW(pPugl->Add(static_cast<const PUGI *>(compl_pugl.at(i)), pack.Rec.Dt));
 	}
 	if(pPugl->getCount() == 0) {
 		pack.SetPoolMembership(PPBillPacket::bpkCSessDfct, sessID);
@@ -597,7 +595,7 @@ int SLAPI PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
 		}
 		if(rBlk.P_DfctList) {
 			for(uint i = 0; i < temp_pugl.getCount(); i++)
-				THROW(rBlk.P_DfctList->Add((PUGI *)temp_pugl.at(i), p_pack->Rec.Dt));
+				THROW(rBlk.P_DfctList->Add(static_cast<const PUGI *>(temp_pugl.at(i)), p_pack->Rec.Dt));
 		}
 		THROW(tra.Commit());
 		rBlk.ResultList.insert(p_pack);
@@ -1296,7 +1294,7 @@ int SLAPI PPObjBill::ProcessDeficit(PPID compOpID, PPID compArID, const PUGL * p
 					THROW(pack.CreateBlank2(compOpID, pPugl->Dt, loc_id, 0));
 					pack.Rec.Object = comp_ar_id;
 					PPGetWord(PPWORD_AT_AUTO, 0, pack.Rec.Memo, sizeof(pack.Rec.Memo));
-					for(i = 0; pPugl->enumItems(&i, (void **)&p_item);) {
+					for(i = 0; pPugl->enumItems(&i, reinterpret_cast<void **>(&p_item));) {
 						if(p_item->DeficitQty > 0.0 && p_item->LocID == loc_id) {
 							int do_suppl_subst = BIN(op_rec.OpTypeID == PPOPT_GOODSRECEIPT && pPugl->GetSupplSubstList(i, suppl_subst_list) > 0);
 							if(do_suppl_subst && PUGL::BalanceSupplSubstList(suppl_subst_list, p_item->DeficitQty) > 0) {

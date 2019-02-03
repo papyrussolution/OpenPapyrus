@@ -1947,7 +1947,7 @@ int SLAPI PPEanComDocument::Read_Document(void * pCtx, const char * pFileName, c
 	int    ok = -1;
 	SString temp_buf;
 	SString addendum_msg_buf;
-	xmlParserCtxt * p_ctx = (xmlParserCtxt *)pCtx;
+	xmlParserCtxt * p_ctx = static_cast<xmlParserCtxt *>(pCtx);
 	xmlDoc * p_doc = 0;
 	xmlNode * p_root = 0;
 	PPEdiProcessor::Packet * p_pack = 0;
@@ -2613,7 +2613,7 @@ class EdiProviderImplementation_Kontur : public PPEdiProcessor::ProviderImplemen
 public:
 	SLAPI  EdiProviderImplementation_Kontur(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags);
 	virtual SLAPI ~EdiProviderImplementation_Kontur();
-	virtual int    SLAPI  GetDocumentList(PPEdiProcessor::DocumentInfoList & rList);
+	virtual int    SLAPI  GetDocumentList(const PPBillIterchangeFilt & rP, PPEdiProcessor::DocumentInfoList & rList);
 	virtual int    SLAPI  ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
 	virtual int    SLAPI  SendDocument(PPEdiProcessor::DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
 private:
@@ -2679,7 +2679,7 @@ class EdiProviderImplementation_Exite : public PPEdiProcessor::ProviderImplement
 public:
 	SLAPI  EdiProviderImplementation_Exite(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags);
 	virtual SLAPI ~EdiProviderImplementation_Exite();
-	virtual int    SLAPI  GetDocumentList(PPEdiProcessor::DocumentInfoList & rList);
+	virtual int    SLAPI  GetDocumentList(const PPBillIterchangeFilt & rP, PPEdiProcessor::DocumentInfoList & rList);
 	virtual int    SLAPI  ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
 	virtual int    SLAPI  SendDocument(PPEdiProcessor::DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
 private:
@@ -3886,16 +3886,16 @@ int SLAPI PPEdiProcessor::ReceiveDocument(const DocumentInfo * pIdent, TSCollect
 	return ok;
 }
 
-int SLAPI PPEdiProcessor::GetDocumentList(DocumentInfoList & rList)
+int SLAPI PPEdiProcessor::GetDocumentList(const PPBillIterchangeFilt & rP, DocumentInfoList & rList)
 {
 	int    ok = 1;
 	THROW_PP(P_Prv, PPERR_EDI_PRVUNDEF);
-	THROW(P_Prv->GetDocumentList(rList))
+	THROW(P_Prv->GetDocumentList(rP, rList))
 	CATCHZOK
 	return ok;
 }
 
-int SLAPI PPEdiProcessor::SendOrders(const PPBillExportFilt & rP, const PPIDArray & rArList)
+int SLAPI PPEdiProcessor::SendOrders(const PPBillIterchangeFilt & rP, const PPIDArray & rArList)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -3920,21 +3920,15 @@ int SLAPI PPEdiProcessor::SendOrders(const PPBillExportFilt & rP, const PPIDArra
 			for(uint j = 0; j < rP.IdList.getCount(); j++) {
 				const PPID bill_id = rP.IdList.get(j);
 				if(P_BObj->Search(bill_id, &bill_rec) > 0 && bill_rec.OpID == op_id) {
-					if(!rP.LocID || bill_rec.LocID == rP.LocID) {
-						if(rArList.lsearch(bill_rec.Object)) {
-							temp_bill_list.add(bill_rec.ID);
-						}
-					}
+					if((!rP.LocID || bill_rec.LocID == rP.LocID) && rArList.lsearch(bill_rec.Object))
+						temp_bill_list.add(bill_rec.ID);
 				}
 			}
 		}
 		else {
 			for(DateIter di(&rP.Period); P_BObj->P_Tbl->EnumByOpr(op_id, &di, &bill_rec) > 0;) {
-				if(!rP.LocID || bill_rec.LocID == rP.LocID) {
-					if(rArList.lsearch(bill_rec.Object)) {
-						temp_bill_list.add(bill_rec.ID);
-					}
-				}
+				if((!rP.LocID || bill_rec.LocID == rP.LocID) && rArList.lsearch(bill_rec.Object))
+					temp_bill_list.add(bill_rec.ID);
 			}
 		}
 	}
@@ -3996,14 +3990,13 @@ int SLAPI PPEdiProcessor::CheckBillStatusForRecadvSending(const BillTbl::Rec & r
 	return ok;
 }
 
-int SLAPI PPEdiProcessor::SendRECADV(const PPBillExportFilt & rP, const PPIDArray & rArList)
+int SLAPI PPEdiProcessor::SendRECADV(const PPBillIterchangeFilt & rP, const PPIDArray & rArList)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
 	SString temp_buf;
 	SString edi_ack;
 	BillTbl::Rec bill_rec;
-	//PPBillPacket _link_bp;
 	PPBillPacket * p_link_bp = 0;
 	PPIDArray temp_bill_list;
 	PPIDArray op_list;
@@ -4120,14 +4113,10 @@ int SLAPI PPEdiProcessor::SendRECADV(const PPBillExportFilt & rP, const PPIDArra
 							}
 							DocumentInfo di;
 							if(SendDocument(&di, pack) > 0) {
-								{
-									ObjTagItem tag_item;
-									temp_buf.Z().Cat(di.Uuid, S_GUID::fmtIDL);
-									if(tag_item.SetStr(PPTAG_BILL_EDIACK, temp_buf))
-										THROW(p_ref->Ot.PutTag(PPOBJ_BILL, bill_id, &tag_item, 0));
-								}
+								ObjTagItem tag_item;
+								if(tag_item.SetStr(PPTAG_BILL_EDIACK, temp_buf.Z().Cat(di.Uuid, S_GUID::fmtIDL)))
+									THROW(p_ref->Ot.PutTag(PPOBJ_BILL, bill_id, &tag_item, 0));
 								if(p_recadv_pack->RBp.Rec.ID && di.SId.NotEmpty()) {
-									ObjTagItem tag_item;
 									if(tag_item.SetStr(PPTAG_BILL_EDIIDENT, di.SId))
 										THROW(p_ref->Ot.PutTag(PPOBJ_BILL, p_recadv_pack->RBp.Rec.ID, &tag_item, 0));
 								}
@@ -4142,7 +4131,7 @@ int SLAPI PPEdiProcessor::SendRECADV(const PPBillExportFilt & rP, const PPIDArra
 	return ok;
 }
 
-int SLAPI PPEdiProcessor::SendOrderRsp(const PPBillExportFilt & rP, const PPIDArray & rArList)
+int SLAPI PPEdiProcessor::SendOrderRsp(const PPBillIterchangeFilt & rP, const PPIDArray & rArList)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -4207,7 +4196,7 @@ int SLAPI PPEdiProcessor::SendOrderRsp(const PPBillExportFilt & rP, const PPIDAr
 	return ok;
 }
 
-int SLAPI PPEdiProcessor::SendDESADV(int ediOp, const PPBillExportFilt & rP, const PPIDArray & rArList)
+int SLAPI PPEdiProcessor::SendDESADV(int ediOp, const PPBillIterchangeFilt & rP, const PPIDArray & rArList)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -4309,7 +4298,7 @@ SLAPI EdiProviderImplementation_Kontur::~EdiProviderImplementation_Kontur()
 {
 }
 
-int SLAPI EdiProviderImplementation_Kontur::GetDocumentList(PPEdiProcessor::DocumentInfoList & rList)
+int SLAPI EdiProviderImplementation_Kontur::GetDocumentList(const PPBillIterchangeFilt & rP, PPEdiProcessor::DocumentInfoList & rList)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -4358,7 +4347,7 @@ int SLAPI EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, c
 	SString goods_name;
 	SString gtin;
 	SString ar_goods_code;
-	xmlParserCtxt * p_ctx = (xmlParserCtxt *)pCtx;
+	xmlParserCtxt * p_ctx = static_cast<xmlParserCtxt *>(pCtx);
 	xmlDoc * p_doc = 0;
 	xmlNode * p_root = 0;
 	PPEdiProcessor::Packet * p_pack = 0;
@@ -5111,7 +5100,7 @@ SLAPI EdiProviderImplementation_Exite::~EdiProviderImplementation_Exite()
 {
 }
 
-int SLAPI EdiProviderImplementation_Exite::GetDocumentList(PPEdiProcessor::DocumentInfoList & rList)
+int SLAPI EdiProviderImplementation_Exite::GetDocumentList(const PPBillIterchangeFilt & rP, PPEdiProcessor::DocumentInfoList & rList)
 {
 	int    ok = -1;
 	json_t * p_query = 0;
@@ -5134,7 +5123,16 @@ int SLAPI EdiProviderImplementation_Exite::GetDocumentList(PPEdiProcessor::Docum
 		url.SetComponent(url.cPath, "Api/V1/Edo/Document/GetEdiDocs");
 		THROW_SL(p_query = new json_t(json_t::tOBJECT));
 		THROW_SL(p_query->Insert("varToken", json_new_string(AT.Token)));
-
+		{
+			if(checkdate(rP.Period.low)) {
+				temp_buf.Z().Cat(rP.Period.low, DATF_ISO8601|DATF_CENTURY);
+				THROW_SL(p_query->Insert("timefrom", json_new_string(temp_buf)));
+				if(checkdate(rP.Period.upp)) {
+					temp_buf.Z().Cat(rP.Period.upp, DATF_ISO8601|DATF_CENTURY);
+					THROW_SL(p_query->Insert("timeto", json_new_string(temp_buf)));
+				}
+			}
+		}
 		// unread : отметка о прочтении; 0 - не прочитан, 1 - прочитан
 		// doc_type : тип документа
 		// timefrom : "ГГГГ-ММ-ДД ЧЧ:ММ:СС" / "ГГГГ-ММ-ДД ЧЧ:ММ" / "ГГГГ-ММ-ДД" дата начала поиска
@@ -5154,10 +5152,10 @@ int SLAPI EdiProviderImplementation_Exite::GetDocumentList(PPEdiProcessor::Docum
 		THROW_SL(c.SetupDefaultSslOptions());
 		THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
 		{
-			SBuffer * p_ack_buf = (SBuffer *)wr_stream;
+			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 			if(p_ack_buf) {
-				const int avl_size = (int)p_ack_buf->GetAvailableSize();
-				temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
+				const int avl_size = static_cast<int>(p_ack_buf->GetAvailableSize());
+				temp_buf.Z().CatN(static_cast<const char *>(p_ack_buf->GetBuf()), avl_size);
 				PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "R").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
 				if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
 					for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
@@ -5173,15 +5171,12 @@ int SLAPI EdiProviderImplementation_Exite::GetDocumentList(PPEdiProcessor::Docum
 											if(p_doc->Type == json_t::tOBJECT) {
 												PPEdiProcessor::DocumentInfo new_entry;
 												for(const json_t * p_df = p_doc->P_Child; p_df; p_df = p_df->P_Next) {
-													if(p_df->Text.IsEqiAscii("intDocID")) {
+													if(p_df->Text.IsEqiAscii("intDocID"))
 														new_entry.SId = p_df->P_Child->Text;
-													}
-													else if(p_df->Text.IsEqiAscii("doc_type")) {
+													else if(p_df->Text.IsEqiAscii("doc_type")) 
 														new_entry.EdiOp = PPEdiProcessor::GetEdiMsgTypeByText(p_df->P_Child->Text);
-													}
-													else if(p_df->Text.IsEqiAscii("date")) {
+													else if(p_df->Text.IsEqiAscii("date"))
 														strtodatetime(p_df->P_Child->Text, &new_entry.Time, DATF_YMD, TIMF_HMS);
-													}
 												}
 												if(new_entry.SId.NotEmpty() && new_entry.EdiOp && checkdate(new_entry.Time.d)) {
 													rList.Add(new_entry, 0);

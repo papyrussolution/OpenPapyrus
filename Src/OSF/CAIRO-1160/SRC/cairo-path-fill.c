@@ -36,10 +36,10 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-boxes-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-boxes-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-path-fixed-private.h"
-#include "cairo-region-private.h"
+//#include "cairo-region-private.h"
 #include "cairo-traps-private.h"
 
 typedef struct cairo_filler {
@@ -231,47 +231,32 @@ static cairo_status_t _cairo_path_fixed_fill_rectilinear_tessellate_to_boxes(con
 	return status;
 }
 
-cairo_status_t _cairo_path_fixed_fill_rectilinear_to_boxes(const cairo_path_fixed_t * path,
-    cairo_fill_rule_t fill_rule,
-    cairo_antialias_t antialias,
-    cairo_boxes_t * boxes)
+cairo_status_t _cairo_path_fixed_fill_rectilinear_to_boxes(const cairo_path_fixed_t * path, cairo_fill_rule_t fill_rule, cairo_antialias_t antialias, cairo_boxes_t * boxes)
 {
 	cairo_path_fixed_iter_t iter;
 	cairo_status_t status;
 	cairo_box_t box;
-
 	if(_cairo_path_fixed_is_box(path, &box))
 		return _cairo_boxes_add(boxes, antialias, &box);
-
 	_cairo_path_fixed_iter_init(&iter, path);
 	while(_cairo_path_fixed_iter_is_fill_box(&iter, &box)) {
 		if(box.p1.y == box.p2.y || box.p1.x == box.p2.x)
 			continue;
-
 		if(box.p1.y > box.p2.y) {
-			cairo_fixed_t t;
-
-			t = box.p1.y;
+			cairo_fixed_t t = box.p1.y;
 			box.p1.y = box.p2.y;
 			box.p2.y = t;
-
 			t = box.p1.x;
 			box.p1.x = box.p2.x;
 			box.p2.x = t;
 		}
-
 		status = _cairo_boxes_add(boxes, antialias, &box);
 		if(unlikely(status))
 			return status;
 	}
-
 	if(_cairo_path_fixed_iter_at_end(&iter))
 		return _cairo_bentley_ottmann_tessellate_boxes(boxes, fill_rule, boxes);
-
 	/* path is not rectangular, try extracting clipped rectilinear edges */
 	_cairo_boxes_clear(boxes);
-	return _cairo_path_fixed_fill_rectilinear_tessellate_to_boxes(path,
-		   fill_rule,
-		   antialias,
-		   boxes);
+	return _cairo_path_fixed_fill_rectilinear_tessellate_to_boxes(path, fill_rule, antialias, boxes);
 }

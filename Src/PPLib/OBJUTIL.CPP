@@ -1537,8 +1537,8 @@ int SLAPI PPSelectObject(PPID objType, PPID * pObjID, uint titleID, void * extra
 			p_lw->listBox()->TransmitData(+1, &id);
 		if(titleID && PPLoadText(titleID, temp_buf))
 			p_lw->setTitle(temp_buf);
-		p_lw->changeBounds(TRect(0, 0, 96, 36)); // @v8.8.2 width 48-->96
-		p_lw->options |= (ofCenterX | ofCenterY);
+		p_lw->changeBounds(TRect(0, 0, 96, 36));
+		p_lw->ViewOptions |= (ofCenterX | ofCenterY);
 		if(ExecView(p_lw) == cmOK) {
 			p_lw->getResult(&id);
 			if(id > 0)

@@ -40,7 +40,7 @@
 #define CAIRO_SURFACE_WRAPPER_PRIVATE_H
 
 #include "cairoint.h"
-#include "cairo-types-private.h"
+//#include "cairo-types-private.h"
 #include "cairo-surface-backend-private.h"
 
 CAIRO_BEGIN_DECLS

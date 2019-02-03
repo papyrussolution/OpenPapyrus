@@ -42,7 +42,7 @@
 #include "cairoint.h"
 #pragma hdrstop
 #if CAIRO_HAS_GL_SURFACE // {
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-gl-private.h"
 
 #define MAX_MSAA_SAMPLES 4

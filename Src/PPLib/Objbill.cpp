@@ -856,7 +856,7 @@ int SLAPI PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBil
 int SLAPI PPBillPacket::ConvertToCheck(CCheckPacket * pCheckPack) const
 {
 	int    ok = 1;
-	if(Rec.OpID == GetCashOp() || Rec.OpID == GetCashRetOp() && Rec.Flags & BILLF_CASH) {
+	if(oneof2(Rec.OpID, GetCashOp(), GetCashRetOp()) && Rec.Flags & BILLF_CASH) {
 		double amount   = 0.0;
 		double discount = 0.0;
 		pCheckPack->Init();
@@ -6204,6 +6204,7 @@ int SLAPI PPObjBill::ProcessLink(BillTbl::Rec * pRec, PPID paymLinkID, const Bil
 	int    ok = 1;
 	if(pRec->OpID) {
 		SString msg_buf;
+		BillTbl::Rec link_rec;
 		PPID   link_id = pRec->LinkBillID;
 		double amount = BR2(pRec->Amount);
 		double org_amount = 0.0;
@@ -6228,7 +6229,6 @@ int SLAPI PPObjBill::ProcessLink(BillTbl::Rec * pRec, PPID paymLinkID, const Bil
 			// }
 		}
 		if(link_id) {
-			BillTbl::Rec link_rec;
 			THROW_PP_S(P_Tbl->Search(link_id, &link_rec) > 0, PPERR_LINKBILLNFOUND, msg_buf.Z().Cat(link_id));
 			THROW_PP_S(pRec->Dt >= link_rec.Dt, PPERR_LNKBILLDT, PPObjBill::MakeCodeString(&link_rec, 1, msg_buf));
 			//
@@ -6244,14 +6244,15 @@ int SLAPI PPObjBill::ProcessLink(BillTbl::Rec * pRec, PPID paymLinkID, const Bil
 				}
 			}
 			else if(IsDraftOp(link_rec.OpID)) {
-				if(pOrgRec == 0 && !(pRec->Flags2 & BILLF2_DONTCLOSDRAFT)) { // @v8.3.2 && !(pRec->Flags2 & BILLF2_DONTCLOSDRAFT)
+				if(pOrgRec == 0 && !(pRec->Flags2 & BILLF2_DONTCLOSDRAFT)) {
 					THROW(P_Tbl->SetRecFlag(link_id, BILLF_WRITEDOFF, 1, 0));
 				}
 			}
 		}
 		if(paymLinkID && paym_t == PPOPT_PAYMENT) {
-			THROW_PP_S(P_Tbl->Search(paymLinkID) > 0, PPERR_LINKBILLNFOUND, msg_buf.Z().Cat(link_id));
-			THROW(P_Tbl->UpdatePaymAmount(paymLinkID, pRec->CurID, amount, org_amount));
+			THROW_PP_S(P_Tbl->Search(paymLinkID, &link_rec) > 0, PPERR_LINKBILLNFOUND, msg_buf.Z().Cat(link_id));
+			const int is_neg = BIN(link_rec.Amount < 0.0); // @v10.3.2
+			THROW(P_Tbl->UpdatePaymAmount(paymLinkID, pRec->CurID, (is_neg ? -amount : amount), (is_neg ? -org_amount : org_amount)));
 		}
 	}
 	CATCHZOK
@@ -6284,21 +6285,17 @@ int SLAPI PPObjBill::SetupModifPacket(PPBillPacket * pPack)
 			else if(p_ti->Flags & PPTFR_PLUS)
 				mh |= mhPlus;
 		}
-		// @v9.0.0 {
 		if((mh & (mhPlus|mhMinus)) != (mhPlus|mhMinus)) {
             PPOprKind op_rec;
             if(GetOpData(pPack->Rec.OpID, &op_rec) > 0) {
 				THROW_PP(!(op_rec.ExtFlags & OPKFX_DSBLHALFMODIF), PPERR_HALFMODIFBILLDISABLED);
             }
 		}
-		// } @v9.0.0
 		if(diff || !prev_suppl_id) {
 			THROW(ArObj.GetMainOrgAsSuppl(&suppl_id));
 		}
-		// @v8.6.3 {
 		else if(pPack->Rec.Object && ArObj.Fetch(pPack->Rec.Object, &ar_rec) > 0 && ar_rec.AccSheetID == GetSupplAccSheet())
 			suppl_id = pPack->Rec.Object;
-		// } @v8.6.3
 		else
 			suppl_id = prev_suppl_id;
 		for(i = 0; pPack->EnumTItems(&i, &p_ti);) {

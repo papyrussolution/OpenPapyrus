@@ -39,7 +39,7 @@
 #pragma hdrstop
 #if CAIRO_HAS_GL_SURFACE // {
 #include "cairo-gl-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 
 typedef struct _cairo_egl_context {
 	cairo_gl_context_t base;

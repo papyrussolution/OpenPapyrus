@@ -35,7 +35,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-slope-private.h"
+//#include "cairo-slope-private.h"
 
 /* Compare two slopes. Slope angles begin at 0 in the direction of the
    positive X axis and increase in the direction of the positive Y
@@ -55,7 +55,7 @@
    == 0 => a equal to b
    >  0 => a more positive than b
  */
-int _cairo_slope_compare(const cairo_slope_t * a, const cairo_slope_t * b)
+int FASTCALL _cairo_slope_compare(const cairo_slope_t * a, const cairo_slope_t * b)
 {
 	cairo_int64_t ady_bdx = _cairo_int32x32_64_mul(a->dy, b->dx);
 	cairo_int64_t bdy_adx = _cairo_int32x32_64_mul(b->dy, a->dx);

@@ -168,7 +168,7 @@ public:
 													cc_dtm.t = encodetime(h, m, s, hs + 1);
 												}
 												// } @v10.1.10
-												THROW(ccr = AddTempCheck(&cc_id, p_cb->Code, cc_flags, local_pos_no, p_ccb->Code, cashier_id, sc_id, &cc_dtm, cc_amount, cc_discount));
+												THROW(ccr = AddTempCheck(&cc_id, p_cb->Code, cc_flags, local_pos_no, p_ccb->Code, cashier_id, sc_id, cc_dtm, cc_amount, cc_discount));
 												if(ccr > 0) { // @v9.9.12
 													for(uint cl_refi = 0; cl_refi < rc; cl_refi++) {
 														const PPPosProtocol::ObjBlockRef & r_cl_ref = p_ib->RefList.at(cl_refi);

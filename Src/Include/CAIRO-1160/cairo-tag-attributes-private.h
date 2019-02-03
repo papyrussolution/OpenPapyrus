@@ -37,9 +37,9 @@
 #ifndef CAIRO_TAG_ATTRIBUTES_PRIVATE_H
 #define CAIRO_TAG_ATTRIBUTES_PRIVATE_H
 
-#include "cairo-array-private.h"
-#include "cairo-error-private.h"
-#include "cairo-types-private.h"
+//#include "cairo-array-private.h"
+//#include "cairo-error-private.h"
+//#include "cairo-types-private.h"
 
 typedef enum {
     TAG_LINK_INVALID = 0,

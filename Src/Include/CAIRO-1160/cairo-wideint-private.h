@@ -37,16 +37,13 @@
 #ifndef CAIRO_WIDEINT_H
 #define CAIRO_WIDEINT_H
 
-#include "cairo-wideint-type-private.h"
-
-#include "cairo-compiler-private.h"
-
+//#include "cairo-wideint-type-private.h"
+//#include "cairo-compiler-private.h"
 /*
  * 64-bit datatypes.  Two separate implementations, one using
  * built-in 64-bit signed/unsigned types another implemented
  * as a pair of 32-bit ints
  */
-
 #define I cairo_private cairo_const
 
 #if !HAVE_UINT64_T

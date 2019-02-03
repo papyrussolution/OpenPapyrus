@@ -35,11 +35,11 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 
 typedef struct _lzw_buf {
 	cairo_status_t status;
-	unsigned char * data;
+	uchar * data;
 	int data_size;
 	int num_data;
 	uint32_t pending;
@@ -68,7 +68,7 @@ static void _lzw_buf_init(lzw_buf_t * buf, int size)
 	buf->num_data = 0;
 	buf->pending = 0;
 	buf->pending_bits = 0;
-	buf->data = (unsigned char *)_cairo_malloc(size);
+	buf->data = (uchar *)_cairo_malloc(size);
 	if(unlikely(buf->data == NULL)) {
 		buf->data_size = 0;
 		buf->status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -83,13 +83,13 @@ static void _lzw_buf_init(lzw_buf_t * buf, int size)
 static cairo_status_t _lzw_buf_grow(lzw_buf_t * buf)
 {
 	int new_size = buf->data_size * 2;
-	unsigned char * new_data;
+	uchar * new_data;
 	if(buf->status)
 		return buf->status;
 	new_data = NULL;
 	/* check for integer overflow */
 	if(new_size / 2 == buf->data_size)
-		new_data = (unsigned char *)SAlloc::R(buf->data, new_size);
+		new_data = (uchar *)SAlloc::R(buf->data, new_size);
 	if(unlikely(new_data == NULL)) {
 		SAlloc::F(buf->data);
 		buf->data_size = 0;
@@ -301,7 +301,7 @@ static cairo_bool_t _lzw_symbol_table_lookup(lzw_symbol_table_t * table, lzw_sym
  * lzw_buf without having to check for errors, (until a final check at
  * the end).
  */
-unsigned char * _cairo_lzw_compress(unsigned char * data, ulong * size_in_out)
+uchar * _cairo_lzw_compress(uchar * data, ulong * size_in_out)
 {
 	int bytes_remaining = *size_in_out;
 	lzw_buf_t buf;

@@ -36,12 +36,11 @@
 #ifndef CAIRO_PATTERN_PRIVATE_H
 #define CAIRO_PATTERN_PRIVATE_H
 
-#include "cairo-error-private.h"
-#include "cairo-types-private.h"
-#include "cairo-list-private.h"
-#include "cairo-surface-private.h"
-
-#include <stdio.h> /* FILE* */
+//#include "cairo-error-private.h"
+//#include "cairo-types-private.h"
+//#include "cairo-list-private.h"
+//#include "cairo-surface-private.h"
+//#include <stdio.h> /* FILE* */
 
 CAIRO_BEGIN_DECLS
 
@@ -181,111 +180,40 @@ typedef union {
 
 /* cairo-pattern.c */
 
-cairo_private cairo_pattern_t * _cairo_pattern_create_in_error(cairo_status_t status);
-
-cairo_private cairo_status_t _cairo_pattern_create_copy(cairo_pattern_t      ** pattern,
-    const cairo_pattern_t * other);
-
-cairo_private void _cairo_pattern_init(cairo_pattern_t * pattern,
-    cairo_pattern_type_t type);
-
-cairo_private cairo_status_t _cairo_pattern_init_copy(cairo_pattern_t * pattern,
-    const cairo_pattern_t * other);
-
-cairo_private void _cairo_pattern_init_static_copy(cairo_pattern_t * pattern,
-    const cairo_pattern_t * other);
-
-cairo_private cairo_status_t _cairo_pattern_init_snapshot(cairo_pattern_t * pattern,
-    const cairo_pattern_t * other);
-
-cairo_private void _cairo_pattern_init_solid(cairo_solid_pattern_t * pattern,
-    const cairo_color_t * color);
-
-cairo_private void _cairo_pattern_init_for_surface(cairo_surface_pattern_t * pattern,
-    cairo_surface_t * surface);
-
+cairo_private cairo_pattern_t * FASTCALL _cairo_pattern_create_in_error(cairo_status_t status);
+cairo_private cairo_status_t _cairo_pattern_create_copy(cairo_pattern_t ** pattern, const cairo_pattern_t * other);
+cairo_private void FASTCALL _cairo_pattern_init(cairo_pattern_t * pattern, cairo_pattern_type_t type);
+cairo_private cairo_status_t _cairo_pattern_init_copy(cairo_pattern_t * pattern, const cairo_pattern_t * other);
+cairo_private void _cairo_pattern_init_static_copy(cairo_pattern_t * pattern, const cairo_pattern_t * other);
+cairo_private cairo_status_t _cairo_pattern_init_snapshot(cairo_pattern_t * pattern, const cairo_pattern_t * other);
+cairo_private void FASTCALL _cairo_pattern_init_solid(cairo_solid_pattern_t * pattern, const cairo_color_t * color);
+cairo_private void _cairo_pattern_init_for_surface(cairo_surface_pattern_t * pattern, cairo_surface_t * surface);
 cairo_private void _cairo_pattern_fini(cairo_pattern_t * pattern);
-
 cairo_private cairo_pattern_t * _cairo_pattern_create_solid(const cairo_color_t * color);
-
-cairo_private void _cairo_pattern_transform(cairo_pattern_t * pattern,
-    const cairo_matrix_t * ctm_inverse);
-
-cairo_private void _cairo_pattern_pretransform(cairo_pattern_t * pattern,
-    const cairo_matrix_t * ctm);
-
+cairo_private void _cairo_pattern_transform(cairo_pattern_t * pattern, const cairo_matrix_t * ctm_inverse);
+cairo_private void _cairo_pattern_pretransform(cairo_pattern_t * pattern, const cairo_matrix_t * ctm);
 cairo_private cairo_bool_t _cairo_pattern_is_opaque_solid(const cairo_pattern_t * pattern);
-
-cairo_private cairo_bool_t _cairo_pattern_is_opaque(const cairo_pattern_t * pattern,
-    const cairo_rectangle_int_t * extents);
-
+cairo_private cairo_bool_t _cairo_pattern_is_opaque(const cairo_pattern_t * pattern, const cairo_rectangle_int_t * extents);
 cairo_private cairo_bool_t _cairo_pattern_is_clear(const cairo_pattern_t * pattern);
-
-cairo_private cairo_bool_t _cairo_gradient_pattern_is_solid(const cairo_gradient_pattern_t * gradient,
-    const cairo_rectangle_int_t * extents,
-    cairo_color_t * color);
-
-cairo_private cairo_bool_t _cairo_pattern_is_constant_alpha(const cairo_pattern_t * abstract_pattern,
-    const cairo_rectangle_int_t * extents,
-    double * alpha);
-
-cairo_private void _cairo_gradient_pattern_fit_to_range(const cairo_gradient_pattern_t * gradient,
-    double max_value,
-    cairo_matrix_t * out_matrix,
-    cairo_circle_double_t out_circle[2]);
-
+cairo_private cairo_bool_t _cairo_gradient_pattern_is_solid(const cairo_gradient_pattern_t * gradient, const cairo_rectangle_int_t * extents, cairo_color_t * color);
+cairo_private cairo_bool_t _cairo_pattern_is_constant_alpha(const cairo_pattern_t * abstract_pattern, const cairo_rectangle_int_t * extents, double * alpha);
+cairo_private void _cairo_gradient_pattern_fit_to_range(const cairo_gradient_pattern_t * gradient, double max_value, cairo_matrix_t * out_matrix, cairo_circle_double_t out_circle[2]);
 cairo_private cairo_bool_t _cairo_radial_pattern_focus_is_inside(const cairo_radial_pattern_t * radial);
-
-cairo_private void _cairo_gradient_pattern_box_to_parameter(const cairo_gradient_pattern_t * gradient,
-    double x0, double y0,
-    double x1, double y1,
-    double tolerance,
-    double out_range[2]);
-
-cairo_private void _cairo_gradient_pattern_interpolate(const cairo_gradient_pattern_t * gradient,
-    double t,
-    cairo_circle_double_t * out_circle);
-
-cairo_private void _cairo_pattern_alpha_range(const cairo_pattern_t * pattern,
-    double * out_min,
-    double * out_max);
-
+cairo_private void _cairo_gradient_pattern_box_to_parameter(const cairo_gradient_pattern_t * gradient, double x0, double y0, double x1, double y1, double tolerance, double out_range[2]);
+cairo_private void _cairo_gradient_pattern_interpolate(const cairo_gradient_pattern_t * gradient, double t, cairo_circle_double_t * out_circle);
+cairo_private void _cairo_pattern_alpha_range(const cairo_pattern_t * pattern, double * out_min, double * out_max);
 cairo_private cairo_bool_t _cairo_mesh_pattern_coord_box(const cairo_mesh_pattern_t * mesh,
-    double * out_xmin,
-    double * out_ymin,
-    double * out_xmax,
-    double * out_ymax);
-
-cairo_private void _cairo_pattern_sampled_area(const cairo_pattern_t * pattern,
-    const cairo_rectangle_int_t * extents,
-    cairo_rectangle_int_t * sample);
-
-cairo_private void _cairo_pattern_get_extents(const cairo_pattern_t * pattern,
-    cairo_rectangle_int_t * extents,
-    cairo_bool_t is_vector);
-
-cairo_private cairo_int_status_t _cairo_pattern_get_ink_extents(const cairo_pattern_t * pattern,
-    cairo_rectangle_int_t * extents);
-
-cairo_private unsigned long _cairo_pattern_hash(const cairo_pattern_t * pattern);
-
-cairo_private unsigned long _cairo_linear_pattern_hash(unsigned long hash,
-    const cairo_linear_pattern_t * linear);
-
-cairo_private unsigned long _cairo_radial_pattern_hash(unsigned long hash,
-    const cairo_radial_pattern_t * radial);
-
-cairo_private cairo_bool_t _cairo_linear_pattern_equal(const cairo_linear_pattern_t * a,
-    const cairo_linear_pattern_t * b);
-
-cairo_private unsigned long _cairo_pattern_size(const cairo_pattern_t * pattern);
-
-cairo_private cairo_bool_t _cairo_radial_pattern_equal(const cairo_radial_pattern_t * a,
-    const cairo_radial_pattern_t * b);
-
-cairo_private cairo_bool_t _cairo_pattern_equal(const cairo_pattern_t * a,
-    const cairo_pattern_t * b);
-
+    double * out_xmin, double * out_ymin, double * out_xmax, double * out_ymax);
+cairo_private void _cairo_pattern_sampled_area(const cairo_pattern_t * pattern, const cairo_rectangle_int_t * extents, cairo_rectangle_int_t * sample);
+cairo_private void _cairo_pattern_get_extents(const cairo_pattern_t * pattern, cairo_rectangle_int_t * extents, cairo_bool_t is_vector);
+cairo_private cairo_int_status_t _cairo_pattern_get_ink_extents(const cairo_pattern_t * pattern, cairo_rectangle_int_t * extents);
+cairo_private ulong _cairo_pattern_hash(const cairo_pattern_t * pattern);
+cairo_private ulong _cairo_linear_pattern_hash(ulong hash, const cairo_linear_pattern_t * linear);
+cairo_private ulong _cairo_radial_pattern_hash(ulong hash, const cairo_radial_pattern_t * radial);
+cairo_private cairo_bool_t _cairo_linear_pattern_equal(const cairo_linear_pattern_t * a, const cairo_linear_pattern_t * b);
+cairo_private ulong _cairo_pattern_size(const cairo_pattern_t * pattern);
+cairo_private cairo_bool_t _cairo_radial_pattern_equal(const cairo_radial_pattern_t * a, const cairo_radial_pattern_t * b);
+cairo_private cairo_bool_t _cairo_pattern_equal(const cairo_pattern_t * a, const cairo_pattern_t * b);
 cairo_private cairo_filter_t _cairo_pattern_analyze_filter(const cairo_pattern_t * pattern);
 
 /* cairo-mesh-pattern-rasterizer.c */
@@ -297,21 +225,11 @@ cairo_private void _cairo_mesh_pattern_rasterize(const cairo_mesh_pattern_t * me
     int stride,
     double x_offset,
     double y_offset);
-
-cairo_private cairo_surface_t * _cairo_raster_source_pattern_acquire(const cairo_pattern_t * abstract_pattern,
-    cairo_surface_t * target,
-    const cairo_rectangle_int_t * extents);
-
-cairo_private void _cairo_raster_source_pattern_release(const cairo_pattern_t * abstract_pattern,
-    cairo_surface_t * surface);
-
+cairo_private cairo_surface_t * _cairo_raster_source_pattern_acquire(const cairo_pattern_t * abstract_pattern, cairo_surface_t * target, const cairo_rectangle_int_t * extents);
+cairo_private void _cairo_raster_source_pattern_release(const cairo_pattern_t * abstract_pattern, cairo_surface_t * surface);
 cairo_private cairo_status_t _cairo_raster_source_pattern_snapshot(cairo_pattern_t * abstract_pattern);
-
-cairo_private cairo_status_t _cairo_raster_source_pattern_init_copy(cairo_pattern_t * pattern,
-    const cairo_pattern_t * other);
-
+cairo_private cairo_status_t _cairo_raster_source_pattern_init_copy(cairo_pattern_t * pattern, const cairo_pattern_t * other);
 cairo_private void _cairo_raster_source_pattern_finish(cairo_pattern_t * abstract_pattern);
-
 cairo_private void _cairo_debug_print_pattern(FILE * file, const cairo_pattern_t * pattern);
 
 CAIRO_END_DECLS

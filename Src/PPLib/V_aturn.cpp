@@ -1,5 +1,5 @@
 // V_ATURN.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -641,8 +641,8 @@ void SLAPI PPViewAccturn::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		if(Filt.BillID) {
-			pBrw->origin.y = 15;
-			pBrw->size.y = 8;
+			pBrw->ViewOrigin.y = 15;
+			pBrw->ViewSize.y = 8;
 		}
 		if((Filt.Flags & (AccturnFilt::fAllCurrencies|AccturnFilt::fLastOnly)) && !Filt.GrpAco) {
 			int col = 0;

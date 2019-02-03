@@ -41,7 +41,7 @@
 
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-compositor-private.h"
+//#include "cairo-compositor-private.h"
 
 static cairo_int_status_t _cairo_no_compositor_paint(const cairo_compositor_t * _compositor, cairo_composite_rectangles_t * extents)
 {

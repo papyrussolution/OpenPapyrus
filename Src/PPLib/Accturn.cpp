@@ -57,7 +57,7 @@ int SLAPI AccTurnCore::GetExtentAccListByGen(PPID genAccID, ObjRestrictArray * p
 	PPIDArray temp_acc_list;
 	THROW(AccObj.GetPacket(genAccID, &pack) > 0);
 	THROW_PP(pack.Rec.Type == ACY_AGGR, PPERR_ACCNGEN);
-	for(uint i = 0; pack.GenList.enumItems(&i, (void**)&p_item);) {
+	for(uint i = 0; pack.GenList.enumItems(&i, reinterpret_cast<void **>(&p_item));) {
 		long   f = p_item->Flags & ~(ACGF_ACO1GRP | ACGF_ACO2GRP);
 		int    aco = abs(GetAcoByGenFlags(p_item->Flags));
 		if(aco == ACO_3) {
@@ -84,12 +84,12 @@ int SLAPI AccTurnCore::GetExtentAccListByGen(PPID genAccID, ObjRestrictArray * p
 	return ok;
 }
 
-int SLAPI AccTurnCore::GetBaseAcctID(AcctID * pCurAcctId, AcctID * pBaseAcctId)
+int SLAPI AccTurnCore::GetBaseAcctID(const AcctID & rCurAcctId, AcctID * pBaseAcctId)
 {
 	PPID   base_acc_id = 0;
-	if(AccObj.SearchBase(pCurAcctId->ac, &base_acc_id, 0) > 0) {
+	if(AccObj.SearchBase(rCurAcctId.ac, &base_acc_id, 0) > 0) {
 		pBaseAcctId->ac = base_acc_id;
-		pBaseAcctId->ar = pCurAcctId->ar;
+		pBaseAcctId->ar = rCurAcctId.ar;
 		return 1;
 	}
 	else
@@ -918,7 +918,7 @@ int SLAPI AccTurnCore::GetAcctRel(PPID accID, PPID arID, AcctRelTbl::Rec * pRec,
 	return ok;
 }
 
-int SLAPI AccTurnCore::_ProcessAcct(int side, PPID curID, AcctID * pAcctId, PPID * pAccRelID, AccTurnParam * p)
+int SLAPI AccTurnCore::_ProcessAcct(int side, PPID curID, const AcctID & rAcctId, PPID * pAccRelID, AccTurnParam * p)
 {
 	int    ok = 1, r, kind;
 	Acct   acct;
@@ -926,7 +926,7 @@ int SLAPI AccTurnCore::_ProcessAcct(int side, PPID curID, AcctID * pAcctId, PPID
 	//
 	// Проверяем существование счета
 	//
-	THROW(AccObj.Search(pAcctId->ac, &acc_rec) > 0);
+	THROW(AccObj.Search(rAcctId.ac, &acc_rec) > 0);
 	THROW_PP(acc_rec.CurID == curID, PPERR_INCOMPACCWITHCUR);
 	THROW(ValidateAccKind(kind = acc_rec.Kind));
 	acct.ac = acc_rec.A.Ac;
@@ -936,8 +936,8 @@ int SLAPI AccTurnCore::_ProcessAcct(int side, PPID curID, AcctID * pAcctId, PPID
 	//
 	// Проверяем существование статьи
 	//
-	if(pAcctId->ar) {
-		THROW(Art.Search(pAcctId->ar) > 0);
+	if(rAcctId.ar) {
+		THROW(Art.Search(rAcctId.ar) > 0);
 		acct.ar = Art.data.Article;
 	}
 	else
@@ -947,7 +947,7 @@ int SLAPI AccTurnCore::_ProcessAcct(int side, PPID curID, AcctID * pAcctId, PPID
 	// Ищем ссылку на соответствие {счет, статья} в AcctRel
 	// и если ссылки нет, то открываем новую
 	//
-	THROW(r = AcctIDToRel(pAcctId, pAccRelID));
+	THROW(r = AcctIDToRel(&rAcctId, pAccRelID));
 	if(r > 0) {
 		THROW_PP(AccRel.data.Closed == 0, PPERR_ACCTCLOSED);
 	}
@@ -960,7 +960,7 @@ int SLAPI AccTurnCore::_ProcessAcct(int side, PPID curID, AcctID * pAcctId, PPID
 		}
 		*/
 		// } @v10.1.12 
-		THROW(AccRel.OpenAcct(pAccRelID, &acct, curID, pAcctId, kind));
+		THROW(AccRel.OpenAcct(pAccRelID, &acct, curID, &rAcctId, kind));
 	}
 	CATCHZOK
 	return ok;
@@ -1035,7 +1035,7 @@ int SLAPI AccTurnCore::_UpdateTurn(PPID billID, short rByBill, double newAmt, do
 		k0.Bill    = billID;
 		k0.RByBill = rByBill;
 		k0.Reverse = 0;
-		if(!search(0, &k0, spEq)) { // @v8.2.0 searchForUpdate-->search
+		if(!search(0, &k0, spEq)) {
 			CALLEXCEPT_PP((BTROKORNFOUND) ? PPERR_TURNBYBILLNFOUND : PPERR_DBENGINE);
 		}
 		date = data.Dt;
@@ -1134,9 +1134,9 @@ int SLAPI AccTurnCore::Turn(PPAccTurn * pAturn, int use_ta)
 		if(pAturn->RByBill < BASE_RBB_BIAS) {
 			THROW(GetBill(pAturn));
 		}
-		THROW(_ProcessAcct(PPDEBIT,  pAturn->CurID, &pAturn->DbtID, &dbt_rel, &dbt_param));
+		THROW(_ProcessAcct(PPDEBIT,  pAturn->CurID, pAturn->DbtID, &dbt_rel, &dbt_param));
 		if(!zero_crd_acc) {
-			THROW(_ProcessAcct(PPCREDIT, pAturn->CurID, &pAturn->CrdID, &crd_rel, &crd_param));
+			THROW(_ProcessAcct(PPCREDIT, pAturn->CurID, pAturn->CrdID, &crd_rel, &crd_param));
 		}
 		else
 			crd_rel = 0;
@@ -1157,9 +1157,9 @@ int SLAPI AccTurnCore::Turn(PPAccTurn * pAturn, int use_ta)
 			base_aturn.RByBill  += BASE_RBB_BIAS;
 			base_aturn.CurID  = 0;
 			base_aturn.Amount = R2(pAturn->Amount * pAturn->CRate);
-			THROW(GetBaseAcctID(&pAturn->DbtID, &base_aturn.DbtID));
+			THROW(GetBaseAcctID(pAturn->DbtID, &base_aturn.DbtID));
 			if(!zero_crd_acc) {
-				THROW(GetBaseAcctID(&pAturn->CrdID, &base_aturn.CrdID));
+				THROW(GetBaseAcctID(pAturn->CrdID, &base_aturn.CrdID));
 			}
 			THROW(Turn(&base_aturn, 0)); // @recursion
 		}

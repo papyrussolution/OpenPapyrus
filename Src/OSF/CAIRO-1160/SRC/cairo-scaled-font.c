@@ -39,11 +39,11 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-image-surface-private.h"
 #include "cairo-list-inline.h"
 #include "cairo-pattern-private.h"
-#include "cairo-scaled-font-private.h"
+//#include "cairo-scaled-font-private.h"
 #include "cairo-surface-backend-private.h"
 
 /**
@@ -616,11 +616,11 @@ static cairo_bool_t _cairo_scaled_font_keys_equal(const void * abstract_key_a, c
 {
 	const cairo_scaled_font_t * key_a = (const cairo_scaled_font_t *)abstract_key_a;
 	const cairo_scaled_font_t * key_b = (const cairo_scaled_font_t *)abstract_key_b;
-	return key_a->original_font_face == key_b->original_font_face && memcmp((unsigned char*)(&key_a->font_matrix.xx),
-		   (unsigned char*)(&key_b->font_matrix.xx),
+	return key_a->original_font_face == key_b->original_font_face && memcmp((uchar*)(&key_a->font_matrix.xx),
+		   (uchar*)(&key_b->font_matrix.xx),
 		   sizeof(cairo_matrix_t)) == 0 &&
-	       memcmp((unsigned char*)(&key_a->ctm.xx),
-		   (unsigned char*)(&key_b->ctm.xx),
+	       memcmp((uchar*)(&key_a->ctm.xx),
+		   (uchar*)(&key_b->ctm.xx),
 		   sizeof(cairo_matrix_t)) == 0 &&
 	       cairo_font_options_equal(&key_a->options, &key_b->options);
 }
@@ -632,11 +632,11 @@ static cairo_bool_t _cairo_scaled_font_matches(const cairo_scaled_font_t * scale
     const cairo_font_options_t * options)
 {
 	return scaled_font->original_font_face == font_face &&
-	       memcmp((unsigned char*)(&scaled_font->font_matrix.xx),
-		   (unsigned char*)(&font_matrix->xx),
+	       memcmp((uchar*)(&scaled_font->font_matrix.xx),
+		   (uchar*)(&font_matrix->xx),
 		   sizeof(cairo_matrix_t)) == 0 &&
-	       memcmp((unsigned char*)(&scaled_font->ctm.xx),
-		   (unsigned char*)(&ctm->xx),
+	       memcmp((uchar*)(&scaled_font->ctm.xx),
+		   (uchar*)(&ctm->xx),
 		   sizeof(cairo_matrix_t)) == 0 &&
 	       cairo_font_options_equal(&scaled_font->options, options);
 }
@@ -2028,11 +2028,7 @@ static cairo_status_t _cairo_scaled_font_single_glyph_device_extents(cairo_scale
 /*
  * Compute a device-space bounding box for the glyphs.
  */
-cairo_status_t _cairo_scaled_font_glyph_device_extents(cairo_scaled_font_t * scaled_font,
-    const cairo_glyph_t * glyphs,
-    int num_glyphs,
-    cairo_rectangle_int_t * extents,
-    cairo_bool_t * overlap_out)
+cairo_status_t _cairo_scaled_font_glyph_device_extents(cairo_scaled_font_t * scaled_font, const cairo_glyph_t * glyphs, int num_glyphs, cairo_rectangle_int_t * extents, cairo_bool_t * overlap_out)
 {
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
 	cairo_box_t box = { { INT_MAX, INT_MAX }, { INT_MIN, INT_MIN }};
@@ -2089,10 +2085,8 @@ cairo_status_t _cairo_scaled_font_glyph_device_extents(cairo_scaled_font_t * sca
 		extents->x = extents->y = 0;
 		extents->width = extents->height = 0;
 	}
-
 	if(overlap_out != NULL)
 		*overlap_out = overlap;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -2122,9 +2116,9 @@ cairo_bool_t _cairo_scaled_font_glyph_approximate_extents(cairo_scaled_font_t * 
 	pad = MAX(scaled_font->fs_extents.max_x_advance, scaled_font->fs_extents.height);
 	pad *= scaled_font->max_scale;
 	extents->x = ffloori(x0 - pad);
-	extents->width = ceil(x1 + pad) - extents->x;
+	extents->width = fceili(x1 + pad) - extents->x;
 	extents->y = ffloori(y0 - pad);
-	extents->height = ceil(y1 + pad) - extents->y;
+	extents->height = fceili(y1 + pad) - extents->y;
 	return TRUE;
 }
 
@@ -2378,13 +2372,11 @@ static cairo_status_t _trace_mask_to_path(cairo_image_surface_t * mask, cairo_pa
 				x += 8;
 				continue;
 			}
-			byte = CAIRO_BITSWAP8_IF_LITTLE_ENDIAN(byte);
+			byte = static_cast<uint8_t>(CAIRO_BITSWAP8_IF_LITTLE_ENDIAN(byte));
 			for(bit = 1 << 7; bit && x < mask->width; bit >>= 1, x++) {
 				if(byte & bit) {
 					px = _cairo_fixed_from_int(x);
-					status = _add_unit_rectangle_to_path(path,
-						px + x0,
-						py + y0);
+					status = _add_unit_rectangle_to_path(path, px + x0, py + y0);
 					if(unlikely(status))
 						goto BAIL;
 				}
@@ -2398,8 +2390,7 @@ BAIL:
 	return status;
 }
 
-cairo_status_t _cairo_scaled_font_glyph_path(cairo_scaled_font_t * scaled_font,
-    const cairo_glyph_t * glyphs, int num_glyphs, cairo_path_fixed_t * path)
+cairo_status_t _cairo_scaled_font_glyph_path(cairo_scaled_font_t * scaled_font, const cairo_glyph_t * glyphs, int num_glyphs, cairo_path_fixed_t * path)
 {
 	int i;
 	cairo_int_status_t status = scaled_font->status;
@@ -2413,9 +2404,7 @@ cairo_status_t _cairo_scaled_font_glyph_path(cairo_scaled_font_t * scaled_font,
 			status = _cairo_path_fixed_append(path, scaled_glyph->path, _cairo_fixed_from_double(glyphs[i].P.x), _cairo_fixed_from_double(glyphs[i].P.y));
 		}
 		else if(status == CAIRO_INT_STATUS_UNSUPPORTED) {
-			/* If the font is incapable of providing a path, then we'll
-			 * have to trace our own from a surface.
-			 */
+			// If the font is incapable of providing a path, then we'll have to trace our own from a surface.
 			status = _cairo_scaled_glyph_lookup(scaled_font, glyphs[i].index, CAIRO_SCALED_GLYPH_INFO_SURFACE, &scaled_glyph);
 			if(unlikely(status))
 				goto BAIL;
@@ -2440,27 +2429,21 @@ BAIL:
  * called by the font backend when initializing a glyph with
  * %CAIRO_SCALED_GLYPH_INFO_METRICS.
  **/
-void _cairo_scaled_glyph_set_metrics(cairo_scaled_glyph_t * scaled_glyph,
-    cairo_scaled_font_t * scaled_font,
-    cairo_text_extents_t * fs_metrics)
+void _cairo_scaled_glyph_set_metrics(cairo_scaled_glyph_t * scaled_glyph, cairo_scaled_font_t * scaled_font, cairo_text_extents_t * fs_metrics)
 {
 	cairo_bool_t first = TRUE;
 	double hm, wm;
 	double min_user_x = 0.0, max_user_x = 0.0, min_user_y = 0.0, max_user_y = 0.0;
 	double min_device_x = 0.0, max_device_x = 0.0, min_device_y = 0.0, max_device_y = 0.0;
 	double device_x_advance, device_y_advance;
-
 	scaled_glyph->fs_metrics = *fs_metrics;
-
 	for(hm = 0.0; hm <= 1.0; hm += 1.0)
 		for(wm = 0.0; wm <= 1.0; wm += 1.0) {
 			double x, y;
-
 			/* Transform this corner to user space */
 			x = fs_metrics->x_bearing + fs_metrics->width * wm;
 			y = fs_metrics->y_bearing + fs_metrics->height * hm;
-			cairo_matrix_transform_point(&scaled_font->font_matrix,
-			    &x, &y);
+			cairo_matrix_transform_point(&scaled_font->font_matrix, &x, &y);
 			if(first) {
 				min_user_x = max_user_x = x;
 				min_user_y = max_user_y = y;
@@ -2471,13 +2454,10 @@ void _cairo_scaled_glyph_set_metrics(cairo_scaled_glyph_t * scaled_glyph,
 				if(y < min_user_y) min_user_y = y;
 				if(y > max_user_y) max_user_y = y;
 			}
-
 			/* Transform this corner to device space from glyph origin */
 			x = fs_metrics->x_bearing + fs_metrics->width * wm;
 			y = fs_metrics->y_bearing + fs_metrics->height * hm;
-			cairo_matrix_transform_distance(&scaled_font->scale,
-			    &x, &y);
-
+			cairo_matrix_transform_distance(&scaled_font->scale, &x, &y);
 			if(first) {
 				min_device_x = max_device_x = x;
 				min_device_y = max_device_y = y;
@@ -2494,27 +2474,18 @@ void _cairo_scaled_glyph_set_metrics(cairo_scaled_glyph_t * scaled_glyph,
 	scaled_glyph->metrics.y_bearing = min_user_y;
 	scaled_glyph->metrics.width = max_user_x - min_user_x;
 	scaled_glyph->metrics.height = max_user_y - min_user_y;
-
 	scaled_glyph->metrics.x_advance = fs_metrics->x_advance;
 	scaled_glyph->metrics.y_advance = fs_metrics->y_advance;
-	cairo_matrix_transform_distance(&scaled_font->font_matrix,
-	    &scaled_glyph->metrics.x_advance,
-	    &scaled_glyph->metrics.y_advance);
-
+	cairo_matrix_transform_distance(&scaled_font->font_matrix, &scaled_glyph->metrics.x_advance, &scaled_glyph->metrics.y_advance);
 	device_x_advance = fs_metrics->x_advance;
 	device_y_advance = fs_metrics->y_advance;
-	cairo_matrix_transform_distance(&scaled_font->scale,
-	    &device_x_advance,
-	    &device_y_advance);
-
+	cairo_matrix_transform_distance(&scaled_font->scale, &device_x_advance, &device_y_advance);
 	scaled_glyph->bbox.p1.x = _cairo_fixed_from_double(min_device_x);
 	scaled_glyph->bbox.p1.y = _cairo_fixed_from_double(min_device_y);
 	scaled_glyph->bbox.p2.x = _cairo_fixed_from_double(max_device_x);
 	scaled_glyph->bbox.p2.y = _cairo_fixed_from_double(max_device_y);
-
 	scaled_glyph->x_advance = _cairo_lround(device_x_advance);
 	scaled_glyph->y_advance = _cairo_lround(device_y_advance);
-
 	scaled_glyph->has_info |= CAIRO_SCALED_GLYPH_INFO_METRICS;
 }
 

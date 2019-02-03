@@ -43,9 +43,9 @@
 #include "cairoint.h"
 #pragma hdrstop
 #include "cairo-image-surface-private.h"
-#include "cairo-compositor-private.h"
+//#include "cairo-compositor-private.h"
 #include "cairo-spans-compositor-private.h"
-#include "cairo-region-private.h"
+//#include "cairo-region-private.h"
 #include "cairo-traps-private.h"
 #include "cairo-tristrip-private.h"
 #include "cairo-pixman-private.h"
@@ -2068,14 +2068,11 @@ static cairo_status_t _fill_a8_lerp_spans(void * abstract_renderer, int y, int h
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _fill_xrgb32_lerp_spans(void * abstract_renderer, int y, int h,
-    const cairo_half_open_span_t * spans, unsigned num_spans)
+static cairo_status_t _fill_xrgb32_lerp_spans(void * abstract_renderer, int y, int h, const cairo_half_open_span_t * spans, unsigned num_spans)
 {
 	cairo_image_span_renderer_t * r = (cairo_image_span_renderer_t *)abstract_renderer;
-
 	if(num_spans == 0)
 		return CAIRO_STATUS_SUCCESS;
-
 	if(likely(h == 1)) {
 		do {
 			uint8_t a = mul8_8(spans[0].coverage, r->bpp);
@@ -2116,10 +2113,8 @@ static cairo_status_t _blit_xrgb32_lerp_spans(void * abstract_renderer, int y, i
     const cairo_half_open_span_t * spans, unsigned num_spans)
 {
 	cairo_image_span_renderer_t * r = (cairo_image_span_renderer_t *)abstract_renderer;
-
 	if(num_spans == 0)
 		return CAIRO_STATUS_SUCCESS;
-
 	if(likely(h == 1)) {
 		uint8_t * src = r->u.blit.src_data + y*r->u.blit.src_stride;
 		uint8_t * dst = r->u.blit.data + y*r->u.blit.stride;
@@ -2474,27 +2469,19 @@ static void free_pixels(pixman_image_t * image, void * data)
 	SAlloc::F(data);
 }
 
-static cairo_int_status_t inplace_renderer_init(cairo_image_span_renderer_t * r,
-    const cairo_composite_rectangles_t * composite,
-    cairo_antialias_t antialias,
-    cairo_bool_t needs_clip)
+static cairo_int_status_t inplace_renderer_init(cairo_image_span_renderer_t * r, const cairo_composite_rectangles_t * composite,
+    cairo_antialias_t antialias, cairo_bool_t needs_clip)
 {
 	cairo_image_surface_t * dst = (cairo_image_surface_t*)composite->surface;
 	uint8_t * buf;
-
 	if(composite->mask_pattern.base.type != CAIRO_PATTERN_TYPE_SOLID)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
 	r->base.render_rows = NULL;
 	r->bpp = composite->mask_pattern.solid.color.alpha_short >> 8;
-
 	if(composite->source_pattern.base.type == CAIRO_PATTERN_TYPE_SOLID) {
-		const cairo_color_t * color;
-
-		color = &composite->source_pattern.solid.color;
+		const cairo_color_t * color = &composite->source_pattern.solid.color;
 		if(composite->op == CAIRO_OPERATOR_CLEAR)
 			color = CAIRO_COLOR_TRANSPARENT;
-
 		if(fill_reduces_to_source(composite->op, color, dst, &r->u.fill.pixel)) {
 			/* Use plain C for the fill operations as the span length is
 			 * typically small, too small to payback the startup overheads of
@@ -2547,8 +2534,7 @@ static cairo_int_status_t inplace_renderer_init(cairo_image_span_renderer_t * r,
 		    to_image_surface(composite->source_pattern.surface.surface);
 		int tx, ty;
 
-		if(_cairo_matrix_is_integer_translation(&composite->source_pattern.base.matrix,
-		    &tx, &ty) &&
+		if(_cairo_matrix_is_integer_translation(&composite->source_pattern.base.matrix, &tx, &ty) &&
 		    composite->bounded.x + tx >= 0 &&
 		    composite->bounded.y + ty >= 0 &&
 		    composite->bounded.x + composite->bounded.width + tx <= src->width &&

@@ -37,8 +37,8 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-error-private.h"
-#include "cairo-region-private.h"
+//#include "cairo-error-private.h"
+//#include "cairo-region-private.h"
 
 /* XXX need to update pixman headers to be const as appropriate */
 #define CONST_CAST (pixman_region32_t*)

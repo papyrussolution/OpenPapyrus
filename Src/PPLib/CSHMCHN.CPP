@@ -1,5 +1,5 @@
 // CSHMCHN.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 // Механизм работы с кассовыми машинами
@@ -52,7 +52,7 @@ int SLAPI PPCashMachine::RegisterMachine(PPID cmt, RegCashMachineFunc func, int 
 {
 	ENTER_CRITICAL_SECTION
 	SETIFZ(P_RegData, new CMRegArray);
-	CMRegArray * p_ary = (CMRegArray*)P_RegData;
+	CMRegArray * p_ary = static_cast<CMRegArray *>(P_RegData);
 	CMRegEntry entry;
 	entry.cmt = cmt;
 	entry.func = func;
@@ -127,7 +127,7 @@ int SLAPI PPCashMachine::GetRegEntry(PPID cmtID, uint * pPos)
 		DYN_LINK_CMT(SETSTART); // @v8.9.1
 		DYN_LINK_CMT(DREAMKAS); // @v10.0.04
 	}
-	CMRegArray * p_ary = (CMRegArray *)P_RegData;
+	CMRegArray * p_ary = static_cast<CMRegArray *>(P_RegData);
 	if(p_ary) {
 		// @vmiller {
 		if(PPCashMachine::SyncOrAsync(cmtID, s) > 0) {
@@ -176,7 +176,7 @@ PPCashMachine * SLAPI PPCashMachine::CreateInstance(PPID cashID)
 		else
 			_cn_type = cn_rec.CashType;
 		if(_cn_type && GetRegEntry(_cn_type, &p))
-			p_cm = ((CMRegArray *)P_RegData)->at(p).func(cashID);
+			p_cm = static_cast<CMRegArray *>(P_RegData)->at(p).func(cashID);
 	}
 	return p_cm;
 }
@@ -185,14 +185,14 @@ PPCashMachine * SLAPI PPCashMachine::CreateInstance(PPID cashID)
 int SLAPI PPCashMachine::IsSyncCMT(PPID cmtID)
 {
 	uint p;
-	return BIN(GetRegEntry(cmtID, &p) && ((CMRegArray*)P_RegData)->at(p).flags & CMRegEntry::sync);
+	return BIN(GetRegEntry(cmtID, &p) && static_cast<CMRegArray *>(P_RegData)->at(p).flags & CMRegEntry::sync);
 }
 
 // static
 int SLAPI PPCashMachine::IsAsyncCMT(PPID cmtID)
 {
 	uint p;
-	return BIN(GetRegEntry(cmtID, &p) && ((CMRegArray*)P_RegData)->at(p).flags & CMRegEntry::async);
+	return BIN(GetRegEntry(cmtID, &p) && static_cast<CMRegArray *>(P_RegData)->at(p).flags & CMRegEntry::async);
 }
 
 SLAPI PPCashMachine::FiscalCorrection::FiscalCorrection() : AmtCash(0.0), AmtBank(0.0), AmtPrepay(0.0), AmtPostpay(0.0),
@@ -1389,7 +1389,7 @@ void CSPanel::ResetButtons()
 	if(UseKeyboardWKey && getCtrlString(CTL_CSPANEL_INPUT, input) && input.IsDigit()) {
 		long  key_pos = input.ToLong();
 		PPIDArray oper_rights_ary;
-		if(GetOperRightsByKeyPos((int)key_pos, &oper_rights_ary) > 0) {
+		if(GetOperRightsByKeyPos(key_pos, &oper_rights_ary) > 0) {
 			enableCommand(cmCSClose, oper_rights_ary.lsearch(CSESSRT_CLOSE));
 			enableCommand(cmSCSZReportCopy, oper_rights_ary.lsearch(CSESSOPRT_COPYZREPT));
 			enableCommand(cmSCSXReport,     oper_rights_ary.lsearch(CSESSOPRT_XREP << 16));

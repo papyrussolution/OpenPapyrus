@@ -41,7 +41,7 @@
 #pragma hdrstop
 #if CAIRO_HAS_FT_FONT // {
 #define _DEFAULT_SOURCE /* for strdup() */
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-image-surface-private.h"
 #include "cairo-ft-private.h"
 #include "cairo-pattern-private.h"
@@ -914,8 +914,8 @@ static void _fill_xrender_bitmap(FT_Bitmap * target,
     int bgr)
 {
 	FT_Bitmap * ftbit = &slot->bitmap;
-	unsigned char * srcLine = ftbit->buffer;
-	unsigned char * dstLine = target->buffer;
+	uchar * srcLine = ftbit->buffer;
+	uchar * dstLine = target->buffer;
 	int src_pitch = ftbit->pitch;
 	int width = target->width;
 	int height = target->rows;
@@ -1002,7 +1002,7 @@ static void _fill_xrender_bitmap(FT_Bitmap * target,
 
 			    for(h = height; h > 0; h--, srcLine += src_pitch, dstLine += pitch) {
 				    int x;
-				    unsigned char * src = srcLine;
+				    uchar * src = srcLine;
 				    uint * dst = (uint*)dstLine;
 
 				    for(x = 0; x < width; x++, src += 3) {
@@ -1022,7 +1022,7 @@ static void _fill_xrender_bitmap(FT_Bitmap * target,
 
 			    for(h = height; h > 0; h--, srcLine += src_pitch, dstLine += pitch) {
 				    int x;
-				    unsigned char * src = srcLine;
+				    uchar * src = srcLine;
 				    uint * dst = (uint*)dstLine;
 
 				    for(x = 0; x < width; x++, src += 3) {
@@ -1044,7 +1044,7 @@ static void _fill_xrender_bitmap(FT_Bitmap * target,
 		    if(!bgr) {
 			    for(h = height; h > 0; h--, srcLine += 3 * src_pitch, dstLine += pitch) {
 				    int x;
-				    unsigned char* src = srcLine;
+				    uchar* src = srcLine;
 				    uint*  dst = (uint*)dstLine;
 
 				    for(x = 0; x < width; x++, src += 1) {
@@ -1060,7 +1060,7 @@ static void _fill_xrender_bitmap(FT_Bitmap * target,
 		    else {
 			    for(h = height; h > 0; h--, srcLine += 3*src_pitch, dstLine += pitch) {
 				    int x;
-				    unsigned char * src = srcLine;
+				    uchar * src = srcLine;
 				    uint * dst = (uint*)dstLine;
 
 				    for(x = 0; x < width; x++, src += 1) {
@@ -1096,7 +1096,7 @@ static cairo_status_t _get_bitmap_surface(FT_Bitmap * bitmap,
     cairo_image_surface_t ** surface)
 {
 	uint width, height;
-	unsigned char * data;
+	uchar * data;
 	int format = CAIRO_FORMAT_A8;
 	int stride;
 	cairo_image_surface_t * image;
@@ -1127,7 +1127,7 @@ static cairo_status_t _get_bitmap_surface(FT_Bitmap * bitmap,
 			    }
 			    else {
 				    int i;
-				    unsigned char * source, * dest;
+				    uchar * source, * dest;
 				    source = bitmap->buffer;
 				    dest = data;
 				    for(i = height; i; i--) {
@@ -2072,18 +2072,12 @@ static int _conic_to(FT_Vector * control, FT_Vector * to, void * closure)
 
 	x2 = x3 + 2.0/3.0 * (conic.x - x3);
 	y2 = y3 + 2.0/3.0 * (conic.y - y3);
-
-	if(_cairo_path_fixed_curve_to(path,
-	    x1, y1,
-	    x2, y2,
-	    x3, y3) != CAIRO_STATUS_SUCCESS)
+	if(_cairo_path_fixed_curve_to(path, x1, y1, x2, y2, x3, y3) != CAIRO_STATUS_SUCCESS)
 		return 1;
-
 	return 0;
 }
 
-static int _cubic_to(FT_Vector * control1, FT_Vector * control2,
-    FT_Vector * to, void * closure)
+static int _cubic_to(FT_Vector * control1, FT_Vector * control2, FT_Vector * to, void * closure)
 {
 	cairo_path_fixed_t * path = closure;
 	cairo_fixed_t x0, y0;
@@ -2098,19 +2092,12 @@ static int _cubic_to(FT_Vector * control1, FT_Vector * control2,
 
 	x2 = _cairo_fixed_from_26_6(to->x);
 	y2 = _cairo_fixed_from_26_6(to->y);
-
-	if(_cairo_path_fixed_curve_to(path,
-	    x0, y0,
-	    x1, y1,
-	    x2, y2) != CAIRO_STATUS_SUCCESS)
+	if(_cairo_path_fixed_curve_to(path, x0, y0, x1, y1, x2, y2) != CAIRO_STATUS_SUCCESS)
 		return 1;
-
 	return 0;
 }
 
-static cairo_status_t _decompose_glyph_outline(FT_Face face,
-    cairo_font_options_t * options,
-    cairo_path_fixed_t ** pathp)
+static cairo_status_t _decompose_glyph_outline(FT_Face face, cairo_font_options_t * options, cairo_path_fixed_t ** pathp)
 {
 	static const FT_Outline_Funcs outline_funcs = {
 		(FT_Outline_MoveToFunc)_move_to,
@@ -2587,7 +2574,7 @@ static ulong _cairo_ft_ucs4_to_index(void * abstract_font,
 static cairo_int_status_t _cairo_ft_load_truetype_table(void * abstract_font,
     ulong tag,
     long offset,
-    unsigned char * buffer,
+    uchar * buffer,
     ulong * length)
 {
 	cairo_ft_scaled_font_t * scaled_font = abstract_font;
@@ -2726,7 +2713,7 @@ cleanup:
 }
 
 static cairo_int_status_t _cairo_index_to_glyph_name(void * abstract_font,
-    char      ** glyph_names,
+    char ** glyph_names,
     int num_glyph_names,
     ulong glyph_index,
     ulong * glyph_array_index)
@@ -2799,7 +2786,7 @@ static cairo_bool_t _ft_is_type1(FT_Face face)
 
 static cairo_int_status_t _cairo_ft_load_type1_data(void * abstract_font,
     long offset,
-    unsigned char * buffer,
+    uchar * buffer,
     ulong * length)
 {
 	cairo_ft_scaled_font_t * scaled_font = abstract_font;
@@ -2911,7 +2898,7 @@ static cairo_status_t _cairo_ft_font_face_create_for_toy(cairo_toy_font_face_t *
 	}
 
 	if(!FcPatternAddString(pattern,
-	    FC_FAMILY, (unsigned char*)toy_face->family)) {
+	    FC_FAMILY, (uchar*)toy_face->family)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		goto FREE_PATTERN;
 	}

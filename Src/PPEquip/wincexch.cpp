@@ -1,5 +1,5 @@
 // WINCEXCH.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -13,7 +13,7 @@ int SLAPI RecvBuf(TcpSocket * pSo, void * pBuf, size_t bufSize)
 	if(pSo && bufSize) {
 		size_t rcv_bytes = 0, total_rcv_bytes = 0;
 		while(total_rcv_bytes < bufSize) {
-			THROW_SL(pSo->Recv((char*)pBuf + total_rcv_bytes, bufSize - total_rcv_bytes, &rcv_bytes));
+			THROW_SL(pSo->Recv(PTR8(pBuf) + total_rcv_bytes, bufSize - total_rcv_bytes, &rcv_bytes));
 			total_rcv_bytes += rcv_bytes;
 		}
 		ok = 1;

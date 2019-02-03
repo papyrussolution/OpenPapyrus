@@ -95,8 +95,8 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-spans-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-spans-private.h"
+//#include "cairo-error-private.h"
 //#include <stdlib.h>
 //#include <string.h>
 //#include <limits.h>
@@ -457,7 +457,8 @@ struct glitter_scan_converter {
 
 /* Compute the floored division a/b. Assumes / and % perform symmetric
  * division. */
-inline static struct quorem floored_divrem(int a, int b)                            {
+inline static struct quorem floored_divrem(int a, int b)                            
+{
 	struct quorem qr;
 	qr.quo = a/b;
 	qr.rem = a%b;
@@ -470,10 +471,11 @@ inline static struct quorem floored_divrem(int a, int b)                        
 
 /* Compute the floored division (x*a)/b. Assumes / and % perform symmetric
  * division. */
-static struct quorem floored_muldivrem(int x, int a, int b)                     {
+static struct quorem floored_muldivrem(int x, int a, int b)                     
+{
 	struct quorem qr;
 	long long xa = (long long)x*a;
-	qr.quo = xa/b;
+	qr.quo = static_cast<int32_t>(xa/b);
 	qr.rem = xa%b;
 	if((xa>=0) != (b>=0) && qr.rem) {
 		qr.quo -= 1;
@@ -551,7 +553,7 @@ static void * _pool_alloc_from_new_chunk(struct pool * pool,
 		chunk = _pool_chunk_create(pool, capacity);
 	pool->current = chunk;
 
-	obj = ((unsigned char*)chunk + sizeof(*chunk) + chunk->size);
+	obj = ((uchar*)chunk + sizeof(*chunk) + chunk->size);
 	chunk->size += size;
 	return obj;
 }
@@ -567,7 +569,7 @@ inline static void * pool_alloc(struct pool * pool, size_t size)
 	struct _pool_chunk * chunk = pool->current;
 
 	if(size <= chunk->capacity - chunk->size) {
-		void * obj = ((unsigned char*)chunk + sizeof(*chunk) + chunk->size);
+		void * obj = ((uchar*)chunk + sizeof(*chunk) + chunk->size);
 		chunk->size += size;
 		return obj;
 	}

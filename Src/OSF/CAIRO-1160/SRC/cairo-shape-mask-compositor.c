@@ -36,8 +36,8 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-compositor-private.h"
-#include "cairo-clip-private.h"
+//#include "cairo-compositor-private.h"
+//#include "cairo-clip-private.h"
 #include "cairo-pattern-private.h"
 #include "cairo-surface-private.h"
 #include "cairo-surface-offset-private.h"

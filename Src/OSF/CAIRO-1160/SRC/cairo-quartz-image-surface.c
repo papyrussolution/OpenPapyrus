@@ -41,7 +41,7 @@
 #include "cairo-quartz-image.h"
 #include "cairo-quartz-private.h"
 #include "cairo-surface-backend-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-default-context-private.h"
 
 #define SURFACE_ERROR_NO_MEMORY (_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY)))
@@ -290,7 +290,7 @@ cairo_surface_t * cairo_quartz_image_surface_create(cairo_surface_t * surface)
 	cairo_image_surface_t * image_surface;
 	int width, height, stride;
 	cairo_format_t format;
-	unsigned char * data;
+	uchar * data;
 
 	if(surface->status)
 		return surface;

@@ -35,7 +35,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 /**
  * SECTION:cairo-font-options
  * @Title: cairo_font_options_t
@@ -158,7 +158,6 @@ void cairo_font_options_destroy(cairo_font_options_t * options)
 {
 	if(cairo_font_options_status(options))
 		return;
-
 	_cairo_font_options_fini(options);
 	SAlloc::F(options);
 }
@@ -174,7 +173,7 @@ void cairo_font_options_destroy(cairo_font_options_t * options)
  *
  * Since: 1.0
  **/
-cairo_status_t cairo_font_options_status(cairo_font_options_t * options)
+cairo_status_t FASTCALL cairo_font_options_status(cairo_font_options_t * options)
 {
 	if(options == NULL)
 		return CAIRO_STATUS_NULL_POINTER;

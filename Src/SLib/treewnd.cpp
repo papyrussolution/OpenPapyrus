@@ -1,5 +1,5 @@
 // TREEWND.CPP
-// Modified by A.Starodub 2013, 2016, 2018
+// Modified by A.Starodub 2013, 2016, 2018, 2019
 // @codepage UTF-8
 // Древовидный список в левой части основного окна
 //
@@ -23,7 +23,7 @@ TreeWindow::ListWindowItem::~ListWindowItem()
 
 TreeWindow::TreeWindow(HWND parentWnd) : P_CurLw(0), P_Toolbar(0)
 {
-	Hwnd = APPL->CreateDlg(4100, parentWnd, TreeWindow::WndProc, (LPARAM)this);
+	Hwnd = APPL->CreateDlg(4100, parentWnd, TreeWindow::WndProc, reinterpret_cast<LPARAM>(this));
 	H_CmdList = GetDlgItem(Hwnd, MENU_TREELIST);
 	APPL->SetWindowViewByKind(Hwnd, TProgram::wndtypNone);
 	ShortcWnd.Create(Hwnd);
@@ -32,7 +32,7 @@ TreeWindow::TreeWindow(HWND parentWnd) : P_CurLw(0), P_Toolbar(0)
 TreeWindow::~TreeWindow()
 {
 	ZDELETE(P_Toolbar);
-	TView::SetWindowProp(Hwnd, GWLP_USERDATA, (void *)0);
+	TView::SetWindowProp(Hwnd, GWLP_USERDATA, static_cast<void *>(0));
 	DestroyWindow(Hwnd);
 }
 
@@ -360,7 +360,7 @@ void TreeWindow::AddItemCmdList(const char * pTitle, void * ptr)
 		is.hParent         = TVI_ROOT;
 		is.hInsertAfter    = TVI_LAST;
 		is.item.mask       = TVIF_TEXT | TVIF_PARAM;
-		is.item.lParam     = (LPARAM)ptr;
+		is.item.lParam     = reinterpret_cast<LPARAM>(ptr);
 		is.item.cChildren  = 0;
 		is.item.pszText    = title_buf; // @unicodeproblem
 		is.item.cchTextMax = sizeof(title_buf);

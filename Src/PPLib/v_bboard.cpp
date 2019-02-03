@@ -1,5 +1,5 @@
 // V_BBOARD.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -65,7 +65,7 @@ int SLAPI PPViewServerStat::Init_(const PPBaseFilt * pFilt)
 //static
 int FASTCALL PPViewServerStat::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	PPViewServerStat * p_v = (PPViewServerStat *)pBlk->ExtraPtr;
+	PPViewServerStat * p_v = static_cast<PPViewServerStat *>(pBlk->ExtraPtr);
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
@@ -75,7 +75,7 @@ int SLAPI PPViewServerStat::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
 		ok = 1;
 		SString temp_buf;
-		ServerStatViewItem * p_item = (ServerStatViewItem *)pBlk->P_SrcData;
+		const ServerStatViewItem * p_item = static_cast<const ServerStatViewItem *>(pBlk->P_SrcData);
 		void * p_dest = pBlk->P_DestData;
 		switch(pBlk->ColumnN) {
 			case 0: // ИД потока
@@ -110,9 +110,9 @@ int SLAPI PPViewServerStat::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
-	PPViewBrowser * p_brw = (PPViewBrowser *)extraPtr;
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
 	if(p_brw && pData && pStyle) {
-		ServerStatViewItem * p_item = (ServerStatViewItem *)pData;
+		const ServerStatViewItem * p_item = static_cast<const ServerStatViewItem *>(pData);
 		if(p_item->State & PPThread::Info::stLocalStop) {
 			pStyle->Color = GetGrayColorRef(0.7f);
 			pStyle->Flags = 0; // BrowserWindow::CellStyle::fCorner;
@@ -145,25 +145,21 @@ int SLAPI PPViewServerStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2 && oneof2(ppvCmd, PPVCMD_REFRESHBYPERIOD, PPVCMD_REFRESH)) {
 		FetchStat();
-		AryBrowserDef * p_def = (AryBrowserDef *)pBrw->getDef();
+		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
 		if(p_def) {
-			// @v8.4.11 {
 			const long cp = p_def->_curItem();
 			const void * p_cr = p_def->getRow(cp);
-			const long tid = p_cr ? *(long *)p_cr : 0;
-			// } @v8.4.11
+			const long tid = p_cr ? *static_cast<const long *>(p_cr) : 0;
 			p_def->setArray(new SArray(Data), 0, 1);
-			// @v8.4.11 {
 			if(!p_def->search2(&tid, CMPF_LONG, srchFirst, 0))
 				p_def->top();
-			// } @v8.4.11
 		}
 		ok = 1;
 	}
 	else {
 		if(ppvCmd == PPVCMD_DELETEITEM) {
 			if(pHdr)
-				ok = StopThread(*(long *)pHdr);
+				ok = StopThread(*static_cast<const long *>(pHdr));
 		}
 		else if(ppvCmd == PPVCMD_RESETCACHE) {
 			ResetCache();

@@ -35,7 +35,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 //#include <math.h>
 /*
  * This file implements a user-font rendering the descendant of the Hershey

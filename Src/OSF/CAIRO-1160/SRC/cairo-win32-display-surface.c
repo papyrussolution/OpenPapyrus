@@ -47,12 +47,12 @@
 #if !defined(_WIN32_WINNT) || (_WIN32_WINNT < 0x0500)
 # define _WIN32_WINNT 0x0500
 #endif
-#include "cairo-clip-private.h"
-#include "cairo-composite-rectangles-private.h"
-#include "cairo-compositor-private.h"
+//#include "cairo-clip-private.h"
+//#include "cairo-composite-rectangles-private.h"
+//#include "cairo-compositor-private.h"
 #include "cairo-damage-private.h"
 #include "cairo-default-context-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-image-surface-inline.h"
 #include "cairo-paginated-private.h"
 #include "cairo-pattern-private.h"
@@ -97,7 +97,7 @@
 extern const cairo_surface_backend_t cairo_win32_display_surface_backend;
 
 static cairo_status_t _create_dc_and_bitmap(cairo_win32_display_surface_t * surface,
-    HDC original_dc, cairo_format_t format, int width, int height, unsigned char ** bits_out, int * rowstride_out)
+    HDC original_dc, cairo_format_t format, int width, int height, uchar ** bits_out, int * rowstride_out)
 {
 	cairo_status_t status;
 	BITMAPINFO * bitmap_info = NULL;
@@ -201,7 +201,7 @@ static cairo_status_t _create_dc_and_bitmap(cairo_win32_display_surface_t * surf
 	if(bitmap_info && num_palette > 2)
 		SAlloc::F(bitmap_info);
 	if(bits_out)
-		*bits_out = (unsigned char *)bits;
+		*bits_out = (uchar *)bits;
 	if(rowstride_out) {
 		/* Windows bitmaps are padded to 32-bit (dword) boundaries */
 		switch(format) {
@@ -256,7 +256,7 @@ static cairo_surface_t * _cairo_win32_display_surface_create_for_dc(HDC original
 {
 	cairo_status_t status;
 	cairo_device_t * device;
-	unsigned char * bits;
+	uchar * bits;
 	int rowstride;
 	cairo_win32_display_surface_t * surface = (cairo_win32_display_surface_t *)_cairo_malloc(sizeof(*surface));
 	if(surface == NULL)

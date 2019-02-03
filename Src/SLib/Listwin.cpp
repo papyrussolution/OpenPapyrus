@@ -1,5 +1,5 @@
 // LISTWIN.CPP
-// Copyright (c) V.Antonov, A.Osolotkin, A.Starodub, A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) V.Antonov, A.Osolotkin, A.Starodub, A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -35,7 +35,7 @@ void ListWindow::executeNM(HWND parent)
 	HWND   hwnd_parent = parent ? parent : APPL->H_MainWnd;
 	MessageCommandToOwner(cmLBLoadDef);
 	Id = (isTreeList()) ? DLGW_TREELBX : DLGW_LBX;
-	HW = APPL->CreateDlg(Id, hwnd_parent, (DLGPROC)TDialog::DialogProc, (LPARAM)this);
+	HW = APPL->CreateDlg(Id, hwnd_parent, (DLGPROC)TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
 	TView::SetWindowProp(H(), GWL_STYLE, WS_CHILD);
 	TView::SetWindowProp(H(), GWL_EXSTYLE, 0L);
 	SetParent(H(), hwnd_parent);
@@ -53,7 +53,7 @@ void ListWindow::executeNM(HWND parent)
 	MoveWindow(0, 0);
 	if(DlgFlags & fLarge) {
 		P_Def->SetOption(lbtSelNotify, 1);
-		::SendDlgItemMessage(H(), CTL_LBX_LIST, LB_SETITEMHEIGHT, 0, (LPARAM)40);
+		::SendDlgItemMessage(H(), CTL_LBX_LIST, LB_SETITEMHEIGHT, 0, (LPARAM)(40));
 	}
 }
 
@@ -99,7 +99,7 @@ IMPL_HANDLE_EVENT(ListWindow)
 		HWND   hwnd_parent = p_combo ? p_combo->link()->Parent : APPL->H_MainWnd;
 		MessageCommandToOwner(cmLBLoadDef);
 		Id = isTreeList() ? DLGW_TREELBX : ((P_Def && P_Def->Options & lbtOwnerDraw) ? DLGW_OWNDRAWLBX : lw_dlg_id);
-		HW = APPL->CreateDlg(Id, hwnd_parent, (DLGPROC)TDialog::DialogProc, (LPARAM)this);
+		HW = APPL->CreateDlg(Id, hwnd_parent, (DLGPROC)TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
 		if(oneof2(Id, DLGW_LBX, DLGW_TREELBX)) {
 			UserInterfaceSettings ui_cfg;
 			if(ui_cfg.Restore() > 0) {
@@ -494,7 +494,7 @@ IMPL_HANDLE_EVENT(WordSelector)
 			HWND   hwnd_parent = P_Blk->H_InputDlg;
 			MessageCommandToOwner(cmLBLoadDef);
 			Id = lw_dlg_id;
-			HW = APPL->CreateDlg(Id, hwnd_parent, (DLGPROC)TDialog::DialogProc, (LPARAM)this);
+			HW = APPL->CreateDlg(Id, hwnd_parent, (DLGPROC)TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
 			APPL->SetWindowViewByKind(H(), TProgram::wndtypListDialog);
 			MoveWindow(P_Blk->H_InputDlg, 0);
 			if(APPL->PushModalWindow(this, H())) {

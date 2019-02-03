@@ -34,18 +34,14 @@ int SLAPI GoodsRestFilt::Describe(long flags, SString & rBuf) const
 	PutMembToBuf((long)(Flags2 & f2CalcPrognosis),  STRINGIZE(CalcPrognosis), rBuf); // @v9.5.8 CalcPrognosis-->Flags2
 	{
 		SString buf;
-		if(CalcMethod == GoodsRestParam::pcmAvg)
-			buf = STRINGIZE(pcmAvg);
-		else if(CalcMethod == GoodsRestParam::pcmFirstLot)
-			buf = STRINGIZE(pcmFirstLot);
-		else if(CalcMethod == GoodsRestParam::pcmLastLot)
-			buf = STRINGIZE(pcmLastLot);
-		else if(CalcMethod == GoodsRestParam::pcmSum)
-			buf = STRINGIZE(pcmSum);
-		else if(CalcMethod == GoodsRestParam::pcmDiff)
-			buf = STRINGIZE(pcmDiff);
-		else if(CalcMethod == GoodsRestParam::pcmMostRecent)
-			buf = STRINGIZE(pcmMostRecent);
+		switch(CalcMethod) {
+			case GoodsRestParam::pcmAvg: buf = STRINGIZE(pcmAvg); break;
+			case GoodsRestParam::pcmFirstLot: buf = STRINGIZE(pcmFirstLot); break;
+			case GoodsRestParam::pcmLastLot: buf = STRINGIZE(pcmLastLot); break;
+			case GoodsRestParam::pcmSum: buf = STRINGIZE(pcmSum); break;
+			case GoodsRestParam::pcmDiff: buf = STRINGIZE(pcmDiff); break;
+			case GoodsRestParam::pcmMostRecent: buf = STRINGIZE(pcmMostRecent); break;
+		}
 		PutMembToBuf(buf,  STRINGIZE(CalcMethod),  rBuf);
 	}
 	PutSggMembToBuf(Sgg, STRINGIZE(Sgg), rBuf);
@@ -1943,15 +1939,26 @@ int SLAPI PPViewGoodsRest::Helper_ProcessLot(ProcessLotBlock & rBlk, ReceiptTbl:
 			if(Filt.CalcMethod == GoodsRestParam::pcmMostRecent)
 				::GetCurGoodsPrice(goods_id, rRec.LocID, GPRET_MOSTRECENT, &grci.Price, 0);
 			const int quot_usage = (Filt.QuotKindID > 0) ? Filt.GetQuotUsage() : 0;
-			if((rRec.Flags & (LOTF_COSTWOVAT|LOTF_PRICEWOTAXES)) || oneof2(quot_usage, 1, 2)) {
+			if((rRec.Flags & (LOTF_COSTWOVAT|LOTF_PRICEWOTAXES)) || oneof2(quot_usage, 1, 2) || P_Rpe) { // @v10.3.2 P_Rpe
+				// @v10.3.2 {
+				if(P_Rpe) {
+					assert(Filt.Flags2 & Filt.f2RetailPrice);
+					assert(quot_usage != 1);
+					RetailExtrItem  rtl_ext_item;
+					if(P_Rpe->GetPrice(rRec.GoodsID, 0, 0.0, &rtl_ext_item))
+						grci.Price = rtl_ext_item.Price;
+					else
+						grci.Price = 0.0; // Явно сигнализируем о том, что цены нет
+				}
+				// } @v10.3.2 
 				if(oneof2(quot_usage, 1, 2)) {
 					double qv = 0.0;
 					const QuotIdent qi(rRec.LocID, Filt.QuotKindID);
 					if(GObj.GetQuotExt(rRec.GoodsID, qi, grci.Cost, grci.Price, &qv, 1) > 0) {
-						if(quot_usage == 1)
-							grci.Price = qv;
-						else if(quot_usage == 2)
+						if(quot_usage == 2)
 							grci.Cost = qv;
+						else if(quot_usage == 1 && !P_Rpe) // @v10.3.2 !P_Rpe
+							grci.Price = qv;
 					}
 				}
 				if(rRec.Flags & (LOTF_COSTWOVAT|LOTF_PRICEWOTAXES)) {

@@ -1,5 +1,5 @@
 // COMMCFG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 // Диалог редактирования общих параметров настройки
@@ -176,9 +176,9 @@ IMPL_HANDLE_EVENT(CommCfgDialog)
 				{
 					TDialog * dlg = new TDialog(DLG_MAINORG);
 					if(CheckDialogPtrErr(&dlg)) {
-						SetupPPObjCombo(dlg, CTLSEL_MAINORG_DEF,      PPOBJ_PERSON, cfg.MainOrgID,          OLW_CANINSERT, (void *)PPPRK_MAIN);
-						SetupPPObjCombo(dlg, CTLSEL_MAINORG_DIRECTOR, PPOBJ_PERSON, cfg.MainOrgDirector_,   OLW_CANINSERT, (void *)PPPRK_EMPL);
-						SetupPPObjCombo(dlg, CTLSEL_MAINORG_ACCTNT,   PPOBJ_PERSON, cfg.MainOrgAccountant_, OLW_CANINSERT, (void *)PPPRK_EMPL);
+						SetupPPObjCombo(dlg, CTLSEL_MAINORG_DEF,      PPOBJ_PERSON, cfg.MainOrgID,          OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_MAIN));
+						SetupPPObjCombo(dlg, CTLSEL_MAINORG_DIRECTOR, PPOBJ_PERSON, cfg.MainOrgDirector_,   OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_EMPL));
+						SetupPPObjCombo(dlg, CTLSEL_MAINORG_ACCTNT,   PPOBJ_PERSON, cfg.MainOrgAccountant_, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_EMPL));
 						if(ExecView(dlg) == cmOK) {
 							dlg->getCtrlData(CTLSEL_MAINORG_DEF,      &cfg.MainOrgID);
 							dlg->getCtrlData(CTLSEL_MAINORG_DIRECTOR, &cfg.MainOrgDirector_);
@@ -194,12 +194,12 @@ IMPL_HANDLE_EVENT(CommCfgDialog)
 					if(CheckDialogPtrErr(&dlg)) {
 						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_SUPPLSH,    PPOBJ_ACCSHEET,  cfg.SupplAccSheet, OLW_CANINSERT);
 						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_SELLSH,     PPOBJ_ACCSHEET,  cfg.SellAccSheet,  OLW_CANINSERT);
-						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_RCPTOP,     PPOBJ_OPRKIND,   cfg.ReceiptOp,     OLW_CANINSERT, (void *)PPOPT_GOODSRECEIPT);
-						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_RETAILOP,   PPOBJ_OPRKIND,   cfg.RetailOp,      OLW_CANINSERT, (void *)PPOPT_GOODSEXPEND);
-						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_RETAILRET,  PPOBJ_OPRKIND,   cfg.RetailRetOp,   OLW_CANINSERT, (void *)PPOPT_GOODSRETURN);
-						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_INTRRCPT,   PPOBJ_OPRKIND,   cfg.IntrReceiptOp, OLW_CANINSERT, (void *)PPOPT_GOODSRECEIPT);
-						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_ACOP,       PPOBJ_OPRKIND,   cfg.AutoComplOp,   OLW_CANINSERT, (void *)PPOPT_GOODSMODIF);
-						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_DRAFTRCPT,  PPOBJ_OPRKIND,   cfg.DraftRcptOp,   OLW_CANINSERT, (void *)PPOPT_DRAFTRECEIPT);
+						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_RCPTOP,     PPOBJ_OPRKIND,   cfg.ReceiptOp,     OLW_CANINSERT, reinterpret_cast<void *>(PPOPT_GOODSRECEIPT));
+						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_RETAILOP,   PPOBJ_OPRKIND,   cfg.RetailOp,      OLW_CANINSERT, reinterpret_cast<void *>(PPOPT_GOODSEXPEND));
+						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_RETAILRET,  PPOBJ_OPRKIND,   cfg.RetailRetOp,   OLW_CANINSERT, reinterpret_cast<void *>(PPOPT_GOODSRETURN));
+						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_INTRRCPT,   PPOBJ_OPRKIND,   cfg.IntrReceiptOp, OLW_CANINSERT, reinterpret_cast<void *>(PPOPT_GOODSRECEIPT));
+						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_ACOP,       PPOBJ_OPRKIND,   cfg.AutoComplOp,   OLW_CANINSERT, reinterpret_cast<void *>(PPOPT_GOODSMODIF));
+						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_DRAFTRCPT,  PPOBJ_OPRKIND,   cfg.DraftRcptOp,   OLW_CANINSERT, reinterpret_cast<void *>(PPOPT_DRAFTRECEIPT));
 						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_DYNGTYPESA, PPOBJ_GOODSTYPE, cfg.DynGoodsTypeForSupplAgent, OLW_CANINSERT);
 						// @v9.7.0 dlg->setCtrlData(CTL_CCFGOP_PREPAYGOODS, cfg.PrepayInvoiceGoodsCode);
 						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_PREPAYWARE, PPOBJ_GOODS, cfg.PrepayInvoiceGoodsID, OLW_CANINSERT|OLW_LOADDEFONOPEN, 0); // @v9.7.0
@@ -272,7 +272,7 @@ int SLAPI EditCurrConfig()
 	if(CheckDialogPtrErr(&dlg)) {
 		GetMainOrgID(&main_org_id);
 		curr_loc = LConfig.Location;
-		SetupPPObjCombo(dlg, CTLSEL_CURRCFG_MAINORG, PPOBJ_PERSON, main_org_id, 0, (void *)PPPRK_MAIN);
+		SetupPPObjCombo(dlg, CTLSEL_CURRCFG_MAINORG, PPOBJ_PERSON, main_org_id, 0, reinterpret_cast<void *>(PPPRK_MAIN));
 		SetupPPObjCombo(dlg, CTLSEL_CURRCFG_LOC, PPOBJ_LOCATION, curr_loc, 0);
 		if(ExecView(dlg) == cmOK) {
 			dlg->getCtrlData(CTLSEL_CURRCFG_MAINORG, &main_org_id);

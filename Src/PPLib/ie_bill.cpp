@@ -9,8 +9,8 @@
 //
 IMPL_CMPFUNC(Sdr_Bill, i1, i2)
 {
-	const Sdr_Bill * p1 = (const Sdr_Bill *)i1;
-	const Sdr_Bill * p2 = (const Sdr_Bill *)i2;
+	const Sdr_Bill * p1 = static_cast<const Sdr_Bill *>(i1);
+	const Sdr_Bill * p2 = static_cast<const Sdr_Bill *>(i2);
 	int    si = CMPSIGN(p1->Date, p2->Date);
 	SETIFZ(si, strcmp(p1->Code, p2->Code));
 	SETIFZ(si, strcmp(p1->ID, p2->ID));
@@ -19,8 +19,8 @@ IMPL_CMPFUNC(Sdr_Bill, i1, i2)
 
 IMPL_CMPFUNC(Sdr_BRow, i1, i2)
 {
-	const Sdr_BRow * p1 = (const Sdr_BRow *)i1;
-	const Sdr_BRow * p2 = (const Sdr_BRow *)i2;
+	const Sdr_BRow * p1 = static_cast<const Sdr_BRow *>(i1);
+	const Sdr_BRow * p2 = static_cast<const Sdr_BRow *>(i2);
     int    si = CMPSIGN(p1->BillDate, p2->BillDate);
 	SETIFZ(si, strcmp(p1->BillCode, p2->BillCode));
 	SETIFZ(si, strcmp(p1->BillID, p2->BillID));
@@ -29,8 +29,8 @@ IMPL_CMPFUNC(Sdr_BRow, i1, i2)
 
 IMPL_CMPFUNC(Sdr_BRow_ID, i1, i2)
 {
-	const Sdr_BRow * p1 = (const Sdr_BRow *)i1;
-	const Sdr_BRow * p2 = (const Sdr_BRow *)i2;
+	const Sdr_BRow * p1 = static_cast<const Sdr_BRow *>(i1);
+	const Sdr_BRow * p2 = static_cast<const Sdr_BRow *>(i2);
 	int    si = strcmp(p1->BillID, p2->BillID);
 	SETIFZ(si, CMPSIGN(p1->BillDate, p2->BillDate));
 	SETIFZ(si, strcmp(p1->INN, p2->INN));
@@ -80,7 +80,7 @@ int PPBillImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResu
 			}
 		}
 		if(extraPtr) {
-			const PPBillPacket * p_pack = (const PPBillPacket *)extraPtr;
+			const PPBillPacket * p_pack = static_cast<const PPBillPacket *>(extraPtr);
 			PPObjBill * p_bobj = BillObj;
 			if(p_bobj && p_bobj->SubstText(p_pack, ps.Nam, temp_buf) == 2) {
 				ps.Nam = temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
@@ -90,7 +90,7 @@ int PPBillImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResu
 		}
 		char   cntr[128];
 		uint   cn = 0;
-		const uint fnl = (const uint)ps.Nam.Len();
+		const uint fnl = static_cast<const uint>(ps.Nam.Len());
 		for(uint i = 0; i < fnl; i++)
 			if(ps.Nam.C(i) == '?')
 				cntr[cn++] = '0';
@@ -503,7 +503,7 @@ int FASTCALL GetCliBnkSections(StringSet * pSectNames, int kind, PPCliBnkImpExpP
 //
 //
 //
-SLAPI PPBillExportFilt::PPBillExportFilt() : LocID(0)
+SLAPI PPBillIterchangeFilt::PPBillIterchangeFilt() : LocID(0)
 {
 	Period.Z();
 }
@@ -527,10 +527,10 @@ PPBillImpExpBaseProcessBlock::SearchBlock::SearchBlock() : Dt(ZERODATE), SurveyD
 
 PPBillImpExpBaseProcessBlock::PPBillImpExpBaseProcessBlock() : P_BObj(BillObj), DisabledOptions(0)
 {
-	Reset();
+	Z();
 }
 
-PPBillImpExpBaseProcessBlock & PPBillImpExpBaseProcessBlock::Reset()
+PPBillImpExpBaseProcessBlock & PPBillImpExpBaseProcessBlock::Z()
 {
 	// Эта функция не сбрасывает DisabledOptions поскольку поле транзиентное и устанавливается
 	// на прикладном уровне выше вызова Reset()
@@ -1036,7 +1036,7 @@ PPBillImporter::~PPBillImporter()
 
 void SLAPI PPBillImporter::Init()
 {
-	PPBillImpExpBaseProcessBlock::Reset();
+	PPBillImpExpBaseProcessBlock::Z();
 	AccSheetID = 0;
 	LineIdSeq = 0;
 	Bills.freeAll();
@@ -3254,7 +3254,7 @@ int SLAPI PPBillImporter::DoFullEdiProcess()
 	PPObjEdiProvider ediprv_obj;
 	PPEdiProvider ediprv_rec;
 	PPEdiProviderPacket ediprv_pack;
-	PPBillExportFilt be_filt;
+	PPBillIterchangeFilt be_filt;
 	be_filt.LocID = this->LocID;
 	be_filt.Period = this->Period;
 	GetMainOrgID(&main_org_id);
@@ -3267,8 +3267,10 @@ int SLAPI PPBillImporter::DoFullEdiProcess()
 			PPEdiProcessor prc(p_prvimp, &Logger);
 			PPEdiProcessor::DocumentInfo doc_inf;
 			PPEdiProcessor::DocumentInfoList doc_info_list;
-			prc.GetDocumentList(doc_info_list);
-			if(doc_info_list.GetCount()) {
+			if(!prc.GetDocumentList(be_filt, doc_info_list)) {
+				Logger.LogLastError();
+			}
+			else if(doc_info_list.GetCount()) {
 				TSCollection <PPEdiProcessor::Packet> doc_pack_list;
 				for(uint i = 0; i < doc_info_list.GetCount(); i++) {
 					if(doc_info_list.GetByIdx(i, doc_inf)) {
@@ -3282,7 +3284,7 @@ int SLAPI PPBillImporter::DoFullEdiProcess()
 						PPEdiProcessor::Packet * p_pack = doc_pack_list.at(didx);
 						if(p_pack) {
 							if(p_pack->DocType == PPEDIOP_ORDER) {
-								PPBillPacket * p_bp = (PPBillPacket *)p_pack->P_Data;
+								PPBillPacket * p_bp = static_cast<PPBillPacket *>(p_pack->P_Data);
 								if(p_bp && ((!this->LocID || p_bp->Rec.LocID == this->LocID) /*&& this->Period.CheckDate(p_bp->Rec.Dt)*/)) {
 									PPID   ex_bill_id = 0;
 									BillTbl::Rec ex_bill_rec;
@@ -3303,8 +3305,8 @@ int SLAPI PPBillImporter::DoFullEdiProcess()
 								}
 							}
 							else if(p_pack->DocType == PPEDIOP_ORDERRSP) {
-								PPBillPacket * p_bp = (PPBillPacket *)p_pack->P_Data;
-								PPBillPacket * p_bp_org = (PPBillPacket *)p_pack->P_ExtData;
+								PPBillPacket * p_bp = static_cast<PPBillPacket *>(p_pack->P_Data);
+								PPBillPacket * p_bp_org = static_cast<PPBillPacket *>(p_pack->P_ExtData);
 								assert(p_bp);
 								assert(p_bp_org);
 								if(p_bp && p_bp_org && p_bp_org->Rec.ID) {
@@ -3356,7 +3358,7 @@ int SLAPI PPBillImporter::DoFullEdiProcess()
 								}
 							}
 							else if(p_pack->DocType == PPEDIOP_DESADV) {
-								PPBillPacket * p_bp = (PPBillPacket *)p_pack->P_Data;
+								PPBillPacket * p_bp = static_cast<PPBillPacket *>(p_pack->P_Data);
 								if(p_bp && ((!this->LocID || p_bp->Rec.LocID == this->LocID) /*&& this->Period.CheckDate(p_bp->Rec.Dt)*/)) {
 									PPID   ex_bill_id = 0;
 									BillTbl::Rec ex_bill_rec;
@@ -3377,7 +3379,7 @@ int SLAPI PPBillImporter::DoFullEdiProcess()
 								}
 							}
 							else if(p_pack->DocType == PPEDIOP_RECADV) {
-								PPEdiProcessor::RecadvPacket * p_recadv_pack = (PPEdiProcessor::RecadvPacket *)p_pack->P_Data;
+								PPEdiProcessor::RecadvPacket * p_recadv_pack = static_cast<PPEdiProcessor::RecadvPacket *>(p_pack->P_Data);
 								if(p_recadv_pack && p_recadv_pack->DesadvBillCode.NotEmpty() && checkdate(p_recadv_pack->DesadvBillDate)) {
 									PPID   desadv_bill_id = 0;
 									BillTbl::Rec desadv_bill_rec;
@@ -3527,7 +3529,7 @@ int SLAPI PPBillImporter::Run()
 			ep.SetNonRvmTagMode(1);
 		THROW(ep.CheckLic());
 		{
-			PPBillExportFilt sbp;
+			PPBillIterchangeFilt sbp;
 			sbp.LocID = LocID;
 			sbp.Period = Period;
 			TSVector <PPEgaisProcessor::UtmEntry> utm_list; // @v9.8.11 TSArray-->TSVector
@@ -3712,7 +3714,7 @@ int SLAPI PPBillExporter::Init(const PPBillImpExpParam * pBillParam, const PPBil
 	int    ok = 1;
 	SString temp_buf;
 	// Init();
-	PPBillImpExpBaseProcessBlock::Reset();
+	PPBillImpExpBaseProcessBlock::Z();
 	RVALUEPTR(BillParam, pBillParam);
 	RVALUEPTR(BRowParam, pBRowParam);
 	if(!pBillParam || !pBRowParam) {
@@ -4148,7 +4150,7 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 				STRNSCPY(brow.RegistryCode, bill.RegistryCode);
 				STRNSCPY(brow.Obj2Name, bill.Obj2Name);
 				STRNSCPY(brow.Obj2INN, bill.Obj2INN);
-				brow.Obj2ID = bill.Obj2ID; // @v8.1.3
+				brow.Obj2ID = bill.Obj2ID;
 				brow.Obj2No = bill.Obj2No;
 				brow.DueDate = bill.DueDate;
 				brow.PaymDate = bill.PaymDate;
@@ -4308,8 +4310,8 @@ int SLAPI PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * p
 						if(P_BObj->Search(ord_bill_id, &ord_bill_rec) > 0) {
 							(temp_buf = ord_bill_rec.Code).Transf(CTRANSF_INNER_TO_OUTER);
 							STRNSCPY(pBill->OrderBillNo, temp_buf);
-							STRNSCPY(pBill->OrderBillID, temp_buf.Z().Cat(ord_bill_rec.ID)); // @v8.6.9
-							pBill->OrderDate = ord_bill_rec.Dt; // @v8.6.9
+							STRNSCPY(pBill->OrderBillID, temp_buf.Z().Cat(ord_bill_rec.ID));
+							pBill->OrderDate = ord_bill_rec.Dt;
 							break; // Даже если с отгрузкой связано более одного заказа, здесь мы можем сохранить ссылку лишь на один
 						}
 					}
@@ -4322,8 +4324,8 @@ int SLAPI PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * p
 						if(P_BObj->Search(pPack->Rec.LinkBillID, &ord_bill_rec) > 0) {
 							(temp_buf = ord_bill_rec.Code).Transf(CTRANSF_INNER_TO_OUTER);
 							STRNSCPY(pBill->OrderBillNo, temp_buf);
-							STRNSCPY(pBill->OrderBillID, temp_buf.Z().Cat(ord_bill_rec.ID)); // @v8.6.9
-							pBill->OrderDate = ord_bill_rec.Dt; // @v8.6.9
+							STRNSCPY(pBill->OrderBillID, temp_buf.Z().Cat(ord_bill_rec.ID));
+							pBill->OrderDate = ord_bill_rec.Dt;
 						}
 					}
 				}

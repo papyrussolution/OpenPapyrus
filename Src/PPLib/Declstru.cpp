@@ -174,7 +174,7 @@ int SLAPI PrcssrMailCharry::EditParam(Param * pParam)
 			ushort v = 0;
 			MailAccCtrlGroup::Rec mac_rec;
 			mac_rec.MailAccID = Data.MailAccID;
-			mac_rec.Extra = PPObjInternetAccount::filtfMail; // INETACCT_ONLYMAIL;
+			mac_rec.ExtraPtr = reinterpret_cast<void *>(PPObjInternetAccount::filtfMail); // INETACCT_ONLYMAIL;
 			setGroupData(GRP_MAILACC, &mac_rec);
 			setCtrlData(CTL_MAILCHRY_DESTADDR, Data.DestAddr);
 			SETFLAG(v, 0x01, Data.Flags & PrcssrMailCharry::Param::fRemoveSrcFiles);
@@ -320,7 +320,7 @@ int SLAPI RcvCharryParam::Edit()
 		MailAccCtrlGroup * p_grp = new MailAccCtrlGroup(CTLSEL_RCVCHRY_MAILACC, cmEditMailAcc);
 		dlg->addGroup(GRP_MAILACC, p_grp);
 		mac_rec.MailAccID = MailAccID;
-		mac_rec.Extra = PPObjInternetAccount::filtfMail; // INETACCT_ONLYMAIL;
+		mac_rec.ExtraPtr = reinterpret_cast<void *>(PPObjInternetAccount::filtfMail); // INETACCT_ONLYMAIL;
 		dlg->setGroupData(GRP_MAILACC, &mac_rec);
 		dlg->AddClusterAssoc(CTL_RCVCHRY_ACTION, 0, RcvCharryParam::aRcvFromMail);
 		dlg->AddClusterAssoc(CTL_RCVCHRY_ACTION, 1, RcvCharryParam::aGetFromInPath);

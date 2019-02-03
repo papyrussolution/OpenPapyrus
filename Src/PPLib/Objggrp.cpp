@@ -86,12 +86,6 @@ int SLAPI PPObjGoodsGroup::CalcTotal(GoodsGroupTotal * pTotal)
 	k1.Kind = PPGDSK_GROUP;
 	q.select(P_Tbl->ID, P_Tbl->Flags, P_Tbl->ParentID, 0L).where(P_Tbl->Kind == PPGDSK_GROUP);
 	for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
-		/* @v8.2.4
-		long   level = 0;
-		GetLevel(tbl->data.ID, &level);
-		if(level > total.MaxLevel)
-			total.MaxLevel = level;
-		*/
 		if(P_Tbl->data.ParentID)
 			id_list.add(P_Tbl->data.ID);
 		total.MaxLevel = 1;
@@ -103,7 +97,6 @@ int SLAPI PPObjGoodsGroup::CalcTotal(GoodsGroupTotal * pTotal)
 		else
 			total.GrpCount++;
 	}
-	// @v8.2.4 {
 	id_list.sortAndUndup();
 	for(uint i = 0; i < id_list.getCount(); i++) {
 		long   level = 0;
@@ -111,7 +104,6 @@ int SLAPI PPObjGoodsGroup::CalcTotal(GoodsGroupTotal * pTotal)
 		if(level > total.MaxLevel)
 			total.MaxLevel = level;
 	}
-	// } @v8.2.4
 	ASSIGN_PTR(pTotal, total);
 	return 1;
 }
@@ -527,7 +519,7 @@ int SLAPI PPObjGoodsGroup::AssignImages(ListBoxDef * pDef)
 {
 	if(pDef && pDef->valid() && (ImplementFlags & implTreeSelector)) {
 		LongArray list;
-		StdTreeListBoxDef * p_def = (StdTreeListBoxDef*)pDef;
+		StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(pDef);
 		p_def->ClearImageAssocList();
 		if(p_def->getIdList(list) > 0) {
 			Goods2Tbl::Rec ggrec;
@@ -573,7 +565,7 @@ int SLAPI PPObjGoodsGroup::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
 
 StrAssocArray * PPObjGoodsGroup::MakeStrAssocList(void * extraPtr)
 {
-	long   parent = (long)extraPtr;
+	long   parent = reinterpret_cast<long>(extraPtr);
 	StrAssocArray * p_list = new StrAssocArray();
 	int    alt = 0, asset = 0, excl_asset = 0, fold_only = 0;
 	Goods2Tbl::Key1 k;
@@ -695,7 +687,7 @@ void GoodsGroupView::setupButtons()
 		PPID id = getCurrID();
 		if(!id) {
 			down = 0;
-			const long extra_long = (long)GGObj.ExtraPtr;
+			const long extra_long = reinterpret_cast<long>(GGObj.ExtraPtr);
 			up   = BIN(extra_long-GetSelBias(extra_long));
 		}
 		else if(GGObj.Search(id, &rec)) {
@@ -715,7 +707,7 @@ void GoodsGroupView::setupButtons()
 int GoodsGroupView::setupList()
 {
 	ushort v = getCtrlUInt16(CTL_GGVIEW_GGRPTYPE);
-	const  long obj_extra = (long)GGObj.ExtraPtr;
+	const  long obj_extra = reinterpret_cast<long>(GGObj.ExtraPtr);
 	long   bias = GetSelBias(obj_extra);
 	long   extra_val = 0;
 	if(v == 0)
@@ -724,7 +716,7 @@ int GoodsGroupView::setupList()
 		extra_val = obj_extra-bias+GGRTYP_SEL_NORMAL;
 	else
 		extra_val = obj_extra-bias+GGRTYP_SEL_ALT;
-	P_Box->setDef(GGObj.Selector((void *)extra_val));
+	P_Box->setDef(GGObj.Selector(reinterpret_cast<void *>(extra_val)));
 	return 1;
 }
 
@@ -737,13 +729,13 @@ int GoodsGroupView::addItem(long * pPos, long * pID)
 		Goods2Tbl::Rec rec;
 		id = getCurrID();
 		if(GGObj.Search(id, &rec) <= 0 || !(rec.Flags & GF_FOLDER)) {
-			if(((StdTreeListBoxDef*)P_Box->def)->GetParent(id, &parent_id) && GGObj.Search(parent_id, 0) > 0)
+			if(static_cast<StdTreeListBoxDef *>(P_Box->def)->GetParent(id, &parent_id) && GGObj.Search(parent_id, 0) > 0)
 				id = parent_id;
 			else
 				id = 0;
 		}
 	}
-	int    r = GGObj.Edit(&obj_id, (void *)id);
+	int    r = GGObj.Edit(&obj_id, reinterpret_cast<void *>(id));
 	if(r == cmOK) {
 		ASSIGN_PTR(pID, obj_id);
 		return 2;
@@ -771,7 +763,7 @@ void GoodsGroupView::updateList(PPID id)
 		long   groups_type = (v == 1) ? GGRTYP_SEL_NORMAL : ((v == 2) ? GGRTYP_SEL_ALT : 0);
 		if(id < 0)
 			cur = P_Box->def ? P_Box->def->_curItem() : 0;
-		GGObj.UpdateSelector(P_Box->def, (void *)groups_type);
+		GGObj.UpdateSelector(P_Box->def, reinterpret_cast<void *>(groups_type));
 		if(id >= 0) {
 			if(id > 0)
 				P_Box->TransmitData(+1, &id);
@@ -867,8 +859,8 @@ int FASTCALL GoodsGroupView::NextIteration(GoodsGroupItem * pItem)
 	SString temp_buf;
 	while(pItem && P_Iter->Next(&CurIterID, temp_buf) > 0) {
 		PPGoodsPacket pack;
-		if(GGObj.GetPacket(CurIterID, &pack, PPObjGoods::gpoSkipQuot) > 0) { // @v8.3.7 PPObjGoods::gpoSkipQuot
-			*(Goods2Tbl::Rec *)pItem = pack.Rec;
+		if(GGObj.GetPacket(CurIterID, &pack, PPObjGoods::gpoSkipQuot) > 0) {
+			*static_cast<Goods2Tbl::Rec *>(pItem) = pack.Rec;
 			pack.GetGroupCode(temp_buf);
 			STRNSCPY(pItem->Code, temp_buf);
 			GGObj.GetLevel(CurIterID, &pItem->Level);
@@ -904,12 +896,11 @@ int SLAPI PPObjGoodsGroup::ReadGoodsFilt(PPID id, GoodsFilt * flt)
 
 int SLAPI PPObjGoodsGroup::Edit(PPID * pID, void * extraPtr /*parentID*/)
 {
-	const PPID extra_parent_id = (PPID)extraPtr;
-	return PPObjGoods::Edit(pID, gpkndUndef, NZOR(extra_parent_id, (PPID)ExtraPtr), 0, 0);
+	const PPID extra_parent_id = reinterpret_cast<PPID>(extraPtr);
+	return PPObjGoods::Edit(pID, gpkndUndef, NZOR(extra_parent_id, reinterpret_cast<PPID>(ExtraPtr)), 0, 0);
 }
 
-int SLAPI PPObjGoodsGroup::AddSimple(PPID * pID, GoodsPacketKind kind, PPID parentID,
-	const char * pName, const char * pCode, PPID unitID, int use_ta)
+int SLAPI PPObjGoodsGroup::AddSimple(PPID * pID, GoodsPacketKind kind, PPID parentID, const char * pName, const char * pCode, PPID unitID, int use_ta)
 {
 	int    ok = 1;
 	PPID   id = 0;
@@ -1147,9 +1138,9 @@ int SLAPI PPObjPckgType::CodeByTemplate(const char * pTempl, long counter, char 
 							n %= div;
 					}
 					if(p[1] == '9')
-						*d = '0' + (char)(n % 10);
+						*d = '0' + static_cast<char>(n % 10);
 					else if(p[1] == 'A')
-						*d = 'A' + (char)(n % 26);
+						*d = 'A' + static_cast<char>(n % 26);
 					d++;
 					p += 2;
 					j++;
@@ -1204,12 +1195,12 @@ int FASTCALL PPObjTransport::ReadConfig(PPTransportConfig * pCfg)
 	int    ok = -1, r;
 	Reference * p_ref = PPRef;
 	size_t sz = sizeof(Storage_PPTranspConfig) + 256;
-	Storage_PPTranspConfig * p_cfg = (Storage_PPTranspConfig *)SAlloc::M(sz);
+	Storage_PPTranspConfig * p_cfg = static_cast<Storage_PPTranspConfig *>(SAlloc::M(sz));
 	THROW_MEM(p_cfg);
 	THROW(r = p_ref->GetPropMainConfig(prop_cfg_id, p_cfg, sz));
 	if(r > 0 && p_cfg->GetSize() > sz) {
 		sz = p_cfg->GetSize();
-		p_cfg = (Storage_PPTranspConfig *)SAlloc::R(p_cfg, sz);
+		p_cfg = static_cast<Storage_PPTranspConfig *>(SAlloc::R(p_cfg, sz));
 		THROW_MEM(p_cfg);
 		THROW(r = p_ref->GetPropMainConfig(prop_cfg_id, p_cfg, sz));
 	}
@@ -1218,9 +1209,9 @@ int FASTCALL PPObjTransport::ReadConfig(PPTransportConfig * pCfg)
 		pCfg->OwnerKindID = p_cfg->OwnerKindID;
 		pCfg->CaptainKindID = p_cfg->CaptainKindID;
 		if(p_cfg->StrPosNameTempl)
-			pCfg->NameTemplate = ((char *)(p_cfg+1)) + p_cfg->StrPosNameTempl;
+			pCfg->NameTemplate = reinterpret_cast<const char *>(p_cfg+1) + p_cfg->StrPosNameTempl;
 		else
-			pCfg->NameTemplate = 0;
+			pCfg->NameTemplate.Z();
 		ok = 1;
 	}
 	else {
@@ -1255,7 +1246,7 @@ int FASTCALL PPObjTransport::WriteConfig(const PPTransportConfig * pCfg, int use
 			if(ext_size)
 				ext_size++; // Нулевая позиция - исключительная //
 			sz += ext_size;
-			p_cfg = (Storage_PPTranspConfig *)SAlloc::M(sz);
+			p_cfg = static_cast<Storage_PPTranspConfig *>(SAlloc::M(sz));
 			memzero(p_cfg, sz);
 			p_cfg->Tag   = PPOBJ_CONFIG;
 			p_cfg->ID    = PPCFG_MAIN;
@@ -1265,15 +1256,15 @@ int FASTCALL PPObjTransport::WriteConfig(const PPTransportConfig * pCfg, int use
 			p_cfg->CaptainKindID = pCfg->CaptainKindID;
 			if(ext_size) {
 				size_t pos = 0;
-				char * p_buf = (char *)(p_cfg+1);
+				char * p_buf = reinterpret_cast<char *>(p_cfg+1);
 				p_buf[pos++] = 0;
 				if(pCfg->NameTemplate.NotEmpty()) {
-					p_cfg->StrPosNameTempl = (uint16)pos;
+					p_cfg->StrPosNameTempl = static_cast<uint16>(pos);
 					strcpy(p_buf+pos, pCfg->NameTemplate);
 					pos += (pCfg->NameTemplate.Len()+1);
 				}
 			}
-			p_cfg->ExtStrSize = (uint16)ext_size;
+			p_cfg->ExtStrSize = static_cast<uint16>(ext_size);
 		}
 		THROW(PPObject::Helper_PutConfig(prop_cfg_id, cfg_obj_type, is_new, p_cfg, sz, 0));
 		THROW(tra.Commit());
@@ -1361,7 +1352,7 @@ int SLAPI PPObjTransport::Get(PPID id, PPTransport * pRec)
 			pRec->OwnerID   = goods_rec.ManufID;
 			pRec->CountryID = goods_rec.DefBCodeStrucID;
 			pRec->CaptainID = goods_rec.RspnsPersonID;
-			pRec->Capacity  = (long)goods_rec.PhUPerU;
+			pRec->Capacity  = static_cast<long>(goods_rec.PhUPerU);
 			pRec->VanType   = goods_rec.VanType; // @v10.2.0
 			SETFLAG(pRec->Flags, GF_PASSIV, goods_rec.Flags & GF_PASSIV); // @v10.2.4
 			P_Tbl->ReadBarcodes(id, bc_list);
@@ -1481,7 +1472,7 @@ ListBoxDef * SLAPI PPObjTransport::Selector(void * extraPtr)
 LongArray * SLAPI PPObjTransport::MakeList(long trType)
 {
 	LongArray * p_list = 0;
-	StrAssocListBoxDef * p_lbx_def = (StrAssocListBoxDef*)Selector((void *)trType);
+	StrAssocListBoxDef * p_lbx_def = static_cast<StrAssocListBoxDef *>(Selector(reinterpret_cast<void *>(trType)));
 	if(p_lbx_def) {
 		p_list = new LongArray;
 		if(p_list)
@@ -2207,7 +2198,7 @@ int SLAPI PPObjGoodsGroup::RemoveTempAlt(PPID id, long owner, int forceDel /*=0*
 	if(id && PPObjGoodsGroup::IsTempAlt(id) > 0) {
 		Goods2Tbl::Rec rec;
 		PPObjGoodsGroup gg_obj;
-		if(forceDel || gg_obj.Search(id, &rec) > 0 && rec.ManufID == owner) {
+		if(forceDel || (gg_obj.Search(id, &rec) > 0 && rec.ManufID == owner)) {
 			uint options = PPObject::not_checkrights|PPObject::not_addtolog;
 			SETFLAG(options, PPObject::use_transaction, useTa);
 			ok = gg_obj.RemoveObjV(id, 0, options, 0);
@@ -2217,7 +2208,7 @@ int SLAPI PPObjGoodsGroup::RemoveTempAlt(PPID id, long owner, int forceDel /*=0*
 }
 
 // static
-int SLAPI PPObjGoodsGroup::AddDynamicAltGroupByFilt(GoodsFilt * pFilt, PPID * pGrpID, long owner, int useTa)
+int SLAPI PPObjGoodsGroup::AddDynamicAltGroupByFilt(const GoodsFilt * pFilt, PPID * pGrpID, long owner, int useTa)
 {
 	int    ok = 1;
 	if(pFilt && !pFilt->IsEmpty()) {
@@ -2236,9 +2227,9 @@ int SLAPI PPObjGoodsGroup::AddDynamicAltGroupByFilt(GoodsFilt * pFilt, PPID * pG
 			grec.ManufID = owner;
 			PPGetWord(PPWORD_TEMPALTGRP, 0, buf);
 			GetSystemTime(&sys_time);
-			grp_name.Printf("%s %ld%ld%ld%ld%ld%ld%ld", (const char*)buf, sys_time.wYear, sys_time.wMonth,
+			grp_name.Printf("%s %ld%ld%ld%ld%ld%ld%ld", buf.cptr(), sys_time.wYear, sys_time.wMonth,
 				sys_time.wDay, sys_time.wHour, sys_time.wMinute, sys_time.wSecond, sys_time.wMilliseconds);
-			STRNSCPY(grec.Name, (const char*)grp_name);
+			STRNSCPY(grec.Name, grp_name);
 			THROW(g_obj.P_Tbl->Update(&grp_id, &grec, 0));
 			THROW(tmpf.WriteToProp(PPOBJ_GOODSGROUP, grp_id, GGPRP_GOODSFILT2, GGPRP_GOODSFLT_));
 			THROW(tra.Commit());
@@ -2284,7 +2275,7 @@ int SLAPI PPObjGoodsGroup::RemoveDynamicAlt(PPID id, long owner, int forceDel /*
 	Goods2Tbl::Rec rec;
 	if(id && gg_obj.Search(id, &rec) > 0 && (rec.Flags & GF_DYNAMICTEMPALTGRP) == GF_DYNAMICTEMPALTGRP) {
 		if(forceDel || rec.ManufID == owner) {
-			uint options = PPObject::not_checkrights|PPObject::not_addtolog|PPObject::not_objnotify; // @v8.0.4 not_objnotify
+			uint options = PPObject::not_checkrights|PPObject::not_addtolog|PPObject::not_objnotify;
 			SETFLAG(options, PPObject::use_transaction, useTa);
 			ok = gg_obj.RemoveObjV(id, 0, options, 0);
 		}
@@ -2344,7 +2335,7 @@ PPSuprWareAssoc & FASTCALL PPSuprWareAssoc::operator = (const PPSuprWareAssoc & 
 PPSuprWareAssoc & FASTCALL PPSuprWareAssoc::operator = (const ObjAssocTbl::Rec & rS)
 {
 	assert(sizeof(ObjAssocTbl::Rec) == sizeof(_GCompItem));
-	const _GCompItem & r_s = *(const _GCompItem *)&rS;
+	const _GCompItem & r_s = *reinterpret_cast<const _GCompItem *>(&rS);
 	GoodsID = r_s.GoodsID;
 	CompID  = r_s.CompID;
 	TypeID  = 0;
@@ -2531,7 +2522,7 @@ int SLAPI PPObjSuprWare::Put(PPID * pID, const PPSuprWarePacket * pPack, int use
 					uint pos = 0;
 					gci = *(_GCompItem *)prev_items.at(i);
 					if(items.lsearch(&gci.CompID, &pos, PTR_CMPFUNC(long), offsetof(_GCompItem, CompID))) {
-						_GCompItem * p_list_item = (_GCompItem *)items.at(pos);
+						_GCompItem * p_list_item = static_cast<_GCompItem *>(items.at(pos));
 						found_pos_list.add((long)pos);
 						if(p_list_item->Qtty != gci.Qtty || p_list_item->UnitID != gci.UnitID) {
 							gci.Qtty = p_list_item->Qtty;
@@ -2551,7 +2542,7 @@ int SLAPI PPObjSuprWare::Put(PPID * pID, const PPSuprWarePacket * pPack, int use
 					BExtInsert bei(&p_ref->Assc);
 					for(i = 0; i < items.getCount(); i++) {
 						if(!found_pos_list.lsearch((long)i)) {
-							_GCompItem * p_list_item = (_GCompItem *)items.at(i);
+							_GCompItem * p_list_item = static_cast<_GCompItem *>(items.at(i));
 							p_list_item->AsscType = assoc_type;
 							p_list_item->GoodsID = *pID;
 							p_list_item->InnerNum = ++last_num;
@@ -2591,12 +2582,11 @@ int SLAPI PPObjSuprWare::PutAssoc(PPSuprWareAssoc & rItem, int use_ta)
 		gci.InnerNum = rItem.Num;
 		gci.UnitID   = rItem.UnitID;
 		gci.Qtty     = rItem.Qtty;
-
-		if(p_ref->Assc.Search(assoc_type, rItem.GoodsID, rItem.CompID, (ObjAssocTbl::Rec *)&org_gci) > 0) {
+		if(p_ref->Assc.Search(assoc_type, rItem.GoodsID, rItem.CompID, reinterpret_cast<ObjAssocTbl::Rec *>(&org_gci)) > 0) {
 			if(gci.Qtty != org_gci.Qtty || gci.UnitID != org_gci.UnitID) {
 				org_gci.Qtty = gci.Qtty;
 				org_gci.UnitID = gci.UnitID;
-				THROW(p_ref->Assc.Update(org_gci.ID, (ObjAssocTbl::Rec *)&org_gci, 0));
+				THROW(p_ref->Assc.Update(org_gci.ID, reinterpret_cast<ObjAssocTbl::Rec *>(&org_gci), 0));
 				ok = 2;
 			}
 			else
@@ -2604,7 +2594,7 @@ int SLAPI PPObjSuprWare::PutAssoc(PPSuprWareAssoc & rItem, int use_ta)
 		}
 		else {
 			THROW(p_ref->Assc.SearchFreeNum(assoc_type, gci.GoodsID, &gci.InnerNum, 0));
-			THROW(p_ref->Assc.Add(&assc_id, (ObjAssocTbl::Rec *)&gci, 0));
+			THROW(p_ref->Assc.Add(&assc_id, reinterpret_cast<ObjAssocTbl::Rec *>(&gci), 0));
 			ok = 1;
 		}
 		THROW(tra.Commit());
@@ -2633,7 +2623,6 @@ int SLAPI PPObjSuprWare::SearchByBarcode(const char * pBarcode, BarcodeTbl::Rec 
 int SLAPI PPObjSuprWare::GetListByComponent(PPID componentID, PPIDArray & rList)
 {
 	const  PPID assoc_type = PPASS_GOODSCOMP;
-
 	int    ok = -1;
 	rList.clear();
 	_GCompItem rec;

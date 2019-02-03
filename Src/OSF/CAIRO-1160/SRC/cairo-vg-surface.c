@@ -40,10 +40,10 @@
 #include "cairo-vg.h"
 #include "cairo-cache-private.h"
 #include "cairo-default-context-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-image-surface-private.h"
 #include "cairo-path-fixed-private.h"
-#include "cairo-recording-surface-inline.h"
+//#include "cairo-recording-surface-inline.h"
 #include "cairo-surface-clipper-private.h"
 #include <pixman.h>
 #include <VG/openvg.h>
@@ -1361,7 +1361,7 @@ static cairo_int_status_t _vg_get_image(cairo_vg_surface_t * surface,
 
 static cairo_status_t _vg_surface_acquire_source_image(void * abstract_surface,
     cairo_image_surface_t ** image_out,
-    void        ** image_extra)
+    void   ** image_extra)
 {
 	cairo_vg_surface_t * surface = abstract_surface;
 

@@ -38,21 +38,21 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-boxes-private.h"
-#include "cairo-clip-private.h"
-#include "cairo-composite-rectangles-private.h"
-#include "cairo-compositor-private.h"
+//#include "cairo-boxes-private.h"
+//#include "cairo-clip-private.h"
+//#include "cairo-composite-rectangles-private.h"
+//#include "cairo-compositor-private.h"
 #include "cairo-default-context-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-image-surface-inline.h"
 #include "cairo-paginated-private.h"
-#include "cairo-pattern-private.h"
-#include "cairo-pixman-private.h"
+//#include "cairo-pattern-private.h"
+//#include "cairo-pixman-private.h"
 #include "cairo-recording-surface-private.h"
-#include "cairo-region-private.h"
-#include "cairo-scaled-font-private.h"
-#include "cairo-surface-snapshot-inline.h"
-#include "cairo-surface-snapshot-private.h"
+//#include "cairo-region-private.h"
+//#include "cairo-scaled-font-private.h"
+//#include "cairo-surface-snapshot-inline.h"
+//#include "cairo-surface-snapshot-private.h"
 #include "cairo-surface-subsurface-private.h"
 
 /* Limit on the width / height of an image surface in pixels.  This is
@@ -313,7 +313,7 @@ pixman_format_code_t _cairo_format_to_pixman_format_code(cairo_format_t format)
 	return ret;
 }
 
-cairo_surface_t * _cairo_image_surface_create_with_pixman_format(unsigned char * data,
+cairo_surface_t * _cairo_image_surface_create_with_pixman_format(uchar * data,
     pixman_format_code_t pixman_format,
     int width,
     int height,
@@ -402,7 +402,7 @@ cairo_surface_t * _cairo_image_surface_create_with_content(cairo_content_t conte
  *
  * <informalexample><programlisting>
  * int stride;
- * unsigned char *data;
+ * uchar *data;
  * cairo_surface_t *surface;
  *
  * stride = cairo_format_stride_for_width (format, width);
@@ -480,7 +480,7 @@ slim_hidden_def(cairo_format_stride_for_width);
  *
  * Since: 1.0
  **/
-cairo_surface_t * cairo_image_surface_create_for_data(unsigned char * data,
+cairo_surface_t * cairo_image_surface_create_for_data(uchar * data,
     cairo_format_t format,
     int width,
     int height,
@@ -537,7 +537,7 @@ slim_hidden_def(cairo_image_surface_create_for_data);
  *
  * Since: 1.2
  **/
-unsigned char * cairo_image_surface_get_data(cairo_surface_t * surface)
+uchar * cairo_image_surface_get_data(cairo_surface_t * surface)
 {
 	cairo_image_surface_t * image_surface = (cairo_image_surface_t*)surface;
 

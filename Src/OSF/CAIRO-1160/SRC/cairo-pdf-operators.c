@@ -41,7 +41,7 @@
 #include "cairoint.h"
 #pragma hdrstop
 #if CAIRO_HAS_PDF_OPERATORS
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-pdf-operators-private.h"
 #include "cairo-path-fixed-private.h"
 #include "cairo-output-stream-private.h"
@@ -115,13 +115,11 @@ cairo_private void _cairo_pdf_operators_enable_actual_text(cairo_pdf_operators_t
  * operations (eg changing patterns).
  *
  */
-cairo_status_t _cairo_pdf_operators_flush(cairo_pdf_operators_t * pdf_operators)
+cairo_status_t FASTCALL _cairo_pdf_operators_flush(cairo_pdf_operators_t * pdf_operators)
 {
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
-
 	if(pdf_operators->in_text_object)
 		status = _cairo_pdf_operators_end_text(pdf_operators);
-
 	return status;
 }
 
@@ -135,7 +133,7 @@ cairo_status_t _cairo_pdf_operators_flush(cairo_pdf_operators_t * pdf_operators)
  * the 'Q' operator (where pdf-operators functions were called inside
  * the q/Q pair).
  */
-void _cairo_pdf_operators_reset(cairo_pdf_operators_t * pdf_operators)
+void FASTCALL _cairo_pdf_operators_reset(cairo_pdf_operators_t * pdf_operators)
 {
 	pdf_operators->has_line_style = FALSE;
 }
@@ -173,39 +171,32 @@ typedef struct _word_wrap_stream {
 } word_wrap_stream_t;
 
 /* Emit word bytes up to the next delimiter character */
-static int _word_wrap_stream_count_word_up_to(word_wrap_stream_t * stream,
-    const unsigned char * data, int length)
+static int _word_wrap_stream_count_word_up_to(word_wrap_stream_t * stream, const uchar * data, int length)
 {
-	const unsigned char * s = data;
+	const uchar * s = data;
 	int count = 0;
-
 	while(length--) {
 		if(_cairo_isspace(*s) || *s == '<' || *s == '(') {
 			stream->state = WRAP_STATE_DELIMITER;
 			break;
 		}
-
 		count++;
 		stream->column++;
 		s++;
 	}
-
 	if(count)
 		_cairo_output_stream_write(stream->output, data, count);
-
 	return count;
 }
 
 /* Emit hexstring bytes up to either the end of the ASCII hexstring or the number
  * of columns remaining.
  */
-static int _word_wrap_stream_count_hexstring_up_to(word_wrap_stream_t * stream,
-    const unsigned char * data, int length)
+static int _word_wrap_stream_count_hexstring_up_to(word_wrap_stream_t * stream, const uchar * data, int length)
 {
-	const unsigned char * s = data;
+	const uchar * s = data;
 	int count = 0;
 	cairo_bool_t newline = FALSE;
-
 	while(length--) {
 		count++;
 		stream->column++;
@@ -213,35 +204,29 @@ static int _word_wrap_stream_count_hexstring_up_to(word_wrap_stream_t * stream,
 			stream->state = WRAP_STATE_DELIMITER;
 			break;
 		}
-
 		if(stream->column > stream->max_column) {
 			newline = TRUE;
 			break;
 		}
 		s++;
 	}
-
 	if(count)
 		_cairo_output_stream_write(stream->output, data, count);
-
 	if(newline) {
 		_cairo_output_stream_printf(stream->output, "\n");
 		stream->column = 0;
 	}
-
 	return count;
 }
 
 /* Count up to either the end of the string or the number of columns
  * remaining.
  */
-static int _word_wrap_stream_count_string_up_to(word_wrap_stream_t * stream,
-    const unsigned char * data, int length)
+static int _word_wrap_stream_count_string_up_to(word_wrap_stream_t * stream, const uchar * data, int length)
 {
-	const unsigned char * s = data;
+	const uchar * s = data;
 	int count = 0;
 	cairo_bool_t newline = FALSE;
-
 	while(length--) {
 		count++;
 		stream->column++;
@@ -265,25 +250,19 @@ static int _word_wrap_stream_count_string_up_to(word_wrap_stream_t * stream,
 		}
 		s++;
 	}
-
 	if(count)
 		_cairo_output_stream_write(stream->output, data, count);
-
 	if(newline) {
 		_cairo_output_stream_printf(stream->output, "\\\n");
 		stream->column = 0;
 	}
-
 	return count;
 }
 
-static cairo_status_t _word_wrap_stream_write(cairo_output_stream_t * base,
-    const unsigned char * data,
-    uint length)
+static cairo_status_t _word_wrap_stream_write(cairo_output_stream_t * base, const uchar * data, uint length)
 {
 	word_wrap_stream_t * stream = (word_wrap_stream_t*)base;
 	int count;
-
 	while(length) {
 		switch(stream->state) {
 			case WRAP_STATE_WORD:
@@ -323,14 +302,12 @@ static cairo_status_t _word_wrap_stream_write(cairo_output_stream_t * base,
 		data += count;
 		length -= count;
 	}
-
 	return _cairo_output_stream_get_status(stream->output);
 }
 
 static cairo_status_t _word_wrap_stream_close(cairo_output_stream_t * base)
 {
 	word_wrap_stream_t * stream = (word_wrap_stream_t*)base;
-
 	return _cairo_output_stream_get_status(stream->output);
 }
 
@@ -344,11 +321,7 @@ static cairo_output_stream_t * _word_wrap_stream_create(cairo_output_stream_t * 
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil;
 	}
-
-	_cairo_output_stream_init(&stream->base,
-	    _word_wrap_stream_write,
-	    NULL,
-	    _word_wrap_stream_close);
+	_cairo_output_stream_init(&stream->base, _word_wrap_stream_write, NULL, _word_wrap_stream_close);
 	stream->output = output;
 	stream->max_column = max_column;
 	stream->ps_output = ps;
@@ -385,14 +358,9 @@ static cairo_status_t _cairo_pdf_path_line_to(void * closure, const cairo_point_
 	pdf_path_info_t * info = (pdf_path_info_t *)closure;
 	double x = _cairo_fixed_to_double(point->x);
 	double y = _cairo_fixed_to_double(point->y);
-
-	if(info->line_cap != CAIRO_LINE_CAP_ROUND &&
-	    !info->has_sub_path &&
-	    point->x == info->last_move_to_point.x &&
-	    point->y == info->last_move_to_point.y) {
+	if(info->line_cap != CAIRO_LINE_CAP_ROUND && !info->has_sub_path && point->x == info->last_move_to_point.x && point->y == info->last_move_to_point.y) {
 		return CAIRO_STATUS_SUCCESS;
 	}
-
 	info->has_sub_path = TRUE;
 	cairo_matrix_transform_point(info->path_transform, &x, &y);
 	_cairo_output_stream_printf(info->output, "%g %g l ", x, y);
@@ -433,13 +401,9 @@ static cairo_status_t _cairo_pdf_path_rectangle(pdf_path_info_t * info, cairo_bo
 	double y1 = _cairo_fixed_to_double(box->p1.y);
 	double x2 = _cairo_fixed_to_double(box->p2.x);
 	double y2 = _cairo_fixed_to_double(box->p2.y);
-
 	cairo_matrix_transform_point(info->path_transform, &x1, &y1);
 	cairo_matrix_transform_point(info->path_transform, &x2, &y2);
-	_cairo_output_stream_printf(info->output,
-	    "%g %g %g %g re ",
-	    x1, y1, x2 - x1, y2 - y1);
-
+	_cairo_output_stream_printf(info->output, "%g %g %g %g re ", x1, y1, x2 - x1, y2 - y1);
 	return _cairo_output_stream_get_status(info->output);
 }
 
@@ -452,42 +416,28 @@ static cairo_status_t _cairo_pdf_path_rectangle(pdf_path_info_t * info, cairo_bo
  * stroked, simply pass %CAIRO_LINE_CAP_ROUND which will guarantee that
  * the stroke workaround will not modify the path being emitted.
  */
-static cairo_status_t _cairo_pdf_operators_emit_path(cairo_pdf_operators_t * pdf_operators,
-    const cairo_path_fixed_t* path,
-    cairo_matrix_t * path_transform,
-    cairo_line_cap_t line_cap)
+static cairo_status_t _cairo_pdf_operators_emit_path(cairo_pdf_operators_t * pdf_operators, const cairo_path_fixed_t* path,
+    cairo_matrix_t * path_transform, cairo_line_cap_t line_cap)
 {
-	cairo_output_stream_t * word_wrap;
-	cairo_status_t status, status2;
+	cairo_status_t status2;
 	pdf_path_info_t info;
 	cairo_box_t box;
-
-	word_wrap = _word_wrap_stream_create(pdf_operators->stream, pdf_operators->ps_output, 72);
-	status = _cairo_output_stream_get_status(word_wrap);
+	cairo_output_stream_t * word_wrap = _word_wrap_stream_create(pdf_operators->stream, pdf_operators->ps_output, 72);
+	cairo_status_t status = _cairo_output_stream_get_status(word_wrap);
 	if(unlikely(status))
 		return _cairo_output_stream_destroy(word_wrap);
-
 	info.output = word_wrap;
 	info.path_transform = path_transform;
 	info.line_cap = line_cap;
-	if(_cairo_path_fixed_is_rectangle(path, &box) &&
-	    ((path_transform->xx == 0 && path_transform->yy == 0) ||
-	    (path_transform->xy == 0 && path_transform->yx == 0))) {
+	if(_cairo_path_fixed_is_rectangle(path, &box) && ((path_transform->xx == 0 && path_transform->yy == 0) || (path_transform->xy == 0 && path_transform->yx == 0))) {
 		status = _cairo_pdf_path_rectangle(&info, &box);
 	}
 	else {
-		status = _cairo_path_fixed_interpret(path,
-			_cairo_pdf_path_move_to,
-			_cairo_pdf_path_line_to,
-			_cairo_pdf_path_curve_to,
-			_cairo_pdf_path_close_path,
-			&info);
+		status = _cairo_path_fixed_interpret(path, _cairo_pdf_path_move_to, _cairo_pdf_path_line_to, _cairo_pdf_path_curve_to, _cairo_pdf_path_close_path, &info);
 	}
-
 	status2 = _cairo_output_stream_destroy(word_wrap);
 	if(status == CAIRO_STATUS_SUCCESS)
 		status = status2;
-
 	return status;
 }
 

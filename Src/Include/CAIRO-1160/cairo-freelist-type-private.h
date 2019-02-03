@@ -22,8 +22,8 @@
 #ifndef CAIRO_FREELIST_TYPE_H
 #define CAIRO_FREELIST_TYPE_H
 
-#include "cairo-types-private.h"
-#include "cairo-compiler-private.h"
+//#include "cairo-types-private.h"
+//#include "cairo-compiler-private.h"
 
 typedef struct _cairo_freelist_node cairo_freelist_node_t;
 struct _cairo_freelist_node {

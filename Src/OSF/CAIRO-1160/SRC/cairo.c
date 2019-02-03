@@ -39,13 +39,13 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-private.h"
+//#include "cairo-private.h"
 #include "cairo-backend-private.h"
-#include "cairo-error-private.h"
+////#include "cairo-error-private.h"
 #include "cairo-path-private.h"
 #include "cairo-pattern-private.h"
-#include "cairo-surface-private.h"
-#include "cairo-surface-backend-private.h"
+//#include "cairo-surface-private.h"
+//#include "cairo-surface-backend-private.h"
 //#include <assert.h>
 /**
  * SECTION:cairo
@@ -389,25 +389,21 @@ COMPILE_TIME_ASSERT(ARRAY_LENGTH(_cairo_nil) == CAIRO_STATUS_LAST_STATUS - 1);
  * breakpoint in _cairo_error() to generate a stack trace for when the
  * user causes cairo to detect an error.
  **/
-static void _cairo_set_error(cairo_t * cr, cairo_status_t status)
+static void FASTCALL _cairo_set_error(cairo_t * cr, cairo_status_t status)
 {
-	/* Don't overwrite an existing error. This preserves the first
-	 * error, which is the most significant. */
+	// Don't overwrite an existing error. This preserves the first
+	// error, which is the most significant. 
 	_cairo_status_set_error(&cr->status, _cairo_error(status));
 }
 
 cairo_t * _cairo_create_in_error(cairo_status_t status)
 {
 	cairo_t * cr;
-
 	assert(status != CAIRO_STATUS_SUCCESS);
-
 	cr = (cairo_t*)&_cairo_nil[status - CAIRO_STATUS_NO_MEMORY];
 	assert(status == cr->status);
-
 	return cr;
 }
-
 /**
  * cairo_create:
  * @target: target surface for the context
@@ -444,25 +440,20 @@ cairo_t * cairo_create(cairo_surface_t * target)
 		return _cairo_create_in_error(target->status);
 	if(unlikely(target->finished))
 		return _cairo_create_in_error(_cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
-
 	if(target->backend->create_context == NULL)
 		return _cairo_create_in_error(_cairo_error(CAIRO_STATUS_WRITE_ERROR));
-
 	return target->backend->create_context(target);
 }
 
 slim_hidden_def(cairo_create);
 
-void _cairo_init(cairo_t * cr,
-    const cairo_backend_t * backend)
+void _cairo_init(cairo_t * cr, const cairo_backend_t * backend)
 {
 	CAIRO_REFERENCE_COUNT_INIT(&cr->ref_count, 1);
 	cr->status = CAIRO_STATUS_SUCCESS;
 	_cairo_user_data_array_init(&cr->user_data);
-
 	cr->backend = backend;
 }
-
 /**
  * cairo_reference:
  * @cr: a #cairo_t
@@ -482,11 +473,8 @@ cairo_t * cairo_reference(cairo_t * cr)
 {
 	if(cr == NULL || CAIRO_REFERENCE_COUNT_IS_INVALID(&cr->ref_count))
 		return cr;
-
 	assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&cr->ref_count));
-
 	_cairo_reference_count_inc(&cr->ref_count);
-
 	return cr;
 }
 
@@ -494,7 +482,6 @@ void _cairo_fini(cairo_t * cr)
 {
 	_cairo_user_data_array_fini(&cr->user_data);
 }
-
 /**
  * cairo_destroy:
  * @cr: a #cairo_t
@@ -509,12 +496,9 @@ void cairo_destroy(cairo_t * cr)
 {
 	if(cr == NULL || CAIRO_REFERENCE_COUNT_IS_INVALID(&cr->ref_count))
 		return;
-
 	assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&cr->ref_count));
-
 	if(!_cairo_reference_count_dec_and_test(&cr->ref_count))
 		return;
-
 	cr->backend->destroy(cr);
 }
 
@@ -534,12 +518,10 @@ slim_hidden_def(cairo_destroy);
  *
  * Since: 1.4
  **/
-void * cairo_get_user_data(cairo_t * cr,
-    const cairo_user_data_key_t * key)
+void * cairo_get_user_data(cairo_t * cr, const cairo_user_data_key_t * key)
 {
 	return _cairo_user_data_array_get_data(&cr->user_data, key);
 }
-
 /**
  * cairo_set_user_data:
  * @cr: a #cairo_t
@@ -558,18 +540,12 @@ void * cairo_get_user_data(cairo_t * cr,
  *
  * Since: 1.4
  **/
-cairo_status_t cairo_set_user_data(cairo_t * cr,
-    const cairo_user_data_key_t * key,
-    void * user_data,
-    cairo_destroy_func_t destroy)
+cairo_status_t cairo_set_user_data(cairo_t * cr, const cairo_user_data_key_t * key, void * user_data, cairo_destroy_func_t destroy)
 {
 	if(CAIRO_REFERENCE_COUNT_IS_INVALID(&cr->ref_count))
 		return cr->status;
-
-	return _cairo_user_data_array_set_data(&cr->user_data,
-		   key, user_data, destroy);
+	return _cairo_user_data_array_set_data(&cr->user_data, key, user_data, destroy);
 }
-
 /**
  * cairo_get_reference_count:
  * @cr: a #cairo_t
@@ -585,7 +561,6 @@ uint cairo_get_reference_count(cairo_t * cr)
 {
 	if(cr == NULL || CAIRO_REFERENCE_COUNT_IS_INVALID(&cr->ref_count))
 		return 0;
-
 	return CAIRO_REFERENCE_COUNT_GET_VALUE(&cr->ref_count);
 }
 
@@ -631,10 +606,9 @@ slim_hidden_def(cairo_save);
  **/
 void cairo_restore(cairo_t * cr)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
-	status = cr->backend->restore(cr);
+	cairo_status_t status = cr->backend->restore(cr);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -711,12 +685,9 @@ void cairo_push_group(cairo_t * cr)
  **/
 void cairo_push_group_with_content(cairo_t * cr, cairo_content_t content)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->push_group(cr, content);
+	cairo_status_t status = cr->backend->push_group(cr, content);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -746,15 +717,11 @@ slim_hidden_def(cairo_push_group_with_content);
  **/
 cairo_pattern_t * cairo_pop_group(cairo_t * cr)
 {
-	cairo_pattern_t * group_pattern;
-
 	if(unlikely(cr->status))
 		return _cairo_pattern_create_in_error(cr->status);
-
-	group_pattern = cr->backend->pop_group(cr);
+	cairo_pattern_t * group_pattern = cr->backend->pop_group(cr);
 	if(unlikely(group_pattern->status))
 		_cairo_set_error(cr, group_pattern->status);
-
 	return group_pattern;
 }
 
@@ -789,9 +756,7 @@ slim_hidden_def(cairo_pop_group);
  **/
 void cairo_pop_group_to_source(cairo_t * cr)
 {
-	cairo_pattern_t * group_pattern;
-
-	group_pattern = cairo_pop_group(cr);
+	cairo_pattern_t * group_pattern = cairo_pop_group(cr);
 	cairo_set_source(cr, group_pattern);
 	cairo_pattern_destroy(group_pattern);
 }
@@ -811,12 +776,9 @@ void cairo_pop_group_to_source(cairo_t * cr)
  **/
 void cairo_set_operator(cairo_t * cr, cairo_operator_t op)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->set_operator(cr, op);
+	cairo_status_t status = cr->backend->set_operator(cr, op);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -838,10 +800,8 @@ slim_hidden_def(cairo_set_operator);
 void cairo_set_opacity(cairo_t * cr, double opacity)
 {
 	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
 	status = cr->backend->set_opacity(cr, opacity);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
@@ -871,12 +831,9 @@ void cairo_set_opacity(cairo_t * cr, double opacity)
  **/
 void cairo_set_source_rgb(cairo_t * cr, double red, double green, double blue)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->set_source_rgba(cr, red, green, blue, 1.);
+	cairo_status_t status = cr->backend->set_source_rgba(cr, red, green, blue, 1.);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -975,22 +932,17 @@ slim_hidden_def(cairo_set_source_surface);
  **/
 void cairo_set_source(cairo_t * cr, cairo_pattern_t * source)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
 	if(unlikely(source == NULL)) {
 		_cairo_set_error(cr, CAIRO_STATUS_NULL_POINTER);
 		return;
 	}
-
 	if(unlikely(source->status)) {
 		_cairo_set_error(cr, source->status);
 		return;
 	}
-
-	status = cr->backend->set_source(cr, source);
+	cairo_status_t status = cr->backend->set_source(cr, source);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -1013,7 +965,6 @@ cairo_pattern_t * cairo_get_source(cairo_t * cr)
 {
 	if(unlikely(cr->status))
 		return _cairo_pattern_create_in_error(cr->status);
-
 	return cr->backend->get_source(cr);
 }
 
@@ -1037,12 +988,9 @@ cairo_pattern_t * cairo_get_source(cairo_t * cr)
  **/
 void cairo_set_tolerance(cairo_t * cr, double tolerance)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->set_tolerance(cr, tolerance);
+	cairo_status_t status = cr->backend->set_tolerance(cr, tolerance);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -1066,12 +1014,9 @@ slim_hidden_def(cairo_set_tolerance);
  **/
 void cairo_set_antialias(cairo_t * cr, cairo_antialias_t antialias)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->set_antialias(cr, antialias);
+	cairo_status_t status = cr->backend->set_antialias(cr, antialias);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -1093,16 +1038,12 @@ void cairo_set_antialias(cairo_t * cr, cairo_antialias_t antialias)
  **/
 void cairo_set_fill_rule(cairo_t * cr, cairo_fill_rule_t fill_rule)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->set_fill_rule(cr, fill_rule);
+	cairo_status_t status = cr->backend->set_fill_rule(cr, fill_rule);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
-
 /**
  * cairo_set_line_width:
  * @cr: a #cairo_t
@@ -1133,15 +1074,11 @@ void cairo_set_fill_rule(cairo_t * cr, cairo_fill_rule_t fill_rule)
  **/
 void cairo_set_line_width(cairo_t * cr, double width)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
 	if(width < 0.)
 		width = 0.;
-
-	status = cr->backend->set_line_width(cr, width);
+	cairo_status_t status = cr->backend->set_line_width(cr, width);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -1168,12 +1105,9 @@ slim_hidden_def(cairo_set_line_width);
  **/
 void cairo_set_line_cap(cairo_t * cr, cairo_line_cap_t line_cap)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->set_line_cap(cr, line_cap);
+	cairo_status_t status = cr->backend->set_line_cap(cr, line_cap);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -1200,12 +1134,9 @@ slim_hidden_def(cairo_set_line_cap);
  **/
 void cairo_set_line_join(cairo_t * cr, cairo_line_join_t line_join)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->set_line_join(cr, line_join);
+	cairo_status_t status = cr->backend->set_line_join(cr, line_join);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -1246,21 +1177,14 @@ slim_hidden_def(cairo_set_line_join);
  *
  * Since: 1.0
  **/
-void cairo_set_dash(cairo_t * cr,
-    const double * dashes,
-    int num_dashes,
-    double offset)
+void cairo_set_dash(cairo_t * cr, const double * dashes, int num_dashes, double offset)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->set_dash(cr, dashes, num_dashes, offset);
+	cairo_status_t status = cr->backend->set_dash(cr, dashes, num_dashes, offset);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
-
 /**
  * cairo_get_dash_count:
  * @cr: a #cairo_t
@@ -1340,12 +1264,9 @@ void cairo_get_dash(cairo_t * cr,
  **/
 void cairo_set_miter_limit(cairo_t * cr, double limit)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->set_miter_limit(cr, limit);
+	cairo_status_t status = cr->backend->set_miter_limit(cr, limit);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -1366,12 +1287,9 @@ void cairo_set_miter_limit(cairo_t * cr, double limit)
  **/
 void cairo_translate(cairo_t * cr, double tx, double ty)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->translate(cr, tx, ty);
+	cairo_status_t status = cr->backend->translate(cr, tx, ty);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -1459,10 +1377,9 @@ slim_hidden_def(cairo_transform);
  **/
 void cairo_set_matrix(cairo_t * cr, const cairo_matrix_t * matrix)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
-	status = cr->backend->set_matrix(cr, matrix);
+	cairo_status_t status = cr->backend->set_matrix(cr, matrix);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -1785,25 +1702,18 @@ void cairo_arc(cairo_t * cr, double xc, double yc, double radius, double angle1,
  *
  * Since: 1.0
  **/
-void cairo_arc_negative(cairo_t * cr,
-    double xc, double yc,
-    double radius,
-    double angle1, double angle2)
+void cairo_arc_negative(cairo_t * cr, double xc, double yc, double radius, double angle1, double angle2)
 {
 	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
 	if(angle2 > angle1) {
-		/* decrease angle2 by multiples of full circle until it
-		 * satisfies angle2 <= angle1 */
+		// decrease angle2 by multiples of full circle until it satisfies angle2 <= angle1 
 		angle2 = fmod(angle2 - angle1, 2 * M_PI);
 		if(angle2 > 0)
 			angle2 -= 2 * M_PI;
 		angle2 += angle1;
 	}
-
 	status = cr->backend->arc(cr, xc, yc, radius, angle1, angle2, FALSE);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
@@ -2109,12 +2019,9 @@ void cairo_path_extents(cairo_t * cr,
  **/
 void cairo_paint(cairo_t * cr)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->paint(cr);
+	cairo_status_t status = cr->backend->paint(cr);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -2133,19 +2040,14 @@ slim_hidden_def(cairo_paint);
  *
  * Since: 1.0
  **/
-void cairo_paint_with_alpha(cairo_t * cr,
-    double alpha)
+void cairo_paint_with_alpha(cairo_t * cr, double alpha)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->paint_with_alpha(cr, alpha);
+	cairo_status_t status = cr->backend->paint_with_alpha(cr, alpha);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
-
 /**
  * cairo_mask:
  * @cr: a cairo context
@@ -2158,25 +2060,19 @@ void cairo_paint_with_alpha(cairo_t * cr,
  *
  * Since: 1.0
  **/
-void cairo_mask(cairo_t * cr,
-    cairo_pattern_t * pattern)
+void cairo_mask(cairo_t * cr, cairo_pattern_t * pattern)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
 	if(unlikely(pattern == NULL)) {
 		_cairo_set_error(cr, CAIRO_STATUS_NULL_POINTER);
 		return;
 	}
-
 	if(unlikely(pattern->status)) {
 		_cairo_set_error(cr, pattern->status);
 		return;
 	}
-
-	status = cr->backend->mask(cr, pattern);
+	cairo_status_t status = cr->backend->mask(cr, pattern);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -2254,12 +2150,9 @@ void cairo_mask_surface(cairo_t * cr,
  **/
 void cairo_stroke(cairo_t * cr)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->stroke(cr);
+	cairo_status_t status = cr->backend->stroke(cr);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -2283,12 +2176,9 @@ slim_hidden_def(cairo_stroke);
  **/
 void cairo_stroke_preserve(cairo_t * cr)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->stroke_preserve(cr);
+	cairo_status_t status = cr->backend->stroke_preserve(cr);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -2309,16 +2199,12 @@ slim_hidden_def(cairo_stroke_preserve);
  **/
 void cairo_fill(cairo_t * cr)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->fill(cr);
+	cairo_status_t status = cr->backend->fill(cr);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
-
 /**
  * cairo_fill_preserve:
  * @cr: a cairo context
@@ -2334,12 +2220,9 @@ void cairo_fill(cairo_t * cr)
  **/
 void cairo_fill_preserve(cairo_t * cr)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->fill_preserve(cr);
+	cairo_status_t status = cr->backend->fill_preserve(cr);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -2362,16 +2245,12 @@ slim_hidden_def(cairo_fill_preserve);
  **/
 void cairo_copy_page(cairo_t * cr)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->copy_page(cr);
+	cairo_status_t status = cr->backend->copy_page(cr);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
-
 /**
  * cairo_show_page:
  * @cr: a cairo context
@@ -2386,16 +2265,12 @@ void cairo_copy_page(cairo_t * cr)
  **/
 void cairo_show_page(cairo_t * cr)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->show_page(cr);
+	cairo_status_t status = cr->backend->show_page(cr);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
-
 /**
  * cairo_in_stroke:
  * @cr: a cairo context
@@ -2418,19 +2293,14 @@ void cairo_show_page(cairo_t * cr)
  **/
 cairo_bool_t cairo_in_stroke(cairo_t * cr, double x, double y)
 {
-	cairo_status_t status;
 	cairo_bool_t inside = FALSE;
-
 	if(unlikely(cr->status))
 		return FALSE;
-
-	status = cr->backend->in_stroke(cr, x, y, &inside);
+	cairo_status_t status = cr->backend->in_stroke(cr, x, y, &inside);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
-
 	return inside;
 }
-
 /**
  * cairo_in_fill:
  * @cr: a cairo context
@@ -2451,19 +2321,14 @@ cairo_bool_t cairo_in_stroke(cairo_t * cr, double x, double y)
  **/
 cairo_bool_t cairo_in_fill(cairo_t * cr, double x, double y)
 {
-	cairo_status_t status;
 	cairo_bool_t inside = FALSE;
-
 	if(unlikely(cr->status))
 		return FALSE;
-
-	status = cr->backend->in_fill(cr, x, y, &inside);
+	cairo_status_t status = cr->backend->in_fill(cr, x, y, &inside);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
-
 	return inside;
 }
-
 /**
  * cairo_stroke_extents:
  * @cr: a cairo context
@@ -2494,29 +2359,20 @@ cairo_bool_t cairo_in_fill(cairo_t * cr, double x, double y)
  *
  * Since: 1.0
  **/
-void cairo_stroke_extents(cairo_t * cr,
-    double * x1, double * y1, double * x2, double * y2)
+void cairo_stroke_extents(cairo_t * cr, double * x1, double * y1, double * x2, double * y2)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status)) {
-		if(x1)
-			*x1 = 0.0;
-		if(y1)
-			*y1 = 0.0;
-		if(x2)
-			*x2 = 0.0;
-		if(y2)
-			*y2 = 0.0;
-
-		return;
+		ASSIGN_PTR(x1, 0.0);
+		ASSIGN_PTR(y1, 0.0);
+		ASSIGN_PTR(x2, 0.0);
+		ASSIGN_PTR(y2, 0.0);
 	}
-
-	status = cr->backend->stroke_extents(cr, x1, y1, x2, y2);
-	if(unlikely(status))
-		_cairo_set_error(cr, status);
+	else {
+		cairo_status_t status = cr->backend->stroke_extents(cr, x1, y1, x2, y2);
+		if(unlikely(status))
+			_cairo_set_error(cr, status);
+	}
 }
-
 /**
  * cairo_fill_extents:
  * @cr: a cairo context
@@ -2544,11 +2400,8 @@ void cairo_stroke_extents(cairo_t * cr,
  *
  * Since: 1.0
  **/
-void cairo_fill_extents(cairo_t * cr,
-    double * x1, double * y1, double * x2, double * y2)
+void cairo_fill_extents(cairo_t * cr, double * x1, double * y1, double * x2, double * y2)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status)) {
 		if(x1)
 			*x1 = 0.0;
@@ -2558,11 +2411,9 @@ void cairo_fill_extents(cairo_t * cr,
 			*x2 = 0.0;
 		if(y2)
 			*y2 = 0.0;
-
 		return;
 	}
-
-	status = cr->backend->fill_extents(cr, x1, y1, x2, y2);
+	cairo_status_t status = cr->backend->fill_extents(cr, x1, y1, x2, y2);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -2593,16 +2444,12 @@ void cairo_fill_extents(cairo_t * cr,
  **/
 void cairo_clip(cairo_t * cr)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->clip(cr);
+	cairo_status_t status = cr->backend->clip(cr);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
-
 /**
  * cairo_clip_preserve:
  * @cr: a cairo context
@@ -2629,12 +2476,9 @@ void cairo_clip(cairo_t * cr)
  **/
 void cairo_clip_preserve(cairo_t * cr)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->clip_preserve(cr);
+	cairo_status_t status = cr->backend->clip_preserve(cr);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -2661,16 +2505,12 @@ slim_hidden_def(cairo_clip_preserve);
  **/
 void cairo_reset_clip(cairo_t * cr)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->reset_clip(cr);
+	cairo_status_t status = cr->backend->reset_clip(cr);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
-
 /**
  * cairo_clip_extents:
  * @cr: a cairo context
@@ -2684,12 +2524,8 @@ void cairo_reset_clip(cairo_t * cr)
  *
  * Since: 1.4
  **/
-void cairo_clip_extents(cairo_t * cr,
-    double * x1, double * y1,
-    double * x2, double * y2)
+void cairo_clip_extents(cairo_t * cr, double * x1, double * y1, double * x2, double * y2)
 {
-	cairo_status_t status;
-
 	if(x1)
 		*x1 = 0.0;
 	if(y1)
@@ -2698,15 +2534,12 @@ void cairo_clip_extents(cairo_t * cr,
 		*x2 = 0.0;
 	if(y2)
 		*y2 = 0.0;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->clip_extents(cr, x1, y1, x2, y2);
+	cairo_status_t status = cr->backend->clip_extents(cr, x1, y1, x2, y2);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
-
 /**
  * cairo_in_clip:
  * @cr: a cairo context
@@ -2726,19 +2559,14 @@ void cairo_clip_extents(cairo_t * cr,
  **/
 cairo_bool_t cairo_in_clip(cairo_t * cr, double x, double y)
 {
-	cairo_status_t status;
 	cairo_bool_t inside = FALSE;
-
 	if(unlikely(cr->status))
 		return FALSE;
-
-	status = cr->backend->in_clip(cr, x, y, &inside);
+	cairo_status_t status = cr->backend->in_clip(cr, x, y, &inside);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
-
 	return inside;
 }
-
 /**
  * cairo_copy_clip_rectangle_list:
  * @cr: a cairo context
@@ -2820,16 +2648,12 @@ cairo_rectangle_list_t * cairo_copy_clip_rectangle_list(cairo_t * cr)
  **/
 void cairo_tag_begin(cairo_t * cr, const char * tag_name, const char * attributes)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->tag_begin(cr, tag_name, attributes);
+	cairo_status_t status = cr->backend->tag_begin(cr, tag_name, attributes);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
-
 /**
  * cairo_tag_end:
  * @cr: a cairo context
@@ -2846,16 +2670,12 @@ void cairo_tag_begin(cairo_t * cr, const char * tag_name, const char * attribute
  **/
 cairo_public void cairo_tag_end(cairo_t * cr, const char * tag_name)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->tag_end(cr, tag_name);
+	cairo_status_t status = cr->backend->tag_end(cr, tag_name);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
-
 /**
  * cairo_select_font_face:
  * @cr: a #cairo_t
@@ -2909,26 +2729,19 @@ cairo_public void cairo_tag_end(cairo_t * cr, const char * tag_name)
  *
  * Since: 1.0
  **/
-void cairo_select_font_face(cairo_t * cr,
-    const char * family,
-    cairo_font_slant_t slant,
-    cairo_font_weight_t weight)
+void cairo_select_font_face(cairo_t * cr, const char * family, cairo_font_slant_t slant, cairo_font_weight_t weight)
 {
 	cairo_font_face_t * font_face;
 	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
 	font_face = cairo_toy_font_face_create(family, slant, weight);
 	if(unlikely(font_face->status)) {
 		_cairo_set_error(cr, font_face->status);
 		return;
 	}
-
 	status = cr->backend->set_font_face(cr, font_face);
 	cairo_font_face_destroy(font_face);
-
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -2943,25 +2756,19 @@ void cairo_select_font_face(cairo_t * cr,
  *
  * Since: 1.0
  **/
-void cairo_font_extents(cairo_t * cr,
-    cairo_font_extents_t * extents)
+void cairo_font_extents(cairo_t * cr, cairo_font_extents_t * extents)
 {
-	cairo_status_t status;
-
 	extents->ascent = 0.0;
 	extents->descent = 0.0;
 	extents->height = 0.0;
 	extents->max_x_advance = 0.0;
 	extents->max_y_advance = 0.0;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->font_extents(cr, extents);
+	cairo_status_t status = cr->backend->font_extents(cr, extents);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
-
 /**
  * cairo_set_font_face:
  * @cr: a #cairo_t
@@ -2973,19 +2780,14 @@ void cairo_font_extents(cairo_t * cr,
  *
  * Since: 1.0
  **/
-void cairo_set_font_face(cairo_t * cr,
-    cairo_font_face_t * font_face)
+void cairo_set_font_face(cairo_t * cr, cairo_font_face_t * font_face)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->set_font_face(cr, font_face);
+	cairo_status_t status = cr->backend->set_font_face(cr, font_face);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
-
 /**
  * cairo_get_font_face:
  * @cr: a #cairo_t
@@ -3033,12 +2835,9 @@ cairo_font_face_t * cairo_get_font_face(cairo_t * cr)
  **/
 void cairo_set_font_size(cairo_t * cr, double size)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->set_font_size(cr, size);
+	cairo_status_t status = cr->backend->set_font_size(cr, size);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -3060,15 +2859,11 @@ slim_hidden_def(cairo_set_font_size);
  *
  * Since: 1.0
  **/
-void cairo_set_font_matrix(cairo_t * cr,
-    const cairo_matrix_t * matrix)
+void cairo_set_font_matrix(cairo_t * cr, const cairo_matrix_t * matrix)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cr->backend->set_font_matrix(cr, matrix);
+	cairo_status_t status = cr->backend->set_font_matrix(cr, matrix);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -3108,20 +2903,15 @@ void cairo_get_font_matrix(cairo_t * cr, cairo_matrix_t * matrix)
  *
  * Since: 1.0
  **/
-void cairo_set_font_options(cairo_t * cr,
-    const cairo_font_options_t * options)
+void cairo_set_font_options(cairo_t * cr, const cairo_font_options_t * options)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
-	status = cairo_font_options_status((cairo_font_options_t*)options);
+	cairo_status_t status = cairo_font_options_status((cairo_font_options_t*)options);
 	if(unlikely(status)) {
 		_cairo_set_error(cr, status);
 		return;
 	}
-
 	status = cr->backend->set_font_options(cr, options);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
@@ -3170,30 +2960,23 @@ void cairo_get_font_options(cairo_t * cr,
  *
  * Since: 1.2
  **/
-void cairo_set_scaled_font(cairo_t * cr,
-    const cairo_scaled_font_t * scaled_font)
+void cairo_set_scaled_font(cairo_t * cr, const cairo_scaled_font_t * scaled_font)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
 	if((scaled_font == NULL)) {
 		_cairo_set_error(cr, _cairo_error(CAIRO_STATUS_NULL_POINTER));
 		return;
 	}
-
-	status = scaled_font->status;
+	cairo_status_t status = scaled_font->status;
 	if(unlikely(status)) {
 		_cairo_set_error(cr, status);
 		return;
 	}
-
 	status = cr->backend->set_scaled_font(cr, (cairo_scaled_font_t*)scaled_font);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
-
 /**
  * cairo_get_scaled_font:
  * @cr: a #cairo_t
@@ -3246,53 +3029,37 @@ slim_hidden_def(cairo_get_scaled_font);
  *
  * Since: 1.0
  **/
-void cairo_text_extents(cairo_t * cr,
-    const char * utf8,
-    cairo_text_extents_t * extents)
+void cairo_text_extents(cairo_t * cr, const char * utf8, cairo_text_extents_t * extents)
 {
 	cairo_status_t status;
 	cairo_scaled_font_t * scaled_font;
 	cairo_glyph_t * glyphs = NULL;
 	int num_glyphs = 0;
 	double x, y;
-
 	extents->x_bearing = 0.0;
 	extents->y_bearing = 0.0;
 	extents->width  = 0.0;
 	extents->height = 0.0;
 	extents->x_advance = 0.0;
 	extents->y_advance = 0.0;
-
 	if(unlikely(cr->status))
 		return;
-
 	if(utf8 == NULL)
 		return;
-
 	scaled_font = cairo_get_scaled_font(cr);
 	if(unlikely(scaled_font->status)) {
 		_cairo_set_error(cr, scaled_font->status);
 		return;
 	}
-
 	cairo_get_current_point(cr, &x, &y);
-	status = cairo_scaled_font_text_to_glyphs(scaled_font,
-		x, y,
-		utf8, -1,
-		&glyphs, &num_glyphs,
-		NULL, NULL, NULL);
-
+	status = cairo_scaled_font_text_to_glyphs(scaled_font, x, y, utf8, -1, &glyphs, &num_glyphs, NULL, NULL, NULL);
 	if(likely(status == CAIRO_STATUS_SUCCESS)) {
-		status = cr->backend->glyph_extents(cr,
-			glyphs, num_glyphs,
-			extents);
+		status = cr->backend->glyph_extents(cr, glyphs, num_glyphs, extents);
 	}
 	cairo_glyph_free(glyphs);
-
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
-
 /**
  * cairo_glyph_extents:
  * @cr: a #cairo_t
@@ -3391,27 +3158,19 @@ void cairo_show_text(cairo_t * cr, const char * utf8)
 	cairo_text_cluster_t stack_clusters[CAIRO_STACK_ARRAY_LENGTH(cairo_text_cluster_t)];
 	cairo_scaled_font_t * scaled_font;
 	cairo_glyph_text_info_t info, * i;
-
 	if(unlikely(cr->status))
 		return;
-
 	if(utf8 == NULL)
 		return;
-
 	scaled_font = cairo_get_scaled_font(cr);
 	if(unlikely(scaled_font->status)) {
 		_cairo_set_error(cr, scaled_font->status);
 		return;
 	}
-
 	utf8_len = strlen(utf8);
-
-	has_show_text_glyphs =
-	    cairo_surface_has_show_text_glyphs(cairo_get_target(cr));
-
+	has_show_text_glyphs = cairo_surface_has_show_text_glyphs(cairo_get_target(cr));
 	glyphs = stack_glyphs;
 	num_glyphs = ARRAY_LENGTH(stack_glyphs);
-
 	if(has_show_text_glyphs) {
 		clusters = stack_clusters;
 		num_clusters = ARRAY_LENGTH(stack_clusters);
@@ -3420,20 +3179,13 @@ void cairo_show_text(cairo_t * cr, const char * utf8)
 		clusters = NULL;
 		num_clusters = 0;
 	}
-
 	cairo_get_current_point(cr, &x, &y);
-	status = cairo_scaled_font_text_to_glyphs(scaled_font,
-		x, y,
-		utf8, utf8_len,
-		&glyphs, &num_glyphs,
-		has_show_text_glyphs ? &clusters : NULL, &num_clusters,
-		&cluster_flags);
+	status = cairo_scaled_font_text_to_glyphs(scaled_font, x, y, utf8, utf8_len,
+		&glyphs, &num_glyphs, has_show_text_glyphs ? &clusters : NULL, &num_clusters, &cluster_flags);
 	if(unlikely(status))
 		goto BAIL;
-
 	if(num_glyphs == 0)
 		return;
-
 	i = NULL;
 	if(has_show_text_glyphs) {
 		info.utf8 = utf8;
@@ -3461,7 +3213,6 @@ BAIL:
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
-
 /**
  * cairo_show_glyphs:
  * @cr: a cairo context
@@ -3476,29 +3227,22 @@ BAIL:
  **/
 void cairo_show_glyphs(cairo_t * cr, const cairo_glyph_t * glyphs, int num_glyphs)
 {
-	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
 	if(num_glyphs == 0)
 		return;
-
 	if(num_glyphs < 0) {
 		_cairo_set_error(cr, CAIRO_STATUS_NEGATIVE_COUNT);
 		return;
 	}
-
 	if(glyphs == NULL) {
 		_cairo_set_error(cr, CAIRO_STATUS_NULL_POINTER);
 		return;
 	}
-
-	status = cr->backend->glyphs(cr, glyphs, num_glyphs, NULL);
+	cairo_status_t status = cr->backend->glyphs(cr, glyphs, num_glyphs, NULL);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
-
 /**
  * cairo_show_text_glyphs:
  * @cr: a cairo context
@@ -3533,72 +3277,48 @@ void cairo_show_glyphs(cairo_t * cr, const cairo_glyph_t * glyphs, int num_glyph
  *
  * Since: 1.8
  **/
-void cairo_show_text_glyphs(cairo_t * cr,
-    const char * utf8,
-    int utf8_len,
-    const cairo_glyph_t * glyphs,
-    int num_glyphs,
-    const cairo_text_cluster_t * clusters,
-    int num_clusters,
-    cairo_text_cluster_flags_t cluster_flags)
+void cairo_show_text_glyphs(cairo_t * cr, const char * utf8, int utf8_len, const cairo_glyph_t * glyphs,
+    int num_glyphs, const cairo_text_cluster_t * clusters, int num_clusters, cairo_text_cluster_flags_t cluster_flags)
 {
 	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
 	/* A slew of sanity checks */
-
 	/* Special case for NULL and -1 */
 	if(utf8 == NULL && utf8_len == -1)
 		utf8_len = 0;
-
 	/* No NULLs for non-zeros */
-	if((num_glyphs   && glyphs   == NULL) ||
-	    (utf8_len     && utf8     == NULL) ||
-	    (num_clusters && clusters == NULL)) {
+	if((num_glyphs   && glyphs   == NULL) || (utf8_len     && utf8     == NULL) || (num_clusters && clusters == NULL)) {
 		_cairo_set_error(cr, CAIRO_STATUS_NULL_POINTER);
 		return;
 	}
-
 	/* A -1 for utf8_len means NUL-terminated */
 	if(utf8_len == -1)
 		utf8_len = strlen(utf8);
-
 	/* Apart from that, no negatives */
 	if(num_glyphs < 0 || utf8_len < 0 || num_clusters < 0) {
 		_cairo_set_error(cr, CAIRO_STATUS_NEGATIVE_COUNT);
 		return;
 	}
-
 	if(num_glyphs == 0 && utf8_len == 0)
 		return;
-
 	if(utf8) {
 		/* Make sure clusters cover the entire glyphs and utf8 arrays,
 		 * and that cluster boundaries are UTF-8 boundaries. */
-		status = _cairo_validate_text_clusters(utf8, utf8_len,
-			glyphs, num_glyphs,
-			clusters, num_clusters, cluster_flags);
+		status = _cairo_validate_text_clusters(utf8, utf8_len, glyphs, num_glyphs, clusters, num_clusters, cluster_flags);
 		if(status == CAIRO_STATUS_INVALID_CLUSTERS) {
-			/* Either got invalid UTF-8 text, or cluster mapping is bad.
-			 * Differentiate those. */
-
-			cairo_status_t status2;
-
-			status2 = _cairo_utf8_to_ucs4(utf8, utf8_len, NULL, NULL);
+			// Either got invalid UTF-8 text, or cluster mapping is bad. Differentiate those.
+			cairo_status_t status2 = _cairo_utf8_to_ucs4(utf8, utf8_len, NULL, NULL);
 			if(status2)
 				status = status2;
 		}
 		else {
 			cairo_glyph_text_info_t info;
-
 			info.utf8 = utf8;
 			info.utf8_len = utf8_len;
 			info.clusters = clusters;
 			info.num_clusters = num_clusters;
 			info.cluster_flags = cluster_flags;
-
 			status = cr->backend->glyphs(cr, glyphs, num_glyphs, &info);
 		}
 	}
@@ -3608,7 +3328,6 @@ void cairo_show_text_glyphs(cairo_t * cr,
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
-
 /**
  * cairo_text_path:
  * @cr: a cairo context
@@ -3853,18 +3572,13 @@ cairo_bool_t cairo_has_current_point(cairo_t * cr)
  **/
 void cairo_get_current_point(cairo_t * cr, double * x_ret, double * y_ret)
 {
-	double x, y;
-
-	x = y = 0;
-	if(cr->status == CAIRO_STATUS_SUCCESS &&
-	    cr->backend->has_current_point(cr)) {
+	double x = 0.0;
+	double y = 0.0;
+	if(cr->status == CAIRO_STATUS_SUCCESS && cr->backend->has_current_point(cr)) {
 		cr->backend->get_current_point(cr, &x, &y);
 	}
-
-	if(x_ret)
-		*x_ret = x;
-	if(y_ret)
-		*y_ret = y;
+	ASSIGN_PTR(x_ret, x);
+	ASSIGN_PTR(y_ret, y);
 }
 
 slim_hidden_def(cairo_get_current_point);

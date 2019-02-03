@@ -185,7 +185,7 @@ LRESULT TToolbar::OnLButtonDown(WPARAM wParam, LPARAM lParam)
 
 LRESULT TToolbar::OnLButtonDblclk(WPARAM wParam, LPARAM lParam)
 {
-	if(APPL->DlgBoxParam(DLGW_CUSTOMIZETOOLBAR, H_Wnd, TuneToolsDlgProc, (LPARAM)this))
+	if(APPL->DlgBoxParam(DLGW_CUSTOMIZETOOLBAR, H_Wnd, TuneToolsDlgProc, reinterpret_cast<LPARAM>(this)))
 		APPL->SizeMainWnd(H_MainWnd);
 	return 0;
 }
@@ -395,12 +395,12 @@ HMENU SetLocalMenu(HMENU * pMenu, HWND hToolbar)
 	uint   cnt = (uint)::SendMessage(hToolbar, TB_BUTTONCOUNT, 0, 0);
 	for(uint i = 0; i < cnt; i++) {
 		TBBUTTON tb;
-		SendMessage(hToolbar, TB_GETBUTTON, i, (LPARAM)&tb);
+		SendMessage(hToolbar, TB_GETBUTTON, i, reinterpret_cast<LPARAM>(&tb));
 		if(!(tb.fsState & TBSTATE_HIDDEN))
 			if(tb.fsStyle & TBSTYLE_SEP)
 				AppendMenu(h_menu, MF_ENABLED|MF_SEPARATOR, 0, 0);
 			else
-				AppendMenu(h_menu, MF_ENABLED|MF_STRING, tb.idCommand, (LPSTR)tb.dwData); // @unicodeproblem
+				AppendMenu(h_menu, MF_ENABLED|MF_STRING, tb.idCommand, reinterpret_cast<LPSTR>(tb.dwData)); // @unicodeproblem
 	}
 	ASSIGN_PTR(pMenu, h_menu);
 	return h_menu;
@@ -546,9 +546,9 @@ int TToolbar::SetupToolbarWnd(DWORD style, const ToolbarList * pList)
 			}
 		}
 		SendMessage(H_Toolbar, TB_BUTTONSTRUCTSIZE, (WPARAM)sizeof(TBBUTTON), 0);
-		SendMessage(H_Toolbar, TB_SETIMAGELIST, 0, (LPARAM)himl);
-		SendMessage(H_Toolbar, TB_ADDBUTTONS, img_count, (LPARAM)p_btns);
-		delete []p_btns;
+		SendMessage(H_Toolbar, TB_SETIMAGELIST, 0, reinterpret_cast<LPARAM>(himl));
+		SendMessage(H_Toolbar, TB_ADDBUTTONS, img_count, reinterpret_cast<LPARAM>(p_btns));
+		delete [] p_btns;
 	}
 	if(Style & (TBS_LIST | TBS_MENU))
 		SetLocalMenu(&H_Menu, H_Toolbar);
@@ -713,7 +713,7 @@ TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb)
 		for(uint i = 0; i < cnt; i++) {
 			TBBUTTON tb;
 			char   temp_buf[128];
-			int    ret = (int)::SendMessage(P_Toolbar->H_Toolbar, TB_GETBUTTON, i, (LPARAM)&tb);
+			int    ret = (int)::SendMessage(P_Toolbar->H_Toolbar, TB_GETBUTTON, i, reinterpret_cast<LPARAM>(&tb));
 			P_Buttons[i] = tb;
 			lvi.iItem = i;
 			if(!(tb.fsStyle & TBSTYLE_SEP)) {
@@ -745,9 +745,9 @@ TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb)
 		lvi.iItem = 0;
 		ListView_SetItem(H_List, &lvi);
 		HBITMAP h_up = LoadBitmap(0, MAKEINTRESOURCE(OBM_UPARROWD));
-		SendMessage(GetDlgItem(hWnd, CTL_CUSTOMIZETOOLBAR_UP), BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)h_up);
+		SendMessage(GetDlgItem(hWnd, CTL_CUSTOMIZETOOLBAR_UP), BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_up));
 		HBITMAP h_dn = LoadBitmap(0, MAKEINTRESOURCE(OBM_DNARROWD));
-		SendMessage(GetDlgItem(hWnd, CTL_CUSTOMIZETOOLBAR_DOWN), BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)h_dn);
+		SendMessage(GetDlgItem(hWnd, CTL_CUSTOMIZETOOLBAR_DOWN), BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_dn));
 		//PrevListViewProc = (WNDPROC)SetWindowLong(H_List, GWLP_WNDPROC, (long)ListViewProc);
 		PrevListViewProc = (WNDPROC)TView::SetWindowProp(H_List, GWLP_WNDPROC, ListViewProc);
 		//SetWindowLong(H_List, GWLP_USERDATA, (long)this);
@@ -835,7 +835,7 @@ int TuneToolsDialog::Accept()
 		else
 			P_Buttons[lvi.lParam].fsState |= TBSTATE_HIDDEN;
 		::SendMessage(h_toolbar, TB_DELETEBUTTON, i, 0);
-		::SendMessage(h_toolbar, TB_INSERTBUTTON, i, (LPARAM)&P_Buttons[lvi.lParam]);
+		::SendMessage(h_toolbar, TB_INSERTBUTTON, i, reinterpret_cast<LPARAM>(&P_Buttons[lvi.lParam]));
 	}
 	return 1;
 }
@@ -923,26 +923,26 @@ ToolbarCfg::ToolbarCfg() : P_Buttons(0), Count(0)
 
 ToolbarCfg::~ToolbarCfg()
 {
-	delete P_Buttons;
+	delete [] P_Buttons;
 }
 
 int ToolbarCfg::Init()
 {
-	delete P_Buttons;
+	delete [] P_Buttons;
 	return BIN(P_Buttons = new TBButtonCfg[Count]);
 }
 
 int ToolbarCfg::Init(const void * pBuf)
 {
 	int    r = -1;
-	const char * p = (char*)pBuf;
+	const char * p = static_cast<const char *>(pBuf);
 	if(p) {
-		Count = *(uint16 *)pBuf;
+		Count = *static_cast<const uint16 *>(pBuf);
 		p += sizeof(uint16);
 		if(Count > 0 && Init()) {
 			r = 1;
 			for(uint i = 0; i < Count; i++) {
-				P_Buttons[i] = *(TBButtonCfg *)p;
+				P_Buttons[i] = *reinterpret_cast<const TBButtonCfg *>(p);
 				p += sizeof(TBButtonCfg);
 			}
 		}
@@ -953,13 +953,13 @@ int ToolbarCfg::Init(const void * pBuf)
 int ToolbarCfg::GetBuf(void ** ppBuf, size_t bufLen) const
 {
 	int    r = -1;
-	char * p = (char*)*ppBuf;
+	char * p = static_cast<char *>(*ppBuf);
 	if(p && bufLen >= GetSize()) {
 		r = 1;
-		*(uint16 *)p = Count;
+		*reinterpret_cast<uint16 *>(p) = Count;
 		p += sizeof(uint16);
 		for(uint i = 0; i < Count; i++) {
-			*(TBButtonCfg *)p = P_Buttons[i];
+			*reinterpret_cast<TBButtonCfg *>(p) = P_Buttons[i];
 			p += sizeof(TBButtonCfg);
 		}
 	}
@@ -977,7 +977,7 @@ int TToolbar::GetRegTbParam(uint typeID, char * pBuf, size_t bufLen)
 			strnzcpy(pBuf, GlobalToolbarParamName, bufLen);
 		else {
 			SString toolbar_name;
-			(toolbar_name = ToolbarParamName).Cat(typeID); // @v5.6.8 AHTOXA
+			(toolbar_name = ToolbarParamName).Cat(typeID);
 			toolbar_name.CopyTo(pBuf, bufLen);
 		}
 	}
@@ -1023,9 +1023,7 @@ int TToolbar::RestoreUserSettings(uint typeID, ToolbarList * pTbList)
 	size_t size = 0;
 	ToolbarCfg tb_cfg;
  	WinRegKey reg_key(HKEY_CURRENT_USER, UserInterfaceSettings::SubKey, 1);
-	if(GetRegTbParam(typeID, param, sizeof(param)) > 0 &&
-		reg_key.GetRecSize(param, &size) > 0 &&
-		size >= (sizeof(uint16) + sizeof(TBButtonCfg))) {
+	if(GetRegTbParam(typeID, param, sizeof(param)) > 0 && reg_key.GetRecSize(param, &size) > 0 && size >= (sizeof(uint16) + sizeof(TBButtonCfg))) {
 		p = new char[size];
 		if(reg_key.GetBinary(param, p, size) > 0 && tb_cfg.Init(p) > 0) {
 			ToolbarList new_tb_list;

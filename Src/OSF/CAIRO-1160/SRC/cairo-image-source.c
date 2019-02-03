@@ -44,8 +44,8 @@
 #include "cairoint.h"
 #pragma hdrstop
 #include "cairo-image-surface-private.h"
-#include "cairo-compositor-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-compositor-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-pattern-inline.h"
 #include "cairo-paginated-private.h"
 #include "cairo-recording-surface-private.h"

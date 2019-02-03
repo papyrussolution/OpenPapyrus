@@ -1,5 +1,5 @@
 // SNET.H
-// Copyright (c) A.Sobolev 2005, 2007, 2010, 2012, 2013, 2014, 2015, 2017, 2018
+// Copyright (c) A.Sobolev 2005, 2007, 2010, 2012, 2013, 2014, 2015, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #ifndef __SNET_H
@@ -720,7 +720,6 @@ struct SMailMessage : SStrGroup {
 	//   !0 - указатель на добавленную Boundary
 	//
 	Boundary * SLAPI AttachFile(Boundary * pB, int format, const char * pFilePath);
-
 	int    SLAPI EnumAttach(uint *, SString & rFileName, SString & rFullPath);
 	int    SLAPI SetField(int fldId, const char *);
 	int    FASTCALL IsField(int fldId) const;
@@ -733,12 +732,9 @@ struct SMailMessage : SStrGroup {
 	//
 	int    SLAPI IsFrom(const char * pEmail) const;
 	int    SLAPI IsSubj(const char * pSubj, int substr) const;
-
 	// @v10.0.0 int    SLAPI PutToFile(SFile & rF);
 	int    SLAPI ReadFromFile(SFile & rF);
-
 	int    SLAPI DebugOutput(SString & rBuf) const;
-
 	uint   SLAPI GetAttachmentCount() const;
 	int    SLAPI SaveAttachmentTo(uint attIdx, const char * pDestPath, SString * pResultFileName) const;
 	const  SMailMessage::Boundary * FASTCALL GetAttachmentByIndex(uint attIdx) const;
@@ -782,7 +778,6 @@ private:
 	};
 
 	static int SLAPI IsFieldHeader(const SString & rLineBuf, const char * pHeader, SString & rValue);
-
 	SString & SLAPI PutField(const char * pFld, const char * pVal, SString & rBuf);
 	int    SLAPI ProcessInputLine(ParserBlock & rBlk, const SString & rLineBuf);
 	Boundary * FASTCALL SearchBoundary(const SString & rIdent);
@@ -813,7 +808,6 @@ private:
 		SVerT  MimeVer;
 	};
 	HdrFldPositions HFP;
-
 	Boundary B; // Заголовочный список тел сообщения
 	TSVector <uint> AttachPosL;
 	TSVector <uint> ReceivedChainL; // Received:
@@ -880,7 +874,6 @@ public:
 	int    HttpDelete(const char * pUrl, int mflags, SFile * pReplyStream);
 	int    HttpPatch(const InetUrl & rUrl, int mflags, const StrStrAssocArray * pHdr, const StrStrAssocArray * pFields, SFile * pReplyStream);
 	int    HttpPatch(const InetUrl & rUrl, int mflags, const StrStrAssocArray * pHdr, const char * pBody, SFile * pReplyStream);
-	//
 	int    FtpList(const InetUrl & rUrl, int mflags, SFileEntryPool & rPool);
 	int    FtpPut(const InetUrl & rUrl, int mflags, const char * pLocalFile, SDataMoveProgressInfo * pProgress);
 	int    FtpGet(const InetUrl & rUrl, int mflags, const char * pLocalFile, SString * pResultFileName, SDataMoveProgressInfo * pProgress);
@@ -888,13 +881,11 @@ public:
 	int    FtpChangeDir(const InetUrl & rUrl, int mflags);
 	int    FtpCreateDir(const InetUrl & rUrl, int mflags);
 	int    FtpDeleteDir(const InetUrl & rUrl, int mflags);
-	//
 	int    Pop3List(const InetUrl & rUrl, int mflags, LAssocArray & rList); // LIST
 	int    Pop3Top(const InetUrl & rUrl, int mflags, uint msgN, uint maxLines, SMailMessage & rMsg); // TOP
 	int    Pop3Get(const InetUrl & rUrl, int mflags, uint msgN, SMailMessage & rMsg, SDataMoveProgressInfo * pProgress);  // RETR
 	int    Pop3Delete(const InetUrl & rUrl, int mflags, uint msgN); // DELE
-
-	int    SmtpSend(const InetUrl & rUrl, int mflags, SMailMessage & rMsg);
+	int    SmtpSend(const InetUrl & rUrl, int mflags, const SMailMessage & rMsg);
 private:
 	static int    ComposeFieldList(const StrStrAssocArray * pFields, SString & rBuf, uint * pCount);
 	static void * ComposeHeaderList(const StrStrAssocArray * pHttpHeaderFields);
@@ -902,7 +893,6 @@ private:
 	static size_t CbWrite(char * pBuffer, size_t size, size_t nmemb, void * pExtra);
 	static int    CbProgress(void * extraPtr, int64 dltotal, int64 dlnow, int64 ultotal, int64 ulnow);
 	static int _GlobalInitDone;
-
 	int    FASTCALL SetError(int errCode);
 	int    SetupCbRead(SFile * pF);
 	int    SetupCbWrite(SFile * pF);

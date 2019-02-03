@@ -35,7 +35,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-image-info-private.h"
 
 /* JPEG (image/jpeg)
@@ -66,7 +66,7 @@
 #define SOF14 0xce
 #define SOF15 0xcf
 
-static const unsigned char * _jpeg_skip_segment(const unsigned char * p)
+static const uchar * _jpeg_skip_segment(const uchar * p)
 {
 	int len;
 
@@ -76,7 +76,7 @@ static const unsigned char * _jpeg_skip_segment(const unsigned char * p)
 	return p + len;
 }
 
-static void _jpeg_extract_info(cairo_image_info_t * info, const unsigned char * p)
+static void _jpeg_extract_info(cairo_image_info_t * info, const uchar * p)
 {
 	info->width = (p[6] << 8) + p[7];
 	info->height = (p[4] << 8) + p[5];
@@ -85,10 +85,10 @@ static void _jpeg_extract_info(cairo_image_info_t * info, const unsigned char * 
 }
 
 cairo_int_status_t _cairo_image_info_get_jpeg_info(cairo_image_info_t * info,
-    const unsigned char * data,
+    const uchar * data,
     long length)
 {
-	const unsigned char * p = data;
+	const uchar * p = data;
 
 	while(p + 1 < data + length) {
 		if(*p != 0xff)
@@ -153,21 +153,21 @@ cairo_int_status_t _cairo_image_info_get_jpeg_info(cairo_image_info_t * info,
 #define JPX_JP2_HEADER 0x6A703268
 #define JPX_IMAGE_HEADER 0x69686472
 
-static const unsigned char _jpx_signature[] = {
+static const uchar _jpx_signature[] = {
 	0x00, 0x00, 0x00, 0x0c, 0x6a, 0x50, 0x20, 0x20, 0x0d, 0x0a, 0x87, 0x0a
 };
 
-static const unsigned char * _jpx_next_box(const unsigned char * p)
+static const uchar * _jpx_next_box(const uchar * p)
 {
 	return p + get_unaligned_be32(p);
 }
 
-static const unsigned char * _jpx_get_box_contents(const unsigned char * p)
+static const uchar * _jpx_get_box_contents(const uchar * p)
 {
 	return p + 8;
 }
 
-static cairo_bool_t _jpx_match_box(const unsigned char * p, const unsigned char * end, uint32_t type)
+static cairo_bool_t _jpx_match_box(const uchar * p, const uchar * end, uint32_t type)
 {
 	uint32_t length;
 
@@ -180,7 +180,7 @@ static cairo_bool_t _jpx_match_box(const unsigned char * p, const unsigned char 
 	return FALSE;
 }
 
-static const unsigned char * _jpx_find_box(const unsigned char * p, const unsigned char * end, uint32_t type)
+static const uchar * _jpx_find_box(const uchar * p, const uchar * end, uint32_t type)
 {
 	while(p < end) {
 		if(_jpx_match_box(p, end, type))
@@ -191,7 +191,7 @@ static const unsigned char * _jpx_find_box(const unsigned char * p, const unsign
 	return NULL;
 }
 
-static void _jpx_extract_info(const unsigned char * p, cairo_image_info_t * info)
+static void _jpx_extract_info(const uchar * p, cairo_image_info_t * info)
 {
 	info->height = get_unaligned_be32(p);
 	info->width = get_unaligned_be32(p + 4);
@@ -200,11 +200,11 @@ static void _jpx_extract_info(const unsigned char * p, cairo_image_info_t * info
 }
 
 cairo_int_status_t _cairo_image_info_get_jpx_info(cairo_image_info_t * info,
-    const unsigned char * data,
+    const uchar * data,
     ulong length)
 {
-	const unsigned char * p = data;
-	const unsigned char * end = data + length;
+	const uchar * p = data;
+	const uchar * end = data + length;
 
 	/* First 12 bytes must be the JPEG 2000 signature box. */
 	if(length < ARRAY_LENGTH(_jpx_signature) ||
@@ -244,14 +244,14 @@ cairo_int_status_t _cairo_image_info_get_jpx_info(cairo_image_info_t * info,
 
 #define PNG_IHDR 0x49484452
 
-static const unsigned char _png_magic[8] = { 137, 80, 78, 71, 13, 10, 26, 10 };
+static const uchar _png_magic[8] = { 137, 80, 78, 71, 13, 10, 26, 10 };
 
 cairo_int_status_t _cairo_image_info_get_png_info(cairo_image_info_t * info,
-    const unsigned char * data,
+    const uchar * data,
     ulong length)
 {
-	const unsigned char * p = data;
-	const unsigned char * end = data + length;
+	const uchar * p = data;
+	const uchar * end = data + length;
 
 	if(length < 8 || memcmp(data, _png_magic, 8) != 0)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
@@ -275,11 +275,11 @@ cairo_int_status_t _cairo_image_info_get_png_info(cairo_image_info_t * info,
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static const unsigned char * _jbig2_find_data_end(const unsigned char * p,
-    const unsigned char * end,
+static const uchar * _jbig2_find_data_end(const uchar * p,
+    const uchar * end,
     int type)
 {
-	unsigned char end_seq[2];
+	uchar end_seq[2];
 	int mmr;
 
 	/* Segments of type "Immediate generic region" may have an
@@ -314,10 +314,10 @@ static const unsigned char * _jbig2_find_data_end(const unsigned char * p,
 	return NULL;
 }
 
-static const unsigned char * _jbig2_get_next_segment(const unsigned char * p,
-    const unsigned char * end,
+static const uchar * _jbig2_get_next_segment(const uchar * p,
+    const uchar * end,
     int * type,
-    const unsigned char ** data,
+    const uchar ** data,
     ulong * data_len)
 {
 	ulong seg_num;
@@ -378,7 +378,7 @@ static const unsigned char * _jbig2_get_next_segment(const unsigned char * p,
 		return NULL;
 }
 
-static void _jbig2_extract_info(cairo_image_info_t * info, const unsigned char * p)
+static void _jbig2_extract_info(cairo_image_info_t * info, const uchar * p)
 {
 	info->width = get_unaligned_be32(p);
 	info->height = get_unaligned_be32(p + 4);
@@ -387,13 +387,13 @@ static void _jbig2_extract_info(cairo_image_info_t * info, const unsigned char *
 }
 
 cairo_int_status_t _cairo_image_info_get_jbig2_info(cairo_image_info_t * info,
-    const unsigned char * data,
+    const uchar * data,
     ulong length)
 {
-	const unsigned char * p = data;
-	const unsigned char * end = data + length;
+	const uchar * p = data;
+	const uchar * end = data + length;
 	int seg_type;
-	const unsigned char * seg_data;
+	const uchar * seg_data;
 	ulong seg_data_len;
 	while(p && p < end) {
 		p = _jbig2_get_next_segment(p, end, &seg_type, &seg_data, &seg_data_len);

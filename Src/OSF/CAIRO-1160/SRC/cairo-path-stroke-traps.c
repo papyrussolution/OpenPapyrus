@@ -38,9 +38,9 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-box-inline.h"
+//#include "cairo-box-inline.h"
 #include "cairo-path-fixed-private.h"
-#include "cairo-slope-private.h"
+//#include "cairo-slope-private.h"
 #include "cairo-stroke-dash-private.h"
 #include "cairo-traps-private.h"
 //#include <float.h>
@@ -531,14 +531,10 @@ static void add_cap(struct stroker * stroker, cairo_stroke_face_t * f)
 	}
 }
 
-static void add_leading_cap(struct stroker * stroker,
-    cairo_stroke_face_t * face)
+static void add_leading_cap(struct stroker * stroker, cairo_stroke_face_t * face)
 {
-	cairo_stroke_face_t reversed;
 	cairo_point_t t;
-
-	reversed = *face;
-
+	cairo_stroke_face_t reversed = *face;
 	/* The initial cap needs an outward facing vector. Reverse everything */
 	reversed.usr_vector.x = -reversed.usr_vector.x;
 	reversed.usr_vector.y = -reversed.usr_vector.y;
@@ -547,7 +543,6 @@ static void add_leading_cap(struct stroker * stroker,
 	t = reversed.cw;
 	reversed.cw = reversed.ccw;
 	reversed.ccw = t;
-
 	add_cap(stroker, &reversed);
 }
 
@@ -559,10 +554,8 @@ static void add_trailing_cap(struct stroker * stroker, cairo_stroke_face_t * fac
 static inline double normalize_slope(double * dx, double * dy)
 {
 	double dx0 = *dx, dy0 = *dy;
-
 	if(dx0 == 0.0 && dy0 == 0.0)
 		return 0;
-
 	if(dx0 == 0.0) {
 		*dx = 0.0;
 		if(dy0 > 0.0) {
@@ -593,21 +586,15 @@ static inline double normalize_slope(double * dx, double * dy)
 	}
 }
 
-static void compute_face(const cairo_point_t * point,
-    const cairo_slope_t * dev_slope,
-    struct stroker * stroker,
-    cairo_stroke_face_t * face)
+static void compute_face(const cairo_point_t * point, const cairo_slope_t * dev_slope, struct stroker * stroker, cairo_stroke_face_t * face)
 {
 	double face_dx, face_dy;
 	cairo_point_t offset_ccw, offset_cw;
-	double slope_dx, slope_dy;
-
-	slope_dx = _cairo_fixed_to_double(dev_slope->dx);
-	slope_dy = _cairo_fixed_to_double(dev_slope->dy);
+	double slope_dx = _cairo_fixed_to_double(dev_slope->dx);
+	double slope_dy = _cairo_fixed_to_double(dev_slope->dy);
 	face->length = normalize_slope(&slope_dx, &slope_dy);
 	face->dev_slope.x = slope_dx;
 	face->dev_slope.y = slope_dy;
-
 	/*
 	 * rotate to get a line_width/2 vector along the face, note that
 	 * the vector must be rotated the right direction in device space,
@@ -618,7 +605,6 @@ static void compute_face(const cairo_point_t * point,
 	if(stroker->ctm_inverse) {
 		cairo_matrix_transform_distance(stroker->ctm_inverse, &slope_dx, &slope_dy);
 		normalize_slope(&slope_dx, &slope_dy);
-
 		if(stroker->ctm_det_positive) {
 			face_dx = -slope_dy * stroker->half_line_width;
 			face_dy = slope_dx * stroker->half_line_width;
@@ -627,7 +613,6 @@ static void compute_face(const cairo_point_t * point,
 			face_dx = slope_dy * stroker->half_line_width;
 			face_dy = -slope_dx * stroker->half_line_width;
 		}
-
 		/* back to device space */
 		cairo_matrix_transform_distance(stroker->ctm, &face_dx, &face_dy);
 	}
@@ -635,87 +620,61 @@ static void compute_face(const cairo_point_t * point,
 		face_dx = -slope_dy * stroker->half_line_width;
 		face_dy = slope_dx * stroker->half_line_width;
 	}
-
 	offset_ccw.x = _cairo_fixed_from_double(face_dx);
 	offset_ccw.y = _cairo_fixed_from_double(face_dy);
 	offset_cw.x = -offset_ccw.x;
 	offset_cw.y = -offset_ccw.y;
-
 	face->ccw = *point;
 	translate_point(&face->ccw, &offset_ccw);
-
 	face->point = *point;
-
 	face->cw = *point;
 	translate_point(&face->cw, &offset_cw);
-
 	face->usr_vector.x = slope_dx;
 	face->usr_vector.y = slope_dy;
-
 	face->dev_vector = *dev_slope;
 }
 
 static void add_caps(struct stroker * stroker)
 {
-	/* check for a degenerative sub_path */
-	if(stroker->has_initial_sub_path &&
-	    !stroker->has_first_face &&
-	    !stroker->has_current_face &&
-	    stroker->style->line_cap == CAIRO_LINE_CAP_ROUND) {
-		/* pick an arbitrary slope to use */
+	// check for a degenerative sub_path 
+	if(stroker->has_initial_sub_path && !stroker->has_first_face && !stroker->has_current_face && stroker->style->line_cap == CAIRO_LINE_CAP_ROUND) {
+		// pick an arbitrary slope to use 
 		cairo_slope_t slope = { CAIRO_FIXED_ONE, 0 };
 		cairo_stroke_face_t face;
-
-		/* arbitrarily choose first_point
-		 * first_point and current_point should be the same */
+		// arbitrarily choose first_point first_point and current_point should be the same 
 		compute_face(&stroker->first_point, &slope, stroker, &face);
-
 		add_leading_cap(stroker, &face);
 		add_trailing_cap(stroker, &face);
 	}
-
 	if(stroker->has_first_face)
 		add_leading_cap(stroker, &stroker->first_face);
-
 	if(stroker->has_current_face)
 		add_trailing_cap(stroker, &stroker->current_face);
 }
 
-static cairo_bool_t stroker_intersects_edge(const struct stroker * stroker,
-    const cairo_stroke_face_t * start,
-    const cairo_stroke_face_t * end)
+static cairo_bool_t stroker_intersects_edge(const struct stroker * stroker, const cairo_stroke_face_t * start, const cairo_stroke_face_t * end)
 {
 	cairo_box_t box;
-
 	if(!stroker->has_bounds)
 		return TRUE;
-
 	if(_cairo_box_contains_point(&stroker->tight_bounds, &start->cw))
 		return TRUE;
 	box.p2 = box.p1 = start->cw;
-
 	if(_cairo_box_contains_point(&stroker->tight_bounds, &start->ccw))
 		return TRUE;
 	_cairo_box_add_point(&box, &start->ccw);
-
 	if(_cairo_box_contains_point(&stroker->tight_bounds, &end->cw))
 		return TRUE;
 	_cairo_box_add_point(&box, &end->cw);
-
 	if(_cairo_box_contains_point(&stroker->tight_bounds, &end->ccw))
 		return TRUE;
 	_cairo_box_add_point(&box, &end->ccw);
-
-	return (box.p2.x > stroker->tight_bounds.p1.x &&
-	       box.p1.x < stroker->tight_bounds.p2.x &&
-	       box.p2.y > stroker->tight_bounds.p1.y &&
-	       box.p1.y < stroker->tight_bounds.p2.y);
+	return (box.p2.x > stroker->tight_bounds.p1.x && box.p1.x < stroker->tight_bounds.p2.x &&
+	       box.p2.y > stroker->tight_bounds.p1.y && box.p1.y < stroker->tight_bounds.p2.y);
 }
 
-static void add_sub_edge(struct stroker * stroker,
-    const cairo_point_t * p1, const cairo_point_t * p2,
-    const cairo_slope_t * dev_slope,
-    cairo_stroke_face_t * start, cairo_stroke_face_t * end)
+static void add_sub_edge(struct stroker * stroker, const cairo_point_t * p1, const cairo_point_t * p2,
+    const cairo_slope_t * dev_slope, cairo_stroke_face_t * start, cairo_stroke_face_t * end)
 {
 	cairo_point_t rectangle[4];
 	compute_face(p1, dev_slope, stroker, start);
@@ -725,18 +684,14 @@ static void add_sub_edge(struct stroker * stroker,
 	rectangle[0].y = p2->y - p1->y;
 	translate_point(&end->ccw, &rectangle[0]);
 	translate_point(&end->cw, &rectangle[0]);
-
 	if(p1->x == p2->x && p1->y == p2->y)
 		return;
-
 	if(!stroker_intersects_edge(stroker, start, end))
 		return;
-
 	rectangle[0] = start->cw;
 	rectangle[1] = start->ccw;
 	rectangle[2] = end->ccw;
 	rectangle[3] = end->cw;
-
 	_cairo_traps_tessellate_convex_quad(stroker->traps, rectangle);
 }
 
@@ -745,14 +700,11 @@ static cairo_status_t move_to(void * closure, const cairo_point_t * point)
 	struct stroker * stroker = (struct stroker *)closure;
 	/* Cap the start and end of the previous sub path as needed */
 	add_caps(stroker);
-
 	stroker->first_point = *point;
 	stroker->current_face.point = *point;
-
 	stroker->has_first_face = FALSE;
 	stroker->has_current_face = FALSE;
 	stroker->has_initial_sub_path = FALSE;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -772,15 +724,11 @@ static cairo_status_t line_to(void * closure, const cairo_point_t * point)
 	const cairo_point_t * p1 = &stroker->current_face.point;
 	const cairo_point_t * p2 = point;
 	cairo_slope_t dev_slope;
-
 	stroker->has_initial_sub_path = TRUE;
-
 	if(p1->x == p2->x && p1->y == p2->y)
 		return CAIRO_STATUS_SUCCESS;
-
 	_cairo_slope_init(&dev_slope, p1, p2);
 	add_sub_edge(stroker, p1, p2, &dev_slope, &start, &end);
-
 	if(stroker->has_current_face) {
 		/* Join with final face from previous segment */
 		join(stroker, &stroker->current_face, &start);
@@ -792,10 +740,8 @@ static cairo_status_t line_to(void * closure, const cairo_point_t * point)
 	}
 	stroker->current_face = end;
 	stroker->has_current_face = TRUE;
-
 	return CAIRO_STATUS_SUCCESS;
 }
-
 /*
  * Dashed lines.  Cap each dash end, join around turns when on
  */
@@ -811,30 +757,22 @@ static cairo_status_t line_to_dashed(void * closure, const cairo_point_t * point
 	cairo_slope_t dev_slope;
 	cairo_line_t segment;
 	cairo_bool_t fully_in_bounds;
-
 	stroker->has_initial_sub_path = stroker->dash.dash_starts_on;
-
 	if(p1->x == p2->x && p1->y == p2->y)
 		return CAIRO_STATUS_SUCCESS;
-
 	fully_in_bounds = TRUE;
-	if(stroker->has_bounds &&
-	    (!_cairo_box_contains_point(&stroker->join_bounds, p1) ||
+	if(stroker->has_bounds && (!_cairo_box_contains_point(&stroker->join_bounds, p1) ||
 	    !_cairo_box_contains_point(&stroker->join_bounds, p2))) {
 		fully_in_bounds = FALSE;
 	}
-
 	_cairo_slope_init(&dev_slope, p1, p2);
-
 	slope_dx = _cairo_fixed_to_double(p2->x - p1->x);
 	slope_dy = _cairo_fixed_to_double(p2->y - p1->y);
-
 	if(stroker->ctm_inverse)
 		cairo_matrix_transform_distance(stroker->ctm_inverse, &slope_dx, &slope_dy);
 	mag = normalize_slope(&slope_dx, &slope_dy);
 	if(mag <= DBL_EPSILON)
 		return CAIRO_STATUS_SUCCESS;
-
 	remain = mag;
 	segment.p1 = *p1;
 	while(remain) {
@@ -845,16 +783,9 @@ static cairo_status_t line_to_dashed(void * closure, const cairo_point_t * point
 		cairo_matrix_transform_distance(stroker->ctm, &dx2, &dy2);
 		segment.p2.x = _cairo_fixed_from_double(dx2) + p1->x;
 		segment.p2.y = _cairo_fixed_from_double(dy2) + p1->y;
-
-		if(stroker->dash.dash_on &&
-		    (fully_in_bounds ||
-		    (!stroker->has_first_face && stroker->dash.dash_starts_on) ||
+		if(stroker->dash.dash_on && (fully_in_bounds || (!stroker->has_first_face && stroker->dash.dash_starts_on) ||
 		    _cairo_box_intersects_line_segment(&stroker->join_bounds, &segment))) {
-			add_sub_edge(stroker,
-			    &segment.p1, &segment.p2,
-			    &dev_slope,
-			    &sub_start, &sub_end);
-
+			add_sub_edge(stroker, &segment.p1, &segment.p2, &dev_slope, &sub_start, &sub_end);
 			if(stroker->has_current_face) {
 				/* Join with final face from previous segment */
 				join(stroker, &stroker->current_face, &sub_start);

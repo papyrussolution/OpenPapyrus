@@ -66,7 +66,7 @@ int SLAPI BNKey::addSegment(int fldID, int flags)
 	cell.s.fldID = fldID;
 	cell.s.flags = flags;
 	if((data = SAlloc::R(data, sizeof(BNKeyCell) * (pos + 1))) != 0) {
-		memcpy(((char *)data) + sizeof(BNKeyCell) * pos, &cell, sizeof(BNKeyCell));
+		memcpy(PTR8(data) + sizeof(BNKeyCell) * pos, &cell, sizeof(BNKeyCell));
 		HEAD.numSeg++;
 		return 1;
 	}
@@ -103,7 +103,7 @@ int SLAPI BNKey::getFieldID(int seg) const { return (data && seg >= 0 && seg < H
 
 int SLAPI BNKey::getFlags(int seg) const
 {
-	if(seg == (int)UNDEF)
+	if(seg == static_cast<int>(UNDEF))
 		seg = 0;
 	return (data && seg >= 0 && seg < HEAD.numSeg) ? SEG(seg).flags : UNDEF;
 }
@@ -113,7 +113,7 @@ int SLAPI BNKey::setFlags(int flags, int seg)
 	int    ok = 0;
 	if(data) {
 		const int _ns = HEAD.numSeg;
-		if(seg == (int)UNDEF) {
+		if(seg == static_cast<int>(UNDEF)) {
 			for(int i = 0; i < _ns; i++) {
 				int32 * f = &SEG(i).flags;
 				*f &= ~XIF_ALLSEGFLAGS;
@@ -317,15 +317,16 @@ void FASTCALL BNKeyList::setTableRef(uint ofs)
 		static_cast<BNKeyCell *>(P_Data)->ih.tblBackOffset = ofs;
 }
 
-DBTable * SLAPI BNKeyList::table() const
+const DBTable & SLAPI BNKeyList::table() const
 {
-	return P_Data ? (DBTable *)(reinterpret_cast<const char *>(this) - static_cast<BNKeyCell *>(P_Data)->ih.tblBackOffset) : 0;
+	assert(P_Data);
+	return *reinterpret_cast<const DBTable *>(reinterpret_cast<const char *>(this) - static_cast<BNKeyCell *>(P_Data)->ih.tblBackOffset);
 }
 
 const BNField & SLAPI BNKeyList::field(int key, int seg) const
 {
 	if(P_Data) {
-		DBTable * p_tbl = (DBTable *)(reinterpret_cast<const char *>(this) - static_cast<BNKeyCell *>(P_Data)->ih.tblBackOffset);
+		const DBTable * p_tbl = reinterpret_cast<const DBTable *>(reinterpret_cast<const char *>(this) - static_cast<BNKeyCell *>(P_Data)->ih.tblBackOffset);
 		return p_tbl->GetFields()[getKey(key).getFieldID(seg)];
 	}
 	else
@@ -395,7 +396,7 @@ uint SLAPI BNKeyList::setBound(int key, int seg, int min_max /* 0 - min, !0 - ma
 	uint   ofs = 0;
 	int    ns = k.getNumSeg();
 	for(int i = seg; i < ns; i++) {
-		const BNField & f = table()->GetFields()[k.getFieldID(i)];
+		const BNField & f = table().GetFields()[k.getFieldID(i)];
 		if(((k.getFlags(i) & XIF_DESC) ? !min_max : min_max) != 0)
 			stmaxval(f.T, PTR8(pDest) + ofs);
 		else
@@ -435,7 +436,7 @@ int SLAPI BNKeyList::makeKey(int key, int seg, int cmp, const void * val, void *
 	int    use = 0;
 	uint   ofs, segOfs;
 	BNKey  k  = getKey(key);
-	uint   ss = table()->GetFields()[k.getFieldID(seg)].size();
+	uint   ss = table().GetFields()[k.getFieldID(seg)].size();
 	int    ns = k.getNumSeg();
 	uint   keyLen;
 	d = static_cast<char *>(dest);
@@ -454,7 +455,7 @@ int SLAPI BNKeyList::makeKey(int key, int seg, int cmp, const void * val, void *
 		use = 2;
 		keyLen = getKeySize(key);
 		for(int i = 0; i < seg; i++) {
-			const BNField & f = table()->GetFields()[k.getFieldID(i)];
+			const BNField & f = table().GetFields()[k.getFieldID(i)];
 			if(stcomp(f.T, d + o, d + o + keyLen) != 0) {
 				use = 0;
 				break;
@@ -512,7 +513,7 @@ int SLAPI BNKeyList::makeKey(int key, int seg, int cmp, const void * val, void *
 
 int FASTCALL BNKeyList::compareKey(int key, const void * k1, const void * k2) const
 {
-	return getKey(key).compareKey(table(), k1, k2);
+	return getKey(key).compareKey(&table(), k1, k2);
 }
 
 int SLAPI BNKey::compareKey(const DBTable * tbl, const void * k1, const void * k2) const

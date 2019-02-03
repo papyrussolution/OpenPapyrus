@@ -37,8 +37,8 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-array-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-array-private.h"
+//#include "cairo-error-private.h"
 /**
  * _cairo_array_init:
  *
@@ -116,12 +116,11 @@ cairo_status_t FASTCALL _cairo_array_grow_by(cairo_array_t * array, uint additio
  * current size. No memory is actually freed. The stored objects
  * beyond @num_elements are simply "forgotten".
  **/
-void _cairo_array_truncate(cairo_array_t * array, uint num_elements)
+void FASTCALL _cairo_array_truncate(cairo_array_t * array, uint num_elements)
 {
 	if(num_elements < array->num_elements)
 		array->num_elements = num_elements;
 }
-
 /**
  * _cairo_array_index:
  * @array: a #cairo_array_t
@@ -228,7 +227,7 @@ void _cairo_array_copy_element(const cairo_array_t * array, uint index, void * d
  * %CAIRO_STATUS_NO_MEMORY if insufficient memory is available for the
  * operation.
  **/
-cairo_status_t _cairo_array_append(cairo_array_t * array, const void * element)
+cairo_status_t FASTCALL _cairo_array_append(cairo_array_t * array, const void * element)
 {
 	return _cairo_array_append_multiple(array, element, 1);
 }
@@ -314,7 +313,6 @@ void FASTCALL _cairo_user_data_array_init(cairo_user_data_array_t * array)
 {
 	_cairo_array_init(array, sizeof(cairo_user_data_slot_t));
 }
-
 /**
  * _cairo_user_data_array_fini:
  * @array: a #cairo_user_data_array_t
@@ -322,7 +320,7 @@ void FASTCALL _cairo_user_data_array_init(cairo_user_data_array_t * array)
  * Destroys all current keys in the user data array and deallocates
  * any memory allocated for the array itself.
  **/
-void _cairo_user_data_array_fini(cairo_user_data_array_t * array)
+void FASTCALL _cairo_user_data_array_fini(cairo_user_data_array_t * array)
 {
 	uint num_slots = array->num_elements;
 	if(num_slots) {
@@ -335,7 +333,6 @@ void _cairo_user_data_array_fini(cairo_user_data_array_t * array)
 	}
 	_cairo_array_fini(array);
 }
-
 /**
  * _cairo_user_data_array_get_data:
  * @array: a #cairo_user_data_array_t

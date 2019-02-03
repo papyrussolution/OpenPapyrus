@@ -37,7 +37,7 @@
 #ifndef CAIRO_RECORDING_SURFACE_INLINE_H
 #define CAIRO_RECORDING_SURFACE_INLINE_H
 
-#include "cairo-recording-surface-private.h"
+//#include "cairo-recording-surface-private.h"
 
 static inline cairo_bool_t _cairo_recording_surface_get_bounds(cairo_surface_t * surface, cairo_rectangle_t * extents)
 {

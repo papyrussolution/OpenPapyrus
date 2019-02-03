@@ -658,14 +658,14 @@ int SLAPI GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotR
 			}
 		}
 		// } @v10.3.2 
-		else if(byquot_price || byquot_cost) {
+		if(byquot_price || byquot_cost) {
 			double q_price;
 			const QuotIdent qi(QIDATE(getcurdate_()), (DiffParam & _diffLoc) ? pLotRec->LocID : LocID, QuotKindID);
 			if(gobj.GetQuotExt(pLotRec->GoodsID, qi, add.Cost, add.Price, &q_price, 1) > 0) {
-				if(byquot_price)
-					add.Price = q_price;
-				else if(byquot_cost)
+				if(byquot_cost)
 					add.Cost = q_price;
+				else if(!retail_price && byquot_price)
+					add.Price = q_price;
 			}
 		}
 		if(costwovat || pricewotaxes || setcostwovat) {
@@ -1216,7 +1216,7 @@ int SLAPI Transfer::UpdateForward(const TransferTbl::Rec & rRec, double addendum
 			THROW(SearchByID_ForUpdate(&Rcpt, PPOBJ_LOT, rRec.LotID, &lot_rec) > 0);
 			double prev_rest = lot_rec.Rest;
 			lot_rec.Rest = R6(lot_rec.Rest + addendum);
-			lot_rec.WtRest = (float)R6(lot_rec.WtRest + phAddend);
+			lot_rec.WtRest = static_cast<float>(R6(lot_rec.WtRest + phAddend));
 			if(lot_rec.Rest < 0.0 && (bad_lot = BIN(prev_rest < 0.0 && PPMaster && CConfig.Flags & CCFLG_DEBUG)) == 0) {
 				PPSetObjError(PPERR_LOTRESTBOUND, PPOBJ_GOODS, labs(lot_rec.GoodsID));
 				CALLEXCEPT();
@@ -2431,7 +2431,7 @@ int SLAPI Transfer::UpdateReceipt(PPID lotID, PPTransferItem * ti, PPID prevLotI
 		lot_rec.Expiry      = ti->Expiry;
 		PPObject::SetLastErrObj(PPOBJ_GOODS, labs(lot_rec.GoodsID));
 		THROW_PP((lot_rec.Quantity = ti->Quantity_) > 0.0, PPERR_LOTRESTBOUND);
-		lot_rec.WtQtty = (float)R6(ti->WtQtty);
+		lot_rec.WtQtty = static_cast<float>(R6(ti->WtQtty));
 		THROW(Rcpt.Update(lotID, &lot_rec, 0));
 	}
 	CATCHZOK

@@ -12,9 +12,9 @@
 //
 int SLAPI InternetAccountFilter(void * pData, void * extraPtr)
 {
-	const  long extra_param = (long)extraPtr;
+	const  long extra_param = reinterpret_cast<const long>(extraPtr);
 	int    r = 0;
-	PPInternetAccount * p_acct = (PPInternetAccount*)pData;
+	PPInternetAccount * p_acct = static_cast<PPInternetAccount *>(pData);
 	if(pData)
 		if(p_acct->Flags & PPInternetAccount::fFtpAccount) {
 			//r = BIN(extra_param == INETACCT_ONLYFTP);
@@ -55,7 +55,7 @@ int SLAPI PPObjInternetAccount::Browse(void * extraPtr)
 			else if(event.isCmd(cmTransmitCharry)) {
 				PPIDArray id_list;
 				ReferenceTbl::Rec rec;
-				for(PPID id = 0; ((PPObjReference *)P_Obj)->EnumItems(&id, &rec) > 0;)
+				for(PPID id = 0; static_cast<PPObjReference *>(P_Obj)->EnumItems(&id, &rec) > 0;)
 					id_list.add(rec.ObjID);
 				if(!SendCharryObject(PPDS_CRRMAILACCOUNT, id_list))
 					PPError();
@@ -66,7 +66,7 @@ int SLAPI PPObjInternetAccount::Browse(void * extraPtr)
 		}
 	};
 	int    ok = -1;
-	const  long extra_param = (long)extraPtr;
+	const  long extra_param = reinterpret_cast<const long>(extraPtr);
 	if(extra_param == PPObjInternetAccount::filtfMail/*INETACCT_ONLYMAIL*/) {
 		MailAcctsView * p_dlg = 0;
 		if(CheckRights(PPR_READ) && CheckDialogPtr(&(p_dlg = new MailAcctsView(this, extraPtr)))) {
@@ -95,14 +95,14 @@ void MailAccCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
 		PPID   mac_id = 0;
 		dlg->getCtrlData(CtlSelInput, &mac_id);
 		if(mac_obj.Edit(&mac_id, 0) == cmOK)
-			SetupPPObjCombo(dlg, CtlSelInput, PPOBJ_INTERNETACCOUNT, mac_id, OLW_CANINSERT, (void *)Data.Extra);
+			SetupPPObjCombo(dlg, CtlSelInput, PPOBJ_INTERNETACCOUNT, mac_id, OLW_CANINSERT, Data.ExtraPtr);
 	}
 }
 
 int MailAccCtrlGroup::setData(TDialog * dlg, void * pData)
 {
-	Data = *(Rec *)pData;
-	SetupPPObjCombo(dlg, CtlSelInput, PPOBJ_INTERNETACCOUNT, Data.MailAccID, OLW_CANINSERT, (void *)Data.Extra);
+	Data = *static_cast<Rec *>(pData);
+	SetupPPObjCombo(dlg, CtlSelInput, PPOBJ_INTERNETACCOUNT, Data.MailAccID, OLW_CANINSERT, Data.ExtraPtr);
 	return 1;
 }
 
@@ -110,7 +110,7 @@ int MailAccCtrlGroup::getData(TDialog * dlg, void * pData)
 {
 	dlg->getCtrlData(CtlSelInput, &Data.MailAccID);
 	if(pData)
-		*(Rec *)pData = Data;
+		*static_cast<Rec *>(pData) = Data;
 	return 1;
 }
 //
@@ -273,10 +273,10 @@ int SLAPI PPInternetAccount::GetRcvPort()
 //
 //
 //
-static void FASTCALL SetExtStrData(TDialog * dlg, PPInternetAccount * pData, uint ctlID, uint strID)
+static void FASTCALL SetExtStrData(TDialog * dlg, const PPInternetAccount & rData, uint ctlID, uint strID)
 {
 	SString temp_buf;
-	pData->GetExtField(strID, temp_buf);
+	rData.GetExtField(strID, temp_buf);
 	dlg->setCtrlString(ctlID, temp_buf);
 }
 
@@ -288,10 +288,10 @@ static void FASTCALL GetExtStrData(TDialog * dlg, PPInternetAccount * pData, uin
 		pData->SetExtField(strID, temp_buf);
 }
 
-static void FASTCALL SetExtIntData(TDialog * dlg, PPInternetAccount * pData, uint ctlID, uint strID)
+static void FASTCALL SetExtIntData(TDialog * dlg, const PPInternetAccount & rData, uint ctlID, uint strID)
 {
 	SString temp_buf;
-	pData->GetExtField(strID, temp_buf);
+	rData.GetExtField(strID, temp_buf);
 	dlg->setCtrlLong(ctlID, temp_buf.ToLong());
 }
 
@@ -328,12 +328,12 @@ public:
 		setCtrlData(CTL_MAILACC_NAME, Data.Name);
 		setCtrlData(CTL_MAILACC_ID,   &Data.ID);
 		disableCtrl(CTL_MAILACC_ID, (!PPMaster || Data.ID));
-		SetExtStrData(this, &Data, CTL_MAILACC_FROMADDR, MAEXSTR_FROMADDRESS);
-		SetExtStrData(this, &Data, CTL_MAILACC_SENDSRV,  MAEXSTR_SENDSERVER);
-		SetExtIntData(this, &Data, CTL_MAILACC_SENDPORT, MAEXSTR_SENDPORT);
-		SetExtStrData(this, &Data, CTL_MAILACC_RCVSRV,   MAEXSTR_RCVSERVER);
-		SetExtIntData(this, &Data, CTL_MAILACC_RCVPORT,  MAEXSTR_RCVPORT);
-		SetExtStrData(this, &Data, CTL_MAILACC_RCVNAME,  MAEXSTR_RCVNAME);
+		SetExtStrData(this, Data, CTL_MAILACC_FROMADDR, MAEXSTR_FROMADDRESS);
+		SetExtStrData(this, Data, CTL_MAILACC_SENDSRV,  MAEXSTR_SENDSERVER);
+		SetExtIntData(this, Data, CTL_MAILACC_SENDPORT, MAEXSTR_SENDPORT);
+		SetExtStrData(this, Data, CTL_MAILACC_RCVSRV,   MAEXSTR_RCVSERVER);
+		SetExtIntData(this, Data, CTL_MAILACC_RCVPORT,  MAEXSTR_RCVPORT);
+		SetExtStrData(this, Data, CTL_MAILACC_RCVNAME,  MAEXSTR_RCVNAME);
 		Data.GetPassword(temp_buf, sizeof(temp_buf));
 		setCtrlData(CTL_MAILACC_RCVPASSWORD, temp_buf);
 		IdeaRandMem(temp_buf, sizeof(temp_buf));
@@ -384,12 +384,12 @@ public:
 		setCtrlData(CTL_FTPACCT_NAME, Data.Name);
 		setCtrlData(CTL_FTPACCT_ID,   &Data.ID);
 		disableCtrl(CTL_FTPACCT_ID, (!PPMaster || Data.ID));
-		SetExtStrData(this, &Data, CTL_FTPACCT_HOST,      FTPAEXSTR_HOST);
-		SetExtIntData(this, &Data, CTL_FTPACCT_PORT,      FTPAEXSTR_PORT);
-		SetExtStrData(this, &Data, CTL_FTPACCT_USER,      FTPAEXSTR_USER);
-		SetExtStrData(this, &Data, CTL_FTPACCT_PROXY,     FTPAEXSTR_PROXY);
-		SetExtIntData(this, &Data, CTL_FTPACCT_PROXYPORT, FTPAEXSTR_PROXYPORT);
-		SetExtStrData(this, &Data, CTL_FTPACCT_PROXYUSER, FTPAEXSTR_PROXYUSER);
+		SetExtStrData(this, Data, CTL_FTPACCT_HOST,      FTPAEXSTR_HOST);
+		SetExtIntData(this, Data, CTL_FTPACCT_PORT,      FTPAEXSTR_PORT);
+		SetExtStrData(this, Data, CTL_FTPACCT_USER,      FTPAEXSTR_USER);
+		SetExtStrData(this, Data, CTL_FTPACCT_PROXY,     FTPAEXSTR_PROXY);
+		SetExtIntData(this, Data, CTL_FTPACCT_PROXYPORT, FTPAEXSTR_PROXYPORT);
+		SetExtStrData(this, Data, CTL_FTPACCT_PROXYUSER, FTPAEXSTR_PROXYUSER);
 		Data.GetPassword(temp_buf, sizeof(temp_buf), FTPAEXSTR_PASSWORD);
 		setCtrlData(CTL_FTPACCT_PWD, temp_buf);
 		IdeaRandMem(temp_buf, sizeof(temp_buf));
@@ -434,7 +434,7 @@ public:
 
 int SLAPI PPObjInternetAccount::Edit(PPID * pID, void * extraPtr)
 {
-	long   extra_param = (long)extraPtr;
+	long   extra_param = reinterpret_cast<long>(extraPtr);
 	int    r = cmCancel, ok = 1, valid_data = 0;
 	PPInternetAccount rec;
 	InetAcctDialog * dlg = 0;
@@ -796,7 +796,7 @@ int SLAPI PPMailFile::ProcessMsgHeaderLine(const char * pLine)
 			if(p) {
 				p++;
 				while(*p == ' ')
-					*p++;
+					p++;
 				if(GetField(p, PPMAILFLD_BOUNDARY, buf) > 0)
 					Msg.SetField(SMailMessage::fldBoundary, buf.StripQuotes());
 			}
@@ -1918,7 +1918,7 @@ int SLAPI ImportEmailAccts()
 //
 //
 //
-int SLAPI ExportEmailAccts(PPIDArray * pMailAcctsList)
+int SLAPI ExportEmailAccts(const PPIDArray * pMailAcctsList)
 {
 	int    ok = 1;
 	uint   exported = 0;

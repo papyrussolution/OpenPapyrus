@@ -20,8 +20,8 @@ struct CashierEntry { // @flat
 IMPL_CMPFUNC(CashierEnKey, i1, i2)
 {
 	int    cmp = 0;
-	const CashierEntry * k1 = (const CashierEntry *)i1;
-	const CashierEntry * k2 = (const CashierEntry *)i2;
+	const CashierEntry * k1 = static_cast<const CashierEntry *>(i1);
+	const CashierEntry * k2 = static_cast<const CashierEntry *>(i2);
 	if(k1->TabNum < k2->TabNum)
 		cmp = -1;
 	else if(k1->TabNum > k2->TabNum)
@@ -40,7 +40,7 @@ public:
 	}
 	CashierEntry & FASTCALL at(uint p) const
 	{
-		return *(CashierEntry*)SVector::at(p); // @v9.8.11 SArray-->SVector
+		return *static_cast<CashierEntry *>(SVector::at(p)); // @v9.8.11 SArray-->SVector
 	}
 	int    FASTCALL Add(CashierEntry * pEntry)
 	{
@@ -126,7 +126,6 @@ public:
 	virtual int  SLAPI ImportSession(int);
 	virtual int  SLAPI FinishImportSession(PPIDArray *);
 	virtual void SLAPI CleanUpSession();
-
 	int SLAPI ExportDataV10(int updOnly);
 	int SLAPI ExportData__(int updOnly);
 	int SLAPI Prev_ExportData(int updOnly);
@@ -288,17 +287,8 @@ int SLAPI ACS_CRCSHSRV::IsReadyForExport()
 		else if(IsFileExists(PPFILNAM_CS_BAR_DBF, 0))
 			ready = 0;
 	}
-	/* @v4.8.5 Временная блокировка
-	else if(IsFileExists(PPFILNAM_CS_DSCNT_DBF))
-		ready = 0;
-	else if(IsFileExists(PPFILNAM_CS_CARDS_DBF))
-		ready = 0;
-	else if(IsFileExists(PPFILNAM_CS_CSHRS_DBF))
-		ready = 0;
-	*/
 	return ready;
 }
-
 /*
 	Позиции прав доступа кассиров в SetRetail
 	1  Оформление возвратов
@@ -423,23 +413,21 @@ public:
 	int SLAPI PutElement(const char * pName, LDATETIME);
 	int SLAPI PutElement(const char * pName, LDATE);
 	int SLAPI PutElement(const char * pName, LTIME);
-	int SLAPI PutPlugin(const char * pKey, const char * pVal);
-	int SLAPI PutPlugin(const char * pKey, double val);
-	int SLAPI PutPlugin(const char * pKey, long val);
-	int SLAPI PutPlugin(const char * pKey, LDATE val);
+	void SLAPI PutPlugin(const char * pKey, const char * pVal);
+	void SLAPI PutPlugin(const char * pKey, double val);
+	void SLAPI PutPlugin(const char * pKey, long val);
+	void SLAPI PutPlugin(const char * pKey, LDATE val);
 private:
 	// @v9.0.9 int SLAPI TimeStamp(LDATETIME dtm, SString & rBuf);
 	// @v9.0.9 int SLAPI TimeStamp(LTIME tm, SString & rBuf);
 
-	int ReplaceSpecSymb;
+	int    ReplaceSpecSymb;
 	xmlTextWriter * P_Writer;
+	SString TempBuf;
 };
 
-XmlWriter::XmlWriter(const char * pPath, int replaceSpecSymb)
+XmlWriter::XmlWriter(const char * pPath, int replaceSpecSymb) : ReplaceSpecSymb(replaceSpecSymb), P_Writer(sstrlen(pPath) ? xmlNewTextWriterFilename(pPath, 0) : 0)
 {
-	ReplaceSpecSymb = replaceSpecSymb;
-	if(sstrlen(pPath))
-		P_Writer = xmlNewTextWriterFilename(pPath, 0);
 	if(P_Writer) {
 		xmlTextWriterSetIndent(P_Writer, 1);
 		xmlTextWriterSetIndentString(P_Writer, (const xmlChar*)"\t");
@@ -456,7 +444,7 @@ XmlWriter::~XmlWriter()
 	}
 }
 
-int SLAPI XmlWriter::PutPlugin(const char * pKey, const char * pVal)
+void SLAPI XmlWriter::PutPlugin(const char * pKey, const char * pVal)
 {
 	if(pKey && sstrlen(pKey) && pVal && sstrlen(pVal)) {
 		SString key, val;
@@ -470,47 +458,32 @@ int SLAPI XmlWriter::PutPlugin(const char * pKey, const char * pVal)
 		AddAttrib("value", pVal);
 		EndElement();
 	}
-	return 1;
 }
 
-int SLAPI XmlWriter::PutPlugin(const char * pKey, double val)
+void SLAPI XmlWriter::PutPlugin(const char * pKey, double val)
 {
-	if(val != 0.0) {
-		SString temp_buf;
-		temp_buf.Cat(val);
-		PutPlugin(pKey, temp_buf);
-	}
-	return 1;
+	if(val != 0.0)
+		PutPlugin(pKey, TempBuf.Z().Cat(val));
 }
 
-int SLAPI XmlWriter::PutPlugin(const char * pKey, long val)
+void SLAPI XmlWriter::PutPlugin(const char * pKey, long val)
 {
-	if(val != 0) {
-		SString temp_buf;
-		temp_buf.Cat(val);
-		PutPlugin(pKey, temp_buf);
-	}
-	return 1;
+	if(val != 0)
+		PutPlugin(pKey, TempBuf.Z().Cat(val));
 }
 
-int SLAPI XmlWriter::PutPlugin(const char * pKey, LDATE val)
+void SLAPI XmlWriter::PutPlugin(const char * pKey, LDATE val)
 {
-	if(val != ZERODATE) {
-		SString temp_buf;
-		// @v9.0.9 temp_buf.Printf("%04d-%02d-%02d", val.year(), val.month(), val.day());
-		temp_buf.Cat(val, DATF_ISO8601|DATF_CENTURY); // @v9.0.9
-		PutPlugin(pKey, temp_buf);
-	}
-	return 1;
+	if(val != ZERODATE)
+		PutPlugin(pKey, TempBuf.Z().Cat(val, DATF_ISO8601|DATF_CENTURY));
 }
 
 int SLAPI XmlWriter::StartElement(const char * pName, const char * pAttribName /*=0*/, const char * pAttribValue /*=0*/)
 {
 	int    ok = 0;
-	if(P_Writer && pName && sstrlen(pName)) {
-		SString name_buf;
-		(name_buf = pName).Transf(CTRANSF_INNER_TO_UTF8);
-		xmlTextWriterStartElement(P_Writer, (const xmlChar*)(const char*)name_buf);
+	if(P_Writer && sstrlen(pName)) {
+		(TempBuf = pName).Transf(CTRANSF_INNER_TO_UTF8);
+		xmlTextWriterStartElement(P_Writer, TempBuf.ucptr());
 		AddAttrib(pAttribName, pAttribValue);
 		ok = 1;
 	}
@@ -528,25 +501,11 @@ int SLAPI XmlWriter::EndElement()
 }
 
 int SLAPI XmlWriter::AddAttrib(const char * pAttribName, bool attribValue)
-{
-	SString attr_val;
-	attr_val.Cat((attribValue) ? "true" : "false");
-	return AddAttrib(pAttribName, attr_val);
-}
-
+	{ return AddAttrib(pAttribName, TempBuf.Z().Cat(attribValue ? "true" : "false")); }
 int SLAPI XmlWriter::AddAttrib(const char * pAttribName, long attribValue)
-{
-	SString attr_val;
-	attr_val.Cat(attribValue);
-	return AddAttrib(pAttribName, attr_val);
-}
-
+	{ return AddAttrib(pAttribName, TempBuf.Z().Cat(attribValue)); }
 int SLAPI XmlWriter::AddAttrib(const char * pAttribName, double attribValue)
-{
-	SString attr_val;
-	attr_val.Cat(attribValue, MKSFMTD(0, 2, NMBF_NOTRAILZ));
-	return AddAttrib(pAttribName, attr_val);
-}
+	{ return AddAttrib(pAttribName, TempBuf.Z().Cat(attribValue, MKSFMTD(0, 2, NMBF_NOTRAILZ))); }
 
 int SLAPI XmlWriter::AddAttrib(const char * pAttribName, const char * pAttribValue)
 {
@@ -565,65 +524,21 @@ int SLAPI XmlWriter::AddAttrib(const char * pAttribName, const char * pAttribVal
 }
 
 int SLAPI XmlWriter::AddAttrib(const char * pName, LDATETIME val)
-{
-	SString attr_val;
-	// @v9.0.9 TimeStamp(val, attr_val);
-	attr_val.Cat(val, DATF_ISO8601|DATF_CENTURY, 0);
-	return AddAttrib(pName, attr_val);
-}
-
+	{ return AddAttrib(pName, TempBuf.Z().Cat(val, DATF_ISO8601|DATF_CENTURY, 0)); }
 int SLAPI XmlWriter::AddAttrib(const char * pName, LDATE val)
-{
-	SString attr_val;
-	//attr_val.Printf("%04d-%02d-%02d", val.year(), val.month(), val.day());
-	attr_val.Cat(val, DATF_ISO8601|DATF_CENTURY);
-	return AddAttrib(pName, attr_val);
-}
-
+	{ return AddAttrib(pName, TempBuf.Z().Cat(val, DATF_ISO8601|DATF_CENTURY)); }
 int SLAPI XmlWriter::PutElement(const char * pName, long val)
-{
-	SString temp_buf;
-	temp_buf.Cat(val);
-	return PutElement(pName, temp_buf);
-}
-
+	{ return PutElement(pName, TempBuf.Z().Cat(val)); }
 int SLAPI XmlWriter::PutElement(const char * pName, double val)
-{
-	SString temp_buf;
-	temp_buf.Cat(val);
-	return PutElement(pName, temp_buf);
-}
-
+	{ return PutElement(pName, TempBuf.Z().Cat(val)); }
 int SLAPI XmlWriter::PutElement(const char * pName, bool val)
-{
-	SString temp_buf;
-	temp_buf.Cat(val ? "true" : "false");
-	return PutElement(pName, temp_buf);
-}
-
+	{ return PutElement(pName, TempBuf.Z().Cat(val ? "true" : "false")); }
 int SLAPI XmlWriter::PutElement(const char * pName, LDATETIME val)
-{
-	SString temp_buf;
-	// @v9.0.9 TimeStamp(val, temp_buf);
-	temp_buf.Cat(val, DATF_ISO8601|DATF_CENTURY, 0); // @v9.0.9
-	return PutElement(pName, temp_buf);
-}
-
+	{ return PutElement(pName, TempBuf.Z().Cat(val, DATF_ISO8601|DATF_CENTURY, 0)); }
 int SLAPI XmlWriter::PutElement(const char * pName, LDATE val)
-{
-	SString temp_buf;
-	// @v9.0.9 temp_buf.Printf("%04d-%02d-%02d", val.year(), val.month(), val.day());
-	temp_buf.Cat(val, DATF_ISO8601|DATF_CENTURY); // @v9.0.9
-	return PutElement(pName, temp_buf);
-}
-
+	{ return PutElement(pName, TempBuf.Z().Cat(val, DATF_ISO8601|DATF_CENTURY)); }
 int SLAPI XmlWriter::PutElement(const char * pName, LTIME val)
-{
-	SString temp_buf;
-	// @v9.0.9 TimeStamp(val, temp_buf);
-	temp_buf.Cat(val, TIMF_HMS|TIMF_MSEC); // @v9.0.9
-	return PutElement(pName, temp_buf);
-}
+	{ return PutElement(pName, TempBuf.Z().Cat(val, TIMF_HMS|TIMF_MSEC)); }
 
 int SLAPI XmlWriter::PutElement(const char * pName, const char * pValue)
 {
@@ -640,20 +555,6 @@ int SLAPI XmlWriter::PutElement(const char * pName, const char * pValue)
 	}
 	return ok;
 }
-
-#if 0 // @v9.0.9 {
-int SLAPI XmlWriter::TimeStamp(LDATETIME dtm, SString & rBuf)
-{
-	rBuf.Printf("%04d-%02d-%02dT%02d:%02d:%02d.%03d", dtm.d.year(), dtm.d.month(), dtm.d.day(), dtm.t.hour(), dtm.t.minut(), dtm.t.sec(), dtm.t.hs() * 10);
-	return 1;
-}
-
-int SLAPI XmlWriter::TimeStamp(LTIME tm, SString & rBuf)
-{
-	rBuf.Printf("%02d:%02d:%02d.%03d", tm.hour(), tm.minut(), tm.sec(), tm.hs() * 10);
-	return 1;
-}
-#endif // } 0 @v9.0.9
 
 int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 {
@@ -718,9 +619,8 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	{
 		PPLocationConfig loc_cfg;
 		PPObjLocation::ReadConfig(&loc_cfg);
-		if(loc_cfg.StoreIdxTagID) {
+		if(loc_cfg.StoreIdxTagID)
 			PPRef->Ot.GetTagStr(PPOBJ_LOCATION, cn_data.LocID, loc_cfg.StoreIdxTagID, store_index);
-		}
 	}
 	rpe.Init(cn_data.LocID, 0, 0, ZERODATETIME, 0);
 	check_dig  = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
@@ -1296,12 +1196,8 @@ public:
 		// @v9.2.5 tSignalAll // @v9.2.1
 	};
 	struct Info {
-		Info()
+		Info() : T(0), FilNamId(0), DbfResId(0), P_Tbl(0)
 		{
-			T = 0;
-			FilNamId = 0;
-			DbfResId = 0;
-			P_Tbl = 0;
 		}
 		~Info()
 		{
@@ -1327,7 +1223,6 @@ public:
 		int    T;
 		uint   FilNamId;
 		uint   DbfResId;
-
 		DbfTable * P_Tbl;
 		SString FileName;
 	};
@@ -3516,7 +3411,7 @@ int SLAPI ACS_CRCSHSRV::ConvertWareListV10(const SVector * pZRepList, const char
 				if(!gift_card_id)
 					hdr.GiftCardAmount = 0.0;
 				hdr.CheckAmount = (fl & CCHKF_RETURN) ? -hdr.CheckAmount : hdr.CheckAmount;
-				THROW(r = AddTempCheck(&id, hdr.SmenaNum, fl, hdr.CashNum, hdr.ChkNum, cshr_id, 0, &hdr.Dtm, hdr.CheckAmount, 0/*, add_paym, hdr.GiftCardAmount*/));
+				THROW(r = AddTempCheck(&id, hdr.SmenaNum, fl, hdr.CashNum, hdr.ChkNum, cshr_id, 0, hdr.Dtm, hdr.CheckAmount, 0/*, add_paym, hdr.GiftCardAmount*/));
 				if(r < 0 && !(Flags & PPACSF_TEMPSESS) && !(fl & CCHKF_TEMPSESS)) {
 					PPID   sess_id = 0;
 					if(CS.SearchByNumber(&sess_id, NodeID, hdr.CashNum, hdr.SmenaNum, hdr.Dtm.d) > 0 && sess_id && CS.data.Temporary) {
@@ -3704,7 +3599,7 @@ int SLAPI ACS_CRCSHSRV::ConvertWareList(const SVector * pZRepList, const char * 
 					}
 					else if(Flags & PPACSF_TEMPSESS)
 						fl |= CCHKF_TEMPSESS;
-					THROW(r = AddTempCheck(&id, nsmena, fl, csh, chk, cshr_id, 0, &dttm, sum, dscnt));
+					THROW(r = AddTempCheck(&id, nsmena, fl, csh, chk, cshr_id, 0, dttm, sum, dscnt));
 					if(r < 0 && !(Flags & PPACSF_TEMPSESS) && !(fl & CCHKF_TEMPSESS)) {
 						PPID   sess_id = 0;
 						if(CS.SearchByNumber(&sess_id, NodeID, csh, nsmena, dttm.d) > 0 && sess_id && CS.data.Temporary) {
@@ -3842,7 +3737,7 @@ int SLAPI ACS_CRCSHSRV::ConvertCheckHeads(const SVector * pZRepList, const char 
 					}
 					else if(Flags & PPACSF_TEMPSESS)
 						fl |= CCHKF_TEMPSESS;
-					THROW(r = AddTempCheck(&id, cs_chkhd.SessNumber, fl, cs_chkhd.CashNumber, cs_chkhd.CheckNumber, cshr_id, 0, &dttm, 0.0, 0.0));
+					THROW(r = AddTempCheck(&id, cs_chkhd.SessNumber, fl, cs_chkhd.CashNumber, cs_chkhd.CheckNumber, cshr_id, 0, dttm, 0.0, 0.0));
 					if(r < 0 && !(Flags & PPACSF_TEMPSESS)/*@v6.5.6{ */ && !(fl & CCHKF_TEMPSESS) /*}@v6.5.6*/) {
 						PPID sess_id = 0;
 						if(CS.SearchByNumber(&sess_id, NodeID, cs_chkhd.CashNumber, cs_chkhd.SessNumber, dttm.d) > 0 && sess_id && CS.data.Temporary) {

@@ -1296,12 +1296,12 @@ extern "C" typedef SCoClass * (*FN_DL6CLS_FACTORY)(const DlContext *, const DlSc
 //
 // Макро-определения, используемые при реализации интерфейсов
 //
-#define IMPL_PPIFC_EXTPTR(cls_extra)                   ((cls_extra *)ExtraPtr)
-#define IMPL_PPIFC_EXTPTRVAR(cls_extra)                cls_extra * p_ext = (cls_extra *)ExtraPtr
-#define IMPL_PPIFC_GETPROP(cls_extra, fld)             return ((cls_extra *)ExtraPtr)->fld
-#define IMPL_PPIFC_GETPROP_CAST(cls_extra, fld, totyp) return (totyp)((cls_extra *)ExtraPtr)->fld
-#define IMPL_PPIFC_PUTPROP(cls_extra, fld)             ((cls_extra *)ExtraPtr)->fld = value
-#define IMPL_PPIFC_PUTPROP_CAST(cls_extra, fld, totyp) ((cls_extra *)ExtraPtr)->fld = (totyp)value
+#define IMPL_PPIFC_EXTPTR(cls_extra)                   (static_cast<cls_extra *>(ExtraPtr))
+#define IMPL_PPIFC_EXTPTRVAR(cls_extra)                cls_extra * p_ext = static_cast<cls_extra *>(ExtraPtr)
+#define IMPL_PPIFC_GETPROP(cls_extra, fld)             return (static_cast<cls_extra *>(ExtraPtr))->fld
+#define IMPL_PPIFC_GETPROP_CAST(cls_extra, fld, totyp) return (totyp)(static_cast<cls_extra *>(ExtraPtr))->fld
+#define IMPL_PPIFC_PUTPROP(cls_extra, fld)             (static_cast<cls_extra *>(ExtraPtr))->fld = value
+#define IMPL_PPIFC_PUTPROP_CAST(cls_extra, fld, totyp) (static_cast<cls_extra *>(ExtraPtr))->fld = static_cast<totyp>(value)
 //
 // Реализация метода PPView::Init()
 // ARG(view) наименование класса PPView без приставки PPView.

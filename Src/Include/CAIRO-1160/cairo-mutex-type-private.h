@@ -37,84 +37,59 @@
  *	Mathias Hasselmann <mathias.hasselmann@gmx.de>
  *	Behdad Esfahbod <behdad@behdad.org>
  */
-
 #ifndef CAIRO_MUTEX_TYPE_PRIVATE_H
 #define CAIRO_MUTEX_TYPE_PRIVATE_H
 
-#include "cairo-compiler-private.h"
-#include "cairo-mutex-impl-private.h"
+//#include "cairo-compiler-private.h"
+//#include "cairo-mutex-impl-private.h"
 
 /* Only the following four are mandatory at this point */
 #ifndef CAIRO_MUTEX_IMPL_LOCK
-# error "CAIRO_MUTEX_IMPL_LOCK not defined.  Check cairo-mutex-impl-private.h."
+	#error "CAIRO_MUTEX_IMPL_LOCK not defined.  Check cairo-mutex-impl-private.h."
 #endif
 #ifndef CAIRO_MUTEX_IMPL_UNLOCK
-# error "CAIRO_MUTEX_IMPL_UNLOCK not defined.  Check cairo-mutex-impl-private.h."
+	#error "CAIRO_MUTEX_IMPL_UNLOCK not defined.  Check cairo-mutex-impl-private.h."
 #endif
 #ifndef CAIRO_MUTEX_IMPL_NIL_INITIALIZER
-# error "CAIRO_MUTEX_IMPL_NIL_INITIALIZER not defined.  Check cairo-mutex-impl-private.h."
+	#error "CAIRO_MUTEX_IMPL_NIL_INITIALIZER not defined.  Check cairo-mutex-impl-private.h."
 #endif
 #ifndef CAIRO_RECURSIVE_MUTEX_IMPL_INIT
-# error "CAIRO_RECURSIVE_MUTEX_IMPL_INIT not defined.  Check cairo-mutex-impl-private.h."
+	#error "CAIRO_RECURSIVE_MUTEX_IMPL_INIT not defined.  Check cairo-mutex-impl-private.h."
 #endif
-
 /* make sure implementations don't fool us: we decide these ourself */
 #undef _CAIRO_MUTEX_IMPL_USE_STATIC_INITIALIZER
 #undef _CAIRO_MUTEX_IMPL_USE_STATIC_FINALIZER
 
 #ifdef CAIRO_MUTEX_IMPL_INIT
-
-/* If %CAIRO_MUTEX_IMPL_INIT is defined, we may need to initialize all
- * static mutex'es. */
+// If %CAIRO_MUTEX_IMPL_INIT is defined, we may need to initialize all static mutex'es. 
 # ifndef CAIRO_MUTEX_IMPL_INITIALIZE
-#  define CAIRO_MUTEX_IMPL_INITIALIZE() do {    \
-		if(!_cairo_mutex_initialized)   \
-			_cairo_mutex_initialize();  \
-} while(0)
-
+#  define CAIRO_MUTEX_IMPL_INITIALIZE() do { if(!_cairo_mutex_initialized) _cairo_mutex_initialize(); } while(0)
 /* and make sure we implement the above */
 #  define _CAIRO_MUTEX_IMPL_USE_STATIC_INITIALIZER 1
 # endif /* CAIRO_MUTEX_IMPL_INITIALIZE */
-
 #else /* no CAIRO_MUTEX_IMPL_INIT */
-
 /* Otherwise we probably don't need to initialize static mutex'es, */
 # ifndef CAIRO_MUTEX_IMPL_INITIALIZE
 #  define CAIRO_MUTEX_IMPL_INITIALIZE() CAIRO_MUTEX_IMPL_NOOP
 # endif /* CAIRO_MUTEX_IMPL_INITIALIZE */
-
 /* and dynamic ones can be initialized using the static initializer. */
-# define CAIRO_MUTEX_IMPL_INIT(mutex) do {                              \
-		cairo_mutex_t _tmp_mutex = CAIRO_MUTEX_IMPL_NIL_INITIALIZER;      \
-		memcpy(&(mutex), &_tmp_mutex, sizeof(_tmp_mutex));      \
-} while(0)
+# define CAIRO_MUTEX_IMPL_INIT(mutex) do { cairo_mutex_t _tmp_mutex = CAIRO_MUTEX_IMPL_NIL_INITIALIZER; memcpy(&(mutex), &_tmp_mutex, sizeof(_tmp_mutex)); } while(0)
 
 #endif /* CAIRO_MUTEX_IMPL_INIT */
 
 #ifdef CAIRO_MUTEX_IMPL_FINI
-
-/* If %CAIRO_MUTEX_IMPL_FINI is defined, we may need to finalize all
- * static mutex'es. */
+// If %CAIRO_MUTEX_IMPL_FINI is defined, we may need to finalize all static mutex'es.
 # ifndef CAIRO_MUTEX_IMPL_FINALIZE
-#  define CAIRO_MUTEX_IMPL_FINALIZE() do {      \
-		if(_cairo_mutex_initialized)    \
-			_cairo_mutex_finalize();    \
-} while(0)
-
+#  define CAIRO_MUTEX_IMPL_FINALIZE() do { if(_cairo_mutex_initialized) _cairo_mutex_finalize(); } while(0)
 /* and make sure we implement the above */
 #  define _CAIRO_MUTEX_IMPL_USE_STATIC_FINALIZER 1
 # endif /* CAIRO_MUTEX_IMPL_FINALIZE */
-
 #else /* no CAIRO_MUTEX_IMPL_FINI */
-
 /* Otherwise we probably don't need to finalize static mutex'es, */
 # ifndef CAIRO_MUTEX_IMPL_FINALIZE
 #  define CAIRO_MUTEX_IMPL_FINALIZE() CAIRO_MUTEX_IMPL_NOOP
 # endif /* CAIRO_MUTEX_IMPL_FINALIZE */
-
-/* neither do the dynamic ones. */
-# define CAIRO_MUTEX_IMPL_FINI(mutex)   CAIRO_MUTEX_IMPL_NOOP1(mutex)
-
+# define CAIRO_MUTEX_IMPL_FINI(mutex)   CAIRO_MUTEX_IMPL_NOOP1(mutex) /* neither do the dynamic ones. */
 #endif /* CAIRO_MUTEX_IMPL_FINI */
 
 #ifndef _CAIRO_MUTEX_IMPL_USE_STATIC_INITIALIZER

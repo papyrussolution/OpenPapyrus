@@ -26,8 +26,8 @@
  */
 #ifndef CAIRO_SPANS_PRIVATE_H
 #define CAIRO_SPANS_PRIVATE_H
-#include "cairo-types-private.h"
-#include "cairo-compiler-private.h"
+//#include "cairo-types-private.h"
+//#include "cairo-compiler-private.h"
 
 /* Number of bits of precision used for alpha. */
 #define CAIRO_SPANS_UNIT_COVERAGE_BITS 8
@@ -45,20 +45,10 @@ typedef struct _cairo_half_open_span {
  * surfaces if they want to composite spans instead of trapezoids. */
 typedef struct _cairo_span_renderer cairo_span_renderer_t;
 struct _cairo_span_renderer {
-	/* Private status variable. */
-	cairo_status_t status;
-
-	/* Called to destroy the renderer. */
-	cairo_destroy_func_t destroy;
-
-	/* Render the spans on row y of the destination by whatever compositing
-	 * method is required. */
-	cairo_status_t
-	(* render_rows) (void * abstract_renderer,
-	    int y, int height,
-	    const cairo_half_open_span_t * coverages,
-	    unsigned num_coverages);
-
+	cairo_status_t status; /* Private status variable. */
+	cairo_destroy_func_t destroy; /* Called to destroy the renderer. */
+	// Render the spans on row y of the destination by whatever compositing method is required. 
+	cairo_status_t (* render_rows) (void * abstract_renderer, int y, int height, const cairo_half_open_span_t * coverages, unsigned num_coverages);
 	/* Called after all rows have been rendered to perform whatever
 	 * final rendering step is required.  This function is called just
 	 * once before the renderer is destroyed. */
@@ -68,15 +58,11 @@ struct _cairo_span_renderer {
 /* Scan converter interface. */
 typedef struct _cairo_scan_converter cairo_scan_converter_t;
 struct _cairo_scan_converter {
-	/* Destroy this scan converter. */
-	cairo_destroy_func_t destroy;
-
+	cairo_destroy_func_t destroy; /* Destroy this scan converter. */
 	/* Generates coverage spans for rows for the added edges and calls
 	 * the renderer function for each row. After generating spans the
 	 * only valid thing to do with the converter is to destroy it. */
-	cairo_status_t (* generate) (void * abstract_converter,
-	    cairo_span_renderer_t * renderer);
-
+	cairo_status_t (* generate) (void * abstract_converter, cairo_span_renderer_t * renderer);
 	/* Private status. Read with _cairo_scan_converter_status(). */
 	cairo_status_t status;
 };

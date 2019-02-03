@@ -864,7 +864,7 @@ int SLAPI ACS_CRUKM::ImportSession(int sessIdx)
 							dm.t = encodetime(h, m, s, hs + 1);
 						}
 						WaitMsgByCheck(&dm, in_rec.Cash_Code, in_rec.Ck_Number);
-						THROW(AddTempCheck(&chk_id, in_rec.NSmena, f, in_rec.Cash_Code, in_rec.Ck_Number, 0, card_id, &dm, 0, 0));
+						THROW(AddTempCheck(&chk_id, in_rec.NSmena, f, in_rec.Cash_Code, in_rec.Ck_Number, 0, card_id, dm, 0, 0));
 					}
 					qtty = (sign == 0) ? -fabs(in_rec.Quant) : fabs(in_rec.Quant);
 					SetupTempCcLineRec(0, chk_id, in_rec.Ck_Number, in_rec.DateOperation, 0, in_rec.Code);

@@ -32,36 +32,28 @@
  * Contributor(s):
  *	Carl D. Worth <cworth@redhat.com>
  */
-
 #ifndef CAIRO_DEFAULT_CONTEXT_PRIVATE_H
 #define CAIRO_DEFAULT_CONTEXT_PRIVATE_H
 
-#include "cairo-private.h"
-#include "cairo-gstate-private.h"
-#include "cairo-path-fixed-private.h"
+//#include "cairo-private.h"
+//#include "cairo-gstate-private.h"
+//#include "cairo-path-fixed-private.h"
 
 CAIRO_BEGIN_DECLS
 
 typedef struct _cairo_default_context cairo_default_context_t;
 
 struct _cairo_default_context {
-    cairo_t base;
-
-    cairo_gstate_t *gstate;
-    cairo_gstate_t  gstate_tail[2];
-    cairo_gstate_t *gstate_freelist;
-
-    cairo_path_fixed_t path[1];
+	cairo_t base;
+	cairo_gstate_t * gstate;
+	cairo_gstate_t gstate_tail[2];
+	cairo_gstate_t * gstate_freelist;
+	cairo_path_fixed_t path[1];
 };
 
-cairo_private cairo_t *
-_cairo_default_context_create (void *target);
-
-cairo_private cairo_status_t
-_cairo_default_context_init (cairo_default_context_t *cr, void *target);
-
-cairo_private void
-_cairo_default_context_fini (cairo_default_context_t *cr);
+cairo_private cairo_t * _cairo_default_context_create(void * target);
+cairo_private cairo_status_t _cairo_default_context_init(cairo_default_context_t * cr, void * target);
+cairo_private void _cairo_default_context_fini(cairo_default_context_t * cr);
 
 CAIRO_END_DECLS
 

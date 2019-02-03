@@ -42,7 +42,7 @@
 
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 
 #define UTF8_COMPUTE(Char, Mask, Len)                                         \
 	if(Char < 128)                                                             \
@@ -115,17 +115,17 @@ static const char utf8_skip_data[256] = {
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 1, 1
 };
 
-#define UTF8_NEXT_CHAR(p) ((p) + utf8_skip_data[*(unsigned char*)(p)])
+#define UTF8_NEXT_CHAR(p) ((p) + utf8_skip_data[*(uchar*)(p)])
 
 /* Converts a sequence of bytes encoded as UTF-8 to a Unicode character.
  * If @p does not point to a valid UTF-8 encoded character, results are
  * undefined.
  **/
-static uint32_t _utf8_get_char(const unsigned char * p)
+static uint32_t _utf8_get_char(const uchar * p)
 {
 	int i, mask = 0, len;
 	uint32_t result;
-	unsigned char c = (unsigned char)*p;
+	uchar c = (uchar)*p;
 	UTF8_COMPUTE(c, mask, len);
 	if(len == -1)
 		return (uint32_t)-1;
@@ -136,10 +136,10 @@ static uint32_t _utf8_get_char(const unsigned char * p)
 /* Like _utf8_get_char, but take a maximum length
  * and return (uint32_t)-2 on incomplete trailing character
  */
-static uint32_t _utf8_get_char_extended(const unsigned char * p, long max_len)
+static uint32_t _utf8_get_char_extended(const uchar * p, long max_len)
 {
 	int i, len;
-	uint32_t wc = (unsigned char)*p;
+	uint32_t wc = (uchar)*p;
 
 	if(wc < 0x80) {
 		return wc;
@@ -173,14 +173,14 @@ static uint32_t _utf8_get_char_extended(const unsigned char * p, long max_len)
 
 	if(max_len >= 0 && len > max_len) {
 		for(i = 1; i < max_len; i++) {
-			if((((unsigned char*)p)[i] & 0xc0) != 0x80)
+			if((((uchar*)p)[i] & 0xc0) != 0x80)
 				return (uint32_t)-1;
 		}
 		return (uint32_t)-2;
 	}
 
 	for(i = 1; i < len; ++i) {
-		uint32_t ch = ((unsigned char*)p)[i];
+		uint32_t ch = ((uchar*)p)[i];
 
 		if((ch & 0xc0) != 0x80) {
 			if(ch)
@@ -217,7 +217,7 @@ int _cairo_utf8_get_char_validated(const char * p,
 {
 	int i, mask = 0, len;
 	uint32_t result;
-	unsigned char c = (unsigned char)*p;
+	uchar c = (uchar)*p;
 
 	UTF8_COMPUTE(c, mask, len);
 	if(len == -1) {
@@ -259,8 +259,8 @@ cairo_status_t _cairo_utf8_to_ucs4(const char * str,
 {
 	uint32_t * str32 = NULL;
 	int n_chars, i;
-	const unsigned char * in;
-	const unsigned char * const ustr = (const unsigned char*)str;
+	const uchar * in;
+	const uchar * const ustr = (const uchar*)str;
 
 	in = ustr;
 	n_chars = 0;
@@ -405,8 +405,8 @@ cairo_status_t _cairo_utf8_to_utf16(const char * str,
 {
 	uint16_t * str16 = NULL;
 	int n16, i;
-	const unsigned char * in;
-	const unsigned char * const ustr = (const unsigned char*)str;
+	const uchar * in;
+	const uchar * const ustr = (const uchar*)str;
 
 	in = ustr;
 	n16 = 0;

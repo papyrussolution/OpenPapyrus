@@ -70,8 +70,8 @@ typedef struct _cairo_pdf_group_resources {
 typedef struct _cairo_pdf_source_surface_entry {
     cairo_hash_entry_t base;
     uint id;
-    unsigned char *unique_id;
-    unsigned long unique_id_length;
+    uchar *unique_id;
+    ulong unique_id_length;
     cairo_operator_t Oprtr;
     cairo_bool_t interpolate;
     cairo_bool_t stencil_mask;
@@ -153,8 +153,8 @@ typedef struct _cairo_pdf_smask_group {
 } cairo_pdf_smask_group_t;
 
 typedef struct _cairo_pdf_jbig2_global {
-    unsigned char *id;
-    unsigned long id_length;
+    uchar *id;
+    ulong id_length;
     cairo_pdf_resource_t  res;
     cairo_bool_t emitted;
 } cairo_pdf_jbig2_global_t;

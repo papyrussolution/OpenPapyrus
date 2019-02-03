@@ -2381,18 +2381,18 @@ STDMETHODIMP DataObject_EnumDAdvise(DataObject *, IEnumSTATDATA **)
 }
 
 static VFunction * vtDataObject[] = {
-	(VFunction*)(DataObject_QueryInterface),
-	(VFunction*)(DataObject_AddRef),
-	(VFunction*)(DataObject_Release),
-	(VFunction*)(DataObject_GetData),
-	(VFunction*)(DataObject_GetDataHere),
-	(VFunction*)(DataObject_QueryGetData),
-	(VFunction*)(DataObject_GetCanonicalFormatEtc),
-	(VFunction*)(DataObject_SetData),
-	(VFunction*)(DataObject_EnumFormatEtc),
-	(VFunction*)(DataObject_DAdvise),
-	(VFunction*)(DataObject_DUnadvise),
-	(VFunction*)(DataObject_EnumDAdvise)
+	reinterpret_cast<VFunction *>(DataObject_QueryInterface),
+	reinterpret_cast<VFunction *>(DataObject_AddRef),
+	reinterpret_cast<VFunction *>(DataObject_Release),
+	reinterpret_cast<VFunction *>(DataObject_GetData),
+	reinterpret_cast<VFunction *>(DataObject_GetDataHere),
+	reinterpret_cast<VFunction *>(DataObject_QueryGetData),
+	reinterpret_cast<VFunction *>(DataObject_GetCanonicalFormatEtc),
+	reinterpret_cast<VFunction *>(DataObject_SetData),
+	reinterpret_cast<VFunction *>(DataObject_EnumFormatEtc),
+	reinterpret_cast<VFunction *>(DataObject_DAdvise),
+	reinterpret_cast<VFunction *>(DataObject_DUnadvise),
+	reinterpret_cast<VFunction *>(DataObject_EnumDAdvise)
 };
 
 DataObject::DataObject() : vtbl(vtDataObject), sci(0)
@@ -2458,21 +2458,18 @@ STDMETHODIMP DropTarget_Drop(DropTarget * dt, LPDATAOBJECT pIDataSource, DWORD g
 }
 
 static VFunction * vtDropTarget[] = {
-	(VFunction*)(DropTarget_QueryInterface),
-	(VFunction*)(DropTarget_AddRef),
-	(VFunction*)(DropTarget_Release),
-	(VFunction*)(DropTarget_DragEnter),
-	(VFunction*)(DropTarget_DragOver),
-	(VFunction*)(DropTarget_DragLeave),
-	(VFunction*)(DropTarget_Drop)
+	reinterpret_cast<VFunction *>(DropTarget_QueryInterface),
+	reinterpret_cast<VFunction *>(DropTarget_AddRef),
+	reinterpret_cast<VFunction *>(DropTarget_Release),
+	reinterpret_cast<VFunction *>(DropTarget_DragEnter),
+	reinterpret_cast<VFunction *>(DropTarget_DragOver),
+	reinterpret_cast<VFunction *>(DropTarget_DragLeave),
+	reinterpret_cast<VFunction *>(DropTarget_Drop)
 };
 
-DropTarget::DropTarget()
+DropTarget::DropTarget() : vtbl(vtDropTarget), sci(0)
 {
-	vtbl = vtDropTarget;
-	sci = 0;
 }
-
 /**
  * DBCS: support Input Method Editor (IME).
  * Called when IME Window opened.

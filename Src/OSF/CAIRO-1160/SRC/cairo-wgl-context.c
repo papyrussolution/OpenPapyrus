@@ -41,7 +41,7 @@
 
 #if CAIRO_HAS_GL_SURFACE // {
 #include "cairo-gl-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 

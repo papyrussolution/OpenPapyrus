@@ -6221,6 +6221,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @searchbybarcode        "Поиск по штрихкоду"
 @dochangebillstatus     "Изменение статуса документа"
 @tsstrategyanalyze      "Анализ стратегий на временных сериях"
+@doupdateflags          "Изменить флаги"
+@timechart              "Временная диаграмма"
 
 @rptlocal               "Локальный"
 @rptstd                 "Стандартный"
@@ -6321,6 +6323,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @closed_mas             "Закрыт"
 @closed_pl              "Закрытые"
 @strnfound              "Строка '%s' не найдена"
+@create                 "Создать"
+@update                 "Изменить"
 //
 // Опции товарных ограничений на статью в документе.
 //
@@ -9416,6 +9420,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @oprkind_personreltype                    "Персональное отношение для коллективного зачета"
 @oprkind_oplist                           "Список зачитывающих операций"
 @oprkind_pool_oplist                      "Список объединяемых операций"
+@oprkind_rox                              "Опции зачетов"
 @oprkind_roxf_autopaym                    "Автоматически зачитывать платежные документы"
 @oprkind_roxf_cfm_paym                    "Подтверждать зачет платежных документов"
 @oprkind_roxf_autodebt                    "Автоматически зачитывать долговые документы"
@@ -9424,6 +9429,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @oprkind_roxf_byextobj                    "Зачитывать по дополнительному объекту (только прямой зачет)"
 @oprkind_roxf_reqaltobj                   "Запрашивать альтернативную статью для прямого зачета"
 @oprkind_roxf_thisaltobjonly              "Зачитывать только по общему дополнительному объекту"
+@oprkind_roxf_reckonnegonly               "Операция зачетная только при отрицательной номинальной сумме документа"
+@oprkind_rox_period                       "Период зачета платежных документов"
 @oprkind_bpoxf_oneop                      "Объединять только по одной операции"
 @oprkind_bpoxf_onedate                    "Объединять только по одной дате"
 @oprkind_bpoxf_oneobject                  "Объединять только по одному контрагенту"
@@ -11282,24 +11289,6 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @priceanlzfilt_baseloc                    "Склад для расчета базовой цены"
 @priceanlzfilt_loclist                    "@{warehouse}"
 
-class GoodsStrucFilt : public PPBaseFilt {
-public:
-	SLAPI  GoodsStrucFilt();
-
-	char   ReserveStart[32]; // @anchor
-	PPID   PrmrGoodsGrpID;
-	PPID   PrmrGoodsID;
-	PPID   ScndGoodsGrpID;
-	PPID   ScndGoodsID;
-	long   StrucFlagSet;
-	long   StrucFlagReset;
-	long   ItemFlagSet;
-	long   ItemFlagReset;
-	long   Flags;            // @flags
-	long   InitOrder;        // Порядок сортировки PPViewGoodsStruc::OrdXXX
-	long   ReserveEnd;       // @anchor
-};
-
 @gsfilt                                   "Фильтр по товарным структурам"
 @gsfilt_prmr                              "Первичный товар" // generic
 @gsfilt_prmrgoodsgrp                      "@{group}"
@@ -12298,4 +12287,3 @@ PPHSC_VETIS_DOCTYP_15          "Ветеринарный сертификат Р
 PPHSC_VETIS_DOCTYP_16          "Заказ"
 //
 #!}
-

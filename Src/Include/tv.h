@@ -1387,25 +1387,6 @@ public:
 	static void * FASTCALL messageCommand(TView * pReceiver, uint command, void * pInfoPtr);
 	static void * FASTCALL messageBroadcast(TView * pReceiver, uint command);
 	static void * FASTCALL messageBroadcast(TView * pReceiver, uint command, void * pInfoPtr);
-
-	enum phaseType {
-		phFocused,
-		phPreProcess,
-		phPostProcess
-	};
-	enum selectMode {
-		normalSelect,
-		enterSelect,
-		leaveSelect,
-		forceSelect // same as normalSelect but don't check current selection
-	};
-
-	int    commandEnabled(ushort command) const;
-	void   FASTCALL enableCommands(const TCommandSet & commands, int is_enable);
-	void   FASTCALL enableCommand(ushort command, int is_enable);
-	void   getCommands(TCommandSet & commands) const;
-	void   setCommands(const TCommandSet & commands);
-
 	static HFONT setFont(HWND hWnd, const char * pFontName, int height);
 	//
 	// Descr: Создает экземляр шрифта по описанию rFd.
@@ -1430,6 +1411,18 @@ public:
 	//
 	static void FASTCALL PreprocessWindowCtrlText(HWND hWnd);
 
+	enum phaseType {
+		phFocused,
+		phPreProcess,
+		phPostProcess
+	};
+	enum selectMode {
+		normalSelect,
+		enterSelect,
+		leaveSelect,
+		forceSelect // same as normalSelect but don't check current selection
+	};
+
 	explicit TView(const TRect & bounds);
 	TView();
 	virtual ~TView();
@@ -1444,6 +1437,11 @@ public:
 	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	DECL_HANDLE_EVENT;
 	// @v9.0.1 TRect  getExtent() const;
+	int    commandEnabled(ushort command) const;
+	void   FASTCALL enableCommands(const TCommandSet & commands, int is_enable);
+	void   FASTCALL enableCommand(ushort command, int is_enable);
+	void   getCommands(TCommandSet & commands) const;
+	void   setCommands(const TCommandSet & commands);
 	void   setBounds(const TRect & bounds);
 	void   changeBounds(const TRect & bounds);
 	uint   getHelpCtx();
@@ -1467,7 +1465,7 @@ public:
 	{
 		TEvent event;
 		handleEvent(event.setWinCmd(uMsg, wParam, lParam));
-		return (event.what == TEvent::evNothing) ? 1 : 0;
+		return BIN(event.what == TEvent::evNothing);
 	}
 	// @v9.0.4 virtual void   endModal(ushort command);
 	// @v9.6.2 virtual void   draw();
@@ -1533,9 +1531,9 @@ protected:
 	uint32 Sf;      // Поле флагов состояния объекта (sfXXX)
 	WordSel_ExtraBlock * P_WordSelBlk; // owner
 public:
-	TPoint size;
-	TPoint origin;
-	uint32 options;
+	TPoint ViewSize;
+	TPoint ViewOrigin;
+	uint32 ViewOptions;
 	TView  * P_Next;
 	TGroup * P_Owner;
 	HWND   Parent;
@@ -1577,7 +1575,6 @@ public:
 	// @v9.6.2 virtual void   draw();
 	// @v9.0.4 virtual void   endModal(ushort command);
 	virtual int    FASTCALL valid(ushort command);
-
 	ushort execView(TWindow * p);
 	void   insertView(TView * p, TView * pTarget);
 	void   remove(TView * p);
@@ -1771,9 +1768,6 @@ public:
 	int    AddLocalMenuItem(uint ctrlId, uint buttonId, long keyCode, const char * pText);
 	HWND   showToolbar();
 	void   showLocalMenu();
-	//
-	//
-	//
 	TRect  getClientRect() const;
 	TRect  getRect() const;
 	int    invalidateRect(const TRect &, int erase);
@@ -3773,7 +3767,7 @@ public:
 	SFontDescr TableFont;
 	SFontDescr ListFont;
 	SString SupportMail;
-	SString SpecialInputDeviceSymb; // @v8.1.11
+	SString SpecialInputDeviceSymb;
 };
 
 class TStatusWin : public TWindow {
@@ -4616,10 +4610,8 @@ private:
 	uint   HScrollPos;
 	SString SearchPattern;
 	CompFunc SrchFunc;
-
 	CellStyleFunc F_CellStyle;
 	void * CellStyleFuncExtraPtr;
-
 	int    LastResizeColumnPos; // Используется в методе Resize()
 	SArray * P_RowsHeightAry;   // Высота строк видимой страницы (для многострочных броузеров)
 	UserInterfaceSettings UICfg;

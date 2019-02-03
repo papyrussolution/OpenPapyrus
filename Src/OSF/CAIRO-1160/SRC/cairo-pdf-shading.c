@@ -39,11 +39,11 @@
 #if CAIRO_HAS_PDF_OPERATORS
 
 #include "cairo-pdf-shading-private.h"
-#include "cairo-array-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-array-private.h"
+//#include "cairo-error-private.h"
 #include <float.h>
 
-static unsigned char * encode_coordinate(unsigned char * p, double c)
+static uchar * encode_coordinate(uchar * p, double c)
 {
 	uint32_t f = static_cast<uint32_t>(c);
 	*p++ = f >> 24;
@@ -53,14 +53,14 @@ static unsigned char * encode_coordinate(unsigned char * p, double c)
 	return p;
 }
 
-static unsigned char * encode_point(unsigned char * p, const cairo_point_double_t * point)
+static uchar * encode_point(uchar * p, const cairo_point_double_t * point)
 {
 	p = encode_coordinate(p, point->x);
 	p = encode_coordinate(p, point->y);
 	return p;
 }
 
-static unsigned char * encode_color_component(unsigned char * p, double color)
+static uchar * encode_color_component(uchar * p, double color)
 {
 	uint16_t c = _cairo_color_double_to_short(color);
 	*p++ = c >> 8;
@@ -68,7 +68,7 @@ static unsigned char * encode_color_component(unsigned char * p, double color)
 	return p;
 }
 
-static unsigned char * encode_color(unsigned char * p, const cairo_color_t * color)
+static uchar * encode_color(uchar * p, const cairo_color_t * color)
 {
 	p = encode_color_component(p, color->red);
 	p = encode_color_component(p, color->green);
@@ -76,7 +76,7 @@ static unsigned char * encode_color(unsigned char * p, const cairo_color_t * col
 	return p;
 }
 
-static unsigned char * encode_alpha(unsigned char * p, const cairo_color_t * color)
+static uchar * encode_alpha(uchar * p, const cairo_color_t * color)
 {
 	p = encode_color_component(p, color->alpha);
 	return p;
@@ -116,7 +116,7 @@ static cairo_status_t _cairo_pdf_shading_generate_data(cairo_pdf_shading_t * sha
 	const cairo_mesh_patch_t * patch;
 	double x_off, y_off, x_scale, y_scale;
 	uint num_patches;
-	unsigned char * p;
+	uchar * p;
 	uint i, j;
 	uint num_color_components;
 	if(is_alpha)
@@ -134,7 +134,7 @@ static cairo_status_t _cairo_pdf_shading_generate_data(cairo_pdf_shading_t * sha
 	 * 4 colors. Each color is stored in 2 bytes * num_color_components.
 	 */
 	shading->data_length = num_patches * (1 + 16 * 2 * 4 + 4 * 2 * num_color_components);
-	shading->data = (unsigned char*)_cairo_malloc(shading->data_length);
+	shading->data = (uchar*)_cairo_malloc(shading->data_length);
 	if(unlikely(shading->data == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	x_off = shading->decode_array[0];
