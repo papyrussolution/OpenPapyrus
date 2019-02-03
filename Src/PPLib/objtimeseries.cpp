@@ -2197,7 +2197,6 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 	PPIDArray id_pre_list;
 	PPTimeSeries ts_rec;
 	TSVector <PPObjTimeSeries::QuoteReqEntry> quote_req_list;
-	// @v10.3.2 ts_obj.LoadQuoteReqList(quote_req_list);
 	if(P.TsList.GetCount()) {
 		P.TsList.Get(id_pre_list);
 	}

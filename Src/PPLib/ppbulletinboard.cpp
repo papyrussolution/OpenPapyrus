@@ -331,7 +331,6 @@ private:
 	int    SLAPI EvaluateTrends(TimeSeriesBlock * pBlk, const STimeSeries * pFullTs);
 
 	TSCollection <TimeSeriesBlock> TsC;
-	//TSVector <PPObjTimeSeries::QuoteReqEntry> * P_ReqQList;
 	TsStakeEnvironment StkEnv;
 	SMtLock OpL; // Блокировка для операций, иных нежели штатные методы ObjCache
 	LDATETIME LastFlashDtm;
@@ -420,19 +419,10 @@ TimeSeriesCache::TimeSeriesCache() : ObjCache(PPOBJ_TIMESERIES, sizeof(Data)), L
 		adv_blk.ProcExtPtr = this;
 		DS.Advise(&cookie, &adv_blk);
 	}
-	{
-		/*
-		Cfg.AvailableLimitPart = 0.2;
-		Cfg.MaxStakeCount = 10;
-		Cfg.MinPerDayPotential = 0.01;
-		Cfg.Flags = 0;//Cfg.fTestMode;
-		*/
-	}
 }
 
 TimeSeriesCache::~TimeSeriesCache()
 {
-	//delete P_ReqQList;
 }
 	
 int SLAPI TimeSeriesCache::SetTimeSeries(STimeSeries & rTs)
@@ -538,30 +528,6 @@ int SLAPI TimeSeriesCache::GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry
 			}
 		}
 	}
-	/*
-	if(P_ReqQList) {
-		rList = *P_ReqQList;
-	}
-	else {
-		P_ReqQList = new TSVector <PPObjTimeSeries::QuoteReqEntry>;
-		ok = P_ReqQList ? ts_obj.LoadQuoteReqList(*P_ReqQList) : PPSetErrorSLib();
-		if(ok > 0) {
-			rList = *P_ReqQList;
-		}
-	}
-	for(uint i = 0; i < rList.getCount(); i++) {
-		PPObjTimeSeries::QuoteReqEntry & r_entry = rList.at(i);
-		SUniTime last_utm;
-		TimeSeriesBlock * p_blk = SearchBlockBySymb(r_entry.Ticker, 0);
-		SETIFZ(p_blk, InitBlock(ts_obj, r_entry.Ticker));
-		const uint tc = p_blk ? p_blk->T_.GetCount() : 0;
-		if(tc && p_blk->T_.GetTime(tc-1, &last_utm)) {
-			last_utm.Get(r_entry.LastValTime);
-		}
-		else
-			r_entry.LastValTime.Z();
-	}
-	*/
 	OpL.Unlock();
 	return ok;
 }
@@ -1265,52 +1231,6 @@ TimeSeriesCache::TimeSeriesBlock * SLAPI TimeSeriesCache::InitBlock(PPObjTimeSer
 	ENDCATCH
 	return p_fblk;
 }
-
-#if 0 // {
-int SLAPI PPObjTimeSeries::LoadQuoteReqList(TSVector <QuoteReqEntry> & rList)
-{
-	rList.clear();
-	int    ok = -1;
-	SString temp_buf;
-	PPGetFilePath(PPPATH_DD, "quotereq.txt", temp_buf);
-	if(fileExists(temp_buf)) {
-		SFile f_in(temp_buf, SFile::mRead);
-		if(f_in.IsValid()) {
-			uint   line_no = 0;
-			SString line_buf;
-			StringSet ss("\t");
-			while(f_in.ReadLine(line_buf)) {
-				line_no++;
-				if(line_no > 1) { // The first line is title
-					line_buf.Chomp().Strip();
-					ss.setBuf(line_buf);
-					QuoteReqEntry entry;
-					MEMSZERO(entry);
-					for(uint ssp = 0, fld_no = 0; ss.get(&ssp, temp_buf); fld_no++) {
-						if(fld_no == 0)
-							STRNSCPY(entry.Ticker, temp_buf);
-						else if(fld_no == 1) {
-							if(temp_buf.StrChr('L', 0) || temp_buf.StrChr('l', 0))
-								entry.Flags |= entry.fAllowLong;
-							if(temp_buf.StrChr('S', 0) || temp_buf.StrChr('s', 0))
-								entry.Flags |= entry.fAllowShort;
-						}
-					}
-					if(entry.Ticker[0]) {
-						PPTimeSeries ts_rec;
-						PPID   ts_id = 0;
-						if(SearchBySymb(entry.Ticker, &ts_id, &ts_rec) > 0)
-							entry.TsID = ts_rec.ID;
-						rList.insert(&entry);
-						ok = 1;
-					}
-				}
-			}
-		}
-	}
-	return ok;
-}
-#endif // } 0
 
 int SLAPI PPObjTimeSeries::GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry> & rList)
 {

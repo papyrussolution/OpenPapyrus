@@ -15931,7 +15931,6 @@ public:
 	int    SLAPI SetExternTimeSeriesProp(const char * pSymb, const char * pPropSymb, const char * pPropVal);
 	int    SLAPI SetExternStakeEnvironment(const TsStakeEnvironment & rEnv, TsStakeEnvironment::StakeRequestBlock & rRet);
 	int    SLAPI GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry> & rList);
-	//int    SLAPI LoadQuoteReqList(TSVector <QuoteReqEntry> & rList);
 	int    SLAPI Test(); // @experimental
 	int    SLAPI AnalyzeTsAftershocks();
 	int    SLAPI AnalyzeAftershock(const STimeSeries & rTs, const TrainNnParam & rP);
