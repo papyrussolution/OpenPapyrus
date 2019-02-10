@@ -270,7 +270,7 @@ ExtGoodsSelDialog::ExtGoodsSelDialog(PPID _op, PPID initGoodsID, long flags) : T
 	SETFLAGBYSAMPLE(Flags, fSelectModifMode, flags);
 	LocID = r_cfg.Location;
 	MEMSZERO(SerialData);
-	P_List = (SmartListBox*)getCtrlView(CTL_EXTGSEL_LIST);
+	P_List = static_cast<SmartListBox *>(getCtrlView(CTL_EXTGSEL_LIST));
 	showCtrl(CTL_EXTGSEL_MTX_IND, 0);
 	showCtrl(CTL_EXTGSEL_INFO, 0);
 	//

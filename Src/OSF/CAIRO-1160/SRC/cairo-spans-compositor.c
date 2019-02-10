@@ -313,53 +313,36 @@ static cairo_int_status_t fixup_unbounded_polygon(const cairo_spans_compositor_t
 		NULL);
 	if(unlikely(status))
 		goto cleanup_polygon;
-
-	status = composite_polygon(compositor, &composite,
-		&polygon, fill_rule, antialias);
-
+	status = composite_polygon(compositor, &composite, &polygon, fill_rule, antialias);
 	_cairo_composite_rectangles_fini(&composite);
 cleanup_polygon:
 	_cairo_polygon_fini(&polygon);
-
 	return status;
 }
 
-static cairo_int_status_t fixup_unbounded_boxes(const cairo_spans_compositor_t * compositor,
-    const cairo_composite_rectangles_t * extents,
-    cairo_boxes_t * boxes)
+static cairo_int_status_t fixup_unbounded_boxes(const cairo_spans_compositor_t * compositor, const cairo_composite_rectangles_t * extents, cairo_boxes_t * boxes)
 {
 	cairo_boxes_t tmp, clear;
 	cairo_box_t box;
 	cairo_int_status_t status;
-
 	assert(boxes->is_pixel_aligned);
-
 	TRACE((stderr, "%s\n", __FUNCTION__));
-	if(extents->bounded.width  == extents->unbounded.width &&
-	    extents->bounded.height == extents->unbounded.height) {
+	if(extents->bounded.width  == extents->unbounded.width && extents->bounded.height == extents->unbounded.height) {
 		return CAIRO_STATUS_SUCCESS;
 	}
-
 	/* subtract the drawn boxes from the unbounded area */
 	_cairo_boxes_init(&clear);
-
 	box.p1.x = _cairo_fixed_from_int(extents->unbounded.x + extents->unbounded.width);
 	box.p1.y = _cairo_fixed_from_int(extents->unbounded.y);
 	box.p2.x = _cairo_fixed_from_int(extents->unbounded.x);
 	box.p2.y = _cairo_fixed_from_int(extents->unbounded.y + extents->unbounded.height);
-
 	if(boxes->num_boxes) {
 		_cairo_boxes_init(&tmp);
-
 		status = _cairo_boxes_add(&tmp, CAIRO_ANTIALIAS_DEFAULT, &box);
 		assert(status == CAIRO_INT_STATUS_SUCCESS);
-
 		tmp.chunks.next = &boxes->chunks;
 		tmp.num_boxes += boxes->num_boxes;
-
-		status = _cairo_bentley_ottmann_tessellate_boxes(&tmp,
-			CAIRO_FILL_RULE_WINDING,
-			&clear);
+		status = _cairo_bentley_ottmann_tessellate_boxes(&tmp, CAIRO_FILL_RULE_WINDING, &clear);
 		tmp.chunks.next = NULL;
 		if(unlikely(status))
 			goto error;
@@ -788,41 +771,31 @@ cleanup_converter:
 	return status;
 }
 
-static cairo_int_status_t trim_extents_to_boxes(cairo_composite_rectangles_t * extents,
-    cairo_boxes_t * boxes)
+static cairo_int_status_t trim_extents_to_boxes(cairo_composite_rectangles_t * extents, cairo_boxes_t * boxes)
 {
 	cairo_box_t box;
-
 	_cairo_boxes_extents(boxes, &box);
 	return _cairo_composite_rectangles_intersect_mask_extents(extents, &box);
 }
 
-static cairo_int_status_t trim_extents_to_polygon(cairo_composite_rectangles_t * extents,
-    cairo_polygon_t * polygon)
+static cairo_int_status_t trim_extents_to_polygon(cairo_composite_rectangles_t * extents, cairo_polygon_t * polygon)
 {
-	return _cairo_composite_rectangles_intersect_mask_extents(extents,
-		   &polygon->extents);
+	return _cairo_composite_rectangles_intersect_mask_extents(extents, &polygon->extents);
 }
 
-static cairo_int_status_t clip_and_composite_boxes(const cairo_spans_compositor_t * compositor,
-    cairo_composite_rectangles_t * extents,
-    cairo_boxes_t * boxes)
+static cairo_int_status_t FASTCALL clip_and_composite_boxes(const cairo_spans_compositor_t * compositor, cairo_composite_rectangles_t * extents, cairo_boxes_t * boxes)
 {
 	cairo_int_status_t status;
 	cairo_polygon_t polygon;
-
 	TRACE((stderr, "%s\n", __FUNCTION__));
 	status = trim_extents_to_boxes(extents, boxes);
 	if(unlikely(status))
 		return status;
-
 	if(boxes->num_boxes == 0) {
 		if(extents->is_bounded)
 			return CAIRO_STATUS_SUCCESS;
-
 		return fixup_unbounded_boxes(compositor, extents, boxes);
 	}
-
 	/* Can we reduce drawing through a clip-mask to simply drawing the clip? */
 	if(extents->clip->path != NULL && extents->is_bounded) {
 		cairo_polygon_t polygon;

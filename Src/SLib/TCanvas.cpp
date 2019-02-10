@@ -256,7 +256,7 @@ void SLAPI TCanvas2::RoundRect(const FRect & rRect, float radius)
 //
 static __inline INT GDI_ROUND(FLOAT val)
 {
-	return (int)floor(val + 0.5);
+	return ffloori(val + 0.5);
 }
 //
 // PATH_ScaleNormalizedPoint
@@ -494,7 +494,7 @@ int FASTCALL TCanvas2::Implement_Stroke(int preserve)
 		cairo_stroke_extents(P_Cr, &x1, &y1, &x2, &y2);
 		cairo_user_to_device(P_Cr, &x1, &y1);
 		cairo_user_to_device(P_Cr, &x2, &y2);
-		TRect rc((int)floor(x1), (int)floor(y1), (int)ceil(x2), (int)ceil(y2));
+		TRect rc(ffloori(x1), ffloori(y1), fceili(x2), fceili(y2));
 		Scope.Add(rc, SCOMBINE_OR);
 	}
 	if(preserve)
@@ -619,7 +619,7 @@ int SLAPI TCanvas2::Implement_Fill(SPaintToolBox * pTb, int paintObjIdent, int p
 			cairo_fill_extents(P_Cr, &x1, &y1, &x2, &y2);
 			cairo_user_to_device(P_Cr, &x1, &y1);
 			cairo_user_to_device(P_Cr, &x2, &y2);
-			TRect rc((int)floor(x1), (int)floor(y1), (int)ceil(x2), (int)ceil(y2));
+			TRect rc(ffloori(x1), ffloori(y1), fceili(x2), fceili(y2));
 			Scope.Add(rc, SCOMBINE_OR);
 		}
 		if(preserve)
@@ -641,7 +641,7 @@ int SLAPI TCanvas2::Fill(SColor c, int preserve)
 		cairo_fill_extents(P_Cr, &x1, &y1, &x2, &y2);
 		cairo_user_to_device(P_Cr, &x1, &y1);
 		cairo_user_to_device(P_Cr, &x2, &y2);
-		TRect rc((int)floor(x1), (int)floor(y1), (int)ceil(x2), (int)ceil(y2));
+		TRect rc(ffloori(x1), ffloori(y1), fceili(x2), fceili(y2));
 		Scope.Add(rc, SCOMBINE_OR);
 	}
 	if(preserve)
@@ -1225,7 +1225,7 @@ int FASTCALL TCanvas2::Draw(const SImageBuffer * pImg)
 				double y2 = dim.y;
 				cairo_user_to_device(P_Cr, &x1, &y1);
 				cairo_user_to_device(P_Cr, &x2, &y2);
-				TRect rc((int)floor(x1), (int)floor(y1), (int)ceil(x2), (int)ceil(y2));
+				TRect rc(ffloori(x1), ffloori(y1), fceili(x2), fceili(y2));
 				Scope.Add(rc, SCOMBINE_OR);
 			}
 			cairo_move_to(P_Cr, 0.0, 0.0);
@@ -1337,7 +1337,7 @@ int SLAPI TCanvas2::Implement_ArcSvg(FPoint radius, float xAxisRotation, int lar
 			bounds of the error from the following computation of
 			n_segs. Plus the "+ 0.001" looks just plain fishy. -cworth
 		*/
-		int    n_segs = (int)ceil(fabs(th_arc/(SMathConst::PiDiv2+0.001)));
+		int    n_segs = fceili(fabs(th_arc/(SMathConst::PiDiv2+0.001)));
 		const  float th_part = th_arc/n_segs;
 		const  FPoint a_(cos_th*radius.X, -sin_th*radius.Y);
 		const  FPoint b_(sin_th*radius.X,  cos_th*radius.Y);
@@ -2772,7 +2772,7 @@ int TCanvas2::DrawTextLayout(STextLayout * pTlo)
 					double y2 = te.y_bearing+te.height;
 					cairo_user_to_device(P_Cr, &x1, &y1);
 					cairo_user_to_device(P_Cr, &x2, &y2);
-					TRect rc((int)floor(x1), (int)floor(y1), (int)ceil(x2), (int)ceil(y2));
+					TRect rc(ffloori(x1), ffloori(y1), fceili(x2), fceili(y2));
 					Scope.Add(rc, SCOMBINE_OR);
 				}
 				cairo_show_glyphs(P_Cr, (cairo_glyph_t *)glyph_list.at(0), glyph_list.getCount());

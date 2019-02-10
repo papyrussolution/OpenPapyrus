@@ -45,98 +45,41 @@
 CAIRO_BEGIN_DECLS
 
 struct _cairo_traps {
-    cairo_status_t status;
-
-    cairo_box_t bounds;
-    const cairo_box_t *limits;
-    int num_limits;
-
-    uint maybe_region : 1; /* hint: 0 implies that it cannot be */
-    uint has_intersections : 1;
-    uint is_rectilinear : 1;
-    uint is_rectangular : 1;
-
-    int num_traps;
-    int traps_size;
-    cairo_trapezoid_t *traps;
-    cairo_trapezoid_t  traps_embedded[16];
+	cairo_status_t status;
+	cairo_box_t bounds;
+	const cairo_box_t * limits;
+	int num_limits;
+	uint maybe_region : 1; /* hint: 0 implies that it cannot be */
+	uint has_intersections : 1;
+	uint is_rectilinear : 1;
+	uint is_rectangular : 1;
+	int num_traps;
+	int traps_size;
+	cairo_trapezoid_t * traps;
+	cairo_trapezoid_t traps_embedded[16];
 };
 
 /* cairo-traps.c */
-cairo_private void
-_cairo_traps_init (cairo_traps_t *traps);
-
-cairo_private void
-_cairo_traps_init_with_clip (cairo_traps_t *traps,
-			     const cairo_clip_t *clip);
-
-cairo_private void
-_cairo_traps_limit (cairo_traps_t	*traps,
-		    const cairo_box_t	*boxes,
-		    int			 num_boxes);
-
-cairo_private cairo_status_t
-_cairo_traps_init_boxes (cairo_traps_t	    *traps,
-		         const cairo_boxes_t *boxes);
-
-cairo_private void
-_cairo_traps_clear (cairo_traps_t *traps);
-
-cairo_private void
-_cairo_traps_fini (cairo_traps_t *traps);
+cairo_private void _cairo_traps_init(cairo_traps_t * traps);
+cairo_private void _cairo_traps_init_with_clip(cairo_traps_t * traps, const cairo_clip_t * clip);
+cairo_private void _cairo_traps_limit(cairo_traps_t       * traps, const cairo_box_t   * boxes, int num_boxes);
+cairo_private cairo_status_t _cairo_traps_init_boxes(cairo_traps_t      * traps, const cairo_boxes_t * boxes);
+cairo_private void _cairo_traps_clear(cairo_traps_t * traps);
+cairo_private void _cairo_traps_fini(cairo_traps_t * traps);
 
 #define _cairo_traps_status(T) (T)->status
 
-cairo_private void
-_cairo_traps_translate (cairo_traps_t *traps, int x, int y);
-
-cairo_private void
-_cairo_traps_tessellate_triangle_with_edges (cairo_traps_t *traps,
-					     const cairo_point_t t[3],
-					     const cairo_point_t edges[4]);
-
-cairo_private void
-_cairo_traps_tessellate_convex_quad (cairo_traps_t *traps,
-				     const cairo_point_t q[4]);
-
-cairo_private cairo_status_t
-_cairo_traps_tessellate_rectangle (cairo_traps_t *traps,
-				   const cairo_point_t *top_left,
-				   const cairo_point_t *bottom_right);
-
-cairo_private void
-_cairo_traps_add_trap (cairo_traps_t *traps,
-		       cairo_fixed_t top, cairo_fixed_t bottom,
-		       const cairo_line_t *left,
-		       const cairo_line_t *right);
-
-cairo_private int
-_cairo_traps_contain (const cairo_traps_t *traps,
-		      double x, double y);
-
-cairo_private void
-_cairo_traps_extents (const cairo_traps_t *traps,
-		      cairo_box_t         *extents);
-
-cairo_private cairo_int_status_t
-_cairo_traps_extract_region (cairo_traps_t  *traps,
-			     cairo_antialias_t antialias,
-			     cairo_region_t **region);
-
-cairo_private cairo_bool_t
-_cairo_traps_to_boxes (cairo_traps_t *traps,
-		       cairo_antialias_t antialias,
-		       cairo_boxes_t *boxes);
-
-cairo_private cairo_status_t
-_cairo_traps_path (const cairo_traps_t *traps,
-		   cairo_path_fixed_t  *path);
-
-cairo_private cairo_int_status_t
-_cairo_rasterise_polygon_to_traps (cairo_polygon_t			*polygon,
-				   cairo_fill_rule_t			 fill_rule,
-				   cairo_antialias_t			 antialias,
-				   cairo_traps_t *traps);
+cairo_private void _cairo_traps_translate(cairo_traps_t * traps, int x, int y);
+cairo_private void _cairo_traps_tessellate_triangle_with_edges(cairo_traps_t * traps, const cairo_point_t t[3], const cairo_point_t edges[4]);
+cairo_private void _cairo_traps_tessellate_convex_quad(cairo_traps_t * traps, const cairo_point_t q[4]);
+cairo_private cairo_status_t _cairo_traps_tessellate_rectangle(cairo_traps_t * traps, const cairo_point_t * top_left, const cairo_point_t * bottom_right);
+cairo_private void _cairo_traps_add_trap(cairo_traps_t * traps, cairo_fixed_t top, cairo_fixed_t bottom, const cairo_line_t * left, const cairo_line_t * right);
+cairo_private int _cairo_traps_contain(const cairo_traps_t * traps, double x, double y);
+cairo_private void _cairo_traps_extents(const cairo_traps_t * traps, cairo_box_t         * extents);
+cairo_private cairo_int_status_t _cairo_traps_extract_region(cairo_traps_t  * traps, cairo_antialias_t antialias, cairo_region_t ** region);
+cairo_private cairo_bool_t _cairo_traps_to_boxes(cairo_traps_t * traps, cairo_antialias_t antialias, cairo_boxes_t * boxes);
+cairo_private cairo_status_t _cairo_traps_path(const cairo_traps_t * traps, cairo_path_fixed_t  * path);
+cairo_private cairo_int_status_t _cairo_rasterise_polygon_to_traps(cairo_polygon_t                      * polygon, cairo_fill_rule_t fill_rule, cairo_antialias_t antialias, cairo_traps_t * traps);
 
 CAIRO_END_DECLS
 

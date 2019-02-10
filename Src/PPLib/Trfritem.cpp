@@ -67,8 +67,7 @@ int SLAPI PPTransferItem::PreprocessCorrectionExp()
 {
 	int   ok = 1;
 	if(IsCorrectionExp()) {
-		//int SLAPI Transfer::GetOriginalValuesForCorrection(const PPTransferItem & rTi, const PPIDArray & rBillChain, double * pOrgQtty, double * pOrgPrice)
-		double qtty = fabs(QuotPrice) - fabs(Quantity_);
+		const double qtty = fabs(QuotPrice) - fabs(Quantity_);
 		Flags &= ~(PPTFR_PLUS|PPTFR_MINUS);
 		if(qtty <= 0.0)
 			Flags |= PPTFR_MINUS;
@@ -517,11 +516,11 @@ int SLAPI PPTransferItem::Valuation(const PPBillConfig & rCfg, int calcOnly, dou
 	double new_price = 0.0;
 	if(rCfg.ValuationQuotKindID) {
 		double _cost = Cost;
-		QuotIdent qi(QIDATE(Date), LocID, rCfg.ValuationQuotKindID, 0, Suppl);
+		const QuotIdent qi(QIDATE(Date), LocID, rCfg.ValuationQuotKindID, 0, Suppl);
 		PPObjGoods goods_obj;
 		const PPID goods_id = labs(GoodsID);
 		if(rCfg.Flags & BCF_VALUATION_BYCONTRACT && DS.GetConstTLA().SupplDealQuotKindID) {
-			QuotIdent qic(QIDATE(Date), LocID, DS.GetConstTLA().SupplDealQuotKindID, 0, Suppl);
+			const QuotIdent qic(QIDATE(Date), LocID, DS.GetConstTLA().SupplDealQuotKindID, 0, Suppl);
 			double c = 0.0;
 			if(goods_obj.GetQuotExt(goods_id, qic, _cost, Price, &c, 1) > 0 && c > 0.0)
 				_cost = c;
@@ -529,7 +528,7 @@ int SLAPI PPTransferItem::Valuation(const PPBillConfig & rCfg, int calcOnly, dou
 		int    r = goods_obj.GetQuotExt(goods_id, qi, _cost, Price, &new_price, 1);
 		THROW(r);
 		if(r > 0 && new_price > 0.0) {
-			long   flags = (rCfg.Flags & BCF_VALUATION_RNDVAT) ? PPTransferItem::valfRoundVat : 0;
+			const long flags = (rCfg.Flags & BCF_VALUATION_RNDVAT) ? PPTransferItem::valfRoundVat : 0;
 			new_price = RoundPrice(new_price, rCfg.ValuationRndPrec, rCfg.ValuationRndDir, flags);
 			if(!calcOnly) {
 				if((Flags & (PPTFR_RECEIPT|PPTFR_UNITEINTR)) || (Flags & PPTFR_DRAFT && Flags & PPTFR_PLUS)) {

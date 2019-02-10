@@ -1,5 +1,5 @@
 // ASSTWROF.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -141,9 +141,9 @@ double SLAPI CalcAssetDeprec(LDATE start, LDATE dt, long term)
 	decodedate(&d, &m, &y, &start);
 	long   beg = (y * 12 + m);
 	decodedate(&d, &m, &y, &dt);
-	long   end = (y * 12 + m);
-	long   num_periods = ((end - beg) > 0) ? (end - beg) : 0;
-	return ((double)num_periods) / (double)term;
+	const long end = (y * 12 + m);
+	const long num_periods = ((end - beg) > 0) ? (end - beg) : 0;
+	return fdivi(num_periods, term);
 }
 
 /* @v9.8.11 (unused) int SLAPI CalcRestAssetPrice(LDATE start, LDATE dt, long term, double cost, double * pPrice)

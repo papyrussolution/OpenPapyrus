@@ -4334,8 +4334,10 @@ int    FASTCALL sstreq(const uchar * pS1, const char * pS2);
 //   !0 - строки эквивалентны
 //   0  - строки не эквивалентны
 //
-int    FASTCALL sstreqi_ascii(const char * pS1, const char * pS2);
-int    FASTCALL sstreqi_ascii(const uchar * pS1, const uchar * pS2);
+bool   FASTCALL sstreqi_ascii(const char * pS1, const char * pS2);
+bool   FASTCALL sstreqi_ascii(const uchar * pS1, const uchar * pS2);
+bool   FASTCALL sstreqi_ascii(const wchar_t * pS1, const wchar_t * pS2);
+bool   FASTCALL sstreqi_ascii(const wchar_t * pS1, const char * pS2);
 //
 // Descr: Определяет все ли len символов строки pS находятся в диапазоне [0..0x7f].
 // Note: Функция может быть использована для быстрой идентификации необходимости
@@ -5203,7 +5205,6 @@ struct SBaseBuffer {
 	void   SLAPI Zero();
 	void   SLAPI Set(void * pBuf, size_t size);
 	int    FASTCALL Alloc(size_t sz);
-	//
 	int    SLAPI Put(size_t offs, const void * pSrc, size_t size);
     int    SLAPI Put(size_t offs, uint8 v);
     int    SLAPI Put(size_t offs, uint16 v);
@@ -5213,7 +5214,6 @@ struct SBaseBuffer {
     int    SLAPI Put(size_t offs, int16 v);
     int    SLAPI Put(size_t offs, int32 v);
     int    SLAPI Put(size_t offs, int64 v);
-
     int    SLAPI Get(size_t offs, void * pDest, size_t size) const;
     int    SLAPI Get(size_t offs, uint8 & rV) const;
     int    SLAPI Get(size_t offs, uint16 & rV) const;
@@ -5234,7 +5234,7 @@ struct SBaseBuffer {
 //
 class STempBuffer : private SBaseBuffer {
 public:
-	SLAPI  STempBuffer(size_t sz);
+	explicit SLAPI STempBuffer(size_t sz);
 	SLAPI ~STempBuffer();
 	STempBuffer & FASTCALL operator = (const STempBuffer & rS);
 	int    SLAPI IsValid() const;
@@ -5292,7 +5292,8 @@ public:
 	//   Пустые буферы (WrOffs == 0) считаются равными.
 	//
 	int    FASTCALL IsEqual(const SBuffer & rS) const;
-	SLAPI  operator const void * () const { return P_Buf; }
+	//SLAPI  operator const void * () const { return P_Buf; }
+	const void * constptr() const { return P_Buf; }
 	size_t SLAPI GetSize() const { return Size; }
 	size_t SLAPI GetRdOffs() const { return RdOffs; }
 	size_t SLAPI GetWrOffs() const { return WrOffs; }
@@ -5425,7 +5426,7 @@ class SCRC32 {
 public:
 	SLAPI  SCRC32();
 	SLAPI ~SCRC32();
-	ulong  SLAPI Calc(ulong, const uint8 *, size_t);
+	ulong  SLAPI Calc(ulong, const void * pData, size_t dataLen);
 private:
 	int    SLAPI MakeTab();
 	ulong * P_Tab;
@@ -5600,7 +5601,6 @@ int    GetRandom(int min, int max);
 //
 double FASTCALL intmnytodbl(long m);
 long   FASTCALL dbltointmny(double r);
-
 double FASTCALL inttodbl2(long v);
 long   FASTCALL dbltoint2(double r);
 //
@@ -5664,13 +5664,9 @@ int SPunycodeEncode(const uint * input, size_t input_length, SString & rOut, con
 int SPunycodeDecode(const char * input, size_t input_length, size_t * output_length, uint * output, uchar * pCaseFlags);
 //
 //
-// @construction
-int    EquipInputDecode(const void * pInput, size_t inputSize, int binaryFormat, int outpFormat, SString & rBuf);
-//
-// User abort functions
-//
-int SLAPI checkabort();
-int SLAPI enableabort(int); // 0 - disable, 1 - enable, (-1) - check status
+int    EquipInputDecode(const void * pInput, size_t inputSize, int binaryFormat, int outpFormat, SString & rBuf); // @construction
+// @v10.3.3 @unused int SLAPI checkabort();
+// @v10.3.3 @unused int SLAPI enableabort(int); // 0 - disable, 1 - enable, (-1) - check status
 //
 //
 //
@@ -5681,7 +5677,7 @@ enum {
 	comdvcsCon
 };
 
-int    SLAPI IsComDvcSymb(const char * pSymb, int * pCount);
+int    FASTCALL IsComDvcSymb(const char * pSymb, int * pCount);
 //
 // Descr: Формирует строку вида COM1, LPT2, CON и т.д. в зависимости от параметров
 //   comdvcs, count. Если (option & 0x0001), тогда впереди строки добавляются символы \\.\
@@ -10449,6 +10445,12 @@ float  FASTCALL smin(float a, float b);
 double FASTCALL fdiv100r(double);
 double FASTCALL fdiv100i(long);
 double FASTCALL fdiv1000i(long);
+//
+// Descr: делит a на b в вещественном виде ((double)a) / ((double)b)
+//   Если b == 0, то возвращает 0.
+//
+double FASTCALL fdivi(long a, long b);
+double FASTCALL fdivui(uint a, uint b);
 long   FASTCALL fmul100i(double);
 long   FASTCALL fmul1000i(double);
 //
@@ -10503,7 +10505,6 @@ uint64 SLAPI ui64pow(uint64 x, uint n);
 
 double FASTCALL ffactr(uint i);
 ulong  FASTCALL ffacti(uint i);
-
 double FASTCALL degtorad(double);
 float  FASTCALL degtorad(float);
 double FASTCALL degtorad(int);

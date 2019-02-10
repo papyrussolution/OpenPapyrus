@@ -989,7 +989,7 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 				Total.LinkQtty += fabs(P_LinkPack->ConstTI(pos).Qtty());
 		{
 			GTaxVect vect;
-			vect.CalcTI(p_ti, P_Pack->Rec.OpID, TIAMT_AMOUNT);
+			vect.CalcTI(*p_ti, P_Pack->Rec.OpID, TIAMT_AMOUNT);
 			item.VatSum  = vect.GetValue(GTAXVF_VAT);
 			item.VatRate = vect.GetTaxRate(GTAX_VAT, 0);
 			Total.VatSum += item.VatSum;

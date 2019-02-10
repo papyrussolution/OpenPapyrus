@@ -3643,11 +3643,11 @@ void PPALDD_TrfrAnlzBase::Destroy()
 
 void PPALDD_TrfrAnlzBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
-	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
-	#define _ARG_INT(n)  (*(int *)rS.GetPtr(pApl->Get(n)))
-	#define _RET_DBL     (*(double *)rS.GetPtr(pApl->Get(0)))
-	#define _RET_INT     (*(int *)rS.GetPtr(pApl->Get(0)))
-	#define _RET_LONG    (*(long *)rS.GetPtr(pApl->Get(0)))
+	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
+	#define _ARG_INT(n)  (*static_cast<const int *>(rS.GetPtr(pApl->Get(n))))
+	#define _RET_DBL     (*static_cast<double *>(rS.GetPtr(pApl->Get(0))))
+	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
+	#define _RET_LONG    (*static_cast<long *>(rS.GetPtr(pApl->Get(0))))
 	PPViewTrfrAnlz * p_v = (PPViewTrfrAnlz*)NZOR(Extra[1].Ptr, Extra[0].Ptr);
 	if(pF->Name == "?GetExtVal") {
 		double ext_val = 0.0;

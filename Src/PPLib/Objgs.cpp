@@ -2316,7 +2316,7 @@ int SLAPI PPObjGoodsStruc::Read(PPObjPack * pPack, PPID id, void * stream, ObjTr
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW(SerializePacket(-1, p_gs, buffer, &pCtx->SCtx));
 	}
 	CATCH
@@ -2355,7 +2355,7 @@ int SLAPI PPObjGoodsStruc::Write(PPObjPack * pPack, PPID * pID, void * stream, O
 		else {
 			SBuffer buffer;
 			THROW(SerializePacket(+1, p_gs, buffer, &pCtx->SCtx));
-			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 		}
 	}
 	CATCHZOK
@@ -2395,7 +2395,7 @@ int SLAPI PPObjGoodsStruc::HandleMsg(int msg, PPID _obj, PPID _id, void * extraP
 		if(_obj == PPOBJ_GOODS) {
 			ObjAssocTbl * t = &ref->Assc;
 			if(!updateFor(t, 0, (t->AsscType == PPASS_GOODSSTRUC && t->ScndObjID == _id),
-				set(t->ScndObjID, dbconst((long)extraPtr)))) {
+				set(t->ScndObjID, dbconst(reinterpret_cast<long>(extraPtr))))) {
 				ok = PPSetErrorDB();
 			}
 		}

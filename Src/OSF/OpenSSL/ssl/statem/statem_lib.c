@@ -26,16 +26,13 @@ int ssl3_do_write(SSL * s, int type)
 		return (-1);
 	if(type == SSL3_RT_HANDSHAKE)
 		/*
-		 * should not be done for 'Hello Request's, but in that case we'll
-		 * ignore the result anyway
+		 * should not be done for 'Hello Request's, but in that case we'll ignore the result anyway
 		 */
 		if(!ssl3_finish_mac(s, (uchar*)&s->init_buf->data[s->init_off], ret))
 			return -1;
 	if(ret == s->init_num) {
 		if(s->msg_callback)
-			s->msg_callback(1, s->version, type, s->init_buf->data,
-			    (size_t)(s->init_off + s->init_num), s,
-			    s->msg_callback_arg);
+			s->msg_callback(1, s->version, type, s->init_buf->data, (size_t)(s->init_off + s->init_num), s, s->msg_callback_arg);
 		return 1;
 	}
 	s->init_off += ret;
@@ -45,21 +42,14 @@ int ssl3_do_write(SSL * s, int type)
 
 int tls_construct_finished(SSL * s, const char * sender, int slen)
 {
-	uchar * p;
-	int i;
 	unsigned long l;
-
-	p = ssl_handshake_start(s);
-
-	i = s->method->ssl3_enc->final_finish_mac(s,
-	    sender, slen,
-	    s->s3->tmp.finish_md);
+	uchar * p = ssl_handshake_start(s);
+	int i = s->method->ssl3_enc->final_finish_mac(s, sender, slen, s->s3->tmp.finish_md);
 	if(i <= 0)
 		return 0;
 	s->s3->tmp.finish_md_len = i;
 	memcpy(p, s->s3->tmp.finish_md, i);
 	l = i;
-
 	/*
 	 * Copy the finished so we can use it for renegotiation checks
 	 */
@@ -105,11 +95,7 @@ static void ssl3_take_mac(SSL * s)
 		sender = s->method->ssl3_enc->client_finished_label;
 		slen = s->method->ssl3_enc->client_finished_label_len;
 	}
-
-	s->s3->tmp.peer_finish_md_len = s->method->ssl3_enc->final_finish_mac(s,
-	    sender,
-	    slen,
-	    s->s3->tmp.peer_finish_md);
+	s->s3->tmp.peer_finish_md_len = s->method->ssl3_enc->final_finish_mac(s, sender, slen, s->s3->tmp.peer_finish_md);
 }
 
 #endif
@@ -117,64 +103,50 @@ static void ssl3_take_mac(SSL * s)
 MSG_PROCESS_RETURN tls_process_change_cipher_spec(SSL * s, PACKET * pkt)
 {
 	int al;
-	long remain;
-
-	remain = PACKET_remaining(pkt);
+	long remain = PACKET_remaining(pkt);
 	/*
 	 * 'Change Cipher Spec' is just a single byte, which should already have
 	 * been consumed by ssl_get_message() so there should be no bytes left,
 	 * unless we're using DTLS1_BAD_VER, which has an extra 2 bytes
 	 */
 	if(SSL_IS_DTLS(s)) {
-		if((s->version == DTLS1_BAD_VER
-			    && remain != DTLS1_CCS_HEADER_LENGTH + 1)
-		    || (s->version != DTLS1_BAD_VER
-			    && remain != DTLS1_CCS_HEADER_LENGTH - 1)) {
+		if((s->version == DTLS1_BAD_VER && remain != DTLS1_CCS_HEADER_LENGTH + 1) || (s->version != DTLS1_BAD_VER && remain != DTLS1_CCS_HEADER_LENGTH - 1)) {
 			al = SSL_AD_ILLEGAL_PARAMETER;
-			SSLerr(SSL_F_TLS_PROCESS_CHANGE_CIPHER_SPEC,
-			    SSL_R_BAD_CHANGE_CIPHER_SPEC);
+			SSLerr(SSL_F_TLS_PROCESS_CHANGE_CIPHER_SPEC, SSL_R_BAD_CHANGE_CIPHER_SPEC);
 			goto f_err;
 		}
 	}
 	else {
 		if(remain != 0) {
 			al = SSL_AD_ILLEGAL_PARAMETER;
-			SSLerr(SSL_F_TLS_PROCESS_CHANGE_CIPHER_SPEC,
-			    SSL_R_BAD_CHANGE_CIPHER_SPEC);
+			SSLerr(SSL_F_TLS_PROCESS_CHANGE_CIPHER_SPEC, SSL_R_BAD_CHANGE_CIPHER_SPEC);
 			goto f_err;
 		}
 	}
-
 	/* Check we have a cipher to change to */
 	if(s->s3->tmp.new_cipher == NULL) {
 		al = SSL_AD_UNEXPECTED_MESSAGE;
 		SSLerr(SSL_F_TLS_PROCESS_CHANGE_CIPHER_SPEC, SSL_R_CCS_RECEIVED_EARLY);
 		goto f_err;
 	}
-
 	s->s3->change_cipher_spec = 1;
 	if(!ssl3_do_change_cipher_spec(s)) {
 		al = SSL_AD_INTERNAL_ERROR;
 		SSLerr(SSL_F_TLS_PROCESS_CHANGE_CIPHER_SPEC, ERR_R_INTERNAL_ERROR);
 		goto f_err;
 	}
-
 	if(SSL_IS_DTLS(s)) {
 		dtls1_reset_seq_numbers(s, SSL3_CC_READ);
-
 		if(s->version == DTLS1_BAD_VER)
 			s->d1->handshake_read_seq++;
-
 #ifndef OPENSSL_NO_SCTP
 		/*
 		 * Remember that a CCS has been received, so that an old key of
-		 * SCTP-Auth can be deleted when a CCS is sent. Will be ignored if no
-		 * SCTP is used
+		 * SCTP-Auth can be deleted when a CCS is sent. Will be ignored if no SCTP is used
 		 */
 		BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SCTP_AUTH_CCS_RCVD, 1, 0);
 #endif
 	}
-
 	return MSG_PROCESS_CONTINUE_READING;
 f_err:
 	ssl3_send_alert(s, SSL3_AL_FATAL, al);
@@ -185,7 +157,6 @@ f_err:
 MSG_PROCESS_RETURN tls_process_finished(SSL * s, PACKET * pkt)
 {
 	int al, i;
-
 	/* If this occurs, we have missed a message */
 	if(!s->s3->change_cipher_spec) {
 		al = SSL_AD_UNEXPECTED_MESSAGE;
@@ -193,9 +164,7 @@ MSG_PROCESS_RETURN tls_process_finished(SSL * s, PACKET * pkt)
 		goto f_err;
 	}
 	s->s3->change_cipher_spec = 0;
-
 	i = s->s3->tmp.peer_finish_md_len;
-
 	if((unsigned long)i != PACKET_remaining(pkt)) {
 		al = SSL_AD_DECODE_ERROR;
 		SSLerr(SSL_F_TLS_PROCESS_FINISHED, SSL_R_BAD_DIGEST_LENGTH);
@@ -231,13 +200,10 @@ f_err:
 
 int tls_construct_change_cipher_spec(SSL * s)
 {
-	uchar * p;
-
-	p = (uchar*)s->init_buf->data;
+	uchar * p = (uchar*)s->init_buf->data;
 	*p = SSL3_MT_CCS;
 	s->init_num = 1;
 	s->init_off = 0;
-
 	return 1;
 }
 
@@ -245,7 +211,6 @@ unsigned long ssl3_output_cert_chain(SSL * s, CERT_PKEY * cpk)
 {
 	uchar * p;
 	unsigned long l = 3 + SSL_HM_HEADER_LENGTH(s);
-
 	if(!ssl_add_cert_chain(s, cpk, &l))
 		return 0;
 
@@ -253,7 +218,6 @@ unsigned long ssl3_output_cert_chain(SSL * s, CERT_PKEY * cpk)
 	p = ssl_handshake_start(s);
 	l2n3(l, p);
 	l += 3;
-
 	if(!ssl_set_handshake_header(s, SSL3_MT_CERTIFICATE, l)) {
 		SSLerr(SSL_F_SSL3_OUTPUT_CERT_CHAIN, ERR_R_INTERNAL_ERROR);
 		return 0;
@@ -264,7 +228,6 @@ unsigned long ssl3_output_cert_chain(SSL * s, CERT_PKEY * cpk)
 WORK_STATE tls_finish_handshake(SSL * s, WORK_STATE wst)
 {
 	void (* cb)(const SSL * ssl, int type, int val) = NULL;
-
 #ifndef OPENSSL_NO_SCTP
 	if(SSL_IS_DTLS(s) && BIO_dgram_is_sctp(SSL_get_wbio(s))) {
 		WORK_STATE ret;
@@ -273,10 +236,8 @@ WORK_STATE tls_finish_handshake(SSL * s, WORK_STATE wst)
 			return ret;
 	}
 #endif
-
 	/* clean a few things up */
 	ssl3_cleanup_key_block(s);
-
 	if(!SSL_IS_DTLS(s)) {
 		/*
 		 * We don't do this in DTLS because we may still need the init_buf
@@ -285,19 +246,14 @@ WORK_STATE tls_finish_handshake(SSL * s, WORK_STATE wst)
 		BUF_MEM_free(s->init_buf);
 		s->init_buf = NULL;
 	}
-
 	ssl_free_wbio_buffer(s);
-
 	s->init_num = 0;
-
 	if(!s->server || s->renegotiate == 2) {
 		/* skipped if we just sent a HelloRequest */
 		s->renegotiate = 0;
 		s->new_session = 0;
-
 		if(s->server) {
 			ssl_update_cache(s, SSL_SESS_CACHE_SERVER);
-
 			s->ctx->stats.sess_accept_good++;
 			s->handshake_func = ossl_statem_accept;
 		}
@@ -305,19 +261,15 @@ WORK_STATE tls_finish_handshake(SSL * s, WORK_STATE wst)
 			ssl_update_cache(s, SSL_SESS_CACHE_CLIENT);
 			if(s->hit)
 				s->ctx->stats.sess_hit++;
-
 			s->handshake_func = ossl_statem_connect;
 			s->ctx->stats.sess_connect_good++;
 		}
-
 		if(s->info_callback != NULL)
 			cb = s->info_callback;
 		else if(s->ctx->info_callback != NULL)
 			cb = s->ctx->info_callback;
-
 		if(cb)
 			cb(s, SSL_CB_HANDSHAKE_DONE, 1);
-
 		if(SSL_IS_DTLS(s)) {
 			/* done with handshaking */
 			s->d1->handshake_read_seq = 0;
@@ -326,7 +278,6 @@ WORK_STATE tls_finish_handshake(SSL * s, WORK_STATE wst)
 			dtls1_clear_received_buffer(s);
 		}
 	}
-
 	return WORK_FINISHED_STOP;
 }
 
@@ -334,17 +285,11 @@ int tls_get_message_header(SSL * s, int * mt)
 {
 	/* s->init_num < SSL3_HM_HEADER_LENGTH */
 	int skip_message, i, recvd_type, al;
-	uchar * p;
 	unsigned long l;
-
-	p = (uchar*)s->init_buf->data;
-
+	uchar * p = (uchar*)s->init_buf->data;
 	do {
 		while(s->init_num < SSL3_HM_HEADER_LENGTH) {
-			i = s->method->ssl_read_bytes(s, SSL3_RT_HANDSHAKE, &recvd_type,
-			    &p[s->init_num],
-			    SSL3_HM_HEADER_LENGTH - s->init_num,
-			    0);
+			i = s->method->ssl_read_bytes(s, SSL3_RT_HANDSHAKE, &recvd_type, &p[s->init_num], SSL3_HM_HEADER_LENGTH - s->init_num, 0);
 			if(i <= 0) {
 				s->rwstate = SSL_READING;
 				return 0;
@@ -356,8 +301,7 @@ int tls_get_message_header(SSL * s, int * mt)
 				 */
 				if(s->init_num != 0 || i != 1 || p[0] != SSL3_MT_CCS) {
 					al = SSL_AD_UNEXPECTED_MESSAGE;
-					SSLerr(SSL_F_TLS_GET_MESSAGE_HEADER,
-					    SSL_R_BAD_CHANGE_CIPHER_SPEC);
+					SSLerr(SSL_F_TLS_GET_MESSAGE_HEADER, SSL_R_BAD_CHANGE_CIPHER_SPEC);
 					goto f_err;
 				}
 				s->s3->tmp.message_type = *mt = SSL3_MT_CHANGE_CIPHER_SPEC;
@@ -373,31 +317,24 @@ int tls_get_message_header(SSL * s, int * mt)
 			}
 			s->init_num += i;
 		}
-
 		skip_message = 0;
 		if(!s->server)
 			if(p[0] == SSL3_MT_HELLO_REQUEST)
 				/*
 				 * The server may always send 'Hello Request' messages --
 				 * we are doing a handshake anyway now, so ignore them if
-				 * their format is correct. Does not count for 'Finished'
-				 * MAC.
+				 * their format is correct. Does not count for 'Finished' MAC.
 				 */
 				if(p[1] == 0 && p[2] == 0 && p[3] == 0) {
 					s->init_num = 0;
 					skip_message = 1;
-
 					if(s->msg_callback)
-						s->msg_callback(0, s->version, SSL3_RT_HANDSHAKE,
-						    p, SSL3_HM_HEADER_LENGTH, s,
-						    s->msg_callback_arg);
+						s->msg_callback(0, s->version, SSL3_RT_HANDSHAKE, p, SSL3_HM_HEADER_LENGTH, s, s->msg_callback_arg);
 				}
 	} while(skip_message);
 	/* s->init_num == SSL3_HM_HEADER_LENGTH */
-
 	*mt = *p;
 	s->s3->tmp.message_type = *(p++);
-
 	if(RECORD_LAYER_is_sslv2_record(&s->rlayer)) {
 		/*
 		 * Only happens with SSLv3+ in an SSLv2 backward compatible
@@ -406,10 +343,8 @@ int tls_get_message_header(SSL * s, int * mt)
 		 * Total message size is the remaining record bytes to read
 		 * plus the SSL3_HM_HEADER_LENGTH bytes that we already read
 		 */
-		l = RECORD_LAYER_get_rrec_length(&s->rlayer)
-		    + SSL3_HM_HEADER_LENGTH;
+		l = RECORD_LAYER_get_rrec_length(&s->rlayer) + SSL3_HM_HEADER_LENGTH;
 		s->s3->tmp.message_size = l;
-
 		s->init_msg = s->init_buf->data;
 		s->init_num = SSL3_HM_HEADER_LENGTH;
 	}
@@ -422,11 +357,9 @@ int tls_get_message_header(SSL * s, int * mt)
 			goto f_err;
 		}
 		s->s3->tmp.message_size = l;
-
 		s->init_msg = s->init_buf->data + SSL3_HM_HEADER_LENGTH;
 		s->init_num = 0;
 	}
-
 	return 1;
 f_err:
 	ssl3_send_alert(s, SSL3_AL_FATAL, al);
@@ -438,18 +371,15 @@ int tls_get_message_body(SSL * s, unsigned long * len)
 	long n;
 	uchar * p;
 	int i;
-
 	if(s->s3->tmp.message_type == SSL3_MT_CHANGE_CIPHER_SPEC) {
 		/* We've already read everything in */
 		*len = (unsigned long)s->init_num;
 		return 1;
 	}
-
 	p = (uchar*)s->init_msg;
 	n = s->s3->tmp.message_size - s->init_num;
 	while(n > 0) {
-		i = s->method->ssl_read_bytes(s, SSL3_RT_HANDSHAKE, NULL,
-		    &p[s->init_num], n, 0);
+		i = s->method->ssl_read_bytes(s, SSL3_RT_HANDSHAKE, NULL, &p[s->init_num], n, 0);
 		if(i <= 0) {
 			s->rwstate = SSL_READING;
 			*len = 0;
@@ -458,7 +388,6 @@ int tls_get_message_body(SSL * s, unsigned long * len)
 		s->init_num += i;
 		n -= i;
 	}
-
 #ifndef OPENSSL_NO_NEXTPROTONEG
 	/*
 	 * If receiving Finished, record MAC of prior handshake messages for
@@ -467,37 +396,29 @@ int tls_get_message_body(SSL * s, unsigned long * len)
 	if(*s->init_buf->data == SSL3_MT_FINISHED)
 		ssl3_take_mac(s);
 #endif
-
 	/* Feed this message into MAC computation. */
 	if(RECORD_LAYER_is_sslv2_record(&s->rlayer)) {
-		if(!ssl3_finish_mac(s, (uchar*)s->init_buf->data,
-			    s->init_num)) {
+		if(!ssl3_finish_mac(s, (uchar*)s->init_buf->data, s->init_num)) {
 			SSLerr(SSL_F_TLS_GET_MESSAGE_BODY, ERR_R_EVP_LIB);
 			ssl3_send_alert(s, SSL3_AL_FATAL, SSL_AD_INTERNAL_ERROR);
 			*len = 0;
 			return 0;
 		}
 		if(s->msg_callback)
-			s->msg_callback(0, SSL2_VERSION, 0, s->init_buf->data,
-			    (size_t)s->init_num, s, s->msg_callback_arg);
+			s->msg_callback(0, SSL2_VERSION, 0, s->init_buf->data, (size_t)s->init_num, s, s->msg_callback_arg);
 	}
 	else {
-		if(!ssl3_finish_mac(s, (uchar*)s->init_buf->data,
-			    s->init_num + SSL3_HM_HEADER_LENGTH)) {
+		if(!ssl3_finish_mac(s, (uchar*)s->init_buf->data, s->init_num + SSL3_HM_HEADER_LENGTH)) {
 			SSLerr(SSL_F_TLS_GET_MESSAGE_BODY, ERR_R_EVP_LIB);
 			ssl3_send_alert(s, SSL3_AL_FATAL, SSL_AD_INTERNAL_ERROR);
 			*len = 0;
 			return 0;
 		}
 		if(s->msg_callback)
-			s->msg_callback(0, s->version, SSL3_RT_HANDSHAKE, s->init_buf->data,
-			    (size_t)s->init_num + SSL3_HM_HEADER_LENGTH, s,
-			    s->msg_callback_arg);
+			s->msg_callback(0, s->version, SSL3_RT_HANDSHAKE, s->init_buf->data, (size_t)s->init_num + SSL3_HM_HEADER_LENGTH, s, s->msg_callback_arg);
 	}
-
 	/*
-	 * init_num should never be negative...should probably be declared
-	 * unsigned
+	 * init_num should never be negative...should probably be declared unsigned
 	 */
 	if(s->init_num < 0) {
 		SSLerr(SSL_F_TLS_GET_MESSAGE_BODY, ERR_R_INTERNAL_ERROR);
@@ -513,25 +434,17 @@ int ssl_cert_type(const X509 * x, const EVP_PKEY * pk)
 {
 	if(pk == NULL && (pk = X509_get0_pubkey(x)) == NULL)
 		return -1;
-
 	switch(EVP_PKEY_id(pk)) {
-		default:
-		    return -1;
-		case EVP_PKEY_RSA:
-		    return SSL_PKEY_RSA_ENC;
-		case EVP_PKEY_DSA:
-		    return SSL_PKEY_DSA_SIGN;
+		default: return -1;
+		case EVP_PKEY_RSA: return SSL_PKEY_RSA_ENC;
+		case EVP_PKEY_DSA: return SSL_PKEY_DSA_SIGN;
 #ifndef OPENSSL_NO_EC
-		case EVP_PKEY_EC:
-		    return SSL_PKEY_ECC;
+		case EVP_PKEY_EC: return SSL_PKEY_ECC;
 #endif
 #ifndef OPENSSL_NO_GOST
-		case NID_id_GostR3410_2001:
-		    return SSL_PKEY_GOST01;
-		case NID_id_GostR3410_2012_256:
-		    return SSL_PKEY_GOST12_256;
-		case NID_id_GostR3410_2012_512:
-		    return SSL_PKEY_GOST12_512;
+		case NID_id_GostR3410_2001: return SSL_PKEY_GOST01;
+		case NID_id_GostR3410_2012_256: return SSL_PKEY_GOST12_256;
+		case NID_id_GostR3410_2012_512: return SSL_PKEY_GOST12_512;
 #endif
 	}
 }
@@ -539,7 +452,6 @@ int ssl_cert_type(const X509 * x, const EVP_PKEY * pk)
 int ssl_verify_alarm_type(long type)
 {
 	int al;
-
 	switch(type) {
 		case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
 		case X509_V_ERR_UNABLE_TO_GET_CRL:

@@ -57,43 +57,31 @@ void SSL3_RECORD_set_seq_num(SSL3_RECORD * r, const uchar * seq_num)
 {
 	memcpy(r->seq_num, seq_num, SEQ_NUM_SIZE);
 }
-
 /*
  * Peeks ahead into "read_ahead" data to see if we have a whole record waiting
  * for us in the buffer.
  */
 static int ssl3_record_app_data_waiting(SSL * s)
 {
-	SSL3_BUFFER * rbuf;
 	int left, len;
-	uchar * p;
-
-	rbuf = RECORD_LAYER_get_rbuf(&s->rlayer);
-
-	p = SSL3_BUFFER_get_buf(rbuf);
+	SSL3_BUFFER * rbuf = RECORD_LAYER_get_rbuf(&s->rlayer);
+	uchar * p = SSL3_BUFFER_get_buf(rbuf);
 	if(!p)
 		return 0;
-
 	left = SSL3_BUFFER_get_left(rbuf);
-
 	if(left < SSL3_RT_HEADER_LENGTH)
 		return 0;
-
 	p += SSL3_BUFFER_get_offset(rbuf);
-
 	/*
 	 * We only check the type and record length, we will sanity check version
 	 * etc later
 	 */
 	if(*p != SSL3_RT_APPLICATION_DATA)
 		return 0;
-
 	p += 3;
 	n2s(p, len);
-
 	if(left < SSL3_RT_HEADER_LENGTH + len)
 		return 0;
-
 	return 1;
 }
 
@@ -134,33 +122,24 @@ int ssl3_get_record(SSL * s)
 	uint num_recs = 0;
 	uint max_recs;
 	uint j;
-
 	rr = RECORD_LAYER_get_rrec(&s->rlayer);
 	rbuf = RECORD_LAYER_get_rbuf(&s->rlayer);
 	max_recs = s->max_pipelines;
 	if(max_recs == 0)
 		max_recs = 1;
 	sess = s->session;
-
 	do {
 		/* check if we have the header */
-		if((RECORD_LAYER_get_rstate(&s->rlayer) != SSL_ST_READ_BODY) ||
-		    (RECORD_LAYER_get_packet_length(&s->rlayer)
-			    < SSL3_RT_HEADER_LENGTH)) {
-			n = ssl3_read_n(s, SSL3_RT_HEADER_LENGTH,
-			    SSL3_BUFFER_get_len(rbuf), 0,
-			    num_recs == 0 ? 1 : 0);
+		if((RECORD_LAYER_get_rstate(&s->rlayer) != SSL_ST_READ_BODY) || (RECORD_LAYER_get_packet_length(&s->rlayer) < SSL3_RT_HEADER_LENGTH)) {
+			n = ssl3_read_n(s, SSL3_RT_HEADER_LENGTH, SSL3_BUFFER_get_len(rbuf), 0, num_recs == 0 ? 1 : 0);
 			if(n <= 0)
 				return (n);  /* error or non-blocking */
 			RECORD_LAYER_set_rstate(&s->rlayer, SSL_ST_READ_BODY);
-
 			p = RECORD_LAYER_get_packet(&s->rlayer);
-
 			/*
 			 * The first record received by the server may be a V2ClientHello.
 			 */
-			if(s->server && RECORD_LAYER_is_first_record(&s->rlayer)
-			    && (p[0] & 0x80) && (p[2] == SSL2_MT_CLIENT_HELLO)) {
+			if(s->server && RECORD_LAYER_is_first_record(&s->rlayer) && (p[0] & 0x80) && (p[2] == SSL2_MT_CLIENT_HELLO)) {
 				/*
 				 *  SSLv2 style record
 				 *
@@ -172,16 +151,12 @@ int ssl3_get_record(SSL * s)
 				 */
 				rr[num_recs].type = SSL3_RT_HANDSHAKE;
 				rr[num_recs].rec_version = SSL2_VERSION;
-
 				rr[num_recs].length = ((p[0] & 0x7f) << 8) | p[1];
-
-				if(rr[num_recs].length > SSL3_BUFFER_get_len(rbuf)
-				    - SSL2_RT_HEADER_LENGTH) {
+				if(rr[num_recs].length > SSL3_BUFFER_get_len(rbuf) - SSL2_RT_HEADER_LENGTH) {
 					al = SSL_AD_RECORD_OVERFLOW;
 					SSLerr(SSL_F_SSL3_GET_RECORD, SSL_R_PACKET_LENGTH_TOO_LONG);
 					goto f_err;
 				}
-
 				if(rr[num_recs].length < MIN_SSL2_RECORD_LEN) {
 					al = SSL_AD_HANDSHAKE_FAILURE;
 					SSLerr(SSL_F_SSL3_GET_RECORD, SSL_R_LENGTH_TOO_SHORT);
@@ -191,8 +166,7 @@ int ssl3_get_record(SSL * s)
 			else {
 				/* SSLv3+ style record */
 				if(s->msg_callback)
-					s->msg_callback(0, 0, SSL3_RT_HEADER, p, 5, s,
-					    s->msg_callback_arg);
+					s->msg_callback(0, 0, SSL3_RT_HEADER, p, 5, s, s->msg_callback_arg);
 
 				/* Pull apart the header into the SSL3_RECORD */
 				rr[num_recs].type = *(p++);
@@ -201,12 +175,10 @@ int ssl3_get_record(SSL * s)
 				version = (ssl_major << 8) | ssl_minor;
 				rr[num_recs].rec_version = version;
 				n2s(p, rr[num_recs].length);
-
 				/* Lets check version */
 				if(!s->first_packet && version != s->version) {
 					SSLerr(SSL_F_SSL3_GET_RECORD, SSL_R_WRONG_VERSION_NUMBER);
-					if((s->version & 0xFF00) == (version & 0xFF00)
-					    && !s->enc_write_ctx && !s->write_hash) {
+					if((s->version & 0xFF00) == (version & 0xFF00) && !s->enc_write_ctx && !s->write_hash) {
 						if(rr->type == SSL3_RT_ALERT) {
 							/*
 							 * The record is using an incorrect version number,
@@ -226,7 +198,6 @@ int ssl3_get_record(SSL * s)
 					al = SSL_AD_PROTOCOL_VERSION;
 					goto f_err;
 				}
-
 				if((version >> 8) != SSL3_VERSION_MAJOR) {
 					if(RECORD_LAYER_is_first_record(&s->rlayer)) {
 						// Go back to start of packet, look at the five bytes that we have. 
@@ -250,83 +221,66 @@ int ssl3_get_record(SSL * s)
 						goto f_err;
 					}
 				}
-
-				if(rr[num_recs].length >
-				    SSL3_BUFFER_get_len(rbuf) - SSL3_RT_HEADER_LENGTH) {
+				if(rr[num_recs].length > SSL3_BUFFER_get_len(rbuf) - SSL3_RT_HEADER_LENGTH) {
 					al = SSL_AD_RECORD_OVERFLOW;
 					SSLerr(SSL_F_SSL3_GET_RECORD, SSL_R_PACKET_LENGTH_TOO_LONG);
 					goto f_err;
 				}
 			}
-
 			/* now s->rlayer.rstate == SSL_ST_READ_BODY */
 		}
-
 		/*
 		 * s->rlayer.rstate == SSL_ST_READ_BODY, get and decode the data.
 		 * Calculate how much more data we need to read for the rest of the
 		 * record
 		 */
 		if(rr[num_recs].rec_version == SSL2_VERSION) {
-			i = rr[num_recs].length + SSL2_RT_HEADER_LENGTH
-			    - SSL3_RT_HEADER_LENGTH;
+			i = rr[num_recs].length + SSL2_RT_HEADER_LENGTH - SSL3_RT_HEADER_LENGTH;
 		}
 		else {
 			i = rr[num_recs].length;
 		}
 		if(i > 0) {
 			/* now s->packet_length == SSL3_RT_HEADER_LENGTH */
-
 			n = ssl3_read_n(s, i, i, 1, 0);
 			if(n <= 0)
 				return (n);  /* error or non-blocking io */
 		}
-
 		/* set state for later operations */
 		RECORD_LAYER_set_rstate(&s->rlayer, SSL_ST_READ_HEADER);
-
 		/*
 		 * At this point, s->packet_length == SSL3_RT_HEADER_LENGTH + rr->length,
 		 * or s->packet_length == SSL2_RT_HEADER_LENGTH + rr->length
 		 * and we have that many bytes in s->packet
 		 */
 		if(rr[num_recs].rec_version == SSL2_VERSION) {
-			rr[num_recs].input =
-			    &(RECORD_LAYER_get_packet(&s->rlayer)[SSL2_RT_HEADER_LENGTH]);
+			rr[num_recs].input = &(RECORD_LAYER_get_packet(&s->rlayer)[SSL2_RT_HEADER_LENGTH]);
 		}
 		else {
-			rr[num_recs].input =
-			    &(RECORD_LAYER_get_packet(&s->rlayer)[SSL3_RT_HEADER_LENGTH]);
+			rr[num_recs].input = &(RECORD_LAYER_get_packet(&s->rlayer)[SSL3_RT_HEADER_LENGTH]);
 		}
-
 		/*
 		 * ok, we can now read from 's->packet' data into 'rr' rr->input points
 		 * at rr->length bytes, which need to be copied into rr->data by either
 		 * the decryption or by the decompression When the data is 'copied' into
 		 * the rr->data buffer, rr->input will be pointed at the new buffer
 		 */
-
 		/*
 		 * We now have - encrypted [ MAC [ compressed [ plain ] ] ] rr->length
 		 * bytes of encrypted compressed stuff.
 		 */
-
 		/* check is not needed I believe */
 		if(rr[num_recs].length > SSL3_RT_MAX_ENCRYPTED_LENGTH) {
 			al = SSL_AD_RECORD_OVERFLOW;
 			SSLerr(SSL_F_SSL3_GET_RECORD, SSL_R_ENCRYPTED_LENGTH_TOO_LONG);
 			goto f_err;
 		}
-
 		/* decrypt in place in 'rr->input' */
 		rr[num_recs].data = rr[num_recs].input;
 		rr[num_recs].orig_len = rr[num_recs].length;
-
 		/* Mark this record as not read by upper layers yet */
 		rr[num_recs].read = 0;
-
 		num_recs++;
-
 		/* we have pulled in a full packet so zero things */
 		RECORD_LAYER_reset_packet_length(&s->rlayer);
 		RECORD_LAYER_clear_first_record(&s->rlayer);
@@ -424,16 +378,13 @@ int ssl3_get_record(SSL * s)
 				rr[j].length -= mac_size;
 				mac = &rr[j].data[rr[j].length];
 			}
-
 			i = s->method->ssl3_enc->mac(s, &rr[j], md, 0 /* not send */);
-			if(i < 0 || mac == NULL
-			    || CRYPTO_memcmp(md, mac, (size_t)mac_size) != 0)
+			if(i < 0 || mac == NULL || CRYPTO_memcmp(md, mac, (size_t)mac_size) != 0)
 				enc_err = -1;
 			if(rr->length > SSL3_RT_MAX_COMPRESSED_LENGTH + mac_size)
 				enc_err = -1;
 		}
 	}
-
 	if(enc_err < 0) {
 		/*
 		 * A separate 'decryption_failed' alert was introduced with TLS 1.0,
@@ -446,7 +397,6 @@ int ssl3_get_record(SSL * s)
 		SSLerr(SSL_F_SSL3_GET_RECORD, SSL_R_DECRYPTION_FAILED_OR_BAD_RECORD_MAC);
 		goto f_err;
 	}
-
 	for(j = 0; j < num_recs; j++) {
 		/* rr[j].length is now just compressed */
 		if(s->expand) {
@@ -461,13 +411,11 @@ int ssl3_get_record(SSL * s)
 				goto f_err;
 			}
 		}
-
 		if(rr[j].length > SSL3_RT_MAX_PLAIN_LENGTH) {
 			al = SSL_AD_RECORD_OVERFLOW;
 			SSLerr(SSL_F_SSL3_GET_RECORD, SSL_R_DATA_LENGTH_TOO_LONG);
 			goto f_err;
 		}
-
 		rr[j].off = 0;
 		/*-
 		 * So at this point the following is true
@@ -491,10 +439,8 @@ int ssl3_get_record(SSL * s)
 			RECORD_LAYER_reset_empty_record_count(&s->rlayer);
 		}
 	}
-
 	RECORD_LAYER_set_numrpipes(&s->rlayer, num_recs);
 	return 1;
-
 f_err:
 	ssl3_send_alert(s, SSL3_AL_FATAL, al);
 err:
@@ -505,16 +451,12 @@ int ssl3_do_uncompress(SSL * ssl, SSL3_RECORD * rr)
 {
 #ifndef OPENSSL_NO_COMP
 	int i;
-
 	if(rr->comp == NULL) {
-		rr->comp = (uchar*)
-		    OPENSSL_malloc(SSL3_RT_MAX_ENCRYPTED_LENGTH);
+		rr->comp = (uchar*)OPENSSL_malloc(SSL3_RT_MAX_ENCRYPTED_LENGTH);
 	}
 	if(rr->comp == NULL)
 		return 0;
-
-	i = COMP_expand_block(ssl->expand, rr->comp,
-	    SSL3_RT_MAX_PLAIN_LENGTH, rr->data, (int)rr->length);
+	i = COMP_expand_block(ssl->expand, rr->comp, SSL3_RT_MAX_PLAIN_LENGTH, rr->data, (int)rr->length);
 	if(i < 0)
 		return 0;
 	else
@@ -527,21 +469,15 @@ int ssl3_do_uncompress(SSL * ssl, SSL3_RECORD * rr)
 int ssl3_do_compress(SSL * ssl, SSL3_RECORD * wr)
 {
 #ifndef OPENSSL_NO_COMP
-	int i;
-
-	i = COMP_compress_block(ssl->compress, wr->data,
-	    SSL3_RT_MAX_COMPRESSED_LENGTH,
-	    wr->input, (int)wr->length);
+	int i = COMP_compress_block(ssl->compress, wr->data, SSL3_RT_MAX_COMPRESSED_LENGTH, wr->input, (int)wr->length);
 	if(i < 0)
 		return 0;
 	else
 		wr->length = i;
-
 	wr->input = wr->data;
 #endif
 	return 1;
 }
-
 /*-
  * ssl3_enc encrypts/decrypts |n_recs| records in |inrecs|
  *
@@ -554,13 +490,11 @@ int ssl3_do_compress(SSL * ssl, SSL3_RECORD * wr)
  */
 int ssl3_enc(SSL * s, SSL3_RECORD * inrecs, uint n_recs, int send)
 {
-	SSL3_RECORD * rec;
 	EVP_CIPHER_CTX * ds;
 	unsigned long l;
 	int bs, i, mac_size = 0;
 	const EVP_CIPHER * enc;
-
-	rec = inrecs;
+	SSL3_RECORD * rec = inrecs;
 	/*
 	 * We shouldn't ever be called with more than one record in the SSLv3 case
 	 */
@@ -580,7 +514,6 @@ int ssl3_enc(SSL * s, SSL3_RECORD * inrecs, uint n_recs, int send)
 		else
 			enc = EVP_CIPHER_CTX_cipher(s->enc_read_ctx);
 	}
-
 	if((s->session == NULL) || (ds == NULL) || (enc == NULL)) {
 		memmove(rec->data, rec->input, rec->length);
 		rec->input = rec->data;
@@ -601,7 +534,6 @@ int ssl3_enc(SSL * s, SSL3_RECORD * inrecs, uint n_recs, int send)
 			rec->length += i;
 			rec->input[l - 1] = (i - 1);
 		}
-
 		if(!send) {
 			if(l == 0 || l % bs != 0)
 				return 0;
@@ -616,7 +548,6 @@ int ssl3_enc(SSL * s, SSL3_RECORD * inrecs, uint n_recs, int send)
 	}
 	return 1;
 }
-
 /*-
  * tls1_enc encrypts/decrypts |n_recs| in |recs|.
  *
@@ -796,8 +727,7 @@ int tls1_enc(SSL * s, SSL3_RECORD * recs, uint n_recs, int send)
 				 */
 				if(tmpret == 0)
 					return 0;
-				ret = constant_time_select_int(constant_time_eq_int(tmpret, 1),
-				    ret, -1);
+				ret = constant_time_select_int(constant_time_eq_int(tmpret, 1), ret, -1);
 			}
 		}
 		if(pad && !send) {

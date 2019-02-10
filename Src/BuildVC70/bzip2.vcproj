@@ -30,6 +30,8 @@
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough=""
 				AssemblerListingLocation="Debug/"
 				ObjectFile="$(IntDir)\"
 				WarningLevel="3"
@@ -92,6 +94,8 @@
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough=""
 				AssemblerListingLocation="Release/"
 				ObjectFile="$(IntDir)\"
 				WarningLevel="3"
@@ -142,6 +146,21 @@
 			Filter="">
 			<File
 				RelativePath="..\Osf\Bzip2\blocksort.c">
+			</File>
+			<File
+				RelativePath="..\Osf\Bzip2\bzlib-pch.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\Osf\Bzip2\bzlib.c">

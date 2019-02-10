@@ -33,7 +33,7 @@
 #define CAIRO_COGL_GRADIENT_PRIVATE_H
 
 #include "cairoint.h"
-#include "cairo-pattern-private.h"
+//#include "cairo-pattern-private.h"
 
 #include <cogl/cogl2-experimental.h>
 

@@ -51,11 +51,12 @@
 	#define cairo_public __declspec(dllexport)
 #endif
 #include <slib.h> // @sobolev
-////#include <assert.h>
+//#include <assert.h>
 //#include <stdlib.h>
 //#include <string.h>
 //#include <stdarg.h>
 //#include <stddef.h>
+#include <setjmp.h>
 #ifdef _MSC_VER
 	#define _USE_MATH_DEFINES
 #endif
@@ -254,7 +255,7 @@ static inline void _cairo_unbounded_rectangle_init(cairo_rectangle_int_t * rect)
 	*rect = _cairo_unbounded_rectangle;
 }
 
-cairo_private_no_warn cairo_bool_t _cairo_rectangle_intersect(cairo_rectangle_int_t * dst, const cairo_rectangle_int_t * src);
+cairo_private_no_warn cairo_bool_t FASTCALL _cairo_rectangle_intersect(cairo_rectangle_int_t * dst, const cairo_rectangle_int_t * src);
 
 static inline cairo_bool_t _cairo_rectangle_intersects(const cairo_rectangle_int_t * dst, const cairo_rectangle_int_t * src)
 {
@@ -554,14 +555,17 @@ enum {
 
 cairo_private uint32_t _cairo_operator_bounded_by_either(cairo_operator_t op) cairo_const;
 /* cairo-color.c */
-cairo_private const cairo_color_t * _cairo_stock_color(cairo_stock_t stock) cairo_pure;
+cairo_private const cairo_color_t * FASTCALL _cairo_stock_color(cairo_stock_t stock) cairo_pure;
 
 #define CAIRO_COLOR_WHITE       _cairo_stock_color(CAIRO_STOCK_WHITE)
 #define CAIRO_COLOR_BLACK       _cairo_stock_color(CAIRO_STOCK_BLACK)
 #define CAIRO_COLOR_TRANSPARENT _cairo_stock_color(CAIRO_STOCK_TRANSPARENT)
 
-cairo_private uint16_t _cairo_color_double_to_short(double d) cairo_const;
-
+//cairo_private uint16_t _cairo_color_double_to_short(double d) cairo_const;
+FORCEINLINE uint16_t _cairo_color_double_to_short(double d)
+{
+	return static_cast<uint16_t>(d * 65535.0 + 0.5);
+}
 cairo_private void _cairo_color_init_rgba(cairo_color_t * color, double red, double green, double blue, double alpha);
 cairo_private void _cairo_color_multiply_alpha(cairo_color_t * color, double alpha);
 cairo_private void _cairo_color_get_rgba(cairo_color_t * color, double * red, double * green, double * blue, double * alpha);
@@ -798,7 +802,7 @@ cairo_private void _cairo_stroke_style_dash_approximate(const cairo_stroke_style
 
 cairo_private cairo_bool_t _cairo_surface_has_mime_image(cairo_surface_t * surface);
 cairo_private cairo_status_t _cairo_surface_copy_mime_data(cairo_surface_t * dst, cairo_surface_t * src);
-cairo_private_no_warn cairo_int_status_t _cairo_surface_set_error(cairo_surface_t * surface, cairo_int_status_t status);
+cairo_private_no_warn cairo_int_status_t FASTCALL _cairo_surface_set_error(cairo_surface_t * surface, cairo_int_status_t status);
 cairo_private void _cairo_surface_set_resolution(cairo_surface_t * surface, double x_res, double y_res);
 cairo_private cairo_surface_t * _cairo_surface_create_for_rectangle_int(cairo_surface_t * target, const cairo_rectangle_int_t * extents);
 cairo_private cairo_surface_t * _cairo_surface_create_scratch(cairo_surface_t * other, cairo_content_t content,
@@ -875,8 +879,8 @@ cairo_private void _cairo_surface_release_source_image(cairo_surface_t * surface
 cairo_private cairo_surface_t * _cairo_surface_snapshot(cairo_surface_t * surface);
 cairo_private void _cairo_surface_attach_snapshot(cairo_surface_t * surface, cairo_surface_t * snapshot, cairo_surface_func_t detach_func);
 cairo_private cairo_surface_t * _cairo_surface_has_snapshot(cairo_surface_t * surface, const cairo_surface_backend_t * backend);
-cairo_private void _cairo_surface_detach_snapshot(cairo_surface_t * snapshot);
-cairo_private cairo_status_t _cairo_surface_begin_modification(cairo_surface_t * surface);
+cairo_private void FASTCALL _cairo_surface_detach_snapshot(cairo_surface_t * snapshot);
+cairo_private cairo_status_t FASTCALL _cairo_surface_begin_modification(cairo_surface_t * surface);
 cairo_private_no_warn cairo_bool_t FASTCALL _cairo_surface_get_extents(cairo_surface_t * surface, cairo_rectangle_int_t * extents);
 cairo_private cairo_bool_t _cairo_surface_has_device_transform(cairo_surface_t * surface) cairo_pure;
 cairo_private void _cairo_surface_release_device_reference(cairo_surface_t * surface);
@@ -1249,6 +1253,17 @@ CAIRO_END_DECLS
 #include "cairo-gstate-private.h"
 #include "cairo-box-inline.h"
 #include "cairo-slope-private.h"
+#include "cairo-time-private.h"
+#include "cairo-surface-observer-private.h"
+#include "cairo-surface-observer-inline.h"
+#include "cairo-combsort-inline.h"
+#include "cairo-traps-private.h"
+#include "cairo-contour-private.h"
+#include "cairo-contour-inline.h"
+#include "cairo-freelist-type-private.h"
+#include "cairo-freelist-private.h"
+#include "cairo-surface-subsurface-private.h"
+#include "cairo-surface-subsurface-inline.h"
 
 #if HAVE_VALGRIND
 	#include <memcheck.h>

@@ -1844,6 +1844,8 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 	SString temp_buf;
 	SString bill_text;
 	SString lot_text;
+	StringSet ss;
+	PPLotExtCodeContainer::MarkSet::Entry msentry;
 	PPLotExtCodeContainer::MarkSet ext_codes_set;
 	PrcssrAlcReport::GoodsItem agi;
 	assert(pX);
@@ -2072,9 +2074,8 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									}
 									THROW(WriteOrgInfo(_doc, SXml::nst("wb", "Shipper"), shipper_psn_id, shipper_loc_id, p_bp->Rec.Dt, woi_flags));
 									THROW(WriteOrgInfo(_doc, SXml::nst("wb", "Consignee"), consignee_psn_id, consignee_loc_id, p_bp->Rec.Dt, woi_flags));
-									if(suppl_psn_id) {
+									if(suppl_psn_id)
 										THROW(WriteOrgInfo(_doc, SXml::nst("wb", "Supplier"), suppl_psn_id, suppl_loc_id, p_bp->Rec.Dt, woi_flags));
-									}
 								}
 								{
 									SXml::WNode n_tr(_doc, SXml::nst("wb", "Transport"));
@@ -2107,9 +2108,8 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 								n_h.PutInnerSkipEmpty(SXml::nst("wb", "Base"), ""); // Основание
 								{
 									temp_buf.Z();
-									if(is_intrexpend) {
+									if(is_intrexpend)
 										temp_buf.CatEq(P_IntrExpndNotePrefix, p_bp->Rec.ID);
-									}
 									/* @v8.9.10 Поставщики не хотят передавать свои примечания в ЕГАИС
 									if(p_bp->Rec.Memo[0])
 										temp_buf.CatDiv('-', 1, 1).Cat(p_bp->Rec.Memo);
@@ -2124,8 +2124,6 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
                         	SString ref_a;
                         	SString ref_b;
                         	SString ref_b_fw;
-							StringSet ss;
-							PPLotExtCodeContainer::MarkSet::Entry msentry;
                         	for(uint tidx = 0; tidx < p_bp->GetTCount(); tidx++) {
 								const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
 								if(!seen_pos_list.lsearch(tidx) && IsAlcGoods(r_ti.GoodsID) && PreprocessGoodsItem(r_ti.GoodsID, r_ti.LotID, 0, 0, agi) > 0) {
@@ -2205,23 +2203,6 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 											w_s.PutInner(SXml::nst("ce", "F2RegId"), EncText(ref_b));
 											if(p_bp->XcL.Get(tidx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount()) {
 												SXml::WNode w_m(_doc, SXml::nst("ce", "MarkInfo"));
-												/* @v10.2.9 {
-													SXml::WNode w_box(_doc, SXml::nst("ce", "boxpos"));
-													//(temp_buf = "box").CatChar('-').Cat((long)(tidx+1));
-													//w_box.PutInner(SXml::nst("ce", "boxnumber"), EncText(temp_buf));
-													{
-														SXml::WNode w_amclist(_doc, SXml::nst("ce", "amclist"));
-														// @v10.2.9 for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);)
-														// @v10.2.9   w_amclist.PutInner(SXml::nst("ce", "amc"), EncText(temp_buf));
-														PPLotExtCodeContainer::MarkSet::Entry msentry;
-														for(uint msidx = 0; msidx < ext_codes_set.GetCount(); msidx++) {
-															if(ext_codes_set.GetByIdx(msidx, msentry) && !(msentry.Flags & PPLotExtCodeContainer::fBox)) {
-																w_amclist.PutInner(SXml::nst("ce", "amc"), EncText(msentry.Num));
-															}
-														}
-													}
-												}*/
-												// @v10.2.9 {
 												for(uint boxidx = 0; boxidx < ext_codes_set.GetCount(); boxidx++) {
 													if(ext_codes_set.GetByIdx(boxidx, msentry) && msentry.Flags & PPLotExtCodeContainer::fBox) {
 														SXml::WNode w_box(_doc, SXml::nst("ce", "boxpos"));
@@ -2248,7 +2229,6 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 														}
 													}
 												}
-												// } @v10.2.9 
 											}
 										}
 										else {
@@ -2646,7 +2626,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									if(p_bp->XcL.Get(tidx+1, 0, ext_codes_set) > 0) {
 										SXml::WNode w_mc(_doc, SXml::nst("awr", "MarkCodeInfo"));
 										//for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);) {
-										PPLotExtCodeContainer::MarkSet::Entry msentry;
+										//PPLotExtCodeContainer::MarkSet::Entry msentry;
 										for(uint msidx = 0; msidx < ext_codes_set.GetCount(); msidx++) {
 											if(ext_codes_set.GetByIdx(msidx, msentry) && !(msentry.Flags & PPLotExtCodeContainer::fBox)) {
 												w_mc.PutInner("MarkCode", msentry.Num); // @v9.9.2 "awr:MarkCode"-->"MarkCode"
@@ -2879,13 +2859,32 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 											SXml::WNode w_refb(_doc, SXml::nst("awr", "InformB"));
 											w_refb.PutInner(SXml::nst("pref", "BRegId"), temp_buf);
 										}
-										else {
+										else if(doc_type == PPEDIOP_EGAIS_ACTWRITEOFF_V2) {
 											SXml::WNode n_infab(_doc, SXml::nst("awr", "InformF1F2"));
 											{
 												SXml::WNode w_refb(_doc, SXml::nst("awr", "InformF2"));
 												w_refb.PutInner(SXml::nst("pref", "F2RegId"), EncText(temp_buf));
 											}
 										}
+										// @v10.3.3 {
+										else if(doc_type == PPEDIOP_EGAIS_ACTWRITEOFF_V3) {
+											SXml::WNode n_infab(_doc, SXml::nst("awr", "InformF1F2"));
+											{
+												SXml::WNode w_refb(_doc, SXml::nst("awr", "InformF2"));
+												w_refb.PutInner(SXml::nst("pref", "F2RegId"), EncText(temp_buf));
+											}
+											if(p_bp->XcL.Get(tidx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount()) {
+												// В этом документе марки передаются без информации о боксах 
+												SXml::WNode n_mci(_doc, SXml::nst("awr", "MarkCodeInfo"));
+												for(uint markidx = 0; markidx < ext_codes_set.GetCount(); markidx++) {
+													if(ext_codes_set.GetByIdx(markidx, msentry) && !(msentry.Flags & PPLotExtCodeContainer::fBox)) {
+														SXml::WNode w_amclist(_doc, SXml::nst("ce", "amclist"));
+														w_amclist.PutInner(SXml::nst("ce", "amc"), EncText(msentry.Num));
+													}
+												}
+											}
+										}
+										// } @v10.3.3 
 									}
 								}
 							}
@@ -7557,8 +7556,7 @@ int SLAPI PPEgaisProcessor::SendBills(const PPBillIterchangeFilt & rP)
 {
 	int    ok = -1;
 	const  int __v2 = BIN(Cfg.E.Flags & Cfg.fEgaisVer2Fmt);
-	// @v9.9.9 const  int __v3 = BIN(Cfg.E.Flags & Cfg.fEgaisVer3Fmt); // @v9.9.5
-	const  int __v3 = BIN(State & stUseEgaisVer3); // @v9.9.9
+	const  int __v3 = BIN(State & stUseEgaisVer3);
 	SString file_name;
 	SString temp_buf;
 	PPIDArray totransm_bill_list, reject_bill_list;

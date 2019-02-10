@@ -1002,7 +1002,7 @@ public:
 int SLAPI ProcessorCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	Data * p_cache_rec = (Data *)pEntry;
+	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjProcessor prc_obj;
 	ProcessorTbl::Rec rec;
 	if(prc_obj.Search(id, &rec) > 0) {
@@ -1036,7 +1036,7 @@ int SLAPI ProcessorCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 void SLAPI ProcessorCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	ProcessorTbl::Rec * p_data_rec = (ProcessorTbl::Rec *)pDataRec;
-	const Data * p_cache_rec = (const Data *)pEntry;
+	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 #define CPY_FLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
 	CPY_FLD(ID);
@@ -1077,7 +1077,7 @@ int SLAPI PPObjProcessor::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPt
 	}
 	else if(msg == DBMSG_PERSONACQUIREKIND) {
 		const PPID person_id = _id;
-		const PPID kind_id = (long)extraPtr;
+		const PPID kind_id = reinterpret_cast<long>(extraPtr);
 		SString name_buf;
 		PPIDArray grp_id_list;
 		ProcessorTbl::Rec grp_rec;
@@ -1827,7 +1827,7 @@ int SLAPI PPObjProcessor::Read(PPObjPack * p, PPID id, void * stream, ObjTransmC
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW_SL(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
 	}
 	p->Data = p_pack;
@@ -1874,7 +1874,7 @@ int  SLAPI PPObjProcessor::Write(PPObjPack * p, PPID * pID, void * stream, ObjTr
 		else {
 			SBuffer buffer;
 			THROW_SL(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 		}
 	}
 	CATCHZOK
@@ -1925,8 +1925,8 @@ PPBaseFilt * SLAPI PPViewProcessor::CreateFilt(void * extraPtr) const
 {
 	ProcessorFilt * p_filt = new ProcessorFilt;
 	if(extraPtr) {
-		p_filt->Kind = (((long)extraPtr) & PRCEXDF_GROUP) ? PPPRCK_GROUP : PPPRCK_PROCESSOR;
-		p_filt->ParentID = ((long)extraPtr) & ~PRCEXDF_GROUP;
+		p_filt->Kind = ((reinterpret_cast<long>(extraPtr)) & PRCEXDF_GROUP) ? PPPRCK_GROUP : PPPRCK_PROCESSOR;
+		p_filt->ParentID = (reinterpret_cast<long>(extraPtr)) & ~PRCEXDF_GROUP;
 	}
 	return p_filt;
 }

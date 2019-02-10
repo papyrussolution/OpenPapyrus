@@ -4264,7 +4264,7 @@ DL6_IC_CONSTRUCTION_EXTRA(PPObjLocation, DL6ICLS_PPObjLocation_VTab, PPObjPerson
 int32 DL6ICLS_PPObjLocation::Search(int32 id, PPYOBJREC rec)
 {
 	int    ok = 0;
-	PPObjPerson * p_obj = (PPObjPerson *)ExtraPtr;
+	PPObjPerson * p_obj = static_cast<PPObjPerson *>(ExtraPtr);
 	if(p_obj) {
 		LocationTbl::Rec loc_rec;
 		MEMSZERO(loc_rec);
@@ -4280,7 +4280,7 @@ int32 DL6ICLS_PPObjLocation::Search(int32 id, PPYOBJREC rec)
 int32 DL6ICLS_PPObjLocation::SearchByName(SString & text, int32 kind, int32 extraParam, PPYOBJREC rec)
 {
 	int    ok = 0;
-	PPObjPerson * p_obj = (PPObjPerson *)ExtraPtr;
+	PPObjPerson * p_obj = static_cast<PPObjPerson *>(ExtraPtr);
 	if(p_obj) {
 		LocationTbl::Rec loc_rec;
 		PPID   id = 0;
@@ -4304,7 +4304,7 @@ int32 DL6ICLS_PPObjLocation::SearchByName(SString & text, int32 kind, int32 extr
 SString & DL6ICLS_PPObjLocation::GetName(int32 id)
 {
 	char   name_buf[64];
-	PPObjPerson * p_obj = (PPObjPerson *)ExtraPtr;
+	PPObjPerson * p_obj = static_cast<PPObjPerson *>(ExtraPtr);
 	int    ok = p_obj ? p_obj->LocObj.GetName(id, name_buf, sizeof(name_buf)) : 0;
 	return (RetStrBuf = name_buf);
 }
@@ -4312,7 +4312,7 @@ SString & DL6ICLS_PPObjLocation::GetName(int32 id)
 IStrAssocList* DL6ICLS_PPObjLocation::GetSelector(int32 extraParam)
 {
 	// @v9.2.5 {
-	PPObjPerson * p_obj = (PPObjPerson *)ExtraPtr;
+	PPObjPerson * p_obj = static_cast<PPObjPerson *>(ExtraPtr);
 	IStrAssocList * p = p_obj ? (IStrAssocList *)GetPPObjIStrAssocList(this, (PPObject *)&p_obj->LocObj, extraParam) : 0;
 	// } @v9.2.5
 	// @v9.2.5 IStrAssocList * p = (IStrAssocList *)GetPPObjIStrAssocList(this, (PPObject *)ExtraPtr, extraParam);
@@ -4335,7 +4335,7 @@ int32 DL6ICLS_PPObjLocation::Update(int32 id, int32 flags, PPYOBJREC rec)
 SString & DL6ICLS_PPObjLocation::GetAddress(int32 locID)
 {
 	//PPObjLocation * p_obj = (PPObjLocation *)ExtraPtr;
-	PPObjPerson * p_obj = (PPObjPerson *)ExtraPtr;
+	PPObjPerson * p_obj = static_cast<PPObjPerson *>(ExtraPtr);
 	RetStrBuf.Z();
 	AppError = 0;
 	if(p_obj) {
@@ -4352,7 +4352,7 @@ int32 DL6ICLS_PPObjLocation::SearchByCode(SString & rCode, PpyOLocationType locT
 {
 	int32 ok = -1;
 	//PPObjLocation * p_obj = (PPObjLocation*)ExtraPtr;
-	PPObjPerson * p_obj = (PPObjPerson *)ExtraPtr;
+	PPObjPerson * p_obj = static_cast<PPObjPerson *>(ExtraPtr);
 	if(p_obj) {
 		LocationTbl::Rec loc_rec;
 		MEMSZERO(loc_rec);
@@ -4369,7 +4369,7 @@ SString & DL6ICLS_PPObjLocation::GetDlvrAddrExtFld(int32 locID, int32 extFldID)
 {
 	LocationTbl::Rec loc_rec;
 	//PPObjLocation * p_obj = (PPObjLocation *)ExtraPtr;
-	PPObjPerson * p_obj = (PPObjPerson *)ExtraPtr;
+	PPObjPerson * p_obj = static_cast<PPObjPerson *>(ExtraPtr);
 	RetStrBuf.Z();
 	MEMSZERO(loc_rec);
 	if(p_obj->LocObj.Search(locID, &loc_rec) > 0) {
@@ -4386,7 +4386,7 @@ int32 DL6ICLS_PPObjLocation::SetDlvrAddrExtFld(int32 locID, int32 extFldID, SStr
 	int    ok = -1;
 	LocationTbl::Rec loc_rec;
 	//PPObjLocation * p_obj = (PPObjLocation *)ExtraPtr;
-	PPObjPerson * p_obj = (PPObjPerson *)ExtraPtr;
+	PPObjPerson * p_obj = static_cast<PPObjPerson *>(ExtraPtr);
 	MEMSZERO(loc_rec);
 	if(p_obj->LocObj.Search(locID, &loc_rec) > 0)
 		if((ok = LocationCore::SetExField(&loc_rec, extFldID, rValue)) > 0)
@@ -4420,10 +4420,7 @@ static void FASTCALL FillRegisterRec(const RegisterTbl::Rec * pInner, SPpyO_Regi
 	FLD(UniqCntr);
 	FLD(Flags);
 #undef FLD
-	if(special)
-		pOuter->SurID = pInner->ExtID;
-	else
-		pOuter->SurID = 0;
+	pOuter->SurID = special ? pInner->ExtID : 0;
 	(temp_buf = pInner->Serial).CopyToOleStr(&pOuter->Serial);
 	(temp_buf = pInner->Num).CopyToOleStr(&pOuter->Number);
 }
@@ -4434,7 +4431,7 @@ int32 DL6ICLS_PPObjLocation::GetRegisterD(int32 locID, int32 regType, LDATE actu
 	RegisterTbl::Rec rec;
 	MEMSZERO(rec);
 	//PPObjLocation * p_obj = (PPObjLocation *)ExtraPtr;
-	PPObjPerson * p_obj = (PPObjPerson *)ExtraPtr;
+	PPObjPerson * p_obj = static_cast<PPObjPerson *>(ExtraPtr);
 	ok = p_obj->LocObj.GetRegister(locID, regType, actualDate, inheritFromPerson, &rec);
 	FillRegisterRec(&rec, (SPpyO_Register *)pRec, 0);
 	return ok;
@@ -4444,10 +4441,8 @@ int32 DL6ICLS_PPObjLocation::GetRegisterD(int32 locID, int32 regType, LDATE actu
 // PPObjPerson {
 //
 struct InnerExtraObjPerson {
-	InnerExtraObjPerson()
+	InnerExtraObjPerson() : P_Obj(0), P_Pack(0)
 	{
-		P_Obj = 0;
-		P_Pack = 0;
 		Init();
 	}
 	~InnerExtraObjPerson()
@@ -4468,11 +4463,8 @@ struct InnerExtraObjPerson {
 	// Descr: Список отношений
 	//
 	struct RelEntry {
-		RelEntry(PPID id, PPID relTypeID, int reverse)
+		RelEntry(PPID id, PPID relTypeID, int reverse) : ID(id), RelTypeID(relTypeID), Reverse(reverse)
 		{
-			ID = id;
-			RelTypeID = relTypeID;
-			Reverse = reverse;
 		}
 		PPID   ID;
 		PPID   RelTypeID;
@@ -4550,7 +4542,7 @@ DL6_IC_CONSTRUCTOR(PPObjPerson, DL6ICLS_PPObjPerson_VTab)
 
 DL6_IC_DESTRUCTOR(PPObjPerson)
 {
-	InnerExtraObjPerson * p_e = (InnerExtraObjPerson*)ExtraPtr;
+	InnerExtraObjPerson * p_e = static_cast<InnerExtraObjPerson *>(ExtraPtr);
 	ZDELETE(p_e);
 }
 
@@ -4582,7 +4574,7 @@ void FillPersonRec(const PPPersonPacket * pInner, SPpyO_Person * pOuter)
 int32 DL6ICLS_PPObjPerson::Search(int32 id, PPYOBJREC rec)
 {
 	int    ok = 0;
-	InnerExtraObjPerson * p_e = (InnerExtraObjPerson*)ExtraPtr;
+	InnerExtraObjPerson * p_e = static_cast<InnerExtraObjPerson *>(ExtraPtr);
 	if(p_e && p_e->P_Obj) {
 		PPPersonPacket pack;
 		if((ok = p_e->P_Obj->GetPacket(id, &pack, 0)) > 0) {
@@ -4598,7 +4590,7 @@ int32 DL6ICLS_PPObjPerson::Search(int32 id, PPYOBJREC rec)
 int32 DL6ICLS_PPObjPerson::SearchByName(SString & text, int32 kind, int32 extraParam, PPYOBJREC rec)
 {
 	int    ok = 0;
-	InnerExtraObjPerson * p_e = (InnerExtraObjPerson*)ExtraPtr;
+	InnerExtraObjPerson * p_e = static_cast<InnerExtraObjPerson *>(ExtraPtr);
 	if(p_e && p_e->P_Obj) {
 		PPID id = 0;
 		if(p_e->P_Obj->P_Tbl->SearchByName(text, &id) > 0) {
@@ -4618,7 +4610,7 @@ SString & DL6ICLS_PPObjPerson::GetName(int32 id)
 {
 	int    ok = 0;
 	char   name_buf[64];
-	InnerExtraObjPerson * p_e = (InnerExtraObjPerson*)ExtraPtr;
+	InnerExtraObjPerson * p_e = static_cast<InnerExtraObjPerson *>(ExtraPtr);
 	memzero(name_buf, sizeof(name_buf));
 	ok = (p_e && p_e->P_Obj) ? p_e->P_Obj->GetName(id, name_buf, sizeof(name_buf)) : 0;
 	return (RetStrBuf = name_buf);
@@ -4645,7 +4637,7 @@ int32 DL6ICLS_PPObjPerson::Update(int32 id, int32 flags, PPYOBJREC rec)
 int FillPacket(void * extraPtr, long personID, PPPersonPacket ** ppPack)
 {
 	int    ok = 0;
-	InnerExtraObjPerson * p_e = (InnerExtraObjPerson*)extraPtr;
+	InnerExtraObjPerson * p_e = static_cast<InnerExtraObjPerson *>(extraPtr);
 	if(p_e) {
 		if((!p_e->P_Pack || p_e->P_Pack->Rec.ID != personID) && p_e->P_Obj) {
 			PPPersonPacket pack;
@@ -4685,7 +4677,7 @@ int32 DL6ICLS_PPObjPerson::GetPersonReq(int32 personID, SPersonReq * pReq)
 {
 	int    ok = 0;
 	PersonReq req;
-	InnerExtraObjPerson * p_e = (InnerExtraObjPerson*)ExtraPtr;
+	InnerExtraObjPerson * p_e = static_cast<InnerExtraObjPerson *>(ExtraPtr);
 	if(pReq && p_e && p_e->P_Obj && (ok = p_e->P_Obj->GetPersonReq(personID, &req)) > 0) {
 		SString temp_buf;
 		pReq->Flags         = req.Flags;
@@ -4727,7 +4719,7 @@ int32 DL6ICLS_PPObjPerson::EnumKinds(int32 personID, int32 * pIdx, int32* pKindI
 int32 DL6ICLS_PPObjPerson::EnumRelations(int32 personID, int32 relTypeID, int32 reverse, int32 * pRelPersonID)
 {
 	int    ok = 0;
-	InnerExtraObjPerson * p_e = (InnerExtraObjPerson*)ExtraPtr;
+	InnerExtraObjPerson * p_e = static_cast<InnerExtraObjPerson *>(ExtraPtr);
 	if(p_e) {
 		if(p_e->EnumRel(personID, relTypeID, reverse, pRelPersonID) > 0)
 			ok = 1;
@@ -4806,7 +4798,7 @@ int32 DL6ICLS_PPObjPerson::EnumBankAccts(int32 personID, int32 * pIdx, int32* pB
 int32 DL6ICLS_PPObjPerson::GetPersonByLocID(int32 locID, int32 personKindID)
 {
 	PPID   person_id = 0;
-	InnerExtraObjPerson * p_e = (InnerExtraObjPerson*)ExtraPtr;
+	InnerExtraObjPerson * p_e = static_cast<InnerExtraObjPerson *>(ExtraPtr);
 	if(p_e && p_e->P_Obj) {
 		// @v7.4.0 {
 		PPObjLocation * p_loc_obj = &p_e->P_Obj->LocObj;
@@ -4839,7 +4831,7 @@ int32 DL6ICLS_PPObjPerson::GetPersonByLocID(int32 locID, int32 personKindID)
 int32 DL6ICLS_PPObjPerson::IsBelongToKind(long personID, long kindID)
 {
 	int32  r = 0;
-	InnerExtraObjPerson * p_e = (InnerExtraObjPerson*)ExtraPtr;
+	InnerExtraObjPerson * p_e = static_cast<InnerExtraObjPerson *>(ExtraPtr);
 	if(p_e && p_e->P_Obj)
 		r = p_e->P_Obj->P_Tbl->IsBelongToKind(personID, kindID);
 	else
@@ -4851,7 +4843,7 @@ SString & DL6ICLS_PPObjPerson::FormatRegister(int32 personID, int32 regTypeID)
 {
 	char   temp_buf[256];
 	temp_buf[0] = 0;
-	InnerExtraObjPerson * p_e = (InnerExtraObjPerson*)ExtraPtr;
+	InnerExtraObjPerson * p_e = static_cast<InnerExtraObjPerson *>(ExtraPtr);
 	if(p_e && p_e->P_Obj)
 		p_e->P_Obj->FormatRegister(personID, regTypeID, temp_buf, sizeof(temp_buf));
 	else
@@ -4862,7 +4854,7 @@ SString & DL6ICLS_PPObjPerson::FormatRegister(int32 personID, int32 regTypeID)
 SString & DL6ICLS_PPObjPerson::GetRegNumber(int32 personID, int32 regTypeID)
 {
 	RetStrBuf.Z();
-	InnerExtraObjPerson * p_e = (InnerExtraObjPerson*)ExtraPtr;
+	InnerExtraObjPerson * p_e = static_cast<InnerExtraObjPerson *>(ExtraPtr);
 	if(p_e && p_e->P_Obj)
 		p_e->P_Obj->GetRegNumber(personID, regTypeID, RetStrBuf);
 	else
@@ -4873,7 +4865,7 @@ SString & DL6ICLS_PPObjPerson::GetRegNumber(int32 personID, int32 regTypeID)
 SString & DL6ICLS_PPObjPerson::GetRegNumberD(int32 personID, LDATE actualDate, int32 regTypeID)
 {
 	RetStrBuf.Z();
-	InnerExtraObjPerson * p_e = (InnerExtraObjPerson*)ExtraPtr;
+	InnerExtraObjPerson * p_e = static_cast<InnerExtraObjPerson *>(ExtraPtr);
 	if(p_e && p_e->P_Obj)
 		p_e->P_Obj->GetRegNumber(personID, regTypeID, actualDate, RetStrBuf);
 	else
@@ -4917,7 +4909,7 @@ SString & DL6ICLS_PPObjPerson::FormatTag(int32 personID, int32 tagID)
 IStrAssocList * DL6ICLS_PPObjPerson::GetListByRegNumber(long regTypeID, long kindID, SString & rSerial, SString & rNumber)
 {
 	StrAssocArray * p_list = 0;
-	InnerExtraObjPerson * p_e = (InnerExtraObjPerson*)ExtraPtr;
+	InnerExtraObjPerson * p_e = static_cast<InnerExtraObjPerson *>(ExtraPtr);
 	if(p_e && p_e->P_Obj) {
 		PPIDArray psn_list;
 		if(p_e->P_Obj->GetListByRegNumber(regTypeID, kindID, (const char*)rSerial, (const char*)rNumber, psn_list) > 0) {
@@ -4934,7 +4926,7 @@ IStrAssocList * DL6ICLS_PPObjPerson::GetListByRegNumber(long regTypeID, long kin
 int32 DL6ICLS_PPObjPerson::SetRegNumber(long psnID, long regTypeID, SString & rNumber)
 {
 	int32 ok = -1;
-	InnerExtraObjPerson * p_e = (InnerExtraObjPerson*)ExtraPtr;
+	InnerExtraObjPerson * p_e = static_cast<InnerExtraObjPerson *>(ExtraPtr);
 	if(p_e && p_e->P_Obj) {
 		PPPersonPacket pack;
 		if(p_e->P_Obj->GetPacket(psnID, &pack, 0) > 0) {
@@ -4952,7 +4944,7 @@ int32 DL6ICLS_PPObjPerson::SetRegNumber(long psnID, long regTypeID, SString & rN
 int32 DL6ICLS_PPObjPerson::SetTag(int32 psnID, int32 tagID, SString & rValue)
 {
 	int32 ok = -1;
-	InnerExtraObjPerson * p_e = (InnerExtraObjPerson*)ExtraPtr;
+	InnerExtraObjPerson * p_e = static_cast<InnerExtraObjPerson *>(ExtraPtr);
 	if(p_e && p_e->P_Obj) {
 		PPPersonPacket pack;
 		if(psnID && tagID && p_e->P_Obj->GetPacket(psnID, &pack, 0) > 0) {
@@ -4976,7 +4968,7 @@ int32 DL6ICLS_PPObjPerson::SetTag(int32 psnID, int32 tagID, SString & rValue)
 int32 DL6ICLS_PPObjPerson::GetRegister(int32 psnID, int32 regType, SPpyO_Register * pRec)
 {
 	int32  ok = -1;
-	InnerExtraObjPerson * p_e = (InnerExtraObjPerson *)ExtraPtr;
+	InnerExtraObjPerson * p_e = static_cast<InnerExtraObjPerson *>(ExtraPtr);
 	if(p_e && p_e->P_Obj) {
 		RegisterTbl::Rec rec;
 		MEMSZERO(rec);
@@ -4991,7 +4983,7 @@ int32 DL6ICLS_PPObjPerson::GetRegister(int32 psnID, int32 regType, SPpyO_Registe
 int32 DL6ICLS_PPObjPerson::GetRegisterD(int32 psnID, int32 regType, LDATE actualDate, SPpyO_Register * pRec)
 {
 	int32  ok = -1;
-	InnerExtraObjPerson * p_e = (InnerExtraObjPerson *)ExtraPtr;
+	InnerExtraObjPerson * p_e = static_cast<InnerExtraObjPerson *>(ExtraPtr);
 	if(p_e && p_e->P_Obj) {
 		RegisterTbl::Rec rec;
 		MEMSZERO(rec);
@@ -5006,7 +4998,7 @@ int32 DL6ICLS_PPObjPerson::GetRegisterD(int32 psnID, int32 regType, LDATE actual
 int32 DL6ICLS_PPObjPerson::IsPrivate(int32 psnID)
 {
 	int32 r = 0;
-	InnerExtraObjPerson * p_e = (InnerExtraObjPerson*)ExtraPtr;
+	InnerExtraObjPerson * p_e = static_cast<InnerExtraObjPerson *>(ExtraPtr);
 	if(p_e && p_e->P_Obj) {
 		int is_private = 0;
 		p_e->P_Obj->GetStatus(psnID, 0, &is_private);
@@ -5020,7 +5012,7 @@ IStrAssocList * DL6ICLS_PPObjPerson::GetRegList(int32 psnID, int32 regType)
 	int32  r = 0;
 	IUnknown * p = 0;
 	StrAssocArray * p_reg_list = 0;
-	InnerExtraObjPerson * p_e = (InnerExtraObjPerson*)ExtraPtr;
+	InnerExtraObjPerson * p_e = static_cast<InnerExtraObjPerson *>(ExtraPtr);
 	THROW(CreateInnerInstance("StrAssocList", "IStrAssocList", (void **)&p));
 	THROW(p_reg_list = (StrAssocArray *)SCoClass::GetExtraPtrByInterface(p));
 	if(p_e && p_e->P_Obj) {
@@ -5032,7 +5024,7 @@ IStrAssocList * DL6ICLS_PPObjPerson::GetRegList(int32 psnID, int32 regType)
 				const RegisterTbl::Rec & r_reg = reg_list.at(i);
 				if(r_reg.RegTypeID == regType) {
 					temp_buf.Z().Cat(r_reg.Dt).Cat("..").Cat(r_reg.Expiry);
-					p_reg_list->Add(i + 1, 0, (const char*)temp_buf);
+					p_reg_list->Add(i + 1, 0, temp_buf.cptr());
 				}
 			}
 		}
@@ -5224,7 +5216,7 @@ static void FASTCALL FillTrfrItemRec(const PPTransferItem * pInner, SPpyO_TrfrIt
 	FLD(QCert);
 	FLD(Suppl);
 	pOuter->Amount = pInner->CalcAmount(0);
-	pOuter->Flags  = (PpyOTrfrItemFlags)pInner->Flags;
+	pOuter->Flags  = static_cast<PpyOTrfrItemFlags>(pInner->Flags);
 	pOuter->Expiry = (OleDate)pInner->Expiry;
 	pOuter->LotDate  = (OleDate)pInner->LotDate;
 	#undef FLD
@@ -5236,8 +5228,8 @@ static void FASTCALL FillInnerTrfrItem(const SPpyO_TrfrItem * pInner, PPTransfer
 	#define FLD(f) pOuter->f = pInner->f
 	FLD(Date);
 	FLD(BillID);
-	pOuter->RByBill = (int16)pInner->RByBill;
-	pOuter->CurID   = (int16)pInner->CurID;
+	pOuter->RByBill = static_cast<int16>(pInner->RByBill);
+	pOuter->CurID   = static_cast<int16>(pInner->CurID);
 	FLD(LocID);
 	FLD(GoodsID);
 	FLD(LotID);
@@ -5254,7 +5246,7 @@ static void FASTCALL FillInnerTrfrItem(const SPpyO_TrfrItem * pInner, PPTransfer
 	FLD(LotTaxGrpID);
 	FLD(QCert);
 	FLD(Suppl);
-	pOuter->Flags  = (long)pInner->Flags;
+	pOuter->Flags = static_cast<long>(pInner->Flags);
 	FLD(Expiry);
 	FLD(LotDate);
 	#undef FLD
@@ -5272,7 +5264,7 @@ DL6_IC_CONSTRUCTOR(PPObjBill, DL6ICLS_PPObjBill_VTab)
 
 DL6_IC_DESTRUCTOR(PPObjBill)
 {
-	InnerBillExtra * p_e = (InnerBillExtra*)ExtraPtr;
+	InnerBillExtra * p_e = static_cast<InnerBillExtra *>(ExtraPtr);
 	if(p_e) {
 		ZDELETE(p_e->P_BObj);
 		ZDELETE(p_e->P_Pack);
@@ -5285,7 +5277,7 @@ DL6_IC_DESTRUCTOR(PPObjBill)
 int32 DL6ICLS_PPObjBill::Search(int32 id, PPYOBJREC rec)
 {
 	int    ok = 0;
-	InnerBillExtra * p_e = (InnerBillExtra *)ExtraPtr;
+	InnerBillExtra * p_e = static_cast<InnerBillExtra *>(ExtraPtr);
 	if(p_e && p_e->P_BObj) {
 		PPBillPacket bpack;
 		ok = p_e->P_BObj->ExtractPacket(id, &bpack);
@@ -5304,7 +5296,7 @@ int32 DL6ICLS_PPObjBill::SearchByName(SString & text, int32 kind, int32 extraPar
 SString & DL6ICLS_PPObjBill::GetName(int32 id)
 {
 	char   name_buf[64];
-	InnerBillExtra * p_e = (InnerBillExtra *)ExtraPtr;
+	InnerBillExtra * p_e = static_cast<InnerBillExtra *>(ExtraPtr);
 	int    ok = (p_e && p_e->P_BObj) ? p_e->P_BObj->GetName(id, name_buf, sizeof(name_buf)) : 0;
 	return (RetStrBuf = name_buf);
 }
@@ -5330,14 +5322,14 @@ DL6_IC_CONSTRUCTION_EXTRA(PPBillPacket, DL6ICLS_PPBillPacket_VTab, PPBillPacket)
 //
 int32 DL6ICLS_PPBillPacket::Init()
 {
-	PPBillPacket * p_pack = (PPBillPacket*)ExtraPtr;
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(ExtraPtr);
 	return (p_pack) ? (p_pack->destroy(), 1) : 0;
 }
 
 int32 DL6ICLS_PPBillPacket::PutHeader(SPpyO_Bill * pHeader)
 {
 	int    ok = -1;
-	PPBillPacket * p_pack = (PPBillPacket*)ExtraPtr;
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(ExtraPtr);
 	if(p_pack && pHeader) {
 		LDATE dt = ZERODATE;
 		dt = pHeader->Dt;
@@ -5355,7 +5347,7 @@ int32 DL6ICLS_PPBillPacket::PutHeader(SPpyO_Bill * pHeader)
 int32 DL6ICLS_PPBillPacket::UpdateHeader(SPpyO_Bill * pHeader)
 {
 	int ok = -1;
-	PPBillPacket * p_pack = (PPBillPacket*)ExtraPtr;
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(ExtraPtr);
 	if(p_pack && pHeader) {
 		FillBillPacket(pHeader, p_pack);
 		ok = 1;
@@ -5366,7 +5358,7 @@ int32 DL6ICLS_PPBillPacket::UpdateHeader(SPpyO_Bill * pHeader)
 int32 DL6ICLS_PPBillPacket::GetHeader(SPpyO_Bill * pHeader)
 {
 	int    ok = -1;
-	PPBillPacket * p_pack = (PPBillPacket*)ExtraPtr;
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(ExtraPtr);
 	if(p_pack && pHeader) {
 		FillBillRec(p_pack, pHeader);
 		ok = 1;
@@ -5377,7 +5369,7 @@ int32 DL6ICLS_PPBillPacket::GetHeader(SPpyO_Bill * pHeader)
 int32 DL6ICLS_PPBillPacket::PutItem(SPpyO_TrfrItem * pItem)
 {
 	int    ok = -1;
-	PPBillPacket * p_pack = (PPBillPacket*)ExtraPtr;
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(ExtraPtr);
 	if(p_pack && pItem) {
 		PPTransferItem ti;
 		FillInnerTrfrItem(pItem, &ti);
@@ -5394,7 +5386,7 @@ int32 DL6ICLS_PPBillPacket::PutItem(SPpyO_TrfrItem * pItem)
 int32 DL6ICLS_PPBillPacket::LoadTItem(SPpyO_TrfrItem * pItem, SString & rClb, SString & rBarcode)
 {
 	int    ok = -1;
-	PPBillPacket * p_pack = (PPBillPacket*)ExtraPtr;
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(ExtraPtr);
 	if(p_pack && pItem) {
 		PPTransferItem ti;
 		FillInnerTrfrItem(pItem, &ti);
@@ -5410,7 +5402,7 @@ int32 DL6ICLS_PPBillPacket::LoadTItem(SPpyO_TrfrItem * pItem, SString & rClb, SS
 int32 DL6ICLS_PPBillPacket::EnumItems(int32 * pIdx, SPpyO_TrfrItem * pItem)
 {
 	int    ok = -1;
-	PPBillPacket * p_pack = (PPBillPacket*)ExtraPtr;
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(ExtraPtr);
 	if(p_pack) {
 		PPTransferItem ti;
 		if(pIdx && *pIdx == 0) {
@@ -5432,7 +5424,7 @@ int32 DL6ICLS_PPBillPacket::EnumItems(int32 * pIdx, SPpyO_TrfrItem * pItem)
 
 IStrAssocList * DL6ICLS_PPBillPacket::GetOrderList()
 {
-	PPBillPacket * p_pack = (PPBillPacket*)ExtraPtr;
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(ExtraPtr);
 	StrAssocArray assoc_list;
 	if(p_pack) {
 		PPIDArray list;
@@ -5447,10 +5439,10 @@ IStrAssocList * DL6ICLS_PPBillPacket::GetOrderList()
 IPapyrusAmountList * DL6ICLS_PPBillPacket::GetAmountList()
 {
 	AmtList * p_list = 0;
-	PPBillPacket * p_pack = (PPBillPacket*)ExtraPtr;
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(ExtraPtr);
 	if(p_pack)
 		p_list = &p_pack->Amounts;
-	return (p_list && p_list->getCount()) ? (IPapyrusAmountList*)GetIPapyrusAmountList(this, p_list, 0) : 0;
+	return (p_list && p_list->getCount()) ? reinterpret_cast<IPapyrusAmountList *>(GetIPapyrusAmountList(this, p_list, 0)) : 0;
 }
 
 int32 DL6ICLS_PPBillPacket::GetTaxInfo(SPpyO_TrfrItem * pItem, PpyOTrfrItemAmtType tiAmtType, SPpy_TaxInfo * pTaxInfo)
@@ -5459,13 +5451,13 @@ int32 DL6ICLS_PPBillPacket::GetTaxInfo(SPpyO_TrfrItem * pItem, PpyOTrfrItemAmtTy
 	SPpy_TaxInfo tax_info;
 	PPTransferItem ti;
 	GTaxVect vect(5);
-	PPBillPacket * p_pack = (PPBillPacket*)ExtraPtr;
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(ExtraPtr);
 	MEMSZERO(tax_info);
 	if(p_pack && pItem) {
 		PPGoodsTaxEntry tax_entry;
 		PPObjGoods gobj;
 		FillInnerTrfrItem(pItem, &ti);
-		vect.CalcTI(&ti, p_pack->Rec.OpID, (long)tiAmtType);
+		vect.CalcTI(ti, p_pack->Rec.OpID, (long)tiAmtType);
 		gobj.FetchTax(ti.GoodsID, p_pack->Rec.Dt, p_pack->Rec.OpID, &tax_entry);
 		tax_info.TaxGrpID  = (tax_entry.TaxGrpID & 0x00ffffff);
 		tax_info.VatAmount = vect.GetValue(GTAXVF_VAT);
@@ -5501,7 +5493,7 @@ void FillFreightRec(const PPFreight * pInner, SPpyO_Freight * pOuter)
 int32 DL6ICLS_PPBillPacket::GetFreight(SPpyO_Freight * pFreight)
 {
 	int ok = -1;
-	PPBillPacket * p_pack = (PPBillPacket*)ExtraPtr;
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(ExtraPtr);
 	if(p_pack && pFreight && p_pack->P_Freight) {
 		FillFreightRec(p_pack->P_Freight, pFreight);
 		ok = 1;
@@ -5514,7 +5506,7 @@ int32 DL6ICLS_PPBillPacket::GetTagValue(long tagID, SString * pValue)
 	int    ok = -1;
 	SString val;
 	const ObjTagItem * p_tag_item = 0;
-	PPBillPacket * p_pack = (PPBillPacket*)ExtraPtr;
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(ExtraPtr);
 	if(p_pack && (p_tag_item = p_pack->BTagL.GetItem(tagID))) {
 		p_tag_item->GetStr(val);
 		ok = 1;
@@ -5525,7 +5517,7 @@ int32 DL6ICLS_PPBillPacket::GetTagValue(long tagID, SString * pValue)
 
 int32 DL6ICLS_PPBillPacket::PutTagValue(int32 tagID, SString & rValue)
 {
-	PPBillPacket * p_pack = (PPBillPacket*)ExtraPtr;
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(ExtraPtr);
 	return p_pack ? p_pack->BTagL.PutItemStr(tagID, rValue) : -1;
 }
 
@@ -5533,7 +5525,7 @@ int32 DL6ICLS_PPBillPacket::PutRowTagValue(int32 tagID, int32 rowIdx, SString & 
 {
 	int    ok = -1;
 	SString val;
-	PPBillPacket * p_pack = (PPBillPacket*)ExtraPtr;
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(ExtraPtr);
 	if(p_pack) {
 		ObjTagList tag_list;
 		ObjTagList * p_prev_tag_list = p_pack->LTagL.Get(rowIdx);
@@ -5548,7 +5540,7 @@ int32 DL6ICLS_PPBillPacket::PutRowTagValue(int32 tagID, int32 rowIdx, SString & 
 LDATE DL6ICLS_PPBillPacket::GetLastPayDate()
 {
 	LDATE dt = ZERODATE;
-	PPBillPacket * p_pack = (PPBillPacket*)ExtraPtr;
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(ExtraPtr);
 	CALLPTRMEMB(p_pack, GetLastPayDate(&dt));
 	return dt;
 }
@@ -6810,7 +6802,7 @@ DL6_IC_CONSTRUCTION_EXTRA(PPPersonRelTypePacket, DL6ICLS_PPPersonRelTypePacket_V
 //
 int32 DL6ICLS_PPPersonRelTypePacket::Init()
 {
-	PPBillPacket * p_pack = (PPBillPacket*)ExtraPtr;
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(ExtraPtr);
 	return (p_pack) ? (p_pack->destroy(), 1) : 0;
 }
 

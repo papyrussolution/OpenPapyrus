@@ -134,15 +134,13 @@
  */
 
 #if BITS_IN_JSAMPLE == 8
-#define MULTIPLY(var, const)  MULTIPLY16C16(var, const)
+	#define MULTIPLY(var, const)  MULTIPLY16C16(var, const)
 #else
-#define MULTIPLY(var, const)  ((var) * (const))
+	#define MULTIPLY(var, const)  ((var) * (const))
 #endif
-
 /*
  * Perform the forward DCT on one block of samples.
  */
-
 GLOBAL(void) jpeg_fdct_islow(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
 	INT32 tmp0, tmp1, tmp2, tmp3;
@@ -1362,19 +1360,10 @@ GLOBAL(void) jpeg_fdct_12x12(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION 
 		tmp4 = dataptr[DCTSIZE*4] - dataptr[DCTSIZE*7];
 		tmp5 = dataptr[DCTSIZE*5] - dataptr[DCTSIZE*6];
 
-		dataptr[DCTSIZE*0] = (DCTELEM)
-		    DESCALE(MULTIPLY(tmp10 + tmp11 + tmp12, FIX(0.888888889)), /* 8/9 */
-		    CONST_BITS+1);
-		dataptr[DCTSIZE*6] = (DCTELEM)
-		    DESCALE(MULTIPLY(tmp13 - tmp14 - tmp15, FIX(0.888888889)), /* 8/9 */
-		    CONST_BITS+1);
-		dataptr[DCTSIZE*4] = (DCTELEM)
-		    DESCALE(MULTIPLY(tmp10 - tmp12, FIX(1.088662108)), /* c4 */
-		    CONST_BITS+1);
-		dataptr[DCTSIZE*2] = (DCTELEM)
-		    DESCALE(MULTIPLY(tmp14 - tmp15, FIX(0.888888889)) + /* 8/9 */
-		    MULTIPLY(tmp13 + tmp15, FIX(1.214244803)),   /* c2 */
-		    CONST_BITS+1);
+		dataptr[DCTSIZE*0] = (DCTELEM)DESCALE(MULTIPLY(tmp10 + tmp11 + tmp12, FIX(0.888888889)), /* 8/9 */ CONST_BITS+1);
+		dataptr[DCTSIZE*6] = (DCTELEM)DESCALE(MULTIPLY(tmp13 - tmp14 - tmp15, FIX(0.888888889)), /* 8/9 */ CONST_BITS+1);
+		dataptr[DCTSIZE*4] = (DCTELEM)DESCALE(MULTIPLY(tmp10 - tmp12, FIX(1.088662108)), /* c4 */ CONST_BITS+1);
+		dataptr[DCTSIZE*2] = (DCTELEM)DESCALE(MULTIPLY(tmp14 - tmp15, FIX(0.888888889)) + /* 8/9 */ MULTIPLY(tmp13 + tmp15, FIX(1.214244803)),/* c2 */ CONST_BITS+1);
 
 		/* Odd part */
 

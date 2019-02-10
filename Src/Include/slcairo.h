@@ -202,11 +202,11 @@ typedef enum _cairo_content {
 #ifdef __cplusplus
 	inline cairo_scaled_glyph_info_t operator | (cairo_scaled_glyph_info_t a, cairo_scaled_glyph_info_t b)
 	{
-		return (cairo_scaled_glyph_info_t)(((int)a)|((int)b));
+		return (cairo_scaled_glyph_info_t)((static_cast<int>(a))|(static_cast<int>(b)));
 	}
 	inline cairo_content_t operator | (cairo_content_t a, cairo_content_t b)
 	{
-		return (cairo_content_t)(((int)a)|((int)b));
+		return (cairo_content_t)((static_cast<int>(a))|(static_cast<int>(b)));
 	}
 #endif
 

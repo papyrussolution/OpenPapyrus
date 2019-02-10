@@ -1868,7 +1868,7 @@ namespace NArchive {
 			AString s2;
 			ReadString2(s2, sect.Name);
 			if(!IsInstaller) {
-				if(!StringsAreEqualNoCase_Ascii(s2, "uninstall"))
+				if(!sstreqi_ascii(s2, "uninstall"))
 					name += "un.";
 			}
 			name += s2;
@@ -3296,7 +3296,7 @@ namespace NArchive {
 													AString s2;
 													ReadString2(s2, pluginPar);
 													if(s2.Len() >= 4 &&
-																StringsAreEqualNoCase_Ascii(s2.
+																sstreqi_ascii(s2.
 																	RightPtr(4), ".dll"))
 														s2.DeleteFrom(s2.Len() - 4);
 													s2 += "::";

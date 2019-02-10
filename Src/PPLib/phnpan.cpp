@@ -1,5 +1,5 @@
 // PHNPAN.CPP
-// Copyright (c) A.Sobolev 2018
+// Copyright (c) A.Sobolev 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -438,7 +438,7 @@ PhonePaneDialog * PhonePaneDialog::FindAnalogue(const char * pChannel)
 PhonePaneDialog::PhonePaneDialog(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt) : 
 	TDialog(DLG_PHNCPANE), P_PSER(pPSER), P_Box(0), P_PhnSvcCli(0), ChnlStatusReqTmr(1000)
 {
-	P_Box = (SmartListBox*)getCtrlView(CTL_PHNCPANE_INFOLIST);
+	P_Box = static_cast<SmartListBox *>(getCtrlView(CTL_PHNCPANE_INFOLIST));
 	SetupStrListBox(P_Box);
 	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 0, State::lmBill);
 	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 1, State::lmTask);

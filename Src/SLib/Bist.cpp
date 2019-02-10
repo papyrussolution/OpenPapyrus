@@ -1,5 +1,5 @@
 // BIST.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 // @threadsafe
 // –еализаци€ стандартных типов данных семейства SType
@@ -507,10 +507,10 @@ void SLAPI SLString::maxval(void * d) const
 static long FASTCALL _tolong(const void * d, int sz)
 {
 	switch(sz) {
-		case 4: return *(long *)d;
-		case 2: return (long)*(int16 *)d;
-		case 1: return (long)*(int8 *)d;
-		case 8: return (long)*(int64 *)d;
+		case 4: return *static_cast<const long *>(d);
+		case 2: return (long)*static_cast<const int16 *>(d);
+		case 1: return (long)*static_cast<const int8 *>(d);
+		case 8: return (long)*static_cast<const int64 *>(d);
 	}
 	return 0L;
 }
@@ -792,7 +792,7 @@ int SLAPI SBool::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 		}
 		else if(*pInd == 2) {
 			if(S == 8)
-				*(int64 *)pData = 1;
+				*static_cast<int64 *>(pData) = 1;
 			else
 				_longto(1, pData, S);
 		}
@@ -811,10 +811,10 @@ int SLAPI SBool::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 static ulong FASTCALL _toulong(const void * d, int sz)
 {
 	switch(sz) {
-		case 4: return *(ulong *)d;
-		case 2: return (ulong)*(uint16 *)d;
-		case 1: return (ulong)*(uchar *)d;
-		case 8: return (ulong)*(uint64 *)d;
+		case 4: return *static_cast<const ulong *>(d);
+		case 2: return (ulong)*static_cast<const uint16 *>(d);
+		case 1: return (ulong)*static_cast<const uchar *>(d);
+		case 8: return (ulong)*static_cast<const uint64 *>(d);
 	}
 	return 0;
 }
@@ -822,10 +822,10 @@ static ulong FASTCALL _toulong(const void * d, int sz)
 static void FASTCALL _ulongto(ulong ul, void * d, int sz)
 {
 	switch(sz) {
-		case 4: *(ulong  *)d = ul; break;
-		case 2: *(uint16 *)d = (uint16)ul; break;
-		case 1: *(uint8  *)d = (uint8)ul; break;
-		case 8: *(uint64 *)d = (uint64)ul; break;
+		case 4: *static_cast<ulong  *>(d) = ul; break;
+		case 2: *static_cast<uint16 *>(d) = (uint16)ul; break;
+		case 1: *static_cast<uint8  *>(d) = (uint8)ul; break;
+		case 8: *static_cast<uint64 *>(d) = (uint64)ul; break;
 	}
 }
 
@@ -838,8 +838,8 @@ SLAPI SUInt::SUInt(uint32 sz) : DataType(sz)
 int SLAPI SUInt::comp(const void * i1, const void * i2) const
 {
 	if(S == 8) {
-		const uint64 v1 = *(uint64 *)i1;
-		const uint64 v2 = *(uint64 *)i2;
+		const uint64 v1 = *static_cast<const uint64 *>(i1);
+		const uint64 v2 = *static_cast<const uint64 *>(i2);
 		return CMPSIGN(v1, v2);
 	}
 	else {
@@ -872,9 +872,9 @@ void SLAPI SUInt::minval(void * d) const { _ulongto(0L, d, S); }
 void SLAPI SUInt::maxval(void * d) const
 {
 	switch(S) {
-		case 1: *(uint8 *)d  = 255; break;
-		case 2: *(uint16 *)d = USHRT_MAX; break;
-		case 4: *(ulong *)d  = ULONG_MAX; break;
+		case 1: *static_cast<uint8 *>(d)  = 255; break;
+		case 2: *static_cast<uint16 *>(d) = USHRT_MAX; break;
+		case 4: *static_cast<ulong *>(d)  = ULONG_MAX; break;
 		default: ; //CHECK(INVALID_DATA_SIZE);
 	}
 }
@@ -990,9 +990,9 @@ SLAPI SFloat::SFloat(uint32 sz) : DataType(sz)
 static double FASTCALL __toldbl(const void * d, int s)
 {
 	switch(s) {
-		case 8: return *(double *)d;
-		case 4: return (double)*(float *)d;
-		case 10: return (double)*(long double *)d;
+		case 8: return *static_cast<const double *>(d);
+		case 4: return (double)*static_cast<const float *>(d);
+		case 10: return (double)*static_cast<const long double *>(d);
 	}
 	return 0.0;
 }
@@ -1001,12 +1001,12 @@ static double FASTCALL __toldbl(const void * d, int s)
 
 static void SLAPI __ldblto(double v, void * d, int s)
 {
-	if(s == 8)
-		*(double *)d = v;
-	else if(s == 10)
-		*(long double *)d = v;
-	else if(s == 4)
-		*(float *)d = (float)v;
+	switch(s) {
+		case 8: *(double *)d = v; break;
+		case 4: *(float *)d = (float)v; break;
+		case 10: *(long double *)d = v; break;
+		default: break;
+	}
 }
 
 int SLAPI SFloat::comp(const void * i1, const void * i2) const
@@ -1048,9 +1048,9 @@ static const float max_flt = (float)MAXFLOAT;
 void SLAPI SFloat::minval(void * d) const
 {
 	switch(S) {
-		case  8: *(double *)d = -SMathConst::Max; break;
-		case  4: *(float *)d  = -max_flt; break;
-		case 10: *(LDBL *)d   = -SMathConst::Max; break;
+		case  8: *static_cast<double *>(d) = -SMathConst::Max; break;
+		case  4: *static_cast<float *>(d)  = -max_flt; break;
+		case 10: *static_cast<LDBL *>(d)   = -SMathConst::Max; break;
 		// default: assert(INVALID_DATA_SIZE);
 	}
 }
@@ -1058,9 +1058,9 @@ void SLAPI SFloat::minval(void * d) const
 void SLAPI SFloat::maxval(void * d) const
 {
 	switch(S) {
-		case  8: *(double *)d = SMathConst::Max; break;
-		case  4: *(float *)d  = max_flt; break;
-		case 10: *(LDBL *)d   = SMathConst::Max; break;
+		case  8: *static_cast<double *>(d) = SMathConst::Max; break;
+		case  4: *static_cast<float *>(d)  = max_flt; break;
+		case 10: *static_cast<LDBL *>(d)   = SMathConst::Max; break;
 		// default: assert(INVALID_DATA_SIZE);
 	}
 }
@@ -1099,7 +1099,7 @@ int SLAPI SFloat::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf,
 				// ≈сли преобразование (double)-->(float) не приводит к потере
 				// значимости, то в потоке сохран€ем значение как float
 				//
-				float fv = (float)v;
+				float fv = static_cast<float>(v);
 				double dv = fv;
 				if(dv == v) {
 					*pInd = 5;
@@ -1173,7 +1173,7 @@ uint32 SLAPI SDecimal::size() const // @v10.2.1
 
 int SLAPI SDecimal::comp(const void * i1, const void * i2) const
 {
-	return deccmp((char *)i1, (char *)i2, (int16)(S & 0x00ff));
+	return deccmp(static_cast<const char *>(i1), static_cast<const char *>(i2), (int16)(S & 0x00ff));
 }
 
 char * SLAPI SDecimal::tostr(const void * d, long fmt, char * buf) const
@@ -1185,25 +1185,25 @@ char * SLAPI SDecimal::tostr(const void * d, long fmt, char * buf) const
 		f = MKSFMTD(0, (S >> 8), 0);
 	else
 		f = fmt;
-	return realfmt(dectobin((char *)d, (int16)(S & 0x00ff), (int16)(S >> 8)), f, buf); // @v9.8.4 @fix fmt-->f
+	return realfmt(dectobin(static_cast<const char *>(d), (int16)(S & 0x00ff), (int16)(S >> 8)), f, buf); // @v9.8.4 @fix fmt-->f
 }
 
 int SLAPI SDecimal::fromstr(void * d, long, const char * buf) const
 {
 	double v;
 	int    r = strtodoub(buf, &v);
-	dectodec(v, (char *) d, (int16)(S & 0x00ff), (int16)(S >> 8));
+	dectodec(v, static_cast<char *>(d), (int16)(S & 0x00ff), (int16)(S >> 8));
 	return r;
 }
 
 int SLAPI SDecimal::tobase(const void * d, void * baseData) const
 {
-	return ((*(double *)baseData = dectobin((char *)d, (int16)(S & 0x00ff), (int16)(S >> 8))), 1);
+	return ((*static_cast<double *>(baseData) = dectobin(static_cast<const char *>(d), (int16)(S & 0x00ff), (int16)(S >> 8))), 1);
 }
 
 int SLAPI SDecimal::baseto(void * d, const void * baseData) const
 {
-	return (dectodec(*(double *)baseData, (char *)d, (int16)(S & 0x00ff), (int16)(S >> 8)), 1);
+	return (dectodec(*static_cast<const double *>(baseData), static_cast<char *>(d), (int16)(S & 0x00ff), (int16)(S >> 8)), 1);
 }
 
 static void FASTCALL _bound(void * d, int s, int sign)
@@ -1211,7 +1211,7 @@ static void FASTCALL _bound(void * d, int s, int sign)
 	int    sz = (s & 0x00ff);
 	int    dec = (s >> 8);
 	LDBL   v = (pow(10.0, sz * 2 - 1) - 1) / pow(10.0, dec);
-	dectodec(sign ? -v : v, (char *) d, sz, dec);
+	dectodec(sign ? -v : v, static_cast<char *>(d), sz, dec);
 }
 
 void SLAPI SDecimal::minval(void * d) const { _bound(d, S, 1); }
@@ -1230,7 +1230,7 @@ int SLAPI SDate::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 {
 	int    ok = 1;
 	if(dir > 0) {
-		LDATE v = *(LDATE *)pData;
+		LDATE v = *static_cast<const LDATE *>(pData);
 		if(v == ZERODATE) {
 			*pInd = 1;
 		}
@@ -1288,7 +1288,7 @@ int SLAPI SDate::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 				else {
 					THROW_S(0, SLERR_SRLZ_INVDATAIND);
 				}
-				*(LDATE *)pData = v;
+				*static_cast<LDATE *>(pData) = v;
 			}
 		}
 	}
@@ -1309,7 +1309,7 @@ int SLAPI STime::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 {
 	int    ok = 1;
 	if(dir > 0) {
-		LTIME  v = *(LTIME *)pData;
+		LTIME  v = *static_cast<const LTIME *>(pData);
 		if(v == ZEROTIME) {
 			*pInd = 1;
 		}
@@ -1370,7 +1370,7 @@ int SLAPI STime::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 				else {
 					THROW_S(0, SLERR_SRLZ_INVDATAIND);
 				}
-				*(LTIME *)pData = v;
+				*static_cast<LTIME *>(pData) = v;
 			}
 		}
 	}
@@ -1386,7 +1386,7 @@ SLAPI SDateTime::SDateTime() : DataType(sizeof(LDATETIME))
 
 char * SLAPI SDateTime::tostr(const void * v, long f, char * b) const
 {
-	const LDATETIME * p_dtm = (const LDATETIME *)v;
+	const LDATETIME * p_dtm = static_cast<const LDATETIME *>(v);
 	char   t[256];
 	char * p = t;
 	datefmt(&p_dtm->d, MKSFMT(0, SFMTFLAG(f)), p);
@@ -1402,7 +1402,7 @@ int SLAPI SDateTime::fromstr(void * v, long f, const char * b) const
 {
 	int    ret = 0;
 	const  char * s = strchr(b, ' ');
-	LDATETIME * ldt = (LDATETIME *)v;
+	LDATETIME * ldt = static_cast<LDATETIME *>(v);
 	if(!s++)
 		ret = SLERR_INVFORMAT;
 	else {
@@ -1414,19 +1414,19 @@ int SLAPI SDateTime::fromstr(void * v, long f, const char * b) const
 
 void SLAPI SDateTime::minval(void * d) const
 {
-	*(LDATETIME *)d = ZERODATETIME;
+	*static_cast<LDATETIME *>(d) = ZERODATETIME;
 }
 
 void SLAPI SDateTime::maxval(void * d) const
 {
-	LDATETIME * ldt = (LDATETIME *)d;
+	LDATETIME * ldt = static_cast<LDATETIME *>(d);
 	ldt->d.encode(1, 1, 3000);
 	ldt->t = MAXTIME;
 }
 
 int SLAPI SDateTime::comp(const void * i1, const void * i2) const
 {
-	return cmp(*(LDATETIME *)i1, *(LDATETIME *)i2);
+	return cmp(*static_cast<const LDATETIME *>(i1), *static_cast<const LDATETIME *>(i2));
 }
 
 int SLAPI SDateTime::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx)
@@ -1439,7 +1439,7 @@ int SLAPI SDateTime::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rB
 		else {
 			uint8 ind_d = 0;
 			uint8 ind_t = 0;
-			LDATETIME v = *(LDATETIME *)pData;
+			LDATETIME v = *static_cast<const LDATETIME *>(pData);
 			SDate _td;
 			STime _tt;
 			THROW(_td.Serialize(dir, &v.d, &ind_d, rBuf, pCtx));
@@ -1462,7 +1462,7 @@ int SLAPI SDateTime::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rB
 			STime _tt;
 			THROW(_td.Serialize(dir, &v.d, &ind_d, rBuf, pCtx));
 			THROW(_tt.Serialize(dir, &v.t, &ind_t, rBuf, pCtx));
-			*(LDATETIME *)pData = v;
+			*static_cast<LDATETIME *>(pData) = v;
 		}
 	}
 	CATCHZOK
@@ -1520,14 +1520,14 @@ SLAPI SIPoint2::SIPoint2(uint32 sz) : DataType(sz)
 
 int SLAPI SIPoint2::comp(const void * i1, const void * i2) const
 {
-	FPoint p1 = *(TPoint *)i1;
-	FPoint p2 = *(TPoint *)i2;
+	FPoint p1 = *static_cast<const TPoint *>(i1);
+	FPoint p2 = *static_cast<const TPoint *>(i2);
 	return CMPSIGN(p1.Hypot(), p2.Hypot());
 }
 
 char * SLAPI SIPoint2::tostr(const void * s, long fmt, char * pBuf) const
 {
-	const TPoint * p_pnt = (const TPoint *)s;
+	const TPoint * p_pnt = static_cast<const TPoint *>(s);
 	char * p = pBuf;
 	itoa(p_pnt->x, p, 10);
 	p += sstrlen(p);
@@ -1541,7 +1541,7 @@ int SLAPI SIPoint2::fromstr(void * s, long, const char * pStr) const
 	RPoint p;
 	p.Set(0.0);
 	if(p.FromStr(pStr)) {
-		((TPoint *)s)->Set((int)p.x, (int)p.y);
+		static_cast<TPoint *>(s)->Set((int)p.x, (int)p.y);
 		return 1;
 	}
 	else
@@ -1555,32 +1555,32 @@ int SLAPI SIPoint2::base() const
 
 int SLAPI SIPoint2::tobase(const void * s, void * b) const
 {
-	RPoint * p_rp = (RPoint *)b;
-	p_rp->x = ((const TPoint *)s)->x;
-	p_rp->y = ((const TPoint *)s)->y;
+	RPoint * p_rp = static_cast<RPoint *>(b);
+	p_rp->x = static_cast<const TPoint *>(s)->x;
+	p_rp->y = static_cast<const TPoint *>(s)->y;
 	return 1;
 }
 
 int SLAPI SIPoint2::baseto(void * s, const void * b) const
 {
-	((TPoint *)s)->Set((int)((const RPoint *)b)->x, (int)((const RPoint *)b)->y);
+	static_cast<TPoint *>(s)->Set((int)static_cast<const RPoint *>(b)->x, (int)static_cast<const RPoint *>(b)->y);
 	return 1;
 }
 
 void SLAPI SIPoint2::minval(void * s) const
 {
-	((TPoint *)s)->Set(0, 0);
+	static_cast<TPoint *>(s)->Set(0, 0);
 }
 
 void SLAPI SIPoint2::maxval(void * s) const
 {
-	((TPoint *)s)->Set(0x7fff, 0x7fff);
+	static_cast<TPoint *>(s)->Set(0x7fff, 0x7fff);
 }
 
 int SLAPI SIPoint2::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
-	TPoint & r_p = *(TPoint *)pData;
+	TPoint & r_p = *static_cast<TPoint *>(pData);
 	if(dir > 0) {
 		if(r_p.x == r_p.y) {
 			if(r_p.x == 0) {
@@ -1622,12 +1622,12 @@ SLAPI SFPoint2::SFPoint2(uint32 sz) : DataType(sz)
 
 int SLAPI SFPoint2::comp(const void * i1, const void * i2) const
 {
-	return CMPSIGN(((FPoint *)i1)->Hypot(), ((FPoint *)i2)->Hypot());
+	return CMPSIGN(static_cast<const FPoint *>(i1)->Hypot(), static_cast<const FPoint *>(i2)->Hypot());
 }
 
 char * SLAPI SFPoint2::tostr(const void * pData, long f, char * pBuf) const
 {
-	const FPoint * p_pnt = (const FPoint *)pData;
+	const FPoint * p_pnt = static_cast<const FPoint *>(pData);
 	char * p = pBuf;
 	realfmt(p_pnt->X, MKSFMTD(0, 5, NMBF_NOTRAILZ), p);
 	p += sstrlen(p);
@@ -1641,7 +1641,7 @@ int SLAPI SFPoint2::fromstr(void * pData, long, const char * pStr) const
 	RPoint p;
 	p.Set(0.0);
 	if(p.FromStr(pStr)) {
-		((FPoint *)pData)->Set((float)p.x, (float)p.y);
+		static_cast<FPoint *>(pData)->Set((float)p.x, (float)p.y);
 		return 1;
 	}
 	else
@@ -1655,26 +1655,26 @@ int SLAPI SFPoint2::base() const
 
 int SLAPI SFPoint2::tobase(const void * pData, void * pBase) const
 {
-	RPoint * p_rp = (RPoint *)pBase;
-	p_rp->x = ((const FPoint *)pData)->X;
-	p_rp->y = ((const FPoint *)pData)->Y;
+	RPoint * p_rp = static_cast<RPoint *>(pBase);
+	p_rp->x = static_cast<const FPoint *>(pData)->X;
+	p_rp->y = static_cast<const FPoint *>(pData)->Y;
 	return 1;
 }
 
 int SLAPI SFPoint2::baseto(void * pData, const void * pBase) const
 {
-	((FPoint *)pData)->Set((float)((const RPoint *)pBase)->x, (float)((const RPoint *)pBase)->y);
+	static_cast<FPoint *>(pData)->Set((float)((const RPoint *)pBase)->x, (float)((const RPoint *)pBase)->y);
 	return 1;
 }
 
 void SLAPI SFPoint2::minval(void * pData) const
 {
-	((FPoint *)pData)->Set(0.0f, 0.0f);
+	static_cast<FPoint *>(pData)->Set(0.0f, 0.0f);
 }
 
 void SLAPI SFPoint2::maxval(void * pData) const
 {
-	((FPoint *)pData)->Set(32000.0f, 32000.0f);
+	static_cast<FPoint *>(pData)->Set(32000.0f, 32000.0f);
 }
 
 int SLAPI SFPoint2::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx)
@@ -1721,22 +1721,22 @@ SLAPI  SGuid::SGuid() : DataType(sizeof(S_GUID))
 char * SLAPI SGuid::tostr(const void * pData, long f, char * pBuf) const
 {
 	SString temp_buf;
-	((S_GUID *)pData)->ToStr(S_GUID::fmtIDL, temp_buf);
+	static_cast<const S_GUID *>(pData)->ToStr(S_GUID::fmtIDL, temp_buf);
 	temp_buf.CopyTo(pBuf, 0);
 	return pBuf;
 }
 
 int SLAPI SGuid::fromstr(void * pData, long f, const char * pStr) const
 {
-	return ((S_GUID *)pData)->FromStr(pStr);
+	return static_cast<S_GUID *>(pData)->FromStr(pStr);
 }
 
 int SLAPI SGuid::base() const
 	{ return BTS_STRING; }
 int SLAPI SGuid::tobase(const void * pData, void * pBase) const
-	{ tostr(pData, 0L, (char *)pBase); return 1; }
+	{ tostr(pData, 0L, static_cast<char *>(pBase)); return 1; }
 int SLAPI SGuid::baseto(void * pData, const void * pBase) const
-	{ fromstr(pData, 0L, (char *)pBase); return 1; }
+	{ fromstr(pData, 0L, static_cast<const char *>(pBase)); return 1; }
 
 void SLAPI SGuid::minval(void * pData) const
 {

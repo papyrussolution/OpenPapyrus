@@ -908,7 +908,7 @@ IMPL_HANDLE_EVENT(FastEditSumByDivDlg)
 	PPListDialog::handleEvent(event);
 	if(TVCOMMAND) {
 		if(TVCMD == cmLBItemSelected && event.isCtlEvent(CTL_EDDIVSUM_DIV)) {
-			SmartListBox * p_lb = (SmartListBox*)getCtrlView(CTL_EDDIVSUM_DIV);
+			SmartListBox * p_lb = static_cast<SmartListBox *>(getCtrlView(CTL_EDDIVSUM_DIV));
 			if(p_lb) {
 				long id = 0;
 				p_lb->getCurID(&id);
@@ -1049,7 +1049,7 @@ StrAssocArray * FastEditSumByDivDlg::MakeSumList(long divID)
 int FastEditSumByDivDlg::SetupDivList()
 {
 	int ok = 0;
-	SmartListBox * p_lb = (SmartListBox *)getCtrlView(CTL_EDDIVSUM_DIV);
+	SmartListBox * p_lb = static_cast<SmartListBox *>(getCtrlView(CTL_EDDIVSUM_DIV));
 	if(p_lb) {
 		StrAssocArray * p_div_list = MakeDivList();
 		if(p_div_list) {
@@ -1182,7 +1182,7 @@ int FastEditSumByDivDlg::setupList()
 {
 	int ok = 1;
 	StrAssocArray * p_list = MakeSumList(CurDivID);
-	SmartListBox * p_lb = (SmartListBox*)getCtrlView(CTL_EDDIVSUM_SUM);
+	SmartListBox * p_lb = static_cast<SmartListBox *>(getCtrlView(CTL_EDDIVSUM_SUM));
 	if(p_list && p_lb) {
 		ListBoxDef * p_def = new StrAssocListBoxDef(p_list, lbtDblClkNotify|lbtFocNotify|lbtDisposeData);
 		THROW_MEM(p_def);
@@ -1236,7 +1236,7 @@ IMPL_HANDLE_EVENT(FastEditDivBySumDlg)
 	PPListDialog::handleEvent(event);
 	if(TVCOMMAND) {
 		if(TVCMD == cmLBItemSelected && event.isCtlEvent(CTL_VIEWSUMDIV_SUM)) {
-			SmartListBox * p_lb = (SmartListBox*)getCtrlView(CTL_VIEWSUMDIV_SUM);
+			SmartListBox * p_lb = static_cast<SmartListBox *>(getCtrlView(CTL_VIEWSUMDIV_SUM));
 			if(p_lb) {
 				long id = 0;
 				p_lb->getCurID(&id);
@@ -1377,7 +1377,7 @@ StrAssocArray * FastEditDivBySumDlg::MakeSumList()
 int FastEditDivBySumDlg::SetupSumList()
 {
 	int ok = 0;
-	SmartListBox * p_lb = (SmartListBox *)getCtrlView(CTL_VIEWSUMDIV_SUM);
+	SmartListBox * p_lb = static_cast<SmartListBox *>(getCtrlView(CTL_VIEWSUMDIV_SUM));
 	if(p_lb) {
 		StrAssocArray * p_list = MakeSumList();
 		if(p_list) {
@@ -1439,7 +1439,6 @@ int FastEditDivBySumDlg::EditCalendar(PPID divID, PPID parentCalID)
 	DivType divt;
 	PPID real_div_id = GetRealDivID(&ObjPsn, divID, &divt);
 	StrAssocArray * p_div_cal_list = 0;
-
 	THROW(ObjStaffCal.CheckRights(PPR_MOD));
 	{
 		StaffCalFilt sc_flt;
@@ -1491,7 +1490,7 @@ int FastEditDivBySumDlg::setupList()
 {
 	int ok = 1;
 	StrAssocArray * p_list = MakeDivList(CurAmtID);
-	SmartListBox * p_lb = (SmartListBox*)getCtrlView(CTL_VIEWSUMDIV_DIV);
+	SmartListBox * p_lb = static_cast<SmartListBox *>(getCtrlView(CTL_VIEWSUMDIV_DIV));
 	if(p_list && p_lb) {
 		ListBoxDef * p_def = new StrAssocListBoxDef(p_list, lbtDblClkNotify|lbtFocNotify|lbtDisposeData);
 		THROW_MEM(p_def);

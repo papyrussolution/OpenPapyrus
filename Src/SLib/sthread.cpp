@@ -145,27 +145,12 @@ SLAPI BlockingCounter::BlockingCounter() : ExclusiveAccess(0, 0), Count(0)
 {
 }
 
-int SLAPI BlockingCounter::Value() const
-{
-	return Count;
-}
-
-int SLAPI BlockingCounter::IsClear() const
-{
-	return (Count == 0);
-}
-
+int SLAPI BlockingCounter::Value() const { return Count; }
+int SLAPI BlockingCounter::IsClear() const { return (Count == 0); }
 // Blocks until the counter is clear
-int SLAPI BlockingCounter::WaitUntilClear()
-{
-	return ClearEvent.Wait(-1);
-}
-
+int SLAPI BlockingCounter::WaitUntilClear() { return ClearEvent.Wait(-1); }
 // Blocks until the counter is dirty
-int SLAPI SLAPI BlockingCounter::WaitUntilDirty()
-{
-	return DirtyEvent.Wait(-1);
-}
+int SLAPI SLAPI BlockingCounter::WaitUntilDirty() { return DirtyEvent.Wait(-1); }
 
 // Non-blocking increment
 int SLAPI BlockingCounter::Increment()
@@ -725,8 +710,8 @@ int FASTCALL SlThread::Start(int waitOnStartup)
 	if(!(State & stRunning)) {
 		P_Creation = new Evnt;
 		uint   tmp_id;
-		Handle = (ThreadHandle)_beginthreadex(0, 0, _Exec, this, 0, &tmp_id);
-		ID = (ThreadID)tmp_id;
+		Handle = reinterpret_cast<ThreadHandle>(_beginthreadex(0, 0, _Exec, this, 0, &tmp_id));
+		ID = static_cast<ThreadID>(tmp_id);
 		SETFLAG(State, stRunning, Handle);
 		// Now the new thread may run
 		if(State & stRunning) {
@@ -754,7 +739,7 @@ void SLAPI SlThread::Stop(long timeout)
 //
 int SLAPI SlThread::Terminate()
 {
-	int    ok = BIN(TerminateThread(Handle, (DWORD)-1));
+	int    ok = BIN(TerminateThread(Handle, static_cast<DWORD>(-1)));
 	State &= ~stRunning;
 	return ok;
 }
@@ -817,19 +802,16 @@ void SLAPI SlThread::Run()
 //static
 ThreadProcReturn THREADPROCCALL SlThread::_Exec(void * pThis)
 {
-	{
-		// MemLeakTracer mlt; // @debug
-		SlThread * p_this = (SlThread *)pThis;
-		if(p_this->P_Creation) {
-			p_this->P_Creation->Wait();
-			ZDELETE(p_this->P_Creation);
-		}
-		p_this->Startup();
-		p_this->Run();
-		p_this->Shutdown();
-		p_this->Reset();
-		delete p_this;
+	SlThread * p_this = static_cast<SlThread *>(pThis);
+	if(p_this->P_Creation) {
+		p_this->P_Creation->Wait();
+		ZDELETE(p_this->P_Creation);
 	}
+	p_this->Startup();
+	p_this->Run();
+	p_this->Shutdown();
+	p_this->Reset();
+	delete p_this;
 	return 0;
 }
 //
@@ -838,14 +820,12 @@ ThreadProcReturn THREADPROCCALL SlThread::_Exec(void * pThis)
 //static 
 uint FASTCALL SLockStack::WRLT_to_LSLT(SReadWriteLocker::Type wrlt)
 {
-	if(wrlt == SReadWriteLocker::Read)
-		return ltRW_R;
-	else if(wrlt == SReadWriteLocker::Write)
-		return ltRW_W;
-	else if(wrlt == SReadWriteLocker::None)
-		return ltNone;
-	else
-		return 1000; // UNKNOWN
+	switch(wrlt) {
+		case SReadWriteLocker::Read: return ltRW_R;
+		case SReadWriteLocker::Write: return ltRW_W;
+		case SReadWriteLocker::None: return ltNone;
+		default: return 1000; // UNKNOWN
+	}
 }
 
 SLAPI SLockStack::SLockStack()
@@ -879,7 +859,7 @@ void SLAPI SLockStack::ToStr(SString & rBuf) const
 {
 	SString temp_buf;
 	for(uint i = 0; i < S.getPointer(); i++) {
-		const Entry & r_entry = *(const Entry *)S.at(i);
+		const Entry & r_entry = *static_cast<const Entry *>(S.at(i));
 		switch(r_entry.LockType) {
 			case ltNone: rBuf.Cat("NONE"); break;
 			case ltCS: rBuf.Cat("CS"); break;

@@ -361,7 +361,7 @@ int SLAPI PPObjSecur::Read(PPObjPack * p, PPID id, void * stream, ObjTransmConte
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW(SerializePacket(-1, (PPSecurPacket *)p->Data, buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
@@ -394,7 +394,7 @@ int SLAPI PPObjSecur::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 		else {
 			SBuffer buffer;
 			THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 		}
 	}
 	else
@@ -756,7 +756,7 @@ public:
 int SLAPI UserCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	Data * p_cache_rec = (Data *)pEntry;
+	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjSecur sec_obj(PPOBJ_USR, 0);
 	PPSecur rec;
 	if(sec_obj.Search(id, &rec) > 0) {
@@ -775,7 +775,7 @@ int SLAPI UserCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 void SLAPI UserCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPSecur * p_data_rec = (PPSecur *)pDataRec;
-	const Data * p_cache_rec = (const Data *)pEntry;
+	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	p_data_rec->Tag   = ObjType;
 	p_data_rec->ID    = p_cache_rec->ID;

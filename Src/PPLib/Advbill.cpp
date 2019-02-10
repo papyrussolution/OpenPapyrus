@@ -296,7 +296,7 @@ void AdvBillItemDialog::editLink()
 					if(bill_view.Init_(&bill_filt)) {
 						if(bill_view.Browse(0) > 0) {
 							int r = -1;
-							bill_id = ((BillFilt*)bill_view.GetBaseFilt())->Sel;
+							bill_id = static_cast<const BillFilt *>(bill_view.GetBaseFilt())->Sel;
 							//
 							// ѕроверка на то, чтобы на выбранный документ не было
 							// ссылок в этом или других авансовых отчетах

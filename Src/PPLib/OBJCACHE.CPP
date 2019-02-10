@@ -141,11 +141,11 @@ int SLAPI ObjCache::PackNames()
 	int    ok = -1;
 	const size_t ss_len = Ss.getDataLen();
 	if(ss_len > (1024*1024)) {
-		double p = ((double)UnusedNameSpace * 100) / (double)ss_len;
+		double p = fdivui(UnusedNameSpace * 100, ss_len);
 		if(p > UNUSED_NAME_SPACE_THRESOULD) {
 			const uint64 pt = SLS.GetProfileTime();
 			if(!LastPackNamesClock || (pt - LastPackNamesClock) > 1000000000i64) { // 1sec (чистое процессорное время) @v8.1.5 // @v9.0.8 60-->1
-				PPUserFuncProfiler ufp(PPUPRF_PACKCACHETEXT); // @v8.1.4
+				PPUserFuncProfiler ufp(PPUPRF_PACKCACHETEXT);
 				SString temp_buf;
 				StringSet tempss;
 				tempss.add("$"); // zero index - is empty string
@@ -191,7 +191,7 @@ ObjCacheEntry * FASTCALL ObjCache::SearchByPos(uint pos, int incr) const
 {
 	ObjCacheEntry * p_entry = 0;
 	if(P_Ary && pos < P_Ary->getCount()) {
-		p_entry = (ObjCacheEntry *)P_Ary->at(pos);
+		p_entry = static_cast<ObjCacheEntry *>(P_Ary->at(pos));
 		if(incr)
 			p_entry->Counter.Incr();
 	}
@@ -259,11 +259,11 @@ int SLAPI ObjCache::Put(PPID id, uint * p, long extraData)
 	ObjCacheEntry * p_entry = 0;
 	int    new_buf = 0;
 	if(EntrySize > sizeof(temp_buf)) {
-		THROW_MEM(p_entry = (ObjCacheEntry*)SAlloc::M(EntrySize));
+		THROW_MEM(p_entry = static_cast<ObjCacheEntry *>(SAlloc::M(EntrySize)));
 		new_buf = 1;
 	}
 	else
-		p_entry = (ObjCacheEntry *)temp_buf;
+		p_entry = reinterpret_cast<ObjCacheEntry *>(temp_buf);
 	memzero(p_entry, EntrySize);
 	THROW(ok = FetchEntry(id, p_entry, extraData));
 	if(ok > 0) {
@@ -319,11 +319,11 @@ int FASTCALL ObjCache::Helper_Get(PPID id, void * pDataRec)
 		ObjCacheEntry * p_undef_entry = 0;
 		int    new_temp_buf = 0;
 		if(EntrySize > sizeof(undef_buf)) {
-			p_undef_entry = (ObjCacheEntry *)new uint8[EntrySize];
+			p_undef_entry = reinterpret_cast<ObjCacheEntry *>(new uint8[EntrySize]);
 			new_temp_buf = 1;
 		}
 		else
-			p_undef_entry = (ObjCacheEntry *)undef_buf;
+			p_undef_entry = reinterpret_cast<ObjCacheEntry *>(undef_buf);
 		p_undef_entry->ID = id;
 		p_undef_entry->F  = ObjCacheEntry::fUndef;
 		EntryToData(p_undef_entry, pDataRec);
@@ -500,7 +500,7 @@ int SLAPI ObjCacheHash::Init(size_t cacheSize, uint maxTries)
 	MaxTries = (maxTries > 0 && maxTries < MaxItems / 4) ? maxTries : DEF_OBJCACHEHASH_MAXTRIES;
 	const  uint delta = MaxItems / 16;
 	do {
-		P_Items = (ObjCacheEntry *)SAlloc::C(MaxItems, EntrySize);
+		P_Items = static_cast<ObjCacheEntry *>(SAlloc::C(MaxItems, EntrySize));
 	} while(!P_Items && (MaxItems -= delta) > delta);
 	if(P_Items == 0) {
 		MaxItems = 0;
@@ -537,7 +537,7 @@ ObjCacheEntry * FASTCALL ObjCacheHash::SearchByPos(uint pos, int incr) const
 {
 	ObjCacheEntry * p_entry = 0;
 	if(pos < MaxItems) {
-		p_entry = (ObjCacheEntry *)(((int8 *)P_Items) + pos * EntrySize);
+		p_entry = reinterpret_cast<ObjCacheEntry *>(((int8 *)P_Items) + pos * EntrySize);
 		if(incr)
 			p_entry->Counter.Incr();
 	}
@@ -650,7 +650,7 @@ int SLAPI DbLocalCacheMng::SetDeferredState(long dbPathID, int set)
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
 		uint   pos = 0;
 		if(DbEntryList.lsearch(&dbPathID, &pos, CMPF_LONG)) {
-			CDbEntry * p_entry = (CDbEntry *)DbEntryList.at(pos);
+			CDbEntry * p_entry = static_cast<CDbEntry *>(DbEntryList.at(pos));
 			SETFLAG(p_entry->State, stDeferred, set);
 			ok = 1;
 		}
@@ -665,7 +665,7 @@ int FASTCALL DbLocalCacheMng::IsDeferredState(long dbPathID)
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		uint   pos = 0;
 		if(DbEntryList.lsearch(&dbPathID, &pos, CMPF_LONG)) {
-			result = BIN(((CDbEntry *)DbEntryList.at(pos))->State & stDeferred);
+			result = BIN(static_cast<CDbEntry *>(DbEntryList.at(pos))->State & stDeferred);
 		}
 	}
 	return result;
@@ -685,13 +685,13 @@ int SLAPI DbLocalCacheMng::HasDbEntry(long dbPathID)
 //virtual
 void FASTCALL DbLocalCacheMng::freeItem(void * pItem)
 {
-	DbLocalCacheEntry * p_item = (DbLocalCacheEntry *)pItem;
+	DbLocalCacheEntry * p_item = static_cast<DbLocalCacheEntry *>(pItem);
 	if(p_item) {
 		if(p_item->ObjType == PPOBJ_ADVEVENTQUEUE) {
-			delete (PPAdviseEventQueue *)(p_item->P_Cache);
+			delete static_cast<PPAdviseEventQueue *>(p_item->P_Cache);
 		}
 		else {
-			delete (ObjCache *)(p_item->P_Cache);
+			delete static_cast<ObjCache *>(p_item->P_Cache);
 		}
 		p_item->P_Cache = 0;
 	}
@@ -734,20 +734,20 @@ void * SLAPI DbLocalCacheMng::Helper_GetEntry(long dbPathID, PPID objType, int l
 ObjCache * FASTCALL DbLocalCacheMng::GetCache(long dbPathID, PPID objType)
 {
 	assert(objType != PPOBJ_ADVEVENTQUEUE);
-	return (ObjCache *)Helper_GetEntry(dbPathID, objType, 1);
+	return static_cast<ObjCache *>(Helper_GetEntry(dbPathID, objType, 1));
 }
 
 PPAdviseEventQueue * FASTCALL DbLocalCacheMng::GetAdviseEventQueue(long dbPathID)
 {
 	PPAdviseEventQueue * p_queue = 0;
 	if(dbPathID) {
-		p_queue = (PPAdviseEventQueue *)Helper_GetEntry(dbPathID, PPOBJ_ADVEVENTQUEUE, 1);
+		p_queue = static_cast<PPAdviseEventQueue *>(Helper_GetEntry(dbPathID, PPOBJ_ADVEVENTQUEUE, 1));
 		if(!p_queue) {
 			SRWLOCKER(RwL, SReadWriteLocker::Write);
 			//
 			// Возможно, пока мы ждали, объект уже был создан
 			//
-			p_queue = (PPAdviseEventQueue *)Helper_GetEntry(dbPathID, PPOBJ_ADVEVENTQUEUE, 0 /* without locking */);
+			p_queue = static_cast<PPAdviseEventQueue *>(Helper_GetEntry(dbPathID, PPOBJ_ADVEVENTQUEUE, 0 /* without locking */));
 			if(!p_queue) {
 				p_queue = new PPAdviseEventQueue;
 				if(p_queue) {
@@ -795,7 +795,7 @@ LDATETIME FASTCALL DbLocalCacheMng::GetLastUpdate(long dbPathID)
 	{
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		if(DbEntryList.lsearch(&dbPathID, &pos, CMPF_LONG))
-			dtm = ((CDbEntry *)DbEntryList.at(pos))->LastCacheUpdate;
+			dtm = static_cast<CDbEntry *>(DbEntryList.at(pos))->LastCacheUpdate;
 	}
 	return dtm;
 }
@@ -806,7 +806,7 @@ int SLAPI DbLocalCacheMng::SetLastUpdate(long dbPathID, LDATETIME dtm)
 	{
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
 		if(DbEntryList.lsearch(&dbPathID, &pos, CMPF_LONG)) {
-			((CDbEntry *)DbEntryList.at(pos))->LastCacheUpdate = dtm;
+			static_cast<CDbEntry *>(DbEntryList.at(pos))->LastCacheUpdate = dtm;
 		}
 		else {
 			CDbEntry entry;
@@ -828,11 +828,11 @@ int SLAPI DbLocalCacheMng::GetCacheStat(uint pos, ObjCacheStat * pStat)
 			DbLocalCacheEntry * p_entry = &at(pos);
 			if(p_entry && p_entry->P_Cache) {
 				if(p_entry->ObjType == PPOBJ_ADVEVENTQUEUE) {
-					PPAdviseEventQueue * p_queue = (PPAdviseEventQueue *)p_entry->P_Cache;
+					PPAdviseEventQueue * p_queue = static_cast<PPAdviseEventQueue *>(p_entry->P_Cache);
 					// @todo
 				}
 				else {
-					((ObjCache *)p_entry->P_Cache)->GetStat(pStat);
+					static_cast<ObjCache *>(p_entry->P_Cache)->GetStat(pStat);
 					pStat->DbPathID = p_entry->DbPathID;
 					pStat->ObjType  = p_entry->ObjType;
 					DBS.GetDbPath(p_entry->DbPathID, pStat->DbPath);
@@ -869,11 +869,11 @@ int SLAPI DbLocalCacheMng::LogCacheStat()
 					out_buf.Cat(stat.Count).Semicol();
 					out_buf.Cat(stat.Hits).Semicol();
 					out_buf.Cat(stat.Misses).Semicol();
-					out_buf.Cat((double)stat.Hits / (double)stat.Count, MKSFMTD(0, 6, NMBF_NOTRAILZ)).Semicol();
+					out_buf.Cat(fdivi(stat.Hits, stat.Count), MKSFMTD(0, 6, NMBF_NOTRAILZ)).Semicol();
 					out_buf.Cat(stat.Collisions).Semicol();
 					out_buf.Cat(stat.NumEntries).Semicol();
 					out_buf.Cat(stat.UnusedEntries).Semicol();
-					out_buf.Cat((double)stat.UnusedEntries / (double)stat.NumEntries, MKSFMTD(0, 6, NMBF_NOTRAILZ)).Semicol();
+					out_buf.Cat(fdivi(stat.UnusedEntries, stat.NumEntries), MKSFMTD(0, 6, NMBF_NOTRAILZ)).Semicol();
 					out_buf.Cat(stat.DirtyEntries).Semicol();
 					out_buf.Cat(stat.SsSize).Semicol(); // @v9.9.5
 					out_buf.Cat(stat.SsDataLen).Semicol(); // @v9.9.5

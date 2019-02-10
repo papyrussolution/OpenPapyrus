@@ -2981,7 +2981,7 @@ int SLAPI GoodsCache::PutGtl(PPID grpID, const PPIDArray * pList, const PPIDArra
 int SLAPI GoodsCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 {
 	int    ok = 1;
-	Data * p_cache_rec = (Data *)pEntry;
+	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjGoods  goods_obj(SConstructorLite);
 	Goods2Tbl::Rec rec;
 	if(id && goods_obj.Search(id, &rec) > 0) {
@@ -3055,7 +3055,7 @@ void SLAPI GoodsCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec
 {
 	Goods2Tbl::Rec * p_data_rec = (Goods2Tbl::Rec *)pDataRec;
 	if(p_data_rec) {
-		const Data * p_cache_rec = (const Data *)pEntry;
+		const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 		memzero(p_data_rec, sizeof(*p_data_rec));
 		p_data_rec->ID       = p_cache_rec->ID;
 		p_data_rec->ParentID = p_cache_rec->ParentID;

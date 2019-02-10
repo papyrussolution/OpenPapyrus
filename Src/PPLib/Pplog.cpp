@@ -1,11 +1,8 @@
 // PPLOG.CPP
-// Copyright (c) A.Sobolev, A.Osolotkin 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev, A.Osolotkin 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
-//#include <fcntl.h>
-//#include <io.h>
-//#include <sys\stat.h>
 #include <scintilla.h>
 #include <scilexer.h>
 
@@ -176,11 +173,11 @@ void LogListWindowSCI::Refresh(long item)
 	int   line_no_to_select = 0;
 	if(P_MsgLog) {
 		for(long i = 0; i < P_MsgLog->GetVisCount(); i++) {
-			const char * p_buf = (const char *)P_MsgLog->GetRow(i);
+			const char * p_buf = static_cast<const char *>(P_MsgLog->GetRow(i));
 			if(p_buf) {
 				temp_buf = p_buf+sizeof(long);
 				temp_buf.Strip().Transf(CTRANSF_INNER_TO_UTF8).CRB();
-				CallFunc(SCI_APPENDTEXT, (int)temp_buf.Len(), (int)temp_buf.cptr());
+				CallFunc(SCI_APPENDTEXT, static_cast<int>(temp_buf.Len()), reinterpret_cast<int>(temp_buf.cptr()));
 				line_no_to_select++;
 			}
 		}
@@ -371,7 +368,7 @@ LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wPara
 				return -1;
 		case WM_COMMAND:
 			{
-				p_view = (LogListWindowSCI *)TView::GetWindowUserData(hWnd);
+				p_view = static_cast<LogListWindowSCI *>(TView::GetWindowUserData(hWnd));
 				if(p_view) {
 					if(HIWORD(wParam) == 0) {
 						if(p_view->KeyAccel.getCount()) {
@@ -391,7 +388,7 @@ LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wPara
 			}
 			break;
 		case WM_DESTROY:
-			p_view = (LogListWindowSCI *)TView::GetWindowUserData(hWnd);
+			p_view = static_cast<LogListWindowSCI *>(TView::GetWindowUserData(hWnd));
 			if(p_view) {
 				p_view->CallFunc(SCI_SETREADONLY); // @v9.7.5
 				p_view->CallFunc(SCI_CLEARALL); // @v9.7.5
@@ -414,7 +411,7 @@ LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wPara
 				SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
 				APPL->NotifyFrame(0);
 			}
-			p_view = (LogListWindowSCI *)TView::GetWindowUserData(hWnd);
+			p_view = static_cast<LogListWindowSCI *>(TView::GetWindowUserData(hWnd));
 			if(p_view) {
 				::SetFocus(p_view->HwndSci);
 				APPL->SelectTabItem(p_view);
@@ -425,7 +422,7 @@ LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wPara
 		case WM_KILLFOCUS:
 			if(!(TView::GetWindowStyle(hWnd) & WS_CAPTION))
 				APPL->NotifyFrame(0);
-			p_view = (LogListWindowSCI *)TView::GetWindowUserData(hWnd);
+			p_view = static_cast<LogListWindowSCI *>(TView::GetWindowUserData(hWnd));
 			if(p_view) {
 				TView::messageBroadcast(p_view, cmReleasedFocus);
 				p_view->ResetOwnerCurrent();
@@ -433,14 +430,14 @@ LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wPara
 			break;
 		case WM_KEYDOWN:
 			if(wParam == VK_ESCAPE) {
-				p_view = (LogListWindowSCI *)TView::GetWindowUserData(hWnd);
+				p_view = static_cast<LogListWindowSCI *>(TView::GetWindowUserData(hWnd));
 				if(p_view) {
 					p_view->endModal(cmCancel);
 					return 0;
 				}
 			}
 			else if(wParam == VK_TAB) {
-				p_view = (LogListWindowSCI *)TView::GetWindowUserData(hWnd);
+				p_view = static_cast<LogListWindowSCI *>(TView::GetWindowUserData(hWnd));
 				if(p_view && GetKeyState(VK_CONTROL) & 0x8000 && !p_view->IsInState(sfModal)) {
 					SetFocus(GetNextBrowser(hWnd, (GetKeyState(VK_SHIFT) & 0x8000) ? 0 : 1));
 					return 0;
@@ -448,7 +445,7 @@ LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wPara
 			}
 			return 0;
 		case WM_SIZE:
-			p_view = (LogListWindowSCI *)TView::GetWindowUserData(hWnd);
+			p_view = static_cast<LogListWindowSCI *>(TView::GetWindowUserData(hWnd));
 			if(lParam && p_view) {
 				HWND   hw = 0;
 				int    toolbar_height = 0;
@@ -470,7 +467,7 @@ LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wPara
 		case WM_NOTIFY:
 			{
 				LPNMHDR lpnmhdr = (LPNMHDR)lParam;
-				p_view = (LogListWindowSCI *)TView::GetWindowUserData(hWnd);
+				p_view = static_cast<LogListWindowSCI *>(TView::GetWindowUserData(hWnd));
 				if(p_view && lpnmhdr->hwndFrom == p_view->GetSciWnd()) {
 					switch(lpnmhdr->code) {
 						case SCN_CHARADDED:
@@ -1197,7 +1194,7 @@ int FASTCALL PPLogMsgQueue::Pop(PPLogMsgItem & rItem)
 {
 	int    ok = -1;
     L.Lock();
-    InnerItem * p_item = (InnerItem *)Q.pop();
+    InnerItem * p_item = static_cast<InnerItem *>(Q.pop());
     if(p_item) {
         rItem.Options = p_item->Options;
         GetS(p_item->FileNameP, rItem.FileName);

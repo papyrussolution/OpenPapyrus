@@ -4273,7 +4273,7 @@ static double SLAPI CalcTiInputCost(const PPTransferItem * pTI, PPID opID, doubl
 	double c = R2(cost * fabs(pTI->Qtty()));
 	if(pTI->Flags & PPTFR_COSTWOVAT) {
 		GTaxVect vect;
-		vect.CalcTI(pTI, opID, TIAMT_COST);
+		vect.CalcTI(*pTI, opID, TIAMT_COST);
 		c += vect.GetValue(GTAXVF_VAT);
 	}
 	return minus ? (sumCost-c) : (sumCost+c);
@@ -4312,7 +4312,7 @@ int SLAPI PPBillPacket::CalcModifCost()
 					cost = p_ti->Cost;
 					GTaxVect vect;
 					p_ti->Flags &= ~PPTFR_COSTWOVAT;
-					vect.CalcTI(p_ti, Rec.OpID, TIAMT_COST);
+					vect.CalcTI(*p_ti, Rec.OpID, TIAMT_COST);
 					p_ti->Flags |= PPTFR_COSTWOVAT;
 					p_ti->Cost   = R2(p_ti->Cost - vect.GetValue(GTAXVF_VAT) / fabs(p_ti->Qtty()));
 				}
@@ -5369,7 +5369,7 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 		// Рассчитываем суммы вводимых в эксплуатацию основных средств
 		//
 		if(pTI->Flags & PPTFR_ASSETEXPL) {
-			vect.CalcTI(pTI, OpID, TIAMT_ASSETEXPL);
+			vect.CalcTI(*pTI, OpID, TIAMT_ASSETEXPL);
 			asset_expl = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE);
 			if(pTI->Flags & PPTFR_MODIF)
 				asset_expl = -asset_expl; // Вывод из эксплуатации
@@ -5427,19 +5427,19 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 		// If cost defined without VAT, then adjust (cost*qtty) value to VAT
 		//
 		if(pTI->Flags & PPTFR_COSTWOVAT) {
-			vect.CalcTI(pTI, OpID, TIAMT_COST);
+			vect.CalcTI(*pTI, OpID, TIAMT_COST);
 			cq += vect.GetValue(GTAXVF_VAT) * sign;
 			//
 			// Для основных фондов, если балансовая стоимость задана без НДС, то
 			// и остаточная стоимость учитывается без НДС
 			//
 			if(is_asset) {
-				vect.CalcTI(pTI, OpID, TIAMT_PRICE);
+				vect.CalcTI(*pTI, OpID, TIAMT_PRICE);
 				pq += vect.GetValue(GTAXVF_VAT) * sign;
 			}
 		}
 		if(pTI->Flags & PPTFR_PRICEWOTAXES) {
-			vect.CalcTI(pTI, OpID, TIAMT_PRICE);
+			vect.CalcTI(*pTI, OpID, TIAMT_PRICE);
 			pq = vect.GetValue(GTAXVF_BEFORETAXES);
 			dq = 0;
 		}
@@ -5461,7 +5461,7 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 				tiamt = TIAMT_AMOUNT;
 				P_Data->Amt += (pTI->Flags & (PPTFR_SELLING|PPTFR_REVAL)) ? (pq - dq) : cq;
 			}
-			vect.CalcTI(pTI, OpID, tiamt, (Flags & BTC_EXCLUDEVAT) ? GTAXVF_VAT : 0);
+			vect.CalcTI(*pTI, OpID, tiamt, (Flags & BTC_EXCLUDEVAT) ? GTAXVF_VAT : 0);
 			tax_sum = vect.GetValue(GTAXVF_VAT);
 			if(tax_sum != 0.0) {
 				tax_rate = vect.GetTaxRate(GTAX_VAT, 0);
@@ -5516,7 +5516,7 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 					//
 					// Расчет налоговых сумм в номинальных ценах //
 					//
-					vect.CalcTI(pTI, OpID, TIAMT_AMOUNT, (Flags & BTC_CALCNOMINALGVAT) ? GTAXVF_NOMINAL : 0);
+					vect.CalcTI(*pTI, OpID, TIAMT_AMOUNT, (Flags & BTC_CALCNOMINALGVAT) ? GTAXVF_NOMINAL : 0);
 					vat      = vect.GetValue(GTAXVF_VAT) * sign;
 					vat_base = vect.GetValue(GTAXVF_AFTERTAXES) * sign;
 					amt_by_vat = vect.GetValue(GTAXVF_BEFORETAXES) * sign;
@@ -5529,7 +5529,7 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 					//
 					// Расчет налоговых сумм в ценах поступления //
 					//
-					vect.CalcTI(pTI, OpID, TIAMT_COST);
+					vect.CalcTI(*pTI, OpID, TIAMT_COST);
 					cvat    = vect.GetValue(GTAXVF_VAT) * sign;
 					cexcise = vect.GetValue(GTAXVF_EXCISE) * sign;
 					cstax   = vect.GetValue(GTAXVF_SALESTAX) * sign;
@@ -5541,7 +5541,7 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 					//
 					// Расчет налоговых сумм в ценах реализации //
 					//
-					vect.CalcTI(pTI, OpID, TIAMT_PRICE);
+					vect.CalcTI(*pTI, OpID, TIAMT_PRICE);
 					pvat = vect.GetValue(GTAXVF_VAT) * sign;
 					P_Data->PriceVatList.Add(vect.GetTaxRate(GTAX_VAT, 0), pvat, vect.GetValue(GTAXVF_AFTERTAXES) * sign, vect.GetValue(GTAXVF_BEFORETAXES) * sign);
 				}

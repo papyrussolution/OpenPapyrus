@@ -614,11 +614,11 @@ IMPL_CMPFUNC(PPSyncItem, i1, i2)
 int ActiveUserListDlg::setupList()
 {
 	long   count = 0, uniq_macs = 0;
-	SmartListBox * p_list = 0;
 	SyncAry.freeAll();
 	DS.GetSync().GetItemsList(PPSYNC_DBLOCK, &SyncAry);
 	count = SyncAry.getCount();
-	if(p_list = (SmartListBox*)getCtrlView(CTL_AUSERSLST_LIST)) {
+	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_AUSERSLST_LIST));
+	if(p_list) {
 		SString host, buf, work_dtm_buf;
 		StringSet ss(SLBColumnDelim);
 		for(uint i = 0; i < SyncAry.getCount(); i++) {

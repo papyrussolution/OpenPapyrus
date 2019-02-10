@@ -1292,7 +1292,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 						ccgitem.Tm = encodetime(item.Tm.hour(), 0, 0, 0);
 						break;
 					case CCheckFilt::gDscntPct:
-						ccgitem.CashID = (long)ceil(fabs(fdivnz(ccgitem.Discount, ccgitem.Amount+ccgitem.Discount)) * 400); // @pctdis
+						ccgitem.CashID = fceili(fabs(fdivnz(ccgitem.Discount, ccgitem.Amount+ccgitem.Discount)) * 400); // @pctdis
 						break;
 					case CCheckFilt::gAmount:
 						if(Filt.AmountQuant > 0.0)
@@ -2651,7 +2651,7 @@ static int SLAPI PutGdsCorr(BExtInsert * pBei, PPID goods1ID, PPID goods2ID, SSt
 	rG2Name.CopyTo(gc_rec.GoodsName2, sizeof(gc_rec.GoodsName2));
 	gc_rec.Count       = intersectChkCount;
 	gc_rec.ChecksCount = goods1ChkCount;
-	gc_rec.ChecksCountPct = (totalChkCount) ? ((double)gc_rec.ChecksCount / (double)totalChkCount) * 100 : 0;
+	gc_rec.ChecksCountPct = (totalChkCount) ? fdivi(gc_rec.ChecksCount, totalChkCount) * 100 : 0;
 	THROW_DB(pBei->insert(&gc_rec));
 	MEMSZERO(gc_rec);
 	gc_rec.Goods1ID = goods2ID;
@@ -2660,7 +2660,7 @@ static int SLAPI PutGdsCorr(BExtInsert * pBei, PPID goods1ID, PPID goods2ID, SSt
 	rG2Name.CopyTo(gc_rec.GoodsName1, sizeof(gc_rec.GoodsName1));
 	gc_rec.Count       = intersectChkCount;
 	gc_rec.ChecksCount = goods2ChkCount;
-	gc_rec.ChecksCountPct = (totalChkCount) ? ((double)gc_rec.ChecksCount / (double)totalChkCount) * 100 : 0;
+	gc_rec.ChecksCountPct = (totalChkCount) ? fdivi(gc_rec.ChecksCount, totalChkCount) * 100 : 0;
 	THROW_DB(pBei->insert(&gc_rec));
 	CATCHZOK
 	return ok;
@@ -2795,7 +2795,7 @@ int SLAPI PPViewCCheck::CreateGoodsCorrTbl()
 							goods2_name.CopyTo(gc_rec.GoodsName2, sizeof(gc_rec.GoodsName2));
 							gc_rec.Count       = count;
 							gc_rec.ChecksCount = goods1_chk_count;
-							gc_rec.ChecksCountPct = (chk_count) ? ((double)count / (double)goods1_chk_count) * 100 : 0;
+							gc_rec.ChecksCountPct = (chk_count) ? fdivi(count, goods1_chk_count) * 100 : 0;
 							THROW_DB(bei.insert(&gc_rec));
 
 							goods_chk_ary.BSearch(goods2_id, &goods2_chk_count, 0);
@@ -2807,7 +2807,7 @@ int SLAPI PPViewCCheck::CreateGoodsCorrTbl()
 							goods2_name.CopyTo(gc_rec.GoodsName1, sizeof(gc_rec.GoodsName1));
 							gc_rec.Count       = count;
 							gc_rec.ChecksCount = goods2_chk_count;
-							gc_rec.ChecksCountPct = (chk_count) ? ((double)count / (double)goods2_chk_count) * 100 : 0;
+							gc_rec.ChecksCountPct = (chk_count) ? fdivi(count, goods2_chk_count) * 100 : 0;
 							THROW_DB(bei.insert(&gc_rec));
 						}
 					}
@@ -3620,7 +3620,7 @@ public:
 		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 5, CCHKF_ALTREG); // @v9.7.8
 		SetClusterData(CTL_CCHECKINFO_FLAGS2, Data.Rec.Flags);
 		if(Data.AL_Const().getCount()) {
-			SmartListBox * p_box = (SmartListBox*)getCtrlView(CTL_CCHECKINFO_PAYMLIST);
+			SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_CCHECKINFO_PAYMLIST));
 			if(p_box && SetupStrListBox(p_box)) {
 				StringSet ss(SLBColumnDelim);
 				for(uint i = 0; i < Data.AL_Const().getCount(); i++) {
@@ -4351,12 +4351,12 @@ int PPALDD_CCheckView::NextIteration(PPIterID iterId)
 
 void PPALDD_CCheckView::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
-	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
-	#define _ARG_INT(n)  (*(int *)rS.GetPtr(pApl->Get(n)))
-	#define _RET_DBL     (*(double *)rS.GetPtr(pApl->Get(0)))
-	#define _RET_INT     (*(int *)rS.GetPtr(pApl->Get(0)))
-	#define _RET_LONG    (*(long *)rS.GetPtr(pApl->Get(0)))
-	#define _RET_STR     (**(SString **)rS.GetPtr(pApl->Get(0)))
+	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
+	#define _ARG_INT(n)  (*static_cast<const int *>(rS.GetPtr(pApl->Get(n)))
+	#define _RET_DBL     (*static_cast<double *>(rS.GetPtr(pApl->Get(0)))
+	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
+	#define _RET_LONG    (*static_cast<long *>(rS.GetPtr(pApl->Get(0))))
+	#define _RET_STR     (**static_cast<SString **>(rS.GetPtr(pApl->Get(0))))
 	PPViewCCheck * p_v = (PPViewCCheck *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
 	if(pF->Name == "?GetSerial") {
 		const CCheckViewItem * p_item = p_v ? p_v->GetInnerIterItem() : 0;
@@ -4560,11 +4560,11 @@ int PPALDD_CCheckDetail::NextIteration(PPIterID iterId)
 
 void PPALDD_CCheckDetail::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
-	#define _ARG_INT(n)  (*(int *)rS.GetPtr(pApl->Get(n)))
-	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
-	#define _RET_DBL     (*(double *)rS.GetPtr(pApl->Get(0)))
-	#define _RET_INT     (*(int *)rS.GetPtr(pApl->Get(0)))
-	#define _RET_STR     (**(SString **)rS.GetPtr(pApl->Get(0)))
+	#define _ARG_INT(n)  (*static_cast<const int *>(rS.GetPtr(pApl->Get(n)))
+	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
+	#define _RET_DBL     (*static_cast<double *>(rS.GetPtr(pApl->Get(0)))
+	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
+	#define _RET_STR     (**static_cast<SString **>(rS.GetPtr(pApl->Get(0))))
 
 	SString temp_buf;
 	if(pF->Name == "?GetPrefixedCode") {

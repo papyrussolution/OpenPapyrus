@@ -2508,12 +2508,12 @@ int SLAPI PPObjLocation::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr
 			const long types[] = { LOCTYP_WAREHOUSE, LOCTYP_DIVISION, LOCTYP_ADDRESS };
 			for(uint i = 0; i < SIZEOFARRAY(types); i++) {
 				THROW_DB(updateFor(P_Tbl, 0, (P_Tbl->Type == types[i] && P_Tbl->OwnerID == _id),
-					set(P_Tbl->OwnerID, dbconst((long)extraPtr))));
+					set(P_Tbl->OwnerID, dbconst(reinterpret_cast<long>(extraPtr)))));
 			}
 		}
 		else if(_obj == PPOBJ_WORLD) {
 			if(_id) {
-				THROW_DB(updateFor(P_Tbl, 0, (P_Tbl->CityID == _id), set(P_Tbl->CityID, dbconst((long)extraPtr))));
+				THROW_DB(updateFor(P_Tbl, 0, (P_Tbl->CityID == _id), set(P_Tbl->CityID, dbconst(reinterpret_cast<long>(extraPtr)))));
 			}
 		}
 	}
@@ -2557,7 +2557,7 @@ int SLAPI PPObjLocation::Read(PPObjPack * p, PPID id, void * stream, ObjTransmCo
 		}
 		else {
 			SBuffer buffer;
-			THROW_SL(buffer.ReadFromFile((FILE*)stream, 0));
+			THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0));
 			THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
 		}
 	}
@@ -2626,7 +2626,7 @@ int SLAPI PPObjLocation::Write(PPObjPack * p, PPID * pID, void * stream, ObjTran
 		else {
 			SBuffer buffer;
 			THROW_SL(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0));
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0));
 		}
 	}
 	CATCHZOK
@@ -3618,11 +3618,11 @@ int PPALDD_Location::InitData(PPFilt & rFilt, long rsrv)
 
 void PPALDD_Location::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
-	#define _ARG_INT(n)  (*(int *)rS.GetPtr(pApl->Get(n)))
+	#define _ARG_INT(n)  (*static_cast<const int *>(rS.GetPtr(pApl->Get(n))))
 	#define _ARG_DATE(n) (*(LDATE *)rS.GetPtr(pApl->Get(n)))
-	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
-	#define _RET_STR     (**(SString **)rS.GetPtr(pApl->Get(0)))
-	#define _RET_INT     (*(int *)rS.GetPtr(pApl->Get(0)))
+	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
+	#define _RET_STR     (**static_cast<SString **>(rS.GetPtr(pApl->Get(0))))
+	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
 	if(pF->Name == "?GetAddedString") {
 		_RET_STR.Z();
 		PPObjLocation * p_obj = (PPObjLocation*)Extra[0].Ptr;

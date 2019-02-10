@@ -625,7 +625,7 @@ IMPL_HANDLE_EVENT(SendSmsDialog)
 			SendSmsText();
 		}
 		else if(event.isCmd(cmLBDblClk) && event.isCtlEvent(CTL_SENDSMS_INSERT)) {
-			SmartListBox * p_list = (SmartListBox *)getCtrlView(CTL_SENDSMS_INSERT);
+			SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_SENDSMS_INSERT));
 			if(p_list) {
 				SString var;
 				SString text;
@@ -729,7 +729,7 @@ int SendSmsDialog::DrawList()
 {
 	int    ok = 1;
 	SString text, params;
-	SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_SENDSMS_INSERT);
+	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_SENDSMS_INSERT));
 	if(p_list) {
 		THROW(PPLoadText(PPTXT_SMS_FIELDS, params));
 		for(int i = SMS_FIELDS_PERSNAME; i <= SMS_FIELDS_MAINORGADDR; i++) {

@@ -52,11 +52,6 @@ int SfaHeineken_SendSellin() // DRP_SendSellin
 	return -1;
 }
 
-int SfaHeineken_DeleteSellout() // DRP_DeleteSellout
-{
-	return -1;
-}
-
 int SfaHeineken_DeleteReturn() // DRP_DeleteReturn
 {
 	return -1;
@@ -152,6 +147,7 @@ extern "C" __declspec(dllexport) SString * SfaHeineken_DeleteSellout(PPSoapClien
 	TSCollection <InParamString> arg_str_pool;
 	_ns1__DRP_USCOREDeleteSellOut param;
 	_ns1__DRP_USCOREDeleteSellOutResponse resp;
+	gSoapClientInit(&proxi, 0, 0);
 	param._USCORElogin = GetDynamicParamString(rSess.GetUser(), arg_str_pool);
 	param._USCOREpass = GetDynamicParamString(rSess.GetPassword(), arg_str_pool);
 	param._USCOREinvoiceNum = GetDynamicParamString(rCode, arg_str_pool);

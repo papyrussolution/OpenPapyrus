@@ -90,14 +90,14 @@ inline static struct quorem floored_divrem(int a, int b)
 	}
 	return qr;
 }
-
-/* Compute the floored division (x*a)/b. Assumes / and % perform symmetric
- * division. */
+//
+// Compute the floored division (x*a)/b. Assumes / and % perform symmetric division. 
+//
 static struct quorem floored_muldivrem(int x, int a, int b)                     
 {
 	struct quorem qr;
 	long long xa = (long long)x*a;
-	qr.quo = xa/b;
+	qr.quo = static_cast<int32_t>(xa/b);
 	qr.rem = xa%b;
 	if((xa>=0) != (b>=0) && qr.rem) {
 		qr.quo -= 1;

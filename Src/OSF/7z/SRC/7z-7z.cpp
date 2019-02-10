@@ -4689,7 +4689,7 @@ namespace NArchive {
 		static bool IsExeExt(const wchar_t * ext)
 		{
 			for(uint i = 0; i < ARRAY_SIZE(g_ExeExts); i++)
-				if(StringsAreEqualNoCase_Ascii(ext, g_ExeExts[i]))
+				if(sstreqi_ascii(ext, g_ExeExts[i]))
 					return true;
 			return false;
 		}
@@ -4745,14 +4745,14 @@ namespace NArchive {
 						needReadFile = ParseExe;
 			#endif
 					}
-					else if(StringsAreEqualNoCase_Ascii(ext, "wav")) {
+					else if(sstreqi_ascii(ext, "wav")) {
 						needReadFile = ParseWav;
 					}
 					/*
 					   else if(!needReadFile && ParseUnixExt)
 					   {
-					   if(StringsAreEqualNoCase_Ascii(ext, "so")
-					 || StringsAreEqualNoCase_Ascii(ext, ""))
+					   if(sstreqi_ascii(ext, "so")
+					 || sstreqi_ascii(ext, ""))
 
 						needReadFile = true;
 					   }

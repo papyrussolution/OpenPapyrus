@@ -31,7 +31,7 @@
 #define CAIRO_TIME_PRIVATE_H
 
 //#include "cairo-compiler-private.h"
-#include "cairo-wideint-private.h"
+//#include "cairo-wideint-private.h"
 
 /* Make the base type signed for easier arithmetic */
 typedef cairo_int64_t cairo_time_t;

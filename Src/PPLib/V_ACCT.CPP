@@ -42,7 +42,7 @@ PPBaseFilt * SLAPI PPViewAccount::CreateFilt(void * extraPtr) const
 {
 	AccountFilt * p_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_ACCOUNT, (PPBaseFilt**)&p_filt))
-		p_filt->Type = ((long)extraPtr);
+		p_filt->Type = (reinterpret_cast<long>(extraPtr));
 	return static_cast<PPBaseFilt *>(p_filt);
 }
 

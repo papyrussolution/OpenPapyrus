@@ -208,7 +208,7 @@ const void * _cairo_array_index_const(const cairo_array_t * array, uint index)
  * Copy a single element out of the array from index @index into the
  * location pointed to by @dst.
  **/
-void _cairo_array_copy_element(const cairo_array_t * array, uint index, void * dst)
+void FASTCALL _cairo_array_copy_element(const cairo_array_t * array, uint index, void * dst)
 {
 	memcpy(dst, _cairo_array_index_const(array, index), array->element_size);
 }
@@ -283,11 +283,10 @@ cairo_status_t _cairo_array_allocate(cairo_array_t * array, uint num_elements, v
  *
  * This space was left intentionally blank, but gtk-doc filled it.
  **/
-uint _cairo_array_num_elements(const cairo_array_t * array)
+uint FASTCALL _cairo_array_num_elements(const cairo_array_t * array)
 {
 	return array->num_elements;
 }
-
 /**
  * _cairo_array_size:
  * @array: a #cairo_array_t

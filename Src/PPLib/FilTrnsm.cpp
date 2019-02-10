@@ -1,5 +1,5 @@
 // FILTRNSM.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 // Передача объектов между разделами БД
 //
@@ -54,7 +54,7 @@ void ObjReceiveParamDialog::delItem()
 {
 	uint   p = 0;
 	PPID   id;
-	SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_DBTRANSM_IN_LIST);
+	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_DBTRANSM_IN_LIST));
 	if(Data.SenderDbDivList.getCount() > 0 && p_list && p_list->getCurID(&id) &&
 		Data.SenderDbDivList.lsearch(id, &p)) {
 		Data.SenderDbDivList.atFree(p);
@@ -64,7 +64,7 @@ void ObjReceiveParamDialog::delItem()
 
 void ObjReceiveParamDialog::updateList()
 {
-	SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_DBTRANSM_IN_LIST);
+	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_DBTRANSM_IN_LIST));
 	if(p_list) {
 		SString text;
 		p_list->freeAll();

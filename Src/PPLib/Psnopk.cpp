@@ -992,7 +992,7 @@ int SLAPI PPObjPsnOpKind::Read(PPObjPack * p, PPID id, void * stream, ObjTransmC
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
@@ -1034,7 +1034,7 @@ int SLAPI PPObjPsnOpKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 		else {
 			SBuffer buffer;
 			THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 		}
 	}
 	CATCHZOK
@@ -1125,7 +1125,7 @@ public:
 	{
 		Data.destroy();
 	}
-	int    setDTS(PPPsnOpKindPacket * pPack)
+	int    setDTS(const PPPsnOpKindPacket * pPack)
 	{
 		if(!RVALUEPTR(Data, pPack))
 			Data.destroy();
@@ -1230,7 +1230,7 @@ public:
 	PsnOpDialog() : TDialog(DLG_PSNOPK)
 	{
 	}
-	int    setDTS(PPPsnOpKindPacket * pData)
+	int    setDTS(const PPPsnOpKindPacket * pData)
 	{
 		int    ok = 1;
 		ushort v = 0;
@@ -1278,9 +1278,9 @@ public:
 		GetClusterData(CTL_PSNOPK_FLAGS, &Data.Rec.Flags);
 		getCtrlData(CTL_PSNOPK_PAIRTYPE,  &(v = 0));
 		getCtrlData(CTL_PSNOPK_SYMB, Data.Rec.Symb);
-		getCtrlData(CTL_PSNOPK_REDOTIMEOUT, &Data.Rec.RedoTimeout); // @v7.9.0
-		getCtrlData(CTLSEL_PSNOPK_RSC, &Data.Rec.RestrStaffCalID); // @v8.0.10
-		getCtrlData(CTL_PSNOPK_RSCMAXTIMES, &Data.Rec.RscMaxTimes); // @v8.0.10
+		getCtrlData(CTL_PSNOPK_REDOTIMEOUT, &Data.Rec.RedoTimeout);
+		getCtrlData(CTLSEL_PSNOPK_RSC, &Data.Rec.RestrStaffCalID);
+		getCtrlData(CTL_PSNOPK_RSCMAXTIMES, &Data.Rec.RscMaxTimes);
 		if(v <= POKPT_NULLCLOSE)
 			Data.Rec.PairType = v;
 		ASSIGN_PTR(pData, Data);
@@ -1312,7 +1312,7 @@ int PsnOpDialog::editPsnConstr(int scnd)
 			if(Scnd)
 	   			SetupPPObjCombo(this, CTLSEL_PSNOPKPC_DEFAULT, PPOBJ_PERSON, data.DefaultID, 0, (void *)data.PersonKindID);
 			{
-				SmartListBox * p_box = (SmartListBox *)getCtrlView(CTL_PSNOPKPC_SCSLIST);
+				SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_PSNOPKPC_SCSLIST));
 				if(p_box) {
 					p_box->setDef(CreateScsListDef());
 					p_box->Draw_();
@@ -1342,7 +1342,7 @@ int PsnOpDialog::editPsnConstr(int scnd)
 				SetupPPObjCombo(this, CTLSEL_PSNOPKPC_DEFAULT, PPOBJ_PERSON, 0, 0, (void *)getCtrlLong(CTLSEL_PSNOPKPC_KIND));
 			}
 			else if(event.isCmd(cmaInsert)) {
-				SmartListBox * p_box = (SmartListBox*)getCtrlView(CTL_PSNOPKPC_SCSLIST);
+				SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_PSNOPKPC_SCSLIST));
 				if(p_box) {
 					PPIDArray scs_list;
 					ListToListData l2l(PPOBJ_SCARDSERIES, 0, &scs_list);
@@ -1356,7 +1356,7 @@ int PsnOpDialog::editPsnConstr(int scnd)
 			}
 			else if(event.isCmd(cmaDelete)) {
 				PPID   scs_id;
-				SmartListBox * p_box = (SmartListBox*)getCtrlView(CTL_PSNOPKPC_SCSLIST);
+				SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_PSNOPKPC_SCSLIST));
 				if(p_box && p_box->getCurID(&scs_id) && scs_id) {
 					data.RestrictScSerList.freeByKey(scs_id, 0);
 					p_box->setDef(CreateScsListDef());
@@ -1770,7 +1770,7 @@ public:
 int SLAPI PsnOpKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	Data * p_cache_rec = (Data *)pEntry;
+	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjPsnOpKind pok_obj;
 	PPPsnOpKind2 rec;
 	if(pok_obj.Search(id, &rec) > 0) {
@@ -1796,7 +1796,7 @@ int SLAPI PsnOpKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 void SLAPI PsnOpKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPPsnOpKind * p_data_rec = (PPPsnOpKind *)pDataRec;
-	const Data * p_cache_rec = (const Data *)pEntry;
+	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 #define CPY_FLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
 	p_data_rec->Tag = PPOBJ_PERSONOPKIND;

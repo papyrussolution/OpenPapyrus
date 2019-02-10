@@ -661,7 +661,7 @@ public:
 int SLAPI BizScoreCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	Data * p_cache_rec = (Data *)pEntry;
+	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjBizScore bs_obj;
 	PPBizScorePacket pack;
 	if(bs_obj.GetPacket(id, &pack) > 0) {
@@ -684,8 +684,8 @@ int SLAPI BizScoreCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI BizScoreCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPBizScorePacket * p_data_pack = (PPBizScorePacket *)pDataRec;
-	const Data * p_cache_rec = (const Data *)pEntry;
+	PPBizScorePacket * p_data_pack = static_cast<PPBizScorePacket *>(pDataRec);
+	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 #define CPY_FLD(Fld) p_data_pack->Rec.Fld=p_cache_rec->Fld
 	p_data_pack->Rec.Tag = PPOBJ_BIZSCORE;
 	CPY_FLD(ID);
@@ -856,7 +856,7 @@ int SLAPI PPViewBizScore::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *(PPID *)pHdr : 0;
+		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_ADDBYSAMPLE:
 				{
@@ -897,7 +897,7 @@ int SLAPI PPViewBizScore::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 
 void * SLAPI PPViewBizScore::GetEditExtraParam()
 {
-	return (void *)Filt.UserID;
+	return reinterpret_cast<void *>(Filt.UserID);
 }
 //
 //
@@ -1330,7 +1330,7 @@ SLAPI PPViewBizScoreVal::~PPViewBizScoreVal()
 PPBaseFilt * SLAPI PPViewBizScoreVal::CreateFilt(void * extraPtr) const
 {
 	BizScoreValFilt * p_filt = new BizScoreValFilt;
-	p_filt->UserID = ((long)extraPtr);
+	p_filt->UserID = (reinterpret_cast<long>(extraPtr));
 	return p_filt;
 }
 

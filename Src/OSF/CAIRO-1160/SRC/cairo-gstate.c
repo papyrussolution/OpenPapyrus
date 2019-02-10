@@ -41,7 +41,7 @@
 //#include "cairo-error-private.h"
 #include "cairo-list-inline.h"
 //#include "cairo-gstate-private.h"
-#include "cairo-pattern-private.h"
+//#include "cairo-pattern-private.h"
 #include "cairo-traps-private.h"
 
 static cairo_status_t _cairo_gstate_init_copy(cairo_gstate_t * gstate, cairo_gstate_t * other);
@@ -834,59 +834,41 @@ static void _cairo_gstate_copy_transformed_pattern(cairo_gstate_t * gstate,
 	}
 }
 
-static void _cairo_gstate_copy_transformed_source(cairo_gstate_t * gstate,
-    cairo_pattern_t * pattern)
+static void _cairo_gstate_copy_transformed_source(cairo_gstate_t * gstate, cairo_pattern_t * pattern)
 {
-	_cairo_gstate_copy_transformed_pattern(gstate, pattern,
-	    gstate->source,
-	    &gstate->source_ctm_inverse);
+	_cairo_gstate_copy_transformed_pattern(gstate, pattern, gstate->source, &gstate->source_ctm_inverse);
 }
 
-static void _cairo_gstate_copy_transformed_mask(cairo_gstate_t * gstate,
-    cairo_pattern_t * pattern,
-    cairo_pattern_t * mask)
+static void _cairo_gstate_copy_transformed_mask(cairo_gstate_t * gstate, cairo_pattern_t * pattern, cairo_pattern_t * mask)
 {
-	_cairo_gstate_copy_transformed_pattern(gstate, pattern,
-	    mask,
-	    &gstate->ctm_inverse);
+	_cairo_gstate_copy_transformed_pattern(gstate, pattern, mask, &gstate->ctm_inverse);
 }
 
-static cairo_operator_t _reduce_op(cairo_gstate_t * gstate)
+static cairo_operator_t FASTCALL _reduce_op(cairo_gstate_t * gstate)
 {
-	cairo_operator_t op;
-	const cairo_pattern_t * pattern;
-
-	op = gstate->op;
-	if(op != CAIRO_OPERATOR_SOURCE)
-		return op;
-
-	pattern = gstate->source;
-	if(pattern->type == CAIRO_PATTERN_TYPE_SOLID) {
-		const cairo_solid_pattern_t * solid = (cairo_solid_pattern_t*)pattern;
-		if(solid->color.alpha_short <= 0x00ff) {
-			op = CAIRO_OPERATOR_CLEAR;
-		}
-		else if((gstate->target->content & CAIRO_CONTENT_ALPHA) == 0) {
-			if((solid->color.red_short |
-			    solid->color.green_short |
-			    solid->color.blue_short) <= 0x00ff) {
+	cairo_operator_t op = gstate->op;
+	if(op == CAIRO_OPERATOR_SOURCE) {
+		const cairo_pattern_t * pattern = gstate->source;
+		if(pattern->type == CAIRO_PATTERN_TYPE_SOLID) {
+			const cairo_solid_pattern_t * solid = reinterpret_cast<const cairo_solid_pattern_t *>(pattern);
+			if(solid->color.alpha_short <= 0x00ff)
 				op = CAIRO_OPERATOR_CLEAR;
+			else if((gstate->target->content & CAIRO_CONTENT_ALPHA) == 0) {
+				if((solid->color.red_short | solid->color.green_short | solid->color.blue_short) <= 0x00ff)
+					op = CAIRO_OPERATOR_CLEAR;
 			}
 		}
-	}
-	else if(pattern->type == CAIRO_PATTERN_TYPE_SURFACE) {
-		const cairo_surface_pattern_t * surface = (cairo_surface_pattern_t*)pattern;
-		if(surface->surface->is_clear &&
-		    surface->surface->content & CAIRO_CONTENT_ALPHA) {
-			op = CAIRO_OPERATOR_CLEAR;
+		else if(pattern->type == CAIRO_PATTERN_TYPE_SURFACE) {
+			const cairo_surface_pattern_t * surface = (cairo_surface_pattern_t*)pattern;
+			if(surface->surface->is_clear && surface->surface->content & CAIRO_CONTENT_ALPHA)
+				op = CAIRO_OPERATOR_CLEAR;
+		}
+		else {
+			const cairo_gradient_pattern_t * gradient = (cairo_gradient_pattern_t*)pattern;
+			if(gradient->n_stops == 0)
+				op = CAIRO_OPERATOR_CLEAR;
 		}
 	}
-	else {
-		const cairo_gradient_pattern_t * gradient = (cairo_gradient_pattern_t*)pattern;
-		if(gradient->n_stops == 0)
-			op = CAIRO_OPERATOR_CLEAR;
-	}
-
 	return op;
 }
 
@@ -906,19 +888,14 @@ cairo_status_t _cairo_gstate_paint(cairo_gstate_t * gstate)
 {
 	cairo_pattern_union_t source_pattern;
 	const cairo_pattern_t * pattern;
-	cairo_status_t status;
 	cairo_operator_t op;
-
-	status = _cairo_gstate_get_pattern_status(gstate->source);
+	cairo_status_t status = _cairo_gstate_get_pattern_status(gstate->source);
 	if(unlikely(status))
 		return status;
-
 	if(gstate->op == CAIRO_OPERATOR_DEST)
 		return CAIRO_STATUS_SUCCESS;
-
 	if(_cairo_clip_is_all_clipped(gstate->clip))
 		return CAIRO_STATUS_SUCCESS;
-
 	op = _reduce_op(gstate);
 	if(op == CAIRO_OPERATOR_CLEAR) {
 		pattern = &_cairo_pattern_clear.base;
@@ -927,44 +904,30 @@ cairo_status_t _cairo_gstate_paint(cairo_gstate_t * gstate)
 		_cairo_gstate_copy_transformed_source(gstate, &source_pattern.base);
 		pattern = &source_pattern.base;
 	}
-
-	return _cairo_surface_paint(gstate->target,
-		   op, pattern,
-		   gstate->clip);
+	return _cairo_surface_paint(gstate->target, op, pattern, gstate->clip);
 }
 
-cairo_status_t _cairo_gstate_mask(cairo_gstate_t * gstate,
-    cairo_pattern_t * mask)
+cairo_status_t _cairo_gstate_mask(cairo_gstate_t * gstate, cairo_pattern_t * mask)
 {
 	cairo_pattern_union_t source_pattern, mask_pattern;
 	const cairo_pattern_t * source;
 	cairo_operator_t op;
-	cairo_status_t status;
-
-	status = _cairo_gstate_get_pattern_status(mask);
+	cairo_status_t status = _cairo_gstate_get_pattern_status(mask);
 	if(unlikely(status))
 		return status;
-
 	status = _cairo_gstate_get_pattern_status(gstate->source);
 	if(unlikely(status))
 		return status;
-
 	if(gstate->op == CAIRO_OPERATOR_DEST)
 		return CAIRO_STATUS_SUCCESS;
-
 	if(_cairo_clip_is_all_clipped(gstate->clip))
 		return CAIRO_STATUS_SUCCESS;
-
 	assert(gstate->opacity == 1.0);
-
 	if(_cairo_pattern_is_opaque(mask, NULL))
 		return _cairo_gstate_paint(gstate);
-
-	if(_cairo_pattern_is_clear(mask) &&
-	    _cairo_operator_bounded_by_mask(gstate->op)) {
+	if(_cairo_pattern_is_clear(mask) && _cairo_operator_bounded_by_mask(gstate->op)) {
 		return CAIRO_STATUS_SUCCESS;
 	}
-
 	op = _reduce_op(gstate);
 	if(op == CAIRO_OPERATOR_CLEAR) {
 		source = &_cairo_pattern_clear.base;
@@ -974,13 +937,9 @@ cairo_status_t _cairo_gstate_mask(cairo_gstate_t * gstate,
 		source = &source_pattern.base;
 	}
 	_cairo_gstate_copy_transformed_mask(gstate, &mask_pattern.base, mask);
-
-	if(source->type == CAIRO_PATTERN_TYPE_SOLID &&
-	    mask_pattern.base.type == CAIRO_PATTERN_TYPE_SOLID &&
-	    _cairo_operator_bounded_by_source(op)) {
+	if(source->type == CAIRO_PATTERN_TYPE_SOLID && mask_pattern.base.type == CAIRO_PATTERN_TYPE_SOLID && _cairo_operator_bounded_by_source(op)) {
 		const cairo_solid_pattern_t * solid = (cairo_solid_pattern_t*)source;
 		cairo_color_t combined;
-
 		if(mask_pattern.base.has_component_alpha) {
 #define M(R, A, B, c) R.c = A.c * B.c
 			M(combined, solid->color, mask_pattern.solid.color, red);
@@ -993,20 +952,12 @@ cairo_status_t _cairo_gstate_mask(cairo_gstate_t * gstate,
 			combined = solid->color;
 			_cairo_color_multiply_alpha(&combined, mask_pattern.solid.color.alpha);
 		}
-
 		_cairo_pattern_init_solid(&source_pattern.solid, &combined);
-
-		status = _cairo_surface_paint(gstate->target, op,
-			&source_pattern.base,
-			gstate->clip);
+		status = _cairo_surface_paint(gstate->target, op, &source_pattern.base, gstate->clip);
 	}
 	else {
-		status = _cairo_surface_mask(gstate->target, op,
-			source,
-			&mask_pattern.base,
-			gstate->clip);
+		status = _cairo_surface_mask(gstate->target, op, source, &mask_pattern.base, gstate->clip);
 	}
-
 	return status;
 }
 
@@ -1140,19 +1091,14 @@ cairo_status_t _cairo_gstate_fill(cairo_gstate_t * gstate, cairo_path_fixed_t * 
 	if(_cairo_path_fixed_fill_is_empty(path)) {
 		if(_cairo_operator_bounded_by_mask(gstate->op))
 			return CAIRO_STATUS_SUCCESS;
-
-		status = _cairo_surface_paint(gstate->target,
-			CAIRO_OPERATOR_CLEAR,
-			&_cairo_pattern_clear.base,
-			gstate->clip);
+		status = _cairo_surface_paint(gstate->target, CAIRO_OPERATOR_CLEAR, &_cairo_pattern_clear.base, gstate->clip);
 	}
 	else {
 		cairo_pattern_union_t source_pattern;
 		const cairo_pattern_t * pattern;
-		cairo_operator_t op;
 		cairo_rectangle_int_t extents;
 		cairo_box_t box;
-		op = _reduce_op(gstate);
+		cairo_operator_t op = _reduce_op(gstate);
 		if(op == CAIRO_OPERATOR_CLEAR) {
 			pattern = &_cairo_pattern_clear.base;
 		}
@@ -1255,15 +1201,11 @@ static void _cairo_gstate_extents_to_user_rectangle(cairo_gstate_t * gstate,
 		*y2 = py2;
 }
 
-cairo_status_t _cairo_gstate_stroke_extents(cairo_gstate_t * gstate,
-    cairo_path_fixed_t * path,
-    double * x1, double * y1,
-    double * x2, double * y2)
+cairo_status_t _cairo_gstate_stroke_extents(cairo_gstate_t * gstate, cairo_path_fixed_t * path, double * x1, double * y1, double * x2, double * y2)
 {
 	cairo_int_status_t status;
 	cairo_box_t extents;
 	cairo_bool_t empty;
-
 	if(x1)
 		*x1 = 0.0;
 	if(y1)
@@ -1272,36 +1214,22 @@ cairo_status_t _cairo_gstate_stroke_extents(cairo_gstate_t * gstate,
 		*x2 = 0.0;
 	if(y2)
 		*y2 = 0.0;
-
 	if(gstate->stroke_style.line_width <= 0.0)
 		return CAIRO_STATUS_SUCCESS;
-
 	status = CAIRO_INT_STATUS_UNSUPPORTED;
 	if(_cairo_path_fixed_stroke_is_rectilinear(path)) {
 		cairo_boxes_t boxes;
-
 		_cairo_boxes_init(&boxes);
-		status = _cairo_path_fixed_stroke_rectilinear_to_boxes(path,
-			&gstate->stroke_style,
-			&gstate->ctm,
-			gstate->antialias,
-			&boxes);
+		status = _cairo_path_fixed_stroke_rectilinear_to_boxes(path, &gstate->stroke_style, &gstate->ctm, gstate->antialias, &boxes);
 		empty = boxes.num_boxes == 0;
 		if(!empty)
 			_cairo_boxes_extents(&boxes, &extents);
 		_cairo_boxes_fini(&boxes);
 	}
-
 	if(status == CAIRO_INT_STATUS_UNSUPPORTED) {
 		cairo_polygon_t polygon;
-
 		_cairo_polygon_init(&polygon, NULL, 0);
-		status = _cairo_path_fixed_stroke_to_polygon(path,
-			&gstate->stroke_style,
-			&gstate->ctm,
-			&gstate->ctm_inverse,
-			gstate->tolerance,
-			&polygon);
+		status = _cairo_path_fixed_stroke_to_polygon(path, &gstate->stroke_style, &gstate->ctm, &gstate->ctm_inverse, gstate->tolerance, &polygon);
 		empty = polygon.num_edges == 0;
 		if(!empty)
 			extents = polygon.extents;
@@ -1311,66 +1239,41 @@ cairo_status_t _cairo_gstate_stroke_extents(cairo_gstate_t * gstate,
 		_cairo_gstate_extents_to_user_rectangle(gstate, &extents,
 		    x1, y1, x2, y2);
 	}
-
 	return status;
 }
 
-cairo_status_t _cairo_gstate_fill_extents(cairo_gstate_t * gstate,
-    cairo_path_fixed_t * path,
-    double * x1, double * y1,
-    double * x2, double * y2)
+cairo_status_t _cairo_gstate_fill_extents(cairo_gstate_t * gstate, cairo_path_fixed_t * path, double * x1, double * y1, double * x2, double * y2)
 {
 	cairo_status_t status;
 	cairo_box_t extents;
 	cairo_bool_t empty;
-
-	if(x1)
-		*x1 = 0.0;
-	if(y1)
-		*y1 = 0.0;
-	if(x2)
-		*x2 = 0.0;
-	if(y2)
-		*y2 = 0.0;
-
+	ASSIGN_PTR(x1, 0.0);
+	ASSIGN_PTR(y1, 0.0);
+	ASSIGN_PTR(x2, 0.0);
+	ASSIGN_PTR(y2, 0.0);
 	if(_cairo_path_fixed_fill_is_empty(path))
 		return CAIRO_STATUS_SUCCESS;
-
 	if(_cairo_path_fixed_fill_is_rectilinear(path)) {
 		cairo_boxes_t boxes;
-
 		_cairo_boxes_init(&boxes);
-		status = _cairo_path_fixed_fill_rectilinear_to_boxes(path,
-			gstate->fill_rule,
-			gstate->antialias,
-			&boxes);
+		status = _cairo_path_fixed_fill_rectilinear_to_boxes(path, gstate->fill_rule, gstate->antialias, &boxes);
 		empty = boxes.num_boxes == 0;
 		if(!empty)
 			_cairo_boxes_extents(&boxes, &extents);
-
 		_cairo_boxes_fini(&boxes);
 	}
 	else {
 		cairo_traps_t traps;
-
 		_cairo_traps_init(&traps);
-
-		status = _cairo_path_fixed_fill_to_traps(path,
-			gstate->fill_rule,
-			gstate->tolerance,
-			&traps);
+		status = _cairo_path_fixed_fill_to_traps(path, gstate->fill_rule, gstate->tolerance, &traps);
 		empty = traps.num_traps == 0;
 		if(!empty)
 			_cairo_traps_extents(&traps, &extents);
-
 		_cairo_traps_fini(&traps);
 	}
-
 	if(!empty) {
-		_cairo_gstate_extents_to_user_rectangle(gstate, &extents,
-		    x1, y1, x2, y2);
+		_cairo_gstate_extents_to_user_rectangle(gstate, &extents, x1, y1, x2, y2);
 	}
-
 	return status;
 }
 
@@ -1378,68 +1281,41 @@ cairo_status_t _cairo_gstate_reset_clip(cairo_gstate_t * gstate)
 {
 	_cairo_clip_destroy(gstate->clip);
 	gstate->clip = NULL;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
 cairo_status_t _cairo_gstate_clip(cairo_gstate_t * gstate, cairo_path_fixed_t * path)
 {
-	gstate->clip =
-	    _cairo_clip_intersect_path(gstate->clip,
-		path,
-		gstate->fill_rule,
-		gstate->tolerance,
-		gstate->antialias);
+	gstate->clip = _cairo_clip_intersect_path(gstate->clip, path, gstate->fill_rule, gstate->tolerance, gstate->antialias);
 	/* XXX */
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_bool_t _cairo_gstate_int_clip_extents(cairo_gstate_t * gstate,
-    cairo_rectangle_int_t * extents)
+static cairo_bool_t _cairo_gstate_int_clip_extents(cairo_gstate_t * gstate, cairo_rectangle_int_t * extents)
 {
-	cairo_bool_t is_bounded;
-
-	is_bounded = _cairo_surface_get_extents(gstate->target, extents);
-
+	cairo_bool_t is_bounded = _cairo_surface_get_extents(gstate->target, extents);
 	if(gstate->clip) {
-		_cairo_rectangle_intersect(extents,
-		    _cairo_clip_get_extents(gstate->clip));
+		_cairo_rectangle_intersect(extents, _cairo_clip_get_extents(gstate->clip));
 		is_bounded = TRUE;
 	}
-
 	return is_bounded;
 }
 
-cairo_bool_t _cairo_gstate_clip_extents(cairo_gstate_t * gstate,
-    double * x1,
-    double * y1,
-    double * x2,
-    double * y2)
+cairo_bool_t _cairo_gstate_clip_extents(cairo_gstate_t * gstate, double * x1, double * y1, double * x2, double * y2)
 {
 	cairo_rectangle_int_t extents;
 	double px1, py1, px2, py2;
-
 	if(!_cairo_gstate_int_clip_extents(gstate, &extents))
 		return FALSE;
-
 	px1 = extents.x;
 	py1 = extents.y;
 	px2 = extents.x + (int)extents.width;
 	py2 = extents.y + (int)extents.height;
-
-	_cairo_gstate_backend_to_user_rectangle(gstate,
-	    &px1, &py1, &px2, &py2,
-	    NULL);
-
-	if(x1)
-		*x1 = px1;
-	if(y1)
-		*y1 = py1;
-	if(x2)
-		*x2 = px2;
-	if(y2)
-		*y2 = py2;
-
+	_cairo_gstate_backend_to_user_rectangle(gstate, &px1, &py1, &px2, &py2, NULL);
+	ASSIGN_PTR(x1, px1);
+	ASSIGN_PTR(y1, py1);
+	ASSIGN_PTR(x2, px2);
+	ASSIGN_PTR(y2, py2);
 	return TRUE;
 }
 
@@ -1448,17 +1324,13 @@ cairo_rectangle_list_t* _cairo_gstate_copy_clip_rectangle_list(cairo_gstate_t * 
 	cairo_rectangle_int_t extents;
 	cairo_rectangle_list_t * list;
 	cairo_clip_t * clip;
-
 	if(_cairo_surface_get_extents(gstate->target, &extents))
 		clip = _cairo_clip_copy_intersect_rectangle(gstate->clip, &extents);
 	else
 		clip = gstate->clip;
-
 	list = _cairo_clip_copy_rectangle_list(clip, gstate);
-
 	if(clip != gstate->clip)
 		_cairo_clip_destroy(clip);
-
 	return list;
 }
 

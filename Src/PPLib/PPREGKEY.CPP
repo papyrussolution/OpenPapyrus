@@ -32,7 +32,7 @@ int SLAPI Helper_CalcRegisterKey(size_t mi, const char * pName, char * pBuf)
 	}
 	memcpy(buf+i, pName, l);
 	SCRC32 _crc32;
-	ulong  crc = _crc32.Calc(0, (uint8*)buf, MASK_MATRIX_SIZE);
+	ulong  crc = _crc32.Calc(0, buf, MASK_MATRIX_SIZE);
 	char   target[32];
 	uint   target_len = 0;
 	uint   ci = 0;
@@ -360,12 +360,12 @@ int main(int argc, char ** argv)
 				return 0;
 			}
 			else {
-				printf("Error reading file '%s'. May be this isn't lic file\n", (const char *)param.OutFileName);
+				printf("Error reading file '%s'. May be this isn't lic file\n", param.OutFileName.cptr());
 				return -1;
 			}
 		}
 		else {
-			printf("File '%s' dosn't exists\n", (const char *)param.OutFileName);
+			printf("File '%s' dosn't exists\n", param.OutFileName.cptr());
 			return -1;
 		}
 	}
@@ -394,8 +394,7 @@ int main(int argc, char ** argv)
 				param.OutFileName = argv[arg_idx];
 		}
 		if(PPCreateLic(&param)) {
-			printf("\nRegisterName=%s\nRegisterNumber=%s\nLicCount=%u\n",
-				(const char *)param.RegName, (const char *)param.RegCode, param.LicCount);
+			printf("\nRegisterName=%s\nRegisterNumber=%s\nLicCount=%u\n", param.RegName.cptr(), param.RegCode.cptr(), param.LicCount);
 			SString func_name;
 			for(uint pos = 0; param.FuncList.get(&pos, func_name);)
 				printf("\t%s\n", (const char *)func_name);

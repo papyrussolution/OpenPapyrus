@@ -100,7 +100,7 @@
 //#include <stdlib.h>
 //#include <string.h>
 //#include <limits.h>
-#include <setjmp.h>
+//#include <setjmp.h>
 
 /*-------------------------------------------------------------------------
  * cairo specific config
@@ -456,18 +456,15 @@ struct glitter_scan_converter {
 	struct polygon polygon[1];
 	struct active_list active[1];
 	struct cell_list coverages[1];
-
 	cairo_half_open_span_t * spans;
 	cairo_half_open_span_t spans_embedded[64];
-
 	/* Clip box. */
 	grid_scaled_x_t xmin, xmax;
 	grid_scaled_y_t ymin, ymax;
 };
 
-static struct _pool_chunk * _pool_chunk_init(struct _pool_chunk * p,
-    struct _pool_chunk * prev_chunk,
-    size_t capacity){
+static struct _pool_chunk * FASTCALL _pool_chunk_init(struct _pool_chunk * p, struct _pool_chunk * prev_chunk, size_t capacity)
+{
 	p->prev_chunk = prev_chunk;
 	p->size = 0;
 	p->capacity = capacity;
@@ -840,7 +837,7 @@ static void cell_list_render_edge(struct cell_list * cells,
 		tmp -= x1.quo * edge->dy + x1.rem;
 		tmp *= GRID_Y;
 
-		y.quo = tmp / dx;
+		y.quo = static_cast<int32_t>(tmp / dx);
 		y.rem = tmp % dx;
 
 		/* When rendering a previous edge on the active list we may
@@ -868,7 +865,7 @@ static void cell_list_render_edge(struct cell_list * cells,
 			struct cell * cell = pair.cell2;
 			struct quorem dydx_full;
 
-			dydx_full.quo = GRID_Y * GRID_X * edge->dy / dx;
+			dydx_full.quo = static_cast<int32_t>(GRID_Y * GRID_X * edge->dy / dx);
 			dydx_full.rem = GRID_Y * GRID_X * edge->dy % dx;
 
 			++ix1;
@@ -1422,24 +1419,22 @@ inline static void polygon_add_edge(struct polygon * polygon, const cairo_edge_t
 		p1 = &edge->line.p2;
 		p2 = &edge->line.p1;
 	}
-
 	if(p2->x == p1->x) {
 		e->cell = p1->x;
 		e->x.quo = p1->x;
 		e->x.rem = 0;
-		e->dxdy.quo = e->dxdy.rem = 0;
-		e->dxdy_full.quo = e->dxdy_full.rem = 0;
+		e->dxdy.rem = 0;
+		e->dxdy.quo = 0;
+		e->dxdy_full.quo = 0;
+		e->dxdy_full.rem = 0;
 		e->dy = 0;
 	}
 	else {
-		int64_t Ex, Ey, tmp;
-
-		Ex = (int64_t)(p2->x - p1->x) * GRID_X;
-		Ey = (int64_t)(p2->y - p1->y) * GRID_Y * (2 << GLITTER_INPUT_BITS);
-
+		int64_t tmp;
+		int64_t Ex = (int64_t)(p2->x - p1->x) * GRID_X;
+		int64_t Ey = (int64_t)(p2->y - p1->y) * GRID_Y * (2 << GLITTER_INPUT_BITS);
 		e->dxdy.quo = Ex * (2 << GLITTER_INPUT_BITS) / Ey;
 		e->dxdy.rem = Ex * (2 << GLITTER_INPUT_BITS) % Ey;
-
 		tmp = (int64_t)(2*ytop + 1) << GLITTER_INPUT_BITS;
 		tmp -= (int64_t)p1->y * GRID_Y * 2;
 		tmp *= Ex;
@@ -1453,7 +1448,6 @@ inline static void polygon_add_edge(struct polygon * polygon, const cairo_edge_t
 		e->x.quo += tmp >> GLITTER_INPUT_BITS;
 		e->x.rem += ((tmp & ((1 << GLITTER_INPUT_BITS) - 1)) * Ey) / (1 << GLITTER_INPUT_BITS);
 #endif
-
 		if(e->x.rem < 0) {
 			e->x.quo--;
 			e->x.rem += Ey;
@@ -1462,19 +1456,18 @@ inline static void polygon_add_edge(struct polygon * polygon, const cairo_edge_t
 			e->x.quo++;
 			e->x.rem -= Ey;
 		}
-
 		if(e->height_left >= GRID_Y) {
 			tmp = Ex * (2 * GRID_Y << GLITTER_INPUT_BITS);
 			e->dxdy_full.quo = tmp / Ey;
 			e->dxdy_full.rem = tmp % Ey;
 		}
-		else
-			e->dxdy_full.quo = e->dxdy_full.rem = 0;
-
+		else {
+			e->dxdy_full.quo = 0;
+			e->dxdy_full.rem = 0;
+		}
 		e->cell = e->x.quo + (e->x.rem >= Ey/2);
 		e->dy = Ey;
 	}
-
 	_polygon_insert_edge_into_its_y_bucket(polygon, e);
 }
 

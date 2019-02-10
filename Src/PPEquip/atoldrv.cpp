@@ -296,12 +296,12 @@ ComDispInterface * SLAPI SCS_ATOLDRV::InitDisp()
 int SLAPI SCS_ATOLDRV::EditParam(void * pDevNum)
 {
 	int    ok = 1;
-	long   dev_num = (pDevNum) ? *(long*)pDevNum : 1;
+	long   dev_num = pDevNum ? *static_cast<const long *>(pDevNum) : 1;
 	THROW_INVARG(P_Disp);
 	THROW(P_Disp->SetProperty(CurrentDeviceNumber, dev_num) > 0);
 	THROW(P_Disp->CallMethod(ShowProperties) > 0);
 	THROW(P_Disp->GetProperty(CurrentDeviceNumber, &dev_num) > 0);
-	ASSIGN_PTR((long*)pDevNum, dev_num);
+	ASSIGN_PTR(static_cast<long *>(pDevNum), dev_num);
 	CATCH
 		SetErrorMessage();
 		ok = 0;
@@ -396,7 +396,7 @@ int	SLAPI SCS_ATOLDRV::PrintDiscountInfo(CCheckPacket * pPack, uint flags)
 
 void SLAPI SCS_ATOLDRV::CutLongTail(char * pBuf)
 {
-	if(sstrlen(pBuf) > (uint)CheckStrLen) {
+	if(static_cast<long>(sstrlen(pBuf)) > CheckStrLen) {
 		char * p = 0;
 		pBuf[CheckStrLen+1] = 0;
 		if((p = strrchr(pBuf, ' ')) != 0)
@@ -892,7 +892,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 		if(!feqeps(running_total, sum, 1E-5)) // @v10.3.1 (running_total > sum)-->feqeps(running_total, sum, 1E-5)
 			sum = running_total;
 		{
-			double _paym_bnk = 0;
+			double _paym_bnk = 0.0;
 			if(pPack->AL_Const().getCount()) {
 				_paym_bnk = R2(fabs(pPack->AL_Const().Get(CCAMTTYP_BANK)));
 			}
@@ -927,7 +927,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 				}
 				else {
 					// @v10.3.1 {
-					if(feqeps(sum, _paym_bnk, 1E-5))
+					if(_paym_bnk != 0.0 && feqeps(sum, _paym_bnk, 1E-5)) // @v10.3.3 (_paym_bnk != 0.0)
 						_paym_bnk = sum;
 					// } @v10.3.1
 					const double _paym_cash = R2(sum - _paym_bnk);

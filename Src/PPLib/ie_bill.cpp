@@ -3608,14 +3608,14 @@ private:
 	{
 		TDialog::handleEvent(event);
 		if(event.isCtlEvent(CTL_SIGNBILL_SIGNER) && event.isCmd(cmLBItemFocused)) {
-			SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_SIGNBILL_SIGNER);
+			SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_SIGNBILL_SIGNER));
 			if(p_list) {
 				p_list->getCurID(&CurPosInList);
 				p_list->getCurString(SignerName.Z());
 			}
 		}
 		else if(event.isCtlEvent(CTL_SIGNBILL_SIGNFILE) && event.isCmd(cmLBItemFocused)) {
-			SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_SIGNBILL_SIGNFILE);
+			SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_SIGNBILL_SIGNFILE));
 			if(p_list) {
 				p_list->getCurString(SignFileName.Z());
 				SPathStruc spath(FileName);
@@ -3660,7 +3660,7 @@ int SignBillDialog::DrawList()
 	StrAssocArray names_arr, files_arr;
 	SString signer_name, file_name;
 	{
-		SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_SIGNBILL_SIGNER);
+		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_SIGNBILL_SIGNER));
 		if(p_list) {
 			THROW(Eds.GetSignerNamesInStore(names_arr));
 			if(p_list) {
@@ -3673,7 +3673,7 @@ int SignBillDialog::DrawList()
 		}
 	}
 	{
-		SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_SIGNBILL_SIGNFILE);
+		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_SIGNBILL_SIGNFILE));
 		if(p_list) {
 			THROW(Eds.GetSignFilesForDoc(FileName, files_arr));
 			if(p_list) {
@@ -4099,16 +4099,16 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 				PPUnit u_rec;
 				if(GObj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
 					(temp_buf = u_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(brow.UnitName, sizeof(brow.UnitName));
-					(temp_buf = u_rec.Code).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(brow.UnitCode, sizeof(brow.UnitCode)); // @v8.1.1
+					(temp_buf = u_rec.Code).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(brow.UnitCode, sizeof(brow.UnitCode));
 				}
 				if(GObj.FetchUnit(goods_rec.PhUnitID, &u_rec) > 0)
 					(temp_buf = u_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(brow.PhUnitName, sizeof(brow.PhUnitName));
 			}
 			{
-				vect.CalcTI(p_ti, pPack->Rec.OpID, TIAMT_PRICE, 0);
+				vect.CalcTI(*p_ti, pPack->Rec.OpID, TIAMT_PRICE, 0);
 				brow.VatRate = vect.GetTaxRate(GTAX_VAT, 0);
 				brow.VatSum  = vect.GetValue(GTAXVF_VAT);
-				vect.CalcTI(p_ti, pPack->Rec.OpID, TIAMT_COST, 0);
+				vect.CalcTI(*p_ti, pPack->Rec.OpID, TIAMT_COST, 0);
 				brow.CVatRate = vect.GetTaxRate(GTAX_VAT, 0);
 				brow.CVatSum  = vect.GetValue(GTAXVF_VAT);
 			}
@@ -4780,7 +4780,7 @@ int Generator_DocNalogRu::WriteInvoiceItems(const HeaderInfo & rHi, const PPBill
 			*/
 			GTaxVect vect;
 			long   exclude_tax_flags = GTAXVF_SALESTAX;
-			vect.CalcTI(&r_ti, rBp.Rec.OpID, TIAMT_PRICE, exclude_tax_flags);
+			vect.CalcTI(r_ti, rBp.Rec.OpID, TIAMT_PRICE, exclude_tax_flags);
 			{
 				temp_buf.Z();
 				if(rHi.Flags & HeaderInfo::fVatFree) {
@@ -5208,7 +5208,7 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, SString & rFileName
 
 											GTaxVect vect;
 											long   exclude_tax_flags = GTAXVF_SALESTAX;
-											vect.CalcTI(&r_ti, rBp.Rec.OpID, TIAMT_PRICE, exclude_tax_flags);
+											vect.CalcTI(r_ti, rBp.Rec.OpID, TIAMT_PRICE, exclude_tax_flags);
 											double vat_rate = vect.GetTaxRate(GTAX_VAT, 0);
 											temp_buf.Z().Cat(vat_rate, MKSFMTD(0, 0, NMBF_NOTRAILZ)).CatChar('%');
 											n_471.PutAttribSkipEmpty(g.GetToken(PPHSC_RU_TAXRATE), temp_buf); // @optional

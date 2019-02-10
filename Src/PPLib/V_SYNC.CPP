@@ -458,7 +458,7 @@ SLAPI PPViewObjSyncCmp::~PPViewObjSyncCmp()
 PPBaseFilt * SLAPI PPViewObjSyncCmp::CreateFilt(void * extraPtr) const
 {
 	ObjSyncCmpFilt * p_filt = new ObjSyncCmpFilt;
-	if(((long)extraPtr) == 1)
+	if((reinterpret_cast<long>(extraPtr)) == 1)
 		p_filt->Flags |= ObjSyncCmpFilt::fInitialize;
 	return p_filt;
 }

@@ -1903,11 +1903,11 @@ int SLAPI SFile::CalcCRC(long offs, uint32 * pCrc)
 		Seek64(offs, SEEK_SET);
 		for(int64 i = 0; i < num_blk; i++) {
 			THROW(Read(temp_buf, temp_buf.GetSize()));
-			crc = c.Calc(crc, (const uint8 *)(char *)temp_buf, temp_buf.GetSize());
+			crc = c.Calc(crc, (const char *)temp_buf, temp_buf.GetSize());
 		}
 		if(rest > 0) {
 			THROW(Read(temp_buf, rest));
-			crc = c.Calc(crc, (const uint8 *)(char *)temp_buf, rest);
+			crc = c.Calc(crc, (const char *)temp_buf, rest);
 		}
 	}
 	else

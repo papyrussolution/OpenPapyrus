@@ -1683,7 +1683,7 @@ struct composite_box_info {
 
 static void composite_box(void * closure, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t coverage)
 {
-	struct composite_box_info * info = (struct composite_box_info *)closure;
+	struct composite_box_info * info = static_cast<struct composite_box_info *>(closure);
 	const cairo_traps_compositor_t * compositor = info->compositor;
 	TRACE((stderr, "%s\n", __FUNCTION__));
 	if(!CAIRO_ALPHA_SHORT_IS_OPAQUE(coverage)) {

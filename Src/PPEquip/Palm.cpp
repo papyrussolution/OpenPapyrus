@@ -302,7 +302,7 @@ SLAPI PalmPaneData::PalmPaneData()
 //
 static int SLAPI StyloPalmListFilt(void * pRec, void * extraPtr)
 {
-	const long extra_param = (long)extraPtr;
+	const long extra_param = reinterpret_cast<long>(extraPtr);
 	PPStyloPalm * p_rec = (PPStyloPalm *)pRec;
 	return extra_param ? ((p_rec->Flags & extra_param) == extra_param) : 1;
 }
@@ -318,7 +318,7 @@ StrAssocArray * SLAPI PPObjStyloPalm::MakeStrAssocList(void * extraPtr)
 	StrAssocArray * p_list = new StrAssocArray();
 	THROW_MEM(p_list);
 	{
-		const long extra_param = (long)extraPtr;
+		const long extra_param = reinterpret_cast<long>(extraPtr);
 		PPStyloPalm rec;
 		for(SEnum en = ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
 			if((rec.Flags & extra_param) == extra_param) {
@@ -400,7 +400,7 @@ int SLAPI PPObjStyloPalm::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPt
 					k0.ObjType = Obj;
 					k0.ObjID = rec.ID;
 					if(SearchByKey_ForUpdate(ref, 0, &k0, &rec) > 0) {
-						rec.AgentID = (long)extraPtr;
+						rec.AgentID = reinterpret_cast<long>(extraPtr);
 						if(!ref->updateRecBuf(&rec))
 							ok = DBRPL_ERROR;
 					}

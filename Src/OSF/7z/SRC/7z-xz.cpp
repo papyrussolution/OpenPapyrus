@@ -924,7 +924,7 @@ namespace NArchive {
 			unsigned k;
 			for(k = 0; k < ARRAY_SIZE(g_NamePairs); k++) {
 				const CMethodNamePair &pair = g_NamePairs[k];
-				if(StringsAreEqualNoCase_Ascii(_filterMethod.MethodName, pair.Name)) {
+				if(sstreqi_ascii(_filterMethod.MethodName, pair.Name)) {
 					_filterId = pair.Id;
 					break;
 				}

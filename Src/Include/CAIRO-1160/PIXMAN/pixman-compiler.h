@@ -178,7 +178,7 @@
 		return value;                                                   \
 	}                                                                   \
                                                                         \
-	static force_inline type *                                          \
+	static force_inline type *                    \
 	    tls_ ## name ## _get(void)                                         \
 	{                                                                   \
 		type * value = NULL;                                             \

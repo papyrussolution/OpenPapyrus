@@ -961,7 +961,7 @@ static soap_wchar soap_getchunkchar(struct soap * soap)
 	return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
 }*/
 
-SOAP_FMAC1 int SOAP_FMAC2 soap_recv_raw(struct soap * soap)
+SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_recv_raw(struct soap * soap)
 {
 	size_t ret;
  #if !defined(WITH_LEANER) || defined(WITH_ZLIB)
@@ -6026,12 +6026,11 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_embed(struct soap * soap, const void 
 
 #ifndef WITH_NOIDREF
  #ifndef PALM_2
-SOAP_FMAC1 int SOAP_FMAC2 soap_pointer_lookup(struct soap * soap, const void * p, int type, struct soap_plist ** ppp)
+SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_pointer_lookup(struct soap * soap, const void * p, int type, struct soap_plist ** ppp)
 {
-	struct soap_plist * pp;
 	*ppp = NULL;
 	if(p) {
-		for(pp = soap->pht[soap_hash_ptr(p)]; pp; pp = pp->next) {
+		for(struct soap_plist * pp = soap->pht[soap_hash_ptr(p)]; pp; pp = pp->next) {
 			if(pp->ptr == p && pp->type == type) {
 				*ppp = pp;
 				DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Lookup location=%p type=%d id=%d\n", p, type, pp->id));
@@ -13201,7 +13200,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_set_endpoint(struct soap * soap, const char * en
 	}
 }
 
-SOAP_FMAC1 int SOAP_FMAC2 soap_connect(struct soap * soap, const char * endpoint, const char * action)
+SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_connect(struct soap * soap, const char * endpoint, const char * action)
 	{ return soap_connect_command(soap, SOAP_POST, endpoint, action); }
 
 SOAP_FMAC1 int SOAP_FMAC2 soap_connect_command(struct soap * soap, int http_command, const char * endpoints, const char * action)

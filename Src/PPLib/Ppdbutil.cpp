@@ -457,7 +457,7 @@ class ConfigBackupDialog : public TDialog {
 public:
 	ConfigBackupDialog(PPIniFile * pIniFile) : TDialog(DLG_BUCFG_SELECT), P_IniFile(pIniFile)
 	{
-		P_List = (SmartListBox *)getCtrlView(CTL_BUCFG_SCNAME);
+		P_List = static_cast<SmartListBox *>(getCtrlView(CTL_BUCFG_SCNAME));
 		SetupListBox(P_List, 64, lbtFocNotify|lbtDisposeData|lbtDblClkNotify, ofFramed);
 		DBES.ReadFromProfile(P_IniFile, 0);
 		P_ScenList = new SArray(sizeof(PPBackupScen));
@@ -1143,7 +1143,7 @@ int SLAPI PrcssrDbDump::Helper_Dump(long tblID)
 					//
 					lob_buf.Z();
 					tbl.readLobData(lob_fld, lob_buf);
-					tbl.writeLobData(lob_fld, lob_buf, lob_buf.GetAvailableSize(), 1);
+					tbl.writeLobData(lob_fld, lob_buf.constptr(), lob_buf.GetAvailableSize(), 1);
 				}
 				THROW_SL(Ctx.Serialize(tbl.GetTableName(), &tbl.GetFieldsNonConst(), tbl.getDataBuf(), buffer));
 				if(has_lob) {
@@ -1532,7 +1532,7 @@ public:
 		enableCommand(cmBuRemove,  1);
 		enableCommand(cmBuCheck,   1);
 		Data.Cmd = 0;
-		P_List   = (SmartListBox*)getCtrlView(CTL_BU_BACKUP_LIST);
+		P_List   = static_cast<SmartListBox *>(getCtrlView(CTL_BU_BACKUP_LIST));
 		SetupStrListBox(this, CTL_BU_BACKUP_LIST);
 		setupScenCombo();
 		setupCopyList();
@@ -1651,7 +1651,7 @@ void BackupDialog::setupCopyList()
 	SString text;
 	BCopyData * bcdata = 0;
 	getScenData();
-	SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_BU_BACKUP_LIST);
+	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_BU_BACKUP_LIST));
 	if(p_list) {
 		p_list->freeAll();
 		BCopySet bcset(Data.Scen.Name);

@@ -24,8 +24,8 @@
     0.9.0c   -- changed setting of nGroups in sendMTFValues()
                 so as to do a bit better on small files
  */
-
 #include "bzlib_private.h"
+#pragma hdrstop
 
 /*---------------------------------------------------*/
 /*--- Bit stream I/O                              ---*/

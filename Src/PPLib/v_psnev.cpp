@@ -739,12 +739,12 @@ int PPALDD_PersonEventBase::InitData(PPFilt & rFilt, long rsrv)
 
 void PPALDD_PersonEventBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
-	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
-	#define _ARG_INT(n)  (*(int *)rS.GetPtr(pApl->Get(n)))
-	#define _RET_INT     (*(int *)rS.GetPtr(pApl->Get(0)))
-	#define _RET_LONG    (*(long *)rS.GetPtr(pApl->Get(0)))
-	#define _RET_DBL     (*(double *)rS.GetPtr(pApl->Get(0)))
-	#define _RET_STR     (**(SString **)rS.GetPtr(pApl->Get(0)))
+	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
+	#define _ARG_INT(n)  (*static_cast<const int *>(rS.GetPtr(pApl->Get(n))))
+	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
+	#define _RET_LONG    (*static_cast<long *>(rS.GetPtr(pApl->Get(0))))
+	#define _RET_DBL     (*static_cast<double *>(rS.GetPtr(pApl->Get(0)))
+	#define _RET_STR     (**static_cast<SString **>(rS.GetPtr(pApl->Get(0))))
 	PPObjPersonEvent * p_pe_obj = (PPObjPersonEvent *)Extra[0].Ptr;
 	if(pF->Name == "?GetPair") {
 		PPID   pair_id = 0;

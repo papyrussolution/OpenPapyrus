@@ -339,7 +339,10 @@ int SLAPI PPViewLinkedBill::MakeList()
 	double debt, total = 0.0;
 	DateIter  diter;
 	THROW(P_BObj->Search(Filt.BillID, &bill_rec) > 0);
-	debt = BR2(bill_rec.Amount);
+	{
+		double na = BR2(bill_rec.Amount);
+		debt = (na < 0.0) ? -na : na; // @v10.3.3 na --> ((na < 0.0) ? -na : na)
+	}
 	switch(Filt.Kind__) {
 		case LinkedBillFilt::lkPayments: blnk = (BLNK_PAYMRETN | BLNK_CHARGEPAYM); break;
 		case LinkedBillFilt::lkCharge: blnk = BLNK_CHARGE; break;
@@ -452,7 +455,7 @@ int SLAPI PPViewLinkedBill::Print(const void * pHdr)
 	int    ok = -1;
 	if(pHdr) {
 		PPBillPacket pack;
-		PPID   bill_id = pHdr ? *(PPID *)pHdr : 0;
+		PPID   bill_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		if(bill_id) {
 			if(P_BObj->ExtractPacket(bill_id, &pack))
 				if(Filt.Kind__ == LinkedBillFilt::lkWrOffDraft || pack.Rec.Flags & BILLF_BANKING || CheckOpPrnFlags(pack.Rec.OpID, OPKF_PRT_INVOICE))
@@ -476,7 +479,7 @@ int SLAPI PPViewLinkedBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 		const  long cur_pos = p_def ? p_def->_curItem() : 0;
 		long   update_pos = cur_pos;
 		PPID   update_id = 0;
-		PPID   bill_id = pHdr ? *(long *)pHdr : 0;
+		PPID   bill_id = pHdr ? *static_cast<const long *>(pHdr) : 0;
 		BillTbl::Rec bill_rec;
 		switch(ppvCmd) {
 			case PPVCMD_ADDITEM:
@@ -530,7 +533,7 @@ int SLAPI PPViewLinkedBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 					if(oneof3(Filt.Kind__, LinkedBillFilt::lkPayments, LinkedBillFilt::lkReckon, LinkedBillFilt::lkWrOffDraft)) {
 						if(!IsOpPaymOrRetn(bill_rec.OpID) && SelectorDialog(DLG_SELRMVPAYM, CTL_SELRMVPAYM_WHAT, &v) > 0) {
 							if(v == 1) {
-								const Entry * p_entry = (const Entry *)pHdr;
+								const Entry * p_entry = static_cast<const Entry *>(pHdr);
 								if(p_entry && P_BObj->P_Tbl->BreakOffLink(bill_id, Filt.BillID, p_entry->LinkKind, 1) > 0) {
 									update_pos = (cur_pos > 0) ? (cur_pos-1) : 0;
 									ok = 1;
@@ -773,6 +776,11 @@ int SLAPI PPObjBill::Reckon(PPID paymBillID, PPID debtBillID, PPID reckonOpID, P
 			THROW(FillTurnList(&pack));
 			THROW(TurnPacket(&pack, 0));
 			ASSIGN_PTR(pReckonBillID, pack.Rec.ID);
+			// @v10.3.3 {
+			if(negativePayment && !(paym_bill_rec.Flags2 & BILLF2_REVERSEDEBT)) {
+				THROW(P_Tbl->SetRecFlag2(paymBillID, BILLF2_REVERSEDEBT, 1, 0));
+			}
+			// } @v10.3.3 
 		}
 		else
 			ok = -1;

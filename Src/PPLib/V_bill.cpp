@@ -5894,21 +5894,21 @@ PPALDD_CONSTRUCTOR(GoodsBillBase)
 
 PPALDD_DESTRUCTOR(GoodsBillBase)
 {
-	PPBillPacket * p_pack = (PPBillPacket *)Extra[0].Ptr;
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
 	CALLPTRMEMB(p_pack, RemoveVirtualTItems());
 	Destroy();
 }
 
 void PPALDD_GoodsBillBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
-	#define _ARG_INT(n)  (*(int *)rS.GetPtr(pApl->Get(n)))
-	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
-	#define _RET_DBL     (*(double *)rS.GetPtr(pApl->Get(0)))
-	#define _RET_INT     (*(int *)rS.GetPtr(pApl->Get(0)))
+	#define _ARG_INT(n)  (*static_cast<const int *>(rS.GetPtr(pApl->Get(n))))
+	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
+	#define _RET_DBL     (*static_cast<double *>(rS.GetPtr(pApl->Get(0))))
+	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
 
 	if(pF->Name == "?CalcInSaldo") {
 		double saldo = 0.0;
-		const PPBillPacket * p_pack = (PPBillPacket *)Extra[0].Ptr;
+		const PPBillPacket * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
 		if(p_pack) {
 			const PPID goods_id = _ARG_INT(1);
 			if(H.ObjectID && goods_id) {
@@ -5974,7 +5974,7 @@ int PPALDD_GoodsBillBase::InitData(PPFilt & rFilt, long rsrv)
 	Extra[0].Ptr = rFilt.Ptr;
 
 	PPOprKind op_rec;
-	PPBillPacket * p_pack = (PPBillPacket *)Extra[0].Ptr;
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
 	const  long bill_f = p_pack->Rec.Flags;
 	const  PPID optype = p_pack->OpTypeID;
 	PPID   main_org_id = 0;
@@ -6117,7 +6117,7 @@ int PPALDD_GoodsBillBase::InitIteration(PPIterID iterId, int sortId, long)
 	if(sortId >= 0)
 		SortIdx = sortId;
 	I.nn = 0;
-	PPBillPacket * p_pack = (PPBillPacket *)(Extra[0].Ptr);
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
 	long   f = H.fMergeSameGoods ? (ETIEF_UNITEBYGOODS|ETIEF_DIFFBYPACK|ETIEF_DIFFBYQCERT|ETIEF_DIFFBYNETPRICE) : 0;
 	PPID   filt_grp_id = 0;
 	if(p_pack->ProcessFlags & PPBillPacket::pfPrintTareSaldo) {
@@ -6291,7 +6291,7 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 				const PPTransferItem & r_ti_local = p_pack->TI(pos_local);
 				const double qtty_local = fabs(r_ti_local.Qtty());
 				GTaxVect vect;
-				vect.CalcTI(&r_ti_local, p_pack->Rec.OpID, tiamt, exclude_tax_flags);
+				vect.CalcTI(r_ti_local, p_pack->Rec.OpID, tiamt, exclude_tax_flags);
 				I.VATRate = vect.GetTaxRate(GTAX_VAT, 0);
 				assert(i == 0 || I.VATRate == prev_vat_rate);
 				prev_vat_rate = I.VATRate;
@@ -6319,7 +6319,7 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 			const PPTransferItem & r_ti_local = *p_ti;
 			const double qtty_local = fabs(r_ti_local.Qtty());
 			GTaxVect vect;
-			vect.CalcTI(&r_ti_local, p_pack->Rec.OpID, tiamt, exclude_tax_flags);
+			vect.CalcTI(r_ti_local, p_pack->Rec.OpID, tiamt, exclude_tax_flags);
 			I.VATRate = vect.GetTaxRate(GTAX_VAT, 0);
 			I.VATSum  = vect.GetValue(GTAXVF_VAT);
 			I.ExcRate = vect.GetTaxRate(GTAX_EXCISE, 0);
@@ -6825,11 +6825,11 @@ int PPALDD_Bill::InitData(PPFilt & rFilt, long rsrv)
 
 void PPALDD_Bill::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
-	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
-	#define _ARG_INT(n)  (*(int *)rS.GetPtr(pApl->Get(n)))
-	#define _RET_DBL     (*(double *)rS.GetPtr(pApl->Get(0)))
-	#define _RET_INT     (*(int *)rS.GetPtr(pApl->Get(0)))
-	#define _RET_STR     (**(SString **)rS.GetPtr(pApl->Get(0)))
+	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
+	#define _ARG_INT(n)  (*static_cast<const int *>(rS.GetPtr(pApl->Get(n))))
+	#define _RET_DBL     (*static_cast<double *>(rS.GetPtr(pApl->Get(0))))
+	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
+	#define _RET_STR     (**static_cast<SString **>(rS.GetPtr(pApl->Get(0))))
 
 	DL600_BillExt * p_ext = (DL600_BillExt *)(Extra[0].Ptr);
 	BillCore * p_billcore = p_ext->P_Bill;
@@ -6988,8 +6988,8 @@ int PPALDD_BillPool::NextIteration(long iterId)
 
 void PPALDD_BillPool::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
-	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
-	#define _RET_INT     (*(int *)rS.GetPtr(pApl->Get(0)))
+	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
+	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
 
 	_RET_INT = 0;
 	if(pF->Name == "?GetMemberByOp") {
@@ -7025,7 +7025,7 @@ PPALDD_DESTRUCTOR(GoodsBillModif) { Destroy(); }
 int PPALDD_GoodsBillModif::InitData(PPFilt & rFilt, long rsrv)
 {
 	Extra[0].Ptr = rFilt.Ptr;
-	PPBillPacket * p_pack = (PPBillPacket *)Extra[0].Ptr;
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
 	MEMSZERO(H);
 	if(!CheckOpPrnFlags(p_pack->Rec.OpID, OPKF_PRT_NBILLN))
 		STRNSCPY(H.Code, p_pack->Rec.Code);
@@ -7064,7 +7064,7 @@ int PPALDD_GoodsBillModif::InitData(PPFilt & rFilt, long rsrv)
 			tiamt = TIAMT_AMOUNT;
 			amount = fabs(p_ti->CalcAmount(0));
 		}
-		vect.CalcTI(p_ti, p_pack->Rec.OpID, tiamt, exclude_tax_flags);
+		vect.CalcTI(*p_ti, p_pack->Rec.OpID, tiamt, exclude_tax_flags);
 		vatsum    = vect.GetValue(GTAXVF_VAT);
 		excisesum = vect.GetValue(GTAXVF_EXCISE);
 		if(p_ti->Flags & PPTFR_COSTWOVAT)
@@ -7162,7 +7162,7 @@ int PPALDD_GoodsBillModif::NextIteration(PPIterID iterId)
 		if(p_ti->UnitPerPack > 0)
 			I.FullPack = (long)(fabs(I.Qtty) / p_ti->UnitPerPack);
 
-		vect.CalcTI(p_ti, p_pack->Rec.OpID, tiamt, exclude_tax_flags);
+		vect.CalcTI(*p_ti, p_pack->Rec.OpID, tiamt, exclude_tax_flags);
 		I.VATRate = vect.GetTaxRate(GTAX_VAT, 0);
 		I.VATSum  = vect.GetValue(GTAXVF_VAT);
 		I.ExcRate = vect.GetTaxRate(GTAX_EXCISE, 0);
@@ -7190,7 +7190,7 @@ PPALDD_DESTRUCTOR(GoodsReval) { Destroy(); }
 int PPALDD_GoodsReval::InitData(PPFilt & rFilt, long rsrv)
 {
 	Extra[0].Ptr = rFilt.Ptr;
-	PPBillPacket * p_pack = (PPBillPacket *)Extra[0].Ptr;
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
 	BillTbl::Rec rec = p_pack->Rec;
 
 	BillTotalData total_data;
@@ -7387,13 +7387,12 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId)
 
 void PPALDD_GoodsReval::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
-	#define _ARG_INT(n)  (*(int *)rS.GetPtr(pApl->Get(n)))
-	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
-	#define _RET_DBL     (*(double *)rS.GetPtr(pApl->Get(0)))
-	#define _RET_INT     (*(int *)rS.GetPtr(pApl->Get(0)))
-
+	#define _ARG_INT(n)  (*static_cast<const int *>(rS.GetPtr(pApl->Get(n))))
+	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
+	#define _RET_DBL     (*static_cast<double *>(rS.GetPtr(pApl->Get(0))))
+	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
 	if(pF->Name == "?UnlimGoodsOnly") {
-		PPBillPacket * p_pack = (PPBillPacket *)Extra[0].Ptr;
+		PPBillPacket * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
 		_RET_INT = BIN(p_pack && p_pack->ProcessFlags & PPBillPacket::pfAllGoodsUnlim);
 	}
 }
@@ -7413,7 +7412,7 @@ PPALDD_DESTRUCTOR(BillPayPlan) { Destroy(); }
 int PPALDD_BillPayPlan::InitData(PPFilt & rFilt, long rsrv)
 {
 	Extra[0].Ptr = rFilt.Ptr;
-	const BillTbl::Rec * p_rec = &(((PPBillPacket *)Extra[0].Ptr)->Rec);
+	const BillTbl::Rec * p_rec = &static_cast<const PPBillPacket *>(Extra[0].Ptr)->Rec;
 	MEMSZERO(H);
 	H.BillID = p_rec->ID;
 	if(CheckOpFlags(p_rec->OpID, OPKF_PROFITABLE))
@@ -7424,7 +7423,7 @@ int PPALDD_BillPayPlan::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_BillPayPlan::InitIteration(PPIterID iterId, int sortId, long rsrv)
 {
 	IterProlog(iterId, 1);
-	const PPBillPacket * p_pack = (PPBillPacket *)(Extra[0].Ptr);
+	const PPBillPacket * p_pack = static_cast<const PPBillPacket *>(Extra[0].Ptr);
 	I.nn = 0;
 	I.Rest = p_pack->Rec.Amount;
 	return 1;
@@ -7434,7 +7433,7 @@ int PPALDD_BillPayPlan::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	{
-		PPBillPacket * p_pack = (PPBillPacket *)(Extra[0].Ptr);
+		PPBillPacket * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
 		uint   n = (uint)I.nn;
 		if(n < p_pack->Pays.getCount()) {
 			const PayPlanTbl::Rec & r_item = p_pack->Pays.at(n);
@@ -7581,7 +7580,7 @@ PPALDD_DESTRUCTOR(GoodsBillQCert) { Destroy(); }
 int PPALDD_GoodsBillQCert::InitData(PPFilt & rFilt, long rsrv)
 {
 	Extra[0].Ptr = rFilt.Ptr;
-	PPBillPacket * p_pack = (PPBillPacket *)Extra[0].Ptr;
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
 	H.BillID = p_pack->Rec.ID;
 	STRNSCPY(H.Code, p_pack->Rec.Code);
 	H.Dt = p_pack->Rec.Dt;
@@ -7623,7 +7622,7 @@ int PPALDD_GoodsBillQCert::InitIteration(PPIterID iterId, int sortId, long)
 		SortIdx = sortId;
 	{
 		I.nn = 0;
-		PPBillPacket * p_pack = (PPBillPacket *)(Extra[0].Ptr);
+		PPBillPacket * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
 		long   f = 0;
 		PPOprKind op_rec;
 		if(GetOpData(p_pack->Rec.OpID, &op_rec) > 0) {
@@ -7645,7 +7644,7 @@ int PPALDD_GoodsBillQCert::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	{
-		PPBillPacket * p_pack = (PPBillPacket *)(Extra[0].Ptr);
+		PPBillPacket * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
 		PPTransferItem temp_ti, * p_ti;
 		QualityCertTbl::Rec qc_rec;
 		do {
@@ -7832,7 +7831,7 @@ int PPALDD_ContentBList::NextIteration(PPIterID iterId)
 				qtty = old_qtty = fabs(ti.Qtty());
 			}
 			GTaxVect vect;
-			vect.CalcTI(&ti, item.OpID, TIAMT_AMOUNT);
+			vect.CalcTI(ti, item.OpID, TIAMT_AMOUNT);
 		   	I.VaTax    = vect.GetTaxRate(GTAX_VAT, 0);
 			I.VatSum   = vect.GetValue(GTAXVF_VAT);
 			I.ExTax    = vect.GetTaxRate(GTAX_EXCISE, 0); // @v10.0.05 @fix GTAXVF_EXCISE-->GTAX_EXCISE
@@ -7840,12 +7839,12 @@ int PPALDD_ContentBList::NextIteration(PPIterID iterId)
 			I.StTax    = vect.GetTaxRate(GTAX_SALES, 0);
 			I.StSum    = vect.GetValue(GTAXVF_SALESTAX);
 			if(ti.Flags & PPTFR_COSTWOVAT) {
-				vect.CalcTI(&ti, item.OpID, TIAMT_COST);
+				vect.CalcTI(ti, item.OpID, TIAMT_COST);
 				cost += vect.GetValue(GTAXVF_VAT) / qtty;
 				old_cost += vect.GetValue(GTAXVF_VAT) / old_qtty;
 			}
 			if(ti.Flags & PPTFR_PRICEWOTAXES) {
-				vect.CalcTI(&ti, item.OpID, TIAMT_PRICE);
+				vect.CalcTI(ti, item.OpID, TIAMT_PRICE);
 				price = vect.GetValue(GTAXVF_BEFORETAXES) / qtty;
 				old_price = vect.GetValue(GTAXVF_BEFORETAXES) / old_qtty;
 			}
@@ -7917,7 +7916,7 @@ PPALDD_DESTRUCTOR(AdvanceRep) { Destroy(); }
 int PPALDD_AdvanceRep::InitData(PPFilt & rFilt, long rsrv)
 {
 	Extra[0].Ptr = rFilt.Ptr;
-	PPBillPacket * p_pack = (PPBillPacket *)Extra[0].Ptr;
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
 	MEMSZERO(H);
 	H.BillID = p_pack->Rec.ID;
 	if(p_pack->P_AdvRep) {
@@ -7949,7 +7948,7 @@ int PPALDD_AdvanceRep::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 int PPALDD_AdvanceRep::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
-	PPBillPacket * p_pack = (PPBillPacket *)(Extra[0].Ptr);
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
 	if(H.nn < (int16)p_pack->AdvList.GetCount()) {
 		PPAdvBillItemList::Item & r_item = p_pack->AdvList.Get(H.nn);
 		STRNSCPY(I.AdvCode, r_item.AdvCode);

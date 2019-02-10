@@ -19,7 +19,7 @@
    ------------------------------------------------------------------ */
 
 #include "bzlib_private.h"
-
+#pragma hdrstop
 /*--
    I think this is an implementation of the AUTODIN-II,
    Ethernet & FDDI 32-bit CRC standard.  Vaguely derived

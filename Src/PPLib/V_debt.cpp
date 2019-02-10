@@ -219,7 +219,7 @@ PPBaseFilt * PPViewDebtTrnovr::CreateFilt(void * extraPtr) const
 		p_filt->Sgb.S = SubstGrpBill::sgbObject;
 		if(extraPtr == 0)
 			p_filt->AccSheetID = GetSellAccSheet();
-		else if(((long)extraPtr) == 1)
+		else if((reinterpret_cast<long>(extraPtr)) == 1)
 			p_filt->AccSheetID = GetSupplAccSheet();
 		p_filt->Flags |= DebtTrnovrFilt::fSkipPassive;
 	}

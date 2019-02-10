@@ -150,7 +150,7 @@ PPBaseFilt * SLAPI PPViewCSess::CreateFilt(void * extraPtr) const
 {
 	CSessFilt * p_filt = new CSessFilt;
 	if(extraPtr)
-		p_filt->NodeList_.Add((long)extraPtr);
+		p_filt->NodeList_.Add(reinterpret_cast<long>(extraPtr));
 	else {
 		p_filt->Flags |= CSessFilt::fOnlySuperSess;
 		PPObjCashNode cn_obj;
@@ -1193,7 +1193,7 @@ int SLAPI PPDfCreateRulePacket::SetCashNN(const char * pBuf, int delim)
 static int SLAPI RulesListFilt(void * rec, void * extraPtr)
 {
 	PPDraftCreateRule * p_rule = (PPDraftCreateRule*)rec;
-	const long extra_param = (long)extraPtr;
+	const long extra_param = reinterpret_cast<long>(extraPtr);
 	int  only_grps  = BIN(extra_param == PPDFCRRULE_ONLYGROUPS);
 	int  only_rules = BIN(extra_param == PPDFCRRULE_ONLYRULES);
 	int  is_rule = BIN(!(p_rule->Flags & PPDraftCreateRule::fIsRulesGroup));

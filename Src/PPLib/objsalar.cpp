@@ -20,7 +20,7 @@ int SLAPI PPSalChargePacket::Init()
 
 static int SalChargeFilt(void * pRec, void * extraPtr)
 {
-	const long extra_param = (long)extraPtr;
+	const long extra_param = reinterpret_cast<long>(extraPtr);
 	if(((PPSalCharge *)pRec)->Flags & PPSalCharge::fGroup)
 		return (extra_param == -10000) ? 0 : 1;
 	else
@@ -183,7 +183,7 @@ int SalChargeDialog::moveItem(long pos, long id, int up)
 
 int SLAPI PPObjSalCharge::Edit(PPID * pID, void * extraPtr)
 {
-	const  long extra_param = (long)extraPtr;
+	const  long extra_param = reinterpret_cast<long>(extraPtr);
 	int    ok = -1, r = cmCancel, is_new = 0;
 	PPSalChargePacket pack;
 	SalChargeDialog * p_dlg = 0;
@@ -358,7 +358,7 @@ int SLAPI PPObjSalCharge::Read(PPObjPack * p, PPID id, void * stream, ObjTransmC
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
@@ -393,7 +393,7 @@ int SLAPI PPObjSalCharge::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 		else {
 			SBuffer buffer;
 			THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 		}
 	}
 	CATCHZOK
@@ -448,7 +448,7 @@ public:
 int SLAPI SalChargeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	Data * p_cache_rec = (Data *)pEntry;
+	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjSalCharge sl_obj;
 	PPSalChargePacket pack;
 	if(sl_obj.GetPacket(id, &pack) > 0) {
@@ -474,7 +474,7 @@ int SLAPI SalChargeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 void SLAPI SalChargeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPSalChargePacket * p_data_rec = (PPSalChargePacket *)pDataRec;
-	const Data * p_cache_rec = (const Data *)pEntry;
+	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	#define FLD(f) p_data_rec->Rec.f = p_cache_rec->f
 	p_data_rec->Rec.Tag = PPOBJ_SALCHARGE;
@@ -991,7 +991,7 @@ int SLAPI PPObjStaffCal::Read(PPObjPack * p, PPID id, void * stream, ObjTransmCo
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
@@ -1025,7 +1025,7 @@ int  SLAPI PPObjStaffCal::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 	else {
 		SBuffer buffer;
 		THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-		THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+		THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 	}
 	CATCHZOK
 	return ok;
@@ -2326,7 +2326,7 @@ public:
 int SLAPI StaffCalCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	Data * p_cache_rec = (Data *)pEntry;
+	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjStaffCal sc_obj;
 	PPStaffCal rec;
 	if(sc_obj.Search(id, &rec) > 0) {
@@ -2351,7 +2351,7 @@ int SLAPI StaffCalCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 void SLAPI StaffCalCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPStaffCal * p_data_rec = (PPStaffCal *)pDataRec;
-	const Data * p_cache_rec = (const Data *)pEntry;
+	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 #define FLD(f) p_data_rec->f = p_cache_rec->f
 	p_data_rec->Tag = PPOBJ_STAFFCAL;

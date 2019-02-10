@@ -2765,7 +2765,7 @@ HRESULT Bench(DECL_EXTERNAL_CODECS_LOC_VARS IBenchPrintCallback * printCallback,
 					PrintLeft(f, s, kFieldSize_SmallName);
 					callback.DictSize = (uint32)1 << pow;
 					COneMethodInfo method2 = method;
-					if(StringsAreEqualNoCase_Ascii(method2.MethodName, "LZMA")) {
+					if(sstreqi_ascii(method2.MethodName, "LZMA")) {
 						// We add dictionary size property.
 						// method2 can have two different dictionary size properties.
 						// And last property is main.

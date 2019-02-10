@@ -112,10 +112,9 @@ static uint32_t * linear_get_scanline_narrow(pixman_iter_t * iter, const uint32_
 			inc = 0;
 		}
 		else{
-			double invden, v2;
-			invden = pixman_fixed_1 * (double)pixman_fixed_1 / (l * (double)v.vector[2]);
-			v2 = v.vector[2] * (1. / pixman_fixed_1);
-			t = ((dx * v.vector[0] + dy * v.vector[1]) - (dx * linear->p1.x + dy * linear->p1.y) * v2) * invden;
+			double invden = pixman_fixed_1 * (double)pixman_fixed_1 / (l * (double)v.vector[2]);
+			double v2 = v.vector[2] * (1. / pixman_fixed_1);
+			t = static_cast<pixman_fixed_32_32_t>(((dx * v.vector[0] + dy * v.vector[1]) - (dx * linear->p1.x + dy * linear->p1.y) * v2) * invden);
 			inc = (dx * unit.vector[0] + dy * unit.vector[1]) * invden;
 		}
 		next_inc = 0;
@@ -131,7 +130,7 @@ static uint32_t * linear_get_scanline_narrow(pixman_iter_t * iter, const uint32_
 					*buffer = _pixman_gradient_walker_pixel(&walker, t + next_inc);
 				}
 				i++;
-				next_inc = inc * i;
+				next_inc = static_cast<pixman_fixed_32_32_t>(inc * i);
 				buffer++;
 			}
 		}
@@ -146,7 +145,7 @@ static uint32_t * linear_get_scanline_narrow(pixman_iter_t * iter, const uint32_
 					double v2 = v.vector[2] * (1. / pixman_fixed_1);
 					t = ((dx * v.vector[0] + dy * v.vector[1]) - (dx * linear->p1.x + dy * linear->p1.y) * v2) * invden;
 				}
-				*buffer = _pixman_gradient_walker_pixel(&walker, t);
+				*buffer = _pixman_gradient_walker_pixel(&walker, static_cast<pixman_fixed_48_16_t>(t));
 			}
 			++buffer;
 			v.vector[0] += unit.vector[0];

@@ -283,7 +283,7 @@ void SLAPI GTaxVect::Calc_(PPGoodsTaxEntry * gtax, double amount, double qtty, l
 			case GTAX_EXCISE:
 				if(!(excludeFlags & GTAXVF_EXCISE))
 					if(gtax->Flags & GTAXF_ABSEXCISE) {
-						RateVect[i] = ((double)gtax->Excise) / 100.0; // @divtax
+						RateVect[i] = fdiv100i(gtax->Excise); // @divtax
 						AbsVect |= (1 << i);
 					}
 					else
@@ -348,11 +348,11 @@ void SLAPI GTaxVect::Calc_(PPGoodsTaxEntry * gtax, double amount, double qtty, l
 	}
 }
 
-int SLAPI GTaxVect::CalcTI(const PPTransferItem * pTI, PPID opID, int tiamt, long exclFlags)
+int SLAPI GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, long exclFlags)
 {
 	int    ok = 1;
 	const  PPCommConfig & r_ccfg = CConfig;
-	int    calcti_costwovat_byprice = (r_ccfg.Flags & CCFLG_COSTWOVATBYSUM) ? 0 : 1;
+	const  int calcti_costwovat_byprice = (r_ccfg.Flags & CCFLG_COSTWOVATBYSUM) ? 0 : 1;
 	int    cost_wo_vat = 0;
 	int    is_asset = 0;
 	int    is_exclvat = 0;
@@ -363,13 +363,13 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem * pTI, PPID opID, int tiamt, lon
 	PPObjGoods    gobj;
 	Goods2Tbl::Rec goods_rec;
 	double amount = 0.0;
-	double qtty   = fabs(pTI->Qtty());
+	double qtty   = fabs(rTi.Qtty());
 	double tax_qtty = qtty;
-	if(gobj.Fetch(labs(pTI->GoodsID), &goods_rec) > 0) {
+	if(gobj.Fetch(labs(rTi.GoodsID), &goods_rec) > 0) {
 		if(goods_rec.Flags & GF_ASSETS)
 			is_asset = 1;
 		tax_grp_id = goods_rec.TaxGrpID;
-		if(!(exclFlags & GTAXVF_NOMINAL) && r_ccfg.DynGoodsTypeForSupplAgent && pTI->LotID && BillObj->GetSupplAgent(pTI->LotID) > 0) {
+		if(!(exclFlags & GTAXVF_NOMINAL) && r_ccfg.DynGoodsTypeForSupplAgent && rTi.LotID && BillObj->GetSupplAgent(rTi.LotID) > 0) {
 			PPObjGoodsType gt_obj;
 			PPGoodsType gt_rec;
 			if(gt_obj.Fetch(r_ccfg.DynGoodsTypeForSupplAgent, &gt_rec) > 0 && gt_rec.Flags & GTF_EXCLVAT)
@@ -380,19 +380,19 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem * pTI, PPID opID, int tiamt, lon
 	}
 	else
 		MEMSZERO(goods_rec);
-	if(!(exclFlags & GTAXVF_NOMINAL) && PPObjLocation::CheckWarehouseFlags(pTI->LocID, LOCF_VATFREE))
+	if(!(exclFlags & GTAXVF_NOMINAL) && PPObjLocation::CheckWarehouseFlags(rTi.LocID, LOCF_VATFREE))
 		exclFlags |= GTAXVF_VAT;
-	if(pTI->IsCorrectionRcpt()) {
-		if(!(exclFlags & GTAXVF_NOMINAL) && pTI->LotTaxGrpID)
-			tax_grp_id = pTI->LotTaxGrpID;
+	if(rTi.IsCorrectionRcpt()) {
+		if(!(exclFlags & GTAXVF_NOMINAL) && rTi.LotTaxGrpID)
+			tax_grp_id = rTi.LotTaxGrpID;
 		// @v10.2.5 (ctr) MEMSZERO(gtx);
-		gobj.GTxObj.Fetch(tax_grp_id, pTI->LotDate, 0, &gtx);
-		const double q_pre = fabs(pTI->QuotPrice);
-		qtty = fabs(pTI->Quantity_);
+		gobj.GTxObj.Fetch(tax_grp_id, rTi.LotDate, 0, &gtx);
+		const double q_pre = fabs(rTi.QuotPrice);
+		qtty = fabs(rTi.Quantity_);
 		const double q_diff = (qtty - q_pre);
 		if(q_diff != 0.0) {
-			const double cq = R2(pTI->Cost * qtty - pTI->RevalCost * q_pre);
-			const double pq = R2(pTI->Price * qtty - pTI->Discount * q_pre);
+			const double cq = R2(rTi.Cost * qtty - rTi.RevalCost * q_pre);
+			const double pq = R2(rTi.Price * qtty - rTi.Discount * q_pre);
 			amount = ((tiamt != TIAMT_PRICE) ? cq : pq) / q_diff; // Для корректировки НДС всегда в ценах поступления
 		}
 		else {
@@ -400,53 +400,60 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem * pTI, PPID opID, int tiamt, lon
 		}
 		qtty = q_diff;
 	}
+	// @v10.3.3 {
+	else if(rTi.IsCorrectionExp()) {
+		gobj.GTxObj.Fetch(tax_grp_id, rTi.Date, 0, &gtx);
+		qtty = -rTi.GetEffCorrectionExpQtty();
+		amount = (tiamt == TIAMT_PRICE) ? (rTi.Price - rTi.Discount) : rTi.Cost;
+	}
+	// } @v10.3.3 
 	else {
 		//
 		// При переоценке основных фондов в ценах реализации используем схему расчета
 		// налогов, применяемую для цен поступления, поскольку такая переоценка - суть
 		// изменение цен поступления (балансовой стоимости основных фондов).
 		//
-		if(pTI->Flags & PPTFR_REVAL)
+		if(rTi.Flags & PPTFR_REVAL)
 			reval_assets = is_asset;
-		if(!reval_assets && tiamt != TIAMT_ASSETEXPL && (tiamt == TIAMT_PRICE || (tiamt != TIAMT_COST && pTI->Flags & (PPTFR_SELLING|PPTFR_REVAL)))) {
-			if(pTI->Flags & PPTFR_PRICEWOTAXES)
+		if(!reval_assets && tiamt != TIAMT_ASSETEXPL && (tiamt == TIAMT_PRICE || (tiamt != TIAMT_COST && rTi.Flags & (PPTFR_SELLING|PPTFR_REVAL)))) {
+			if(rTi.Flags & PPTFR_PRICEWOTAXES)
 				amt_flags = GTAXVF_AFTERTAXES;
-			if(pTI->Flags & PPTFR_COSTWOVAT && is_asset)
+			if(rTi.Flags & PPTFR_COSTWOVAT && is_asset)
 				amt_flags &= ~GTAXVF_VAT;
-			const int  re = BIN(pTI->Flags & PPTFR_RMVEXCISE);
+			const int  re = BIN(rTi.Flags & PPTFR_RMVEXCISE);
 			if((r_ccfg.Flags & CCFLG_PRICEWOEXCISE) ? !re : re)
 				exclFlags |= GTAXVF_SALESTAX;
 			// @v10.2.5 (ctr) MEMSZERO(gtx);
-			gobj.GTxObj.Fetch(tax_grp_id, pTI->Date, opID, &gtx);
+			gobj.GTxObj.Fetch(tax_grp_id, rTi.Date, opID, &gtx);
 			if(!is_exclvat)
-				amount = pTI->NetPrice();
+				amount = rTi.NetPrice();
 		}
 		else {
-			if(!(exclFlags & GTAXVF_NOMINAL) && pTI->LotTaxGrpID)
-				tax_grp_id = pTI->LotTaxGrpID;
+			if(!(exclFlags & GTAXVF_NOMINAL) && rTi.LotTaxGrpID)
+				tax_grp_id = rTi.LotTaxGrpID;
 			// @v10.2.5 (ctr) MEMSZERO(gtx);
-			gobj.GTxObj.Fetch(tax_grp_id, pTI->LotDate, 0, &gtx);
-			if(pTI->Flags & PPTFR_COSTWOVAT) {
+			gobj.GTxObj.Fetch(tax_grp_id, rTi.LotDate, 0, &gtx);
+			if(rTi.Flags & PPTFR_COSTWOVAT) {
 				amt_flags &= ~GTAXVF_VAT;
 				if(calcti_costwovat_byprice)
 					cost_wo_vat = 1;
 			}
 			if(tiamt == TIAMT_ASSETEXPL)
-				amount = (pTI->Flags & PPTFR_ASSETEXPL) ? pTI->Cost : 0.0;
-			else if(pTI->Flags & PPTFR_REVAL)
-				amount = (reval_assets && tiamt != TIAMT_COST) ? pTI->NetPrice() : (pTI->Cost - pTI->RevalCost);
+				amount = (rTi.Flags & PPTFR_ASSETEXPL) ? rTi.Cost : 0.0;
+			else if(rTi.Flags & PPTFR_REVAL)
+				amount = (reval_assets && tiamt != TIAMT_COST) ? rTi.NetPrice() : (rTi.Cost - rTi.RevalCost);
 			else
-				amount = pTI->Cost;
-			if(!(pTI->Flags & PPTFR_COSTWSTAX))
+				amount = rTi.Cost;
+			if(!(rTi.Flags & PPTFR_COSTWSTAX))
 				exclFlags |= GTAXVF_SALESTAX;
-			if(!(exclFlags & GTAXVF_NOMINAL) && IsSupplVATFree(pTI->Suppl) > 0)
+			if(!(exclFlags & GTAXVF_NOMINAL) && IsSupplVATFree(rTi.Suppl) > 0)
 				exclFlags |= GTAXVF_VAT;
 			if(gtx.Flags & GTAXF_NOLOTEXCISE)
 				exclFlags |= GTAXVF_EXCISE;
 		}
 	}
 	if(gtx.Flags & GTAXF_ABSEXCISE)
-		gobj.MultTaxFactor(pTI->GoodsID, &tax_qtty);
+		gobj.MultTaxFactor(rTi.GoodsID, &tax_qtty);
 	if(!(calcti_costwovat_byprice && cost_wo_vat))
 		amount *= qtty;
 	Calc_(&gtx, amount, tax_qtty, amt_flags, exclFlags);
@@ -826,7 +833,7 @@ int  SLAPI PPObjGoodsTax::Read(PPObjPack * p, PPID id, void * stream, ObjTransmC
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW(SerializePacket(-1, (PPGoodsTaxPacket *)p->Data, buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
@@ -893,7 +900,7 @@ int  SLAPI PPObjGoodsTax::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 		else {
 			SBuffer buffer;
 			THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 		}
 	}
 	CATCHZOK

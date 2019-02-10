@@ -692,7 +692,7 @@ static force_inline pixman_implementation_t * get_implementation(void)
 PIXMAN_EXPORT pixman_implementation_t * _pixman_internal_only_get_implementation(void);
 
 /* Memory allocation helpers */
-void * pixman_malloc_ab(uint n, uint b);
+void * FASTCALL pixman_malloc_ab(uint n, uint b);
 void * pixman_malloc_abc(uint a, uint b, uint c);
 void * pixman_malloc_ab_plus_c(uint a, uint b, uint c);
 pixman_bool_t _pixman_multiply_overflows_size(size_t a, size_t b);

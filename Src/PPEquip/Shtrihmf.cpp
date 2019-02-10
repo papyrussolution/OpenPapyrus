@@ -539,7 +539,7 @@ int SLAPI ACS_SHTRIHMFRK::ImportFiles()
 	long   delay_quant = 5 * 60 * 1000; // 5 мин
 	const  char * p_ftp_flag = "ftp:";
 	int    ok = 1, ftp_connected = 0, notify_timeout = (ImpExpTimeout) ? ImpExpTimeout : (1 * 60 * 60 * 1000); // таймаут по умолчанию - 1 час.
-	double timeouts_c = (double)notify_timeout / (double)delay_quant;
+	double timeouts_c = fdivi(notify_timeout, delay_quant);
 	uint   set_no = 0;
 	SString imp_path, exp_path, path_rpt, path_flag, str_imp_paths;
 	LDATE  first_date = ChkRepPeriod.low, last_date = ChkRepPeriod.upp;

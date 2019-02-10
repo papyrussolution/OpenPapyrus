@@ -646,7 +646,7 @@ int BarcodeListDialog::delItem(long pos, long)
 
 int BarcodeListDialog::setupList()
 {
-	SmartListBox * p_list = (SmartListBox *)getCtrlView(CTL_BARCODELIST_LIST);
+	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_BARCODELIST_LIST));
 	if(p_list) {
 		BarcodeTbl::Rec * p_rec;
 		StringSet ss(SLBColumnDelim);

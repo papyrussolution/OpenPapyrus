@@ -1714,7 +1714,7 @@ void TrfrItemDialog::setupVatSum()
 		if(qtty != 0.0) {
 			if(P_Pack) {
 				GTaxVect vect;
-				vect.CalcTI(&Item, P_Pack->Rec.OpID, (OpTypeID == PPOPT_GOODSRECEIPT) ? TIAMT_COST : TIAMT_AMOUNT);
+				vect.CalcTI(Item, P_Pack->Rec.OpID, (OpTypeID == PPOPT_GOODSRECEIPT) ? TIAMT_COST : TIAMT_AMOUNT);
 				vat_sum = vect.GetValue(GTAXVF_VAT);
 				// @v9.0.2 PPGetWord(PPWORD_VAT, 0, out_buf);
 				PPLoadString("vat", out_buf); // @v9.0.2

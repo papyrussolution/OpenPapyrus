@@ -33,18 +33,18 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-surface-observer-private.h"
-#include "cairo-surface-observer-inline.h"
+//#include "cairo-surface-observer-private.h"
+//#include "cairo-surface-observer-inline.h"
 //#include "cairo-array-private.h"
-#include "cairo-combsort-inline.h"
+//#include "cairo-combsort-inline.h"
 //#include "cairo-composite-rectangles-private.h"
 //#include "cairo-error-private.h"
-#include "cairo-image-surface-private.h"
-#include "cairo-list-inline.h"
-#include "cairo-pattern-private.h"
-#include "cairo-output-stream-private.h"
-#include "cairo-recording-surface-private.h"
-#include "cairo-surface-subsurface-inline.h"
+//#include "cairo-image-surface-private.h"
+//#include "cairo-list-inline.h"
+//#include "cairo-pattern-private.h"
+//#include "cairo-output-stream-private.h"
+//#include "cairo-recording-surface-private.h"
+//#include "cairo-surface-subsurface-inline.h"
 //#include "cairo-reference-count-private.h"
 #if CAIRO_HAS_SCRIPT_SURFACE
 	#include "cairo-script-private.h"
@@ -722,11 +722,7 @@ static cairo_int_status_t _cairo_surface_observer_mask(void * abstract_surface,
 	add_pattern(&device->log.mask.source, source, surface->target);
 	add_pattern(&device->log.mask.mask, mask, surface->target);
 	add_clip(&device->log.mask.clip, clip);
-
-	status = _cairo_composite_rectangles_init_for_mask(&composite,
-		surface->target,
-		op, source, mask,
-		clip);
+	status = _cairo_composite_rectangles_init_for_mask(&composite, surface->target, op, source, mask, clip);
 	if(unlikely(status)) {
 		surface->log.mask.noop++;
 		device->log.mask.noop++;

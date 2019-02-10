@@ -2235,7 +2235,7 @@ int SLAPI PPObjBill::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			case PPOBJ_LOCATION:
 				{
 					LocationTbl::Rec loc_rec;
-					if(LocObj.Search((long)extraPtr, &loc_rec) > 0) {
+					if(LocObj.Search(reinterpret_cast<long>(extraPtr), &loc_rec) > 0) {
 						if(loc_rec.Type == LOCTYP_WAREHOUSE) {
 							BillTbl::Key5 k5;
 							MEMSZERO(k5);
@@ -2308,15 +2308,15 @@ int SLAPI PPObjBill::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	}
 	else if(msg == DBMSG_OBJREPLACE) {
 		if(_obj == PPOBJ_GOODS)
-			ok = ReplyGoodsReplace(_id, (long)extraPtr);
+			ok = ReplyGoodsReplace(_id, reinterpret_cast<long>(extraPtr));
 		else if(_obj == PPOBJ_ARTICLE)
-			ok = ReplyArticleReplace(_id, (long)extraPtr);
+			ok = ReplyArticleReplace(_id, reinterpret_cast<long>(extraPtr));
 		else if(_obj == PPOBJ_GOODSTAX) {
 			// @todo update_for
 			for(k = 0; trfr->Rcpt.search(0, &k, spGt);) {
 				if(trfr->Rcpt.data.InTaxGrpID == _id) {
 					THROW_DB(trfr->Rcpt.rereadForUpdate(0, &k));
-					trfr->Rcpt.data.InTaxGrpID = (long)extraPtr;
+					trfr->Rcpt.data.InTaxGrpID = reinterpret_cast<long>(extraPtr);
 					THROW_DB(trfr->Rcpt.updateRec()); // @sfu
 				}
 			}
@@ -2324,7 +2324,7 @@ int SLAPI PPObjBill::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 		else if(_obj == PPOBJ_LOCATION) {
 			LAssocArray dlvr_addr_list;
 			LocationTbl::Rec replacement_rec;
-			THROW(LocObj.Search((long)extraPtr, &replacement_rec) > 0);
+			THROW(LocObj.Search(reinterpret_cast<long>(extraPtr), &replacement_rec) > 0);
 			THROW_PP(replacement_rec.Type == LOCTYP_ADDRESS, PPERR_REPLACEMENTID_NOTADDR);
 			p_tbl->GetDlvrAddrList(&dlvr_addr_list);
 			for(uint i = 0; i < dlvr_addr_list.getCount(); i++) {
@@ -2332,7 +2332,7 @@ int SLAPI PPObjBill::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 					const PPID bill_id = dlvr_addr_list.at(i).Key;
 					PPFreight freight;
 					if(p_tbl->GetFreight(bill_id, &freight) > 0 && freight.DlvrAddrID == _id) {
-						freight.DlvrAddrID = (long)extraPtr;
+						freight.DlvrAddrID = reinterpret_cast<long>(extraPtr);
 						THROW(p_tbl->SetFreight(bill_id, &freight, 0));
 					}
 				}
@@ -2348,7 +2348,7 @@ int SLAPI PPObjBill::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 					for(ulong bill_id = 0; list.Enum(&bill_id);) {
 						PPFreight freight;
 						if(p_tbl->GetFreight((long)bill_id, &freight) > 0 && freight.PortOfDischarge == _id) {
-							freight.PortOfDischarge = (long)extraPtr;
+							freight.PortOfDischarge = reinterpret_cast<long>(extraPtr);
 							THROW(p_tbl->SetFreight((long)bill_id, &freight, 0));
 						}
 					}
@@ -2363,7 +2363,7 @@ int SLAPI PPObjBill::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 					for(ulong bill_id = 0; list.Enum(&bill_id);) {
 						PPFreight freight;
 						if(p_tbl->GetFreight((long)bill_id, &freight) > 0 && freight.PortOfLoading == _id) {
-							freight.PortOfLoading = (long)extraPtr;
+							freight.PortOfLoading = reinterpret_cast<long>(extraPtr);
 							THROW(p_tbl->SetFreight((long)bill_id, &freight, 0));
 						}
 					}
@@ -2564,7 +2564,7 @@ int SLAPI PPObjBill::SetStatus(PPID id, PPID statusID, int use_ta)
 					if(set_nopaym_flag >= 0) {
 						PPID   paym_link_id = 0;
 						IsMemberOfPool(id, PPASS_PAYMBILLPOOL, &paym_link_id);
-						THROW(ProcessLink(&rec, paym_link_id, &org_rec));
+						THROW(ProcessLink(rec, paym_link_id, &org_rec));
 					}
 				}
 				if(bs_rec.Flags & BILSTF_LOCDISPOSE && p_disposer) {
@@ -4625,7 +4625,7 @@ private:
 			int    ok = -1;
 			PPObjBill * p_bobj = BillObj;
 			if(p_bobj) {
-				Data * p_cache_rec = (Data *)pEntry;
+				Data * p_cache_rec = static_cast<Data *>(pEntry);
 				PPBillExt ext_rec;
 				if(id) {
 					if(p_bobj->P_Tbl->GetExtraData(id, &ext_rec) > 0) {
@@ -4645,7 +4645,7 @@ private:
 		virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 		{
 			PPBillExt * p_data_rec = (PPBillExt *)pDataRec;
-			const Data * p_cache_rec = (const Data *)pEntry;
+			const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 			memzero(p_data_rec, sizeof(*p_data_rec));
 			if(!(p_cache_rec->F & ObjCacheEntry::fUndef)) {
 				#define FLD(f) p_data_rec->f = p_cache_rec->f
@@ -4679,7 +4679,7 @@ private:
 			int    ok = -1;
 			PPObjBill * p_bobj = BillObj;
 			if(p_bobj) {
-				Data * p_cache_rec = (Data *)pEntry;
+				Data * p_cache_rec = static_cast<Data *>(pEntry);
 				PPFreight freight;
 				if(id) {
 					if(p_bobj->P_Tbl->GetFreight(id, &freight) > 0) {
@@ -4721,7 +4721,7 @@ private:
 		virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 		{
 			PPFreight * p_data_rec = (PPFreight *)pDataRec;
-			const Data * p_cache_rec = (const Data *)pEntry;
+			const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 			memzero(p_data_rec, sizeof(*p_data_rec));
 			if(!(p_cache_rec->F & ObjCacheEntry::fUndef)) {
 				#define FLD(f) p_data_rec->f = p_cache_rec->f
@@ -4787,7 +4787,7 @@ int SLAPI BillCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
 	if(p_bobj) {
-		Data * p_cache_rec = (Data *)pEntry;
+		Data * p_cache_rec = static_cast<Data *>(pEntry);
 		BillTbl::Rec rec;
 		if(id && p_bobj->Search(id, &rec) > 0) {
 			#define FLD(f) p_cache_rec->f = rec.f
@@ -4817,7 +4817,7 @@ int SLAPI BillCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 void SLAPI BillCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	BillTbl::Rec * p_data_rec = (BillTbl::Rec *)pDataRec;
-	const Data * p_cache_rec = (const Data *)pEntry;
+	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	#define FLD(f) p_data_rec->f = p_cache_rec->f
 	FLD(ID);
@@ -5098,7 +5098,7 @@ int SLAPI LotCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 {
 	int    ok = -1;
 	if(BillObj && BillObj->trfr) {
-		Data * p_cache_rec = (Data *)pEntry;
+		Data * p_cache_rec = static_cast<Data *>(pEntry);
 		ReceiptTbl::Rec rec;
 		if(id && BillObj->trfr->Rcpt.Search(id, &rec) > 0) {
 			#define FLD(f) p_cache_rec->f = rec.f
@@ -5133,7 +5133,7 @@ int SLAPI LotCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 void SLAPI LotCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	BillTbl::Rec * p_data_rec = (BillTbl::Rec *)pDataRec;
-	const Data * p_cache_rec = (const Data *)pEntry;
+	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	#define FLD(f) p_data_rec->f = p_cache_rec->f
 	FLD(BillID);
@@ -6199,19 +6199,19 @@ int SLAPI PPObjBill::FillTurnList(PPBillPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjBill::ProcessLink(BillTbl::Rec * pRec, PPID paymLinkID, const BillTbl::Rec * pOrgRec)
+int SLAPI PPObjBill::ProcessLink(BillTbl::Rec & rRec, PPID paymLinkID, const BillTbl::Rec * pOrgRec)
 {
 	int    ok = 1;
-	if(pRec->OpID) {
+	if(rRec.OpID) {
 		SString msg_buf;
 		BillTbl::Rec link_rec;
-		PPID   link_id = pRec->LinkBillID;
-		double amount = BR2(pRec->Amount);
+		PPID   link_id = rRec.LinkBillID;
+		double amount = BR2(rRec.Amount);
 		double org_amount = 0.0;
-		const PPID paym_t = IsOpPaymOrRetn(pRec->OpID);
+		const PPID paym_t = IsOpPaymOrRetn(rRec.OpID);
 		if(paym_t) {
 			const int org_lock_paym = BIN(!pOrgRec || (pOrgRec->StatusID && CheckStatusFlag(pOrgRec->StatusID, BILSTF_LOCK_PAYMENT)));
-			const int new_lock_paym = BIN(pOrgRec == pRec || (pRec->StatusID && CheckStatusFlag(pRec->StatusID, BILSTF_LOCK_PAYMENT)));
+			const int new_lock_paym = BIN(pOrgRec == &rRec || (rRec.StatusID && CheckStatusFlag(rRec.StatusID, BILSTF_LOCK_PAYMENT)));
 			//
 			// Следующая конструкция должна охватить все четыре комбинации org_lock_paym = 0|1; new_lock_paym = 0|1 {
 			//
@@ -6222,29 +6222,29 @@ int SLAPI PPObjBill::ProcessLink(BillTbl::Rec * pRec, PPID paymLinkID, const Bil
 			}
 			else if(!new_lock_paym) {
 				org_amount = BR2(pOrgRec->Amount);
-				amount = pRec->Amount;
+				amount = rRec.Amount;
 			}
 			else
-				org_amount = 2.0 * BR2(pRec->Amount);
+				org_amount = 2.0 * BR2(rRec.Amount);
 			// }
 		}
 		if(link_id) {
 			THROW_PP_S(P_Tbl->Search(link_id, &link_rec) > 0, PPERR_LINKBILLNFOUND, msg_buf.Z().Cat(link_id));
-			THROW_PP_S(pRec->Dt >= link_rec.Dt, PPERR_LNKBILLDT, PPObjBill::MakeCodeString(&link_rec, 1, msg_buf));
+			THROW_PP_S(rRec.Dt >= link_rec.Dt, PPERR_LNKBILLDT, PPObjBill::MakeCodeString(&link_rec, 1, msg_buf));
 			//
 			// Если добавляемый документ - оплата или возврат, то в связанном
 			// документе (если он требует оплаты) изменяем оплаченную сумму
 			//
 			if(paym_t) {
 				if(CcFlags & CCFLG_SETWLONLINK)
-					SETFLAG(pRec->Flags, BILLF_WHITELABEL, P_Tbl->data.Flags & BILLF_WHITELABEL);
+					SETFLAG(rRec.Flags, BILLF_WHITELABEL, P_Tbl->data.Flags & BILLF_WHITELABEL);
 				if(P_Tbl->data.Flags & BILLF_NEEDPAYMENT) {
-					const int is_neg = (paym_t == PPOPT_CHARGE && CheckOpFlags(pRec->OpID, OPKF_CHARGENEGPAYM));
-					THROW(P_Tbl->UpdatePaymAmount(link_id, pRec->CurID, (is_neg ? -amount : amount), (is_neg ? -org_amount : org_amount)));
+					const int is_neg = (paym_t == PPOPT_CHARGE && CheckOpFlags(rRec.OpID, OPKF_CHARGENEGPAYM));
+					THROW(P_Tbl->UpdatePaymAmount(link_id, rRec.CurID, (is_neg ? -amount : amount), (is_neg ? -org_amount : org_amount)));
 				}
 			}
 			else if(IsDraftOp(link_rec.OpID)) {
-				if(pOrgRec == 0 && !(pRec->Flags2 & BILLF2_DONTCLOSDRAFT)) {
+				if(pOrgRec == 0 && !(rRec.Flags2 & BILLF2_DONTCLOSDRAFT)) {
 					THROW(P_Tbl->SetRecFlag(link_id, BILLF_WRITEDOFF, 1, 0));
 				}
 			}
@@ -6252,7 +6252,7 @@ int SLAPI PPObjBill::ProcessLink(BillTbl::Rec * pRec, PPID paymLinkID, const Bil
 		if(paymLinkID && paym_t == PPOPT_PAYMENT) {
 			THROW_PP_S(P_Tbl->Search(paymLinkID, &link_rec) > 0, PPERR_LINKBILLNFOUND, msg_buf.Z().Cat(link_id));
 			const int is_neg = BIN(link_rec.Amount < 0.0); // @v10.3.2
-			THROW(P_Tbl->UpdatePaymAmount(paymLinkID, pRec->CurID, (is_neg ? -amount : amount), (is_neg ? -org_amount : org_amount)));
+			THROW(P_Tbl->UpdatePaymAmount(paymLinkID, rRec.CurID, (is_neg ? -amount : amount), (is_neg ? -org_amount : org_amount)));
 		}
 	}
 	CATCHZOK
@@ -6966,7 +6966,7 @@ int SLAPI PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 		THROW(PPStartTransaction(&ta, use_ta));
 		THROW(BeginTFrame(0, tb_));
 		THROW(LockFRR(pPack->Rec.Dt, &frrl_tag, 0));
-		THROW(ProcessLink(&pPack->Rec, pPack->PaymBillID, 0));
+		THROW(ProcessLink(pPack->Rec, pPack->PaymBillID, 0));
 		THROW(ProcessACPacket(pPack));
 		THROW(P_Tbl->Edit(&id, pPack, 0));
 		pPack->Rec.ID = id;
@@ -7288,7 +7288,7 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 		THROW(P_Tbl->Search(id, &org) > 0);
 		THROW(r_rt.CheckBillDate(org.Dt));
 		THROW_PP(pPack->OpTypeID != PPOPT_GOODSREVAL || pPack->Rec.Dt == org.Dt, PPERR_REVALDTUPD);
-		THROW(ProcessLink(&pPack->Rec, pPack->PaymBillID, &org));
+		THROW(ProcessLink(pPack->Rec, pPack->PaymBillID, &org));
 		diter.Init();
 		{
 			BillTbl::Rec link_rec;
@@ -7702,7 +7702,7 @@ int SLAPI PPObjBill::RemovePacket(PPID id, int use_ta)
 			}
 		}
 		THROW(r && P_Tbl->Search(id, &brec) > 0);
-		THROW(ProcessLink(&brec, paym_link_id, &brec));
+		THROW(ProcessLink(brec, paym_link_id, &brec));
 		THROW(TurnAdvList(id, 0, 0));
 		while((r = atobj->P_Tbl->EnumByBill(id, &rbybill, 0)) > 0) {
 			THROW(atobj->P_Tbl->RollbackTurn(id, rbybill, 0));

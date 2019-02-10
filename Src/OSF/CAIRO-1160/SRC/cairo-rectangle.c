@@ -100,7 +100,7 @@ void FASTCALL _cairo_box_round_to_rectangle(const cairo_box_t * box, cairo_recta
 	rectangle->height = _cairo_fixed_integer_ceil(box->p2.y) - rectangle->y;
 }
 
-cairo_bool_t _cairo_rectangle_intersect(cairo_rectangle_int_t * dst, const cairo_rectangle_int_t * src)
+cairo_bool_t FASTCALL _cairo_rectangle_intersect(cairo_rectangle_int_t * dst, const cairo_rectangle_int_t * src)
 {
 	const int x1 = MAX(dst->x, src->x);
 	const int y1 = MAX(dst->y, src->y);

@@ -382,18 +382,18 @@ int SLAPI ACS_ATOLWOATOLCARD::ExportSCard(FILE * pFile, int updOnly)
 		THROW_PP(fprintf(pFile, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
 		if(!updOnly) {
 			THROW(PPGetSubStr(PPTXT_ATOL_CMDSTRINGS, PPATOLCS_DELETEALLSCHEMES, f_str));
-			THROW_PP(fprintf(pFile, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+			THROW_PP(fprintf(pFile, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 			THROW(PPGetSubStr(PPTXT_ATOL_CMDSTRINGS, PPATOLCS_ADDINNERSCHEMES, f_str));
-			THROW_PP(fprintf(pFile, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+			THROW_PP(fprintf(pFile, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 			f_str.Z().Cat(ATOL_INNER_SCHEME).Semicol();             // #1 - код схемы внутренней авт.скидки
 			// @v9.0.2 PPGetWord(PPWORD_CARD, 0, temp);
 			PPLoadString("card", temp); // @9.0.2
 			f_str.Cat(temp.Transf(CTRANSF_INNER_TO_OUTER)).CatCharN(';', 2); // #2 - наименование схемы, #3 - не используется //
 			f_str.CatChar('0').Semicol(); // #4 - тип операции объединения (0 - не объединять)
-			THROW_PP(fprintf(pFile, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+			THROW_PP(fprintf(pFile, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 		}
 		THROW(PPGetSubStr(PPTXT_ATOL_CMDSTRINGS, PPATOLCS_ADDSCARDDSCNTS, f_str));
-		THROW_PP(fprintf(pFile, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+		THROW_PP(fprintf(pFile, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 		for(ser_id = 0; scs_obj.EnumItems(&ser_id, &ser_rec) > 0;)
 			if(!(ser_rec.Flags & SCRDSF_CREDIT)) {
 				PPSCardSerPacket scs_pack;
@@ -422,7 +422,7 @@ int SLAPI ACS_ATOLWOATOLCARD::ExportSCard(FILE * pFile, int updOnly)
 						f_str.Cat(card_rec.Code).Semicol().Cat(card_rec.Code).Semicol().
 							CatChar('0').Semicol().Transf(CTRANSF_INNER_TO_OUTER);    // #25 - #27 - описание фактора скидки (код карты)
 						f_str.Cat(temp).Cat(temp).Semicol().Cat(temp).Cat(temp); // #28 - #40 - не используем
-						THROW_PP(fprintf(pFile, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+						THROW_PP(fprintf(pFile, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 					}
 				}
 			}
@@ -598,9 +598,9 @@ int SLAPI ACS_ATOL::ExportData(int updOnly)
 	}
 	else {
 		THROW(PPGetSubStr(PPTXT_ATOL_CMDSTRINGS, PPATOLCS_DELETEALL, f_str));
-		THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+		THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 		THROW(PPGetSubStr(PPTXT_ATOL_CMDSTRINGS, PPATOLCS_REPLACEQTTY, f_str));
-		THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+		THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 	}
 	if(cn_data.Flags & CASHF_EXPGOODSGROUPS) {
 		THROW_MEM(p_grp_iter = new AsyncCashGoodsGroupIterator(NodeID, 0, P_Dls));
@@ -619,7 +619,7 @@ int SLAPI ACS_ATOL::ExportData(int updOnly)
 			f_str.Cat((long)grp_info.Level).Semicol(); // #18 - Номер уровня иерархического списка
 			f_str.CatCharN(';', 4);                       // #19-#22 - Не используем
 			f_str.Cat((long)(grp_info.VatRate * 100.0)).Semicol(); // #23 - Налоговая ставка (в 0.01%)
-			THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+			THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 			grp_n_level_ary.Add(grp_info.ID, grp_info.Level, 0);
 		}
 	}
@@ -630,7 +630,7 @@ int SLAPI ACS_ATOL::ExportData(int updOnly)
 			long   level = 0;
 			if(prev_goods_id) {
 				f_str.Transf(CTRANSF_INNER_TO_OUTER).Semicol().Cat(tail);
-				THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+				THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 			}
 			next_barcode = 0;
 			f_str = 0;
@@ -696,7 +696,7 @@ int SLAPI ACS_ATOL::ExportData(int updOnly)
 	}
 	if(prev_goods_id) {
 		f_str.Transf(CTRANSF_INNER_TO_OUTER).Semicol().Cat(tail);
-		THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+		THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 	}
 	fclose(p_file);
 	PPWait(0);

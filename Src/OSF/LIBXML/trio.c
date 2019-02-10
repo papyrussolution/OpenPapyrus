@@ -2209,15 +2209,15 @@ static void TrioWriteDouble(trio_class_t * self, trio_long_double_t number, trio
 	}
 	/* Normal numbers */
 	if(flags & FLAGS_LONGDOUBLE) {
-		baseDigits = (base == 10) ? LDBL_DIG : (int)floor(LDBL_MANT_DIG / TrioLogarithmBase(base));
+		baseDigits = (base == 10) ? LDBL_DIG : ffloori(LDBL_MANT_DIG / TrioLogarithmBase(base));
 		epsilon = LDBL_EPSILON;
 	}
 	else if(flags & FLAGS_SHORT) {
-		baseDigits = (base == BASE_DECIMAL) ? FLT_DIG : (int)floor(FLT_MANT_DIG / TrioLogarithmBase(base));
+		baseDigits = (base == BASE_DECIMAL) ? FLT_DIG : ffloori(FLT_MANT_DIG / TrioLogarithmBase(base));
 		epsilon = FLT_EPSILON;
 	}
 	else {
-		baseDigits = (base == BASE_DECIMAL) ? DBL_DIG : (int)floor(DBL_MANT_DIG / TrioLogarithmBase(base));
+		baseDigits = (base == BASE_DECIMAL) ? DBL_DIG : ffloori(DBL_MANT_DIG / TrioLogarithmBase(base));
 		epsilon = DBL_EPSILON;
 	}
 	digits = (flags & FLAGS_UPPER) ? internalDigitsUpper : internalDigitsLower;
@@ -2342,7 +2342,7 @@ static void TrioWriteDouble(trio_class_t * self, trio_long_double_t number, trio
 	hasOnlyZeroes = (floorl((fractionNumber + fractionAdjust) * dblFractionBase) < epsilon);
 	keepDecimalPoint = ( (flags & FLAGS_ALTERNATIVE) || !((precision == 0) || (!keepTrailingZeroes && hasOnlyZeroes)) );
 	if(flags & FLAGS_FLOAT_E) {
-		exponentDigits = (uExponent == 0) ? 1 : (int)ceil(TrioLogarithm((double)(uExponent + 1), (int)(isHex ? 10 : base)));
+		exponentDigits = (uExponent == 0) ? 1 : fceili(TrioLogarithm((double)(uExponent + 1), (int)(isHex ? 10 : base)));
 	}
 	else
 		exponentDigits = 0;

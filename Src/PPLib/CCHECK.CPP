@@ -4619,17 +4619,16 @@ int SLAPI CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pT
 								int    r = 0;
 								double price = 0.0;
 								PPID   quotk_id = NZOR(EqCfg.QuotKindID, PPQUOTK_BASE);
-								if(quotk_id) {
-									double quot = 0.0;
-									//
-									// Если, в случае формирования документа на "чужом" складе, котировка должна
-									// браться по складу, которому принадлежит сессия, то loc_id следует заменить на locID
-									//
-									QuotIdent qi(QIDATE(date), loc_id, quotk_id);
-									if(goods_obj.GetQuotExt(goods_id, qi, ti.Cost, lot_rec.Price, &quot, 1) > 0) {
-										price = quot;
-										r = 1;
-									}
+								assert(quotk_id); // @paranoic
+								double quot = 0.0;
+								//
+								// Если, в случае формирования документа на "чужом" складе, котировка должна
+								// браться по складу, которому принадлежит сессия, то loc_id следует заменить на locID
+								//
+								const QuotIdent qi(QIDATE(date), loc_id, quotk_id);
+								if(goods_obj.GetQuotExt(goods_id, qi, ti.Cost, lot_rec.Price, &quot, 1) > 0) {
+									price = quot;
+									r = 1;
 								}
 								if(r)
 									ti.Price = price;

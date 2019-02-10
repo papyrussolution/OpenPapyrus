@@ -263,29 +263,22 @@ int TY_(DecodeUTF8BytesToChar) (uint* c, uint firstByte, ctmbstr successorBytes,
 #endif
 
 	if(!hasError) {
-		int lo, hi;
-
-		lo = offsetUTF8Sequences[bytes - 1];
-		hi = offsetUTF8Sequences[bytes] - 1;
-
+		const int lo = offsetUTF8Sequences[bytes - 1];
+		const int hi = offsetUTF8Sequences[bytes] - 1;
 		/* check for overlong sequences */
 		if((n < validUTF8[lo].lowChar) || (n > validUTF8[hi].highChar))
 			hasError = true;
 		else {
 			hasError = true; /* assume error until proven otherwise */
-
 			for(i = lo; i <= hi; i++) {
 				int tempCount;
 				byte theByte;
-
 				for(tempCount = 0; tempCount < bytes; tempCount++) {
 					if(!tempCount)
 						theByte = (tmbchar)firstByte;
 					else
 						theByte = buf[tempCount - 1];
-
-					if(theByte >= validUTF8[i].validBytes[(tempCount * 2)] &&
-					    theByte <= validUTF8[i].validBytes[(tempCount * 2) + 1])
+					if(theByte >= validUTF8[i].validBytes[(tempCount * 2)] && theByte <= validUTF8[i].validBytes[(tempCount * 2) + 1])
 						hasError = false;
 					if(hasError)
 						break;

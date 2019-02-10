@@ -685,8 +685,8 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 					THROW_PP(actual_in_buf_size == in_buf_size, PPERR_SBII_PROT_INVARGSIZE);
 					THROW_PP(actual_in_buf_size >= sizeof(uint32), PPERR_SBII_PROT_INVARGSIZE);
 					SCRC32 c;
-					const uint32 bht_crc = *(uint32 *)(const void *)in_buf;
-					uint32 this_crc = c.Calc(0, ((const uint8 *)(const void *)in_buf)+sizeof(this_crc), in_buf_size-sizeof(this_crc));
+					const uint32 bht_crc = *(uint32 *)in_buf.constptr();
+					uint32 this_crc = c.Calc(0, PTR8C(in_buf.constptr())+sizeof(this_crc), in_buf_size-sizeof(this_crc));
 					THROW_PP(this_crc == bht_crc, PPERR_SBII_TEST_INVCRC);
 					{
 
@@ -701,7 +701,7 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 							PTR32((char *)buffer)[i+1] = out_dword;
 							//THROW_SL(ret_buf.Write(out_dword));
 						}
-						this_crc = c.Calc(0, (const uint8 *)(((const char *)buffer)+sizeof(this_crc)), out_data_len);
+						this_crc = c.Calc(0, ((const char *)buffer)+sizeof(this_crc), out_data_len);
 						PTR32((char *)buffer)[0] = this_crc;
                         THROW_SL(ret_buf.Write(buffer, buffer.GetSize()));
 					}
@@ -736,7 +736,7 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 				{
 					THROW_PP(actual_in_buf_size == sizeof(long), PPERR_SBII_PROT_INVARGSIZE);
 					{
-						const long unite_goods = *(long *)(const void *)in_buf;
+						const long unite_goods = *(const long *)in_buf.constptr();
 						r = (PrepareBills(unite_goods) > 0) ? 1 : 0;
 					}
 				}
@@ -759,7 +759,7 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 				{
 					THROW_PP(actual_in_buf_size == sizeof(long), PPERR_SBII_PROT_INVARGSIZE);
 					{
-						const long bill_id = *(long *)(const void *)in_buf;
+						const long bill_id = *static_cast<const long *>(in_buf.constptr());
 						SBIIBillRowWithCellsRec sbii_rec;
 						PPObjBHT bht_obj;
 						StyloBhtIIConfig cfg;
@@ -781,7 +781,7 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 				{
 					char   code[128];
 					SBIIGoodsRec sbii_grec;
-					strnzcpy(code, (const char *)(const void *)in_buf, MIN(sizeof(code), in_buf.GetAvailableSize()));
+					strnzcpy(code, (const char *)in_buf.constptr(), MIN(sizeof(code), in_buf.GetAvailableSize()));
 					if(FindGoods(0, code, &sbii_grec) > 0) {
 						THROW_SL(ret_buf.Write(&sbii_grec, sizeof(sbii_grec)));
 						//THROW(MakeParam(&sbii_grec, &p_param_buf, out_buf_size = sizeof(sbii_grec)));
@@ -792,7 +792,7 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 			case SBhtIICmdBuf::cmSearchGoodsByCode:
 				{
 					char   code[128];
-					strnzcpy(code, (const char *)(const void *)in_buf, MIN(sizeof(code), in_buf.GetAvailableSize()));
+					strnzcpy(code, (const char *)in_buf.constptr(), MIN(sizeof(code), in_buf.GetAvailableSize()));
 					{
 						GoodsCodeSrchBlock srch_blk;
 						Goods2Tbl::Rec goods_rec;
@@ -813,7 +813,7 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 					RetailGoodsInfo rgi;
 					THROW_PP(actual_in_buf_size == sizeof(long), PPERR_SBII_PROT_INVARGSIZE);
 					{
-						const long goods_id = *(long *)(const void *)in_buf;
+						const long goods_id = *static_cast<const long *>(in_buf.constptr());
 						const PPID loc_id = BhtPack.Rec.LocID;
 						//SBIIGoodsStateInfo sbii_gsi;
 						if(GObj.GetRetailGoodsInfo(goods_id, loc_id, &rgi) > 0) {
@@ -842,7 +842,7 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 				{
 					THROW_PP(actual_in_buf_size == sizeof(long), PPERR_SBII_PROT_INVARGSIZE);
 					{
-						const PPID goods_id = *(long *)(const void *)in_buf;
+						const PPID goods_id = *static_cast<const long *>(in_buf.constptr());
 						SBIIGoodsRec sbii_grec;
 						if(FindGoods(goods_id, 0, &sbii_grec) > 0) {
 							THROW_SL(ret_buf.Write(&sbii_grec, sizeof(sbii_grec)));
@@ -856,7 +856,7 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 				{
 					char name[128];
 					SBIILocCellRec sbii_lrec;
-					strnzcpy(name, (const char *)(const void *)in_buf, MIN(sizeof(name), in_buf.GetAvailableSize()));
+					strnzcpy(name, (const char *)in_buf.constptr(), MIN(sizeof(name), in_buf.GetAvailableSize()));
 					if(FindLocCell(0, name, &sbii_lrec) > 0) {
 						THROW_SL(ret_buf.Write(&sbii_lrec, sizeof(sbii_lrec)));
 						r = 1;
@@ -872,7 +872,7 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 				{
 					long   goods_id = 0;
 					THROW_PP(actual_in_buf_size == sizeof(long), PPERR_SBII_PROT_INVARGSIZE);
-					goods_id = *(long *)(const void *)in_buf;
+					goods_id = *static_cast<const long *>(in_buf.constptr());
 					reply_sended = ((r = GetGoodsList(rSo, goods_id, 0)) > 0) ? 1 : 0;
 				}
 				break;
@@ -880,7 +880,7 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 				{
 					long   cell_id = 0;
 					THROW_PP(actual_in_buf_size == sizeof(long), PPERR_SBII_PROT_INVARGSIZE);
-					cell_id = *(long *)(const void *)in_buf;
+					cell_id = *static_cast<const long *>(in_buf.constptr());
 					reply_sended = ((r = GetGoodsList(rSo, cell_id, 1)) > 0) ? 1 : 0;
 				}
 				break;
@@ -888,7 +888,7 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 				{
 					PPObjBHT bht_obj;
 					THROW_PP(actual_in_buf_size == sizeof(Cfg), PPERR_SBII_PROT_INVARGSIZE);
-					Cfg = *(StyloBhtIIConfig *)(const void *)in_buf;
+					Cfg = *static_cast<const StyloBhtIIConfig *>(in_buf.constptr());
 					Log_(0, PPTXT_SBIIIMPORTOK, "Config", 1, 0);
 					if(Cfg.DeviceID)
 						THROW(bht_obj.GetPacket(Cfg.DeviceID, &BhtPack) > 0);
@@ -901,7 +901,7 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 				{
 					long   count = 0;
 					THROW_PP(actual_in_buf_size == sizeof(long), PPERR_SBII_PROT_INVARGSIZE);
-					count = *(long *)(const void *)in_buf;
+					count = *static_cast<const long *>(in_buf.constptr());
 					{
 						SBIIBillRec sbii_rec;
 						r = SetTable(rSo, SBhtIICmdBuf::cmSetBills, PPFILNAM_BHT_BILL, "Bills", &sbii_rec, count);
@@ -913,7 +913,7 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 				{
 					long   count = 0;
 					THROW_PP(actual_in_buf_size == sizeof(long), PPERR_SBII_PROT_INVARGSIZE);
-					count = *(long *)(const void *)in_buf;
+					count = *static_cast<const long *>(in_buf.constptr());
 					{
 						SBIIBillRowRec sbii_rec;
 						r = SetTable(rSo, SBhtIICmdBuf::cmSetBillRows, PPFILNAM_BHT_BLINE, "BillRows", &sbii_rec, count);
@@ -925,14 +925,14 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 				{
 					SBIILocOp loc_op;
 					THROW_PP(actual_in_buf_size == loc_op.GetSize(), PPERR_SBII_PROT_INVARGSIZE);
-					loc_op.FromBuf(in_buf);
+					loc_op.FromBuf(in_buf.constptr());
 					r = AcceptLocOp(&loc_op);
 				}
 				break;
 			case SBhtIICmdBuf::cmPrintBarcode:
 				{
 					char code[128];
-					strnzcpy(code, (const char *)(const void *)in_buf, MIN(sizeof(code), in_buf.GetAvailableSize()));
+					strnzcpy(code, static_cast<const char *>(in_buf.constptr()), MIN(sizeof(code), in_buf.GetAvailableSize()));
 					r = PrintBarcode(code);
 				}
 				break;
@@ -944,7 +944,7 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 				if(cmd_buf.Cmd > SBhtIICmdBuf::cmNextTableChunkBias) {
 					long   next_rec_no = 0L;
 					THROW_PP(actual_in_buf_size == sizeof(next_rec_no), PPERR_SBII_PROT_INVARGSIZE);
-					next_rec_no = *(long *)(const void *)in_buf;
+					next_rec_no = *static_cast<const long *>(in_buf.constptr());
 					switch(cmd_buf.Cmd - SBhtIICmdBuf::cmNextTableChunkBias) {
 						case SBhtIICmdBuf::cmGetGoods:
 							{

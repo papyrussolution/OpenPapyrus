@@ -476,7 +476,6 @@ static cairo_int_status_t _paint_page(cairo_paginated_surface_t * surface)
 
 FAIL:
 	cairo_surface_destroy(analysis);
-
 	return _cairo_surface_set_error(surface->target, status);
 }
 
@@ -484,29 +483,21 @@ static cairo_status_t _start_page(cairo_paginated_surface_t * surface)
 {
 	if(surface->target->status)
 		return surface->target->status;
-
 	if(!surface->backend->start_page)
 		return CAIRO_STATUS_SUCCESS;
-
-	return _cairo_surface_set_error(surface->target,
-		   surface->backend->start_page(surface->target));
+	return _cairo_surface_set_error(surface->target, surface->backend->start_page(surface->target));
 }
 
 static cairo_int_status_t _cairo_paginated_surface_copy_page(void * abstract_surface)
 {
-	cairo_status_t status;
 	cairo_paginated_surface_t * surface = (cairo_paginated_surface_t *)abstract_surface;
-
-	status = _start_page(surface);
+	cairo_status_t status = _start_page(surface);
 	if(unlikely(status))
 		return status;
-
 	status = _paint_page(surface);
 	if(unlikely(status))
 		return status;
-
 	surface->page_num++;
-
 	/* XXX: It might make sense to add some support here for calling
 	 * cairo_surface_copy_page on the target surface. It would be an
 	 * optimization for the output, but the interaction with image
@@ -520,44 +511,33 @@ static cairo_int_status_t _cairo_paginated_surface_copy_page(void * abstract_sur
 
 static cairo_int_status_t _cairo_paginated_surface_show_page(void * abstract_surface)
 {
-	cairo_status_t status;
 	cairo_paginated_surface_t * surface = (cairo_paginated_surface_t *)abstract_surface;
-
-	status = _start_page(surface);
+	cairo_status_t status = _start_page(surface);
 	if(unlikely(status))
 		return status;
-
 	status = _paint_page(surface);
 	if(unlikely(status))
 		return status;
-
 	cairo_surface_show_page(surface->target);
 	status = surface->target->status;
 	if(unlikely(status))
 		return status;
-
 	status = surface->recording_surface->status;
 	if(unlikely(status))
 		return status;
-
 	if(!surface->base.finished) {
 		cairo_surface_destroy(surface->recording_surface);
-
-		surface->recording_surface = _create_recording_surface_for_target(surface->target,
-			surface->content);
+		surface->recording_surface = _create_recording_surface_for_target(surface->target, surface->content);
 		status = surface->recording_surface->status;
 		if(unlikely(status))
 			return status;
-
 		surface->page_num++;
 		surface->base.is_clear = TRUE;
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_bool_t _cairo_paginated_surface_get_extents(void * abstract_surface,
-    cairo_rectangle_int_t * rectangle)
+static cairo_bool_t _cairo_paginated_surface_get_extents(void * abstract_surface, cairo_rectangle_int_t * rectangle)
 {
 	cairo_paginated_surface_t * surface = (cairo_paginated_surface_t *)abstract_surface;
 	return _cairo_surface_get_extents(surface->target, rectangle);

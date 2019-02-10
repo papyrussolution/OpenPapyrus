@@ -66,7 +66,7 @@ cairo_private cairo_status_t FASTCALL _cairo_boxes_add(cairo_boxes_t * boxes, ca
 cairo_private void _cairo_boxes_extents(const cairo_boxes_t * boxes, cairo_box_t * box);
 cairo_private cairo_box_t * _cairo_boxes_to_array(const cairo_boxes_t * boxes, int * num_boxes);
 cairo_private cairo_status_t _cairo_boxes_intersect(const cairo_boxes_t * a, const cairo_boxes_t * b, cairo_boxes_t * out);
-cairo_private void _cairo_boxes_clear(cairo_boxes_t * boxes);
+cairo_private void FASTCALL _cairo_boxes_clear(cairo_boxes_t * boxes);
 cairo_private_no_warn cairo_bool_t _cairo_boxes_for_each_box(cairo_boxes_t * boxes, cairo_bool_t (* func)(cairo_box_t * box, void * data), void * data);
 cairo_private cairo_status_t _cairo_rasterise_polygon_to_boxes(cairo_polygon_t * polygon, cairo_fill_rule_t fill_rule, cairo_boxes_t * boxes);
 cairo_private void _cairo_boxes_fini(cairo_boxes_t * boxes);

@@ -15,7 +15,7 @@ SupplExpFilt::SupplExpFilt()
 void SupplExpFilt::Init()
 {
 	LocList.Set(0);
-	EncodeStr = 0;
+	EncodeStr.Z();
 	memzero(this, offsetof(SupplExpFilt, EncodeStr));
 }
 
@@ -37,7 +37,7 @@ int SLAPI SupplExpFilt::Write(SBuffer & rBuf, long) const
 	THROW_SL(rBuf.Write(&AddRecType, sizeof(AddRecType)));
 	THROW_SL(rBuf.Write(EncodeStr));
 	THROW_SL(rBuf.Write(PctDis1));
-	THROW_SL(rBuf.Write((long)LocList.GetCount()));
+	THROW_SL(rBuf.Write(static_cast<long>(LocList.GetCount())));
 	{
 		PPIDArray loc_list;
 		LocList.CopyTo(&loc_list);
@@ -102,7 +102,7 @@ int SupplExpFilt::OpListFromCfg(const /*PPSupplExchangeCfg*/PPSupplAgreement::Ex
 	RetOp      = pCfg->RetOp;
 	MovInOp    = pCfg->MovInOp;
 	MovOutOp   = pCfg->MovOutOp;
-	ProtVer    = (uint16)pCfg->ProtVer;
+	ProtVer    = static_cast<uint16>(pCfg->ProtVer);
 	CATCHZOK
 	return ok;
 }
@@ -344,7 +344,7 @@ public:
 			}
 			if(lr_ex) {
 				LineRec.SetDataBuf(pLineRec, lineRecSize);
-				THROW(WriteRec(&LineRec, (LinesRecCount == 0) ? ((const char*)LineScheme) : 0, 1));
+				THROW(WriteRec(&LineRec, (LinesRecCount == 0) ? LineScheme.cptr() : 0, 1));
 				LinesRecCount++;
 			}
 			ok = 1;
@@ -352,7 +352,7 @@ public:
 				int64  file_size = 0;
 				F.CalcSize(&file_size);
 				//if(Filt.MaxFileSizeKB && (((size_t)file_size) / 1024) > Filt.MaxFileSizeKB) {
-				if(MaxTransmitSize > 0 && (((size_t)file_size) / 1024) > MaxTransmitSize) {
+				if(MaxTransmitSize > 0 && (static_cast<size_t>(file_size) / 1024) > MaxTransmitSize) {
 					SString file_name;
 					SPathStruc sp;
 					EndDocument(ok);
@@ -465,7 +465,7 @@ private:
 		}
 		return ok;
 	}
-	int    SLAPI WriteScheme(SdRecord * pRec, const char * pSchemeName)
+	int    SLAPI WriteScheme(const SdRecord * pRec, const char * pSchemeName)
 	{
 		int    ok = -1;
 		if(F.IsValid() && pSchemeName) {
@@ -498,7 +498,7 @@ private:
 		CATCHZOK
 		return ok;
 	}
-	int    SLAPI WriteRec(SdRecord * pRec, const char * pSchemeName, int endRecord)
+	int    SLAPI WriteRec(const SdRecord * pRec, const char * pSchemeName, int endRecord)
 	{
 		int    ok = -1;
 		if(F.IsValid()) {
@@ -1231,8 +1231,8 @@ int SLAPI PPSupplExchange_Baltika::GetBarcode(PPID goodsID, char * pBuf, size_t 
 
 IMPL_CMPFUNC(Sdr_BaltikaBillItemAttrs, i1, i2)
 {
-	const Sdr_BaltikaBillItemAttrs * p_i1 = (const Sdr_BaltikaBillItemAttrs*)i1;
-	const Sdr_BaltikaBillItemAttrs * p_i2 = (const Sdr_BaltikaBillItemAttrs*)i2;
+	const Sdr_BaltikaBillItemAttrs * p_i1 = static_cast<const Sdr_BaltikaBillItemAttrs *>(i1);
+	const Sdr_BaltikaBillItemAttrs * p_i2 = static_cast<const Sdr_BaltikaBillItemAttrs *>(i2);
 	int r = stricmp866(p_i1->DocumentNumber, p_i2->DocumentNumber);
 	if(r == 0)
 		r = stricmp866(p_i1->WareId, p_i2->WareId);
@@ -1704,7 +1704,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 					GetObjectName(PPOBJ_PERSON, client_id, cli_name = 0);
 					// specencodesym=%01,294520000;%02,294520003
 					// %01478954         294520003780100
-					(code = 0).EncodeString(loc_rec.Code, /*Filt.EncodeStr*/encode_str, 1).CopyTo(addr_rec.CRMClientId, sizeof(addr_rec.CRMClientId));
+					code.Z().EncodeString(loc_rec.Code, /*Filt.EncodeStr*/encode_str, 1).CopyTo(addr_rec.CRMClientId, sizeof(addr_rec.CRMClientId));
 					ltoa(client_id, addr_rec.CompanyId, 10);
 					cli_name.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(addr_rec.CompanyName, sizeof(addr_rec.CompanyName));
 					ltoa(dlvr_addr_id, addr_rec.AddressId, 10);
@@ -1714,7 +1714,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 					addr.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(addr_rec.Location, sizeof(addr_rec.Location));
 					THROW(soap_e.AppendRecT(PPREC_SUPPLDLVRADDR, &addr_rec, sizeof(addr_rec), BIN(j == 0), 0, 0/*pSchemeName*/));
 					j++;
-					if(GetDlvrAddrHorecaCode(&dlvr_addr_id, (code = 0)) > 0) {
+					if(GetDlvrAddrHorecaCode(&dlvr_addr_id, code.Z()) > 0) {
 						code.CopyTo(addr_rec.CRMClientId, sizeof(addr_rec.CRMClientId));
 						ltoa(dlvr_addr_id, addr_rec.AddressId, 10);
 						THROW(soap_e.AppendRecT(PPREC_SUPPLDLVRADDR, &addr_rec, sizeof(addr_rec), BIN(j == 0), 0, 0/*pSchemeName*/));
@@ -1732,7 +1732,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 	return ok;
 }
 
-static int _WriteScheme(SXml::WDoc & rXmlDoc, SdRecord & rRd, const char * pSchemeName)
+static int _WriteScheme(SXml::WDoc & rXmlDoc, const SdRecord & rRd, const char * pSchemeName)
 {
 	int    ok = 1;
 	SString field_name, field_type;
@@ -1747,15 +1747,13 @@ static int _WriteScheme(SXml::WDoc & rXmlDoc, SdRecord & rRd, const char * pSche
 				field_name = fld.Name;
 				if(!field_name.NotEmptyS())
 					field_name.Cat(fld.ID);
-				field_type = 0;
-				if(base_type == BTS_DATE)
-					field_type = "Date";
-				else if(base_type == BTS_INT)
-					field_type = "Integer";
-				else if(base_type == BTS_REAL)
-					field_type = "Currency";
-				else if(base_type == BTS_STRING)
-					field_type = "String";
+				switch(base_type) {
+					case BTS_DATE:	field_type = "Date"; break;
+					case BTS_INT:   field_type = "Integer"; break;
+					case BTS_REAL:  field_type = "Currency"; break;
+					case BTS_STRING: field_type = "String"; break;
+					default: field_type.Z(); break;
+				}
 				{
 					SXml::WNode n_f(rXmlDoc, "f");
 					n_f.PutAttrib("name", field_name);
@@ -1768,7 +1766,7 @@ static int _WriteScheme(SXml::WDoc & rXmlDoc, SdRecord & rRd, const char * pSche
 	return ok;
 }
 
-static int _WriteRec(SXml::WDoc & rXmlDoc, SdRecord & rRd, const void * pDataBuf)
+static int FASTCALL _WriteRec(SXml::WDoc & rXmlDoc, const SdRecord & rRd, const void * pDataBuf)
 {
 	assert(pDataBuf);
 	int    ok = 1;
@@ -1790,7 +1788,6 @@ static int _WriteRec(SXml::WDoc & rXmlDoc, SdRecord & rRd, const void * pDataBuf
 			SXml::WNode w_f(rXmlDoc, "f", value_buf.Strip());
 		}
 	}
-	//CATCHZOK
 	return ok;
 }
 
@@ -1798,7 +1795,6 @@ int SLAPI PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, c
 {
 	const   LDATE _curdt = getcurdate_();
 	const   PPID acs_id = GetSellAccSheet();
-
     int    ok = 1;
     StrAssocArray * p_cli_list = 0;
 	PPIDArray goods_list;
@@ -2070,7 +2066,7 @@ PPID SLAPI PPSupplExchange_Baltika::GetSaleChannelTagID()
 	SArray * p_tags_list = obj_tag.CreateList(0, 0);
 	if(p_tags_list) {
    		for(uint i = 0; !sale_channel_tag && i < p_tags_list->getCount(); i++) {
-   			const PPID tag_id = *(PPID *)p_tags_list->at(i);
+   			const PPID tag_id = *static_cast<const PPID *>(p_tags_list->at(i));
 			PPObjectTag tag_kind;
 			if(obj_tag.Search(tag_id, &tag_kind) > 0 && sale_channel_tag_symb.CmpPrefix(tag_kind.Symb, 1) == 0)
 				sale_channel_tag = tag_id;
@@ -2309,7 +2305,7 @@ int SLAPI EditSupplExpFilt(SupplExpFilt * pFilt, int selOnlySuppl)
 					SetPeriodInput(this, CTL_SUPLEXPFLT_PRD, &Data.Period);
 					//InetAddr
 					Data.Port   = suppl_agr.Ep.ConnAddr.GetPort();
-					Data.IP     = (ulong)suppl_agr.Ep.ConnAddr;
+					Data.IP     = static_cast<ulong>(suppl_agr.Ep.ConnAddr);
 					Data.PriceQuotID = suppl_agr.Ep.PriceQuotID;
 					suppl_agr.Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssClientCode, temp_buf.Z());
 					STRNSCPY(Data.ClientCode, temp_buf);
@@ -2512,7 +2508,7 @@ int SLAPI PPSupplExchange_Baltika::Import(const char * pPath)
 					MEMSZERO(grec);
 					THROW(r = GObj.P_Tbl->SearchByArCode(P.SupplID, gitem.Barcode, 0));
 					if(r < 0) {
-						THROW(GObj.P_Tbl->SetArCode(gitem.ResolvedGoodsID, P.SupplID, gitem.Barcode, (int32)gitem.Quantity, 1));
+						THROW(GObj.P_Tbl->SetArCode(gitem.ResolvedGoodsID, P.SupplID, gitem.Barcode, static_cast<int32>(gitem.Quantity), 1));
 						// THROW(GObj.P_Tbl->AddBarcode(gitem.ResolvedGoodsID, gitem.Barcode, gitem.Quantity, 1));
 					}
 				}
@@ -2614,7 +2610,7 @@ SLAPI iSalesPepsi::iSalesPepsi(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLog
 			ZDELETE(P_Lib);
 		}
 		if(P_Lib)
-			P_DestroyFunc = (void *)P_Lib->GetProcAddr("iSalesDestroyResult");
+			P_DestroyFunc = static_cast<void *>(P_Lib->GetProcAddr("iSalesDestroyResult"));
 	}
 }
 
@@ -2651,7 +2647,7 @@ int SLAPI iSalesPepsi::PreprocessResult(const void * pResult, const PPSoapClient
 void FASTCALL iSalesPepsi::DestroyResult(void ** ppResult)
 {
 	if(P_DestroyFunc) {
-		((UHTT_DESTROYRESULT)P_DestroyFunc)(*ppResult);
+		static_cast<UHTT_DESTROYRESULT>(P_DestroyFunc)(*ppResult);
 		*ppResult = 0;
 	}
 }
@@ -2739,7 +2735,7 @@ int SLAPI iSalesPepsi::StoreGoods(TSCollection <iSalesGoodsPacket> & rList)
         MEMSZERO(hdr);
         memcpy(hdr.Signature, "ISGS", 4);
         SCRC32 cc;
-        hdr.CRC = cc.Calc(0, (const uint8 *)buffer.GetBuf(0), bsize);
+        hdr.CRC = cc.Calc(0, buffer.GetBuf(0), bsize);
         //
         GetGoodsStoreFileName(file_name);
         SFile f_out(file_name, SFile::mWrite|SFile::mBinary);
@@ -2767,7 +2763,7 @@ int SLAPI iSalesPepsi::RestoreGoods(TSCollection <iSalesGoodsPacket> & rList)
 		THROW_SL(f_in.Read(buffer));
 		{
 			SCRC32 cc;
-			uint32 _crc = cc.Calc(0, (const uint8 *)buffer.GetBuf(0), buffer.GetAvailableSize());
+			uint32 _crc = cc.Calc(0, buffer.GetBuf(0), buffer.GetAvailableSize());
 			THROW(_crc == hdr.CRC);
 		}
 		THROW_SL(TSCollection_Serialize(rList, -1, buffer, &sctx));
@@ -5364,8 +5360,9 @@ public:
 	int    SLAPI SendStatus(const TSCollection <SfaHeinekenOrderStatusEntry> & rList);
 	int    SLAPI SendDebts();
 private:
-	int    SLAPI Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollection <SfaHeinekenInvoice> & rList);
-	int    SLAPI Helper_MakeBillList(PPID opID, int outerDocType, TSCollection <SfaHeinekenInvoice> & rList);
+	int    SLAPI Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollection <SfaHeinekenInvoice> & rList, TSCollection <SfaHeinekenInvoice> & rToDeleteList);
+	int    SLAPI Helper_MakeBillList(PPID opID, int outerDocType, TSCollection <SfaHeinekenInvoice> & rList,
+		TSCollection <SfaHeinekenInvoice> & rToDeleteList);
 	int    SLAPI Helper_MakeDeliveryList(PPBillPacket & rPack, const StrAssocArray & rTiPosList, TSCollection <SfaHeinekenDeliveryPosition> & rDeliveryList);
 
 	struct ReplyInfo {
@@ -5899,11 +5896,11 @@ int SLAPI SfaHeineken::Helper_MakeDeliveryList(PPBillPacket & rPack, const StrAs
 	return ok;
 }
 
-int SLAPI SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollection <SfaHeinekenInvoice> & rList)
+int SLAPI SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollection <SfaHeinekenInvoice> & rList, TSCollection <SfaHeinekenInvoice> & rToDeleteList)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
-	const  PPID bill_ack_tag_id = NZOR(Ep.Fb.BillAckTagID, PPTAG_BILL_EDIACK);
+	const  PPID bill_ack_tag_id = Ep.Fb.BillAckTagID; //NZOR(Ep.Fb.BillAckTagID, PPTAG_BILL_EDIACK);
 	int    do_cancel = BIN(outerDocType < 0);
 	SString temp_buf;
 	SString msg_buf;
@@ -5920,7 +5917,12 @@ int SLAPI SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 				ti_pos_list.Add(tiiterpos, temp_buf, 0);
 			}
 		}
-		if(ti_pos_list.getCount()) {
+		SString bill_code;
+		SString bill_ack_tag_value;
+		pack.BTagL.GetItemStr(bill_ack_tag_id, bill_ack_tag_value);
+		BillCore::GetCode(bill_code = pack.Rec.Code);
+		bill_code.Transf(CTRANSF_INNER_TO_UTF8);
+		if(ti_pos_list.getCount() && bill_ack_tag_value.Empty()) {
 			PPIDArray order_id_list;
 			PPBillPacket order_pack;
 			int    is_own_order = 0;
@@ -5929,9 +5931,6 @@ int SLAPI SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 			S_GUID  order_uuid;
 			SString inner_order_code;
 			SString bill_text;
-			SString bill_code;
-			BillCore::GetCode(bill_code = pack.Rec.Code);
-			bill_code.Transf(CTRANSF_INNER_TO_UTF8);
 			P_BObj->MakeCodeString(&pack.Rec, PPObjBill::mcsAddLocName|PPObjBill::mcsAddObjName|PPObjBill::mcsAddOpName, bill_text);
 			pack.GetOrderList(order_id_list);
 			for(uint ordidx = 0; !is_own_order && ordidx < order_id_list.getCount(); ordidx++) {
@@ -5959,12 +5958,10 @@ int SLAPI SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 			}
 			else {
 				PPID foreign_warehouse_id = 0;
-				if(p_ref->Ot.GetTagStr(PPOBJ_LOCATION, dlvr_addr_id, Ep.Fb.LocCodeTagID, temp_buf) > 0) {
+				if(p_ref->Ot.GetTagStr(PPOBJ_LOCATION, dlvr_addr_id, Ep.Fb.LocCodeTagID, temp_buf) > 0)
 					foreign_dlvr_addr_id = temp_buf.ToLong();
-				}
-				if(p_ref->Ot.GetTagStr(PPOBJ_LOCATION, pack.Rec.LocID, Ep.Fb.LocCodeTagID, temp_buf) > 0) {
+				if(p_ref->Ot.GetTagStr(PPOBJ_LOCATION, pack.Rec.LocID, Ep.Fb.LocCodeTagID, temp_buf) > 0)
 					foreign_warehouse_id = temp_buf.ToLong();
-				}
 				SfaHeinekenInvoice * p_new_entry = rList.CreateNewItem();
 				THROW_SL(p_new_entry);
 				p_new_entry->Code = bill_code;
@@ -6007,15 +6004,23 @@ int SLAPI SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 				}
 			}
 		}
+		else {
+			if(bill_ack_tag_value.NotEmpty()) {
+				SfaHeinekenInvoice * p_new_entry = rToDeleteList.CreateNewItem();
+				THROW_SL(p_new_entry);
+				p_new_entry->Code = bill_code;
+				p_new_entry->Dt = pack.Rec.Dt;
+			}
+		}
 	}
 	CATCHZOK
 	return ok;
 }
 
-int SLAPI SfaHeineken::Helper_MakeBillList(PPID opID, int outerDocType, TSCollection <SfaHeinekenInvoice> & rList)
+int SLAPI SfaHeineken::Helper_MakeBillList(PPID opID, int outerDocType, TSCollection <SfaHeinekenInvoice> & rList, TSCollection <SfaHeinekenInvoice> & rToDeleteList)
 {
 	int    ok = -1;
-	const  PPID bill_ack_tag_id = NZOR(Ep.Fb.BillAckTagID, PPTAG_BILL_EDIACK);
+	const  PPID bill_ack_tag_id = Ep.Fb.BillAckTagID;
 	if(opID && outerDocType >= 0) {
 		Reference * p_ref = PPRef;
 		SString temp_buf;
@@ -6035,7 +6040,6 @@ int SLAPI SfaHeineken::Helper_MakeBillList(PPID opID, int outerDocType, TSCollec
 		}
 		b_filt.Period = P.ExpPeriod;
 		SETIFZ(b_filt.Period.low, encodedate(1, 1, 2016));
-		force_bill_list.sortAndUndup();
 		THROW(b_view.Init_(&b_filt));
 		for(b_view.InitIteration(PPViewBill::OrdByDefault); b_view.NextIteration(&view_item) > 0;) {
 			if(!force_bill_list.bsearch(view_item.ID)) {
@@ -6043,11 +6047,11 @@ int SLAPI SfaHeineken::Helper_MakeBillList(PPID opID, int outerDocType, TSCollec
 				if(outerDocType == 6 && !P_BObj->CheckStatusFlag(view_item.StatusID, BILSTF_READYFOREDIACK)) {
 					dont_send = 1; // Статус не позволяет отправку
 				}
-				else if(p_ref->Ot.GetTagStr(PPOBJ_BILL, view_item.ID, bill_ack_tag_id, temp_buf) > 0 && !test_uuid.FromStr(temp_buf)) {
+				/* @v10.3.3 (функция Helper_MakeBillEntry разберется) else if(p_ref->Ot.GetTagStr(PPOBJ_BILL, view_item.ID, bill_ack_tag_id, temp_buf) > 0) {
 					dont_send = 1; // не отправляем документы, которые уже были отправлены ранее
-				}
+				}*/
 				if(!dont_send) {
-					if(!Helper_MakeBillEntry(view_item.ID, outerDocType, rList))
+					if(!Helper_MakeBillEntry(view_item.ID, outerDocType, rList, rToDeleteList))
 						R_Logger.LogLastError();
 				}
 			}
@@ -6060,7 +6064,7 @@ int SLAPI SfaHeineken::Helper_MakeBillList(PPID opID, int outerDocType, TSCollec
 						// Статус не позволяет отправку
 					}
 					else {
-						if(!Helper_MakeBillEntry(bill_rec.ID, outerDocType, rList))
+						if(!Helper_MakeBillEntry(bill_rec.ID, outerDocType, rList, rToDeleteList))
 							R_Logger.LogLastError();
 					}
 				}
@@ -6116,7 +6120,7 @@ int SLAPI SfaHeineken::SendDebts()
 	if(list.getCount()) {
 		p_result = func(sess, list);
 		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
-		DestroyResult((void **)&p_result);
+		DestroyResult(reinterpret_cast<void **>(&p_result));
 		ok = 1;
 	}
 	CATCHZOK
@@ -6131,7 +6135,9 @@ int SLAPI SfaHeineken::SendSales()
 	SString msg_buf;
 	SString * p_result = 0;
 	TSCollection <SfaHeinekenInvoice> list;
+	TSCollection <SfaHeinekenInvoice> to_delete_list;
 	SFAHEINEKENSENDSELLOUT_PROC func = 0;
+	SFAHEINEKENDELETESELLOUT_PROC func_delete = 0;
 	Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, temp_buf);
 	{
 		PPFormatT(PPTXT_LOG_SUPPLIX_EXPBILL_S, &msg_buf, temp_buf.cptr(), P.SupplID);
@@ -6140,14 +6146,25 @@ int SLAPI SfaHeineken::SendSales()
 	THROW(State & stInited);
 	THROW(State & stEpDefined);
 	THROW(P_Lib);
-	THROW_SL(func = (SFAHEINEKENSENDSELLOUT_PROC)P_Lib->GetProcAddr("SfaHeineken_SendSellout"));
+	THROW_SL(func = reinterpret_cast<SFAHEINEKENSENDSELLOUT_PROC>(P_Lib->GetProcAddr("SfaHeineken_SendSellout")));
 	sess.Setup(SvcUrl, UserName, Password);
-	Helper_MakeBillList(Ep.ExpendOp, 1, list);
+	Helper_MakeBillList(Ep.ExpendOp, 1, list, to_delete_list);
 	if(list.getCount()) {
 		p_result = func(sess, list);
 		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
-		DestroyResult((void **)&p_result);
+		DestroyResult(reinterpret_cast<void **>(&p_result));
 		ok = 1;
+	}
+	if(to_delete_list.getCount()) {
+		THROW_SL(func_delete = reinterpret_cast<SFAHEINEKENDELETESELLOUT_PROC>(P_Lib->GetProcAddr("SfaHeineken_DeleteSellout")));
+		for(uint i = 0; i < to_delete_list.getCount(); i++) {
+			const SfaHeinekenInvoice * p_item = to_delete_list.at(i);
+			if(p_item && p_item->Code.NotEmpty() && checkdate(p_item->Dt)) {
+				p_result = func_delete(sess, p_item->Code, p_item->Dt);
+				THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
+			}
+		}
 	}
 	CATCHZOK
 	return ok;

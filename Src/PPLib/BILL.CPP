@@ -165,7 +165,6 @@ int SLAPI BillCore::GetAmount(PPID billID, PPID amtTypeID, PPID curID, double * 
 int SLAPI BillCore::GetAmountList(PPID billID, AmtList * pList)
 {
 	const int use_ext_query = 0; // @v8.4.7 1-->0 (фактически, добавлен код, реализующий !use_ext_query)
-
 	int    ok = 1;
 	BillAmountTbl::Key0 k;
 	k.BillID    = billID;
@@ -200,21 +199,17 @@ int SLAPI BillCore::UpdateAmount(PPID billID, const AmtEntry * pEntry, int remov
 		k.BillID    = billID;
 		k.AmtTypeID = pEntry->AmtTypeID;
 		k.CurID     = pEntry->CurID;
-		if(AmtT.search(0, &k, spEq)) { // @v8.1.4 searchForUpdate-->search
+		if(AmtT.search(0, &k, spEq)) {
 			if(removeZero && pEntry->Amt == 0.0) {
-				// @v8.1.4 {
 				DBRowId _dbpos;
 				THROW_DB(AmtT.getPosition(&_dbpos));
 				THROW_DB(AmtT.getDirectForUpdate(0, &k, _dbpos));
-				// } @v8.1.4
 				THROW_DB(AmtT.deleteRec()); // @sfu
 			}
 			else if(pEntry->Amt != AmtT.data.Amount) {
-				// @v8.1.4 {
 				DBRowId _dbpos;
 				THROW_DB(AmtT.getPosition(&_dbpos));
 				THROW_DB(AmtT.getDirectForUpdate(0, &k, _dbpos));
-				// } @v8.1.4
 				AmtT.data.Amount = pEntry->Amt;
 				THROW_DB(AmtT.updateRec()); // @sfu
 			}
@@ -241,7 +236,7 @@ int SLAPI BillCore::UpdateAmount(PPID billID, const AmtEntry * pEntry, int remov
 	return ok;
 }
 
-int SLAPI BillCore::PayPlanEnumerator(const DateRange * pPeriod, PayPlanEnumProc proc, long extraParam)
+int SLAPI BillCore::PayPlanEnumerator(const DateRange * pPeriod, PayPlanEnumProc proc, void * extraPtr)
 {
 	int    ok = 1;
 	PayPlanTbl::Key0 k0;
@@ -251,7 +246,7 @@ int SLAPI BillCore::PayPlanEnumerator(const DateRange * pPeriod, PayPlanEnumProc
 	for(q.initIteration(0, &k0, spFirst); ok > 0 && q.nextIteration() > 0;) {
 		PayPlanTbl::Rec rec;
 		Pays.copyBufTo(&rec);
-		int r = proc(&rec, extraParam);
+		int r = proc(&rec, extraPtr);
 		if(r <= 0)
 			ok = r;
 	}
@@ -501,7 +496,7 @@ int SLAPI BillCore::SetRecFlag2(PPID billID, long flag2, int set, int use_ta)
 	if(flag2) {
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(SearchByID(this, PPOBJ_BILL, billID, &rec) > 0); // @v8.1.4 SearchByID_ForUpdate-->SearchByID
+		THROW(SearchByID(this, PPOBJ_BILL, billID, &rec) > 0);
 		if(set && !(rec.Flags2 & flag2)) {
 			rec.Flags2 |= flag2;
 			do_update = 1;
@@ -857,6 +852,7 @@ int SLAPI BillCore::UpdatePaymAmount(PPID billID, PPID curID, double newAmt, dou
 	{
 		const  double amt = R2(org_paym + newAmt - R2(orgAmt));
 		const  double paym = BR2(rec.Amount);
+		const  int is_neg = BIN(rec.Amount < 0.0); // @v10.3.3
 		//
 		// Следующая проверка дублирует аналогичную в функции UpdateAmount,
 		// однако, мы ее делаем с тем, чтобы избежать сообщений о превышении
@@ -864,8 +860,15 @@ int SLAPI BillCore::UpdatePaymAmount(PPID billID, PPID curID, double newAmt, dou
 		//
 		if(amt != org_paym) {
 			AmtEntry ae(PPAMT_PAYMENT, curID, amt);
-			if(!(LConfig.Flags & CFGFLG_ALLOWOVERPAY))
-				THROW_PP(R2(paym - amt) >= 0, PPERR_EXTRAPAYM);
+			if(!(LConfig.Flags & CFGFLG_ALLOWOVERPAY)) {
+				// @v10.3.3 Инверсия знака при оплате отрицательной суммы
+				if(is_neg) {
+					THROW_PP(R2(paym - amt) <= 0, PPERR_EXTRAPAYM);
+				}
+				else {
+					THROW_PP(R2(paym - amt) >= 0, PPERR_EXTRAPAYM);
+				}
+			}
 			THROW(UpdateAmount(billID, &ae, 0));
 		}
 		{

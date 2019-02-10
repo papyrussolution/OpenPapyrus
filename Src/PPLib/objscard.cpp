@@ -593,7 +593,7 @@ public:
 	SCardRuleDlg(int ruleType) : PPListDialog(DLG_SCARDRULE, CTL_SCARDRULE_TRNOVRRNG), RuleType(ruleType)
 	{
 		//IsCCheckRule = isCCheckRule;
-		SmartListBox * p_lb = (SmartListBox *)getCtrlView(CTL_SCARDRULE_TRNOVRRNG);
+		SmartListBox * p_lb = static_cast<SmartListBox *>(getCtrlView(CTL_SCARDRULE_TRNOVRRNG));
 		const char * p_title_symb = 0;
 		if(RuleType == PPSCardSerRule::rultDisc) {
 			p_title_symb = "scardrule_dis";
@@ -1591,7 +1591,7 @@ int SLAPI PPObjSCardSeries::Read(PPObjPack * p, PPID id, void * stream, ObjTrans
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
 	}
 	p->Data = p_pack;
@@ -1618,7 +1618,7 @@ int SLAPI PPObjSCardSeries::Write(PPObjPack * p, PPID * pID, void * stream, ObjT
 		else {
 			SBuffer buffer;
 			THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 		}
 	CATCHZOK
 	return ok;
@@ -1865,7 +1865,7 @@ int SLAPI PPObjSCard::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			MEMSZERO(k);
 			k.PersonID = _id;
 			while(ok && P_Tbl->search(3, &k, spEq)) { // @v8.8.2 (ok &&)
-				P_Tbl->data.PersonID = (long)extraPtr;
+				P_Tbl->data.PersonID = reinterpret_cast<long>(extraPtr);
 				if(!P_Tbl->updateRec())
 					ok = PPSetErrorDB();
 			}
@@ -2540,8 +2540,6 @@ int SLAPI PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLo
 			}
 			for(uint i = 0; i < sct_list.getCount(); i++) {
 				const _SCardTrnovrItem & r_sct_item = sct_list.at(i);
-				//PPID   mov_to_ser_id = 0;
-				//double pdis = 0.0;
 				TrnovrRngDis entry;
 				if(!(r_sct_item.Flags & _SCardTrnovrItem::fDontChangeDiscount) && pack.GetDisByRule(r_sct_item.DscntTrnovr, entry) > 0) {
 					SCardTbl::Rec sc_rec;
@@ -2552,8 +2550,7 @@ int SLAPI PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLo
 						const long prev_pdis = sc_rec.PDis;
 						double new_pdis = 0.0;
 						const int  _gr = entry.GetResult(fdiv100i(prev_pdis), &new_pdis);
-						// @v8.6.10 const long lpdis = (long)(pdis * 100L);
-						const long lpdis = (long)(new_pdis * 100.0); // @v8.6.10
+						const long lpdis = (long)(new_pdis * 100.0);
 						const int  upd_dis = BIN(sc_rec.PDis != lpdis);
 						const int  upd_ser = BIN(entry.SeriesID && entry.SeriesID != sc_rec.SeriesID);
 						if(upd_dis || upd_ser) {
@@ -2855,7 +2852,7 @@ SString & SLAPI PPObjSCard::CalcSCardHash(const char * pNumber, SString & rHash)
 	char    buf[128];
 	if(!isempty(pNumber)) {
 		STRNSCPY(buf, pNumber);
-		crc = crc32.Calc(0, (unsigned char *)buf, sstrlen(buf));
+		crc = crc32.Calc(0, buf, sstrlen(buf));
 		rHash.Cat(crc >> 7).Trim(SCARD_HASH_LEN);
 		if(rHash.Len() < SCARD_HASH_LEN)
 			rHash.PadLeft(SCARD_HASH_LEN - rHash.Len(), '0');
@@ -2866,8 +2863,7 @@ SString & SLAPI PPObjSCard::CalcSCardHash(const char * pNumber, SString & rHash)
 // }
 int SLAPI PPObjSCard::CreateTurnoverList(const DateRange * pPeriod, RAssocArray * pList)
 {
-	return (P_CcTbl->CreateSCardsTurnoverList(pPeriod, pList) &&
-		BillObj->P_Tbl->CreateSCardsTurnoverList(pPeriod, pList));
+	return (P_CcTbl->CreateSCardsTurnoverList(pPeriod, pList) && BillObj->P_Tbl->CreateSCardsTurnoverList(pPeriod, pList));
 }
 
 int SLAPI PPObjSCard::GetTurnover(const SCardTbl::Rec & rRec, int alg, const DateRange & rPeriod, PPID restrGoodsGrpID, double * pDebit, double * pCredit)
@@ -3983,7 +3979,7 @@ int SLAPI PPObjSCard::DeleteObj(PPID id)
 int SLAPI PPObjSCard::Browse(void * extraPtr)
 {
 	SCardFilt flt;
-	flt.SeriesID = (long)extraPtr;
+	flt.SeriesID = reinterpret_cast<long>(extraPtr);
 	return ViewSCard(&flt, 0);
 }
 
@@ -4252,7 +4248,7 @@ int SLAPI PPObjSCard::Read(PPObjPack * p, PPID id, void * stream, ObjTransmConte
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
 	}
 	p->Data = p_pack;
@@ -4274,7 +4270,7 @@ int SLAPI PPObjSCard::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 		else {
 			SBuffer buffer;
 			THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 		}
 	}
 	CATCHZOK
@@ -4426,7 +4422,7 @@ public:
 int SLAPI SCardSeriesCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	Data * p_cache_rec = (Data *)pEntry;
+	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjSCardSeries scs_obj;
 	PPSCardSeries rec;
 	if(scs_obj.Search(id, &rec) > 0) {
@@ -4458,7 +4454,7 @@ int SLAPI SCardSeriesCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 void SLAPI SCardSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPSCardSeries * p_data_rec = (PPSCardSeries*)pDataRec;
-	const Data * p_cache_rec = (const Data *)pEntry;
+	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(PPSCardSeries));
 #define CPY_FLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
 	p_data_rec->Tag = PPOBJ_SCARDSERIES;
@@ -4591,7 +4587,7 @@ private:
 int SLAPI SCardCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 {
 	int    ok = 1;
-	Data * p_cache_rec = (Data *)pEntry;
+	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjSCard sc_obj;
 	SCardTbl::Rec rec;
 	if(id && sc_obj.Search(id, &rec) > 0) {
@@ -4628,7 +4624,7 @@ void SLAPI SCardCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec
 {
 	SCardTbl::Rec * p_data_rec = (SCardTbl::Rec *)pDataRec;
 	if(p_data_rec) {
-		const Data * p_cache_rec = (const Data *)pEntry;
+		const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 		memzero(p_data_rec, sizeof(*p_data_rec));
 
 		#define CPY_FLD(f) p_data_rec->f = p_cache_rec->f

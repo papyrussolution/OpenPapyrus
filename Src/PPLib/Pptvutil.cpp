@@ -863,8 +863,8 @@ int    Lst2LstDialogUI::addNewItem() { return -1; }
 int    Lst2LstDialogUI::removeItem() { return -1; }
 int    Lst2LstDialogUI::addAll() { return -1; }
 int    Lst2LstDialogUI::removeAll() { return -1; }
-SmartListBox * Lst2LstDialogUI::GetLeftList() { return (SmartListBox*)getCtrlView(Data.LeftCtlId); }
-SmartListBox * Lst2LstDialogUI::GetRightList() { return (SmartListBox *)getCtrlView(Data.RightCtlId); }
+SmartListBox * Lst2LstDialogUI::GetLeftList() { return static_cast<SmartListBox *>(getCtrlView(Data.LeftCtlId)); }
+SmartListBox * Lst2LstDialogUI::GetRightList() { return static_cast<SmartListBox *>(getCtrlView(Data.RightCtlId)); }
 
 int Lst2LstDialogUI::setup()
 {
@@ -898,7 +898,7 @@ IMPL_HANDLE_EVENT(Lst2LstDialogUI)
 			case cmLBDblClk:
 				if(P_Current) {
   					int    action = 1;
-					SmartListBox * list = (SmartListBox *)getCtrlView(GetCurrId());
+					SmartListBox * list = static_cast<SmartListBox *>(getCtrlView(GetCurrId()));
 					if(list && list->isTreeList()) {
 						PPID cur_id = 0;
 						list->def->getCurID(&cur_id);
@@ -6998,7 +6998,7 @@ int SLAPI PPEditTextFile(const char * pFileName)
 		{
 			RecentItems.Z();
 			if(P_Ris) {
-				SmartListBox * p_recent_box = (SmartListBox *)getCtrlView(CTL_OPENEDFILE_RECENT);
+				SmartListBox * p_recent_box = static_cast<SmartListBox *>(getCtrlView(CTL_OPENEDFILE_RECENT));
 				if(p_recent_box) {
 					StringSet ss_ris;
 					if(P_Ris->GetList(ss_ris) > 0) {
@@ -7023,7 +7023,7 @@ int SLAPI PPEditTextFile(const char * pFileName)
 			PPRFile fi;
 			StringSet ss(SLBColumnDelim);
 			SString temp_buf, full_path;
-			SmartListBox * p_reserv_box = (SmartListBox *)getCtrlView(CTL_OPENEDFILE_RESERV);
+			SmartListBox * p_reserv_box = static_cast<SmartListBox *>(getCtrlView(CTL_OPENEDFILE_RESERV));
 			if(p_reserv_box) {
 				for(SEnum en = DS.EnumRFileInfo(); en.Next(&fi) > 0;) {
 					if(fi.Flags & PPRFILEF_TEXT) {

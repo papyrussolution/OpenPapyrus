@@ -727,7 +727,7 @@ int SLAPI ACS_SETSTART::ImportFiles()
 {
 	const  long   delay_quant = 5 * 60 * 1000; // 5 мин
 	const  int    notify_timeout = (ImpExpTimeout) ? ImpExpTimeout : (1 * 60 * 60 * 1000); // таймаут по умолчанию - 1 час.
-	const  double timeouts_c = (double)notify_timeout / (double)delay_quant;
+	const  double timeouts_c = fdivi(notify_timeout, delay_quant);
 	const  char * p_ftp_flag = "ftp:";
 	const  char * p_email_flag = "email";
 	int    ok = 1;

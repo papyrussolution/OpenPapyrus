@@ -47,7 +47,7 @@
 //#include "cairo-freed-pool-private.h"
 //#include "cairo-gstate-private.h"
 //#include "cairo-path-fixed-private.h"
-//#include "cairo-pattern-private.h"
+////#include "cairo-pattern-private.h"
 //#include "cairo-composite-rectangles-private.h"
 //#include "cairo-region-private.h"
 
@@ -63,41 +63,37 @@ static inline int pot(int v)
 	return v;
 }
 
-static cairo_bool_t _cairo_clip_contains_rectangle_box(const cairo_clip_t * clip, const cairo_rectangle_int_t * rect, const cairo_box_t * box)
+static cairo_bool_t FASTCALL _cairo_clip_contains_rectangle_box(const cairo_clip_t * clip, const cairo_rectangle_int_t * rect, const cairo_box_t * box)
 {
-	int i;
-	/* clip == NULL means no clip, so the clip contains everything */
+	// clip == NULL means no clip, so the clip contains everything 
 	if(clip == NULL)
 		return TRUE;
 	if(_cairo_clip_is_all_clipped(clip))
 		return FALSE;
-	/* If we have a non-trivial path, just say no */
+	// If we have a non-trivial path, just say no 
 	if(clip->path)
 		return FALSE;
 	if(!_cairo_rectangle_contains_rectangle(&clip->extents, rect))
 		return FALSE;
 	if(clip->num_boxes == 0)
 		return TRUE;
-	/* Check for a clip-box that wholly contains the rectangle */
-	for(i = 0; i < clip->num_boxes; i++) {
-		if(box->p1.x >= clip->boxes[i].p1.x &&
-		    box->p1.y >= clip->boxes[i].p1.y &&
-		    box->p2.x <= clip->boxes[i].p2.x &&
-		    box->p2.y <= clip->boxes[i].p2.y) {
+	// Check for a clip-box that wholly contains the rectangle 
+	for(int i = 0; i < clip->num_boxes; i++) {
+		if(box->p1.x >= clip->boxes[i].p1.x && box->p1.y >= clip->boxes[i].p1.y && box->p2.x <= clip->boxes[i].p2.x && box->p2.y <= clip->boxes[i].p2.y) {
 			return TRUE;
 		}
 	}
 	return FALSE;
 }
 
-cairo_bool_t _cairo_clip_contains_box(const cairo_clip_t * clip, const cairo_box_t * box)
+cairo_bool_t FASTCALL _cairo_clip_contains_box(const cairo_clip_t * clip, const cairo_box_t * box)
 {
 	cairo_rectangle_int_t rect;
 	_cairo_box_round_to_rectangle(box, &rect);
 	return _cairo_clip_contains_rectangle_box(clip, &rect, box);
 }
 
-cairo_bool_t _cairo_clip_contains_rectangle(const cairo_clip_t * clip, const cairo_rectangle_int_t * rect)
+cairo_bool_t FASTCALL _cairo_clip_contains_rectangle(const cairo_clip_t * clip, const cairo_rectangle_int_t * rect)
 {
 	cairo_box_t box;
 	_cairo_box_from_rectangle_int(&box, rect);
@@ -297,7 +293,6 @@ struct reduce {
 	cairo_box_t limit;
 	cairo_box_t extents;
 	cairo_bool_t inside;
-
 	cairo_point_t current_point;
 	cairo_point_t last_move_to;
 };
@@ -408,6 +403,7 @@ static cairo_clip_t * _cairo_clip_reduce_to_boxes(cairo_clip_t * clip)
 	cairo_status_t status;
 
 	return clip;
+
 	if(clip->path == NULL)
 		return clip;
 
@@ -415,60 +411,42 @@ static cairo_clip_t * _cairo_clip_reduce_to_boxes(cairo_clip_t * clip)
 	r.extents.p1.x = r.extents.p1.y = INT_MAX;
 	r.extents.p2.x = r.extents.p2.y = INT_MIN;
 	r.inside = FALSE;
-
 	r.limit.p1.x = _cairo_fixed_from_int(clip->extents.x);
 	r.limit.p1.y = _cairo_fixed_from_int(clip->extents.y);
 	r.limit.p2.x = _cairo_fixed_from_int(clip->extents.x + clip->extents.width);
 	r.limit.p2.y = _cairo_fixed_from_int(clip->extents.y + clip->extents.height);
-
 	clip_path = clip->path;
 	do {
 		r.current_point.x = 0;
 		r.current_point.y = 0;
 		r.last_move_to = r.current_point;
-
-		status = _cairo_path_fixed_interpret_flat(&clip_path->path,
-			_reduce_move_to,
-			_reduce_line_to,
-			_reduce_close,
-			&r,
-			clip_path->tolerance);
+		status = _cairo_path_fixed_interpret_flat(&clip_path->path, _reduce_move_to, _reduce_line_to, _reduce_close, &r, clip_path->tolerance);
 		assert(status == CAIRO_STATUS_SUCCESS);
 		_reduce_close(&r);
 	} while((clip_path = clip_path->prev));
-
 	if(!r.inside) {
 		_cairo_clip_path_destroy(clip->path);
 		clip->path = NULL;
 	}
-
 	return _cairo_clip_intersect_box(clip, &r.extents);
 }
 
-cairo_clip_t * _cairo_clip_reduce_to_rectangle(const cairo_clip_t * clip,
-    const cairo_rectangle_int_t * r)
+cairo_clip_t * FASTCALL _cairo_clip_reduce_to_rectangle(const cairo_clip_t * clip, const cairo_rectangle_int_t * r)
 {
 	cairo_clip_t * copy;
-
 	if(_cairo_clip_is_all_clipped(clip))
 		return (cairo_clip_t*)clip;
-
 	if(_cairo_clip_contains_rectangle(clip, r))
 		return _cairo_clip_intersect_rectangle(NULL, r);
-
 	copy = _cairo_clip_copy_intersect_rectangle(clip, r);
 	if(_cairo_clip_is_all_clipped(copy))
 		return copy;
-
 	return _cairo_clip_reduce_to_boxes(copy);
 }
 
-cairo_clip_t * _cairo_clip_reduce_for_composite(const cairo_clip_t * clip,
-    cairo_composite_rectangles_t * extents)
+cairo_clip_t * FASTCALL _cairo_clip_reduce_for_composite(const cairo_clip_t * clip, cairo_composite_rectangles_t * extents)
 {
-	const cairo_rectangle_int_t * r;
-
-	r = extents->is_bounded ? &extents->bounded : &extents->unbounded;
+	const cairo_rectangle_int_t * r = extents->is_bounded ? &extents->bounded : &extents->unbounded;
 	return _cairo_clip_reduce_to_rectangle(clip, r);
 }
 

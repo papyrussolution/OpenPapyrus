@@ -439,8 +439,8 @@ cairo_surface_t * cairo_surface_create_for_rectangle(cairo_surface_t * target, d
 	if((surface->extents.width | surface->extents.height) < 0)
 		surface->extents.width = surface->extents.height = 0;
 	if(target->backend->type == CAIRO_SURFACE_TYPE_SUBSURFACE) {
-		/* Maintain subsurfaces as 1-depth */
-		cairo_surface_subsurface_t * sub = (cairo_surface_subsurface_t*)target;
+		// Maintain subsurfaces as 1-depth 
+		const cairo_surface_subsurface_t * sub = reinterpret_cast<const cairo_surface_subsurface_t *>(target);
 		surface->extents.x += sub->extents.x;
 		surface->extents.y += sub->extents.y;
 		target = sub->target;

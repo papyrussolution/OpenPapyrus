@@ -170,14 +170,12 @@ int FASTCALL ObjTagItem::GetStr(SString & rBuf) const
 	int    ok = 1;
 	rBuf.Z();
 	switch(TagDataType) {
-		case OTTYP_BOOL:
-			rBuf = Val.IntVal ? "True" : "False";
-			break;
+		case OTTYP_BOOL: rBuf = Val.IntVal ? "True" : "False"; break;
 		case OTTYP_STRING:
 		case OTTYP_GUID:
-		case OTTYP_IMAGE:
-			rBuf = Val.PStr;
-			break;
+		case OTTYP_IMAGE: rBuf = Val.PStr; break;
+		case OTTYP_DATE: rBuf.Cat(Val.DtVal, DATF_DMY|DATF_CENTURY); break;
+		case OTTYP_TIMESTAMP: rBuf.Cat(Val.DtmVal, DATF_DMY|DATF_CENTURY); break;
 		case OTTYP_NUMBER:
 			if((long)Val.RealVal == Val.RealVal)
 				rBuf.Cat((long)Val.RealVal);
@@ -202,8 +200,6 @@ int FASTCALL ObjTagItem::GetStr(SString & rBuf) const
 				}
 			}
 			break;
-		case OTTYP_DATE: rBuf.Cat(Val.DtVal, DATF_DMY|DATF_CENTURY); break; // @v8.7.0 (DATF_DMY|DATF_CENTURY)
-		case OTTYP_TIMESTAMP: rBuf.Cat(Val.DtmVal, DATF_DMY|DATF_CENTURY); break; // @v8.7.0 (DATF_DMY|DATF_CENTURY)
 		default:
 			ok = -1;
 			break;
@@ -408,12 +404,8 @@ int SLAPI ObjTagItem::SetTimestamp(PPID tagID, LDATETIME dtm)
 	int    ok = 1;
 	THROW(Init(tagID));
 	switch(TagDataType) {
-		case OTTYP_DATE:
-			Val.DtVal = dtm.d;
-			break;
-		case OTTYP_TIMESTAMP:
-			Val.DtmVal = dtm;
-			break;
+		case OTTYP_DATE: Val.DtVal = dtm.d; break;
+		case OTTYP_TIMESTAMP: Val.DtmVal = dtm; break;
 		case OTTYP_STRING:
 			{
 				SString temp_buf;
@@ -798,8 +790,12 @@ const ObjTagItem * FASTCALL ObjTagList::GetItem(PPID id) const
 int SLAPI ObjTagList::GetItemStr(PPID tagID, SString & rBuf) const
 {
     rBuf.Z();
-    const ObjTagItem * p_item = GetItem(tagID);
-    return (p_item && p_item->GetStr(rBuf) && rBuf.NotEmptyS()) ? 1 : -1;
+	if(tagID) {
+		const ObjTagItem * p_item = GetItem(tagID);
+		return (p_item && p_item->GetStr(rBuf) && rBuf.NotEmptyS()) ? 1 : -1;
+	}
+	else
+		return -1;
 }
 
 const ObjTagItem * FASTCALL ObjTagList::GetItem_ForceEmpty(PPID id)
@@ -1044,12 +1040,14 @@ int SLAPI ObjTagCore::GetTagStr(PPID objType, PPID objID, PPID tagID, SString & 
 {
 	int    ok = -1;
 	rBuf.Z();
-	ObjTagItem item;
-	int    r = GetTag(objType, objID, tagID, &item);
-	if(r > 0 && item.GetStr(rBuf) && rBuf.NotEmptyS())
-		ok = 1;
-	else
-		ok = r;
+	if(tagID) { // @v10.3.3
+		ObjTagItem item;
+		int    r = GetTag(objType, objID, tagID, &item);
+		if(r > 0 && item.GetStr(rBuf) && rBuf.NotEmptyS())
+			ok = 1;
+		else
+			ok = r;
+	}
 	return ok;
 }
 

@@ -787,7 +787,7 @@ int SLAPI ACS_FRONTOL::ImportFiles()
 	const  char * p_email_flag = "email";
 	int    ok = 1, ftp_connected = 0, notify_timeout = (ImpExpTimeout) ? ImpExpTimeout : (1 * 60 * 60 * 1000); // таймаут по умолчанию - 1 час.
 	int    mail_connected = 0;
-	double timeouts_c = (double)notify_timeout / (double)delay_quant;
+	double timeouts_c = fdivi(notify_timeout, delay_quant);
 	uint   set_no = 0;
 	SString imp_path, exp_path, path_rpt, path_flag, str_imp_paths;
 	SString dir_in;

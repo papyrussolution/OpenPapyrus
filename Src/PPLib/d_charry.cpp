@@ -782,7 +782,7 @@ int SLAPI PPDS_CrrBill::InitData(Ido op, void * /*dataPtr*/, long addedParam)
 				for(uint i = 0; Data.EnumTItems(&i, &p_ti) > 0;)
 					if(p_ti->Flags & PPTFR_PRICEWOTAXES) {
 						GTaxVect vect;
-						vect.CalcTI(p_ti, Data.Rec.OpID, TIAMT_PRICE);
+						vect.CalcTI(*p_ti, Data.Rec.OpID, TIAMT_PRICE);
 						p_ti->Price = R2(vect.GetValue(GTAXVF_BEFORETAXES) / fabs(p_ti->Quantity_));
 						p_ti->Discount = 0.0;
 					}

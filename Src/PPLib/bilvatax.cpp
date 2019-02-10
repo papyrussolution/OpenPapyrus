@@ -55,21 +55,21 @@ int SLAPI BVATAccmArray::Add(const BVATAccm * pItem, int dontRound)
 	return ok;
 }
 
-int SLAPI BVATAccmArray::Add(const PPTransferItem * pTI, PPID opID)
+int SLAPI BVATAccmArray::Add(const PPTransferItem & rTi, PPID opID)
 {
 	int    ok = 1;
 	BVATAccm item;
 	GTaxVect vect;
-	item.IsVatFree = IsVataxableSuppl(pTI->Suppl) ? 0 : 1;
+	item.IsVatFree = IsVataxableSuppl(rTi.Suppl) ? 0 : 1;
 	if(item.IsVatFree && Flags & BVATF_SUMZEROVAT) {
-	   	vect.CalcTI(pTI, opID, TIAMT_PRICE);
+	   	vect.CalcTI(rTi, opID, TIAMT_PRICE);
 		item.PRate   = vect.GetTaxRate(GTAX_VAT, 0);
 		item.Cost    = 0.0;
 		item.CVATSum = 0.0;
 	   	item.Price   = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_VAT | GTAXVF_EXCISE);
 		item.PVATSum = vect.GetValue(GTAXVF_VAT);
 		THROW(Add(&item));
-		vect.CalcTI(pTI, opID, TIAMT_COST, GTAXVF_VAT);
+		vect.CalcTI(rTi, opID, TIAMT_COST, GTAXVF_VAT);
 		item.CRate   = vect.GetTaxRate(GTAX_VAT, 0);
 		item.Cost    = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_VAT);
 		item.CVATSum = vect.GetValue(GTAXVF_VAT);
@@ -78,11 +78,11 @@ int SLAPI BVATAccmArray::Add(const PPTransferItem * pTI, PPID opID)
 		THROW(Add(&item));
 	}
 	else {
-	   	vect.CalcTI(pTI, opID, TIAMT_PRICE);
+	   	vect.CalcTI(rTi, opID, TIAMT_PRICE);
 		item.PRate   = vect.GetTaxRate(GTAX_VAT, 0);
 		item.Price   = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_VAT | GTAXVF_EXCISE);
 		item.PVATSum = vect.GetValue(GTAXVF_VAT);
-		vect.CalcTI(pTI, opID, TIAMT_COST);
+		vect.CalcTI(rTi, opID, TIAMT_COST);
 		item.CRate   = vect.GetTaxRate(GTAX_VAT, 0);
 		item.Cost    = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_VAT);
 		item.CVATSum = vect.GetValue(GTAXVF_VAT);
@@ -159,9 +159,9 @@ int SLAPI BVATAccmArray::CalcBill(const PPBillPacket * pPack)
 		}
 	}
 	if(!inited) {
-		PPTransferItem * p_ti;
-		for(i = 0; pPack->EnumTItems(&i, &p_ti);) {
-			THROW(Add(p_ti, pPack->Rec.OpID));
+		for(i = 0; i < pPack->GetTCount(); i++) {
+			const PPTransferItem & r_ti = pPack->ConstTI(i);
+			THROW(Add(r_ti, pPack->Rec.OpID));
 			inited = 1;
 		}
 	}
@@ -178,7 +178,7 @@ int SLAPI BVATAccmArray::CalcBill(PPID id)
 	BillTbl::Rec bill_rec;
 	if(p_bobj->Search(id, &bill_rec) > 0)
 		for(int rbybill = 0; (r = p_bobj->trfr->EnumItems(id, &rbybill, &ti)) > 0;)
-			if(!Add(&ti, bill_rec.OpID))
+			if(!Add(ti, bill_rec.OpID))
 				return 0;
 	return BIN(r);
 }

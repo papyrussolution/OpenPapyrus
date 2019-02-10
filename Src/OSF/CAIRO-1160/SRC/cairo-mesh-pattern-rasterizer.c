@@ -36,7 +36,7 @@
 #include "cairoint.h"
 #pragma hdrstop
 //#include "cairo-array-private.h"
-#include "cairo-pattern-private.h"
+//#include "cairo-pattern-private.h"
 /*
  * Rasterizer for mesh patterns.
  *
@@ -269,7 +269,7 @@ static inline void fd_fwd(double f[4])
  *
  * i[0] is 9.23 fixed point, other differences are 4.28 fixed point.
  */
-static inline void fd_fixed(double d[4], int32_t i[4])
+static inline void fd_fixed(const double d[4], int32_t i[4])
 {
 	i[0] = _cairo_fixed_16_16_from_double(256 *  2 * d[0]);
 	i[1] = _cairo_fixed_16_16_from_double(256 * 16 * d[1]);
@@ -323,7 +323,7 @@ static inline void fd_fixed_fwd(int32_t f[4])
  *
  *   3 max (|p1-p0|, |p2-p0|/2, |p3-p1|/2, |p3-p2|) sqrt(2) steps
  */
-static inline double bezier_steps_sq(cairo_point_double_t p[4])
+static inline double bezier_steps_sq(const cairo_point_double_t p[4])
 {
 	double tmp = sqlen(p[0], p[1]);
 	tmp = MAX(tmp, sqlen(p[2], p[3]));
@@ -360,7 +360,6 @@ static inline void split_bezier_1D(double x,  double y,  double z,  double w,
 
 	*w0 = *x1 = 0.5 * (*z0 + *y1);
 }
-
 /*
  * Split a Bezier curve using de Casteljau's algorithm.
  *
@@ -372,14 +371,11 @@ static inline void split_bezier_1D(double x,  double y,  double z,  double w,
  * fst_half and snd_half must be different, but they can be the same as
  * nodes.
  */
-static void split_bezier(cairo_point_double_t p[4],
-    cairo_point_double_t fst_half[4],
-    cairo_point_double_t snd_half[4])
+static void split_bezier(const cairo_point_double_t p[4], cairo_point_double_t fst_half[4], cairo_point_double_t snd_half[4])
 {
 	split_bezier_1D(p[0].x, p[1].x, p[2].x, p[3].x,
 	    &fst_half[0].x, &fst_half[1].x, &fst_half[2].x, &fst_half[3].x,
 	    &snd_half[0].x, &snd_half[1].x, &snd_half[2].x, &snd_half[3].x);
-
 	split_bezier_1D(p[0].y, p[1].y, p[2].y, p[3].y,
 	    &fst_half[0].y, &fst_half[1].y, &fst_half[2].y, &fst_half[3].y,
 	    &snd_half[0].y, &snd_half[1].y, &snd_half[2].y, &snd_half[3].y);
@@ -415,7 +411,6 @@ static inline int intersect_interval(double a, double b, double c, double d)
 	else
 		return PARTIAL;
 }
-
 /*
  * Set the color of a pixel.
  *
@@ -434,24 +429,19 @@ static inline int intersect_interval(double a, double b, double c, double d)
  * If the pixel to be set is outside the image, this function does
  * nothing.
  */
-static inline void draw_pixel(uchar * data, int width, int height, int stride,
-    int x, int y, uint16_t r, uint16_t g, uint16_t b, uint16_t a)
+static inline void draw_pixel(uchar * data, int width, int height, int stride, int x, int y, uint16_t r, uint16_t g, uint16_t b, uint16_t a)
 {
 	if(likely(0 <= x && 0 <= y && x < width && y < height)) {
 		uint32_t tr, tg, tb, ta;
-
 		/* Premultiply and round */
 		ta = a;
 		tr = r * ta + 0x8000;
 		tg = g * ta + 0x8000;
 		tb = b * ta + 0x8000;
-
 		tr += tr >> 16;
 		tg += tg >> 16;
 		tb += tb >> 16;
-
-		*((uint32_t*)(data + y*(ptrdiff_t)stride + 4*x)) = ((ta << 16) & 0xff000000) |
-		    ((tr >> 8) & 0xff0000) | ((tg >> 16) & 0xff00) | (tb >> 24);
+		*((uint32_t*)(data + y*(ptrdiff_t)stride + 4*x)) = ((ta << 16) & 0xff000000) | ((tr >> 8) & 0xff0000) | ((tg >> 16) & 0xff00) | (tb >> 24);
 	}
 }
 
@@ -479,7 +469,7 @@ static inline void draw_pixel(uchar * data, int width, int height, int stride,
  * [0,1] (including both extremes).
  */
 static inline void rasterize_bezier_curve(uchar * data, int width, int height, int stride,
-    int ushift, double dxu[4], double dyu[4],
+    int ushift, const double dxu[4], const double dyu[4],
     uint16_t r0, uint16_t g0, uint16_t b0, uint16_t a0,
     uint16_t r3, uint16_t g3, uint16_t b3, uint16_t a3)
 {
@@ -551,33 +541,27 @@ static inline void rasterize_bezier_curve(uchar * data, int width, int height, i
  * consecutive points (which is needed to ensure that no hole can
  * appear when using this function to rasterize a patch).
  */
-static void draw_bezier_curve(uchar * data, int width, int height, int stride,
-    cairo_point_double_t p[4], double c0[4], double c3[4])
+static void draw_bezier_curve(uchar * data, int width, int height, int stride, const cairo_point_double_t p[4], double c0[4], double c3[4])
 {
 	double top, bottom, left, right, steps_sq;
 	int i, v;
-
 	top = bottom = p[0].y;
 	for(i = 1; i < 4; ++i) {
 		top    = MIN(top,    p[i].y);
 		bottom = MAX(bottom, p[i].y);
 	}
-
 	/* Check visibility */
 	v = intersect_interval(top, bottom, 0, height);
 	if(v == OUTSIDE)
 		return;
-
 	left = right = p[0].x;
 	for(i = 1; i < 4; ++i) {
 		left  = MIN(left,  p[i].x);
 		right = MAX(right, p[i].x);
 	}
-
 	v &= intersect_interval(left, right, 0, width);
 	if(v == OUTSIDE)
 		return;
-
 	steps_sq = bezier_steps_sq(p);
 	if(steps_sq >= (v == INSIDE ? STEPS_MAX_U * STEPS_MAX_U : STEPS_CLIP_U * STEPS_CLIP_U)) {
 		/*
@@ -599,17 +583,13 @@ static void draw_bezier_curve(uchar * data, int width, int height, int stride,
 	else {
 		double xu[4], yu[4];
 		int ushift = sqsteps2shift(steps_sq), k;
-
 		fd_init(p[0].x, p[1].x, p[2].x, p[3].x, xu);
 		fd_init(p[0].y, p[1].y, p[2].y, p[3].y, yu);
-
 		for(k = 0; k < ushift; ++k) {
 			fd_down(xu);
 			fd_down(yu);
 		}
-
-		rasterize_bezier_curve(data, width, height, stride, ushift,
-		    xu, yu,
+		rasterize_bezier_curve(data, width, height, stride, ushift, xu, yu,
 		    _cairo_color_double_to_short(c0[0]),
 		    _cairo_color_double_to_short(c0[1]),
 		    _cairo_color_double_to_short(c0[2]),
@@ -618,9 +598,7 @@ static void draw_bezier_curve(uchar * data, int width, int height, int stride,
 		    _cairo_color_double_to_short(c3[1]),
 		    _cairo_color_double_to_short(c3[2]),
 		    _cairo_color_double_to_short(c3[3]));
-
-		/* Draw the end point, to make sure that we didn't leave it
-		 * out because of rounding */
+		// Draw the end point, to make sure that we didn't leave it out because of rounding 
 		draw_pixel(data, width, height, stride,
 		    _cairo_fixed_integer_floor(_cairo_fixed_from_double(p[3].x)),
 		    _cairo_fixed_integer_floor(_cairo_fixed_from_double(p[3].y)),
@@ -630,7 +608,6 @@ static void draw_bezier_curve(uchar * data, int width, int height, int stride,
 		    _cairo_color_double_to_short(c3[3]));
 	}
 }
-
 /*
  * Forward-rasterize a cubic Bezier patch using forward differences.
  *

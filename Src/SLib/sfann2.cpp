@@ -2693,9 +2693,9 @@ static int fann_save_internal_fd_2(Fann2 * ann, FILE * conf, const char * config
 	fprintf(conf, "cascade_num_candidate_groups=%u\n", ann->cascade_num_candidate_groups);
 #ifndef FIXEDFANN
 	if(save_as_fixed) {
-		fprintf(conf, "bit_fail_limit=%u\n", (int)floor((ann->bit_fail_limit * fixed_multiplier) + 0.5));
-		fprintf(conf, "cascade_candidate_limit=%u\n", (int)floor((ann->cascade_candidate_limit * fixed_multiplier) + 0.5));
-		fprintf(conf, "cascade_weight_multiplier=%u\n", (int)floor((ann->cascade_weight_multiplier * fixed_multiplier) + 0.5));
+		fprintf(conf, "bit_fail_limit=%u\n", ffloori((ann->bit_fail_limit * fixed_multiplier) + 0.5));
+		fprintf(conf, "cascade_candidate_limit=%u\n", ffloori((ann->cascade_candidate_limit * fixed_multiplier) + 0.5));
+		fprintf(conf, "cascade_weight_multiplier=%u\n", ffloori((ann->cascade_weight_multiplier * fixed_multiplier) + 0.5));
 	}
 	else
 #endif
@@ -2714,7 +2714,7 @@ static int fann_save_internal_fd_2(Fann2 * ann, FILE * conf, const char * config
 	for(i = 0; i < ann->cascade_activation_steepnesses_count; i++) {
 #ifndef FIXEDFANN
 		if(save_as_fixed)
-			fprintf(conf, "%u ", (int)floor((ann->cascade_activation_steepnesses[i] * fixed_multiplier) + 0.5));
+			fprintf(conf, "%u ", ffloori((ann->cascade_activation_steepnesses[i] * fixed_multiplier) + 0.5));
 		else
 #endif
 		fprintf(conf, FANNPRINTF " ", ann->cascade_activation_steepnesses[i]);
@@ -2760,7 +2760,7 @@ static int fann_save_internal_fd_2(Fann2 * ann, FILE * conf, const char * config
 #ifndef FIXEDFANN
 			if(save_as_fixed) {
 				fprintf(conf, "(%u, %u, %u) ", neuron_it->last_con - neuron_it->first_con,
-				    neuron_it->activation_function, (int)floor((neuron_it->activation_steepness * fixed_multiplier) + 0.5));
+				    neuron_it->activation_function, ffloori((neuron_it->activation_steepness * fixed_multiplier) + 0.5));
 			}
 			else {
 				fprintf(conf, "(%u, %u, " FANNPRINTF ") ", neuron_it->last_con - neuron_it->first_con,
@@ -2792,7 +2792,7 @@ static int fann_save_internal_fd_2(Fann2 * ann, FILE * conf, const char * config
 #ifndef FIXEDFANN
 		if(save_as_fixed) {
 			// save the connection "(source weight) " 
-			fprintf(conf, "(%d, %d) ", (int)(connected_neurons[i] - first_neuron), (int)floor((weights[i] * fixed_multiplier) + 0.5));
+			fprintf(conf, "(%d, %d) ", (int)(connected_neurons[i] - first_neuron), ffloori((weights[i] * fixed_multiplier) + 0.5));
 		}
 		else {
 			// save the connection "(source weight) " 
@@ -3979,7 +3979,7 @@ static int fann_save_train_internal_fd_2(struct fann_train_data * data, FILE * f
 				fprintf(file, "%d ", (int)(data->input[i][j] * multiplier));
 			}
 			else {
-				if(((int)floor(data->input[i][j] + 0.5) * 1000000) == ((int)floor(data->input[i][j] * 1000000.0 + 0.5))) {
+				if((ffloori(data->input[i][j] + 0.5) * 1000000) == (ffloori(data->input[i][j] * 1000000.0 + 0.5))) {
 					fprintf(file, "%d ", (int)data->input[i][j]);
 				}
 				else {
@@ -3997,7 +3997,7 @@ static int fann_save_train_internal_fd_2(struct fann_train_data * data, FILE * f
 				fprintf(file, "%d ", (int)(data->output[i][j] * multiplier));
 			}
 			else {
-				if(((int)floor(data->output[i][j] + 0.5) * 1000000) == ((int)floor(data->output[i][j] * 1000000.0 + 0.5))) {
+				if((ffloori(data->output[i][j] + 0.5) * 1000000) == (ffloori(data->output[i][j] * 1000000.0 + 0.5))) {
 					fprintf(file, "%d ", (int)data->output[i][j]);
 				}
 				else {

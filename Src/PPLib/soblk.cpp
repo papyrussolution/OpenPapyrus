@@ -1525,6 +1525,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 	//
 	if(_Op == oGetTSessPlaceStatus) {
 		const PPID qk_id = (P_TSesF && P_TSesF->QuotKindID) ? P_TSesF->QuotKindID : PPQUOTK_BASE;
+		assert(qk_id); // @paranoic
 		PPObjTSession::PlaceStatus status_item;
 		TSCollection <PPObjTSession::PlaceStatus> status_list;
 		if(P_LocTspF && P_LocTspF->PlaceCode[0] && !sstreqi_ascii(P_LocTspF->PlaceCode, "all")) {
@@ -1590,9 +1591,9 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 								}
 							}
 						}
-						if(qk_id) {
+						{
 							goods_list.sortAndUndup();
-							QuotIdent qi(getcurdate_(), (store_id ? store_rec.LocID : prc_pack.Rec.LocID), qk_id, 0, 0);
+							const QuotIdent qi(getcurdate_(), (store_id ? store_rec.LocID : prc_pack.Rec.LocID), qk_id, 0, 0);
 							for(uint gi = 0; gi < goods_list.getCount(); gi++) {
 								const PPID goods_id = goods_list.get(gi);
 								double quot = 0.0;
@@ -1617,7 +1618,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 			ok = -1;
 		}
 		else if(OutFormat == fmtJson) {
-			THROW(PPExportDL600DataToJson(DL600StrucName, 0, (void *)&status_list, ResultText));
+			THROW(PPExportDL600DataToJson(DL600StrucName, 0, &status_list, ResultText));
 			THROW(rResult.WriteString(ResultText));
 			rResult.SetDataType(PPJobSrvReply::htGenericText, 0);
 			ok = 1;
@@ -1749,8 +1750,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 								{
 									temp_buf.Z();
 									ObjTagItem tag;
-									// @v8.8.2 if(PPRef->Ot.GetTag(PPOBJ_TSESSION, tses_rec.ID, PPTAG_TSESS_DESCR, &tag) > 0)
-									if(TagObj.FetchTag(tses_rec.ID, PPTAG_TSESS_DESCR, &tag) > 0) // @v8.8.2
+									if(TagObj.FetchTag(tses_rec.ID, PPTAG_TSESS_DESCR, &tag) > 0)
 										tag.GetStr(temp_buf);
 									p_jitem->Insert("Descr", json_new_string(temp_buf.Transf(CTRANSF_INNER_TO_OUTER).Escape()));
 								}
@@ -1767,7 +1767,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 								ss_places_busy.clear();
 								//
 								p_jitem->Insert("PrcName", json_new_string((temp_buf = prc_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
-								p_jitem->Insert("PrcSymb", json_new_string((temp_buf = prc_rec.Code).Transf(CTRANSF_INNER_TO_OUTER).Escape())); // @v8.8.2
+								p_jitem->Insert("PrcSymb", json_new_string((temp_buf = prc_rec.Code).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
 								p_jitem->Insert("CipMax", json_new_string(temp_buf.Z().Cat(prc_rec.CipMax)));
 								ci_list.Clear();
 								if(ci_mgr.GetList(PPCheckInPersonItem::kTSession, tses_rec.ID, ci_list) > 0) {

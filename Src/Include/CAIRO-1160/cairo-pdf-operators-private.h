@@ -111,7 +111,7 @@ cairo_private cairo_int_status_t _cairo_pdf_operators_stroke(cairo_pdf_operators
 cairo_private cairo_int_status_t _cairo_pdf_operators_fill(cairo_pdf_operators_t * pdf_operators, const cairo_path_fixed_t * path, cairo_fill_rule_t fill_rule);
 cairo_private cairo_int_status_t _cairo_pdf_operators_fill_stroke(cairo_pdf_operators_t * pdf_operators,
     const cairo_path_fixed_t * path, cairo_fill_rule_t fill_rule, const cairo_stroke_style_t * style, const cairo_matrix_t * ctm, const cairo_matrix_t * ctm_inverse);
-cairo_private cairo_int_status_t _cairo_pdf_operators_show_text_glyphs(cairo_pdf_operators_t * pdf_operators, const char  * utf8,
+cairo_private cairo_int_status_t _cairo_pdf_operators_show_text_glyphs(cairo_pdf_operators_t * pdf_operators, const char * utf8,
     int utf8_len, cairo_glyph_t * glyphs, int num_glyphs, const cairo_text_cluster_t * clusters, int num_clusters, cairo_text_cluster_flags_t cluster_flags,
     cairo_scaled_font_t * scaled_font);
 cairo_private cairo_int_status_t _cairo_pdf_operators_tag_begin(cairo_pdf_operators_t * pdf_operators, const char * tag_name, int mcid);

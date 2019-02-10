@@ -184,7 +184,7 @@ void * FASTCALL PPObjWorld::MakeExtraParam(const PPIDArray & rKindList, PPID par
 //static
 int SLAPI PPObjWorld::ConvertExtraParam(void * extraPtr, SelFilt * pFilt)
 {
-	const long extra_param = (long)extraPtr;
+	const long extra_param = reinterpret_cast<long>(extraPtr);
 	pFilt->KindFlags = (extra_param & ~0x80000000) >> 24;
 	if(extra_param & 0x80000000) {
 		pFilt->CountryID = (extra_param & 0x00ffffff);
@@ -1330,7 +1330,7 @@ int SLAPI PPObjWorld::Read(PPObjPack * p, PPID id, void * stream, ObjTransmConte
 		}
 		else {
 			SBuffer buffer;
-			THROW_SL(buffer.ReadFromFile((FILE*)stream, 0));
+			THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0));
 			THROW_SL(P_Tbl->SerializeRecord(-1, &p_pack->Rec, buffer, &pCtx->SCtx));
 		}
 	}
@@ -1368,7 +1368,7 @@ int SLAPI PPObjWorld::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 		else {
 			SBuffer buffer;
 			THROW_SL(P_Tbl->SerializeRecord(+1, &p_pack->Rec, buffer, &pCtx->SCtx));
-			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0));
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0));
 		}
 	}
 	CATCHZOK
@@ -1447,7 +1447,7 @@ int SLAPI PPObjWorld::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	if(msg == DBMSG_OBJREPLACE)
 		switch(_obj) {
 			case PPOBJ_WORLD:
-				return Unite(_id, (long)extraPtr) ? DBRPL_OK : DBRPL_ERROR;
+				return Unite(_id, reinterpret_cast<long>(extraPtr)) ? DBRPL_OK : DBRPL_ERROR;
 			default:
 				break;
 		}

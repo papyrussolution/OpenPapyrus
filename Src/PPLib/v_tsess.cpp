@@ -103,7 +103,7 @@ PPBaseFilt * SLAPI PPViewTSession::CreateFilt(void * extraPtr) const
 	PPBaseFilt * p_base_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_TSESSION, &p_base_filt)) {
 		((TSessionFilt *)p_base_filt)->StatusFlags |= 0x000000ffL;
-		if(((long)extraPtr) == TSESK_PLAN)
+		if((reinterpret_cast<long>(extraPtr)) == TSESK_PLAN)
 			((TSessionFilt *)p_base_filt)->Flags |= TSessionFilt::fManufPlan;
 	}
 	return p_base_filt;
@@ -1956,8 +1956,8 @@ int PPALDD_TSession::InitData(PPFilt & rFilt, long rsrv)
 
 void PPALDD_TSession::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
-	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
-	#define _RET_INT     (*(int *)rS.GetPtr(pApl->Get(0)))
+	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
+	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
 
 	_RET_INT = 0;
 	if(pF->Name == "?GetWrOffMemberByOp") {

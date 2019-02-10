@@ -38,10 +38,10 @@ int SLAPI VATBCfg::CheckOp(PPID /*opID*/, PPID * /*pAccSheetID*/)
 
 int SLAPI VATBCfg::CheckList(PPID * pAccSheetID)
 {
-	PPID * p_id;
-	for(uint i = 0; List.enumItems(&i, (void**)&p_id);)
-		if(!CheckOp(*p_id, pAccSheetID))
+	for(uint j = 0; j < List.getCount(); j++) {
+		if(!CheckOp(List.at(j).OpID, pAccSheetID))
 			return 0;
+	}
 	return 1;
 }
 
@@ -106,21 +106,9 @@ SLAPI PPObjVATBook::~PPObjVATBook()
 	TLP_CLOSE(P_Tbl);
 }
 
-int SLAPI PPObjVATBook::Search(PPID id, void * b)
-{
-	return SearchByID(P_Tbl, Obj, id, b);
-}
-
-int SLAPI PPObjVATBook::DeleteObj(PPID)
-{
-	return P_Tbl->deleteRec() ? 1 : PPSetErrorDB();
-}
-
-//virtual
-const char * SLAPI PPObjVATBook::GetNamePtr()
-{
-	return P_Tbl->data.Code;
-}
+int SLAPI PPObjVATBook::Search(PPID id, void * b) { return SearchByID(P_Tbl, Obj, id, b); }
+int SLAPI PPObjVATBook::DeleteObj(PPID) { return P_Tbl->deleteRec() ? 1 : PPSetErrorDB(); }
+const char * SLAPI PPObjVATBook::GetNamePtr() { return P_Tbl->data.Code; }
 
 int SLAPI PPObjVATBook::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
@@ -150,7 +138,7 @@ int SLAPI PPObjVATBook::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			k4.Object = _id;
 			// @todo update_for
 			while(ok == DBRPL_OK && P_Tbl->searchForUpdate(4, &k4, spGt) && k4.Object == _id) {
-				P_Tbl->data.Object = (long)extraPtr;
+				P_Tbl->data.Object = reinterpret_cast<long>(extraPtr);
 				if(!P_Tbl->updateRec()) // @sfu
 					ok = PPSetErrorDB();
 			}
@@ -159,7 +147,7 @@ int SLAPI PPObjVATBook::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	return ok;
 }
 
-const SVerT __VATBookFormatVer(7, 6, 1);
+static const SVerT __VATBookFormatVer(7, 6, 1);
 
 // static
 int SLAPI PPObjVATBook::ReadCfgList(PPID kind, VATBCfg * pConfig)
@@ -169,20 +157,21 @@ int SLAPI PPObjVATBook::ReadCfgList(PPID kind, VATBCfg * pConfig)
 	PPID   prop;
 	PPVATBConfig * p_cfg = 0;
 	pConfig->AcctgBasis = INCM_DEFAULT;
-	if(kind == PPVTB_BUY) {
-		prop = PPPRP_VATBBCFG;
-		pConfig->AccSheetID = GetSupplAccSheet();
-	}
-	else if(kind == PPVTB_SELL) {
-		prop = PPPRP_VATBSCFG;
-		pConfig->AccSheetID = GetSellAccSheet();
-	}
-	else if(kind == PPVTB_SIMPLELEDGER) {
-		prop = PPPRP_SMPLLEDGCFG;
-		pConfig->AccSheetID = GetSellAccSheet();
-	}
-	else {
-		CALLEXCEPT_PP(PPERR_INVPARAM);
+	switch(kind) {
+		case PPVTB_BUY:
+			prop = PPPRP_VATBBCFG;
+			pConfig->AccSheetID = GetSupplAccSheet();
+			break;
+		case PPVTB_SELL:
+			prop = PPPRP_VATBSCFG;
+			pConfig->AccSheetID = GetSellAccSheet();
+			break;
+		case PPVTB_SIMPLELEDGER:
+			prop = PPPRP_SMPLLEDGCFG;
+			pConfig->AccSheetID = GetSellAccSheet();
+			break;
+		default:
+			CALLEXCEPT_PP(PPERR_INVPARAM);
 	}
 	pConfig->Kind = kind;
 	pConfig->List.freeAll();
@@ -208,7 +197,7 @@ int SLAPI PPObjVATBook::ReadCfgList(PPID kind, VATBCfg * pConfig)
 			}
 			else
 				sz += sizeof(VATBCfg::Item) * delta;
-			THROW_MEM(p_cfg = (PPVATBConfig *)SAlloc::R(p_cfg, sz));
+			THROW_MEM(p_cfg = static_cast<PPVATBConfig *>(SAlloc::R(p_cfg, sz)));
 			THROW(r = PPRef->GetPropMainConfig(prop, p_cfg, sz));
 		} while(r > 0);
 	}
@@ -220,7 +209,7 @@ int SLAPI PPObjVATBook::ReadCfgList(PPID kind, VATBCfg * pConfig)
 		pConfig->Period.Set(p_cfg->BegDt, p_cfg->EndDt);
 		if(p_cfg->Ver.IsLt(7, 6, 1)) {
 			for(i = 0; i < p_cfg->ListCount; i++) {
-				ObjRestrictItem & r_oitem = ((ObjRestrictItem*)&p_cfg[1])[i];
+				const ObjRestrictItem & r_oitem = (reinterpret_cast<ObjRestrictItem *>(p_cfg+1))[i];
 				VATBCfg::Item item;
 				MEMSZERO(item);
 				item.OpID = r_oitem.ObjID;
@@ -230,7 +219,7 @@ int SLAPI PPObjVATBook::ReadCfgList(PPID kind, VATBCfg * pConfig)
 		}
 		else {
 			for(i = 0; i < p_cfg->ListCount; i++) {
-				VATBCfg::Item & r_item = ((VATBCfg::Item *)&p_cfg[1])[i];
+				const VATBCfg::Item & r_item = (reinterpret_cast<const VATBCfg::Item *>(p_cfg+1))[i];
 				THROW_SL(pConfig->List.insert(&r_item));
 			}
 		}
@@ -265,7 +254,7 @@ int SLAPI PPObjVATBook::WriteCfgList(PPID kind, const VATBCfg * pConfig, int use
 	}
 	THROW_INVARG(oneof3(kind, PPVTB_SELL, PPVTB_BUY, PPVTB_SIMPLELEDGER));
 	THROW(CheckCfgRights(cfg_id, PPR_MOD, 0));
-	THROW_MEM(p_cfg = (PPVATBConfig *)SAlloc::M(sz));
+	THROW_MEM(p_cfg = static_cast<PPVATBConfig *>(SAlloc::M(sz)));
 	memzero(p_cfg, sz);
 	p_cfg->Ver = __VATBookFormatVer;
 	p_cfg->AccSheetID = pConfig->AccSheetID;
@@ -276,7 +265,7 @@ int SLAPI PPObjVATBook::WriteCfgList(PPID kind, const VATBCfg * pConfig, int use
 	p_cfg->EndDt      = pConfig->Period.upp;
 	p_cfg->ListCount  = items_count;
 	for(i = 0; i < items_count; i++) {
-		((VATBCfg::Item *)&p_cfg[1])[i] = pConfig->List.at(i);
+		reinterpret_cast<VATBCfg::Item *>(&p_cfg[1])[i] = pConfig->List.at(i);
 	}
 	{
 		PPTransaction tra(use_ta);
@@ -327,7 +316,7 @@ const VATBCfg & FASTCALL PPObjVATBook::GetConfig(PPID kind) const
 		return VATBSmplLedg;
 	else {
 		PPSetError(PPERR_INVVATBOOKKIND);
-		return *(VATBCfg *)0;
+		return *static_cast<const VATBCfg *>(0);
 	}
 }
 
@@ -366,7 +355,7 @@ void VATBookDialog::calcSum()
 {
 	double sum = 0.0;
 	char   t[8];
-	uint16 ctl_list[] = {CTL_VATBOOK_VAT0, CTL_VATBOOK_VAT1, CTL_VATBOOK_VAT2, CTL_VATBOOK_VAT3,
+	static const uint16 ctl_list[] = {CTL_VATBOOK_VAT0, CTL_VATBOOK_VAT1, CTL_VATBOOK_VAT2, CTL_VATBOOK_VAT3,
 		CTL_VATBOOK_SVAT1, CTL_VATBOOK_SVAT2, CTL_VATBOOK_SVAT3, CTL_VATBOOK_EXP};
 	for(uint i = 0; i < SIZEOFARRAY(ctl_list); i++) {
 		getCtrlData(ctl_list[i], memzero(t, sizeof(t)));
@@ -397,7 +386,7 @@ void VATBookDialog::calcVatSum(uint ctl)
 	else
 		return;
 	v = MONEYTOLDBL(m);
-	if((il = (TInputLine*)getCtrlView(ctl)) != 0) {
+	if((il = static_cast<TInputLine *>(getCtrlView(ctl))) != 0) {
 		strip(strcpy(text, il->getText()));
 		if(text[0] == 0) {
 			v *= fdiv100r(rate);
@@ -438,8 +427,7 @@ IMPL_HANDLE_EVENT(VATBookDialog)
 	else if(event.isClusterClk(CTL_VATBOOK_FLAGS)) {
 		ushort v = getCtrlUInt16(CTL_VATBOOK_FLAGS);
 		disableCtrls(v & 0x01, CTL_VATBOOK_VAT1, CTL_VATBOOK_VAT2, CTL_VATBOOK_VAT3,
-			CTL_VATBOOK_SVAT1, CTL_VATBOOK_SVAT2, CTL_VATBOOK_SVAT3,
-			CTL_VATBOOK_VAT0, CTL_VATBOOK_EXP, 0);
+			CTL_VATBOOK_SVAT1, CTL_VATBOOK_SVAT2, CTL_VATBOOK_SVAT3, CTL_VATBOOK_VAT0, CTL_VATBOOK_EXP, 0);
 	}
 	else
 		return;
@@ -467,7 +455,7 @@ int VATBookDialog::setDTS(const VATBookTbl::Rec * pData)
 	setCtrlData(CTL_VATBOOK_AMT,    Data.Amount);
 	setCtrlDate(CTL_VATBOOK_CBILLDT,   Data.CBillDt);
 	setCtrlData(CTL_VATBOOK_CBILLCODE, Data.CBillCode);
-	setCtrlData(CTL_VATBOOK_TAXOPCODE, Data.TaxOpCode); // @v8.5.11
+	setCtrlData(CTL_VATBOOK_TAXOPCODE, Data.TaxOpCode);
 
 	SString rate_buf;
 	setStaticText(CTL_VATBOOK_TVAT1, VatRateStr(PPObjVATBook::GetVatRate(0), rate_buf));
@@ -502,7 +490,7 @@ int VATBookDialog::getDTS(VATBookTbl::Rec * pData)
 	getCtrlData(CTL_VATBOOK_CODE,        Data.Code);
 	getCtrlData(CTL_VATBOOK_CBILLDT,     &Data.CBillDt);
 	getCtrlData(CTL_VATBOOK_CBILLCODE,   Data.CBillCode);
-	getCtrlData(CTL_VATBOOK_TAXOPCODE,   Data.TaxOpCode); // @v8.5.11
+	getCtrlData(CTL_VATBOOK_TAXOPCODE,   Data.TaxOpCode);
 	if(!getCtrlData(CTL_VATBOOK_INVCDT, &Data.InvcDt))
 		Data.InvcDt = Data.Dt;
 	getCtrlData(CTL_VATBOOK_PAYMDT, &Data.PaymDt);
@@ -554,8 +542,8 @@ private:
 	int    getIncExpData(int expend);
 	void   setIncExpCtrls()
 	{
-		double amt  = MONEYTOLDBL(Data.VAT0);
-		double amtv = MONEYTOLDBL(Data.Export);
+		const double amt  = MONEYTOLDBL(Data.VAT0);
+		const double amtv = MONEYTOLDBL(Data.Export);
 		ushort v = BIN(amt != 0.0 || amtv != 0.0);
 		setIncExpData(v);
 		setCtrlData(CTL_SMPLLEDG_INCEXPSEL, &v);
@@ -711,7 +699,7 @@ PPID SLAPI PPObjVATBook::SelectLineType(uint * pResID, PPID what)
 int SLAPI PPObjVATBook::ValidateData(void * pData, long)
 {
 	int    ok = 1;
-	VATBookTbl::Rec * p_rec = (VATBookTbl::Rec *)pData;
+	VATBookTbl::Rec * p_rec = static_cast<VATBookTbl::Rec *>(pData);
 	THROW(IsValidKind(p_rec->LineType_));
 	THROW_PP(*strip(p_rec->Code) != 0, PPERR_VATBCODENEEDED);
 	THROW_PP(checkdate(p_rec->Dt, 1), PPERR_INVVATBDT);
@@ -726,7 +714,7 @@ int SLAPI PPObjVATBook::ValidateData(void * pData, long)
 int SLAPI PPObjVATBook::EditObj(PPID * pID, void * pData, int use_ta)
 {
 	int    ok = 1;
-	VATBookTbl::Rec * p_rec = (VATBookTbl::Rec *)pData;
+	VATBookTbl::Rec * p_rec = static_cast<VATBookTbl::Rec *>(pData);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -744,14 +732,9 @@ int SLAPI PPObjVATBook::EditObj(PPID * pID, void * pData, int use_ta)
 }
 
 int SETVATBOOKDTS(TDialog * pDlg, VATBookTbl::Rec * pRec, PPID kind)
-{
-	return ((kind == PPVTB_SIMPLELEDGER) ? ((SimpleLedgerDialog*)pDlg)->setDTS(pRec) : ((VATBookDialog*)pDlg)->setDTS(pRec));
-}
-
+	{ return (kind == PPVTB_SIMPLELEDGER) ? static_cast<SimpleLedgerDialog *>(pDlg)->setDTS(pRec) : static_cast<VATBookDialog *>(pDlg)->setDTS(pRec); }
 int GETVATBOOKDTS(TDialog * pDlg, VATBookTbl::Rec * pRec, PPID kind)
-{
-	return ((kind == PPVTB_SIMPLELEDGER) ? ((SimpleLedgerDialog*)pDlg)->getDTS(pRec) : ((VATBookDialog*)pDlg)->getDTS(pRec));
-}
+	{ return (kind == PPVTB_SIMPLELEDGER) ? static_cast<SimpleLedgerDialog *>(pDlg)->getDTS(pRec) : static_cast<VATBookDialog *>(pDlg)->getDTS(pRec); }
 
 int SLAPI PPObjVATBook::AddBySample(PPID * pID, PPID sampleID)
 {
@@ -794,8 +777,7 @@ int SLAPI PPObjVATBook::AddBySample(PPID * pID, PPID sampleID)
 
 int SLAPI PPObjVATBook::Edit(PPID * pID, void * extraPtr /*kind*/)
 {
-	const  PPID extra_kind = (PPID)extraPtr;
-
+	const  PPID extra_kind = reinterpret_cast<const PPID>(extraPtr);
 	int    ok = -1, valid_data = 0;
 	PPID   _kind = 0;
 	uint   res_id = 0;
@@ -887,7 +869,7 @@ int VATBCfgDialog::addItem(long * pPos, long * pID)
 	MEMSZERO(item);
 	if(editItemDialog(&item) > 0) {
 		if(Data.List.insert(&item)) {
-			const long c = (long)Data.List.getCount();
+			const long c = static_cast<const long>(Data.List.getCount());
 			ASSIGN_PTR(pID, /*item.OpID*/c);
 			ASSIGN_PTR(pPos, c-1);
 			ok = 1;
@@ -914,8 +896,8 @@ int VATBCfgDialog::editItem(long pos, long id)
 
 int VATBCfgDialog::delItem(long pos, long id)
 {
-	if(((uint)pos) < Data.List.getCount()) {
-		Data.List.atFree((uint)pos);
+	if(pos >= 0 && pos < static_cast<long>(Data.List.getCount())) {
+		Data.List.atFree(static_cast<uint>(pos));
 		return 1;
 	}
 	else
@@ -1296,13 +1278,13 @@ int SLAPI PPViewVatBook::InitIteration()
 	P_IterQuery->where(*dbq);
 	MEMSZERO(k);
 	if(idx == 3) {
-		k.k3.LineType_ = (int16)Filt.Kind;
+		k.k3.LineType_ = static_cast<int16>(Filt.Kind);
 		k.k3.LineSubType = 0;
 		k.k3.Dt = Filt.Period.low;
 		k.k3.LineNo = 0;
 	}
 	else if(idx == 5) {
-		k.k5.LineType_ = (int16)Filt.Kind;
+		k.k5.LineType_ = static_cast<int16>(Filt.Kind);
 		k.k5.PaymDt = Filt.Period.low;
 	}
 	k_ = k;
@@ -1316,7 +1298,7 @@ int FASTCALL PPViewVatBook::NextIteration(VatBookViewItem * pItem)
 	char * p, clb_item[64];
 	if(P_IterQuery) {
 		if(P_ClbList && ClbListIterPos < P_ClbList->getCount()) {
-			STRNSCPY(clb_item, (char *)P_ClbList->at(ClbListIterPos));
+			STRNSCPY(clb_item, static_cast<const char *>(P_ClbList->at(ClbListIterPos)));
 			ClbListIterPos++;
 			if((p = strchr(clb_item, ';')) != 0) {
 				*p = 0;
@@ -1336,14 +1318,14 @@ int FASTCALL PPViewVatBook::NextIteration(VatBookViewItem * pItem)
 			return 1;
 		}
 		else if(P_IterQuery->nextIteration() > 0) {
-			(*(VATBookTbl::Rec *)&InnerItem) = VBObj.P_Tbl->data;
+			*static_cast<VATBookTbl::Rec *>(&InnerItem) = VBObj.P_Tbl->data;
 			InnerItem.CLB[0] = 0;
 			InnerItem.ManufCountry[0] = 0;
 			ClbListIterPos = 0;
 			if(Filt.Kind == PPVTB_BUY && Filt.Flags & VatBookFilt::fIterateClb)
 				if(LoadClbList(InnerItem.Link)) {
 					if(P_ClbList && P_ClbList->getCount()) {
-						STRNSCPY(clb_item, (char *)P_ClbList->at(ClbListIterPos));
+						STRNSCPY(clb_item, static_cast<const char *>(P_ClbList->at(ClbListIterPos)));
 						ClbListIterPos++;
 						if((p = strchr(clb_item, ';')) != 0) {
 							*p = 0;
@@ -1640,12 +1622,12 @@ int SLAPI PPViewVatBook::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *(PPID *)pHdr : 0;
+		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		PPID   temp_id;
 		int    r;
 		switch(ppvCmd) {
 			case PPVCMD_ADDITEM:
-				r = VBObj.Edit(&(temp_id = 0), (void *)Filt.Kind);
+				r = VBObj.Edit(&(temp_id = 0), reinterpret_cast<void *>(Filt.Kind));
 				if(r == cmOK) {
 					Total.Count = 0; // Reset total data
 					ok = 1;
@@ -1663,7 +1645,7 @@ int SLAPI PPViewVatBook::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 					ok = r ? -1 : 0;
 				break;
 			case PPVCMD_EDITITEM:
-				r = VBObj.Edit(&id, (void *)Filt.Kind);
+				r = VBObj.Edit(&id, reinterpret_cast<void *>(Filt.Kind));
 				if(r == cmOK) {
 					Total.Count = 0; // Reset total data
 					ok = 1;
@@ -2344,16 +2326,15 @@ int SLAPI PPViewVatBook::ProcessOp(uint i, const PPIDArray * pOpList,
 	return ok;
 }
 
-int SLAPI PPViewVatBook::ConvertOpList(const VATBCfg * pCfg, PPIDArray * pList)
+void SLAPI PPViewVatBook::ConvertOpList(const VATBCfg & rCfg, PPIDArray & rList)
 {
 	PPIDArray temp_op_list;
-	temp_op_list.addUnique(pList);
-	for(uint i = 0; i < pCfg->List.getCount(); i++) {
-		if(pCfg->List.at(i).Flags & VATBCfg::fExclude)
-			temp_op_list.removeByID(pCfg->List.at(i).OpID);
+	temp_op_list.addUnique(&rList);
+	for(uint i = 0; i < rCfg.List.getCount(); i++) {
+		if(rCfg.List.at(i).Flags & VATBCfg::fExclude)
+			temp_op_list.removeByID(rCfg.List.at(i).OpID);
 	}
-	pList->copy(temp_op_list);
-	return 1;
+	rList = temp_op_list;
 }
 
 int SLAPI PPViewVatBook::AutoBuild()
@@ -2383,7 +2364,11 @@ int SLAPI PPViewVatBook::AutoBuild()
 		PPObjBill::PplBlock ebf_blk(flt.Period, 0, 0);
 		PPID   main_org_id = 0;
 		PPObjOprKind op_obj;
-		PPIDArray inc_op_list, paym_op_list, neg_op_list, reckon_op_list;
+		PPIDArray inc_op_list;  // Список основных операций для включения в книгу
+		PPIDArray paym_op_list; // Список операций оплат
+		PPIDArray neg_op_list;  // Список основных операций для включения в книгу, которые должны сторнироваться
+		PPIDArray reckon_op_list; // Список зачетных операций
+		//PPIDArray corr_op_list; // @v10.3.3 Список операция корректировки
 		PPIDArray factbyshipm_exp_op_list;
 		PPIDArray as_paym_op_list; // Список операций, имеющих признак VATBCfg::fAsPayment
 			// Для таких операций по связанному документу формируется сторнирующая запись
@@ -2419,20 +2404,27 @@ int SLAPI PPViewVatBook::AutoBuild()
 		if(!by_payments) {
 			for(i = 0; i < r_cfg.List.getCount(); i++) {
 				const VATBCfg::Item & r_item = r_cfg.List.at(i);
+				const PPID base_op_id = r_item.OpID;
 				if(!(r_item.Flags & VATBCfg::fExclude)) {
-					if(Filt.Kind == PPVTB_SIMPLELEDGER && r_item.Flags & VATBCfg::fExpendByFact) {
-						ebf_blk.AddOp(r_item.OpID);
-						if(r_item.Flags & VATBCfg::fNegative) {
-							inc_op_list.addUnique(r_item.OpID);
-							neg_op_list.addUnique(r_item.OpID);
+					PPIDArray inner_op_list;
+					op_obj.GetCorrectionOpList(base_op_id, &inner_op_list);
+					inner_op_list.atInsert(0, &base_op_id);
+					for(uint inneropidx = 0; inneropidx < inner_op_list.getCount(); inneropidx++) {
+						const PPID op_id = inner_op_list.get(inneropidx);
+						if(Filt.Kind == PPVTB_SIMPLELEDGER && r_item.Flags & VATBCfg::fExpendByFact) {
+							ebf_blk.AddOp(op_id);
+							if(r_item.Flags & VATBCfg::fNegative) {
+								inc_op_list.addUnique(op_id);
+								neg_op_list.addUnique(op_id);
+							}
 						}
-					}
-					else {
-						inc_op_list.addUnique(r_item.OpID);
-						if(r_item.Flags & VATBCfg::fNegative)
-							neg_op_list.addUnique(r_item.OpID);
-						if(r_item.Flags & VATBCfg::fAsPayment)
-							as_paym_op_list.addUnique(r_item.OpID);
+						else {
+							inc_op_list.addUnique(op_id);
+							if(r_item.Flags & VATBCfg::fNegative)
+								neg_op_list.addUnique(op_id);
+							if(r_item.Flags & VATBCfg::fAsPayment)
+								as_paym_op_list.addUnique(op_id);
+						}
 					}
 				}
 			}
@@ -2445,50 +2437,56 @@ int SLAPI PPViewVatBook::AutoBuild()
 			//
 			for(i = 0; i < r_cfg.List.getCount(); i++) {
 				const VATBCfg::Item & r_item = r_cfg.List.at(i);
-				const PPID op_id = r_item.OpID;
+				const PPID base_op_id = r_item.OpID;
 				if(!(r_item.Flags & VATBCfg::fExclude)) {
-					if(CheckOpFlags(op_id, OPKF_NEEDPAYMENT)) {
-						PPIDArray temp_op_list;
-						THROW(op_obj.GetPaymentOpList(op_id, &temp_op_list));
-						if(Filt.Kind == PPVTB_SIMPLELEDGER && r_item.Flags & VATBCfg::fExpendByFact) {
-							ebf_blk.AddOp(op_id);
-							ebf_blk.AddPaymOpList(temp_op_list);
-							if(r_item.Flags & VATBCfg::fNegative) {
+					PPIDArray inner_op_list;
+					op_obj.GetCorrectionOpList(base_op_id, &inner_op_list);
+					inner_op_list.atInsert(0, &base_op_id);
+					for(uint inneropidx = 0; inneropidx < inner_op_list.getCount(); inneropidx++) {
+						const PPID op_id = inner_op_list.get(inneropidx);
+						if(CheckOpFlags(base_op_id, OPKF_NEEDPAYMENT)) {
+							PPIDArray temp_op_list;
+							THROW(op_obj.GetPaymentOpList(op_id, &temp_op_list));
+							if(Filt.Kind == PPVTB_SIMPLELEDGER && r_item.Flags & VATBCfg::fExpendByFact) {
+								ebf_blk.AddOp(op_id);
+								ebf_blk.AddPaymOpList(temp_op_list);
+								if(r_item.Flags & VATBCfg::fNegative) {
+									paym_op_list.addUnique(&temp_op_list);
+									neg_op_list.addUnique(&temp_op_list);
+									if(r_item.Flags & VATBCfg::fFactByShipment)
+										ebf_blk.Flags |= ebf_blk.fByShipment;
+								}
+							}
+							else {
 								paym_op_list.addUnique(&temp_op_list);
-								neg_op_list.addUnique(&temp_op_list);
-								if(r_item.Flags & VATBCfg::fFactByShipment)
-									ebf_blk.Flags |= ebf_blk.fByShipment;
+								if(Filt.Kind == PPVTB_SIMPLELEDGER) {
+									if(r_item.Flags & VATBCfg::fNegative)
+										neg_op_list.addUnique(&temp_op_list);
+									else
+										factbyshipm_exp_op_list.addUnique(op_id);
+								}
+								if(CheckOpFlags(op_id, OPKF_RECKON)) {
+									PPReckonOpEx rox;
+									THROW(op_obj.GetReckonExData(op_id, &rox));
+									reckon_op_list.add(&rox.OpList);
+								}
 							}
 						}
-						else {
-							paym_op_list.addUnique(&temp_op_list);
-							if(Filt.Kind == PPVTB_SIMPLELEDGER) {
+						//
+						// [01] Для того, чтобы следующий блок имел бы ограниченный эффект только на
+						// книгу доходов/расходов устанавливаем соответствующий if().
+						// Тем не менее, я думаю, что этот блок нужен и для книг продаж/покупок
+						//
+						else if(Filt.Kind == PPVTB_SIMPLELEDGER) {
+							if(r_item.Flags & VATBCfg::fExpendByFact)
+								ebf_blk.AddOp(op_id);
+							else {
+								inc_op_list.addUnique(op_id);
 								if(r_item.Flags & VATBCfg::fNegative)
-									neg_op_list.addUnique(&temp_op_list);
+									neg_op_list.addUnique(op_id);
 								else
 									factbyshipm_exp_op_list.addUnique(op_id);
 							}
-							if(CheckOpFlags(op_id, OPKF_RECKON)) {
-								PPReckonOpEx rox;
-								THROW(op_obj.GetReckonExData(op_id, &rox));
-								reckon_op_list.add(&rox.OpList);
-							}
-						}
-					}
-					//
-					// [01] Для того, чтобы следующий блок имел бы ограниченный эффект только на
-					// книгу доходов/расходов устанавливаем соответствующий if().
-					// Тем не менее, я думаю, что этот блок нужен и для книг продаж/покупок
-					//
-					else if(Filt.Kind == PPVTB_SIMPLELEDGER) {
-						if(r_item.Flags & VATBCfg::fExpendByFact)
-							ebf_blk.AddOp(op_id);
-						else {
-							inc_op_list.addUnique(op_id);
-							if(r_item.Flags & VATBCfg::fNegative)
-								neg_op_list.addUnique(op_id);
-							else
-								factbyshipm_exp_op_list.addUnique(op_id);
 						}
 					}
 				}
@@ -2518,11 +2516,11 @@ int SLAPI PPViewVatBook::AutoBuild()
 		Total.Count = 0; // Reset total data
 		{
 			PPObjBill::PplBlock * p_ebf_blk = ebf_blk.OpList.getCount() ? &ebf_blk : 0;
-			ConvertOpList(&r_cfg, &inc_op_list);
+			ConvertOpList(r_cfg, inc_op_list);
 			for(i = 0; i < inc_op_list.getCount(); i++) {
 				const  PPID op_id = inc_op_list.get(i);
+				const  int by_paym_param = r_cfg.CheckFlag(op_id, VATBCfg::fAsPayment) ? (r_cfg.CheckFlag(op_id, VATBCfg::fVATFromReckon) ? -2 : -1) : 0;
 				PPID   main_amt_type_id = 0;
-				int    by_paym_param = r_cfg.CheckFlag(op_id, VATBCfg::fAsPayment) ? (r_cfg.CheckFlag(op_id, VATBCfg::fVATFromReckon) ? -2 : -1) : 0;
 				if(Filt.Kind == PPVTB_SIMPLELEDGER) {
 					for(uint j = 0; !main_amt_type_id && j < r_cfg.List.getCount(); j++) {
 						const VATBCfg::Item & r_item = r_cfg.List.at(j);
@@ -2532,14 +2530,14 @@ int SLAPI PPViewVatBook::AutoBuild()
 				}
 				THROW(ProcessOp(i, &inc_op_list, &neg_op_list, &flt, by_paym_param, p_ebf_blk, main_amt_type_id));
 			}
-			ConvertOpList(&r_cfg, &paym_op_list);
+			ConvertOpList(r_cfg, paym_op_list);
 			for(i = 0; i < paym_op_list.getCount(); i++)
 				THROW(ProcessOp(i, &paym_op_list, &neg_op_list, &flt, 1, p_ebf_blk, 0));
-			ConvertOpList(&r_cfg, &reckon_op_list);
+			ConvertOpList(r_cfg, reckon_op_list);
 			for(i = 0; i < reckon_op_list.getCount(); i++)
 				THROW(ProcessOp(i, &reckon_op_list, &neg_op_list, &flt, 2, p_ebf_blk, 0));
 			if(p_ebf_blk && p_ebf_blk->Flags & p_ebf_blk->fByShipment) {
-				ConvertOpList(&r_cfg, &factbyshipm_exp_op_list);
+				ConvertOpList(r_cfg, factbyshipm_exp_op_list);
 				for(i = 0; i < factbyshipm_exp_op_list.getCount(); i++)
 					THROW(ProcessOp(i, &factbyshipm_exp_op_list, 0, &flt, 3, p_ebf_blk, 0));
 			}

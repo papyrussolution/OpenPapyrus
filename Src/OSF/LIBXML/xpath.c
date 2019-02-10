@@ -9690,7 +9690,8 @@ static void xmlXPathCompFunctionCall(xmlXPathParserContextPtr ctxt)
  *
  * Compile a primary expression.
  */
-static void xmlXPathCompPrimaryExpr(xmlXPathParserContextPtr ctxt) {
+static void xmlXPathCompPrimaryExpr(xmlXPathParserContextPtr ctxt) 
+{
 	SKIP_BLANKS;
 	if(CUR == '$') xmlXPathCompVariableReference(ctxt);
 	else if(CUR == '(') {

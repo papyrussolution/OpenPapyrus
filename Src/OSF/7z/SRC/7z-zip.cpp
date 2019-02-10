@@ -5826,7 +5826,7 @@ namespace NArchive {
 		{
 			for(uint i = 0; i < num; i++) {
 				const char * name = names[i];
-				if(name && StringsAreEqualNoCase_Ascii(s, name))
+				if(name && sstreqi_ascii(s, name))
 					return i;
 			}
 			return -1;
@@ -6126,7 +6126,7 @@ namespace NArchive {
 							_props.IsAesMode = true;
 							m_ForceAesMode = true;
 						}
-						else if(StringsAreEqualNoCase_Ascii(m, "ZipCrypto")) {
+						else if(sstreqi_ascii(m, "ZipCrypto")) {
 							_props.IsAesMode = false;
 							m_ForceAesMode = true;
 						}

@@ -656,7 +656,6 @@ int codablock(struct ZintSymbol * symbol, uchar source[], int length)
 	pSet = (int*)_alloca(dataLength*sizeof(int));
 #endif
 	CreateCharacterSetTable(T, data, dataLength);
-
 	/* Find final row and column count */
 	/* nor row nor column count given */
 	if(rows <= 0 && columns <= 5) {
@@ -666,7 +665,7 @@ int codablock(struct ZintSymbol * symbol, uchar source[], int length)
 		}
 		else {
 			/* use 1/1 aspect/ratio Codablock */
-			columns = ((int)floor(sqrt(1.0*dataLength))+5);
+			columns = ffloori(sqrt(1.0*dataLength)) + 5;
 			if(columns > 64)
 				columns = 64;
 		#ifdef _DEBUG
@@ -691,13 +690,11 @@ int codablock(struct ZintSymbol * symbol, uchar source[], int length)
 	/* Checksum */
 	Sum1 = Sum2 = 0;
 	if(rows>1) {
-		int charCur;
-		for(charCur = 0; charCur<dataLength; charCur++) {
+		for(int charCur = 0; charCur<dataLength; charCur++) {
 			Sum1 = (Sum1 + (charCur%86+1)*data[charCur])%86;
 			Sum2 = (Sum2 + (charCur%86)*data[charCur])%86;
 		}
 	}
-
     #ifdef _DEBUG
 	{ /* start a new level of local variables */
 		int DPos;

@@ -1265,7 +1265,7 @@ static int gamma_xgthalf(double x, SMathResult * result)
 		result->E = SMathConst::Epsilon * result->V;
 	}
 	else if(x <= FACT_TAB_SIZE && x == floor(x)) {
-		int    n = (int)floor(x);
+		int    n = ffloori(x);
 		result->V = ffactr(n-1);
 		result->E = SMathConst::Epsilon * result->V;
 	}
@@ -1382,7 +1382,7 @@ int fgamma(double x, SMathResult * result)
 {
 	int    ok = 1;
 	if(x < 0.5) {
-		int rint_x = (int)floor(x+0.5);
+		int rint_x = ffloori(x+0.5);
 		double f_x = x - rint_x;
 		double sgn_gamma = (IS_EVEN(rint_x) ? 1.0 : -1.0 );
 		double sin_term = sgn_gamma * sin(SMathConst::Pi * f_x) / SMathConst::Pi;

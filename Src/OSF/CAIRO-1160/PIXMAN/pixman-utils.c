@@ -36,16 +36,12 @@ pixman_bool_t _pixman_addition_overflows_int(uint a, uint b) { return a > INT32_
 
 void * pixman_malloc_ab_plus_c(uint a, uint b, uint c)
 {
-	if(!b || a >= INT32_MAX / b || (a * b) > INT32_MAX - c)
-		return NULL;
-	return SAlloc::M(a * b + c);
+	return (!b || a >= INT32_MAX / b || (a * b) > INT32_MAX - c) ? NULL : SAlloc::M(a * b + c);
 }
 
-void * pixman_malloc_ab(uint a, uint b)
+void * FASTCALL pixman_malloc_ab(uint a, uint b)
 {
-	if(a >= INT32_MAX / b)
-		return NULL;
-	return SAlloc::M(a * b);
+	return (a >= INT32_MAX / b) ? NULL : SAlloc::M(a * b);
 }
 
 void * pixman_malloc_abc(uint a, uint b, uint c)

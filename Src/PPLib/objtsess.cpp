@@ -242,7 +242,7 @@ int FASTCALL PPObjTSession::ReadConfig(PPTSessConfig * pCfg)
 			if(p_cfg->SmsConfigPos && p_cfg->ExtStrSize) {
 				SBuffer buf;
 				SSerializeContext sctx;
-				buf.Write(((const char *)p_cfg) + p_cfg->SmsConfigPos, p_cfg->ExtStrSize);
+				buf.Write(PTR8C(p_cfg) + p_cfg->SmsConfigPos, p_cfg->ExtStrSize);
 				THROW(pCfg->SmsConfig.Serialize(-1, buf, &sctx));
 			}
 			ok = 1;
@@ -576,7 +576,7 @@ int SLAPI PPObjTSession::ConvertExtraParam(void * extraPtr, SelFilt * pFilt)
 {
 	int    ok = -1;
 	if(pFilt) {
-		long   extra_param = (long)extraPtr;
+		long   extra_param = reinterpret_cast<long>(extraPtr);
 		memzero(pFilt, sizeof(*pFilt));
 		if(extra_param < 0) {
 			pFilt->Kind = TSESK_SUPERSESS;
@@ -4456,9 +4456,9 @@ int SLAPI PPObjTSession::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr
 	}
 	else if(msg == DBMSG_OBJREPLACE)
 		if(_obj == PPOBJ_ARTICLE)
-			ok = P_Tbl->ReplaceArticle(_id, (long)extraPtr) ? DBRPL_OK : DBRPL_ERROR;
+			ok = P_Tbl->ReplaceArticle(_id, reinterpret_cast<long>(extraPtr)) ? DBRPL_OK : DBRPL_ERROR;
 		else if(_obj == PPOBJ_GOODS)
-			ok = P_Tbl->ReplaceGoods(_id, (long)extraPtr) ? DBRPL_OK : DBRPL_ERROR;
+			ok = P_Tbl->ReplaceGoods(_id, reinterpret_cast<long>(extraPtr)) ? DBRPL_OK : DBRPL_ERROR;
 	return ok;
 }
 
@@ -4666,7 +4666,7 @@ int SLAPI PPObjTSession::Read(PPObjPack * p, PPID id, void * stream, ObjTransmCo
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
 	}
 	p->Data = p_pack;
@@ -4708,7 +4708,7 @@ int SLAPI PPObjTSession::Write(PPObjPack * p, PPID * pID, void * stream, ObjTran
 		else {
 			SBuffer buffer;
 			THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 		}
 	CATCHZOK
 	return ok;

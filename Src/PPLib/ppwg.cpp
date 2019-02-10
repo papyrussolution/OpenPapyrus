@@ -1,5 +1,5 @@
 // PPWG.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2010, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2006, 2007, 2010, 2013, 2015, 2016, 2017, 2018, 2019
 //
 // Графики рабочего времени
 //
@@ -342,7 +342,7 @@ class DutySchedDialog : public PPListDialog {
 public:
 	DutySchedDialog() : PPListDialog(DLG_DUTYSCHED, CTL_DUTYSCHED_LIST)
 	{
-		SmartListBox * p_list = (SmartListBox *)getCtrlView(CTL_DUTYSCHED_CPLIST);
+		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_DUTYSCHED_CPLIST));
 		if(p_list && !SetupStrListBox(p_list))
 			PPError();
 	}
@@ -378,7 +378,7 @@ IMPL_HANDLE_EVENT(DutySchedDialog)
 		}
 	}
 	else if(event.isCmd(cmDutySchedRmvCp)) {
-		SmartListBox * p_list = (SmartListBox *)getCtrlView(CTL_DUTYSCHED_CPLIST);
+		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_DUTYSCHED_CPLIST));
 		if(p_list && p_list->def) {
 			long i = 0;
 			p_list->getCurID(&i);
@@ -446,7 +446,7 @@ void DutySchedDialog::fillStaffCal()
 
 void DutySchedDialog::updateCountPointList(long pos)
 {
-	SmartListBox * p_list = (SmartListBox *)getCtrlView(CTL_DUTYSCHED_CPLIST);
+	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_DUTYSCHED_CPLIST));
 	if(p_list) {
 		PPDutyCountPoint * p_point;
 		SString sub;

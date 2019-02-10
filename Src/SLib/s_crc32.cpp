@@ -60,7 +60,7 @@ struct CrcModel { // cm_t
 	uint32 FASTCALL Tab(uint index)
 	{
 		const  uint32 topbit = (1 << (Width-1));
-		uint32 inbyte = (uint32)index;
+		uint32 inbyte = static_cast<uint32>(index);
 		if(cm_refin)
 			inbyte = reflect(inbyte, 8);
 		uint32 c = inbyte << (Width - 8);
@@ -204,7 +204,7 @@ int SLAPI SCRC32::MakeTab()
 		for(n = 0; n < SIZEOFARRAY(p); n++)
 			poly |= 1L << (31 - p[n]);
 		for(n = 0; n < 256; n++) {
-			c = (ulong)n;
+			c = static_cast<ulong>(n);
 			for(k = 0; k < 8; k++)
 				c = (c & 1) ? (poly ^ (c >> 1)) : (c >> 1);
 			P_Tab[n] = c;
@@ -229,28 +229,28 @@ int SLAPI SCRC32::MakeTab()
 		return (SLibError = SLERR_NOMEM, 0);
 }
 
-ulong SLAPI SCRC32::Calc(ulong crc, const uint8 * buf, size_t len)
+ulong SLAPI SCRC32::Calc(ulong crc, const void * pData, size_t dataLen)
 {
-	#define DO1(buf)  crc = P_Tab[((int)crc ^ (*buf++)) & 0xff] ^ (crc >> 8);
+	#define DO1(buf)  crc = P_Tab[((int)crc ^ (*p_buf++)) & 0xff] ^ (crc >> 8);
 	#define DO2(buf)  DO1(buf); DO1(buf);
 	#define DO4(buf)  DO2(buf); DO2(buf);
 	#define DO8(buf)  DO4(buf); DO4(buf);
-
-	if(!buf)
-		return 0L;
-	if(P_Tab == NULL)
-		MakeTab();
-	crc = crc ^ 0xffffffffL;
-	while(len >= 8) {
-		DO8(buf);
-		len -= 8;
+	ulong result = 0;
+	if(pData && dataLen) {
+		if(P_Tab == NULL)
+			MakeTab();
+		const uint8 * p_buf = PTR8C(pData);
+		crc = crc ^ 0xffffffffL;
+		while(dataLen >= 8) {
+			DO8(pData);
+			dataLen -= 8;
+		}
+		if(dataLen) do {
+			DO1(pData);
+		} while(--dataLen);
+		result = (crc ^ 0xffffffffL);
 	}
-	if(len)
-		do {
-			DO1(buf);
-		} while(--len);
-	return crc ^ 0xffffffffL;
-
+	return result;
 	#undef DO1
 	#undef DO2
 	#undef DO4
@@ -734,7 +734,7 @@ int FASTCALL SBdtFunct::Implement_Transform(TransformBlock & rBlk)
 			switch(rBlk.Phase) {
 				case phaseGetInfo:
 					{
-						Info * p_inf = (Info *)rBlk.P_OutBuf;
+						Info * p_inf = static_cast<Info *>(rBlk.P_OutBuf);
 						if(p_inf)
 							p_inf->Set(A, clsHash, fFixedSize|fWriteAtFinish, 0, 0, 4, 0);
 					}
@@ -747,7 +747,7 @@ int FASTCALL SBdtFunct::Implement_Transform(TransformBlock & rBlk)
 							_Tab_Crc32_Idx = SLS.CreateGlobalObject(cls);
 							do_init_tab = 1;
 						}
-						uint32 * p_tab = (uint32 *)SLS.GetGlobalObject(_Tab_Crc32_Idx);
+						uint32 * p_tab = static_cast<uint32 *>(SLS.GetGlobalObject(_Tab_Crc32_Idx));
 						THROW(p_tab);
 						if(do_init_tab) {
 							// norm       reverse in  reverse out
@@ -762,7 +762,7 @@ int FASTCALL SBdtFunct::Implement_Transform(TransformBlock & rBlk)
 					break;
 				case SBdtFunct::phaseUpdate:
 					{
-						const ulong * p_tab = (const ulong *)Ste.P_Tab;
+						const ulong * p_tab = static_cast<const ulong *>(Ste.P_Tab);
 						THROW(p_tab);
 
 						#define DO1(buf)  crc = p_tab[((int)crc ^ (*buf++)) & 0xff] ^ (crc >> 8);
@@ -803,7 +803,7 @@ int FASTCALL SBdtFunct::Implement_Transform(TransformBlock & rBlk)
 					break;
 				case SBdtFunct::phaseGetStat:
 					{
-                        Stat * p_stat = (Stat *)rBlk.P_OutBuf;
+                        Stat * p_stat = static_cast<Stat *>(rBlk.P_OutBuf);
 						assert(!p_stat || rBlk.OutBufLen >= sizeof(Stat));
                         ASSIGN_PTR(p_stat, Ste.S);
 					}
@@ -822,21 +822,17 @@ int FASTCALL SBdtFunct::Implement_Transform(TransformBlock & rBlk)
 			break;
 		case SBdtFunct::Crc16:
 			switch(rBlk.Phase) {
-				case SBdtFunct::phaseInit:
-					break;
-				case SBdtFunct::phaseUpdate:
-					break;
-				case SBdtFunct::phaseFinish:
-					break;
+				case SBdtFunct::phaseInit: break;
+				case SBdtFunct::phaseUpdate: break;
+				case SBdtFunct::phaseFinish: break;
 			}
 			break;
 		case SBdtFunct::Adler32:
 			switch(rBlk.Phase) {
 				case phaseGetInfo:
 					{
-						Info * p_inf = (Info *)rBlk.P_OutBuf;
-						if(p_inf)
-							p_inf->Set(A, clsHash, fFixedSize|fWriteAtFinish, 0, 0, 4, 0);
+						Info * p_inf = static_cast<Info *>(rBlk.P_OutBuf);
+						CALLPTRMEMB(p_inf, Set(A, clsHash, fFixedSize|fWriteAtFinish, 0, 0, 4, 0));
 					}
 					break;
 				case phaseInit:
@@ -931,7 +927,7 @@ int FASTCALL SBdtFunct::Implement_Transform(TransformBlock & rBlk)
 					break;
 				case SBdtFunct::phaseGetStat:
 					{
-                        Stat * p_stat = (Stat *)rBlk.P_OutBuf;
+                        Stat * p_stat = static_cast<Stat *>(rBlk.P_OutBuf);
 						assert(!p_stat || rBlk.OutBufLen >= sizeof(Stat));
                         ASSIGN_PTR(p_stat, Ste.S);
 					}
@@ -1254,19 +1250,19 @@ int SLAPI ReadBdtTestData(const char * pFileName, const char * pSetSymb, TSColle
                         }
                         else if(hdr_buf.CmpNC("OutputLen") == 0) {
 							if(!(p_current_item->Flags & BdtTestItem::fOutLen)) {
-								p_current_item->OutLen = (size_t)data_buf.ToLong();
+								p_current_item->OutLen = static_cast<size_t>(data_buf.ToLong());
 								p_current_item->Flags |= BdtTestItem::fOutLen;
 							}
                         }
                         else if(hdr_buf.CmpNC("Iterations") == 0) {
 							if(!(p_current_item->Flags & BdtTestItem::fIterations)) {
-								p_current_item->Iterations = (uint)data_buf.ToLong();
+								p_current_item->Iterations = static_cast<uint>(data_buf.ToLong());
 								p_current_item->Flags |= BdtTestItem::fIterations;
 							}
                         }
                         else if(hdr_buf.CmpNC("Seek") == 0) {
 							if(!(p_current_item->Flags & BdtTestItem::fSeek)) {
-								p_current_item->Seek = (uint)data_buf.ToLong();
+								p_current_item->Seek = static_cast<uint>(data_buf.ToLong());
 								p_current_item->Flags |= BdtTestItem::fSeek;
 							}
                         }

@@ -1012,7 +1012,7 @@ static void ReplaceIncorrectChars(UString &s)
 	{
 		uint len = s.Len();
 		const uint kPostfixSize = 6;
-		if(s.Len() >= kPostfixSize && StringsAreEqualNoCase_Ascii(s.RightPtr(kPostfixSize), ":$DATA"))
+		if(s.Len() >= kPostfixSize && sstreqi_ascii(s.RightPtr(kPostfixSize), ":$DATA"))
 			len -= kPostfixSize;
 		for(uint i = 0; i < len; i++) {
 			wchar_t c = s[i];

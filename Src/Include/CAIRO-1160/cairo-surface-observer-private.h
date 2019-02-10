@@ -42,7 +42,7 @@
 //#include "cairo-recording-surface-private.h"
 //#include "cairo-surface-private.h"
 //#include "cairo-surface-backend-private.h"
-#include "cairo-time-private.h"
+//#include "cairo-time-private.h"
 
 struct SurfaceObserverStat {
 	double min;

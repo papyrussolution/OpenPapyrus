@@ -68,19 +68,6 @@ DBFileSpec & SLAPI operator + (DBFileSpec & pf, DBIdxSpec & pi)
 //
 SString & SLAPI XFile::GetTableName(SString & rBuf) const
 	{ return rBuf.CopyFromN(XfName, MAXTABLENAME).Strip(); }
-//
-//
-int FASTCALL BRet(int r)
-{
-	if(r) {
-		DbThreadLocalArea & r_tla = DBS.GetTLA();
-		r_tla.LastDbErr = SDBERR_BTRIEVE;
-		r_tla.LastBtrErr = r;
-		return 0;
-	}
-	else
-		return 1;
-}
 
 int FASTCALL DBTable::copyBufLobFrom(const void * pBuf, size_t srcBufSize)
 {
@@ -233,7 +220,7 @@ int DBTable::Btr_ProcessLobOnReading()
 						bad_structured = 1;
 			}
 			//THROW(writeLobData(last_fld, p_lob_data, retBufLen - FixRecSize));
-			THROW(writeLobData(last_fld, lob_buffer, lob_buffer.GetAvailableSize()));
+			THROW(writeLobData(last_fld, lob_buffer.constptr(), lob_buffer.GetAvailableSize()));
 		}
 		else {
 			THROW(setLobSize(last_fld, 0));
@@ -406,8 +393,8 @@ int DBTable::Btr_Implement_InsertRec(int idx, void * pKeyBuf, const void * pData
 			}
 			else {
 				temp_buf.Write(P_DBuf, FixRecSize);
-				temp_buf.Write(lob_buffer, lob_buffer.GetAvailableSize());
-				p_data_buf = (char *)(const void *)temp_buf;
+				temp_buf.Write(lob_buffer.constptr(), lob_buffer.GetAvailableSize());
+				p_data_buf = (char *)temp_buf.constptr(); // @badcast
 				// @v9.1.12 @fix retBufLen = (uint16)lob_size;
 				retBufLen = (RECORDSIZE)temp_buf.GetAvailableSize(); // @v9.1.12 @fix
 			}
@@ -441,7 +428,7 @@ int DBTable::Btr_Implement_InsertRec(int idx, void * pKeyBuf, const void * pData
 				temp_buf.Write(lob_buffer.GetBuf(lob_buffer.GetRdOffs()), chunk_size);
 				lob_buffer.SetRdOffs(lob_buffer.GetRdOffs() + chunk_size);
 				retBufLen = (RECORDSIZE)temp_buf.GetAvailableSize();
-                result = Ret(BTRV(B_UPDATECHUNK, FPB, (char *)(const void *)temp_buf, (uint16 *)&retBufLen, (char *)pKeyBuf, WBTRVTAIL));
+                result = Ret(BTRV(B_UPDATECHUNK, FPB, (char *)temp_buf.constptr(), (uint16 *)&retBufLen, (char *)pKeyBuf, WBTRVTAIL));
                 rest_size -= chunk_size;
                 rec_offs += chunk_size;
 			}
@@ -495,8 +482,8 @@ int DBTable::Btr_Implement_UpdateRec(const void * pDataBuf, int ncc)
 			}
 			else {
 				temp_buf.Write(P_DBuf, FixRecSize);
-				temp_buf.Write(lob_buffer, lob_buffer.GetAvailableSize());
-				p_data_buf = (char *)(const void *)temp_buf;
+				temp_buf.Write(lob_buffer.constptr(), lob_buffer.GetAvailableSize());
+				p_data_buf = (char *)temp_buf.constptr(); // @badcast
 				// @v9.1.12 @fix retBufLen = (uint16)lob_size;
 				retBufLen = (RECORDSIZE)temp_buf.GetAvailableSize(); // @v9.1.12 @fix
 			}
@@ -530,7 +517,7 @@ int DBTable::Btr_Implement_UpdateRec(const void * pDataBuf, int ncc)
 				temp_buf.Write(lob_buffer.GetBuf(lob_buffer.GetRdOffs()), chunk_size);
 				lob_buffer.SetRdOffs(lob_buffer.GetRdOffs() + chunk_size);
 				retBufLen = (RECORDSIZE)temp_buf.GetAvailableSize();
-                result = Ret(BTRV(B_UPDATECHUNK, FPB, (char *)(const void *)temp_buf, (uint16 *)&retBufLen, key_buf, WBTRVTAIL));
+                result = Ret(BTRV(B_UPDATECHUNK, FPB, (char *)temp_buf.constptr(), (uint16 *)&retBufLen, key_buf, WBTRVTAIL));
                 rest_size -= chunk_size;
                 rec_offs += chunk_size;
 			}

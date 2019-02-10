@@ -616,7 +616,7 @@ StrAssocArray * SLAPI PPObjQuotKind::MakeStrAssocList(void * extraPtr)
 {
 	StrAssocArray * p_list = new StrAssocArray;
 	QuotKindFilt filt;
-	filt.Flags = (long)extraPtr;
+	filt.Flags = reinterpret_cast<long>(extraPtr);
 	MakeList(&filt, p_list);
 	return p_list;
 }
@@ -1111,7 +1111,7 @@ int SLAPI PPObjQuotKind::Read(PPObjPack * p, PPID id, void * stream, ObjTransmCo
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW(SerializePacket(-1, (PPQuotKindPacket *)p->Data, buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
@@ -1166,7 +1166,7 @@ int SLAPI PPObjQuotKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTran
 		else {
 			SBuffer buffer;
 			THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 		}
 	}
 	CATCHZOK
@@ -1303,7 +1303,7 @@ int SLAPI QuotKindCache::FetchRtlList(PPIDArray & rList, PPIDArray & rTmList)
 int SLAPI QuotKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	Data * p_cache_rec = (Data *)pEntry;
+	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjQuotKind qk_obj;
 	PPQuotKind rec;
 	if(qk_obj.Search(id, &rec) > 0) {
@@ -1329,7 +1329,7 @@ int SLAPI QuotKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 void SLAPI QuotKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPQuotKind * p_data_rec = (PPQuotKind *)pDataRec;
-	const Data * p_cache_rec = (const Data *)pEntry;
+	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 #define CPY_FLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
 	p_data_rec->Tag = PPOBJ_QUOTKIND;

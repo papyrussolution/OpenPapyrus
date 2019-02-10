@@ -1813,7 +1813,7 @@ int SLAPI PPObjPersonEvent::Browse(void * extraPtr /*prmrPersonID*/)
 {
 	PersonEventFilt * p_filt = 0, flt;
 	if(extraPtr) {
-		flt.PrmrID = (long)extraPtr;
+		flt.PrmrID = reinterpret_cast<long>(extraPtr);
 		p_filt = &flt;
 	}
 	return PPView::Execute(PPVIEW_PERSONEVENT, p_filt, PPView::exefModeless, 0);
@@ -1939,7 +1939,7 @@ int SLAPI PPObjPersonEvent::Write(PPObjPack * p, PPID * pID, void * stream, ObjT
 		else {
 			SBuffer buffer;
 			THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 		}
 	}
 	CATCHZOK

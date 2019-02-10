@@ -4625,7 +4625,7 @@ void * FASTCALL PPObjScale::MakeExtraParam(long onlyGroups, long groupID)
 
 StrAssocArray * SLAPI PPObjScale::MakeStrAssocList(void * extraPtr)
 {
-	const  long extra_param = (long)extraPtr;
+	const  long extra_param = reinterpret_cast<long>(extraPtr);
 	PPID   scale_type = extra_param >> 24;
 	PPID   group_id   = (extra_param & 0x00ffffff);
 	PPID   id = 0;

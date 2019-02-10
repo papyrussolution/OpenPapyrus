@@ -1,5 +1,5 @@
 // OBJDBDIV.CPP
-// Copyright (c) A.Sobolev 1997-2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1997-2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 // Объект, управляющий разделами БД
 //
@@ -256,7 +256,7 @@ inline void DBDivDialog::delItem()
 {
 	uint   p = 0;
 	PPID   id;
-	SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_DBDIV_LIST);
+	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_DBDIV_LIST));
 	if(p_list && p_list->getCurID(&id) && data.LocList.lsearch(id, &p)) {
 		data.LocList.atFree(p);
 		updateList();
@@ -265,7 +265,7 @@ inline void DBDivDialog::delItem()
 
 void DBDivDialog::updateList()
 {
-	SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_DBDIV_LIST);
+	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_DBDIV_LIST));
 	if(p_list) {
 		p_list->freeAll();
 		SString text;
@@ -403,7 +403,7 @@ int SLAPI PPObjDBDiv::Get(PPID id, DBDivPack * pack)
 
 StrAssocArray * SLAPI PPObjDBDiv::MakeStrAssocList(void * extraPtr)
 {
-	const long extra_param = (long)extraPtr;
+	const long extra_param = reinterpret_cast<long>(extraPtr);
 	PPDBDiv rec;
 	StrAssocArray * p_list = new StrAssocArray();
 	THROW_MEM(p_list);

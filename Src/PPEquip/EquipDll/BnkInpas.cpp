@@ -267,10 +267,9 @@ int PPDrvINPASTrmnl::Init(SString & rCheck)
 			int i = SIntToSymbTab_GetSymb(_StatusMsgTab_SAP, SIZEOFARRAY(_StatusMsgTab_SAP), result_sar, rcode);
 			if(!i)
 				rcode = _StatusMsgTab_SAP[0].P_Symb;
-
 			DRVS.GetErrText(-1, msg);
 			DRVS.GetErrText(result_dc, buf);
-			msg.Cat("Error Code ").Cat(result_dc).CatChar(':').Cat(buf).Cat(" ").Cat(rcode);
+			msg.Space().Cat("Error Code").Space().Cat(result_dc).CatDiv(':', 2).Cat(buf).Space().Cat(rcode);
 			DRVS.Log(msg, 0xffff);
 		}
 	ENDCATCH;
@@ -353,18 +352,17 @@ int PPDrvINPASTrmnl::Pay(double amount, SString & rSlip)
 
 	// выдает информацию о ошибках в логи
 	CATCH
-		ok = 0;
 		{
 			SString msg, buf, rcode;
 			int i = SIntToSymbTab_GetSymb(_StatusMsgTab_SAP, SIZEOFARRAY(_StatusMsgTab_SAP), result_sar, rcode);
 			if(!i)
 				rcode = _StatusMsgTab_SAP[0].P_Symb;
-
 			DRVS.GetErrText(-1, msg);
 			DRVS.GetErrText(result_dc, buf);
-			msg.Cat("Error Code ").Cat(result_dc).CatChar(':').Cat(buf).Cat(" ").Cat(rcode);
+			msg.Space().Cat("Error Code").Space().Cat(result_dc).CatDiv(':', 2).Cat(buf).Space().Cat(rcode);
 			DRVS.Log(msg, 0xffff);
 		}
+		ok = 0;
 	ENDCATCH;
 	// Освобождение ресурсов
 	if(p_res) {
@@ -441,20 +439,18 @@ int PPDrvINPASTrmnl::Refund(double amount, SString & rSlip)
 	DRVS.Log(msg_ok, 0xffff);
 	// выдает информацию о ошибках в логи
 	CATCH
-		ok = 0;
 		{
 			SString msg, buf, rcode;
 			int i = SIntToSymbTab_GetSymb(_StatusMsgTab_SAP, SIZEOFARRAY(_StatusMsgTab_SAP), result_sar, rcode);
 			if(!i)
 				rcode = _StatusMsgTab_SAP[0].P_Symb;
-
 			DRVS.GetErrText(-1, msg);
 			DRVS.GetErrText(result_dc, buf);
-			msg.Cat("Error Code ").Cat(result_dc).CatChar(':').Cat(buf).Cat(" ").Cat(rcode);
+			msg.Space().Cat("Error Code").Space().Cat(result_dc).CatDiv(':', 2).Cat(buf).Space().Cat(rcode);
 			DRVS.Log(msg, 0xffff);
 		}
+		ok = 0;
 	ENDCATCH;
-
 	// Освобождение ресурсов
 	if(p_res) {
 		p_res->CallMethod(Release);	
@@ -503,11 +499,9 @@ int PPDrvINPASTrmnl::GetSessReport(SString & rCheck)
 	p_dclink->SetParam(TIMEOUT);
 	// Вызов метода Exchange класса DCLink
 	p_dclink->CallMethod(Exchange);
-	
 	p_dclink->GetProperty(ErrorCode, &result_dc);
 	p_res->GetProperty(Status, &result_sar);
-
-	THROWERR(result_sar == 1, result_dc); 							 // Если не 1, значит ошибка. Отправляемся в обработку исключений  
+	THROWERR(result_sar == 1, result_dc); // Если не 1, значит ошибка. Отправляемся в обработку исключений  
 	{																 //   Надо доработать обработку исключений. 
 		char slip_ch[1024];				   // Массив для чека					   
 		p_res->GetProperty(ReceiptData, slip_ch, sizeof(slip_ch));
@@ -519,18 +513,17 @@ int PPDrvINPASTrmnl::GetSessReport(SString & rCheck)
 
 	// Выдает информацию о ошибках в логи
 	CATCH
+		{
+			SString msg, buf, rcode;
+			int i = SIntToSymbTab_GetSymb(_StatusMsgTab_SAP, SIZEOFARRAY(_StatusMsgTab_SAP), result_sar, rcode);
+			if(!i)
+				rcode = _StatusMsgTab_SAP[0].P_Symb;
+			DRVS.GetErrText(-1, msg);
+			DRVS.GetErrText(result_dc, buf);
+			msg.Space().Cat("Error Code").Space().Cat(result_dc).CatDiv(':', 2).Cat(buf).Space().Cat(rcode);
+			DRVS.Log(msg, 0xffff);
+		}
 		ok = 0;
-	{
-		SString msg, buf, rcode;
-		int i = SIntToSymbTab_GetSymb(_StatusMsgTab_SAP, SIZEOFARRAY(_StatusMsgTab_SAP), result_sar, rcode);
-		if(!i)
-			rcode = _StatusMsgTab_SAP[0].P_Symb;
-
-		DRVS.GetErrText(-1, msg);
-		DRVS.GetErrText(result_dc, buf);
-		msg.Cat("Error Code ").Cat(result_dc).CatChar(':').Cat(buf).Cat(" ").Cat(rcode);
-		DRVS.Log(msg, 0xffff);
-	}
 	ENDCATCH;
 	// Освобождение ресурсов
 	if(p_res) {
@@ -559,11 +552,11 @@ int PPDrvINPASTrmnl::ProcessCommand(const SString & rCmd, const char * pInputDat
 	}
 	else if(rCmd == "PAY") {
 		double amount = (pb.Get("AMOUNT", value) > 0) ? value.ToReal() : 0;
-		Pay(amount, rOutput);
+		THROW(Pay(amount, rOutput)); // @v10.3.3 @fix THROW
 	}
 	else if(rCmd == "REFUND") {
 		double amount = (pb.Get("AMOUNT", value) > 0) ? value.ToReal() : 0;
-		Refund(amount, rOutput);
+		THROW(Refund(amount, rOutput)); // @v10.3.3 @fix THROW
 	}
 	else if(rCmd == "GETBANKREPORT") {
 		// Получаем отчет по операциям за день (грубо говоря, закрытие сессии)
@@ -571,10 +564,10 @@ int PPDrvINPASTrmnl::ProcessCommand(const SString & rCmd, const char * pInputDat
 	}
 	CATCH
 		err = 1;
-	{
-		SString msg_buf;
-		DRVS.Log((msg_buf = "Bank Terminal: error").CatDiv(':', 2).Cat(value), 0xffff);
-	}
+		{
+			SString msg_buf;
+			DRVS.Log((msg_buf = "Bank Terminal: error").CatDiv(':', 2).Cat(value), 0xffff);
+		}
 	ENDCATCH;
 	return err;
 }

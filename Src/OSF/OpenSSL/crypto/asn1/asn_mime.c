@@ -754,7 +754,7 @@ static MIME_HEADER * mime_hdr_new(const char * name, const char * value)
 		if((tmpname = OPENSSL_strdup(name)) == NULL)
 			return NULL;
 		for(p = tmpname; *p; p++) {
-			c = (uchar)*p;
+			c = static_cast<uchar>(*p);
 			if(isupper(c)) {
 				c = tolower(c);
 				*p = c;
@@ -765,7 +765,7 @@ static MIME_HEADER * mime_hdr_new(const char * name, const char * value)
 		if((tmpval = OPENSSL_strdup(value)) == NULL)
 			goto err;
 		for(p = tmpval; *p; p++) {
-			c = (uchar)*p;
+			c = static_cast<uchar>(*p);
 			if(isupper(c)) {
 				c = tolower(c);
 				*p = c;
@@ -798,7 +798,7 @@ static int mime_hdr_addparam(MIME_HEADER * mhdr, const char * name, const char *
 		if(!tmpname)
 			goto err;
 		for(p = tmpname; *p; p++) {
-			c = (uchar)*p;
+			c = static_cast<uchar>(*p);
 			if(isupper(c)) {
 				c = tolower(c);
 				*p = c;

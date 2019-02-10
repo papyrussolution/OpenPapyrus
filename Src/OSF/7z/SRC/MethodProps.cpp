@@ -8,11 +8,11 @@ using namespace NWindows;
 
 bool FASTCALL StringToBool(const wchar_t * s, bool &res)
 {
-	if(s[0] == 0 || (s[0] == '+' && s[1] == 0) || StringsAreEqualNoCase_Ascii(s, "ON")) {
+	if(s[0] == 0 || (s[0] == '+' && s[1] == 0) || sstreqi_ascii(s, "ON")) {
 		res = true;
 		return true;
 	}
-	else if((s[0] == '-' && s[1] == 0) || StringsAreEqualNoCase_Ascii(s, "OFF")) {
+	else if((s[0] == '-' && s[1] == 0) || sstreqi_ascii(s, "OFF")) {
 		res = false;
 		return true;
 	}
@@ -403,7 +403,7 @@ static const CNameToPropID g_NameToPropID[] = {
 static int FindPropIdExact(const UString &name)
 {
 	for(uint i = 0; i < ARRAY_SIZE(g_NameToPropID); i++)
-		if(StringsAreEqualNoCase_Ascii(name, g_NameToPropID[i].Name))
+		if(sstreqi_ascii(name, g_NameToPropID[i].Name))
 			return i;
 	return -1;
 }
@@ -585,7 +585,7 @@ HRESULT COneMethodInfo::ParseMethodFromString(const UString &s)
 
 HRESULT COneMethodInfo::ParseMethodFromPROPVARIANT(const UString &realName, const PROPVARIANT &value)
 {
-	if(!realName.IsEmpty() && !StringsAreEqualNoCase_Ascii(realName, "m"))
+	if(!realName.IsEmpty() && !sstreqi_ascii(realName, "m"))
 		return ParseParamsFromPROPVARIANT(realName, value);
 	// -m{N}=method
 	if(value.vt != VT_BSTR)

@@ -356,6 +356,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cairo-1.16.0", "cairo-1.16.
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bz2", "bzip2.vcproj", "{BD776450-1675-4703-BFD3-2517B5A45DA8}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libarchive", "libarchive.vcproj", "{5C468879-65B9-4E38-A115-9D29FD0CF7BF}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -968,6 +976,34 @@ Global
 		{530693B1-8B95-4993-8BCF-C0D0E225F4DF}.ServerRelease.Build.0 = ServerRelease|Win32
 		{530693B1-8B95-4993-8BCF-C0D0E225F4DF}.Universe-HTT.ActiveCfg = Universe-HTT|Win32
 		{530693B1-8B95-4993-8BCF-C0D0E225F4DF}.Universe-HTT.Build.0 = Universe-HTT|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.Debug.ActiveCfg = Debug|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.Debug.Build.0 = Debug|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.MtDllDebug.ActiveCfg = Debug|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.MtDllDebug.Build.0 = Debug|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.MtDllRelease.ActiveCfg = Release|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.MtDllRelease.Build.0 = Release|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.Release.ActiveCfg = Release|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.Release.Build.0 = Release|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.ServerDebug.ActiveCfg = Debug|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.ServerDebug.Build.0 = Debug|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.ServerRelease.ActiveCfg = Release|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.ServerRelease.Build.0 = Release|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.Universe-HTT.ActiveCfg = Release|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.Universe-HTT.Build.0 = Release|Win32
+		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.Debug.ActiveCfg = Debug|Win32
+		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.Debug.Build.0 = Debug|Win32
+		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.MtDllDebug.ActiveCfg = Debug|Win32
+		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.MtDllDebug.Build.0 = Debug|Win32
+		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.MtDllRelease.ActiveCfg = Release|Win32
+		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.MtDllRelease.Build.0 = Release|Win32
+		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.Release.ActiveCfg = Release|Win32
+		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.Release.Build.0 = Release|Win32
+		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.ServerDebug.ActiveCfg = Debug|Win32
+		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.ServerDebug.Build.0 = Debug|Win32
+		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.ServerRelease.ActiveCfg = Release|Win32
+		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.ServerRelease.Build.0 = Release|Win32
+		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.Universe-HTT.ActiveCfg = Release|Win32
+		{5C468879-65B9-4E38-A115-9D29FD0CF7BF}.Universe-HTT.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 		optimization.txt = optimization.txt

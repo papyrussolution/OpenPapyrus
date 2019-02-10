@@ -101,7 +101,7 @@
 //#include <stdlib.h>
 //#include <string.h>
 //#include <limits.h>
-#include <setjmp.h>
+//#include <setjmp.h>
 
 /* The input coordinate scale and the rasterisation grid scales. */
 #define GLITTER_INPUT_BITS CAIRO_FIXED_FRAC_BITS
@@ -419,7 +419,8 @@ struct glitter_scan_converter {
 
 /* Compute the floored division a/b. Assumes / and % perform symmetric
  * division. */
-inline static struct quorem floored_divrem(int a, int b)                            {
+inline static struct quorem floored_divrem(int a, int b)                            
+{
 	struct quorem qr;
 	qr.quo = a/b;
 	qr.rem = a%b;
@@ -429,14 +430,14 @@ inline static struct quorem floored_divrem(int a, int b)                        
 	}
 	return qr;
 }
-
-/* Compute the floored division (x*a)/b. Assumes / and % perform symmetric
- * division. */
-static struct quorem floored_muldivrem(int x, int a, int b)                     
+//
+// Compute the floored division (x*a)/b. Assumes / and % perform symmetric division. 
+//
+static struct quorem FASTCALL floored_muldivrem(int x, int a, int b)                     
 {
 	struct quorem qr;
 	long long xa = (long long)x*a;
-	qr.quo = xa/b;
+	qr.quo = static_cast<int32_t>(xa/b);
 	qr.rem = xa%b;
 	if((xa>=0) != (b>=0) && qr.rem) {
 		qr.quo -= 1;
@@ -445,7 +446,7 @@ static struct quorem floored_muldivrem(int x, int a, int b)
 	return qr;
 }
 
-static struct _pool_chunk * _pool_chunk_init(struct _pool_chunk * p, struct _pool_chunk * prev_chunk, size_t capacity)
+static struct _pool_chunk * FASTCALL _pool_chunk_init(struct _pool_chunk * p, struct _pool_chunk * prev_chunk, size_t capacity)
 {
 	p->prev_chunk = prev_chunk;
 	p->size = 0;
@@ -810,7 +811,6 @@ static void cell_list_render_edge(struct cell_list * cells,
 		if(ix1+1 < ix2) {
 			struct quorem dydx_full = floored_divrem(GRID_X*dy, dx);
 			struct cell * cell = pair.cell2;
-
 			++ix1;
 			do {
 				grid_scaled_y_t y_skip = dydx_full.quo;
@@ -829,7 +829,6 @@ static void cell_list_render_edge(struct cell_list * cells,
 				++ix1;
 				cell = cell_list_find(cells, ix1);
 			} while(ix1 != ix2);
-
 			pair.cell2 = cell;
 		}
 		pair.cell2->uncovered_area += sign*(y2 - y.quo)*fx2;
@@ -841,16 +840,13 @@ static void polygon_init(struct polygon * polygon, jmp_buf * jmp)
 {
 	polygon->ymin = polygon->ymax = 0;
 	polygon->y_buckets = polygon->y_buckets_embedded;
-	pool_init(polygon->edge_pool.base, jmp,
-	    8192 - sizeof(struct _pool_chunk),
-	    sizeof(polygon->edge_pool.embedded));
+	pool_init(polygon->edge_pool.base, jmp, 8192 - sizeof(struct _pool_chunk), sizeof(polygon->edge_pool.embedded));
 }
 
 static void polygon_fini(struct polygon * polygon)
 {
 	if(polygon->y_buckets != polygon->y_buckets_embedded)
 		SAlloc::F(polygon->y_buckets);
-
 	pool_fini(polygon->edge_pool.base);
 }
 
@@ -1443,15 +1439,14 @@ static cairo_status_t glitter_scan_converter_reset(glitter_scan_converter_t * co
  * shifts if possible, and something saneish if not.
  */
 #if !defined(INPUT_TO_GRID_Y) && defined(GRID_Y_BITS) && GRID_Y_BITS <= GLITTER_INPUT_BITS
-#  define INPUT_TO_GRID_Y(in, out) (out) = (in) >> (GLITTER_INPUT_BITS - GRID_Y_BITS)
+	#define INPUT_TO_GRID_Y(in, out) (out) = (in) >> (GLITTER_INPUT_BITS - GRID_Y_BITS)
 #else
-#  define INPUT_TO_GRID_Y(in, out) INPUT_TO_GRID_general(in, out, GRID_Y)
+	#define INPUT_TO_GRID_Y(in, out) INPUT_TO_GRID_general(in, out, GRID_Y)
 #endif
-
 #if !defined(INPUT_TO_GRID_X) && defined(GRID_X_BITS) && GRID_X_BITS <= GLITTER_INPUT_BITS
-#  define INPUT_TO_GRID_X(in, out) (out) = (in) >> (GLITTER_INPUT_BITS - GRID_X_BITS)
+	#define INPUT_TO_GRID_X(in, out) (out) = (in) >> (GLITTER_INPUT_BITS - GRID_X_BITS)
 #else
-#  define INPUT_TO_GRID_X(in, out) INPUT_TO_GRID_general(in, out, GRID_X)
+	#define INPUT_TO_GRID_X(in, out) INPUT_TO_GRID_general(in, out, GRID_X)
 #endif
 
 #define INPUT_TO_GRID_general(in, out, grid_scale) do {         \
@@ -1475,35 +1470,28 @@ static void glitter_scan_converter_add_edge(glitter_scan_converter_t * converter
 
 	INPUT_TO_GRID_X(edge->line.p1.x, e.line.p1.x);
 	INPUT_TO_GRID_X(edge->line.p2.x, e.line.p2.x);
-
 	e.dir = edge->dir;
-
 	polygon_add_edge(converter->polygon, &e, clip);
 }
 
 static cairo_bool_t active_list_is_vertical(struct active_list * active)
 {
-	struct edge * e;
-
-	for(e = active->head; e != NULL; e = e->next) {
+	for(struct edge * e = active->head; e != NULL; e = e->next) {
 		if(!e->vertical)
 			return FALSE;
 	}
-
 	return TRUE;
 }
 
 static void step_edges(struct active_list * active, int count)
 {
 	struct edge ** cursor = &active->head;
-	struct edge * edge;
-
-	for(edge = *cursor; edge != NULL; edge = *cursor) {
-		edge->height_left -= GRID_Y * count;
-		if(edge->height_left)
-			cursor = &edge->next;
+	for(struct edge * p_edge = *cursor; p_edge != NULL; p_edge = *cursor) {
+		p_edge->height_left -= GRID_Y * count;
+		if(p_edge->height_left)
+			cursor = &p_edge->next;
 		else
-			*cursor = edge->next;
+			*cursor = p_edge->next;
 	}
 }
 
@@ -1553,18 +1541,13 @@ static cairo_status_t blit_coverages(struct cell_list * cells, cairo_span_render
 			last_cover = area;
 			++num_spans;
 		}
-
 		prev_x = x+1;
 	}
-
 	/* Dump them into the renderer. */
 	return renderer->render_rows(renderer, y, height, spans, num_spans);
 }
 
-static void glitter_scan_converter_render(glitter_scan_converter_t * converter,
-    int nonzero_fill,
-    cairo_span_renderer_t * span_renderer,
-    struct pool * span_pool)
+static void glitter_scan_converter_render(glitter_scan_converter_t * converter, int nonzero_fill, cairo_span_renderer_t * span_renderer, struct pool * span_pool)
 {
 	int i, j;
 	int ymax_i = converter->ymax / GRID_Y;
@@ -1573,36 +1556,27 @@ static void glitter_scan_converter_render(glitter_scan_converter_t * converter,
 	struct polygon * polygon = converter->polygon;
 	struct cell_list * coverages = converter->coverages;
 	struct active_list * active = converter->active;
-
 	/* Render each pixel row. */
 	for(i = 0; i < h; i = j) {
 		int do_full_step = 0;
-
 		j = i + 1;
-
-		/* Determine if we can ignore this row or use the full pixel
-		 * stepper. */
+		// Determine if we can ignore this row or use the full pixel stepper. 
 		if(GRID_Y == EDGE_Y_BUCKET_HEIGHT && !polygon->y_buckets[i]) {
 			if(!active->head) {
 				for(; j < h && !polygon->y_buckets[j]; j++)
 					;
 				continue;
 			}
-
 			do_full_step = active_list_can_step_full_row(active);
 		}
-
 		if(do_full_step) {
 			/* Step by a full pixel row's worth. */
 			if(nonzero_fill)
 				apply_nonzero_fill_rule_and_step_edges(active, coverages);
 			else
 				apply_evenodd_fill_rule_and_step_edges(active, coverages);
-
 			if(active_list_is_vertical(active)) {
-				while(j < h &&
-				    polygon->y_buckets[j] == NULL &&
-				    active->min_height >= 2*GRID_Y) {
+				while(j < h && polygon->y_buckets[j] == NULL && active->min_height >= 2*GRID_Y) {
 					active->min_height -= GRID_Y;
 					j++;
 				}
@@ -1644,11 +1618,9 @@ static void glitter_scan_converter_render(glitter_scan_converter_t * converter,
 
 struct _cairo_clip_tor_scan_converter {
 	cairo_scan_converter_t base;
-
 	glitter_scan_converter_t converter[1];
 	cairo_fill_rule_t fill_rule;
 	cairo_antialias_t antialias;
-
 	cairo_fill_rule_t clip_fill_rule;
 	cairo_antialias_t clip_antialias;
 

@@ -24,8 +24,8 @@ IMPL_CMPFUNC(PPLBItem, i1, i2) { return stricmp866(((char*)i1)+sizeof(long), ((c
 
 IMPL_CMPFUNC(PPTLBItem, i1, i2)
 {
-	const PPID parent_id1 = *(long *)i1;
-	const PPID parent_id2 = *(long *)i2;
+	const PPID parent_id1 = *static_cast<const long *>(i1);
+	const PPID parent_id2 = *static_cast<const long *>(i2);
 	if(parent_id1 > parent_id2)
 		return 1;
 	else if(parent_id1 < parent_id2)

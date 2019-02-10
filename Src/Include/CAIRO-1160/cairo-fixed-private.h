@@ -263,7 +263,7 @@ static inline int _cairo_fixed_16_16_floor(cairo_fixed_16_16_t f)
 
 static inline double _cairo_fixed_16_16_to_double(cairo_fixed_16_16_t f)
 {
-	return ((double)f) / (double)(1 << 16);
+	return (static_cast<double>(f) / static_cast<double>(1 << 16));
 }
 
 #if CAIRO_FIXED_BITS == 32

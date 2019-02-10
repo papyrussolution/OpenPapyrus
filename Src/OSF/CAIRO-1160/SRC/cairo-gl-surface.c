@@ -676,27 +676,19 @@ cairo_surface_t * cairo_gl_surface_create_for_texture(cairo_device_t * abstract_
 
 slim_hidden_def(cairo_gl_surface_create_for_texture);
 
-void cairo_gl_surface_set_size(cairo_surface_t * abstract_surface,
-    int width,
-    int height)
+void cairo_gl_surface_set_size(cairo_surface_t * abstract_surface, int width, int height)
 {
 	cairo_gl_surface_t * surface = (cairo_gl_surface_t*)abstract_surface;
-
 	if(unlikely(abstract_surface->status))
 		return;
 	if(unlikely(abstract_surface->finished)) {
-		_cairo_surface_set_error(abstract_surface,
-		    _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
+		_cairo_surface_set_error(abstract_surface, _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 		return;
 	}
-
-	if(!_cairo_surface_is_gl(abstract_surface) ||
-	    _cairo_gl_surface_is_texture(surface)) {
-		_cairo_surface_set_error(abstract_surface,
-		    _cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH));
+	if(!_cairo_surface_is_gl(abstract_surface) || _cairo_gl_surface_is_texture(surface)) {
+		_cairo_surface_set_error(abstract_surface, _cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH));
 		return;
 	}
-
 	if(surface->width != width || surface->height != height) {
 		surface->needs_update = TRUE;
 		surface->width = width;
@@ -707,66 +699,49 @@ void cairo_gl_surface_set_size(cairo_surface_t * abstract_surface,
 int cairo_gl_surface_get_width(cairo_surface_t * abstract_surface)
 {
 	cairo_gl_surface_t * surface = (cairo_gl_surface_t*)abstract_surface;
-
 	if(!_cairo_surface_is_gl(abstract_surface))
 		return 0;
-
 	return surface->width;
 }
 
 int cairo_gl_surface_get_height(cairo_surface_t * abstract_surface)
 {
 	cairo_gl_surface_t * surface = (cairo_gl_surface_t*)abstract_surface;
-
 	if(!_cairo_surface_is_gl(abstract_surface))
 		return 0;
-
 	return surface->height;
 }
 
 void cairo_gl_surface_swapbuffers(cairo_surface_t * abstract_surface)
 {
 	cairo_gl_surface_t * surface = (cairo_gl_surface_t*)abstract_surface;
-
 	if(unlikely(abstract_surface->status))
 		return;
 	if(unlikely(abstract_surface->finished)) {
-		_cairo_surface_set_error(abstract_surface,
-		    _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
+		_cairo_surface_set_error(abstract_surface, _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 		return;
 	}
-
 	if(!_cairo_surface_is_gl(abstract_surface)) {
-		_cairo_surface_set_error(abstract_surface,
-		    CAIRO_STATUS_SURFACE_TYPE_MISMATCH);
+		_cairo_surface_set_error(abstract_surface, CAIRO_STATUS_SURFACE_TYPE_MISMATCH);
 		return;
 	}
-
 	if(!_cairo_gl_surface_is_texture(surface)) {
 		cairo_gl_context_t * ctx;
-		cairo_status_t status;
-
-		status = _cairo_gl_context_acquire(surface->base.device, &ctx);
+		cairo_status_t status = _cairo_gl_context_acquire(surface->base.device, &ctx);
 		if(unlikely(status))
 			return;
-
 		/* For swapping on EGL, at least, we need a valid context/target. */
 		_cairo_gl_context_set_destination(ctx, surface, FALSE);
 		/* And in any case we should flush any pending operations. */
 		_cairo_gl_composite_flush(ctx);
-
 		ctx->swap_buffers(ctx, surface);
-
 		status = _cairo_gl_context_release(ctx, status);
 		if(status)
 			status = _cairo_surface_set_error(abstract_surface, status);
 	}
 }
 
-static cairo_surface_t * _cairo_gl_surface_create_similar(void * abstract_surface,
-    cairo_content_t content,
-    int width,
-    int height)
+static cairo_surface_t * _cairo_gl_surface_create_similar(void * abstract_surface, cairo_content_t content, int width, int height)
 {
 	cairo_surface_t * surface = abstract_surface;
 	cairo_gl_context_t * ctx;

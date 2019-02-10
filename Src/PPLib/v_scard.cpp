@@ -312,7 +312,7 @@ PPBaseFilt * SLAPI PPViewSCard::CreateFilt(void * extraPtr) const
 {
 	PPObjSCardSeries scs_obj;
 	SCardFilt * p_filt = new SCardFilt;
-	if(((long)extraPtr) && scs_obj.Search(((long)extraPtr), 0) > 0)
+	if((reinterpret_cast<long>(extraPtr)) && scs_obj.Search((reinterpret_cast<long>(extraPtr)), 0) > 0)
 		p_filt->SeriesID = scs_obj.GetSingle();
 	else
 		p_filt->SeriesID = scs_obj.GetSingle();
@@ -2535,7 +2535,7 @@ int SLAPI PPViewSCardOp::Init_(const PPBaseFilt * pFilt)
 PPBaseFilt * SLAPI PPViewSCardOp::CreateFilt(void * extraPtr) const
 {
 	SCardOpFilt * p_filt = new SCardOpFilt;
-	p_filt->SCardID = (long)extraPtr;
+	p_filt->SCardID = reinterpret_cast<long>(extraPtr);
 	return p_filt;
 }
 
@@ -3271,11 +3271,11 @@ int PPALDD_SCard::InitData(PPFilt & rFilt, long rsrv)
 
 void PPALDD_SCard::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
-	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
-	#define _ARG_INT(n)  (*(int *)rS.GetPtr(pApl->Get(n)))
-	#define _RET_DBL     (*(double *)rS.GetPtr(pApl->Get(0)))
-	#define _RET_INT     (*(int *)rS.GetPtr(pApl->Get(0)))
-	#define _RET_STR     (**(SString **)rS.GetPtr(pApl->Get(0)))
+	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
+	#define _ARG_INT(n)  (*static_cast<const int *>(rS.GetPtr(pApl->Get(n)))
+	#define _RET_DBL     (*static_cast<double *>(rS.GetPtr(pApl->Get(0)))
+	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
+	#define _RET_STR     (**static_cast<SString **>(rS.GetPtr(pApl->Get(0))))
 
 	DL600_SCardExt * p_ext = (DL600_SCardExt *)(Extra[0].Ptr);
 	SysJournalTbl::Rec sj_rec;

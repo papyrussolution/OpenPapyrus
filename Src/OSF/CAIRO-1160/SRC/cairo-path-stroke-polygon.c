@@ -1156,7 +1156,7 @@ cairo_status_t _cairo_path_fixed_stroke_to_polygon(const cairo_path_fixed_t * pa
 	_cairo_contour_init(&stroker.ccw.contour, -1);
 	tolerance *= CAIRO_FIXED_ONE;
 	tolerance *= tolerance;
-	stroker.contour_tolerance = tolerance;
+	stroker.contour_tolerance = static_cast<cairo_uint64_t>(tolerance);
 	stroker.polygon = polygon;
 	status = _cairo_path_fixed_interpret(path, move_to, line_to, curve_to, close_path, &stroker);
 	/* Cap the start and end of the final sub path as needed */

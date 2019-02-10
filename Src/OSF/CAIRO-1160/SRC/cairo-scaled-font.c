@@ -42,7 +42,7 @@
 //#include "cairo-error-private.h"
 #include "cairo-image-surface-private.h"
 #include "cairo-list-inline.h"
-#include "cairo-pattern-private.h"
+//#include "cairo-pattern-private.h"
 //#include "cairo-scaled-font-private.h"
 #include "cairo-surface-backend-private.h"
 
@@ -1710,10 +1710,10 @@ static cairo_status_t cairo_scaled_font_text_to_glyphs_internal_uncached(cairo_s
  * cairo_text_cluster_flags_t cluster_flags;
  *
  * status = cairo_scaled_font_text_to_glyphs (scaled_font,
- *                          x, y,
- *                          utf8, utf8_len,
- *                          &amp;glyphs, &amp;num_glyphs,
- *                          &amp;clusters, &amp;num_clusters, &amp;cluster_flags);
+ *    x, y,
+ *    utf8, utf8_len,
+ *    &amp;glyphs, &amp;num_glyphs,
+ *    &amp;clusters, &amp;num_clusters, &amp;cluster_flags);
  *
  * if (status == CAIRO_STATUS_SUCCESS) {
  * cairo_show_text_glyphs (cr,
@@ -1734,11 +1734,11 @@ static cairo_status_t cairo_scaled_font_text_to_glyphs_internal_uncached(cairo_s
  * int num_glyphs;
  *
  * status = cairo_scaled_font_text_to_glyphs (scaled_font,
- *                          x, y,
- *                          utf8, utf8_len,
- *                          &amp;glyphs, &amp;num_glyphs,
- *                          NULL, NULL,
- *                          NULL);
+ *    x, y,
+ *    utf8, utf8_len,
+ *    &amp;glyphs, &amp;num_glyphs,
+ *    NULL, NULL,
+ *    NULL);
  *
  * if (status == CAIRO_STATUS_SUCCESS) {
  * cairo_show_glyphs (cr, glyphs, num_glyphs);
@@ -1760,10 +1760,10 @@ static cairo_status_t cairo_scaled_font_text_to_glyphs_internal_uncached(cairo_s
  * cairo_text_cluster_flags_t cluster_flags;
  *
  * status = cairo_scaled_font_text_to_glyphs (scaled_font,
- *                          x, y,
- *                          utf8, utf8_len,
- *                          &amp;glyphs, &amp;num_glyphs,
- *                          &amp;clusters, &amp;num_clusters, &amp;cluster_flags);
+ *    x, y,
+ *    utf8, utf8_len,
+ *    &amp;glyphs, &amp;num_glyphs,
+ *    &amp;clusters, &amp;num_clusters, &amp;cluster_flags);
  *
  * if (status == CAIRO_STATUS_SUCCESS) {
  * cairo_show_text_glyphs (cr,

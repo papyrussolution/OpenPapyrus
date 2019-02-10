@@ -133,9 +133,7 @@ struct cairo_type1_font_subset_t {
 	} ps_stack;
 };
 
-static cairo_status_t _cairo_type1_font_subset_init(cairo_type1_font_subset_t * font,
-    cairo_scaled_font_subset_t * scaled_font_subset,
-    cairo_bool_t hex_encode)
+static cairo_status_t _cairo_type1_font_subset_init(cairo_type1_font_subset_t * font, cairo_scaled_font_subset_t * scaled_font_subset, cairo_bool_t hex_encode)
 {
 	memzero(font, sizeof(*font));
 	font->scaled_font_subset = scaled_font_subset;
@@ -146,12 +144,9 @@ static cairo_status_t _cairo_type1_font_subset_init(cairo_type1_font_subset_t * 
 	font->num_subrs = 0;
 	font->subset_subrs = TRUE;
 	font->subrs = NULL;
-
 	font->hex_encode = hex_encode;
 	font->num_glyphs = 0;
-
 	_cairo_array_init(&font->contents, sizeof(char));
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -174,10 +169,8 @@ static const char * find_token(const char * buffer, const char * end, const char
 {
 	int i, length;
 	/* FIXME: find substring really must be find_token */
-
 	if(buffer == NULL)
 		return NULL;
-
 	length = strlen(token);
 	for(i = 0; buffer + i < end - length + 1; i++)
 		if(memcmp(buffer + i, token, length) == 0)
@@ -190,23 +183,17 @@ static const char * find_token(const char * buffer, const char * end, const char
 
 static cairo_status_t cairo_type1_font_subset_find_segments(cairo_type1_font_subset_t * font)
 {
-	uchar * p;
 	const char * eexec_token;
 	int size, i;
-
-	p = (uchar*)font->type1_data;
+	uchar * p = (uchar*)font->type1_data;
 	font->type1_end = font->type1_data + font->type1_length;
 	if(p[0] == 0x80 && p[1] == 0x01) {
-		font->header_segment_size =
-		    p[2] | (p[3] << 8) | (p[4] << 16) | (p[5] << 24);
+		font->header_segment_size = p[2] | (p[3] << 8) | (p[4] << 16) | (p[5] << 24);
 		font->header_segment = (char*)p + 6;
-
 		p += 6 + font->header_segment_size;
-		font->eexec_segment_size =
-		    p[2] | (p[3] << 8) | (p[4] << 16) | (p[5] << 24);
+		font->eexec_segment_size = p[2] | (p[3] << 8) | (p[4] << 16) | (p[5] << 24);
 		font->eexec_segment = (char*)p + 6;
 		font->eexec_segment_is_ascii = (p[1] == 1);
-
 		p += 6 + font->eexec_segment_size;
 		while(p < (uchar*)(font->type1_end) && p[1] != 0x03) {
 			size = p[2] | (p[3] << 8) | (p[4] << 16) | (p[5] << 24);

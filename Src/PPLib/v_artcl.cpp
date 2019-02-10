@@ -37,7 +37,7 @@ void * SLAPI PPViewArticle::GetEditExtraParam()
 PPBaseFilt * PPViewArticle::CreateFilt(void * extraPtr) const
 {
 	ArticleFilt * p_filt = new ArticleFilt;
-	p_filt->AccSheetID = ((long)extraPtr);
+	p_filt->AccSheetID = (reinterpret_cast<long>(extraPtr));
 	return p_filt;
 }
 

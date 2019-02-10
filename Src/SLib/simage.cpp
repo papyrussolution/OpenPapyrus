@@ -255,19 +255,19 @@ int SImage::InsertBitmap(HWND hwnd, const char * pPath, COLORREF bkgnd)
 		::GetClientRect(hwnd, &cli_rect);
 		new_width  = cli_rect.right  - cli_rect.left;
 		new_height = cli_rect.bottom - cli_rect.top;
-		k  = (Gdiplus::REAL)((double)new_width  / (double)width);
-		k2 = (Gdiplus::REAL)((double)new_height / (double)height);
+		k  = (Gdiplus::REAL)fdivui(new_width, width);
+		k2 = (Gdiplus::REAL)fdivui(new_height, height);
 		k  = (k <= k2) ? k : k2;
-        new_height = (UINT)((double)height * k);
-		new_width  = (UINT)((double)width * k);
+        new_height = (UINT)(static_cast<Gdiplus::REAL>(height) * k);
+		new_width  = (UINT)(static_cast<Gdiplus::REAL>(width) * k);
 		{
 			HBITMAP hbmp = 0;
-			Gdiplus::Bitmap * p_sized_img = ((Gdiplus::Bitmap *)p_image)->Clone(0, 0, new_width, new_height, p_image->GetPixelFormat());
+			Gdiplus::Bitmap * p_sized_img = static_cast<Gdiplus::Bitmap *>(p_image)->Clone(0, 0, new_width, new_height, p_image->GetPixelFormat());
 			ARGB argb = Color::MakeARGB(0, GetRValue(bkgnd), GetGValue(bkgnd), GetBValue(bkgnd));
 			Gdiplus::Color color(argb);
 
-			((Gdiplus::Bitmap *)p_sized_img)->GetHBITMAP(color, &hbmp);
-			delete (Gdiplus::Image *)P_Image;
+			static_cast<Gdiplus::Bitmap *>(p_sized_img)->GetHBITMAP(color, &hbmp);
+			delete static_cast<Gdiplus::Image *>(P_Image);
 			P_Image = p_sized_img;
 			::SendMessage(hwnd, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(hbmp));
 		}
@@ -284,7 +284,7 @@ int FASTCALL GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 	Gdiplus::ImageCodecInfo * p_img_codec_info = 0;
 	GetImageEncodersSize(&num, &size);
 	THROW(size);
-	THROW(p_img_codec_info = (Gdiplus::ImageCodecInfo *)SAlloc::M(size));
+	THROW(p_img_codec_info = static_cast<Gdiplus::ImageCodecInfo *>(SAlloc::M(size)));
 	GetImageEncoders(num, size, p_img_codec_info);
 	for(uint j = 0; idx < 0 && j < num; ++j) {
 		if(wcscmp(p_img_codec_info[j].MimeType, format) == 0) {

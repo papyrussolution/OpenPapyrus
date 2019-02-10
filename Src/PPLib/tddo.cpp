@@ -1,5 +1,5 @@
 // TDDO.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1205,7 +1205,7 @@ int SLAPI TestTddo()
 		tddo.Process(0, in_buf, /*id_list.get(i), 0*/ep, &ext_param_list, out_buf);
 		out_buf.WriteByte('\n');
 	}
-	out_file.Write(out_buf, out_buf.GetAvailableSize());
+	out_file.Write(out_buf.constptr(), out_buf.GetAvailableSize());
 	CATCHZOK
 	return ok;
 }

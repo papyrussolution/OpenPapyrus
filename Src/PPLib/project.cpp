@@ -346,7 +346,7 @@ int SLAPI PPObjProject::Write(PPObjPack * p, PPID * pID, void * stream, ObjTrans
 	else {
 		SBuffer buffer;
 		THROW_SL(P_Tbl->SerializeRecord(+1, p->Data, buffer, &pCtx->SCtx));
-		THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0));
+		THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0));
 	}
 	CATCHZOK
 	return ok;
@@ -1309,7 +1309,7 @@ StrAssocArray * SLAPI PPObjPrjTask::MakeStrAssocList(void * extraPtr)
 	THROW_MEM(p_list);
 	q.select(P_Tbl->ID, P_Tbl->Kind, P_Tbl->Code, 0L);
 	if(extraPtr)
-		dbq = & (*dbq && (P_Tbl->Kind == (long)extraPtr));
+		dbq = & (*dbq && (P_Tbl->Kind == reinterpret_cast<long>(extraPtr)));
 	q.where(*dbq);
 	MEMSZERO(k0);
 	for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
@@ -1334,7 +1334,7 @@ int SLAPI PPObjPrjTask::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 		ok = (r > 0) ? RetRefsExistsErr(Obj, todo_id) : (r ? DBRPL_OK : DBRPL_ERROR);
 	}
 	else if(msg == DBMSG_OBJREPLACE)
-		if(!P_Tbl->ReplaceRefs(_obj, _id, (long)extraPtr, 0))
+		if(!P_Tbl->ReplaceRefs(_obj, _id, reinterpret_cast<long>(extraPtr), 0))
 			ok = DBRPL_ERROR;
 	return ok;
 }
@@ -1928,7 +1928,7 @@ int SLAPI PPObjPrjTask::EditDialog(PrjTaskTbl::Rec * pRec)
 
 int SLAPI PPObjPrjTask::Edit(PPID * pID, void * extraPtr)
 {
-	const  long extra_param = (long)extraPtr;
+	const  long extra_param = reinterpret_cast<long>(extraPtr);
 	int    ok = cmCancel, r = 0, is_new = 0, task_finished = 0;
 	PPID   prev_employer = 0, parent_prj = 0, client = 0;
 	PPID   employer = 0;

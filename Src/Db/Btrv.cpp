@@ -22,11 +22,11 @@ public:
 			if(!_BtrCall || !_BtrCallID) {
 				HMODULE _btrv_dll_handle = ::LoadLibrary(_T("wbtrv32.dll"));
 				if(!_BtrCall) {
-					_BtrCall = (BtrCallProc)GetProcAddress(_btrv_dll_handle, "BTRCALL");
+					_BtrCall = reinterpret_cast<BtrCallProc>(GetProcAddress(_btrv_dll_handle, "BTRCALL"));
 					SETIFZ(_BtrCall, _BtrCall_Stub);
 				}
 				if(!_BtrCallID) {
-					_BtrCallID = (BtrCallProcID)GetProcAddress(_btrv_dll_handle, "BTRCALLID");
+					_BtrCallID = reinterpret_cast<BtrCallProcID>(GetProcAddress(_btrv_dll_handle, "BTRCALLID"));
 					SETIFZ(_BtrCallID, _BtrCallID_Stub);
 				}
 			}
@@ -72,7 +72,18 @@ int SLAPI BTRCALL(int OP, char * POS_BLK, char * DATA_BUF, int16 * DATA_LEN, cha
 
 #endif // } 0
 
-int FASTCALL BRet(int r); // @prototype
+static int FASTCALL BRet(int r)
+{
+	if(r == 0) {
+		return 1;
+	}
+	else {
+		DbThreadLocalArea & r_tla = DBS.GetTLA();
+		r_tla.LastDbErr = SDBERR_BTRIEVE;
+		r_tla.LastBtrErr = r;
+		return 0;
+	}
+}
 //
 //
 //
@@ -181,7 +192,7 @@ int SLAPI Btrieve::CreateTable(const char * pFileName, DBFileSpec & rTblDesc, in
 	int    is_alt = 0;
 	int    num_dup = 0;
 	int    num_seg = 0;
-	DBIdxSpec * p_is = (DBIdxSpec *)&rTblDesc;
+	DBIdxSpec * p_is = reinterpret_cast<DBIdxSpec *>(&rTblDesc);
 	for(int i = 0; i < rTblDesc.NumKeys; i++) {
 		do {
 			p_is++;
@@ -232,11 +243,11 @@ int SLAPI Btrieve::CreateTable(const char * pFileName, DBFileSpec & rTblDesc, in
 	}
 	rTblDesc.NumSeg = 0;
 	if(is_alt) {
-		p_buf = (char *)catmem(&rTblDesc, buf_size, pAltCode, 265);
+		p_buf = static_cast<char *>(catmem(&rTblDesc, buf_size, pAltCode, 265));
 		buf_size += 265;
 	}
 	else
-		p_buf = (char *)&rTblDesc;
+		p_buf = reinterpret_cast<char *>(&rTblDesc);
 	if(p_buf) {
 		int    be = 0;
 		const  size_t fn_len = sstrlen(pFileName);
@@ -253,7 +264,7 @@ int SLAPI Btrieve::CreateTable(const char * pFileName, DBFileSpec & rTblDesc, in
 		}
 		do {
 			be = BTRV(B_CREATE, fpb, p_buf, (uint16 *)(&buf_size), fn_buf, WBTRVTAIL);
-		} while(oneof2(be, BE_INVKEYLEN, BE_INVRECLEN) && (((DBFileSpec *)p_buf)->PageSize += 512) <= 8192);
+		} while(oneof2(be, BE_INVKEYLEN, BE_INVRECLEN) && (reinterpret_cast<DBFileSpec *>(p_buf)->PageSize += 512) <= 8192);
 		ok = BRet(be);
 		DBTable::InitErrFileName(pFileName);
 		SAlloc::F(p_buf); // @v9.0.7 delete-->free

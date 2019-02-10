@@ -3383,7 +3383,7 @@ private:
 	virtual int SLAPI Quot2RelCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	{
 		int    ok = 1;
-		Data * p_cache_rec = (Data *)pEntry;
+		Data * p_cache_rec = static_cast<Data *>(pEntry);
 		PPQuot q;
 		if(P_Qc && P_Qc->GetRelByID(id, &q) > 0) {
 			if(p_cache_rec) {
@@ -3403,7 +3403,7 @@ private:
 	virtual void SLAPI Quot2RelCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 	{
 		PPQuot * p_data_rec = (PPQuot *)pDataRec;
-		const Data * p_cache_rec = (const Data *)pEntry;
+		const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 		p_data_rec->Kind = p_cache_rec->QuotKindID;
 		p_data_rec->LocID = p_cache_rec->LocID;
 		p_data_rec->ArID  = p_cache_rec->ArID;

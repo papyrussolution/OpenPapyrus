@@ -155,9 +155,9 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 		case PPOBJ_BILLSTATUS  : p = new PPObjBillStatus(extraPtr); break;
 		case PPOBJ_ACCSHEET    : p = new PPObjAccSheet(extraPtr); break;
 		case PPOBJ_CASHNODE    : p = new PPObjCashNode(extraPtr); break;
-		// @v8.6.4 case PPOBJ_COUNTRY     : p = new PPObjCountry((long)extraPtr); break;
-		// @v8.6.4 case PPOBJ_REGION      : p = new PPObjRegion((long)extraPtr); break;
-		// @v8.6.4 case PPOBJ_CITY        : p = new PPObjCity((long)extraPtr); break;
+		// @v8.6.4 case PPOBJ_COUNTRY     : p = new PPObjCountry(reinterpret_cast<long>(extraPtr)); break;
+		// @v8.6.4 case PPOBJ_REGION      : p = new PPObjRegion(reinterpret_cast<long>(extraPtr)); break;
+		// @v8.6.4 case PPOBJ_CITY        : p = new PPObjCity(reinterpret_cast<long>(extraPtr)); break;
 		case PPOBJ_PERSON      : p = new PPObjPerson(extraPtr); break;
 		case PPOBJ_ARTICLE     : p = new PPObjArticle(extraPtr); break;
 		case PPOBJ_ACCOUNT_PRE9004:
@@ -2390,8 +2390,8 @@ int PPALDD_QuotArray::NextIteration(long iterId)
 /*
 void PPALDD_QuotArray::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
-	#define _ARG_LONG(n) (*(long *)rS.GetPtr(pApl->Get(n)))
-	#define _RET_STR     (**(SString **)rS.GetPtr(pApl->Get(0)))
+	#define _ARG_LONG(n) (*static_cast<const long *>(rS.GetPtr(pApl->Get(n))))
+	#define _RET_STR     (**static_cast<SString **>(rS.GetPtr(pApl->Get(0))))
 	if(pF->Name == "?GetRest") {
 		PPID goods_id = _ARG_LONG(1);
 		PPID loc_id = _ARG_LONG(2);

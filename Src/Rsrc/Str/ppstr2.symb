@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147492649
+LastSignatureCode=2147492769
 LastAutoCodeList=1,11257;102,10168;103,10071;110,10000;111,11740;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10088;120,10005;1001,10000;121,10000;122,10000;123,10335;1002,10000;1003,10000;1004,10000;1005,10000;124,10097
 
 [SignatureList]
@@ -2905,6 +2905,20 @@ cfgworkbook_prop=2147485318
 cfgworkbook_symbcntr=2147485319
 cfgworkbook_tag=2147485320
 cfgworkbook_uhttxevtoken=2147488276
+cfgtimeseries_flags=2147492737
+cfgtimeseries_ftestmode=2147492738
+cfgtimeseries_fusestakemode2=2147492739
+cfgtimeseries_fusestakemode3=2147492740
+cfgtimeseries_maxstakecount=2147492741
+cfgtimeseries_availablelimitpart=2147492742
+cfgtimeseries_availablelimitabs=2147492743
+cfgtimeseries_minperdaypotential=2147492744
+cfgtimeseries_tsflashtimer=2147492745
+cfgtimeseriesentry_ts=2147492746
+cfgtimeseriesentry_flags=2147492747
+cfgtimeseriesentry_eflong=2147492748
+cfgtimeseriesentry_efshort=2147492749
+cfgtimeseriesentry_efdisablestake=2147492750
 citystatus_abbr=2147485321
 citystatus_code=2147485322
 citystatus_id=2147485323

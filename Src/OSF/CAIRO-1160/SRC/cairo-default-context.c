@@ -47,7 +47,7 @@
 ////#include "cairo-error-private.h"
 #include "cairo-freed-pool-private.h"
 #include "cairo-path-private.h"
-#include "cairo-pattern-private.h"
+//#include "cairo-pattern-private.h"
 
 #define CAIRO_TOLERANCE_MINIMUM _cairo_fixed_to_double(1)
 

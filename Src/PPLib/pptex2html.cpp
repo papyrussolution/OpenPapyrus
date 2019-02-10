@@ -1105,7 +1105,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 					if(p_first_brc_arg) {
 						uint pic_list_pos = 0;
                         SString ref_buf;
-						THROW(ResolvePict(p_first_brc_arg->Text, p_first_brc_arg->P_Next ? (const char *)p_first_brc_arg->P_Next->Text : 0, &pic_list_pos, ref_buf));
+						THROW(ResolvePict(p_first_brc_arg->Text, p_first_brc_arg->P_Next ? p_first_brc_arg->P_Next->Text.cptr() : 0, &pic_list_pos, ref_buf));
 						if(ref_buf.NotEmpty())
 							WriteText(rOut, ref_buf);
 					}

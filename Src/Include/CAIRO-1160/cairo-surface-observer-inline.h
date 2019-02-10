@@ -36,24 +36,21 @@
 #ifndef CAIRO_SURFACE_OBSERVER_INLINE_H
 #define CAIRO_SURFACE_OBSERVER_INLINE_H
 
-#include "cairo-surface-observer-private.h"
+//#include "cairo-surface-observer-private.h"
 
-static inline cairo_surface_t *
-_cairo_surface_observer_get_target (cairo_surface_t *surface)
+static inline cairo_surface_t * _cairo_surface_observer_get_target(cairo_surface_t * surface)
 {
-    return ((cairo_surface_observer_t *) surface)->target;
+	return ((cairo_surface_observer_t*)surface)->target;
 }
 
-static inline cairo_bool_t
-_cairo_surface_is_observer (cairo_surface_t *surface)
+static inline cairo_bool_t _cairo_surface_is_observer(cairo_surface_t * surface)
 {
-    return surface->backend->type == (cairo_surface_type_t)CAIRO_INTERNAL_SURFACE_TYPE_OBSERVER;
+	return surface->backend->type == (cairo_surface_type_t)CAIRO_INTERNAL_SURFACE_TYPE_OBSERVER;
 }
 
-static inline cairo_bool_t
-_cairo_device_is_observer (cairo_device_t *device)
+static inline cairo_bool_t _cairo_device_is_observer(cairo_device_t * device)
 {
-    return device->backend->type == (cairo_device_type_t)CAIRO_INTERNAL_DEVICE_TYPE_OBSERVER;
+	return device->backend->type == (cairo_device_type_t)CAIRO_INTERNAL_DEVICE_TYPE_OBSERVER;
 }
 
 #endif /* CAIRO_SURFACE_OBSERVER_INLINE_H */

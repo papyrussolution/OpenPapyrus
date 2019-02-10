@@ -921,7 +921,7 @@ static const char * const k_PreArcFormats[] = { "pe", "elf", "macho", "mub", "te
 static bool IsNameFromList(const UString &s, const char * const names[], size_t num)
 {
 	for(uint i = 0; i < num; i++)
-		if(StringsAreEqualNoCase_Ascii(s, names[i]))
+		if(sstreqi_ascii(s, names[i]))
 			return true;
 	return false;
 }
@@ -1397,7 +1397,7 @@ static HRESULT OpenArchiveSpec(IInArchive * archive, bool needPhySize, IInStream
 static int FindFormatForArchiveType(CCodecs * codecs, CIntVector orderIndices, const char * name)
 {
 	FOR_VECTOR(i, orderIndices) {
-		if(StringsAreEqualNoCase_Ascii(codecs->Formats[orderIndices[i]].Name, name))
+		if(sstreqi_ascii(codecs->Formats[orderIndices[i]].Name, name))
 			return i;
 	}
 	return -1;
@@ -1493,7 +1493,7 @@ HRESULT CArc::OpenStream2(const COpenOptions &op)
 
 				if(ai.FindExtension(extension) >= 0
 	    #ifndef _SFX
-				    || isZip && StringsAreEqualNoCase_Ascii(ai.Name, "zip") || isRar && StringsAreEqualNoCase_Ascii(ai.Name, "rar")
+				    || isZip && sstreqi_ascii(ai.Name, "zip") || isRar && sstreqi_ascii(ai.Name, "rar")
 	    #endif
 				    ) {
 					// PrintNumber("orderIndices.Insert", i);
@@ -2511,7 +2511,7 @@ HRESULT CArc::OpenStreamOrFile(COpenOptions &op)
 	if(res != S_FALSE || !fileStreamSpec || !op.callbackSpec || NonOpen_ErrorInfo.IsArc_After_NonOpen())
 		return res;
 	{
-		if(filePath.Len() > k_ExeExt_Len && StringsAreEqualNoCase_Ascii(filePath.RightPtr(k_ExeExt_Len), k_ExeExt)) {
+		if(filePath.Len() > k_ExeExt_Len && sstreqi_ascii(filePath.RightPtr(k_ExeExt_Len), k_ExeExt)) {
 			const UString path2 = filePath.Left(filePath.Len() - k_ExeExt_Len);
 			FOR_VECTOR(i, op.codecs->Formats) {
 				const CArcInfoEx &ai = op.codecs->Formats[i];

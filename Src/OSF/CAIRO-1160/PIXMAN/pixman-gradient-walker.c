@@ -91,7 +91,7 @@ static void gradient_walker_reset(pixman_gradient_walker_t * walker,
 			pixman_color_t * tmp_c;
 			int32_t tmp_x;
 
-			tmp_x   = 0x10000 - right_x;
+			tmp_x   = static_cast<int32_t>(0x10000 - right_x);
 			right_x = 0x10000 - left_x;
 			left_x  = tmp_x;
 

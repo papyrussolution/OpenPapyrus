@@ -9,7 +9,6 @@
 int FASTCALL SetupArCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID _accSheetID, /*int disableIfZeroSheet*/long sacf)
 {
 	// @v9.2.3 flags &= ~OLW_LOADDEFONOPEN; // @v9.2.1 Из-за того, что ExtraPtr теперь - сложный объект этот флаг использовать нельзя
-
 	int    ok = 1;
 	int    create_ctl_grp = 0;
 	ArticleFilt filt;
@@ -1503,7 +1502,7 @@ int SLAPI PPObjArticle::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 		case DBMSG_PERSONACQUIREKIND:
 			{
 				const PPID person_id = _id;
-				const PPID kind_id = (long)extraPtr;
+				const PPID kind_id = reinterpret_cast<long>(extraPtr);
 
 				PPID   sheet_id = 0;
 				PPAccSheet acs_rec;
@@ -1530,9 +1529,9 @@ int SLAPI PPObjArticle::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			break;
 		case DBMSG_OBJREPLACE:
 			if(_obj == PPOBJ_ARTICLE)
-				ok = ReplyArticleReplace(_id, (long)extraPtr);
+				ok = ReplyArticleReplace(_id, reinterpret_cast<long>(extraPtr));
 			else if(_obj == PPOBJ_PERSON)
-				ok = ReplyPersonReplace(_id, (long)extraPtr);
+				ok = ReplyPersonReplace(_id, reinterpret_cast<long>(extraPtr));
 			break;
 		case DBMSG_WAREHOUSEADDED:
 			if(_obj == PPOBJ_LOCATION) {
@@ -1810,7 +1809,7 @@ int SLAPI PPObjArticle::Write(PPObjPack * p, PPID * pID, void * stream, ObjTrans
 	else {
 		SBuffer buffer;
 		THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-		THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+		THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 	}
 	CATCHZOK
 	return ok;
@@ -1827,7 +1826,7 @@ int SLAPI PPObjArticle::Read(PPObjPack * p, PPID id, void * stream, ObjTransmCon
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
@@ -2107,7 +2106,7 @@ int FASTCALL ArticleCache::Dirty(PPID id)
 int SLAPI ArticleCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	Data * p_cache_rec = (Data *)pEntry;
+	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjArticle ar_obj;
 	ArticleTbl::Rec rec;
 	if(ar_obj.Search(id, &rec) > 0) {
@@ -2131,7 +2130,7 @@ int SLAPI ArticleCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 void SLAPI ArticleCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	ArticleTbl::Rec * p_data_rec = (ArticleTbl::Rec *)pDataRec;
-	const Data * p_cache_rec = (const Data *)pEntry;
+	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	p_data_rec->ID       = p_cache_rec->ID;
 	p_data_rec->AccSheetID = p_cache_rec->AccSheetID;
@@ -2423,7 +2422,7 @@ int SLAPI PPObjDebtDim::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 					uint pos = 0;
 					PPDebtDimPacket dd_pack;
 					if(GetPacket(p_dd_list->Get(i).Id, &dd_pack) > 0 && dd_pack.AgentList.Search(_id, &pos) > 0) {
-						if(!dd_pack.AgentList.Update(pos, (long)extraPtr) || !PutPacket(&dd_pack.Rec.ID, &dd_pack, 0))
+						if(!dd_pack.AgentList.Update(pos, reinterpret_cast<long>(extraPtr)) || !PutPacket(&dd_pack.Rec.ID, &dd_pack, 0))
 							ok = DBRPL_ERROR;
 					}
 				}
@@ -2447,7 +2446,7 @@ int  SLAPI PPObjDebtDim::Read(PPObjPack *p, PPID id, void * stream, ObjTransmCon
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
@@ -2472,7 +2471,7 @@ int  SLAPI PPObjDebtDim::Write(PPObjPack * p, PPID * pID, void * stream, ObjTran
 	else {
 		SBuffer buffer;
 		THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-		THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+		THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 	}
 	CATCHZOK
 	return ok;
@@ -2670,10 +2669,8 @@ int FASTCALL DebtDimCache::Dirty(PPID id)
 {
 	int    ok = id ? ObjCache::Dirty(id) : 1;
 	{
-		//AlLock.WriteLock();
 		SRWLOCKER(AlLock, SReadWriteLocker::Write);
 		ZDELETE(P_AgentList);
-		//AlLock.Unlock();
 	}
 	return ok;
 }
@@ -2682,11 +2679,8 @@ int DebtDimCache::FetchAgentList(LAssocArray * pAgentList)
 {
 	int    ok = 0;
 	{
-		//AlLock.ReadLock();
 		SRWLOCKER(AlLock, SReadWriteLocker::Read);
 		if(!P_AgentList) {
-			//AlLock.Unlock();
-			//AlLock.WriteLock();
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			if(!P_AgentList) {
 				P_AgentList = new LAssocArray;
@@ -2711,7 +2705,6 @@ int DebtDimCache::FetchAgentList(LAssocArray * pAgentList)
 			ASSIGN_PTR(pAgentList, *P_AgentList);
 			ok = 1;
 		}
-		//AlLock.Unlock();
 	}
 	return ok;
 }
@@ -2756,10 +2749,10 @@ int PPALDD_DebtDim::InitData(PPFilt & rFilt, long rsrv)
 
 void PPALDD_Article::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
-	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
-	#define _ARG_INT(n)  (*(int *)rS.GetPtr(pApl->Get(n)))
-	#define _RET_DBL     (*(double *)rS.GetPtr(pApl->Get(0)))
-	#define _RET_INT     (*(int *)rS.GetPtr(pApl->Get(0)))
+	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
+	#define _ARG_INT(n)  (*static_cast<const int *>(rS.GetPtr(pApl->Get(n)))
+	#define _RET_DBL     (*static_cast<double *>(rS.GetPtr(pApl->Get(0)))
+	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
 
 	if(pF->Name == "?GetDebtDim") {
 		long   dd_id = 0;

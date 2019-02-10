@@ -281,7 +281,7 @@ PPBaseFilt * PPViewLot::CreateFilt(void * extraPtr) const
 {
 	LotFilt * p_filt = new LotFilt;
 	if(p_filt) {
-		if(((long)extraPtr) == 1)
+		if((reinterpret_cast<long>(extraPtr)) == 1)
 			p_filt->Flags |= LotFilt::fOrders;
 		p_filt->Period.upp = LConfig.OperDate;
 	}
@@ -2573,9 +2573,9 @@ int PPALDD_Lot::InitData(PPFilt & rFilt, long rsrv)
 
 void PPALDD_Lot::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
-	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
-	#define _ARG_LONG(n) (*(long *)rS.GetPtr(pApl->Get(n)))
-	#define _RET_INT     (*(int *)rS.GetPtr(pApl->Get(0)))
+	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
+	#define _ARG_LONG(n) (*static_cast<const long *>(rS.GetPtr(pApl->Get(n))))
+	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
 
 	_RET_INT = 0;
 	if(pF->Name == "?GetOrgLotID") {
@@ -3073,7 +3073,7 @@ PPBaseFilt * SLAPI PPViewLotExtCode::CreateFilt(void * extraPtr) const
 {
 	LotExtCodeFilt * p_filt = new LotExtCodeFilt;
 	if(p_filt)
-		p_filt->LotID = (long)extraPtr;
+		p_filt->LotID = reinterpret_cast<long>(extraPtr);
 	return p_filt;
 }
 

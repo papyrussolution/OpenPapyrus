@@ -1,5 +1,5 @@
 // V_PAYPLN.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 // Plan of Payments View
 //
@@ -26,9 +26,9 @@ SLAPI PPViewPaymPlan::~PPViewPaymPlan()
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempPaymPlan);
 
-static int IterProc_Count(PayPlanTbl::Rec * pRec, long extraParam)
+static int IterProc_Count(PayPlanTbl::Rec * pRec, void * extraPtr)
 {
-	long * p_count = (long *)extraParam;
+	long * p_count = static_cast<long *>(extraPtr);
 	(*p_count)++;
 	return 1;
 }
@@ -60,11 +60,11 @@ struct IterProcParam_ProcessPeriod {
 	PPID   FiltObjID;
 };
 
-int IterProc_PPViewPaymPlan_ProcessPeriod(PayPlanTbl::Rec * pRec, long extraParam)
+int IterProc_PPViewPaymPlan_ProcessPeriod(PayPlanTbl::Rec * pRec, void * extraPtr)
 {
 	int    ok = 1;
 	ArticleTbl::Rec ar_rec;
-	IterProcParam_ProcessPeriod * p = (IterProcParam_ProcessPeriod *)extraParam;
+	IterProcParam_ProcessPeriod * p = static_cast<IterProcParam_ProcessPeriod *>(extraPtr);
 	PPViewPaymPlan * p_v = p->P_V;
 	BillTbl::Rec bill_rec;
 	if(p->P_Cntr)
@@ -119,7 +119,7 @@ int IterProc_PPViewPaymPlan_ProcessPeriod(PayPlanTbl::Rec * pRec, long extraPara
 			}
 			else {
 				debt = pRec->Amount - paym;
-				paym = 0.0;
+				// @v10.3.3 @fix paym = 0.0;
 				p->BillPaymList.at(pos).Paym = paym;
 			}
 		}
@@ -225,7 +225,7 @@ int SLAPI PPViewPaymPlan::Init_(const PPBaseFilt * pFilt)
 		IterCounter cntr;
 		long   count = 0;
 		TSVector <DateRange> period_list; // @v9.8.4 TSArray-->TSVector
-		THROW(P_BObj->P_Tbl->PayPlanEnumerator(&Filt.Period, IterProc_Count, (long)&count));
+		THROW(P_BObj->P_Tbl->PayPlanEnumerator(&Filt.Period, IterProc_Count, &count));
 		cntr.Init(count);
 		THROW(P_TempTbl = CreateTempFile());
 		if(!Filt.Cycl)
@@ -240,7 +240,7 @@ int SLAPI PPViewPaymPlan::Init_(const PPBaseFilt * pFilt)
 			THROW(tra);
 			for(uint i = 0; i < period_list.getCount(); i++) {
 				ipp.Period = period_list.at(i);
-				THROW(P_BObj->P_Tbl->PayPlanEnumerator(&period_list.at(i), IterProc_PPViewPaymPlan_ProcessPeriod, (long)&ipp));
+				THROW(P_BObj->P_Tbl->PayPlanEnumerator(&period_list.at(i), IterProc_PPViewPaymPlan_ProcessPeriod, &ipp));
 			}
 			THROW(tra.Commit());
 		}
@@ -628,7 +628,7 @@ int SLAPI PPViewPaymPlan::GetBillList(PPID objID, LDATE dt, ObjIdListFilt * pBil
 		RPairArray paym_list;
 		ObjIdListFilt bill_list;
 		IterProcParam_ProcessPeriod ipp(this, &bill_list, &paym_list, period, objID);
-		THROW(P_BObj->P_Tbl->PayPlanEnumerator(&period, IterProc_PPViewPaymPlan_ProcessPeriod, (long)&ipp));
+		THROW(P_BObj->P_Tbl->PayPlanEnumerator(&period, IterProc_PPViewPaymPlan_ProcessPeriod, &ipp));
 		ASSIGN_PTR(pBillList, bill_list);
 		ASSIGN_PTR(pPaymList, paym_list);
 		ok = 1;

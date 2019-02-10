@@ -1041,11 +1041,11 @@ int SLAPI PPObjBudget::FormatDate(PPID budgetID, int16 cycle, LDATE dt, SString 
 // virtual
 StrAssocArray * SLAPI PPObjBudget::MakeStrAssocList(void * extraPtr)
 {
-	long   extra_param = (long)extraPtr;
+	long   extra_param = reinterpret_cast<long>(extraPtr);
 	long   h = 0;
 	StrAssocArray * p_list = new StrAssocArray;
 	if(p_list) {
-		const  long _extra = (long)ExtraPtr;
+		const  long _extra = reinterpret_cast<long>(ExtraPtr);
 		int    sel_with_parent = BIN(_extra < 0);
 		PPBudget budget;
 		extra_param = (extra_param > SEL_ALL_BUDGETS) ? labs(extra_param) : extra_param;

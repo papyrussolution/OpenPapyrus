@@ -826,9 +826,7 @@ static cairo_status_t upload_boxes(const cairo_mask_compositor_t * compositor,
 	return status;
 }
 
-static cairo_status_t composite_boxes(const cairo_mask_compositor_t * compositor,
-    const cairo_composite_rectangles_t * extents,
-    cairo_boxes_t * boxes)
+static cairo_status_t composite_boxes(const cairo_mask_compositor_t * compositor, const cairo_composite_rectangles_t * extents, cairo_boxes_t * boxes)
 {
 	cairo_surface_t * dst = extents->surface;
 	cairo_operator_t op = extents->op;
@@ -891,66 +889,47 @@ static cairo_status_t composite_boxes(const cairo_mask_compositor_t * compositor
 		cairo_surface_destroy(src);
 		cairo_surface_destroy(mask);
 	}
-
 	if(status == CAIRO_STATUS_SUCCESS && !extents->is_bounded)
 		status = fixup_unbounded_boxes(compositor, extents, boxes);
-
 	compositor->release(dst);
-
 	return status;
 }
 
-static cairo_status_t clip_and_composite_boxes(const cairo_mask_compositor_t * compositor,
-    cairo_composite_rectangles_t * extents,
-    cairo_boxes_t * boxes)
+static cairo_status_t FASTCALL clip_and_composite_boxes(const cairo_mask_compositor_t * compositor, cairo_composite_rectangles_t * extents, cairo_boxes_t * boxes)
 {
 	cairo_surface_t * dst = extents->surface;
 	cairo_int_status_t status;
-
 	if(boxes->num_boxes == 0) {
 		if(extents->is_bounded)
 			return CAIRO_STATUS_SUCCESS;
-
 		return fixup_unbounded_boxes(compositor, extents, boxes);
 	}
-
 	if(!boxes->is_pixel_aligned)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
 	status = trim_extents_to_boxes(extents, boxes);
 	if(unlikely(status))
 		return status;
-
-	if(extents->source_pattern.base.type == CAIRO_PATTERN_TYPE_SURFACE &&
-	    extents->clip->path == NULL &&
-	    (extents->op == CAIRO_OPERATOR_SOURCE ||
-	    (dst->is_clear && (extents->op == CAIRO_OPERATOR_OVER ||
-	    extents->op == CAIRO_OPERATOR_ADD)))) {
+	if(extents->source_pattern.base.type == CAIRO_PATTERN_TYPE_SURFACE && extents->clip->path == NULL &&
+	    (extents->op == CAIRO_OPERATOR_SOURCE || (dst->is_clear && (extents->op == CAIRO_OPERATOR_OVER || extents->op == CAIRO_OPERATOR_ADD)))) {
 		status = upload_boxes(compositor, extents, boxes);
 		if(status != CAIRO_INT_STATUS_UNSUPPORTED)
 			return status;
 	}
-
 	return composite_boxes(compositor, extents, boxes);
 }
 
 /* high-level compositor interface */
 
-static cairo_int_status_t _cairo_mask_compositor_paint(const cairo_compositor_t * _compositor,
-    cairo_composite_rectangles_t * extents)
+static cairo_int_status_t _cairo_mask_compositor_paint(const cairo_compositor_t * _compositor, cairo_composite_rectangles_t * extents)
 {
 	cairo_mask_compositor_t * compositor = (cairo_mask_compositor_t*)_compositor;
 	cairo_boxes_t boxes;
-	cairo_int_status_t status;
-
-	status = compositor->check_composite(extents);
+	cairo_int_status_t status = compositor->check_composite(extents);
 	if(unlikely(status))
 		return status;
-
 	_cairo_clip_steal_boxes(extents->clip, &boxes);
 	status = clip_and_composite_boxes(compositor, extents, &boxes);
 	_cairo_clip_unsteal_boxes(extents->clip, &boxes);
-
 	return status;
 }
 
@@ -985,16 +964,9 @@ static void composite_opacity(void * closure, int16_t x, int16_t y, int16_t w, i
 	cairo_surface_destroy(mask);
 }
 
-static cairo_int_status_t composite_opacity_boxes(const cairo_mask_compositor_t * compositor,
-    cairo_surface_t * dst,
-    void * closure,
-    cairo_operator_t op,
-    const cairo_pattern_t * src_pattern,
-    const cairo_rectangle_int_t * src_sample,
-    int dst_x,
-    int dst_y,
-    const cairo_rectangle_int_t * extents,
-    cairo_clip_t * clip)
+static cairo_int_status_t composite_opacity_boxes(const cairo_mask_compositor_t * compositor, cairo_surface_t * dst, void * closure,
+    cairo_operator_t op, const cairo_pattern_t * src_pattern, const cairo_rectangle_int_t * src_sample, int dst_x, int dst_y, 
+	const cairo_rectangle_int_t * extents, cairo_clip_t * clip)
 {
 	const cairo_solid_pattern_t * mask_pattern = (const cairo_solid_pattern_t *)closure;
 	struct composite_opacity_info info;
@@ -1028,7 +1000,7 @@ struct composite_box_info {
 
 static void composite_box(void * closure, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t coverage)
 {
-	struct composite_box_info * info = (struct composite_box_info *)closure;
+	struct composite_box_info * info = static_cast<struct composite_box_info *>(closure);
 	const cairo_mask_compositor_t * compositor = info->compositor;
 	if(!CAIRO_ALPHA_SHORT_IS_OPAQUE(coverage)) {
 		cairo_surface_t * mask;

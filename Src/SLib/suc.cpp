@@ -2462,7 +2462,7 @@ int SLAPI SUnicodeBlock::Read(const char * pFileName)
 		THROW(f_in.Read(buffer));
 		{
 			SCRC32 cc;
-			uint32 _crc = cc.Calc(0, (const uint8 *)buffer.GetBuf(0), buffer.GetAvailableSize());
+			uint32 _crc = cc.Calc(0, buffer.GetBuf(0), buffer.GetAvailableSize());
 			THROW(_crc == hdr.CRC);
 		}
 		THROW(Ut.Serialize(-1, buffer, &sctx));
@@ -2488,7 +2488,7 @@ int SLAPI SUnicodeBlock::Write(const char * pFileName)
         hdr.Flags = 0;
 
         SCRC32 cc;
-        hdr.CRC = cc.Calc(0, (const uint8 *)buffer.GetBuf(0), bsize);
+        hdr.CRC = cc.Calc(0, buffer.GetBuf(0), bsize);
         //
         SFile f_out(pFileName, SFile::mWrite|SFile::mBinary);
         THROW(f_out.IsValid());

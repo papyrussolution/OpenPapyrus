@@ -400,7 +400,7 @@ typedef struct {
 #define BZ_GET_SMALL(cccc)			      \
         /* c_tPos is unsigned, hence test < 0 is pointless */ \
 	if(s->tPos >= (uint32)100000 * (uint32)s->blockSize100k) return true; \
-	cccc = BZ2_indexIntoF(s->tPos, s->cftab);    \
+	cccc = static_cast<uchar>(BZ2_indexIntoF(s->tPos, s->cftab)); /* @sobolev static_cast<uchar> */   \
 	s->tPos = GET_LL(s->tPos);
 
 /*-- externs for decompression. --*/

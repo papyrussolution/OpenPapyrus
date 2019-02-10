@@ -157,7 +157,7 @@ int SLAPI PPObjPersonRelType::Read(PPObjPack * p, PPID id, void * stream, ObjTra
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
@@ -197,7 +197,7 @@ int SLAPI PPObjPersonRelType::Write(PPObjPack * p, PPID * pID, void * stream, Ob
 		else {
 			SBuffer buffer;
 			THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 			ok = 1;
 		}
 	}
@@ -1094,7 +1094,7 @@ int SLAPI PersonCore::Put(PPID * pID, PPPerson * pPack, int use_ta)
 		SString msg_buf, fmt_buf, obj_title;
 		PPLoadText(PPTXT_LOG_ADDOBJREC_JUMPED_ID, fmt_buf);
 		GetObjectTitle(PPOBJ_PERSON, obj_title);
-		msg_buf.Printf(fmt_buf, (const char *)obj_title);
+		msg_buf.Printf(fmt_buf, obj_title.cptr());
 		PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 	}
 	return ok;

@@ -125,10 +125,10 @@ static uint32_t _utf8_get_char(const uchar * p)
 {
 	int i, mask = 0, len;
 	uint32_t result;
-	uchar c = (uchar)*p;
+	uchar c = static_cast<uchar>(*p);
 	UTF8_COMPUTE(c, mask, len);
 	if(len == -1)
-		return (uint32_t)-1;
+		return static_cast<uint32_t>(-1);
 	UTF8_GET(result, p, i, mask, len);
 	return result;
 }
@@ -139,13 +139,12 @@ static uint32_t _utf8_get_char(const uchar * p)
 static uint32_t _utf8_get_char_extended(const uchar * p, long max_len)
 {
 	int i, len;
-	uint32_t wc = (uchar)*p;
-
+	uint32_t wc = static_cast<uchar>(*p);
 	if(wc < 0x80) {
 		return wc;
 	}
 	else if(wc < 0xc0) {
-		return (uint32_t)-1;
+		return static_cast<uint32_t>(-1);
 	}
 	else if(wc < 0xe0) {
 		len = 2;
@@ -168,33 +167,28 @@ static uint32_t _utf8_get_char_extended(const uchar * p, long max_len)
 		wc &= 0x01;
 	}
 	else {
-		return (uint32_t)-1;
+		return static_cast<uint32_t>(-1);
 	}
-
 	if(max_len >= 0 && len > max_len) {
 		for(i = 1; i < max_len; i++) {
 			if((((uchar*)p)[i] & 0xc0) != 0x80)
-				return (uint32_t)-1;
+				return static_cast<uint32_t>(-1);
 		}
 		return (uint32_t)-2;
 	}
-
 	for(i = 1; i < len; ++i) {
 		uint32_t ch = ((uchar*)p)[i];
-
 		if((ch & 0xc0) != 0x80) {
 			if(ch)
-				return (uint32_t)-1;
+				return static_cast<uint32_t>(-1);
 			else
 				return (uint32_t)-2;
 		}
-
 		wc <<= 6;
 		wc |= (ch & 0x3f);
 	}
-
 	if(UTF8_LENGTH(wc) != len)
-		return (uint32_t)-1;
+		return static_cast<uint32_t>(-1);
 
 	return wc;
 }
@@ -212,13 +206,11 @@ static uint32_t _utf8_get_char_extended(const uchar * p, long max_len)
  *
  * Returns: the number of bytes forming the character returned.
  **/
-int _cairo_utf8_get_char_validated(const char * p,
-    uint32_t * unicode)
+int _cairo_utf8_get_char_validated(const char * p, uint32_t * unicode)
 {
 	int i, mask = 0, len;
 	uint32_t result;
-	uchar c = (uchar)*p;
-
+	uchar c = static_cast<uchar>(*p);
 	UTF8_COMPUTE(c, mask, len);
 	if(len == -1) {
 		if(unicode)
@@ -226,12 +218,9 @@ int _cairo_utf8_get_char_validated(const char * p,
 		return 1;
 	}
 	UTF8_GET(result, p, i, mask, len);
-
-	if(unicode)
-		*unicode = result;
+	ASSIGN_PTR(unicode, result);
 	return len;
 }
-
 /**
  * _cairo_utf8_to_ucs4:
  * @str: an UTF-8 string
@@ -252,48 +241,35 @@ int _cairo_utf8_get_char_validated(const char * p,
  *   successfully converted. %CAIRO_STATUS_INVALID_STRING if an
  *   invalid sequence was found.
  **/
-cairo_status_t _cairo_utf8_to_ucs4(const char * str,
-    int len,
-    uint32_t ** result,
-    int * items_written)
+cairo_status_t _cairo_utf8_to_ucs4(const char * str, int len, uint32_t ** result, int * items_written)
 {
 	uint32_t * str32 = NULL;
-	int n_chars, i;
-	const uchar * in;
+	int i;
 	const uchar * const ustr = (const uchar*)str;
-
-	in = ustr;
-	n_chars = 0;
+	const uchar * in = ustr;
+	int n_chars = 0;
 	while((len < 0 || ustr + len - in > 0) && *in) {
 		uint32_t wc = _utf8_get_char_extended(in, ustr + len - in);
 		if(wc & 0x80000000 || !UNICODE_VALID(wc))
 			return _cairo_error(CAIRO_STATUS_INVALID_STRING);
-
 		n_chars++;
 		if(n_chars == INT_MAX)
 			return _cairo_error(CAIRO_STATUS_INVALID_STRING);
-
 		in = UTF8_NEXT_CHAR(in);
 	}
-
 	if(result) {
 		str32 = (uint32_t *)_cairo_malloc_ab(n_chars + 1, sizeof(uint32_t));
 		if(!str32)
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 		in = ustr;
 		for(i = 0; i < n_chars; i++) {
 			str32[i] = _utf8_get_char(in);
 			in = UTF8_NEXT_CHAR(in);
 		}
 		str32[i] = 0;
-
 		*result = str32;
 	}
-
-	if(items_written)
-		*items_written = n_chars;
-
+	ASSIGN_PTR(items_written, n_chars);
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -308,15 +284,12 @@ cairo_status_t _cairo_utf8_to_ucs4(const char * str,
  * Return value: Number of bytes in the utf8 string or 0 if an invalid
  * unicode character
  **/
-int _cairo_ucs4_to_utf8(uint32_t unicode,
-    char * utf8)
+int _cairo_ucs4_to_utf8(uint32_t unicode, char * utf8)
 {
 	int bytes;
 	char * p;
-
 	if(unicode < 0x80) {
-		if(utf8)
-			*utf8 = unicode;
+		ASSIGN_PTR(utf8, unicode);
 		return 1;
 	}
 	else if(unicode < 0x800) {
@@ -331,17 +304,14 @@ int _cairo_ucs4_to_utf8(uint32_t unicode,
 	else {
 		return 0;
 	}
-
 	if(!utf8)
 		return bytes;
-
 	p = utf8 + bytes;
 	while(p > utf8) {
 		*--p = 0x80 | (unicode & 0x3f);
 		unicode >>= 6;
 	}
 	*p |= 0xf0 << (4 - bytes);
-
 	return bytes;
 }
 
@@ -356,8 +326,7 @@ int _cairo_ucs4_to_utf8(uint32_t unicode,
  * Return value: Number of elements in the utf16 string or 0 if an
  * invalid unicode character
  **/
-int _cairo_ucs4_to_utf16(uint32_t unicode,
-    uint16_t * utf16)
+int _cairo_ucs4_to_utf16(uint32_t unicode, uint16_t * utf16)
 {
 	if(unicode < 0x10000) {
 		if(utf16)
@@ -398,31 +367,23 @@ int _cairo_ucs4_to_utf16(uint32_t unicode,
  *   successfully converted. %CAIRO_STATUS_INVALID_STRING if an
  *   an invalid sequence was found.
  **/
-cairo_status_t _cairo_utf8_to_utf16(const char * str,
-    int len,
-    uint16_t ** result,
-    int * items_written)
+cairo_status_t _cairo_utf8_to_utf16(const char * str, int len, uint16_t ** result, int * items_written)
 {
 	uint16_t * str16 = NULL;
-	int n16, i;
-	const uchar * in;
+	int i;
 	const uchar * const ustr = (const uchar*)str;
-
-	in = ustr;
-	n16 = 0;
+	const uchar * in = ustr;
+	int n16 = 0;
 	while((len < 0 || ustr + len - in > 0) && *in) {
 		uint32_t wc = _utf8_get_char_extended(in, ustr + len - in);
 		if(wc & 0x80000000 || !UNICODE_VALID(wc))
 			return _cairo_error(CAIRO_STATUS_INVALID_STRING);
-
 		if(wc < 0x10000)
 			n16 += 1;
 		else
 			n16 += 2;
-
 		if(n16 == INT_MAX - 1 || n16 == INT_MAX)
 			return _cairo_error(CAIRO_STATUS_INVALID_STRING);
-
 		in = UTF8_NEXT_CHAR(in);
 	}
 	str16 = (uint16_t *)_cairo_malloc_ab(n16 + 1, sizeof(uint16_t));
@@ -436,8 +397,7 @@ cairo_status_t _cairo_utf8_to_utf16(const char * str,
 	}
 	str16[i] = 0;
 	*result = str16;
-	if(items_written)
-		*items_written = n16;
+	ASSIGN_PTR(items_written, n16);
 	return CAIRO_STATUS_SUCCESS;
 }
 

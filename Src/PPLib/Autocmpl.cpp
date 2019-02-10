@@ -386,7 +386,7 @@ class PuglDialog : public PPListDialog {
 public:
 	PuglDialog(uint dlgID) : PPListDialog(dlgID, CTL_MSGNCMPL_LIST)
 	{
-		SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_MSGNCMPL_LIST);
+		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_MSGNCMPL_LIST));
 		if(!SetupStrListBox(p_list))
 			PPError();
 		updateList(-1);

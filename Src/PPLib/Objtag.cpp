@@ -1601,11 +1601,11 @@ int SLAPI PPObjTag::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 					PPObjectTag tag;
 					if(Fetch(p_tags_list->Get(i).Id, &tag) > 0) {
 						if(_id == tag.ObjTypeID) {
-							tag.ObjTypeID = (long)extraPtr;
+							tag.ObjTypeID = reinterpret_cast<long>(extraPtr);
 							update = 1;
 						}
 						else if(_id == tag.TagEnumID) {
-							tag.TagEnumID = (long)extraPtr;
+							tag.TagEnumID = reinterpret_cast<long>(extraPtr);
 							update = 1;
 						}
 					}
@@ -1643,7 +1643,7 @@ int SLAPI PPObjTag::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 										ok = PPSetErrorDB();
 									}
 									else {
-										ref->Ot.data.IntVal = (long)extraPtr;
+										ref->Ot.data.IntVal = reinterpret_cast<long>(extraPtr);
 										if(!ref->Ot.updateRec()) {
 											ok = PPSetErrorDB();
 										}
@@ -3310,7 +3310,7 @@ int PPALDD_ObjectTag::InitData(PPFilt & rFilt, long rsrv)
 
 void PPALDD_ObjectTag::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
-	#define _RET_STR     (**(SString **)rS.GetPtr(pApl->Get(0)))
+	#define _RET_STR     (**static_cast<SString **>(rS.GetPtr(pApl->Get(0))))
 	if(pF->Name == "?GetStr") {
 		_RET_STR.Z();
 		size_t data_len = 0;

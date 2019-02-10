@@ -261,12 +261,10 @@ int ps_plot(struct ZintSymbol * symbol)
 	}
 	fprintf(feps, "%%%%Pages: 0\n");
 	if(symbol->Std != BARCODE_MAXICODE) {
-		fprintf(feps, "%%%%BoundingBox: 0 0 %d %d\n", (int)ceil((symbol->width + xoffset + xoffset) * scaler),
-		    (int)ceil((symbol->height + textoffset + yoffset + yoffset) * scaler));
+		fprintf(feps, "%%%%BoundingBox: 0 0 %d %d\n", fceili((symbol->width + xoffset + xoffset) * scaler), fceili((symbol->height + textoffset + yoffset + yoffset) * scaler));
 	}
 	else {
-		fprintf(feps, "%%%%BoundingBox: 0 0 %d %d\n", (int)ceil((74.0F + xoffset + xoffset) * scaler),
-		    (int)ceil((72.0F + yoffset + yoffset) * scaler));
+		fprintf(feps, "%%%%BoundingBox: 0 0 %d %d\n", fceili((74.0F + xoffset + xoffset) * scaler), fceili((72.0F + yoffset + yoffset) * scaler));
 	}
 	fprintf(feps, "%%%%EndComments\n");
 

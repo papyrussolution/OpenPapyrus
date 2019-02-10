@@ -1538,7 +1538,7 @@ private:
 		else if(Cls == PPQuot::clsPredictCoeff) {
 			Kinds[0] = Spc.PredictCoeffID;
 			{
-				SmartListBox * p_box = (SmartListBox *)getCtrlView(CTL_GQUOT_PRDLIST);
+				SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_GQUOT_PRDLIST));
 				SetupStrListBox(p_box);
 			}
 		}
@@ -1766,7 +1766,7 @@ int QuotationDialog::SetupLocList()
 	if(ext_loc_list.getCount())
 		loc_filt.ExtLocList.Set(&ext_loc_list);
 	StrAssocArray * p_list = LocObj.MakeList_(&loc_filt, MAXLONG);
-	SmartListBox * p_box = (SmartListBox *)getCtrlView(CTL_GQUOT_LOCLIST);
+	SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_GQUOT_LOCLIST));
 	if(p_box) {
 		const long cur_foc_pos = p_box->def ? p_box->def->_curItem() : -1;
 		if(oneof2(Cls, PPQuot::clsMtx, PPQuot::clsMtxRestr)) {
@@ -1934,7 +1934,7 @@ IMPL_HANDLE_EVENT(QuotationDialog)
 		else if(Cls == PPQuot::clsPredictCoeff) {
 			if(event.isCmd(cmaEdit) || event.isCtlEvent(CTL_GQUOT_PRDLIST)) {
 				long   i = 0;
-				SmartListBox * p_box = (SmartListBox *)getCtrlView(CTL_GQUOT_PRDLIST);
+				SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_GQUOT_PRDLIST));
 				if(p_box && p_box->def && p_box->getCurID(&i) && i > 0 && i <= (long)Data.getCount()) {
 					PPQuot quot = Data.at(i-1); // @copy
 					if(quot.Kind == Spc.PredictCoeffID && EditQuotVal(&quot, Cls) > 0) {
@@ -1969,7 +1969,7 @@ IMPL_HANDLE_EVENT(QuotationDialog)
 	else if(event.isCmd(cmaDelete)) {
 		if(Cls == PPQuot::clsPredictCoeff) {
 			long   i = 0;
-			SmartListBox * p_box = (SmartListBox *)getCtrlView(CTL_GQUOT_PRDLIST);
+			SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_GQUOT_PRDLIST));
 			if(p_box && p_box->def && p_box->getCurID(&i) && i > 0 && i <= (long)Data.getCount()) {
 				const PPQuot & r_q = Data.at(i-1);
 				if(r_q.Kind == Spc.PredictCoeffID) {
@@ -2188,7 +2188,7 @@ void QuotationDialog::updatePage()
 	getCtrlData(CTLSEL_GQUOT_ARTICLE, &SelArticleID);
 	setPage();
 	if(Cls == PPQuot::clsPredictCoeff) {
-		SmartListBox * p_box = (SmartListBox *)getCtrlView(CTL_GQUOT_PRDLIST);
+		SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_GQUOT_PRDLIST));
 		if(p_box) {
 			p_box->freeAll();
 			double effect_val = 0.0;

@@ -382,10 +382,13 @@ typedef int Bool;
 #else
 	typedef size_t SizeT;
 #endif
-#ifdef _WIN32
-	#define MY_STD_CALL __stdcall
-#else
-	#define MY_STD_CALL
+// @sobolev MY_STD_CALL-->_7Z_STD_CALL
+#ifndef _7Z_STD_CALL
+	#ifdef _WIN32
+		#define _7Z_STD_CALL __stdcall
+	#else
+		#define _7Z_STD_CALL
+	#endif
 #endif
 #ifdef _MSC_VER
 	#if _MSC_VER >= 1300
@@ -1811,9 +1814,9 @@ int MyStringCompareNoCase(const wchar_t * s1, const wchar_t * s2) throw();
 // ---------- ASCII ----------
 // char values in ASCII strings must be less then 128
 bool StringsAreEqual_Ascii(const wchar_t * u, const char * a) throw();
-bool StringsAreEqualNoCase_Ascii(const char * s1, const char * s2) throw();
-bool StringsAreEqualNoCase_Ascii(const wchar_t * s1, const char * s2) throw();
-bool StringsAreEqualNoCase_Ascii(const wchar_t * s1, const wchar_t * s2) throw();
+// @sobolev (replaced with sstreqi_ascii) bool StringsAreEqualNoCase_Ascii__(const char * s1, const char * s2) throw();
+// @sobolev (replaced with sstreqi_ascii) bool StringsAreEqualNoCase_Ascii__(const wchar_t * s1, const char * s2) throw();
+// @sobolev (replaced with sstreqi_ascii) bool StringsAreEqualNoCase_Ascii__(const wchar_t * s1, const wchar_t * s2) throw();
 
 #define MY_STRING_DELETE(_p_) delete []_p_;
 // #define MY_STRING_DELETE(_p_) my_delete(_p_);
@@ -1933,7 +1936,7 @@ public:
 	// void MakeLower() { MyStringLower(_chars); }
 	void MakeLower_Ascii() { MyStringLower_Ascii(_chars); }
 	bool IsEqualTo(const char * s) const { return strcmp(_chars, s) == 0; }
-	bool IsEqualTo_Ascii_NoCase(const char * s) const { return StringsAreEqualNoCase_Ascii(_chars, s); }
+	bool IsEqualTo_Ascii_NoCase(const char * s) const { return sstreqi_ascii(_chars, s); }
 	// int Compare(const char *s) const { return MyStringCompare(_chars, s); }
 	// int Compare(const AString &s) const { return MyStringCompare(_chars, s._chars); }
 	// int CompareNoCase(const char *s) const { return MyStringCompareNoCase(_chars, s); }
@@ -2098,7 +2101,7 @@ public:
 	void MakeLower_Ascii() { MyStringLower_Ascii(_chars); }
 	bool IsEqualTo(const char * s) const { return StringsAreEqual_Ascii(_chars, s); }
 	bool IsEqualTo_NoCase(const wchar_t * s) const { return StringsAreEqualNoCase(_chars, s); }
-	bool IsEqualTo_Ascii_NoCase(const char * s) const { return StringsAreEqualNoCase_Ascii(_chars, s); }
+	bool IsEqualTo_Ascii_NoCase(const char * s) const { return sstreqi_ascii(_chars, s); }
 	int Compare(const wchar_t * s) const { return wcscmp(_chars, s); }
 	// int Compare(const UString &s) const { return MyStringCompare(_chars, s._chars); }
 	// int CompareNoCase(const wchar_t *s) const { return MyStringCompareNoCase(_chars, s); }
@@ -3149,7 +3152,7 @@ EXTERN_C_BEGIN
 	#endif
 	THREAD_FUNC_RET_TYPE;
 
-	#define THREAD_FUNC_CALL_TYPE MY_STD_CALL
+	#define THREAD_FUNC_CALL_TYPE _7Z_STD_CALL
 	#define THREAD_FUNC_DECL THREAD_FUNC_RET_TYPE THREAD_FUNC_CALL_TYPE
 	typedef THREAD_FUNC_RET_TYPE (THREAD_FUNC_CALL_TYPE * THREAD_FUNC_TYPE)(void *);
 	WRes Thread_Create(CThread *p, THREAD_FUNC_TYPE func, LPVOID param);

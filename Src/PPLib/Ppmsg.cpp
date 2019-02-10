@@ -766,7 +766,7 @@ int FASTCALL PPThreadLocalArea::WaitBlock::SetMessage(const char * pMsg)
 int FASTCALL PPThreadLocalArea::WaitBlock::SetPercent(ulong p, ulong t, const char * msg)
 {
 	int    result = 1;
-	ulong  percent = (ulong)(t ? (100.0 * ((double)p / (double)t)) : 100.0);
+	const  ulong  percent = static_cast<ulong>(t ? (100.0 * fdivui(p, t)) : 100.0);
 	if(percent != PrevPercent || (msg && msg[0] && PrevMsg.Cmp(msg, 0) != 0)) {
 		PrevPercent = percent;
 		PrevMsg = msg;

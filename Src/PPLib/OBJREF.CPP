@@ -33,9 +33,7 @@ ObjViewDialog::ObjViewDialog(uint dlgRez, PPObject * aObj, void * extraPtr) : TD
 void ObjViewDialog::updateList(PPID id)
 {
 	if(P_List && P_List->def) {
-		long   cur = -1;
-		if(id < 0)
-			cur = P_List->def ? P_List->def->_curItem() : 0;
+		long   cur = (id < 0) ? P_List->def->_curItem() : -1;
 		P_List->setDef(P_Obj->Selector(ExtraPtr));
 		if(id < 0)
 			P_List->focusItem(cur);
@@ -372,7 +370,7 @@ int SLAPI PPObjReference::EditCommObjItem(PPCommObjEntry * pEntry)
 		SString symb = pEntry->Symb;
 		// @v10.2.4 @fix p_dlg = new TDialog(DLG_COMMOBJ);
 		THROW(CheckDialogPtr(&(p_dlg = new TDialog(dlg_id))));
-		THROW(p_obj = (PPObjReference *)GetPPObject(pEntry->ObjType, 0));
+		THROW(p_obj = static_cast<PPObjReference *>(GetPPObject(pEntry->ObjType, 0)));
 		THROW(p_obj->EditPrereq(&pEntry->ID, p_dlg, 0));
 		p_dlg->setTitle(GetObjectTitle(pEntry->ObjType, obj_title));
 		p_dlg->setCtrlLong(CTL_COMMOBJ_ID, _id);
@@ -541,10 +539,10 @@ int SLAPI PPObjReference::Serialize_(int dir, ReferenceTbl::Rec * pPack, void * 
 	SBuffer buffer;
 	if(dir > 0) {
 		THROW_SL(ref->SerializeRecord(dir, pPack, buffer, &pCtx->SCtx));
-		THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0));
+		THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0));
 	}
 	else if(dir < 0) {
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0));
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0));
 		THROW_SL(ref->SerializeRecord(dir, pPack, buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
@@ -561,7 +559,7 @@ int SLAPI PPObjReference::Read(PPObjPack * p, PPID id, void * stream, ObjTransmC
 		THROW(Search(id, p->Data) > 0);
 	}
 	else {
-		THROW(Serialize_(-1, (ReferenceTbl::Rec *)p->Data, stream, pCtx));
+		THROW(Serialize_(-1, static_cast<ReferenceTbl::Rec *>(p->Data), stream, pCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -618,7 +616,7 @@ int SLAPI PPObjReference::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 		}
 	}
 	else {
-		THROW(Serialize_(+1, (ReferenceTbl::Rec *)p->Data, stream, pCtx));
+		THROW(Serialize_(+1, static_cast<ReferenceTbl::Rec *>(p->Data), stream, pCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -705,7 +703,7 @@ int SLAPI PPObjReference::MakeReserved(long flags)
 //
 static int SLAPI UnitListFilt(void * rec, void * extraPtr)
 {
-	const long extra_flags = (long)extraPtr;
+	const long extra_flags = reinterpret_cast<long>(extraPtr);
 	return extra_flags ? ((((PPUnit*)rec)->Flags & extra_flags) == extra_flags) : 1;
 }
 
@@ -750,7 +748,7 @@ int SLAPI PPObjUnit::SearchMaxLike(const PPUnit * pRec, PPID * pID)
 		k1.ObjType = Obj;
 		STRNSCPY(k1.ObjName, pRec->Name);
 		if(SearchByKey(ref, 1, &k1, 0) > 0) {
-			const PPUnit & rec = *((PPUnit*)&ref->data);
+			const PPUnit & rec = *reinterpret_cast<const PPUnit *>(&ref->data);
 			do {
 				if(pRec->ID != rec.ID) {
 					ASSIGN_PTR(pID, ref->data.ObjID);
@@ -864,7 +862,7 @@ int SLAPI PPObjUnit::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 	int    ok = 1;
 	THROW(p->Data);
 	if(stream == 0) {
-		PPUnit * p_rec = (PPUnit *)p->Data;
+		PPUnit * p_rec = static_cast<PPUnit *>(p->Data);
 		if(*pID || SearchByName(p_rec->Name, pID, 0) > 0) {
 			p_rec->ID = *pID;
 			int    r = EditItem(Obj, *pID, p_rec, 1);
@@ -889,7 +887,7 @@ int SLAPI PPObjUnit::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 		}
 	}
 	else {
-		THROW(Serialize_(+1, (ReferenceTbl::Rec *)p->Data, stream, pCtx));
+		THROW(Serialize_(+1, static_cast<ReferenceTbl::Rec *>(p->Data), stream, pCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -911,7 +909,7 @@ int SLAPI PPObjUnit::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			PPUnit unit_rec;
 			for(PPID id = 0; ok == DBRPL_OK && EnumItems(&id, &unit_rec) > 0;) {
 				if(unit_rec.BaseUnitID == _id) {
-					unit_rec.BaseUnitID = (long)extraPtr;
+					unit_rec.BaseUnitID = reinterpret_cast<long>(extraPtr);
 					if(!UpdateItem(unit_rec.ID, &unit_rec, 0))
 						ok = DBRPL_ERROR;
 					else
@@ -947,7 +945,7 @@ public:
 int SLAPI UnitCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	UnitData * p_cache_rec = (UnitData *)pEntry;
+	UnitData * p_cache_rec = static_cast<UnitData *>(pEntry);
 	PPObjUnit u_obj;
 	PPUnit rec;
 	if(u_obj.Search(id, &rec) > 0) {
@@ -968,8 +966,8 @@ int SLAPI UnitCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI UnitCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPUnit * p_data_rec = (PPUnit *)pDataRec;
-	const UnitData * p_cache_rec = (const UnitData *)pEntry;
+	PPUnit * p_data_rec = static_cast<PPUnit *>(pDataRec);
+	const UnitData * p_cache_rec = static_cast<const UnitData *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	p_data_rec->Tag        = PPOBJ_UNIT;
 	p_data_rec->ID         = p_cache_rec->ID;
@@ -1002,7 +1000,7 @@ int SLAPI PPObjUnit::Edit(PPID * pID, void * extraPtr)
 	}
 	else {
 		MEMSZERO(unit);
-		const long _extra = (long)ExtraPtr;
+		const long _extra = reinterpret_cast<long>(ExtraPtr);
 		unit.Flags |= (_extra ? (_extra & 0x0000ffffL) : PPUnit::Trade);
 	}
 	dlg->setCtrlData(CTL_UNIT_NAME, unit.Name);
@@ -1015,7 +1013,7 @@ int SLAPI PPObjUnit::Edit(PPID * pID, void * extraPtr)
 	dlg->AddClusterAssoc(CTL_UNIT_FLAGS, 2, PPUnit::SI);
 	dlg->AddClusterAssoc(CTL_UNIT_FLAGS, 3, PPUnit::IntVal);
 	dlg->SetClusterData(CTL_UNIT_FLAGS, unit.Flags);
-	SetupPPObjCombo(dlg, CTLSEL_UNIT_BASE, PPOBJ_UNIT, unit.BaseUnitID, 0, (void *)PPUnit::SI);
+	SetupPPObjCombo(dlg, CTLSEL_UNIT_BASE, PPOBJ_UNIT, unit.BaseUnitID, 0, reinterpret_cast<void *>(PPUnit::SI));
 	dlg->setCtrlReal(CTL_UNIT_BASERATIO, unit.BaseRatio);
 	dlg->setCtrlReal(CTL_UNIT_ROUNDING,  unit.Rounding);
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
@@ -1181,7 +1179,7 @@ public:
 int SLAPI PersonStatusCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	Data * p_cache_rec = (Data *)pEntry;
+	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjPersonStatus ps_obj;
 	PPPersonStatus rec;
 	if(ps_obj.Search(id, &rec) > 0) {
@@ -1198,8 +1196,8 @@ int SLAPI PersonStatusCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI PersonStatusCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPPersonStatus * p_data_rec = (PPPersonStatus *)pDataRec;
-	const Data * p_cache_rec = (const Data *)pEntry;
+	PPPersonStatus * p_data_rec = static_cast<PPPersonStatus *>(pDataRec);
+	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	p_data_rec->Tag   = ObjType;
 	p_data_rec->ID    = p_cache_rec->ID;
@@ -1259,7 +1257,7 @@ int SLAPI PPObjPersonCat::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 		}
 	}
 	else {
-		THROW(Serialize_(+1, (ReferenceTbl::Rec *)p->Data, stream, pCtx));
+		THROW(Serialize_(+1, static_cast<ReferenceTbl::Rec *>(p->Data), stream, pCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -1448,7 +1446,7 @@ public:
 int SLAPI ELinkKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	Data * p_cache_rec = (Data *)pEntry;
+	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjELinkKind el_obj;
 	PPELinkKind rec;
 	if(el_obj.Search(id, &rec) > 0) {
@@ -1467,7 +1465,7 @@ int SLAPI ELinkKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 void SLAPI ELinkKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPELinkKind * p_data_rec = (PPELinkKind *)pDataRec;
-	const Data * p_cache_rec = (const Data *)pEntry;
+	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	p_data_rec->Tag   = PPOBJ_ELINKKIND;
 	p_data_rec->ID    = p_cache_rec->ID;
@@ -1645,7 +1643,7 @@ int SLAPI PPObjCurrency::AddItem(PPID * pID, PPCurrency * pCurrency, int use_ta)
 	return EditItem(PPOBJ_CURRENCY, *pID, pCurrency, use_ta);
 }
 
-StrAssocArray * SLAPI PPObjCurrency::CreateSelectorList(int asSymb, PPIDArray * pIncludeList, PPIDArray * pExcludeList)
+StrAssocArray * SLAPI PPObjCurrency::CreateSelectorList(int asSymb, PPIDArray * pIncludeList, const PPIDArray * pExcludeList)
 {
 	PPID   id = 0;
 	PPCurrency rec;
@@ -1745,7 +1743,7 @@ public:
 int SLAPI CurrencyCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	Data * p_cache_rec = (Data *)pEntry;
+	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjCurrency cur_obj;
 	PPCurrency rec;
 	if(cur_obj.Search(id, &rec) > 0) {
@@ -1764,7 +1762,7 @@ int SLAPI CurrencyCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 void SLAPI CurrencyCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPCurrency * p_data_rec = (PPCurrency *)pDataRec;
-	const Data * p_cache_rec = (const Data *)pEntry;
+	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	p_data_rec->Tag   = PPOBJ_CURRENCY;
 	p_data_rec->ID    = p_cache_rec->ID;
@@ -1882,7 +1880,7 @@ int SLAPI PPObjDynamicObjs::Write(PPObjPack * p, PPID * pID, void * stream, ObjT
 		}
 	}
 	else {
-		THROW(Serialize_(+1, (ReferenceTbl::Rec *)p->Data, stream, pCtx));
+		THROW(Serialize_(+1, static_cast<ReferenceTbl::Rec *>(p->Data), stream, pCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -2053,7 +2051,7 @@ int SLAPI PPObjGlobalUserAcc::PutPacket(PPID * pID, PPGlobalUserAccPacket * pPac
 	int    ok = 1;
 	PPID   _id = DEREFPTRORZ(pID);
 	const  int is_new = (_id == 0);
-	const  int is_removing = BIN(*pID != 0 && pPack == 0);
+	const  int is_removing = BIN(_id != 0 && pPack == 0);
 	PPID   hid = 0;
 	PPGlobalUserAccPacket org_pack;
 	{
@@ -2130,7 +2128,7 @@ int SLAPI PPObjGlobalUserAcc::Read(PPObjPack * p, PPID id, void * stream, ObjTra
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW(SerializePacket(-1, (PPGlobalUserAccPacket *)p->Data, buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
@@ -2166,7 +2164,7 @@ int SLAPI PPObjGlobalUserAcc::Write(PPObjPack * p, PPID * pID, void * stream, Ob
 		else {
 			SBuffer buffer;
 			THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 		}
 	}
 	else
@@ -2367,7 +2365,7 @@ int SLAPI PPObjGlobalUserAcc::Register(PPID & ID, const char * pName, const char
 			THROW_MEM(p_sc_obj = new PPObjSCard);
 			THROW_MEM(p_scs_obj = new PPObjSCardSeries);
 		}
-		{
+		if(p_sc_obj) {
 			PPTransaction tra(1);
 			THROW(tra);
 			MEMSZERO(glb_acc);
@@ -2382,7 +2380,7 @@ int SLAPI PPObjGlobalUserAcc::Register(PPID & ID, const char * pName, const char
 			if(p_scs_obj) {
 				PPSCardSerPacket scs_pack; // @v9.8.9 PPSCardSeries2 scs_rec --> PPSCardSerPacket scs_pack
 				//@v9.8.9 if(p_scs_obj->Fetch(cfg.SCardSerID, &scs_rec) > 0 && scs_rec.GetType() == scstCredit && scs_rec.CodeTempl) {
-				if(p_scs_obj->GetPacket(cfg.SCardSerID, &scs_pack) > 0 && scs_pack.Rec.GetType() == scstCredit && scs_pack.Eb.CodeTempl) { // @v9.8.9
+				if(p_scs_obj->GetPacket(cfg.SCardSerID, &scs_pack) > 0 && scs_pack.Rec.GetType() == scstCredit && scs_pack.Eb.CodeTempl[0]) { // @v9.8.9
 					PPID   sc_id = 0;
 					SString sc_code;
 					THROW(p_sc_obj->Create_(&sc_id, scs_pack.Rec.ID, personID, 0, sc_code, PPObjSCard::cdfCreditCard, 0));
@@ -3099,7 +3097,7 @@ int SLAPI PPObjUhttStore::PutPacket(PPID * pID, PPUhttStorePacket * pPack, int u
 	int    ok = 1;
 	PPID   _id = DEREFPTRORZ(pID);
 	const  int is_new = (_id == 0);
-	const  int is_removing = BIN(*pID != 0 && pPack == 0);
+	const  int is_removing = BIN(_id != 0 && pPack == 0);
 	PPID   hid = 0;
 	PPUhttStorePacket org_pack;
 	{
@@ -3200,7 +3198,7 @@ int SLAPI PPObjUhttStore::Read(PPObjPack * p, PPID id, void * stream, ObjTransmC
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW(SerializePacket(-1, (PPUhttStorePacket *)p->Data, buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
@@ -3236,7 +3234,7 @@ int SLAPI PPObjUhttStore::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 		else {
 			SBuffer buffer;
 			THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 		}
 	}
 	else
@@ -3288,7 +3286,7 @@ int SLAPI PPObjUhttStore::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPt
 			for(uint i = 0; i < id_list.getCount(); i++) {
 				if(Search(id_list.get(i), &us_rec) > 0) {
 					if(us_rec.PersonID == _id) { // @paranoic
-						us_rec.PersonID = (long)extraPtr;
+						us_rec.PersonID = reinterpret_cast<long>(extraPtr);
 						if(!UpdateItem(us_rec.ID, &us_rec, 0)) {
 							ok = DBRPL_ERROR;
 							break;
@@ -3362,7 +3360,7 @@ int SLAPI PPUhttStoreSelDescr::Pack()
 		void * p_pack_handle = Pack_Start();
 		if(p_pack_handle) {
 			const uint c = L.getCount();
-			for(uint i = 0; ok && i < c; i++) {
+			for(uint i = 0; i < c; i++) {
 				InnerEntry & r_item = L.at(i);
 				Pack_Replace(p_pack_handle, r_item.TitleP);
 			}
@@ -3805,7 +3803,7 @@ int SLAPI PPObjEdiProvider::Read(PPObjPack * p, PPID id, void * stream, ObjTrans
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW(SerializePacket(-1, (PPEdiProviderPacket *)p->Data, buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
@@ -3861,7 +3859,7 @@ int SLAPI PPObjEdiProvider::Write(PPObjPack * p, PPID * pID, void * stream, ObjT
 		else {
 			SBuffer buffer;
 			THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 		}
 	}
 	else

@@ -237,7 +237,7 @@ extern void jpeg_idct_1x2(j_decompress_ptr cinfo, jpeg_component_info * compptr,
  * Caution: some C compilers fail to reduce "FIX(constant)" at compile time,
  * thus causing a lot of useless floating-point operations at run time.
  */
-#define FIX(x)  ((INT32)((x) * CONST_SCALE + 0.5))
+#define FIX(x)  (static_cast<INT32>((x) * CONST_SCALE + 0.5))
 /* Descale and correctly round an INT32 value that's scaled by N bits.
  * We assume RIGHT_SHIFT rounds towards minus infinity, so adding
  * the fudge factor is correct for either sign of X.

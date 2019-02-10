@@ -126,7 +126,7 @@ bool FindMethod(DECL_EXTERNAL_CODECS_LOC_VARS const AString &name, CMethodId &me
 	uint i;
 	for(i = 0; i < g_NumCodecs; i++) {
 		const CCodecInfo &codec = *g_Codecs[i];
-		if(StringsAreEqualNoCase_Ascii(name, codec.Name)) {
+		if(sstreqi_ascii(name, codec.Name)) {
 			methodId = codec.Id;
 			numStreams = codec.NumStreams;
 			return true;
@@ -137,7 +137,7 @@ bool FindMethod(DECL_EXTERNAL_CODECS_LOC_VARS const AString &name, CMethodId &me
 	if(__externalCodecs)
 		for(i = 0; i < __externalCodecs->Codecs.Size(); i++) {
 			const CCodecInfoEx &codec = __externalCodecs->Codecs[i];
-			if(StringsAreEqualNoCase_Ascii(name, codec.Name)) {
+			if(sstreqi_ascii(name, codec.Name)) {
 				methodId = codec.Id;
 				numStreams = codec.NumStreams;
 				return true;
@@ -177,7 +177,7 @@ bool FindHashMethod(DECL_EXTERNAL_CODECS_LOC_VARS const AString &name, CMethodId
 	uint i;
 	for(i = 0; i < g_NumHashers; i++) {
 		const CHasherInfo &codec = *g_Hashers[i];
-		if(StringsAreEqualNoCase_Ascii(name, codec.Name)) {
+		if(sstreqi_ascii(name, codec.Name)) {
 			methodId = codec.Id;
 			return true;
 		}
@@ -187,7 +187,7 @@ bool FindHashMethod(DECL_EXTERNAL_CODECS_LOC_VARS const AString &name, CMethodId
 	if(__externalCodecs)
 		for(i = 0; i < __externalCodecs->Hashers.Size(); i++) {
 			const CHasherInfoEx &codec = __externalCodecs->Hashers[i];
-			if(StringsAreEqualNoCase_Ascii(name, codec.Name)) {
+			if(sstreqi_ascii(name, codec.Name)) {
 				methodId = codec.Id;
 				return true;
 			}

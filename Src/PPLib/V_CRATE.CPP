@@ -24,7 +24,7 @@ PPBaseFilt * SLAPI PPViewCurRate::CreateFilt(void * extraPtr) const
 	PPBaseFilt * p_base_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_CURRATE, &p_base_filt)) {
 		const PPConfig & r_cfg = LConfig;
-		((CurRateFilt *)p_base_filt)->CurID = (long)extraPtr;
+		((CurRateFilt *)p_base_filt)->CurID = reinterpret_cast<long>(extraPtr);
 		((CurRateFilt *)p_base_filt)->Period.upp = r_cfg.OperDate;
 		((CurRateFilt *)p_base_filt)->BaseCurID  = r_cfg.BaseCurID;
 		((CurRateFilt *)p_base_filt)->RateTypeID = r_cfg.BaseRateTypeID;
@@ -295,7 +295,7 @@ public:
 		EnableRateType = enableRateType;
 		MEMSZERO(SelIdent);
 		SelRate = 0;
-		P_List = (SmartListBox*)getCtrlView(CTL_SELCRATE_LIST);
+		P_List = static_cast<SmartListBox *>(getCtrlView(CTL_SELCRATE_LIST));
 		if(!SetupStrListBox(P_List))
 			PPError();
 		::SetupCurrencyCombo(this, CTLSEL_SELCRATE_CUR, Filt.CurID, 0, 1, 0);

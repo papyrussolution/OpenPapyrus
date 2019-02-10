@@ -110,10 +110,10 @@ private:
 
 IMPL_CMPCFUNC(SFSortChunkInfo, i1, i2)
 {
-	const SFSortChunkInfo * ptr1 = (const SFSortChunkInfo *)i1;
-	const SFSortChunkInfo * ptr2 = (const SFSortChunkInfo *)i2;
+	const SFSortChunkInfo * ptr1 = static_cast<const SFSortChunkInfo *>(i1);
+	const SFSortChunkInfo * ptr2 = static_cast<const SFSortChunkInfo *>(i2);
 	if(pExtraData) {
-		return ((CompFunc)pExtraData)(ptr1->First, ptr2->First, 0);
+		return static_cast<CompFunc>(pExtraData)(ptr1->First, ptr2->First, 0);
 	}
 	else {
 		return ptr1->First.CmpNC(ptr2->First);
@@ -212,11 +212,9 @@ int SLAPI SFSortChunkInfo::ShiftNext()
 //
 //
 SLAPI SFSortChunkInfoList::SFSortChunkInfoList(const char * pSrcFileName, uint maxChunkCount, CompFunc fcmp, SFile::SortParam * pSp) :
-	TSCollection <SFSortChunkInfo>(), MaxFlashAccumBufLen(1024*1024),
-	SrcFileName(pSrcFileName), MaxChunkCount(maxChunkCount), FCmp(fcmp)
+	TSCollection <SFSortChunkInfo>(), MaxFlashAccumBufLen(1024*1024), SrcFileName(pSrcFileName), MaxChunkCount(maxChunkCount), FCmp(fcmp), P_Parent(0)
 {
 	assert(MaxChunkCount > 1);
-	P_Parent = 0;
 	RVALUEPTR(Sp, pSp);
 }
 

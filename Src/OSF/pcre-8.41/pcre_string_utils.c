@@ -62,7 +62,6 @@ int PRIV(strcmp_uc_uc) (const pcre_uchar *str1, const pcre_uchar *str2)
 {
 	pcre_uchar c1;
 	pcre_uchar c2;
-
 	while(*str1 != '\0' || *str2 != '\0') {
 		c1 = *str1++;
 		c2 = *str2++;
@@ -79,7 +78,6 @@ int PRIV(strcmp_uc_uc_utf) (const pcre_uchar *str1, const pcre_uchar *str2)
 {
 	pcre_uchar c1;
 	pcre_uchar c2;
-
 	while(*str1 != '\0' || *str2 != '\0') {
 		c1 = UCHAR21INC(str1);
 		c2 = UCHAR21INC(str2);
@@ -97,7 +95,6 @@ int PRIV(strcmp_uc_c8) (const pcre_uchar *str1, const char * str2)
 	const pcre_uint8 * ustr2 = (pcre_uint8*)str2;
 	pcre_uchar c1;
 	pcre_uchar c2;
-
 	while(*str1 != '\0' || *ustr2 != '\0') {
 		c1 = *str1++;
 		c2 = (pcre_uchar)*ustr2++;

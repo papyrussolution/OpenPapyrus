@@ -704,9 +704,11 @@
 	#define PPACN_GSTRUCATTACHED   82L // @v10.2.1 К товару привязана товарная структура
 	#define PPACN_GSTRUCDETACHED   83L // @v10.2.1 От товара отвязана товарная структура
 	#define PPACN_GSTRUCCUPD       84L // @v10.2.1 Изменился компонентный состав товарной структуры (добавлен или удален компонент)
+	#define PPACN_TSSERIESUPD      85L // @v10.3.3 Изменена временная серия
+	#define PPACN_TSSTRATEGYUPD    86L // @v10.3.3 Изменена стратегия временной серии
 
 	// !!! При вставке нового значения изменить PPACN_LAST !!!
-	#define PPACN_LAST             84L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
+	#define PPACN_LAST             86L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
 	//
 	// Далее следуют идентификаторы событий, которые не отображаются в системном журнале, однако
 	// должны быть в том же поле идентификаторов, что и PPACN_XXX поскольку заносятся в очередь
@@ -975,8 +977,10 @@
 	#define PPUPRF_OSMXMLPARSETAG    72 // @v9.5.8
 	#define PPUPRF_BUILDGOODSFL      73 // @v10.1.4
 	#define PPUPRF_SRCHINGOODSFL     74 // @v10.1.4
+	#define PPUPRF_TIMSERWRITE       75 // @v10.3.3
+	#define PPUPRF_TSEVALSTAKES      76 // @v10.3.3
 
-	#define PPUPRF_LAST              75
+	#define PPUPRF_LAST              77 // @v10.3.3 75-->77
 #define PPOBJ_EDIPROVIDER	74L // Провайдеры EDI-обмена
 	#define EDIPRVPRP_EXTSTRING       1L // Текстовые данные пакета
 #define PPOBJ_USREXCLRIGHTS 75L // Исключения для пользовательских прав доступа при некоторых действиях
@@ -10585,6 +10589,7 @@
 	#define CTL_TIMSERCFG_ALIMABS     (4 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSERCFG_MINPOTENT   (5 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSERCFG_LIST        (6 + WINDOWS_ID_BIAS)
+	#define CTL_TIMSERCFG_TSFLSHTMR   (7 + WINDOWS_ID_BIAS)
 #define DLG_TIMSERCFGITEM         1356
 	#define CTL_TIMSERCFGITEM_FLAGS   (1 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSERCFGITEM_TS      (2 + WINDOWS_ID_BIAS)

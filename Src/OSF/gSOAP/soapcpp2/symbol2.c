@@ -4766,10 +4766,8 @@ void gen_serve_method(FILE * fd, Table * table, Entry * param, char * name)
 		      fprintf(fd, ", ");
 	      if(response)
 		      fprintf(fd, "soap_tmp_%s.%s);", c_ident(response->info.typ), ident(pout->sym->name));
-	      else if(pout->info.typ->type == Treference &&
-		      (((Tnode *)pout->info.typ->ref)->type == Tstruct ||
-		       ((Tnode *)pout->info.typ->ref)->type == Tclass) &&
-		      !is_stdstring((Tnode *)pout->info.typ->ref) &&
+	      else if(pout->info.typ->type == Treference && (((Tnode *)pout->info.typ->ref)->type == Tstruct ||
+		       ((Tnode *)pout->info.typ->ref)->type == Tclass) && !is_stdstring((Tnode *)pout->info.typ->ref) &&
 		      !is_stdwstring((Tnode *)pout->info.typ->ref) && !is_dynamic_array((Tnode *)pout->info.typ->ref))
 		      fprintf(fd, "%s);", ident(pout->sym->name));
 	      else if((((Tnode *)pout->info.typ->ref)->type == Tstruct || ((Tnode *)pout->info.typ->ref)->type ==
@@ -5361,20 +5359,20 @@ void gen_field(FILE * fd, int n, Entry * p, char * nse, char * nsa, char * encod
 			      fflush(fd);
 			      gen_val(fd, n, (Tnode *)p->info.typ->ref, nse, nsa, encoding);
 		      }
-		      else if(p->info.typ->type == Tstruct || p->info.typ->type == Tclass) { /*
-				                                                                if(!is_primclass(p->info.typ))
-				                                                                { char *nse1 = ns_qualifiedElement(p->info.typ);
-				                                                                char *nsa1 = ns_qualifiedAttribute(p->info.typ);
-				                                                                if(nse1)
-				                                                                 nse = nse1;
-				                                                                if(nsa1)
-				                                                                 nsa = nsa1;
-				                                                                }
-				                                                              */
+		      else if(p->info.typ->type == Tstruct || p->info.typ->type == Tclass) { 
+				/* 
+				if(!is_primclass(p->info.typ)) { 
+					char *nse1 = ns_qualifiedElement(p->info.typ);
+					char *nsa1 = ns_qualifiedAttribute(p->info.typ);
+					if(nse1)
+						nse = nse1;
+					if(nsa1)
+						nsa = nsa1;
+				}
+				*/
 			      if(!is_invisible(p->sym->name)) {
 				      if(yflag)
-					      fprintf(fd, "%*s<!-- %s -->\n", n, "",
-						      c_type_id(p->info.typ, p->sym->name));
+					      fprintf(fd, "%*s<!-- %s -->\n", n, "", c_type_id(p->info.typ, p->sym->name));
 				      gen_element_begin(fd, n, ns_add(p->sym->name, nse), xsi_type_u(p->info.typ));
 				      gen_atts(fd, n, (Table *)p->info.typ->ref, nsa);
 			      }
@@ -5382,21 +5380,20 @@ void gen_field(FILE * fd, int n, Entry * p, char * nse, char * nsa, char * encod
 				      fprintf(fd, "%*s<!-- extensibility element(s) -->\n", n, "");
 		      }
 		      else if((p->info.typ->type == Tpointer || p->info.typ->type == Treference) &&
-			      (((Tnode *)p->info.typ->ref)->type == Tstruct || ((Tnode *)p->info.typ->ref)->type ==
-			       Tclass)) { /*
-				             if(!is_primclass(p->info.typ->ref))
-				             { char *nse1 = ns_qualifiedElement(p->info.typ->ref);
-				             char *nsa1 = ns_qualifiedAttribute(p->info.typ->ref);
-				             if(nse1)
-				              nse = nse1;
-				             if(nsa1)
-				              nsa = nsa1;
-				             }
-				           */
+			      (((Tnode *)p->info.typ->ref)->type == Tstruct || ((Tnode *)p->info.typ->ref)->type == Tclass)) { 
+					/*
+					if(!is_primclass(p->info.typ->ref)) { 
+						char *nse1 = ns_qualifiedElement(p->info.typ->ref);
+						char *nsa1 = ns_qualifiedAttribute(p->info.typ->ref);
+						if(nse1)
+							nse = nse1;
+						if(nsa1)
+							nsa = nsa1;
+					}
+					*/
 			      if(!is_invisible(p->sym->name)) {
 				      if(yflag)
-					      fprintf(fd, "%*s<!-- %s -->\n", n, "",
-						      c_type_id(p->info.typ, p->sym->name));
+					      fprintf(fd, "%*s<!-- %s -->\n", n, "", c_type_id(p->info.typ, p->sym->name));
 				      gen_element_begin(fd, n, ns_add(p->sym->name, nse), xsi_type_u(p->info.typ));
 				      gen_atts(fd, n, (Table *)((Tnode *)p->info.typ->ref)->ref, nsa);
 			      }
@@ -5404,7 +5401,7 @@ void gen_field(FILE * fd, int n, Entry * p, char * nse, char * nsa, char * encod
 				      fprintf(fd, "%*s<!-- extensibility element(s) -->\n", n, "");
 		      }
 		      else if(p->info.typ->type != Tunion) {
-			      if(!is_invisible(p->sym->name))                                       {
+			      if(!is_invisible(p->sym->name)) {
 				      if(yflag)
 					      fprintf(fd, "%*s<!-- %s -->\n", n, "", c_type_id(p->info.typ, p->sym->name));
 				      gen_element_begin(fd, n, ns_add(p->sym->name, nse), xsi_type_u(p->info.typ));
@@ -12128,7 +12125,7 @@ void soap_in(Tnode * typ)
 			}
 			fflush(fout);
 			if(!is_invisible(typ->id->name)) {
-				if(!is_discriminant(typ))                                   {
+				if(!is_discriminant(typ)) {
 					fprintf(fout, "\n\tif(soap->body && !*soap->href) {\n");
 					fprintf(fout, "\t\tfor(;;) {\n\t\t\tsoap->error = SOAP_TAG_MISMATCH;");
 				}
@@ -12594,8 +12591,7 @@ void soap_in(Tnode * typ)
 
 	    case Tunion:
 		if(is_external(typ)) {
-			fprintf(fhead, "\nSOAP_FMAC1 %s SOAP_FMAC2 soap_in_%s(struct soap*, int*, %s);",
-				c_type_id(typ, "*"), c_ident(typ), c_type_id(typ, "*"));
+			fprintf(fhead, "\nSOAP_FMAC1 %s SOAP_FMAC2 soap_in_%s(struct soap*, int*, %s);", c_type_id(typ, "*"), c_ident(typ), c_type_id(typ, "*"));
 			return;
 		}
 		fprintf(fhead, "\nSOAP_FMAC3 %s FASTCALL soap_in_%s(struct soap*, int*, %s);", c_type_id(typ, "*"), c_ident(typ), c_type_id(typ, "*"));
@@ -12617,11 +12613,9 @@ void soap_in(Tnode * typ)
 			else if(!is_invisible(p->sym->name)) {
 				if(is_unmatched(p->sym)) {
 					if(is_XML(p->info.typ) && is_string(p->info.typ))
-						fprintf(fout, "\n\tif(soap->error == SOAP_TAG_MISMATCH && soap_inliteral(soap, NULL, &a->%s))",
-							ident(p->sym->name));
+						fprintf(fout, "\n\tif(soap->error == SOAP_TAG_MISMATCH && soap_inliteral(soap, NULL, &a->%s))", ident(p->sym->name));
 					else if(is_XML(p->info.typ) && is_wstring(p->info.typ))
-						fprintf(fout, "\n\tif(soap->error == SOAP_TAG_MISMATCH && soap_inwliteral(soap, NULL, &a->%s))",
-							ident(p->sym->name));
+						fprintf(fout, "\n\tif(soap->error == SOAP_TAG_MISMATCH && soap_inwliteral(soap, NULL, &a->%s))", ident(p->sym->name));
 					else if(p->info.typ->type == Tarray)
 						fprintf(fout, "\n\tif(soap->error == SOAP_TAG_MISMATCH && soap_in_%s(soap, NULL, a->%s, \"%s\"))",
 							c_ident(p->info.typ), ident(p->sym->name), xsi_type(p->info.typ));

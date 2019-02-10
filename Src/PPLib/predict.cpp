@@ -1,5 +1,5 @@
 // PREDICT.CPP
-// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -93,7 +93,7 @@ LocValEntry * FASTCALL LocValList::GetEntry(PPID locID)
 		if(p_entry->LocID == locID)
 			return p_entry;
 	AddEntry(locID, 0);
-	p_entry = (LocValEntry *)at(getCount()-1);
+	p_entry = static_cast<LocValEntry *>(at(getCount()-1));
 	return p_entry;
 }
 //
@@ -1031,7 +1031,7 @@ int SLAPI PrcssrPrediction::Run()
 						goods_list.clear();
 						++chunk_count;
 						Stat.Time = diffdatetimesec(getcurdatetime_(), TimerStart);
-						long   total = (long)((double)goods_count * (double)Stat.Time / (double)goods_processed);
+						long   total = (long)(goods_count * fdivi(Stat.Time, goods_processed));
 						long   pct   = goods_count ? ((100L * goods_processed) / goods_count) : 100L;
 						LTIME  rest_time;
 						rest_time.settotalsec(total - Stat.Time);
@@ -1083,7 +1083,7 @@ int SLAPI PrcssrPrediction::Run()
 		}
 		if(goods_processed) {
 			Stat.Time  = diffdatetimesec(getcurdatetime_(), TimerStart);
-			long   total = (long)((double)goods_count * (double)Stat.Time / (double)goods_processed);
+			long   total = (long)(goods_count * fdivi(Stat.Time, goods_processed));
 			long   pct   = goods_count ? ((100L * goods_processed) / goods_count) : 100L;
 			LTIME  rest_time;
 			rest_time.settotalsec(total - Stat.Time);

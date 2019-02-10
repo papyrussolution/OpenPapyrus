@@ -258,7 +258,7 @@ int SLAPI PPObjStaffList::Read(PPObjPack * p, PPID id, void * stream, ObjTransmC
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW(SerializePacket(-1, static_cast<PPStaffPacket *>(p->Data), buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
@@ -310,7 +310,7 @@ int SLAPI PPObjStaffList::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 		else {
 			SBuffer buffer;
 			THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 		}
 	}
 	CATCHZOK
@@ -1301,7 +1301,7 @@ private:
 int SLAPI StaffListCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	Data * p_cache_rec = (Data *)pEntry;
+	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjStaffList sl_obj;
 	PPStaffEntry rec;
 	if(sl_obj.Search(id, &rec) > 0) {
@@ -1323,7 +1323,7 @@ int SLAPI StaffListCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 void SLAPI StaffListCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPStaffEntry * p_data_rec = (PPStaffEntry *)pDataRec;
-	const Data * p_cache_rec = (const Data *)pEntry;
+	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	#define FLD(f) p_data_rec->f = p_cache_rec->f
 	FLD(ID);
@@ -1373,7 +1373,7 @@ private:
 int SLAPI PersonPostCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	Data * p_cache_rec = (Data *)pEntry;
+	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjStaffList sl_obj;
 	PersonPostTbl::Rec rec;
 	if(sl_obj.SearchPost(id, &rec) > 0) {
@@ -1394,7 +1394,7 @@ int SLAPI PersonPostCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 void SLAPI PersonPostCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PersonPostTbl::Rec * p_data_rec = (PersonPostTbl::Rec *)pDataRec;
-	const Data * p_cache_rec = (const Data *)pEntry;
+	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	#define FLD(f) p_data_rec->f = p_cache_rec->f
 	FLD(ID);

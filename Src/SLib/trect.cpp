@@ -1,5 +1,5 @@
 // TRECT.CPP
-// ..2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017, 2018
+// ..2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -776,8 +776,8 @@ TRect & TRect::set(int x1, int y1, int x2, int y2)
 
 TRect & TRect::set(const FRect & rR)
 {
-	a.Set((int)floor(rR.a.X), (int)floor(rR.a.Y));
-	b.Set((int)ceil(rR.b.X), (int)ceil(rR.b.Y));
+	a.Set(ffloori(rR.a.X), ffloori(rR.a.Y));
+	b.Set(fceili(rR.b.X), fceili(rR.b.Y));
 	return *this;
 }
 

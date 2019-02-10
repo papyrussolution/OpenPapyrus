@@ -772,22 +772,25 @@ int SLAPI PPObjOprKind::GetPoolExData(PPID id, PPBillPoolOpEx * pData)
 	return -1;
 }
 
-int SLAPI PPObjOprKind::GetPaymentOpList(PPID linkOpID, PPIDArray * pList)
+int SLAPI PPObjOprKind::Helper_GetOpListByLink(PPID opTypeID, PPID linkOpID, PPIDArray * pList)
 {
 	int    ok = 1;
-	PROFILE_START
-	if(pList) {
+	if(opTypeID && pList) {
+		PROFILE_START
 		PPOprKind op_rec;
 		for(SEnum en = ref->Enum(PPOBJ_OPRKIND, 0); ok && en.Next(&op_rec) > 0;) {
-			if(op_rec.OpTypeID == PPOPT_PAYMENT && (!linkOpID || op_rec.LinkOpID == linkOpID)) {
+			if(op_rec.OpTypeID == opTypeID && (!linkOpID || op_rec.LinkOpID == linkOpID)) {
 				if(!pList->add(op_rec.ID))
 					ok = PPSetErrorSLib();
 			}
 		}
+		PROFILE_END
 	}
-	PROFILE_END
 	return ok;
 }
+
+int SLAPI PPObjOprKind::GetPaymentOpList(PPID linkOpID, PPIDArray * pList) { return Helper_GetOpListByLink(PPOPT_PAYMENT, linkOpID, pList); }
+int SLAPI PPObjOprKind::GetCorrectionOpList(PPID linkOpID, PPIDArray * pList) { return Helper_GetOpListByLink(PPOPT_CORRECTION, linkOpID, pList); }
 
 int FASTCALL GetOpList(PPID opTypeID, PPIDArray * pList)
 {
@@ -1311,7 +1314,7 @@ class OprKindDialog : public TDialog {
 public:
 	OprKindDialog(uint rezID, PPOprKindPacket * pData) : TDialog(rezID), P_Data(pData), P_AtObj(BillObj->atobj)
 	{
-		P_ListBox = (SmartListBox*)getCtrlView(CTL_OPRKIND_LIST);
+		P_ListBox = static_cast<SmartListBox *>(getCtrlView(CTL_OPRKIND_LIST));
 		IsGeneric = BIN(P_Data->Rec.OpTypeID == PPOPT_GENERIC);
 		IsDraft   = BIN(oneof3(P_Data->Rec.OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT));
 		if(P_ListBox) {
@@ -2849,7 +2852,7 @@ int SLAPI PPObjOprKind::Read(PPObjPack * p, PPID id, void * stream, ObjTransmCon
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW(SerializePacket(-1, static_cast<PPOprKindPacket *>(p->Data), buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
@@ -2887,7 +2890,7 @@ int SLAPI PPObjOprKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTrans
 		else {
 			SBuffer buffer;
 			THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 		}
 	}
 	else

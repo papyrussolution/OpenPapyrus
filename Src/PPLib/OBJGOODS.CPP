@@ -2429,7 +2429,7 @@ int SLAPI PPObjGoods::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	else if(msg == DBMSG_OBJREPLACE) {
 		switch(_obj) {
 			case PPOBJ_GOODS:
-				ok = Unite(_id, (long)extraPtr) ? DBRPL_OK : DBRPL_ERROR;
+				ok = Unite(_id, reinterpret_cast<long>(extraPtr)) ? DBRPL_OK : DBRPL_ERROR;
 				break;
 			case PPOBJ_PERSON:
 				{
@@ -2442,7 +2442,7 @@ int SLAPI PPObjGoods::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 					for(uint i = 0; i < id_list.getCount(); i++) {
 						PPID   key_id = id_list.get(i);
 						if(SearchByKey_ForUpdate(P_Tbl, 0, &key_id, &rec) > 0 && rec.ManufID == _id) {
-							rec.ManufID = (long)extraPtr;
+							rec.ManufID = reinterpret_cast<long>(extraPtr);
 							THROW_DB(P_Tbl->updateRecBuf(&rec)); // @sfu
 							Dirty(rec.ID);
 						}
@@ -2460,7 +2460,7 @@ int SLAPI PPObjGoods::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 					for(uint i = 0; i < id_list.getCount(); i++) {
 						PPID   key_id = id_list.get(i);
 						if(SearchByKey_ForUpdate(P_Tbl, 0, &key_id, &rec) > 0 && rec.TaxGrpID == _id) {
-							rec.TaxGrpID = (long)extraPtr;
+							rec.TaxGrpID = reinterpret_cast<long>(extraPtr);
 							THROW_DB(P_Tbl->updateRecBuf(&rec)); // @sfu
 							Dirty(rec.ID);
 						}
@@ -2468,7 +2468,7 @@ int SLAPI PPObjGoods::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				}
 				break;
 			case PPOBJ_ARTICLE:
-				ok = P_Tbl->ReplaceArticleRefs(_id, (long)extraPtr, 0) ? DBRPL_OK : DBRPL_ERROR;
+				ok = P_Tbl->ReplaceArticleRefs(_id, reinterpret_cast<long>(extraPtr), 0) ? DBRPL_OK : DBRPL_ERROR;
 				break;
 			case PPOBJ_UNIT:
 				{
@@ -2482,9 +2482,9 @@ int SLAPI PPObjGoods::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 						PPID   key_id = id_list.get(i);
 						if(SearchByKey_ForUpdate(P_Tbl, 0, &key_id, &rec) > 0) {
 							if(rec.UnitID == _id)
-								rec.UnitID = (long)extraPtr;
+								rec.UnitID = reinterpret_cast<long>(extraPtr);
 							if(rec.PhUnitID == _id)
-								rec.PhUnitID = (long)extraPtr;
+								rec.PhUnitID = reinterpret_cast<long>(extraPtr);
 							THROW_DB(P_Tbl->updateRecBuf(&rec)); // @sfu
 							Dirty(rec.ID);
 						}
@@ -2506,7 +2506,7 @@ int SLAPI PPObjGoods::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 						PPID   key_id = id_list.get(i);
 						if(SearchByKey_ForUpdate(P_Tbl, 0, &key_id, &rec) > 0) {
 							if(rec.BrandID == _id)
-								rec.BrandID = (long)extraPtr;
+								rec.BrandID = reinterpret_cast<long>(extraPtr);
 							THROW_DB(P_Tbl->updateRecBuf(&rec)); // @sfu
 							Dirty(rec.ID);
 						}
@@ -2887,7 +2887,7 @@ ListBoxDef * SLAPI PPObjGoods::_Selector2(ListBoxDef * pDef, long parent, long o
 	}
 	const  int  code_prefix = BIN(DS.CheckExtFlag(ECF_CODEPREFIXEDLIST));
 	const  long grp   = (parent == LONG_MIN) ? 0 : labs(parent);
-	const  long brand = (options & selfExtLongAsBrand) ? (long)extraPtr : 0;
+	const  long brand = (options & selfExtLongAsBrand) ? reinterpret_cast<long>(extraPtr) : 0;
 	const  int  exist_only = BIN(parent < 0);
 	const  int  dont_sel_passive = (options & selfHidePassive) ? 1 : ((options & selfForcePassive) ? 0 : BIN(GetConfig().Flags & GCF_DONTSELPASSIVE));
 	const  PPID loc_id = NZOR(locID, LConfig.Location);
@@ -2905,8 +2905,8 @@ ListBoxDef * SLAPI PPObjGoods::_Selector2(ListBoxDef * pDef, long parent, long o
 		GoodsCore * p_tbl = P_Tbl;
 		BExtQuery q(p_tbl, (options & selfByName) ? 2 : 4);
 		DBQ * dbq = &(p_tbl->Kind == Kind);
-		if(Kind == PPGDSK_TRANSPORT && (long)extraPtr)
-			dbq = &(*dbq && p_tbl->GdsClsID == (long)extraPtr);
+		if(Kind == PPGDSK_TRANSPORT && reinterpret_cast<long>(extraPtr))
+			dbq = &(*dbq && p_tbl->GdsClsID == reinterpret_cast<long>(extraPtr));
 		q.select(p_tbl->ID, p_tbl->Name, p_tbl->GoodsTypeID, p_tbl->Flags, 0L).where(*dbq);
 		MEMSZERO(k_);
 		k_.k2.Kind = Kind;
@@ -3260,9 +3260,9 @@ int SLAPI PPObjGoods::GetHierarchy(PPID goodsID, StrAssocArray * pList)
 }
 
 ListBoxDef * SLAPI PPObjGoods::Selector(void * extraPtr)
-	{ return (ImplementFlags & implStrAssocMakeList) ? PPObject::Selector(extraPtr) : _Selector2(0, (long)extraPtr, 0, 0, 0, 0); }
+	{ return (ImplementFlags & implStrAssocMakeList) ? PPObject::Selector(extraPtr) : _Selector2(0, reinterpret_cast<long>(extraPtr), 0, 0, 0, 0); }
 int SLAPI PPObjGoods::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
-	{ return (ImplementFlags & implStrAssocMakeList) ? PPObject::UpdateSelector(pDef, extraPtr) : BIN(_Selector2(pDef, (long)extraPtr, 0, 0, 0, 0)); }
+	{ return (ImplementFlags & implStrAssocMakeList) ? PPObject::UpdateSelector(pDef, extraPtr) : BIN(_Selector2(pDef, reinterpret_cast<long>(extraPtr), 0, 0, 0, 0)); }
 
 int SLAPI PPObjGoods::Browse(void * extraPtr /*groupID*/)
 {
@@ -3694,7 +3694,7 @@ int SLAPI PPObjGoods::Read(PPObjPack * p, PPID id, void * stream, ObjTransmConte
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW(SerializePacket(-1, gp, buffer, &pCtx->SCtx, pCtx->P_DestDbDivPack));
 	}
 	CATCHZOK
@@ -3860,7 +3860,7 @@ int SLAPI PPObjGoods::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 		else {
 			SBuffer buffer;
 			THROW(SerializePacket(+1, gp, buffer, &pCtx->SCtx, pCtx->P_DestDbDivPack));
-			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 		}
 	}
 	else

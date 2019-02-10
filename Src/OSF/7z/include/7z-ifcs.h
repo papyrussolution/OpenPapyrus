@@ -3144,8 +3144,8 @@ struct CArcInfoEx {
 		return s;
 	}*/
 	void   AddExts(const UString &ext, const UString &addExt);
-	bool   IsSplit() const { return StringsAreEqualNoCase_Ascii(Name, "Split"); }
-	// bool IsRar() const { return StringsAreEqualNoCase_Ascii(Name, "Rar"); }
+	bool   IsSplit() const { return sstreqi_ascii(Name, "Split"); }
+	// bool IsRar() const { return sstreqi_ascii(Name, "Rar"); }
 
 	uint32 Flags;
 	Func_CreateInArchive CreateInArchive;

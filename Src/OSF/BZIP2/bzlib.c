@@ -29,6 +29,7 @@
  */
 
 #include "bzlib_private.h"
+#pragma hdrstop
 
 /*---------------------------------------------------*/
 /*--- Compression stuff                           ---*/

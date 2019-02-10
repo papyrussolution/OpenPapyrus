@@ -191,7 +191,7 @@ int SLAPI PPObjBillStatus::Read(PPObjPack * p, PPID id, void * stream, ObjTransm
 		THROW(Search(id, (PPBillStatus*)p->Data) > 0);
 	}
 	else {
-		THROW(Serialize_(-1, (ReferenceTbl::Rec *)p->Data, stream, pCtx));
+		THROW(Serialize_(-1, static_cast<ReferenceTbl::Rec *>(p->Data), stream, pCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -224,7 +224,7 @@ int SLAPI PPObjBillStatus::Write(PPObjPack * p, PPID * pID, void * stream, ObjTr
 			}
 		}
 		else {
-			THROW(Serialize_(+1, (ReferenceTbl::Rec *)p->Data, stream, pCtx));
+			THROW(Serialize_(+1, static_cast<ReferenceTbl::Rec *>(p->Data), stream, pCtx));
 		}
 	}
 	CATCHZOK
@@ -265,7 +265,7 @@ public:
 int SLAPI BillStatusCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	Data * p_cache_rec = (Data *)pEntry;
+	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjBillStatus bs_obj;
 	PPBillStatus rec;
 	if(bs_obj.Search(id, &rec) > 0) {
@@ -290,7 +290,7 @@ int SLAPI BillStatusCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 void SLAPI BillStatusCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPBillStatus * p_data_rec = (PPBillStatus *)pDataRec;
-	const Data * p_cache_rec = (const Data *)pEntry;
+	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	p_data_rec->Tag   = PPOBJ_BILLSTATUS;
 	p_data_rec->ID    = p_cache_rec->ID;

@@ -375,12 +375,9 @@ int __bam_adjust(DBC * dbc, int32 adjust)
 	return 0;
 }
 /*
- * __bam_nrecs --
  *	Return the number of records in the tree.
- *
- * PUBLIC: int __bam_nrecs __P((DBC *, db_recno_t *));
  */
-int __bam_nrecs(DBC * dbc, db_recno_t * rep)
+int FASTCALL __bam_nrecs(DBC * dbc, db_recno_t * rep)
 {
 	DB * dbp;
 	DB_LOCK lock;

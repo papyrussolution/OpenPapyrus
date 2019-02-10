@@ -138,7 +138,7 @@ int SLAPI PPObjGoodsClass::Read(PPObjPack * p, PPID id, void * stream, ObjTransm
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW(SerializePacket(-1, static_cast<PPGdsClsPacket *>(p->Data), buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
@@ -174,7 +174,7 @@ int SLAPI PPObjGoodsClass::Write(PPObjPack * p, PPID * pID, void * stream, ObjTr
 		else {
 			SBuffer buffer;
 			THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 		}
 	}
 	else

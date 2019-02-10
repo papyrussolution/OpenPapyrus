@@ -1,5 +1,5 @@
 // SCOMPORT.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2006, 2010, 2011, 2013, 2014, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2001, 2002, 2006, 2010, 2011, 2013, 2014, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -7,22 +7,22 @@
 //
 //
 //
-int SLAPI IsComDvcSymb(const char * pSymb, int * pCount)
+int FASTCALL IsComDvcSymb(const char * pSymb, int * pCount)
 {
 	int    count = 0;
 	int    comdvcs = 0;
 	char   temp_buf[32];
 	if(pSymb) {
-		long   s_com = 0x004D4F43L; // "COM"
-		long   s_lpt = 0x0054504CL; // "LPT"
-		long   s_prn = 0x004E5250L; // "PRN"
-		long   s_con = 0x004E4F43L; // "CON"
+		//long   s_com = 0x004D4F43L; // "COM"
+		//long   s_lpt = 0x0054504CL; // "LPT"
+		//long   s_prn = 0x004E5250L; // "PRN"
+		//long   s_con = 0x004E4F43L; // "CON"
 		memzero(temp_buf, sizeof(temp_buf));
-		if(stricmp(pSymb, (char *)&s_prn) == 0)
+		if(sstreqi_ascii(pSymb, "PRN"))
 			comdvcs = comdvcsPrn;
-		else if(stricmp(pSymb, (char *)&s_con) == 0)
+		else if(sstreqi_ascii(pSymb, "CON"))
 			comdvcs = comdvcsCon;
-		else if(strnicmp(pSymb, (char *)&s_com, 3) == 0) {
+		else if(strnicmp(pSymb, "COM", 3) == 0) {
 			comdvcs = comdvcsCom;
 			if(pSymb[3])
 				temp_buf[0] = pSymb[3];
@@ -30,7 +30,7 @@ int SLAPI IsComDvcSymb(const char * pSymb, int * pCount)
 				temp_buf[1] = pSymb[4];
 			count = atoi(temp_buf);
 		}
-		else if(strnicmp(pSymb, (char *)&s_lpt, 3) == 0) {
+		else if(strnicmp(pSymb, "LPT", 3) == 0) {
 			comdvcs = comdvcsLpt;
 			if(pSymb[3])
 				temp_buf[0] = pSymb[3];
@@ -43,21 +43,21 @@ int SLAPI IsComDvcSymb(const char * pSymb, int * pCount)
 
 SString & SLAPI GetComDvcSymb(int comdvcs, int count, int option, SString & rBuf)
 {
-	const long   s_com = 0x004D4F43L; // "COM"
-	const long   s_lpt = 0x0054504CL; // "LPT"
-	const long   s_prn = 0x004E5250L; // "PRN"
-	const long   s_con = 0x004E4F43L; // "CON"
+	//const long   s_com = 0x004D4F43L; // "COM"
+	//const long   s_lpt = 0x0054504CL; // "LPT"
+	//const long   s_prn = 0x004E5250L; // "PRN"
+	//const long   s_con = 0x004E4F43L; // "CON"
 	rBuf.Z();
 	if(option & 0x0001)
 		rBuf.CatCharN('\\', 2).Dot().CatChar('\\');
 	if(comdvcs == comdvcsPrn)
-		rBuf.Cat((char *)&s_prn);
+		rBuf.Cat("PRN");
 	else if(comdvcs == comdvcsCon)
-		rBuf.Cat((char *)&s_con);
+		rBuf.Cat("CON");
 	else if(comdvcs == comdvcsCom)
-		rBuf.Cat((char *)&s_com).Cat(count);
+		rBuf.Cat("COM").Cat(count);
 	else if(comdvcs == comdvcsLpt)
-		rBuf.Cat((char *)&s_lpt).Cat(count);
+		rBuf.Cat("LPT").Cat(count);
 	return rBuf;
 }
 //
@@ -231,12 +231,12 @@ int FASTCALL SCommPort::GetChr(int * pChr)
 	char   buf[32];
 	DWORD  sz = 1;
 	if(H_Port != INVALID_HANDLE_VALUE) {
+		const int cycle_count = (ReadCycleCount > 0) ? ReadCycleCount : 1;
+		const int cycle_delay = (ReadCycleDelay > 0) ? ReadCycleDelay : 0;
 		int    r = 0;
-		int    cycle_count = (ReadCycleCount > 0) ? ReadCycleCount : 1;
-		int    cycle_delay = (ReadCycleDelay > 0) ? ReadCycleDelay : 0;
 		int    collision = 0;
 		for(int i = 0; !ok && i < cycle_count; i++) {
-			r = ReadFile(H_Port, buf, 1, &sz, 0);
+			r = ::ReadFile(H_Port, buf, 1, &sz, 0);
 			if(r && sz == 1) {
 				// @debug {
 				if(collision) {
@@ -328,12 +328,10 @@ int SLAPI SCommPort::GetChr()
 
 int FASTCALL SCommPort::PutChr(int c)
 {
-	char   buf[32];
+	char   buf[8];
 	DWORD  sz = 1;
 	buf[0] = c;
 	buf[1] = 0;
-	int    r = (H_Port != INVALID_HANDLE_VALUE &&
-		WriteFile(H_Port, buf, sz, &sz, 0) && sz == 1) ? 1 : (SLibError = SLERR_COMMSEND, 0);
-	return r;
+	return (H_Port != INVALID_HANDLE_VALUE && ::WriteFile(H_Port, buf, sz, &sz, 0) && sz == 1) ? 1 : (SLibError = SLERR_COMMSEND, 0);
 }
 

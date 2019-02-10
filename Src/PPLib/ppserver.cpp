@@ -3387,7 +3387,7 @@ int PPServerSession::TestingClient(TcpSocket & rSo, StrAssocArray & rStrList)
 		}
 		else {
 			THROW(TestRecvBlock(rSo, p_buf, clen, &actual_size) > 0);
-			c = crc.Calc(0, (uint8 *)p_buf, clen);
+			c = crc.Calc(0, p_buf, clen);
 			THROW(TestSend(rSo, &c, sizeof(c), &actual_size) > 0);
 		}
 	} while(1);
@@ -3506,7 +3506,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::Testing()
 	// со случайным содержимым.
 	// В ответ должны получить CRC32 этих последовательностей.
 	//
-	char * p_buf = (char *)SAlloc::M(max_size+sizeof(ulong));
+	char * p_buf = static_cast<char *>(SAlloc::M(max_size+sizeof(ulong)));
 	SRandGenerator & r_rg = SLS.GetTLA().Rg;
 	SCRC32 crc;
 	ulong  c = 0;
@@ -3520,7 +3520,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::Testing()
 		// Передаем длину буфера
 		//
 		THROW(TestSend(So, &c, sizeof(c), &actual_size) > 0);
-		c = crc.Calc(0, (uint8 *)p_buf, i);
+		c = crc.Calc(0, p_buf, i);
 		THROW(TestSend(So, p_buf, i, &actual_size) > 0);
 		ulong rc = 0;
 		THROW(TestRecvBlock(So, &rc, sizeof(rc), &actual_size) > 0);

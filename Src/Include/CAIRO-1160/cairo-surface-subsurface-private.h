@@ -36,20 +36,16 @@
 #ifndef CAIRO_SURFACE_SUBSURFACE_PRIVATE_H
 #define CAIRO_SURFACE_SUBSURFACE_PRIVATE_H
 
-#include "cairo-surface-private.h"
-#include "cairo-surface-backend-private.h"
+//#include "cairo-surface-private.h"
+//#include "cairo-surface-backend-private.h"
 
 struct _cairo_surface_subsurface {
-    cairo_surface_t base;
-
-    cairo_rectangle_int_t extents;
-
-    cairo_surface_t *target;
-    cairo_surface_t *snapshot;
+	cairo_surface_t base;
+	cairo_rectangle_int_t extents;
+	cairo_surface_t * target;
+	cairo_surface_t * snapshot;
 };
 
-cairo_private void
-_cairo_surface_subsurface_set_snapshot (cairo_surface_t *surface,
-					cairo_surface_t *snapshot);
+cairo_private void _cairo_surface_subsurface_set_snapshot(cairo_surface_t * surface, cairo_surface_t * snapshot);
 
 #endif /* CAIRO_SURFACE_SUBSURFACE_PRIVATE_H */

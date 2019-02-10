@@ -1,5 +1,5 @@
 // PROFILE.CPP
-// Copyright (c) A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -16,7 +16,6 @@
 static const PPUserProfileFuncEntry PPUserProfileFuncTab[] = {
 	{ PPUPRF_LOGIN,             0, 0, 0, 0 },
 	{ PPUPRF_SESSION,           0, 0, 0, 0 },
-
 	{ PPUPRF_BILLTURN_RCPT,     0, 1, 0, 0 },
 	{ PPUPRF_BILLTURN_EXP,      0, 1, 0, 0 },
 	{ PPUPRF_BILLTURN_IEXP,     0, 1, 0, 0 },
@@ -26,7 +25,6 @@ static const PPUserProfileFuncEntry PPUserProfileFuncTab[] = {
 	{ PPUPRF_BILLTURN_DRFT,     0, 1, 0, 0 },
 	{ PPUPRF_BILLTURN_RET,      0, 1, 0, 0 },
 	{ PPUPRF_BILLTURN_ETC,      0, 1, 0, 0 },
-
 	{ PPUPRF_BILLUPD_RCPT,      0, 1, 0, 0 },
 	{ PPUPRF_BILLUPD_EXP,       0, 1, 0, 0 },
 	{ PPUPRF_BILLUPD_IEXP,      0, 1, 0, 0 },
@@ -36,7 +34,6 @@ static const PPUserProfileFuncEntry PPUserProfileFuncTab[] = {
 	{ PPUPRF_BILLUPD_DRFT,      0, 1, 0, 0 },
 	{ PPUPRF_BILLUPD_RET,       0, 1, 0, 0 },
 	{ PPUPRF_BILLUPD_ETC,       0, 1, 0, 0 },
-
 	{ PPUPRF_BILLRMV_RCPT,      0, 1, 0, 0 },
 	{ PPUPRF_BILLRMV_EXP,       0, 1, 0, 0 },
 	{ PPUPRF_BILLRMV_IEXP,      0, 1, 0, 0 },
@@ -46,15 +43,11 @@ static const PPUserProfileFuncEntry PPUserProfileFuncTab[] = {
 	{ PPUPRF_BILLRMV_DRFT,      0, 1, 0, 0 },
 	{ PPUPRF_BILLRMV_RET,       0, 1, 0, 0 },
 	{ PPUPRF_BILLRMV_ETC,       0, 1, 0, 0 },
-
 	{ PPUPRF_VIEW_GREST,        0, 1, 0, 0 },
 	{ PPUPRF_VIEW_GREST_DT,     0, 1, 0, 0 },
-
 	{ PPUPRF_VATFREEPERSONLIST, 0, 1, 0, 0 },
-
 	{ PPUPRF_PSALBLDGOODS,      0, 2, 0, 0 },
 	{ PPUPRF_PSALBLDGOODSTEST,  0, 2, 0, 0 },
-
 	{ PPUPRF_GOODSPUT,          0, 1, PPUserProfileFuncEntry::fAccumulate, 100 },
 	{ PPUPRF_CCHECKPUT,         0, 3, PPUserProfileFuncEntry::fAccumulate, 1000 },
 	{ PPUPRF_GETMTXLISTBYLOC,   0, 1, 0, 0 },
@@ -62,7 +55,6 @@ static const PPUserProfileFuncEntry PPUserProfileFuncTab[] = {
 	{ PPUPRF_PACKCACHETEXT,     0, 1, 0, 0 },
 	{ PPUPRF_MTXCACHEACTUALIZE, 0, 2, PPUserProfileFuncEntry::fAccumulate, 100 },
 	{ PPUPRF_SCARDUPDBYRULE,    0, 2, 0, 0 },
-
 	{ PPUPRF_GETINVSTOCKREST,   0, 1, PPUserProfileFuncEntry::fAccumulate, 1000 },
 	{ PPUPRF_VIEW_GOODSOPANLZ,  0, 1, 0, 0 },
 	{ PPUPRF_VIEW_TRFRANLZ,     0, 1, 0, 0 },
@@ -75,6 +67,8 @@ static const PPUserProfileFuncEntry PPUserProfileFuncTab[] = {
 	{ PPUPRF_OSMXMLPARSETAG,    0, 1, PPUserProfileFuncEntry::fAccumulate, 1000000 },  // @v9.5.8
 	{ PPUPRF_BUILDGOODSFL,      0, 1, 0, 0 },  // @v10.1.4
 	{ PPUPRF_SRCHINGOODSFL,     0, 2, 0, 0 },  // @v10.1.4
+	{ PPUPRF_TIMSERWRITE,       0, 1, PPUserProfileFuncEntry::fAccumulate, 100 }, // @v10.3.3
+	{ PPUPRF_TSEVALSTAKES,      0, 1, PPUserProfileFuncEntry::fAccumulate, 600 }, // @v10.3.3
 };
 
 static const PPUserProfileFuncEntry * FASTCALL _GetUserProfileFuncEntry(int funcId)
@@ -205,8 +199,8 @@ int SLAPI Profile::Output(uint fileId, const char * pDescription)
 			double msh = p_pe->Hits ? (((double)p_pe->NSecs100) / ((double)p_pe->Hits * 10000.0)) : 0; // приведение к миллисекундам
 			double msh_full = p_pe->Hits ? (((double)p_pe->Mks) / ((double)p_pe->Hits * 1000.0)) : 0; // приведение к миллисекундам
 			uint32 stub = 0;
-			const  char * p_added_info = NZOR(p_pe->P_AddedInfo, (const char *)&stub);
-			const  char * p_file_name  = NZOR(p_pe->P_FileName, (const char *)&stub);
+			const  char * p_added_info = NZOR(p_pe->P_AddedInfo, reinterpret_cast<const char *>(&stub));
+			const  char * p_file_name  = NZOR(p_pe->P_FileName, reinterpret_cast<const char *>(&stub));
 			temp_buf.Printf("%8I64d\t%8.0lf\t%12.4lf\t%8.0lf\t%12.4lf\t%s[%ld]\t%s",
 				p_pe->Hits, (double)(p_pe->NSecs100 / 10000.0), msh,
 				(double)(((double)p_pe->Mks) / 1000.0), msh_full,
@@ -313,8 +307,8 @@ int SLAPI Profile::Start(uint logFileId, const char * pName, const char * pAdded
 	Lck.Lock();
 	Helper_Start(pName, pAddedInfo ? sstrlen(pAddedInfo) : 0, pAddedInfo);
 	p_pe = & at(0);
-	p_name = NZOR(p_pe->P_FileName, (const char *)&stub);
-	p_added_info = NZOR(p_pe->P_AddedInfo, (const char *)&stub);
+	p_name = NZOR(p_pe->P_FileName, reinterpret_cast<const char *>(&stub));
+	p_added_info = NZOR(p_pe->P_AddedInfo, reinterpret_cast<const char *>(&stub));
 	temp_buff.Printf("Start:\t%s {%s}", p_name, p_added_info);
 	PPLogMessage(logFileId, temp_buff, LOGMSGF_TIME|LOGMSGF_USER);
 	Lck.Unlock();
@@ -333,8 +327,8 @@ int SLAPI Profile::Finish(uint logFileId, const char * pName, const char * pAdde
 	Lck.Lock();
 	Helper_Finish(pName, pAddedInfo ? sstrlen(pAddedInfo) : 0);
 	p_pe = & at(0);
-	p_name  = NZOR(p_pe->P_FileName, (const char *)&stub);
-	p_added_info = NZOR(p_pe->P_AddedInfo, (const char *)&stub);
+	p_name  = NZOR(p_pe->P_FileName, reinterpret_cast<const char *>(&stub));
+	p_added_info = NZOR(p_pe->P_AddedInfo, reinterpret_cast<const char *>(&stub));
 	msh = p_pe->Hits ? (((double)p_pe->NSecs100) / ((int64)p_pe->Hits * 10000)) : 0;
 	msh_full = p_pe->Hits ? (((double)p_pe->Mks) / ((int64)p_pe->Hits * 1000)) : 0;
 	temp_buff.Printf("Finish:\t%s {%s}: %8I64d %12.4lf %12.4lf", p_name, p_added_info, p_pe->Hits, msh, msh_full);

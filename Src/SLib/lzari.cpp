@@ -796,7 +796,7 @@ int LZAri::GetFileInfo(int compress)
 			(filename = ps.Nam).Cat(ps.Ext);
 			crc = 0;
 			while((len = fread(p_buf, 1, buf_size, P_InFile)) > 0)
-				crc = _crc32.Calc(crc, (uint8 *)p_buf, (size_t)len);
+				crc = _crc32.Calc(crc, p_buf, len);
 			rewind(P_InFile);
 			P_Header->FileSize          = (long)fs.Size;
 			P_Header->FileCreatDateTime = fs.CrtTime;
@@ -828,7 +828,7 @@ int LZAri::CheckCrc()
 	THROW_S(p_buf = new char[buf_size], SLERR_NOMEM);
 	rewind(P_OutFile);
 	while((len = fread(p_buf, 1, buf_size, P_OutFile)) > 0)
-		crc = _crc32.Calc(crc, (uint8 *)p_buf, (size_t)len);
+		crc = _crc32.Calc(crc, p_buf, len);
 	THROW_S_S((long)crc == P_Header->CRC, SLERR_INVALIDCRC, "");
 	CATCHZOK
 	delete [] p_buf;

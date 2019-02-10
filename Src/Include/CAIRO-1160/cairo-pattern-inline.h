@@ -36,7 +36,7 @@
 #ifndef CAIRO_PATTERN_INLINE_H
 #define CAIRO_PATTERN_INLINE_H
 
-#include "cairo-pattern-private.h"
+//#include "cairo-pattern-private.h"
 
 #include "cairo-list-inline.h"
 

@@ -572,7 +572,7 @@ namespace NArchive {
 						   if(ai.IsThereNext())
 						   {
 						   AString fn = ai.NextArc.FileName;
-						   if(fn.Len() > 4 && StringsAreEqualNoCase_Ascii(fn.RightPtr(4), ".cab"))
+						   if(fn.Len() > 4 && sstreqi_ascii(fn.RightPtr(4), ".cab"))
 							fn.DeleteFrom(fn.Len() - 4);
 						   if(len < fn.Len())
 						   {

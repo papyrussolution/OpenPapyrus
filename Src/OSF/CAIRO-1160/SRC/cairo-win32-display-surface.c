@@ -55,7 +55,7 @@
 //#include "cairo-error-private.h"
 #include "cairo-image-surface-inline.h"
 #include "cairo-paginated-private.h"
-#include "cairo-pattern-private.h"
+//#include "cairo-pattern-private.h"
 #include "cairo-win32-private.h"
 #include "cairo-scaled-font-subsets-private.h"
 #include "cairo-surface-fallback-private.h"

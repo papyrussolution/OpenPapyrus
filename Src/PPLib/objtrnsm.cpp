@@ -2356,7 +2356,7 @@ void BillTransDialog::SetupCtrls()
 int BillTransDialog::updateList()
 {
 	int    ok = 1;
-	SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_BTRAN_LIST);
+	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_BTRAN_LIST));
 	if(p_list) {
 		SString text;
 		p_list->freeAll();
@@ -2395,7 +2395,7 @@ int BillTransDialog::delItem()
 {
 	int    ok = -1;
 	PPID   id = 0;
-	SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_BTRAN_LIST);
+	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_BTRAN_LIST));
 	if(p_list && p_list->getCurID(&id) && Data.DestDBDivList.Remove(id)) {
 		ok = 1;
 		updateList();
@@ -2593,7 +2593,7 @@ int ObjTranDialog::updateList(int dbDivList)
 	int    ok = 1;
 	uint   ctl_id = dbDivList ? CTL_OBJTRANSM_DBDIVLIST : CTL_OBJTRANSM_OBJLIST;
 	ObjIdListFilt * p_ary = dbDivList ? &Data.DestDBDivList : &Data.ObjList;
-	SmartListBox * p_list = (SmartListBox*)getCtrlView(ctl_id);
+	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(ctl_id));
 	if(p_list) {
 		SString text;
 		p_list->freeAll();
@@ -2683,7 +2683,7 @@ int ObjTranDialog::delItem(int dbDivList)
 	PPID   id = 0;
 	uint   ctl_id = dbDivList ? CTL_OBJTRANSM_DBDIVLIST : CTL_OBJTRANSM_OBJLIST;
 	ObjIdListFilt * p_ary = dbDivList ? &Data.DestDBDivList : &Data.ObjList;
-	SmartListBox * p_list = (SmartListBox*)getCtrlView(ctl_id);
+	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(ctl_id));
 	if(p_list && p_list->getCurID(&id) && p_ary->Remove(id)) {
 		ok = 1;
 		updateList(dbDivList);
@@ -2699,7 +2699,7 @@ int ObjTranDialog::setupTransmissionEvent(int mode /* 0 - last, -1 - prev, 1 - n
 		int    by_this_dbdiv = 0;
 		PPID   db_div_id = 0;
 		SysJournal * p_sj = DS.GetTLA().P_SysJ;
-		SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_OBJTRANSM_DBDIVLIST);
+		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_OBJTRANSM_DBDIVLIST));
 		if((mode == 1 || mode == -1) && p_list) {
 			p_list->getCurID(&db_div_id);
 			by_this_dbdiv = 1;

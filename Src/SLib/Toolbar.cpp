@@ -46,12 +46,11 @@ TToolbar::~TToolbar()
 	// @vadim Приводило к зависанию при выходе из программы
 	// DestroyMenu(H_Menu);
 	//SAlloc::F(m_pitem);
-	HIMAGELIST himl = (HIMAGELIST)SendMessage(H_Toolbar, TB_GETIMAGELIST, 0, 0);
+	HIMAGELIST himl = reinterpret_cast<HIMAGELIST>(::SendMessage(H_Toolbar, TB_GETIMAGELIST, 0, 0));
 	if(himl) {
 		ImageList_Destroy(himl);
 		himl = 0;
 	}
-	//SetWindowLong(H_Toolbar, GWLP_WNDPROC, (long)PrevToolProc);
 	TView::SetWindowProp(H_Toolbar, GWLP_WNDPROC, PrevToolProc);
 	if(H_Menu)
 		DestroyMenu(H_Menu);
@@ -85,14 +84,14 @@ LRESULT TToolbar::OnSize(WPARAM wParam, LPARAM lParam)
 			case TOOLBAR_ON_BOTTOM:
 			case TOOLBAR_ON_TOP:
 			case TOOLBAR_ON_FREE:
-				MoveWindow(H_Toolbar, 9, -1, LOWORD(lParam)-9, HIWORD(lParam), 1);
+				::MoveWindow(H_Toolbar, 9, -1, LOWORD(lParam)-9, HIWORD(lParam), 1);
 				break;
 			case TOOLBAR_ON_RIGHT:
 			case TOOLBAR_ON_LEFT:
-				MoveWindow(H_Toolbar, 0, 8, LOWORD(lParam), HIWORD(lParam)-9, 1);
+				::MoveWindow(H_Toolbar, 0, 8, LOWORD(lParam), HIWORD(lParam)-9, 1);
 				break;
 			default:
-				MoveWindow(H_Toolbar, 0, -1, LOWORD(lParam), HIWORD(lParam), 1);
+				::MoveWindow(H_Toolbar, 0, -1, LOWORD(lParam), HIWORD(lParam), 1);
 		}
 	return 0;
 }
@@ -124,7 +123,7 @@ LRESULT TToolbar::OnMainSize(int rightSpace/*=0*/)
 		*/
 		client_rect.right -= rightSpace;
 		if(CurrPos == TOOLBAR_ON_TOP || CurrPos == TOOLBAR_ON_BOTTOM) {
-			DWORD r = (DWORD)::SendMessage(H_Toolbar, TB_GETROWS, 0, 0);
+			DWORD r = static_cast<DWORD>(::SendMessage(H_Toolbar, TB_GETROWS, 0, 0));
 			if(CurrPos == TOOLBAR_ON_BOTTOM)
 				client_rect.top = client_rect.bottom-Height*r;
 			::MoveWindow(H_Wnd, 0, client_rect.top, client_rect.right, Height*r, 1);
@@ -139,7 +138,7 @@ LRESULT TToolbar::OnMainSize(int rightSpace/*=0*/)
 
 LRESULT TToolbar::OnNotify(WPARAM wParam, LPARAM lParam)
 {
-	NMHDR * phm = (NMHDR *)lParam;
+	NMHDR * phm = reinterpret_cast<NMHDR *>(lParam);
 	if(phm->code == TTN_NEEDTEXT) {
 		uint idx = 0;
 		if(Items.searchKeyCode((ushort)wParam, &idx))
@@ -223,8 +222,7 @@ LRESULT TToolbar::OnMove(WPARAM wParam, LPARAM lParam)
 
 LRESULT TToolbar::OnMoving(WPARAM wParam, LPARAM lParam)
 {
-	LPRECT p_rect;
-	p_rect = (LPRECT)lParam;
+	RECT * p_rect = reinterpret_cast<RECT *>(lParam);
 	CurrRect = *p_rect;
 	if((p_rect->top + MousePoint.y) < (ClientRect.top + Height)) {
 		p_rect->left   = ClientRect.left;
@@ -317,9 +315,9 @@ LRESULT CALLBACK TToolbar::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARA
 				PAINTSTRUCT ps;
 				RECT rc;
 				GetClientRect(hWnd, &rc);
-				HDC  hdc = BeginPaint(hWnd, &ps);
-				HPEN hPen = CreatePen(PS_SOLID, 1, RGB(0x70,0x70,0x70));
-				HPEN oldPen = (HPEN)SelectObject(hdc, hPen);
+				HDC  hdc = ::BeginPaint(hWnd, &ps);
+				HPEN hPen = ::CreatePen(PS_SOLID, 1, RGB(0x70,0x70,0x70));
+				HPEN oldPen = static_cast<HPEN>(::SelectObject(hdc, hPen));
 				switch(pTbWnd->CurrPos) {
 					case TOOLBAR_ON_BOTTOM:
 					case TOOLBAR_ON_TOP:
@@ -654,14 +652,10 @@ int TToolbar::Hide()
 
 static HIMAGELIST CreateTuneToolsImageList()
 {
-	HIMAGELIST himglist; // handle to new image list
-	HBITMAP    hbitmap;  // handle to icon
-
 	// Create a masked image list large enough to hold the icons.
-	himglist = ImageList_Create(16, 16, ILC_COLOR, 2, 0);
-
+	HIMAGELIST himglist = ImageList_Create(16, 16, ILC_COLOR, 2, 0);
 	// Load the icon resources, and add the icons to the image list.
-	hbitmap = LoadBitmap(NULL, MAKEINTRESOURCE(OBM_CHECKBOXES));
+	HBITMAP    hbitmap = LoadBitmap(NULL, MAKEINTRESOURCE(OBM_CHECKBOXES));
 	ImageList_Add(himglist, hbitmap, 0);
 	hbitmap = LoadBitmap(NULL, MAKEINTRESOURCE(OBM_CHECK));
 	ImageList_Add(himglist, hbitmap, 0);
@@ -685,13 +679,11 @@ private:
 	WNDPROC PrevListViewProc;
 };
 
-TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb)
+TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb) : P_Toolbar(pTb), hImages(0), H_List(0), P_Buttons(0), PrevListViewProc(0)
 {
-	THISZERO();
-	P_Toolbar = pTb;
 	uint   cnt = (uint)::SendMessage(P_Toolbar->H_Toolbar, TB_BUTTONCOUNT, 0, 0);
 	LVITEM lvi;
-	P_Buttons = (TBBUTTON *)SAlloc::C(cnt, sizeof(TBBUTTON));
+	P_Buttons = static_cast<TBBUTTON *>(SAlloc::C(cnt, sizeof(TBBUTTON)));
 	if(!P_Buttons) {
 		EndDialog(hWnd, FALSE);
 	}
@@ -713,7 +705,7 @@ TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb)
 		for(uint i = 0; i < cnt; i++) {
 			TBBUTTON tb;
 			char   temp_buf[128];
-			int    ret = (int)::SendMessage(P_Toolbar->H_Toolbar, TB_GETBUTTON, i, reinterpret_cast<LPARAM>(&tb));
+			int    ret = static_cast<int>(::SendMessage(P_Toolbar->H_Toolbar, TB_GETBUTTON, i, reinterpret_cast<LPARAM>(&tb)));
 			P_Buttons[i] = tb;
 			lvi.iItem = i;
 			if(!(tb.fsStyle & TBSTYLE_SEP)) {
@@ -748,16 +740,13 @@ TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb)
 		SendMessage(GetDlgItem(hWnd, CTL_CUSTOMIZETOOLBAR_UP), BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_up));
 		HBITMAP h_dn = LoadBitmap(0, MAKEINTRESOURCE(OBM_DNARROWD));
 		SendMessage(GetDlgItem(hWnd, CTL_CUSTOMIZETOOLBAR_DOWN), BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_dn));
-		//PrevListViewProc = (WNDPROC)SetWindowLong(H_List, GWLP_WNDPROC, (long)ListViewProc);
 		PrevListViewProc = (WNDPROC)TView::SetWindowProp(H_List, GWLP_WNDPROC, ListViewProc);
-		//SetWindowLong(H_List, GWLP_USERDATA, (long)this);
 		TView::SetWindowProp(H_List, GWLP_USERDATA, this);
 	}
 }
 
 TuneToolsDialog::~TuneToolsDialog()
 {
-	//SetWindowLong(H_List, GWLP_WNDPROC, (long)PrevListViewProc);
 	TView::SetWindowProp(H_List, GWLP_WNDPROC, PrevListViewProc);
 	SAlloc::F(P_Buttons);
 }

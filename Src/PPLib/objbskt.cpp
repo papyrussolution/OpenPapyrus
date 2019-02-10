@@ -484,7 +484,7 @@ int SLAPI PPObjGoodsBasket::Read(PPObjPack * pPack, PPID id, void * stream, ObjT
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
 	}
 	CATCH
@@ -517,7 +517,7 @@ int SLAPI PPObjGoodsBasket::Write(PPObjPack * pPack, PPID * pID, void * stream, 
 		else {
 			SBuffer buffer;
 			THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 		}
 	}
 	CATCHZOK

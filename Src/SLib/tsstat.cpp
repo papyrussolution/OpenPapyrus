@@ -447,14 +447,13 @@ int SLAPI TimSerSpikes::Step(long n, double val)
 
 long SLAPI TimSerSpikes::GetNumSpikes() const
 {
-	//return P_Spikes ? P_Spikes->getCount() : 0;
 	return SVectorBase::GetCount(P_Spikes);
 }
 
 double SLAPI TimSerSpikes::GetSpike(long n, long * pN) const
 {
 	if(n < GetNumSpikes()) {
-		Spike * p_spike = (Spike *)P_Spikes->at((uint)n);
+		Spike * p_spike = static_cast<Spike *>(P_Spikes->at((uint)n));
 		ASSIGN_PTR(pN, p_spike->N);
 		return p_spike->V;
 	}
@@ -478,7 +477,7 @@ long SLAPI TimSerSpikes::GetMostCommonDistance()
    		GetSpike(i+1, &n);
 		prd.Distance = labs(s - n);
 		if(prd_ary.lsearch(&prd, &idx, CMPF_LONG)) {
-			p_prd = (_PRDINF *)prd_ary.at(idx);
+			p_prd = static_cast<_PRDINF *>(prd_ary.at(idx));
 			p_prd->Distance = labs(s - n);
 			p_prd->Count++;
 		}
@@ -536,63 +535,41 @@ void FASTCALL STimeSeries::ValuVec::ConvertDoubleToInner(double outer, void * pI
 void FASTCALL STimeSeries::ValuVec::ConvertFloatToInner(float outer, void * pInner) const
 {
 	switch(Typ) {
-		case T_DOUBLE: *(double *)pInner = outer; break;
-		case T_FLOAT:  *(float *)pInner = outer; break;
-		case T_INT32:
-			if(FxPrec != 0)
-				*(int32 *)pInner = (int32)R0(outer * fpow10fi(FxPrec));
-			else
-				*(int32 *)pInner = (int32)outer;
-			break;
-		case T_INT64:
-			if(FxPrec != 0)
-				*(int64 *)pInner = (int64)R0(outer * fpow10fi(FxPrec));
-			else
-				*(int64 *)pInner = (int64)outer;
-			break;
-		default:
-			assert(0);
+		case T_DOUBLE: *static_cast<double *>(pInner) = outer; break;
+		case T_FLOAT:  *static_cast<float *>(pInner) = outer; break;
+		case T_INT32:  *static_cast<int32 *>(pInner) = (FxPrec != 0) ? (int32)R0(outer * fpow10fi(FxPrec)) : (int32)outer; break;
+		case T_INT64:  *static_cast<int64 *>(pInner) = (FxPrec != 0) ? (int64)R0(outer * fpow10fi(FxPrec)) : (int64)outer; break;
+		default: assert(0);
 	}
 }
 
 void FASTCALL STimeSeries::ValuVec::ConvertInt32ToInner(int32 outer, void * pInner) const
 {
 	switch(Typ) {
-		case T_DOUBLE: *(double *)pInner = (double)outer; break;
-		case T_FLOAT:  *(float *)pInner = (float)outer; break;
-		case T_INT32:
-			if(FxPrec != 0)
-				*(int32 *)pInner = (int32)(outer * fpow10i(FxPrec));
-			else
-				*(int32 *)pInner = outer;
-			break;
-		case T_INT64:
-			if(FxPrec != 0)
-				*(int64 *)pInner = (int64)(outer * fpow10i(FxPrec));
-			else
-				*(int64 *)pInner = (int64)outer;
-			break;
-		default:
-			assert(0);
+		case T_DOUBLE: *static_cast<double *>(pInner) = (double)outer; break;
+		case T_FLOAT:  *static_cast<float *>(pInner) = (float)outer; break;
+		case T_INT32:  *static_cast<int32 *>(pInner) = (FxPrec != 0) ? (int32)(outer * fpow10i(FxPrec)) : outer; break;
+		case T_INT64:  *static_cast<int64 *>(pInner) = (FxPrec != 0) ? (int64)(outer * fpow10i(FxPrec)) : (int64)outer; break;
+		default: assert(0);
 	}
 }
 
 void FASTCALL STimeSeries::ValuVec::ConvertInt64ToInner(int64 outer, void * pInner) const
 {
 	switch(Typ) {
-		case T_DOUBLE: *(double *)pInner = (double)outer; break;
-		case T_FLOAT:  *(float *)pInner = (float)outer; break;
+		case T_DOUBLE: *static_cast<double *>(pInner) = (double)outer; break;
+		case T_FLOAT:  *static_cast<float *>(pInner) = (float)outer; break;
 		case T_INT32:
 			if(FxPrec != 0)
-				*(int32 *)pInner = (int32)(outer * fpow10i(FxPrec));
+				*static_cast<int32 *>(pInner) = (int32)(outer * fpow10i(FxPrec));
 			else
-				*(int32 *)pInner = (int32)outer;
+				*static_cast<int32 *>(pInner) = (int32)outer;
 			break;
 		case T_INT64:
 			if(FxPrec != 0)
-				*(int64 *)pInner = (int64)(outer * fpow10i(FxPrec));
+				*static_cast<int64 *>(pInner) = (int64)(outer * fpow10i(FxPrec));
 			else
-				*(int64 *)pInner = outer;
+				*static_cast<int64 *>(pInner) = outer;
 			break;
 		default:
 			assert(0);
@@ -602,10 +579,10 @@ void FASTCALL STimeSeries::ValuVec::ConvertInt64ToInner(int64 outer, void * pInn
 double FASTCALL STimeSeries::ValuVec::ConvertInnerToDouble(const void * pInner) const
 {
 	switch(Typ) {
-		case T_DOUBLE: return *(double *)pInner;
-		case T_FLOAT:  return *(float *)pInner;
-		case T_INT32:  return FxPrec ? (((double)(*(int32 *)pInner)) / fpow10i(FxPrec)) : (double)*(int32 *)pInner;
-		case T_INT64:  return FxPrec ? (((double)(*(int64 *)pInner)) / fpow10i(FxPrec)) : (double)*(int64 *)pInner;
+		case T_DOUBLE: return *static_cast<const double *>(pInner);
+		case T_FLOAT:  return *static_cast<const float *>(pInner);
+		case T_INT32:  return FxPrec ? (((double)(*(int32 *)pInner)) / fpow10i(FxPrec)) : (double)*static_cast<const int32 *>(pInner);
+		case T_INT64:  return FxPrec ? (((double)(*(int64 *)pInner)) / fpow10i(FxPrec)) : (double)*static_cast<const int64 *>(pInner);
 		default: assert(0); return 0.0;
 	}
 }
@@ -613,10 +590,10 @@ double FASTCALL STimeSeries::ValuVec::ConvertInnerToDouble(const void * pInner) 
 float FASTCALL STimeSeries::ValuVec::ConvertInnerToFloat(const void * pInner) const
 {
 	switch(Typ) {
-		case T_DOUBLE: return (float)*(double *)pInner;
-		case T_FLOAT:  return *(float *)pInner;
-		case T_INT32:  return FxPrec ? (((float)(*(int32 *)pInner)) / fpow10fi(FxPrec)) : (float)*(int32 *)pInner;
-		case T_INT64:  return FxPrec ? (((float)(*(int64 *)pInner)) / fpow10fi(FxPrec)) : (float)*(int64 *)pInner;
+		case T_DOUBLE: return (float)*static_cast<const double *>(pInner);
+		case T_FLOAT:  return *static_cast<const float *>(pInner);
+		case T_INT32:  return FxPrec ? (((float)(*static_cast<const int32 *>(pInner))) / fpow10fi(FxPrec)) : (float)*static_cast<const int32 *>(pInner);
+		case T_INT64:  return FxPrec ? (((float)(*static_cast<const int64 *>(pInner))) / fpow10fi(FxPrec)) : (float)*static_cast<const int64 *>(pInner);
 		default: assert(0); return 0.0f;
 	}
 }
@@ -624,10 +601,10 @@ float FASTCALL STimeSeries::ValuVec::ConvertInnerToFloat(const void * pInner) co
 int32 FASTCALL STimeSeries::ValuVec::ConvertInnerToInt32(const void * pInner) const
 {
 	switch(Typ) {
-		case T_DOUBLE: return (int32)*(double *)pInner;
-		case T_FLOAT:  return (int32)*(float *)pInner;
-		case T_INT32:  return FxPrec ? (int32)(((double)(*(int32 *)pInner)) / fpow10i(FxPrec)) : *(int32 *)pInner;
-		case T_INT64:  return FxPrec ? (int32)(((double)(*(int64 *)pInner)) / fpow10i(FxPrec)) : (int32)(*(int64 *)pInner);
+		case T_DOUBLE: return (int32)*static_cast<const double *>(pInner);
+		case T_FLOAT:  return (int32)*static_cast<const float *>(pInner);
+		case T_INT32:  return FxPrec ? (int32)(((double)(*static_cast<const int32 *>(pInner))) / fpow10i(FxPrec)) : *static_cast<const int32 *>(pInner);
+		case T_INT64:  return FxPrec ? (int32)(((double)(*static_cast<const int64 *>(pInner))) / fpow10i(FxPrec)) : (int32)*static_cast<const int64 *>(pInner);
 		default: assert(0); return 0;
 	}
 }
@@ -635,10 +612,10 @@ int32 FASTCALL STimeSeries::ValuVec::ConvertInnerToInt32(const void * pInner) co
 int64 FASTCALL STimeSeries::ValuVec::ConvertInnerToInt64(const void * pInner) const
 {
 	switch(Typ) {
-		case T_DOUBLE: return (int64)*(double *)pInner;
-		case T_FLOAT:  return (int64)*(float *)pInner;
-		case T_INT32:  return FxPrec ? (int64)(((double)(*(int32 *)pInner)) / fpow10i(FxPrec)) : (int64)(*(int32 *)pInner);
-		case T_INT64:  return FxPrec ? (int64)(((double)(*(int64 *)pInner)) / fpow10i(FxPrec)) : *(int64 *)pInner;
+		case T_DOUBLE: return (int64)*static_cast<const double *>(pInner);
+		case T_FLOAT:  return (int64)*static_cast<const float *>(pInner);
+		case T_INT32:  return FxPrec ? (int64)(((double)(*static_cast<const int32 *>(pInner))) / fpow10i(FxPrec)) : (int64)*static_cast<const int32 *>(pInner);
+		case T_INT64:  return FxPrec ? (int64)(((double)(*static_cast<const int64 *>(pInner))) / fpow10i(FxPrec)) : *static_cast<const int64 *>(pInner);
 		default: assert(0); return 0;
 	}
 }
@@ -1483,7 +1460,7 @@ int SLAPI STimeSeries::AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam &
 					assert(gvr > 0);
 					assert(lss_rv_x.getCount() == distance);
 					assert(lss_rv_y.getCount() == distance);
-					lss.Solve(distance, (double *)lss_rv_x.dataPtr(), (double *)lss_rv_y.dataPtr());
+					lss.Solve(distance, static_cast<const double *>(lss_rv_x.dataPtr()), static_cast<const double *>(lss_rv_y.dataPtr()));
 					trend = lss.B;
 					sumsq = lss.SumSq;
 				}

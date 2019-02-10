@@ -1951,61 +1951,86 @@ int FASTCALL sstreq(const uchar * pS1, const uchar * pS2)
 
 int FASTCALL sstreq(const uchar * pS1, const char * pS2)
 {
-	if(pS1 != (const uchar *)pS2)
+	if(pS1 != reinterpret_cast<const uchar *>(pS2))
 		if(pS1)
-            return (pS2 && pS1[0] == pS2[0]) ? BIN(pS1[0] == 0 || strcmp((const char *)pS1, (const char *)pS2) == 0) : 0;
+            return (pS2 && pS1[0] == pS2[0]) ? BIN(pS1[0] == 0 || strcmp(reinterpret_cast<const char *>(pS1), pS2) == 0) : 0;
 		else
 			return 0;
 	else
 		return 1;
 }
 
-int FASTCALL sstreqi_ascii(const char * pS1, const char * pS2)
+static bool __forceinline chreqi_ascii(int c1, int c2)
 {
-	if(pS1 != pS2) {
-        const size_t len = sstrlen(pS1);
-        if(len != sstrlen(pS2))
-			return 0;
-		else if(len) {
-            for(size_t i = 0; i < len; i++) {
-				/*char*/int c1 = pS1[i];
-				/*char*/int c2 = pS2[i];
-				if(c1 != c2) {
-					if(c1 >= 'A' && c1 <= 'Z')
-						c1 += ('a' - 'A');
-					if(c2 >= 'A' && c2 <= 'Z')
-						c2 += ('a' - 'A');
-					if(c1 != c2)
-						return 0;
-				}
-            }
-		}
+	if(c1 != c2) {
+		if(c1 >= 'A' && c1 <= 'Z')
+			c1 += ('a' - 'A');
+		if(c2 >= 'A' && c2 <= 'Z')
+			c2 += ('a' - 'A');
+		if(c1 != c2)
+			return false;
 	}
-	return 1;
+	return true;
 }
 
-int FASTCALL sstreqi_ascii(const uchar * pS1, const uchar * pS2)
+bool FASTCALL sstreqi_ascii(const char * pS1, const char * pS2)
 {
 	if(pS1 != pS2) {
         const size_t len = sstrlen(pS1);
         if(len != sstrlen(pS2))
-			return 0;
+			return false;
 		else if(len) {
-            for(size_t i = 0; i < len; i++) {
-				/*char*/uint c1 = pS1[i];
-				/*char*/uint c2 = pS2[i];
-				if(c1 != c2) {
-					if(c1 >= 'A' && c1 <= 'Z')
-						c1 += ('a' - 'A');
-					if(c2 >= 'A' && c2 <= 'Z')
-						c2 += ('a' - 'A');
-					if(c1 != c2)
-						return 0;
-				}
-            }
+            for(size_t i = 0; i < len; i++)
+				if(!chreqi_ascii(static_cast<int>(pS1[i]), static_cast<int>(pS2[i])))
+					return false;
 		}
 	}
-	return 1;
+	return true;
+}
+
+bool FASTCALL sstreqi_ascii(const uchar * pS1, const uchar * pS2)
+{
+	if(pS1 != pS2) {
+        const size_t len = sstrlen(pS1);
+        if(len != sstrlen(pS2))
+			return false;
+		else if(len) {
+            for(size_t i = 0; i < len; i++)
+				if(!chreqi_ascii(static_cast<int>(pS1[i]), static_cast<int>(pS2[i])))
+					return false;
+		}
+	}
+	return true;
+}
+
+bool FASTCALL sstreqi_ascii(const wchar_t * pS1, const wchar_t * pS2)
+{
+	if(pS1 != pS2) {
+        const size_t len = sstrlen(pS1);
+        if(len != sstrlen(pS2))
+			return false;
+		else if(len) {
+            for(size_t i = 0; i < len; i++)
+				if(!chreqi_ascii(static_cast<int>(pS1[i]), static_cast<int>(pS2[i])))
+					return false;
+		}
+	}
+	return true;
+}
+
+bool FASTCALL sstreqi_ascii(const wchar_t * pS1, const char * pS2)
+{
+	if(static_cast<const void *>(pS1) != static_cast<const void *>(pS2)) {
+        const size_t len = sstrlen(pS1);
+        if(len != sstrlen(pS2))
+			return false;
+		else if(len) {
+            for(size_t i = 0; i < len; i++)
+				if(!chreqi_ascii(static_cast<int>(pS1[i]), static_cast<int>(pS2[i])))
+					return false;
+		}
+	}
+	return true;
 }
 
 size_t FASTCALL sisascii(const char * pS, size_t len)

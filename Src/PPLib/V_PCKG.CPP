@@ -1,5 +1,5 @@
 // V_PCKG.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2006, 2007, 2010, 2016, 2017
+// Copyright (c) A.Sobolev 2001, 2002, 2006, 2007, 2010, 2016, 2017, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -11,8 +11,7 @@ struct PckgViewListEntry {
 
 #pragma warn -stv
 
-static int SLAPI CreatePckgViewList(PackageCore * pPckgCore,
-	ReceiptCore * pRcptCore, const PckgFilt * pFilt, SArray * pList)
+static int SLAPI CreatePckgViewList(PackageCore * pPckgCore, ReceiptCore * pRcptCore, const PckgFilt * pFilt, SArray * pList)
 {
 	PPIDArray lot_list, pckg_list;
 	PckgViewListEntry entry;
@@ -86,7 +85,7 @@ private:
 
 SelPckgDialog::SelPckgDialog(PPObjBill * pBObj) : TDialog(DLG_SELPCKG), P_BObj(pBObj), SelPckgID(0), P_PckgList(0)
 {
-	P_List = (SmartListBox*)getCtrlView(CTL_SELPCKG_LIST);
+	P_List = static_cast<SmartListBox *>(getCtrlView(CTL_SELPCKG_LIST));
 	if(!SetupStrListBox(P_List))
 		PPError();
 }

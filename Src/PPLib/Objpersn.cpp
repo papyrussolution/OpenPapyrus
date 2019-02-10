@@ -2017,14 +2017,14 @@ int SLAPI PPObjPerson::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			PPIDArray kind_list;
 			THROW(P_Tbl->GetKindList(_id, &kind_list));
 			for(uint i = 0; i < kind_list.getCount(); i++)
-				THROW(P_Tbl->AddKind((long)extraPtr, kind_list.get(i), 0));
+				THROW(P_Tbl->AddKind(reinterpret_cast<long>(extraPtr), kind_list.get(i), 0));
 			THROW(BroadcastObjMessage(DBMSG_OBJREPLACE, Obj, _id, extraPtr));
 		}
 		else if(_obj == PPOBJ_LOCATION) {
-			ok = ReplyLocationReplace(_id, (long)extraPtr);
+			ok = ReplyLocationReplace(_id, reinterpret_cast<long>(extraPtr));
 		}
 		else if(_obj == PPOBJ_PRSNCATEGORY) {
-			THROW_DB(updateFor(P_Tbl, 0, (P_Tbl->CatID == _id), set(P_Tbl->CatID, dbconst((long)extraPtr))));
+			THROW_DB(updateFor(P_Tbl, 0, (P_Tbl->CatID == _id), set(P_Tbl->CatID, dbconst(reinterpret_cast<long>(extraPtr)))));
 		}
 	}
 	CATCHZOK
@@ -2171,7 +2171,7 @@ int SLAPI PPObjPerson::Read(PPObjPack * p, PPID id, void * stream, ObjTransmCont
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
 		{
 			StaffAmtEntry * p_amt_entry;
@@ -2296,7 +2296,7 @@ int SLAPI PPObjPerson::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransm
 		else {
 			SBuffer buffer;
 			THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 		}
 	}
 	CATCHZOK
@@ -3493,7 +3493,7 @@ public:
 	{
 		Data = *pData;
 		SString temp_buf;
-		SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_PERSON_KIND);
+		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_PERSON_KIND));
 		LocationFilt loc_flt(LOCTYP_DIVISION);
 		IsCashier = BIN(Data.CshrInfo.Flags & CIF_CASHIER);
 		if(Data.Rec.ID) {
@@ -3608,7 +3608,7 @@ private:
 		int    r;
 		uint   pos = 0;
 		PPID   k;
-		SmartListBox * box = (SmartListBox*)getCtrlView(CTL_PERSON_KIND);
+		SmartListBox * box = static_cast<SmartListBox *>(getCtrlView(CTL_PERSON_KIND));
 		if(box->getCurID(&k) && k) {
 			THROW_PP(k != PPPRK_MAIN || PPMaster, PPERR_UNCHANGABLEPERSONKIND);
 			THROW_PP(Data.Kinds.getCount() > 1, PPERR_LASTPERSONSKIND);
@@ -4438,7 +4438,7 @@ ListBoxDef * PersonDialog::createKindListDef()
 //
 PsnSelAnalogDialog::PsnSelAnalogDialog(PPObjPerson * pPsnObj) : TDialog(DLG_PSNSELANALOG), P_PsnObj(pPsnObj), Selection(0)
 {
-	SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_PSNSELANALOG_LIST);
+	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_PSNSELANALOG_LIST));
 	if(!SetupStrListBox(p_list))
 		PPError();
 	setupList();
@@ -4459,7 +4459,7 @@ void PsnSelAnalogDialog::getResult(PPID * pID)
 
 int PsnSelAnalogDialog::setupList()
 {
-	SmartListBox * p_list = (SmartListBox *)getCtrlView(CTL_PSNSELANALOG_LIST);
+	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_PSNSELANALOG_LIST));
 	if(p_list) {
 		PPObjPerson::SrchAnalogPattern sap;
 		getCtrlString(CTL_PSNSELANALOG_SRCH, sap.NamePattern);
@@ -4747,7 +4747,7 @@ IMPL_HANDLE_EVENT(PersonDialog)
 					PPIDArray kind_list;
 					ListToListData l2l(PPOBJ_PRSNKIND, 0, &kind_list);
 					if(ListToListDialog(&l2l) > 0) {
-						SmartListBox * p_box = (SmartListBox*)getCtrlView(CTL_PERSON_KIND);
+						SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_PERSON_KIND));
 						for(uint i = 0; i < kind_list.getCount(); i++) {
 							PPID   kind_id = kind_list.at(i);
 							if(kind_id == PPPRK_MAIN && !PPMaster)
@@ -6190,7 +6190,7 @@ int SLAPI PPObjPersonKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTr
 		}
 	}
 	else {
-		THROW(Serialize_(+1, (ReferenceTbl::Rec *)p->Data, stream, pCtx));
+		THROW(Serialize_(+1, static_cast<ReferenceTbl::Rec *>(p->Data), stream, pCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -6218,7 +6218,7 @@ public:
 int SLAPI PersonKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	Data * p_cache_rec = (Data *)pEntry;
+	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjPersonKind pk_obj;
 	PPPersonKind rec;
 	if(pk_obj.Search(id, &rec) > 0) {
@@ -6240,7 +6240,7 @@ int SLAPI PersonKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 void SLAPI PersonKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPPersonKind * p_data_rec = (PPPersonKind *)pDataRec;
-	const Data * p_cache_rec = (const Data *)pEntry;
+	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	p_data_rec->Tag   = PPOBJ_PRSNKIND;
 	p_data_rec->ID    = p_cache_rec->ID;
@@ -6646,14 +6646,14 @@ static PPID Helper_DL600_GetRegister(PPID psnID, const char * pRegSymb, void * p
 
 void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
-	#define _ARG_LONG(n) (*(long *)rS.GetPtr(pApl->Get(n)))
+	#define _ARG_LONG(n) (*static_cast<const long *>(rS.GetPtr(pApl->Get(n))))
 	#define _ARG_DATE(n) (*(LDATE *)rS.GetPtr(pApl->Get(n)))
-	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
-	#define _RET_INT     (*(int *)rS.GetPtr(pApl->Get(0)))
-	#define _RET_LONG    (*(long *)rS.GetPtr(pApl->Get(0)))
-	#define _RET_DBL     (*(double *)rS.GetPtr(pApl->Get(0)))
+	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
+	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
+	#define _RET_LONG    (*static_cast<long *>(rS.GetPtr(pApl->Get(0))))
+	#define _RET_DBL     (*static_cast<double *>(rS.GetPtr(pApl->Get(0))))
 	#define _RET_DATE    (*(LDATE *)rS.GetPtr(pApl->Get(0)))
-	#define _RET_STR     (**(SString **)rS.GetPtr(pApl->Get(0)))
+	#define _RET_STR     (**static_cast<SString **>(rS.GetPtr(pApl->Get(0))))
 	enum {
 		tNone = 0,
 		tStr = 1,
@@ -7240,11 +7240,11 @@ int PPALDD_Global::InitData(PPFilt & rFilt, long rsrv)
 
 void PPALDD_Global::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
-	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
-	#define _ARG_INT(n)  (*(int *)rS.GetPtr(pApl->Get(n)))
+	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
+	#define _ARG_INT(n)  (*static_cast<const int *>(rS.GetPtr(pApl->Get(n))))
 	#define _ARG_DATE(n) (*(LDATE *)rS.GetPtr(pApl->Get(n)))
-	#define _RET_INT     (*(int *)rS.GetPtr(pApl->Get(0)))
-	#define _RET_STR     (**(SString **)rS.GetPtr(pApl->Get(0)))
+	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
+	#define _RET_STR     (**static_cast<SString **>(rS.GetPtr(pApl->Get(0))))
 	if(pF->Name == "?GetFixedStaffPost") {
 		PPID   person_id = 0;
 		int    kind = _ARG_INT(1);

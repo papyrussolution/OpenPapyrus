@@ -85,20 +85,13 @@ typedef struct {
 } CSzAr;
 
 uint64 SzAr_GetFolderUnpackSize(const CSzAr * p, uint32 folderIndex);
-
-SRes SzAr_DecodeFolder(const CSzAr * p, uint32 folderIndex,
-    ILookInStream * stream, uint64 startPos,
-    Byte * outBuffer, size_t outSize,
-    ISzAllocPtr allocMain);
+SRes SzAr_DecodeFolder(const CSzAr * p, uint32 folderIndex, ILookInStream * stream, uint64 startPos, Byte * outBuffer, size_t outSize, ISzAllocPtr allocMain);
 
 typedef struct {
 	CSzAr db;
-
 	uint64 startPosAfterHeader;
 	uint64 dataPos;
-
 	uint32 NumFiles;
-
 	uint64 * UnpackPositions; // NumFiles + 1
 	// Byte *IsEmptyFiles;
 	Byte * IsDirs;

@@ -317,13 +317,13 @@ static cairo_always_inline void * _cairo_atomic_ptr_cmpxchg_return_old_fallback(
 	#define _cairo_atomic_ptr_cmpxchg_return_old(x, oldv, newv) _cairo_atomic_ptr_cmpxchg_return_old_fallback(x, oldv, newv)
 #endif
 #ifndef _cairo_atomic_int_cmpxchg
-	#define _cairo_atomic_int_cmpxchg(x, oldv, newv) (_cairo_atomic_int_cmpxchg_return_old(x, oldv, newv) == oldv)
+	#define _cairo_atomic_int_cmpxchg(x, oldv, newv) (_cairo_atomic_int_cmpxchg_return_old(x, (oldv), newv) == (oldv))
 #endif
 #ifndef _cairo_atomic_ptr_cmpxchg
-	#define _cairo_atomic_ptr_cmpxchg(x, oldv, newv) (_cairo_atomic_ptr_cmpxchg_return_old(x, oldv, newv) == oldv)
+	#define _cairo_atomic_ptr_cmpxchg(x, oldv, newv) (_cairo_atomic_ptr_cmpxchg_return_old(x, (oldv), newv) == (oldv))
 #endif
 #define _cairo_atomic_uint_get(x) _cairo_atomic_int_get(x)
-#define _cairo_atomic_uint_cmpxchg(x, oldv, newv) _cairo_atomic_int_cmpxchg((cairo_atomic_int_t*)x, oldv, newv)
+#define _cairo_atomic_uint_cmpxchg(x, oldv, newv) _cairo_atomic_int_cmpxchg((cairo_atomic_int_t *)x, oldv, newv)
 
 #define _cairo_status_set_error(status, err) do { \
 		int ret__; \

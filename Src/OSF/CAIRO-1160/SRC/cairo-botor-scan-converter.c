@@ -43,10 +43,10 @@
 #include "cairoint.h"
 #pragma hdrstop
 //#include "cairo-error-private.h"
-#include "cairo-list-inline.h"
-#include "cairo-freelist-private.h"
-#include "cairo-combsort-inline.h"
-#include <setjmp.h>
+//#include "cairo-list-inline.h"
+//#include "cairo-freelist-private.h"
+//#include "cairo-combsort-inline.h"
+//#include <setjmp.h>
 
 #define STEP_X CAIRO_FIXED_ONE
 #define STEP_Y CAIRO_FIXED_ONE
@@ -187,11 +187,11 @@ cairo_always_inline static struct quorem floored_divrem(int a, int b)
 	return qr;
 }
 
-static struct quorem floored_muldivrem(int x, int a, int b)                     
+static struct quorem FASTCALL floored_muldivrem(int x, int a, int b)                     
 {
 	struct quorem qr;
 	long long xa = (long long)x*a;
-	qr.quo = xa/b;
+	qr.quo = static_cast<cairo_fixed_t>(xa/b);
 	qr.rem = xa%b;
 	if((xa>=0) != (b>=0) && qr.rem) {
 		qr.quo--;

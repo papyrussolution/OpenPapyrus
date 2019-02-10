@@ -60,7 +60,7 @@
 //#include "cairo-error-private.h"
 #include "cairo-image-surface-private.h"
 #include "cairo-list-inline.h"
-#include "cairo-pattern-private.h"
+//#include "cairo-pattern-private.h"
 #include "cairo-pixman-private.h"
 //#include "cairo-region-private.h"
 //#include "cairo-scaled-font-private.h"

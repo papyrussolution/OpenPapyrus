@@ -1910,7 +1910,7 @@ cairo_public double cairo_device_observer_fill_elapsed(cairo_device_t * device);
 cairo_public double cairo_device_observer_stroke_elapsed(cairo_device_t * device);
 cairo_public double cairo_device_observer_glyphs_elapsed(cairo_device_t * device);
 cairo_public cairo_surface_t * FASTCALL cairo_surface_reference(cairo_surface_t * surface);
-cairo_public void cairo_surface_finish(cairo_surface_t * surface);
+cairo_public void FASTCALL cairo_surface_finish(cairo_surface_t * surface);
 cairo_public void FASTCALL cairo_surface_destroy(cairo_surface_t * surface);
 cairo_public cairo_device_t * cairo_surface_get_device(cairo_surface_t * surface);
 cairo_public uint cairo_surface_get_reference_count(cairo_surface_t * surface);

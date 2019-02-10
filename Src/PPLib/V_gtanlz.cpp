@@ -1005,7 +1005,7 @@ int SLAPI PPViewGoodsTaxAnalyze::ViewTotal()
 					SString sub;
 					StringSet ss(SLBColumnDelim);
 					THROW(SetupStrListBox(this, CTL_GTANLZTOTAL_INOUTVL));
-					THROW(p_list = (SmartListBox*)getCtrlView(CTL_GTANLZTOTAL_INOUTVL));
+					THROW(p_list = static_cast<SmartListBox *>(getCtrlView(CTL_GTANLZTOTAL_INOUTVL)));
 					for(uint i = 0; p_inout_vatlist->enumItems(&i, (void**)&p_item) > 0;) {
 						ss.clear();
 						ss.add(sub.Z().Cat(p_item->PRate, MKSFMTD(0, 1, 0)).CatChar('%'));

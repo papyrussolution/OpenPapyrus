@@ -1,5 +1,5 @@
 // OBJBROWS.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -306,7 +306,7 @@ SLAPI PPListDialog::PPListDialog(uint rezID, uint aCtlList, long flags) : TDialo
 		Options |= oHasOkButton;
 	if(getCtrlView(STDCTL_EDITBUTTON))
 		Options |= oHasEditButton;
-	P_Box = (SmartListBox*)getCtrlView(ctlList);
+	P_Box = static_cast<SmartListBox *>(getCtrlView(ctlList));
 	if(!SetupStrListBox(P_Box))
 		PPError();
 	else {

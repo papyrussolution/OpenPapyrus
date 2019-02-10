@@ -42,7 +42,7 @@
 #include "cairo-default-context-private.h"
 //#include "cairo-error-private.h"
 #include "cairo-image-surface-inline.h"
-#include "cairo-pattern-private.h"
+//#include "cairo-pattern-private.h"
 #include "cairo-surface-backend-private.h"
 #include "cairo-surface-fallback-private.h"
 #include <pixman.h>

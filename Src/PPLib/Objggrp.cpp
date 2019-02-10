@@ -1579,7 +1579,7 @@ int SLAPI PPObjTransport::Edit(PPID * pID, void * extraPtr /*initTrType*/)
 {
 	int    ok = -1, valid_data = 0;
 	uint   dlg_id = 0;
-	long   tr_type = (long)extraPtr;
+	long   tr_type = reinterpret_cast<long>(extraPtr);
 	TDialog * sel_dlg = 0;
 	PPTransport rec;
 	if(*pID) {

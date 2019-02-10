@@ -2144,7 +2144,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_getfault(struct soap *);
 SOAP_FMAC1 void SOAP_FMAC2 soap_ssl_init(void);
 SOAP_FMAC1 int SOAP_FMAC2 soap_poll(struct soap *);
 SOAP_FMAC1 int SOAP_FMAC2 soap_connect_command(struct soap *, int, const char *, const char *);
-SOAP_FMAC1 int SOAP_FMAC2 soap_connect(struct soap *, const char *, const char *);
+SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_connect(struct soap *, const char *, const char *);
 SOAP_FMAC1 SOAP_SOCKET SOAP_FMAC2 soap_bind(struct soap *, const char *, int, int);
 SOAP_FMAC1 SOAP_SOCKET SOAP_FMAC2 soap_accept(struct soap *);
 SOAP_FMAC1 int SOAP_FMAC2 soap_ssl_accept(struct soap *);
@@ -2169,10 +2169,10 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_receiver_fault(struct soap *, const char *, const
 SOAP_FMAC1 int SOAP_FMAC2 soap_receiver_fault_subcode(struct soap *, const char *, const char *, const char *);
 SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_set_sender_error(struct soap *, const char *, const char *, int);
 SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_set_receiver_error(struct soap *, const char *, const char *, int);
-SOAP_FMAC1 int /*SOAP_FMAC2*/ FASTCALL soap_send_raw(struct soap *, const char *, size_t);
-SOAP_FMAC1 int SOAP_FMAC2 soap_recv_raw(struct soap *);
-SOAP_FMAC1 int /*SOAP_FMAC2*/ FASTCALL soap_recv(struct soap *);
-SOAP_FMAC1 int /*SOAP_FMAC2*/ FASTCALL soap_send(struct soap *, const char *);
+SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_send_raw(struct soap *, const char *, size_t);
+SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_recv_raw(struct soap *);
+SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_recv(struct soap *);
+SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_send(struct soap *, const char *);
 SOAP_FMAC1 int SOAP_FMAC2 soap_send2(struct soap *, const char *, const char *);
 SOAP_FMAC1 int SOAP_FMAC2 soap_send3(struct soap *, const char *, const char *, const char *);
 SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_pututf8(struct soap *, unsigned long);
@@ -2187,7 +2187,7 @@ SOAP_FMAC1 unsigned char * SOAP_FMAC2 soap_gethex(struct soap *, int *);
 #endif
 #ifndef WITH_NOIDREF
 	SOAP_FMAC1 int SOAP_FMAC2 soap_pointer_lookup_id(struct soap *, void * p, int t, struct soap_plist **);
-	SOAP_FMAC1 int SOAP_FMAC2 soap_pointer_lookup(struct soap *, const void * p, int t, struct soap_plist **);
+	SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_pointer_lookup(struct soap *, const void * p, int t, struct soap_plist **);
 	SOAP_FMAC1 int SOAP_FMAC2 soap_pointer_enter(struct soap *, const void * p, const struct soap_array * a, int n, int t, struct soap_plist **);
 	SOAP_FMAC1 int SOAP_FMAC2 soap_array_pointer_lookup(struct soap *, const void * p, const struct soap_array * a, int n, int t, struct soap_plist **);
 	SOAP_FMAC1 int /*SOAP_FMAC2*/ FASTCALL soap_embed(struct soap * soap, const void * p, const struct soap_array * a, int n, const char * tag, int type);

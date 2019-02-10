@@ -639,7 +639,7 @@ int  SLAPI PPObjCashNode::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 			}
 		}
 		else {
-			THROW(Serialize_(+1, (ReferenceTbl::Rec *)p->Data, stream, pCtx));
+			THROW(Serialize_(+1, static_cast<ReferenceTbl::Rec *>(p->Data), stream, pCtx));
 		}
 	}
 	CATCHZOK
@@ -2575,7 +2575,7 @@ public:
 int SLAPI CashNodeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	Data * p_cache_rec = (Data *)pEntry;
+	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjCashNode cn_obj;
 	PPCashNode2 rec;
 	if(cn_obj.Search(id, &rec) > 0) {
@@ -2600,7 +2600,7 @@ int SLAPI CashNodeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 void SLAPI CashNodeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPCashNode * p_data_rec = (PPCashNode *)pDataRec;
-	const Data * p_cache_rec = (const Data *)pEntry;
+	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 #define CPY_FLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
 	p_data_rec->Tag = PPOBJ_CASHNODE;

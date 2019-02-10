@@ -1,5 +1,5 @@
 // V_BIZSC.CPP
-// Copyright (c) A.Starodub 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -527,7 +527,7 @@ class BizScTemplDialog : public PPListDialog {
 public:
 	BizScTemplDialog() : PPListDialog(DLG_BIZSCT, CTL_BIZSCT_LIST)
 	{
-		SmartListBox * p_box = (SmartListBox*)getCtrlView(CTL_BIZSCT_ROWS);
+		SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_BIZSCT_ROWS));
 		if(!SetupStrListBox(p_box))
 			PPError();
 		setSmartListBoxOption(CTL_BIZSCT_ROWS, lbtSelNotify);
@@ -568,9 +568,9 @@ private:
 int BizScTemplDialog::UpdateList(uint ctlList)
 {
 	uint sel_list = GetSelList();
-	P_Box = (SmartListBox*)getCtrlView(ctlList);
+	P_Box = static_cast<SmartListBox *>(getCtrlView(ctlList));
 	updateList(-1);
-	P_Box = (SmartListBox*)getCtrlView(sel_list);
+	P_Box = static_cast<SmartListBox *>(getCtrlView(sel_list));
 	return 1;
 }
 
@@ -666,7 +666,7 @@ IMPL_HANDLE_EVENT(BizScTemplDialog)
 	}
 	else if(event.isCmd(cmLBItemFocused)) {
 		// ctlList = TVINFOVIEW->GetId();
-		P_Box = (SmartListBox*)getCtrlView(TVINFOVIEW->GetId());
+		P_Box = static_cast<SmartListBox *>(getCtrlView(TVINFOVIEW->GetId()));
 		if(GetSelList() == CTL_BIZSCT_ROWS)
 			UpdateList(CTL_BIZSCT_LIST);
 		SetupCellInfo();
@@ -675,7 +675,7 @@ IMPL_HANDLE_EVENT(BizScTemplDialog)
 		uint ctl = TVINFOVIEW->GetId();
 		if(oneof2(ctl, CTL_BIZSCT_LIST, CTL_BIZSCT_ROWS)) {
 			ctlList = ctl;
-			P_Box = (SmartListBox*)getCtrlView(ctlList);
+			P_Box = static_cast<SmartListBox *>(getCtrlView(ctlList));
 		}
 	}
 	else
@@ -686,7 +686,7 @@ IMPL_HANDLE_EVENT(BizScTemplDialog)
 int BizScTemplDialog::GetCurItem(uint ctlList, long * pPos, long * pID)
 {
 	long pos = -1, id = -1;
-	SmartListBox * p_box = (SmartListBox*)getCtrlView(ctlList);
+	SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(ctlList));
 	if(p_box) {
 		p_box->getCurID(&id);
 		pos = p_box->def->_curItem();

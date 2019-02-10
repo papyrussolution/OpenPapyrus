@@ -24,7 +24,7 @@
 
 //#include "cairo-types-private.h"
 //#include "cairo-compiler-private.h"
-#include "cairo-freelist-type-private.h"
+//#include "cairo-freelist-type-private.h"
 
 /* for stand-alone compilation*/
 #ifndef VG

@@ -4,9 +4,20 @@
 #ifndef __LZMA_LIB_H
 #define __LZMA_LIB_H
 
-EXTERN_C_BEGIN
+//EXTERN_C_BEGIN
+#ifdef __cplusplus
+	extern "C" {
+#endif
 
-#define MY_STDAPI int MY_STD_CALL
+// @sobolev MY_STD_CALL-->_7Z_STD_CALL
+#ifndef _7Z_STD_CALL
+	#ifdef _WIN32
+		#define _7Z_STD_CALL __stdcall
+	#else
+		#define _7Z_STD_CALL
+	#endif
+#endif
+//#define MY_STDAPI int _7Z_STD_CALL
 #define LZMA_PROPS_SIZE 5
 /*
    RAM requirements for LZMA:
@@ -88,8 +99,7 @@ EXTERN_C_BEGIN
    SZ_ERROR_OUTPUT_EOF - output buffer overflow
    SZ_ERROR_THREAD     - errors in multithreading functions (only for Mt version)
  */
-
-MY_STDAPI LzmaCompress(uchar * dest, size_t * destLen, const uchar * src, size_t srcLen,
+int _7Z_STD_CALL LzmaCompress(uchar * dest, size_t * destLen, const uchar * src, size_t srcLen,
     uchar * outProps, size_t * outPropsSize, /* *outPropsSize must be = 5 */
     int level,    /* 0 <= level <= 9, default = 5 */
     unsigned dictSize, /* default = (1 << 24) */
@@ -98,7 +108,7 @@ MY_STDAPI LzmaCompress(uchar * dest, size_t * destLen, const uchar * src, size_t
     int pb,      /* 0 <= pb <= 4, default = 2  */
     int fb,      /* 5 <= fb <= 273, default = 32 */
     int numThreads /* 1 or 2, default = 2 */
-    );
+);
 
 /*
    LzmaUncompress
@@ -119,8 +129,12 @@ MY_STDAPI LzmaCompress(uchar * dest, size_t * destLen, const uchar * src, size_t
    SZ_ERROR_INPUT_EOF   - it needs more bytes in input buffer (src)
  */
 
-MY_STDAPI LzmaUncompress(uchar * dest, size_t * destLen, const uchar * src, SizeT * srcLen, const uchar * props, size_t propsSize);
+int _7Z_STD_CALL LzmaUncompress(uchar * dest, size_t * destLen, const uchar * src, size_t * srcLen, const uchar * props, size_t propsSize); 
+// @sobolev SizeT-->size_t
 
-EXTERN_C_END
+//EXTERN_C_END
+#ifdef __cplusplus
+	}
+#endif
 
 #endif

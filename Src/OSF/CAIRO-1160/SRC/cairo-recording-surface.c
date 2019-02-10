@@ -80,15 +80,15 @@
 //#include "cairo-array-private.h"
 #include "cairo-analysis-surface-private.h"
 //#include "cairo-clip-private.h"
-#include "cairo-combsort-inline.h"
+//#include "cairo-combsort-inline.h"
 //#include "cairo-composite-rectangles-private.h"
 #include "cairo-default-context-private.h"
 //#include "cairo-error-private.h"
-#include "cairo-image-surface-private.h"
+//#include "cairo-image-surface-private.h"
 //#include "cairo-recording-surface-inline.h"
 #include "cairo-surface-snapshot-inline.h"
 #include "cairo-surface-wrapper-private.h"
-#include "cairo-traps-private.h"
+//#include "cairo-traps-private.h"
 
 typedef enum {
 	CAIRO_RECORDING_REPLAY,
@@ -676,55 +676,37 @@ CLEANUP_COMPOSITE:
 	return status;
 }
 
-static cairo_int_status_t _cairo_recording_surface_mask(void * abstract_surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_pattern_t * mask,
-    const cairo_clip_t * clip)
+static cairo_int_status_t _cairo_recording_surface_mask(void * abstract_surface, cairo_operator_t op,
+    const cairo_pattern_t * source, const cairo_pattern_t * mask, const cairo_clip_t * clip)
 {
 	cairo_status_t status;
 	cairo_recording_surface_t * surface = (cairo_recording_surface_t *)abstract_surface;
 	cairo_command_mask_t * command;
 	cairo_composite_rectangles_t composite;
-
 	TRACE((stderr, "%s: surface=%d\n", __FUNCTION__, surface->base.unique_id));
-
-	status = _cairo_composite_rectangles_init_for_mask(&composite,
-		&surface->base,
-		op, source, mask,
-		clip);
+	status = _cairo_composite_rectangles_init_for_mask(&composite, &surface->base, op, source, mask, clip);
 	if(unlikely(status))
 		return status;
-
 	command = (cairo_command_mask_t *)_cairo_malloc(sizeof(cairo_command_mask_t));
 	if(unlikely(command == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto CLEANUP_COMPOSITE;
 	}
-
-	status = _command_init(surface,
-		&command->header, CAIRO_COMMAND_MASK, op,
-		&composite);
+	status = _command_init(surface, &command->header, CAIRO_COMMAND_MASK, op, &composite);
 	if(unlikely(status))
 		goto CLEANUP_COMMAND;
-
 	status = _cairo_pattern_init_snapshot(&command->source.base, source);
 	if(unlikely(status))
 		goto CLEANUP_COMMAND;
-
 	status = _cairo_pattern_init_snapshot(&command->mask.base, mask);
 	if(unlikely(status))
 		goto CLEANUP_SOURCE;
-
 	status = _cairo_recording_surface_commit(surface, &command->header);
 	if(unlikely(status))
 		goto CLEANUP_MASK;
-
 	_cairo_recording_surface_destroy_bbtree(surface);
-
 	_cairo_composite_rectangles_fini(&composite);
 	return CAIRO_STATUS_SUCCESS;
-
 CLEANUP_MASK:
 	_cairo_pattern_fini(&command->mask.base);
 CLEANUP_SOURCE:

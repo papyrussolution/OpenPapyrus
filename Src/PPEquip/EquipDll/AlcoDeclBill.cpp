@@ -796,7 +796,7 @@ int ExportCls::SaveContragInfo(TSCollection <ContragInfoSt> * pArr)
 void ExportCls::GetPeriod(LDATE billDate, int quarterNum, int year)
 {
 	int month = billDate.month();
-	quarterNum = (int)ceil((double)month / 3);
+	quarterNum = fceili((double)month / 3);
 	year = billDate.year();
 }
 

@@ -156,7 +156,7 @@ int SLAPI Reference::VerifySecur(PPSecur2 * pSecur, int set)
 	uint32 crc = 0;
 	{
 		offs = offsetof(PPSecur2, Crc);
-		crc = c.Calc(0, ((const uint8 *)pSecur)+8, offs-8);
+		crc = c.Calc(0, PTR8C(pSecur)+8, offs-8);
 		offs += sizeof(uint32);
 		crc = c.Calc(crc, PTR8(pSecur) + offs, sizeof(PPSecur2) - offs);
 	}
@@ -169,9 +169,9 @@ int SLAPI Reference::VerifySecur(PPSecur2 * pSecur, int set)
 			memzero(PTR8(pSecur->Symb)+len, sizeof(pSecur->Symb)-len);
 		{
 			offs = offsetof(PPSecur2, Crc);
-			crc = c.Calc(0, ((const uint8 *)pSecur)+8, offs-8);
+			crc = c.Calc(0, PTR8C(pSecur)+8, offs-8);
 			offs += sizeof(uint32);
-			crc = c.Calc(crc, PTR8(pSecur) + offs, sizeof(PPSecur2) - offs);
+			crc = c.Calc(crc, PTR8C(pSecur) + offs, sizeof(PPSecur2) - offs);
 		}
 	}
 	if(set) {
@@ -182,9 +182,9 @@ int SLAPI Reference::VerifySecur(PPSecur2 * pSecur, int set)
 		// Исправление ошибки: вычисляем crc с учетом первых 8 байт записи
 		//
 		offs = offsetof(PPSecur2, Crc);
-		uint32 crc2 = c.Calc(0, ((const uint8 *)pSecur), offs);
+		uint32 crc2 = c.Calc(0, PTR8C(pSecur), offs);
 		offs += sizeof(uint32);
-		crc2 = c.Calc(crc2, PTR8(pSecur) + offs, sizeof(PPSecur2) - offs);
+		crc2 = c.Calc(crc2, PTR8C(pSecur) + offs, sizeof(PPSecur2) - offs);
 		if(pSecur->Crc != crc2) {
 			PPSetError(PPERR_INVPPSECURCRC);
 			ok = 0;

@@ -347,7 +347,7 @@ void * SLAPI TWindow::messageToCtrl(ushort ctlID, ushort cmd, void *ptr)
 int SLAPI TWindow::setSmartListBoxOption(uint ctlID, uint option)
 {
 	int    ok = 1;
-	SmartListBox * p_list = (SmartListBox *)getCtrlView(ctlID);
+	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(ctlID));
 	if(p_list && p_list->IsSubSign(TV_SUBSIGN_LISTBOX)) {
 		CALLPTRMEMB(p_list->def, SetOption(option, 1));
 	}

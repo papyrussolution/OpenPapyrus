@@ -38,7 +38,7 @@
 #pragma hdrstop
 //#include "cairo-error-private.h"
 #include "cairo-freelist-private.h"
-#include "cairo-combsort-inline.h"
+//#include "cairo-combsort-inline.h"
 
 typedef struct _cairo_bo_intersect_ordinate {
 	int32_t ordinate;

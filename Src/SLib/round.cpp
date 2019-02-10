@@ -145,7 +145,7 @@ double SLAPI trunc(double n, int prec)
 //
 double FASTCALL inttodbl2(long v)
 {
-	return implement_round(((double)v) / 100.0, 2);
+	return implement_round(fdiv100i(v), 2);
 }
 
 long   FASTCALL dbltoint2(double r)
@@ -155,7 +155,7 @@ long   FASTCALL dbltoint2(double r)
 
 double FASTCALL intmnytodbl(long m)
 {
-	return implement_round(((double)m) / 100.0, 2);
+	return implement_round(fdiv100i(m), 2);
 }
 
 long FASTCALL dbltointmny(double r)

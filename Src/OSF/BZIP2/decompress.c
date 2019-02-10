@@ -19,11 +19,11 @@
    ------------------------------------------------------------------ */
 
 #include "bzlib_private.h"
+#pragma hdrstop
 
 /*---------------------------------------------------*/
 static void makeMaps_d(DState* s)
 {
-	//int32 i;
 	s->nInUse = 0;
 	for(int32 i = 0; i < 256; i++)
 		if(s->inUse[i]) {
@@ -42,7 +42,7 @@ static void makeMaps_d(DState* s)
 		    if(s->bsLive >= nnn) {		       \
 			    uint32 v = (s->bsBuff >> (s->bsLive-nnn)) & ((1 << nnn)-1); \
 			    s->bsLive -= nnn;			     \
-			    vvv = v;				     \
+			    vvv = static_cast<uchar>(v); /* @sobolev static_cast<uchar> */ \
 			    break;				     \
 		    }						\
 		    if(s->strm->avail_in == 0) \
@@ -289,9 +289,8 @@ int32 BZ2_decompress(DState * s)
 				if(j >= nGroups) 
 					RETURN(BZ_DATA_ERROR);
 			}
-			s->selectorMtf[i] = j;
+			s->selectorMtf[i] = static_cast<uchar>(j);
 		}
-
 		/*--- Undo the MTF values for the selectors. ---*/
 		{
 			uchar pos[BZ_N_GROUPS], tmp, v;
@@ -323,7 +322,7 @@ int32 BZ2_decompress(DState * s)
 					else 
 						curr--;
 				}
-				s->len[t][i] = curr;
+				s->len[t][i] = static_cast<uchar>(curr);
 			}
 		}
 		/*--- Create the Huffman decoding tables ---*/
@@ -451,8 +450,7 @@ int32 BZ2_decompress(DState * s)
 						s->mtfbase[lno]++;
 						while(lno > 0) {
 							s->mtfbase[lno]--;
-							s->mtfa[s->mtfbase[lno]]
-								= s->mtfa[s->mtfbase[lno-1] + MTFL_SIZE - 1];
+							s->mtfa[s->mtfbase[lno]] = s->mtfa[s->mtfbase[lno-1] + MTFL_SIZE - 1];
 							lno--;
 						}
 						s->mtfbase[0]--;
@@ -473,15 +471,14 @@ int32 BZ2_decompress(DState * s)
 
 				s->unzftab[s->seqToUnseq[uc]]++;
 				if(s->smallDecompress)
-					s->ll16[nblock] = (uint16)(s->seqToUnseq[uc]); else
+					s->ll16[nblock] = (uint16)(s->seqToUnseq[uc]); 
+				else
 					s->tt[nblock]   = (uint32)(s->seqToUnseq[uc]);
 				nblock++;
-
 				GET_MTF_VAL(BZ_X_MTF_5, BZ_X_MTF_6, nextSym);
 				continue;
 			}
 		}
-
 		/* Now we know what nblock is, we can do a better sanity
 		   check on s->origPtr.
 		 */
@@ -511,24 +508,22 @@ int32 BZ2_decompress(DState * s)
 				RETURN(BZ_DATA_ERROR);
 			}
 		}
-
 		s->state_out_len = 0;
 		s->state_out_ch  = 0;
 		BZ_INITIALISE_CRC(s->calculatedBlockCRC);
 		s->state = BZ_X_OUTPUT;
-		if(s->verbosity >= 2) VPrintf0("rt+rld");
-
+		if(s->verbosity >= 2) 
+			VPrintf0("rt+rld");
 		if(s->smallDecompress) {
 			/*-- Make a copy of cftab, used in generation of T --*/
-			for(i = 0; i <= 256; i++) s->cftabCopy[i] = s->cftab[i];
-
+			for(i = 0; i <= 256; i++) 
+				s->cftabCopy[i] = s->cftab[i];
 			/*-- compute the T vector --*/
 			for(i = 0; i < nblock; i++) {
 				uc = (uchar)(s->ll16[i]);
 				SET_LL(i, s->cftabCopy[uc]);
 				s->cftabCopy[uc]++;
 			}
-
 			/*-- Compute T^(-1) by pointer reversal on T --*/
 			i = s->origPtr;
 			j = GET_LL(i);

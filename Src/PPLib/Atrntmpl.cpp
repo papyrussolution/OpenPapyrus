@@ -1217,7 +1217,7 @@ class SelAmtSymbDialog : public TDialog {
 public:
 	SelAmtSymbDialog(long options) : TDialog(DLG_SELAMTSYMB), Options(options), SelID(0), SelKind(0)
 	{
-		P_List = (SmartListBox *)getCtrlView(CTL_SELAMTSYMB_LIST);
+		P_List = static_cast<SmartListBox *>(getCtrlView(CTL_SELAMTSYMB_LIST));
 		StrAssocListBoxDef * p_def = new StrAssocListBoxDef(0, lbtDisposeData|lbtDblClkNotify);
 		if(p_def) {
 			P_List->setDef(p_def);

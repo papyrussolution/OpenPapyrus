@@ -471,7 +471,7 @@ int SLAPI PPObjAccount::GetListByAccSheet(PPID accSheetID, PPIDArray & rList)
 
 StrAssocArray * SLAPI PPObjAccount::MakeStrAssocList(void * extraPtr /*acySelType*/)
 {
-	const  long acy_sel_type = (long)extraPtr;
+	const  long acy_sel_type = reinterpret_cast<long>(extraPtr);
 	SString temp_buf;
 	StrAssocArray * p_list = new StrAssocArray;
 	PPAccount rec;
@@ -553,7 +553,7 @@ StrAssocArray * SLAPI PPObjAccount::MakeStrAssocList(void * extraPtr /*acySelTyp
 int SLAPI PPObjAccount::Browse(void * extraPtr /*accType*/)
 {
 	AccountFilt flt;
-	flt.Type = (long)extraPtr;
+	flt.Type = reinterpret_cast<long>(extraPtr);
 	flt.Flags = 0;
 	return PPView::Execute(PPVIEW_ACCOUNT, &flt, 1, 0);
 }
@@ -1198,7 +1198,7 @@ int SLAPI PPObjAccount::Write(PPObjPack * p, PPID * pID, void * stream, ObjTrans
 	else {
 		SBuffer buffer;
 		THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-		THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+		THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 	}
 	CATCHZOK
 	return ok;
@@ -1215,7 +1215,7 @@ int SLAPI PPObjAccount::Read(PPObjPack * p, PPID id, void * stream, ObjTransmCon
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
@@ -1302,7 +1302,7 @@ int SLAPI AccountCache::FetchNum(int ac, int sb, PPID curID, PPAccount * pRec)
 int SLAPI AccountCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	Data * p_cache_rec = (Data *)pEntry;
+	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjAccount acc_obj;
 	PPAccount rec;
 	if(acc_obj.Search(id, &rec) > 0) {
@@ -1331,7 +1331,7 @@ int SLAPI AccountCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 void SLAPI AccountCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPAccount * p_data_rec = (PPAccount *)pDataRec;
-	const Data * p_cache_rec = (const Data *)pEntry;
+	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 #define CPY_FLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
 	CPY_FLD(ID);
 	CPY_FLD(CurID);

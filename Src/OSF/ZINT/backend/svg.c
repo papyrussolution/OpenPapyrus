@@ -184,12 +184,11 @@ int svg_plot(struct ZintSymbol * symbol)
 	fprintf(fsvg, "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"\n");
 	fprintf(fsvg, "   \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n");
 	if(symbol->Std != BARCODE_MAXICODE) {
-		fprintf(fsvg, "<svg width=\"%d\" height=\"%d\" version=\"1.1\"\n", (int)ceil((symbol->width + xoffset + xoffset) * scaler),
-		    (int)ceil((symbol->height + textoffset + yoffset + yoffset) * scaler));
+		fprintf(fsvg, "<svg width=\"%d\" height=\"%d\" version=\"1.1\"\n", fceili((symbol->width + xoffset + xoffset) * scaler),
+		    fceili((symbol->height + textoffset + yoffset + yoffset) * scaler));
 	}
 	else {
-		fprintf(fsvg, "<svg width=\"%d\" height=\"%d\" version=\"1.1\"\n", (int)ceil(
-		    (74.0f + xoffset + xoffset) * scaler), (int)ceil((72.0f + yoffset + yoffset) * scaler));
+		fprintf(fsvg, "<svg width=\"%d\" height=\"%d\" version=\"1.1\"\n", fceili((74.0f + xoffset + xoffset) * scaler), fceili((72.0f + yoffset + yoffset) * scaler));
 	}
 	fprintf(fsvg, "   xmlns=\"http://www.w3.org/2000/svg\">\n");
 	if((sstrlen(local_text) != 0) && (symbol->show_hrt != 0)) {
@@ -202,12 +201,12 @@ int svg_plot(struct ZintSymbol * symbol)
 	fprintf(fsvg, "\n   <g id=\"barcode\" fill=\"%s\">\n", /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 	if(symbol->Std != BARCODE_MAXICODE) {
 		fprintf(fsvg, "      <rect x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" fill=\"%s\" />\n",
-		    (int)ceil((symbol->width + xoffset + xoffset) * scaler),
-		    (int)ceil((symbol->height + textoffset + yoffset + yoffset) * scaler), /*symbol->bgcolour*/symbol->ColorBg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+		    fceili((symbol->width + xoffset + xoffset) * scaler),
+		    fceili((symbol->height + textoffset + yoffset + yoffset) * scaler), /*symbol->bgcolour*/symbol->ColorBg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 	}
 	else {
 		fprintf(fsvg, "      <rect x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" fill=\"%s\" />\n",
-		    (int)ceil((74.0F + xoffset + xoffset) * scaler), (int)ceil((72.0F + yoffset + yoffset) * scaler), /*symbol->bgcolour*/symbol->ColorBg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+		    fceili((74.0F + xoffset + xoffset) * scaler), fceili((72.0F + yoffset + yoffset) * scaler), /*symbol->bgcolour*/symbol->ColorBg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 	}
 	if((symbol->output_options & BARCODE_BOX) || (symbol->output_options & BARCODE_BIND)) {
 		default_text_posn = (symbol->height + textoffset + symbol->border_width + symbol->border_width) * scaler;

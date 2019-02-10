@@ -94,28 +94,22 @@
 	while(0)
 #else
 #define STORE_1(img, l, o, v)                                              \
-	do                                                                  \
-	{                                                                   \
+	do { \
 		uint32_t * __d = ((uint32_t*)(l)) + ((o) >> 5);                \
 		uint32_t __m, __v;                                              \
-                                                                        \
 		__m = 1 << ((o) & 0x1f);                                        \
 		__v = (v) ? __m : 0;                                             \
-                                                                        \
 		WRITE((img), __d, (READ((img), __d) & ~__m) | __v);             \
-	}                                                                   \
-	while(0)
+	} while(0)
 #endif
 
 #define STORE_8(img, l, o, v)  (WRITE(img, (uint8_t*)(l) + ((o) >> 3), (v)))
 
 #ifdef WORDS_BIGENDIAN
 #define STORE_4(img, l, o, v)                                              \
-	do                                                                  \
-	{                                                                   \
+	do { \
 		int bo = 4 * (o);                                               \
 		int v4 = (v) & 0x0f;                                            \
-                                                                        \
 		STORE_8(img, l, bo, (                                          \
 			    bo & 4 ?                                           \
 			    (FETCH_8(img, l, bo) & 0xf0) | (v4) :             \
@@ -123,11 +117,9 @@
 	} while(0)
 #else
 #define STORE_4(img, l, o, v)                                              \
-	do                                                                  \
-	{                                                                   \
+	do { \
 		int bo = 4 * (o);                                               \
 		int v4 = (v) & 0x0f;                                            \
-                                                                        \
 		STORE_8(img, l, bo, (                                          \
 			    bo & 4 ?                                           \
 			    (FETCH_8(img, l, bo) & 0x0f) | (v4 << 4) :        \
@@ -137,10 +129,8 @@
 
 #ifdef WORDS_BIGENDIAN
 #define STORE_24(img, l, o, v)                                            \
-	do                                                                 \
-	{                                                                  \
+	do { \
 		uint8_t * __tmp = (l) + 3 * (o);                                \
-                                                                       \
 		WRITE((img), __tmp++, ((v) & 0x00ff0000) >> 16);              \
 		WRITE((img), __tmp++, ((v) & 0x0000ff00) >>  8);              \
 		WRITE((img), __tmp++, ((v) & 0x000000ff) >>  0);              \
@@ -148,10 +138,8 @@
 	while(0)
 #else
 #define STORE_24(img, l, o, v)                                            \
-	do                                                                 \
-	{                                                                  \
+	do { \
 		uint8_t * __tmp = (l) + 3 * (o);                                \
-                                                                       \
 		WRITE((img), __tmp++, ((v) & 0x000000ff) >>  0);              \
 		WRITE((img), __tmp++, ((v) & 0x0000ff00) >>  8);              \
 		WRITE((img), __tmp++, ((v) & 0x00ff0000) >> 16);              \
@@ -180,27 +168,15 @@
  * variable declarations will cause an error.
  */
 
-#define YV12_Y(line)                                                    \
-	((uint8_t*)((bits) + (stride) * (line)))
-
-#define YV12_U(line)                                                    \
-	((uint8_t*)((bits) + offset1 +                                    \
-	((stride) >> 1) * ((line) >> 1)))
-
-#define YV12_V(line)                                                    \
-	((uint8_t*)((bits) + offset0 +                                    \
-	((stride) >> 1) * ((line) >> 1)))
+#define YV12_Y(line) ((uint8_t*)((bits) + (stride) * (line)))
+#define YV12_U(line) ((uint8_t*)((bits) + offset1 + ((stride) >> 1) * ((line) >> 1)))
+#define YV12_V(line) ((uint8_t*)((bits) + offset0 + ((stride) >> 1) * ((line) >> 1)))
 
 /* Misc. helpers */
 
-static force_inline void get_shifts(pixman_format_code_t format,
-    int * a,
-    int * r,
-    int * g,
-    int * b)
+static force_inline void get_shifts(pixman_format_code_t format, int * a, int * r, int * g, int * b)
 {
-	switch(PIXMAN_FORMAT_TYPE(format))
-	{
+	switch(PIXMAN_FORMAT_TYPE(format)) {
 		case PIXMAN_TYPE_A:
 		    *b = 0;
 		    *g = 0;
@@ -245,19 +221,15 @@ static force_inline void get_shifts(pixman_format_code_t format,
 	}
 }
 
-static force_inline uint32_t convert_channel(uint32_t pixel, uint32_t def_value,
-    int n_from_bits, int from_shift,
-    int n_to_bits, int to_shift)
+static force_inline uint32_t convert_channel(uint32_t pixel, uint32_t def_value, int n_from_bits, int from_shift, int n_to_bits, int to_shift)
 {
 	uint32_t v;
-
 	if(n_from_bits && n_to_bits)
 		v  = unorm_to_unorm(pixel >> from_shift, n_from_bits, n_to_bits);
 	else if(n_to_bits)
 		v = def_value;
 	else
 		v = 0;
-
 	return (v & ((1 << n_to_bits) - 1)) << to_shift;
 }
 
@@ -266,35 +238,18 @@ static force_inline uint32_t convert_pixel(pixman_format_code_t from, pixman_for
 	int a_from_shift, r_from_shift, g_from_shift, b_from_shift;
 	int a_to_shift, r_to_shift, g_to_shift, b_to_shift;
 	uint32_t a, r, g, b;
-
 	get_shifts(from, &a_from_shift, &r_from_shift, &g_from_shift, &b_from_shift);
 	get_shifts(to, &a_to_shift, &r_to_shift, &g_to_shift, &b_to_shift);
-
-	a = convert_channel(pixel, ~0,
-		PIXMAN_FORMAT_A(from), a_from_shift,
-		PIXMAN_FORMAT_A(to), a_to_shift);
-
-	r = convert_channel(pixel, 0,
-		PIXMAN_FORMAT_R(from), r_from_shift,
-		PIXMAN_FORMAT_R(to), r_to_shift);
-
-	g = convert_channel(pixel, 0,
-		PIXMAN_FORMAT_G(from), g_from_shift,
-		PIXMAN_FORMAT_G(to), g_to_shift);
-
-	b = convert_channel(pixel, 0,
-		PIXMAN_FORMAT_B(from), b_from_shift,
-		PIXMAN_FORMAT_B(to), b_to_shift);
-
+	a = convert_channel(pixel, ~0, PIXMAN_FORMAT_A(from), a_from_shift, PIXMAN_FORMAT_A(to), a_to_shift);
+	r = convert_channel(pixel, 0, PIXMAN_FORMAT_R(from), r_from_shift, PIXMAN_FORMAT_R(to), r_to_shift);
+	g = convert_channel(pixel, 0, PIXMAN_FORMAT_G(from), g_from_shift, PIXMAN_FORMAT_G(to), g_to_shift);
+	b = convert_channel(pixel, 0, PIXMAN_FORMAT_B(from), b_from_shift, PIXMAN_FORMAT_B(to), b_to_shift);
 	return a | r | g | b;
 }
 
-static force_inline uint32_t convert_pixel_to_a8r8g8b8(bits_image_t * image,
-    pixman_format_code_t format,
-    uint32_t pixel)
+static force_inline uint32_t convert_pixel_to_a8r8g8b8(bits_image_t * image, pixman_format_code_t format, uint32_t pixel)
 {
-	if(PIXMAN_FORMAT_TYPE(format) == PIXMAN_TYPE_GRAY         ||
-	    PIXMAN_FORMAT_TYPE(format) == PIXMAN_TYPE_COLOR) {
+	if(PIXMAN_FORMAT_TYPE(format) == PIXMAN_TYPE_GRAY || PIXMAN_FORMAT_TYPE(format) == PIXMAN_TYPE_COLOR) {
 		return image->indexed->rgba[pixel];
 	}
 	else {
@@ -302,17 +257,14 @@ static force_inline uint32_t convert_pixel_to_a8r8g8b8(bits_image_t * image,
 	}
 }
 
-static force_inline uint32_t convert_pixel_from_a8r8g8b8(pixman_image_t * image,
-    pixman_format_code_t format, uint32_t pixel)
+static force_inline uint32_t convert_pixel_from_a8r8g8b8(pixman_image_t * image, pixman_format_code_t format, uint32_t pixel)
 {
 	if(PIXMAN_FORMAT_TYPE(format) == PIXMAN_TYPE_GRAY) {
 		pixel = CONVERT_RGB24_TO_Y15(pixel);
-
 		return image->bits.indexed->ent[pixel & 0x7fff];
 	}
 	else if(PIXMAN_FORMAT_TYPE(format) == PIXMAN_TYPE_COLOR) {
 		pixel = convert_pixel(PIXMAN_a8r8g8b8, PIXMAN_x1r5g5b5, pixel);
-
 		return image->bits.indexed->ent[pixel & 0x7fff];
 	}
 	else {
@@ -320,85 +272,32 @@ static force_inline uint32_t convert_pixel_from_a8r8g8b8(pixman_image_t * image,
 	}
 }
 
-static force_inline uint32_t fetch_and_convert_pixel(bits_image_t * image,
-    const uint8_t *   bits,
-    int offset,
-    pixman_format_code_t format)
+static force_inline uint32_t fetch_and_convert_pixel(bits_image_t * image, const uint8_t *   bits, int offset, pixman_format_code_t format)
 {
 	uint32_t pixel;
-
-	switch(PIXMAN_FORMAT_BPP(format))
-	{
-		case 1:
-		    pixel = FETCH_1(image, bits, offset);
-		    break;
-
-		case 4:
-		    pixel = FETCH_4(image, bits, offset);
-		    break;
-
-		case 8:
-		    pixel = READ(image, bits + offset);
-		    break;
-
-		case 16:
-		    pixel = READ(image, ((uint16_t*)bits + offset));
-		    break;
-
-		case 24:
-		    pixel = FETCH_24(image, bits, offset);
-		    break;
-
-		case 32:
-		    pixel = READ(image, ((uint32_t*)bits + offset));
-		    break;
-
-		default:
-		    pixel = 0xffff00ff; /* As ugly as possible to detect the bug */
-		    break;
+	switch(PIXMAN_FORMAT_BPP(format)) {
+		case 1: pixel = FETCH_1(image, bits, offset); break;
+		case 4: pixel = FETCH_4(image, bits, offset); break;
+		case 8: pixel = READ(image, bits + offset); break;
+		case 16: pixel = READ(image, ((uint16_t*)bits + offset)); break;
+		case 24: pixel = FETCH_24(image, bits, offset); break;
+		case 32: pixel = READ(image, ((uint32_t*)bits + offset)); break;
+		default: pixel = 0xffff00ff; break; // As ugly as possible to detect the bug 
 	}
-
 	return convert_pixel_to_a8r8g8b8(image, format, pixel);
 }
 
-static force_inline void convert_and_store_pixel(bits_image_t * image,
-    uint8_t *   dest,
-    int offset,
-    pixman_format_code_t format,
-    uint32_t pixel)
+static force_inline void convert_and_store_pixel(bits_image_t * image, uint8_t * dest, int offset, pixman_format_code_t format, uint32_t pixel)
 {
-	uint32_t converted = convert_pixel_from_a8r8g8b8(
-		(pixman_image_t*)image, format, pixel);
-
-	switch(PIXMAN_FORMAT_BPP(format))
-	{
-		case 1:
-		    STORE_1(image, dest, offset, converted & 0x01);
-		    break;
-
-		case 4:
-		    STORE_4(image, dest, offset, converted & 0xf);
-		    break;
-
-		case 8:
-		    WRITE(image, (dest + offset), converted & 0xff);
-		    break;
-
-		case 16:
-		    WRITE(image, ((uint16_t*)dest + offset), converted & 0xffff);
-		    break;
-
-		case 24:
-		    STORE_24(image, dest, offset, converted);
-		    break;
-
-		case 32:
-		    WRITE(image, ((uint32_t*)dest + offset), converted);
-		    break;
-
-		default:
-		    *dest = 0x0;
-		    break;
+	uint32_t converted = convert_pixel_from_a8r8g8b8((pixman_image_t*)image, format, pixel);
+	switch(PIXMAN_FORMAT_BPP(format)) {
+		case 1: STORE_1(image, dest, offset, converted & 0x01); break;
+		case 4: STORE_4(image, dest, offset, converted & 0xf); break;
+		case 8: WRITE(image, (dest + offset), converted & 0xff); break;
+		case 16: WRITE(image, ((uint16_t*)dest + offset), converted & 0xffff); break;
+		case 24: STORE_24(image, dest, offset, converted); break;
+		case 32: WRITE(image, ((uint32_t*)dest + offset), converted); break;
+		default: *dest = 0x0; break;
 	}
 }
 
@@ -422,34 +321,18 @@ static force_inline void convert_and_store_pixel(bits_image_t * image,
 		}                                                               \
 	}                                                                   \
                                                                         \
-	static void                                          \
-	    store_scanline_ ## format(bits_image_t *  image,                   \
-	    int x,                       \
-	    int y,                       \
-	    int width,                   \
-	    const uint32_t *values)                  \
+	static void store_scanline_ ## format(bits_image_t *  image, int x, int y, int width, const uint32_t *values) \
 	{                                                                   \
-		uint8_t * dest =                                                 \
-		    (uint8_t*)(image->bits + y * image->rowstride);            \
-		int i;                                                          \
-                                                                        \
-		for(i = 0; i < width; ++i)                                     \
-		{                                                               \
-			convert_and_store_pixel(                                   \
-				image, dest, i + x, PIXMAN_ ## format, values[i]);      \
+		uint8_t * dest = (uint8_t*)(image->bits + y * image->rowstride);            \
+		for(int i = 0; i < width; ++i) { \
+			convert_and_store_pixel(image, dest, i + x, PIXMAN_ ## format, values[i]); \
 		}                                                               \
 	}                                                                   \
                                                                         \
-	static uint32_t                                                     \
-	    fetch_pixel_ ## format(bits_image_t *image,                        \
-	    int offset,                         \
-	    int line)                           \
+	static uint32_t fetch_pixel_ ## format(bits_image_t *image, int offset, int line) \
 	{                                                                   \
-		uint8_t * bits =                                                 \
-		    (uint8_t*)(image->bits + line * image->rowstride);         \
-                                                                        \
-		return fetch_and_convert_pixel(                                \
-			image, bits, offset, PIXMAN_ ## format);                    \
+		uint8_t * bits = (uint8_t*)(image->bits + line * image->rowstride); \
+		return fetch_and_convert_pixel(image, bits, offset, PIXMAN_ ## format); \
 	}                                                                   \
                                                                         \
 	static const void * const __dummy__ ## format
@@ -547,48 +430,33 @@ static const uint32_t to_linear_u[256] =
 
 static const float * const to_linear = (const float*)to_linear_u;
 
-static uint8_t to_srgb(float f)
+static uint8_t FASTCALL to_srgb(float f)
 {
 	uint8_t low = 0;
 	uint8_t high = 255;
-
 	while(high - low > 1) {
-		uint8_t mid = (low + high) / 2;
-
+		const uint8_t mid = (low + high) / 2;
 		if(to_linear[mid] > f)
 			high = mid;
 		else
 			low = mid;
 	}
-
-	if(to_linear[high] - f < f - to_linear[low])
-		return high;
-	else
-		return low;
+	return ((to_linear[high] - f) < (f - to_linear[low])) ? high : low;
 }
 
-static void fetch_scanline_a8r8g8b8_sRGB_float(bits_image_t *  image,
-    int x,
-    int y,
-    int width,
-    uint32_t * b,
-    const uint32_t * mask)
+static void fetch_scanline_a8r8g8b8_sRGB_float(bits_image_t *  image, int x, int y, int width, uint32_t * b, const uint32_t * mask)
 {
 	const uint32_t * bits = image->bits + y * image->rowstride;
 	const uint32_t * pixel = bits + x;
 	const uint32_t * end = pixel + width;
 	argb_t * buffer = (argb_t*)b;
-
 	while(pixel < end) {
 		uint32_t p = READ(image, pixel++);
 		argb_t * argb = buffer;
-
 		argb->a = pixman_unorm_to_float((p >> 24) & 0xff, 8);
-
 		argb->r = to_linear [(p >> 16) & 0xff];
 		argb->g = to_linear [(p >>  8) & 0xff];
 		argb->b = to_linear [(p >>  0) & 0xff];
-
 		buffer++;
 	}
 }
@@ -740,31 +608,19 @@ static void fetch_scanline_x2b10g10r10_float(bits_image_t * image,
 	}
 }
 
-static void fetch_scanline_yuy2(bits_image_t * image,
-    int x,
-    int line,
-    int width,
-    uint32_t * buffer,
-    const uint32_t * mask)
+static void fetch_scanline_yuy2(bits_image_t * image, int x, int line, int width, uint32_t * buffer, const uint32_t * mask)
 {
 	const uint32_t * bits = image->bits + image->rowstride * line;
-	int i;
-
-	for(i = 0; i < width; i++) {
-		int16_t y, u, v;
-		int32_t r, g, b;
-
-		y = ((uint8_t*)bits)[(x + i) << 1] - 16;
-		u = ((uint8_t*)bits)[(((x + i) << 1) & - 4) + 1] - 128;
-		v = ((uint8_t*)bits)[(((x + i) << 1) & - 4) + 3] - 128;
-
+	for(int i = 0; i < width; i++) {
+		int16_t y = ((uint8_t*)bits)[(x + i) << 1] - 16;
+		int16_t u = ((uint8_t*)bits)[(((x + i) << 1) & - 4) + 1] - 128;
+		int16_t v = ((uint8_t*)bits)[(((x + i) << 1) & - 4) + 3] - 128;
 		/* R = 1.164(Y - 16) + 1.596(V - 128) */
-		r = 0x012b27 * y + 0x019a2e * v;
+		int32_t r = 0x012b27 * y + 0x019a2e * v;
 		/* G = 1.164(Y - 16) - 0.813(V - 128) - 0.391(U - 128) */
-		g = 0x012b27 * y - 0x00d0f2 * v - 0x00647e * u;
+		int32_t g = 0x012b27 * y - 0x00d0f2 * v - 0x00647e * u;
 		/* B = 1.164(Y - 16) + 2.018(U - 128) */
-		b = 0x012b27 * y + 0x0206a2 * u;
-
+		int32_t b = 0x012b27 * y + 0x0206a2 * u;
 		*buffer++ = 0xff000000 |
 		    (r >= 0 ? r < 0x1000000 ? r         & 0xff0000 : 0xff0000 : 0) |
 		    (g >= 0 ? g < 0x1000000 ? (g >> 8)  & 0x00ff00 : 0x00ff00 : 0) |
@@ -772,34 +628,22 @@ static void fetch_scanline_yuy2(bits_image_t * image,
 	}
 }
 
-static void fetch_scanline_yv12(bits_image_t * image,
-    int x,
-    int line,
-    int width,
-    uint32_t * buffer,
-    const uint32_t * mask)
+static void fetch_scanline_yv12(bits_image_t * image, int x, int line, int width, uint32_t * buffer, const uint32_t * mask)
 {
 	YV12_SETUP(image);
 	uint8_t * y_line = YV12_Y(line);
 	uint8_t * u_line = YV12_U(line);
 	uint8_t * v_line = YV12_V(line);
-	int i;
-
-	for(i = 0; i < width; i++) {
-		int16_t y, u, v;
-		int32_t r, g, b;
-
-		y = y_line[x + i] - 16;
-		u = u_line[(x + i) >> 1] - 128;
-		v = v_line[(x + i) >> 1] - 128;
-
+	for(int i = 0; i < width; i++) {
+		int16_t y = y_line[x + i] - 16;
+		int16_t u = u_line[(x + i) >> 1] - 128;
+		int16_t v = v_line[(x + i) >> 1] - 128;
 		/* R = 1.164(Y - 16) + 1.596(V - 128) */
-		r = 0x012b27 * y + 0x019a2e * v;
+		int32_t r = 0x012b27 * y + 0x019a2e * v;
 		/* G = 1.164(Y - 16) - 0.813(V - 128) - 0.391(U - 128) */
-		g = 0x012b27 * y - 0x00d0f2 * v - 0x00647e * u;
+		int32_t g = 0x012b27 * y - 0x00d0f2 * v - 0x00647e * u;
 		/* B = 1.164(Y - 16) + 2.018(U - 128) */
-		b = 0x012b27 * y + 0x0206a2 * u;
-
+		int32_t b = 0x012b27 * y + 0x0206a2 * u;
 		*buffer++ = 0xff000000 |
 		    (r >= 0 ? r < 0x1000000 ? r         & 0xff0000 : 0xff0000 : 0) |
 		    (g >= 0 ? g < 0x1000000 ? (g >> 8)  & 0x00ff00 : 0x00ff00 : 0) |
@@ -810,41 +654,31 @@ static void fetch_scanline_yv12(bits_image_t * image,
 /**************************** Pixel wise fetching *****************************/
 
 #ifndef PIXMAN_FB_ACCESSORS
-static argb_t fetch_pixel_rgbf_float(bits_image_t * image,
-    int offset,
-    int line)
+static argb_t fetch_pixel_rgbf_float(bits_image_t * image, int offset, int line)
 {
 	float * bits = (float*)image->bits + line * image->rowstride;
 	argb_t argb;
-
 	argb.r = bits[offset * 3];
 	argb.g = bits[offset * 3 + 1];
 	argb.b = bits[offset * 3 + 2];
 	argb.a = 1.f;
-
 	return argb;
 }
 
-static argb_t fetch_pixel_rgbaf_float(bits_image_t * image,
-    int offset,
-    int line)
+static argb_t fetch_pixel_rgbaf_float(bits_image_t * image, int offset, int line)
 {
 	float * bits = (float*)image->bits + line * image->rowstride;
 	argb_t argb;
-
 	argb.r = bits[offset * 4];
 	argb.g = bits[offset * 4 + 1];
 	argb.b = bits[offset * 4 + 2];
 	argb.a = bits[offset * 4 + 3];
-
 	return argb;
 }
 
 #endif
 
-static argb_t fetch_pixel_x2r10g10b10_float(bits_image_t * image,
-    int offset,
-    int line)
+static argb_t fetch_pixel_x2r10g10b10_float(bits_image_t * image, int offset, int line)
 {
 	uint32_t * bits = image->bits + line * image->rowstride;
 	uint32_t p = READ(image, bits + offset);
@@ -852,18 +686,14 @@ static argb_t fetch_pixel_x2r10g10b10_float(bits_image_t * image,
 	uint64_t g = (p >> 10) & 0x3ff;
 	uint64_t b = p & 0x3ff;
 	argb_t argb;
-
 	argb.a = 1.0;
 	argb.r = pixman_unorm_to_float(r, 10);
 	argb.g = pixman_unorm_to_float(g, 10);
 	argb.b = pixman_unorm_to_float(b, 10);
-
 	return argb;
 }
 
-static argb_t fetch_pixel_a2r10g10b10_float(bits_image_t * image,
-    int offset,
-    int line)
+static argb_t fetch_pixel_a2r10g10b10_float(bits_image_t * image, int offset, int line)
 {
 	uint32_t * bits = image->bits + line * image->rowstride;
 	uint32_t p = READ(image, bits + offset);
@@ -872,18 +702,14 @@ static argb_t fetch_pixel_a2r10g10b10_float(bits_image_t * image,
 	uint64_t g = (p >> 10) & 0x3ff;
 	uint64_t b = p & 0x3ff;
 	argb_t argb;
-
 	argb.a = pixman_unorm_to_float(a, 2);
 	argb.r = pixman_unorm_to_float(r, 10);
 	argb.g = pixman_unorm_to_float(g, 10);
 	argb.b = pixman_unorm_to_float(b, 10);
-
 	return argb;
 }
 
-static argb_t fetch_pixel_a2b10g10r10_float(bits_image_t * image,
-    int offset,
-    int line)
+static argb_t fetch_pixel_a2b10g10r10_float(bits_image_t * image, int offset, int line)
 {
 	uint32_t * bits = image->bits + line * image->rowstride;
 	uint32_t p = READ(image, bits + offset);
@@ -892,18 +718,14 @@ static argb_t fetch_pixel_a2b10g10r10_float(bits_image_t * image,
 	uint64_t g = (p >> 10) & 0x3ff;
 	uint64_t r = p & 0x3ff;
 	argb_t argb;
-
 	argb.a = pixman_unorm_to_float(a, 2);
 	argb.r = pixman_unorm_to_float(r, 10);
 	argb.g = pixman_unorm_to_float(g, 10);
 	argb.b = pixman_unorm_to_float(b, 10);
-
 	return argb;
 }
 
-static argb_t fetch_pixel_x2b10g10r10_float(bits_image_t * image,
-    int offset,
-    int line)
+static argb_t fetch_pixel_x2b10g10r10_float(bits_image_t * image, int offset, int line)
 {
 	uint32_t * bits = image->bits + line * image->rowstride;
 	uint32_t p = READ(image, bits + offset);
@@ -911,97 +733,69 @@ static argb_t fetch_pixel_x2b10g10r10_float(bits_image_t * image,
 	uint64_t g = (p >> 10) & 0x3ff;
 	uint64_t r = p & 0x3ff;
 	argb_t argb;
-
 	argb.a = 1.0;
 	argb.r = pixman_unorm_to_float(r, 10);
 	argb.g = pixman_unorm_to_float(g, 10);
 	argb.b = pixman_unorm_to_float(b, 10);
-
 	return argb;
 }
 
-static argb_t fetch_pixel_a8r8g8b8_sRGB_float(bits_image_t * image,
-    int offset,
-    int line)
+static argb_t fetch_pixel_a8r8g8b8_sRGB_float(bits_image_t * image, int offset, int line)
 {
 	uint32_t * bits = image->bits + line * image->rowstride;
 	uint32_t p = READ(image, bits + offset);
 	argb_t argb;
-
 	argb.a = pixman_unorm_to_float((p >> 24) & 0xff, 8);
-
 	argb.r = to_linear [(p >> 16) & 0xff];
 	argb.g = to_linear [(p >>  8) & 0xff];
 	argb.b = to_linear [(p >>  0) & 0xff];
-
 	return argb;
 }
 
-static uint32_t fetch_pixel_yuy2(bits_image_t * image,
-    int offset,
-    int line)
+static uint32_t fetch_pixel_yuy2(bits_image_t * image, int offset, int line)
 {
 	const uint32_t * bits = image->bits + image->rowstride * line;
-
 	int16_t y, u, v;
 	int32_t r, g, b;
-
 	y = ((uint8_t*)bits)[offset << 1] - 16;
 	u = ((uint8_t*)bits)[((offset << 1) & - 4) + 1] - 128;
 	v = ((uint8_t*)bits)[((offset << 1) & - 4) + 3] - 128;
-
 	/* R = 1.164(Y - 16) + 1.596(V - 128) */
 	r = 0x012b27 * y + 0x019a2e * v;
-
 	/* G = 1.164(Y - 16) - 0.813(V - 128) - 0.391(U - 128) */
 	g = 0x012b27 * y - 0x00d0f2 * v - 0x00647e * u;
-
 	/* B = 1.164(Y - 16) + 2.018(U - 128) */
 	b = 0x012b27 * y + 0x0206a2 * u;
-
 	return 0xff000000 |
 	       (r >= 0 ? r < 0x1000000 ? r         & 0xff0000 : 0xff0000 : 0) |
 	       (g >= 0 ? g < 0x1000000 ? (g >> 8)  & 0x00ff00 : 0x00ff00 : 0) |
 	       (b >= 0 ? b < 0x1000000 ? (b >> 16) & 0x0000ff : 0x0000ff : 0);
 }
 
-static uint32_t fetch_pixel_yv12(bits_image_t * image,
-    int offset,
-    int line)
+static uint32_t fetch_pixel_yv12(bits_image_t * image, int offset, int line)
 {
 	YV12_SETUP(image);
 	int16_t y = YV12_Y(line)[offset] - 16;
 	int16_t u = YV12_U(line)[offset >> 1] - 128;
 	int16_t v = YV12_V(line)[offset >> 1] - 128;
 	int32_t r, g, b;
-
 	/* R = 1.164(Y - 16) + 1.596(V - 128) */
 	r = 0x012b27 * y + 0x019a2e * v;
-
 	/* G = 1.164(Y - 16) - 0.813(V - 128) - 0.391(U - 128) */
 	g = 0x012b27 * y - 0x00d0f2 * v - 0x00647e * u;
-
 	/* B = 1.164(Y - 16) + 2.018(U - 128) */
 	b = 0x012b27 * y + 0x0206a2 * u;
-
-	return 0xff000000 |
-	       (r >= 0 ? r < 0x1000000 ? r         & 0xff0000 : 0xff0000 : 0) |
-	       (g >= 0 ? g < 0x1000000 ? (g >> 8)  & 0x00ff00 : 0x00ff00 : 0) |
-	       (b >= 0 ? b < 0x1000000 ? (b >> 16) & 0x0000ff : 0x0000ff : 0);
+	return 0xff000000 | (r >= 0 ? r < 0x1000000 ? r         & 0xff0000 : 0xff0000 : 0) |
+		(g >= 0 ? g < 0x1000000 ? (g >> 8)  & 0x00ff00 : 0x00ff00 : 0) | (b >= 0 ? b < 0x1000000 ? (b >> 16) & 0x0000ff : 0x0000ff : 0);
 }
 
 /*********************************** Store ************************************/
 
 #ifndef PIXMAN_FB_ACCESSORS
-static void store_scanline_rgbaf_float(bits_image_t *  image,
-    int x,
-    int y,
-    int width,
-    const uint32_t * v)
+static void store_scanline_rgbaf_float(bits_image_t *  image, int x, int y, int width, const uint32_t * v)
 {
-	float * bits = (float*)image->bits + image->rowstride * y + 4 * x;
-	const argb_t * values = (argb_t*)v;
-
+	float * bits = (float *)image->bits + image->rowstride * y + 4 * x;
+	const argb_t * values = reinterpret_cast<const argb_t *>(v);
 	for(; width; width--, values++) {
 		*bits++ = values->r;
 		*bits++ = values->g;
@@ -1010,15 +804,10 @@ static void store_scanline_rgbaf_float(bits_image_t *  image,
 	}
 }
 
-static void store_scanline_rgbf_float(bits_image_t *  image,
-    int x,
-    int y,
-    int width,
-    const uint32_t * v)
+static void store_scanline_rgbf_float(bits_image_t *  image, int x, int y, int width, const uint32_t * v)
 {
 	float * bits = (float*)image->bits + image->rowstride * y + 3 * x;
-	const argb_t * values = (argb_t*)v;
-
+	const argb_t * values = reinterpret_cast<const argb_t *>(v);
 	for(; width; width--, values++) {
 		*bits++ = values->r;
 		*bits++ = values->g;
@@ -1032,7 +821,7 @@ static void store_scanline_a2r10g10b10_float(bits_image_t *  image, int x, int y
 {
 	uint32_t * bits = image->bits + image->rowstride * y;
 	uint32_t * pixel = bits + x;
-	argb_t * values = (argb_t*)v;
+	const argb_t * values = reinterpret_cast<const argb_t *>(v);
 	for(int i = 0; i < width; ++i) {
 		uint16_t a = pixman_float_to_unorm(values[i].a, 2);
 		uint16_t r = pixman_float_to_unorm(values[i].r, 10);
@@ -1046,7 +835,7 @@ static void store_scanline_x2r10g10b10_float(bits_image_t *  image, int x, int y
 {
 	uint32_t * bits = image->bits + image->rowstride * y;
 	uint32_t * pixel = bits + x;
-	argb_t * values = (argb_t*)v;
+	const argb_t * values = reinterpret_cast<const argb_t *>(v);
 	for(int i = 0; i < width; ++i) {
 		uint16_t r = pixman_float_to_unorm(values[i].r, 10);
 		uint16_t g = pixman_float_to_unorm(values[i].g, 10);
@@ -1059,7 +848,7 @@ static void store_scanline_a2b10g10r10_float(bits_image_t *  image, int x, int y
 {
 	uint32_t * bits = image->bits + image->rowstride * y;
 	uint32_t * pixel = bits + x;
-	argb_t * values = (argb_t*)v;
+	const argb_t * values = reinterpret_cast<const argb_t *>(v);
 	for(int i = 0; i < width; ++i) {
 		uint16_t a = pixman_float_to_unorm(values[i].a, 2);
 		uint16_t r = pixman_float_to_unorm(values[i].r, 10);
@@ -1073,7 +862,7 @@ static void store_scanline_x2b10g10r10_float(bits_image_t *  image, int x, int y
 {
 	uint32_t * bits = image->bits + image->rowstride * y;
 	uint32_t * pixel = bits + x;
-	argb_t * values = (argb_t*)v;
+	const argb_t * values = reinterpret_cast<const argb_t *>(v);
 	for(int i = 0; i < width; ++i) {
 		uint16_t r = pixman_float_to_unorm(values[i].r, 10);
 		uint16_t g = pixman_float_to_unorm(values[i].g, 10);
@@ -1086,9 +875,9 @@ static void store_scanline_a8r8g8b8_sRGB_float(bits_image_t *  image, int x, int
 {
 	uint32_t * bits = image->bits + image->rowstride * y;
 	uint32_t * pixel = bits + x;
-	argb_t * values = (argb_t*)v;
+	const argb_t * values = reinterpret_cast<const argb_t *>(v);
 	for(int i = 0; i < width; ++i) {
-		uint8_t a = pixman_float_to_unorm(values[i].a, 8);
+		uint8_t a = static_cast<uint8_t>(pixman_float_to_unorm(values[i].a, 8));
 		uint8_t r = to_srgb(values[i].r);
 		uint8_t g = to_srgb(values[i].g);
 		uint8_t b = to_srgb(values[i].b);
@@ -1102,9 +891,8 @@ static void store_scanline_a8r8g8b8_sRGB_float(bits_image_t *  image, int x, int
  */
 static void store_scanline_generic_float(bits_image_t *  image, int x, int y, int width, const uint32_t * values)
 {
-	uint32_t * argb8_pixels;
 	assert(image->common.type == BITS);
-	argb8_pixels = (uint32_t*)pixman_malloc_ab(width, sizeof(uint32_t));
+	uint32_t * argb8_pixels = static_cast<uint32_t *>(pixman_malloc_ab(width, sizeof(uint32_t)));
 	if(!argb8_pixels)
 		return;
 	// Contract the scanline.  We could do this in place if values weren't const.
@@ -1116,7 +904,7 @@ static void store_scanline_generic_float(bits_image_t *  image, int x, int y, in
 static void fetch_scanline_generic_float(bits_image_t *  image, int x, int y, int width, uint32_t * buffer, const uint32_t * mask)
 {
 	image->fetch_scanline_32(image, x, y, width, buffer, NULL);
-	pixman_expand_to_float((argb_t*)buffer, buffer, image->format, width);
+	pixman_expand_to_float(reinterpret_cast<argb_t *>(buffer), buffer, image->format, width);
 }
 
 /* The 32_sRGB paths should be deleted after narrow processing
@@ -1127,17 +915,16 @@ static void fetch_scanline_a8r8g8b8_32_sRGB(bits_image_t * image, int x, int y, 
 	const uint32_t * bits = image->bits + y * image->rowstride;
 	const uint32_t * pixel = (uint32_t*)bits + x;
 	const uint32_t * end = pixel + width;
-	uint32_t tmp;
 	while(pixel < end) {
 		uint8_t a, r, g, b;
-		tmp = READ(image, pixel++);
+		uint32_t tmp = READ(image, pixel++);
 		a = (tmp >> 24) & 0xff;
 		r = (tmp >> 16) & 0xff;
 		g = (tmp >> 8) & 0xff;
 		b = (tmp >> 0) & 0xff;
-		r = to_linear[r] * 255.0f + 0.5f;
-		g = to_linear[g] * 255.0f + 0.5f;
-		b = to_linear[b] * 255.0f + 0.5f;
+		r = static_cast<uint8_t>(to_linear[r] * 255.0f + 0.5f);
+		g = static_cast<uint8_t>(to_linear[g] * 255.0f + 0.5f);
+		b = static_cast<uint8_t>(to_linear[b] * 255.0f + 0.5f);
 		*buffer++ = (a << 24) | (r << 16) | (g << 8) | (b << 0);
 	}
 }
@@ -1151,9 +938,9 @@ static uint32_t fetch_pixel_a8r8g8b8_32_sRGB(bits_image_t * image, int offset, i
 	r = (tmp >> 16) & 0xff;
 	g = (tmp >> 8) & 0xff;
 	b = (tmp >> 0) & 0xff;
-	r = to_linear[r] * 255.0f + 0.5f;
-	g = to_linear[g] * 255.0f + 0.5f;
-	b = to_linear[b] * 255.0f + 0.5f;
+	r = static_cast<uint8_t>(to_linear[r] * 255.0f + 0.5f);
+	g = static_cast<uint8_t>(to_linear[g] * 255.0f + 0.5f);
+	b = static_cast<uint8_t>(to_linear[b] * 255.0f + 0.5f);
 	return (a << 24) | (r << 16) | (g << 8) | (b << 0);
 }
 
@@ -1353,7 +1140,6 @@ static void setup_accessors(bits_image_t * image)
 			image->fetch_pixel_float = info->fetch_pixel_float;
 			image->store_scanline_32 = info->store_scanline_32;
 			image->store_scanline_float = info->store_scanline_float;
-
 			return;
 		}
 		info++;
@@ -1372,10 +1158,8 @@ void _pixman_bits_image_setup_accessors(bits_image_t * image)
 }
 
 #else
-
 void _pixman_bits_image_setup_accessors_accessors(bits_image_t * image)
 {
 	setup_accessors(image);
 }
-
 #endif

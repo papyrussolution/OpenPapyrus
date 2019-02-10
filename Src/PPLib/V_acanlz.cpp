@@ -1,5 +1,5 @@
 // V_ACANLZ.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -90,7 +90,7 @@ PPBaseFilt * SLAPI PPViewAccAnlz::CreateFilt(void * extraPtr) const
 	const LDATE oper_date = LConfig.OperDate;
 	const Acct & r_cash_acct = CConfig.CashAcct;
 	const Acct & r_suppl_acct = CConfig.SupplAcct;
-	AccAnlzKind kind = (AccAnlzKind)(long)extraPtr;
+	AccAnlzKind kind = (AccAnlzKind)reinterpret_cast<long>(extraPtr);
 	AccAnlzFilt * p_filt = new AccAnlzFilt;
 	switch(kind) {
 		case aakndCashBook:
@@ -452,7 +452,7 @@ int SLAPI PPViewAccAnlz::EditSupplTrnovrFilt(AccAnlzFilt * pFilt)
 int SLAPI PPViewAccAnlz::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	int    ok = -1, valid_data = 0;
-	AccAnlzFilt * p_filt = (AccAnlzFilt*)pFilt;
+	AccAnlzFilt * p_filt = static_cast<AccAnlzFilt *>(pFilt);
 	THROW_INVARG(p_filt);
 	if(p_filt->Flags & AccAnlzFilt::fTrnovrBySuppl)
 		ok = EditSupplTrnovrFilt(p_filt);
@@ -1799,19 +1799,19 @@ int SLAPI PPViewAccAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 	BrwHdr hdr;
 	MEMSZERO(hdr);
 	if(pRow) {
-		const  char * p_hdr = (const char *)pRow;
+		const  char * p_hdr = static_cast<const char *>(pRow);
 		if((Filt.Flags & (AccAnlzFilt::fGroupByCorAcc |	AccAnlzFilt::fTrnovrBySheet)) || Filt.Cycl.Cycle) {
-			hdr.AccRelID = *(PPID *)p_hdr;
-			hdr.Dt = *(LDATE*)(p_hdr + sizeof(PPID));
-			hdr.A = *(Acct*)(p_hdr + sizeof(PPID) + sizeof(LDATE));
-			hdr.CurID = *(PPID *)(p_hdr + sizeof(PPID) + sizeof(LDATE) + sizeof(Acct));
+			hdr.AccRelID = *reinterpret_cast<const PPID *>(p_hdr);
+			hdr.Dt = *reinterpret_cast<const LDATE *>(p_hdr + sizeof(PPID));
+			hdr.A = *reinterpret_cast<const Acct *>(p_hdr + sizeof(PPID) + sizeof(LDATE));
+			hdr.CurID = *reinterpret_cast<const PPID *>(p_hdr + sizeof(PPID) + sizeof(LDATE) + sizeof(Acct));
 		}
 		else {
-			hdr.Dt = *(LDATE *)p_hdr;
-			hdr.OprNo = *(long *)(p_hdr+sizeof(LDATE));
-			hdr.BillID = *(PPID *)(p_hdr+sizeof(long)+sizeof(LDATE));
-			hdr.AccRelID = *(PPID *)(p_hdr+sizeof(long)+sizeof(LDATE)+sizeof(PPID));
-			hdr.CorAccID = *(PPID *)(p_hdr+sizeof(long)+sizeof(LDATE)+sizeof(PPID)*2);
+			hdr.Dt = *reinterpret_cast<const LDATE *>(p_hdr);
+			hdr.OprNo = *reinterpret_cast<const long *>(p_hdr+sizeof(LDATE));
+			hdr.BillID = *reinterpret_cast<const PPID *>(p_hdr+sizeof(long)+sizeof(LDATE));
+			hdr.AccRelID = *reinterpret_cast<const PPID *>(p_hdr+sizeof(long)+sizeof(LDATE)+sizeof(PPID));
+			hdr.CorAccID = *reinterpret_cast<const PPID *>(p_hdr+sizeof(long)+sizeof(LDATE)+sizeof(PPID)*2);
 		}
 		ok = 1;
 	}

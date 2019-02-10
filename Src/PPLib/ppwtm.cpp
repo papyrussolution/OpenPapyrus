@@ -109,7 +109,7 @@ WhatmanObjectDrawFigure::WhatmanObjectDrawFigure(SDrawFigure * pFig) : TWhatmanO
 	Options |= (oMovable | oResizable | oMultSelectable);
 	if(P_Fig) {
 		FPoint sz = P_Fig->GetSize();
-		TRect b(0, 0, (int)ceil(sz.X), (int)ceil(sz.Y));
+		TRect b(0, 0, fceili(sz.X), fceili(sz.Y));
 		SetBounds(b);
 	}
 }

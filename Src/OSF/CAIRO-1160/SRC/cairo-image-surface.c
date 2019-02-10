@@ -46,7 +46,7 @@
 //#include "cairo-error-private.h"
 #include "cairo-image-surface-inline.h"
 #include "cairo-paginated-private.h"
-//#include "cairo-pattern-private.h"
+////#include "cairo-pattern-private.h"
 //#include "cairo-pixman-private.h"
 #include "cairo-recording-surface-private.h"
 //#include "cairo-region-private.h"

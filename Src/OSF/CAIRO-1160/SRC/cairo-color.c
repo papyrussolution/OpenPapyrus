@@ -57,35 +57,30 @@ static cairo_color_t const cairo_color_magenta = {
 	0xffff, 0x0, 0xffff, 0xffff
 };
 
-const cairo_color_t * _cairo_stock_color(cairo_stock_t stock)
+const cairo_color_t * FASTCALL _cairo_stock_color(cairo_stock_t stock)
 {
 	switch(stock) {
-		case CAIRO_STOCK_WHITE:
-		    return &cairo_color_white;
-		case CAIRO_STOCK_BLACK:
-		    return &cairo_color_black;
-		case CAIRO_STOCK_TRANSPARENT:
-		    return &cairo_color_transparent;
-
+		case CAIRO_STOCK_WHITE: return &cairo_color_white;
+		case CAIRO_STOCK_BLACK: return &cairo_color_black;
+		case CAIRO_STOCK_TRANSPARENT: return &cairo_color_transparent;
 		case CAIRO_STOCK_NUM_COLORS:
 		default:
 		    ASSERT_NOT_REACHED;
-		    /* If the user can get here somehow, give a color that indicates a
-		 * problem. */
+		    // If the user can get here somehow, give a color that indicates a problem. 
 		    return &cairo_color_magenta;
 	}
 }
-
-/* Convert a double in [0.0, 1.0] to an integer in [0, 65535]
- * The conversion is designed to choose the integer i such that
- * i / 65535.0 is as close as possible to the input value.
- */
-uint16_t _cairo_color_double_to_short(double d)
+// 
+// Convert a double in [0.0, 1.0] to an integer in [0, 65535]
+// The conversion is designed to choose the integer i such that
+// i / 65535.0 is as close as possible to the input value.
+// 
+/* @sobolev (FORCEINLINE) uint16_t _cairo_color_double_to_short(double d)
 {
 	return static_cast<uint16_t>(d * 65535.0 + 0.5);
-}
+}*/
 
-static void _cairo_color_compute_shorts(cairo_color_t * color)
+static void FASTCALL _cairo_color_compute_shorts(cairo_color_t * color)
 {
 	color->red_short   = _cairo_color_double_to_short(color->red * color->alpha);
 	color->green_short = _cairo_color_double_to_short(color->green * color->alpha);
@@ -108,11 +103,7 @@ void _cairo_color_multiply_alpha(cairo_color_t * color, double alpha)
 	_cairo_color_compute_shorts(color);
 }
 
-void _cairo_color_get_rgba(cairo_color_t * color,
-    double * red,
-    double * green,
-    double * blue,
-    double * alpha)
+void _cairo_color_get_rgba(cairo_color_t * color, double * red, double * green, double * blue, double * alpha)
 {
 	*red   = color->red;
 	*green = color->green;

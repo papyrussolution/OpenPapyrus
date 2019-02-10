@@ -762,7 +762,7 @@ int Generator_GnuPlot::Run()
 	Close();
 
 	PPGetFilePath(PPPATH_BIN, "ppgplot.exe", cmd_line);
-	spawnl(_P_NOWAIT, (const char *)cmd_line, (const char *)cmd_line, (const char *)q_file_name, 0);
+	spawnl(_P_NOWAIT, cmd_line.cptr(), cmd_line.cptr(), q_file_name.cptr(), 0);
 //#ifndef _DEBUG
 	SLS.RegisterTempFileName(file_name);
 	SLS.RegisterTempFileName(DataFileName);

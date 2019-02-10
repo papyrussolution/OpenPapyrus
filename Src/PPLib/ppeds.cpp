@@ -229,7 +229,7 @@ int PPEds::EncodeData(const char * pOwnerName, const char * pFileName, int sameF
 	GetEncryptedFileName(pFileName, encode_file_name, sameFile);
 	THROW_SL(encode_file.Open(encode_file_name, SFile::mWrite | SFile::mBinary));
 	file.CalcSize(&file_size);
-	blob_count = (int)ceil((double)file_size / block_size_to_read);
+	blob_count = fceili((double)file_size / block_size_to_read);
 	// Получим размер зашифрованных данных
 	buf_len = block_size_to_read;
 	cb_indata = block_size_to_read;
@@ -320,7 +320,7 @@ int PPEds::DecodeData(const char * pOwnerName, const char * pFileName)
 	l_block_len = sizeof(block_len);
 	THROW_PP(CryptGetKeyParam(h_private_key, KP_BLOCKLEN, (PBYTE)&block_len, &l_block_len, 0), PPERR_EDS_GETBLOCKSIZEFAILED);
 	block_len /= 8;
-	blob_count = (int)ceil((double)file_size / block_len);
+	blob_count = fceili((double)file_size / block_len);
 	for(size_t i = 0; i < (size_t)blob_count; i++, file_size -= block_len) {
 		cb_indata = block_len;
 		if(file_size < block_len)
@@ -397,7 +397,7 @@ int PPEds::FirstSignData(const char * pSignerName, const char * pFileName, SStri
 	// Подписываем файл частями
 	THROW_SL(file.Open(pFileName, SFile::mRead | SFile::mBinary));
 	file.CalcSize(&file_size);
-	blob_count = (int)ceil((double)file_size / SIZE_TO_READ);
+	blob_count = fceili((double)file_size / SIZE_TO_READ);
 	THROW_MEM(message_array = new const BYTE*[blob_count]);
 	THROW_MEM(message_size_array = new DWORD[blob_count]);
 	memzero(message_size_array, blob_count);
@@ -517,7 +517,7 @@ int PPEds::CoSignData(const char * pCosignerName, const char * pFileName, const 
 	cb_indata = (DWORD)file_size;
 	THROW_MEM(pb_indata = new BYTE[SIZE_TO_READ]);
 	size_t actual_size = 0;
-	blob_count = (int)ceil((double)file_size / SIZE_TO_READ);
+	blob_count = fceili((double)file_size / SIZE_TO_READ);
 	for(size_t i = 0; i < (size_t)blob_count; i++) {
 		file.Read(pb_indata, SIZE_TO_READ, &actual_size);
 		// Добавим данные в h_msg

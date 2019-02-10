@@ -2141,7 +2141,7 @@ public:
 	SString FileName;       // Имя файла импорта/экспорта
 	ImpExpParamDllStruct ImpExpParamDll; // @vmiller
 private:
-	int    ParseFormula(int hdr, SString & rPar, SString & rVal);
+	int    ParseFormula(int hdr, const SString & rPar, const SString & rVal);
 };
 
 extern "C" typedef PPImpExpParam * (*FN_IMPEXPHDL_FACTORY)(long flags);
@@ -2205,7 +2205,7 @@ public:
 	//
 	// Descr: Сохраняет текущее состояние, позволяет считывать в буфер данные о подчиненном элементе.
 	//
-	int    SLAPI Push(PPImpExpParam * pParam);
+	int    SLAPI Push(const PPImpExpParam * pParam);
 	//
 	// Descr: Восстанавливает текущее состояние.
 	//
@@ -3454,7 +3454,6 @@ public:
 	//
 	int    SLAPI Merge(const ObjTagList & rSrc, int updateMode);
 	void   SLAPI Destroy();
-
 	int    SLAPI Write__(SBuffer & rBuf) const; // @todo(eliminate)
 	int    SLAPI Read__(SBuffer & rBuf);        // @todo(eliminate)
 	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
@@ -9333,6 +9332,7 @@ struct ILTI { // @persistent(DBX) @size=80
 	// Если этот флаг установлен, то смысл флагов BILLF2_EDIAR_AGR и BILLF2_EDIAR_DISAGR переключается на реакцию на
 	// запрос об отмене проведения.
 #define BILLF2_ROWLINKBYRBB  0x00000800L // @v9.4.3 @internal
+#define BILLF2_REVERSEDEBT   0x00001000L // @v10.3.3 Документ работает как реверсивная оплата или зачет: имею отрицательную номинальную сумму оплачивает ее модулем другой документ 
 //
 // Value added record for PPOBJ_BILL
 // Used if (BillTbl::Rec::Flags & BILLF_EXTRA)
@@ -10826,7 +10826,7 @@ public:
 //
 // Descr: Функция подстановки в метод BillCore::PayPlanEnumerator()
 //
-typedef int (*PayPlanEnumProc)(PayPlanTbl::Rec *, long);
+typedef int (*PayPlanEnumProc)(PayPlanTbl::Rec *, void *);
 //
 // Descr: реализует общие механизмы работы с документами
 //
@@ -10867,7 +10867,7 @@ public:
 	int    SLAPI UpdateAmount(PPID, const AmtEntry *, int removeZero);
 	int    SLAPI GetPayPlan(PPID billID, PayPlanArray * pList);
 	int    SLAPI PutPayPlan(PPID billID, const PayPlanArray *, int use_ta);
-	int    SLAPI PayPlanEnumerator(const DateRange *, PayPlanEnumProc, long extraParam);
+	int    SLAPI PayPlanEnumerator(const DateRange *, PayPlanEnumProc, void * extraPtr);
 	int    SLAPI GetLastPayDate(PPID, LDATE *);
 	//
 	// Descr: Находит последний в хронологическом порядке документ оплаты по документу billID,
@@ -15550,7 +15550,7 @@ public:
 	virtual int  SLAPI Edit(PPID * pID, void * extraPtr);
 	virtual int  SLAPI Browse(void * extraPtr);
 	int    SLAPI AddItem(PPID * pID, PPCurrency * pCurrency, int use_ta);
-	StrAssocArray * SLAPI CreateSelectorList(int asSymb, PPIDArray * pInclList, PPIDArray * pExclList);
+	StrAssocArray * SLAPI CreateSelectorList(int asSymb, PPIDArray * pInclList, const PPIDArray * pExclList);
 	int    SLAPI Select(int asSymb, PPIDArray * pInclList, PPIDArray * pExclList, PPID * pID);
 	int    FASTCALL Fetch(PPID id, PPCurrency * pRec);
 	int    SLAPI SearchSymb(PPID * pID, const char * pSymb);
@@ -15765,7 +15765,9 @@ struct PPTimeSeries { // @persistent @store(Reference2Tbl)
 	double AvgSpread;      //
 	uint32 OptMaxDuck;     // Оптимальная глубина проседания (в квантах) при длинной ставке
 	uint32 OptMaxDuck_S;   // Оптимальная глубина проседания (в квантах) при короткой ставке
-	char   Reserve[6];     // @reserve
+	uint16 PeakAvgQuant;   // @v10.3.3
+	uint16 PeakAvgQuant_S; // @v10.3.3
+	char   Reserve[2];     // @reserve
 	long   Flags;          //
 	long   Reserve2[2];    // @reserve
 };
@@ -15774,7 +15776,9 @@ class PPObjTimeSeries : public PPObjReference {
 public:
 	struct Config { // @persistent
 		enum {
-			fTestMode = 0x0001
+			fTestMode      = 0x0001,
+			fUseStakeMode2 = 0x0002, // @v10.3.3
+			fUseStakeMode3 = 0x0004  // @v10.3.3
 		};
 		enum {
 			efLong         = 0x0001,
@@ -15801,7 +15805,10 @@ public:
 		double AvailableLimitAbs;
 		double MinPerDayPotential;
 		struct ExtBlock {
-			uint8  Reserve[64];
+			SLAPI  ExtBlock();
+			uint32 MaxAvgTimeSec; // @v10.3.3 Предельное среднее время в секундах
+			int32  TsFlashTimer;  // @v10.3.3 default(600) Период времени (секунд) по истечении которого необходимо сбросить накопленные серии в БД 
+			uint8  Reserve[56];
 		};
 		ExtBlock   E;
 		TSVector <Entry> List;
@@ -15822,6 +15829,7 @@ public:
 		StrategyResultValue & SLAPI Z();
 		double SLAPI GetResultPerSec() const;
 		double SLAPI GetResultPerDay() const;
+		void   FASTCALL Append(const StrategyResultValue & rV);
 
 		double Result;
 		uint64 TmCount;
@@ -15835,10 +15843,11 @@ public:
 	};
 	struct Strategy { // @flat @persistent
 		static double SLAPI CalcSL_withExternalFactors(double peak, bool isShort, int prec, uint maxDuckQuant, double spikeQuant);
+		static double SLAPI CalcTP_withExternalFactors(double stakeBase, bool isShort, int prec, uint targetQuant, double spikeQuant);
 		SLAPI  Strategy();
 		void   SLAPI Reset();
-		void   FASTCALL SetValue(const StrategyResultValue & rV);
 		double SLAPI CalcSL(double peak) const;
+		double SLAPI CalcTP(double stakeBase) const;
 		double SLAPI GetWinCountRate() const;
 		enum {
 			bfShort = 0x0001 // Стратегия для short-торговли
@@ -15877,6 +15886,7 @@ public:
 		void   SLAPI SetLastValTm(LDATETIME dtm);
 		LDATETIME SLAPI GetLastValTm() const { return LastValTm; }
 		LDATETIME SLAPI GetStorageTm() const { return StorageTm; }
+		uint32 SLAPI GetVersion() const { return Ver; }
 		int    SLAPI GetInputFramSizeList(LongArray & rList, uint * pMaxOptDelta2Stride) const;
 		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	private:
@@ -15905,12 +15915,20 @@ public:
 	struct StrategyResultEntry : public Strategy {
 		SLAPI  StrategyResultEntry();
 		SLAPI  StrategyResultEntry(const PPObjTimeSeries::TrainNnParam & rTnnp, int stakeMode);
+		void   FASTCALL SetValue(const StrategyResultValue & rV);
+		void   FASTCALL SetValue(const StrategyResultValueEx & rV);
+		void   FASTCALL SetOuter(const StrategyResultEntry & rS);
+		double SLAPI GetPeakAverage() const;
+		double SLAPI GetBottomAverage() const;
 
 		char   Symb[32];
 		uint   LastResultIdx; // Последний индекс в тестируемом ряду, по которому еще можно получить адекватный результат
 			// (далее ряд обрывается раньше, чем можно оценить результат ставки).
 		double OptDeltaResult;
 		double OptDelta2Result;
+		double SumPeak;          // @v10.3.3
+		double SumBottom;        // @v10.3.3
+		double MaxPeak;          // @v10.3.3
 	};
 
 	static int SLAPI EditConfig(PPObjTimeSeries::Config * pCfg);
@@ -15932,24 +15950,23 @@ public:
 	int    SLAPI SetExternStakeEnvironment(const TsStakeEnvironment & rEnv, TsStakeEnvironment::StakeRequestBlock & rRet);
 	int    SLAPI GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry> & rList);
 	int    SLAPI Test(); // @experimental
-	int    SLAPI AnalyzeTsAftershocks();
-	int    SLAPI AnalyzeAftershock(const STimeSeries & rTs, const TrainNnParam & rP);
-	int    SLAPI CalcStrategyResult2(const DateTimeArray & rTmList, const RealArray & rValList, const Strategy & rS, uint valueIdx, StrategyResultValueEx & rV) const;
-	int    SLAPI TestStrategy2(const DateTimeArray & rTmList, const RealArray & rValList, const RealArray & rTrendList, const Strategy & rS, StrategyResultEntry & rResult);
+	//static int SLAPI CalcStrategyResult2(const DateTimeArray & rTmList, const RealArray & rValList, const Strategy & rS, uint valueIdx, StrategyResultValueEx & rV);
+	//static int SLAPI TestStrategy2(const DateTimeArray & rTmList, const RealArray & rValList, const RealArray & rTrendList, const Strategy & rS, StrategyResultEntry & rResult);
 
-	struct MaxDuckToResultRelation {
-		uint   MaxDuckQuant;
+	struct FactorToResultRelation {
+		SLAPI  FactorToResultRelation();
+		SLAPI  FactorToResultRelation(uint factorQuant, double result);
+		uint   FactorQuant;
+		uint   PeakAvg;
 		double Result;
 	};
-	int    SLAPI FindOptimalMaxDuck2(const DateTimeArray & rTmList, const RealArray & rValList, const TrainNnParam & rS, const IntRange & rMdRange, int mdStep,
-		TSVector <MaxDuckToResultRelation> * pSet, MaxDuckToResultRelation & rResult);
-	int    SLAPI FindOptimalPeak(const DateTimeArray & rTmList, const RealArray & rValList, const RealArray & rTrendList, 
-		const PPObjTimeSeries::TrainNnParam & rS, int stakeMode, const IntRange & rTargetRange, RAssocArray & rResultList);
+	// ARG(what IN): 0 - maxduck, 1 - peak
+	int    SLAPI FindOptimalFactor(const DateTimeArray & rTmList, const RealArray & rValList, const TrainNnParam & rS, int what,
+		const IntRange & rMdRange, int mdStep, TSVector <FactorToResultRelation> & rSet, FactorToResultRelation & rResult);
+	//static int SLAPI Helper_FindOptimalFactor(const DateTimeArray & rTmList, const RealArray & rValList, const TrainNnParam & rS, double & rResult, uint & rPeakQuant);
 private:
 	virtual int SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam);
 	int    SLAPI EditDialog(PPTimeSeries * pEntry);
-	uint   SLAPI Helper_FindOptimalPeak(const DateTimeArray & rTmList, const RealArray & rValList, const RealArray & rTrendList, 
-		const PPObjTimeSeries::TrainNnParam & rS, int stakeMode, int32 targetQuant, RAssocArray & rResultList);
 	//int    SLAPI IsCase(const STimeSeries & rTs, const TrainNnParam & rP, uint vecIdx, uint lastIdx) const;
 };
 //
@@ -16780,6 +16797,7 @@ public:
 	int    SLAPI PutPacket(PPID *, PPOprKindPacket *, int use_ta);
 	int    SLAPI FetchInventoryData(PPID, PPInventoryOpEx *);
 	int    SLAPI GetPaymentOpList(PPID linkOpID, PPIDArray *);
+	int    SLAPI GetCorrectionOpList(PPID linkOpID, PPIDArray * pList);
 	//
 	// Descr: Возвращает список видов операций, требующих оплаты и связанных
 	//   с таблицей статей accSheetID.
@@ -16818,6 +16836,7 @@ private:
 	int    SLAPI SetDraftExData(PPID id, const PPDraftOpEx * pData);
 	int    SLAPI SerializePacket(int dir, PPOprKindPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    SLAPI Helper_GetReservedOp(PPID * pID, const ReservedOpCreateBlock & rBlk, int use_ta);
+	int    SLAPI Helper_GetOpListByLink(PPID opTypeID, PPID linkOpID, PPIDArray * pList);
 };
 //
 // @ModuleDecl(PPObjBillStatus)
@@ -21567,7 +21586,7 @@ public:
 	static int SLAPI Test(PPID gtaxID);
 	explicit SLAPI GTaxVect(int roundPrec = 2);
 	void   SLAPI Calc_(PPGoodsTaxEntry *, double amount, double qtty, long amtFlags, long excludeFlags = 0);
-	int    SLAPI CalcTI(const PPTransferItem *, PPID opID, int tiamt /* TIAMT_XXX */, long exclFlags = 0L);
+	int    SLAPI CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt /* TIAMT_XXX */, long exclFlags = 0L);
 	double FASTCALL GetValue(long flags /* mask GTAXVF_XXX */) const;
 	double SLAPI GetTaxRate(long taxID /* GTAX_XXX */, int * pIsAbs) const;
 private:
@@ -29494,7 +29513,7 @@ public:
 	int    SLAPI CalcBill(PPID);
 	int    SLAPI CalcBill(const PPBillPacket *);
 	void   SLAPI Scale_(double part, int useRounding);
-	int    SLAPI Add(const PPTransferItem *, PPID opID);
+	int    SLAPI Add(const PPTransferItem &, PPID opID);
 	int    SLAPI Add(const BVATAccm *, int dontRound = 0);
 private:
 	int    SLAPI IsVataxableSuppl(PPID);
@@ -31199,7 +31218,7 @@ private:
 	int    SLAPI Helper_PutBillToMrpTab(PPID billID, MrpTabPacket *, const PPDraftOpEx *, int use_ta);
 	int    SLAPI InitDraftWrOffPacket(const PPDraftOpEx *, const BillTbl::Rec *, PPBillPacket *, int use_ta);
 	int    SLAPI RemoveTransferItem(PPID billID, int rByBill, int force = 0);
-	int    SLAPI ProcessLink(BillTbl::Rec *, PPID paymLinkID, const BillTbl::Rec * pOrgRec);
+	int    SLAPI ProcessLink(BillTbl::Rec & rRec, PPID paymLinkID, const BillTbl::Rec * pOrgRec);
 	int    SLAPI ProcessShadowPacket(PPBillPacket *, int update);
 	int    SLAPI ProcessACPacket(PPBillPacket *);
 	//
@@ -39147,7 +39166,7 @@ private:
 	int    SLAPI _SetVATParams(VATBookTbl::Rec *, const BVATAccmArray *, double scale, int selling, int slUseCostVatAddendum);
 	int    SLAPI CheckBillRec(const AutoBuildFilt *, const BillTbl::Rec *);
 	int    SLAPI RemoveZeroBillLinks(int use_ta);
-	int    SLAPI ConvertOpList(const VATBCfg *, PPIDArray *);
+	void   SLAPI ConvertOpList(const VATBCfg & rCfg, PPIDArray & rList);
 	int    SLAPI MRBB(PPID, BillTbl::Rec * pPaymRec, const TaxAmountIDs *, long mrbbf, PPObjBill::PplBlock * pEbfBlk, PPID mainAmtTypeID);
 	int    SLAPI NextInnerIteration(VatBookViewItem *);
 	int    SLAPI LoadClbList(PPID billID);
@@ -41424,7 +41443,7 @@ struct PaymPlanViewItem {
 
 class PPViewPaymPlan : public PPView {
 public:
-	friend int IterProc_PPViewPaymPlan_ProcessPeriod(PayPlanTbl::Rec * pRec, long extraParam);
+	friend int IterProc_PPViewPaymPlan_ProcessPeriod(PayPlanTbl::Rec * pRec, void * extraPtr);
 
 	struct BrwHdr {
 		PPID   BillID;

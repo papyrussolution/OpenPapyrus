@@ -1038,7 +1038,7 @@ int SLAPI PPObjTech::Edit(PPID * pID, void * extraPtr)
 		THROW(GetPacket(*pID, &pack) > 0);
 	}
 	else {
-		THROW(InitPacket(&pack, (long)extraPtr, 1));
+		THROW(InitPacket(&pack, reinterpret_cast<long>(extraPtr), 1));
 	}
 	while(!valid_data && EditDialog(&pack) > 0)
 		if(PutPacket(pID, &pack, 1))
@@ -1217,7 +1217,7 @@ StrAssocArray * SLAPI PPObjTech::MakeStrAssocList(void * extraPtr)
 {
 	StrAssocArray * p_list = new StrAssocArray;
 	if(p_list) {
-		if(!AddItemsToList(p_list, 0, 0, (long)extraPtr, 0))
+		if(!AddItemsToList(p_list, 0, 0, reinterpret_cast<long>(extraPtr), 0))
 			ZDELETE(p_list);
 	}
 	else
@@ -1228,7 +1228,7 @@ StrAssocArray * SLAPI PPObjTech::MakeStrAssocList(void * extraPtr)
 int SLAPI PPObjTech::Browse(void * extraPtr)
 {
 	if(extraPtr) {
-		const long extra_param = (long)extraPtr;
+		const long extra_param = reinterpret_cast<long>(extraPtr);
 		TechFilt filt;
 		if(extra_param & TECEXDF_GOODS)
 			filt.GoodsID = (extra_param & TECEXDF_MASK);
@@ -1314,7 +1314,7 @@ int  SLAPI PPObjTech::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 		else {
 			SBuffer buffer;
 			THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 		}
 	}
 	CATCHZOK
@@ -1369,7 +1369,7 @@ private:
 int SLAPI TechCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	Data * p_cache_rec = (Data *)pEntry;
+	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjTech tec_obj;
 	TechTbl::Rec rec;
 	if(tec_obj.Search(id, &rec) > 0) {
@@ -1398,7 +1398,7 @@ int SLAPI TechCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 void SLAPI TechCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	TechTbl::Rec * p_data_rec = (TechTbl::Rec *)pDataRec;
-	const Data * p_cache_rec = (const Data *)pEntry;
+	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	#define FLD(f) p_data_rec->f = p_cache_rec->f
 	FLD(ID);

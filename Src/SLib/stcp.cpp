@@ -2358,7 +2358,7 @@ static void EncodedStringWithWrapping(const char * pOrgBuf, uint hdrLen, SString
 			org_buf_u.CopyFromUtf8(pOrgBuf, org_len_mb);
 			const size_t org_len_u = org_buf_u.Len();
 			const size_t ovrhd_sz = 12;
-			const double rel = (double)org_len_u / (double)(temp_buf.Len() - ovrhd_sz);
+			const double rel = fdivui(org_len_u, temp_buf.Len() - ovrhd_sz);
 			SString chunk_buf;
 			size_t offs = (size_t)((78 - hdrLen - ovrhd_sz) * rel);
 			chunk_buf.CopyUtf8FromUnicode(org_buf_u, offs, 0);

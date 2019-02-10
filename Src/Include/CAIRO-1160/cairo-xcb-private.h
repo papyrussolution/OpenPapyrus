@@ -48,7 +48,7 @@
 #include "cairo-freelist-private.h"
 #include "cairo-list-private.h"
 #include "cairo-mutex-private.h"
-#include "cairo-pattern-private.h"
+//#include "cairo-pattern-private.h"
 //#include "cairo-reference-count-private.h"
 //#include "cairo-scaled-font-private.h"
 //#include "cairo-spans-private.h"

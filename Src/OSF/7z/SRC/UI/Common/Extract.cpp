@@ -24,7 +24,7 @@ static HRESULT DecompressArchive(CCodecs * codecs, const CArchiveLink &arcLink, 
 		// So it extracts different archives to one folder.
 		// We will use top level archive name
 		const CArc & arc0 = arcLink.Arcs[0];
-		if(StringsAreEqualNoCase_Ascii(codecs->Formats[arc0.FormatIndex].Name, "pe"))
+		if(sstreqi_ascii(codecs->Formats[arc0.FormatIndex].Name, "pe"))
 			replaceName = arc0.DefaultName;
 	}
 	outDir.Replace(FString("*"), us2fs(Get_Correct_FsFile_Name(replaceName)));

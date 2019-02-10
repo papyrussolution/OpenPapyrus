@@ -298,7 +298,7 @@ PPBaseFilt * SLAPI PPViewSStat::CreateFilt(void * extraPtr) const
 	SStatFilt * p_filt = new SStatFilt;
 	p_filt->LocList.Add(LConfig.Location);
 	p_filt->Flags |= SStatFilt::fSkipZeroNhCount;
-	if(((long)extraPtr) & 0x0001) {
+	if((reinterpret_cast<long>(extraPtr)) & 0x0001) {
 		p_filt->Flags |= (SStatFilt::fSupplOrderForm | SStatFilt::fRoundOrderToPack);
 		if(PrCfg.Flags & PPPredictConfig::fUseInsurStock) {
 			p_filt->Flags |= SStatFilt::fUseInsurStock;

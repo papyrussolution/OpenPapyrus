@@ -1680,7 +1680,7 @@ int ABCGroupingRecsStorage::CalcBelongToABCGrp(const GoodsOpAnalyzeViewItem * pI
 	if(((Fraction + (val / 2.0)) > TotalFraction && Fraction != 0.0 || finish) && ABCGrp != -1) {
 		TempRec.InOutTag    = ABCGrp + 1;
 		TempRec.PctVal      = (Fraction / TotalSum) * 100.0;
-		TempRec.OldPrice    = ((double)RecsCount / (double)TotalRecsCount) * 100.0;
+		TempRec.OldPrice    = fdivi(RecsCount, TotalRecsCount) * 100.0;
 		TempRec.OldCost     = (double)RecsCount;
 		Filt.GetGroupName(ABCGrp, TempRec.Text, sizeof(TempRec.Text));
 		THROW_SL(ABCGrpRecs->insert(&TempRec));
@@ -1751,8 +1751,8 @@ int ABCGroupingRecsStorage::SaveValToMinABCGrp(double val, const GoodsOpAnalyzeV
 	if(MinABCGrp >= 0) {
 		short  srch_val = MinABCGrp + 1;
 		if(ABCGrpRecs->lsearch(&srch_val, &pos, PTR_CMPFUNC(int16), sizeof(long) * 2) > 0) {
-			TempGoodsOprTbl::Rec rec = *((TempGoodsOprTbl::Rec*)ABCGrpRecs->at(pos));
-			rec.OldPrice = ((double)MinRecsCount / (double)TotalRecsCount) * 100.0;
+			TempGoodsOprTbl::Rec rec = *static_cast<TempGoodsOprTbl::Rec *>(ABCGrpRecs->at(pos));
+			rec.OldPrice = fdivi(MinRecsCount, TotalRecsCount) * 100.0;
 			rec.OldCost  = (double)MinRecsCount;
 			MinFraction += val;
 			rec.PctVal   = (MinFraction / TotalSum) * 100.0;

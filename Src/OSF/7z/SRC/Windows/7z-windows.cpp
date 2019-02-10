@@ -2646,13 +2646,13 @@ namespace NWindows {
 
 			bool CStreamInfo::IsMainStream() const throw()
 			{
-				return StringsAreEqualNoCase_Ascii(Name, "::$DATA");
+				return sstreqi_ascii(Name, "::$DATA");
 			}
 			UString CStreamInfo::GetReducedName() const
 			{
 				// remove ":$DATA" postfix, but keep postfix, if Name is "::$DATA"
 				UString s(Name);
-				if(s.Len() > 6 + 1 && StringsAreEqualNoCase_Ascii(s.RightPtr(6), ":$DATA"))
+				if(s.Len() > 6 + 1 && sstreqi_ascii(s.RightPtr(6), ":$DATA"))
 					s.DeleteFrom(s.Len() - 6);
 				return s;
 			}
@@ -2857,7 +2857,7 @@ namespace NWindows {
 					   name:stream:$DATA
 					 */
 					const uint kPostfixSize = 6;
-					if(streamName.Len() <= kPostfixSize || !StringsAreEqualNoCase_Ascii(streamName.RightPtr(kPostfixSize), ":$DATA"))
+					if(streamName.Len() <= kPostfixSize || !sstreqi_ascii(streamName.RightPtr(kPostfixSize), ":$DATA"))
 						streamName += ":$DATA";
 					bool isOk = true;
 					if(IsDrivePath2(filePath) && (colonPos == 2 || colonPos == 3 && filePath[2] == '\\')) {

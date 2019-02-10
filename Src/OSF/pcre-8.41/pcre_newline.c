@@ -142,9 +142,7 @@ BOOL PRIV(was_newline) (PCRE_PUCHAR ptr, int type, PCRE_PUCHAR startptr, int * l
 	else
 #endif  /* SUPPORT_UTF */
 	c = *ptr;
-
 /* Note that this function is called only for ANY or ANYCRLF. */
-
 	if(type == NLTYPE_ANYCRLF) switch(c)
 		{
 			case CHAR_LF:

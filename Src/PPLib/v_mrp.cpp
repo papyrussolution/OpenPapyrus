@@ -335,7 +335,7 @@ PPBaseFilt * SLAPI PPViewMrpLine::CreateFilt(void * extraPtr) const
 {
 	MrpLineFilt * p_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_MRPLINE, (PPBaseFilt**)&p_filt))
-		p_filt->TabID = ((long)extraPtr);
+		p_filt->TabID = (reinterpret_cast<long>(extraPtr));
 	return (PPBaseFilt*)p_filt;
 }
 

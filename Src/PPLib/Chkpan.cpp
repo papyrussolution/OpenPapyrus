@@ -2427,7 +2427,7 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 							PPEgaisProcessor::Ack eg_ack;
 							THROW(P_EgPrc->PutCCheck(epb.ExtPack, ExtCnLocID, eg_ack));
                             if(eg_ack.Sign[0] && eg_ack.SignSize) {
-								msg_buf.Z().CatN((const char *)eg_ack.Sign, eg_ack.SignSize);
+								msg_buf.Z().CatN(reinterpret_cast<const char *>(eg_ack.Sign), eg_ack.SignSize);
                                 epb.ExtPack.PutExtStrData(CCheckPacket::extssSign, msg_buf);
                             }
                             // @v9.1.8 {
@@ -2873,7 +2873,7 @@ int CheckPaneDialog::PalmImport(PalmBillPacket * pPack, void * extraPtr)
 			for(uint i = 0; pPack->EnumItems(&i, &item) > 0;) {
 				RetailGoodsInfo rgi;
 				if(dlg->GetRgi(item.GoodsID, item.Qtty, 0, rgi)) {
-					double price = rgi.Price;
+					const double price = rgi.Price;
 					CCheckItem chk_item;
 					chk_item.GoodsID = item.GoodsID;
 					STRNSCPY(chk_item.GoodsName, rgi.Name);
@@ -2912,7 +2912,7 @@ int CheckPaneDialog::SetLbxItemHight(TDialog *, long extraParam)
 			PPTouchScreenPacket ts_pack;
 			if(ts_obj.GetPacket(ts_id, &ts_pack) > 0) {
 				int     height  = 0;
-				PPID    ctrls[] = { CTL_CHKPAN_GDSLIST, CTL_CHKPAN_GRPLIST };
+				static const PPID ctrls[] = { CTL_CHKPAN_GDSLIST, CTL_CHKPAN_GRPLIST };
 				if(ts_pack.Rec.GdsListFontHight && ts_pack.Rec.GdsListFontName[0]) {
 					HDC  dc = GetDC(0);
 					int  cy = GetDeviceCaps(dc, LOGPIXELSY);
@@ -2927,7 +2927,7 @@ int CheckPaneDialog::SetLbxItemHight(TDialog *, long extraParam)
 						OwnerDrawCtrls[i].CtrlID   = ctrls[j];
 						OwnerDrawCtrls[i].ExtraParam = height + ts_pack.Rec.GdsListEntryGap;
 						ok = 1;
-						if(++j == sizeof(ctrls)/sizeof(PPID))
+						if(++j == SIZEOFARRAY(ctrls))
 							break;
 					}
 			}
@@ -2939,7 +2939,7 @@ int CheckPaneDialog::SetLbxItemHight(TDialog *, long extraParam)
 int CheckPaneDialog::SelectGroup(PPID * pGrpID)
 {
 	int    ok = -1;
-	SmartListBox * p_box = (SmartListBox *)getCtrlView(CTL_CHKPAN_GRPLIST);
+	SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_GRPLIST));
 	if(p_box && p_box->def) {
 		PPID   grp_id = 0;
 		p_box->def->getCurID(&grp_id);
@@ -3290,10 +3290,10 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 		PPError();
 	if(Flags & fTouchScreen) {
 		SETFLAG(CnFlags, CASHF_NOASKPAYMTYPE, !(CsObj.GetEqCfg().Flags & PPEquipConfig::fUnifiedPayment));
-		SmartListBox * p_list = (SmartListBox *)getCtrlView(CTL_CHKPAN_GDSLIST);
+		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_GDSLIST));
 		if(p_list)
 		CALLPTRMEMB(p_list, SetOwnerDrawState());
-		SmartListBox * p_grp_list = (SmartListBox *)getCtrlView(CTL_CHKPAN_GRPLIST);
+		SmartListBox * p_grp_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_GRPLIST));
 		if(p_grp_list) {
 			p_grp_list->SetOwnerDrawState();
 			SetupStrListBox(p_grp_list);
@@ -4124,7 +4124,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 							break;
 						case cpmUndef:
 							{
-								int    r = 1; // @vmiller
+								//int    r = 1; // @vmiller
 								paym_blk2.ExclSCardID = CSt.GetID();
 								const double ccpl_total = paym_blk2.CcPl.GetTotal();
 								paym_blk2.AltCashReg = AltRegisterID ? 0 : -1; // @v9.6.9 // @v9.8.9 expicit 0
@@ -4136,6 +4136,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 										_again = 1;
 									}
 									else {
+										int    bnk_paym_result = 1;
 										_again = 0;
 										// @vmiller {
 										if(P_BNKTERM) { // Здесь не проверяю тип операции, потому что при смешанной оплате в paym_blk2.Kind будет стоять cpmCash
@@ -4145,19 +4146,17 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 													double bank_amt = paym_blk2.CcPl.at(i).Amount;
 													slip_rep.Z();
 													if(bank_amt > 0.0) {
-														r = P_BNKTERM->Pay(bank_amt, slip_rep);
+														bnk_paym_result = P_BNKTERM->Pay(bank_amt, slip_rep);
 													}
 													else {
-														r = P_BNKTERM->Refund(-bank_amt, slip_rep); // @v9.8.4 (+)-->(-)
+														bnk_paym_result = P_BNKTERM->Refund(-bank_amt, slip_rep); // @v9.8.4 (+)-->(-)
 													}
-													if(r) {
-														if(slip_rep.NotEmpty() && InitCashMachine() && P_CM) {
-															PPSyncCashSession * p_ifc = P_CM->SyncInterface();
-															CALLPTRMEMB(p_ifc, PrintBnkTermReport(slip_rep));
-														}
-													}
-													else
+													if(!bnk_paym_result)
 														PPError();
+													else if(slip_rep.NotEmpty() && InitCashMachine() && P_CM) {
+														PPSyncCashSession * p_ifc = P_CM->SyncInterface();
+														CALLPTRMEMB(p_ifc, PrintBnkTermReport(slip_rep));
+													}
 													break;
 												}
 											}
@@ -4169,7 +4168,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 										}
 										else
 											CDispCommand(cdispcmdChange, 0, paym_blk2.Amount, 0.0);
-										if(!P_BNKTERM || r) {
+										if(bnk_paym_result) {
 											const PPID alt_reg_id = (paym_blk2.AltCashReg > 0) ? AltRegisterID : 0; // @v9.6.11
 											AcceptCheck(&paym_blk2.CcPl, alt_reg_id, paym_blk2.NoteAmt, accmRegular);
 										}
@@ -4244,7 +4243,7 @@ public:
 	ComplexDinnerDialog(PPID locID) : PPListDialog(DLG_COMPLDIN, CTL_COMPLDIN_ELEMENTS), LocID(locID)
 	{
 		{
-			SmartListBox * p_list = (SmartListBox *)getCtrlView(CTL_COMPLDIN_ALTLIST);
+			SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_COMPLDIN_ALTLIST));
 			if(!SetupStrListBox(p_list))
 				PPError();
 			setSmartListBoxOption(CTL_COMPLDIN_ALTLIST,  lbtSelNotify);
@@ -4340,7 +4339,7 @@ IMPL_HANDLE_EVENT(ComplexDinnerDialog)
 		}
 	}
 	else if(event.isCmd(cmLBItemFocused) && event.isCtlEvent(CTL_COMPLDIN_ELEMENTS)) {
-		SmartListBox * p_box = (SmartListBox*)getCtrlView(CTL_COMPLDIN_ALTLIST);
+		SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_COMPLDIN_ALTLIST));
 		if(p_box) {
 			p_box->freeAll();
 			long   pos = 0;
@@ -4368,7 +4367,7 @@ IMPL_HANDLE_EVENT(ComplexDinnerDialog)
 		}
 	}
 	else if(event.isCmd(cmLBItemSelected) && event.isCtlEvent(CTL_COMPLDIN_ALTLIST)) {
-		SmartListBox * p_box = (SmartListBox *)getCtrlView(CTL_COMPLDIN_ALTLIST);
+		SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_COMPLDIN_ALTLIST));
 		if(p_box) {
 			long   main_pos = 0, subst_pos = 0;
 			getSelection(&main_pos);
@@ -4717,7 +4716,7 @@ int SelCheckListDialog::setupList()
 		LastDate  = dt;
 	}
 	if(ChkList.getCount()) {
-		SmartListBox * p_list = (SmartListBox *)getCtrlView(CTL_SELCHECK_LIST);
+		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_SELCHECK_LIST));
 		SString temp_buf;
 		StringSet  ss(SLBColumnDelim);
 		for(i = 0; i < ChkList.getCount(); i++) {
@@ -4819,7 +4818,7 @@ int SelCheckListDialog::SetupItemList()
 	SString sub, memo_buf;
 	int    memo_has_addr = 0;
 	if(/*IsOuterList &&*/ !(State & stTblOrders) && (ChkList.getCount() || (State & stInputUpdated))) {
-		SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_SELCHECK_ITEMLIST);
+		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_SELCHECK_ITEMLIST));
 		if(p_list) {
 			PPID   chk_id = 0;
 			getCurItem(0, &chk_id);
@@ -6170,7 +6169,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 			if(TVCMD == cmOK) {
 				if(P_ChkPack) {
 					CCheckLineTbl::Rec * p_line = 0, chk_line;
-					SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_CHKPAN_LIST);
+					SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_LIST));
 					SString egais_mark;
 					SString serial;
 					if(p_list) {
@@ -6353,7 +6352,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					}
 					else if(ev_ctl_id == CTL_CHKPAN_LIST) {
 						if(!(Flags & fNoEdit)) {
-							SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_CHKPAN_LIST);
+							SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_LIST));
 							if(p_list) {
 								long   cur = p_list->def ? p_list->def->_curItem() : -1;
 								if(cur >= 0 && cur < (long)P.getCount()) {
@@ -6461,11 +6460,11 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 				break;
 			case cmLBItemFocused:
 				if(ActiveListID == CTL_CHKPAN_GRPLIST) {
-					SmartListBox * p_list = (SmartListBox *)getCtrlView(CTL_CHKPAN_GRPLIST);
+					SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_GRPLIST));
 					CALLPTRMEMB(p_list, getCurID(&SelGoodsGrpID));
 				}
 				if(event.isCtlEvent(CTL_CHKPAN_LIST)) {
-					SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_CHKPAN_LIST);
+					SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_LIST));
 					if(p_list && p_list->def) {
 						uint pos = p_list->def->_curItem();
 						if(pos < P.getCount()) {
@@ -6482,7 +6481,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 			case cmNext:
 				if(ActiveListID) {
 					if(!Barrier()) {
-						SmartListBox * p_list = (SmartListBox *)getCtrlView((ushort)ActiveListID);
+						SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView((ushort)ActiveListID));
 						CALLPTRMEMB(p_list, Scroll((TVCMD == cmPrev) ? SB_LINEUP : SB_LINEDOWN, 0));
 						Barrier(1);
 					}
@@ -6729,7 +6728,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 			case kbUp:
 			case kbPgUp:
 				if(ActiveListID) {
-					SmartListBox * p_list = (SmartListBox *)getCtrlView((ushort)ActiveListID);
+					SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView((ushort)ActiveListID));
 					if(p_list) {
 						int   scroll_code = -1;
 						switch(TVKEY) {
@@ -7014,7 +7013,7 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 		if(updGoodsList) {
 			selGroupID = NZOR(selGroupID, SelGoodsGrpID);
 			ListBoxDef   * p_def = 0;
-			SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_CHKPAN_GDSLIST);
+			SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_GDSLIST));
 			StrAssocArray * p_ts_ary = 0;
 			if(updGoodsList == -2) {
 				int    is_input = GetInput();
@@ -7083,7 +7082,7 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 						InitGroupList(ts_pack);
 				}
 			//
-			SmartListBox * p_grp_list = (SmartListBox *)getCtrlView(CTL_CHKPAN_GRPLIST);
+			SmartListBox * p_grp_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_GRPLIST));
 			ListBoxDef * p_def = p_grp_list ? (ListBoxDef *)p_grp_list->def : 0;
 			if(p_grp_list && p_def) {
 				int    sav_pos = (int)p_def->_curItem();
@@ -7736,7 +7735,7 @@ void CheckPaneDialog::SetupInfo(const char * pErrMsg)
 	setStaticText(CTL_CHKPAN_CAFE_STATUS, buf);
 	// @v9.9.0 {
 	if(Flags & fNoEdit) {
-		SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_CHKPAN_LIST);
+		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_LIST));
 		if(p_list) {
 			const long cur = p_list->def ? p_list->def->_curItem() : -1;
 			if(cur >= 0 && cur < (long)P.getCount()) {
@@ -7968,7 +7967,7 @@ int CheckPaneDialog::RemoveRow()
 {
 	int    ok = -1;
 	if(!(Flags & fNoEdit)) {
-		SmartListBox * p_list = (SmartListBox *)getCtrlView(CTL_CHKPAN_LIST);
+		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_LIST));
 		if(p_list) {
 			long   cur = p_list->def ? p_list->def->_curItem() : -1;
 			if(PreprocessRowBeforeRemoving(cur, 0) > 0) {
@@ -8010,7 +8009,7 @@ void CheckPaneDialog::OnUpdateList(int goBottom)
 //@lbt_chkpan_ts "4,R,#;3,C,;60,L,Товар;12,R,Цена;12,R,Кол-во;12,R,Сумма;10,R,Отдел;4,C,Q"                         // DLG_CHKPAN_TS
 //@lbt_chkpanv   "3,R,#;3,C,;40,L,Товар;16,L,Штрихкод;9,R,Цена;8,R,Скидка;8,R,Кол-во;9,R,Сумма;12,L,Серия"         // DLG_CHKPANV, DLG_CHKPANV_L
 
-	SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_CHKPAN_LIST);
+	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_LIST));
 	if(p_list) {
 		const long column_egais_ident = 100;
 		CCheckItem * p_item;
@@ -8519,7 +8518,7 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 	else if(Flags & fPrinted && !(OperRightsFlags & orfChgPrintedCheck))
 		MessageError(PPERR_NORIGHTS, 0, eomBeep | eomStatusLine);
 	else if(mode == sgmInnerGoodsList) {
-		SmartListBox * p_list = (SmartListBox *)getCtrlView(CTL_CHKPAN_GDSLIST);
+		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_GDSLIST));
 		if(p_list && p_list->def) {
 			PPID   goods_id = 0;
 			p_list->def->getCurID(&goods_id);
@@ -11795,7 +11794,7 @@ public:
 	InfoKioskDialog(const PPGoodsInfo * pRec, PPID defGoodsGrpID) : TDialog(pRec && pRec->TouchScreenID ? DLG_INFKIOSK_TS : DLG_INFKIOSK)
 	{
 		SString font_face;
-		SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_INFKIOSK_LOTS);
+		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_INFKIOSK_LOTS));
 		if(!RVALUEPTR(Rec, pRec))
 			MEMSZERO(Rec);
 		SelGoodsGrpID = AltGoodsGrpID = defGoodsGrpID;
@@ -11824,7 +11823,7 @@ public:
 			}
 			if(!SetupStrListBox(this, CTL_INFKIOSK_GRPLIST))
 				PPError();
-			SmartListBox * p_tree_list = (SmartListBox *)getCtrlView(CTL_INFKIOSK_GRPLIST);
+			SmartListBox * p_tree_list = static_cast<SmartListBox *>(getCtrlView(CTL_INFKIOSK_GRPLIST));
 			if(p_tree_list) {
 				PPObjGoodsGroup gg_obj;
 				p_tree_list->setDef(gg_obj.Selector(0));
@@ -12068,7 +12067,7 @@ void InfoKioskDialog::UpdateGList(int updGdsList)
 		SString  grp_name;
 		if(updGdsList > 0) {
 			PPID  cur_id = 0;
-			SmartListBox * p_tree_list = (SmartListBox *)getCtrlView(CTL_INFKIOSK_GRPLIST);
+			SmartListBox * p_tree_list = static_cast<SmartListBox *>(getCtrlView(CTL_INFKIOSK_GRPLIST));
 			p_tree_list->def->getCurID(&cur_id);
 			if(((StdTreeListBoxDef *)p_tree_list->def)->HasChild(cur_id))
 				updGdsList = 0;
@@ -12077,7 +12076,7 @@ void InfoKioskDialog::UpdateGList(int updGdsList)
 		}
 		if(updGdsList) {
 			ListBoxDef   * p_def = 0;
-			SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_INFKIOSK_GDSLIST);
+			SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_INFKIOSK_GDSLIST));
 			StrAssocArray * p_ts_ary = 0;
 			PPWait(1);
 			if(updGdsList == -2) {
@@ -12136,7 +12135,7 @@ int InfoKioskDialog::ProcessGoodsSelection()
 	int    ok = 1;
 	PPID   goods_id = 0;
 	SString  buf;
-	SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_INFKIOSK_GDSLIST);
+	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_INFKIOSK_GDSLIST));
 	p_list->def->getCurID(&goods_id);
 	ClearInput();
 	setCtrlReal(CTL_INFKIOSK_DSCNTPRICE, 0.0);
@@ -12382,7 +12381,6 @@ int InfoKioskDialog::SetupGoods(PPID goodsID, double qtty)
 	setStaticText(CTL_INFKIOSK_ADDINF4, buf);
 	PPGetExtStrData(GDSEXSTR_USAGE, line_buf, buf);
 	setStaticText(CTL_INFKIOSK_ADDINF5, buf);
-
 	SetupLots(goodsID);
 	CATCHZOK
 	return ok;
@@ -12392,7 +12390,7 @@ int InfoKioskDialog::SetupLots(PPID goodsID)
 {
 	int    show_lots = BIN(Rec.Flags & GIF_SHOWLOTS);
 	if(show_lots) {
-		SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_INFKIOSK_LOTS);
+		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_INFKIOSK_LOTS));
 		if(p_list) {
 			p_list->freeAll();
 			if(goodsID) {
@@ -12400,8 +12398,7 @@ int InfoKioskDialog::SetupLots(PPID goodsID)
 				long   lots = 0;
 				long   oprno = MAXLONG;
 				ReceiptTbl::Rec lot;
-				for(LDATE dt = LConfig.OperDate; i < (uint)lots_count &&
-					BillObj->trfr->Rcpt.EnumLastLots(goodsID, Rec.LocID, &dt, &oprno, &lot) > 0; i++) {
+				for(LDATE dt = LConfig.OperDate; i < (uint)lots_count && BillObj->trfr->Rcpt.EnumLastLots(goodsID, Rec.LocID, &dt, &oprno, &lot) > 0; i++) {
 					char sub[64];
 					QualityCertTbl::Rec qc_rec;
 					StringSet ss(SLBColumnDelim);

@@ -11,9 +11,9 @@ const char * SLBColumnDelim = "/^";
 
 IMPL_CMPFUNC(_PcharNoCase, i1, i2)
 {
-	const char * p = (const char *)i1;
-	const char * c = (const char *)i2;
-	while(*p && !isprint((uchar)*p) && !IsLetter866(*p))
+	const char * p = static_cast<const char *>(i1);
+	const char * c = static_cast<const char *>(i2);
+	while(*p && !isprint(static_cast<uchar>(*p)) && !IsLetter866(*p))
 		p++;
 	if(*c == '*')
 		return stristr866(p, c+1) ? 0 : 1;
@@ -27,8 +27,8 @@ IMPL_CMPFUNC(_PcharNoCase, i1, i2)
 
 IMPL_CMPFUNC(FilePathUtf8, i1, i2)
 {
-	const char * p1 = (const char *)i1;
-	const char * p2 = (const char *)i2;
+	const char * p1 = static_cast<const char *>(i1);
+	const char * p2 = static_cast<const char *>(i2);
 	SString & r_s1 = SLS.AcquireRvlStr();
 	SStringU & r_su1 = SLS.AcquireRvlStrU();
 	SString & r_s2 = SLS.AcquireRvlStr();
@@ -46,7 +46,7 @@ IMPL_CMPFUNC(FilePathUtf8, i1, i2)
 //
 INT_PTR CALLBACK ListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) // DLGPROC
 {
-	SmartListBox * p_view = (SmartListBox *)TView::GetWindowUserData(hWnd);
+	SmartListBox * p_view = static_cast<SmartListBox *>(TView::GetWindowUserData(hWnd));
 	if(p_view) {
 		switch(uMsg) {
 			case WM_DESTROY: // Не вызывается. Непонятно, правда, почему.
@@ -1526,7 +1526,7 @@ void SmartListBox::Implement_Draw()
 					}
 					for(uint k = 0, pos = 0; k < cc; k++) {
 						ss.get(&pos, cell_buf);
-						lvi.pszText  = (char *)cell_buf.Strip().cptr(); // @badcast // @unicodeproblem
+						lvi.pszText  = const_cast<char *>(cell_buf.Strip().cptr()); // @badcast // @unicodeproblem
 						lvi.iSubItem = k;
 						if(k) {
 							// lvi.mask &= ~LVIF_IMAGE;

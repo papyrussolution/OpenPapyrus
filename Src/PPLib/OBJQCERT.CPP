@@ -254,7 +254,7 @@ int SLAPI PPObjQCert::HandleMsg(int msg, PPID objType, PPID objID, void * extraP
 		return (BTROKORNFOUND) ? DBRPL_OK : (PPSetErrorDB(), DBRPL_ERROR);
 	}
 	else if(msg == DBMSG_OBJREPLACE && objType == PPOBJ_PERSON) {
-		if(!updateFor(P_Tbl, 0, (P_Tbl->RegOrgan == objID), set(P_Tbl->RegOrgan, dbconst((long)extraPtr)))) {
+		if(!updateFor(P_Tbl, 0, (P_Tbl->RegOrgan == objID), set(P_Tbl->RegOrgan, dbconst(reinterpret_cast<long>(extraPtr))))) {
 			return (PPSetErrorDB(), DBRPL_ERROR);
 		}
 	}
@@ -272,7 +272,7 @@ int SLAPI PPObjQCert::Read(PPObjPack * p, PPID id, void * stream, ObjTransmConte
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0));
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0));
 		THROW_SL(P_Tbl->SerializeRecord(-1, p->Data, buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
@@ -312,7 +312,7 @@ int SLAPI PPObjQCert::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 	else {
 		SBuffer buffer;
 		THROW_SL(P_Tbl->SerializeRecord(+1, p->Data, buffer, &pCtx->SCtx));
-		THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0));
+		THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0));
 	}
 	CATCHZOK
 	return ok;
@@ -333,7 +333,7 @@ class SelQCertDialog : public TDialog {
 public:
 	SelQCertDialog() : TDialog(DLG_SELQCERT), IsSelByGoods(0), GoodsID(0)
 	{
-		P_List = (SmartListBox *)getCtrlView(CTL_SELQCERT_LIST);
+		P_List = static_cast<SmartListBox *>(getCtrlView(CTL_SELQCERT_LIST));
 		setCtrlOption(CTL_SELQCERT_LIST, ofFramed, 1);
 		updateList(0);
 	}

@@ -110,8 +110,8 @@ struct _cairo_path_fixed {
 };
 
 cairo_private void _cairo_path_fixed_translate(cairo_path_fixed_t * path, cairo_fixed_t offx, cairo_fixed_t offy);
-cairo_private cairo_status_t _cairo_path_fixed_append(cairo_path_fixed_t                * path,
-    const cairo_path_fixed_t          * other, cairo_fixed_t tx, cairo_fixed_t ty);
+cairo_private cairo_status_t _cairo_path_fixed_append(cairo_path_fixed_t * path,
+    const cairo_path_fixed_t * other, cairo_fixed_t tx, cairo_fixed_t ty);
 cairo_private ulong _cairo_path_fixed_hash(const cairo_path_fixed_t * path);
 cairo_private ulong _cairo_path_fixed_size(const cairo_path_fixed_t * path);
 cairo_private cairo_bool_t _cairo_path_fixed_equal(const cairo_path_fixed_t * a, const cairo_path_fixed_t * b);

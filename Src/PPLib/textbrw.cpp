@@ -547,13 +547,13 @@ int SScEditorBase::SetLexer(const char * pLexerName)
 			if(sstreq(pLexerName, "cpp")) {
 				//width = NppParameters::getInstance()->_dpiManager.scaleX(100) >= 150 ? 18 : 14;
 				//CallFunc(SCI_SETMARGINWIDTHN, 2/*folding*/, 14); // @v10.2.0
-				CallFunc(SCI_SETPROPERTY, (WPARAM)"fold", reinterpret_cast<LPARAM>("1"));
-				CallFunc(SCI_SETPROPERTY, (WPARAM)"fold.compact", reinterpret_cast<LPARAM>("0"));
-				CallFunc(SCI_SETPROPERTY, (WPARAM)"fold.comment", reinterpret_cast<LPARAM>("1"));
-				CallFunc(SCI_SETPROPERTY, (WPARAM)"fold.preprocessor", reinterpret_cast<LPARAM>("1"));
+				CallFunc(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("fold"), reinterpret_cast<LPARAM>("1"));
+				CallFunc(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("fold.compact"), reinterpret_cast<LPARAM>("0"));
+				CallFunc(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("fold.comment"), reinterpret_cast<LPARAM>("1"));
+				CallFunc(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("fold.preprocessor"), reinterpret_cast<LPARAM>("1"));
 				// Disable track preprocessor to avoid incorrect detection.
 				// In the most of cases, the symbols are defined outside of file.
-				CallFunc(SCI_SETPROPERTY, (WPARAM)"lexer.cpp.track.preprocessor", reinterpret_cast<LPARAM>("0"));
+				CallFunc(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("lexer.cpp.track.preprocessor"), reinterpret_cast<LPARAM>("0"));
 			}
 			ok = 1;
 		}
@@ -758,7 +758,7 @@ int SScEditorBase::SearchAndReplace(long flags)
 				SetSelection(&sel);
 			}
 			CallFunc(SCI_SEARCHANCHOR);
-			int    result = CallFunc(_func, sci_srch_flags, (int)pattern.cptr());
+			int    result = CallFunc(_func, sci_srch_flags, reinterpret_cast<int>(pattern.cptr()));
 			if(result >= 0) {
 				ok = 1;
 				int selend = CallFunc(SCI_GETSELECTIONEND);
@@ -998,14 +998,14 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 				return -1;
 		case WM_COMMAND:
 			{
-				p_view = (STextBrowser *)TView::GetWindowUserData(hWnd);
+				p_view = static_cast<STextBrowser *>(TView::GetWindowUserData(hWnd));
 				if(p_view) {
 					if(HIWORD(wParam) == 0) {
 						if(p_view->KeyAccel.getCount()) {
 							long   cmd = 0;
 							KeyDownCommand k;
 							k.SetTvKeyCode(LOWORD(wParam));
-							if(p_view->KeyAccel.BSearch(*(long *)&k, &cmd, 0)) {
+							if(p_view->KeyAccel.BSearch(*reinterpret_cast<const long *>(&k), &cmd, 0)) {
 								p_view->ProcessCommand(cmd, 0, p_view);
 							}
 						}
@@ -1018,7 +1018,7 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 			}
 			break;
 		case WM_DESTROY:
-			p_view = (STextBrowser *)TView::GetWindowUserData(hWnd);
+			p_view = static_cast<STextBrowser *>(TView::GetWindowUserData(hWnd));
 			if(p_view) {
 				p_view->SaveChanges();
 				SETIFZ(p_view->EndModalCmd, cmCancel);
@@ -1036,7 +1036,7 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 				SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
 				APPL->NotifyFrame(0);
 			}
-			p_view = (STextBrowser *)TView::GetWindowUserData(hWnd);
+			p_view = static_cast<STextBrowser *>(TView::GetWindowUserData(hWnd));
 			if(p_view) {
 				::SetFocus(p_view->HwndSci);
 				APPL->SelectTabItem(p_view);
@@ -1047,7 +1047,7 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 		case WM_KILLFOCUS:
 			if(!(TView::GetWindowStyle(hWnd) & WS_CAPTION))
 				APPL->NotifyFrame(0);
-			p_view = (STextBrowser *)TView::GetWindowUserData(hWnd);
+			p_view = static_cast<STextBrowser *>(TView::GetWindowUserData(hWnd));
 			if(p_view) {
 				TView::messageBroadcast(p_view, cmReleasedFocus);
 				p_view->ResetOwnerCurrent();
@@ -1055,14 +1055,14 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 			break;
 		case WM_KEYDOWN:
 			if(wParam == VK_ESCAPE) {
-				p_view = (STextBrowser *)TView::GetWindowUserData(hWnd);
+				p_view = static_cast<STextBrowser *>(TView::GetWindowUserData(hWnd));
 				if(p_view) {
 					p_view->endModal(cmCancel);
 					return 0;
 				}
 			}
 			else if(wParam == VK_TAB) {
-				p_view = (STextBrowser *)TView::GetWindowUserData(hWnd);
+				p_view = static_cast<STextBrowser *>(TView::GetWindowUserData(hWnd));
 				if(p_view && GetKeyState(VK_CONTROL) & 0x8000 && !p_view->IsInState(sfModal)) {
 					SetFocus(GetNextBrowser(hWnd, (GetKeyState(VK_SHIFT) & 0x8000) ? 0 : 1));
 					return 0;
@@ -1070,7 +1070,7 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 			}
 			return 0;
 		case WM_SIZE:
-			p_view = (STextBrowser *)TView::GetWindowUserData(hWnd);
+			p_view = static_cast<STextBrowser *>(TView::GetWindowUserData(hWnd));
 			if(lParam && p_view) {
 				HWND hw = p_view->P_Toolbar ? p_view->P_Toolbar->H() : 0;
 				if(IsWindowVisible(hw)) {
@@ -1364,7 +1364,7 @@ LRESULT CALLBACK STextBrowser::ScintillaWindowProc(HWND hwnd, UINT msg, WPARAM w
 					}
 					else if(p_this->KeyAccel.getCount()) {
 						long   cmd = 0;
-						if(p_this->KeyAccel.BSearch(*(long *)&k, &cmd, 0)) {
+						if(p_this->KeyAccel.BSearch(*reinterpret_cast<const long *>(&k), &cmd, 0)) {
 							p_this->SysState |= p_this->sstLastKeyDownConsumed;
 							p_this->ProcessCommand(cmd, 0, p_this);
 							processed = 1;

@@ -1010,7 +1010,7 @@ class GoodsListDialog : public TDialog {
 public:
 	explicit GoodsListDialog(int disableAutoFill) : TDialog(DLG_GDSLST)
 	{
-		P_List = (SmartListBox *)getCtrlView(CTL_GDSLST_LIST);
+		P_List = static_cast<SmartListBox *>(getCtrlView(CTL_GDSLST_LIST));
 		setCtrlOption(CTL_GDSLST_LIST, ofFramed, 1);
 		showCtrl(CTL_GDSLST_AFBUTTON, !disableAutoFill);
 		SetupPPObjCombo(this, CTLSEL_GDSLST_GGRP, PPOBJ_GOODSGROUP, 0, OLW_LOADDEFONOPEN, 0);
@@ -4381,8 +4381,8 @@ int PPALDD_GoodsGroup::InitData(PPFilt & rFilt, long rsrv)
 
 void PPALDD_GoodsGroup::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
-	#define _RET_STR     (**(SString **)rS.GetPtr(pApl->Get(0)))
-	#define _RET_LONG    (*(long *)rS.GetPtr(pApl->Get(0)))
+	#define _RET_STR     (**static_cast<SString **>(rS.GetPtr(pApl->Get(0))))
+	#define _RET_LONG    (*static_cast<long *>(rS.GetPtr(pApl->Get(0))))
 	if(pF->Name == "?GetFilt") {
 		long   sur_id = 0;
 		GoodsFilt filt;
@@ -4492,12 +4492,12 @@ int PPALDD_Goods::InitData(PPFilt & rFilt, long rsrv)
 
 void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
-	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
-	#define _ARG_LONG(n) (*(long *)rS.GetPtr(pApl->Get(n)))
+	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
+	#define _ARG_LONG(n) (*static_cast<const long *>(rS.GetPtr(pApl->Get(n))))
 	#define _ARG_DT(n)   (*(LDATE *)rS.GetPtr(pApl->Get(n)))
-	#define _RET_STR     (**(SString **)rS.GetPtr(pApl->Get(0)))
-	#define _RET_LONG    (*(long *)rS.GetPtr(pApl->Get(0)))
-	#define _RET_DBL     (*(double *)rS.GetPtr(pApl->Get(0)))
+	#define _RET_STR     (**static_cast<SString **>(rS.GetPtr(pApl->Get(0))))
+	#define _RET_LONG    (*static_cast<long *>(rS.GetPtr(pApl->Get(0))))
+	#define _RET_DBL     (*static_cast<double *>(rS.GetPtr(pApl->Get(0))))
 
 	PPObjBill * p_bobj = BillObj;
 	ReceiptTbl::Rec lot_rec;

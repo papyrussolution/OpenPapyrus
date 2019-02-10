@@ -1433,7 +1433,7 @@ int SLAPI PPObjWorkbook::Read(PPObjPack * pPack, PPID id, void * stream, ObjTran
 	}
 	else {
 		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
 		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
@@ -1491,7 +1491,7 @@ int SLAPI PPObjWorkbook::Write(PPObjPack * pPack, PPID * pID, void * stream, Obj
 			p_pack->F.Init(PPOBJ_WORKBOOK);
 			p_pack->F.Load(p_pack->Rec.ID, 0L);
 			THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
-			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0))
 		}
 	}
 	CATCHZOK

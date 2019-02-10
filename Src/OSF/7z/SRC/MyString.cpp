@@ -194,8 +194,7 @@ bool AString::IsPrefixedBy_Ascii_NoCase(const char * s) const throw()
 		if(c2 == 0)
 			return true;
 		char c1 = *s1++;
-		if(MyCharLower_Ascii(c1) !=
-		    MyCharLower_Ascii(c2))
+		if(MyCharLower_Ascii(c1) != MyCharLower_Ascii(c2))
 			return false;
 	}
 }
@@ -226,7 +225,7 @@ bool StringsAreEqual_Ascii(const wchar_t * u, const char * a) throw()
 	}
 }
 
-bool StringsAreEqualNoCase_Ascii(const char * s1, const char * s2) throw()
+/* @sobolev (replaced with sstreqi_ascii) bool StringsAreEqualNoCase_Ascii__(const char * s1, const char * s2) throw()
 {
 	for(;; ) {
 		char c1 = *s1++;
@@ -238,7 +237,7 @@ bool StringsAreEqualNoCase_Ascii(const char * s1, const char * s2) throw()
 	}
 }
 
-bool StringsAreEqualNoCase_Ascii(const wchar_t * s1, const wchar_t * s2) throw()
+bool StringsAreEqualNoCase_Ascii__(const wchar_t * s1, const wchar_t * s2) throw()
 {
 	for(;; ) {
 		wchar_t c1 = *s1++;
@@ -250,7 +249,7 @@ bool StringsAreEqualNoCase_Ascii(const wchar_t * s1, const wchar_t * s2) throw()
 	}
 }
 
-bool StringsAreEqualNoCase_Ascii(const wchar_t * s1, const char * s2) throw()
+bool StringsAreEqualNoCase_Ascii__(const wchar_t * s1, const char * s2) throw()
 {
 	for(;; ) {
 		wchar_t c1 = *s1++;
@@ -260,7 +259,7 @@ bool StringsAreEqualNoCase_Ascii(const wchar_t * s1, const char * s2) throw()
 		if(c1 == 0)
 			return true;
 	}
-}
+}*/
 
 bool IsString1PrefixedByString2(const wchar_t * s1, const wchar_t * s2) throw()
 {
@@ -273,8 +272,12 @@ bool IsString1PrefixedByString2(const wchar_t * s1, const wchar_t * s2) throw()
 bool IsString1PrefixedByString2(const wchar_t * s1, const char * s2) throw()
 {
 	for(;; ) {
-		uchar c2 = (uchar)(*s2++); if(c2 == 0) return true;
-		wchar_t c1 = *s1++; if(c1 != c2) return false;
+		uchar c2 = (uchar)(*s2++); 
+		if(c2 == 0) 
+			return true;
+		wchar_t c1 = *s1++; 
+		if(c1 != c2) 
+			return false;
 	}
 }
 

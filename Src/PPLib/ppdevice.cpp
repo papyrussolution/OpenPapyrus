@@ -25,7 +25,7 @@ SLAPI PPObjGenericDevice::PPObjGenericDevice(void * extraPtr) : PPObjReference(P
 
 StrAssocArray * SLAPI PPObjGenericDevice::MakeStrAssocList(void * extraPtr)
 {
-	const long dvc_cls = (long)extraPtr;
+	const long dvc_cls = reinterpret_cast<long>(extraPtr);
 	StrAssocArray * p_list = new StrAssocArray();
 	THROW_MEM(p_list);
 	{

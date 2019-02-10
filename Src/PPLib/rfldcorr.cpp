@@ -1,5 +1,5 @@
 // RFLDCORR.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -19,7 +19,7 @@ static int SLAPI SetupSdRecFieldCombo(TDialog * dlg, uint ctlID, uint id, const 
 		else
 			list.Add(fld.ID, fld.Name);
 	}
-	return SetupStrAssocCombo(dlg, ctlID, &list, (long)id, 0);
+	return SetupStrAssocCombo(dlg, ctlID, &list, static_cast<long>(id), 0);
 }
 
 static int SLAPI SetupBaseSTypeCombo(TDialog * dlg, uint ctlID, int typ) // @v9.8.12 static
@@ -32,7 +32,7 @@ static int SLAPI SetupBaseSTypeCombo(TDialog * dlg, uint ctlID, int typ) // @v9.
 		const long bt = bt_list.get(i);
 		list.Add(bt, GetBaseTypeString(bt, BTSF_NATIVE|BTSF_OEM, text));
 	}
-	return SetupStrAssocCombo(dlg, ctlID, &list, (long)typ, 0);
+	return SetupStrAssocCombo(dlg, ctlID, &list, static_cast<long>(typ), 0);
 }
 
 static int SLAPI EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterField) // @v9.8.12 static
@@ -71,7 +71,7 @@ static int SLAPI EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterFiel
 					Data.Formula = "@empty";
 				temp_long = 0;
 			}
-			Data.ID = (uint)temp_long;
+			Data.ID = static_cast<uint>(temp_long);
 			SETFLAG(Data.T.Flags, STypEx::fFormula, use_formula);
 			getOuterType();
 			Data.T.Typ = Data.T.Typ ? bt2st(Data.T.Typ) : 0;
@@ -92,10 +92,10 @@ static int SLAPI EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterFiel
 					setupOuterLen();
 				else if(event.isCbSelected(CTLSEL_FLDCORR_INNERFLD)) {
 					long   temp_long = getCtrlLong(CTLSEL_FLDCORR_INNERFLD);
-					if(Data.ID != (uint)temp_long) {
+					if(static_cast<long>(Data.ID) != temp_long) {
 						SdbField fld;
 						if(P_Rec->GetFieldByID(temp_long, 0, &fld) > 0) {
-							Data.ID = (uint)temp_long;
+							Data.ID = static_cast<uint>(temp_long);
 							getCtrlString(CTL_FLDCORR_OUTERFLD, Data.Name);
 							if(Data.Name.Empty()) {
 								Data.Name = fld.Name;
@@ -137,7 +137,7 @@ static int SLAPI EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterFiel
 		int    getOuterType()
 		{
 			long   temp_long = getCtrlLong(CTLSEL_FLDCORR_OUTERTYPE);
-			Data.T.Typ = (TYPEID)temp_long;
+			Data.T.Typ = static_cast<TYPEID>(temp_long);
 			if(Data.T.Typ == 0) {
 				getCtrlData(CTLSEL_FLDCORR_INNERFLD, &Data.ID);
 				SdbField inner_fld;
@@ -188,7 +188,7 @@ int SdFieldCorrListDialog::moveItem(long pos, long id, int up)
 {
 	int    ok = -1;
 	if(P_Box && P_Box->def) {
-		uint   u_pos = (uint)pos;
+		uint   u_pos = static_cast<uint>(pos);
 		if(Data.MoveField(u_pos, up, &u_pos) > 0) {
 			updateList(u_pos);
 			ok = 1;
@@ -205,7 +205,7 @@ int SdFieldCorrListDialog::addItem(long * pPos, long * pID)
 		SETIFZ(fld.ID, 30000);
 		if(Data.AddField(&fld.ID, &fld)) {
 			ASSIGN_PTR(pPos, Data.GetCount()-1);
-			ASSIGN_PTR(pID, (long)fld.ID);
+			ASSIGN_PTR(pID, static_cast<long>(fld.ID));
 			ok = 1;
 		}
 		else
@@ -491,7 +491,7 @@ PPImpExpParam * FASTCALL PPImpExpParam::CreateInstance(const char * pSymb, long 
 	if(!isempty(pSymb)) {
 		SString ffn;
 		ffn.Cat("IEHF").CatChar('_').Cat(pSymb);
-		FN_IMPEXPHDL_FACTORY f = (FN_IMPEXPHDL_FACTORY)GetProcAddress(SLS.GetHInst(), ffn);
+		FN_IMPEXPHDL_FACTORY f = reinterpret_cast<FN_IMPEXPHDL_FACTORY>(GetProcAddress(SLS.GetHInst(), ffn));
 		if(f) {
 			p_param = f(flags);
 			if(p_param)
@@ -628,10 +628,8 @@ int PPImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResult) 
 				for(int j = cn-1; overflow && j >= 0; j--) {
 					if(cntr[j] < '9') {
 						cntr[j]++;
-						// @v8.6.6 @fix {
-						for(int z = j+1; z < (int)cn; z++)
+						for(int z = j+1; z < static_cast<int>(cn); z++)
 							cntr[z] = '0';
-						// } @v8.6.6 @fix
 						overflow = 0;
 					}
 				}
@@ -833,7 +831,7 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 									msg.Cat(" >> ");
 								msg.Cat(pInfo->P_Dest);
 							}
-							PPWaitPercent((ulong)pInfo->OverallSizeDone, (ulong)pInfo->OverallSizeTotal, msg);
+							PPWaitPercent(static_cast<ulong>(pInfo->OverallSizeDone), static_cast<ulong>(pInfo->OverallSizeTotal), msg);
 						}
 						return 0;
 					}
@@ -1204,7 +1202,7 @@ int PPImpExpParam::Select()
 	return -1;
 }
 
-int PPImpExpParam::ParseFormula(int hdr, SString & rPar, SString & rVal)
+int PPImpExpParam::ParseFormula(int hdr, const SString & rPar, const SString & rVal)
 {
 	int    ok = 1;
 	size_t pos = 0;
@@ -1536,12 +1534,10 @@ int ImpExpParamDialog::setDTS(const PPImpExpParam * pData)
 		DisableClusterItem(CTL_IMPEXP_FLAGS, 1, Data.Direction == 0);
 	}
 	setCtrlString(CTL_IMPEXP_FILENAME, Data.FileName);
-	// @v8.6.1 {
 	if(getCtrlView(CTLSEL_IMPEXP_FTPACC)) {
 		SetupPPObjCombo(this, CTLSEL_IMPEXP_FTPACC, PPOBJ_INTERNETACCOUNT, Data.InetAccID, OLW_CANINSERT,
-			(void *)(PPObjInternetAccount::filtfFtp|PPObjInternetAccount::filtfMail)/*INETACCT_ONLYFTP*/);
+			reinterpret_cast<void *>(PPObjInternetAccount::filtfFtp|PPObjInternetAccount::filtfMail)/*INETACCT_ONLYFTP*/);
 	}
-	// } @v8.6.1
 	name = Data.Name;
 	pData->ProcessName(2, name);
 	setCtrlString(CTL_IMPEXP_NAME, name);
@@ -1712,7 +1708,7 @@ int PPImpExp::GetNumRecs(long * pNumRecs)
 	else
 		ok = 0;
 	CATCHZOK
-	ASSIGN_PTR(pNumRecs, (long)numrecs);
+	ASSIGN_PTR(pNumRecs, static_cast<long>(numrecs));
 	return ok;
 }
 
@@ -1827,10 +1823,10 @@ int PPImpExp::Helper_OpenFile(const char * pFileName, int readOnly, int truncOnW
 		THROW(P_XlsT->Open(filename, &P.XlsdfParam, readOnly));
 	}
 	else
-		ok = PPSetError(PPERR_IMPEXPFMTUNSUPP, (const char *)0);
+		ok = PPSetError(PPERR_IMPEXPFMTUNSUPP, static_cast<const char *>(0));
 	if(ok) {
 		State |= sOpened;
-		SETFLAG(State, sBuffer, is_buffer); // @v8.6.8
+		SETFLAG(State, sBuffer, is_buffer);
 		SETFLAG(State, sReadOnly, readOnly);
 		if(pResultFileList && !is_buffer) {
             SPathStruc::NormalizePath(filename, 0, temp_buf);
@@ -1883,7 +1879,7 @@ int PPImpExp::CloseFile()
 //}
 
 // @vmiller
-int PPImpExp::Push(PPImpExpParam * pParam)
+int PPImpExp::Push(const PPImpExpParam * pParam)
 {
 	int    ok = 1;
 	if(pParam && P_XmlT && P.DataFormat == PPImpExpParam::dfXml && pParam->DataFormat == PPImpExpParam::dfXml) {
@@ -1894,7 +1890,7 @@ int PPImpExp::Push(PPImpExpParam * pParam)
 			StateBlock * p_state = 0;
 			for(uint i = 0; i < StateColl.getCount(); i++) {
 				if(!StateColl.at(i)->Busy) {
-					pos = (int)i;
+					pos = static_cast<int>(i);
 					p_state = StateColl.at(i);
 					break;
 				}
@@ -1902,15 +1898,16 @@ int PPImpExp::Push(PPImpExpParam * pParam)
 			if(pos < 0) {
 				uint   _pos = 0;
 				THROW(p_state = StateColl.CreateNewItem(&_pos));
-				pos = (int)_pos;
+				pos = static_cast<int>(_pos);
 			}
-			assert(pos >= 0 && pos < (int)StateColl.getCount());
+			assert(pos >= 0 && pos < static_cast<int>(StateColl.getCount()));
 			StateStack.push(pos);
-			p_state->Busy = 1;
-			p_state->RecNo = R_RecNo;
-			p_state->FileNameRoot = P.FileName;
-			p_state->Param = P;
-
+			if(p_state) { // @v10.3.3
+				p_state->Busy = 1;
+				p_state->RecNo = R_RecNo;
+				p_state->FileNameRoot = P.FileName;
+				p_state->Param = P;
+			}
 			P = *pParam;
 			R_RecNo = 0;
 			ExtractSubChild++;
@@ -1928,7 +1925,7 @@ int SLAPI PPImpExp::Pop()
 		// Вытаскиваем номер состояния из стека
 		int    r_debug = StateStack.pop(pos);
 		assert(r_debug);
-		assert(pos >= 0 && pos < (int)StateColl.getCount());
+		assert(pos >= 0 && pos < static_cast<int>(StateColl.getCount()));
 		StateBlock * p_state = StateColl.at(pos);
 		assert(p_state->Busy != 0);
 
@@ -2255,7 +2252,7 @@ int PPImpExp::ConvertInnerToOuter(int hdr, const void * pInnerBuf, size_t bufLen
 			if(outer_fld.T.Flags & STypEx::fFormula) {
 				THROW(ResolveFormula(outer_fld.Formula, pInnerBuf, bufLen, formula_result));
 				formula_result.Trim(255);
-				stcast(MKSTYPE(S_ZSTRING, formula_result.Len()+1), outer_fld.T.Typ, (void *)(const char *)formula_result, p_outer_fld_buf, 0);
+				stcast(MKSTYPE(S_ZSTRING, formula_result.Len()+1), outer_fld.T.Typ, formula_result.cptr(), p_outer_fld_buf, 0);
 			}
 			else {
 				uint   inner_pos = 0;
@@ -2380,9 +2377,9 @@ int PPImpExp::AppendHdrRecord(void * pInnerBuf, size_t bufLen)
 	else if(P_XmlT) {
 		THROW_SL(P_XmlT->AppendRecord(P.HdrOtrRec, P.HdrOtrRec.GetDataC()));
 	}
-	else if(P_SoapT) {
+	/* @v10.3.3 @fix (то же, что и выше да еще и без проверки P_XmlT) else if(P_SoapT) {
 		THROW_SL(P_XmlT->AppendRecord(P.HdrOtrRec, P.HdrOtrRec.GetDataC()));
-	}
+	}*/
 	else if(P_XlsT) {
 		THROW_SL(P_XlsT->AppendRecord(P.HdrOtrRec, P.HdrOtrRec.GetDataC()));
 	}
@@ -2409,9 +2406,9 @@ int PPImpExp::AppendRecord(void * pInnerBuf, size_t bufLen)
 	else if(P_XmlT) {
 		THROW_SL(P_XmlT->AppendRecord(P.OtrRec, P.OtrRec.GetDataC()));
 	}
-	else if(P_SoapT) {
+	/* @v10.3.3 @fix (то же, что и выше да еще и без проверки P_XmlT) else if(P_SoapT) {
 		THROW_SL(P_XmlT->AppendRecord(P.OtrRec, P.OtrRec.GetDataC()));
-	}
+	}*/
 	else if(P_XlsT) {
 		THROW_SL(P_XlsT->AppendRecord(P.OtrRec, P.OtrRec.GetDataC()));
 	}
@@ -2538,16 +2535,16 @@ int SLAPI GetImpExpSections(uint fileNameId, uint sdRecID, PPImpExpParam * pPara
 		THROW(ini_file.IsValid());
 		THROW(ini_file.GetSections(&all_sections));
 		for(uint p = 0; all_sections.get(&p, section);) {
-			int    r = 0;
 			if(pParam->ProcessName(3, section)) {
 				pParam->OtrRec.Clear();
-				pParam->HdrOtrRec.Clear(); // @v7.5.3
-				if(r = pParam->ReadIni(&ini_file, section, 0)) {
+				pParam->HdrOtrRec.Clear();
+				const int r = pParam->ReadIni(&ini_file, section, 0);
+				if(r) {
 					if((kind == 1 && pParam->Direction == 0) || (kind == 2 && pParam->Direction == 1) || kind == 0)
 						pSectNames->add(section, 0);
 				}
-				else if(r == 0)
-				PPError();
+				else
+					PPError();
 			}
 		}
 	}
@@ -2595,14 +2592,13 @@ int SLAPI Helper_ConvertImpExpConfig_IniToBdb(PPConfigDatabase & rCDb, SSerializ
 			PPConfigDatabase::CObjHeader cobj_hdr;
 			SBuffer cobj_tail;
 			int32 cobj_id = 0;
-
 			THROW(LoadSdRecord(sdRecID, &p_param->InrRec));
 			THROW(ini_file.GetSections(&all_sections));
 			for(uint p = 0; all_sections.get(&p, section);) {
-				int    r = 0;
 				if(p_param->ProcessName(3, section)) {
 					p_param->OtrRec.Clear();
-					if(r = p_param->ReadIni(&ini_file, section, 0)) {
+					const int r = p_param->ReadIni(&ini_file, section, 0);
+					if(r) {
 						p_param->ProcessName(2, section);
 						p_param->Name = section;
 						if(p_param->SerializeConfig(+1, cobj_hdr, cobj_tail, &rSCtx)) {
@@ -2612,7 +2608,7 @@ int SLAPI Helper_ConvertImpExpConfig_IniToBdb(PPConfigDatabase & rCDb, SSerializ
 							}
 						}
 					}
-					else if(r == 0) {
+					else {
 						// @err
 					}
 				}
@@ -2736,7 +2732,7 @@ ImpExpCfgsListDialog::ImpExpCfgsListDialog() : PPListDialog(DLG_IMPEXPCFGS, CTL_
 	P_ParamList[pp++] = &WorkbookParam;  // @v8.1.1
 	P_ParamList[pp++] = &QuotParam;      // @v8.5.11
 	{
-		SmartListBox * p_box = (SmartListBox*)getCtrlView(CTL_IMPEXPCFGS_CFGS);
+		SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_IMPEXPCFGS_CFGS));
 		if(p_box) {
 			SetupStrListBox(p_box);
 			for(uint i = 0; i < CfgsList.getCount(); i++)
@@ -2762,7 +2758,7 @@ IMPL_HANDLE_EVENT(ImpExpCfgsListDialog)
 {
 	PPListDialog::handleEvent(event);
 	if(event.isCmd(cmLBItemFocused) && event.isCtlEvent(CTL_IMPEXPCFGS_CFGS)) {
-		SmartListBox * p_box = (SmartListBox*)getCtrlView(CTL_IMPEXPCFGS_CFGS);
+		SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_IMPEXPCFGS_CFGS));
 		if(p_box && p_box->def) {
 			CfgPos = p_box->def->_curItem();
 			updateList(-1);
@@ -2794,7 +2790,7 @@ int ImpExpCfgsListDialog::editItem(long pos, long id)
 	if(DS.CheckExtFlag(ECF_USECDB))
 		ok = EditParam(section, &id);
 	else
-		ok = Sections.get((uint *)&id, section, sizeof(section)) ? EditParam(section, &id) : -1;
+		ok = Sections.get(reinterpret_cast<uint *>(&id), section, sizeof(section)) ? EditParam(section, &id) : -1;
 	return ok;
 }
 
@@ -2807,7 +2803,7 @@ int ImpExpCfgsListDialog::delItem(long pos, long id)
 	}
 	else {
 		SString ini_file_name, section;
-		if(Sections.get((uint *)&id, section)) {
+		if(Sections.get(reinterpret_cast<uint *>(&id), section)) {
 			int    is_exists = 0;
 			THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
 			is_exists = fileExists(ini_file_name);
@@ -2874,13 +2870,13 @@ int ImpExpCfgsListDialog::SetParamDlgDTS(ImpExpParamDialog * pDlg, uint cfgPos, 
 	if(pDlg && cfgPos < CfgsList.getCount()) {
 		switch(CfgsList.Get(cfgPos).Id) {
 			case PPREC_GOODS2:
-				ok = ((GoodsImpExpDialog*)pDlg)->setDTS((PPGoodsImpExpParam*)pParam);
+				ok = static_cast<GoodsImpExpDialog *>(pDlg)->setDTS(static_cast<PPGoodsImpExpParam *>(pParam));
 				break;
 			case PPREC_PERSON:
-				ok = ((PersonImpExpDialog*)pDlg)->setDTS((PPPersonImpExpParam*)pParam);
+				ok = static_cast<PersonImpExpDialog *>(pDlg)->setDTS(static_cast<PPPersonImpExpParam *>(pParam));
 				break;
 			case PPREC_BILL:
-				ok = ((BillHdrImpExpDialog*)pDlg)->setDTS((PPBillImpExpParam*)pParam);
+				ok = static_cast<BillHdrImpExpDialog *>(pDlg)->setDTS(static_cast<PPBillImpExpParam *>(pParam));
 				break;
 			case PPREC_BROW:
 			case PPREC_INVENTORYITEM:
@@ -2888,23 +2884,23 @@ int ImpExpCfgsListDialog::SetParamDlgDTS(ImpExpParamDialog * pDlg, uint cfgPos, 
 			case PPREC_CSESS:
 			case PPREC_CCHECKS:
 			case PPREC_CCLINES:
-			case PPREC_WORKBOOK: // @v8.1.1
-				ok = ((ImpExpParamDialog *)pDlg)->setDTS(pParam);
+			case PPREC_WORKBOOK:
+				ok = static_cast<ImpExpParamDialog *>(pDlg)->setDTS(pParam);
 				break;
 			/* @v9.1.3 case PPREC_CSESSCOMPLEX: // @v8.2.7
 				ok = ((CSessComplexImpExpDialog *)pDlg)->setDTS((PPCSessComplexImpExpParam *)pParam);
 				break; */
 			case PPREC_LOT: // @Muxa
-				ok = ((LotImpExpDialog *)pDlg)->setDTS((PPLotImpExpParam *)pParam);
+				ok = static_cast<LotImpExpDialog *>(pDlg)->setDTS(static_cast<PPLotImpExpParam *>(pParam));
 				break;
 			case PPREC_PHONELIST:
-				ok = ((PhoneListImpExpDialog*)pDlg)->setDTS((PPPhoneListImpExpParam*)pParam);
+				ok = static_cast<PhoneListImpExpDialog *>(pDlg)->setDTS(static_cast<PPPhoneListImpExpParam *>(pParam));
 				break;
 			case PPREC_SCARD:
-				ok = ((SCardImpExpDialog*)pDlg)->setDTS((PPSCardImpExpParam*)pParam);
+				ok = static_cast<SCardImpExpDialog *>(pDlg)->setDTS(static_cast<PPSCardImpExpParam *>(pParam));
 				break;
-			case PPREC_QUOTVAL: // @v8.5.11
-				ok = ((QuotImpExpDialog*)pDlg)->setDTS((PPQuotImpExpParam*)pParam);
+			case PPREC_QUOTVAL:
+				ok = static_cast<QuotImpExpDialog *>(pDlg)->setDTS(static_cast<PPQuotImpExpParam *>(pParam));
 				break;
 		}
 	}
@@ -2917,13 +2913,13 @@ int ImpExpCfgsListDialog::GetParamDlgDTS(ImpExpParamDialog * pDlg, uint cfgPos, 
 	if(pDlg && cfgPos < CfgsList.getCount()) {
 		switch(CfgsList.Get(cfgPos).Id) {
 			case PPREC_GOODS2:
-				ok = ((GoodsImpExpDialog*)pDlg)->getDTS((PPGoodsImpExpParam*)pParam);
+				ok = static_cast<GoodsImpExpDialog *>(pDlg)->getDTS(static_cast<PPGoodsImpExpParam *>(pParam));
 				break;
 			case PPREC_PERSON:
-				ok = ((PersonImpExpDialog*)pDlg)->getDTS((PPPersonImpExpParam*)pParam);
+				ok = static_cast<PersonImpExpDialog *>(pDlg)->getDTS(static_cast<PPPersonImpExpParam *>(pParam));
 				break;
 			case PPREC_BILL:
-				ok = ((BillHdrImpExpDialog*)pDlg)->getDTS((PPBillImpExpParam*)pParam);
+				ok = static_cast<BillHdrImpExpDialog *>(pDlg)->getDTS(static_cast<PPBillImpExpParam *>(pParam));
 				break;
 			case PPREC_BROW:
 			case PPREC_INVENTORYITEM:
@@ -2931,23 +2927,23 @@ int ImpExpCfgsListDialog::GetParamDlgDTS(ImpExpParamDialog * pDlg, uint cfgPos, 
 			case PPREC_CSESS:
 			case PPREC_CCHECKS:
 			case PPREC_CCLINES:
-			case PPREC_WORKBOOK: // @v8.1.1
-				ok = ((ImpExpParamDialog *)pDlg)->getDTS(pParam);
+			case PPREC_WORKBOOK:
+				ok = static_cast<ImpExpParamDialog *>(pDlg)->getDTS(pParam);
 				break;
 			/* @v9.1.3 case PPREC_CSESSCOMPLEX: // @v8.2.7
 				ok = ((CSessComplexImpExpDialog *)pDlg)->getDTS((PPCSessComplexImpExpParam *)pParam);
 				break; */
 			case PPREC_LOT: // @Muxa
-				ok = ((LotImpExpDialog *)pDlg)->getDTS((PPLotImpExpParam *)pParam);
+				ok = static_cast<LotImpExpDialog *>(pDlg)->getDTS(static_cast<PPLotImpExpParam *>(pParam));
 				break;
 			case PPREC_PHONELIST:
-				ok = ((PhoneListImpExpDialog*)pDlg)->getDTS((PPPhoneListImpExpParam*)pParam);
+				ok = static_cast<PhoneListImpExpDialog *>(pDlg)->getDTS(static_cast<PPPhoneListImpExpParam *>(pParam));
 				break;
 			case PPREC_SCARD:
-				ok = ((SCardImpExpDialog*)pDlg)->getDTS((PPSCardImpExpParam*)pParam);
+				ok = static_cast<SCardImpExpDialog *>(pDlg)->getDTS(static_cast<PPSCardImpExpParam *>(pParam));
 				break;
-			case PPREC_QUOTVAL: // @v8.5.11
-				ok = ((QuotImpExpDialog*)pDlg)->getDTS((PPQuotImpExpParam*)pParam);
+			case PPREC_QUOTVAL:
+				ok = static_cast<QuotImpExpDialog *>(pDlg)->getDTS(static_cast<PPQuotImpExpParam *>(pParam));
 				break;
 		}
 	}
@@ -3033,7 +3029,7 @@ int ImpExpCfgsListDialog::EditParam(const char * pIniSection, long * pCDbID)
 
 int ImpExpCfgsListDialog::setupList()
 {
-	int    ok = 1, r;
+	int    ok = 1;
 	PROFILE_START
 	SString sect, sub;
 	StringSet ss(SLBColumnDelim);
@@ -3051,7 +3047,7 @@ int ImpExpCfgsListDialog::setupList()
 				p_param->OtrRec.Clear();
 				p_param->FileName = 0;
 				THROW(CDb.GetObj(item.Id, &cobj_hdr, &cobj_tail.Z()));
-				r = p_param->SerializeConfig(-1, cobj_hdr, cobj_tail, &SCtx);
+				const int r = p_param->SerializeConfig(-1, cobj_hdr, cobj_tail, &SCtx);
 				if(r) {
 					PROFILE_START
 					ss.clear();
@@ -3070,7 +3066,7 @@ int ImpExpCfgsListDialog::setupList()
 					THROW(addStringToList(item.Id, ss.getBuf()));
 					PROFILE_END
 				}
-				else if(r == 0)
+				else
 					PPError();
 			}
 		}
@@ -3093,7 +3089,7 @@ int ImpExpCfgsListDialog::setupList()
 						if(p_param->ProcessName(3, section)) {
 							p_param->OtrRec.Clear();
 							p_param->FileName = 0;
-							PROFILE(r = p_param->ReadIni(&ini_file, section, 0));
+							const int r = p_param->ReadIni(&ini_file, section, 0);
 							if(r) {
 								PROFILE_START
 								uint sect_id = 0;
@@ -3117,7 +3113,7 @@ int ImpExpCfgsListDialog::setupList()
 								} // @vmiller
 								PROFILE_END
 							}
-							else if(r == 0)
+							else
 								PPError();
 						}
 						PROFILE_END
@@ -3187,11 +3183,11 @@ int ImpExpCfgListDialog::setupList()
 			THROW(ini_file.IsValid());
 			THROW(ini_file.GetSections(&all_sections));
 			for(uint p = 0; all_sections.get(&p, section);) {
-				int    r = 0;
 				if(P_Param->ProcessName(3, section)) {
 					P_Param->OtrRec.Clear();
 					P_Param->FileName = 0;
-					if(r = P_Param->ReadIni(&ini_file, section, 0)) {
+					const int r = P_Param->ReadIni(&ini_file, section, 0);
+					if(r) {
 						uint sect_id = 0;
 						Sections.add(section, &sect_id);
 						P_Param->ProcessName(2, sect = section);
@@ -3209,7 +3205,7 @@ int ImpExpCfgListDialog::setupList()
 						ss.add(P_Param->FileName);
 						THROW(addStringToList(sect_id, ss.getBuf()));
 					}
-					else if(r == 0)
+					else
 						PPError();
 				}
 			}
@@ -3233,14 +3229,14 @@ int ImpExpCfgListDialog::addItem(long * pPos, long * pID)
 int ImpExpCfgListDialog::editItem(long pos, long id)
 {
 	char   section[256];
-	return Sections.get((uint *)&id, section, sizeof(section)) ? EditParam(section) : -1;
+	return Sections.get(reinterpret_cast<uint *>(&id), section, sizeof(section)) ? EditParam(section) : -1;
 }
 
 int ImpExpCfgListDialog::delItem(long pos, long id)
 {
 	int    ok = 1;
 	SString ini_file_name, section;
-	if(Sections.get((uint *)&id, section)) {
+	if(Sections.get(reinterpret_cast<uint *>(&id), section)) {
 		int    is_exists = 0;
 		THROW(PPGetFilePath(PPPATH_BIN, IniFileID, ini_file_name));
 		is_exists = fileExists(ini_file_name);
@@ -3341,11 +3337,9 @@ ImpExpDll::~ImpExpDll()
 int ImpExpDll::operator !() const
 {
 	if(OpKind == 1)
-		return !(InitExport && SetExportObj && InitExportIter && NextExportIter && EnumExpReceipt &&
-				FinishImpExp && GetErrorMessage);
+		return !(InitExport && SetExportObj && InitExportIter && NextExportIter && EnumExpReceipt && FinishImpExp && GetErrorMessage);
 	else
-		return !(InitImport && GetImportObj && InitImportIter && NextImportIter && ReplyImportObjStatus &&
-				FinishImpExp && GetErrorMessage);
+		return !(InitImport && GetImportObj && InitImportIter && NextImportIter && ReplyImportObjStatus && FinishImpExp && GetErrorMessage);
 }
 
 int ImpExpDll::InitLibrary(const char * pDllName, uint op)
@@ -3356,21 +3350,21 @@ int ImpExpDll::InitLibrary(const char * pDllName, uint op)
 	THROW_SL(P_Lib->Load(pDllName));
 	OpKind = op;
 	if(op == 1) {
-		InitExport = (InitExpProc)P_Lib->GetProcAddr("InitExport");
-		SetExportObj = (SetExpObjProc)P_Lib->GetProcAddr("SetExportObj");
-		InitExportIter = (InitExpIterProc)P_Lib->GetProcAddr("InitExportObjIter");
-		NextExportIter = (NextExpIterProc)P_Lib->GetProcAddr("NextExportObjIter");
-		EnumExpReceipt = (EnumExpReceiptProc)P_Lib->GetProcAddr("EnumExpReceipt");
+		InitExport = reinterpret_cast<InitExpProc>(P_Lib->GetProcAddr("InitExport"));
+		SetExportObj = reinterpret_cast<SetExpObjProc>(P_Lib->GetProcAddr("SetExportObj"));
+		InitExportIter = reinterpret_cast<InitExpIterProc>(P_Lib->GetProcAddr("InitExportObjIter"));
+		NextExportIter = reinterpret_cast<NextExpIterProc>(P_Lib->GetProcAddr("NextExportObjIter"));
+		EnumExpReceipt = reinterpret_cast<EnumExpReceiptProc>(P_Lib->GetProcAddr("EnumExpReceipt"));
 	}
 	else {
-		InitImport = (InitImpProc)P_Lib->GetProcAddr("InitImport");
-		GetImportObj = (GetImpObjProc)P_Lib->GetProcAddr("GetImportObj");
-		InitImportIter = (InitImpIterProc)P_Lib->GetProcAddr("InitImportObjIter");
-		NextImportIter = (NextImpIterProc)P_Lib->GetProcAddr("NextImportObjIter");
-		ReplyImportObjStatus = (ReplyImpObjStatusProc)P_Lib->GetProcAddr("ReplyImportObjStatus");
+		InitImport = reinterpret_cast<InitImpProc>(P_Lib->GetProcAddr("InitImport"));
+		GetImportObj = reinterpret_cast<GetImpObjProc>(P_Lib->GetProcAddr("GetImportObj"));
+		InitImportIter = reinterpret_cast<InitImpIterProc>(P_Lib->GetProcAddr("InitImportObjIter"));
+		NextImportIter = reinterpret_cast<NextImpIterProc>(P_Lib->GetProcAddr("NextImportObjIter"));
+		ReplyImportObjStatus = reinterpret_cast<ReplyImpObjStatusProc>(P_Lib->GetProcAddr("ReplyImportObjStatus"));
 	}
-	FinishImpExp = (FinishImpExpProc)P_Lib->GetProcAddr("FinishImpExp");
-	GetErrorMessage = (GetErrorMessageProc)P_Lib->GetProcAddr("GetErrorMessage");
+	FinishImpExp = reinterpret_cast<FinishImpExpProc>(P_Lib->GetProcAddr("FinishImpExp"));
+	GetErrorMessage = reinterpret_cast<GetErrorMessageProc>(P_Lib->GetProcAddr("GetErrorMessage"));
 	Inited = 1;
 	CATCHZOK
 	return ok;

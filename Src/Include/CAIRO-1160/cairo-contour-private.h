@@ -39,9 +39,8 @@
 //#include "cairo-types-private.h"
 //#include "cairo-compiler-private.h"
 //#include "cairo-error-private.h"
-#include "cairo-list-private.h"
-
-#include <stdio.h>
+//#include "cairo-list-private.h"
+//#include <stdio.h>
 
 CAIRO_BEGIN_DECLS
 
@@ -51,73 +50,61 @@ CAIRO_BEGIN_DECLS
  */
 
 struct _cairo_contour_chain {
-    cairo_point_t *points;
-    int num_points, size_points;
-    struct _cairo_contour_chain *next;
+	cairo_point_t * points;
+	int num_points, size_points;
+	struct _cairo_contour_chain * next;
 };
 
 struct _cairo_contour_iter {
-    cairo_point_t *point;
-    cairo_contour_chain_t *chain;
+	cairo_point_t * point;
+	cairo_contour_chain_t * chain;
 };
 
 struct _cairo_contour {
-    cairo_list_t next;
-    int direction;
-    cairo_contour_chain_t chain, *tail;
+	cairo_list_t next;
+	int direction;
+	cairo_contour_chain_t chain, * tail;
 
-    cairo_point_t embedded_points[64];
+	cairo_point_t embedded_points[64];
 };
 
 /* Initial definition of a shape is a set of contours (some representing holes) */
 struct _cairo_shape {
-    cairo_list_t contours;
+	cairo_list_t contours;
 };
 
 typedef struct _cairo_shape cairo_shape_t;
 
 #if 0
-cairo_private cairo_status_t
-_cairo_shape_init_from_polygon (cairo_shape_t *shape,
-				const cairo_polygon_t *polygon);
+cairo_private cairo_status_t _cairo_shape_init_from_polygon(cairo_shape_t * shape,
+    const cairo_polygon_t * polygon);
 
-cairo_private cairo_status_t
-_cairo_shape_reduce (cairo_shape_t *shape, double tolerance);
+cairo_private cairo_status_t _cairo_shape_reduce(cairo_shape_t * shape, double tolerance);
 #endif
 
-cairo_private void
-_cairo_contour_init (cairo_contour_t *contour,
-		     int direction);
+cairo_private void _cairo_contour_init(cairo_contour_t * contour,
+    int direction);
 
-cairo_private cairo_int_status_t
-__cairo_contour_add_point (cairo_contour_t *contour,
-			   const cairo_point_t *point);
+cairo_private cairo_int_status_t __cairo_contour_add_point(cairo_contour_t * contour,
+    const cairo_point_t * point);
 
-cairo_private void
-_cairo_contour_simplify (cairo_contour_t *contour, double tolerance);
+cairo_private void _cairo_contour_simplify(cairo_contour_t * contour, double tolerance);
 
-cairo_private void
-_cairo_contour_reverse (cairo_contour_t *contour);
+cairo_private void _cairo_contour_reverse(cairo_contour_t * contour);
 
-cairo_private cairo_int_status_t
-_cairo_contour_add (cairo_contour_t *dst,
-		    const cairo_contour_t *src);
+cairo_private cairo_int_status_t _cairo_contour_add(cairo_contour_t * dst,
+    const cairo_contour_t * src);
 
-cairo_private cairo_int_status_t
-_cairo_contour_add_reversed (cairo_contour_t *dst,
-			     const cairo_contour_t *src);
+cairo_private cairo_int_status_t _cairo_contour_add_reversed(cairo_contour_t * dst,
+    const cairo_contour_t * src);
 
-cairo_private void
-__cairo_contour_remove_last_chain (cairo_contour_t *contour);
+cairo_private void __cairo_contour_remove_last_chain(cairo_contour_t * contour);
 
-cairo_private void
-_cairo_contour_reset (cairo_contour_t *contour);
+cairo_private void _cairo_contour_reset(cairo_contour_t * contour);
 
-cairo_private void
-_cairo_contour_fini (cairo_contour_t *contour);
+cairo_private void _cairo_contour_fini(cairo_contour_t * contour);
 
-cairo_private void
-_cairo_debug_print_contour (FILE *file, cairo_contour_t *contour);
+cairo_private void _cairo_debug_print_contour(FILE * file, cairo_contour_t * contour);
 
 CAIRO_END_DECLS
 

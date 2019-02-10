@@ -258,10 +258,10 @@ void _cairo_boxes_extents(const cairo_boxes_t * boxes, cairo_box_t * box)
 	*box = b;
 }
 
-void _cairo_boxes_clear(cairo_boxes_t * boxes)
+void FASTCALL _cairo_boxes_clear(cairo_boxes_t * boxes)
 {
-	cairo_boxes_t::_cairo_boxes_chunk * chunk, * next;
-	for(chunk = boxes->chunks.next; chunk != NULL; chunk = next) {
+	cairo_boxes_t::_cairo_boxes_chunk * next;
+	for(cairo_boxes_t::_cairo_boxes_chunk * chunk = boxes->chunks.next; chunk != NULL; chunk = next) {
 		next = chunk->next;
 		SAlloc::F(chunk);
 	}
@@ -271,7 +271,6 @@ void _cairo_boxes_clear(cairo_boxes_t * boxes)
 	boxes->chunks.base = boxes->boxes_embedded;
 	boxes->chunks.size = ARRAY_LENGTH(boxes->boxes_embedded);
 	boxes->num_boxes = 0;
-
 	boxes->is_pixel_aligned = TRUE;
 }
 
@@ -306,8 +305,8 @@ cairo_box_t * _cairo_boxes_to_array(const cairo_boxes_t * boxes, int * num_boxes
 
 void _cairo_boxes_fini(cairo_boxes_t * boxes)
 {
-	cairo_boxes_t::_cairo_boxes_chunk * chunk, * next;
-	for(chunk = boxes->chunks.next; chunk != NULL; chunk = next) {
+	cairo_boxes_t::_cairo_boxes_chunk * next;
+	for(cairo_boxes_t::_cairo_boxes_chunk * chunk = boxes->chunks.next; chunk != NULL; chunk = next) {
 		next = chunk->next;
 		SAlloc::F(chunk);
 	}
@@ -315,10 +314,8 @@ void _cairo_boxes_fini(cairo_boxes_t * boxes)
 
 cairo_bool_t _cairo_boxes_for_each_box(cairo_boxes_t * boxes, cairo_bool_t (*func)(cairo_box_t * box, void * data), void * data)
 {
-	cairo_boxes_t::_cairo_boxes_chunk * chunk;
-	int i;
-	for(chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
-		for(i = 0; i < chunk->count; i++)
+	for(cairo_boxes_t::_cairo_boxes_chunk * chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
+		for(int i = 0; i < chunk->count; i++)
 			if(!func(&chunk->base[i], data))
 				return FALSE;
 	}
@@ -330,8 +327,7 @@ struct cairo_box_renderer {
 	cairo_boxes_t * boxes;
 };
 
-static cairo_status_t span_to_boxes(void * abstract_renderer, int y, int h,
-    const cairo_half_open_span_t * spans, unsigned num_spans)
+static cairo_status_t span_to_boxes(void * abstract_renderer, int y, int h, const cairo_half_open_span_t * spans, unsigned num_spans)
 {
 	cairo_box_renderer * r = (cairo_box_renderer *)abstract_renderer;
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
@@ -352,22 +348,15 @@ static cairo_status_t span_to_boxes(void * abstract_renderer, int y, int h,
 	return status;
 }
 
-cairo_status_t _cairo_rasterise_polygon_to_boxes(cairo_polygon_t * polygon,
-    cairo_fill_rule_t fill_rule,
-    cairo_boxes_t * boxes)
+cairo_status_t _cairo_rasterise_polygon_to_boxes(cairo_polygon_t * polygon, cairo_fill_rule_t fill_rule, cairo_boxes_t * boxes)
 {
 	struct cairo_box_renderer renderer;
 	cairo_scan_converter_t * converter;
 	cairo_int_status_t status;
 	cairo_rectangle_int_t r;
-
 	TRACE((stderr, "%s: fill_rule=%d\n", __FUNCTION__, fill_rule));
-
 	_cairo_box_round_to_rectangle(&polygon->extents, &r);
-	converter = _cairo_mono_scan_converter_create(r.x, r.y,
-		r.x + r.width,
-		r.y + r.height,
-		fill_rule);
+	converter = _cairo_mono_scan_converter_create(r.x, r.y, r.x + r.width, r.y + r.height, fill_rule);
 	status = _cairo_mono_scan_converter_add_polygon(converter, polygon);
 	if(unlikely(status))
 		goto cleanup_converter;

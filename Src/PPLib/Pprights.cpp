@@ -1303,7 +1303,7 @@ IMPL_HANDLE_EVENT(FastEditRightsDlg)
 					GrpUserID = grp_user_id;
 				}
 				else {
-					SmartListBox * p_lbx = (SmartListBox*)getCtrlView(CTL_EDITRHTS_GRPUSRLIST);
+					SmartListBox * p_lbx = static_cast<SmartListBox *>(getCtrlView(CTL_EDITRHTS_GRPUSRLIST));
 					if(p_lbx) {
 						p_lbx->search(&GrpUserID, CMPF_LONG, srchFirst | lbSrchByID);
 						p_lbx->Draw_();
@@ -1341,7 +1341,7 @@ void FastEditRightsDlg::disableChild(int disable)
 PPID FastEditRightsDlg::getCurrID()
 {
 	PPID   cur_id = 0;
-	SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_EDITRHTS_GRPUSRLIST);
+	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_EDITRHTS_GRPUSRLIST));
 	if(p_list && p_list->def)
 		p_list->def->getCurID(&cur_id);
 	return cur_id;
@@ -1557,7 +1557,7 @@ int FastEditRightsDlg::setupGrpUsrList()
 		}
 		THROW_SL(p_list->Add(p_pack->Secur.ID, (p_pack->Secur.Tag == PPOBJ_USR) ? p_pack->Secur.ParentID : 0, temp_buf));
 	}
-	p_lbx = (SmartListBox *)getCtrlView(CTL_EDITRHTS_GRPUSRLIST);
+	p_lbx = static_cast<SmartListBox *>(getCtrlView(CTL_EDITRHTS_GRPUSRLIST));
 	p_grp_usr_def = new StdTreeListBoxDef(p_list, lbtDisposeData | lbtDblClkNotify | lbtFocNotify | lbtSelNotify, 0);
 	THROW_MEM(p_grp_usr_def);
 	p_lbx->setDef(p_grp_usr_def);

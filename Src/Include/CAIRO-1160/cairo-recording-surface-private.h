@@ -39,7 +39,7 @@
 
 //#include "cairoint.h"
 //#include "cairo-path-fixed-private.h"
-//#include "cairo-pattern-private.h"
+////#include "cairo-pattern-private.h"
 //#include "cairo-surface-backend-private.h"
 
 typedef enum {
