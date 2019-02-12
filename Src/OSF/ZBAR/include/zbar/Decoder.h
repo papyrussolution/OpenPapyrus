@@ -88,7 +88,7 @@ public:
 	Decoder& operator<<(uint width)
 	{
 		zbar_decode_width(_decoder, width);
-		return(*this);
+		return *this;
 	}
 	/// retrieve color of @em next element passed to Decoder.
 	/// see zbar_decoder_get_color()

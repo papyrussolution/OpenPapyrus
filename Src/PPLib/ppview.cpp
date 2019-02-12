@@ -210,7 +210,7 @@ int FASTCALL PPView::Execute(int viewID, const PPBaseFilt * pFilt, int flags, vo
 	THROW(PPView::CreateInstance(viewID, &p_v));
 	THROW(p_flt = p_v->CreateFilt(extraPtr));
 	if(modeless)
-		p_prev_win = (PPViewBrowser *)PPFindLastBrowser();
+		p_prev_win = static_cast<PPViewBrowser *>(PPFindLastBrowser());
 	if(pFilt) {
 		THROW(p_flt->Copy(pFilt, 1));
 	}
@@ -1662,7 +1662,7 @@ int SLAPI PPView::Browse(int modeless)
 		THROW(q = CreateBrowserQuery(&brw_id, &sub_title));
 		if(P_Ct) {
 			THROW_PP(q == PPView::CrosstabDbQueryStub, PPERR_INVPPVIEWQUERY);
-			THROW(brw = (PPViewBrowser *)P_Ct->CreateBrowser(brw_id, modeless));
+			THROW(brw = static_cast<PPViewBrowser *>(P_Ct->CreateBrowser(brw_id, modeless)));
 		}
 		else {
 			THROW_PP(q != PPView::CrosstabDbQueryStub, PPERR_INVPPVIEWQUERY);
@@ -1723,7 +1723,7 @@ int SLAPI PPView::DefaultCmdProcessor(uint ppvCmd, const void * pHdr, PPViewBrow
 	else if(ppvCmd == PPVCMD_CHANGEFILT)
 		ok = (ImplementFlags & implChangeFilt || !P_F) ? -2 : ChangeFilt(0, pBrw);
 	else if(P_Obj) {
-		PPID   id = pHdr ? *(PPID *)pHdr : 0;
+		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_ADDITEM:
 				ok = (P_Obj->Edit(&(id = 0), GetEditExtraParam()) == cmOK) ? 1 : -1;
@@ -1799,20 +1799,20 @@ int SLAPI PPView::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pC
 //
 //
 PPViewBrowser::PPViewBrowser(uint brwId, DBQuery * pQ, PPView * pV, int dataOwner) : BrowserWindow(brwId, pQ), RefreshTimer(0),
-	P_View(pV), IsDataOwner(dataOwner), P_ComboBox(0), P_InputLine(0), H_ComboFont(0), KBF10(0)
+	P_View(pV), VbState(dataOwner ? vbsDataOwner : 0), P_ComboBox(0), P_InputLine(0), H_ComboFont(0)
 {
 	Advise();
 }
 
 PPViewBrowser::PPViewBrowser(uint brwId, SArray * pQ, PPView * pV, int dataOwner) : BrowserWindow(brwId, pQ), RefreshTimer(0),
-	P_View(pV), IsDataOwner(dataOwner), P_ComboBox(0), P_InputLine(0), H_ComboFont(0), KBF10(0)
+	P_View(pV), VbState(dataOwner ? vbsDataOwner : 0), P_ComboBox(0), P_InputLine(0), H_ComboFont(0)
 {
 	Advise();
 }
 
 PPViewBrowser::~PPViewBrowser()
 {
-	if(IsDataOwner) {
+	if(VbState & vbsDataOwner) {
 		assert(P_View->IsConsistent());
 		delete P_View;
 	}
@@ -1829,8 +1829,8 @@ PPViewBrowser::~PPViewBrowser()
 
 int PPViewBrowser::ResetDataOwnership()
 {
-	if(IsDataOwner) {
-		IsDataOwner = 0;
+	if(VbState & vbsDataOwner) {
+		VbState &= ~vbsDataOwner;
 		return 1;
 	}
 	else
@@ -2217,7 +2217,7 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 		is_rus = IsLetter866(b[0]);
 		SOemToChar((char *)b);
 		if(isalnum(c = TVCHR) || is_rus || c == '*') {
-			if(KBF10 && (b[0] == (uchar)'x' || b[0] == (uchar)'X' || is_rus && (b[0] == (uchar)'÷' || b[0] == (uchar)'×'))) {
+			if((VbState & vbsKbF10) && (b[0] == (uchar)'x' || b[0] == (uchar)'X' || is_rus && (b[0] == (uchar)'÷' || b[0] == (uchar)'×'))) {
 				Export();
 				clearEvent(event);
 			}
@@ -2232,12 +2232,12 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 					clearEvent(event);
 				}
 			}
-			KBF10 = 0;
+			VbState &= ~vbsKbF10;
 		}
 		else if(oneof3(TVKEY, kbEnter, kbIns, kbDel))
 			skip_inherited_processing = 1;
 		else if(TVKEY == kbF10)
-			KBF10 = 1;
+			VbState |= vbsKbF10;
 	}
 	if(!skip_inherited_processing) {
 		/* @v10.3.1
@@ -2286,7 +2286,8 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 		const void * p_row = view ? view->getCurItem() : 0;
 		switch(TVCMD) {
 			case cmModalPostCreate: // @v10.3.1
-				P_View->OnExecBrowser(this);
+				if(P_View->OnExecBrowser(this) == cmCancel)
+					BbState |= bbsCancel; // @v10.3.3
 				break;
 			case cmaInsert:
 				if(P_View->ProcessCommand(PPVCMD_ADDITEM, p_row, this) > 0)

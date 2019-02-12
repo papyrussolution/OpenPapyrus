@@ -2237,7 +2237,7 @@ static int __rep_log_setup(ENV * env, REP * rep, uint32 file, uint32 version, DB
 	DB_LOG * dblp = env->lg_handle;
 	LOG * lp = (LOG *)dblp->reginfo.primary;
 	DB_TXNMGR * mgr = env->tx_handle;
-	DB_TXNREGION * region = (DB_TXNREGION *)mgr->reginfo.primary;
+	DB_TXNREGION * region = static_cast<DB_TXNREGION *>(mgr->reginfo.primary);
 	/*
 	 * Set up the log starting at the file number of the first LSN we
 	 * need to get from the master.

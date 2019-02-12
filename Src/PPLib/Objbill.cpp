@@ -1828,7 +1828,7 @@ int SLAPI PPObjBill::EditGoodsBill(PPID id, const EditParam * pExtraParam)
 					rp.Flags |= rp.fPopupInfo;
 					if(CheckOpFlags(pack.Rec.OpID, OPKF_RECKON)) {
 						amt_paym = pack.GetAmount() - pack.Amounts.Get(PPAMT_PAYMENT, pack.Rec.CurID);
-						if(amt_paym > 0)
+						if(amt_paym != 0) // @v10.3.4 (amt_paym > 0)-->(amt_paym != 0) Теперь возможен инвертированный зачет
 							ReckoningPaym(pack.Rec.ID, rp, 1);
 					}
 					if(CheckOpFlags(pack.Rec.OpID, OPKF_NEEDPAYMENT)) {

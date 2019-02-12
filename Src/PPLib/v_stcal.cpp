@@ -638,7 +638,7 @@ int SLAPI PPViewStaffCal::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 int SLAPI PPViewStaffCal::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	PPID   rec_id = pHdr ? *(PPID *)pHdr : 0;
+	PPID   rec_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	if(rec_id) {
 		TempStaffCalTbl::Rec rec;
 		if(SearchByID(P_TempTbl, 0, rec_id, &rec) > 0) {

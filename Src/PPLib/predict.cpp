@@ -453,7 +453,7 @@ int SLAPI PrcssrPrediction::EditPredictCfg()
 		}
 		dlg->SetClusterData(CTL_PREDICTCFG_FIXARCODE, (long)cfg.FixArCodes);
 	}
-	SetupPPObjCombo(dlg, CTLSEL_PREDICTCFG_CKOEFF,  PPOBJ_QUOTKIND, cfg.CorrectKoeff, OLW_CANINSERT, (void *)1);
+	SetupPPObjCombo(dlg, CTLSEL_PREDICTCFG_CKOEFF,  PPOBJ_QUOTKIND, cfg.CorrectKoeff, OLW_CANINSERT, reinterpret_cast<void *>(1));
 	for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 		long   temp_long;
 		THROW(CheckCfgRights(PPCFGOBJ_PREDICTSALES, PPR_MOD, 0));

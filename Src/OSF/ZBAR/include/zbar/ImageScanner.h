@@ -118,7 +118,7 @@ public:
     ImageScanner& operator<< (Image& image)
     {
         scan(image);
-        return(*this);
+        return *this;
     }
 
 private:

@@ -1001,10 +1001,10 @@ int GoodsCfgDialog::setDTS(const PPGoodsConfig * pData, const SString & rGoodsEx
 	SetupPPObjCombo(this, CTLSEL_GDSCFG_ASSETGRP, PPOBJ_GOODSGROUP, Data.AssetGrpID, OLW_CANSELUPLEVEL);
 	SetupPPObjCombo(this, CTLSEL_GDSCFG_TAREGRP,  PPOBJ_GOODSGROUP, Data.TareGrpID,  OLW_CANSELUPLEVEL);
 	SetupPPObjCombo(this, CTLSEL_GDSCFG_DEFGOODS, PPOBJ_GOODS,  Data.DefGoodsID, OLW_LOADDEFONOPEN, 0);
-	SetupPPObjCombo(this, CTLSEL_GDSCFG_GDSMATRIX, PPOBJ_QUOTKIND,  Data.MtxQkID, 0, (void *)1);
+	SetupPPObjCombo(this, CTLSEL_GDSCFG_GDSMATRIX, PPOBJ_QUOTKIND,  Data.MtxQkID, 0, reinterpret_cast<void *>(1));
 	AddClusterAssoc(CTL_GDSCFG_IGNFLDMTX, 0, GCF_IGNOREFOLDERMATRIX);
 	SetClusterData(CTL_GDSCFG_IGNFLDMTX, Data.Flags);
-	SetupPPObjCombo(this, CTLSEL_GDSCFG_GMTXRESTR, PPOBJ_QUOTKIND,  Data.MtxRestrQkID, 0, (void *)1);
+	SetupPPObjCombo(this, CTLSEL_GDSCFG_GMTXRESTR, PPOBJ_QUOTKIND,  Data.MtxRestrQkID, 0, reinterpret_cast<void *>(1));
 	{
 		ObjTagFilt ot_filt;
 		ot_filt.ObjTypeID = PPOBJ_GLOBALUSERACC;

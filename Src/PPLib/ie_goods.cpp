@@ -2824,8 +2824,8 @@ int SLAPI PPObjGoods::Import(const char * pCfgName, int analyze, int use_ta)
 //
 static IMPL_CMPFUNC(WordConcordAssoc_ByText, p1, p2)
 {
-	const LAssoc * p_a1 = (const LAssoc *)p1;
-	const LAssoc * p_a2 = (const LAssoc *)p2;
+	const LAssoc * p_a1 = static_cast<const LAssoc *>(p1);
+	const LAssoc * p_a2 = static_cast<const LAssoc *>(p2);
 	PPTextAnalyzer * p_ta = (PPTextAnalyzer *)pExtraData;
 	if(p_ta) {
 		SString & r_temp_buf1 = SLS.AcquireRvlStr();
@@ -2840,8 +2840,8 @@ static IMPL_CMPFUNC(WordConcordAssoc_ByText, p1, p2)
 
 static IMPL_CMPFUNC(WordConcordAssoc_ByFreq, p1, p2)
 {
-	const LAssoc * p_a1 = (const LAssoc *)p1;
-	const LAssoc * p_a2 = (const LAssoc *)p2;
+	const LAssoc * p_a1 = static_cast<const LAssoc *>(p1);
+	const LAssoc * p_a2 = static_cast<const LAssoc *>(p2);
 	int si = (p_a1->Val < p_a2->Val) ? -1 : ((p_a1->Val > p_a2->Val) ? +1 : 0);
 	if(si == 0) {
 		PPTextAnalyzer * p_ta = (PPTextAnalyzer *)pExtraData;
@@ -2858,8 +2858,8 @@ static IMPL_CMPFUNC(WordConcordAssoc_ByFreq, p1, p2)
 
 static IMPL_CMPFUNC(BrandConcordAssoc_ByText, p1, p2)
 {
-	const LAssoc * p_a1 = (const LAssoc *)p1;
-	const LAssoc * p_a2 = (const LAssoc *)p2;
+	const LAssoc * p_a1 = static_cast<const LAssoc *>(p1);
+	const LAssoc * p_a2 = static_cast<const LAssoc *>(p2);
 	PPObjBrand * p_brand_obj = (PPObjBrand *)pExtraData;
 	if(p_brand_obj) {
 		SString & r_temp_buf1 = SLS.AcquireRvlStr();
@@ -2877,9 +2877,9 @@ static IMPL_CMPFUNC(BrandConcordAssoc_ByText, p1, p2)
 
 static IMPL_CMPFUNC(CategoryConcordAssoc_ByText, p1, p2)
 {
-	const LAssoc * p_a1 = (const LAssoc *)p1;
-	const LAssoc * p_a2 = (const LAssoc *)p2;
-	PPObjGoods * p_categ_obj = (PPObjGoods *)pExtraData;
+	const LAssoc * p_a1 = static_cast<const LAssoc *>(p1);
+	const LAssoc * p_a2 = static_cast<const LAssoc *>(p2);
+	PPObjGoods * p_categ_obj = static_cast<PPObjGoods *>(pExtraData);
 	if(p_categ_obj) {
 		SString & r_temp_buf1 = SLS.AcquireRvlStr();
 		SString & r_temp_buf2 = SLS.AcquireRvlStr();

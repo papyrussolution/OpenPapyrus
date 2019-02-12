@@ -414,7 +414,7 @@ LRESULT CALLBACK STimeChunkBrowser::WndProc(HWND hWnd, UINT message, WPARAM wPar
 		case WM_MOUSEWHEEL:
 			p_view = static_cast<STimeChunkBrowser *>(TView::GetWindowUserData(hWnd));
 			if(p_view) {
-				short delta = (short)HIWORD(wParam);
+				short delta = static_cast<short>(HIWORD(wParam));
 				if(p_view->P.ViewType == STimeChunkBrowser::Param::vHourDay) {
 					p_view->Scroll(SB_HORZ, (delta > 0) ? SB_LINEUP : SB_LINEDOWN, 0);
 				}
@@ -611,10 +611,10 @@ int STimeChunkBrowser::SaveParameters()
 		for(uint i = 0; i < param_list.getCount(); i++) {
 			StrAssocArray::Item item = param_list.Get(i);
 			switch(item.Id) {
-				case kpPixQuant: temp_buf.CatEq(item.Txt, (long)P.PixQuant).Semicol(); break;
-				case kpPixRow:   temp_buf.CatEq(item.Txt, (long)P.PixRow).Semicol(); break;
-				case kpPixRowMargin: temp_buf.CatEq(item.Txt, (long)P.PixRowMargin).Semicol(); break;
-				case kpTextZonePart: temp_buf.CatEq(item.Txt, (long)St.TextZonePart).Semicol(); break;
+				case kpPixQuant: temp_buf.CatEq(item.Txt, P.PixQuant).Semicol(); break;
+				case kpPixRow:   temp_buf.CatEq(item.Txt, P.PixRow).Semicol(); break;
+				case kpPixRowMargin: temp_buf.CatEq(item.Txt, P.PixRowMargin).Semicol(); break;
+				case kpTextZonePart: temp_buf.CatEq(item.Txt, St.TextZonePart).Semicol(); break;
 			}
 		}
 		(sub_key = "Software").SetLastSlash().Cat(SLS.GetAppName()).SetLastSlash().Cat("STimeChunkBrowser");

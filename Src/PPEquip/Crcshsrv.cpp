@@ -397,9 +397,8 @@ class XmlWriter {
 public:
 	XmlWriter(const char * pPath, int replaceSpecSymb);
 	~XmlWriter();
-
 	int SLAPI StartElement(const char * pName, const char * pAttribName = 0, const char * pAttribValue = 0);
-	int SLAPI EndElement();
+	void   SLAPI EndElement();
 	int SLAPI AddAttrib(const char * pAttribName, const char * pAttribValue);
 	int SLAPI AddAttrib(const char * pAttribName, bool attribValue);
 	int SLAPI AddAttrib(const char * pAttribName, long attribValue);
@@ -430,7 +429,7 @@ XmlWriter::XmlWriter(const char * pPath, int replaceSpecSymb) : ReplaceSpecSymb(
 {
 	if(P_Writer) {
 		xmlTextWriterSetIndent(P_Writer, 1);
-		xmlTextWriterSetIndentString(P_Writer, (const xmlChar*)"\t");
+		xmlTextWriterSetIndentString(P_Writer, reinterpret_cast<const xmlChar *>("\t"));
 		xmlTextWriterStartDocument(P_Writer, 0, "utf8", 0);
 	}
 }
@@ -446,7 +445,7 @@ XmlWriter::~XmlWriter()
 
 void SLAPI XmlWriter::PutPlugin(const char * pKey, const char * pVal)
 {
-	if(pKey && sstrlen(pKey) && pVal && sstrlen(pVal)) {
+	if(sstrlen(pKey) && sstrlen(pVal)) {
 		SString key, val;
 		(key = pKey).Transf(CTRANSF_INNER_TO_UTF8);
 		(val = pVal).ReplaceChar('\n', ' ').ReplaceChar('\r', ' ').ReplaceChar(30, ' ');
@@ -462,20 +461,26 @@ void SLAPI XmlWriter::PutPlugin(const char * pKey, const char * pVal)
 
 void SLAPI XmlWriter::PutPlugin(const char * pKey, double val)
 {
-	if(val != 0.0)
-		PutPlugin(pKey, TempBuf.Z().Cat(val));
+	if(val != 0.0) {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		PutPlugin(pKey, r_temp_buf.Cat(val));
+	}
 }
 
 void SLAPI XmlWriter::PutPlugin(const char * pKey, long val)
 {
-	if(val != 0)
-		PutPlugin(pKey, TempBuf.Z().Cat(val));
+	if(val != 0) {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		PutPlugin(pKey, r_temp_buf.Cat(val));
+	}
 }
 
 void SLAPI XmlWriter::PutPlugin(const char * pKey, LDATE val)
 {
-	if(val != ZERODATE)
-		PutPlugin(pKey, TempBuf.Z().Cat(val, DATF_ISO8601|DATF_CENTURY));
+	if(val != ZERODATE) {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		PutPlugin(pKey, r_temp_buf.Cat(val, DATF_ISO8601|DATF_CENTURY));
+	}
 }
 
 int SLAPI XmlWriter::StartElement(const char * pName, const char * pAttribName /*=0*/, const char * pAttribValue /*=0*/)
@@ -490,14 +495,10 @@ int SLAPI XmlWriter::StartElement(const char * pName, const char * pAttribName /
 	return ok;
 }
 
-int SLAPI XmlWriter::EndElement()
+void SLAPI XmlWriter::EndElement()
 {
-	int    ok = 0;
-	if(P_Writer) {
+	if(P_Writer)
 		xmlTextWriterEndElement(P_Writer);
-		ok = 1;
-	}
-	return ok;
 }
 
 int SLAPI XmlWriter::AddAttrib(const char * pAttribName, bool attribValue)
@@ -510,14 +511,14 @@ int SLAPI XmlWriter::AddAttrib(const char * pAttribName, double attribValue)
 int SLAPI XmlWriter::AddAttrib(const char * pAttribName, const char * pAttribValue)
 {
 	int    ok = 0;
-	if(P_Writer && pAttribName && sstrlen(pAttribName) && pAttribValue && sstrlen(pAttribValue)) {
+	if(P_Writer && sstrlen(pAttribName) && sstrlen(pAttribValue)) {
 		SString attrib_name, attrib_value;
 		(attrib_name = pAttribName).Transf(CTRANSF_INNER_TO_UTF8);
 		(attrib_value = pAttribValue).ReplaceChar('\n', ' ').ReplaceChar('\r', ' ').ReplaceChar(30, ' ');
 		if(ReplaceSpecSymb)
 			XMLReplaceSpecSymb(attrib_value, "&<>\'");
 		attrib_value.Transf(CTRANSF_INNER_TO_UTF8);
-		xmlTextWriterWriteAttribute(P_Writer, (const xmlChar*)(const char*)attrib_name, (const xmlChar*)(const char*)attrib_value);
+		xmlTextWriterWriteAttribute(P_Writer, attrib_name.ucptr(), attrib_value.ucptr());
 		ok = 1;
 	}
 	return ok;
@@ -550,7 +551,7 @@ int SLAPI XmlWriter::PutElement(const char * pName, const char * pValue)
 		if(ReplaceSpecSymb)
 			XMLReplaceSpecSymb(val_buf, "&<>\'");
 		val_buf.Transf(CTRANSF_INNER_TO_UTF8);
-		xmlTextWriterWriteElement(P_Writer, (const xmlChar*)(const char*)name_buf, (const xmlChar*)(const char*)val_buf);
+		xmlTextWriterWriteElement(P_Writer, name_buf.ucptr(), val_buf.ucptr());
 		ok = 1;
 	}
 	return ok;

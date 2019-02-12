@@ -3132,6 +3132,7 @@ PPFILNAM_VETISINFO_LOG         "vetis-info.log"
 PPFILNAM_NNTRAIN_LOG           "nntrain.log"
 PPFILNAM_EDIEXITE_LOG          "edi-exite.log"
 PPFILNAM_TSSTAKE_LOG           "tsstake.log"
+PPFILNAM_TSSTAKEPOTENTIAL_LOG  "tsstake-potential.log"
 
 #!} // dont_translate
 
@@ -6581,6 +6582,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_locvetisentityguid                  "ВЕТИС GUID организации (location)"
 @rtag_locvetisuser                        "ВЕТИС пользователь-инициатор (location)"
 @rtag_goodstranpvantype                   "ВЕТИС Тип транспортного фургона"
+@rtag_orglineident                        "Оригинальный идентификатор строки документа"
 //
 // Текстовые представления view и filter
 //

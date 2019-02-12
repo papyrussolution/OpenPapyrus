@@ -1144,7 +1144,7 @@ int SLAPI PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
 		Reference * p_ref = PPRef;
-		PPID   lot_id = pHdr ? *(PPID *)pHdr : 0;
+		PPID   lot_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_EDITGOODS:
 				ok = -1;
@@ -2017,7 +2017,7 @@ int FASTCALL PPViewLot::NextIteration(LotViewItem * pItem)
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
-	PPViewBrowser * p_brw = (PPViewBrowser *)extraPtr;
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
 	if(p_brw && pData && pStyle) {
 		PPViewLot * p_view = (PPViewLot *)p_brw->P_View;
 		const LotFilt * p_filt = (const LotFilt *)p_view->GetBaseFilt();
@@ -2355,7 +2355,7 @@ DBQuery * SLAPI PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 //
 int SLAPI PPViewLot::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
-	PPID   lot_id = pHdr ? *(PPID *)pHdr : 0;
+	PPID   lot_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	return lot_id ? ::ViewOpersByLot(lot_id, 0) : -1;
 }
 
@@ -3180,7 +3180,7 @@ int SLAPI PPViewLotExtCode::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   lot_id = pHdr ? *(PPID *)pHdr : 0;
+		PPID   lot_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_ADDITEM:
 				if(Filt.LotID) {

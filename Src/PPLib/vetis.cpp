@@ -4569,6 +4569,13 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 										if(r_doc.WayBillType > 0) {
 											n_wb.PutInner(SXml::nst("d9p1", "type"), temp_buf.Z().Cat(r_doc.WayBillType));
 										}
+										// @v10.3.4 {
+										if(!r_doc.CertifiedConsignment.Broker.Guid.IsZero()) {
+											SXml::WNode n_broker(srb, SXml::nst("d9p1", "broker"));
+											PutNonZeroUuid(n_broker, "bs", r_doc.CertifiedConsignment.Broker.Uuid);
+											PutNonZeroGuid(n_broker, "bs", r_doc.CertifiedConsignment.Broker.Guid);
+										}
+										// } @v10.3.4 
 										{
 											SXml::WNode n_tr(srb, SXml::nst("d9p1", "transportInfo"));
 											if(r_doc.CertifiedConsignment.TransportInfo.TransportType) {
@@ -7333,9 +7340,9 @@ int SLAPI PPViewVetisDocument::NextIteration(VetisDocumentViewItem * pItem)
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
-	PPViewBrowser * p_brw = (PPViewBrowser *)extraPtr;
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
 	if(p_brw) {
-		PPViewVetisDocument * p_view = (PPViewVetisDocument *)p_brw->P_View;
+		PPViewVetisDocument * p_view = static_cast<PPViewVetisDocument *>(p_brw->P_View);
 		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
 	}
 	return ok;
@@ -7348,7 +7355,7 @@ int SLAPI PPViewVetisDocument::CellStyleFunc_(const void * pData, long col, int 
 		const  BrowserDef * p_def = pBrw->getDef();
 		if(col >= 0 && col < (long)p_def->getCount()) {
 			const BroColumn & r_col = p_def->at(col);
-			PPViewVetisDocument::BrwHdr * p_hdr = (PPViewVetisDocument::BrwHdr *)pData;
+			const PPViewVetisDocument::BrwHdr * p_hdr = static_cast<const PPViewVetisDocument::BrwHdr *>(pData);
 			if(r_col.OrgOffs == 20) { // issuenumber
 				if(p_hdr->OrgDocEntityID) {
 					pStyle->RightFigColor = GetColorRef(SClrAqua);
@@ -8200,7 +8207,7 @@ int SLAPI PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PP
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *(PPID *)pHdr : 0;
+		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_EDITITEM:
 				ok = -1;

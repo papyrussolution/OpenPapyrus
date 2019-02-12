@@ -19,7 +19,7 @@ int SLAPI DeviceLoadingStat::Fetch(PPID statID, DvcLoadingStatTbl::Rec * pRec)
 	int    ok = -1;
 	uint   pos = 0;
 	if(StatCache.lsearch(&statID, &pos, CMPF_LONG)) {
-		ASSIGN_PTR(pRec, *(DvcLoadingStatTbl::Rec *)StatCache.at(pos));
+		ASSIGN_PTR(pRec, *static_cast<const DvcLoadingStatTbl::Rec *>(StatCache.at(pos)));
 		ok = 1;
 	}
 	else {
@@ -187,7 +187,7 @@ int SLAPI DeviceLoadingStat::FinishLoading(PPID statID, int status, int use_ta)
 			BExtInsert bei(&DlsoT);
 			if(GoodsList.getCount()) {
 				for(uint i = 0; i < GoodsList.getCount(); i++) {
-					const _GoodsInfo & gds_info = *(_GoodsInfo *)GoodsList.at(i);
+					const _GoodsInfo & gds_info = *static_cast<const _GoodsInfo *>(GoodsList.at(i));
 					MEMSZERO(dlso_rec);
 					dlso_rec.DlsID   = statID;
 					dlso_rec.ObjType = PPOBJ_GOODS;
@@ -253,7 +253,7 @@ int SLAPI DeviceLoadingStat::GetExportedObjectsSince(PPID objType, PPID sinceDls
 		DlsObjTbl::Key1 k1;
 		MEMSZERO(k1);
 		k1.DlsID = rec.ID;
-		k1.ObjType = (int16)objType;
+		k1.ObjType = static_cast<int16>(objType);
 		BExtQuery q(&DlsoT, 1);
 		q.select(DlsoT.ObjID, 0).where(DlsoT.DlsID == _id && DlsoT.ObjType == objType);
 		for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {

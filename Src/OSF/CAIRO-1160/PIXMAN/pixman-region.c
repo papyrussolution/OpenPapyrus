@@ -2139,13 +2139,9 @@ PIXMAN_EXPORT void PREFIX(_translate) (region_type_t *region, int x, int y)
 PIXMAN_EXPORT void PREFIX(_reset) (region_type_t *region, box_type_t *box)
 {
 	GOOD(region);
-
 	critical_if_fail(GOOD_RECT(box));
-
 	region->extents = *box;
-
 	FREE_DATA(region);
-
 	region->data = NULL;
 }
 
@@ -2153,7 +2149,6 @@ PIXMAN_EXPORT void PREFIX(_clear) (region_type_t *region)
 {
 	GOOD(region);
 	FREE_DATA(region);
-
 	region->extents = *pixman_region_empty_box;
 	region->data = pixman_region_empty_data;
 }

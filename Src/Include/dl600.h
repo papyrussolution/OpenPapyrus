@@ -1292,7 +1292,7 @@ extern "C" typedef SCoClass * (*FN_DL6CLS_FACTORY)(const DlContext *, const DlSc
 #define DL6_IC_DESTRUCTOR(s) DL6_IC_CLS(s)::~DL6_IC_CLS(s)()
 #define DL6_IC_CONSTRUCTION_EXTRA(s, vtc, cls_ext) \
 	DL6_IC_CONSTRUCTOR(s, vtc) { ExtraPtr = new cls_ext; } \
-	DL6_IC_DESTRUCTOR(s) { delete ((cls_ext *)ExtraPtr); }
+	DL6_IC_DESTRUCTOR(s) { delete static_cast<cls_ext *>(ExtraPtr); }
 //
 // Макро-определения, используемые при реализации интерфейсов
 //
@@ -1317,45 +1317,45 @@ extern "C" typedef SCoClass * (*FN_DL6CLS_FACTORY)(const DlContext *, const DlSc
 	THROW_PP(pFilt, PPERR_INVPARAM);   \
 	THROW(GetInnerUUID("IPpyFilt_" #view, uuid));                        \
 	THROW(SUCCEEDED(pFilt->QueryInterface(uuid, (void **)&p_ifc_filt))); \
-	THROW(((PPView##view *)ExtraPtr)->Init_((const view##Filt *)GetExtraPtrByInterface(p_ifc_filt))); \
+	THROW(((PPView##view *)ExtraPtr)->Init_(static_cast<const view##Filt *>(GetExtraPtrByInterface(p_ifc_filt)))); \
 	CATCH AppError = 1; ENDCATCH                        \
-	if(p_ifc_filt) ((IUnknown *)p_ifc_filt)->Release(); \
+	if(p_ifc_filt) reinterpret_cast<IUnknown *>(p_ifc_filt)->Release(); \
 	return !AppError;
 
 #define INIT_PPVIEW_ALDD_DATA(ViewTypNam, extr)         \
 	PPView##ViewTypNam * p_v = 0;                       \
 	if(extr && rFilt.Ptr) {                                          \
-		Extra[1].Ptr = p_v = (PPView##ViewTypNam *)rFilt.Ptr; } \
+		Extra[1].Ptr = p_v = static_cast<PPView##ViewTypNam *>(rFilt.Ptr); } \
 	else {                                              \
 		Extra[0].Ptr = p_v = new PPView##ViewTypNam;    \
-		p_v->Init((ViewTypNam##Filt *)rFilt.Ptr); }         \
+		p_v->Init(static_cast<ViewTypNam##Filt *>(rFilt.Ptr)); }         \
 	const ViewTypNam##Filt * p_filt = p_v->GetFilt();
 
 #define INIT_PPVIEW_ALDD_DATA_U(ViewTypNam, extr)         \
 	PPView##ViewTypNam * p_v = 0;                       \
 	if(extr && rFilt.Ptr) {                                  \
-		Extra[1].Ptr = p_v = (PPView##ViewTypNam *)rFilt.Ptr; } \
+		Extra[1].Ptr = p_v = static_cast<PPView##ViewTypNam *>(rFilt.Ptr); } \
 	else {                                              \
 		Extra[0].Ptr = p_v = new PPView##ViewTypNam;    \
-		p_v->Init_((ViewTypNam##Filt *)rFilt.Ptr); }    \
-	const ViewTypNam##Filt * p_filt = (ViewTypNam##Filt *)p_v->GetBaseFilt();
+		p_v->Init_(static_cast<ViewTypNam##Filt *>(rFilt.Ptr)); }    \
+	const ViewTypNam##Filt * p_filt = static_cast<const ViewTypNam##Filt *>(p_v->GetBaseFilt());
 
 #define DESTROY_PPVIEW_ALDD(ViewTypNam)      \
 	if(Extra[0].Ptr) {                       \
-		delete (PPView##ViewTypNam *)Extra[0].Ptr;  \
+		delete static_cast<PPView##ViewTypNam *>(Extra[0].Ptr);  \
 		Extra[0].Ptr = 0;                    \
 	}                                        \
 	Extra[1].Ptr = 0; /* @v9.6.4 return 1; */
 
 #define INIT_PPVIEW_ALDD_ITER(ViewTypNam) \
-	PPView##ViewTypNam * p_v = (PPView##ViewTypNam *)(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr); \
+	PPView##ViewTypNam * p_v = static_cast<PPView##ViewTypNam *>(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr); \
 	IterProlog(iterId, 1);                                                                         \
 	if(sortId >= 0)                                                                                \
 		SortIdx = sortId;                                                                          \
 	return p_v->InitIteration() ? 1 : 0;                                                           \
 
 #define INIT_PPVIEW_ALDD_ITER_ORD(ViewTypNam, order) \
-	PPView##ViewTypNam * p_v = (PPView##ViewTypNam *)(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr); \
+	PPView##ViewTypNam * p_v = static_cast<PPView##ViewTypNam *>(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr); \
 	IterProlog(iterId, 1);                                                                         \
 	if((order) >= 0)                                                                               \
 		SortIdx = (order);                                                                         \
@@ -1364,7 +1364,7 @@ extern "C" typedef SCoClass * (*FN_DL6CLS_FACTORY)(const DlContext *, const DlSc
 
 #define START_PPVIEW_ALDD_ITER(ViewTypNam)                                                          \
 	IterProlog(iterId, 0);                                                                          \
-	PPView##ViewTypNam * p_v = (PPView##ViewTypNam *)(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr);  \
+	PPView##ViewTypNam * p_v = static_cast<PPView##ViewTypNam *>(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr);  \
 	ViewTypNam##ViewItem item;                                                                      \
 	if(p_v->NextIteration(&item) <= 0) return -1;
 

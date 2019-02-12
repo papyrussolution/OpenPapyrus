@@ -319,7 +319,7 @@ int SLAPI BillContext::ResolveFunc(int funcId, FC & rFc)
 			//
 			{
 				BillTotalData local_bt;
-				((PPBillPacket *)P_Pack)->CalcTotal(&local_bt, BTC_CALCSALESTAXES|BTC_CALCNOMINALGVAT); // @attention cast const-->nonconst
+				const_cast<PPBillPacket *>(P_Pack)->CalcTotal(&local_bt, BTC_CALCSALESTAXES|BTC_CALCNOMINALGVAT); // @attention cast const-->nonconst
 				BillVatEntry * p_vat_entry = local_bt.VatList.GetByRate(arg);
 				if(p_vat_entry)
 					result = p_vat_entry->AmountByVat;
@@ -332,7 +332,7 @@ int SLAPI BillContext::ResolveFunc(int funcId, FC & rFc)
 				double arg2 = (rFc.ArgList.getCount() > 1) ? rFc.ArgList.at(1) : 0.0;
 				THROW_PP(objid.Obj == PPOBJ_GOODSTYPE, PPERR_OBJEXPECTED_GOODSTYPE);
 				BillTotalData local_bt;
-				((PPBillPacket *)P_Pack)->CalcTotal(&local_bt, objid.Id, BTC_CALCSALESTAXES); // @attention cast const-->nonconst
+				const_cast<PPBillPacket *>(P_Pack)->CalcTotal(&local_bt, objid.Id, BTC_CALCSALESTAXES); // @attention cast const-->nonconst
 				BillVatEntry * p_vat_entry = local_bt.VatList.GetByRate(arg2);
 				if(p_vat_entry)
 					result = p_vat_entry->AmountByVat;
@@ -349,7 +349,7 @@ int SLAPI BillContext::CalcTotalBlock()
 {
 	int    ok = -1;
 	if(!(Bt.Flags & BillTotalData::fInitialized) && P_Pack) {
-		((PPBillPacket *)P_Pack)->CalcTotal(&Bt, BTC_CALCSALESTAXES); // @attention cast const-->nonconst
+		const_cast<PPBillPacket *>(P_Pack)->CalcTotal(&Bt, BTC_CALCSALESTAXES); // @attention cast const-->nonconst
 		ok = 1;
 	}
 	return ok;

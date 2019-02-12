@@ -471,7 +471,7 @@ int SLAPI PrcssrBillAutoCreate::EditParam(PPBillAutoCreateParam * pParam)
 				case PPBillAutoCreateParam::aDraftBySuspCc:
 					{
 						PPViewCCheck view;
-						CCheckFilt * p_filt = (CCheckFilt *)view.CreateFilt((void *)1);
+						CCheckFilt * p_filt = (CCheckFilt *)view.CreateFilt(reinterpret_cast<void *>(1));
 						THROW(p_filt);
 						RVALUEPTR(*p_filt, Data.P_CcF);
 						if(view.EditBaseFilt(p_filt) > 0) {
@@ -485,7 +485,7 @@ int SLAPI PrcssrBillAutoCreate::EditParam(PPBillAutoCreateParam * pParam)
 				case PPBillAutoCreateParam::aDraftBySupplOrders:
 					{
 						PPViewSStat view;
-						SStatFilt * p_filt = (SStatFilt *)view.CreateFilt((void *)1);
+						SStatFilt * p_filt = (SStatFilt *)view.CreateFilt(reinterpret_cast<void *>(1));
 						THROW(p_filt);
 						RVALUEPTR(*p_filt, Data.P_SsF);
 						if(view.EditBaseFilt(p_filt) > 0) {
@@ -499,7 +499,7 @@ int SLAPI PrcssrBillAutoCreate::EditParam(PPBillAutoCreateParam * pParam)
 				case PPBillAutoCreateParam::aDraftByCcRule:
 					{
 						PPViewCSess view;
-						CSessFilt * p_filt = (CSessFilt *)view.CreateFilt((void *)1);
+						CSessFilt * p_filt = (CSessFilt *)view.CreateFilt(reinterpret_cast<void *>(1));
 						THROW(p_filt);
 						RVALUEPTR(*p_filt, Data.P_CsF);
 						if(view.EditBaseFilt(p_filt) > 0) {

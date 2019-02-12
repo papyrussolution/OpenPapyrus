@@ -359,11 +359,11 @@ void * run_lthread(void * arg)
 			printf("%03lu: lock %d (mtx: %lu)\n", id, lock, (ulong)mp->mutex);
 		if((err = dbenv->mutex_lock(dbenv, mp->mutex)) != 0) {
 			fprintf(stderr, "%s: %03lu: never got lock %d: %s\n", progname, id, lock, db_strerror(err));
-			return (void *)1;
+			return reinterpret_cast<void *>(1);
 		}
 		if(mp->id != 0) {
 			fprintf(stderr, "%s: RACE! (%03lu granted lock %d held by %03lu)\n", progname, id, lock, mp->id);
-			return (void *)1;
+			return reinterpret_cast<void *>(1);
 		}
 		mp->id = id;
 		//
@@ -373,7 +373,7 @@ void * run_lthread(void * arg)
 			__os_yield(env, 0, (ulong)rand()%3);
 			if(mp->id != id) {
 				fprintf(stderr, "%s: RACE! (%03lu stole lock %d from %03lu)\n", progname, mp->id, lock, id);
-				return (void *)1;
+				return reinterpret_cast<void *>(1);
 			}
 		}
 		/*
@@ -388,32 +388,32 @@ void * run_lthread(void * arg)
 		 */
 		if((err = dbenv->mutex_lock(dbenv, gp->mutex)) != 0) {
 			fprintf(stderr, "%s: %03lu: global lock: %s\n", progname, id, db_strerror(err));
-			return (void *)1;
+			return reinterpret_cast<void *>(1);
 		}
 		if(tp->id != 0 && tp->id != id) {
 			fprintf(stderr, "%s: %03lu: per-thread mutex isn't mine, owned by %03lu\n", progname, id, tp->id);
-			return (void *)1;
+			return reinterpret_cast<void *>(1);
 		}
 		tp->id = id;
 		if(verbose)
 			printf("%03lu: self-blocking (mtx: %lu)\n", id, (ulong)tp->mutex);
 		if(tp->wakeme) {
 			fprintf(stderr, "%s: %03lu: wakeup flag incorrectly set\n", progname, id);
-			return (void *)1;
+			return reinterpret_cast<void *>(1);
 		}
 		tp->wakeme = 1;
 		if((err = dbenv->mutex_unlock(dbenv, gp->mutex)) != 0) {
 			fprintf(stderr, "%s: %03lu: global unlock: %s\n", progname, id, db_strerror(err));
-			return (void *)1;
+			return reinterpret_cast<void *>(1);
 		}
 		if((err = dbenv->mutex_lock(dbenv, tp->mutex)) != 0) {
 			fprintf(stderr, "%s: %03lu: per-thread lock: %s\n", progname, id, db_strerror(err));
-			return (void *)1;
+			return reinterpret_cast<void *>(1);
 		}
 		/* Time passes... */
 		if(tp->wakeme) {
 			fprintf(stderr, "%s: %03lu: wakeup flag not cleared\n", progname, id);
-			return (void *)1;
+			return reinterpret_cast<void *>(1);
 		}
 		if(verbose)
 			printf("%03lu: release %d (mtx: %lu)\n", id, lock, (ulong)mp->mutex);
@@ -421,7 +421,7 @@ void * run_lthread(void * arg)
 		mp->id = 0;
 		if((err = dbenv->mutex_unlock(dbenv, mp->mutex)) != 0) {
 			fprintf(stderr, "%s: %03lu: lock release: %s\n", progname, id, db_strerror(err));
-			return (void *)1;
+			return reinterpret_cast<void *>(1);
 		}
 		if(--nl%1000 == 0)
 			printf("%03lu: %d\n", id, nl);
@@ -499,16 +499,16 @@ void * run_wthread(void * arg)
 		/* Acquire the global lock. */
 		if((err = dbenv->mutex_lock(dbenv, gp->mutex)) != 0) {
 			fprintf(stderr, "%s: wakeup: global lock: %s\n", progname, db_strerror(err));
-			return (void *)1;
+			return reinterpret_cast<void *>(1);
 		}
 		tp->wakeme = 0;
 		if((err = dbenv->mutex_unlock(dbenv, tp->mutex)) != 0) {
 			fprintf(stderr, "%s: wakeup: unlock: %s\n", progname, db_strerror(err));
-			return (void *)1;
+			return reinterpret_cast<void *>(1);
 		}
 		if((err = dbenv->mutex_unlock(dbenv, gp->mutex)) != 0) {
 			fprintf(stderr, "%s: wakeup: global unlock: %s\n", progname, db_strerror(err));
-			return (void *)1;
+			return reinterpret_cast<void *>(1);
 		}
 		__os_yield(env, 0, (ulong)rand()%3);
 	}

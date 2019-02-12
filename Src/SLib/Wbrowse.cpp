@@ -335,17 +335,23 @@ IMPL_HANDLE_EVENT(TBaseBrowserWindow)
 		if(InitPos > 0)
 			go(InitPos);
 		*/
-		::ShowWindow(H(), SW_NORMAL);
-		::UpdateWindow(H());
-		if(APPL->PushModalWindow(this, H())) {
-			EnableWindow(PrevInStack, 0);
-			APPL->MsgLoop(this, EndModalCmd);
-			last_command = EndModalCmd;
-			EndModalCmd = 0;
-			APPL->PopModalWindow(this, 0);
+		if(BbState & bbsCancel) { // @v10.3.4
+			clearEvent(event);
+			event.message.infoLong = cmCancel;
 		}
-		clearEvent(event);
-		event.message.infoLong = last_command;
+		else { // @v10.3.4
+			::ShowWindow(H(), SW_NORMAL);
+			::UpdateWindow(H());
+			if(APPL->PushModalWindow(this, H())) {
+				EnableWindow(PrevInStack, 0);
+				APPL->MsgLoop(this, EndModalCmd);
+				last_command = EndModalCmd;
+				EndModalCmd = 0;
+				APPL->PopModalWindow(this, 0);
+			}
+			clearEvent(event);
+			event.message.infoLong = last_command;
+		}
 	}
 	else
 		TWindow::handleEvent(event);

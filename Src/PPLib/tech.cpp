@@ -1703,7 +1703,7 @@ int SLAPI PPViewTech::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *(PPID *)pHdr : 0;
+		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		TechTbl::Rec tec_rec;
 		switch(ppvCmd) {
 			case PPVCMD_ADDBYSAMPLE:
@@ -1770,7 +1770,7 @@ int SLAPI ViewTech(const TechFilt * pFilt)
 	TechFilt flt;
 	PPViewTech * p_v = new PPViewTech;
 	if(modeless)
-		p_prev_win = (PPViewBrowser *)PPFindLastBrowser();
+		p_prev_win = static_cast<PPViewBrowser *>(PPFindLastBrowser());
 	if(pFilt)
 		flt = *pFilt;
 	else if(p_prev_win)

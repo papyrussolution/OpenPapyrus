@@ -808,7 +808,7 @@ static void __env_remove_file(ENV * env)
 	 */
 	for(lastrm = -1, cnt = fcnt; --cnt >= 0; ) {
 		/* Skip anything outside our name space. */
-		if(strncmp(names[cnt], DB_REGION_PREFIX, sizeof(DB_REGION_PREFIX)-1))
+		if(strncmp(names[cnt], DB_REGION_PREFIX, sizeof(DB_REGION_PREFIX)-1) != 0)
 			continue;
 		/* Skip queue extent files. */
 		if(strncmp(names[cnt], "__dbq.", 6) == 0)

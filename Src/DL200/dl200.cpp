@@ -1,5 +1,5 @@
 // DL200.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -715,7 +715,7 @@ int SLAPI DL2_Data::SearchColumnByName(const char * pName, uint * pPos, DL2_Colu
 	uint   pos = 0;
 	if(P_Columns && pName)
 		for(uint i = 0; ok < 0 && i < P_Columns->getCount(); i++) {
-			DL2_Column * p_col = (DL2_Column *)P_Columns->at(i);
+			const DL2_Column * p_col = static_cast<const DL2_Column *>(P_Columns->at(i));
 			if(p_col->P_Title && stricmp866(p_col->P_Title, pName) == 0) {
 				ASSIGN_PTR(pColumn, *p_col);
 				pos = i;
@@ -733,7 +733,7 @@ uint SLAPI DL2_Data::GetColumnsCount() const
 
 const DL2_Column * SLAPI DL2_Data::GetColumn(uint pos) const
 {
-	return (P_Columns && pos < P_Columns->getCount()) ? (DL2_Column *)P_Columns->at(pos) : 0;
+	return (P_Columns && pos < P_Columns->getCount()) ? static_cast<const DL2_Column *>(P_Columns->at(pos)) : 0;
 }
 
 int SLAPI DL2_Data::Print(FILE * pStream) const
@@ -775,7 +775,7 @@ DL2_CI * SLAPI DL2_CI::Copy(const DL2_CI * s)
 // static
 DL2_CI * SLAPI DL2_CI::MakeStr(const char * pStr)
 {
-	uint16 len = (uint16)(pStr ? sstrlen(pStr)+1 : 0);
+	uint16 len = static_cast<uint16>(pStr ? sstrlen(pStr)+1 : 0);
 	DL2_CI * p_str = new(pStr) DL2_CI;
 	if(p_str) {
 		p_str->CiType = DL2CIT_STRING;
@@ -1005,7 +1005,7 @@ SLAPI DL2_ObjList::DL2_ObjList() : SCollection()
 //virtual
 void FASTCALL DL2_ObjList::freeItem(void * ptr) { delete ((Item *)ptr); }
 
-int SLAPI DL2_ObjList::Set(PPID objType, StringSet * pSs, int32 * pId)
+int SLAPI DL2_ObjList::Set(PPID objType, const StringSet * pSs, int32 * pId)
 {
 	int    ok = 1;
 	int32  id = 0;
@@ -1063,7 +1063,7 @@ int SLAPI DL2_ObjList::ToString(int32 id, SString & rBuf) const
 	SString temp_buf;
 	rBuf.Z();
 	for(uint i = 0; ok < 0 && i < getCount(); i++) {
-		const Item * p_item = (Item *)at(i);
+		const Item * p_item = static_cast<const Item *>(at(i));
 		if(p_item->Id == id) {
 			int    is_first = 1;
 			int    is_list = 0;
@@ -1497,7 +1497,7 @@ int SLAPI DL2_Acc::GetAcc(char ** ptr, int isCorr, int substAr)
 		while(isalnum(*p) || *p == '.')
 			acc_number[ap++] = *p++;
 		acc_number[ap] = 0;
-		STRNSCPY(p_code, strip(acc_number));
+		strnzcpy(p_code, strip(acc_number), sizeof(Code)); // @v10.3.4 @fix STRNSCPY(ptr)-->strnzcpy(ptr)
 	}
 	while(i < 3)
 		tok[i++] = -1;

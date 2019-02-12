@@ -1243,7 +1243,7 @@ static int FASTCALL HasImages(const void * pData)
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
-	PPViewBrowser * p_brw = (PPViewBrowser *)extraPtr; // @v9.5.5
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr); // @v9.5.5
 	if(p_brw) {
 		PPViewGoods * p_view = (PPViewGoods *)p_brw->P_View; // @v9.5.5
 		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
@@ -3743,7 +3743,7 @@ int SLAPI PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
 		const  PPConfig & r_cfg = LConfig;
-		PPID   id = pHdr ? *(PPID *)pHdr : 0;
+		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		PPID   temp_id;
 		switch(ppvCmd) {
 			case PPVCMD_INPUTCHAR:
@@ -4187,7 +4187,7 @@ struct Dl6_GoodsStruc_Support {
 	explicit SLAPI  Dl6_GoodsStruc_Support(PPFilt & rFilt) : P_Iter(0), IsOwnPtr(0)
 	{
 		if(rFilt.Ptr)
-			P_Iter = (GStrucIterator *)rFilt.Ptr;
+			P_Iter = static_cast<GStrucIterator *>(rFilt.Ptr);
 		else if(rFilt.ID) {
 			PPObjGoodsStruc gs_obj;
 			PPGoodsStruc gs;
@@ -4214,7 +4214,7 @@ int PPALDD_GoodsStruc::InitData(PPFilt & rFilt, long rsrv)
 	int    uncertainty = 0;
 	Dl6_GoodsStruc_Support * p_supp = new Dl6_GoodsStruc_Support(rFilt);
 	if(p_supp) {
-		Extra[1].Ptr = (void *)p_supp;
+		Extra[1].Ptr = p_supp;
 		const PPGoodsStruc * p_gs = p_supp->P_Iter ? p_supp->P_Iter->GetStruc() : 0;
 		if(p_gs) {
 			H.ID      = p_gs->Rec.ID;
@@ -4243,7 +4243,7 @@ int PPALDD_GoodsStruc::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	if(sortId >= 0)
 		SortIdx = sortId;
 	I.LineNo = 0;
-	Dl6_GoodsStruc_Support * p_supp = (Dl6_GoodsStruc_Support *)Extra[1].Ptr;
+	Dl6_GoodsStruc_Support * p_supp = static_cast<Dl6_GoodsStruc_Support *>(Extra[1].Ptr);
 	GStrucIterator * p_gs_iter = p_supp ? p_supp->P_Iter : 0;
 	if(p_gs_iter) {
 		p_gs_iter->InitIteration();
@@ -4257,7 +4257,7 @@ int PPALDD_GoodsStruc::NextIteration(PPIterID iterId)
 	IterProlog(iterId, 0);
 	{
 		GStrucRecurItem gsr_item;
-		Dl6_GoodsStruc_Support * p_supp = (Dl6_GoodsStruc_Support *)Extra[1].Ptr;
+		Dl6_GoodsStruc_Support * p_supp = static_cast<Dl6_GoodsStruc_Support *>(Extra[1].Ptr);
 		GStrucIterator * p_gs_iter = p_supp ? p_supp->P_Iter : 0;
 		if(p_gs_iter && p_gs_iter->NextIteration(&gsr_item) > 0) {
 			PPGoodsStrucItem item = gsr_item.Item;
@@ -4292,7 +4292,7 @@ int PPALDD_GoodsStruc::NextIteration(PPIterID iterId)
 
 void PPALDD_GoodsStruc::Destroy()
 {
-	Dl6_GoodsStruc_Support * p_supp = (Dl6_GoodsStruc_Support *)Extra[1].Ptr;
+	Dl6_GoodsStruc_Support * p_supp = static_cast<Dl6_GoodsStruc_Support *>(Extra[1].Ptr);
 	delete p_supp;
 	Extra[0].Ptr = Extra[1].Ptr = 0;
 }
@@ -4342,7 +4342,7 @@ PPALDD_CONSTRUCTOR(GoodsGroup)
 PPALDD_DESTRUCTOR(GoodsGroup)
 {
 	Destroy();
-	delete (PPObjGoods*)Extra[0].Ptr;
+	delete static_cast<PPObjGoods *>(Extra[0].Ptr);
 }
 
 int PPALDD_GoodsGroup::InitData(PPFilt & rFilt, long rsrv)
@@ -4354,7 +4354,7 @@ int PPALDD_GoodsGroup::InitData(PPFilt & rFilt, long rsrv)
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
 		Goods2Tbl::Rec rec;
-		PPObjGoods * p_goods_obj = (PPObjGoods*)(Extra[0].Ptr);
+		PPObjGoods * p_goods_obj = static_cast<PPObjGoods *>(Extra[0].Ptr);
 		if(p_goods_obj->Fetch(rFilt.ID, &rec) > 0) {
 			H.ID       = rec.ID;
 			H.UnitID   = rec.UnitID;
@@ -4422,7 +4422,7 @@ PPALDD_CONSTRUCTOR(Goods)
 PPALDD_DESTRUCTOR(Goods)
 {
 	Destroy();
-	delete (DL600_GoodsBlock *)Extra[0].Ptr;
+	delete static_cast<DL600_GoodsBlock *>(Extra[0].Ptr);
 }
 
 int PPALDD_Goods::InitData(PPFilt & rFilt, long rsrv)
@@ -4433,7 +4433,7 @@ int PPALDD_Goods::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
-		DL600_GoodsBlock * p_blk = (DL600_GoodsBlock *)(Extra[0].Ptr);
+		DL600_GoodsBlock * p_blk = static_cast<DL600_GoodsBlock *>(Extra[0].Ptr);
 		if(p_blk->Obj.GetPacket(rFilt.ID, &p_blk->Pack, PPObjGoods::gpoSkipQuot) > 0) { // @v8.3.7 PPObjGoods::gpoSkipQuot
 			SString temp_buf;
 			H.ID        = p_blk->Pack.Rec.ID;
@@ -4449,7 +4449,7 @@ int PPALDD_Goods::InitData(PPFilt & rFilt, long rsrv)
 			H.BrandID   = p_blk->Pack.Rec.BrandID;
 			H.Snl       = p_blk->Pack.Rec.ID;
 			H.Flags     = p_blk->Pack.Rec.Flags;
-			H.Kind      = p_blk->Pack.Rec.Kind; // @v8.6.6
+			H.Kind      = p_blk->Pack.Rec.Kind;
 			p_blk->Pack.Codes.GetSingle(temp_buf); temp_buf.CopyTo(H.SingleBarCode, sizeof(H.SingleBarCode));
 			STRNSCPY(H.Name, p_blk->Pack.Rec.Name);
 
@@ -4460,8 +4460,8 @@ int PPALDD_Goods::InitData(PPFilt & rFilt, long rsrv)
 			H.MinStock = p_blk->Pack.Stock.GetMinStock(0); // Минимальный запас товара
 			H.Package  = p_blk->Pack.Stock.Package;        // Емкость упаковки поставки (торговых единиц)
 			H.ExpiryPeriod = p_blk->Pack.Stock.ExpiryPeriod; // Срок годности товара (дней).
-			H.GseFlags = p_blk->Pack.Stock.GseFlags; // @v8.7.8
-			H.MinShippmQtty = p_blk->Pack.Stock.MinShippmQtty; // @v8.7.8
+			H.GseFlags = p_blk->Pack.Stock.GseFlags;
+			H.MinShippmQtty = p_blk->Pack.Stock.MinShippmQtty;
 
 			p_blk->Pack.GetExtStrData(GDSEXSTR_STORAGE,   temp_buf); temp_buf.CopyTo(H.Storage,   sizeof(H.Storage));
 			p_blk->Pack.GetExtStrData(GDSEXSTR_STANDARD,  temp_buf); temp_buf.CopyTo(H.Standard,  sizeof(H.Standard));
@@ -4494,7 +4494,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 {
 	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
 	#define _ARG_LONG(n) (*static_cast<const long *>(rS.GetPtr(pApl->Get(n))))
-	#define _ARG_DT(n)   (*(LDATE *)rS.GetPtr(pApl->Get(n)))
+	#define _ARG_DT(n)   (*static_cast<const LDATE *>(rS.GetPtr(pApl->Get(n))))
 	#define _RET_STR     (**static_cast<SString **>(rS.GetPtr(pApl->Get(0))))
 	#define _RET_LONG    (*static_cast<long *>(rS.GetPtr(pApl->Get(0))))
 	#define _RET_DBL     (*static_cast<double *>(rS.GetPtr(pApl->Get(0))))
@@ -4503,14 +4503,14 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 	ReceiptTbl::Rec lot_rec;
 	if(pF->Name == "?GetArCode") {
 		_RET_STR.Z();
-		DL600_GoodsBlock * p_blk = (DL600_GoodsBlock *)(Extra[0].Ptr);
+		DL600_GoodsBlock * p_blk = static_cast<DL600_GoodsBlock *>(Extra[0].Ptr);
 		PPObjGoods * p_obj = (PPObjGoods *)(Extra[0].Ptr);
 		if(p_blk)
 			p_blk->Obj.P_Tbl->GetArCode(_ARG_LONG(1), H.ID, _RET_STR, 0);
 	}
 	else if(pF->Name == "?GetAbbr") {
 		_RET_STR.Z();
-		DL600_GoodsBlock * p_blk = (DL600_GoodsBlock *)(Extra[0].Ptr);
+		DL600_GoodsBlock * p_blk = static_cast<DL600_GoodsBlock *>(Extra[0].Ptr);
 		if(p_blk && p_blk->Pack.Rec.ID) {
 			_RET_STR = p_blk->Pack.Rec.Abbr;
 		}
@@ -4553,7 +4553,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 	else if(pF->Name == "?GetQuot") {
 		//double GetQuot(string quotKindSymb[20], long locID, long arID, long curID);
 		double quot = 0.0;
-		DL600_GoodsBlock * p_blk = (DL600_GoodsBlock *)(Extra[0].Ptr);
+		DL600_GoodsBlock * p_blk = static_cast<DL600_GoodsBlock *>(Extra[0].Ptr);
 		if(p_blk) {
 			PPObjQuotKind qk_obj;
 			PPID   qk_id = 0;
@@ -4573,7 +4573,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 	}
 	else if(pF->Name == "?GetExclAltGroupMembership") {
 		_RET_LONG = 0;
-		DL600_GoodsBlock * p_blk = (DL600_GoodsBlock *)(Extra[0].Ptr);
+		DL600_GoodsBlock * p_blk = static_cast<DL600_GoodsBlock *>(Extra[0].Ptr);
 		if(p_blk) {
 			PPObjGoodsGroup gg_obj;
 			BarcodeTbl::Rec bc_rec;
@@ -4593,7 +4593,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 		_RET_STR.Z();
 		const char * p_symb = _ARG_STR(1);
 		if(!isempty(p_symb)) {
-			DL600_GoodsBlock * p_blk = (DL600_GoodsBlock *)(Extra[0].Ptr);
+			DL600_GoodsBlock * p_blk = static_cast<DL600_GoodsBlock *>(Extra[0].Ptr);
 			if(p_blk && p_blk->Pack.Rec.ID) {
 				switch(toupper(p_symb[0])) {
 					case 'A': p_blk->Pack.GetExtStrData(GDSEXSTR_A, _RET_STR); break;
@@ -4608,7 +4608,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 	else if(pF->Name == "?GetMinStock") {
 		double val = 0.0;
 		const PPID loc_id = _ARG_LONG(1);
-		DL600_GoodsBlock * p_blk = (DL600_GoodsBlock *)(Extra[0].Ptr);
+		DL600_GoodsBlock * p_blk = static_cast<DL600_GoodsBlock *>(Extra[0].Ptr);
 		if(p_blk && p_blk->Pack.Rec.ID) {
 			val = p_blk->Pack.Stock.GetMinStock(loc_id, 1);
 		}
@@ -4620,7 +4620,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 	else if(pF->Name == "?GetManufCountryText") {
 		_RET_STR.Z();
 		long   k = _ARG_LONG(1);
-		DL600_GoodsBlock * p_blk = (DL600_GoodsBlock *)(Extra[0].Ptr);
+		DL600_GoodsBlock * p_blk = static_cast<DL600_GoodsBlock *>(Extra[0].Ptr);
 		if(p_blk) {
 			PPID   country_id = 0;
 			PPCountryBlock cblk;
@@ -4636,7 +4636,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 	else if(pF->Name == "?GetBarcodeList") {
 		SString delim = _ARG_STR(1);
 		SString temp_buf;
-		DL600_GoodsBlock * p_blk = (DL600_GoodsBlock *)(Extra[0].Ptr);
+		DL600_GoodsBlock * p_blk = static_cast<DL600_GoodsBlock *>(Extra[0].Ptr);
 		if(p_blk && p_blk->Pack.Rec.ID) {
 			const uint n = p_blk->Pack.Codes.getCount();
 			for(uint i = 0; i < n; i++) {
@@ -4651,7 +4651,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 	// @v9.4.10 {
 	else if(pF->Name == "?GetSingleEgaisCode") {
 		SString temp_buf;
-		DL600_GoodsBlock * p_blk = (DL600_GoodsBlock *)(Extra[0].Ptr);
+		DL600_GoodsBlock * p_blk = static_cast<DL600_GoodsBlock *>(Extra[0].Ptr);
 		int    found = 0;
 		if(p_blk && p_blk->Pack.Rec.ID) {
 			const uint n = p_blk->Pack.Codes.getCount();
@@ -4723,7 +4723,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 	else if(pF->Name == "?GetCodeInAltGroup") {
 		const long grp_id = _ARG_LONG(1);
 		long   num = 0;
-		DL600_GoodsBlock * p_blk = (DL600_GoodsBlock *)(Extra[0].Ptr);
+		DL600_GoodsBlock * p_blk = static_cast<DL600_GoodsBlock *>(Extra[0].Ptr);
 		if(p_blk) {
 			p_blk->Obj.P_Tbl->GetGoodsCodeInAltGrp(p_blk->Pack.Rec.ID, grp_id, &num);
 		}
@@ -4732,7 +4732,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 	else if(pF->Name == "?GetExtDim") {
 		const int dim_id = _ARG_LONG(1);
 		double val = 0.0;
-		DL600_GoodsBlock * p_blk = (DL600_GoodsBlock *)(Extra[0].Ptr);
+		DL600_GoodsBlock * p_blk = static_cast<DL600_GoodsBlock *>(Extra[0].Ptr);
 		if(dim_id && p_blk && p_blk->Pack.Rec.ID && p_blk->Pack.Rec.GdsClsID) {
 			PPObjGoodsClass gc_obj;
 			PPGdsClsPacket gc_pack;
@@ -4744,7 +4744,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 	else if(pF->Name == "?GetExtDimI") {
 		const int dim_id = _ARG_LONG(1);
 		double val = 0.0;
-		DL600_GoodsBlock * p_blk = (DL600_GoodsBlock *)(Extra[0].Ptr);
+		DL600_GoodsBlock * p_blk = static_cast<DL600_GoodsBlock *>(Extra[0].Ptr);
 		if(dim_id && p_blk && p_blk->Pack.Rec.ID && p_blk->Pack.Rec.GdsClsID) {
 			PPObjGoodsClass gc_obj;
 			PPGdsClsPacket gc_pack;
@@ -4756,7 +4756,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 	else if(pF->Name == "?GetExtProp") {
 		_RET_STR.Z();
 		const int prop_id = _ARG_LONG(1);
-		DL600_GoodsBlock * p_blk = (DL600_GoodsBlock *)(Extra[0].Ptr);
+		DL600_GoodsBlock * p_blk = static_cast<DL600_GoodsBlock *>(Extra[0].Ptr);
 		if(prop_id && p_blk && p_blk->Pack.Rec.ID) {
 			PPID   _i = 0;
 			PPObjGoodsClass gc_obj;
@@ -4973,7 +4973,7 @@ int PPALDD_UhttGoods::Set(long iterId, int commit)
 {
 	int    ok = 1;
 	SString temp_buf;
-	UhttGoodsBlock & r_blk = *(UhttGoodsBlock *)Extra[0].Ptr;
+	UhttGoodsBlock & r_blk = *static_cast<UhttGoodsBlock *>(Extra[0].Ptr);
 	const PPID glob_acc_id = DS.GetConstTLA().GlobAccID;
 	if(r_blk.State != UhttGoodsBlock::stSet) {
 		r_blk.Clear();
@@ -5139,7 +5139,7 @@ int PPALDD_UhttGoods::Set(long iterId, int commit)
 					}
 				}
 			}
-			Extra[4].Ptr = (void *)id;
+			Extra[4].Ptr = reinterpret_cast<void *>(id);
 		}
 		else {
 			PPSetError(PPERR_NORIGHTS);
@@ -5217,7 +5217,7 @@ int PPALDD_Transport::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
-		PPObjTransport * p_obj = (PPObjTransport*)(Extra[0].Ptr);
+		PPObjTransport * p_obj = static_cast<PPObjTransport *>(Extra[0].Ptr);
 		PPTransport rec;
 		if(p_obj->Get(rFilt.ID, &rec) > 0) {
 			H.ID        = rec.ID;
@@ -5249,7 +5249,7 @@ PPALDD_CONSTRUCTOR(Brand)
 PPALDD_DESTRUCTOR(Brand)
 {
 	Destroy();
-	delete (PPObjBrand*)Extra[0].Ptr;
+	delete static_cast<PPObjBrand *>(Extra[0].Ptr);
 }
 
 int PPALDD_Brand::InitData(PPFilt & rFilt, long rsrv)
@@ -5260,7 +5260,7 @@ int PPALDD_Brand::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
-		PPObjBrand * p_obj = (PPObjBrand*)(Extra[0].Ptr);
+		PPObjBrand * p_obj = static_cast<PPObjBrand *>(Extra[0].Ptr);
 		PPBrandPacket pack;
 		if(p_obj->Get(rFilt.ID, &pack) > 0) {
 			H.ID        = pack.Rec.ID;
@@ -5277,7 +5277,7 @@ int PPALDD_Brand::Set(long iterId, int commit)
 {
 	int    ok = 1;
 	SETIFZ(Extra[3].Ptr, new PPBrand());
-	PPBrand * p_brand = (PPBrand *)Extra[3].Ptr;
+	PPBrand * p_brand = static_cast<PPBrand *>(Extra[3].Ptr);
 	if(commit == 0) {
 		if(iterId == 0) {
 			SString temp_buf;
@@ -5295,7 +5295,7 @@ int PPALDD_Brand::Set(long iterId, int commit)
 		PPBrandPacket pack;
 		pack.Rec = *p_brand;
 		THROW(brand_obj.Put(&id, &pack, 1));
-		Extra[4].Ptr = (void *)id;
+		Extra[4].Ptr = reinterpret_cast<void *>(id);
 	}
 	CATCHZOK
 	if(commit) {

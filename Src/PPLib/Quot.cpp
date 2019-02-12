@@ -350,7 +350,7 @@ int QuotUpdDialog::editAdvOptions()
 		int setDTS(const QuotUpdFilt * pData)
 		{
 			Data = *pData;
-			SetupPPObjCombo(this, CTLSEL_QUOTUPDA_KIND, PPOBJ_QUOTKIND, Data.AdvOptQuotKindID, 0, (void *)1);
+			SetupPPObjCombo(this, CTLSEL_QUOTUPDA_KIND, PPOBJ_QUOTKIND, Data.AdvOptQuotKindID, 0, reinterpret_cast<void *>(1));
 			SetupPPObjCombo(this, CTLSEL_QUOTUPDA_LOC, PPOBJ_LOCATION, Data.AdvOptLocID, OLW_CANSELUPLEVEL);
 			{
 				PPIDArray op_type_list;

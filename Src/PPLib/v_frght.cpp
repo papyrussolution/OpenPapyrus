@@ -598,7 +598,7 @@ int SLAPI PPViewFreight::PrintAllBills()
 
 int SLAPI PPViewFreight::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
-	PPID   bill_id = pHdr ? *(PPID *)pHdr : 0;
+	PPID   bill_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	if(bill_id && P_BObj->Edit(&bill_id, 0) == cmOK) {
 		if(UpdateTempTableRec(bill_id) > 0)
 			return 1;
@@ -744,7 +744,7 @@ int SLAPI PPViewFreight::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *(PPID *)pHdr : 0;
+		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_TOGGLE:
 				ok = -1;

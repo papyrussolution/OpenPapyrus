@@ -2466,7 +2466,7 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
-	PPViewBrowser * p_brw = (PPViewBrowser *)extraPtr;
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
 	if(p_brw && pData && pStyle) {
 		// @v10.3.0 (never used) const  BrowserDef * p_def = p_brw->getDef();
 		if(col == 3) {
@@ -3289,7 +3289,7 @@ int SLAPI PPViewCCheck::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 {
 	int   ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *(PPID *)pHdr : 0;
+		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_EDITITEM:
 				ok = -1;

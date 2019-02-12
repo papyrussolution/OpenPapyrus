@@ -70,9 +70,8 @@ PPEgaisProcessor::Reply::Reply() : Status(0)
 {
 }
 
-PPEgaisProcessor::Ticket::Result::Result()
+PPEgaisProcessor::Ticket::Result::Result() : Type(0), Conclusion(-1), Special(spcNone), Time(ZERODATETIME)
 {
-	Clear();
 }
 
 void PPEgaisProcessor::Ticket::Result::Clear()
@@ -377,7 +376,7 @@ int SLAPI PPEgaisProcessor::GetReplyList(void * pCtx, PPID locID, int direction 
 			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 			if(p_ack_buf) {
 				SString temp_buf;
-				const int avl_size = (int)p_ack_buf->GetAvailableSize();
+				const int avl_size = static_cast<int>(p_ack_buf->GetAvailableSize());
 				THROW_LXML((p_doc = xmlCtxtReadMemory(p_ctx, (const char *)p_ack_buf->GetBuf(), avl_size, 0, 0, XML_PARSE_NOENT)), p_ctx);
 				THROW(p_root = xmlDocGetRootElement(p_doc));
 				if(SXml::IsName(p_root, "A")) {
@@ -430,14 +429,14 @@ int SLAPI PPEgaisProcessor::GetTempFileName(const char * pPath, const char * pSu
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::ReadAck(SBuffer * pBuf, PPEgaisProcessor::Ack & rAck)
+int SLAPI PPEgaisProcessor::ReadAck(const SBuffer * pBuf, PPEgaisProcessor::Ack & rAck)
 {
 	rAck.Clear();
 	int    ok = -1;
     xmlParserCtxt * p_ctx = 0;
 	xmlDoc * p_doc = 0;
 	if(pBuf) {
-		const int avl_size = (int)pBuf->GetAvailableSize();
+		const int avl_size = static_cast<int>(pBuf->GetAvailableSize());
 		SString temp_buf;
 		xmlNode * p_root = 0;
 		THROW(p_ctx = xmlNewParserCtxt());
@@ -456,7 +455,7 @@ int SLAPI PPEgaisProcessor::ReadAck(SBuffer * pBuf, PPEgaisProcessor::Ack & rAck
 				}
 				else if(SXml::GetContentByName(p_c, "sign", temp_buf)) {
 					strnzcpy(reinterpret_cast<char *>(rAck.Sign), temp_buf, sizeof(rAck.Sign));
-					rAck.SignSize = (uint8)temp_buf.Len();
+					rAck.SignSize = static_cast<uint8>(temp_buf.Len());
 				}
 				else if(SXml::GetContentByName(p_c, "ver", temp_buf)) {
 					rAck.Ver = temp_buf.ToLong();
@@ -494,12 +493,12 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 			if(IsAlcGoods(r_item.GoodsID)) {
 				if(PreprocessGoodsItem(r_item.GoodsID, 0, 0, 0, agi) > 0) {
 					if(agi.StatusFlags & agi.stMarkWanted) {
-						marked_pos_list.add((long)(i+1));
+						marked_pos_list.add(static_cast<long>(i+1));
 						rPack.GetLineTextExt(i+1, CCheckPacket::lnextEgaisMark, mark_buf);
 						THROW_PP_S(IsEgaisMark(mark_buf, 0), PPERR_TEXTISNTEGAISMARK, mark_buf);
 					}
 					else {
-						nonmarked_pos_list.add((long)(i+1));
+						nonmarked_pos_list.add(static_cast<long>(i+1));
 					}
 				}
 			}
@@ -586,7 +585,7 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 			}
 			{
 				for(uint i = 0; i < marked_pos_list.getCount(); i++) {
-					uint   _pos = (uint)(marked_pos_list.get(i) - 1);
+					uint   _pos = static_cast<uint>(marked_pos_list.get(i) - 1);
 					assert(_pos >= 0 && _pos < rPack.GetCount()); // @paranoic
 					if(_pos >= 0 && _pos < rPack.GetCount()) { // @paranoic
 						const CCheckLineTbl::Rec & r_item = rPack.GetLine(_pos);
@@ -625,7 +624,7 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 			}
 			if(!omit_nonmarked_goods) {
 				for(uint i = 0; i < nonmarked_pos_list.getCount(); i++) {
-					uint   _pos = (uint)(nonmarked_pos_list.get(i) - 1);
+					uint   _pos = static_cast<uint>(nonmarked_pos_list.get(i) - 1);
 					assert(_pos >= 0 && _pos < rPack.GetCount()); // @paranoic
 					if(_pos >= 0 && _pos < rPack.GetCount()) { // @paranoic
 						const CCheckLineTbl::Rec & r_item = rPack.GetLine(_pos);
@@ -691,7 +690,7 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 			}
 			THROW_SL(c.HttpPost(url, 0, hf, &wr_stream));
 			//LogSended(rPack);
-			THROW(ReadAck((SBuffer *)wr_stream, rAck));
+			THROW(ReadAck(static_cast<SBuffer *>(wr_stream), rAck));
 			/*
 			<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 			<A><url>https://146.120.90.148:1444?id=ab43d5e0-855c-4b54-b1d8-ddeb34d1d110&amp;dt=1503271510&amp;cn=00040218</url>
@@ -711,7 +710,7 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 					CALLEXCEPT_PP_S(PPERR_EGAIS_CCSENDFAULT, rAck.Message.cptr());
 				}
 				else {
-					PPFormatT(PPTXT_CCACKOK, &temp_buf, cc_text.cptr(), (const char *)rAck.Sign);
+					PPFormatT(PPTXT_CCACKOK, &temp_buf, cc_text.cptr(), reinterpret_cast<const char *>(rAck.Sign));
 					Log(temp_buf);
 				}
 			}
@@ -754,7 +753,7 @@ int SLAPI PPEgaisProcessor::PutQuery(PPEgaisProcessor::Packet & rPack, PPID locI
 		}
 		THROW_SL(c.HttpPost(url, 0, hf, &wr_stream));
 		LogSended(rPack);
-		THROW(ReadAck((SBuffer *)wr_stream, rAck));
+		THROW(ReadAck(static_cast<SBuffer *>(wr_stream), rAck));
 		if(rAck.Status & Ack::stError) {
 			PPLoadText(PPTXT_EGAIS_ERRONQUERY, temp_buf);
 			Log(temp_buf.CatDiv(':', 2).Cat(rAck.Message));
@@ -774,7 +773,7 @@ int SLAPI PPEgaisProcessor::PutQuery(PPEgaisProcessor::Packet & rPack, PPID locI
 				THROW(tra);
 				// @v9.6.4 (useless) THROW(P_Dgq->PutQuery(rAck.Id, rPack.DocType, 0));
 				if(rPack.DocType == PPEDIOP_EGAIS_REQUESTREPEALWB) {
-					RepealWb * p_req = (RepealWb *)rPack.P_Data;
+					RepealWb * p_req = static_cast<RepealWb *>(rPack.P_Data);
                     if(p_req) {
 						THROW(P_BObj->Search(p_req->BillID, &bill_rec) > 0);
 						rAck.Id.ToStr(S_GUID::fmtIDL, temp_buf);
@@ -2241,7 +2240,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 					}
 					else if(oneof7(doc_type, PPEDIOP_EGAIS_QUERYAP, PPEDIOP_EGAIS_QUERYCLIENTS, PPEDIOP_EGAIS_QUERYRESTS,
 						PPEDIOP_EGAIS_QUERYRESTS_V2, PPEDIOP_EGAIS_QUERYSP, PPEDIOP_EGAIS_QUERYSSP, PPEDIOP_EGAIS_QUERYRESTSSHOP)) {
-						const StrStrAssocArray * p_param_list = (const StrStrAssocArray *)rPack.P_Data;
+						const StrStrAssocArray * p_param_list = static_cast<const StrStrAssocArray *>(rPack.P_Data);
 						if(p_param_list && p_param_list->getCount()) {
 							SXml::WNode n_arglist(_doc, SXml::nst("qp", "Parameters"));
 							for(uint i = 0; i < p_param_list->getCount(); i++) {
@@ -2253,7 +2252,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						}
 					}
 					else if(doc_type == PPEDIOP_EGAIS_QUERYRESENDDOC) {
-						const SString * p_doc_id = (const SString *)rPack.P_Data;
+						const SString * p_doc_id = static_cast<const SString *>(rPack.P_Data);
 						if(p_doc_id && p_doc_id->NotEmpty()) {
 							SXml::WNode n_arglist(_doc, SXml::nst("qp", "Parameters"));
 							{
@@ -2274,7 +2273,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						n_dt.PutInner(SXml::nst("qp", "WBTypeUsed"), EncText(temp_buf = "WayBill_v3"));
 					}
 					else if(oneof2(doc_type, PPEDIOP_EGAIS_QUERYFORMA, PPEDIOP_EGAIS_REPLYFORMB)) {
-						const SString * p_formab_regid = (const SString *)rPack.P_Data;
+						const SString * p_formab_regid = static_cast<const SString *>(rPack.P_Data);
                         if(p_formab_regid->NotEmpty()) {
 							n_dt.PutInner(SXml::nst("qf", "FormRegId"), EncText(temp_buf = *p_formab_regid));
                         }
@@ -2284,7 +2283,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
                         }
 					}
 					else if(doc_type == PPEDIOP_EGAIS_QUERYBARCODE) {
-                        const TSCollection <QueryBarcode> * p_qbl = (const TSCollection <QueryBarcode> *)rPack.P_Data;
+                        const TSCollection <QueryBarcode> * p_qbl = static_cast<const TSCollection <QueryBarcode> *>(rPack.P_Data);
                         if(p_qbl->getCount()) {
 							const LDATETIME cdtm = getcurdatetime_();
 							n_dt.PutInner(SXml::nst("bk", "QueryNumber"), temp_buf.Z().Cat((cdtm.d.v % 1000) * 1000 + (cdtm.t.v % 1000)));
@@ -2318,7 +2317,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
                         }
 					}
 					else if(doc_type == PPEDIOP_EGAIS_CONFIRMTICKET) {
-                        ConfirmTicket * p_ticket = (ConfirmTicket *)rPack.P_Data;
+                        ConfirmTicket * p_ticket = static_cast<ConfirmTicket *>(rPack.P_Data);
 						SXml::WNode n_h(_doc, SXml::nst("wt", "Header"));
 						n_h.PutInner(SXml::nst("wt", "IsConfirm"), p_ticket->Conclusion ? "Accepted" : "Rejected");
 						n_h.PutInner(SXml::nst("wt", "TicketNumber"), EncText(temp_buf = p_ticket->Code));
@@ -2665,7 +2664,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							StringSet ss_ext_codes;
 							for(uint tidx = 0; tidx < p_bp->GetTCount(); tidx++) {
 								const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
-								const PPID lot_id = (PPID)r_ti.QuotPrice; // @v9.7.9 @fix r_ti.LotID-->r_ti.QuotPrice
+								const PPID lot_id = static_cast<PPID>(r_ti.QuotPrice); // @v9.7.9 @fix r_ti.LotID-->r_ti.QuotPrice
 								if(lot_id && IsAlcGoods(r_ti.GoodsID)) {
 									ObjTagList tag_list;
 									p_ref->Ot.GetList(PPOBJ_LOT, lot_id, &tag_list);
@@ -2687,7 +2686,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 											// В противном случае берем количество из строки документа (остаток по лоту на момент формирования документа).
 											//
 											const long org_qtty = R0i(fabs(r_ti.Qtty()));
-											const long sqtty = /*ext_code_count*/ext_code_exists ? (long)ext_code_count : org_qtty;
+											const long sqtty = /*ext_code_count*/ext_code_exists ? static_cast<long>(ext_code_count) : org_qtty;
 											w_p.PutInner(SXml::nst("ainp", "Quantity"), EncText(temp_buf.Z().Cat(sqtty)));
 											if(/*ext_code_count*/ext_code_exists && sqtty != org_qtty) {
 												temp_buf.Z().CatEq("LotID", lot_id).Space().CatEq("Qtty", org_qtty).Space().CatEq("Sended Qtty", sqtty);
@@ -2742,7 +2741,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							StringSet ss_ext_codes;
 							for(uint tidx = 0; tidx < p_bp->GetTCount(); tidx++) {
 								const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
-								const PPID lot_id = (PPID)r_ti.QuotPrice;
+								const PPID lot_id = static_cast<PPID>(r_ti.QuotPrice);
 								if(lot_id && IsAlcGoods(r_ti.GoodsID)) {
 									ObjTagList tag_list;
 									p_ref->Ot.GetList(PPOBJ_LOT, lot_id, &tag_list);
@@ -2764,7 +2763,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 											// В противном случае берем количество из строки документа (остаток по лоту на момент формирования документа).
 											//
 											const long org_qtty = R0i(fabs(r_ti.Qtty()));
-											const long sqtty = /*ext_code_count*/ext_code_exists ? (long)ext_code_count : org_qtty;
+											const long sqtty = /*ext_code_count*/ext_code_exists ? static_cast<long>(ext_code_count) : org_qtty;
 											w_p.PutInner(SXml::nst("ain", "Quantity"), EncText(temp_buf.Z().Cat(sqtty)));
 											if(/*ext_code_count*/ext_code_exists && sqtty != org_qtty) {
 												temp_buf.Z().CatEq("LotID", lot_id).Space().CatEq("Qtty", org_qtty).Space().CatEq("Sended Qtty", sqtty);
@@ -2975,7 +2974,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						}
 					}
 					else if(doc_type == PPEDIOP_EGAIS_REQUESTREPEALWB) {
-						const RepealWb * p_rwb = (const RepealWb *)rPack.P_Data;
+						const RepealWb * p_rwb = static_cast<const RepealWb *>(rPack.P_Data);
 						/*
 						<qp:ClientId>030000194005</qp:ClientId>
 						<qp:RequestNumber>011</qp:RequestNumber>
@@ -2988,7 +2987,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						n_dt.PutInner(SXml::nst("qp", "WBRegId"), EncText(temp_buf.Z().Cat(p_rwb->TTNCode)));
 					}
 					else if(doc_type == PPEDIOP_EGAIS_REQUESTREPEALAWO) { // @v10.0.07
-						const RepealWb * p_rwb = (const RepealWb *)rPack.P_Data;
+						const RepealWb * p_rwb = static_cast<const RepealWb *>(rPack.P_Data);
 						/*
 						<qp:ClientId>030000194005</qp:ClientId>
 						<qp:RequestNumber>011</qp:RequestNumber>
@@ -3001,7 +3000,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						n_dt.PutInner(SXml::nst("qp", "AWORegId"), EncText(temp_buf.Z().Cat(p_rwb->TTNCode)));
 					}
 					else if(doc_type == PPEDIOP_EGAIS_CONFIRMREPEALWB) {
-						const RepealWb * p_rwb = (const RepealWb *)rPack.P_Data;
+						const RepealWb * p_rwb = static_cast<const RepealWb *>(rPack.P_Data);
 						/*
 							<wt:Header>
 							<wt:IsConfirm>Accepted</wt:IsConfirm>
@@ -3297,7 +3296,7 @@ int SLAPI PPEgaisProcessor::Read_ActInventoryInformBReg(xmlNode * pFirstNode, PP
 	SString temp_buf;
 	ActInformItem * p_item = 0;
 	if(pPack && pPack->P_Data) {
-		PPEgaisProcessor::ActInform * p_pack = (PPEgaisProcessor::ActInform *)pPack->P_Data;
+		PPEgaisProcessor::ActInform * p_pack = static_cast<PPEgaisProcessor::ActInform *>(pPack->P_Data);
 		for(xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
 			if(SXml::IsName(p_n, "Header")) {
 				for(xmlNode * p_a = p_n->children; p_a; p_a = p_a->next) {
@@ -3513,8 +3512,8 @@ int SLAPI PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID
 			STRNSCPY(pi.KPP, kpp);
 			STRNSCPY(pi.UNP, unp);
 			STRNSCPY(pi.RNN, rnn);
-			pi.CountryCode = (int16)country_code;
-			pi.RegionCode = (int16)region_code;
+			pi.CountryCode = static_cast<int16>(country_code);
+			pi.RegionCode = static_cast<int16>(region_code);
 			(pi.Name = short_name).Transf(CTRANSF_OUTER_TO_INNER);
 			(pi.FullName = full_name).Transf(CTRANSF_OUTER_TO_INNER);
 			(pi.AddressDescr = addr_descr).Transf(CTRANSF_OUTER_TO_INNER);
@@ -3812,7 +3811,7 @@ int SLAPI PPEgaisProcessor::Read_Ticket(xmlNode * pFirstNode, Packet * pPack)
 	int    ok = 1;
 	SString temp_buf;
 	if(pPack && pPack->P_Data) {
-		Ticket * p_ticket = (Ticket *)pPack->P_Data;
+		Ticket * p_ticket = static_cast<Ticket *>(pPack->P_Data);
 		for(xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
 			if(SXml::IsName(p_n, "Identity"))
 				;
@@ -3848,7 +3847,7 @@ int SLAPI PPEgaisProcessor::Read_IformA(xmlNode * pFirstNode, Packet * pPack, Pr
 {
     int    ok = 1;
     SString temp_buf;
-    EgaisRefATbl::Rec * p_data = (EgaisRefATbl::Rec *)pPack->P_Data;
+    EgaisRefATbl::Rec * p_data = static_cast<EgaisRefATbl::Rec *>(pPack->P_Data);
     for(xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
 		if(SXml::GetContentByName(p_n, "InformARegId", temp_buf)) {
 			temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
@@ -3860,7 +3859,7 @@ int SLAPI PPEgaisProcessor::Read_IformA(xmlNode * pFirstNode, Packet * pPack, Pr
 			STRNSCPY(p_data->AlcCode, agi.EgaisCode);
 			STRNSCPY(p_data->ManufRarIdent, agi.RefcManufCode);
 			STRNSCPY(p_data->ImporterRarIdent, agi.RefcImporterCode);
-			p_data->Volume = (long)(agi.Volume * 100000); // @v9.2.12 @fix 1000000-->100000
+			p_data->Volume = static_cast<long>(agi.Volume * 100000); // @v9.2.12 @fix 1000000-->100000
 			p_data->CountryCode = agi.CountryCode;
 			p_data->Flags |= EgaisRefACore::fVerified;
 		}
@@ -3880,7 +3879,7 @@ int SLAPI PPEgaisProcessor::Read_TTNIformBReg(xmlNode * pFirstNode, Packet * pPa
     int    ok = 1;
     SString temp_buf;
     SString bill_ident;
-    InformB * p_data = (InformB *)pPack->P_Data;
+    InformB * p_data = static_cast<InformB *>(pPack->P_Data);
     for(xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
 		if(SXml::IsName(p_n, "Header")) {
             for(xmlNode * p_h = p_n->children; p_h; p_h = p_h->next) {
@@ -3913,15 +3912,30 @@ int SLAPI PPEgaisProcessor::Read_TTNIformBReg(xmlNode * pFirstNode, Packet * pPa
         }
 		else {
 			if(SXml::IsName(p_n, "Content")) {
+				int    surrogate_line_ident = RowIdentDivider;
 				for(xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
                     InformBItem item;
 					if(SXml::IsName(p_c, "Position")) {
 						for(xmlNode * p_pos = p_c->children; p_pos; p_pos = p_pos->next) {
 							if(SXml::GetContentByName(p_pos, "Identity", temp_buf)) {
+								// @v10.3.4 {
+								STRNSCPY(item.OrgRowIdent, temp_buf);
+								if(temp_buf.IsDigit()) {
+									if(temp_buf == "0")
+										item.P = RowIdentDivider;
+									else 
+										item.P = (temp_buf.ToLong() % RowIdentDivider);
+								}
+								else {
+									item.P = ++surrogate_line_ident;
+								}
+								// } @v10.3.4 
+								/* @v10.3.4 
 								if(temp_buf == "0")
 									item.P = RowIdentDivider; // @v9.8.9 10000-->RowIdentDivider
 								else
 									item.P = (temp_buf.ToLong() % RowIdentDivider); // @v9.6.9 (% 10000) // @v9.8.9 10000-->RowIdentDivider
+								*/
 							}
 							else if(SXml::GetContentByName(p_pos, "InformBRegId", temp_buf))
                                 STRNSCPY(item.Ident, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
@@ -4126,6 +4140,7 @@ struct EgaisWayBillRowTags { // @flat
 	char    InformA[24];
 	char    InformB[24];
 	char    Serial[24];
+	char    OrgLineIdent[64]; // @v10.3.4
 	PPID    ManufID;
 };
 
@@ -4354,8 +4369,9 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 			else {
 				SString serial;
 				SString box_number;
-				//StringSet ss_ext_codes;
 				PPLotExtCodeContainer::MarkSet ext_codes_set;
+				int    surrogate_line_ident = RowIdentDivider;
+				SString org_line_ident;
 				for(xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
 					PPTransferItem ti;
 					serial.Z();
@@ -4369,12 +4385,33 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 						int    local_unpacket_tag = 0;
 						double _src_qtty = 0.0;
 						double _src_cost = 0.0;
+						org_line_ident.Z();
 						for(xmlNode * p_pos = p_c->children; p_pos; p_pos = p_pos->next) {
 							if(SXml::GetContentByName(p_pos, "Identity", temp_buf)) {
+								// @v10.3.4 {
+								if(temp_buf.IsDigit()) {
+									const long dec_id = temp_buf.ToLong();
+									if(temp_buf == "0") {
+										ti.RByBill = RowIdentDivider;
+										org_line_ident = temp_buf;
+									}
+									else { 
+										ti.RByBill = (dec_id % RowIdentDivider);
+										if(dec_id != ti.RByBill)
+											org_line_ident = temp_buf;
+									}
+								}
+								else {
+									ti.RByBill = ++surrogate_line_ident;
+									org_line_ident = temp_buf;
+								}
+								// } @v10.3.4 
+								/* @v10.3.4
 								if(temp_buf == "0")
 									ti.RByBill = RowIdentDivider; // @v9.2.9 // @v9.8.9 10000-->RowIdentDivider
 								else
-									ti.RByBill = (int16)(temp_buf.ToLong() % RowIdentDivider); // @v9.6.9 (% 10000) // @v9.8.9 10000-->RowIdentDivider
+									ti.RByBill = static_cast<int16>(temp_buf.ToLong() % RowIdentDivider); // @v9.6.9 (% 10000) // @v9.8.9 10000-->RowIdentDivider
+								*/
 							}
 							else if(SXml::IsName(p_pos, "Product")) {
 								int   rs = 0;
@@ -4463,7 +4500,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 									STRNSCPY(refai.AlcCode, p_product->AlcoCode);
 									STRNSCPY(refai.ManufRarIdent, p_product->ManufRarIdent);
 									STRNSCPY(refai.ImporterRarIdent, p_product->ImporterRarIdent);
-									refai.Volume = (int32)(p_product->Volume * 100000.0);
+									refai.Volume = static_cast<int32>(p_product->Volume * 100000.0);
 									THROW(pRefC->SetRefA(refai));
 								}
 							}
@@ -4505,6 +4542,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 									STRNSCPY(rt.InformB, alc_ext.InformB);
 								rt.ManufID = alc_ext.MnfOrImpPsnID;
 								STRNSCPY(rt.Serial, serial.Strip());
+								STRNSCPY(rt.OrgLineIdent, org_line_ident); // @v10.3.4
 								row_tags.insert(&rt);
 							}
 						}
@@ -4557,6 +4595,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 							tag_list.PutItemStrNE(PPTAG_LOT_FSRARLOTGOODSCODE, r_rt.GoodsCode);
 							tag_list.PutItemStrNE(PPTAG_LOT_FSRARINFA, r_rt.InformA);
 							tag_list.PutItemStrNE(PPTAG_LOT_FSRARINFB, r_rt.InformB);
+							tag_list.PutItemStrNE(PPTAG_LOT_ORGLINEIDENT, r_rt.OrgLineIdent); // @v10.3.4
 							if(r_rt.ManufID && manuf_tag_id) {
 								tag_item.SetInt(manuf_tag_id, r_rt.ManufID);
 								tag_list.PutItem(manuf_tag_id, &tag_item);
@@ -4611,7 +4650,7 @@ int SLAPI PPEgaisProcessor::Helper_AreArticlesEq(PPID ar1ID, PPID ar2ID)
 	return yes;
 }
 
-int SLAPI PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, TSCollection <PPEgaisProcessor::Packet> * pPackList, uint packIdx)
+int SLAPI PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, const TSCollection <PPEgaisProcessor::Packet> * pPackList, uint packIdx)
 {
 	int    ok = -1;
 	PPBillPacket * p_bp = pPack ? static_cast<PPBillPacket *>(pPack->P_Data) : 0;
@@ -4631,7 +4670,7 @@ int SLAPI PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, TSCollection
 				for(uint pi = packIdx+1; pi < pPackList->getCount(); pi++) {
                     const Packet * p_pack = pPackList->at(pi);
                     if(p_pack && p_pack->P_Data && oneof3(p_pack->DocType, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3) && !(p_pack->Flags & Packet::fFaultObj)) {
-						PPBillPacket * p_other_bp = static_cast<PPBillPacket *>(p_pack->P_Data);
+						const PPBillPacket * p_other_bp = static_cast<const PPBillPacket *>(p_pack->P_Data);
 						if((!use_dt_in_bill_analog || p_other_bp->Rec.Dt == p_bp->Rec.Dt) && sstreq(p_other_bp->Rec.Code, p_bp->Rec.Code)) {
                             if(p_other_bp->BTagL.GetItemStr(PPTAG_BILL_OUTERCODE, temp_buf) > 0 && temp_buf == bill_ident) {
 								if(Helper_AreArticlesEq(p_other_bp->Rec.Object, p_bp->Rec.Object)) {
@@ -4748,7 +4787,7 @@ int SLAPI PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, TSCollection
 int SLAPI PPEgaisProcessor::Helper_AcceptTtnRefB(Packet * pPack, TSCollection <PPEgaisProcessor::Packet> * pPackList, const uint packIdx, LongArray & rSkipPackIdxList)
 {
 	int    ok = -1;
-	const InformB * p_inf = (const InformB *)pPack->P_Data;
+	const InformB * p_inf = static_cast<const InformB *>(pPack->P_Data);
 	SString temp_buf;
 	int   do_skip = 0;
 	//
@@ -4758,12 +4797,12 @@ int SLAPI PPEgaisProcessor::Helper_AcceptTtnRefB(Packet * pPack, TSCollection <P
 	for(uint fwpackidx = packIdx+1; fwpackidx < pPackList->getCount(); fwpackidx++) {
 		const Packet * p_fw_pack = pPackList->at(fwpackidx);
 		if(p_fw_pack && p_fw_pack->P_Data && p_fw_pack->DocType == pPack->DocType) {
-			const InformB * p_fw_inf = (const InformB *)p_fw_pack->P_Data;
+			const InformB * p_fw_inf = static_cast<const InformB *>(p_fw_pack->P_Data);
 			if(p_fw_inf->Id.CmpNC(p_inf->Id) == 0 && p_fw_inf->OuterCode.CmpNC(p_inf->OuterCode) == 0 && p_fw_inf->OuterDate == p_inf->OuterDate) {
 				if(p_fw_inf->FixDate > p_inf->FixDate)
                     do_skip = 1;
 				else if(p_fw_inf->FixDate < p_inf->FixDate)
-					rSkipPackIdxList.add((long)fwpackidx);
+					rSkipPackIdxList.add(static_cast<long>(fwpackidx));
 				else {
                     int64 this_fix_number = 0;
                     int64 fw_fix_number = 0;
@@ -4779,7 +4818,7 @@ int SLAPI PPEgaisProcessor::Helper_AcceptTtnRefB(Packet * pPack, TSCollection <P
 						do_skip = 1;
 					}
 					else if(fw_fix_number < this_fix_number)
-						rSkipPackIdxList.add((long)fwpackidx);
+						rSkipPackIdxList.add(static_cast<long>(fwpackidx));
 				}
 			}
 		}
@@ -4794,7 +4833,7 @@ int SLAPI PPEgaisProcessor::Helper_AcceptTtnRefB(Packet * pPack, TSCollection <P
 		if(p_inf->Id.IsDigit()) {
 			int64 id_64 = p_inf->Id.ToInt64();
 			if(id_64 > 0 && id_64 < LONG_MAX) {
-				PPID   id_32 = (PPID)id_64;
+				PPID   id_32 = static_cast<PPID>(id_64);
 				if(!bill_id_list.lsearch(id_32) && P_BObj->Fetch(id_32, &ex_bill_rec) > 0) {
 					if(IsOpBelongTo(ex_bill_rec.OpID, Cfg.ExpndOpID) || IsOpBelongTo(ex_bill_rec.OpID, Cfg.IntrExpndOpID)) {
 						BillCore::GetCode(temp_buf = ex_bill_rec.Code);
@@ -5405,7 +5444,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 							if(cscr > 0) {
 								for(uint s = 0; s < csr_row_idx_list.getCount(); s++) {
 									const long csr_idx = csr_row_idx_list.get(s);
-									if(csr_idx >= 0 && csr_idx < (long)pCurrentRestPack->GetTCount()) {
+									if(csr_idx >= 0 && csr_idx < static_cast<long>(pCurrentRestPack->GetTCount())) {
 										const PPTransferItem & r_csr_ti = pCurrentRestPack->ConstTI(csr_idx);
 										THROW_SL(processed_csr_rows.add(csr_idx));
 										shop_rest += r_csr_ti.Quantity_;
@@ -5492,7 +5531,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 					}
 				}
 				for(uint csridx = 0; csridx < pCurrentRestPack->GetTCount(); csridx++) {
-					if(!processed_csr_rows.lsearch((long)csridx)) {
+					if(!processed_csr_rows.lsearch(static_cast<long>(csridx))) {
 						const PPTransferItem & r_csr_ti = pCurrentRestPack->ConstTI(csridx);
 						if(r_csr_ti.Quantity_ < 0.0) {
 							pCurrentRestPack->LTagL.GetTagStr(csridx, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
@@ -5577,7 +5616,7 @@ int SLAPI PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const D
 								STRNSCPY(refai.AlcCode, p_product->AlcoCode);
 								STRNSCPY(refai.ManufRarIdent, p_product->ManufRarIdent);
 								STRNSCPY(refai.ImporterRarIdent, p_product->ImporterRarIdent);
-								refai.Volume = (int32)(p_product->Volume * 100000.0);
+								refai.Volume = static_cast<int32>(p_product->Volume * 100000.0);
 								THROW(pRefC->SetRefA(refai));
 							}
 						}
@@ -5758,8 +5797,7 @@ int SLAPI PPEgaisProcessor::DeleteDoc(PPEgaisProcessor::Reply & rR)
     return ok;
 }
 
-int SLAPI PPEgaisProcessor::Helper_InitNewPack(const int docType, TSCollection <PPEgaisProcessor::Packet> * pPackList,
-	PPEgaisProcessor::Packet ** ppPack)
+int SLAPI PPEgaisProcessor::Helper_InitNewPack(const int docType, TSCollection <PPEgaisProcessor::Packet> * pPackList, PPEgaisProcessor::Packet ** ppPack)
 {
 	int    ok = 1;
 	PPEgaisProcessor::Packet * p_new_pack = 0;
@@ -5812,7 +5850,7 @@ int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, lon
 			}
 			else if(SXml::IsName(p_n, "Document")) {
 				for(xmlNode * p_nd = p_n->children; p_nd; p_nd = p_nd->next) {
-					const int doc_type = p_nd ? RecognizeDocTypeTag((const char *)p_nd->name) : 0;
+					const int doc_type = p_nd ? RecognizeDocTypeTag(reinterpret_cast<const char *>(p_nd->name)) : 0;
 					int    rs = 0;
 					if(oneof3(doc_type, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3)) {
 						THROW(Helper_InitNewPack(doc_type, pPackList, &p_new_pack));
@@ -5834,7 +5872,7 @@ int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, lon
 					else if(doc_type == PPEDIOP_EGAIS_REQUESTREPEALWB) {
 						THROW(Helper_InitNewPack(doc_type, pPackList, &p_new_pack));
 						{
-							RepealWb * p_rwb = (RepealWb *)p_new_pack->P_Data;
+							RepealWb * p_rwb = static_cast<RepealWb *>(p_new_pack->P_Data);
 							for(xmlNode * p_n = p_nd->children; p_n; p_n = p_n->next) {
 								if(SXml::GetContentByName(p_n, "ClientId", temp_buf) > 0)
 									p_rwb->ContragentCode = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
@@ -5873,7 +5911,7 @@ int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, lon
 						THROW(Helper_InitNewPack(doc_type, pPackList, &p_new_pack));
 						THROW(rs = Read_TTNIformBReg(p_nd->children, p_new_pack));
 						if(rs > 0) {
-							const InformB * p_data = (const InformB *)p_new_pack->P_Data;
+							const InformB * p_data = static_cast<const InformB *>(p_new_pack->P_Data);
 							if(!pPeriod || pPeriod->CheckDate(p_data->OuterDate)) {
 								THROW(Helper_FinalizeNewPack(&p_new_pack, srcReplyPos, pPackList));
 							}
@@ -5914,7 +5952,7 @@ int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, lon
 												Read_OrgInfo(p_c->children, sell_pk_id, EgaisPersonCore::rolefConsignee|EgaisPersonCore::rolefVerified,
 													p_new_psn_pack, pRefC, out_file.IsValid() ? &out_file : 0);
 												if(p_new_psn_pack)
-													((TSCollection <PPPersonPacket> *)p_new_pack->P_Data)->insert(p_new_psn_pack);
+													static_cast<TSCollection <PPPersonPacket> *>(p_new_pack->P_Data)->insert(p_new_psn_pack);
 											}
 										}
 									}
@@ -5940,7 +5978,7 @@ int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, lon
 											}
 											Read_ProductInfo(p_c->children, p_new_goods_pack, &ext, pRefC, out_file.IsValid() ? &out_file : 0);
 											if(p_new_goods_pack)
-												((TSCollection <PPGoodsPacket> *)p_new_pack->P_Data)->insert(p_new_goods_pack);
+												static_cast<TSCollection <PPGoodsPacket> *>(p_new_pack->P_Data)->insert(p_new_goods_pack);
 										}
 									}
 								}
@@ -5952,7 +5990,7 @@ int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, lon
 					else if(doc_type == PPEDIOP_EGAIS_REPLYBARCODE) {
 						THROW(Helper_InitNewPack(doc_type, pPackList, &p_new_pack));
                         {
-                        	TSCollection <QueryBarcode> * p_qbl = (TSCollection <QueryBarcode> *)p_new_pack->P_Data;
+                        	TSCollection <QueryBarcode> * p_qbl = static_cast<TSCollection <QueryBarcode> *>(p_new_pack->P_Data);
                         	for(xmlNode * p_n = p_nd->children; p_n; p_n = p_n->next) {
                         		if(SXml::IsName(p_n, "Marks")) {
 									PPGetFilePath(PPPATH_OUT, "egais-marks", out_file_name);
@@ -6651,7 +6689,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 		//
 		for(packidx = 0; packidx < pack_list.getCount(); packidx++) {
 			Packet * p_pack = pack_list.at(packidx);
-			if(p_pack && p_pack->P_Data && !skip_packidx_list.lsearch((long)packidx)) {
+			if(p_pack && p_pack->P_Data && !skip_packidx_list.lsearch(static_cast<long>(packidx))) {
 				if(oneof3(p_pack->DocType, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTS_V2, PPEDIOP_EGAIS_REPLYRESTSSHOP)) {
 					const PPBillPacket * p_rbp = static_cast<const PPBillPacket *>(p_pack->P_Data);
 					if(p_rbp && p_rbp->Rec.ID) {
@@ -6661,13 +6699,13 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 						if(p_pack->DocType == PPEDIOP_EGAIS_REPLYRESTSSHOP) {
 							if(tdi.Cmp(last_restshop_di) > 0) {
 								last_restshop_di = tdi;
-								last_restshop_pos = (int)packidx;
+								last_restshop_pos = static_cast<int>(packidx);
 							}
 						}
 						else {
 							if(tdi.Cmp(last_rest_di) > 0) {
 								last_rest_di = tdi;
-								last_rest_pos = (int)packidx;
+								last_rest_pos = static_cast<int>(packidx);
 							}
 						}
 					}
@@ -6677,7 +6715,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 						LogLastError();
 				}
 				else if(p_pack->DocType == PPEDIOP_EGAIS_REQUESTREPEALWB) {
-                    const RepealWb * p_rwb = (const RepealWb *)p_pack->P_Data;
+                    const RepealWb * p_rwb = static_cast<const RepealWb *>(p_pack->P_Data);
 					p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIIDENT, p_rwb->TTNCode, &bill_id_list);
 					PPIDArray candid_bill_list;
 					BillTbl::Rec bill_rec;
@@ -6724,7 +6762,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 					}
 				}
 				else if(p_pack->DocType == PPEDIOP_EGAIS_TICKET) {
-					Ticket * p_tick = (Ticket *)p_pack->P_Data;
+					Ticket * p_tick = static_cast<Ticket *>(p_pack->P_Data);
 					//
 					// Note: Следующий вызов правильнее разместить в точке @1, однако пока
 					// механизмы не будут окончательно отлажены будем финишировать цикл
@@ -6736,7 +6774,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 						DeleteSrcPacket(p_pack, reply_list);
 				}
 				else if(p_pack->DocType == PPEDIOP_EGAIS_REPLYFORMA) {
-					const EgaisRefATbl::Rec * p_ref_a = (const EgaisRefATbl::Rec *)p_pack->P_Data;
+					const EgaisRefATbl::Rec * p_ref_a = static_cast<const EgaisRefATbl::Rec *>(p_pack->P_Data);
 					if(p_ref_a && P_RefC) {
 						EgaisRefATbl::Rec refai;
 						MEMSZERO(refai);
@@ -6757,7 +6795,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 		//
 		for(packidx = 0; packidx < pack_list.getCount(); packidx++) {
 			Packet * p_pack = pack_list.at(packidx);
-			if(p_pack && p_pack->P_Data && !skip_packidx_list.lsearch((long)packidx)) {
+			if(p_pack && p_pack->P_Data && !skip_packidx_list.lsearch(static_cast<long>(packidx))) {
 				if(oneof2(p_pack->DocType, PPEDIOP_EGAIS_TTNINFORMBREG, PPEDIOP_EGAIS_TTNINFORMF2REG)) {
 					const int __r = Helper_AcceptTtnRefB(p_pack, &pack_list, packidx, skip_packidx_list);
 					if(!__r)
@@ -6766,7 +6804,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 						DeleteSrcPacket(p_pack, reply_list);
 				}
 				else if(p_pack->DocType == PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG) {
-					const ActInform * p_inf = (const ActInform *)p_pack->P_Data;
+					const ActInform * p_inf = static_cast<const ActInform *>(p_pack->P_Data);
 					PPID   bill_id = 0;
 					if(flags & rifRepairInventoryMark) {
 						SString ref_b;
@@ -6808,12 +6846,12 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 							PPTransaction tra(1);
 							THROW(tra);
 							for(uint i = 0; i < bp.GetTCount(); i++) {
-								const long   row_id = (long)(i+1);
+								const long   row_id = static_cast<long>(i+1);
 								for(uint j = 0; j < p_inf->Items.getCount(); j++) {
 									const ActInformItem * p_item = p_inf->Items.at(j);
 									if(p_item && p_item->P == row_id) {
 										const PPTransferItem & r_ti = bp.ConstTI(i);
-										const PPID lot_id = (PPID)r_ti.QuotPrice;
+										const PPID lot_id = static_cast<PPID>(r_ti.QuotPrice);
 										if(lot_id) {
 											ObjTagItem tag_item;
 											if(p_item->AIdent[0]) {
@@ -6844,7 +6882,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 		{
 			if(last_rest_pos >= 0) {
 			}
-			if(last_restshop_pos >= 0 && last_restshop_pos < (int)pack_list.getCount()) {
+			if(last_restshop_pos >= 0 && last_restshop_pos < static_cast<int>(pack_list.getCount())) {
 				Packet * p_pack = pack_list.at(last_restshop_pos);
 				PPBillPacket * p_bp = p_pack ? static_cast<PPBillPacket *>(p_pack->P_Data) : 0;
 				THROW(Helper_CreateTransferToShop(p_bp));
@@ -6997,7 +7035,7 @@ int SLAPI PPEgaisProcessor::CreateActChargeOnBill(PPID * pBillID, int ediOp, PPI
 								THROW(ti.Init(&pack.Rec));
 								THROW(ti.SetupGoods(goods_id));
 								THROW(ti.SetupLot(lot_id, &lot_rec, 0));
-								ti.QuotPrice = (double)lot_id;
+								ti.QuotPrice = static_cast<double>(lot_id);
 								ti.Cost = 0.0;
 								ti.Price = 0.0;
 								ti.Discount = 0.0;
@@ -7206,7 +7244,7 @@ int SLAPI PPEgaisProcessor::SendBillRepeals(const PPBillIterchangeFilt & rP)
 		PPBillPacket bp;
 		if(P_BObj->ExtractPacket(bill_id, &bp) > 0) {
             Ack ack;
-			RepealWb * p_rwb = (RepealWb *)pack.P_Data;
+			RepealWb * p_rwb = static_cast<RepealWb *>(pack.P_Data);
 			p_rwb->BillID = bp.Rec.ID;
 			BillCore::GetCode(p_rwb->ReqNumber = bp.Rec.Code);
 			p_rwb->ReqNumber.CatChar('-').Cat("repeal");
@@ -7493,7 +7531,7 @@ int SLAPI PPEgaisProcessor::Helper_SendBillsByPattern(const PPBillIterchangeFilt
 					GetOpData(bill_rec.OpID, &op_rec);
 					if((!rP.LocID || bill_rec.LocID == rP.LocID) && CheckBillForMainOrgID(bill_rec, op_rec)) {
 						PPEgaisProcessor::Packet pack(rPattern.EdiOp);
-						RepealWb * p_rwb = (RepealWb *)pack.P_Data;
+						RepealWb * p_rwb = static_cast<RepealWb *>(pack.P_Data);
 						if(p_rwb) {
 							p_rwb->BillID = bill_id;
 							if(repeal_tag.C(0) == '!')
@@ -7696,7 +7734,7 @@ int SLAPI PPEgaisProcessor::SendBills(const PPBillIterchangeFilt & rP)
 			if(P_BObj->Search(bill_id, &bill_rec) > 0) {
 				if(PPRef->Ot.GetTagStr(PPOBJ_BILL, bill_rec.ID, PPTAG_BILL_EDIIDENT, reg_ident) > 0) {
 					PPEgaisProcessor::Packet pack(PPEDIOP_EGAIS_CONFIRMTICKET);
-					ConfirmTicket * p_ticket = (ConfirmTicket *)pack.P_Data;
+					ConfirmTicket * p_ticket = static_cast<ConfirmTicket *>(pack.P_Data);
 					p_ticket->BillID = bill_rec.ID;
 					p_ticket->Conclusion = -1;
 					const int recadv_conf_status = BillCore::GetRecadvConfStatus(bill_rec);
@@ -8233,7 +8271,7 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 			//ps.Split()
 			StringSet ss(' ', rParam.ParamString);
 			Packet qp(PPEDIOP_EGAIS_QUERYBARCODE);
-			TSCollection <QueryBarcode> * p_qbl = (TSCollection <QueryBarcode> *)qp.P_Data;
+			TSCollection <QueryBarcode> * p_qbl = static_cast<TSCollection <QueryBarcode> *>(qp.P_Data);
 			if(p_qbl) {
 				if(ss.getCount() == 3) {
 					QueryBarcode qb;
@@ -8636,9 +8674,9 @@ int SLAPI EgaisPersonCore::Put(PPID * pID, EgaisPersonCore::Item * pItem, long *
 			if(!pItem) {
 				THROW_DB(rereadForUpdate(0, 0));
 				THROW_DB(deleteRec());
-				THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, *pID, PPTRPROP_NAME), (const wchar_t *)0, 0));
-				THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, *pID, PPTRPROP_LONGNAME), (const wchar_t *)0, 0));
-				THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, *pID, txtprpAddressDescr), (const wchar_t *)0, 0));
+				THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, *pID, PPTRPROP_NAME), static_cast<const wchar_t *>(0), 0));
+				THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, *pID, PPTRPROP_LONGNAME), static_cast<const wchar_t *>(0), 0));
+				THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, *pID, txtprpAddressDescr), static_cast<const wchar_t *>(0), 0));
 			}
 			else if(pItem->IsEqual(org_item, 0)) {
 				ok = -1;
@@ -8839,9 +8877,9 @@ int SLAPI EgaisPersonCore::Clear(int use_ta)
 			const PPID id = data.ID;
 			THROW_DB(rereadForUpdate(0, 0));
 			THROW_DB(deleteRec());
-			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, id, PPTRPROP_NAME), (const wchar_t *)0, 0));
-			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, id, PPTRPROP_LONGNAME), (const wchar_t *)0, 0));
-			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, id, txtprpAddressDescr), (const wchar_t *)0, 0));
+			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, id, PPTRPROP_NAME), static_cast<const wchar_t *>(0), 0));
+			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, id, PPTRPROP_LONGNAME), static_cast<const wchar_t *>(0), 0));
+			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, id, txtprpAddressDescr), static_cast<const wchar_t *>(0), 0));
 			PPWaitPercent(cntr.Increment(), msg_buf);
 			ok = 1;
 		} while(search(0, &k0, spNext));
@@ -9045,8 +9083,8 @@ int SLAPI EgaisProductCore::Put(PPID * pID, EgaisProductCore::Item * pItem, long
 			else {
 				MEMSZERO(rec);
 				rec.ID = *pID;
-				rec.Proof = (long)(pItem->Proof * 1000.0);
-				rec.Volume = (long)(pItem->Volume * 100000.0);
+				rec.Proof = static_cast<long>(pItem->Proof * 1000.0);
+				rec.Volume = static_cast<long>(pItem->Volume * 100000.0);
 				STRNSCPY(rec.AlcCode, pItem->AlcoCode);
 				STRNSCPY(rec.ManufRarIdent, pItem->ManufRarIdent);
 				STRNSCPY(rec.ImporterRarIdent, pItem->ImporterRarIdent);
@@ -9060,8 +9098,8 @@ int SLAPI EgaisProductCore::Put(PPID * pID, EgaisProductCore::Item * pItem, long
 			}
 		}
 		else {
-			const int32 new_proof  = (long)(pItem->Proof * 1000.0);
-			const int32 new_volume = (long)(pItem->Volume * 100000.0);
+			const int32 new_proof  = static_cast<long>(pItem->Proof * 1000.0);
+			const int32 new_volume = static_cast<long>(pItem->Volume * 100000.0);
 
 			EgaisProductTbl::Key1 k1;
 			MEMSZERO(k1);
@@ -9213,8 +9251,8 @@ int SLAPI EgaisProductCore::Clear(int use_ta)
 			const PPID id = data.ID;
 			THROW_DB(rereadForUpdate(0, 0));
 			THROW_DB(deleteRec());
-			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPRODUCT, id, PPTRPROP_NAME), (const wchar_t *)0, 0));
-			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPRODUCT, id, PPTRPROP_LONGNAME), (const wchar_t *)0, 0));
+			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPRODUCT, id, PPTRPROP_NAME), static_cast<const wchar_t *>(0), 0));
+			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPRODUCT, id, PPTRPROP_LONGNAME), static_cast<const wchar_t *>(0), 0));
 			PPWaitPercent(cntr.Increment(), msg_buf);
 			ok = 1;
 		} while(search(0, &k0, spNext));
@@ -9330,7 +9368,7 @@ int SLAPI EgaisRefACore::SearchByProductCode(const char * pAlcoCode, TSVector <E
 	return ok;
 }
 
-int SLAPI EgaisRefACore::Put(PPID * pID, EgaisRefATbl::Rec * pRec, long * pConflictFlags, int use_ta)
+int SLAPI EgaisRefACore::Put(PPID * pID, const EgaisRefATbl::Rec * pRec, long * pConflictFlags, int use_ta)
 {
 	int    ok = 1;
 	long   conflict_flags = 0;
@@ -9537,7 +9575,7 @@ SLAPI PrcssrAlcReport::RefCollection::RefCollection() : LastPersonP(-1), LastPro
 {
 }
 
-int FASTCALL PrcssrAlcReport::RefCollection::SetPerson(EgaisPersonCore::Item & rItem)
+int FASTCALL PrcssrAlcReport::RefCollection::SetPerson(const EgaisPersonCore::Item & rItem)
 {
 	int    ok = 1;
 	int    result_pos = -1;
@@ -9545,7 +9583,7 @@ int FASTCALL PrcssrAlcReport::RefCollection::SetPerson(EgaisPersonCore::Item & r
 		EgaisPersonCore::Item * p_item = PersonList.at(pos);
 		if(p_item && p_item->IsEqual(rItem, EgaisPersonCore::Item::cmpfExceptFlags)) {
 			p_item->Flags |= rItem.Flags;
-			result_pos = (int)pos;
+			result_pos = static_cast<int>(pos);
 		}
 		pos++;
 	}
@@ -9570,7 +9608,7 @@ int FASTCALL PrcssrAlcReport::RefCollection::SetProduct(EgaisProductCore::Item &
 	for(uint pos = 0; result_pos < 0 && ProductList.lsearch(rItem.AlcoCode, &pos, PTR_CMPFUNC(Pchar), offsetof(EgaisProductCore::Item, AlcoCode));) {
 		const EgaisProductCore::Item * p_item = ProductList.at(pos);
 		if(p_item && p_item->IsEqual(rItem, 0)) {
-			result_pos = (int)pos;
+			result_pos = static_cast<int>(pos);
 		}
 		pos++;
 	}
@@ -9595,7 +9633,7 @@ int FASTCALL PrcssrAlcReport::RefCollection::SetRefA(EgaisRefATbl::Rec & rItem)
 	for(uint pos = 0; result_pos < 0 && RefAList.lsearch(rItem.RefACode, &pos, PTR_CMPFUNC(Pchar), offsetof(EgaisRefATbl::Rec, RefACode));) {
 		const EgaisRefATbl::Rec & r_item = RefAList.at(pos);
 		if(EgaisRefACore::IsRecEq(r_item, rItem)) {
-			result_pos = (int)pos;
+			result_pos = static_cast<int>(pos);
 		}
 		pos++;
 	}

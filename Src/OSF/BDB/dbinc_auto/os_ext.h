@@ -14,7 +14,7 @@ int __os_abspath(const char *);
 #if defined(HAVE_REPLICATION_THREADS)
 	void __os_freeaddrinfo(ENV *, ADDRINFO *);
 #endif
-int __os_umalloc(ENV *, size_t, void *);
+int FASTCALL __os_umalloc(ENV *, size_t, void *);
 int __os_urealloc(ENV *, size_t, void *);
 void FASTCALL __os_ufree(ENV *, void *);
 int __os_strdup(ENV *, const char *, void *);

@@ -765,7 +765,7 @@ int SLAPI AnalyzeObjSyncCmp(int asModeless)
 {
 	ObjSyncCmpFilt init_filt;
 	init_filt.Flags |= ObjSyncCmpFilt::fInitialize;
-	return PPView::Execute(PPVIEW_OBJSYNCCMP, &init_filt, asModeless, (void *)1);
+	return PPView::Execute(PPVIEW_OBJSYNCCMP, &init_filt, asModeless, reinterpret_cast<void *>(1));
 }
 //
 // Implementation of PPALDD_ObjSyncCmp

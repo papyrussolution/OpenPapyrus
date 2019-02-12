@@ -210,7 +210,7 @@ int __txn_recycle_id(ENV*env, int locked)
 	uint32 * ids;
 	int nids, ret;
 	DB_TXNMGR * mgr = env->tx_handle;
-	DB_TXNREGION * region = (DB_TXNREGION *)mgr->reginfo.primary;
+	DB_TXNREGION * region = static_cast<DB_TXNREGION *>(mgr->reginfo.primary);
 	if((ret = __os_malloc(env, sizeof(uint32)*region->curtxns, &ids)) != 0) {
 		__db_errx(env, DB_STR("4523", "Unable to allocate transaction recycle buffer"));
 		return ret;
@@ -247,7 +247,7 @@ static int __txn_begin_int(DB_TXN*txn)
 	DB_TXNMGR * mgr = txn->mgrp;
 	ENV * env = mgr->env;
 	DB_ENV * dbenv = env->dbenv;
-	DB_TXNREGION * region = (DB_TXNREGION *)mgr->reginfo.primary;
+	DB_TXNREGION * region = static_cast<DB_TXNREGION *>(mgr->reginfo.primary);
 	TXN_DETAIL * td = NULL;
 	int inserted = 0;
 	TXN_SYSTEM_LOCK(env);
@@ -1089,7 +1089,7 @@ static int __txn_isvalid(const DB_TXN*txn, txnop_t op)
 	TXN_DETAIL * td;
 	DB_TXNMGR * mgr = txn->mgrp;
 	ENV * env = mgr->env;
-	DB_TXNREGION * region = (DB_TXNREGION *)mgr->reginfo.primary;
+	DB_TXNREGION * region = static_cast<DB_TXNREGION *>(mgr->reginfo.primary);
 	/* Check for recovery. */
 	if(!F_ISSET(txn, TXN_COMPENSATE) && F_ISSET(region, TXN_IN_RECOVERY)) {
 		__db_errx(env, DB_STR("4530", "operation not permitted during recovery"));
@@ -1185,7 +1185,7 @@ static int __txn_end(DB_TXN*txn, int is_commit)
 	int ret;
 	DB_TXNMGR * mgr = txn->mgrp;
 	ENV * env = mgr->env;
-	DB_TXNREGION * region = (DB_TXNREGION *)mgr->reginfo.primary;
+	DB_TXNREGION * region = static_cast<DB_TXNREGION *>(mgr->reginfo.primary);
 	int do_closefiles = 0;
 	/* Process commit events. */
 	if((ret = __txn_doevents(env, txn, is_commit ? TXN_COMMIT : TXN_ABORT, 0)) != 0)
@@ -1490,7 +1490,7 @@ int __txn_preclose(ENV*env)
 {
 	int do_closefiles, ret;
 	DB_TXNMGR * mgr = env->tx_handle;
-	DB_TXNREGION * region = (DB_TXNREGION *)mgr->reginfo.primary;
+	DB_TXNREGION * region = static_cast<DB_TXNREGION *>(mgr->reginfo.primary);
 	do_closefiles = 0;
 	TXN_SYSTEM_LOCK(env);
 	if(region && region->stat.st_nrestores <= mgr->n_discards && mgr->n_discards != 0)
@@ -1652,7 +1652,7 @@ int __txn_checkpoint(ENV * env, uint32 kbytes, uint32 minutes, uint32 flags)
 		dblp = env->lg_handle;
 		lp = (LOG *)dblp->reginfo.primary;
 		mgr = env->tx_handle;
-		region = (DB_TXNREGION *)mgr->reginfo.primary;
+		region = static_cast<DB_TXNREGION *>(mgr->reginfo.primary);
 		infop = env->reginfo;
 		renv = (REGENV *)infop->primary;
 		//
@@ -1817,7 +1817,7 @@ int __txn_getactive(ENV*env, DB_LSN * lsnp)
 {
 	TXN_DETAIL * td;
 	DB_TXNMGR * mgr = env->tx_handle;
-	DB_TXNREGION * region = (DB_TXNREGION *)mgr->reginfo.primary;
+	DB_TXNREGION * region = static_cast<DB_TXNREGION *>(mgr->reginfo.primary);
 	TXN_SYSTEM_LOCK(env);
 	SH_TAILQ_FOREACH(td, &region->active_txn, links, __txn_detail)
 	if(td->begin_lsn.file && td->begin_lsn.Offset_ && LOG_COMPARE(&td->begin_lsn, lsnp) < 0)
@@ -1833,7 +1833,7 @@ int __txn_getckp(ENV*env, DB_LSN * lsnp)
 {
 	DB_LSN lsn;
 	DB_TXNMGR * mgr = env->tx_handle;
-	DB_TXNREGION * region = (DB_TXNREGION *)mgr->reginfo.primary;
+	DB_TXNREGION * region = static_cast<DB_TXNREGION *>(mgr->reginfo.primary);
 	TXN_SYSTEM_LOCK(env);
 	lsn = region->last_ckp;
 	TXN_SYSTEM_UNLOCK(env);
@@ -1853,7 +1853,7 @@ int __txn_getckp(ENV*env, DB_LSN * lsnp)
 int __txn_updateckp(ENV*env, DB_LSN * lsnp)
 {
 	DB_TXNMGR * mgr = env->tx_handle;
-	DB_TXNREGION * region = (DB_TXNREGION *)mgr->reginfo.primary;
+	DB_TXNREGION * region = static_cast<DB_TXNREGION *>(mgr->reginfo.primary);
 	/*
 	 * We want to make sure last_ckp only moves forward;  since we drop
 	 * locks above and in log_put, it's possible for two calls to
@@ -1882,7 +1882,7 @@ int __txn_failchk(ENV*env)
 	pid_t pid;
 	DB_TXNMGR * mgr = env->tx_handle;
 	DB_ENV * dbenv = env->dbenv;
-	DB_TXNREGION * region = (DB_TXNREGION *)mgr->reginfo.primary;
+	DB_TXNREGION * region = static_cast<DB_TXNREGION *>(mgr->reginfo.primary);
 retry:
 	TXN_SYSTEM_LOCK(env);
 	SH_TAILQ_FOREACH(td, &region->active_txn, links, __txn_detail) {
@@ -2225,7 +2225,7 @@ int __txn_restore_txn(ENV*env, DB_LSN * lsnp, __txn_prepare_args * argp)
 	if(argp->gid.size == 0)
 		return 0;
 	mgr = env->tx_handle;
-	region = (DB_TXNREGION *)mgr->reginfo.primary;
+	region = static_cast<DB_TXNREGION *>(mgr->reginfo.primary);
 	TXN_SYSTEM_LOCK(env);
 	/* Allocate a new transaction detail structure. */
 	if((ret = __env_alloc(&mgr->reginfo, sizeof(TXN_DETAIL), &td)) != 0) {
@@ -2426,7 +2426,7 @@ int __txn_get_prepared(ENV*env, XID * xids, DB_PREPLIST * txns, long count, long
 	// next time with a continue.
 	// 
 	mgr = env->tx_handle;
-	region = (DB_TXNREGION *)mgr->reginfo.primary;
+	region = static_cast<DB_TXNREGION *>(mgr->reginfo.primary);
 	// 
 	// During this pass we need to figure out if we are going to need
 	// to open files.  We need to open files if we've never collected
@@ -2640,7 +2640,7 @@ static int __txn_init(ENV * env, DB_TXNMGR * mgr)
 		return ret;
 	}
 	((REGENV *)env->reginfo->primary)->tx_primary = R_OFFSET(&mgr->reginfo, mgr->reginfo.primary);
-	region = (DB_TXNREGION *)mgr->reginfo.primary;
+	region = static_cast<DB_TXNREGION *>(mgr->reginfo.primary);
 	memzero(region, sizeof(*region));
 	// We share the region so we need the same mutex. 
 	region->mtx_region = ((REGENV *)env->reginfo->primary)->mtx_regenv;
@@ -2843,7 +2843,7 @@ int __txn_id_set(ENV * env, uint32 cur_txnid, uint32 max_txnid)
 	int ret;
 	ENV_REQUIRES_CONFIG(env, env->tx_handle, "txn_id_set", DB_INIT_TXN);
 	mgr = env->tx_handle;
-	region = (DB_TXNREGION *)mgr->reginfo.primary;
+	region = static_cast<DB_TXNREGION *>(mgr->reginfo.primary);
 	region->last_txnid = cur_txnid;
 	region->cur_maxid = max_txnid;
 	ret = 0;
@@ -2871,7 +2871,7 @@ int __txn_oldest_reader(ENV*env, DB_LSN * lsnp)
 	int ret;
 	if((mgr = env->tx_handle) == NULL)
 		return 0;
-	region = (DB_TXNREGION *)mgr->reginfo.primary;
+	region = static_cast<DB_TXNREGION *>(mgr->reginfo.primary);
 	if((ret = __log_current_lsn_int(env, &old_lsn, NULL, NULL)) != 0)
 		return ret;
 	TXN_SYSTEM_LOCK(env);
@@ -2908,7 +2908,7 @@ int __txn_remove_buffer(ENV*env, TXN_DETAIL * td, db_mutex_t hash_mtx)
 	DB_ASSERT(env, td != NULL);
 	ret = 0;
 	mgr = env->tx_handle;
-	region = (DB_TXNREGION *)mgr->reginfo.primary;
+	region = static_cast<DB_TXNREGION *>(mgr->reginfo.primary);
 	MUTEX_LOCK(env, td->mvcc_mtx);
 	DB_ASSERT(env, td->mvcc_ref > 0);
 	/*
@@ -2964,7 +2964,7 @@ static int __txn_stat(ENV * env, DB_TXN_STAT ** statp, uint32 flags)
 	int ret;
 	*statp = NULL;
 	mgr = env->tx_handle;
-	region = (DB_TXNREGION *)mgr->reginfo.primary;
+	region = static_cast<DB_TXNREGION *>(mgr->reginfo.primary);
 	TXN_SYSTEM_LOCK(env);
 	maxtxn = region->curtxns;
 	nbytes = sizeof(DB_TXN_STAT)+sizeof(DB_TXN_ACTIVE)*maxtxn;
@@ -3122,7 +3122,7 @@ static int __txn_print_all(ENV*env, uint32 flags)
 	};
 	char time_buf[CTIME_BUFLEN];
 	DB_TXNMGR * mgr = env->tx_handle;
-	DB_TXNREGION * region = (DB_TXNREGION *)mgr->reginfo.primary;
+	DB_TXNREGION * region = static_cast<DB_TXNREGION *>(mgr->reginfo.primary);
 	TXN_SYSTEM_LOCK(env);
 	__db_print_reginfo(env, &mgr->reginfo, "Transaction", flags);
 	__db_msg(env, "%s", DB_GLOBAL(db_line));

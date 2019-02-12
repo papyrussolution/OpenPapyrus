@@ -101,7 +101,7 @@ public:
 	Scanner& operator<<(int y)
 	{
 		_type = zbar_scan_y(_scanner, y);
-		return(*this);
+		return *this;
 	}
 
 	/// process next sample from RGB (or BGR) triple.
@@ -117,7 +117,7 @@ public:
 	Scanner& operator<<(uchar * rgb)
 	{
 		_type = zbar_scan_rgb24(_scanner, rgb);
-		return(*this);
+		return *this;
 	}
 
 	/// retrieve last scanned width.

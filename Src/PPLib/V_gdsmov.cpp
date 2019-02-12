@@ -515,7 +515,7 @@ int SLAPI PPViewGoodsMov::GetIterationCount(long * pNumIterations, long * pLastC
 int SLAPI PPViewGoodsMov::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	PPID   goods_id = pHdr ? *(PPID *)pHdr : 0;
+	PPID   goods_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	if(goods_id) {
 		OpGroupingFilt op_grpng_flt;
 		op_grpng_flt.Period  = Filt.Period;
@@ -680,7 +680,7 @@ int SLAPI PPViewGoodsMov::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *(PPID *)pHdr : 0;
+		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		ok = -2;
 		switch(ppvCmd) {
 			case PPVCMD_ADDTOBASKET:

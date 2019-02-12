@@ -1202,7 +1202,7 @@ int SLAPI PPViewGoodsRest::UpdateGoods(PPID goodsID)
 			k3.GoodsID = goodsID;
 			PPTransaction tra(ppDbDependTransaction, 1);
 			THROW(tra);
-			for(int sp = spGe; P_Tbl->searchForUpdate(3, &k3, sp) && P_Tbl->data.GoodsID == goodsID; sp = spGt) {
+			if(P_Tbl->searchForUpdate(3, &k3, spGe) && P_Tbl->data.GoodsID == goodsID) do {
 				TempGoodsRestTbl::Rec rec;
 				P_Tbl->copyBufTo(&rec);
 				STRNSCPY(rec.GoodsName, goods_rec.Name);
@@ -1217,7 +1217,7 @@ int SLAPI PPViewGoodsRest::UpdateGoods(PPID goodsID)
 						rec.MinStock = gse.GetMinStock(rec.LocID);
 				}
 				THROW_DB(P_Tbl->updateRecBuf(&rec)); // @sfu
-			}
+			} while(P_Tbl->searchForUpdate(3, &k3, spNext) && P_Tbl->data.GoodsID == goodsID);
 			THROW(tra.Commit());
 		}
 	}

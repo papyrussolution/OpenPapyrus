@@ -443,7 +443,7 @@ int SLAPI PPViewAsset::GetItem(PPID lotID, AssetViewItem * pItem)
 
 int SLAPI PPViewAsset::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
-	PPID   lot_id = pHdr ? *(PPID *)pHdr : 0;
+	PPID   lot_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	return ::ViewOpersByLot(lot_id, 0);
 }
 
@@ -487,7 +487,7 @@ int SLAPI PPViewAsset::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *(PPID *)pHdr : 0;
+		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		AssetViewItem item;
 		switch(ppvCmd) {
 			case PPVCMD_EDITGOODS:
@@ -556,7 +556,7 @@ int SLAPI PPViewAsset::PrintList()
 int SLAPI PPViewAsset::Print(const void * pHdr)
 {
 	int    ok = 1;
-	PPID   lot_id = pHdr ? *(PPID *)pHdr : 0;
+	PPID   lot_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	AssetCard card;
 	MEMSZERO(card);
 	if(P_BObj->IsAssetLot(lot_id) > 0) {

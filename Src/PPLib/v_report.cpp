@@ -303,7 +303,7 @@ int SLAPI PPViewReport::Init_(const PPBaseFilt * pFilt)
 	int    ok = 1;
 	SString fname, temp_fname;
 	//SString temp_dir;
-	PPViewBrowser * p_prev_win = (PPViewBrowser *)PPFindLastBrowser();
+	PPViewBrowser * p_prev_win = static_cast<PPViewBrowser *>(PPFindLastBrowser());
 	THROW(Helper_InitBaseFilt(pFilt));
 	if(p_prev_win && p_prev_win->P_View)
 		((PPViewReport*)p_prev_win->P_View)->SaveChanges(0);

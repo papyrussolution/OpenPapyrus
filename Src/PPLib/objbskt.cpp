@@ -2038,7 +2038,7 @@ static int SLAPI EditBasket2BillParam(Basket2BillParam * pParam)
 			AddClusterAssocDef(CTL_BSKT2BILL_RULEPRICE, 1, Basket2BillParam::priceFromLastLot);
 			AddClusterAssoc(CTL_BSKT2BILL_RULEPRICE,  2, Basket2BillParam::priceFromQuot);
 			SetClusterData(CTL_BSKT2BILL_RULEPRICE, Data.RulePrice);
-			SetupPPObjCombo(this, CTLSEL_BSKT2BILL_QK, PPOBJ_QUOTKIND, Data.QuotKindID, OLW_LOADDEFONOPEN, (void *)1);
+			SetupPPObjCombo(this, CTLSEL_BSKT2BILL_QK, PPOBJ_QUOTKIND, Data.QuotKindID, OLW_LOADDEFONOPEN, reinterpret_cast<void *>(1));
 			disableCtrl(CTLSEL_BSKT2BILL_QK, Data.RulePrice != Basket2BillParam::priceFromQuot);
 			AddClusterAssoc(CTL_BSKT2BILL_USELINK, 0, Basket2BillParam::fUseLinkParams);
 			AddClusterAssoc(CTL_BSKT2BILL_USELINK, 1, Basket2BillParam::fSilentOnDeficit);

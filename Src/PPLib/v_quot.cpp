@@ -350,7 +350,7 @@ int QuotFiltDialog::setDTS(const QuotFilt * pData)
 	AddClusterAssoc(CTL_QUOTFLT_TYPE,  3, PPQuot::clsMtxRestr);
 	AddClusterAssoc(CTL_QUOTFLT_TYPE,  4, PPQuot::clsPredictCoeff);
 	SetClusterData(CTL_QUOTFLT_TYPE, Data.QkCls);
-	SetupPPObjCombo(this, CTLSEL_QUOTFLT_QK,  PPOBJ_QUOTKIND, Data.QuotKindID, 0, (void *)1);
+	SetupPPObjCombo(this, CTLSEL_QUOTFLT_QK,  PPOBJ_QUOTKIND, Data.QuotKindID, 0, reinterpret_cast<void *>(1));
 	SetupPPObjCombo(this, CTLSEL_QUOTFLT_CUR, PPOBJ_CURRENCY, Data.CurID, 0);
 	AddClusterAssoc(CTL_QUOTFLT_ALLLOC, 0, QuotFilt::fAllLocations);
 	SetClusterData(CTL_QUOTFLT_ALLLOC, Data.Flags);

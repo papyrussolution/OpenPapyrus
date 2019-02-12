@@ -779,71 +779,54 @@ static int xmlwrite_string_attr(struct archive_write * a, xmlTextWriterPtr write
 		r = xmlTextWriterWriteAttribute(writer,
 			BAD_CAST_CONST(attrkey), BAD_CAST_CONST(attrvalue));
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterWriteAttribute() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterWriteAttribute() failed: %d", r);
 			return (ARCHIVE_FATAL);
 		}
 	}
 	if(value != NULL) {
 		r = xmlTextWriterWriteString(writer, BAD_CAST_CONST(value));
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterWriteString() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterWriteString() failed: %d", r);
 			return (ARCHIVE_FATAL);
 		}
 	}
 	r = xmlTextWriterEndElement(writer);
 	if(r < 0) {
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_MISC,
-		    "xmlTextWriterEndElement() failed: %d", r);
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterEndElement() failed: %d", r);
 		return (ARCHIVE_FATAL);
 	}
 	return (ARCHIVE_OK);
 }
 
-static int xmlwrite_string(struct archive_write * a, xmlTextWriterPtr writer,
-    const char * key, const char * value)
+static int xmlwrite_string(struct archive_write * a, xmlTextWriterPtr writer, const char * key, const char * value)
 {
 	int r;
-
 	if(value == NULL)
 		return (ARCHIVE_OK);
-
 	r = xmlTextWriterStartElement(writer, BAD_CAST_CONST(key));
 	if(r < 0) {
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_MISC,
-		    "xmlTextWriterStartElement() failed: %d", r);
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterStartElement() failed: %d", r);
 		return (ARCHIVE_FATAL);
 	}
 	if(value != NULL) {
 		r = xmlTextWriterWriteString(writer, BAD_CAST_CONST(value));
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterWriteString() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterWriteString() failed: %d", r);
 			return (ARCHIVE_FATAL);
 		}
 	}
 	r = xmlTextWriterEndElement(writer);
 	if(r < 0) {
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_MISC,
-		    "xmlTextWriterEndElement() failed: %d", r);
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterEndElement() failed: %d", r);
 		return (ARCHIVE_FATAL);
 	}
 	return (ARCHIVE_OK);
 }
 
-static int xmlwrite_fstring(struct archive_write * a, xmlTextWriterPtr writer,
-    const char * key, const char * fmt, ...)
+static int xmlwrite_fstring(struct archive_write * a, xmlTextWriterPtr writer, const char * key, const char * fmt, ...)
 {
 	struct xar * xar;
 	va_list ap;
-
 	xar = (struct xar *)a->format_data;
 	va_start(ap, fmt);
 	archive_string_empty(&xar->vstr);
@@ -871,22 +854,18 @@ static int xmlwrite_time(struct archive_write * a, xmlTextWriterPtr writer, cons
 	return (xmlwrite_string(a, writer, key, timestr));
 }
 
-static int xmlwrite_mode(struct archive_write * a, xmlTextWriterPtr writer,
-    const char * key, mode_t mode)
+static int xmlwrite_mode(struct archive_write * a, xmlTextWriterPtr writer, const char * key, mode_t mode)
 {
 	char ms[5];
-
 	ms[0] = '0';
 	ms[1] = '0' + ((mode >> 6) & 07);
 	ms[2] = '0' + ((mode >> 3) & 07);
 	ms[3] = '0' + (mode & 07);
 	ms[4] = '\0';
-
 	return (xmlwrite_string(a, writer, key, ms));
 }
 
-static int xmlwrite_sum(struct archive_write * a, xmlTextWriterPtr writer,
-    const char * key, struct chksumval * sum)
+static int xmlwrite_sum(struct archive_write * a, xmlTextWriterPtr writer, const char * key, struct chksumval * sum)
 {
 	const char * algname;
 	int algsize;
@@ -1059,33 +1038,25 @@ static int make_fflags_entry(struct archive_write * a, xmlTextWriterPtr writer,
 	if(n > 0) {
 		r = xmlTextWriterStartElement(writer, BAD_CAST_CONST(element));
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterStartElement() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterStartElement() failed: %d", r);
 			return (ARCHIVE_FATAL);
 		}
 		for(i = 0; i < n; i++) {
-			r = xmlwrite_string(a, writer,
-				avail[i]->xarname, NULL);
+			r = xmlwrite_string(a, writer, avail[i]->xarname, NULL);
 			if(r != ARCHIVE_OK)
 				return (r);
 		}
-
 		r = xmlTextWriterEndElement(writer);
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterEndElement() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterEndElement() failed: %d", r);
 			return (ARCHIVE_FATAL);
 		}
 	}
 	return (ARCHIVE_OK);
 }
 
-static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer,
-    struct file * file)
+static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, struct file * file)
 {
-	struct xar * xar;
 	const char * filetype, * filelink, * fflags;
 	struct archive_string linkto;
 	struct heap_data * heap;
@@ -1093,18 +1064,15 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer,
 	const char * p;
 	size_t len;
 	int r, r2, l, ll;
-
-	xar = (struct xar *)a->format_data;
+	struct xar * xar = (struct xar *)a->format_data;
 	r2 = ARCHIVE_OK;
-
 	/*
 	 * Make a file name entry, "<name>".
 	 */
 	l = ll = archive_strlen(&(file->basename));
 	tmp = (uchar *)SAlloc::M(l);
 	if(tmp == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate memory");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
 		return (ARCHIVE_FATAL);
 	}
 	r = UTF8Toisolat1(tmp, &l, (const xmlChar *)(file->basename.s), &ll);
@@ -1191,9 +1159,7 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer,
 		     *   <link type="broken">foo/bar</link>
 		     *   It means "foo/bar" is not reachable.
 		     */
-		    r = xmlwrite_string_attr(a, writer, "link",
-			    file->symlink.s,
-			    "type", "broken");
+		    r = xmlwrite_string_attr(a, writer, "link", file->symlink.s, "type", "broken");
 		    if(r < 0)
 			    return (ARCHIVE_FATAL);
 		    break;
@@ -1201,71 +1167,54 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer,
 		case AE_IFBLK:
 		    r = xmlTextWriterStartElement(writer, (const xmlChar *)("device"));
 		    if(r < 0) {
-			    archive_set_error(&a->archive,
-				ARCHIVE_ERRNO_MISC,
-				"xmlTextWriterStartElement() failed: %d", r);
+			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterStartElement() failed: %d", r);
 			    return (ARCHIVE_FATAL);
 		    }
-		    r = xmlwrite_fstring(a, writer, "major",
-			    "%d", archive_entry_rdevmajor(file->entry));
+		    r = xmlwrite_fstring(a, writer, "major", "%d", archive_entry_rdevmajor(file->entry));
 		    if(r < 0)
 			    return (ARCHIVE_FATAL);
-		    r = xmlwrite_fstring(a, writer, "minor",
-			    "%d", archive_entry_rdevminor(file->entry));
+		    r = xmlwrite_fstring(a, writer, "minor", "%d", archive_entry_rdevminor(file->entry));
 		    if(r < 0)
 			    return (ARCHIVE_FATAL);
 		    r = xmlTextWriterEndElement(writer);
 		    if(r < 0) {
-			    archive_set_error(&a->archive,
-				ARCHIVE_ERRNO_MISC,
-				"xmlTextWriterEndElement() failed: %d", r);
+			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterEndElement() failed: %d", r);
 			    return (ARCHIVE_FATAL);
 		    }
 		    break;
 		default:
 		    break;
 	}
-
 	/*
 	 * Make a inode entry, "<inode>".
 	 */
-	r = xmlwrite_fstring(a, writer, "inode",
-		"%jd", archive_entry_ino64(file->entry));
+	r = xmlwrite_fstring(a, writer, "inode", "%jd", archive_entry_ino64(file->entry));
 	if(r < 0)
 		return (ARCHIVE_FATAL);
 	if(archive_entry_dev(file->entry) != 0) {
-		r = xmlwrite_fstring(a, writer, "deviceno",
-			"%d", archive_entry_dev(file->entry));
+		r = xmlwrite_fstring(a, writer, "deviceno", "%d", archive_entry_dev(file->entry));
 		if(r < 0)
 			return (ARCHIVE_FATAL);
 	}
-
 	/*
 	 * Make a file mode entry, "<mode>".
 	 */
-	r = xmlwrite_mode(a, writer, "mode",
-		archive_entry_mode(file->entry));
+	r = xmlwrite_mode(a, writer, "mode", archive_entry_mode(file->entry));
 	if(r < 0)
 		return (ARCHIVE_FATAL);
-
 	/*
 	 * Make a user entry, "<uid>" and "<user>.
 	 */
-	r = xmlwrite_fstring(a, writer, "uid",
-		"%d", archive_entry_uid(file->entry));
+	r = xmlwrite_fstring(a, writer, "uid", "%d", archive_entry_uid(file->entry));
 	if(r < 0)
 		return (ARCHIVE_FATAL);
 	r = archive_entry_uname_l(file->entry, &p, &len, xar->sconv);
 	if(r != 0) {
 		if(errno == ENOMEM) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for Uname");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Uname");
 			return (ARCHIVE_FATAL);
 		}
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Can't translate uname '%s' to UTF-8",
-		    archive_entry_uname(file->entry));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate uname '%s' to UTF-8", archive_entry_uname(file->entry));
 		r2 = ARCHIVE_WARN;
 	}
 	if(len > 0) {
@@ -1273,7 +1222,6 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer,
 		if(r < 0)
 			return (ARCHIVE_FATAL);
 	}
-
 	/*
 	 * Make a group entry, "<gid>" and "<group>.
 	 */
@@ -1361,12 +1309,9 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer,
 			    "xmlTextWriterStartElement() failed: %d", r);
 			return (ARCHIVE_FATAL);
 		}
-		r = xmlTextWriterWriteFormatAttribute(writer,
-			(const xmlChar *)("id"), "%d", heap->id);
+		r = xmlTextWriterWriteFormatAttribute(writer, (const xmlChar *)("id"), "%d", heap->id);
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterWriteAttribute() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterWriteAttribute() failed: %d", r);
 			return (ARCHIVE_FATAL);
 		}
 		r = xmlwrite_heap(a, writer, heap);
@@ -1375,37 +1320,27 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer,
 		r = xmlwrite_string(a, writer, "name", name);
 		if(r < 0)
 			return (ARCHIVE_FATAL);
-
 		r = xmlTextWriterEndElement(writer);
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterEndElement() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterEndElement() failed: %d", r);
 			return (ARCHIVE_FATAL);
 		}
 	}
-
 	/*
 	 * Make a file data entry, "<data>".
 	 */
 	if(file->data.length > 0) {
 		r = xmlTextWriterStartElement(writer, (const xmlChar *)("data"));
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterStartElement() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterStartElement() failed: %d", r);
 			return (ARCHIVE_FATAL);
 		}
-
 		r = xmlwrite_heap(a, writer, &(file->data));
 		if(r < 0)
 			return (ARCHIVE_FATAL);
-
 		r = xmlTextWriterEndElement(writer);
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterEndElement() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterEndElement() failed: %d", r);
 			return (ARCHIVE_FATAL);
 		}
 	}
@@ -1413,30 +1348,21 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer,
 	if(archive_strlen(&file->script) > 0) {
 		r = xmlTextWriterStartElement(writer, (const xmlChar *)("content"));
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterStartElement() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterStartElement() failed: %d", r);
 			return (ARCHIVE_FATAL);
 		}
-
-		r = xmlwrite_string(a, writer,
-			"interpreter", file->script.s);
+		r = xmlwrite_string(a, writer, "interpreter", file->script.s);
 		if(r < 0)
 			return (ARCHIVE_FATAL);
-
 		r = xmlwrite_string(a, writer, "type", "script");
 		if(r < 0)
 			return (ARCHIVE_FATAL);
-
 		r = xmlTextWriterEndElement(writer);
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterEndElement() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterEndElement() failed: %d", r);
 			return (ARCHIVE_FATAL);
 		}
 	}
-
 	return (r2);
 }
 
@@ -1557,10 +1483,7 @@ static int make_toc(struct archive_write * a)
 		while(np != np->parent) {
 			r = xmlTextWriterEndElement(writer);
 			if(r < 0) {
-				archive_set_error(&a->archive,
-				    ARCHIVE_ERRNO_MISC,
-				    "xmlTextWriterEndElement() "
-				    "failed: %d", r);
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterEndElement() failed: %d", r);
 				goto exit_toc;
 			}
 			if(np->chnext == NULL) {

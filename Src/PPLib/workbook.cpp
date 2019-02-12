@@ -3283,7 +3283,7 @@ int PPALDD_UhttWorkbook::Set(long iterId, int commit)
 					ex_pack.PutExtStrData(WBEXSTR_DESCRIPTION, temp_buf);
 					ex_pack.TagL.Merge(r_blk.Pack.TagL, ObjTagList::mumAdd|ObjTagList::mumUpdate);
 					THROW(r_blk.WbObj.PutPacket(&id, &ex_pack, 1));
-					Extra[4].Ptr = (void *)id;
+					Extra[4].Ptr = reinterpret_cast<void *>(id);
 				}
 				else
 					Extra[4].Ptr = (void *)ex_id;
@@ -3291,7 +3291,7 @@ int PPALDD_UhttWorkbook::Set(long iterId, int commit)
 			else {
 				THROW_PP_S(rights_blk.IsAllow(PPGlobalAccRights::fCreate), PPERR_NORIGHTS, DS.GetTLA().GlobAccName);
 				THROW(r_blk.WbObj.PutPacket(&id, &r_blk.Pack, 1));
-				Extra[4].Ptr = (void *)id;
+				Extra[4].Ptr = reinterpret_cast<void *>(id);
 			}
 		}
 	}

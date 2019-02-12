@@ -1164,7 +1164,7 @@ int PPALDD_PUGL::NextIteration(PPIterID iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
-	PUGL * p_list = (PUGL *)Extra[0].Ptr;
+	PUGL * p_list = static_cast<PUGL *>(Extra[0].Ptr);
 	PUGI * p_item = 0;
 	uint   nn = (uint)I.nn;
 	if(p_list->enumItems(&nn, (void**)&p_item)) {

@@ -4963,7 +4963,7 @@ int SLAPI PPBillPacket::EnumTItemsExt(TiIter * pI, PPTransferItem * pTI, TiItemE
 					if(ProcessFlags & pfPrintPLabel) {
 						if(p_i->Flags & ETIEF_LABELQUOTPRICE) {
 							double quot = 0.0;
-							QuotIdent qi(QIDATE(Rec.Dt), Rec.LocID, PPQUOTK_BASE);
+							const QuotIdent qi(QIDATE(Rec.Dt), Rec.LocID, PPQUOTK_BASE);
 							if(g_obj.GetQuotExt(ti.GoodsID, qi, ti.Cost, ti.Price, &quot, 1) > 0)
 								ti.Price = quot;
 						}

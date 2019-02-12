@@ -295,7 +295,7 @@ SArray * SLAPI PPViewStaffList::CreateBrowserArray(uint * pBrwId, SString * pSub
 
 int SLAPI PPViewStaffList::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
-	const  PPID   id = pHdr ? *(PPID *)pHdr : 0;
+	const  PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
 		if(ppvCmd == PPVCMD_STAFFPOST) {
@@ -709,7 +709,7 @@ int SLAPI PPViewStaffPost::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *(PPID *)pHdr : 0;
+		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		if(ppvCmd == PPVCMD_EDITITEM) {
 			ok = -1;
 			PPPsnPostPacket pack;

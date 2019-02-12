@@ -529,7 +529,7 @@ int xmlTextWriterEndDocument(xmlTextWriter * writer)
 	}
 	sum = 0;
 	while((lk = xmlListFront(writer->nodes)) != NULL) {
-		p = (xmlTextWriterStackEntry*)xmlLinkGetData(lk);
+		p = static_cast<xmlTextWriterStackEntry *>(xmlLinkGetData(lk));
 		if(p == 0)
 			break;
 		switch(p->state) {
@@ -609,7 +609,7 @@ int xmlTextWriterStartComment(xmlTextWriter * writer)
 	sum = 0;
 	lk = xmlListFront(writer->nodes);
 	if(lk != 0) {
-		p = (xmlTextWriterStackEntry*)xmlLinkGetData(lk);
+		p = static_cast<xmlTextWriterStackEntry *>(xmlLinkGetData(lk));
 		if(p != 0) {
 			switch(p->state) {
 				case XML_TEXTWRITER_TEXT:
@@ -683,7 +683,7 @@ int xmlTextWriterEndComment(xmlTextWriter * writer)
 		xmlWriterErrMsg(writer, XML_ERR_INTERNAL_ERROR, _p_func_name, "not allowed in this context!");
 		return -1;
 	}
-	p = (xmlTextWriterStackEntry*)xmlLinkGetData(lk);
+	p = static_cast<xmlTextWriterStackEntry *>(xmlLinkGetData(lk));
 	if(p == 0)
 		return -1;
 	sum = 0;
@@ -797,7 +797,7 @@ int xmlTextWriterStartElement(xmlTextWriter * writer, const xmlChar * name)
 	else {
 		xmlLink * lk = xmlListFront(writer->nodes);
 		if(lk != 0) {
-			p = (xmlTextWriterStackEntry*)xmlLinkGetData(lk);
+			p = static_cast<xmlTextWriterStackEntry *>(xmlLinkGetData(lk));
 			if(p != 0) {
 				switch(p->state) {
 					case XML_TEXTWRITER_PI:
@@ -919,21 +919,19 @@ int xmlTextWriterStartElementNS(xmlTextWriter * writer, const xmlChar * prefix, 
  *
  * Returns the bytes written (may be 0 because of buffering) or -1 in case of error
  */
-int xmlTextWriterEndElement(xmlTextWriter * writer)
+int FASTCALL xmlTextWriterEndElement(xmlTextWriter * writer)
 {
 	int count;
 	int sum = 0;
-	xmlLink * lk;
-	xmlTextWriterStackEntry * p;
 	if(writer == NULL)
 		return -1;
-	lk = xmlListFront(writer->nodes);
+	xmlLink * lk = xmlListFront(writer->nodes);
 	if(lk == 0) {
 		xmlListDelete(writer->nsstack);
 		writer->nsstack = NULL;
 		return -1;
 	}
-	p = (xmlTextWriterStackEntry*)xmlLinkGetData(lk);
+	xmlTextWriterStackEntry * p = static_cast<xmlTextWriterStackEntry *>(xmlLinkGetData(lk));
 	if(p == 0) {
 		xmlListDelete(writer->nsstack);
 		writer->nsstack = NULL;
@@ -1013,7 +1011,7 @@ int xmlTextWriterFullEndElement(xmlTextWriter * writer)
 	lk = xmlListFront(writer->nodes);
 	if(lk == 0)
 		return -1;
-	p = (xmlTextWriterStackEntry*)xmlLinkGetData(lk);
+	p = static_cast<xmlTextWriterStackEntry *>(xmlLinkGetData(lk));
 	if(p == 0)
 		return -1;
 	sum = 0;
@@ -1138,7 +1136,7 @@ int FASTCALL xmlTextWriterWriteRawLen(xmlTextWriter * writer, const xmlChar * co
 		int    count;
 		xmlLink * lk = xmlListFront(writer->nodes);
 		if(lk != 0) {
-			xmlTextWriterStackEntry * p = (xmlTextWriterStackEntry*)xmlLinkGetData(lk);
+			xmlTextWriterStackEntry * p = static_cast<xmlTextWriterStackEntry *>(xmlLinkGetData(lk));
 			count = xmlTextWriterHandleStateDependencies(writer, p);
 			if(count < 0)
 				return -1;
@@ -1233,7 +1231,7 @@ int FASTCALL xmlTextWriterWriteString(xmlTextWriter * writer, const xmlChar * co
 	buf = (xmlChar*)content;
 	lk = xmlListFront(writer->nodes);
 	if(lk != 0) {
-		p = (xmlTextWriterStackEntry*)xmlLinkGetData(lk);
+		p = static_cast<xmlTextWriterStackEntry *>(xmlLinkGetData(lk));
 		if(p) {
 			switch(p->state) {
 				case XML_TEXTWRITER_NAME:
@@ -1349,7 +1347,7 @@ int xmlTextWriterWriteBase64(xmlTextWriter * writer, const char * data, int star
 	sum = 0;
 	lk = xmlListFront(writer->nodes);
 	if(lk != 0) {
-		p = (xmlTextWriterStackEntry*)xmlLinkGetData(lk);
+		p = static_cast<xmlTextWriterStackEntry *>(xmlLinkGetData(lk));
 		if(p != 0) {
 			count = xmlTextWriterHandleStateDependencies(writer, p);
 			if(count < 0)
@@ -1418,7 +1416,7 @@ int xmlTextWriterWriteBinHex(xmlTextWriter * writer, const char * data, int star
 		xmlLink * lk = xmlListFront(writer->nodes);
 		int count;
 		if(lk != 0) {
-			xmlTextWriterStackEntry * p = (xmlTextWriterStackEntry*)xmlLinkGetData(lk);
+			xmlTextWriterStackEntry * p = static_cast<xmlTextWriterStackEntry *>(xmlLinkGetData(lk));
 			if(p != 0) {
 				count = xmlTextWriterHandleStateDependencies(writer, p);
 				if(count < 0)
@@ -1448,14 +1446,12 @@ int xmlTextWriterStartAttribute(xmlTextWriter * writer, const xmlChar * name)
 {
 	int count;
 	int sum = 0;
-	xmlLink * lk;
-	xmlTextWriterStackEntry * p;
 	if((writer == NULL) || (name == NULL) || (*name == '\0'))
 		return -1;
-	lk = xmlListFront(writer->nodes);
+	xmlLink * lk = xmlListFront(writer->nodes);
 	if(lk == 0)
 		return -1;
-	p = (xmlTextWriterStackEntry*)xmlLinkGetData(lk);
+	xmlTextWriterStackEntry * p = static_cast<xmlTextWriterStackEntry *>(xmlLinkGetData(lk));
 	if(p == 0)
 		return -1;
 	switch(p->state) {
@@ -1569,19 +1565,17 @@ int xmlTextWriterStartAttributeNS(xmlTextWriter * writer, const xmlChar * prefix
  *
  * Returns the bytes written (may be 0 because of buffering) or -1 in case of error
  */
-int xmlTextWriterEndAttribute(xmlTextWriter * writer)
+int FASTCALL xmlTextWriterEndAttribute(xmlTextWriter * writer)
 {
 	int count;
 	int sum = 0;
-	xmlLink * lk;
-	xmlTextWriterStackEntry * p;
 	if(writer == NULL)
 		return -1;
-	lk = xmlListFront(writer->nodes);
+	xmlLink * lk = xmlListFront(writer->nodes);
 	if(lk == 0) {
 		return -1;
 	}
-	p = (xmlTextWriterStackEntry*)xmlLinkGetData(lk);
+	xmlTextWriterStackEntry * p = static_cast<xmlTextWriterStackEntry *>(xmlLinkGetData(lk));
 	if(p == 0) {
 		return -1;
 	}
@@ -1931,7 +1925,7 @@ int xmlTextWriterStartPI(xmlTextWriter * writer, const xmlChar * target)
 	sum = 0;
 	lk = xmlListFront(writer->nodes);
 	if(lk != 0) {
-		p = (xmlTextWriterStackEntry*)xmlLinkGetData(lk);
+		p = static_cast<xmlTextWriterStackEntry *>(xmlLinkGetData(lk));
 		if(p != 0) {
 			switch(p->state) {
 				case XML_TEXTWRITER_ATTRIBUTE:
@@ -2007,7 +2001,7 @@ int xmlTextWriterEndPI(xmlTextWriter * writer)
 	lk = xmlListFront(writer->nodes);
 	if(lk == 0)
 		return 0;
-	p = (xmlTextWriterStackEntry*)xmlLinkGetData(lk);
+	p = static_cast<xmlTextWriterStackEntry *>(xmlLinkGetData(lk));
 	if(p == 0)
 		return 0;
 	sum = 0;
@@ -2124,7 +2118,7 @@ int xmlTextWriterStartCDATA(xmlTextWriter * writer)
 	sum = 0;
 	lk = xmlListFront(writer->nodes);
 	if(lk != 0) {
-		p = (xmlTextWriterStackEntry*)xmlLinkGetData(lk);
+		p = static_cast<xmlTextWriterStackEntry *>(xmlLinkGetData(lk));
 		if(p != 0) {
 			switch(p->state) {
 				case XML_TEXTWRITER_NONE:
@@ -2191,7 +2185,7 @@ int xmlTextWriterEndCDATA(xmlTextWriter * writer)
 	lk = xmlListFront(writer->nodes);
 	if(lk == 0)
 		return -1;
-	p = (xmlTextWriterStackEntry*)xmlLinkGetData(lk);
+	p = static_cast<xmlTextWriterStackEntry *>(xmlLinkGetData(lk));
 	if(p == 0)
 		return -1;
 	sum = 0;
@@ -2394,7 +2388,7 @@ int xmlTextWriterEndDTD(xmlTextWriter * writer)
 		lk = xmlListFront(writer->nodes);
 		if(lk == NULL)
 			break;
-		p = (xmlTextWriterStackEntry*)xmlLinkGetData(lk);
+		p = static_cast<xmlTextWriterStackEntry *>(xmlLinkGetData(lk));
 		if(p == 0)
 			break;
 		switch(p->state) {
@@ -2541,7 +2535,7 @@ int xmlTextWriterStartDTDElement(xmlTextWriter * writer, const xmlChar * name)
 	if(lk == 0) {
 		return -1;
 	}
-	p = (xmlTextWriterStackEntry*)xmlLinkGetData(lk);
+	p = static_cast<xmlTextWriterStackEntry *>(xmlLinkGetData(lk));
 	if(p != 0) {
 		switch(p->state) {
 			case XML_TEXTWRITER_DTD:
@@ -2612,7 +2606,7 @@ int xmlTextWriterEndDTDElement(xmlTextWriter * writer)
 	lk = xmlListFront(writer->nodes);
 	if(lk == 0)
 		return -1;
-	p = (xmlTextWriterStackEntry*)xmlLinkGetData(lk);
+	p = static_cast<xmlTextWriterStackEntry *>(xmlLinkGetData(lk));
 	if(p == 0)
 		return -1;
 	switch(p->state) {
@@ -2732,7 +2726,7 @@ int xmlTextWriterStartDTDAttlist(xmlTextWriter * writer, const xmlChar * name)
 	if(lk == 0) {
 		return -1;
 	}
-	p = (xmlTextWriterStackEntry*)xmlLinkGetData(lk);
+	p = static_cast<xmlTextWriterStackEntry *>(xmlLinkGetData(lk));
 	if(p != 0) {
 		switch(p->state) {
 			case XML_TEXTWRITER_DTD:
@@ -2803,7 +2797,7 @@ int xmlTextWriterEndDTDAttlist(xmlTextWriter * writer)
 	lk = xmlListFront(writer->nodes);
 	if(lk == 0)
 		return -1;
-	p = (xmlTextWriterStackEntry*)xmlLinkGetData(lk);
+	p = static_cast<xmlTextWriterStackEntry *>(xmlLinkGetData(lk));
 	if(p == 0)
 		return -1;
 	switch(p->state) {
@@ -2920,7 +2914,7 @@ int xmlTextWriterStartDTDEntity(xmlTextWriter * writer, int pe, const xmlChar * 
 		return -1;
 	lk = xmlListFront(writer->nodes);
 	if(lk != 0) {
-		p = (xmlTextWriterStackEntry*)xmlLinkGetData(lk);
+		p = static_cast<xmlTextWriterStackEntry *>(xmlLinkGetData(lk));
 		if(p != 0) {
 			switch(p->state) {
 				case XML_TEXTWRITER_DTD:
@@ -2998,7 +2992,7 @@ int xmlTextWriterEndDTDEntity(xmlTextWriter * writer)
 	lk = xmlListFront(writer->nodes);
 	if(lk == 0)
 		return -1;
-	p = (xmlTextWriterStackEntry*)xmlLinkGetData(lk);
+	p = static_cast<xmlTextWriterStackEntry *>(xmlLinkGetData(lk));
 	if(p == 0)
 		return -1;
 	switch(p->state) {
@@ -3374,7 +3368,7 @@ int xmlTextWriterFlush(xmlTextWriter * writer)
  */
 static void xmlFreeTextWriterStackEntry(xmlLink * lk)
 {
-	xmlTextWriterStackEntry * p = (xmlTextWriterStackEntry*)xmlLinkGetData(lk);
+	xmlTextWriterStackEntry * p = static_cast<xmlTextWriterStackEntry *>(xmlLinkGetData(lk));
 	if(p) {
 		SAlloc::F(p->name);
 		SAlloc::F(p);

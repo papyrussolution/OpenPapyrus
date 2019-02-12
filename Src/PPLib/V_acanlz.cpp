@@ -2656,7 +2656,7 @@ int PPALDD_CurRateType::Set(long iterId, int commit)
 		PPObjCurRateType crt_obj;
 		PPID  id = 0;
 		THROW(crt_obj.AddItem(&id, p_crt_rec, 1));
-		Extra[4].Ptr = (void *)id;
+		Extra[4].Ptr = reinterpret_cast<void *>(id);
 	}
 	CATCHZOK
 	if(commit) {

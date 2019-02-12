@@ -392,7 +392,7 @@ int SLAPI ObjTagItem::SetGuid(PPID tagID, const S_GUID_Base * pGuid)
 		if(TagDataType == OTTYP_GUID && pGuid && !pGuid->IsZero()) {
 			SString temp_buf;
 			pGuid->ToStr(S_GUID::fmtIDL, temp_buf);
-			Val.PStr = newStr((const char*)temp_buf);
+			Val.PStr = newStr(temp_buf.cptr());
 		}
 		ok = 1;
 	}
@@ -410,7 +410,7 @@ int SLAPI ObjTagItem::SetTimestamp(PPID tagID, LDATETIME dtm)
 			{
 				SString temp_buf;
 				temp_buf.Cat(dtm, DATF_ISO8601|DATF_CENTURY, TIMF_HMS);
-				Val.PStr = newStr((const char *)temp_buf);
+				Val.PStr = newStr(temp_buf.cptr());
 			}
 			break;
 		default:
@@ -775,16 +775,16 @@ int FASTCALL ObjTagList::IsEqual(const ObjTagList & rS) const
 
 uint SLAPI ObjTagList::GetCount() const { return count; }
 //virtual
-void FASTCALL ObjTagList::freeItem(void * pItem) { ((ObjTagItem*)pItem)->Destroy(); }
+void FASTCALL ObjTagList::freeItem(void * pItem) { static_cast<ObjTagItem *>(pItem)->Destroy(); }
 const ObjTagItem * FASTCALL ObjTagList::GetItemByPos(uint pos) const
-	{ return (pos < count) ? (const ObjTagItem *)at(pos) : 0; }
+	{ return (pos < count) ? static_cast<const ObjTagItem *>(at(pos)) : 0; }
 const ObjTagItem * FASTCALL ObjTagList::EnumItems(uint * pos) const
-	{ return (*pos < count) ? (const ObjTagItem *)at((*pos)++) : 0; }
+	{ return (*pos < count) ? static_cast<const ObjTagItem *>(at((*pos)++)) : 0; }
 
 const ObjTagItem * FASTCALL ObjTagList::GetItem(PPID id) const
 {
 	uint   pos = 0;
-	return lsearch(&id, &pos, CMPF_LONG) ? (const ObjTagItem *)at(pos) : 0;
+	return lsearch(&id, &pos, CMPF_LONG) ? static_cast<const ObjTagItem *>(at(pos)) : 0;
 }
 
 int SLAPI ObjTagList::GetItemStr(PPID tagID, SString & rBuf) const

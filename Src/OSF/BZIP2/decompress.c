@@ -385,13 +385,10 @@ int32 BZ2_decompress(DState * s)
 					if(nextSym == BZ_RUNA) es = es + (0+1) * N; else if(nextSym == BZ_RUNB) es = es + (1+1) * N;
 					N = N * 2;
 					GET_MTF_VAL(BZ_X_MTF_3, BZ_X_MTF_4, nextSym);
-				}
-				while(nextSym == BZ_RUNA || nextSym == BZ_RUNB);
-
+				} while(nextSym == BZ_RUNA || nextSym == BZ_RUNB);
 				es++;
 				uc = s->seqToUnseq[ s->mtfa[s->mtfbase[0]] ];
 				s->unzftab[uc] += es;
-
 				if(s->smallDecompress)
 					while(es > 0) {
 						if(nblock >= nblockMAX) RETURN(BZ_DATA_ERROR);

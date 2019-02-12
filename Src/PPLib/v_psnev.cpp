@@ -450,7 +450,7 @@ void * SLAPI PPViewPersonEvent::GetEditExtraParam() { return (void *)Filt.PrmrID
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
-	PPViewBrowser * p_brw = (PPViewBrowser *)extraPtr;
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
 	if(p_brw) {
 		PPViewPersonEvent * p_view = (PPViewPersonEvent *)p_brw->P_View;
 		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
@@ -564,7 +564,7 @@ int SLAPI PPViewPersonEvent::ProcessCommand(uint ppvCmd, const void * pHdr, PPVi
 			if(ppvCmd == PPVCMD_EDITPSNOPKIND) {
 				ok = -1;
 				PersonEventTbl::Rec rec;
-				PPID id = pHdr ? *(PPID *)pHdr : 0;
+				PPID id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 				if(id && PsnEvObj.Search(id, &rec) > 0) {
 					if(PokObj.Edit(&rec.OpID, 0) == cmOK)
 						ok = 1;

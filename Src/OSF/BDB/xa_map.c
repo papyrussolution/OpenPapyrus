@@ -47,7 +47,7 @@ int __db_xid_to_txn(ENV*env, XID * xid, TXN_DETAIL ** tdp)
 {
 	uint8 * gid;
 	DB_TXNMGR * mgr = env->tx_handle;
-	DB_TXNREGION * region = (DB_TXNREGION *)mgr->reginfo.primary;
+	DB_TXNREGION * region = static_cast<DB_TXNREGION *>(mgr->reginfo.primary);
 	/*
 	 * Search the internal active transaction table to find the
 	 * matching xid.  If this is a performance hit, then we

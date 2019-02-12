@@ -1194,10 +1194,10 @@ int PPDesktop::CreateBizScoreWnd()
 		UserInterfaceSettings ui_cfg;
 		ui_cfg.Restore();
 		if(ui_cfg.Flags & UserInterfaceSettings::fShowBizScoreOnDesktop) {
-			PPBizScoreWindow * p_wnd = new PPBizScoreWindow(H());
-			if(p_wnd) {
-				p_wnd->Create();
-				HBizScoreWnd = p_wnd->H();
+			PPBizScoreWindow * p_win = new PPBizScoreWindow(H());
+			if(p_win) {
+				p_win->Create();
+				HBizScoreWnd = p_win->H();
 				ok = 1;
 			}
 		}

@@ -188,7 +188,7 @@ int SLAPI PPViewMrpTab::Detail(const void * pHdr, PPViewBrowser * pBrw)
 
 int SLAPI PPViewMrpTab::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
-	PPID   id = pHdr ? *(PPID *)pHdr : 0;
+	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	//
 	// По умолчанию двойной щелчок мыши и Enter генерируют команду PPVCMD_EDITITEM
 	//
@@ -538,7 +538,7 @@ int SLAPI PPViewMrpLine::GetItem(PPID lineID, MrpLineViewItem * pItem)
 int SLAPI PPViewMrpLine::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	PPID   line_id = pHdr ? *(PPID *)pHdr : 0;
+	PPID   line_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	MrpLineViewItem item;
 	if(GetItem(line_id, &item) > 0) {
 		PPID   goods_id = Filt.DestGoodsID ? item.SrcID : item.DestID;
@@ -567,7 +567,7 @@ int SLAPI PPViewMrpLine::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   line_id = pHdr ? *(PPID *)pHdr : 0;
+		PPID   line_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_EDITGOODS:
 				ok = -1;

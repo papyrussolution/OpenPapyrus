@@ -9332,7 +9332,7 @@ struct ILTI { // @persistent(DBX) @size=80
 	// Если этот флаг установлен, то смысл флагов BILLF2_EDIAR_AGR и BILLF2_EDIAR_DISAGR переключается на реакцию на
 	// запрос об отмене проведения.
 #define BILLF2_ROWLINKBYRBB  0x00000800L // @v9.4.3 @internal
-#define BILLF2_REVERSEDEBT   0x00001000L // @v10.3.3 Документ работает как реверсивная оплата или зачет: имею отрицательную номинальную сумму оплачивает ее модулем другой документ 
+#define BILLF2_REVERSEDEBT   0x00001000L // @v10.3.3 Документ работает как реверсивная оплата или зачет: имею отрицательную номинальную сумму оплачивает ее модулем другой документ
 //
 // Value added record for PPOBJ_BILL
 // Used if (BillTbl::Rec::Flags & BILLF_EXTRA)
@@ -15807,7 +15807,7 @@ public:
 		struct ExtBlock {
 			SLAPI  ExtBlock();
 			uint32 MaxAvgTimeSec; // @v10.3.3 Предельное среднее время в секундах
-			int32  TsFlashTimer;  // @v10.3.3 default(600) Период времени (секунд) по истечении которого необходимо сбросить накопленные серии в БД 
+			int32  TsFlashTimer;  // @v10.3.3 default(600) Период времени (секунд) по истечении которого необходимо сбросить накопленные серии в БД
 			uint8  Reserve[56];
 		};
 		ExtBlock   E;
@@ -15888,6 +15888,17 @@ public:
 		LDATETIME SLAPI GetStorageTm() const { return StorageTm; }
 		uint32 SLAPI GetVersion() const { return Ver; }
 		int    SLAPI GetInputFramSizeList(LongArray & rList, uint * pMaxOptDelta2Stride) const;
+		//
+		// Descr: Флаги функции GetBestSubset
+		//
+		enum {
+			gbsfLong       = 0x0001,
+			gbsfShort      = 0x0002,
+			gbsfStakeMode1 = 0x0004,
+			gbsfStakeMode2 = 0x0008,
+			gbsfStakeMode3 = 0x0010
+		};
+		int    SLAPI GetBestSubset(long flags, uint maxCount, StrategyContainer & rScDest) const;
 		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	private:
 		uint32 Ver;
@@ -15930,6 +15941,12 @@ public:
 		double SumBottom;        // @v10.3.3
 		double MaxPeak;          // @v10.3.3
 	};
+	struct TrendEntry {
+		SLAPI  TrendEntry(uint stride, uint nominalCount);
+		const uint Stride;
+		const uint NominalCount;
+		RealArray TL;
+	};
 
 	static int SLAPI EditConfig(PPObjTimeSeries::Config * pCfg);
 	static int SLAPI WriteConfig(PPObjTimeSeries::Config * pCfg, int use_ta);
@@ -15964,6 +15981,8 @@ public:
 	int    SLAPI FindOptimalFactor(const DateTimeArray & rTmList, const RealArray & rValList, const TrainNnParam & rS, int what,
 		const IntRange & rMdRange, int mdStep, TSVector <FactorToResultRelation> & rSet, FactorToResultRelation & rResult);
 	//static int SLAPI Helper_FindOptimalFactor(const DateTimeArray & rTmList, const RealArray & rValList, const TrainNnParam & rS, double & rResult, uint & rPeakQuant);
+	static const TrendEntry * FASTCALL SearchTrendEntry(const TSCollection <TrendEntry> & rTrendList, uint stride);
+	static int SLAPI MatchStrategy(const TSCollection <TrendEntry> & rTrendList, const Strategy & rS, double & rResult, double & rTv, double & rTv2);
 private:
 	virtual int SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam);
 	int    SLAPI EditDialog(PPTimeSeries * pEntry);
@@ -17728,8 +17747,7 @@ extern "C" typedef PPAbstractDevice * (*FN_PPDEVICE_FACTORY)();
 #define CASHF_DISROUNDUP          0x00002000L // (sync)  Округлять скидку в большую сторону
 #define CASHF_DISROUNDDOWN        0x00004000L // (sync)  Округлять скидку в меньшую сторону
 #define CASHF_EXPDIVN             0x00008000L // (async) Экспортировать в кассовый модуль номера отделов
-#define CASHF_ROUNDINT            0x00010000L // (sync)  округлять %% скидку
-	// при печати чека до целого
+#define CASHF_ROUNDINT            0x00010000L // (sync)  округлять %% скидку при печати чека до целого
 #define CASHF_EXPGOODSREST        0x00020000L // (async) Экспортировать товарные остатки
 #define CASHF_AUTO_PRINTCOPY      0x00040000L // (sync)  Автоматически печатать копию чека
 #define CASHF_USEQUOT             0x00080000L // (sync)  Использовать котировку в кассовой панели
@@ -17758,8 +17776,7 @@ extern "C" typedef PPAbstractDevice * (*FN_PPDEVICE_FACTORY)();
 #define CASHFX_FORCEDIVISION      0x00000008L // Не допускает проведение чека пока не будет выбран отдел
 #define CASHFX_GLASSOCPRINTONLY   0x00000010L // Именованную ассоциацию товар-склад использовать только для печати
 #define CASHFX_EXTSCARDSEL        0x00000020L // Улучшенный режим выбора дисконтной карты
-#define CASHFX_EXPLOCPRNASSOC     0x00000040L // (async) Экспортировать символ ассоциированного
-	// с товаром (посредством склада) локального принтера
+#define CASHFX_EXPLOCPRNASSOC     0x00000040L // (async) Экспортировать символ ассоциированного с товаром (посредством склада) локального принтера
 #define CASHFX_UNITEGRPWROFF      0x00000080L // Объединенное списание сессий по кассовым узлам принадлежащим группе.
 #define CASHFX_APPLYUNITRND       0x00000100L // (async) Применять дробность округления, заданную в единице измерения товара.
 #define CASHFX_RESTRUSERGGRP      0x00000200L // (async) Ограничивать загрузку изменений только товарами, входящими в группу,
@@ -17775,8 +17792,7 @@ extern "C" typedef PPAbstractDevice * (*FN_PPDEVICE_FACTORY)();
 #define CASHFX_DISABLEZEROSCARD   0x00040000L // @v8.2.3  (sync) Запрет операция без выбора персональной карты
 #define CASHFX_UHTTORDIMPORT      0x00080000L // @v8.2.3  (sync) Импортировать заказа с сервера Universe-HTT
 #define CASHFX_IGNLOOKBACKPRICES  0x00100000L // @v8.9.10 (async) Игноририровать обратный анализ доступных цены на специальные товары
-#define CASHFX_ABSTRGOODSALLOWED  0x00200000L // @v9.5.10 (sync) Допускается прожажа абстрактного товара по цене (в конфигурации товаров
-	// должен быть указан DefGoodsID).
+#define CASHFX_ABSTRGOODSALLOWED  0x00200000L // @v9.5.10 (sync) Допускается продажа абстрактного товара по цене (в конфигурации товаров должен быть указан DefGoodsID).
 #define CASHFX_EXTNODEASALT       0x00400000L // @v9.6.9 (sync) Дополнительный кассовый узел используется как альтернативный принтер
 #define CASHFX_IGNCONDQUOTS       0x00800000L // @v10.0.03 (async) Не использовать при расчете цен для загрузки условные котировки.
 	// Транслируется в установку флага RTLPF_IGNCONDQUOTS при вызове RetailPriceExtractor::Init()
@@ -27875,7 +27891,7 @@ public:
     //
     int    SLAPI SearchByCode(const char * pRefACode, TSVector <EgaisRefATbl::Rec> & rList); // @v9.8.4 TSArray-->TSVector
     int    SLAPI SearchByProductCode(const char * pAlcoCode, TSVector <EgaisRefATbl::Rec> & rList); // @v9.8.4 TSArray-->TSVector
-    int    SLAPI Put(PPID * pID, EgaisRefATbl::Rec * pRec, long * pConflictFlags, int use_ta);
+    int    SLAPI Put(PPID * pID, const EgaisRefATbl::Rec * pRec, long * pConflictFlags, int use_ta);
     //
     // Descr: Удаляет все записи из таблицы
     //
@@ -27960,6 +27976,9 @@ public:
 	};
 
 	struct EgaisMarkBlock {
+		EgaisMarkBlock() : Ver(0)
+		{
+		}
 		int16  Ver; // Первые два символа марки
 		SString EgaisCode; // Код продукции по ЕГАИС
 	};
@@ -28114,7 +28133,7 @@ protected:
 	class RefCollection {
 	public:
 		SLAPI  RefCollection();
-		int    FASTCALL SetPerson(EgaisPersonCore::Item & rItem);
+		int    FASTCALL SetPerson(const EgaisPersonCore::Item & rItem);
 		int    FASTCALL SetProduct(EgaisProductCore::Item & rItem);
 		int    FASTCALL SetRefA(EgaisRefATbl::Rec & rItem);
 		int    SLAPI Store(int use_ta);
@@ -30880,7 +30899,7 @@ public:
 	//
 	// Reckoning functions
 	//
-	int    SLAPI Reckon(PPID paymBillID, PPID debtBillID, PPID reckonOpID, PPID * pReckonBillID, 
+	int    SLAPI Reckon(PPID paymBillID, PPID debtBillID, PPID reckonOpID, PPID * pReckonBillID,
 		int negativePayment, int dateOption /* RECKON_DATE_XXX */, LDATE reckonDate, int use_ta);
 	int    SLAPI GatherPayableBills(ReckonOpArItem * pItem, PPID curID, PPID locID, PPID obj2ID, const DateRange *, double * pDebt);
 	struct ReckonParam {
@@ -44628,6 +44647,7 @@ public:
 		void   Clear();
 
 		long   P;
+		char   OrgRowIdent[64]; // @v10.3.4
 		char   Ident[24];
 		LDATE  BottlingDate; // @v9.5.5
 	};
@@ -44872,7 +44892,7 @@ private:
 	//
 	// Descr: Разбирает xml-ответ от сервера УТМ (<A></A>)
 	//
-	int    SLAPI ReadAck(SBuffer * pBuf, PPEgaisProcessor::Ack & rAck);
+	int    SLAPI ReadAck(const SBuffer * pBuf, PPEgaisProcessor::Ack & rAck);
 	int    SLAPI Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int roleFlags, PPPersonPacket * pPack, PrcssrAlcReport::RefCollection * pRefC, SFile * pOutFile);
 	int    SLAPI Read_ProductInfo(xmlNode * pFirstNode, PPGoodsPacket * pPack, PrcssrAlcReport::GoodsItem * pExt, PrcssrAlcReport::RefCollection * pRefC, SFile * pOutFile);
 	int    SLAPI Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateRange * pPeriod, Packet * pPack, PrcssrAlcReport::RefCollection * pRefC);
@@ -44906,7 +44926,7 @@ private:
 	int    SLAPI Helper_InitNewPack(const int docType, TSCollection <PPEgaisProcessor::Packet> * pPackList, PPEgaisProcessor::Packet ** ppPack);
 	int    SLAPI Helper_FinalizeNewPack(PPEgaisProcessor::Packet ** ppNewPack, uint srcReplyPos, TSCollection <PPEgaisProcessor::Packet> * pPackList);
 	int    SLAPI Helper_CollectRefs(void * pCtx, TSCollection <PPEgaisProcessor::Reply> & rReplyList, RefCollection & rRefC);
-	int    SLAPI Helper_AcceptBillPacket(Packet * pPack, TSCollection <PPEgaisProcessor::Packet> * pPackList, uint packIdx);
+	int    SLAPI Helper_AcceptBillPacket(Packet * pPack, const TSCollection <PPEgaisProcessor::Packet> * pPackList, uint packIdx);
 	int    SLAPI Helper_AcceptTtnRefB(Packet * pPack, TSCollection <PPEgaisProcessor::Packet> * pPackList, uint packIdx, LongArray & rSkipPackIdxList);
 	int    SLAPI Helper_AreArticlesEq(PPID ar1ID, PPID ar2ID);
 	int    SLAPI Helper_CreateTransferToShop(const PPBillPacket * pCurrentRestPack);
@@ -45610,7 +45630,7 @@ struct DL2_Filt {
 class DL2_ObjList : private SCollection {
 public:
 	SLAPI  DL2_ObjList();
-	int    SLAPI Set(PPID objType, StringSet * pSs, int32 * pId);
+	int    SLAPI Set(PPID objType, const StringSet * pSs, int32 * pId);
 	int    SLAPI Get(int32 id, PPID * pObjType, ObjIdListFilt & rList);
 	int    SLAPI FromString(const char * pStr, PPID & rObjType, int32 * pId);
 	int    SLAPI ToString(int32 id, SString & rBuf) const;
@@ -47181,7 +47201,12 @@ protected:
 	DECL_HANDLE_EVENT;
 	virtual void updateView();
 	virtual int  getCurHdr(void *);
-	int    IsDataOwner;
+	enum {
+		vbsDataOwner = 0x0001,
+		vbsKbF10     = 0x0002
+	};
+	long   VbState; // @v10.3.4
+	// @v10.3.4 int    IsDataOwner;
 private:
 	int    Advise();
 	void   Unadvise();
@@ -47195,7 +47220,7 @@ private:
 	//
 	void * Helper_InitToolbarCombo();
 
-	int    KBF10;
+	// @v10.3.4 int    KBF10;
 	SCycleTimer RefreshTimer;
 	PPIDArray TempGoodsGrpList;  // Список временных товарных групп, которые должны быть разрушены при разрушении браузера
 	TInputLine * P_InputLine;    //

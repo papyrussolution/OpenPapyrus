@@ -1168,7 +1168,7 @@ int SLAPI PPViewTSessAnlz::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   __id = pHdr ? *(PPID *)pHdr : 0;
+		PPID   __id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		TSessAnlzViewItem item;
 		switch(ppvCmd) {
 			case PPVCMD_EDITGOODS:

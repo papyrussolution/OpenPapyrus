@@ -2091,7 +2091,7 @@ int SLAPI PPViewBill::EditFilt(BillFilt * pFilt, long extraParam) const
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
-	PPViewBrowser * p_brw = (PPViewBrowser *)extraPtr;
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
 	if(p_brw) {
 		PPViewBill * p_view = (PPViewBill *)p_brw->P_View;
 		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
@@ -5303,7 +5303,7 @@ int SLAPI PPViewBill::PrintBillInfoList()
 	BillInfoListPrintData bilpd(this, 0);
 	PView  pv(&bilpd);
 	ok = PPAlddPrint(REPORT_BILLINFOLIST, &pv, 0);
-	ZDELETE(((BillInfoListPrintData*)pv.Ptr)->P_Pack);
+	ZDELETE(static_cast<BillInfoListPrintData *>(pv.Ptr)->P_Pack);
 	return ok;
 }
 // } AHTOXA
@@ -5798,7 +5798,7 @@ int FASTCALL ViewGoodsBills(BillFilt * pFilt, int asModeless)
 	THROW(PPView::CreateInstance(PPVIEW_BILL, &p_v));
 	THROW(p_flt = p_v->CreateFilt(0));
 	if(modeless)
-		p_prev_win = (PPViewBrowser *)PPFindLastBrowser();
+		p_prev_win = static_cast<PPViewBrowser *>(PPFindLastBrowser());
 	if(pFilt) {
 		THROW(p_flt->Copy(pFilt, 1));
 	}
@@ -6134,7 +6134,7 @@ int PPALDD_GoodsBillBase::InitIteration(PPIterID iterId, int sortId, long)
 int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
-	PPBillPacket   * p_pack = (PPBillPacket *)(Extra[0].Ptr);
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
 	//
 	// Возможны два алгоритма расчета налогов по объединенным строкам документа:
 	// 1. Объединенная строка обсчитывается сама по себе, как единая
@@ -6367,7 +6367,7 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 // Implementation of PPALDD_GoodsBillDispose
 //
 struct DlGoodsBillDisposeBlock {
-	DlGoodsBillDisposeBlock(void * ptr) : P_Pack((PPBillPacket *)ptr)
+	DlGoodsBillDisposeBlock(void * ptr) : P_Pack(static_cast<PPBillPacket *>(ptr))
 	{
 	}
 	PPBillPacket * P_Pack;
@@ -6391,7 +6391,7 @@ int PPALDD_GoodsBillDispose::InitData(PPFilt & rFilt, long rsrv)
 	DlGoodsBillDisposeBlock * p_blk = new DlGoodsBillDisposeBlock(rFilt.Ptr);
 	Extra[0].Ptr = p_blk;
 	PPOprKind op_rec;
-	PPBillPacket * p_pack = (PPBillPacket *)p_blk->P_Pack;
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(p_blk->P_Pack);
 	const  long bill_f = p_pack->Rec.Flags;
 	const  PPID optype = p_pack->OpTypeID;
 	PPID   main_org_id = 0;
@@ -6929,11 +6929,7 @@ PPALDD_DESTRUCTOR(BillPool) { Destroy(); }
 int PPALDD_BillPool::InitData(PPFilt & rFilt, long rsrv)
 {
 	H.ID = rFilt.ID;
-	if(rFilt.Ptr) {
-		H.AssocType = *(int32 *)rFilt.Ptr;
-	}
-	else
-		H.AssocType = PPASS_OPBILLPOOL;
+	H.AssocType = rFilt.Ptr ? *static_cast<const int32 *>(rFilt.Ptr) : PPASS_OPBILLPOOL;
 	switch(H.AssocType) {
 		case PPASS_OPBILLPOOL:
 			H.Kind = PPBillPacket::bpkOpBill;
@@ -7112,7 +7108,7 @@ int PPALDD_GoodsBillModif::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	{
-		PPBillPacket   * p_pack = (PPBillPacket *) (Extra[0].Ptr);
+		PPBillPacket   * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
 		PPTransferItem * p_ti;
 		GTaxVect vect;
 		long   exclude_tax_flags = GTAXVF_SALESTAX;
@@ -7289,7 +7285,7 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	{
-		PPBillPacket   * p_pack = (PPBillPacket *)Extra[0].Ptr;
+		const PPBillPacket * p_pack = static_cast<const PPBillPacket *>(Extra[0].Ptr);
 		PPTransferItem * p_ti;
 		uint   nn = (uint)I.nn;
 		if(p_pack->EnumTItems(&nn, &p_ti)) {
@@ -7466,7 +7462,7 @@ int PPALDD_CashOrder::InitData(PPFilt & rFilt, long rsrv)
 	const  PPCommConfig & r_ccfg = CConfig;
 	uint   pos;
 	Acct   corr_acct;
-	PPBillPacket * pack = (PPBillPacket *)rFilt.Ptr;
+	PPBillPacket * pack = static_cast<PPBillPacket *>(rFilt.Ptr);
 	int    incstax = 0, val = 0;
 	PPIniFile ini_file;
 	if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CASHORDINCSTAX, &val))
@@ -7983,7 +7979,7 @@ int PPALDD_BnkPaymOrder::InitData(PPFilt & rFilt, long rsrv)
 {
 	BnkAcctData bnk_data;
 	PPObjPerson psn_obj;
-	PPBillPacket * pack = (PPBillPacket *)rFilt.Ptr;
+	PPBillPacket * pack = static_cast<PPBillPacket *>(rFilt.Ptr);
 	if(pack && pack->P_PaymOrder) {
 		SString temp_buf;
 		H.PayerID = pack->P_PaymOrder->PayerID;
@@ -8214,7 +8210,7 @@ int PPALDD_Warrant::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 int PPALDD_Warrant::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
-	PPBillPacket * p_pack = (PPBillPacket *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	if(I.LineNo < (int16)p_pack->AdvList.GetCount()) {
 		char   buf[128];
 		const  PPAdvBillItemList::Item & r_item = p_pack->AdvList.Get(I.LineNo);
@@ -8250,7 +8246,7 @@ PPALDD_DESTRUCTOR(BillInfo) { Destroy(); }
 int PPALDD_BillInfo::InitData(PPFilt & rFilt, long rsrv)
 {
 	Extra[0].Ptr = rFilt.Ptr;
-	PPBillPacket * p_pack = (PPBillPacket *)rFilt.Ptr;
+	const PPBillPacket * p_pack = static_cast<const PPBillPacket *>(rFilt.Ptr);
 	const  long f = p_pack->Rec.Flags;
 	H.BillID = p_pack->Rec.ID;
 	H.fTotalDiscount     = BIN(f & BILLF_TOTALDISCOUNT);
@@ -8290,7 +8286,7 @@ int PPALDD_BillInfo::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	uint   n = (uint)I.nn;
-	PPBillPacket * p_pack = (PPBillPacket*)Extra[0].Ptr;
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
 	if(n < p_pack->Amounts.getCount()) {
 		const AmtEntry & r_amt = p_pack->Amounts.at(n);
 		I.nn         = n + 1;
@@ -8326,7 +8322,7 @@ int PPALDD_BillInfoList::InitIteration(PPIterID iterId, int sortId, long rsrv)
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;
-	BillInfoListPrintData * p_bilpd = (BillInfoListPrintData*)Extra[0].Ptr;
+	BillInfoListPrintData * p_bilpd = static_cast<BillInfoListPrintData *>(Extra[0].Ptr);
 	I.nn = 0;
 	ZDELETE(p_bilpd->P_Pack);
 	return p_bilpd->P_V->InitIteration(PPViewBill::OrdByDefault);
@@ -8339,7 +8335,7 @@ int PPALDD_BillInfoList::NextIteration(PPIterID iterId)
 	uint   n = (uint)I.nn;
 	BillViewItem item;
 	PPBillPacket * p_pack = 0;
-	BillInfoListPrintData * p_bilpd = (BillInfoListPrintData*)Extra[0].Ptr;
+	BillInfoListPrintData * p_bilpd = static_cast<BillInfoListPrintData *>(Extra[0].Ptr);
 	if(!p_bilpd->P_Pack || n >= p_bilpd->P_Pack->Amounts.getCount()) {
 		if(p_bilpd->P_V->NextIteration(&item) > 0) {
 			p_pack = new PPBillPacket();

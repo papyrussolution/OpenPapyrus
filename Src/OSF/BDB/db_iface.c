@@ -1295,7 +1295,7 @@ err:
  */
 static int __db_compact_func(DBC * dbc, DBC * my_dbc, uint32 * countp, db_pgno_t pgno, uint32 indx, void * args)
 {
-	DB_TXN * txn = (DB_TXN *)args;
+	DB_TXN * txn = static_cast<DB_TXN *>(args);
 	COMPQUIET(my_dbc, 0);
 	COMPQUIET(countp, 0);
 	COMPQUIET(pgno, 0);

@@ -632,7 +632,6 @@ int SLAPI CrosstabProcessor::Finish()
 				LDATE  dt;
 				PPID   id;
 			} add_i;
-			double task_count = 1.0;
 			if(tab_type == PrjTaskFilt::crstDateHour)
 				add_i.dt = p_tbl->data.StartDt;
 			else if(tab_type == PrjTaskFilt::crstClientDate || tab_type == PrjTaskFilt::crstClientEmployer)
@@ -640,8 +639,8 @@ int SLAPI CrosstabProcessor::Finish()
 			else if(tab_type == PrjTaskFilt::crstEmployerDate || tab_type == PrjTaskFilt::crstEmployerHour)
 				add_i.id = p_tbl->data.EmployerID;
 			counter.Increment();
-			SearchRec(p_tbl->data.TabID, (void*)&add_i, 0);
-			task_count = P_TempTbl->data.TaskCount;
+			SearchRec(p_tbl->data.TabID, &add_i, 0);
+			double task_count = P_TempTbl->data.TaskCount;
 			P_TempTbl->data.TabParam /= NZOR(task_count, 1);
 			P_TempTbl->updateRec();
 			PPWaitPercent(counter);
@@ -1467,7 +1466,7 @@ int SLAPI PPViewPrjTask::ViewTotal()
 int SLAPI PPViewPrjTask::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	PrjTaskTbl::Rec rec;
-	PPID   templ_id = pHdr ? *(PPID *)pHdr : 0;
+	PPID   templ_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	if(TodoObj.Search(templ_id, &rec) > 0 && rec.Kind == TODOKIND_TEMPLATE) {
 		PrjTaskFilt filt;
 		filt.TemplateID = templ_id;

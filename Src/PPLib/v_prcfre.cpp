@@ -358,7 +358,7 @@ int SLAPI PPViewPrcBusy::ViewTSessLines(PPID sessID)
 
 int SLAPI PPViewPrcBusy::Print(const void * pHdr)
 {
-	PPID   __id = pHdr ? *(PPID *)pHdr : 0;
+	PPID   __id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	PrcBusyViewItem item;
 	if(GetItem(__id, &item) > 0 && item.TSessID) {
 		PPFilt pf(item.TSessID);
@@ -486,7 +486,7 @@ int SLAPI PPViewPrcBusy::GetItem(PPID id, PrcBusyViewItem * pItem)
 int SLAPI PPViewPrcBusy::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	PPID   id = pHdr ? *(PPID *)pHdr : 0;
+	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	PrcBusyViewItem item;
 	if(GetItem(id, &item) > 0 && item.TSessID) {
 		if(TSesObj.Edit(&item.TSessID, 0) == cmOK) {
@@ -588,7 +588,7 @@ int SLAPI PPViewPrcBusy::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   __id = pHdr ? *(PPID *)pHdr : 0;
+		PPID   __id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		PrcBusyViewItem item;
 		switch(ppvCmd) {
 			case PPVCMD_ADDITEM:

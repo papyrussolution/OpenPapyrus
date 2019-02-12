@@ -720,7 +720,7 @@ int SLAPI PPViewProject::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *(PPID *)pHdr : 0;
+		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_VIEWPRJPHASE:
 				ok = -1;
@@ -749,12 +749,12 @@ int SLAPI PPViewProject::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 
 void * SLAPI PPViewProject::GetEditExtraParam()
 {
-	return (void *)Filt.ParentID;
+	return reinterpret_cast<void *>(Filt.ParentID);
 }
 
 int SLAPI PPViewProject::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
-	PPID   id = pHdr ? *(PPID *)pHdr : 0;
+	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	if(id) {
 		PrjTaskFilt filt;
 		filt.Init(1, 0);

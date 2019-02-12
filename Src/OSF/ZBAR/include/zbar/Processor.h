@@ -165,7 +165,7 @@ class Processor {
     Processor& operator<< (Image& image)
     {
         process_image(image);
-        return(*this);
+        return *this;
     }
 
     /// force specific input and output formats for debug/testing.

@@ -2014,7 +2014,7 @@ void * SLAPI PPViewProcessor::GetEditExtraParam()
 int SLAPI PPViewProcessor::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	ProcessorTbl::Rec rec;
-	PPID   id = pHdr ? *(PPID *)pHdr : 0;
+	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	if(PrcObj.Search(id, &rec) > 0 && rec.Kind == PPPRCK_GROUP) {
 		ProcessorFilt filt;
 		filt.Kind = 0; //PPPRCK_PROCESSOR;
@@ -2090,7 +2090,7 @@ int SLAPI PPViewProcessor::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   prc_id = pHdr ? *(PPID *)pHdr : 0;
+		PPID   prc_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_VIEWTECH:
 				ok = -1;
@@ -2439,7 +2439,7 @@ int PPALDD_UhttProcessor::Set(long iterId, int commit)
 	else {
 		PPID  id = r_blk.Pack.Rec.ID;
 		THROW(r_blk.PrcObj.PutPacket(&id, &r_blk.Pack, 1));
-		Extra[4].Ptr = (void *)id;
+		Extra[4].Ptr = reinterpret_cast<void *>(id);
 	}
 	CATCHZOK
 	if(commit || !ok)

@@ -2297,38 +2297,27 @@ static cairo_status_t _cairo_ps_surface_flatten_image_transparency(cairo_ps_surf
 		cairo_surface_destroy(opaque);
 		return status;
 	}
-
 	*opaque_image = (cairo_image_surface_t*)opaque;
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _cairo_ps_surface_emit_base85_string(cairo_ps_surface_t * surface,
-    const uchar * data,
-    ulong length,
-    cairo_ps_compress_t compress,
-    cairo_bool_t use_strings)
+static cairo_status_t _cairo_ps_surface_emit_base85_string(cairo_ps_surface_t * surface, const uchar * data, ulong length,
+    cairo_ps_compress_t compress, cairo_bool_t use_strings)
 {
-	cairo_output_stream_t * base85_stream, * string_array_stream, * deflate_stream;
+	cairo_output_stream_t * base85_stream, * deflate_stream;
 	uchar * data_compressed;
 	ulong data_compressed_size;
-	cairo_status_t status, status2;
-
-	if(use_strings)
-		string_array_stream = _base85_strings_stream_create(surface->stream);
-	else
-		string_array_stream = _base85_wrap_stream_create(surface->stream);
-
-	status = _cairo_output_stream_get_status(string_array_stream);
+	cairo_status_t status2;
+	cairo_output_stream_t * string_array_stream = use_strings ? _base85_strings_stream_create(surface->stream) : _base85_wrap_stream_create(surface->stream);
+	cairo_status_t status = _cairo_output_stream_get_status(string_array_stream);
 	if(unlikely(status))
 		return _cairo_output_stream_destroy(string_array_stream);
-
 	base85_stream = _cairo_base85_stream_create(string_array_stream);
 	status = _cairo_output_stream_get_status(base85_stream);
 	if(unlikely(status)) {
 		status2 = _cairo_output_stream_destroy(string_array_stream);
 		return _cairo_output_stream_destroy(base85_stream);
 	}
-
 	switch(compress) {
 		case CAIRO_PS_COMPRESS_NONE:
 		    _cairo_output_stream_write(base85_stream, data, length);

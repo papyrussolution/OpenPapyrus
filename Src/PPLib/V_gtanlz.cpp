@@ -829,7 +829,7 @@ int SLAPI PPViewGoodsTaxAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, 
 {
 	int   ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   goods_id = pHdr ? *(PPID *)pHdr : 0;
+		PPID   goods_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		if(ppvCmd == PPVCMD_EDITGOODS) {
 			ok = (goods_id && GObj.Edit(&goods_id, 0) == cmOK) ? 1 : -1;
 		}

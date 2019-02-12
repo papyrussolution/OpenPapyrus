@@ -3573,7 +3573,7 @@ PPALDD_CONSTRUCTOR(Location)
 PPALDD_DESTRUCTOR(Location)
 {
 	Destroy();
-	delete (PPObjLocation*) Extra[0].Ptr;
+	delete static_cast<PPObjLocation *>(Extra[0].Ptr);
 	Extra[0].Ptr = 0;
 }
 
@@ -3585,7 +3585,7 @@ int PPALDD_Location::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
-		PPObjLocation * p_locobj = (PPObjLocation*)Extra[0].Ptr;
+		PPObjLocation * p_locobj = static_cast<PPObjLocation *>(Extra[0].Ptr);
 		LocationTbl::Rec rec;
 		if(p_locobj->Search(rFilt.ID, &rec) > 0) {
 			SString temp_buf;
@@ -3619,13 +3619,13 @@ int PPALDD_Location::InitData(PPFilt & rFilt, long rsrv)
 void PPALDD_Location::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
 	#define _ARG_INT(n)  (*static_cast<const int *>(rS.GetPtr(pApl->Get(n))))
-	#define _ARG_DATE(n) (*(LDATE *)rS.GetPtr(pApl->Get(n)))
+	#define _ARG_DATE(n) (*static_cast<const LDATE *>(rS.GetPtr(pApl->Get(n))))
 	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
 	#define _RET_STR     (**static_cast<SString **>(rS.GetPtr(pApl->Get(0))))
 	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
 	if(pF->Name == "?GetAddedString") {
 		_RET_STR.Z();
-		PPObjLocation * p_obj = (PPObjLocation*)Extra[0].Ptr;
+		PPObjLocation * p_obj = static_cast<PPObjLocation *>(Extra[0].Ptr);
 		LocationTbl::Rec loc_rec;
 		if(p_obj->Search(H.ID, &loc_rec) > 0) {
 			LocationCore::GetExField(&loc_rec, _ARG_INT(1), _RET_STR);
@@ -3633,7 +3633,7 @@ void PPALDD_Location::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack
 	}
 	else if(pF->Name == "?GetLongAddr") {
 		_RET_STR.Z();
-		PPObjLocation * p_obj = (PPObjLocation*)Extra[0].Ptr;
+		PPObjLocation * p_obj = static_cast<PPObjLocation *>(Extra[0].Ptr);
 		LocationTbl::Rec loc_rec;
 		if(p_obj->Search(H.ID, &loc_rec) > 0) {
 			LocationCore::GetAddress(loc_rec, 0, _RET_STR);
@@ -3644,7 +3644,7 @@ void PPALDD_Location::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack
 		PPID   reg_type_id = 0;
 		if(PPObjRegisterType::GetByCode(_ARG_STR(1), &reg_type_id) > 0) {
 			const int inherit = _ARG_INT(2);
-			PPObjLocation * p_obj = (PPObjLocation*)Extra[0].Ptr;
+			PPObjLocation * p_obj = static_cast<PPObjLocation *>(Extra[0].Ptr);
 			RegisterTbl::Rec reg_rec;
 			if(p_obj && p_obj->GetRegister(H.ID, reg_type_id, ZERODATE, inherit, &reg_rec) > 0)
 				_RET_INT = reg_rec.ID;
@@ -3655,7 +3655,7 @@ void PPALDD_Location::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack
 		PPID   reg_type_id = 0;
 		if(PPObjRegisterType::GetByCode(_ARG_STR(1), &reg_type_id) > 0) {
 			const int inherit = _ARG_INT(3);
-			PPObjLocation * p_obj = (PPObjLocation*)Extra[0].Ptr;
+			PPObjLocation * p_obj = static_cast<PPObjLocation *>(Extra[0].Ptr);
 			RegisterTbl::Rec reg_rec;
 			if(p_obj && p_obj->GetRegister(H.ID, reg_type_id, _ARG_DATE(2), inherit, &reg_rec) > 0)
 				_RET_INT = reg_rec.ID;
@@ -3679,7 +3679,7 @@ PPALDD_CONSTRUCTOR(Warehouse)
 PPALDD_DESTRUCTOR(Warehouse)
 {
 	Destroy();
-	delete (PPObjLocation*) Extra[0].Ptr;
+	delete static_cast<PPObjLocation *>(Extra[0].Ptr);
 	Extra[0].Ptr = 0;
 }
 
@@ -3691,7 +3691,7 @@ int PPALDD_Warehouse::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
-		PPObjLocation * locobj = (PPObjLocation*)Extra[0].Ptr;
+		PPObjLocation * locobj = static_cast<PPObjLocation *>(Extra[0].Ptr);
 		LocationTbl::Rec rec;
 		if(locobj->Search(rFilt.ID, &rec) > 0) {
 			SString temp_buf;
@@ -3728,7 +3728,7 @@ PPALDD_CONSTRUCTOR(WhCell)
 PPALDD_DESTRUCTOR(WhCell)
 {
 	Destroy();
-	delete (PPObjLocation*) Extra[0].Ptr;
+	delete static_cast<PPObjLocation *>(Extra[0].Ptr);
 	Extra[0].Ptr = 0;
 }
 
@@ -3740,7 +3740,7 @@ int PPALDD_WhCell::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
-		PPObjLocation * locobj = (PPObjLocation *)Extra[0].Ptr;
+		PPObjLocation * locobj = static_cast<PPObjLocation *>(Extra[0].Ptr);
 		LocationTbl::Rec rec;
 		if(locobj->Search(rFilt.ID, &rec) > 0) {
 			SString temp_buf;
@@ -5653,13 +5653,13 @@ PPALDD_CONSTRUCTOR(UhttLocation)
 PPALDD_DESTRUCTOR(UhttLocation)
 {
 	Destroy();
-	delete (UhttLocationBlock *)Extra[0].Ptr;
+	delete static_cast<UhttLocationBlock *>(Extra[0].Ptr);
 }
 
 int PPALDD_UhttLocation::InitData(PPFilt & rFilt, long rsrv)
 {
 	int   ok = -1;
-	UhttLocationBlock & r_blk = *(UhttLocationBlock *)Extra[0].Ptr;
+	UhttLocationBlock & r_blk = *static_cast<UhttLocationBlock *>(Extra[0].Ptr);
 	r_blk.Clear();
 	MEMSZERO(H);
 	if(r_blk.LObj.Search(rFilt.ID, &r_blk.Rec) > 0) {
@@ -5691,7 +5691,7 @@ int PPALDD_UhttLocation::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_UhttLocation::Set(long iterId, int commit)
 {
 	int    ok = 1;
-	UhttLocationBlock & r_blk = *(UhttLocationBlock *)Extra[0].Ptr;
+	UhttLocationBlock & r_blk = *static_cast<UhttLocationBlock *>(Extra[0].Ptr);
 	if(r_blk.State != UhttLocationBlock::stSet) {
 		r_blk.Clear();
 		r_blk.State = UhttLocationBlock::stSet;
@@ -5733,7 +5733,7 @@ int PPALDD_UhttLocation::Set(long iterId, int commit)
 		*/
 		// } @v8.3.2
 		THROW(r_blk.LObj.PutRecord(&id, &r_blk.Rec, 1));
-		Extra[4].Ptr = (void *)id;
+		Extra[4].Ptr = reinterpret_cast<void *>(id);
 	}
 	CATCHZOK
 	if(commit || !ok)
@@ -5748,9 +5748,8 @@ struct UhttStoreBlock {
 		stFetch = 0,
 		stSet
 	};
-	UhttStoreBlock()
+	UhttStoreBlock() : TagPos(0), State(stFetch)
 	{
-		Clear();
 	}
 	void Clear()
 	{
@@ -5758,9 +5757,9 @@ struct UhttStoreBlock {
 		TagPos = 0;
 		State = stFetch;
 	}
-	PPObjUhttStore     UhttStoreObj;
-	PPObjTag           TagObj;
-	PPUhttStorePacket  Pack;
+	PPObjUhttStore UhttStoreObj;
+	PPObjTag TagObj;
+	PPUhttStorePacket Pack;
 	uint   TagPos;
 	int    State;
 };
@@ -5777,13 +5776,13 @@ PPALDD_CONSTRUCTOR(UhttStore)
 PPALDD_DESTRUCTOR(UhttStore)
 {
 	Destroy();
-	delete (UhttStoreBlock *)Extra[0].Ptr;
+	delete static_cast<UhttStoreBlock *>(Extra[0].Ptr);
 }
 
 int PPALDD_UhttStore::InitData(PPFilt & rFilt, long rsrv)
 {
 	int   ok = -1;
-	UhttStoreBlock & r_blk = *(UhttStoreBlock *)Extra[0].Ptr;
+	UhttStoreBlock & r_blk = *static_cast<UhttStoreBlock *>(Extra[0].Ptr);
 	r_blk.Clear();
 	MEMSZERO(H);
 	if(r_blk.UhttStoreObj.GetPacket(rFilt.ID, &r_blk.Pack) > 0) {
@@ -5803,7 +5802,7 @@ int PPALDD_UhttStore::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_UhttStore::InitIteration(long iterId, int sortId, long rsrv)
 {
 	IterProlog(iterId, 1);
-	UhttStoreBlock & r_blk = *(UhttStoreBlock *)Extra[0].Ptr;
+	UhttStoreBlock & r_blk = *static_cast<UhttStoreBlock *>(Extra[0].Ptr);
 	if(iterId == GetIterID("iter@TagList"))
 		r_blk.TagPos = 0;
 	return 1;
@@ -5814,7 +5813,7 @@ int PPALDD_UhttStore::NextIteration(long iterId)
 	int     ok = -1;
 	SString temp_buf;
 	IterProlog(iterId, 0);
-	UhttStoreBlock & r_blk = *(UhttStoreBlock *)Extra[0].Ptr;
+	UhttStoreBlock & r_blk = *static_cast<UhttStoreBlock *>(Extra[0].Ptr);
 	if(iterId == GetIterID("iter@TagList")) {
 		if(r_blk.TagPos < r_blk.Pack.TagL.GetCount()) {
 			MEMSZERO(I_TagList);
@@ -5846,7 +5845,7 @@ int PPALDD_UhttStore::NextIteration(long iterId)
 int PPALDD_UhttStore::Set(long iterId, int commit)
 {
 	int    ok = 1;
-	UhttStoreBlock & r_blk = *(UhttStoreBlock *)Extra[0].Ptr;
+	UhttStoreBlock & r_blk = *static_cast<UhttStoreBlock *>(Extra[0].Ptr);
 	if(r_blk.State != UhttStoreBlock::stSet) {
 		r_blk.Clear();
 		r_blk.State = UhttStoreBlock::stSet;
@@ -5882,7 +5881,7 @@ int PPALDD_UhttStore::Set(long iterId, int commit)
 	else {
 		PPID  id = r_blk.Pack.Rec.ID;
 		THROW(r_blk.UhttStoreObj.PutPacket(&id, &r_blk.Pack, 1));
-		Extra[4].Ptr = (void *)id;
+		Extra[4].Ptr = reinterpret_cast<void *>(id);
 	}
 	CATCHZOK
 	if(commit || !ok)
@@ -6136,7 +6135,7 @@ int SLAPI PPFiasReference::GetRandomAddress(long extValue, PPID cityID, PPID * p
             if(_sc) {
             	SlThreadLocalArea & r_stla = SLS.GetTLA();
 				for(uint t = 0; ok < 0 && t < MIN(20, _sc); t++) {
-					ulong _pos = (extValue > 0) ? (ulong)(extValue % _sc) : (r_stla.Rg.Get() % _sc);
+					ulong _pos = (extValue > 0) ? static_cast<ulong>(extValue % _sc) : (r_stla.Rg.Get() % _sc);
 					if(GetRandomHouse(extValue, child_list.get(_pos), &house_id) > 0) {
 						ok = 1;
 					}

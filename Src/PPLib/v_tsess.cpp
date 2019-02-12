@@ -785,7 +785,7 @@ int SLAPI PPViewTSession::WriteOff(PPID sessID)
 int SLAPI PPViewTSession::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	PPID   id = pHdr ? *(PPID *)pHdr : 0;
+	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	TSessionTbl::Rec rec;
 	if(id && TSesObj.Search(id, &rec) > 0)
 		if(rec.Flags & TSESF_SUPERSESS) {
@@ -840,7 +840,7 @@ int SLAPI PPViewTSession::ViewTotal()
 
 int SLAPI PPViewTSession::Print(const void * pHdr)
 {
-	PPID   id = pHdr ? *(PPID *)pHdr : 0;
+	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	if(id) {
 		PPFilt pf(id);
 		PPAlddPrint(REPORT_TSESSION, &pf);
@@ -932,7 +932,7 @@ int SLAPI PPViewTSession::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *(PPID *)pHdr : 0;
+		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		TSessionTbl::Rec rec;
 		switch(ppvCmd) {
 			case PPVCMD_INPUTCHAR:
@@ -1848,11 +1848,11 @@ int SLAPI ViewTSessLine(const TSessLineFilt * pFilt)
 	int    modeless = GetModelessStatus();
 	TSessLineFilt flt;
 	PPViewTSessLine * p_v = new PPViewTSessLine;
-	PPViewBrowser * p_prev_win = modeless ? (PPViewBrowser *)PPFindLastBrowser() : 0;
+	PPViewBrowser * p_prev_win = modeless ? static_cast<PPViewBrowser *>(PPFindLastBrowser()) : 0;
 	if(pFilt)
 		flt = *pFilt;
 	else if(p_prev_win)
-		flt = *((PPViewTSessLine *)(p_prev_win->P_View))->GetFilt();
+		flt = *static_cast<PPViewTSessLine *>(p_prev_win->P_View)->GetFilt();
 	else
 		flt.Init();
 	THROW(p_v->Init(&flt));
@@ -1879,7 +1879,7 @@ PPALDD_CONSTRUCTOR(TSession)
 PPALDD_DESTRUCTOR(TSession)
 {
 	Destroy();
-	delete (PPObjTSession *)Extra[0].Ptr;
+	delete static_cast<PPObjTSession *>(Extra[0].Ptr);
 }
 
 int PPALDD_TSession::InitData(PPFilt & rFilt, long rsrv)
@@ -2196,7 +2196,7 @@ DL6_IC_CONSTRUCTION_EXTRA(PPViewTSession, DL6ICLS_PPViewTSession_VTab, PPViewTSe
 IUnknown* DL6ICLS_PPViewTSession::CreateFilt(int32 param)
 {
 	IUnknown * p_filt = 0;
-	return CreateInnerInstance("PPFiltTSession", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppErrorPtr();
+	return CreateInnerInstance("PPFiltTSession", 0, (void **)&p_filt) ? p_filt : static_cast<IUnknown *>(RaiseAppErrorPtr());
 }
 
 int32 DL6ICLS_PPViewTSession::Init(IUnknown* pFilt)

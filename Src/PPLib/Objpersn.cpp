@@ -6647,7 +6647,7 @@ static PPID Helper_DL600_GetRegister(PPID psnID, const char * pRegSymb, void * p
 void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
 	#define _ARG_LONG(n) (*static_cast<const long *>(rS.GetPtr(pApl->Get(n))))
-	#define _ARG_DATE(n) (*(LDATE *)rS.GetPtr(pApl->Get(n)))
+	#define _ARG_DATE(n) (*static_cast<const LDATE *>(rS.GetPtr(pApl->Get(n))))
 	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
 	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
 	#define _RET_LONG    (*static_cast<long *>(rS.GetPtr(pApl->Get(0))))
@@ -7127,7 +7127,7 @@ int PPALDD_UhttPerson::Set(long iterId, int commit)
 			r_blk.Pack.Kinds.add(PPPRK_UNKNOWN);
 		}
 		THROW(r_blk.PObj.PutPacket(&id, &r_blk.Pack, 1));
-		Extra[4].Ptr = (void *)id;
+		Extra[4].Ptr = reinterpret_cast<void *>(id);
 	}
 	CATCHZOK
 	if(commit || !ok)
@@ -7242,7 +7242,7 @@ void PPALDD_Global::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 {
 	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
 	#define _ARG_INT(n)  (*static_cast<const int *>(rS.GetPtr(pApl->Get(n))))
-	#define _ARG_DATE(n) (*(LDATE *)rS.GetPtr(pApl->Get(n)))
+	#define _ARG_DATE(n) (*static_cast<const LDATE *>(rS.GetPtr(pApl->Get(n))))
 	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
 	#define _RET_STR     (**static_cast<SString **>(rS.GetPtr(pApl->Get(0))))
 	if(pF->Name == "?GetFixedStaffPost") {

@@ -91,7 +91,7 @@ int FASTCALL SVectorBase::expand(uint numNewRecs)
 	int    ok = 1;
 	uint   new_count = count + numNewRecs;
 	if(new_count > Limit) {
-		const  size_t _is = (size_t)isize;
+		const  size_t _is = static_cast<size_t>(isize);
 		uint   new_limit = SnapUpCount(new_count, _is);
 		assert(new_limit >= new_count);
 		void * ptr = SAlloc::R(P_VData, new_limit * _is);
@@ -200,7 +200,7 @@ int FASTCALL SVectorBase::insert(const void * pItem)
 	const  uint _c = count;
 	int    ok = 1;
 	if(_c < Limit || expand(1)) { // @v8.1.11 (count < limit ||) так быстрее ибо придется реже входить в функцию expand
-		const size_t quant = (size_t)isize;
+		const size_t quant = static_cast<size_t>(isize);
 		//insmem(data, _INTRPTR(pItem), _c, quant, _c);
 		//static void SLAPI insmem(void * pDest, const void * pSrc, size_t blkOffs, size_t blkSize, size_t destSize)
 		{
@@ -280,7 +280,7 @@ uint FASTCALL SVectorBase::incPointerSafe(int incr)
 		pointer = MIN((pointer + incr), count-1);
     }
     else if(incr < 0) {
-		if((-incr) > (int)pointer)
+		if((-incr) > static_cast<int>(pointer))
 			pointer = 0;
 		else
 			pointer = pointer + incr;
@@ -389,7 +389,7 @@ int SLAPI SVectorBase::shuffle()
 
 int SLAPI SVectorBase::Helper_Cmp(const void * i1, const void * i2, CompFunc fcmp, void * pExtraData) const
 {
-	return (VFlags & aryPtrContainer) ? fcmp(*(void **)i1, *(void **)i2, pExtraData) : fcmp(i1, i2, pExtraData);
+	return (VFlags & aryPtrContainer) ? fcmp(*static_cast<const void * const *>(i1), *static_cast<const void * const *>(i2), pExtraData) : fcmp(i1, i2, pExtraData);
 }
 
 static int substFCMP(const void * i1, const void * i2)
@@ -397,7 +397,7 @@ static int substFCMP(const void * i1, const void * i2)
 #ifndef _WIN32_WCE
 	SlThreadLocalArea & tla = SLS.GetTLA();
 	return (tla.SAry_PtrContainer ?
-		tla.SAry_OrgFCMP(*(void **)i1, *(void **)i2, tla.SAry_SortExtraData) :
+		tla.SAry_OrgFCMP(*static_cast<const void * const *>(i1), *static_cast<void * const *>(i2), tla.SAry_SortExtraData) :
 		tla.SAry_OrgFCMP(i1, i2, tla.SAry_SortExtraData));
 #else
 	return (SAry_PtrContainer ?
@@ -649,7 +649,7 @@ double SLAPI SVectorBase::sumDouble(uint offs, uint firstIdx, uint lastIdx) cons
 	double result = 0.0;
 	assert(firstIdx >= 0 && firstIdx < count);
 	assert(lastIdx >= 0 && lastIdx < count && lastIdx >= firstIdx);
-	if(firstIdx >= 0 && firstIdx < count && lastIdx >= firstIdx && lastIdx < count) {
+	if(firstIdx < count && lastIdx >= firstIdx && lastIdx < count) {
 		const size_t _is1 = isize;
 		const size_t _is2 = isize*2;
 		const size_t _is3 = isize*3;
@@ -691,11 +691,11 @@ int SLAPI SVectorBase::imp_bsearch(const void * key, uint * pIdx, CompFunc fcmp,
 		// отдельную ветку такой случай - это даст значительное ускорение.
 		//
 		if(fcmp == CMPF_LONG && !(VFlags & aryPtrContainer)) {
-			const long test = *(long *)key;
+			const long test = *static_cast<const long *>(key);
 			while(lo <= up) {
 				const uint8 * p = p_org + (i = (lo + up) >> 1) * isize;
 				// @v9.6.1 cmp = fcmp(((const char *)_USERPTR_C(p))+ofs, key, pExtraData);
-				cmp = CMPSIGN(*(long *)(p+ofs), test); // @v9.6.1
+				cmp = CMPSIGN(*reinterpret_cast<const long *>(p+ofs), test); // @v9.6.1
 				if(cmp < 0)
 					lo = i + 1;
 				else if(cmp && i)
@@ -709,7 +709,7 @@ int SLAPI SVectorBase::imp_bsearch(const void * key, uint * pIdx, CompFunc fcmp,
 					for(uint j = i; j > 0;) {
 						p -= isize;
 						// @v9.6.1 if(fcmp(((const char *)_USERPTR_C(p))+ofs, key, pExtraData) == 0)
-						if(*(long *)(p+ofs) == test) // @v9.6.1
+						if(*reinterpret_cast<const long *>(p+ofs) == test) // @v9.6.1
 							i = --j;
 						else
 							j = 0; // exit loop
@@ -1436,8 +1436,8 @@ int SLAPI LAssocArray::SearchPair(long key, long val, uint * pPos) const
 
 IMPL_CMPFUNC(LAssoc_Val, i1, i2)
 {
-	const LAssoc * p1 = (const LAssoc *)i1;
-	const LAssoc * p2 = (const LAssoc *)i2;
+	const LAssoc * p1 = static_cast<const LAssoc *>(i1);
+	const LAssoc * p2 = static_cast<const LAssoc *>(i2);
 	return (p1->Val < p2->Val) ? -1 : ((p1->Val > p2->Val) ? +1 : 0);
 }
 
@@ -1904,6 +1904,16 @@ int SLAPI UUIDAssocArray::SearchVal(const S_GUID_Base & rVal, long * pKey, uint 
 //
 //
 //
+//static 
+TYPEID SLAPI TaggedString::BufType() { return static_cast<TYPEID>(MKSTYPE(S_ZSTRING, TaggedString::BufSize())); }
+//static 
+size_t SLAPI TaggedString::BufSize() { return (sizeof(TaggedString)-sizeof(long)); }
+
+SLAPI TaggedString::TaggedString() : Id(0)
+{
+	PTR32(Txt)[0] = 0;
+}
+
 SLAPI TaggedStringArray::TaggedStringArray() : TSArray <TaggedString> ()
 {
 }
@@ -1967,7 +1977,7 @@ void SLAPI TaggedStringArray::SortByID()
 	SArray::sort(CMPF_LONG);
 }
 
-IMPL_CMPFUNC(TaggedStringByName, i1, i2) { return stricmp866(((char*)i1)+sizeof(long), ((char*)i2)+sizeof(long)); }
+IMPL_CMPFUNC(TaggedStringByName, i1, i2) { return stricmp866(static_cast<const char *>(i1)+sizeof(long), static_cast<const char *>(i2)+sizeof(long)); }
 
 void SLAPI TaggedStringArray::SortByText()
 {
@@ -1991,7 +2001,7 @@ int FASTCALL SV_Uint32::Copy(const SV_Uint32 & s)
 	Init();
 	uint c = s.GetCount();
 	if(c) {
-		P_Data = (uint32 *)SAlloc::C((c+1), sizeof(uint32));
+		P_Data = static_cast<uint32 *>(SAlloc::C((c+1), sizeof(uint32)));
 		if(P_Data == 0)
 			return 0;
 		else
@@ -2037,7 +2047,7 @@ uint32 FASTCALL SV_Uint32::Get(uint idx) const
 int FASTCALL SV_Uint32::Add(uint32 item)
 {
 	uint   c = GetCount();
-	P_Data = (uint32 *)SAlloc::R(P_Data, (c+2) * sizeof(uint32));
+	P_Data = static_cast<uint32 *>(SAlloc::R(P_Data, (c+2) * sizeof(uint32)));
 	if(P_Data) {
 		++c;
 		P_Data[c] = item;
@@ -2051,7 +2061,7 @@ int FASTCALL SV_Uint32::Add(uint32 item)
 int SV_Uint32::Add(uint count, const uint32 * pSrc)
 {
 	uint   c = GetCount();
-	P_Data = (uint32 *)SAlloc::R(P_Data, (c+count+1) * sizeof(uint32));
+	P_Data = static_cast<uint32 *>(SAlloc::R(P_Data, (c+count+1) * sizeof(uint32)));
 	if(P_Data) {
 		memcpy(P_Data+c+1, pSrc, count * sizeof(uint32));
 		P_Data[0] = c+count;
@@ -2075,7 +2085,7 @@ int FASTCALL SV_Uint32::Read(SBuffer & rBuf)
 	uint32 c = 0;
 	rBuf.Read(&c, sizeof(c));
 	if(c) {
-		P_Data = (uint32 *)SAlloc::R(P_Data, (c+1) * sizeof(uint32));
+		P_Data = static_cast<uint32 *>(SAlloc::R(P_Data, (c+1) * sizeof(uint32)));
 		if(P_Data) {
 			P_Data[0] = c;
 			rBuf.Read(P_Data+1, sizeof(uint32) * c);
@@ -2368,11 +2378,11 @@ int SLAPI StrAssocArray::Pack()
 		void * p_pack_handle = Pack_Start();
 		if(p_pack_handle) {
 			const uint c = LAssocArray::getCount();
-			for(uint i = 0; ok && i < c; i++) {
+			for(uint i = 0; i < c; i++) {
 				LAssoc & r_assc = LAssocArray::at(i);
 				uint   _pos = r_assc.Val;
 				Pack_Replace(p_pack_handle, _pos);
-				r_assc.Val = (long)_pos;
+				r_assc.Val = static_cast<long>(_pos);
 			}
 			Pack_Finish(p_pack_handle);
 			ok = 1;
@@ -2437,7 +2447,7 @@ uint FASTCALL StrAssocArray::GetTextPos(uint pos) const
 	uint   tpos = 0;
 	if(pos < LAssocArray::getCount()) {
 		const LAssoc & r_assc = LAssocArray::at(pos);
-		tpos = (uint)r_assc.Val;
+		tpos = static_cast<uint>(r_assc.Val);
 		if(!tpos || tpos >= Pool.getDataLen())
 			tpos = 0;
 	}
@@ -2467,7 +2477,7 @@ StrAssocArray::Item FASTCALL StrAssocArray::Get(uint pos) const
 	if(pos < LAssocArray::getCount()) {
 		const LAssoc & r_assc = LAssocArray::at(pos);
 		item.Id = r_assc.Key;
-		uint   pos2 = (uint)r_assc.Val;
+		uint   pos2 = static_cast<uint>(r_assc.Val);
 		if(pos2 && pos2 < Pool.getDataLen())
 			item.Txt = Pool.getBuf() + pos2;
 		ParentList.Search(item.Id, &item.ParentId, &(pos2 = 0));
@@ -2484,7 +2494,7 @@ StrAssocArray::Item FASTCALL StrAssocArray::at_WithoutParent(uint pos) const
 	if(pos < LAssocArray::getCount()) {
 		const LAssoc & r_assc = LAssocArray::at(pos);
 		item.Id = r_assc.Key;
-		uint   pos2 = (uint)r_assc.Val;
+		uint   pos2 = static_cast<uint>(r_assc.Val);
 		if(pos2 && pos2 < Pool.getDataLen())
 			item.Txt = Pool.getBuf() + pos2;
 	}
@@ -2538,7 +2548,7 @@ int SLAPI StrAssocArray::SearchByText(const char * pTxt, CompFunc fcmp, uint * p
 		if(p_pool) {
 			uint   last_pos = DEREFPTRORZ(pPos);
 			for(uint i = last_pos; i < LAssocArray::getCount(); i++) {
-				uint   str_offs = (uint)LAssocArray::at(i).Val;
+				uint   str_offs = static_cast<uint>(LAssocArray::at(i).Val);
 				if(str_offs && p_pool[str_offs] && fcmp(p_pool+str_offs, pTxt, 0) == 0) {
 					ASSIGN_PTR(pPos, i);
 					return 1;
@@ -2622,9 +2632,9 @@ int SLAPI StrAssocArray::GetMaxLength(uint * pMaxLen) const
 
 IMPL_CMPFUNC(StrAssoc_ByLength, i1, i2)
 {
-	StringSet * p_ss = (StringSet *)pExtraData;
-	uint   pos1 = ((LAssoc *)i1)->Val;
-	uint   pos2 = ((LAssoc *)i2)->Val;
+	StringSet * p_ss = static_cast<StringSet *>(pExtraData);
+	uint   pos1 = static_cast<const LAssoc *>(i1)->Val;
+	uint   pos2 = static_cast<const LAssoc *>(i2)->Val;
 	char   stub[8];
 	stub[0] = 0;
 	size_t ss_data_len = p_ss->getDataLen();
@@ -2635,11 +2645,11 @@ IMPL_CMPFUNC(StrAssoc_ByLength, i1, i2)
 
 IMPL_CMPFUNC(StrAssoc_ByLength_Descend, i1, i2)
 {
-	StringSet * p_ss = (StringSet *)pExtraData;
-	uint   pos1 = ((LAssoc *)i1)->Val;
-	uint   pos2 = ((LAssoc *)i2)->Val;
-	char   stub[8];
-	stub[0] = 0;
+	StringSet * p_ss = static_cast<StringSet *>(pExtraData);
+	uint   pos1 = static_cast<const LAssoc *>(i1)->Val;
+	uint   pos2 = static_cast<const LAssoc *>(i2)->Val;
+	char   stub[16];
+	PTR32(stub)[0] = 0;
 	size_t ss_data_len = p_ss->getDataLen();
 	const char * p_str1 = (pos1 < ss_data_len) ? (p_ss->getBuf() + pos1) : stub;
 	const char * p_str2 = (pos2 < ss_data_len) ? (p_ss->getBuf() + pos2) : stub;
@@ -2694,7 +2704,8 @@ int SLAPI StrAssocArray::Helper_CmpFunc_StrAssocByText(const LAssoc * p1, const 
 	}
 }
 
-IMPL_CMPFUNC(StrAssoc_ByText, i1, i2) { return StrAssocArray::Helper_CmpFunc_StrAssocByText((LAssoc *)i1, (LAssoc *)i2, (StrAssocArray *)pExtraData, 0); }
+IMPL_CMPFUNC(StrAssoc_ByText, i1, i2) 
+	{ return StrAssocArray::Helper_CmpFunc_StrAssocByText(static_cast<const LAssoc *>(i1), static_cast<const LAssoc *>(i2), static_cast<StrAssocArray *>(pExtraData), 0); }
 
 static int SLAPI Helper_CmpFunc_StrAssocByID(long id1, long id2, StrAssocArray * pArray, LAssocArray * pRecurTracer)
 {
@@ -2718,7 +2729,8 @@ static int SLAPI Helper_CmpFunc_StrAssocByID(long id1, long id2, StrAssocArray *
 	}
 }
 
-IMPL_CMPFUNC(StrAssoc_ByID, i1, i2) { return Helper_CmpFunc_StrAssocByID(*(long *)i1, *(long *)i2, (StrAssocArray *)pExtraData, 0); }
+IMPL_CMPFUNC(StrAssoc_ByID, i1, i2) 
+	{ return Helper_CmpFunc_StrAssocByID(*static_cast<const long *>(i1), *static_cast<const long *>(i2), static_cast<StrAssocArray *>(pExtraData), 0); }
 
 #if 0 // {
 
@@ -2766,7 +2778,7 @@ int SLAPI StrAssocArray::Test_Cmp(const TaggedStringArray & rTsa, int * pNEqPos)
 	for(i = 0; i < c; i++) {
 		const TaggedString & r_ts = rTsa.at(i);
 		Item sa = Get(i);
-		neq_pos = (int)i;
+		neq_pos = static_cast<int>(i);
 		THROW(sa.Id == r_ts.Id);
 		if(sa.Txt) {
 			THROW(strcmp(sa.Txt, r_ts.Txt) == 0);
@@ -2783,7 +2795,7 @@ int SLAPI StrAssocArray::Test_Cmp(const TaggedStringArray & rTsa, int * pNEqPos)
 int FASTCALL StrAssocArray::Write(SBuffer & rBuf, long o) const
 {
 	int    ok = 1;
-	THROW(rBuf.Write((LAssocArray *)this, 0));
+	THROW(rBuf.Write(static_cast<const LAssocArray *>(this), 0));
 	THROW(rBuf.Write(&ParentList, 0));
 	THROW(Pool.Write(rBuf));
 	CATCHZOK
@@ -2793,7 +2805,7 @@ int FASTCALL StrAssocArray::Write(SBuffer & rBuf, long o) const
 int FASTCALL StrAssocArray::Read(SBuffer & rBuf, long o)
 {
 	int    ok = 1;
-	THROW(rBuf.Read((LAssocArray *)this, 0));
+	THROW(rBuf.Read(static_cast<LAssocArray *>(this), 0));
 	THROW(rBuf.Read(&ParentList, 0));
 	THROW(Pool.Read(rBuf));
 	CATCHZOK
@@ -2827,6 +2839,10 @@ int SLAPI StrAssocArray::Read(SFile & rFile, long o)
 //
 //
 SLAPI StrStrAssocArray::StrStrAssocArray() : SStrGroup()
+{
+}
+
+SLAPI StrStrAssocArray::StrStrAssocArray(const StrStrAssocArray & rS) : SStrGroup(rS), L(rS.L) // @v10.3.4
 {
 }
 
@@ -2900,7 +2916,7 @@ int SLAPI StrStrAssocArray::Add(const char * pKey, const char * pVal, int replac
 		if(Search(pKey, &val, &pos)) {
 			uint   sp = 0;
 			AddS(pVal, &sp);
-			L.at(pos).Val = (long)sp;
+			L.at(pos).Val = static_cast<long>(sp);
 			done = 1;
 		}
 	}
@@ -2910,8 +2926,8 @@ int SLAPI StrStrAssocArray::Add(const char * pKey, const char * pVal, int replac
 		AddS(pKey, &key_pos);
 		AddS(pVal, &val_pos);
 		LAssoc item;
-		item.Key = (long)key_pos;
-		item.Val = (long)val_pos;
+		item.Key = static_cast<long>(key_pos);
+		item.Val = static_cast<long>(val_pos);
 		L.insert(&item);
 	}
 	return ok;
@@ -3022,11 +3038,10 @@ int FASTCALL LongArray::IsEqual(const LongArray * pS) const
 
 int SLAPIV LongArray::addzlist(long first, ...)
 {
-	int    ok = 1;
 	va_list list;
 	va_start(list, first);
 	long   val;
-	ok = add(first);
+	int    ok = add(first);
 	while(ok && (val = va_arg(list, long)) != 0) {
 		if(!add(val))
 			ok = 0;
@@ -3185,7 +3200,7 @@ void SLAPI LongArray::intersect(const UintHashTable * p)
 	else {
 		uint c = getCount();
 		if(c) do {
-			const ulong id = (ulong)at(--c);
+			const ulong id = static_cast<ulong>(at(--c));
 			if(!p->Has(id))
 				atFree(c);
 		} while(c);
@@ -3252,7 +3267,7 @@ void   SLAPI Int64Array::sort() { SVector::sort(CMPF_INT64); }
 
 int FASTCALL Int64Array::add(int32 v)
 {
-	int64 v64 = (int64)v;
+	int64 v64 = static_cast<int64>(v);
 	return insert(&v64);
 }
 
@@ -3297,7 +3312,7 @@ int FASTCALL FloatArray::dim(uint numItems)
 const FPoint & FASTCALL FloatArray::getPoint(uint i) const
 {
 	assert(i < (count-1));
-	return *(FPoint *)SVector::at(i); // @v9.8.4 SArray-->SVector
+	return *static_cast<const FPoint *>(SVector::at(i)); // @v9.8.4 SArray-->SVector
 }
 
 int FASTCALL FloatArray::IsEqual(const FloatArray * pS) const
@@ -3378,7 +3393,7 @@ int SLAPI STimeChunkArray::Helper_Intersect(const STimeChunk & rChunk, STimeChun
 {
 	int    yes = 0;
 	for(uint j = 0; j < getCount(); j++) {
-		const STimeChunk * p_item = (const STimeChunk *)at(j);
+		const STimeChunk * p_item = static_cast<const STimeChunk *>(at(j));
 		STimeChunk sect;
 		if(rChunk.Intersect(*p_item, &sect) > 0) {
 			rResult.Add(&sect, 0);
@@ -3393,7 +3408,7 @@ int SLAPI STimeChunkArray::Intersect(const STimeChunkArray * pList, STimeChunkAr
 	int    yes = 0;
 	pResult->clear();
 	for(uint i = 0; i < pList->getCount(); i++) {
-		const STimeChunk * p_item1 = (const STimeChunk *)pList->at(i);
+		const STimeChunk * p_item1 = static_cast<const STimeChunk *>(pList->at(i));
 		if(Helper_Intersect(*p_item1, *pResult))
 			yes = 1;
 	}
@@ -3418,16 +3433,16 @@ uint SLAPI STimeChunkArray::GetIntersectionOrder(LAssocArray * pOrderList, long 
 	LongArray level;
 	CALLPTRMEMB(pOrderList, freeAll());
 	for(i = 0; i < getCount(); i++)
-		level.add((long)i);
+		level.add(static_cast<long>(i));
 	for(uint c = level.getCount(); c != 0; c = level.getCount()) {
 		LongArray temp_level;
 		for(i = 0; i < c; i++) {
-			const uint k = (uint)level.get(i);
-			CALLPTRMEMB(pOrderList, Update((long)(k+1), order, 1));
-			const STimeChunk * p_item_k = (const STimeChunk *)at(k);
+			const uint k = static_cast<uint>(level.get(i));
+			CALLPTRMEMB(pOrderList, Update(static_cast<long>(k+1), order, 1));
+			const STimeChunk * p_item_k = static_cast<const STimeChunk *>(at(k));
 			for(uint j = i+1; j < c; j++) {
-				const uint m = (uint)level.get(j);
-				if(p_item_k->Intersect(*(const STimeChunk *)at(m), &sect)) {
+				const uint m = static_cast<uint>(level.get(j));
+				if(p_item_k->Intersect(*static_cast<const STimeChunk *>(at(m)), &sect)) {
 					if(tolerance <= 0 || sect.GetDurationMs() > tolerance)
 						temp_level.addUnique(m);
 				}
@@ -3466,12 +3481,10 @@ int SLAPI STimeChunkArray::Excise(const STimeChunk * pItem)
 						STimeChunk next;
 						if(!sect.Finish.IsFar())
 							sect.Finish.addhs(100);
-						// @v8.4.11 {
 						if(r_start > 0) {
 							p_entry->Finish = sect.Start;
 						}
-						// } @v8.4.11
-						if(r_finish < 0) { // @v8.4.11
+						if(r_finish < 0) {
 							next.Init(sect.Finish, org_entry_finish);
 							if(p_entry->Finish.d)
 								p_entry->Finish.addhs(-100);
@@ -3482,7 +3495,7 @@ int SLAPI STimeChunkArray::Excise(const STimeChunk * pItem)
 							// В итоге: i++ (постфиксная форма существенна).
 							//
 							atInsert(i++, &next);
-						} // @v8.4.11
+						}
 					}
 					ok = 1;
 				}
@@ -3494,7 +3507,7 @@ int SLAPI STimeChunkArray::Excise(const STimeChunk * pItem)
 
 void SLAPI STimeChunkArray::Sort(int desc)
 {
-	SArray::sort(PTR_CMPFUNC(STimeChunk), (void *)desc);
+	SArray::sort(PTR_CMPFUNC(STimeChunk), reinterpret_cast<void *>(desc));
 }
 
 int SLAPI STimeChunkArray::Limit(const STimeChunk * pPeriod)
@@ -3542,7 +3555,7 @@ int SLAPI STimeChunkArray::GetFreeList(STimeChunkArray * pList) const
 	STimeChunk free_entry;
 	LDATETIME last = ZERODATETIME;
 	for(uint i = 0; i < getCount(); i++) {
-		const STimeChunk & entry = *(STimeChunk *)at(i);
+		const STimeChunk & entry = *static_cast<const STimeChunk *>(at(i));
 		if(cmp(last, entry.Start) < 0) {
 			free_entry.Init(last, entry.Start);
 			if(!free_entry.Finish.IsFar())
@@ -3602,7 +3615,7 @@ int SLAPI STimeChunkAssocArray::Get(long chunkId, uint * pPos, STimeChunkAssoc *
 	uint   pos = 0;
 	if(lsearch(&chunkId, &pos, CMPF_LONG, offsetof(STimeChunkAssoc, Id))) {
 		ASSIGN_PTR(pPos, pos);
-		ASSIGN_PTR(pItem, *(STimeChunkAssoc *)at(pos));
+		ASSIGN_PTR(pItem, *static_cast<const STimeChunkAssoc *>(at(pos)));
 		return 1;
 	}
 	else
@@ -3639,7 +3652,7 @@ int SLAPI STimeChunkAssocArray::Remove(long chunkId)
 //
 static int FASTCALL Subst(const void * i1, const void * i2, void * pExtraData)
 {
-	return stcomp((TYPEID)pExtraData, i1, i2);
+	return stcomp(reinterpret_cast<TYPEID>(pExtraData), i1, i2);
 }
 
 SLAPI STypArray::STypArray(TYPEID aType, uint o) : SArray(stsize(aType), o), type(aType)
@@ -3675,12 +3688,12 @@ SString & SLAPI STypArray::itemToString(uint idx, long fmt, SString & rBuf) cons
 
 int SLAPI STypArray::search(const void * pKey, uint * pPos) const
 {
-	return (VFlags & arySorted) ? bsearch(pKey, pPos, Subst, 0, (void *)type) : lsearch(pKey, pPos, Subst, 0, (void *)type);
+	return (VFlags & arySorted) ? bsearch(pKey, pPos, Subst, 0, reinterpret_cast<void *>(type)) : lsearch(pKey, pPos, Subst, 0, reinterpret_cast<void *>(type));
 }
 
 void SLAPI STypArray::sort()
 {
-	SArray::sort(Subst, (void *)type);
+	SArray::sort(Subst, reinterpret_cast<void *>(type));
 }
 //
 // STree
@@ -4057,12 +4070,12 @@ int SLAPI TestSTree()
 		SFile f_sa("test_stree_sa.txt", SFile::mWrite);
 		SFile f_tree("test_stree_tree.txt", SFile::mWrite);
 		for(STree::Iter iter; tree.Enum(iter);) {
-			long id = *(long *)iter.GetData();
+			long id = *static_cast<const long *>(iter.GetData());
 			long parent_id_sa = 0;
 			long parent_id_tree = 0;
 			void * p_parent = tree.GetData(iter.GetParentPos());
 			if(p_parent)
-				parent_id_tree = *(long *)p_parent;
+				parent_id_tree = *static_cast<const long *>(p_parent);
 			sa_list.GetText(id, text_buf);
 			sa_list.GetParent(id, &parent_id_sa);
 

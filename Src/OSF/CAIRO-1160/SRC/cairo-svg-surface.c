@@ -628,10 +628,7 @@ static cairo_surface_t * _cairo_svg_surface_create_for_document(cairo_svg_docume
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto CLEANUP;
 	}
-
-	paginated = _cairo_paginated_surface_create(&surface->base,
-		surface->content,
-		&cairo_svg_surface_paginated_backend);
+	paginated = _cairo_paginated_surface_create(&surface->base, surface->content, &cairo_svg_surface_paginated_backend);
 	status = paginated->status;
 	if(status == CAIRO_STATUS_SUCCESS) {
 		/* paginated keeps the only reference to surface now, drop ours */
@@ -643,9 +640,7 @@ static cairo_surface_t * _cairo_svg_surface_create_for_document(cairo_svg_docume
 CLEANUP:
 	status_ignored = _cairo_output_stream_destroy(surface->xml_node);
 	status_ignored = _cairo_svg_document_destroy(document);
-
 	SAlloc::F(surface);
-
 	return _cairo_surface_create_in_error(status);
 }
 

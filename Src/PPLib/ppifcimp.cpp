@@ -361,13 +361,13 @@ void DL6ICLS_LongList::SortAndUndup()
 // StrAssocList
 //
 DL6_IC_CONSTRUCTOR(StrAssocList, DL6ICLS_StrAssocList_VTab) { ExtraPtr = new StrAssocArray; }
-DL6_IC_DESTRUCTOR(StrAssocList) { delete (StrAssocArray *)ExtraPtr; }
+DL6_IC_DESTRUCTOR(StrAssocList) { delete static_cast<StrAssocArray *>(ExtraPtr); }
 //
 // Interface IStrAssocList implementation
 //
 int32 DL6ICLS_StrAssocList::GetCount()
 {
-	StrAssocArray * p_data = (StrAssocArray *)ExtraPtr;
+	StrAssocArray * p_data = static_cast<StrAssocArray *>(ExtraPtr);
 	return p_data ? (int32)p_data->getCount() : RaiseAppError();
 }
 
@@ -393,7 +393,7 @@ static void FASTCALL ClearSTaggedString(STaggedString * pDest)
 int32 DL6ICLS_StrAssocList::Get(int32 pos, STaggedString* pItem)
 {
 	int    ok = 0;
-	StrAssocArray * p_data = (StrAssocArray *)ExtraPtr;
+	StrAssocArray * p_data = static_cast<StrAssocArray *>(ExtraPtr);
 	if(p_data) {
 		StrAssocItemToSTaggedString(p_data->Get((uint)pos), pItem);
 		if(((uint)pos) < p_data->getCount())
@@ -407,7 +407,7 @@ int32 DL6ICLS_StrAssocList::Get(int32 pos, STaggedString* pItem)
 int32 DL6ICLS_StrAssocList::SearchById(int32 id, STaggedString* pItem)
 {
 	int    ok = 0;
-	StrAssocArray * p_data = (StrAssocArray *)ExtraPtr;
+	StrAssocArray * p_data = static_cast<StrAssocArray *>(ExtraPtr);
 	if(SetAppError(BIN(p_data))) {
 		uint pos = 0;
 		if(p_data->Search(id, &pos)) {
@@ -423,7 +423,7 @@ int32 DL6ICLS_StrAssocList::SearchById(int32 id, STaggedString* pItem)
 int32 DL6ICLS_StrAssocList::SearchByText(SString & text, STaggedString* pItem)
 {
 	int    ok = 0;
-	StrAssocArray * p_data = (StrAssocArray *)ExtraPtr;
+	StrAssocArray * p_data = static_cast<StrAssocArray *>(ExtraPtr);
 	if(SetAppError(BIN(p_data))) {
 		uint pos = 0;
 		if(p_data->SearchByText(text, PTR_CMPFUNC(PcharNoCase), &pos)) {
@@ -441,7 +441,7 @@ IMPL_CMPFUNC(PcharNoCaseLen, i1, i2) { return strnicmp866((const char *)i1, (con
 int32 DL6ICLS_StrAssocList::SearchByTextPattern(SString & rText, STaggedString * pItem)
 {
 	int    ok = 0;
-	StrAssocArray * p_data = (StrAssocArray *)ExtraPtr;
+	StrAssocArray * p_data = static_cast<StrAssocArray *>(ExtraPtr);
 	if(SetAppError(BIN(p_data))) {
 		uint pos = 0;
 		if(p_data->SearchByText(rText, PTR_CMPFUNC(PcharNoCaseLen), &pos)) {
@@ -456,7 +456,7 @@ int32 DL6ICLS_StrAssocList::SearchByTextPattern(SString & rText, STaggedString *
 
 SString & DL6ICLS_StrAssocList::GetTextById(int32 id)
 {
-	StrAssocArray * p_data = (StrAssocArray *)ExtraPtr;
+	StrAssocArray * p_data = static_cast<StrAssocArray *>(ExtraPtr);
 	if(p_data) {
 		uint pos = 0;
 		RetStrBuf = p_data->Search(id, &pos) ? p_data->Get(pos).Txt : (const char *)0;
@@ -470,7 +470,7 @@ SString & DL6ICLS_StrAssocList::GetTextById(int32 id)
 
 void DL6ICLS_StrAssocList::InitIteration()
 {
-	StrAssocArray * p_data = (StrAssocArray *)ExtraPtr;
+	StrAssocArray * p_data = static_cast<StrAssocArray *>(ExtraPtr);
 	if(SetAppError(BIN(p_data)))
 		p_data->setPointer(0);
 }
@@ -478,7 +478,7 @@ void DL6ICLS_StrAssocList::InitIteration()
 int32 DL6ICLS_StrAssocList::NextIteration(STaggedString* pItem)
 {
 	int    ok = 0;
-	StrAssocArray * p_data = (StrAssocArray *)ExtraPtr;
+	StrAssocArray * p_data = static_cast<StrAssocArray *>(ExtraPtr);
 	if(SetAppError(BIN(p_data))) {
 		uint p = p_data->getPointer();
 		if(p < p_data->getCount()) {
@@ -494,20 +494,20 @@ int32 DL6ICLS_StrAssocList::NextIteration(STaggedString* pItem)
 
 void DL6ICLS_StrAssocList::Clear()
 {
-	StrAssocArray * p_data = (StrAssocArray *)ExtraPtr;
+	StrAssocArray * p_data = static_cast<StrAssocArray *>(ExtraPtr);
 	if(SetAppError(BIN(p_data)))
 		p_data->Z();
 }
 
 void DL6ICLS_StrAssocList::Add(int32 itemId, int32 parentId, SString & text)
 {
-	StrAssocArray * p_data = (StrAssocArray *)ExtraPtr;
+	StrAssocArray * p_data = static_cast<StrAssocArray *>(ExtraPtr);
 	SetAppError(p_data && p_data->Add(itemId, parentId, text, 1));
 }
 
 void DL6ICLS_StrAssocList::Sort(int32 byText)
 {
-	StrAssocArray * p_data = (StrAssocArray *)ExtraPtr;
+	StrAssocArray * p_data = static_cast<StrAssocArray *>(ExtraPtr);
 	if(SetAppError(BIN(p_data)))
 		if(byText)
 			p_data->SortByText();
@@ -519,7 +519,7 @@ void DL6ICLS_StrAssocList::Clone(IStrAssocList** ppClone)
 {
 	IStrAssocList * p = 0;
 	if(SetAppError(CreateInnerInstance(P_Scope->GetName(), "IStrAssocList", (void **)&p))) {
-		StrAssocArray * p_data = (StrAssocArray *)ExtraPtr;
+		StrAssocArray * p_data = static_cast<StrAssocArray *>(ExtraPtr);
 		StrAssocArray * p_outer_data = (StrAssocArray *)SCoClass::GetExtraPtrByInterface(p);
 		if(SetAppError(p_data && p_outer_data))
 			*p_outer_data = *p_data;
@@ -5850,8 +5850,8 @@ int32 DL6ICLS_PPObjBill::SearchAnalog(SPpyO_Bill * pSample, int32 * pID, SPpyO_B
 int32 DL6ICLS_PPObjBill::PutPacket(IPapyrusBillPacket * pPack)
 {
 	int    ok = -1;
-	PPBillPacket * p_pack = (PPBillPacket *)SCoClass::GetExtraPtrByInterface(pPack);
-	InnerBillExtra * p_e = (InnerBillExtra*)ExtraPtr;
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(SCoClass::GetExtraPtrByInterface(pPack));
+	InnerBillExtra * p_e = static_cast<InnerBillExtra *>(ExtraPtr);
 	if(p_pack && p_e->P_BObj) {
 		if(p_e->P_BObj->P_Tbl->SearchAnalog(&p_pack->Rec, BillCore::safDefault, 0, 0) > 0)
 			ok = -2;
@@ -5867,11 +5867,11 @@ int32 DL6ICLS_PPObjBill::PutPacket(IPapyrusBillPacket * pPack)
 int32 DL6ICLS_PPObjBill::GetPacket(int32 id, IPapyrusBillPacket * pPack)
 {
 	int    ok = -1;
-	PPBillPacket * p_pack = (PPBillPacket*)SCoClass::GetExtraPtrByInterface(pPack);
-	InnerBillExtra * p_e = (InnerBillExtra*)ExtraPtr;
+	PPBillPacket * p_pack = static_cast<PPBillPacket *>(SCoClass::GetExtraPtrByInterface(pPack));
+	InnerBillExtra * p_e = static_cast<InnerBillExtra *>(ExtraPtr);
 	if(p_pack && p_e->P_BObj) {
 		ok = p_e->P_BObj->ExtractPacket(id, p_pack);
-		ok = (ok == 0 && DS.GetTLA().LastErr == PPERR_OBJNFOUND) ? -1 : ok; // @v8.6.10
+		ok = (ok == 0 && DS.GetTLA().LastErr == PPERR_OBJNFOUND) ? -1 : ok;
 	}
 	SetAppError(ok);
 	return ok;
@@ -5881,7 +5881,7 @@ int32 DL6ICLS_PPObjBill::CalcClientDebt(long clientID, SDateRange * pPeriod, SDe
 {
 	int    ok = -1;
 	PPObjBill::DebtBlock blk;
-	InnerBillExtra * p_e = (InnerBillExtra*)ExtraPtr;
+	InnerBillExtra * p_e = static_cast<InnerBillExtra *>(ExtraPtr);
 	if(p_e->P_BObj) {
 		DateRange period;
 		period.Z();
@@ -7386,7 +7386,7 @@ DL6_IC_CONSTRUCTION_EXTRA(PPViewCCheck, DL6ICLS_PPViewCCheck_VTab, PPViewCCheck)
 IUnknown * DL6ICLS_PPViewCCheck::CreateFilt(int32 param)
 {
 	IUnknown * p_filt = 0;
-	return CreateInnerInstance("PPFiltCCheck", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppErrorPtr();
+	return CreateInnerInstance("PPFiltCCheck", 0, (void **)&p_filt) ? p_filt : static_cast<IUnknown *>(RaiseAppErrorPtr());
 }
 
 int32 DL6ICLS_PPViewCCheck::Init(IUnknown* pFilt)
@@ -7538,7 +7538,7 @@ DL6_IC_CONSTRUCTION_EXTRA(PPViewTrfrAnlz, DL6ICLS_PPViewTrfrAnlz_VTab, PPViewTrf
 IUnknown* DL6ICLS_PPViewTrfrAnlz::CreateFilt(int32 param)
 {
 	IUnknown * p_filt = 0;
-	return CreateInnerInstance("PPFiltTrfrAnlz", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppErrorPtr();
+	return CreateInnerInstance("PPFiltTrfrAnlz", 0, (void **)&p_filt) ? p_filt : static_cast<IUnknown *>(RaiseAppErrorPtr());
 }
 
 int32 DL6ICLS_PPViewTrfrAnlz::Init(IUnknown* pFilt)
@@ -8080,12 +8080,12 @@ DL6_IC_CONSTRUCTION_EXTRA(PPFiltGoods, DL6ICLS_PPFiltGoods_VTab, GoodsFilt);
 // Interface IPpyFilt_Goods implementation
 //
 void DL6ICLS_PPFiltGoods::SetLotPeriod(LDATE low, LDATE upp)
-	{ ((GoodsFilt *)ExtraPtr)->LotPeriod.Set(low, upp); }
+	{ static_cast<GoodsFilt *>(ExtraPtr)->LotPeriod.Set(low, upp); }
 SDateRange DL6ICLS_PPFiltGoods::get_LotPeriod()
-	{ return DateRangeToOleDateRange(((GoodsFilt *)ExtraPtr)->LotPeriod); }
+	{ return DateRangeToOleDateRange(static_cast<GoodsFilt *>(ExtraPtr)->LotPeriod); }
 void DL6ICLS_PPFiltGoods::AddGoodsGroupID(int32 id)
 {
-	GoodsFilt * p_filt = ((GoodsFilt*)ExtraPtr);
+	GoodsFilt * p_filt = static_cast<GoodsFilt *>(ExtraPtr);
 	if(id && p_filt)
 		p_filt->GrpIDList.Add(id);
 }
@@ -8110,7 +8110,7 @@ int32 DL6ICLS_PPFiltGoods::get_LocID()                     { IMPL_PPIFC_GETPROP(
 void  DL6ICLS_PPFiltGoods::put_LocID(int32 value)
 {
 	//IMPL_PPIFC_PUTPROP(GoodsFilt, LocID);
-	((GoodsFilt *)ExtraPtr)->LocList.SetSingle(value);
+	static_cast<GoodsFilt *>(ExtraPtr)->LocList.SetSingle(value);
 }
 PpyVGoodsFlags DL6ICLS_PPFiltGoods::get_Flags()            { IMPL_PPIFC_GETPROP_CAST(GoodsFilt, Flags, PpyVGoodsFlags); }
 void  DL6ICLS_PPFiltGoods::put_Flags(PpyVGoodsFlags value) { IMPL_PPIFC_PUTPROP(GoodsFilt, Flags); }
@@ -8122,7 +8122,7 @@ int32 DL6ICLS_PPFiltGoods::get_BrandID()                   { IMPL_PPIFC_GETPROP(
 void  DL6ICLS_PPFiltGoods::put_BrandID(int32 value)
 {
 	//IMPL_PPIFC_PUTPROP(GoodsFilt, BrandID);
-	((GoodsFilt *)ExtraPtr)->BrandList.SetSingle(value);
+	static_cast<GoodsFilt *>(ExtraPtr)->BrandList.SetSingle(value);
 }
 void  DL6ICLS_PPFiltGoods::put_SrchStr(SString & value)    { IMPL_PPIFC_PUTPROP(GoodsFilt, SrchStr_); }
 SString & DL6ICLS_PPFiltGoods::get_SrchStr()               { IMPL_PPIFC_GETPROP(GoodsFilt, SrchStr_); }
@@ -8154,32 +8154,32 @@ int32 DL6ICLS_PPFiltGoods::get_AddObj2ID()                 { IMPL_PPIFC_GETPROP(
 */
 
 #define FILTGOODS_DIM_BLOCK(alpha) \
-void   DL6ICLS_PPFiltGoods::put_Dim##alpha##Min(double value) { ((GoodsFilt*)ExtraPtr)->Ep.Dim##alpha##_Rng.low = value; } \
-double DL6ICLS_PPFiltGoods::get_Dim##alpha##Min()             { return ((GoodsFilt*)ExtraPtr)->Ep.Dim##alpha##_Rng.low;  } \
-void   DL6ICLS_PPFiltGoods::put_Dim##alpha##Max(double value) { ((GoodsFilt*)ExtraPtr)->Ep.Dim##alpha##_Rng.upp = value; } \
-double DL6ICLS_PPFiltGoods::get_Dim##alpha##Max()             { return ((GoodsFilt*)ExtraPtr)->Ep.Dim##alpha##_Rng.upp;  }
+void   DL6ICLS_PPFiltGoods::put_Dim##alpha##Min(double value) { static_cast<GoodsFilt *>(ExtraPtr)->Ep.Dim##alpha##_Rng.low = value; } \
+double DL6ICLS_PPFiltGoods::get_Dim##alpha##Min()             { return static_cast<GoodsFilt *>(ExtraPtr)->Ep.Dim##alpha##_Rng.low;  } \
+void   DL6ICLS_PPFiltGoods::put_Dim##alpha##Max(double value) { static_cast<GoodsFilt *>(ExtraPtr)->Ep.Dim##alpha##_Rng.upp = value; } \
+double DL6ICLS_PPFiltGoods::get_Dim##alpha##Max()             { return static_cast<GoodsFilt *>(ExtraPtr)->Ep.Dim##alpha##_Rng.upp;  }
 
 FILTGOODS_DIM_BLOCK(X)
 FILTGOODS_DIM_BLOCK(Y)
 FILTGOODS_DIM_BLOCK(Z)
 FILTGOODS_DIM_BLOCK(W)
 /*
-void  DL6ICLS_PPFiltGoods::put_DimXMin(double value) { ((GoodsFilt*)ExtraPtr)->Ep.DimX_Rng.low = value; }
-double DL6ICLS_PPFiltGoods::get_DimXMin() { return ((GoodsFilt*)ExtraPtr)->Ep.DimX_Rng.low; }
-void  DL6ICLS_PPFiltGoods::put_DimXMax(double value) { ((GoodsFilt*)ExtraPtr)->Ep.DimX_Rng.upp = value; }
-double DL6ICLS_PPFiltGoods::get_DimXMax() { return ((GoodsFilt*)ExtraPtr)->Ep.DimX_Rng.upp; }
-void  DL6ICLS_PPFiltGoods::put_DimYMin(double value) { ((GoodsFilt*)ExtraPtr)->Ep.DimY_Rng.low = value; }
-double DL6ICLS_PPFiltGoods::get_DimYMin() { return ((GoodsFilt*)ExtraPtr)->Ep.DimY_Rng.low; }
-void  DL6ICLS_PPFiltGoods::put_DimYMax(double value) { ((GoodsFilt*)ExtraPtr)->Ep.DimY_Rng.upp = value; }
-double DL6ICLS_PPFiltGoods::get_DimYMax() { return ((GoodsFilt*)ExtraPtr)->Ep.DimY_Rng.upp; }
-void  DL6ICLS_PPFiltGoods::put_DimZMin(double value) { ((GoodsFilt*)ExtraPtr)->Ep.DimZ_Rng.low = value; }
-double DL6ICLS_PPFiltGoods::get_DimZMin() { return ((GoodsFilt*)ExtraPtr)->Ep.DimZ_Rng.low; }
-void  DL6ICLS_PPFiltGoods::put_DimZMax(double value) { ((GoodsFilt*)ExtraPtr)->Ep.DimZ_Rng.upp = value; }
-double DL6ICLS_PPFiltGoods::get_DimZMax() { return ((GoodsFilt*)ExtraPtr)->Ep.DimZ_Rng.upp; }
-void  DL6ICLS_PPFiltGoods::put_DimWMin(double value) { ((GoodsFilt*)ExtraPtr)->Ep.DimW_Rng.low = value; }
-double DL6ICLS_PPFiltGoods::get_DimWMin() { return ((GoodsFilt*)ExtraPtr)->Ep.DimW_Rng.low; }
-void  DL6ICLS_PPFiltGoods::put_DimWMax(double value) { ((GoodsFilt*)ExtraPtr)->Ep.DimW_Rng.upp = value; }
-double DL6ICLS_PPFiltGoods::get_DimWMax() { return ((GoodsFilt*)ExtraPtr)->Ep.DimW_Rng.upp; }
+void  DL6ICLS_PPFiltGoods::put_DimXMin(double value) { static_cast<GoodsFilt *>(ExtraPtr)->Ep.DimX_Rng.low = value; }
+double DL6ICLS_PPFiltGoods::get_DimXMin() { return static_cast<GoodsFilt *>(ExtraPtr)->Ep.DimX_Rng.low; }
+void  DL6ICLS_PPFiltGoods::put_DimXMax(double value) { static_cast<GoodsFilt *>(ExtraPtr)->Ep.DimX_Rng.upp = value; }
+double DL6ICLS_PPFiltGoods::get_DimXMax() { return static_cast<GoodsFilt *>(ExtraPtr)->Ep.DimX_Rng.upp; }
+void  DL6ICLS_PPFiltGoods::put_DimYMin(double value) { static_cast<GoodsFilt *>(ExtraPtr)->Ep.DimY_Rng.low = value; }
+double DL6ICLS_PPFiltGoods::get_DimYMin() { return static_cast<GoodsFilt *>(ExtraPtr)->Ep.DimY_Rng.low; }
+void  DL6ICLS_PPFiltGoods::put_DimYMax(double value) { static_cast<GoodsFilt *>(ExtraPtr)->Ep.DimY_Rng.upp = value; }
+double DL6ICLS_PPFiltGoods::get_DimYMax() { return static_cast<GoodsFilt *>(ExtraPtr)->Ep.DimY_Rng.upp; }
+void  DL6ICLS_PPFiltGoods::put_DimZMin(double value) { static_cast<GoodsFilt *>(ExtraPtr)->Ep.DimZ_Rng.low = value; }
+double DL6ICLS_PPFiltGoods::get_DimZMin() { return static_cast<GoodsFilt *>(ExtraPtr)->Ep.DimZ_Rng.low; }
+void  DL6ICLS_PPFiltGoods::put_DimZMax(double value) { static_cast<GoodsFilt *>(ExtraPtr)->Ep.DimZ_Rng.upp = value; }
+double DL6ICLS_PPFiltGoods::get_DimZMax() { return static_cast<GoodsFilt *>(ExtraPtr)->Ep.DimZ_Rng.upp; }
+void  DL6ICLS_PPFiltGoods::put_DimWMin(double value) { static_cast<GoodsFilt *>(ExtraPtr)->Ep.DimW_Rng.low = value; }
+double DL6ICLS_PPFiltGoods::get_DimWMin() { return static_cast<GoodsFilt *>(ExtraPtr)->Ep.DimW_Rng.low; }
+void  DL6ICLS_PPFiltGoods::put_DimWMax(double value) { static_cast<GoodsFilt *>(ExtraPtr)->Ep.DimW_Rng.upp = value; }
+double DL6ICLS_PPFiltGoods::get_DimWMax() { return static_cast<GoodsFilt *>(ExtraPtr)->Ep.DimW_Rng.upp; }
 */
 
 DL6_IC_CONSTRUCTION_EXTRA(PPViewGoods, DL6ICLS_PPViewGoods_VTab, PPViewGoods);
@@ -8189,7 +8189,7 @@ DL6_IC_CONSTRUCTION_EXTRA(PPViewGoods, DL6ICLS_PPViewGoods_VTab, PPViewGoods);
 IUnknown* DL6ICLS_PPViewGoods::CreateFilt(int32 param)
 {
 	IUnknown * p_filt = 0;
-	return CreateInnerInstance("PPFiltGoods", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppErrorPtr();
+	return CreateInnerInstance("PPFiltGoods", 0, (void **)&p_filt) ? p_filt : static_cast<IUnknown *>(RaiseAppErrorPtr());
 }
 
 int32 DL6ICLS_PPViewGoods::Init(IUnknown* pFilt) { IMPL_PPIFC_PPVIEWINIT(Goods); }
@@ -8275,7 +8275,7 @@ DL6_IC_CONSTRUCTION_EXTRA(PPViewGoodsStruc, DL6ICLS_PPViewGoodsStruc_VTab, PPVie
 IUnknown* DL6ICLS_PPViewGoodsStruc::CreateFilt(int32 param)
 {
 	IUnknown * p_filt = 0;
-	return CreateInnerInstance("PPFiltGoodsStruc", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppErrorPtr();
+	return CreateInnerInstance("PPFiltGoodsStruc", 0, (void **)&p_filt) ? p_filt : static_cast<IUnknown *>(RaiseAppErrorPtr());
 }
 
 int32 DL6ICLS_PPViewGoodsStruc::Init(IUnknown* pFilt) { IMPL_PPIFC_PPVIEWINIT(GoodsStruc); }
@@ -8371,7 +8371,7 @@ void DL6ICLS_PPFiltGoodsRest::put_DiffParam(PpyVGoodsRestDiffParam value)     { 
 IUnknown* DL6ICLS_PPViewGoodsRest::CreateFilt(int32 param)
 {
 	IUnknown * p_filt = 0;
-	return CreateInnerInstance("PPFiltGoodsRest", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppErrorPtr();
+	return CreateInnerInstance("PPFiltGoodsRest", 0, (void **)&p_filt) ? p_filt : static_cast<IUnknown *>(RaiseAppErrorPtr());
 }
 
 int32 DL6ICLS_PPViewGoodsRest::Init(IUnknown* pFilt) { IMPL_PPIFC_PPVIEWINIT(GoodsRest); }
@@ -8527,26 +8527,26 @@ void  DL6ICLS_PPFiltBill::put_Ft_ClosedOrder(int32 value) {IMPL_PPIFC_PUTPROP_CA
 
 double DL6ICLS_PPFiltBill::get_AmtRangeMin()
 {
-	BillFilt * p_filt = (BillFilt*)ExtraPtr;
+	BillFilt * p_filt = static_cast<BillFilt *>(ExtraPtr);
 	return (p_filt) ? p_filt->AmtRange.low : 0;
 }
 
 void DL6ICLS_PPFiltBill::put_AmtRangeMin(double value)
 {
-	BillFilt * p_filt = (BillFilt*)ExtraPtr;
+	BillFilt * p_filt = static_cast<BillFilt *>(ExtraPtr);
 	if(p_filt)
 		p_filt->AmtRange.low = value;
 }
 
 double DL6ICLS_PPFiltBill::get_AmtRangeMax()
 {
-	BillFilt * p_filt = (BillFilt*)ExtraPtr;
+	BillFilt * p_filt = static_cast<BillFilt *>(ExtraPtr);
 	return (p_filt) ? p_filt->AmtRange.upp : 0;
 }
 
 void DL6ICLS_PPFiltBill::put_AmtRangeMax(double value)
 {
-	BillFilt * p_filt = (BillFilt*)ExtraPtr;
+	BillFilt * p_filt = static_cast<BillFilt *>(ExtraPtr);
 	if(p_filt)
 		p_filt->AmtRange.upp = value;
 }
@@ -8561,7 +8561,7 @@ void DL6ICLS_PPFiltBill::put_Sel(int32 value) {IMPL_PPIFC_PUTPROP(BillFilt, Sel)
 IUnknown* DL6ICLS_PPViewBill::CreateFilt(int32 param)
 {
 	IUnknown * p_filt = 0;
-	return CreateInnerInstance("PPFiltBill", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppErrorPtr();
+	return CreateInnerInstance("PPFiltBill", 0, (void **)&p_filt) ? p_filt : static_cast<IUnknown *>(RaiseAppErrorPtr());
 }
 
 int32 DL6ICLS_PPViewBill::Init(IUnknown* pFilt)
@@ -9013,7 +9013,7 @@ void  DL6ICLS_PPFiltGoodsOpAnlz::put_ABCGroupBy(PpyVGoodsOpAnlzABCGrp value) { (
 IUnknown * DL6ICLS_PPViewGoodsOpAnlz::CreateFilt(int32 param)
 {
 	IUnknown * p_filt = 0;
-	return CreateInnerInstance("PPFiltGoodsOpAnlz", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppErrorPtr();
+	return CreateInnerInstance("PPFiltGoodsOpAnlz", 0, (void **)&p_filt) ? p_filt : static_cast<IUnknown *>(RaiseAppErrorPtr());
 }
 
 int32 DL6ICLS_PPViewGoodsOpAnlz::Init(IUnknown* pFilt)
@@ -9655,7 +9655,7 @@ DL6_IC_CONSTRUCTION_EXTRA(PPViewPrjTask, DL6ICLS_PPViewPrjTask_VTab, PPViewPrjTa
 IUnknown* DL6ICLS_PPViewPrjTask::CreateFilt(int32 param)
 {
 	IUnknown * p_filt = 0;
-	return CreateInnerInstance("PPFiltPrjTask", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppErrorPtr();
+	return CreateInnerInstance("PPFiltPrjTask", 0, (void **)&p_filt) ? p_filt : static_cast<IUnknown *>(RaiseAppErrorPtr());
 }
 
 int32 DL6ICLS_PPViewPrjTask::Init(IUnknown* pFilt)
@@ -9862,7 +9862,7 @@ void  DL6ICLS_PPFiltOpGrouping::put_NumCycles(int32 value) {((OpGroupingFilt*)Ex
 IUnknown * DL6ICLS_PPViewOpGrouping::CreateFilt(int32 param)
 {
 	IUnknown * p_filt = 0;
-	return CreateInnerInstance("PPFiltOpGrouping", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppErrorPtr();
+	return CreateInnerInstance("PPFiltOpGrouping", 0, (void **)&p_filt) ? p_filt : static_cast<IUnknown *>(RaiseAppErrorPtr());
 }
 
 int32 DL6ICLS_PPViewOpGrouping::Init(IUnknown* pFilt)
@@ -10028,7 +10028,7 @@ void  DL6ICLS_PPFiltDebtTrnovr::put_ExtKind(PpyVDebtTrnovrExtKind value) {IMPL_P
 IUnknown * DL6ICLS_PPViewDebtTrnovr::CreateFilt(int32 param)
 {
 	IUnknown * p_filt = 0;
-	return CreateInnerInstance("PPFiltDebtTrnovr", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppErrorPtr();
+	return CreateInnerInstance("PPFiltDebtTrnovr", 0, (void **)&p_filt) ? p_filt : static_cast<IUnknown *>(RaiseAppErrorPtr());
 }
 
 int32 DL6ICLS_PPViewDebtTrnovr::Init(IUnknown* pFilt)
@@ -10260,7 +10260,7 @@ void  DL6ICLS_PPFiltLotOp::put_Flags(PpyVLotOpFlags value) {IMPL_PPIFC_PUTPROP(L
 IUnknown * DL6ICLS_PPViewLotOp::CreateFilt(int32 param)
 {
 	IUnknown * p_filt = 0;
-	return CreateInnerInstance("PPFiltLotOp", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppErrorPtr();
+	return CreateInnerInstance("PPFiltLotOp", 0, (void **)&p_filt) ? p_filt : static_cast<IUnknown *>(RaiseAppErrorPtr());
 }
 
 int32 DL6ICLS_PPViewLotOp::Init(IUnknown* pFilt)

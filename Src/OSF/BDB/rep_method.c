@@ -1062,7 +1062,7 @@ static int __rep_abort_prepared(ENV * env)
 	long count, i;
 	uint32 op;
 	DB_TXNMGR * mgr = env->tx_handle;
-	DB_TXNREGION * region = (DB_TXNREGION *)mgr->reginfo.primary;
+	DB_TXNREGION * region = static_cast<DB_TXNREGION *>(mgr->reginfo.primary);
 	DB_LOG * dblp = env->lg_handle;
 	LOG * lp = (LOG *)dblp->reginfo.primary;
 	if(region->stat.st_nrestores == 0)

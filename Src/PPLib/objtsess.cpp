@@ -5218,7 +5218,7 @@ int PPALDD_UhttTSession::Set(long iterId, int commit)
 	else {
 		PPID  id = r_blk.Pack.Rec.ID;
 		THROW(r_blk.TSesObj.PutPacket(&id, &r_blk.Pack, 1));
-		Extra[4].Ptr = (void *)id;
+		Extra[4].Ptr = reinterpret_cast<void *>(id);
 	}
 	CATCHZOK
 	if(commit || !ok)

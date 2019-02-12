@@ -2091,7 +2091,7 @@ int SLAPI PPEanComDocument::Read_Document(void * pCtx, const char * pFileName, c
 				PPBillPacket::SetupObjectBlock sob;
 				THROW_MEM(p_pack = new PPEdiProcessor::Packet(PPEDIOP_DESADV));
 				THROW(PreprocessPartiesOnReading(p_pack->DocType, &document, &parties_blk));
-				p_bpack = (PPBillPacket *)p_pack->P_Data;
+				p_bpack = static_cast<PPBillPacket *>(p_pack->P_Data);
 				THROW(p_bpack->CreateBlank_WithoutCode(bill_op_id, 0, parties_blk.BillLocID, 1));
 				p_bpack->Rec.EdiOp = p_pack->DocType;
 				STRNSCPY(p_bpack->Rec.Code, document.GetFinalBillCode());
@@ -3820,11 +3820,11 @@ PPEdiProcessor::Packet::~Packet()
 		case PPEDIOP_DESADV:
 		case PPEDIOP_ALCODESADV:
 		case PPEDIOP_INVOIC:
-			delete (PPBillPacket *)P_Data;
+			delete static_cast<PPBillPacket *>(P_Data);
 			break;
 		case PPEDIOP_ORDERRSP:
-			delete (PPBillPacket *)P_Data;
-			delete (PPBillPacket *)P_ExtData;
+			delete static_cast<PPBillPacket *>(P_Data);
+			delete static_cast<PPBillPacket *>(P_ExtData);
 			break;
 		case PPEDIOP_RECADV:
 			delete (RecadvPacket *)P_Data;
@@ -3950,7 +3950,7 @@ int SLAPI PPEdiProcessor::SendOrders(const PPBillIterchangeFilt & rP, const PPID
 				tag_id = 0;
 			if(!do_skip && P_BObj->Search(bill_id, &bill_rec) > 0 && P_BObj->CheckStatusFlag(bill_rec.StatusID, BILSTF_READYFOREDIACK)) {
 				PPEdiProcessor::Packet pack(PPEDIOP_ORDER);
-				if(P_BObj->ExtractPacket(bill_id, (PPBillPacket *)pack.P_Data) > 0) {
+				if(P_BObj->ExtractPacket(bill_id, static_cast<PPBillPacket *>(pack.P_Data)) > 0) {
 					DocumentInfo di;
 					if(SendDocument(&di, pack) > 0) {
 						if(tag_id) {
@@ -4176,10 +4176,10 @@ int SLAPI PPEdiProcessor::SendOrderRsp(const PPBillIterchangeFilt & rP, const PP
 		const PPID bill_id = temp_bill_list.get(k);
 		if(P_BObj->Search(bill_id, &bill_rec) > 0 && P_BObj->CheckStatusFlag(bill_rec.StatusID, BILSTF_READYFOREDIACK)) {
 			PPEdiProcessor::Packet pack(PPEDIOP_ORDERRSP);
-			if(P_BObj->ExtractPacket(bill_id, (PPBillPacket *)pack.P_Data) > 0) {
-				int gopr = P_BObj->GetOriginalPacket(bill_id, 0, (PPBillPacket *)pack.P_ExtData);
+			if(P_BObj->ExtractPacket(bill_id, static_cast<PPBillPacket *>(pack.P_Data)) > 0) {
+				int gopr = P_BObj->GetOriginalPacket(bill_id, 0, static_cast<PPBillPacket *>(pack.P_ExtData));
 				if(gopr <= 0 || gopr == 1/*документ не менялся*/) {
-					delete (PPBillPacket *)pack.P_ExtData;
+					delete static_cast<PPBillPacket *>(pack.P_ExtData);
 					pack.P_ExtData = 0;
 				}
 				DocumentInfo di;
@@ -4257,7 +4257,7 @@ int SLAPI PPEdiProcessor::SendDESADV(int ediOp, const PPBillIterchangeFilt & rP,
 			}
 			if(!do_skip && P_BObj->Search(bill_id, &bill_rec) > 0 && P_BObj->CheckStatusFlag(bill_rec.StatusID, BILSTF_READYFOREDIACK)) {
 				PPEdiProcessor::Packet pack(ediOp);
-				PPBillPacket * p_bp = (PPBillPacket *)pack.P_Data;
+				PPBillPacket * p_bp = static_cast<PPBillPacket *>(pack.P_Data);
 				if(P_BObj->ExtractPacket(bill_id, p_bp) > 0) {
 					if(ediOp == PPEDIOP_ALCODESADV) {
 						do_skip = 1;
@@ -4396,7 +4396,7 @@ int SLAPI EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, c
 				THROW_PP(ACfg.Hdr.OpID, PPERR_EDI_OPNDEF_ORDER);
 				THROW(ReadCommonAttributes(p_n, attrs));
 				THROW_MEM(p_pack = new PPEdiProcessor::Packet(edi_op));
-				p_bpack = (PPBillPacket *)p_pack->P_Data;
+				p_bpack = static_cast<PPBillPacket *>(p_pack->P_Data);
 				THROW(p_bpack->CreateBlank_WithoutCode(ACfg.Hdr.OpID, 0, 0, 1));
 				STRNSCPY(p_bpack->Rec.Code, attrs.Num);
 				p_bpack->Rec.Dt = attrs.Dt;
@@ -4556,7 +4556,7 @@ int SLAPI EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, c
 				THROW_PP(ACfg.Hdr.EdiOrderSpOpID, PPERR_EDI_OPNDEF_ORDERRSP);
 				THROW(ReadCommonAttributes(p_n, attrs));
 				THROW_MEM(p_pack = new PPEdiProcessor::Packet(edi_op));
-				p_bpack = (PPBillPacket *)p_pack->P_Data;
+				p_bpack = static_cast<PPBillPacket *>(p_pack->P_Data);
 				addendum_msg_buf.Z().Cat("ORDERRSP").Space().Cat(attrs.Num).Space().Cat(attrs.Dt, DATF_DMY);
 				THROW_PP_S(p_bpack, PPERR_EDI_INBILLNOTINITED, addendum_msg_buf);
 				for(xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
@@ -4665,7 +4665,7 @@ int SLAPI EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, c
 				THROW_PP(ACfg.Hdr.EdiDesadvOpID, PPERR_EDI_OPNDEF_DESADV);
 				THROW(ReadCommonAttributes(p_n, attrs));
 				THROW_MEM(p_pack = new PPEdiProcessor::Packet(edi_op));
-				p_bpack = (PPBillPacket *)p_pack->P_Data;
+				p_bpack = static_cast<PPBillPacket *>(p_pack->P_Data);
 				addendum_msg_buf.Z().Cat("DESADV").Space().Cat(attrs.Num).Space().Cat(attrs.Dt, DATF_DMY);
 				THROW_PP_S(p_bpack, PPERR_EDI_INBILLNOTINITED, addendum_msg_buf);
 				THROW(p_bpack->CreateBlank_WithoutCode(ACfg.Hdr.EdiDesadvOpID, 0, 0, 1));
@@ -5662,7 +5662,7 @@ int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor:
 							THROW_MEM(p_pack = new PPEdiProcessor::Packet(edi_op));
 							//addendum_msg_buf.Z().Cat("ORDERRSP").Space().Cat(attrs.Num).Space().Cat(attrs.Dt, DATF_DMY);
 							if(edi_op == PPEDIOP_DESADV) {
-								p_bpack = (PPBillPacket *)p_pack->P_Data;
+								p_bpack = static_cast<PPBillPacket *>(p_pack->P_Data);
 								THROW_PP_S(p_bpack, PPERR_EDI_INBILLNOTINITED, addendum_msg_buf);
 								THROW(p_bpack->CreateBlank_WithoutCode(ACfg.Hdr.EdiDesadvOpID, 0, 0, 1));
 								p_bpack->Rec.EdiOp = PPEDIOP_DESADV;
@@ -5984,7 +5984,7 @@ int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor:
 								}
 							}
 							else if(edi_op == PPEDIOP_ORDER) {
-								p_bpack = (PPBillPacket *)p_pack->P_Data;
+								p_bpack = static_cast<PPBillPacket *>(p_pack->P_Data);
 								THROW_PP_S(p_bpack, PPERR_EDI_INBILLNOTINITED, addendum_msg_buf);
 								THROW(p_bpack->CreateBlank_WithoutCode(ACfg.Hdr.OpID, 0, 0, 1));
 								p_bpack->Rec.EdiOp = PPEDIOP_ORDER;
@@ -6234,7 +6234,7 @@ int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor:
 								;
 							}
 							else if(edi_op == PPEDIOP_ORDERRSP) {
-								p_bpack = (PPBillPacket *)p_pack->P_Data;
+								p_bpack = static_cast<PPBillPacket *>(p_pack->P_Data);
 								THROW_PP_S(p_bpack, PPERR_EDI_INBILLNOTINITED, addendum_msg_buf);
 								THROW(p_bpack->CreateBlank_WithoutCode(ordrsp_op_id, 0, 0, 1));
 								p_bpack->Rec.EdiOp = p_pack->DocType;
@@ -6426,7 +6426,7 @@ int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor:
 									BillTbl::Rec ord_bill_rec;
 									if(SearchLinkedBill(order_number, order_date, p_bpack->Rec.Object, PPEDIOP_ORDER, &ord_bill_rec) > 0) {
 										p_bpack->Rec.LinkBillID = ord_bill_rec.ID;
-										THROW(P_BObj->ExtractPacket(p_bpack->Rec.LinkBillID, (PPBillPacket *)p_pack->P_ExtData) > 0);
+										THROW(P_BObj->ExtractPacket(p_bpack->Rec.LinkBillID, static_cast<PPBillPacket *>(p_pack->P_ExtData)) > 0);
 									}
 								}
 							}

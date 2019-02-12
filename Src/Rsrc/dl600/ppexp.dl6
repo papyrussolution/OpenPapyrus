@@ -2531,6 +2531,14 @@ data GoodsReval {
 		double ExcSum;    // @v8.2.6 Сумма акциза
 		double STRate;    // @v8.2.6 Ставка налога с продаж (%)
 		double STSum;     // @v8.2.6 Сумма налога с продаж (при печати ценников - номер товара в альт группе)
+		/*
+		double VATRate;                 // Ставка НДС (%)
+		double VATSum;                  // Сумма НДС
+		double ExcRate;                 // Ставка акциза (%)
+		double ExcSum;                  // Сумма акциза
+		double STRate;                  // Ставка налога с продаж (%)
+		double STSum;                   // Сумма налога с продаж (при печати ценников - номер товара в альт группе)
+		*/
 
 		double VATSumOldCost;
 		double VATSumNewCost;

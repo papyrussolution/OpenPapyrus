@@ -4675,7 +4675,7 @@ int PPALDD_UhttStyloDevice::Set(long iterId, int commit)
 					;
 				}
 			}
-			Extra[4].Ptr = (void *)id;
+			Extra[4].Ptr = reinterpret_cast<void *>(id);
 		}
 		else {
 			PPSetError(PPERR_NORIGHTS);

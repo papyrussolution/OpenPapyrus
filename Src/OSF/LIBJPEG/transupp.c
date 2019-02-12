@@ -263,18 +263,14 @@ static void do_flip_h_no_crop(j_decompress_ptr srcinfo, j_compress_ptr dstinfo, 
 	 * mirroring by changing the signs of odd-numbered columns.
 	 * Partial iMCUs at the right edge are left untouched.
 	 */
-	MCU_cols = srcinfo->output_width /
-	    (dstinfo->max_h_samp_factor * dstinfo->min_DCT_h_scaled_size);
-
+	MCU_cols = srcinfo->output_width / (dstinfo->max_h_samp_factor * dstinfo->min_DCT_h_scaled_size);
 	for(ci = 0; ci < dstinfo->num_components; ci++) {
 		compptr = dstinfo->comp_info + ci;
 		comp_width = MCU_cols * compptr->h_samp_factor;
 		x_crop_blocks = x_crop_offset * compptr->h_samp_factor;
 		for(blk_y = 0; blk_y < compptr->height_in_blocks;
 		    blk_y += compptr->v_samp_factor) {
-			buffer = (*srcinfo->mem->access_virt_barray)
-				    ((j_common_ptr)srcinfo, src_coef_arrays[ci], blk_y,
-			    (JDIMENSION)compptr->v_samp_factor, TRUE);
+			buffer = (*srcinfo->mem->access_virt_barray)((j_common_ptr)srcinfo, src_coef_arrays[ci], blk_y, (JDIMENSION)compptr->v_samp_factor, TRUE);
 			for(offset_y = 0; offset_y < compptr->v_samp_factor; offset_y++) {
 				/* Do the mirroring */
 				for(blk_x = 0; blk_x * 2 < comp_width; blk_x++) {

@@ -2329,13 +2329,13 @@ PPALDD_CONSTRUCTOR(GlobalUserAcc)
 PPALDD_DESTRUCTOR(GlobalUserAcc)
 {
 	Destroy();
-	delete (GlobalUserAccBlock *)Extra[0].Ptr;
+	delete static_cast<GlobalUserAccBlock *>(Extra[0].Ptr);
 }
 
 int PPALDD_GlobalUserAcc::InitData(PPFilt & rFilt, long rsrv)
 {
 	int    ok = -1;
-	GlobalUserAccBlock & r_blk = *(GlobalUserAccBlock *)Extra[0].Ptr;
+	GlobalUserAccBlock & r_blk = *static_cast<GlobalUserAccBlock *>(Extra[0].Ptr);
 	r_blk.Clear();
 	MEMSZERO(H);
 	if(r_blk.GuaObj.Search(rFilt.ID, &r_blk.Rec) > 0) {
@@ -2354,7 +2354,7 @@ int PPALDD_GlobalUserAcc::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_GlobalUserAcc::Set(long iterId, int commit)
 {
 	int    ok = 1;
-	GlobalUserAccBlock & r_blk = *(GlobalUserAccBlock *)Extra[0].Ptr;
+	GlobalUserAccBlock & r_blk = *static_cast<GlobalUserAccBlock *>(Extra[0].Ptr);
 	if(r_blk.State != GlobalUserAccBlock::stSet) {
 		r_blk.Clear();
 		r_blk.State = GlobalUserAccBlock::stSet;
@@ -2372,7 +2372,7 @@ int PPALDD_GlobalUserAcc::Set(long iterId, int commit)
 		S_GUID s_uid;
 		s_uid.Generate();
 		THROW(r_blk.GuaObj.Register(id, r_blk.Rec.Name, r_blk.Rec.Password, s_uid, 0, r_blk.Rec.PersonID));
-		Extra[4].Ptr = (void *)id;
+		Extra[4].Ptr = reinterpret_cast<void *>(id);
 	}
 	CATCHZOK
 	if(commit || !ok)

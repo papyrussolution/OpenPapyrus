@@ -614,9 +614,9 @@ static IMPL_DBE_PROC(dbqf_evvertextfromlist_ppvsj_iidtp)
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
-	PPViewBrowser * p_brw = (PPViewBrowser *)extraPtr;
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
 	if(p_brw) {
-		PPViewSysJournal * p_view = (PPViewSysJournal *)p_brw->P_View;
+		PPViewSysJournal * p_view = static_cast<PPViewSysJournal *>(p_brw->P_View);
 		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
 	}
 	return ok;
@@ -629,7 +629,7 @@ int SLAPI PPViewSysJournal::CellStyleFunc_(const void * pData, long col, int pai
 		const  BrowserDef * p_def = pBrw->getDef();
 		if(col >= 0 && col < (long)p_def->getCount()) {
 			const BroColumn & r_col = p_def->at(col);
-			PPViewSysJournal::BrwHdr * p_hdr = (PPViewSysJournal::BrwHdr *)pData;
+			const PPViewSysJournal::BrwHdr * p_hdr = static_cast<const PPViewSysJournal::BrwHdr *>(pData);
 			if(r_col.OrgOffs == 7) { // Action
 				if(oneof2(p_hdr->Action, PPACN_OBJRMV, PPACN_RMVBILL)) {
 					pStyle->Color = LightenColor(GetColorRef(SClrRed), 0.8f);
@@ -760,7 +760,7 @@ DBQuery * SLAPI PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 		dbq = ppcheckfiltid(dbq, sj->ObjID, Filt.ObjID);
 		dbq = ppcheckweekday(dbq, sj->Dt, Filt.DayOfWeek);
 		if(Filt.BegTm)
-			dbq = & (*dbq && sj->Tm >= (long)Filt.BegTm);
+			dbq = & (*dbq && sj->Tm >= static_cast<long>(Filt.BegTm));
 		q = & select(
 			sj->ObjType,  // #0
 			sj->ObjID,    // #1
@@ -782,7 +782,7 @@ DBQuery * SLAPI PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 				//dbq = & (*dbq && (nm->PrmrID == sj->ObjType && (nm->ScndID += sj->ObjID)));
 				dbe_objname.push(sj->ObjType);
 				dbe_objname.push(sj->ObjID);
-				dbe_objname.push(dbconst((const void *)this));
+				dbe_objname.push(dbconst(static_cast<const void *>(this)));
 				dbe_objname.push((DBFunc)DynFuncObjNameFromList);
 			}
 			else
@@ -792,7 +792,7 @@ DBQuery * SLAPI PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 				dbe_evvertext.push(sj->ObjID);
 				dbe_evvertext.push(sj->Dt);
 				dbe_evvertext.push(sj->Tm);
-				dbe_evvertext.push(dbconst((const void *)this));
+				dbe_evvertext.push(dbconst(static_cast<const void *>(this)));
 				dbe_evvertext.push((DBFunc)DynFuncEvVerTextFromList);
 			}
 			else
@@ -827,7 +827,7 @@ int SLAPI PPViewSysJournal::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
 		BrwHdr hdr;
-		if(!RVALUEPTR(hdr, (PPViewSysJournal::BrwHdr *)pHdr))
+		if(!RVALUEPTR(hdr, static_cast<const PPViewSysJournal::BrwHdr *>(pHdr)))
 			MEMSZERO(hdr);
 		if(ppvCmd == PPVCMD_VIEWHISTORY) {
 			if(hdr.Obj == PPOBJ_BILL && oneof2(hdr.Action, PPACN_UPDBILL, PPACN_RMVBILL)) {
@@ -918,7 +918,7 @@ int SLAPI PPViewSysJournal::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 int SLAPI PPViewSysJournal::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	BrwHdr hdr;
-	if(!RVALUEPTR(hdr, (PPViewSysJournal::BrwHdr *)pHdr))
+	if(!RVALUEPTR(hdr, static_cast<const PPViewSysJournal::BrwHdr *>(pHdr)))
 		MEMSZERO(hdr);
 	if(Filt.Sgsj != sgsjNone || Filt.Sgd != sgdNone) {
 		int    r = 1;
@@ -965,11 +965,11 @@ int SLAPI PPViewSysJournal::Detail(const void * pHdr, PPViewBrowser * pBrw)
 			EditObjTagItem(hdr.Obj, hdr.Id, &tag_item, 0);
 		}
 		else {
-			EditObj((PPObjID*)&hdr);
+			EditObj(reinterpret_cast<PPObjID *>(&hdr));
 		}
 	}
 	else if(!oneof2(hdr.Action, PPACN_OBJRMV, PPACN_RMVBILL))
-		EditObj((PPObjID*)&hdr);
+		EditObj(reinterpret_cast<PPObjID *>(&hdr));
 	return -1;
 }
 
@@ -1205,7 +1205,7 @@ int PPALDD_SysJournalEntry::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		size_t data_len = 0;
 		MEMSZERO(H);
-		const SysJournalTbl::Rec * p_sj_rec = (const SysJournalTbl::Rec *)DS.GetTLA().SurIdList.Get(rFilt.ID, &data_len);
+		const SysJournalTbl::Rec * p_sj_rec = static_cast<const SysJournalTbl::Rec *>(DS.GetTLA().SurIdList.Get(rFilt.ID, &data_len));
 		if(p_sj_rec && data_len == sizeof(*p_sj_rec)) {
 			H.SurID = rFilt.ID;
 			H.UserID  = p_sj_rec->UserID;
@@ -1332,7 +1332,7 @@ int SLAPI PPViewGtaJournal::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		}
 		int    setDTS(const GtaJournalFilt * pData)
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			SetPeriodInput(this, CTL_GTAJFILT_PERIOD, &Data.Period);
 			SetupPPObjCombo(this, CTLSEL_GTAJFILT_USER, PPOBJ_GLOBALUSERACC, Data.GlobalUserID, 0, 0);
 			SetupPPObjCombo(this, CTLSEL_GTAJFILT_ACTION, PPOBJ_GTACTION, 0, 0, 0);
@@ -1370,7 +1370,7 @@ int SLAPI PPViewGtaJournal::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		{
 			TDialog::handleEvent(event);
 			if(event.isCmd(cmSysJActionList)) {
-				ListToListData l2l_data(PPOBJ_GTACTION, (void *)-1, &Data.ActionIDList);
+				ListToListData l2l_data(PPOBJ_GTACTION, reinterpret_cast<void *>(-1), &Data.ActionIDList);
 				l2l_data.TitleStrID = 0; // PPTXT_XXX;
 				if(ListToListDialog(&l2l_data) > 0)
 					if(Data.ActionIDList.isList()) {
@@ -1409,7 +1409,6 @@ int SLAPI PPViewGtaJournal::Init_(const PPBaseFilt * pFilt)
 	BExtInsert * p_bei = 0;
 	Counter.Init();
 	ZDELETE(P_TmpTbl);
-	//ZDELETE(P_NamesTbl);
 	THROW(Helper_InitBaseFilt(pFilt));
 	Filt.Period.Actualize(ZERODATE);
 	LastRefreshDtm = getcurdatetime_();
@@ -1429,7 +1428,6 @@ int SLAPI PPViewGtaJournal::Init_(const PPBaseFilt * pFilt)
 				while(P_IterQuery->nextIteration() > 0) {
 					PPID id = 0;
 					THROW(PPCheckUserBreak());
-					// @v9.9.0 {
 					if(Filt.Flags & Filt.fShowObjects) {
 						PPObjNamePEntry objn_entry;
 						objn_entry.Set(T.data.ObjType, T.data.ObjID);
@@ -1447,23 +1445,8 @@ int SLAPI PPViewGtaJournal::Init_(const PPBaseFilt * pFilt)
 							}
 						}
 					}
-					// } @v9.9.0
 					if(p_bei)
 						THROW_DB(p_bei->insert(&T.data));
-					/* @v9.9.0 if(P_NamesTbl && T.data.ObjID) {
-						TempDoubleIDTbl::Key1 k1;
-						k1.ScndID = T.data.ObjID;
-						k1.PrmrID = T.data.ObjType;
-						if(!P_NamesTbl->search(1, &k1, spEq)) {
-							TempDoubleIDTbl::Rec  nm_rec;
-							MEMSZERO(nm_rec);
-							PPObject * ppobj = P_ObjColl->GetObjectPtr(T.data.ObjType);
-							nm_rec.PrmrID = T.data.ObjType;
-							nm_rec.ScndID = T.data.ObjID;
-							CALLPTRMEMB(ppobj, GetName(nm_rec.ScndID, nm_rec.Name, sizeof(nm_rec.Name)));
-							THROW_DB(P_NamesTbl->insertRecBuf(&nm_rec));
-						}
-					}*/
 					Counter.Increment();
 					PPWaitPercent(Counter);
 				}
@@ -1473,10 +1456,7 @@ int SLAPI PPViewGtaJournal::Init_(const PPBaseFilt * pFilt)
 			}
 		}
 	}
-	CATCH
-		ok = 0;
-		//ZDELETE(P_NamesTbl);
-	ENDCATCH
+	CATCHZOK
 	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(p_bei);
 	if(ok == 0)

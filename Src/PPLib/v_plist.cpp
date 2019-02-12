@@ -1233,7 +1233,7 @@ int SLAPI PPViewPriceList::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *(PPID *)pHdr : 0;
+		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		PriceLineIdent ident;
 		if(pHdr) {
 			struct _H {

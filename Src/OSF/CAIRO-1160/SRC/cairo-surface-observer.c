@@ -125,14 +125,11 @@ static cairo_status_t log_init(cairo_observation_t * log, cairo_bool_t record)
 	init_glyphs(&log->glyphs);
 	_cairo_array_init(&log->timings, sizeof(cairo_observation_record_t));
 	if(record) {
-		log->record = (cairo_recording_surface_t*)
-		    cairo_recording_surface_create(CAIRO_CONTENT_COLOR_ALPHA, NULL);
+		log->record = reinterpret_cast<cairo_recording_surface_t *>(cairo_recording_surface_create(CAIRO_CONTENT_COLOR_ALPHA, NULL));
 		if(unlikely(log->record->base.status))
 			return log->record->base.status;
-
 		log->record->optimize_clears = FALSE;
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -142,12 +139,12 @@ static void log_fini(cairo_observation_t * log)
 	cairo_surface_destroy(&log->record->base);
 }
 
-static cairo_surface_t* get_pattern_surface(const cairo_pattern_t * pattern)
+static cairo_surface_t * FASTCALL get_pattern_surface(const cairo_pattern_t * pattern)
 {
-	return ((cairo_surface_pattern_t*)pattern)->surface;
+	return reinterpret_cast<const cairo_surface_pattern_t *>(pattern)->surface;
 }
 
-static int classify_pattern(const cairo_pattern_t * pattern, const cairo_surface_t * target)
+static int FASTCALL classify_pattern(const cairo_pattern_t * pattern, const cairo_surface_t * target)
 {
 	int classify;
 	switch(pattern->type) {
@@ -179,18 +176,15 @@ static int classify_pattern(const cairo_pattern_t * pattern, const cairo_surface
 	return classify;
 }
 
-static void add_pattern(struct pattern * stats, const cairo_pattern_t * pattern, const cairo_surface_t * target)
+static void FASTCALL add_pattern(struct pattern * stats, const cairo_pattern_t * pattern, const cairo_surface_t * target)
 {
 	stats->type[classify_pattern(pattern, target)]++;
 }
 
-static int classify_path(const cairo_path_fixed_t * path,
-    cairo_bool_t is_fill)
+static int classify_path(const cairo_path_fixed_t * path, cairo_bool_t is_fill)
 {
-	int classify;
-
 	/* XXX improve for stroke */
-	classify = -1;
+	int classify = -1;
 	if(is_fill) {
 		if(path->fill_is_empty)
 			classify = 0;
@@ -427,15 +421,10 @@ static void record_target(cairo_observation_record_t * r,
 	}
 }
 
-static cairo_observation_record_t * record_paint(cairo_observation_record_t * r,
-    cairo_surface_t * target,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_clip_t * clip,
-    cairo_time_t elapsed)
+static cairo_observation_record_t * record_paint(cairo_observation_record_t * r, cairo_surface_t * target, cairo_operator_t op,
+    const cairo_pattern_t * source, const cairo_clip_t * clip, cairo_time_t elapsed)
 {
 	record_target(r, target);
-
 	r->op = op;
 	r->source = classify_pattern(source, target);
 	r->mask = -1;
@@ -446,20 +435,13 @@ static cairo_observation_record_t * record_paint(cairo_observation_record_t * r,
 	r->antialias = -1;
 	r->clip = classify_clip(clip);
 	r->elapsed = elapsed;
-
 	return r;
 }
 
-static cairo_observation_record_t * record_mask(cairo_observation_record_t * r,
-    cairo_surface_t * target,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_pattern_t * mask,
-    const cairo_clip_t * clip,
-    cairo_time_t elapsed)
+static cairo_observation_record_t * record_mask(cairo_observation_record_t * r, cairo_surface_t * target, cairo_operator_t op,
+    const cairo_pattern_t * source, const cairo_pattern_t * mask, const cairo_clip_t * clip, cairo_time_t elapsed)
 {
 	record_target(r, target);
-
 	r->op = op;
 	r->source = classify_pattern(source, target);
 	r->mask = classify_pattern(mask, target);
@@ -470,7 +452,6 @@ static cairo_observation_record_t * record_mask(cairo_observation_record_t * r,
 	r->antialias = -1;
 	r->clip = classify_clip(clip);
 	r->elapsed = elapsed;
-
 	return r;
 }
 
@@ -556,69 +537,49 @@ static cairo_observation_record_t * record_glyphs(cairo_observation_record_t * r
 	return r;
 }
 
-static void add_record(cairo_observation_t * log,
-    cairo_observation_record_t * r)
+static void add_record(cairo_observation_t * log, cairo_observation_record_t * r)
 {
-	cairo_int_status_t status;
-
 	r->index = log->record ? log->record->commands.num_elements : 0;
-
-	status = _cairo_array_append(&log->timings, r);
+	cairo_int_status_t status = _cairo_array_append(&log->timings, r);
 	assert(status == CAIRO_INT_STATUS_SUCCESS);
 }
 
-static void _cairo_surface_sync(cairo_surface_t * target, int x, int y)
+static void FASTCALL _cairo_surface_sync(cairo_surface_t * target, int x, int y)
 {
 	cairo_rectangle_int_t extents;
-
 	extents.x = x;
 	extents.y = y;
 	extents.width  = 1;
 	extents.height = 1;
-
-	_cairo_surface_unmap_image(target,
-	    _cairo_surface_map_to_image(target,
-	    &extents));
+	_cairo_surface_unmap_image(target, _cairo_surface_map_to_image(target, &extents));
 }
 
-static void midpt(const cairo_composite_rectangles_t * extents, int * x, int * y)
+static void FASTCALL midpt(const cairo_composite_rectangles_t * extents, int * x, int * y)
 {
 	*x = extents->bounded.x + extents->bounded.width / 2;
 	*y = extents->bounded.y + extents->bounded.height / 2;
 }
 
-static void add_record_paint(cairo_observation_t * log,
-    cairo_surface_t * target,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_clip_t * clip,
-    cairo_time_t elapsed)
+static void add_record_paint(cairo_observation_t * log, cairo_surface_t * target, cairo_operator_t op,
+    const cairo_pattern_t * source, const cairo_clip_t * clip, cairo_time_t elapsed)
 {
 	cairo_observation_record_t record;
 	cairo_int_status_t status;
-
-	add_record(log,
-	    record_paint(&record, target, op, source, clip, elapsed));
-
+	add_record(log, record_paint(&record, target, op, source, clip, elapsed));
 	/* We have to bypass the high-level surface layer in case it tries to be
 	 * too smart and discard operations; we need to record exactly what just
 	 * happened on the target.
 	 */
 	if(log->record) {
-		status = log->record->base.backend->paint(&log->record->base,
-			op, source, clip);
+		status = log->record->base.backend->paint(&log->record->base, op, source, clip);
 		assert(status == CAIRO_INT_STATUS_SUCCESS);
 	}
-
 	if(_cairo_time_gt(elapsed, log->paint.slowest.elapsed))
 		log->paint.slowest = record;
 	log->paint.elapsed = _cairo_time_add(log->paint.elapsed, elapsed);
 }
 
-static cairo_int_status_t _cairo_surface_observer_paint(void * abstract_surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_clip_t * clip)
+static cairo_int_status_t _cairo_surface_observer_paint(void * abstract_surface, cairo_operator_t op, const cairo_pattern_t * source, const cairo_clip_t * clip)
 {
 	cairo_surface_observer_t * surface = (cairo_surface_observer_t *)abstract_surface;
 	cairo_device_observer_t * device = to_device(surface);
@@ -639,10 +600,7 @@ static cairo_int_status_t _cairo_surface_observer_paint(void * abstract_surface,
 	add_pattern(&device->log.paint.source, source, surface->target);
 	add_clip(&device->log.paint.clip, clip);
 
-	status = _cairo_composite_rectangles_init_for_paint(&composite,
-		surface->target,
-		op, source,
-		clip);
+	status = _cairo_composite_rectangles_init_for_paint(&composite, surface->target, op, source, clip);
 	if(unlikely(status)) {
 		surface->log.paint.noop++;
 		device->log.paint.noop++;
@@ -656,9 +614,7 @@ static cairo_int_status_t _cairo_surface_observer_paint(void * abstract_surface,
 	_cairo_composite_rectangles_fini(&composite);
 
 	t = _cairo_time_get();
-	status = _cairo_surface_paint(surface->target,
-		op, source,
-		clip);
+	status = _cairo_surface_paint(surface->target, op, source, clip);
 	if(unlikely(status))
 		return status;
 
@@ -669,40 +625,26 @@ static cairo_int_status_t _cairo_surface_observer_paint(void * abstract_surface,
 	add_record_paint(&device->log, surface->target, op, source, clip, t);
 
 	do_callbacks(surface, &surface->paint_callbacks);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static void add_record_mask(cairo_observation_t * log,
-    cairo_surface_t * target,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_pattern_t * mask,
-    const cairo_clip_t * clip,
-    cairo_time_t elapsed)
+static void add_record_mask(cairo_observation_t * log, cairo_surface_t * target, cairo_operator_t op,
+    const cairo_pattern_t * source, const cairo_pattern_t * mask, const cairo_clip_t * clip, cairo_time_t elapsed)
 {
 	cairo_observation_record_t record;
 	cairo_int_status_t status;
-
-	add_record(log,
-	    record_mask(&record, target, op, source, mask, clip, elapsed));
-
+	add_record(log, record_mask(&record, target, op, source, mask, clip, elapsed));
 	if(log->record) {
-		status = log->record->base.backend->mask(&log->record->base,
-			op, source, mask, clip);
+		status = log->record->base.backend->mask(&log->record->base, op, source, mask, clip);
 		assert(status == CAIRO_INT_STATUS_SUCCESS);
 	}
-
 	if(_cairo_time_gt(elapsed, log->mask.slowest.elapsed))
 		log->mask.slowest = record;
 	log->mask.elapsed = _cairo_time_add(log->mask.elapsed, elapsed);
 }
 
-static cairo_int_status_t _cairo_surface_observer_mask(void * abstract_surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_pattern_t * mask,
-    const cairo_clip_t * clip)
+static cairo_int_status_t _cairo_surface_observer_mask(void * abstract_surface, cairo_operator_t op, const cairo_pattern_t * source,
+    const cairo_pattern_t * mask, const cairo_clip_t * clip)
 {
 	cairo_surface_observer_t * surface = (cairo_surface_observer_t *)abstract_surface;
 	cairo_device_observer_t * device = to_device(surface);
@@ -736,9 +678,7 @@ static cairo_int_status_t _cairo_surface_observer_mask(void * abstract_surface,
 	_cairo_composite_rectangles_fini(&composite);
 
 	t = _cairo_time_get();
-	status =  _cairo_surface_mask(surface->target,
-		op, source, mask,
-		clip);
+	status =  _cairo_surface_mask(surface->target, op, source, mask, clip);
 	if(unlikely(status))
 		return status;
 
@@ -822,46 +762,25 @@ static cairo_int_status_t _cairo_surface_observer_fill(void * abstract_surface,
 	add_pattern(&device->log.fill.source, source, surface->target);
 	add_path(&device->log.fill.path, path, TRUE);
 	add_clip(&device->log.fill.clip, clip);
-
-	status = _cairo_composite_rectangles_init_for_fill(&composite,
-		surface->target,
-		op, source, path,
-		clip);
+	status = _cairo_composite_rectangles_init_for_fill(&composite, surface->target, op, source, path, clip);
 	if(unlikely(status)) {
 		surface->log.fill.noop++;
 		device->log.fill.noop++;
 		return status;
 	}
-
 	midpt(&composite, &x, &y);
-
 	add_extents(&surface->log.fill.extents, &composite);
 	add_extents(&device->log.fill.extents, &composite);
 	_cairo_composite_rectangles_fini(&composite);
-
 	t = _cairo_time_get();
-	status = _cairo_surface_fill(surface->target,
-		op, source, path,
-		fill_rule, tolerance, antialias,
-		clip);
+	status = _cairo_surface_fill(surface->target, op, source, path, fill_rule, tolerance, antialias, clip);
 	if(unlikely(status))
 		return status;
-
 	_cairo_surface_sync(surface->target, x, y);
 	t = _cairo_time_get_delta(t);
-
-	add_record_fill(&surface->log,
-	    surface->target, op, source, path,
-	    fill_rule, tolerance, antialias,
-	    clip, t);
-
-	add_record_fill(&device->log,
-	    surface->target, op, source, path,
-	    fill_rule, tolerance, antialias,
-	    clip, t);
-
+	add_record_fill(&surface->log, surface->target, op, source, path, fill_rule, tolerance, antialias, clip, t);
+	add_record_fill(&device->log, surface->target, op, source, path, fill_rule, tolerance, antialias, clip, t);
 	do_callbacks(surface, &surface->fill_callbacks);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 

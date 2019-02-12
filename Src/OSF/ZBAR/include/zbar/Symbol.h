@@ -66,7 +66,7 @@ public:
 		syms.ref();
 		ref(-1);
 		_syms = syms._syms;
-		return(*this);
+		return *this;
 	}
 	/// truth testing.
 	bool operator!() const
@@ -132,19 +132,15 @@ public:
 		{
 			x = pt.x;
 			y = pt.y;
-			return(*this);
+			return *this;
 		}
 	};
 
 	/// iteration over Point objects in a symbol location polygon.
-	class PointIterator
-		: public std::iterator<std::input_iterator_tag, Point> {
+	class PointIterator : public std::iterator<std::input_iterator_tag, Point> {
 public:
 		/// constructor.
-		PointIterator (const Symbol * sym = NULL,
-		    int index = 0)
-			: _sym(sym),
-			_index(index)
+		PointIterator (const Symbol * sym = NULL, int index = 0) : _sym(sym), _index(index)
 		{
 			if(sym)
 				sym->ref(1);
@@ -178,7 +174,7 @@ public:
 				_sym->ref(-1);
 			_sym = iter._sym;
 			_index = iter._index;
-			return(*this);
+			return *this;
 		}
 
 		/// truth testing.
@@ -193,7 +189,7 @@ public:
 			uint i = ++_index;
 			if(!_sym || i >= zbar_symbol_get_loc_size(*_sym))
 				_index = -1;
-			return(*this);
+			return *this;
 		}
 
 		/// retrieve currently referenced Point.
@@ -202,8 +198,7 @@ public:
 			assert(!!*this);
 			if(!*this)
 				return(Point());
-			return(Point(zbar_symbol_get_loc_x(*_sym, _index),
-				    zbar_symbol_get_loc_y(*_sym, _index)));
+			return Point(zbar_symbol_get_loc_x(*_sym, _index), zbar_symbol_get_loc_y(*_sym, _index));
 		}
 
 		/// test if two iterators refer to the same Point in the same
@@ -227,21 +222,14 @@ private:
 	};
 
 	/// constructor.
-	Symbol (const zbar_symbol_t * sym = NULL)
-		: _xmlbuf(NULL),
-		_xmllen(0)
+	Symbol (const zbar_symbol_t * sym = NULL) : _xmlbuf(NULL), _xmllen(0)
 	{
 		init(sym);
 		ref();
 	}
 
 	/// copy constructor.
-	Symbol (const Symbol& sym)
-		: _sym(sym._sym),
-		_type(sym._type),
-		_data(sym._data),
-		_xmlbuf(NULL),
-		_xmllen(0)
+	Symbol (const Symbol& sym) : _sym(sym._sym), _type(sym._type), data(sym._data), _xmlbuf(NULL), _xmllen(0)
 	{
 		ref();
 	}
@@ -259,7 +247,7 @@ private:
 		_sym = sym._sym;
 		_type = sym._type;
 		_data = sym._data;
-		return(*this);
+		return *this;
 	}
 	Symbol& operator=(const zbar_symbol_t * sym)
 	{
@@ -267,7 +255,7 @@ private:
 			zbar_symbol_ref(sym, 1);
 		ref(-1);
 		init(sym);
-		return(*this);
+		return *this;
 	}
 	/// truth testing.
 	bool operator!() const
@@ -441,7 +429,7 @@ public:
 	{
 		_syms = iter._syms;
 		_sym = iter._sym;
-		return(*this);
+		return *this;
 	}
 	bool operator!() const
 	{
@@ -455,7 +443,7 @@ public:
 			_sym = zbar_symbol_next(_sym);
 		else if(!!_syms)
 			_sym = zbar_symbol_set_first_symbol(_syms);
-		return(*this);
+		return *this;
 	}
 
 	/// retrieve currently referenced Symbol.

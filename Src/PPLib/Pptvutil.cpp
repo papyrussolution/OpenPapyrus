@@ -3827,7 +3827,7 @@ int PersonListCtrlGroup::Setup(TDialog * pDlg, PPID psnKindID, int force /*=0*/)
 		ListData.P_RList->freeAll();
 		if(Data.PsnKindID) {
 			StrAssocArray _list;
-			TaggedStringArray * p_psn_list = (TaggedStringArray*)ListData.P_LList;
+			TaggedStringArray * p_psn_list = static_cast<TaggedStringArray *>(ListData.P_LList);
 			PsnObj.GetListByKind(Data.PsnKindID, 0, &_list);
 			for(uint i = 0; i < _list.getCount(); i++)
 				p_psn_list->Add(_list.at(i).Id, _list.at(i).Txt);

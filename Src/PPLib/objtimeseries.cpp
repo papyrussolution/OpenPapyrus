@@ -1118,6 +1118,65 @@ SLAPI PPObjTimeSeries::StrategyResultEntry::StrategyResultEntry(const PPObjTimeS
 	PeakMaxQuant = rTnnp.PeakMaxQuant;
 }
 
+SLAPI PPObjTimeSeries::TrendEntry::TrendEntry(uint stride, uint nominalCount) : Stride(stride), NominalCount(nominalCount)
+{
+	assert(stride > 0 && stride <= 100000);
+	assert(NominalCount > 0 && NominalCount <= 100);
+}
+
+//static 
+const PPObjTimeSeries::TrendEntry * FASTCALL PPObjTimeSeries::SearchTrendEntry(const TSCollection <TrendEntry> & rTrendList, uint stride) 
+{
+	const PPObjTimeSeries::TrendEntry * p_result = 0;
+	for(uint i = 0; !p_result && i < rTrendList.getCount(); i++) {
+		const PPObjTimeSeries::TrendEntry * p_te = rTrendList.at(i);
+		if(p_te && p_te->Stride == stride)
+			p_result = p_te;
+	}
+	return p_result;
+}
+
+//static 
+int SLAPI PPObjTimeSeries::MatchStrategy(const TSCollection <TrendEntry> & rTrendList, const Strategy & rS, double & rResult, double & rTv, double & rTv2)
+{
+	int   ok = 0;
+	const TrendEntry * p_te = SearchTrendEntry(rTrendList, rS.InputFrameSize);
+	const uint tlc = p_te ? p_te->TL.getCount() : 0;
+	if(tlc && rS.V.TmSec > 0) { // Если rS.V.TmSec == 0, то результат не был вычислен на этапе подготовки модели, либо не встретилось ни одного случая.
+		switch(rS.StakeMode) {
+			case 1:
+				rTv = p_te->TL.at(tlc-1);
+				if(rS.OptDeltaRange.Check(rTv)) {
+					rResult = rS.V.GetResultPerDay();
+					ok = 1;
+				}
+				break;
+			case 2:
+				if(tlc >= rS.OptDelta2Stride) {
+					rTv = p_te->TL.StrideDifference(tlc-1, rS.OptDelta2Stride);
+					if(rS.OptDelta2Range.Check(rTv)) {
+						rResult = rS.V.GetResultPerDay();
+						ok = 1;
+					}
+				}
+				break;
+			case 3:
+				if(tlc >= rS.OptDelta2Stride) {
+					rTv = p_te->TL.at(tlc-1);
+					if(rS.OptDeltaRange.Check(rTv)) {
+						rTv2 = p_te->TL.StrideDifference(tlc-1, rS.OptDelta2Stride);
+						if(rS.OptDelta2Range.Check(rTv2)) {
+							rResult = rS.V.GetResultPerDay();
+							ok = 1;
+						}
+					}
+				}
+				break;
+		}
+	}
+	return ok;
+}
+
 SLAPI  PPObjTimeSeries::FactorToResultRelation::FactorToResultRelation() : FactorQuant(0), PeakAvg(0), Result(0.0)
 {
 }
@@ -1231,6 +1290,19 @@ static int SLAPI TsCalcStrategyResult2(const DateTimeArray & rTmList, const Real
 				}
 			}
 		}
+	}
+	return ok;
+}
+
+static int SLAPI TsSimulateStrategyContainer(const DateTimeArray & rTmList, const RealArray & rValList, 
+	PPObjTimeSeries::StrategyContainer & rSc, PPObjTimeSeries::StrategyResultEntry & rSre)
+{
+	int    ok = 1;
+	const uint tsc = rTmList.getCount();
+	//const uint ifs = rS.InputFrameSize;
+	assert(tsc == rValList.getCount());
+	if(tsc && tsc == rValList.getCount()) {
+
 	}
 	return ok;
 }
@@ -1664,6 +1736,34 @@ SLAPI PPObjTimeSeries::StrategyContainer::StrategyContainer() : TSVector <Strate
 void PPObjTimeSeries::StrategyContainer::SetLastValTm(LDATETIME dtm)
 {
 	LastValTm = dtm;
+}
+
+int SLAPI PPObjTimeSeries::StrategyContainer::GetBestSubset(long flags, uint maxCount, StrategyContainer & rScDest) const
+{
+	rScDest.clear();
+	int    ok = 1;
+	RAssocArray range_list;
+	const uint _c = getCount();
+	for(uint i = 0; i < _c; i++) {
+		const Strategy & r_item = at(i);
+		const double result = r_item.V.GetResultPerDay();
+		if(result > 0.0) {
+			if(((r_item.BaseFlags & r_item.bfShort) && (flags & gbsfShort)) || (!(r_item.BaseFlags & r_item.bfShort) && (flags & gbsfLong))) {
+				if((r_item.StakeMode == 1 && flags & gbsfStakeMode1) || (r_item.StakeMode == 2 && flags & gbsfStakeMode2) || (r_item.StakeMode == 3 && flags & gbsfStakeMode3)) {
+					THROW_SL(range_list.Add(i+1, result));
+				}
+			}
+		}
+	}
+	range_list.SortByValRev();
+	for(uint ridx = 0; ridx < range_list.getCount(); ridx++) {
+		const RAssoc & r_range_item = range_list.at(ridx);
+		const uint pos = static_cast<uint>(r_range_item.Key-1);
+		assert(pos < _c);
+		THROW_SL(rScDest.insert(&at(pos)));
+	}
+	CATCHZOK
+	return ok;
 }
 
 int SLAPI PPObjTimeSeries::StrategyContainer::GetInputFramSizeList(LongArray & rList, uint * pMaxOptDelta2Stride) const
@@ -2119,7 +2219,7 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 			}
 			temp_list.sort(PTR_CMPFUNC(LDATETIME));
 			for(uint i2 = 0; i2 < temp_list.getCount(); i2++) {
-				THROW_SL(id_list.add(((TempEntry *)temp_list.at(i2))->ID));
+				THROW_SL(id_list.add(static_cast<const TempEntry *>(temp_list.at(i2))->ID));
 			}
 		}
 		else
@@ -2193,13 +2293,8 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 						// 
 						for(int stake_side = 0; stake_side < 2; stake_side++) {
 							if((stake_side == 0 && P.Flags & P.fProcessLong) || (stake_side == 1 && P.Flags & P.fProcessShort)) {
-								uint32 org_opt_max_duck_val = 0;
-								if(stake_side == 0) {
-									org_opt_max_duck_val = ts_rec.OptMaxDuck;
-								}
-								else if(stake_side == 1) {
-									org_opt_max_duck_val = ts_rec.OptMaxDuck_S;
-								}
+								const bool is_short = (stake_side == 1);
+								const uint32 org_opt_max_duck_val = is_short ? ts_rec.OptMaxDuck_S : ts_rec.OptMaxDuck;
 								uint32 cur_opt_max_duck_val = org_opt_max_duck_val;
 								if(P.Flags & P.fFindOptMaxDuck && (org_opt_max_duck_val <= 0 || (P.Flags & P.fForce))) {
 									PPObjTimeSeries::TrainNnParam tnnp(ts_rec, PPObjTimeSeries::TrainNnParam::afAnalyzeFrame);
@@ -2210,7 +2305,7 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 									tnnp.StakeThreshold = 0.05;
 									assert(oneof2(P.CloseMode, tnnp.clsmodFullMaxDuck, tnnp.clsmodAdjustLoss));
 									tnnp.StakeCloseMode = (uint16)P.CloseMode;
-									SETFLAG(tnnp.BaseFlags, tnnp.bfShort, stake_side == 1);
+									SETFLAG(tnnp.BaseFlags, tnnp.bfShort, is_short);
 									{
 										PPObjTimeSeries::FactorToResultRelation opt_max_duck;
 										PPObjTimeSeries::FactorToResultRelation opt_peak;
@@ -2226,12 +2321,10 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 										PPID   temp_id = id;
 										PPTimeSeries ts_rec_to_upd;
 										THROW(ts_obj.GetPacket(temp_id, &ts_rec_to_upd) > 0);
-										if(stake_side == 0) {
-											ts_rec_to_upd.OptMaxDuck = cur_opt_max_duck_val;
-										}
-										else if(stake_side == 1) {
+										if(is_short)
 											ts_rec_to_upd.OptMaxDuck_S = cur_opt_max_duck_val;
-										}
+										else
+											ts_rec_to_upd.OptMaxDuck = cur_opt_max_duck_val;
 										THROW(ts_obj.PutPacket(&temp_id, &ts_rec_to_upd, 1));
 									}
 								}

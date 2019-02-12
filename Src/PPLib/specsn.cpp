@@ -211,7 +211,7 @@ int PPALDD_UhttSpecSeries::Set(long iterId, int commit)
 	else {
 		PPID   id = r_blk.Rec.ID;
 		THROW(r_blk.SsCore.Put(&id, &r_blk.Rec, 1));
-		Extra[4].Ptr = (void *)id;
+		Extra[4].Ptr = reinterpret_cast<void *>(id);
 	}
 	CATCHZOK
 	if(commit || !ok)

@@ -6816,8 +6816,10 @@ public:
 //
 //
 struct TaggedString {
-	static TYPEID SLAPI BufType() { return (TYPEID)MKSTYPE(S_ZSTRING, TaggedString::BufSize()); }
-	static size_t SLAPI BufSize() { return (sizeof(TaggedString)-sizeof(long)); }
+	static TYPEID SLAPI BufType();
+	static size_t SLAPI BufSize();
+	SLAPI  TaggedString();
+
 	long   Id;
 	char   Txt[64];
 };
@@ -6855,6 +6857,7 @@ public:
 class SStrGroup {
 public:
 	SLAPI  SStrGroup();
+	SLAPI  SStrGroup(const SStrGroup & rS);
 	SStrGroup & FASTCALL operator = (const SStrGroup & rS);
 	size_t SLAPI GetPoolDataLen() const;
 	size_t SLAPI GetPoolSize() const;
@@ -7109,6 +7112,7 @@ public:
 		const  char * Val;
 	};
 	SLAPI  StrStrAssocArray();
+	SLAPI  StrStrAssocArray(const StrStrAssocArray & rS);
 	StrStrAssocArray & FASTCALL operator = (const StrStrAssocArray &);
 	int    FASTCALL Copy(const StrStrAssocArray &);
 	int    FASTCALL IsEqual(const StrStrAssocArray & src) const;
@@ -7478,7 +7482,8 @@ protected:
 		LAssoc * P_Ext;
 	};
 
-	HashTableBase(size_t sz);
+	explicit HashTableBase(size_t sz);
+	HashTableBase(const HashTableBase & rS);
 	~HashTableBase();
 	void   Clear();
 	int    FASTCALL Copy(const HashTableBase & rSrc);
@@ -7508,6 +7513,7 @@ protected:
 class SymbHashTable : public HashTableBase { // @persistent
 public:
 	explicit SymbHashTable(size_t sz, int useAssoc = 0);
+	SymbHashTable(const SymbHashTable & rS);
 	SymbHashTable & FASTCALL operator = (const SymbHashTable &);
 	//
 	// Descr: Копирует экземпляр rSrc в this.
@@ -7583,6 +7589,7 @@ private:
 class GuidHashTable : public HashTableBase  { // @persistent
 public:
 	explicit GuidHashTable(size_t sz, int useAssoc = 0);
+	GuidHashTable(const GuidHashTable & rS);
 	GuidHashTable & FASTCALL operator = (const GuidHashTable &);
 	//
 	// Descr: Копирует экземпляр rSrc в this.

@@ -249,7 +249,7 @@ int SLAPI PPViewSuprWare::DeleteAll()
 //virtual
 int SLAPI PPViewSuprWare::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
-	PPID   id = pHdr ? *(PPID *)pHdr : 0;
+	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	return (id && SwObj.EditList(&id) == cmOK) ? 1 : -1;
 }
 
@@ -257,7 +257,7 @@ int SLAPI PPViewSuprWare::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *(PPID *)pHdr : 0;
+		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			// На самом деле никакого редактирования не происходит. Только просмотр информации о составе товара
 #if 0 // {

@@ -1072,8 +1072,7 @@ int SLAPI SCS_ATOLDRV::PrintZReportCopy(const CSessInfo * pInfo)
 	ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
 	THROW_INVARG(pInfo);
 	THROW(Connect());
-
-	THROW(Connect());
+	// @v10.3.4 @fix (лишний вызов) THROW(Connect());
 	THROW(SetProp(Mode, MODE_REGISTER));
 	THROW(GetProp(CharLineLength, &CheckStrLen));
 	if(P_SlipFmt) {

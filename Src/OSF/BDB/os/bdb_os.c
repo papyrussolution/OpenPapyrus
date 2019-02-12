@@ -50,7 +50,7 @@ typedef union {
  *
  * PUBLIC: int __os_umalloc(ENV *, size_t, void *);
  */
-int __os_umalloc(ENV * env, size_t size, void * storep)
+int FASTCALL __os_umalloc(ENV * env, size_t size, void * storep)
 {
 	int ret;
 	DB_ENV * dbenv = env ? env->dbenv : 0;

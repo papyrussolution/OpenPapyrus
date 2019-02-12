@@ -85,7 +85,7 @@ SArray * SLAPI PPViewDialog::CreateBrowserArray(uint * pBrwId, SString * pSubTit
 
 int SLAPI PPViewDialog::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
-	PPID   id = pHdr ? *(PPID *)pHdr : 0;
+	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	if(id) {
 		EditDialogSpec(&Ctx, id);
 	}
@@ -97,7 +97,7 @@ int SLAPI PPViewDialog::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	/*
 	if(ok == -2) {
-		PPID   id = pHdr ? *(PPID *)pHdr : 0;
+		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 		}
 	}

@@ -331,9 +331,9 @@ static int IntersectByTempList(PPIDArray * pMainList, PPIDArray * pTempList, int
 IMPL_CMPFUNC(GoodsIdListByName, p1, p2)
 {
 	int    cm = 0;
-	PPObjGoods * p_goods_obj = (PPObjGoods *)pExtraData;
-	const PPID id1 = *(PPID *)p1;
-	const PPID id2 = *(PPID *)p2;
+	PPObjGoods * p_goods_obj = static_cast<PPObjGoods *>(pExtraData);
+	const PPID id1 = *static_cast<const PPID *>(p1);
+	const PPID id2 = *static_cast<const PPID *>(p2);
 	if(p_goods_obj) {
 		Goods2Tbl::Rec rec1, rec2;
 		int    r1 = p_goods_obj->Fetch(id1, &rec1);

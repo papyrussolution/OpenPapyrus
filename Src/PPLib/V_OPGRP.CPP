@@ -689,7 +689,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 {
 	int    ok = -1;
 	/*
-	PPViewBrowser * p_brw = (PPViewBrowser *)extraPtr;
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
 	if(p_brw && pData && pStyle) {
 		const  DBQBrowserDef * p_def = (const DBQBrowserDef *)p_brw->getDef();
 		const DBQuery * q = p_def ? (const DBQuery *)p_def->getQuery() : 0;
@@ -825,7 +825,7 @@ int SLAPI PPViewOpGrouping::Print(const void * pHdr)
 
 int SLAPI PPViewOpGrouping::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
-	PPID   __id = pHdr ? *(PPID *)pHdr : 0;
+	PPID   __id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	TempOpGrpngTbl * p_tbl = NZOR(P_TempStatTbl, P_TempTbl);
 	if(__id && p_tbl) {
 		PPID   k = __id;
@@ -1013,7 +1013,7 @@ int SLAPI PPViewOpGrouping::ViewGraph(const void * pHdr, PPViewBrowser * pBrw)
 
 	if(CycleList.getCount()) {
 		uint   i;
-		PPID   __id = pHdr ? *(PPID *)pHdr : 0;
+		PPID   __id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		PPID   cur_op_id = 0;
 		long   cur_sign = 0;
 		TempOpGrpngTbl * p_tbl = NZOR(P_TempStatTbl, P_TempTbl);

@@ -19,6 +19,11 @@ HashTableBase::HashTableBase(size_t sz) : P_Tab(0), Flags(0), AddCount(0), CollC
 	Size = sz;
 }
 
+HashTableBase::HashTableBase(const HashTableBase & rS) : P_Tab(0), Flags(0), AddCount(0), CollCount(0), MaxTail(0)
+{
+	Copy(rS);
+}
+
 HashTableBase::~HashTableBase()
 {
 	DestroyTabItems();
@@ -217,18 +222,23 @@ SymbHashTable::SymbHashTable(size_t sz, int useAssoc) : HashTableBase(sz)
 	SETFLAG(Flags, fUseAssoc, useAssoc);
 }
 
+SymbHashTable::SymbHashTable(const SymbHashTable & rS) : HashTableBase(rS), NamePool(rS.NamePool)
+{
+}
+
 SymbHashTable & FASTCALL SymbHashTable::operator = (const SymbHashTable & rS)
 {
 	Copy(rS);
 	return *this;
 }
 
-int FASTCALL SymbHashTable::Copy(const SymbHashTable & rSrc)
+int FASTCALL SymbHashTable::Copy(const SymbHashTable & rS)
 {
 	EXCEPTVAR(SLibError);
 	int    ok = 1;
 	Clear();
-	THROW(HashTableBase::Copy(rSrc));
+	THROW(HashTableBase::Copy(rS));
+	NamePool = rS.NamePool; // @v10.3.4 @fix
 	CATCHZOK
 	return ok;
 }
@@ -674,6 +684,10 @@ GuidHashTable::GuidHashTable(size_t sz, int useAssoc) : HashTableBase(sz)
 {
 	//Pool.setDelta(1024);
 	SETFLAG(Flags, fUseAssoc, useAssoc);
+}
+
+GuidHashTable::GuidHashTable(const GuidHashTable & rS) : HashTableBase(rS), Pool(rS.Pool) // @v10.3.4
+{
 }
 
 GuidHashTable & FASTCALL GuidHashTable::operator = (const GuidHashTable & rS)

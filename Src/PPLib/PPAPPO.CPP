@@ -496,15 +496,15 @@ int PPApp::processCommand(uint cmd)
 		case cmViewObjSync:          PPView::Execute(PPVIEW_OBJSYNC,         0, PPView::exefModeless, 0); break;
 		case cmViewObjSyncQueue:     PPView::Execute(PPVIEW_OBJSYNCQUEUE,    0, PPView::exefModeless, 0); break;
 		case cmSStat:                PPView::Execute(PPVIEW_SSTAT,           0, PPView::exefModeless, 0); break;
-		case cmSStatSupplOrder:      PPView::Execute(PPVIEW_SSTAT,           0, PPView::exefModeless, (void *)1); break;
+		case cmSStatSupplOrder:      PPView::Execute(PPVIEW_SSTAT,           0, PPView::exefModeless, reinterpret_cast<void *>(1)); break;
 		case cmFreight:              PPView::Execute(PPVIEW_FREIGHT,         0, PPView::exefModeless, 0); break;
 		case cmViewCSessDeficit:     PPView::Execute(PPVIEW_CSESSEXC,        0, PPView::exefModeless, 0); break;
 		case cmSellTrnovr:           PPView::Execute(PPVIEW_DEBTTRNOVR,      0, PPView::exefModeless, 0); break;
-		case cmDebtSupplTrnovr:      PPView::Execute(PPVIEW_DEBTTRNOVR,      0, PPView::exefModeless, (void *)1); break;
+		case cmDebtSupplTrnovr:      PPView::Execute(PPVIEW_DEBTTRNOVR,      0, PPView::exefModeless, reinterpret_cast<void *>(1)); break;
 		case cmProject:              PPView::Execute(PPVIEW_PROJECT,         0, PPView::exefModeless, 0); break;
 		case cmViewGoodsStruc:       PPView::Execute(PPVIEW_GOODSSTRUC,      0, PPView::exefModeless, 0); break;
 		case cmViewCurRates:         PPView::Execute(PPVIEW_CURRATE,         0, PPView::exefModeless, 0); break;
-		case cmObjLikeness:          PPView::Execute(PPVIEW_OBJLIKENESS,     0, PPView::exefModeless, (void *)1); break;
+		case cmObjLikeness:          PPView::Execute(PPVIEW_OBJLIKENESS,     0, PPView::exefModeless, reinterpret_cast<void *>(1)); break;
 		case cmPriceList:            PPView::Execute(PPVIEW_PRICELIST,       0, PPView::exefModeless, 0); break;
 		case cmViewCSess:            PPView::Execute(PPVIEW_CSESS,           0, PPView::exefModeless, 0); break;
 		case cmPriceAnlz:            PPView::Execute(PPVIEW_PRICEANLZ,       0, PPView::exefModeless, 0); break;
@@ -542,7 +542,7 @@ int PPApp::processCommand(uint cmd)
 		case cmScale:                PPView::Execute(PPVIEW_SCALE,           0, PPView::exefModeless, 0); break;
 		case cmDBDiv:                PPView::Execute(PPVIEW_DBDIV,           0, PPView::exefModeless, 0); break;
 		case cmGoodsRest:            PPView::Execute(PPVIEW_GOODSREST,       0, PPView::exefModeless, 0); break;
-		case cmGetPrognosis:         PPView::Execute(PPVIEW_GOODSREST,       0, PPView::exefModeless, (void *)1); break;
+		case cmGetPrognosis:         PPView::Execute(PPVIEW_GOODSREST,       0, PPView::exefModeless, reinterpret_cast<void *>(1)); break;
 		case cmViewPhnSvcMonitor:    PPView::Execute(PPVIEW_PHNSVCMONITOR,   0, PPView::exefModeless, 0); break; // @v9.9.10
 		case cmVetisDocument:        PPView::Execute(PPVIEW_VETISDOCUMENT,   0, PPView::exefModeless, 0); break; // @v10.0.12
 		case cmVetisInterchange:     PPViewVetisDocument::RunInterchangeProcess(0); break; // @v10.1.2

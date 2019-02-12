@@ -3023,7 +3023,7 @@ int PPALDD_PersonCat::Set(long iterId, int commit)
 		PPObjPersonCat obj_prsn_cat;
 		PPID   id = 0;
 		THROW(obj_prsn_cat.AddItem(&id, p_prsn_cat, 1));
-		Extra[4].Ptr = (void *)id;
+		Extra[4].Ptr = reinterpret_cast<void *>(id);
 	}
 	CATCHZOK
 	if(commit) {
