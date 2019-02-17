@@ -197,7 +197,7 @@ static void dgram_adjust_rcv_timeout(BIO * b)
 		}
 #  else
 		sz.i = sizeof(data->socket_timeout);
-		if(getsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO, &(data->socket_timeout), (void*)&sz) < 0) {
+		if(getsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO, &(data->socket_timeout), (void *)&sz) < 0) {
 			perror("getsockopt");
 		}
 		else if(sizeof(sz.s) != sizeof(sz.i) && sz.i == 0)
@@ -453,7 +453,7 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    switch(addr.sa.sa_family) {
 			    case AF_INET:
 				if((ret =
-					    getsockopt(b->num, IPPROTO_IP, IP_MTU, (void*)&sockopt_val,
+					    getsockopt(b->num, IPPROTO_IP, IP_MTU, (void *)&sockopt_val,
 					    &sockopt_len)) < 0 || sockopt_val < 0) {
 					ret = 0;
 				}
@@ -470,7 +470,7 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 			    case AF_INET6:
 				if((ret =
 					    getsockopt(b->num, IPPROTO_IPV6, IPV6_MTU,
-					    (void*)&sockopt_val, &sockopt_len)) < 0
+					    (void *)&sockopt_val, &sockopt_len)) < 0
 			    || sockopt_val < 0) {
 					ret = 0;
 				}
@@ -589,7 +589,7 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    }
 #  else
 		    sz.i = sizeof(struct timeval);
-		    if(getsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO, ptr, (void*)&sz) < 0) {
+		    if(getsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO, ptr, (void *)&sz) < 0) {
 			    perror("getsockopt");
 			    ret = -1;
 		    }
@@ -645,7 +645,7 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 #  else
 		    sz.i = sizeof(struct timeval);
 		    if(getsockopt(b->num, SOL_SOCKET, SO_SNDTIMEO,
-				    ptr, (void*)&sz) < 0) {
+				    ptr, (void *)&sz) < 0) {
 			    perror("getsockopt");
 			    ret = -1;
 		    }
@@ -924,7 +924,7 @@ static int dgram_sctp_read(BIO * b, char * out, int outl)
 {
 	int ret = 0, n = 0, i, optval;
 	socklen_t optlen;
-	bio_dgram_sctp_data * data = (bio_dgram_sctp_data*)b->ptr;
+	bio_dgram_sctp_data * data = static_cast<bio_dgram_sctp_data *>(b->ptr);
 	union sctp_notification * snp;
 
 	struct msghdr msg;
@@ -1048,7 +1048,7 @@ static int dgram_sctp_read(BIO * b, char * out, int outl)
 					dgram_sctp_handle_auth_free_key_event(b, snp);
 #  endif
 				if(data->handle_notifications != NULL)
-					data->handle_notifications(b, data->notification_context, (void*)out);
+					data->handle_notifications(b, data->notification_context, (void *)out);
 				memzero(out, outl);
 			}
 			else
@@ -1157,7 +1157,7 @@ static int dgram_sctp_read(BIO * b, char * out, int outl)
 static int dgram_sctp_write(BIO * b, const char * in, int inl)
 {
 	int ret;
-	bio_dgram_sctp_data * data = (bio_dgram_sctp_data*)b->ptr;
+	bio_dgram_sctp_data * data = static_cast<bio_dgram_sctp_data *>(b->ptr);
 	struct bio_dgram_sctp_sndinfo * sinfo = &(data->sndinfo);
 	struct bio_dgram_sctp_prinfo * pinfo = &(data->prinfo);
 	struct bio_dgram_sctp_sndinfo handshake_sinfo;
@@ -1282,7 +1282,7 @@ static long dgram_sctp_ctrl(BIO * b, int cmd, long num, void * ptr)
 
 	struct sctp_authkey * authkey = NULL;
 
-	data = (bio_dgram_sctp_data*)b->ptr;
+	data = static_cast<bio_dgram_sctp_data *>(b->ptr);
 
 	switch(cmd) {
 		case BIO_CTRL_DGRAM_QUERY_MTU:
@@ -1492,7 +1492,7 @@ static long dgram_sctp_ctrl(BIO * b, int cmd, long num, void * ptr)
 
 int BIO_dgram_sctp_notification_cb(BIO * b, void (* handle_notifications)(BIO * bio, void * context, void * buf), void * context)
 {
-	bio_dgram_sctp_data * data = (bio_dgram_sctp_data*)b->ptr;
+	bio_dgram_sctp_data * data = static_cast<bio_dgram_sctp_data *>(b->ptr);
 	if(handle_notifications != NULL) {
 		data->handle_notifications = handle_notifications;
 		data->notification_context = context;
@@ -1529,7 +1529,7 @@ int BIO_dgram_sctp_wait_for_dry(BIO * b)
 	struct sctp_event_subscribe event;
 	socklen_t eventsize;
 #  endif
-	bio_dgram_sctp_data * data = (bio_dgram_sctp_data*)b->ptr;
+	bio_dgram_sctp_data * data = static_cast<bio_dgram_sctp_data *>(b->ptr);
 	/* set sender dry event */
 #  ifdef SCTP_EVENT
 	memzero(&event, sizeof(event));
@@ -1612,7 +1612,7 @@ int BIO_dgram_sctp_wait_for_dry(BIO * b)
 			dgram_sctp_handle_auth_free_key_event(b, &snp);
 #  endif
 		if(data->handle_notifications != NULL)
-			data->handle_notifications(b, data->notification_context, (void*)&snp);
+			data->handle_notifications(b, data->notification_context, (void *)&snp);
 		/* found notification, peek again */
 		memzero(&snp, sizeof(snp));
 		iov.iov_base = (char*)&snp;
@@ -1650,7 +1650,7 @@ int BIO_dgram_sctp_msg_waiting(BIO * b)
 	union sctp_notification snp;
 	struct msghdr msg;
 	struct iovec iov;
-	bio_dgram_sctp_data * data = (bio_dgram_sctp_data*)b->ptr;
+	bio_dgram_sctp_data * data = static_cast<bio_dgram_sctp_data *>(b->ptr);
 	// Check if there are any messages waiting to be read 
 	do {
 		memzero(&snp, sizeof(snp));
@@ -1689,7 +1689,7 @@ int BIO_dgram_sctp_msg_waiting(BIO * b)
 
 			if(data->handle_notifications != NULL)
 				data->handle_notifications(b, data->notification_context,
-				    (void*)&snp);
+				    (void *)&snp);
 		}
 	} while(n > 0 && (msg.msg_flags & MSG_NOTIFICATION));
 

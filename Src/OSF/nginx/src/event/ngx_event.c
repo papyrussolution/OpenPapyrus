@@ -812,7 +812,7 @@ static void * ngx_event_core_create_conf(ngx_cycle_t * cycle)
 		ecf->multi_accept = NGX_CONF_UNSET;
 		ecf->accept_mutex = NGX_CONF_UNSET;
 		ecf->accept_mutex_delay = NGX_CONF_UNSET_MSEC;
-		ecf->name = (u_char*)(void*)NGX_CONF_UNSET;
+		ecf->name = (u_char*)(void *)NGX_CONF_UNSET;
 #if (NGX_DEBUG)
 		if(ngx_array_init(&ecf->debug_connection, cycle->pool, 4, sizeof(ngx_cidr_t)) == NGX_ERROR) {
 			return NULL;

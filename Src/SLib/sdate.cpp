@@ -1319,7 +1319,14 @@ int FASTCALL cmp(const LDATETIME & t1, LDATE dt, LTIME tm)
 
 #ifndef _WIN32_WCE // {
 
-LDATE::operator OleDate() const
+/* @v10.3.4 (replaced with GetOleDate()) LDATE::operator OleDate() const
+{
+	LDATETIME dt;
+	dt.Set(*this, ZEROTIME);
+	return dt;
+}*/
+
+OleDate SLAPI LDATE::GetOleDate() const
 {
 	LDATETIME dt;
 	dt.Set(*this, ZEROTIME);

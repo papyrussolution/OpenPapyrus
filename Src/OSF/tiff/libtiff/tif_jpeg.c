@@ -402,7 +402,7 @@ static boolean tables_empty_output_buffer(j_compress_ptr cinfo)
 	JPEGState* sp = (JPEGState*)cinfo;
 	void* newbuf;
 	/* the entire buffer has been filled; enlarge it by 1000 bytes */
-	newbuf = SAlloc::R((void*)sp->jpegtables, (tmsize_t)(sp->jpegtables_length + 1000));
+	newbuf = SAlloc::R((void *)sp->jpegtables, (tmsize_t)(sp->jpegtables_length + 1000));
 	if(newbuf == NULL)
 		ERREXIT1(cinfo, JERR_OUT_OF_MEMORY, 100);
 	sp->dest.next_output_byte = (JOCTET*)newbuf + sp->jpegtables_length;
@@ -429,7 +429,7 @@ static int TIFFjpeg_tables_dest(JPEGState* sp, TIFF* tif)
 	if(sp->jpegtables)
 		SAlloc::F(sp->jpegtables);
 	sp->jpegtables_length = 1000;
-	sp->jpegtables = (void*)SAlloc::M((tmsize_t)sp->jpegtables_length);
+	sp->jpegtables = (void *)SAlloc::M((tmsize_t)sp->jpegtables_length);
 	if(sp->jpegtables == NULL) {
 		sp->jpegtables_length = 0;
 		TIFFErrorExt(sp->tif->tif_clientdata, "TIFFjpeg_tables_dest", "No space for JPEGTables");
@@ -1924,8 +1924,8 @@ static int JPEGPostEncode(TIFF* tif)
 			    * sizeof(JSAMPLE);
 			for(ypos = sp->scancount * vsamp;
 			    ypos < DCTSIZE * vsamp; ypos++) {
-				memcpy((void*)sp->ds_buffer[ci][ypos],
-				    (void*)sp->ds_buffer[ci][ypos-1],
+				memcpy((void *)sp->ds_buffer[ci][ypos],
+				    (void *)sp->ds_buffer[ci][ypos-1],
 				    row_width);
 			}
 		}
@@ -2252,7 +2252,7 @@ int TIFFInitJPEG(TIFF* tif, int scheme)
             TIFFSetFieldBit(tif, FIELD_JPEGTABLES);
  */
 		sp->jpegtables_length = SIZE_OF_JPEGTABLES;
-		sp->jpegtables = (void*)SAlloc::M(sp->jpegtables_length);
+		sp->jpegtables = (void *)SAlloc::M(sp->jpegtables_length);
 		if(sp->jpegtables) {
 			memzero(sp->jpegtables, SIZE_OF_JPEGTABLES);
 		}

@@ -203,7 +203,7 @@ public:
 	virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
 		{ return new PPViewBrowser(brwId, CreateBrowserQuery(), P_V, dataOwner); }
 	virtual int  SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
-		{ return (pVal && P_V) ? P_V->GetTabTitle(*(const long *)pVal, rBuf) : 0; }
+		{ return (pVal && P_V) ? P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf) : 0; }
 protected:
 	PPViewCCheck * P_V;
 };
@@ -803,8 +803,7 @@ int FASTCALL PPViewCCheck::CheckLineForFilt(const CCheckLineTbl::Rec & rLnRec)
 	int    ok = 0;
 	if(!(State & stUseGoodsList) || GoodsList.Has((uint)rLnRec.GoodsID)) {
 		const double qtty = rLnRec.Quantity;
-		if(Filt.Flags & CCheckFilt::fFiltByCheck || (
-			Filt.QttyR.CheckVal(fabs(qtty)) &&
+		if(Filt.Flags & CCheckFilt::fFiltByCheck || (Filt.QttyR.CheckVal(fabs(qtty)) &&
 			Filt.AmtR.CheckVal(qtty * intmnytodbl(rLnRec.Price)) &&
 			Filt.PcntR.CheckVal(qtty * rLnRec.Dscnt)) && (!Filt.Div || rLnRec.DivID == Filt.Div)) {
 			ok = 1;
@@ -891,8 +890,8 @@ int SLAPI PPViewCCheck::ProcessCheckRec(const CCheckTbl::Rec * pRec, BExtInsert 
 				if(ok > 0 && Filt.Flags & CCheckFilt::fFiltByCheck && Filt.QttyR.CheckVal(fabs(qtty)))
 					ok = -1;
 				if(ok > 0) {
-					rec.LinesCount = (long)c;
-					rec.SkuCount = (long)goods_id_list.getCount();
+					rec.LinesCount = static_cast<long>(c);
+					rec.SkuCount = static_cast<long>(goods_id_list.getCount());
 					if(State & stUseGoodsList) {
 						double  chk_dscnt = rec.Discount - t_dscnt;
 						if(chk_dscnt != 0.0)
@@ -927,8 +926,8 @@ int SLAPI PPViewCCheck::ProcessCheckRec(const CCheckTbl::Rec * pRec, BExtInsert 
 						for(uint i = 0; CcPack.EnumLines(&i, &ln_rec);)
 							goods_id_list.add(ln_rec.GoodsID);
 					goods_id_list.sortAndUndup();
-					rec.LinesCount = (long)CcPack.GetCount();
-					rec.SkuCount = (long)goods_id_list.getCount();
+					rec.LinesCount = static_cast<long>(CcPack.GetCount());
+					rec.SkuCount = static_cast<long>(goods_id_list.getCount());
 				}
 				THROW_DB(pBei->insert(&rec));
 			}
@@ -959,25 +958,24 @@ struct CCheckGrpItem { // @flat @size=104 // @v10.2.6 72-->104
 IMPL_CMPFUNC(CCheckGrpItem, p1, p2)
 {
 	int   si = 0;
-	CMPCASCADE5(si, (const CCheckGrpItem *)p1, (const CCheckGrpItem *)p2, Dt, Tm, CashID, SCardID, GoodsID);
+	CMPCASCADE5(si, static_cast<const CCheckGrpItem *>(p1), static_cast<const CCheckGrpItem *>(p2), Dt, Tm, CashID, SCardID, GoodsID);
 	if(si == 0)
-		si = strcmp(((const CCheckGrpItem *)p1)->Serial, ((const CCheckGrpItem *)p2)->Serial);
+		si = strcmp(static_cast<const CCheckGrpItem *>(p1)->Serial, static_cast<const CCheckGrpItem *>(p2)->Serial);
 	return si;
 }
 
 class CCheckGrpCache : SVector { // @v9.8.4 SArray-->SVector
 public:
-	SLAPI  CCheckGrpCache(size_t maxItems, TempCCheckGrpTbl * pTbl) : SVector(sizeof(CCheckGrpItem)), P_Tbl(pTbl) // @v9.8.4 SArray-->SVector
+	SLAPI  CCheckGrpCache(size_t maxItems, TempCCheckGrpTbl * pTbl) : SVector(sizeof(CCheckGrpItem)), P_Tbl(pTbl), MaxItems((maxItems > 0) ? maxItems : 1024) // @v9.8.4 SArray-->SVector
 	{
-		MaxItems = (maxItems > 0) ? maxItems : 1024;
 	}
 	int    FASTCALL AddItem(const CCheckGrpItem *);
 	int    SLAPI Flash()
 	{
-		CCheckGrpItem * p_item;
-		for(uint i = 0; enumItems(&i, (void **)&p_item);)
-			if(!FlashItem(p_item))
+		for(uint j = 0; j < getCount(); j++) {
+			if(!FlashItem(static_cast<const CCheckGrpItem *>(at(j))))
 				return 0;
+		}
 		return 1;
 	}
 private:
@@ -1055,7 +1053,7 @@ int FASTCALL CCheckGrpCache::AddItem(const CCheckGrpItem * pItem)
 	uint   pos = 0;
 	CCheckGrpItem * p_item, item;
 	if(bsearch(pItem, &pos, PTR_CMPFUNC(CCheckGrpItem))) {
-		p_item = (CCheckGrpItem *)at(pos);
+		p_item = static_cast<CCheckGrpItem *>(at(pos));
 		p_item->Count    += pItem->Count;
 		p_item->LinesCount += pItem->LinesCount;
 		p_item->SkuCount  += pItem->SkuCount;
@@ -1076,7 +1074,7 @@ int FASTCALL CCheckGrpCache::AddItem(const CCheckGrpItem * pItem)
 				}
 			}
 			THROW(min_pos > 0); // Mystik error
-			THROW(FlashItem((CCheckGrpItem *)at(min_pos-1)));
+			THROW(FlashItem(static_cast<const CCheckGrpItem *>(at(min_pos-1))));
 			atFree(min_pos-1);
 		}
 		if(SearchItem(pItem, &item) > 0) {
@@ -1151,7 +1149,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 			//
 			temp_list.clear();
 			if(Filt.Flags & CCheckFilt::fZeroSess)
-				temp_list.add((long)0);
+				temp_list.add(0L);
 			else {
 				for(i = 0; i < Filt.SessIDList.getCount(); i++) {
 					const PPID sess_id = Filt.SessIDList.get (i);
@@ -1269,7 +1267,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 				ccgitem.BnkAmt   = item.BnkAmt;
 				ccgitem.CrdCardAmt = item.CrdCardAmt;
 				ccgitem.Qtty     = item.G_Qtty;
-				ccgitem.LinesCount = (long)item.G_LinesCount;
+				ccgitem.LinesCount = static_cast<long>(item.G_LinesCount);
 				ccgitem.SkuCount = item.G_SkuCount;
 				total_amount += ccgitem.Amount;
 				total_qtty   += ccgitem.Qtty;
@@ -1386,8 +1384,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 								SCardTbl::Rec crd_rec;
 								if(ScObj.Fetch(rec.SCardID, &crd_rec) > 0) {
 									PPSCardSeries ser_rec;
-									if(!p_serobj)
-										THROW_MEM(p_serobj = new PPObjSCardSeries);
+									THROW_MEM(SETIFZ(p_serobj, new PPObjSCardSeries));
 									if(p_serobj->Fetch(crd_rec.SeriesID, &ser_rec) > 0)
 										temp_buf.Cat(ser_rec.Name).CatChar(':');
 									temp_buf.Cat(crd_rec.Code);
@@ -1428,10 +1425,11 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 								GdsObj.FetchNameR(rec.GoodsID, temp_buf); // @v9.5.5
 							}
 							break;
-						case CCheckFilt::gGuestCount: temp_buf.CatLongZ(rec.CashID, 3); break;
-						case CCheckFilt::gTableNo: temp_buf.CatLongZ(rec.CashID, 3); break;
-						case CCheckFilt::gDiv: temp_buf.CatLongZ(rec.CashID, 3); break;
-						case CCheckFilt::gLinesCount: temp_buf.CatLongZ(rec.CashID, 4); break;
+						case CCheckFilt::gGuestCount: // @fallthrough
+						case CCheckFilt::gTableNo: // @fallthrough
+						case CCheckFilt::gDiv: // @fallthrough
+						case CCheckFilt::gLinesCount: // @fallthrough
+							temp_buf.CatLongZ(rec.CashID, 4); break;
 						case CCheckFilt::gCashiers:
 							if(rec.CashID)
 								GetPersonName(rec.CashID, temp_buf);
@@ -1930,7 +1928,7 @@ int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 				const double _cc_amt = MONEYTOLDBL(_rec.Amount);
 				if(CheckForFilt(&_rec, &_ext_rec)) {
 					CCheckCore * p_cct = P_CC;
-					*((CCheckTbl::Rec*)pItem) = _rec;
+					*static_cast<CCheckTbl::Rec *>(pItem) = _rec;
 					cc_id = pItem->ID;
 					if(Filt.Flags & CCheckFilt::fCheckLines) {
 						int    suitable = 1;
@@ -2115,7 +2113,7 @@ static IMPL_DBE_PROC(dbqf_ccheck_postext_ii) // @construction
 {
 	char   buf[64];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(buf));
+		result->init(static_cast<long>(sizeof(buf)));
 	}
 	else {
 		buf[0] = 0;
@@ -2420,14 +2418,14 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 							dbc_long.init(NodeIdList.GetSingle());
 							dbe_checkposnode.push(dbc_long);
 							dbe_checkposnode.push((DBFunc)PPDbqFuncPool::IdCheckCsPosNode);
-							dbq = & (*dbq && dbe_checkposnode == (long)1);
+							dbq = & (*dbq && dbe_checkposnode == 1L);
 						}
 						else {
 							DBConst dbc_ptr;
 							dbc_ptr.init(&NodeIdList.Get());
 							dbe_checkposnode.push(dbc_ptr);
 							dbe_checkposnode.push((DBFunc)PPDbqFuncPool::IdCheckCsPosNodeList);
-							dbq = & (*dbq && dbe_checkposnode == (long)1);
+							dbq = & (*dbq && dbe_checkposnode == 1L);
 						}
 					}
 				}
@@ -2477,7 +2475,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 				long  CashID;
 				long  Flags;
 			};
-			_E * p_row = (_E*)pData;
+			const _E * p_row = static_cast<const _E *>(pData);
 			if(p_row) {
 				ok = 1;
 				pStyle->Flags = BrowserWindow::CellStyle::fCorner;
@@ -2517,7 +2515,7 @@ int SLAPI PPViewCCheck::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 				long   ID;
 				long   GoodsID;
 			};
-			const CtHdr * p_ct_hdr = (CtHdr *)pRow;
+			const CtHdr * p_ct_hdr = static_cast<const CtHdr *>(pRow);
 			pHdr->ID = p_ct_hdr->ID;
 			pHdr->GoodsID = (p_ct_hdr->GoodsID == MAXLONG) ? 0 : p_ct_hdr->GoodsID;
 		}
@@ -2577,7 +2575,7 @@ void SLAPI PPViewCCheck::PreprocessBrowser(PPViewBrowser * pBrw)
 			if(oneof2(Filt.Grp, CCheckFilt::gGoodsDate, CCheckFilt::gGoodsDateSerial)) { // @v10.2.6 CCheckFilt::gGoodsDateSerial
 				pBrw->InsColumn(1, "@date", 1, 0, DATF_DMY, 0);
 				if(Filt.Grp == CCheckFilt::gGoodsDateSerial) // @v10.2.6
-					pBrw->InsColumn(2, "@serial", 14, 0, DATF_DMY, 0);
+					pBrw->InsColumn(2, "@serial", 14, 0, 0, 0);
 			}
 			if(!P_TmpGrpTbl && (State & stHasExt)) {
 				int    pos = P_TmpTbl ? 14 : 12; // @v10.1.11 fldNo++
@@ -2639,7 +2637,7 @@ int SLAPI PPViewCCheck::PosPrint(PPID checkID, long)
 	return -1;
 }
 
-static int SLAPI PutGdsCorr(BExtInsert * pBei, PPID goods1ID, PPID goods2ID, SString & rG1Name, SString & rG2Name, long intersectChkCount, long goods1ChkCount, long goods2ChkCount, long totalChkCount)
+static int SLAPI PutGdsCorr(BExtInsert * pBei, PPID goods1ID, PPID goods2ID, const SString & rG1Name, const SString & rG2Name, long intersectChkCount, long goods1ChkCount, long goods2ChkCount, long totalChkCount)
 {
 	int    ok = 1;
 	TempCCheckGdsCorrTbl::Rec gc_rec;
@@ -2683,7 +2681,7 @@ int SLAPI PPViewCCheck::CreateGoodsCorrTbl()
 	ulong  max_corr = 0;
 	long   ary_count = 0, la_count = 0;
 	//
-	long   laa_ary[1024];
+	void * laa_ary[1024]; // @v10.3.4 long[]-->void *[]
 	MEMSZERO(laa_ary);
 	SString  goods1_name, goods2_name;
 	RAssocArray gds_qtty_ary;
@@ -2714,7 +2712,7 @@ int SLAPI PPViewCCheck::CreateGoodsCorrTbl()
 				PPID  goods1 = p_gds_qtty1->Key, goods2 = p_gds_qtty2->Key;
 				int   ary_no = goods1 % 1024, ary_is_found = 0;
 				uint  goods2_pos = 0;
-				p_la_ary = (LAssocArray *)laa_ary[ary_no];
+				p_la_ary = static_cast<LAssocArray *>(laa_ary[ary_no]);
 				p_goods_ary = 0;
 				if(p_la_ary) {
 					if(p_la_ary->BSearch(goods1, (long *)&p_goods_ary, 0))
@@ -2722,7 +2720,7 @@ int SLAPI PPViewCCheck::CreateGoodsCorrTbl()
 				}
 				else {
 					THROW_MEM(p_la_ary = new LAssocArray);
-					laa_ary[ary_no] = (long)p_la_ary;
+					laa_ary[ary_no] = p_la_ary;
 					la_count++;
 				}
 				if(!ary_is_found) {
@@ -2753,10 +2751,9 @@ int SLAPI PPViewCCheck::CreateGoodsCorrTbl()
 	{
 		BExtInsert bei(P_TmpGdsCorrTbl);
 		PPTransaction tra(ppDbDependTransaction, 1);
-
 		THROW(tra);
 		for(c = 0; c < 1024; c++) {
-			p_la_ary = (LAssocArray *)laa_ary[c];
+			p_la_ary = static_cast<LAssocArray *>(laa_ary[c]);
 			if(p_la_ary) {
 				const uint la_count = p_la_ary->getCount();
 				min_p_la = MIN(min_p_la, la_count);
@@ -2764,10 +2761,9 @@ int SLAPI PPViewCCheck::CreateGoodsCorrTbl()
 				for(pos = 0; pos < la_count; pos++) {
 					long     goods1_chk_count = 0;
 					PPID     goods1_id = p_la_ary->at(pos).Key;
-					p_goods_ary = (LAssocArray *)p_la_ary->at(pos).Val;
+					p_goods_ary = reinterpret_cast<LAssocArray *>(p_la_ary->at(pos).Val);
 					const uint term_count = p_goods_ary->getCount();
 					TempCCheckGdsCorrTbl::Rec gc_rec;
-
 					min_at_ary = MIN(min_at_ary, term_count);
 					max_at_ary = MAX(max_at_ary, term_count);
 					if(Filt.Sgg)
@@ -2824,10 +2820,10 @@ int SLAPI PPViewCCheck::CreateGoodsCorrTbl()
 	}
 	CATCH
 		for(c = 0; c < 1024; c++) {
-			p_la_ary = (LAssocArray *)laa_ary[c];
+			p_la_ary = static_cast<LAssocArray *>(laa_ary[c]);
 			if(p_la_ary) {
 				for(pos = 0; pos < p_la_ary->getCount(); pos++) {
-					p_goods_ary = (LAssocArray *)p_la_ary->at(pos).Val;
+					p_goods_ary = reinterpret_cast<LAssocArray *>(p_la_ary->at(pos).Val);
 					delete p_goods_ary;
 				}
 				delete p_la_ary;
@@ -3860,7 +3856,6 @@ int SLAPI PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 					}
 					CCheckFilt tmp_filt = Filt;
 					PPIDArray  goods_list;
-
 					tmp_filt.Grp = CCheckFilt::gNone;
 					tmp_filt.CorrGoodsList.InitEmpty();
 					tmp_filt.Period  = ct_period;
@@ -3876,7 +3871,7 @@ int SLAPI PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 			}
 		}
 		else if(Filt.Flags & CCheckFilt::fGoodsCorr) {
-			TempCCheckGdsCorrTbl::Rec * p_gc_rec = (TempCCheckGdsCorrTbl::Rec *)pHdr;
+			const TempCCheckGdsCorrTbl::Rec * p_gc_rec = static_cast<const TempCCheckGdsCorrTbl::Rec *>(pHdr);
 			CCheckFilt  temp_flt;
 			temp_flt.Copy(&Filt, 1);
 			if(Filt.Sgg) {
@@ -3898,7 +3893,7 @@ int SLAPI PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 		}
 		else {
 			const CCheckFilt::Grouping grp = Filt.Grp;
-			PPID  temp_id = *(PPID *)pHdr;
+			PPID  temp_id = *static_cast<const PPID *>(pHdr);
 			if(temp_id && P_TmpGrpTbl &&
 				oneof11(grp, CCheckFilt::gTime, CCheckFilt::gDate, CCheckFilt::gDayOfWeek, CCheckFilt::gDowNTime, CCheckFilt::gCash, CCheckFilt::gCashNode,
 					CCheckFilt::gCard, CCheckFilt::gDscntPct, CCheckFilt::gDiv, CCheckFilt::gGuestCount, CCheckFilt::gTableNo) ||
@@ -4166,7 +4161,7 @@ PPALDD_CONSTRUCTOR(CCheck)
 PPALDD_DESTRUCTOR(CCheck)
 {
 	Destroy();
-	delete (CCheckCore *)Extra[0].Ptr;
+	delete static_cast<CCheckCore *>(Extra[0].Ptr);
 }
 
 int PPALDD_CCheck::InitData(PPFilt & rFilt, long rsrv)
@@ -4339,7 +4334,7 @@ int PPALDD_CCheckView::NextIteration(PPIterID iterId)
 	I.GQtty     = item.G_Qtty;
 	I.GSCardID  = 0;
 	I.CcAgentID = item.AgentID; // @v9.3.0
-	const int _grp = ((CCheckFilt *)p_v->GetBaseFilt())->Grp;
+	const int _grp = static_cast<const CCheckFilt *>(p_v->GetBaseFilt())->Grp;
 	if(_grp == CCheckFilt::gCard)
 		I.GSCardID = item.SCardID;
 	else if(_grp == CCheckFilt::gAgentGoodsSCSer) // @v9.6.6
@@ -4443,7 +4438,7 @@ PPALDD_DESTRUCTOR(CCheckDetail) { Destroy(); }
 int PPALDD_CCheckDetail::InitData(PPFilt & rFilt, long rsrv)
 {
 	SString temp_buf;
-	CPosProcessor * p_cpp = (CPosProcessor *)rFilt.Ptr;
+	CPosProcessor * p_cpp = static_cast<CPosProcessor *>(rFilt.Ptr);
 	Extra[1].Ptr = p_cpp;
 	CCheckPacket pack;
 	p_cpp->GetCheckInfo(&pack);
@@ -4526,7 +4521,7 @@ int PPALDD_CCheckDetail::InitData(PPFilt & rFilt, long rsrv)
 
 int PPALDD_CCheckDetail::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 {
-	CPosProcessor * p_cpp = (CPosProcessor *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	CPosProcessor * p_cpp = static_cast<CPosProcessor *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;
@@ -4537,7 +4532,7 @@ int PPALDD_CCheckDetail::NextIteration(PPIterID iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
-	CPosProcessor * p_cpp = (CPosProcessor *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	CPosProcessor * p_cpp = static_cast<CPosProcessor *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	CCheckItem item;
 	if(p_cpp->NextIteration(&item) > 0) {
 		I.LineGrpN = item.LineGrpN;
@@ -4588,7 +4583,7 @@ void PPALDD_CCheckDetail::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmS
 
 void PPALDD_CCheckDetail::Destroy()
 {
- 	delete (CheckPaneDialog *)Extra[0].Ptr;
+ 	delete static_cast<CheckPaneDialog *>(Extra[0].Ptr);
  	Extra[0].Ptr = Extra[1].Ptr = 0;
 }
 //
@@ -4605,7 +4600,7 @@ PPALDD_DESTRUCTOR(CCheckPacket) { Destroy(); }
 int PPALDD_CCheckPacket::InitData(PPFilt & rFilt, long rsrv)
 {
 	SString temp_buf;
-	CCheckPacket * p_pack = (CCheckPacket *)rFilt.Ptr;
+	CCheckPacket * p_pack = static_cast<CCheckPacket *>(rFilt.Ptr);
 	Extra[1].Ptr = p_pack;
 	H.PosNodeID     = p_pack->Rec.CashID;
 	H.CheckID       = p_pack->Rec.ID;
@@ -4632,7 +4627,7 @@ int PPALDD_CCheckPacket::InitData(PPFilt & rFilt, long rsrv)
 
 int PPALDD_CCheckPacket::InitIteration(long iterId, int sortId, long rsrv)
 {
-	CCheckPacket * p_pack = (CCheckPacket *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	CCheckPacket * p_pack = static_cast<CCheckPacket *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	IterProlog(iterId, 1);
 	if(p_pack) {
 		if(sortId >= 0)

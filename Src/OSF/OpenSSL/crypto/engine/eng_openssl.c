@@ -551,7 +551,7 @@ static int ossl_hmac_ctrl_str(EVP_PKEY_CTX * ctx, const char * type, const char 
 		return 0;
 	}
 	if(strcmp(type, "key") == 0) {
-		void * p = (void*)value;
+		void * p = (void *)value;
 		return ossl_hmac_ctrl(ctx, EVP_PKEY_CTRL_SET_MAC_KEY, -1, p);
 	}
 	if(strcmp(type, "hexkey") == 0) {

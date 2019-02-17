@@ -301,7 +301,7 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION * session,
 			exchange_state->k_value[4] = 0;
 			_libssh2_bn_to_bin(exchange_state->k, exchange_state->k_value + 5);
 		}
-		exchange_state->exchange_hash = (void*)&exchange_hash_ctx;
+		exchange_state->exchange_hash = (void *)&exchange_hash_ctx;
 		libssh2_sha1_init(&exchange_hash_ctx);
 		if(session->local.banner) {
 			_libssh2_htonu32(exchange_state->h_sig_comp,
@@ -751,7 +751,7 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION * session,
 			exchange_state->k_value[4] = 0;
 			_libssh2_bn_to_bin(exchange_state->k, exchange_state->k_value + 5);
 		}
-		exchange_state->exchange_hash = (void*)&exchange_hash_ctx;
+		exchange_state->exchange_hash = (void *)&exchange_hash_ctx;
 		libssh2_sha256_init(&exchange_hash_ctx);
 		if(session->local.banner) {
 			_libssh2_htonu32(exchange_state->h_sig_comp, strlen((char*)session->local.banner) - 2);
@@ -2177,7 +2177,7 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session, int met
 	/* correct number of pointers copied? (test the code above) */
 	if(j!=ialg) {
 		/* deallocate buffer */
-		LIBSSH2_FREE(session, (void*)*algs);
+		LIBSSH2_FREE(session, (void *)*algs);
 		*algs = NULL;
 		return _libssh2_error(session, LIBSSH2_ERROR_BAD_USE, "Internal error");
 	}

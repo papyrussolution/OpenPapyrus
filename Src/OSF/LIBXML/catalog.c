@@ -1870,7 +1870,7 @@ static const xmlChar * xmlParseSGMLCatalogPubid(const xmlChar * cur, xmlChar ** 
 	else {
 		stop = ' ';
 	}
-	buf = (xmlChar*)SAlloc::M(size * sizeof(xmlChar));
+	buf = static_cast<xmlChar *>(SAlloc::M(size * sizeof(xmlChar)));
 	if(!buf) {
 		xmlCatalogErrMemory("allocating public ID");
 		return 0;
@@ -3087,7 +3087,7 @@ void * xmlCatalogAddLocal(void * catalogs, const xmlChar * URL)
 		return(catalogs);
 	catal = (xmlCatalogEntryPtr)catalogs;
 	if(catal == NULL)
-		return (void*)add;
+		return (void *)add;
 	while(catal->next)
 		catal = catal->next;
 	catal->next = add;

@@ -6673,7 +6673,7 @@ namespace NArchive {
 					sorted.Add(i);
 			}
 			if(!sorted.IsEmpty()) {
-				sorted.Sort(CompareItemsPaths_Sort, (void*)this);
+				sorted.Sort(CompareItemsPaths_Sort, (void *)this);
 				AString link;
 				for(i = 0; i < _refs.Size(); i++) {
 					CRefItem &ref = _refs[i];

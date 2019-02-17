@@ -392,7 +392,7 @@ IMPL_HANDLE_EVENT(DutySchedDialog)
 		long pos = 0, id = 0;
 		if(Data.Rec.ID && getCurItem(&pos, &id) > 0 &&
 			checkupper((uint)pos, Data.List.getCount())) {
-			const PPDutySchedEntry & r_entry = Data.List.at((uint)pos);
+			const PPDutySchedEntry & r_entry = Data.List.at(static_cast<uint>(pos));
 			if(Data.Rec.ObjType == PPOBJ_PERSON && r_entry.ObjID) {
 				StaffCalFilt filt;
 				filt.LinkObjType = PPOBJ_PERSON;

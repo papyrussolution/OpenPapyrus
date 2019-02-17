@@ -521,7 +521,7 @@ static void * _pool_alloc_from_new_chunk(struct pool * pool,
 }
 
 /* Allocate size bytes from the pool.  The first allocated address
- * returned from a pool is aligned to sizeof(void*).  Subsequent
+ * returned from a pool is aligned to sizeof(void *).  Subsequent
  * addresses will maintain alignment as long as multiples of void* are
  * allocated.  Returns the address of a new memory area or %NULL on
  * allocation failures.	 The pool retains ownership of the returned

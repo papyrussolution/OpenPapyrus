@@ -286,8 +286,8 @@ int SLAPI PPSCardSeries2::SetType(int type)
 	int    ok = 1;
 	const  long preserve_flags = Flags;
 	switch(type) {
-		case scstDiscount: 
-			Flags &= ~(SCRDSF_CREDIT|SCRDSF_BONUS|SCRDSF_GROUP|SCRDSF_RSRVPOOL); 
+		case scstDiscount:
+			Flags &= ~(SCRDSF_CREDIT|SCRDSF_BONUS|SCRDSF_GROUP|SCRDSF_RSRVPOOL);
 			break;
 		case scstCredit:
 			Flags |= SCRDSF_CREDIT;
@@ -636,7 +636,7 @@ int SCardRuleDlg::EditTrnovrRng(long pos)
 	TDialog * p_dlg = new TDialog((RuleType == PPSCardSerRule::rultBonus) ? DLG_SCBONUSRULE : DLG_TRNVRRNG);
 	THROW(CheckDialogPtr(&p_dlg));
 	if(pos >= 0 && (uint)pos < Data.getCount())
-		range = Data.at((uint)pos);
+		range = Data.at(static_cast<uint>(pos));
 	else
 		MEMSZERO(range);
 	SetRealRangeInput(p_dlg, CTL_TRNVRRNG_RANGE, &range.R);
@@ -679,7 +679,7 @@ int SCardRuleDlg::EditTrnovrRng(long pos)
 		GetRealRangeInput(p_dlg, CTL_TRNVRRNG_RANGE, &range.R);
 		if(Data.ValidateItem(RuleType, range, pos)) {
 			if(pos >= 0)
-				Data.at((uint)pos) = range;
+				Data.at(static_cast<uint>(pos)) = range;
 			else
 				THROW_SL(Data.insert(&range));
 			ok = valid_data = 1;
@@ -1748,7 +1748,7 @@ IMPL_HANDLE_EVENT(PPObjSCardSeriesListWindow)
 					if(current_id) {
 						SCardFilt filt;
 						filt.SeriesID = current_id;
-						((PPApp*)APPL)->LastCmd = TVCMD;
+						static_cast<PPApp *>(APPL)->LastCmd = TVCMD;
 						PPView::Execute(PPVIEW_SCARD, &filt, 1, 0);
 					}
 					break;
@@ -2132,7 +2132,7 @@ int SLAPI PPObjSCard::NotifyAboutRecentOps(const LDATETIME & rSince)
 	int    ok = -1;
 	//
 	// Из-за того, что таблица SCardOp не имеет индекса по времени (только с префиксом карты)
-	// придется идти сложным путем: найти все системные события по картам с момента rSince 
+	// придется идти сложным путем: найти все системные события по картам с момента rSince
 	// и, получив идентификаторы соответствующих карт, перебрать операции по каждой из них.
 	//
 	SysJournal * p_sj = DS.GetTLA().P_SysJ;
@@ -2152,7 +2152,7 @@ int SLAPI PPObjSCard::NotifyAboutRecentOps(const LDATETIME & rSince)
 				PPSCardPacket sc_pack;
 				//
 				// Дабы не тратить время на перебор операций по карте, у которой нет телефона, сразу проверим чтобы таковой был.
-				// 
+				//
 				if(GetPacket(sc_id, &sc_pack) > 0) {
 					if(sc_pack.GetExtStrData(sc_pack.extssPhone, temp_buf) > 0 && temp_buf.NotEmptyS() && FormatPhone(temp_buf, phone_buf, msg_buf)) {
 						LDATETIME dtm = rSince;
@@ -3408,7 +3408,7 @@ void SCardDialog::SetupSeries(PPID seriesID, PPID personID)
 		setCtrlLong(CTLSEL_SCARD_AUTOGOODS, Data.Rec.AutoGoodsID = 0);
 	disableCtrl(CTLSEL_SCARD_AUTOGOODS, !goods_grp_id);
 	// @v10.2.7 {
-	disableCtrl(CTL_SCARD_PHONE, scst == scstRsrvPool); 
+	disableCtrl(CTL_SCARD_PHONE, scst == scstRsrvPool);
 	disableCtrl(CTLSEL_SCARD_PERSON, scst == scstRsrvPool);
 	disableCtrl(CTL_SCARD_PSW, scst == scstRsrvPool);
 	showCtrl(CTLSEL_SCARD_POOLDSER, scst == scstRsrvPool);
@@ -3521,10 +3521,10 @@ int SCardDialog::getDTS(PPSCardPacket * pData)
 		if(Data.Rec.PoolDestSerID) {
 			PPSCardSeries scs_rec;
 			const int scst = (ObjSCardSer.Fetch(Data.Rec.PoolDestSerID, &scs_rec) > 0) ? scs_rec.GetType() : scstUnkn;
-			THROW_PP_S(scst != scstRsrvPool, PPERR_SCARDPOOLDSERISPOOL, scs_rec.Name); 
+			THROW_PP_S(scst != scstRsrvPool, PPERR_SCARDPOOLDSERISPOOL, scs_rec.Name);
 		}
 	}
-	// } @v10.2.7 
+	// } @v10.2.7
 	ASSIGN_PTR(pData, Data);
 	CATCH
 		ok = PPErrorByDialog(this, sel);
@@ -3963,7 +3963,7 @@ int SLAPI PPObjSCard::DeleteObj(PPID id)
 	CCheckTbl::Key4 k4;
 	MEMSZERO(k4);
 	k4.SCardID = id;
-	if(!DS.CheckExtFlag(ECF_AVERAGE) && P_CcTbl->search(4, &k4, spGe) && k4.SCardID == id) { // @v7.9.6 ECF_AVERAGE
+	if(!DS.CheckExtFlag(ECF_AVERAGE) && P_CcTbl->search(4, &k4, spGe) && k4.SCardID == id) {
 		ok = RetRefsExistsErr(PPOBJ_CCHECK, P_CcTbl->data.ID);
 	}
 	else {

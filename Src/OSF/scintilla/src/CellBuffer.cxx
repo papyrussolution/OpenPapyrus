@@ -559,8 +559,8 @@ void Document::CellBuffer::ResetLineEnds()
 {
 	// Reinitialize line data -- too much work to preserve
 	lv.Init();
-	int position = 0;
-	int length = Length();
+	const int position = 0;
+	const int length = Length();
 	int lineInsert = 1;
 	bool atLineStart = true;
 	lv.InsertText(lineInsert-1, length);

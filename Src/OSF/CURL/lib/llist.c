@@ -49,7 +49,7 @@ int FASTCALL Curl_llist_insert_next(struct curl_llist * list, struct curl_llist_
 	struct curl_llist_element * ne = (struct curl_llist_element *)SAlloc::M(sizeof(struct curl_llist_element));
 	if(!ne)
 		return 0;
-	ne->ptr = (void*)p;
+	ne->ptr = (void *)p;
 	if(list->size == 0) {
 		list->head = ne;
 		list->head->prev = NULL;

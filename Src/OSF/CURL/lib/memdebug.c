@@ -172,7 +172,7 @@ void * curl_domalloc(size_t wantedsize, int line, const char * source)
 		mem->size = wantedsize;
 	}
 	if(source)
-		curl_memlog("MEM %s:%d SAlloc::M(%zu) = %p\n", source, line, wantedsize, mem ? (void*)mem->mem : (void*)0);
+		curl_memlog("MEM %s:%d SAlloc::M(%zu) = %p\n", source, line, wantedsize, mem ? (void *)mem->mem : (void *)0);
 	return (mem ? mem->mem : NULL);
 }
 
@@ -191,7 +191,7 @@ void * curl_docalloc(size_t wanted_elements, size_t wanted_size, int line, const
 	if(mem)
 		mem->size = user_size;
 	if(source)
-		curl_memlog("MEM %s:%d SAlloc::C(%zu,%zu) = %p\n", source, line, wanted_elements, wanted_size, mem ? (void*)mem->mem : (void*)0);
+		curl_memlog("MEM %s:%d SAlloc::C(%zu,%zu) = %p\n", source, line, wanted_elements, wanted_size, mem ? (void *)mem->mem : (void *)0);
 	return (mem ? mem->mem : NULL);
 }
 
@@ -207,7 +207,7 @@ char * curl_dostrdup(const char * str, int line, const char * source)
 	if(mem)
 		memcpy(mem, str, len);
 	if(source)
-		curl_memlog("MEM %s:%d _strdup(%p) (%zu) = %p\n", source, line, (void*)str, len, (void*)mem);
+		curl_memlog("MEM %s:%d _strdup(%p) (%zu) = %p\n", source, line, (void *)str, len, (void *)mem);
 	return mem;
 }
 
@@ -225,7 +225,7 @@ wchar_t * curl_dowcsdup(const wchar_t * str, int line, const char * source)
 	if(mem)
 		memcpy(mem, str, bsiz);
 	if(source)
-		curl_memlog("MEM %s:%d wcsdup(%p) (%zu) = %p\n", source, line, (void*)str, bsiz, (void*)mem);
+		curl_memlog("MEM %s:%d wcsdup(%p) (%zu) = %p\n", source, line, (void *)str, bsiz, (void *)mem);
 	return mem;
 }
 
@@ -246,13 +246,13 @@ void * curl_dorealloc(void * ptr, size_t wantedsize, int line, const char * sour
 		/* 1684: conversion from pointer to same-sized integral type */
 #endif
 	if(ptr)
-		mem = (void*)((char*)ptr - offsetof(struct memdebug, mem));
+		mem = (void *)((char*)ptr - offsetof(struct memdebug, mem));
 #ifdef __INTEL_COMPILER
 	#pragma warning(pop)
 #endif
 	mem = (Curl_crealloc)(mem, size);
 	if(source)
-		curl_memlog("MEM %s:%d SAlloc::R(%p, %zu) = %p\n", source, line, (void*)ptr, wantedsize, mem ? (void*)mem->mem : (void*)0);
+		curl_memlog("MEM %s:%d SAlloc::R(%p, %zu) = %p\n", source, line, (void *)ptr, wantedsize, mem ? (void *)mem->mem : (void *)0);
 	if(mem) {
 		mem->size = wantedsize;
 		return mem->mem;
@@ -269,7 +269,7 @@ void curl_dofree(void * ptr, int line, const char * source)
 	#pragma warning(disable:1684)
 		/* 1684: conversion from pointer to same-sized integral type */
 #endif
-		mem = (void*)((char*)ptr - offsetof(struct memdebug, mem));
+		mem = (void *)((char*)ptr - offsetof(struct memdebug, mem));
 #ifdef __INTEL_COMPILER
 	#pragma warning(pop)
 #endif
@@ -279,7 +279,7 @@ void curl_dofree(void * ptr, int line, const char * source)
 		(Curl_cfree)(mem);
 	}
 	if(source)
-		curl_memlog("MEM %s:%d SAlloc::F(%p)\n", source, line, (void*)ptr);
+		curl_memlog("MEM %s:%d SAlloc::F(%p)\n", source, line, (void *)ptr);
 }
 
 curl_socket_t curl_socket(int domain, int type, int protocol, int line, const char * source)
@@ -350,7 +350,7 @@ FILE * curl_fopen(const char * file, const char * mode, int line, const char * s
 {
 	FILE * res = fopen(file, mode);
 	if(source)
-		curl_memlog("FILE %s:%d fopen(\"%s\",\"%s\") = %p\n", source, line, file, mode, (void*)res);
+		curl_memlog("FILE %s:%d fopen(\"%s\",\"%s\") = %p\n", source, line, file, mode, (void *)res);
 	return res;
 }
 
@@ -359,7 +359,7 @@ FILE * curl_fdopen(int filedes, const char * mode, int line, const char * source
 {
 	FILE * res = fdopen(filedes, mode);
 	if(source)
-		curl_memlog("FILE %s:%d fdopen(\"%d\",\"%s\") = %p\n", source, line, filedes, mode, (void*)res);
+		curl_memlog("FILE %s:%d fdopen(\"%d\",\"%s\") = %p\n", source, line, filedes, mode, (void *)res);
 	return res;
 }
 
@@ -371,7 +371,7 @@ int curl_fclose(FILE * file, int line, const char * source)
 	assert(file != NULL);
 	res = fclose(file);
 	if(source)
-		curl_memlog("FILE %s:%d fclose(%p)\n", source, line, (void*)file);
+		curl_memlog("FILE %s:%d fclose(%p)\n", source, line, (void *)file);
 	return res;
 }
 

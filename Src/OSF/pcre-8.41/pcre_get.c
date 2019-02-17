@@ -464,7 +464,7 @@ PCRE_EXP_DEFN void PCRE_CALL_CONVENTION pcre16_free_substring_list(PCRE_SPTR16 *
 PCRE_EXP_DEFN void PCRE_CALL_CONVENTION pcre32_free_substring_list(PCRE_SPTR32 * pointer)
 #endif
 {
-	(PUBL(free))((void*)pointer);
+	(PUBL(free))((void *)pointer);
 }
 
 /*************************************************
@@ -595,7 +595,7 @@ PCRE_EXP_DEFN void PCRE_CALL_CONVENTION pcre16_free_substring(PCRE_SPTR16 pointe
 PCRE_EXP_DEFN void PCRE_CALL_CONVENTION pcre32_free_substring(PCRE_SPTR32 pointer)
 #endif
 {
-	(PUBL(free))((void*)pointer);
+	(PUBL(free))((void *)pointer);
 }
 
 /* End of pcre_get.c */

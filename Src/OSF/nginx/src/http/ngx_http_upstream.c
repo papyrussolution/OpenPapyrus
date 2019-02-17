@@ -800,7 +800,7 @@ static void ngx_http_upstream_check_broken_connection(ngx_http_request_t * r, ng
 		 * BSDs and Linux return 0 and set a pending error in err
 		 * Solaris returns -1 and sets errno
 		 */
-		if(getsockopt(c->fd, SOL_SOCKET, SO_ERROR, (void*)&err, &len) == -1) {
+		if(getsockopt(c->fd, SOL_SOCKET, SO_ERROR, (void *)&err, &len) == -1) {
 			err = ngx_socket_errno;
 		}
 		if(err) {
@@ -4012,7 +4012,7 @@ ngx_int_t ngx_http_upstream_hide_headers_hash(ngx_conf_t * cf, ngx_http_upstream
 		}
 		hk->key = *h;
 		hk->key_hash = ngx_hash_key_lc(h->data, h->len);
-		hk->value = (void*)1;
+		hk->value = (void *)1;
 	}
 	if(conf->hide_headers != NGX_CONF_UNSET_PTR) {
 		h = (ngx_str_t *)conf->hide_headers->elts;
@@ -4029,7 +4029,7 @@ ngx_int_t ngx_http_upstream_hide_headers_hash(ngx_conf_t * cf, ngx_http_upstream
 			}
 			hk->key = h[i];
 			hk->key_hash = ngx_hash_key_lc(h[i].data, h[i].len);
-			hk->value = (void*)1;
+			hk->value = (void *)1;
 exist:
 			continue;
 		}

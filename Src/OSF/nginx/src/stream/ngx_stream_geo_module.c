@@ -338,7 +338,7 @@ static const char * ngx_stream_geo_block(ngx_conf_t * cf, const ngx_command_t * 
 	cf->pool = pool;
 	cf->ctx = &ctx;
 	cf->handler = ngx_stream_geo;
-	cf->handler_conf = (char*)conf;
+	cf->handler_conf = static_cast<char *>(conf);
 	rv = ngx_conf_parse(cf, NULL);
 	*cf = save;
 	if(ctx.ranges) {
@@ -370,7 +370,7 @@ static const char * ngx_stream_geo_block(ngx_conf_t * cf, const ngx_command_t * 
 		}
 		geo->u.high = ctx.high;
 		var->get_handler = ngx_stream_geo_range_variable;
-		var->data = (uintptr_t)geo;
+		var->data = reinterpret_cast<uintptr_t>(geo);
 		ngx_destroy_pool(ctx.temp_pool);
 		ngx_destroy_pool(pool);
 	}
@@ -394,7 +394,7 @@ static const char * ngx_stream_geo_block(ngx_conf_t * cf, const ngx_command_t * 
 		geo->u.trees.tree6 = ctx.tree6;
 #endif
 		var->get_handler = ngx_stream_geo_cidr_variable;
-		var->data = (uintptr_t)geo;
+		var->data = reinterpret_cast<uintptr_t>(geo);
 		ngx_destroy_pool(ctx.temp_pool);
 		ngx_destroy_pool(pool);
 		if(ngx_radix32tree_insert(ctx.tree, 0, 0, (uintptr_t)&ngx_stream_variable_null_value) == NGX_ERROR) {

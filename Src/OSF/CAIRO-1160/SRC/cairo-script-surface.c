@@ -2644,7 +2644,7 @@ static cairo_status_t _emit_scaled_glyph_vector(cairo_script_surface_t * surface
 
 	index = ++font_private->subset_glyph_index;
 	scaled_glyph->dev_private_key = ctx;
-	scaled_glyph->dev_private = (void*)index;
+	scaled_glyph->dev_private = (void *)index;
 
 	_cairo_output_stream_printf(ctx->stream,
 	    "%lu <<\n"
@@ -2691,7 +2691,7 @@ static cairo_status_t _emit_scaled_glyph_bitmap(cairo_script_surface_t * surface
 
 	index = ++font_private->subset_glyph_index;
 	scaled_glyph->dev_private_key = ctx;
-	scaled_glyph->dev_private = (void*)index;
+	scaled_glyph->dev_private = (void *)index;
 
 	_cairo_output_stream_printf(ctx->stream,
 	    "%lu <<\n"

@@ -434,7 +434,7 @@ int EVP_PKEY_set1_tls_encodedpoint(EVP_PKEY * pkey, const uchar * pt, size_t ptl
 {
 	if(ptlen > INT_MAX)
 		return 0;
-	if(evp_pkey_asn1_ctrl(pkey, ASN1_PKEY_CTRL_SET1_TLS_ENCPT, ptlen, (void*)pt) <= 0)
+	if(evp_pkey_asn1_ctrl(pkey, ASN1_PKEY_CTRL_SET1_TLS_ENCPT, ptlen, (void *)pt) <= 0)
 		return 0;
 	return 1;
 }

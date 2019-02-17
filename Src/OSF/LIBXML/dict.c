@@ -414,9 +414,9 @@ static ulong FASTCALL xmlDictComputeFastKey(const xmlChar * name, int namelen, i
  */
 static ulong FASTCALL xmlDictComputeFastQKey(const xmlChar * prefix, int plen, const xmlChar * name, int len, int seed)
 {
-	ulong value = (ulong)seed;
+	ulong value = static_cast<ulong>(seed);
 	if(plen == 0)
-		value += 30 * (ulong)':';
+		value += 30 * static_cast<ulong>(':');
 	else
 		value += 30 * (*prefix);
 	if(len > 10) {
@@ -474,13 +474,13 @@ xmlDict * xmlDictCreate()
 #ifdef DICT_DEBUG_PATTERNS
 	fprintf(stderr, "C");
 #endif
-	dict = (xmlDict *)SAlloc::M(sizeof(xmlDict));
+	dict = static_cast<xmlDict *>(SAlloc::M(sizeof(xmlDict)));
 	if(dict) {
 		dict->ref_counter = 1;
 		dict->limit = 0;
 		dict->size = MIN_DICT_SIZE;
 		dict->nbElems = 0;
-		dict->dict = (xmlDictEntry *)SAlloc::M(MIN_DICT_SIZE * sizeof(xmlDictEntry));
+		dict->dict = static_cast<xmlDictEntry *>(SAlloc::M(MIN_DICT_SIZE * sizeof(xmlDictEntry)));
 		dict->strings = NULL;
 		dict->subdict = NULL;
 		if(dict->dict) {
@@ -576,7 +576,7 @@ static int xmlDictGrow(xmlDict * dict, size_t size)
 		return -1;
 	if(oldsize == MIN_DICT_SIZE)
 		keep_keys = 0;
-	dict->dict = (xmlDictEntry *)SAlloc::M(size * sizeof(xmlDictEntry));
+	dict->dict = static_cast<xmlDictEntry *>(SAlloc::M(size * sizeof(xmlDictEntry)));
 	if(dict->dict == NULL) {
 		dict->dict = olddict;
 		return -1;
@@ -599,7 +599,7 @@ static int xmlDictGrow(xmlDict * dict, size_t size)
 				dict->dict[key].okey = okey;
 			}
 			else {
-				xmlDictEntry * entry = (xmlDictEntry *)SAlloc::M(sizeof(xmlDictEntry));
+				xmlDictEntry * entry = static_cast<xmlDictEntry *>(SAlloc::M(sizeof(xmlDictEntry)));
 				if(entry) {
 					entry->name = olddict[i].name;
 					entry->len = olddict[i].len;
@@ -650,7 +650,6 @@ static int xmlDictGrow(xmlDict * dict, size_t size)
 #ifdef DEBUG_GROW
 	xmlGenericError(0, "xmlDictGrow : from %lu to %lu, %u elems\n", oldsize, size, nbElem);
 #endif
-
 	return ret;
 }
 /**
@@ -710,7 +709,6 @@ const xmlChar * FASTCALL xmlDictLookupSL(xmlDict * dict, const xmlChar * name)
 {
 	return xmlDictLookup(dict, name, -1);
 }
-
 /**
  * xmlDictLookup:
  * @dict: the dictionnary
@@ -804,7 +802,7 @@ const xmlChar * FASTCALL xmlDictLookup(xmlDict * dict, const xmlChar * name, int
 			entry = &(dict->dict[key]);
 		}
 		else {
-			entry = (xmlDictEntry *)SAlloc::M(sizeof(xmlDictEntry));
+			entry = static_cast<xmlDictEntry *>(SAlloc::M(sizeof(xmlDictEntry)));
 			if(!entry)
 				return 0;
 		}

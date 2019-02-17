@@ -494,7 +494,7 @@ static void pool_fini(struct pool * pool)
 	do {
 		while(NULL != p) {
 			struct _pool_chunk * prev = p->prev_chunk;
-			if(p != (void*)pool->sentinel)
+			if(p != (void *)pool->sentinel)
 				SAlloc::F(p);
 			p = prev;
 		}
@@ -562,8 +562,8 @@ static void pool_reset(struct pool * pool)
 {
 	/* Transfer all used chunks to the chunk free list. */
 	struct _pool_chunk * chunk = pool->current;
-	if(chunk != (void*)pool->sentinel) {
-		while(chunk->prev_chunk != (void*)pool->sentinel) {
+	if(chunk != (void *)pool->sentinel) {
+		while(chunk->prev_chunk != (void *)pool->sentinel) {
 			chunk = chunk->prev_chunk;
 		}
 		chunk->prev_chunk = pool->first_free;

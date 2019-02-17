@@ -963,7 +963,7 @@ CURLcode Curl_add_buffer_send(Curl_send_buffer * in, struct connectdata * conn,
 
 				/* set the new pointers for the request-sending */
 				conn->data->state.fread_func = (curl_read_callback)readmoredata;
-				conn->data->state.in = (void*)conn;
+				conn->data->state.in = (void *)conn;
 				http->postdata = ptr;
 				http->postsize = (curl_off_t)size;
 
@@ -2065,7 +2065,7 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 			     */
 			    char * contentType;
 			    size_t linelength = 0;
-			    contentType = Curl_formpostheader((void*)&http->form,
+			    contentType = Curl_formpostheader((void *)&http->form,
 			    &linelength);
 			    if(!contentType) {
 				    failf(data, "Could not get Content-Type header line!");
@@ -2219,7 +2219,7 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 				    http->postdata = (const char *)data->set.postfields;
 				    http->sending = HTTPSEND_BODY;
 				    data->state.fread_func = (curl_read_callback)readmoredata;
-				    data->state.in = (void*)conn;
+				    data->state.in = (void *)conn;
 				    /* set the upload size to the progress meter */
 				    Curl_pgrsSetUploadSize(data, http->postsize);
 				    result = Curl_add_buffer(req_buffer, "\r\n", 2); /* end of headers! */

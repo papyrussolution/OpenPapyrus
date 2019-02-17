@@ -283,7 +283,7 @@ void SortFileNames(const UStringVector &strings, CUIntVector &indices)
 		uint * vals = &indices[0];
 		for(uint i = 0; i < numItems; i++)
 			vals[i] = i;
-		indices.Sort(CompareStrings, (void*)&strings);
+		indices.Sort(CompareStrings, (void *)&strings);
 	}
 }
 //

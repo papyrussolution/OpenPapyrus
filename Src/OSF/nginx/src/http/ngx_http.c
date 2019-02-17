@@ -1210,7 +1210,7 @@ const char * ngx_http_types_slot(ngx_conf_t * cf, const ngx_command_t * cmd, voi
 	ngx_uint_t i, n, hash;
 	ngx_hash_key_t * type;
 	ngx_array_t ** types = (ngx_array_t**)(p + cmd->offset);
-	if(*types != (void*)-1) {
+	if(*types != (void *)-1) {
 		const ngx_str_t * default_type = (const ngx_str_t *)cmd->P_Post;
 		if(*types == NULL) {
 			*types = ngx_array_create(cf->temp_pool, 1, sizeof(ngx_hash_key_t));
@@ -1224,7 +1224,7 @@ const char * ngx_http_types_slot(ngx_conf_t * cf, const ngx_command_t * cmd, voi
 				}
 				type->key = *default_type;
 				type->key_hash = ngx_hash_key(default_type->data, default_type->len);
-				type->value = (void*)4;
+				type->value = (void *)4;
 			}
 		}
 		value = (ngx_str_t*)cf->args->elts;
@@ -1248,7 +1248,7 @@ const char * ngx_http_types_slot(ngx_conf_t * cf, const ngx_command_t * cmd, voi
 			}
 			type->key = value[i];
 			type->key_hash = hash;
-			type->value = (void*)4;
+			type->value = (void *)4;
 next:
 			continue;
 		}
@@ -1260,7 +1260,7 @@ char * ngx_http_merge_types(ngx_conf_t * cf, ngx_array_t ** keys, ngx_hash_t * t
 {
 	ngx_hash_init_t hash;
 	if(*keys) {
-		if(*keys != (void*)-1) {
+		if(*keys != (void *)-1) {
 			hash.hash = types_hash;
 			hash.key = NULL;
 			hash.max_size = 2048;
@@ -1280,7 +1280,7 @@ char * ngx_http_merge_types(ngx_conf_t * cf, ngx_array_t ** keys, ngx_hash_t * t
 					return NGX_CONF_ERROR;
 				}
 			}
-			else if(*prev_keys == (void*)-1) {
+			else if(*prev_keys == (void *)-1) {
 				*keys = *prev_keys;
 				return NGX_CONF_OK;
 			}
@@ -1314,7 +1314,7 @@ ngx_int_t ngx_http_set_default_types(ngx_conf_t * pCf, ngx_array_t ** ppTypes, n
 			}
 			p_type->key = *pDefaultType;
 			p_type->key_hash = ngx_hash_key(pDefaultType->data, pDefaultType->len);
-			p_type->value = (void*)4;
+			p_type->value = (void *)4;
 			pDefaultType++;
 		}
 		return NGX_OK;

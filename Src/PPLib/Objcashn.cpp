@@ -1221,7 +1221,7 @@ int DivGrpAsscListDialog::addItem(long * pPos, long * pID)
 
 int DivGrpAsscListDialog::editItem(long pos, long /*id*/)
 {
-	if(pos >= 0 && pos < (long)P_Data->getCount() && editItem((int)pos, (PPGenCashNode::DivGrpAssc *)P_Data->at((uint)pos)) > 0)
+	if(pos >= 0 && pos < (long)P_Data->getCount() && editItem((int)pos, (PPGenCashNode::DivGrpAssc *)P_Data->at(static_cast<uint>(pos))) > 0)
 		return 1;
 	return -1;
 }

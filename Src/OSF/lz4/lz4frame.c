@@ -543,9 +543,9 @@ size_t LZ4F_compressBegin_usingCDict(LZ4F_cctx* cctxPtr, void* dstBuffer, size_t
 			if(cctxPtr->lz4CtxAlloc < ctxTypeID) {
 				SAlloc::F(cctxPtr->lz4CtxPtr);
 				if(cctxPtr->prefs.compressionLevel < LZ4HC_CLEVEL_MIN)
-					cctxPtr->lz4CtxPtr = (void*)LZ4_createStream();
+					cctxPtr->lz4CtxPtr = (void *)LZ4_createStream();
 				else
-					cctxPtr->lz4CtxPtr = (void*)LZ4_createStreamHC();
+					cctxPtr->lz4CtxPtr = (void *)LZ4_createStreamHC();
 				if(cctxPtr->lz4CtxPtr == NULL) return err0r(LZ4F_ERROR_allocation_failed);
 				cctxPtr->lz4CtxAlloc = ctxTypeID;
 				cctxPtr->lz4CtxState = ctxTypeID;
@@ -1024,7 +1024,7 @@ static size_t LZ4F_decodeHeader(LZ4F_dctx* dctx, const void* src, size_t srcSize
     // special case : skippable frames 
     if((LZ4F_readLE32(srcPtr) & 0xFFFFFFF0U) == LZ4F_MAGIC_SKIPPABLE_START) {
         dctx->frameInfo.frameType = LZ4F_skippableFrame;
-        if(src == (void*)(dctx->header)) {
+        if(src == (void *)(dctx->header)) {
             dctx->tmpInSize = srcSize;
             dctx->tmpInTarget = 8;
             dctx->dStage = dstage_storeSFrameSize;

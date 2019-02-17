@@ -1534,7 +1534,7 @@ skip:
 			else {
 				ret->line = 65535;
 				if(ctxt->options & XML_PARSE_BIG_LINES)
-					ret->psvi = (void*)(long)ctxt->input->line;
+					ret->psvi = (void *)(long)ctxt->input->line;
 			}
 		}
 	}

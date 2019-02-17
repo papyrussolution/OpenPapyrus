@@ -173,12 +173,12 @@ int SLAPI Btrieve::Reset(int station)
 	char   buf[256];
 	int    index;
 	if(station) {
-		*(int16 *)buf = station;
+		*(int16 *)buf = static_cast<uint16>(station);
 		index = -1;
 	}
 	else
 		index = 0;
-	return BRet(BTRV(B_RESET, buf, buf, (uint16 *)buf, buf, WBTRVTAIL_Z));
+	return BRet(BTRV(B_RESET, buf, buf, reinterpret_cast<uint16 *>(buf), buf, WBTRVTAIL_Z));
 }
 
 //static
@@ -263,7 +263,7 @@ int SLAPI Btrieve::CreateTable(const char * pFileName, DBFileSpec & rTblDesc, in
 			fn_buf[fn_len] = 0;
 		}
 		do {
-			be = BTRV(B_CREATE, fpb, p_buf, (uint16 *)(&buf_size), fn_buf, WBTRVTAIL);
+			be = BTRV(B_CREATE, fpb, p_buf, reinterpret_cast<uint16 *>(&buf_size), fn_buf, WBTRVTAIL);
 		} while(oneof2(be, BE_INVKEYLEN, BE_INVRECLEN) && (reinterpret_cast<DBFileSpec *>(p_buf)->PageSize += 512) <= 8192);
 		ok = BRet(be);
 		DBTable::InitErrFileName(pFileName);
@@ -286,17 +286,18 @@ SLAPI DbDict_Btrieve::DbDict_Btrieve(const char * pPath) : DbDictionary()
 	pw[0] = pw[2] = pw[3] = 0x2E2E;
 	pw[1] = 0x4353;
 	pw[4] = 0;
+	char * p_pw_arg = reinterpret_cast<char *>(&pw);
 	(base_path = pPath).SetLastSlash();
-	if(!xfile.Btr_Open((buf = base_path).Cat(BDictionary::DdfTableFileName), omNormal, (char*)&pw))
+	if(!xfile.Btr_Open((buf = base_path).Cat(BDictionary::DdfTableFileName), omNormal, p_pw_arg))
 		State |= stError;
 	if(IsValid()) {
 		xfile.setDataBuf(&fileBuf, sizeof(fileBuf));
-		if(!xfield.Btr_Open((buf = base_path).Cat(BDictionary::DdfFieldFileName), omNormal, (char*)&pw))
+		if(!xfield.Btr_Open((buf = base_path).Cat(BDictionary::DdfFieldFileName), omNormal, p_pw_arg))
 			State |= stError;
 	}
 	if(IsValid()) {
 		xfield.setDataBuf(&fieldBuf, sizeof(fieldBuf));
-		if(!xindex.Btr_Open((buf = base_path).Cat(BDictionary::DdfIndexFileName), omNormal, (char*)&pw))
+		if(!xindex.Btr_Open((buf = base_path).Cat(BDictionary::DdfIndexFileName), omNormal, p_pw_arg))
 			State |= stError;
 	}
 	if(IsValid()) {
@@ -396,7 +397,7 @@ int SLAPI DbDict_Btrieve::CreateTableSpec(DBTable * pTbl)
 	ta = 1;
 	tbl_id = IsValid() ? getUniqueKey(&xfile, 0) : 0;
 	THROW(tbl_id);
-	fileBuf.XfId = pTbl->tableID = (BTBLID)tbl_id;
+	fileBuf.XfId = pTbl->tableID = static_cast<BTBLID>(tbl_id);
 	memcpy(memset(fileBuf.XfName, ' ', sizeof(fileBuf.XfName)), pTbl->tableName, sstrlen(pTbl->tableName));
 	memcpy(memset(fileBuf.XfLoc, ' ', sizeof(fileBuf.XfLoc)), pTbl->fileName, sstrlen(pTbl->fileName));
 	fileBuf.XfFlags   = pTbl->flags;
@@ -406,7 +407,7 @@ int SLAPI DbDict_Btrieve::CreateTableSpec(DBTable * pTbl)
 	THROW(xfile.insertRec());
 	THROW(p_bei = new BExtInsert(&xfield));
 	THROW(tbl_id = getUniqueKey(&xfield, 0));
-	BTBLID fld_id = (BTBLID)tbl_id;
+	BTBLID fld_id = static_cast<BTBLID>(tbl_id);
 	for(i = 0; i < fl.getCount(); i++) {
 		const BNField & f = fl.getField(i);
 		const size_t fname_len = sstrlen(f.Name);
@@ -421,7 +422,7 @@ int SLAPI DbDict_Btrieve::CreateTableSpec(DBTable * pTbl)
 				fieldBuf.XeName[fname_len] = '$';
 				fieldBuf.XeName[fname_len+1] = 'd';
 				fieldBuf.XeDataType = SLib2BtrType(S_DATE);
-				fieldBuf.XeOffset = (int16)f.Offs;
+				fieldBuf.XeOffset = static_cast<int16>(f.Offs);
 				fieldBuf.XeSize = sizeof(LDATE);
 				THROW(p_bei->insert(&fieldBuf));
 			}
@@ -434,7 +435,7 @@ int SLAPI DbDict_Btrieve::CreateTableSpec(DBTable * pTbl)
 				fieldBuf.XeName[fname_len] = '$';
 				fieldBuf.XeName[fname_len+1] = 't';
 				fieldBuf.XeDataType = SLib2BtrType(S_TIME);
-				fieldBuf.XeOffset = (int16)(f.Offs+sizeof(S_DATE));
+				fieldBuf.XeOffset = static_cast<int16>(f.Offs+sizeof(LDATE)); // @v10.3.4 @fix sizeof(S_DATE)-->sizeof(LDATE)
 				fieldBuf.XeSize = sizeof(LTIME);
 				THROW(p_bei->insert(&fieldBuf));
 			}
@@ -447,9 +448,9 @@ int SLAPI DbDict_Btrieve::CreateTableSpec(DBTable * pTbl)
 			memcpy(fieldBuf.XeName, f.Name, fname_len);
 			_t = GETSTYPE(f.T);
 			fieldBuf.XeDataType = SLib2BtrType(_t);
-			fieldBuf.XeOffset = (int16)f.Offs;
-			fieldBuf.XeSize = (int16)stsize(f.T);
-			fieldBuf.XeDec = oneof3(_t, S_DEC, S_MONEY, S_NUMERIC) ? (int8)GETSPRECD(f.T) : 0;
+			fieldBuf.XeOffset = static_cast<int16>(f.Offs);
+			fieldBuf.XeSize = static_cast<int16>(stsize(f.T));
+			fieldBuf.XeDec = oneof3(_t, S_DEC, S_MONEY, S_NUMERIC) ? static_cast<int8>(GETSPRECD(f.T)) : 0;
 			THROW(p_bei->insert(&fieldBuf));
 		}
 	}
@@ -462,7 +463,7 @@ int SLAPI DbDict_Btrieve::CreateTableSpec(DBTable * pTbl)
 			const int fld_id = key.getFieldID(j);
 			const BNField * p_fld = &fl.getField(fld_id);
 			THROW(p_fld);
-			indexBuf.XiField  = (int16)p_fld->Id;
+			indexBuf.XiField  = static_cast<int16>(p_fld->Id);
 			indexBuf.XiNumber = key.getKeyNumber();
 			indexBuf.XiPart   = j;
 			indexBuf.XiFlags  = key.getFlags(j);
@@ -561,7 +562,7 @@ int SLAPI DbDict_Btrieve::GetTableID(const char * pTblName, long * pID, DbTableS
 int SLAPI DbDict_Btrieve::GetTableInfo(long tblID, DbTableStat * pStat)
 {
 	int    ok = 1;
-	BTBLID tbl_id = (BTBLID)tblID;
+	BTBLID tbl_id = static_cast<BTBLID>(tblID);
 	if(IsValid() && xfile.search(0, &tbl_id, spEq))
 		ExtractStat(fileBuf, pStat);
 	else
@@ -668,14 +669,14 @@ int SLAPI DbDict_Btrieve::getFieldList(BTBLID tblID, BNFieldList * fields)
 	THROW(IsValid() && tblID);
 	THROW_V(xfield.search(1, &key, spEq), BE_FNFOUND);
 	makeFldListQuery(tblID, numRecs);
-	THROW_V(q = (char*)SAlloc::M(bsize), BE_NOMEM);
+	THROW_V(q = static_cast<char *>(SAlloc::M(bsize)), BE_NOMEM);
 	xfield.setDataBuf(q, bsize);
 	do {
 		memcpy(q, &flq, sizeof(flq));
 		THROW(xfield.getExtended(&key, spNext) || BTRNFOUND || (BtrError == BE_REJECTLIMIT));
-		count = *(uint16*)q;
+		count = *reinterpret_cast<const uint16 *>(q);
 		for(i = 0; i < count; i++) {
-   	    	_XFR * d = (_XFR*)(q + sizeof(BExtResultHeader) + i * sizeof(_XFR));
+   	    	_XFR * d = reinterpret_cast<_XFR *>(q + sizeof(BExtResultHeader) + i * sizeof(_XFR));
 			d->name[sizeof(d->name)-1] = 0;
 			strip(d->name);
 			fields->addField(/*s*/d->name, MKSTYPED(Btr2SLibType(d->typ), d->siz, d->dec), d->id);
@@ -703,7 +704,7 @@ int SLAPI DbDict_Btrieve::getIndexList(BTBLID tblID, BNKeyList * pKeyList)
 	THROW(IsValid() && tblID);
 	THROW_V(xindex.search(0, &key, spEq), BE_FNFOUND);
 	makeIdxListQuery(tblID, num_recs);
-	THROW_V(q = (char*)SAlloc::M(bsize), BE_NOMEM);
+	THROW_V(q = static_cast<char *>(SAlloc::M(bsize)), BE_NOMEM);
 	xindex.setDataBuf(q, bsize);
 	do {
 		memcpy(q, &ilq, sizeof(ilq));

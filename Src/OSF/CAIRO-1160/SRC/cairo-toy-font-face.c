@@ -203,26 +203,20 @@ static int _cairo_toy_font_face_keys_equal(const void * key_a, const void * key_
  *
  * Since: 1.8
  **/
-cairo_font_face_t * cairo_toy_font_face_create(const char * family,
-    cairo_font_slant_t slant,
-    cairo_font_weight_t weight)
+cairo_font_face_t * cairo_toy_font_face_create(const char * family, cairo_font_slant_t slant, cairo_font_weight_t weight)
 {
 	cairo_status_t status;
 	cairo_toy_font_face_t key, * font_face;
 	cairo_hash_table_t * hash_table;
-
 	if(family == NULL)
 		return (cairo_font_face_t*)&_cairo_font_face_null_pointer;
-
 	/* Make sure we've got valid UTF-8 for the family */
 	status = _cairo_utf8_to_ucs4(family, -1, NULL, NULL);
 	if(unlikely(status)) {
 		if(status == CAIRO_STATUS_INVALID_STRING)
 			return (cairo_font_face_t*)&_cairo_font_face_invalid_string;
-
 		return (cairo_font_face_t*)&_cairo_font_face_nil;
 	}
-
 	switch(slant) {
 		case CAIRO_FONT_SLANT_NORMAL:
 		case CAIRO_FONT_SLANT_ITALIC:
@@ -231,7 +225,6 @@ cairo_font_face_t * cairo_toy_font_face_create(const char * family,
 		default:
 		    return (cairo_font_face_t*)&_cairo_font_face_invalid_slant;
 	}
-
 	switch(weight) {
 		case CAIRO_FONT_WEIGHT_NORMAL:
 		case CAIRO_FONT_WEIGHT_BOLD:
@@ -350,12 +343,9 @@ static cairo_bool_t _cairo_font_face_is_toy(cairo_font_face_t * font_face)
  **/
 const char * cairo_toy_font_face_get_family(cairo_font_face_t * font_face)
 {
-	cairo_toy_font_face_t * toy_font_face;
-
 	if(font_face->status)
 		return CAIRO_FONT_FAMILY_DEFAULT;
-
-	toy_font_face = (cairo_toy_font_face_t*)font_face;
+	cairo_toy_font_face_t * toy_font_face = (cairo_toy_font_face_t*)font_face;
 	if(!_cairo_font_face_is_toy(font_face)) {
 		if(_cairo_font_face_set_error(font_face, CAIRO_STATUS_FONT_TYPE_MISMATCH))
 			return CAIRO_FONT_FAMILY_DEFAULT;
@@ -376,12 +366,9 @@ const char * cairo_toy_font_face_get_family(cairo_font_face_t * font_face)
  **/
 cairo_font_slant_t cairo_toy_font_face_get_slant(cairo_font_face_t * font_face)
 {
-	cairo_toy_font_face_t * toy_font_face;
-
 	if(font_face->status)
 		return CAIRO_FONT_SLANT_DEFAULT;
-
-	toy_font_face = (cairo_toy_font_face_t*)font_face;
+	cairo_toy_font_face_t * toy_font_face = (cairo_toy_font_face_t*)font_face;
 	if(!_cairo_font_face_is_toy(font_face)) {
 		if(_cairo_font_face_set_error(font_face, CAIRO_STATUS_FONT_TYPE_MISMATCH))
 			return CAIRO_FONT_SLANT_DEFAULT;
@@ -403,12 +390,9 @@ slim_hidden_def(cairo_toy_font_face_get_slant);
  **/
 cairo_font_weight_t cairo_toy_font_face_get_weight(cairo_font_face_t * font_face)
 {
-	cairo_toy_font_face_t * toy_font_face;
-
 	if(font_face->status)
 		return CAIRO_FONT_WEIGHT_DEFAULT;
-
-	toy_font_face = (cairo_toy_font_face_t*)font_face;
+	cairo_toy_font_face_t * toy_font_face = reinterpret_cast<cairo_toy_font_face_t *>(font_face);
 	if(!_cairo_font_face_is_toy(font_face)) {
 		if(_cairo_font_face_set_error(font_face, CAIRO_STATUS_FONT_TYPE_MISMATCH))
 			return CAIRO_FONT_WEIGHT_DEFAULT;
@@ -429,7 +413,6 @@ static const cairo_font_face_backend_t _cairo_toy_font_face_backend = {
 void _cairo_toy_font_face_reset_static_data(void)
 {
 	cairo_hash_table_t * hash_table;
-
 	/* We manually acquire the lock rather than calling
 	 * cairo_toy_font_face_hash_table_lock simply to avoid
 	 * creating the table only to destroy it again. */
@@ -437,7 +420,6 @@ void _cairo_toy_font_face_reset_static_data(void)
 	hash_table = cairo_toy_font_face_hash_table;
 	cairo_toy_font_face_hash_table = NULL;
 	CAIRO_MUTEX_UNLOCK(_cairo_toy_font_face_mutex);
-
 	if(hash_table != NULL)
 		_cairo_hash_table_destroy(hash_table);
 }

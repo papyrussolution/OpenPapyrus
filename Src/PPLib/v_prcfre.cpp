@@ -1043,7 +1043,7 @@ int SLAPI PPViewPrcBusy::TimeChunkBrowser()
 		}
 	}
 	p_brw->SetData(&Grid, 0);
-	p_brw->SetResID(((PPApp *)APPL)->LastCmd);
+	p_brw->SetResID(static_cast<PPApp *>(APPL)->LastCmd);
 	{
 		SString temp_buf;
 		SString title_buf = GetDescr();

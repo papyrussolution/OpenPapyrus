@@ -758,7 +758,7 @@ int BDbDatabase::GetSequence(long seqId, int64 * pVal)
 			if(p_seq) {
 				db_seq_t _v = 0;
 				THROW(ProcessError(p_seq->get(p_seq, T.T, 1, &_v, DB_TXN_NOSYNC)));
-				val = (int64)_v;
+				val = _v;
 				ok = 1;
 			}
 			break;
@@ -1353,7 +1353,7 @@ int BDbTable::GetConfig(int idx, Config & rCfg)
 		THROW(Helper_GetConfig(this, rCfg));
 	}
 	else {
-		THROW_D(idx <= (int)IdxList.getCount(), BE_INVKEY);
+		THROW_D(idx <= static_cast<int>(IdxList.getCount()), BE_INVKEY);
 		{
 			BDbTable * p_idx_tbl = IdxList.at(idx-1);
 			THROW(Helper_GetConfig(p_idx_tbl, rCfg));
@@ -1446,7 +1446,7 @@ int BDbTable::Search(int idx, Buffer & rKey, Buffer & rData)
 		ok = Helper_Search(rKey, rData, 0);
 	}
 	else {
-		THROW_D(idx <= (int)IdxList.getCount(), BE_INVKEY);
+		THROW_D(idx <= static_cast<int>(IdxList.getCount()), BE_INVKEY);
 		{
 			BDbTable * p_idx_tbl = IdxList.at(idx-1);
 			Buffer pkey;

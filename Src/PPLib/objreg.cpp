@@ -291,7 +291,7 @@ int SLAPI PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const Regist
 						return;
 				}
 				else if(TVCMD == cmCtlColor) {
-					TDrawCtrlData * p_dc = (TDrawCtrlData *)TVINFOPTR;
+					TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 					if(p_dc && ValidCode >= 0 && getCtrlHandle(CTL_REG_NUMBER) == p_dc->H_Ctl) {
 						if(ValidCode > 0) {
 							::SetBkMode(p_dc->H_DC, TRANSPARENT);
@@ -655,7 +655,7 @@ int SLAPI PPObjRegister::EditBankAccount(PPBankAccount * pRec, PPID psnKindID)
 					drawCtrl(CTL_BACCT_ACCT);
 			}
 			else if(TVCMD == cmCtlColor) {
-				TDrawCtrlData * p_dc = (TDrawCtrlData *)TVINFOPTR;
+				TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 				if(p_dc && ValidAcc >= 0 && getCtrlHandle(CTL_BACCT_ACCT) == p_dc->H_Ctl) {
 					if(ValidAcc > 0) {
 						::SetBkMode(p_dc->H_DC, TRANSPARENT);

@@ -102,7 +102,7 @@ static ngx_int_t ngx_http_upstream_init_zone(ngx_shm_zone_t * shm_zone, void * d
 	}
 	ngx_sprintf(shpool->log_ctx, " in upstream zone \"%V\"%Z", &shm_zone->shm.name);
 	// copy peers to shared memory 
-	peersp = (ngx_http_upstream_rr_peers_t**)(void*)&shpool->data;
+	peersp = (ngx_http_upstream_rr_peers_t**)(void *)&shpool->data;
 	for(i = 0; i < umcf->upstreams.nelts; i++) {
 		uscf = uscfp[i];
 		if(uscf->shm_zone == shm_zone) {

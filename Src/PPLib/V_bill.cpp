@@ -4330,7 +4330,7 @@ int SLAPI PPViewBill::ViewVATaxList()
 	PPWait(1);
 	THROW(CalcBillVATax(&dest));
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_VATAXLST))));
-	p_list = (SmartListBox *)dlg->getCtrlView(CTL_VATAXLST_LIST);
+	p_list = static_cast<SmartListBox *>(dlg->getCtrlView(CTL_VATAXLST_LIST));
 	MEMSZERO(total);
 	THROW_MEM(p_ary = new StrAssocArray);
 	for(i = 0; dest.enumItems(&i, (void**)&p_item);) {
@@ -4432,9 +4432,9 @@ int SLAPI PPViewBill::ViewTotal()
 
 // @vmiller
 struct PrvdrDllLink {
-	PrvdrDllLink()
+	PrvdrDllLink() : SessId(0), P_ExpDll(0)
 	{
-		THISZERO();
+		PTR32(PrvdrSymb)[0] = 0;
 	}
 	int    SessId;
 	char   PrvdrSymb[12]; // PPSupplExchangeCfg::PrvdrSymb
@@ -4619,7 +4619,6 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 								}
 								//if(!dll_found) {
 								b_e.BillParam = bill_param;
-
 								ImpExpDll * p_exp_dll = new ImpExpDll;
 								THROW_MEM(p_exp_dll);
 								THROW_MEM(p_prvd_dll_link = new PrvdrDllLink);
@@ -4995,7 +4994,6 @@ static int SLAPI SCardInfoDlg(PPSCardPacket & rScPack, PPID * pOpID, long flags,
 	PPPersonPacket psn_pack;
 	PPObjSCard sc_obj;
 	TDialog * p_dlg = 0;
-
 	if(flags & BillFilt::fDraftOnly)
 		op_type_list.add(PPOPT_DRAFTEXPEND);
 	else if(flags & BillFilt::fOrderOnly)
@@ -5072,8 +5070,6 @@ int SLAPI PPViewBill::AddBySCard(PPID * pID)
 	int    sc_num_ret = 0;
 	PPID   op_id = 0;
 	PPObjSCard sc_obj;
-	//SCardTbl::Rec  sc_rec;
-	//MEMSZERO(sc_rec);
 	PPSCardPacket sc_pack;
 	CCheckTbl::Rec cc_rec;
 	MEMSZERO(cc_rec);
@@ -5411,7 +5407,7 @@ int SLAPI PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPV
 		UpdateBillList.sortAndUndup();
 		if(IsTempTblNeeded()) {
 			for(uint i = 0; i < UpdateBillList.getCount(); i++) {
-				PPID   bill_id = UpdateBillList.get(i);
+				const PPID bill_id = UpdateBillList.get(i);
 				UpdateTempTable(bill_id);
 			}
 			pBrw->refresh();
@@ -5435,7 +5431,7 @@ int SLAPI PPViewBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 		BillTbl::Rec bill_rec;
 		BrwHdr hdr;
 		if(pHdr && ppvCmd != PPVCMD_INPUTCHAR && ppvCmd != PPVCMD_RECEIVEDFOCUS)
-			hdr = *(PPViewBill::BrwHdr *)pHdr;
+			hdr = *static_cast<const PPViewBill::BrwHdr *>(pHdr);
 		else
 			MEMSZERO(hdr);
 		id = hdr.ID;
@@ -5579,7 +5575,7 @@ int SLAPI PPViewBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 					update = 1;
 				break;
 			case PPVCMD_INPUTCHAR:
-				if(((const char*)pHdr)[0] == kbCtrlX)
+				if(PTR8C(pHdr)[0] == kbCtrlX)
 					CtrlX++;
 				else
 					CtrlX = 0;
@@ -5807,7 +5803,7 @@ int FASTCALL ViewGoodsBills(BillFilt * pFilt, int asModeless)
 	}
 	while(pFilt || p_v->EditBaseFilt(p_flt) > 0) {
 		PPWait(1);
-		if(((BillFilt *)p_flt)->Flags & BillFilt::fAsSelector)
+		if(static_cast<const BillFilt *>(p_flt)->Flags & BillFilt::fAsSelector)
 			modeless = 0;
 		THROW(p_v->Init_(p_flt));
 		PPCloseBrowser(p_prev_win);
@@ -5818,7 +5814,7 @@ int FASTCALL ViewGoodsBills(BillFilt * pFilt, int asModeless)
 		}
 	}
 	if(!modeless && r > 0) {
-		pFilt->Sel = ((BillFilt*)p_v->GetBaseFilt())->Sel;
+		pFilt->Sel = static_cast<const BillFilt *>(p_v->GetBaseFilt())->Sel;
 		ok = 1;
 	}
 	CATCHZOKPPERR
@@ -5839,7 +5835,7 @@ int FASTCALL ViewBillsByPool(PPID poolType, PPID poolOwnerID)
 		THROW(PPView::CreateInstance(PPVIEW_BILL, &p_v));
 		THROW(p_flt = p_v->CreateFilt(0));
 		{
-			BillFilt * p_bfilt = (BillFilt*)p_flt;
+			BillFilt * p_bfilt = static_cast<BillFilt *>(p_flt);
 			p_bfilt->AssocID = poolType;
 			p_bfilt->PoolBillID = poolOwnerID;
 			p_bfilt->Bbt = bbtUndef;
@@ -5933,7 +5929,7 @@ void PPALDD_GoodsBillBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, Rtm
 		_RET_DBL = saldo;
 	}
 	else if(pF->Name == "?UnlimGoodsOnly") {
-		const PPBillPacket * p_pack = (const PPBillPacket *)Extra[0].Ptr;
+		const PPBillPacket * p_pack = static_cast<const PPBillPacket *>(Extra[0].Ptr);
 		_RET_INT = BIN(p_pack && p_pack->ProcessFlags & PPBillPacket::pfAllGoodsUnlim);
 	}
 	/* @v10.2.12 @construction else if(pF->Name == "?GetEgaisMarkCount") {
@@ -6159,7 +6155,7 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 	double upp = 0.0; // Емкость упаковки
 	int    tiamt;
 	int    price_chng = 1;
-	uint   n = (uint)I.nn;
+	uint   n = static_cast<uint>(I.nn);
 	const  PPID qk_id = p_pack->Ext.ExtPriceQuotKindID;
 	const  long exclude_tax_flags = H.fSupplIsVatExempt ? GTAXVF_VAT : 0L;
 	const  int  extprice_by_base = BIN(qk_obj.Fetch(qk_id, &qk_rec) > 0 && qk_rec.Flags & QUOTKF_EXTPRICEBYBASE);
@@ -6228,9 +6224,8 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 		if(gto_assc.GetListByGoods(goods_rec.ID, loc_list) > 0)
 			for(uint j = 0; temp_buf.Empty() && j < loc_list.getCount(); j++) {
 				const PPID loc_id = loc_list.get(j);
-				if(loc_obj.BelongTo(loc_id, p_pack->Rec.LocID, &temp_buf)) {
+				if(loc_obj.BelongTo(loc_id, p_pack->Rec.LocID, &temp_buf))
 					break;
-				}
 			}
 		temp_buf.CopyTo(I.GoodsGrpName, sizeof(I.GoodsGrpName));
 	}
@@ -6274,7 +6269,7 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 	I.UnitsPerPack = upp;
 	I.FullPack = 0;
 	if(upp > 0.0)
-		I.FullPack = (long)(fabs(I.Qtty) / upp);
+		I.FullPack = floor(fabs(I.Qtty) / upp); // @v10.3.4 (long)-->floor
 	{
 		I.VATRate = 0.0;
 		I.VATSum = 0.0;
@@ -6647,7 +6642,7 @@ PPALDD_CONSTRUCTOR(Bill)
 
 PPALDD_DESTRUCTOR(Bill)
 {
-	delete (DL600_BillExt *)(Extra[0].Ptr);
+	delete static_cast<DL600_BillExt *>(Extra[0].Ptr);
 	Extra[0].Ptr = 0;
 	Destroy();
 }
@@ -6660,7 +6655,7 @@ int PPALDD_Bill::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
-		DL600_BillExt * p_ext = (DL600_BillExt *)(Extra[0].Ptr);
+		DL600_BillExt * p_ext = static_cast<DL600_BillExt *>(Extra[0].Ptr);
 		BillCore * p_billcore = p_ext->P_Bill;
 		p_ext->CrEventSurID = 0;
 		BillTbl::Rec rec;
@@ -6796,7 +6791,7 @@ int PPALDD_Bill::InitData(PPFilt & rFilt, long rsrv)
 				H.fRcPctCharge = BIN(rent.Flags & RENTF_PERCENT);
 				H.fRcClosed    = BIN(rent.Flags & RENTF_CLOSED);
 				H.RcCycle      = rent.Cycle;
-				H.RcDayOffs    = (int16)rent.ChargeDayOffs;
+				H.RcDayOffs    = static_cast<int16>(rent.ChargeDayOffs);
 				H.RcPercent    = rent.Percent;
 				H.RcPartAmount = rent.PartAmount;
 				if(H.RcCycle) {
@@ -6831,7 +6826,7 @@ void PPALDD_Bill::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & r
 	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
 	#define _RET_STR     (**static_cast<SString **>(rS.GetPtr(pApl->Get(0))))
 
-	DL600_BillExt * p_ext = (DL600_BillExt *)(Extra[0].Ptr);
+	DL600_BillExt * p_ext = static_cast<DL600_BillExt *>(Extra[0].Ptr);
 	BillCore * p_billcore = p_ext->P_Bill;
 	if(pF->Name == "?GetAmount") {
 		double amt = 0.0;
@@ -6885,21 +6880,21 @@ void PPALDD_Bill::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & r
 		PPObjBill * p_bobj = BillObj;
 		PPBillPacket pack;
 		if(p_bobj && p_bobj->ExtractPacket(H.ID, &pack) > 0)
-			_RET_INT = (int)pack.GetTCount();
+			_RET_INT = static_cast<int>(pack.GetTCount());
 		else
 			_RET_INT = 0;
 	}
 	else if(pF->Name == "?GetCreationEvent") {
-		long   sur_id = ((DL600_BillExt *)(Extra[0].Ptr))->CrEventSurID;
+		long   sur_id = static_cast<DL600_BillExt *>(Extra[0].Ptr)->CrEventSurID;
 		if(!sur_id) {
 			SysJournal * p_sj = DS.GetTLA().P_SysJ;
 			SysJournalTbl::Rec sj_rec;
 			if(p_sj && p_sj->GetObjCreationEvent(PPOBJ_BILL, H.ID, &sj_rec) > 0) {
 				DS.GetTLA().SurIdList.Add(&sur_id, &sj_rec, sizeof(sj_rec));
-				((DL600_BillExt *)(Extra[0].Ptr))->CrEventSurID = sur_id;
+				static_cast<DL600_BillExt *>(Extra[0].Ptr)->CrEventSurID = sur_id;
 			}
 			else
-				((DL600_BillExt *)(Extra[0].Ptr))->CrEventSurID = -1;
+				static_cast<DL600_BillExt *>(Extra[0].Ptr)->CrEventSurID = -1;
 		}
 		else if(sur_id < 0)
 			sur_id = 0;
@@ -7287,7 +7282,7 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId)
 	{
 		const PPBillPacket * p_pack = static_cast<const PPBillPacket *>(Extra[0].Ptr);
 		PPTransferItem * p_ti;
-		uint   nn = (uint)I.nn;
+		uint   nn = static_cast<uint>(I.nn);
 		if(p_pack->EnumTItems(&nn, &p_ti)) {
 			int    reval_assets_wo_vat = 1;
 			double new_price = p_ti->Price;
@@ -7299,10 +7294,18 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId)
 			double vatsum_newcost = 0.0;
 			double vatsum_oldprice = 0.0;
 			double vatsum_newprice = 0.0;
+			BillTbl::Rec link_bill_rec;
 			PPObjGoods    gobj;
 			PPGoodsTaxEntry gtx_cost;
 			PPGoodsTaxEntry gtx_price;
-			gobj.FetchTax(labs(p_ti->GoodsID), p_ti->LotDate, 0, &gtx_price);
+			{
+				// @v10.3.4 {
+				LDATE tax_dt = p_ti->Date;
+				if(p_pack->OpTypeID == PPOPT_CORRECTION && p_pack->Rec.LinkBillID && BillObj->Fetch(p_pack->Rec.LinkBillID, &link_bill_rec) > 0)
+					tax_dt = link_bill_rec.Dt;
+				// } @v10.3.4
+				gobj.FetchTax(labs(p_ti->GoodsID), tax_dt, 0, &gtx_price); // @v10.3.4 @fix p_ti->LotDate-->p_ti->Date
+			}
 			if(p_ti->LotTaxGrpID) {
 				gobj.GTxObj.Fetch(p_ti->LotTaxGrpID, p_ti->LotDate, 0, &gtx_cost);
 			}
@@ -8184,7 +8187,7 @@ int PPALDD_Warrant::InitData(PPFilt & rFilt, long rsrv)
 {
 	LDATE  dt;
 	Extra[0].Ptr = rFilt.Ptr;
-	const PPBillPacket * p_pack = (const PPBillPacket *)Extra[0].Ptr;
+	const PPBillPacket * p_pack = static_cast<const PPBillPacket *>(Extra[0].Ptr);
 	MEMSZERO(H);
 	H.BillID = p_pack->Rec.ID;
 	STRNSCPY(H.WarrantNo,  p_pack->Rec.Code);

@@ -3680,7 +3680,7 @@ IMPL_REF2CVT_FUNC(PPDraftCreateRule) // {
 
 //#define IMPL_REF2CVT_FUNC(rec) int ConvertRef(const rec##_ & rRec, rec##2 & rRec2) {\
 
-#define CONVERT_REF2_OBJ(obj, rec) case obj: THROW(ConvertRef(*(rec##_ *)&ref.data, *(rec##2 *)&ref2.data)); break
+#define CONVERT_REF2_OBJ(obj, rec) case obj: THROW(ConvertRef(*reinterpret_cast<const rec##_ *>(&ref.data), *reinterpret_cast<rec##2 *>(&ref2.data))); break
 
 static int SLAPI ConvertRef2()
 {

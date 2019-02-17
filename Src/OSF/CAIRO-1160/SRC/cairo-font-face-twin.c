@@ -215,7 +215,7 @@ static void parse_field(twin_face_properties_t * props, const char * str, int le
 
 #define FIELD(NAME) \
 	if(find_field(STRINGIFY(NAME), NAME ## _map, ARRAY_LENGTH(NAME ## _map), str, len, \
-	    (int*)(void*)&props->NAME)) \
+	    (int*)(void *)&props->NAME)) \
 		return; \
 
 	FIELD(weight);

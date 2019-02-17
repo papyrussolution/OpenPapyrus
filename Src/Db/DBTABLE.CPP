@@ -47,7 +47,7 @@ int FASTCALL SLib2BtrType(int t)
 char * SLAPI GetRusNCaseACS(char * b)
 {
 	char * p = b;
-	*p++ = (char)0xAC;
+	*p++ = static_cast<char>(0xAC);
 	p = stpcpy(p, "RUSNCASE");
 	for(int i = 0; i < 256; i++)
 		*p++ = ToUpper866(i);
@@ -113,7 +113,7 @@ int    FASTCALL DBTable::AddKey(BNKey & rK) { return indexes.addKey(rK); }
 int SLAPI DBTable::Btr_Open(const char * pName, int openMode, char * pPassword)
 {
 	int    ok = 0;
-	uint16 bl = (uint16)sstrlen(pPassword);
+	uint16 bl = static_cast<uint16>(sstrlen(pPassword));
 	index = openMode;
 	if(strchr(pName, ' '))
 		OpenedFileName.Z().CatQStr(pName);
@@ -130,7 +130,7 @@ int SLAPI DBTable::Btr_Open(const char * pName, int openMode, char * pPassword)
 		//
 		DBFileSpec * p_info = 0;
 		uint16 buf_size;
-		if(getStat((void **)&p_info, &buf_size)) {
+		if(getStat(reinterpret_cast<void **>(&p_info), &buf_size)) {
 			FixRecSize = p_info->RecSize;
 			delete p_info;
 			ok = 1;

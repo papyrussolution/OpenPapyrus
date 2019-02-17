@@ -94,9 +94,9 @@ struct _cairo_backend {
     void (*backend_to_user_distance) (void *cr, double *x, double *y);
     cairo_status_t (*new_path) (void *cr);
     cairo_status_t (*new_sub_path) (void *cr);
-    cairo_status_t (*move_to) (void *cr, double x, double y);
-    cairo_status_t (*rel_move_to) (void *cr, double dx, double dy);
-    cairo_status_t (*line_to) (void *cr, double x, double y);
+    cairo_status_t (*move_to)(void *cr, double x, double y);
+    cairo_status_t (*rel_move_to)(void *cr, double dx, double dy);
+    cairo_status_t (*line_to)(void *cr, double x, double y);
     cairo_status_t (*rel_line_to) (void *cr, double dx, double dy);
     cairo_status_t (*curve_to) (void *cr, double x1, double y1, double x2, double y2, double x3, double y3);
     cairo_status_t (*rel_curve_to) (void *cr, double dx1, double dy1, double dx2, double dy2, double dx3, double dy3);

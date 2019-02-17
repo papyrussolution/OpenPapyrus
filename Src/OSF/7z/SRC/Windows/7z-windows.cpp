@@ -813,7 +813,7 @@ namespace NWindows {
 						return false;
 					if(processedLoc == 0)
 						return true;
-					data = (void*)((uchar *)data + processedLoc);
+					data = (void *)((uchar *)data + processedLoc);
 					size -= processedLoc;
 				} while(size > 0);
 				return true;
@@ -929,7 +929,7 @@ namespace NWindows {
 				if(!file.Open(path,FILE_SHARE_WRITE, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_BACKUP_SEMANTICS))
 					return false;
 				DWORD returnedSize;
-				if(!file.DeviceIoControl(my_FSCTL_SET_REPARSE_POINT, (void*)data, size, NULL, 0, &returnedSize))
+				if(!file.DeviceIoControl(my_FSCTL_SET_REPARSE_POINT, (void *)data, size, NULL, 0, &returnedSize))
 					return false;
 				return true;
 			}

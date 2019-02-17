@@ -1182,7 +1182,7 @@ extern "C" {
 //
 //#include <FilterCoder.h>
 #define MY_QUERYINTERFACE_ENTRY_AG(i, sub0, sub) else if(iid == IID_ ## i) \
-	{ if(!sub) RINOK(sub0->QueryInterface(IID_ ## i, (void**)&sub))	*outObject = (void*)(i*)this; }
+	{ if(!sub) RINOK(sub0->QueryInterface(IID_ ## i, (void**)&sub))	*outObject = (void *)(i*)this; }
 
 struct CAlignedMidBuffer {
   #ifdef _WIN32
@@ -2940,7 +2940,7 @@ struct CCodecInfo {
 
 void RegisterCodec(const CCodecInfo * codecInfo) throw();
 
-#define REGISTER_CODEC_CREATE_2(name, cls, i) static void * name() { return (void*)(i*)(new cls); }
+#define REGISTER_CODEC_CREATE_2(name, cls, i) static void * name() { return (void *)(i*)(new cls); }
 #define REGISTER_CODEC_CREATE(name, cls) REGISTER_CODEC_CREATE_2(name, cls, ICompressCoder)
 #define REGISTER_CODEC_NAME(x) CRegisterCodec ## x
 #define REGISTER_CODEC_VAR static const CCodecInfo g_CodecInfo =

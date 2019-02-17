@@ -3489,7 +3489,7 @@ cairo_int_status_t _cairo_xcb_render_compositor_mask(const cairo_compositor_t * 
 		status = _clip_and_composite(surface, op, source,
 			_composite_opacity_boxes,
 			_composite_opacity_boxes,
-			(void*)mask,
+			(void *)mask,
 			composite, need_unbounded_clip(composite));
 	}
 	else {
@@ -3498,7 +3498,7 @@ cairo_int_status_t _cairo_xcb_render_compositor_mask(const cairo_compositor_t * 
 			mask_func = composite->clip->path ? _composite_mask_clip : _composite_mask_clip_boxes;
 		status = _clip_and_composite(surface, op, source,
 			_composite_mask, mask_func,
-			(void*)mask,
+			(void *)mask,
 			composite, need_bounded_clip(composite));
 	}
 

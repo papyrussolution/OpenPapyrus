@@ -115,7 +115,7 @@ static const char * ngx_conf_split_clients_block(ngx_conf_t * cf, const ngx_comm
 	save = *cf;
 	cf->ctx = ctx;
 	cf->handler = ngx_http_split_clients;
-	cf->handler_conf = (char*)conf;
+	cf->handler_conf = static_cast<char *>(conf);
 	rv = ngx_conf_parse(cf, NULL);
 	*cf = save;
 	if(rv != NGX_CONF_OK) {

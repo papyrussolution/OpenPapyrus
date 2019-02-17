@@ -775,12 +775,12 @@ int TuneToolsDialog::OnUpDownArrow(int up)
 	lvi.iItem = ListView_GetNextItem(H_List, -1, LVNI_SELECTED);
 	if(lvi.iItem >= 0 && !(up && lvi.iItem == 0) && !(!up && lvi.iItem == ListView_GetItemCount(H_List)-1)) {
 		char   buf[128], buf1[128];
-		lvi.iSubItem = lvi1.iSubItem = 0;
+		lvi.iSubItem = 0;
+		lvi1.iSubItem = 0;
 		lvi.mask = lvi1.mask  = LVIF_TEXT | LVIF_PARAM | LVIF_IMAGE | LVIF_STATE;
 		lvi1.pszText = buf1; // @unicodeproblem
 		lvi1.cchTextMax = sizeof(buf1);
 		lvi.stateMask = lvi1.stateMask = LVIS_SELECTED | LVIS_FOCUSED;
-		lvi.iSubItem = 0;
 		lvi.pszText = buf; // @unicodeproblem
 		lvi.cchTextMax = sizeof(buf);
 		if(up)

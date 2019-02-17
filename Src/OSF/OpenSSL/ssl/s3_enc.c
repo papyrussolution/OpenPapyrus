@@ -316,7 +316,7 @@ int ssl3_finish_mac(SSL * s, const uchar * buf, int len)
 {
 	if(s->s3->handshake_dgst == NULL)
 		/* Note: this writes to a memory BIO so a failure is a fatal error */
-		return BIO_write(s->s3->handshake_buffer, (void*)buf, len) == len;
+		return BIO_write(s->s3->handshake_buffer, (void *)buf, len) == len;
 	else
 		return EVP_DigestUpdate(s->s3->handshake_dgst, buf, len);
 }

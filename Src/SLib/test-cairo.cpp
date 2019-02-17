@@ -763,7 +763,7 @@ REPEAT:
 	cairo_surface_set_device_scale(surface, dev_scale, dev_scale);
 
 	cr = cairo_create(surface);
-	if(cairo_set_user_data(cr, &_cairo_test_context_key, (void*)ctx, NULL)) {
+	if(cairo_set_user_data(cr, &_cairo_test_context_key, (void *)ctx, NULL)) {
 #if HAVE_MEMFAULT
 		cairo_destroy(cr);
 		cairo_surface_destroy(surface);

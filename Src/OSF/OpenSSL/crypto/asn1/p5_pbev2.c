@@ -33,9 +33,7 @@ IMPLEMENT_ASN1_FUNCTIONS(PBKDF2PARAM)
  * and IV.
  */
 
-X509_ALGOR *PKCS5_pbe2_set_iv(const EVP_CIPHER *cipher, int iter,
-    uchar *salt, int saltlen,
-    uchar *aiv, int prf_nid)
+X509_ALGOR *PKCS5_pbe2_set_iv(const EVP_CIPHER *cipher, int iter, uchar *salt, int saltlen, uchar *aiv, int prf_nid)
 {
 	X509_ALGOR * scheme = NULL, * ret = NULL;
 	int alg_nid, keylen;

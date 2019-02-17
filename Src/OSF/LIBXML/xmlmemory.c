@@ -84,7 +84,7 @@ typedef struct memnod {
 #define HDR_SIZE    sizeof(MEMHDR)
 #define RESERVE_SIZE (((HDR_SIZE + (ALIGN_SIZE-1)) / ALIGN_SIZE ) * ALIGN_SIZE)
 #define CLIENT_2_HDR(a) ((MEMHDR*)(((char*)(a)) - RESERVE_SIZE))
-#define HDR_2_CLIENT(a)    ((void*)(((char*)(a)) + RESERVE_SIZE))
+#define HDR_2_CLIENT(a)    ((void *)(((char*)(a)) + RESERVE_SIZE))
 
 static uint block = 0;
 static uint xmlMemStopAtBlock = 0;
@@ -339,7 +339,7 @@ void xmlMemFree(void * ptr)
 #endif
 	if(ptr == NULL)
 		return;
-	if(ptr == (void*)-1) {
+	if(ptr == (void *)-1) {
 		xmlGenericError(0, "trying to free pointer from freed area\n");
 		goto error;
 	}

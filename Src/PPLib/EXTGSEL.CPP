@@ -573,7 +573,7 @@ IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 	}
 	TDialog::handleEvent(event);
 	if(event.isCmd(cmCtlColor)) {
-		TDrawCtrlData * p_dc = (TDrawCtrlData *)TVINFOPTR;
+		TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 		if(p_dc && getCtrlHandle(CTL_EXTGSEL_MODIFMODE) == p_dc->H_Ctl) {
 			const long modif_mode = getCtrlLong(CTLSEL_EXTGSEL_MODIFMODE);
 			if(modif_mode == TIDlgInitData::mmExpend) {

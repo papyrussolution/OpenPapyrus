@@ -1291,7 +1291,7 @@ namespace NArchive {
 
 		void CFilesDatabase::Sort()
 		{
-			Indices.Sort(CompareFiles, (void*)&Items);
+			Indices.Sort(CompareFiles, (void *)&Items);
 		}
 
 		bool CFilesDatabase::Check()

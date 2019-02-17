@@ -204,7 +204,7 @@ static int LogL16Decode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 		}
 		tp = (int16*)sp->tbuf;
 	}
-	memzero((void*)tp, npixels*sizeof(tp[0]));
+	memzero((void *)tp, npixels*sizeof(tp[0]));
 
 	bp = (unsigned char*)tif->tif_rawcp;
 	cc = tif->tif_rawcc;
@@ -337,7 +337,7 @@ static int LogLuvDecode32(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 		}
 		tp = (uint32*)sp->tbuf;
 	}
-	memzero((void*)tp, npixels*sizeof(tp[0]));
+	memzero((void *)tp, npixels*sizeof(tp[0]));
 
 	bp = (unsigned char*)tif->tif_rawcp;
 	cc = tif->tif_rawcc;
@@ -1541,7 +1541,7 @@ int TIFFInitSGILog(TIFF* tif, int scheme)
 	if(tif->tif_data == NULL)
 		goto bad;
 	sp = (LogLuvState*)tif->tif_data;
-	memzero((void*)sp, sizeof(*sp));
+	memzero((void *)sp, sizeof(*sp));
 	sp->user_datafmt = SGILOGDATAFMT_UNKNOWN;
 	sp->encode_meth = (scheme == COMPRESSION_SGILOG24) ? SGILOGENCODE_RANDITHER : SGILOGENCODE_NODITHER;
 	sp->tfunc = _logLuvNop;

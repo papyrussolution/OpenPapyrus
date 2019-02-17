@@ -413,7 +413,7 @@ protected:
 // Descr: Габаритные размеры (mm).
 //
 struct PPDimention { // @noctr @novtbl
-	PPDimention & Reset();
+	PPDimention & Z();
 	int    operator !() const;
 	int    FASTCALL IsEqual(const PPDimention & rS) const;
 	int    FASTCALL operator == (const PPDimention & rS) const;
@@ -928,7 +928,8 @@ private:
 	int    SLAPI ResolveContextName(const char * pSymb, double * pResult);
 
 	struct State {
-		State();
+		SLAPI  State();
+		SLAPI  State(const State &);
 		State & FASTCALL operator = (const State & rS);
 
 		PPID   OidObjType;    // for oid()
@@ -5370,16 +5371,14 @@ public:
 	// Descr: Флаги заголовка реплики.
 	//
 	enum {
-		hfAck      = 0x0001, // Простая реплика, подтверждающая обработку сервером
-			// полученной команды.
+		hfAck      = 0x0001, // Простая реплика, подтверждающая обработку сервером полученной команды.
 		hfRepError = 0x0002, // Реплика сигнализирует об ошибке.
 			// После инициализации чтения реплики функцией StartReading, если
 			// реплика сигнализирует об ошибке, то возвращаемая функцией
 			// структура заголовка будет содержать этот флаг.
 		// @#{hfAck^hfRepError}
 		hfInformer = 0x0004, // Реплика информирует клиента о ходе выолнения процесса.
-			// Если тип данных равен htGenericText, то после заголовка следует
-			// текстовая информация о ходе процесса.
+			// Если тип данных равен htGenericText, то после заголовка следует текстовая информация о ходе процесса.
 		hfCmd      = 0x0008, // Пакет является командой (в противном случае - репликой)
 		hfSlString = 0x0010, // Пакет представлен строкой, завершенной переводом каретки.
 			// Это флаг соответствует неструктурированному пакету, по этому
@@ -5387,8 +5386,7 @@ public:
 			// Функция StartReading устанавливает в возвращаемой структуре заголовка
 			// этот флаг, если засекает неструктурированный пакет (Header::Zero != 0).
 		hfMore     = 0x0020  // Пакет не полностью передал данные. Требуется дополнительный
-			// запрос на продолжение передачи. Пока этот флаг используется для передачи
-			// больших файлов порциями.
+			// запрос на продолжение передачи. Пока этот флаг используется для передачи больших файлов порциями.
 	};
 
 	struct Header {
@@ -13841,7 +13839,7 @@ public:
 	static SString & FASTCALL MakeCodeString(const CCheckTbl::Rec *, SString &);
 	static int FASTCALL FetchCTableStatus(long tableNo, CTableStatus * pStatus);
 	static int FASTCALL FetchCTableOrderList(TSVector <CTableStatus> & rList); // @v9.8.5 TSArray-->TSVector
-	static int SLAPI RecognizeOrdBarcode(const char * pCode, PPID * pOrdCheckID);
+	// @v10.3.4 @useless static int SLAPI RecognizeOrdBarcode(const char * pCode, PPID * pOrdCheckID);
 	static int SLAPI Helper_GetPaymList(CCheckPaymTbl * pCpTbl, PPID id, CcAmountList & rList);
 	static int FASTCALL IsExtRecEq(const CCheckExtTbl::Rec & r1, const CCheckExtTbl::Rec & r2);
 
@@ -13984,8 +13982,8 @@ public:
 	//        параметром pExt.
 	//     0  - ошибка.
 	//
-	int    SLAPI UpdateExt(PPID id, CCheckExtTbl::Rec * pExt, int use_ta);
-	int    SLAPI PutExt(CCheckTbl::Rec * pRec, CCheckExtTbl::Rec * pExt, int useTa);
+	int    SLAPI UpdateExt(PPID id, const CCheckExtTbl::Rec * pExt, int use_ta);
+	int    SLAPI PutExt(const CCheckTbl::Rec * pRec, CCheckExtTbl::Rec * pExt, int useTa);
 	//
 	// Descr: Изменяет значение поля SCardID записи с идентификатором checkID.
 	//   Не проверяет права доступа (это обязана сделать вызывающая функция, если
@@ -14030,7 +14028,7 @@ public:
 	// Note: Фактически, чек id может принадлежать сессии, которая еще работает на данном компьютере под
 	//   текущей системной учетной записью.
 	//
-	int    SLAPI IsLostJunkCheck(PPID id, S_GUID * pExtUuid, PPSession::RegSessData * pSessData);
+	int    SLAPI IsLostJunkCheck(PPID id, const S_GUID * pExtUuid, PPSession::RegSessData * pSessData);
 	//
 	// Descr: Типы сообщений, записываемых в файл журнала ccheck.log
 	//   в отладочном режиме (CConfig.Flags & CCFLG_DEBUG)
@@ -14122,7 +14120,7 @@ class CGoodsLine : public CGoodsLineTbl {
 public:
 	SLAPI  CGoodsLine(char * pFileName = 0);
 	int    SLAPI Add(PPID sessID, const CCheckGoodsArray * pList, int use_ta);
-	int    SLAPI Update(CGoodsLineTbl::Rec * pRec, int use_ta);
+	int    SLAPI Update(const CGoodsLineTbl::Rec & rRec, int use_ta);
 	int    SLAPI UndoWritingOff(PPID);                       // Without transaction
 	int    SLAPI RemoveSess(PPID sessID);                    // Without transaction
 	int    SLAPI HasAnyLineForSess(PPID sessID);
@@ -14169,7 +14167,7 @@ protected:
 	PPEquipConfig EqCfg;
 private:
 	int    SLAPI TurnBill(PPBillPacket * pPack, CSessTotal * pTotal, int isRet, OptimalAmountDamper * pOad);
-	int    SLAPI ConvertSign(const int sign, const PPID sessID, const PPID locID, void * pData, CSessTotal * pTotal, OptimalAmountDamper * pOad);
+	int    SLAPI ConvertSign(const int sign, const PPID sessID, const PPID locID, const void * pData, CSessTotal * pTotal, OptimalAmountDamper * pOad);
 	int    SLAPI Convert(PPID sessID, PPID locID, void * pData, CSessTotal * pTotal, int use_ta);
 	int    SLAPI ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pTotal);
 
@@ -15840,6 +15838,7 @@ public:
 		StrategyResultValueEx & SLAPI Z();
 		double Peak;   // Максимальное значение, которого достигла котировка в течении сессии
 		double Bottom; // Минимальное значение, которого достигла котировка в течении сессии
+		uint   LastPoint; // Точка ряда, на которой алгоритм TsCalcStrategyResult2 закончил работу
 	};
 	struct Strategy { // @flat @persistent
 		static double SLAPI CalcSL_withExternalFactors(double peak, bool isShort, int prec, uint maxDuckQuant, double spikeQuant);
@@ -15878,16 +15877,21 @@ public:
 		uint16 PeakAvgQuant;
 		uint16 BottomAvgQuant;
 		uint16 PeakMaxQuant;
-		uint8  Reserve[24];
+		uint32 ID;
+		uint8  Reserve[20];
 	};
 	class StrategyContainer : public TSVector <Strategy> {
 	public:
 		SLAPI  StrategyContainer();
+		SLAPI  StrategyContainer(const StrategyContainer & rS);
+		StrategyContainer & FASTCALL operator = (const StrategyContainer & rS);
+		int    FASTCALL Copy(const StrategyContainer & rS);
 		void   SLAPI SetLastValTm(LDATETIME dtm);
 		LDATETIME SLAPI GetLastValTm() const { return LastValTm; }
 		LDATETIME SLAPI GetStorageTm() const { return StorageTm; }
 		uint32 SLAPI GetVersion() const { return Ver; }
 		int    SLAPI GetInputFramSizeList(LongArray & rList, uint * pMaxOptDelta2Stride) const;
+		const  Strategy * FASTCALL SearchByID(uint32 id) const;
 		//
 		// Descr: Флаги функции GetBestSubset
 		//
@@ -15923,12 +15927,12 @@ public:
 		uint   EpochCount;       // Количество эпох обучения каждого паттерна
 		float  LearningRate;     // Фактор скорости обучения
 	};
-	struct StrategyResultEntry : public Strategy {
+	struct StrategyResultEntry : public Strategy { // @flat
 		SLAPI  StrategyResultEntry();
 		SLAPI  StrategyResultEntry(const PPObjTimeSeries::TrainNnParam & rTnnp, int stakeMode);
 		void   FASTCALL SetValue(const StrategyResultValue & rV);
 		void   FASTCALL SetValue(const StrategyResultValueEx & rV);
-		void   FASTCALL SetOuter(const StrategyResultEntry & rS);
+		void   FASTCALL SetOuter(const StrategyResultEntry & rS); // @cs
 		double SLAPI GetPeakAverage() const;
 		double SLAPI GetBottomAverage() const;
 
@@ -15940,6 +15944,7 @@ public:
 		double SumPeak;          // @v10.3.3
 		double SumBottom;        // @v10.3.3
 		double MaxPeak;          // @v10.3.3
+		uint64 TotalSec;         // @v10.3.4 Общее время тесте (для симуляции контейнеров стратегий)
 	};
 	struct TrendEntry {
 		SLAPI  TrendEntry(uint stride, uint nominalCount);
@@ -15947,11 +15952,21 @@ public:
 		const uint NominalCount;
 		RealArray TL;
 	};
+	struct BestStrategyBlock {
+		SLAPI  BestStrategyBlock();
+		void   SLAPI SetResult(double localResult, uint strategyIdx, double tv, double tv2);
+
+		double MaxResult;
+		int    MaxResultIdx;
+		double TvForMaxResult;
+		double Tv2ForMaxResult;
+	};
 
 	static int SLAPI EditConfig(PPObjTimeSeries::Config * pCfg);
 	static int SLAPI WriteConfig(PPObjTimeSeries::Config * pCfg, int use_ta);
 	static int SLAPI ReadConfig(PPObjTimeSeries::Config * pCfg);
 	static SString & SLAPI StrategyOutput(const PPObjTimeSeries::StrategyResultEntry * pSre, SString & rBuf);
+	static SString & SLAPI StrategyToString(const PPObjTimeSeries::Strategy & rS, const PPObjTimeSeries::BestStrategyBlock * pBestResult, SString & rBuf);
 
 	SLAPI  PPObjTimeSeries(void * extraPtr = 0);
 	virtual int SLAPI Browse(void * extraPtr);
@@ -15982,7 +15997,7 @@ public:
 		const IntRange & rMdRange, int mdStep, TSVector <FactorToResultRelation> & rSet, FactorToResultRelation & rResult);
 	//static int SLAPI Helper_FindOptimalFactor(const DateTimeArray & rTmList, const RealArray & rValList, const TrainNnParam & rS, double & rResult, uint & rPeakQuant);
 	static const TrendEntry * FASTCALL SearchTrendEntry(const TSCollection <TrendEntry> & rTrendList, uint stride);
-	static int SLAPI MatchStrategy(const TSCollection <TrendEntry> & rTrendList, const Strategy & rS, double & rResult, double & rTv, double & rTv2);
+	static int SLAPI MatchStrategy(const TSCollection <TrendEntry> & rTrendList, int lastIdx, const Strategy & rS, double & rResult, double & rTv, double & rTv2);
 private:
 	virtual int SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam);
 	int    SLAPI EditDialog(PPTimeSeries * pEntry);
@@ -26201,8 +26216,7 @@ enum GoodsGroupTag {
 #define GF_DFLTPCKGTYPE    0x00004000L // Тип пакета по умолчанию
 #define GF_PCKG_AROWS      0x00008000L //
 #define GF_PCKG_ANEWROW    0x00010000L //
-#define GF_ASSETS          0x00020000L // @transient Основные фонды
-	// Проекция флага GTF_ASSETS типа, которому принадлежит товар
+#define GF_ASSETS          0x00020000L // @transient Основные фонды. Проекция флага GTF_ASSETS типа, которому принадлежит товар
 #define GF_WROFFBYPRICE    0x00040000L // Списывать основное средство исходя из остаточной стоимости
 #define GF_TRANSGLED       0x00080000L // @transient Признак передачи в пакете структуры GoodsLotExtData
 #define GF_VOLUMEVAL       0x00100000L // Объем упаковки поставки задается одним значением
@@ -27860,7 +27874,7 @@ public:
     //   В случае ошибки - 0.
     //
     int    SLAPI IsVerifiedCode(const char * pAlcoCode);
-    int    SLAPI Put(PPID * pID, EgaisProductCore::Item * pItem, long * pConflictFlags, int use_ta);
+    int    SLAPI Put(PPID * pID, const EgaisProductCore::Item * pItem, long * pConflictFlags, int use_ta);
     //
     // Descr: Удаляет все записи из таблицы
     //
@@ -28134,7 +28148,7 @@ protected:
 	public:
 		SLAPI  RefCollection();
 		int    FASTCALL SetPerson(const EgaisPersonCore::Item & rItem);
-		int    FASTCALL SetProduct(EgaisProductCore::Item & rItem);
+		int    FASTCALL SetProduct(const EgaisProductCore::Item & rItem);
 		int    FASTCALL SetRefA(EgaisRefATbl::Rec & rItem);
 		int    SLAPI Store(int use_ta);
 
@@ -40206,7 +40220,8 @@ public:
 			// сравнения с документами списания.
 		fCmpWrOff_DiffOnly  = 0x00400000,   // @v9.5.8 Если отчет строится со сравнением драфт-документов и документов
 			// списания, то отображать только различающиеся позиции.
-		fUnclosedDraftsOnly = 0x00800000    // @v10.1.10 Если отчет строится по драфт-документам, то пропускать списанные документы
+		fUnclosedDraftsOnly = 0x00800000,   // @v10.1.10 Если отчет строится по драфт-документам, то пропускать списанные документы
+		fShowCargo          = 0x01000000    // @v10.3.4 Отображать грузовые параметры (брутто и объем)        
 	};
 	enum {
 		ctNone       = 0,  // Без кросстаба
@@ -42993,7 +43008,6 @@ private:
 //
 struct BudgetFilt : public PPBaseFilt {
 	BudgetFilt();
-
 	virtual int SLAPI Init(int fullyDestroy, long extraData);
 	BudgetFilt & FASTCALL operator = (const BudgetFilt & s);
 
@@ -46127,7 +46141,6 @@ public:
 
 	struct Meta {
 		Meta();
-		Meta & FASTCALL operator = (const Meta & rS);
 		void   Clear();
 
 		int    Tok;
@@ -50918,7 +50931,7 @@ int    FASTCALL StatusWinChange(int onLogon = 0, long timer = -1);
 SDateRange FASTCALL DateRangeToOleDateRange(DateRange period);
 DateRange  FASTCALL OleDateRangeToDateRange(const SDateRange & rRnd);
 SIterCounter FASTCALL GetPPViewIterCounter(const void * ppviewPtr, int * pAppError);
-IUnknown * FASTCALL GetPPObjIStrAssocList(SCoClass * pCls, PPObject * pObj, long extraParam);
+IUnknown * FASTCALL GetPPObjIStrAssocList(SCoClass * pCls, PPObject * pObj, void * extraPtr);
 //
 // Descr: Опции функций PPOpenFile
 //

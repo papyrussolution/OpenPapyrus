@@ -1195,11 +1195,11 @@ int SLAPI RunPPViewCmd(int viewID, SBuffer * pParam, long menuCm, long cmdID, vo
 	PPBaseFilt * p_filt = 0;
 	PPView     * p_view = 0;
 	if((menuCm || cmdID) && APPL) {
-		((PPApp*)APPL)->LastCmd = (cmdID) ? (cmdID + ICON_COMMAND_BIAS) : menuCm;
+		static_cast<PPApp *>(APPL)->LastCmd = (cmdID) ? (cmdID + ICON_COMMAND_BIAS) : menuCm;
 		if(pParam)
 			PPView::ReadFiltPtr(*pParam, &p_filt);
 		THROW(p_view->Execute(viewID, p_filt, 1, extraPtr));
-		((PPApp*)APPL)->LastCmd = 0;
+		static_cast<PPApp *>(APPL)->LastCmd = 0;
 		ok = 1;
 	}
 	CATCHZOK
@@ -1239,7 +1239,7 @@ public:
 				ok = RunPPViewCmd(D.ViewId, pParam, D.MenuCm, cmdID, (void *)D.FiltExtId);
 		}
 		else if(D.MenuCm && APPL) {
-			((PPApp*)APPL)->processCommand((uint)D.MenuCm);
+			static_cast<PPApp *>(APPL)->processCommand((uint)D.MenuCm);
 			ok = 1;
 		}
 		CATCHZOK
@@ -1274,7 +1274,7 @@ public:
 			THROW_INVARG(pParam);
 			sav_offs = pParam->GetRdOffs();
 			pParam->Read(name);
-			((PPApp*)APPL)->LastCmd = D.MenuCm;
+			static_cast<PPApp *>(APPL)->LastCmd = D.MenuCm;
 			GetObjectTitle(PPOBJ_PERSON, isd_param.Title);
 			isd_param.InputTitle = isd_param.Title;
 			if(InputStringDialog(&isd_param, name) > 0) {
@@ -1308,7 +1308,7 @@ public:
 				pParam->SetRdOffs(sav_offs);
 			ok = 0;
 		ENDCATCH
-		((PPApp*)APPL)->LastCmd = 0;
+		static_cast<PPApp *>(APPL)->LastCmd = 0;
 		return ok;
 	}
 };
@@ -1439,7 +1439,7 @@ public:
 			SBuffer param;
 			THROW_INVARG(pParam);
 			THROW(TodoObj.CheckRightsModByID(&id));
-			((PPApp*)APPL)->LastCmd = (cmdID) ? (cmdID + ICON_COMMAND_BIAS) : D.MenuCm;
+			static_cast<PPApp *>(APPL)->LastCmd = (cmdID) ? (cmdID + ICON_COMMAND_BIAS) : D.MenuCm;
 			param = *pParam;
 			if(EditParam(&param, cmdID, extra) > 0) {
 				PrjTaskTbl::Rec rec;
@@ -1449,7 +1449,7 @@ public:
 			}
 		}
 		CATCHZOK
-		((PPApp*)APPL)->LastCmd = 0;
+		static_cast<PPApp *>(APPL)->LastCmd = 0;
 		return ok;
 	}
 private:
@@ -1629,7 +1629,7 @@ int SLAPI CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 		PPObjRegisterType obj_regt;
 		PPObjSCard sc_obj;
 		SelectPersonByCodeDialog::Rec psn_data;
-		((PPApp*)APPL)->LastCmd = D.MenuCm;
+		static_cast<PPApp *>(APPL)->LastCmd = D.MenuCm;
 		MEMSZERO(pop_rec);
 		MEMSZERO(pk_rec);
 		MEMSZERO(scnd_pk_rec);
@@ -1795,7 +1795,7 @@ int SLAPI CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 	}
 	CATCHZOK
 	delete p_dlg;
-	((PPApp*)APPL)->LastCmd = 0;
+	static_cast<PPApp *>(APPL)->LastCmd = 0;
 	return ok;
 }
 
@@ -1814,7 +1814,7 @@ int SLAPI CMD_HDL_CLS(ADDPERSONEVENT)::Run(SBuffer * pParam, long cmdID, long ex
 
 			SBuffer sbuf;
 			AddPersonEventFilt filt;
-			((PPApp*)APPL)->LastCmd = cmdID ? (cmdID + ICON_COMMAND_BIAS) : D.MenuCm;
+			static_cast<PPApp *>(APPL)->LastCmd = cmdID ? (cmdID + ICON_COMMAND_BIAS) : D.MenuCm;
 			if(pParam)
 				filt.Read(*pParam, 0);
 			interactive_level = filt.InteractiveLevel;
@@ -1852,7 +1852,7 @@ int SLAPI CMD_HDL_CLS(ADDPERSONEVENT)::Run(SBuffer * pParam, long cmdID, long ex
 						PPError();
 				}
 			}
-			((PPApp*)APPL)->LastCmd = 0;
+			static_cast<PPApp *>(APPL)->LastCmd = 0;
 		}
 	}
 	CATCH
@@ -2010,10 +2010,10 @@ public:
 		int    ok = -1;
 		if((D.MenuCm || cmdID) && APPL) {
 			CashNodePaneFilt * p_filt = 0;
-			((PPApp*)APPL)->LastCmd = cmdID ? (cmdID + ICON_COMMAND_BIAS) : D.MenuCm;
+			static_cast<PPApp *>(APPL)->LastCmd = cmdID ? (cmdID + ICON_COMMAND_BIAS) : D.MenuCm;
 			PPView::ReadFiltPtr(*pParam, (PPBaseFilt**)&p_filt);
 			ok = ExecCSPanel(p_filt);
-			((PPApp*)APPL)->LastCmd = 0;
+			static_cast<PPApp *>(APPL)->LastCmd = 0;
 		}
 		return ok;
 	}
@@ -2724,7 +2724,7 @@ public:
 			THROW_INVARG(pParam);
 			sav_offs = pParam->GetRdOffs();
 			pParam->Read(srch_str);
-			((PPApp*)APPL)->LastCmd = D.MenuCm;
+			static_cast<PPApp *>(APPL)->LastCmd = D.MenuCm;
 			isd_param.InputTitle = PPLoadTextS(PPTXT_BILLSRCHCTX, isd_param.Title);
 			if(InputStringDialog(&isd_param, srch_str) > 0 && srch_str.Len()) {
 				SString srch_str2;
@@ -2794,7 +2794,7 @@ public:
 			CALLPTRMEMB(pParam, SetRdOffs(sav_offs));
 			ok = 0;
 		ENDCATCH
-		((PPApp*)APPL)->LastCmd = 0;
+		static_cast<PPApp *>(APPL)->LastCmd = 0;
 		return ok;
 	}
 };

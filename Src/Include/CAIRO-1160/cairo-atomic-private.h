@@ -274,7 +274,7 @@ cairo_private void * _cairo_atomic_ptr_cmpxchg_return_old_impl(void ** x, void *
 	cairo_private cairo_atomic_int_t _cairo_atomic_int_get(cairo_atomic_int_t * x);
 	cairo_private cairo_atomic_int_t _cairo_atomic_int_get_relaxed(cairo_atomic_int_t * x);
 	void _cairo_atomic_int_set_relaxed(cairo_atomic_int_t * x, cairo_atomic_int_t val);
-	#define _cairo_atomic_ptr_get(x) (void*)_cairo_atomic_int_get((cairo_atomic_int_t*)x)
+	#define _cairo_atomic_ptr_get(x) (void *)_cairo_atomic_int_get((cairo_atomic_int_t*)x)
 #else
 	#define _cairo_atomic_int_get(x) (* x)
 	#define _cairo_atomic_int_get_relaxed(x) (* x)
@@ -287,7 +287,7 @@ cairo_private void * _cairo_atomic_ptr_cmpxchg_return_old_impl(void ** x, void *
 /* Workaround GCC complaining about casts */
 static cairo_always_inline void * _cairo_atomic_intptr_to_voidptr(cairo_atomic_intptr_t x)
 {
-	return (void*)x;
+	return (void *)x;
 }
 
 static cairo_always_inline cairo_atomic_int_t _cairo_atomic_int_cmpxchg_return_old_fallback(cairo_atomic_int_t * x, cairo_atomic_int_t oldv, cairo_atomic_int_t newv)

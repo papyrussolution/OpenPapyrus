@@ -1190,7 +1190,7 @@ xmlElement * xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlCha
 	if(table == NULL) {
 		xmlDict * dict = dtd->doc ? dtd->doc->dict : 0;
 		table = xmlHashCreateDict(0, dict);
-		dtd->elements = (void*)table;
+		dtd->elements = (void *)table;
 	}
 	if(table == NULL) {
 		xmlVErrMemory(ctxt, "xmlAddElementDecl: Table creation failed!\n");
@@ -1663,7 +1663,7 @@ xmlAttribute * xmlAddAttributeDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xm
 	table = (xmlAttributeTablePtr)dtd->attributes;
 	if(table == NULL) {
 		table = xmlHashCreateDict(0, dict);
-		dtd->attributes = (void*)table;
+		dtd->attributes = (void *)table;
 	}
 	if(table == NULL) {
 		xmlVErrMemory(ctxt, "xmlAddAttributeDecl: Table creation failed!\n");
@@ -2400,7 +2400,7 @@ static int xmlWalkRemoveRef(const void * data, const void * user)
 	xmlAttr * attr1 = ((xmlRemoveMemoPtr)user)->ap;
 	xmlList * ref_list = ((xmlRemoveMemoPtr)user)->l;
 	if(attr0 == attr1) { /* Matched: remove and terminate walk */
-		xmlListRemoveFirst(ref_list, (void*)data);
+		xmlListRemoveFirst(ref_list, (void *)data);
 		return 0;
 	}
 	return 1;
@@ -2671,7 +2671,7 @@ static xmlElement * xmlGetDtdElementDesc2(xmlDtdPtr dtd, const xmlChar * name, i
 			table = (xmlElementTablePtr)dtd->elements;
 			if(table == NULL) {
 				table = xmlHashCreateDict(0, dict);
-				dtd->elements = (void*)table;
+				dtd->elements = (void *)table;
 			}
 			if(table == NULL) {
 				xmlVErrMemory(NULL, "element table allocation failed");

@@ -62,7 +62,7 @@ bool Curl_pipeline_penalized(struct Curl_easy * data, struct connectdata * conn)
 		if(chunk_penalty_size > 0 && (curl_off_t)conn->chunk.datasize > chunk_penalty_size)
 			penalized = TRUE;
 		infof(data, "Conn: %ld (%p) Receive pipe weight: (%" CURL_FORMAT_CURL_OFF_T "/%zu), penalized: %s\n",
-		    conn->connection_id, (void*)conn, recv_size, conn->chunk.datasize, penalized ? "TRUE" : "FALSE");
+		    conn->connection_id, (void *)conn, recv_size, conn->chunk.datasize, penalized ? "TRUE" : "FALSE");
 		return penalized;
 	}
 	return FALSE;
@@ -108,7 +108,7 @@ void Curl_move_handle_from_send_to_recv_pipe(struct Curl_easy * handle, struct c
 				   set its timeout value to 1ms to make it trigger instantly */
 				Curl_pipeline_leave_write(conn); /* not used now */
 #ifdef DEBUGBUILD
-				infof(conn->data, "%p is at send pipe head B!\n", (void*)conn->send_pipe.head->ptr);
+				infof(conn->data, "%p is at send pipe head B!\n", (void *)conn->send_pipe.head->ptr);
 #endif
 				Curl_expire((struct Curl_easy *)conn->send_pipe.head->ptr, 0);
 			}
@@ -313,7 +313,7 @@ void print_pipeline(struct connectdata * conn)
 		while(curr) {
 			conn = curr->ptr;
 			infof(data, "- Conn %ld (%p) send_pipe: %zu, recv_pipe: %zu\n",
-			    conn->connection_id, (void*)conn, conn->send_pipe->size, conn->recv_pipe->size);
+			    conn->connection_id, (void *)conn, conn->send_pipe->size, conn->recv_pipe->size);
 			curr = curr->next;
 		}
 	}

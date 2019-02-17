@@ -617,7 +617,7 @@ SString & DL6ICLS_PPObjSalCharge::GetName(int32 id)
 
 IStrAssocList * DL6ICLS_PPObjSalCharge::GetSelector(int32 extraParam)
 {
-	IStrAssocList * p = (IStrAssocList *)GetPPObjIStrAssocList(this, (PPObject *)ExtraPtr, extraParam);
+	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, static_cast<PPObject *>(ExtraPtr), reinterpret_cast<void *>(extraParam)));
 	if(!p)
 		AppError = 1;
 	return p;

@@ -87,12 +87,12 @@ int BIO_dump_indent_cb(int (* cb)(const void * data, size_t len, void * u),
 		 * if this is the last call then update the ddt_dump thing so that we
 		 * will move the selection point in the debug window
 		 */
-		ret += cb((void*)buf, strlen(buf), u);
+		ret += cb((void *)buf, strlen(buf), u);
 	}
 #ifdef TRUNCATE
 	if(trc > 0) {
 		BIO_snprintf(buf, sizeof buf, "%s%04x - <SPACES/NULS>\n", str, len + trc);
-		ret += cb((void*)buf, strlen(buf), u);
+		ret += cb((void *)buf, strlen(buf), u);
 	}
 #endif
 	return ret;

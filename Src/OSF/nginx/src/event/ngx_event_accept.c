@@ -282,7 +282,7 @@ void ngx_event_recvmsg(ngx_event_t * ev)
 	ngx_log_debug2(NGX_LOG_DEBUG_EVENT, ev->log, 0, "recvmsg on %V, ready: %d", &ls->addr_text, ev->available);
 	do {
 		memzero(&msg, sizeof(struct msghdr));
-		iov[0].iov_base = (void*)buffer;
+		iov[0].iov_base = (void *)buffer;
 		iov[0].iov_len = sizeof(buffer);
 		msg.msg_name = &sa;
 		msg.msg_namelen = sizeof(ngx_sockaddr_t);

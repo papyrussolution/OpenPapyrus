@@ -769,11 +769,11 @@ EXTERN_C_BEGIN
 		#pragma intrinsic(_byteswap_uint64)
 		#define GetBe32(p) _byteswap_ulong(*(const uint32*)(const Byte*)(p))
 		#define GetBe64(p) _byteswap_uint64(*(const uint64*)(const Byte*)(p))
-		#define SetBe32(p, v) (*(uint32*)(void*)(p)) = _byteswap_ulong(v)
+		#define SetBe32(p, v) (*(uint32*)(void *)(p)) = _byteswap_ulong(v)
 	#elif defined(MY_CPU_LE_UNALIGN) && defined (__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3))
 		#define GetBe32(p) __builtin_bswap32(*(const uint32*)(const Byte*)(p))
 		#define GetBe64(p) __builtin_bswap64(*(const uint64*)(const Byte*)(p))
-		#define SetBe32(p, v) (*(uint32*)(void*)(p)) = __builtin_bswap32(v)
+		#define SetBe32(p, v) (*(uint32*)(void *)(p)) = __builtin_bswap32(v)
 	#else
 		#define GetBe32(p) (((uint32)((const Byte*)(p))[0] << 24) | \
 				((uint32)((const Byte*)(p))[1] << 16) | ((uint32)((const Byte*)(p))[2] <<  8) | \
@@ -1052,8 +1052,8 @@ public:
 };
 
 #define MY_QUERYINTERFACE_BEGIN STDMETHOD(QueryInterface) (REFGUID iid, void ** outObject) throw() { *outObject = NULL;
-#define MY_QUERYINTERFACE_ENTRY(i) else if(iid == IID_ ## i) { *outObject = (void*)(i*)this; }
-#define MY_QUERYINTERFACE_ENTRY_UNKNOWN(i) if(iid == IID_IUnknown) { *outObject = (void*)(IUnknown*)(i*)this; }
+#define MY_QUERYINTERFACE_ENTRY(i) else if(iid == IID_ ## i) { *outObject = (void *)(i*)this; }
+#define MY_QUERYINTERFACE_ENTRY_UNKNOWN(i) if(iid == IID_IUnknown) { *outObject = (void *)(IUnknown*)(i*)this; }
 #define MY_QUERYINTERFACE_BEGIN2(i) MY_QUERYINTERFACE_BEGIN MY_QUERYINTERFACE_ENTRY_UNKNOWN(i) MY_QUERYINTERFACE_ENTRY(i)
 
 #define MY_QUERYINTERFACE_END else return E_NOINTERFACE; ++__m_RefCount; /* AddRef(); */ return S_OK; }
@@ -6975,7 +6975,7 @@ EXTERN_C_BEGIN
 		#define Ppmd7_GetContext(p, ptr) (ptr)
 		#define Ppmd7_GetStats(p, ctx) ((ctx)->Stats)
 	#else
-		#define Ppmd7_GetPtr(p, offs) ((void*)((p)->Base + (offs)))
+		#define Ppmd7_GetPtr(p, offs) ((void *)((p)->Base + (offs)))
 		#define Ppmd7_GetContext(p, offs) ((CPpmd7_Context*)Ppmd7_GetPtr((p), (offs)))
 		#define Ppmd7_GetStats(p, ctx) ((CPpmd_State*)Ppmd7_GetPtr((p), ((ctx)->Stats)))
 	#endif
@@ -7116,7 +7116,7 @@ EXTERN_C_BEGIN
 		#define Ppmd8_GetContext(p, ptr) (ptr)
 		#define Ppmd8_GetStats(p, ctx) ((ctx)->Stats)
 	#else
-		#define Ppmd8_GetPtr(p, offs) ((void*)((p)->Base + (offs)))
+		#define Ppmd8_GetPtr(p, offs) ((void *)((p)->Base + (offs)))
 		#define Ppmd8_GetContext(p, offs) ((CPpmd8_Context*)Ppmd8_GetPtr((p), (offs)))
 		#define Ppmd8_GetStats(p, ctx) ((CPpmd_State*)Ppmd8_GetPtr((p), ((ctx)->Stats)))
 	#endif

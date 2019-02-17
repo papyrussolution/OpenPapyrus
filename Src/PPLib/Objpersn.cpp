@@ -3141,7 +3141,7 @@ int SLAPI PPObjPerson::SetupDlvrLocCombo(TDialog * dlg, uint ctlID, PPID personI
 {
 	int    ok = 0;
 	PPIDArray dlvr_loc_list;
-	ComboBox * p_combo = (ComboBox *)dlg->getCtrlView(ctlID);
+	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctlID));
 	if(personID)
 		GetDlvrLocList(personID, &dlvr_loc_list);
 	else if(locID) {
@@ -4446,7 +4446,7 @@ PsnSelAnalogDialog::PsnSelAnalogDialog(PPObjPerson * pPsnObj) : TDialog(DLG_PSNS
 
 void PsnSelAnalogDialog::setSrchString(const char * pStr)
 {
-	setCtrlData(CTL_PSNSELANALOG_SRCH, (void*)pStr);
+	setCtrlData(CTL_PSNSELANALOG_SRCH, (void *)pStr);
 	selectCtrl(CTL_PSNSELANALOG_SRCH);
 	if(pStr)
 		setupList();
@@ -4677,7 +4677,7 @@ IMPL_HANDLE_EVENT(PersonDialog)
 		switch(TVCMD) {
 			case cmCtlColor:
 				{
-					TDrawCtrlData * p_dc = (TDrawCtrlData *)TVINFOPTR;
+					TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 					int   color_ident = 0;
 					if(p_dc && getCtrlHandle(CTL_PERSON_NAME) == p_dc->H_Ctl) {
 						SString name;

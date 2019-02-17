@@ -254,7 +254,7 @@ static int tls_curve_allowed(SSL * s, const uchar * curve, int op)
 	if(cinfo->flags & TLS_CURVE_CHAR2)
 		return 0;
 # endif
-	return ssl_security(s, op, cinfo->secbits, cinfo->nid, (void*)curve);
+	return ssl_security(s, op, cinfo->secbits, cinfo->nid, (void *)curve);
 }
 
 /* Check a curve is one of our preferences */
@@ -804,7 +804,7 @@ int tls12_check_peer_sigalg(const EVP_MD ** pmd, SSL * s,
 	}
 	/* Make sure security callback allows algorithm */
 	if(!ssl_security(s, SSL_SECOP_SIGALG_CHECK,
-		    EVP_MD_size(*pmd) * 4, EVP_MD_type(*pmd), (void*)sig)) {
+		    EVP_MD_size(*pmd) * 4, EVP_MD_type(*pmd), (void *)sig)) {
 		SSLerr(SSL_F_TLS12_CHECK_PEER_SIGALG, SSL_R_WRONG_SIGNATURE_TYPE);
 		return 0;
 	}
@@ -868,7 +868,7 @@ int ssl_cipher_disabled(SSL * s, const SSL_CIPHER * c, int op)
 		    || DTLS_VERSION_LT(c->max_dtls, s->s3->tmp.min_ver)))
 		return 1;
 
-	return !ssl_security(s, op, c->strength_bits, 0, (void*)c);
+	return !ssl_security(s, op, c->strength_bits, 0, (void *)c);
 }
 
 static int tls_use_ticket(SSL * s)
@@ -3302,7 +3302,7 @@ static int tls12_sigalg_allowed(SSL * s, int op, const uchar * ptmp)
 	if(tls12_get_pkey_idx(ptmp[1]) == -1)
 		return 0;
 	/* Finally see if security callback allows it */
-	return ssl_security(s, op, hinf->secbits, hinf->nid, (void*)ptmp);
+	return ssl_security(s, op, hinf->secbits, hinf->nid, (void *)ptmp);
 }
 
 /*

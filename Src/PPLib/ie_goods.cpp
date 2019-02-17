@@ -265,7 +265,7 @@ static int SLAPI SelectQuotImportCfgs(PPQuotImpExpParam * pParam, int import)
 	THROW_INVARG(pParam);
 	pParam->Direction = BIN(import);
 	THROW(GetImpExpSections(PPFILNAM_IMPEXP_INI, _rec_ident, &param, &list, import ? 2 : 1));
-	id = (list.SearchByText(pParam->Name, 1, &p) > 0) ? (uint)list.Get(p).Id : 0;
+	id = (list.SearchByText(pParam->Name, 1, &p) > 0) ? static_cast<uint>(list.Get(p).Id) : 0;
 	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
 	{
 		PPIniFile ini_file(ini_file_name, 0, 1, 1);
@@ -348,7 +348,7 @@ int SLAPI PPQuotImporter::Run(const char * pCfgName, int use_ta)
 				cntr.SetTotal(numrecs);
 				PPTransaction tra(1);
 				THROW(tra);
-				for(uint i = 0; i < (uint)numrecs; i++) {
+				for(uint i = 0; i < static_cast<uint>(numrecs); i++) {
 					PPID   qk_id = 0;
 					PPID   goods_id = 0;
 					PPID   ar_id = 0;
@@ -646,7 +646,7 @@ int GoodsImpExpDialog::setDTS(const PPGoodsImpExpParam * pData)
 		SetupPPObjCombo(this, CTLSEL_IMPEXPGOODS_UNIT,  PPOBJ_UNIT,       Data.DefUnitID,   0);
 		SetupPPObjCombo(this, CTLSEL_IMPEXPGOODS_PHUNI, PPOBJ_UNIT,       Data.PhUnitID,    0);
 		SetupPPObjCombo(this, CTLSEL_IMPEXPGOODS_GRP,   PPOBJ_GOODSGROUP, Data.DefParentID, OLW_CANINSERT);
-		SetupPPObjCombo(this, CTLSEL_IMPEXPGOODS_OP,    PPOBJ_OPRKIND,    Data.RcptOpID,    0, (void *)PPOPT_GOODSRECEIPT);
+		SetupPPObjCombo(this, CTLSEL_IMPEXPGOODS_OP,    PPOBJ_OPRKIND,    Data.RcptOpID,    0, reinterpret_cast<void *>(PPOPT_GOODSRECEIPT));
 		SetupPPObjCombo(this, CTLSEL_IMPEXPGOODS_LOC,   PPOBJ_LOCATION,   Data.LocID,       0);
 		AddClusterAssoc(CTL_IMPEXPGOODS_FLAGS, 0, PPGoodsImpExpParam::fSkipZeroQtty);
 		AddClusterAssoc(CTL_IMPEXPGOODS_FLAGS, 1, PPGoodsImpExpParam::fAnalyzeBarcode);
@@ -810,7 +810,7 @@ int SLAPI SelectGoodsImportCfgs(PPGoodsImpExpParam * pParam, int import)
 	THROW_INVARG(pParam);
 	pParam->Direction = BIN(import);
 	THROW(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_GOODS2, &param, &list, import ? 2 : 1));
-	id = (list.SearchByText(pParam->Name, 1, &p) > 0) ? (uint)list.Get(p).Id : 0;
+	id = (list.SearchByText(pParam->Name, 1, &p) > 0) ? static_cast<uint>(list.Get(p).Id) : 0;
 	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
 	{
 		PPIniFile ini_file(ini_file_name, 0, 1, 1);
@@ -916,7 +916,7 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 	SString temp_buf;
 	Sdr_Goods2 sdr_goods;
 
-	THROW_MEM(P_GObj && P_PsnObj && P_QcObj); // @v8.1.1
+	THROW_MEM(P_GObj && P_PsnObj && P_QcObj);
 	THROW_INVARG(pPack && P_IEGoods);
 	if(Param.Flags & PPGoodsImpExpParam::fImportImages) {
 		uint count = pPack->Codes.getCount();
@@ -1085,9 +1085,9 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 				// Штрихкод с форсированной контрольной цифрой
 				//
 				STRNSCPY(sdr_goods.CodeCD, sdr_goods.Code);
-				size_t len = sstrlen(sdr_goods.CodeCD);
-				const PPGoodsConfig & gcfg = P_GObj->GetConfig();
-				if(len > 3 && !(gcfg.Flags & GCF_BCCHKDIG) && !gcfg.IsWghtPrefix(sdr_goods.CodeCD)) {
+				const size_t len = sstrlen(sdr_goods.CodeCD);
+				const PPGoodsConfig & r_gcfg = P_GObj->GetConfig();
+				if(len > 3 && !(r_gcfg.Flags & GCF_BCCHKDIG) && !r_gcfg.IsWghtPrefix(sdr_goods.CodeCD)) {
 					int diag = 0;
 					int std = 0;
 					int dr = P_GObj->DiagBarcode(sdr_goods.Code, &diag, &std, &temp_buf);
@@ -1128,7 +1128,7 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 		sdr_goods.PckgWidth  = pPack->Stock.PckgDim.Width;
 		sdr_goods.PckgHeight = pPack->Stock.PckgDim.Height;
 		sdr_goods.MinShippmQtty = pPack->Stock.MinShippmQtty;
-		sdr_goods.ExpiryPeriod = (long)pPack->Stock.ExpiryPeriod; // Срок годности в днях
+		sdr_goods.ExpiryPeriod = static_cast<long>(pPack->Stock.ExpiryPeriod); // Срок годности в днях
 		//
 		// Экспорт информации о дополнительных полях
 		//
@@ -1161,6 +1161,14 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 			const LDATE cur_dt = getcurdate_();
 			sdr_goods.ExpiryFromCurDt = (sdr_goods.Expiry > cur_dt) ? diffdate(sdr_goods.Expiry, cur_dt) : 0;
 		}
+		//
+		// @v10.3.4 {
+		// Флаги
+		//
+		STRNSCPY(sdr_goods.FlgPassive, (pPack->Rec.Flags & GF_PASSIV) ? "true" : "false");
+		STRNSCPY(sdr_goods.FlgNoDiscount, (pPack->Rec.Flags & GF_NODISCOUNT) ? "true" : "false");
+		STRNSCPY(sdr_goods.FlgWantVetisCert, (pPack->Rec.Flags & GF_WANTVETISCERT) ? "true" : "false");
+		// } @v10.3.4 
 		P_IEGoods->GetParamConst().InrRec.ConvertDataFields(CTRANSF_INNER_TO_OUTER, &sdr_goods);
 		{
 			// @v9.7.8 {
@@ -1183,8 +1191,13 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 //
 class PPGoodsImporter {
 public:
-	SLAPI  PPGoodsImporter();
-	SLAPI ~PPGoodsImporter();
+	SLAPI  PPGoodsImporter() : P_IE(0), IsHier(0), UseTaxes(1)
+	{
+	}
+	SLAPI ~PPGoodsImporter()
+	{
+		ZDELETE(P_IE);
+	}
 	int    SLAPI Run(const char * pCfgName, int use_ta);
 private:
 	class ImageFileBlock : public SStrGroup {
@@ -1216,6 +1229,7 @@ private:
 	int    SLAPI CreateGoodsPacket(const Sdr_Goods2 & rRec, const char * pBarcode, PPGoodsPacket * pPack, PPLogger & rLogger);
 	int    SLAPI AssignClassif(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack);
 	int    SLAPI AssignEgaisCode(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack, PPLogger & rLogger);
+	int    SLAPI AssignFlags(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack); // @v10.3.4
 	int    SLAPI Helper_ProcessDirForImages(const char * pPath, ImageFileBlock & rBlk);
 	void   SLAPI SetupNameExt(PPGoodsPacket & rPack, const SString & rGoodsNameExt, const char * pExtLongNameLetter);
 
@@ -1231,15 +1245,6 @@ private:
 	PPObjUnit UnitObj;
 	PPObjWorld WObj;
 };
-
-SLAPI PPGoodsImporter::PPGoodsImporter() : P_IE(0), IsHier(0), UseTaxes(1)
-{
-}
-
-SLAPI PPGoodsImporter::~PPGoodsImporter()
-{
-	ZDELETE(P_IE);
-}
 
 struct CommonUnit { // @flat
 	char   Abbr[128];
@@ -1501,13 +1506,13 @@ int SLAPI TextFieldAnalyzer::Process(const char * pText, RetBlock * pRetBlk)
 			TempBuf.ReplaceChar('ё', 'е');
 			TempBuf.ReplaceChar('Ё', 'Е');
 			if(Words.Search(TempBuf, &word_id, 0)) {
-				THROW_SL(WordCounter.Add((long)word_id, 1.0));
+				THROW_SL(WordCounter.Add(static_cast<long>(word_id), 1.0));
 			}
 			else {
 				++LastWordId;
-				word_id = (uint)LastWordId;
+				word_id = static_cast<uint>(LastWordId);
 				THROW_SL(Words.Add(TempBuf, word_id, 0));
-				THROW_SL(WordCounter.Add((long)word_id, 1.0));
+				THROW_SL(WordCounter.Add(static_cast<long>(word_id), 1.0));
 			}
 			{
 				word_set.add(TempBuf.Transf(CTRANSF_OUTER_TO_INNER));
@@ -1528,8 +1533,8 @@ int SLAPI TextFieldAnalyzer::Process(const char * pText, RetBlock * pRetBlk)
 			if(single_measure.NotEmpty() && single_measure_idx == idx)
 				continue;
 			int this_is_mult = BIN(TempBuf.IsEqiAscii("x") || TempBuf == "+");
-			const uchar last = (uchar)new_text.Last();
-			const uchar first = (uchar)TempBuf[0];
+			const uchar last = static_cast<uchar>(new_text.Last());
+			const uchar first = static_cast<uchar>(TempBuf[0]);
 			if(last == '(' && first == ')') {
 				new_text.TrimRight();
 				TempBuf.ShiftLeft(1);
@@ -1545,9 +1550,8 @@ int SLAPI TextFieldAnalyzer::Process(const char * pText, RetBlock * pRetBlk)
 			new_text.Space().Cat(single_measure);
 	}
 	CATCHZOK
-	if(pRetBlk) {
+	if(pRetBlk)
 		pRetBlk->ProcessedText = new_text;
-	}
 	return ok;
 }
 
@@ -1558,7 +1562,7 @@ int SLAPI PPGoodsImporter::LoadHierList(HierArray * pList)
 	if(P_IE->OpenFileForReading(0)) {
 		long   numrecs = 0;
 		P_IE->GetNumRecs(&numrecs);
-		for(uint i = 0; i < (uint)numrecs; i++) {
+		for(uint i = 0; i < static_cast<uint>(numrecs); i++) {
 			Sdr_Goods2 sdr_rec;
 			MEMSZERO(sdr_rec);
 			P_IE->ReadRecord(&sdr_rec, sizeof(sdr_rec));
@@ -1583,7 +1587,7 @@ int SLAPI PPGoodsImporter::Helper_ImportHier(PPID defUnitID, HierArray * pHierLi
 		P_IE->CloseFile();
 		THROW(P_IE->OpenFileForReading(0));
 		PPLoadText(PPTXT_IMPGOODSGRP, wait_msg);
-		for(i = 0; i < (uint)numrecs; i++) {
+		for(i = 0; i < static_cast<uint>(numrecs); i++) {
 			PPID   id = 0;
 			Sdr_Goods2 sdr_rec;
 			MEMSZERO(sdr_rec);
@@ -1870,7 +1874,7 @@ int SLAPI PPGoodsImporter::CreateGoodsPacket(const Sdr_Goods2 & rRec, const char
 	THROW(PutExtStrData(rRec, pPack));
 	THROW(PutTax(rRec, pPack));
 	if(rRec.ExpiryPeriod > 0 && rRec.ExpiryPeriod < 365*20)
-		pPack->Stock.ExpiryPeriod = (int16)rRec.ExpiryPeriod;
+		pPack->Stock.ExpiryPeriod = static_cast<int16>(rRec.ExpiryPeriod);
 	if(rRec.PckgQtty > 0.0)
 		pPack->Stock.Package = rRec.PckgQtty;
 	else if(rRec.UnitsPerPack > 0.0)
@@ -1888,7 +1892,7 @@ int SLAPI PPGoodsImporter::CreateGoodsPacket(const Sdr_Goods2 & rRec, const char
 
 static int _IsTrueString(const char * pStr)
 {
-	if(!isempty(pStr) && (sstreqi_ascii(pStr, "yes") || sstreqi_ascii(pStr, "Y") ||
+	if(!isempty(pStr) && (sstreq(pStr, "1") || sstreqi_ascii(pStr, "yes") || sstreqi_ascii(pStr, "Y") ||
 		sstreqi_ascii(pStr, "true") || sstreqi_ascii(pStr, "T") || sstreqi_ascii(pStr, ".T.")))
 		return 1;
 	else
@@ -2063,6 +2067,20 @@ void SLAPI PPGoodsImporter::SetupNameExt(PPGoodsPacket & rPack, const SString & 
 	}
 }
 
+int SLAPI PPGoodsImporter::AssignFlags(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack) 	// @v10.3.4 
+{
+	const  long org_flags = pPack->Rec.Flags;
+	if(!isempty(rRec.FlgPassive)) {
+		SETFLAG(pPack->Rec.Flags, GF_PASSIV, _IsTrueString(rRec.FlgPassive));
+	}
+	if(!isempty(rRec.FlgNoDiscount)) {
+		SETFLAG(pPack->Rec.Flags, GF_NODISCOUNT, _IsTrueString(rRec.FlgNoDiscount));
+	}
+	if(!isempty(rRec.FlgWantVetisCert)) {
+		SETFLAG(pPack->Rec.Flags, GF_WANTVETISCERT, _IsTrueString(rRec.FlgWantVetisCert));
+	}
+	return (pPack->Rec.Flags != org_flags) ? 1 : -1;
+}
 
 int SLAPI PPGoodsImporter::AssignEgaisCode(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack, PPLogger & rLogger)
 {
@@ -2093,7 +2111,7 @@ int SLAPI PPGoodsImporter::AssignEgaisCode(const Sdr_Goods2 & rRec, PPGoodsPacke
 
 int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 {
-	const  size_t max_nm_len = sizeof(((Goods2Tbl::Rec*)0)->Name)-1;
+	const  size_t max_nm_len = sizeof(static_cast<const Goods2Tbl::Rec *>(0)->Name)-1;
 
 	int    ok = 1, r = 0, codetohex = 0, matrix_action = -1;
 	int    err_barcode = 0;
@@ -2307,12 +2325,10 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 					P_IE->GetNumRecs(&numrecs);
 					cntr.SetTotal(numrecs);
 					for(uint i = 0; i < (uint)numrecs; i++) {
-
 						added_code_list.clear();
-						obj_code = 0;
-						ar_code = 0;
-						goods_name_ext = 0;
-
+						obj_code.Z();
+						ar_code.Z();
+						goods_name_ext.Z();
 						int    skip = 0;
 						int    force_update = 0;
 						int    is_found = 0;
@@ -2439,8 +2455,8 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 								STRNSCPY(barcode, strupr(sdr_rec.Code));
 								if(subcode.Key >= 0 && subcode.Val > 1) {
 									size_t bclen = sstrlen(barcode);
-									if((size_t)subcode.Key < bclen) {
-										bclen = MIN((size_t)subcode.Val, bclen-subcode.Key);
+									if(subcode.Key < static_cast<int32>(bclen)) {
+										bclen = MIN(static_cast<size_t>(subcode.Val), bclen-subcode.Key);
 										memcpy(subc, barcode+subcode.Key, bclen);
 										subc[bclen] = 0;
 									}
@@ -2521,7 +2537,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 										do {
 											suffix.Z().Space().CatChar('#').Cat(++uc);
 											temp_buf2 = goods_name;
-											size_t sum_len = temp_buf2.Len() + suffix.Len();
+											const size_t sum_len = temp_buf2.Len() + suffix.Len();
 											if(sum_len > max_nm_len)
 												temp_buf2.Trim(max_nm_len-suffix.Len());
 											temp_buf2.Cat(suffix);
@@ -2560,13 +2576,12 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 										ArGoodsCodeTbl::Rec ar_code_rec;
 										MEMSZERO(ar_code_rec);
 										ar_code_rec.GoodsID = pack.Rec.ID;
-										ar_code_rec.ArID = Param.SupplID; // @v7.4.10 0-->Param.SupplID
+										ar_code_rec.ArID = Param.SupplID;
 										ar_code_rec.Pack = 1000; // 1.0
 										ar_code.CopyTo(ar_code_rec.Code, sizeof(ar_code_rec.Code));
-										// @v8.3.11 {
-										// Удаляем из товара старые коды этого же контрагента (рискованно, но пока так)
-										// @todo - сделать в конфигурации импорта опцию, регулирующую вопрос замещения существующих кодов
 										{
+											// Удаляем из товара старые коды этого же контрагента (рискованно, но пока так)
+											// @todo - сделать в конфигурации импорта опцию, регулирующую вопрос замещения существующих кодов
 											uint _ac = pack.ArCodes.getCount();
 											if(_ac) do {
 												ArGoodsCodeTbl::Rec & r_ac_rec = pack.ArCodes.at(--_ac);
@@ -2574,7 +2589,6 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 													pack.ArCodes.atFree(_ac);
 											} while(_ac);
 										}
-										// } @v8.3.11
 										pack.ArCodes.insert(&ar_code_rec);
 										do_update = 1;
 									}
@@ -2649,6 +2663,8 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 								// } @v9.2.1
 								if(AssignEgaisCode(sdr_rec, &pack, logger) > 0)
 									do_update = 1;
+								if(AssignFlags(sdr_rec, &pack) > 0) // @v10.3.4
+									do_update = 1;
 								{
 									const PPID org_manuf_id = pack.Rec.ManufID;
 									if(!pack.Rec.ManufID || Param.Flags & PPGoodsImpExpParam::fForceUpdateManuf) {
@@ -2682,7 +2698,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 							else if((goods_name.NotEmpty() || try_cls_name) && matrix_action < 1000) {
 								goods_name.CopyTo(sdr_rec.Name, sizeof(sdr_rec.Name));
 								THROW(CreateGoodsPacket(sdr_rec, barcode, &pack, logger));
-								SetupNameExt(pack, goods_name_ext, sdr_rec.ExtLongNameTo); // @v8.0.12
+								SetupNameExt(pack, goods_name_ext, sdr_rec.ExtLongNameTo);
 								if(pack.Rec.Name[0] == 0) {
 									PPLoadText(PPTXT_UNDEFIMPGOODSNAME, err_msg_buf);
 									PPLoadText(PPTXT_ERRACCEPTGOODS, fmt_buf);
@@ -2694,6 +2710,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 									if(sdr_rec.MinStock > 0.0)
 										pack.Stock.SetMinStock(Param.LocID, sdr_rec.MinStock);
 									// } @v9.5.10
+									AssignFlags(sdr_rec, &pack); // @v10.3.4
 									if(GObj.PutPacket(&goods_id, &pack, 0)) {
 										if(ar_code.NotEmpty()) {
 											//
@@ -2826,7 +2843,7 @@ static IMPL_CMPFUNC(WordConcordAssoc_ByText, p1, p2)
 {
 	const LAssoc * p_a1 = static_cast<const LAssoc *>(p1);
 	const LAssoc * p_a2 = static_cast<const LAssoc *>(p2);
-	PPTextAnalyzer * p_ta = (PPTextAnalyzer *)pExtraData;
+	PPTextAnalyzer * p_ta = static_cast<PPTextAnalyzer *>(pExtraData);
 	if(p_ta) {
 		SString & r_temp_buf1 = SLS.AcquireRvlStr();
 		SString & r_temp_buf2 = SLS.AcquireRvlStr();
@@ -2844,7 +2861,7 @@ static IMPL_CMPFUNC(WordConcordAssoc_ByFreq, p1, p2)
 	const LAssoc * p_a2 = static_cast<const LAssoc *>(p2);
 	int si = (p_a1->Val < p_a2->Val) ? -1 : ((p_a1->Val > p_a2->Val) ? +1 : 0);
 	if(si == 0) {
-		PPTextAnalyzer * p_ta = (PPTextAnalyzer *)pExtraData;
+		PPTextAnalyzer * p_ta = static_cast<PPTextAnalyzer *>(pExtraData);
 		if(p_ta) {
 			SString & r_temp_buf1 = SLS.AcquireRvlStr();
 			SString & r_temp_buf2 = SLS.AcquireRvlStr();
@@ -2860,7 +2877,7 @@ static IMPL_CMPFUNC(BrandConcordAssoc_ByText, p1, p2)
 {
 	const LAssoc * p_a1 = static_cast<const LAssoc *>(p1);
 	const LAssoc * p_a2 = static_cast<const LAssoc *>(p2);
-	PPObjBrand * p_brand_obj = (PPObjBrand *)pExtraData;
+	PPObjBrand * p_brand_obj = static_cast<PPObjBrand *>(pExtraData);
 	if(p_brand_obj) {
 		SString & r_temp_buf1 = SLS.AcquireRvlStr();
 		SString & r_temp_buf2 = SLS.AcquireRvlStr();
@@ -2960,7 +2977,7 @@ int SLAPI ExportUhttForGitHub()
 		for(i = 0; !is_there_valid_codes && i < codes.getCount(); i++) {
 			temp_buf = codes.at(i).Code;
 			int    diag = 0, std = 0;
-			int    dbr = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, &result_barcode);
+			const  int  dbr = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, &result_barcode);
 			if(dbr > 0)
 				is_there_valid_codes = 1;
 		}
@@ -3011,17 +3028,17 @@ int SLAPI ExportUhttForGitHub()
 				for(j = 0; j < idx_count; j++) {
 					if(text_analyzer2.Get(idx_first+j, text_analyzer_item) && text_analyzer_item.Token == STokenizer::tokWord && text_analyzer_item.Text.NotEmpty()) {
 						long cc = 0;
-						if(word_concord.Search((long)text_analyzer_item.TextId, &cc))
-							word_concord.Set((long)text_analyzer_item.TextId, cc+1); 
+						if(word_concord.Search(static_cast<long>(text_analyzer_item.TextId), &cc))
+							word_concord.Set(static_cast<long>(text_analyzer_item.TextId), cc+1); 
 						else
-							word_concord.Set((long)text_analyzer_item.TextId, 1); 
+							word_concord.Set(static_cast<long>(text_analyzer_item.TextId), 1); 
 					}
 				}
 			}
 			for(i = 0; i < codes.getCount(); i++) {
 				temp_buf = codes.at(i).Code;
 				int    diag = 0, std = 0;
-				int    dbr = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, &result_barcode);
+				const  int  dbr = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, &result_barcode);
 				if(dbr > 0) {
 					line_buf.Z().Cat(goods_rec.ID).Tab().Cat(result_barcode).Tab().Cat(goods_name_utf).Tab().Cat(goods_rec.ParentID).Tab().
 						Cat(group_name).Tab().Cat(goods_rec.BrandID).Tab().Cat(brand_name).CR();
@@ -3105,7 +3122,7 @@ int SLAPI ExportUhttForGitHub()
 			word_concord_assoc_list.sort(PTR_CMPFUNC(WordConcordAssoc_ByText), &text_analyzer2);
 			for(uint i = 0; i < word_concord_assoc_list.getCount(); i++) {
 				const LAssoc & r_item = word_concord_assoc_list.at(i);
-				const uint text_id = (uint)r_item.Key;
+				const uint text_id = static_cast<uint>(r_item.Key);
 				text_analyzer2.GetTextById(text_id, temp_buf);
 				temp_buf.Transf(CTRANSF_OUTER_TO_UTF8);
 				line_buf.Z().Cat(temp_buf).Tab().Cat(r_item.Val).CR();
@@ -3123,7 +3140,7 @@ int SLAPI ExportUhttForGitHub()
 			word_concord_assoc_list.sort(PTR_CMPFUNC(WordConcordAssoc_ByFreq), &text_analyzer2);
 			for(uint i = 0; i < word_concord_assoc_list.getCount(); i++) {
 				const LAssoc & r_item = word_concord_assoc_list.at(i);
-				const uint text_id = (uint)r_item.Key;
+				const uint text_id = static_cast<uint>(r_item.Key);
 				text_analyzer2.GetTextById(text_id, temp_buf);
 				temp_buf.Transf(CTRANSF_OUTER_TO_UTF8);
 				line_buf.Z().Cat(temp_buf).Tab().Cat(r_item.Val).CR();

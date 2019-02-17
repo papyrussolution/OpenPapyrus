@@ -71,7 +71,7 @@
  * size_t is defined as long or ulong.  To ensure consistent results
  * we always use this SIZEOF() macro in place of using sizeof() directly.
  */
-#define SIZEOF(object)	((size_t)sizeof(object))
+#define SIZEOF(object)	(sizeof(object))
 // 
 // The modules that use fread() and fwrite() always invoke them through
 // these macros.  On some systems you may need to twiddle the argument casts.

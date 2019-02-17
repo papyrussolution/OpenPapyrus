@@ -926,7 +926,7 @@ int SLAPI DBQListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMo
 	void * p_srch_extra = 0;
 	if(srchMode & lbSrchByID) {
 		if(!(Options & lbtAutoID)) {
-			p_srch_extra = (void *)(((Options & lbtWordID) ? MKSTYPE(S_INT, 2) : MKSTYPE(S_INT, 4)));
+			p_srch_extra = reinterpret_cast<void *>(((Options & lbtWordID) ? MKSTYPE(S_INT, 2) : MKSTYPE(S_INT, 4)));
 			SETIFZ(fcmp, substFCMP);
 			f = 0;
 		}
@@ -934,7 +934,7 @@ int SLAPI DBQListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMo
 			ok = 0;
 	}
 	else {
-		p_srch_extra = (void *)Type;
+		p_srch_extra = reinterpret_cast<void *>(Type);
 		SETIFZ(fcmp, substFCMP);
 		f = (Options & lbtAutoID) ? 0 : 1;
 	}

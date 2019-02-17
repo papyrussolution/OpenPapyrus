@@ -179,7 +179,7 @@ IMPL_HANDLE_EVENT(LocTransfDialog)
 			ViewLots(goodscg_rec.GoodsID, WarehouseID, 0, 0, 0);
 	}
 	else if(event.isCmd(cmCtlColor)) {
-		TDrawCtrlData * p_dc = (TDrawCtrlData *)TVINFOPTR;
+		TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 		if(p_dc && getCtrlHandle(CTL_LOCTRANSF_SERIAL) == p_dc->H_Ctl && State & stSerialUndef) {
 			::SetBkMode(p_dc->H_DC, TRANSPARENT);
 			::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));

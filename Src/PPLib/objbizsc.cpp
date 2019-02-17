@@ -1107,7 +1107,7 @@ int SLAPI CreateBizScGlblUserAcct()
 		buf.Cat(sguid).CR();
 		buf.Cat(LConfig.User).CR();
 
-		IdeaEncrypt(0, (void*)buf.cptr(), buf.Len());
+		IdeaEncrypt(0, (void *)buf.cptr(), buf.Len());
 		out_buf.EncodeMime64(buf, buf.Len());
 		crc = crc32.Calc(crc, out_buf.ucptr(), out_buf.Len());
 		file.Write(&crc, sizeof(crc));

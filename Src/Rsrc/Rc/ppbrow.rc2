@@ -7557,10 +7557,13 @@ record Goods2 {
 	PropAddName    zstring(48)         "@{classifier} Add";
 	PropAdd2Name   zstring(48)         "@{classifier} Add2";
 	WeightPrefix   zstring(12)         "Весовой префикс";
-	GoodsID        long                "Идентификатор товара";
-	ExpiryFromCurDt long               "Срок годности в днях от текущей даты";
-	ForceReplace   zstring(12)         "Необходимо заменить товар в БД на импортируемый";
-	EgaisCode      zstring(24)         "@{egaiscode}";
+	GoodsID          long              "Идентификатор товара";
+	ExpiryFromCurDt  long              "Срок годности в днях от текущей даты";
+	ForceReplace     zstring(12)       "Необходимо заменить товар в БД на импортируемый";
+	EgaisCode        zstring(24)       "@{egaiscode}";
+	FlgPassive       zstring(8)        "Признак товара '@{goods_gf_passiv}'";          // @v10.3.4
+	FlgNoDiscount    zstring(8)        "Признак товара '@{goods_gf_nodiscount}'";      // @v10.3.4
+	FlgWantVetisCert zstring(8)        "Признак товара '@{goods_gf_wantvetiscert}'";  // @v10.3.4
 }
 
 record Person {

@@ -54,7 +54,7 @@ void XMLCDECL xmlGenericErrorDefaultFunc(void * ctx ATTRIBUTE_UNUSED, const char
 void XMLCDECL xmlGenericErrorDefaultFunc(void * ctx ATTRIBUTE_UNUSED, const char * msg, ...)
 {
 	va_list args;
-	SETIFZ(xmlGenericErrorContext, (void*)stderr);
+	SETIFZ(xmlGenericErrorContext, (void *)stderr);
 	va_start(args, msg);
 	vfprintf((FILE*)xmlGenericErrorContext, msg, args);
 	va_end(args);

@@ -384,7 +384,7 @@ static void state(struct connectdata * conn, imapstate newstate)
 
 	if(imapc->state != newstate)
 		infof(conn->data, "IMAP %p state change from %s to %s\n",
-		    (void*)imapc, names[imapc->state], names[newstate]);
+		    (void *)imapc, names[imapc->state], names[newstate]);
 #endif
 
 	imapc->state = newstate;

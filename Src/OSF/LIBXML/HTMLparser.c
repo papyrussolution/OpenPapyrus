@@ -1880,7 +1880,7 @@ static htmlParserInputPtr htmlNewInputStream(htmlParserCtxt * ctxt)
  *
  * Returns 1 if ignorable 0 otherwise.
  */
-static int areBlanks(htmlParserCtxt * ctxt, const xmlChar * str, int len)
+static int FASTCALL areBlanks(htmlParserCtxt * ctxt, const xmlChar * str, int len)
 {
 	for(int j = 0; j < len; j++)
 		if(!(IS_BLANK_CH(str[j]))) 
@@ -2590,9 +2590,9 @@ static void htmlParseCharData(htmlParserCtxt * ctxt)
 			COPY_BUF(l, buf, nbchar, cur);
 		}
 		if(nbchar >= HTML_PARSER_BIG_BUFFER_SIZE) {
-			/*
-			 * Ok the segment is to be consumed as chars.
-			 */
+			//
+			// Ok the segment is to be consumed as chars.
+			//
 			if(ctxt->sax && !ctxt->disableSAX) {
 				if(areBlanks(ctxt, buf, nbchar)) {
 					if(ctxt->keepBlanks) {
@@ -2749,7 +2749,7 @@ static void htmlParsePI(htmlParserCtxt * ctxt)
 				ctxt->instate = state;
 				return;
 			}
-			buf = (xmlChar*)SAlloc::M(size * sizeof(xmlChar));
+			buf = static_cast<xmlChar *>(SAlloc::M(size * sizeof(xmlChar)));
 			if(!buf) {
 				htmlErrMemory(ctxt, 0);
 				ctxt->instate = state;
@@ -2838,7 +2838,7 @@ static void htmlParseComment(htmlParserCtxt * ctxt)
 	ctxt->instate = XML_PARSER_COMMENT;
 	SHRINK;
 	SKIP(4);
-	buf = (xmlChar*)SAlloc::M(size * sizeof(xmlChar));
+	buf = static_cast<xmlChar *>(SAlloc::M(size * sizeof(xmlChar)));
 	if(!buf) {
 		htmlErrMemory(ctxt, "buffer allocation failed\n");
 		ctxt->instate = state;
@@ -3318,7 +3318,7 @@ static int htmlParseStartTag(htmlParserCtxt * ctxt)
 			else if(nbatts + 4 > maxatts) {
 				const xmlChar ** n;
 				maxatts *= 2;
-				n = (const xmlChar**)SAlloc::R((void*)atts, maxatts * sizeof(const xmlChar *));
+				n = (const xmlChar**)SAlloc::R((void *)atts, maxatts * sizeof(const xmlChar *));
 				if(n == NULL) {
 					htmlErrMemory(ctxt, 0);
 					SAlloc::F(attvalue);

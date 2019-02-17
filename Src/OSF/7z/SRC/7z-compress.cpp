@@ -732,7 +732,7 @@ namespace NCompress {
 					if(curSize != 0) {
 						totalProcessed += curSize;
 						ASSIGN_PTR(processedSize, totalProcessed);
-						data = (void*)((Byte*)data + curSize);
+						data = (void *)((Byte*)data + curSize);
 						size -= curSize;
 						_outSize_Processed += curSize;
 					}

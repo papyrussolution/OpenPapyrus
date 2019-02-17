@@ -208,14 +208,14 @@ static xmlXPathObjectPtr xmlXPtrNewPoint(xmlNode * P_Node, int indx)
 		return 0;
 	if(indx < 0)
 		return 0;
-	ret = (xmlXPathObject *)SAlloc::M(sizeof(xmlXPathObject));
+	ret = static_cast<xmlXPathObject *>(SAlloc::M(sizeof(xmlXPathObject)));
 	if(!ret) {
 		xmlXPtrErrMemory("allocating point");
 		return 0;
 	}
-	memzero(ret, (size_t)sizeof(xmlXPathObject));
+	memzero(ret, sizeof(xmlXPathObject));
 	ret->type = XPATH_POINT;
-	ret->user = (void*)P_Node;
+	ret->user = (void *)P_Node;
 	ret->index = indx;
 	return ret;
 }
@@ -292,12 +292,12 @@ xmlXPathObjectPtr xmlXPtrNewRange(xmlNode * start, int startindex, xmlNode * end
 {
 	xmlXPathObject * ret = 0;
 	if(start && end && startindex >= 0 && endindex >= 0) {
-		ret = (xmlXPathObject *)SAlloc::M(sizeof(xmlXPathObject));
+		ret = static_cast<xmlXPathObject *>(SAlloc::M(sizeof(xmlXPathObject)));
 		if(!ret) {
 			xmlXPtrErrMemory("allocating range");
 		}
 		else {
-			memzero(ret, (size_t)sizeof(xmlXPathObject));
+			memzero(ret, sizeof(xmlXPathObject));
 			ret->type = XPATH_RANGE;
 			ret->user = start;
 			ret->index = startindex;
@@ -321,12 +321,12 @@ xmlXPathObjectPtr xmlXPtrNewRangePoints(xmlXPathObjectPtr start, xmlXPathObjectP
 {
 	xmlXPathObject * ret = 0;
 	if(start && end && start->type == XPATH_POINT && end->type == XPATH_POINT) {
-		ret = (xmlXPathObject *)SAlloc::M(sizeof(xmlXPathObject));
+		ret = static_cast<xmlXPathObject *>(SAlloc::M(sizeof(xmlXPathObject)));
 		if(!ret) {
 			xmlXPtrErrMemory("allocating range");
 		}
 		else {
-			memzero(ret, (size_t)sizeof(xmlXPathObject));
+			memzero(ret, sizeof(xmlXPathObject));
 			ret->type = XPATH_RANGE;
 			ret->user = start->user;
 			ret->index = start->index;
@@ -351,12 +351,12 @@ xmlXPathObjectPtr xmlXPtrNewRangePointNode(xmlXPathObjectPtr start, xmlNode * en
 {
 	xmlXPathObject * ret = 0;
 	if(start && end && start->type == XPATH_POINT) {
-		ret = (xmlXPathObject *)SAlloc::M(sizeof(xmlXPathObject));
+		ret = static_cast<xmlXPathObject *>(SAlloc::M(sizeof(xmlXPathObject)));
 		if(!ret) {
 			xmlXPtrErrMemory("allocating range");
 		}
 		else {
-			memzero(ret, (size_t)sizeof(xmlXPathObject));
+			memzero(ret, sizeof(xmlXPathObject));
 			ret->type = XPATH_RANGE;
 			ret->user = start->user;
 			ret->index = start->index;
@@ -380,12 +380,12 @@ xmlXPathObjectPtr xmlXPtrNewRangeNodePoint(xmlNode * start, xmlXPathObjectPtr en
 {
 	xmlXPathObject * ret = 0;
 	if(start && end && start->type == XPATH_POINT && end->type == XPATH_POINT) {
-		ret = (xmlXPathObject *)SAlloc::M(sizeof(xmlXPathObject));
+		ret = static_cast<xmlXPathObject *>(SAlloc::M(sizeof(xmlXPathObject)));
 		if(!ret) {
 			xmlXPtrErrMemory("allocating range");
 		}
 		else {
-			memzero(ret, (size_t)sizeof(xmlXPathObject));
+			memzero(ret, sizeof(xmlXPathObject));
 			ret->type = XPATH_RANGE;
 			ret->user = start;
 			ret->index = -1;
@@ -409,12 +409,12 @@ xmlXPathObjectPtr xmlXPtrNewRangeNodes(xmlNode * start, xmlNode * end)
 {
 	xmlXPathObject * ret = 0;
 	if(start && end) {
-		ret = (xmlXPathObject *)SAlloc::M(sizeof(xmlXPathObject));
+		ret = static_cast<xmlXPathObject *>(SAlloc::M(sizeof(xmlXPathObject)));
 		if(!ret) {
 			xmlXPtrErrMemory("allocating range");
 		}
 		else {
-			memzero(ret, (size_t)sizeof(xmlXPathObject));
+			memzero(ret, sizeof(xmlXPathObject));
 			ret->type = XPATH_RANGE;
 			ret->user = start;
 			ret->index = -1;
@@ -437,12 +437,12 @@ xmlXPathObjectPtr xmlXPtrNewCollapsedRange(xmlNode * start)
 {
 	xmlXPathObject * ret = 0;
 	if(start) {
-		ret = (xmlXPathObject *)SAlloc::M(sizeof(xmlXPathObject));
+		ret = static_cast<xmlXPathObject *>(SAlloc::M(sizeof(xmlXPathObject)));
 		if(!ret) {
 			xmlXPtrErrMemory("allocating range");
 		}
 		else {
-			memzero(ret, (size_t)sizeof(xmlXPathObject));
+			memzero(ret, sizeof(xmlXPathObject));
 			ret->type = XPATH_RANGE;
 			ret->user = start;
 			ret->index = -1;
@@ -481,12 +481,12 @@ xmlXPathObjectPtr xmlXPtrNewRangeNodeObject(xmlNode * start, xmlXPathObjectPtr e
 				/* @todo */
 				return 0;
 		}
-		ret = (xmlXPathObject *)SAlloc::M(sizeof(xmlXPathObject));
+		ret = static_cast<xmlXPathObject *>(SAlloc::M(sizeof(xmlXPathObject)));
 		if(!ret) {
 			xmlXPtrErrMemory("allocating range");
 		}
 		else {
-			memzero(ret, (size_t)sizeof(xmlXPathObject));
+			memzero(ret, sizeof(xmlXPathObject));
 			ret->type = XPATH_RANGE;
 			ret->user = start;
 			ret->index = -1;
@@ -531,7 +531,7 @@ xmlLocationSetPtr xmlXPtrLocationSetCreate(xmlXPathObject * val)
 		xmlXPtrErrMemory("allocating locationset");
 	}
 	else {
-		memzero(ret, (size_t)sizeof(xmlLocationSet));
+		memzero(ret, sizeof(xmlLocationSet));
 		if(val) {
 			ret->locTab = (xmlXPathObjectPtr*)SAlloc::M(XML_RANGESET_DEFAULT * sizeof(xmlXPathObject *));
 			if(ret->locTab == NULL) {
@@ -539,7 +539,7 @@ xmlLocationSetPtr xmlXPtrLocationSetCreate(xmlXPathObject * val)
 				SAlloc::F(ret);
 				return 0;
 			}
-			memzero(ret->locTab, XML_RANGESET_DEFAULT * (size_t)sizeof(xmlXPathObject *));
+			memzero(ret->locTab, XML_RANGESET_DEFAULT * sizeof(xmlXPathObject *));
 			ret->locMax = XML_RANGESET_DEFAULT;
 			ret->locTab[ret->locNr++] = val;
 		}
@@ -577,7 +577,7 @@ void xmlXPtrLocationSetAdd(xmlLocationSetPtr cur, xmlXPathObjectPtr val)
 				xmlXPtrErrMemory("adding location to set");
 				return;
 			}
-			memzero(cur->locTab, XML_RANGESET_DEFAULT * (size_t)sizeof(xmlXPathObject *));
+			memzero(cur->locTab, XML_RANGESET_DEFAULT * sizeof(xmlXPathObject *));
 			cur->locMax = XML_RANGESET_DEFAULT;
 		}
 		else if(cur->locNr == cur->locMax) {
@@ -695,12 +695,12 @@ void xmlXPtrFreeLocationSet(xmlLocationSetPtr obj)
  */
 xmlXPathObjectPtr xmlXPtrNewLocationSetNodes(xmlNode * start, xmlNode * end)
 {
-	xmlXPathObject * ret = (xmlXPathObject *)SAlloc::M(sizeof(xmlXPathObject));
+	xmlXPathObject * ret = static_cast<xmlXPathObject *>(SAlloc::M(sizeof(xmlXPathObject)));
 	if(!ret) {
 		xmlXPtrErrMemory("allocating locationset");
 	}
 	else {
-		memzero(ret, (size_t)sizeof(xmlXPathObject));
+		memzero(ret, sizeof(xmlXPathObject));
 		ret->type = XPATH_LOCATIONSET;
 		ret->user = end ? xmlXPtrLocationSetCreate(xmlXPtrNewRangeNodes(start, end)) : xmlXPtrLocationSetCreate(xmlXPtrNewCollapsedRange(start));
 	}
@@ -717,19 +717,19 @@ xmlXPathObjectPtr xmlXPtrNewLocationSetNodes(xmlNode * start, xmlNode * end)
  */
 xmlXPathObjectPtr xmlXPtrNewLocationSetNodeSet(xmlNodeSetPtr set)
 {
-	xmlXPathObject * ret = (xmlXPathObject *)SAlloc::M(sizeof(xmlXPathObject));
+	xmlXPathObject * ret = static_cast<xmlXPathObject *>(SAlloc::M(sizeof(xmlXPathObject)));
 	if(!ret) {
 		xmlXPtrErrMemory("allocating locationset");
 	}
 	else {
-		memzero(ret, (size_t)sizeof(xmlXPathObject));
+		memzero(ret, sizeof(xmlXPathObject));
 		ret->type = XPATH_LOCATIONSET;
 		if(set) {
 			xmlLocationSetPtr newset = xmlXPtrLocationSetCreate(NULL);
 			if(newset) {
 				for(int i = 0; i < set->nodeNr; i++)
 					xmlXPtrLocationSetAdd(newset, xmlXPtrNewCollapsedRange(set->PP_NodeTab[i]));
-				ret->user = (void*)newset;
+				ret->user = newset;
 			}
 		}
 	}
@@ -746,13 +746,13 @@ xmlXPathObjectPtr xmlXPtrNewLocationSetNodeSet(xmlNodeSetPtr set)
  */
 xmlXPathObjectPtr xmlXPtrWrapLocationSet(xmlLocationSetPtr val)
 {
-	xmlXPathObject * ret = (xmlXPathObject *)SAlloc::M(sizeof(xmlXPathObject));
+	xmlXPathObject * ret = static_cast<xmlXPathObject *>(SAlloc::M(sizeof(xmlXPathObject)));
 	if(!ret)
 		xmlXPtrErrMemory("allocating locationset");
 	else {
-		memzero(ret, (size_t)sizeof(xmlXPathObject));
+		memzero(ret, sizeof(xmlXPathObject));
 		ret->type = XPATH_LOCATIONSET;
-		ret->user = (void*)val;
+		ret->user = (void *)val;
 	}
 	return ret;
 }

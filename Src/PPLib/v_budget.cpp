@@ -1568,7 +1568,7 @@ IMPL_HANDLE_EVENT(BudgetTotalDialog)
 {
 	TDialog::handleEvent(event);
 	if(TVCOMMAND && event.isCmd(cmCtlColor)) {
-		TDrawCtrlData * p_dc = (TDrawCtrlData *)TVINFOPTR;
+		TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 		if(p_dc && getCtrlHandle(CTL_BUDGTOTAL_DEFICITTXT) == p_dc->H_Ctl && Diff != 0.0) {
 			::SetBkMode(p_dc->H_DC, TRANSPARENT);
 			::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));

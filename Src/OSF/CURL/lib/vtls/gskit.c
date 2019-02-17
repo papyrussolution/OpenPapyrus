@@ -789,10 +789,10 @@ static CURLcode gskit_connect_step1(struct connectdata * conn, int sockindex)
 			return CURLE_SSL_CONNECT_ERROR;
 		connssl->localfd = sockpair[0];
 		connssl->remotefd = sockpair[1];
-		setsockopt(connssl->localfd, SOL_SOCKET, SO_RCVBUF, (void*)sobufsize, sizeof sobufsize);
-		setsockopt(connssl->remotefd, SOL_SOCKET, SO_RCVBUF, (void*)sobufsize, sizeof sobufsize);
-		setsockopt(connssl->localfd, SOL_SOCKET, SO_SNDBUF, (void*)sobufsize, sizeof sobufsize);
-		setsockopt(connssl->remotefd, SOL_SOCKET, SO_SNDBUF, (void*)sobufsize, sizeof sobufsize);
+		setsockopt(connssl->localfd, SOL_SOCKET, SO_RCVBUF, (void *)sobufsize, sizeof sobufsize);
+		setsockopt(connssl->remotefd, SOL_SOCKET, SO_RCVBUF, (void *)sobufsize, sizeof sobufsize);
+		setsockopt(connssl->localfd, SOL_SOCKET, SO_SNDBUF, (void *)sobufsize, sizeof sobufsize);
+		setsockopt(connssl->remotefd, SOL_SOCKET, SO_SNDBUF, (void *)sobufsize, sizeof sobufsize);
 		curlx_nonblock(connssl->localfd, TRUE);
 		curlx_nonblock(connssl->remotefd, TRUE);
 	}

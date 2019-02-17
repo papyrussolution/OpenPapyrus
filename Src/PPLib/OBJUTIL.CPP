@@ -1444,7 +1444,7 @@ int FASTCALL SetupPPObjCombo(ComboBox * pCombo, PPID obj, PPID id, uint flags, v
 
 int FASTCALL SetupObjListCombo(TDialog * dlg, uint ctl, PPID id, const PPIDArray * pInclList)
 {
-	ComboBox * p_cb = (ComboBox*)dlg->getCtrlView(ctl);
+	ComboBox * p_cb = static_cast<ComboBox *>(dlg->getCtrlView(ctl));
 	if(p_cb) {
 		PPIDArray obj_type_list;
 		SString obj_title;
@@ -1499,7 +1499,7 @@ int FASTCALL ShowObjects(PPID obj, void * extraPtr)
 	PPObject * ppobj = GetPPObject(obj, extraPtr);
 	PPObjListWindow * p_lw = ppobj ? (PPObjListWindow*)ppobj->CreateObjListWin(OLW_CANEDIT|OLW_CANINSERT|OLW_CANDELETE, extraPtr) : 0;
 	SString obj_title;
-	if(!p_lw || APPL->AddListToTree(((PPApp*)APPL)->LastCmd, (const char*)GetObjectTitle(obj, obj_title).Transf(CTRANSF_INNER_TO_OUTER), p_lw) <= 0) {
+	if(!p_lw || APPL->AddListToTree(static_cast<PPApp *>(APPL)->LastCmd, (const char*)GetObjectTitle(obj, obj_title).Transf(CTRANSF_INNER_TO_OUTER), p_lw) <= 0) {
 		ok = 0;
 		ZDELETE(p_lw);
 	}

@@ -1509,13 +1509,13 @@ SOAP_FMAC1 struct soap_multipart * SOAP_FMAC2 soap_next_multipart(struct soap_mu
 class soap_multipart_iterator {
 public:
 	struct soap_multipart * content;
-	bool operator==(const soap_multipart_iterator & iter) const
+	bool operator == (const soap_multipart_iterator & iter) const
 	{
-		return (bool)(content == iter.content);
+		return (content == iter.content);
 	}
-	bool operator!=(const soap_multipart_iterator & iter) const
+	bool operator!= (const soap_multipart_iterator & iter) const
 	{
-		return (bool)(content != iter.content);
+		return (content != iter.content);
 	}
 	struct soap_multipart & operator*() const 
 	{

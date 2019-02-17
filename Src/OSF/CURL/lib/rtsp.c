@@ -195,7 +195,7 @@ static CURLcode rtsp_do(struct connectdata * conn, bool * done)
 	*done = TRUE;
 	http = &(rtsp->http_wrapper);
 	/* Assert that no one has changed the RTSP struct in an evil way */
-	DEBUGASSERT((void*)http == (void*)rtsp);
+	DEBUGASSERT((void *)http == (void *)rtsp);
 	rtsp->CSeq_sent = data->state.rtsp_next_client_CSeq;
 	rtsp->CSeq_recv = 0;
 	/* Setup the 'p_request' pointer to the proper p_request string

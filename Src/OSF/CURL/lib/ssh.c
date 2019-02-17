@@ -290,7 +290,7 @@ static void FASTCALL state(struct connectdata * conn, sshstate nowstate)
 		"QUIT"
 	};
 	if(sshc->state != nowstate) {
-		infof(conn->data, "SFTP %p state change from %s to %s\n", (void*)sshc, names[sshc->state], names[nowstate]);
+		infof(conn->data, "SFTP %p state change from %s to %s\n", (void *)sshc, names[sshc->state], names[nowstate]);
 	}
 #endif
 	sshc->state = nowstate;

@@ -23,7 +23,7 @@ int SLAPI PPVer2Html();
 int SLAPI Test_KeywordListGenerator(); // txtanlz.cpp
 int SLAPI TestFias(); // objloctn.cpp
 int SLAPI TestCURL(); // pputil.cpp
-int SLAPI TestEGAIS(PPEgaisProcessor::TestParam *); // egais.cpp
+int SLAPI TestEGAIS(const PPEgaisProcessor::TestParam *); // egais.cpp
 int SLAPI BuildLocalDL600(); // ppbuild.cpp
 int SLAPI TestLogWindow(); // pplog.cpp
 int SLAPI TestTddo2(); // tddo2.cpp

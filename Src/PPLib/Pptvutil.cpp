@@ -31,7 +31,7 @@ ushort FASTCALL CheckExecAndDestroyDialog(TDialog * pDlg, int genErrMsg, int toC
 ushort FASTCALL ExecView(TBaseBrowserWindow * v)
 {
 	if(v) {
-		const uint last_cmd = ((PPApp *)APPL)->LastCmd;
+		const uint last_cmd = static_cast<PPApp *>(APPL)->LastCmd;
 		v->SetToolbarID(last_cmd ? (last_cmd + TOOLBAR_OFFS) : 0);
 		return APPL->P_DeskTop->execView(v);
 	}
@@ -43,7 +43,7 @@ ushort FASTCALL ExecView(TBaseBrowserWindow * v)
 int FASTCALL InsertView(TBaseBrowserWindow * v)
 {
 	if(v) {
-		const uint last_cmd = ((PPApp *)APPL)->LastCmd;
+		const uint last_cmd = static_cast<PPApp *>(APPL)->LastCmd;
 		v->SetToolbarID(last_cmd ? (last_cmd + TOOLBAR_OFFS) : 0);
 		APPL->P_DeskTop->Insert_(v);
 		return v->Insert();
@@ -73,10 +73,10 @@ int SLAPI InitSTimeChunkBrowserParam(const char * pSymbol, STimeChunkBrowser::Pa
 // В следующих трех функциях проверка не ненулевой APPL сделана из-за того, что
 // функции эти могут вызываться в контексте JobServer'а
 //
-BrowserWindow * SLAPI PPFindLastBrowser() { return APPL ? (BrowserWindow *)APPL->FindBrowser(((PPApp*)APPL)->LastCmd, 0) : 0; }
-STimeChunkBrowser * SLAPI PPFindLastTimeChunkBrowser() { return APPL ? (STimeChunkBrowser *)APPL->FindBrowser(((PPApp*)APPL)->LastCmd, 1) : 0; }
-PPPaintCloth * SLAPI PPFindLastPaintCloth() { return APPL ? (PPPaintCloth*)APPL->FindBrowser(((PPApp*)APPL)->LastCmd, 2) : 0; }
-static STextBrowser * SLAPI PPFindLastTextBrowser(const char * pFileName) { return APPL ? (STextBrowser*)APPL->FindBrowser(((PPApp*)APPL)->LastCmd, 3, pFileName) : 0; }
+BrowserWindow * SLAPI PPFindLastBrowser() { return APPL ? static_cast<BrowserWindow *>(APPL->FindBrowser(static_cast<PPApp *>(APPL)->LastCmd, 0)) : 0; }
+STimeChunkBrowser * SLAPI PPFindLastTimeChunkBrowser() { return APPL ? static_cast<STimeChunkBrowser *>(APPL->FindBrowser(static_cast<PPApp *>(APPL)->LastCmd, 1)) : 0; }
+PPPaintCloth * SLAPI PPFindLastPaintCloth() { return APPL ? (PPPaintCloth*)APPL->FindBrowser(static_cast<PPApp *>(APPL)->LastCmd, 2) : 0; }
+static STextBrowser * SLAPI PPFindLastTextBrowser(const char * pFileName) { return APPL ? static_cast<STextBrowser *>(APPL->FindBrowser(static_cast<PPApp *>(APPL)->LastCmd, 3, pFileName)) : 0; }
 
 void SLAPI PPViewTextBrowser(const char * pFileName, const char * pTitle, const char * pLexerSymb, int toolbarId)
 {
@@ -112,7 +112,7 @@ int FASTCALL PPOpenBrowser(BrowserWindow * pW, int modeless)
 {
 	int    ok = cmCancel;
 	if(modeless) {
-		pW->SetResID(((PPApp *)APPL)->LastCmd);
+		pW->SetResID(static_cast<PPApp *>(APPL)->LastCmd);
 		ok = InsertView(pW);
 	}
 	else
@@ -470,7 +470,7 @@ int SLAPI ViewStatus()
 				clearEvent(event);
 			}
 			else if(event.isCmd(cmCtlColor)) {
-				TDrawCtrlData * p_dc = (TDrawCtrlData *)TVINFOPTR;
+				TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 				if(p_dc) {
 					static const uint16 ctl_list[] = {CTL_STATUS_BINPATH, CTL_STATUS_INPATH, CTL_STATUS_OUTPATH, CTL_STATUS_TEMPPATH};
 					SString path;
@@ -558,7 +558,7 @@ int SLAPI ViewStatus()
 int FASTCALL SetupDBEntryComboBox(TDialog * dlg, uint ctl, PPDbEntrySet2 * pDbes)
 {
 	int    ok = 1;
-	ComboBox * cb = (ComboBox*)dlg->getCtrlView(ctl);
+	ComboBox * cb = static_cast<ComboBox *>(dlg->getCtrlView(ctl));
 	if(cb && pDbes && pDbes->GetCount()) {
 		StrAssocArray * p_list = new StrAssocArray;
 		pDbes->MakeList(p_list, DbLoginBlockArray::loUseFriendlyName);
@@ -571,7 +571,7 @@ int FASTCALL SetupDBEntryComboBox(TDialog * dlg, uint ctl, PPDbEntrySet2 * pDbes
 int FASTCALL SetupDBTableComboBox(TDialog * dlg, uint ctl, PPDbEntrySet2 * pDbes, long dbID, BTBLID tblID)
 {
 	int    ok = 1;
-	ComboBox * cb = (ComboBox *)dlg->getCtrlView(ctl);
+	ComboBox * cb = static_cast<ComboBox *>(dlg->getCtrlView(ctl));
 	if(cb) {
 		DbLoginBlock blk;
 		if(dbID && pDbes->GetByID(dbID, &blk)) {
@@ -746,9 +746,9 @@ int FASTCALL CheckDialogPtr(void * ppDlg/*, int genErrMsg*/)
 int FASTCALL CheckDialogPtrErr(void * ppDlg)
 {
 	int    ok = 1;
-	TDialog ** dlg = (TDialog**)ppDlg;
+	TDialog ** dlg = static_cast<TDialog **>(ppDlg);
 	if(ValidView(*dlg) == 0) {
-		*(void**)ppDlg = 0;
+		*static_cast<void **>(ppDlg) = 0;
 		ok = PPSetError(PPERR_DLGLOADFAULT);
 		PPError();
 	}
@@ -809,7 +809,7 @@ int FASTCALL SetupStrListBox(TView * pList)
 {
 	int    ok = -1;
 	if(pList && pList->IsSubSign(TV_SUBSIGN_LISTBOX)) {
-		SmartListBox * p_lb = (SmartListBox *)pList;
+		SmartListBox * p_lb = static_cast<SmartListBox *>(pList);
 		if(!p_lb->HasState(SmartListBox::stTreeList)) {
 			StrAssocArray * p_data = new StrAssocArray;
 			StrAssocListBoxDef * p_def = new StrAssocListBoxDef(p_data, lbtDisposeData|lbtDblClkNotify|lbtFocNotify);
@@ -832,7 +832,7 @@ int FASTCALL SetupStrListBox(TDialog * dlg, uint ctl)
 int SLAPI SetupTreeListBox(TDialog * dlg, uint ctl, StrAssocArray * pData, uint fl, uint lbfl)
 {
 	int    ok = -1;
-	SmartListBox * p_box = (SmartListBox *)dlg->getCtrlView(ctl);
+	SmartListBox * p_box = static_cast<SmartListBox *>(dlg->getCtrlView(ctl));
 	if(p_box) {
 		p_box->ViewOptions |= lbfl;
 		StdTreeListBoxDef * p_def = new StdTreeListBoxDef(pData, NZOR(fl, (lbtDisposeData|lbtDblClkNotify)), 0);
@@ -902,7 +902,7 @@ IMPL_HANDLE_EVENT(Lst2LstDialogUI)
 					if(list && list->isTreeList()) {
 						PPID cur_id = 0;
 						list->def->getCurID(&cur_id);
-						if(((StdTreeListBoxDef *)list->def)->HasChild(cur_id))
+						if(static_cast<StdTreeListBoxDef *>(list->def)->HasChild(cur_id))
 							action = 0;
 					}
 					if(action && isCurrCtlID(Data.LeftCtlId))
@@ -1009,7 +1009,7 @@ int Lst2LstAryDialog::addItem()
 	SmartListBox * p_view = GetLeftList();
 	if(p_view && p_view->getCurID(&tmp) && tmp && !P_Right->lsearch(&tmp, &idx, CMPF_LONG, 0)) {
 		P_Left->lsearch(&tmp, &idx, CMPF_LONG, 0);
-		TaggedString * current = (TaggedString *)P_Left->at(idx);
+		const TaggedString * current = static_cast<const TaggedString *>(P_Left->at(idx));
 		THROW(P_Right->insert(current));
 		THROW(setupRightList());
 	}
@@ -1115,7 +1115,7 @@ int Lst2LstObjDialog::setupRightTList()
 	uint   i;
 	SString name_buf;
 	StdTreeListBoxDef * p_def = 0;
-	StdTreeListBoxDef * p_l_def = (StdTreeListBoxDef*)GetLeftList()->def;
+	StdTreeListBoxDef * p_l_def = static_cast<StdTreeListBoxDef *>(GetLeftList()->def);
 	SmartListBox      * p_r_lbx = GetRightList();
 	StrAssocArray * p_list = new StrAssocArray;
 	THROW_MEM(p_list);
@@ -1584,7 +1584,7 @@ int FASTCALL SetupStrAssocCombo(TDialog * dlg, uint ctlID, const StrAssocArray *
 int FASTCALL SetupSCollectionComboBox(TDialog * dlg, uint ctl, SCollection * pSC, long initID)
 {
 	int    ok = 1;
-	ComboBox * cb = (ComboBox*)dlg->getCtrlView(ctl);
+	ComboBox * cb = static_cast<ComboBox *>(dlg->getCtrlView(ctl));
 	if(cb && pSC && pSC->getCount()) {
 		ListWindow * lw = CreateListWindow(128, lbtDisposeData);
 		for(uint i = 0; i < pSC->getCount(); i++) {
@@ -1734,7 +1734,7 @@ int CycleCtrlGroup::setupCycleCombo(TDialog * pDlg, int cycleID)
 		const long cycle_id = ((cycleID & PRD_PRECDAYSMASK) == PRD_PRECDAYSMASK) ? PRD_PRECDAYSMASK : cycleID;
 		ok = SetupStringCombo(pDlg, CtlSelCycle, PPTXT_CYCLELIST, 0);
 		if(CtlPdc && pDlg && pDlg->getCtrlView(CtlPdc)) {
-			ComboBox * p_cb = (ComboBox*)pDlg->getCtrlView(CtlSelCycle);
+			ComboBox * p_cb = static_cast<ComboBox *>(pDlg->getCtrlView(CtlSelCycle));
 			ListWindow * p_lw = p_cb->getListWindow();
 			if(p_lw) {
 				ListBoxDef * p_def = p_lw->getDef();
@@ -1857,7 +1857,7 @@ int CycleCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
 	Rec    rec;
 	if(pData)
-		rec = *(Rec*)pData;
+		rec = *static_cast<Rec *>(pData);
 	else
 		rec.C.Init();
 	if(setupCycleCombo(pDlg, rec.C.Cycle)) {
@@ -3716,7 +3716,7 @@ void PersonCtrlGroup::SetupAnonym(TDialog * pDlg, int a)
 int PersonCtrlGroup::SelectByCode(TDialog * pDlg)
 {
 	int    ok = -1;
-	ComboBox * p_combo = (ComboBox *)pDlg->getCtrlView(Ctlsel);
+	ComboBox * p_combo = static_cast<ComboBox *>(pDlg->getCtrlView(Ctlsel));
 	if(p_combo && p_combo->link()) {
 		PPPersonKind psn_kind_rec;
 		PPID   reg_type_id = 0;
@@ -3746,7 +3746,7 @@ int PersonCtrlGroup::SelectByCode(TDialog * pDlg)
 void PersonCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 {
 	if(event.isKeyDown(kbF2)) {
-		ComboBox * p_combo = (ComboBox *)pDlg->getCtrlView(Ctlsel);
+		ComboBox * p_combo = static_cast<ComboBox *>(pDlg->getCtrlView(Ctlsel));
 		if(p_combo && pDlg->IsCurrentView(p_combo->link())) {
 			SelectByCode(pDlg);
 			pDlg->clearEvent(event);
@@ -3888,7 +3888,7 @@ int PersonListCtrlGroup::getData(TDialog * pDlg, void * pRec)
 int PersonListCtrlGroup::selectByCode(TDialog * pDlg)
 {
 	int    ok = -1;
-	ComboBox * p_combo = (ComboBox *)pDlg->getCtrlView(Ctlsel);
+	ComboBox * p_combo = static_cast<ComboBox *>(pDlg->getCtrlView(Ctlsel));
 	if(p_combo && p_combo->link()) {
 		PPPersonKind psn_kind_rec;
 		PPID   reg_type_id = 0;
@@ -3917,7 +3917,7 @@ int PersonListCtrlGroup::selectByCode(TDialog * pDlg)
 void PersonListCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 {
 	if(event.isKeyDown(kbF2)) {
-		ComboBox * p_combo = (ComboBox *)pDlg->getCtrlView(Ctlsel);
+		ComboBox * p_combo = static_cast<ComboBox *>(pDlg->getCtrlView(Ctlsel));
 		if(p_combo && p_combo->link() && pDlg->current == p_combo->link()) {
 			selectByCode(pDlg);
 			pDlg->clearEvent(event);
@@ -4016,7 +4016,7 @@ int PersonListCtrlGroup::getData(TDialog * pDlg, void * pData)
 int PersonListCtrlGroup::SelectByCode(TDialog * pDlg)
 {
 	int    ok = -1;
-	ComboBox * p_combo = (ComboBox *)pDlg->getCtrlView(Ctlsel);
+	ComboBox * p_combo = static_cast<ComboBox *>(pDlg->getCtrlView(Ctlsel));
 	if(p_combo && p_combo->link()) {
 		PPPersonKind psn_kind_rec;
 		PPID   reg_type_id = 0;
@@ -4071,7 +4071,7 @@ void PersonListCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 		Setup(pDlg, pDlg->getCtrlLong(CtlselPsnKind));
 	}
 	else if(event.isKeyDown(kbF2)) {
-		ComboBox * p_combo = (ComboBox *)pDlg->getCtrlView(Ctlsel);
+		ComboBox * p_combo = static_cast<ComboBox *>(pDlg->getCtrlView(Ctlsel));
 		if(p_combo && pDlg->IsCurrentView(p_combo->link())) {
 			SelectByCode(pDlg);
 			pDlg->clearEvent(event);
@@ -5266,7 +5266,7 @@ int SLAPI ViewImageInfo(const char * pImagePath, const char * pInfo, const char 
 	const  int simple_resizeble = BIN(!pInfo && !pWarn);
 	ImageInfoDialog * p_dlg = new ImageInfoDialog(simple_resizeble);
 	THROW(CheckDialogPtr(&p_dlg));
-	p_dlg->setCtrlData(CTL_IMAGEINFO_IMAGE, (void*)pImagePath);
+	p_dlg->setCtrlData(CTL_IMAGEINFO_IMAGE, (void *)pImagePath);
 	if(!simple_resizeble) {
 		p_dlg->setStaticText(CTL_IMAGEINFO_INFO, pInfo);
 		p_dlg->setStaticText(CTL_IMAGEINFO_WARN, pWarn);
@@ -5639,12 +5639,12 @@ void TimePickerDialog::DrawMainRect(TCanvas * pCanv, RECT * pRect)
 		// нарисуем прямоугольник
 		pCanv->FillRect(draw_rect, (HBRUSH)Ptb.Get(brMainRect));
 		// Эффект объемного прямоугольника
-		pCanv->SelectObjectAndPush((HPEN)Ptb.Get(penBlack));
+		pCanv->SelectObjectAndPush(Ptb.Get(penBlack));
 		pCanv->LineHorz(draw_rect.a.x + 1, draw_rect.b.x - 1, draw_rect.a.y + 1);
 		pCanv->LineVert(draw_rect.a.x + 1, draw_rect.a.y + 1, draw_rect.b.y - 1);
 		pCanv->PopObject();
 
-		pCanv->SelectObjectAndPush((HPEN)Ptb.Get(penWhite));
+		pCanv->SelectObjectAndPush(Ptb.Get(penWhite));
 		pCanv->LineHorz(draw_rect.a.x + 1, draw_rect.b.x - 1, draw_rect.b.y - 1);
 		pCanv->LineVert(draw_rect.b.x -1, draw_rect.a.y + 1, draw_rect.b.y - 1);
 		pCanv->PopObject();
@@ -5662,19 +5662,19 @@ void TimePickerDialog::DrawHoursRect(TCanvas * pCanv)
 		long   x2 = h2_rect.b.x + 2;
 		long   y2 = h2_rect.b.y + 3;
 
-		pCanv->SelectObjectAndPush((HPEN)Ptb.Get(penBlue));
-		pCanv->SelectObjectAndPush((HBRUSH)Ptb.Get(brWhiteRect));
+		pCanv->SelectObjectAndPush(Ptb.Get(penBlue));
+		pCanv->SelectObjectAndPush(Ptb.Get(brWhiteRect));
 		draw_rect.set(x1, y1, x2, y2);
 		pCanv->Rectangle(draw_rect);
 		pCanv->PopObject();
 		pCanv->PopObject();
 
-		pCanv->SelectObjectAndPush((HPEN)Ptb.Get(penBlack));
+		pCanv->SelectObjectAndPush(Ptb.Get(penBlack));
 		pCanv->LineHorz(x1 + 1, x2 - 1, y1 + 1);
 		pCanv->LineVert(x1 + 1, y1 + 1, y2 - 1);
 		pCanv->PopObject();
 
-		pCanv->SelectObjectAndPush((HPEN)Ptb.Get(penWhite));
+		pCanv->SelectObjectAndPush(Ptb.Get(penWhite));
 		pCanv->LineHorz(x1 + 1, x2 - 2, y2 - 2);
 		pCanv->LineVert(x2 - 2, y1 + 2, y2 - 2);
 		pCanv->PopObject();
@@ -5689,7 +5689,7 @@ void TimePickerDialog::DrawHourText(TCanvas * pCanv)
 		TRect  h_rect = TmRects.Hours.at(0);
 		text_point.Set(h_rect.a.x, 10);
 		PPGetWord(PPWORD_HOURS, 1, temp_buf.Z());
-		pCanv->SelectObjectAndPush((HFONT)Ptb.Get(fontTexts));
+		pCanv->SelectObjectAndPush(Ptb.Get(fontTexts));
 		pCanv->SetBkColor(Ptb.GetColor(clrClear));
 		pCanv->SetTextColor(GetColorRef(SClrBlack));
 		pCanv->SetBkTranparent();
@@ -5708,18 +5708,18 @@ void TimePickerDialog::DrawMinutsRect(TCanvas * pCanv)
 		const long y1 = m1_rect.a.y - 4;
 		const long x2 = m2_rect.b.x + 2;
 		const long y2 = m2_rect.b.y + 3;
-		pCanv->SelectObjectAndPush((HPEN)Ptb.Get(penBlue));
-		pCanv->SelectObjectAndPush((HBRUSH)Ptb.Get(brWhiteRect));
+		pCanv->SelectObjectAndPush(Ptb.Get(penBlue));
+		pCanv->SelectObjectAndPush(Ptb.Get(brWhiteRect));
 		draw_rect.set(x1, y1, x2, y2);
 		pCanv->Rectangle(draw_rect);
 		pCanv->PopObjectN(2);
 
-		pCanv->SelectObjectAndPush((HPEN)Ptb.Get(penBlack));
+		pCanv->SelectObjectAndPush(Ptb.Get(penBlack));
 		pCanv->LineHorz(x1 + 1, x2 - 1, y1 + 1);
 		pCanv->LineVert(x1 + 1, y1 + 1, y2 - 1);
 		pCanv->PopObject();
 
-		pCanv->SelectObjectAndPush((HPEN)Ptb.Get(penWhite));
+		pCanv->SelectObjectAndPush(Ptb.Get(penWhite));
 		pCanv->LineHorz(x1 + 1, x2 - 1, y2 - 1);
 		pCanv->LineVert(x2 - 1, y1 + 1, y2 - 1);
 		pCanv->PopObject();
@@ -5734,7 +5734,7 @@ void TimePickerDialog::DrawMinutText(TCanvas * pCanv)
 		TRect  m_rect = TmRects.Minuts.at(0);
 		text_point.Set(m_rect.a.x, m_rect.a.y - 20);
 		PPGetWord(PPWORD_MINUTES, 1, temp_buf.Z());
-		pCanv->SelectObjectAndPush((HFONT)Ptb.Get(fontTexts));
+		pCanv->SelectObjectAndPush(Ptb.Get(fontTexts));
 		pCanv->SetBkColor(Ptb.GetColor(clrClear));
 		pCanv->SetTextColor(GetColorRef(SClrBlack));
 		pCanv->SetBkTranparent();
@@ -5776,16 +5776,16 @@ void TimePickerDialog::Implement_Draw()
 				TRect text_rect(x + 1, y + 1, x + delta - 1, y + delta - 1);
 				temp_buf.Z().Cat(h_);
 				round_pt.Set(6, 6);
-				canv.SelectObjectAndPush((HPEN)Ptb.Get(penSquare));
+				canv.SelectObjectAndPush(Ptb.Get(penSquare));
 				if(h_ == h)
-					canv.SelectObjectAndPush((HBRUSH)Ptb.Get(brSelected));
+					canv.SelectObjectAndPush(Ptb.Get(brSelected));
 				else
-					canv.SelectObjectAndPush((HBRUSH)Ptb.Get(brSquare));
+					canv.SelectObjectAndPush(Ptb.Get(brSquare));
 				canv.RoundRect(text_rect, round_pt);
 				if(h_ >= 8 && h_ <= 20)
 					font_id = fontWorkHours;
 				color = (h_ == h) ? GetColorRef(SClrWhite) : GetColorRef(SClrBlack);
-				canv.SelectObjectAndPush((HFONT)Ptb.Get(font_id));
+				canv.SelectObjectAndPush(Ptb.Get(font_id));
 				canv.SetBkColor(Ptb.GetColor(clrClear));
 				canv.SetTextColor(color);
 				canv.SetBkTranparent();
@@ -5811,17 +5811,17 @@ void TimePickerDialog::Implement_Draw()
 				TRect  text_rect(x + 1, y + 1, x + delta - 1, y + delta -1);
 				temp_buf.Z().Cat(min5);
 				round_pt.Set(6, 6);
-				canv.SelectObjectAndPush((HPEN)Ptb.Get(penSquare));
+				canv.SelectObjectAndPush(Ptb.Get(penSquare));
 				if(m >= min5 && m < min5 + 5)
-					canv.SelectObjectAndPush((HBRUSH)Ptb.Get(brSelected));
+					canv.SelectObjectAndPush(Ptb.Get(brSelected));
 				else
-					canv.SelectObjectAndPush((HBRUSH)Ptb.Get(brSquare));
+					canv.SelectObjectAndPush(Ptb.Get(brSquare));
 				canv.RoundRect(text_rect, round_pt);
 				canv.PopObject();
 				canv.PopObject();
 				font_id = oneof4(min5, 0, 15, 30, 45) ? fontWorkHours : fontHours;
 				color = (m >= min5 && m < min5 + 5) ? GetColorRef(SClrWhite) : GetColorRef(SClrBlack);
-				canv.SelectObjectAndPush((HFONT)Ptb.Get(font_id));
+				canv.SelectObjectAndPush(Ptb.Get(font_id));
 				canv.SetBkColor(Ptb.GetColor(clrClear));
 				canv.SetTextColor(color);
 				canv.SetBkTranparent();
@@ -6382,7 +6382,7 @@ int PPCallHelp(void * hWnd, uint cmd, uint ctx)
 							path = local_path;
 					}
 				}
-				ok = BIN(HtmlHelp((HWND)hWnd, path, cmd, ctx)); // @unicodeproblem
+				ok = BIN(HtmlHelp(static_cast<HWND>(hWnd), path, cmd, ctx)); // @unicodeproblem
 			}
 		}
 		else
@@ -6763,7 +6763,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 							}
 							else if(cls_name.IsEqiAscii("SysListView32") || cls_name.IsEqiAscii("ListBox")) {
 								if(p_view && p_view->IsSubSign(TV_SUBSIGN_LISTBOX)) {
-									SmartListBox * p_list = (SmartListBox *)p_view;
+									SmartListBox * p_list = static_cast<SmartListBox *>(p_view);
 									if(p_label)
 										ctl_text = label_text;
 									line_buf.Tab().Cat("listbox").Space().Cat(symb).Space().CatQStr(ctl_text);
@@ -6779,7 +6779,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 							else if(cls_name.IsEqiAscii("SysTreeView32")) {
 								// T_TREELISTBOX T_IDENT T_CONST_STR uirectopt uictrl_properties
 								if(p_view && p_view->IsSubSign(TV_SUBSIGN_LISTBOX)) {
-									SmartListBox * p_list = (SmartListBox *)p_view;
+									SmartListBox * p_list = static_cast<SmartListBox *>(p_view);
 									if(p_label)
 										ctl_text = label_text;
 									line_buf.Tab().Cat("treelistbox").Space().Cat(symb).Space().CatQStr(ctl_text);
@@ -6933,7 +6933,7 @@ int SLAPI PPEditTextFile(const char * pFileName)
 				TView * p_view = TVINFOVIEW;
 				if(p_view) {
 					if(p_view->GetId() == CTL_OPENEDFILE_RESERV) {
-						SmartListBox * p_box = (SmartListBox *)p_view;
+						SmartListBox * p_box = static_cast<SmartListBox *>(p_view);
 						if(p_box->def) {
 							long   id = 0;
 							p_box->getCurID(&id);
@@ -6948,7 +6948,7 @@ int SLAPI PPEditTextFile(const char * pFileName)
 						}
 					}
 					else if(p_view->GetId() == CTL_OPENEDFILE_RECENT) {
-						SmartListBox * p_box = (SmartListBox *)p_view;
+						SmartListBox * p_box = static_cast<SmartListBox *>(p_view);
 						if(p_box->def) {
 							long   id = 0;
 							SString full_path;
@@ -6966,7 +6966,7 @@ int SLAPI PPEditTextFile(const char * pFileName)
 				TView * p_view = TVINFOVIEW;
 				SString info_buf;
 				if(p_view && p_view->GetId() == CTL_OPENEDFILE_RESERV) {
-					SmartListBox * p_reserv_box = (SmartListBox *)p_view;
+					SmartListBox * p_reserv_box = static_cast<SmartListBox *>(p_view);
 					if(p_reserv_box->def) {
 						long   id = 0;
 						p_reserv_box->getCurID(&id);

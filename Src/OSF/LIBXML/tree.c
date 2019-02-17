@@ -1185,7 +1185,7 @@ xmlNode * xmlStringLenGetNodeList(const xmlDoc * doc, const xmlChar * value, int
 							ent->owner = 1;
 							temp = ent->children;
 							while(temp) {
-								temp->parent = (xmlNode *)ent;
+								temp->parent = reinterpret_cast<xmlNode *>(ent);
 								ent->last = temp;
 								temp = temp->next;
 							}
@@ -1368,7 +1368,7 @@ xmlNode * xmlStringGetNodeList(const xmlDoc * doc, const xmlChar * value)
 							ent->owner = 1;
 							temp = ent->children;
 							while(temp) {
-								temp->parent = (xmlNode *)ent;
+								temp->parent = reinterpret_cast<xmlNode *>(ent);
 								temp = temp->next;
 							}
 						}
@@ -1861,7 +1861,7 @@ xmlNode * xmlNewDocPI(xmlDoc * doc, const xmlChar * name, const xmlChar * conten
 		cur->content = sstrdup(content);
 	cur->doc = doc;
 	if((__xmlRegisterCallbacks) && (xmlRegisterNodeDefaultValue))
-		xmlRegisterNodeDefaultValue((xmlNode *)cur);
+		xmlRegisterNodeDefaultValue(cur);
 	return cur;
 }
 
@@ -2234,8 +2234,8 @@ xmlNode * xmlNewReference(const xmlDoc * doc, const xmlChar * name)
 				 * updated.  Not sure if this is 100% correct.
 				 *  -George
 				 */
-				cur->children = (xmlNode *)ent;
-				cur->last = (xmlNode *)ent;
+				cur->children = reinterpret_cast<xmlNode *>(ent);
+				cur->last = reinterpret_cast<xmlNode *>(ent);
 			}
 			if((__xmlRegisterCallbacks) && (xmlRegisterNodeDefaultValue))
 				xmlRegisterNodeDefaultValue(cur);
@@ -2922,14 +2922,15 @@ xmlNode * FASTCALL xmlAddChild(xmlNode * parent, xmlNode * cur)
  * Search the last child of a node.
  * Returns the last child or NULL if none.
  */
-xmlNode * xmlGetLastChild(const xmlNode * parent) {
-	if((parent == NULL) || (parent->type == XML_NAMESPACE_DECL)) {
+xmlNode * FASTCALL xmlGetLastChild(const xmlNode * pParent) 
+{
+	if(!pParent || pParent->type == XML_NAMESPACE_DECL) {
 #ifdef DEBUG_TREE
 		xmlGenericError(0, "xmlGetLastChild : parent == NULL\n");
 #endif
 		return 0;
 	}
-	return(parent->last);
+	return pParent->last;
 }
 
 #ifdef LIBXML_TREE_ENABLED
@@ -3835,15 +3836,15 @@ xmlDtdPtr xmlCopyDtd(xmlDtdPtr dtd)
 	if(!ret) 
 		return 0;
 	if(dtd->entities)
-		ret->entities = (void*)xmlCopyEntitiesTable((xmlEntitiesTablePtr)dtd->entities);
+		ret->entities = (void *)xmlCopyEntitiesTable((xmlEntitiesTablePtr)dtd->entities);
 	if(dtd->notations)
-		ret->notations = (void*)xmlCopyNotationTable((xmlNotationTablePtr)dtd->notations);
+		ret->notations = (void *)xmlCopyNotationTable((xmlNotationTablePtr)dtd->notations);
 	if(dtd->elements)
-		ret->elements = (void*)xmlCopyElementTable((xmlElementTablePtr)dtd->elements);
+		ret->elements = (void *)xmlCopyElementTable((xmlElementTablePtr)dtd->elements);
 	if(dtd->attributes)
-		ret->attributes = (void*)xmlCopyAttributeTable((xmlAttributeTablePtr)dtd->attributes);
+		ret->attributes = (void *)xmlCopyAttributeTable((xmlAttributeTablePtr)dtd->attributes);
 	if(dtd->pentities)
-		ret->pentities = (void*)xmlCopyEntitiesTable((xmlEntitiesTablePtr)dtd->pentities);
+		ret->pentities = (void *)xmlCopyEntitiesTable((xmlEntitiesTablePtr)dtd->pentities);
 	cur = dtd->children;
 	while(cur) {
 		q = NULL;
@@ -8082,8 +8083,8 @@ ns_end:
 				    xmlEntity * ent = xmlGetDocEntity(destDoc, cur->name);
 				    if(ent) {
 					    cur->content = ent->content;
-					    cur->children = (xmlNode *)ent;
-					    cur->last = (xmlNode *)ent;
+					    cur->children = reinterpret_cast<xmlNode *>(ent);
+					    cur->last = reinterpret_cast<xmlNode *>(ent);
 				    }
 			    }
 			    goto leave_node;
@@ -8439,8 +8440,8 @@ int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xmlNode * P
 					    xmlEntity * ent = xmlGetDocEntity(destDoc, cur->name);
 					    if(ent) {
 						    clone->content = ent->content;
-						    clone->children = (xmlNode *)ent;
-						    clone->last = (xmlNode *)ent;
+						    clone->children = reinterpret_cast<xmlNode *>(ent);
+						    clone->last = reinterpret_cast<xmlNode *>(ent);
 					    }
 				    }
 			    }
@@ -8739,8 +8740,8 @@ static int xmlDOMWrapAdoptAttr(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlAt
 				    xmlEntity * ent = xmlGetDocEntity(destDoc, cur->name);
 				    if(ent) {
 					    cur->content = ent->content;
-					    cur->children = (xmlNode *)ent;
-					    cur->last = (xmlNode *)ent;
+					    cur->children = reinterpret_cast<xmlNode *>(ent);
+					    cur->last = reinterpret_cast<xmlNode *>(ent);
 				    }
 			    }
 			    break;
@@ -8792,21 +8793,21 @@ internal_error:
  *         2 if a node of not yet supported type was given and
  *         -1 on API/internal errors.
  */
-int xmlDOMWrapAdoptNode(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xmlNode * P_Node, xmlDocPtr destDoc, xmlNode * destParent, int options)
+int xmlDOMWrapAdoptNode(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xmlNode * pNode, xmlDocPtr destDoc, xmlNode * destParent, int options)
 {
-	if(!P_Node || (P_Node->type == XML_NAMESPACE_DECL) || (destDoc == NULL) || (destParent && (destParent->doc != destDoc)))
+	if(!pNode || (pNode->type == XML_NAMESPACE_DECL) || (destDoc == NULL) || (destParent && (destParent->doc != destDoc)))
 		return -1;
 	/*
 	 * Check node->doc sanity.
 	 */
-	if(P_Node->doc && sourceDoc && (P_Node->doc != sourceDoc)) {
+	if(pNode->doc && sourceDoc && (pNode->doc != sourceDoc)) {
 		// Might be an XIncluded node.
 		return -1;
 	}
-	SETIFZ(sourceDoc, P_Node->doc);
+	SETIFZ(sourceDoc, pNode->doc);
 	if(sourceDoc == destDoc)
 		return -1;
-	switch(P_Node->type) {
+	switch(pNode->type) {
 		case XML_ELEMENT_NODE:
 		case XML_ATTRIBUTE_NODE:
 		case XML_TEXT_NODE:
@@ -8824,16 +8825,16 @@ int xmlDOMWrapAdoptNode(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xmlNode * P
 	/*
 	 * Unlink only if @node was not already added to @destParent.
 	 */
-	if(P_Node->parent && (destParent != P_Node->parent))
-		xmlUnlinkNode(P_Node);
-	if(P_Node->type == XML_ELEMENT_NODE) {
-		return (xmlDOMWrapAdoptBranch(ctxt, sourceDoc, P_Node, destDoc, destParent, options));
+	if(pNode->parent && (destParent != pNode->parent))
+		xmlUnlinkNode(pNode);
+	if(pNode->type == XML_ELEMENT_NODE) {
+		return (xmlDOMWrapAdoptBranch(ctxt, sourceDoc, pNode, destDoc, destParent, options));
 	}
-	else if(P_Node->type == XML_ATTRIBUTE_NODE) {
-		return (xmlDOMWrapAdoptAttr(ctxt, sourceDoc, (xmlAttr *)P_Node, destDoc, destParent, options));
+	else if(pNode->type == XML_ATTRIBUTE_NODE) {
+		return (xmlDOMWrapAdoptAttr(ctxt, sourceDoc, (xmlAttr *)pNode, destDoc, destParent, options));
 	}
 	else {
-		xmlNode * cur = P_Node;
+		xmlNode * cur = pNode;
 		int adoptStr = 1;
 		cur->doc = destDoc;
 		/*
@@ -8841,32 +8842,32 @@ int xmlDOMWrapAdoptNode(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xmlNode * P
 		 */
 		if(sourceDoc && (sourceDoc->dict == destDoc->dict))
 			adoptStr = 0;
-		switch(P_Node->type) {
+		switch(pNode->type) {
 			case XML_TEXT_NODE:
 			case XML_CDATA_SECTION_NODE:
-			    XML_TREE_ADOPT_STR_2(P_Node->content)
+			    XML_TREE_ADOPT_STR_2(pNode->content)
 			    break;
 			case XML_ENTITY_REF_NODE:
-			    /*
-			     * Remove reference to the entitity-node.
-			     */
-			    P_Node->content = NULL;
-			    P_Node->children = NULL;
-			    P_Node->last = NULL;
+			    //
+			    // Remove reference to the entitity-node.
+			    //
+			    pNode->content = NULL;
+			    pNode->children = NULL;
+			    pNode->last = NULL;
 			    if((destDoc->intSubset) || (destDoc->extSubset)) {
 					// Assign new entity-node if available.
-				    xmlEntity * ent = xmlGetDocEntity(destDoc, P_Node->name);
+				    xmlEntity * ent = xmlGetDocEntity(destDoc, pNode->name);
 				    if(ent) {
-					    P_Node->content = ent->content;
-					    P_Node->children = (xmlNode *)ent;
-					    P_Node->last = (xmlNode *)ent;
+					    pNode->content = ent->content;
+					    pNode->children = reinterpret_cast<xmlNode *>(ent);
+					    pNode->last = reinterpret_cast<xmlNode *>(ent);
 				    }
 			    }
-			    XML_TREE_ADOPT_STR(P_Node->name)
+			    XML_TREE_ADOPT_STR(pNode->name)
 			    break;
 			case XML_PI_NODE: {
-			    XML_TREE_ADOPT_STR(P_Node->name)
-			    XML_TREE_ADOPT_STR_2(P_Node->content)
+			    XML_TREE_ADOPT_STR(pNode->name)
+			    XML_TREE_ADOPT_STR_2(pNode->content)
 			    break;
 		    }
 			default:

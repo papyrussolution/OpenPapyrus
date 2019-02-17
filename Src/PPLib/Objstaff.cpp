@@ -1263,7 +1263,7 @@ int SLAPI PPObjStaffList::SetupPostCombo(TDialog * dlg, uint ctl, PPID id,
 	uint /*olwFlags*/, PPID orgID, PPID divID, PPID staffID)
 {
 	int    ok = -1;
-	ComboBox * p_combo = (ComboBox *)dlg->getCtrlView(ctl);
+	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctl));
 	if(p_combo) {
 		PPObjStaffList sl_obj;
 		StrAssocArray * p_list = new StrAssocArray;
@@ -1566,7 +1566,7 @@ IStrAssocList * DL6ICLS_PPObjStaff::GetSelector(int32 extraParam)
 	PPObjStaffList::Filt filt;
 	filt.OrgID = extraParam;
 	filt.DivID = 0;
-	IStrAssocList * p = (IStrAssocList *)GetPPObjIStrAssocList(this, (PPObject *)ExtraPtr, (long)&filt);
+	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, static_cast<PPObject *>(ExtraPtr), &filt));
 	if(!p)
 		AppError = 1;
 	return p;

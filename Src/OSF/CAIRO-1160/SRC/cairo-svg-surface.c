@@ -1176,7 +1176,7 @@ static cairo_int_status_t _cairo_surface_base64_encode(cairo_surface_t * surface
 	info.in_mem = 0;
 	info.trailing = 0;
 	_cairo_output_stream_printf(info.output, "data:image/png;base64,");
-	status = cairo_surface_write_to_png_stream(surface, base64_write_func, (void*)&info);
+	status = cairo_surface_write_to_png_stream(surface, base64_write_func, (void *)&info);
 	if(unlikely(status))
 		return status;
 	if(info.in_mem > 0) {

@@ -2196,7 +2196,7 @@ DL6_IC_CONSTRUCTION_EXTRA(PPViewTSession, DL6ICLS_PPViewTSession_VTab, PPViewTSe
 IUnknown* DL6ICLS_PPViewTSession::CreateFilt(int32 param)
 {
 	IUnknown * p_filt = 0;
-	return CreateInnerInstance("PPFiltTSession", 0, (void **)&p_filt) ? p_filt : static_cast<IUnknown *>(RaiseAppErrorPtr());
+	return CreateInnerInstance("PPFiltTSession", 0, reinterpret_cast<void **>(&p_filt)) ? p_filt : static_cast<IUnknown *>(RaiseAppErrorPtr());
 }
 
 int32 DL6ICLS_PPViewTSession::Init(IUnknown* pFilt)
@@ -2234,9 +2234,9 @@ int32 DL6ICLS_PPViewTSession::NextIteration(PPYVIEWITEM item)
 		FLD(Num);
 		FLD(TechID);
 		FLD(PrcID);
-		p_item->StDt = (OleDate)inner_item.StDt;
+		p_item->StDt = inner_item.StDt.GetOleDate();
 		p_item->StTm = (OleDate)inner_item.StTm;
-		p_item->FinDt = (OleDate)inner_item.FinDt;
+		p_item->FinDt = inner_item.FinDt.GetOleDate();
 		p_item->FinTm = (OleDate)inner_item.FinTm;
 		FLD(Incomplete);
 		FLD(Status);

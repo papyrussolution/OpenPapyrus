@@ -5026,7 +5026,7 @@ int SLAPI EdiProviderImplementation_Kontur::SendDocument(PPEdiProcessor::Documen
 		S_GUID msg_uuid;
 		msg_uuid.Generate();
 		//
-		const PPBillPacket * p_bp = (const PPBillPacket *)rPack.P_Data;
+		const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(rPack.P_Data);
 		SString temp_buf;
 		SString edi_format_symb;
 		GetTempOutputPath(rPack.DocType, path);
@@ -5044,7 +5044,7 @@ int SLAPI EdiProviderImplementation_Kontur::SendDocument(PPEdiProcessor::Documen
 		if(use_own_format) {
 			switch(rPack.DocType) {
 				case PPEDIOP_ORDER: THROW(Write_OwnFormat_ORDERS(p_x, msg_uuid, *p_bp)); break;
-				case PPEDIOP_ORDERRSP: THROW(Write_OwnFormat_ORDERRSP(p_x, msg_uuid, *p_bp, (const PPBillPacket *)rPack.P_ExtData)); break;
+				case PPEDIOP_ORDERRSP: THROW(Write_OwnFormat_ORDERRSP(p_x, msg_uuid, *p_bp, static_cast<const PPBillPacket *>(rPack.P_ExtData))); break;
 				case PPEDIOP_DESADV: THROW(Write_OwnFormat_DESADV(p_x, msg_uuid, *p_bp)); break;
 				case PPEDIOP_ALCODESADV: THROW(Write_OwnFormat_ALCODESADV(p_x, msg_uuid, *p_bp)); break;
 				case PPEDIOP_INVOIC: THROW(Write_OwnFormat_INVOIC(p_x, msg_uuid, *p_bp)); break;
@@ -5054,7 +5054,7 @@ int SLAPI EdiProviderImplementation_Kontur::SendDocument(PPEdiProcessor::Documen
 			PPEanComDocument s_doc(this);
 			switch(rPack.DocType) {
 				case PPEDIOP_ORDER: THROW(s_doc.Write_ORDERS(p_x, *p_bp)); break;
-				case PPEDIOP_ORDERRSP: THROW(s_doc.Write_ORDERRSP(p_x, *p_bp, (const PPBillPacket *)rPack.P_ExtData)); break;
+				case PPEDIOP_ORDERRSP: THROW(s_doc.Write_ORDERRSP(p_x, *p_bp, static_cast<const PPBillPacket *>(rPack.P_ExtData))); break;
 				case PPEDIOP_DESADV: THROW(s_doc.Write_DESADV(p_x, *p_bp)); break;
 				case PPEDIOP_ALCODESADV: /*THROW(s_doc.Write_DESADV(p_x, *p_bp));*/ break;
 				case PPEDIOP_INVOIC: /*THROW(s_doc.Write_DESADV(p_x, *p_bp));*/ break;
@@ -6470,7 +6470,7 @@ int SLAPI EdiProviderImplementation_Exite::SendDocument(PPEdiProcessor::Document
 		S_GUID msg_uuid;
 		msg_uuid.Generate();
 		const PPEdiProcessor::RecadvPacket * p_recadv_pack = (rPack.DocType == PPEDIOP_RECADV) ? (PPEdiProcessor::RecadvPacket *)rPack.P_Data : 0;
-		const PPBillPacket * p_bp = (rPack.DocType == PPEDIOP_RECADV) ? &p_recadv_pack->ABp : (const PPBillPacket *)rPack.P_Data;
+		const PPBillPacket * p_bp = (rPack.DocType == PPEDIOP_RECADV) ? &p_recadv_pack->ABp : static_cast<const PPBillPacket *>(rPack.P_Data);
 		SString temp_buf;
 		SString doc_type_buf;
 		SString doc_buf_raw;
@@ -6494,7 +6494,7 @@ int SLAPI EdiProviderImplementation_Exite::SendDocument(PPEdiProcessor::Document
 				break;
 			case PPEDIOP_ORDERRSP:
 				doc_type_buf = "ORDRSP";
-				THROW(Write_OwnFormat_ORDERRSP(p_x, msg_uuid, *p_bp, (const PPBillPacket *)rPack.P_ExtData));
+				THROW(Write_OwnFormat_ORDERRSP(p_x, msg_uuid, *p_bp, static_cast<const PPBillPacket *>(rPack.P_ExtData)));
 				break;
 			case PPEDIOP_DESADV:
 				doc_type_buf = "DESADV";

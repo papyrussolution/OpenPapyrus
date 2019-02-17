@@ -3584,16 +3584,16 @@ const SSL_CIPHER * ssl3_choose_cipher(SSL * s, STACK_OF(SSL_CIPHER) * clnt, STAC
 
 #ifdef CIPHER_DEBUG
 	fprintf(stderr, "Server has %d from %p:\n", sk_SSL_CIPHER_num(srvr),
-	    (void*)srvr);
+	    (void *)srvr);
 	for(i = 0; i < sk_SSL_CIPHER_num(srvr); ++i) {
 		c = sk_SSL_CIPHER_value(srvr, i);
-		fprintf(stderr, "%p:%s\n", (void*)c, c->name);
+		fprintf(stderr, "%p:%s\n", (void *)c, c->name);
 	}
 	fprintf(stderr, "Client sent %d from %p:\n", sk_SSL_CIPHER_num(clnt),
-	    (void*)clnt);
+	    (void *)clnt);
 	for(i = 0; i < sk_SSL_CIPHER_num(clnt); ++i) {
 		c = sk_SSL_CIPHER_value(clnt, i);
-		fprintf(stderr, "%p:%s\n", (void*)c, c->name);
+		fprintf(stderr, "%p:%s\n", (void *)c, c->name);
 	}
 #endif
 	if(s->options & SSL_OP_CIPHER_SERVER_PREFERENCE || tls1_suiteb(s)) {
@@ -3634,7 +3634,7 @@ const SSL_CIPHER * ssl3_choose_cipher(SSL * s, STACK_OF(SSL_CIPHER) * clnt, STAC
 		ok = (alg_k & mask_k) && (alg_a & mask_a);
 #ifdef CIPHER_DEBUG
 		fprintf(stderr, "%d:[%08lX:%08lX:%08lX:%08lX]%p:%s\n", ok, alg_k,
-		    alg_a, mask_k, mask_a, (void*)c, c->name);
+		    alg_a, mask_k, mask_a, (void *)c, c->name);
 #endif
 
 #ifndef OPENSSL_NO_EC
@@ -3650,7 +3650,7 @@ const SSL_CIPHER * ssl3_choose_cipher(SSL * s, STACK_OF(SSL_CIPHER) * clnt, STAC
 		ii = sk_SSL_CIPHER_find(allow, c);
 		if(ii >= 0) {
 			/* Check security callback permits this cipher */
-			if(!ssl_security(s, SSL_SECOP_CIPHER_SHARED, c->strength_bits, 0, (void*)c))
+			if(!ssl_security(s, SSL_SECOP_CIPHER_SHARED, c->strength_bits, 0, (void *)c))
 				continue;
 #if !defined(OPENSSL_NO_EC)
 			if((alg_k & SSL_kECDHE) && (alg_a & SSL_aECDSA) && s->s3->is_probably_safari) {

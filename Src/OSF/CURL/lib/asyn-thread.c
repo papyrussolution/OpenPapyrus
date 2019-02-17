@@ -342,7 +342,7 @@ static bool init_resolve_thread(struct connectdata * conn, const char * hostname
 {
 	struct thread_data * td = (struct thread_data *)SAlloc::C(1, sizeof(struct thread_data));
 	int err = RESOLVER_ENOMEM;
-	conn->async.os_specific = (void*)td;
+	conn->async.os_specific = (void *)td;
 	if(!td)
 		goto err_exit;
 	conn->async.port = port;

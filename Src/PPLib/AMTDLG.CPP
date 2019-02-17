@@ -171,7 +171,7 @@ int AmtListDialog::setupList()
 int AmtListDialog::editAmount(int pos)
 {
 	int    ok = -1, valid_data = 0, can_edit = 0;
-	int    p = (pos >= 0) ? (int)PosList.at((uint)pos) : -1;
+	int    p = (pos >= 0) ? (int)PosList.at(static_cast<uint>(pos)) : -1;
 	AmountDialog * dlg = 0;
 	AmtEntry ae;
 	AmtDialogEntry dlg_data;
@@ -219,7 +219,7 @@ int AmtListDialog::delItem(long pos, long /*id*/)
 {
 	int    ok = -1;
 	if((Options & OLW_CANDELETE) && checkupper((uint)pos, PosList.getCount())) {
-		uint   p = (uint)PosList.at((uint)pos);
+		uint   p = (uint)PosList.at(static_cast<uint>(pos));
 		AmtEntry & ae = Data.at(p);
 		if(ae.AmtTypeID == PPAMT_CRATE && ae.CurID) {
 			AmtEntry * p_ae;

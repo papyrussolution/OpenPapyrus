@@ -359,7 +359,7 @@ int SLAPI ComDispInterface::SetProperty(long propertyID, LDATE dtVal, int writeO
 	VARIANTARG   var_arg;
 	VariantInit(&var_arg);
 	var_arg.vt     = VT_DATE;
-	var_arg.date = (OleDate)dtVal;
+	var_arg.date = dtVal.GetOleDate();
 	ok = writeOnly ? _SetPropertyW(propertyID, &var_arg) : _SetProperty(propertyID, &var_arg);
 	VariantClear(&var_arg);
 	return ok;

@@ -1779,7 +1779,7 @@ int GBDialog::editItem(long pos, long)
 {
 	if(pos >= 0 && pos < (long)R_Data.Pack.Lots.getCount()) {
 		SString goods_name;
-		ILTI * p_item = &R_Data.Pack.Lots.at((uint)pos);
+		ILTI * p_item = &R_Data.Pack.Lots.at(static_cast<uint>(pos));
 		uint   p;
 		getCtrlData(CTLSEL_GBTRUC_SUPPL, &R_Data.Pack.Head.SupplID);
 		while(GoodsBasketItemDialog(p_item, R_Data) > 0)

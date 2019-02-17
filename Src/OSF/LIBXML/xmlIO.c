@@ -803,7 +803,7 @@ static void * xmlFileOpen_real(const char * filename)
 		return 0;
 	if(sstreq(filename, "-")) {
 		fd = stdin;
-		return (void*)fd;
+		return (void *)fd;
 	}
 	if(!xmlStrncasecmp(BAD_CAST filename, BAD_CAST "file://localhost/", 17)) {
 #if defined (_WIN32) || defined (__DJGPP__) && !defined(__CYGWIN__)
@@ -836,7 +836,7 @@ static void * xmlFileOpen_real(const char * filename)
 #endif /* WIN32 */
 	if(fd == NULL)
 		xmlIOErr(0, path);
-	return (void*)fd;
+	return (void *)fd;
 }
 
 /**
@@ -877,7 +877,7 @@ static void * xmlFileOpenW(const char * filename)
 	FILE * fd;
 	if(sstreq(filename, "-")) {
 		fd = stdout;
-		return (void*)fd;
+		return (void *)fd;
 	}
 	if(!xmlStrncasecmp(BAD_CAST filename, BAD_CAST "file://localhost/", 17))
 #if defined (_WIN32) || defined (__DJGPP__) && !defined(__CYGWIN__)
@@ -903,7 +903,7 @@ static void * xmlFileOpenW(const char * filename)
 #endif /* WIN32 */
 	if(fd == NULL)
 		xmlIOErr(0, path);
-	return (void*)fd;
+	return (void *)fd;
 }
 
 #endif /* LIBXML_OUTPUT_ENABLED */
@@ -1058,7 +1058,7 @@ static void * xmlGzfileOpen_real(const char * filename)
 		if(fd == Z_NULL && duped_fd >= 0) {
 			close(duped_fd); /* gzdOpen() does not close on failure */
 		}
-		return (void*)fd;
+		return (void *)fd;
 	}
 	if(!xmlStrncasecmp(BAD_CAST filename, BAD_CAST "file://localhost/", 17))
 #if defined (_WIN32) || defined (__DJGPP__) && !defined(__CYGWIN__)
@@ -1084,7 +1084,7 @@ static void * xmlGzfileOpen_real(const char * filename)
 #else
 	fd = gzopen(path, "rb");
 #endif
-	return (void*)fd;
+	return (void *)fd;
 }
 
 /**
@@ -1130,7 +1130,7 @@ static void * xmlGzfileOpenW(const char * filename, int compression)
 		if(fd == Z_NULL && duped_fd >= 0) {
 			close(duped_fd); /* gzdOpen() does not close on failure */
 		}
-		return (void*)fd;
+		return (void *)fd;
 	}
 	if(!xmlStrncasecmp(BAD_CAST filename, BAD_CAST "file://localhost/", 17))
 #if defined (_WIN32) || defined (__DJGPP__) && !defined(__CYGWIN__)
@@ -1154,7 +1154,7 @@ static void * xmlGzfileOpenW(const char * filename, int compression)
 #else
 	fd = gzopen(path, mode);
 #endif
-	return (void*)fd;
+	return (void *)fd;
 }
 
 #endif /* LIBXML_OUTPUT_ENABLED */
@@ -1249,7 +1249,7 @@ static void * xmlXzfileOpen_real(const char * filename)
 	xzFile fd;
 	if(sstreq(filename, "-")) {
 		fd = __libxml2_xzdopen(dup(fileno(stdin)), "rb");
-		return (void*)fd;
+		return (void *)fd;
 	}
 	if(!xmlStrncasecmp(BAD_CAST filename, BAD_CAST "file://localhost/", 17)) {
 		path = &filename[16];
@@ -1267,7 +1267,7 @@ static void * xmlXzfileOpen_real(const char * filename)
 	if(!xmlCheckFilename(path))
 		return 0;
 	fd = __libxml2_xzopen(path, "rb");
-	return (void*)fd;
+	return (void *)fd;
 }
 
 /**
@@ -2157,7 +2157,7 @@ xmlParserInputBuffer * xmlAllocParserInputBuffer(xmlCharEncoding enc)
 		xmlIOErrMemory("creating input buffer");
 	}
 	else {
-		memzero(ret, (size_t)sizeof(xmlParserInputBuffer));
+		memzero(ret, sizeof(xmlParserInputBuffer));
 		ret->buffer = xmlBufCreateSize(2 * xmlDefaultBufferSize);
 		if(!ret->buffer) {
 			SAlloc::F(ret);
@@ -2232,7 +2232,7 @@ xmlOutputBuffer * xmlAllocOutputBufferInternal(xmlCharEncodingHandler * encoder)
 		xmlIOErrMemory("creating output buffer");
 		return 0;
 	}
-	memzero(ret, (size_t)sizeof(xmlOutputBuffer));
+	memzero(ret, sizeof(xmlOutputBuffer));
 	ret->buffer = xmlBufCreate();
 	if(!ret->buffer) {
 		SAlloc::F(ret);
@@ -2664,7 +2664,7 @@ xmlParserInputBuffer * xmlParserInputBufferCreateFd(int fd, xmlCharEncoding enc)
 	if(fd >= 0) {
 		ret = xmlAllocParserInputBuffer(enc);
 		if(ret) {
-			ret->context = (void*)(long)fd;
+			ret->context = (void *)(long)fd;
 			ret->readcallback = xmlFdRead;
 			ret->closecallback = xmlFdClose;
 		}
@@ -2689,7 +2689,7 @@ xmlParserInputBuffer * xmlParserInputBufferCreateMem(const char * mem, int size,
 	if(size > 0 && mem) {
 		ret = xmlAllocParserInputBuffer(enc);
 		if(ret) {
-			ret->context = (void*)mem;
+			ret->context = (void *)mem;
 			ret->readcallback = (xmlInputReadCallback)xmlNop;
 			ret->closecallback = NULL;
 			int errcode = xmlBufAdd(ret->buffer, (const xmlChar*)mem, size);
@@ -2722,8 +2722,8 @@ xmlParserInputBuffer * xmlParserInputBufferCreateStatic(const char * mem, int si
 			xmlIOErrMemory("creating input buffer");
 		}
 		else {
-			memzero(ret, (size_t)sizeof(xmlParserInputBuffer));
-			ret->buffer = xmlBufCreateStatic((void*)mem, (size_t)size);
+			memzero(ret, sizeof(xmlParserInputBuffer));
+			ret->buffer = xmlBufCreateStatic((void *)mem, (size_t)size);
 			if(!ret->buffer) {
 				ZFREE(ret);
 			}
@@ -2731,7 +2731,7 @@ xmlParserInputBuffer * xmlParserInputBufferCreateStatic(const char * mem, int si
 				ret->encoder = xmlGetCharEncodingHandler(enc);
 				ret->raw = ret->encoder ? xmlBufCreateSize(2 * xmlDefaultBufferSize) : 0;
 				ret->compressed = -1;
-				ret->context = (void*)mem;
+				ret->context = (void *)mem;
 				ret->readcallback = NULL;
 				ret->closecallback = NULL;
 			}
@@ -2757,7 +2757,7 @@ xmlOutputBuffer * xmlOutputBufferCreateFd(int fd, xmlCharEncodingHandler * encod
 	if(fd >= 0) {
 		ret = xmlAllocOutputBufferInternal(encoder);
 		if(ret) {
-			ret->context = (void*)(long)fd;
+			ret->context = (void *)(long)fd;
 			ret->writecallback = xmlFdWrite;
 			ret->closecallback = NULL;
 		}
@@ -2785,7 +2785,7 @@ xmlParserInputBuffer * xmlParserInputBufferCreateIO(xmlInputReadCallback ioread,
 	if(ioread) {
 		ret = xmlAllocParserInputBuffer(enc);
 		if(ret) {
-			ret->context = (void*)ioctx;
+			ret->context = (void *)ioctx;
 			ret->readcallback = ioread;
 			ret->closecallback = ioclose;
 		}
@@ -2812,7 +2812,7 @@ xmlOutputBuffer * xmlOutputBufferCreateIO(xmlOutputWriteCallback iowrite, xmlOut
 	if(iowrite) {
 		ret = xmlAllocOutputBufferInternal(encoder);
 		if(ret) {
-			ret->context = (void*)ioctx;
+			ret->context = (void *)ioctx;
 			ret->writecallback = iowrite;
 			ret->closecallback = ioclose;
 		}

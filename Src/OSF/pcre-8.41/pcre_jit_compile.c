@@ -2271,7 +2271,7 @@ static sljit_uw * allocate_read_only_data(compiler_common * common, sljit_uw siz
 	}
 
 	*(void**)result = common->read_only_data_head;
-	common->read_only_data_head = (void*)result;
+	common->read_only_data_head = (void *)result;
 	return result + 1;
 }
 

@@ -287,7 +287,7 @@ static int xmlModulePlatformSymbol(void * handle, const char * name, void ** sym
  */
 static void * xmlModulePlatformOpen(const char * name)
 {
-	return (void*)load_add_on(name);
+	return (void *)load_add_on(name);
 }
 /*
  * xmlModulePlatformClose:

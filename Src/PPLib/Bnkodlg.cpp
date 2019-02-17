@@ -267,7 +267,7 @@ IMPL_HANDLE_EVENT(BankingOrderDialog)
 	else if(event.isCbSelected(CTLSEL_BNKPAYM_RCVRACC))
 		setupBnkAcc(1, getCtrlLong(CTLSEL_BNKPAYM_RCVRACC));
 	else if(TVCOMMAND && TVCMD == cmCtlColor) {
-		TDrawCtrlData * p_dc = (TDrawCtrlData *)TVINFOPTR;
+		TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 		if(p_dc && oneof2(p_dc->H_Ctl, getCtrlHandle(CTL_BNKPAYM_PAYERACC), getCtrlHandle(CTL_BNKPAYM_RCVRACC))) {
 			int valid_code = (p_dc->H_Ctl == getCtrlHandle(CTL_BNKPAYM_PAYERACC)) ? PayerValidCode : RcvrValidCode;
 			if(valid_code > 0) {

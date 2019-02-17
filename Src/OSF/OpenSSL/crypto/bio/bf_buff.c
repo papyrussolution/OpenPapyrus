@@ -86,7 +86,7 @@ static int buffer_read(BIO * b, char * out, int outl)
 	BIO_F_BUFFER_CTX * ctx;
 	if(!out)
 		return 0;
-	ctx = (BIO_F_BUFFER_CTX*)b->ptr;
+	ctx = static_cast<BIO_F_BUFFER_CTX *>(b->ptr);
 	if(!ctx || (b->next_bio == NULL))
 		return 0;
 	num = 0;
@@ -152,7 +152,7 @@ static int buffer_write(BIO * b, const char * in, int inl)
 	BIO_F_BUFFER_CTX * ctx;
 	if(!in || (inl <= 0))
 		return 0;
-	ctx = (BIO_F_BUFFER_CTX*)b->ptr;
+	ctx = static_cast<BIO_F_BUFFER_CTX *>(b->ptr);
 	if(!ctx || (b->next_bio == NULL))
 		return 0;
 	BIO_clear_retry_flags(b);
@@ -224,7 +224,7 @@ static long buffer_ctrl(BIO * b, int cmd, long num, void * ptr)
 	char * p1, * p2;
 	int r, i, * ip;
 	int ibs, obs;
-	BIO_F_BUFFER_CTX * ctx = (BIO_F_BUFFER_CTX*)b->ptr;
+	BIO_F_BUFFER_CTX * ctx = static_cast<BIO_F_BUFFER_CTX *>(b->ptr);
 	switch(cmd) {
 		case BIO_CTRL_RESET:
 		    ctx->ibuf_off = 0;
@@ -384,7 +384,7 @@ static int buffer_gets(BIO * b, char * buf, int size)
 {
 	int num = 0, i, flag;
 	char * p;
-	BIO_F_BUFFER_CTX * ctx = (BIO_F_BUFFER_CTX*)b->ptr;
+	BIO_F_BUFFER_CTX * ctx = static_cast<BIO_F_BUFFER_CTX *>(b->ptr);
 	size--;                 /* reserve space for a '\0' */
 	BIO_clear_retry_flags(b);
 	for(;; ) {

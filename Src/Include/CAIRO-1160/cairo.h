@@ -784,59 +784,27 @@ typedef enum _cairo_line_join {
 } cairo_line_join_t;
 
 cairo_public void cairo_set_line_join(cairo_t * cr, cairo_line_join_t line_join);
-
-cairo_public void cairo_set_dash(cairo_t * cr,
-    const double * dashes,
-    int num_dashes,
-    double offset);
-
+cairo_public void cairo_set_dash(cairo_t * cr, const double * dashes, int num_dashes, double offset);
 cairo_public void cairo_set_miter_limit(cairo_t * cr, double limit);
-
 cairo_public void cairo_translate(cairo_t * cr, double tx, double ty);
-
 cairo_public void cairo_scale(cairo_t * cr, double sx, double sy);
-
 cairo_public void cairo_rotate(cairo_t * cr, double angle);
-
-cairo_public void cairo_transform(cairo_t * cr,
-    const cairo_matrix_t * matrix);
-
-cairo_public void cairo_set_matrix(cairo_t * cr,
-    const cairo_matrix_t * matrix);
-
+cairo_public void cairo_transform(cairo_t * cr, const cairo_matrix_t * matrix);
+cairo_public void cairo_set_matrix(cairo_t * cr, const cairo_matrix_t * matrix);
 cairo_public void cairo_identity_matrix(cairo_t * cr);
-
 cairo_public void cairo_user_to_device(cairo_t * cr, double * x, double * y);
-
 cairo_public void cairo_user_to_device_distance(cairo_t * cr, double * dx, double * dy);
-
 cairo_public void cairo_device_to_user(cairo_t * cr, double * x, double * y);
-
 cairo_public void cairo_device_to_user_distance(cairo_t * cr, double * dx, double * dy);
 
 /* Path creation functions */
 cairo_public void cairo_new_path(cairo_t * cr);
-
-cairo_public void cairo_move_to(cairo_t * cr, double x, double y);
-
+cairo_public void FASTCALL cairo_move_to(cairo_t * cr, double x, double y);
 cairo_public void cairo_new_sub_path(cairo_t * cr);
-
-cairo_public void cairo_line_to(cairo_t * cr, double x, double y);
-
-cairo_public void cairo_curve_to(cairo_t * cr,
-    double x1, double y1,
-    double x2, double y2,
-    double x3, double y3);
-
-cairo_public void cairo_arc(cairo_t * cr,
-    double xc, double yc,
-    double radius,
-    double angle1, double angle2);
-
-cairo_public void cairo_arc_negative(cairo_t * cr,
-    double xc, double yc,
-    double radius,
-    double angle1, double angle2);
+cairo_public void FASTCALL cairo_line_to(cairo_t * cr, double x, double y);
+cairo_public void cairo_curve_to(cairo_t * cr, double x1, double y1, double x2, double y2, double x3, double y3);
+cairo_public void cairo_arc(cairo_t * cr, double xc, double yc, double radius, double angle1, double angle2);
+cairo_public void cairo_arc_negative(cairo_t * cr, double xc, double yc, double radius, double angle1, double angle2);
 
 /* XXX: NYI
    cairo_public void
@@ -1353,7 +1321,7 @@ cairo_public void cairo_font_extents(cairo_t * cr, cairo_font_extents_t * extent
 // Generic identifier for a font style 
 //
 cairo_public cairo_font_face_t * cairo_font_face_reference(cairo_font_face_t * font_face);
-cairo_public void cairo_font_face_destroy(cairo_font_face_t * font_face);
+cairo_public void FASTCALL cairo_font_face_destroy(cairo_font_face_t * font_face);
 cairo_public uint cairo_font_face_get_reference_count(cairo_font_face_t * font_face);
 cairo_public cairo_status_t cairo_font_face_status(cairo_font_face_t * font_face);
 /**
@@ -1670,7 +1638,7 @@ cairo_public cairo_line_join_t cairo_get_line_join(cairo_t * cr);
 cairo_public double cairo_get_miter_limit(cairo_t * cr);
 cairo_public int cairo_get_dash_count(cairo_t * cr);
 cairo_public void cairo_get_dash(cairo_t * cr, double * dashes, double * offset);
-cairo_public void cairo_get_matrix(cairo_t * cr, cairo_matrix_t * matrix);
+cairo_public void FASTCALL cairo_get_matrix(cairo_t * cr, cairo_matrix_t * matrix);
 cairo_public cairo_surface_t * cairo_get_target(cairo_t * cr);
 cairo_public cairo_surface_t * cairo_get_group_target(cairo_t * cr);
 
@@ -1807,7 +1775,7 @@ cairo_public void cairo_path_destroy(cairo_path_t * path);
 
 /* Error status queries */
 
-cairo_public cairo_status_t cairo_status(cairo_t * cr);
+cairo_public cairo_status_t FASTCALL cairo_status(const cairo_t * cr);
 cairo_public const char * cairo_status_to_string(cairo_status_t status);
 
 /* Backend device manipulation */

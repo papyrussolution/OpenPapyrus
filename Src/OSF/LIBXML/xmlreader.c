@@ -3601,7 +3601,7 @@ int xmlTextReaderSetSchema(xmlTextReader * reader, xmlSchemaPtr schema)
 				return -1;
 			}
 			else {
-				xmlSchemaValidateSetLocator(reader->xsdValidCtxt, xmlTextReaderLocator, (void*)reader);
+				xmlSchemaValidateSetLocator(reader->xsdValidCtxt, xmlTextReaderLocator, (void *)reader);
 				if(reader->errorFunc)
 					xmlSchemaSetValidErrors(reader->xsdValidCtxt, xmlTextReaderValidityErrorRelay, xmlTextReaderValidityWarningRelay, reader);
 				if(reader->sErrorFunc)
@@ -3768,7 +3768,7 @@ static int xmlTextReaderSchemaValidateInternal(xmlTextReader * reader, const cha
 			return -1;
 		}
 	}
-	xmlSchemaValidateSetLocator(reader->xsdValidCtxt, xmlTextReaderLocator, (void*)reader);
+	xmlSchemaValidateSetLocator(reader->xsdValidCtxt, xmlTextReaderLocator, (void *)reader);
 	/*
 	 * Redirect the validation context's error channels to use
 	 * the reader channels.

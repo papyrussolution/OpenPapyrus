@@ -33,67 +33,66 @@
 __FBSDID("$FreeBSD$");
 
 #ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
+	#include <sys/param.h>
 #endif
 #ifdef HAVE_SYS_MOUNT_H
-#include <sys/mount.h>
+	#include <sys/mount.h>
 #endif
 #ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
+	#include <sys/stat.h>
 #endif
 #ifdef HAVE_SYS_STATFS_H
-#include <sys/statfs.h>
+	#include <sys/statfs.h>
 #endif
 #ifdef HAVE_SYS_STATVFS_H
-#include <sys/statvfs.h>
+	#include <sys/statvfs.h>
 #endif
 #ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
+	#include <sys/time.h>
 #endif
 #ifdef HAVE_LINUX_MAGIC_H
-#include <linux/magic.h>
+	#include <linux/magic.h>
 #endif
 #ifdef HAVE_LINUX_FS_H
-#include <linux/fs.h>
+	#include <linux/fs.h>
 #endif
 /*
  * Some Linux distributions have both linux/ext2_fs.h and ext2fs/ext2_fs.h.
  * As the include guards don't agree, the order of include is important.
  */
 #ifdef HAVE_LINUX_EXT2_FS_H
-#include <linux/ext2_fs.h>      /* for Linux file flags */
+	#include <linux/ext2_fs.h>      /* for Linux file flags */
 #endif
 #if defined(HAVE_EXT2FS_EXT2_FS_H) && !defined(__CYGWIN__)
-#include <ext2fs/ext2_fs.h>     /* Linux file flags, broken on Cygwin */
+	#include <ext2fs/ext2_fs.h>     /* Linux file flags, broken on Cygwin */
 #endif
 #ifdef HAVE_DIRECT_H
-#include <direct.h>
+	#include <direct.h>
 #endif
 #ifdef HAVE_DIRENT_H
-#include <dirent.h>
+	#include <dirent.h>
 #endif
-#ifdef HAVE_ERRNO_H
+//#ifdef HAVE_ERRNO_H
 //#include <errno.h>
-#endif
+//#endif
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
-#ifdef HAVE_LIMITS_H
+//#ifdef HAVE_LIMITS_H
 //#include <limits.h>
-#endif
-#ifdef HAVE_STDLIB_H
+//#endif
+//#ifdef HAVE_STDLIB_H
 //#include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
+//#endif
+//#ifdef HAVE_STRING_H
 //#include <string.h>
-#endif
+//#endif
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+	#include <unistd.h>
 #endif
 #ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
+	#include <sys/ioctl.h>
 #endif
-
 //#include "archive.h"
 //#include "archive_string.h"
 //#include "archive_entry.h"
@@ -103,12 +102,11 @@ __FBSDID("$FreeBSD$");
 	#error fchdir function required.
 #endif
 #ifndef O_BINARY
-#define O_BINARY        0
+	#define O_BINARY        0
 #endif
 #ifndef O_CLOEXEC
-#define O_CLOEXEC       0
+	#define O_CLOEXEC       0
 #endif
-
 /*-
  * This is a new directory-walking system that addresses a number
  * of problems I've had with fts(3).  In particular, it has no
@@ -612,12 +610,10 @@ static int setup_suitable_read_buffer(struct archive_read_disk * a)
 		}
 		cf->allocation_ptr = SAlloc::M(asize);
 		if(cf->allocation_ptr == NULL) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Couldn't allocate memory");
+			archive_set_error(&a->archive, ENOMEM, "Couldn't allocate memory");
 			a->archive.state = ARCHIVE_STATE_FATAL;
 			return (ARCHIVE_FATAL);
 		}
-
 		/*
 		 * Calculate proper address for the filesystem.
 		 */
@@ -625,7 +621,6 @@ static int setup_suitable_read_buffer(struct archive_read_disk * a)
 		s %= xfer_align;
 		if(s > 0)
 			s = xfer_align - s;
-
 		/*
 		 * Set a read buffer pointer in the proper alignment of
 		 * the current filesystem.
@@ -654,15 +649,13 @@ static int _archive_read_data_block(struct archive * _a, const void ** buff, siz
 	 */
 	if(t->entry_fd < 0) {
 		int flags = O_RDONLY | O_BINARY | O_CLOEXEC;
-
 		/*
 		 * Eliminate or reduce cache effects if we can.
 		 *
 		 * Carefully consider this to be enabled.
 		 */
 #if defined(O_DIRECT) && 0/* Disabled for now */
-		if(t->current_filesystem->xfer_align != -1 &&
-		    t->nlink == 1)
+		if(t->current_filesystem->xfer_align != -1 && t->nlink == 1)
 			flags |= O_DIRECT;
 #endif
 #if defined(O_NOATIME)
@@ -696,15 +689,13 @@ static int _archive_read_data_block(struct archive * _a, const void ** buff, siz
 	while(0);
 #endif
 		if(t->entry_fd < 0) {
-			archive_set_error(&a->archive, errno,
-			    "Couldn't open %s", tree_current_path(t));
+			archive_set_error(&a->archive, errno, "Couldn't open %s", tree_current_path(t));
 			r = ARCHIVE_FAILED;
 			tree_enter_initial_dir(t);
 			goto abort_read_data;
 		}
 		tree_enter_initial_dir(t);
 	}
-
 	/*
 	 * Allocate read buffer if not allocated.
 	 */
@@ -795,30 +786,22 @@ abort_read_data:
 	return (r);
 }
 
-static int next_entry(struct archive_read_disk * a, struct tree * t,
-    struct archive_entry * entry)
+static int next_entry(struct archive_read_disk * a, struct tree * t, struct archive_entry * entry)
 {
-	const struct stat * st; /* info to use for this entry */
-	const struct stat * lst;/* lstat() information */
+	const struct stat * st = 0; /* info to use for this entry */
+	const struct stat * lst = 0;/* lstat() information */
 	const char * name;
 	int descend, r;
-
-	st = NULL;
-	lst = NULL;
 	t->descend = 0;
 	do {
 		switch(tree_next(t)) {
 			case TREE_ERROR_FATAL:
-			    archive_set_error(&a->archive, t->tree_errno,
-				"%s: Unable to continue traversing directory tree",
-				tree_current_path(t));
+			    archive_set_error(&a->archive, t->tree_errno, "%s: Unable to continue traversing directory tree", tree_current_path(t));
 			    a->archive.state = ARCHIVE_STATE_FATAL;
 			    tree_enter_initial_dir(t);
 			    return (ARCHIVE_FATAL);
 			case TREE_ERROR_DIR:
-			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-				"%s: Couldn't visit directory",
-				tree_current_path(t));
+			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "%s: Couldn't visit directory", tree_current_path(t));
 			    tree_enter_initial_dir(t);
 			    return (ARCHIVE_FAILED);
 			case 0:
@@ -830,16 +813,13 @@ static int next_entry(struct archive_read_disk * a, struct tree * t,
 			case TREE_REGULAR:
 			    lst = tree_current_lstat(t);
 			    if(lst == NULL) {
-				    archive_set_error(&a->archive, errno,
-					"%s: Cannot stat",
-					tree_current_path(t));
+				    archive_set_error(&a->archive, errno, "%s: Cannot stat", tree_current_path(t));
 				    tree_enter_initial_dir(t);
 				    return (ARCHIVE_FAILED);
 			    }
 			    break;
 		}
 	} while(lst == NULL);
-
 #ifdef __APPLE__
 	if(a->flags & ARCHIVE_READDISK_MAC_COPYFILE) {
 		/* If we're using copyfile(), ignore "._XXX" files. */
@@ -860,18 +840,15 @@ static int next_entry(struct archive_read_disk * a, struct tree * t,
 	if(a->matching) {
 		r = archive_match_path_excluded(a->matching, entry);
 		if(r < 0) {
-			archive_set_error(&(a->archive), errno,
-			    "Failed : %s", archive_error_string(a->matching));
+			archive_set_error(&(a->archive), errno, "Failed : %s", archive_error_string(a->matching));
 			return (r);
 		}
 		if(r) {
 			if(a->excluded_cb_func)
-				a->excluded_cb_func(&(a->archive),
-				    a->excluded_cb_data, entry);
+				a->excluded_cb_func(&(a->archive), a->excluded_cb_data, entry);
 			return (ARCHIVE_RETRY);
 		}
 	}
-
 	/*
 	 * Distinguish 'L'/'P'/'H' symlink following.
 	 */
@@ -932,10 +909,7 @@ static int next_entry(struct archive_read_disk * a, struct tree * t,
 		defined(HAVE_WORKING_EXT2_IOC_GETFLAGS))
 		if(S_ISREG(st->st_mode) || S_ISDIR(st->st_mode)) {
 			int stflags;
-
-			t->entry_fd = open_on_current_dir(t,
-				tree_current_access_path(t),
-				O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+			t->entry_fd = open_on_current_dir(t, tree_current_access_path(t), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
 			__archive_ensure_cloexec_flag(t->entry_fd);
 			if(t->entry_fd >= 0) {
 				r = ioctl(t->entry_fd,
@@ -955,9 +929,7 @@ static int next_entry(struct archive_read_disk * a, struct tree * t,
 		}
 #endif
 	}
-
 	archive_entry_copy_stat(entry, st);
-
 	/* Save the times to be restored. This must be in before
 	 * calling archive_read_disk_descend() or any chance of it,
 	 * especially, invoking a callback. */
@@ -974,18 +946,15 @@ static int next_entry(struct archive_read_disk * a, struct tree * t,
 	if(a->matching) {
 		r = archive_match_time_excluded(a->matching, entry);
 		if(r < 0) {
-			archive_set_error(&(a->archive), errno,
-			    "Failed : %s", archive_error_string(a->matching));
+			archive_set_error(&(a->archive), errno, "Failed : %s", archive_error_string(a->matching));
 			return (r);
 		}
 		if(r) {
 			if(a->excluded_cb_func)
-				a->excluded_cb_func(&(a->archive),
-				    a->excluded_cb_data, entry);
+				a->excluded_cb_func(&(a->archive), a->excluded_cb_data, entry);
 			return (ARCHIVE_RETRY);
 		}
 	}
-
 	/* Lookup uname/gname */
 	name = archive_read_disk_uname(&(a->archive), archive_entry_uid(entry));
 	if(name != NULL)
@@ -993,25 +962,21 @@ static int next_entry(struct archive_read_disk * a, struct tree * t,
 	name = archive_read_disk_gname(&(a->archive), archive_entry_gid(entry));
 	if(name != NULL)
 		archive_entry_copy_gname(entry, name);
-
 	/*
 	 * Perform owner matching.
 	 */
 	if(a->matching) {
 		r = archive_match_owner_excluded(a->matching, entry);
 		if(r < 0) {
-			archive_set_error(&(a->archive), errno,
-			    "Failed : %s", archive_error_string(a->matching));
+			archive_set_error(&(a->archive), errno, "Failed : %s", archive_error_string(a->matching));
 			return (r);
 		}
 		if(r) {
 			if(a->excluded_cb_func)
-				a->excluded_cb_func(&(a->archive),
-				    a->excluded_cb_data, entry);
+				a->excluded_cb_func(&(a->archive), a->excluded_cb_data, entry);
 			return (ARCHIVE_RETRY);
 		}
 	}
-
 	/*
 	 * Invoke a meta data filter callback.
 	 */
@@ -1020,14 +985,11 @@ static int next_entry(struct archive_read_disk * a, struct tree * t,
 		    a->metadata_filter_data, entry))
 			return (ARCHIVE_RETRY);
 	}
-
 	/*
 	 * Populate the archive_entry with metadata from the disk.
 	 */
 	archive_entry_copy_sourcepath(entry, tree_current_access_path(t));
-	r = archive_read_disk_entry_from_file(&(a->archive), entry,
-		t->entry_fd, st);
-
+	r = archive_read_disk_entry_from_file(&(a->archive), entry, t->entry_fd, st);
 	return (r);
 }
 
@@ -1219,17 +1181,14 @@ int archive_read_disk_open_w(struct archive * _a, const wchar_t * pathname)
 	if(archive_string_append_from_wcs(&path, pathname,
 	    wcslen(pathname)) != 0) {
 		if(errno == ENOMEM)
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
 		else
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Can't convert a path to a char string");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Can't convert a path to a char string");
 		a->archive.state = ARCHIVE_STATE_FATAL;
 		ret = ARCHIVE_FATAL;
 	}
 	else
 		ret = _archive_read_disk_open(_a, path.s);
-
 	archive_string_free(&path);
 	return (ret);
 }
@@ -1939,16 +1898,12 @@ static int tree_dup(int fd)
 	__archive_ensure_cloexec_flag(new_fd);
 	return (new_fd);
 }
-
 /*
  * Add a directory path to the current stack.
  */
-static void tree_push(struct tree * t, const char * path, int filesystem_id,
-    int64_t dev, int64_t ino, struct restore_time * rt)
+static void tree_push(struct tree * t, const char * path, int filesystem_id, int64_t dev, int64_t ino, struct restore_time * rt)
 {
-	struct tree_entry * te;
-
-	te = SAlloc::C(1, sizeof(*te));
+	struct tree_entry * te = (struct tree_entry *)SAlloc::C(1, sizeof(*te));
 	te->next = t->stack;
 	te->parent = t->current;
 	if(te->parent)
@@ -1972,7 +1927,6 @@ static void tree_push(struct tree * t, const char * path, int filesystem_id,
 		te->restore_time.noatime = rt->noatime;
 	}
 }
-
 /*
  * Append a name to the current dir path.
  */
@@ -1996,14 +1950,13 @@ static void tree_append(struct tree * t, const char * name, size_t name_length)
 	archive_strncat(&t->path, name, name_length);
 	t->restore_time.name = t->basename;
 }
-
 /*
  * Open a directory tree for traversal.
  */
-static struct tree * tree_open(const char * path, int symlink_mode, int restore_time)                      {
+static struct tree * tree_open(const char * path, int symlink_mode, int restore_time)                      
+{
 	struct tree * t;
-
-	if((t = SAlloc::C(1, sizeof(*t))) == NULL)
+	if((t = (struct tree *)SAlloc::C(1, sizeof(*t))) == NULL)
 		return (NULL);
 	archive_string_init(&t->path);
 	archive_string_ensure(&t->path, 31);
@@ -2011,7 +1964,8 @@ static struct tree * tree_open(const char * path, int symlink_mode, int restore_
 	return (tree_reopen(t, path, restore_time));
 }
 
-static struct tree * tree_reopen(struct tree * t, const char * path, int restore_time)                       {
+static struct tree * tree_reopen(struct tree * t, const char * path, int restore_time)                       
+{
 	t->flags = (restore_time != 0) ? needsRestoreTimes : 0;
 	t->flags |= onInitialDir;
 	t->visit_type = 0;
@@ -2027,7 +1981,6 @@ static struct tree * tree_reopen(struct tree * t, const char * path, int restore
 	t->entry_eof = 0;
 	t->entry_remaining_bytes = 0;
 	t->initial_filesystem_id = -1;
-
 	/* First item is set up a lot like a symlink traversal. */
 	tree_push(t, path, 0, 0, 0, NULL);
 	t->stack->flags = needsFirstVisit;
@@ -2041,7 +1994,6 @@ static struct tree * tree_reopen(struct tree * t, const char * path, int restore
 static int tree_descent(struct tree * t)
 {
 	int flag, new_fd, r = 0;
-
 	t->dirname_length = archive_strlen(&t->path);
 	flag = O_RDONLY | O_CLOEXEC;
 #if defined(O_DIRECTORY)

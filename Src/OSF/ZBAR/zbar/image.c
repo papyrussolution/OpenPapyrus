@@ -188,7 +188,7 @@ void zbar_image_free_data(zbar_image_t * img)
 				cleanup(img);
 			}
 			else
-				SAlloc::F((void*)img->P_Data);
+				SAlloc::F((void *)img->P_Data);
 		}
 		img->P_Data = NULL;
 	}
@@ -220,7 +220,7 @@ zbar_image_t * zbar_image_copy(const zbar_image_t * src)
 	dst->datalen = src->datalen;
 	dst->P_Data = SAlloc::M(src->datalen);
 	assert(dst->P_Data);
-	memcpy((void*)dst->P_Data, src->P_Data, src->datalen);
+	memcpy((void *)dst->P_Data, src->P_Data, src->datalen);
 	dst->cleanup = zbar_image_free_data;
 	return(dst);
 }
@@ -330,7 +330,7 @@ int zbar_image_write_png(const zbar_image_t * img, const char * filename)
 	png_set_compression_level(png, 9);
 	png_set_IHDR(png, info, img->width, img->height, 8, PNG_COLOR_TYPE_GRAY,
 	    PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
-	png_set_rows(png, info, (void*)rows);
+	png_set_rows(png, info, (void *)rows);
 	png_write_png(png, info, PNG_TRANSFORM_IDENTITY, 0);
 	png_write_end(png, info);
 	rc = 0;

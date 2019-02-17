@@ -46,7 +46,7 @@ __attribute__((__unused__)) static void   _void_consume(void * p, ...)   {
 }
 
 __attribute__((__unused__)) static void * _voidp_consume(void * p, ...)   {
-	return (void*)0;
+	return (void *)0;
 }
 
 __attribute__((__unused__)) static int    _int_consume(void * p, ...)   {

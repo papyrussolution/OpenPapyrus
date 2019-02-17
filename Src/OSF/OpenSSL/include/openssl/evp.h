@@ -868,9 +868,9 @@ void EVP_PKEY_asn1_set_security_bits(EVP_PKEY_ASN1_METHOD * ameth, int (* pkey_s
 #define EVP_PKEY_OP_TYPE_CRYPT  (EVP_PKEY_OP_ENCRYPT | EVP_PKEY_OP_DECRYPT)
 #define EVP_PKEY_OP_TYPE_NOGEN  (EVP_PKEY_OP_TYPE_SIG | EVP_PKEY_OP_TYPE_CRYPT | EVP_PKEY_OP_DERIVE)
 #define EVP_PKEY_OP_TYPE_GEN    (EVP_PKEY_OP_PARAMGEN | EVP_PKEY_OP_KEYGEN)
-#define EVP_PKEY_CTX_set_signature_md(ctx, md) EVP_PKEY_CTX_ctrl(ctx, -1, EVP_PKEY_OP_TYPE_SIG, EVP_PKEY_CTRL_MD, 0, (void*)md)
-#define EVP_PKEY_CTX_get_signature_md(ctx, pmd) EVP_PKEY_CTX_ctrl(ctx, -1, EVP_PKEY_OP_TYPE_SIG, EVP_PKEY_CTRL_GET_MD, 0, (void*)pmd)
-#define EVP_PKEY_CTX_set_mac_key(ctx, key, len) EVP_PKEY_CTX_ctrl(ctx, -1, EVP_PKEY_OP_KEYGEN, EVP_PKEY_CTRL_SET_MAC_KEY, len, (void*)key)
+#define EVP_PKEY_CTX_set_signature_md(ctx, md) EVP_PKEY_CTX_ctrl(ctx, -1, EVP_PKEY_OP_TYPE_SIG, EVP_PKEY_CTRL_MD, 0, (void *)md)
+#define EVP_PKEY_CTX_get_signature_md(ctx, pmd) EVP_PKEY_CTX_ctrl(ctx, -1, EVP_PKEY_OP_TYPE_SIG, EVP_PKEY_CTRL_GET_MD, 0, (void *)pmd)
+#define EVP_PKEY_CTX_set_mac_key(ctx, key, len) EVP_PKEY_CTX_ctrl(ctx, -1, EVP_PKEY_OP_KEYGEN, EVP_PKEY_CTRL_SET_MAC_KEY, len, (void *)key)
 
 #define EVP_PKEY_CTRL_MD                1
 #define EVP_PKEY_CTRL_PEER_KEY          2

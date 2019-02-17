@@ -330,7 +330,7 @@ static size_t htmlBufNodeDumpFormat(xmlBufPtr buf, xmlDoc * doc, xmlNodePtr cur,
 		if(!outbuf)
 			htmlSaveErrMemory("allocating HTML output buffer");
 		else {
-			memzero(outbuf, (size_t)sizeof(xmlOutputBuffer));
+			memzero(outbuf, sizeof(xmlOutputBuffer));
 			outbuf->buffer = buf;
 			outbuf->encoder = NULL;
 			outbuf->writecallback = NULL;

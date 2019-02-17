@@ -552,7 +552,7 @@ int SLAPI BillPrelude(const PPIDArray * pOpList, uint opklFlags, PPID linkOpID, 
 	TDialog * dlg = new BillPreludeDialog();
 	if(CheckDialogPtrErr(&dlg)) {
 		PPObjOprKind op_obj;
-		SmartListBox * p_listbox = (SmartListBox*)dlg->getCtrlView(CTL_BILLPRELUDE_OPLIST);
+		SmartListBox * p_listbox = static_cast<SmartListBox *>(dlg->getCtrlView(CTL_BILLPRELUDE_OPLIST));
 		p_listbox->setDef(new StrAssocListBoxDef(op_obj.MakeOprKindList(linkOpID, pOpList, opklFlags), lbtDblClkNotify|lbtFocNotify|lbtDisposeData));
 		if(op_id)
 			p_listbox->search(&op_id, 0, srchFirst | lbSrchByID);
@@ -1970,7 +1970,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 				break;
 			case cmCtlColor:
 				{
-					TDrawCtrlData * p_dc = (TDrawCtrlData *)TVINFOPTR;
+					TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 					if(p_dc) {
 						if(getCtrlHandle(CTL_BILL_PAYDATE) == p_dc->H_Ctl) {
 							if(PaymTerm >= 0) {
@@ -2276,7 +2276,7 @@ void BillDialog::ReplyCntragntSelection(int force)
 			TDialog * dlg = new TDialog(DLG_EXPIRYREG);
 			if(CheckDialogPtr(&dlg)) {
 				SetupStrListBox(dlg, CTL_EXPIRYREG_LIST);
-				SmartListBox * p_list = (SmartListBox *)dlg->getCtrlView(CTL_EXPIRYREG_LIST);
+				SmartListBox * p_list = static_cast<SmartListBox *>(dlg->getCtrlView(CTL_EXPIRYREG_LIST));
 				if(p_list) {
 					p_list->freeAll();
 					for(uint i = 0; i < sob.RegInfoList.getCount(); i++) {

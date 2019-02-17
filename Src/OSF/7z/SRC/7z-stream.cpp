@@ -21,7 +21,7 @@ HRESULT ReadStream(ISequentialInStream * stream, void * data, size_t * processed
 		uint32 processedSizeLoc;
 		HRESULT res = stream->Read(data, curSize, &processedSizeLoc);
 		*processedSize += processedSizeLoc;
-		data = (void*)((Byte*)data + processedSizeLoc);
+		data = (void *)((Byte*)data + processedSizeLoc);
 		size -= processedSizeLoc;
 		RINOK(res);
 		if(processedSizeLoc == 0)
@@ -250,7 +250,7 @@ STDMETHODIMP CCachedInStream::Read(void * data, uint32 size, uint32 * processedS
 			memcpy(data, p + offset, cur);
 			if(processedSize)
 				*processedSize += cur;
-			data = (void*)((const Byte*)data + cur);
+			data = (void *)((const Byte*)data + cur);
 			_pos += cur;
 			size -= cur;
 		}

@@ -501,15 +501,15 @@ static int OJPEGVGetField(TIFF* tif, uint32 tag, va_list ap)
 		    break;
 		case TIFFTAG_JPEGQTABLES:
 		    *va_arg(ap, uint32*) = (uint32)sp->qtable_offset_count;
-		    *va_arg(ap, void**) = (void*)sp->qtable_offset;
+		    *va_arg(ap, void**) = (void *)sp->qtable_offset;
 		    break;
 		case TIFFTAG_JPEGDCTABLES:
 		    *va_arg(ap, uint32*) = (uint32)sp->dctable_offset_count;
-		    *va_arg(ap, void**) = (void*)sp->dctable_offset;
+		    *va_arg(ap, void**) = (void *)sp->dctable_offset;
 		    break;
 		case TIFFTAG_JPEGACTABLES:
 		    *va_arg(ap, uint32*) = (uint32)sp->actable_offset_count;
-		    *va_arg(ap, void**) = (void*)sp->actable_offset;
+		    *va_arg(ap, void**) = (void *)sp->actable_offset;
 		    break;
 		case TIFFTAG_JPEGPROC:
 		    *va_arg(ap, uint16*) = (uint16)sp->jpeg_proc;
@@ -1133,7 +1133,7 @@ static int OJPEGWriteHeaderInfo(TIFF* tif)
 	sp->libjpeg_jpeg_error_mgr.output_message = OJPEGLibjpegJpegErrorMgrOutputMessage;
 	sp->libjpeg_jpeg_error_mgr.error_exit = OJPEGLibjpegJpegErrorMgrErrorExit;
 	sp->libjpeg_jpeg_decompress_struct.err = &(sp->libjpeg_jpeg_error_mgr);
-	sp->libjpeg_jpeg_decompress_struct.client_data = (void*)tif;
+	sp->libjpeg_jpeg_decompress_struct.client_data = (void *)tif;
 	if(jpeg_create_decompress_encap(sp, &(sp->libjpeg_jpeg_decompress_struct))==0)
 		return 0;
 	sp->libjpeg_session_active = 1;
@@ -2081,7 +2081,7 @@ static void OJPEGWriteStreamSoi(TIFF* tif, void** mem, uint32* len)
 	sp->out_buffer[0] = 255;
 	sp->out_buffer[1] = JPEG_MARKER_SOI;
 	*len = 2;
-	*mem = (void*)sp->out_buffer;
+	*mem = (void *)sp->out_buffer;
 	sp->out_state++;
 }
 
@@ -2089,7 +2089,7 @@ static void OJPEGWriteStreamQTable(TIFF* tif, uint8 table_index, void** mem, uin
 {
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	if(sp->qtable[table_index]!=0) {
-		*mem = (void*)(sp->qtable[table_index]+sizeof(uint32));
+		*mem = (void *)(sp->qtable[table_index]+sizeof(uint32));
 		*len = *((uint32*)sp->qtable[table_index])-sizeof(uint32);
 	}
 	sp->out_state++;
@@ -2099,7 +2099,7 @@ static void OJPEGWriteStreamDcTable(TIFF* tif, uint8 table_index, void** mem, ui
 {
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	if(sp->dctable[table_index]!=0) {
-		*mem = (void*)(sp->dctable[table_index]+sizeof(uint32));
+		*mem = (void *)(sp->dctable[table_index]+sizeof(uint32));
 		*len = *((uint32*)sp->dctable[table_index])-sizeof(uint32);
 	}
 	sp->out_state++;
@@ -2109,7 +2109,7 @@ static void OJPEGWriteStreamAcTable(TIFF* tif, uint8 table_index, void** mem, ui
 {
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	if(sp->actable[table_index]!=0) {
-		*mem = (void*)(sp->actable[table_index]+sizeof(uint32));
+		*mem = (void *)(sp->actable[table_index]+sizeof(uint32));
 		*len = *((uint32*)sp->actable[table_index])-sizeof(uint32);
 	}
 	sp->out_state++;
@@ -2127,7 +2127,7 @@ static void OJPEGWriteStreamDri(TIFF* tif, void** mem, uint32* len)
 		sp->out_buffer[4] = (sp->restart_interval>>8);
 		sp->out_buffer[5] = (sp->restart_interval&255);
 		*len = 6;
-		*mem = (void*)sp->out_buffer;
+		*mem = (void *)sp->out_buffer;
 	}
 	sp->out_state++;
 }
@@ -2162,7 +2162,7 @@ static void OJPEGWriteStreamSof(TIFF* tif, void** mem, uint32* len)
 		sp->out_buffer[10+m*3+2] = sp->sof_tq[sp->plane_sample_offset+m];
 	}
 	*len = 10+sp->samples_per_pixel_per_plane*3;
-	*mem = (void*)sp->out_buffer;
+	*mem = (void *)sp->out_buffer;
 	sp->out_state++;
 }
 
@@ -2192,7 +2192,7 @@ static void OJPEGWriteStreamSos(TIFF* tif, void** mem, uint32* len)
 	/* Ah and Al */
 	sp->out_buffer[5+sp->samples_per_pixel_per_plane*2+2] = 0;
 	*len = 8+sp->samples_per_pixel_per_plane*2;
-	*mem = (void*)sp->out_buffer;
+	*mem = (void *)sp->out_buffer;
 	sp->out_state++;
 }
 
@@ -2205,7 +2205,7 @@ static int OJPEGWriteStreamCompressed(TIFF* tif, void** mem, uint32* len)
 		assert(sp->in_buffer_togo>0);
 	}
 	*len = sp->in_buffer_togo;
-	*mem = (void*)sp->in_buffer_cur;
+	*mem = (void *)sp->in_buffer_cur;
 	sp->in_buffer_togo = 0;
 	if(sp->in_buffer_file_togo==0) {
 		switch(sp->in_buffer_source) {
@@ -2235,7 +2235,7 @@ static void OJPEGWriteStreamRst(TIFF* tif, void** mem, uint32* len)
 	if(sp->restart_index==8)
 		sp->restart_index = 0;
 	*len = 2;
-	*mem = (void*)sp->out_buffer;
+	*mem = (void *)sp->out_buffer;
 	sp->out_state = ososCompressed;
 }
 
@@ -2246,7 +2246,7 @@ static void OJPEGWriteStreamEoi(TIFF* tif, void** mem, uint32* len)
 	sp->out_buffer[0] = 255;
 	sp->out_buffer[1] = JPEG_MARKER_EOI;
 	*len = 2;
-	*mem = (void*)sp->out_buffer;
+	*mem = (void *)sp->out_buffer;
 }
 
 #ifndef LIBJPEG_ENCAP_EXTERNAL

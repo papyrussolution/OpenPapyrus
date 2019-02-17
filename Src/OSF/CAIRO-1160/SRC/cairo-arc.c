@@ -87,17 +87,14 @@ static double _arc_max_angle_for_tolerance_normalized(double tolerance)
 		{ M_PI / 11.0,  9.81410988043554039085e-09 },
 	};
 	int table_size = ARRAY_LENGTH(table);
-
 	for(i = 0; i < table_size; i++)
 		if(table[i].error < tolerance)
 			return table[i].angle;
-
 	++i;
 	do {
 		angle = M_PI / i++;
 		error = _arc_error_normalized(angle);
 	} while(error > tolerance);
-
 	return angle;
 }
 
@@ -107,7 +104,7 @@ static int _arc_segments_needed(double angle, double radius, cairo_matrix_t * ct
 	 * major axis of the circle; see cairo-pen.c for a more detailed analysis of this. */
 	double major_axis = _cairo_matrix_transformed_circle_major_axis(ctm, radius);
 	double max_angle = _arc_max_angle_for_tolerance_normalized(tolerance / major_axis);
-	return (int)(ceil(fabs(angle) / max_angle));
+	return fceili(fabs(angle) / max_angle);
 }
 
 /* We want to draw a single spline approximating a circular arc radius
@@ -162,88 +159,52 @@ static void _cairo_arc_segment(cairo_t * cr,
 	    yc + r_sin_B);
 }
 
-static void _cairo_arc_in_direction(cairo_t * cr,
-    double xc,
-    double yc,
-    double radius,
-    double angle_min,
-    double angle_max,
-    cairo_direction_t dir)
+static void FASTCALL _cairo_arc_in_direction(cairo_t * cr, double xc, double yc, double radius, double angle_min, double angle_max, cairo_direction_t dir)
 {
 	if(cairo_status(cr))
 		return;
-
 	assert(angle_max >= angle_min);
-
 	if(angle_max - angle_min > 2 * M_PI * MAX_FULL_CIRCLES) {
 		angle_max = fmod(angle_max - angle_min, 2 * M_PI);
 		angle_min = fmod(angle_min, 2 * M_PI);
 		angle_max += angle_min + 2 * M_PI * MAX_FULL_CIRCLES;
 	}
-
 	/* Recurse if drawing arc larger than pi */
 	if(angle_max - angle_min > M_PI) {
 		double angle_mid = angle_min + (angle_max - angle_min) / 2.0;
 		if(dir == CAIRO_DIRECTION_FORWARD) {
-			_cairo_arc_in_direction(cr, xc, yc, radius,
-			    angle_min, angle_mid,
-			    dir);
-
-			_cairo_arc_in_direction(cr, xc, yc, radius,
-			    angle_mid, angle_max,
-			    dir);
+			_cairo_arc_in_direction(cr, xc, yc, radius, angle_min, angle_mid, dir);
+			_cairo_arc_in_direction(cr, xc, yc, radius, angle_mid, angle_max, dir);
 		}
 		else {
-			_cairo_arc_in_direction(cr, xc, yc, radius,
-			    angle_mid, angle_max,
-			    dir);
-
-			_cairo_arc_in_direction(cr, xc, yc, radius,
-			    angle_min, angle_mid,
-			    dir);
+			_cairo_arc_in_direction(cr, xc, yc, radius, angle_mid, angle_max, dir);
+			_cairo_arc_in_direction(cr, xc, yc, radius, angle_min, angle_mid, dir);
 		}
 	}
 	else if(angle_max != angle_min) {
 		cairo_matrix_t ctm;
 		int i, segments;
 		double step;
-
 		cairo_get_matrix(cr, &ctm);
-		segments = _arc_segments_needed(angle_max - angle_min,
-			radius, &ctm,
-			cairo_get_tolerance(cr));
+		segments = _arc_segments_needed(angle_max - angle_min, radius, &ctm, cairo_get_tolerance(cr));
 		step = (angle_max - angle_min) / segments;
 		segments -= 1;
-
 		if(dir == CAIRO_DIRECTION_REVERSE) {
-			double t;
-
-			t = angle_min;
+			double t = angle_min;
 			angle_min = angle_max;
 			angle_max = t;
-
 			step = -step;
 		}
-
-		cairo_line_to(cr,
-		    xc + radius * cos(angle_min),
-		    yc + radius * sin(angle_min));
-
+		cairo_line_to(cr, xc + radius * cos(angle_min), yc + radius * sin(angle_min));
 		for(i = 0; i < segments; i++, angle_min += step) {
-			_cairo_arc_segment(cr, xc, yc, radius,
-			    angle_min, angle_min + step);
+			_cairo_arc_segment(cr, xc, yc, radius, angle_min, angle_min + step);
 		}
-
-		_cairo_arc_segment(cr, xc, yc, radius,
-		    angle_min, angle_max);
+		_cairo_arc_segment(cr, xc, yc, radius, angle_min, angle_max);
 	}
 	else {
-		cairo_line_to(cr,
-		    xc + radius * cos(angle_min),
-		    yc + radius * sin(angle_min));
+		cairo_line_to(cr, xc + radius * cos(angle_min), yc + radius * sin(angle_min));
 	}
 }
-
 /**
  * _cairo_arc_path:
  * @cr: a cairo context
@@ -257,19 +218,10 @@ static void _cairo_arc_in_direction(cairo_t * cr,
  * path within @cr. The arc will be accurate within the current
  * tolerance and given the current transformation.
  **/
-void _cairo_arc_path(cairo_t * cr,
-    double xc,
-    double yc,
-    double radius,
-    double angle1,
-    double angle2)
+void _cairo_arc_path(cairo_t * cr, double xc, double yc, double radius, double angle1, double angle2)
 {
-	_cairo_arc_in_direction(cr, xc, yc,
-	    radius,
-	    angle1, angle2,
-	    CAIRO_DIRECTION_FORWARD);
+	_cairo_arc_in_direction(cr, xc, yc, radius, angle1, angle2, CAIRO_DIRECTION_FORWARD);
 }
-
 /**
  * _cairo_arc_path_negative:
  * @xc: X position of the center of the arc
@@ -286,15 +238,7 @@ void _cairo_arc_path(cairo_t * cr,
  * will be accurate within the current tolerance and given the current
  * transformation.
  **/
-void _cairo_arc_path_negative(cairo_t * cr,
-    double xc,
-    double yc,
-    double radius,
-    double angle1,
-    double angle2)
+void _cairo_arc_path_negative(cairo_t * cr, double xc, double yc, double radius, double angle1, double angle2)
 {
-	_cairo_arc_in_direction(cr, xc, yc,
-	    radius,
-	    angle2, angle1,
-	    CAIRO_DIRECTION_REVERSE);
+	_cairo_arc_in_direction(cr, xc, yc, radius, angle2, angle1, CAIRO_DIRECTION_REVERSE);
 }

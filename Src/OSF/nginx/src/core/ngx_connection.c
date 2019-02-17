@@ -174,7 +174,7 @@ ngx_int_t ngx_set_inherited_sockets(ngx_cycle_t * cycle)
 		/* SO_SETFIB is currently a set only option */
 #if (NGX_HAVE_SETFIB)
 		olen = sizeof(int);
-		if(getsockopt(ls[i].fd, SOL_SOCKET, SO_SETFIB, (void*)&ls[i].setfib, &olen) == -1) {
+		if(getsockopt(ls[i].fd, SOL_SOCKET, SO_SETFIB, (void *)&ls[i].setfib, &olen) == -1) {
 			ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_socket_errno, "getsockopt(SO_SETFIB) %V failed, ignored", &ls[i].addr_text);
 			ls[i].setfib = -1;
 		}
@@ -183,7 +183,7 @@ ngx_int_t ngx_set_inherited_sockets(ngx_cycle_t * cycle)
 #if (NGX_HAVE_REUSEPORT)
 		reuseport = 0;
 		olen = sizeof(int);
-		if(getsockopt(ls[i].fd, SOL_SOCKET, SO_REUSEPORT, (void*)&reuseport, &olen) == -1) {
+		if(getsockopt(ls[i].fd, SOL_SOCKET, SO_REUSEPORT, (void *)&reuseport, &olen) == -1) {
 			ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_socket_errno, "getsockopt(SO_REUSEPORT) %V failed, ignored", &ls[i].addr_text);
 		}
 		else {
@@ -195,7 +195,7 @@ ngx_int_t ngx_set_inherited_sockets(ngx_cycle_t * cycle)
 		}
 #if (NGX_HAVE_TCP_FASTOPEN)
 		olen = sizeof(int);
-		if(getsockopt(ls[i].fd, IPPROTO_TCP, TCP_FASTOPEN, (void*)&ls[i].fastopen, &olen) == -1) {
+		if(getsockopt(ls[i].fd, IPPROTO_TCP, TCP_FASTOPEN, (void *)&ls[i].fastopen, &olen) == -1) {
 			err = ngx_socket_errno;
 			if(err != NGX_EOPNOTSUPP && err != NGX_ENOPROTOOPT) {
 				ngx_log_error(NGX_LOG_NOTICE, cycle->log, err, "getsockopt(TCP_FASTOPEN) %V failed, ignored", &ls[i].addr_text);

@@ -3235,6 +3235,9 @@ struct Sdr_QuotVal {
 	#define PPFLD_GOODS2_EXPIRYFROMCURDT               73
 	#define PPFLD_GOODS2_FORCEREPLACE                  74
 	#define PPFLD_GOODS2_EGAISCODE                     75
+	#define PPFLD_GOODS2_FLGPASSIVE                    76
+	#define PPFLD_GOODS2_FLGNODISCOUNT                 77
+	#define PPFLD_GOODS2_FLGWANTVETISCERT              78
 
 struct Sdr_Goods2 {
 	char   Code[32];
@@ -3312,6 +3315,9 @@ struct Sdr_Goods2 {
 	int32  ExpiryFromCurDt;
 	char   ForceReplace[12];
 	char   EgaisCode[24];
+	char   FlgPassive[8];
+	char   FlgNoDiscount[8];
+	char   FlgWantVetisCert[8];
 };
 
 #define PPREC_PERSON                        45

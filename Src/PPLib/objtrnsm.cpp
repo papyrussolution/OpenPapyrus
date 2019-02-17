@@ -288,7 +288,7 @@ int SLAPI ObjTransmitParam::Read(SBuffer & rBuf, long)
 	if(rBuf.GetAvailableSize()) {
 		PPIDArray dbdiv_list, obj_list;
 		if(rBuf.Read(&dbdiv_list, 0) && rBuf.Read(&obj_list, 0) && rBuf.Read(Since_) &&
-			rBuf.Read((void*)&UpdProtocol, sizeof(UpdProtocol)) && rBuf.Read(Flags) && rBuf.Read(TrnsmFlags)) {
+			rBuf.Read((void *)&UpdProtocol, sizeof(UpdProtocol)) && rBuf.Read(Flags) && rBuf.Read(TrnsmFlags)) {
 			DestDBDivList.Set(&dbdiv_list);
 			ObjList.Set(&obj_list);
 			ok = 1;
@@ -304,7 +304,7 @@ int SLAPI ObjTransmitParam::Write(SBuffer & rBuf, long) const
 	const PPIDArray * p_dbdiv_list = &DestDBDivList.Get(); // @v9.8.9 @fix SArray-->PPIDArray
 	const PPIDArray * p_obj_list = &ObjList.Get(); // @v9.8.9 @fix SArray-->PPIDArray
 	if(rBuf.Write(p_dbdiv_list, 0) && rBuf.Write(p_obj_list, 0) && rBuf.Write(Since_) &&
-		rBuf.Write((void*)&UpdProtocol, sizeof(UpdProtocol)) && rBuf.Write(Flags) && rBuf.Write(TrnsmFlags))
+		rBuf.Write((void *)&UpdProtocol, sizeof(UpdProtocol)) && rBuf.Write(Flags) && rBuf.Write(TrnsmFlags))
 		return 1;
 	else
 		return PPSetErrorSLib();

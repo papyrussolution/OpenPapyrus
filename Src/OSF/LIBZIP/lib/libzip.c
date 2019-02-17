@@ -1933,7 +1933,7 @@ ZIP_EXTERN int64 zip_source_write(zip_source_t * src, const void * data, uint64 
 	if(!ZIP_SOURCE_IS_OPEN_WRITING(src) || length > ZIP_INT64_MAX)
 		return zip_error_set(&src->error, SLERR_ZIP_INVAL, 0);
 	else
-		return _zip_source_call(src, (void*)data, length, ZIP_SOURCE_WRITE);
+		return _zip_source_call(src, (void *)data, length, ZIP_SOURCE_WRITE);
 }
 
 ZIP_EXTERN int zip_source_commit_write(zip_source_t * src)

@@ -98,7 +98,7 @@ static void mstate(struct Curl_easy * data, CURLMstate state
 		long connection_id = -5000;
 		if(data->easy_conn)
 			connection_id = data->easy_conn->connection_id;
-		infof(data, "STATE: %s => %s handle %p; line %d (connection #%ld)\n", statename[oldstate], statename[data->mstate], (void*)data, lineno, connection_id);
+		infof(data, "STATE: %s => %s handle %p; line %d (connection #%ld)\n", statename[oldstate], statename[data->mstate], (void *)data, lineno, connection_id);
 	}
 #endif
 	if(state == CURLM_STATE_COMPLETED)
@@ -393,7 +393,7 @@ CURLMcode curl_multi_add_handle(struct Curl_multi * multi, struct Curl_easy * da
 static void debug_print_sock_hash(void * p)
 {
 	struct Curl_sh_entry * sh = (struct Curl_sh_entry*)p;
-	fprintf(stderr, " [easy %p/magic %x/socket %d]", (void*)sh->data, sh->data->magic, (int)sh->socket);
+	fprintf(stderr, " [easy %p/magic %x/socket %d]", (void *)sh->data, sh->data->magic, (int)sh->socket);
 }
 
 #endif
@@ -1059,7 +1059,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi, struct timeval now, 
 		rc = CURLM_OK;
 		// Handle the case when the pipe breaks, i.e., the connection we're using gets cleaned up and we're left with nothing. 
 		if(data->state.pipe_broke) {
-			infof(data, "Pipe broke: handle %p, url = %s\n", (void*)data, data->state.path);
+			infof(data, "Pipe broke: handle %p, url = %s\n", (void *)data, data->state.path);
 			if(data->mstate < CURLM_STATE_COMPLETED) {
 				// Head back to the CONNECT state 
 				multistate(data, CURLM_STATE_CONNECT);
@@ -2490,7 +2490,7 @@ void Curl_multi_dump(struct Curl_multi * multi)
 	for(struct Curl_easy * data = multi->easyp; data; data = data->next) {
 		if(data->mstate < CURLM_STATE_COMPLETED) {
 			// only display handles that are not completed 
-			fprintf(stderr, "handle %p, state %s, %d sockets\n", (void*)data, statename[data->mstate], data->numsocks);
+			fprintf(stderr, "handle %p, state %s, %d sockets\n", (void *)data, statename[data->mstate], data->numsocks);
 			for(int i = 0; i < data->numsocks; i++) {
 				curl_socket_t s = data->sockets[i];
 				struct Curl_sh_entry * entry = sh_getentry(&multi->sockhash, s);

@@ -4312,7 +4312,7 @@ namespace NArchive {
 		HRESULT CInArchive::SortItems()
 		{
 			{
-				Items.Sort(CompareItems, (void*)this);
+				Items.Sort(CompareItems, (void *)this);
 				uint i;
 
 				for(i = 0; i + 1 < Items.Size(); i++) {

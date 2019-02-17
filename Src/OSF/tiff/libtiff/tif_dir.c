@@ -46,20 +46,20 @@ static void setByteArray(void** vpp, void* vp, size_t nmemb, size_t elem_size)
 	if(vp) {
 		tmsize_t bytes = (tmsize_t)(nmemb * elem_size);
 		if(elem_size && bytes / elem_size == nmemb)
-			*vpp = (void*)SAlloc::M(bytes);
+			*vpp = (void *)SAlloc::M(bytes);
 		if(*vpp)
 			memcpy(*vpp, vp, bytes);
 	}
 }
 
 void _TIFFsetByteArray(void** vpp, void* vp, uint32 n) { setByteArray(vpp, vp, n, 1); }
-void _TIFFsetString(char** cpp, char* cp) { setByteArray((void**)cpp, (void*)cp, strlen(cp)+1, 1); }
-static void _TIFFsetNString(char** cpp, char* cp, uint32 n) { setByteArray((void**)cpp, (void*)cp, n, 1); }
-void _TIFFsetShortArray(uint16** wpp, uint16* wp, uint32 n) { setByteArray((void**)wpp, (void*)wp, n, sizeof(uint16)); }
-void _TIFFsetLongArray(uint32** lpp, uint32* lp, uint32 n) { setByteArray((void**)lpp, (void*)lp, n, sizeof(uint32)); }
-static void _TIFFsetLong8Array(uint64** lpp, uint64* lp, uint32 n) { setByteArray((void**)lpp, (void*)lp, n, sizeof(uint64)); }
-void _TIFFsetFloatArray(float** fpp, float* fp, uint32 n) { setByteArray((void**)fpp, (void*)fp, n, sizeof(float)); }
-void _TIFFsetDoubleArray(double** dpp, double* dp, uint32 n) { setByteArray((void**)dpp, (void*)dp, n, sizeof(double)); }
+void _TIFFsetString(char** cpp, char* cp) { setByteArray((void**)cpp, (void *)cp, strlen(cp)+1, 1); }
+static void _TIFFsetNString(char** cpp, char* cp, uint32 n) { setByteArray((void**)cpp, (void *)cp, n, 1); }
+void _TIFFsetShortArray(uint16** wpp, uint16* wp, uint32 n) { setByteArray((void**)wpp, (void *)wp, n, sizeof(uint16)); }
+void _TIFFsetLongArray(uint32** lpp, uint32* lp, uint32 n) { setByteArray((void**)lpp, (void *)lp, n, sizeof(uint32)); }
+static void _TIFFsetLong8Array(uint64** lpp, uint64* lp, uint32 n) { setByteArray((void**)lpp, (void *)lp, n, sizeof(uint64)); }
+void _TIFFsetFloatArray(float** fpp, float* fp, uint32 n) { setByteArray((void**)fpp, (void *)fp, n, sizeof(float)); }
+void _TIFFsetDoubleArray(double** dpp, double* dp, uint32 n) { setByteArray((void**)dpp, (void *)dp, n, sizeof(double)); }
 
 static void setDoubleArrayOneValue(double** vpp, double value, size_t nmemb)
 {

@@ -1,5 +1,5 @@
 // SMATH.CPP
-// Copyright (c) A.Sobolev 2004, 2006, 2007, 2008, 2010, 2012, 2014, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2004, 2006, 2007, 2008, 2010, 2012, 2014, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -11,6 +11,7 @@
 
 const double SMathConst::Pi       = PI__;
 const double SMathConst::Pi2      = (PI__ * 2.0);
+const float  SMathConst::Pi2_f    = (PI__f * 2.0f);
 const float  SMathConst::Pi_f     = PI__f;
 const double SMathConst::PiDiv180 = (PI__ / 180.0);
 const float  SMathConst::PiDiv180_f = (PI__f / 180.0f);

@@ -604,7 +604,7 @@ void * SLAPI PPObjPsnOpKind::CreateObjListWin(uint flags, void * extraPtr)
 							if(id) {
 								PersonEventFilt filt;
 								filt.PsnOpList.Add(id);
-								((PPApp*)APPL)->LastCmd = TVCMD;
+								static_cast<PPApp *>(APPL)->LastCmd = TVCMD;
 								PPView::Execute(PPVIEW_PERSONEVENT, &filt, 1, 0);
 							}
 							break;

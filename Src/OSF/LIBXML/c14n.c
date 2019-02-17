@@ -204,7 +204,7 @@ static xmlC14NVisibleNsStackPtr xmlC14NVisibleNsStackCreate()
 	if(!ret)
 		xmlC14NErrMemory("creating namespaces stack");
 	else
-		memzero(ret, (size_t)sizeof(xmlC14NVisibleNsStack));
+		memzero(ret, sizeof(xmlC14NVisibleNsStack));
 	return ret;
 }
 

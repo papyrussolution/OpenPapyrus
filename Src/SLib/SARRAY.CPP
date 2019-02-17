@@ -434,7 +434,7 @@ void SLAPI SVectorBase::sort(CompFunc fcmp, void * pExtraData /*=0*/)
 // below value use insertion sort
 //
 #define CUTOFF 8         // testing shows that this is good value
-#define STKSIZ (8*sizeof(void*) - 2)
+#define STKSIZ (8*sizeof(void *) - 2)
 
 void SLAPI SVectorBase::sort2(CompFunc fcmp, void * pExtraData /*=0*/)
 {

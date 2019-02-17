@@ -174,7 +174,7 @@ int SLAPI PPObjBnkAcct::EditRecord(BankAccountTbl::Rec * pRec, PPID psnKindID)
 					drawCtrl(CTL_BACCT_ACCT);
 			}
 			else if(TVCMD == cmCtlColor) {
-				TDrawCtrlData * p_dc = (TDrawCtrlData *)TVINFOPTR;
+				TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 				if(p_dc && ValidAcc >= 0 && getCtrlHandle(CTL_BACCT_ACCT) == p_dc->H_Ctl) {
 					if(ValidAcc > 0) {
 						::SetBkMode(p_dc->H_DC, TRANSPARENT);
@@ -413,7 +413,7 @@ private:
 	{
 		int    ok = -1, valid_data = 0;
 		if(pos >= 0 && pos < (long)Data.getCount()) {
-			BankAccountTbl::Rec item = Data.at((uint)pos);
+			BankAccountTbl::Rec item = Data.at(static_cast<uint>(pos));
 			while(!valid_data && (ok = PPObjBnkAcct::EditRecord(&item, 0)) > 0) {
 				if(PPObjBnkAcct::CheckDuplicateBnkAcct(&item, &Data, pos)) {
 					valid_data = 1;
@@ -421,7 +421,7 @@ private:
 						for(uint i = 0; i < Data.getCount(); i++)
 							if(i != (uint)pos)
 								Data.at(i).Flags &= ~BACCTF_PREFERRED;
-					Data.at((uint)pos) = item;
+					Data.at(static_cast<uint>(pos)) = item;
 				}
 				else
 					ok = PPErrorZ();
@@ -432,7 +432,7 @@ private:
 	virtual int  delItem(long pos, long)
 	{
 		if(pos >= 0 && pos < (long)Data.getCount()) {
-			if(Data.at((uint)pos).ID) {
+			if(Data.at(static_cast<uint>(pos)).ID) {
 				PPObjBnkAcct ba_obj;
 				if(!ba_obj.CheckRights(PPR_DEL))
 					return PPErrorZ();

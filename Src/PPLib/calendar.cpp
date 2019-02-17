@@ -1511,7 +1511,7 @@ int ExecDateCalendar(void * hParentWnd, LDATE * pDate)
 	TDateCalendar * p_pc = new TDateCalendar(0, 0);
 	if(p_pc) {
 		p_pc->setDTS(dt);
-		p_pc->ShowCalendar((HWND)hParentWnd);
+		p_pc->ShowCalendar(static_cast<HWND>(hParentWnd));
 		if(p_pc->GetRetCmd() == cmOK) {
 			p_pc->getDTS(&dt);
 			ok = 1;

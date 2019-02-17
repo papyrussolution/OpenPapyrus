@@ -44,7 +44,7 @@ TYPEID SLAPI DBItem::stype() const
 			bt = DbqFuncTab::Get(t.function)->typ;
 			if(bt == BTS_STRING) {
 				DBConst len;
-				len.init((long)0);
+				len.init(0L);
 				((DBE *)this)->evaluate(CALC_SIZE, &len);
 				st = MKSTYPE(S_ZSTRING, (int)len.lval);
 			}
@@ -331,17 +331,17 @@ int FASTCALL DBE::push(DBItem & item)
 	int    ok = 1;
 	if(item.Id > 0) {
 		t.tag = T::fld;
-		t.field = *(DBField *)&item;
+		t.field = *static_cast<const DBField *>(&item);
 		ok = push(&t);
 	}
 	else if(item.Id == DBConst_ID) {
-		DBConst * c = (DBConst *)&item;
-		t.tag = (DBE::T::_tag)c->Tag;
+		const DBConst * c = static_cast<const DBConst *>(&item);
+		t.tag = static_cast<DBE::T::_tag>(c->Tag);
 		memcpy(&t.rval, &c->rval, sizeof(t.rval));
 		ok = push(&t);
 	}
 	else if(item.Id == DBE_ID) {
-		DBE * p_e = (DBE *)&item;
+		DBE * p_e = static_cast<DBE *>(&item);
 		for(int i = 0; ok && i < p_e->Count; i++)
 			ok = push(p_e->P_Terms+i);
 		if(!p_e->DontDestroy) {
@@ -424,24 +424,22 @@ int FASTCALL DBE::call(int option, DBConst * r)
 					c.Tag  = DBConst::tv;
 					c.tval = t->tval;
 					break;
-				// @v8.9.10 {
 				case T::ptrv:
 					c.Flags = 0;
 					c.Tag = DBConst::ptrv;
 					c.ptrval = t->ptrval;
 					break;
-				// } @v8.9.10
 				case T::fld:
 					if(!c.fromfld(t->field))
 						return 0;
 					if(option == CALC_SIZE)
 						if(c.Tag == DBConst::sp) {
-							int    len = sstrlen(c.sptr)+1;
+							const long len = sstrlen(c.sptr)+1;
 							c.destroy();
-							c.init((long)len);
+							c.init(len);
 						}
 						else
-							c.init((long)0);
+							c.init(0L);
 					break;
 				case T::func:
 					if(!call(option, &c))
@@ -542,7 +540,7 @@ int FASTCALL DBFieldList::Alloc(uint n)
 	ZFREE(P_Flds);
 	Count = 0;
 	if(n) {
-		P_Flds = (DBField *)SAlloc::M(n * sizeof(DBField));
+		P_Flds = static_cast<DBField *>(SAlloc::M(n * sizeof(DBField)));
 		if(P_Flds) {
 			Count = n;
 			memzero(P_Flds, sizeof(DBField) * Count);

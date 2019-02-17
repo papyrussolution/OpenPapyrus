@@ -342,12 +342,12 @@ typedef unsigned char pcre_uint8;
 				dest += n;
 				src += n;
 				for(i = 0; i < n; ++i) *(--dest) = *(--src);
-				return (void*)dest;
+				return (void *)dest;
 				}
 				else {
 					for(i = 0; i < n; ++i) 
 						*dest++ = *src++;
-					return (void*)(dest - n);
+					return (void *)(dest - n);
 				}
 			}
 

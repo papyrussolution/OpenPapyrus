@@ -1396,13 +1396,13 @@ PCRE_EXP_DEFN pcre32_extra * PCRE_CALL_CONVENTION pcre32_study(const pcre32 * ex
 		tables = re->tables;
 #if defined COMPILE_PCRE8
 		if(tables == NULL)
-			(void)pcre_fullinfo(external_re, NULL, PCRE_INFO_DEFAULT_TABLES, (void*)(&tables));
+			(void)pcre_fullinfo(external_re, NULL, PCRE_INFO_DEFAULT_TABLES, (void *)(&tables));
 #elif defined COMPILE_PCRE16
 		if(tables == NULL)
-			(void)pcre16_fullinfo(external_re, NULL, PCRE_INFO_DEFAULT_TABLES, (void*)(&tables));
+			(void)pcre16_fullinfo(external_re, NULL, PCRE_INFO_DEFAULT_TABLES, (void *)(&tables));
 #elif defined COMPILE_PCRE32
 		if(tables == NULL)
-			(void)pcre32_fullinfo(external_re, NULL, PCRE_INFO_DEFAULT_TABLES, (void*)(&tables));
+			(void)pcre32_fullinfo(external_re, NULL, PCRE_INFO_DEFAULT_TABLES, (void *)(&tables));
 #endif
 		compile_block.lcc = tables + lcc_offset;
 		compile_block.fcc = tables + fcc_offset;

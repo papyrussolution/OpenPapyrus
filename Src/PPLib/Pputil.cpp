@@ -1,5 +1,5 @@
 // PPUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @Kernel
 //
 #include <pp.h>
@@ -51,10 +51,8 @@ SString & SLAPI DateToStr(LDATE dt, SString & rBuf)
 {
 	rBuf.Z();
 	if(dt) {
-		//char   temp[256];//, txt_month[64];
 		SString txt_month;
 		SGetMonthText(dt.month(), MONF_CASEGEN, txt_month);
-		//sprintf(temp, "%02d %s %d £.", dt.day(), /*getMonthText(dt.month(), MONF_CASEGEN|MONF_OEM, txt_month)*/txt_month.cptr(), dt.year());
 		rBuf.CatLongZ((long)dt.day(), 2).Space().Cat(txt_month).Space().Cat(dt.year()).Space().Cat("ã.");
 		rBuf.Transf(CTRANSF_OUTER_TO_INNER);
 	}
@@ -273,7 +271,7 @@ int OptimalAmountDamper::Probe(double qtty, double price, long pos, long extPos)
 //
 //
 //
-PPDimention & PPDimention::Reset()
+PPDimention & PPDimention::Z()
 {
 	Length = 0;
 	Width = 0;

@@ -1526,7 +1526,6 @@ SString & FASTCALL SString::RevertSpecSymb(int fileFormat)
 }
 
 #if 0 // @v8.8.3 {
-
 SString & SLAPI SString::ReplaceHtmlSpecSymb()
 {
 	if(P_Buf && L > 1) {
@@ -1576,7 +1575,6 @@ SString & SLAPI SString::RevertHtmlSpecSymb()
 	}
 	return *this;
 }
-
 #endif // } 0 @v8.8.3
 
 SString & SLAPI SString::ReplaceCR()

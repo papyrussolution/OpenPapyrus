@@ -826,7 +826,7 @@ void compile(Table * table)
 				fprintf(fout, "\n\nSOAP_FMAC3 int FASTCALL soap_putheader(struct soap *soap)\n{\n\tif(soap->header) {\n\t\tsoap->part = SOAP_IN_HEADER;\n\t\tif(soap_out_SOAP_ENV__Header(soap, \"%s:Header\", 0, soap->header, NULL))\n\t\t\treturn soap->error;\n\t\tsoap->part = SOAP_END_HEADER;\n\t}\n\treturn SOAP_OK;\n}", S_SoapEnvNs);
 				fprintf(fout, "\n\nSOAP_FMAC3 int SOAP_FMAC4 soap_getheader(struct soap *soap)\n{\n\tsoap->part = SOAP_IN_HEADER;\n\tsoap->header = soap_in_SOAP_ENV__Header(soap, \"%s:Header\", NULL, NULL);\n\tsoap->part = SOAP_END_HEADER;\n\treturn soap->header == NULL;\n}", S_SoapEnvNs);
 				if(cflag) {
-					fprintf(fout, "\n\nSOAP_FMAC3 void SOAP_FMAC4 soap_header(struct soap *soap)\n{\n\tif(!soap->header) {\n\t\tif((soap->header = (struct SOAP_ENV__Header*)soap_malloc(soap, sizeof(struct SOAP_ENV__Header))))\n\t\t\tsoap_default_SOAP_ENV__Header(soap, soap->header);\n\t}\n}");
+					fprintf(fout, "\n\nSOAP_FMAC3 void SOAP_FMAC4 soap_header(struct soap *soap)\n{\n\tif(!soap->header) {\n\t\tif((soap->header = static_cast<struct SOAP_ENV__Header *>(soap_malloc(soap, sizeof(struct SOAP_ENV__Header)))))\n\t\t\tsoap_default_SOAP_ENV__Header(soap, soap->header);\n\t}\n}");
 				}
 				else if((p = entry(classtable, lookup("SOAP_ENV__Fault"))) && p->info.typ->type == Tstruct) {
 					fprintf(fout, "\n\nSOAP_FMAC3 void SOAP_FMAC4 soap_header(struct soap *soap)\n{\n\tif(!soap->header) {\n\t\tif((soap->header = soap_new_SOAP_ENV__Header(soap, -1)))\n\t\t\tsoap_default_SOAP_ENV__Header(soap, soap->header);\n\t}\n}");
@@ -834,7 +834,7 @@ void compile(Table * table)
 				else {
 					fprintf(fout, "\n\nSOAP_FMAC3 void SOAP_FMAC4 soap_header(struct soap *soap)\n{\n\tif(!soap->header) {\n\t\tif((soap->header = soap_new_SOAP_ENV__Header(soap, -1)))\n\t\t\tsoap->header->soap_default(soap);\n\t}\n}"); }
 				if(cflag) {
-					fprintf(fout, "\n\nSOAP_FMAC3 void FASTCALL soap_fault(struct soap *soap)\n{\n\tif(!soap->fault) {\n\t\tsoap->fault = (struct SOAP_ENV__Fault*)soap_malloc(soap, sizeof(struct SOAP_ENV__Fault));\n\t\tif(!soap->fault)\n\t\t\treturn;\n\t\tsoap_default_SOAP_ENV__Fault(soap, soap->fault);\n\t}\n\tif(soap->version == 2 && !soap->fault->SOAP_ENV__Code) {\n\t\tsoap->fault->SOAP_ENV__Code = (struct SOAP_ENV__Code*)soap_malloc(soap, sizeof(struct SOAP_ENV__Code));\n\t\tsoap_default_SOAP_ENV__Code(soap, soap->fault->SOAP_ENV__Code);\n\t}\n\tif(soap->version == 2 && !soap->fault->SOAP_ENV__Reason) {\n\t\tsoap->fault->SOAP_ENV__Reason = (struct SOAP_ENV__Reason*)soap_malloc(soap, sizeof(struct SOAP_ENV__Reason));\n\t\tsoap_default_SOAP_ENV__Reason(soap, soap->fault->SOAP_ENV__Reason);\n\t}\n}");
+					fprintf(fout, "\n\nSOAP_FMAC3 void FASTCALL soap_fault(struct soap *soap)\n{\n\tif(!soap->fault) {\n\t\tsoap->fault = static_cast<struct SOAP_ENV__Fault *>(soap_malloc(soap, sizeof(struct SOAP_ENV__Fault)));\n\t\tif(!soap->fault)\n\t\t\treturn;\n\t\tsoap_default_SOAP_ENV__Fault(soap, soap->fault);\n\t}\n\tif(soap->version == 2 && !soap->fault->SOAP_ENV__Code) {\n\t\tsoap->fault->SOAP_ENV__Code = (struct SOAP_ENV__Code*)soap_malloc(soap, sizeof(struct SOAP_ENV__Code));\n\t\tsoap_default_SOAP_ENV__Code(soap, soap->fault->SOAP_ENV__Code);\n\t}\n\tif(soap->version == 2 && !soap->fault->SOAP_ENV__Reason) {\n\t\tsoap->fault->SOAP_ENV__Reason = (struct SOAP_ENV__Reason*)soap_malloc(soap, sizeof(struct SOAP_ENV__Reason));\n\t\tsoap_default_SOAP_ENV__Reason(soap, soap->fault->SOAP_ENV__Reason);\n\t}\n}");
 					fprintf(fout, "\n\nSOAP_FMAC3 void SOAP_FMAC4 soap_serializefault(struct soap *soap)\n{\n\tif(soap->fault)\n\t\tsoap_serialize_SOAP_ENV__Fault(soap, soap->fault);\n}");
 				}
 				else if((p = entry(classtable, lookup("SOAP_ENV__Fault"))) && p->info.typ->type == Tstruct) {
@@ -856,17 +856,17 @@ void compile(Table * table)
 				}
 				fprintf(fout, "\n\nSOAP_FMAC3 const char ** SOAP_FMAC4 soap_faultcode(struct soap *soap)\n{\n\tsoap_fault(soap);\n\tif(soap->version == 2 && soap->fault->SOAP_ENV__Code)\n\t\treturn (const char**)&soap->fault->SOAP_ENV__Code->SOAP_ENV__Value;\n\treturn (const char**)&soap->fault->faultcode;\n}");
 				if(cflag)
-					fprintf(fout, "\n\nSOAP_FMAC3 const char ** SOAP_FMAC4 soap_faultsubcode(struct soap *soap)\n{\n\tsoap_fault(soap);\n\tif(soap->version == 2) {\n\t\tif(!soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode) {\n\t\t\tsoap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode = (struct SOAP_ENV__Code*)soap_malloc(soap, sizeof(struct SOAP_ENV__Code));\n\t\t\tsoap_default_SOAP_ENV__Code(soap, soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode);\n\t\t}\n\t\treturn (const char**)&soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode->SOAP_ENV__Value;\n\t}\n\treturn (const char**)&soap->fault->faultcode;\n}");
+					fprintf(fout, "\n\nSOAP_FMAC3 const char ** SOAP_FMAC4 soap_faultsubcode(struct soap *soap)\n{\n\tsoap_fault(soap);\n\tif(soap->version == 2) {\n\t\tif(!soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode) {\n\t\t\tsoap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode = static_cast<struct SOAP_ENV__Code *>(soap_malloc(soap, sizeof(struct SOAP_ENV__Code)));\n\t\t\tsoap_default_SOAP_ENV__Code(soap, soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode);\n\t\t}\n\t\treturn (const char**)&soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode->SOAP_ENV__Value;\n\t}\n\treturn (const char**)&soap->fault->faultcode;\n}");
 				else
 					fprintf(fout, "\n\nSOAP_FMAC3 const char ** SOAP_FMAC4 soap_faultsubcode(struct soap *soap)\n{\n\tsoap_fault(soap);\n\tif(soap->version == 2) {\n\t\tif(!soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode) {\n\t\t\tsoap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode = soap_new_SOAP_ENV__Code(soap, -1);\n\t\t\tsoap_default_SOAP_ENV__Code(soap, soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode);\n\t\t}\n\t\treturn (const char**)&soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode->SOAP_ENV__Value;\n\t}\n\treturn (const char**)&soap->fault->faultcode;\n}");
 				fprintf(fout, "\n\nSOAP_FMAC3 const char * SOAP_FMAC4 soap_check_faultsubcode(struct soap *soap)\n{\n\tsoap_fault(soap);\n\tif(soap->version == 2) {\n\t\tif(soap->fault->SOAP_ENV__Code && soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode)\n\t\t\treturn soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode->SOAP_ENV__Value;\n\t\treturn NULL;\n\t}\n\treturn soap->fault->faultcode;\n}");
 				fprintf(fout, "\n\nSOAP_FMAC3 const char ** SOAP_FMAC4 soap_faultstring(struct soap *soap)\n{\n\tsoap_fault(soap);\n\tif(soap->version == 2)\n\t\treturn (const char**)&soap->fault->SOAP_ENV__Reason->SOAP_ENV__Text;\n\treturn (const char**)&soap->fault->faultstring;\n}");
 				fprintf(fout, "\n\nSOAP_FMAC3 const char ** SOAP_FMAC4 soap_faultdetail(struct soap *soap)\n{\n\tsoap_fault(soap);");
 				if(has_detail_string())
-					fprintf(fout, "\n\tif(soap->version == 1) {\n\t\tif(!soap->fault->detail) {\n\t\t\tsoap->fault->detail = (struct SOAP_ENV__Detail*)soap_malloc(soap, sizeof(struct SOAP_ENV__Detail));\n\t\t\tsoap_default_SOAP_ENV__Detail(soap, soap->fault->detail);\n\t\t}\n\t\treturn (const char**)&soap->fault->detail->__any;\n\t}");
+					fprintf(fout, "\n\tif(soap->version == 1) {\n\t\tif(!soap->fault->detail) {\n\t\t\tsoap->fault->detail = static_cast<struct SOAP_ENV__Detail *>(soap_malloc(soap, sizeof(struct SOAP_ENV__Detail)));\n\t\t\tsoap_default_SOAP_ENV__Detail(soap, soap->fault->detail);\n\t\t}\n\t\treturn (const char**)&soap->fault->detail->__any;\n\t}");
 				if(has_Detail_string()) {
 					if(cflag)
-						fprintf(fout, "\n\tif(!soap->fault->SOAP_ENV__Detail) {\n\t\tsoap->fault->SOAP_ENV__Detail = (struct SOAP_ENV__Detail*)soap_malloc(soap, sizeof(struct SOAP_ENV__Detail));\n\t\tsoap_default_SOAP_ENV__Detail(soap, soap->fault->SOAP_ENV__Detail);\n\t}\n\treturn (const char**)&soap->fault->SOAP_ENV__Detail->__any;\n}");
+						fprintf(fout, "\n\tif(!soap->fault->SOAP_ENV__Detail) {\n\t\tsoap->fault->SOAP_ENV__Detail = static_cast<struct SOAP_ENV__Detail *>(soap_malloc(soap, sizeof(struct SOAP_ENV__Detail)));\n\t\tsoap_default_SOAP_ENV__Detail(soap, soap->fault->SOAP_ENV__Detail);\n\t}\n\treturn (const char**)&soap->fault->SOAP_ENV__Detail->__any;\n}");
 					else
 						fprintf(fout, "\n\tif(!soap->fault->SOAP_ENV__Detail) {\n\t\tsoap->fault->SOAP_ENV__Detail = soap_new_SOAP_ENV__Detail(soap, -1);\n\t\tsoap_default_SOAP_ENV__Detail(soap, soap->fault->SOAP_ENV__Detail);\n\t}\n\treturn (const char**)&soap->fault->SOAP_ENV__Detail->__any;\n}");
 				}
@@ -976,7 +976,7 @@ void compile(Table * table)
 						if((p->info.typ->type == Tclass || p->info.typ->type == Tstruct) && !is_transient(p->info.typ)) {
 							if(is_header_or_fault(p->info.typ) || is_body(p->info.typ))
 								fprintf(fout, "\n#ifndef WITH_NOGLOBAL");
-							fprintf(fout, "\n\tcase %s: return (void*)soap_instantiate_%s(soap, -1, type, arrayType, n);", soap_type(p->info.typ), c_ident(p->info.typ));
+							fprintf(fout, "\n\tcase %s: return soap_instantiate_%s(soap, -1, type, arrayType, n);", soap_type(p->info.typ), c_ident(p->info.typ));
 							if(is_header_or_fault(p->info.typ) || is_body(p->info.typ))
 								fprintf(fout, "\n#endif");
 						}
@@ -987,7 +987,7 @@ void compile(Table * table)
 						if((p->info.typ->type == Tclass || p->info.typ->type == Tstruct) && !is_transient(p->info.typ)) {
 							if(is_header_or_fault(p->info.typ) || is_body(p->info.typ))
 								fprintf(fout, "\n#ifndef WITH_NOGLOBAL");
-							fprintf(fout, "\n\tcase %s: return (void*)soap_instantiate_%s(soap, -1, type, arrayType, n);", soap_type(p->info.typ), c_ident(p->info.typ));
+							fprintf(fout, "\n\tcase %s: return soap_instantiate_%s(soap, -1, type, arrayType, n);", soap_type(p->info.typ), c_ident(p->info.typ));
 							if(is_header_or_fault(p->info.typ) || is_body(p->info.typ))
 								fprintf(fout, "\n#endif");
 						}
@@ -995,7 +995,7 @@ void compile(Table * table)
 				}
 				for(typ = Tptr[Ttemplate]; typ; typ = typ->next)
 					if(typ->ref && !is_transient(typ))
-						fprintf(fout, "\n\tcase %s: return (void*)soap_instantiate_%s(soap, -1, type, arrayType, n);", soap_type(typ), c_ident(typ));
+						fprintf(fout, "\n\tcase %s: return soap_instantiate_%s(soap, -1, type, arrayType, n);", soap_type(typ), c_ident(typ));
 				fprintf(fout, "\n\t}\n\treturn NULL;\n}");
 				fprintf(fhead, "\nSOAP_FMAC3 int SOAP_FMAC4 %s_fdelete(struct soap_clist*);", prefix);
 				fprintf(fout, "\n\nSOAP_FMAC3 int SOAP_FMAC4 %s_fdelete(struct soap_clist *p)", prefix);
@@ -1006,7 +1006,7 @@ void compile(Table * table)
 							if(is_header_or_fault(p->info.typ) || is_body(p->info.typ))
 								fprintf(fout, "\n#ifndef WITH_NOGLOBAL");
 							fprintf(fout, "\n\tcase %s:", soap_type(p->info.typ));
-							fprintf(fout, "\n\t\tif(p->size < 0) SOAP_DELETE((%s*)p->ptr); else SOAP_DELETE_ARRAY((%s*)p->ptr);\n\t\tbreak;",
+							fprintf(fout, "\n\t\tif(p->size < 0) SOAP_DELETE(static_cast<%s *>(p->ptr)); else SOAP_DELETE_ARRAY(static_cast<%s *>(p->ptr));\n\t\tbreak;",
 								c_type(p->info.typ), c_type(p->info.typ));
 							if(is_header_or_fault(p->info.typ) || is_body(p->info.typ))
 								fprintf(fout, "\n#endif");
@@ -1019,7 +1019,7 @@ void compile(Table * table)
 							if(is_header_or_fault(p->info.typ) || is_body(p->info.typ))
 								fprintf(fout, "\n#ifndef WITH_NOGLOBAL");
 							fprintf(fout, "\n\tcase %s:", soap_type(p->info.typ));
-							fprintf(fout, "\n\t\tif(p->size < 0) SOAP_DELETE((%s*)p->ptr); else SOAP_DELETE_ARRAY((%s*)p->ptr);\n\t\tbreak;",
+							fprintf(fout, "\n\t\tif(p->size < 0) SOAP_DELETE(static_cast<%s *>(p->ptr)); else SOAP_DELETE_ARRAY(static_cast<%s *>(p->ptr));\n\t\tbreak;",
 								c_type(p->info.typ), c_type(p->info.typ));
 							if(is_header_or_fault(p->info.typ) || is_body(p->info.typ))
 								fprintf(fout, "\n#endif");
@@ -1027,9 +1027,9 @@ void compile(Table * table)
 					}
 				}
 				for(typ = Tptr[Ttemplate]; typ; typ = typ->next) {
-					if(typ->ref && !is_transient(typ))                                                   {
+					if(typ->ref && !is_transient(typ)) {
 						fprintf(fout, "\n\tcase %s:", soap_type(typ));
-						fprintf(fout, "\n\t\tif(p->size < 0) SOAP_DELETE((%s*)p->ptr); else SOAP_DELETE_ARRAY((%s*)p->ptr);\n\t\tbreak;", c_type(typ), c_type(typ));
+						fprintf(fout, "\n\t\tif(p->size < 0) SOAP_DELETE(static_cast<%s *>(p->ptr)); else SOAP_DELETE_ARRAY(static_cast<%s *>(p->ptr));\n\t\tbreak;", c_type(typ), c_type(typ));
 					}
 				}
 				fprintf(fout, "\n\tdefault:\treturn SOAP_ERR;");
@@ -7856,8 +7856,7 @@ void func2(Tnode * typ)
 				fprintf(fmatlab, "\t{mxArray *tmp = mxGetField(a,0,\"%s\");\n", ident(p->sym->name));
 				fprintf(fmatlab, "\tif(!tmp) {\n");
 				fprintf(fmatlab, "\t\tmexErrMsgTxt(\"Above member field is empty!\");\n\t}\n");
-				fprintf(fmatlab, "\tmx_to_c_%s(tmp,&(b->%s));}\n", c_ident(p->info.typ),
-					ident(p->sym->name));
+				fprintf(fmatlab, "\tmx_to_c_%s(tmp,&(b->%s));}\n", c_ident(p->info.typ), ident(p->sym->name));
 			}
 		}
 	}
@@ -8026,8 +8025,10 @@ void func1(Table * table, Entry * param)
 	q = entry(table, param->sym);
 	if(q)
 		pout = (Entry *)q->info.typ->ref;
-	else {fprintf(stderr, "Internal error: no table entry\n");
-	      return; }
+	else {
+		fprintf(stderr, "Internal error: no table entry\n");
+	      return; 
+	}
 	q = entry(classtable, param->sym);
 	if(!is_response(pout->info.typ)) {
 		response = get_response(param->info.typ);
@@ -8072,8 +8073,10 @@ void matlab_def_table(Table * table)
 				e = entry(table, q->sym);
 				if(e)
 					pout = (Entry *)e->info.typ->ref;
-				else {fprintf(stderr, "Internal error: no table entry\n");
-				      return; }
+				else {
+					fprintf(stderr, "Internal error: no table entry\n");
+				      return; 
+				}
 				if(!is_response(pout->info.typ)) {
 					response = get_response(q->info.typ);
 				}
@@ -8089,12 +8092,9 @@ void matlab_def_table(Table * table)
 
 void def_table(Table * table)
 {
-	int i;
-	Tnode * p;
-	for(i = 0; i < TYPES; i++) {
-		for(p = Tptr[i]; p; p = p->next)                             {
-			if(!p->generated && !is_transient(p) && p->type != Twchar &&
-			   !is_void(p))                                                               {
+	for(int i = 0; i < TYPES; i++) {
+		for(Tnode * p = Tptr[i]; p; p = p->next) {
+			if(!p->generated && !is_transient(p) && p->type != Twchar && !is_void(p)) {
 				p->generated = True;
 				generate(p);
 				if(fflag)
@@ -8192,10 +8192,10 @@ void in_defs3(Table * table)
 {
 	char * s;
 	for(int i = 0; i < TYPES; i++) {
-		for(Tnode * p = Tptr[i]; p; p = p->next)                             {
+		for(Tnode * p = Tptr[i]; p; p = p->next) {
 			if(is_element(p) && ((!is_transient(p) && !is_template(p) && p->type != Twchar && p->type != Tfun && p->type !=
 			     Tpointer && p->type != Treference && p->type != Tunion && !is_XML(p) && !is_header_or_fault(p) &&
-			     !is_body(p)) || (is_string(p) && !is_XML(p))))                                                               {
+			     !is_body(p)) || (is_string(p) && !is_XML(p)))) {
 				s = xsi_type(p);
 				if(!*s)
 					s = wsdl_type(p, "");
@@ -8223,7 +8223,7 @@ void out_defs(Table * table)
 {
 	char * s;
 	for(int i = 0; i < TYPES; i++) {
-		for(Tnode * p = Tptr[i]; p; p = p->next)                             {
+		for(Tnode * p = Tptr[i]; p; p = p->next) {
 			if(is_transient(p) || is_template(p) || is_XML(p) || is_header_or_fault(p) || is_body(p))
 				continue;
 			if(is_element(p)) {
@@ -8231,17 +8231,17 @@ void out_defs(Table * table)
 				if(*s == '-')
 					continue;
 				if(p->type == Tarray)
-					fprintf(fout, "\n\tcase %s: return soap_out_%s(soap, \"%s\", id, (%s)ptr, NULL);", soap_type(p), c_ident(p), s, c_type_id((Tnode *)p->ref, "(*)"));
+					fprintf(fout, "\n\tcase %s: return soap_out_%s(soap, \"%s\", id, static_cast<%s>(ptr), NULL);", soap_type(p), c_ident(p), s, c_type_id((Tnode *)p->ref, "(*)"));
 				else if(p->type == Tclass && !is_external(p) && !is_volatile(p) && !is_typedef(p))
-					fprintf(fout, "\n\tcase %s: return ((%s)ptr)->soap_out(soap, \"%s\", id, NULL);", soap_type(p), c_type_id(p, "*"), s);
+					fprintf(fout, "\n\tcase %s: return static_cast<const %s>(ptr)->soap_out(soap, \"%s\", id, NULL);", soap_type(p), c_type_id(p, "*"), s);
 				else if(is_string(p))
-					fprintf(fout, "\n\tcase %s: return soap_out_string(soap, \"%s\", id, (char*const*)&ptr, NULL);", soap_type(p), s);
+					fprintf(fout, "\n\tcase %s: return soap_out_string(soap, \"%s\", id, static_cast<char * const *>(&ptr), NULL);", soap_type(p), s);
 				else if(is_wstring(p))
-					fprintf(fout, "\n\tcase %s: return soap_out_wstring(soap, \"%s\", id, (wchar_t*const*)&ptr, NULL);", soap_type(p), s);
+					fprintf(fout, "\n\tcase %s: return soap_out_wstring(soap, \"%s\", id, static_cast<wchar_t * const *>(&ptr), NULL);", soap_type(p), s);
 				else if(p->type == Tpointer)
-					fprintf(fout, "\n\tcase %s: return soap_out_%s(soap, \"%s\", id, (%s)ptr, NULL);", soap_type(p), c_ident(p), s, c_type_id(p, "const*"));
+					fprintf(fout, "\n\tcase %s: return soap_out_%s(soap, \"%s\", id, static_cast<%s>(ptr), NULL);", soap_type(p), c_ident(p), s, c_type_id(p, "const*"));
 				else if(p->type != Tnone && p->type != Ttemplate && p->type != Twchar && !is_void(p) && p->type != Tfun && p->type != Treference && p->type != Tunion)
-					fprintf(fout, "\n\tcase %s: return soap_out_%s(soap, \"%s\", id, (const %s)ptr, NULL);", soap_type(p), c_ident(p), s, c_type_id(p, "*"));
+					fprintf(fout, "\n\tcase %s: return soap_out_%s(soap, \"%s\", id, static_cast<const %s>(ptr), NULL);", soap_type(p), c_ident(p), s, c_type_id(p, "*"));
 			}
 			else {
 				s = xsi_type(p);
@@ -8253,14 +8253,11 @@ void out_defs(Table * table)
 				      fprintf(fout, "\n\tcase %s: return soap_out_%s(soap, tag, id, (%s)ptr, \"%s\");",
 					      soap_type(p), c_ident(p), c_type_id((Tnode *)p->ref, "(*)"), s);
 			      else if(p->type == Tclass && !is_external(p) && !is_volatile(p) && !is_typedef(p))
-				      fprintf(fout, "\n\tcase %s: return ((%s)ptr)->soap_out(soap, tag, id, \"%s\");",
-					      soap_type(p), c_type_id(p, "*"), s);
+				      fprintf(fout, "\n\tcase %s: return static_cast<const %s>(ptr)->soap_out(soap, tag, id, \"%s\");", soap_type(p), c_type_id(p, "*"), s);
 			      else if(is_string(p))
-				      fprintf(fout, "\n\tcase %s: return soap_out_string(soap, tag, id, (char*const*)&ptr, \"%s\");",
-					      soap_type(p), s);
+				      fprintf(fout, "\n\tcase %s: return soap_out_string(soap, tag, id, (char * const *)(&ptr), \"%s\");", soap_type(p), s);
 			      else if(is_wstring(p))
-				      fprintf(fout, "\n\tcase %s: return soap_out_wstring(soap, tag, id, (wchar_t*const*)&ptr, \"%s\");",
-					      soap_type(p), s);
+				      fprintf(fout, "\n\tcase %s: return soap_out_wstring(soap, tag, id, (wchar_t * const *)(&ptr), \"%s\");", soap_type(p), s);
 			      else if(p->type == Tpointer)
 				      fprintf(fout, "\n\tcase %s: return soap_out_%s(soap, tag, id, (%s)ptr, \"%s\");",
 					      soap_type(p), c_ident(p), c_type_id(p, "const*"), s);
@@ -8402,19 +8399,17 @@ void soap_instantiate_class(Tnode * typ)
 		fprintf(fout, "\n\t\tfor(int i = 0; i < n; i++)\n\t\t\t((%s*)cp->ptr)[i].%s = soap;", c_type(typ), s);
 	fprintf(fout, "\n\t}");
 	fprintf(fout, "\n\tDBGLOG(TEST, SOAP_MESSAGE(fdebug, \"Instantiated location=%%p\\n\", cp->ptr));");
-	fprintf(fout, "\n\treturn (%s*)cp->ptr;", c_type(typ));
+	fprintf(fout, "\n\treturn static_cast<%s *>(cp->ptr);", c_type(typ));
 	fprintf(fout, "\n}");
 	/* extern "C" causes C++ namespace linking issues */
 	/* fprintf(fhead,"\n#ifdef __cplusplus\nextern \"C\" {\n#endif"); */
-	fprintf(fhead, "\nSOAP_FMAC3 void SOAP_FMAC4 soap_copy_%s(struct soap*, int, int, void*, size_t, const void*, size_t);",
-		c_ident(typ));
+	fprintf(fhead, "\nSOAP_FMAC3 void SOAP_FMAC4 soap_copy_%s(struct soap*, int, int, void*, size_t, const void*, size_t);", c_ident(typ));
 	/* fprintf(fhead,"\n#ifdef __cplusplus\n}\n#endif"); */
 	/* fprintf(fout,"\n\n#ifdef __cplusplus\nextern \"C\" {\n#endif"); */
-	fprintf(fout, "\n\nSOAP_FMAC3 void SOAP_FMAC4 soap_copy_%s(struct soap *soap, int st, int tt, void *p, size_t len, const void *q, size_t n)",
-		c_ident(typ));
+	fprintf(fout, "\n\nSOAP_FMAC3 void SOAP_FMAC4 soap_copy_%s(struct soap *soap, int st, int tt, void *p, size_t len, const void *q, size_t n)", c_ident(typ));
 	fprintf(fout, "\n{\n\t(void)soap; (void)tt; (void)st; (void)len; (void)n; /* appease -Wall -Werror */");
 	fprintf(fout, "\n\tDBGLOG(TEST, SOAP_MESSAGE(fdebug, \"Copying %s %%p -> %%p\\n\", q, p));", c_type(typ));
-	fprintf(fout, "\n\t*(%s*)p = *(%s*)q;\n}", c_type(typ), c_type(typ));
+	fprintf(fout, "\n\t*static_cast<%s *>(p) = *static_cast<const %s *>(q);\n}", c_type(typ), c_type(typ));
 	/* fprintf(fout,"\n#ifdef __cplusplus\n}\n#endif"); */
 }
 
@@ -10191,7 +10186,7 @@ void soap_attr_value(Entry * p, char * obj, char * name, char * tag)
 		if(!is_anyAttribute(ptr))
 			fprintf(fout, "\n\t{\tconst char *t = soap_attr_value(soap, \"%s\", %d);\n\t\tif(t)\n\t\t{", tag, flag);
 		if(!is_stdstring(ptr))
-			fprintf(fout, "\n\t\t\tif(!(%s->%s = (%s)soap_malloc(soap, sizeof(%s))))\n\t\t\t{\tsoap->error = SOAP_EOM;\n\t\t\t\treturn NULL;\n\t\t\t}",
+			fprintf(fout, "\n\t\t\tif(!(%s->%s = static_cast<%s>(soap_malloc(soap, sizeof(%s)))))\n\t\t\t{\tsoap->error = SOAP_EOM;\n\t\t\t\treturn NULL;\n\t\t\t}",
 				obj, name, c_type(typ), c_type(ptr));
 		if(is_external(ptr) && !is_anyAttribute(ptr))
 			fprintf(fout, "\n\t\t\tif(soap_s2%s(soap, t, %s->%s))\n\t\t\t\treturn NULL;", c_ident(ptr), obj, name);
@@ -12705,14 +12700,14 @@ void soap_in(Tnode * typ)
 		fprintf(fout, "\n\t\treturn NULL;");
 		if(is_template(typ)) {
 			fprintf(fout, "\n\tsoap_revert(soap);");
-			fprintf(fout, "\n\tif(!a)\n\t\tif(!(a = (%s)soap_malloc(soap, sizeof(%s))))\n\t\t\treturn NULL;",
+			fprintf(fout, "\n\tif(!a)\n\t\tif(!(a = static_cast<%s>(soap_malloc(soap, sizeof(%s)))))\n\t\t\treturn NULL;",
 				c_type_id(typ, "*"), c_type(typ));
 			fprintf(fout, "\n\tif(!(*a = soap_in_%s(soap, tag, *a, type)))\n\t\treturn NULL;", c_ident((Tnode *)typ->ref));
 			fprintf(fout, "\n\treturn a;\n}");
 		}
 		else if(((Tnode *)typ->ref)->type == Tclass && !is_external((Tnode *)typ->ref) &&
 		        !is_volatile((Tnode *)typ->ref) && !is_typedef((Tnode *)typ->ref)) {
-			fprintf(fout, "\n\tif(!a)\n\t\tif(!(a = (%s)soap_malloc(soap, sizeof(%s))))\n\t\t\treturn NULL;",
+			fprintf(fout, "\n\tif(!a)\n\t\tif(!(a = static_cast<%s>(soap_malloc(soap, sizeof(%s)))))\n\t\t\treturn NULL;",
 				c_type_id(typ, "*"), c_type(typ));
 			fprintf(fout, "\n\t*a = NULL;\n\tif(!soap->null && *soap->href != '#') {");
 			fprintf(fout, "\n\t\tsoap_revert(soap);");
@@ -12744,7 +12739,7 @@ void soap_in(Tnode * typ)
 			fprintf(fout, "\n\t}\n\treturn a;\n}");
 		}
 		else {
-			fprintf(fout, "\n\tif(!a)\n\t\tif(!(a = (%s)soap_malloc(soap, sizeof(%s))))\n\t\t\treturn NULL;",
+			fprintf(fout, "\n\tif(!a)\n\t\tif(!(a = static_cast<%s>(soap_malloc(soap, sizeof(%s)))))\n\t\t\treturn NULL;",
 				c_type_id(typ, "*"), c_type(typ));
 			fprintf(fout, "\n\t*a = NULL;\n\tif(!soap->null && *soap->href != '#') {");
 			fprintf(fout, "\n\t\tsoap_revert(soap);");
@@ -13071,7 +13066,7 @@ void soap_in_Darray(Tnode * typ)
 			      fprintf(fout, "\n\t\t\tfor(i = 0; i < n; i++)\n\t\t\t\tsoap_default_%s(soap, a->%s+i);",
 				      c_ident((Tnode *)p->info.typ->ref), ident(p->sym->name));
 		      }
-		      else {fprintf(fout, "\n\t\t{\ta->%s = (%s)soap_malloc(soap, n*sizeof(%s));", ident(p->sym->name),
+		      else {fprintf(fout, "\n\t\t{\ta->%s = static_cast<%s>(soap_malloc(soap, n*sizeof(%s)));", ident(p->sym->name),
 				    c_type_id((Tnode *)p->info.typ->ref, "*"),  c_type((Tnode *)p->info.typ->ref));
 			    if(((Tnode *)p->info.typ->ref)->type == Tpointer)
 				    fprintf(fout, "\n\t\t\tfor(i = 0; i < n; i++)\n\t\t\t\ta->%s[i] = NULL;", ident(p->sym->name));
@@ -13124,7 +13119,7 @@ void soap_in_Darray(Tnode * typ)
 			    fprintf(fout, "\n\t\t\tfor(i = 0; i < a->__size; i++)\n\t\t\t\tsoap_default_%s(soap, a->%s+i);", c_ident((Tnode *)p->info.typ->ref), ident(p->sym->name));
 		    }
 		    else {
-				fprintf(fout, "\n\t\t{\ta->%s = (%s)soap_malloc(soap, sizeof(%s) * a->__size);", ident(p->sym->name),
+				fprintf(fout, "\n\t\t{\ta->%s = static_cast<%s>(soap_malloc(soap, sizeof(%s) * a->__size));", ident(p->sym->name),
 				  c_type_id((Tnode *)p->info.typ->ref, "*"),  c_type((Tnode *)p->info.typ->ref));
 			  if(((Tnode *)p->info.typ->ref)->type == Tpointer)
 				  fprintf(fout, "\n\t\t\tfor(i = 0; i < a->__size; i++)\n\t\t\t\ta->%s[i] = NULL;", ident(p->sym->name));
@@ -13192,7 +13187,7 @@ void soap_in_Darray(Tnode * typ)
 		      fprintf(fout, "\n\t\t\tif(soap->blist->size)\n\t\t\t\ta->%s = soap_new_%s(soap, soap->blist->size/sizeof(%s));\n\t\t\telse\n\t\t\t\ta->%s = NULL;",
 			      ident(p->sym->name), c_ident((Tnode *)p->info.typ->ref), c_type((Tnode *)p->info.typ->ref), ident(p->sym->name));
 	      else
-		      fprintf(fout, "\n\t\t\ta->%s = (%s)soap_malloc(soap, soap->blist->size);", ident(p->sym->name), c_type(p->info.typ));
+		      fprintf(fout, "\n\t\t\ta->%s = static_cast<%s>(soap_malloc(soap, soap->blist->size));", ident(p->sym->name), c_type(p->info.typ));
 	      fprintf(fout, "\n\t\t\tsoap_save_block(soap, NULL, (char*)a->%s, 1);", ident(p->sym->name));
 	      fprintf(fout, "\n\t\t}");
 	      fprintf(fout, "\n\t\tif(soap_element_end_in(soap, tag))\n\t\t\treturn NULL;"); }

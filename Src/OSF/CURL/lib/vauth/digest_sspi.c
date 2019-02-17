@@ -389,10 +389,10 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data, const cha
 		chlg_buf[0].pvBuffer   = NULL;
 		chlg_buf[0].cbBuffer   = 0;
 		chlg_buf[1].BufferType = SECBUFFER_PKG_PARAMS;
-		chlg_buf[1].pvBuffer   = (void*)request;
+		chlg_buf[1].pvBuffer   = (void *)request;
 		chlg_buf[1].cbBuffer   = curlx_uztoul(sstrlen((const char*)request));
 		chlg_buf[2].BufferType = SECBUFFER_PKG_PARAMS;
-		chlg_buf[2].pvBuffer   = (void*)uripath;
+		chlg_buf[2].pvBuffer   = (void *)uripath;
 		chlg_buf[2].cbBuffer   = curlx_uztoul(sstrlen((const char*)uripath));
 		chlg_buf[3].BufferType = SECBUFFER_PKG_PARAMS;
 		chlg_buf[3].pvBuffer   = NULL;
@@ -450,7 +450,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data, const cha
 		chlg_buf[0].pvBuffer   = digest->input_token;
 		chlg_buf[0].cbBuffer   = curlx_uztoul(digest->input_token_len);
 		chlg_buf[1].BufferType = SECBUFFER_PKG_PARAMS;
-		chlg_buf[1].pvBuffer   = (void*)request;
+		chlg_buf[1].pvBuffer   = (void *)request;
 		chlg_buf[1].cbBuffer   = curlx_uztoul(sstrlen((const char*)request));
 		chlg_buf[2].BufferType = SECBUFFER_PKG_PARAMS;
 		chlg_buf[2].pvBuffer   = NULL;

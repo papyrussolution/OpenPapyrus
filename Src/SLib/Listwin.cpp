@@ -340,7 +340,7 @@ void WordSel_ExtraBlock::SetData(long id, const char * pText)
 				SetTextMode(preserve_text_mode);
  			}
  			else if(p_v->IsSubSign(TV_SUBSIGN_LISTBOX)) {
- 				SmartListBox * p_lbx = (SmartListBox*)p_v;
+ 				SmartListBox * p_lbx = static_cast<SmartListBox *>(p_v);
  				p_lbx->search(&id, 0, lbSrchByID);
  				p_lbx->selectItem(id);
  			}
@@ -463,7 +463,7 @@ int WordSelector::Refresh(const char * pText)
  								SetFocus(p_v->getHandle());
  							}
  							else if(p_v->IsSubSign(TV_SUBSIGN_LISTBOX)) {
- 								SmartListBox * p_lbx = (SmartListBox*)p_v;
+ 								SmartListBox * p_lbx = static_cast<SmartListBox *>(p_v);
  								SetFocus(p_lbx->getHandle());
  							}
 						}

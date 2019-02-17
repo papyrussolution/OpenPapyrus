@@ -142,17 +142,8 @@ void SLAPI Tddo::SetInputFileName(const char * pFileName)
 	InputFileName = pFileName;
 }
 
-Tddo::Meta::Meta()
+Tddo::Meta::Meta() : Tok(tNone)
 {
-	Tok = tNone;
-}
-
-Tddo::Meta & FASTCALL Tddo::Meta::operator = (const Meta & rS)
-{
-	Tok = rS.Tok;
-	Text = rS.Text;
-	Param = rS.Param;
-	return *this;
 }
 
 void Tddo::Meta::Clear()

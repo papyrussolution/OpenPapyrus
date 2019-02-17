@@ -819,8 +819,8 @@ EXTERN(struct jpeg_error_mgr *) jpeg_std_error(struct jpeg_error_mgr* err);
 // passed for version mismatch checking.
 // NB: you must set up the error-manager BEFORE calling jpeg_create_xxx.
 // 
-#define jpeg_create_compress(cinfo) jpeg_CreateCompress((cinfo), JPEG_LIB_VERSION, (size_t)sizeof(struct jpeg_compress_struct))
-#define jpeg_create_decompress(cinfo) jpeg_CreateDecompress((cinfo), JPEG_LIB_VERSION, (size_t)sizeof(struct jpeg_decompress_struct))
+#define jpeg_create_compress(cinfo) jpeg_CreateCompress((cinfo), JPEG_LIB_VERSION, sizeof(struct jpeg_compress_struct))
+#define jpeg_create_decompress(cinfo) jpeg_CreateDecompress((cinfo), JPEG_LIB_VERSION, sizeof(struct jpeg_decompress_struct))
 extern void jpeg_CreateCompress(j_compress_ptr cinfo, int version, size_t structsize);
 extern void jpeg_CreateDecompress(j_decompress_ptr cinfo, int version, size_t structsize);
 // Destruction of JPEG compression objects 

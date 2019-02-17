@@ -116,7 +116,7 @@ void ngx_http_init_connection(ngx_connection_t * c)
 			case AF_INET6:
 				{
 					struct sockaddr_in6 * sin6 = (struct sockaddr_in6*)c->local_sockaddr;
-					ngx_http_in6_addr_t * addr6 = (ngx_http_in6_addr_t *)port->addrs;
+					ngx_http_in6_addr_t * addr6 = static_cast<ngx_http_in6_addr_t *>(port->addrs);
 					// the last address is "*" 
 					for(i = 0; i < port->naddrs - 1; i++) {
 						if(memcmp(&addr6[i].addr6, &sin6->sin6_addr, 16) == 0) {
@@ -129,7 +129,7 @@ void ngx_http_init_connection(ngx_connection_t * c)
 #endif
 			default: // AF_INET 
 			    sin = (struct sockaddr_in*)c->local_sockaddr;
-			    addr = (ngx_http_in_addr_t *)port->addrs;
+			    addr = static_cast<ngx_http_in_addr_t *>(port->addrs);
 			    // the last address is "*" 
 			    for(i = 0; i < port->naddrs - 1; i++) {
 				    if(addr[i].addr == sin->sin_addr.s_addr) {
@@ -145,13 +145,13 @@ void ngx_http_init_connection(ngx_connection_t * c)
 #if (NGX_HAVE_INET6)
 			case AF_INET6:
 				{
-					ngx_http_in6_addr_t * addr6 = (ngx_http_in6_addr_t *)port->addrs;
+					ngx_http_in6_addr_t * addr6 = static_cast<ngx_http_in6_addr_t *>(port->addrs);
 					hc->addr_conf = &addr6[0].conf;
 				}
 			    break;
 #endif
 			default: // AF_INET 
-			    addr = (ngx_http_in_addr_t *)port->addrs;
+			    addr = static_cast<ngx_http_in_addr_t *>(port->addrs);
 			    hc->addr_conf = &addr[0].conf;
 			    break;
 		}
@@ -1804,7 +1804,7 @@ void ngx_http_test_reading(ngx_http_request_t * r)
 		 * BSDs and Linux return 0 and set a pending error in err
 		 * Solaris returns -1 and sets errno
 		 */
-		if(getsockopt(c->fd, SOL_SOCKET, SO_ERROR, (void*)&err, &len) == -1) {
+		if(getsockopt(c->fd, SOL_SOCKET, SO_ERROR, (void *)&err, &len) == -1) {
 			err = ngx_socket_errno;
 		}
 		goto closed;

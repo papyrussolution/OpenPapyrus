@@ -994,7 +994,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 				case cmCtlColor:
 					{
 						// TCanvas
-						TDrawCtrlData * p_dc = (TDrawCtrlData *)TVINFOPTR;
+						TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 						if(p_dc) {
 							if(St & stWasCostInput) {
 								if(getCtrlHandle(CTL_LOT_COST) == p_dc->H_Ctl) {
@@ -1007,12 +1007,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 							if(getCtrlHandle(CTL_LOT_PRICE) == p_dc->H_Ctl) {
 								if(Item.Flags & PPTFR_QUOT) {
 									::SetBkMode(p_dc->H_DC, TRANSPARENT);
-									if(P_BObj->CheckRights(BILLOPRT_CANCELQUOT)) {
-										p_dc->H_Br = (HBRUSH)Ptb.Get(brushQuotedPrice);
-									}
-									else {
-										p_dc->H_Br = (HBRUSH)Ptb.Get(brushQuotedPriceNoCancel);
-									}
+									p_dc->H_Br = (HBRUSH)Ptb.Get(P_BObj->CheckRights(BILLOPRT_CANCELQUOT) ? brushQuotedPrice : brushQuotedPriceNoCancel);
 									clearEvent(event);
 								}
 								else if(oneof4(OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND, PPOPT_GOODSRECEIPT)) {

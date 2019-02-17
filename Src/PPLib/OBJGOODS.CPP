@@ -3923,7 +3923,7 @@ int SLAPI GoodsStockExt::Serialize(int dir, SBuffer & rBuf, SSerializeContext * 
 	THROW_SL(pCtx->Serialize(dir, ExpiryPeriod, rBuf));
 	// @todo RtlDim, MinShippmQtty, NettBruttCoeff
 	if(dir < 0) {
-		RtlDim.Reset();
+		RtlDim.Z();
 		MinShippmQtty = 0.0;
 		NettBruttCoeff = 0.0f; // @v9.8.12
 	}

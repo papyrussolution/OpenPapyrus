@@ -1708,7 +1708,7 @@ int SLAPI PPObjCurrency::SearchCode(PPID * pID, long code)
 int SLAPI SetupCurrencyCombo(TDialog * dlg, uint ctl, PPID id, uint /*flags*/, int asSymb, PPIDArray * pInclList)
 {
 	int    ok = 0;
-	ComboBox * p_combo = (ComboBox *)dlg->getCtrlView(ctl);
+	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctl));
 	if(p_combo) {
 		PPObjCurrency curobj;
 		StrAssocArray * p_list = curobj.CreateSelectorList(asSymb, pInclList, 0);

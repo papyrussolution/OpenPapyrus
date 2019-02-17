@@ -143,7 +143,7 @@ void CRevalDialog::editCRate()
 	if(p_list) {
 		const long pos = p_list->def->_curItem();
 		if(pos >= 0 && pos < static_cast<long>(Data.CRateList.getCount())) {
-			AmtEntry * p_entry = &Data.CRateList.at((uint)pos);
+			AmtEntry * p_entry = &Data.CRateList.at(static_cast<uint>(pos));
 			const LDATE dt = getCtrlDate(CTL_CREVAL_DT);
 			double rate = p_entry->Amt;
 			if(SelectCurRate(p_entry->CurID, LConfig.BaseRateTypeID, &rate) > 0) {

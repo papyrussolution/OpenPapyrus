@@ -1,5 +1,5 @@
 // CCHECK.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 // @Kernel
 //
@@ -32,15 +32,12 @@ int FASTCALL CcAmountEntry::IsEqual(const CcAmountEntry & rS) const
 int CcAmountEntry::GetTypeText(SString & rBuf) const
 {
 	int    ok = 1;
-	if(Type == CCAMTTYP_CASH) {
+	if(Type == CCAMTTYP_CASH)
 		PPLoadString("paymt_cash", rBuf);
-	}
-	else if(Type == CCAMTTYP_BANK) {
+	else if(Type == CCAMTTYP_BANK)
 		PPLoadString("paymt_bank", rBuf);
-	}
-	else if(Type == CCAMTTYP_CRDCARD) {
+	else if(Type == CCAMTTYP_CRDCARD)
 		PPLoadString("crdcard", rBuf);
-	}
 	else {
 		rBuf = "Unknown";
 		ok = 0;
@@ -246,14 +243,9 @@ int CcAmountList::Implement_Set(int type, double amt, int32 addedID, int replace
 }
 
 int CcAmountList::Set(int type, double amt, int32 addedID)
-{
-	return Implement_Set(type, amt, addedID, 1, 0);
-}
-
+	{ return Implement_Set(type, amt, addedID, 1, 0); }
 int CcAmountList::Add(int type, double amt, int32 addedID)
-{
-	return Implement_Set(type, amt, addedID, 0, 0);
-}
+	{ return Implement_Set(type, amt, addedID, 0, 0); }
 
 double CcAmountList::Implement_Replace(int type, double amt, int32 addedID, int dontRemove, int r1, int r2)
 {
@@ -264,7 +256,7 @@ double CcAmountList::Implement_Replace(int type, double amt, int32 addedID, int 
 	const int amt_sign = (amt < 0.0) ? -1 : +1;
 	double total = GetTotal();
 	double ex_amt = Get(type, addedID);
-	double result = Get(type, addedID);
+	double result = ex_amt; // @v10.3.4 (избыточный вызов) Get(type, addedID)-->ex_amt 
 	int    do_invert_sign = 0;
 	if(list_sign == amt_sign) {
 		if(list_sign < 0) {
@@ -274,7 +266,7 @@ double CcAmountList::Implement_Replace(int type, double amt, int32 addedID, int 
 			amt = -amt;
 			total = GetTotal();
 			ex_amt = Get(type, addedID);
-			result = Get(type, addedID);
+			result = ex_amt; // @v10.3.4 (избыточный вызов) Get(type, addedID)-->ex_amt 
 		}
 		SETMIN(amt, total);
 		const double p1 = r1 ? Get(r1) : 0.0;
@@ -318,8 +310,8 @@ double CcAmountList::Implement_Replace(int type, double amt, int32 addedID, int 
 			}
 		}
 		else if(amt < ex_amt) {
-			double up_diff_p1 = total - p1;
-			double up_diff_p2 = total - p2;
+			const double up_diff_p1 = total - p1;
+			const double up_diff_p2 = total - p2;
 			if(r1 && result > amt && up_diff_p1 > 0.0) {
 				double _sub = MIN((result - amt), up_diff_p1);
 				uint c = getCount();
@@ -369,14 +361,9 @@ double CcAmountList::Implement_Replace(int type, double amt, int32 addedID, int 
 }
 
 double CcAmountList::Replace(int type, double amt, int32 addedID, int r1, int r2)
-{
-	return Implement_Replace(type, amt, addedID, 0, r1, r2);
-}
-
+	{ return Implement_Replace(type, amt, addedID, 0, r1, r2); }
 double CcAmountList::ReplaceDontRemove(int type, double amt, int32 addedID, int r1, int r2)
-{
-	return Implement_Replace(type, amt, addedID, 1, r1, r2);
-}
+	{ return Implement_Replace(type, amt, addedID, 1, r1, r2); }
 
 int CcAmountList::Normalize()
 {
@@ -584,14 +571,11 @@ int CCheckItem::SplitByQtty(double restQtty, CCheckItem & rNewItem)
 	if(Quantity > restQtty && restQtty > 0.0 && !(Flags & cifGift)) {
 		rNewItem.Z();
 		rNewItem = *this;
-
 		rNewItem.GiftID = 0;
 		rNewItem.BeforeGiftPrice = 0.0;
 		rNewItem.Flags &= ~(cifModifier | cifGrouped);
-
 		const double qtty = Quantity;
 		const double phqtty = PhQtty;
-
 		Quantity = qtty - restQtty;
 		rNewItem.Quantity = restQtty;
 		if(phqtty != 0.0) {
@@ -862,7 +846,7 @@ int SLAPI CCheckPacket::CopyLines(const CCheckPacket & rS)
 
 int SLAPI CCheckPacket::SearchLine(int rByCheck, uint * pPos) const
 {
-	int16  rbc = (int16)rByCheck;
+	int16  rbc = static_cast<int16>(rByCheck);
 	return Items_.lsearch(&rbc, pPos, PTR_CMPFUNC(int16), offsetof(CCheckLineTbl::Rec, RByCheck));
 }
 
@@ -951,15 +935,8 @@ int SLAPI CCheckPacket::GetLineTextExt(int pos /* 1.. */, int lnextId, SString &
 // } @v9.0.9
 
 #if 0 // @v9.0.9 {
-int SLAPI CCheckPacket::SetSerial(int pos /* 1.. */, const char * pSerial)
-{
-	return LnTextList.Add(pos, pSerial, 1);
-}
-
-int SLAPI CCheckPacket::GetSerial(int pos /* 1.. */, SString & rBuf) const
-{
-	return LnTextList.Get(pos, rBuf);
-}
+int SLAPI CCheckPacket::SetSerial(int pos /* 1.. */, const char * pSerial) { return LnTextList.Add(pos, pSerial, 1); }
+int SLAPI CCheckPacket::GetSerial(int pos /* 1.. */, SString & rBuf) const { return LnTextList.Get(pos, rBuf); }
 #endif // } @v9.0.9
 
 int SLAPI CCheckPacket::SetLineExt(int pos /* 1.. */, const LineExt & rExt)
@@ -1039,15 +1016,13 @@ int SLAPI CCheckPacket::InsertItem_(const CCheckLineTbl::Rec * pItem, const char
 {
 	int    ok = 1;
 	THROW_SL(Items_.insert(pItem));
+	const int idx = static_cast<int>(Items_.getCount());
 	if(!isempty(pSerial)) {
-		// @v9.0.9 THROW(SetSerial(Items_.getCount(), pSerial));
-		THROW(SetLineTextExt(Items_.getCount(), CCheckPacket::lnextSerial, pSerial)); // @v9.0.9
+		THROW(SetLineTextExt(idx, CCheckPacket::lnextSerial, pSerial));
 	}
-	// @v9.0.9 {
 	if(!isempty(pEgaisMark)) {
-		THROW(SetLineTextExt(Items_.getCount(), CCheckPacket::lnextEgaisMark, pEgaisMark)); // @v9.0.9
+		THROW(SetLineTextExt(idx, CCheckPacket::lnextEgaisMark, pEgaisMark));
 	}
-	// } @v9.0.9
 	CATCHZOK
 	return ok;
 }
@@ -1059,19 +1034,16 @@ int SLAPI CCheckPacket::InsertItem(const CCheckItem & rItem)
 	rItem.GetRec(rec, BIN(Rec.Flags & CCHKF_RETURN));
 	THROW_SL(Items_.insert(&rec));
 	{
-		const uint idx = Items_.getCount();
+		const int idx = static_cast<int>(Items_.getCount());
 		if(rItem.Serial[0]) {
-			// @v9.0.9 THROW(SetSerial(idx, rItem.Serial));
-			THROW(SetLineTextExt(idx, CCheckPacket::lnextSerial, rItem.Serial)); // @v9.0.9
+			THROW(SetLineTextExt(idx, CCheckPacket::lnextSerial, rItem.Serial));
 		}
-		// @v9.0.9 {
 		if(rItem.EgaisMark[0]) {
-			THROW(SetLineTextExt(idx, CCheckPacket::lnextEgaisMark, rItem.EgaisMark)); // @v9.9.0
+			THROW(SetLineTextExt(idx, CCheckPacket::lnextEgaisMark, rItem.EgaisMark));
 		}
-		// } @v9.0.9
 		// @v10.1.6 {
 		if(rItem.RemoteProcessingTa[0]) {
-			THROW(SetLineTextExt(idx, CCheckPacket::lnextRemoteProcessingTa, rItem.RemoteProcessingTa)); // @v10.1.6
+			THROW(SetLineTextExt(idx, CCheckPacket::lnextRemoteProcessingTa, rItem.RemoteProcessingTa));
 		}
 		// } @v10.1.6
 		{
@@ -1093,7 +1065,7 @@ int SLAPI CCheckPacket::InsertItem(PPID goodsID, double qtty, double price, doub
 {
 	CCheckLineTbl::Rec item;
 	MEMSZERO(item);
-	item.DivID = (short)div;
+	item.DivID = static_cast<short>(div);
 	if(isPrinted)
 		item.DivID += CHECK_LINE_IS_PRINTED_BIAS;
 	item.GoodsID  = goodsID;
@@ -1108,11 +1080,12 @@ int SLAPI CCheckPacket::SetupPaymList(const CcAmountList * pList)
 	int    ok = -1;
 	SString temp_buf;
 	if(pList && pList->getCount()) {
-		const double epsilon = 1E-6;
 		const double _total = pList->GetTotal();
 		double _amt = 0.0, _discount;
 		CalcAmount(&_amt, &_discount);
-		if(fabs(_amt - _total) > epsilon) {
+		// @v10.3.4 const double epsilon = 1E-6;
+		// @v10.3.4 if(fabs(_amt - _total) > epsilon) {
+		if(!feqeps(_amt, _total, 1E-6)) { // @v10.3.4 
 			CCheckCore::MakeCodeString(&Rec, temp_buf);
 			ok = PPSetError(PPERR_CCPAYMLISTDIFFAMT, temp_buf);
 		}
@@ -1127,7 +1100,7 @@ int SLAPI CCheckPacket::SetupPaymList(const CcAmountList * pList)
 				Rec.Flags &= ~CCHKF_BANKING;
 				if(typ == CCAMTTYP_CRDCARD) {
 					CcAl = *pList;
-					Rec.Flags |= CCHKF_PAYMLIST; // @v8.1.3 @fix
+					Rec.Flags |= CCHKF_PAYMLIST;
 					Rec.Flags |= CCHKF_INCORPCRD;
 					do_clear_paymlist = 0;
 				}
@@ -1135,7 +1108,7 @@ int SLAPI CCheckPacket::SetupPaymList(const CcAmountList * pList)
 					Rec.Flags &= ~CCHKF_INCORPCRD;
 				}
 			}
-			if(do_clear_paymlist) { // @v8.1.2
+			if(do_clear_paymlist) {
 				CcAl.freeAll();
 				Rec.Flags &= ~CCHKF_PAYMLIST;
 			}
@@ -1242,19 +1215,11 @@ void SLAPI CCheckPacket::CalcAmount(double * pAmt, double * pDscnt) const
 	CCheckLineTbl::Rec item;
 	for(uint i = 0; EnumLines(&i, &item);) {
 		const double qtty = item.Quantity;
-		double s  = intmnytodbl(item.Price) * qtty;
-		double ds = item.Dscnt * qtty;
+		const double s  = intmnytodbl(item.Price) * qtty;
+		const double ds = item.Dscnt * qtty;
 		amount   = R2(amount + s - ds);
 		discount = R2(discount + ds);
 	}
-	/*
-	// @v7.5.0 {
-	if(Rec.Flags & CCHKF_RETURN) {
-		amount = -amount;
-		discount = -discount;
-	}
-	// } @v7.5.0
-	*/
 	ASSIGN_PTR(pAmt, amount);
 	ASSIGN_PTR(pDscnt, discount);
 }
@@ -1321,11 +1286,12 @@ double SLAPI CCheckPacket::GetFiscalAmount() const
 		amt = fabs(MONEYTOLDBL(Rec.Amount)) - fabs(CcAl.Get(CCAMTTYP_CRDCARD));
 	}
 	else if(Rec.Flags & CCHKF_INCORPCRD) {
+		/* @v10.3.4 @useless
 		if(Rec.Flags & CCHKF_ADDPAYM)
 			amt = 0.0; // intmnytodbl(Ext.AddPaym)-->0.0
 		else
 			amt = 0.0;
-		//
+		*/
 		PPObjSCard sc_obj;
 		const PPID charge_goods_id = sc_obj.GetChargeGoodsID(Rec.SCardID);
 		if(charge_goods_id) {
@@ -1389,8 +1355,8 @@ int SLAPI CCheckPacket::ParseBarcodeIdent(const char * pIdent, BarcodeIdentStruc
 			// "CA"
 			const uchar p_fl[] = { 'C', 'c', 209, 241, 145, 225 }; // 'C' в латинской и русской раскладках (ANSI и OEM)
 			const uchar p_sl[] = { 'A', 'a', 212, 244, 148, 228 }; // 'A' в латинской и русской раскладках (ANSI и OEM)
-			const uchar c1 = (uchar)pIdent[0];
-			const uchar c2 = (uchar)pIdent[1];
+			const uchar c1 = static_cast<uchar>(pIdent[0]);
+			const uchar c2 = static_cast<uchar>(pIdent[1]);
 			for(uint i = 0; !s && i < SIZEOFARRAY(p_fl); i++)
 				if(c1 == p_fl[i])
 					for(uint j = 0; !s && j < SIZEOFARRAY(p_sl); j++)
@@ -1592,29 +1558,27 @@ int SLAPI CCheckCore::GetExt(PPID id, CCheckExtTbl::Rec * pExt)
 	}
 }
 
-int SLAPI CCheckCore::UpdateExt(PPID id, CCheckExtTbl::Rec * pExt, int use_ta)
+int SLAPI CCheckCore::UpdateExt(PPID id, const CCheckExtTbl::Rec * pExt, int use_ta)
 {
 	int    ok = -1;
 	if(P_Ext) {
 		CCheckExtTbl::Rec ccext_rec;
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(SearchByID(P_Ext, 0, id, &ccext_rec) > 0); // @v8.1.4 SearchByID_ForUpdate-->SearchByID
+		THROW(SearchByID(P_Ext, 0, id, &ccext_rec) > 0);
 		if(ccext_rec.TableNo != pExt->TableNo || ccext_rec.StartOrdDtm != pExt->StartOrdDtm ||
 			ccext_rec.EndOrdDtm != pExt->EndOrdDtm || ccext_rec.CreationDtm != pExt->CreationDtm || ccext_rec.GuestCount != pExt->GuestCount ||
 			ccext_rec.AddrID != pExt->AddrID || strcmp(ccext_rec.Memo, pExt->Memo) != 0) {
-			// @v8.1.4 {
 			CCheckExtTbl::Key0 k0;
 			DBRowId _dbpos;
 			THROW_DB(P_Ext->getPosition(&_dbpos));
 			THROW_DB(P_Ext->getDirectForUpdate(0, &k0, _dbpos));
-			// } @v8.1.4
 			ccext_rec.TableNo = pExt->TableNo;
 			ccext_rec.StartOrdDtm = pExt->StartOrdDtm;
 			ccext_rec.EndOrdDtm = pExt->EndOrdDtm;
 			ccext_rec.CreationDtm = pExt->CreationDtm;
 			ccext_rec.GuestCount = pExt->GuestCount;
-			ccext_rec.AddrID = pExt->AddrID; // @v7.0.12
+			ccext_rec.AddrID = pExt->AddrID;
 			STRNSCPY(ccext_rec.Memo, pExt->Memo);
 			THROW_DB(P_Ext->updateRecBuf(&ccext_rec)); // @sfu
 			ok = 1;
@@ -1660,7 +1624,7 @@ int FASTCALL CCheckCore::IsExtRecEq(const CCheckExtTbl::Rec & r1, const CCheckEx
 	return eq;
 }
 
-int SLAPI CCheckCore::PutExt(CCheckTbl::Rec * pRec, CCheckExtTbl::Rec * pExt, int useTa)
+int SLAPI CCheckCore::PutExt(const CCheckTbl::Rec * pRec, CCheckExtTbl::Rec * pExt, int useTa)
 {
 	int    ok = -1;
 	if(pExt && pRec) {
@@ -1678,19 +1642,10 @@ int SLAPI CCheckCore::PutExt(CCheckTbl::Rec * pRec, CCheckExtTbl::Rec * pExt, in
 				THROW(tra);
 				pExt->CheckID = pRec->ID;
 				if(SearchByID(P_Ext, 0, pRec->ID, &org_rec) > 0) {
-					/* @v8.9.8
-					SString msg_buf, fmt_buf, added_buf;
-					THROW_DB(deleteFrom(P_Ext, 0, P_Ext->CheckID == pRec->ID));
-					CCheckCore::MakeCodeString(pRec, added_buf);
-					msg_buf.Printf(PPLoadTextS(PPTXT_LOG_DUPCCHECKEXTINFO, fmt_buf), (const char *)added_buf);
-					PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_COMP);
-					*/
-					// @v8.9.8 {
 					if(!IsExtRecEq(org_rec, *pExt)) {
 						THROW_DB(P_Ext->updateRecBuf(pExt));
 						ok = 1;
 					}
-					// } @v8.9.8
 				}
 				else {
 					THROW_DB(P_Ext->insertRecBuf(pExt));
@@ -1834,7 +1789,7 @@ int SLAPI CCheckCore::EnumLines(PPID checkID, int * pRByCheck, CCheckLineTbl::Re
 {
 	CCheckLineTbl::Key0 k;
 	k.CheckID  = checkID;
-	k.RByCheck = (int16)*pRByCheck;
+	k.RByCheck = static_cast<int16>(*pRByCheck);
 	if(Lines.search(0, &k, spGt) && k.CheckID == checkID) {
 		Lines.copyBufTo(b);
 		*pRByCheck = k.RByCheck;
@@ -2303,7 +2258,7 @@ int SLAPI CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, 
 					MEMSZERO(cp_rec);
 					cp_rec.CheckID = pPack->Rec.ID;
 					cp_rec.RByCheck = ++rbc;
-					cp_rec.PaymType = (int16)r_entry.Type;
+					cp_rec.PaymType = static_cast<int16>(r_entry.Type);
 					cp_rec.Amount = dbltointmny(r_entry.Amount);
 					cp_rec.SCardID = sc_id;
 					cp_rec.CurID = r_entry.CurID; // @v9.0.4
@@ -2344,7 +2299,7 @@ int SLAPI CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, 
 				}
 				else {
 					for(i = 0; i < uhtt_list.getCount(); i++) {
-						const _UhttEntry * p_u = (const _UhttEntry *)uhtt_list.at(i);
+						const _UhttEntry * p_u = static_cast<const _UhttEntry *>(uhtt_list.at(i));
 						const CcAmountEntry & r_entry = temp_al.at(p_u->P);
 						char   uhtt_sc_code[64];
 						uhtt_sc_code[0] = 0;
@@ -2427,7 +2382,7 @@ int SLAPI CCheckCore::PreparePacketForWriting(PPID id, CCheckPacket * pPack, dou
 		for(uint i = 0; i < pPack->Items_.getCount(); i++) {
 			CCheckLineTbl::Rec & r_item = pPack->Items_.at(i);
 			r_item.CheckID = id;
-			r_item.RByCheck = (int16)(i+1);
+			r_item.RByCheck = static_cast<int16>(i+1);
 		}
 	}
 	CATCHZOK
@@ -2686,7 +2641,7 @@ int SLAPI CCheckCore::RemovePacket(PPID id, int use_ta)
 		if(P_LnExt) {
 			THROW_DB(deleteFrom(P_LnExt, 0, P_LnExt->CheckID == id));
 		}
-		THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_CCHECK, id, PPTRPROP_CC_LNEXT), (const wchar_t *)0, 0)); // @v9.0.9
+		THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_CCHECK, id, PPTRPROP_CC_LNEXT), static_cast<const wchar_t *>(0), 0)); // @v9.0.9
 		THROW(Cards.RemoveOpByCheck(id, 0));
 		if(SearchByID_ForUpdate(this, PPOBJ_CCHECK, id, 0) > 0) {
 			if(data.Flags & CCHKF_JUNK)
@@ -3230,7 +3185,7 @@ int SLAPI CCheckCore::CalcGoodsRest(PPID goodsID, LDATE dt, PPID locID, double *
 	return ok;
 }
 
-int SLAPI CCheckCore::IsLostJunkCheck(PPID id, S_GUID * pExtUuid, PPSession::RegSessData * pSessData)
+int SLAPI CCheckCore::IsLostJunkCheck(PPID id, const S_GUID * pExtUuid, PPSession::RegSessData * pSessData)
 {
 	int    yes = 0;
 	ObjTagItem tag_item;
@@ -3260,7 +3215,7 @@ int SLAPI CCheckCore::IsLostJunkCheck(PPID id, S_GUID * pExtUuid, PPSession::Reg
 //
 //
 //
-IMPL_CMPFUNC(CCheckGoodsEntry, i1, i2) { RET_CMPCASCADE4((const CCheckGoodsEntry *)i1, (const CCheckGoodsEntry *)i2, Dt, Sign, GoodsID, SerialID); }
+IMPL_CMPFUNC(CCheckGoodsEntry, i1, i2) { RET_CMPCASCADE4(static_cast<const CCheckGoodsEntry *>(i1), static_cast<const CCheckGoodsEntry *>(i2), Dt, Sign, GoodsID, SerialID); }
 
 SLAPI CCheckGoodsArray::CCheckGoodsArray() : TSVector <CCheckGoodsEntry> (), Sum(0.0) // @v9.8.4 TSArray-->TSVector
 {
@@ -3378,7 +3333,7 @@ int SLAPI CCheckCore::GroupingToGoodsLines(PPID sessID, CSessTotal * pTotal, CCh
 					if(rec.Flags & CCHKF_NOTUSED) {
 						ChkItem ci;
 						ci.ID = rec.ID;
-						ci.DtOffs = (int16)diffdate(rec.Dt, curdt);
+						ci.DtOffs = static_cast<int16>(diffdate(rec.Dt, curdt));
 						THROW_SL(chk_list.insert(&ci));
 					}
 					AddRecToSessTotal(&rec, pTotal);
@@ -3389,8 +3344,8 @@ int SLAPI CCheckCore::GroupingToGoodsLines(PPID sessID, CSessTotal * pTotal, CCh
 			const  int use_ccl_ext = BIN(CConfig.Flags & CCFLG_USECCHECKLINEEXT);
 			// @v9.0.11 CCheckLineExtTbl::Rec lnext_rec;
 			chk_list.sort(CMPF_LONG);
-			PPID   lo = ((ChkItem *)chk_list.at(0))->ID;
-			PPID   up = ((ChkItem *)chk_list.at(chk_list.getCount()-1))->ID;
+			PPID   lo = static_cast<const ChkItem *>(chk_list.at(0))->ID;
+			PPID   up = static_cast<const ChkItem *>(chk_list.at(chk_list.getCount()-1))->ID;
 			BExtQuery q(&Lines, 0, 128);
 			q.selectAll().where(Lines.CheckID >= lo && Lines.CheckID <= up);
 			CCheckLineTbl::Key0 k0;
@@ -3409,7 +3364,7 @@ int SLAPI CCheckCore::GroupingToGoodsLines(PPID sessID, CSessTotal * pTotal, CCh
 						// (»спользовать будем в виде utf8-строк) temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
                         CCheckPacket::Helper_UnpackLineTextExt(temp_buf, cc_ln_text_ext);
 					}
-					int16  dt_offs = ((ChkItem *)chk_list.at(pos))->DtOffs;
+					int16  dt_offs = static_cast<const ChkItem *>(chk_list.at(pos))->DtOffs;
 					PPID   serial_id = 0;
 					// @v9.0.11 {
 					if(CCheckPacket::Helper_GetLineTextExt(Lines.data.RByCheck, CCheckPacket::lnextSerial, cc_ln_text_ext, temp_buf) > 0) {
@@ -3431,7 +3386,7 @@ int SLAPI CCheckCore::GroupingToGoodsLines(PPID sessID, CSessTotal * pTotal, CCh
 			}
 			if(flags & gglfUpdChecks) {
 				for(i = 0; i < chk_list.getCount(); i++) {
-					const PPID chk_id = ((ChkItem *)chk_list.at(i))->ID;
+					const PPID chk_id = static_cast<const ChkItem *>(chk_list.at(i))->ID;
 					THROW_DB(updateFor(this, 0, (this->ID == chk_id), set(this->Flags, this->Flags & ~CCHKF_NOTUSED)));
 				}
 			}
@@ -3860,15 +3815,15 @@ int SLAPI CGoodsLine::Add(PPID sessID, const CCheckGoodsArray * pList, int use_t
 	return ok;
 }
 
-int SLAPI CGoodsLine::Update(CGoodsLineTbl::Rec * pRec, int use_ta)
+int SLAPI CGoodsLine::Update(const CGoodsLineTbl::Rec & rRec, int use_ta)
 {
 	int    ok = -1, r;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(r = Search_ForUpdate(pRec->SessID, pRec->Dt, pRec->GoodsID, pRec->Sign, pRec->SerialID, 0));
+		THROW(r = Search_ForUpdate(rRec.SessID, rRec.Dt, rRec.GoodsID, rRec.Sign, rRec.SerialID, 0));
 		if(r > 0) {
-			THROW_DB(updateRecBuf(pRec)); // @sfu
+			THROW_DB(updateRecBuf(&rRec)); // @sfu
 			ok = 1;
 		}
 		else
@@ -3921,7 +3876,7 @@ int SLAPI CGoodsLine::CalcSessTotal(PPID sessID, CSessTotal * pTotal)
 //
 //
 //
-IMPL_CMPFUNC(CSessDfctItem_DateGoods, i1, i2) { RET_CMPCASCADE2((const CSessDfctItem *)i1, (const CSessDfctItem *)i2, Dt, GoodsID); }
+IMPL_CMPFUNC(CSessDfctItem_DateGoods, i1, i2) { RET_CMPCASCADE2(static_cast<const CSessDfctItem *>(i1), static_cast<const CSessDfctItem *>(i2), Dt, GoodsID); }
 
 SLAPI CSessDfctList::CSessDfctList() : TSVector <CSessDfctItem> ()
 {
@@ -4244,8 +4199,8 @@ struct CgBillCvtItem { // @flat
 
 IMPL_CMPFUNC(CgBillCvtItem_GoodsName, i1, i2)
 {
-	const CgBillCvtItem * p1 = (const CgBillCvtItem *)i1;
-	const CgBillCvtItem * p2 = (const CgBillCvtItem *)i2;
+	const CgBillCvtItem * p1 = static_cast<const CgBillCvtItem *>(i1);
+	const CgBillCvtItem * p2 = static_cast<const CgBillCvtItem *>(i2);
 	if(p1->Dt < p2->Dt)
 		return -1;
 	else if(p1->Dt > p2->Dt)
@@ -4336,7 +4291,7 @@ int SLAPI CSessGrouping::TurnBill(PPBillPacket * pPack, CSessTotal * pTotal, int
 	return ok;
 }
 
-int SLAPI CSessGrouping::ConvertSign(const int sign, const PPID sessID, const PPID locID, void * pData, CSessTotal * pTotal, OptimalAmountDamper * pOad)
+int SLAPI CSessGrouping::ConvertSign(const int sign, const PPID sessID, const PPID locID, const void * pData, CSessTotal * pTotal, OptimalAmountDamper * pOad)
 {
 	int    ok = 1, r;
 	const  PPID  op_id = (sign < 0) ? RetOpID : SellOpID;
@@ -4370,7 +4325,7 @@ int SLAPI CSessGrouping::ConvertSign(const int sign, const PPID sessID, const PP
 			stgFinish
 		};
 		Stage  stage = stgMain; // “ег этапа обработки
-		CgBillCvtList * p_list = (CgBillCvtList *)pData;
+		const CgBillCvtList * p_list = static_cast<const CgBillCvtList *>(pData);
 		SysJournal * p_sj = DS.GetTLA().P_SysJ;
 		PPObjGoods goods_obj;
 		SString fmt_buf, msg_buf;
@@ -4381,13 +4336,13 @@ int SLAPI CSessGrouping::ConvertSign(const int sign, const PPID sessID, const PP
 		LongArray subst_pos_list; // —писок индексов позиций, дл€ которых следует попробовать провести альтернативный товар.
 		uint   i, j;
 		for(i = 0; i < p_list->getCount(); i++)
-			survey_pos_list.add((long)i);
+			survey_pos_list.add(static_cast<long>(i));
 		while(stage != stgFinish && survey_pos_list.getCount()) {
 			TSCollection <PUGL> compl_dfct_list;
 			LDATE  prev_dt = ZERODATE;
 			PPBillPacket pack;
 			for(j = 0; j < survey_pos_list.getCount(); j++) {
-				const uint item_pos = (uint)survey_pos_list.get(j);
+				const uint item_pos = static_cast<uint>(survey_pos_list.get(j));
 				const CgBillCvtItem & r_item = p_list->at(item_pos);
 				CGoodsLineTbl::Rec cg_rec;
 				r = 0;
@@ -4450,14 +4405,14 @@ int SLAPI CSessGrouping::ConvertSign(const int sign, const PPID sessID, const PP
 							if(R6(ilti.Rest + cg_rec.Rest) != 0.0) {
 								cg_rec.Rest = -ilti.Rest;
 								if(stage == stgSubst)
-									cg_rec.AltGoodsQtty = (float)fabs(ilti.Quantity - ilti.Rest);
-								THROW(GL.Update(&cg_rec, 0) > 0);
+									cg_rec.AltGoodsQtty = static_cast<float>(fabs(ilti.Quantity - ilti.Rest));
+								THROW(GL.Update(cg_rec, 0) > 0);
 							}
 						}
 						else
 							Logger.Log(PPFormatT(PPTXT_LOG_GOODSNFOUND, &msg_buf, goods_id));
 						if(stage != stgSubst && cg_rec.AltGoodsID && cg_rec.AltGoodsID != cg_rec.GoodsID)
-							subst_pos_list.addUnique((long)item_pos);
+							subst_pos_list.addUnique(static_cast<long>(item_pos));
 					}
 					prev_dt = r_item.Dt;
 					PPWaitPercent(item_pos+1, p_list->getCount(), WMsg);
@@ -4479,7 +4434,7 @@ int SLAPI CSessGrouping::ConvertSign(const int sign, const PPID sessID, const PP
 							if(r > 0) {
 								Logger.LogAcceptMsg(PPOBJ_BILL, compl_bill_id, 0);
 								for(i = 0; i < p_pugl->getCount(); i++)
-									survey_pos_list.addUnique((long)((PUGI *)p_pugl->at(i))->Pos);
+									survey_pos_list.addUnique(static_cast<long>(static_cast<const PUGI *>(p_pugl->at(i))->Pos));
 								stage = stgCompl;
 							}
 						}
@@ -4563,7 +4518,7 @@ int SLAPI CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pT
 			goods_name_list.SortByText();
 			date_list.sort();
 			for(k = 0; k < date_list.getCount(); k++) {
-				const LDATE date = *(LDATE *)&date_list.at(k);
+				const LDATE date = *reinterpret_cast<const LDATE *>(&date_list.at(k));
 				for(i = 0; i < goods_name_list.getCount(); i++) {
 					uint   pos = 0;
 					PPID   goods_id = goods_name_list.Get(i).Id;
@@ -4710,8 +4665,8 @@ int SLAPI CSessGrouping::Convert(PPID sessID, PPID locID, void * pData, CSessTot
 			if(fabs(to_adj_amt) > 0.01 && fabs(to_adj_amt) < 10.0 && oad.GetOptimal(oad_pos, &oad_ext_pos, 0, 0)) {
 				PPBillPacket adj_pack;
 				if(p_bobj->ExtractPacket(oad_ext_pos, &adj_pack) > 0) {
-					assert(oad_pos < (long)adj_pack.GetTCount());
-					if(oad_pos < (long)adj_pack.GetTCount()) {
+					assert(oad_pos < static_cast<long>(adj_pack.GetTCount()));
+					if(oad_pos < static_cast<long>(adj_pack.GetTCount())) {
 						const double org_amt = adj_pack.GetAmount(0);
 						PPTransferItem & r_ti = adj_pack.TI(oad_pos);
 						assert(r_ti.Qtty() != 0.0);
@@ -5072,11 +5027,11 @@ struct __SessItem { // @flat
 
 IMPL_CMPFUNC(__SessItem, p1, p2)
 {
-	const __SessItem * p_i1 = (const __SessItem *)p1;
-	const __SessItem * p_i2 = (const __SessItem *)p2;
+	const __SessItem * p_i1 = static_cast<const __SessItem *>(p1);
+	const __SessItem * p_i2 = static_cast<const __SessItem *>(p2);
 	long   diff_date = 0;
 	long   diff_time = diffdatetime(p_i1->Dtm, p_i2->Dtm, 2, &diff_date);
-	return diff_date ? (int)diff_date : (int)diff_time;
+	return static_cast<int>(diff_date ? diff_date : diff_time);
 }
 
 int SLAPI CSessGrouping::GroupingSessList(PPID nodeID, const PPIDArray * pList, PPIDArray * pOutList, PPIDArray * pOutTempList, int use_ta)
@@ -5458,6 +5413,7 @@ int FASTCALL CCheckCore::FetchCTableOrderList(TSVector <CTableStatus> & rList) /
 	return p_cache ? p_cache->GetCTableOrderList(rList) : 0;
 }
 
+/* @v10.3.4 @useless
 //static
 int SLAPI CCheckCore::RecognizeOrdBarcode(const char * pCode, PPID * pOrdCheckID)
 {
@@ -5469,7 +5425,7 @@ int SLAPI CCheckCore::RecognizeOrdBarcode(const char * pCode, PPID * pOrdCheckID
 	}
 	ASSIGN_PTR(pOrdCheckID, cc_id);
 	return BIN(cc_id);
-}
+}*/
 
 int SLAPI CCheckCore::SerializePacket(int dir, CCheckPacket * pPack, SBuffer & rBuf, SSerializeContext * pCtx)
 {
@@ -5593,14 +5549,14 @@ int SLAPI CCheckCore::CorrectCCLineProblem01()
 								for(uint i = 0; i < rbc_list.getCount(); i++) {
 									CCheckLineTbl::Key0 lk0;
 									lk0.CheckID = cc_id;
-									lk0.RByCheck = (int16)rbc_list.get(i);
+									lk0.RByCheck = static_cast<int16>(rbc_list.get(i));
 									if(Lines.searchForUpdate(&lk0, spEq)) {
 										THROW_DB(Lines.deleteRec()); // @sfu
 									}
 									if(P_LnExt) {
 										CCheckLineExtTbl::Key0 lek0;
 										lek0.CheckID = cc_id;
-										lek0.RByCheck = (int16)rbc_list.get(i);
+										lek0.RByCheck = static_cast<int16>(rbc_list.get(i));
 										if(P_LnExt->searchForUpdate(&lek0, spEq)) {
 											THROW_DB(P_LnExt->deleteRec()); // @sfu
 										}

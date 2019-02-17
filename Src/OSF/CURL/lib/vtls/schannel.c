@@ -739,12 +739,12 @@ static CURLcode schannel_connect_step3(struct connectdata * conn, int sockindex)
 			if(old_cred != connssl->cred) {
 				infof(data, "schannel: old credential handle is stale, removing\n");
 				/* we're not taking old_cred ownership here, no refcount++ is needed */
-				Curl_ssl_delsessionid(conn, (void*)old_cred);
+				Curl_ssl_delsessionid(conn, (void *)old_cred);
 				incache = FALSE;
 			}
 		}
 		if(!incache) {
-			result = Curl_ssl_addsessionid(conn, (void*)connssl->cred,
+			result = Curl_ssl_addsessionid(conn, (void *)connssl->cred,
 			    sizeof(struct curl_schannel_cred),
 			    sockindex);
 			if(result) {

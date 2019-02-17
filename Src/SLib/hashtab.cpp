@@ -1494,7 +1494,7 @@ struct UT_hash_handle {
 #define HASH_BKT_CAPACITY_THRESH 10      /* expand when bucket count reaches */
 
 /* calculate the element whose hash handle address is hhe */
-#define ELMT_FROM_HH(tbl, hhp) ((void*)(((char*)(hhp)) - ((tbl)->hho)))
+#define ELMT_FROM_HH(tbl, hhp) ((void *)(((char*)(hhp)) - ((tbl)->hho)))
 
 #define HASH_FIND(hh, head, keyptr, keylen, out)				     \
 	do {										 \
@@ -2121,26 +2121,26 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 					_hs_psize = 0;							   \
 					for(_hs_i = 0; _hs_i  < _hs_insize; _hs_i++) {			\
 						_hs_psize++;						       \
-						_hs_q = (UT_hash_handle*)((_hs_q->next) ? ((void*)((char*)(_hs_q->next) + (head)->hh.tbl->hho)) : NULL); \
+						_hs_q = (UT_hash_handle*)((_hs_q->next) ? ((void *)((char*)(_hs_q->next) + (head)->hh.tbl->hho)) : NULL); \
 						if(!(_hs_q)) break;					     \
 					}								   \
 					_hs_qsize = _hs_insize;						   \
 					while((_hs_psize > 0) || ((_hs_qsize > 0) && _hs_q)) {		  \
 						if(_hs_psize == 0) {					      \
 							_hs_e = _hs_q;						   \
-							_hs_q = (UT_hash_handle*)((_hs_q->next) ? ((void*)((char*)(_hs_q->next) + (head)->hh.tbl->hho)) : NULL); \
+							_hs_q = (UT_hash_handle*)((_hs_q->next) ? ((void *)((char*)(_hs_q->next) + (head)->hh.tbl->hho)) : NULL); \
 							_hs_qsize--;						   \
 						} else if((_hs_qsize == 0) || !(_hs_q)) {		      \
 							_hs_e = _hs_p;						   \
-							_hs_p = (UT_hash_handle*)((_hs_p->next) ? ((void*)((char*)(_hs_p->next) + (head)->hh.tbl->hho)) : NULL); \
+							_hs_p = (UT_hash_handle*)((_hs_p->next) ? ((void *)((char*)(_hs_p->next) + (head)->hh.tbl->hho)) : NULL); \
 							_hs_psize--;						   \
 						} else if((cmpfcn(DECLTYPE(head) (ELMT_FROM_HH((head)->hh.tbl, _hs_p)), DECLTYPE(head) (ELMT_FROM_HH((head)->hh.tbl, _hs_q)))) <= 0) { \
 							_hs_e = _hs_p;						   \
-							_hs_p = (UT_hash_handle*)((_hs_p->next) ? ((void*)((char*)(_hs_p->next) + (head)->hh.tbl->hho)) : NULL); \
+							_hs_p = (UT_hash_handle*)((_hs_p->next) ? ((void *)((char*)(_hs_p->next) + (head)->hh.tbl->hho)) : NULL); \
 							_hs_psize--;						   \
 						} else {						       \
 							_hs_e = _hs_q;						   \
-							_hs_q = (UT_hash_handle*)((_hs_q->next) ? ((void*)((char*)(_hs_q->next) + (head)->hh.tbl->hho)) : NULL); \
+							_hs_q = (UT_hash_handle*)((_hs_q->next) ? ((void *)((char*)(_hs_q->next) + (head)->hh.tbl->hho)) : NULL); \
 							_hs_qsize--;						   \
 						}							       \
 						if(_hs_tail) {						    \

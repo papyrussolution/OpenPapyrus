@@ -77,7 +77,7 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_base)
 		/* We don't use the DSO route for WIN32 because there is a better way */
 		ret = GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS
 		    | GET_MODULE_HANDLE_EX_FLAG_PIN,
-		    (void*)&base_inited, &handle);
+		    (void *)&base_inited, &handle);
 
 		return (ret == TRUE) ? 1 : 0;
 	}

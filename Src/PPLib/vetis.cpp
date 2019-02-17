@@ -3611,11 +3611,8 @@ int SLAPI PPVetisInterface::ParseComplexDate(xmlNode * pParentNode, SUniTime & r
 					dtm.t.encode(hour, 0, 0, 0);
 					rResult.Set(dtm, SUniTime::indHr);
 				}
-				else {
-					LDATE dt;
-					dt.encode(day, mon, year);
-					rResult.Set(dt);
-				}
+				else
+					rResult.Set(encodedate(day, mon, year));
 			}
 			else
 				rResult.SetMonth(year, mon);
@@ -3836,7 +3833,7 @@ int SLAPI PPVetisInterface::ParseVetDocument(xmlNode * pParentNode, VetisVetDocu
 			SETFLAG(rResult.Flags, rResult.fCargoExpertized, temp_buf.IsEqiAscii("true"));
 		}
 		else if(SXml::GetContentByName(p_a, "lastUpdateDate", temp_buf))
-			rResult.LastUpdateDate = strtodate_(temp_buf, DATF_ISO8601);
+			rResult.LastUpdateDate.Set(strtodate_(temp_buf, DATF_ISO8601), ZEROTIME);
 		// @v10.1.6 {
 		else if(SXml::GetContentByName(p_a, "waybillSeries", temp_buf))
 			rResult.WayBillSeries = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);

@@ -549,6 +549,7 @@ public:
 		friend int FASTCALL _SetPaintObjInnerHandle(SPaintObj::Base * pBase, SDrawSystem sys, void * h);
 
 		Base();
+		Base(const Base & rS);
 		void * GetHandle() const { return Handle; }
 		SDrawSystem GetSys() const { return Sys; }
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
@@ -562,6 +563,7 @@ public:
 	class Pen : public Base { // @persistent @store(SSerializeContext)
 	public:
 		Pen();
+		Pen(const Pen & rS);
 		~Pen();
 		Pen  & FASTCALL operator = (const Pen & rS);
 		int    FASTCALL Copy(const Pen & rS);
@@ -599,20 +601,20 @@ public:
 	class Brush : public Base { // @persistent @store(SSerializeContext)
 	public:
 		Brush();
+		Brush(const Brush & rS);
 		Brush & FASTCALL operator = (const Brush &);
 		int    FASTCALL operator == (const Brush &) const;
-		int    FASTCALL Copy(const Brush & rS);
+		void   FASTCALL Copy(const Brush & rS);
 		int    FASTCALL IsEqual(const Brush & rS) const;
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 		int    IsSimple() const;
-		int    FASTCALL SetSimple(SColor);
+		void   FASTCALL SetSimple(SColor);
 
 		SColor C;          // Цвет
 		int32  S;          // Стиль (SPaintObj::bsXXX)
 		int8   Hatch;      // Штрихровка (SPaintObj::bhsXXX)
 		int8   Rule;       // SPaintObj::frXXX Правило заливки //
 		uint16 Reserve;    // @alignment
-		//
 		int32  IdPattern;  // Идентификатор градиента или образца заполнения.
 	};
 	//
@@ -985,7 +987,7 @@ public:
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	const  SStringU & GetText() const;
 	int    SetText(const char * pText);
-	int    SetOptions(long flags, int defParaStyle = -1, int defCStyle = -1);
+	void   SetOptions(long flags, int defParaStyle = -1, int defCStyle = -1);
 	int    FASTCALL HasOption(long f) const;
 	int    AddParagraph(const char * pText, int paraStyleId);
 	int    AddText(const char * pText, int cstyleId);
@@ -996,7 +998,7 @@ public:
 	//   При использовании опции fPrecBkg эти границы отличаются от GetBounds().
 	//
 	FRect  GetBkgBounds() const;
-	int    FASTCALL SetBounds(const FRect & rBounds);
+	void   FASTCALL SetBounds(const FRect & rBounds);
 	int    EnumGroups(uint * pI, RenderGroup * pGroup);
 	int    Arrange(SDrawContext & rCtx, SPaintToolBox & rTb);
 	const  LongArray & GetGlyphIdList() const { return GlyphIdList; }
@@ -4512,7 +4514,7 @@ public:
 	void   top();
 	void   bottom();
 	void   setRange(ushort aRange);
-	void   search(char * pFirstLetter, int srchMode);
+	void   search(const char * pFirstLetter, int srchMode);
 	int    search2(const void * pSrchData, CompFunc, int srchMode, size_t offs);
 	//
 	// Descr: Возвращает текущую колонку в таблице.
@@ -4568,7 +4570,7 @@ private:
 	int    IsLastPage(uint viewHeight); // AHTOXA
 	void   ClearFocusRect(LPRECT);
 	void   DrawCapBk(HDC, LPRECT, BOOL);
-	void   DrawFocus(HDC, LPRECT, BOOL DrawOrClear, BOOL isCellCursor = 0);
+	void   DrawFocus(HDC, const RECT *, BOOL DrawOrClear, BOOL isCellCursor = 0);
 	void   Paint();
 	//
 	// col = -1 - раскрашивать строчку целиком

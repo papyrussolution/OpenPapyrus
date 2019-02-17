@@ -1888,7 +1888,7 @@ int ABCGrpStorageList::IncTotalItem(uint groupBy, GoodsOpAnalyzeViewItem * pItem
 		const long pos = GetGoodsGrpPos(pItem->GoodsID);
 		if(pos >= 0) {
 			double val = ABCGroupingRecsStorage::GetValueByGrouping(groupBy, pItem);
-			ABCGrpStorageList::TotalItem * p_item = (ABCGrpStorageList::TotalItem*)P_TotalItems->at((uint)pos);
+			ABCGrpStorageList::TotalItem * p_item = (ABCGrpStorageList::TotalItem*)P_TotalItems->at(static_cast<uint>(pos));
 			p_item->TotalSum += (val >= 0) ? val : 0;
 			p_item->RecsCount++;
 		}

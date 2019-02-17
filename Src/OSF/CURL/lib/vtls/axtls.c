@@ -364,7 +364,7 @@ static CURLcode connect_finish(struct connectdata * conn, int sockindex)
 		const uint8_t * ssl_sessionid = ssl_get_session_id(ssl);
 		size_t ssl_idsize = ssl_get_session_id_size(ssl);
 		Curl_ssl_sessionid_lock(conn);
-		if(Curl_ssl_addsessionid(conn, (void*)ssl_sessionid, ssl_idsize, sockindex) != CURLE_OK)
+		if(Curl_ssl_addsessionid(conn, (void *)ssl_sessionid, ssl_idsize, sockindex) != CURLE_OK)
 			infof(data, "failed to add session to cache\n");
 		Curl_ssl_sessionid_unlock(conn);
 	}
@@ -629,7 +629,7 @@ static ssize_t axtls_recv(struct connectdata * conn, /* connection data */
  */
 int Curl_axtls_check_cxn(struct connectdata * conn)
 {
-	/* openssl.c line: rc = SSL_peek(conn->ssl[FIRSTSOCKET].ssl, (void*)&buf, 1);
+	/* openssl.c line: rc = SSL_peek(conn->ssl[FIRSTSOCKET].ssl, (void *)&buf, 1);
 	   axTLS compat layer always returns the last argument, so connection is
 	   always alive? */
 

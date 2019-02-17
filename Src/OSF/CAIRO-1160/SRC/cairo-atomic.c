@@ -36,9 +36,9 @@
 #include "cairo-mutex-private.h"
 
 #ifdef HAS_ATOMIC_OPS
-COMPILE_TIME_ASSERT(sizeof(void*) == sizeof(int) ||
-    sizeof(void*) == sizeof(long) ||
-    sizeof(void*) == sizeof(long long));
+COMPILE_TIME_ASSERT(sizeof(void *) == sizeof(int) ||
+    sizeof(void *) == sizeof(long) ||
+    sizeof(void *) == sizeof(long long));
 #else
 void _cairo_atomic_int_inc(cairo_atomic_intptr_t * x)
 {

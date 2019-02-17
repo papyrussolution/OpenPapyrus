@@ -44,7 +44,7 @@ static int dib_init(zbar_window_t * w, zbar_image_t * img, int new_format)
 static int dib_draw(zbar_window_t * w, zbar_image_t * img)
 {
 	StretchDIBits(w->state->hdc, w->scaled_offset.x, w->scaled_offset.y + w->scaled_size.y - 1,
-	    w->scaled_size.x, -w->scaled_size.y, 0, 0, w->src_width, w->src_height, (void*)img->P_Data, (BITMAPINFO*)&w->state->bih,
+	    w->scaled_size.x, -w->scaled_size.y, 0, 0, w->src_width, w->src_height, (void *)img->P_Data, (BITMAPINFO*)&w->state->bih,
 	    DIB_RGB_COLORS, SRCCOPY);
 	return 0;
 }

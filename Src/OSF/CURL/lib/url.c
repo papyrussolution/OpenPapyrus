@@ -1178,7 +1178,7 @@ CURLcode Curl_setopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    /*
 		     * Custom pointer to pass the header write callback function
 		     */
-		    data->set.writeheader = (void*)va_arg(param, void *);
+		    data->set.writeheader = (void *)va_arg(param, void *);
 		    break;
 		case CURLOPT_ERRORBUFFER: // Error buffer provided by the caller to get the human readable error string in
 		    data->set.errorbuffer = va_arg(param, char *);
@@ -2611,7 +2611,7 @@ static bool ConnectionExists(struct Curl_easy * data, struct connectdata * needl
 		size_t max_pipe_len = (bundle->multiuse != BUNDLE_MULTIPLEX) ? max_pipeline_length(data->multi) : 0;
 		size_t best_pipe_len = max_pipe_len;
 		struct curl_llist_element * curr;
-		infof(data, "Found bundle for host %s: %p [%s]\n", (needle->bits.conn_to_host ? needle->conn_to_host.name : needle->host.name), (void*)bundle,
+		infof(data, "Found bundle for host %s: %p [%s]\n", (needle->bits.conn_to_host ? needle->conn_to_host.name : needle->host.name), (void *)bundle,
 		    (bundle->multiuse == BUNDLE_PIPELINING ? "can pipeline" : (bundle->multiuse == BUNDLE_MULTIPLEX ? "can multiplex" : "serially")));
 		/* We can't pipe if we don't know anything about the server */
 		if(canPipeline) {

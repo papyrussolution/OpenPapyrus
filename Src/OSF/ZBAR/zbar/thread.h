@@ -34,7 +34,7 @@
 	#define HAVE_THREADS
 	#define ZTHREAD DWORD WINAPI
 
-	typedef DWORD (WINAPI * zbar_thread_proc_t)(void*);
+	typedef DWORD (WINAPI * zbar_thread_proc_t)(void *);
 	typedef DWORD zbar_thread_id_t;
 #elif defined(HAVE_LIBPTHREAD)
 	#include <pthread.h>
@@ -42,7 +42,7 @@
 	#define HAVE_THREADS
 	#define ZTHREAD void*
 
-	typedef ZTHREAD (*zbar_thread_proc_t)(void*);
+	typedef ZTHREAD (*zbar_thread_proc_t)(void *);
 	typedef pthread_t zbar_thread_id_t;
 #else
 	#undef HAVE_THREADS

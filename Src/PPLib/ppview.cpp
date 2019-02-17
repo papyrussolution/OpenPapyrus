@@ -53,10 +53,7 @@ int FASTCALL PPView::CreateFiltInstanceBySymb(const char * pSymb, PPBaseFilt ** 
 	int    ok = 0;
 	PPBaseFilt * p_filt = 0;
 	if(pSymb && pSymb[0]) {
-		/* @v9.9.5 SString ffn;
-		ffn.Cat("BFF").CatChar('_').Cat(pSymb);
-		FN_PPFILT_FACTORY f = (FN_PPFILT_FACTORY)GetProcAddress(SLS.GetHInst(), ffn);*/
-		FN_PPFILT_FACTORY f = (FN_PPFILT_FACTORY)GetProcAddress(SLS.GetHInst(), SLS.AcquireRvlStr().Cat("BFF").CatChar('_').Cat(pSymb)); // @v9.9.5
+		FN_PPFILT_FACTORY f = reinterpret_cast<FN_PPFILT_FACTORY>(GetProcAddress(SLS.GetHInst(), SLS.AcquireRvlStr().Cat("BFF").CatChar('_').Cat(pSymb)));
 		if(f) {
 			p_filt = f();
 			if(p_filt)
@@ -150,15 +147,15 @@ int FASTCALL PPView::CreateInstance(int viewID, int32 * pSrvInstId, PPView ** pp
 			case PPVIEW_SERVERSTAT:     p_v = new PPViewServerStat;     break;
 			case PPVIEW_ASSET:          p_v = new PPViewAsset;          break;
 			case PPVIEW_SHIPMANALYZE:   p_v = new PPViewShipmAnalyze;   break;
-			case PPVIEW_TRANSPORT:      p_v = new PPViewTransport;      break; //
-			case PPVIEW_GOODSBILLCMP:   p_v = new PPViewGoodsBillCmp;   break; //
-			case PPVIEW_AMOUNTTYPE:     p_v = new PPViewAmountType;     break; //
-			case PPVIEW_REGISTERTYPE:   p_v = new PPViewRegisterType;   break; //
-			case PPVIEW_GOODSMOV:       p_v = new PPViewGoodsMov;       break; //
-			case PPVIEW_LOTOP:          p_v = new PPViewLotOp;          break; //
-			case PPVIEW_LOTEXTCODE:     p_v = new PPViewLotExtCode;     break; // @v8.8.2
-			case PPVIEW_BUDGET:         p_v = new PPViewBudget;         break; //
-			case PPVIEW_BIZSCTEMPL:     p_v = new PPViewBizScTempl;     break; //
+			case PPVIEW_TRANSPORT:      p_v = new PPViewTransport;      break;
+			case PPVIEW_GOODSBILLCMP:   p_v = new PPViewGoodsBillCmp;   break;
+			case PPVIEW_AMOUNTTYPE:     p_v = new PPViewAmountType;     break;
+			case PPVIEW_REGISTERTYPE:   p_v = new PPViewRegisterType;   break;
+			case PPVIEW_GOODSMOV:       p_v = new PPViewGoodsMov;       break;
+			case PPVIEW_LOTOP:          p_v = new PPViewLotOp;          break;
+			case PPVIEW_LOTEXTCODE:     p_v = new PPViewLotExtCode;     break;
+			case PPVIEW_BUDGET:         p_v = new PPViewBudget;         break;
+			case PPVIEW_BIZSCTEMPL:     p_v = new PPViewBizScTempl;     break;
 			case PPVIEW_BIZSCVALBYTEMPL: p_v = new PPViewBizScValByTempl; break;
 			case PPVIEW_CHECKOPJRNL:    p_v = new PPViewCheckOpJrnl;    break;
 			case PPVIEW_GOODSMOV2:      p_v = new PPViewGoodsMov2;      break;
@@ -407,7 +404,7 @@ int FASTCALL PPViewDisplayExtList::Read(SBuffer & rBuf)
 IMPL_INVARIANT_C(PPBaseFilt)
 {
 	S_INVARIANT_PROLOG(pInvP);
-	S_ASSERT_P(*(long *)this != 0, pInvP); // Проверка на целостность указателя на таблицу виртуальных функций
+	S_ASSERT_P(*reinterpret_cast<const long *>(this) != 0, pInvP); // Проверка на целостность указателя на таблицу виртуальных функций
 	S_ASSERT_P(Signature > 0, pInvP);
 	//
 	// Порожденный класс не имеет права устанавливать смещение "плоского" участка в пределах базового класса
@@ -429,9 +426,9 @@ SLAPI PPBaseFilt::~PPBaseFilt()
 	const uint blc = BranchList.getCount();
 	if(blc) {
 		for(uint i = 0; i < blc; i++) {
-			const Branch * p_b = (Branch *)BranchList.at(i);
+			const Branch * p_b = static_cast<const Branch *>(BranchList.at(i));
 			if(p_b->Type == Branch::tBaseFiltPtr) {
-				PPBaseFilt ** pp_filt = (PPBaseFilt**)(((const uint8 *)this) + p_b->Offs);
+				PPBaseFilt ** pp_filt = reinterpret_cast<PPBaseFilt **>(PTR8(this) + p_b->Offs);
 				ZDELETEFAST(*pp_filt);
 			}
 		}
@@ -625,8 +622,7 @@ void SLAPI PPBaseFilt::PutSgdMembToBuf(SubstGrpDate sgd, const char * pMembName,
 		__ITEM(sgdYear)
 	};
 #undef __ITEM
-	uint count = sizeof(SgdStrucList) / sizeof(SgdStruc);
-	for(uint i = 0; i < count; i++)
+	for(uint i = 0; i < SIZEOFARRAY(SgdStrucList); i++)
 		if(SgdStrucList[i].SgpID == sgd) {
 			PutMembToBuf(SgdStrucList[i].P_Name, pMembName, rBuf);
 			break;
@@ -641,8 +637,8 @@ PPBaseFilt & FASTCALL PPBaseFilt::operator = (const PPBaseFilt & s)
 
 void SLAPI PPBaseFilt::SetFlatChunk(size_t offs, size_t size)
 {
-	FlatOffs = (uint16)offs;
-	FlatSize = (uint16)size;
+	FlatOffs = static_cast<uint16>(offs);
+	FlatSize = static_cast<uint16>(size);
 }
 
 int FASTCALL PPBaseFilt::CheckBranchOffs(size_t offs)
@@ -656,7 +652,7 @@ int SLAPI PPBaseFilt::AddBranch(uint type, size_t offs, int32 extraId)
 {
 	Branch b;
 	b.Type = type;
-	b.Offs = (uint16)offs;
+	b.Offs = static_cast<uint16>(offs);
 	b.ExtraId = extraId;
 	return BranchList.insert(&b) ? 1 : PPSetErrorSLib();
 }
@@ -1679,7 +1675,7 @@ int SLAPI PPView::Browse(int modeless)
 	PPWait(0);
 	// { Почти повторяет код PPOpenBrowser() за исключением вызова OnExecBrowser
 	if(modeless) {
-		brw->SetResID(((PPApp *)APPL)->LastCmd);
+		brw->SetResID(static_cast<PPApp *>(APPL)->LastCmd);
 		int    r = InsertView(brw);
 		if(r < 0 && brw->IsConsistent())
 			OnExecBrowser(brw);
@@ -2157,7 +2153,7 @@ int PPViewBrowser::Helper_SetupToolbarStringCombo(uint strID, PPID id)
 int PPViewBrowser::Helper_SetupToolbarCombo(PPID objType, PPID id, uint flags, void * extraPtr, const PPIDArray * pObjList)
 {
 	int    ok = -1;
-	HWND   hw_parent = (HWND)Helper_InitToolbarCombo();
+	HWND   hw_parent = static_cast<HWND>(Helper_InitToolbarCombo());
 	if(hw_parent) {
 		if(pObjList) {
 			StrAssocArray * p_list = new StrAssocArray;
@@ -2213,9 +2209,9 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 		uchar  b[2];
 		b[0] = TVCHR;
 		b[1] = 0;
-		SCharToOem((char *)b);
+		SCharToOem(reinterpret_cast<char *>(b));
 		is_rus = IsLetter866(b[0]);
-		SOemToChar((char *)b);
+		SOemToChar(reinterpret_cast<char *>(b));
 		if(isalnum(c = TVCHR) || is_rus || c == '*') {
 			if((VbState & vbsKbF10) && (b[0] == (uchar)'x' || b[0] == (uchar)'X' || is_rus && (b[0] == (uchar)'ч' || b[0] == (uchar)'Ч'))) {
 				Export();
@@ -2270,7 +2266,7 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 		else if(TVCMD == cmMouseHover) {
 			if(view) {
 				long   h = 0, v = 0;
-				TPoint point = *(TPoint *)event.message.infoPtr;
+				TPoint point = *static_cast<const TPoint *>(event.message.infoPtr);
 				view->ItemByPoint(point, &h, &v);
 				{
 					const void * p_row = view->getItemByPos(v);
@@ -2444,7 +2440,7 @@ int PPTimeChunkBrowser::ExportToExcel()
 								if(_chunk_count > 1)
 									chunk_list.Sort(0);
 								for(uint i = 0; i < _chunk_count; i++) {
-									const STimeChunkAssoc * p_chunk = (const STimeChunkAssoc *)chunk_list.at(i);
+									const STimeChunkAssoc * p_chunk = static_cast<const STimeChunkAssoc *>(chunk_list.at(i));
 									if(p_chunk) {
 										if(i == 0 && __last_chunk.Id && __last_chunk.Id != p_chunk->Id) {
 											GetChunkText(__last_chunk.Id, temp_buf);
@@ -2491,17 +2487,15 @@ int PPTimeChunkBrowser::ExportToExcel()
 					break;
 			}
 		}
-		if(p_wkbook) {
-			SLS.QueryPath("local", path);
-			path.SetLastSlash();
-			createDir(path);
-			path.Cat(name.ReplaceChar('/', ' '));//.Cat(".xls");
-			SFile::Remove(path);
-			p_wkbook->_SaveAs(path);
-			p_wkbook->_Close();
-			ZDELETE(p_wkbook);
-			ok = 1;
-		}
+		SLS.QueryPath("local", path);
+		path.SetLastSlash();
+		createDir(path);
+		path.Cat(name.ReplaceChar('/', ' '));//.Cat(".xls");
+		SFile::Remove(path);
+		p_wkbook->_SaveAs(path);
+		p_wkbook->_Close();
+		ZDELETE(p_wkbook);
+		ok = 1;
 	}
 	CATCHZOK
 	ZDELETE(p_sheets);

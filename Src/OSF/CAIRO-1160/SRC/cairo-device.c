@@ -477,13 +477,10 @@ uint cairo_device_get_reference_count(cairo_device_t * device)
  *
  * Since: 1.10
  **/
-void * cairo_device_get_user_data(cairo_device_t * device,
-    const cairo_user_data_key_t * key)
+void * cairo_device_get_user_data(cairo_device_t * device, const cairo_user_data_key_t * key)
 {
-	return _cairo_user_data_array_get_data(&device->user_data,
-		   key);
+	return _cairo_user_data_array_get_data(&device->user_data, key);
 }
-
 /**
  * cairo_device_set_user_data:
  * @device: a #cairo_device_t
@@ -502,14 +499,9 @@ void * cairo_device_get_user_data(cairo_device_t * device,
  *
  * Since: 1.10
  **/
-cairo_status_t cairo_device_set_user_data(cairo_device_t * device,
-    const cairo_user_data_key_t * key,
-    void * user_data,
-    cairo_destroy_func_t destroy)
+cairo_status_t cairo_device_set_user_data(cairo_device_t * device, const cairo_user_data_key_t * key, void * user_data, cairo_destroy_func_t destroy)
 {
 	if(CAIRO_REFERENCE_COUNT_IS_INVALID(&device->ref_count))
 		return device->status;
-
-	return _cairo_user_data_array_set_data(&device->user_data,
-		   key, user_data, destroy);
+	return _cairo_user_data_array_set_data(&device->user_data, key, user_data, destroy);
 }

@@ -1393,7 +1393,7 @@ static SArray * SLAPI CreateExtRegList(PersonFilt * pFilt, PPID * pAttrID, int o
 static int SLAPI SetupExtRegCombo(TDialog * dlg, uint ctl, PersonFilt * pFilt, int idFromRegFilt, int onlyRegs)
 {
 	int    ok = 1;
-	ComboBox * p_combo = (ComboBox*)dlg->getCtrlView(ctl);
+	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctl));
 	SArray   * p_ary = 0;
 	if(p_combo && pFilt) {
 		PPID   reg_filt_id = pFilt->P_RegF ? pFilt->P_RegF->RegTypeID : 0;
@@ -1427,7 +1427,7 @@ static int SLAPI GetExtRegData(TDialog * dlg, uint ctl, int *pAttrType, PPID *pR
 	if(pAttrType && pRegId) {
 		*pRegId = 0;
 		*pAttrType = 0;
-		ComboBox * p_combo = (ComboBox*)dlg->getCtrlView(ctl);
+		ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctl));
 		if(p_combo) {
 			StdListBoxDef * p_def = 0;
 			p_combo->TransmitData(-1, pRegId);

@@ -57,21 +57,21 @@ void DTLS_RECORD_LAYER_clear(RECORD_LAYER * rl)
 	d = rl->d;
 
 	while((item = pqueue_pop(d->unprocessed_rcds.q)) != NULL) {
-		rdata = (DTLS1_RECORD_DATA*)item->data;
+		rdata = static_cast<DTLS1_RECORD_DATA *>(item->data);
 		OPENSSL_free(rdata->rbuf.buf);
 		OPENSSL_free(item->data);
 		pitem_free(item);
 	}
 
 	while((item = pqueue_pop(d->processed_rcds.q)) != NULL) {
-		rdata = (DTLS1_RECORD_DATA*)item->data;
+		rdata = static_cast<DTLS1_RECORD_DATA *>(item->data);
 		OPENSSL_free(rdata->rbuf.buf);
 		OPENSSL_free(item->data);
 		pitem_free(item);
 	}
 
 	while((item = pqueue_pop(d->buffered_app_data.q)) != NULL) {
-		rdata = (DTLS1_RECORD_DATA*)item->data;
+		rdata = static_cast<DTLS1_RECORD_DATA *>(item->data);
 		OPENSSL_free(rdata->rbuf.buf);
 		OPENSSL_free(item->data);
 		pitem_free(item);
@@ -109,26 +109,19 @@ void DTLS_RECORD_LAYER_set_write_sequence(RECORD_LAYER * rl, uchar * seq)
 	memcpy(rl->write_sequence, seq, SEQ_NUM_SIZE);
 }
 
-static int have_handshake_fragment(SSL * s, int type, uchar * buf,
-    int len);
+static int have_handshake_fragment(SSL * s, int type, uchar * buf, int len);
 
 /* copy buffered record into SSL structure */
 static int dtls1_copy_record(SSL * s, pitem * item)
 {
-	DTLS1_RECORD_DATA * rdata;
-
-	rdata = (DTLS1_RECORD_DATA*)item->data;
-
+	DTLS1_RECORD_DATA * rdata = static_cast<DTLS1_RECORD_DATA *>(item->data);
 	SSL3_BUFFER_release(&s->rlayer.rbuf);
-
 	s->rlayer.packet = rdata->packet;
 	s->rlayer.packet_length = rdata->packet_length;
 	memcpy(&s->rlayer.rbuf, &(rdata->rbuf), sizeof(SSL3_BUFFER));
 	memcpy(&s->rlayer.rrec, &(rdata->rrec), sizeof(SSL3_RECORD));
-
 	/* Set proper sequence number for mac calculation */
 	memcpy(&(s->rlayer.read_sequence[2]), &(rdata->packet[5]), 6);
-
 	return 1;
 }
 
@@ -136,11 +129,9 @@ int dtls1_buffer_record(SSL * s, record_pqueue * queue, uchar * priority)
 {
 	DTLS1_RECORD_DATA * rdata;
 	pitem * item;
-
 	/* Limit the size of the queue to prevent DOS attacks */
 	if(pqueue_size(queue->q) >= 100)
 		return 0;
-
 	rdata = (DTLS1_RECORD_DATA *)OPENSSL_malloc(sizeof(*rdata));
 	item = pitem_new(priority, rdata);
 	if(rdata == NULL || item == NULL) {
@@ -388,7 +379,7 @@ start:
 #ifndef OPENSSL_NO_SCTP
 			/* Restore bio_dgram_sctp_rcvinfo struct */
 			if(BIO_dgram_is_sctp(SSL_get_rbio(s))) {
-				DTLS1_RECORD_DATA * rdata = (DTLS1_RECORD_DATA*)item->data;
+				DTLS1_RECORD_DATA * rdata = static_cast<DTLS1_RECORD_DATA *>(item->data);
 				BIO_ctrl(SSL_get_rbio(s), BIO_CTRL_DGRAM_SCTP_SET_RCVINFO,
 				    sizeof(rdata->recordinfo), &rdata->recordinfo);
 			}

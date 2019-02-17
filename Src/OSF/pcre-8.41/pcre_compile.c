@@ -864,7 +864,7 @@ static int expand_workspace(compile_data * cd)
 	memcpy(newspace, cd->start_workspace, cd->workspace_size * sizeof(pcre_uchar));
 	cd->hwm = (pcre_uchar*)newspace + (cd->hwm - cd->start_workspace);
 	if(cd->workspace_size > COMPILE_WORK_SIZE)
-		(PUBL(free))((void*)cd->start_workspace);
+		(PUBL(free))((void *)cd->start_workspace);
 	cd->start_workspace = newspace;
 	cd->workspace_size = newsize;
 	return 0;
@@ -5957,7 +5957,7 @@ DEFINE_NAME:            /* Come here from (?< handling */
 									memcpy(newspace, cd->named_groups,
 								    cd->named_group_list_size * sizeof(named_group));
 									if(cd->named_group_list_size > NAMED_GROUP_LIST_SIZE)
-										(PUBL(free))((void*)cd->named_groups);
+										(PUBL(free))((void *)cd->named_groups);
 									cd->named_groups = newspace;
 									cd->named_group_list_size = newsize;
 								}
@@ -7725,7 +7725,7 @@ PCRE_EXP_DEFN pcre32 * PCRE_CALL_CONVENTION pcre32_compile2(PCRE_SPTR32 pattern,
 		for(; i > 0; i--, ng++)
 			add_name(cd, ng->name, ng->length, ng->number);
 		if(cd->named_group_list_size > NAMED_GROUP_LIST_SIZE)
-			(PUBL(free))((void*)cd->named_groups);
+			(PUBL(free))((void *)cd->named_groups);
 	}
 	// Set up a starting, non-extracting bracket, then compile the expression. On
 	// error, errorcode will be set non-zero, so we don't need to look at the result of the function here. 
@@ -7784,7 +7784,7 @@ PCRE_EXP_DEFN pcre32 * PCRE_CALL_CONVENTION pcre32_compile2(PCRE_SPTR32 pattern,
 	// If the workspace had to be expanded, free the new memory. Set the pointer to
 	// NULL to indicate that forward references have been filled in. 
 	if(cd->workspace_size > COMPILE_WORK_SIZE)
-		(PUBL(free))((void*)cd->start_workspace);
+		(PUBL(free))((void *)cd->start_workspace);
 	cd->start_workspace = NULL;
 	// Give an error if there's back reference to a non-existent capturing subpattern. 
 	if(errorcode == 0 && re->top_backref > re->top_bracket) 

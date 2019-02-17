@@ -63,7 +63,7 @@ uint Curl_ipv6_scope(const struct sockaddr * sa)
 	(void)sa;
 #else
 	if(sa->sa_family == AF_INET6) {
-		const struct sockaddr_in6 * sa6 = (const struct sockaddr_in6*)(void*)sa;
+		const struct sockaddr_in6 * sa6 = (const struct sockaddr_in6*)(void *)sa;
 		const uchar * b = sa6->sin6_addr.s6_addr;
 		ushort w = (ushort)((b[0] << 8) | b[1]);
 		switch(w & 0xFFC0) {
@@ -147,10 +147,10 @@ if2ip_result_t Curl_if2ip(int af, uint remote_scope,
 							}
 
 							addr =
-							    &((struct sockaddr_in6*)(void*)iface->ifa_addr)->sin6_addr;
+							    &((struct sockaddr_in6*)(void *)iface->ifa_addr)->sin6_addr;
 #ifdef HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
 							/* Include the scope of this interface as part of the address */
-							scopeid = ((struct sockaddr_in6*)(void*)iface->ifa_addr)
+							scopeid = ((struct sockaddr_in6*)(void *)iface->ifa_addr)
 							    ->sin6_scope_id;
 
 							/* If given, scope id should match. */
@@ -166,7 +166,7 @@ if2ip_result_t Curl_if2ip(int af, uint remote_scope,
 						}
 						else
 #endif
-						addr = &((struct sockaddr_in*)(void*)iface->ifa_addr)->sin_addr;
+						addr = &((struct sockaddr_in*)(void *)iface->ifa_addr)->sin_addr;
 						res = IF2IP_FOUND;
 						ip = (char*)Curl_inet_ntop(af, addr, ipstr, sizeof(ipstr));
 						snprintf(buf, buf_size, "%s%s", ip, scope);

@@ -699,7 +699,7 @@ void _cairo_image_scaled_glyph_fini(cairo_scaled_font_t * scaled_font,
 	if(global_glyph_cache) {
 		pixman_glyph_cache_remove(
 			global_glyph_cache, scaled_font,
-			(void*)_cairo_scaled_glyph_index(scaled_glyph));
+			(void *)_cairo_scaled_glyph_index(scaled_glyph));
 	}
 
 	CAIRO_MUTEX_UNLOCK(_cairo_glyph_cache_mutex);
@@ -746,7 +746,7 @@ static cairo_int_status_t composite_glyphs(void * _dst,
 		ulong index = info->glyphs[i].index;
 		const void * glyph;
 
-		glyph = pixman_glyph_cache_lookup(glyph_cache, info->font, (void*)index);
+		glyph = pixman_glyph_cache_lookup(glyph_cache, info->font, (void *)index);
 		if(!glyph) {
 			cairo_scaled_glyph_t * scaled_glyph;
 			cairo_image_surface_t * glyph_surface;
@@ -764,7 +764,7 @@ static cairo_int_status_t composite_glyphs(void * _dst,
 				goto out_thaw;
 
 			glyph_surface = scaled_glyph->surface;
-			glyph = pixman_glyph_cache_insert(glyph_cache, info->font, (void*)index,
+			glyph = pixman_glyph_cache_insert(glyph_cache, info->font, (void *)index,
 				glyph_surface->base.device_transform.x0,
 				glyph_surface->base.device_transform.y0,
 				glyph_surface->pixman_image);

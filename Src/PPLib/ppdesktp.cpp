@@ -501,7 +501,7 @@ int PPBizScoreWindow::DoCommand(TPoint p)
 	int    ok = -1;
 	/*
 	if(Cmd) {
-		((PPApp*)APPL)->processCommand(Cmd);
+		static_cast<PPApp *>(APPL)->processCommand(Cmd);
 		ok = 1;
 	}
 	*/
@@ -722,7 +722,7 @@ int PPDesktop::DrawText(TCanvas & rC, TPoint coord, COLORREF color, const char *
 	text_rect.bottom = text_rect.top  + IconSize - 2;
 	text_rect.right  = text_rect.left + IconSize * 2;
 	{
-		rC.SelectObjectAndPush((HFONT)Ptb.Get(fontText));
+		rC.SelectObjectAndPush(Ptb.Get(fontText));
 		GetTextMetrics(rC, &tm);
 		text_h = (IconSize - 2) / tm.tmHeight;
 		SplitBuf(rC, text, IconSize * 2 - 4, text_h);
@@ -1633,7 +1633,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 						coord.x = p_cmd->X;
 						coord.y = p_cmd->Y;
 						ZDELETE(p_cmd);
-						TView::messageCommand(this, cmaDelete, (void*)&coord);
+						TView::messageCommand(this, cmaDelete, (void *)&coord);
 					}
 				}
 				break;
@@ -1642,7 +1642,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 				{
 					POINT coord;
 					MEMSZERO(coord);
-					TView::messageCommand(this, cmaInsert, (void*)&coord);
+					TView::messageCommand(this, cmaInsert, (void *)&coord);
 				}
 				break;
 			case kbF11:

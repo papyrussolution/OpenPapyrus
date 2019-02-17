@@ -1634,10 +1634,10 @@ int SImageBuffer::PixF::GetUniform(const void * pSrc, void * pUniformBuf, uint w
 							memcpy(p_ufb, p, width * sizeof(uint32));
 							break;
 						case s32PARGB:
-	#define __ALPHA(c) ((c&0xff000000)>>24)
-	#define __R(c)     ((c&0x00ff0000)>>16)
-	#define __G(c)     ((c&0x0000ff00)>>8)
-	#define __B(c)     ((c&0x000000ff))
+	#define __ALPHA(c) (((c)&0xff000000)>>24)
+	#define __R(c)     (((c)&0x00ff0000)>>16)
+	#define __G(c)     (((c)&0x0000ff00)>>8)
+	#define __B(c)     (((c)&0x000000ff))
 	#define MULTIPLY_ALPHA(a,c) (uint8)(((((a)*(c))+0x80)+((((a)*(c))+0x80)>>8))>>8)
 							for(i = 0; i < width; ++i) {
 								uint32 c = *p++;

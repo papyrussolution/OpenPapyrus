@@ -81,7 +81,7 @@ typedef enum {
 // 
 static void LZ4HC_clearTables(LZ4HC_CCtx_internal* hc4)
 {
-	memzero((void*)hc4->hashTable, sizeof(hc4->hashTable));
+	memzero((void *)hc4->hashTable, sizeof(hc4->hashTable));
 	memset(hc4->chainTable, 0xFF, sizeof(hc4->chainTable));
 }
 
@@ -757,7 +757,7 @@ int LZ4_sizeofStateHC(void) { return sizeof(LZ4_streamHC_t); }
 int LZ4_compress_HC_extStateHC_fastReset(void* state, const char* src, char* dst, int srcSize, int dstCapacity, int compressionLevel)
 {
 	LZ4HC_CCtx_internal* const ctx = &((LZ4_streamHC_t*)state)->internal_donotuse;
-	if(((size_t)(state)&(sizeof(void*)-1)) != 0) return 0; /* Error : state is not aligned for pointers (32 or 64
+	if(((size_t)(state)&(sizeof(void *)-1)) != 0) return 0; /* Error : state is not aligned for pointers (32 or 64
 	                                                          bits) */
 	LZ4_resetStreamHC_fast((LZ4_streamHC_t*)state, compressionLevel);
 	LZ4HC_init(ctx, (const uint8*)src);
@@ -769,7 +769,7 @@ int LZ4_compress_HC_extStateHC_fastReset(void* state, const char* src, char* dst
 
 int LZ4_compress_HC_extStateHC(void* state, const char* src, char* dst, int srcSize, int dstCapacity, int compressionLevel)
 {
-	if(((size_t)(state)&(sizeof(void*)-1)) != 0) return 0; /* Error : state is not aligned for pointers (32 or 64
+	if(((size_t)(state)&(sizeof(void *)-1)) != 0) return 0; /* Error : state is not aligned for pointers (32 or 64
 	                                                          bits) */
 	LZ4_resetStreamHC((LZ4_streamHC_t*)state, compressionLevel);
 	return LZ4_compress_HC_extStateHC_fastReset(state, src, dst, srcSize, dstCapacity, compressionLevel);
@@ -1013,7 +1013,7 @@ int LZ4_sizeofStreamStateHC(void) {
 int LZ4_resetStreamStateHC(void* state, char* inputBuffer)
 {
 	LZ4HC_CCtx_internal * ctx = &((LZ4_streamHC_t*)state)->internal_donotuse;
-	if((((size_t)state) & (sizeof(void*)-1)) != 0) return 1; /* Error : pointer is not aligned for pointer (32 or 64
+	if((((size_t)state) & (sizeof(void *)-1)) != 0) return 1; /* Error : pointer is not aligned for pointer (32 or 64
 	                                                            bits) */
 	LZ4_resetStreamHC((LZ4_streamHC_t*)state, ((LZ4_streamHC_t*)state)->internal_donotuse.compressionLevel);
 	LZ4HC_init(ctx, (const uint8*)inputBuffer);

@@ -2031,7 +2031,7 @@ size_t xmlBufNodeDump(xmlBufPtr buf, xmlDoc * doc, xmlNode * cur, int level, int
 			xmlSaveErrMemory("creating buffer");
 		}
 		else {
-			memzero(outbuf, (size_t)sizeof(xmlOutputBuffer));
+			memzero(outbuf, sizeof(xmlOutputBuffer));
 			outbuf->buffer = buf;
 			outbuf->encoder = NULL;
 			outbuf->writecallback = NULL;

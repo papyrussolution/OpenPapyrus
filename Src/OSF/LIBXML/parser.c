@@ -71,7 +71,6 @@ static xmlParserCtxt * xmlCreateEntityParserCtxtInternal(const xmlChar * URL, co
  *    replacement per byte of input.
  */
 #define XML_PARSER_NON_LINEAR 10
-
 /*
  * xmlParserEntityCheck
  *
@@ -81,7 +80,7 @@ static xmlParserCtxt * xmlCreateEntityParserCtxtInternal(const xmlChar * URL, co
  * boundary feature. It can be disabled with the XML_PARSE_HUGE
  * parser option.
  */
-static int xmlParserEntityCheck(xmlParserCtxt * ctxt, size_t size, xmlEntity * ent, size_t replacement)
+static int FASTCALL xmlParserEntityCheck(xmlParserCtxt * ctxt, size_t size, xmlEntity * ent, size_t replacement)
 {
 	size_t consumed = 0;
 	if(!ctxt || (ctxt->options & XML_PARSE_HUGE))
@@ -927,7 +926,7 @@ static void xmlAddDefAttrs(xmlParserCtxt * ctxt, const xmlChar * fullname, const
 	 */
 	defaults = (xmlDefAttrs *)xmlHashLookup2(ctxt->attsDefault, name, prefix);
 	if(defaults == NULL) {
-		defaults = (xmlDefAttrs *)SAlloc::M(sizeof(xmlDefAttrs) + (4 * 5) * sizeof(const xmlChar *));
+		defaults = static_cast<xmlDefAttrs *>(SAlloc::M(sizeof(xmlDefAttrs) + (4 * 5) * sizeof(const xmlChar *)));
 		if(defaults == NULL)
 			goto mem_error;
 		defaults->nbAttrs = 0;
@@ -938,7 +937,7 @@ static void xmlAddDefAttrs(xmlParserCtxt * ctxt, const xmlChar * fullname, const
 		}
 	}
 	else if(defaults->nbAttrs >= defaults->maxAttrs) {
-		xmlDefAttrs * temp = (xmlDefAttrs *)SAlloc::R(defaults, sizeof(xmlDefAttrs) + (2 * defaults->maxAttrs * 5) * sizeof(const xmlChar *));
+		xmlDefAttrs * temp = static_cast<xmlDefAttrs *>(SAlloc::R(defaults, sizeof(xmlDefAttrs) + (2 * defaults->maxAttrs * 5) * sizeof(const xmlChar *)));
 		if(temp == NULL)
 			goto mem_error;
 		defaults = temp;
@@ -993,7 +992,7 @@ static void xmlAddSpecialAttr(xmlParserCtxt * ctxt, const xmlChar * fullname, co
 	}
 	if(xmlHashLookup2(ctxt->attsSpecial, fullname, fullattr))
 		return;
-	xmlHashAddEntry2(ctxt->attsSpecial, fullname, fullattr, (void*)(long)type);
+	xmlHashAddEntry2(ctxt->attsSpecial, fullname, fullattr, (void *)(long)type);
 	return;
 mem_error:
 	xmlErrMemory(ctxt, 0);
@@ -1007,8 +1006,8 @@ mem_error:
 static void xmlCleanSpecialAttrCallback(void * payload, void * data,
     const xmlChar * fullname, const xmlChar * fullattr, const xmlChar * unused ATTRIBUTE_UNUSED)
 {
-	xmlParserCtxt * ctxt = (xmlParserCtxt *)data;
-	if(((long)payload) == XML_ATTRIBUTE_CDATA) {
+	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(data);
+	if(reinterpret_cast<long>(payload) == XML_ATTRIBUTE_CDATA) {
 		xmlHashRemoveEntry2(ctxt->attsSpecial, fullname, fullattr, 0);
 	}
 }
@@ -1299,11 +1298,11 @@ static int FASTCALL xmlCtxtGrowAttrs(xmlParserCtxt * ctxt, int nr)
 	int maxatts;
 	if(ctxt->atts == NULL) {
 		maxatts = 55; // allow for 10 attrs by default 
-		atts = (const xmlChar **)SAlloc::M(maxatts * sizeof(xmlChar *));
+		atts = static_cast<const xmlChar **>(SAlloc::M(maxatts * sizeof(xmlChar *)));
 		if(atts == NULL) 
 			goto mem_error;
 		ctxt->atts = atts;
-		attallocs = (int*)SAlloc::M((maxatts / 5) * sizeof(int));
+		attallocs = static_cast<int *>(SAlloc::M((maxatts / 5) * sizeof(int)));
 		if(attallocs == NULL) 
 			goto mem_error;
 		ctxt->attallocs = attallocs;
@@ -1311,11 +1310,11 @@ static int FASTCALL xmlCtxtGrowAttrs(xmlParserCtxt * ctxt, int nr)
 	}
 	else if((nr + 5) > ctxt->maxatts) {
 		maxatts = (nr + 5) * 2;
-		atts = (const xmlChar **)SAlloc::R((void*)ctxt->atts, maxatts * sizeof(const xmlChar *));
+		atts = static_cast<const xmlChar **>(SAlloc::R((void *)ctxt->atts, maxatts * sizeof(const xmlChar *)));
 		if(atts == NULL) 
 			goto mem_error;
 		ctxt->atts = atts;
-		attallocs = (int*)SAlloc::R((void*)ctxt->attallocs, (maxatts / 5) * sizeof(int));
+		attallocs = (int*)SAlloc::R((void *)ctxt->attallocs, (maxatts / 5) * sizeof(int));
 		if(attallocs == NULL) 
 			goto mem_error;
 		ctxt->attallocs = attallocs;
@@ -1342,7 +1341,7 @@ int FASTCALL inputPush(xmlParserCtxt * ctxt, xmlParserInput * value)
 	else {
 		if(ctxt->inputNr >= ctxt->inputMax) {
 			ctxt->inputMax *= 2;
-			ctxt->inputTab = (xmlParserInput **)SAlloc::R(ctxt->inputTab, ctxt->inputMax * sizeof(ctxt->inputTab[0]));
+			ctxt->inputTab = static_cast<xmlParserInput **>(SAlloc::R(ctxt->inputTab, ctxt->inputMax * sizeof(ctxt->inputTab[0])));
 			if(ctxt->inputTab == NULL) {
 				xmlErrMemory(ctxt, 0);
 				xmlFreeInputStream(value);
@@ -1392,7 +1391,7 @@ int nodePush(xmlParserCtxt * ctxt, xmlNode * value)
 	if(!ctxt)
 		return 0;
 	if(ctxt->nodeNr >= ctxt->nodeMax) {
-		xmlNode ** tmp = (xmlNode **)SAlloc::R(ctxt->PP_NodeTab, ctxt->nodeMax * 2 * sizeof(ctxt->PP_NodeTab[0]));
+		xmlNode ** tmp = static_cast<xmlNode **>(SAlloc::R(ctxt->PP_NodeTab, ctxt->nodeMax * 2 * sizeof(ctxt->PP_NodeTab[0])));
 		if(!tmp) {
 			xmlErrMemory(ctxt, 0);
 			return -1;
@@ -1447,17 +1446,13 @@ static int nameNsPush(xmlParserCtxt * ctxt, const xmlChar * value, const xmlChar
 		const xmlChar ** tmp;
 		void ** tmp2;
 		ctxt->nameMax *= 2;
-		tmp = (const xmlChar**)SAlloc::R((xmlChar**)ctxt->nameTab,
-		    ctxt->nameMax *
-		    sizeof(ctxt->nameTab[0]));
+		tmp = static_cast<const xmlChar **>(SAlloc::R((xmlChar**)ctxt->nameTab, ctxt->nameMax * sizeof(ctxt->nameTab[0])));
 		if(!tmp) {
 			ctxt->nameMax /= 2;
 			goto mem_error;
 		}
 		ctxt->nameTab = tmp;
-		tmp2 = (void**)SAlloc::R((void**)ctxt->pushTab,
-		    ctxt->nameMax * 3 *
-		    sizeof(ctxt->pushTab[0]));
+		tmp2 = static_cast<void **>(SAlloc::R((void**)ctxt->pushTab, ctxt->nameMax * 3 * sizeof(ctxt->pushTab[0])));
 		if(tmp2 == NULL) {
 			ctxt->nameMax /= 2;
 			goto mem_error;
@@ -1466,9 +1461,9 @@ static int nameNsPush(xmlParserCtxt * ctxt, const xmlChar * value, const xmlChar
 	}
 	ctxt->nameTab[ctxt->nameNr] = value;
 	ctxt->name = value;
-	ctxt->pushTab[ctxt->nameNr * 3] = (void*)prefix;
-	ctxt->pushTab[ctxt->nameNr * 3 + 1] = (void*)URI;
-	ctxt->pushTab[ctxt->nameNr * 3 + 2] = (void*)(long)nsNr;
+	ctxt->pushTab[ctxt->nameNr * 3] = (void *)prefix;
+	ctxt->pushTab[ctxt->nameNr * 3 + 1] = (void *)URI;
+	ctxt->pushTab[ctxt->nameNr * 3 + 2] = (void *)(long)nsNr;
 	return (ctxt->nameNr++);
 mem_error:
 	xmlErrMemory(ctxt, 0);
@@ -1510,7 +1505,7 @@ int namePush(xmlParserCtxt * ctxt, const xmlChar * value)
 	if(!ctxt)
 		return -1;
 	if(ctxt->nameNr >= ctxt->nameMax) {
-		const xmlChar ** tmp = (const xmlChar**)SAlloc::R((xmlChar**)ctxt->nameTab, ctxt->nameMax * 2 * sizeof(ctxt->nameTab[0]));
+		const xmlChar ** tmp = static_cast<const xmlChar **>(SAlloc::R((xmlChar**)ctxt->nameTab, ctxt->nameMax * 2 * sizeof(ctxt->nameTab[0])));
 		if(!tmp) {
 			goto mem_error;
 		}
@@ -1548,7 +1543,7 @@ static int FASTCALL spacePush(xmlParserCtxt * ctxt, int val)
 {
 	if(ctxt->spaceNr >= ctxt->spaceMax) {
 		ctxt->spaceMax *= 2;
-		int * tmp = (int*)SAlloc::R(ctxt->spaceTab, ctxt->spaceMax * sizeof(ctxt->spaceTab[0]));
+		int * tmp = static_cast<int *>(SAlloc::R(ctxt->spaceTab, ctxt->spaceMax * sizeof(ctxt->spaceTab[0])));
 		if(!tmp) {
 			xmlErrMemory(ctxt, 0);
 			ctxt->spaceMax /= 2;
@@ -1561,7 +1556,7 @@ static int FASTCALL spacePush(xmlParserCtxt * ctxt, int val)
 	return ctxt->spaceNr++;
 }
 
-static int spacePop(xmlParserCtxt * ctxt)
+static int FASTCALL spacePop(xmlParserCtxt * ctxt)
 {
 	int ret = 0;
 	if(ctxt->spaceNr > 0) {
@@ -2413,7 +2408,7 @@ int_error:
  * Returns A newly allocated string with the substitution done. The caller
  *      must deallocate it !
  */
-xmlChar * xmlStringDecodeEntities(xmlParserCtxt * ctxt, const xmlChar * str, int what, xmlChar end, xmlChar end2, xmlChar end3)
+xmlChar * FASTCALL xmlStringDecodeEntities(xmlParserCtxt * ctxt, const xmlChar * str, int what, xmlChar end, xmlChar end2, xmlChar end3)
 {
 	return (ctxt && str) ? xmlStringLenDecodeEntities(ctxt, str, sstrlen(str), what, end, end2, end3) : 0;
 }
@@ -2435,7 +2430,7 @@ xmlChar * xmlStringDecodeEntities(xmlParserCtxt * ctxt, const xmlChar * str, int
  *
  * Returns 1 if ignorable 0 otherwise.
  */
-static int areBlanks(xmlParserCtxt * ctxt, const xmlChar * str, int len, int blank_chars) 
+static int FASTCALL areBlanks(xmlParserCtxt * ctxt, const xmlChar * str, int len, int blank_chars) 
 {
 	// Don't spend time trying to differentiate them, the same callback is used !
 	if(ctxt->sax->ignorableWhitespace == ctxt->sax->characters)
@@ -2469,7 +2464,7 @@ static int areBlanks(xmlParserCtxt * ctxt, const xmlChar * str, int len, int bla
 			else if(!ctxt->P_Node->children && (RAW == '<') && (NXT(1) == '/')) 
 				return 0;
 			else {
-				xmlNode * lastChild = xmlGetLastChild(ctxt->P_Node);
+				const xmlNode * lastChild = xmlGetLastChild(ctxt->P_Node);
 				if(!lastChild) {
 					if(ctxt->P_Node->type != XML_ELEMENT_NODE && ctxt->P_Node->content) 
 						return 0;
@@ -3239,7 +3234,7 @@ xmlChar * xmlParseEntityValue(xmlParserCtxt * ctxt, xmlChar ** orig)
 		xmlFatalErr(ctxt, XML_ERR_ENTITY_NOT_STARTED, 0);
 		return 0;
 	}
-	buf = (xmlChar*)SAlloc::M(size * sizeof(xmlChar));
+	buf = static_cast<xmlChar *>(SAlloc::M(size * sizeof(xmlChar)));
 	if(!buf) {
 		xmlErrMemory(ctxt, 0);
 		return 0;
@@ -3639,8 +3634,7 @@ xmlChar * xmlParseSystemLiteral(xmlParserCtxt * ctxt)
 		xmlFatalErr(ctxt, XML_ERR_LITERAL_NOT_STARTED, 0);
 		return 0;
 	}
-
-	buf = (xmlChar*)SAlloc::M(size * sizeof(xmlChar));
+	buf = static_cast<xmlChar *>(SAlloc::M(size * sizeof(xmlChar)));
 	if(!buf) {
 		xmlErrMemory(ctxt, 0);
 		return 0;
@@ -3726,7 +3720,7 @@ xmlChar * xmlParsePubidLiteral(xmlParserCtxt * ctxt)
 		xmlFatalErr(ctxt, XML_ERR_LITERAL_NOT_STARTED, 0);
 		return 0;
 	}
-	buf = (xmlChar*)SAlloc::M(size * sizeof(xmlChar));
+	buf = static_cast<xmlChar *>(SAlloc::M(size * sizeof(xmlChar)));
 	if(!buf) {
 		xmlErrMemory(ctxt, 0);
 		return 0;
@@ -4150,7 +4144,7 @@ static void xmlParseCommentComplex(xmlParserCtxt * ctxt, xmlChar * buf, size_t l
 	if(!buf) {
 		len = 0;
 		size = XML_PARSER_BUFFER_SIZE;
-		buf = (xmlChar*)SAlloc::M(size * sizeof(xmlChar));
+		buf = static_cast<xmlChar *>(SAlloc::M(size * sizeof(xmlChar)));
 		if(!buf) {
 			xmlErrMemory(ctxt, 0);
 			return;
@@ -4312,7 +4306,7 @@ get_more:
 						size = nbchar + 1;
 					else
 						size = XML_PARSER_BUFFER_SIZE + nbchar;
-					buf = (xmlChar*)SAlloc::M(size * sizeof(xmlChar));
+					buf = static_cast<xmlChar *>(SAlloc::M(size * sizeof(xmlChar)));
 					if(!buf) {
 						xmlErrMemory(ctxt, 0);
 						ctxt->instate = state;
@@ -4541,7 +4535,7 @@ void xmlParsePI(xmlParserCtxt * ctxt)
 					ctxt->instate = state;
 				return;
 			}
-			buf = (xmlChar*)SAlloc::M(size * sizeof(xmlChar));
+			buf = static_cast<xmlChar *>(SAlloc::M(size * sizeof(xmlChar)));
 			if(!buf) {
 				xmlErrMemory(ctxt, 0);
 				ctxt->instate = state;
@@ -6359,14 +6353,14 @@ void xmlParseReference(xmlParserCtxt * ctxt)
 						// Prune it directly in the generated document except for single text nodes.
 						// 
 						if(((list->type == XML_TEXT_NODE) && !list->next) || (ctxt->parseMode == XML_PARSE_READER)) {
-							list->parent = (xmlNode *)ent;
+							list->parent = reinterpret_cast<xmlNode *>(ent);
 							list = NULL;
 							ent->owner = 1;
 						}
 						else {
 							ent->owner = 0;
 							for(; list; list = list->next) {
-								list->parent = (xmlNode *)ctxt->P_Node;
+								list->parent = ctxt->P_Node;
 								list->doc = ctxt->myDoc;
 								if(list->next == NULL)
 									ent->last = list;
@@ -6381,7 +6375,7 @@ void xmlParseReference(xmlParserCtxt * ctxt)
 					else {
 						ent->owner = 1;
 						for(; list; list = list->next) {
-							list->parent = (xmlNode *)ent;
+							list->parent = reinterpret_cast<xmlNode *>(ent);
 							xmlSetTreeDoc(list, ent->doc);
 							if(list->next == NULL)
 								ent->last = list;
@@ -7455,7 +7449,7 @@ const xmlChar * xmlParseStartTag(xmlParserCtxt * ctxt)
 					}
 					else if(nbatts + 4 > maxatts) {
 						maxatts *= 2;
-						const xmlChar ** n = (const xmlChar**)SAlloc::R((void*)atts, maxatts * sizeof(const xmlChar *));
+						const xmlChar ** n = (const xmlChar**)SAlloc::R((void *)atts, maxatts * sizeof(const xmlChar *));
 						if(n == NULL) {
 							xmlErrMemory(ctxt, 0);
 							SAlloc::F(attvalue);
@@ -8540,7 +8534,7 @@ void xmlParseCDSect(xmlParserCtxt * ctxt)
 	}
 	NEXTL(sl);
 	cur = CUR_CHAR(l);
-	buf = (xmlChar*)SAlloc::M(size * sizeof(xmlChar));
+	buf = static_cast<xmlChar *>(SAlloc::M(size * sizeof(xmlChar)));
 	if(!buf) {
 		xmlErrMemory(ctxt, 0);
 		return;
@@ -8813,7 +8807,7 @@ xmlChar * xmlParseVersionNum(xmlParserCtxt * ctxt)
 	int len = 0;
 	int size = 10;
 	xmlChar cur;
-	xmlChar * buf = (xmlChar*)SAlloc::M(size * sizeof(xmlChar));
+	xmlChar * buf = static_cast<xmlChar *>(SAlloc::M(size * sizeof(xmlChar)));
 	if(!buf) {
 		xmlErrMemory(ctxt, 0);
 		return 0;
@@ -8917,7 +8911,7 @@ xmlChar * xmlParseEncName(xmlParserCtxt * ctxt)
 	int size = 10;
 	xmlChar cur = CUR;
 	if(((cur >= 'a') && (cur <= 'z')) || ((cur >= 'A') && (cur <= 'Z'))) {
-		buf = (xmlChar*)SAlloc::M(size * sizeof(xmlChar));
+		buf = static_cast<xmlChar *>(SAlloc::M(size * sizeof(xmlChar)));
 		if(!buf) {
 			xmlErrMemory(ctxt, 0);
 			return 0;
@@ -9183,7 +9177,7 @@ void xmlParseXMLDecl(xmlParserCtxt * ctxt)
 				}
 			}
 		}
-		SAlloc::F((void*)ctxt->version);
+		SAlloc::F((void *)ctxt->version);
 		ctxt->version = version;
 	}
 	/*

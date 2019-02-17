@@ -78,7 +78,7 @@ void * ngx_hash_find_wc_head(ngx_hash_wildcard_t * hwc, const u_char * name, siz
 				/* "example.com" */
 				return NULL;
 			}
-			return (void*)((uintptr_t)value & (uintptr_t) ~3);
+			return (void *)((uintptr_t)value & (uintptr_t) ~3);
 		}
 		return value;
 	}
@@ -379,10 +379,10 @@ ngx_int_t ngx_hash_wildcard_init(ngx_hash_init_t * hinit, ngx_hash_key_t * names
 			if(names[n].key.len == len) {
 				wdc->value = names[n].value;
 			}
-			name->value = (void*)((uintptr_t)wdc | (dot ? 3 : 2));
+			name->value = (void *)((uintptr_t)wdc | (dot ? 3 : 2));
 		}
 		else if(dot) {
-			name->value = (void*)((uintptr_t)name->value | 1);
+			name->value = (void *)((uintptr_t)name->value | 1);
 		}
 	}
 	if(ngx_hash_init(hinit, (ngx_hash_key_t*)curr_names.elts, curr_names.nelts) != NGX_OK) {

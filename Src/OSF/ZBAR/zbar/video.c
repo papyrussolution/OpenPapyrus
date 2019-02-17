@@ -382,7 +382,7 @@ zbar_image_t * zbar_video_next_image(zbar_video_t * vdo)
 			}
 			img->cleanup = _zbar_video_recycle_shadow;
 			img->seq = frame;
-			memcpy((void*)img->P_Data, tmp->P_Data, img->datalen);
+			memcpy((void *)img->P_Data, tmp->P_Data, img->datalen);
 			_zbar_video_recycle_image(tmp);
 		}
 		else

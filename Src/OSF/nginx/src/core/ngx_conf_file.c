@@ -830,7 +830,7 @@ const char * ngx_conf_set_num_slot(ngx_conf_t * cf, const ngx_command_t * cmd, v
 
 const char * ngx_conf_set_size_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
-	char * p = (char*)conf;
+	char * p = static_cast<char *>(conf);
 	size_t * sp = (size_t*)(p + cmd->offset);
 	if(*sp != NGX_CONF_UNSET_SIZE) {
 		return "is duplicate";
@@ -852,7 +852,7 @@ const char * ngx_conf_set_size_slot(ngx_conf_t * cf, const ngx_command_t * cmd, 
 
 const char * ngx_conf_set_off_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
-	char  * p = (char*)conf;
+	char  * p = static_cast<char *>(conf);
 	nginx_off_t * op = (nginx_off_t*)(p + cmd->offset);
 	if(*op != NGX_CONF_UNSET) {
 		return "is duplicate";
@@ -874,7 +874,7 @@ const char * ngx_conf_set_off_slot(ngx_conf_t * cf, const ngx_command_t * cmd, v
 
 const char * ngx_conf_set_msec_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
-	char  * p = (char*)conf;
+	char  * p = static_cast<char *>(conf);
 	ngx_msec_t * msp = (ngx_msec_t*)(p + cmd->offset);
 	if(*msp != NGX_CONF_UNSET_MSEC) {
 		return "is duplicate";
@@ -918,7 +918,7 @@ const char * ngx_conf_set_sec_slot(ngx_conf_t * cf, const ngx_command_t * cmd, v
 
 const char * ngx_conf_set_bufs_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
-	char * p = (char*)conf;
+	char * p = static_cast<char *>(conf);
 	ngx_bufs_t  * bufs = (ngx_bufs_t*)(p + cmd->offset);
 	if(bufs->num) {
 		return "is duplicate";
@@ -939,7 +939,7 @@ const char * ngx_conf_set_bufs_slot(ngx_conf_t * cf, const ngx_command_t * cmd, 
 
 const char * ngx_conf_set_enum_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
-	char  * p = (char*)conf;
+	char  * p = static_cast<char *>(conf);
 	ngx_uint_t * np = (ngx_uint_t*)(p + cmd->offset);
 	if(*np != NGX_CONF_UNSET_UINT) {
 		return "is duplicate";

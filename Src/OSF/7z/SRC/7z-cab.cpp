@@ -1740,7 +1740,7 @@ namespace NArchive {
 				}
 			}
 			if(Items.Size() > 1) {
-				Items.Sort(CompareMvItems, (void*)this);
+				Items.Sort(CompareMvItems, (void *)this);
 				uint   j = 1;
 				for(uint i = 1; i < Items.Size(); i++)
 					if(!AreItemsEqual(i, i-1))

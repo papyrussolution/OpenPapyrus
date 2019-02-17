@@ -536,7 +536,7 @@ static int sign_frommemory(LIBSSH2_SESSION * session, uchar ** sig, size_t * sig
 	if(rc)
 		return rc;
 	libssh2_prepare_iovec(&datavec, 1);
-	datavec.iov_base = (void*)data;
+	datavec.iov_base = (void *)data;
 	datavec.iov_len  = data_len;
 	if(privkeyobj->signv(session, sig, sig_len, 1, &datavec, &hostkey_abstract)) {
 		if(privkeyobj->dtor) {
@@ -562,7 +562,7 @@ static int sign_fromfile(LIBSSH2_SESSION * session, uchar ** sig, size_t * sig_l
 	if(rc)
 		return rc;
 	libssh2_prepare_iovec(&datavec, 1);
-	datavec.iov_base = (void*)data;
+	datavec.iov_base = (void *)data;
 	datavec.iov_len  = data_len;
 	if(privkeyobj->signv(session, sig, sig_len, 1, &datavec, &hostkey_abstract)) {
 		if(privkeyobj->dtor) {
@@ -645,11 +645,11 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION * session, const char * u
 		}
 		_libssh2_htonu32(buf, session->session_id_len);
 		libssh2_prepare_iovec(datavec, 4);
-		datavec[0].iov_base = (void*)buf;
+		datavec[0].iov_base = (void *)buf;
 		datavec[0].iov_len = 4;
-		datavec[1].iov_base = (void*)session->session_id;
+		datavec[1].iov_base = (void *)session->session_id;
 		datavec[1].iov_len = session->session_id_len;
-		datavec[2].iov_base = (void*)session->userauth_host_packet;
+		datavec[2].iov_base = (void *)session->userauth_host_packet;
 		datavec[2].iov_len = session->userauth_host_packet_len;
 		if(privkeyobj && privkeyobj->signv && privkeyobj->signv(session, &sig, &sig_len, 3, datavec, &abstract)) {
 			LIBSSH2_FREE(session, session->userauth_host_method);

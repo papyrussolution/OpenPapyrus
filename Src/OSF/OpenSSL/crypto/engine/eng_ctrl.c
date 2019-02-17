@@ -195,7 +195,7 @@ int ENGINE_ctrl_cmd(ENGINE * e, const char * cmd_name, long i, void * p, void (*
 	}
 	if(e->ctrl == NULL
 	    || (num = ENGINE_ctrl(e, ENGINE_CTRL_GET_CMD_FROM_NAME,
-			    0, (void*)cmd_name, NULL)) <= 0) {
+			    0, (void *)cmd_name, NULL)) <= 0) {
 		/*
 		 * If the command didn't *have* to be supported, we fake success.
 		 * This allows certain settings to be specified for multiple ENGINEs
@@ -233,7 +233,7 @@ int ENGINE_ctrl_cmd_string(ENGINE * e, const char * cmd_name, const char * arg,
 	}
 	if(e->ctrl == NULL
 	    || (num = ENGINE_ctrl(e, ENGINE_CTRL_GET_CMD_FROM_NAME,
-			    0, (void*)cmd_name, NULL)) <= 0) {
+			    0, (void *)cmd_name, NULL)) <= 0) {
 		/*
 		 * If the command didn't *have* to be supported, we fake success.
 		 * This allows certain settings to be specified for multiple ENGINEs
@@ -275,7 +275,7 @@ int ENGINE_ctrl_cmd_string(ENGINE * e, const char * cmd_name, const char * arg,
 		 * these commands is consistent across applications and that certain
 		 * applications don't understand it one way, and others another.
 		 */
-		if(ENGINE_ctrl(e, num, 0, (void*)arg, NULL) > 0)
+		if(ENGINE_ctrl(e, num, 0, (void *)arg, NULL) > 0)
 			return 1;
 		return 0;
 	}
@@ -287,7 +287,7 @@ int ENGINE_ctrl_cmd_string(ENGINE * e, const char * cmd_name, const char * arg,
 	/* If it takes string input, that's easy */
 	if(flags & ENGINE_CMD_FLAG_STRING) {
 		/* Same explanation as above */
-		if(ENGINE_ctrl(e, num, 0, (void*)arg, NULL) > 0)
+		if(ENGINE_ctrl(e, num, 0, (void *)arg, NULL) > 0)
 			return 1;
 		return 0;
 	}

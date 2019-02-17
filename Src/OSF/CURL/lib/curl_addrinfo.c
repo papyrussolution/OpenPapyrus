@@ -425,7 +425,7 @@ Curl_addrinfo * Curl_unix2addr(const char * path, bool * longpath, bool abstract
 		SAlloc::F(ai);
 		return NULL;
 	}
-	sa_un = (void*)ai->ai_addr;
+	sa_un = (void *)ai->ai_addr;
 	sa_un->sun_family = AF_UNIX;
 	/* sun_path must be able to store the NUL-terminated path */
 	path_len = sstrlen(path) + 1;
@@ -470,7 +470,7 @@ void curl_dofreeaddrinfo(struct addrinfo * freethis,
 	(freeaddrinfo)(freethis);
 #endif
 	curl_memlog("ADDR %s:%d freeaddrinfo(%p)\n",
-	    source, line, (void*)freethis);
+	    source, line, (void *)freethis);
 }
 
 #endif /* defined(CURLDEBUG) && defined(HAVE_FREEADDRINFO) */
@@ -496,7 +496,7 @@ int curl_dogetaddrinfo(const char * hostname,
 	int res = (getaddrinfo)(hostname, service, hints, result);
 #endif
 	if(0 == res) // success 
-		curl_memlog("ADDR %s:%d getaddrinfo() = %p\n", source, line, (void*)*result);
+		curl_memlog("ADDR %s:%d getaddrinfo() = %p\n", source, line, (void *)*result);
 	else
 		curl_memlog("ADDR %s:%d getaddrinfo() failed\n", source, line);
 	return res;
@@ -521,13 +521,13 @@ void Curl_addrinfo_set_port(Curl_addrinfo * addrinfo, int port)
 	for(ca = addrinfo; ca != NULL; ca = ca->ai_next) {
 		switch(ca->ai_family) {
 			case AF_INET:
-			    addr = (void*)ca->ai_addr; /* storage area for this info */
+			    addr = (void *)ca->ai_addr; /* storage area for this info */
 			    addr->sin_port = htons((ushort)port);
 			    break;
 
 #ifdef ENABLE_IPV6
 			case AF_INET6:
-			    addr6 = (void*)ca->ai_addr; /* storage area for this info */
+			    addr6 = (void *)ca->ai_addr; /* storage area for this info */
 			    addr6->sin6_port = htons((ushort)port);
 			    break;
 #endif

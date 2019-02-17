@@ -179,13 +179,13 @@ loop:
 			goto err;
 		}
 		else {
-			if((ret = __os_read(env, env->lockfhp, &rbuf, sizeof(rbuf), &nrw)) != 0 || nrw < (size_t)sizeof(rbuf) ||
+			if((ret = __os_read(env, env->lockfhp, &rbuf, sizeof(rbuf), &nrw)) != 0 || nrw < sizeof(rbuf) ||
 			   (ret = __os_seek(env, env->lockfhp, 0, 0, rbuf.region_off)) != 0) {
 				__db_err(env, ret, DB_STR_A("1536", "%s: unable to read region info", "%s"), infop->name);
 				goto err;
 			}
 		}
-		if((ret = __os_read(env, env->lockfhp, &ref, sizeof(ref), &nrw)) != 0 || nrw < (size_t)sizeof(ref)) {
+		if((ret = __os_read(env, env->lockfhp, &ref, sizeof(ref), &nrw)) != 0 || nrw < sizeof(ref)) {
 			SETIFZ(ret, EIO);
 			__db_err(env, ret, DB_STR_A("1537", "%s: unable to read system-memory information", "%s"), infop->name);
 			goto err;

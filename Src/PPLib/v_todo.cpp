@@ -208,7 +208,7 @@ int SLAPI VCalendar::ReadProp(TodoProperty * pProp, SString & rVal, SString & rA
 				mime64_enc = attrs.GetIdxBySub(str_mime64_enc, ';');
 			}
 			if(mime64_enc >= 0) {
-				temp_buf2.Z().DecodeMime64((void*)(const char*)val, val.Len(), 0);
+				temp_buf2.Z().DecodeMime64((void *)(const char*)val, val.Len(), 0);
 				val = temp_buf2;
 			}
 			else
@@ -758,7 +758,7 @@ int SLAPI CrosstabProcessor::AddRec(PPID tabID, double tabParam, double addParam
 				add_i.id = temp_rec.ClientID;
 			else if(tab_type == PrjTaskFilt::crstEmployerDate || tab_type == PrjTaskFilt::crstEmployerHour)
 				add_i.id = temp_rec.EmployerID;
-			if((found = SearchRec(tabID, (void*)&add_i, 0)) > 0) {
+			if((found = SearchRec(tabID, (void *)&add_i, 0)) > 0) {
 				switch(Filt.TabParam) {
 					case PrjTaskFilt::ctpComplTaskRatio:
 					case PrjTaskFilt::ctpUnComplTask:
@@ -1926,7 +1926,7 @@ int SLAPI ViewPrjTask_ByStatus()
 		if(i != 1 && i != 4)
 			filt.StatusList[i] = i + 1;
 	}
-	((PPApp*)APPL)->LastCmd = cmPrjTask;
+	static_cast<PPApp *>(APPL)->LastCmd = cmPrjTask;
 	return ViewPrjTask(&filt);
 }
 
@@ -1948,7 +1948,7 @@ int SLAPI ViewPrjTask_ByReminder()
 			if(i != 1 && i != 4)
 				filt.StatusList[i] = i + 1;
 		}
-		((PPApp*)APPL)->LastCmd = cmPrjTask;
+		static_cast<PPApp *>(APPL)->LastCmd = cmPrjTask;
 		ok = ViewPrjTask(&filt);
 	}
 	return ok;
@@ -2090,7 +2090,7 @@ int SLAPI PPViewPrjTask::TimeChunkBrowser()
 	p_brw->SetBmpId(STimeChunkBrowser::bmpBack, BM_BACK);
 	p_brw->SetParam(&p);
 	p_brw->SetData(&Grid, 0);
-	p_brw->SetResID(((PPApp *)APPL)->LastCmd);
+	p_brw->SetResID(static_cast<PPApp *>(APPL)->LastCmd);
 	InsertView(p_brw);
 	return 1;
 }

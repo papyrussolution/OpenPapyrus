@@ -163,7 +163,7 @@ static int mem_buf_free(BIO * a, int free_all)
 static int mem_buf_sync(BIO * b)
 {
 	if(b != NULL && b->init != 0 && b->ptr != NULL) {
-		BIO_BUF_MEM * bbm = (BIO_BUF_MEM*)b->ptr;
+		BIO_BUF_MEM * bbm = static_cast<BIO_BUF_MEM *>(b->ptr);
 		if(bbm->readp->data != bbm->buf->data) {
 			memmove(bbm->buf->data, bbm->readp->data, bbm->readp->length);
 			bbm->buf->length = bbm->readp->length;
@@ -176,7 +176,7 @@ static int mem_buf_sync(BIO * b)
 static int mem_read(BIO * b, char * out, int outl)
 {
 	int ret = -1;
-	BIO_BUF_MEM * bbm = (BIO_BUF_MEM*)b->ptr;
+	BIO_BUF_MEM * bbm = static_cast<BIO_BUF_MEM *>(b->ptr);
 	BUF_MEM * bm = bbm->readp;
 	BIO_clear_retry_flags(b);
 	ret = (outl >= 0 && (size_t)outl > bm->length) ? (int)bm->length : outl;
@@ -197,7 +197,7 @@ static int mem_write(BIO * b, const char * in, int inl)
 {
 	int ret = -1;
 	int blen;
-	BIO_BUF_MEM * bbm = (BIO_BUF_MEM*)b->ptr;
+	BIO_BUF_MEM * bbm = static_cast<BIO_BUF_MEM *>(b->ptr);
 	if(!in) {
 		BIOerr(BIO_F_MEM_WRITE, BIO_R_NULL_PARAMETER);
 		goto end;
@@ -222,7 +222,7 @@ static long mem_ctrl(BIO * b, int cmd, long num, void * ptr)
 {
 	long ret = 1;
 	char ** pptr;
-	BIO_BUF_MEM * bbm = (BIO_BUF_MEM*)b->ptr;
+	BIO_BUF_MEM * bbm = static_cast<BIO_BUF_MEM *>(b->ptr);
 	BUF_MEM * bm;
 	switch(cmd) {
 		case BIO_CTRL_RESET:

@@ -782,7 +782,7 @@ int SLAPI PPViewStaffCal::TimeChunkBrowser()
 	p_brw->SetBmpId(STimeChunkBrowser::bmpBack, BM_BACK);
 	p_brw->SetParam(&p);
 	p_brw->SetData(&Grid, 0);
-	p_brw->SetResID(((PPApp *)APPL)->LastCmd);
+	p_brw->SetResID(static_cast<PPApp *>(APPL)->LastCmd);
 	InsertView(p_brw);
 	return 1;
 }

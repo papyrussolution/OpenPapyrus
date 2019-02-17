@@ -222,14 +222,12 @@ static void SLAPI cipher_idea(uint16 in[4], uint16 out[4], register IDEAkey Z)
 // warning C4244: '=' : conversion from 'unsigned long' to
 // 'unsigned short', possible loss of data
 #pragma warning (disable : 4244)
-	register uint16 x1, x2, x3, x4, s2, s3;
+	uint16 x1, x2, x3, x4, s2, s3;
 #ifndef SMALL_CACHE
-	register uint16 t16;
-	register uint32 t32;
+	uint16 t16;
+	uint32 t32;
 #endif
-
 	int r = IDEA_ROUNDS;
-
 	x1 = *in++;  x2 = *in++;
 	x3 = *in++;  x4 = *in;
 	do {

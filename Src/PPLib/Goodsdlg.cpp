@@ -625,9 +625,9 @@ int BarcodeListDialog::addItem(long * pPos, long *)
 int BarcodeListDialog::editItem(long pos, long)
 {
 	if(pos >= 0 && pos < (long)Data.getCount()) {
-		BarcodeTbl::Rec rec = Data.at((uint)pos);
+		BarcodeTbl::Rec rec = Data.at(static_cast<uint>(pos));
 		if(_EditBarcodeItem(&rec, GoodsGrpID) > 0) {
-			Data.at((uint)pos) = rec;
+			Data.at(static_cast<uint>(pos)) = rec;
 			if(rec.BarcodeType == BARCODE_TYPE_PREFERRED) {
 				for(uint i = 0; i < Data.getCount(); i++)
 					if(i != (uint)pos && Data.at(i).BarcodeType == BARCODE_TYPE_PREFERRED)
@@ -839,7 +839,7 @@ int ArGoodsCodeListDialog::addItem(long * pPos, long * pID)
 int ArGoodsCodeListDialog::editItem(long pos, long id)
 {
 	if(pos >= 0 && pos < (long)Data.getCount()) {
-		ArGoodsCodeTbl::Rec item = Data.at((uint)pos);
+		ArGoodsCodeTbl::Rec item = Data.at(static_cast<uint>(pos));
 		while(_EditArGoodsCodeItem(&item, BIN(item.ArID == 0)) > 0) {
 			int    r = 1;
 			uint   ext_pos = 0;
@@ -849,7 +849,7 @@ int ArGoodsCodeListDialog::editItem(long pos, long id)
 				else
 					ext_pos++;
 			if(r) {
-				Data.at((uint)pos) = item;
+				Data.at(static_cast<uint>(pos)) = item;
 				return 1;
 			}
 		}
@@ -2163,7 +2163,7 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 		switch(TVCMD) {
 			case cmCtlColor:
 				{
-					TDrawCtrlData * p_dc = (TDrawCtrlData *)TVINFOPTR;
+					TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 					if(p_dc) {
 						if(Data.Rec.Kind == PPGDSK_GOODS) {
 							if(getCtrlHandle(CTL_GOODS_BARCODE) == p_dc->H_Ctl) {
@@ -2995,7 +2995,7 @@ int GoodsAsscDialog::setupList()
 int GoodsAsscDialog::editItem(long pos, long /*id*/)
 {
 	if(pos >= 0 && (uint)pos < AsscList.getCount()) {
-		LAssoc & item = AsscList.at((uint)pos);
+		LAssoc & item = AsscList.at(static_cast<uint>(pos));
 		if(item.Val) {
 			int    r = -1;
 			if(item.Key == PPASS_ALTGOODSGRP)

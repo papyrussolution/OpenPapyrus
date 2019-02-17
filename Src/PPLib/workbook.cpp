@@ -1854,7 +1854,7 @@ StrAssocArray * SLAPI PPObjWorkbook::MakeStrAssocList(void * extraPtr)
 int SLAPI PPObjWorkbook::SetupParentCombo(TDialog * dlg, uint ctlID, int itemType, PPID itemID, PPID parentID)
 {
 	int    ok = 0;
-	ComboBox * p_combo = (ComboBox *)dlg->getCtrlView(ctlID);
+	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctlID));
 	if(p_combo) {
 		SString temp_buf;
 		StrAssocArray * p_list = new StrAssocArray;
@@ -1889,7 +1889,7 @@ int SLAPI PPObjWorkbook::SetupParentCombo(TDialog * dlg, uint ctlID, int itemTyp
 int SLAPI PPObjWorkbook::SetupCSSCombo(TDialog * dlg, uint ctlID, int itemType, PPID itemID, PPID cssID)
 {
 	int    ok = 0;
-	ComboBox * p_combo = (ComboBox *)dlg->getCtrlView(ctlID);
+	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctlID));
 	if(p_combo) {
 		SString temp_buf;
 		StrAssocArray * p_list = new StrAssocArray;
@@ -1916,7 +1916,7 @@ int SLAPI PPObjWorkbook::SetupCSSCombo(TDialog * dlg, uint ctlID, int itemType, 
 int SLAPI PPObjWorkbook::SetupLinkCombo(TDialog * dlg, uint ctlID, int itemType, PPID itemID, PPID linkID)
 {
 	int    ok = 0;
-	ComboBox * p_combo = (ComboBox *)dlg->getCtrlView(ctlID);
+	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctlID));
 	if(p_combo) {
 		SString temp_buf;
 		StrAssocArray * p_list = new StrAssocArray;
@@ -1944,7 +1944,7 @@ int SLAPI PPObjWorkbook::SetupLinkCombo(TDialog * dlg, uint ctlID, int itemType,
 int SLAPI PPObjWorkbook::SetupItemCombo(TDialog * dlg, uint ctlID, int itemType, PPID itemID)
 {
 	int    ok = 0;
-	ComboBox * p_combo = (ComboBox *)dlg->getCtrlView(ctlID);
+	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctlID));
 	if(p_combo) {
 		/* @v10.3.0 @fix (redundunt block with memory leak)
 		SString temp_buf;

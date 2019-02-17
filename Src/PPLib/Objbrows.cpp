@@ -218,7 +218,7 @@ IMPL_HANDLE_EVENT(PPObjListWindow)
 					break;
 				case cmSysJournalByObj:
 					if(getResult(&id) && id) {
-						((PPApp*)APPL)->LastCmd = TVCMD;
+						static_cast<PPApp *>(APPL)->LastCmd = TVCMD;
 						ViewSysJournal(p_obj->Obj, id, 0);
 					}
 					break;

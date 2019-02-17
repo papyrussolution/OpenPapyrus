@@ -413,7 +413,7 @@ void __xmlGlobalInitMutexLock()
 #ifdef InterlockedCompareExchangePointer
 		InterlockedCompareExchangePointer((volatile PVOID *)&global_init_lock, cs, 0);
 #else /* Use older void* version */
-		InterlockedCompareExchange((void**)&global_init_lock, (void*)cs, 0);
+		InterlockedCompareExchange((void**)&global_init_lock, (void *)cs, 0);
 #endif /* InterlockedCompareExchangePointer */
 
 		/* If another thread successfully recorded its critical

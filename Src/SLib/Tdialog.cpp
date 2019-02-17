@@ -1554,9 +1554,9 @@ int TDialog::SetupWordSelector(uint ctlID, WordSel_ExtraBlock * pExtra, long id,
 				TDialog * p_dlg = this;
 				SmartListBox * p_list = 0;
 				if(p_v->IsSubSign(TV_SUBSIGN_LISTBOX))
-					p_list = (SmartListBox *)p_v;
+					p_list = static_cast<SmartListBox *>(p_v);
 				else {
-					ListWindow * p_lw = ((ComboBox*)p_v)->getListWindow();
+					ListWindow * p_lw = static_cast<ComboBox *>(p_v)->getListWindow();
 					if(p_lw) {
 						p_list = p_lw->listBox();
 						p_dlg = p_lw;
@@ -1592,9 +1592,9 @@ int TDialog::ResetWordSelector(uint ctlID)
 		if(p_v->IsSubSign(TV_SUBSIGN_LISTBOX) || p_v->IsSubSign(TV_SUBSIGN_COMBOBOX)) {
 			SmartListBox * p_list = 0;
 			if(p_v->IsSubSign(TV_SUBSIGN_LISTBOX))
-				p_list = (SmartListBox *)p_v;
+				p_list = static_cast<SmartListBox *>(p_v);
 			else {
-				ListWindow * p_lw = ((ComboBox*)p_v)->getListWindow();
+				ListWindow * p_lw = static_cast<ComboBox *>(p_v)->getListWindow();
 				if(p_lw)
 					p_list = p_lw->listBox();
 			}

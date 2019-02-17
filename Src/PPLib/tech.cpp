@@ -345,7 +345,7 @@ int SLAPI PPObjTech::GetChildList(PPID techID, PPIDArray & rList)
 int SLAPI PPObjTech::SetupCombo(TDialog * dlg, uint ctlID, PPID id, long flags, PPID prcID, PPID goodsID)
 {
 	int    ok = 0;
-	ComboBox * p_combo = (ComboBox *)dlg->getCtrlView(ctlID);
+	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctlID));
 	if(p_combo) {
 		PPObjTech tec_obj;
 		StrAssocArray * p_list = new StrAssocArray;

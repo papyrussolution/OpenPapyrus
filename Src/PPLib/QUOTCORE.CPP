@@ -1,5 +1,5 @@
 // QUOTCORE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 // @Kernel
 //
@@ -55,7 +55,7 @@ void FASTCALL QuotIdent::SetIdentPeriod(const DateRange * pPeriod)
 void FASTCALL QuotIdent::SetIdentQtty(const long * pQtty)
 {
 	if(pQtty) {
-		Qtty_ = (double)*pQtty;
+		Qtty_ = static_cast<double>(*pQtty);
 		Flags |= fUseQtty;
 	}
 	else {
@@ -3441,9 +3441,9 @@ public:
 		};
 		void * SLAPI operator new(size_t sz, const PPQuotArray * pQuotList, Quot2Cache * pQuotCache)
 		{
-			const uint c = pQuotList->getCount();
-			size_t s = sz + (pQuotList ? (sizeof(Entry) * c) : 0);
-			CacheEntry * p = (CacheEntry *)new char[s];
+			const uint c = SVectorBase::GetCount(pQuotList);
+			size_t s = sz + (sizeof(Entry) * c);
+			CacheEntry * p = reinterpret_cast<CacheEntry *>(new char[s]);
 			if(p) {
 				memzero(p, s);
 				p->GoodsID = pQuotList->GoodsID;
@@ -3452,8 +3452,8 @@ public:
 					Entry & r_entry = ((Entry *)(p+1))[i];
 					pQuotCache->GetQuotParamID(&r_quot, &r_entry.ParamID);
 					r_entry.Flags = r_quot.Flags;
-					r_entry.MinQtty = r_quot.MinQtty; // @v6.9.5
-					Quotation2Core::PeriodToPeriodIdx(&r_quot.Period, &r_entry.PeriodIdx); // @v7.3.5
+					r_entry.MinQtty = r_quot.MinQtty;
+					Quotation2Core::PeriodToPeriodIdx(&r_quot.Period, &r_entry.PeriodIdx);
 					r_entry.Val = r_quot.Quot;
 				}
 				p->EntryCount = (uint16)c;
@@ -3467,10 +3467,10 @@ public:
 			pQuotList->freeAll();
 			for(uint16 i = 0; i < EntryCount; i++) {
 				PPQuot quot(GoodsID);
-				const Entry & r_entry = ((Entry *)(this+1))[i];
+				const Entry & r_entry = reinterpret_cast<const Entry *>(this+1)[i];
 				quot.Flags = r_entry.Flags;
 				quot.MinQtty = r_entry.MinQtty; // @v6.9.5
-				Quotation2Core::PeriodIdxToPeriod(r_entry.PeriodIdx, &quot.Period); // @v7.3.5
+				Quotation2Core::PeriodIdxToPeriod(r_entry.PeriodIdx, &quot.Period);
 				quot.Quot = r_entry.Val;
 				pQuotCache->GetQuotParam(r_entry.ParamID, &quot);
 				if((!quotKindID || quot.Kind == quotKindID) && (!locID || quot.LocID == locID))
@@ -3517,14 +3517,13 @@ private:
 	{
 		return P_Ary->bsearch(&goodsID, pPos, CMPF_LONG);
 	}
-
 	Quotation2Core * P_Qc;
 };
 
 IMPL_CMPFUNC(GoodsQuot2CacheEntry_UseCountDesc, i1, i2)
 {
 	// descending order
-	return cmp_long(((Quot2Cache::CacheEntry *)i2)->UseCount, ((Quot2Cache::CacheEntry *)i1)->UseCount);
+	return cmp_long(static_cast<const Quot2Cache::CacheEntry *>(i2)->UseCount, static_cast<const Quot2Cache::CacheEntry *>(i1)->UseCount);
 }
 
 //static
@@ -3534,7 +3533,7 @@ int Quot2Cache::OnSysJ(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 	if(kind == PPAdviseBlock::evDirtyCacheBySysJ) {
 		if(oneof2(pEv->Action, PPACN_GOODSQUOTUPD, PPACN_QUOTUPD2)) {
 			if(oneof2(pEv->ObjType, PPOBJ_GOODS, PPOBJ_GOODSGROUP) && pEv->ObjID) {
-				((Quot2Cache *)procExtPtr)->Dirty_(pEv->ObjID);
+				static_cast<Quot2Cache *>(procExtPtr)->Dirty_(pEv->ObjID);
 				ok = 1;
 			}
 		}
@@ -3611,7 +3610,7 @@ int SLAPI Quot2Cache::Get_(PPID goodsID, PPID quotKindID, PPID locID, PPQuotArra
 	uint   pos = 0;
 	LStatData.Hits++;
 	if(Search(goodsID, &pos)) {
-		CacheEntry * p_entry = (CacheEntry *)P_Ary->at(pos);
+		CacheEntry * p_entry = static_cast<CacheEntry *>(P_Ary->at(pos));
 		THROW(p_entry->Get(pItem, quotKindID, locID, this));
 	}
 	else {
@@ -3665,11 +3664,9 @@ int SLAPI Quot2Cache::Clear_()
 	int    ok = -1;
 	uint   pos = 0;
 	{
-		//Lock();
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
 		CALLPTRMEMB(P_Ary, freeAll());
 		ok = 1;
-		//Unlock();
 	}
 	return ok;
 }
@@ -3713,7 +3710,6 @@ int SLAPI Quot2Cache::BelongToMatrix(Quotation2Core * pTbl, PPID goodsID, PPID l
 {
 	int    ok = -1;
 	{
-		//RwL.ReadLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		if(MtxQkID) {
 			const  PPIDArray * p_vect = 0;
@@ -3724,8 +3720,6 @@ int SLAPI Quot2Cache::BelongToMatrix(Quotation2Core * pTbl, PPID goodsID, PPID l
 			else {
 				assert(pTbl);
 				if(pTbl) {
-					//RwL.Unlock();
-					//RwL.WriteLock();
 					SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 					if(Matrix.lsearch(&locID, &(pos = 0), CMPF_LONG)) {
 						ok = Matrix.at(pos)->Vect.bsearch(labs(goodsID));
@@ -3739,7 +3733,6 @@ int SLAPI Quot2Cache::BelongToMatrix(Quotation2Core * pTbl, PPID goodsID, PPID l
 				}
 			}
 		}
-		//RwL.Unlock();
 	}
 	return ok;
 }
@@ -3751,13 +3744,11 @@ int SLAPI Quotation2Core::FetchList(PPID goodsID, PPQuotArray & rList)
 	if(p_cache) {
 		rList.GoodsID = goodsID;
 		{
-			//p_cache->Lock();
 			SRWLOCKER(p_cache->RwL, SReadWriteLocker::Write);
 			p_cache->SetTable(this);
 			const PPID qk_arg = 0;
 			ok = p_cache->Get_(goodsID, qk_arg, 0, &rList);
 			p_cache->SetTable(0);
-			//p_cache->Unlock();
 		}
 	}
 	else
@@ -3804,12 +3795,10 @@ int SLAPI Quotation2Core::DirtyMatrix(const PPIDArray * pGoodsList, PPIDArray * 
 	int    ok = -1;
 	Quot2Cache * p_cache = GetDbLocalCachePtr <Quot2Cache> (PPOBJ_QUOT2, 0);
 	if(p_cache) {
-		//p_cache->Lock();
 		SRWLOCKER(p_cache->RwL, SReadWriteLocker::Write);
 		p_cache->SetTable(this);
 		p_cache->Implement_DirtyMatrix(pGoodsList, pMtxLocList, deferred);
 		p_cache->SetTable(0);
-		//p_cache->Unlock();
 		ok = 1;
 	}
 	return ok;

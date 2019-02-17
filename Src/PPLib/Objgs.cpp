@@ -1749,7 +1749,7 @@ int GSDialog::addItemBySample()
 
 int GSDialog::editItem(long pos, long)
 {
-	if(pos >= 0 && pos < (long)Data.Items.getCount() && editItemDialog((int)pos, &Data.Items.at((uint)pos)) > 0) {
+	if(pos >= 0 && pos < (long)Data.Items.getCount() && editItemDialog((int)pos, &Data.Items.at(static_cast<uint>(pos))) > 0) {
 		Changed = 1;
 		return 1;
 	}

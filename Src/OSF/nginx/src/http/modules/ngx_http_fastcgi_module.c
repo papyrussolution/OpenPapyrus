@@ -2108,7 +2108,7 @@ next:
 			hk->key.len = src[i].key.len - 5;
 			hk->key.data = src[i].key.data + 5;
 			hk->key_hash = ngx_hash_key_lc(hk->key.data, hk->key.len);
-			hk->value = (void*)1;
+			hk->value = (void *)1;
 			if(src[i].value.len == 0) {
 				continue;
 			}

@@ -210,7 +210,7 @@ static const char * ngx_stream_map_block(ngx_conf_t * cf, const ngx_command_t * 
 	cf->pool = pool;
 	cf->ctx = &ctx;
 	cf->handler = ngx_stream_map;
-	cf->handler_conf = (char*)conf;
+	cf->handler_conf = static_cast<char *>(conf);
 	rv = ngx_conf_parse(cf, NULL);
 	*cf = save;
 	if(rv != NGX_CONF_OK) {

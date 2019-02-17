@@ -409,7 +409,7 @@ static int read_private_key_from_memory(void ** key_ctx, pem_read_bio_func read_
 	if(!bp) {
 		return -1;
 	}
-	*key_ctx = read_private_key(bp, NULL, (pem_password_cb*)passphrase_cb, (void*)passphrase);
+	*key_ctx = read_private_key(bp, NULL, (pem_password_cb*)passphrase_cb, (void *)passphrase);
 	BIO_free(bp);
 	return (*key_ctx) ? 0 : -1;
 }
@@ -422,7 +422,7 @@ static int read_private_key_from_file(void ** key_ctx, pem_read_bio_func read_pr
 	if(!bp) {
 		return -1;
 	}
-	*key_ctx = read_private_key(bp, NULL, (pem_password_cb*)passphrase_cb, (void*)passphrase);
+	*key_ctx = read_private_key(bp, NULL, (pem_password_cb*)passphrase_cb, (void *)passphrase);
 	BIO_free(bp);
 	return (*key_ctx) ? 0 : -1;
 }
@@ -815,7 +815,7 @@ int _libssh2_pub_priv_keyfile(LIBSSH2_SESSION * session, uchar ** method, size_t
 		OpenSSL_add_all_ciphers();
 	}
 	BIO_reset(bp);
-	pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, (void*)passphrase);
+	pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, (void *)passphrase);
 	BIO_free(bp);
 	if(pk == NULL) {
 		return _libssh2_error(session, LIBSSH2_ERROR_FILE,
@@ -864,7 +864,7 @@ int _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION * session, uchar ** method, 
 		OpenSSL_add_all_ciphers();
 	}
 	BIO_reset(bp);
-	pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, (void*)passphrase);
+	pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, (void *)passphrase);
 	BIO_free(bp);
 	if(pk == NULL) {
 		return _libssh2_error(session, LIBSSH2_ERROR_FILE, "Unable to extract public key from private key file: Wrong passphrase or invalid/unrecognized private key file format");

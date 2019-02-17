@@ -486,7 +486,7 @@ static const char * ngx_mail_core_resolver(ngx_conf_t * cf, const ngx_command_t 
 
 const char * ngx_mail_capabilities(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
-	char * p = (char*)conf;
+	char * p = static_cast<char *>(conf);
 	ngx_str_t  * c;
 	ngx_uint_t i;
 	ngx_array_t * a = (ngx_array_t*)(p + cmd->offset);

@@ -564,7 +564,7 @@ int SmartListBox::SetupTreeWnd(HTREEITEM hParent, long grpParentID)
 					ImageList_Destroy(HIML);
 				HIML = p_def->CreateImageList(TProgram::GetInst());
 				if(HIML)
-			   		::SendMessage((HWND)h_lb, (UINT)TVM_SETIMAGELIST, (WPARAM)TVSIL_NORMAL, (LPARAM)HIML);
+			   		::SendMessage(static_cast<HWND>(h_lb), (UINT)TVM_SETIMAGELIST, (WPARAM)TVSIL_NORMAL, (LPARAM)HIML);
 			}
 			PROFILE_END
 		}
@@ -641,18 +641,18 @@ int SmartListBox::SetupTreeWnd2(uint32 parentP)
 					ImageList_Destroy(HIML);
 				HIML = p_def->CreateImageList(TProgram::GetInst());
 				if(HIML)
-					::SendMessage((HWND)h_lb, (UINT)TVM_SETIMAGELIST, (WPARAM)TVSIL_NORMAL, (LPARAM)HIML);
+					::SendMessage(static_cast<HWND>(h_lb), (UINT)TVM_SETIMAGELIST, (WPARAM)TVSIL_NORMAL, (LPARAM)HIML);
 			}
 		}
 		else {
-			StdTreeListBoxDef::TreeItem * p_item = (StdTreeListBoxDef::TreeItem *)p_def->T.GetData(parentP);
+			const StdTreeListBoxDef::TreeItem * p_item = static_cast<const StdTreeListBoxDef::TreeItem *>(p_def->T.GetData(parentP));
 			if(p_item)
 				h_parent = p_item->H;
 		}
 		{
 			SString err_msg;
 			for(STree::Iter t_iter(parentP); p_def->T.Enum(t_iter);) {
-				StdTreeListBoxDef::TreeItem * p_item = (StdTreeListBoxDef::TreeItem *)t_iter.GetData();
+				StdTreeListBoxDef::TreeItem * p_item = static_cast<StdTreeListBoxDef::TreeItem *>(t_iter.GetData());
 				if(p_item) {
 					TVINSERTSTRUCT is;
 					is.hParent      = NZOR(h_parent, TVI_ROOT);

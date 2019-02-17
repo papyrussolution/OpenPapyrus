@@ -1,5 +1,5 @@
 // PPEXPR.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 // @Kernel
 // Трансляция формул
@@ -81,7 +81,7 @@ int FASTCALL PPExprParser::CalcExpression(const char * pStr, double * pResult, c
 //
 SLAPI BillSymbCache::BillSymbCache() : ObjCache(PPOBJ_BILLSYMB, sizeof(Data)), sDELIM(0x0000005CL)
 {
-	FormSet.setDelim((char*)&sDELIM);
+	FormSet.setDelim(reinterpret_cast<const char *>(&sDELIM));
 }
 
 int SLAPI DirtyBillSymbCache(const char * pSymb)
@@ -119,14 +119,15 @@ int SLAPI BillSymbCache::Search(const char * pSymb, PPID * pID, SString & rBuf) 
 	rBuf.Z();
 	for(uint n = 0, pos = 0; !ok && SymbSet.get(&pos, s); n++)
 		if(stricmp866(s, pSymb) == 0) {
-			Data * p_entry = (Data *)SearchByPos(n, 0);
+			const Data * p_entry = static_cast<const Data *>(SearchByPos(n, 0));
 			if(p_entry->F & 0x0001) {
 				*pID = p_entry->ID;
 				ok = 1;
 			}
 			else if(p_entry->F & 0x0002) {
 				uint j = 0;
-				for(pos = 0; FormSet.get(&pos, f) && j < n; j++);
+				for(pos = 0; FormSet.get(&pos, f) && j < n; j++)
+					;
 				rBuf = f;
 				*pID = p_entry->ID;
 				ok = 2;
@@ -144,16 +145,14 @@ int SLAPI BillSymbCache::DirtySymb(const char * pSymb)
 	int    ok = 0;
 	SString s;
 	{
-		//RwL.WriteLock(); // {
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
 		for(uint n = 0, pos = 0; !ok && SymbSet.get(&pos, s); n++) {
 			if(stricmp866(s, pSymb) == 0) {
-				Data * p_entry = (Data *)SearchByPos(n, 0);
+				Data * p_entry = static_cast<Data *>(SearchByPos(n, 0));
 				// (@redundant) if(p_entry->F)
 					p_entry->F = 0;
 			}
 		}
-		//RwL.Unlock(); // }
 	}
 	return ok;
 }
@@ -183,7 +182,7 @@ int SLAPI BillSymbCache::Fetch(const char * pSymb, PPID * pID, SString & rBuf)
 			PPObjAmountType at_obj;
 			PPObjFormula    f_obj;
 			if((r = at_obj.SearchSymb(&id, pSymb)) > 0) {
-				f = 0;
+				f.Z();
 				s = pSymb;
 				if(Add(0x0001, id, s.Strip(), f.Strip())) {
 					*pID = id;
@@ -394,7 +393,7 @@ int SLAPI BillContext::Resolve(const char * b, double * pResult)
 	double val = 0.0;
 	char   sel_buf[64];
 	SString form;
-	char * p_delim = (char *)strchr(b, '.');
+	char * p_delim = const_cast<char *>(strchr(b, '.')); // @badcast
 	*pResult = 0;
 	if(p_delim) {
 		long   sLINK[2], sRCKN[2];
@@ -404,9 +403,9 @@ int SLAPI BillContext::Resolve(const char * b, double * pResult)
 		sRCKN[1] = 0;
 		*p_delim = 0;
 		STRNSCPY(sel_buf, b);
-		if(stricmp(b, (char*)&sLINK) == 0)
+		if(stricmp(b, reinterpret_cast<const char *>(&sLINK)) == 0)
 			sel = LINK_BILL;
-		else if(stricmp(b, (char*)&sRCKN) == 0)
+		else if(stricmp(b, reinterpret_cast<const char *>(&sRCKN)) == 0)
 			sel = RCKN_BILL;
 		else {
 			CALLEXCEPT_PP_S(PPERR_ILLVAR, b);
@@ -489,7 +488,11 @@ int SLAPI BillContext::Resolve(const char * b, double * pResult)
 //
 //
 //
-PPExprParser::State::State() : OidObjType(0), OidObjTypeExt(0)
+SLAPI PPExprParser::State::State() : OidObjType(0), OidObjTypeExt(0)
+{
+}
+
+SLAPI PPExprParser::State::State(const State & rS) : OidObjType(rS.OidObjType), OidObjTypeExt(rS.OidObjTypeExt)
 {
 }
 
@@ -501,7 +504,7 @@ PPExprParser::State & FASTCALL PPExprParser::State::operator = (const PPExprPars
 }
 
 SLAPI PPExprParser::PPExprParser(const char * pStr, const PPCalcFuncList * pCFL, ExprEvalContext * pContext) :
-	Token(0), Number(0.0), Pos(0), P_Ctx(pContext), P_CFL(pCFL), P_S(newStr(pStr))
+	Token(0), Number(0.0), Pos(0), P_Ctx(pContext), P_CFL(pCFL), P_S(newStr(pStr)), Func(0)
 {
 	Next();
 }
@@ -513,7 +516,7 @@ SLAPI PPExprParser::~PPExprParser()
 
 int SLAPI PPExprParser::Next()
 {
-	return P_S[Pos] ? (Cur = (int)P_S[Pos++]) : (Cur = -1);
+	return P_S[Pos] ? (Cur = static_cast<int>(P_S[Pos++])) : (Cur = -1);
 }
 
 // sieve[1.; 20000. ? 2.5; 40000 ? 4]
@@ -532,7 +535,7 @@ int SLAPI PPExprParser::GetSieve()
 		THROW_PP_S(Cur != -1, PPERR_INVEXPR, P_S);
 		temp_buf.CatChar(Cur);
 	}
-	if(ok) {
+	{
 		Next(); // Забрать символ ']' из потока
 		SString sub, left, right;
 		StringSet ss(';', temp_buf.Strip());
@@ -631,11 +634,11 @@ int SLAPI PPExprParser::GetToken()
 			Name = buf;
 			Token = tokName;
 		}
-		else if(isalpha((uchar)Cur) || oneof3(Cur, '_', '@', '?')) {
+		else if(isalpha(static_cast<uchar>(Cur)) || oneof3(Cur, '_', '@', '?')) {
 			do {
 				*p++ = Cur;
 				Next();
-			} while(isalnum((uchar)Cur) || oneof2(Cur, '_', '.'));
+			} while(isalnum(static_cast<uchar>(Cur)) || oneof2(Cur, '_', '.'));
 			*p = 0;
 			Func = 0;
 			if(sstreqi_ascii(buf, "abs"))        { Func = funcAbs; }
@@ -795,7 +798,7 @@ int FASTCALL PPExprParser::GetFactor(double * pResult)
 					case funcTan:   *pResult = tan(first_arg);  break;
 					case funcPow:   *pResult = pow(first_arg, (arg_count > 1) ? fc.ArgList.at(1) : 1.0); break;
 					case funcRound:
-						*pResult = round(first_arg, (arg_count > 1) ? (int)fc.ArgList.at(1) : 0);
+						*pResult = round(first_arg, (arg_count > 1) ? static_cast<int>(fc.ArgList.at(1)) : 0);
 						break;
 					case funcRoundUp:
 						*pResult = round(first_arg, (arg_count > 1) ? fc.ArgList.at(1) : 0.01, +1);
@@ -869,7 +872,7 @@ int FASTCALL PPExprParser::GetFactor(double * pResult)
 								StringSet ss(',', fc.StrArg);
 								THROW_PP(ss.get(&pos, obj_type_symb) && ss.get(&pos, obj_id_symb), PPERR_OIDFUNC_ARGCOUNT);
 								THROW(PPObject::Identify(obj_type_symb.Strip(), obj_id_symb.Strip(), &oid) > 0);
-								*pResult = (double)oid;
+								*pResult = static_cast<double>(oid);
 							}
 						}
 						break;
@@ -947,7 +950,7 @@ int FASTCALL PPExprParser::GetTerm(double * pResult)
 				break;
 			case '%':
 				if(mult != 0.0)
-					*pResult = (long)*pResult % (long)mult;
+					*pResult = static_cast<long>(*pResult) % static_cast<long>(mult);
 				else
 					*pResult = 0.0;
 				break;
@@ -1140,7 +1143,7 @@ int SLAPI GoodsContext::ResolveFunc(int funcId, FC & rFc)
 	double arg = rFc.ArgList.getCount() ? rFc.ArgList.at(0) : 0.0;
 	Goods2Tbl::Rec goods_rec;
 	if(funcId == funcVat) {
-		int with_vat = (rFc.ArgList.getCount() > 1) ? (int)rFc.ArgList.at(1) : 0;
+		int with_vat = (rFc.ArgList.getCount() > 1) ? static_cast<int>(rFc.ArgList.at(1)) : 0;
 		if(GObj.Fetch(P.GoodsID, &goods_rec) > 0) {
 			GObj.CalcCostVat(0, goods_rec.TaxGrpID, ZERODATE, 1.0, arg, &result, !with_vat, 0);
 		}
@@ -1239,7 +1242,7 @@ int SLAPI GoodsContext::ResolveRefQtty(PPID goodsID, int cbItemRef, int isPhQtty
 			const ComplItem * p_ci = 0;
 			if(cbItemRef == 0)
 				p_ci = &P_Gs->P_Cb->Head;
-			else if(cbItemRef <= (int)P_Gs->P_Cb->getCount())
+			else if(cbItemRef <= static_cast<int>(P_Gs->P_Cb->getCount()))
 				p_ci = &P_Gs->P_Cb->at(cbItemRef-1);
 			if(p_ci) {
 				if(isPhQtty) {
@@ -1309,10 +1312,10 @@ int SLAPI GoodsContext::ResolveGoodsAttr(const SString & rSymb, PPID goodsID, do
 				GoodsExtTbl::Rec ge_rec;
 				if(GObj.P_Tbl->GetExt(goodsID, &ge_rec) > 0) {
 					switch(ref_dim) {
-						case PPGdsCls::eKind : v = (double)oid.Set(gc_pack.PropKind.ItemsListID, ge_rec.KindID); break;
-						case PPGdsCls::eGrade: v = (double)oid.Set(gc_pack.PropGrade.ItemsListID, ge_rec.GradeID); break;
-						case PPGdsCls::eAdd  : v = (double)oid.Set(gc_pack.PropAdd.ItemsListID, ge_rec.AddObjID); break;
-						case PPGdsCls::eAdd2 : v = (double)oid.Set(gc_pack.PropAdd2.ItemsListID, ge_rec.AddObj2ID); break;
+						case PPGdsCls::eKind : v = static_cast<double>(oid.Set(gc_pack.PropKind.ItemsListID, ge_rec.KindID)); break;
+						case PPGdsCls::eGrade: v = static_cast<double>(oid.Set(gc_pack.PropGrade.ItemsListID, ge_rec.GradeID)); break;
+						case PPGdsCls::eAdd  : v = static_cast<double>(oid.Set(gc_pack.PropAdd.ItemsListID, ge_rec.AddObjID)); break;
+						case PPGdsCls::eAdd2 : v = static_cast<double>(oid.Set(gc_pack.PropAdd2.ItemsListID, ge_rec.AddObj2ID)); break;
 						default:
 							gc_pack.GetExtDim(&ge_rec, ref_dim, &v);
 							break;
@@ -1322,10 +1325,10 @@ int SLAPI GoodsContext::ResolveGoodsAttr(const SString & rSymb, PPID goodsID, do
 		}
 		else if(P_ClsPack && P_Pack) {
 			switch(ref_dim) {
-				case PPGdsCls::eKind : v = (double)oid.Set(P_ClsPack->PropKind.ItemsListID, P_Pack->ExtRec.KindID); break;
-				case PPGdsCls::eGrade: v = (double)oid.Set(P_ClsPack->PropGrade.ItemsListID, P_Pack->ExtRec.GradeID); break;
-				case PPGdsCls::eAdd  : v = (double)oid.Set(P_ClsPack->PropAdd.ItemsListID, P_Pack->ExtRec.AddObjID); break;
-				case PPGdsCls::eAdd2 : v = (double)oid.Set(P_ClsPack->PropAdd2.ItemsListID, P_Pack->ExtRec.AddObj2ID); break;
+				case PPGdsCls::eKind : v = static_cast<double>(oid.Set(P_ClsPack->PropKind.ItemsListID, P_Pack->ExtRec.KindID)); break;
+				case PPGdsCls::eGrade: v = static_cast<double>(oid.Set(P_ClsPack->PropGrade.ItemsListID, P_Pack->ExtRec.GradeID)); break;
+				case PPGdsCls::eAdd  : v = static_cast<double>(oid.Set(P_ClsPack->PropAdd.ItemsListID, P_Pack->ExtRec.AddObjID)); break;
+				case PPGdsCls::eAdd2 : v = static_cast<double>(oid.Set(P_ClsPack->PropAdd2.ItemsListID, P_Pack->ExtRec.AddObj2ID)); break;
 				default:
 					P_ClsPack->GetExtDim(&P_Pack->ExtRec, ref_dim, &v);
 					break;
@@ -1452,7 +1455,7 @@ int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
 				if(P_Ti) {
 					const ObjTagItem * p_tag_item = 0;
 					if(P_BillPack) {
-						int    row_pos = (int)P_BillPack->GetTPointer();
+						int    row_pos = static_cast<int>(P_BillPack->GetTPointer());
 						ObjTagList * p_tag_list = P_BillPack->LTagL.Get(row_pos);
 						if(p_tag_list)
 							p_tag_item = p_tag_list->GetItem(tag_id);
@@ -1583,7 +1586,7 @@ int SLAPI PPCalcExpression(const char * pStr, double * pResult, PPBillPacket * p
 		ok = PPExprParser::CalcExpression(pStr, pResult, 0, &ctx_dl200);
 	}
 	else {
-		p_ctx = pPack ? new BillContext(pPack, curID, advItemIdx) : (BillContext*)0;
+		p_ctx = pPack ? new BillContext(pPack, curID, advItemIdx) : static_cast<BillContext *>(0);
 		ok = PPExprParser::CalcExpression(pStr, pResult, 0, p_ctx);
 	}
 	delete p_ctx;
@@ -1631,7 +1634,7 @@ SLAPI GdsClsCalcExprContext::GdsClsCalcExprContext(const PPTransferItem * pTi, c
 int SLAPI PPCalcExpression(const char * pStr, double * pResult, GdsClsCalcExprContext * pCtx)
 {
 	GoodsContext * p_ctx = (pCtx && (pCtx->P_GPack || pCtx->P_GsPack ||
-		(pCtx->GoodsID && (pCtx->PrevGoodsID || pCtx->P_Ti)))) ? new GoodsContext(pCtx) : (GoodsContext*)0;
+		(pCtx->GoodsID && (pCtx->PrevGoodsID || pCtx->P_Ti)))) ? new GoodsContext(pCtx) : static_cast<GoodsContext *>(0);
 	int    ok = PPExprParser::CalcExpression(pStr, pResult, 0, p_ctx);
 	delete p_ctx;
 	return ok;

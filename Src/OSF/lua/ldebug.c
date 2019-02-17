@@ -204,7 +204,8 @@ static void funcinfo(lua_Debug * ar, Closure * cl) {
 	luaO_chunkid(ar->short_src, ar->source, LUA_IDSIZE);
 }
 
-static void collectvalidlines(lua_State * L, Closure * f) {
+static void collectvalidlines(lua_State * L, Closure * f) 
+{
 	if(noLuaClosure(f)) {
 		setnilvalue(L->top);
 		api_incr_top(L);

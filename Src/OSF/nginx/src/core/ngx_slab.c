@@ -273,8 +273,8 @@ void * ngx_slab_alloc_locked(ngx_slab_pool_t * pool, size_t size)
 	p = 0;
 	pool->stats[slot].fails++;
 done:
-	ngx_log_debug1(NGX_LOG_DEBUG_ALLOC, ngx_cycle->log, 0, "slab alloc: %p", (void*)p);
-	return (void*)p;
+	ngx_log_debug1(NGX_LOG_DEBUG_ALLOC, ngx_cycle->log, 0, "slab alloc: %p", (void *)p);
+	return (void *)p;
 }
 
 void * ngx_slab_calloc(ngx_slab_pool_t * pool, size_t size)

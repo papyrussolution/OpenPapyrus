@@ -2227,7 +2227,7 @@ LostPrjTPersonItem * RestoreLostPrjTPersonDlg::GetCurItem()
 	LostPrjTPersonItem * p_item = 0;
 	getSelection(&pos);
 	if(pos >= 0 && pos < (long)Data.getCount())
-		p_item = &Data.at((uint)pos);
+		p_item = &Data.at(static_cast<uint>(pos));
 	return p_item;
 }
 
@@ -2290,21 +2290,21 @@ int RestoreLostPrjTPersonDlg::ViewTasks(uint cm, LostPrjTPersonItem * pItem)
 		if(cm == cmViewTasksByCreator) {
 			idx = 0;
 			MEMSZERO(k.k0);
-			k_ = (void*)&k.k0;
+			k_ = (void *)&k.k0;
 			dbq = ppcheckfiltid(dbq, prjt_tbl.CreatorID, pItem->CreatorID);
 		}
 		else if(cm == cmViewTasksByEmployer) {
 			idx = 4;
 			MEMSZERO(k.k4);
 			k.k4.EmployerID = pItem->EmployerID;
-			k_ = (void*)&k.k4;
+			k_ = (void *)&k.k4;
 			dbq = ppcheckfiltid(dbq, prjt_tbl.EmployerID, pItem->EmployerID);
 		}
 		else {
 			idx = 5;
 			MEMSZERO(k.k5);
 			k.k5.ClientID = pItem->ClientID;
-			k_ = (void*)&k.k5;
+			k_ = (void *)&k.k5;
 			dbq = ppcheckfiltid(dbq, prjt_tbl.ClientID, pItem->ClientID);
 		}
 		p_q = new BExtQuery(&prjt_tbl, idx);

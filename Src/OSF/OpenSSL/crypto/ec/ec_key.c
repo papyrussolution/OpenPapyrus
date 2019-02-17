@@ -69,7 +69,7 @@ void EC_KEY_free(EC_KEY * r)
 	EC_POINT_free(r->pub_key);
 	BN_clear_free(r->priv_key);
 
-	OPENSSL_clear_free((void*)r, sizeof(EC_KEY));
+	OPENSSL_clear_free((void *)r, sizeof(EC_KEY));
 }
 
 EC_KEY * EC_KEY_copy(EC_KEY * dest, const EC_KEY * src)

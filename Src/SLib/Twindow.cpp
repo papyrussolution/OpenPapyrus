@@ -180,7 +180,7 @@ int   ToolbarList::addItem(const ToolbarItem * pItem) { return pItem ? insert(pI
 ToolbarList & FASTCALL ToolbarList::operator = (const ToolbarList & s)
 {
 	Bitmap = s.Bitmap;
-	copy(s);
+	SVector::copy(s);
 	return *this;
 }
 
@@ -1208,7 +1208,7 @@ int TWindowBase::Create(void * hParentWnd, long createOptions)
 
 	SString title_buf = getTitle();
 	title_buf.SetIfEmpty(ClsName).Transf(CTRANSF_INNER_TO_OUTER);
-	HWND  hw_parent = (HWND)hParentWnd;
+	HWND  hw_parent = static_cast<HWND>(hParentWnd);
 	DWORD style = WS_HSCROLL | WS_VSCROLL /*| WS_CLIPSIBLINGS | WS_CLIPCHILDREN*/;
 	int   x = ViewSize.x ? ViewOrigin.x : CW_USEDEFAULT;
 	int   y = ViewSize.y ? ViewOrigin.y : CW_USEDEFAULT;
@@ -1263,7 +1263,7 @@ int TWindowBase::Create(void * hParentWnd, long createOptions)
 			child.cy = CW_USEDEFAULT;
 			child.style  = style;
 			child.lParam = reinterpret_cast<LPARAM>(this);
-			HW = (HWND)LOWORD(SendMessage(hw_parent, WM_MDICREATE, 0, reinterpret_cast<LPARAM>(&child))); // @unicodeproblem
+			HW = reinterpret_cast<HWND>(LOWORD(SendMessage(hw_parent, WM_MDICREATE, 0, reinterpret_cast<LPARAM>(&child)))); // @unicodeproblem
 		}
 		else {
 			HW = CreateWindowEx(0, P_SLibWindowBaseClsName, title_buf, style, x, y, cx, cy, hw_parent, 0, h_inst, this); // @unicodeproblem

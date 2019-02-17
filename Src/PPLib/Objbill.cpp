@@ -4391,7 +4391,7 @@ int SLAPI PPObjBill::SelectQuotKind(PPBillPacket * pPack, const PPTransferItem *
 						SmartListBox * p_lbx = 0;
 						StringSet ss(SLBColumnDelim);
 						THROW(CheckDialogPtrErr(&(dlg = new QuotKindSelDialog())));
- 						p_lbx = (SmartListBox*)dlg->getCtrlView(CTL_SELQUOT_LIST);
+ 						p_lbx = static_cast<SmartListBox *>(dlg->getCtrlView(CTL_SELQUOT_LIST));
 						THROW(SetupStrListBox(p_lbx));
 						qks_list.sort(PTR_CMPFUNC(PcharNoCase));
 						for(i = 0; qks_list.enumItems(&i, (void **)&p_item);) {
@@ -6038,8 +6038,6 @@ int SLAPI PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 		SString clb;
 		ObjTagList mirror_tag_list;
 		PPIDArray excl_tag_list;
-		// @v9.8.11 excl_tag_list.add(PPTAG_LOT_CLB);
-		// @v9.8.11 excl_tag_list.add(PPTAG_LOT_SN);
 		for(uint i = 0; pPack->EnumTItems(&i, &p_ti);) {
 			if(p_ti->LotID) {
 				const int row_idx = (int)(i-1);
@@ -6047,14 +6045,6 @@ int SLAPI PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 				ObjTagList * p_tag_list = pPack->LTagL.Get(row_idx); // PPLotTagContainer
 				if(p_ti->Flags & PPTFR_RECEIPT) {
 					THROW(p_ref->Ot.PutListExcl(PPOBJ_LOT, p_ti->LotID, p_tag_list, &excl_tag_list, 0));
-					/* @v9.8.11
-					// @v9.8.11 p_clb = (pPack->ClbL.GetNumber(row_idx, &clb) > 0) ? clb.cptr() : 0;
-					p_clb = (pPack->LTagL.GetNumber(PPTAG_LOT_CLB, row_idx, clb) > 0) ? clb.cptr() : 0; // @v9.8.11
-					THROW(SetClbNumberByLot(p_ti->LotID, p_clb, 0));
-					// @v9.8.11 p_clb = (pPack->SnL.GetNumber(row_idx, &clb) > 0) ? clb.cptr() : 0;
-					p_clb = (pPack->LTagL.GetNumber(PPTAG_LOT_SN, row_idx, clb) > 0) ? clb.cptr() : 0; // @v9.8.11
-					THROW(SetSerialNumberByLot(p_ti->LotID, p_clb, 0));
-					*/
 				}
 				//
 				// Сохраняем серийные номера и пользовательские теги для порожденных лотов
@@ -6082,10 +6072,8 @@ int SLAPI PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
                                     const ObjTagItem * p_item = p_tag_list->GetItemByPos(j);
                                     THROW_MEM(SETIFZ(p_tag_obj, new PPObjTag));
                                     if(p_item && (!p_tag_obj->IsUnmirrored(p_item->TagID) || do_force_unmirr)) {
-                                    	// @v9.4.12 {
 										if(p_item->TagDataType == OTTYP_IMAGE) {
 											ObjTagItem tag_item = *p_item;
-											//
 											ObjLinkFiles _lf_src(PPOBJ_TAG);
 											_lf_src.Load(p_item->TagID, p_ti->LotID);
 											_lf_src.At(0, img_path);
@@ -6099,14 +6087,11 @@ int SLAPI PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 											}
 										}
 										else
-										// } @v9.4.12
 											mirror_tag_list.PutItem(p_item->TagID, p_item);
                                     }
 								}
 							}
 							THROW(p_ref->Ot.PutList(PPOBJ_LOT, mirror_lot_id, &mirror_tag_list, 0));
-							// @v9.8.11 p_clb = (pPack->SnL.GetNumber(row_idx, &clb) > 0) ? clb.cptr() : 0;
-							// @v9.8.11 THROW(SetSerialNumberByLot(mirror_lot_id, p_clb, 0));
 						}
 					}
 				}
@@ -6942,17 +6927,14 @@ int SLAPI PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 			GetCorrectionBackChain(pPack->Rec, correction_exp_chain);
 		// } @v9.4.3
 	}
-	//if(DemoRestrict < 0) {
 	if(!(State2 & stDemoRestrictInit)) {
 		uint   major, minor, revision;
 		char   demo[32];
 		PPVersionInfo vi = DS.GetVersionInfo();
 		vi.GetVersion(&major, &minor, &revision, demo);
-		//DemoRestrict = demo[0] ? 1 : DS.CheckStateFlag(CFGST_DEMOMODE);
 		SETFLAG(State2, stDemoRestrict, (demo[0] ? 1 : DS.CheckStateFlag(CFGST_DEMOMODE)));
 		State2 |= stDemoRestrictInit;
 	}
-	//if(DemoRestrict > 0) {
 	if(State2 & stDemoRestrict) {
 		RECORDNUMBER num_recs;
 		P_Tbl->getNumRecs(&num_recs);

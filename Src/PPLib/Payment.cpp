@@ -1437,7 +1437,9 @@ int SLAPI PPObjBill::ReckoningPaym(PPID billID, const ReckonParam & rParam, int 
 									P_Tbl->GetAmount(billID, PPAMT_PAYMENT, bill_rec.CurID, &__paym_amt);
 									__paym_amt = R2(nominal - __paym_amt);
 									// @v10.3.2 {
-									if(__paym_amt > 0.0 && !reckon_neg_only)
+									if(__paym_amt == 0.0) // @v10.3.4
+										effective_paym_amt = 0.0;
+									else if(__paym_amt > 0.0 && !reckon_neg_only)
 										effective_paym_amt = __paym_amt;
 									else if(__paym_amt < 0.0 && reckon_neg_only)
 										effective_paym_amt = -__paym_amt;

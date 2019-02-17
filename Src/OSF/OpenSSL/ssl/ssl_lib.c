@@ -114,7 +114,7 @@ static int dane_ctx_enable(struct dane_ctx_st * dctx)
 	mdord = (uint8_t*)OPENSSL_zalloc(n * sizeof(*mdord));
 	if(mdord == NULL || mdevp == NULL) {
 		OPENSSL_free(mdord);
-		OPENSSL_free((void*)mdevp); // @badcast
+		OPENSSL_free((void *)mdevp); // @badcast
 		SSLerr(SSL_F_DANE_CTX_ENABLE, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
@@ -139,7 +139,7 @@ static int dane_ctx_enable(struct dane_ctx_st * dctx)
 
 static void dane_ctx_final(struct dane_ctx_st * dctx)
 {
-	OPENSSL_free((void*)dctx->mdevp); // @badcast
+	OPENSSL_free((void *)dctx->mdevp); // @badcast
 	dctx->mdevp = NULL;
 	OPENSSL_free(dctx->mdord);
 	dctx->mdord = NULL;
@@ -208,7 +208,7 @@ static int dane_mtype_set(struct dane_ctx_st * dctx, const EVP_MD * md, uint8_t 
 		const EVP_MD ** mdevp;
 		uint8_t * mdord;
 		int n = ((int)mtype) + 1;
-		mdevp = (const EVP_MD**)OPENSSL_realloc((void*)dctx->mdevp, n * sizeof(*mdevp)); // @badcast
+		mdevp = (const EVP_MD**)OPENSSL_realloc((void *)dctx->mdevp, n * sizeof(*mdevp)); // @badcast
 		if(mdevp == NULL) {
 			SSLerr(SSL_F_DANE_MTYPE_SET, ERR_R_MALLOC_FAILURE);
 			return -1;
@@ -1414,7 +1414,7 @@ int SSL_write(SSL * s, const void * buf, int num)
 		struct ssl_async_args args;
 
 		args.s = s;
-		args.buf = (void*)buf;
+		args.buf = (void *)buf;
 		args.num = num;
 		args.type = ssl_async_args::WRITEFUNC;
 		args.f.func_write = s->method->ssl_write;

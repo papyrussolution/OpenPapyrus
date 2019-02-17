@@ -444,7 +444,7 @@ int SMessageWindow::DoCommand(TPoint p)
 	int    ok = -1;
 	/*
 	if(Cmd) {
-		((PPApp*)APPL)->processCommand(Cmd);
+		static_cast<PPApp *>(APPL)->processCommand(Cmd);
 		ok = 1;
 	}
 	*/

@@ -45,7 +45,7 @@
 
 #define NGX_HTTP_V2_DEFAULT_FRAME_SIZE           (1 << 14)
 
-#define NGX_HTTP_V2_ROOT                         (void*)-1
+#define NGX_HTTP_V2_ROOT                         (void *)-1
 
 static void ngx_http_v2_read_handler(ngx_event_t * rev);
 static void ngx_http_v2_write_handler(ngx_event_t * wev);

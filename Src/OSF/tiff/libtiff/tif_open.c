@@ -82,7 +82,7 @@ TIFF * TIFFClientOpen(const char * name, const char * mode, thandle_t clientdata
 	assert(sizeof(int32)==4);
 	assert(sizeof(uint64)==8);
 	assert(sizeof(int64)==8);
-	assert(sizeof(tmsize_t)==sizeof(void*));
+	assert(sizeof(tmsize_t)==sizeof(void *));
 	{
 		union {
 			uint8 a8[2];

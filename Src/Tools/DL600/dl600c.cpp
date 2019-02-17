@@ -3001,7 +3001,7 @@ int SLAPI DlContext::Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SStrin
 			if(oneof2(t_stripped.Mod, STypEx::modPtr, STypEx::modRef))
 				t_stripped.Mod = 0;
 			if(st == S_DATE) {
-				gen.WriteLine(line_buf.Cat("ASSIGN_PTR(pRet_, (OleDate)ret);").CR());
+				gen.WriteLine(line_buf.Cat("ASSIGN_PTR(pRet_, ret.GetOleDate());").CR());
 			}
 			else if(st == S_TIME) {
 			}

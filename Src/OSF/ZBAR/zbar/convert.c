@@ -304,7 +304,7 @@ static inline void convert_y_resize(zbar_image_t * dst, const zbar_format_def_t 
 	uint8 * psrc, * pdst;
 	uint width, height, xpad, y;
 	if(dst->width == src->width && dst->height == src->height) {
-		memcpy((void*)dst->P_Data, src->P_Data, n);
+		memcpy((void *)dst->P_Data, src->P_Data, n);
 		return;
 	}
 	psrc = (uint8 *)src->P_Data;

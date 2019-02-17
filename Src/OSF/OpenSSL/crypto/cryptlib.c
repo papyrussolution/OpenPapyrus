@@ -111,9 +111,9 @@ int OPENSSL_isservice(void)
 		if(mod != NULL)
 			_OPENSSL_isservice.f = GetProcAddress((HMODULE)mod, "_OPENSSL_isservice");
 		if(_OPENSSL_isservice.p == NULL)
-			_OPENSSL_isservice.p = (void*)-1;
+			_OPENSSL_isservice.p = (void *)-1;
 	}
-	if(_OPENSSL_isservice.p != (void*)-1)
+	if(_OPENSSL_isservice.p != (void *)-1)
 		return (*_OPENSSL_isservice.f)();
 	h = GetProcessWindowStation();
 	if(h == NULL)

@@ -90,7 +90,7 @@ INT_PTR CALLBACK TreeWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 			break;
 		case WM_GETMINMAXINFO:
 			if(!IsIconic(APPL->H_MainWnd)) {
-				LPMINMAXINFO lpMinMax = (LPMINMAXINFO) lParam;
+				LPMINMAXINFO lpMinMax = reinterpret_cast<LPMINMAXINFO>(lParam);
 				RECT rcClient;
 				::GetClientRect(APPL->H_MainWnd, &rcClient);
 				lpMinMax->ptMinTrackSize.x = 40;
@@ -100,10 +100,10 @@ INT_PTR CALLBACK TreeWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 			else
 				break;
 		case WM_USER_SHOWTREEWNDITEM:
-			CALLPTRMEMB(p_view, SelItem((HWND)wParam));
+			CALLPTRMEMB(p_view, SelItem(reinterpret_cast<HWND>(wParam)));
 			break;
 		case WM_USER_CLOSETREEWNDITEM:
-			CALLPTRMEMB(p_view, CloseItem((HWND)wParam));
+			CALLPTRMEMB(p_view, CloseItem(reinterpret_cast<HWND>(wParam)));
 			break;
 		case WM_SYSCOMMAND:
 			if(wParam != SC_CLOSE)

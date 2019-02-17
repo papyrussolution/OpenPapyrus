@@ -805,7 +805,7 @@ static void xmlRelaxNGFreeDefine(xmlRelaxNGDefinePtr define)
 		if(define->type == XML_RELAXNG_VALUE && define->attrs) {
 			xmlRelaxNGTypeLibraryPtr lib = (xmlRelaxNGTypeLibraryPtr)define->data;
 			if(lib && lib->freef)
-				lib->freef(lib->data, (void*)define->attrs);
+				lib->freef(lib->data, (void *)define->attrs);
 		}
 		if(define->data && define->type == XML_RELAXNG_INTERLEAVE)
 			xmlRelaxNGFreePartition((xmlRelaxNGPartitionPtr)define->data);
@@ -3361,17 +3361,17 @@ static void xmlRelaxNGCheckChoiceDeterminism(xmlRelaxNGParserCtxtPtr ctxt, xmlRe
 				xmlRelaxNGDefinePtr * tmp = list[i];
 				while(*tmp && (is_triable == 1)) {
 					if((*tmp)->type == XML_RELAXNG_TEXT) {
-						res = xmlHashAddEntry2(triage, BAD_CAST "#text", NULL, (void*)cur);
+						res = xmlHashAddEntry2(triage, BAD_CAST "#text", NULL, (void *)cur);
 						if(res != 0)
 							is_triable = -1;
 					}
 					else if(((*tmp)->type == XML_RELAXNG_ELEMENT) && (*tmp)->name) {
-						res = xmlHashAddEntry2(triage, (*tmp)->name, isempty((*tmp)->ns) ? NULL : (*tmp)->ns, (void*)cur);
+						res = xmlHashAddEntry2(triage, (*tmp)->name, isempty((*tmp)->ns) ? NULL : (*tmp)->ns, (void *)cur);
 						if(res != 0)
 							is_triable = -1;
 					}
 					else if((*tmp)->type == XML_RELAXNG_ELEMENT) {
-						res = xmlHashAddEntry2(triage, BAD_CAST "#any", isempty((*tmp)->ns) ? NULL : (*tmp)->ns, (void*)cur);
+						res = xmlHashAddEntry2(triage, BAD_CAST "#any", isempty((*tmp)->ns) ? NULL : (*tmp)->ns, (void *)cur);
 						if(res != 0)
 							is_triable = -1;
 					}
@@ -3570,23 +3570,23 @@ static void xmlRelaxNGComputeInterleaves(xmlRelaxNGDefinePtr def, xmlRelaxNGPars
 		if(tmp && *tmp) {
 			while(*tmp) {
 				if((*tmp)->type == XML_RELAXNG_TEXT) {
-					res = xmlHashAddEntry2(partitions->triage, BAD_CAST "#text", NULL, (void*)(long)(i + 1));
+					res = xmlHashAddEntry2(partitions->triage, BAD_CAST "#text", NULL, (void *)(long)(i + 1));
 					if(res)
 						is_determinist = -1;
 				}
 				else if(((*tmp)->type == XML_RELAXNG_ELEMENT) && (*tmp)->name) {
 					if(isempty((*tmp)->ns))
-						res = xmlHashAddEntry2(partitions->triage, (*tmp)->name, NULL, (void*)(long)(i + 1));
+						res = xmlHashAddEntry2(partitions->triage, (*tmp)->name, NULL, (void *)(long)(i + 1));
 					else
-						res = xmlHashAddEntry2(partitions->triage, (*tmp)->name, (*tmp)->ns, (void*)(long)(i + 1));
+						res = xmlHashAddEntry2(partitions->triage, (*tmp)->name, (*tmp)->ns, (void *)(long)(i + 1));
 					if(res)
 						is_determinist = -1;
 				}
 				else if((*tmp)->type == XML_RELAXNG_ELEMENT) {
 					if(isempty((*tmp)->ns))
-						res = xmlHashAddEntry2(partitions->triage, BAD_CAST "#any", NULL, (void*)(long)(i + 1));
+						res = xmlHashAddEntry2(partitions->triage, BAD_CAST "#any", NULL, (void *)(long)(i + 1));
 					else
-						res = xmlHashAddEntry2(partitions->triage, BAD_CAST "#any", (*tmp)->ns, (void*)(long)(i + 1));
+						res = xmlHashAddEntry2(partitions->triage, BAD_CAST "#any", (*tmp)->ns, (void *)(long)(i + 1));
 					if((*tmp)->nameClass)
 						is_determinist = 2;
 					if(res != 0)
@@ -7273,7 +7273,7 @@ static int xmlRelaxNGValidateValue(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 			    if(define->name) {
 				    xmlRelaxNGTypeLibraryPtr lib = (xmlRelaxNGTypeLibraryPtr)define->data;
 				    if(lib && lib->comp) {
-					    ret = lib->comp(lib->data, define->name, define->value, define->P_Node, (void*)define->attrs, value, ctxt->state->P_Node);
+					    ret = lib->comp(lib->data, define->name, define->value, define->P_Node, (void *)define->attrs, value, ctxt->state->P_Node);
 				    }
 				    else
 					    ret = -1;

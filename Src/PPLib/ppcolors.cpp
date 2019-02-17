@@ -847,7 +847,7 @@ void ColorCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 			}
 		}
 		else if(TVCMD == cmCtlColor) {
-			TDrawCtrlData * p_dc = (TDrawCtrlData *)TVINFOPTR;
+			TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 			if(p_dc) {
 				TView * v = pDlg->getCtrlView(Ctl);
 				HWND hwnd = v ? v->getHandle() : 0;

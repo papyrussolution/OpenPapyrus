@@ -370,52 +370,37 @@ cairo_path_t * _cairo_path_create_flat(cairo_path_fixed_t * path,
  * Return value: %CAIRO_STATUS_INVALID_PATH_DATA if the data in @path
  * is invalid, and %CAIRO_STATUS_SUCCESS otherwise.
  **/
-cairo_status_t _cairo_path_append_to_context(const cairo_path_t * path,
-    cairo_t * cr)
+cairo_status_t _cairo_path_append_to_context(const cairo_path_t * path, cairo_t * cr)
 {
-	const cairo_path_data_t * p, * end;
-
-	end = &path->data[path->num_data];
+	const cairo_path_data_t * p;
+	const cairo_path_data_t * end = &path->data[path->num_data];
 	for(p = &path->data[0]; p < end; p += p->header.length) {
 		switch(p->header.type) {
 			case CAIRO_PATH_MOVE_TO:
 			    if(unlikely(p->header.length < 2))
 				    return _cairo_error(CAIRO_STATUS_INVALID_PATH_DATA);
-
 			    cairo_move_to(cr, p[1].point.x, p[1].point.y);
 			    break;
-
 			case CAIRO_PATH_LINE_TO:
 			    if(unlikely(p->header.length < 2))
 				    return _cairo_error(CAIRO_STATUS_INVALID_PATH_DATA);
-
 			    cairo_line_to(cr, p[1].point.x, p[1].point.y);
 			    break;
-
 			case CAIRO_PATH_CURVE_TO:
 			    if(unlikely(p->header.length < 4))
 				    return _cairo_error(CAIRO_STATUS_INVALID_PATH_DATA);
-
-			    cairo_curve_to(cr,
-				p[1].point.x, p[1].point.y,
-				p[2].point.x, p[2].point.y,
-				p[3].point.x, p[3].point.y);
+			    cairo_curve_to(cr, p[1].point.x, p[1].point.y, p[2].point.x, p[2].point.y, p[3].point.x, p[3].point.y);
 			    break;
-
 			case CAIRO_PATH_CLOSE_PATH:
 			    if(unlikely(p->header.length < 1))
 				    return _cairo_error(CAIRO_STATUS_INVALID_PATH_DATA);
-
 			    cairo_close_path(cr);
 			    break;
-
 			default:
 			    return _cairo_error(CAIRO_STATUS_INVALID_PATH_DATA);
 		}
-
 		if(unlikely(cr->status))
 			return cr->status;
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }

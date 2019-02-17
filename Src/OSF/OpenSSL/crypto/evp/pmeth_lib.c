@@ -310,7 +310,7 @@ int EVP_PKEY_CTX_ctrl_str(EVP_PKEY_CTX * ctx, const char * name, const char * va
 int EVP_PKEY_CTX_str2ctrl(EVP_PKEY_CTX * ctx, int cmd, const char * str)
 {
 	size_t len = strlen(str);
-	return (len > INT_MAX) ? -1 : ctx->pmeth->ctrl(ctx, cmd, len, (void*)str);
+	return (len > INT_MAX) ? -1 : ctx->pmeth->ctrl(ctx, cmd, len, (void *)str);
 }
 
 int EVP_PKEY_CTX_hex2ctrl(EVP_PKEY_CTX * ctx, int cmd, const char * hex)

@@ -143,18 +143,13 @@ uint TY_(NodeAttributeVersions) (Node* node, TidyAttrId id);
 
 /* 0 == TidyAttr_UNKNOWN  */
 #define AttrId(av) ((av) && (av)->dict ? (av)->dict->id : TidyAttr_UNKNOWN)
-#define AttrIsId(av, atid) ((av) && (av)->dict && ((av)->dict->id == atid))
+#define AttrIsId(av, atid) ((av) && (av)->dict && ((av)->dict->id == (atid)))
 
 #define AttrHasValue(attr)      ((attr) && (attr)->value)
-#define AttrValueIs(attr, val)  (AttrHasValue(attr) && \
-	    TY_(tmbstrcasecmp) ((attr)->value, val) == 0)
-#define AttrContains(attr, val) (AttrHasValue(attr) && \
-	    TY_(tmbsubstr) ((attr)->value, val) != NULL)
+#define AttrValueIs(attr, val)  (AttrHasValue(attr) && TY_(tmbstrcasecmp) ((attr)->value, val) == 0)
+#define AttrContains(attr, val) (AttrHasValue(attr) && TY_(tmbsubstr) ((attr)->value, val) != NULL)
 #define AttrVersions(attr)      ((attr) && (attr)->dict ? (attr)->dict->versions : VERS_PROPRIETARY)
-
-#define AttrsHaveSameId(a, b) (a && b && a->dict && b->dict && a->dict->id && \
-	    b->dict->id && a->dict->id == b->dict->id)
-
+#define AttrsHaveSameId(a, b) (a && b && a->dict && b->dict && a->dict->id && b->dict->id && a->dict->id == b->dict->id)
 #define attrIsABBR(av)              AttrIsId(av, TidyAttr_ABBR)
 #define attrIsACCEPT(av)            AttrIsId(av, TidyAttr_ACCEPT)
 #define attrIsACCEPT_CHARSET(av)    AttrIsId(av, TidyAttr_ACCEPT_CHARSET)

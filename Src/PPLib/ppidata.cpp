@@ -842,9 +842,9 @@ int WinInetFTP::GetFileList(const char * pDir, StrAssocArray * pFileList, const 
 	}
 	if(ok) {
 		const char * p_mask = isempty(pMask) ? "*.*" : pMask;
-		HINTERNET hf = 0;
 		WIN32_FIND_DATA ff_info;
-		if(hf = FtpFindFirstFile(Connection, p_mask, &ff_info, 0, 0)) { // @unicodeproblem
+		HINTERNET hf = FtpFindFirstFile(Connection, p_mask, &ff_info, 0, 0); // @unicodeproblem
+		if(hf) { 
 			long id = 1;
 			if(pFileList && !(ff_info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 				pFileList->Add(id++, ff_info.cFileName); // @unicodeproblem

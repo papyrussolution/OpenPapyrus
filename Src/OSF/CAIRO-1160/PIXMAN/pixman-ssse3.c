@@ -252,7 +252,7 @@ static void ssse3_bilinear_cover_iter_init(pixman_iter_t * iter, const pixman_it
 	info->x = v.vector[0] - pixman_fixed_1 / 2;
 	info->y = v.vector[1] - pixman_fixed_1 / 2;
 #define ALIGN(addr)                                                     \
-	((void*)((((uintptr_t)(addr)) + 15) & (~15)))
+	((void *)((((uintptr_t)(addr)) + 15) & (~15)))
 
 	/* It is safe to set the y coordinates to -1 initially
 	 * because COVER_CLIP_BILINEAR ensures that we will only

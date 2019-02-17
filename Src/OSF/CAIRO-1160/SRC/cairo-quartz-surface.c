@@ -50,7 +50,7 @@
 #include "cairo-recording-surface-private.h"
 #include <dlfcn.h>
 #ifndef RTLD_DEFAULT
-	#define RTLD_DEFAULT ((void*)0)
+	#define RTLD_DEFAULT ((void *)0)
 #endif
 #include <limits.h>
 

@@ -187,7 +187,7 @@ static void state(struct SASL * sasl, struct connectdata * conn, saslstate newst
 		/* LAST */
 	};
 	if(sasl->state != newstate)
-		infof(conn->data, "SASL %p state change from %s to %s\n", (void*)sasl, names[sasl->state], names[newstate]);
+		infof(conn->data, "SASL %p state change from %s to %s\n", (void *)sasl, names[sasl->state], names[newstate]);
 #else
 	(void)conn;
 #endif

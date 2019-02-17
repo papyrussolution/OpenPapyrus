@@ -60,7 +60,7 @@ class PCRECPP_EXP_DEFN Arg {
   Arg();
 
   // Constructor specially designed for NULL arguments
-  Arg(void*);
+  Arg(void *);
 
   typedef bool (*Parser)(const char* str, int n, void* dest);
 

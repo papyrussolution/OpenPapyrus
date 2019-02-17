@@ -402,7 +402,7 @@ XMLPUBFUN void XMLCALL xmlXPathBooleanFunction(xmlXPathParserContextPtr ctxt, in
 /**
  * Really internal functions
  */
-XMLPUBFUN void XMLCALL xmlXPathNodeSetFreeNs(xmlNs * ns);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlXPathNodeSetFreeNs(xmlNs * ns);
 
 #ifdef __cplusplus
 }

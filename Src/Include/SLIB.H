@@ -1590,7 +1590,8 @@ struct LDATE { // @noctr
 		cInvalid           // Дата имеет недопустимое значение
 	};
 	operator unsigned long() const { return v; }
-	operator OleDate() const;
+	// @v10.3.4 (replaced with GetOleDate()) operator OleDate() const;
+	OleDate SLAPI GetOleDate() const;
 	time_t SLAPI GetTimeT() const;
 	LDATE  operator = (OleDate);
 	LDATE  operator = (double); // OleDate
@@ -9656,6 +9657,7 @@ class SMathConst {
 public:
 	static const double Pi;
 	static const double Pi2;        // pi*2
+	static const float  Pi2_f;      // pi*2
 	static const float  Pi_f;
 	static const double PiDiv180;   // pi/180 (DEG to RAD)
 	static const float  PiDiv180_f; // pi/180 (DEG to RAD)

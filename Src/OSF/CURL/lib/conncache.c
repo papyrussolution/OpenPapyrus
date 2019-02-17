@@ -277,7 +277,7 @@ void Curl_conncache_print(struct conncache * connc)
 		while(curr) {
 			conn = curr->ptr;
 
-			fprintf(stderr, " [%p %d]", (void*)conn, conn->inuse);
+			fprintf(stderr, " [%p %d]", (void *)conn, conn->inuse);
 			curr = curr->next;
 		}
 		fprintf(stderr, "\n");

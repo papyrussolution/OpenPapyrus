@@ -1287,7 +1287,7 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(uint32 index, ISequentialOutStre
 					SECURITY_INFORMATION securInfo = DACL_SECURITY_INFORMATION|GROUP_SECURITY_INFORMATION|OWNER_SECURITY_INFORMATION;
 					if(_saclEnabled)
 						securInfo |= SACL_SECURITY_INFORMATION;
-					::SetFileSecurityW(fs2us(_diskFilePath), securInfo, (PSECURITY_DESCRIPTOR)(void*)data);
+					::SetFileSecurityW(fs2us(_diskFilePath), securInfo, (PSECURITY_DESCRIPTOR)(void *)data);
 				}
 			}
 		}

@@ -1301,7 +1301,7 @@ int SLAPI PrcssrSalary::Expr_ResolveSymb(const char * pSymb, double * pVal)
 					else if(tag_item.TagDataType == OTTYP_STRING)
 						result = tag_item.Val.PStr ? atof(tag_item.Val.PStr) : 0.0;
 					else if(tag_item.TagDataType == OTTYP_DATE)
-						result = (OleDate)tag_item.Val.DtVal;
+						result = tag_item.Val.DtVal.GetOleDate();
 				}
 			}
 			else {

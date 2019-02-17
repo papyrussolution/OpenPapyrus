@@ -392,7 +392,7 @@ typedef xmlRef * xmlRefPtr;
 struct xmlNode {
 	void * _private; // application data 
 	xmlElementType type; // type number, must be second ! 
-	const xmlChar * name; /* the name of the node, or the entity */
+	const xmlChar * name; // the name of the node, or the entity 
 	xmlNode * children; /* parent->childs link */
 	xmlNode * last; /* last child link */
 	xmlNode * parent; /* child->parent link */
@@ -619,7 +619,7 @@ XMLPUBFUN long XMLCALL xmlGetLineNo(const xmlNode * P_Node);
 XMLPUBFUN xmlChar * XMLCALL xmlGetNodePath(const xmlNode * P_Node);
 #endif /* defined(LIBXML_TREE_ENABLED) || defined(LIBXML_DEBUG_ENABLED) */
 XMLPUBFUN xmlNode * /*XMLCALL*/FASTCALL xmlDocGetRootElement(const xmlDoc * doc);
-XMLPUBFUN xmlNode * XMLCALL xmlGetLastChild(const xmlNode * parent);
+XMLPUBFUN xmlNode * /*XMLCALL*/FASTCALL xmlGetLastChild(const xmlNode * parent);
 XMLPUBFUN int XMLCALL xmlNodeIsText(const xmlNode * P_Node);
 XMLPUBFUN int /*XMLCALL*/FASTCALL xmlIsBlankNode(const xmlNode * P_Node);
 // 

@@ -316,7 +316,7 @@ IMPL_HANDLE_EVENT(TBaseBrowserWindow)
 				child.cy = CW_USEDEFAULT;	// rect->bottom;
 				child.style  = style;
 				child.lParam = reinterpret_cast<LPARAM>(static_cast<BrowserWindow *>(this));
-				HW = (HWND)LOWORD(SendMessage(APPL->H_MainWnd, WM_MDICREATE, 0, reinterpret_cast<LPARAM>(&child))); // @unicodeproblem
+				HW = reinterpret_cast<HWND>(LOWORD(SendMessage(APPL->H_MainWnd, WM_MDICREATE, 0, reinterpret_cast<LPARAM>(&child)))); // @unicodeproblem
 			}
 			else {
 				HW = CreateWindow(ClsName, buf, style, r.left, r.top, r.right, r.bottom, (APPL->H_TopOfStack), NULL, TProgram::GetInst(), this); // @unicodeproblem
@@ -908,7 +908,7 @@ SLAPI BrowserWindow::~BrowserWindow()
 		Pens.Destroy();
 		Brushes.Destroy();
 		ZDeleteWinGdiObject(&Font);
-		BrowserWindow * p_this_view_from_wnd = (BrowserWindow*)TView::GetWindowUserData(H());
+		BrowserWindow * p_this_view_from_wnd = static_cast<BrowserWindow *>(TView::GetWindowUserData(H()));
 		if(p_this_view_from_wnd) {
 			Sf |= sfOnDestroy;
 			::DestroyWindow(H());
@@ -1031,7 +1031,7 @@ IMPL_HANDLE_EVENT(BrowserWindow)
 				break;
 			case cmGetFocusedNumber:
 				{
-					double * p_number = (double*)event.message.infoPtr;
+					double * p_number = static_cast<double *>(event.message.infoPtr);
 					if(p_number) {
 						char b[256];
 						P_Def->getText(P_Def->_curItem(), GetCurColumn(), b);
@@ -1041,20 +1041,20 @@ IMPL_HANDLE_EVENT(BrowserWindow)
 				break;
 			case cmGetFocusedText:
 				{
-					char * p_text = (char *)event.message.infoPtr;
+					char * p_text = static_cast<char *>(event.message.infoPtr);
 					if(p_text)
 						P_Def->getText(P_Def->_curItem(), GetCurColumn(), p_text);
 				}
 				break;
 			case cmaDesktop:
 				if(APPL->H_Desktop && !IsInState(sfModal)) {
-					TWindow * p_desk = (TWindow*)TView::GetWindowUserData(APPL->H_Desktop);
+					TWindow * p_desk = static_cast<TWindow *>(TView::GetWindowUserData(APPL->H_Desktop));
 					::SendMessage(APPL->H_MainWnd, WM_COMMAND, (WPARAM)p_desk, 0);
 				}
 				break;
 			case cmSetFont:
 				{
-					const SetFontEvent * p_sfe = (const SetFontEvent *)event.message.infoPtr;
+					const SetFontEvent * p_sfe = static_cast<const SetFontEvent *>(event.message.infoPtr);
 					if(p_sfe) {
 						TEXTMETRIC tm;
 						HDC    dc = GetDC(H());
@@ -1091,7 +1091,7 @@ IMPL_HANDLE_EVENT(BrowserWindow)
 				uchar b[2];
 				b[0] = TVCHR;
 				b[1] = 0;
-				SCharToOem((char *)b);
+				SCharToOem(reinterpret_cast<char *>(b));
 				if(isalnum(b[0]) || IsLetter866(b[0]) || b[0] == '*') {
 					search((char *)b, srchFirst);
 					break;
@@ -1126,7 +1126,7 @@ void BrowserWindow::SetupScroll()
 {
 	ViewHeight = (CliSz.y - CapOffs - CalcHdrWidth(1)) / YCell - 1;
 	P_Def->setViewHight(ViewHeight);
-	VScrollMax = MAX(0, (int)P_Def->getRecsCount() - 1);
+	VScrollMax = MAX(0, static_cast<int>(P_Def->getRecsCount())-1);
 	VScrollPos = MIN(VScrollPos, VScrollMax);
 	HScrollMax = P_Def->getCount() - 1;
 	HScrollPos = MIN(HScrollPos, HScrollMax);
@@ -1136,8 +1136,8 @@ void BrowserWindow::SetupScroll()
 	SetScrollPos(H(), SB_HORZ, HScrollPos, TRUE);
 	HWND   parent = GetParent(H());
 	if(parent) {
-		SendMessage(parent, BRO_ROWCHANGED, (WPARAM)H(), MAKELPARAM(VScrollPos, 0));
-		SendMessage(parent, BRO_COLCHANGED, (WPARAM)H(), MAKELPARAM(HScrollPos, 0));
+		SendMessage(parent, BRO_ROWCHANGED, reinterpret_cast<WPARAM>(H()), MAKELPARAM(VScrollPos, 0));
+		SendMessage(parent, BRO_COLCHANGED, reinterpret_cast<WPARAM>(H()), MAKELPARAM(HScrollPos, 0));
 	}
 	SendMessage(H(), WM_VSCROLL, SB_THUMBPOSITION, 0);
 }
@@ -1147,7 +1147,7 @@ void BrowserWindow::SetColorsSchema(uint32 schemaNum)
 	HDC    dc = GetDC(H());
 	Pens.Destroy();
 	Brushes.Destroy();
-	schemaNum = (schemaNum >= 0 && schemaNum < NUMBRWCOLORSCHEMA) ? schemaNum : 0;
+	schemaNum = (schemaNum < NUMBRWCOLORSCHEMA) ? schemaNum : 0;
 	SetTextColor(dc, BrwColorsSchemas[schemaNum].Text);
 	SetBkColor(dc, BrwColorsSchemas[schemaNum].Background);
 	Pens.GridHorzPen    = CreatePen(PS_SOLID, 1, BrwColorsSchemas[schemaNum].GridHorizontal);
@@ -1190,7 +1190,7 @@ void BrowserWindow::WMHCreate(LPCREATESTRUCT)
 	ChrSz.Set(tm.tmAveCharWidth, tm.tmHeight + tm.tmExternalLeading);
 	YCell = ChrSz.y + 2;
 	SetColorsSchema(UICfg.GetBrwColorSchema());
-	TView::SetWindowUserData(H(), (BrowserWindow *)this);
+	TView::SetWindowUserData(H(), static_cast<BrowserWindow *>(this));
 	SetCursor(MainCursor);
 	SetFocus(H());
 	SendMessage(H(), WM_NCACTIVATE, TRUE, 0L);
@@ -1230,7 +1230,7 @@ void BrowserWindow::SetupColumnWidth(uint colNo)
 			else if(GETSTYPE(ct) == S_DATE)
 				w = 10;
 			else
-				w = (int)(cw * 6 / 5 + 1);
+				w = static_cast<int>(cw * 6 / 5 + 1);
 			r_c.width = MAX(6, w);
 			CalcRight();
 			SETSFMTLEN(r_c.format, r_c.width);
@@ -1241,7 +1241,7 @@ void BrowserWindow::SetupColumnWidth(uint colNo)
 
 void BrowserWindow::SetColumnWidth(int colNo, int newWidth)
 {
-	if(colNo >= 0 && colNo < (int)P_Def->getCount()) {
+	if(colNo >= 0 && colNo < static_cast<int>(P_Def->getCount())) {
 		BroColumn & c = P_Def->at(colNo);
 		c.width = MAX(6, newWidth);
 		CalcRight();
@@ -1273,7 +1273,7 @@ int BrowserWindow::removeColumn(int atPos)
 {
 	int    ok = P_Def ? P_Def->removeColumn(atPos) : 0;
 	if(ok) {
-		if(atPos <= (int)Left) { // @v9.2.3
+		if(atPos <= static_cast<int>(Left)) { // @v9.2.3
 			Left--;
 			CalcRight();
 			SetupScroll();
@@ -1302,9 +1302,9 @@ LPRECT BrowserWindow::ItemRect(int hPos, int vPos, LPRECT rect, BOOL isFocus)
 {
 	const BroColumn & c = P_Def->at(hPos);
 #if 1 // @v8.2.0 { GetRowHeightMult и GetRowTop элиминированы ради быстродействия //
-	if(P_RowsHeightAry && vPos < (long)P_RowsHeightAry->getCount()) {
-		rect->top    = CapOffs + ((RowHeightInfo*)P_RowsHeightAry->at(vPos))->Top;
-		rect->bottom = rect->top + ChrSz.y + YCell * (((RowHeightInfo*)P_RowsHeightAry->at(vPos))->HeightMult-1);
+	if(P_RowsHeightAry && vPos < static_cast<long>(P_RowsHeightAry->getCount())) {
+		rect->top    = CapOffs + static_cast<const RowHeightInfo *>(P_RowsHeightAry->at(vPos))->Top;
+		rect->bottom = rect->top + ChrSz.y + YCell * (static_cast<const RowHeightInfo *>(P_RowsHeightAry->at(vPos))->HeightMult-1);
 	}
 	else {
 		rect->top    = CapOffs + (YCell * vPos);
@@ -1331,10 +1331,8 @@ LPRECT BrowserWindow::LineRect(int vPos, LPRECT rect, BOOL isFocus)
 	rect->bottom = rect->top + ChrSz.y + YCell * (GetRowHeightMult(vPos)-1);
 	rect->left = P_Def->at(left_pos).x + 1;
 	rect->right = 0;
-	if(Right >= 0) {
-		const uint _right = (Right < count) ? Right : (count-1);
-		rect->right = CellRight(P_Def->at(_right)) - 1;
-	}
+	const uint _right = (Right < count) ? Right : (count-1);
+	rect->right = CellRight(P_Def->at(_right)) - 1;
 	if(isFocus) {
 		SInflateRect(*rect, 3, 2);
 		rect->bottom--;
@@ -1342,7 +1340,7 @@ LPRECT BrowserWindow::LineRect(int vPos, LPRECT rect, BOOL isFocus)
 	return rect;
 }
 
-void BrowserWindow::DrawFocus(HDC hDC, LPRECT lpRect, BOOL DrawOrClear, BOOL isCellCursor)
+void BrowserWindow::DrawFocus(HDC hDC, const RECT * lpRect, BOOL DrawOrClear, BOOL isCellCursor)
 {
 	HPEN   pen;
 	HBRUSH brush;
@@ -1358,7 +1356,7 @@ void BrowserWindow::DrawFocus(HDC hDC, LPRECT lpRect, BOOL DrawOrClear, BOOL isC
 	SelectObject(hDC, brush);
 	Rectangle(hDC, lpRect->left, lpRect->top, lpRect->right, lpRect->bottom);
 	if(DrawOrClear) {
-		HPEN   old_pen = (HPEN)SelectObject(hDC, Pens.FocusOuterPen);
+		HPEN   old_pen = static_cast<HPEN>(SelectObject(hDC, Pens.FocusOuterPen));
 		MoveToEx(hDC, lpRect->left + 1, lpRect->top + 1, 0);
 		LineTo(hDC, lpRect->right - 3,  lpRect->top + 1);
 		LineTo(hDC, lpRect->right - 3,  lpRect->bottom - 2);
@@ -1373,7 +1371,7 @@ void BrowserWindow::DrawCapBk(HDC hDC, LPRECT lpRect, BOOL isPressed)
 {
 	RECT   r = *lpRect;
 	if(!isPressed) {
-		HPEN   oldPen = (HPEN)SelectObject(hDC, Pens.TitlePen);
+		HPEN   oldPen = static_cast<HPEN>(SelectObject(hDC, Pens.TitlePen));
 		POINT  points[6];
 		points[0].x = r.right;
 		points[0].y = r.top;
@@ -1387,7 +1385,7 @@ void BrowserWindow::DrawCapBk(HDC hDC, LPRECT lpRect, BOOL isPressed)
 		points[4].y = r.bottom - 1;
 		points[5].x = r.right - 1;
 		points[5].y = r.top + 1;
-		Polygon(hDC, points, sizeof(points) / sizeof(POINT));
+		Polygon(hDC, points, SIZEOFARRAY(points));
 		SelectObject(hDC, oldPen);
 		SInflateRect(r, -1, -1);
 	}
@@ -2169,7 +2167,7 @@ int BrowserWindow::WMHScroll(int sbType, int sbEvent, int thumbPos)
 				default:;
 			}
 		}
-		P_Def->getScrollData(&scrll_delta, (LPLONG)&VScrollPos);
+		P_Def->getScrollData(&scrll_delta, reinterpret_cast<long *>(&VScrollPos));
 		if(res) {
 			// AHTOXA {
 			RECT prev_line_rect = RectCursors.LineCursor;
@@ -2380,23 +2378,23 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 	POINT  pnt;
 	TPoint tp;
 	TEvent e;
-	BrowserWindow * p_view = (BrowserWindow *)TView::GetWindowUserData(hWnd);
+	BrowserWindow * p_view = static_cast<BrowserWindow *>(TView::GetWindowUserData(hWnd));
 	long   hdr_width = p_view ? p_view->CalcHdrWidth(1) : 0;
 	LPCREATESTRUCT initData;
 	switch(msg) {
 		case WM_CREATE:
 			initData = (LPCREATESTRUCT)lParam;
 			if(IsMDIClientWindow(initData->hwndParent)) {
-				p_view = (BrowserWindow *)((LPMDICREATESTRUCT)(initData->lpCreateParams))->lParam;
+				p_view = reinterpret_cast<BrowserWindow *>(static_cast<LPMDICREATESTRUCT>(initData->lpCreateParams)->lParam);
 				p_view->BbState |= TBaseBrowserWindow::bbsIsMDI;
 			}
 			else {
-				p_view = (BrowserWindow*)initData->lpCreateParams;
+				p_view = static_cast<BrowserWindow *>(initData->lpCreateParams);
 				p_view->BbState &= ~TBaseBrowserWindow::bbsIsMDI;
 			}
 			if(p_view) {
 				p_view->HW = hWnd;
-				p_view->WMHCreate((LPCREATESTRUCT)lParam);
+				p_view->WMHCreate(reinterpret_cast<LPCREATESTRUCT>(lParam));
 				InvalidateRect(hWnd, 0, TRUE);
 				PostMessage(hWnd, WM_PAINT, 0, 0);
 				{
@@ -2738,7 +2736,7 @@ int BrowserWindow::search(void * pPattern, CompFunc fcmp, int srchMode)
 	return ok;
 }
 
-void BrowserWindow::search(char * pFirstLetter, int srchMode)
+void BrowserWindow::search(const char * pFirstLetter, int srchMode)
 {
 	int    r = -1;
 	char   srch_buf[512];

@@ -299,7 +299,7 @@ METHODDEF(void *) alloc_small(j_common_ptr cinfo, int pool_id, size_t sizeofobje
 	data_ptr += hdr_ptr->hdr.bytes_used; /* point to place for object */
 	hdr_ptr->hdr.bytes_used += sizeofobject;
 	hdr_ptr->hdr.bytes_left -= sizeofobject;
-	return (void*)data_ptr;
+	return (void *)data_ptr;
 }
 /*
  * Allocation of "large" objects.
@@ -859,7 +859,7 @@ METHODDEF(void) free_pool(j_common_ptr cinfo, int pool_id)
 	while(shdr_ptr) {
 		small_pool_ptr next_shdr_ptr = shdr_ptr->hdr.next;
 		space_freed = shdr_ptr->hdr.bytes_used + shdr_ptr->hdr.bytes_left + SIZEOF(small_pool_hdr);
-		jpeg_free_small(cinfo, (void*)shdr_ptr, space_freed);
+		jpeg_free_small(cinfo, (void *)shdr_ptr, space_freed);
 		mem->total_space_allocated -= space_freed;
 		shdr_ptr = next_shdr_ptr;
 	}
@@ -879,7 +879,7 @@ METHODDEF(void) self_destruct(j_common_ptr cinfo)
 		free_pool(cinfo, pool);
 	}
 	// Release the memory manager control block too. 
-	jpeg_free_small(cinfo, (void*)cinfo->mem, SIZEOF(my_memory_mgr));
+	jpeg_free_small(cinfo, (void *)cinfo->mem, SIZEOF(my_memory_mgr));
 	cinfo->mem = NULL; // ensures I will be called only once 
 	jpeg_mem_term(cinfo); // system-dependent cleanup 
 }

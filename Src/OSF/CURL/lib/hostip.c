@@ -210,7 +210,7 @@ static void hostcache_prune(struct curl_hash * hostcache, long cache_timeout, ti
 	user.now = now;
 
 	Curl_hash_clean_with_criterium(hostcache,
-	    (void*)&user,
+	    (void *)&user,
 	    hostcache_timestamp_remove);
 }
 
@@ -347,7 +347,7 @@ struct Curl_dns_entry * Curl_cache_addr(struct Curl_easy * data, Curl_addrinfo *
 	if(dns->timestamp == 0)
 		dns->timestamp = 1;  /* zero indicates CURLOPT_RESOLVE entry */
 	/* Store the resolved data in our DNS cache. */
-	dns2 = (struct Curl_dns_entry *)Curl_hash_add(data->dns.hostcache, entry_id, entry_len+1, (void*)dns);
+	dns2 = (struct Curl_dns_entry *)Curl_hash_add(data->dns.hostcache, entry_id, entry_len+1, (void *)dns);
 	if(!dns2) {
 		SAlloc::F(dns);
 		SAlloc::F(entry_id);

@@ -789,7 +789,7 @@ int SLAPI PrcssrDbDump::EditParam(Param * pData)
 			P_Dbes->SetSelection(db_id);
 			THROW_SL(P_Dbes->GetByID(db_id, &blk));
 			blk.GetAttr(DbLoginBlock::attrDbSymb, Data.DbSymb);
-			Data.TblID = (BTBLID)getCtrlLong(CTLSEL_RECOVER_TBL);
+			Data.TblID = static_cast<BTBLID>(getCtrlLong(CTLSEL_RECOVER_TBL));
 			getCtrlString(CTL_DBDUMP_FILE, Data.FileName);
 			Data.FileName.Strip();
 			ASSIGN_PTR(pData, Data);
@@ -839,7 +839,7 @@ int SLAPI PrcssrDbDump::EditParam(Param * pData)
 		{
 			int    ok = -1;
 			if(mode == 1) {
-				SetupDBTableComboBox(this, CTLSEL_DBDUMP_TBL, P_Dbes, P_Dbes->GetSelection(), (BTBLID)Data.TblID);
+				SetupDBTableComboBox(this, CTLSEL_DBDUMP_TBL, P_Dbes, P_Dbes->GetSelection(), static_cast<BTBLID>(Data.TblID));
 				ok = 1;
 			}
 			else if(mode == 0) {
@@ -2093,7 +2093,7 @@ static int SLAPI PPRecoverDialog(PPDbEntrySet2 * pDbes, BTBLID * pTblID, SString
 		int    getDTS(PPDbEntrySet2 * dbes, BTBLID * tblID, SString & rDest, SString & rLog)
 		{
 			dbes->SetSelection(getCtrlLong(CTLSEL_RECOVER_DB));
-			*tblID = (BTBLID)getCtrlLong(CTLSEL_RECOVER_TBL);
+			*tblID = static_cast<BTBLID>(getCtrlLong(CTLSEL_RECOVER_TBL));
 			getCtrlString(CTL_RECOVER_DEST, rDest);
 			rDest.Strip();
 			getCtrlString(CTL_RECOVER_LOG,  rLog);
@@ -2186,7 +2186,7 @@ static int SLAPI _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 					StrAssocArray tbl_list;
 					CurDict->GetListOfTables(0, &tbl_list);
 					for(uint j = 0; j < tbl_list.getCount(); j++) {
-						THROW_PP(_Recover((BTBLID)tbl_list.Get(j).Id, &param, &r_info_array), PPERR_DBLIB);
+						THROW_PP(_Recover(static_cast<BTBLID>(tbl_list.Get(j).Id), &param, &r_info_array), PPERR_DBLIB);
 					}
 				}
 				PPWait(0);

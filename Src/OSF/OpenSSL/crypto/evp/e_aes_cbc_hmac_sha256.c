@@ -487,7 +487,7 @@ static int aesni_cbc_hmac_sha256_cipher(EVP_CIPHER_CTX * ctx,
 		} mac, * pmac;
 
 		/* arrange cache line alignment */
-		pmac = (void*)(((size_t)mac.c + 63) & ((size_t)0 - 64));
+		pmac = (void *)(((size_t)mac.c + 63) & ((size_t)0 - 64));
 
 		/* decrypt HMAC|padding at once */
 		aesni_cbc_encrypt(in, out, len, &key->ks,
@@ -500,7 +500,7 @@ static int aesni_cbc_hmac_sha256_cipher(EVP_CIPHER_CTX * ctx,
 			union {
 				uint u[SHA_LBLOCK];
 				uchar c[SHA256_CBLOCK];
-			} * data = (void*)key->md.data;
+			} * data = (void *)key->md.data;
 
 			if((key->aux.tls_aad[plen - 4] << 8 | key->aux.tls_aad[plen - 3])
 			    >= TLS1_1_VERSION)

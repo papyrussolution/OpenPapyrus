@@ -171,7 +171,7 @@ static int pkey_dsa_ctrl_str(EVP_PKEY_CTX * ctx, const char * type, const char *
 		return EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DSA, EVP_PKEY_OP_PARAMGEN, EVP_PKEY_CTRL_DSA_PARAMGEN_Q_BITS, qbits, NULL);
 	}
 	else if(sstreq(type, "dsa_paramgen_md")) {
-		return EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DSA, EVP_PKEY_OP_PARAMGEN, EVP_PKEY_CTRL_DSA_PARAMGEN_MD, 0, (void*)EVP_get_digestbyname(value));
+		return EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DSA, EVP_PKEY_OP_PARAMGEN, EVP_PKEY_CTRL_DSA_PARAMGEN_MD, 0, (void *)EVP_get_digestbyname(value));
 	}
 	else
 		return -2;

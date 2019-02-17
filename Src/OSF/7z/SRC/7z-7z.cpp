@@ -5574,7 +5574,7 @@ namespace NArchive {
 					 */
 					emptyRefs.Add(i);
 				}
-				emptyRefs.Sort(CompareEmptyItems, (void*)&updateItems);
+				emptyRefs.Sort(CompareEmptyItems, (void *)&updateItems);
 				for(i = 0; i < emptyRefs.Size(); i++) {
 					const CUpdateItem &ui = updateItems[emptyRefs[i]];
 					CFileItem file;
@@ -5883,7 +5883,7 @@ namespace NArchive {
 				CSortParam sortParam;
 				// sortParam.TreeFolders = &treeFolders;
 				sortParam.SortByType = sortByType;
-				refItems.Sort(CompareUpdateItems, (void*)&sortParam);
+				refItems.Sort(CompareUpdateItems, (void *)&sortParam);
 
 				CObjArray<uint32> indices(numFiles);
 

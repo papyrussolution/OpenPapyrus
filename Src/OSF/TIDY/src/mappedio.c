@@ -72,7 +72,7 @@ void TY_(freeFileSource) (TidyInputSource* inp, bool closeIt)
 {
 	if(inp->getByte == mapped_getByte) {
 		MappedFileSource* fin = (MappedFileSource*)inp->sourceData;
-		munmap( (void*)fin->base, fin->size);
+		munmap( (void *)fin->base, fin->size);
 		TidyFree(fin->allocator, fin);
 	}
 	else

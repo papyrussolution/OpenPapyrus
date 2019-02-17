@@ -190,16 +190,8 @@ static cairo_always_inline cairo_bool_t _cairo_is_little_endian(void)
 
 /* Unaligned big endian access
  */
-
-static inline uint16_t get_unaligned_be16(const uchar * p)
-{
-	return p[0] << 8 | p[1];
-}
-
-static inline uint32_t get_unaligned_be32(const uchar * p)
-{
-	return p[0] << 24 | p[1] << 16 | p[2] << 8 | p[3];
-}
+static inline uint16_t get_unaligned_be16(const uchar * p) { return p[0] << 8 | p[1]; }
+static inline uint32_t get_unaligned_be32(const uchar * p) { return p[0] << 24 | p[1] << 16 | p[2] << 8 | p[3]; }
 
 static inline void put_unaligned_be16(uint16_t v, uchar * p)
 {
@@ -284,8 +276,8 @@ typedef struct {
 
 cairo_private void FASTCALL _cairo_user_data_array_init(cairo_user_data_array_t * array);
 cairo_private void FASTCALL _cairo_user_data_array_fini(cairo_user_data_array_t * array);
-cairo_private void * _cairo_user_data_array_get_data(cairo_user_data_array_t * array, const cairo_user_data_key_t * key);
-cairo_private cairo_status_t _cairo_user_data_array_set_data(cairo_user_data_array_t * array,
+cairo_private void * FASTCALL _cairo_user_data_array_get_data(cairo_user_data_array_t * array, const cairo_user_data_key_t * key);
+cairo_private cairo_status_t FASTCALL _cairo_user_data_array_set_data(cairo_user_data_array_t * array,
     const cairo_user_data_key_t * key, void * user_data, cairo_destroy_func_t destroy);
 cairo_private cairo_status_t _cairo_user_data_array_copy(cairo_user_data_array_t * dst, const cairo_user_data_array_t * src);
 cairo_private void _cairo_user_data_array_foreach(cairo_user_data_array_t * array, void (*func)(const void * key, void * elt, void * closure), void * closure);
@@ -737,13 +729,8 @@ cairo_private cairo_scaled_font_t * _cairo_scaled_font_create_in_error(cairo_sta
 cairo_private void _cairo_scaled_font_reset_static_data(void);
 cairo_private cairo_status_t _cairo_scaled_font_register_placeholder_and_unlock_font_map(cairo_scaled_font_t * scaled_font);
 cairo_private void _cairo_scaled_font_unregister_placeholder_and_lock_font_map(cairo_scaled_font_t * scaled_font);
-cairo_private cairo_status_t _cairo_scaled_font_init(cairo_scaled_font_t * scaled_font,
-    cairo_font_face_t * font_face,
-    const cairo_matrix_t * font_matrix,
-    const cairo_matrix_t * ctm,
-    const cairo_font_options_t * options,
-    const cairo_scaled_font_backend_t * backend);
-
+cairo_private cairo_status_t _cairo_scaled_font_init(cairo_scaled_font_t * scaled_font, cairo_font_face_t * font_face,
+    const cairo_matrix_t * font_matrix, const cairo_matrix_t * ctm, const cairo_font_options_t * options, const cairo_scaled_font_backend_t * backend);
 cairo_private cairo_status_t _cairo_scaled_font_set_metrics(cairo_scaled_font_t * scaled_font, cairo_font_extents_t * fs_metrics);
 /* This should only be called on an error path by a scaled_font constructor */
 cairo_private void _cairo_scaled_font_fini(cairo_scaled_font_t * scaled_font);
@@ -752,19 +739,9 @@ cairo_private cairo_status_t _cairo_scaled_font_glyph_device_extents(cairo_scale
     const cairo_glyph_t * glyphs, int num_glyphs, cairo_rectangle_int_t * extents, cairo_bool_t * overlap);
 cairo_private cairo_bool_t _cairo_scaled_font_glyph_approximate_extents(cairo_scaled_font_t * scaled_font,
     const cairo_glyph_t * glyphs, int num_glyphs, cairo_rectangle_int_t * extents);
-cairo_private cairo_status_t _cairo_scaled_font_show_glyphs(cairo_scaled_font_t * scaled_font,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    cairo_surface_t * surface,
-    int source_x,
-    int source_y,
-    int dest_x,
-    int dest_y,
-    uint width,
-    uint height,
-    cairo_glyph_t * glyphs,
-    int num_glyphs,
-    cairo_region_t * clip_region);
+cairo_private cairo_status_t _cairo_scaled_font_show_glyphs(cairo_scaled_font_t * scaled_font, cairo_operator_t op,
+    const cairo_pattern_t * source, cairo_surface_t * surface, int source_x, int source_y, int dest_x, int dest_y,
+    uint width, uint height, cairo_glyph_t * glyphs, int num_glyphs, cairo_region_t * clip_region);
 
 cairo_private cairo_status_t _cairo_scaled_font_glyph_path(cairo_scaled_font_t * scaled_font, const cairo_glyph_t * glyphs, int num_glyphs, cairo_path_fixed_t * path);
 cairo_private void _cairo_scaled_glyph_set_metrics(cairo_scaled_glyph_t * scaled_glyph, cairo_scaled_font_t * scaled_font, cairo_text_extents_t * fs_metrics);
@@ -784,14 +761,9 @@ cairo_private void _cairo_stroke_style_fini(cairo_stroke_style_t * style);
 cairo_private void _cairo_stroke_style_max_distance_from_path(const cairo_stroke_style_t * style,
     const cairo_path_fixed_t * path, const cairo_matrix_t * ctm, double * dx, double * dy);
 cairo_private void _cairo_stroke_style_max_line_distance_from_path(const cairo_stroke_style_t * style,
-    const cairo_path_fixed_t * path,
-    const cairo_matrix_t * ctm,
-    double * dx, double * dy);
+    const cairo_path_fixed_t * path, const cairo_matrix_t * ctm, double * dx, double * dy);
 cairo_private void _cairo_stroke_style_max_join_distance_from_path(const cairo_stroke_style_t * style,
-    const cairo_path_fixed_t * path,
-    const cairo_matrix_t * ctm,
-    double * dx, double * dy);
-
+    const cairo_path_fixed_t * path, const cairo_matrix_t * ctm, double * dx, double * dy);
 cairo_private double _cairo_stroke_style_dash_period(const cairo_stroke_style_t * style);
 cairo_private double _cairo_stroke_style_dash_stroked(const cairo_stroke_style_t * style);
 cairo_private cairo_bool_t _cairo_stroke_style_dash_can_approximate(const cairo_stroke_style_t * style, const cairo_matrix_t * ctm, double tolerance);
@@ -917,19 +889,12 @@ cairo_private void _cairo_surface_release_device_reference(cairo_surface_t * sur
  * to support it (at least cairo_surface_write_to_png() and a few spots
  * in cairo-xlib-surface.c--again see -Wswitch-enum).
  */
-#define CAIRO_FORMAT_VALID(format) ((format) >= CAIRO_FORMAT_ARGB32 &&          \
-	(format) <= CAIRO_FORMAT_RGB30)
+#define CAIRO_FORMAT_VALID(format) ((format) >= CAIRO_FORMAT_ARGB32 && (format) <= CAIRO_FORMAT_RGB30)
 
 /* pixman-required stride alignment in bytes. */
 #define CAIRO_STRIDE_ALIGNMENT (sizeof(uint32_t))
-#define CAIRO_STRIDE_FOR_WIDTH_BPP(w, bpp) \
-	((((bpp)*(w)+7)/8 + CAIRO_STRIDE_ALIGNMENT-1) & -CAIRO_STRIDE_ALIGNMENT)
-
-#define CAIRO_CONTENT_VALID(content) ((content) &&                               \
-	(((content) & ~(CAIRO_CONTENT_COLOR |      \
-	CAIRO_CONTENT_ALPHA |      \
-	CAIRO_CONTENT_COLOR_ALPHA)) \
-	== 0))
+#define CAIRO_STRIDE_FOR_WIDTH_BPP(w, bpp) ((((bpp)*(w)+7)/8 + CAIRO_STRIDE_ALIGNMENT-1) & -CAIRO_STRIDE_ALIGNMENT)
+#define CAIRO_CONTENT_VALID(content) ((content) && (((content) & ~(CAIRO_CONTENT_COLOR | CAIRO_CONTENT_ALPHA | CAIRO_CONTENT_COLOR_ALPHA)) == 0))
 
 cairo_private int _cairo_format_bits_per_pixel(cairo_format_t format) cairo_const;
 cairo_private cairo_format_t _cairo_format_from_content(cairo_content_t content) cairo_const;

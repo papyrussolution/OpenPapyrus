@@ -372,7 +372,7 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 					key_cmd.Code = (uint16)wParam;
 					event.what = TEvent::evCommand;
 					event.message.command = cmWinKeyDown;
-					event.message.infoPtr = (void*)&key_cmd;
+					event.message.infoPtr = (void *)&key_cmd;
 					p_dlg->handleEvent(event);
 				}
 			}

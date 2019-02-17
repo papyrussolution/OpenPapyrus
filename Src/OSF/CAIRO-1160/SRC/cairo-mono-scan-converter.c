@@ -116,7 +116,7 @@ static cairo_status_t polygon_init(struct polygon * polygon, int ymin, int ymax)
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 	memzero(polygon->y_buckets, h * sizeof(struct edge *));
-	polygon->y_buckets[h-1] = (struct edge *)(void*)-1;
+	polygon->y_buckets[h-1] = (struct edge *)(void *)-1;
 	polygon->ymin = ymin;
 	polygon->ymax = ymax;
 	return CAIRO_STATUS_SUCCESS;

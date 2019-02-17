@@ -365,7 +365,7 @@ static const char * ngx_http_geo_block(ngx_conf_t * cf, const ngx_command_t * cm
 		geo->u.high = ctx.high;
 
 		var->get_handler = ngx_http_geo_range_variable;
-		var->data = (uintptr_t)geo;
+		var->data = reinterpret_cast<uintptr_t>(geo);
 
 		ngx_destroy_pool(ctx.temp_pool);
 		ngx_destroy_pool(pool);
@@ -392,7 +392,7 @@ static const char * ngx_http_geo_block(ngx_conf_t * cf, const ngx_command_t * cm
 #endif
 
 		var->get_handler = ngx_http_geo_cidr_variable;
-		var->data = (uintptr_t)geo;
+		var->data = reinterpret_cast<uintptr_t>(geo);
 
 		ngx_destroy_pool(ctx.temp_pool);
 		ngx_destroy_pool(pool);

@@ -122,8 +122,8 @@ static int SLAPI EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterFiel
 		}
 		void   setupOuterLen()
 		{
-			int16  sz  = (int16)SFMTLEN(Data.OuterFormat);
-			int16  prc = (int16)SFMTPRC(Data.OuterFormat);
+			int16  sz  = static_cast<int16>(SFMTLEN(Data.OuterFormat));
+			int16  prc = static_cast<int16>(SFMTPRC(Data.OuterFormat));
 			getOuterType();
 			if(Data.T.Typ != BTS_REAL) {
 				prc = 0;
@@ -173,7 +173,7 @@ private:
 
 int SdFieldCorrListDialog::setDTS(const SdRecord * pData)
 {
-	Data = *pData;
+	RVALUEPTR(Data, pData);
 	updateList(-1);
 	return 1;
 }
@@ -282,7 +282,7 @@ int EditTextDbFileParam(/*TextDbFile::Param * pData*/ PPImpExpParam * pIeParam)
 		}
 		int    setDTS(const TextDbFile::Param * pData)
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			SString temp_buf;
 			setCtrlString(CTL_TXTDBPARAM_FILENAME, Data.DefFileName);
 			ushort orient = BIN(Data.Flags & TextDbFile::fVerticalRec);

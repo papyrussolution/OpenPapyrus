@@ -477,7 +477,7 @@ static /*inline*/ int8 FASTCALL ean_verify_checksum(ean_decoder_t * ean, int n)
 	uchar i, d;
 	for(i = 0; i < n; i++) {
 		uchar d = ean->buf[i];
-		//zassert(d < 10, -1, "i=%x d=%x chk=%x %s\n", i, d, chk, _zbar_decoder_buf_dump((void*)ean->buf, 18));
+		//zassert(d < 10, -1, "i=%x d=%x chk=%x %s\n", i, d, chk, _zbar_decoder_buf_dump((void *)ean->buf, 18));
 		assert(d < 10);
 		chk += d;
 		if((i ^ n) & 1) {
@@ -488,12 +488,12 @@ static /*inline*/ int8 FASTCALL ean_verify_checksum(ean_decoder_t * ean, int n)
 		if(chk >= 10)
 			chk -= 10;
 	}
-	//zassert(chk < 10, -1, "chk=%x n=%x %s", chk, n, _zbar_decoder_buf_dump((void*)ean->buf, 18));
+	//zassert(chk < 10, -1, "chk=%x n=%x %s", chk, n, _zbar_decoder_buf_dump((void *)ean->buf, 18));
 	assert(chk < 10);
 	if(chk)
 		chk = 10 - chk;
 	d = ean->buf[n];
-	//zassert(d < 10, -1, "n=%x d=%x chk=%x %s\n", n, d, chk, _zbar_decoder_buf_dump((void*)ean->buf, 18));
+	//zassert(d < 10, -1, "n=%x d=%x chk=%x %s\n", n, d, chk, _zbar_decoder_buf_dump((void *)ean->buf, 18));
 	assert(d < 10);
 	if(chk != d) {
 		dbprintf(1, "\nchecksum mismatch %d != %d (%s)\n", chk, d, dsprintbuf(ean));
@@ -508,7 +508,7 @@ static /*inline*/ uchar FASTCALL isbn10_calc_checksum(ean_decoder_t * ean)
 	uchar w;
 	for(w = 10; w > 1; w--) {
 		uchar d = ean->buf[13 - w];
-		//zassert(d < 10, '?', "w=%x d=%x chk=%x %s\n", w, d, chk, _zbar_decoder_buf_dump((void*)ean->buf, 18));
+		//zassert(d < 10, '?', "w=%x d=%x chk=%x %s\n", w, d, chk, _zbar_decoder_buf_dump((void *)ean->buf, 18));
 		assert(d < 10);
 		chk += d * w;
 	}

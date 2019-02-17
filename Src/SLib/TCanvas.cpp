@@ -19,7 +19,7 @@ int SetWindowTransparent(HWND hWnd, int transparent /*0..100*/)
 	int    ok = 0;
 	long   exstyle = TView::GetWindowExStyle(hWnd);
 	SDynLibrary lib("user32.dll");
-	ProcDllSetLayeredWindowAttributes proc = (ProcDllSetLayeredWindowAttributes)lib.GetProcAddr("SetLayeredWindowAttributes");
+	ProcDllSetLayeredWindowAttributes proc = reinterpret_cast<ProcDllSetLayeredWindowAttributes>(lib.GetProcAddr("SetLayeredWindowAttributes"));
 	if(proc) {
 		TView::SetWindowProp(hWnd, GWL_EXSTYLE, (exstyle | WS_EX_LAYERED));
    		proc(hWnd, 0 , (255 * transparent) / 100, LWA_ALPHA);
@@ -30,9 +30,8 @@ int SetWindowTransparent(HWND hWnd, int transparent /*0..100*/)
 //
 //
 //
-TCanvas2::ColorReplacement::ColorReplacement()
+TCanvas2::ColorReplacement::ColorReplacement() : Flags(0)
 {
-	Reset();
 }
 
 void TCanvas2::ColorReplacement::Reset()
@@ -87,7 +86,7 @@ SLAPI TCanvas2::TCanvas2(SPaintToolBox & rTb, SImageBuffer & rBuf) : GdiObjStack
 	//Init();
 	S.P_Img = &rBuf;
 	//Flags |= fOuterSurface;
-	P_CrS = (cairo_surface_t *)S.P_Img->CreateSurface(dsysCairo);
+	P_CrS = static_cast<cairo_surface_t *>(S.P_Img->CreateSurface(dsysCairo));
 	assert(P_CrS);
 	P_Cr = cairo_create(P_CrS);
 	assert(P_Cr);
@@ -129,14 +128,14 @@ int TCanvas2::GetCapability(Capability * pCaps) const
 	int    ok = 1;
 	Capability c;
 	MEMSZERO(c);
-	HDC h_dc = (HDC)*this;
+	HDC h_dc = static_cast<HDC>(*this);
 	if(h_dc) {
-		const float  mm_h = (float)GetDeviceCaps(h_dc, HORZSIZE);
-		const float  mm_v = (float)GetDeviceCaps(h_dc, VERTSIZE);
+		const float  mm_h = static_cast<float>(GetDeviceCaps(h_dc, HORZSIZE));
+		const float  mm_v = static_cast<float>(GetDeviceCaps(h_dc, VERTSIZE));
 		const int    pt_h = GetDeviceCaps(h_dc, HORZRES);
 		const int    pt_v = GetDeviceCaps(h_dc, VERTRES);
-		const float  pt_per_inch_h = (float)GetDeviceCaps(h_dc, LOGPIXELSX);
-		const float  pt_per_inch_v = (float)GetDeviceCaps(h_dc, LOGPIXELSY);
+		const float  pt_per_inch_h = static_cast<float>(GetDeviceCaps(h_dc, LOGPIXELSX));
+		const float  pt_per_inch_v = static_cast<float>(GetDeviceCaps(h_dc, LOGPIXELSY));
 		c.SizePt.Set(pt_h, pt_v);
 		c.SizeMm.Set(mm_h, mm_v);
 		c.PtPerInch.Set(pt_per_inch_h, pt_per_inch_v);
@@ -150,7 +149,7 @@ int TCanvas2::GetCapability(Capability * pCaps) const
 int FASTCALL TCanvas2::SelectObjectAndPush(HGDIOBJ hObj)
 {
 	int    ok = 1;
-	HDC    h_dc = (HDC)*this;
+	HDC    h_dc = static_cast<HDC>(*this);
 	HGDIOBJ h_old_obj = ::SelectObject(h_dc, hObj);
 	if(h_old_obj)
 		GdiObjStack.push(&h_old_obj);
@@ -161,17 +160,17 @@ int FASTCALL TCanvas2::SelectObjectAndPush(HGDIOBJ hObj)
 
 int SLAPI TCanvas2::PopObject()
 {
-	HDC    h_dc = (HDC)*this;
-	HGDIOBJ * p_h_obj = (HGDIOBJ *)GdiObjStack.pop();
+	HDC    h_dc = static_cast<HDC>(*this);
+	HGDIOBJ * p_h_obj = static_cast<HGDIOBJ *>(GdiObjStack.pop());
 	assert(p_h_obj);
 	return p_h_obj ? (int)::SelectObject(h_dc, *p_h_obj) : 0;
 }
 
 int FASTCALL TCanvas2::PopObjectN(uint c)
 {
-	HDC    h_dc = (HDC)*this;
+	HDC    h_dc = static_cast<HDC>(*this);
 	for(uint i = 0; i < c; i++) {
-		HGDIOBJ * p_h_obj = (HGDIOBJ *)GdiObjStack.pop();
+		HGDIOBJ * p_h_obj = static_cast<HGDIOBJ *>(GdiObjStack.pop());
 		assert(p_h_obj);
 		if(!p_h_obj)
 			return 0;
@@ -185,7 +184,7 @@ FPoint TCanvas2::GetCurPoint()
 {
 	double x, y;
 	cairo_get_current_point(P_Cr, &x, &y);
-	FPoint p((float)x, (float)y);
+	FPoint p(static_cast<float>(x), static_cast<float>(y));
 	return p;
 }
 
@@ -377,7 +376,7 @@ int SLAPI TCanvas2::Text(const char * pText, int identFont)
 		p_obj->CreateInnerHandle(this->operator SDrawContext());
 		SPaintObj::Font * p_font = p_obj->GetFont();
 		if(p_font) {
-			cairo_font_face_t * p_face = (cairo_font_face_t *)*p_font;
+			cairo_font_face_t * p_face = static_cast<cairo_font_face_t *>(*p_font);
 			if(p_face)
 				cairo_set_font_face(P_Cr, p_face);
 			cairo_set_font_size(P_Cr, p_font->Size);
@@ -516,7 +515,7 @@ TCanvas2::PatternWrapper::PatternWrapper() : P(0)
 TCanvas2::PatternWrapper::~PatternWrapper()
 {
 	if(P)
-		cairo_pattern_destroy((cairo_pattern_t *)P);
+		cairo_pattern_destroy(static_cast<cairo_pattern_t *>(P));
 }
 
 int SLAPI TCanvas2::Helper_SelectBrush(SPaintToolBox * pTb, int brushId, PatternWrapper & rPw)
@@ -566,7 +565,7 @@ int SLAPI TCanvas2::Helper_SelectBrush(SPaintToolBox * pTb, int brushId, Pattern
 									}
 									mtx = (mtx * p_grad->Tf);
 									mtx.Invert();
-									cairo_pattern_set_matrix(p_pattern, (cairo_matrix_t *)&mtx);
+									cairo_pattern_set_matrix(p_pattern, reinterpret_cast<cairo_matrix_t *>(&mtx));
 									//
 									for(uint i = 0; i < p_grad->GetStopCount(); i++) {
 										const SPaintObj::Gradient::Stop * p_stop = p_grad->GetStop(i);
@@ -674,28 +673,28 @@ void SLAPI TCanvas2::ResetColorReplacement()
 int FASTCALL TCanvas2::SetOperator(int opr)
 {
 	int    prev = cairo_get_operator(P_Cr);
-	cairo_set_operator(P_Cr, (cairo_operator_t)opr);
+	cairo_set_operator(P_Cr, static_cast<cairo_operator_t>(opr));
 	return prev;
 }
 
 int SLAPI TCanvas2::GetOperator() const
 {
-	return (int)cairo_get_operator(P_Cr);
+	return static_cast<int>(cairo_get_operator(P_Cr));
 }
 
 void FASTCALL TCanvas2::GetTransform(LMatrix2D & rMtx) const
 {
-	cairo_get_matrix(P_Cr, (cairo_matrix_t *)&rMtx);
+	cairo_get_matrix(P_Cr, reinterpret_cast<cairo_matrix_t *>(&rMtx));
 }
 
 void FASTCALL TCanvas2::SetTransform(const LMatrix2D & rMtx)
 {
-	cairo_set_matrix(P_Cr, (cairo_matrix_t *)&rMtx);
+	cairo_set_matrix(P_Cr, reinterpret_cast<const cairo_matrix_t *>(&rMtx));
 }
 
 void FASTCALL TCanvas2::AddTransform(const LMatrix2D & rMtx)
 {
-	cairo_transform(P_Cr, (cairo_matrix_t *)&rMtx);
+	cairo_transform(P_Cr, reinterpret_cast<const cairo_matrix_t *>(&rMtx));
 }
 
 void SLAPI TCanvas2::PushTransform()
@@ -892,14 +891,14 @@ BOOL FASTCALL IntRoundRect(PDC  dc, int  Left, int  Top, int  Right, int  Bottom
 
 void SLAPI TCanvas2::LineVert(int x, int yFrom, int yTo)
 {
-	::MoveToEx((HDC)S.HCtx, x, yFrom, 0);
-	::LineTo((HDC)S.HCtx, x, yTo);
+	::MoveToEx(static_cast<HDC>(S.HCtx), x, yFrom, 0);
+	::LineTo(static_cast<HDC>(S.HCtx), x, yTo);
 }
 
 void SLAPI TCanvas2::LineHorz(int xFrom, int xTo, int y)
 {
-	::MoveToEx((HDC)S.HCtx, xFrom, y, 0);
-	::LineTo((HDC)S.HCtx, xTo, y);
+	::MoveToEx(static_cast<HDC>(S.HCtx), xFrom, y, 0);
+	::LineTo(static_cast<HDC>(S.HCtx), xTo, y);
 }
 
 TPoint SLAPI TCanvas2::GetTextSize(const char * pStr)
@@ -915,24 +914,24 @@ TPoint SLAPI TCanvas2::GetTextSize(const char * pStr)
 	}
 	TPoint p;
 	SIZE   sz;
-	return ::GetTextExtentPoint32((HDC)S.HCtx, pStr, static_cast<int>(len), &sz) ? p.Set(sz.cx, sz.cy) : p.Set(0, 0); // @unicodeproblem
+	return ::GetTextExtentPoint32(static_cast<HDC>(S.HCtx), pStr, static_cast<int>(len), &sz) ? p.Set(sz.cx, sz.cy) : p.Set(0, 0); // @unicodeproblem
 }
 
 int FASTCALL TCanvas2::SetBkColor(COLORREF c)
 {
-	COLORREF old_color = ::SetBkColor((HDC)S.HCtx, c);
+	COLORREF old_color = ::SetBkColor(static_cast<HDC>(S.HCtx), c);
 	return (old_color == CLR_INVALID) ? 0 : 1;
 }
 
 int FASTCALL TCanvas2::SetTextColor(COLORREF c)
 {
-	COLORREF old_color = ::SetTextColor((HDC)S.HCtx, c);
+	COLORREF old_color = ::SetTextColor(static_cast<HDC>(S.HCtx), c);
 	return (old_color == CLR_INVALID) ? 0 : 1;
 }
 
 void SLAPI TCanvas2::SetBkTranparent()
 {
-	::SetBkMode((HDC)S.HCtx, TRANSPARENT);
+	::SetBkMode(static_cast<HDC>(S.HCtx), TRANSPARENT);
 }
 
 int SLAPI TCanvas2::_DrawText(const TRect & rRect, const char * pText, uint options)
@@ -947,7 +946,7 @@ int SLAPI TCanvas2::_DrawText(const TRect & rRect, const char * pText, uint opti
 		pText = zero;
 	}
 	RECT   rect = rRect;
-	return ::DrawText((HDC)S.HCtx, pText, len, &rect, options) ? 1 : 0; // @unicodeproblem
+	return ::DrawText(static_cast<HDC>(S.HCtx), pText, len, &rect, options) ? 1 : 0; // @unicodeproblem
 }
 
 int SLAPI TCanvas2::TextOut(TPoint p, const char * pText)
@@ -961,7 +960,7 @@ int SLAPI TCanvas2::TextOut(TPoint p, const char * pText)
 		memzero(zero, sizeof(zero));
 		pText = zero;
 	}
-	return ::TextOut((HDC)S.HCtx, p.x, p.y, pText, len) ? 1 : 0; // @unicodeproblem
+	return ::TextOut(static_cast<HDC>(S.HCtx), p.x, p.y, pText, len) ? 1 : 0; // @unicodeproblem
 }
 
 TCanvas2::DrawingProcFrame::DrawingProcFrame(TCanvas2 * pCanv, const SDrawFigure * pFig)
@@ -1036,7 +1035,7 @@ int FASTCALL TCanvas2::Ellipse(const FRect & rRect)
 		float distance = sqrt(pow(sinrad * x_radius, 2) + pow(cosrad * y_radius, 2));
 		float angle = atan2(sinrad * x_radius, cosrad * y_radius);
 		*/
-		float distance = (float)sqrt(pow(cosrad * x_radius, 2) + pow(sinrad * y_radius, 2));
+		float distance = static_cast<float>(sqrt(pow(cosrad * x_radius, 2) + pow(sinrad * y_radius, 2)));
 		float angle = atan2f(cosrad * x_radius, sinrad * y_radius);
 		//
 		//FPoint pt(distance * cosf(angle + SMathConst::Pi_f) + centerX, distance * sinf(angle + SMathConst::Pi_f) + centerY);
@@ -1189,7 +1188,7 @@ int FASTCALL TCanvas2::Draw(const SDrawPath * pPath)
 				case SDrawPath::opArcSvg:
 					while(p < dpitem.ArgCount) {
 						Implement_ArcSvg(dpitem.Pnt(p),
-							dpitem.P_ArgList[p+2], (int)dpitem.P_ArgList[p+3], (int)dpitem.P_ArgList[p+4],
+							dpitem.P_ArgList[p+2], static_cast<int>(dpitem.P_ArgList[p+3]), static_cast<int>(dpitem.P_ArgList[p+4]),
 							dpitem.Pnt(p+5));
 						p += 7;
 					}
@@ -1216,7 +1215,7 @@ int FASTCALL TCanvas2::Draw(const SImageBuffer * pImg)
 	if(pImg) {
 		TPoint dim = pImg->GetDim();
 		if(dim.x > 0 && dim.y > 0) {
-			cairo_surface_t * p_img_surf = (cairo_surface_t *)pImg->CreateSurface(dsysCairo);
+			cairo_surface_t * p_img_surf = static_cast<cairo_surface_t *>(pImg->CreateSurface(dsysCairo));
 			THROW(p_img_surf);
 			if(Flags & fScopeRecording) {
 				double x1 = 0;
@@ -1264,11 +1263,11 @@ int FASTCALL TCanvas2::Draw(const SDrawFigure * pDraw)
 	int    ok = 1;
 	if(pDraw) {
 		switch(pDraw->GetKind()) {
-			case SDrawFigure::kShape: THROW(Draw((const SDrawShape *)pDraw)); break;
-			case SDrawFigure::kPath:  THROW(Draw((const SDrawPath *)pDraw));  break;
-			case SDrawFigure::kText:  THROW(Draw((const SDrawText *)pDraw));  break;
-			case SDrawFigure::kGroup: THROW(Draw((const SDrawGroup *)pDraw)); break;
-			case SDrawFigure::kImage: THROW(Draw((const SDrawImage *)pDraw)); break;
+			case SDrawFigure::kShape: THROW(Draw(static_cast<const SDrawShape *>(pDraw))); break;
+			case SDrawFigure::kPath:  THROW(Draw(static_cast<const SDrawPath *>(pDraw)));  break;
+			case SDrawFigure::kText:  THROW(Draw(static_cast<const SDrawText *>(pDraw)));  break;
+			case SDrawFigure::kGroup: THROW(Draw(static_cast<const SDrawGroup *>(pDraw))); break;
+			case SDrawFigure::kImage: THROW(Draw(static_cast<const SDrawImage *>(pDraw))); break;
 			default: ok = -1; break;
 		}
 	}
@@ -1281,8 +1280,8 @@ int FASTCALL TCanvas2::Draw(const SDrawFigure * pDraw)
 int SLAPI TCanvas2::Implement_ArcSvg(FPoint radius, float xAxisRotation, int large_arc_flag, int sweep_flag, FPoint toPoint)
 {
 	int    ok = 1;
-	radius.X = (float)fabs(radius.X);
-	radius.Y = (float)fabs(radius.Y);
+	radius.X = static_cast<float>(fabs(radius.X));
+	radius.Y = static_cast<float>(fabs(radius.Y));
 	const FPoint cur = GetCurPoint();
 	const float sin_th = sinf(degtorad(xAxisRotation));
 	const float cos_th = cosf(degtorad(xAxisRotation));
@@ -1324,9 +1323,9 @@ int SLAPI TCanvas2::Implement_ArcSvg(FPoint radius, float xAxisRotation, int lar
 			{
 				th_arc = atan2(p1, pc)-th0;
 				if(th_arc < 0 && sweep_flag)
-					th_arc += (float)SMathConst::Pi2;
+					th_arc += SMathConst::Pi2_f;
 				else if(th_arc > 0 && !sweep_flag)
-					th_arc -= (float)SMathConst::Pi2;
+					th_arc -= SMathConst::Pi2_f;
 			}
 		}
 		/*
@@ -1531,7 +1530,7 @@ int FASTCALL TCanvas::SelectObjectAndPush(HGDIOBJ hObj)
 
 int SLAPI TCanvas::PopObject()
 {
-	HGDIOBJ * p_h_obj = (HGDIOBJ *)ObjStack.pop();
+	HGDIOBJ * p_h_obj = static_cast<HGDIOBJ *>(ObjStack.pop());
 	assert(p_h_obj);
 	return p_h_obj ? (int)::SelectObject(H_Dc, *p_h_obj) : 0;
 }
@@ -1539,7 +1538,7 @@ int SLAPI TCanvas::PopObject()
 int FASTCALL TCanvas::PopObjectN(uint c)
 {
 	for(uint i = 0; i < c; i++) {
-		HGDIOBJ * p_h_obj = (HGDIOBJ *)ObjStack.pop();
+		HGDIOBJ * p_h_obj = static_cast<HGDIOBJ *>(ObjStack.pop());
 		assert(p_h_obj);
 		if(!p_h_obj)
 			return 0;
@@ -1642,21 +1641,25 @@ SPaintObj::Base::Base() : Handle(0), Sys(dsysNone)
 {
 }
 
+SPaintObj::Base::Base(const Base & rS) : Handle(rS.Handle), Sys(rS.Sys)
+{
+}
+
 int SPaintObj::Base::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
-	// @os64problem: преобразование (void*) <-> uint32 не будет работать на 64-битной системе.
+	// @os64problem: преобразование (void *) <-> uint32 не будет работать на 64-битной системе.
 	// @note При решении проблемы не забыть о совместимости форматов для уже сохраненных данных!
 	if(dir > 0) {
-		uint32 temp = (uint32)Handle;
+		uint32 temp = reinterpret_cast<uint32>(Handle);
 		THROW(pCtx->Serialize(dir, temp, rBuf));
 	}
 	else if(dir < 0) {
 		uint32 temp = 0;
 		THROW(pCtx->Serialize(dir, temp, rBuf));
-		Handle = (void *)temp;
+		Handle = reinterpret_cast<void *>(temp);
 	}
-	THROW(pCtx->Serialize(dir, (int &)Sys, rBuf));
+	THROW(pCtx->Serialize(dir, reinterpret_cast<int &>(Sys), rBuf));
 	CATCHZOK
 	return ok;
 }
@@ -1664,6 +1667,13 @@ int SPaintObj::Base::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx
 SPaintObj::Pen::Pen() : Base(), W__(1.0f), S(SPaintObj::psSolid), LineCap(SPaintObj::lcButt), Join(SPaintObj::ljMiter), Reserve(0),
 	MiterLimit(SPaintObj::DefaultMiterLimit), DashOffs(0.0f), P_DashRule(0)
 {
+}
+
+SPaintObj::Pen::Pen(const Pen & rS) : Base(rS), W__(rS.W__), S(rS.S), LineCap(rS.LineCap), Join(rS.Join), Reserve(0), 
+	MiterLimit(rS.MiterLimit), DashOffs(rS.DashOffs), P_DashRule(0)
+{
+	if(rS.P_DashRule)
+		P_DashRule = new FloatArray(*rS.P_DashRule);
 }
 
 SPaintObj::Pen::~Pen()
@@ -1681,12 +1691,9 @@ int FASTCALL SPaintObj::Pen::Copy(const Pen & rS)
 	Join = rS.Join;
 	MiterLimit = rS.MiterLimit;
 	DashOffs = rS.DashOffs;
-	if(rS.P_DashRule) {
-		SETIFZ(P_DashRule, new FloatArray);
-		*P_DashRule = *rS.P_DashRule;
-	}
-	else
-		ZDELETE(P_DashRule);
+	ZDELETE(P_DashRule);
+	if(rS.P_DashRule)
+		P_DashRule = new FloatArray(*rS.P_DashRule);
 	return ok;
 }
 
@@ -1779,6 +1786,10 @@ SPaintObj::Brush::Brush() : Base(), S(bsSolid), Hatch(0), Rule(0), Reserve(0), I
 {
 }
 
+SPaintObj::Brush::Brush(const Brush & rS) : Base(rS), S(rS.S), Hatch(rS.Hatch), Rule(rS.Rule), Reserve(0), IdPattern(rS.IdPattern)
+{
+}
+
 int FASTCALL SPaintObj::Brush::operator == (const Brush & rS) const
 {
 	return IsEqual(rS);
@@ -1795,14 +1806,13 @@ SPaintObj::Brush & FASTCALL SPaintObj::Brush::operator = (const Brush & rS)
 	return *this;
 }
 
-int FASTCALL SPaintObj::Brush::Copy(const Brush & rS)
+void FASTCALL SPaintObj::Brush::Copy(const Brush & rS)
 {
 	C = rS.C;
 	S = rS.S;
 	Hatch = rS.Hatch;
 	Rule = rS.Rule;
 	IdPattern = rS.IdPattern;
-	return 1;
 }
 
 int SPaintObj::Brush::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
@@ -1824,14 +1834,13 @@ int SPaintObj::Brush::IsSimple() const
 	return (S == 0 || S == SPaintObj::bsSolid && Hatch == 0 && oneof2(Rule, 0, SPaintObj::frNonZero) && IdPattern == 0);
 }
 
-int FASTCALL SPaintObj::Brush::SetSimple(SColor c)
+void FASTCALL SPaintObj::Brush::SetSimple(SColor c)
 {
 	C = c;
 	S = SPaintObj::psSolid;
 	Hatch = 0;
 	Rule = 0;
 	IdPattern = 0;
-	return 1;
 }
 //
 //
@@ -1840,7 +1849,7 @@ SFontDescr::SFontDescr(const char * pFace, int size, int flags)
 {
 	Init();
 	Face = pFace;
-	Size = (int16)size;
+	Size = static_cast<int16>(size);
 	Flags = (flags & (fItalic|fUnderline|fStrikeOut|fBold|fAntialias));
 }
 
@@ -1856,8 +1865,7 @@ void SFontDescr::Init()
 
 int FASTCALL SFontDescr::IsEqual(const SFontDescr & rS) const
 {
-	return BIN(Face.CmpNC(rS.Face) == 0 && Size == rS.Size && Flags == rS.Flags &&
-		Weight == rS.Weight && CharSet == rS.CharSet);
+	return BIN(Face.CmpNC(rS.Face) == 0 && Size == rS.Size && Flags == rS.Flags && Weight == rS.Weight && CharSet == rS.CharSet);
 }
 
 int SFontDescr::ToStr(SString & rBuf, long fmt) const
@@ -1894,7 +1902,7 @@ int FASTCALL SFontDescr::FromStr(const char * pStr)
 			SString temp_buf;
 			while(isdigit(*p))
 				temp_buf.CatChar(*p++);
-			Size = (int16)SDrawContext::CalcScreenFontSizePt((uint)temp_buf.ToLong());
+			Size = static_cast<int16>(SDrawContext::CalcScreenFontSizePt(static_cast<uint>(temp_buf.ToLong())));
 			while(*p != ')' && *p != 0) {
 				char u = toupper(*p++);
 				if(u == 'B')
@@ -1926,9 +1934,9 @@ int FASTCALL SFontDescr::Helper_SetLogFont(const void * pLf)
 {
 	int    ok = 1;
 	Init();
-	LOGFONTW * p_lf = (LOGFONTW *)pLf;
+	const LOGFONTW * p_lf = static_cast<const LOGFONTW *>(pLf);
 	if(p_lf) {
-		Size = (int16)labs(p_lf->lfHeight);
+		Size = static_cast<int16>(labs(p_lf->lfHeight));
 		if(p_lf->lfWeight >= 700)
 			Flags |= fBold;
 		if(p_lf->lfItalic)
@@ -1946,7 +1954,7 @@ int FASTCALL SFontDescr::Helper_SetLogFont(const void * pLf)
 int FASTCALL SFontDescr::SetLogFont(const LOGFONTA * pLf)
 {
 	int    ok = Helper_SetLogFont(pLf);
-	if(ok)
+	if(ok > 0)
 		Face = pLf->lfFaceName;
 	return ok;
 }
@@ -1954,7 +1962,7 @@ int FASTCALL SFontDescr::SetLogFont(const LOGFONTA * pLf)
 int FASTCALL SFontDescr::SetLogFont(const LOGFONTW * pLf)
 {
 	int    ok = Helper_SetLogFont(pLf);
-	if(ok) {
+	if(ok > 0) {
 		SStringU ustr = pLf->lfFaceName;
 		ustr.CopyToUtf8(Face, 1);
 		Face.Utf8ToChar();
@@ -1984,7 +1992,7 @@ typedef struct tagLOGFONT {
 int FASTCALL SFontDescr::Helper_MakeLogFont(void * pLf) const
 {
 	int    ok = 1;
-	LOGFONTW * p_lf = (LOGFONTW *)pLf;
+	LOGFONTW * p_lf = static_cast<LOGFONTW *>(pLf);
 	if(p_lf) {
 		p_lf->lfHeight = -labs(NZOR(Size, 1));
 		if(Weight <= 0.0f)
@@ -2020,7 +2028,7 @@ LOGFONTA * FASTCALL SFontDescr::MakeLogFont(LOGFONTA * pLf) const
 		memzero(pLf, sizeof(*pLf));
 		if(Helper_MakeLogFont(pLf)) {
 			Face.CopyTo(pLf->lfFaceName, SIZEOFARRAY(pLf->lfFaceName));
-			pLf->lfQuality = CLEARTYPE_QUALITY; // @v8.6.8
+			pLf->lfQuality = CLEARTYPE_QUALITY;
 		}
 	}
 	return pLf;
@@ -2035,7 +2043,7 @@ LOGFONTW * FASTCALL SFontDescr::MakeLogFont(LOGFONTW * pLf) const
 			SStringU face_u;
 			face_u.CopyFromUtf8((face = Face).ToUtf8());
 			face_u.CopyTo(pLf->lfFaceName, SIZEOFARRAY(pLf->lfFaceName));
-			pLf->lfQuality = CLEARTYPE_QUALITY; // @v8.6.8
+			pLf->lfQuality = CLEARTYPE_QUALITY;
 		}
 	}
 	return pLf;
@@ -2093,10 +2101,10 @@ struct InnerFontDescr {
 SPaintObj::Font::operator HFONT () const
 {
 	if(GetSys() == dsysWinGdi) {
-		return (HFONT)GetHandle();
+		return static_cast<HFONT>(GetHandle());
 	}
 	else if(GetSys() == dsysCairo) {
-		InnerFontDescr * p_descr = (InnerFontDescr *)GetHandle();
+		InnerFontDescr * p_descr = static_cast<InnerFontDescr *>(GetHandle());
 		if(p_descr && p_descr->Hf)
 			return p_descr->Hf;
 	}
@@ -2106,7 +2114,7 @@ SPaintObj::Font::operator HFONT () const
 SPaintObj::Font::operator cairo_font_face_t * () const
 {
 	if(GetSys() == dsysCairo) {
-		InnerFontDescr * p_descr = (InnerFontDescr *)GetHandle();
+		InnerFontDescr * p_descr = static_cast<InnerFontDescr *>(GetHandle());
 		if(p_descr)
 			return p_descr->P_CrFace;
 	}
@@ -2116,7 +2124,7 @@ SPaintObj::Font::operator cairo_font_face_t * () const
 SPaintObj::Font::operator cairo_scaled_font_t * () const
 {
 	if(GetSys() == dsysCairo) {
-		InnerFontDescr * p_descr = (InnerFontDescr *)GetHandle();
+		InnerFontDescr * p_descr = static_cast<InnerFontDescr *>(GetHandle());
 		if(p_descr)
 			return p_descr->P_CrScFont;
 	}
@@ -2129,42 +2137,42 @@ int SPaintObj::Font::GetGlyph(SDrawContext & rCtx, uint16 chr, SGlyph * pGlyph)
 	pGlyph->Chr = chr;
 	pGlyph->LineAdv = LineAdv;
 	if(GetSys() == dsysWinGdi) {
-		HFONT hf = (HFONT)GetHandle();
+		HFONT hf = static_cast<HFONT>(GetHandle());
 		HDC    hdc = SLS.GetTLA().GetFontDC();
-		HFONT  preserve_hf = (HFONT)::SelectObject(hdc, hf);
+		HFONT  preserve_hf = static_cast<HFONT>(::SelectObject(hdc, hf));
 		wchar_t t[2];
 		t[0] = chr;
 		t[1] = 0;
 		WORD   idx_list[1];
 		uint   c = GetGlyphIndicesW(hdc, t, 1, idx_list, GGI_MARK_NONEXISTING_GLYPHS);
 		if(c > 0) {
-			pGlyph->Idx = (int16)idx_list[0];
+			pGlyph->Idx = static_cast<int16>(idx_list[0]);
 			ok = 1;
 		}
 		::SelectObject(hdc, preserve_hf);
 	}
 	else if(GetSys() == dsysCairo) {
-		InnerFontDescr * p_descr = (InnerFontDescr *)GetHandle();
+		InnerFontDescr * p_descr = static_cast<InnerFontDescr *>(GetHandle());
 		if(p_descr && p_descr->Hf) {
 			HDC    hdc = SLS.GetTLA().GetFontDC();
-			HFONT  preserve_hf = (HFONT)::SelectObject(hdc, p_descr->Hf);
+			HFONT  preserve_hf = static_cast<HFONT>(::SelectObject(hdc, p_descr->Hf));
 			wchar_t t[2];
 			t[0] = chr;
 			t[1] = 0;
 			WORD   idx_list[1];
 			uint   c = GetGlyphIndicesW(hdc, t, 1, idx_list, GGI_MARK_NONEXISTING_GLYPHS);
 			if(c > 0) {
-				pGlyph->Idx = (int16)idx_list[0];
+				pGlyph->Idx = static_cast<int16>(idx_list[0]);
 				cairo_t * p_cr = rCtx;
 				if(p_cr) {
 					LMatrix2D preserve_mtx, mtx;
-					cairo_get_matrix(p_cr, (cairo_matrix_t *)&preserve_mtx);
+					cairo_get_matrix(p_cr, reinterpret_cast<cairo_matrix_t *>(&preserve_mtx));
 					if(p_descr->P_CrScFont)
 						cairo_set_scaled_font(p_cr, p_descr->P_CrScFont);
 					else if(p_descr->P_CrFace)
 						cairo_set_font_face(p_cr, p_descr->P_CrFace);
 					{
-						cairo_set_matrix(p_cr, (cairo_matrix_t *)&mtx);
+						cairo_set_matrix(p_cr, reinterpret_cast<const cairo_matrix_t *>(&mtx));
 						cairo_glyph_t glyph;
 						glyph.index = pGlyph->Idx;
 						glyph.P.Set(0.0);
@@ -2176,7 +2184,7 @@ int SPaintObj::Font::GetGlyph(SDrawContext & rCtx, uint16 chr, SGlyph * pGlyph)
 						if(pGlyph->LineAdv == 0.0)
 							pGlyph->LineAdv = pGlyph->Sz.Y;
 					}
-					cairo_set_matrix(p_cr, (cairo_matrix_t *)&preserve_mtx);
+					cairo_set_matrix(p_cr, reinterpret_cast<const cairo_matrix_t *>(&preserve_mtx));
 				}
 				ok = 1;
 			}
@@ -2294,11 +2302,10 @@ FRect STextLayout::GetBkgBounds() const
 		return Bounds;
 }
 
-int FASTCALL STextLayout::SetBounds(const FRect & rBounds)
+void FASTCALL STextLayout::SetBounds(const FRect & rBounds)
 {
 	Bounds = rBounds;
 	State &= ~stArranged;
-	return 1;
 }
 
 int STextLayout::SetText(const char * pText)
@@ -2314,7 +2321,7 @@ int STextLayout::SetText(const char * pText)
 	return 1;
 }
 
-int STextLayout::SetOptions(long flags, int defParaStyleId, int defCStyleId)
+void STextLayout::SetOptions(long flags, int defParaStyleId, int defCStyleId)
 {
 	Flags |= (flags & (fWrap|fUnlimX|fUnlimY|fNoClip|fPrecBkg));
 	// @v9.1.8 {
@@ -2332,7 +2339,6 @@ int STextLayout::SetOptions(long flags, int defParaStyleId, int defCStyleId)
 		State &= ~stPreprocessed;
 	}
 	State &= ~stArranged;
-	return 1;
 }
 
 int FASTCALL STextLayout::HasOption(long f) const
@@ -2353,7 +2359,7 @@ int FASTCALL STextLayout::CanWrap(uint pos)
 int STextLayout::SetTextStyle(uint startPos, uint len, int cstyleId)
 {
 	int    ok = 1;
-	if(cstyleId && startPos < Text.Len() && len >= 0) {
+	if(cstyleId && startPos < Text.Len()) {
 		CStyle style;
 		style.Start = startPos;
 		style.Len = len;
@@ -2453,7 +2459,7 @@ public:
 			int   start_inited = 0;
 			float start = 0.0f;
 			for(i = 0; i < c; i++) {
-				float ch = ((StkItem *)Stk.at(i))->H;
+				float ch = static_cast<const StkItem *>(Stk.at(i))->H;
 				SETMAX(ht, ch);
 			}
 			uint lc = R_List.getCount();
@@ -2467,7 +2473,7 @@ public:
 				r_item.P.Y += ht;
 			}
 			if(start_inited && oneof2(justif, ADJ_RIGHT, ADJ_CENTER)) {
-				float end = ((StkItem *)Stk.at(c-1))->EndX;
+				float end = static_cast<const StkItem *>(Stk.at(c-1))->EndX;
 				float delta = Bounds.Width() - (end-start);
 				if(justif == ADJ_CENTER)
 					delta /= 2.0f;
@@ -2568,7 +2574,7 @@ int STextLayout::Arrange(SDrawContext & rCtx, SPaintToolBox & rTb)
 		FPoint cur = Bounds.a;
 		for(uint i = 0; i < pc; i++) {
 			const LAssoc & r_pitem = ParaList.at(i);
-			const uint para_pos = (uint)r_pitem.Key;
+			const uint para_pos = static_cast<uint>(r_pitem.Key);
 			const uint cc = (i == (pc-1)) ? (Text.Len() - para_pos) : (ParaList.at(i+1).Key - para_pos);
 			int para_style_ident = NZOR(r_pitem.Val, DefParaStyleIdent);
 			if(!para_style_ident) {
@@ -2997,7 +3003,7 @@ HGDIOBJ DupWinGdiObject(HGDIOBJ src)
 			case OBJ_EXTPEN:
 				{
 					uint8 ep_buf[512];
-					EXTLOGPEN * p_ep = (EXTLOGPEN *)ep_buf;
+					EXTLOGPEN * p_ep = reinterpret_cast<EXTLOGPEN *>(ep_buf);
 					if(::GetObject(src, sizeof(ep_buf), ep_buf)) {
 						LOGBRUSH b;
 						MEMSZERO(b);
@@ -3055,40 +3061,40 @@ int SPaintObj::Copy(const SPaintObj & rS, long flags)
 			if(F & fInner) {
 				Pen * p_pen = new Pen;
 				THROW_S(p_pen, SLERR_NOMEM);
-				*p_pen = *(Pen *)rS.H;
+				*p_pen = *static_cast<const Pen *>(rS.H);
 				H = p_pen;
 			}
 			else {
-				H = DupWinGdiObject((HGDIOBJ)rS.H);
+				H = DupWinGdiObject(static_cast<HGDIOBJ>(rS.H));
 			}
 			break;
 		case tBrush:
 			if(F & fInner) {
 				Brush * p_brush = new Brush;
 				THROW_S(p_brush, SLERR_NOMEM);
-				*p_brush = *(Brush *)rS.H;
+				*p_brush = *static_cast<const Brush *>(rS.H);
 				H = p_brush;
 			}
 			else {
-				H = DupWinGdiObject((HGDIOBJ)rS.H);
+				H = DupWinGdiObject(static_cast<HGDIOBJ>(rS.H));
 			}
 			break;
 		case tFont:
 			if(F & fInner) {
 				Font * p_font = new Font;
 				THROW_S(p_font, SLERR_NOMEM);
-				*p_font = *(Font *)rS.H;
+				*p_font = *static_cast<const Font *>(rS.H);
 				H = p_font;
 			}
 			else {
-				H = DupWinGdiObject((HGDIOBJ)rS.H);
+				H = DupWinGdiObject(static_cast<HGDIOBJ>(rS.H));
 			}
 			break;
 		case tGradient:
 			if(F & fInner) {
 				Gradient * p_grad = new Gradient(Gradient::kLinear);
 				THROW_S(p_grad, SLERR_NOMEM);
-				*p_grad = *(Gradient *)rS.H;
+				*p_grad = *static_cast<const Gradient *>(rS.H);
 				H = p_grad;
 			}
 			break;
@@ -3096,14 +3102,14 @@ int SPaintObj::Copy(const SPaintObj & rS, long flags)
 			if(F & fInner) {
 			}
 			else {
-				H = DupWinGdiObject((HGDIOBJ)rS.H);
+				H = DupWinGdiObject(static_cast<HGDIOBJ>(rS.H));
 			}
 			break;
 		case tCursor:
 			if(F & fInner) {
 			}
 			else {
-				H = CopyCursor((HCURSOR)H);
+				H = CopyCursor(static_cast<HCURSOR>(H));
 			}
 			break;
 	}
@@ -3156,19 +3162,19 @@ int SPaintObj::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	THROW(pCtx->Serialize(dir, F, rBuf));
 	if(dir > 0) {
 		if(T == tColor) {
-			uint32 _c = (uint32)H;
+			uint32 _c = reinterpret_cast<uint32>(H);
 			THROW(pCtx->Serialize(dir, _c, rBuf));
 		}
 		else if(F & fInner) {
 			if(H) {
 				THROW(rBuf.Write(ind = 0));
 				switch(T) {
-					case tPen: THROW(((SPaintObj::Pen *)H)->Serialize(dir, rBuf, pCtx)); break;
-					case tBrush: THROW(((SPaintObj::Brush *)H)->Serialize(dir, rBuf, pCtx)); break;
-					case tFont: THROW(((SPaintObj::Font *)H)->Serialize(dir, rBuf, pCtx)); break;
-					case tGradient: THROW(((SPaintObj::Gradient *)H)->Serialize(dir, rBuf, pCtx)); break;
-					case tCStyle: THROW(((SPaintObj::CStyle *)H)->Serialize(dir, rBuf, pCtx)); break;
-					case tParagraph: THROW(((SPaintObj::Para *)H)->Serialize(dir, rBuf, pCtx)); break;
+					case tPen: THROW(static_cast<SPaintObj::Pen *>(H)->Serialize(dir, rBuf, pCtx)); break;
+					case tBrush: THROW(static_cast<SPaintObj::Brush *>(H)->Serialize(dir, rBuf, pCtx)); break;
+					case tFont: THROW(static_cast<SPaintObj::Font *>(H)->Serialize(dir, rBuf, pCtx)); break;
+					case tGradient: THROW(static_cast<SPaintObj::Gradient *>(H)->Serialize(dir, rBuf, pCtx)); break;
+					case tCStyle: THROW(static_cast<SPaintObj::CStyle *>(H)->Serialize(dir, rBuf, pCtx)); break;
+					case tParagraph: THROW(static_cast<SPaintObj::Para *>(H)->Serialize(dir, rBuf, pCtx)); break;
 				}
 			}
 			else {
@@ -3181,7 +3187,7 @@ int SPaintObj::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 			if(version >= 1) {
 				uint32 _c = 0;
 				THROW(pCtx->Serialize(dir, _c, rBuf));
-				H = (void *)_c;
+				H = reinterpret_cast<void *>(_c);
 			}
 		}
 		else if(F & fInner) {
@@ -3190,25 +3196,25 @@ int SPaintObj::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 				switch(T) {
 					case tPen:
 						THROW_S(H = new SPaintObj::Pen, SLERR_NOMEM);
-						THROW(((SPaintObj::Pen *)H)->Serialize(dir, rBuf, pCtx));
+						THROW(static_cast<SPaintObj::Pen *>(H)->Serialize(dir, rBuf, pCtx));
 						break;
 					case tBrush:
 						THROW_S(H = new SPaintObj::Brush, SLERR_NOMEM);
-						THROW(((SPaintObj::Brush *)H)->Serialize(dir, rBuf, pCtx));
+						THROW(static_cast<SPaintObj::Brush *>(H)->Serialize(dir, rBuf, pCtx));
 						break;
 					case tFont:
 						THROW_S(H = new SPaintObj::Font, SLERR_NOMEM);
-						THROW(((SPaintObj::Font *)H)->Serialize(dir, rBuf, pCtx));
+						THROW(static_cast<SPaintObj::Font *>(H)->Serialize(dir, rBuf, pCtx));
 						break;
 					case tGradient:
 						THROW_S(H = new SPaintObj::Gradient, SLERR_NOMEM);
-						THROW(((SPaintObj::Gradient *)H)->Serialize(dir, rBuf, pCtx));
+						THROW(static_cast<SPaintObj::Gradient *>(H)->Serialize(dir, rBuf, pCtx));
 						break;
 					case tCStyle:
-						THROW(((SPaintObj::CStyle *)H)->Serialize(dir, rBuf, pCtx));
+						THROW(static_cast<SPaintObj::CStyle *>(H)->Serialize(dir, rBuf, pCtx));
 						break;
 					case tParagraph:
-						THROW(((SPaintObj::Para *)H)->Serialize(dir, rBuf, pCtx));
+						THROW(static_cast<SPaintObj::Para *>(H)->Serialize(dir, rBuf, pCtx));
 						break;
 				}
 			}
@@ -3223,7 +3229,7 @@ void SPaintObj::Destroy()
 	if(F & fCairoPattern) {
 		if(H) {
 			if(!(F & fNotOwner))
-				cairo_pattern_destroy((cairo_pattern_t *)H);
+				cairo_pattern_destroy(static_cast<cairo_pattern_t *>(H));
 		}
 	}
 	else {
@@ -3233,39 +3239,39 @@ void SPaintObj::Destroy()
 			switch(T) {
 				case tPen:
 					if(F & fInner)
-						delete ((SPaintObj::Pen *)H);
+						delete static_cast<SPaintObj::Pen *>(H);
 					else
-						::DeleteObject((HGDIOBJ)H);
+						::DeleteObject(static_cast<HGDIOBJ>(H));
 					break;
 				case tBrush:
 					if(F & fInner)
-						delete ((SPaintObj::Brush *)H);
+						delete static_cast<SPaintObj::Brush *>(H);
 					else
-						::DeleteObject((HGDIOBJ)H);
+						::DeleteObject(static_cast<HGDIOBJ>(H));
 					break;
 				case tFont:
 					if(F & fInner)
-						delete ((SPaintObj::Font *)H);
+						delete static_cast<SPaintObj::Font *>(H);
 					else
-						::DeleteObject((HGDIOBJ)H);
+						::DeleteObject(static_cast<HGDIOBJ>(H));
 					break;
 				case tGradient:
 					if(F & fInner)
-						delete ((SPaintObj::Gradient *)H);
+						delete static_cast<SPaintObj::Gradient *>(H);
 					break;
 				case tBitmap:
-					::DeleteObject((HGDIOBJ)H);
+					::DeleteObject(static_cast<HGDIOBJ>(H));
 					break;
 				case tCursor:
-					::DestroyCursor((HCURSOR)H);
+					::DestroyCursor(static_cast<HCURSOR>(H));
 					break;
 				case tCStyle:
 					if(F & fInner)
-						delete ((SPaintObj::CStyle *)H);
+						delete static_cast<SPaintObj::CStyle *>(H);
 					break;
 				case tParagraph:
 					if(F & fInner)
-						delete ((SPaintObj::Para *)H);
+						delete static_cast<SPaintObj::Para *>(H);
 					break;
 			}
 		}
@@ -3276,34 +3282,31 @@ void SPaintObj::Destroy()
 }
 
 SPaintObj::Pen * SPaintObj::GetPen() const
-{
-	return (T == tPen && F & fInner) ? (SPaintObj::Pen *)H : 0;
-}
-
+	{ return (T == tPen && F & fInner) ? static_cast<SPaintObj::Pen *>(H) : 0; }
 SPaintObj::Brush * SPaintObj::GetBrush() const
-	{ return (T == tBrush && F & fInner) ? (SPaintObj::Brush *)H : 0; }
+	{ return (T == tBrush && F & fInner) ? static_cast<SPaintObj::Brush *>(H) : 0; }
 SPaintObj::Font * SPaintObj::GetFont() const
-	{ return (T == tFont && F & fInner) ? (SPaintObj::Font *)H : 0; }
+	{ return (T == tFont && F & fInner) ? static_cast<SPaintObj::Font *>(H) : 0; }
 SPaintObj::Gradient * SPaintObj::GetGradient() const
-	{ return (T == tGradient && F & fInner) ? (SPaintObj::Gradient *)H : 0; }
+	{ return (T == tGradient && F & fInner) ? static_cast<SPaintObj::Gradient *>(H) : 0; }
 SPaintObj::Para * SPaintObj::GetParagraph() const
-	{ return (T == tParagraph && F & fInner) ? (SPaintObj::Para *)H : 0; }
+	{ return (T == tParagraph && F & fInner) ? static_cast<SPaintObj::Para *>(H) : 0; }
 SPaintObj::CStyle * SPaintObj::GetCStyle() const
-	{ return (T == tCStyle && F & fInner) ? (SPaintObj::CStyle *)H : 0; }
+	{ return (T == tCStyle && F & fInner) ? static_cast<SPaintObj::CStyle *>(H) : 0; }
 SPaintObj::operator cairo_pattern_t * () const
 	{ return 0; }
 SPaintObj::operator HCURSOR () const
-	{ return (T == tCursor) ? (HCURSOR)H : (HCURSOR)0; }
+	{ return (T == tCursor) ? static_cast<HCURSOR>(H) : static_cast<HCURSOR>(0); }
 SPaintObj::operator HBITMAP () const
-	{ return (T == tBitmap) ? (HBITMAP)H : (HBITMAP)0; }
+	{ return (T == tBitmap) ? static_cast<HBITMAP>(H) : static_cast<HBITMAP>(0); }
 SPaintObj::operator COLORREF () const
-	{ return oneof3(T, tColor, tPen, tBrush) ? (COLORREF)*((SColor *)&H) : GetColorRef(SClrBlack); }
+	{ return oneof3(T, tColor, tPen, tBrush) ? static_cast<COLORREF>(*reinterpret_cast<const SColor *>(&H)) : GetColorRef(SClrBlack); }
 
 SPaintObj::operator SColor () const
 {
 	SColor c = SColor(SClrBlack);
 	if(T == tColor)
-		c = *(SColor *)&H;
+		c = *reinterpret_cast<const SColor *>(&H);
 	else if(T == tPen) {
 		Pen * p_pen = GetPen();
 		if(p_pen)
@@ -3319,18 +3322,18 @@ SPaintObj::operator SColor () const
 
 SPaintObj::operator HGDIOBJ () const
 {
-	HGDIOBJ h_gdiobj = (HGDIOBJ)0;
+	HGDIOBJ h_gdiobj = static_cast<HGDIOBJ>(0);
 	if(H) {
 		if(T == tBitmap)
-			h_gdiobj = (HGDIOBJ)H;
+			h_gdiobj = static_cast<HGDIOBJ>(H);
 		else if(oneof3(T, tPen, tBrush, tFont)) {
 			if(F & fInner) {
-				const SPaintObj::Base * p_base = (const SPaintObj::Base *)H;
+				const SPaintObj::Base * p_base = static_cast<const SPaintObj::Base *>(H);
 				if(p_base->GetSys() == dsysWinGdi)
-					h_gdiobj = (HGDIOBJ)p_base->GetHandle();
+					h_gdiobj = static_cast<HGDIOBJ>(p_base->GetHandle());
 			}
 			else
-				h_gdiobj = (HGDIOBJ)H;
+				h_gdiobj = static_cast<HGDIOBJ>(H);
 		}
 	}
 	return h_gdiobj;
@@ -3339,7 +3342,7 @@ SPaintObj::operator HGDIOBJ () const
 int SPaintObj::CreateHPen(int style, float width, SColor c)
 {
 	int    ok = 1;
-	HPEN   handle = ::CreatePen(style, (int)round(width, 0), (COLORREF)c);
+	HPEN   handle = ::CreatePen(style, R0i(width), static_cast<COLORREF>(c));
 	if(handle) {
 		Destroy();
 		T = tPen;
@@ -3585,12 +3588,12 @@ int FASTCALL SPaintObj::ProcessInnerHandle(SDrawContext * pCtx, int create)
 				case tPen:
 					if(dsys == dsysWinGdi) {
 						if(create) {
-							SPaintObj::Pen * p_pen = (SPaintObj::Pen *)H;
-							HPEN   handle = ::CreatePen(p_pen->S, (int)round(p_pen->W__, 0), (COLORREF)p_pen->C);
+							SPaintObj::Pen * p_pen = static_cast<SPaintObj::Pen *>(H);
+							HPEN   handle = ::CreatePen(p_pen->S, R0i(p_pen->W__), static_cast<COLORREF>(p_pen->C));
 							ok = _SetPaintObjInnerHandle(p_pen, dsys, /*(uint32)*/handle);
 						}
 						else {
-							::DeleteObject((HGDIOBJ)hdl);
+							::DeleteObject(static_cast<HGDIOBJ>(hdl));
 							_SetPaintObjInnerHandle(p_base, dsysNone, 0);
 							ok = 1;
 						}
@@ -3599,15 +3602,15 @@ int FASTCALL SPaintObj::ProcessInnerHandle(SDrawContext * pCtx, int create)
 				case tBrush:
 					if(dsys == dsysWinGdi) {
 						if(create) {
-							SPaintObj::Brush * p_brush = (SPaintObj::Brush *)H;
+							SPaintObj::Brush * p_brush = static_cast<SPaintObj::Brush *>(H);
 							LOGBRUSH b;
 							b.lbStyle = p_brush->S;
-							b.lbColor = (COLORREF)p_brush->C;
+							b.lbColor = static_cast<COLORREF>(p_brush->C);
 							b.lbHatch = p_brush->Hatch;
 							ok = _SetPaintObjInnerHandle(p_brush, dsys, /*(uint32)*/::CreateBrushIndirect(&b));
 						}
 						else {
-							::DeleteObject((HGDIOBJ)hdl);
+							::DeleteObject(static_cast<HGDIOBJ>(hdl));
 							_SetPaintObjInnerHandle(p_base, dsysNone, 0);
 							ok = 1;
 						}
@@ -3616,12 +3619,12 @@ int FASTCALL SPaintObj::ProcessInnerHandle(SDrawContext * pCtx, int create)
 				case tFont:
 					if(dsys == dsysWinGdi) {
 						if(create) {
-							SPaintObj::Font * p_font = (SPaintObj::Font *)H;
+							SPaintObj::Font * p_font = static_cast<SPaintObj::Font *>(H);
 							LOGFONTW log_fontw;
 							ok = _SetPaintObjInnerHandle(p_font, dsys, /*(uint32)*/CreateFontIndirectW(p_font->MakeLogFont(&log_fontw)));
 						}
 						else {
-							::DeleteObject((HGDIOBJ)hdl);
+							::DeleteObject(static_cast<HGDIOBJ>(hdl));
 							_SetPaintObjInnerHandle(p_base, dsysNone, 0);
 							ok = 1;
 						}
@@ -3631,7 +3634,7 @@ int FASTCALL SPaintObj::ProcessInnerHandle(SDrawContext * pCtx, int create)
 							LMatrix2D mtx_font, mtx_ctm;
 							InnerFontDescr * p_descr = new InnerFontDescr;
 							if(p_descr) {
-								SPaintObj::Font * p_font = (SPaintObj::Font *)H;
+								SPaintObj::Font * p_font = static_cast<SPaintObj::Font *>(H);
 								LOGFONTW log_fontw;
 								p_font->MakeLogFont(&log_fontw);
 								log_fontw.lfHeight = 0;
@@ -3645,18 +3648,19 @@ int FASTCALL SPaintObj::ProcessInnerHandle(SDrawContext * pCtx, int create)
 									cairo_font_options_set_antialias(p_options, /*CAIRO_ANTIALIAS_DEFAULT*/CAIRO_ANTIALIAS_BEST);
 								}
 								mtx_font.InitScale(p_font->Size, p_font->Size);
-								p_descr->P_CrScFont = cairo_scaled_font_create(p_descr->P_CrFace, (cairo_matrix_t *)&mtx_font, (cairo_matrix_t *)&mtx_ctm, p_options);
+								p_descr->P_CrScFont = cairo_scaled_font_create(p_descr->P_CrFace, 
+									reinterpret_cast<const cairo_matrix_t *>(&mtx_font), reinterpret_cast<const cairo_matrix_t *>(&mtx_ctm), p_options);
 								if(p_descr->P_CrScFont) {
 									cairo_font_extents_t font_ext;
 									cairo_scaled_font_extents(p_descr->P_CrScFont, &font_ext);
-									p_font->LineAdv = (float)font_ext.height;
+									p_font->LineAdv = static_cast<float>(font_ext.height);
 								}
 								cairo_font_options_destroy(p_options);
 								ok = _SetPaintObjInnerHandle(p_font, dsys, /*(uint32)*/p_descr);
 							}
 						}
 						else {
-							InnerFontDescr * p_descr = (InnerFontDescr *)hdl;
+							InnerFontDescr * p_descr = static_cast<InnerFontDescr *>(hdl);
 							delete p_descr;
 							_SetPaintObjInnerHandle(p_base, dsysNone, 0);
 							ok = 1;
@@ -3819,8 +3823,7 @@ int SPaintToolBox::Copy(const SPaintToolBox & rS)
 		const SPaintObj & r_src_obj = rS.at(i);
 		SPaintObj * p_obj = CreateObj(r_src_obj.GetId());
 		THROW(p_obj);
-		if(p_obj)
-			THROW(p_obj->Copy(r_src_obj));
+		THROW(p_obj->Copy(r_src_obj));
 	}
 	State = rS.State;
 	CATCHZOK
@@ -3913,7 +3916,7 @@ int FASTCALL SPaintToolBox::CreateDynIdent(const char * pSymb)
 	if(!ident) {
 		ident = ++DynIdentCount;
 		if(!isempty(pSymb)) {
-			uint   uid = (uint)ident;
+			uint   uid = static_cast<uint>(ident);
 			if(!Hash.Add(pSymb, uid, 0))
 				ident = 0;
 		}
@@ -3924,12 +3927,12 @@ int FASTCALL SPaintToolBox::CreateDynIdent(const char * pSymb)
 int FASTCALL SPaintToolBox::SearchSymb(const char * pSymb) const
 {
 	uint   ident = 0;
-	return (!isempty(pSymb) && Hash.Search(pSymb, &ident, 0)) ? (int)ident : 0;
+	return (!isempty(pSymb) && Hash.Search(pSymb, &ident, 0)) ? static_cast<int>(ident) : 0;
 }
 
 int SPaintToolBox::GetSymb(int ident, SString & rSymb) const
 {
-	return Hash.GetByAssoc((uint)ident, rSymb);
+	return Hash.GetByAssoc(static_cast<uint>(ident), rSymb);
 }
 
 int FASTCALL SPaintToolBox::SearchColor(SColor c) const
@@ -3946,7 +3949,7 @@ int FASTCALL SPaintToolBox::SearchColor(SColor c) const
 void FASTCALL SPaintToolBox::freeItem(void * pItem)
 {
 	if(pItem)
-		((SPaintObj *)pItem)->Destroy();
+		static_cast<SPaintObj *>(pItem)->Destroy();
 }
 
 SPaintObj * FASTCALL SPaintToolBox::GetObj(int ident) const
@@ -3970,7 +3973,7 @@ SPaintObj * FASTCALL SPaintToolBox::GetObjBySymb(const char * pSymb, int type) c
 HGDIOBJ FASTCALL SPaintToolBox::Get(int ident) const
 {
 	SPaintObj * p_obj = GetObj(ident);
-	return p_obj ? (HGDIOBJ)*p_obj : 0;
+	return p_obj ? static_cast<HGDIOBJ>(*p_obj) : 0;
 }
 
 int FASTCALL SPaintToolBox::GetType(int ident) const
@@ -4006,7 +4009,7 @@ int FASTCALL SPaintToolBox::DeleteObj(int ident)
 int SPaintToolBox::SetPen(int ident, int style, int width, COLORREF c)
 {
 	SPaintObj * p_obj = CreateObj(ident);
-	return BIN(p_obj && p_obj->CreateHPen(style, (float)width, SColor(c)));
+	return BIN(p_obj && p_obj->CreateHPen(style, static_cast<float>(width), SColor(c)));
 }
 
 int SPaintToolBox::SetDefaultPen(int style, int width, SColor c)
@@ -4016,7 +4019,7 @@ int SPaintToolBox::SetDefaultPen(int style, int width, SColor c)
 	SPaintObj * p_new_obj = 0;
 	THROW(pen_id = CreateDynIdent("$pen-default"));
 	THROW(p_new_obj = CreateObj(pen_id));
-	THROW(p_new_obj->CreatePen(style, (float)width, c));
+	THROW(p_new_obj->CreatePen(style, static_cast<float>(width), c));
 	DefaultPenId = pen_id;
 	CATCHZOK
 	return ok;
@@ -4086,7 +4089,7 @@ int SPaintToolBox::CreateBrush(int ident, int style, SColor c, int32 hatch, int 
 	SPaintObj::Brush brush;
 	brush.C = c;
 	brush.S = patternId ? SPaintObj::bsPattern : style;
-	brush.Hatch = (int8)hatch;
+	brush.Hatch = static_cast<int8>(hatch);
 	brush.IdPattern = patternId; // @v9.1.11
 	if(!ident) {
 		const uint co = getCount();
@@ -4149,7 +4152,7 @@ SPaintObj::Para * SPaintToolBox::GetParagraph(int ident)
 	SPaintObj::Para * p_para = 0;
 	SPaintObj * p_obj = GetObj(ident);
 	if(p_obj && p_obj->GetType() == SPaintObj::tParagraph) {
-		SDrawContext ctx((cairo_t *)0);
+		SDrawContext ctx(static_cast<cairo_t *>(0));
 		p_obj->CreateInnerHandle(ctx);
 		p_para = p_obj->GetParagraph();
 	}
@@ -4179,7 +4182,7 @@ int SPaintToolBox::CreateParagraph(int ident, const SParaDescr * pDescr)
 		THROW(p_obj->CreateParagraph());
 		SPaintObj::Para * p_para = GetParagraph(ident);
 		if(p_para && pDescr) {
-			*((SParaDescr *)p_para) = *pDescr;
+			*static_cast<SParaDescr *>(p_para) = *pDescr;
 		}
 	}
 	CATCH
@@ -4290,13 +4293,13 @@ int SPaintToolBox::SetBitmap(int ident, uint bmpId)
 HBITMAP FASTCALL SPaintToolBox::GetBitmap(int ident) const
 {
 	SPaintObj * p_obj = GetObj(ident);
-	return p_obj ? (HBITMAP)*p_obj : 0;
+	return p_obj ? static_cast<HBITMAP>(*p_obj) : 0;
 }
 
 COLORREF FASTCALL SPaintToolBox::GetColor(int ident) const
 {
 	SPaintObj * p_obj = GetObj(ident);
-	return p_obj ? (COLORREF)*p_obj : GetColorRef(SClrBlack);
+	return p_obj ? static_cast<COLORREF>(*p_obj) : GetColorRef(SClrBlack);
 }
 
 int SPaintToolBox::GetColor(int ident, COLORREF * pC) const
@@ -4304,7 +4307,7 @@ int SPaintToolBox::GetColor(int ident, COLORREF * pC) const
 	int    ok = 1;
 	SPaintObj * p_obj = GetObj(ident);
 	if(p_obj && p_obj->GetType() == SPaintObj::tColor) {
-		ASSIGN_PTR(pC, (COLORREF)*p_obj);
+		ASSIGN_PTR(pC, static_cast<COLORREF>(*p_obj));
 	}
 	else {
 		ASSIGN_PTR(pC, GetColorRef(SClrBlack));
@@ -4322,7 +4325,7 @@ int SPaintToolBox::CreateCursor(int ident, uint cursorId)
 HCURSOR FASTCALL SPaintToolBox::GetCursor(int ident) const
 {
 	SPaintObj * p_obj = GetObj(ident);
-	return p_obj ? (HCURSOR)*p_obj : 0;
+	return p_obj ? static_cast<HCURSOR>(*p_obj) : 0;
 }
 
 struct __GlyphKey { // @flat
@@ -4330,7 +4333,7 @@ struct __GlyphKey { // @flat
 	uint16 C;
 };
 
-IMPL_CMPFUNC(__GlyphKey, i1, i2) { RET_CMPCASCADE2((const __GlyphKey *)i1, (const __GlyphKey *)i2, I, C); }
+IMPL_CMPFUNC(__GlyphKey, i1, i2) { RET_CMPCASCADE2(static_cast<const __GlyphKey *>(i1), static_cast<const __GlyphKey *>(i2), I, C); }
 
 SPaintObj::Font * SPaintToolBox::GetFont(SDrawContext & rCtx, int fontIdent)
 {
@@ -4351,7 +4354,7 @@ int SPaintToolBox::GetGlyphId(SDrawContext & rCtx, int fontIdent, wchar_t chr)
 	key.C = chr;
 	uint   pos = 0;
 	if(GlyphList.lsearch(&key, &pos, PTR_CMPFUNC(__GlyphKey))) {
-		id = (int)(pos+1);
+		id = static_cast<int>(pos+1);
 	}
 	else {
 		SGlyph glyph;
@@ -4369,8 +4372,5 @@ int SPaintToolBox::GetGlyphId(SDrawContext & rCtx, int fontIdent, wchar_t chr)
 
 const SGlyph * FASTCALL SPaintToolBox::GetGlyph(int glyphId) const
 {
-	if(glyphId > 0 && glyphId <= (int)GlyphList.getCount())
-		return &(((const GlyphEntry *)GlyphList.at(glyphId-1))->G);
-	else
-		return 0;
+	return (glyphId > 0 && glyphId <= static_cast<int>(GlyphList.getCount())) ? &static_cast<const GlyphEntry *>(GlyphList.at(glyphId-1))->G : 0;
 }

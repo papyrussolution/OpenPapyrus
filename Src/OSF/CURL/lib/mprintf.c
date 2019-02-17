@@ -779,7 +779,7 @@ number:
 		    break;
 			case FORMAT_PTR: // Generic pointer
 		    {
-			    void * ptr = (void*)p->data.ptr;
+			    void * ptr = (void *)p->data.ptr;
 			    if(ptr) {
 				    /* If the pointer is not NULL, write it as a %#x spec.  */
 				    base = 16;

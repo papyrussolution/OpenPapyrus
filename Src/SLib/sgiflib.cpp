@@ -191,7 +191,7 @@ GifFileType * DGifOpenFileHandle(int FileHandle, int * Error)
 #endif
 	f = fdopen(FileHandle, "rb"); /* Make it into a stream: */
 	/*@-mustfreeonly@*/
-	p_giffile->Private = (void*)p_private;
+	p_giffile->Private = (void *)p_private;
 	p_private->FileHandle = FileHandle;
 	p_private->File = f;
 	p_private->FileState = FILE_STATE_READ;
@@ -245,7 +245,7 @@ GifFileType * DGifOpen(void * userData, InputFunc readFunc, int * Error)
 		SAlloc::F((char*)GifFile);
 		return NULL;
 	}
-	GifFile->Private = (void*)Private;
+	GifFile->Private = (void *)Private;
 	Private->FileHandle = 0;
 	Private->File = NULL;
 	Private->FileState = FILE_STATE_READ;
@@ -1323,12 +1323,12 @@ GifFileType * EGifOpenFileHandle(const int FileHandle, int * Error)
 		_setmode(FileHandle, O_BINARY); /* Make sure it is in binary mode. */
 #endif /* _WIN32 */
 		f = fdopen(FileHandle, "wb"); /* Make it into a stream: */
-		GifFile->Private = (void*)Private;
+		GifFile->Private = (void *)Private;
 		Private->FileHandle = FileHandle;
 		Private->File = f;
 		Private->FileState = FILE_STATE_WRITE;
 		Private->Write = (OutputFunc)0; /* No user write routine (MRB) */
-		GifFile->UserData = (void*)NULL; /* No user write handle (MRB) */
+		GifFile->UserData = (void *)NULL; /* No user write handle (MRB) */
 		GifFile->Error = 0;
 	}
 	return GifFile;
@@ -1359,7 +1359,7 @@ GifFileType * EGifOpen(void * userData, OutputFunc writeFunc, int * pError)
 		ASSIGN_PTR(pError, E_GIF_ERR_NOT_ENOUGH_MEM);
 		return NULL;
 	}
-	GifFile->Private = (void*)Private;
+	GifFile->Private = (void *)Private;
 	Private->FileHandle = 0;
 	Private->File = (FILE*)0;
 	Private->FileState = FILE_STATE_WRITE;

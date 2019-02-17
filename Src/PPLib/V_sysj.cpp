@@ -11,7 +11,7 @@
 static IMPL_CMPFUNC(PPViewSysJournal_EvVerEntry, i1, i2)
 {
 	int    si = memcmp(i1, i2, sizeof(PPObjID));
-	SETIFZ(si, cmp(((const PPViewSysJournal::EvVerEntry *)i1)->Dtm, ((const PPViewSysJournal::EvVerEntry *)i2)->Dtm));
+	SETIFZ(si, cmp(static_cast<const PPViewSysJournal::EvVerEntry *>(i1)->Dtm, static_cast<const PPViewSysJournal::EvVerEntry *>(i2)->Dtm));
 	return si;
 }
 
@@ -1654,7 +1654,7 @@ int SLAPI PPViewGtaJournal::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	if(pHdr) {
-		BrwHdr hdr = *(PPViewGtaJournal::BrwHdr *)pHdr;
+		BrwHdr hdr = *static_cast<const PPViewGtaJournal::BrwHdr *>(pHdr);
 		ok = EditPPObj(hdr.Obj, hdr.Id);
 	}
 	return ok;

@@ -134,7 +134,7 @@ void GetUpdatePairInfoList(const CDirItems &dirItems, const CObjectVector<CArcIt
 			for(uint i = 0; i < numArcItems; i++)
 				vals[i] = i;
 		}
-		arcIndices.Sort(CompareArcItems, (void*)&arcItems);
+		arcIndices.Sort(CompareArcItems, (void *)&arcItems);
 		for(uint i = 0; i + 1 < numArcItems; i++)
 			if(CompareArcItemsBase(arcItems[arcIndices[i]], arcItems[arcIndices[i + 1]]) == 0) {
 				duplicatedArcItem[i] = 1;
@@ -1154,7 +1154,7 @@ STDMETHODIMP COutMultiVolStream::Write(const void * data, uint32 size, uint32 * 
 		uint32 curSize = (uint32)MyMin((uint64)size, volSize - altStream.Pos);
 		uint32 realProcessed;
 		RINOK(altStream.Stream->Write(data, curSize, &realProcessed));
-		data = (void*)((Byte*)data + realProcessed);
+		data = (void *)((Byte*)data + realProcessed);
 		size -= realProcessed;
 		altStream.Pos += realProcessed;
 		_offsetPos += realProcessed;

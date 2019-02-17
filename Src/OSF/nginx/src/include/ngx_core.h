@@ -1410,7 +1410,7 @@ extern ngx_uint_t ngx_dump_config__;
 #define NGX_RESOLVE_REFUSED   5
 #define NGX_RESOLVE_TIMEDOUT  NGX_ETIMEDOUT
 
-#define NGX_NO_RESOLVER       (void*)-1
+#define NGX_NO_RESOLVER       (void *)-1
 #define NGX_RESOLVER_MAX_RECURSION    50
 
 //typedef struct ngx_resolver_s ngx_resolver_t;
@@ -1785,7 +1785,7 @@ char * ngx_resolver_strerror(ngx_int_t err);
 
 #define NGX_CONF_UNSET       -1
 #define NGX_CONF_UNSET_UINT  (ngx_uint_t)-1
-#define NGX_CONF_UNSET_PTR   (void*)-1
+#define NGX_CONF_UNSET_PTR   (void *)-1
 #define NGX_CONF_UNSET_SIZE  (size_t)-1
 #define NGX_CONF_UNSET_MSEC  (ngx_msec_t)-1
 
@@ -3011,7 +3011,7 @@ struct ngx_http_ephemeral_t {
 extern ngx_http_header_t ngx_http_headers_in[];
 extern ngx_http_header_out_t ngx_http_headers_out[];
 
-#define ngx_http_ephemeral(r)            (void*)(&r->uri_start)
+#define ngx_http_ephemeral(r)            (void *)(&r->uri_start)
 #define ngx_http_set_log_request(log, r) ((ngx_http_log_ctx_t*)log->data)->current_request = r
 //
 //#include <ngx_http_script.h>

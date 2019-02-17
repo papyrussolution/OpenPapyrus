@@ -4392,7 +4392,7 @@ void ComplexDinnerDialog::DrawListItem(TDrawItemData * pDrawItem)
 			HBRUSH h_br_def   = 0;
 			HPEN   h_pen_def  = 0;
 			COLORREF clr_prev = 0;
-			SmartListBox * p_lbx = (SmartListBox *)pDrawItem->P_View;
+			SmartListBox * p_lbx = static_cast<SmartListBox *>(pDrawItem->P_View);
 			RECT   rc = pDrawItem->ItemRect;
 			SString temp_buf;
 			if(pDrawItem->ItemAction & TDrawItemData::iaBackground) {
@@ -6106,7 +6106,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 		if(TVCMD == cmInputUpdated)
 			IdleClock = clock(); // Ќе обрабатываем это сообщение, а лишь прерываем таймаут засыпани€ //
 		else if(TVCMD == cmCtlColor) {
-			TDrawCtrlData * p_dc = (TDrawCtrlData *)TVINFOPTR;
+			TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 			if(p_dc) {
 				if(p_dc->Src == TDrawCtrlData::cScrollBar) {
 					int ctl_id = GetDlgCtrlID(p_dc->H_Ctl);
@@ -6766,7 +6766,7 @@ void CheckPaneDialog::DrawListItem(TDrawItemData * pDrawItem)
 			HBRUSH h_br_def   = 0;
 			HPEN   h_pen_def  = 0;
 			COLORREF clr_prev = 0;
-			SmartListBox * p_lbx = (SmartListBox *)pDrawItem->P_View;
+			SmartListBox * p_lbx = static_cast<SmartListBox *>(pDrawItem->P_View);
 			RECT   rc = pDrawItem->ItemRect;
 			// char   temp_buf[256];
 			SString temp_buf;
@@ -7572,15 +7572,14 @@ void CheckPaneDialog::setupRetCheck(int ret)
 				else {
 					CCheckLineTbl::Rec line;
 					for(uint i = 0; SelPack.EnumLines(&i, &line);) {
-						double  sel_qtty = 0.0, rest_qtty = line.Quantity;
-						if(SelLines.Search(i, &sel_qtty, 0))
-							rest_qtty -= sel_qtty;
-						if(rest_qtty)
-							chk_pack.InsertItem(line.GoodsID, rest_qtty, intmnytodbl(line.Price), line.Dscnt);
+						double sel_qtty = 0.0;
+						const double rest_qtty_ = SelLines.Search(i, &sel_qtty, 0) ? (line.Quantity-sel_qtty) : line.Quantity;
+						if(rest_qtty_ != 0.0)
+							chk_pack.InsertItem(line.GoodsID, rest_qtty_, intmnytodbl(line.Price), line.Dscnt);
 					}
 				}
 				if(chk_pack.GetCount() > 0) {
-					long  lc_flags = DS.GetTLA().Lc.Flags;
+					const long  lc_flags = DS.GetTLA().Lc.Flags;
 					chk_pack.Rec = SelPack.Rec;
 					ushort r = CheckExecAndDestroyDialog(new CheckPaneDialog(0, 0, &chk_pack, BIN(Flags & fTouchScreen)), 1, 0);
 					if(r) {
@@ -7752,8 +7751,8 @@ int CPosProcessor::PreprocessRowBeforeRemoving(/*IN*/long rowNo, /*OUT*/double *
 {
 	int    ok = -1;
 	double qtty = 0.0;
-	if(rowNo >= 0 && rowNo < (long)P.getCount()) {
-		const  CCheckItem item = P.at((uint)rowNo); // @note ѕеременна€ не должна быть ссылкой (оригинал может изменитьс€)
+	if(rowNo >= 0 && rowNo < static_cast<long>(P.getCount())) {
+		const  CCheckItem item = P.at(static_cast<uint>(rowNo)); // @note ѕеременна€ не должна быть ссылкой (оригинал может изменитьс€)
 		qtty = fabs(item.Quantity);
 		int    is_rights = 1;
 		if((Flags & fPrinted) && !(OperRightsFlags & orfChgPrintedCheck))
@@ -7804,7 +7803,7 @@ int CPosProcessor::Helper_PrintRemovedRow(const CCheckItem & rItem)
 		}
 		PPObjLocPrinter lp_obj;
 		PPLocPrinter loc_prn_rec;
-		DS.GetTLA().PrintDevice = 0;
+		DS.GetTLA().PrintDevice.Z();
 		//
 		// »нициализаци€ gtoa по ассоциации, установленной в кассовом узле
 		//
@@ -7932,10 +7931,10 @@ int CPosProcessor::Backend_RemoveRow(int rowNo)
 {
 	int    ok = -1;
 	if(!(Flags & fNoEdit)) {
-		long   cur = rowNo;
-		THROW_PP_S(cur >= 0 && cur < (long)P.getCount(), PPERR_CPOS_INVCCROWINDEX, rowNo);
+		const long cur = rowNo;
+		THROW_PP_S(cur >= 0 && cur < static_cast<long>(P.getCount()), PPERR_CPOS_INVCCROWINDEX, rowNo);
 		if(PreprocessRowBeforeRemoving(cur, 0) > 0) {
-			const  CCheckItem item = P.at((uint)cur);
+			const  CCheckItem item = P.at(static_cast<uint>(cur));
 			if(!(item.Flags & cifIsPrinted) || ConfirmMessage(PPCFM_PRINTCANCELEDCCROW, 0, 0)) {
 				Helper_RemoveRow(cur, item);
 				// @interactive selectCtrl(CTL_CHKPAN_INPUT);
@@ -9756,7 +9755,7 @@ IMPL_HANDLE_EVENT(SCardInfoDialog)
 			}
 		}
 		else if(TVCMD == cmCtlColor) {
-			TDrawCtrlData * p_dc = (TDrawCtrlData *)TVINFOPTR;
+			TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 			if(p_dc && getCtrlHandle(CTL_SCARDVIEW_SALDO) == p_dc->H_Ctl) {
 				double saldo = getCtrlReal(CTL_SCARDVIEW_SALDO);
 				::SetBkMode(p_dc->H_DC, TRANSPARENT);

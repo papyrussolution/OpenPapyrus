@@ -287,13 +287,13 @@ __doublefann_h__ is not defined
 
 /* FANN_SIGMOID */
 /* #define fann_sigmoid(steepness, sum) (1.0f/(1.0f + exp(-2.0f * steepness * sum))) */
-#define fann_sigmoid_real(sum) (1.0f/(1.0f + FANN_EXP(-2.0f * sum)))
-#define fann_sigmoid_derive(steepness, value) (2.0f * steepness * value * (1.0f - value))
+#define fann_sigmoid_real(sum) (1.0f/(1.0f + FANN_EXP(-2.0f * (sum))))
+#define fann_sigmoid_derive(steepness, value) (2.0f * (steepness) * (value) * (1.0f - (value)))
 
 /* FANN_SIGMOID_SYMMETRIC */
 /* #define fann_sigmoid_symmetric(steepness, sum) (2.0f/(1.0f + exp(-2.0f * steepness * sum)) - 1.0f) */
-#define fann_sigmoid_symmetric_real(sum) (2.0f/(1.0f + FANN_EXP(-2.0f * sum)) - 1.0f)
-#define fann_sigmoid_symmetric_derive(steepness, value) steepness * (1.0f - (value*value))
+#define fann_sigmoid_symmetric_real(sum) (2.0f/(1.0f + FANN_EXP(-2.0f * (sum))) - 1.0f)
+#define fann_sigmoid_symmetric_derive(steepness, value) (steepness) * (1.0f - ((value)*(value)))
 
 /* FANN_GAUSSIAN */
 /* #define fann_gaussian(steepness, sum) (exp(-sum * steepness * sum * steepness)) */
@@ -322,18 +322,18 @@ __doublefann_h__ is not defined
 #define fann_cos_symmetric_derive(steepness, sum) ((steepness)*-sin((steepness)*(sum)))
 /* FANN_SIN */
 #define fann_sin_real(sum) (FANN_SIN(sum)/2.0f+0.5f)
-#define fann_sin_derive(steepness, sum) (steepness*cos(steepness*sum)/2.0f)
+#define fann_sin_derive(steepness, sum) ((steepness)*cos((steepness)*(sum))/2.0f)
 /* FANN_COS */
 #define fann_cos_real(sum) (FANN_COS(sum)/2.0f+0.5f)
 #define fann_cos_derive(steepness, sum) ((steepness)*-sin((steepness)*(sum))/2.0f)
 
 #define fann_activation_switch(activation_function, value, result) \
 switch(activation_function) { \
-	case Fann2::FANN_LINEAR: result = (float)value; break; \
-	case Fann2::FANN_LINEAR_PIECE: result = (float)((value < 0) ? 0 : (value > 1) ? 1 : value); break; \
-	case Fann2::FANN_LINEAR_PIECE_SYMMETRIC: result = (float)((value < -1) ? -1 : (value > 1) ? 1 : value); break; \
-	case Fann2::FANN_SIGMOID: result = (float)fann_sigmoid_real(value); break; \
-	case Fann2::FANN_SIGMOID_SYMMETRIC: result = (float)fann_sigmoid_symmetric_real(value); break; \
+	case Fann2::FANN_LINEAR: result = static_cast<float>(value); break; \
+	case Fann2::FANN_LINEAR_PIECE: result = static_cast<float>((value < 0) ? 0 : (value > 1) ? 1 : value); break; \
+	case Fann2::FANN_LINEAR_PIECE_SYMMETRIC: result = static_cast<float>((value < -1) ? -1 : (value > 1) ? 1 : value); break; \
+	case Fann2::FANN_SIGMOID: result = static_cast<float>(fann_sigmoid_real(value)); break; \
+	case Fann2::FANN_SIGMOID_SYMMETRIC: result = static_cast<float>(fann_sigmoid_symmetric_real(value)); break; \
 	case Fann2::FANN_SIGMOID_SYMMETRIC_STEPWISE: \
 		result = (float)fann_stepwise(((float)-2.64665293693542480469e+00), ((float)-1.47221934795379638672e+00), ((float)-5.49306154251098632812e-01), ((float)5.49306154251098632812e-01), ((float)1.47221934795379638672e+00), ((float)2.64665293693542480469e+00), ((float)-9.90000009536743164062e-01), ((float)-8.99999976158142089844e-01), ((float)-5.00000000000000000000e-01), ((float)5.00000000000000000000e-01), ((float)8.99999976158142089844e-01), ((float)9.90000009536743164062e-01), -1, 1, value); \
         break; \
@@ -870,7 +870,7 @@ FANN_EXTERNAL void FANN_API fann_scale_data_to_range(float ** data, uint num_dat
 	#define fann_random_weight() (float)(fann_rand(0,multiplier/10))
 	#define fann_random_bias_weight() (float)(fann_rand((0-multiplier)/10,multiplier/10))
 #else
-	#define fann_mult(x,y) (x*y)
+	#define fann_mult(x,y) ((x)*(y))
 	#define fann_div(x,y) ((x)/(y))
 	#define fann_random_weight() (fann_rand(-0.1f,0.1f))
 	#define fann_random_bias_weight() (fann_rand(-0.1f,0.1f))

@@ -143,8 +143,8 @@ static int _tiffMapProc(thandle_t fd, void** pbase, toff_t* psize)
 	if((uint64)sizem==size64) {
 		fd_as_handle_union_t fdh;
 		fdh.h = fd;
-		*pbase = (void*)mmap(0, (size_t)sizem, PROT_READ, MAP_SHARED, fdh.fd, 0);
-		if(*pbase != (void*)-1) {
+		*pbase = (void *)mmap(0, (size_t)sizem, PROT_READ, MAP_SHARED, fdh.fd, 0);
+		if(*pbase != (void *)-1) {
 			*psize = (tmsize_t)sizem;
 			return 1;
 		}
@@ -260,14 +260,14 @@ TIFF* TIFFOpenW(const wchar_t* name, const char* mode)
 /*void * _TIFFmalloc_Removed(tmsize_t s)
 {
 	if(s == 0)
-		return ((void*)NULL);
+		return ((void *)NULL);
 	return (malloc((size_t)s));
 }*/
 
 /*void* _TIFFcalloc_Removed(tmsize_t nmemb, tmsize_t siz)
 {
 	if(nmemb == 0 || siz == 0)
-		return ((void*)NULL);
+		return ((void *)NULL);
 	return calloc((size_t)nmemb, (size_t)siz);
 }*/
 

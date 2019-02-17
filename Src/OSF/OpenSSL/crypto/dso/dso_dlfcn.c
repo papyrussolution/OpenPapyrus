@@ -91,7 +91,7 @@ DSO_METHOD * DSO_METHOD_openssl(void)
 
 /*
  * For this DSO_METHOD, our meth_data STACK will contain; (i) the handle
- * (void*) returned from dlopen().
+ * (void *) returned from dlopen().
  */
 
 static int dlfcn_load(DSO * dso)

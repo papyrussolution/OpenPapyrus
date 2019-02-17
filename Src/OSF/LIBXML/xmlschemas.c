@@ -6728,9 +6728,9 @@ static int xmlSchemaCheckCSelectorXPath(xmlSchemaParserCtxtPtr ctxt, xmlSchemaID
 		 * @todo Differentiate between "selector" and "field".
 		 */
 		if(isField)
-			selector->xpathComp = (void*)xmlPatterncompile(selector->xpath, NULL, XML_PATTERN_XSFIELD, nsArray);
+			selector->xpathComp = (void *)xmlPatterncompile(selector->xpath, NULL, XML_PATTERN_XSFIELD, nsArray);
 		else
-			selector->xpathComp = (void*)xmlPatterncompile(selector->xpath, NULL, XML_PATTERN_XSSEL, nsArray);
+			selector->xpathComp = (void *)xmlPatterncompile(selector->xpath, NULL, XML_PATTERN_XSSEL, nsArray);
 		SAlloc::F((xmlChar**)nsArray);
 		if(selector->xpathComp == NULL) {
 			xmlSchemaPCustomErr(ctxt, /* @todo Adjust error code? */ XML_SCHEMAP_S4S_ATTR_INVALID_VALUE, NULL, P_Node, "The XPath expression '%s' could not be compiled", selector->xpath);
@@ -7338,7 +7338,7 @@ declaration_part:
 			if(lastIDC)
 				lastIDC->next = curIDC;
 			else
-				decl->idcs = (void*)curIDC;
+				decl->idcs = (void *)curIDC;
 			lastIDC = curIDC;
 			child = child->next;
 		}
@@ -18483,8 +18483,8 @@ static int xmlSchemaVAddNodeQName(xmlSchemaValidCtxt * vctxt, const xmlChar* lna
 	}
 	/* Add new entry. */
 	i = vctxt->nodeQNames->nbItems;
-	xmlSchemaItemListAdd(vctxt->nodeQNames, (void*)lname);
-	xmlSchemaItemListAdd(vctxt->nodeQNames, (void*)nsname);
+	xmlSchemaItemListAdd(vctxt->nodeQNames, (void *)lname);
+	xmlSchemaItemListAdd(vctxt->nodeQNames, (void *)nsname);
 	return(i);
 }
 
@@ -18877,7 +18877,7 @@ static int xmlSchemaIDCAddStateObject(xmlSchemaValidCtxt * vctxt, xmlSchemaIDCMa
 	/*
 	 * Create a new XPath (pattern) validation context.
 	 */
-	sto->xpathCtxt = (void*)xmlPatternGetStreamCtxt((xmlPattern *)sel->xpathComp);
+	sto->xpathCtxt = (void *)xmlPatternGetStreamCtxt((xmlPattern *)sel->xpathComp);
 	if(sto->xpathCtxt == NULL) {
 		VERROR_INT("xmlSchemaIDCAddStateObject", "failed to create an XPath validation context");
 		return -1;
@@ -23132,7 +23132,7 @@ static void xmlSchemaSAXHandleStartElementNs(void * ctx, const xmlChar * localna
 			}
 			else if(ielem->sizeNsBindings <= ielem->nbNsBindings) {
 				ielem->sizeNsBindings *= 2;
-				ielem->nsBindings = (const xmlChar**)SAlloc::R((void*)ielem->nsBindings, ielem->sizeNsBindings * 2 * sizeof(const xmlChar *));
+				ielem->nsBindings = (const xmlChar**)SAlloc::R((void *)ielem->nsBindings, ielem->sizeNsBindings * 2 * sizeof(const xmlChar *));
 				if(ielem->nsBindings == NULL) {
 					xmlSchemaVErrMemory(vctxt, "re-allocating namespace bindings for SAX validation", 0);
 					goto internal_error;

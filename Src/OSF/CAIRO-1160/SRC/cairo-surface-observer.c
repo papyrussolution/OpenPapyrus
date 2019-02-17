@@ -1251,7 +1251,7 @@ static void print_array(cairo_output_stream_t * stream, const uint * array, cons
 		if(array[i] != 0)
 			order[j++] = i;
 	}
-	sort_order(order, j, (void*)array);
+	sort_order(order, j, (void *)array);
 	for(i = 0; i < j; i++)
 		_cairo_output_stream_printf(stream, " %d %s%s", array[order[i]], names[order[i]], i < j -1 ? "," : "");
 }

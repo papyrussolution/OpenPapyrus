@@ -176,7 +176,7 @@ LZ4LIB_API int LZ4_saveDictHC(LZ4_streamHC_t* streamHCPtr, char* safeBuffer, int
 
 /* do not use these definitions directly.
  * allocate an LZ4_streamHC_t instead. */
-#define LZ4_STREAMHCSIZE       (4*LZ4HC_HASHTABLESIZE + 2*LZ4HC_MAXD + 56 + ((sizeof(void*)==16) ? 56 : 0) /* AS400*/ ) // 262200 or 262256
+#define LZ4_STREAMHCSIZE       (4*LZ4HC_HASHTABLESIZE + 2*LZ4HC_MAXD + 56 + ((sizeof(void *)==16) ? 56 : 0) /* AS400*/ ) // 262200 or 262256
 #define LZ4_STREAMHCSIZE_SIZET (LZ4_STREAMHCSIZE / sizeof(size_t))
 union LZ4_streamHC_u {
 	size_t table[LZ4_STREAMHCSIZE_SIZET];

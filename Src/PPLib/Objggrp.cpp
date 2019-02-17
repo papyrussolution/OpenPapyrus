@@ -1998,7 +1998,7 @@ void * SLAPI PPObjBrand::CreateObjListWin(uint flags, void * extraPtr)
 							if(id) {
 								GoodsFilt filt;
 								filt.BrandList.Add(id);
-								((PPApp*)APPL)->LastCmd = TVCMD;
+								static_cast<PPApp *>(APPL)->LastCmd = TVCMD;
 								PPView::Execute(PPVIEW_GOODS, &filt, 1, 0);
 							}
 							break;

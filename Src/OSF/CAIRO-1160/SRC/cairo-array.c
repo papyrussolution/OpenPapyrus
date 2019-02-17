@@ -344,12 +344,12 @@ void FASTCALL _cairo_user_data_array_fini(cairo_user_data_array_t * array)
  *
  * Return value: the user data previously attached or %NULL.
  **/
-void * _cairo_user_data_array_get_data(cairo_user_data_array_t * array, const cairo_user_data_key_t * key)
+void * FASTCALL _cairo_user_data_array_get_data(cairo_user_data_array_t * array, const cairo_user_data_key_t * key)
 {
 	// We allow this to support degenerate objects such as cairo_surface_nil. 
 	if(array) {
 		int num_slots = array->num_elements;
-		cairo_user_data_slot_t * slots = (cairo_user_data_slot_t *)_cairo_array_index(array, 0);
+		cairo_user_data_slot_t * slots = static_cast<cairo_user_data_slot_t *>(_cairo_array_index(array, 0));
 		for(int i = 0; i < num_slots; i++) {
 			if(slots[i].key == key)
 				return slots[i].user_data;
@@ -374,7 +374,7 @@ void * _cairo_user_data_array_get_data(cairo_user_data_array_t * array, const ca
  * Return value: %CAIRO_STATUS_SUCCESS or %CAIRO_STATUS_NO_MEMORY if a
  * slot could not be allocated for the user data.
  **/
-cairo_status_t _cairo_user_data_array_set_data(cairo_user_data_array_t * array,
+cairo_status_t FASTCALL _cairo_user_data_array_set_data(cairo_user_data_array_t * array,
     const cairo_user_data_key_t * key, void * user_data, cairo_destroy_func_t destroy)
 {
 	cairo_status_t status;

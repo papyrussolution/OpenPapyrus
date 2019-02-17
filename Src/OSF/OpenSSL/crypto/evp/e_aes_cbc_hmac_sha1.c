@@ -447,7 +447,7 @@ static int aesni_cbc_hmac_sha1_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 		} mac, * pmac;
 
 		/* arrange cache line alignment */
-		pmac = (void*)(((size_t)mac.c + 31) & ((size_t)0 - 32));
+		pmac = (void *)(((size_t)mac.c + 31) & ((size_t)0 - 32));
 
 		if(plen != NO_PAYLOAD_LENGTH) { /* "TLS" mode of operation */
 			size_t inp_len, mask, j, i;
@@ -456,7 +456,7 @@ static int aesni_cbc_hmac_sha1_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 			union {
 				uint u[SHA_LBLOCK];
 				uchar c[SHA_CBLOCK];
-			} * data = (void*)key->md.data;
+			} * data = (void *)key->md.data;
 # if defined(STITCHED_DECRYPT_CALL)
 			uchar tail_iv[AES_BLOCK_SIZE];
 			int stitch = 0;

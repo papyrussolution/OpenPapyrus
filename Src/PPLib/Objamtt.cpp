@@ -41,7 +41,7 @@ int SLAPI SetupAmtTypeCombo(TDialog * dlg, uint ctl, PPID id, uint flags, long o
 {
 	int    ok = 0;
 	PPObjAmountType amttobj;
-	ComboBox * p_combo = (ComboBox *)dlg->getCtrlView(ctl);
+	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctl));
 	if(p_combo) {
 		StrAssocArray * p_list = amttobj.CreateSelectorList(options, pInclList);
 		if(p_list) {

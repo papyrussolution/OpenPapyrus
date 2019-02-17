@@ -119,7 +119,7 @@ typedef struct pem_ctx_st {
 
 #define IMPLEMENT_PEM_write_fp_const(name, type, str, asn1) \
 	int PEM_write_ ## name(FILE *fp, const type *x)	\
-		{ return PEM_ASN1_write((i2d_of_void*)i2d_ ## asn1, str, fp, (void*)x, NULL, NULL, 0, NULL, NULL); }
+		{ return PEM_ASN1_write((i2d_of_void*)i2d_ ## asn1, str, fp, (void *)x, NULL, NULL, 0, NULL, NULL); }
 #define IMPLEMENT_PEM_write_cb_fp(name, type, str, asn1) \
 	int PEM_write_ ## name(FILE *fp, type *x, const EVP_CIPHER *enc, uchar *kstr, int klen, pem_password_cb *cb,	void * u) \
 		{ return PEM_ASN1_write((i2d_of_void*)i2d_ ## asn1, str, fp, x, enc, kstr, klen, cb, u); }
@@ -136,13 +136,13 @@ typedef struct pem_ctx_st {
 		{ return PEM_ASN1_write_bio((i2d_of_void*)i2d_ ## asn1, str, bp, x, NULL, NULL, 0, NULL, NULL); }
 #define IMPLEMENT_PEM_write_bio_const(name, type, str, asn1) \
 	int PEM_write_bio_ ## name(BIO *bp, const type *x) \
-		{ return PEM_ASN1_write_bio((i2d_of_void*)i2d_ ## asn1, str, bp, (void*)x, NULL, NULL, 0, NULL, NULL); }
+		{ return PEM_ASN1_write_bio((i2d_of_void*)i2d_ ## asn1, str, bp, (void *)x, NULL, NULL, 0, NULL, NULL); }
 #define IMPLEMENT_PEM_write_cb_bio(name, type, str, asn1) \
 	int PEM_write_bio_ ## name(BIO *bp, type *x, const EVP_CIPHER *enc, uchar *kstr, int klen, pem_password_cb *cb, void * u) \
 		{ return PEM_ASN1_write_bio((i2d_of_void*)i2d_ ## asn1, str, bp, x, enc, kstr, klen, cb, u); }
 #define IMPLEMENT_PEM_write_cb_bio_const(name, type, str, asn1)	\
 	int PEM_write_bio_ ## name(BIO *bp, type *x, const EVP_CIPHER *enc, uchar *kstr, int klen, pem_password_cb *cb, void * u) \
-		{ return PEM_ASN1_write_bio((i2d_of_void*)i2d_ ## asn1, str, bp, (void*)x, enc, kstr, klen, cb, u); }
+		{ return PEM_ASN1_write_bio((i2d_of_void*)i2d_ ## asn1, str, bp, (void *)x, enc, kstr, klen, cb, u); }
 #define IMPLEMENT_PEM_write(name, type, str, asn1) IMPLEMENT_PEM_write_bio(name, type, str, asn1) IMPLEMENT_PEM_write_fp(name, type, str, asn1)
 #define IMPLEMENT_PEM_write_const(name, type, str, asn1) IMPLEMENT_PEM_write_bio_const(name, type, str, asn1) IMPLEMENT_PEM_write_fp_const(name, type, str, asn1)
 #define IMPLEMENT_PEM_write_cb(name, type, str, asn1) IMPLEMENT_PEM_write_cb_bio(name, type, str, asn1) IMPLEMENT_PEM_write_cb_fp(name, type, str, asn1)

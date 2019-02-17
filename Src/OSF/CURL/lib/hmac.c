@@ -45,8 +45,8 @@ HMAC_context * Curl_HMAC_init(const HMAC_params * hashparams, const uchar * key,
 	HMAC_context * ctxt = (HMAC_context *)SAlloc::M(i);
 	if(ctxt) {
 		ctxt->hmac_hash = hashparams;
-		ctxt->hmac_hashctxt1 = (void*)(ctxt + 1);
-		ctxt->hmac_hashctxt2 = (void*)((char*)ctxt->hmac_hashctxt1 + hashparams->hmac_ctxtsize);
+		ctxt->hmac_hashctxt1 = (void *)(ctxt + 1);
+		ctxt->hmac_hashctxt2 = (void *)((char*)ctxt->hmac_hashctxt1 + hashparams->hmac_ctxtsize);
 		// If the key is too long, replace it by its hash digest. 
 		if(keylen > hashparams->hmac_maxkeylen) {
 			(*hashparams->hmac_hinit)(ctxt->hmac_hashctxt1);

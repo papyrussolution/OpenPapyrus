@@ -208,7 +208,7 @@ SOAP_FMAC3 struct SOAP_ENV__Fault * SOAP_FMAC4 soap_in_SOAP_ENV__Fault(struct so
 			return NULL;
 	}
 	else
-	{	a = (struct SOAP_ENV__Fault *)soap_id_forward(soap, soap->href, (void*)a, 0, SOAP_TYPE_SOAP_ENV__Fault, 0, sizeof(struct SOAP_ENV__Fault), 0, 0);
+	{	a = (struct SOAP_ENV__Fault *)soap_id_forward(soap, soap->href, (void *)a, 0, SOAP_TYPE_SOAP_ENV__Fault, 0, sizeof(struct SOAP_ENV__Fault), 0, 0);
 		if(soap->body && soap_element_end_in(soap, tag))
 			return NULL;
 	}
@@ -217,7 +217,7 @@ SOAP_FMAC3 struct SOAP_ENV__Fault * SOAP_FMAC4 soap_in_SOAP_ENV__Fault(struct so
 
 SOAP_FMAC3 int SOAP_FMAC4 soap_put_SOAP_ENV__Fault(struct soap *soap, const struct SOAP_ENV__Fault *a, const char *tag, const char *type)
 {
-	register int id = soap_embed(soap, (void*)a, NULL, 0, tag, SOAP_TYPE_SOAP_ENV__Fault);
+	register int id = soap_embed(soap, (void *)a, NULL, 0, tag, SOAP_TYPE_SOAP_ENV__Fault);
 	if(soap_out_SOAP_ENV__Fault(soap, tag?tag:"SOAP-ENV:Fault", id, a, type))
 		return soap->error;
 	return soap_putindependent(soap);
@@ -239,12 +239,12 @@ SOAP_FMAC1 struct SOAP_ENV__Fault * SOAP_FMAC2 soap_instantiate_SOAP_ENV__Fault(
 	if(!cp)
 		return NULL;
 	if(n < 0)
-	{	cp->ptr = (void*)SOAP_NEW(struct SOAP_ENV__Fault);
+	{	cp->ptr = (void *)SOAP_NEW(struct SOAP_ENV__Fault);
 		if(size)
 			*size = sizeof(struct SOAP_ENV__Fault);
 	}
 	else
-	{	cp->ptr = (void*)SOAP_NEW(struct SOAP_ENV__Fault[n]);
+	{	cp->ptr = (void *)SOAP_NEW(struct SOAP_ENV__Fault[n]);
 		if(!cp->ptr)
 		{	soap->error = SOAP_EOM;
 			return NULL;
