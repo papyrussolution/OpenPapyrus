@@ -298,19 +298,15 @@
 #    define VS2012_MIN_TARGET 0x0600
 #  endif
 
-   /* VS2008 default build target is Windows Vista. We override default target
-      to be Windows XP. */
+// VS2008 default build target is Windows Vista. We override default target to be Windows XP.
 #define VS2008_DEF_TARGET 0x0501
-
-   /* VS2012 default build target is Windows Vista unless Update 1 is installed
-      and the v110_xp toolset is chosen. */
-#  if defined(_USING_V110_SDK71_)
-#    define VS2012_DEF_TARGET 0x0501
-#  else
-#    define VS2012_DEF_TARGET 0x0600
-#  endif
+// VS2012 default build target is Windows Vista unless Update 1 is installed and the v110_xp toolset is chosen. 
+#if defined(_USING_V110_SDK71_)
+	#define VS2012_DEF_TARGET 0x0501
+#else
+	#define VS2012_DEF_TARGET 0x0600
 #endif
-
+#endif
 /* VS2008 default target settings and minimum build target check. */
 #if defined(_MSC_VER) && (_MSC_VER >= 1500) && (_MSC_VER <= 1600)
 #  ifndef _WIN32_WINNT
@@ -323,27 +319,23 @@
 #    error VS2008 does not support Windows build targets prior to Windows 2000
 #  endif
 #endif
-
 /* VS2012 default target settings and minimum build target check. */
 #if defined(_MSC_VER) && (_MSC_VER >= 1700)
-#  ifndef _WIN32_WINNT
-#    define _WIN32_WINNT VS2012_DEF_TARGET
-#  endif
-#  ifndef WINVER
-#    define WINVER VS2012_DEF_TARGET
-#  endif
-#  if (_WIN32_WINNT < VS2012_MIN_TARGET) || (WINVER < VS2012_MIN_TARGET)
-#    if defined(_USING_V110_SDK71_)
-#      error VS2012 does not support Windows build targets prior to Windows XP
-#    else
-#      error VS2012 does not support Windows build targets prior to Windows \
-Vista
-#    endif
-#  endif
+	#ifndef _WIN32_WINNT
+		#define _WIN32_WINNT VS2012_DEF_TARGET
+	#endif
+	#ifndef WINVER
+		#define WINVER VS2012_DEF_TARGET
+	#endif
+	#if (_WIN32_WINNT < VS2012_MIN_TARGET) || (WINVER < VS2012_MIN_TARGET)
+		#if defined(_USING_V110_SDK71_)
+			#error VS2012 does not support Windows build targets prior to Windows XP
+		#else
+			#error VS2012 does not support Windows build targets prior to Windows Vista
+		#endif
+	#endif
 #endif
-
-/* When no build target is specified Pelles C 5.00 and later default build
-   target is Windows Vista. We override default target to be Windows 2000. */
+// When no build target is specified Pelles C 5.00 and later default build target is Windows Vista. We override default target to be Windows 2000.
 #if defined(__POCC__) && (__POCC__ >= 500)
 #  ifndef _WIN32_WINNT
 #    define _WIN32_WINNT 0x0500

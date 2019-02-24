@@ -84,8 +84,7 @@ static void makeMaps_d(DState* s)
 			GET_BIT(label2, zj);			    \
 			zvec = (zvec << 1) | zj;		    \
 		};					       \
-		if(zvec - gBase[zn] < 0			      \
-		    || zvec - gBase[zn] >= BZ_MAX_ALPHA_SIZE)  \
+		if(zvec - gBase[zn] < 0 || zvec - gBase[zn] >= BZ_MAX_ALPHA_SIZE)  \
 			RETURN(BZ_DATA_ERROR);			    \
 		lval = gPerm[zvec - gBase[zn]];		       \
 	}

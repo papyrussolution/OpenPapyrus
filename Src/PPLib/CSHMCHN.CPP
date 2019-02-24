@@ -556,7 +556,7 @@ void CashStatDialog::setup()
 		setCtrlData(CTL_CASHDISP_CASHSUM, &stat.Cash);
 		v -= stat.Cash;
 	}
-	else if((il = (TInputLine *)getCtrlView(CTL_CASHDISP_CASHSUM)) != 0)
+	else if((il = static_cast<TInputLine *>(getCtrlView(CTL_CASHDISP_CASHSUM))) != 0)
 		il->setText("Error");
 	setCtrlData(CTL_CASHDISP_DIFF, &v);
 	setCtrlReadOnly(CTL_CASHDISP_BEGSUM, 1);

@@ -1112,7 +1112,7 @@ int SOraDbProvider::GetDirect(DBTable & rTbl, const DBRowId & rPos, int forUpdat
 		uint   actual = 0;
 		SSqlStmt stmt(this, (const SString &)SqlGen);
 		THROW(stmt.Exec(0, OCI_DEFAULT));
-		THROW(stmt.BindData(+1, 1, rTbl.fields, rTbl.getDataBuf(), rTbl.getLobBlock()));
+		THROW(stmt.BindData(+1, 1, rTbl.fields, rTbl.getDataBufConst(), rTbl.getLobBlock()));
 		THROW(r = Fetch(stmt, 1, &actual));
 		if(r > 0) {
 			THROW(stmt.GetData(0));
@@ -1932,7 +1932,7 @@ int SLAPI SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey,
 				int rowid_pos = pTbl->fields.getCount()+1;
 				THROW(p_stmt->BindRowId(rowid_pos, 1, pTbl->getCurRowIdPtr()));
 			}
-			THROW(p_stmt->BindData(+1, 1, pTbl->fields, pTbl->getDataBuf(), pTbl->getLobBlock()));
+			THROW(p_stmt->BindData(+1, 1, pTbl->fields, pTbl->getDataBufConst(), pTbl->getLobBlock()));
 			THROW(ok = Helper_Fetch(pTbl, p_stmt, &actual));
 			if(ok > 0)
 				pTbl->copyBufToKey(idx, pKey);
@@ -1992,7 +1992,7 @@ int SLAPI SOraDbProvider::Implement_InsertRec(DBTable * pTbl, int idx, void * pK
 		if(GETSTYPE(r_fld.T) == S_AUTOINC) {
 			long val = 0;
 			size_t val_sz = 0;
-			r_fld.getValue(pTbl->getDataBuf(), &val, &val_sz);
+			r_fld.getValue(pTbl->getDataBufConst(), &val, &val_sz);
 			assert(val_sz == sizeof(val));
 			if(val == 0) {
 				THROW(GetAutolongVal(*pTbl, i, &val));
@@ -2066,7 +2066,7 @@ int SLAPI SOraDbProvider::Implement_UpdateRec(DBTable * pTbl, const void * pData
 	{
 		SSqlStmt   stmt(this, (const SString &)SqlGen);
 		THROW(stmt.IsValid());
-		THROW(stmt.BindData(-1, 1, pTbl->fields, pTbl->getDataBuf(), pTbl->getLobBlock()));
+		THROW(stmt.BindData(-1, 1, pTbl->fields, pTbl->getDataBufConst(), pTbl->getLobBlock()));
 		THROW(stmt.SetDataDML(0));
 		THROW(stmt.Exec(1, /*OCI_COMMIT_ON_SUCCESS*/OCI_DEFAULT)); // @debug(OCI_COMMIT_ON_SUCCESS)
 	}

@@ -1,5 +1,5 @@
 // BCLPRN.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -132,11 +132,11 @@ int SLAPI PPObjBarcodePrinter::Edit(PPID * pID, void * extraPtr)
 		rec.Cpp.Parity = (int8)temp_long;
 		dlg->GetClusterData(CTL_BCPRT_DATA,   &temp_long);
 		rec.Cpp.ByteSize = (int8)temp_long;
-		dlg->getCtrlData(CTL_BCPRT_NARROWPT, &rec.BcNarrowPt); // @v8.0.9
-		dlg->getCtrlData(CTL_BCPRT_WIDEPT,   &rec.BcWidePt);   // @v8.0.9
+		dlg->getCtrlData(CTL_BCPRT_NARROWPT, &rec.BcNarrowPt);
+		dlg->getCtrlData(CTL_BCPRT_WIDEPT,   &rec.BcWidePt);
 		// @v9.2.7 {
 		{
-			ushort cpv = dlg->getCtrlUInt16(CTL_BCPRT_CP);
+			const ushort cpv = dlg->getCtrlUInt16(CTL_BCPRT_CP);
 			if(cpv == 1)
 				rec.Cp = cpOEM;
 			else
@@ -1607,12 +1607,12 @@ int SLAPI BarcodeLabelPrinter::PrintLabelByBill2(const PPBillPacket * pPack, uin
 				const double qtty = fabs(p_ti->SQtty(pPack->Rec.OpID));
 				if(bclpp.Flags & BarcodeLabelPrintParam::fPrintAll) {
 					GoodsStockExt gse;
-					num_copies = (int16)R0i(qtty + 0.49);
+					num_copies = static_cast<int16>(R0i(qtty + 0.49));
 					if(bclpp.Flags & BarcodeLabelPrintParam::fQttyAsPack) {
 						if(p_ti->UnitPerPack > 0)
-							num_copies = (int16)R0i(qtty / p_ti->UnitPerPack);
+							num_copies = static_cast<int16>(R0i(qtty / p_ti->UnitPerPack));
 						else if(gobj.GetStockExt(p_ti->GoodsID, &gse) > 0 && gse.Package > 0)
-							num_copies = (int16)R0i(qtty / gse.Package);
+							num_copies = static_cast<int16>(R0i(qtty / gse.Package));
 					}
 					if(num_copies <= 0)
 						num_copies = 1;
@@ -1715,12 +1715,12 @@ int SLAPI BarcodeLabelPrinter::PrintLabelByBill__(PPBillPacket * pPack, uint pos
 				const double qtty = fabs(p_ti->SQtty(pPack->Rec.OpID));
 				if(bclpp.Flags & BarcodeLabelPrintParam::fPrintAll) {
 					GoodsStockExt gse;
-					num_copies = (int16)R0i(qtty + 0.49);
+					num_copies = static_cast<int16>(R0i(qtty + 0.49));
 					if(bclpp.Flags & BarcodeLabelPrintParam::fQttyAsPack) {
 						if(p_ti->UnitPerPack > 0)
-							num_copies = (int16)R0i(qtty / p_ti->UnitPerPack);
+							num_copies = static_cast<int16>(R0i(qtty / p_ti->UnitPerPack));
 						else if(gobj.GetStockExt(p_ti->GoodsID, &gse) > 0 && gse.Package > 0)
-							num_copies = (int16)R0i(qtty / gse.Package);
+							num_copies = static_cast<int16>(R0i(qtty / gse.Package));
 					}
 					if(num_copies <= 0)
 						num_copies = 1;

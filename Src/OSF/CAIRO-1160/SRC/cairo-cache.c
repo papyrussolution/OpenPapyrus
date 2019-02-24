@@ -184,11 +184,9 @@ void _cairo_cache_thaw(cairo_cache_t * cache)
  * @key, (which will now be in *entry_return). %FALSE otherwise, (in
  * which case *entry_return will be %NULL).
  **/
-void * _cairo_cache_lookup(cairo_cache_t * cache,
-    cairo_cache_entry_t * key)
+void * _cairo_cache_lookup(cairo_cache_t * cache, cairo_cache_entry_t * key)
 {
-	return _cairo_hash_table_lookup(cache->hash_table,
-		   (cairo_hash_entry_t*)key);
+	return _cairo_hash_table_lookup(cache->hash_table, (cairo_hash_entry_t*)key);
 }
 
 /**
@@ -219,15 +217,13 @@ static cairo_bool_t _cairo_cache_remove_random(cairo_cache_t * cache)
  * cache->max_size. That is, make enough room to accommodate a new
  * entry of size @additional.
  **/
-static void _cairo_cache_shrink_to_accommodate(cairo_cache_t * cache,
-    ulong additional)
+static void _cairo_cache_shrink_to_accommodate(cairo_cache_t * cache, ulong additional)
 {
 	while(cache->size + additional > cache->max_size) {
 		if(!_cairo_cache_remove_random(cache))
 			return;
 	}
 }
-
 /**
  * _cairo_cache_insert:
  * @cache: a cache
@@ -240,24 +236,17 @@ static void _cairo_cache_shrink_to_accommodate(cairo_cache_t * cache,
  * Return value: %CAIRO_STATUS_SUCCESS if successful or
  * %CAIRO_STATUS_NO_MEMORY if insufficient memory is available.
  **/
-cairo_status_t _cairo_cache_insert(cairo_cache_t * cache,
-    cairo_cache_entry_t * entry)
+cairo_status_t _cairo_cache_insert(cairo_cache_t * cache, cairo_cache_entry_t * entry)
 {
 	cairo_status_t status;
-
 	if(entry->size && !cache->freeze_count)
 		_cairo_cache_shrink_to_accommodate(cache, entry->size);
-
-	status = _cairo_hash_table_insert(cache->hash_table,
-		(cairo_hash_entry_t*)entry);
+	status = _cairo_hash_table_insert(cache->hash_table, (cairo_hash_entry_t*)entry);
 	if(unlikely(status))
 		return status;
-
 	cache->size += entry->size;
-
 	return CAIRO_STATUS_SUCCESS;
 }
-
 /**
  * _cairo_cache_remove:
  * @cache: a cache
@@ -265,18 +254,13 @@ cairo_status_t _cairo_cache_insert(cairo_cache_t * cache,
  *
  * Remove an existing entry from the cache.
  **/
-void _cairo_cache_remove(cairo_cache_t * cache,
-    cairo_cache_entry_t * entry)
+void _cairo_cache_remove(cairo_cache_t * cache, cairo_cache_entry_t * entry)
 {
 	cache->size -= entry->size;
-
-	_cairo_hash_table_remove(cache->hash_table,
-	    (cairo_hash_entry_t*)entry);
-
+	_cairo_hash_table_remove(cache->hash_table, (cairo_hash_entry_t*)entry);
 	if(cache->entry_destroy)
 		cache->entry_destroy(entry);
 }
-
 /**
  * _cairo_cache_foreach:
  * @cache: a cache
@@ -286,16 +270,12 @@ void _cairo_cache_remove(cairo_cache_t * cache,
  * Call @cache_callback for each entry in the cache, in a
  * non-specified order.
  **/
-void _cairo_cache_foreach(cairo_cache_t * cache,
-    cairo_cache_callback_func_t cache_callback,
-    void * closure)
+void _cairo_cache_foreach(cairo_cache_t * cache, cairo_cache_callback_func_t cache_callback, void * closure)
 {
-	_cairo_hash_table_foreach(cache->hash_table,
-	    cache_callback,
-	    closure);
+	_cairo_hash_table_foreach(cache->hash_table, cache_callback, closure);
 }
 
-ulong _cairo_hash_string(const char * c)
+ulong FASTCALL _cairo_hash_string(const char * c)
 {
 	/* This is the djb2 hash. */
 	ulong hash = _CAIRO_HASH_INIT_VALUE;
@@ -304,7 +284,7 @@ ulong _cairo_hash_string(const char * c)
 	return hash;
 }
 
-ulong _cairo_hash_bytes(ulong hash, const void * ptr, uint length)
+ulong FASTCALL _cairo_hash_bytes(ulong hash, const void * ptr, uint length)
 {
 	const uint8_t * bytes = (const uint8_t *)ptr;
 	/* This is the djb2 hash. */

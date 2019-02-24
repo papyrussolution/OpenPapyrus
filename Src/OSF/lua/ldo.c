@@ -506,7 +506,7 @@ static void finishCcall(lua_State * L, int status) {
 */
 static void unroll(lua_State * L, void * ud) {
 	if(ud != NULL) /* error status? */
-		finishCcall(L, *(int*)ud); /* finish 'lua_pcallk' callee */
+		finishCcall(L, *(int *)ud); /* finish 'lua_pcallk' callee */
 	while(L->ci != &L->base_ci) { /* something in the stack */
 		if(!isLua(L->ci)) /* C function? */
 			finishCcall(L, LUA_YIELD); /* complete its execution */
@@ -637,12 +637,13 @@ LUA_API int lua_resume(lua_State * L, lua_State * from, int nargs) {
 	return status;
 }
 
-LUA_API int lua_isyieldable(lua_State * L) {
+LUA_API int lua_isyieldable(lua_State * L) 
+{
 	return (L->nny == 0);
 }
 
-LUA_API int lua_yieldk(lua_State * L, int nresults, lua_KContext ctx,
-    lua_KFunction k) {
+LUA_API int lua_yieldk(lua_State * L, int nresults, lua_KContext ctx, lua_KFunction k) 
+{
 	CallInfo * ci = L->ci;
 	luai_userstateyield(L, nresults);
 	lua_lock(L);

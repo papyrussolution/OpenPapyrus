@@ -1865,27 +1865,20 @@ PIXMAN_EXPORT pixman_bool_t PREFIX(_subtract) (region_type_t *reg_d,
  *
  *-----------------------------------------------------------------------
  */
-PIXMAN_EXPORT pixman_bool_t PREFIX(_inverse) (region_type_t *new_reg,  /* Destination region */
-    region_type_t *reg1,                    /* Region to invert */
-    box_type_t *   inv_rect)                /* Bounding box for inversion */
+PIXMAN_EXPORT pixman_bool_t PREFIX(_inverse) (region_type_t *new_reg/* Destination region */, region_type_t *reg1/* Region to invert */, box_type_t * inv_rect/* Bounding box for inversion */)
 {
-	region_type_t inv_reg; /* Quick and dirty region made from the
-	               * bounding box */
+	region_type_t inv_reg; // Quick and dirty region made from the bounding box 
 	GOOD(reg1);
 	GOOD(new_reg);
-
 	/* check for trivial rejects */
 	if(PIXREGION_NIL(reg1) || !EXTENTCHECK(inv_rect, &reg1->extents)) {
 		if(PIXREGION_NAR(reg1))
 			return pixman_break(new_reg);
-
 		new_reg->extents = *inv_rect;
 		FREE_DATA(new_reg);
 		new_reg->data = (region_data_type_t*)NULL;
-
 		return TRUE;
 	}
-
 	/* Add those rectangles in region 1 that aren't in region 2,
 	 * do yucky subtraction for overlaps, and
 	 * just throw away rectangles in region 2 that aren't in region 1

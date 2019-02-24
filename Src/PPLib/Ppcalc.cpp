@@ -474,7 +474,7 @@ int CalcPriceDialog::setDTS(const CalcPriceParam * pData)
 	setupPrice();
 	disableCtrl(CTL_CALCPRICE_COST, 1);
 	selectCtrl(CTL_CALCPRICE_PERCENT);
-	TInputLine * p_il = (TInputLine *)getCtrlView(CTL_CALCPRICE_PERCENT);
+	TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_CALCPRICE_PERCENT));
 	CALLPTRMEMB(p_il, selectAll(1));
 	return 1;
 }
@@ -606,7 +606,7 @@ int SLAPI PPCalculator(void * hParentWnd, const char * pInitData)
 						{
 							calc();
 							if(Err) {
-								TInputLine * il = (TInputLine*)getCtrlView(CTL_CALC_RESULT);
+								TInputLine * il = static_cast<TInputLine *>(getCtrlView(CTL_CALC_RESULT));
 								if(il) {
 									il->setText("Error");
 									il->selectAll(true);
@@ -647,8 +647,8 @@ int SLAPI PPCalculator(void * hParentWnd, const char * pInitData)
 		}
 		void   memToInput()
 		{
-			TInputLine * mil = (TInputLine*)getCtrlView(CTL_CALC_MEMVIEW);
-			TInputLine * iil = (TInputLine*)getCtrlView(CTL_CALC_INPUT);
+			TInputLine * mil = static_cast<TInputLine *>(getCtrlView(CTL_CALC_MEMVIEW));
+			TInputLine * iil = static_cast<TInputLine *>(getCtrlView(CTL_CALC_INPUT));
 			if(mil && iil) {
 				SString input, mem;
 				size_t pos = iil->getCaret();
@@ -875,7 +875,7 @@ PosPaymentBlock & PosPaymentBlock::Clear()
 	return *this;
 }
 
-PosPaymentBlock & PosPaymentBlock::Init(CPosProcessor * pCpp)
+PosPaymentBlock & PosPaymentBlock::Init(const CPosProcessor * pCpp)
 {
 	assert(pCpp);
 	Clear();

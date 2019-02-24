@@ -2261,12 +2261,12 @@ public:
 		}
 		{
 			ArticleCtrlGroup::Rec ar_grp_rec(0, Data.OpID, Data.ArID);
-			ArticleCtrlGroup * p_ar_grp = (ArticleCtrlGroup *)getGroup(ctlgroupBtranAr);
+			ArticleCtrlGroup * p_ar_grp = static_cast<ArticleCtrlGroup *>(getGroup(ctlgroupBtranAr));
 			setGroupData(ctlgroupBtranAr, &ar_grp_rec);
 		}
 		{
 			ArticleCtrlGroup::Rec ar2_grp_rec(0, Data.OpID, Data.Ar2ID);
-			ArticleCtrlGroup * p_ar2_grp = (ArticleCtrlGroup *)getGroup(ctlgroupBtranAr2);
+			ArticleCtrlGroup * p_ar2_grp = static_cast<ArticleCtrlGroup *>(getGroup(ctlgroupBtranAr2));
 			setGroupData(ctlgroupBtranAr2, &ar2_grp_rec);
 		}
 		SetupCtrls();

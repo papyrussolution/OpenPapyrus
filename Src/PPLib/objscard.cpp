@@ -533,8 +533,7 @@ int SLAPI PPSCardSerPacket::Normalize()
 		//
 		PPObjQuotKind qk_obj;
 		PPQuotKind qk_rec;
-		PPObjQuotKind::Special qk_spc;
-		qk_obj.GetSpecialKinds(&qk_spc, 1);
+		const PPObjQuotKind::Special qk_spc(PPObjQuotKind::Special::ctrInitializeWithCache);
 		for(uint i = 0; i < QuotKindList_.getCount(); i++) {
 			const PPID qk_id = QuotKindList_.get(i);
 			if(qk_id && qk_obj.Fetch(qk_id, &qk_rec) > 0 && qk_spc.GetCategory(qk_id) == PPQC_PRICE)
@@ -1912,7 +1911,7 @@ int SLAPI PPObjSCard::Helper_GetListBySubstring(const char * pSubstr, PPID serie
 	PPIDArray * p_list = 0;
 	StrAssocArray * p_str_list = 0;
 	if(flags & clsfStrList)
-		p_str_list = (StrAssocArray *)pList;
+		p_str_list = static_cast<StrAssocArray *>(pList);
 	else
 		p_list = (PPIDArray *)pList;
 	if(substr_len) {
@@ -1931,7 +1930,7 @@ int SLAPI PPObjSCard::Helper_GetListBySubstring(const char * pSubstr, PPID serie
 			if(seriesID) {
 				q.Cat("SERIES").CatParStr(temp_buf.Z().Cat(seriesID)).Space();
 			}
-			q.Cat("FORMAT").Dot().Cat("BIN").CatParStr((const char *)0);
+			q.Cat("FORMAT").Dot().Cat("BIN").CatParStr(static_cast<const char *>(0));
 			PPJobSrvReply reply;
 			if(p_cli->Exec(q, reply)) {
 				THROW(reply.StartReading(0));

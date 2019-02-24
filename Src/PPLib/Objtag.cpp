@@ -2323,7 +2323,7 @@ int FASTCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const 
 			else if(event.isKeyDown(kbF2)) {
 				const uint ctl_id = GetCurrId();
 				if(oneof2(ctl_id, CTL_TAGV_LINK, CTLSEL_TAGV_LINK)) {
-					ComboBox * p_combo = (ComboBox *)getCtrlView(CTLSEL_TAGV_LINK);
+					ComboBox * p_combo = static_cast<ComboBox *>(getCtrlView(CTLSEL_TAGV_LINK));
 					if(p_combo && Item.TagDataType == OTTYP_OBJLINK) {
 						PPObjTag tag_obj;
 						PPObjectTag tag;

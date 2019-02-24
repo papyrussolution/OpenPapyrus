@@ -203,7 +203,7 @@ int TIFFYCbCrToRGBInit(TIFFYCbCrToRGB* ycbcr, float * luma, float * refBlackWhit
 	for(i = 0; i < 256; i++)
 		clamptab[i] = (TIFFRGBValue)i;
 	memset(clamptab+256, 255, 2*256); /* v > 255 => 255 */
-	ycbcr->Cr_r_tab = (int*)(clamptab + 3*256);
+	ycbcr->Cr_r_tab = (int *)(clamptab + 3*256);
 	ycbcr->Cb_b_tab = ycbcr->Cr_r_tab + 256;
 	ycbcr->Cr_g_tab = (int32*)(ycbcr->Cb_b_tab + 256);
 	ycbcr->Cb_g_tab = ycbcr->Cr_g_tab + 256;

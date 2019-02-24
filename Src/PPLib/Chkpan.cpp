@@ -949,7 +949,8 @@ void CPosProcessor::GetTblOrderList(LDATE lastDate, TSVector <CCheckViewItem> & 
 CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOuterPack, int isTouchScreen) : CashNodeID(cashNodeID),
 	P_CcView(0), P_TSesObj(0), P_EgPrc(0), P_CM(0), P_CM_EXT(0), P_CM_ALT(0), P_GTOA(0), P_ChkPack(pOuterPack), P_DivGrpList(0),
 	Flags(0), EgaisMode(0), BonusMaxPart(1.0), OperRightsFlags(0), OrgOperRights(0), SuspCheckID(0), CheckID(checkID), AuthAgentID(0),
-	AbstractGoodsID(0)
+	AbstractGoodsID(0), ExtCnLocID(0), ExtCashNodeID(0), AltRegisterID(0), TouchScreenID(0), ScaleID(0), CnPhnSvcID(0), UiFlags(0), 
+	State_p(0), LastGrpListUpdTime(ZERODATETIME)
 {
 	OuterOi.Set(0, 0);
 	MEMSZERO(R);
@@ -982,11 +983,8 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 		CASHF_SHOWREST | CASHF_KEYBOARDWKEY | CASHF_WORKWHENLOCK | CASHF_DISABLEZEROAGENT |
 		CASHF_UNIFYGDSATCHECK | CASHF_UNIFYGDSTOPRINT | CASHF_CHECKFORPRESENT | CASHF_ABOVEZEROSALE | CASHF_SYNC | CASHF_SKIPUNPRINTEDCHECKS); // @v10.2.4 CASHF_SKIPUNPRINTEDCHECKS
 	CnExtFlags = cn_rec.ExtFlags;
-	CnSpeciality = (long)cn_rec.Speciality;
+	CnSpeciality = static_cast<long>(cn_rec.Speciality);
 	CnLocID = cn_rec.LocID;
-	ExtCnLocID     = 0;
-	ExtCashNodeID  = 0;
-	AltRegisterID  = 0; // @v9.6.9
 	{
 		SVector temp_list(sizeof(PPGenCashNode::DivGrpAssc)); // @v9.8.9 SArray-->SVector
 		if(PPRef->GetPropArray(PPOBJ_CASHNODE, CashNodeID, CNPRP_DIVGRPASSC, &temp_list) > 0 && temp_list.getCount())
@@ -1111,7 +1109,7 @@ int CPosProcessor::CDispCommand(int cmd, int iVal, double rv1, double rv2)
 int CPosProcessor::Implement_AcceptCheckOnEquipment(const CcAmountList * pPl, AcceptCheckProcessBlock & rB)
 	{ return 1; }
 // virtual
-int CPosProcessor::NotifyGift(PPID giftID, SaGiftArray::Gift * pGift)
+int CPosProcessor::NotifyGift(PPID giftID, const SaGiftArray::Gift * pGift)
 	{ return -1; }
 // virtual
 void CPosProcessor::SetPrintedFlag(int set)
@@ -3922,7 +3920,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 			else if(Input.CmpPrefix("DIV", 1) == 0) {
 				int    div = Input.ShiftLeft(3).ToLong();
 				if(P.HasCur() && P.GetCur().GoodsID && (div > 0 && div < 1000)) {
-					P.GetCur().Division = (int16)div;
+					P.GetCur().Division = static_cast<int16>(div);
 					SetupInfo(0);
 				}
 				ClearInput(0);
@@ -4553,7 +4551,7 @@ private:
 		SetupItemList();
 		if(State & stSelectFormat) {
 			ListWindow * p_lw = 0;
-			ComboBox   * p_cb = (ComboBox*)getCtrlView(CTLSEL_SELCHECK_FORMAT);
+			ComboBox   * p_cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_SELCHECK_FORMAT));
 			if(p_cb && pCm && pCm->GetSlipFormatList(&FmtList, BIN(State & stSelectSlipFormat)) > 0) {
 				ListWindow * p_lw = new ListWindow(new StrAssocListBoxDef(&FmtList, /*lbtDisposeData |*/ lbtDblClkNotify), 0, 0);
 				long   fmt_id = 0;
@@ -5081,7 +5079,7 @@ int SelCheckListDialog::SplitCheck()
 								CCheckLineTbl::Rec chk_item;
 								MEMSZERO(chk_item);
 								chk_item.GoodsID  = p_item->GoodsID;
-								chk_item.DivID    = (int16)p_item->DivID;
+								chk_item.DivID    = static_cast<int16>(p_item->DivID);
 								chk_item.Price    = dbltointmny(p_item->Price);
 								chk_item.Dscnt    = p_item->Discount;
 								chk_item.Quantity = p_item->Quantity;
@@ -5091,7 +5089,7 @@ int SelCheckListDialog::SplitCheck()
 								CCheckLineTbl::Rec chk_item;
 								MEMSZERO(chk_item);
 								chk_item.GoodsID  = p_item->GoodsID;
-								chk_item.DivID    = (int16)p_item->DivID;
+								chk_item.DivID    = static_cast<int16>(p_item->DivID);
 								chk_item.Price    = dbltointmny(p_item->Price);
 								chk_item.Dscnt    = p_item->Discount;
 								chk_item.Quantity = p_item->Quantity;
@@ -5838,7 +5836,7 @@ private:
 			SETIFZ(Data.DlvrDtm.d, getcurdate_());
 			setCtrlDate(CTL_CCHKDLVR_DT, Data.DlvrDtm.d);
 			setCtrlTime(CTL_CCHKDLVR_TM, Data.DlvrDtm.t);
-			ComboBox * p_cb = (ComboBox *)getCtrlView(CTLSEL_CCHKDLVR_SCARD);
+			ComboBox * p_cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_CCHKDLVR_SCARD));
 			if(PersonID && p_cb) {
 				PPIDArray sc_list;
 				ScObj.P_Tbl->GetListByPerson(PersonID, 0, &sc_list);
@@ -6821,32 +6819,32 @@ void CheckPaneDialog::DrawListItem(TDrawItemData * pDrawItem)
 					if(p_lbx && p_lbx->def) {
 						uint   pos = 0;
 						const  void * p_row_data = p_lbx->def->getRow_((long)pDrawItem->ItemData);
-						PPID   grp_id = p_row_data ? *(long *)p_row_data : 0;
+						PPID   grp_id = p_row_data ? *static_cast<const long *>(p_row_data) : 0;
 						if(GroupList.Get(grp_id, &pos))
 							gli = GroupList.at(pos);
 					}
-					h_fnt_def = (HFONT)SelectObject(h_dc, Ptb.Get(fontGoodsList));
+					h_fnt_def = static_cast<HFONT>(SelectObject(h_dc, Ptb.Get(fontGoodsList)));
 					p_lbx->getText((long)pDrawItem->ItemData, temp_buf);
 					temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 					if(pDrawItem->ItemState & (ODS_FOCUS | ODS_SELECTED)) {
 						clr_prev = SetBkColor(h_dc, Ptb.GetColor(clrFocus));
-						h_br_def = (HBRUSH)SelectObject(h_dc, Ptb.Get(brGrpSel));
+						h_br_def = static_cast<HBRUSH>(SelectObject(h_dc, Ptb.Get(brGrpSel)));
 						if(UiFlags & uifTSGGroupsAsButtons) {
 							SInflateRect(rc, -1, -(1 + GoodsListEntryGap / 4));
 							RoundRect(h_dc, rc.left, rc.top, rc.right, rc.bottom, 6, 6);
 						}
 						else
-							FillRect(h_dc, &rc, (HBRUSH)Ptb.Get(brGrpSel));
+							FillRect(h_dc, &rc, static_cast<HBRUSH>(Ptb.Get(brGrpSel)));
 					}
 					else {
 						clr_prev = SetBkColor(h_dc, Ptb.GetColor((gli.Flags & GrpListItem::fFolder) ? clrParent : clrGrp));
-						h_br_def = (HBRUSH)SelectObject(h_dc, Ptb.Get((gli.Flags & GrpListItem::fFolder) ? brGrpParent : brGrp));
+						h_br_def = static_cast<HBRUSH>(SelectObject(h_dc, Ptb.Get((gli.Flags & GrpListItem::fFolder) ? brGrpParent : brGrp)));
 						if(UiFlags & uifTSGGroupsAsButtons) {
 							SInflateRect(rc, -1, -(1 + GoodsListEntryGap / 4));
 							RoundRect(h_dc, rc.left, rc.top, rc.right, rc.bottom, 6, 6);
 						}
 						else
-							FillRect(h_dc, &rc, (HBRUSH)Ptb.Get((gli.Flags & GrpListItem::fFolder) ? brGrpParent : brGrp));
+							FillRect(h_dc, &rc, static_cast<HBRUSH>(Ptb.Get((gli.Flags & GrpListItem::fFolder) ? brGrpParent : brGrp)));
 					}
 					rc.left += gli.Level * 24 + ((UiFlags & uifTSGGroupsAsButtons) ? 4 : 0);
 					::DrawText(h_dc, temp_buf.cptr(), temp_buf.Len(), &rc, DT_LEFT|DT_VCENTER|DT_SINGLELINE); // @unicodeproblem
@@ -7052,7 +7050,7 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 					PPGetWord(PPWORD_GROUP, 0, grp_name).CatDiv(':', 2).Cat(grp_rec.Name);
 				else
 					grp_name.Z();
-				p_def = GObj.Selector((void *)selGroupID);
+				p_def = GObj.Selector(reinterpret_cast<void *>(selGroupID));
 				PPWait(0);
 			}
 			if(!(Flags & fNoEdit)) {
@@ -7083,7 +7081,7 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 				}
 			//
 			SmartListBox * p_grp_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_GRPLIST));
-			ListBoxDef * p_def = p_grp_list ? (ListBoxDef *)p_grp_list->def : 0;
+			ListBoxDef * p_def = p_grp_list ? static_cast<ListBoxDef *>(p_grp_list->def) : 0;
 			if(p_grp_list && p_def) {
 				int    sav_pos = (int)p_def->_curItem();
 				int    focus_item_found = 0;
@@ -7204,6 +7202,9 @@ void CheckPaneDialog::setupHint()
 			hint_list[hint_count++] = 6;
 			hint_list[hint_count++] = 7;
 			hint_list[hint_count++] = 8;
+			break;
+		default: // @v10.3.5
+			memzero(hint_list, sizeof(hint_list));
 			break;
 	}
 	{
@@ -8274,7 +8275,7 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 	THROW(r);
 	if(p_ary->getCount()) {
 		THROW_MEM(p_brw = new SelLotBrowser(p_bobj, p_ary, s, 0)); // @newok
-		if(ExecView(p_brw) == cmOK && (p_sel = (SelLotBrowser::Entry *)p_brw->view->getCurItem()) != 0) {
+		if(ExecView(p_brw) == cmOK && (p_sel = static_cast<SelLotBrowser::Entry *>(p_brw->view->getCurItem())) != 0) {
 			if(strip(p_sel->Serial)[0] != 0) {
 				ASSIGN_PTR(pPrice, p_sel->Price);
 				rSerial = p_sel->Serial;
@@ -8916,7 +8917,7 @@ void CheckPaneDialog::AcceptDivision()
 	if(P.HasCur() && P.GetCur().GoodsID && is_input && Input.IsDigit()) {
 		long  div = Input.ToLong();
 		if(div > 0 && div < 1000) {
-			P.GetCur().Division = (int16)div;
+			P.GetCur().Division = static_cast<int16>(div);
 			SetupRowData(0);
 		}
 	}
@@ -9760,23 +9761,23 @@ IMPL_HANDLE_EVENT(SCardInfoDialog)
 				double saldo = getCtrlReal(CTL_SCARDVIEW_SALDO);
 				::SetBkMode(p_dc->H_DC, TRANSPARENT);
 				::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
+				int  br_ident = brRed; // default color
 				if(Mode == modeMovCrd)
-					p_dc->H_Br = (HBRUSH)Ptb.Get(brMovCrdRest);
+					br_ident = brMovCrdRest;
 				else if(!(LocalState & stCreditCard) || saldo > 0.0)
-					p_dc->H_Br = (HBRUSH)Ptb.Get(brGreen);
-				else
-					p_dc->H_Br = (HBRUSH)Ptb.Get(brRed);
+					br_ident = brGreen;
+				p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(br_ident));
 	 		}
 			else if(p_dc && getCtrlHandle(CTL_SCARDVIEW_SCINFO) == p_dc->H_Ctl) {
 				if(LocalState & stWarnCardInfo) {
 					::SetBkMode(p_dc->H_DC, TRANSPARENT);
 					::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
-					p_dc->H_Br = (HBRUSH)Ptb.Get(brRed);
+					p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brRed));
 				}
 				else if(LocalState & stNeedActivation) {
 					::SetBkMode(p_dc->H_DC, TRANSPARENT);
 					::SetTextColor(p_dc->H_DC, GetColorRef(SClrBlack));
-					p_dc->H_Br = (HBRUSH)Ptb.Get((LocalState & stAutoActivation) ? brOrange : brYellow);
+					p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get((LocalState & stAutoActivation) ? brOrange : brYellow));
 				}
 				else
 					return;
@@ -10177,7 +10178,7 @@ void CheckPaneDialog::AcceptSCard(int fromInput, PPID scardID, int ignoreRights)
 												LDATE   dob_dt = ZERODATE;
 												if(tag_item.GetDate(&dob_dt)) {
 													PPLoadText(PPTXT_CLIBIRTHDAY, temp_buf);
-													PPFormat(temp_buf, &msg_buf, psn_rec.Name, (int)(getcurdate_().year() - dob_dt.year()));
+													PPFormat(temp_buf, &msg_buf, psn_rec.Name, (getcurdate_().year() - dob_dt.year()));
 													PPTooltipMessage(msg_buf, 0, H(), 10000, GetColorRef(SClrPink),
 														SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
 												}
@@ -10358,7 +10359,7 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 void CheckPaneDialog::ClearInput(int selectOnly)
 {
 	if(selectOnly) {
-		TInputLine * p_il = (TInputLine*)getCtrlView(CTL_CHKPAN_INPUT);
+		TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_CHKPAN_INPUT));
 		CALLPTRMEMB(p_il, selectAll(true));
 	}
 	else {
@@ -10381,7 +10382,7 @@ int CheckPaneDialog::GetInput()
 {
 	UiFlags &= ~uifAutoInput;
 	getCtrlString(CTL_CHKPAN_INPUT, Input);
-	TInputLine * p_il = (TInputLine *)getCtrlView(CTL_CHKPAN_INPUT);
+	TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_CHKPAN_INPUT));
 	if(p_il) {
 		TInputLine::Statistics stat;
 		p_il->GetStatistics(&stat);
@@ -10401,7 +10402,7 @@ void CheckPaneDialog::SetInput(const char * pStr)
 }
 
 // virtual
-int CheckPaneDialog::NotifyGift(PPID giftID, SaGiftArray::Gift * pGift)
+int CheckPaneDialog::NotifyGift(PPID giftID, const SaGiftArray::Gift * pGift)
 {
 	SString msg_buf, fmt_buf, goods_name;
 	if(giftID > 0) {
@@ -11049,7 +11050,7 @@ int CheckPaneDialog::TestCheck(CheckPaymMethod paymMethod)
 			pack.Rec.SessID = P_CM->GetCurSessID();
 			THROW(P_CM->TestPrintCheck(&pack));
 		}
-		if(is_ext_pack) {
+		if(is_ext_pack && P_CM_EXT) { // @v10.3.5 (&& P_CM_EXT)
 			ext_pack.Rec.SessID = P_CM_EXT->GetCurSessID();
 			THROW(P_CM_EXT->TestPrintCheck(&ext_pack));
 		}
@@ -12068,7 +12069,7 @@ void InfoKioskDialog::UpdateGList(int updGdsList)
 			PPID  cur_id = 0;
 			SmartListBox * p_tree_list = static_cast<SmartListBox *>(getCtrlView(CTL_INFKIOSK_GRPLIST));
 			p_tree_list->def->getCurID(&cur_id);
-			if(((StdTreeListBoxDef *)p_tree_list->def)->HasChild(cur_id))
+			if(static_cast<StdTreeListBoxDef *>(p_tree_list->def)->HasChild(cur_id))
 				updGdsList = 0;
 			else
 				SelGoodsGrpID = cur_id;
@@ -12108,7 +12109,7 @@ void InfoKioskDialog::UpdateGList(int updGdsList)
 					PPGetWord(PPWORD_GROUP, 0, grp_name).CatDiv(':', 2).Cat(grp_rec.Name);
 				else
 					grp_name.Z();
-				p_def = GObj.Selector((void *)SelGoodsGrpID);
+				p_def = GObj.Selector(reinterpret_cast<void *>(SelGoodsGrpID));
 			}
 			p_list->setDef(p_def);
 			CALLPTRMEMB(p_list->def, SetOption(lbtSelNotify, 1));
@@ -12506,7 +12507,7 @@ public:
 	};
 	PrcssrCCheckGenerator();
 	~PrcssrCCheckGenerator();
-	int    Init(Param * pParam);
+	int    Init(const Param * pParam);
 	int    Run();
 private:
 	Param P;
@@ -12535,7 +12536,7 @@ PrcssrCCheckGenerator::~PrcssrCCheckGenerator()
 	delete P_RngCount;
 }
 
-int PrcssrCCheckGenerator::Init(Param * pParam)
+int PrcssrCCheckGenerator::Init(const Param * pParam)
 {
 	int    ok = 1;
 	GoodsList.clear();

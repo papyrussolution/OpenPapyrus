@@ -755,10 +755,9 @@ static cairo_status_t _cairo_win32_printing_surface_paint_image_pattern(cairo_wi
 		return status;
 	use_mime = (status == CAIRO_INT_STATUS_SUCCESS);
 	if(!use_mime && image->format != CAIRO_FORMAT_RGB24) {
-		cairo_surface_t * opaque_surface;
 		cairo_surface_pattern_t image_pattern;
 		cairo_solid_pattern_t background_pattern;
-		opaque_surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, image->width, image->height);
+		cairo_surface_t * opaque_surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, image->width, image->height);
 		if(opaque_surface->status) {
 			status = opaque_surface->status;
 			goto CLEANUP_OPAQUE_IMAGE;

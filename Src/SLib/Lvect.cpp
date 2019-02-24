@@ -657,7 +657,7 @@ int inverse(LMatrix & a)
 // and can be left in place for successive colls with different
 // right-hand sides b.
 //
-void lubksb(LMatrix & a, LMIDX indx[/*b.size()*/], LVect & b)
+void lubksb(LMatrix & a, const LMIDX indx[/*b.size()*/], LVect & b)
 {
 	LMIDX ii = -1, j;
 	double sum;

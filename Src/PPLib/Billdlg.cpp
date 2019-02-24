@@ -385,7 +385,7 @@ int SLAPI BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagL
 		SetupArCombo(dlg, CTLSEL_BILLEXT_AGENT, pData->AgentID, OLW_CANINSERT|OLW_LOADDEFONOPEN, agent_acs_id, sacfDisableIfZeroSheet|sacfNonGeneric);
 		if(!asFilt) {
 			if(pPack) {
-				ComboBox * p_agt_combo = (ComboBox *)dlg->getCtrlView(CTLSEL_BILLEXT_AGREEMENT);
+				ComboBox * p_agt_combo = static_cast<ComboBox *>(dlg->getCtrlView(CTLSEL_BILLEXT_AGREEMENT));
 				if(p_agt_combo) {
 					PPIDArray agt_list;
 					if(pData->AgtBillID || pPack->Rec.Object) {
@@ -784,7 +784,7 @@ BillDialog::BillDialog(uint dlgID, PPBillPacket * pPack, int isEdit) : PPListDia
 	PPSetupCtrlMenu(this, CTL_BILL_DOC, CTLMNU_BILL_DOC, CTRLMENU_BILLNUMBER);
 	PPSetupCtrlMenu(this, CTL_BILL_PAYDATE, CTLMNU_BILL_PAYDATE, CTRLMENU_BILLPAYDATE);
 	{
-		TInputLine * p_memo_input = (TInputLine *)getCtrlView(CTL_BILL_MEMO);
+		TInputLine * p_memo_input = static_cast<TInputLine *>(getCtrlView(CTL_BILL_MEMO));
 		if(p_memo_input) {
 			PPSetupCtrlMenu(this, CTL_BILL_MEMO, CTLMNU_BILL_MEMO, CTRLMENU_BILLMEMO);
 			p_memo_input->setFormat(MKSFMT(sizeof(pPack->Rec.Memo), 0));
@@ -3186,7 +3186,7 @@ int SLAPI PPObjBill::EditFreightDialog(PPBillPacket * pPack)
 					else if(IsIntrOp(P_Pack->Rec.OpID) == INTREXPND) {
 						PPID   loc_id = PPObjLocation::ObjToWarehouse(P_Pack->Rec.Object);
 						if(loc_id || Data.DlvrAddrID) {
-							ComboBox * p_combo = (ComboBox *)getCtrlView(CTLSEL_FREIGHT_DLVRLOC);
+							ComboBox * p_combo = static_cast<ComboBox *>(getCtrlView(CTLSEL_FREIGHT_DLVRLOC));
 							if(p_combo) {
 								PPObjLocation loc_obj;
 								SString temp_buf;

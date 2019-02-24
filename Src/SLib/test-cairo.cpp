@@ -305,8 +305,7 @@ done:
 	return ref_name;
 }
 
-cairo_test_similar_t cairo_test_target_has_similar(const cairo_test_context_t * ctx,
-    const cairo_boilerplate_target_t * target)
+cairo_test_similar_t cairo_test_target_has_similar(const cairo_test_context_t * ctx, const cairo_boilerplate_target_t * target)
 {
 	cairo_surface_t * surface;
 	cairo_test_similar_t has_similar;
@@ -315,29 +314,18 @@ cairo_test_similar_t cairo_test_target_has_similar(const cairo_test_context_t * 
 	cairo_status_t status;
 	void * closure;
 	char * path;
-
 	/* ignore image intermediate targets */
 	if(target->expected_type == CAIRO_SURFACE_TYPE_IMAGE)
 		return DIRECT;
-
 	if(getenv("CAIRO_TEST_IGNORE_SIMILAR"))
 		return DIRECT;
-
-	xasprintf(&path, "%s/%s",
-	    cairo_test_mkdir(ctx->output) ? ctx->output : ".",
-	    ctx->test_name);
-
+	xasprintf(&path, "%s/%s", cairo_test_mkdir(ctx->output) ? ctx->output : ".", ctx->test_name);
 	has_similar = DIRECT;
 	do {
 		do {
-			surface = (target->create_surface)(path,
-			    target->content,
-			    ctx->test->width,
-			    ctx->test->height,
-			    ctx->test->width* NUM_DEVICE_SCALE + 25 * NUM_DEVICE_OFFSETS,
-			    ctx->test->height* NUM_DEVICE_SCALE + 25 * NUM_DEVICE_OFFSETS,
-			    CAIRO_BOILERPLATE_MODE_TEST,
-			    &closure);
+			surface = (target->create_surface)(path, target->content, ctx->test->width, ctx->test->height,
+			    ctx->test->width* NUM_DEVICE_SCALE + 25 * NUM_DEVICE_OFFSETS, ctx->test->height* NUM_DEVICE_SCALE + 25 * NUM_DEVICE_OFFSETS,
+			    CAIRO_BOILERPLATE_MODE_TEST, &closure);
 			if(surface == NULL)
 				goto out;
 		} while(cairo_test_malloc_failure(ctx, cairo_surface_status(surface)));
@@ -355,25 +343,20 @@ cairo_test_similar_t cairo_test_target_has_similar(const cairo_test_context_t * 
 			has_similar = SIMILAR;
 		else
 			has_similar = DIRECT;
-
 		cairo_destroy(cr);
 		cairo_surface_destroy(surface);
-
 		if(target->cleanup)
 			target->cleanup(closure);
 	} while(!has_similar && cairo_test_malloc_failure(ctx, status));
 out:
 	free(path);
-
 	return has_similar;
 }
 
-static cairo_surface_t * _cairo_test_flatten_reference_image(cairo_test_context_t * ctx,
-    cairo_bool_t flatten)
+static cairo_surface_t * _cairo_test_flatten_reference_image(cairo_test_context_t * ctx, cairo_bool_t flatten)
 {
 	cairo_surface_t * surface;
 	cairo_t * cr;
-
 	if(!flatten)
 		return ctx->ref_image;
 

@@ -95,7 +95,7 @@ int SLAPI PPTransferItem::Init(const BillTbl::Rec * pBillRec, int zeroRByBill, i
 		Date     = pBillRec->Dt;
 		BillID   = pBillRec->ID;
 		LocID    = pBillRec->LocID;
-		CurID    = (int16)pBillRec->CurID;
+		CurID    = static_cast<int16>(pBillRec->CurID);
 		const int noupdlotrest = BIN(CheckOpFlags(op_id, OPKF_NOUPDLOTREST) && CConfig.Flags & CCFLG_USENOUPDRESTOPFLAG);
 		SETFLAG(Flags, PPTFR_SELLING, IsSellingOp(op_id) > 0);
 		SETFLAG(Flags, PPTFR_RECEIPT, (oneof2(op_type_id, PPOPT_GOODSORDER, PPOPT_GOODSRECEIPT) ||
@@ -273,7 +273,7 @@ double FASTCALL PPTransferItem::SQtty(PPID op) const
 	double result = 0.0;
 	if(IsCorrectionExp())
 		result = GetEffCorrectionExpQtty();
-	else if(Flags & PPTFR_REVAL && !(Flags & PPTFR_CORRECTION)) // @v7.8.10 && !(Flags & PPTFR_CORRECTION)
+	else if(Flags & PPTFR_REVAL && !(Flags & PPTFR_CORRECTION))
 		result = Rest_;
 	else {
 		const int _s = GetSign(op);
@@ -291,7 +291,7 @@ void FASTCALL PPTransferItem::SetupSign(PPID op)
 	if(IsCorrectionExp()) {
 		;
 	}
-	else if(!(Flags & PPTFR_REVAL) || (Flags & PPTFR_CORRECTION)) { // @v7.8.10 || (Flags & PPTFR_CORRECTION)
+	else if(!(Flags & PPTFR_REVAL) || (Flags & PPTFR_CORRECTION)) {
 		Quantity_ = SQtty(op);
 		if(Flags & PPTFR_INDEPPHQTTY)
 			WtQtty = (GetSign(op) >= 0) ? fabs(WtQtty) : -fabs(WtQtty);

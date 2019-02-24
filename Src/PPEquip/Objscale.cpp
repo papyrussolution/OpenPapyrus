@@ -4335,7 +4335,7 @@ void ScaleDialog::ReplyScaleTypeSelection(PPID scaleTypeID)
 {
 	GetClusterData(CTL_SCALE_FLAGS, &Data.Flags);
 	int    use_exp_paths = BIN(scaleTypeID == PPSCLT_CRCSHSRV || (!(Data.Flags & SCALF_TCPIP) && scaleTypeID == PPSCLT_DIGI));
-	TCluster * p_clu = (TCluster *)getCtrlView(CTL_SCALE_FLAGS);
+	TCluster * p_clu = static_cast<TCluster *>(getCtrlView(CTL_SCALE_FLAGS));
 	if(p_clu) {
 		const uint num_items = p_clu->getNumItems();
 		for(uint i = 0; i < num_items; i++)

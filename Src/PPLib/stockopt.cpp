@@ -763,7 +763,7 @@ int SLAPI PPViewStockOpt::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 // static
 int FASTCALL PPViewStockOpt::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	PPViewStockOpt * p_v = (PPViewStockOpt *)pBlk->ExtraPtr;
+	PPViewStockOpt * p_v = static_cast<PPViewStockOpt *>(pBlk->ExtraPtr);
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
@@ -849,9 +849,8 @@ int SLAPI PPViewStockOpt::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 		}
 	}
 	if(ok > 0 && oneof3(ppvCmd, PPVCMD_ADDITEM, PPVCMD_EDITITEM, PPVCMD_DELETEITEM)) {
-		AryBrowserDef * p_def = (AryBrowserDef *)pBrw->getDef();
-		if(p_def)
-			p_def->setArray(Helper_CreateBrowserArray(), 0, 1);
+		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
+		CALLPTRMEMB(p_def, setArray(Helper_CreateBrowserArray(), 0, 1));
 		ok = 1;
 	}
 	return ok;

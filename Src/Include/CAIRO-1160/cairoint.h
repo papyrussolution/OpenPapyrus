@@ -168,7 +168,7 @@ static inline int cairo_const _cairo_popcount(uint32_t mask)
 static cairo_always_inline cairo_bool_t _cairo_is_little_endian(void)
 {
 	static const int i = 1;
-	return *((char*)&i) == 0x01;
+	return *reinterpret_cast<const char *>(&i) == 0x01;
 }
 
 #ifdef WORDS_BIGENDIAN
@@ -284,8 +284,8 @@ cairo_private void _cairo_user_data_array_foreach(cairo_user_data_array_t * arra
 
 #define _CAIRO_HASH_INIT_VALUE 5381
 
-cairo_private ulong _cairo_hash_string(const char * c);
-cairo_private ulong _cairo_hash_bytes(ulong hash, const void * bytes, uint length);
+cairo_private ulong FASTCALL _cairo_hash_string(const char * c);
+cairo_private ulong FASTCALL _cairo_hash_bytes(ulong hash, const void * bytes, uint length);
 
 #define _cairo_scaled_glyph_index(g) ((g)->hash_entry.hash)
 #define _cairo_scaled_glyph_set_index(g, i)  ((g)->hash_entry.hash = (i))
@@ -533,7 +533,7 @@ static inline double cairo_const _cairo_round(double r)
 #if DISABLE_SOME_FLOATING_POINT
 	cairo_private int _cairo_lround(double d) cairo_const;
 #else
-	static inline int cairo_const _cairo_lround(double r) { return (int)_cairo_round(r); }
+	static inline int cairo_const _cairo_lround(double r) { return static_cast<int>(_cairo_round(r)); }
 #endif
 
 cairo_private uint16_t _cairo_half_from_float(float f) cairo_const;
@@ -571,9 +571,9 @@ cairo_private cairo_content_t _cairo_color_get_content(const cairo_color_t * col
 extern const cairo_private cairo_font_face_t _cairo_font_face_nil;
 extern const cairo_private cairo_font_face_t _cairo_font_face_nil_file_not_found;
 
-cairo_private void _cairo_font_face_init(cairo_font_face_t * font_face, const cairo_font_face_backend_t * backend);
+cairo_private void FASTCALL _cairo_font_face_init(cairo_font_face_t * font_face, const cairo_font_face_backend_t * backend);
 cairo_private cairo_bool_t _cairo_font_face_destroy(void * abstract_face);
-cairo_private cairo_status_t _cairo_font_face_set_error(cairo_font_face_t * font_face, cairo_status_t status);
+cairo_private cairo_status_t FASTCALL _cairo_font_face_set_error(cairo_font_face_t * font_face, cairo_status_t status);
 cairo_private void _cairo_unscaled_font_init(cairo_unscaled_font_t * font, const cairo_unscaled_font_backend_t * backend);
 cairo_private_no_warn cairo_unscaled_font_t * _cairo_unscaled_font_reference(cairo_unscaled_font_t * font);
 cairo_private void _cairo_unscaled_font_destroy(cairo_unscaled_font_t * font);
@@ -781,7 +781,7 @@ cairo_private cairo_surface_t * _cairo_surface_create_scratch(cairo_surface_t * 
     int width, int height, const cairo_color_t * color);
 cairo_private void _cairo_surface_init(cairo_surface_t * surface, const cairo_surface_backend_t * backend,
     cairo_device_t * device, cairo_content_t content, cairo_bool_t is_vector);
-cairo_private void _cairo_surface_set_font_options(cairo_surface_t * surface, cairo_font_options_t * options);
+cairo_private void _cairo_surface_set_font_options(cairo_surface_t * surface, const cairo_font_options_t * options);
 cairo_private cairo_status_t _cairo_surface_paint(cairo_surface_t * surface, cairo_operator_t op, const cairo_pattern_t * source, const cairo_clip_t * clip);
 cairo_private cairo_image_surface_t * _cairo_surface_map_to_image(cairo_surface_t * surface, const cairo_rectangle_int_t * extents);
 cairo_private_no_warn cairo_int_status_t _cairo_surface_unmap_image(cairo_surface_t * surface, cairo_image_surface_t * image);

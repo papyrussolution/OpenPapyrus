@@ -72,7 +72,7 @@ static TValue * FASTCALL index2addr(lua_State * L, int idx)
 */
 static void growstack(lua_State * L, void * ud) 
 {
-	int size = *(int*)ud;
+	int size = *(int *)ud;
 	luaD_growstack(L, size);
 }
 

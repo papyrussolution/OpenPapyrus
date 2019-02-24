@@ -48,7 +48,7 @@ GLOBAL(void) jpeg_CreateCompress(j_compress_ptr cinfo, int version, size_t struc
 	}
 	cinfo->is_decompressor = FALSE;
 	/* Initialize a memory manager instance for this object */
-	jinit_memory_mgr((j_common_ptr)cinfo);
+	jinit_memory_mgr(reinterpret_cast<j_common_ptr>(cinfo));
 	/* Zero out pointers to permanent structures. */
 	cinfo->progress = NULL;
 	cinfo->dest = NULL;
@@ -75,7 +75,7 @@ GLOBAL(void) jpeg_CreateCompress(j_compress_ptr cinfo, int version, size_t struc
  */
 GLOBAL(void) jpeg_destroy_compress(j_compress_ptr cinfo)
 {
-	jpeg_destroy((j_common_ptr)cinfo); /* use common routine */
+	jpeg_destroy(reinterpret_cast<j_common_ptr>(cinfo)); /* use common routine */
 }
 /*
  * Abort processing of a JPEG compression operation,
@@ -83,7 +83,7 @@ GLOBAL(void) jpeg_destroy_compress(j_compress_ptr cinfo)
  */
 GLOBAL(void) jpeg_abort_compress(j_compress_ptr cinfo)
 {
-	jpeg_abort((j_common_ptr)cinfo); /* use common routine */
+	jpeg_abort(reinterpret_cast<j_common_ptr>(cinfo)); /* use common routine */
 }
 /*
  * Forcibly suppress or un-suppress all quantization and Huffman tables.
@@ -135,7 +135,7 @@ GLOBAL(void) jpeg_finish_compress(j_compress_ptr cinfo)
 			if(cinfo->progress) {
 				cinfo->progress->pass_counter = (long)iMCU_row;
 				cinfo->progress->pass_limit = (long)cinfo->total_iMCU_rows;
-				(*cinfo->progress->progress_monitor)((j_common_ptr)cinfo);
+				(*cinfo->progress->progress_monitor)(reinterpret_cast<j_common_ptr>(cinfo));
 			}
 			// We bypass the main controller and invoke coef controller directly;
 			// all work is being done from the coefficient buffer.
@@ -148,7 +148,7 @@ GLOBAL(void) jpeg_finish_compress(j_compress_ptr cinfo)
 	(*cinfo->marker->write_file_trailer)(cinfo);
 	(*cinfo->dest->term_destination)(cinfo);
 	// We can use jpeg_abort to release memory and reset global_state 
-	jpeg_abort((j_common_ptr)cinfo);
+	jpeg_abort(reinterpret_cast<j_common_ptr>(cinfo));
 }
 /*
  * Write a special marker.
@@ -207,7 +207,7 @@ GLOBAL(void) jpeg_write_tables(j_compress_ptr cinfo)
 	if(cinfo->global_state != CSTATE_START)
 		ERREXIT1(cinfo, JERR_BAD_STATE, cinfo->global_state);
 	/* (Re)initialize error mgr and destination modules */
-	(*cinfo->err->reset_error_mgr)((j_common_ptr)cinfo);
+	(*cinfo->err->reset_error_mgr)(reinterpret_cast<j_common_ptr>(cinfo));
 	(*cinfo->dest->init_destination)(cinfo);
 	jinit_marker_writer(cinfo); /* Initialize the marker writer ... bit of a crock to do it here. */
 	(*cinfo->marker->write_tables_only)(cinfo); /* Write them tables! */

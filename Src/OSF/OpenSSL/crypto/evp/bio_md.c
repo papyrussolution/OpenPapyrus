@@ -54,7 +54,7 @@ static int md_free(BIO * a)
 {
 	if(!a)
 		return 0;
-	EVP_MD_CTX_free((EVP_MD_CTX*)BIO_get_data(a));
+	EVP_MD_CTX_free(static_cast<EVP_MD_CTX *>(BIO_get_data(a)));
 	BIO_set_data(a, 0);
 	BIO_set_init(a, 0);
 	return 1;
@@ -64,13 +64,13 @@ static int md_read(BIO * b, char * out, int outl)
 {
 	int ret = 0;
 	if(out) {
-		EVP_MD_CTX * ctx = (EVP_MD_CTX*)BIO_get_data(b);
+		EVP_MD_CTX * ctx = static_cast<EVP_MD_CTX *>(BIO_get_data(b));
 		BIO * next = BIO_next(b);
 		if(ctx && next) {
 			ret = BIO_read(next, out, outl);
 			if(BIO_get_init(b)) {
 				if(ret > 0) {
-					if(EVP_DigestUpdate(ctx, (uchar*)out, (uint)ret) <= 0)
+					if(EVP_DigestUpdate(ctx, reinterpret_cast<uchar *>(out), (uint)ret) <= 0)
 						return (-1);
 				}
 			}
@@ -88,7 +88,7 @@ static int md_write(BIO * b, const char * in, int inl)
 	BIO * next;
 	if(!in || (inl <= 0))
 		return 0;
-	ctx = (EVP_MD_CTX*)BIO_get_data(b);
+	ctx = static_cast<EVP_MD_CTX *>(BIO_get_data(b));
 	next = BIO_next(b);
 	if(ctx && next)
 		ret = BIO_write(next, in, inl);
@@ -114,7 +114,7 @@ static long md_ctrl(BIO * b, int cmd, long num, void * ptr)
 	EVP_MD * md;
 	long ret = 1;
 	BIO * dbio;
-	EVP_MD_CTX * ctx = (EVP_MD_CTX*)BIO_get_data(b);
+	EVP_MD_CTX * ctx = static_cast<EVP_MD_CTX *>(BIO_get_data(b));
 	BIO * next = BIO_next(b);
 	switch(cmd) {
 		case BIO_CTRL_RESET:
@@ -155,7 +155,7 @@ static long md_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    break;
 		case BIO_CTRL_DUP:
 		    dbio = (BIO*)ptr;
-		    dctx = (EVP_MD_CTX*)BIO_get_data(dbio);
+		    dctx = static_cast<EVP_MD_CTX *>(BIO_get_data(dbio));
 		    if(!EVP_MD_CTX_copy_ex(dctx, ctx))
 			    return 0;
 		    BIO_set_init(b, 1);
@@ -181,7 +181,7 @@ static long md_callback_ctrl(BIO * b, int cmd, bio_info_cb * fp)
 static int md_gets(BIO * bp, char * buf, int size)
 {
 	uint ret;
-	EVP_MD_CTX * ctx = (EVP_MD_CTX*)BIO_get_data(bp);
+	EVP_MD_CTX * ctx = static_cast<EVP_MD_CTX *>(BIO_get_data(bp));
 	if(size < ctx->digest->md_size)
 		return 0;
 	else if(EVP_DigestFinal_ex(ctx, (uchar*)buf, &ret) <= 0)

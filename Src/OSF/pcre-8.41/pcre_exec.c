@@ -1675,7 +1675,7 @@ NEG_ASSERT_TRUE:
 					    new_recursive.offset_save = stacksave;
 				    else {
 					    new_recursive.offset_save =
-					    (int*)(PUBL(malloc))(new_recursive.saved_max * sizeof(int));
+					    (int *)(PUBL(malloc))(new_recursive.saved_max * sizeof(int));
 					    if(new_recursive.offset_save == NULL) RRETURN(PCRE_ERROR_NOMEMORY);
 				    }
 				    memcpy(new_recursive.offset_save, md->offset_vector,
@@ -6085,7 +6085,7 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_exec(const pcre32 * argument_re, c
 
 	if(re->top_backref > 0 && re->top_backref >= ocount/3) {
 		ocount = re->top_backref * 3 + 3;
-		md->offset_vector = (int*)(PUBL(malloc))(ocount * sizeof(int));
+		md->offset_vector = (int *)(PUBL(malloc))(ocount * sizeof(int));
 		if(md->offset_vector == NULL) return PCRE_ERROR_NOMEMORY;
 		using_temporary_offsets = TRUE;
 		DPRINTF(("Got memory to hold back references\n"));

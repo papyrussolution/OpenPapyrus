@@ -632,7 +632,7 @@ IMPL_HANDLE_EVENT(SendSmsDialog)
 				long   c = 0;
 				p_list->getCurID(&c);
 				if(PPSmsSender::GetSubstVar(c, var)) {
-					TInputLine * p_il = (TInputLine *)getCtrlView(CTL_SENDSMS_TEXT);
+					TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_SENDSMS_TEXT));
 					if(p_il) {
 						var.Strip();
 						if(var.Len()) {

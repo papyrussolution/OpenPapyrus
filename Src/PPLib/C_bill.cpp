@@ -790,7 +790,7 @@ int SLAPI PPObjBill::RecoverUnitedFreightPorts()
 		cntr.Init(q.countIterations(0, &k0_, spGe));
 		for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
 			int do_update = 0;
-			PPFreight fr = *(PPFreight *)&p_prop->data;
+			PPFreight fr = *reinterpret_cast<const PPFreight *>(&p_prop->data);
 			if(fr.PortOfLoading && w_obj.Search(fr.PortOfLoading, &w_rec) < 0) {
 				PPID   subst_id = 0;
 				if(p_sj->GetLastObjUnifyEvent(PPOBJ_WORLD, fr.PortOfLoading, &subst_id, 0) > 0) {

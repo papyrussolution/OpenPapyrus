@@ -489,7 +489,7 @@ static xmlRegexpPtr xmlRegEpxFromParse(xmlRegParserCtxt * ctxt)
 #ifdef DEBUG_COMPACTION
 		printf("Final: %d atoms\n", nbatoms);
 #endif
-		transitions = (int*)SAlloc::M((nbstates + 1) * (nbatoms + 1) * sizeof(int));
+		transitions = (int *)SAlloc::M((nbstates + 1) * (nbatoms + 1) * sizeof(int));
 		if(transitions == NULL) {
 			SAlloc::F(stateRemap);
 			SAlloc::F(stringRemap);
@@ -1152,7 +1152,7 @@ static void xmlRegStateAddTransTo(xmlRegParserCtxt * ctxt, xmlRegState * target,
 {
 	if(target->maxTransTo == 0) {
 		target->maxTransTo = 8;
-		target->transTo = (int*)SAlloc::M(target->maxTransTo * sizeof(int));
+		target->transTo = (int *)SAlloc::M(target->maxTransTo * sizeof(int));
 		if(target->transTo == NULL) {
 			xmlRegexpErrMemory(ctxt, "adding transition");
 			target->maxTransTo = 0;
@@ -1161,7 +1161,7 @@ static void xmlRegStateAddTransTo(xmlRegParserCtxt * ctxt, xmlRegState * target,
 	}
 	else if(target->nbTransTo >= target->maxTransTo) {
 		target->maxTransTo *= 2;
-		int * tmp = (int*)SAlloc::R(target->transTo, target->maxTransTo * sizeof(int));
+		int * tmp = (int *)SAlloc::R(target->transTo, target->maxTransTo * sizeof(int));
 		if(!tmp) {
 			xmlRegexpErrMemory(ctxt, "adding transition");
 			target->maxTransTo /= 2;
@@ -2730,7 +2730,7 @@ static void xmlFARegExecSave(xmlRegExecCtxtPtr exec)
 	exec->rollbacks[exec->nbRollbacks].nextbranch = exec->transno + 1;
 	if(exec->comp->nbCounters > 0) {
 		if(exec->rollbacks[exec->nbRollbacks].counts == NULL) {
-			exec->rollbacks[exec->nbRollbacks].counts = (int*)SAlloc::M(exec->comp->nbCounters * sizeof(int));
+			exec->rollbacks[exec->nbRollbacks].counts = (int *)SAlloc::M(exec->comp->nbCounters * sizeof(int));
 			if(exec->rollbacks[exec->nbRollbacks].counts == NULL) {
 				xmlRegexpErrMemory(NULL, "saving regexp");
 				exec->status = -5;
@@ -2797,7 +2797,7 @@ static int xmlFARegExec(xmlRegexpPtr comp, const xmlChar * content)
 	exec->inputStack = NULL;
 	exec->inputStackMax = 0;
 	if(comp->nbCounters > 0) {
-		exec->counts = (int*)SAlloc::M(comp->nbCounters * sizeof(int));
+		exec->counts = (int *)SAlloc::M(comp->nbCounters * sizeof(int));
 		if(exec->counts == NULL) {
 			xmlRegexpErrMemory(NULL, "running regexp");
 			return -1;
@@ -3111,7 +3111,7 @@ xmlRegExecCtxtPtr xmlRegNewExecCtxt(xmlRegexpPtr comp, xmlRegExecCallbacks callb
 		 * For error handling, exec->counts is allocated twice the size
 		 * the second half is used to store the data in case of rollback
 		 */
-		exec->counts = (int*)SAlloc::M(comp->nbCounters * sizeof(int) * 2);
+		exec->counts = (int *)SAlloc::M(comp->nbCounters * sizeof(int) * 2);
 		if(exec->counts == NULL) {
 			xmlRegexpErrMemory(NULL, "creating execution context");
 			SAlloc::F(exec);

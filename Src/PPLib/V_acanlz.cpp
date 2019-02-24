@@ -8,7 +8,7 @@
 //
 // Utility
 //
-static int FASTCALL GetAccAnlzTitle(int aco, PPID accID, PPID curID, SString & rStr)
+static SString & FASTCALL GetAccAnlzTitle(int aco, PPID accID, PPID curID, SString & rStr)
 {
 	char   acc_buf[64];
 	PPID   cur_id = 0;
@@ -28,7 +28,7 @@ static int FASTCALL GetAccAnlzTitle(int aco, PPID accID, PPID curID, SString & r
 		cur_id = curID;
 	if(SearchObject(PPOBJ_CURRENCY, cur_id, &cur_rec) > 0)
 		rStr.Cat(cur_rec.Symb);
-	return 1;
+	return rStr;
 }
 
 IMPLEMENT_PPFILT_FACTORY(AccAnlz); SLAPI AccAnlzFilt::AccAnlzFilt() : PPBaseFilt(PPFILT_ACCANLZ, 0, 1)
@@ -483,7 +483,7 @@ int SLAPI PPViewAccAnlz::GetTotal(AccAnlzTotal * pTotal) const
 	return 1;
 }
 
-int SLAPI PPViewAccAnlz::ViewGraph(PPViewBrowser * pBrw)
+int SLAPI PPViewAccAnlz::ViewGraph(const PPViewBrowser * pBrw)
 {
 	struct I {
 		LDATE  Dt;
@@ -1648,8 +1648,7 @@ DBQuery * SLAPI PPViewAccAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	TempAccTrnovrTbl * ttt = 0;
 	AccTurnTbl * rat = 0;
 	AcctRelTbl * rt = 0;
-	GetAccAnlzTitle(Filt.Aco, Filt.AccID, Filt.CurID, sub_title);
-	sub_title.Space().Cat(Filt.Period);
+	GetAccAnlzTitle(Filt.Aco, Filt.AccID, Filt.CurID, sub_title).Space().Cat(Filt.Period);
 	if(Filt.Flags & AccAnlzFilt::fTrnovrBySheet) {
 		DBE  * p_dbe1 = 0, * p_dbe2 = 0;
 		THROW(CheckTblPtr(ttt = new TempAccTrnovrTbl(P_TmpATTbl->GetName())));
@@ -2064,8 +2063,7 @@ private:
 		char   diff_buf[32];
 		SString acc_buf;
 		SetPeriodInput(this, CTL_AANLZTOTAL_PERIOD, &Filt.Period);
-		GetAccAnlzTitle(Filt.Aco, Filt.AccID, curID, acc_buf);
-		setCtrlString(CTL_AANLZTOTAL_ACC, acc_buf);
+		setCtrlString(CTL_AANLZTOTAL_ACC, GetAccAnlzTitle(Filt.Aco, Filt.AccID, curID, acc_buf));
 		setCtrlLong(CTL_AANLZTOTAL_COUNT, Total.Count);
 		double val  = Total.InRest.Get(0, curID);
 		double diff = val;

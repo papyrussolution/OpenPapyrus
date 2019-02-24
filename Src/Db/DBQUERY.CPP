@@ -308,10 +308,10 @@ int FASTCALL DBQuery::analyzeOrder(int * pKeyArray)
 
 int FASTCALL DBQuery::addField(DBConst & r)
 {
-	flds = (DBQuery::Fld*)SAlloc::R(flds, sizeof(DBQuery::Fld) * (fldCount+1));
+	flds = static_cast<DBQuery::Fld *>(SAlloc::R(flds, sizeof(DBQuery::Fld) * (fldCount+1)));
 	if(flds) {
 		flds[fldCount].cell.C = r;
-		flds[fldCount].type = ((DBItem *)&r)->stype();
+		flds[fldCount].type = static_cast<const DBItem *>(&r)->stype();
 		fldCount++;
 		calcRecSize();
 		return 1;
@@ -322,10 +322,10 @@ int FASTCALL DBQuery::addField(DBConst & r)
 
 int FASTCALL DBQuery::addField(DBE & r)
 {
-	flds = (DBQuery::Fld*)SAlloc::R(flds, sizeof(DBQuery::Fld) * (fldCount+1));
+	flds = static_cast<DBQuery::Fld *>(SAlloc::R(flds, sizeof(DBQuery::Fld) * (fldCount+1)));
 	if(flds) {
 		flds[fldCount].cell.E = r;
-		flds[fldCount].type = ((DBItem *)&r)->stype();
+		flds[fldCount].type = static_cast<const DBItem *>(&r)->stype();
 		fldCount++;
 		calcRecSize();
 		return 1;
@@ -334,12 +334,12 @@ int FASTCALL DBQuery::addField(DBE & r)
 		return 0;
 }
 
-int FASTCALL DBQuery::addField(DBField & r)
+int FASTCALL DBQuery::addField(const DBField & r)
 {
-	flds = (DBQuery::Fld*)SAlloc::R(flds, sizeof(DBQuery::Fld) * (fldCount+1));
+	flds = static_cast<DBQuery::Fld *>(SAlloc::R(flds, sizeof(DBQuery::Fld) * (fldCount+1)));
 	if(flds) {
 		flds[fldCount].cell.F = r;
-		flds[fldCount].type = ((DBItem *)&r)->stype();
+		flds[fldCount].type = static_cast<const DBItem *>(&r)->stype();
 		fldCount++;
 		calcRecSize();
 		return 1;
@@ -352,7 +352,7 @@ DBQuery & FASTCALL select(const DBFieldList & list)
 {
 	DBQuery & q = *new DBQuery;
 	if(&q != 0) {
-		if((q.flds = (DBQuery::Fld*)SAlloc::M(sizeof(DBQuery::Fld) * list.GetCount())) != 0) {
+		if((q.flds = static_cast<DBQuery::Fld *>(SAlloc::M(sizeof(DBQuery::Fld) * list.GetCount()))) != 0) {
 			for(uint i = 0; i < list.GetCount(); i++) {
 				DBQuery::Fld & fld = q.flds[i];
 				fld.cell.F = list.Get(i);
@@ -373,7 +373,7 @@ DBQuery & FASTCALL selectbycell(int count, const DBDataCell * pList)
 {
 	DBQuery & q = *new DBQuery;
 	if(&q != 0) {
-		if((q.flds = (DBQuery::Fld*)SAlloc::M(sizeof(DBQuery::Fld) * count)) != 0)
+		if((q.flds = static_cast<DBQuery::Fld *>(SAlloc::M(sizeof(DBQuery::Fld) * count))) != 0)
 			for(int i = 0; i < count; i++) {
 				DBQuery::Fld & fld = q.flds[i];
 				fld.cell = pList[i];
@@ -397,8 +397,8 @@ DBQuery & SLAPIV select(DBField first_arg, ...)
 		int  id;
 		int  i = 0;
 		size_t delta = 0;
-		while((id = *(int *)list) != 0) {
-			q.flds = (DBQuery::Fld*)SAlloc::R(q.flds, sizeof(DBQuery::Fld) * (i+1));
+		while((id = *reinterpret_cast<const int *>(list)) != 0) {
+			q.flds = static_cast<DBQuery::Fld *>(SAlloc::R(q.flds, sizeof(DBQuery::Fld) * (i+1)));
 			if(q.flds == 0) {
 				i = 0;
 				break;
@@ -406,20 +406,20 @@ DBQuery & SLAPIV select(DBField first_arg, ...)
 			DBQuery::Fld & fld = q.flds[i];
 			if(id == DBConst_ID) {
 				delta = sizeof(DBConst);
-				fld.cell.C = *(DBConst *)list;
+				fld.cell.C = *reinterpret_cast<const DBConst *>(list);
 			}
 			else if(id == DBE_ID) {
 				delta = sizeof(DBE);
-				fld.cell.E = *(DBE *)list;
+				fld.cell.E = *reinterpret_cast<const DBE *>(list);
 			}
 			else if(id > 0) {
 				delta = sizeof(DBField);
-				fld.cell.F = *(DBField *)list;
+				fld.cell.F = *reinterpret_cast<const DBField *>(list);
 			}
 			else {
 				;//CHECK(Invalid_DBItem);
 			}
-			fld.type = ((DBItem *)list)->stype();
+			fld.type = reinterpret_cast<const DBItem *>(list)->stype();
 			list = ((char *)list) + delta;
 			i++;
 		}
@@ -443,7 +443,7 @@ DBQuery & SLAPIV DBQuery::from(DBTable * first_arg, ...)
 	DBTable * p_tbl;
 	va_list  list = (va_list)&first_arg;
 	while((p_tbl = va_arg(list, DBTable*)) != 0) {
-		tbls = (Tbl*)SAlloc::R(tbls, sizeof(Tbl) * (i+1));
+		tbls = static_cast<Tbl *>(SAlloc::R(tbls, sizeof(Tbl) * (i+1)));
 		if(tbls) {
 			tbls[i].tbl    = p_tbl;
 			tbls[i].tree.init(0);
@@ -469,7 +469,7 @@ int FASTCALL DBQuery::addTable(DBTable * pTbl)
 	int    ok = 1;
 	if(pTbl) {
 		uint   i = tblCount;
-		tbls = (Tbl *)SAlloc::R(tbls, sizeof(Tbl) * (i+1));
+		tbls = static_cast<Tbl *>(SAlloc::R(tbls, sizeof(Tbl) * (i+1)));
 		if(tbls != 0) {
 			tbls[i].tbl    = pTbl;
 			tbls[i].tree.init(0);
@@ -493,7 +493,7 @@ int FASTCALL DBQuery::addTable(DBTable * pTbl)
 int SLAPI DBQuery::addOrderField(const DBField & rFld)
 {
 	if(&rFld) {
-		order = (DBField *)SAlloc::R(order, sizeof(DBField) * (ordCount+1));
+		order = static_cast<DBField *>(SAlloc::R(order, sizeof(DBField) * (ordCount+1)));
 		order[ordCount++] = rFld;
 		return 1;
 	}
@@ -508,7 +508,7 @@ DBQuery & SLAPIV DBQuery::orderBy(DBField first_arg, ...)
 	ordCount = 0;
 	DBField f;
 	while((f = va_arg(list, DBField)).Id != 0) {
-		order = (DBField *)SAlloc::R(order, sizeof(DBField) * (ordCount+1));
+		order = static_cast<DBField *>(SAlloc::R(order, sizeof(DBField) * (ordCount+1)));
 		if(order == 0) {
 			ordCount = 0;
 			break;
@@ -567,7 +567,7 @@ int SLAPI DBQuery::calcRecSize()
 	}
 	else {
 		for(uint i = 0; i < fldCount;)
-			recSize += (RECORDSIZE)stsize(flds[i++].type);
+			recSize += static_cast<RECORDSIZE>(stsize(flds[i++].type));
 	}
 	return 1;
 }
@@ -716,7 +716,7 @@ void FASTCALL DBQuery::fillRecord(char * buf, RECORDNUMBER * pPos)
 		if(syntax & t_all) {
 			for(i = 0; i < tblCount; i++) {
 				RECORDSIZE s = tbls[i].tbl->GetFields().getRecSize();
-				memcpy(buf+p, tbls[i].tbl->getDataBuf(), s);
+				memcpy(buf+p, tbls[i].tbl->getDataBufConst(), s);
 				p += s;
 			}
 		}
@@ -724,7 +724,7 @@ void FASTCALL DBQuery::fillRecord(char * buf, RECORDNUMBER * pPos)
 			for(i = 0; i < fldCount; i++) {
 				const TYPEID t = flds[i].type;
 				flds[i].cell.getValue(t, buf+p);
-				p += (RECORDSIZE)stsize(t);
+				p += static_cast<RECORDSIZE>(stsize(t));
 			}
 		}
 	}
@@ -743,7 +743,7 @@ int SLAPI DBQuery::single_fetch(char * buf, RECORDNUMBER * pPos, int dir)
 	}
 	else
 		actCount = 0;
-	return (int)actCount;
+	return static_cast<int>(actCount);
 }
 
 int SLAPI DBQuery::fetch(long count, char * pBuf, RECORDNUMBER * pPos, int dir)
@@ -774,25 +774,10 @@ int SLAPI DBQuery::fetch(long count, char * pBuf, int dir)
 long DBQuery::_defaultBufSize  = 64L;
 long DBQuery::_defaultBufDelta =  4L;
 
-inline uint FASTCALL DBQuery::addr(uint p) const
-{
-	return ((P_Frame->zero+p) % P_Frame->size);
-}
-
-void * FASTCALL DBQuery::getRecord(uint r)
-{
-	return (r < P_Frame->count) ? (P_Frame->buf + recSize * addr(r)) : 0;
-}
-
-void * SLAPI DBQuery::getCurrent()
-{
-	return getRecord(P_Frame->cur);
-}
-
-void * SLAPI DBQuery::getBuffer()
-{
-	return P_Frame->buf;
-}
+inline uint FASTCALL DBQuery::addr(uint p) const { return ((P_Frame->zero+p) % P_Frame->size); }
+void * FASTCALL DBQuery::getRecord(uint r) { return (r < P_Frame->count) ? (P_Frame->buf + recSize * addr(r)) : 0; }
+void * SLAPI DBQuery::getCurrent() { return getRecord(P_Frame->cur); }
+void * SLAPI DBQuery::getBuffer() { return P_Frame->buf; }
 
 int SLAPI DBQuery::setFrame(uint viewHight, uint bufSize, uint bufDelta)
 {
@@ -833,7 +818,7 @@ int SLAPI DBQuery::allocFrame(uint bufSize)
 			else
 				return 0;
 		}
-		P_Frame->buf = (char *)SAlloc::R(P_Frame->buf, bufSize * recSize);
+		P_Frame->buf = static_cast<char *>(SAlloc::R(P_Frame->buf, bufSize * recSize));
 		if(!P_Frame->buf) {
 			delete P_Frame;
 			return 0;
@@ -1044,7 +1029,7 @@ int SLAPI DBQuery::refresh()
 int SLAPI DBQuery::top()
 {
 	if(BOQ)
-		P_Frame->sdelta = -((long)P_Frame->top);
+		P_Frame->sdelta = -static_cast<long>(P_Frame->top);
 	else {
 		P_Frame->sdelta = 0x8000;
 		_fetch_next(P_Frame->size, 0, spFirst);
@@ -1203,7 +1188,7 @@ int SLAPI DBQuery::search(const void * pPattern, CompFunc fcmp, int fld, uint sr
 				P_Frame->cur = 0;
 				P_Frame->topByCur(spNext);
 			}
-			step((nxt == spNext) ? P_Frame->size : -(long)P_Frame->size);
+			step((nxt == spNext) ? P_Frame->size : -static_cast<long>(P_Frame->size));
 			P_Frame->cur = 0;
 			P_Frame->top = 0;
 			P_Frame->spos = P_Frame->srange / 2;
@@ -1214,8 +1199,7 @@ int SLAPI DBQuery::search(const void * pPattern, CompFunc fcmp, int fld, uint sr
 	return r;
 }
 
-int SLAPI DBQuery::searchOnPage(const void * pPattern, uint * pPos, CompFunc fcmp,
-	uint ofs, int srchMode, int nxt, void * pExtraData)
+int SLAPI DBQuery::searchOnPage(const void * pPattern, uint * pPos, CompFunc fcmp, uint ofs, int srchMode, int nxt, void * pExtraData)
 {
 	int  r = 0;
 	uint p = addr(P_Frame->cur);
@@ -1297,7 +1281,6 @@ DBUpdateSet & FASTCALL DBUpdateSet::set(DBField f, DBItem & val)
 	DBUpdateSetItem item;
 	MEMSZERO(item);
 	item.Fld = f;
-	// DBItem
 	if(val.Id == DBConst_ID) {
 		item.Val.C = *static_cast<DBConst *>(&val);
 	}
@@ -1331,7 +1314,7 @@ int updateForCb(DBTable * pTbl, int useTA, DBQ & query, DBUpdateSet & rSet, Upda
 		}
 		for(int dir = spFirst; ok && q->single_fetch(0, 0, dir); dir = spNext) {
 			if(rec_before_buf.GetSize()) {
-				memcpy((char *)rec_before_buf, pTbl->getDataBuf(), rec_before_buf.GetSize());
+				memcpy(rec_before_buf, pTbl->getDataBufConst(), rec_before_buf.GetSize());
 			}
 			for(uint i = 0; i < c; i++) {
 				DBUpdateSetItem & r_item = rSet.Get(i);
@@ -1351,7 +1334,7 @@ int updateForCb(DBTable * pTbl, int useTA, DBQ & query, DBUpdateSet & rSet, Upda
 			//
 			THROW(pTbl->updateRecNCC());
 			if(cbProc)
-				cbProc(pTbl, (char *)rec_before_buf, pTbl->getDataBuf(), extraParam);
+				cbProc(pTbl, rec_before_buf, pTbl->getDataBufConst(), extraParam);
 		}
 		THROW(!q->error);
 		if(ta) {

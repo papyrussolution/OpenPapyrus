@@ -638,7 +638,7 @@ int SLAPI PPViewLinkedBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 					if(pBrw && pBrw->GetToolbarComboData(&kind) && Filt.Kind__ != kind) {
 						Filt.Kind__ = kind;
 						ok = ChangeFilt(1, pBrw);
-						p_def = pBrw ? (AryBrowserDef *)pBrw->getDef() : 0; // @v10.3.1
+						p_def = pBrw ? static_cast<AryBrowserDef *>(pBrw->getDef()) : 0; // @v10.3.1
 					}
 				}
 				break;
@@ -1462,11 +1462,9 @@ int SLAPI PPObjBill::ReckoningPaym(PPID billID, const ReckonParam & rParam, int 
 int SLAPI PPObjBill::ReckoningDebt(PPID billID, const ReckonParam & rParam, int use_ta)
 {
 	int    ok = 1;
-	uint   i;
 	BillTbl::Rec bill_rec;
 	PPIDArray paym_op_list;
 	ReckonOpArList op_list;
-	ReckonOpArItem * p_item = 0;
 	THROW(Search(billID, &bill_rec) > 0);
 	if(bill_rec.Object && CheckOpFlags(bill_rec.OpID, OPKF_NEEDPAYMENT)) {
 		double debt_amt = 0.0;
@@ -1486,8 +1484,9 @@ int SLAPI PPObjBill::ReckoningDebt(PPID billID, const ReckonParam & rParam, int 
 				double total_amount = 0.0;
 				bill_list.clear();
 				r = 1;
-				for(i = 0; op_list.enumItems(&i, (void**)&p_item);) {
-					THROW(P_OpObj->GetReckonExData(p_item->PayableOpID, &reckon_data));
+				for(uint oplidx = 0; oplidx < op_list.getCount(); oplidx++) {
+					ReckonOpArItem & r_item = op_list.at(oplidx);
+					THROW(P_OpObj->GetReckonExData(r_item.PayableOpID, &reckon_data));
 					if(!(param.Flags & ReckonParam::fDontConfirm) && dont_cfm && reckon_data.Flags & ROXF_CFM_DEBT)
 						dont_cfm = 0;
 					if(!(param.Flags & ReckonParam::fAutomat) || (reckon_data.Flags & ROXF_AUTODEBT)) {
@@ -1498,13 +1497,13 @@ int SLAPI PPObjBill::ReckoningDebt(PPID billID, const ReckonParam & rParam, int 
 							if(!period.low) {
 								DateRange cdp;
 								GetDefaultClientDebtPeriod(cdp);
-								if(checkdate(cdp.low, 0))
+								if(checkdate(cdp.low))
 									period.low = cdp.low;
 							}
-							THROW_MEM(SETIFZ(p_item->P_BillIDList, new PPIDArray));
-							p_item->P_BillIDList->clear();
-		   		    		THROW(GatherPayableBills(p_item, bill_rec.CurID, loc_id, obj2_id, &period, &total_amount));
-							THROW(bill_list.add(p_item->P_BillIDList));
+							THROW_MEM(SETIFZ(r_item.P_BillIDList, new PPIDArray));
+							r_item.P_BillIDList->clear();
+		   		    		THROW(GatherPayableBills(&r_item, bill_rec.CurID, loc_id, obj2_id, &period, &total_amount));
+							THROW(bill_list.add(r_item.P_BillIDList));
 						}
 					}
 				}
@@ -1761,7 +1760,7 @@ int SLAPI PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, in
 							}
 						}
 						for(uint j = 0; j < bi_list.getCount(); j++) {
-							const _BI & r_bi_item = *(const _BI *)bi_list.at(j);
+							const _BI & r_bi_item = *static_cast<const _BI *>(bi_list.at(j));
 							a += BR2(r_bi_item.Amount);
 							THROW(p_t->GetAmount(r_bi_item.ID, PPAMT_PAYMENT, 0L /* @curID */, &t));
 							p += t;
@@ -1848,7 +1847,7 @@ struct CBO_BillEntry { // @flat
 	char   Code[24];
 };
 
-IMPL_CMPFUNC(CBO_BillEntry, i1, i2) { RET_CMPCASCADE4((const CBO_BillEntry *)i1, (const CBO_BillEntry *)i2, ArID, Ar2ID, Dt, Amount); }
+IMPL_CMPFUNC(CBO_BillEntry, i1, i2) { RET_CMPCASCADE4(static_cast<const CBO_BillEntry *>(i1), static_cast<const CBO_BillEntry *>(i2), ArID, Ar2ID, Dt, Amount); }
 
 int SLAPI PPObjBill::CreateBankingOrders(const PPIDArray & rBillList, long flags, PPGPaymentOrderList & rOrderList)
 {
@@ -2229,11 +2228,11 @@ IMPL_HANDLE_EVENT(PaymentBrowser)
 				{
 					TDialog * dlg = 0;
 					if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_PAYMTOTAL)))) {
-						AryBrowserDef * p_def = (AryBrowserDef *)view->getDef();
+						AryBrowserDef * p_def = static_cast<AryBrowserDef *>(view->getDef());
 						long   count = 0;
 						double amount = 0.0;
 						for(long i = 0; i < p_def->getRecsCount(); i++) {
-							_PaymentEntry * p_entry = (_PaymentEntry *)p_def->getRow(i);
+							_PaymentEntry * p_entry = static_cast<_PaymentEntry *>(p_def->getRow(i));
 							count++;
 							amount += p_entry->Payment;
 						}
@@ -2282,7 +2281,7 @@ IMPL_HANDLE_EVENT(PaymentBrowser)
 
 void PaymentBrowser::updateList(long pos)
 {
-	AryBrowserDef * p_def = (AryBrowserDef *)view->getDef();
+	AryBrowserDef * p_def = static_cast<AryBrowserDef *>(view->getDef());
 	if(p_def) {
 		long   c = p_def->_curItem();
 		p_def->setArray(0, 0, 1);

@@ -292,7 +292,7 @@ int SSrchPattern::Init(const char * pPattern, long flags, int alg)
 			return 0;
 		}
 	}
-	P_Pat = oneof2(Alg, algBmBadChr, algBmGoodSfx) ? (((uint8 *)P_PatAlloc) + Len % 4) : (uint8 *)P_PatAlloc;
+	P_Pat = oneof2(Alg, algBmBadChr, algBmGoodSfx) ? (PTR8(P_PatAlloc) + Len % 4) : PTR8(P_PatAlloc);
 	memcpy(P_Pat, pPattern, Len);
 	return (AllocPreprocBuf() && Preprocess()) ? 1 : 0;
 }
@@ -347,11 +347,11 @@ __fail:
 
 				}
 				else
-					p = static_cast<const uint8 *>(memchr(p_text, pat0, text_len));
+					p = PTR8C(memchr(p_text, pat0, text_len));
 				if(p) {
 __succ:
 					if(Len == 1) {
-						ASSIGN_PTR(pPos, (p-(const uint8 *)pText));
+						ASSIGN_PTR(pPos, (p-PTR8C(pText)));
 						return 1;
 					}
 					else if((text_len-(p-p_text)) >= Len) {
@@ -363,15 +363,15 @@ __succ:
 								else
 									++i;
 							if(i == Len) {
-								ASSIGN_PTR(pPos, (p-(const uint8 *)pText));
+								ASSIGN_PTR(pPos, (p-PTR8C(pText)));
 								return 1;
 							}
 						}
 						else if(memcmp(p+1, P_Pat+1, Len-1) == 0) {
-							ASSIGN_PTR(pPos, (p-(const uint8 *)pText));
+							ASSIGN_PTR(pPos, (p-PTR8C(pText)));
 							return 1;
 						}
-						start = (p-(const uint8 *)pText)+1;
+						start = (p-PTR8C(pText))+1;
 					}
 					else
 						p = 0;

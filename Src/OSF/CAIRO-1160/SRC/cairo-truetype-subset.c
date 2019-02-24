@@ -547,31 +547,24 @@ static cairo_status_t cairo_truetype_font_write_glyf_table(cairo_truetype_font_t
 	} u;
 
 	cairo_status_t status;
-
 	if(font->status)
 		return font->status;
-
 	size = sizeof(tt_head_t);
 	status = font->backend->load_truetype_table(font->scaled_font_subset->scaled_font,
 		TT_TAG_head, 0,
 		(uchar*)&header, &size);
 	if(unlikely(status))
 		return _cairo_truetype_font_set_error(font, status);
-
 	if(be16_to_cpu(header.index_to_loc_format) == 0)
 		size = sizeof(int16_t) * (font->base.num_glyphs_in_face + 1);
 	else
 		size = sizeof(int32_t) * (font->base.num_glyphs_in_face + 1);
-
-	u.bytes = (uchar *)_cairo_malloc(size);
+	u.bytes = static_cast<uchar *>(_cairo_malloc(size));
 	if(unlikely(u.bytes == NULL))
 		return _cairo_truetype_font_set_error(font, CAIRO_STATUS_NO_MEMORY);
-
-	status = font->backend->load_truetype_table(font->scaled_font_subset->scaled_font,
-		TT_TAG_loca, 0, u.bytes, &size);
+	status = font->backend->load_truetype_table(font->scaled_font_subset->scaled_font, TT_TAG_loca, 0, u.bytes, &size);
 	if(unlikely(status))
 		return _cairo_truetype_font_set_error(font, status);
-
 	start_offset = _cairo_array_num_elements(&font->output);
 	for(i = 0; i < font->num_glyphs; i++) {
 		index = font->glyphs[i].parent_index;
@@ -1029,7 +1022,7 @@ static cairo_status_t cairo_truetype_subset_init_internal(cairo_truetype_subset_
 	truetype_subset->ascent = (double)font->base.ascent/font->base.units_per_em;
 	truetype_subset->descent = (double)font->base.descent/font->base.units_per_em;
 	if(length) {
-		truetype_subset->data = (uchar *)_cairo_malloc(length);
+		truetype_subset->data = static_cast<uchar *>(_cairo_malloc(length));
 		if(unlikely(truetype_subset->data == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto fail4;

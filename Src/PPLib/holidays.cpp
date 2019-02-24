@@ -88,7 +88,7 @@ int HldDialog::setupDate()
 			p += sstrlen(itoa(d, p, 10));
 			*p++ = '/';
 			itoa(m, p, 10);
-			TInputLine * p_il = (TInputLine *)getCtrlView(CTL_HOLIDAY_DATE);
+			TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_HOLIDAY_DATE));
 			CALLPTRMEMB(p_il, setText(temp_buf));
 		}
 		setCtrlData(CTLSEL_HOLIDAY_DAYOFWEEK, &(dw = 0));

@@ -65,7 +65,7 @@ METHODDEF(boolean) compress_data(j_compress_ptr cinfo, JSAMPIMAGE input_buf);
 //
 static void start_iMCU_row(j_compress_ptr cinfo)
 {
-	my_coef_ptr coef = (my_coef_ptr)cinfo->coef;
+	my_coef_ptr coef = reinterpret_cast<my_coef_ptr>(cinfo->coef);
 	/* In an interleaved scan, an MCU row is the same as an iMCU row.
 	 * In a noninterleaved scan, an iMCU row has v_samp_factor MCU rows.
 	 * But at the bottom of the image, process only what's left.
@@ -85,7 +85,7 @@ static void start_iMCU_row(j_compress_ptr cinfo)
  */
 METHODDEF(void) start_pass_coef(j_compress_ptr cinfo, J_BUF_MODE pass_mode)
 {
-	my_coef_ptr coef = (my_coef_ptr)cinfo->coef;
+	my_coef_ptr coef = reinterpret_cast<my_coef_ptr>(cinfo->coef);
 	coef->iMCU_row_num = 0;
 	start_iMCU_row(cinfo);
 	switch(pass_mode) {
@@ -122,7 +122,7 @@ METHODDEF(void) start_pass_coef(j_compress_ptr cinfo, J_BUF_MODE pass_mode)
  */
 METHODDEF(boolean) compress_data(j_compress_ptr cinfo, JSAMPIMAGE input_buf)
 {
-	my_coef_ptr coef = (my_coef_ptr)cinfo->coef;
+	my_coef_ptr coef = reinterpret_cast<my_coef_ptr>(cinfo->coef);
 	JDIMENSION MCU_col_num; /* index of current MCU within row */
 	JDIMENSION last_MCU_col = cinfo->MCUs_per_row - 1;
 	JDIMENSION last_iMCU_row = cinfo->total_iMCU_rows - 1;
@@ -216,7 +216,7 @@ METHODDEF(boolean) compress_data(j_compress_ptr cinfo, JSAMPIMAGE input_buf)
  */
 METHODDEF(boolean) compress_first_pass(j_compress_ptr cinfo, JSAMPIMAGE input_buf)
 {
-	my_coef_ptr coef = (my_coef_ptr)cinfo->coef;
+	my_coef_ptr coef = reinterpret_cast<my_coef_ptr>(cinfo->coef);
 	JDIMENSION last_iMCU_row = cinfo->total_iMCU_rows - 1;
 	JDIMENSION blocks_across, MCUs_across, MCUindex;
 	int bi, ci, h_samp_factor, block_row, block_rows, ndummy;
@@ -227,7 +227,7 @@ METHODDEF(boolean) compress_first_pass(j_compress_ptr cinfo, JSAMPIMAGE input_bu
 	forward_DCT_ptr forward_DCT;
 	for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components; ci++, compptr++) {
 		/* Align the virtual buffer for this component. */
-		buffer = (*cinfo->mem->access_virt_barray)((j_common_ptr)cinfo, coef->whole_image[ci], 
+		buffer = (*cinfo->mem->access_virt_barray)(reinterpret_cast<j_common_ptr>(cinfo), coef->whole_image[ci], 
 			coef->iMCU_row_num * compptr->v_samp_factor, (JDIMENSION)compptr->v_samp_factor, TRUE);
 		/* Count non-dummy DCT block rows in this iMCU row. */
 		if(coef->iMCU_row_num < last_iMCU_row)
@@ -305,7 +305,7 @@ METHODDEF(boolean) compress_first_pass(j_compress_ptr cinfo, JSAMPIMAGE input_bu
 
 METHODDEF(boolean) compress_output(j_compress_ptr cinfo, JSAMPIMAGE input_buf)
 {
-	my_coef_ptr coef = (my_coef_ptr)cinfo->coef;
+	my_coef_ptr coef = reinterpret_cast<my_coef_ptr>(cinfo->coef);
 	JDIMENSION MCU_col_num; /* index of current MCU within row */
 	int blkn, ci, xindex, yindex, yoffset;
 	JDIMENSION start_col;
@@ -320,7 +320,7 @@ METHODDEF(boolean) compress_output(j_compress_ptr cinfo, JSAMPIMAGE input_buf)
 	for(ci = 0; ci < cinfo->comps_in_scan; ci++) {
 		compptr = cinfo->cur_comp_info[ci];
 		buffer[ci] = (*cinfo->mem->access_virt_barray)
-			    ((j_common_ptr)cinfo, coef->whole_image[compptr->component_index],
+			    (reinterpret_cast<j_common_ptr>(cinfo), coef->whole_image[compptr->component_index],
 		    coef->iMCU_row_num * compptr->v_samp_factor,
 		    (JDIMENSION)compptr->v_samp_factor, FALSE);
 	}
@@ -365,7 +365,7 @@ METHODDEF(boolean) compress_output(j_compress_ptr cinfo, JSAMPIMAGE input_buf)
 
 GLOBAL(void) jinit_c_coef_controller(j_compress_ptr cinfo, boolean need_full_buffer)
 {
-	my_coef_ptr coef = (my_coef_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(my_coef_controller));
+	my_coef_ptr coef = (my_coef_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(my_coef_controller));
 	cinfo->coef = (struct jpeg_c_coef_controller*)coef;
 	coef->pub.start_pass = start_pass_coef;
 	/* Create the coefficient buffer. */
@@ -376,7 +376,7 @@ GLOBAL(void) jinit_c_coef_controller(j_compress_ptr cinfo, boolean need_full_buf
 		int ci;
 		jpeg_component_info * compptr;
 		for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components; ci++, compptr++) {
-			coef->whole_image[ci] = (*cinfo->mem->request_virt_barray)((j_common_ptr)cinfo, JPOOL_IMAGE, FALSE,
+			coef->whole_image[ci] = (*cinfo->mem->request_virt_barray)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, FALSE,
 			    (JDIMENSION)jround_up((long)compptr->width_in_blocks, (long)compptr->h_samp_factor),
 			    (JDIMENSION)jround_up((long)compptr->height_in_blocks, (long)compptr->v_samp_factor),
 			    (JDIMENSION)compptr->v_samp_factor);
@@ -387,7 +387,7 @@ GLOBAL(void) jinit_c_coef_controller(j_compress_ptr cinfo, boolean need_full_buf
 	}
 	else {
 		/* We only need a single-MCU buffer. */
-		JBLOCKROW buffer = (JBLOCKROW)(*cinfo->mem->alloc_large)((j_common_ptr)cinfo, JPOOL_IMAGE, C_MAX_BLOCKS_IN_MCU * SIZEOF(JBLOCK));
+		JBLOCKROW buffer = (JBLOCKROW)(*cinfo->mem->alloc_large)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, C_MAX_BLOCKS_IN_MCU * SIZEOF(JBLOCK));
 		for(int i = 0; i < C_MAX_BLOCKS_IN_MCU; i++) {
 			coef->MCU_buffer[i] = buffer + i;
 		}

@@ -1,5 +1,5 @@
 // QUOT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -55,18 +55,16 @@ int SLAPI ViewQuotValueInfo(const PPQuot & rQuot)
 
 class QuotUpdDialog : public TDialog {
 public:
-	QuotUpdDialog() : TDialog(DLG_QUOTUPD), QuotCls(PPQuot::clsGeneral)
+	QuotUpdDialog() : TDialog(DLG_QUOTUPD), QuotCls(PPQuot::clsGeneral), QkSpc(QkSpc.ctrInitializeWithCache)
 	{
-		PPObjQuotKind::GetSpecialKinds(&QkSpc, 1);
 		addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(0, CTLSEL_QUOTUPD_GGRP, cmGoodsFilt));
 		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_QUOTUPD_GGRP, CTLSEL_QUOTUPD_GOODS));
 		{
 			PPIDArray ext_loc_list, * p_ext_loc_list = 0;
 			if(CConfig.Flags2 & CCFLG2_QUOT2) {
 				Quotation2Core qc2;
-				if(qc2.GetAddressLocList(ext_loc_list) > 0) {
+				if(qc2.GetAddressLocList(ext_loc_list) > 0)
 					p_ext_loc_list = &ext_loc_list;
-				}
 			}
 			addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_QUOTUPD_LOC, 0, 0, cmLocList, 0, LocationCtrlGroup::fEnableSelUpLevel, p_ext_loc_list));
 		}
@@ -80,7 +78,7 @@ private:
 	void   setupQuot();
 	QuotUpdFilt Data;
 	int    QuotCls; // PPQuot::clsXXX  (obsolete: 1 - котировки, 2 - контрактные цены, 3 - матрица)
-	PPObjQuotKind::Special QkSpc;
+	const  PPObjQuotKind::Special QkSpc;
 	PPObjQuotKind QkObj;
 	PPObjGoods GObj;
 };
@@ -132,7 +130,7 @@ int QuotUpdDialog::setDTS(const QuotUpdFilt * pFilt)
 	}
 	{
 		ArticleCtrlGroup::Rec ar_grp_rec(0, 0, &Data.ArList);
-		ArticleCtrlGroup * p_ar_grp = (ArticleCtrlGroup *)getGroup(GRP_ARTICLE);
+		ArticleCtrlGroup * p_ar_grp = static_cast<ArticleCtrlGroup *>(getGroup(GRP_ARTICLE));
 		p_ar_grp->SetAccSheet(acc_sheet_id);
 		setGroupData(GRP_ARTICLE, &ar_grp_rec);
 	}
@@ -313,10 +311,10 @@ IMPL_HANDLE_EVENT(QuotUpdDialog)
 			Data.ArticleID = 0;
 			Data.ArList.Set(0);
 			Data.QuotKindID = new_qk_id;
-			SetupPPObjCombo(this, CTLSEL_QUOTUPD_KIND, PPOBJ_QUOTKIND, Data.QuotKindID, 0, (void *)qk_sel_extra);
+			SetupPPObjCombo(this, CTLSEL_QUOTUPD_KIND, PPOBJ_QUOTKIND, Data.QuotKindID, 0, reinterpret_cast<void *>(qk_sel_extra));
 			{
 				ArticleCtrlGroup::Rec ar_grp_rec(0, 0, &Data.ArList);
-				ArticleCtrlGroup * p_ar_grp = (ArticleCtrlGroup *)getGroup(GRP_ARTICLE);
+				ArticleCtrlGroup * p_ar_grp = static_cast<ArticleCtrlGroup *>(getGroup(GRP_ARTICLE));
 				p_ar_grp->SetAccSheet(acc_sheet_id);
 				setGroupData(GRP_ARTICLE, &ar_grp_rec);
 			}

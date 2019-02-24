@@ -400,7 +400,7 @@ int SLAPI TDialog::LoadDialog(TVRez * rez, uint dialogID, TDialog * dlg, long fl
 					p_view = dlg->getCtrlView(temp_id);
 					if(temp_id) {
 						ComboBox * combo = new ComboBox(r,  options);
-						TInputLine * il = (TInputLine *)p_view;
+						TInputLine * il = static_cast<TInputLine *>(p_view);
 						CALLPTRMEMB(il, setupCombo(combo));
 						dlg->InsertCtl(combo, id, (flags & ldfDL600_Cvt) ? symb.cptr() : 0);
 					}
@@ -686,7 +686,7 @@ IMPL_HANDLE_EVENT(TDialog)
 						if(event.message.infoPtr) {
 							if(!(DlgFlags & fMouseResizing))
 								GetWindowRect(H(), &ResizedRect);
-							ToResizeRect = *(RECT *)event.message.infoPtr;
+							ToResizeRect = *static_cast<RECT *>(event.message.infoPtr);
 							DlgFlags |= fMouseResizing;
 							clearEvent(event);
 						}
@@ -779,14 +779,14 @@ long TDialog::getVirtButtonID(uint ctlID)
 
 int FASTCALL TDialog::AddClusterAssoc(uint ctlID, long pos, long val)
 {
-	TCluster * p_clu = (TCluster *)getCtrlView(ctlID);
+	TCluster * p_clu = static_cast<TCluster *>(getCtrlView(ctlID));
 	return p_clu ? p_clu->addAssoc(pos, val) : 0;
 }
 
 int FASTCALL TDialog::AddClusterAssocDef(uint ctlID, long pos, long val)
 {
 	int    ok = 1;
-	TCluster * p_clu = (TCluster *)getCtrlView(ctlID);
+	TCluster * p_clu = static_cast<TCluster *>(getCtrlView(ctlID));
 	if(p_clu) {
 		p_clu->addAssoc(pos, val);
 		if(pos >= 0 && p_clu->getKind() == RADIOBUTTONS)
@@ -799,19 +799,19 @@ int FASTCALL TDialog::AddClusterAssocDef(uint ctlID, long pos, long val)
 
 int TDialog::GetClusterItemByAssoc(uint ctlID, long val, int * pPos)
 {
-	TCluster * p_clu = (TCluster *)getCtrlView(ctlID);
+	TCluster * p_clu = static_cast<TCluster *>(getCtrlView(ctlID));
 	return p_clu ? p_clu->getItemByAssoc(val, pPos) : 0;
 }
 
 int FASTCALL TDialog::SetClusterData(uint ctlID, long val)
 {
-	TCluster * p_clu = (TCluster *)getCtrlView(ctlID);
+	TCluster * p_clu = static_cast<TCluster *>(getCtrlView(ctlID));
 	return p_clu ? p_clu->setDataAssoc(val) : 0;
 }
 
 int FASTCALL TDialog::GetClusterData(uint ctlID, long * pVal)
 {
-	TCluster * p_clu = (TCluster *)getCtrlView(ctlID);
+	TCluster * p_clu = static_cast<TCluster *>(getCtrlView(ctlID));
 	return p_clu ? p_clu->getDataAssoc(pVal) : 0;
 }
 
@@ -832,13 +832,13 @@ int FASTCALL TDialog::GetClusterData(uint ctlID, int16 * pVal)
 
 void TDialog::DisableClusterItem(uint ctlID, int itemNo, int toDisable)
 {
-	TCluster * p_clu = (TCluster *)getCtrlView(ctlID);
+	TCluster * p_clu = static_cast<TCluster *>(getCtrlView(ctlID));
 	CALLPTRMEMB(p_clu, disableItem(itemNo, toDisable));
 }
 
 int TDialog::SetClusterItemText(uint ctlID, int itemNo /* 0.. */, const char * pText)
 {
-	TCluster * p_clu = (TCluster *)getCtrlView(ctlID);
+	TCluster * p_clu = static_cast<TCluster *>(getCtrlView(ctlID));
 	return p_clu ? p_clu->setText(itemNo, pText) : 0;
 }
 
@@ -862,7 +862,7 @@ int TDialog::SetCtrlBitmap(uint ctlID, uint bmID)
 int TDialog::SetupInputLine(uint ctlID, TYPEID typ, long format)
 {
 	int    ok = 0;
-	TInputLine * p_v = (TInputLine *)getCtrlView(ctlID);
+	TInputLine * p_v = static_cast<TInputLine *>(getCtrlView(ctlID));
 	if(p_v && p_v->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
 		p_v->setFormat(format);
 		p_v->setType(typ);
@@ -873,7 +873,7 @@ int TDialog::SetupInputLine(uint ctlID, TYPEID typ, long format)
 
 void TDialog::SetupSpin(uint ctlID, uint buddyCtlID, int low, int upp, int cur)
 {
-	SendDlgItemMessage(H(), ctlID, UDM_SETBUDDY, (WPARAM)GetDlgItem(H(), buddyCtlID), 0);
+	SendDlgItemMessage(H(), ctlID, UDM_SETBUDDY, reinterpret_cast<WPARAM>(GetDlgItem(H(), buddyCtlID)), 0);
 	SendDlgItemMessage(H(), ctlID, UDM_SETRANGE, 0, MAKELONG(upp, low));
 	SendDlgItemMessage(H(), ctlID, UDM_SETPOS, 0, MAKELONG(cur, 0));
 }
@@ -888,11 +888,10 @@ int TDialog::SetFont(const SFontDescr & rFd)
 	 	MEMSZERO(log_font);
 		rFd.MakeLogFont(&log_font);
 		HFONT new_font = ::CreateFontIndirect(&log_font);*/
-		HFONT new_font = (HFONT)TView::CreateFont(rFd); // @v9.1.3
+		HFONT new_font = static_cast<HFONT>(TView::CreateFont(rFd)); // @v9.1.3
 		if(new_font) {
 			ok = SETIFZ(P_FontsAry, new SVector(sizeof(HFONT))) ? P_FontsAry->insert(&new_font) : 0;
-			::SendMessage(H(), WM_SETFONT, (WPARAM)new_font, TRUE);
-			ok = 1;
+			::SendMessage(H(), WM_SETFONT, reinterpret_cast<WPARAM>(new_font), TRUE);
 		}
 	}
 	return ok;
@@ -907,10 +906,10 @@ int TDialog::SetCtrlFont(uint ctlID, const SFontDescr & rFd)
 	 	MEMSZERO(log_font);
 		rFd.MakeLogFont(&log_font);
 		HFONT new_font = CreateFontIndirect(&log_font); */
-		HFONT new_font = (HFONT)TView::CreateFont(rFd); // @v9.1.3
+		HFONT new_font = static_cast<HFONT>(TView::CreateFont(rFd)); // @v9.1.3
 		if(new_font) {
 			ok = SETIFZ(P_FontsAry, new SVector(sizeof(HFONT))) ? P_FontsAry->insert(&new_font) : 0;
-			::SendMessage(h_ctl, WM_SETFONT, (WPARAM)new_font, TRUE);
+			::SendMessage(h_ctl, WM_SETFONT, reinterpret_cast<WPARAM>(new_font), TRUE);
 			ok = 1;
 		}
 	}
@@ -942,7 +941,7 @@ int __cdecl TDialog::SetCtrlsFont(const char * pFontName, int height, ...)
 			ok = P_FontsAry ? P_FontsAry->insert(&new_font) : 0;
 			if(ok > 0)
 				while((ctrl_id = va_arg(vl, long)) != 0)
-					SendMessage(GetDlgItem(H(), ctrl_id), WM_SETFONT, (WPARAM)new_font, TRUE);
+					SendMessage(GetDlgItem(H(), ctrl_id), WM_SETFONT, reinterpret_cast<WPARAM>(new_font), TRUE);
 		}
 	}
 	va_end(vl);

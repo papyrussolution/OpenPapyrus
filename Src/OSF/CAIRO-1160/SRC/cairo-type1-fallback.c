@@ -460,8 +460,8 @@ static cairo_status_t cairo_type1_write_stream_encrypted(void * closure, const u
 	static const char hex_digits[/*16*/] = "0123456789abcdef";
 	char digits[3];
 	cairo_type1_font_t * font = (cairo_type1_font_t *)closure;
-	in = (const uchar*)data;
-	end = (const uchar*)data + length;
+	in = reinterpret_cast<const uchar *>(data);
+	end = reinterpret_cast<const uchar *>(data) + length;
 	while(in < end) {
 		p = *in++;
 		c = p ^ (font->eexec_key >> 8);

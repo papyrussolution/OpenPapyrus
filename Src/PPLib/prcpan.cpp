@@ -333,7 +333,7 @@ int PrcPaneDialog::setDTS(PPID prcID)
 void PrcPaneDialog::clearInput(int selectOnly)
 {
 	if(selectOnly) {
-		TInputLine * p_il = (TInputLine*)getCtrlView(CTL_PRCPAN_INPUT);
+		TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_PRCPAN_INPUT));
 		CALLPTRMEMB(p_il, selectAll(true));
 	}
 	else {

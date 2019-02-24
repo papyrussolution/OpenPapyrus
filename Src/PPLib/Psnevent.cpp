@@ -2023,7 +2023,7 @@ int PPALDD_PsnEventItem::NextIteration(PPIterID iterId)
 	int    r = -1;
 	if(IterProlog(iterId, 0) < 0)
 		I.nn = 0;
-	uint   n = (uint)I.nn;
+	uint   n = static_cast<uint>(I.nn);
 	PsnEventItemPrintStruc * p_struc = (PsnEventItemPrintStruc *)Extra[0].Ptr;
 	PPPsnEventPacket * p_pack = (p_struc) ? p_struc->P_Pack : 0;
 	PPObjTag * p_objtag = (p_struc) ? p_struc->P_ObjTag : 0;
@@ -2182,7 +2182,7 @@ int SLAPI AddPersonEventFilt::ReadText(const char * pText, long)
 						ScndSCardID = temp_buf.ToLong();
 					break;
 				case cInteractLevel:
-					InteractiveLevel = (int16)temp_buf.ToLong();
+					InteractiveLevel = static_cast<int16>(temp_buf.ToLong());
 					break;
 				case cNonInteractive:
 					InteractiveLevel = 0;

@@ -695,7 +695,7 @@ int SLAPI RegisterCore::_Put(PPID objType, PPID objID, RegisterArray * pAry, int
 						THROW(remove_list.add(reg_id));
 					}
 					else {
-						RegisterTbl::Rec & r_new_rec = pAry->at(i);
+						const RegisterTbl::Rec & r_new_rec = pAry->at(i);
 						if(data != r_new_rec)
 							THROW(update_list.add(reg_id));
 					}

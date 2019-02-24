@@ -38,7 +38,7 @@ GLOBAL(void) jpeg_start_compress(j_compress_ptr cinfo, boolean write_all_tables)
 	if(write_all_tables)
 		jpeg_suppress_tables(cinfo, FALSE); // mark all tables to be written 
 	// (Re)initialize error mgr and destination modules 
-	(*cinfo->err->reset_error_mgr)((j_common_ptr)cinfo);
+	(*cinfo->err->reset_error_mgr)(reinterpret_cast<j_common_ptr>(cinfo));
 	(*cinfo->dest->init_destination)(cinfo);
 	// Perform master selection of active modules 
 	jinit_compress_master(cinfo);
@@ -73,7 +73,7 @@ GLOBAL(JDIMENSION) jpeg_write_scanlines(j_compress_ptr cinfo, JSAMPARRAY scanlin
 	if(cinfo->progress) {
 		cinfo->progress->pass_counter = (long)cinfo->next_scanline;
 		cinfo->progress->pass_limit = (long)cinfo->image_height;
-		(*cinfo->progress->progress_monitor)((j_common_ptr)cinfo);
+		(*cinfo->progress->progress_monitor)(reinterpret_cast<j_common_ptr>(cinfo));
 	}
 	// 
 	// Give master control module another chance if this is first call to jpeg_write_scanlines.  
@@ -107,7 +107,7 @@ GLOBAL(JDIMENSION) jpeg_write_raw_data(j_compress_ptr cinfo, JSAMPIMAGE data, JD
 	if(cinfo->progress) {
 		cinfo->progress->pass_counter = (long)cinfo->next_scanline;
 		cinfo->progress->pass_limit = (long)cinfo->image_height;
-		(*cinfo->progress->progress_monitor)((j_common_ptr)cinfo);
+		(*cinfo->progress->progress_monitor)(reinterpret_cast<j_common_ptr>(cinfo));
 	}
 
 	/* Give master control module another chance if this is first call to

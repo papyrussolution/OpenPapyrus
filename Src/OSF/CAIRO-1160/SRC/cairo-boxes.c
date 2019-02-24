@@ -224,7 +224,6 @@ cairo_status_t FASTCALL _cairo_boxes_add(cairo_boxes_t * boxes, cairo_antialias_
 	}
 	return boxes->status;
 }
-
 /** _cairo_boxes_extents:
  *
  * Computes the minimum bounding box of the given box set and stores
@@ -233,7 +232,7 @@ cairo_status_t FASTCALL _cairo_boxes_add(cairo_boxes_t * boxes, cairo_antialias_
  * @param boxes      The box set whose minimum bounding is computed.
  * @param box        Return buffer for the computed result.
  */
-void _cairo_boxes_extents(const cairo_boxes_t * boxes, cairo_box_t * box)
+void FASTCALL _cairo_boxes_extents(const cairo_boxes_t * boxes, cairo_box_t * box)
 {
 	const cairo_boxes_t::_cairo_boxes_chunk * chunk;
 	cairo_box_t b;

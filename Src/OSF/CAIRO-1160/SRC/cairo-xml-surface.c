@@ -211,7 +211,7 @@ static const char * _format_to_string(cairo_format_t format)
 
 static cairo_status_t _device_flush(void * abstract_device)
 {
-	cairo_xml_t * xml = (cairo_xml_t *)abstract_device;
+	cairo_xml_t * xml = static_cast<cairo_xml_t *>(abstract_device);
 	cairo_status_t status;
 	status = _cairo_output_stream_flush(xml->stream);
 	return status;
@@ -219,7 +219,7 @@ static cairo_status_t _device_flush(void * abstract_device)
 
 static void _device_destroy(void * abstract_device)
 {
-	cairo_xml_t * xml = (cairo_xml_t *)abstract_device;
+	cairo_xml_t * xml = static_cast<cairo_xml_t *>(abstract_device);
 	cairo_status_t status = _cairo_output_stream_destroy(xml->stream);
 	SAlloc::F(xml);
 }
@@ -320,19 +320,19 @@ static cairo_bool_t _cairo_xml_surface_get_extents(void * abstract_surface, cair
 
 static cairo_status_t _cairo_xml_move_to(void * closure, const cairo_point_t * p1)
 {
-	_cairo_xml_printf_continue((cairo_xml_t *)closure, " %f %f m", _cairo_fixed_to_double(p1->x), _cairo_fixed_to_double(p1->y));
+	_cairo_xml_printf_continue(static_cast<cairo_xml_t *>(closure), " %f %f m", _cairo_fixed_to_double(p1->x), _cairo_fixed_to_double(p1->y));
 	return CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_status_t _cairo_xml_line_to(void * closure, const cairo_point_t * p1)
 {
-	_cairo_xml_printf_continue((cairo_xml_t *)closure, " %f %f l", _cairo_fixed_to_double(p1->x), _cairo_fixed_to_double(p1->y));
+	_cairo_xml_printf_continue(static_cast<cairo_xml_t *>(closure), " %f %f l", _cairo_fixed_to_double(p1->x), _cairo_fixed_to_double(p1->y));
 	return CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_status_t _cairo_xml_curve_to(void * closure, const cairo_point_t * p1, const cairo_point_t * p2, const cairo_point_t * p3)
 {
-	_cairo_xml_printf_continue((cairo_xml_t *)closure, " %f %f %f %f %f %f c",
+	_cairo_xml_printf_continue(static_cast<cairo_xml_t *>(closure), " %f %f %f %f %f %f c",
 	    _cairo_fixed_to_double(p1->x), _cairo_fixed_to_double(p1->y), _cairo_fixed_to_double(p2->x),
 	    _cairo_fixed_to_double(p2->y), _cairo_fixed_to_double(p3->x), _cairo_fixed_to_double(p3->y));
 	return CAIRO_STATUS_SUCCESS;
@@ -340,7 +340,7 @@ static cairo_status_t _cairo_xml_curve_to(void * closure, const cairo_point_t * 
 
 static cairo_status_t _cairo_xml_close_path(void * closure)
 {
-	_cairo_xml_printf_continue((cairo_xml_t *)closure, " h");
+	_cairo_xml_printf_continue(static_cast<cairo_xml_t *>(closure), " h");
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -375,7 +375,6 @@ static cairo_status_t _cairo_xml_surface_emit_clip_boxes(cairo_xml_surface_t * s
 	int n;
 	if(clip->num_boxes == 0)
 		return CAIRO_STATUS_SUCCESS;
-
 	/* skip the trivial clip covering the surface extents */
 	if(surface->width >= 0 && surface->height >= 0 && clip->num_boxes == 1) {
 		box = &clip->boxes[0];
@@ -385,23 +384,15 @@ static cairo_status_t _cairo_xml_surface_emit_clip_boxes(cairo_xml_surface_t * s
 			return CAIRO_STATUS_SUCCESS;
 		}
 	}
-
 	xml = to_xml(surface);
-
 	_cairo_xml_printf(xml, "<clip>");
 	_cairo_xml_indent(xml, 2);
-
 	_cairo_xml_printf(xml, "<path>");
 	_cairo_xml_indent(xml, 2);
 	for(n = 0; n < clip->num_boxes; n++) {
 		box = &clip->boxes[n];
-
-		_cairo_xml_printf_start(xml, "%f %f m",
-		    _cairo_fixed_to_double(box->p1.x),
-		    _cairo_fixed_to_double(box->p1.y));
-		_cairo_xml_printf_continue(xml, " %f %f l",
-		    _cairo_fixed_to_double(box->p2.x),
-		    _cairo_fixed_to_double(box->p1.y));
+		_cairo_xml_printf_start(xml, "%f %f m", _cairo_fixed_to_double(box->p1.x), _cairo_fixed_to_double(box->p1.y));
+		_cairo_xml_printf_continue(xml, " %f %f l", _cairo_fixed_to_double(box->p2.x), _cairo_fixed_to_double(box->p1.y));
 		_cairo_xml_printf_continue(xml, " %f %f l",
 		    _cairo_fixed_to_double(box->p2.x),
 		    _cairo_fixed_to_double(box->p2.y));
@@ -481,8 +472,7 @@ static cairo_status_t _cairo_xml_surface_emit_clip(cairo_xml_surface_t * surface
 	return _cairo_xml_surface_emit_clip_path(surface, clip->path);
 }
 
-static cairo_status_t _cairo_xml_emit_solid(cairo_xml_t * xml,
-    const cairo_solid_pattern_t * solid)
+static cairo_status_t _cairo_xml_emit_solid(cairo_xml_t * xml, const cairo_solid_pattern_t * solid)
 {
 	_cairo_xml_printf(xml, "<solid>%f %f %f %f</solid>",
 	    solid->color.red,
@@ -503,24 +493,15 @@ static void _cairo_xml_emit_matrix(cairo_xml_t * xml,
 	}
 }
 
-static void _cairo_xml_emit_gradient(cairo_xml_t * xml,
-    const cairo_gradient_pattern_t * gradient)
+static void _cairo_xml_emit_gradient(cairo_xml_t * xml, const cairo_gradient_pattern_t * gradient)
 {
-	uint i;
-
-	for(i = 0; i < gradient->n_stops; i++) {
-		_cairo_xml_printf(xml,
-		    "<color-stop>%f %f %f %f %f</color-stop>",
-		    gradient->stops[i].offset,
-		    gradient->stops[i].color.red,
-		    gradient->stops[i].color.green,
-		    gradient->stops[i].color.blue,
-		    gradient->stops[i].color.alpha);
+	for(uint i = 0; i < gradient->n_stops; i++) {
+		_cairo_xml_printf(xml, "<color-stop>%f %f %f %f %f</color-stop>",
+		    gradient->stops[i].offset, gradient->stops[i].color.red, gradient->stops[i].color.green, gradient->stops[i].color.blue, gradient->stops[i].color.alpha);
 	}
 }
 
-static cairo_status_t _cairo_xml_emit_linear(cairo_xml_t * xml,
-    const cairo_linear_pattern_t * linear)
+static cairo_status_t _cairo_xml_emit_linear(cairo_xml_t * xml, const cairo_linear_pattern_t * linear)
 {
 	_cairo_xml_printf(xml,
 	    "<linear x1='%f' y1='%f' x2='%f' y2='%f'>",
@@ -533,13 +514,10 @@ static cairo_status_t _cairo_xml_emit_linear(cairo_xml_t * xml,
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _cairo_xml_emit_radial(cairo_xml_t * xml,
-    const cairo_radial_pattern_t * radial)
+static cairo_status_t _cairo_xml_emit_radial(cairo_xml_t * xml, const cairo_radial_pattern_t * radial)
 {
-	_cairo_xml_printf(xml,
-	    "<radial x1='%f' y1='%f' r1='%f' x2='%f' y2='%f' r2='%f'>",
-	    radial->cd1.center.x, radial->cd1.center.y, radial->cd1.radius,
-	    radial->cd2.center.x, radial->cd2.center.y, radial->cd2.radius);
+	_cairo_xml_printf(xml, "<radial x1='%f' y1='%f' r1='%f' x2='%f' y2='%f' r2='%f'>",
+	    radial->cd1.center.x, radial->cd1.center.y, radial->cd1.radius, radial->cd2.center.x, radial->cd2.center.y, radial->cd2.radius);
 	_cairo_xml_indent(xml, 2);
 	_cairo_xml_emit_gradient(xml, &radial->base);
 	_cairo_xml_indent(xml, -2);
@@ -549,7 +527,7 @@ static cairo_status_t _cairo_xml_emit_radial(cairo_xml_t * xml,
 
 static cairo_status_t _write_func(void * closure, const uchar * data, unsigned len)
 {
-	_cairo_output_stream_write((cairo_output_stream_t *)closure, data, len);
+	_cairo_output_stream_write(static_cast<cairo_output_stream_t *>(closure), data, len);
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -578,61 +556,37 @@ static cairo_status_t _cairo_xml_emit_surface(cairo_xml_t * xml, const cairo_sur
 	else {
 		cairo_image_surface_t * image;
 		void * image_extra;
-
-		status = _cairo_surface_acquire_source_image(source,
-			&image, &image_extra);
+		status = _cairo_surface_acquire_source_image(source, &image, &image_extra);
 		if(unlikely(status))
 			return status;
-
 		status = _cairo_xml_emit_image(xml, image);
-
 		_cairo_surface_release_source_image(source, image, image_extra);
 	}
-
 	return status;
 }
 
-static cairo_status_t _cairo_xml_emit_pattern(cairo_xml_t * xml,
-    const char * source_or_mask,
-    const cairo_pattern_t * pattern)
+static cairo_status_t _cairo_xml_emit_pattern(cairo_xml_t * xml, const char * source_or_mask, const cairo_pattern_t * pattern)
 {
 	cairo_status_t status;
-
 	_cairo_xml_printf(xml, "<%s-pattern>", source_or_mask);
 	_cairo_xml_indent(xml, 2);
-
 	switch(pattern->type) {
-		case CAIRO_PATTERN_TYPE_SOLID:
-		    status = _cairo_xml_emit_solid(xml, (cairo_solid_pattern_t*)pattern);
-		    break;
-		case CAIRO_PATTERN_TYPE_LINEAR:
-		    status = _cairo_xml_emit_linear(xml, (cairo_linear_pattern_t*)pattern);
-		    break;
-		case CAIRO_PATTERN_TYPE_RADIAL:
-		    status = _cairo_xml_emit_radial(xml, (cairo_radial_pattern_t*)pattern);
-		    break;
-		case CAIRO_PATTERN_TYPE_SURFACE:
-		    status = _cairo_xml_emit_surface(xml, (cairo_surface_pattern_t*)pattern);
-		    break;
+		case CAIRO_PATTERN_TYPE_SOLID: status = _cairo_xml_emit_solid(xml, reinterpret_cast<const cairo_solid_pattern_t *>(pattern)); break;
+		case CAIRO_PATTERN_TYPE_LINEAR: status = _cairo_xml_emit_linear(xml, (cairo_linear_pattern_t*)pattern); break;
+		case CAIRO_PATTERN_TYPE_RADIAL: status = _cairo_xml_emit_radial(xml, (cairo_radial_pattern_t*)pattern); break;
+		case CAIRO_PATTERN_TYPE_SURFACE: status = _cairo_xml_emit_surface(xml, (cairo_surface_pattern_t*)pattern); break;
 		default:
 		    ASSERT_NOT_REACHED;
 		    status = CAIRO_INT_STATUS_UNSUPPORTED;
 		    break;
 	}
-
 	if(pattern->type != CAIRO_PATTERN_TYPE_SOLID) {
 		_cairo_xml_emit_matrix(xml, &pattern->matrix);
-		_cairo_xml_printf(xml,
-		    "<extend>%s</extend>",
-		    _extend_to_string(pattern->extend));
-		_cairo_xml_printf(xml,
-		    "<filter>%s</filter>",
-		    _filter_to_string(pattern->filter));
+		_cairo_xml_printf(xml, "<extend>%s</extend>", _extend_to_string(pattern->extend));
+		_cairo_xml_printf(xml, "<filter>%s</filter>", _filter_to_string(pattern->filter));
 	}
-
 	_cairo_xml_indent(xml, -2);
 	_cairo_xml_printf(xml, "</%s-pattern>", source_or_mask);
-
 	return status;
 }
 

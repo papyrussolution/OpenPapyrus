@@ -567,7 +567,7 @@ static int fsend(struct soap * soap, const char * s, size_t n)
   #ifndef WITH_LEAN
 			if((soap->omode&SOAP_IO_UDP)) {
 				if(soap->peerlen)
-					nwritten = sendto(soap->socket, (char*)s, (SOAP_WINSOCKINT)n, soap->socket_flags, (struct sockaddr*)&soap->peer, (SOAP_WINSOCKINT)soap->peerlen);
+					nwritten = sendto(soap->socket, s, (SOAP_WINSOCKINT)n, soap->socket_flags, (struct sockaddr*)&soap->peer, (SOAP_WINSOCKINT)soap->peerlen);
 				else
 					nwritten = send(soap->socket, s, (SOAP_WINSOCKINT)n, soap->socket_flags);
 				/* retry and back-off algorithm */
@@ -584,13 +584,13 @@ static int fsend(struct soap * soap, const char * s, size_t n)
 					do {
 						tcp_select(soap, soap->socket, SOAP_TCP_SELECT_ERR, -1000*udp_delay);
 					    if(soap->peerlen)
-						    nwritten = sendto(soap->socket, (char*)s, (SOAP_WINSOCKINT)n,
-								    soap->socket_flags, (struct sockaddr*)&soap->peer, (SOAP_WINSOCKINT)soap->peerlen);
+						    nwritten = sendto(soap->socket, s, (SOAP_WINSOCKINT)n, soap->socket_flags, (struct sockaddr*)&soap->peer, (SOAP_WINSOCKINT)soap->peerlen);
 					    else
 						    nwritten = send(soap->socket, s, (SOAP_WINSOCKINT)n, soap->socket_flags);
 					    udp_delay <<= 1;
 					    if(udp_delay > 500) /* UDP_UPPER_DELAY */
-						    udp_delay = 500; } while(nwritten < 0 && --udp_repeat > 0);
+						    udp_delay = 500; 
+					} while(nwritten < 0 && --udp_repeat > 0);
 				}
 			}
 			else
@@ -2018,7 +2018,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_update_pointers(struct soap * soap, char * start
 		if(xp->ptr && (char*)xp->ptr >= start && (char*)xp->ptr < end) {
 			DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Update id='%s' %p -> %p\n", xp->id ? xp->id : SOAP_STR_EOS, xp->ptr, (char*)xp->ptr+(p1-p2)));
 			xp->ptr = (uchar**)((char*)xp->ptr+(p1-p2));
-			xp->size = (int*)((char*)xp->size+(p1-p2));
+			xp->size = (int *)((char*)xp->size+(p1-p2));
 			xp->type = (char**)((char*)xp->type+(p1-p2));
 			xp->options = (char**)((char*)xp->options+(p1-p2));
 		}
@@ -2605,7 +2605,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_rand()
 	if(!soap_ssl_init_done)
 		soap_ssl_init();
 	RAND_pseudo_bytes(buf, 4);
-	return *(int*)buf;
+	return *(int *)buf;
 }
 #endif
 #endif
@@ -10313,9 +10313,9 @@ SOAP_FMAC1 int * SOAP_FMAC2 soap_inint(struct soap * soap, const char * tag, int
 		return NULL;
 	}
  #endif
-	p = (int*)soap_id_enter(soap, soap->id, p, t, sizeof(int), 0, 0, 0, 0);
+	p = (int *)soap_id_enter(soap, soap->id, p, t, sizeof(int), 0, 0, 0, 0);
 	if(*soap->href)
-		p = (int*)soap_id_forward(soap, soap->href, p, 0, t, 0, sizeof(int), 0, 0);
+		p = (int *)soap_id_forward(soap, soap->href, p, 0, t, 0, sizeof(int), 0, 0);
 	else if(p) {
 		if(soap_s2int(soap, soap_value(soap), p))
 			return NULL;

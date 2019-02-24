@@ -87,14 +87,14 @@ PIXMAN_EXPORT void pixman_edge_step(pixman_edge_t * e, int n)
 	if(n >= 0) {
 		if(ne > 0) {
 			int nx = static_cast<int>((ne + e->dy - 1) / e->dy);
-			e->e = ne - nx * (pixman_fixed_48_16_t)e->dy;
+			e->e = static_cast<pixman_fixed_t>(ne - nx * (pixman_fixed_48_16_t)e->dy);
 			e->x += nx * e->signdx;
 		}
 	}
 	else {
 		if(ne <= -e->dy) {
 			int nx = static_cast<int>((-ne) / e->dy);
-			e->e = ne + nx * (pixman_fixed_48_16_t)e->dy;
+			e->e = static_cast<pixman_fixed_t>(ne + nx * (pixman_fixed_48_16_t)e->dy);
 			e->x -= nx * e->signdx;
 		}
 	}
@@ -113,7 +113,7 @@ static void _pixman_edge_multi_init(pixman_edge_t * e, int n, pixman_fixed_t * s
 		ne -= nx * (pixman_fixed_48_16_t)e->dy;
 		stepx += nx * e->signdx;
 	}
-	*dx_p = ne;
+	*dx_p = static_cast<pixman_fixed_t>(ne);
 	*stepx_p = stepx;
 }
 

@@ -47,7 +47,7 @@ GLOBAL(void) jpeg_CreateDecompress(j_decompress_ptr cinfo, int version, size_t s
 	}
 	cinfo->is_decompressor = TRUE;
 	/* Initialize a memory manager instance for this object */
-	jinit_memory_mgr((j_common_ptr)cinfo);
+	jinit_memory_mgr(reinterpret_cast<j_common_ptr>(cinfo));
 	/* Zero out pointers to permanent structures. */
 	cinfo->progress = NULL;
 	cinfo->src = NULL;
@@ -74,7 +74,7 @@ GLOBAL(void) jpeg_CreateDecompress(j_decompress_ptr cinfo, int version, size_t s
  */
 GLOBAL(void) jpeg_destroy_decompress(j_decompress_ptr cinfo)
 {
-	jpeg_destroy((j_common_ptr)cinfo); /* use common routine */
+	jpeg_destroy(reinterpret_cast<j_common_ptr>(cinfo)); /* use common routine */
 }
 
 /*
@@ -83,7 +83,7 @@ GLOBAL(void) jpeg_destroy_decompress(j_decompress_ptr cinfo)
  */
 GLOBAL(void) jpeg_abort_decompress(j_decompress_ptr cinfo)
 {
-	jpeg_abort((j_common_ptr)cinfo); /* use common routine */
+	jpeg_abort(reinterpret_cast<j_common_ptr>(cinfo)); /* use common routine */
 }
 /*
  * Set default decompression parameters.
@@ -228,7 +228,7 @@ GLOBAL(int) jpeg_read_header(j_decompress_ptr cinfo, boolean require_image)
 		     * call jpeg_abort, but we can't change it now for compatibility reasons.
 		     * A side effect is to free any temporary memory (there shouldn't be any).
 		     */
-		    jpeg_abort((j_common_ptr)cinfo); /* sets state = DSTATE_START */
+		    jpeg_abort(reinterpret_cast<j_common_ptr>(cinfo)); /* sets state = DSTATE_START */
 		    retcode = JPEG_HEADER_TABLES_ONLY;
 		    break;
 		case JPEG_SUSPENDED:
@@ -340,6 +340,6 @@ GLOBAL(boolean) jpeg_finish_decompress(j_decompress_ptr cinfo)
 	/* Do final cleanup */
 	(*cinfo->src->term_source)(cinfo);
 	/* We can use jpeg_abort to release memory and reset global_state */
-	jpeg_abort((j_common_ptr)cinfo);
+	jpeg_abort(reinterpret_cast<j_common_ptr>(cinfo));
 	return TRUE;
 }

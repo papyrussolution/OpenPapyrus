@@ -1160,8 +1160,8 @@ void place_layer_id(char* grid, int size, int layers, int modules, int ecc_level
 	int layerid[layers + 1];
 	int id[modules * modules];
 #else
-	int* layerid = (int*)_alloca((layers + 1) * sizeof(int));
-	int* id = (int*)_alloca((modules * modules) * sizeof(int));
+	int* layerid = (int *)_alloca((layers + 1) * sizeof(int));
+	int* id = (int *)_alloca((modules * modules) * sizeof(int));
 #endif
 
 	/* Calculate Layer IDs */
@@ -1221,8 +1221,8 @@ int grid_matrix(struct ZintSymbol * symbol, const uchar source[], int length)
 	int gbdata[length + 1];
 #else
 	char* grid;
-	int* utfdata = (int*)_alloca((length + 1) * sizeof(int));
-	int* gbdata = (int*)_alloca((length + 1) * sizeof(int));
+	int* utfdata = (int *)_alloca((length + 1) * sizeof(int));
+	int* gbdata = (int *)_alloca((length + 1) * sizeof(int));
 #endif
 
 	for(i = 0; i < 1460; i++) {

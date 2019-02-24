@@ -92,7 +92,7 @@ static int pkey_hmac_keygen(EVP_PKEY_CTX * ctx, EVP_PKEY * pkey)
 static int int_update(EVP_MD_CTX * ctx, const void * data, size_t count)
 {
 	HMAC_PKEY_CTX * hctx = (HMAC_PKEY_CTX*)EVP_MD_CTX_pkey_ctx(ctx)->data;
-	if(!HMAC_Update(hctx->ctx, (const uchar*)data, count))
+	if(!HMAC_Update(hctx->ctx, reinterpret_cast<const uchar *>(data), count))
 		return 0;
 	return 1;
 }

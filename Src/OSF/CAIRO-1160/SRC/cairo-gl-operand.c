@@ -515,7 +515,7 @@ cairo_int_status_t _cairo_gl_operand_init(cairo_gl_operand_t * operand,
 	switch(pattern->type) {
 		case CAIRO_PATTERN_TYPE_SOLID:
 		    _cairo_gl_solid_operand_init(operand,
-			&((cairo_solid_pattern_t*)pattern)->color);
+			&(static_cast<cairo_solid_pattern_t *>(pattern))->color);
 		    return CAIRO_STATUS_SUCCESS;
 		case CAIRO_PATTERN_TYPE_SURFACE:
 		    status = _cairo_gl_surface_operand_init(operand, pattern, dst,

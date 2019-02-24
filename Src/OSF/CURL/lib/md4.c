@@ -113,7 +113,7 @@ static const void * body(MD4_CTX * ctx, const void * data, ulong size)
 	MD4_u32plus a, b, c, d;
 	MD4_u32plus saved_a, saved_b, saved_c, saved_d;
 
-	ptr = (const uchar*)data;
+	ptr = reinterpret_cast<const uchar *>(data);
 
 	a = ctx->a;
 	b = ctx->b;
@@ -229,7 +229,7 @@ static void MD4_Update(MD4_CTX * ctx, const void * data, ulong size)
 		}
 
 		memcpy(&ctx->buffer[used], data, available);
-		data = (const uchar*)data + available;
+		data = reinterpret_cast<const uchar *>(data) + available;
 		size -= available;
 		body(ctx, ctx->buffer, 64);
 	}

@@ -1123,7 +1123,7 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 			uint i = TVINFOVIEW->GetId();
 			if(oneof3(i, CTL_TSESS_PLANTIMING, CTL_TSESS_STDT, CTL_TSESS_STTM)) {
 				if(!InpUpdLock) {
-					TInputLine * il = (TInputLine*)getCtrlView(i);
+					TInputLine * il = static_cast<TInputLine *>(getCtrlView(i));
 					CALLPTRMEMB(il, disableDeleteSelection(1));
 					setupTiming(0);
 					CALLPTRMEMB(il, disableDeleteSelection(0));
@@ -1131,7 +1131,7 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 			}
 			if(oneof2(i, CTL_TSESS_FNDT, CTL_TSESS_FNTM)) {
 				if(!InpUpdLock) {
-					TInputLine * il = (TInputLine*)getCtrlView(i);
+					TInputLine * il = static_cast<TInputLine *>(getCtrlView(i));
 					CALLPTRMEMB(il, disableDeleteSelection(1));
 					setupTiming(1);
 					CALLPTRMEMB(il, disableDeleteSelection(0));
@@ -1139,7 +1139,7 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 			}
 			else if(i == CTL_TSESS_PLANQTTY) {
 				if(!InpUpdLock) {
-					TInputLine * il = (TInputLine*)getCtrlView(i);
+					TInputLine * il = static_cast<TInputLine *>(getCtrlView(i));
 					CALLPTRMEMB(il, disableDeleteSelection(1));
 					setupCapacity();
 					CALLPTRMEMB(il, disableDeleteSelection(0));

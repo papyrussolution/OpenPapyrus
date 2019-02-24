@@ -345,7 +345,7 @@ static int SLAPI InsertComplList(PPBillPacket * pPack, PPComplBlock & rList, int
 	PUGL * p_deficit_list = NZOR(pDfctList, &deficit_list);
 	for(uint i = 0; i < rList.getCount(); i++) {
 		ComplItem & r_item = rList.at(i);
-		src_serial = 0;
+		src_serial.Z();
 		if(r_item.PartQty != 0 && r_item.NeedQty != 0) {
 			long   convert_ilti_flags = CILTIF_OPTMZLOTS|CILTIF_USESUBST;
 			ILTI   ilti;
@@ -885,7 +885,7 @@ int SLAPI PPObjBill::Helper_WrOffDrft_DrftRcptModif(WrOffDraftBlock & rBlk, PPID
 	return ok;
 }
 
-int SLAPI PPObjBill::Helper_WriteOffTurnResultItem(WrOffDraftBlock & rBlk, uint pos, PPIDArray * pWrOffBills) // @notransaction
+int SLAPI PPObjBill::Helper_WriteOffTurnResultItem(const WrOffDraftBlock & rBlk, uint pos, PPIDArray * pWrOffBills) // @notransaction
 {
 	int    ok = -1;
 	if(pos < rBlk.ResultList.getCount()) {

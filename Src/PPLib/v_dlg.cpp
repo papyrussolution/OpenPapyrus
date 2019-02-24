@@ -541,7 +541,7 @@ int UiWtmToolDialog::setDTS(const TWhatmanToolArray::Item * pData)
 	AddClusterAssoc(CTL_WTMTOOL_FLAGS, 1, TWhatmanToolArray::Item::fDontKeepRatio);
 	SetClusterData(CTL_WTMTOOL_FLAGS, Data.Flags);
 	{
-		ComboBox * p_combo = (ComboBox *)getCtrlView(CTLSEL_WTMTOOL_WTMOBJ);
+		ComboBox * p_combo = static_cast<ComboBox *>(getCtrlView(CTLSEL_WTMTOOL_WTMOBJ));
 		if(p_combo) {
 			p_combo->setListWindow(CreateListWindow(TWhatmanObject::MakeStrAssocList(), lbtDisposeData|lbtDblClkNotify),
 				TWhatmanObject::GetRegIdBySymb(Data.WtmObjSymb));
@@ -549,7 +549,7 @@ int UiWtmToolDialog::setDTS(const TWhatmanToolArray::Item * pData)
 		}
 	}
 	{
-		ComboBox * p_combo = (ComboBox *)getCtrlView(CTLSEL_WTMTOOL_KIND);
+		ComboBox * p_combo = static_cast<ComboBox *>(getCtrlView(CTLSEL_WTMTOOL_KIND));
 		if(p_combo) {
 			StrAssocArray * p_ui_kind_list = new StrAssocArray;
 			UiItemKind::GetTextList(*p_ui_kind_list);

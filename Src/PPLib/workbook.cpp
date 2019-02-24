@@ -26,7 +26,7 @@ int SLAPI WorkbookCore::Helper_GetChildList(PPID id, int recursive, PPIDArray & 
 		local_list.sortAndUndup();
 		if(recursive) {
 			for(uint i = 0; i < local_list.getCount(); i++) {
-				PPID   next_level_id = local_list.get(i);
+				const PPID next_level_id = local_list.get(i);
 				if(!pRecurTrace->lsearch(next_level_id)) {
 					THROW(Helper_GetChildList(next_level_id, recursive, rList, pRecurTrace)); // @recursion
 				}
@@ -725,7 +725,7 @@ public:
 				disableCtrl(CTL_WORKBOOK_KEYWORDS, 1);
 		}
 		{
-			TInputLine * p_il = (TInputLine *)getCtrlView(CTL_WORKBOOK_DESCR);
+			TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_WORKBOOK_DESCR));
 			if(p_il) {
 				p_il->setMaxLen(512);
 				Data.GetExtStrData(WBEXSTR_DESCRIPTION, temp_buf);
@@ -849,7 +849,7 @@ private:
 		else if(event.isKeyDown(kbF2)) {
 			if(isCurrCtlID(CTL_WORKBOOK_KEYWORDS)) {
 				/*
-				TInputLine * p_il = (TInputLine *)getCtrlView(CTL_WORKBOOK_KEYWORDS);
+				TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_WORKBOOK_KEYWORDS));
 				if(p_il && !p_il->IsInState(sfDisabled) && WbObj.SelectKeyword(temp_buf) > 0) {
 					SString line_buf;
 					p_il->getText(line_buf);
@@ -863,7 +863,7 @@ private:
 				else
 					return;
 				*/
-				TInputLine * p_il = (TInputLine *)getCtrlView(CTL_WORKBOOK_KEYWORDS);
+				TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_WORKBOOK_KEYWORDS));
 				if(p_il && !p_il->IsInState(sfDisabled)) {
 					SString line_buf;
 					p_il->getText(line_buf);
@@ -2857,8 +2857,8 @@ int SLAPI PrcssrWorkbookImport::Run()
 					pack.Rec.Type = NZOR(sdr_rec.Type, PPWBTYP_PAGE);
 					pack.Rec.Flags = sdr_rec.Flags;
 					if(pack.Rec.Type == PPWBTYP_KEYWORD) {
-						pack.Rec.KeywordCount  = (int16)sdr_rec.KeywordCount;
-						pack.Rec.KeywordDilute = (int16)sdr_rec.KeywordDilute;
+						pack.Rec.KeywordCount  = static_cast<int16>(sdr_rec.KeywordCount);
+						pack.Rec.KeywordDilute = static_cast<int16>(sdr_rec.KeywordDilute);
 					}
 					pack.Rec.Rank  = sdr_rec.Order;
 					if(WbObj.SearchByName(pack.Rec.Name, &same_id, &same_rec) > 0) {
@@ -3237,8 +3237,8 @@ int PPALDD_UhttWorkbook::Set(long iterId, int commit)
 			r_blk.Pack.Rec.Type = H.Type;
 			r_blk.Pack.Rec.Rank = H.Rank;
 			r_blk.Pack.Rec.Flags = H.Flags;
-			r_blk.Pack.Rec.KeywordCount = (int16)H.KeywordCount;
-			r_blk.Pack.Rec.KeywordDilute = (int16)H.KeywordDilute;
+			r_blk.Pack.Rec.KeywordCount = static_cast<int16>(H.KeywordCount);
+			r_blk.Pack.Rec.KeywordDilute = static_cast<int16>(H.KeywordDilute);
 			r_blk.Pack.Rec.Dt = H.Dt;
 			r_blk.Pack.Rec.Tm = H.Tm;
 			(temp_buf = H.Name).Strip().RevertSpecSymb(SFileFormat::Html);

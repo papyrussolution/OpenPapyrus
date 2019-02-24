@@ -864,10 +864,8 @@ static void cell_list_render_edge(struct cell_list * cells,
 		if(ix1+1 < ix2) {
 			struct cell * cell = pair.cell2;
 			struct quorem dydx_full;
-
 			dydx_full.quo = static_cast<int32_t>(GRID_Y * GRID_X * edge->dy / dx);
 			dydx_full.rem = GRID_Y * GRID_X * edge->dy % dx;
-
 			++ix1;
 			do {
 				y.quo += dydx_full.quo;
@@ -876,15 +874,12 @@ static void cell_list_render_edge(struct cell_list * cells,
 					y.quo++;
 					y.rem -= dx;
 				}
-
 				cell->uncovered_area += sign*(y.quo - y_last)*GRID_X;
 				cell->covered_height += sign*(y.quo - y_last);
 				y_last = y.quo;
-
 				++ix1;
 				cell = cell_list_find(cells, ix1);
 			} while(ix1 != ix2);
-
 			pair.cell2 = cell;
 		}
 		pair.cell2->uncovered_area += sign*(GRID_Y - y_last)*fx2;
@@ -1375,15 +1370,14 @@ I glitter_status_t glitter_scan_converter_reset(glitter_scan_converter_t * conve
  * shifts if possible, and something saneish if not.
  */
 #if !defined(INPUT_TO_GRID_Y) && defined(GRID_Y_BITS) && GRID_Y_BITS <= GLITTER_INPUT_BITS
-#  define INPUT_TO_GRID_Y(in, out) (out) = (in) >> (GLITTER_INPUT_BITS - GRID_Y_BITS)
+	#define INPUT_TO_GRID_Y(in, out) (out) = (in) >> (GLITTER_INPUT_BITS - GRID_Y_BITS)
 #else
-#  define INPUT_TO_GRID_Y(in, out) INPUT_TO_GRID_general(in, out, GRID_Y)
+	#define INPUT_TO_GRID_Y(in, out) INPUT_TO_GRID_general(in, out, GRID_Y)
 #endif
-
 #if !defined(INPUT_TO_GRID_X) && defined(GRID_X_BITS) && GRID_X_BITS <= GLITTER_INPUT_BITS
-#  define INPUT_TO_GRID_X(in, out) (out) = (in) >> (GLITTER_INPUT_BITS - GRID_X_BITS)
+	#define INPUT_TO_GRID_X(in, out) (out) = (in) >> (GLITTER_INPUT_BITS - GRID_X_BITS)
 #else
-#  define INPUT_TO_GRID_X(in, out) INPUT_TO_GRID_general(in, out, GRID_X)
+	#define INPUT_TO_GRID_X(in, out) INPUT_TO_GRID_general(in, out, GRID_X)
 #endif
 
 #define INPUT_TO_GRID_general(in, out, grid_scale) do {         \
@@ -1433,14 +1427,13 @@ inline static void polygon_add_edge(struct polygon * polygon, const cairo_edge_t
 		int64_t tmp;
 		int64_t Ex = (int64_t)(p2->x - p1->x) * GRID_X;
 		int64_t Ey = (int64_t)(p2->y - p1->y) * GRID_Y * (2 << GLITTER_INPUT_BITS);
-		e->dxdy.quo = Ex * (2 << GLITTER_INPUT_BITS) / Ey;
+		e->dxdy.quo = static_cast<int32_t>(Ex * (2 << GLITTER_INPUT_BITS) / Ey);
 		e->dxdy.rem = Ex * (2 << GLITTER_INPUT_BITS) % Ey;
 		tmp = (int64_t)(2*ytop + 1) << GLITTER_INPUT_BITS;
 		tmp -= (int64_t)p1->y * GRID_Y * 2;
 		tmp *= Ex;
-		e->x.quo = tmp / Ey;
+		e->x.quo = static_cast<int32_t>(tmp / Ey);
 		e->x.rem = tmp % Ey;
-
 #if GRID_X_BITS == GLITTER_INPUT_BITS
 		e->x.quo += p1->x;
 #else
@@ -1458,7 +1451,7 @@ inline static void polygon_add_edge(struct polygon * polygon, const cairo_edge_t
 		}
 		if(e->height_left >= GRID_Y) {
 			tmp = Ex * (2 * GRID_Y << GLITTER_INPUT_BITS);
-			e->dxdy_full.quo = tmp / Ey;
+			e->dxdy_full.quo = static_cast<int32_t>(tmp / Ey);
 			e->dxdy_full.rem = tmp % Ey;
 		}
 		else {

@@ -80,9 +80,9 @@ int Crosstab::Summary::SetValue(uint lineNo, uint ctValPos, uint aggrPos, double
 					p_item->List.insert(temp_buf);
 				} while(ctValPos >= p_item->List.getCount());
 			}
-			const uint8 * ptr = (uint8 *)p_item->List.at(ctValPos);
+			uint8 * ptr = static_cast<uint8 *>(p_item->List.at(ctValPos));
 			if(ptr) {
-				((double *)(ptr+ExtSize))[aggrPos] = val;
+				reinterpret_cast<double *>(ptr+ExtSize)[aggrPos] = val;
 				return 1;
 			}
 		}
@@ -262,7 +262,7 @@ int SLAPI Crosstab::GetCrossValues(DBTable * pTbl, const DBField & crssFld, STyp
 	THROW_MEM(p_list = new STypArray(crssFld.getField().T, O_ARRAY));
 	pTbl->search(0, temp_key, spFirst);
 	for(q.initIteration(0, 0, -1); q.nextIteration() > 0;) {
-		const char * p_data_buf = (pTbl->getDataBuf() + crss_fld_offs);
+		const void * p_data_buf = PTR8C(pTbl->getDataBuf()) + crss_fld_offs;
 		if(!p_list->search(p_data_buf, 0))
 			p_list->insert(p_data_buf);
 	}

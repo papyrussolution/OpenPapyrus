@@ -438,13 +438,15 @@ int SLAPI BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 								newtbl.setDataBuf(tbl.getDataBuf(), retBufLen);
 							if(newtbl.insertRec()) {
 								pParam->ActNumRecs++;
-								if(!pParam->callbackProc(BREV_PROGRESS, (const void *)pParam->ActNumRecs, (const void *)pParam->OrgNumRecs, path.cptr())) {
+								if(!pParam->callbackProc(BREV_PROGRESS, reinterpret_cast<const void *>(pParam->ActNumRecs), 
+									reinterpret_cast<const void *>(pParam->OrgNumRecs), path.cptr())) {
 									ok = -1;
 									break;
 								}
 							}
 							else {
-								if(!pParam->callbackProc(BREV_ERRINS, (const void *)(RECORDNUMBER)pos, (const void *)retBufLen, tbl.getDataBuf())) {
+								if(!pParam->callbackProc(BREV_ERRINS, reinterpret_cast<const void *>((RECORDNUMBER)pos), 
+									reinterpret_cast<const void *>(retBufLen), tbl.getDataBufConst())) {
 									ok = -1;
 									break;
 								}

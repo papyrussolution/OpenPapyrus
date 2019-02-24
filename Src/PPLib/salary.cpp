@@ -786,7 +786,7 @@ int SLAPI PPViewSalary::Print(const void *)
 	return ok;
 }
 
-PPID SLAPI PPViewSalary::GetEditId(PPID id, PPViewBrowser * pBrw)
+PPID SLAPI PPViewSalary::GetEditId(PPID id, const PPViewBrowser * pBrw)
 {
 	PPID   ret_id = 0;
 	if(P_Ct) {
@@ -1550,7 +1550,7 @@ int SLAPI PrcssrSalary::Helper_GetPeriod(double arg, const DateRange & rInitPeri
 	else if(fr == 0.1) {
 		uint pos = (uint)p;
 		if(pos < PeriodStack.getCount())
-			period = *(DateRange *)PeriodStack.at(pos);
+			period = *static_cast<const DateRange *>(PeriodStack.at(pos));
 		else {
 			// @error
 			period.SetDate(encodedate(1, 1, 2200));

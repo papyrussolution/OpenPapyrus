@@ -535,7 +535,7 @@ int FASTCALL TWindow::setCtrlString(uint ctlID, const SString & s)
 	if(p_v) {
 		const uint ctrl_subsign = p_v->GetSubSign();
 		if(ctrl_subsign == TV_SUBSIGN_INPUTLINE) {
-			const size_t max_len = ((TInputLine *)p_v)->getMaxLen();
+			const size_t max_len = static_cast<TInputLine *>(p_v)->getMaxLen();
 			if(max_len > temp_len && s.Len() >= temp_len) {
 				temp_len = max_len+32;
 				p_temp = (char *)SAlloc::M(temp_len);
@@ -572,7 +572,7 @@ int FASTCALL TWindow::getCtrlString(uint ctlID, SString & s)
 	char   temp_buf[1024];
 	char * p_temp = temp_buf;
 	int    is_temp_allocated = 0;
-	TInputLine * p_il = (TInputLine *)getCtrlView(ctlID);
+	TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(ctlID));
 	if(p_il && p_il->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
 		const size_t max_len = p_il->getMaxLen();
 		if(max_len > sizeof(temp_buf)) {

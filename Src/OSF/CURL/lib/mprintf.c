@@ -886,7 +886,7 @@ number:
 			    if(p->flags & FLAGS_LONG)
 				    *(long*)p->data.ptr = (long)done;
 			    else if(!(p->flags & FLAGS_SHORT))
-				    *(int*)p->data.ptr = (int)done;
+				    *(int *)p->data.ptr = (int)done;
 			    else
 				    *(short*)p->data.ptr = (short)done;
 			    break;

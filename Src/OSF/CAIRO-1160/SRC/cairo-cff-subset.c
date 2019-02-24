@@ -526,7 +526,7 @@ static cairo_status_t cff_index_append_copy(cairo_array_t * index, const uchar *
 	cairo_status_t status;
 	element.length = length;
 	element.is_copy = TRUE;
-	element.data = (uchar *)_cairo_malloc(element.length);
+	element.data = static_cast<uchar *>(_cairo_malloc(element.length));
 	if(unlikely(element.data == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	memcpy(element.data, object, element.length);
@@ -577,7 +577,7 @@ static cairo_status_t cff_dict_create_operator(int oprtr, uchar * operand, int s
 	if(unlikely(op == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	_cairo_dict_init_key(op, oprtr);
-	op->operand = (uchar *)_cairo_malloc(size);
+	op->operand = static_cast<uchar *>(_cairo_malloc(size));
 	if(unlikely(op->operand == NULL)) {
 		SAlloc::F(op);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -657,7 +657,7 @@ static cairo_status_t cff_dict_set_operands(cairo_hash_table_t * dict, unsigned 
 	op = (cff_dict_operator_t *)_cairo_hash_table_lookup(dict, &key.base);
 	if(op != NULL) {
 		SAlloc::F(op->operand);
-		op->operand = (uchar *)_cairo_malloc(size);
+		op->operand = static_cast<uchar *>(_cairo_malloc(size));
 		if(unlikely(op->operand == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
@@ -2522,29 +2522,21 @@ static cairo_int_status_t _cairo_cff_font_load_opentype_cff(cairo_cff_font_t * f
 	font->units_per_em = (int16_t)be16_to_cpu(head.units_per_em);
 	if(font->units_per_em == 0)
 		font->units_per_em = 1000;
-
 	font->font_name = NULL;
-	status = _cairo_truetype_read_font_name(font->scaled_font_subset->scaled_font,
-		&font->ps_name,
-		&font->font_name);
+	status = _cairo_truetype_read_font_name(font->scaled_font_subset->scaled_font, &font->ps_name, &font->font_name);
 	if(_cairo_status_is_error(status))
 		return status;
 
 	font->is_opentype = TRUE;
 	font->data_length = data_length;
-	font->data = (uchar *)_cairo_malloc(data_length);
+	font->data = static_cast<uchar *>(_cairo_malloc(data_length));
 	if(unlikely(font->data == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
-	status = font->backend->load_truetype_table(font->scaled_font_subset->scaled_font,
-		TT_TAG_CFF, 0, font->data,
-		&font->data_length);
+	status = font->backend->load_truetype_table(font->scaled_font_subset->scaled_font, TT_TAG_CFF, 0, font->data, &font->data_length);
 	if(unlikely(status))
 		return status;
-
 	if(!check_fontdata_is_cff(font->data, data_length))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -2553,37 +2545,28 @@ static cairo_int_status_t _cairo_cff_font_load_cff(cairo_cff_font_t * font)
 	const cairo_scaled_font_backend_t * backend = font->backend;
 	cairo_status_t status;
 	ulong data_length;
-
 	if(!backend->load_type1_data)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
 	data_length = 0;
-	status = backend->load_type1_data(font->scaled_font_subset->scaled_font,
-		0, NULL, &data_length);
+	status = backend->load_type1_data(font->scaled_font_subset->scaled_font, 0, NULL, &data_length);
 	if(unlikely(status))
 		return status;
 
 	font->font_name = NULL;
 	font->is_opentype = FALSE;
 	font->data_length = data_length;
-	font->data = (uchar *)_cairo_malloc(data_length);
+	font->data = static_cast<uchar *>(_cairo_malloc(data_length));
 	if(unlikely(font->data == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
-	status = font->backend->load_type1_data(font->scaled_font_subset->scaled_font,
-		0, font->data, &font->data_length);
+	status = font->backend->load_type1_data(font->scaled_font_subset->scaled_font, 0, font->data, &font->data_length);
 	if(unlikely(status))
 		return status;
-
 	if(!check_fontdata_is_cff(font->data, data_length))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_int_status_t _cairo_cff_font_create(cairo_scaled_font_subset_t * scaled_font_subset,
-    cairo_cff_font_t ** font_return,
-    const char * subset_name)
+static cairo_int_status_t _cairo_cff_font_create(cairo_scaled_font_subset_t * scaled_font_subset, cairo_cff_font_t ** font_return, const char * subset_name)
 {
 	const cairo_scaled_font_backend_t * backend;
 	cairo_int_status_t status;
@@ -2810,7 +2793,6 @@ fail2:
 	SAlloc::F(cff_subset->ps_name);
 fail1:
 	cairo_cff_font_destroy(font);
-
 	return status;
 }
 
@@ -2836,37 +2818,28 @@ cairo_bool_t _cairo_cff_scaled_font_is_cid_cff(cairo_scaled_font_t * scaled_font
 	cairo_array_t index;
 	int size;
 	cairo_bool_t is_cid = FALSE;
-
 	backend = scaled_font->backend;
 	data = NULL;
 	data_length = 0;
 	status = CAIRO_INT_STATUS_UNSUPPORTED;
 	/* Try to load an OpenType/CFF font */
-	if(backend->load_truetype_table &&
-	    (status = backend->load_truetype_table(scaled_font, TT_TAG_CFF,
-	    0, NULL, &data_length)) == CAIRO_INT_STATUS_SUCCESS) {
-		data = (uchar *)_cairo_malloc(data_length);
+	if(backend->load_truetype_table && (status = backend->load_truetype_table(scaled_font, TT_TAG_CFF, 0, NULL, &data_length)) == CAIRO_INT_STATUS_SUCCESS) {
+		data = static_cast<uchar *>(_cairo_malloc(data_length));
 		if(unlikely(data == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			return FALSE;
 		}
-
-		status = backend->load_truetype_table(scaled_font, TT_TAG_CFF,
-			0, data, &data_length);
+		status = backend->load_truetype_table(scaled_font, TT_TAG_CFF, 0, data, &data_length);
 		if(unlikely(status))
 			goto fail1;
 	}
 	/* Try to load a CFF font */
-	if(status == CAIRO_INT_STATUS_UNSUPPORTED &&
-	    backend->load_type1_data &&
-	    (status = backend->load_type1_data(scaled_font,
-	    0, NULL, &data_length)) == CAIRO_INT_STATUS_SUCCESS) {
-		data = (uchar *)_cairo_malloc(data_length);
+	if(status == CAIRO_INT_STATUS_UNSUPPORTED && backend->load_type1_data && (status = backend->load_type1_data(scaled_font, 0, NULL, &data_length)) == CAIRO_INT_STATUS_SUCCESS) {
+		data = static_cast<uchar *>(_cairo_malloc(data_length));
 		if(unlikely(data == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			return FALSE;
 		}
-
 		status = backend->load_type1_data(scaled_font, 0, data, &data_length);
 		if(unlikely(status))
 			goto fail1;

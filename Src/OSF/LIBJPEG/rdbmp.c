@@ -142,7 +142,7 @@ METHODDEF(JDIMENSION) get_24bit_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo
 	JDIMENSION col;
 	/* Fetch next row from virtual array */
 	source->source_row--;
-	image_ptr = (*cinfo->mem->access_virt_sarray)((j_common_ptr)cinfo, source->whole_image, source->source_row, (JDIMENSION)1, FALSE);
+	image_ptr = (*cinfo->mem->access_virt_sarray)(reinterpret_cast<j_common_ptr>(cinfo), source->whole_image, source->source_row, (JDIMENSION)1, FALSE);
 	/* Transfer data.  Note source values are in BGR order
 	 * (even though Microsoft's own documents say the opposite).
 	 */
@@ -166,7 +166,7 @@ METHODDEF(JDIMENSION) get_32bit_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo
 	JDIMENSION col;
 	/* Fetch next row from virtual array */
 	source->source_row--;
-	image_ptr = (*cinfo->mem->access_virt_sarray)((j_common_ptr)cinfo, source->whole_image, source->source_row, (JDIMENSION)1, FALSE);
+	image_ptr = (*cinfo->mem->access_virt_sarray)(reinterpret_cast<j_common_ptr>(cinfo), source->whole_image, source->source_row, (JDIMENSION)1, FALSE);
 	/* Transfer data.  Note source values are in BGR order
 	 * (even though Microsoft's own documents say the opposite).
 	 */
@@ -201,9 +201,9 @@ METHODDEF(JDIMENSION) preload_image(j_compress_ptr cinfo, cjpeg_source_ptr sinfo
 		if(progress) {
 			progress->pub.pass_counter = (long)row;
 			progress->pub.pass_limit = (long)cinfo->image_height;
-			(*progress->pub.progress_monitor)((j_common_ptr)cinfo);
+			(*progress->pub.progress_monitor)(reinterpret_cast<j_common_ptr>(cinfo));
 		}
-		image_ptr = (*cinfo->mem->access_virt_sarray)((j_common_ptr)cinfo, source->whole_image, row, (JDIMENSION)1, TRUE);
+		image_ptr = (*cinfo->mem->access_virt_sarray)(reinterpret_cast<j_common_ptr>(cinfo), source->whole_image, row, (JDIMENSION)1, TRUE);
 		out_ptr = image_ptr[0];
 		for(col = source->row_width; col > 0; col--) {
 			/* inline copy of read_byte() for speed */
@@ -350,7 +350,7 @@ METHODDEF(void) start_input_bmp(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 		else if(biClrUsed > 256)
 			ERREXIT(cinfo, JERR_BMP_BADCMAP);
 		// Allocate space to store the colormap 
-		source->colormap = (*cinfo->mem->alloc_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, (JDIMENSION)biClrUsed, (JDIMENSION)3);
+		source->colormap = (*cinfo->mem->alloc_sarray)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (JDIMENSION)biClrUsed, (JDIMENSION)3);
 		source->cmap_length = (int)biClrUsed; // @v9c
 		// and read it from the file 
 		read_colormap(source, (int)biClrUsed, mapentrysize);
@@ -373,14 +373,14 @@ METHODDEF(void) start_input_bmp(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 	while((row_width & 3) != 0) row_width++;
 	source->row_width = row_width;
 	/* Allocate space for inversion array, prepare for preload pass */
-	source->whole_image = (*cinfo->mem->request_virt_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, FALSE, row_width, (JDIMENSION)biHeight, (JDIMENSION)1);
+	source->whole_image = (*cinfo->mem->request_virt_sarray)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, FALSE, row_width, (JDIMENSION)biHeight, (JDIMENSION)1);
 	source->pub.get_pixel_rows = preload_image;
 	if(cinfo->progress) {
 		cd_progress_ptr progress = (cd_progress_ptr)cinfo->progress;
 		progress->total_extra_passes++; /* count file input as separate pass */
 	}
 	/* Allocate one-row buffer for returned data */
-	source->pub.buffer = (*cinfo->mem->alloc_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, (JDIMENSION)(biWidth * 3), (JDIMENSION)1);
+	source->pub.buffer = (*cinfo->mem->alloc_sarray)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (JDIMENSION)(biWidth * 3), (JDIMENSION)1);
 	source->pub.buffer_height = 1;
 
 	cinfo->in_color_space = JCS_RGB;
@@ -402,7 +402,7 @@ METHODDEF(void) finish_input_bmp(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 GLOBAL(cjpeg_source_ptr) jinit_read_bmp(j_compress_ptr cinfo)
 {
 	/* Create module interface object */
-	bmp_source_ptr source = (bmp_source_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(bmp_source_struct));
+	bmp_source_ptr source = (bmp_source_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(bmp_source_struct));
 	source->cinfo = cinfo;  /* make back link for subroutines */
 	/* Fill in method ptrs, except get_pixel_rows which start_input sets */
 	source->pub.start_input = start_input_bmp;

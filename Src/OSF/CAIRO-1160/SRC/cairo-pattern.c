@@ -303,98 +303,64 @@ cairo_status_t _cairo_pattern_init_copy(cairo_pattern_t * pattern, const cairo_p
 	return CAIRO_STATUS_SUCCESS;
 }
 
-void _cairo_pattern_init_static_copy(cairo_pattern_t * pattern,
-    const cairo_pattern_t * other)
+void _cairo_pattern_init_static_copy(cairo_pattern_t * pattern, const cairo_pattern_t * other)
 {
 	int size;
-
 	assert(other->status == CAIRO_STATUS_SUCCESS);
-
 	switch(other->type) {
 		default:
 		    ASSERT_NOT_REACHED;
-		case CAIRO_PATTERN_TYPE_SOLID:
-		    size = sizeof(cairo_solid_pattern_t);
-		    break;
-		case CAIRO_PATTERN_TYPE_SURFACE:
-		    size = sizeof(cairo_surface_pattern_t);
-		    break;
-		case CAIRO_PATTERN_TYPE_LINEAR:
-		    size = sizeof(cairo_linear_pattern_t);
-		    break;
-		case CAIRO_PATTERN_TYPE_RADIAL:
-		    size = sizeof(cairo_radial_pattern_t);
-		    break;
-		case CAIRO_PATTERN_TYPE_MESH:
-		    size = sizeof(cairo_mesh_pattern_t);
-		    break;
-		case CAIRO_PATTERN_TYPE_RASTER_SOURCE:
-		    size = sizeof(cairo_raster_source_pattern_t);
-		    break;
+		case CAIRO_PATTERN_TYPE_SOLID: size = sizeof(cairo_solid_pattern_t); break;
+		case CAIRO_PATTERN_TYPE_SURFACE: size = sizeof(cairo_surface_pattern_t); break;
+		case CAIRO_PATTERN_TYPE_LINEAR: size = sizeof(cairo_linear_pattern_t); break;
+		case CAIRO_PATTERN_TYPE_RADIAL: size = sizeof(cairo_radial_pattern_t); break;
+		case CAIRO_PATTERN_TYPE_MESH: size = sizeof(cairo_mesh_pattern_t); break;
+		case CAIRO_PATTERN_TYPE_RASTER_SOURCE: size = sizeof(cairo_raster_source_pattern_t); break;
 	}
-
 	memcpy(pattern, other, size);
-
 	CAIRO_REFERENCE_COUNT_INIT(&pattern->ref_count, 0);
 	_cairo_user_data_array_init(&pattern->user_data);
 	cairo_list_init(&pattern->observers);
 }
 
-cairo_status_t _cairo_pattern_init_snapshot(cairo_pattern_t * pattern,
-    const cairo_pattern_t * other)
+cairo_status_t _cairo_pattern_init_snapshot(cairo_pattern_t * pattern, const cairo_pattern_t * other)
 {
-	cairo_status_t status;
-
-	/* We don't bother doing any fancy copy-on-write implementation
-	 * for the pattern's data. It's generally quite tiny. */
-	status = _cairo_pattern_init_copy(pattern, other);
+	// We don't bother doing any fancy copy-on-write implementation
+	// for the pattern's data. It's generally quite tiny.
+	cairo_status_t status = _cairo_pattern_init_copy(pattern, other);
 	if(unlikely(status))
 		return status;
-
-	/* But we do let the surface snapshot stuff be as fancy as it
-	 * would like to be. */
+	// But we do let the surface snapshot stuff be as fancy as it would like to be.
 	if(pattern->type == CAIRO_PATTERN_TYPE_SURFACE) {
-		cairo_surface_pattern_t * surface_pattern =
-		    (cairo_surface_pattern_t*)pattern;
+		cairo_surface_pattern_t * surface_pattern = (cairo_surface_pattern_t*)pattern;
 		cairo_surface_t * surface = surface_pattern->surface;
-
 		surface_pattern->surface = _cairo_surface_snapshot(surface);
-
 		cairo_surface_destroy(surface);
-
 		status = surface_pattern->surface->status;
 	}
 	else if(pattern->type == CAIRO_PATTERN_TYPE_RASTER_SOURCE)
 		status = _cairo_raster_source_pattern_snapshot(pattern);
-
 	return status;
 }
 
 void _cairo_pattern_fini(cairo_pattern_t * pattern)
 {
 	_cairo_user_data_array_fini(&pattern->user_data);
-
 	switch(pattern->type) {
 		case CAIRO_PATTERN_TYPE_SOLID:
 		    break;
 		case CAIRO_PATTERN_TYPE_SURFACE: {
-		    cairo_surface_pattern_t * surface_pattern =
-			(cairo_surface_pattern_t*)pattern;
-
+		    cairo_surface_pattern_t * surface_pattern = (cairo_surface_pattern_t*)pattern;
 		    cairo_surface_destroy(surface_pattern->surface);
 	    } break;
 		case CAIRO_PATTERN_TYPE_LINEAR:
 		case CAIRO_PATTERN_TYPE_RADIAL: {
-		    cairo_gradient_pattern_t * gradient =
-			(cairo_gradient_pattern_t*)pattern;
-
+		    cairo_gradient_pattern_t * gradient = (cairo_gradient_pattern_t*)pattern;
 		    if(gradient->stops && gradient->stops != gradient->stops_embedded)
 			    SAlloc::F(gradient->stops);
 	    } break;
 		case CAIRO_PATTERN_TYPE_MESH: {
-		    cairo_mesh_pattern_t * mesh =
-			(cairo_mesh_pattern_t*)pattern;
-
+		    cairo_mesh_pattern_t * mesh = (cairo_mesh_pattern_t*)pattern;
 		    _cairo_array_fini(&mesh->patches);
 	    } break;
 		case CAIRO_PATTERN_TYPE_RASTER_SOURCE:
@@ -1871,7 +1837,7 @@ slim_hidden_def(cairo_pattern_set_matrix);
  *
  * Since: 1.0
  **/
-void cairo_pattern_get_matrix(cairo_pattern_t * pattern, cairo_matrix_t * matrix)
+void cairo_pattern_get_matrix(const cairo_pattern_t * pattern, cairo_matrix_t * matrix)
 {
 	*matrix = pattern->matrix;
 }
@@ -1918,7 +1884,7 @@ void cairo_pattern_set_filter(cairo_pattern_t * pattern, cairo_filter_t filter)
  *
  * Since: 1.0
  **/
-cairo_filter_t cairo_pattern_get_filter(cairo_pattern_t * pattern)
+cairo_filter_t cairo_pattern_get_filter(const cairo_pattern_t * pattern)
 {
 	return pattern->filter;
 }
@@ -1959,28 +1925,24 @@ void cairo_pattern_set_extend(cairo_pattern_t * pattern, cairo_extend_t extend)
  *
  * Since: 1.0
  **/
-cairo_extend_t cairo_pattern_get_extend(cairo_pattern_t * pattern)
+cairo_extend_t cairo_pattern_get_extend(const cairo_pattern_t * pattern)
 {
 	return pattern->extend;
 }
 
 slim_hidden_def(cairo_pattern_get_extend);
 
-void _cairo_pattern_pretransform(cairo_pattern_t * pattern,
-    const cairo_matrix_t * ctm)
+void _cairo_pattern_pretransform(cairo_pattern_t * pattern, const cairo_matrix_t * ctm)
 {
 	if(pattern->status)
 		return;
-
 	cairo_matrix_multiply(&pattern->matrix, &pattern->matrix, ctm);
 }
 
-void _cairo_pattern_transform(cairo_pattern_t * pattern,
-    const cairo_matrix_t * ctm_inverse)
+void _cairo_pattern_transform(cairo_pattern_t * pattern, const cairo_matrix_t * ctm_inverse)
 {
 	if(pattern->status)
 		return;
-
 	cairo_matrix_multiply(&pattern->matrix, ctm_inverse, &pattern->matrix);
 }
 
@@ -3317,15 +3279,12 @@ void _cairo_pattern_sampled_area(const cairo_pattern_t * pattern,
  * "infinite" extents, though it would be possible to optimize these
  * with a little more work.
  **/
-void _cairo_pattern_get_extents(const cairo_pattern_t * pattern,
-    cairo_rectangle_int_t * extents,
-    cairo_bool_t is_vector)
+void _cairo_pattern_get_extents(const cairo_pattern_t * pattern, cairo_rectangle_int_t * extents, cairo_bool_t is_vector)
 {
 	double x1, y1, x2, y2;
 	int ix1, ix2, iy1, iy2;
 	cairo_bool_t round_x = FALSE;
 	cairo_bool_t round_y = FALSE;
-
 	switch(pattern->type) {
 		case CAIRO_PATTERN_TYPE_SOLID:
 		    goto UNBOUNDED;
@@ -3333,39 +3292,29 @@ void _cairo_pattern_get_extents(const cairo_pattern_t * pattern,
 		case CAIRO_PATTERN_TYPE_SURFACE:
 	    {
 		    cairo_rectangle_int_t surface_extents;
-		    const cairo_surface_pattern_t * surface_pattern =
-			(const cairo_surface_pattern_t*)pattern;
+		    const cairo_surface_pattern_t * surface_pattern = (const cairo_surface_pattern_t*)pattern;
 		    cairo_surface_t * surface = surface_pattern->surface;
-
 		    if(!_cairo_surface_get_extents(surface, &surface_extents))
 			    goto UNBOUNDED;
-
 		    if(surface_extents.width == 0 || surface_extents.height == 0)
 			    goto EMPTY;
-
 		    if(pattern->extend != CAIRO_EXTEND_NONE)
 			    goto UNBOUNDED;
-
 		    x1 = surface_extents.x;
 		    y1 = surface_extents.y;
 		    x2 = surface_extents.x + (int)surface_extents.width;
 		    y2 = surface_extents.y + (int)surface_extents.height;
-
 		    goto HANDLE_FILTER;
 	    }
 	    break;
 
 		case CAIRO_PATTERN_TYPE_RASTER_SOURCE:
 	    {
-		    const cairo_raster_source_pattern_t * raster =
-			(const cairo_raster_source_pattern_t*)pattern;
-
+		    const cairo_raster_source_pattern_t * raster = (const cairo_raster_source_pattern_t*)pattern;
 		    if(raster->extents.width == 0 || raster->extents.height == 0)
 			    goto EMPTY;
-
 		    if(pattern->extend != CAIRO_EXTEND_NONE)
 			    goto UNBOUNDED;
-
 		    x1 = raster->extents.x;
 		    y1 = raster->extents.y;
 		    x2 = raster->extents.x + (int)raster->extents.width;
@@ -3565,72 +3514,48 @@ EMPTY:
 cairo_int_status_t _cairo_pattern_get_ink_extents(const cairo_pattern_t * pattern,
     cairo_rectangle_int_t * extents)
 {
-	if(pattern->type == CAIRO_PATTERN_TYPE_SURFACE &&
-	    pattern->extend == CAIRO_EXTEND_NONE) {
-		const cairo_surface_pattern_t * surface_pattern =
-		    (const cairo_surface_pattern_t*)pattern;
+	if(pattern->type == CAIRO_PATTERN_TYPE_SURFACE && pattern->extend == CAIRO_EXTEND_NONE) {
+		const cairo_surface_pattern_t * surface_pattern = (const cairo_surface_pattern_t*)pattern;
 		cairo_surface_t * surface = surface_pattern->surface;
-
 		surface = _cairo_surface_get_source(surface, NULL);
 		if(_cairo_surface_is_recording(surface)) {
-			cairo_matrix_t imatrix;
 			cairo_box_t box;
-			cairo_status_t status;
-
-			imatrix = pattern->matrix;
-			status = cairo_matrix_invert(&imatrix);
+			cairo_matrix_t imatrix = pattern->matrix;
+			cairo_status_t status = cairo_matrix_invert(&imatrix);
 			/* cairo_pattern_set_matrix ensures the matrix is invertible */
 			assert(status == CAIRO_STATUS_SUCCESS);
-
-			status = _cairo_recording_surface_get_ink_bbox((cairo_recording_surface_t*)surface,
-				&box, &imatrix);
+			status = _cairo_recording_surface_get_ink_bbox((cairo_recording_surface_t*)surface, &box, &imatrix);
 			if(unlikely(status))
 				return status;
-
 			_cairo_box_round_to_rectangle(&box, extents);
 			return CAIRO_STATUS_SUCCESS;
 		}
 	}
-
 	_cairo_pattern_get_extents(pattern, extents, TRUE);
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static ulong _cairo_solid_pattern_hash(ulong hash,
-    const cairo_solid_pattern_t * solid)
+static ulong _cairo_solid_pattern_hash(ulong hash, const cairo_solid_pattern_t * solid)
 {
 	hash = _cairo_hash_bytes(hash, &solid->color, sizeof(solid->color));
-
 	return hash;
 }
 
-static ulong _cairo_gradient_color_stops_hash(ulong hash,
-    const cairo_gradient_pattern_t * gradient)
+static ulong _cairo_gradient_color_stops_hash(ulong hash, const cairo_gradient_pattern_t * gradient)
 {
 	uint n;
-
-	hash = _cairo_hash_bytes(hash,
-		&gradient->n_stops,
-		sizeof(gradient->n_stops));
-
+	hash = _cairo_hash_bytes(hash, &gradient->n_stops, sizeof(gradient->n_stops));
 	for(n = 0; n < gradient->n_stops; n++) {
-		hash = _cairo_hash_bytes(hash,
-			&gradient->stops[n].offset,
-			sizeof(double));
-		hash = _cairo_hash_bytes(hash,
-			&gradient->stops[n].color,
-			sizeof(cairo_color_stop_t));
+		hash = _cairo_hash_bytes(hash, &gradient->stops[n].offset, sizeof(double));
+		hash = _cairo_hash_bytes(hash, &gradient->stops[n].color, sizeof(cairo_color_stop_t));
 	}
-
 	return hash;
 }
 
-ulong _cairo_linear_pattern_hash(ulong hash,
-    const cairo_linear_pattern_t * linear)
+ulong _cairo_linear_pattern_hash(ulong hash, const cairo_linear_pattern_t * linear)
 {
 	hash = _cairo_hash_bytes(hash, &linear->pd1, sizeof(linear->pd1));
 	hash = _cairo_hash_bytes(hash, &linear->pd2, sizeof(linear->pd2));
-
 	return _cairo_gradient_color_stops_hash(hash, &linear->base);
 }
 
@@ -3661,112 +3586,80 @@ static ulong _cairo_surface_pattern_hash(ulong hash, const cairo_surface_pattern
 static ulong _cairo_raster_source_pattern_hash(ulong hash, const cairo_raster_source_pattern_t * raster)
 {
 	hash ^= (uintptr_t)raster->user_data;
-
 	return hash;
 }
 
 ulong _cairo_pattern_hash(const cairo_pattern_t * pattern)
 {
 	ulong hash = _CAIRO_HASH_INIT_VALUE;
-
 	if(pattern->status)
 		return 0;
-
 	hash = _cairo_hash_bytes(hash, &pattern->type, sizeof(pattern->type));
 	if(pattern->type != CAIRO_PATTERN_TYPE_SOLID) {
-		hash = _cairo_hash_bytes(hash,
-			&pattern->matrix, sizeof(pattern->matrix));
-		hash = _cairo_hash_bytes(hash,
-			&pattern->filter, sizeof(pattern->filter));
-		hash = _cairo_hash_bytes(hash,
-			&pattern->extend, sizeof(pattern->extend));
-		hash = _cairo_hash_bytes(hash,
-			&pattern->has_component_alpha,
-			sizeof(pattern->has_component_alpha));
+		hash = _cairo_hash_bytes(hash, &pattern->matrix, sizeof(pattern->matrix));
+		hash = _cairo_hash_bytes(hash, &pattern->filter, sizeof(pattern->filter));
+		hash = _cairo_hash_bytes(hash, &pattern->extend, sizeof(pattern->extend));
+		hash = _cairo_hash_bytes(hash, &pattern->has_component_alpha, sizeof(pattern->has_component_alpha));
 	}
-
 	switch(pattern->type) {
-		case CAIRO_PATTERN_TYPE_SOLID:
-		    return _cairo_solid_pattern_hash(hash, (cairo_solid_pattern_t*)pattern);
-		case CAIRO_PATTERN_TYPE_LINEAR:
-		    return _cairo_linear_pattern_hash(hash, (cairo_linear_pattern_t*)pattern);
-		case CAIRO_PATTERN_TYPE_RADIAL:
-		    return _cairo_radial_pattern_hash(hash, (cairo_radial_pattern_t*)pattern);
-		case CAIRO_PATTERN_TYPE_MESH:
-		    return _cairo_mesh_pattern_hash(hash, (cairo_mesh_pattern_t*)pattern);
-		case CAIRO_PATTERN_TYPE_SURFACE:
-		    return _cairo_surface_pattern_hash(hash, (cairo_surface_pattern_t*)pattern);
-		case CAIRO_PATTERN_TYPE_RASTER_SOURCE:
-		    return _cairo_raster_source_pattern_hash(hash, (cairo_raster_source_pattern_t*)pattern);
-		default:
-		    ASSERT_NOT_REACHED;
+		case CAIRO_PATTERN_TYPE_SOLID: return _cairo_solid_pattern_hash(hash, reinterpret_cast<const cairo_solid_pattern_t *>(pattern));
+		case CAIRO_PATTERN_TYPE_LINEAR: return _cairo_linear_pattern_hash(hash, (cairo_linear_pattern_t*)pattern);
+		case CAIRO_PATTERN_TYPE_RADIAL: return _cairo_radial_pattern_hash(hash, (cairo_radial_pattern_t*)pattern);
+		case CAIRO_PATTERN_TYPE_MESH: return _cairo_mesh_pattern_hash(hash, (cairo_mesh_pattern_t*)pattern);
+		case CAIRO_PATTERN_TYPE_SURFACE: return _cairo_surface_pattern_hash(hash, (cairo_surface_pattern_t*)pattern);
+		case CAIRO_PATTERN_TYPE_RASTER_SOURCE: return _cairo_raster_source_pattern_hash(hash, (cairo_raster_source_pattern_t*)pattern);
+		default: 
+			ASSERT_NOT_REACHED;
 		    return FALSE;
 	}
 }
 
-static cairo_bool_t _cairo_solid_pattern_equal(const cairo_solid_pattern_t * a,
-    const cairo_solid_pattern_t * b)
+static cairo_bool_t _cairo_solid_pattern_equal(const cairo_solid_pattern_t * a, const cairo_solid_pattern_t * b)
 {
 	return _cairo_color_equal(&a->color, &b->color);
 }
 
-static cairo_bool_t _cairo_gradient_color_stops_equal(const cairo_gradient_pattern_t * a,
-    const cairo_gradient_pattern_t * b)
+static cairo_bool_t _cairo_gradient_color_stops_equal(const cairo_gradient_pattern_t * a, const cairo_gradient_pattern_t * b)
 {
 	uint n;
-
 	if(a->n_stops != b->n_stops)
 		return FALSE;
-
 	for(n = 0; n < a->n_stops; n++) {
 		if(a->stops[n].offset != b->stops[n].offset)
 			return FALSE;
 		if(!_cairo_color_stop_equal(&a->stops[n].color, &b->stops[n].color))
 			return FALSE;
 	}
-
 	return TRUE;
 }
 
-cairo_bool_t _cairo_linear_pattern_equal(const cairo_linear_pattern_t * a,
-    const cairo_linear_pattern_t * b)
+cairo_bool_t _cairo_linear_pattern_equal(const cairo_linear_pattern_t * a, const cairo_linear_pattern_t * b)
 {
 	if(a->pd1.x != b->pd1.x)
 		return FALSE;
-
 	if(a->pd1.y != b->pd1.y)
 		return FALSE;
-
 	if(a->pd2.x != b->pd2.x)
 		return FALSE;
-
 	if(a->pd2.y != b->pd2.y)
 		return FALSE;
-
 	return _cairo_gradient_color_stops_equal(&a->base, &b->base);
 }
 
-cairo_bool_t _cairo_radial_pattern_equal(const cairo_radial_pattern_t * a,
-    const cairo_radial_pattern_t * b)
+cairo_bool_t _cairo_radial_pattern_equal(const cairo_radial_pattern_t * a, const cairo_radial_pattern_t * b)
 {
 	if(a->cd1.center.x != b->cd1.center.x)
 		return FALSE;
-
 	if(a->cd1.center.y != b->cd1.center.y)
 		return FALSE;
-
 	if(a->cd1.radius != b->cd1.radius)
 		return FALSE;
-
 	if(a->cd2.center.x != b->cd2.center.x)
 		return FALSE;
-
 	if(a->cd2.center.y != b->cd2.center.y)
 		return FALSE;
-
 	if(a->cd2.radius != b->cd2.radius)
 		return FALSE;
-
 	return _cairo_gradient_color_stops_equal(&a->base, &b->base);
 }
 

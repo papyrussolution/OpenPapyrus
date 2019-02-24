@@ -95,7 +95,7 @@ PPGoodsTaxPacket & FASTCALL PPGoodsTaxPacket::operator = (const PPGoodsTaxPacket
 }
 
 uint SLAPI PPGoodsTaxPacket::GetCount() const { return SVector::getCount(); }
-PPGoodsTaxEntry & FASTCALL PPGoodsTaxPacket::Get(uint idx) const { return *(PPGoodsTaxEntry *)SVector::at(idx); }
+PPGoodsTaxEntry & FASTCALL PPGoodsTaxPacket::Get(uint idx) const { return *static_cast<PPGoodsTaxEntry *>(SVector::at(idx)); }
 int  FASTCALL PPGoodsTaxPacket::Insert(const PPGoodsTaxEntry & rEntry) { return SVector::insert(&rEntry) ? 1 : PPSetErrorSLib(); }
 SVector * SLAPI PPGoodsTaxPacket::vecptr() { return this; }
 
@@ -132,8 +132,8 @@ int SLAPI PPGoodsTaxPacket::PutEntry(int pos, const PPGoodsTaxEntry * pEntry)
 
 IMPL_CMPFUNC(PPGoodsTaxEntry, i1, i2)
 {
-	const PPGoodsTaxEntry * p_i1 = (const PPGoodsTaxEntry *)i1;
-	const PPGoodsTaxEntry * p_i2 = (const PPGoodsTaxEntry *)i2;
+	const PPGoodsTaxEntry * p_i1 = static_cast<const PPGoodsTaxEntry *>(i1);
+	const PPGoodsTaxEntry * p_i2 = static_cast<const PPGoodsTaxEntry *>(i2);
 	int    r = cmp_long((p_i1->TaxGrpID & 0x00ffffffL), (p_i2->TaxGrpID & 0x00ffffffL));
 	r = NZOR(r, cmp_ulong(p_i1->Period.low, p_i2->Period.low));
 	return NZOR(r, cmp_long(p_i1->OpID, p_i2->OpID));
@@ -155,14 +155,14 @@ int FASTCALL GTaxVect::TaxToVect(int taxIdx) const
 	if(taxIdx == 0)
 		return 0;
 	for(int i = 1; i <= N; i++)
-		if(OrderVect[i] == (long)taxIdx)
+		if(OrderVect[i] == static_cast<long>(taxIdx))
 			return i;
 	return -1;
 }
 
 int FASTCALL GTaxVect::VectToTax(int idx) const
 {
-	return (idx > 0 && idx <= N) ? (int)OrderVect[idx] : (idx ? -1 : 0);
+	return (idx > 0 && idx <= N) ? static_cast<int>(OrderVect[idx]) : (idx ? -1 : 0);
 }
 
 double SLAPI GTaxVect::GetTaxRate(long taxID, int * pIsAbs) const
@@ -278,7 +278,7 @@ void SLAPI GTaxVect::Calc_(PPGoodsTaxEntry * gtax, double amount, double qtty, l
 		switch(OrderVect[i]) {
 			case GTAX_VAT:
 				if(!(excludeFlags & GTAXVF_VAT))
-					RateVect[i] = ((double)gtax->VAT) / (100.0 * 100.0); // @divtax
+					RateVect[i] = static_cast<double>(gtax->VAT) / (100.0 * 100.0); // @divtax
 				break;
 			case GTAX_EXCISE:
 				if(!(excludeFlags & GTAXVF_EXCISE))
@@ -287,11 +287,11 @@ void SLAPI GTaxVect::Calc_(PPGoodsTaxEntry * gtax, double amount, double qtty, l
 						AbsVect |= (1 << i);
 					}
 					else
-						RateVect[i] = ((double)gtax->Excise) / (100.0 * 100.0); // @divtax
+						RateVect[i] = static_cast<double>(gtax->Excise) / (100.0 * 100.0); // @divtax
 				break;
 			case GTAX_SALES:
 				if(!(excludeFlags & GTAXVF_SALESTAX))
-					RateVect[i] = ((double)gtax->SalesTax) / (100.0 * 100.0);   // @divtax
+					RateVect[i] = static_cast<double>(gtax->SalesTax) / (100.0 * 100.0);   // @divtax
 				break;
 		}
 	}
@@ -402,7 +402,15 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, lon
 	}
 	// @v10.3.3 {
 	else if(rTi.IsCorrectionExp()) {
-		gobj.GTxObj.Fetch(tax_grp_id, rTi.Date, 0, &gtx);
+		// @v10.3.4 {
+		PPObjBill * p_bobj = BillObj;
+		BillTbl::Rec bill_rec;
+		BillTbl::Rec link_bill_rec;
+		LDATE   tax_date = rTi.Date;
+		if(p_bobj->Fetch(rTi.BillID, &bill_rec) > 0 && bill_rec.LinkBillID && p_bobj->Fetch(bill_rec.LinkBillID, &link_bill_rec) > 0)
+			tax_date = link_bill_rec.Dt;
+		// } @v10.3.4 
+		gobj.GTxObj.Fetch(tax_grp_id, tax_date, 0, &gtx);
 		qtty = -rTi.GetEffCorrectionExpQtty();
 		amount = (tiamt == TIAMT_PRICE) ? (rTi.Price - rTi.Discount) : rTi.Cost;
 	}
@@ -528,7 +536,7 @@ int SLAPI PPObjGoodsTax::Browse(void * extraPtr)
 			ObjViewDialog::handleEvent(event);
 			if(event.isKeyDown(kbAltF2) || event.isCmd(cmaAltInsert)) {
 				PPID   id = 0, sample_id = getCurrID();
-				if(Rt & PPR_INS && sample_id && P_List && ((PPObjGoodsTax *)P_Obj)->AddBySample(&id, sample_id) == cmOK)
+				if(Rt & PPR_INS && sample_id && P_List && static_cast<PPObjGoodsTax *>(P_Obj)->AddBySample(&id, sample_id) == cmOK)
 					updateList(id);
 				clearEvent(event);
 			}
@@ -785,7 +793,7 @@ int SLAPI PPObjGoodsTax::GetPacket(PPID id, PPGoodsTaxPacket * pPack)
 			PPGoodsTaxEntry & r_entry = pPack->Get(i);
 			SETFLAG(r_entry.Flags, GTAXF_ZEROEXCISE, is_zero_excise);
 			r_entry.Flags |= GTAXF_ENTRY;
-			long s = (long)(i+1);
+			long s = static_cast<long>(i+1);
 			r_entry.TaxGrpID = ((id & 0x00ffffffL) | (s << 24));
 		}
 		SETFLAG(pPack->Rec.Flags, GTAXF_ZEROEXCISE, is_zero_excise);
@@ -829,12 +837,12 @@ int  SLAPI PPObjGoodsTax::Read(PPObjPack * p, PPID id, void * stream, ObjTransmC
 	p->Data = new PPGoodsTaxPacket;
 	THROW_MEM(p->Data);
 	if(stream == 0) {
-		THROW(GetPacket(id, (PPGoodsTaxPacket *)p->Data) > 0);
+		THROW(GetPacket(id, static_cast<PPGoodsTaxPacket *>(p->Data)) > 0);
 	}
 	else {
 		SBuffer buffer;
 		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, (PPGoodsTaxPacket *)p->Data, buffer, &pCtx->SCtx));
+		THROW(SerializePacket(-1, static_cast<PPGoodsTaxPacket *>(p->Data), buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -867,7 +875,7 @@ int  SLAPI PPObjGoodsTax::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPGoodsTaxPacket * p_pack = (PPGoodsTaxPacket *)p->Data;
+		PPGoodsTaxPacket * p_pack = static_cast<PPGoodsTaxPacket *>(p->Data);
 		if(stream == 0) {
 			if(*pID == 0) {
 				PPID   same_id = 0;
@@ -911,7 +919,7 @@ int SLAPI PPObjGoodsTax::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int r
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPGoodsTaxPacket * p_pack = (PPGoodsTaxPacket *)p->Data;
+		PPGoodsTaxPacket * p_pack = static_cast<PPGoodsTaxPacket *>(p->Data);
 		for(uint i = 0; i < p_pack->GetCount(); i++) {
 			PPGoodsTaxEntry & r_entry = p_pack->Get(i);
 			THROW(ProcessObjRefInArray(PPOBJ_OPRKIND, &r_entry.OpID, ary, replace));
@@ -1002,7 +1010,7 @@ int FASTCALL GTaxCache::Dirty(PPID id)
 		uint   c = P_Ary->getCount();
 		if(c) do {
 			--c;
-			PPID   item_id = ((PPGoodsTaxEntry*)P_Ary->at(c))->TaxGrpID;
+			PPID   item_id = static_cast<const PPGoodsTaxEntry *>(P_Ary->at(c))->TaxGrpID;
 			if((item_id & 0x00ffffffL) == id)
 				P_Ary->atFree(c);
 		} while(c);

@@ -671,7 +671,7 @@ void __env_map_flags(const FLAG_MAP * flagmap, uint mapsize, uint32 * inflagsp, 
  * PUBLIC: void __env_fetch_flags __P((const FLAG_MAP *,
  * PUBLIC:       uint, uint32 *, uint32 *));
  */
-void __env_fetch_flags(const FLAG_MAP * flagmap, uint mapsize, uint32 * inflagsp, uint32 * outflagsp)
+void __env_fetch_flags(const FLAG_MAP * flagmap, uint mapsize, const uint32 * inflagsp, uint32 * outflagsp)
 {
 	const FLAG_MAP * fmp;
 	uint32 i;

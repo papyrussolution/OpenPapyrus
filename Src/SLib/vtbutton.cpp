@@ -53,7 +53,7 @@ int TCalcInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam
 			Vbwe.P_Dlg = (TDialog *)P_Owner;
 			Vbwe.FieldCtrlId = Id;
 			HWND hwnd = GetDlgItem(Parent, Vbwe.ButtonCtrlId);
-			Vbwe.PrevWndProc = (WNDPROC)TView::GetWindowProp(hwnd, GWLP_WNDPROC);
+			Vbwe.PrevWndProc = static_cast<WNDPROC>(TView::GetWindowProp(hwnd, GWLP_WNDPROC));
 			TView::SetWindowUserData(hwnd, &Vbwe);
 			const uint bmp_id = virtButtonBitmapId[VirtButtonId];
 			TView::SetWindowProp(hwnd, GWLP_WNDPROC, virtButtonProc[VirtButtonId]);

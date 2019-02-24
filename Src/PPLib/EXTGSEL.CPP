@@ -1,5 +1,5 @@
 // EXTGSEL.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -76,8 +76,8 @@ int FASTCALL PickLotBrowser::AddItemToArray(SArray * pAry, const ReceiptTbl::Rec
 
 IMPL_CMPFUNC(PickLotBrowser_Entry_GoodsName, i1, i2)
 {
-	const PickLotBrowser::Entry * e1 = (const PickLotBrowser::Entry *)i1;
-	const PickLotBrowser::Entry * e2 = (const PickLotBrowser::Entry *)i2;
+	const PickLotBrowser::Entry * e1 = static_cast<const PickLotBrowser::Entry *>(i1);
+	const PickLotBrowser::Entry * e2 = static_cast<const PickLotBrowser::Entry *>(i2);
 	return stricmp866(e1->GoodsName, e2->GoodsName);
 }
 
@@ -101,23 +101,23 @@ IMPL_HANDLE_EVENT(PickLotBrowser)
 	}
 	else if(event.isKeyDown(kbF3)) {
 		if(P_BObj->CheckRights(BILLRT_ACCSCOST)) {
-			p_entry = (PickLotBrowser::Entry *)view->getCurItem();
+			p_entry = static_cast<PickLotBrowser::Entry *>(view->getCurItem());
 			if(p_entry && p_entry->LotID)
 				ViewOpersByLot(p_entry->LotID, 0);
 		}
 	}
 	else if(event.isKeyDown(kbF4)) {
-		p_entry = (PickLotBrowser::Entry *)view->getCurItem();
+		p_entry = static_cast<PickLotBrowser::Entry *>(view->getCurItem());
 		if(p_entry && p_entry->LotID)
 			P_BObj->EditLotExtData(p_entry->LotID);
 	}
 	else if(event.isKeyDown(kbCtrlF6)) {
-		p_entry = (PickLotBrowser::Entry *)view->getCurItem();
+		p_entry = static_cast<PickLotBrowser::Entry *>(view->getCurItem());
 		if(p_entry && p_entry->LotID)
 			EditObjTagValList(PPOBJ_LOT, p_entry->LotID, 0);
 	}
 	else if(event.isKeyDown(kbCtrlF3)) {
-		p_entry = (PickLotBrowser::Entry *)view->getCurItem();
+		p_entry = static_cast<PickLotBrowser::Entry *>(view->getCurItem());
 		if(p_entry)
 			P_BObj->EditLotSystemInfo(p_entry->LotID);
 	}
@@ -199,12 +199,11 @@ int SLAPI PickLot(PickLotParam & rParam, TIDlgInitData * pResult)
 		}
 		PickLotBrowser::SortArray(p_list, 0);
 		{
-			PickLotBrowser::Entry * p_sel;
 			THROW_MEM(p_brw = new PickLotBrowser(p_list));
 			if(rParam.SubTitle.NotEmpty())
                 p_brw->setSubTitle(rParam.SubTitle);
 			if(ExecView(p_brw) == cmOK) {
-				p_sel = (PickLotBrowser::Entry *)p_brw->view->getCurItem();
+				const PickLotBrowser::Entry * p_sel = static_cast<const PickLotBrowser::Entry *>(p_brw->view->getCurItem());
 				if(p_sel) {
 					if(pResult) {
 						pResult->LotID = p_sel->LotID;
@@ -456,7 +455,7 @@ void ExtGoodsSelDialog::updateList(int pos)
 	if(P_List) {
 		ListBoxDef * p_def = 0;
 		PPID   op_type_id = GetOpType(OpID);
-		int    sav_pos = P_List->def ? ((int)P_List->def->_curItem()) : 0;
+		int    sav_pos = P_List->def ? static_cast<int>(P_List->def->_curItem()) : 0;
 		PPID   grp   = getCtrlLong(CTLSEL_EXTGSEL_GGRP);
 		PPID   brand = getCtrlLong(CTLSEL_EXTGSEL_BRAND);
 		int    exists_only = 0;
@@ -498,7 +497,7 @@ void ExtGoodsSelDialog::updateList(int pos)
 					mtx_loc_id = NZOR(PPObjLocation::ObjToWarehouse(ArID), LocID);
 			}
 			SETFLAG(_sel_options, PPObjGoods::selfExtLongAsBrand, brand);
-			p_def = GObj._Selector2(0, g, _sel_options, (void *)brand, LocID, mtx_loc_id);
+			p_def = GObj._Selector2(0, g, _sel_options, reinterpret_cast<void *>(brand), LocID, mtx_loc_id);
 		}
 		if(p_def) {
 			if(p_def->GetCapability() & ListBoxDef::cFullInMem)
@@ -579,17 +578,17 @@ IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 			if(modif_mode == TIDlgInitData::mmExpend) {
 				::SetBkMode(p_dc->H_DC, TRANSPARENT);
 				::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
-				p_dc->H_Br = (HBRUSH)Ptb.Get(brushModMode_Expend);
+				p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushModMode_Expend));
 			}
 			else if(modif_mode == TIDlgInitData::mmIncoming) {
 				::SetBkMode(p_dc->H_DC, TRANSPARENT);
 				::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
-				p_dc->H_Br = (HBRUSH)Ptb.Get(brushModMode_Incoming);
+				p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushModMode_Incoming));
 			}
 			else if(modif_mode == TIDlgInitData::mmRecompl) {
 				::SetBkMode(p_dc->H_DC, TRANSPARENT);
 				::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
-				p_dc->H_Br = (HBRUSH)Ptb.Get(brushModMode_Recompl);
+				p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushModMode_Recompl));
 			}
 			else
 				return;
@@ -602,13 +601,13 @@ IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 	else if(event.isCmd(cmaInsert)) {
 		// @v9.6.12 if(IsCurrentView(P_List)) {
 			grp_id = getCtrlLong(CTLSEL_EXTGSEL_GGRP);
-			if(GObj.Edit(&(c = 0), (void *)grp_id) == cmOK)
+			if(GObj.Edit(&(c = 0), reinterpret_cast<void *>(grp_id)) == cmOK)
 				selectGoods(grp_id, c);
 		// @v9.6.12 }
 		// @v9.6.12 else
 			// @v9.6.12 return;
 	}
-	else if(event.isCmd(cmSearchUHTT) || event.isKeyDown(kbCtrlF6)) { // @v8.0.11 || event.isKeyDown(kbCtrlF6)
+	else if(event.isCmd(cmSearchUHTT) || event.isKeyDown(kbCtrlF6)) {
 		const PPID goods_id = getSelectedItem();
 		if(goods_id)
 			GObj.ViewUhttGoodsRestList(goods_id);
@@ -794,7 +793,7 @@ int ExtGoodsSelDialog::getDTS(TIDlgInitData * pTidi)
 	}
 	else if(P_List && P_List->getCurID(&pTidi->GoodsID) && pTidi->GoodsID) {
 		getCtrlData(CTLSEL_EXTGSEL_GGRP, &pTidi->GoodsGrpID);
-		if(SerialData.Serial[0] && pTidi->GoodsID) {
+		if(SerialData.Serial[0]) {
 			STRNSCPY(pTidi->Serial, SerialData.Serial);
 			pTidi->Quantity = SerialData.Qtty;
 			pTidi->LotID    = SerialData.LotID;

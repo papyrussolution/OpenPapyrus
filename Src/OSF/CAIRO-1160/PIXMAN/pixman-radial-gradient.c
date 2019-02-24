@@ -49,12 +49,7 @@ static inline pixman_fixed_32_32_t dot(pixman_fixed_48_16_t x1,
 	return x1 * x2 + y1 * y2 + z1 * z2;
 }
 
-static inline double fdot(double x1,
-    double y1,
-    double z1,
-    double x2,
-    double y2,
-    double z2)
+static inline double fdot(double x1, double y1, double z1, double x2, double y2, double z2)
 {
 	/*
 	 * Error can be unbound in some special cases.
@@ -65,14 +60,7 @@ static inline double fdot(double x1,
 	return x1 * x2 + y1 * y2 + z1 * z2;
 }
 
-static uint32_t radial_compute_color(double a,
-    double b,
-    double c,
-    double inva,
-    double dr,
-    double mindr,
-    pixman_gradient_walker_t * walker,
-    pixman_repeat_t repeat)
+static uint32_t radial_compute_color(double a, double b, double c, double inva, double dr, double mindr, pixman_gradient_walker_t * walker, pixman_repeat_t repeat)
 {
 	/*
 	 * In this function error propagation can lead to bad results:
@@ -104,18 +92,14 @@ static uint32_t radial_compute_color(double a,
 			if(t * dr >= mindr)
 				return _pixman_gradient_walker_pixel(walker, t);
 		}
-
 		return 0;
 	}
 
 	discr = fdot(b, a, 0, b, -c, 0);
 	if(discr >= 0) {
-		double sqrtdiscr, t0, t1;
-
-		sqrtdiscr = sqrt(discr);
-		t0 = (b + sqrtdiscr) * inva;
-		t1 = (b - sqrtdiscr) * inva;
-
+		double sqrtdiscr = sqrt(discr);
+		double t0 = (b + sqrtdiscr) * inva;
+		double t1 = (b - sqrtdiscr) * inva;
 		/*
 		 * The root that must be used is the biggest one that belongs
 		 * to the valid range ([0,1] for PIXMAN_REPEAT_NONE, any
@@ -133,14 +117,13 @@ static uint32_t radial_compute_color(double a,
 			else if(0 <= t1 && t1 <= pixman_fixed_1)
 				return _pixman_gradient_walker_pixel(walker, t1);
 		}
-		else{
+		else {
 			if(t0 * dr >= mindr)
 				return _pixman_gradient_walker_pixel(walker, t0);
 			else if(t1 * dr >= mindr)
 				return _pixman_gradient_walker_pixel(walker, t1);
 		}
 	}
-
 	return 0;
 }
 

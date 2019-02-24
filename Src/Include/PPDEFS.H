@@ -524,6 +524,7 @@
 	#define PPOPK_EDI_SHOPCHARGEON    15L // @v9.2.11 Драфт-операция перемещения остатков со склада на регистр 2 ЕГАИС
 	#define PPOPK_EDI_ACTCHARGEONSHOP 16L // @v9.2.11 Постановка лотов на баланс торгового зала в ЕГАИС (регистр 2)
 	#define PPOPK_EDI_WRITEOFFSHOP    17L // @v9.3.19 Списание с баланса торгового зала в ЕГАИС (регистр 2)
+		// @v10.3.5 Если документ содержит специальную метку, то это - автоматическое списание реализации по акцизным маркам
 	#define PPOPK_EDI_ORDERRSP        18L // @v10.2.11 Драфт-операция подтверждения заказа, переденного в EDI
 	#define PPOPK_UNASSIGNED        1000L // Специальный идентификатор
 	//
@@ -7439,6 +7440,7 @@
 	#define CTLSEL_DFRULE_SCARDSER      (25 + WINDOWS_ID_BIAS)
 	#define CTL_DFRULE_WOSCARD          (26 + WINDOWS_ID_BIAS)
 	#define CTL_DFRULE_PAYTYPE          (27 + WINDOWS_ID_BIAS)
+	#define CTL_DFRULE_RETSALTGGL       (28 + WINDOWS_ID_BIAS)
 #define DLG_DFRULESEL             829 // DFRULSEL
 	#define CTL_DFRULESEL_RULE         (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_DFRULESEL_RULE      (2 + WINDOWS_ID_BIAS)
@@ -10596,6 +10598,9 @@
 	#define CTL_TIMSERCFGITEM_FLAGS   (1 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSERCFGITEM_TS      (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TIMSERCFGITEM_TS   (3 + WINDOWS_ID_BIAS)
+#define DLG_ATTACHBILL            1357
+	#define CTL_ATTACHBILL_SEL        (1 + WINDOWS_ID_BIAS)
+	#define CTL_ATTACHBILL_INFO       (2 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

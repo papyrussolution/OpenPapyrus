@@ -121,7 +121,7 @@ int SLAPI CreateByExample(const char * pPath)
 								p_dst_tbl->clearDataBuf();
 								p_dst_tbl->copyBufLobFrom(p_src_tbl->getDataBuf(), p_src_tbl->getRetBufLen());
 								if(is_assoc) {
-									ObjAssocTbl::Rec * p_rec = (ObjAssocTbl::Rec*)p_src_tbl->getDataBuf();
+									ObjAssocTbl::Rec * p_rec = static_cast<ObjAssocTbl::Rec *>(p_src_tbl->getDataBuf());
 									if(!oneof10(p_rec->AsscType, PPASS_BILLSET, PPASS_PAYMBILLPOOL, PPASS_OPBILLPOOL,
 										PPASS_CSESSBILLPOOL, PPASS_TSESSBILLPOOL, PPASS_CSDBILLPOOL, PPASS_TSDBILLPOOL,
 										PPASS_PRJBILLPOOL, PPASS_PRJPHASEBILLPOOL, PPASS_TODOBILLPOOL))
@@ -131,9 +131,9 @@ int SLAPI CreateByExample(const char * pPath)
 									ins_rec = 1;
 									// @v10.2.0 {
 									if(is_ref) {
-                                        Reference2Tbl::Rec * p_rec = (Reference2Tbl::Rec *)p_src_tbl->getDataBuf();
+                                        Reference2Tbl::Rec * p_rec = static_cast<Reference2Tbl::Rec *>(p_src_tbl->getDataBuf());
                                         if(p_rec->ObjType == PPOBJ_CASHNODE) {
-											PPCashNode2 * p_cn = (PPCashNode2 *)p_rec;
+											PPCashNode2 * p_cn = reinterpret_cast<PPCashNode2 *>(p_rec);
 											p_cn->CurRestBillID = 0;
 											p_cn->CurSessID = 0;
 											p_cn->CurDate = ZERODATE;
@@ -157,7 +157,7 @@ int SLAPI CreateByExample(const char * pPath)
 									PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, 0);
 									//CALLEXCEPT_PP(PPERR_DBENGINE);
 								}
-								p_src_tbl->clearDataBuf(); // @v8.7.2
+								p_src_tbl->clearDataBuf();
 								PPWaitPercent(i++, rn, tbl_name);
 								THROW(PPCheckUserBreak());
 							} while(p_src_tbl->step(spNext));
@@ -182,41 +182,40 @@ int SLAPI CreateByExample(const char * pPath)
 		RECORDNUMBER rn = 0, i = 0;
 		ReceiptTbl dst_tbl((path = pPath).SetLastSlash().Cat("receipt.btr"));
 		Goods2Tbl src_tbl((path = pPath).SetLastSlash().Cat("goods2.btr"));
-
 		src_tbl.setDataBuf(&goods_rec, sizeof(Goods2Tbl::Rec));
 		dst_tbl.setDataBuf(&rcpt_rec, sizeof(ReceiptTbl::Rec));
 		src_tbl.getNumRecs(&rn);
-
-		PPTransaction tra(1);
-		THROW(tra);
-
-		if(src_tbl.step(spFirst)) {
-			ReceiptCore * p_rc = &p_bobj->trfr->Rcpt;
-			ObjTagCore dest_ot((path = pPath).SetLastSlash().Cat("objtag.btr"));
-			MEMSZERO(rcpt_rec);
-			do {
-				if(p_rc->GetLastLot(goods_rec.ID, 0, MAXDATE, &rcpt_rec) > 0) {
-					rcpt_rec.Quantity  = 0.0;
-					rcpt_rec.Rest      = 0.0;
-					rcpt_rec.Closed    = 1;
-					rcpt_rec.BillID    = 0;
-					rcpt_rec.PrevLotID = 0;
-					THROW_DB(dst_tbl.insertRec());
-					{
-						//
-						// ѕеренос тегов лота с исходной базы в создаваемую.
-						//
-						ObjTagList lot_tag_list;
-						if(p_bobj->GetTagListByLot(rcpt_rec.ID, 0, &lot_tag_list) > 0) {
-							THROW(dest_ot.PutList(PPOBJ_LOT, rcpt_rec.ID, &lot_tag_list, 0));
+		{
+			PPTransaction tra(1);
+			THROW(tra);
+			if(src_tbl.step(spFirst)) {
+				ReceiptCore * p_rc = &p_bobj->trfr->Rcpt;
+				ObjTagCore dest_ot((path = pPath).SetLastSlash().Cat("objtag.btr"));
+				MEMSZERO(rcpt_rec);
+				do {
+					if(p_rc->GetLastLot(goods_rec.ID, 0, MAXDATE, &rcpt_rec) > 0) {
+						rcpt_rec.Quantity  = 0.0;
+						rcpt_rec.Rest      = 0.0;
+						rcpt_rec.Closed    = 1;
+						rcpt_rec.BillID    = 0;
+						rcpt_rec.PrevLotID = 0;
+						THROW_DB(dst_tbl.insertRec());
+						{
+							//
+							// ѕеренос тегов лота с исходной базы в создаваемую.
+							//
+							ObjTagList lot_tag_list;
+							if(p_bobj->GetTagListByLot(rcpt_rec.ID, 0, &lot_tag_list) > 0) {
+								THROW(dest_ot.PutList(PPOBJ_LOT, rcpt_rec.ID, &lot_tag_list, 0));
+							}
 						}
 					}
-				}
-				PPWaitPercent(i++, rn, p_rc->GetTableName());
-				THROW(PPCheckUserBreak());
-			} while(src_tbl.step(spNext));
+					PPWaitPercent(i++, rn, p_rc->GetTableName());
+					THROW(PPCheckUserBreak());
+				} while(src_tbl.step(spNext));
+			}
+			THROW(tra.Commit());
 		}
-		THROW(tra.Commit()); // @v7.9.6
 	}
 	{
 		long   val2 = 0;
@@ -309,7 +308,7 @@ int SLAPI MakeDatabase()
 			dbentry.SetIfEmpty(dbname);
 			PPID   i;
 			SString n, pn;
-			for(i = 0; i < (int)dbes.GetCount(); i++) {
+			for(i = 0; i < static_cast<int>(dbes.GetCount()); i++) {
 				DbLoginBlock blk;
 				dbes.GetByPos(i, &blk);
 				blk.GetAttr(DbLoginBlock::attrDbSymb, n);
@@ -397,7 +396,7 @@ int SLAPI MakeDatabase()
 								SString DbSymb;
 							};
 
-							int    ok = 1;
+							ok = 1;
 							SString empty_path;
 							SString pack_path;
 

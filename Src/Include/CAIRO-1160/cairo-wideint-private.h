@@ -109,25 +109,10 @@ static inline cairo_uquorem64_t _cairo_uint64_divrem(cairo_uint64_t num, cairo_u
  * warning: cast from function call of type ‘#cairo_uint64_t’ to
  * non-matching type ‘double’
  */
-static cairo_always_inline cairo_const cairo_uint64_t _cairo_double_to_uint64(double i) 
-{
-	return (cairo_uint64_t)i;
-}
-
-static cairo_always_inline cairo_const double _cairo_uint64_to_double(cairo_uint64_t i) 
-{
-	return (double)i;
-}
-
-static cairo_always_inline cairo_int64_t I _cairo_double_to_int64(double i) 
-{
-	return (cairo_int64_t)i;
-}
-
-static cairo_always_inline double I _cairo_int64_to_double(cairo_int64_t i) 
-{
-	return (double)i;
-}
+static cairo_always_inline cairo_const cairo_uint64_t _cairo_double_to_uint64(double i) { return static_cast<cairo_uint64_t>(i); }
+static cairo_always_inline cairo_const double _cairo_uint64_to_double(cairo_uint64_t i) { return static_cast<double>(i); }
+static cairo_always_inline cairo_int64_t I _cairo_double_to_int64(double i) { return static_cast<cairo_int64_t>(i); }
+static cairo_always_inline double I _cairo_int64_to_double(cairo_int64_t i) { return static_cast<double>(i); }
 
 #define                 _cairo_uint32_to_uint64(i)  ((uint64_t)(i))
 #define                 _cairo_uint64_to_uint32(i)  ((uint32_t)(i))

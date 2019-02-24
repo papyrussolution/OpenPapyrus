@@ -51,7 +51,7 @@ int SLAPI PPViewAmountType::CheckForFilt(const PPAmountTypePacket * pPack) const
 // static
 int FASTCALL PPViewAmountType::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	PPViewAmountType * p_v = (PPViewAmountType *)pBlk->ExtraPtr;
+	PPViewAmountType * p_v = static_cast<PPViewAmountType *>(pBlk->ExtraPtr);
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
@@ -61,7 +61,7 @@ int SLAPI PPViewAmountType::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
 		ok = 1;
 		SString temp_buf;
-		const AmountTypeViewItem * p_item = (AmountTypeViewItem *)pBlk->P_SrcData;
+		const AmountTypeViewItem * p_item = static_cast<const AmountTypeViewItem *>(pBlk->P_SrcData);
 		switch(pBlk->ColumnN) {
 			case 0: // ИД
 				pBlk->Set(p_item->ID);
@@ -223,9 +223,8 @@ IMPL_HANDLE_EVENT(AmtTypeFiltDialog)
 int AmtTypeFiltDialog::setDTS(const AmountTypeFilt * pData)
 {
 	Data = *pData;
-
 	ushort v = 0;
-	ComboBox * p_cb_tax = (ComboBox*)getCtrlView(CTLSEL_AMOUNTTYPE_TAX);
+	ComboBox * p_cb_tax = static_cast<ComboBox *>(getCtrlView(CTLSEL_AMOUNTTYPE_TAX));
 	const long flags = Data.Flags;
 	AddClusterAssoc(CTL_AMOUNTTYPE_FLAGS, 0, PPAmountType::fErrOnDefault);
 	AddClusterAssoc(CTL_AMOUNTTYPE_FLAGS, 1, PPAmountType::fManual);
@@ -417,7 +416,7 @@ int SLAPI PPViewAmountType::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 	}
 	if(ok > 0 && oneof5(ppvCmd, PPVCMD_ADDITEM, PPVCMD_EDITITEM, PPVCMD_DELETEITEM, PPVCMD_REFRESHBYPERIOD, PPVCMD_REFRESH)) {
 		FetchData(id);
-		AryBrowserDef * p_def = (AryBrowserDef *)pBrw->getDef();
+		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
 		CALLPTRMEMB(p_def, setArray(new SArray(Data), 0, 1));
 		ok = 1;
 	}

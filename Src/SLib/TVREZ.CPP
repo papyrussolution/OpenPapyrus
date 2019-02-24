@@ -1,5 +1,5 @@
 // TVREZ.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2016, 2017
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -181,8 +181,7 @@ int SLAPI TVRez::setHdrType()
 			HeaderType = hdr16;
 			ok = 1;
 		}
-		else if(fread(buf + 8, 24, 1, Stream) && !ferror(Stream) && !feof(Stream)
-			&& memcmp(buf, res32prefix, 32) == 0) {
+		else if(fread(buf + 8, 24, 1, Stream) && !ferror(Stream) && !feof(Stream) && memcmp(buf, res32prefix, 32) == 0) {
 			HeaderType = hdr32;
 			ok = 1;
 		}

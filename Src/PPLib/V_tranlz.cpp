@@ -1619,7 +1619,6 @@ int SLAPI PPViewTrfrAnlz::InitGrpngNames()
 		PPLoadText(PPTXT_TRFRANLZINITGRPNGTEXT, msg_buf);
 		PPObjWorld w_obj;
 		PROFILE_START
-		//for(PPID id = 0; p_tgt->search(0, &id, spGt);) {
 		PPID   id = 0;
 		if(p_tgt->search(0, &id, spFirst)) do {
 			TempTrfrGrpngTbl::Rec rec;
@@ -1716,10 +1715,7 @@ int SLAPI PPViewTrfrAnlz::CreateOrderTable(IterOrder ord)
 					id = p_tat->data.ArticleID;
 				if(id != prev_id) {
 					switch(obj_type) {
-						case PPOBJ_GOODS:
-							// @v9.5.5 GetGoodsName(id, temp_buf);
-							GObj.FetchNameR(id, temp_buf); // @v9.5.5
-							break;
+						case PPOBJ_GOODS: GObj.FetchNameR(id, temp_buf); break;
 						case PPOBJ_ARTICLE: GetArticleName(id, temp_buf); break;
 						case PPOBJ_PERSON:  GetPersonName(id, temp_buf); break;
 						default: temp_buf.Z(); break;
@@ -1776,12 +1772,12 @@ int SLAPI PPViewTrfrAnlz::InitIteration(IterOrder ord)
 
 int SLAPI PPViewTrfrAnlz::NextOuterIteration()
 {
-	if(P_IterOrderQuery)
-		if(P_IterOrderQuery->nextIteration() > 0) {
-			CurOuterID = P_OrderTbl->data.ID;
-			return 1;
-		}
-	return -1;
+	if(P_IterOrderQuery && P_IterOrderQuery->nextIteration() > 0) {
+		CurOuterID = P_OrderTbl->data.ID;
+		return 1;
+	}
+	else
+		return -1;
 }
 
 int SLAPI PPViewTrfrAnlz::NextInnerIteration(TrfrAnlzViewItem * pItem)
@@ -1859,12 +1855,12 @@ int SLAPI PPViewTrfrAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 				long   GoodsID;
 				long   PersonID;
 			};
-			const CtHdr * p_ct_hdr = (CtHdr *)pRow;
+			const CtHdr * p_ct_hdr = static_cast<const CtHdr *>(pRow);
 			pHdr->__ID = p_ct_hdr->__ID;
 			pHdr->GoodsID = p_ct_hdr->GoodsID;
 			pHdr->ArID = p_ct_hdr->PersonID;
 			if(Filt.Flags & TrfrAnlzFilt::fDiffByDlvrAddr)
-				pHdr->DlvrAddrID = *(long*)((char*)pRow + sizeof(long) * 3);
+				pHdr->DlvrAddrID = *reinterpret_cast<const long *>(PTR8C(pRow) + sizeof(long) * 3);
 		}
 		else if(P_TrAnlzTbl) {
 			if(Flags & fAsGoodsCard) {
@@ -1873,9 +1869,9 @@ int SLAPI PPViewTrfrAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 					LDATE LDt;
 					PPID  BillID;
 				};
-				pHdr->BillID  = (Filt.Flags & TrfrAnlzFilt::fGByDate) ? 0 : ((_H*)pRow)->BillID;
-				pHdr->Dt      = ((_H*)pRow)->LDt;
-				pHdr->OprNo   = ((_H*)pRow)->OprNo;
+				pHdr->BillID  = (Filt.Flags & TrfrAnlzFilt::fGByDate) ? 0 : static_cast<const _H *>(pRow)->BillID;
+				pHdr->Dt      = static_cast<const _H *>(pRow)->LDt;
+				pHdr->OprNo   = static_cast<const _H *>(pRow)->OprNo;
 				pHdr->GoodsID = Filt.GoodsID;
 			}
 			else {
@@ -1883,12 +1879,12 @@ int SLAPI PPViewTrfrAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 					LDATE Dt;
 					PPID  BillID;
 				};
-				pHdr->Dt      = ((_H*)pRow)->Dt;
-				pHdr->BillID  = ((_H*)pRow)->BillID;
+				pHdr->Dt      = static_cast<const _H *>(pRow)->Dt;
+				pHdr->BillID  = static_cast<const _H *>(pRow)->BillID;
 			}
 		}
 		else if(P_TrGrpngTbl)
-			pHdr->__ID = *(PPID *)pRow;
+			pHdr->__ID = *static_cast<const PPID *>(pRow);
 	}
 	else
 		ok = 0;
@@ -1910,7 +1906,7 @@ static IMPL_DBE_PROC(dbqf_trfrnalz_getturnover_iidprr)
 		const  double qtty = fabs(params[4].rval);
 		double amount = fabs(params[5].rval);
 		if(qtty != 0.0) {
-			const  GCTIterator::GoodsRestArray * p_rest_list = (const  GCTIterator::GoodsRestArray *)params[3].ptrval;
+			const  GCTIterator::GoodsRestArray * p_rest_list = static_cast<const GCTIterator::GoodsRestArray *>(params[3].ptrval);
 			if(p_rest_list) {
 				//rest = loc_id ? p_rest_list->GetRest(goods_id, loc_id, dt) : p_rest_list->GetRest(goods_id, dt);
 				DateRange period;
@@ -1938,7 +1934,7 @@ static IMPL_DBE_PROC(dbqf_trfrnalz_getrest_iidp)
 		const PPID   goods_id = params[0].lval;
 		const PPID   loc_id = params[1].lval;
 		const LDATE  dt = params[2].dval;
-		const GCTIterator::GoodsRestArray * p_rest_list = (const  GCTIterator::GoodsRestArray *)params[3].ptrval;
+		const GCTIterator::GoodsRestArray * p_rest_list = static_cast<const GCTIterator::GoodsRestArray *>(params[3].ptrval);
         if(p_rest_list) {
 			rest = loc_id ? p_rest_list->GetRest(goods_id, loc_id, dt) : p_rest_list->GetRest(goods_id, dt);
         }
@@ -1953,7 +1949,7 @@ static IMPL_DBE_PROC(dbqf_trfrnalz_getavgrest_iidp)
 		PPID   goods_id = params[0].lval;
 		PPID   loc_id = params[1].lval;
 		LDATE  dt = params[2].dval;
-		const  GCTIterator::GoodsRestArray * p_rest_list = (const  GCTIterator::GoodsRestArray *)params[3].ptrval;
+		const  GCTIterator::GoodsRestArray * p_rest_list = static_cast<const GCTIterator::GoodsRestArray *>(params[3].ptrval);
         if(p_rest_list) {
 			DateRange period;
 			period.Set(MAXDATE, encodedate(1, 1, 1900));
@@ -2017,6 +2013,7 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
 					tat->LinkCost,  // #12 @v9.4.10
 					tat->LinkPrice, // #13 @v9.4.10
 					tat->ExtVal1,   // #14 @v9.3.5 // @v9.4.10 11-->14
+					tat->Brutto,    // #15 @v10.3.5
 					0L).from(tat, 0L).orderBy(tat->Dt, tat->OprNo, 0L);
 				delete p_mult;
 				if(pSubTitle) {
@@ -2068,6 +2065,7 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
 						tat->LinkCost,  // #14 @v9.4.10
 						tat->LinkPrice, // #15 @v9.4.10
 						tat->ExtVal1,   // #16 @v9.3.5  // @v9.4.10 13-->16
+						tat->Brutto,    // #17 @v10.3.5
 						0L);
 					dbq2 = &(at2->ID += (tat->GoodsID & ~GOODSSUBSTMASK));
 				}
@@ -2091,35 +2089,36 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
 						tat->LinkCost,  // #14 @v9.4.10
 						tat->LinkPrice, // #15 @v9.4.10
 						tat->ExtVal1,   // #16 @v9.3.5  // @v9.4.10 13-->16
+						tat->Brutto,    // #17 @v10.3.5 
 						0L);
 					if(Filt.Sgg == sggNone) {
                         if(Filt.Flags & TrfrAnlzFilt::fShowGoodsCode) {
 							dbe_goodscode.init();
 							dbe_goodscode.push(tat->GoodsID);
 							dbe_goodscode.push((DBFunc)PPDbqFuncPool::IdGoodsSingleBarcode);
-							q->addField(dbe_goodscode);  // #17 // @v9.3.5 #13-->#14 // @v9.4.10 14-->17
+							q->addField(dbe_goodscode);  // #18 // @v9.3.5 #13-->#14 // @v9.4.10 14-->17 // @v10.3.5 #17-->18
                         }
                         else {
-							q->addField(tat->ID__);      // #17 @stub // @v9.3.5 #13-->#14 // @v9.4.10 14-->17
+							q->addField(tat->ID__);      // #18 @stub // @v9.3.5 #13-->#14 // @v9.4.10 14-->17 // @v10.3.5 #17-->18
                         }
                         if(Filt.Flags & TrfrAnlzFilt::fShowSerial) {
 							PPDbqFuncPool::InitObjTagTextFunc(dbe_serial, PPTAG_LOT_SN, tat->LotID);
-							q->addField(dbe_serial);  // #18 // @v9.3.5 #14-->#15 // @v9.4.10 15-->18
+							q->addField(dbe_serial);  // #19 // @v9.3.5 #14-->#15 // @v9.4.10 15-->18 // @v10.3.5 #18-->19
                         }
                         else {
-							q->addField(tat->ID__);   // #18 @stub // @v9.3.5 #14-->#15 // @v9.4.10 15-->18
+							q->addField(tat->ID__);   // #19 @stub // @v9.3.5 #14-->#15 // @v9.4.10 15-->18 // @v10.3.5 #18-->19
                         }
 						{
 							dbe_linkdate.init();
 							dbe_linkdate.push(tat->LinkBillID);
 							dbe_linkdate.push((DBFunc)PPDbqFuncPool::IdBillDate);
-							q->addField(dbe_linkdate); // #19 @v10.0.03
+							q->addField(dbe_linkdate); // #20 @v10.0.03 // @v10.3.5 #19-->20
 						}
 					}
 					else {
-						q->addField(tat->ID__);  // #17 @stub // @v9.3.5 #13-->#14 // @v9.4.10 14-->17
-						q->addField(tat->ID__);  // #18 @stub // @v9.3.5 #14-->#15 // @v9.4.10 15-->18
-						q->addField(tat->ID__);  // #19 @stub
+						q->addField(tat->ID__);  // #18 @stub // @v9.3.5 #13-->#14 // @v9.4.10 14-->17 // @v10.3.5 #17-->18
+						q->addField(tat->ID__);  // #19 @stub // @v9.3.5 #14-->#15 // @v9.4.10 15-->18 // @v10.3.5 #18-->19
+						q->addField(tat->ID__);  // #20 @stub // @v10.3.5 #19-->20
 					}
 				}
 				if(P_OrderTbl) {
@@ -2170,22 +2169,23 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
 			fld_list.Add(tgt->LinkCost);   // #18 @v9.4.10
 			fld_list.Add(tgt->LinkPrice);  // #19 @v9.4.10
 			fld_list.Add(tgt->ExtVal1);    // #20 // @v9.3.5 // @v9.4.10 #17-->#20
+			fld_list.Add(tgt->Brutto);     // #21 // @v10.3.5
 			q = & select(fld_list);
 			if(Filt.Grp == TrfrAnlzFilt::gDateCntragentAgentGoods) {
 				PPDbqFuncPool::InitObjNameFunc(dbe_ar, PPDbqFuncPool::IdObjNameAr, tgt->BillID);
-				q->addField(dbe_ar);       // #21 // @v9.3.5 #17-->18 // @v9.4.10 #18-->#21
+				q->addField(dbe_ar);       // #22 // @v9.3.5 #17-->18 // @v9.4.10 #18-->#21 // @v10.3.5 #21-->22
 			}
 			else {
-				q->addField(tgt->ID__);    // #21 @stub // @v9.3.5 #17-->18 // @v9.4.10 #18-->#21
+				q->addField(tgt->ID__);    // #22 @stub // @v9.3.5 #17-->18 // @v9.4.10 #18-->#21 // @v10.3.5 #21-->22
 			}
 			if(Filt.Sgg == sggNone && Filt.Flags & TrfrAnlzFilt::fShowGoodsCode) {
 				dbe_goodscode.init();
 				dbe_goodscode.push(tgt->GoodsID);
 				dbe_goodscode.push((DBFunc)PPDbqFuncPool::IdGoodsSingleBarcode);
-				q->addField(dbe_goodscode);  // #22 // @v9.3.5 #18-->19 // @v9.4.10 #19-->#22
+				q->addField(dbe_goodscode);  // #23 // @v9.3.5 #18-->19 // @v9.4.10 #19-->#22 // @v10.3.5 #22-->23
 			}
 			else {
-				q->addField(tgt->ID__);      // #22 @stub // @v9.3.5 #18-->19 // @v9.4.10 #19-->#22
+				q->addField(tgt->ID__);      // #23 @stub // @v9.3.5 #18-->19 // @v9.4.10 #19-->#22 // @v10.3.5 #22-->23
 			}
 			if(Filt.Flags & TrfrAnlzFilt::fCalcRest) {
 				dbe_rest.init();
@@ -2207,10 +2207,10 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
 					dbe_rest.push(dbconst((const void *)&GctRestList));
 					dbe_rest.push((DBFunc)DynFuncGetRest);
 				}
-				q->addField(dbe_rest);      // #23 // @v9.3.5 #19-->20 // @v9.4.10 #20-->#23
+				q->addField(dbe_rest);      // #24 // @v9.3.5 #19-->20 // @v9.4.10 #20-->#23 // @v10.3.5 #23-->24
 			}
 			else {
-				q->addField(tgt->ID__);     // #23 @stub // @v9.3.5 #19-->20 // @v9.4.10 #20-->#23
+				q->addField(tgt->ID__);     // #24 @stub // @v9.3.5 #19-->20 // @v9.4.10 #20-->#23 // @v10.3.5 #23-->24
 			}
 			if(Filt.Flags & TrfrAnlzFilt::fCalcRest && Filt.RestAddendumValue & TrfrAnlzFilt::ravTurnoverRate) {
 				dbe_trnovr.init();
@@ -2229,10 +2229,10 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
 				else */
 					dbe_trnovr.push(dbconst(0.0));
 				dbe_trnovr.push((DBFunc)DynFuncGetTrnovr);
-				q->addField(dbe_trnovr);     // #24 @stub // @v9.3.5 #20-->21 // @v9.4.10 #21-->#24
+				q->addField(dbe_trnovr);     // #25 @stub // @v9.3.5 #20-->21 // @v9.4.10 #21-->#24 // @v10.3.5 #24-->25
 			}
 			else {
-				q->addField(tgt->ID__);      // #24 @stub // @v9.3.5 #20-->21 // @v9.4.10 #21-->#24
+				q->addField(tgt->ID__);      // #25 @stub // @v9.3.5 #20-->21 // @v9.4.10 #21-->#24 // @v10.3.5 #24-->25
 			}
 			if(P_OrderTbl) {
 				THROW(CheckTblPtr(tot = new TempOrderTbl(P_OrderTbl->GetName())));
@@ -2404,12 +2404,12 @@ void SLAPI PPViewTrfrAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 				pBrw->InsColumn(1, "@date", 3, 0, MKSFMT(0, DATF_DMY), 0);
 			}
 			if(Filt.Flags & TrfrAnlzFilt::fCalcRest) {
-				pBrw->insertColumn(-1, "Rest", 23, 0, MKSFMTD(0, 3, NMBF_NOZERO), 0); // @v9.3.5 #19-->20 // @v9.4.10 #20-->23
+				pBrw->insertColumn(-1, "Rest", 24, 0, MKSFMTD(0, 3, NMBF_NOZERO), 0); // @v9.3.5 #19-->20 // @v9.4.10 #20-->23 // @v10.3.5 23-->24
 				if(Filt.RestAddendumValue & TrfrAnlzFilt::ravTurnoverRate) {
-					pBrw->insertColumn(-1, "Turnover", 24, 0, MKSFMTD(0, 6, NMBF_NOZERO), 0); // @v9.3.5 #20-->21 // @v9.4.10 #21-->24
+					pBrw->insertColumn(-1, "Turnover", 25, 0, MKSFMTD(0, 6, NMBF_NOZERO), 0); // @v9.3.5 #20-->21 // @v9.4.10 #21-->24 // @v10.3.5 24-->25
 				}
 			}
-			const DBQBrowserDef * p_def = (const DBQBrowserDef *)pBrw->getDef();
+			const DBQBrowserDef * p_def = static_cast<const DBQBrowserDef *>(pBrw->getDef());
 			if(p_def) {
 				const DBQuery * p_q = p_def->getQuery();
 				if(Filt.Flags & TrfrAnlzFilt::fCalcVat) {
@@ -2429,10 +2429,10 @@ void SLAPI PPViewTrfrAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 								col_pos = (int)i;
 						if(col_pos >= 0) {
 							if(Filt.Flags & TrfrAnlzFilt::fShowGoodsCode) {
-								pBrw->InsColumn(++col_pos, "@barcode", 17, 0, 0, 0); // @v9.3.5 #13-->14 // @v9.4.10 #14-->17
+								pBrw->InsColumn(++col_pos, "@barcode", 18, 0, 0, 0); // @v9.3.5 #13-->14 // @v9.4.10 #14-->17 // @v10.3.5 17-->18
 							}
 							if(Filt.Flags & TrfrAnlzFilt::fShowSerial) {
-								pBrw->InsColumn(++col_pos, "@serial", 18, 0, 0, 0); // @v9.3.5 #14-->15 // @v9.4.10 #15-->18
+								pBrw->InsColumn(++col_pos, "@serial", 19, 0, 0, 0); // @v9.3.5 #14-->15 // @v9.4.10 #15-->18 // @v10.3.5 18-->19
 							}
 						}
 					}
@@ -2442,7 +2442,7 @@ void SLAPI PPViewTrfrAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 								if(p_def->at(i).OrgOffs == 6) // #6
 									col_pos = (int)i;
 							if(col_pos >= 0)
-								pBrw->InsColumn(++col_pos, "@barcode", 22, 0, 0, 0); // @v9.3.5 #18-->19 // @v9.4.10 #19-->22
+								pBrw->InsColumn(++col_pos, "@barcode", 23, 0, 0, 0); // @v9.3.5 #18-->19 // @v9.4.10 #19-->22 // @v10.3.5 22-->23
 						}
 					}
 				}
@@ -2452,7 +2452,7 @@ void SLAPI PPViewTrfrAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 					if(p_q) {
 						// @v10.0.03 {
 						if(!(Flags & fAsGoodsCard) && Filt.Sgg == sggNone) {
-							pBrw->InsColumn(-1, "LinkDate", 19, 0, DATF_DMY, 0);
+							pBrw->InsColumn(-1, "LinkDate", 20, 0, DATF_DMY, 0); // @v10.3.5 19-->20
 						}
 						// } @v10.0.03
 						if(p_q->getFieldPosByName("LinkQtty", &pos))
@@ -2469,6 +2469,13 @@ void SLAPI PPViewTrfrAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 					if(p_q && p_q->getFieldPosByName("ExtVal1", &pos))
 						pBrw->InsColumn(-1, "ExtVal1", pos, 0, MKSFMTD(0, 2, NMBF_NOZERO), 0);
 				}
+				// @v10.3.5 {
+				if(Filt.Flags & TrfrAnlzFilt::fShowCargo) {
+					uint pos = 0;
+					if(p_q && p_q->getFieldPosByName("Brutto", &pos))
+						pBrw->InsColumn(-1, "@cargobrutto", pos, 0, MKSFMTD(0, 3, NMBF_NOZERO), 0);
+				}
+				// } @v10.3.5 
 			}
 		}
 		else {
@@ -2675,7 +2682,7 @@ int SLAPI PPViewTrfrAnlz::Detail(const void * pHdr, PPViewBrowser * pBrw)
 			}
 			if(ok > 0) {
 				flt.Flags = (flt.Flags & (TrfrAnlzFilt::fCalcVat|TrfrAnlzFilt::fByZeroDlvrAddr|
-					TrfrAnlzFilt::fSubstDlvrAddr|TrfrAnlzFilt::fSubstPersonRAddr|TrfrAnlzFilt::fCmpWrOff));
+					TrfrAnlzFilt::fSubstDlvrAddr|TrfrAnlzFilt::fSubstPersonRAddr|TrfrAnlzFilt::fCmpWrOff|TrfrAnlzFilt::fShowCargo));
 				flt.Grp = TrfrAnlzFilt::gNone;
 				flt.Sgd = sgdNone;
 				flt.Sgg = sggNone;
@@ -3577,12 +3584,12 @@ int PPALDD_TrfrAnlzBase::InitData(PPFilt & rFilt, long rsrv)
 
 int PPALDD_TrfrAnlzBase::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 {
-	PPViewTrfrAnlz * p_v = (PPViewTrfrAnlz*)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	PPViewTrfrAnlz * p_v = static_cast<PPViewTrfrAnlz *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;
 	H.Ord = (int16)sortId;
-	return BIN(p_v->InitIteration((PPViewTrfrAnlz::IterOrder)sortId));
+	return BIN(p_v->InitIteration(static_cast<PPViewTrfrAnlz::IterOrder>(sortId)));
 }
 
 int PPALDD_TrfrAnlzBase::NextIteration(PPIterID iterId)
@@ -3613,7 +3620,7 @@ int PPALDD_TrfrAnlzBase::NextIteration(PPIterID iterId)
 	I.Amount   = item.Amount;
 	I.SalQtty  = item.SaldoQtty;
 	I.SalAmt   = item.SaldoAmt;
-	const TrfrAnlzFilt * p_filt = (const TrfrAnlzFilt *)p_v->GetBaseFilt();
+	const TrfrAnlzFilt * p_filt = static_cast<const TrfrAnlzFilt *>(p_v->GetBaseFilt());
 	long ctval = 0;
 	I.LocCount = item.LocCount;
 	if(p_filt->CtValList.GetCount()) {
@@ -3659,7 +3666,7 @@ void PPALDD_TrfrAnlzBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmS
 	#define _RET_DBL     (*static_cast<double *>(rS.GetPtr(pApl->Get(0))))
 	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
 	#define _RET_LONG    (*static_cast<long *>(rS.GetPtr(pApl->Get(0))))
-	PPViewTrfrAnlz * p_v = (PPViewTrfrAnlz*)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	PPViewTrfrAnlz * p_v = static_cast<PPViewTrfrAnlz *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	if(pF->Name == "?GetExtVal") {
 		double ext_val = 0.0;
 		const TrfrAnlzViewItem * p_item = p_v ? p_v->GetInnerIterItem() : 0;
@@ -4420,7 +4427,7 @@ int SLAPI PrcssrAlcReport::ParseEgaisMark(const char * pMark, PrcssrAlcReport::E
 	ok = 1;
 	if(mark.Len() == 68) { // Марки длиной 150 символов не имеют осмысленной информации
 		mark.Sub(0, 2, temp_buf);
-		rMb.Ver = (int16)temp_buf.ToLong();
+		rMb.Ver = static_cast<int16>(temp_buf.ToLong());
 		{
 			mark.Sub(3, 5, temp_buf);
 			size_t ap_start = 0;

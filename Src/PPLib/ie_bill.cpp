@@ -1104,7 +1104,7 @@ int SLAPI PPBillImporter::InitUhttImport(PPID opID, PPID locID, PPID posNodeID)
 	return ok;
 }
 
-int SLAPI PPBillImporter::Init(PPBillImpExpParam * pBillParam, PPBillImpExpParam * pBRowParam, PPID opID, PPID locID)
+int SLAPI PPBillImporter::Init(const PPBillImpExpParam * pBillParam, const PPBillImpExpParam * pBRowParam, PPID opID, PPID locID)
 {
 	//int    ok = -1;
 	int    ok = 1; //@vmiller

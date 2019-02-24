@@ -251,7 +251,7 @@ int SLAPI PPObjBill::Helper_ConvertILTI_Subst(ILTI * ilti, PPBillPacket * pPack,
 		}
 	}
 	for(i = 0; i < cgla.getCount(); i++)
-		lots.addUnique(((CmpGenLots*)cgla.at(i))->lotID);
+		lots.addUnique(static_cast<const CmpGenLots *>(cgla.at(i))->lotID);
 	if(do_optimize_lots)
 		THROW(OrderLots(pPack, &lots, dest_goods_id, ilti->Cost, ilti->Price, qtty));
 	for(i = 0; qtty < 0.0 && i < lots.getCount(); i++) {
@@ -268,8 +268,8 @@ int SLAPI PPObjBill::Helper_ConvertILTI_Subst(ILTI * ilti, PPBillPacket * pPack,
 					double rest = 0.0;
 					THROW(pPack->BoundsByLot(lot_id, 0, -1, &rest, 0));
 					if(rest > 0.0) {
-						double rq  = MAX(qtty, -max_qtty) * ratio; // @v9.7.11 qtty-->MAX(qtty, -max_qtty)
-						double q   = (rest < -rq) ? rest : -rq;
+						const double rq  = MAX(qtty, -max_qtty) * ratio; // @v9.7.11 qtty-->MAX(qtty, -max_qtty)
+						const double q   = (rest < -rq) ? rest : -rq;
 						PPTransferItem ti;
 						THROW(SetupTI(&ti, pPack, goods_id, lot_id));
 						ti.Quantity_ = -q;
@@ -500,12 +500,12 @@ public:
 				ulong  _step_mult = 1;
 				long   _sl = R0i(log10(_part_qtty));
 				if(_sl < 0 || (_sl == 0 && _part_qtty < 1.0)) {
-					_step_mult = (ulong)R0(1.0 / _part_qtty);
+					_step_mult = static_cast<ulong>(R0(1.0 / _part_qtty));
 					_sl = 0;
 				}
 				else if(_sl > 0) {
 					SETMIN(_sl, 2); // @v9.4.3 4-->2
-					_step_mult = (ulong)R0(fpow10i(_sl+1) / _part_qtty);
+					_step_mult = static_cast<ulong>(R0(fpow10i(_sl+1) / _part_qtty));
 				}
 				assert(_step_mult != 0);
 				uint   vdp = 4 + _sl;
@@ -538,13 +538,13 @@ public:
 					const long rp = RowPrecList.get(ridx);
 					const double _m = fpow10i(rp);
 					{
-						ulong  p   = (ulong)R0i(_low_rv * _m);
+						ulong  p   = static_cast<ulong>(R0i(_low_rv * _m));
 						ulong  n   = p / _step;
 						ulong  mod = p % _step;
 						pr.LowEdge = ((n-_shift) * _step);
 					}
 					{
-						ulong  p   = (ulong)R0i(_upp_rv * _m);
+						ulong  p   = static_cast<ulong>(R0i(_upp_rv * _m));
 						ulong  n   = p / _step;
 						ulong  mod = p % _step;
 						pr.UppEdge = ((n+_shift+1) * _step);
@@ -734,14 +734,33 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 			full_sync = 1;
 		}
 		else if(pPack->OpTypeID == PPOPT_CORRECTION) {
+			const int is_corr_exp = BIN(ilti->Flags & PPTFR_CORRECTION && !(ilti->Flags & PPTFR_REVAL));
 			THROW_PP_S(sync_lot_id, PPERR_CANTACCEPTBILLRVL_SYNCLOT, goods_rec.Name); // @v9.5.0 goods_rec.Name
 			THROW(trfr->Rcpt.Search(sync_lot_id, &lotr) > 0);
 			THROW(ti.Init(&pPack->Rec, 1, -1));
+			ti.RByBill = ilti->RByBill; // @v10.3.5
 			THROW(ti.SetupGoods(ilti->GoodsID, 0));
 			THROW(ti.SetupLot(sync_lot_id, &lotr, 0));
 			ti.Cost = ilti->Cost;
 			ti.Price = ilti->Price;
 			ti.Quantity_ = ilti->Quantity;
+			// @v10.3.5 {
+			{
+				PPIDArray correction_bill_chain;
+				if(GetCorrectionBackChain(pPack->Rec, correction_bill_chain) > 0) {
+					double org_qtty = 0.0;
+					double org_price = 0.0;
+					if(trfr->GetOriginalValuesForCorrection(ti, correction_bill_chain, &org_qtty, &org_price) > 0) {
+						ti.Quantity_ += org_qtty;
+						ti.RevalCost = org_price;
+						ti.QuotPrice = fabs(org_qtty);
+					}
+					else {
+						// @todo Здесь надо как-то отреагировать (в лог что-то написать или что-то в этом роде)
+					}
+				}
+			}
+			// } @v10.3.5 
 			THROW(pPack->InsertRow(&ti, &rows));
 			ilti->Rest = 0.0;
 			qtty = 0.0;
@@ -1471,7 +1490,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 	PPObjBill * p_bobj = BillObj;
 	PPObjAccount acc_obj;
 	if(!_update) {
-		THROW(rPack.CreateBlank(Rec.OpID, Rec.LinkBillID, Rec.LocID, use_ta));
+		THROW(rPack.CreateBlank_WithoutCode(Rec.OpID, Rec.LinkBillID, Rec.LocID, use_ta)); // @v10.3.5 rPack.CreateBlank-->rPack.CreateBlank_WithoutCode
 	}
 	else if(pCtx->P_ThisDbDivPack && rPack.Rec.OpID) {
 		//

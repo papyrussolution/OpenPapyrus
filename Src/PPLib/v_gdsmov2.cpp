@@ -20,14 +20,14 @@ SLAPI PPViewGoodsMov2::~PPViewGoodsMov2()
 PPBaseFilt * SLAPI PPViewGoodsMov2::CreateFilt(void * extraPtr) const
 {
 	BillFilt * p_filt = 0;
-	PPView::CreateFiltInstance(PPFILT_GOODSMOV, (PPBaseFilt**)&p_filt);
+	PPView::CreateFiltInstance(PPFILT_GOODSMOV, reinterpret_cast<PPBaseFilt **>(&p_filt));
 	return p_filt;
 }
 
 // virtual
 int SLAPI PPViewGoodsMov2::EditBaseFilt(PPBaseFilt * pFilt)
 {
-	DIALOG_PROC_BODY(GoodsMovFiltDialog, (GoodsMovFilt*)pFilt);
+	DIALOG_PROC_BODY(GoodsMovFiltDialog, static_cast<GoodsMovFilt *>(pFilt));
 }
 
 // virtual
@@ -58,7 +58,7 @@ public:
 private:
 	virtual int SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 	{
-		return (pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V) ? P_V->GetTabTitle(*(const long *)pVal, rBuf) : 0;
+		return (pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V) ? P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf) : 0;
 	}
 
 	PPViewGoodsMov2 * P_V;
@@ -81,7 +81,7 @@ int SLAPI PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 	TempGoodsMov2Tbl * p_tbl = 0;
 	PPOprKind op_rec;
 	GoodsFilt gf;
-	GoodsIterator  iter((GoodsFilt*)0, 0);
+	GoodsIterator  iter(static_cast<GoodsFilt *>(0), 0);
 	Goods2Tbl::Rec gr;
 	PPObjGoods gobj;
 
@@ -135,7 +135,7 @@ int SLAPI PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 						rec.Discount = p_entry->Sign * p_entry->Discount;
 						rec.Amount   = p_entry->Sign * (rec.Price - rec.Discount);
 						if(gds_op_list.lsearch(&rec, &pos, PTR_CMPFUNC(long), sizeof(long)) > 0) {
-							TempGoodsMov2Tbl::Rec * p_rec = (TempGoodsMov2Tbl::Rec*)gds_op_list.at(pos);
+							TempGoodsMov2Tbl::Rec * p_rec = static_cast<TempGoodsMov2Tbl::Rec *>(gds_op_list.at(pos));
 							p_rec->Qtty     += rec.Qtty;
 							p_rec->Cost     += rec.Cost;
 							p_rec->Price    += rec.Price;
@@ -161,9 +161,9 @@ int SLAPI PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 					}
 				}
 				for(i = 0; i < gds_op_list.getCount(); i++) {
-					TempGoodsMov2Tbl::Rec * p_rec = (TempGoodsMov2Tbl::Rec*)gds_op_list.at(i);
+					TempGoodsMov2Tbl::Rec * p_rec = static_cast<TempGoodsMov2Tbl::Rec *>(gds_op_list.at(i));
 					STRNSCPY(p_rec->GoodsName, gr.Name);
-					gobj.FetchSingleBarcode(p_rec->GoodsID, temp_buf.Z()); // @v7.0.0 GetSingleBarcode-->FetchSingleBarcode
+					gobj.FetchSingleBarcode(p_rec->GoodsID, temp_buf.Z());
 					temp_buf.CopyTo(p_rec->Barcode, sizeof(p_rec->Barcode));
 					THROW_DB(bei.insert(p_rec));
 				}
@@ -301,7 +301,6 @@ int SLAPI PPViewGoodsMov2::Print(const void *)
 	PPReportEnv env;
 	PView pv(this);
 	PPAlddPrint(rpt_id, &pv, &env);
-	ok = 1;
 	return ok;
 }
 
@@ -353,7 +352,7 @@ void SLAPI PPViewGoodsMov2::GetEditIds(const void * pRow, PPViewGoodsMov2::BrwHd
 				P_Ct->GetIdxFieldVal(0, pRow, &hdr.GoodsID, sizeof(hdr.GoodsID));
 		}
 		else
-			hdr = *(BrwHdr*)pRow;
+			hdr = *static_cast<const BrwHdr *>(pRow);
 	}
 	ASSIGN_PTR(pHdr, hdr);
 }
@@ -446,16 +445,16 @@ int PPALDD_GoodsMov2::InitData(PPFilt & rFilt, long rsrv)
 {
 	PPViewGoodsMov2 * p_v = 0;
 	if(rsrv) {
-		p_v = (PPViewGoodsMov2*)rFilt.Ptr;
+		p_v = static_cast<PPViewGoodsMov2 *>(rFilt.Ptr);
 		Extra[1].Ptr = p_v;
 	}
 	else {
 		p_v = new PPViewGoodsMov2;
 		Extra[0].Ptr = p_v;
-		p_v->Init_((GoodsMovFilt*)rFilt.Ptr);
+		p_v->Init_(static_cast<GoodsMovFilt *>(rFilt.Ptr));
 	}
 	SString temp_buf;
-	const GoodsMovFilt * p_flt  = (const GoodsMovFilt*)(p_v->GetBaseFilt());
+	const GoodsMovFilt * p_flt  = static_cast<const GoodsMovFilt *>(p_v->GetBaseFilt());
 	H.FltBeg  = p_flt->Period.low;
 	H.FltEnd  = p_flt->Period.upp;
 	H.fLabelOnly    = (p_flt->Flags & GoodsMovFilt::fLabelOnly) ? 1 : 0;
@@ -469,17 +468,17 @@ int PPALDD_GoodsMov2::InitData(PPFilt & rFilt, long rsrv)
 
 int PPALDD_GoodsMov2::InitIteration(long iterId, int sortId, long rsrv)
 {
-	PPViewGoodsMov2 * p_v = (PPViewGoodsMov2 *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	PPViewGoodsMov2 * p_v = static_cast<PPViewGoodsMov2 *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;
-	return p_v->InitIteration((PPViewGoodsMov2::IterOrder)SortIdx) ? 1 : 0;
+	return p_v->InitIteration(static_cast<PPViewGoodsMov2::IterOrder>(SortIdx));
 }
 
 int PPALDD_GoodsMov2::NextIteration(long iterId)
 {
 	IterProlog(iterId, 0);
-	PPViewGoodsMov2 * p_v = (PPViewGoodsMov2*)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	PPViewGoodsMov2 * p_v = static_cast<PPViewGoodsMov2 *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	GoodsMov2ViewItem item;
 	if(p_v->NextIteration(&item) > 0) {
 		long qttyf = (LConfig.Flags & CFGFLG_USEPACKAGE && !p_v->PrintWoPacks) ?
@@ -504,6 +503,6 @@ int PPALDD_GoodsMov2::NextIteration(long iterId)
 
 void PPALDD_GoodsMov2::Destroy()
 {
-	delete (PPViewGoodsMov*)Extra[0].Ptr;
+	delete static_cast<PPViewGoodsMov *>(Extra[0].Ptr);
 	Extra[0].Ptr = Extra[1].Ptr = 0;
 }

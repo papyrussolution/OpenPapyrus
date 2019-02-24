@@ -337,7 +337,6 @@ struct TEvent {
 class TCommandSet {
 public:
 	TCommandSet();
-	TCommandSet(const TCommandSet&);
 	int    IsEmpty() const;
 	int    has(int cmd) const;
 	void   enableAll();
@@ -356,6 +355,7 @@ public:
 private:
 	int    loc(int);
 	int    mask(int);
+
 	uint32 cmds[64];
 };
 
@@ -2412,7 +2412,7 @@ public:
 	//
 	int    DrawSingleObject(TCanvas2 & rCanv, TWhatmanObject * pObj);
 	int    DrawObjectContour(TCanvas2 & rCanv, const TWhatmanObject * pObj, const TPoint * pOffs);
-	int    DrawMultSelContour(TCanvas2 & rCanv, TPoint * pOffs);
+	int    DrawMultSelContour(TCanvas2 & rCanv, const TPoint * pOffs);
 	int    InvalidateMultSelContour(const TPoint * pOffs);
 	//
 	// @ARG(dir IN): SOW_XXX
@@ -4231,7 +4231,7 @@ public:
 	virtual int   FASTCALL getData(void *);
 	virtual int   FASTCALL setData(void *);
 	virtual int   SLAPI refresh();
-	virtual int   SLAPI search(void *, CompFunc, int srchMode, int srchCol);
+	virtual int   SLAPI search(const void * pPattern, CompFunc, int srchMode, int srchCol);
 	virtual int   SLAPI search2(const void * pSrchData, CompFunc, int srchMode, size_t offs);
 
 	BroColumn & FASTCALL at(uint) const;
@@ -4503,7 +4503,7 @@ public:
 	//   0  - clear, add one column (left button down)
 	//   1  - add column (ctrl+left button down)
 	//
-	int    SelColByPoint(LPPOINT, int action);
+	int    SelColByPoint(const POINT *, int action);
 	void   FocusItem(int hPos, int vPos);
 	int    IsResizePos(TPoint);
 	void   Resize(TPoint p, int mode); // mode: 0 - toggle off, 1 - toggle on, 2 - process
@@ -4569,7 +4569,7 @@ private:
 	long   CalcHdrWidth(int plusToolbar) const;
 	int    IsLastPage(uint viewHeight); // AHTOXA
 	void   ClearFocusRect(LPRECT);
-	void   DrawCapBk(HDC, LPRECT, BOOL);
+	void   DrawCapBk(HDC, const RECT *, BOOL);
 	void   DrawFocus(HDC, const RECT *, BOOL DrawOrClear, BOOL isCellCursor = 0);
 	void   Paint();
 	//

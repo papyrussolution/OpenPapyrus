@@ -59,7 +59,7 @@ IMPL_HANDLE_EVENT(SalChargeDialog)
 		long   o = selSymbAmount|selSymbFormula|selSymbStaffCal|selSymbSalPeriod;
 		SString symb;
 		if(SelectAmountSymb(&symb_id, o, &kind, symb) > 0) {
-			TInputLine * p_il = (TInputLine *)getCtrlView(CTL_SALCHARGE_FORMULA);
+			TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_SALCHARGE_FORMULA));
 			if(p_il) {
 				SString input;
 				p_il->getText(input);
@@ -1365,7 +1365,7 @@ int StaffCalDayDialog::setupDate()
 		decodedate(&d, &m, &y, &Data.DtVal);
 		SString temp_buf;
 		temp_buf.Cat(d).CatChar('/').Cat(m);
-		TInputLine * p_il = (TInputLine *)getCtrlView(CTL_STAFFCALD_DATE);
+		TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_STAFFCALD_DATE));
 		CALLPTRMEMB(p_il, setText(temp_buf));
 		setCtrlData(CTLSEL_STAFFCALD_DAYOFW, &(dw = 0));
 	}

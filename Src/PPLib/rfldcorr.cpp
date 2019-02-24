@@ -1742,7 +1742,7 @@ int PPImpExp::Helper_OpenFile(const char * pFileName, int readOnly, int truncOnW
 	W_RecNo = 0;
 	SString filename = isempty(pFileName) ? P.FileName : pFileName;
 	THROW_PP(filename.NotEmpty(), PPERR_UNDEFIMPEXPFILENAME);
-	const int is_buffer = BIN(filename.IsEqiAscii(":buffer:"));
+	const bool is_buffer = filename.IsEqiAscii(":buffer:");
 	THROW_PP(!is_buffer || P.DataFormat == PPImpExpParam::dfXml, PPERR_IMPEXPUNSUPPBUFFORMAT);
 	if(!is_buffer) {
 		if(readOnly) {

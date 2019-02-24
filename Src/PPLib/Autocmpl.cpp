@@ -1166,7 +1166,7 @@ int PPALDD_PUGL::NextIteration(PPIterID iterId)
 	IterProlog(iterId, 0);
 	PUGL * p_list = static_cast<PUGL *>(Extra[0].Ptr);
 	PUGI * p_item = 0;
-	uint   nn = (uint)I.nn;
+	uint   nn = static_cast<uint>(I.nn);
 	if(p_list->enumItems(&nn, (void**)&p_item)) {
 		I.nn       = nn;
 		I.GoodsID  = p_item->GoodsID;

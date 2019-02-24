@@ -423,7 +423,7 @@ int SLAPI PPViewAccturn::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewAccturn::InitViewItem(AccTurnTbl::Rec * pAtRec, AccturnViewItem * pItem)
+int SLAPI PPViewAccturn::InitViewItem(const AccTurnTbl::Rec * pAtRec, AccturnViewItem * pItem)
 {
 	int    ok = -1;
 	PPAccTurn aturn;
@@ -462,7 +462,7 @@ int SLAPI PPViewAccturn::InitViewItem(AccTurnTbl::Rec * pAtRec, AccturnViewItem 
 	return ok;
 }
 
-int SLAPI PPViewAccturn::InitViewItem(TempAccturnGrpngTbl::Rec * pATGRec, AccturnViewItem * pItem)
+int SLAPI PPViewAccturn::InitViewItem(const TempAccturnGrpngTbl::Rec * pATGRec, AccturnViewItem * pItem)
 {
 	int    ok = 1;
 	if(pItem && pATGRec) {

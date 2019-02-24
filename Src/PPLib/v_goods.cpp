@@ -3286,7 +3286,7 @@ int SLAPI PPViewGoods::PrintPLabel(PPID goodsID)
 	return (r > 0) ? PPAlddPrint(rpt_id, &pf, &env) : r;
 }
 
-int SLAPI PPViewGoods::Export(PPGoodsImpExpParam * pExpCfg)
+int SLAPI PPViewGoods::Export(const PPGoodsImpExpParam * pExpCfg)
 {
 	int    ok = 1, r;
 	PPGoodsExporter g_e;
@@ -4096,7 +4096,7 @@ int PPALDD_GoodsBasket::InitData(PPFilt & rFilt, long rsrv)
 
 int PPALDD_GoodsBasket::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 {
-	PPViewGoodsBasket * p_v = (PPViewGoodsBasket*)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	PPViewGoodsBasket * p_v = static_cast<PPViewGoodsBasket *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;
@@ -5532,7 +5532,7 @@ PPALDD_DESTRUCTOR(GoodsGroupView)
 
 int PPALDD_GoodsGroupView::InitData(PPFilt & rFilt, long rsrv)
 {
-	GoodsGroupView * p_v = (GoodsGroupView *)rFilt.Ptr;
+	GoodsGroupView * p_v = static_cast<GoodsGroupView *>(rFilt.Ptr);
 	Extra[1].Ptr = p_v;
 	H.GrpType = p_v->GetGrpType();
 	return DlRtm::InitData(rFilt, rsrv);
@@ -5541,7 +5541,7 @@ int PPALDD_GoodsGroupView::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_GoodsGroupView::InitIteration(PPIterID iterId, int /*sortId*/, long /*rsrv*/)
 {
 	IterProlog(iterId, 1);
-	GoodsGroupView * p_v = (GoodsGroupView *)Extra[1].Ptr;
+	GoodsGroupView * p_v = static_cast<GoodsGroupView *>(Extra[1].Ptr);
 	return BIN(p_v && p_v->InitIteration());
 }
 
@@ -5549,7 +5549,7 @@ int PPALDD_GoodsGroupView::NextIteration(PPIterID iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
-	GoodsGroupView * p_v = (GoodsGroupView *)Extra[1].Ptr;
+	GoodsGroupView * p_v = static_cast<GoodsGroupView *>(Extra[1].Ptr);
 	GoodsGroupItem  item;
 	while(ok < 0 && p_v && p_v->NextIteration(&item) > 0) {
 		if(PPObjGoodsGroup::IsTempAlt(item.ID) <= 0) {

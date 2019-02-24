@@ -721,14 +721,14 @@ struct pixman_list_t {
 
 static force_inline void pixman_list_init(pixman_list_t * list)
 {
-	list->head = (pixman_link_t*)list;
-	list->tail = (pixman_link_t*)list;
+	list->head = reinterpret_cast<pixman_link_t *>(list);
+	list->tail = reinterpret_cast<pixman_link_t *>(list);
 }
 
 static force_inline void pixman_list_prepend(pixman_list_t * list, pixman_link_t * link)
 {
 	link->next = list->head;
-	link->prev = (pixman_link_t*)list;
+	link->prev = reinterpret_cast<pixman_link_t *>(list);
 	list->head->prev = link;
 	list->head = link;
 }

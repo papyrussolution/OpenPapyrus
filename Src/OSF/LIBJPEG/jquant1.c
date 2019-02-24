@@ -270,7 +270,7 @@ static void create_colormap(j_decompress_ptr cinfo)
 	/* Allocate and fill in the colormap. */
 	/* The colors are ordered in the map in standard row-major order, */
 	/* i.e. rightmost (highest-indexed) color changes most rapidly. */
-	colormap = (*cinfo->mem->alloc_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, (JDIMENSION)total_colors, (JDIMENSION)cinfo->out_color_components);
+	colormap = (*cinfo->mem->alloc_sarray)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (JDIMENSION)total_colors, (JDIMENSION)cinfo->out_color_components);
 	/* blksize is number of adjacent repeated entries for a component */
 	/* blkdist is distance between groups of identical entries for a component */
 	blkdist = total_colors;
@@ -319,7 +319,7 @@ static void create_colorindex(j_decompress_ptr cinfo)
 		pad = 0;
 		cquantize->is_padded = FALSE;
 	}
-	cquantize->colorindex = (*cinfo->mem->alloc_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, (JDIMENSION)(MAXJSAMPLE+1 + pad),
+	cquantize->colorindex = (*cinfo->mem->alloc_sarray)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (JDIMENSION)(MAXJSAMPLE+1 + pad),
 	    (JDIMENSION)cinfo->out_color_components);
 	/* blksize is number of adjacent repeated entries for a component */
 	blksize = cquantize->sv_actual;
@@ -358,7 +358,7 @@ LOCAL(ODITHER_MATRIX_PTR) make_odither_array(j_decompress_ptr cinfo, int ncolors
 {
 	int j, k;
 	INT32 num, den;
-	ODITHER_MATRIX_PTR odither = (ODITHER_MATRIX_PTR)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(ODITHER_MATRIX));
+	ODITHER_MATRIX_PTR odither = (ODITHER_MATRIX_PTR)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(ODITHER_MATRIX));
 	/* The inter-value distance for this color is MAXJSAMPLE/(ncolors-1).
 	 * Hence the dither value for the matrix cell with fill order f
 	 * (f=0..N-1) should be (N-1-2*f)/(2*N) * MAXJSAMPLE/(ncolors-1).
@@ -666,7 +666,7 @@ static void alloc_fs_workspace(j_decompress_ptr cinfo)
 	int i;
 	size_t arraysize = (size_t)((cinfo->output_width + 2) * SIZEOF(FSERROR));
 	for(i = 0; i < cinfo->out_color_components; i++) {
-		cquantize->fserrors[i] = (FSERRPTR)(*cinfo->mem->alloc_large)((j_common_ptr)cinfo, JPOOL_IMAGE, arraysize);
+		cquantize->fserrors[i] = (FSERRPTR)(*cinfo->mem->alloc_large)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, arraysize);
 	}
 }
 /*
@@ -745,7 +745,7 @@ METHODDEF(void) new_color_map_1_quant(j_decompress_ptr cinfo)
  */
 GLOBAL(void) jinit_1pass_quantizer(j_decompress_ptr cinfo)
 {
-	my_cquantize_ptr cquantize = (my_cquantize_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(my_cquantizer));
+	my_cquantize_ptr cquantize = (my_cquantize_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(my_cquantizer));
 	cinfo->cquantize = (struct jpeg_color_quantizer*)cquantize;
 	cquantize->pub.start_pass = start_pass_1_quant;
 	cquantize->pub.finish_pass = finish_pass_1_quant;

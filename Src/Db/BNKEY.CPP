@@ -30,8 +30,8 @@ union BNKeyCell { // @flat
 //
 // BNKey implementation
 //
-#define SEG(i)   ((BNKeyCell *)data)[(i)+1].s
-#define HEAD     ((BNKeyCell *)data)[0].h
+#define SEG(i)   static_cast<BNKeyCell *>(data)[(i)+1].s
+#define HEAD     static_cast<BNKeyCell *>(data)[0].h
 #define NUMCELLS (data ? (HEAD.numSeg + 1) : 0)
 #define DATALEN  (NUMCELLS * sizeof(BNKeyCell))
 
@@ -156,6 +156,11 @@ SLAPI BNKeyList::BNKeyList() : P_Data(SAlloc::M(sizeof(BNKeyCell)))
 	}
 }
 
+SLAPI BNKeyList::BNKeyList(const BNKeyList & rS) :  P_Data(0)
+{
+	copy(&rS);
+}
+
 SLAPI BNKeyList::~BNKeyList()
 {
 	reset();
@@ -175,12 +180,14 @@ BNKeyList & FASTCALL BNKeyList::operator = (const BNKeyList & s)
 int FASTCALL BNKeyList::copy(const BNKeyList * src)
 {
 	reset();
-	uint   sz = sizeof(BNKeyCell) * src->GetNumCells();
-	if(sz)
-		if((P_Data = SAlloc::M(sz)) != 0)
+	const uint sz = sizeof(BNKeyCell) * src->GetNumCells();
+	if(sz) {
+		P_Data = SAlloc::M(sz);
+		if(P_Data)
 			memcpy(P_Data, src->P_Data, sz);
 		else
 			return 0;
+	}
 	return 1;
 }
 
@@ -252,7 +259,7 @@ int FASTCALL BNKeyList::findKey(int key) const
 
 uint SLAPI BNKeyList::getNumKeys() const
 {
-	return P_Data ? (uint)(static_cast<BNKeyCell *>(P_Data))->ih.numKeys : 0;
+	return P_Data ? static_cast<uint>((static_cast<BNKeyCell *>(P_Data))->ih.numKeys) : 0;
 }
 
 int FASTCALL BNKeyList::addKey(BNKey & key)

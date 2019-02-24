@@ -3848,7 +3848,7 @@ int SLAPI PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 				if(r > 0) {
 					if(Filt.CtKind == CCheckFilt::ctDate) {
 						LDATE dt;
-						dt.v = (ulong)tab_id;
+						dt.v = static_cast<ulong>(tab_id);
 						if(!checkdate(dt, 0))
 							ct_period = Filt.Period;
 						else
@@ -3945,7 +3945,7 @@ int SLAPI PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 							tmp_filt.GoodsID = cur_rec.GoodsID;
 						}
 						if(oneof2(Filt.Grp, CCheckFilt::gGoodsDate, CCheckFilt::gGoodsDateSerial)) { // @v10.2.6 CCheckFilt::gGoodsDateSerial
-							BrwHdr * p_hdr = (BrwHdr*)pHdr;
+							const BrwHdr * p_hdr = static_cast<const BrwHdr *>(pHdr);
 							tmp_filt.Period.SetDate(p_hdr->Dt);
 						}
 						else if(Filt.Grp == CCheckFilt::gAgentsNGoods)
@@ -4352,7 +4352,7 @@ void PPALDD_CCheckView::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmSta
 	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
 	#define _RET_LONG    (*static_cast<long *>(rS.GetPtr(pApl->Get(0))))
 	#define _RET_STR     (**static_cast<SString **>(rS.GetPtr(pApl->Get(0))))
-	PPViewCCheck * p_v = (PPViewCCheck *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	PPViewCCheck * p_v = static_cast<PPViewCCheck *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	if(pF->Name == "?GetSerial") {
 		const CCheckViewItem * p_item = p_v ? p_v->GetInnerIterItem() : 0;
 		if(p_item)
@@ -4643,7 +4643,7 @@ int PPALDD_CCheckPacket::NextIteration(long iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
-	CCheckPacket * p_pack = (CCheckPacket *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	CCheckPacket * p_pack = static_cast<CCheckPacket *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	if(p_pack) {
 		CCheckLineTbl::Rec item;
 		SString serial;

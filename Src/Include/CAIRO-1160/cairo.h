@@ -637,22 +637,11 @@ typedef enum _cairo_operator {
 } cairo_operator_t;
 
 cairo_public void cairo_set_operator(cairo_t * cr, cairo_operator_t op);
-
 cairo_public void cairo_set_source(cairo_t * cr, cairo_pattern_t * source);
-
 cairo_public void cairo_set_source_rgb(cairo_t * cr, double red, double green, double blue);
-
-cairo_public void cairo_set_source_rgba(cairo_t * cr,
-    double red, double green, double blue,
-    double alpha);
-
-cairo_public void cairo_set_source_surface(cairo_t * cr,
-    cairo_surface_t * surface,
-    double x,
-    double y);
-
+cairo_public void cairo_set_source_rgba(cairo_t * cr, double red, double green, double blue, double alpha);
+cairo_public void cairo_set_source_surface(cairo_t * cr, cairo_surface_t * surface, double x, double y);
 cairo_public void cairo_set_tolerance(cairo_t * cr, double tolerance);
-
 /**
  * cairo_antialias_t:
  * @CAIRO_ANTIALIAS_DEFAULT: Use the default antialiasing for
@@ -813,84 +802,40 @@ cairo_public void cairo_arc_negative(cairo_t * cr, double xc, double yc, double 
               double x2, double y2,
               double radius);
  */
-
 cairo_public void cairo_rel_move_to(cairo_t * cr, double dx, double dy);
-
 cairo_public void cairo_rel_line_to(cairo_t * cr, double dx, double dy);
-
-cairo_public void cairo_rel_curve_to(cairo_t * cr,
-    double dx1, double dy1,
-    double dx2, double dy2,
-    double dx3, double dy3);
-
-cairo_public void cairo_rectangle(cairo_t * cr,
-    double x, double y,
-    double width, double height);
+cairo_public void cairo_rel_curve_to(cairo_t * cr, double dx1, double dy1, double dx2, double dy2, double dx3, double dy3);
+cairo_public void cairo_rectangle(cairo_t * cr, double x, double y, double width, double height);
 
 /* XXX: NYI
    cairo_public void
    cairo_stroke_to_path (cairo_t *cr);
  */
-
 cairo_public void cairo_close_path(cairo_t * cr);
-
-cairo_public void cairo_path_extents(cairo_t * cr,
-    double * x1, double * y1,
-    double * x2, double * y2);
-
+cairo_public void cairo_path_extents(cairo_t * cr, double * x1, double * y1, double * x2, double * y2);
 /* Painting functions */
 cairo_public void cairo_paint(cairo_t * cr);
-
-cairo_public void cairo_paint_with_alpha(cairo_t * cr,
-    double alpha);
-
-cairo_public void cairo_mask(cairo_t * cr,
-    cairo_pattern_t * pattern);
-
-cairo_public void cairo_mask_surface(cairo_t * cr,
-    cairo_surface_t * surface,
-    double surface_x,
-    double surface_y);
-
+cairo_public void cairo_paint_with_alpha(cairo_t * cr, double alpha);
+cairo_public void cairo_mask(cairo_t * cr, cairo_pattern_t * pattern);
+cairo_public void cairo_mask_surface(cairo_t * cr, cairo_surface_t * surface, double surface_x, double surface_y);
 cairo_public void cairo_stroke(cairo_t * cr);
-
 cairo_public void cairo_stroke_preserve(cairo_t * cr);
-
 cairo_public void cairo_fill(cairo_t * cr);
-
 cairo_public void cairo_fill_preserve(cairo_t * cr);
-
 cairo_public void cairo_copy_page(cairo_t * cr);
-
 cairo_public void cairo_show_page(cairo_t * cr);
-
 /* Insideness testing */
 cairo_public cairo_bool_t cairo_in_stroke(cairo_t * cr, double x, double y);
-
 cairo_public cairo_bool_t cairo_in_fill(cairo_t * cr, double x, double y);
-
 cairo_public cairo_bool_t cairo_in_clip(cairo_t * cr, double x, double y);
-
 /* Rectangular extents */
-cairo_public void cairo_stroke_extents(cairo_t * cr,
-    double * x1, double * y1,
-    double * x2, double * y2);
-
-cairo_public void cairo_fill_extents(cairo_t * cr,
-    double * x1, double * y1,
-    double * x2, double * y2);
-
+cairo_public void cairo_stroke_extents(cairo_t * cr, double * x1, double * y1, double * x2, double * y2);
+cairo_public void cairo_fill_extents(cairo_t * cr, double * x1, double * y1, double * x2, double * y2);
 /* Clipping */
 cairo_public void cairo_reset_clip(cairo_t * cr);
-
 cairo_public void cairo_clip(cairo_t * cr);
-
 cairo_public void cairo_clip_preserve(cairo_t * cr);
-
-cairo_public void cairo_clip_extents(cairo_t * cr,
-    double * x1, double * y1,
-    double * x2, double * y2);
-
+cairo_public void cairo_clip_extents(cairo_t * cr, double * x1, double * y1, double * x2, double * y2);
 /**
  * cairo_rectangle_t:
  * @x: X coordinate of the left side of the rectangle
@@ -1281,7 +1226,7 @@ typedef struct _cairo_font_options cairo_font_options_t;
 cairo_public cairo_font_options_t * cairo_font_options_create(void);
 cairo_public cairo_font_options_t * cairo_font_options_copy(const cairo_font_options_t * original);
 cairo_public void cairo_font_options_destroy(cairo_font_options_t * options);
-cairo_public cairo_status_t FASTCALL cairo_font_options_status(cairo_font_options_t * options);
+cairo_public cairo_status_t FASTCALL cairo_font_options_status(const cairo_font_options_t * options);
 cairo_public void cairo_font_options_merge(cairo_font_options_t * options, const cairo_font_options_t * other);
 cairo_public cairo_bool_t cairo_font_options_equal(const cairo_font_options_t * options, const cairo_font_options_t * other);
 cairo_public ulong cairo_font_options_hash(const cairo_font_options_t * options);
@@ -1293,7 +1238,7 @@ cairo_public void cairo_font_options_set_hint_style(cairo_font_options_t * optio
 cairo_public cairo_hint_style_t cairo_font_options_get_hint_style(const cairo_font_options_t * options);
 cairo_public void cairo_font_options_set_hint_metrics(cairo_font_options_t * options, cairo_hint_metrics_t hint_metrics);
 cairo_public cairo_hint_metrics_t cairo_font_options_get_hint_metrics(const cairo_font_options_t * options);
-cairo_public const char * cairo_font_options_get_variations(cairo_font_options_t * options);
+cairo_public const char * cairo_font_options_get_variations(const cairo_font_options_t * options);
 cairo_public void cairo_font_options_set_variations(cairo_font_options_t * options, const char * variations);
 //
 // This interface is for dealing with text as text, not caring about the font object inside the the cairo_t. 
@@ -2069,12 +2014,7 @@ cairo_public cairo_bool_t cairo_recording_surface_get_extents(cairo_surface_t * 
  *
  * Since: 1.12
  **/
-typedef cairo_surface_t *
-(* cairo_raster_source_acquire_func_t) (cairo_pattern_t * pattern,
-    void * callback_data,
-    cairo_surface_t * target,
-    const cairo_rectangle_int_t * extents);
-
+typedef cairo_surface_t * (* cairo_raster_source_acquire_func_t) (cairo_pattern_t * pattern, void * callback_data, cairo_surface_t * target, const cairo_rectangle_int_t * extents);
 /**
  * cairo_raster_source_release_func_t:
  * @pattern: the pattern being rendered from
@@ -2088,11 +2028,7 @@ typedef cairo_surface_t *
  *
  * Since: 1.12
  **/
-typedef void
-(* cairo_raster_source_release_func_t) (cairo_pattern_t * pattern,
-    void * callback_data,
-    cairo_surface_t * surface);
-
+typedef void (* cairo_raster_source_release_func_t) (cairo_pattern_t * pattern, void * callback_data, cairo_surface_t * surface);
 /**
  * cairo_raster_source_snapshot_func_t:
  * @pattern: the pattern being rendered from
@@ -2216,7 +2152,7 @@ cairo_public void cairo_mesh_pattern_set_control_point(cairo_pattern_t * pattern
 cairo_public void cairo_mesh_pattern_set_corner_color_rgb(cairo_pattern_t * pattern, uint corner_num, double red, double green, double blue);
 cairo_public void cairo_mesh_pattern_set_corner_color_rgba(cairo_pattern_t * pattern, uint corner_num, double red, double green, double blue, double alpha);
 cairo_public void cairo_pattern_set_matrix(cairo_pattern_t * pattern, const cairo_matrix_t * matrix);
-cairo_public void cairo_pattern_get_matrix(cairo_pattern_t * pattern, cairo_matrix_t * matrix);
+cairo_public void cairo_pattern_get_matrix(const cairo_pattern_t * pattern, cairo_matrix_t * matrix);
 
 /**
  * cairo_extend_t:
@@ -2251,7 +2187,7 @@ typedef enum _cairo_extend {
 } cairo_extend_t;
 
 cairo_public void cairo_pattern_set_extend(cairo_pattern_t * pattern, cairo_extend_t extend);
-cairo_public cairo_extend_t cairo_pattern_get_extend(cairo_pattern_t * pattern);
+cairo_public cairo_extend_t cairo_pattern_get_extend(const cairo_pattern_t * pattern);
 
 /**
  * cairo_filter_t:
@@ -2283,7 +2219,7 @@ typedef enum _cairo_filter {
 } cairo_filter_t;
 
 cairo_public void cairo_pattern_set_filter(cairo_pattern_t * pattern, cairo_filter_t filter);
-cairo_public cairo_filter_t cairo_pattern_get_filter(cairo_pattern_t * pattern);
+cairo_public cairo_filter_t cairo_pattern_get_filter(const cairo_pattern_t * pattern);
 cairo_public cairo_status_t cairo_pattern_get_rgba(cairo_pattern_t * pattern, double * red, double * green, double * blue, double * alpha);
 cairo_public cairo_status_t cairo_pattern_get_surface(cairo_pattern_t * pattern, cairo_surface_t ** surface);
 cairo_public cairo_status_t cairo_pattern_get_color_stop_rgba(cairo_pattern_t * pattern, int index, double * offset, double * red, double * green, double * blue, double * alpha);

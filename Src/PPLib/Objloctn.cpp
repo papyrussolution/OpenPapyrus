@@ -1448,7 +1448,7 @@ static int SLAPI SetupTaggedStringCombo(TDialog * dlg, uint ctlID, const TaggedS
 	int    ok = 1;
 	ComboBox   * p_cb = 0;
 	ListWindow * p_lw = 0;
-	if((p_cb = (ComboBox*)dlg->getCtrlView(ctlID)) != 0) {
+	if((p_cb = static_cast<ComboBox *>(dlg->getCtrlView(ctlID))) != 0) {
 		uint   options = (lbtDisposeData|lbtDblClkNotify);
 		uint   idx = 0;
 		TaggedString * p_s;
@@ -3381,7 +3381,7 @@ int SLAPI PPObjLocation::Helper_GetEaListBySubstring(const char * pSubstr, void 
 	PPIDArray * p_list = 0;
 	StrAssocArray * p_str_list = 0;
 	if(flags & clsfStrList)
-		p_str_list = (StrAssocArray *)pList;
+		p_str_list = static_cast<StrAssocArray *>(pList);
 	else
 		p_list = (PPIDArray *)pList;
 	if(substr_len) {

@@ -228,7 +228,7 @@ int TProgram::DelItemFromMenu(void * ptr)
 						t_i.cbSize      = sizeof(TOOLINFO);
 						t_i.uFlags      = TTF_SUBCLASS;
 						t_i.hwnd        = hwnd_tab;
-						t_i.uId         = (UINT_PTR)ptr;
+						t_i.uId         = reinterpret_cast<UINT_PTR>(ptr);
 						t_i.rect        = rc_item;
 						t_i.hinst       = TProgram::GetInst();
 						t_i.lpszText    = 0;
@@ -784,7 +784,7 @@ LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, L
 				p_pgm->H_CloseWnd = CreateWindow(_T("BUTTON"), "X", WS_VISIBLE|WS_CHILD|WS_CLIPSIBLINGS, 2, 2, 12, 12, p_pgm->GetFrameWindow(), 0, TProgram::GetInst(), 0); // @unicodeproblem
 				p_pgm->SetWindowViewByKind(p_pgm->H_ShortcutsWnd, TProgram::wndtypNone);
 				p_pgm->SetWindowViewByKind(p_pgm->H_CloseWnd, TProgram::wndtypNone);
-				p_pgm->PrevCloseWndProc = (WNDPROC)TView::SetWindowProp(p_pgm->H_CloseWnd, GWLP_WNDPROC, CloseWndProc);
+				p_pgm->PrevCloseWndProc = static_cast<WNDPROC>(TView::SetWindowProp(p_pgm->H_CloseWnd, GWLP_WNDPROC, CloseWndProc));
 				TView::SetWindowProp(p_pgm->H_CloseWnd, GWLP_USERDATA, p_pgm);
 				p_pgm->P_Toolbar = new TToolbar(hWnd, 0);
 			}
@@ -1021,7 +1021,7 @@ TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitl
 		wc.cbSize        = sizeof(wc);
 		wc.lpszClassName = AppSymbol; // @unicodeproblem
 		wc.hInstance     = hInstance;
-		wc.lpfnWndProc   = (WNDPROC)MainWndProc;
+		wc.lpfnWndProc   = static_cast<WNDPROC>(MainWndProc);
 		wc.style         = CS_HREDRAW | CS_VREDRAW;
 		wc.hIcon         = H_Icon;
 		wc.hbrBackground = (HBRUSH)COLOR_GRAYTEXT;
@@ -1768,7 +1768,7 @@ int TProgram::DrawButton2(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			TView::SSetWindowText(pDi->hwndItem, text_buf.Z());
 		}
 		else if(draw_text) {
-			HFONT hf = (HFONT)SendMessage(pDi->hwndItem, WM_GETFONT, 0, 0);
+			HFONT hf = reinterpret_cast<HFONT>(SendMessage(pDi->hwndItem, WM_GETFONT, 0, 0));
 			canv.SelectObjectAndPush(hf);
 			canv.SetBkTranparent();
 
@@ -2157,7 +2157,7 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			// @v9.2.4 TView::SSetWindowText(pDi->hwndItem, text_buf.Z());
 		}
 		else if(draw_text) {
-			HFONT  hf = (HFONT)SendMessage(pDi->hwndItem, WM_GETFONT, 0, 0);
+			HFONT  hf = reinterpret_cast<HFONT>(SendMessage(pDi->hwndItem, WM_GETFONT, 0, 0));
 			int    temp_font_id = 0;
 			if(hf) {
 				LOGFONT f;
@@ -2360,7 +2360,7 @@ int DrawStatusBarItem(HWND hwnd, DRAWITEMSTRUCT * pDi)
 		Rectangle(pDi->hDC, out_r.left, out_r.top, out_r.right, out_r.bottom);
 		if(sstrlen(p_item->str)) {
 			int    delete_font = 0;
-			HFONT  font = (HFONT)SendMessage(pDi->hwndItem, WM_GETFONT, 0, 0);
+			HFONT  font = reinterpret_cast<HFONT>(SendMessage(pDi->hwndItem, WM_GETFONT, 0, 0));
 			HFONT  old_font = 0;
 			long   text_out_fmt = DT_SINGLELINE|DT_VCENTER|DT_EXTERNALLEADING;
 			SetBkMode(pDi->hDC, TRANSPARENT);

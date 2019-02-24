@@ -2842,7 +2842,7 @@ int SLAPI PPViewGoodsOpAnalyze::FlashCacheItem(BExtInsert * pBei, const GoaCache
 	return ok;
 }
 
-int SLAPI PPViewGoodsOpAnalyze::AddItem(GoaAddingBlock * pBlk)
+int SLAPI PPViewGoodsOpAnalyze::AddItem(const GoaAddingBlock * pBlk)
 {
 	int    ok = 1;
 	const  int profitable = (Filt.Flags & GoodsOpAnalyzeFilt::fIntrReval) ? 1 : BIN(pBlk->Flags & GoaAddingBlock::fProfitable);
@@ -3762,49 +3762,49 @@ DBQuery * SLAPI PPViewGoodsOpAnalyze::CreateBrowserQuery(uint * pBrwID, SString 
 				dbe_diffpct_qtty.init();
 				dbe_diffpct_qtty.push(tbl->Quantity - p_add_ttbl->Quantity);
 				dbe_diffpct_qtty.push(p_add_ttbl->Quantity);
-				dbe_diffpct_qtty.push((DBFunc)PPDbqFuncPool::IdPercent);
+				dbe_diffpct_qtty.push(static_cast<DBFunc>(PPDbqFuncPool::IdPercent));
 				//
 				// Разница в % остатки
 				//
 				dbe_diffpct_rest.init();
 				dbe_diffpct_rest.push(tbl->Rest - p_add_ttbl->Rest);
 				dbe_diffpct_rest.push(p_add_ttbl->Rest);
-				dbe_diffpct_rest.push((DBFunc)PPDbqFuncPool::IdPercent);
+				dbe_diffpct_rest.push(static_cast<DBFunc>(PPDbqFuncPool::IdPercent));
 				//
 				// Разница в % остатки в ценах поступлени
 				//
 				dbe_diffpct_restcost.init();
 				dbe_diffpct_restcost.push(tbl->RestCostSum - p_add_ttbl->RestCostSum);
 				dbe_diffpct_restcost.push(p_add_ttbl->RestCostSum);
-				dbe_diffpct_restcost.push((DBFunc)PPDbqFuncPool::IdPercent);
+				dbe_diffpct_restcost.push(static_cast<DBFunc>(PPDbqFuncPool::IdPercent));
 				//
 				// Разница в % остатки в ценах реализации
 				//
 				dbe_diffpct_restprice.init();
 				dbe_diffpct_restprice.push(tbl->RestPriceSum - p_add_ttbl->RestPriceSum);
 				dbe_diffpct_restprice.push(p_add_ttbl->RestPriceSum);
-				dbe_diffpct_restprice.push((DBFunc)PPDbqFuncPool::IdPercent);
+				dbe_diffpct_restprice.push(static_cast<DBFunc>(PPDbqFuncPool::IdPercent));
 				//
 				// Разница в % сумма в ценах поступления //
 				//
 				dbe_diffpct_sumcost.init();
 				dbe_diffpct_sumcost.push(tbl->SumCost - p_add_ttbl->SumCost);
 				dbe_diffpct_sumcost.push(p_add_ttbl->SumCost);
-				dbe_diffpct_sumcost.push((DBFunc)PPDbqFuncPool::IdPercent);
+				dbe_diffpct_sumcost.push(static_cast<DBFunc>(PPDbqFuncPool::IdPercent));
 				//
 				// Разница в % сумма в ценах реализации
 				//
 				dbe_diffpct_sumprice.init();
 				dbe_diffpct_sumprice.push(tbl->SumPrice - p_add_ttbl->SumPrice);
 				dbe_diffpct_sumprice.push(p_add_ttbl->SumPrice);
-				dbe_diffpct_sumprice.push((DBFunc)PPDbqFuncPool::IdPercent);
+				dbe_diffpct_sumprice.push(static_cast<DBFunc>(PPDbqFuncPool::IdPercent));
 				//
 				// Разница в % доход
 				//
 				dbe_diffpct_income.init();
 				dbe_diffpct_income.push(tbl->Income - p_add_ttbl->Income);
 				dbe_diffpct_income.push(p_add_ttbl->Income);
-				dbe_diffpct_income.push((DBFunc)PPDbqFuncPool::IdPercent);
+				dbe_diffpct_income.push(static_cast<DBFunc>(PPDbqFuncPool::IdPercent));
 
 				dbe_pct_income1.DontDestroy = 1;
 				dbe_pct_income2.DontDestroy = 1;
@@ -3814,12 +3814,12 @@ DBQuery * SLAPI PPViewGoodsOpAnalyze::CreateBrowserQuery(uint * pBrwID, SString 
 				dbe_diffpct_profit.init();
 				dbe_diffpct_profit.push(dbe_pct_income1 - dbe_pct_income2);
 				dbe_diffpct_profit.push(dbe_pct_income2);
-				dbe_diffpct_profit.push((DBFunc)PPDbqFuncPool::IdPercent);
+				dbe_diffpct_profit.push(static_cast<DBFunc>(PPDbqFuncPool::IdPercent));
 
 				dbe_diffpct_margin.init();
 				dbe_diffpct_margin.push(dbe_pct_margin1 - dbe_pct_margin2);
 				dbe_diffpct_margin.push(dbe_pct_margin2);
-				dbe_diffpct_margin.push((DBFunc)PPDbqFuncPool::IdPercent);
+				dbe_diffpct_margin.push(static_cast<DBFunc>(PPDbqFuncPool::IdPercent));
 
 				q->addField(dbe_diffpct_qtty);                               // #33
 				q->addField(dbe_diffpct_rest);                               // #34
@@ -4255,7 +4255,7 @@ int PPALDD_GoodsOpAnlz::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_GoodsOpAnlz::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 {
 	//INIT_PPVIEW_ALDD_ITER(GoodsOpAnalyze);
-	PPViewGoodsOpAnalyze * p_v = (PPViewGoodsOpAnalyze*)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	PPViewGoodsOpAnalyze * p_v = static_cast<PPViewGoodsOpAnalyze *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;
@@ -4350,7 +4350,7 @@ int PPALDD_GoodsOpAnlzCmp::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_GoodsOpAnlzCmp::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 {
 	//INIT_PPVIEW_ALDD_ITER(GoodsOpAnalyze);
-	PPViewGoodsOpAnalyze * p_v = (PPViewGoodsOpAnalyze*)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	PPViewGoodsOpAnalyze * p_v = static_cast<PPViewGoodsOpAnalyze *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;

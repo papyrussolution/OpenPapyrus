@@ -1097,7 +1097,7 @@ void ATurnTmplDialog::swapPrim()
 
 void ATurnTmplDialog::symbToFormula(const char * pSymb)
 {
-	TInputLine * p_il = (TInputLine *)getCtrlView(CTL_ATRNTMPL_AMOUNT);
+	TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_ATRNTMPL_AMOUNT));
 	if(p_il) {
 		SString symb = pSymb;
 		SString input;

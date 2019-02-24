@@ -323,20 +323,15 @@ int SLAPI TwoDimBarcodeFormatArray::Search(GoodsCore * pGoodsTbl, const char * p
 //
 //
 //
-int SLAPI GoodsCore::InitQc()
+void SLAPI GoodsCore::InitQc()
 {
-	int    ok = 1;
 	if(!P_Qc && !P_Qc2) {
-		if(CConfig.Flags2 & CCFLG2_QUOT2) {
+		if(CConfig.Flags2 & CCFLG2_QUOT2)
 			P_Qc2 = new Quotation2Core;
-			ok = P_Qc2 ? 4 : PPSetErrorNoMem();
-		}
-		else {
+		else
 			P_Qc = new QuotationCore;
-			ok = P_Qc ? 2 : PPSetErrorNoMem();
-		}
 	}
-	return ok;
+	assert(BIN(P_Qc) != BIN(P_Qc2));
 }
 
 SLAPI GoodsCore::GoodsCore() : P_Ref(PPRef), P_Qc(0), P_Qc2(0)
@@ -950,9 +945,9 @@ int SLAPI GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pLis
 	SString pattern;
 	(pattern = pSubstr).ToLower();
 	if(flags & glsfStrList)
-		p_str_list = (StrAssocArray *)pList;
+		p_str_list = static_cast<StrAssocArray *>(pList);
 	else
-		p_list = (PPIDArray *)pList;
+		p_list = static_cast<PPIDArray *>(pList);
 	if(flags & glsfDefPassive) {
 		PPObjGoods goods_obj;
 		skip_passive = BIN(goods_obj.GetConfig().Flags & GCF_DONTSELPASSIVE);
@@ -1006,7 +1001,7 @@ int SLAPI GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pLis
 			q.Cat("SELECT").Space().Cat("GOODS").Space().Cat("BY").Space().Cat("SUBNAME").CatParStr(pSubstr).Space();
 			if(skip_passive)
 				q.Cat("PASSIVE").CatParStr("no").Space();
-			q.Cat("FORMAT").Dot().Cat("BIN").CatParStr((const char *)0);
+			q.Cat("FORMAT").Dot().Cat("BIN").CatParStr(static_cast<const char *>(0));
 			PPJobSrvReply reply;
 			if(p_cli->Exec(q, reply)) {
 				THROW(reply.StartReading(0));
@@ -1807,7 +1802,7 @@ int SLAPI GoodsCore::Helper_GetBarcodeByTempl(const char * pPrfx, const char * p
 			ok = 1;
 		}
 		if(ok && using_val) {
-			FormatBarcode(pPrfx, pSfx, (int)len, using_val, buffer);
+			FormatBarcode(pPrfx, pSfx, len, using_val, buffer);
 			if(addChkDig)
 				AddBarcodeCheckDigit(buffer);
 			if(SearchBarcode(buffer, 0) > 0)
@@ -2468,8 +2463,8 @@ private:
 	private:
 		virtual void FASTCALL freeItem(void * pItem)
 		{
-			((StockExt *)pItem)->MinStockList.freeAll();
-			((StockExt *)pItem)->PltList.freeAll();
+			static_cast<StockExt *>(pItem)->MinStockList.freeAll();
+			static_cast<StockExt *>(pItem)->PltList.freeAll();
 		}
 	};
 	TSCollection <GroupTermList> Gtl;
@@ -2989,9 +2984,9 @@ int SLAPI GoodsCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData
 		p_cache_rec->UnitID   = rec.UnitID;
 		p_cache_rec->PhUnitID = rec.PhUnitID;
 		p_cache_rec->PhUPerU  = rec.PhUPerU;
-		p_cache_rec->Kind     = (int16)rec.Kind;
-		p_cache_rec->TypeID   = (int16)rec.GoodsTypeID;
-		p_cache_rec->TaxGrpID = (int16)rec.TaxGrpID;
+		p_cache_rec->Kind     = static_cast<int16>(rec.Kind);
+		p_cache_rec->TypeID   = static_cast<int16>(rec.GoodsTypeID);
+		p_cache_rec->TaxGrpID = static_cast<int16>(rec.TaxGrpID);
 		p_cache_rec->ClsID    = rec.GdsClsID;
 		p_cache_rec->BrandID  = rec.BrandID;
 		p_cache_rec->ManufID  = rec.ManufID;
@@ -3006,10 +3001,10 @@ int SLAPI GoodsCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData
 				// штатные средства извлечения из него записей заблокированы.
 				// Следовательно, мы вынуждены прибегать к низкоуровневому извлечению записи.
 				//
-				Data * p_parent_entry = 0;
+				const Data * p_parent_entry = 0;
 				uint   c_pos = 0;
 				if(Search(p_cache_rec->ParentID, &c_pos) > 0)
-					p_parent_entry = (Data *)SearchByPos(c_pos, 1);
+					p_parent_entry = static_cast<const Data *>(SearchByPos(c_pos, 1));
 				if(p_parent_entry) {
 					SETIFZ(p_cache_rec->TaxGrpID, p_parent_entry->TaxGrpID);
 					SETIFZ(p_cache_rec->TypeID, p_parent_entry->TypeID);
@@ -3053,7 +3048,7 @@ int SLAPI GoodsCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData
 
 void SLAPI GoodsCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	Goods2Tbl::Rec * p_data_rec = (Goods2Tbl::Rec *)pDataRec;
+	Goods2Tbl::Rec * p_data_rec = static_cast<Goods2Tbl::Rec *>(pDataRec);
 	if(p_data_rec) {
 		const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 		memzero(p_data_rec, sizeof(*p_data_rec));
@@ -3219,7 +3214,8 @@ int SLAPI GoodsCore::GetAltGroupFilt(PPID grpID, GoodsFilt * pFilt)
 			if(flt.ReadFromProp(PPOBJ_GOODSGROUP, grpID, GGPRP_GOODSFILT2, GGPRP_GOODSFLT_) > 0)
 				ok = 1;
 			*pFilt = flt;
-			THROW(p_cache->PutAltGrpFilt(grpID, pFilt));
+			if(p_cache)
+				THROW(p_cache->PutAltGrpFilt(grpID, pFilt));
 		}
 		else
 			ok = 1;
@@ -3429,8 +3425,7 @@ int SLAPI GoodsCore::GetDynGenericList(PPID genGoodsID, PPIDArray * pList)
 	}
 	ok = list.getCount() ? 1 : -1;
 	CATCHZOK
-	if(pList)
-		pList->addUnique(&list);
+	CALLPTRMEMB(pList, addUnique(&list));
 	return ok;
 }
 //
@@ -3439,55 +3434,51 @@ int SLAPI GoodsCore::GetDynGenericList(PPID genGoodsID, PPIDArray * pList)
 int SLAPI GoodsCore::ReplaceArticleRefs(PPID replacedID, PPID newID, int use_ta)
 {
 	int    ok = 0;
-	if(InitQc()) {
-		if(P_Qc)
-			ok = P_Qc->ReplaceArticleRefs(replacedID, newID, use_ta);
-		else if(P_Qc2)
-			ok = P_Qc2->ReplaceObj(PPOBJ_ARTICLE, replacedID, newID, use_ta);
-	}
+	InitQc();
+	if(P_Qc)
+		ok = P_Qc->ReplaceArticleRefs(replacedID, newID, use_ta);
+	else if(P_Qc2)
+		ok = P_Qc2->ReplaceObj(PPOBJ_ARTICLE, replacedID, newID, use_ta);
 	return ok;
 }
 
 int SLAPI GoodsCore::GetQuot(PPID goodsID, const QuotIdent & rQi, double cost, double price, double * pVal, int useCache)
 {
 	int    ok = 0;
-	if(InitQc()) {
-		if(P_Qc)
-			ok = P_Qc->GetCurr(goodsID, rQi, cost, price, pVal, useCache);
-		else if(P_Qc2)
-			ok = P_Qc2->GetCurr(goodsID, rQi, cost, price, pVal, useCache);
-	}
+	InitQc();
+	if(P_Qc)
+		ok = P_Qc->GetCurr(goodsID, rQi, cost, price, pVal, useCache);
+	else if(P_Qc2)
+		ok = P_Qc2->GetCurr(goodsID, rQi, cost, price, pVal, useCache);
 	return ok;
 }
 
 int SLAPI GoodsCore::GetQuotNearest(PPID goodsID, const QuotIdent & rQi, PPQuot * pQuot, int useCache)
 {
 	int    ok = 0;
-	if(InitQc()) {
-		if(P_Qc)
-			ok = P_Qc->GetNearest(goodsID, rQi, pQuot, useCache);
-		else if(P_Qc2)
-			ok = P_Qc2->GetNearest(goodsID, rQi, pQuot, useCache);
-	}
+	InitQc();
+	if(P_Qc)
+		ok = P_Qc->GetNearest(goodsID, rQi, pQuot, useCache);
+	else if(P_Qc2)
+		ok = P_Qc2->GetNearest(goodsID, rQi, pQuot, useCache);
 	return ok;
 }
 
 int SLAPI GoodsCore::GetQuotList(PPID goodsID, PPID locID, PPQuotArray & rList)
 {
 	int    ok = 0;
-	if(InitQc()) {
-		if(P_Qc)
-			ok = P_Qc->GetCurrList(goodsID, 0, locID, rList);
-		else if(P_Qc2)
-			ok = P_Qc2->GetCurrList(goodsID, 0, locID, rList);
-	}
+	InitQc();
+	if(P_Qc)
+		ok = P_Qc->GetCurrList(goodsID, 0, locID, rList);
+	else if(P_Qc2)
+		ok = P_Qc2->GetCurrList(goodsID, 0, locID, rList);
 	return ok;
 }
 
 int SLAPI GoodsCore::RemoveAllQuotForQuotKind(PPID qkID, int use_ta)
 {
 	int    ok = 1;
-	THROW(InitQc());
+	InitQc();
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -3506,12 +3497,11 @@ int SLAPI GoodsCore::RemoveAllQuotForQuotKind(PPID qkID, int use_ta)
 int SLAPI GoodsCore::ClearQuotCache()
 {
 	int    ok = 0;
-	if(InitQc()) {
-		if(P_Qc)
-			ok = P_Qc->ClearCache();
-		else if(P_Qc2)
-			ok = P_Qc2->ClearCache();
-	}
+	InitQc();
+	if(P_Qc)
+		ok = P_Qc->ClearCache();
+	else if(P_Qc2)
+		ok = P_Qc2->ClearCache();
 	return ok;
 }
 
@@ -3519,21 +3509,20 @@ int SLAPI GoodsCore::FetchQuotList(PPID goodsID, PPID qkID, PPID locID, PPQuotAr
 {
 	int    ok = 0;
 	rList.clear();
-	if(InitQc()) {
-		if(P_Qc)
-			ok = P_Qc->FetchList(goodsID, rList);
-		else if(P_Qc2)
-			ok = P_Qc2->FetchList(goodsID, rList);
-		if(ok > 0) {
-			if(qkID || locID) {
-				uint c = rList.getCount();
-				if(c) do {
-					const PPQuot & r_q = rList.at(--c);
-					if((qkID && r_q.Kind != qkID) || (locID && r_q.LocID != locID)) {
-						rList.atFree(c);
-					}
-				} while(c);
-			}
+	InitQc();
+	if(P_Qc)
+		ok = P_Qc->FetchList(goodsID, rList);
+	else if(P_Qc2)
+		ok = P_Qc2->FetchList(goodsID, rList);
+	if(ok > 0) {
+		if(qkID || locID) {
+			uint c = rList.getCount();
+			if(c) do {
+				const PPQuot & r_q = rList.at(--c);
+				if((qkID && r_q.Kind != qkID) || (locID && r_q.LocID != locID)) {
+					rList.atFree(c);
+				}
+			} while(c);
 		}
 	}
 	return ok;
@@ -3542,64 +3531,59 @@ int SLAPI GoodsCore::FetchQuotList(PPID goodsID, PPID qkID, PPID locID, PPQuotAr
 int SLAPI GoodsCore::GetMatrix(PPID locID, PPIDArray * pResult)
 {
 	int    ok = 0;
-	if(InitQc()) {
-		if(P_Qc)
-			ok = P_Qc->GetMatrix(locID, pResult);
-		else if(P_Qc2)
-			ok = P_Qc2->GetMatrix(locID, pResult);
-	}
+	InitQc();
+	if(P_Qc)
+		ok = P_Qc->GetMatrix(locID, pResult);
+	else if(P_Qc2)
+		ok = P_Qc2->GetMatrix(locID, pResult);
 	return ok;
 }
 
 int SLAPI GoodsCore::DirtyMatrix(const PPIDArray * pGoodsList, PPIDArray * pMtxLocList)
 {
 	int    ok = 0;
-	if(InitQc()) {
-		const int deferred = DS.IsDbCacheDeferredState(DBS.GetDbPathID());
-		if(P_Qc)
-			ok = P_Qc->DirtyMatrix(pGoodsList, pMtxLocList, deferred);
-		else if(P_Qc2)
-			ok = P_Qc2->DirtyMatrix(pGoodsList, pMtxLocList, deferred);
-	}
+	InitQc();
+	const int deferred = DS.IsDbCacheDeferredState(DBS.GetDbPathID());
+	if(P_Qc)
+		ok = P_Qc->DirtyMatrix(pGoodsList, pMtxLocList, deferred);
+	else if(P_Qc2)
+		ok = P_Qc2->DirtyMatrix(pGoodsList, pMtxLocList, deferred);
 	return ok;
 }
 
-int SLAPI GoodsCore::SetQuotList(PPQuotArray & rQList, int use_ta)
+int SLAPI GoodsCore::SetQuotList(const PPQuotArray & rQList, int use_ta)
 {
 	int    ok = 0;
-	if(InitQc()) {
-		if(P_Qc)
-			ok = P_Qc->SetCurrList(rQList, 0, 0, use_ta);
-		else if(P_Qc2)
-			ok = P_Qc2->Set(rQList, 0, 0, 0, use_ta);
-	}
+	InitQc();
+	if(P_Qc)
+		ok = P_Qc->SetCurrList(rQList, 0, 0, use_ta);
+	else if(P_Qc2)
+		ok = P_Qc2->Set(rQList, 0, 0, 0, use_ta);
 	return ok;
 }
 
-int SLAPI GoodsCore::SetQuotListQ(PPQuotArray & rQList, const PPQuotArray * pTemplate, int noRmv, int use_ta)
+int SLAPI GoodsCore::SetQuotListQ(const PPQuotArray & rQList, const PPQuotArray * pTemplate, int noRmv, int use_ta)
 {
 	int    ok = 0;
 	assert(!(pTemplate && use_ta));
-	if(InitQc()) {
-		if(P_Qc)
-			ok = P_Qc->SetCurrList(rQList, pTemplate, noRmv, use_ta);
-		else if(P_Qc2)
-			ok = P_Qc2->Set(rQList, 0, pTemplate, noRmv, use_ta);
-	}
+	InitQc();
+	if(P_Qc)
+		ok = P_Qc->SetCurrList(rQList, pTemplate, noRmv, use_ta);
+	else if(P_Qc2)
+		ok = P_Qc2->Set(rQList, 0, pTemplate, noRmv, use_ta);
 	return ok;
 }
 
 int SLAPI GoodsCore::SetQuot(const PPQuot & rQuot, int use_ta)
 {
 	int    ok = 0;
-	if(InitQc()) {
-		if(P_Qc) {
-			PPID   qid = 0;
-			ok = P_Qc->SetCurr(&qid, &rQuot, 1, use_ta);
-		}
-		else if(P_Qc2) {
-			ok = P_Qc2->Set(rQuot, 0, 1, use_ta);
-		}
+	InitQc();
+	if(P_Qc) {
+		PPID   qid = 0;
+		ok = P_Qc->SetCurr(&qid, &rQuot, 1, use_ta);
+	}
+	else if(P_Qc2) {
+		ok = P_Qc2->Set(rQuot, 0, 1, use_ta);
 	}
 	return ok;
 }
@@ -3607,12 +3591,11 @@ int SLAPI GoodsCore::SetQuot(const PPQuot & rQuot, int use_ta)
 int  SLAPI GoodsCore::GetMatrixRestrict(PPID mtxRestrQkID, PPID goodsGrpID, PPID locID, int srchNearest, long * pResult)
 {
 	int    ok = 0;
-	if(InitQc()) {
-		if(P_Qc)
-			ok = P_Qc->GetMatrixRestrict(mtxRestrQkID, goodsGrpID, locID, srchNearest, pResult);
-		else if(P_Qc2)
-			ok = P_Qc2->GetMatrixRestrict(mtxRestrQkID, goodsGrpID, locID, srchNearest, pResult);
-	}
+	InitQc();
+	if(P_Qc)
+		ok = P_Qc->GetMatrixRestrict(mtxRestrQkID, goodsGrpID, locID, srchNearest, pResult);
+	else if(P_Qc2)
+		ok = P_Qc2->GetMatrixRestrict(mtxRestrQkID, goodsGrpID, locID, srchNearest, pResult);
 	return ok;
 }
 
@@ -3625,7 +3608,7 @@ int SLAPI GoodsCore::Helper_GetMtxByLoc(PPID locID, PPIDArray & rResult)
 	if(p_cli && !(CConfig.Flags2 & CCFLG2_DONTUSE3TIERGMTX)) {
 		SString q;
 		q.Cat("GETGOODSMATRIX").Space().Cat("LOCATION").CatChar('(').Cat(locID).CatChar(')').Space();
-		q.Cat("FORMAT").Dot().Cat("BIN").CatParStr((const char *)0);
+		q.Cat("FORMAT").Dot().Cat("BIN").CatParStr(static_cast<const char *>(0));
 		PPJobSrvReply reply;
 		if(p_cli->Exec(q, reply)) {
 			THROW(reply.StartReading(0));
@@ -3651,7 +3634,7 @@ int SLAPI GoodsCore::GetMatrix(const ObjIdListFilt & rLocList, int orRule, PPIDA
 {
 	int    ok = 1;
 	if(pResult) {
-		THROW(InitQc());
+		InitQc();
 		if(rLocList.IsEmpty() || rLocList.GetSingle()) {
 			const PPID loc_id = rLocList.GetSingle();
 			THROW(Helper_GetMtxByLoc(loc_id, *pResult));
@@ -3683,19 +3666,15 @@ int SLAPI GoodsCore::GetMatrix(const ObjIdListFilt & rLocList, int orRule, PPIDA
 int SLAPI GoodsCore::BelongToMatrix(PPID goodsID, PPID locID)
 {
 	int    ok = -1;
-	if(InitQc()) {
-		if(P_Qc)
-			ok = P_Qc->BelongToMatrix(goodsID, locID);
-		else if(P_Qc2)
-			ok = P_Qc2->BelongToMatrix(goodsID, locID);
-		if(!ok) {
-			SString goods_name;
-			GetGoodsName(goodsID, goods_name);
-			PPSetError(PPERR_GOODSISNOTINMATRIX, goods_name);
-		}
+	InitQc();
+	if(P_Qc)
+		ok = P_Qc->BelongToMatrix(goodsID, locID);
+	else if(P_Qc2)
+		ok = P_Qc2->BelongToMatrix(goodsID, locID);
+	if(!ok) {
+		SString goods_name;
+		PPSetError(PPERR_GOODSISNOTINMATRIX, GetGoodsName(goodsID, goods_name));
 	}
-	else
-		ok = 0;
 	return ok;
 }
 
@@ -3709,8 +3688,8 @@ int SLAPI GoodsCore::LoadNameList(const PPIDArray * pIdList, long flags, StrAsso
 	temp_src_list.sortAndUndup();
 	if(temp_src_list.getCount()) {
 		SString temp_buf;
-		PPID   min_id = temp_src_list.at(0);
-		PPID   max_id = temp_src_list.getLast();
+		const PPID min_id = temp_src_list.at(0);
+		const PPID max_id = temp_src_list.getLast();
 		if(min_id == max_id) {
 			if(Search(min_id, 0) > 0) {
 				temp_buf.Z();

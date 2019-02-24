@@ -656,11 +656,9 @@ static int _cairo_bo_intersect_ordinate_32_compare(cairo_bo_intersect_ordinate_t
  * given edge and before the stop event for the edge. See the comments
  * in the implementation for more details.
  */
-static cairo_bool_t _cairo_bo_edge_contains_intersect_point(cairo_bo_edge_t * edge,
-    cairo_bo_intersect_point_t * point)
+static cairo_bool_t _cairo_bo_edge_contains_intersect_point(cairo_bo_edge_t * edge, cairo_bo_intersect_point_t * point)
 {
-	return _cairo_bo_intersect_ordinate_32_compare(point->y,
-		   edge->edge.bottom) < 0;
+	return _cairo_bo_intersect_ordinate_32_compare(point->y, edge->edge.bottom) < 0;
 }
 
 /* Compute the intersection of two edges. The result is provided as a
@@ -679,35 +677,25 @@ static cairo_bool_t _cairo_bo_edge_contains_intersect_point(cairo_bo_edge_t * ed
  * effectively outside (no intersection is returned). Also, if the
  * intersection point has the same
  */
-static cairo_bool_t _cairo_bo_edge_intersect(cairo_bo_edge_t * a,
-    cairo_bo_edge_t * b,
-    cairo_bo_intersect_point_t * intersection)
+static cairo_bool_t _cairo_bo_edge_intersect(cairo_bo_edge_t * a, cairo_bo_edge_t * b, cairo_bo_intersect_point_t * intersection)
 {
 	if(!intersect_lines(a, b, intersection))
 		return FALSE;
-
 	if(!_cairo_bo_edge_contains_intersect_point(a, intersection))
 		return FALSE;
-
 	if(!_cairo_bo_edge_contains_intersect_point(b, intersection))
 		return FALSE;
-
 	return TRUE;
 }
 
-static inline int cairo_bo_event_compare(const cairo_bo_event_t * a,
-    const cairo_bo_event_t * b)
+static inline int cairo_bo_event_compare(const cairo_bo_event_t * a, const cairo_bo_event_t * b)
 {
-	int cmp;
-
-	cmp = _cairo_bo_point32_compare(&a->point, &b->point);
+	int cmp = _cairo_bo_point32_compare(&a->point, &b->point);
 	if(cmp)
 		return cmp;
-
 	cmp = a->type - b->type;
 	if(cmp)
 		return cmp;
-
 	return a < b ? -1 : a == b ? 0 : 1;
 }
 
@@ -715,7 +703,6 @@ static inline void _pqueue_init(pqueue_t * pq)
 {
 	pq->max_size = ARRAY_LENGTH(pq->elements_embedded);
 	pq->size = 0;
-
 	pq->elements = pq->elements_embedded;
 }
 

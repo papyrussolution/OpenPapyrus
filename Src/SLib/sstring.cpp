@@ -1693,8 +1693,8 @@ SString & SLAPI SString::Unescape()
 							if(unicode < 0x80) // ASCII: map to UTF-8 literally
 								CatChar(static_cast<char>(unicode&0xff));
 							else if(unicode < 0x800) { // two-byte-encoding
-								char one = static_cast<char>(0xC0); /* 110 00000 */
-								char two = static_cast<char>(0x80); /* 10 000000 */
+								char one = '\xC0'; /* 110 00000 */
+								char two = '\x80'; /* 10 000000 */
 								two += static_cast<char>(unicode & 0x3F);
 								unicode >>= 6;
 								one += static_cast<char>(unicode & 0x1F);
@@ -1702,9 +1702,9 @@ SString & SLAPI SString::Unescape()
 							}
 							else if(unicode < 0x10000) {
 								if(unicode < 0xD800 || 0xDBFF < unicode) { // three-byte-encoding
-									char one = static_cast<char>(0xE0);   // 1110 0000 
-									char two = static_cast<char>(0x80);   // 10 000000 
-									char three = static_cast<char>(0x80); // 10 000000 
+									char one = '\xE0';   // 1110 0000 
+									char two = '\x80';   // 10 000000 
+									char three = '\x80'; // 10 000000 
 									three += static_cast<char>(unicode & 0x3F);
 									unicode >>= 6;
 									two += static_cast<char>(unicode & 0x3F);
@@ -1716,10 +1716,10 @@ SString & SLAPI SString::Unescape()
 									// unicode is a UTF-16 high surrogate, continue with the low surrogate
 									int64 high_surrogate = unicode;	// 110110 00;00000000
 									int64 low_surrogate;
-									char one   = static_cast<char>(0xF0); // 11110 000
-									char two   = static_cast<char>(0x80); // 10 000000
-									char three = static_cast<char>(0x80); // 10 000000
-									char four  = static_cast<char>(0x80); // 10 000000
+									char one   = '\xF0'; // 11110 000
+									char two   = '\x80'; // 10 000000
+									char three = '\x80'; // 10 000000
+									char four  = '\x80'; // 10 000000
 									if(P_Buf[++i] != '\\')
 										break;
 									if(P_Buf[++i] != 'u')
@@ -2066,12 +2066,12 @@ int FASTCALL SString::Cmp(const char * pS, int ignoreCase) const
 		return ignoreCase ? stricmp866(P_Buf, pS) : strcmp(P_Buf, pS);
 }
 
-int FASTCALL SString::IsEqiAscii(const char * pS) const
+bool FASTCALL SString::IsEqiAscii(const char * pS) const // @v10.3.5 int-->bool
 {
 	if(P_Buf != pS) {
         const size_t len = Len();
         if(len != sstrlen(pS))
-			return 0;
+			return false;
 		else if(len) {
             for(size_t i = 0; i < len; i++) {
 				/*char*/uint c1 = P_Buf[i];
@@ -2082,12 +2082,12 @@ int FASTCALL SString::IsEqiAscii(const char * pS) const
 					if(c2 >= 'A' && c2 <= 'Z')
 						c2 += ('a' - 'A');
 					if(c1 != c2)
-						return 0;
+						return false;
 				}
             }
 		}
 	}
-	return 1;
+	return true;
 }
 
 int FASTCALL SString::CmpNC(const char * pS) const
@@ -4587,8 +4587,8 @@ static const char * FASTCALL SPathFindNextComponent(const char * pPath)
 {
 	const size_t len = sstrlen(pPath);
 	if(len) {
-		const char * p_slash = (const char *)memchr(pPath, '\\', len);
-		SETIFZ(p_slash, (const char *)memchr(pPath, '/', len));
+		const char * p_slash = static_cast<const char *>(memchr(pPath, '\\', len));
+		SETIFZ(p_slash, static_cast<const char *>(memchr(pPath, '/', len)));
 		if(p_slash) {
 			if(oneof2(p_slash[1], '\\', '/'))
 				p_slash++;
@@ -5781,21 +5781,20 @@ static const CaseFoldingItem * u_get_sec_table()
 	if(tbl.getCount() == 0) {
 		ENTER_CRITICAL_SECTION
 			if(tbl.getCount() == 0) {
-				size_t count = SIZEOFARRAY(u_case_folding_tbl);
-				if(count) {
-					for(size_t i = 0; i < count; i++) {
-						CaseFoldingItem item;
-						item.Code = u_case_folding_tbl[i].ToCode;
-						item.ToCode = u_case_folding_tbl[i].Code;
-						item.Status_ = u_case_folding_tbl[i].Status_;
-						tbl.insert(&item);
-					}
-					tbl.sort(PTR_CMPFUNC(int16));
+				const size_t count = SIZEOFARRAY(u_case_folding_tbl);
+				assert(count);
+				for(size_t i = 0; i < count; i++) {
+					CaseFoldingItem item;
+					item.Code = u_case_folding_tbl[i].ToCode;
+					item.ToCode = u_case_folding_tbl[i].Code;
+					item.Status_ = u_case_folding_tbl[i].Status_;
+					tbl.insert(&item);
 				}
+				tbl.sort(PTR_CMPFUNC(int16));
 			}
 		LEAVE_CRITICAL_SECTION
 	}
-	return (const CaseFoldingItem *)tbl.dataPtr();
+	return static_cast<const CaseFoldingItem *>(tbl.dataPtr());
 }
 //
 // Бинарный поиск
@@ -5804,21 +5803,20 @@ static int FASTCALL u_bsearch(wchar_t code, const CaseFoldingItem * pTbl, uint *
 {
 	int    cmp = 1;
 	uint   i  = 0;
-	uint   count = SIZEOFARRAY(u_case_folding_tbl);
-	if(count) {
-		uint   lo  = 0;
-		uint   up  = count - 1;
-		while(lo <= up) {
-			const CaseFoldingItem * p = pTbl + ((i = (lo + up) >> 1));
-			wchar_t c = p->Code;
-			cmp = (c > code) ? 1 : (c < code) ? -1 : 0;
-			if(cmp < 0)
-				lo = i + 1;
-			else if(cmp && i)
-				up = i - 1;
-			else {
-				break;
-			}
+	const  uint count = SIZEOFARRAY(u_case_folding_tbl);
+	assert(count);
+	uint   lo  = 0;
+	uint   up  = count - 1;
+	while(lo <= up) {
+		const CaseFoldingItem * p = pTbl + ((i = (lo + up) >> 1));
+		wchar_t c = p->Code;
+		cmp = (c > code) ? 1 : (c < code) ? -1 : 0;
+		if(cmp < 0)
+			lo = i + 1;
+		else if(cmp && i)
+			up = i - 1;
+		else {
+			break;
 		}
 	}
 	ASSIGN_PTR(pIdx, i);

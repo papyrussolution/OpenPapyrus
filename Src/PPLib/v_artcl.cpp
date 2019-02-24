@@ -101,18 +101,18 @@ int SLAPI PPViewArticle::UpdateTempTable(PPID arID)
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempArAgt);
 
-int SLAPI PPViewArticle::InitDebtLim(TempArAgtTbl::Rec * pRec, PPClientAgreement * pCliAgt)
+int SLAPI PPViewArticle::InitDebtLim(TempArAgtTbl::Rec * pRec, const PPClientAgreement * pCliAgt)
 {
 	if(P_DebtDimList && pRec && pCliAgt) {
 		uint   lim_count = (P_DebtDimList->getCount() < DEBTDIM_BRW_SHOWCOUNT) ? P_DebtDimList->getCount() : DEBTDIM_BRW_SHOWCOUNT;
-		char * p_mc = (char*)&pRec->MaxCredit1;
+		char * p_mc = reinterpret_cast<char *>(&pRec->MaxCredit1);
 		for(uint i = 0; i < lim_count; i++) {
 			uint   pos = 0;
 			long   debt_dim_id = P_DebtDimList->Get(i).Id;
 			if(pCliAgt->DebtLimList.lsearch(&debt_dim_id, &pos, PTR_CMPFUNC(long)) > 0) {
 				PPClientAgreement::DebtLimit dbt_lim = pCliAgt->DebtLimList.at(pos);
 				SETFLAG(pRec->StopFlags, 1 << i, dbt_lim.Flags & PPClientAgreement::DebtLimit::fStop);
-				*(double*)(p_mc + sizeof(double)*i) = dbt_lim.Limit;
+				*reinterpret_cast<double *>(p_mc + sizeof(double)*i) = dbt_lim.Limit;
 			}
 		}
 	}

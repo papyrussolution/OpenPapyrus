@@ -531,10 +531,10 @@ int    SLAPI BrowserDef::refresh() { return 1; }
 int    FASTCALL BrowserDef::setData(void *) { return 1; }
 int    FASTCALL BrowserDef::getData(void *) { return 1; }
 
-int SLAPI BrowserDef::search(void * pattern, CompFunc /*cfn*/, int srchMode, int srchCol)
+int SLAPI BrowserDef::search(const void * pPattern, CompFunc /*cfn*/, int srchMode, int srchCol)
 {
 	char   str[256];
-	const  char * p = (const char *)pattern;
+	const  char * p = static_cast<const char *>(pPattern);
 	int    r = (srchMode == srchFirst) ? top() : step(1);
 	if(r)
 		do {

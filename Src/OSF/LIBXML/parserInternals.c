@@ -1406,7 +1406,7 @@ int xmlInitParserCtxt(xmlParserCtxt * ctxt)
 
 	/* Allocate the space stack */
 	if(ctxt->spaceTab == NULL) {
-		ctxt->spaceTab = (int*)SAlloc::M(10 * sizeof(int));
+		ctxt->spaceTab = (int *)SAlloc::M(10 * sizeof(int));
 		ctxt->spaceMax = 10;
 	}
 	if(ctxt->spaceTab == NULL) {

@@ -135,7 +135,7 @@ DBQuery * SLAPI PPViewObjLikeness::CreateBrowserQuery(uint * pBrwId, SString * p
 		DBConst dbc_doub;
 		dbc_doub.init(1.0);
 		dbe_pct_rate.push(dbc_doub);
-		dbe_pct_rate.push((DBFunc)PPDbqFuncPool::IdPercent);
+		dbe_pct_rate.push(static_cast<DBFunc>(PPDbqFuncPool::IdPercent));
 	}
 	if(Filt.ObjTypeID == PPOBJ_PERSON)
 		func_name = PPDbqFuncPool::IdObjNamePerson;

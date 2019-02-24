@@ -1864,7 +1864,7 @@ SLAPI PPObjGoods::SubstBlock::SubstBlock()
 	THISZERO();
 }
 
-int SLAPI PPObjGoods::SubstGoods(PPID srcID, PPID * pDestID, SubstGrpGoods sgg, SubstBlock * pBlk, GoodsSubstList * pGsl)
+int SLAPI PPObjGoods::SubstGoods(PPID srcID, PPID * pDestID, SubstGrpGoods sgg, const SubstBlock * pBlk, GoodsSubstList * pGsl)
 {
 	int    ok = 1;
 	PPID   goods_id = srcID;
@@ -2940,7 +2940,7 @@ ListBoxDef * SLAPI PPObjGoods::_Selector2(ListBoxDef * pDef, long parent, long o
 			if(dont_sel_passive)
 				q.Cat("PASSIVE").CatParStr("no").Space();
 			q.Cat("LOCATION").CatParStr(loc_id).Space();
-			q.Cat("FORMAT").Dot().Cat("BIN").CatParStr((const char *)0);
+			q.Cat("FORMAT").Dot().Cat("BIN").CatParStr(static_cast<const char *>(0));
 			PPJobSrvReply reply;
 			if(p_cli->Exec(q, reply)) {
 				reply.StartReading(0);

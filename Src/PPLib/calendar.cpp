@@ -4,7 +4,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-static INT_PTR CALLBACK CalendarWndProc(HWND, UINT, WPARAM, LPARAM);
+static LRESULT CALLBACK CalendarWndProc(HWND, UINT, WPARAM, LPARAM);
 static INT_PTR CALLBACK PeriodWndProc(HWND, UINT, WPARAM, LPARAM);
 
 class TCalendar {
@@ -336,7 +336,7 @@ INT_PTR CALLBACK TDateCalendar::CalendarDlgProc(HWND hWnd, UINT message, WPARAM 
 					wc.cbSize = sizeof(wc);
 					wc.lpszClassName = p_classname;
 					wc.hInstance = TProgram::GetInst();
-					wc.lpfnWndProc = (WNDPROC)CalendarWndProc;
+					wc.lpfnWndProc = static_cast<WNDPROC>(CalendarWndProc);
 					wc.style = CS_DBLCLKS;
 					wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 					wc.hbrBackground = (HBRUSH)GetStockObject(LTGRAY_BRUSH);
@@ -511,7 +511,7 @@ void TDateCalendar::OnPaint(HWND hWnd)
 	//
 	// Print Year's bar
 	//
-	hf1 = (HFONT)GetStockObject(ANSI_VAR_FONT);
+	hf1 = static_cast<HFONT>(GetStockObject(ANSI_VAR_FONT));
 	hf = CreateFont(IsLarge ? 24 : 8, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
 		DEFAULT_QUALITY, DEFAULT_PITCH | FW_DONTCARE, _T("MS Sans Serif")); // @unicodeproblem
 	SelectObject(hdc, hf);
@@ -895,7 +895,7 @@ int TDateCalendar::SelectDay(HWND hWnd, int x, int y)
 		HDC    hdc = GetDC(hWnd);
 		HFONT  hf = CreateFont(IsLarge ? 24 : 8, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
 			DEFAULT_QUALITY, DEFAULT_PITCH | FW_DONTCARE, _T("MS Sans Serif")); // @unicodeproblem
-		HFONT  hf_old = (HFONT)SelectObject(hdc, hf);
+		HFONT  hf_old = static_cast<HFONT>(SelectObject(hdc, hf));
 		SetBkMode(hdc, TRANSPARENT);
 		SetTextColor(hdc, RGB(0, 0, 0));
 		if(PeriodSelect && D == D1)
@@ -1014,7 +1014,7 @@ int  TDateCalendar::SelectWeek(HWND hWnd, int x, int y)
 		HDC    hdc = GetDC(hWnd);
 		HFONT  hf = CreateFont(IsLarge ? 24 : 8, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
 			DEFAULT_QUALITY, DEFAULT_PITCH|FW_DONTCARE, _T("MS Sans Serif")); // @unicodeproblem
-		HFONT  hf_old = (HFONT)SelectObject(hdc, hf);
+		HFONT  hf_old = static_cast<HFONT>(SelectObject(hdc, hf));
 		SetBkMode(hdc, TRANSPARENT);
 		SetTextColor(hdc, RGB(0, 0, 0));
 		if(PeriodSelect && D == D1)
@@ -1271,7 +1271,7 @@ int TDateCalendar::StepMonth(HWND hWnd, int forward)
 	return ok;
 }
 
-INT_PTR CALLBACK CalendarWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK CalendarWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	TDateCalendar * dc = (TDateCalendar *)TView::GetWindowUserData(hWnd);
 	switch(message) {
@@ -1478,7 +1478,7 @@ void FASTCALL SetupCalCtrl(int buttCtlID, TDialog * pDlg, uint editCtlID, uint T
 		static HBITMAP hbm_daterange = 0; // @global @threadsafe
 		static HBITMAP hbm_calendar = 0;  // @global @threadsafe
 		const int cal_type = BIN(oneof3(T, 1, 2, 3)); // 1 - period, 0 - date
-		CalButtonWndEx * p_cbwe = new CalButtonWndEx(pDlg, editCtlID, cal_type, (WNDPROC)TView::GetWindowProp(hwnd, GWLP_WNDPROC));
+		CalButtonWndEx * p_cbwe = new CalButtonWndEx(pDlg, editCtlID, cal_type, static_cast<WNDPROC>(TView::GetWindowProp(hwnd, GWLP_WNDPROC)));
 		TView::SetWindowUserData(hwnd, p_cbwe);
 		TView::SetWindowProp(hwnd, GWLP_WNDPROC, CalButtonWndEx::WndProc);
 		// @v9.1.11 {
@@ -1760,7 +1760,7 @@ void TCalendarP::ShowCalendar(HWND hwParent)
 		wc.cbSize = sizeof(wc);
 		wc.lpszClassName = p_classname;
 		wc.hInstance = TProgram::GetInst();
-		wc.lpfnWndProc = (WNDPROC)CalendarWndProc;
+		wc.lpfnWndProc = static_cast<WNDPROC>(CalendarWndProc);
 		wc.style = CS_DBLCLKS;
 		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 		wc.hbrBackground = (HBRUSH)GetStockObject(LTGRAY_BRUSH);

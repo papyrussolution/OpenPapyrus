@@ -3093,7 +3093,7 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 		    clistlen = s->session->tlsext_ellipticcurvelist_length / 2;
 		    if(parg) {
 			    size_t i;
-			    int * cptr = (int*)parg;
+			    int * cptr = (int *)parg;
 			    uint cid, nid;
 			    for(i = 0; i < clistlen; i++) {
 				    n2s(clist, cid);
@@ -3108,7 +3108,7 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 	    }
 
 		case SSL_CTRL_SET_CURVES:
-		    return tls1_set_curves(&s->tlsext_ellipticcurvelist, &s->tlsext_ellipticcurvelist_length, (int*)parg, larg);
+		    return tls1_set_curves(&s->tlsext_ellipticcurvelist, &s->tlsext_ellipticcurvelist_length, (int *)parg, larg);
 
 		case SSL_CTRL_SET_CURVES_LIST:
 		    return tls1_set_curves_list(&s->tlsext_ellipticcurvelist, &s->tlsext_ellipticcurvelist_length, (const char*)parg);
@@ -3164,7 +3164,7 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 				    const EVP_MD * sig;
 				    sig = s->s3->tmp.peer_md;
 				    if(sig) {
-					    *(int*)parg = EVP_MD_type(sig);
+					    *(int *)parg = EVP_MD_type(sig);
 					    return 1;
 				    }
 			    }
@@ -3389,7 +3389,7 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 
 #ifndef OPENSSL_NO_EC
 		case SSL_CTRL_SET_CURVES:
-		    return tls1_set_curves(&ctx->tlsext_ellipticcurvelist, &ctx->tlsext_ellipticcurvelist_length, (int*)parg, larg);
+		    return tls1_set_curves(&ctx->tlsext_ellipticcurvelist, &ctx->tlsext_ellipticcurvelist_length, (int *)parg, larg);
 
 		case SSL_CTRL_SET_CURVES_LIST:
 		    return tls1_set_curves_list(&ctx->tlsext_ellipticcurvelist, &ctx->tlsext_ellipticcurvelist_length, (const char*)parg);

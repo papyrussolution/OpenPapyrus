@@ -682,7 +682,7 @@ bad:
 				ERREXIT1(cinfo, JERR_NO_ARITH_TABLE, tbl);
 			if(entropy->dc_stats[tbl] == NULL)
 				entropy->dc_stats[tbl] = (uchar*)(*cinfo->mem->alloc_small)
-					    ((j_common_ptr)cinfo, JPOOL_IMAGE, DC_STAT_BINS);
+					    (reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, DC_STAT_BINS);
 			memzero(entropy->dc_stats[tbl], DC_STAT_BINS);
 			/* Initialize DC predictions to 0 */
 			entropy->last_dc_val[ci] = 0;
@@ -695,7 +695,7 @@ bad:
 				ERREXIT1(cinfo, JERR_NO_ARITH_TABLE, tbl);
 			if(entropy->ac_stats[tbl] == NULL)
 				entropy->ac_stats[tbl] = (uchar*)(*cinfo->mem->alloc_small)
-					    ((j_common_ptr)cinfo, JPOOL_IMAGE, AC_STAT_BINS);
+					    (reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, AC_STAT_BINS);
 			memzero(entropy->ac_stats[tbl], AC_STAT_BINS);
 		}
 	}
@@ -728,7 +728,7 @@ GLOBAL(void) jinit_arith_decoder(j_decompress_ptr cinfo)
 	int i;
 
 	entropy = (arith_entropy_ptr)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
+	    (*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE,
 	    SIZEOF(arith_entropy_decoder));
 	cinfo->entropy = &entropy->pub;
 	entropy->pub.start_pass = start_pass;
@@ -747,7 +747,7 @@ GLOBAL(void) jinit_arith_decoder(j_decompress_ptr cinfo)
 		/* Create progression status table */
 		int * coef_bit_ptr, ci;
 		cinfo->coef_bits = (int (*)[DCTSIZE2])
-			    (*cinfo->mem->alloc_small) ((j_common_ptr)cinfo, JPOOL_IMAGE,
+			    (*cinfo->mem->alloc_small) (reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE,
 		    cinfo->num_components*DCTSIZE2*SIZEOF(int));
 		coef_bit_ptr = &cinfo->coef_bits[0][0];
 		for(ci = 0; ci < cinfo->num_components; ci++)

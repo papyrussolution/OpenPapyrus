@@ -277,7 +277,7 @@ static long buffer_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    break;
 		case BIO_C_SET_BUFF_SIZE:
 		    if(ptr) {
-			    ip = (int*)ptr;
+			    ip = (int *)ptr;
 			    if(*ip == 0) {
 				    ibs = (int)num;
 				    obs = ctx->obuf_size;

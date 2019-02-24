@@ -247,7 +247,7 @@ static force_inline uint32_t convert_pixel(pixman_format_code_t from, pixman_for
 	return a | r | g | b;
 }
 
-static force_inline uint32_t convert_pixel_to_a8r8g8b8(bits_image_t * image, pixman_format_code_t format, uint32_t pixel)
+static force_inline uint32_t convert_pixel_to_a8r8g8b8(const bits_image_t * image, pixman_format_code_t format, uint32_t pixel)
 {
 	if(PIXMAN_FORMAT_TYPE(format) == PIXMAN_TYPE_GRAY || PIXMAN_FORMAT_TYPE(format) == PIXMAN_TYPE_COLOR) {
 		return image->indexed->rgba[pixel];
@@ -257,7 +257,7 @@ static force_inline uint32_t convert_pixel_to_a8r8g8b8(bits_image_t * image, pix
 	}
 }
 
-static force_inline uint32_t convert_pixel_from_a8r8g8b8(pixman_image_t * image, pixman_format_code_t format, uint32_t pixel)
+static force_inline uint32_t convert_pixel_from_a8r8g8b8(const pixman_image_t * image, pixman_format_code_t format, uint32_t pixel)
 {
 	if(PIXMAN_FORMAT_TYPE(format) == PIXMAN_TYPE_GRAY) {
 		pixel = CONVERT_RGB24_TO_Y15(pixel);
@@ -474,10 +474,10 @@ static void fetch_scanline_a2r10g10b10_float(bits_image_t *  image, int x, int y
 		uint64_t r = (p >> 20) & 0x3ff;
 		uint64_t g = (p >> 10) & 0x3ff;
 		uint64_t b = p & 0x3ff;
-		buffer->a = pixman_unorm_to_float(a, 2);
-		buffer->r = pixman_unorm_to_float(r, 10);
-		buffer->g = pixman_unorm_to_float(g, 10);
-		buffer->b = pixman_unorm_to_float(b, 10);
+		buffer->a = pixman_unorm_to_float(static_cast<uint16_t>(a), 2);
+		buffer->r = pixman_unorm_to_float(static_cast<uint16_t>(r), 10);
+		buffer->g = pixman_unorm_to_float(static_cast<uint16_t>(g), 10);
+		buffer->b = pixman_unorm_to_float(static_cast<uint16_t>(b), 10);
 		buffer++;
 	}
 }
@@ -524,86 +524,62 @@ static void fetch_scanline_rgbaf_float(bits_image_t * image,
 
 #endif
 
-static void fetch_scanline_x2r10g10b10_float(bits_image_t * image,
-    int x,
-    int y,
-    int width,
-    uint32_t * b,
-    const uint32_t * mask)
+static void fetch_scanline_x2r10g10b10_float(bits_image_t * image, int x, int y, int width, uint32_t * b, const uint32_t * mask)
 {
 	const uint32_t * bits = image->bits + y * image->rowstride;
 	const uint32_t * pixel = (uint32_t*)bits + x;
 	const uint32_t * end = pixel + width;
 	argb_t * buffer = (argb_t*)b;
-
 	while(pixel < end) {
 		uint32_t p = READ(image, pixel++);
 		uint64_t r = (p >> 20) & 0x3ff;
 		uint64_t g = (p >> 10) & 0x3ff;
 		uint64_t b = p & 0x3ff;
-
 		buffer->a = 1.0;
-		buffer->r = pixman_unorm_to_float(r, 10);
-		buffer->g = pixman_unorm_to_float(g, 10);
-		buffer->b = pixman_unorm_to_float(b, 10);
-
+		buffer->r = pixman_unorm_to_float(static_cast<uint16_t>(r), 10);
+		buffer->g = pixman_unorm_to_float(static_cast<uint16_t>(g), 10);
+		buffer->b = pixman_unorm_to_float(static_cast<uint16_t>(b), 10);
 		buffer++;
 	}
 }
 
 /* Expects a float buffer */
-static void fetch_scanline_a2b10g10r10_float(bits_image_t * image,
-    int x,
-    int y,
-    int width,
-    uint32_t * b,
-    const uint32_t * mask)
+static void fetch_scanline_a2b10g10r10_float(bits_image_t * image, int x, int y, int width, uint32_t * b, const uint32_t * mask)
 {
 	const uint32_t * bits = image->bits + y * image->rowstride;
 	const uint32_t * pixel = bits + x;
 	const uint32_t * end = pixel + width;
 	argb_t * buffer = (argb_t*)b;
-
 	while(pixel < end) {
 		uint32_t p = READ(image, pixel++);
 		uint64_t a = p >> 30;
 		uint64_t b = (p >> 20) & 0x3ff;
 		uint64_t g = (p >> 10) & 0x3ff;
 		uint64_t r = p & 0x3ff;
-
-		buffer->a = pixman_unorm_to_float(a, 2);
-		buffer->r = pixman_unorm_to_float(r, 10);
-		buffer->g = pixman_unorm_to_float(g, 10);
-		buffer->b = pixman_unorm_to_float(b, 10);
-
+		buffer->a = pixman_unorm_to_float(static_cast<uint16_t>(a), 2);
+		buffer->r = pixman_unorm_to_float(static_cast<uint16_t>(r), 10);
+		buffer->g = pixman_unorm_to_float(static_cast<uint16_t>(g), 10);
+		buffer->b = pixman_unorm_to_float(static_cast<uint16_t>(b), 10);
 		buffer++;
 	}
 }
 
 /* Expects a float buffer */
-static void fetch_scanline_x2b10g10r10_float(bits_image_t * image,
-    int x,
-    int y,
-    int width,
-    uint32_t * b,
-    const uint32_t * mask)
+static void fetch_scanline_x2b10g10r10_float(bits_image_t * image, int x, int y, int width, uint32_t * b, const uint32_t * mask)
 {
 	const uint32_t * bits = image->bits + y * image->rowstride;
 	const uint32_t * pixel = (uint32_t*)bits + x;
 	const uint32_t * end = pixel + width;
 	argb_t * buffer = (argb_t*)b;
-
 	while(pixel < end) {
 		uint32_t p = READ(image, pixel++);
 		uint64_t b = (p >> 20) & 0x3ff;
 		uint64_t g = (p >> 10) & 0x3ff;
 		uint64_t r = p & 0x3ff;
-
 		buffer->a = 1.0;
-		buffer->r = pixman_unorm_to_float(r, 10);
-		buffer->g = pixman_unorm_to_float(g, 10);
-		buffer->b = pixman_unorm_to_float(b, 10);
-
+		buffer->r = pixman_unorm_to_float(static_cast<uint16_t>(r), 10);
+		buffer->g = pixman_unorm_to_float(static_cast<uint16_t>(g), 10);
+		buffer->b = pixman_unorm_to_float(static_cast<uint16_t>(b), 10);
 		buffer++;
 	}
 }
@@ -687,9 +663,9 @@ static argb_t fetch_pixel_x2r10g10b10_float(bits_image_t * image, int offset, in
 	uint64_t b = p & 0x3ff;
 	argb_t argb;
 	argb.a = 1.0;
-	argb.r = pixman_unorm_to_float(r, 10);
-	argb.g = pixman_unorm_to_float(g, 10);
-	argb.b = pixman_unorm_to_float(b, 10);
+	argb.r = pixman_unorm_to_float(static_cast<uint16_t>(r), 10);
+	argb.g = pixman_unorm_to_float(static_cast<uint16_t>(g), 10);
+	argb.b = pixman_unorm_to_float(static_cast<uint16_t>(b), 10);
 	return argb;
 }
 
@@ -702,10 +678,10 @@ static argb_t fetch_pixel_a2r10g10b10_float(bits_image_t * image, int offset, in
 	uint64_t g = (p >> 10) & 0x3ff;
 	uint64_t b = p & 0x3ff;
 	argb_t argb;
-	argb.a = pixman_unorm_to_float(a, 2);
-	argb.r = pixman_unorm_to_float(r, 10);
-	argb.g = pixman_unorm_to_float(g, 10);
-	argb.b = pixman_unorm_to_float(b, 10);
+	argb.a = pixman_unorm_to_float(static_cast<uint16_t>(a), 2);
+	argb.r = pixman_unorm_to_float(static_cast<uint16_t>(r), 10);
+	argb.g = pixman_unorm_to_float(static_cast<uint16_t>(g), 10);
+	argb.b = pixman_unorm_to_float(static_cast<uint16_t>(b), 10);
 	return argb;
 }
 
@@ -718,10 +694,10 @@ static argb_t fetch_pixel_a2b10g10r10_float(bits_image_t * image, int offset, in
 	uint64_t g = (p >> 10) & 0x3ff;
 	uint64_t r = p & 0x3ff;
 	argb_t argb;
-	argb.a = pixman_unorm_to_float(a, 2);
-	argb.r = pixman_unorm_to_float(r, 10);
-	argb.g = pixman_unorm_to_float(g, 10);
-	argb.b = pixman_unorm_to_float(b, 10);
+	argb.a = pixman_unorm_to_float(static_cast<uint16_t>(a), 2);
+	argb.r = pixman_unorm_to_float(static_cast<uint16_t>(r), 10);
+	argb.g = pixman_unorm_to_float(static_cast<uint16_t>(g), 10);
+	argb.b = pixman_unorm_to_float(static_cast<uint16_t>(b), 10);
 	return argb;
 }
 
@@ -734,9 +710,9 @@ static argb_t fetch_pixel_x2b10g10r10_float(bits_image_t * image, int offset, in
 	uint64_t r = p & 0x3ff;
 	argb_t argb;
 	argb.a = 1.0;
-	argb.r = pixman_unorm_to_float(r, 10);
-	argb.g = pixman_unorm_to_float(g, 10);
-	argb.b = pixman_unorm_to_float(b, 10);
+	argb.r = pixman_unorm_to_float(static_cast<uint16_t>(r), 10);
+	argb.g = pixman_unorm_to_float(static_cast<uint16_t>(g), 10);
+	argb.b = pixman_unorm_to_float(static_cast<uint16_t>(b), 10);
 	return argb;
 }
 

@@ -129,8 +129,8 @@ struct qr_finder_center {
 
 static int qr_finder_vline_cmp(const void * _a, const void * _b)
 {
-	const qr_finder_line * a = (const qr_finder_line*)_a;
-	const qr_finder_line * b = (const qr_finder_line*)_b;
+	const qr_finder_line * a = static_cast<const qr_finder_line *>(_a);
+	const qr_finder_line * b = static_cast<const qr_finder_line *>(_b);
 	return ((a->pos[0] > b->pos[0]) - (a->pos[0] < b->pos[0]) << 1) + (a->pos[1] > b->pos[1]) - (a->pos[1] < b->pos[1]);
 }
 
@@ -3898,7 +3898,7 @@ static inline void qr_svg_centers(const qr_finder_center * centers, int ncenters
 	svg_path_end();
 }
 
-int _zbar_qr_decode(qr_reader * reader, zbar_image_scanner_t * iscn, zbar_image_t * img)
+int _zbar_qr_decode(qr_reader * reader, zbar_image_scanner_t * iscn, const zbar_image_t * img)
 {
 	int nqrdata = 0;
 	int ncenters;
@@ -3912,7 +3912,7 @@ int _zbar_qr_decode(qr_reader * reader, zbar_image_scanner_t * iscn, zbar_image_
 		zprintf(14, "%dx%d finders, %d centers:\n", reader->finder_lines[0].nlines, reader->finder_lines[1].nlines, ncenters);
 		qr_svg_centers(centers, ncenters);
 		if(ncenters >= 3) {
-			uchar * bin = qr_binarize((const uchar *)img->P_Data, img->width, img->height);
+			uchar * bin = qr_binarize(static_cast<const uchar *>(img->P_Data), img->width, img->height);
 			qr_code_data_list qrlist;
 			qr_code_data_list_init(&qrlist);
 			qr_reader_match_centers(reader, &qrlist, centers, ncenters, bin, img->width, img->height);

@@ -39,7 +39,7 @@ int  __env_set_memory_max(DB_ENV *, uint32, uint32);
 int __env_get_encrypt_flags(DB_ENV *, uint32 *);
 int __env_set_encrypt(DB_ENV *, const char *, uint32);
 void __env_map_flags(const FLAG_MAP *, uint, uint32 *, uint32 *);
-void __env_fetch_flags(const FLAG_MAP *, uint, uint32 *, uint32 *);
+void __env_fetch_flags(const FLAG_MAP *, uint, const uint32 *, uint32 *);
 int  __env_set_flags(DB_ENV *, uint32, int);
 int  __env_set_data_dir(DB_ENV *, const char *);
 int  __env_add_data_dir(DB_ENV *, const char *);

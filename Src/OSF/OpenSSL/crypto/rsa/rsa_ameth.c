@@ -263,8 +263,7 @@ err:
 	return rv;
 }
 
-static int rsa_sig_print(BIO * bp, const X509_ALGOR * sigalg,
-    const ASN1_STRING * sig, int indent, ASN1_PCTX * pctx)
+static int rsa_sig_print(BIO * bp, const X509_ALGOR * sigalg, const ASN1_STRING * sig, int indent, ASN1_PCTX * pctx)
 {
 	if(OBJ_obj2nid(sigalg->algorithm) == NID_rsassaPss) {
 		int rv;
@@ -300,9 +299,9 @@ static int rsa_pkey_ctrl(EVP_PKEY * pkey, int op, long arg1, void * arg2)
 #ifndef OPENSSL_NO_CMS
 		case ASN1_PKEY_CTRL_CMS_SIGN:
 		    if(arg1 == 0)
-			    return rsa_cms_sign((CMS_SignerInfo*)arg2);
+			    return rsa_cms_sign(static_cast<CMS_SignerInfo *>(arg2));
 		    else if(arg1 == 1)
-			    return rsa_cms_verify((CMS_SignerInfo*)arg2);
+			    return rsa_cms_verify(static_cast<CMS_SignerInfo *>(arg2));
 		    break;
 
 		case ASN1_PKEY_CTRL_CMS_ENVELOPE:
@@ -313,12 +312,12 @@ static int rsa_pkey_ctrl(EVP_PKEY * pkey, int op, long arg1, void * arg2)
 		    break;
 
 		case ASN1_PKEY_CTRL_CMS_RI_TYPE:
-		    *(int*)arg2 = CMS_RECIPINFO_TRANS;
+		    *static_cast<int *>(arg2) = CMS_RECIPINFO_TRANS;
 		    return 1;
 #endif
 
 		case ASN1_PKEY_CTRL_DEFAULT_MD_NID:
-		    *(int*)arg2 = NID_sha256;
+		    *static_cast<int *>(arg2) = NID_sha256;
 		    return 1;
 
 		default:

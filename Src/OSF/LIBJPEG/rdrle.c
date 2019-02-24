@@ -154,11 +154,11 @@ METHODDEF(void) start_input_rle(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 	 * (GRAYSCALE scanlines don't need converting)
 	 */
 	if(source->visual != GRAYSCALE) {
-		source->rle_row = (rle_pixel**)(*cinfo->mem->alloc_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, (JDIMENSION)width, (JDIMENSION)cinfo->input_components);
+		source->rle_row = (rle_pixel**)(*cinfo->mem->alloc_sarray)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (JDIMENSION)width, (JDIMENSION)cinfo->input_components);
 	}
 
 	/* request a virtual array to hold the image */
-	source->image = (*cinfo->mem->request_virt_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, FALSE,
+	source->image = (*cinfo->mem->request_virt_sarray)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, FALSE,
 	    (JDIMENSION)(width * source->header.ncolors), (JDIMENSION)height, (JDIMENSION)1);
 
 #ifdef PROGRESS_REPORT
@@ -180,7 +180,7 @@ METHODDEF(JDIMENSION) get_rle_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 {
 	rle_source_ptr source = (rle_source_ptr)sinfo;
 	source->row--;
-	source->pub.buffer = (*cinfo->mem->access_virt_sarray)((j_common_ptr)cinfo, source->image, source->row, (JDIMENSION)1, FALSE);
+	source->pub.buffer = (*cinfo->mem->access_virt_sarray)(reinterpret_cast<j_common_ptr>(cinfo), source->image, source->row, (JDIMENSION)1, FALSE);
 	return 1;
 }
 
@@ -199,7 +199,7 @@ METHODDEF(JDIMENSION) get_pseudocolor_row(j_compress_ptr cinfo, cjpeg_source_ptr
 	rle_map * colormap = source->header.cmap;
 	JSAMPROW dest_row = source->pub.buffer[0];
 	source->row--;
-	src_row = *(*cinfo->mem->access_virt_sarray)((j_common_ptr)cinfo, source->image, source->row, (JDIMENSION)1, FALSE);
+	src_row = *(*cinfo->mem->access_virt_sarray)(reinterpret_cast<j_common_ptr>(cinfo), source->image, source->row, (JDIMENSION)1, FALSE);
 	for(col = cinfo->image_width; col > 0; col--) {
 		val = GETJSAMPLE(*src_row++);
 		*dest_row++ = (JSAMPLE)(colormap[val      ] >> 8);
@@ -244,7 +244,7 @@ METHODDEF(JDIMENSION) load_image(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 	if(progress) {
 		progress->pub.pass_limit = cinfo->image_height;
 		progress->pub.pass_counter = 0;
-		(*progress->pub.progress_monitor)((j_common_ptr)cinfo);
+		(*progress->pub.progress_monitor)(reinterpret_cast<j_common_ptr>(cinfo));
 	}
 #endif
 
@@ -253,12 +253,12 @@ METHODDEF(JDIMENSION) load_image(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 		case PSEUDOCOLOR:
 		    for(row = 0; row < cinfo->image_height; row++) {
 			    rle_row = (rle_pixel**)(*cinfo->mem->access_virt_sarray)
-				    ((j_common_ptr)cinfo, source->image, row, (JDIMENSION)1, TRUE);
+				    (reinterpret_cast<j_common_ptr>(cinfo), source->image, row, (JDIMENSION)1, TRUE);
 			    rle_getrow(&source->header, rle_row);
 #ifdef PROGRESS_REPORT
 			    if(progress) {
 				    progress->pub.pass_counter++;
-				    (*progress->pub.progress_monitor)((j_common_ptr)cinfo);
+				    (*progress->pub.progress_monitor)(reinterpret_cast<j_common_ptr>(cinfo));
 			    }
 #endif
 		    }
@@ -268,7 +268,7 @@ METHODDEF(JDIMENSION) load_image(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 		case TRUECOLOR:
 		    for(row = 0; row < cinfo->image_height; row++) {
 			    scanline = *(*cinfo->mem->access_virt_sarray)
-				    ((j_common_ptr)cinfo, source->image, row, (JDIMENSION)1, TRUE);
+				    (reinterpret_cast<j_common_ptr>(cinfo), source->image, row, (JDIMENSION)1, TRUE);
 			    rle_row = source->rle_row;
 			    rle_getrow(&source->header, rle_row);
 
@@ -282,7 +282,7 @@ METHODDEF(JDIMENSION) load_image(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 #ifdef PROGRESS_REPORT
 			    if(progress) {
 				    progress->pub.pass_counter++;
-				    (*progress->pub.progress_monitor)((j_common_ptr)cinfo);
+				    (*progress->pub.progress_monitor)(reinterpret_cast<j_common_ptr>(cinfo));
 			    }
 #endif
 		    }
@@ -291,7 +291,7 @@ METHODDEF(JDIMENSION) load_image(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 		case DIRECTCOLOR:
 		    for(row = 0; row < cinfo->image_height; row++) {
 			    scanline = *(*cinfo->mem->access_virt_sarray)
-				    ((j_common_ptr)cinfo, source->image, row, (JDIMENSION)1, TRUE);
+				    (reinterpret_cast<j_common_ptr>(cinfo), source->image, row, (JDIMENSION)1, TRUE);
 			    rle_getrow(&source->header, rle_row);
 
 			    red_ptr   = rle_row[0];
@@ -307,7 +307,7 @@ METHODDEF(JDIMENSION) load_image(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 #ifdef PROGRESS_REPORT
 			    if(progress) {
 				    progress->pub.pass_counter++;
-				    (*progress->pub.progress_monitor)((j_common_ptr)cinfo);
+				    (*progress->pub.progress_monitor)(reinterpret_cast<j_common_ptr>(cinfo));
 			    }
 #endif
 		    }
@@ -344,7 +344,7 @@ METHODDEF(void) finish_input_rle(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 GLOBAL(cjpeg_source_ptr) jinit_read_rle(j_compress_ptr cinfo)
 {
 	/* Create module interface object */
-	rle_source_ptr source = (rle_source_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(rle_source_struct));
+	rle_source_ptr source = (rle_source_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(rle_source_struct));
 	/* Fill in method ptrs */
 	source->pub.start_input = start_input_rle;
 	source->pub.finish_input = finish_input_rle;

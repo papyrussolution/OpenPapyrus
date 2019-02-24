@@ -503,7 +503,7 @@ METHODDEF(void) start_input_ppm(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 	// Allocate space for I/O buffer: 1 or 3 bytes or words/pixel. 
 	if(need_iobuffer) {
 		source->buffer_width = (size_t)w * cinfo->input_components * ((maxval<=255) ? SIZEOF(U_CHAR) : (2*SIZEOF(U_CHAR)));
-		// @v9c source->iobuffer = (U_CHAR*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, source->buffer_width);
+		// @v9c source->iobuffer = (U_CHAR*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, source->buffer_width);
 		source->iobuffer = (U_CHAR *)(*cinfo->mem->alloc_small)((j_common_ptr) cinfo, JPOOL_IMAGE, source->buffer_width); // @v9c
 	}
 	// Create compressor input buffer. 
@@ -517,14 +517,14 @@ METHODDEF(void) start_input_ppm(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 	}
 	else {
 		/* Need to translate anyway, so make a separate sample buffer. */
-		source->pub.buffer = (*cinfo->mem->alloc_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, (JDIMENSION)w * cinfo->input_components, (JDIMENSION)1);
+		source->pub.buffer = (*cinfo->mem->alloc_sarray)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (JDIMENSION)w * cinfo->input_components, (JDIMENSION)1);
 		source->pub.buffer_height = 1;
 	}
 	/* Compute the rescaling array if required. */
 	if(need_rescale) {
 		INT32 val, half_maxval;
 		// On 16-bit-int machines we have to be careful of maxval = 65535 
-		// @v9c source->rescale = (JSAMPLE*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (size_t)(((long)maxval + 1L) * SIZEOF(JSAMPLE)));
+		// @v9c source->rescale = (JSAMPLE*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (size_t)(((long)maxval + 1L) * SIZEOF(JSAMPLE)));
 		source->rescale = (JSAMPLE *)(*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_IMAGE, (size_t) (((long) maxval + 1L) * SIZEOF(JSAMPLE))); // @v9c
 		half_maxval = maxval / 2;
 		for(val = 0; val <= (INT32)maxval; val++) {
@@ -546,7 +546,7 @@ METHODDEF(void) finish_input_ppm(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 GLOBAL(cjpeg_source_ptr) jinit_read_ppm(j_compress_ptr cinfo)
 {
 	// Create module interface object 
-	ppm_source_ptr source = (ppm_source_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(ppm_source_struct));
+	ppm_source_ptr source = (ppm_source_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(ppm_source_struct));
 	/* Fill in method ptrs, except get_pixel_rows which start_input sets */
 	source->pub.start_input = start_input_ppm;
 	source->pub.finish_input = finish_input_ppm;

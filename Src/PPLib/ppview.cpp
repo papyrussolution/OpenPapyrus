@@ -690,35 +690,23 @@ int32 SLAPI PPBaseFilt::GetVer() const
 int SLAPI PPBaseFilt::Init(int fullyDestroy, long extraData)
 {
 	if(FlatSize)
-		memzero(((uint8 *)this) + FlatOffs, FlatSize);
+		memzero(PTR8(this) + FlatOffs, FlatSize);
 	for(uint i = 0; i < BranchList.getCount(); i++) {
-		const Branch * p_b = (Branch *)BranchList.at(i);
-		if(p_b->Type == Branch::tSString) {
-			SString * p_str = (SString *)(((const uint8 *)this) + p_b->Offs);
-			*p_str = 0;
-		}
-		else if(p_b->Type == Branch::tSArray) {
-			SArray * p_ary = (SArray *)(((const uint8 *)this) + p_b->Offs);
-			p_ary->freeAll();
-		}
-		else if(p_b->Type == Branch::tSVector) {
-			SVector * p_ary = (SVector *)(((const uint8 *)this) + p_b->Offs);
-			p_ary->freeAll();
-		}
-		else if(p_b->Type == Branch::tObjIdListFilt) {
-			ObjIdListFilt * p_list = (ObjIdListFilt *)(((const uint8 *)this) + p_b->Offs);
-			p_list->Set(0);
-		}
-		else if(p_b->Type == Branch::tStrAssocArray) {
-			StrAssocArray * p_ary = (StrAssocArray *)(((const uint8 *)this) + p_b->Offs);
-			p_ary->Z();
-		}
-		else if(p_b->Type == Branch::tDisplayExtList) {
-			PPViewDisplayExtList * p_list = (PPViewDisplayExtList *)(((const uint8 *)this) + p_b->Offs);
-			p_list->Clear();
-		}
+		const Branch * p_b = static_cast<Branch *>(BranchList.at(i));
+		if(p_b->Type == Branch::tSString)
+			reinterpret_cast<SString *>(PTR8(this) + p_b->Offs)->Z();
+		else if(p_b->Type == Branch::tSArray)
+			reinterpret_cast<SArray *>(PTR8(this) + p_b->Offs)->freeAll();
+		else if(p_b->Type == Branch::tSVector)
+			reinterpret_cast<SVector *>(PTR8(this) + p_b->Offs)->freeAll();
+		else if(p_b->Type == Branch::tObjIdListFilt)
+			reinterpret_cast<ObjIdListFilt *>(PTR8(this) + p_b->Offs)->Set(0);
+		else if(p_b->Type == Branch::tStrAssocArray)
+			reinterpret_cast<StrAssocArray *>(PTR8(this) + p_b->Offs)->Z();
+		else if(p_b->Type == Branch::tDisplayExtList)
+			reinterpret_cast<PPViewDisplayExtList *>(PTR8(this) + p_b->Offs)->Clear();
 		else if(p_b->Type == Branch::tBaseFiltPtr) {
-			PPBaseFilt ** pp_filt = (PPBaseFilt**)(((const uint8 *)this) + p_b->Offs);
+			PPBaseFilt ** pp_filt = reinterpret_cast<PPBaseFilt **>(PTR8(this) + p_b->Offs);
 			if(*pp_filt) {
 				if(fullyDestroy) {
 					ZDELETE(*pp_filt);

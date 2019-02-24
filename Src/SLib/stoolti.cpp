@@ -231,7 +231,7 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 				img_height = vp.Height();
 				img_width = vp.Width();
 				TView::SetWindowProp(h_img, GWLP_USERDATA, this);
-				PrevImgProc = (WNDPROC)TView::SetWindowProp(h_img, GWLP_WNDPROC, ImgProc);
+				PrevImgProc = static_cast<WNDPROC>(TView::SetWindowProp(h_img, GWLP_WNDPROC, ImgProc));
 			}
 #else
 			SImage * p_img = new SImage();
@@ -242,7 +242,7 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 			img_width = p_img->GetWidth(); // @v9.5.10
 			p_img->SetClearColor(Color);
 			TView::SetWindowProp(h_img, GWLP_USERDATA, this);
-			PrevImgProc = (WNDPROC)TView::SetWindowProp(h_img, GWLP_WNDPROC, ImgProc);
+			PrevImgProc = static_cast<WNDPROC>(TView::SetWindowProp(h_img, GWLP_WNDPROC, ImgProc));
 			// @v9.5.10 @construction {
 			if(flags & SMessageWindow::fMaxImgSize && img_height > 0.0 && img_width > 0.0) {
 				const double rel = img_width / img_height;

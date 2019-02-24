@@ -5954,6 +5954,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @dealprice              "Контрактная цена"
 @primecost              "Себестоимость"
 @discount               "Скидка"
+@discountforwholelot_s  "На всю партию" // Строка используется в диалогах документов
 @marginpctg             "Процент наценки"
 @goodspricewotaxes      "Для этого товара цены без налогов"
 @amounttype             "Тип суммы"
@@ -10350,6 +10351,11 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @billfilt_dliagentname                    "@{agent}"
 @billfilt_dlidlvraddr                     "@{daddress}"
 @billfilt_ext                             "Фильтр по расширению документа" // generic
+
+@attachbill                               "Привязка документа к другому"
+@attachbill_toorder                       "К документу заказа"
+@attachbill_todraft                       "К драфт-документу"
+
 @bizscvalbytemplfilt_template             "Шаблон бизнес-показателей"
 @budgetfilt_budget                        "Бюджет"
 @budgetfilt_period                        "@{daterange}"

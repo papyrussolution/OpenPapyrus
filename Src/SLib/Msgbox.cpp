@@ -135,7 +135,8 @@ ushort messageBox(const char * pMsg, ushort aOptions)
 		MsgBoxDlgFuncParam msg_param;
 		msg_param.P_Msg = pMsg;
 		msg_param.Options = aOptions;
-		ret = APPL->DlgBoxParam((aOptions & mfLargeBox) ? DLGW_MSGBOX_L : DLGW_MSGBOX, hw_parent, (DLGPROC)MessageBoxDialogFunc, (LPARAM)&msg_param);
+		ret = APPL->DlgBoxParam((aOptions & mfLargeBox) ? DLGW_MSGBOX_L : DLGW_MSGBOX, hw_parent, 
+			reinterpret_cast<DLGPROC>(MessageBoxDialogFunc), reinterpret_cast<LPARAM>(&msg_param));
 	}
 	return ret;
 }

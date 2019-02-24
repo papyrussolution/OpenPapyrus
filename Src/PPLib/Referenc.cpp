@@ -2293,10 +2293,10 @@ int SLAPI TextRefCore::GetLastObjId(PPID objType, int prop, PPID * pID)
     PPID   id = 0;
     TextRefTbl::Key1 k1;
     MEMSZERO(k1);
-    k1.ObjType = (int16)objType;
-    k1.Prop = (int16)prop;
+    k1.ObjType = static_cast<int16>(objType);
+    k1.Prop = static_cast<int16>(prop);
     k1.ObjID = MAXLONG;
-    if(search(1, &k1, spLe) && data.ObjType == objType && data.Prop == (int16)prop) {
+    if(search(1, &k1, spLe) && data.ObjType == objType && data.Prop == static_cast<int16>(prop)) {
 		id = data.ObjID;
 		ok = 1;
     }
@@ -2313,7 +2313,7 @@ int SLAPI TextRefCore::Search(const TextRefIdent & rI, SStringU & rBuf)
 	int    ok = 1;
 	TextRefTbl::Key1 k1;
 	MEMSZERO(k1);
-	k1.ObjType = (int16)rI.O.Obj;
+	k1.ObjType = static_cast<int16>(rI.O.Obj);
 	k1.Prop = rI.P;
 	k1.ObjID = rI.O.Id;
 	k1.Lang = rI.L;
@@ -2338,7 +2338,7 @@ int SLAPI TextRefCore::SearchText(const TextRefIdent & rI, const wchar_t * pText
 	if(len) {
 		TextRefTbl::Key0 k0;
 		MEMSZERO(k0);
-		k0.ObjType = (int16)rI.O.Obj;
+		k0.ObjType = static_cast<int16>(rI.O.Obj);
 		k0.Prop = rI.P;
 		STRNSCPY(k0.Text, pText);
 		if(search(0, &k0, spGe) && data.ObjType == rI.O.Obj && data.Prop == rI.P && wcsicmp(pText, data.Text) == 0) do {
@@ -2364,7 +2364,7 @@ int SLAPI TextRefCore::SearchTextByPrefix(const TextRefIdent & rI, const wchar_t
 	if(len) {
 		TextRefTbl::Key0 k0;
 		MEMSZERO(k0);
-		k0.ObjType = (int16)rI.O.Obj;
+		k0.ObjType = static_cast<int16>(rI.O.Obj);
 		k0.Prop = rI.P;
 		STRNSCPY(k0.Text, pPrefix);
 		if(search(0, &k0, spGe) && data.ObjType == rI.O.Obj && data.Prop == rI.P && wcsnicmp(pPrefix, data.Text, len) == 0) do {
@@ -2435,7 +2435,7 @@ int SLAPI TextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText, i
 		else {
 			TextRefTbl::Rec rec;
 			MEMSZERO(rec);
-			rec.ObjType = (int16)rI.O.Obj;
+			rec.ObjType = static_cast<int16>(rI.O.Obj);
 			rec.ObjID = rI.O.Id;
 			rec.Prop = rI.P;
 			rec.Lang = rI.L;
@@ -2505,7 +2505,7 @@ int SLAPI UnxTextRefCore::Search(const TextRefIdent & rI, SStringU & rBuf)
 	else {
 		UnxTextRefTbl::Key0 k0;
 		MEMSZERO(k0);
-		k0.ObjType = (int16)rI.O.Obj;
+		k0.ObjType = static_cast<int16>(rI.O.Obj);
 		k0.Prop = rI.P;
 		k0.ObjID = rI.O.Id;
 		k0.Lang = rI.L;
@@ -2530,7 +2530,7 @@ int SLAPI UnxTextRefCore::Search(const TextRefIdent & rI, STimeSeries & rTs)
 	else {
 		UnxTextRefTbl::Key0 k0;
 		MEMSZERO(k0);
-		k0.ObjType = (int16)rI.O.Obj;
+		k0.ObjType = static_cast<int16>(rI.O.Obj);
 		k0.Prop = prop;
 		k0.ObjID = rI.O.Id;
 		k0.Lang = rI.L;
@@ -2581,7 +2581,7 @@ int SLAPI UnxTextRefCore::SetText(const TextRefIdent & rI, const char * pText, i
 		ok = SetText(rI, temp_buf, use_ta);
 	}
 	else
-		ok = SetText(rI, (const wchar_t *)0, use_ta);
+		ok = SetText(rI, static_cast<const wchar_t *>(0), use_ta);
 	return ok;
 }
 
@@ -2621,7 +2621,7 @@ int SLAPI UnxTextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText
 				THROW_DB(rereadForUpdate(0, 0)); // @v9.0.5 @fix index 1-->0
 				{
 					assert(tl); // Ранее мы проверили длину текста на 0
-					THROW(writeLobData(VT, (const char *)utf_buf, tl));
+					THROW(writeLobData(VT, utf_buf.cptr(), tl));
 					data.Size = (long)tl;
 				}
 				THROW_DB(updateRec()); // @sfu
@@ -2633,13 +2633,13 @@ int SLAPI UnxTextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText
 		}
 		else {
 			MEMSZERO(data);
-			data.ObjType = (int16)rI.O.Obj;
+			data.ObjType = static_cast<int16>(rI.O.Obj);
 			data.ObjID = rI.O.Id;
 			data.Prop = rI.P;
 			data.Lang = rI.L;
 			{
 				assert(tl); // Ранее мы проверили длину текста на 0
-				THROW(writeLobData(VT, (const char *)utf_buf, tl));
+				THROW(writeLobData(VT, utf_buf.cptr(), tl));
 				data.Size = (long)tl;
 			}
 			THROW_DB(insertRec());
@@ -2705,7 +2705,7 @@ int SLAPI UnxTextRefCore::SetTimeSeries(const TextRefIdent & rI, STimeSeries * p
 		}
 		else {
 			MEMSZERO(data);
-			data.ObjType = (int16)rI.O.Obj;
+			data.ObjType = static_cast<int16>(rI.O.Obj);
 			data.ObjID = rI.O.Id;
 			data.Prop = rI.P;
 			data.Lang = rI.L;
@@ -2756,7 +2756,7 @@ int SLAPI UnxTextRefCore::InitEnum(PPID objType, int prop, long * pHandle)
 		q->where(this->ObjType == objType);
 	UnxTextRefTbl::Key0 k0;
 	MEMSZERO(k0);
-	k0.ObjType = (int16)objType;
+	k0.ObjType = static_cast<int16>(objType);
 	q->initIteration(0, &k0, spGe);
 	return EnumList.RegisterIterHandler(q, pHandle);
 }

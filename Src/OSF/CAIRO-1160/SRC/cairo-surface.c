@@ -1392,19 +1392,15 @@ cairo_status_t _cairo_surface_copy_mime_data(cairo_surface_t * dst, cairo_surfac
  * If @options is %NULL the surface options are reset to those of
  * the backend default.
  **/
-void _cairo_surface_set_font_options(cairo_surface_t * surface,
-    cairo_font_options_t * options)
+void _cairo_surface_set_font_options(cairo_surface_t * surface, const cairo_font_options_t * options)
 {
 	if(surface->status)
 		return;
-
 	assert(surface->snapshot_of == NULL);
-
 	if(surface->finished) {
 		_cairo_surface_set_error(surface, _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 		return;
 	}
-
 	if(options) {
 		surface->has_font_options = TRUE;
 		_cairo_font_options_init_copy(&surface->font_options, options);

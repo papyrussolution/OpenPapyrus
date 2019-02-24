@@ -2855,7 +2855,7 @@ int SLAPI EditPriceListConfig()
 	SetupPPObjCombo(dlg, CTLSEL_PLISTCFG_P2Q, PPOBJ_QUOTKIND, cfg.AddPriceQuot[1], 0, 0);
 	SetupPPObjCombo(dlg, CTLSEL_PLISTCFG_P3Q, PPOBJ_QUOTKIND, cfg.AddPriceQuot[2], 0, 0);
 	SetupPPObjCombo(dlg, CTLSEL_PLISTCFG_GGRP, PPOBJ_GOODSGROUP, cfg.GoodsGrpID, OLW_CANSELUPLEVEL, 0);
-	if((p_cb = (ComboBox*)dlg->getCtrlView(CTLSEL_PLISTCFG_EXTFLD)) != 0) {
+	if((p_cb = static_cast<ComboBox *>(dlg->getCtrlView(CTLSEL_PLISTCFG_EXTFLD))) != 0) {
 		int    idx = 0, fld_list[12];
 		SString goods_ex_titles, item_buf;
 		PPObjGoods::ReadGoodsExTitles(0, goods_ex_titles);
@@ -2945,9 +2945,9 @@ int PPALDD_PriceListData::InitData(PPFilt & rFilt, long rsrv)
 
 int PPALDD_PriceListData::InitIteration(PPIterID iterId, int sortId, long)
 {
-	INIT_PPVIEW_ALDD_ITER_ORD(PriceList, (PPViewPriceList::IterOrder)sortId);
+	INIT_PPVIEW_ALDD_ITER_ORD(PriceList, static_cast<PPViewPriceList::IterOrder>(sortId));
 	/*
-	PPViewPriceList * p_plv = (PPViewPriceList*)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	PPViewPriceList * p_plv = static_cast<PPViewPriceList *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;

@@ -270,7 +270,7 @@ static int pkey_ec_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 		    dctx->kdf_outlen = (size_t)p1;
 		    return 1;
 		case EVP_PKEY_CTRL_GET_EC_KDF_OUTLEN:
-		    *(int*)p2 = dctx->kdf_outlen;
+		    *(int *)p2 = dctx->kdf_outlen;
 		    return 1;
 		case EVP_PKEY_CTRL_EC_KDF_UKM:
 		    OPENSSL_free(dctx->kdf_ukm);

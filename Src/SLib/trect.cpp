@@ -104,14 +104,14 @@ TPoint FASTCALL TPoint::operator = (TPoint p)
 
 TPoint FASTCALL TPoint::operator = (int v)
 {
-	x = y = (int16)v;
+	x = y = static_cast<int16>(v);
 	return *this;
 }
 
 TPoint FASTCALL TPoint::operator = (POINT p)
 {
-	x = (int16)p.x;
-	y = (int16)p.y;
+	x = static_cast<int16>(p.x);
+	y = static_cast<int16>(p.y);
 	return *this;
 }
 
@@ -1642,8 +1642,8 @@ COLORREF FASTCALL DarkenColor(COLORREF col, float factor)
 //
 void UiCoord::Set(int v, int f)
 {
-	Val = (int16)v;
-	Flags = (int16)f;
+	Val = static_cast<int16>(v);
+	Flags = static_cast<int16>(f);
 }
 
 void UiCoord::Reset()

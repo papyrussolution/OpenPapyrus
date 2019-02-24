@@ -602,7 +602,7 @@ int FASTCALL AddObjRecByID(DBTable * tbl, PPID objType, PPID * pID, void * b, in
 	return ok;
 }
 
-int FASTCALL UpdateByID(DBTable * pTbl, PPID objType, PPID id, void * b, int use_ta)
+int FASTCALL UpdateByID(DBTable * pTbl, PPID objType, PPID id, const void * b, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -623,7 +623,7 @@ int FASTCALL UpdateByID_Cmp(DBTable * pTbl, PPID objType, PPID id, void * b, int
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(SearchByID_ForUpdate(pTbl, objType, id, 0) > 0);
-		if(!pTbl->GetFields().IsEqualRecords(b, pTbl->getDataBuf())) {
+		if(!pTbl->GetFields().IsEqualRecords(b, pTbl->getDataBufConst())) {
 			THROW_DB(pTbl->updateRecBuf(b)); // @sfu
 		}
 		else
@@ -1813,7 +1813,7 @@ void FASTCALL DbqStringSubst::Init(uint strID)
 char ** FASTCALL DbqStringSubst::Get(uint strID)
 {
 	Init(strID);
-	return (char **)P_Items;
+	return reinterpret_cast<char **>(P_Items);
 }
 //
 //
@@ -1835,7 +1835,8 @@ int SLAPI ShrinkSubstDateExt(SubstGrpDate sgd, LDATE orgDt, LTIME orgTm, LDATE *
 {
 	int    ok = 1;
 	if(sgd == sgdHour) {
-		int    h = orgTm.hour(), m = orgTm.minut();
+		int    h = orgTm.hour();
+		int    m = orgTm.minut();
 		LTIME tm;
 		if(m < 15) m = 0;
 		else if(m < 30)	m = 15;

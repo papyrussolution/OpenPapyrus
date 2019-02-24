@@ -3485,7 +3485,7 @@ public:
 	int    FASTCALL IsEqual(const char * pS) const;
 	int    FASTCALL IsEqNC(const SString & rS) const;
 	int    FASTCALL IsEqNC(const char * pS) const;
-	int    FASTCALL IsEqiAscii(const char * pS) const;
+	bool   FASTCALL IsEqiAscii(const char * pS) const;
 	operator const char * () const { return P_Buf; }
 	//
 	// Descr: Специализированное преобразование, сделанное главным образом ради (xmlChar *).
@@ -9864,7 +9864,7 @@ private:
 	double * P_Vals; // Column(0), Column(1), .., Column(NumCols-1)
 };
 
-void   lubksb(LMatrix & a, LMIDX indx[/*b.size()*/], LVect & b);
+void   lubksb(LMatrix & a, const LMIDX indx[/*b.size()*/], LVect & b);
 int    ludcmp(LMatrix & a, LMIDX indx[/*a.rows()*/], int & d);
 void   SLAPI print(const LVect &, FILE *, long fmt);
 void   SLAPI print(const LMatrix &, FILE *, long fmt);
@@ -10343,6 +10343,7 @@ public:
 	};
 
 	static SRng * CreateInstance(Algorithm alg, uint level);
+	virtual ~SRng();
 	virtual void   Set(ulong seed) = 0;
 	virtual ulong  Get() = 0;
 	virtual double GetReal() = 0;
@@ -10356,7 +10357,7 @@ public:
 	ulong  GetMax() const;
 	double GetGaussian(double sigma);
 	double GetGaussianZiggurat(double sigma);
-	double GetGaussianPdf(double x, double sigma);
+	double GetGaussianPdf(double x, double sigma) const;
 	ulong  GetBinomial(double p, ulong n);
 	ulong  GetPoisson(double mu);
 	double GetPoissonPdf(ulong k);
@@ -10364,12 +10365,12 @@ public:
 	double GetGammaInt(uint a);
 	double GetGammaPdf(double x, double a, double b);
 protected:
-	SRng(int alg, uint level);
+	SRng(int alg, uint level, ulong rndMin, ulong rndMax);
 
-	int    Alg;
-	uint   Level;
-	ulong  RandMin;
-	ulong  RandMax;
+	const int    Alg;
+	const uint   Level;
+	const ulong  RandMin;
+	const ulong  RandMax;
 private:
 	double GetGammaKnuth(double a, double b);
 	double GetGammaFrac(double a);

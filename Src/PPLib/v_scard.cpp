@@ -221,9 +221,8 @@ int SLAPI SCardFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 		SString Number;
 	};
 	struct SCardFilt_v2 : public PPBaseFilt {
-		SLAPI  SCardFilt_v2() : PPBaseFilt(PPFILT_SCARD, 0, 2)
+		SLAPI  SCardFilt_v2() : PPBaseFilt(PPFILT_SCARD, 0, 2), P_SjF(0)
 		{
-			P_SjF = 0;
 			SetFlatChunk(offsetof(SCardFilt, ReserveStart),
 				offsetof(SCardFilt, Reserve) - offsetof(SCardFilt, ReserveStart) + sizeof(Reserve));
 			SetBranchSString(offsetof(SCardFilt, Number));
@@ -3141,21 +3140,21 @@ PPALDD_DESTRUCTOR(SCardSerView) { Destroy(); }
 
 int PPALDD_SCardSerView::InitData(PPFilt & rFilt, long rsrv)
 {
-	Extra[1].Ptr = (SCardSeriesView *)rFilt.Ptr;
+	Extra[1].Ptr = static_cast<SCardSeriesView *>(rFilt.Ptr);
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
 int PPALDD_SCardSerView::InitIteration(PPIterID iterId, int /*sortId*/, long /*rsrv*/)
 {
 	IterProlog(iterId, 1);
-	PPObjSCardSeriesListWindow * p_v = (PPObjSCardSeriesListWindow *)Extra[1].Ptr;
+	PPObjSCardSeriesListWindow * p_v = static_cast<PPObjSCardSeriesListWindow *>(Extra[1].Ptr);
 	return BIN(p_v && p_v->InitIteration());
 }
 
 int PPALDD_SCardSerView::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
-	PPObjSCardSeriesListWindow * p_v = (PPObjSCardSeriesListWindow *)Extra[1].Ptr;
+	PPObjSCardSeriesListWindow * p_v = static_cast<PPObjSCardSeriesListWindow *>(Extra[1].Ptr);
 	PPSCardSeries rec;
 	if(p_v && p_v->NextIteration(&rec) > 0) {
 		STRNSCPY(I.Name, rec.Name);

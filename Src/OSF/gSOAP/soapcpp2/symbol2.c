@@ -9706,15 +9706,21 @@ void soap_put(Tnode * typ)
 			else
 				fprintf(fout, "soap_embed(soap, (void*)this, (struct soap_array*)&this->%s, 1, tag, %s);", ident(p->sym->name), soap_type(typ));
 		}
-		else if(d)
-			fprintf(fout, "soap_embed(soap, (void*)a, (struct soap_array*)&a->%s, %d, tag, %s);", ident(p->sym->name), d, soap_type(typ));
-		else
-			fprintf(fout, "soap_embed(soap, (void*)a, (struct soap_array*)&a->%s, 1, tag, %s);", ident(p->sym->name), soap_type(typ));
+		else if(d) {
+			//fprintf(fout, "soap_embed(soap, (void*)a, (struct soap_array*)&a->%s, %d, tag, %s);", ident(p->sym->name), d, soap_type(typ));
+			fprintf(fout, "soap_embed(soap, a, (struct soap_array*)&a->%s, %d, tag, %s);", ident(p->sym->name), d, soap_type(typ));
+		}
+		else {
+			//fprintf(fout, "soap_embed(soap, (void*)a, (struct soap_array*)&a->%s, 1, tag, %s);", ident(p->sym->name), soap_type(typ));
+			fprintf(fout, "soap_embed(soap, a, (struct soap_array*)&a->%s, 1, tag, %s);", ident(p->sym->name), soap_type(typ));
+		}
 	}
 	else if(typ->type == Tclass && !is_external(typ) && !is_volatile(typ) && !is_typedef(typ))
 		fprintf(fout, "soap_embed(soap, (void*)this, NULL, 0, tag, %s);", soap_type(typ));
-	else
-		fprintf(fout, "soap_embed(soap, (void*)a, NULL, 0, tag, %s);", soap_type(typ));
+	else {
+		//fprintf(fout, "soap_embed(soap, (void*)a, NULL, 0, tag, %s);", soap_type(typ));
+		fprintf(fout, "soap_embed(soap, a, NULL, 0, tag, %s);", soap_type(typ));
+	}
 	//
 	/*
 	if(typ->type == Tclass && !is_external(typ) && !is_volatile(typ) && !is_typedef(typ))

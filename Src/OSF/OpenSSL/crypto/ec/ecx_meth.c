@@ -265,7 +265,7 @@ static int ecx_ctrl(EVP_PKEY * pkey, int op, long arg1, void * arg2)
 		    }
 		    return 0;
 		case ASN1_PKEY_CTRL_DEFAULT_MD_NID:
-		    *(int*)arg2 = NID_sha256;
+		    *static_cast<int *>(arg2) = NID_sha256;
 		    return 2;
 		default:
 		    return -2;

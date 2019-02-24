@@ -1265,7 +1265,7 @@ int PPALDD_OpGrouping::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 int PPALDD_OpGrouping::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
-	PPViewOpGrouping * p_v = (PPViewOpGrouping *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	PPViewOpGrouping * p_v = static_cast<PPViewOpGrouping *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	OpGroupingViewItem item;
 	while(I.RecNo || p_v->NextIteration(&item) > 0) {
 		const OpGroupingFilt * p_filt = (const OpGroupingFilt *)p_v->GetBaseFilt();

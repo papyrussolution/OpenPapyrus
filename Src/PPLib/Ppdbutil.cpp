@@ -844,7 +844,7 @@ int SLAPI PrcssrDbDump::EditParam(Param * pData)
 			}
 			else if(mode == 0) {
 				getCtrlString(CTL_DBDUMP_FILE, Data.FileName);
-				ComboBox * cb = (ComboBox*)getCtrlView(CTLSEL_DBDUMP_TBL);
+				ComboBox * cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_DBDUMP_TBL));
 				if(cb && Data.FileName.NotEmptyS() && fileExists(Data.FileName)) {
 					PrcssrDbDump dump(P_Dbes);
 					StrAssocArray * p_tbl_list = new StrAssocArray;
@@ -1040,7 +1040,7 @@ int SLAPI PrcssrDbDump::Helper_Undump(long tblID)
 	THROW(P.Mode == 0);
 	if(P.SpcOb == spcobNone) {
 		if(TblEntryList.lsearch(&tblID, &pos, PTR_CMPFUNC(long))) {
-			const TableEntry & r_entry = *(TableEntry *)TblEntryList.at(pos);
+			const TableEntry & r_entry = *static_cast<const TableEntry *>(TblEntryList.at(pos));
 			SString tbl_name;
 			TblNameList.GetText(tblID, tbl_name);
 			THROW_SL(FDump.Seek64(r_entry.Offs));
@@ -1069,7 +1069,7 @@ int SLAPI PrcssrDbDump::Helper_Undump(long tblID)
 							tbl.clearDataBuf();
 							THROW_SL(Ctx.Unserialize(tbl.GetTableName(), &tbl.GetFields(), tbl.getDataBuf(), buffer));
 							if(has_lob) {
-								const SLob * p_lob = (SLob *)lob_fld.getValuePtr();
+								const SLob * p_lob = static_cast<const SLob *>(lob_fld.getValuePtr());
 								tbl.setLobSize(lob_fld, p_lob ? p_lob->GetPtrSize() : 0);
 							}
 							THROW_DB(tbl.insertRec());
@@ -1624,7 +1624,7 @@ IMPL_HANDLE_EVENT(BackupDialog)
 
 void BackupDialog::setupScenCombo()
 {
-	ComboBox * p_cb = (ComboBox*)getCtrlView(CTLSEL_BU_BACKUP_SCEN);
+	ComboBox * p_cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_BU_BACKUP_SCEN));
 	if(p_cb) {
 		PPBackupScen scen;
 		ListWindow * p_lw = CreateListWindow(40, lbtDisposeData);

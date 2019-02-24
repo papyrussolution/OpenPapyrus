@@ -428,7 +428,8 @@ void SmartListBox::CreateScrollBar(int create)
 		sc_lu.x = rc_list.right;
 		sc_lu.y = rc_list.top;
 		::MapWindowPoints(NULL, Parent, &sc_lu, 1);
-		h_wnd = ::CreateWindow(_T("SCROLLBAR"), "", WS_CHILD|SBS_LEFTALIGN|SBS_VERT, sc_lu.x, sc_lu.y, sc_width, sc_height, Parent, (HMENU)MAKE_BUTTON_ID(Id, 1), TProgram::GetInst(), 0); // @unicodeproblem
+		h_wnd = ::CreateWindow(_T("SCROLLBAR"), "", WS_CHILD|SBS_LEFTALIGN|SBS_VERT, sc_lu.x, sc_lu.y, sc_width, sc_height, Parent, 
+			reinterpret_cast<HMENU>(MAKE_BUTTON_ID(Id, 1)), TProgram::GetInst(), 0); // @unicodeproblem
 		::ShowWindow(h_wnd, SW_SHOWNORMAL);
 	}
 }
@@ -516,8 +517,7 @@ void SmartListBox::onInitDialog(int useScrollBar)
 	}
 	State |= stInited;
 	Draw_();
-	//PrevWindowProc = (WNDPROC)SetWindowLong(h_lb, GWLP_WNDPROC, dlg_proc);
-	PrevWindowProc = (WNDPROC)TView::SetWindowProp(h_lb, GWLP_WNDPROC, dlg_proc);
+	PrevWindowProc = static_cast<WNDPROC>(TView::SetWindowProp(h_lb, GWLP_WNDPROC, dlg_proc));
 	TView::SetWindowUserData(h_lb, this);
 }
 
@@ -891,7 +891,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					case TVN_SELCHANGED:
 						{
 							LPNMTREEVIEW pnmtv = (LPNMTREEVIEW) lParam;
-							((StdTreeListBoxDef*)def)->GoByID(pnmtv->itemNew.lParam);
+							static_cast<StdTreeListBoxDef *>(def)->GoByID(pnmtv->itemNew.lParam);
 							if(def->Options & lbtFocNotify)
 								MessageCommandToOwner(cmLBItemFocused);
 							if(State & stLButtonDown) {
@@ -915,7 +915,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 							t_item.mask = TVIF_PARAM;
 							t_item.hItem = TreeView_HitTest(h_tlist, &ht);
 							TreeView_GetItem(h_tlist, &t_item);
-							((StdTreeListBoxDef*)def)->GoByID(t_item.lParam);
+							static_cast<StdTreeListBoxDef *>(def)->GoByID(t_item.lParam);
 							SelectTreeItem();
 							MessageCommandToOwner((p_nm->code == NM_RCLICK) ? cmRightClick : cmLBDblClk);
 						}
@@ -1206,7 +1206,7 @@ int UiSearchTextBlock::ExecDialog(HWND hWnd, uint ctlId, SString & rText, int is
 		char   text[512];
 		rText.CopyTo(text, sizeof(text));
 		UiSearchTextBlock sd(hWnd, ctlId, text, (isFirstLetter ? text[0] : 0), pBlk, linkToList);
-		r = APPL->DlgBoxParam(MAKE_BUTTON_ID(0,1)-2, hWnd, (DLGPROC)UiSearchTextBlock::DialogProc, reinterpret_cast<LPARAM>(&sd));
+		r = APPL->DlgBoxParam(MAKE_BUTTON_ID(0,1)-2, hWnd, reinterpret_cast<DLGPROC>(UiSearchTextBlock::DialogProc), reinterpret_cast<LPARAM>(&sd));
 		rText = sd.Text;
 	}
 	return r;
@@ -1215,7 +1215,7 @@ int UiSearchTextBlock::ExecDialog(HWND hWnd, uint ctlId, SString & rText, int is
 // static
 LRESULT CALLBACK UiSearchTextBlock::InputCtlProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	UiSearchTextBlock * p_slb = (UiSearchTextBlock *)TView::GetWindowUserData(hWnd);
+	UiSearchTextBlock * p_slb = static_cast<UiSearchTextBlock *>(TView::GetWindowUserData(hWnd));
 	switch(uMsg) {
 		case WM_KEYDOWN:
 			::SendMessage(GetParent(hWnd), uMsg, wParam, lParam);
@@ -1232,7 +1232,7 @@ BOOL CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
 		case WM_INITDIALOG:
 			{
 				TView::SetWindowUserData(hwndDlg, (void *)lParam);
-				UiSearchTextBlock * p_slb = (UiSearchTextBlock *)lParam;
+				UiSearchTextBlock * p_slb = reinterpret_cast<UiSearchTextBlock *>(lParam);
 				int    is_browser = 0;
 				RECT   parent, chld;
 				GetWindowRect(hwndDlg, &chld);
@@ -1265,13 +1265,13 @@ BOOL CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
 					p_slb->P_WordSel = new WordSelector(p_slb->P_WordSelBlk);
 					HWND h_ctl = GetDlgItem(hwndDlg, CTL_LBX_LIST);
 					TView::SetWindowUserData(h_ctl, p_slb);
-					p_slb->PrevInputCtlProc = (WNDPROC)TView::SetWindowProp(h_ctl, GWLP_WNDPROC, UiSearchTextBlock::InputCtlProc);
+					p_slb->PrevInputCtlProc = static_cast<WNDPROC>(TView::SetWindowProp(h_ctl, GWLP_WNDPROC, UiSearchTextBlock::InputCtlProc));
 				}
 			}
 			return 1;
 		case WM_SHOWWINDOW:
 			if(wParam == 1) {
-				UiSearchTextBlock * p_slb = (UiSearchTextBlock *)TView::GetWindowUserData(hwndDlg);
+				UiSearchTextBlock * p_slb = static_cast<UiSearchTextBlock *>(TView::GetWindowUserData(hwndDlg));
 				if(p_slb && p_slb->P_WordSel) {
 					// @v9.1.5 SendDlgItemMessage(hwndDlg, CTL_LBX_LIST, WM_GETTEXT, UISEARCHTEXTBLOCK_MAXLEN, (long)p_slb->P_Text);
 					// @v9.1.5 SCharToOem(p_slb->P_Text);
@@ -1283,14 +1283,14 @@ BOOL CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
 			break;
 		case WM_DESTROY:
 			{
-				UiSearchTextBlock * p_slb = (UiSearchTextBlock *)TView::GetWindowUserData(hwndDlg);
+				UiSearchTextBlock * p_slb = static_cast<UiSearchTextBlock *>(TView::GetWindowUserData(hwndDlg));
 				//SetWindowLong(GetDlgItem(hwndDlg, CTL_LBX_LIST), GWLP_WNDPROC, (long)p_slb->PrevInputCtlProc);
 				TView::SetWindowProp(GetDlgItem(hwndDlg, CTL_LBX_LIST), GWLP_WNDPROC, p_slb->PrevInputCtlProc);
 			}
 			break;
 		case WM_COMMAND:
 			if(HIWORD(wParam) == BN_CLICKED) {
-				UiSearchTextBlock * p_slb = (UiSearchTextBlock *)TView::GetWindowUserData(hwndDlg);
+				UiSearchTextBlock * p_slb = static_cast<UiSearchTextBlock *>(TView::GetWindowUserData(hwndDlg));
 				if(p_slb) {
 					// @v9.1.5 SendDlgItemMessage(hwndDlg, CTL_LBX_LIST, WM_GETTEXT, UISEARCHTEXTBLOCK_MAXLEN, (long)p_slb->P_Text);
 					// @v9.1.5 SCharToOem(p_slb->P_Text);
@@ -1303,7 +1303,7 @@ BOOL CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
 				EndDialog(hwndDlg, (LOWORD(wParam) == IDOK) ? cmOK : cmCancel);
 			}
 			else if(HIWORD(wParam) == EN_SETFOCUS) {
-				UiSearchTextBlock * p_slb = (UiSearchTextBlock *)TView::GetWindowUserData(hwndDlg);
+				UiSearchTextBlock * p_slb = static_cast<UiSearchTextBlock *>(TView::GetWindowUserData(hwndDlg));
 				int wordsel_visible = (p_slb->P_WordSel) ? p_slb->P_WordSel->CheckVisible() : 0;
 				if(!wordsel_visible) {
 					SendDlgItemMessage(hwndDlg, CTL_LBX_LIST, WM_KEYDOWN, VK_END, 1);
@@ -1336,7 +1336,7 @@ BOOL CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
 				}
 			}
 			else if(HIWORD(wParam) == EN_KILLFOCUS) {
-				UiSearchTextBlock * p_slb = (UiSearchTextBlock *)TView::GetWindowUserData(hwndDlg);
+				UiSearchTextBlock * p_slb = static_cast<UiSearchTextBlock *>(TView::GetWindowUserData(hwndDlg));
 				int wordsel_visible = (p_slb->P_WordSel) ? p_slb->P_WordSel->CheckVisible() : 0;
 				int send_cancel = BIN(!p_slb->IsBnClicked && !wordsel_visible);
 				if(send_cancel || p_slb->LinkToList) {
@@ -1349,7 +1349,7 @@ BOOL CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
 				}
 			}
 			if(HIWORD(wParam) == EN_CHANGE) {
-				UiSearchTextBlock * p_slb = (UiSearchTextBlock *)TView::GetWindowUserData(hwndDlg);
+				UiSearchTextBlock * p_slb = static_cast<UiSearchTextBlock *>(TView::GetWindowUserData(hwndDlg));
 				if(p_slb->P_WordSel) {
 					long   id = 0;
 					SString result_text;
@@ -1369,7 +1369,7 @@ BOOL CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
 			return 0;
 		case WM_KEYDOWN:
 			{
-				UiSearchTextBlock * p_slb = (UiSearchTextBlock *)TView::GetWindowUserData(hwndDlg);
+				UiSearchTextBlock * p_slb = static_cast<UiSearchTextBlock *>(TView::GetWindowUserData(hwndDlg));
 				if(p_slb->P_WordSel && p_slb->P_WordSel->CheckVisible()) {
 					long key = wParam;
 					if(key == VK_DOWN) {

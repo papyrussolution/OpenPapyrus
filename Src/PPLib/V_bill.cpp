@@ -148,13 +148,11 @@ int SLAPI BillFilt::Describe(long flags, SString & rBuf) const
 	PutObjMembToBuf(PPOBJ_BILL,        PoolBillID, STRINGIZE(PoolOpID),    rBuf);
 	PutObjMembToBuf(PPOBJ_CURRENCY,    CurID,      STRINGIZE(CurID),       rBuf);
 	PutObjMembToBuf(PPOBJ_STATUS,      StatusID,   STRINGIZE(StatusID),    rBuf);
-
 	PutMembToBuf(&Period,              STRINGIZE(Period),     rBuf);
 	PutMembToBuf(&PaymPeriod,          STRINGIZE(PaymPeriod), rBuf);
 	PutMembToBuf(&DuePeriod,           STRINGIZE(DuePeriod),  rBuf);
-	PutMembToBuf((long)Ft_STax,        STRINGIZE(Ft_STax),   rBuf);
-	PutMembToBuf((long)Ft_ClosedOrder, STRINGIZE(Ft_ClosedOrder),       rBuf);
-
+	PutMembToBuf(static_cast<long>(Ft_STax),        STRINGIZE(Ft_STax),   rBuf);
+	PutMembToBuf(static_cast<long>(Ft_ClosedOrder), STRINGIZE(Ft_ClosedOrder),       rBuf);
 	if(DenyFlags & fDenyAdd)
 		flag_list.Add(id++, STRINGIZE(fDenyAdd));
 	if(DenyFlags & fDenyUpdate)
@@ -162,7 +160,6 @@ int SLAPI BillFilt::Describe(long flags, SString & rBuf) const
 	if(DenyFlags & fDenyRemove)
 		flag_list.Add(id++, STRINGIZE(fDenyAdd));
 	PutFlagsMembToBuf(&flag_list, STRINGIZE(DenyFlags), rBuf);
-
 	if(ClientCardMode == ccmDebts)
 		PutMembToBuf(STRINGIZE(ccmDebts),     STRINGIZE(ClientCardMode), rBuf);
 	else if(ClientCardMode == ccmRPayments)
@@ -629,7 +626,7 @@ int BillFiltDialog::setDTS(const BillFilt * pFilt)
 		AddClusterAssoc(CTL_BILLFLT_ORDER, 0, BillFilt::ordByDate);
 		AddClusterAssoc(CTL_BILLFLT_ORDER, 1, BillFilt::ordByCode);
 		AddClusterAssoc(CTL_BILLFLT_ORDER, 2, BillFilt::ordByObject);
-		SetClusterData(CTL_BILLFLT_ORDER, (long)Data.SortOrder);
+		SetClusterData(CTL_BILLFLT_ORDER, static_cast<long>(Data.SortOrder));
 	}
 	return 1;
 }
@@ -839,8 +836,8 @@ int SLAPI PPViewBill::EditBaseFilt(PPBaseFilt * pFilt)
 	PPID   single_op_id = 0;
 	PPIDArray op_list;
 	uint   rez_id = DLG_BILLFLT;
-	BrowseBillsType bbt = (pFilt) ? ((BillFilt*)pFilt)->Bbt : bbtUndef;
-	BillFilt * p_filt = (BillFilt*)pFilt;
+	BrowseBillsType bbt = (pFilt) ? static_cast<const BillFilt *>(pFilt)->Bbt : bbtUndef;
+	BillFilt * p_filt = static_cast<BillFilt *>(pFilt);
 	if(oneof3(bbt, bbtOrderBills, bbtInventoryBills, bbtPoolBills)) {
 		uint f;
 		if(bbt == bbtOrderBills) {
@@ -915,9 +912,9 @@ int SLAPI PPViewBill::EditBaseFilt(PPBaseFilt * pFilt)
 PPBaseFilt * SLAPI PPViewBill::CreateFilt(void * extraPtr) const
 {
 	BillFilt * p_filt = 0;
-	if(PPView::CreateFiltInstance(PPFILT_BILL, (PPBaseFilt**)&p_filt)) {
+	if(PPView::CreateFiltInstance(PPFILT_BILL, reinterpret_cast<PPBaseFilt **>(&p_filt))) {
 		const PPConfig & r_cfg = LConfig;
-		BillFilt::FiltExtraParam * p = extraPtr ? (BillFilt::FiltExtraParam *)extraPtr : 0;
+		BillFilt::FiltExtraParam * p = extraPtr ? static_cast<BillFilt::FiltExtraParam *>(extraPtr) : 0;
 		if(p && p->SetupValues) {
 			p_filt->Period.SetDate(r_cfg.OperDate);
 			p_filt->LocList.Add(r_cfg.Location);
@@ -942,7 +939,7 @@ PPBaseFilt * SLAPI PPViewBill::CreateFilt(void * extraPtr) const
 	}
 	else
 		PPSetError(PPERR_BASEFILTUNSUPPORTED);
-	return (PPBaseFilt*)p_filt;
+	return static_cast<PPBaseFilt *>(p_filt);
 }
 
 int SLAPI PPViewBill::IsTempTblNeeded() const
@@ -1092,14 +1089,14 @@ int FASTCALL PPViewBill::CheckFlagsForFilt(const BillTbl::Rec * pRec) const
 			THROW(recadv_status == 0);
 		}
 		else
-			THROW(recadv_status == (int)Filt.EdiRecadvStatus);
+			THROW(recadv_status == static_cast<int>(Filt.EdiRecadvStatus));
     }
     if(Filt.EdiRecadvConfStatus) {
 		const int recadv_conf_status = pRec ? BillCore::GetRecadvConfStatus(*pRec) : 0;
 		if(Filt.EdiRecadvConfStatus == -1) {
 			THROW(recadv_conf_status == 0);
 		}
-		THROW(recadv_conf_status == (int)Filt.EdiRecadvConfStatus);
+		THROW(recadv_conf_status == static_cast<int>(Filt.EdiRecadvConfStatus));
     }
 	// } @v9.1.6
 	CATCHZOK
@@ -1205,7 +1202,7 @@ int SLAPI PPViewBill::InitOrderRec(IterOrder ord, const BillTbl::Rec * pBillRec,
 	return ok;
 }
 
-void SLAPI PPViewBill::InitTempRec(BillTbl::Rec * pBillRec, TempBillTbl::Rec * pTmpRec)
+void SLAPI PPViewBill::InitTempRec(const BillTbl::Rec * pBillRec, TempBillTbl::Rec * pTmpRec)
 {
 	memzero(pTmpRec, sizeof(TempBillTbl::Rec));
 	pTmpRec->BillID  = pBillRec->ID;
@@ -1235,7 +1232,7 @@ int SLAPI PPViewBill::CalcDebtCardInSaldo(double * pSaldo)
 	return 1;
 }
 
-int SLAPI PPViewBill::EnumerateDebtCard(BillViewEnumProc proc, long param)
+int SLAPI PPViewBill::EnumerateDebtCard(BillViewEnumProc proc, void * pExtraPtr)
 {
 	int    ok = 1, r;
 	uint   i;
@@ -1289,7 +1286,7 @@ int SLAPI PPViewBill::EnumerateDebtCard(BillViewEnumProc proc, long param)
 					item.Debit  = BR2(item.Amount);
 					item.Credit = 0;
 					item.Saldo  = 0;
-					THROW(r = proc(&item, param));
+					THROW(r = proc(&item, pExtraPtr));
 					if(r < 0)
 						return -1;
 				}
@@ -1306,7 +1303,7 @@ int SLAPI PPViewBill::EnumerateDebtCard(BillViewEnumProc proc, long param)
 				item.Debit  = 0;
 				item.Credit = BR2(item.Amount);
 				item.Saldo  = 0;
-				THROW(r = proc(&item, param));
+				THROW(r = proc(&item, pExtraPtr));
 				lookup_list.add(bill_rec.ID);
 				if(r < 0)
 					return -1;
@@ -1322,7 +1319,7 @@ int SLAPI PPViewBill::EnumerateDebtCard(BillViewEnumProc proc, long param)
 						item.Debit  = 0;
 						item.Credit = BR2(item.Amount);
 						item.Saldo  = 0;
-						THROW(r = proc(&item, param));
+						THROW(r = proc(&item, pExtraPtr));
 						lookup_list.add(bill_rec.ID);
 						if(r < 0)
 							return -1;
@@ -1334,7 +1331,7 @@ int SLAPI PPViewBill::EnumerateDebtCard(BillViewEnumProc proc, long param)
 	return ok;
 }
 
-int SLAPI PPViewBill::Helper_EnumProc(PPID billID, const BillTbl::Rec * pRec, int checkForFilt, BillViewEnumProc proc, long param)
+int SLAPI PPViewBill::Helper_EnumProc(PPID billID, const BillTbl::Rec * pRec, int checkForFilt, BillViewEnumProc proc, void * pExtraPtr)
 {
 	int    ok = 1;
 	BillTbl::Rec rec;
@@ -1349,7 +1346,7 @@ int SLAPI PPViewBill::Helper_EnumProc(PPID billID, const BillTbl::Rec * pRec, in
 			item.Debit = item.Amount;
 			item.Saldo = item.Debit - item.Credit;
 		}
-		int    r = proc(&item, param);
+		int    r = proc(&item, pExtraPtr);
 		if(r == 0)
 			ok = 0;
 		else if(r < 0)
@@ -1358,7 +1355,7 @@ int SLAPI PPViewBill::Helper_EnumProc(PPID billID, const BillTbl::Rec * pRec, in
 	return ok;
 }
 
-int SLAPI PPViewBill::Enumerator(BillViewEnumProc proc, long param)
+int SLAPI PPViewBill::Enumerator(BillViewEnumProc proc, void * pExtraPtr)
 {
 	int    ok = 1, r = 1;
 	const PPConfig & r_cfg = LConfig;
@@ -1374,7 +1371,7 @@ int SLAPI PPViewBill::Enumerator(BillViewEnumProc proc, long param)
 	else if(Filt.P_SjF && !Filt.P_SjF->IsEmpty())
 		ok = -1;
 	else if(Filt.ObjectID && Filt.Flags & BillFilt::fDebtsWithPayments)
-		ok = EnumerateDebtCard(proc, param);
+		ok = EnumerateDebtCard(proc, pExtraPtr);
 	else if(Filt.PoolBillID && Filt.AssocID) {
 		THROW(t->GetPoolMembersList(Filt.AssocID, Filt.PoolBillID, &temp_list));
 		p_list = &temp_list;
@@ -1459,13 +1456,13 @@ int SLAPI PPViewBill::Enumerator(BillViewEnumProc proc, long param)
 				}
 				else if(PPObjTag::CheckForTagFilt(PPOBJ_BILL, bill_rec.ID, Filt.P_TagF) <= 0)
 					continue;
-				THROW(ok = Helper_EnumProc(bill_rec.ID, &bill_rec, 0, proc, param));
+				THROW(ok = Helper_EnumProc(bill_rec.ID, &bill_rec, 0, proc, pExtraPtr));
 			}
 		}
 	}
 	if(p_list) {
 		for(uint i = 0; ok > 0 && i < p_list->getCount(); i++)
-			THROW(ok = Helper_EnumProc(p_list->get(i), 0, check_list_item_for_filt, proc, param));
+			THROW(ok = Helper_EnumProc(p_list->get(i), 0, check_list_item_for_filt, proc, pExtraPtr));
 	}
 	CATCHZOK
 	delete q;
@@ -1479,9 +1476,9 @@ struct IterProcParam_Total {
 	BillTotal * Data;
 };
 
-static int IterProc_Total(BillViewItem * pItem, long p)
+static int IterProc_Total(const BillViewItem * pItem, void * pExtraPtr)
 {
-	IterProcParam_Total * p_param = (IterProcParam_Total*)p;
+	IterProcParam_Total * p_param = static_cast<IterProcParam_Total *>(pExtraPtr);
 	PPID   id = pItem->ID;
 	if(p_param) {
 		double amt  = BR2(pItem->Amount);
@@ -1523,7 +1520,7 @@ int SLAPI PPViewBill::CalcTotal(BillTotal * pTotal)
 	param.Data = pTotal;
 	param.P_Filt = &Filt;
 	param.CashChecks = BIN(Filt.Flags & BillFilt::fCashOnly);
-	ok = Enumerator(IterProc_Total, (long)&param);
+	ok = Enumerator(IterProc_Total, &param);
 	if(ok)
 		if(Filt.ObjectID && Filt.Flags & BillFilt::fDebtsWithPayments) {
 			CalcDebtCardInSaldo(&pTotal->InSaldo);
@@ -1538,14 +1535,14 @@ int SLAPI PPViewBill::CalcItemTotal(PPID billID, BillTotalData * pTotal)
 	return (billID && P_BObj->ExtractPacket(billID, &pack) > 0) ? pack.CalcTotal(pTotal, BTC_CALCSALESTAXES) : -1;
 }
 
-static int IterProc_CrList(BillViewItem * pItem, long p)
+static int IterProc_CrList(const BillViewItem * pItem, void * pExtraPtr)
 {
-	return (p && ((PPIDArray*)p)->add(pItem->ID)) ? 1 : PPSetErrorSLib();
+	return (pExtraPtr && static_cast<PPIDArray *>(pExtraPtr)->add(pItem->ID)) ? 1 : PPSetErrorSLib();
 }
 
 int SLAPI PPViewBill::GetBillIDList(PPIDArray * pList)
 {
-	return Enumerator(IterProc_CrList, (long)pList);
+	return Enumerator(IterProc_CrList, pList);
 }
 
 struct IterProcParam_CrTmpTbl {
@@ -1556,11 +1553,11 @@ struct IterProcParam_CrTmpTbl {
 	PPViewBill * BV;
 };
 
-static int IterProc_CrTmpTbl(BillViewItem * pItem, long p)
+static int IterProc_CrTmpTbl(const BillViewItem * pItem, void * pExtraPtr)
 {
 	TempBillTbl::Rec  tbrec;
 	TempOrderTbl::Rec torec;
-	IterProcParam_CrTmpTbl * param = (IterProcParam_CrTmpTbl*)p;
+	IterProcParam_CrTmpTbl * param = static_cast<IterProcParam_CrTmpTbl *>(pExtraPtr);
 	if(param->IsOrdTbl) {
 		param->BV->InitOrderRec(param->Ord, pItem, &torec);
 		if(!param->bei->insert(&torec))
@@ -1568,7 +1565,7 @@ static int IterProc_CrTmpTbl(BillViewItem * pItem, long p)
 	}
 	else {
 		param->BV->InitTempRec(pItem, &tbrec);
-		const BillFilt * p_flt = (BillFilt*)param->BV->GetBaseFilt();
+		const BillFilt * p_flt = static_cast<const BillFilt *>(param->BV->GetBaseFilt());
 		if((p_flt->ObjectID && p_flt->Flags & BillFilt::fDebtsWithPayments) || !p_flt->PaymPeriod.IsZero()) {
 			tbrec.Debit   = pItem->Debit;
 			tbrec.Credit  = pItem->Credit;
@@ -1606,7 +1603,7 @@ int SLAPI PPViewBill::CreateTempTable(IterOrder ord, int * pIsOrdTbl)
 	{
 		PPTransaction tra(ppDbDependTransaction, 1);
 		THROW(tra);
-		THROW(Enumerator(IterProc_CrTmpTbl, (long)&param));
+		THROW(Enumerator(IterProc_CrTmpTbl, &param));
 		THROW_DB(param.bei->flash());
 		if(btbl && (Filt.ObjectID && Filt.Flags & BillFilt::fDebtsWithPayments)) {
 			param.Saldo = 0;
@@ -1693,7 +1690,7 @@ int FASTCALL PPViewBill::NextIteration(BillViewItem * pItem)
 				_IterC++;
 				if(pItem) {
 					memzero(pItem, sizeof(*pItem));
-					*((BillTbl::Rec*)pItem) = br;
+					*static_cast<BillTbl::Rec *>(pItem) = br;
 					if(p_temp_tbl) {
 						pItem->Debit  = p_temp_tbl->data.Debit;
 						pItem->Credit = p_temp_tbl->data.Credit;
@@ -1773,7 +1770,7 @@ int SLAPI PPViewBill::WriteOffDraft(PPID id)
 				goa_filt.OpGrpID = GoodsOpAnalyzeFilt::ogSelected;
 				goa_filt.OpID    = doe.WrOffOpID;
 				for(uint i = 0; i < bill_rec_list.getCount(); i++) {
-					const BillTbl::Rec & r_bill_rec = *(BillTbl::Rec *)bill_rec_list.at(i);
+					const BillTbl::Rec & r_bill_rec = *static_cast<const BillTbl::Rec *>(bill_rec_list.at(i));
 					PPID   acc_sheet_id = 0;
 					goa_filt.AddTradePlanBillID(r_bill_rec.ID);
 					if(!goa_filt.Period.low || goa_filt.Period.low > r_bill_rec.Dt)
@@ -1905,7 +1902,7 @@ int SLAPI PPViewBill::WriteOffDraft(PPID id)
 											PPLotExtCodeContainer::MarkSet::Entry lxentry;
 											for(uint thislxidx = 0; thislxidx < _this_lxc_set.GetCount(); thislxidx++) {
 												if(_this_lxc_set.GetByIdx(thislxidx, lxentry)) {
-													_link_bp.XcL.Add(_lp+1, lxentry.BoxID, (int16)lxentry.Flags, lxentry.Num, 0);
+													_link_bp.XcL.Add(_lp+1, lxentry.BoxID, static_cast<int16>(lxentry.Flags), lxentry.Num, 0);
 													do_update = 1; // @v10.2.10 @fix
 												}
 											}
@@ -2018,8 +2015,7 @@ int SLAPI PPViewBill::CreateMrpTab(PPID billID)
 
 int SLAPI PPViewBill::EditFilt(BillFilt * pFilt, long extraParam) const
 {
-	BrowseBillsType bbt = (BrowseBillsType)extraParam;
-
+	const  BrowseBillsType bbt = static_cast<BrowseBillsType>(extraParam);
 	int    ok = -1, caption = -1;
 	TDialog * d = 0;
 	PPID   single_op_id = 0;
@@ -2093,7 +2089,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	int    ok = -1;
 	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
 	if(p_brw) {
-		PPViewBill * p_view = (PPViewBill *)p_brw->P_View;
+		PPViewBill * p_view = static_cast<PPViewBill *>(p_brw->P_View);
 		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
 	}
 	return ok;
@@ -2104,10 +2100,10 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 	int    ok = -1;
 	if(pBrw && pData && pStyle) {
 		const  BrowserDef * p_def = pBrw->getDef();
-		if(col >= 0 && col < (long)p_def->getCount()) {
+		if(col >= 0 && col < static_cast<long>(p_def->getCount())) {
 			const BroColumn & r_col = p_def->at(col);
 			BillTbl::Rec bill_rec;
-			PPViewBill::BrwHdr * p_hdr = (PPViewBill::BrwHdr *)pData;
+			const PPViewBill::BrwHdr * p_hdr = static_cast<const PPViewBill::BrwHdr *>(pData);
 			if(p_hdr->ID) {
 				if(r_col.OrgOffs == 0) { // ID
 					if(P_BObj->Fetch(p_hdr->ID, &bill_rec) > 0) {
@@ -2236,12 +2232,8 @@ void SLAPI PPViewBill::PreprocessBrowser(PPViewBrowser * pBrw)
 	SString title, sub_title, temp_buf;
 	if(pBrw) {
 		const BrowserDef * p_def = pBrw->getDef();
-		int    show_debt = 0;
-		PPID   single_loc_id = LocList_.getSingle();
-		if(Filt.Flags & BillFilt::fOrderOnly)
-			show_debt = BIN(Filt.Flags & BillFilt::fShowDebt);
-		else
-			show_debt = BIN(Filt.Flags & (BillFilt::fShowDebt | BillFilt::fDebtOnly));
+		const PPID single_loc_id = LocList_.getSingle();
+		const int  show_debt = (Filt.Flags & BillFilt::fOrderOnly) ? BIN(Filt.Flags & BillFilt::fShowDebt) : BIN(Filt.Flags & (BillFilt::fShowDebt|BillFilt::fDebtOnly));
 		pBrw->ViewOptions |= (ofCenterX | ofCenterY);
 		if(Filt.Flags & BillFilt::fCashOnly) {
 			const PPConfig & r_cfg = LConfig;
@@ -2301,15 +2293,12 @@ void SLAPI PPViewBill::PreprocessBrowser(PPViewBrowser * pBrw)
 					pBrw->InsColumn(0, "@id", 0, 0, 0, 0);
 					de_col++;
 				}
-				if(Filt.Dl.GetItemByDataId(BillFilt::dliDueDate, 0)) { // #13
+				if(Filt.Dl.GetItemByDataId(BillFilt::dliDueDate, 0)) // #13
 					pBrw->InsColumn(de_col++, "@duedate", 13, 0, MKSFMT(0, DATF_DMY), 0);
-				}
-				if(Filt.Dl.GetItemByDataId(BillFilt::dliFreightIssueDate, 0)) { // #11
+				if(Filt.Dl.GetItemByDataId(BillFilt::dliFreightIssueDate, 0)) // #11
 					pBrw->InsColumn(de_col++, "@issuedate", 11, 0, MKSFMT(0, DATF_DMY), 0);
-				}
-				if(Filt.Dl.GetItemByDataId(BillFilt::dliFreightArrivalDate, 0)) { // #12
+				if(Filt.Dl.GetItemByDataId(BillFilt::dliFreightArrivalDate, 0)) // #12
 					pBrw->InsColumn(de_col++, "@arrivaldate", 12, 0, MKSFMT(0, DATF_DMY), 0);
-				}
 			}
 			if(p_def) {
 				int    next_pos = -1;
@@ -2328,15 +2317,12 @@ void SLAPI PPViewBill::PreprocessBrowser(PPViewBrowser * pBrw)
 				else if(memo_pos >= 0)
 					next_pos = memo_pos;
 				if(next_pos >= 0) {
-					if(Filt.Dl.GetItemByDataId(BillFilt::dliAgentName, 0)) { // #14
+					if(Filt.Dl.GetItemByDataId(BillFilt::dliAgentName, 0)) // #14
 						pBrw->InsColumn(next_pos++, "@agent", 14, 0, 0, 0);
-					}
-					if(Filt.Dl.GetItemByDataId(BillFilt::dliDlvrAddr, 0)) { // #16
+					if(Filt.Dl.GetItemByDataId(BillFilt::dliDlvrAddr, 0)) // #16
 						pBrw->InsColumn(next_pos++, "@daddress", 16, 0, 0, 0);
-					}
-					if(Filt.Dl.GetItemByDataId(BillFilt::dliAlcoLic, 0) && P_Arp) { // #15
+					if(Filt.Dl.GetItemByDataId(BillFilt::dliAlcoLic, 0) && P_Arp) // #15
 						pBrw->InsColumn(next_pos++, "@alcolic", 15, 0, 0, 0);
-					}
 				}
 			}
 		}
@@ -2464,10 +2450,10 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 					dbe_debt.push(bllt->Credit);
 				dbe_debt.push(bll->Flags);
 				dbe_debt.push(bll->OpID);
-				dbe_debt.push((DBFunc)PPDbqFuncPool::IdBillDebt);
+				dbe_debt.push(static_cast<DBFunc>(PPDbqFuncPool::IdBillDebt));
 			}
 			else
-				dbe_debt.push((DBFunc)PPDbqFuncPool::IdEmpty);
+				dbe_debt.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
 			PPDbqFuncPool::InitObjNameFunc(dbe_status, PPDbqFuncPool::IdObjNameBillStatus, bll->StatusID);
 			PPDbqFuncPool::InitObjNameFunc(dbe_ar,  PPDbqFuncPool::IdObjNameAr,       bll->Object);
 			PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, bll->CurID);
@@ -2502,7 +2488,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 					dbe_issuedate.push((DBFunc)PPDbqFuncPool::IdBillFrghtIssueDt);
 				}
 				else {
-					dbe_issuedate.push((DBFunc)PPDbqFuncPool::IdEmpty);
+					dbe_issuedate.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
 				}
 				q->addField(dbe_issuedate); // #11
 				if(Filt.Dl.GetItemByDataId(BillFilt::dliFreightArrivalDate, 0)) {
@@ -2510,7 +2496,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 					dbe_arrvldate.push((DBFunc)PPDbqFuncPool::IdBillFrghtArrvlDt);
 				}
 				else {
-					dbe_arrvldate.push((DBFunc)PPDbqFuncPool::IdEmpty);
+					dbe_arrvldate.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
 				}
 				q->addField(dbe_arrvldate); // #12
 			}
@@ -2522,7 +2508,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 					dbe_agentname.push((DBFunc)PPDbqFuncPool::IdBillAgentName);
 				}
 				else
-					dbe_agentname.push((DBFunc)PPDbqFuncPool::IdEmpty);
+					dbe_agentname.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
 				q->addField(dbe_agentname); // #14
 			}
 			{
@@ -2532,7 +2518,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 					dbe_licreg.push((DBFunc)PPDbqFuncPool::IdRegisterText);
 				}
 				else
-					dbe_licreg.push((DBFunc)PPDbqFuncPool::IdEmpty);
+					dbe_licreg.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
 				q->addField(dbe_licreg); // #15
 			}
 			{
@@ -2542,7 +2528,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 					dbe_dlvraddr.push((DBFunc)PPDbqFuncPool::IdBillFrghtDlvrAddr);
 				}
 				else
-					dbe_dlvraddr.push((DBFunc)PPDbqFuncPool::IdEmpty);
+					dbe_dlvraddr.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
 				q->addField(dbe_dlvraddr); // #16
 			}
 			{
@@ -2552,7 +2538,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 					dbe_strgloc.push((DBFunc)PPDbqFuncPool::IdBillFrghtStrgLoc);
 				}
 				else
-					dbe_strgloc.push((DBFunc)PPDbqFuncPool::IdEmpty);
+					dbe_strgloc.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
 				q->addField(dbe_strgloc); // #17
 			}
 			tbl_l[tbl_count++] = t_amt;
@@ -2641,7 +2627,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 				dbc_long.init(Filt.CreatorID);
 				dbe_chkusr.push(dbc_long);
 				dbe_chkusr.push((DBFunc)PPDbqFuncPool::IdCheckUserID);
-				dbq = & (*dbq && dbe_chkusr == (long)1);
+				dbq = & (*dbq && dbe_chkusr == 1L);
 			}
 			else
 				dbq = ppcheckfiltid(dbq, bll->UserID, Filt.CreatorID);
@@ -3276,6 +3262,43 @@ int SLAPI PPViewBill::ViewBillsByOrder(PPID billID)
 	return ok;
 }
 
+int SLAPI PPViewBill::AttachBill(PPID billID, const BrowserWindow * pBrw)
+{
+	int    ok = -1;
+	TDialog * dlg = 0;
+	SString temp_buf;
+	BillTbl::Rec bill_rec;
+	if(P_BObj->Search(billID, &bill_rec) > 0) {
+		dlg = new TDialog(DLG_ATTACHBILL);
+		if(CheckDialogPtrErr(&dlg)) {
+			int    to_what = 0; // 1 - to order, 2 - to draft
+			PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName|PPObjBill::mcsAddObjName, temp_buf);
+			dlg->setCtrlString(CTL_ATTACHBILL_INFO, temp_buf);
+			if(CheckOpFlags(bill_rec.OpID, OPKF_ONORDER)) {
+				to_what = 1;
+			}
+			else {
+				to_what = 2;
+				dlg->DisableClusterItem(CTL_ATTACHBILL_SEL, 0, 1);
+			}
+			dlg->AddClusterAssocDef(CTL_ATTACHBILL_SEL, 0, 1);
+			dlg->AddClusterAssocDef(CTL_ATTACHBILL_SEL, 1, 2);
+			dlg->SetClusterData(CTL_ATTACHBILL_SEL, to_what);
+			if(ExecView(dlg) == cmOK) {
+				to_what = dlg->GetClusterData(CTL_ATTACHBILL_SEL);
+				if(to_what == 1) {
+					ok = AttachBillToOrder(billID);
+				}
+				else if(to_what == 2) {
+					ok = AttachBillToDraft(billID, pBrw);
+				}
+			}
+		}
+	}
+	delete dlg;
+	return ok;
+}
+
 int SLAPI PPViewBill::AttachBillToOrder(PPID billID)
 {
 	int    ok = -1, r;
@@ -3294,14 +3317,16 @@ int SLAPI PPViewBill::AttachBillToOrder(PPID billID)
 			// При этом не ограничиваем выборку контрагентом (из-за межскладских перемещений),
 			// но ограничиваем складом.
 			//
-			for(PPID id = 0; (r = EnumOperations(PPOPT_GOODSORDER, &id, &op_rec)) > 0;)
-				if(op_rec.AccSheetID == acc_sheet_id && op_rec.Flags & OPKF_ORDERBYLOC)
+			for(PPID id = 0; (r = EnumOperations(PPOPT_GOODSORDER, &id, &op_rec)) > 0;) {
+				if(op_rec.AccSheetID == acc_sheet_id && op_rec.Flags & OPKF_ORDERBYLOC) {
 					if(op_id == 0)
 						op_id = id;
 					else {
 						op_id = 0;
 						break;
 					}
+				}
+			}
 			flt.LocList.Add(PPObjLocation::ObjToWarehouse(bill_rec.Object));
 			flt.LocList.Add(bill_rec.LocID);
 		}
@@ -3340,18 +3365,16 @@ int SLAPI PPViewBill::AttachBillToOrder(PPID billID)
 	return ok;
 }
 
-int SLAPI PPViewBill::AttachBillToDraft(PPID billID, BrowserWindow * pBrw)
+int SLAPI PPViewBill::AttachBillToDraft(PPID billID, const BrowserWindow * pBrw)
 {
 	int    ok = -1, r;
 	BillTbl::Rec bill_rec;
 	if(P_BObj->Search(billID, &bill_rec) > 0) {
 		uint   msg_id = 0;
-		if(bill_rec.LinkBillID) {
+		if(bill_rec.LinkBillID)
 			msg_id = PPTXT_BILLALREADYHASLINK;
-		}
-		else if(!bill_rec.Object) {
+		else if(!bill_rec.Object)
 			msg_id = PPTXT_BILLHASNTOBJFORLINK;
-		}
 		else {
 			PPObjOprKind op_obj;
 			PPOprKind op_rec;
@@ -3564,37 +3587,32 @@ int SLAPI PPViewBill::ChangeFlags()
 	PPID   new_status_id = 0;
 	THROW(P_BObj->CheckRights(BILLOPRT_MULTUPD, 1));
 	if(ChangeBillFlagsDialog(&set, &reset, &new_status_id) > 0 && (set || reset || new_status_id)) {
-		uint   i, p;
-	   	PPID * pid;
 		PPIDArray ary;
 		PPLogger logger;
 		THROW(GetBillIDList(&ary));
 		{
 			PPTransaction tra(1);
 			THROW(tra);
-			for(i = 0; ary.enumItems(&i, (void**)&pid);) {
+			for(uint ididx = 0; ididx < ary.getCount(); ididx++) {
+				const PPID bill_id = ary.get(ididx);
 				PPBillPacket pack;
-				long   sav;
-				// @v9.6.8 THROW(P_BObj->ExtractPacketWithFlags(*pid, &pack, BPLD_SKIPTRFR));
-				if(P_BObj->ExtractPacket(*pid, &pack) > 0) {
-					sav = pack.Rec.Flags;
-					for(p = 0; p < 32; p++) {
+				if(P_BObj->ExtractPacket(bill_id, &pack) > 0) {
+					const long preserve_flags = pack.Rec.Flags;
+					for(uint p = 0; p < 32; p++) {
 						const ulong t = (1UL << p);
 						if(set & t)
 							pack.Rec.Flags |= t;
 						if(reset & t)
 							pack.Rec.Flags &= ~t;
 					}
-					if(pack.Rec.Flags != sav) {
-						// @v9.6.8 pack.Rec.Flags |= BILLF_NOLOADTRFR;
-						if(P_BObj->UpdatePacket(&pack, 0)) {
+					if(pack.Rec.Flags != preserve_flags) {
+						if(P_BObj->UpdatePacket(&pack, 0))
 							ok = 1;
-						}
 						else
 							logger.LogLastError();
 					}
 					if(new_status_id && P_BObj->CheckRights(BILLOPRT_MODSTATUS, 1)) {
-						r = P_BObj->SetStatus(*pid, new_status_id, 0);
+						r = P_BObj->SetStatus(bill_id, new_status_id, 0);
 						if(r > 0)
 							ok = 1;
 						else if(r == 0)
@@ -3675,10 +3693,9 @@ int SLAPI PPViewBill::SetupPoolInsertionFilt(BillFilt * pFilt)
 {
 	int    ok = -1;
 	PPID   first_member_id = 0;
-	BillFilt pattern = *pFilt;
-	pFilt->PoolOpID = Filt.PoolOpID;
-
+	const  BillFilt pattern = *pFilt;
 	BillTbl::Rec pool_rec;
+	pFilt->PoolOpID = Filt.PoolOpID;
 	THROW(P_BObj->Search(Filt.PoolBillID, &pool_rec) > 0);
 	if(P_BPOX) {
 		if(P_BPOX->OpList.getCount() == 1) {
@@ -3740,7 +3757,7 @@ int SLAPI PPViewBill::AddBillToPool()
 			long   temp_long = 0;
 			GetClusterData(CTL_BPOOLADD_VERB, &Data.Verb);
 			if(GetClusterData(CTL_BPOOLADD_BILLKIND, &temp_long))
-				Data.AddedBillKind = (BrowseBillsType)temp_long;
+				Data.AddedBillKind = static_cast<BrowseBillsType>(temp_long);
 			ASSIGN_PTR(pParam, Data);
 			return 1;
 		}
@@ -3925,13 +3942,10 @@ int SLAPI PPViewBill::CreateTempPoolPacket(PPBillPacket * pPack)
 	PPID   comm_op_id, comm_loc_id, comm_obj_id;
 	LDATE  comm_dt;
 	PPBillPacket pool_pack;
-
 	THROW(P_BObj->ExtractPacket(Filt.PoolBillID, &pool_pack) > 0);
 	THROW(GetCommonPoolAttribs(&comm_dt, &comm_loc_id, &comm_op_id, &comm_obj_id));
-
 	THROW_PP(comm_op_id > 0, PPERR_GETERPOOLMERGE);
 	THROW_PP(GetOpType(comm_op_id) != PPOPT_GOODSREVAL, PPERR_REVALPOOLMERGE);
-
 	pPack->CreateBlank(comm_op_id, 0, (comm_loc_id > 0) ? comm_loc_id : pool_pack.Rec.LocID, 0);
 	pPack->UngetCounter();
 	STRNSCPY(pPack->Rec.Code, pool_pack.Rec.Code);
@@ -3940,13 +3954,12 @@ int SLAPI PPViewBill::CreateTempPoolPacket(PPBillPacket * pPack)
 	pPack->Rec.LocID  = (comm_loc_id > 0) ? comm_loc_id : pool_pack.Rec.LocID;
 	pPack->Rec.Object = (comm_obj_id >= 0) ? comm_obj_id : pool_pack.Rec.Object;
 	pPack->SetFreight(pool_pack.P_Freight);
-
+	const long sign_mask = (PPTFR_PLUS | PPTFR_MINUS);
 	while(EnumMembersOfPool(&member_id) > 0) {
 		for(r_by_bill = 0; P_BObj->trfr->EnumItems(member_id, &r_by_bill, &ti) > 0;) {
-			long sign_mask = (PPTFR_PLUS | PPTFR_MINUS);
 			for(i = 0, found = 0; !found && pPack->EnumTItems(&i, &p_ti) > 0;) {
 				if(p_ti->GoodsID == ti.GoodsID && (p_ti->Flags & sign_mask) == (ti.Flags & sign_mask)) {
-					double sum_qtty = p_ti->Quantity_ + ti.Quantity_;
+					const double sum_qtty = p_ti->Quantity_ + ti.Quantity_;
 					p_ti->Cost  = (ti.Cost * ti.Quantity_ + p_ti->Cost * p_ti->Quantity_) / sum_qtty;
 					p_ti->Price = ((ti.Price - ti.Discount) * ti.Quantity_ + p_ti->Price * p_ti->Quantity_) / sum_qtty;
 					p_ti->Discount = 0.0;
@@ -4386,7 +4399,7 @@ int SLAPI PPViewBill::ViewTotal()
 		DECL_HANDLE_EVENT
 		{
 			TDialog::handleEvent(event);
-			if(event.isCmd(cmPrint) && P_V) {
+			if(event.isCmd(cmPrint)) {
 				CALLPTRMEMB(P_V, PrintTotal(P_Total));
 			}
 			else if(event.isCmd(cmCalcVAT)) {
@@ -4671,7 +4684,7 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 								}
 							}
 							if(!err) {
-								PrvdrDllLink * p_prvdr_item = (dll_pos < (int)exp_dll_coll.getCount()) ? exp_dll_coll.at(dll_pos) : 0;
+								PrvdrDllLink * p_prvdr_item = (dll_pos < static_cast<int>(exp_dll_coll.getCount())) ? exp_dll_coll.at(dll_pos) : 0;
 								ImpExpDll * p_exp_dll = p_prvdr_item ? p_prvdr_item->P_ExpDll : 0;
 								if(!b_e.PutPacket(&pack, (p_prvdr_item ? p_prvdr_item->SessId : 0), p_exp_dll)) {
 									if(b_e.Flags & PPBillImpExpBaseProcessBlock::fEdiImpExp) {
@@ -4816,7 +4829,7 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 		}
 	}
 	CATCH
-		if(dll_pos < (int)exp_dll_coll.getCount()) {
+		if(dll_pos < static_cast<int>(exp_dll_coll.getCount())) {
 			ImpExpDll * p_ied = exp_dll_coll.at(dll_pos)->P_ExpDll;
 			if(p_ied && p_ied->IsInited()) {
 				errmsg_[0] = 0;
@@ -5242,7 +5255,7 @@ int SLAPI PPViewBill::TransmitByFilt(const BillFilt * pFilt, const ObjTransmitPa
 	RVALUEPTR(filt, pFilt);
 	RVALUEPTR(param, pParam);
 	if(!pFilt && (r = SelectorDialog(DLG_BBTSEL, CTL_BBTSEL_TYPE, &val)) > 0)
-		filt.SetupBrowseBillsType(filt.Bbt = (BrowseBillsType)val);
+		filt.SetupBrowseBillsType(filt.Bbt = static_cast<BrowseBillsType>(val));
 	if((pFilt && pParam) || (r > 0 && ObjTransmDialogExt(DLG_OBJTRANSM, PPVIEW_BILL, &param, &filt) > 0)) {
 		BillViewItem item;
 		PPViewBill   view;
@@ -5295,10 +5308,9 @@ struct BillInfoListPrintData {
 
 int SLAPI PPViewBill::PrintBillInfoList()
 {
-	int    ok = 1;
 	BillInfoListPrintData bilpd(this, 0);
 	PView  pv(&bilpd);
-	ok = PPAlddPrint(REPORT_BILLINFOLIST, &pv, 0);
+	int    ok = PPAlddPrint(REPORT_BILLINFOLIST, &pv, 0);
 	ZDELETE(static_cast<BillInfoListPrintData *>(pv.Ptr)->P_Pack);
 	return ok;
 }
@@ -5603,14 +5615,14 @@ int SLAPI PPViewBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				if((ok = ViewPayments(hdr.ID, LinkedBillFilt::lkPayments)) > 0)
 					update = 1;
 				break;
-			case PPVCMD_RECKON:
+			/* @v10.3.5 case PPVCMD_RECKON:
 				if((ok = ViewPayments(hdr.ID, LinkedBillFilt::lkReckon)) > 0)
 					update = 1;
 				break;
 			case PPVCMD_RENTA:
 				if((ok = ViewPayments(hdr.ID, LinkedBillFilt::lkCharge)) > 0)
 					update = 1;
-				break;
+				break; */
 			case PPVCMD_GOODSRET:
 				ok = -1;
 				if(r_cfg.Cash) {
@@ -5657,8 +5669,9 @@ int SLAPI PPViewBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 						ViewGoodsBillCmp(hdr.ID, rh_bill_list, 0);
 				}
 				break;
-			case PPVCMD_ATTACHBILLTOORD:   ok = AttachBillToOrder(hdr.ID); break;
-			case PPVCMD_ATTACHBILLTODRAFT: ok = AttachBillToDraft(hdr.ID, pBrw); break;
+			// @v10.3.5 case PPVCMD_ATTACHBILLTOORD:   ok = AttachBillToOrder(hdr.ID); break;
+			// @v10.3.5 case PPVCMD_ATTACHBILLTODRAFT: ok = AttachBillToDraft(hdr.ID, pBrw); break;
+			case PPVCMD_ATTACHBILLTOBILL:  ok = AttachBill(hdr.ID, pBrw); break; // @v10.3.5 
 			case PPVCMD_TRANSMIT:          ok = Transmit(hdr.ID, 0); break;
 			case PPVCMD_TRANSMITCHARRY:    ok = Transmit(hdr.ID, 1); break;
 			case PPVCMD_EXPORT:            ok = ExportGoodsBill(0, 0); break;
@@ -5718,6 +5731,13 @@ int SLAPI PPViewBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 					else
 						update = 1;
 				}
+				break;
+			case PPVCMD_TAGS: // @v10.3.5
+				if(hdr.ID)
+					ok = EditObjTagValList(PPOBJ_BILL, hdr.ID, 0);
+				break;
+			case PPVCMD_TAGSALL: // @v10.3.5
+				// @todo
 				break;
 			case PPVCMD_BROWSESCOPE:
 				{
@@ -5904,7 +5924,7 @@ void PPALDD_GoodsBillBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, Rtm
 
 	if(pF->Name == "?CalcInSaldo") {
 		double saldo = 0.0;
-		const PPBillPacket * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
+		const PPBillPacket * p_pack = static_cast<const PPBillPacket *>(Extra[0].Ptr);
 		if(p_pack) {
 			const PPID goods_id = _ARG_INT(1);
 			if(H.ObjectID && goods_id) {
@@ -6123,7 +6143,7 @@ int PPALDD_GoodsBillBase::InitIteration(PPIterID iterId, int sortId, long)
 			f |= ETIEF_SALDOFILTGRP;
 		}
 	}
-	p_pack->InitExtTIter(f, filt_grp_id, (TiIter::Order)H.RowOrder);
+	p_pack->InitExtTIter(f, filt_grp_id, static_cast<TiIter::Order>(H.RowOrder));
 	return 1;
 }
 
@@ -6376,7 +6396,7 @@ PPALDD_CONSTRUCTOR(GoodsBillDispose)
 
 PPALDD_DESTRUCTOR(GoodsBillDispose)
 {
-	DlGoodsBillDisposeBlock * p_blk = (DlGoodsBillDisposeBlock *)Extra[0].Ptr;
+	DlGoodsBillDisposeBlock * p_blk = static_cast<DlGoodsBillDisposeBlock *>(Extra[0].Ptr);
 	delete p_blk;
 	Destroy();
 }
@@ -6513,9 +6533,9 @@ int PPALDD_GoodsBillDispose::InitIteration(long iterId, int sortId, long rsrv)
 	if(sortId >= 0)
 		SortIdx = sortId;
 	I.nn = 0;
-	DlGoodsBillDisposeBlock * p_blk = (DlGoodsBillDisposeBlock *)Extra[0].Ptr;
+	DlGoodsBillDisposeBlock * p_blk = static_cast<DlGoodsBillDisposeBlock *>(Extra[0].Ptr);
 	PPBillPacket * p_pack = p_blk->P_Pack;
-	p_pack->InitExtTIter(ETIEF_DISPOSE, 0, (TiIter::Order)H.RowOrder);
+	p_pack->InitExtTIter(ETIEF_DISPOSE, 0, static_cast<TiIter::Order>(H.RowOrder));
 	return 1;
 }
 
@@ -6523,7 +6543,7 @@ int PPALDD_GoodsBillDispose::NextIteration(long iterId)
 {
 	IterProlog(iterId, 0);
 	//
-	DlGoodsBillDisposeBlock * p_blk = (DlGoodsBillDisposeBlock *)Extra[0].Ptr;
+	DlGoodsBillDisposeBlock * p_blk = static_cast<DlGoodsBillDisposeBlock *>(Extra[0].Ptr);
 	PPBillPacket * p_pack = p_blk->P_Pack;
 	//
 	const PPConfig & r_cfg = LConfig;
@@ -6536,7 +6556,7 @@ int PPALDD_GoodsBillDispose::NextIteration(long iterId)
 	long   exclude_tax_flags = H.fSupplIsVatExempt ? GTAXVF_VAT : 0L;
 	int    tiamt;
 	// @v10.3.0 (never used) int    price_chng = 1;
-	uint   n = (uint)I.nn;
+	uint   n = static_cast<uint>(I.nn);
 	PPObjGoods goods_obj;
 	PPObjQuotKind qk_obj;
 	PPQuotKind qk_rec;
@@ -6556,7 +6576,6 @@ int PPALDD_GoodsBillDispose::NextIteration(long iterId)
 			return -1;
 	} while(0);
 	I.nn      = n;
-	I.LotID   = p_ti->LotID;
 	I.GoodsID = p_ti->GoodsID;
 	I.LotID   = p_ti->LotID;
 	I.Cost    = p_ti->Cost;
@@ -6597,7 +6616,7 @@ int PPALDD_GoodsBillDispose::NextIteration(long iterId)
 	I.UnitsPerPack = upp;
 	I.FullPack = 0;
 	if(upp > 0.0)
-		I.FullPack = (long)(fabs(I.Qtty) / upp);
+		I.FullPack = static_cast<long>(fabs(I.Qtty) / upp);
 	//
 	I.CellID     = tiie.LctRec.LocID;
 	I.DispRByLoc = tiie.LctRec.RByLoc;
@@ -7065,7 +7084,7 @@ int PPALDD_GoodsBillModif::InitData(PPFilt & rFilt, long rsrv)
 		if(p_ti->Flags & PPTFR_PLUS) {
 			H.ReceiptQtty   += fabs(p_ti->Quantity_);
 			if(p_ti->UnitPerPack > 0)
-				H.ReceiptPacks += long(fabs(p_ti->Qtty()) / p_ti->UnitPerPack);
+				H.ReceiptPacks += static_cast<long>(fabs(p_ti->Qtty()) / p_ti->UnitPerPack);
 			if(accs_cost)
 				H.ReceiptCost   += p_ti->Cost;
 			H.ReceiptPrice  += p_ti->Price;
@@ -7076,7 +7095,7 @@ int PPALDD_GoodsBillModif::InitData(PPFilt & rFilt, long rsrv)
 		else if(p_ti->Flags & PPTFR_MINUS) {
 			H.ExpendQtty   += fabs(p_ti->Quantity_);
 			if(p_ti->UnitPerPack > 0)
-				H.ExpendPacks += long(fabs(p_ti->Qtty()) / p_ti->UnitPerPack);
+				H.ExpendPacks += static_cast<long>(fabs(p_ti->Qtty()) / p_ti->UnitPerPack);
 			if(accs_cost)
 				H.ExpendCost   += p_ti->Cost;
 			H.ExpendPrice  += p_ti->Price;
@@ -7108,7 +7127,7 @@ int PPALDD_GoodsBillModif::NextIteration(PPIterID iterId)
 		GTaxVect vect;
 		long   exclude_tax_flags = GTAXVF_SALESTAX;
 		int    tiamt;
-		uint   n = (uint)I.Iter_NN;
+		uint   n = static_cast<uint>(I.Iter_NN);
 		while(1) {
 			if(p_pack->EnumTItems(&n, &p_ti) > 0) {
 				if(I.Sign < 0) {
@@ -7150,9 +7169,8 @@ int PPALDD_GoodsBillModif::NextIteration(PPIterID iterId)
 		I.Qtty = p_ti->Qtty();
 		I.UnitsPerPack = p_ti->UnitPerPack;
 		I.FullPack = 0;
-		if(p_ti->UnitPerPack > 0)
-			I.FullPack = (long)(fabs(I.Qtty) / p_ti->UnitPerPack);
-
+		if(p_ti->UnitPerPack > 0.0)
+			I.FullPack = ffloori(fabs(I.Qtty) / p_ti->UnitPerPack);
 		vect.CalcTI(*p_ti, p_pack->Rec.OpID, tiamt, exclude_tax_flags);
 		I.VATRate = vect.GetTaxRate(GTAX_VAT, 0);
 		I.VATSum  = vect.GetValue(GTAXVF_VAT);
@@ -7433,7 +7451,7 @@ int PPALDD_BillPayPlan::NextIteration(PPIterID iterId)
 	IterProlog(iterId, 0);
 	{
 		PPBillPacket * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
-		uint   n = (uint)I.nn;
+		uint   n = static_cast<uint>(I.nn);
 		if(n < p_pack->Pays.getCount()) {
 			const PayPlanTbl::Rec & r_item = p_pack->Pays.at(n);
 			I.nn       = n+1;
@@ -7698,7 +7716,7 @@ int PPALDD_BillList::InitData(PPFilt & rFilt, long rsrv)
 
 int PPALDD_BillList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 {
-	PPViewBill * p_v = (PPViewBill*)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	PPViewBill * p_v = static_cast<PPViewBill *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;
@@ -7786,7 +7804,7 @@ int PPALDD_ContentBList::NextIteration(PPIterID iterId)
 		int    IsDraft;
 	};
 	IterProlog(iterId, 0);
-	PPViewBill * p_v = (PPViewBill*)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	PPViewBill * p_v = static_cast<PPViewBill *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	PPObjBill * p_bobj = BillObj;
 	BillViewItem item;
 	PPTransferItem ti;
@@ -7800,13 +7818,13 @@ int PPALDD_ContentBList::NextIteration(PPIterID iterId)
 			p_v->SetIterState(&vis, sizeof(vis));
 		}
 		int    r = 0;
-		const  VIterState * p_vis = (const VIterState *)p_v->GetIterState();
+		const  VIterState * p_vis = static_cast<const VIterState *>(p_v->GetIterState());
 		if(p_vis && p_vis->IsDraft) {
 			if(p_bobj->P_CpTrfr)
-		 		r = p_bobj->P_CpTrfr->EnumItems(I.BillID, (int*)&I.recNo, &ti, &ext);
+		 		r = p_bobj->P_CpTrfr->EnumItems(I.BillID, (int *)&I.recNo, &ti, &ext);
 		}
 		else
-			r = p_bobj->trfr->EnumItems(I.BillID, (int*)&I.recNo, &ti);
+			r = p_bobj->trfr->EnumItems(I.BillID, (int *)&I.recNo, &ti);
 		if(r > 0) {
 			double cost = 0.0;
 			double old_cost = 0.0;
@@ -7993,7 +8011,7 @@ int PPALDD_BnkPaymOrder::InitData(PPFilt & rFilt, long rsrv)
 		STRNSCPY(H.LclMemo, pack->Rec.Memo);
 		H.PayerBnkAccID = pack->P_PaymOrder->PayerBnkAccID;
 		bnk_data.InitFlags = BADIF_INITALLBR;
-		psn_obj.GetBnkAcctData(H.PayerBnkAccID, (const PPBankAccount *)0, &bnk_data);
+		psn_obj.GetBnkAcctData(H.PayerBnkAccID, 0, &bnk_data);
 		H.PayerBnkID = bnk_data.Bnk.ID;
 		//STRNSCPY(H.PayerBnkName, bnk_data.Bnk.Name);
 		STRNSCPY(H.PayerBnkCity, bnk_data.Bnk.City);
@@ -8002,7 +8020,7 @@ int PPALDD_BnkPaymOrder::InitData(PPFilt & rFilt, long rsrv)
 		STRNSCPY(H.PayerAcc,     bnk_data.Acct);
 		H.RcvrBnkAccID  = pack->P_PaymOrder->RcvrBnkAccID;
 		bnk_data.InitFlags = BADIF_INITALLBR;
-		psn_obj.GetBnkAcctData(H.RcvrBnkAccID, (const PPBankAccount *)0, &bnk_data);
+		psn_obj.GetBnkAcctData(H.RcvrBnkAccID, 0, &bnk_data);
 		H.RcvrBnkID = bnk_data.Bnk.ID;
 		//STRNSCPY(H.RcvrBnkName, bnk_data.Bnk.Name);
 		STRNSCPY(H.RcvrBnkCity,   bnk_data.Bnk.City);
@@ -8056,9 +8074,8 @@ PPALDD_DESTRUCTOR(BillTotal) { Destroy(); }
 
 int PPALDD_BillTotal::InitData(PPFilt & rFilt, long rsrv)
 {
-	BillTotalPrintData * p_data = 0;
 	if(rsrv) {
-		p_data = (BillTotalPrintData *)rFilt.Ptr;
+		BillTotalPrintData * p_data = static_cast<BillTotalPrintData *>(rFilt.Ptr);
 		Extra[1].Ptr = p_data;
 		H.Count    = p_data->P_Total->Count;
 		H.Nominal  = p_data->P_Total->Sum;
@@ -8087,7 +8104,7 @@ int PPALDD_BillTotal::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 int PPALDD_BillTotal::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
-	BillTotalPrintData * p_data = (BillTotalPrintData *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	BillTotalPrintData * p_data = static_cast<BillTotalPrintData *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	AmtEntry * p_item;
 	uint   n = (uint)I.LineNo;
 	if(p_data->P_Total->Amounts.enumItems(&n, (void **)&p_item) > 0) {
@@ -8151,11 +8168,11 @@ int PPALDD_AssetReceipt::InitIteration(PPIterID iterId, int sortId, long /*rsrv*
 int PPALDD_AssetReceipt::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
-	AssetCard * p_data = (AssetCard *)Extra[1].Ptr;
+	AssetCard * p_data = static_cast<AssetCard *>(Extra[1].Ptr);
 	AssetCard::MovItem * p_item;
-	uint   n = (uint)H.MovLineNo;
+	uint   n = static_cast<uint>(H.MovLineNo);
 	if(p_data && p_data->P_MovList && p_data->P_MovList->enumItems(&n, (void **)&p_item) > 0) {
-		H.MovLineNo = (long)n;
+		H.MovLineNo = static_cast<long>(n);
 		I.MovBillID = p_item->BillID;
 		I.MovLotID  = p_item->LotID;
 		I.DestLocID = p_item->DestLocID;
@@ -8214,7 +8231,7 @@ int PPALDD_Warrant::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	PPBillPacket * p_pack = static_cast<PPBillPacket *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
-	if(I.LineNo < (int16)p_pack->AdvList.GetCount()) {
+	if(I.LineNo < static_cast<int16>(p_pack->AdvList.GetCount())) {
 		char   buf[128];
 		const  PPAdvBillItemList::Item & r_item = p_pack->AdvList.Get(I.LineNo);
 		STRNSCPY(I.GdsName, r_item.Memo);
@@ -8288,7 +8305,7 @@ int PPALDD_BillInfo::InitIteration(PPIterID iterId, int sortId, long rsrv)
 int PPALDD_BillInfo::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
-	uint   n = (uint)I.nn;
+	uint   n = static_cast<uint>(I.nn);
 	PPBillPacket * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
 	if(n < p_pack->Amounts.getCount()) {
 		const AmtEntry & r_amt = p_pack->Amounts.at(n);
@@ -8335,7 +8352,7 @@ int PPALDD_BillInfoList::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	int    ok = 1;
-	uint   n = (uint)I.nn;
+	uint   n = static_cast<uint>(I.nn);
 	BillViewItem item;
 	PPBillPacket * p_pack = 0;
 	BillInfoListPrintData * p_bilpd = static_cast<BillInfoListPrintData *>(Extra[0].Ptr);

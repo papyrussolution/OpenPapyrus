@@ -211,13 +211,13 @@ static void create_context_buffer(j_compress_ptr cinfo)
 	/* Grab enough space for fake row pointers for all the components;
 	 * we need five row groups' worth of pointers for each component.
 	 */
-	fake_buffer = (JSAMPARRAY)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (cinfo->num_components * 5 * rgroup_height) * SIZEOF(JSAMPROW));
+	fake_buffer = (JSAMPARRAY)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (cinfo->num_components * 5 * rgroup_height) * SIZEOF(JSAMPROW));
 	for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components; ci++, compptr++) {
 		/* Allocate the actual buffer space (3 row groups) for this component.
 		 * We make the buffer wide enough to allow the downsampler to edge-expand
 		 * horizontally within the buffer, if it so chooses.
 		 */
-		true_buffer = (*cinfo->mem->alloc_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE,
+		true_buffer = (*cinfo->mem->alloc_sarray)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE,
 		    (JDIMENSION)(((long)compptr->width_in_blocks * cinfo->min_DCT_h_scaled_size * cinfo->max_h_samp_factor) / compptr->h_samp_factor), (JDIMENSION)(3 * rgroup_height));
 		/* Copy true buffer row pointers into the middle of the fake row array */
 		MEMCOPY(fake_buffer + rgroup_height, true_buffer, 3 * rgroup_height * SIZEOF(JSAMPROW));
@@ -242,7 +242,7 @@ GLOBAL(void) jinit_c_prep_controller(j_compress_ptr cinfo, boolean need_full_buf
 	jpeg_component_info * compptr;
 	if(need_full_buffer)    /* safety check */
 		ERREXIT(cinfo, JERR_BAD_BUFFER_MODE);
-	prep = (my_prep_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(my_prep_controller));
+	prep = (my_prep_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(my_prep_controller));
 	cinfo->prep = (struct jpeg_c_prep_controller*)prep;
 	prep->pub.start_pass = start_pass_prep;
 	/* Allocate the color conversion buffer.
@@ -263,7 +263,7 @@ GLOBAL(void) jinit_c_prep_controller(j_compress_ptr cinfo, boolean need_full_buf
 		prep->pub.pre_process_data = pre_process_data;
 		for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components;
 		    ci++, compptr++) {
-			prep->color_buf[ci] = (*cinfo->mem->alloc_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE,
+			prep->color_buf[ci] = (*cinfo->mem->alloc_sarray)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE,
 			    (JDIMENSION)(((long)compptr->width_in_blocks * cinfo->min_DCT_h_scaled_size * cinfo->max_h_samp_factor) / compptr->h_samp_factor),
 			    (JDIMENSION)cinfo->max_v_samp_factor);
 		}

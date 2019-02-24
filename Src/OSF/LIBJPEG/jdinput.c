@@ -429,7 +429,7 @@ static void latch_quant_tables(j_decompress_ptr cinfo)
 		if(qtblno < 0 || qtblno >= NUM_QUANT_TBLS || cinfo->quant_tbl_ptrs[qtblno] == NULL)
 			ERREXIT1(cinfo, JERR_NO_QUANT_TABLE, qtblno);
 		/* OK, save away the quantization table */
-		qtbl = (JQUANT_TBL*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(JQUANT_TBL));
+		qtbl = (JQUANT_TBL*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(JQUANT_TBL));
 		MEMCOPY(qtbl, cinfo->quant_tbl_ptrs[qtblno], SIZEOF(JQUANT_TBL));
 		compptr->quant_table = qtbl;
 	}
@@ -543,7 +543,7 @@ METHODDEF(void) reset_input_controller(j_decompress_ptr cinfo)
 	inputctl->pub.eoi_reached = FALSE;
 	inputctl->inheaders = 1;
 	/* Reset other modules */
-	(*cinfo->err->reset_error_mgr)((j_common_ptr)cinfo);
+	(*cinfo->err->reset_error_mgr)(reinterpret_cast<j_common_ptr>(cinfo));
 	(*cinfo->marker->reset_marker_reader)(cinfo);
 	/* Reset progression state -- would be cleaner if entropy decoder did this */
 	cinfo->coef_bits = NULL;
@@ -560,7 +560,7 @@ GLOBAL(void) jinit_input_controller(j_decompress_ptr cinfo)
 
 	/* Create subobject in permanent pool */
 	inputctl = (my_inputctl_ptr)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_PERMANENT,
+	    (*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_PERMANENT,
 	    SIZEOF(my_input_controller));
 	cinfo->inputctl = &inputctl->pub;
 	/* Initialize method pointers */

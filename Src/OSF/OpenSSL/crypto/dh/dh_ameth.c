@@ -411,7 +411,7 @@ static int dh_pkey_ctrl(EVP_PKEY * pkey, int op, long arg1, void * arg2)
 		    return -2;
 
 		case ASN1_PKEY_CTRL_CMS_RI_TYPE:
-		    *(int*)arg2 = CMS_RECIPINFO_AGREE;
+		    *static_cast<int *>(arg2) = CMS_RECIPINFO_AGREE;
 		    return 1;
 #endif
 		default:

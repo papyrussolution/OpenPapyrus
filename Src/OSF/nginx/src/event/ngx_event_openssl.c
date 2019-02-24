@@ -2396,7 +2396,7 @@ ngx_int_t ngx_ssl_get_curves(ngx_connection_t * c, ngx_pool_t * pool, ngx_str_t 
 		s->len = 0;
 		return NGX_OK;
 	}
-	curves = (int*)ngx_palloc(pool, n * sizeof(int));
+	curves = (int *)ngx_palloc(pool, n * sizeof(int));
 	n = SSL_get1_curves(c->ssl->connection, curves);
 	len = 0;
 	for(i = 0; i < n; i++) {

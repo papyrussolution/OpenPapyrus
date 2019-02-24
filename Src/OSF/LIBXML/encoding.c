@@ -641,7 +641,7 @@ static int UTF8ToUTF16LE(uchar* outb, int * outlen, const uchar* in, int * inlen
 					*out++ = c;
 				}
 				else {
-					tmp = (uchar*)out;
+					tmp = reinterpret_cast<uchar *>(out);
 					*tmp = c;
 					*(tmp + 1) = c >> 8;
 					out++;
@@ -657,13 +657,13 @@ static int UTF8ToUTF16LE(uchar* outb, int * outlen, const uchar* in, int * inlen
 				}
 				else {
 					tmp1 = 0xD800 | (c >> 10);
-					tmp = (uchar*)out;
+					tmp = reinterpret_cast<uchar *>(out);
 					*tmp = (uchar)tmp1;
 					*(tmp + 1) = tmp1 >> 8;
 					out++;
 
 					tmp2 = 0xDC00 | (c & 0x03FF);
-					tmp = (uchar*)out;
+					tmp = reinterpret_cast<uchar *>(out);
 					*tmp  = (uchar)tmp2;
 					*(tmp + 1) = tmp2 >> 8;
 					out++;
@@ -895,7 +895,7 @@ static int UTF8ToUTF16BE(uchar* outb, int * outlen, const uchar* in, int * inlen
 				if(out >= outend)
 					break;
 				if(EncBlk.xmlLittleEndian) {
-					tmp = (uchar*)out;
+					tmp = reinterpret_cast<uchar *>(out);
 					*tmp = c >> 8;
 					*(tmp + 1) = c;
 					out++;
@@ -909,13 +909,13 @@ static int UTF8ToUTF16BE(uchar* outb, int * outlen, const uchar* in, int * inlen
 				c -= 0x10000;
 				if(EncBlk.xmlLittleEndian) {
 					tmp1 = 0xD800 | (c >> 10);
-					tmp = (uchar*)out;
+					tmp = reinterpret_cast<uchar *>(out);
 					*tmp = tmp1 >> 8;
 					*(tmp + 1) = (uchar)tmp1;
 					out++;
 
 					tmp2 = 0xDC00 | (c & 0x03FF);
-					tmp = (uchar*)out;
+					tmp = reinterpret_cast<uchar *>(out);
 					*tmp = tmp2 >> 8;
 					*(tmp + 1) = (uchar)tmp2;
 					out++;

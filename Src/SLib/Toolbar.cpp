@@ -20,10 +20,10 @@ TToolbar::TToolbar(HWND hWnd, DWORD style) : PrevToolProc(0), H_MainWnd(hWnd), H
 		wc.cbSize = sizeof(wc);
 		wc.lpszClassName = _T("TOOLBAR_FOR_PPY");
 		wc.hInstance = TProgram::GetInst();
-		wc.lpfnWndProc = (WNDPROC)WndProc;
+		wc.lpfnWndProc = static_cast<WNDPROC>(WndProc);
 		wc.style = CS_HREDRAW|CS_VREDRAW;
 		wc.hCursor = LoadCursor(0, IDC_ARROW);
-		wc.hbrBackground = (HBRUSH)GetStockObject(LTGRAY_BRUSH);
+		wc.hbrBackground = static_cast<HBRUSH>(GetStockObject(LTGRAY_BRUSH));
 		::RegisterClassEx(&wc); // @unicodeproblem
 	}
 	H_Wnd = ::CreateWindowEx(WS_EX_TOOLWINDOW, _T("TOOLBAR_FOR_PPY"), NULL, WS_CHILD|WS_CLIPSIBLINGS, 0, 0, 0, 0, hWnd, (HMENU)0, TProgram::GetInst(), 0); // @unicodeproblem
@@ -32,10 +32,9 @@ TToolbar::TToolbar(HWND hWnd, DWORD style) : PrevToolProc(0), H_MainWnd(hWnd), H
 	H_Toolbar = CreateWindowEx(WS_EX_TOOLWINDOW, TOOLBARCLASSNAME, _T(""), WS_CHILD|TBSTYLE_TOOLTIPS|TBSTYLE_FLAT|CCS_NORESIZE|WS_CLIPSIBLINGS, 0, 0, 0, 0, H_Wnd, (HMENU)0, TProgram::GetInst(), 0);
 	//SetWindowLong(H_Toolbar, GWLP_USERDATA, (long)this);
 	TView::SetWindowProp(H_Toolbar, GWLP_USERDATA, this);
-	//PrevToolProc = (WNDPROC)SetWindowLong(H_Toolbar, GWLP_WNDPROC, (long)ToolbarProc);
-	PrevToolProc = (WNDPROC)TView::SetWindowProp(H_Toolbar, GWLP_WNDPROC, ToolbarProc);
+	PrevToolProc = static_cast<WNDPROC>(TView::SetWindowProp(H_Toolbar, GWLP_WNDPROC, ToolbarProc));
 	CurrPos = 0;
-	DWORD s = (DWORD)::SendMessage(H_Toolbar, TB_GETBUTTONSIZE, 0, 0);
+	DWORD s = static_cast<DWORD>(::SendMessage(H_Toolbar, TB_GETBUTTONSIZE, 0, 0));
 	Width  = LOWORD(s);
 	Height = HIWORD(s) + 4;
 	PostMessage(H_Wnd, WM_USER, 0, 0);
@@ -283,7 +282,7 @@ LRESULT TToolbar::OnMoving(WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK TToolbar::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	TToolbar * pTbWnd = (TToolbar *)TView::GetWindowUserData(hWnd);
+	TToolbar * pTbWnd = static_cast<TToolbar *>(TView::GetWindowUserData(hWnd));
 	if(!pTbWnd)
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	LRESULT ok = 0;
@@ -383,7 +382,7 @@ LRESULT CALLBACK TToolbar::ToolbarProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 	}
 	*/
 	// } @v9.7.11 
-	TToolbar * p_tb = (TToolbar *)TView::GetWindowUserData(hWnd);
+	TToolbar * p_tb = static_cast<TToolbar *>(TView::GetWindowUserData(hWnd));
 	return CallWindowProc(p_tb->PrevToolProc, hWnd, msg, wParam, lParam);
 }
 
@@ -437,9 +436,9 @@ HICON BitmapToIcon(HBITMAP hBitmap)
 
 	//Select the bitmaps to DC
 
-	HBITMAP hOldMainBitmap     = (HBITMAP)::SelectObject(hMainDC,    hBitmap);
-	HBITMAP hOldAndMaskBitmap  = (HBITMAP)::SelectObject(hAndMaskDC, hAndMaskBitmap);
-	HBITMAP hOldXorMaskBitmap  = (HBITMAP)::SelectObject(hXorMaskDC, hXorMaskBitmap);
+	HBITMAP hOldMainBitmap     = static_cast<HBITMAP>(::SelectObject(hMainDC,    hBitmap));
+	HBITMAP hOldAndMaskBitmap  = static_cast<HBITMAP>(::SelectObject(hAndMaskDC, hAndMaskBitmap));
+	HBITMAP hOldXorMaskBitmap  = static_cast<HBITMAP>(::SelectObject(hXorMaskDC, hXorMaskBitmap));
 	//Scan each pixel of the souce bitmap and create the masks
 	COLORREF MainBitPixel;
 	for(int x = 0; x < bm.bmWidth; ++x) {
@@ -556,9 +555,10 @@ int TToolbar::SetupToolbarWnd(DWORD style, const ToolbarList * pList)
 int TToolbar::Init(uint resID, uint typeID)
 {
 	int    ok = 0;
-	if(P_SlRez) {
+	TVRez * p_slrez = P_SlRez;
+	if(p_slrez) {
 		ToolbarList list;
-		if(LoadToolbar(P_SlRez, typeID, resID, &list)) {
+		if(LoadToolbar(p_slrez, typeID, resID, &list)) {
 			int    r = RestoreUserSettings(typeID, &list);
 			ok = (r > 0) ? r : Init(&list);
 		}
@@ -681,7 +681,7 @@ private:
 
 TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb) : P_Toolbar(pTb), hImages(0), H_List(0), P_Buttons(0), PrevListViewProc(0)
 {
-	uint   cnt = (uint)::SendMessage(P_Toolbar->H_Toolbar, TB_BUTTONCOUNT, 0, 0);
+	uint   cnt = static_cast<uint>(::SendMessage(P_Toolbar->H_Toolbar, TB_BUTTONCOUNT, 0, 0));
 	LVITEM lvi;
 	P_Buttons = static_cast<TBBUTTON *>(SAlloc::C(cnt, sizeof(TBBUTTON)));
 	if(!P_Buttons) {
@@ -740,7 +740,7 @@ TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb) : P_Toolbar(pTb), hI
 		SendMessage(GetDlgItem(hWnd, CTL_CUSTOMIZETOOLBAR_UP), BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_up));
 		HBITMAP h_dn = LoadBitmap(0, MAKEINTRESOURCE(OBM_DNARROWD));
 		SendMessage(GetDlgItem(hWnd, CTL_CUSTOMIZETOOLBAR_DOWN), BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_dn));
-		PrevListViewProc = (WNDPROC)TView::SetWindowProp(H_List, GWLP_WNDPROC, ListViewProc);
+		PrevListViewProc = static_cast<WNDPROC>(TView::SetWindowProp(H_List, GWLP_WNDPROC, ListViewProc));
 		TView::SetWindowProp(H_List, GWLP_USERDATA, this);
 	}
 }
@@ -809,7 +809,7 @@ int TuneToolsDialog::OnUpDownArrow(int up)
 int TuneToolsDialog::Accept()
 {
 	HWND   h_toolbar = P_Toolbar->H_Toolbar;
-	uint   cnt = (uint)::SendMessage(h_toolbar, TB_BUTTONCOUNT, 0, 0);
+	uint   cnt = static_cast<uint>(::SendMessage(h_toolbar, TB_BUTTONCOUNT, 0, 0));
 	LVITEM lvi;
 	lvi.iSubItem = 0;
 	lvi.mask  = LVIF_PARAM | LVIF_IMAGE;
@@ -833,7 +833,7 @@ int TuneToolsDialog::Accept()
 // static
 LRESULT CALLBACK TuneToolsDialog::ListViewProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	TuneToolsDialog * p_param = (TuneToolsDialog *)TView::GetWindowUserData(hWnd);
+	TuneToolsDialog * p_param = static_cast<TuneToolsDialog *>(TView::GetWindowUserData(hWnd));
 	switch(message) {
 		case WM_LBUTTONDOWN:
 			if(LOWORD(lParam) > 0 && LOWORD(lParam) < 16)
@@ -872,13 +872,13 @@ INT_PTR CALLBACK TToolbar::TuneToolsDlgProc(HWND hWnd, UINT message, WPARAM wPar
 	TuneToolsDialog * p_param = 0;
 	switch(message) {
 		case WM_INITDIALOG:
-			p_param = new TuneToolsDialog(hWnd, (TToolbar *)lParam);
+			p_param = new TuneToolsDialog(hWnd, reinterpret_cast<TToolbar *>(lParam));
 			//SetWindowLong(hWnd, GWLP_USERDATA, (long)p_param);
 			TView::SetWindowProp(hWnd, GWLP_USERDATA, p_param);
 			EnumChildWindows(hWnd, SetupCtrlTextProc, 0); // @v9.4.5
 			return 1;
 		case WM_COMMAND:
-			p_param = (TuneToolsDialog *)TView::GetWindowUserData(hWnd);
+			p_param = static_cast<TuneToolsDialog *>(TView::GetWindowUserData(hWnd));
 			if(LOWORD(wParam) == IDOK) {
 				p_param->Accept();
 				EndDialog(hWnd, TRUE);
@@ -895,7 +895,7 @@ INT_PTR CALLBACK TToolbar::TuneToolsDlgProc(HWND hWnd, UINT message, WPARAM wPar
 			}
 			break;
 		case WM_DESTROY:
-			p_param = (TuneToolsDialog *)TView::GetWindowUserData(hWnd);
+			p_param = static_cast<TuneToolsDialog *>(TView::GetWindowUserData(hWnd));
 			delete p_param;
 			//SetWindowLong(hWnd, GWLP_USERDATA, 0);
 			TView::SetWindowProp(hWnd, GWLP_USERDATA, (void *)0);
@@ -906,7 +906,7 @@ INT_PTR CALLBACK TToolbar::TuneToolsDlgProc(HWND hWnd, UINT message, WPARAM wPar
 //
 //
 //
-ToolbarCfg::ToolbarCfg() : P_Buttons(0), Count(0)
+ToolbarCfg::ToolbarCfg() : P_Buttons(0), Count(0), Reserve(0)
 {
 }
 

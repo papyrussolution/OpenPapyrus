@@ -199,11 +199,11 @@ static int aztec_text_process(const uchar source[], const uint src_len, char bin
 	int charmap[src_len * 2], typemap[src_len * 2];
 	int blockmap[2][src_len];
 #else
-	int* charmap = (int*)_alloca(src_len * 2 * sizeof(int));
-	int* typemap = (int*)_alloca(src_len * 2 * sizeof(int));
+	int* charmap = (int *)_alloca(src_len * 2 * sizeof(int));
+	int* typemap = (int *)_alloca(src_len * 2 * sizeof(int));
 	int* blockmap[2];
-	blockmap[0] = (int*)_alloca(src_len * sizeof(int));
-	blockmap[1] = (int*)_alloca(src_len * sizeof(int));
+	blockmap[0] = (int *)_alloca(src_len * sizeof(int));
+	blockmap[1] = (int *)_alloca(src_len * sizeof(int));
 #endif
 	/* Lookup input string in encoding table */
 	maplength = 0;

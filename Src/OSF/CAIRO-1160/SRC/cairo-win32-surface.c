@@ -141,16 +141,13 @@ HDC cairo_win32_surface_get_dc(cairo_surface_t * surface)
 {
 	if(surface->backend->type == CAIRO_SURFACE_TYPE_WIN32)
 		return to_win32_surface(surface)->dc;
-
 	if(_cairo_surface_is_paginated(surface)) {
 		cairo_surface_t * target = _cairo_paginated_surface_get_target(surface);
 		if(target->backend->type == CAIRO_SURFACE_TYPE_WIN32_PRINTING)
 			return to_win32_surface(target)->dc;
 	}
-
 	return NULL;
 }
-
 /**
  * _cairo_surface_is_win32:
  * @surface: a #cairo_surface_t
@@ -164,7 +161,6 @@ static inline cairo_bool_t _cairo_surface_is_win32(const cairo_surface_t * surfa
 	/* _cairo_surface_nil sets a NULL backend so be safe */
 	return surface->backend && surface->backend->type == CAIRO_SURFACE_TYPE_WIN32;
 }
-
 /**
  * cairo_win32_surface_get_image:
  * @surface: a #cairo_surface_t
@@ -183,7 +179,6 @@ cairo_surface_t * cairo_win32_surface_get_image(cairo_surface_t * surface)
 	if(!_cairo_surface_is_win32(surface)) {
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH));
 	}
-
 	GdiFlush();
 	return to_win32_display_surface(surface)->image;
 }
@@ -221,7 +216,7 @@ cairo_int_status_t _cairo_win32_surface_emit_glyphs(const cairo_win32_surface_t 
 	SetBkMode(dst->dc, TRANSPARENT);
 	if(num_glyphs > STACK_GLYPH_SIZE) {
 		glyph_buf = (WORD*)_cairo_malloc_ab(num_glyphs, sizeof(WORD));
-		dxy_buf = (int*)_cairo_malloc_abc(num_glyphs, sizeof(int), 2);
+		dxy_buf = (int *)_cairo_malloc_abc(num_glyphs, sizeof(int), 2);
 	}
 	/* It is vital that dx values for dxy_buf are calculated from the delta of
 	 * _logical_ x coordinates (not user x coordinates) or else the sum of all
@@ -256,14 +251,11 @@ cairo_int_status_t _cairo_win32_surface_emit_glyphs(const cairo_win32_surface_t 
 			logical_y = next_logical_y;
 		}
 	}
-
 	if(glyph_indexing)
 		glyph_index_option = ETO_GLYPH_INDEX;
 	else
 		glyph_index_option = 0;
-
-	win_result = ExtTextOutW(dst->dc, start_x, start_y, glyph_index_option | ETO_PDY, NULL,
-		(LPCWSTR)glyph_buf, num_glyphs, dxy_buf);
+	win_result = ExtTextOutW(dst->dc, start_x, start_y, glyph_index_option | ETO_PDY, NULL, (LPCWSTR)glyph_buf, num_glyphs, dxy_buf);
 	if(!win_result) {
 		_cairo_win32_print_gdi_error("_cairo_win32_surface_show_glyphs(ExtTextOutW failed)");
 	}

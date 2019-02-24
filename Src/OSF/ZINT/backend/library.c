@@ -1015,7 +1015,7 @@ int ZBarcode_Buffer(struct ZintSymbol * symbol, int rotate_angle)
 	return error_number;
 }
 
-int ZBarcode_Encode_and_Print(struct ZintSymbol * symbol, uchar * input, int length, int rotate_angle)
+int ZBarcode_Encode_and_Print(struct ZintSymbol * symbol, const uchar * input, int length, int rotate_angle)
 {
 	int error_number = ZBarcode_Encode(symbol, input, length);
 	if(error_number == 0) 
@@ -1023,7 +1023,7 @@ int ZBarcode_Encode_and_Print(struct ZintSymbol * symbol, uchar * input, int len
 	return error_number;
 }
 
-int ZBarcode_Encode_and_Buffer(struct ZintSymbol * symbol, uchar * input, int length, int rotate_angle)
+int ZBarcode_Encode_and_Buffer(struct ZintSymbol * symbol, const uchar * input, int length, int rotate_angle)
 {
 	int error_number = ZBarcode_Encode(symbol, input, length);
 	if(error_number == 0)

@@ -34,7 +34,7 @@ GLOBAL(void) jpeg_add_quant_table(j_compress_ptr cinfo, int which_tbl, const uin
 		ERREXIT1(cinfo, JERR_DQT_INDEX, which_tbl);
 	qtblptr = &cinfo->quant_tbl_ptrs[which_tbl];
 	if(*qtblptr == NULL)
-		*qtblptr = jpeg_alloc_quant_table((j_common_ptr)cinfo);
+		*qtblptr = jpeg_alloc_quant_table(reinterpret_cast<j_common_ptr>(cinfo));
 	for(i = 0; i < DCTSIZE2; i++) {
 		temp = ((long)basic_table[i] * scale_factor + 50L) / 100L;
 		/* limit the values to the valid range */
@@ -139,7 +139,7 @@ static void add_huff_table(j_compress_ptr cinfo, JHUFF_TBL **htblptr, const uint
 {
 	int nsymbols, len;
 	if(*htblptr == NULL)
-		*htblptr = jpeg_alloc_huff_table((j_common_ptr)cinfo);
+		*htblptr = jpeg_alloc_huff_table(reinterpret_cast<j_common_ptr>(cinfo));
 	MEMCOPY((*htblptr)->bits, bits, SIZEOF((*htblptr)->bits)); // Copy the number-of-symbols-of-each-code-length counts 
 	// Validate the counts.  We do this here mainly so we can copy the right
 	// number of symbols from the val[] array, without risking marching off
@@ -235,7 +235,7 @@ GLOBAL(void) jpeg_set_defaults(j_compress_ptr cinfo)
 	 * multiple images at same param settings.
 	 */
 	if(cinfo->comp_info == NULL)
-		cinfo->comp_info = (jpeg_component_info*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_PERMANENT, MAX_COMPONENTS * SIZEOF(jpeg_component_info));
+		cinfo->comp_info = (jpeg_component_info*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_PERMANENT, MAX_COMPONENTS * SIZEOF(jpeg_component_info));
 	/* Initialize everything not dependent on the color space */
 	cinfo->scale_num = 1;   /* 1:1 scaling */
 	cinfo->scale_denom = 1;
@@ -478,7 +478,7 @@ GLOBAL(void) jpeg_simple_progression(j_compress_ptr cinfo)
 	 */
 	if(cinfo->script_space == NULL || cinfo->script_space_size < nscans) {
 		cinfo->script_space_size = MAX(nscans, 10);
-		cinfo->script_space = (jpeg_scan_info*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_PERMANENT, cinfo->script_space_size * SIZEOF(jpeg_scan_info));
+		cinfo->script_space = (jpeg_scan_info*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_PERMANENT, cinfo->script_space_size * SIZEOF(jpeg_scan_info));
 	}
 	scanptr = cinfo->script_space;
 	cinfo->scan_info = scanptr;

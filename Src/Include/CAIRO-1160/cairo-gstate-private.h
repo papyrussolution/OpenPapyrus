@@ -138,113 +138,39 @@ static inline void _cairo_gstate_backend_to_user_distance(const cairo_gstate_t *
 		_do_cairo_gstate_backend_to_user_distance(gstate, x, y);
 }
 
-cairo_private void _cairo_gstate_backend_to_user_rectangle(cairo_gstate_t * gstate,
-    double * x1, double * y1,
-    double * x2, double * y2,
-    cairo_bool_t * is_tight);
-
-cairo_private void _cairo_gstate_path_extents(cairo_gstate_t * gstate,
-    cairo_path_fixed_t * path,
-    double * x1, double * y1,
-    double * x2, double * y2);
-
+cairo_private void _cairo_gstate_backend_to_user_rectangle(cairo_gstate_t * gstate, double * x1, double * y1, double * x2, double * y2, cairo_bool_t * is_tight);
+cairo_private void _cairo_gstate_path_extents(cairo_gstate_t * gstate, cairo_path_fixed_t * path, double * x1, double * y1, double * x2, double * y2);
 cairo_private cairo_status_t _cairo_gstate_paint(cairo_gstate_t * gstate);
-
-cairo_private cairo_status_t _cairo_gstate_mask(cairo_gstate_t * gstate,
-    cairo_pattern_t * mask);
+cairo_private cairo_status_t _cairo_gstate_mask(cairo_gstate_t * gstate, cairo_pattern_t * mask);
 cairo_private cairo_status_t _cairo_gstate_stroke(cairo_gstate_t * gstate, cairo_path_fixed_t * path);
 cairo_private cairo_status_t _cairo_gstate_fill(cairo_gstate_t * gstate, cairo_path_fixed_t * path);
 cairo_private cairo_status_t _cairo_gstate_copy_page(cairo_gstate_t * gstate);
 cairo_private cairo_status_t _cairo_gstate_show_page(cairo_gstate_t * gstate);
-cairo_private cairo_status_t _cairo_gstate_stroke_extents(cairo_gstate_t * gstate,
-    cairo_path_fixed_t * path,
-    double * x1, double * y1,
-    double * x2, double * y2);
-cairo_private cairo_status_t _cairo_gstate_fill_extents(cairo_gstate_t * gstate,
-    cairo_path_fixed_t * path,
-    double * x1, double * y1,
-    double * x2, double * y2);
-cairo_private cairo_status_t _cairo_gstate_in_stroke(cairo_gstate_t * gstate,
-    cairo_path_fixed_t * path,
-    double x,
-    double y,
-    cairo_bool_t * inside_ret);
-cairo_private cairo_bool_t _cairo_gstate_in_fill(cairo_gstate_t * gstate,
-    cairo_path_fixed_t * path,
-    double x,
-    double y);
-cairo_private cairo_bool_t _cairo_gstate_in_clip(cairo_gstate_t * gstate,
-    double x,
-    double y);
+cairo_private cairo_status_t _cairo_gstate_stroke_extents(cairo_gstate_t * gstate, cairo_path_fixed_t * path, double * x1, double * y1, double * x2, double * y2);
+cairo_private cairo_status_t _cairo_gstate_fill_extents(cairo_gstate_t * gstate, cairo_path_fixed_t * path, double * x1, double * y1, double * x2, double * y2);
+cairo_private cairo_status_t _cairo_gstate_in_stroke(cairo_gstate_t * gstate, cairo_path_fixed_t * path, double x, double y, cairo_bool_t * inside_ret);
+cairo_private cairo_bool_t _cairo_gstate_in_fill(cairo_gstate_t * gstate, cairo_path_fixed_t * path, double x, double y);
+cairo_private cairo_bool_t _cairo_gstate_in_clip(cairo_gstate_t * gstate, double x, double y);
 cairo_private cairo_status_t _cairo_gstate_clip(cairo_gstate_t * gstate, cairo_path_fixed_t * path);
 cairo_private cairo_status_t _cairo_gstate_reset_clip(cairo_gstate_t * gstate);
-cairo_private cairo_bool_t _cairo_gstate_clip_extents(cairo_gstate_t * gstate,
-    double * x1,
-    double * y1,
-    double * x2,
-    double * y2);
-
+cairo_private cairo_bool_t _cairo_gstate_clip_extents(cairo_gstate_t * gstate, double * x1, double * y1, double * x2, double * y2);
 cairo_private cairo_rectangle_list_t* _cairo_gstate_copy_clip_rectangle_list(cairo_gstate_t * gstate);
-
-cairo_private cairo_status_t _cairo_gstate_show_surface(cairo_gstate_t * gstate,
-    cairo_surface_t * surface,
-    double x,
-    double y,
-    double width,
-    double height);
-
-cairo_private cairo_status_t _cairo_gstate_tag_begin(cairo_gstate_t * gstate,
-    const char * tag_name,
-    const char * attributes);
-
-cairo_private cairo_status_t _cairo_gstate_tag_end(cairo_gstate_t * gstate,
-    const char * tag_name);
-
-cairo_private cairo_status_t _cairo_gstate_set_font_size(cairo_gstate_t * gstate,
-    double size);
-
-cairo_private void _cairo_gstate_get_font_matrix(cairo_gstate_t * gstate,
-    cairo_matrix_t * matrix);
-
-cairo_private cairo_status_t _cairo_gstate_set_font_matrix(cairo_gstate_t * gstate,
-    const cairo_matrix_t * matrix);
-
-cairo_private void _cairo_gstate_get_font_options(cairo_gstate_t * gstate,
-    cairo_font_options_t * options);
-
-cairo_private void _cairo_gstate_set_font_options(cairo_gstate_t * gstate,
-    const cairo_font_options_t * options);
-
-cairo_private cairo_status_t _cairo_gstate_get_font_face(cairo_gstate_t * gstate,
-    cairo_font_face_t ** font_face);
-
-cairo_private cairo_status_t _cairo_gstate_get_scaled_font(cairo_gstate_t * gstate,
-    cairo_scaled_font_t ** scaled_font);
-
-cairo_private cairo_status_t _cairo_gstate_get_font_extents(cairo_gstate_t * gstate,
-    cairo_font_extents_t * extents);
-
-cairo_private cairo_status_t _cairo_gstate_set_font_face(cairo_gstate_t * gstate,
-    cairo_font_face_t * font_face);
-
-cairo_private cairo_status_t _cairo_gstate_glyph_extents(cairo_gstate_t * gstate,
-    const cairo_glyph_t * glyphs,
-    int num_glyphs,
-    cairo_text_extents_t * extents);
-
-cairo_private cairo_status_t _cairo_gstate_show_text_glyphs(cairo_gstate_t * gstate,
-    const cairo_glyph_t * glyphs,
-    int num_glyphs,
-    cairo_glyph_text_info_t * info);
-
-cairo_private cairo_status_t _cairo_gstate_glyph_path(cairo_gstate_t * gstate,
-    const cairo_glyph_t * glyphs,
-    int num_glyphs,
-    cairo_path_fixed_t * path);
-
-cairo_private cairo_status_t _cairo_gstate_set_antialias(cairo_gstate_t * gstate,
-    cairo_antialias_t antialias);
-
+cairo_private cairo_status_t _cairo_gstate_show_surface(cairo_gstate_t * gstate, cairo_surface_t * surface, double x, double y, double width, double height);
+cairo_private cairo_status_t _cairo_gstate_tag_begin(cairo_gstate_t * gstate, const char * tag_name, const char * attributes);
+cairo_private cairo_status_t _cairo_gstate_tag_end(cairo_gstate_t * gstate, const char * tag_name);
+cairo_private cairo_status_t _cairo_gstate_set_font_size(cairo_gstate_t * gstate, double size);
+cairo_private void _cairo_gstate_get_font_matrix(cairo_gstate_t * gstate, cairo_matrix_t * matrix);
+cairo_private cairo_status_t _cairo_gstate_set_font_matrix(cairo_gstate_t * gstate, const cairo_matrix_t * matrix);
+cairo_private void _cairo_gstate_get_font_options(cairo_gstate_t * gstate, cairo_font_options_t * options);
+cairo_private void _cairo_gstate_set_font_options(cairo_gstate_t * gstate, const cairo_font_options_t * options);
+cairo_private cairo_status_t _cairo_gstate_get_font_face(cairo_gstate_t * gstate, cairo_font_face_t ** font_face);
+cairo_private cairo_status_t _cairo_gstate_get_scaled_font(cairo_gstate_t * gstate, cairo_scaled_font_t ** scaled_font);
+cairo_private cairo_status_t _cairo_gstate_get_font_extents(cairo_gstate_t * gstate, cairo_font_extents_t * extents);
+cairo_private cairo_status_t _cairo_gstate_set_font_face(cairo_gstate_t * gstate, cairo_font_face_t * font_face);
+cairo_private cairo_status_t _cairo_gstate_glyph_extents(cairo_gstate_t * gstate, const cairo_glyph_t * glyphs, int num_glyphs, cairo_text_extents_t * extents);
+cairo_private cairo_status_t _cairo_gstate_show_text_glyphs(cairo_gstate_t * gstate, const cairo_glyph_t * glyphs, int num_glyphs, const cairo_glyph_text_info_t * info);
+cairo_private cairo_status_t _cairo_gstate_glyph_path(cairo_gstate_t * gstate, const cairo_glyph_t * glyphs, int num_glyphs, cairo_path_fixed_t * path);
+cairo_private cairo_status_t _cairo_gstate_set_antialias(cairo_gstate_t * gstate, cairo_antialias_t antialias);
 cairo_private cairo_antialias_t _cairo_gstate_get_antialias(cairo_gstate_t * gstate);
 
 #endif /* CAIRO_GSTATE_PRIVATE_H */

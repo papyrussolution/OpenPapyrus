@@ -184,13 +184,12 @@ int SLAPI QuotFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 }
 
 SLAPI PPViewQuot::PPViewQuot() : PPView(0, &Filt, PPVIEW_QUOT), P_Qc(0), P_Qc2(0), P_BObj(BillObj), P_TempTbl(0), P_TempSerTbl(0), P_TempOrd(0),
-	P_GoodsSelDlg(0), FirstQuotBrwColumn(0), HasPeriodVal(0)
+	P_GoodsSelDlg(0), FirstQuotBrwColumn(0), HasPeriodVal(0), Spc(PPObjQuotKind::Special::ctrInitializeWithCache)
 {
 	if(CConfig.Flags2 & CCFLG2_QUOT2)
 		P_Qc2 = new Quotation2Core;
 	else
 		P_Qc = new QuotationCore;
-	PPObjQuotKind::GetSpecialKinds(&Spc, 1);
 }
 
 SLAPI PPViewQuot::~PPViewQuot()
@@ -215,9 +214,8 @@ const StrAssocArray & SLAPI PPViewQuot::GetQuotKindList() const
 
 class QuotFiltDialog : public TDialog {
 public:
-	QuotFiltDialog() : TDialog(DLG_QUOTFLT), Cls(PPQuot::clsGeneral), LastAccSheetID(0)
+	QuotFiltDialog() : TDialog(DLG_QUOTFLT), Cls(PPQuot::clsGeneral), LastAccSheetID(0), Spc(PPObjQuotKind::Special::ctrInitializeWithCache)
 	{
-		PPObjQuotKind::GetSpecialKinds(&Spc, 1);
 		addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(CTLSEL_QUOTFLT_GOODS, CTLSEL_QUOTFLT_GGRP, cmGoodsFilt));
 		addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_QUOTFLT_LOC, 0, 0, cmLocList, 0, LocationCtrlGroup::fEnableSelUpLevel, 0));
 		SetupCalDate(CTLCAL_QUOTFLT_EFFDATE, CTL_QUOTFLT_EFFDATE);
@@ -229,8 +227,8 @@ private:
 	DECL_HANDLE_EVENT;
 	void   SetupCtrls();
 
-	PPObjQuotKind::Special Spc;
-	int    Cls;
+	const  PPObjQuotKind::Special Spc;
+	const  int Cls;
 	PPID   LastAccSheetID;
 	QuotFilt Data;
 };
@@ -259,7 +257,7 @@ void QuotFiltDialog::SetupCtrls()
 {
 	int    disable_qk = 0;
 	long   combo_ext = 0;
-	int    prev_cls = Data.QkCls;
+	const  int  prev_cls = Data.QkCls;
 	if(!Spc.MtxID) {
 		DisableClusterItem(CTL_QUOTFLT_TYPE, 2);
 		if(Data.QkCls == PPQuot::clsMtx)
@@ -395,7 +393,7 @@ int QuotFiltDialog::getDTS(QuotFilt * pData)
 	GetClusterData(CTL_QUOTFLT_ABSENCE,   &Data.Flags);
 	GetClusterData(CTL_QUOTFLT_FLAGS,     &Data.Flags);
 	{
-		long   ggd = GetClusterData(CTL_QUOTFLT_GGRPDIFF);
+		const long ggd = GetClusterData(CTL_QUOTFLT_GGRPDIFF);
 		Data.Flags &= ~(QuotFilt::fByGoodsOnly|QuotFilt::fByGroupOnly);
 		Data.Flags |= ggd;
 	}
@@ -1980,11 +1978,10 @@ int SLAPI PPViewQuot::Recover()
 		P_Qc2->Verify();
 	}
 	else if(P_Qc) {
-		PPObjQuotKind::Special spc_qk;
+		const PPObjQuotKind::Special spc_qk(PPObjQuotKind::Special::ctrInitialize);
 		QuotationTbl::Key2 k2;
 		PPWait(1);
 		PPInitIterCounter(cntr, P_Qc);
-		PPObjQuotKind::GetSpecialKinds(&spc_qk, 0);
 		{
 			PPTransaction tra(1);
 			THROW(tra);

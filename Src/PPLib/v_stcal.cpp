@@ -494,7 +494,7 @@ DBQuery * SLAPI PPViewStaffCal::CreateBrowserQuery(uint * pBrwId, SString * pSub
 		PPDbqFuncPool::InitObjNameFunc(dbe_objname, PPDbqFuncPool::IdObjNamePersonPost, p_t->LinkObjID);
 	else {
 		dbe_objname.init();
-		dbe_objname.push((DBFunc)PPDbqFuncPool::IdEmpty);
+		dbe_objname.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
 	}
 	{
 		dbe_duration.init();

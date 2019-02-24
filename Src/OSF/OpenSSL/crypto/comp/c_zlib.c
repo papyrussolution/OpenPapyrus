@@ -341,7 +341,7 @@ static int bio_zlib_read(BIO * b, char * out, int outl)
 	}
 
 	/* Copy output data directly to supplied buffer */
-	zin->next_out = (uchar*)out;
+	zin->next_out = reinterpret_cast<uchar *>(out);
 	zin->avail_out = (uint)outl;
 	for(;; ) {
 		/* Decompress while data available */

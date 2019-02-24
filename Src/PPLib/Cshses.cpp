@@ -612,7 +612,7 @@ int SLAPI PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArra
 			}
 			else
 				continue;
-			CclAssocItem * p_item = (CclAssocItem *)pList->at(p);
+			CclAssocItem * p_item = static_cast<CclAssocItem *>(pList->at(p));
 			CCheckLineTbl::Rec  line_rec;
 			line_rec.CheckID  = p_item->ChkID;
 			line_rec.RByCheck = ++p_item->RByCheck;
@@ -705,7 +705,7 @@ int SLAPI PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray & rS
 
 	int    ok = 1;
 	const  int use_ext = BIN(CConfig.Flags & CCFLG_USECCHECKEXT);
-	TSVector <TotalLogCSessEntry> * p_total_log_list = (TSVector <TotalLogCSessEntry> *)pTotalLogData; // @v10.0.05
+	TSVector <TotalLogCSessEntry> * p_total_log_list = static_cast<TSVector <TotalLogCSessEntry> *>(pTotalLogData); // @v10.0.05
 	uint   i;
 	CcAmountList cp_list;
 	PPObjSCardSeries scs_obj;
@@ -1727,10 +1727,8 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 				r = -1;
 				while(r < 0 && GoodsPos < IterGoodsList.getCount()) {
 					InnerCounter.Increment();
-					if(GObj.Search(IterGoodsList.at(GoodsPos++), &grec) > 0) {
+					if(GObj.Search(IterGoodsList.at(GoodsPos++), &grec) > 0)
 						r = 1;
-						break;
-					}
 				}
 			}
 			else {
@@ -2383,7 +2381,7 @@ int SLAPI AsyncCashGoodsGroupIterator::Next(AsyncCashGoodsGroupInfo * pInfo)
 	int    ok = -1;
 	if(P_GrpList && Pos < P_GrpList->getCount()) {
 		uint   i;
-		AsyncCashGoodsGroupInfo info = *(AsyncCashGoodsGroupInfo *)P_GrpList->at(Pos++);
+		AsyncCashGoodsGroupInfo info = *static_cast<const AsyncCashGoodsGroupInfo *>(P_GrpList->at(Pos++));
 		info.DivN = 1;
 		if(AcnPack.Flags & CASHF_EXPDIVN && AcnPack.P_DivGrpList) {
 			long   default_div = 1;

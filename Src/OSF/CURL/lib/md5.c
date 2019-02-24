@@ -256,7 +256,7 @@ static void MD5_Final(uchar * result, MD5_CTX * ctx);
 static const void * body(MD5_CTX * ctx, const void * data, ulong size)
 {
 	MD5_u32plus saved_a, saved_b, saved_c, saved_d;
-	const uchar * ptr = (const uchar*)data;
+	const uchar * ptr = reinterpret_cast<const uchar *>(data);
 	MD5_u32plus a = ctx->a;
 	MD5_u32plus b = ctx->b;
 	MD5_u32plus c = ctx->c;
@@ -380,7 +380,7 @@ static void MD5_Update(MD5_CTX * ctx, const void * data, ulong size)
 			return;
 		}
 		memcpy(&ctx->buffer[used], data, available);
-		data = (const uchar*)data + available;
+		data = reinterpret_cast<const uchar *>(data) + available;
 		size -= available;
 		body(ctx, ctx->buffer, 64);
 	}

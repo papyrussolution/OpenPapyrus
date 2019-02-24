@@ -149,7 +149,7 @@ static void jpeg_make_c_derived_tbl(j_compress_ptr cinfo, boolean isDC, int tbln
 		ERREXIT1(cinfo, JERR_NO_HUFF_TABLE, tblno);
 	/* Allocate a workspace if we haven't already done so. */
 	if(*pdtbl == NULL)
-		*pdtbl = (c_derived_tbl*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(c_derived_tbl));
+		*pdtbl = (c_derived_tbl*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(c_derived_tbl));
 	dtbl = *pdtbl;
 	/* Figure C.1: make table of Huffman code length for each symbol */
 	p = 0;
@@ -1143,7 +1143,7 @@ METHODDEF(void) finish_pass_gather(j_compress_ptr cinfo)
 			if(!did_dc[tbl]) {
 				htblptr = &cinfo->dc_huff_tbl_ptrs[tbl];
 				if(*htblptr == NULL)
-					*htblptr = jpeg_alloc_huff_table((j_common_ptr)cinfo);
+					*htblptr = jpeg_alloc_huff_table(reinterpret_cast<j_common_ptr>(cinfo));
 				jpeg_gen_optimal_table(cinfo, *htblptr, entropy->dc_count_ptrs[tbl]);
 				did_dc[tbl] = TRUE;
 			}
@@ -1154,7 +1154,7 @@ METHODDEF(void) finish_pass_gather(j_compress_ptr cinfo)
 			if(!did_ac[tbl]) {
 				htblptr = &cinfo->ac_huff_tbl_ptrs[tbl];
 				if(*htblptr == NULL)
-					*htblptr = jpeg_alloc_huff_table((j_common_ptr)cinfo);
+					*htblptr = jpeg_alloc_huff_table(reinterpret_cast<j_common_ptr>(cinfo));
 				jpeg_gen_optimal_table(cinfo, *htblptr, entropy->ac_count_ptrs[tbl]);
 				did_ac[tbl] = TRUE;
 			}
@@ -1186,7 +1186,7 @@ METHODDEF(void) start_pass_huff(j_compress_ptr cinfo, boolean gather_statistics)
 			else {
 				entropy->pub.encode_mcu = encode_mcu_AC_refine;
 				// AC refinement needs a correction bit buffer 
-				SETIFZ(entropy->bit_buffer, (char*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, MAX_CORR_BITS * SIZEOF(char)));
+				SETIFZ(entropy->bit_buffer, (char*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, MAX_CORR_BITS * SIZEOF(char)));
 			}
 		}
 		/* Initialize AC stuff */
@@ -1209,7 +1209,7 @@ METHODDEF(void) start_pass_huff(j_compress_ptr cinfo, boolean gather_statistics)
 				/* Allocate and zero the statistics tables */
 				/* Note that jpeg_gen_optimal_table expects 257 entries in each table! */
 				if(entropy->dc_count_ptrs[tbl] == NULL)
-					entropy->dc_count_ptrs[tbl] = (long*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, 257 * SIZEOF(long));
+					entropy->dc_count_ptrs[tbl] = (long*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, 257 * SIZEOF(long));
 				memzero(entropy->dc_count_ptrs[tbl], 257 * SIZEOF(long));
 			}
 			else {
@@ -1226,7 +1226,7 @@ METHODDEF(void) start_pass_huff(j_compress_ptr cinfo, boolean gather_statistics)
 				if(tbl < 0 || tbl >= NUM_HUFF_TBLS)
 					ERREXIT1(cinfo, JERR_NO_HUFF_TABLE, tbl);
 				if(entropy->ac_count_ptrs[tbl] == NULL)
-					entropy->ac_count_ptrs[tbl] = (long*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, 257 * SIZEOF(long));
+					entropy->ac_count_ptrs[tbl] = (long*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, 257 * SIZEOF(long));
 				memzero(entropy->ac_count_ptrs[tbl], 257 * SIZEOF(long));
 			}
 			else {
@@ -1246,7 +1246,7 @@ METHODDEF(void) start_pass_huff(j_compress_ptr cinfo, boolean gather_statistics)
 // 
 GLOBAL(void) jinit_huff_encoder(j_compress_ptr cinfo)
 {
-	huff_entropy_ptr entropy = (huff_entropy_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(huff_entropy_encoder));
+	huff_entropy_ptr entropy = (huff_entropy_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(huff_entropy_encoder));
 	cinfo->entropy = &entropy->pub;
 	entropy->pub.start_pass = start_pass_huff;
 	// Mark tables unallocated 

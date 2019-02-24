@@ -521,7 +521,7 @@ static /*inline*/ uchar FASTCALL isbn10_calc_checksum(ean_decoder_t * ean)
 	return('X');
 }
 
-static /*inline*/ void FASTCALL ean_expand_upce(ean_decoder_t * ean, ean_pass_t * pass)
+static /*inline*/ void FASTCALL ean_expand_upce(ean_decoder_t * ean, const ean_pass_t * pass)
 {
 	int i = 0;
 	uchar decode;

@@ -390,33 +390,33 @@ int SLAPI PrjTaskFilt::IncludeStatus(long status)
 {
 	if(!PrjTaskCore::IsValidStatus(status))
 		return 0;
-	return InclInList(StatusList, sizeof(StatusList) / sizeof(StatusList[0]), (int16)status);
+	return InclInList(StatusList, SIZEOFARRAY(StatusList), (int16)status);
 }
 
 int SLAPI PrjTaskFilt::ExcludeStatus(long status)
 {
 	if(!PrjTaskCore::IsValidStatus(status))
 		return 0;
-	return ExclFromList(StatusList, sizeof(StatusList) / sizeof(StatusList[0]), 1, 5, (int16)status);
+	return ExclFromList(StatusList, SIZEOFARRAY(StatusList), 1, 5, (int16)status);
 }
 
 int SLAPI PrjTaskFilt::IncludePrior(long prior)
 {
 	if(!PrjTaskCore::IsValidPrior(prior))
 		return 0;
-	return InclInList(PriorList, sizeof(PriorList) / sizeof(PriorList[0]), (int16)prior);
+	return InclInList(PriorList, SIZEOFARRAY(PriorList), (int16)prior);
 }
 
 int SLAPI PrjTaskFilt::ExcludePrior(long prior)
 {
 	if(!PrjTaskCore::IsValidPrior(prior))
 		return 0;
-	return ExclFromList(PriorList, sizeof(PriorList) / sizeof(PriorList[0]), 1, 5, (int16)prior);
+	return ExclFromList(PriorList, SIZEOFARRAY(PriorList), 1, 5, (int16)prior);
 }
 
 int SLAPI PrjTaskFilt::GetStatusList(PPIDArray * pList) const
 {
-	return GetList(StatusList, sizeof(StatusList) / sizeof(StatusList[0]), pList);
+	return GetList(StatusList, SIZEOFARRAY(StatusList), pList);
 }
 
 SString & SLAPI PrjTaskFilt::GetStatusListText(SString & rDest) const
@@ -443,7 +443,7 @@ SString & SLAPI PrjTaskFilt::GetPriorListText(SString & rDest) const
 
 int SLAPI PrjTaskFilt::GetPriorList(PPIDArray * pList) const
 {
-	return GetList(PriorList, sizeof(PriorList) / sizeof(PriorList[0]), pList);
+	return GetList(PriorList, SIZEOFARRAY(PriorList), pList);
 }
 //
 //

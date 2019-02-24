@@ -609,8 +609,8 @@ static void add_ecc(int fullstream[], int datastream[], int version, int data_cw
 #else
 	uchar* data_block = (uchar*)_alloca(short_data_block_length + 2);
 	uchar* ecc_block = (uchar*)_alloca(ecc_block_length + 2);
-	int* interleaved_data = (int*)_alloca((data_cw + 2) * sizeof(int));
-	int* interleaved_ecc = (int*)_alloca((ecc_cw + 2) * sizeof(int));
+	int* interleaved_data = (int *)_alloca((data_cw + 2) * sizeof(int));
+	int* interleaved_ecc = (int *)_alloca((ecc_cw + 2) * sizeof(int));
 #endif
 	posn = 0;
 	for(i = 0; i < blocks; i++) {
@@ -1334,7 +1334,7 @@ static void applyOptimisation(int version, char inputMode[], int inputLength)
 			blockCount++;
 		}
 	}
-	p_block_length = (int*)SAlloc::M(sizeof(int)*blockCount);
+	p_block_length = (int *)SAlloc::M(sizeof(int)*blockCount);
 	assert(p_block_length);
 	if(!p_block_length) 
 		return;
@@ -1509,8 +1509,8 @@ int qr_code(struct ZintSymbol * symbol, const uchar source[], int length)
 	int* datastream;
 	int* fullstream;
 	uchar* grid;
-	int* utfdata = (int*)_alloca((length + 1) * sizeof(int));
-	int* jisdata = (int*)_alloca((length + 1) * sizeof(int));
+	int* utfdata = (int *)_alloca((length + 1) * sizeof(int));
+	int* jisdata = (int *)_alloca((length + 1) * sizeof(int));
 	char* mode = (char*)_alloca(length + 1);
 #endif
 	gs1 = (symbol->input_mode == GS1_MODE);
@@ -1660,8 +1660,8 @@ int qr_code(struct ZintSymbol * symbol, const uchar source[], int length)
 	int datastream[target_binlen + 1];
 	int fullstream[qr_total_codewords[version - 1] + 1];
 #else
-	datastream = (int*)_alloca((target_binlen + 1) * sizeof(int));
-	fullstream = (int*)_alloca((qr_total_codewords[version - 1] + 1) * sizeof(int));
+	datastream = (int *)_alloca((target_binlen + 1) * sizeof(int));
+	fullstream = (int *)_alloca((qr_total_codewords[version - 1] + 1) * sizeof(int));
 #endif
 	qr_binary(datastream, version, target_binlen, mode, jisdata, length, gs1, symbol->eci, est_binlen);
 	add_ecc(fullstream, datastream, version, target_binlen, blocks);

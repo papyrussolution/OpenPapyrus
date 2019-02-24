@@ -643,7 +643,7 @@ int FASTCALL BExtQuery::getRecPosition(DBRowId * pPos)
 int SLAPI BExtQuery::fillTblBuf()
 {
 	const char * p = getRecImage();
-	char * b = P_Tbl ? P_Tbl->getDataBuf() : 0;
+	char * b = P_Tbl ? static_cast<char *>(P_Tbl->getDataBuf()) : 0;
 	if(p && b) {
 		size_t rs = 0;
 		if(!(State & stSqlProvider)) {

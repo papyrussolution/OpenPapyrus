@@ -259,7 +259,7 @@ int LogListWindowSCI::WMHCreate()
 	SScEditorBase::Init(HwndSci, 0/*preserveFileName*/);
 	// @v9.1.12 ::SetWindowLongPtr(HwndSci, GWLP_USERDATA, (LONG_PTR)this);
 	TView::SetWindowUserData(HwndSci, this); // @v9.1.12
-	OrgScintillaWndProc = (WNDPROC)::SetWindowLongPtr(HwndSci, GWLP_WNDPROC, (LONG)ScintillaWindowProc);
+	OrgScintillaWndProc = reinterpret_cast<WNDPROC>(::SetWindowLongPtr(HwndSci, GWLP_WNDPROC, (LONG)ScintillaWindowProc));
 	{
 		KeyAccel.clear();
 		{
@@ -613,11 +613,11 @@ PPLogIdx SLAPI PPMsgLog::GetLogIdx(long row)
 	return li;
 }
 
-void SLAPI PPMsgLog::SetLogIdx(long row, PPLogIdx *li)
+void SLAPI PPMsgLog::SetLogIdx(long row, const PPLogIdx * pLi)
 {
 	if(row >= 0 && row <= GetCount()) {
 		lseek(InStream, row*sizeof(PPLogIdx), SEEK_SET);
-		_write(InStream, li, sizeof(PPLogIdx));
+		_write(InStream, pLi, sizeof(PPLogIdx));
 	}
 }
 
@@ -1463,7 +1463,7 @@ int PPALDD_LogList::InitData(PPFilt & rFilt, long rsrv)
 
 int PPALDD_LogList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 {
-	PPMsgLog * p_ml = (PPMsgLog *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	PPMsgLog * p_ml = static_cast<PPMsgLog *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;
@@ -1474,7 +1474,7 @@ int PPALDD_LogList::NextIteration(PPIterID iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
-	PPMsgLog * p_ml = (PPMsgLog *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	PPMsgLog * p_ml = static_cast<PPMsgLog *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	MsgLogItem item;
 	if(p_ml->NextIteration(&item) > 0) {
 		STRNSCPY(I.LogListStr, item.LogListStr);

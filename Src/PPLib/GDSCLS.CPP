@@ -11,20 +11,15 @@
 #define GDSCLS_EXTSTR_FLD_PROPKIND    3
 #define GDSCLS_EXTSTR_FLD_PROPGRADE   4
 #define GDSCLS_EXTSTR_FLD_PROPADD     5
-
 #define GDSCLS_EXTSTR_FLD_DIM_NAME    6
 #define GDSCLS_EXTSTR_FLD_DIM_SCALE   7
 #define GDSCLS_EXTSTR_FLD_DIM_VALS    8
-
 #define GDSCLS_EXTSTR_FLD_PHPERUFORM  9
 #define GDSCLS_EXTSTR_FLD_TAXFACTOR  10
 #define GDSCLS_EXTSTR_FLD_PACKAGE    11
-
 #define GDSCLS_EXTSTR_FLD_PROPADD2   12
 #define GDSCLS_EXTSTR_FLD_LOTDIMQTTY 13
-//
-//
-//
+
 #define GDSCLS_EXTSTR_FROM_NAME      21
 #define GDSCLS_EXTSTR_FROM_FORM      22
 #define GDSCLS_EXTSTR_FROM_PAR1      23
@@ -925,7 +920,7 @@ int SLAPI GoodsClassCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		p_cache_rec->EditDlgID      = gc_pack.Rec.EditDlgID;
 		p_cache_rec->FiltDlgID      = gc_pack.Rec.FiltDlgID;
 		p_cache_rec->Flags          = gc_pack.Rec.Flags;
-		p_cache_rec->DynGenMask     = (int16)gc_pack.Rec.DynGenMask;
+		p_cache_rec->DynGenMask     = static_cast<int16>(gc_pack.Rec.DynGenMask);
 		p_cache_rec->LotDimCount    = gc_pack.Rec.LotDimCount;
 		p_cache_rec->LotDimUnitID   = gc_pack.Rec.LotDimUnitID;
 
@@ -933,10 +928,10 @@ int SLAPI GoodsClassCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		p_cache_rec->GradeID    = gc_pack.PropGrade.ItemsListID;
 		p_cache_rec->AddPropID  = gc_pack.PropAdd.ItemsListID;
 		p_cache_rec->AddProp2ID = gc_pack.PropAdd2.ItemsListID;
-		p_cache_rec->ScaleX  = (int16)gc_pack.DimX.Scale;
-		p_cache_rec->ScaleY  = (int16)gc_pack.DimY.Scale;
-		p_cache_rec->ScaleZ  = (int16)gc_pack.DimZ.Scale;
-		p_cache_rec->ScaleW  = (int16)gc_pack.DimW.Scale;
+		p_cache_rec->ScaleX  = static_cast<int16>(gc_pack.DimX.Scale);
+		p_cache_rec->ScaleY  = static_cast<int16>(gc_pack.DimY.Scale);
+		p_cache_rec->ScaleZ  = static_cast<int16>(gc_pack.DimZ.Scale);
+		p_cache_rec->ScaleW  = static_cast<int16>(gc_pack.DimW.Scale);
 
 		PPStringSetSCD ss;
 		ss.add(gc_pack.Rec.Name);
@@ -1318,7 +1313,7 @@ int GcCalcDialog::setupFormulaCombo()
 	int    ok = 1;
 	ComboBox   * p_cb = 0;
 	ListWindow * p_lw = 0;
-	if((p_cb = (ComboBox*)getCtrlView(CTLSEL_GDSCLSCALC_FORM)) != 0) {
+	if((p_cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_GDSCLSCALC_FORM))) != 0) {
 		long   single_idx = 0, default_idx = 0;
 		uint   idx = 0;
 		PPGdsClsFormula form;

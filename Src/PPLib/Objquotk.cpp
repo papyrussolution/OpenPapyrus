@@ -173,9 +173,12 @@ PPQuotKindPacket & FASTCALL PPQuotKindPacket::operator = (const PPQuotKindPacket
 //
 //
 //
-PPObjQuotKind::Special::Special()
+PPObjQuotKind::Special::Special(CtrOption ctrOption)
 {
 	THISZERO();
+	if(oneof2(ctrOption, ctrInitialize, ctrInitializeWithCache)) {
+		PPObjQuotKind::GetSpecialKinds(this, BIN(ctrOption == ctrInitializeWithCache));
+	}
 }
 
 int FASTCALL PPObjQuotKind::Special::IsSupplDealKind(PPID qkID) const
@@ -216,8 +219,7 @@ int SLAPI PPObjQuotKind::Classify(PPID id, int * pCls)
 	int    cls = PPQuot::clsGeneral;
 	PPQuotKind rec;
 	if(id && Fetch(id, &rec) > 0) {
-		PPObjQuotKind::Special spc;
-		PPObjQuotKind::GetSpecialKinds(&spc, 1);
+		const PPObjQuotKind::Special spc(PPObjQuotKind::Special::ctrInitializeWithCache);
 		if(oneof2(id, spc.MtxID, spc.MtxRestrID))
 			cls = PPQuot::clsMtx;
 		else if(oneof3(id, spc.SupplDealID, spc.SupplDevUpID, spc.SupplDevDnID))
@@ -562,8 +564,7 @@ int  SLAPI PPObjQuotKind::RemoveObjV(PPID id, ObjCollection * pObjColl, uint opt
 	THROW(CheckRights(PPR_DEL));
 	// @v9.2.9 Блокировка возможности удаления специальных видов котировок {
 	if(id) {
-		PPObjQuotKind::Special spc;
-		PPObjQuotKind::GetSpecialKinds(&spc, 0);
+		const PPObjQuotKind::Special spc(PPObjQuotKind::Special::ctrInitialize);
 		const char * p_spcqk_symb = 0;
 		if(id == spc.MtxID)
 			p_spcqk_symb = "qkspc_goodsmatrix";
@@ -680,8 +681,7 @@ int SLAPI PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pL
 	PPIDArray id_list;
 	PPQuotKind qk_rec;
 	SArray rec_list(sizeof(PPQuotKind));
-	PPObjQuotKind::Special spc;
-	GetSpecialKinds(&spc, 1);
+	const PPObjQuotKind::Special spc(PPObjQuotKind::Special::ctrInitializeWithCache);
 	if(pFilt->Flags & QuotKindFilt::fSupplDeal) {
 		/* @v9.8.3
 		if(Search(spc.SupplDealID, &qk_rec) > 0) {
@@ -1216,9 +1216,9 @@ int SLAPI PPObjQuotKind::MakeCodeString(const PPQuot * pQuot, SString & rBuf)
 //
 class QuotKindCache : public ObjCache {
 public:
-	SLAPI  QuotKindCache() : ObjCache(PPOBJ_QUOTKIND, sizeof(Data)), SymbList(PPOBJ_QUOTKIND)
+	SLAPI  QuotKindCache() : ObjCache(PPOBJ_QUOTKIND, sizeof(Data)), SymbList(PPOBJ_QUOTKIND), RtlListInited(0),
+		Sk(PPObjQuotKind::Special::ctrDefault)
 	{
-		RtlListInited = 0;
 	}
 	int    SLAPI FetchRtlList(PPIDArray & rList, PPIDArray & rTmList);
 	int    SLAPI FetchBySymb(const char * pSymb, PPID * pID)
@@ -1403,13 +1403,11 @@ int FASTCALL PPObjQuotKind::GetSpecialKinds(Special * pRec, int useCache)
 {
 	if(useCache) {
 		QuotKindCache * p_cache = GetDbLocalCachePtr <QuotKindCache> (PPOBJ_QUOTKIND);
-		if(p_cache) {
+		if(p_cache)
 			return p_cache ? p_cache->FetchSpecialKinds(pRec) : PPObjQuotKind::GetSpecialKinds(pRec, 0);
-		}
 	}
 	else {
-		Special rec;
-		//
+		PPObjQuotKind::Special rec(PPObjQuotKind::Special::ctrDefault);
 		PPObjGoods goods_obj;
 		rec.MtxID = goods_obj.GetConfig().MtxQkID;
 		rec.MtxRestrID = goods_obj.GetConfig().MtxRestrQkID;

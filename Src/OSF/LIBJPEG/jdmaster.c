@@ -202,7 +202,7 @@ GLOBAL(void) jpeg_calc_output_dimensions(j_decompress_ptr cinfo)
 // Allocate and fill in the sample_range_limit table 
 {
 	int i;
-	JSAMPLE * table = (JSAMPLE*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, 5 * (MAXJSAMPLE+1) * SIZEOF(JSAMPLE));
+	JSAMPLE * table = (JSAMPLE*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, 5 * (MAXJSAMPLE+1) * SIZEOF(JSAMPLE));
 	// First segment of range limit table: limit[x] = 0 for x < 0 
 	memzero(table, 2 * (MAXJSAMPLE+1) * SIZEOF(JSAMPLE));
 	table += 2 * (MAXJSAMPLE+1); // allow negative subscripts of table 
@@ -352,7 +352,7 @@ static void master_selection(j_decompress_ptr cinfo)
 		jinit_d_main_controller(cinfo, FALSE /* never need full buffer here */);
 
 	/* We can now tell the memory manager to allocate virtual arrays. */
-	(*cinfo->mem->realize_virt_arrays)((j_common_ptr)cinfo);
+	(*cinfo->mem->realize_virt_arrays)(reinterpret_cast<j_common_ptr>(cinfo));
 
 	/* Initialize input side of decompressor to consume first scan. */
 	(*cinfo->inputctl->start_input_pass)(cinfo);
@@ -492,7 +492,7 @@ GLOBAL(void) jpeg_new_colormap(j_decompress_ptr cinfo)
  */
 GLOBAL(void) jinit_master_decompress(j_decompress_ptr cinfo)
 {
-	my_master_ptr master = (my_master_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(my_decomp_master));
+	my_master_ptr master = (my_master_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(my_decomp_master));
 	cinfo->master = &master->pub;
 	master->pub.prepare_for_output_pass = prepare_for_output_pass;
 	master->pub.finish_output_pass = finish_output_pass;

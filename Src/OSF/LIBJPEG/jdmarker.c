@@ -237,7 +237,7 @@ LOCAL(boolean) get_sof(j_decompress_ptr cinfo, boolean is_baseline, boolean is_p
 	if(length != (cinfo->num_components * 3))
 		ERREXIT(cinfo, JERR_BAD_LENGTH);
 	if(cinfo->comp_info == NULL) /* do only once, even if suspend */
-		cinfo->comp_info = (jpeg_component_info*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, cinfo->num_components * SIZEOF(jpeg_component_info));
+		cinfo->comp_info = (jpeg_component_info*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, cinfo->num_components * SIZEOF(jpeg_component_info));
 	for(ci = 0; ci < cinfo->num_components; ci++) {
 		INPUT_BYTE(cinfo, c, return FALSE);
 		/* Check to see whether component id has already been seen   */
@@ -415,7 +415,7 @@ LOCAL(boolean) get_dht(j_decompress_ptr cinfo)
 		if(index < 0 || index >= NUM_HUFF_TBLS)
 			ERREXIT1(cinfo, JERR_DHT_INDEX, index);
 		if(*htblptr == NULL)
-			*htblptr = jpeg_alloc_huff_table((j_common_ptr)cinfo);
+			*htblptr = jpeg_alloc_huff_table(reinterpret_cast<j_common_ptr>(cinfo));
 		MEMCOPY((*htblptr)->bits, bits, SIZEOF((*htblptr)->bits));
 		MEMCOPY((*htblptr)->huffval, huffval, SIZEOF((*htblptr)->huffval));
 	}
@@ -445,7 +445,7 @@ LOCAL(boolean) get_dqt(j_decompress_ptr cinfo)
 		if(n >= NUM_QUANT_TBLS)
 			ERREXIT1(cinfo, JERR_DQT_INDEX, n);
 		if(cinfo->quant_tbl_ptrs[n] == NULL)
-			cinfo->quant_tbl_ptrs[n] = jpeg_alloc_quant_table((j_common_ptr)cinfo);
+			cinfo->quant_tbl_ptrs[n] = jpeg_alloc_quant_table(reinterpret_cast<j_common_ptr>(cinfo));
 		quant_ptr = cinfo->quant_tbl_ptrs[n];
 		if(prec) {
 			if(length < DCTSIZE2 * 2) {
@@ -731,7 +731,7 @@ METHODDEF(boolean) save_marker(j_decompress_ptr cinfo)
 			if((uint)length < limit)
 				limit = (uint)length;
 			/* allocate and initialize the marker item */
-			cur_marker = (jpeg_saved_marker_ptr)(*cinfo->mem->alloc_large)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(struct jpeg_marker_struct) + limit);
+			cur_marker = (jpeg_saved_marker_ptr)(*cinfo->mem->alloc_large)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(struct jpeg_marker_struct) + limit);
 			cur_marker->next = NULL;
 			cur_marker->marker = (uint8)cinfo->unread_marker;
 			cur_marker->original_length = (uint)length;
@@ -1201,7 +1201,7 @@ GLOBAL(void) jinit_marker_reader(j_decompress_ptr cinfo)
 	my_marker_ptr marker;
 	int i;
 	/* Create subobject in permanent pool */
-	marker = (my_marker_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_PERMANENT, SIZEOF(my_marker_reader));
+	marker = (my_marker_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_PERMANENT, SIZEOF(my_marker_reader));
 	cinfo->marker = &marker->pub;
 	/* Initialize public method pointers */
 	marker->pub.reset_marker_reader = reset_marker_reader;

@@ -67,52 +67,52 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_config(int what, void * where)
 	switch(what) {
 		case PCRE_CONFIG_UTF8:
 #if defined COMPILE_PCRE16 || defined COMPILE_PCRE32
-		    *((int*)where) = 0;
+		    *static_cast<int *>(where) = 0;
 		    return PCRE_ERROR_BADOPTION;
 #else
 #if defined SUPPORT_UTF
-		    *((int*)where) = 1;
+		    *static_cast<int *>(where) = 1;
 #else
-		    *((int*)where) = 0;
+		    *static_cast<int *>(where) = 0;
 #endif
 		    break;
 #endif
 		case PCRE_CONFIG_UTF16:
 #if defined COMPILE_PCRE8 || defined COMPILE_PCRE32
-		    *((int*)where) = 0;
+		    *static_cast<int *>(where) = 0;
 		    return PCRE_ERROR_BADOPTION;
 #else
 #if defined SUPPORT_UTF
-		    *((int*)where) = 1;
+		    *static_cast<int *>(where) = 1;
 #else
-		    *((int*)where) = 0;
+		    *static_cast<int *>(where) = 0;
 #endif
 		    break;
 #endif
 		case PCRE_CONFIG_UTF32:
 #if defined COMPILE_PCRE8 || defined COMPILE_PCRE16
-		    *((int*)where) = 0;
+		    *static_cast<int *>(where) = 0;
 		    return PCRE_ERROR_BADOPTION;
 #else
 #if defined SUPPORT_UTF
-		    *((int*)where) = 1;
+		    *static_cast<int *>(where) = 1;
 #else
-		    *((int*)where) = 0;
+		    *static_cast<int *>(where) = 0;
 #endif
 		    break;
 #endif
 		case PCRE_CONFIG_UNICODE_PROPERTIES:
 #ifdef SUPPORT_UCP
-		    *((int*)where) = 1;
+		    *static_cast<int *>(where) = 1;
 #else
-		    *((int*)where) = 0;
+		    *static_cast<int *>(where) = 0;
 #endif
 		    break;
 		case PCRE_CONFIG_JIT:
 #ifdef SUPPORT_JIT
-		    *((int*)where) = 1;
+		    *static_cast<int *>(where) = 1;
 #else
-		    *((int*)where) = 0;
+		    *static_cast<int *>(where) = 0;
 #endif
 		    break;
 		case PCRE_CONFIG_JITTARGET:
@@ -123,20 +123,20 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_config(int what, void * where)
 #endif
 		    break;
 		case PCRE_CONFIG_NEWLINE:
-		    *((int*)where) = NEWLINE;
+		    *static_cast<int *>(where) = NEWLINE;
 		    break;
 		case PCRE_CONFIG_BSR:
 #ifdef BSR_ANYCRLF
-		    *((int*)where) = 1;
+		    *static_cast<int *>(where) = 1;
 #else
-		    *((int*)where) = 0;
+		    *static_cast<int *>(where) = 0;
 #endif
 		    break;
 		case PCRE_CONFIG_LINK_SIZE:
-		    *((int*)where) = real_link_size;
+		    *static_cast<int *>(where) = real_link_size;
 		    break;
 		case PCRE_CONFIG_POSIX_MALLOC_THRESHOLD:
-		    *((int*)where) = POSIX_MALLOC_THRESHOLD;
+		    *static_cast<int *>(where) = POSIX_MALLOC_THRESHOLD;
 		    break;
 		case PCRE_CONFIG_PARENS_LIMIT:
 		    *((unsigned long*)where) = PARENS_NEST_LIMIT;
@@ -149,9 +149,9 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_config(int what, void * where)
 		    break;
 		case PCRE_CONFIG_STACKRECURSE:
 #ifdef NO_RECURSE
-		    *((int*)where) = 0;
+		    *static_cast<int *>(where) = 0;
 #else
-		    *((int*)where) = 1;
+		    *static_cast<int *>(where) = 1;
 #endif
 		    break;
 		default: return PCRE_ERROR_BADOPTION;

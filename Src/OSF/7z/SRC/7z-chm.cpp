@@ -1218,8 +1218,7 @@ namespace NArchive {
 			return s;
 		}
 
-		#define RINOZ(x) { int __tt = (x); if(__tt != 0) return __tt; \
-		}
+		#define RINOZ(x) { int __tt = (x); if(__tt != 0) return __tt; }
 
 		static int CompareFiles(const uint * p1, const uint * p2, void * param)
 		{
@@ -1331,7 +1330,7 @@ namespace NArchive {
 		static int inline GetLog(uint32 num)
 		{
 			for(int i = 0; i < 32; i++)
-				if(((uint32)1 << i) == num)
+				if((1U << i) == num)
 					return i;
 			return -1;
 		}

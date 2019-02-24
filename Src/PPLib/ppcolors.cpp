@@ -278,8 +278,7 @@ PPColorPickerDialog::PPColorPickerDialog() : TDialog(DLG_COLORS), BeginCircleMov
 	RGBCenter.y = RGB_CENTER_Y;
 	{
 		BrightStruc * p_s = new BrightStruc;
-		//p_s->PrevWindowProc = (WNDPROC)SetWindowLong(GetDlgItem(hWnd, CTL_COLORS_BRIGHTRECT), GWLP_WNDPROC, (long)BrightViewProc);
-		p_s->PrevWindowProc = (WNDPROC)TView::SetWindowProp(::GetDlgItem(H(), CTL_COLORS_BRIGHTRECT), GWLP_WNDPROC, BrightViewProc);
+		p_s->PrevWindowProc = static_cast<WNDPROC>(TView::SetWindowProp(::GetDlgItem(H(), CTL_COLORS_BRIGHTRECT), GWLP_WNDPROC, BrightViewProc));
 		p_s->P_Dlg = this;
 		TView::SetWindowUserData(::GetDlgItem(H(), CTL_COLORS_BRIGHTRECT), p_s);
 	}

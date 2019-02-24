@@ -4372,10 +4372,10 @@ static IMPL_CMPFUNC(_2double, i1, i2)
 		double x;
 		double y;
 	};
-	RET_CMPCASCADE2((const I*)i1, (const I*)i2, x, y);
+	RET_CMPCASCADE2(static_cast<const I *>(i1), static_cast<const I *>(i2), x, y);
 }
 
-int SLAPI PPViewDebtorStat::ViewGraph(PPViewBrowser * pBrw)
+int SLAPI PPViewDebtorStat::ViewGraph(const PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	uint   i;

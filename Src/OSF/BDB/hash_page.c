@@ -391,7 +391,7 @@ int __ham_item_next(DBC * dbc, db_lockmode_t mode, db_pgno_t * pgnop)
  * PUBLIC:     db_indx_t *indxp, const DBT *,
  * PUBLIC:     const DBT *, uint32, uint32));
  */
-int __ham_insertpair(DBC * dbc, PAGE * p, db_indx_t * indxp, const DBT * key_dbt, const DBT * data_dbt, uint32 key_type, uint32 data_type)
+int __ham_insertpair(DBC * dbc, PAGE * p, const db_indx_t * indxp, const DBT * key_dbt, const DBT * data_dbt, uint32 key_type, uint32 data_type)
 {
 	uint16 indx;
 	uint32 distance;

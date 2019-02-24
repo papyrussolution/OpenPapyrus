@@ -365,9 +365,9 @@ int PPALDD_JobPool::NextIteration(long iterId)
 {
 	int ok = -1;
 	IterProlog(iterId, 0);
-	long n = (uint)I.nn;
+	long n = static_cast<uint>(I.nn);
 	PPJob item;
-	PPJobPool * p_jobpool = (PPJobPool*)Extra[1].Ptr;
+	PPJobPool * p_jobpool = static_cast<PPJobPool *>(Extra[1].Ptr);
 	if(p_jobpool->Enum(&n, &item) > 0) {
 		SString buf;
 		I.ID = item.ID;
@@ -600,7 +600,7 @@ int SLAPI PPViewJob::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 // static
 int FASTCALL PPViewJob::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	PPViewJob * p_v = (PPViewJob *)pBlk->ExtraPtr;
+	PPViewJob * p_v = static_cast<PPViewJob *>(pBlk->ExtraPtr);
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
@@ -614,11 +614,11 @@ int SLAPI PPViewJob::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 {
 	int    ok = (ppvCmd == PPVCMD_PRINT) ? -2 : PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		AryBrowserDef * p_def = pBrw ? (AryBrowserDef *)pBrw->getDef() : 0;
+		AryBrowserDef * p_def = pBrw ? static_cast<AryBrowserDef *>(pBrw->getDef()) : 0;
 		const  long cur_pos = p_def ? p_def->_curItem() : 0;
 		long   update_pos = cur_pos;
 		PPID   update_id = 0;
-		PPID   job_id = pHdr ? *(long *)pHdr : 0;
+		PPID   job_id = pHdr ? *static_cast<const long *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_ADDITEM:
 				ok = AddItem(&update_id);

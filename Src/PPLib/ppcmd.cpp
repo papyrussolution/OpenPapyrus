@@ -691,11 +691,11 @@ struct _Srch {
 	const  PPCommandItem * P_Item; // out param
 };
 
-int _SearchByID(const PPCommandItem * pItem, long parentID, void * extraPtr)
+static int _SearchByID(const PPCommandItem * pItem, long parentID, void * extraPtr)
 {
 	int    ok = -1;
 	if(pItem) {
-		_Srch * p_s = (_Srch *)extraPtr;
+		_Srch * p_s = static_cast<_Srch *>(extraPtr);
 		if(p_s->ID == pItem->ID) {
 			p_s->ParentID = parentID;
 			p_s->P_Item   = pItem;
@@ -2666,7 +2666,7 @@ int SLAPI EditObjReceiveParam(ObjReceiveParam * pParam, int editOptions);
 
 class CMD_HDL_CLS(RECEIVEPACKETS) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(RECEIVEPACKETS)(PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	SLAPI  CMD_HDL_CLS(RECEIVEPACKETS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
 	virtual int SLAPI EditParam(SBuffer * pParam, long, long)

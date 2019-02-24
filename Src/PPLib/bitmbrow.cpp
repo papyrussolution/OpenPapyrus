@@ -2358,9 +2358,7 @@ private:
 				LotExtCodeTbl::Rec rec;
 				PPLotExtCodeContainer::MarkSet set;
 				if(EditItemDialog(rec, c, set) > 0) {
-					//uint   idx = 0;
-					//if(Data.Add(RowIdx, 0, 0, rec.Code, &idx))
-					if(Data.Add(RowIdx, set))
+					if(Data.AddValidation(set))
 						updateList(-1);
 					else
 						PPError();
@@ -2431,7 +2429,7 @@ private:
 						}
 						if(code_buf.NotEmpty()) {
 							if(FontId <= 0) {
-								HFONT  hf = (HFONT)SendMessage(p_draw_item->H_Item, WM_GETFONT, 0, 0);
+								HFONT  hf = reinterpret_cast<HFONT>(SendMessage(p_draw_item->H_Item, WM_GETFONT, 0, 0));
 								LOGFONT f;
 								if(hf && ::GetObject(hf, sizeof(f), &f)) {
 									SFontDescr fd(0, 0, 0);
@@ -2576,7 +2574,7 @@ private:
 			(temp_buf = rRec.Code).Strip();
 		dlg->setCtrlString(CTL_LOTEXTCODE_CODE, temp_buf);
 		if(firstChar) {
-			TInputLine * il = (TInputLine*)dlg->getCtrlView(CTL_LOTEXTCODE_CODE);
+			TInputLine * il = static_cast<TInputLine *>(dlg->getCtrlView(CTL_LOTEXTCODE_CODE));
 			CALLPTRMEMB(il, disableDeleteSelection(1));
 		}
 		dlg->setStaticText(CTL_LOTEXTCODE_INFO, info_buf);
@@ -2752,7 +2750,7 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 				(temp_buf = rRec.Code).Strip();
 			dlg->setCtrlString(CTL_LOTEXTCODE_CODE, temp_buf);
 			if(firstChar) {
-				TInputLine * il = (TInputLine*)dlg->getCtrlView(CTL_LOTEXTCODE_CODE);
+				TInputLine * il = static_cast<TInputLine *>(dlg->getCtrlView(CTL_LOTEXTCODE_CODE));
 				CALLPTRMEMB(il, disableDeleteSelection(1));
 			}
 			if(lot_rec.GoodsID) {
@@ -2894,7 +2892,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 			if(TVCMD == cmMouseHover) {
 				long   v = 0;
 				SString buf;
-				TPoint point = *(TPoint *)event.message.infoPtr;
+				TPoint point = *static_cast<TPoint *>(event.message.infoPtr);
 				ItemByPoint(point, 0, &v);
 				if(ProblemsList.GetText(v, buf) > 0)
 					PPTooltipMessage(buf, 0, H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
@@ -3898,7 +3896,7 @@ int PPALDD_Complete::InitData(PPFilt & rFilt, long rsrv)
 
 int PPALDD_Complete::InitIteration(PPIterID iterId, int /*sortId*/, long /*rsrv*/)
 {
-	CompleteBrowser * p_cb = (CompleteBrowser *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	CompleteBrowser * p_cb = static_cast<CompleteBrowser *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	IterProlog(iterId, 1);
 	return BIN(p_cb->InitIteration());
 }
@@ -3907,7 +3905,7 @@ int PPALDD_Complete::NextIteration(PPIterID iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
-	CompleteBrowser * p_cb = (CompleteBrowser *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	CompleteBrowser * p_cb = static_cast<CompleteBrowser *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	CompleteItem      item;
 	if(p_cb->NextIteration(&item) > 0) {
 		I.GoodsID = item.GoodsID;

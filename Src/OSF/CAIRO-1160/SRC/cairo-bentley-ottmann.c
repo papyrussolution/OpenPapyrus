@@ -543,31 +543,22 @@ static int _cairo_bo_intersect_ordinate_32_compare(cairo_bo_intersect_ordinate_t
  * given edge and before the stop event for the edge. See the comments
  * in the implementation for more details.
  */
-static cairo_bool_t _cairo_bo_edge_contains_intersect_point(cairo_bo_edge_t * edge,
-    cairo_bo_intersect_point_t * point)
+static cairo_bool_t _cairo_bo_edge_contains_intersect_point(cairo_bo_edge_t * edge, const cairo_bo_intersect_point_t * point)
 {
-	int cmp_top, cmp_bottom;
-
 	/* XXX: When running the actual algorithm, we don't actually need to
 	 * compare against edge->top at all here, since any intersection above
 	 * top is eliminated early via a slope comparison. We're leaving these
 	 * here for now only for the sake of the quadratic-time intersection
 	 * finder which needs them.
 	 */
-
-	cmp_top = _cairo_bo_intersect_ordinate_32_compare(point->y,
-		edge->edge.top);
-	cmp_bottom = _cairo_bo_intersect_ordinate_32_compare(point->y,
-		edge->edge.bottom);
-
+	const int cmp_top = _cairo_bo_intersect_ordinate_32_compare(point->y, edge->edge.top);
+	const int cmp_bottom = _cairo_bo_intersect_ordinate_32_compare(point->y, edge->edge.bottom);
 	if(cmp_top < 0 || cmp_bottom > 0) {
 		return FALSE;
 	}
-
 	if(cmp_top > 0 && cmp_bottom < 0) {
 		return TRUE;
 	}
-
 	/* At this stage, the point lies on the same y value as either
 	 * edge->top or edge->bottom, so we have to examine the x value in
 	 * order to properly determine containment. */
@@ -578,19 +569,12 @@ static cairo_bool_t _cairo_bo_edge_contains_intersect_point(cairo_bo_edge_t * ed
 	 * of the point is the same as the y value of the bottom of the
 	 * edge, then the x value of the point must be less to be
 	 * considered as inside. */
-
 	if(cmp_top == 0) {
-		cairo_fixed_t top_x;
-
-		top_x = _line_compute_intersection_x_for_y(&edge->edge.line,
-			edge->edge.top);
+		cairo_fixed_t top_x = _line_compute_intersection_x_for_y(&edge->edge.line, edge->edge.top);
 		return _cairo_bo_intersect_ordinate_32_compare(point->x, top_x) > 0;
 	}
 	else { /* cmp_bottom == 0 */
-		cairo_fixed_t bot_x;
-
-		bot_x = _line_compute_intersection_x_for_y(&edge->edge.line,
-			edge->edge.bottom);
+		cairo_fixed_t bot_x = _line_compute_intersection_x_for_y(&edge->edge.line, edge->edge.bottom);
 		return _cairo_bo_intersect_ordinate_32_compare(point->x, bot_x) < 0;
 	}
 }
@@ -611,21 +595,15 @@ static cairo_bool_t _cairo_bo_edge_contains_intersect_point(cairo_bo_edge_t * ed
  * effectively outside (no intersection is returned). Also, if the
  * intersection point has the same
  */
-static cairo_bool_t _cairo_bo_edge_intersect(cairo_bo_edge_t * a,
-    cairo_bo_edge_t * b,
-    cairo_bo_point32_t * intersection)
+static cairo_bool_t _cairo_bo_edge_intersect(cairo_bo_edge_t * a, cairo_bo_edge_t * b, cairo_bo_point32_t * intersection)
 {
 	cairo_bo_intersect_point_t quorem;
-
 	if(!intersect_lines(a, b, &quorem))
 		return FALSE;
-
 	if(!_cairo_bo_edge_contains_intersect_point(a, &quorem))
 		return FALSE;
-
 	if(!_cairo_bo_edge_contains_intersect_point(b, &quorem))
 		return FALSE;
-
 	/* Now that we've correctly compared the intersection point and
 	 * determined that it lies within the edge, then we know that we
 	 * no longer need any more bits of storage for the intersection
@@ -633,23 +611,17 @@ static cairo_bool_t _cairo_bo_edge_intersect(cairo_bo_edge_t * a,
 	 * remainder from the division. */
 	intersection->x = quorem.x.ordinate;
 	intersection->y = quorem.y.ordinate;
-
 	return TRUE;
 }
 
-static inline int cairo_bo_event_compare(const cairo_bo_event_t * a,
-    const cairo_bo_event_t * b)
+static inline int cairo_bo_event_compare(const cairo_bo_event_t * a, const cairo_bo_event_t * b)
 {
-	int cmp;
-
-	cmp = _cairo_bo_point32_compare(&a->point, &b->point);
+	int cmp = _cairo_bo_point32_compare(&a->point, &b->point);
 	if(cmp)
 		return cmp;
-
 	cmp = a->type - b->type;
 	if(cmp)
 		return cmp;
-
 	return a - b;
 }
 
@@ -657,7 +629,6 @@ static inline void _pqueue_init(pqueue_t * pq)
 {
 	pq->max_size = ARRAY_LENGTH(pq->elements_embedded);
 	pq->size = 0;
-
 	pq->elements = pq->elements_embedded;
 }
 

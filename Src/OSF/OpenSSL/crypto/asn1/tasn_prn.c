@@ -463,7 +463,7 @@ static int asn1_primitive_print(BIO * out, ASN1_VALUE ** fld,
 	switch(utype) {
 		case V_ASN1_BOOLEAN:
 	    {
-		    int boolval = *(int*)fld;
+		    int boolval = *(int *)fld;
 		    if(boolval == -1)
 			    boolval = it->size;
 		    ret = asn1_print_boolean(out, boolval);

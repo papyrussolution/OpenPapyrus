@@ -493,17 +493,14 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 	{
 		for(uint i = 0; i < rPack.GetCount(); i++) {
 			const CCheckLineTbl::Rec & r_item = rPack.GetLine(i);
-			if(IsAlcGoods(r_item.GoodsID)) {
-				if(PreprocessGoodsItem(r_item.GoodsID, 0, 0, 0, agi) > 0) {
-					if(agi.StatusFlags & agi.stMarkWanted) {
-						marked_pos_list.add(static_cast<long>(i+1));
-						rPack.GetLineTextExt(i+1, CCheckPacket::lnextEgaisMark, mark_buf);
-						THROW_PP_S(IsEgaisMark(mark_buf, 0), PPERR_TEXTISNTEGAISMARK, mark_buf);
-					}
-					else {
-						nonmarked_pos_list.add(static_cast<long>(i+1));
-					}
+			if(IsAlcGoods(r_item.GoodsID) && PreprocessGoodsItem(r_item.GoodsID, 0, 0, 0, agi) > 0) {
+				if(agi.StatusFlags & agi.stMarkWanted) {
+					marked_pos_list.add(static_cast<long>(i+1));
+					rPack.GetLineTextExt(i+1, CCheckPacket::lnextEgaisMark, mark_buf);
+					THROW_PP_S(IsEgaisMark(mark_buf, 0), PPERR_TEXTISNTEGAISMARK, mark_buf);
 				}
+				else
+					nonmarked_pos_list.add(static_cast<long>(i+1));
 			}
 		}
 	}
@@ -535,7 +532,7 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 			n_doc.PutAttrib("inn", EncText(temp_buf = inn));
 			n_doc.PutAttrib("kpp", EncText(temp_buf = kpp));
 			{
-				org_addr = 0;
+				org_addr.Z();
 				LocationTbl::Rec loc_rec;
 				PersonTbl::Rec psn_rec;
 				if(loc_id && PsnObj.LocObj.Search(loc_id, &loc_rec) > 0) {
@@ -588,7 +585,7 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 			}
 			{
 				for(uint i = 0; i < marked_pos_list.getCount(); i++) {
-					uint   _pos = static_cast<uint>(marked_pos_list.get(i) - 1);
+					const uint _pos = static_cast<uint>(marked_pos_list.get(i) - 1);
 					assert(_pos >= 0 && _pos < rPack.GetCount()); // @paranoic
 					if(_pos >= 0 && _pos < rPack.GetCount()) { // @paranoic
 						const CCheckLineTbl::Rec & r_item = rPack.GetLine(_pos);
@@ -627,7 +624,7 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 			}
 			if(!omit_nonmarked_goods) {
 				for(uint i = 0; i < nonmarked_pos_list.getCount(); i++) {
-					uint   _pos = static_cast<uint>(nonmarked_pos_list.get(i) - 1);
+					const uint _pos = static_cast<uint>(nonmarked_pos_list.get(i) - 1);
 					assert(_pos >= 0 && _pos < rPack.GetCount()); // @paranoic
 					if(_pos >= 0 && _pos < rPack.GetCount()) { // @paranoic
 						const CCheckLineTbl::Rec & r_item = rPack.GetLine(_pos);
@@ -641,7 +638,7 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 							n_item.PutAttrib("volume", EncText(temp_buf.Z().Cat(agi.Volume, MKSFMTD(0, 3, 0))));
 							n_item.PutAttrib("alc", EncText(temp_buf.Z().Cat(agi.Proof, MKSFMTD(0, 1, 0))));
 							{
-								double _p = intmnytodbl(r_item.Price) - r_item.Dscnt;
+								const double _p = intmnytodbl(r_item.Price) - r_item.Dscnt;
 								temp_buf.Z().Cat(_p, MKSFMTD(0, 2, 0));
 								n_item.PutAttrib("price", EncText(temp_buf));
 							}
@@ -1027,14 +1024,14 @@ const SString & FASTCALL PPEgaisProcessor::EncText(const char * pS)
 {
 	EncBuf = pS;
 	EncBuf.ReplaceChar('\x07', ' '); // @v9.4.8
-	PROFILE(XMLReplaceSpecSymb(EncBuf, "&<>\'"));
+	XMLReplaceSpecSymb(EncBuf, "&<>\'");
 	return EncBuf.Transf(CTRANSF_INNER_TO_UTF8);
 }
 
 const SString & FASTCALL PPEgaisProcessor::EncText(const SString & rS)
 {
 	(EncBuf = rS).ReplaceChar('\x07', ' '); // @v9.4.8
-	PROFILE(XMLReplaceSpecSymb(EncBuf, "&<>\'"));
+	XMLReplaceSpecSymb(EncBuf, "&<>\'");
 	return EncBuf.Transf(CTRANSF_INNER_TO_UTF8);
 }
 
@@ -4816,7 +4813,7 @@ int SLAPI PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, const TSColl
     return ok;
 }
 
-int SLAPI PPEgaisProcessor::Helper_AcceptTtnRefB(Packet * pPack, TSCollection <PPEgaisProcessor::Packet> * pPackList, const uint packIdx, LongArray & rSkipPackIdxList)
+int SLAPI PPEgaisProcessor::Helper_AcceptTtnRefB(const Packet * pPack, const TSCollection <PPEgaisProcessor::Packet> * pPackList, const uint packIdx, LongArray & rSkipPackIdxList)
 {
 	int    ok = -1;
 	const InformB * p_inf = static_cast<const InformB *>(pPack->P_Data);
@@ -5069,7 +5066,7 @@ IMPL_CMPCFUNC(EgaisSettledTransferItem, p1, p2)
 }
 */
 
-int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(const PPBillPacket * pCurrentRestPack, const DateRange * pPeriod)
+int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPacket * pCurrentRestPack, const DateRange * pPeriod)
 {
 	int    ok = 1;
 	const  PPID loc_id = pCurrentRestPack ? pCurrentRestPack->Rec.LocID : 0;
@@ -5101,50 +5098,49 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(const PPBillPacket * pCurr
 					if(sbill_rec.LocID == loc_id) {
 						ex_today_bill_id = sbill_rec.ID;
 						PPObjBill::MakeCodeString(&sbill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
-						//PPRef->Ot.GetTagStr(PPOBJ_BILL, sbill_rec.ID, PPTAG_BILL_EDIACK, edi_ack.Z());
-						//PPRef->Ot.GetTagStr(PPOBJ_BILL, sbill_rec.ID, PPTAG_BILL_EDIIDENT, temp_buf.Z());
 					}
 				}
 			}
-			if(ex_today_bill_id) {
+			if(ex_today_bill_id)
 				LogTextWithAddendum(PPTXT_EGAIS_TODAYYETWROFFR2, bill_text);
-			}
 			else if(GetAlcGoodsList(alco_goods_list) > 0) {
 				SString egais_code;
 				ReceiptTbl::Rec lot_rec;
 				PPIDArray lot_id_list;
 				if(Cfg.E.WrOffShopWay == Cfg.woswBalanceWithLots) {
-					for(uint i = 0; i < pCurrentRestPack->GetTCount(); i++) {
-						const PPTransferItem & r_ti = pCurrentRestPack->ConstTI(i);
-						if(r_ti.Quantity_ > 0.0 && pCurrentRestPack->LTagL.GetTagStr(i, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code) > 0) {
-							assert(egais_code.NotEmpty());
-							PPRef->Ot.SearchObjectsByStrExactly(PPOBJ_LOT, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code, &lot_id_list);
-							double current_lot_rest = 0.0;
-							for(uint j = 0; j < lot_id_list.getCount(); j++) {
-								const PPID lot_id = lot_id_list.get(j);
-								if(P_BObj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0 && lot_rec.LocID == loc_id) {
-									double _rest = 0.0;
-									P_BObj->trfr->GetRest(lot_id, _cur_date, MAXLONG, &_rest, 0);
-									current_lot_rest += _rest;
+					if(!v3markMode) {
+						for(uint i = 0; i < pCurrentRestPack->GetTCount(); i++) {
+							const PPTransferItem & r_ti = pCurrentRestPack->ConstTI(i);
+							if(r_ti.Quantity_ > 0.0 && pCurrentRestPack->LTagL.GetTagStr(i, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code) > 0) {
+								assert(egais_code.NotEmpty());
+								PPRef->Ot.SearchObjectsByStrExactly(PPOBJ_LOT, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code, &lot_id_list);
+								double current_lot_rest = 0.0;
+								for(uint j = 0; j < lot_id_list.getCount(); j++) {
+									const PPID lot_id = lot_id_list.get(j);
+									if(P_BObj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0 && lot_rec.LocID == loc_id) {
+										double _rest = 0.0;
+										P_BObj->trfr->GetRest(lot_id, _cur_date, MAXLONG, &_rest, 0);
+										current_lot_rest += _rest;
+									}
 								}
-							}
-							double wroff_qtty = (r_ti.Quantity_ - current_lot_rest);
-							if(wroff_qtty >= 1.0) {
-								if(!p_wroff_bp) {
-									THROW_MEM(p_wroff_bp = new PPBillPacket);
-									THROW(p_wroff_bp->CreateBlank2(wos_op_id, _cur_date, loc_id, 1));
-								}
-								{
-									PPTransferItem ti;
-									uint   new_pos = p_wroff_bp->GetTCount();
-									THROW(ti.Init(&p_wroff_bp->Rec, 1));
-									THROW(ti.SetupGoods(r_ti.GoodsID, 0));
-									ti.Quantity_ = wroff_qtty;
-									THROW(p_wroff_bp->LoadTItem(&ti, 0, 0));
+								const double wroff_qtty = (r_ti.Quantity_ - current_lot_rest);
+								if(wroff_qtty >= 1.0) {
+									if(!p_wroff_bp) {
+										THROW_MEM(p_wroff_bp = new PPBillPacket);
+										THROW(p_wroff_bp->CreateBlank2(wos_op_id, _cur_date, loc_id, 1));
+									}
 									{
-										ObjTagList tag_list;
-										tag_list.PutItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
-										THROW(p_wroff_bp->LTagL.Set(new_pos, &tag_list));
+										PPTransferItem ti;
+										const uint new_pos = p_wroff_bp->GetTCount();
+										THROW(ti.Init(&p_wroff_bp->Rec, 1));
+										THROW(ti.SetupGoods(r_ti.GoodsID, 0));
+										ti.Quantity_ = wroff_qtty;
+										THROW(p_wroff_bp->LoadTItem(&ti, 0, 0));
+										{
+											ObjTagList tag_list;
+											tag_list.PutItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
+											THROW(p_wroff_bp->LTagL.Set(new_pos, &tag_list));
+										}
 									}
 								}
 							}
@@ -5176,9 +5172,8 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(const PPBillPacket * pCurr
 									skip = 0;
 								}
 							}
-							if(skip) {
+							if(skip)
 								LogTextWithAddendum(PPTXT_EGAIS_WROFFR2CCFNONODES, temp_buf.Z());
-							}
 						}
 					}
 					if(!skip) {
@@ -5217,12 +5212,12 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(const PPBillPacket * pCurr
 											GetEgaisCodeList(goods_id, bc_list);
 										}
 										// GetEgaisCodeList(goods_id, bc_list); // @v9.9.0
-
 										const double ccl_qtty = r_ccl.Quantity;
 										double ccl_rest = ccl_qtty;
 										for(uint bci = 0; bci < bc_list.getCount(); bci++) {
 											egais_code = bc_list.at(bci).Code;
 											double ex_row_qtty = 0.0;
+											double crest = 0.0;
 											if(p_wroff_bp) {
 												p_wroff_bp->LTagL.SearchString(egais_code, PPTAG_LOT_FSRARLOTGOODSCODE, 0, ex_row_list);
 												for(uint eridx = 0; eridx < ex_row_list.getCount(); eridx++) {
@@ -5232,8 +5227,6 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(const PPBillPacket * pCurr
 											}
 											else
 												ex_row_list.clear();
-											//
-											double crest = 0.0;
 											{
 												pCurrentRestPack->LTagL.SearchString(egais_code, PPTAG_LOT_FSRARLOTGOODSCODE, 0, crest_row_list);
 												for(uint cri = 0; cri < crest_row_list.getCount(); cri++) {
@@ -5299,9 +5292,6 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(const PPBillPacket * pCurr
 						}
 					}
 				}
-				else {
-
-				}
 				if(p_wroff_bp && p_wroff_bp->GetTCount()) {
 					p_wroff_bp->InitAmounts();
 					THROW(P_BObj->TurnPacket(p_wroff_bp, 1));
@@ -5349,16 +5339,13 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 		PPOprKind op_rec_r1;
 		PPOprKind op_rec_r2;
 		int    r1_can_have_main_org_ar = 0;
-		PPID   target_ar2_id = 0; // Дополнительная статья, которая, если !0, должна совпадать
-			// у документа остатков по R2 и по R1.
+		PPID   target_ar2_id = 0; // Дополнительная статья, которая, если !0, должна совпадать у документа остатков по R2 и по R1.
 		GetOpData(op_id, &op_rec_r1);
 		GetOpData(pCurrentRestPack->Rec.OpID, &op_rec_r2);
-		if(AcsObj.IsLinkedToMainOrg(op_rec_r1.AccSheet2ID)) {
+		if(AcsObj.IsLinkedToMainOrg(op_rec_r1.AccSheet2ID))
 			r1_can_have_main_org_ar = 1;
-		}
-		if(r1_can_have_main_org_ar && pCurrentRestPack->Rec.Object2 && AcsObj.IsLinkedToMainOrg(op_rec_r2.AccSheet2ID)) {
+		if(r1_can_have_main_org_ar && pCurrentRestPack->Rec.Object2 && AcsObj.IsLinkedToMainOrg(op_rec_r2.AccSheet2ID))
 			target_ar2_id = pCurrentRestPack->Rec.Object2;
-		}
 		// } @v9.6.5
 		for(DateIter di(&period); P_BObj->P_Tbl->EnumByOpr(op_id, &di, &bill_rec) > 0;) {
 			if(oneof2(bill_rec.EdiOp, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTS_V2)) {
@@ -5743,15 +5730,6 @@ int SLAPI PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const D
 			THROW(tra.Commit());
 			PPObjBill::MakeCodeString(&p_bp->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
 			LogTextWithAddendum(PPTXT_EGAIS_RESTSACCEPTED, bill_text);
-			//
-			// @v9.2.11 {
-			/* @v9.4.0
-			if(pPack->DocType == PPEDIOP_EGAIS_REPLYRESTSSHOP) {
-				THROW(Helper_CreateTransferToShop(p_bp));
-				//THROW(Helper_CreateWriteOffShop(p_bp, pPeriod));
-			}
-			*/
-			// } @v9.2.11
 		}
     }
 	CATCHZOK
@@ -6917,7 +6895,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 				Packet * p_pack = pack_list.at(last_restshop_pos);
 				PPBillPacket * p_bp = p_pack ? static_cast<PPBillPacket *>(p_pack->P_Data) : 0;
 				THROW(Helper_CreateTransferToShop(p_bp));
-				THROW(Helper_CreateWriteOffShop(p_bp, pPeriod));
+				THROW(Helper_CreateWriteOffShop(0, p_bp, pPeriod));
 			}
 		}
 	}
@@ -8487,7 +8465,7 @@ int SLAPI PPEgaisProcessor::InputMark(const PrcssrAlcReport::GoodsItem * pAgi, S
 		else {
 			PPSetError(PPERR_TEXTISNTEGAISMARK, temp_buf);
 			PPErrorByDialog(dlg, CTL_EGAISMARK_INPUT);
-			TInputLine * p_il = (TInputLine *)dlg->getCtrlView(CTL_EGAISMARK_INPUT);
+			TInputLine * p_il = static_cast<TInputLine *>(dlg->getCtrlView(CTL_EGAISMARK_INPUT));
 			CALLPTRMEMB(p_il, selectAll(1));
 			rMark.Z();
 		}

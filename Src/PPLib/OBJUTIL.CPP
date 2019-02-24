@@ -1393,7 +1393,7 @@ ListWindow * FASTCALL GetPPObjList(PPID obj, uint flags, void * extraPtr)
 
 int FASTCALL SetupPPObjCombo(TDialog * dlg, uint ctl, PPID obj, PPID id, uint flags, void * extraPtr)
 {
-	int    ok = SetupPPObjCombo((ComboBox*)dlg->getCtrlView(ctl), obj, id, flags, extraPtr);
+	int    ok = SetupPPObjCombo(static_cast<ComboBox *>(dlg->getCtrlView(ctl)), obj, id, flags, extraPtr);
 	if(ok && flags & OLW_WORDSELECTOR)
 		dlg->SetupWordSelector(ctl, 0, id, 2, WordSel_ExtraBlock::fAlwaysSearchBySubStr); // @v9.4.0 0-->WordSel_ExtraBlock::fAlwaysSearchBySubStr
 	return ok;
@@ -1401,7 +1401,7 @@ int FASTCALL SetupPPObjCombo(TDialog * dlg, uint ctl, PPID obj, PPID id, uint fl
 
 int FASTCALL SetupPPObjCombo(TDialog * dlg, uint ctl, PPID obj, PPID id, uint flags)
 {
-	int    ok = SetupPPObjCombo((ComboBox*)dlg->getCtrlView(ctl), obj, id, flags, 0);
+	int    ok = SetupPPObjCombo(static_cast<ComboBox *>(dlg->getCtrlView(ctl)), obj, id, flags, 0);
 	if(ok && flags & OLW_WORDSELECTOR)
 		dlg->SetupWordSelector(ctl, 0, id, 2, 0);
 	return ok;
@@ -2273,7 +2273,7 @@ PPALDD_DESTRUCTOR(StrAssocArray) { Destroy(); }
 
 int PPALDD_StrAssocArray::InitData(PPFilt & rFilt, long rsrv)
 {
-	StrAssocArray * p_list = (StrAssocArray *)rFilt.Ptr;
+	StrAssocArray * p_list = static_cast<StrAssocArray *>(rFilt.Ptr);
 	Extra[0].Ptr = p_list;
 	return DlRtm::InitData(rFilt, rsrv);
 }
@@ -2281,7 +2281,7 @@ int PPALDD_StrAssocArray::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_StrAssocArray::InitIteration(long iterId, int sortId, long rsrv)
 {
 	IterProlog(iterId, 1);
-	StrAssocArray * p_list = (StrAssocArray *)Extra[0].Ptr;
+	StrAssocArray * p_list = static_cast<StrAssocArray *>(Extra[0].Ptr);
 	CALLPTRMEMB(p_list, setPointer(0));
 	return -1;
 }
@@ -2290,7 +2290,7 @@ int PPALDD_StrAssocArray::NextIteration(long iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
-	StrAssocArray * p_list = (StrAssocArray *)Extra[0].Ptr;
+	StrAssocArray * p_list = static_cast<StrAssocArray *>(Extra[0].Ptr);
 	if(p_list && p_list->getPointer() < p_list->getCount()) {
 		StrAssocArray::Item item = p_list->Get(p_list->getPointer());
 		I.Id = item.Id;

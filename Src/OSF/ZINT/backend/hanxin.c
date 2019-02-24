@@ -1245,8 +1245,8 @@ int han_xin(struct ZintSymbol * symbol, const uchar source[], int length)
 	int gbdata[(length + 1) * 2];
 	char mode[length + 1];
 #else
-	int* utfdata = (int*)_alloca((length + 1) * sizeof(int));
-	int* gbdata = (int*)_alloca(((length + 1) * 2) * sizeof(int));
+	int* utfdata = (int *)_alloca((length + 1) * sizeof(int));
+	int* gbdata = (int *)_alloca(((length + 1) * 2) * sizeof(int));
 	char* mode = (char*)_alloca((length + 1) * sizeof(char));
 	char* binary;
 	uchar * datastream;

@@ -173,7 +173,7 @@ void cairo_font_options_destroy(cairo_font_options_t * options)
  *
  * Since: 1.0
  **/
-cairo_status_t FASTCALL cairo_font_options_status(cairo_font_options_t * options)
+cairo_status_t FASTCALL cairo_font_options_status(const cairo_font_options_t * options)
 {
 	if(options == NULL)
 		return CAIRO_STATUS_NULL_POINTER;
@@ -587,7 +587,7 @@ void cairo_font_options_set_variations(cairo_font_options_t * options,
  *
  * Since: 1.16
  **/
-const char * cairo_font_options_get_variations(cairo_font_options_t * options)
+const char * cairo_font_options_get_variations(const cairo_font_options_t * options)
 {
 	return options->variations;
 }

@@ -730,7 +730,7 @@ static bool unRLE_obuf_to_output_SMALL(DState* s)
 					return false;
 				if(s->state_out_len == 0) 
 					break;
-				*( (uchar*)(s->strm->next_out) ) = s->state_out_ch;
+				*((uchar*)(s->strm->next_out) ) = s->state_out_ch;
 				BZ_UPDATE_CRC(s->calculatedBlockCRC, s->state_out_ch);
 				s->state_out_len--;
 				s->strm->next_out++;
@@ -746,7 +746,7 @@ static bool unRLE_obuf_to_output_SMALL(DState* s)
 			if(s->nblock_used > s->save_nblock+1)
 				return true;
 			s->state_out_len = 1;
-			s->state_out_ch = s->k0;
+			s->state_out_ch = static_cast<uchar>(s->k0);
 			BZ_GET_SMALL(k1); 
 			s->nblock_used++;
 			if(s->nblock_used == s->save_nblock+1) 

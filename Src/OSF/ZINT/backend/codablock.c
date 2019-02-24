@@ -399,7 +399,7 @@ int Rows2Columns(CharacterSetTable * T, uchar * data, int dataLength,
 #ifndef _MSC_VER
 	int * pBackupSet[dataLength];
 #else
-	int * pBackupSet = (int*)_alloca(dataLength*sizeof(int));
+	int * pBackupSet = (int *)_alloca(dataLength*sizeof(int));
 #endif
 
 	rowsRequested = *pRows;
@@ -653,7 +653,7 @@ int codablock(struct ZintSymbol * symbol, uchar source[], int length)
 	int pSet[dataLength];
 #else
 	T = (CharacterSetTable*)_alloca(dataLength*sizeof(CharacterSetTable));
-	pSet = (int*)_alloca(dataLength*sizeof(int));
+	pSet = (int *)_alloca(dataLength*sizeof(int));
 #endif
 	CreateCharacterSetTable(T, data, dataLength);
 	/* Find final row and column count */

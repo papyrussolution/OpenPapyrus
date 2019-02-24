@@ -31,7 +31,7 @@ int FASTCALL SetupArCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID _
 	if(/*disableIfZeroSheet*/sacf & sacfDisableIfZeroSheet)
 		dlg->disableCtrl(ctlID, _accSheetID == 0);
 	if(_accSheetID) {
-		ArticleCtrlGroup * p_grp = (ArticleCtrlGroup *)dlg->getGroup(ctlID);
+		ArticleCtrlGroup * p_grp = static_cast<ArticleCtrlGroup *>(dlg->getGroup(ctlID));
 		if(p_grp) {
 			p_grp->SetAccSheet(_accSheetID);
 		}
@@ -1769,7 +1769,7 @@ int SLAPI PPObjArticle::SerializePacket(int dir, PPArticlePacket * pPack, SBuffe
 int SLAPI PPObjArticle::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
 	int    ok = 1;
-	PPArticlePacket * p_pack = (PPArticlePacket *)p->Data;
+	PPArticlePacket * p_pack = static_cast<PPArticlePacket *>(p->Data);
 	THROW(p && p->Data);
 	if(stream == 0) {
 		int    is_new = 0;
@@ -1837,7 +1837,7 @@ int SLAPI PPObjArticle::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int re
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPArticlePacket * ap = (PPArticlePacket *)p->Data;
+		PPArticlePacket * ap = static_cast<PPArticlePacket *>(p->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_ACCSHEET, &ap->Rec.AccSheetID, ary, replace));
 		THROW(ProcessObjRefInArray(ap->Assoc, &ap->Rec.ObjID, ary, replace));
 		if(ap->P_CliAgt) {

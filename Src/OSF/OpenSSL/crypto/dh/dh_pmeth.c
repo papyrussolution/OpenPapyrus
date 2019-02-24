@@ -163,7 +163,7 @@ static int pkey_dh_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 		    return 1;
 
 		case EVP_PKEY_CTRL_GET_DH_KDF_OUTLEN:
-		    *(int*)p2 = dctx->kdf_outlen;
+		    *(int *)p2 = dctx->kdf_outlen;
 		    return 1;
 
 		case EVP_PKEY_CTRL_DH_KDF_UKM:

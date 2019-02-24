@@ -157,7 +157,7 @@ private:
 	Node * FASTCALL GetNode(uint p) const;
 	EdgeHub * FASTCALL GetEdgeHub(uint p) const;
 	SSuffixTree::String * FASTCALL GetStr(uint p) const;
-	uint   FASTCALL GetParentNodeP(Node * pNode) const;
+	uint   FASTCALL GetParentNodeP(const Node * pNode) const;
 	uint   FASTCALL GetEndIdx(const SSuffixTree::IndexBase * pI) const;
 	int    FASTCALL IncrementEndIdx(SSuffixTree::IndexBase * pI);
 	int    FASTCALL UpdateEndIdx(SSuffixTree::IndexBase * pI, uint newPosition);
@@ -753,7 +753,7 @@ uint FASTCALL SSuffixTree::GetStrLen(uint p) const
 	return (p < StrList.getCount()) ? StrList.at(p).getCount() : 0;
 }
 
-uint FASTCALL SSuffixTree::GetParentNodeP(Node * pNode) const
+uint FASTCALL SSuffixTree::GetParentNodeP(const Node * pNode) const
 {
 	uint   node_p = 0;
 	if(pNode && pNode->UpEdgeP) {

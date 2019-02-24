@@ -1183,7 +1183,7 @@ int TWhatman::InvalidateMultSelContour(const TPoint * pOffs)
 	return ok;
 }
 
-int TWhatman::DrawMultSelContour(TCanvas2 & rCanv, TPoint * pOffs)
+int TWhatman::DrawMultSelContour(TCanvas2 & rCanv, const TPoint * pOffs)
 {
 	int    ok = 1;
 	if(P_MultObjPosList) {

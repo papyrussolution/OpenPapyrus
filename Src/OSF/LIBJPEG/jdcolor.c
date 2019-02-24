@@ -110,10 +110,10 @@ static void build_ycc_rgb_table(j_decompress_ptr cinfo)
 	int i;
 	INT32 x;
 	SHIFT_TEMPS
-	cconvert->Cr_r_tab = (int*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(int));
-	cconvert->Cb_b_tab = (int*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(int));
-	cconvert->Cr_g_tab = (INT32*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(INT32));
-	cconvert->Cb_g_tab = (INT32*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(INT32));
+	cconvert->Cr_r_tab = (int *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(int));
+	cconvert->Cb_b_tab = (int *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(int));
+	cconvert->Cr_g_tab = (INT32*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(INT32));
+	cconvert->Cb_g_tab = (INT32*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(INT32));
 	for(i = 0, x = -CENTERJSAMPLE; i <= MAXJSAMPLE; i++, x++) {
 		/* i is the actual input pixel value, in the range 0..MAXJSAMPLE */
 		/* The Cb or Cr value we are thinking of is x = i - CENTERJSAMPLE */
@@ -136,10 +136,10 @@ static void build_bg_ycc_rgb_table(j_decompress_ptr cinfo)
 	int i;
 	INT32 x;
 	SHIFT_TEMPS
-	cconvert->Cr_r_tab = (int*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(int));
-	cconvert->Cb_b_tab = (int*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(int));
-	cconvert->Cr_g_tab = (INT32*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(INT32));
-	cconvert->Cb_g_tab = (INT32*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(INT32));
+	cconvert->Cr_r_tab = (int *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(int));
+	cconvert->Cb_b_tab = (int *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(int));
+	cconvert->Cr_g_tab = (INT32*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(INT32));
+	cconvert->Cb_g_tab = (INT32*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(INT32));
 	for(i = 0, x = -CENTERJSAMPLE; i <= MAXJSAMPLE; i++, x++) {
 		/* i is the actual input pixel value, in the range 0..MAXJSAMPLE */
 		/* The Cb or Cr value we are thinking of is x = i - CENTERJSAMPLE */
@@ -211,7 +211,7 @@ static void build_rgb_y_table(j_decompress_ptr cinfo)
 	INT32 * rgb_y_tab;
 	INT32 i;
 	/* Allocate and fill in the conversion tables. */
-	cconvert->rgb_y_tab = rgb_y_tab = (INT32*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (TABLE_SIZE * SIZEOF(INT32)));
+	cconvert->rgb_y_tab = rgb_y_tab = (INT32*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (TABLE_SIZE * SIZEOF(INT32)));
 	for(i = 0; i <= MAXJSAMPLE; i++) {
 		rgb_y_tab[i+R_Y_OFF] = FIX(0.299) * i;
 		rgb_y_tab[i+G_Y_OFF] = FIX(0.587) * i;
@@ -454,7 +454,7 @@ METHODDEF(void) start_pass_dcolor(j_decompress_ptr cinfo)
 GLOBAL(void) jinit_color_deconverter(j_decompress_ptr cinfo)
 {
 	int ci;
-	my_cconvert_ptr cconvert = (my_cconvert_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(my_color_deconverter));
+	my_cconvert_ptr cconvert = (my_cconvert_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(my_color_deconverter));
 	cinfo->cconvert = &cconvert->pub;
 	cconvert->pub.start_pass = start_pass_dcolor;
 	/* Make sure num_components agrees with jpeg_color_space */

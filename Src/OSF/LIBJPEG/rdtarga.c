@@ -259,7 +259,7 @@ METHODDEF(JDIMENSION) get_memory_row(j_compress_ptr cinfo, cjpeg_source_ptr sinf
 	/* NEEDS WORK to support interlaced images! */
 	JDIMENSION source_row = cinfo->image_height - source->current_row - 1;
 	/* Fetch that row from virtual array */
-	source->pub.buffer = (*cinfo->mem->access_virt_sarray)((j_common_ptr)cinfo, source->whole_image, source_row, (JDIMENSION)1, FALSE);
+	source->pub.buffer = (*cinfo->mem->access_virt_sarray)(reinterpret_cast<j_common_ptr>(cinfo), source->whole_image, source_row, (JDIMENSION)1, FALSE);
 	source->current_row++;
 	return 1;
 }
@@ -278,9 +278,9 @@ METHODDEF(JDIMENSION) preload_image(j_compress_ptr cinfo, cjpeg_source_ptr sinfo
 		if(progress) {
 			progress->pub.pass_counter = (long)row;
 			progress->pub.pass_limit = (long)cinfo->image_height;
-			(*progress->pub.progress_monitor)((j_common_ptr)cinfo);
+			(*progress->pub.progress_monitor)(reinterpret_cast<j_common_ptr>(cinfo));
 		}
-		source->pub.buffer = (*cinfo->mem->access_virt_sarray)((j_common_ptr)cinfo, source->whole_image, row, (JDIMENSION)1, TRUE);
+		source->pub.buffer = (*cinfo->mem->access_virt_sarray)(reinterpret_cast<j_common_ptr>(cinfo), source->whole_image, row, (JDIMENSION)1, TRUE);
 		(*source->get_pixel_rows)(cinfo, sinfo);
 	}
 	if(progress)
@@ -368,7 +368,7 @@ METHODDEF(void) start_input_tga(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 	}
 	if(is_bottom_up) {
 		// Create a virtual array to buffer the upside-down image. 
-		source->whole_image = (*cinfo->mem->request_virt_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, FALSE, (JDIMENSION)width * components, (JDIMENSION)height, (JDIMENSION)1);
+		source->whole_image = (*cinfo->mem->request_virt_sarray)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, FALSE, (JDIMENSION)width * components, (JDIMENSION)height, (JDIMENSION)1);
 		if(cinfo->progress) {
 			cd_progress_ptr progress = (cd_progress_ptr)cinfo->progress;
 			progress->total_extra_passes++; /* count file input as separate pass */
@@ -380,7 +380,7 @@ METHODDEF(void) start_input_tga(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 	else {
 		// Don't need a virtual array, but do need a one-row input buffer. 
 		source->whole_image = NULL;
-		source->pub.buffer = (*cinfo->mem->alloc_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, (JDIMENSION)width * components, (JDIMENSION)1);
+		source->pub.buffer = (*cinfo->mem->alloc_sarray)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (JDIMENSION)width * components, (JDIMENSION)1);
 		source->pub.buffer_height = 1;
 		source->pub.get_pixel_rows = source->get_pixel_rows;
 	}
@@ -390,7 +390,7 @@ METHODDEF(void) start_input_tga(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 		if(maplen > 256 || GET_2B(3) != 0)
 			ERREXIT(cinfo, JERR_TGA_BADCMAP);
 		// Allocate space to store the colormap 
-		source->colormap = (*cinfo->mem->alloc_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, (JDIMENSION)maplen, (JDIMENSION)3);
+		source->colormap = (*cinfo->mem->alloc_sarray)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (JDIMENSION)maplen, (JDIMENSION)3);
 		source->cmap_length = (int)maplen; // @v9c
 		// and read it from the file 
 		read_colormap(source, (int)maplen, UCH(targaheader[7]));
@@ -419,7 +419,7 @@ METHODDEF(void) finish_input_tga(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 GLOBAL(cjpeg_source_ptr) jinit_read_targa(j_compress_ptr cinfo)
 {
 	// Create module interface object 
-	tga_source_ptr source = (tga_source_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(tga_source_struct));
+	tga_source_ptr source = (tga_source_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(tga_source_struct));
 	source->cinfo = cinfo;  /* make back link for subroutines */
 	// Fill in method ptrs, except get_pixel_rows which start_input sets 
 	source->pub.start_input = start_input_tga;

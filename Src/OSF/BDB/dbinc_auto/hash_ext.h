@@ -71,7 +71,7 @@ int __ham_item_last(DBC *, db_lockmode_t, db_pgno_t *);
 int __ham_item_first(DBC *, db_lockmode_t, db_pgno_t *);
 int __ham_item_prev(DBC *, db_lockmode_t, db_pgno_t *);
 int __ham_item_next(DBC *, db_lockmode_t, db_pgno_t *);
-int __ham_insertpair(DBC *, PAGE *p, db_indx_t *indxp, const DBT *, const DBT *, uint32, uint32);
+int __ham_insertpair(DBC *, PAGE *p, const db_indx_t *indxp, const DBT *, const DBT *, uint32, uint32);
 int __ham_getindex(DBC *, PAGE *, const DBT *, uint32, int *, db_indx_t *);
 int __ham_verify_sorted_page(DBC *, PAGE *);
 int __ham_sort_page_cursor(DBC *, PAGE *);

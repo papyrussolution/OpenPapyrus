@@ -22,7 +22,7 @@ AcctCtrlGroup::~AcctCtrlGroup()
 int AcctCtrlGroup::setData(TDialog * dlg, void * data)
 {
 	int    acc_sel_param_changed = 0;
-	Rec  * p_rec = (Rec*)data;
+	const  Rec * p_rec = static_cast<const Rec *>(data);
 	Acct   acct;
 	MEMSZERO(acct);
 	AcctId     = p_rec->AcctId;
@@ -38,7 +38,7 @@ int AcctCtrlGroup::setData(TDialog * dlg, void * data)
 int AcctCtrlGroup::getData(TDialog * dlg, void * pData)
 {
 	int    ok = 1;
-	Rec  * p_rec = (Rec*)pData;
+	Rec  * p_rec = static_cast<Rec *>(pData);
 	char   b[48];
 	Acct   acct;
 	PPAccount acc_rec;
@@ -85,7 +85,7 @@ void AcctCtrlGroup::setup(TDialog * dlg, const Acct * pAcct, int sheetChanged, i
 			}
 		}
 	}
-	ComboBox * p_combo = (ComboBox *)dlg->getCtrlView(ctlsel_accname);
+	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctlsel_accname));
 	if(p_combo) {
 		if(p_combo->listDef() && !accSelParamChanged) {
 			if(AcctId.ac)
@@ -100,7 +100,7 @@ void AcctCtrlGroup::setup(TDialog * dlg, const Acct * pAcct, int sheetChanged, i
 		if(AccSheetID)
 			SetupArCombo(dlg, ctlsel_artname, AcctId.ar, OLW_LOADDEFONOPEN|OLW_CANINSERT, AccSheetID);
 		else {
-			p_combo = (ComboBox *)dlg->getCtrlView(ctlsel_artname);
+			p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctlsel_artname));
 			if(p_combo) {
 				p_combo->TransmitData(+1, &AccSheetID); // @# AccSheetID == 0
 				p_combo->setInputLineText(0);
@@ -199,7 +199,7 @@ int AcctCtrlGroup::processArtInput(TDialog * dlg)
 		dlg->setCtrlData(ctl_art, &(b[0] = 0));
 	}
 	{
-		ComboBox * p_combo = (ComboBox *)dlg->getCtrlView(ctlsel_artname);
+		ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctlsel_artname));
 		if(p_combo) {
 			ListWindow * p_listwin = p_combo->getListWindow();
 			if(p_listwin) {
@@ -334,7 +334,7 @@ int ArticleCtrlGroup::getData(TDialog * pDlg, void * pData)
 int ArticleCtrlGroup::selectByCode(TDialog * pDlg)
 {
 	int    ok = -1;
-	ComboBox * p_combo = (ComboBox *)pDlg->getCtrlView(CtlselAr);
+	ComboBox * p_combo = static_cast<ComboBox *>(pDlg->getCtrlView(CtlselAr));
 	if(Data.AcsID && p_combo && p_combo->link()) {
 		PPID   reg_type_id = 0, ar_id = 0;
 		if(PPObjArticle::GetSearchingRegTypeID(Data.AcsID, 0, 1, &reg_type_id) > 0) {
@@ -346,7 +346,7 @@ int ArticleCtrlGroup::selectByCode(TDialog * pDlg)
 			PPInputStringDialogParam isd_param(title, reg_type_rec.Name);
 			while(ok < 0 && InputStringDialog(&isd_param, code) > 0) {
 				if(ar_obj.SearchByRegCode(Data.AcsID, reg_type_id, code, &ar_id, 0) > 0) {
-					ComboBox * p_combo = (ComboBox *)pDlg->getCtrlView(CtlselAr);
+					ComboBox * p_combo = static_cast<ComboBox *>(pDlg->getCtrlView(CtlselAr));
 					if(p_combo) {
 						ListWindow * p_listwin = p_combo->getListWindow();
 						if(p_listwin) {
@@ -425,7 +425,7 @@ void ArticleCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 		pDlg->clearEvent(event);
 	}
 	else if(event.isKeyDown(kbF2)) {
-		ComboBox * p_combo = (ComboBox *)pDlg->getCtrlView(CtlselAr);
+		ComboBox * p_combo = static_cast<ComboBox *>(pDlg->getCtrlView(CtlselAr));
 		if(p_combo && pDlg->IsCurrentView(p_combo->link())) {
 			selectByCode(pDlg);
 			pDlg->clearEvent(event);
@@ -491,7 +491,7 @@ void CurAmtCtrlGroup::setupCurRate(TDialog * pDlg, int fromBase)
 int CurAmtCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
 	int    use_same_crate = 0;
-	Data = *(Rec *)pData;
+	Data = *static_cast<const Rec *>(pData);
 	pDlg->disableCtrl(BaseAmtCID, 1);
 	SetupCurrencyCombo(pDlg, CurSelCID, Data.CurID, 0, 1, 0);
 	pDlg->setCtrlData(AmtCID, &Data.Amount);
@@ -511,7 +511,7 @@ int CurAmtCtrlGroup::getData(TDialog * pDlg, void * pData)
 	pDlg->getCtrlData(CRateCID,   &Data.CRate);
 	pDlg->getCtrlData(BaseAmtCID, &Data.BaseAmount);
 	if(pData)
-		*(Rec*)pData = Data;
+		*static_cast<Rec *>(pData) = Data;
 	return ok;
 }
 
@@ -520,7 +520,7 @@ void CurAmtCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 	if(event.isCbSelected(CurSelCID))
 		setupCurRate(pDlg, 1);
 	else if(event.isCmd(cmCurAmtGrpSetupCurrencyCombo)) {
-		PPIDArray * p_cur_list = (PPIDArray *)event.message.infoPtr;
+		PPIDArray * p_cur_list = static_cast<PPIDArray *>(event.message.infoPtr);
 		setupCurrencyCombo(pDlg, p_cur_list);
 	}
 	else if(SelCRateCmd && event.isCmd(SelCRateCmd)) {

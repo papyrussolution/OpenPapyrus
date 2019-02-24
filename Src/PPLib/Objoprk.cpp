@@ -2086,7 +2086,7 @@ void OprKindDialog::moreDialog()
 				editOptions2(DLG_OPKMORE_RET, 1, 0, &options_list, &ext_options_list);
 				break;
 			case PPOPT_GOODSREVAL:
-				subtypelist.addzlist((long)OPSUBT_COMMON, OPSUBT_ASSETEXPL, 0L);
+				subtypelist.addzlist(static_cast<long>(OPSUBT_COMMON), OPSUBT_ASSETEXPL, 0L);
 				options_list.addzlist(OPKF_NEEDPAYMENT, OPKF_PROFITABLE, OPKF_CALCSTAXES, OPKF_AUTOWL, OPKF_ATTACHFILES,
 					OPKF_DENYREVALCOST, OPKF_RESTRICTBYMTX, 0L);
 				editOptions2(DLG_OPKMORE_GRV, 1, &subtypelist, &options_list, 0);
@@ -2095,7 +2095,7 @@ void OprKindDialog::moreDialog()
 				options_list.addzlist(OPKF_NEEDPAYMENT, OPKF_CALCSTAXES, OPKF_AUTOWL, OPKF_USEPAYER, OPKF_RENT,
 					OPKF_FREIGHT, OPKF_ORDEXSTONLY, OPKF_ORDRESERVE, OPKF_ORDERBYLOC, OPKF_ATTACHFILES, OPKF_RESTRICTBYMTX, OPKF_NOCALCTIORD, 0L); // @v8.2.6 OPKF_NOCALCTIORD
 				ext_options_list.addzlist(OPKFX_ALLOWPARTSTR, OPKFX_RESTRICTPRICE, OPKFX_IGNORECLISTOP,
-					OPKFX_AUTOGENUUID, OPKFX_WROFFTODRAFTORD, 0L);
+					OPKFX_AUTOGENUUID, OPKFX_WROFFTODRAFTORD, OPKFX_CANBEDECLINED, 0L); // @v10.3.5 OPKFX_CANBEDECLINED
 					// @v9.8.4 OPKFX_IGNORECLISTOP // @v10.0.0 OPKFX_AUTOGENUUID // @v10.0.02 OPKFX_WROFFTODRAFTORD
 				editOptions2(DLG_OPKMORE_ORD, 1, 0, &options_list, &ext_options_list);
 				break;
@@ -2104,8 +2104,7 @@ void OprKindDialog::moreDialog()
 				editOptions2(DLG_OPKMORE_PAY, 0, 0, &options_list, 0);
 				break;
 			case PPOPT_CHARGE:
-				options_list.addzlist(OPKF_NEEDPAYMENT, OPKF_PROFITABLE, OPKF_AUTOWL, OPKF_USEPAYER,
-					OPKF_CHARGENEGPAYM, OPKF_ATTACHFILES, 0L);
+				options_list.addzlist(OPKF_NEEDPAYMENT, OPKF_PROFITABLE, OPKF_AUTOWL, OPKF_USEPAYER, OPKF_CHARGENEGPAYM, OPKF_ATTACHFILES, 0L);
 				editOptions2(DLG_OPKMORE_CHG, 0, 0, &options_list, 0);
 				break;
 			case PPOPT_INVENTORY:

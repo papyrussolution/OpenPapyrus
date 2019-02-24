@@ -693,7 +693,6 @@ DBQuery * SLAPI PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 	DbqFuncTab::RegisterDyn(&DynFuncEvVerTextFromList, BTS_STRING, dbqf_evvertextfromlist_ppvsj_iidtp, 5, BTS_INT, BTS_INT, BTS_DATE, BTS_TIME, BTS_PTR);
 
 	int    add_dbe = 0;
-	//uint   brw_id = (Filt.Flags & SysJournalFilt::fShowObjects) ? BROWSER_SYSJ_OBJ : BROWSER_SYSJ;
 	uint   brw_id = BROWSER_SYSJ;
 	DBQuery * q = 0;
 	DBE    dbe_user;
@@ -708,7 +707,6 @@ DBQuery * SLAPI PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 	DBQ  * dbq = 0;
 	TempSysJournalTbl * p_t = 0;
 	SysJournalTbl * sj  = new SysJournalTbl(P_TmpTbl ? P_TmpTbl->GetName().cptr() : (const char *)0);
-	//TempDoubleIDTbl * nm  = 0;
 	if(P_SubstTbl) {
 		brw_id = BROWSER_SYSJ_SUBST;
 		THROW_MEM(p_t = new TempSysJournalTbl(P_SubstTbl->GetName().cptr()));
@@ -786,7 +784,7 @@ DBQuery * SLAPI PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 				dbe_objname.push((DBFunc)DynFuncObjNameFromList);
 			}
 			else
-				dbe_objname.push((DBFunc)PPDbqFuncPool::IdEmpty);
+				dbe_objname.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
 			if(Filt.Flags & SysJournalFilt::fShowHistoryObj) {
 				dbe_evvertext.push(sj->ObjType);
 				dbe_evvertext.push(sj->ObjID);
@@ -796,7 +794,7 @@ DBQuery * SLAPI PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 				dbe_evvertext.push((DBFunc)DynFuncEvVerTextFromList);
 			}
 			else
-				dbe_evvertext.push((DBFunc)PPDbqFuncPool::IdEmpty);
+				dbe_evvertext.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
 		}
 		q->addField(dbe_objname);   // #11
 		q->addField(dbe_evvertext); // #12
@@ -814,7 +812,6 @@ DBQuery * SLAPI PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 			ZDELETE(q);
 		else {
 			delete p_t;
-			//delete nm;
 			delete sj;
 		}
 	ENDCATCH
@@ -985,7 +982,7 @@ int SLAPI PPViewSysJournal::Print(const void *)
 	return Helper_Print(rpt_id, 0);
 }
 
-int SLAPI PPViewSysJournal::EditObj(PPObjID * pObjID)
+int SLAPI PPViewSysJournal::EditObj(const PPObjID * pObjID)
 {
 	return pObjID ? EditPPObj(pObjID->Obj, pObjID->Id) : -1;
 }
@@ -1095,7 +1092,7 @@ int SLAPI PPViewSysJournal::Transmit()
 int SLAPI PPViewSysJournal::RefreshTempTable(LDATETIME since)
 {
 	int    ok = -1;
-	if((P_TmpTbl || /*P_NamesTbl*/Filt.Flags & Filt.fShowObjects) /*&& IsTempTblNeeded()*/) {
+	if(P_TmpTbl || Filt.Flags & Filt.fShowObjects) {
 		SysJournalTbl::Key0 k0;
 		k0.Dt = since.d;
 		k0.Tm = since.t;
@@ -1168,8 +1165,7 @@ int SLAPI PPViewSysJournal::HandleNotifyEvent(int kind, const PPNotifyEvent * pE
 		LDATETIME last_dtm;
 		if(pEv) {
 			if(pEv->IsFinish() && kind == PPAdviseBlock::evSysJournalChanged) {
-				// @v8.9.11 last_dtm = *(LDATETIME*)pEv->ExtInt;
-				last_dtm = pEv->ExtDtm; // @v8.9.11
+				last_dtm = pEv->ExtDtm;
 				ok = ProcessCommand(PPVCMD_REFRESH, 0, 0);
 				if(pBrw && ok > 0)
 					pBrw->Update();
@@ -1305,14 +1301,12 @@ int  SLAPI GtaJournalFilt::IsEmpty() const
 
 SLAPI PPViewGtaJournal::PPViewGtaJournal() : PPView(0, &Filt, PPVIEW_GTAJOURNAL), P_TmpTbl(0), LockUpByNotify(0), LastRefreshDtm(ZERODATETIME), P_ObjColl(new ObjCollection)
 {
-	//P_NamesTbl = 0;
 }
 
 SLAPI PPViewGtaJournal::~PPViewGtaJournal()
 {
 	delete P_ObjColl;
 	delete P_TmpTbl;
-	//delete P_NamesTbl;
 }
 
 PPBaseFilt * SLAPI PPViewGtaJournal::CreateFilt(void * extraPtr) const
@@ -1559,7 +1553,7 @@ static IMPL_DBE_PROC(dbqf_objnamefromlist_ppvgtaj_iip)
 	else {
 		PPObjID oid;
 		oid.Set(params[0].lval, params[1].lval);
-		const PPViewGtaJournal * p_view = (const PPViewGtaJournal *)params[2].ptrval;
+		const PPViewGtaJournal * p_view = static_cast<const PPViewGtaJournal *>(params[2].ptrval);
 		if(p_view) {
 			SString temp_buf;
 			p_view->GetObjName(oid, temp_buf);

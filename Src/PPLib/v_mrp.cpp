@@ -182,7 +182,7 @@ int FASTCALL PPViewMrpTab::NextIteration(MrpTabViewItem * pItem)
 int SLAPI PPViewMrpTab::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	if(pHdr)
-		ViewMrpLine(0, *(PPID *)pHdr);
+		ViewMrpLine(0, *static_cast<const PPID *>(pHdr));
 	return -1;
 }
 

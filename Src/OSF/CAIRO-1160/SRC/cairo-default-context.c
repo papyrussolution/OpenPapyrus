@@ -242,8 +242,7 @@ static cairo_bool_t _current_source_matches_solid(const cairo_pattern_t * patter
 	blue  = _cairo_restrict_value(blue,  0.0, 1.0);
 	alpha = _cairo_restrict_value(alpha, 0.0, 1.0);
 	_cairo_color_init_rgba(&color, red, green, blue, alpha);
-	return _cairo_color_equal(&color,
-		   &((cairo_solid_pattern_t*)pattern)->color);
+	return _cairo_color_equal(&color, &(reinterpret_cast<const cairo_solid_pattern_t *>(pattern))->color);
 }
 
 static cairo_status_t _cairo_default_context_set_source_rgba(void * abstract_cr, double red, double green, double blue, double alpha)

@@ -966,7 +966,7 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 					// Stops
 					//
 					for(xmlNode * p_gr_node = p_node->children; p_gr_node != 0; p_gr_node = p_gr_node->next) {
-						int    gr_token = GetToken((const char *)p_gr_node->name);
+						int    gr_token = GetToken(reinterpret_cast<const char *>(p_gr_node->name));
 						if(gr_token == tStop) {
 							GetAttrList(p_gr_node, attr_list);
 							float offs = 0.0f;
@@ -979,9 +979,9 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 								USize usz;
 								usz.FromStr(temp_buf);
 								if(usz.Unit == UNIT_PERCENT)
-									offs = (float)(usz / 100.0);
+									offs = static_cast<float>(usz / 100.0);
 								else
-									offs = (float)usz;
+									offs = static_cast<float>(usz);
 							}
 							gradient.AddStop(offs, sb.GradientColor);
 						}
@@ -1014,13 +1014,13 @@ int SSvg::_GetGradientCoord(const char * pStr, float & rF, int & rPct)
 	usz.FromStr(pStr, USize::fmtSVG);
 	if(usz.Unit == UNIT_PERCENT) {
 		rPct = 1;
-		rF = (float)usz;
+		rF = static_cast<float>(usz);
 	}
 	else {
 		rPct = 0;
 		double df = 0.0;
 		P_Result->ConvertCoord(usz, &df);
-		rF = (float)df;
+		rF = static_cast<float>(df);
 	}
 	return 1;
 }
@@ -1049,7 +1049,7 @@ int SSvg::ParseFile(const char * pFileName, SDraw & rResult)
 		THROW(p_root);
 		P_Result = &rResult;
 		for(p_node = p_root; p_node; p_node = p_node->next) {
-			if(sstreqi_ascii((const char *)p_node->name, "svg")) {
+			if(sstreqi_ascii(reinterpret_cast<const char *>(p_node->name), "svg")) {
 				GetAttrList(p_node, attr_list);
 				{
 					FPoint sz;

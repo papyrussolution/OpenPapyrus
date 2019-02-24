@@ -1366,7 +1366,7 @@ int data_matrix_200(struct ZintSymbol * symbol, const uchar source[], const int 
 		int y;
 		int NC = W - 2 * (W / FW);
 		int NR = H - 2 * (H / FH);
-		int * places = (int*)SAlloc::M(NC * NR * sizeof(int));
+		int * places = (int *)SAlloc::M(NC * NR * sizeof(int));
 		ecc200placement(places, NR, NC);
 		grid = (uchar*)SAlloc::M(W * H);
 		memzero(grid, W * H);

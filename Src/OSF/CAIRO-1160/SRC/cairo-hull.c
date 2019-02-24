@@ -119,7 +119,7 @@ static int _cairo_hull_vertex_compare(const void * av, const void * bv)
 	return ret;
 }
 
-static int _cairo_hull_prev_valid(cairo_hull_t * hull, int num_hull, int index)
+static int _cairo_hull_prev_valid(const cairo_hull_t * hull, int num_hull, int index)
 {
 	/* hull[0] is always valid, and we never need to wraparound, (if
 	 * we are passed an index of 0 here, then the calling loop is just
@@ -132,7 +132,7 @@ static int _cairo_hull_prev_valid(cairo_hull_t * hull, int num_hull, int index)
 	return index;
 }
 
-static int _cairo_hull_next_valid(cairo_hull_t * hull, int num_hull, int index)
+static int _cairo_hull_next_valid(const cairo_hull_t * hull, int num_hull, int index)
 {
 	do {
 		index = (index + 1) % num_hull;
@@ -165,20 +165,19 @@ static void _cairo_hull_eliminate_concave(cairo_hull_t * hull, int num_hull)
 	} while(j != 0);
 }
 
-static void _cairo_hull_to_pen(cairo_hull_t * hull, cairo_pen_vertex_t * vertices, int * num_vertices)
+static void _cairo_hull_to_pen(const cairo_hull_t * hull, cairo_pen_vertex_t * vertices, int * num_vertices)
 {
-	int i, j = 0;
-	for(i = 0; i < *num_vertices; i++) {
+	int j = 0;
+	for(int i = 0; i < *num_vertices; i++) {
 		if(hull[i].discard)
 			continue;
 		vertices[j++].point = hull[i].point;
 	}
-
 	*num_vertices = j;
 }
-
-/* Given a set of vertices, compute the convex hull using the Graham
-   scan algorithm. */
+//
+// Given a set of vertices, compute the convex hull using the Graham scan algorithm.
+//
 cairo_status_t _cairo_hull_compute(cairo_pen_vertex_t * vertices, int * num_vertices)
 {
 	cairo_hull_t hull_stack[CAIRO_STACK_ARRAY_LENGTH(cairo_hull_t)];

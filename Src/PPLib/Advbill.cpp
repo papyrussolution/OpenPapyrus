@@ -521,7 +521,7 @@ AdvBillItemBrowser::~AdvBillItemBrowser()
 
 int AdvBillItemBrowser::getCurItemPos()
 {
-	return (int16)view->getDef()->_curItem();
+	return static_cast<int16>(view->getDef()->_curItem());
 }
 //
 //
@@ -581,12 +581,12 @@ int AdvBillItemBrowser::update(int pos)
 	int    ok = -1;
 	uint   i;
 	SArray * p_list = 0;
-	AryBrowserDef * p_def = (AryBrowserDef *)view->getDef();
+	AryBrowserDef * p_def = static_cast<AryBrowserDef *>(view->getDef());
 	if(p_def) {
 		uint   count = P_Pack->AdvList.GetCount();
 		AdvBillItemEntry total;
 		MEMSZERO(total);
-		int16  c = (int16)view->getDef()->_curItem();
+		int16  c = static_cast<int16>(view->getDef()->_curItem());
 		p_def->setArray(0, 0, 1);
 		THROW_MEM(p_list = new SArray(sizeof(AdvBillItemEntry)));
 		for(i = 0; i < count; i++) {
@@ -685,7 +685,7 @@ int AdvBillItemBrowser::addItemBySample()
 {
 	int    ok = -1;
 	int16  c = getCurItemPos();
-	if(c >= 0 && c < (int16)P_Pack->AdvList.GetCount()) {
+	if(c >= 0 && c < static_cast<int16>(P_Pack->AdvList.GetCount())) {
 		PPAdvBillItemList::Item item = P_Pack->AdvList.Get(c);
 		item.BillID = 0;
 		item.RByBill = 0;
@@ -702,7 +702,7 @@ int AdvBillItemBrowser::addItemBySample()
 int AdvBillItemBrowser::editItem()
 {
 	int16  c = getCurItemPos();
-	if(c >= 0 && c < (int16)P_Pack->AdvList.GetCount()) {
+	if(c >= 0 && c < static_cast<int16>(P_Pack->AdvList.GetCount())) {
 		PPAdvBillItemList::Item & r_item = P_Pack->AdvList.Get(c);
 		if(editAdvBillItem(&r_item) > 0) {
 			update(pos_cur);
@@ -715,7 +715,7 @@ int AdvBillItemBrowser::editItem()
 int AdvBillItemBrowser::delItem()
 {
 	int16  c = getCurItemPos();
-	if(c >= 0 && c < (int16)P_Pack->AdvList.GetCount()) {
+	if(c >= 0 && c < static_cast<int16>(P_Pack->AdvList.GetCount())) {
 		P_Pack->AdvList.Remove(c);
 		update(pos_cur);
 		return 1;

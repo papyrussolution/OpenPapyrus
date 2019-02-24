@@ -1076,8 +1076,8 @@ int	SLAPI PrcssrDL200::FillHeader()
 	P_HdrTbl->clearDataBuf();
 	size_t p = 0, max_col_name;
 	uint   i;
-	char * p_buf = P_HdrTbl->getDataBuf();
-	_DL200_OutpHdr * p_hdr_buf = (_DL200_OutpHdr *)p_buf;
+	char * p_buf = static_cast<char *>(P_HdrTbl->getDataBuf());
+	_DL200_OutpHdr * p_hdr_buf = reinterpret_cast<_DL200_OutpHdr *>(p_buf);
 	PPID   main_org_id = 0;
 	SString temp_buf;
 	PPObjPerson psn_obj;
@@ -1229,7 +1229,7 @@ int DL200_ParamDialog::getSelectedFileName(char * pBuf, size_t bufLen)
 	ComboBox   * p_cb = 0;
 	fname[0] = 0;
 	ASSIGN_PTR(pBuf, 0);
-	if((p_cb = (ComboBox*)getCtrlView(CTLSEL_DL200P_FNAME)) != 0) {
+	if((p_cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_DL200P_FNAME))) != 0) {
 		p_cb->getInputLineText(fname, sizeof(fname));
 		if(fname[0]) {
 			SString path;
@@ -1248,7 +1248,7 @@ int DL200_ParamDialog::setupFormCombo()
 	char   path[MAXPATH];
 	ComboBox   * p_cb = 0;
 	ListWindow * p_lw = 0;
-	if((p_cb = (ComboBox *)getCtrlView(CTLSEL_DL200P_DATANAME)) != 0) {
+	if((p_cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_DL200P_DATANAME))) != 0) {
 		SStrCollection data_list;
 		long   sel = 0;
 		THROW(p_lw = CreateListWindow(48, lbtDisposeData | lbtDblClkNotify));
@@ -1278,7 +1278,7 @@ int DL200_ParamDialog::setupFileCombo()
 	int    ok = 1;
 	ComboBox   * p_cb = 0;
 	ListWindow * p_lw = 0;
-	if((p_cb = (ComboBox*)getCtrlView(CTLSEL_DL200P_FNAME)) != 0) {
+	if((p_cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_DL200P_FNAME))) != 0) {
 		long sel = 0;
 		p_lw = CreateListWindow(48, lbtDisposeData | lbtDblClkNotify);
 		THROW(p_lw);
@@ -1326,9 +1326,8 @@ int DL200_ParamDialog::setDTS(const PrcssrDL200::Param * pData)
 int DL200_ParamDialog::getDTS(PrcssrDL200::Param * pData)
 {
 	CycleCtrlGroup::Rec cycle_rec;
-
 	getSelectedFileName(Data.FileName, sizeof(Data.FileName));
-	ComboBox * p_cb = (ComboBox*)getCtrlView(CTLSEL_DL200P_DATANAME);
+	ComboBox * p_cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_DL200P_DATANAME));
 	if(p_cb)
 		p_cb->getInputLineText(Data.DataName, sizeof(Data.DataName));
 	else
@@ -1378,19 +1377,17 @@ int SLAPI PrcssrDL200::ProcessRow(const DL2_Row * pRow)
 	int    ok = 1;
 	uint   i;
 	P_IterTbl->clearDataBuf();
-	char * p_buf = P_IterTbl->getDataBuf();
-	_DL200_OutpIter * p_iterbuf = (_DL200_OutpIter *)p_buf;
+	char * p_buf = static_cast<char *>(P_IterTbl->getDataBuf());
+	_DL200_OutpIter * p_iterbuf = reinterpret_cast<_DL200_OutpIter *>(p_buf);
 	size_t p = 0;
-
 	p_iterbuf->Period = CurPeriod;
 	periodfmt(&CurPeriod, p_iterbuf->PeriodTxt);
 	p += sizeof(_DL200_OutpIter);
-
 	uint num_groups = D.GetMaxNesting();
 	for(i = 0; i < num_groups; i++) {
 		size_t max_descr_len = D.GetMaxDescriptionSize(i+1);
 		if(i < GStack.getPointer()) {
-			DL2_Group * p_group = (DL2_Group *)GStack.at(i);
+			const DL2_Group * p_group = static_cast<const DL2_Group *>(GStack.at(i));
 			if(p_group) {
 				if(p_group->P_Descript)
 					strnzcpy(p_buf+p, p_group->P_Descript, max_descr_len);

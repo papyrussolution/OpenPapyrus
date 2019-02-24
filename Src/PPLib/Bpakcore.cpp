@@ -361,7 +361,8 @@ PPBill::Agreement & FASTCALL PPBill::Agreement::operator = (const Agreement & rS
 
 int SLAPI PPBill::Agreement::IsEmpty() const
 {
-	return !(Flags || Expiry || MaxCredit > 0.0 || MaxDscnt != 0.0 || Dscnt != 0.0 || DefAgentID || DefQuotKindID || DefPayPeriod > 0 || RetLimPrd || RetLimPart || DefDlvrTerm > 0 || PctRet);
+	return !(Flags || Expiry || MaxCredit > 0.0 || MaxDscnt != 0.0 || Dscnt != 0.0 || DefAgentID || 
+		DefQuotKindID || DefPayPeriod > 0 || RetLimPrd || RetLimPart || DefDlvrTerm > 0 || PctRet);
 }
 
 int FASTCALL PPBill::Agreement::Copy(const Agreement & rS)
@@ -702,7 +703,7 @@ int FASTCALL PPLotTagContainer::Copy(const PPLotTagContainer & rS)
 	int    ok = 1;
     Release();
     for(uint i = 0; i < rS.GetCount(); i++) {
-		const Item * p_item = (Item *)rS.at(i);
+		const Item * p_item = static_cast<const Item *>(rS.at(i));
 		THROW(Set(p_item->RowIdx, &p_item->List));
     }
     CATCHZOK
@@ -720,21 +721,21 @@ int SLAPI PPLotTagContainer::GetNumber(PPID tagID, int rowIdx, SString & rBuf) c
 void FASTCALL PPLotTagContainer::freeItem(void * pItem)
 {
 	if(pItem)
-		((Item *)pItem)->List.Destroy();
+		static_cast<Item *>(pItem)->List.Destroy();
 }
 
 ObjTagList * FASTCALL PPLotTagContainer::Get(int rowIdx) const
 {
 	uint   pos = 0;
 	int32  key = rowIdx;
-	return lsearch(&key, &pos, CMPF_LONG) ? &(((Item *)at(pos))->List) : 0;
+	return lsearch(&key, &pos, CMPF_LONG) ? &(static_cast<Item *>(at(pos))->List) : 0;
 }
 
 const ObjTagItem * SLAPI PPLotTagContainer::GetTag(int rowIdx, PPID tagID) const
 {
 	uint   pos = 0;
 	int32  key = rowIdx;
-	return (lsearch(&key, &pos, CMPF_LONG)) ? ((Item *)at(pos))->List.GetItem(tagID) : 0;
+	return (lsearch(&key, &pos, CMPF_LONG)) ? static_cast<const Item *>(at(pos))->List.GetItem(tagID) : 0;
 }
 
 int SLAPI PPLotTagContainer::SearchString(const char * pPattern, PPID tagID, long flags, LongArray & rRowIdxList) const
@@ -744,7 +745,7 @@ int SLAPI PPLotTagContainer::SearchString(const char * pPattern, PPID tagID, lon
 	if(!isempty(pPattern)) {
 		SString temp_buf;
 		for(uint i = 0; i < getCount(); i++) {
-			const Item * p_item = (const Item *)at(i);
+			const Item * p_item = static_cast<const Item *>(at(i));
 			const  ObjTagItem * p_tag = p_item->List.GetItem(tagID);
 			if(p_tag) {
 				p_tag->GetStr(temp_buf);
@@ -763,7 +764,7 @@ int SLAPI PPLotTagContainer::GetTagStr(int rowIdx, PPID tagID, SString & rBuf) c
 	rBuf.Z();
 	uint   pos = 0;
 	int32  key = rowIdx;
-	const ObjTagItem * p_item = (lsearch(&key, &pos, CMPF_LONG)) ? ((Item *)at(pos))->List.GetItem(tagID) : 0;
+	const ObjTagItem * p_item = (lsearch(&key, &pos, CMPF_LONG)) ? static_cast<const Item *>(at(pos))->List.GetItem(tagID) : 0;
 	return (p_item && p_item->GetStr(rBuf) && rBuf.NotEmptyS()) ? 1 : -1;
 }
 
@@ -774,7 +775,7 @@ int SLAPI PPLotTagContainer::Set(int rowIdx, const ObjTagList * pItem)
 	int32  key = rowIdx;
 	if(lsearch(&key, &pos, CMPF_LONG)) {
 		if(pItem) {
-			Item * p_item = (Item *)at(pos);
+			Item * p_item = static_cast<Item *>(at(pos));
 			p_item->List = *pItem;
 			p_item->List.ObjType = PPOBJ_LOT;
 			p_item->RowIdx = rowIdx;
@@ -790,7 +791,7 @@ int SLAPI PPLotTagContainer::Set(int rowIdx, const ObjTagList * pItem)
 		//
 		Item new_item;
 		insert(&new_item);
-		Item * p_item = (Item *)at(getCount()-1);
+		Item * p_item = static_cast<Item *>(at(getCount()-1));
 		p_item->List = *pItem;
 		p_item->List.ObjType = PPOBJ_LOT;
 		p_item->RowIdx = rowIdx;
@@ -804,7 +805,7 @@ void SLAPI PPLotTagContainer::RemovePosition(int rowIdx)
 {
 	int    removed_item_idx = -1;
 	for(uint i = 0; i < getCount(); i++) {
-		Item & r_item = *(Item *)at(i);
+		Item & r_item = *static_cast<Item *>(at(i));
 		if(r_item.RowIdx > rowIdx)
 			r_item.RowIdx--;
 		else if(r_item.RowIdx == rowIdx)
@@ -819,7 +820,7 @@ int SLAPI PPLotTagContainer::ReplacePosition(int rowIdx, int newRowIdx)
 	uint   pos = 0;
 	int32  key = rowIdx;
 	if(lsearch(&key, &pos, CMPF_LONG)) {
-		((Item *)at(pos))->RowIdx = newRowIdx;
+		static_cast<Item *>(at(pos))->RowIdx = newRowIdx;
 		return 1;
 	}
 	else
@@ -831,11 +832,11 @@ int SLAPI PPLotTagContainer::Serialize(int dir, SBuffer & rBuf, SSerializeContex
 	int    ok = 1;
 	if(dir < 0)
 		freeAll();
-	int32  c = (int32)getCount();
+	int32  c = static_cast<int32>(getCount());
 	THROW_SL(pSCtx->Serialize(dir, c, rBuf));
 	for(int i = 0; i < c; i++) {
 		if(dir > 0) {
-			Item * p_item = (Item *)at(i);
+			Item * p_item = static_cast<Item *>(at(i));
 			THROW_SL(pSCtx->Serialize(dir, p_item->RowIdx, rBuf));
 			THROW(p_item->List.Serialize(dir, rBuf, pSCtx));
 		}
@@ -855,7 +856,7 @@ int SLAPI PPLotTagContainer::ProcessObjRefs(PPObjIDArray * ary, int replace)
 {
 	int    ok = 1;
 	for(uint i = 0; i < getCount(); i++) {
-		Item * p_item = (Item *)at(i);
+		Item * p_item = static_cast<Item *>(at(i));
 		THROW(p_item->List.ProcessObjRefs(ary, replace));
 	}
 	CATCHZOK
@@ -1051,13 +1052,13 @@ int FASTCALL PPLotExtCodeContainer::IsEqual(const PPLotExtCodeContainer & rS) co
 		// @v10.3.0 LongArray found_idx_list;
 		UintHashTable found_idx_list__; // @v10.3.0 
 		for(uint i = 0; eq && i < _c; i++) {
-			const InnerItem & r_item = *(const InnerItem *)at(i);
+			const InnerItem & r_item = *static_cast<const InnerItem *>(at(i));
 			GetS(r_item.CodeP, code_buf);
 			int    is_found = 0;
 			for(uint j = 0; !is_found && j < _c; j++) {
 				// @v10.3.0 if(!found_idx_list.lsearch(j+1)) {
 				if(!found_idx_list__.Has(j+1)) { // @v10.3.0
-					const InnerItem & r_item2 = *(const InnerItem *)rS.at(i);
+					const InnerItem & r_item2 = *static_cast<const InnerItem *>(rS.at(i));
 					// @v10.2.9 if(r_item2.RowIdx == r_item.RowIdx && r_item2.Sign == r_item.Sign) {
 					if(r_item2.RowIdx == r_item.RowIdx && r_item2.Flags == r_item.Flags && r_item2.BoxId == r_item.BoxId) { // @v10.2.9
 						rS.GetS(r_item2.CodeP, code_buf2);
@@ -1149,7 +1150,7 @@ int SLAPI PPLotExtCodeContainer::Delete(int rowIdx, uint itemIdx)
 			if(item.Flags & fBox) {
 				uint i = SVector::getCount();
 				if(i) do {
-					InnerItem * p_ii = (InnerItem *)SVector::at(--i);
+					InnerItem * p_ii = static_cast<InnerItem *>(SVector::at(--i));
 					if(p_ii->BoxId == item.BoxId)
 						SVector::atFree(i);
 				} while(i);
@@ -1161,7 +1162,7 @@ int SLAPI PPLotExtCodeContainer::Delete(int rowIdx, uint itemIdx)
 					int   is_other_by_box = 0;
 					int   box_pos = -1;
 					for(i = 0; i < SVector::getCount(); i++) {
-						InnerItem * p_ii = (InnerItem *)SVector::at(i);
+						const InnerItem * p_ii = static_cast<const InnerItem *>(SVector::at(i));
 						if(p_ii->BoxId == item.BoxId) {
 							if(p_ii->Flags & fBox)
 								box_pos = (int)i;
@@ -1186,9 +1187,8 @@ int SLAPI PPLotExtCodeContainer::Add(int rowIdx, const MarkSet & rS)
 	MarkSet::Entry entry;
 	THROW_PP(rowIdx >= 0, PPERR_INVPARAM);
 	for(uint i = 0; i < rS.GetCount(); i++) {
-		if(rS.GetByIdx(i, entry)) {
-			THROW(Add(rowIdx, entry.BoxID, (int16)entry.Flags, entry.Num, 0));
-		}
+		if(rS.GetByIdx(i, entry))
+			THROW(Add(rowIdx, entry.BoxID, static_cast<int16>(entry.Flags), entry.Num, 0));
 	}
 	CATCHZOK
 	return ok;
@@ -1200,7 +1200,7 @@ int SLAPI PPLotExtCodeContainer::AddValidation(const MarkSet & rS)
 	MarkSet::Entry entry;
 	for(uint i = 0; i < rS.GetCount(); i++) {
 		if(rS.GetByIdx(i, entry)) {
-			THROW(AddValidation(entry.BoxID, (int16)entry.Flags, entry.Num, 0));
+			THROW(AddValidation(entry.BoxID, static_cast<int16>(entry.Flags), entry.Num, 0));
 		}
 	}
 	CATCHZOK
@@ -1214,8 +1214,8 @@ int SLAPI PPLotExtCodeContainer::Set_2(int rowIdx, const MarkSet * pS)
 	if(!pS) {
 		uint i = getCount();
 		if(i) do {
-			InnerItem & r_entry = *(InnerItem *)at(--i);
-			if(r_entry.RowIdx == (int16)rowIdx) {
+			InnerItem & r_entry = *static_cast<InnerItem *>(at(--i));
+			if(r_entry.RowIdx == static_cast<int16>(rowIdx)) {
 				atFree(i);
 				ok = 1;
 			}
@@ -1253,7 +1253,7 @@ int SLAPI PPLotExtCodeContainer::Get(int rowIdx, LongArray * pIdxList, MarkSet &
 	rS.Clear();
 	SString temp_buf;
 	for(uint i = 0; i < getCount(); i++) {
-        const InnerItem & r_item = *(const InnerItem *)at(i);
+        const InnerItem & r_item = *static_cast<const InnerItem *>(at(i));
         if(r_item.RowIdx == rowIdx && GetS(r_item.CodeP, temp_buf)) {
 			if(r_item.Flags & fBox) {
 				THROW(rS.AddBox(r_item.BoxId, temp_buf, 0));
@@ -1273,7 +1273,7 @@ int SLAPI PPLotExtCodeContainer::GetByIdx(uint idx, PPLotExtCodeContainer::Item2
 {
 	int    ok = 1;
 	if(idx < getCount()) {
-		const InnerItem & r_item = *(const InnerItem *)at(idx);
+		const InnerItem & r_item = *static_cast<const InnerItem *>(at(idx));
 		rItem.RowIdx = r_item.RowIdx;
 		rItem.Flags = r_item.Flags;
 		rItem.BoxId = r_item.BoxId;
@@ -1295,7 +1295,7 @@ int SLAPI PPLotExtCodeContainer::Search(const char * pCode, int * pRowIdx, uint 
 	for(uint pos = 0; !ok && SStrGroup::Pool.search(pCode, &pos, 1); pos++) {
 		uint vpos = 0;
         if(SVector::lsearch(&pos, &vpos, PTR_CMPFUNC(long), offsetof(InnerItem, CodeP))) {
-			const InnerItem * p_item = (InnerItem *)SVector::at(vpos);
+			const InnerItem * p_item = static_cast<const InnerItem *>(SVector::at(vpos));
 			ASSIGN_PTR(pRowIdx, p_item->RowIdx);
 			ASSIGN_PTR(pInnerIdx, vpos);
             ok = 1;
@@ -1319,7 +1319,7 @@ int SLAPI PPLotExtCodeContainer::ValidateCode(const char * pCode, const char * p
 		const int iemr = PrcssrAlcReport::IsEgaisMark(pCode, 0);
 		uint   inner_idx = 0;
 		if(Search(pCode, &row_idx, &inner_idx)) {
-			const InnerItem * p_item = (InnerItem *)SVector::at(inner_idx);
+			const InnerItem * p_item = static_cast<const InnerItem *>(SVector::at(inner_idx));
 			assert(p_item);
 			if(p_item->Flags & fBox) {
 				GetS(p_item->CodeP, box_code);
@@ -1327,7 +1327,7 @@ int SLAPI PPLotExtCodeContainer::ValidateCode(const char * pCode, const char * p
 			}
 			else if(p_item->BoxId) {
 				for(uint i = 0; i < getCount(); i++) {
-					const InnerItem * p_item2 = (InnerItem *)SVector::at(inner_idx);
+					const InnerItem * p_item2 = static_cast<const InnerItem *>(SVector::at(inner_idx));
 					if(p_item2->BoxId == p_item->BoxId && p_item2->Flags & fBox) {
 						GetS(p_item2->CodeP, box_code);
 						if(src_box_code.NotEmpty() && box_code != src_box_code) {
@@ -1354,7 +1354,7 @@ void SLAPI PPLotExtCodeContainer::RemovePosition(int rowIdx)
 {
 	uint i = getCount();
 	if(i) do {
-		InnerItem & r_item = *(InnerItem *)at(--i);
+		InnerItem & r_item = *static_cast<InnerItem *>(at(--i));
 		if(r_item.RowIdx > rowIdx)
 			r_item.RowIdx--;
 		else if(r_item.RowIdx == rowIdx)
@@ -1366,7 +1366,7 @@ int SLAPI PPLotExtCodeContainer::ReplacePosition(int rowIdx, int newRowIdx)
 {
 	int    ok = -1;
 	for(uint i = 0; i < getCount(); i++) {
-		InnerItem & r_item = *(InnerItem *)at(i);
+		InnerItem & r_item = *static_cast<InnerItem *>(at(i));
 		if(r_item.RowIdx == rowIdx) {
 			r_item.RowIdx = newRowIdx;
 			ok = 1;

@@ -286,7 +286,7 @@ static int traverse_string(const uchar * p, int len, int inform, int (* rfunc)(u
 static int in_utf8(ulong value, void * arg)
 {
 	int * nchar;
-	nchar = (int*)arg;
+	nchar = (int *)arg;
 	(*nchar)++;
 	return 1;
 }
@@ -296,7 +296,7 @@ static int in_utf8(ulong value, void * arg)
 static int out_utf8(ulong value, void * arg)
 {
 	int * outlen;
-	outlen = (int*)arg;
+	outlen = (int *)arg;
 	*outlen += UTF8_putc(NULL, -1, value);
 	return 1;
 }

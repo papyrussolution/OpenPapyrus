@@ -887,7 +887,7 @@ public:
         }
         else if(Data.Mode == DataBlock::mList) {
         	if(Data.P_List) {
-				ComboBox * p_cb = (ComboBox *)getCtrlView(CTLSEL_GSDATA_NAMEDSTRUC);
+				ComboBox * p_cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_GSDATA_NAMEDSTRUC));
 				if(p_cb) {
 					StrAssocArray * p_list = new StrAssocArray;
 					for(uint i = 0; i < Data.P_List->getCount(); i++) {
@@ -1123,7 +1123,7 @@ int GSDialog::setDTS(const PPGoodsStruc * pData)
 	setupCtrls();
 	setCtrlReal(CTL_GSTRUC_GIFTAMTRESTR, Data.Rec.GiftAmtRestrict);
 	{
-		ComboBox * p_cb = (ComboBox *)getCtrlView(CTLSEL_GSTRUC_GIFTQK);
+		ComboBox * p_cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_GSTRUC_GIFTQK));
 		if(p_cb) {
 			StrAssocArray * p_qk_list = new StrAssocArray;
 			if(p_qk_list) {

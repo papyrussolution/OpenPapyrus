@@ -375,7 +375,7 @@ int PPDesktopAssocCmdPool::ReadFromProp(PPID desktopId)
 //
 static LRESULT CALLBACK EditDlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	WNDPROC prev_window_proc = (WNDPROC)TView::GetWindowUserData(hWnd);
+	WNDPROC prev_window_proc = static_cast<WNDPROC>(TView::GetWindowUserData(hWnd));
 	switch(uMsg) {
 		case WM_LBUTTONDBLCLK:
 		case WM_RBUTTONDOWN:
@@ -516,7 +516,7 @@ BOOL CALLBACK PPBizScoreWindow::Proc(HWND hWnd, UINT message, WPARAM wParam, LPA
 		case WM_INITDIALOG:
 			{
 				HWND ctl_hwnd = GetDlgItem(hWnd, CTL_BUSPARAMS_TEXT);
-				WNDPROC prev_window_proc = (WNDPROC)TView::SetWindowProp(ctl_hwnd, GWLP_WNDPROC, EditDlgProc);
+				WNDPROC prev_window_proc = static_cast<WNDPROC>(TView::SetWindowProp(ctl_hwnd, GWLP_WNDPROC, EditDlgProc));
 				TView::SetWindowUserData(ctl_hwnd,  prev_window_proc);
 				TView::SetWindowUserData(hWnd, (void *)lParam);
 				TView::SetWindowProp(hWnd, DWLP_USER, DLG_TOOLTIP);
@@ -1353,7 +1353,7 @@ int PPDesktop::WaitCommand()
 			TDialog::handleEvent(event);
 			if(event.isCmd(cmWinKeyDown)) {
 				SString code;
-				KeyDownCommand * p_cmd = (KeyDownCommand *)event.message.infoPtr;
+				KeyDownCommand * p_cmd = static_cast<KeyDownCommand *>(event.message.infoPtr);
 				Command.Z();
 				Addendum.Z();
 				if(p_cmd && p_cmd->GetKeyName(code, 1) > 0) {
@@ -1431,7 +1431,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 				{
 					if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->ID, PPR_MOD)) {
 						TPoint coord;
-						coord = *(POINT*)event.message.infoPtr;
+						coord = *static_cast<const POINT *>(event.message.infoPtr);
 						PPCommand cmd;
 						if(EditCmdItem(P_ActiveDesktop, &cmd, 1) > 0) {
 							uint   pos = 0;
@@ -1469,7 +1469,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 					if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->ID, PPR_MOD)) {
 						uint   pos = 0;
 						TPoint coord;
-						coord = *(POINT*)event.message.infoPtr;
+						coord = *static_cast<const POINT *>(event.message.infoPtr);
 						const  PPCommandItem * p_item = P_ActiveDesktop->SearchByCoord(coord, *this, &pos);
 						PPCommand * p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? (PPCommand*)p_item->Dup() : 0;
 						if(p_cmd && EditCmdItem(P_ActiveDesktop, p_cmd, 1) > 0) {
@@ -1491,7 +1491,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 					if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->ID, PPR_MOD)) {
 						uint   pos = 0;
 						TPoint coord;
-						coord = *(POINT*)event.message.infoPtr;
+						coord = *static_cast<const POINT *>(event.message.infoPtr);
 						const  PPCommandItem * p_item = P_ActiveDesktop->SearchByCoord(coord, *this, &pos);
 						PPCommand * p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? (PPCommand*)p_item->Dup() : 0;
 						if(p_cmd && CONFIRM(PPCFM_DELICON)) {
@@ -1521,9 +1521,9 @@ IMPL_HANDLE_EVENT(PPDesktop)
 				{
 					uint   pos = 0;
 					TPoint coord;
-					coord = *(POINT*)event.message.infoPtr;
+					coord = *static_cast<const POINT *>(event.message.infoPtr);
 					const  PPCommandItem * p_item = P_ActiveDesktop->SearchByCoord(coord, *this, &pos);
-					PPCommand * p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? (PPCommand*)p_item->Dup() : 0;
+					PPCommand * p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
 					if(p_cmd) {
 						TRect ir;
 						EditIconName(p_cmd->ID);

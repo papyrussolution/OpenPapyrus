@@ -466,8 +466,8 @@ static cairo_status_t FASTCALL cairo_type1_font_subset_write_encrypted(cairo_typ
 	int c, p;
 	static const char hex_digits[/*16*/] = "0123456789abcdef";
 	char digits[3];
-	const uchar * in = (const uchar*)data;
-	const uchar * end = (const uchar*)data + length;
+	const uchar * in = reinterpret_cast<const uchar *>(data);
+	const uchar * end = reinterpret_cast<const uchar *>(data) + length;
 	while(in < end) {
 		p = *in++;
 		c = p ^ (font->eexec_key >> 8);
@@ -499,18 +499,14 @@ static cairo_status_t FASTCALL cairo_type1_font_subset_write_encrypted(cairo_typ
 static cairo_status_t cairo_type1_font_subset_decrypt_eexec_segment(cairo_type1_font_subset_t * font)
 {
 	unsigned short r = CAIRO_TYPE1_PRIVATE_DICT_KEY;
-	uchar * in, * end;
 	char * out;
 	int c, p;
 	int i;
-
-	in = (uchar*)font->eexec_segment;
-	end = (uchar*)in + font->eexec_segment_size;
-
+	uchar * in = (uchar*)font->eexec_segment;
+	uchar * end = (uchar*)in + font->eexec_segment_size;
 	font->cleartext = (char*)_cairo_malloc(font->eexec_segment_size + 1);
 	if(unlikely(font->cleartext == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	out = font->cleartext;
 	while(in < end) {
 		if(font->eexec_segment_is_ascii) {
@@ -653,25 +649,17 @@ static cairo_status_t use_standard_encoding_glyph(cairo_type1_font_subset_t * fo
 /* Parse the charstring, including recursing into subroutines. Find
  * the glyph width, subroutines called, and glyphs required by the
  * SEAC operator. */
-static cairo_status_t cairo_type1_font_subset_parse_charstring(cairo_type1_font_subset_t * font,
-    int glyph,
-    const char * encrypted_charstring,
-    int encrypted_charstring_length)
+static cairo_status_t cairo_type1_font_subset_parse_charstring(cairo_type1_font_subset_t * font, int glyph,
+    const char * encrypted_charstring, int encrypted_charstring_length)
 {
 	cairo_status_t status;
-	uchar * charstring;
 	const uchar * end;
 	const uchar * p;
 	int command;
-
-	charstring = (uchar *)_cairo_malloc(encrypted_charstring_length);
+	uchar * charstring = static_cast<uchar *>(_cairo_malloc(encrypted_charstring_length));
 	if(unlikely(charstring == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
-	cairo_type1_font_subset_decrypt_charstring((const uchar*)
-	    encrypted_charstring,
-	    encrypted_charstring_length,
-	    charstring);
+	cairo_type1_font_subset_decrypt_charstring((const uchar*)encrypted_charstring, encrypted_charstring_length, charstring);
 	end = charstring + encrypted_charstring_length;
 	p = charstring + font->lenIV;
 	status = CAIRO_STATUS_SUCCESS;

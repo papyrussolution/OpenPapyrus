@@ -1075,18 +1075,18 @@ int SLAPI ObjTagCore::RemoveTag(PPID objType, PPID objID, PPID tagID, int use_ta
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		if(search(0, &k, spGt) && data.ObjType == objType && data.ObjID == objID) { // @v8.2.0 searchForUpdate-->search
+		if(search(0, &k, spGt) && data.ObjType == objType && data.ObjID == objID) {
 			do {
 				const PPID _tag_id = data.TagID;
 				if(!tagID || _tag_id == tagID) {
-					THROW_DB(rereadForUpdate(0, 0)); // @v8.2.0
+					THROW_DB(rereadForUpdate(0, 0));
 					THROW_DB(deleteRec()); // @sfu
 					DS.LogAction(PPACN_OBJTAGRMV, objType, objID, _tag_id, 0);
 					ok = 1;
 				}
 				if(tagID && _tag_id > tagID)
 					break;
-			} while(search(0, &k, spNext) && data.ObjType == objType && data.ObjID == objID); // @v8.2.0 searchForUpdate-->search
+			} while(search(0, &k, spNext) && data.ObjType == objType && data.ObjID == objID);
 		}
 		THROW_DB(BTROKORNFOUND);
 		THROW(tra.Commit());
@@ -1095,7 +1095,7 @@ int SLAPI ObjTagCore::RemoveTag(PPID objType, PPID objID, PPID tagID, int use_ta
 	return ok;
 }
 
-int SLAPI ObjTagCore::PutListExcl(PPID objType, PPID objID, const ObjTagList * pList, PPIDArray * pExclList, int use_ta)
+int SLAPI ObjTagCore::PutListExcl(PPID objType, PPID objID, const ObjTagList * pList, const PPIDArray * pExclList, int use_ta)
 {
 	int    ok = 1;
 	uint   pos = 0;

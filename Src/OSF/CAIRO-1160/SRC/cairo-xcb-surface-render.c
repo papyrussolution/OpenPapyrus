@@ -1284,7 +1284,7 @@ static cairo_xcb_picture_t * _cairo_xcb_picture_for_pattern(cairo_xcb_surface_t 
 
 	switch(pattern->type) {
 		case CAIRO_PATTERN_TYPE_SOLID:
-		    return _cairo_xcb_solid_picture(target, (cairo_solid_pattern_t*)pattern);
+		    return _cairo_xcb_solid_picture(target, static_cast<cairo_solid_pattern_t *>(pattern));
 
 		case CAIRO_PATTERN_TYPE_LINEAR:
 		    return _cairo_xcb_linear_picture(target,

@@ -403,29 +403,17 @@ error:
 /* Handles compositing with a clip surface when the operator allows
  * us to combine the clip with the mask
  */
-static cairo_status_t clip_and_composite_with_mask(const cairo_traps_compositor_t * compositor,
-    const cairo_composite_rectangles_t* extents,
-    draw_func_t draw_func,
-    draw_func_t mask_func,
-    void * draw_closure,
-    cairo_operator_t op,
-    cairo_surface_t * src,
-    int src_x, int src_y)
+static cairo_status_t clip_and_composite_with_mask(const cairo_traps_compositor_t * compositor, const cairo_composite_rectangles_t* extents,
+    draw_func_t draw_func, draw_func_t mask_func, void * draw_closure, cairo_operator_t op, cairo_surface_t * src, int src_x, int src_y)
 {
 	cairo_surface_t * dst = extents->surface;
 	cairo_surface_t * mask;
-
 	TRACE((stderr, "%s\n", __FUNCTION__));
-
-	mask = create_composite_mask(compositor, dst, draw_closure,
-		draw_func, mask_func,
-		extents);
+	mask = create_composite_mask(compositor, dst, draw_closure, draw_func, mask_func, extents);
 	if(unlikely(mask->status))
 		return mask->status;
-
 	if(mask->is_clear)
 		goto skip;
-
 	if(src != NULL || dst->content != CAIRO_CONTENT_ALPHA) {
 		compositor->composite(dst, op, src, mask,
 		    extents->bounded.x + src_x,

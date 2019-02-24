@@ -67,7 +67,7 @@ METHODDEF(void) put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDI
 	register JDIMENSION col;
 	int pad;
 	/* Access next row in virtual array */
-	JSAMPARRAY image_ptr = (*cinfo->mem->access_virt_sarray)((j_common_ptr)cinfo, dest->whole_image, dest->cur_output_row, (JDIMENSION)1, TRUE);
+	JSAMPARRAY image_ptr = (*cinfo->mem->access_virt_sarray)(reinterpret_cast<j_common_ptr>(cinfo), dest->whole_image, dest->cur_output_row, (JDIMENSION)1, TRUE);
 	dest->cur_output_row++;
 	/* Transfer data.  Note destination values must be in BGR order
 	 * (even though Microsoft's own documents say the opposite).
@@ -95,7 +95,7 @@ METHODDEF(void) put_gray_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIM
 	register JDIMENSION col;
 	int pad;
 	/* Access next row in virtual array */
-	image_ptr = (*cinfo->mem->access_virt_sarray)((j_common_ptr)cinfo, dest->whole_image, dest->cur_output_row, (JDIMENSION)1, TRUE);
+	image_ptr = (*cinfo->mem->access_virt_sarray)(reinterpret_cast<j_common_ptr>(cinfo), dest->whole_image, dest->cur_output_row, (JDIMENSION)1, TRUE);
 	dest->cur_output_row++;
 	/* Transfer data. */
 	inptr = dest->pub.buffer[0];
@@ -325,9 +325,9 @@ METHODDEF(void) finish_output_bmp(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 		if(progress) {
 			progress->pub.pass_counter = (long)(cinfo->output_height - row);
 			progress->pub.pass_limit = (long)cinfo->output_height;
-			(*progress->pub.progress_monitor)((j_common_ptr)cinfo);
+			(*progress->pub.progress_monitor)(reinterpret_cast<j_common_ptr>(cinfo));
 		}
-		image_ptr = (*cinfo->mem->access_virt_sarray)((j_common_ptr)cinfo, dest->whole_image, row-1, (JDIMENSION)1, FALSE);
+		image_ptr = (*cinfo->mem->access_virt_sarray)(reinterpret_cast<j_common_ptr>(cinfo), dest->whole_image, row-1, (JDIMENSION)1, FALSE);
 		data_ptr = image_ptr[0];
 		for(col = dest->row_width; col > 0; col--) {
 			putc(GETJSAMPLE(*data_ptr), outfile);
@@ -350,7 +350,7 @@ GLOBAL(djpeg_dest_ptr) jinit_write_bmp(j_decompress_ptr cinfo, boolean is_os2)
 {
 	JDIMENSION row_width;
 	// Create module interface object, fill in method pointers 
-	bmp_dest_ptr dest = (bmp_dest_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(bmp_dest_struct));
+	bmp_dest_ptr dest = (bmp_dest_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(bmp_dest_struct));
 	dest->pub.start_output = start_output_bmp;
 	dest->pub.finish_output = finish_output_bmp;
 	dest->is_os2 = is_os2;
@@ -376,14 +376,14 @@ GLOBAL(djpeg_dest_ptr) jinit_write_bmp(j_decompress_ptr cinfo, boolean is_os2)
 	dest->row_width = row_width;
 	dest->pad_bytes = (int)(row_width - dest->data_width);
 	/* Allocate space for inversion array, prepare for write pass */
-	dest->whole_image = (*cinfo->mem->request_virt_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, FALSE, row_width, cinfo->output_height, (JDIMENSION)1);
+	dest->whole_image = (*cinfo->mem->request_virt_sarray)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, FALSE, row_width, cinfo->output_height, (JDIMENSION)1);
 	dest->cur_output_row = 0;
 	if(cinfo->progress) {
 		cd_progress_ptr progress = (cd_progress_ptr)cinfo->progress;
 		progress->total_extra_passes++; /* count file input as separate pass */
 	}
 	/* Create decompressor output buffer. */
-	dest->pub.buffer = (*cinfo->mem->alloc_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, row_width, (JDIMENSION)1);
+	dest->pub.buffer = (*cinfo->mem->alloc_sarray)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, row_width, (JDIMENSION)1);
 	dest->pub.buffer_height = 1;
 	// @v9c return (djpeg_dest_ptr)dest;
 	return &dest->pub; // @v9c

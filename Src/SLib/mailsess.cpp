@@ -48,7 +48,7 @@ MailSession::MailSession(const char * dest, int port, int timeout) : P_Buf(0), B
 		SLS.SetError(Err = SLERR_SOCK_HOSTRESLVFAULT, added_msg);
 	}
 	else
-		doConnect(*(int*)p_host->h_addr, port);
+		doConnect(*(int *)p_host->h_addr, port);
 }
 
 MailSession::MailSession(u_long ip, int port, int timeout) : P_Buf(0), BufSize(0), RealBufSize(0), Timeout(timeout ? timeout : DEF_TIMEOUT)

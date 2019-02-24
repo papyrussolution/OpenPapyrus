@@ -21,7 +21,7 @@
 
 int asn1_get_choice_selector(ASN1_VALUE ** pval, const ASN1_ITEM * it)
 {
-	int * sel = (int*)offset2ptr(*pval, it->utype);
+	int * sel = (int *)offset2ptr(*pval, it->utype);
 	return *sel;
 }
 /*
@@ -30,7 +30,7 @@ int asn1_get_choice_selector(ASN1_VALUE ** pval, const ASN1_ITEM * it)
 int asn1_set_choice_selector(ASN1_VALUE ** pval, int value, const ASN1_ITEM * it)
 {
 	int * sel, ret;
-	sel = (int*)offset2ptr(*pval, it->utype);
+	sel = (int *)offset2ptr(*pval, it->utype);
 	ret = *sel;
 	*sel = value;
 	return ret;
@@ -55,7 +55,7 @@ int asn1_do_lock(ASN1_VALUE ** pval, int op, const ASN1_ITEM * it)
 	aux = (const ASN1_AUX*)it->funcs;
 	if(!aux || !(aux->flags & ASN1_AFLG_REFCOUNT))
 		return 0;
-	lck = (int*)offset2ptr(*pval, aux->ref_offset);
+	lck = (int *)offset2ptr(*pval, aux->ref_offset);
 	lock = (CRYPTO_RWLOCK**)offset2ptr(*pval, aux->ref_lock);
 	if(op == 0) {
 		*lck = 1;

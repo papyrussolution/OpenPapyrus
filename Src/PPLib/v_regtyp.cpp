@@ -46,7 +46,7 @@ int SLAPI PPViewRegisterType::CheckForFilt(const PPRegisterTypePacket * pPack) c
 // static
 int FASTCALL PPViewRegisterType::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	PPViewRegisterType * p_v = (PPViewRegisterType *)pBlk->ExtraPtr;
+	PPViewRegisterType * p_v = static_cast<PPViewRegisterType *>(pBlk->ExtraPtr);
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
@@ -56,7 +56,7 @@ int SLAPI PPViewRegisterType::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
 		ok = 1;
 		SString temp_buf;
-		RegTypeViewItem * p_item = (RegTypeViewItem *)pBlk->P_SrcData;
+		const RegTypeViewItem * p_item = static_cast<const RegTypeViewItem *>(pBlk->P_SrcData);
 		switch(pBlk->ColumnN) {
 			case 0: // ÈÄ
 				pBlk->Set(p_item->ID);
@@ -253,11 +253,11 @@ int SLAPI PPViewRegisterType::ProcessCommand(uint ppvCmd, const void * pHdr, PPV
 	}
 	if(ok > 0 && oneof5(ppvCmd, PPVCMD_ADDITEM, PPVCMD_EDITITEM, PPVCMD_DELETEITEM, PPVCMD_REFRESHBYPERIOD, PPVCMD_REFRESH)) {
 		FetchData(id);
-		AryBrowserDef * p_def = (AryBrowserDef *)pBrw->getDef();
+		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
 		if(p_def) {
-			long   c = p_def->_curItem(); // @v8.0.5
+			long   c = p_def->_curItem();
 			p_def->setArray(new SArray(Data), 0, 1);
-			pBrw->go(c); // @v8.0.5
+			pBrw->go(c);
 		}
 		ok = 1;
 	}

@@ -423,7 +423,7 @@ static long conn_ctrl(BIO * b, int cmd, long num, void * ptr)
 				    }
 			    }
 			    else if(num == 3) {
-				    data->connect_family = *(int*)ptr;
+				    data->connect_family = *(int *)ptr;
 			    }
 			    else {
 				    ret = 0;
@@ -441,7 +441,7 @@ static long conn_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    break;
 		case BIO_C_GET_FD:
 		    if(b->init) {
-			    ip = (int*)ptr;
+			    ip = (int *)ptr;
 			    if(ip != NULL)
 				    *ip = b->num;
 			    ret = b->num;

@@ -1399,7 +1399,7 @@ int SLAPI PPViewPhnSvcMonitor::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 //static 
 int FASTCALL PPViewPhnSvcMonitor::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	PPViewPhnSvcMonitor * p_v = (PPViewPhnSvcMonitor *)pBlk->ExtraPtr;
+	PPViewPhnSvcMonitor * p_v = static_cast<PPViewPhnSvcMonitor *>(pBlk->ExtraPtr);
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
@@ -1422,7 +1422,7 @@ int SLAPI PPViewPhnSvcMonitor::ProcessCommand(uint ppvCmd, const void * pHdr, PP
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2 && oneof2(ppvCmd, PPVCMD_REFRESHBYPERIOD, PPVCMD_REFRESH)) {
 		Update();
-		AryBrowserDef * p_def = (AryBrowserDef *)pBrw->getDef();
+		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
 		if(p_def) {
 			SArray * p_array = CreateBrowserArray(0, 0);
 			p_def->setArray(p_array, 0, 0);

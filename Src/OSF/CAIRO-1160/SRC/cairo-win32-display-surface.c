@@ -348,7 +348,7 @@ static cairo_surface_t * _cairo_win32_display_surface_create_similar_image(void 
 
 static cairo_status_t _cairo_win32_display_surface_finish(void * abstract_surface)
 {
-	cairo_win32_display_surface_t * surface = (cairo_win32_display_surface_t *)abstract_surface;
+	cairo_win32_display_surface_t * surface = static_cast<cairo_win32_display_surface_t *>(abstract_surface);
 	if(surface->image && to_image_surface(surface->image)->parent) {
 		assert(to_image_surface(surface->image)->parent == &surface->win32.base);
 		/* Unhook ourselves first to avoid the double-unref from the image */
@@ -375,7 +375,7 @@ static cairo_status_t _cairo_win32_display_surface_finish(void * abstract_surfac
 static cairo_image_surface_t * _cairo_win32_display_surface_map_to_image(void * abstract_surface,
     const cairo_rectangle_int_t * extents)
 {
-	cairo_win32_display_surface_t * surface = (cairo_win32_display_surface_t *)abstract_surface;
+	cairo_win32_display_surface_t * surface = static_cast<cairo_win32_display_surface_t *>(abstract_surface);
 	cairo_status_t status;
 
 	TRACE((stderr, "%s (surface=%d)\n",
@@ -420,7 +420,7 @@ err:
 
 static cairo_int_status_t _cairo_win32_display_surface_unmap_image(void * abstract_surface, cairo_image_surface_t * image)
 {
-	cairo_win32_display_surface_t * surface = (cairo_win32_display_surface_t *)abstract_surface;
+	cairo_win32_display_surface_t * surface = static_cast<cairo_win32_display_surface_t *>(abstract_surface);
 	/* Delay the download until the next flush, which means we also need
 	 * to make sure our sources rare flushed.
 	 */
@@ -440,7 +440,7 @@ static cairo_int_status_t _cairo_win32_display_surface_unmap_image(void * abstra
 
 static cairo_status_t _cairo_win32_display_surface_flush(void * abstract_surface, unsigned flags)
 {
-	cairo_win32_display_surface_t * surface = (cairo_win32_display_surface_t *)abstract_surface;
+	cairo_win32_display_surface_t * surface = static_cast<cairo_win32_display_surface_t *>(abstract_surface);
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
 	if(flags)
 		return CAIRO_STATUS_SUCCESS;
@@ -494,7 +494,7 @@ static cairo_status_t _cairo_win32_display_surface_flush(void * abstract_surface
 
 static cairo_status_t _cairo_win32_display_surface_mark_dirty(void * abstract_surface, int x, int y, int width, int height)
 {
-	_cairo_win32_display_surface_discard_fallback((cairo_win32_display_surface_t *)abstract_surface);
+	_cairo_win32_display_surface_discard_fallback(static_cast<cairo_win32_display_surface_t *>(abstract_surface));
 	return CAIRO_STATUS_SUCCESS;
 }
 

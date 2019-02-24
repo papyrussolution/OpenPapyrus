@@ -88,7 +88,7 @@ static cairo_status_t _cpc_close_path(void * closure)
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static int _cairo_path_count(cairo_path_t * path, cairo_path_fixed_t * path_fixed, double tolerance, cairo_bool_t flatten)
+static int _cairo_path_count(cairo_path_t * path, const cairo_path_fixed_t * path_fixed, double tolerance, cairo_bool_t flatten)
 {
 	cairo_status_t status;
 	cpc_t cpc;
@@ -196,51 +196,30 @@ static cairo_status_t _cpp_curve_to(void * closure,
 
 static cairo_status_t _cpp_close_path(void * closure)
 {
-	cpp_t * cpp = (cpp_t *)closure;
+	cpp_t * cpp = static_cast<cpp_t *>(closure);
 	cairo_path_data_t * data = cpp->data;
-
 	data->header.type = CAIRO_PATH_CLOSE_PATH;
 	data->header.length = 1;
-
 	cpp->data += data->header.length;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _cairo_path_populate(cairo_path_t * path,
-    cairo_path_fixed_t * path_fixed,
-    cairo_t * cr,
-    cairo_bool_t flatten)
+static cairo_status_t _cairo_path_populate(cairo_path_t * path, const cairo_path_fixed_t * path_fixed, cairo_t * cr, cairo_bool_t flatten)
 {
 	cairo_status_t status;
 	cpp_t cpp;
-
 	cpp.data = path->data;
 	cpp.cr = cr;
-
 	if(flatten) {
-		status = _cairo_path_fixed_interpret_flat(path_fixed,
-			_cpp_move_to,
-			_cpp_line_to,
-			_cpp_close_path,
-			&cpp,
-			cairo_get_tolerance(cr));
+		status = _cairo_path_fixed_interpret_flat(path_fixed, _cpp_move_to, _cpp_line_to, _cpp_close_path, &cpp, cairo_get_tolerance(cr));
 	}
 	else {
-		status = _cairo_path_fixed_interpret(path_fixed,
-			_cpp_move_to,
-			_cpp_line_to,
-			_cpp_curve_to,
-			_cpp_close_path,
-			&cpp);
+		status = _cairo_path_fixed_interpret(path_fixed, _cpp_move_to, _cpp_line_to, _cpp_curve_to, _cpp_close_path, &cpp);
 	}
-
 	if(unlikely(status))
 		return status;
-
 	/* Sanity check the count */
 	assert(cpp.data - path->data == path->num_data);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 

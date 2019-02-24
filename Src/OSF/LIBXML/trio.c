@@ -1663,7 +1663,7 @@ static int TrioParse(int type, const char * format, trio_parameter_t * parameter
 					    else if(parameters[i].flags & FLAGS_SHORT)
 						    parameters[i].data.pointer = (void *)((short*)argarray[num]);
 					    else
-						    parameters[i].data.pointer = (void *)((int*)argarray[num]);
+						    parameters[i].data.pointer = (void *)((int *)argarray[num]);
 				    }
 			    }
 			    else {
@@ -1737,7 +1737,7 @@ static int TrioParse(int type, const char * format, trio_parameter_t * parameter
 							    parameters[i].data.number.as_unsigned =
 							    (trio_uintmax_t)(*((short*)argarray[num]));
 						    else
-							    parameters[i].data.number.as_unsigned = (trio_uintmax_t)(*((int*)argarray[num]));
+							    parameters[i].data.number.as_unsigned = (trio_uintmax_t)(*((int *)argarray[num]));
 					    }
 				    }
 			    }
@@ -1751,7 +1751,7 @@ static int TrioParse(int type, const char * format, trio_parameter_t * parameter
 			    if(parameters[i].flags & FLAGS_USER_DEFINED)
 				    parameters[i].data.pointer = (!argarray) ? va_arg(TRIO_VA_LIST_DEREF(arglist), trio_pointer_t) : argarray[num];
 			    else
-				    parameters[i].data.number.as_unsigned = (!argarray) ? (trio_uintmax_t)va_arg(TRIO_VA_LIST_DEREF(arglist), int) : (trio_uintmax_t)(*((int*)argarray[num]));
+				    parameters[i].data.number.as_unsigned = (!argarray) ? (trio_uintmax_t)va_arg(TRIO_VA_LIST_DEREF(arglist), int) : (trio_uintmax_t)(*((int *)argarray[num]));
 			    break;
 
 			case FORMAT_DOUBLE:
@@ -2651,7 +2651,7 @@ static int TrioFormatProcess(trio_class_t * data, const char * format, trio_para
 							    *(short int*)pointer = (short int)data->committed;
 						    }
 						    else {
-							    *(int*)pointer = (int)data->committed;
+							    *(int *)pointer = (int)data->committed;
 						    }
 					    }
 					    break; /* FORMAT_COUNT */
@@ -2771,7 +2771,7 @@ static void TrioOutStreamFileDescriptor(trio_class_t * self, int output)
 	int fd;
 	char ch;
 	assert(VALID(self));
-	fd = *((int*)self->location);
+	fd = *((int *)self->location);
 	ch = (char)output;
 	self->processed++;
 	if(write(fd, &ch, sizeof(char)) == -1) {
@@ -4458,7 +4458,7 @@ static int TrioScanProcess(trio_class_t * data, const char * format, trio_parame
 					    else if(flags & FLAGS_SHORT)
 						    *(short int*)pointer = (short int)number;
 					    else
-						    *(int*)pointer = (int)number;
+						    *(int *)pointer = (int)number;
 				    }
 			    }
 			    break; /* FORMAT_INT */
@@ -4548,7 +4548,7 @@ static int TrioScanProcess(trio_class_t * data, const char * format, trio_parame
 						    *(short int*)pointer = (short int)count;
 					    }
 					    else {
-						    *(int*)pointer = (int)count;
+						    *(int *)pointer = (int)count;
 					    }
 				    }
 				    break; /* FORMAT_COUNT */
@@ -4647,7 +4647,7 @@ static void TrioInStreamFileDescriptor(trio_class_t * self, int * intPointer)
 	uchar input;
 	assert(VALID(self));
 	assert(VALID(self->location));
-	fd = *((int*)self->location);
+	fd = *((int *)self->location);
 	size = read(fd, &input, sizeof(char));
 	if(size == -1) {
 		self->error = TRIO_ERROR_RETURN(TRIO_ERRNO, 0);

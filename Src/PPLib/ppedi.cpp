@@ -670,6 +670,21 @@ SLAPI PPEdiProcessor::ProviderImplementation::~ProviderImplementation()
 {
 }
 
+const SString & FASTCALL PPEdiProcessor::ProviderImplementation::EncXmlText(const char * pS)
+{
+	EncBuf = pS;
+	EncBuf.ReplaceChar('\x07', ' ');
+	XMLReplaceSpecSymb(EncBuf, "&<>\'");
+	return EncBuf.Transf(CTRANSF_INNER_TO_UTF8);
+}
+
+const SString & FASTCALL PPEdiProcessor::ProviderImplementation::EncXmlText(const SString & rS)
+{
+	(EncBuf = rS).ReplaceChar('\x07', ' ');
+	XMLReplaceSpecSymb(EncBuf, "&<>\'");
+	return EncBuf.Transf(CTRANSF_INNER_TO_UTF8);
+}
+
 int SLAPI PPEdiProcessor::ProviderImplementation::ValidateGLN(const SString & rGLN)
 {
 	int    ok = 0;
@@ -3671,7 +3686,7 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter
 				THROW(WriteOwnFormatContractor(_doc, 0, rBp.P_Freight->DlvrAddrID));
 			}
 		}
-		n_b.PutInnerSkipEmpty("comment", temp_buf.Z().Cat(rBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8)); // <!--номер промоакции-->
+		n_b.PutInnerSkipEmpty("comment", EncXmlText(rBp.Rec.Memo)); // <!--номер промоакции-->
 		{
 			SString goods_code;
 			SString goods_ar_code;
@@ -3698,7 +3713,7 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter
 				THROW(GetGoodsInfo(r_ti.GoodsID, rBp.Rec.Object, &goods_rec, goods_code, goods_ar_code));
 				n_item.PutInner("gtin", goods_code);
 				n_item.PutInner("internalSupplierCode", temp_buf.Z().Cat(goods_rec.ID));
-				n_item.PutInner("description", temp_buf.Z().Cat(goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
+				n_item.PutInner("description", EncXmlText(goods_rec.Name));
 				//n_item.PutInnerSkipEmpty("codeOfEgais", ""); // <!--код товара в ЕГАИС-->
 				//n_item.PutInnerSkipEmpty("lotNumberEgais", ""); // <!--номер товара в ТТН ЕГАИС-->
 				//n_item.PutInnerSkipEmpty("orderLineNumber", ""); // <!--порядковый номер товара-->
@@ -4481,7 +4496,7 @@ int SLAPI EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, c
 										(goods_name = temp_buf).Transf(CTRANSF_UTF8_TO_INNER);
 									}
 									else if(SXml::GetContentByName(p_li, "lineNumber", temp_buf)) {
-										ti.RByBill = (int16)temp_buf.ToLong();
+										ti.RByBill = static_cast<int16>(temp_buf.ToLong());
 										if(ti.RByBill < 0)
 											ti.RByBill = 0;
 									}
@@ -4623,7 +4638,7 @@ int SLAPI EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, c
 										serial = temp_buf;
 									}
 									else if(SXml::GetContentByName(p_li, "orderLineNumber", temp_buf)) {
-										ti.RByBill = (int16)temp_buf.ToLong();
+										ti.RByBill = static_cast<int16>(temp_buf.ToLong());
 										if(ti.RByBill < 0)
 											ti.RByBill = 0;
 									}
@@ -5720,7 +5735,7 @@ int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor:
 																							for(json_t * p_pf = p_pli->P_Child; p_pf; p_pf = p_pf->P_Next) {
 																								temp_buf = p_pf->P_Child->Text;
 																								if(p_pf->Text.IsEqiAscii("POSITIONNUMBER")) {
-																									pos_blk.Ti.RByBill = (int16)temp_buf.ToLong();
+																									pos_blk.Ti.RByBill = static_cast<int16>(temp_buf.ToLong());
 																									if(pos_blk.Ti.RByBill < 0)
 																										pos_blk.Ti.RByBill = 0;
 																								}
@@ -6039,7 +6054,7 @@ int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor:
 																		for(json_t * p_pf = p_pli->P_Child; p_pf; p_pf = p_pf->P_Next) {
 																			temp_buf = p_pf->P_Child->Text;
 																			if(p_pf->Text.IsEqiAscii("POSITIONNUMBER")) {
-																				pos_blk.Ti.RByBill = (int16)temp_buf.ToLong();
+																				pos_blk.Ti.RByBill = static_cast<int16>(temp_buf.ToLong());
 																				if(pos_blk.Ti.RByBill < 0)
 																					pos_blk.Ti.RByBill = 0;
 																			}
@@ -6286,7 +6301,7 @@ int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor:
 																					pos_blk.GoodsID_ByGTIN = goods_rec.ID;
 																			}
 																			else if(p_pf->Text.IsEqiAscii("POSITIONNUMBER")) {
-																				pos_blk.Ti.RByBill = (int16)temp_buf.ToLong();
+																				pos_blk.Ti.RByBill = static_cast<int16>(temp_buf.ToLong());
 																				if(pos_blk.Ti.RByBill < 0)
 																					pos_blk.Ti.RByBill = 0;
 																			}
@@ -6548,7 +6563,7 @@ int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_ORDERS(xmlTextWriter 
 	THROW(GetArticleGLN(rBp.Rec.Object, contractor_gln));
 	{
 		n_docs.PutInner("DOCUMENTNAME", "220"); // 218 order // во всех документах 220
-		n_docs.PutInner("NUMBER", BillCore::GetCode(temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
+		n_docs.PutInner("NUMBER", EncXmlText(BillCore::GetCode(temp_buf = rBp.Rec.Code)));
 		n_docs.PutInner("DATE", temp_buf.Z().Cat(rBp.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
 		//n_docs.PutInner("PROMO", 0);
 		n_docs.PutInner("DELIVERYDATE", temp_buf.Z().Cat(NZOR(rBp.Rec.DueDate, rBp.Rec.Dt), DATF_ISO8601|DATF_CENTURY));
@@ -6578,7 +6593,7 @@ int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_ORDERS(xmlTextWriter 
 		//n_docs.PutInner("SUPORDER", 0);
 		//n_docs.PutInner("KDKNUM", 0);
 		//n_docs.PutInner("ORDRTYPE", "O"); // Тип заказа: поле O - оригинал R - корректировка, D - отмена
-		n_docs.PutInner("INFO", (temp_buf = rBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8));
+		n_docs.PutInner("INFO", EncXmlText(rBp.Rec.Memo));
 		// n_docs.PutInner("TYPE", 0); // 1 - Оборудование, 2 - Расходные материалы, 3 - Оборудование и услуга.
 		//n_docs.PutInner("EARLIESTDELIVERYDATE", 0);
 		//n_docs.PutInner("PRODUCTTYPE", 0); // 1 - Оборудование, 2 - Услуга
@@ -6601,7 +6616,7 @@ int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_ORDERS(xmlTextWriter 
 				//n_inner.PutInner("RECIPIENTCODE", 0); // Код получателя
 				GetArticleName(rBp.Rec.Object, temp_buf);
 				if(temp_buf.NotEmptyS())
-					n_inner.PutInner("RECIPIENTNAME", temp_buf.Transf(CTRANSF_INNER_TO_UTF8)); // Имя получателя
+					n_inner.PutInner("RECIPIENTNAME", EncXmlText(temp_buf)); // Имя получателя
 				//n_inner.PutInner("RECIPIENTCONTACTFACE", 0); // Контактное лицо
 				//n_inner.PutInner("RECIPIENTPHONE", 0); // Телефон получателя
 				//n_inner.PutInner("RECIPIENTCITY", 0); // Город получателя
@@ -6651,7 +6666,7 @@ int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_ORDERS(xmlTextWriter 
 						//n_inner2.PutInner("PACKAGEID", 0); // Идентификатор упаковки
 						{
 							SXml::WNode n_inner3(_doc, "CHARACTERISTIC");
-							n_inner3.PutInner("DESCRIPTION", temp_buf.Z().Cat(goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
+							n_inner3.PutInner("DESCRIPTION", EncXmlText(goods_rec.Name));
 						}
 					}
 				}
@@ -6921,23 +6936,23 @@ int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_RECADV(xmlTextWriter 
 			n_docs.PutInner("RECEPTIONDATE", temp_buf.Z().Cat(wroff_bill_rec.Dt, DATF_ISO8601|DATF_CENTURY));
 		}
 		else {
-			(temp_buf = desadv_code).CatChar('-').Cat("RA").Transf(CTRANSF_INNER_TO_UTF8);
-			n_docs.PutInner("NUMBER", temp_buf);
+			(temp_buf = desadv_code).CatChar('-').Cat("RA");
+			n_docs.PutInner("NUMBER", EncXmlText(temp_buf));
 			n_docs.PutInner("DATE", temp_buf.Z().Cat(rRaPack.ABp.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
 			n_docs.PutInner("RECEPTIONDATE", temp_buf.Z().Cat(rRaPack.ABp.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
 		}
 		if(rRaPack.OrderBillID && P_BObj->Fetch(rRaPack.OrderBillID, &order_bill_rec) > 0) {
-			BillCore::GetCode(temp_buf = order_bill_rec.Code).Transf(CTRANSF_INNER_TO_UTF8);
-			n_docs.PutInner("ORDERNUMBER", temp_buf);
+			BillCore::GetCode(temp_buf = order_bill_rec.Code);
+			n_docs.PutInner("ORDERNUMBER", EncXmlText(temp_buf));
 			n_docs.PutInner("ORDERDATE", temp_buf.Z().Cat(order_bill_rec.Dt, DATF_ISO8601|DATF_CENTURY));
 		}
-		n_docs.PutInner("DESADVNUMBER", (temp_buf = desadv_code).Transf(CTRANSF_INNER_TO_UTF8)); // Номер уведомления об отгрузке
+		n_docs.PutInner("DESADVNUMBER", EncXmlText(desadv_code)); // Номер уведомления об отгрузке
 		n_docs.PutInner("DESADVDATE", temp_buf.Z().Cat(rRaPack.ABp.Rec.Dt, DATF_ISO8601|DATF_CENTURY)); // Дата уведомления об отгрузке
 		{
 			SString delivery_note_number;
 			if(rRaPack.ABp.BTagL.GetItemStr(PPTAG_BILL_OUTERCODE, delivery_note_number) <= 0)
 				delivery_note_number = desadv_code;
-			n_docs.PutInner("DELIVERYNOTENUMBER", (temp_buf = delivery_note_number).Transf(CTRANSF_INNER_TO_UTF8)); // Номер накладной
+			n_docs.PutInner("DELIVERYNOTENUMBER", EncXmlText(delivery_note_number)); // Номер накладной
 		}
 		{
 			LDATE delivery_note_date = ZERODATE;
@@ -6969,7 +6984,7 @@ int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_RECADV(xmlTextWriter 
 			n_docs.PutInner("TOTALAMOUNTWITHVAT", temp_buf.Z().Cat(total_amount_with_vat, MKSFMTD(0, 2, 0)));
 		}
 		n_docs.PutInner("DOCTYPE", "O");
-		n_docs.PutInner("INFO", (temp_buf = rRaPack.RBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8));
+		n_docs.PutInner("INFO", EncXmlText(rRaPack.RBp.Rec.Memo));
 		{
 			SXml::WNode n_inner(_doc, "HEAD");
 			{
@@ -6977,20 +6992,20 @@ int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_RECADV(xmlTextWriter 
 				SString goods_ar_code;
 				Goods2Tbl::Rec goods_rec;
 				n_inner.PutInner("SUPPLIER", contractor_gln);
-				n_inner.PutInner("SUPPLIERNAME", (temp_buf = contractor_psn_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
+				n_inner.PutInner("SUPPLIERNAME", EncXmlText(contractor_psn_rec.Name));
 				n_inner.PutInner("BUYER", main_org_gln);
 				THROW(GetLocGLN(NZOR(rRaPack.RBp.Rec.LocID, rRaPack.ABp.Rec.LocID), temp_buf));
 				n_inner.PutInner("DELIVERYPLACE", temp_buf); // GLN места доставки
 				n_inner.PutInner("FINALRECIPIENT", 0);
 				n_inner.PutInner("SENDER", main_org_gln);
 				GetMainOrgName(temp_buf);
-				n_inner.PutInner("SENDERNAME", temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
+				n_inner.PutInner("SENDERNAME", EncXmlText(temp_buf));
 				//n_inner.PutInner("SENDERPHONE", 0);
 				//n_inner.PutInner("SENDERCITY", 0);
 				//n_inner.PutInner("SENDERADRESS", 0);
 				n_inner.PutInner("RECIPIENT", contractor_gln);
 				//n_inner.PutInner("RECIPIENTCODE", 0);
-				n_inner.PutInner("RECIPIENTNAME", (temp_buf = contractor_psn_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
+				n_inner.PutInner("RECIPIENTNAME", EncXmlText(contractor_psn_rec.Name));
 				//n_inner.PutInner("RECIPIENTCONTACTFACE", 0);
 				//n_inner.PutInner("RECIPIENTPHONE", 0);
 				//n_inner.PutInner("RECIPIENTCITY", 0);
@@ -7041,7 +7056,7 @@ int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_RECADV(xmlTextWriter 
 							n_inner2.PutInner("AMOUNTWITHVAT", temp_buf.Z().Cat(amount_with_vat, MKSFMTD(0, 2, 0)));
 							n_inner2.PutInner("TAXRATE", temp_buf.Z().Cat(vat_rate, MKSFMTD(0, 1, NMBF_NOTRAILZ)));
 							//n_inner2.PutInner("CONDITIONSTATUS", 0);
-							n_inner2.PutInner("DESCRIPTION", temp_buf.Z().Cat(goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
+							n_inner2.PutInner("DESCRIPTION", EncXmlText(goods_rec.Name));
 							//n_inner2.PutInner("PACKAGEID", 0);
 						}
 					}

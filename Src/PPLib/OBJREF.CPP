@@ -1659,7 +1659,7 @@ StrAssocArray * SLAPI PPObjCurrency::CreateSelectorList(int asSymb, PPIDArray * 
 	return p_list;
 }
 
-int SLAPI PPObjCurrency::Select(int asSymb, PPIDArray * pIncludeList, PPIDArray * pExcludeList, PPID * pID)
+int SLAPI PPObjCurrency::Select(int asSymb, PPIDArray * pIncludeList, const PPIDArray * pExcludeList, PPID * pID)
 {
 	int    ok = -1;
 	PPObjListWindow * p_lw = 0;

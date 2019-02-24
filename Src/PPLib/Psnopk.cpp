@@ -1451,7 +1451,7 @@ int SLAPI EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 		{
 			disableCtrl(CTLSEL_POVERB_LINK, 1);
 		}
-		int    setDTS(PoClause_ * pClause)
+		int    setDTS(const PoClause_ * pClause)
 		{
 			int    ok = 1;
 			ushort v;

@@ -804,7 +804,7 @@ const SCodepageMapPool::MapEntry * FASTCALL SCodepageMapPool::CpMap::SearchC(con
 const SCodepageMapPool::MapEntry * FASTCALL SCodepageMapPool::CpMap::SearchU(uint32 u) const
 {
 	for(uint i = 0; i < MapCount; i++) {
-		if(P_Map[i].U2 == (uint16)u)
+		if(P_Map[i].U2 == static_cast<uint16>(u))
 			return (P_Map+i);
 	}
 	return 0;
@@ -924,22 +924,22 @@ int SLAPI SCodepageMapPool::GetByName(const char * pName, SCodepageMapPool::CpMa
 
 IMPL_CMPCFUNC(CPMCPENTRY, p1, p2)
 {
-	const SCodepageMapPool::MapEntry * i1 = (const SCodepageMapPool::MapEntry *)p1;
-	const SCodepageMapPool::MapEntry * i2 = (const SCodepageMapPool::MapEntry *)p2;
+	const SCodepageMapPool::MapEntry * i1 = static_cast<const SCodepageMapPool::MapEntry *>(p1);
+	const SCodepageMapPool::MapEntry * i2 = static_cast<const SCodepageMapPool::MapEntry *>(p2);
 	return CMPSIGN(PTR32C(i1->B)[0], PTR32C(i2->B)[0]);
 }
 
 IMPL_CMPCFUNC(CPMCPENTRY_U, p1, p2)
 {
-	const SCodepageMapPool::MapEntry * i1 = (const SCodepageMapPool::MapEntry *)p1;
-	const SCodepageMapPool::MapEntry * i2 = (const SCodepageMapPool::MapEntry *)p2;
+	const SCodepageMapPool::MapEntry * i1 = static_cast<const SCodepageMapPool::MapEntry *>(p1);
+	const SCodepageMapPool::MapEntry * i2 = static_cast<const SCodepageMapPool::MapEntry *>(p2);
 	return CMPSIGN(i1->U2, i2->U2);
 }
 
 IMPL_CMPCFUNC(CPMCPENTRYFULLY, p1, p2)
 {
-	const SCodepageMapPool::MapEntry * i1 = (const SCodepageMapPool::MapEntry *)p1;
-	const SCodepageMapPool::MapEntry * i2 = (const SCodepageMapPool::MapEntry *)p2;
+	const SCodepageMapPool::MapEntry * i1 = static_cast<const SCodepageMapPool::MapEntry *>(p1);
+	const SCodepageMapPool::MapEntry * i2 = static_cast<const SCodepageMapPool::MapEntry *>(p2);
 	int   si = CMPSIGN(PTR32C(i1->B)[0], PTR32C(i2->B)[0]);
 	if(si == 0)
 		si = CMPSIGN(i1->U2, i2->U2);
@@ -948,9 +948,9 @@ IMPL_CMPCFUNC(CPMCPENTRYFULLY, p1, p2)
 
 IMPL_CMPCFUNC(CPMCPENTRYUREF, p1, p2)
 {
-	const long r1 = *(const long *)p1;
-	const long r2 = *(const long *)p2;
-	const SCodepageMapPool::MapEntry * p_list = (const SCodepageMapPool::MapEntry *)pExtraData;
+	const long r1 = *static_cast<const long *>(p1);
+	const long r2 = *static_cast<const long *>(p2);
+	const SCodepageMapPool::MapEntry * p_list = static_cast<const SCodepageMapPool::MapEntry *>(pExtraData);
 	return CMPSIGN(p_list[r1].U2, p_list[r2].U2);
 }
 
@@ -1029,7 +1029,7 @@ int SLAPI SCodepageMapPool::ParseSymbols(SString & rU, const SString & rMb, MapE
 	else {
 		; // @todo
 	}
-	rEntry.U2 = (uint16)SUnicodeTable::ParseUnicode(rU);
+	rEntry.U2 = static_cast<uint16>(SUnicodeTable::ParseUnicode(rU));
 	ok = 1;
 	ASSIGN_PTR(pMbMl, mbml);
 	return ok;
@@ -1068,10 +1068,8 @@ int SLAPI SCodepageMapPool::ParseXmlSingle(void * pXmlContext, const char * pFil
     SString temp_buf;
     SString u_buf, b_buf;
     LongArray nscript_list;
-
 	uint8  two_c_start[64];
 	uint8  four_c_start[64];
-
 	SString cp_name;
 	int    has_u4 = 0;
 	int    has_b3 = 0;
@@ -1079,13 +1077,11 @@ int SLAPI SCodepageMapPool::ParseXmlSingle(void * pXmlContext, const char * pFil
 	uint8  mbml_fallback = 0;
 	TSVector <MapEntry> map_list; // @v9.8.4 TSArray-->TSVector
 	TSVector <MapEntry> fallback_list; // @v9.8.4 TSArray-->TSVector
-
 	MEMSZERO(two_c_start);
 	MEMSZERO(four_c_start);
-
 	THROW(fileExists(pFileName));
 	if(pXmlContext)
-		p_ctx = (xmlParserCtxt *)pXmlContext;
+		p_ctx = static_cast<xmlParserCtxt *>(pXmlContext);
 	else {
 		THROW(p_ctx = xmlNewParserCtxt());
 	}
@@ -1176,13 +1172,13 @@ int SLAPI SCodepageMapPool::ParseXmlSingle(void * pXmlContext, const char * pFil
 		uint   spp = 0;
 		SString cp_symb;
 		SString cp_version;
-		entry.Id = (SCodepage)ParseCpName(cp_name, &cp_sis, cp_symb, cp_version);
+		entry.Id = static_cast<SCodepage>(ParseCpName(cp_name, &cp_sis, cp_symb, cp_version));
 		entry.MbMl = mbml;
 		if(has_u4)
 			entry.Flags |= fHas4U;
 		if(has_b3)
 			entry.Flags |= fHas3B;
-		entry.CpSis = (uint8)cp_sis;
+		entry.CpSis = static_cast<uint8>(cp_sis);
 		THROW(AddS(cp_name, &spp));
 		entry.NameP = spp;
 		THROW(AddS(cp_symb, &spp));
@@ -1214,7 +1210,7 @@ int SLAPI SCodepageMapPool::ParseXmlSingle(void * pXmlContext, const char * pFil
 					const uint8 * p_b = map_list.at(i).B;
 					if(p_b[1] == 0) {
 						const uint8 _c = p_b[0];
-						if(_c == (uint8)i)
+						if(_c == static_cast<uint8>(i))
 							entry.StraightCount++;
 						else
 							break;
@@ -1239,7 +1235,7 @@ int SLAPI SCodepageMapPool::ParseXmlSingle(void * pXmlContext, const char * pFil
                 const MapEntry & r_entry = map_list.at(i);
                 const SUnicodeTable::Item32 * p_ui = pUt->Get(r_entry.U2);
                 if(p_ui && p_ui->SNScriptId) {
-					nscript_list.addUnique((long)p_ui->SNScriptId);
+					nscript_list.addUnique(static_cast<long>(p_ui->SNScriptId));
                 }
 			}
 			nscript_list.sortAndUndup();
@@ -1247,7 +1243,7 @@ int SLAPI SCodepageMapPool::ParseXmlSingle(void * pXmlContext, const char * pFil
 			if(entry.NScriptCount) {
 				entry.NScriptStart = NScrL.getCount();
 				for(uint i = 0; i < entry.NScriptCount; i++) {
-					const uint16 s = (uint16)nscript_list.at(i);
+					const uint16 s = static_cast<uint16>(nscript_list.at(i));
 					THROW(NScrL.insert(&s));
 				}
 			}
@@ -1306,9 +1302,9 @@ int SLAPI SCodepageMapPool::CpMap::MakeUIndex(LongArray & rIdx) const
 	int    ok = 1;
     rIdx.clear();
 	for(uint i = 0; i < MapCount; i++) {
-		THROW(rIdx.add((long)i));
+		THROW(rIdx.add(static_cast<long>(i)));
 	}
-	rIdx.SVector::sort(PTR_CMPCFUNC(CPMCPENTRYUREF), (void *)P_Map); // @badcast
+	rIdx.SVector::sort(PTR_CMPCFUNC(CPMCPENTRYUREF), const_cast<MapEntry *>(P_Map)); // @badcast
 	CATCHZOK
 	return ok;
 }
@@ -1318,7 +1314,7 @@ const SCodepageMapPool::MapEntry * FASTCALL SCodepageMapPool::CpMap::SearchU(wch
 	if(pIdx) {
 		const  MapEntry * p_org = P_Map;
 		for(uint i = 0, lo = 0, up = pIdx->getCount()-1; lo <= up;) {
-			const uint _pos = (uint)pIdx->get(i = (lo + up) >> 1);
+			const uint _pos = static_cast<uint>(pIdx->get(i = (lo + up) >> 1));
 			const int cmp = CMPSIGN(p_org[_pos].U2, u);
 			if(cmp < 0)
 				lo = i + 1;
@@ -1374,7 +1370,7 @@ int SLAPI SCodepageMapPool::CpMap::TranslateToU(const uint8 * pSrc, size_t srcSi
 				for(uint i = 0; i < srcSize; i++) {
 					const uint8 c = pSrc[i];
 					if(c < Solid256Offs)
-						rBuf.CatChar((wchar_t)c);
+						rBuf.CatChar(static_cast<wchar_t>(c));
 					else
 						rBuf.CatChar(P_Map[c+Solid256Offs].U2);
 				}
@@ -1556,7 +1552,8 @@ void SCodepageMapPool::CMapTranslIndexTest::Reset()
 	FallbackCount = 0;
 }
 
-IMPL_CMPCFUNC(CMapTranslEntry, p1, p2) { RET_CMPCASCADE4((const SCodepageMapPool::CMapTranslEntry *)p1, (const SCodepageMapPool::CMapTranslEntry *)p2, S[0], S[1], S[2], S[3]); }
+IMPL_CMPCFUNC(CMapTranslEntry, p1, p2) 
+	{ RET_CMPCASCADE4(static_cast<const SCodepageMapPool::CMapTranslEntry *>(p1), static_cast<const SCodepageMapPool::CMapTranslEntry *>(p2), S[0], S[1], S[2], S[3]); }
 
 SLAPI SCodepageMapPool::CMapTranslEntry::CMapTranslEntry()
 {
@@ -1785,7 +1782,7 @@ const uint8 * FASTCALL SCodepageMapPool::TranslIndex::Search(const uint8 * pSrc)
 				assert(SL > 1);
 				const size_t cs = MIN(src_len, SL);
 				const size_t entry_size = GetEntrySize();
-				const uint8 * p_org = (const uint8 *)P_Tab;
+				const uint8 * p_org = static_cast<const uint8 *>(P_Tab);
 				if(0) {
 					//
 					// test
@@ -2120,11 +2117,11 @@ int SLAPI SCodepageMapPool::Test(const SUnicodeTable * pUt, const char * pMapPoo
 							result_len = MultiByteToWideChar(map.Id, 0, (char *)test_cbuf, _in_clen, test_wbuf, SIZEOFARRAY(test_wbuf));
 							//
 							assert(result_len > 0);
-							assert(test_wbuf[0] == (wchar_t)r_entry.U2);
+							assert(test_wbuf[0] == static_cast<wchar_t>(r_entry.U2));
 							THROW(result_len > 0);
-							THROW(test_wbuf[0] == (wchar_t)r_entry.U2);
+							THROW(test_wbuf[0] == static_cast<wchar_t>(r_entry.U2));
 							//
-							test_wbuf[0] = (wchar_t)r_entry.U2;
+							test_wbuf[0] = static_cast<wchar_t>(r_entry.U2);
 							test_wbuf[1] = 0;
 							result_len = WideCharToMultiByte(map.Id, 0, test_wbuf, 1, (char *)test_cbuf, sizeof(test_cbuf), 0, 0);
 							assert(result_len > 0);

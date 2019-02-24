@@ -210,7 +210,7 @@ void FASTCALL _cairo_output_stream_write(cairo_output_stream_t * stream, const v
 		return;
 	if(stream->status)
 		return;
-	stream->status = stream->write_func(stream, static_cast<const uchar *>(data), length);
+	stream->status = stream->write_func(stream, reinterpret_cast<const uchar *>(data), length);
 	stream->position += length;
 }
 
@@ -629,7 +629,7 @@ cairo_status_t _cairo_memory_stream_destroy(cairo_output_stream_t * abstract_str
 		return _cairo_output_stream_destroy(abstract_stream);
 	stream = (memory_stream_t*)abstract_stream;
 	*length_out = _cairo_array_num_elements(&stream->array);
-	*data_out = (uchar *)_cairo_malloc(*length_out);
+	*data_out = static_cast<uchar *>(_cairo_malloc(*length_out));
 	if(unlikely(*data_out == NULL)) {
 		status = _cairo_output_stream_destroy(abstract_stream);
 		assert(status == CAIRO_STATUS_SUCCESS);

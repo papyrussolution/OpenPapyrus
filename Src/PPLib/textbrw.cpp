@@ -642,12 +642,10 @@ void SScEditorBase::Init(HWND hScW, int preserveFileName)
 	P_SciPtr = 0;
 	Doc.Reset(preserveFileName);
 	if(hScW) {
-		P_SciFn  = (int (__cdecl *)(void *, int, int, int))SendMessage(hScW, SCI_GETDIRECTFUNCTION, 0, 0);
-		P_SciPtr = (void *)SendMessage(hScW, SCI_GETDIRECTPOINTER, 0, 0);
-
+		P_SciFn  = reinterpret_cast<int (__cdecl *)(void *, int, int, int)>(::SendMessage(hScW, SCI_GETDIRECTFUNCTION, 0, 0));
+		P_SciPtr = reinterpret_cast<void *>(SendMessage(hScW, SCI_GETDIRECTPOINTER, 0, 0));
 		CallFunc(SCI_INDICSETSTYLE, indicUnknWord, /*INDIC_SQUIGGLE*/INDIC_COMPOSITIONTHICK);
 		CallFunc(SCI_INDICSETFORE, indicUnknWord, GetColorRef(SClrRed));
-		//
 		CallFunc(SCI_INDICSETSTYLE, indicStxRule, INDIC_PLAIN);
 		CallFunc(SCI_INDICSETFORE, indicStxRule, GetColorRef(SClrCyan));
 	}
@@ -1338,7 +1336,7 @@ int SLAPI STextBrowser::LoadToolbar(uint tbId)
 //static
 LRESULT CALLBACK STextBrowser::ScintillaWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	STextBrowser * p_this = (STextBrowser *)::GetWindowLongPtr(hwnd, GWLP_USERDATA);
+	STextBrowser * p_this = reinterpret_cast<STextBrowser *>(::GetWindowLongPtr(hwnd, GWLP_USERDATA));
 	if(p_this) {
 		switch(msg) {
 			case WM_DESTROY:
@@ -1398,7 +1396,7 @@ int STextBrowser::WMHCreate()
 		0, ToolBarWidth, rc.right - rc.left, rc.bottom - rc.top, H(), 0/*(HMENU)GuiID*/, APPL->GetInst(), 0);
 	SScEditorBase::Init(HwndSci, 1/*preserveFileName*/);
 	TView::SetWindowProp(HwndSci, GWLP_USERDATA, this);
-	OrgScintillaWndProc = (WNDPROC)TView::SetWindowProp(HwndSci, GWLP_WNDPROC, ScintillaWindowProc);
+	OrgScintillaWndProc = static_cast<WNDPROC>(TView::SetWindowProp(HwndSci, GWLP_WNDPROC, ScintillaWindowProc));
 	// @v8.6.2 (SCI_SETKEYSUNICODE deprecated in sci 3.5.5) CallFunc(SCI_SETKEYSUNICODE, 1, 0);
 	CallFunc(SCI_SETCARETLINEVISIBLE, 1);
 	CallFunc(SCI_SETCARETLINEBACK, RGB(232,232,255));

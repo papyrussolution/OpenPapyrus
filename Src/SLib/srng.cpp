@@ -1,5 +1,5 @@
 // SRNG.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2010, 2016, 2017
+// Copyright (c) A.Sobolev 2007, 2008, 2010, 2016, 2017, 2018, 2019
 //
 // Random Number Generators
 //
@@ -7,19 +7,16 @@
 #include <tv.h>
 #pragma hdrstop
 
-SRng::SRng(int alg, uint level) : Alg(alg), Level(level), RandMin(0), RandMax(0)
+SRng::SRng(int alg, uint level, ulong rndMin, ulong rndMax) : Alg(alg), Level(level), RandMin(rndMin), RandMax(rndMax)
 {
 }
 
-ulong SRng::GetMin() const
+SRng::~SRng()
 {
-	return RandMin;
 }
 
-ulong SRng::GetMax() const
-{
-	return RandMax;
-}
+ulong SRng::GetMin() const { return RandMin; }
+ulong SRng::GetMax() const { return RandMax; }
 //
 // Note: to avoid integer overflow in (range+1) we work with scale = range/n = (max-min)/n
 // rather than scale=(max-min+1)/n, this reduces
@@ -100,12 +97,10 @@ private:
 	// @#{0, 1999, 1998}
 };
 
-SRngMT::SRngMT(Algorithm alg, uint level) : SRng(alg, level)
+SRngMT::SRngMT(Algorithm alg, uint level) : SRng(alg, level, 0, 0xffffffffUL)
 {
 	assert(alg == algMT); // @v10.3.1 @fix (=)-->(==)
 	assert(oneof3(level, 0, 1999, 1998));
-	RandMin = 0;
-	RandMax = 0xffffffffUL;
 }
 
 void SRngMT::Set(ulong seed)
@@ -201,12 +196,10 @@ private:
 	long   X[64];
 };
 
-SRngUnix::SRngUnix(Algorithm alg, uint bits) : SRng(alg, bits), I(0), J(0)
+SRngUnix::SRngUnix(Algorithm alg, uint bits) : SRng(alg, bits, 0, 0x7fffffffUL), I(0), J(0)
 {
 	assert(oneof3(alg, algBSD, algLibC5, algGLibC2));
 	assert(oneof5(bits, 8, 32, 64, 128, 256));
-	RandMin = 0;
-	RandMax = 0x7fffffffUL;
 }
 
 void SRngUnix::Set(ulong s)
@@ -302,20 +295,16 @@ private:
 	uint   Luxury;
 };
 
-SRngRANLUX::SRngRANLUX(Algorithm alg, uint rank /* 0, 1, 2 */) : SRng(alg, rank)
+SRngRANLUX::SRngRANLUX(Algorithm alg, uint rank /* 0, 1, 2 */) : SRng(alg, rank, 0, ((alg == algRANLUX_S) ? 0x00ffffffUL: 0xffffffffUL))
 {
 	assert(oneof2(alg, algRANLUX_S, algRANLUX_D));
 	if(alg == algRANLUX_S) {
 		assert(oneof3(rank, 0, 1, 2));
 		IMul = 16777216.0;
-		RandMin = 0;
-		RandMax = 0x00ffffffUL;
 	}
 	else {
 		assert(oneof2(rank, 1, 2));
 		IMul = 4294967296.0;
-		RandMin = 0;
-		RandMax = 0xffffffffUL;
 	}
 	if(rank == 0)
 		Luxury = 109;
@@ -470,7 +459,7 @@ double SRngRANLUX::GetReal()
 
 ulong SRngRANLUX::Get()
 {
-	return (ulong)(GetReal() * IMul);
+	return static_cast<ulong>(GetReal() * IMul);
 }
 //
 //
@@ -505,10 +494,10 @@ double SRng::GetGaussian(double sigma)
 	return sigma * y * sqrt(-2.0 * log(r2) / r2);
 }
 
-double SRng::GetGaussianPdf(double x, double sigma)
+double SRng::GetGaussianPdf(double x, double sigma) const
 {
 	double u = x / fabs(sigma);
-	double p = (1 / (sqrt(2 * SMathConst::Pi) * fabs(sigma))) * exp (-u * u / 2);
+	double p = (1 / (sqrt(2 * SMathConst::Pi) * fabs(sigma))) * exp(-u * u / 2);
 	return p;
 }
 //

@@ -955,12 +955,12 @@ int SLAPI DlRtm::Export(ExportParam & rParam)
 			if(rParam.P_F) {
 				if(is_hdr) {
 					THROW(InitData(*rParam.P_F, BIN(rParam.Flags & ExportParam::fIsView)));
-					__FillRecBuf(p_child, p_tbl->getDataBuf());
+					__FillRecBuf(p_child, static_cast<char *>(p_tbl->getDataBuf()));
 					THROW_DB(p_tbl->insertRec());
 				}
 				else {
 					long   iter_id = GetIterID(p_child->Name);
-					char * p_rec_buf = p_tbl->getDataBuf();
+					char * p_rec_buf = static_cast<char *>(p_tbl->getDataBuf());
 					int    r;
 					BExtInsert bei(p_tbl, 16*1024U);
 					THROW(InitIteration(iter_id, rParam.Sort));

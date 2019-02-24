@@ -125,8 +125,7 @@ skip_to_init:
 #endif
 	if(ctx->pctx) {
 		int r;
-		r = EVP_PKEY_CTX_ctrl(ctx->pctx, -1, EVP_PKEY_OP_TYPE_SIG,
-		    EVP_PKEY_CTRL_DIGESTINIT, 0, ctx);
+		r = EVP_PKEY_CTX_ctrl(ctx->pctx, -1, EVP_PKEY_OP_TYPE_SIG, EVP_PKEY_CTRL_DIGESTINIT, 0, ctx);
 		if(r <= 0 && (r != -2))
 			return 0;
 	}
@@ -184,7 +183,7 @@ int EVP_MD_CTX_copy_ex(EVP_MD_CTX * out, const EVP_MD_CTX * in)
 	}
 #endif
 	if(out->digest == in->digest) {
-		tmp_buf = (uchar*)out->md_data;
+		tmp_buf = reinterpret_cast<uchar *>(out->md_data);
 		EVP_MD_CTX_set_flags(out, EVP_MD_CTX_FLAG_REUSE);
 	}
 	else

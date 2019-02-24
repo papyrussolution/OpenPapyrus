@@ -1210,7 +1210,7 @@ int STimeChunkBrowser::Resize(int mode, TPoint p)
 				else if(loc.Kind == Loc::kHeader && loc.Pos == Loc::pLeftEdge) {
 					assert(loc.HdrLevel < (int)St.HdrLevelCount);
 					St.Rsz.Setup(ResizeState::kRescale, p);
-					St.Rsz.HdrLevel = (int16)loc.HdrLevel;
+					St.Rsz.HdrLevel = static_cast<int16>(loc.HdrLevel);
 					St.Rsz.Quant = DiffTime(loc.TmQuant, St.Bounds.Start) / St.HdrLevel[loc.HdrLevel];
 					ok = 1;
 				}
@@ -1778,7 +1778,7 @@ int STimeChunkBrowser::InvalidateResizeArea()
 		ok = GetRowRect(St.Rsz.RowId, 1, 0, &rect);
 		if(ok > 0) {
 			if(St.Rsz.Shift > 0)
-				rect.b.y += (int16)((rect.height() + St.Rsz.Shift) * 2);
+				rect.b.y += static_cast<int16>((rect.height() + St.Rsz.Shift) * 2);
 			else
 				rect.b.y += (rect.height() * 2);
 			invalidateRect(rect, 0);
@@ -2001,7 +2001,7 @@ int STimeChunkBrowser::CalcChunkRect(const Area * pArea, SRectArray & rRectList)
 					long   o = 0;
 					srect.a.y = upp_edge + P.PixRowMargin;
 					if(r_rowst.Order > 1 && r_rowst.OrderList.BSearch((long)(k+1), &o, 0) && o)
-						srect.a.y += (int16)(P.PixRow * o);
+						srect.a.y += static_cast<int16>(P.PixRow * o);
 					srect.b.y = srect.a.y + P.PixRow;
 					srect.C = *p_chunk;
 					srect.DayN = 0;
@@ -2062,8 +2062,8 @@ uint STimeChunkBrowser::GetBottomRowIdx(uint startIdx) const
 
 int STimeChunkBrowser::ChunkToRectX(uint leftEdge, const STimeChunk & rChunk, const LDATETIME & rStart, TRect & rRect) const
 {
-	rRect.a.x = (int16)(leftEdge + SecToPix(DiffTime(rChunk.Start,  rStart)));
-	rRect.b.x = (int16)(leftEdge + SecToPix(DiffTime(rChunk.Finish, rStart)));
+	rRect.a.x = static_cast<int16>(leftEdge + SecToPix(DiffTime(rChunk.Start,  rStart)));
+	rRect.b.x = static_cast<int16>(leftEdge + SecToPix(DiffTime(rChunk.Finish, rStart)));
 	if(rRect.a.x > rRect.b.x) {
 		int16 t = rRect.a.x;
 		rRect.a.x = rRect.b.x;
@@ -2854,9 +2854,9 @@ void STimeChunkBrowser::Paint()
 					if(oneof2(St.Rsz.Kind, ResizeState::kChunkRight, ResizeState::kChunkLeft)) {
 						move_rect = r_sr;
 						if(St.Rsz.Kind == ResizeState::kChunkRight)
-							move_rect.b.x += (int16)St.Rsz.Shift;
+							move_rect.b.x += static_cast<int16>(St.Rsz.Shift);
 						else
-							move_rect.a.x += (int16)St.Rsz.Shift;
+							move_rect.a.x += static_cast<int16>(St.Rsz.Shift);
 						is_move_rect = 1;
 					}
 					else if(St.Rsz.Kind == ResizeState::kMoveChunk) {

@@ -1314,7 +1314,7 @@ static int FASTCALL xmlCtxtGrowAttrs(xmlParserCtxt * ctxt, int nr)
 		if(atts == NULL) 
 			goto mem_error;
 		ctxt->atts = atts;
-		attallocs = (int*)SAlloc::R((void *)ctxt->attallocs, (maxatts / 5) * sizeof(int));
+		attallocs = (int *)SAlloc::R((void *)ctxt->attallocs, (maxatts / 5) * sizeof(int));
 		if(attallocs == NULL) 
 			goto mem_error;
 		ctxt->attallocs = attallocs;

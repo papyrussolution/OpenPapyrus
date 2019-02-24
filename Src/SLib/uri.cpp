@@ -1061,13 +1061,13 @@ static int FASTCALL UriCompareRange(const UriTextRange * a, const UriTextRange *
 	if(!a || !b)
 		return (!a && !b) ? TRUE : FALSE;
 	else {
-		int    diff = ((int)(a->Len()) - (int)(b->Len()));
-		if(diff > 0)
+		const  int a_len = a->Len();
+		if(a_len > b->Len())
 			return 1;
-		else if(diff < 0)
+		else if(a_len < b->Len())
 			return -1;
 		else
-			return strncmp(a->P_First, b->P_First, a->Len());
+			return strncmp(a->P_First, b->P_First, a_len);
 	}
 }
 

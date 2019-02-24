@@ -154,49 +154,33 @@ void _cairo_image_surface_init(cairo_image_surface_t * surface, pixman_image_t *
 	surface->owns_data = FALSE;
 	surface->transparency = CAIRO_IMAGE_UNKNOWN;
 	surface->color = CAIRO_IMAGE_UNKNOWN_COLOR;
-
 	surface->width = pixman_image_get_width(pixman_image);
 	surface->height = pixman_image_get_height(pixman_image);
 	surface->stride = pixman_image_get_stride(pixman_image);
 	surface->depth = pixman_image_get_depth(pixman_image);
-
 	surface->base.is_clear = surface->width == 0 || surface->height == 0;
-
 	surface->compositor = _cairo_image_spans_compositor_get();
 }
 
-cairo_surface_t * _cairo_image_surface_create_for_pixman_image(pixman_image_t * pixman_image,
-    pixman_format_code_t pixman_format)
+cairo_surface_t * _cairo_image_surface_create_for_pixman_image(pixman_image_t * pixman_image, pixman_format_code_t pixman_format)
 {
-	cairo_image_surface_t * surface;
-	surface = (cairo_image_surface_t *)_cairo_malloc(sizeof(cairo_image_surface_t));
+	cairo_image_surface_t * surface = (cairo_image_surface_t *)_cairo_malloc(sizeof(cairo_image_surface_t));
 	if(unlikely(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
-
-	_cairo_surface_init(&surface->base,
-	    &_cairo_image_surface_backend,
-	    NULL,              /* device */
-	    _cairo_content_from_pixman_format(pixman_format),
-	    FALSE);              /* is_vector */
-
+	_cairo_surface_init(&surface->base, &_cairo_image_surface_backend, NULL/* device */, _cairo_content_from_pixman_format(pixman_format), FALSE/* is_vector */);
 	_cairo_image_surface_init(surface, pixman_image, pixman_format);
-
 	return &surface->base;
 }
 
-cairo_bool_t _pixman_format_from_masks(cairo_format_masks_t * masks,
-    pixman_format_code_t * format_ret)
+cairo_bool_t _pixman_format_from_masks(cairo_format_masks_t * masks, pixman_format_code_t * format_ret)
 {
 	pixman_format_code_t format;
 	int format_type;
-	int a, r, g, b;
 	cairo_format_masks_t format_masks;
-
-	a = _cairo_popcount(masks->alpha_mask);
-	r = _cairo_popcount(masks->red_mask);
-	g = _cairo_popcount(masks->green_mask);
-	b = _cairo_popcount(masks->blue_mask);
-
+	int a = _cairo_popcount(masks->alpha_mask);
+	int r = _cairo_popcount(masks->red_mask);
+	int g = _cairo_popcount(masks->green_mask);
+	int b = _cairo_popcount(masks->blue_mask);
 	if(masks->red_mask) {
 		if(masks->red_mask > masks->blue_mask)
 			format_type = PIXMAN_TYPE_ARGB;
@@ -216,14 +200,10 @@ cairo_bool_t _pixman_format_from_masks(cairo_format_masks_t * masks,
 	 * expected. This avoid any problems from something bizarre like
 	 * alpha in the least-significant bits, or insane channel order,
 	 * or whatever. */
-	if(!_pixman_format_to_masks(format, &format_masks) ||
-	    masks->bpp        != format_masks.bpp            ||
-	    masks->red_mask   != format_masks.red_mask       ||
-	    masks->green_mask != format_masks.green_mask     ||
-	    masks->blue_mask  != format_masks.blue_mask) {
+	if(!_pixman_format_to_masks(format, &format_masks) || masks->bpp != format_masks.bpp || masks->red_mask != format_masks.red_mask ||
+	    masks->green_mask != format_masks.green_mask || masks->blue_mask  != format_masks.blue_mask) {
 		return FALSE;
 	}
-
 	*format_ret = format;
 	return TRUE;
 }
@@ -231,19 +211,14 @@ cairo_bool_t _pixman_format_from_masks(cairo_format_masks_t * masks,
 /* A mask consisting of N bits set to 1. */
 #define MASK(N) ((1UL << (N))-1)
 
-cairo_bool_t _pixman_format_to_masks(pixman_format_code_t format,
-    cairo_format_masks_t * masks)
+cairo_bool_t _pixman_format_to_masks(pixman_format_code_t format, cairo_format_masks_t * masks)
 {
-	int a, r, g, b;
-
 	masks->bpp = PIXMAN_FORMAT_BPP(format);
-
 	/* Number of bits in each channel */
-	a = PIXMAN_FORMAT_A(format);
-	r = PIXMAN_FORMAT_R(format);
-	g = PIXMAN_FORMAT_G(format);
-	b = PIXMAN_FORMAT_B(format);
-
+	int a = PIXMAN_FORMAT_A(format);
+	int r = PIXMAN_FORMAT_R(format);
+	int g = PIXMAN_FORMAT_G(format);
+	int b = PIXMAN_FORMAT_B(format);
 	switch(PIXMAN_FORMAT_TYPE(format)) {
 		case PIXMAN_TYPE_ARGB:
 		    masks->alpha_mask = MASK(a) << (r + g + b);
@@ -289,56 +264,33 @@ pixman_format_code_t _cairo_format_to_pixman_format_code(cairo_format_t format)
 {
 	pixman_format_code_t ret;
 	switch(format) {
-		case CAIRO_FORMAT_A1:
-		    ret = PIXMAN_a1;
-		    break;
-		case CAIRO_FORMAT_A8:
-		    ret = PIXMAN_a8;
-		    break;
-		case CAIRO_FORMAT_RGB24:
-		    ret = PIXMAN_x8r8g8b8;
-		    break;
-		case CAIRO_FORMAT_RGB30:
-		    ret = PIXMAN_x2r10g10b10;
-		    break;
-		case CAIRO_FORMAT_RGB16_565:
-		    ret = PIXMAN_r5g6b5;
-		    break;
+		case CAIRO_FORMAT_A1: ret = PIXMAN_a1; break;
+		case CAIRO_FORMAT_A8: ret = PIXMAN_a8; break;
+		case CAIRO_FORMAT_RGB24: ret = PIXMAN_x8r8g8b8; break;
+		case CAIRO_FORMAT_RGB30: ret = PIXMAN_x2r10g10b10; break;
+		case CAIRO_FORMAT_RGB16_565: ret = PIXMAN_r5g6b5; break;
 		case CAIRO_FORMAT_ARGB32:
 		case CAIRO_FORMAT_INVALID:
-		default:
-		    ret = PIXMAN_a8r8g8b8;
-		    break;
+		default: ret = PIXMAN_a8r8g8b8; break;
 	}
 	return ret;
 }
 
-cairo_surface_t * _cairo_image_surface_create_with_pixman_format(uchar * data,
-    pixman_format_code_t pixman_format,
-    int width,
-    int height,
-    int stride)
+cairo_surface_t * _cairo_image_surface_create_with_pixman_format(uchar * data, pixman_format_code_t pixman_format, int width, int height, int stride)
 {
 	cairo_surface_t * surface;
 	pixman_image_t * pixman_image;
-
 	if(!_cairo_image_surface_is_size_valid(width, height)) {
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_SIZE));
 	}
-
-	pixman_image = pixman_image_create_bits(pixman_format, width, height,
-		(uint32_t*)data, stride);
-
+	pixman_image = pixman_image_create_bits(pixman_format, width, height, (uint32_t*)data, stride);
 	if(unlikely(pixman_image == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
-
-	surface = _cairo_image_surface_create_for_pixman_image(pixman_image,
-		pixman_format);
+	surface = _cairo_image_surface_create_for_pixman_image(pixman_image, pixman_format);
 	if(unlikely(surface->status)) {
 		pixman_image_unref(pixman_image);
 		return surface;
 	}
-
 	/* we can not make any assumptions about the initial state of user data */
 	surface->is_clear = data == NULL;
 	return surface;

@@ -967,7 +967,7 @@ void QuantityCtrlGroup::SetupQuantity(TDialog * pDlg, uint master, int readFlds)
 			pDlg->setCtrlString(CtlPacks, packs_buf);
 			pDlg->setCtrlReal(CtlQtty, Data.Qtty);
 			if(master) {
-				TInputLine * p_il = (TInputLine *)pDlg->getCtrlView(master);
+				TInputLine * p_il = static_cast<TInputLine *>(pDlg->getCtrlView(master));
 				if(p_il && p_il->IsSubSign(TV_SUBSIGN_INPUTLINE))
 					p_il->selectAll(0);
 			}
@@ -1327,7 +1327,7 @@ int SLAPI PPViewInventory::AddItem(TIDlgInitData * pInitData)
 		dlg->setCtrlString(CTL_INVITEM_CODE, code);
 		dlg->setCtrlReal(CTL_INVITEM_QUANTITY, rQtty);
 		if(code.NotEmpty() && isalnum(initChar)) {
-			TInputLine * il = (TInputLine*)dlg->getCtrlView(CTL_INVITEM_CODE);
+			TInputLine * il = static_cast<TInputLine *>(dlg->getCtrlView(CTL_INVITEM_CODE));
 			CALLPTRMEMB(il, disableDeleteSelection(1));
 		}
 		if(ExecView(dlg) == cmOK) {
@@ -1387,7 +1387,7 @@ int SLAPI PPViewInventory::SelectGoodsByBarcode(int initChar, PPID arID, Goods2T
 		dlg->setCtrlString(CTL_INVITEM_CODE, code);
 		dlg->setCtrlReal(CTL_INVITEM_QUANTITY, qtty);
 		if(code.NotEmpty() && isalnum(initChar)) {
-			TInputLine * il = (TInputLine*)dlg->getCtrlView(CTL_INVITEM_CODE);
+			TInputLine * il = static_cast<TInputLine *>(dlg->getCtrlView(CTL_INVITEM_CODE));
 			CALLPTRMEMB(il, disableDeleteSelection(1));
 		}
 		if(ExecView(dlg) == cmOK) {

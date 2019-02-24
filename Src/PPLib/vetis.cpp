@@ -3007,7 +3007,7 @@ private:
 	int    SLAPI SendSOAP(const char * pUrl, const char * pAction, const SString & rPack, SString & rReply);
 	int    SLAPI MakeAuthField(SString & rBuf);
 	int    SLAPI ParseReply(const SString & rReply, VetisApplicationBlock & rResult);
-	int    SLAPI ParseError(xmlNode * pNode, VetisErrorEntry & rResult);
+	int    SLAPI ParseError(const xmlNode * pNode, VetisErrorEntry & rResult);
 	int    SLAPI ParseFault(xmlNode * pParentNode, VetisFault & rResult);
 	//int    SLAPI ParseApplicationBlock(xmlNode * pParentNode, VetisApplicationBlock & rResult);
 	int    SLAPI ParseDocument(xmlNode * pParentNode, VetisDocument & rResult);
@@ -3217,7 +3217,7 @@ PPVetisInterface::VetisSubmitRequestBlock::~VetisSubmitRequestBlock()
 {
 }
 
-int SLAPI PPVetisInterface::ParseError(xmlNode * pNode, VetisErrorEntry & rResult)
+int SLAPI PPVetisInterface::ParseError(const xmlNode * pNode, VetisErrorEntry & rResult)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -6412,7 +6412,6 @@ int SLAPI PPVetisInterface::SetupOutgoingEntries(PPID locID, const DateRange & r
 	uint   i;
 	ObjTagItem tag_item;
 	PPIDArray bill_id_list;
-	//PPObjOprKind op_obj;
 	BillTbl::Rec bill_rec;
 	PPIDArray temp_bill_list; // Список идентификаторов документов продажи
 	SString temp_buf;
@@ -6434,9 +6433,8 @@ int SLAPI PPVetisInterface::SetupOutgoingEntries(PPID locID, const DateRange & r
 				int    suited = 1;
 				if(!p_bobj->CheckStatusFlag(bill_rec.StatusID, BILSTF_READYFOREDIACK))
 					suited = 0;
-				else if(bill_rec.Object) {
+				else if(bill_rec.Object)
 					temp_bill_list.add(bill_rec.ID);
-				}
 			}
 		}
 	}
@@ -6865,7 +6863,6 @@ int FASTCALL PPViewVetisDocument::RunInterchangeProcess(VetisDocumentFilt * pFil
 					msg_buf.Printf(fmt_buf, temp_buf.cptr());
 				}
 				PPWaitMsg(msg_buf);
-				//for(uint req_offs = 0; ifc.GetStockEntryList(req_offs, req_count, reply);) {
 				for(uint req_offs = 0; is_init_period_zero ? ifc.GetStockEntryList(req_offs, req_count, reply) : ifc.GetStockEntryChangesList(tc, req_offs, req_count, reply);) {
 					PPTransaction tra(1);
 					THROW(tra);
@@ -6954,12 +6951,12 @@ static IMPL_DBE_PROC(dbqf_vetis_entitytextfld_ip)
 {
 	char   result_buf[128];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(result_buf));
+		result->init(static_cast<long>(sizeof(result_buf)));
 	}
 	else {
 		Reference * p_ref = PPRef;
 		PPID   entity_id = params[0].lval;
-		VetisEntityCore * p_ec = (VetisEntityCore *)params[1].ptrv;
+		VetisEntityCore * p_ec = reinterpret_cast<VetisEntityCore *>(params[1].ptrv);
 		SString temp_buf;
 		SStringU temp_buf_u;
 		if(entity_id) {
@@ -6979,13 +6976,13 @@ static IMPL_DBE_PROC(dbqf_vetis_businessmembtextfld_iip)
 {
 	char   result_buf[128];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(result_buf));
+		result->init(static_cast<long>(sizeof(result_buf)));
 	}
 	else {
 		Reference * p_ref = PPRef;
 		PPID   enterprise_id = params[0].lval;
 		PPID   bent_id = params[1].lval;
-		VetisEntityCore * p_ec = (VetisEntityCore *)params[2].ptrv;
+		const VetisEntityCore * p_ec = static_cast<const VetisEntityCore *>(params[2].ptrval);
 		SString temp_buf;
 		SStringU temp_buf_u;
 		if(bent_id) {
@@ -7222,12 +7219,22 @@ DBQuery * SLAPI PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString *
 		dbe_from.init();
 		dbe_from.push(t->FromEnterpriseID);
 		dbe_from.push(t->FromEntityID);
+		{
+			DBConst cp;
+			cp.init(&EC);
+			dbe_from.push(cp);
+		}
 		dbe_from.push((DBFunc)DynFuncBMembTextFld);
 	}
 	{
 		dbe_to.init();
 		dbe_to.push(t->ToEnterpriseID);
 		dbe_to.push(t->ToEntityID);
+		{
+			DBConst cp;
+			cp.init(&EC);
+			dbe_to.push(cp);
+		}
 		dbe_to.push((DBFunc)DynFuncBMembTextFld);
 	}
 	{
@@ -7253,10 +7260,10 @@ DBQuery * SLAPI PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString *
 		t->LinkBillID,        //  #2
 		t->LinkBillRow,       //  #3
 		t->LinkGoodsID,       //  #4
-		t->LinkFromPsnID,     //  #5
-		t->LinkFromDlvrLocID, //  #6
-		t->LinkToPsnID,       //  #7
-		t->LinkToDlvrLocID,   //  #8
+		t->FromEntityID,//t->LinkFromPsnID,     //  #5
+		t->FromEnterpriseID,//t->LinkFromDlvrLocID, //  #6
+		t->ToEntityID,//t->LinkToPsnID,       //  #7
+		t->ToEnterpriseID,//t->LinkToDlvrLocID,   //  #8
 		t->IssueDate,         //  #9
 		t->OrgDocEntityID,    //  #10
 		dbe_vetdform,         //  #11

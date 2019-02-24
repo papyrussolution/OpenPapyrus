@@ -114,13 +114,13 @@ static long sock_ctrl(BIO * b, int cmd, long num, void * ptr)
 	switch(cmd) {
 		case BIO_C_SET_FD:
 		    sock_free(b);
-		    b->num = *((int*)ptr);
+		    b->num = *((int *)ptr);
 		    b->shutdown = (int)num;
 		    b->init = 1;
 		    break;
 		case BIO_C_GET_FD:
 		    if(b->init) {
-			    ip = (int*)ptr;
+			    ip = (int *)ptr;
 				ASSIGN_PTR(ip, b->num);
 			    ret = b->num;
 		    }

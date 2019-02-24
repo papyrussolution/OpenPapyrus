@@ -83,10 +83,10 @@ static void build_ycc_rgb_table(j_decompress_ptr cinfo)
 	int i;
 	INT32 x;
 	SHIFT_TEMPS
-	upsample->Cr_r_tab = (int*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(int));
-	upsample->Cb_b_tab = (int*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(int));
-	upsample->Cr_g_tab = (INT32*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(INT32));
-	upsample->Cb_g_tab = (INT32*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(INT32));
+	upsample->Cr_r_tab = (int *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(int));
+	upsample->Cb_b_tab = (int *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(int));
+	upsample->Cr_g_tab = (INT32*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(INT32));
+	upsample->Cb_g_tab = (INT32*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(INT32));
 
 	for(i = 0, x = -CENTERJSAMPLE; i <= MAXJSAMPLE; i++, x++) {
 		/* i is the actual input pixel value, in the range 0..MAXJSAMPLE */
@@ -110,10 +110,10 @@ static void build_bg_ycc_rgb_table(j_decompress_ptr cinfo)
 	int i;
 	INT32 x;
 	SHIFT_TEMPS
-	upsample->Cr_r_tab = (int*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(int));
-	upsample->Cb_b_tab = (int*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(int));
-	upsample->Cr_g_tab = (INT32*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(INT32));
-	upsample->Cb_g_tab = (INT32*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(INT32));
+	upsample->Cr_r_tab = (int *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(int));
+	upsample->Cb_b_tab = (int *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(int));
+	upsample->Cr_g_tab = (INT32*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(INT32));
+	upsample->Cb_g_tab = (INT32*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(INT32));
 	for(i = 0, x = -CENTERJSAMPLE; i <= MAXJSAMPLE; i++, x++) {
 		/* i is the actual input pixel value, in the range 0..MAXJSAMPLE */
 		/* The Cb or Cr value we are thinking of is x = i - CENTERJSAMPLE */
@@ -341,7 +341,7 @@ METHODDEF(void) h2v2_merged_upsample(j_decompress_ptr cinfo, JSAMPIMAGE input_bu
  */
 GLOBAL(void) jinit_merged_upsampler(j_decompress_ptr cinfo)
 {
-	my_upsample_ptr upsample = (my_upsample_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(my_upsampler));
+	my_upsample_ptr upsample = (my_upsample_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(my_upsampler));
 	cinfo->upsample = &upsample->pub;
 	upsample->pub.start_pass = start_pass_merged_upsample;
 	upsample->pub.need_context_rows = FALSE;
@@ -350,7 +350,7 @@ GLOBAL(void) jinit_merged_upsampler(j_decompress_ptr cinfo)
 		upsample->pub.upsample = merged_2v_upsample;
 		upsample->upmethod = h2v2_merged_upsample;
 		/* Allocate a spare row buffer */
-		upsample->spare_row = (JSAMPROW)(*cinfo->mem->alloc_large)((j_common_ptr)cinfo, JPOOL_IMAGE, (size_t)(upsample->out_row_width * SIZEOF(JSAMPLE)));
+		upsample->spare_row = (JSAMPROW)(*cinfo->mem->alloc_large)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (size_t)(upsample->out_row_width * SIZEOF(JSAMPLE)));
 	}
 	else {
 		upsample->pub.upsample = merged_1v_upsample;

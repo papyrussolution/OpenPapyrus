@@ -58,9 +58,9 @@ static inline cairo_surface_t * _cairo_surface_subsurface_get_target_with_offset
 	return ss->target;
 }
 
-static inline cairo_bool_t _cairo_surface_is_subsurface(cairo_surface_t * surface)
+static inline cairo_bool_t _cairo_surface_is_subsurface(const cairo_surface_t * surface)
 {
-	return surface->backend->type == CAIRO_SURFACE_TYPE_SUBSURFACE;
+	return (surface->backend->type == CAIRO_SURFACE_TYPE_SUBSURFACE);
 }
 
 #endif /* CAIRO_SURFACE_SUBSURFACE_INLINE_H */

@@ -872,7 +872,7 @@ int BrowserWindow::ChangeResource(uint resID, SArray * pAry, int force)
 		ok = 2;
 	}
 	else
-		((AryBrowserDef *)getDef())->setArray(pAry, 0, 1);
+		static_cast<AryBrowserDef *>(getDef())->setArray(pAry, 0, 1);
 	return ok;
 }
 
@@ -1049,7 +1049,7 @@ IMPL_HANDLE_EVENT(BrowserWindow)
 			case cmaDesktop:
 				if(APPL->H_Desktop && !IsInState(sfModal)) {
 					TWindow * p_desk = static_cast<TWindow *>(TView::GetWindowUserData(APPL->H_Desktop));
-					::SendMessage(APPL->H_MainWnd, WM_COMMAND, (WPARAM)p_desk, 0);
+					::SendMessage(APPL->H_MainWnd, WM_COMMAND, reinterpret_cast<WPARAM>(p_desk), 0);
 				}
 				break;
 			case cmSetFont:
@@ -1174,9 +1174,9 @@ void BrowserWindow::WMHCreate(LPCREATESTRUCT)
 	if(Brushes.DefBrush)
 		SelectObject(dc, Brushes.DefBrush);
 	ZDeleteWinGdiObject(&Font);
-	Pens.DefPen = (HPEN)GetCurrentObject(dc, OBJ_PEN);
-	DefFont     = (HFONT)GetCurrentObject(dc, OBJ_FONT);
-	Brushes.DefBrush = (HBRUSH)GetCurrentObject(dc, OBJ_BRUSH);
+	Pens.DefPen = static_cast<HPEN>(GetCurrentObject(dc, OBJ_PEN));
+	DefFont     = static_cast<HFONT>(GetCurrentObject(dc, OBJ_FONT));
+	Brushes.DefBrush = static_cast<HBRUSH>(GetCurrentObject(dc, OBJ_BRUSH));
 	UserInterfaceSettings ui_cfg;
 	if(ui_cfg.Restore() > 0)
 		UICfg = ui_cfg;
@@ -1184,7 +1184,7 @@ void BrowserWindow::WMHCreate(LPCREATESTRUCT)
 		Font = TView::CreateFont(UICfg.TableFont);
 	}
 	else
-		Font = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+		Font = static_cast<HFONT>(GetStockObject(DEFAULT_GUI_FONT));
 	SelectObject(dc, Font);
 	GetTextMetrics(dc, &tm);
 	ChrSz.Set(tm.tmAveCharWidth, tm.tmHeight + tm.tmExternalLeading);
@@ -1367,7 +1367,7 @@ void BrowserWindow::DrawFocus(HDC hDC, const RECT * lpRect, BOOL DrawOrClear, BO
 	}
 }
 
-void BrowserWindow::DrawCapBk(HDC hDC, LPRECT lpRect, BOOL isPressed)
+void BrowserWindow::DrawCapBk(HDC hDC, const RECT * lpRect, BOOL isPressed)
 {
 	RECT   r = *lpRect;
 	if(!isPressed) {
@@ -1441,7 +1441,7 @@ int BrowserWindow::DrawTextUnderCursor(HDC hdc, char * pBuf, RECT * pTextRect, i
 		log_font.lfHeight = metrics.tmHeight;
 		curs_over_txt_font = ::CreateFontIndirect(&log_font);
 		if(curs_over_txt_font)
-			old_font = (HFONT)SelectObject(hdc, curs_over_txt_font);
+			old_font = static_cast<HFONT>(SelectObject(hdc, curs_over_txt_font));
 		DrawMultiLinesText(hdc, pBuf, pTextRect, fmt);
 		SetTextColor(hdc, old_color);
 		if(old_font)
@@ -1496,10 +1496,10 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 			//
 			if(style.Color && !(style.Flags & CellStyle::fCorner)) {
 				pen = CreatePen(PS_SOLID, 1, style.Color);
-				oldpen = (HPEN)SelectObject(hdc, pen);
+				oldpen = static_cast<HPEN>(SelectObject(hdc, pen));
 				br = CreateSolidBrush(style.Color);
-				oldbr = (HBRUSH)SelectObject(hdc, br);
-				Rectangle(hdc, (long)r.left, (long)r.top, (long)r.right-1, (long)r.bottom);
+				oldbr = static_cast<HBRUSH>(SelectObject(hdc, br));
+				Rectangle(hdc, r.left, r.top, r.right-1, r.bottom);
 
 				SelectObject(hdc, oldpen);
 				SelectObject(hdc, oldbr);
@@ -1517,9 +1517,9 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 				if(style.Flags & CellStyle::fCorner) {
 					COLORREF color = style.Color;
 					pen = CreatePen(PS_SOLID, 1, color);
-					oldpen = (HPEN)SelectObject(hdc, pen);
+					oldpen = static_cast<HPEN>(SelectObject(hdc, pen));
 					br = CreateSolidBrush(color);
-					oldbr = (HBRUSH)SelectObject(hdc, br);
+					oldbr = static_cast<HBRUSH>(SelectObject(hdc, br));
 
 					const int    t = r.top+2;
 					points[0].x = r.left;
@@ -1540,9 +1540,9 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 				if(style.Flags & CellStyle::fLeftBottomCorner) {
 					COLORREF color = style.Color2;
 					pen = CreatePen(PS_SOLID, 1, color);
-					oldpen = (HPEN)SelectObject(hdc, pen);
+					oldpen = static_cast<HPEN>(SelectObject(hdc, pen));
 					br = CreateSolidBrush(color);
-					oldbr = (HBRUSH)SelectObject(hdc, br);
+					oldbr = static_cast<HBRUSH>(SelectObject(hdc, br));
 
 					const int    b = r.bottom-2;
 					points[0].x = r.left;
@@ -1563,9 +1563,9 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 				if(style.Flags & CellStyle::fRightFigCircle) {
 					COLORREF color = style.RightFigColor;
 					pen = CreatePen(PS_SOLID, 1, color);
-					oldpen = (HPEN)SelectObject(hdc, pen);
+					oldpen = static_cast<HPEN>(SelectObject(hdc, pen));
 					br = CreateSolidBrush(color);
-					oldbr = (HBRUSH)SelectObject(hdc, br);
+					oldbr = static_cast<HBRUSH>(SelectObject(hdc, br));
 
 					const int _diam = 6;
 					int   _right = r.right - 6;
@@ -1602,7 +1602,7 @@ void BrowserWindow::Paint()
 		int    lt, rt, fmt;
 		char   buf[512];
 		SString temp_buf;
-		BeginPaint(H(), (LPPAINTSTRUCT)&ps);
+		::BeginPaint(H(), &ps);
 		if(ps.fErase) {
 			RECT rect;
 			GetClientRect(H(), &rect);
@@ -1616,7 +1616,7 @@ void BrowserWindow::Paint()
 		r.right  = CliSz.x;
 		r.bottom = hdr_width - 1;
 		if(P_Header && SIntersectRect(ps.rcPaint, r)) {
-			((TStaticText *)P_Header)->getText(temp_buf);
+			static_cast<const TStaticText *>(P_Header)->getText(temp_buf);
 			temp_buf.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(buf, sizeof(buf));
 			::DrawText(ps.hdc, buf, (int)sstrlen(buf), &r, DT_LEFT); // @unicodeproblem
 		}
@@ -1631,7 +1631,7 @@ void BrowserWindow::Paint()
 			oldColor = SetBkColor(ps.hdc, BrwColorsSchemas[schema_num].Title);
 			cn = Freeze ? 0 : Left;
 			i = 0;
-			while(cn <= (UINT)Right && cn < count) {
+			while(cn <= Right && cn < count) {
 				const BroColumn & c = P_Def->at(cn);
 				r.left    = c.x - 1;
 				r.right   = CellRight(c);
@@ -1646,7 +1646,7 @@ void BrowserWindow::Paint()
 				r.bottom--;
 				(temp_buf = c.text).Transf(CTRANSF_INNER_TO_OUTER);
 				::DrawText(ps.hdc, temp_buf, (int)temp_buf.Len(), &r, GetCapAlign(c.Options)); // @unicodeproblem
-				cn = (++i == (UINT)Freeze) ? Left : (cn + 1);
+				cn = (++i == Freeze) ? Left : (cn + 1);
 			}
 			if(r.right < CliSz.x) {
 				r.top     = hdr_width-ToolBarWidth;
@@ -1685,7 +1685,7 @@ void BrowserWindow::Paint()
 			r.top    += hdr_width;
 			r.bottom += hdr_width;
 			if(SIntersectRect(ps.rcPaint, r)) {
-				int    is_focused = BIN(row == (UINT)(P_Def->_curItem() - P_Def->_topItem()));
+				int    is_focused = BIN(row == static_cast<UINT>(P_Def->_curItem() - P_Def->_topItem()));
 				int    paint_action = is_focused ? BrowserWindow::paintFocused : BrowserWindow::paintNormal;
 				RECT   paint_rect;
 				if(is_focused)
@@ -1699,7 +1699,7 @@ void BrowserWindow::Paint()
 				PaintCell(ps.hdc, paint_rect, row, -1, paint_action);
 				i = 0;
 				cn = Freeze ? 0 : Left;
-				for(; cn <= (UINT)Right && cn < count; cn = (++i == (UINT)Freeze) ? Left : (cn + 1)) {
+				for(; cn <= Right && cn < count; cn = (++i == Freeze) ? Left : (cn + 1)) {
 					int paint_action = (is_focused && cn == HScrollPos) ? BrowserWindow::paintFocused : BrowserWindow::paintNormal;
 					ItemRect(cn, row, &r, TRUE);
 					r.top    += hdr_width;
@@ -1762,10 +1762,10 @@ void BrowserWindow::Paint()
 			r.left = 0;
 			const uint _right = (Right < P_Def->getCount()) ? Right : (P_Def->getCount()-1);
 			const BroColumn & c = P_Def->at(_right);
-			int    bottom = MIN(ViewHeight, (UINT)P_Def->getRecsCount());
+			int    bottom = MIN(ViewHeight, static_cast<uint>(P_Def->getRecsCount()));
 			uint   view_height = r_h_count ? r_h_count : ViewHeight;
 			r.right = MIN(CliSz.x, CellRight(c));
-			HPEN   old_pen = (HPEN)SelectObject(ps.hdc, Pens.GridHorzPen);
+			HPEN   old_pen = static_cast<HPEN>(SelectObject(ps.hdc, Pens.GridHorzPen));
 			view_height = (!r_h_count && sel_col_count) ? (view_height - 1) : view_height;
 			for(row = 0; row < view_height; row++) {
 				MoveToEx(ps.hdc, r.left, r.top, 0);
@@ -1784,14 +1784,14 @@ void BrowserWindow::Paint()
 			r.top   += hdr_width - 2;
 			i = 0;
 			SelectObject(ps.hdc, Pens.GridVertPen);
-			for(cn = Freeze ? 0 : Left; cn <= (UINT)Right && cn < count;) {
+			for(cn = Freeze ? 0 : Left; cn <= Right && cn < count;) {
 				int  dot_line = 0;
 				long dot_line_delta = 6;
 				r.left = CellRight(P_Def->at(cn));
 				if(sel_col_count) {
-					int selected      = BIN(SelectedColumns.bsearch((long)cn, 0) > 0);
-					int next_selected = BIN(SelectedColumns.bsearch((long)cn + 1, 0) > 0);
-					dot_line = (!next_selected && selected || next_selected && !selected);
+					int selected      = BIN(SelectedColumns.bsearch(static_cast<long>(cn), 0) > 0);
+					int next_selected = BIN(SelectedColumns.bsearch(static_cast<long>(cn) + 1, 0) > 0);
+					dot_line = ((!next_selected && selected) || (next_selected && !selected));
 					if(selected) {
 						SelectObject(ps.hdc, dot_line_pen);
 						// нарисуем последнюю линию броузера пунктиром
@@ -1821,18 +1821,18 @@ void BrowserWindow::Paint()
 					MoveToEx(ps.hdc, r.left, r.top, 0);
 					LineTo(ps.hdc, r.left, r.bottom);
 				}
-				cn = (++i == (UINT)Freeze) ? Left : (cn + 1);
+				cn = (++i == Freeze) ? Left : (cn + 1);
 				prev_left = r.left;
 			}
 			SelectObject(ps.hdc, old_pen);
 			ZDeleteWinGdiObject(&black_pen);
 			ZDeleteWinGdiObject(&dot_line_pen);
 		}
-		::EndPaint(H(), (LPPAINTSTRUCT)&ps);
+		::EndPaint(H(), &ps);
 	}
 }
 
-int BrowserWindow::SelColByPoint(LPPOINT point, int action)
+int BrowserWindow::SelColByPoint(const POINT * point, int action)
 {
 	int    ok = -1;
 	if(!action) {
@@ -1849,7 +1849,7 @@ int BrowserWindow::SelColByPoint(LPPOINT point, int action)
 					SelectedColumns.freeAll();
 				else
 					for(uint i = 0; i < P_Def->getCount(); i++)
-						SelectedColumns.add((long)i);
+						SelectedColumns.add(static_cast<long>(i));
 			}
 			else {
 				long col = 0;
@@ -1859,7 +1859,7 @@ int BrowserWindow::SelColByPoint(LPPOINT point, int action)
 				ItemByPoint(tp, &col, 0);
 				if(SelectedColumns.bsearch(col, &pos) > 0)
 					SelectedColumns.atFree(pos);
-				else if(col >= 0 && col < (long)P_Def->getCount())
+				else if(col >= 0 && col < static_cast<long>(P_Def->getCount()))
 					SelectedColumns.add(col);
 			}
 			SelectedColumns.sort();
@@ -1877,7 +1877,7 @@ void BrowserWindow::ItemByPoint(TPoint point, long * pHorzPos, long * pVertPos)
 	if(Freeze) {
 		for(i = 0; i <= Right && i < Freeze; i++) {
 			const BroColumn & c = P_Def->at(i);
-			if(point.x >= (int)c.x - 2 && point.x <= (CellRight(c) + 2)) {
+			if(point.x >= static_cast<int>(c.x) - 2 && point.x <= (CellRight(c) + 2)) {
 				found = 1;
 				break;
 			}
@@ -1886,11 +1886,11 @@ void BrowserWindow::ItemByPoint(TPoint point, long * pHorzPos, long * pVertPos)
 	if(!found) {
 		for(i = Left; i <= Right; i++) {
 			const BroColumn & c = P_Def->at(i);
-			if(point.x >= (int)c.x - 2 && point.x <= (CellRight(c) + 2))
+			if(point.x >= static_cast<int>(c.x) - 2 && point.x <= (CellRight(c) + 2))
 				break;
 		}
 	}
-	ASSIGN_PTR(pHorzPos, (long)i);
+	ASSIGN_PTR(pHorzPos, static_cast<long>(i));
 	long   vpos = 0;
 	const  uint   r_h_count = SVectorBase::GetCount(P_RowsHeightAry);
 	if(r_h_count) {
@@ -1898,8 +1898,8 @@ void BrowserWindow::ItemByPoint(TPoint point, long * pHorzPos, long * pVertPos)
 		for(uint row = 0; row < r_h_count; row++) {
 			RECT rect;
 			ItemRect(HScrollPos, row, &rect, FALSE);
-			if(y <= (uint)rect.bottom || row == r_h_count - 1) {
-				vpos = (long)(P_Def->_topItem() + row);
+			if(static_cast<LONG>(y) <= rect.bottom || row == r_h_count - 1) {
+				vpos = static_cast<long>(P_Def->_topItem() + row);
 				break;
 			}
 		}
@@ -1960,7 +1960,7 @@ void BrowserWindow::Resize(TPoint p, int mode)
 			LastResizeColumnPos = -1;
 			if(p.x > 8192)
 				p.x = 0;
-			if((newSz = MAX(p.x - r_c.x, 6)) != (int)(ChrSz.x * r_c.width)) {
+			if((newSz = MAX(p.x - r_c.x, 6)) != static_cast<int>(ChrSz.x * r_c.width)) {
 				newSz /= ChrSz.x;
 				SetColumnWidth(ResizedCol - 1, newSz);
 				IsUserSettingsChanged = 1;
@@ -2179,7 +2179,7 @@ int BrowserWindow::WMHScroll(int sbType, int sbEvent, int thumbPos)
 			r.bottom += hdr_width;
 			r.left = 0;
 			r.right = CliSz.x;
-			SendMessage(GetParent(H()), BRO_ROWCHANGED, (WPARAM)H(), MAKELPARAM(VScrollPos, 0));
+			SendMessage(GetParent(H()), BRO_ROWCHANGED, reinterpret_cast<WPARAM>(H()), MAKELPARAM(VScrollPos, 0));
 			ItemRect(HScrollPos, P_Def->_curItem() - P_Def->_topItem(), &RectCursors.CellCursor, TRUE);
 			LineRect(P_Def->_curItem() - P_Def->_topItem(), &RectCursors.LineCursor, TRUE);
 			AdjustCursorsForHdr();
@@ -2234,7 +2234,7 @@ int BrowserWindow::WMHScroll(int sbType, int sbEvent, int thumbPos)
 				if(cur < Left)
 					Left = cur, CalcRight();
 			}
-			SendMessage(GetParent(H()), BRO_ROWCHANGED, (WPARAM)H(), MAKELPARAM(HScrollPos, 0));
+			SendMessage(GetParent(H()), BRO_ROWCHANGED, reinterpret_cast<WPARAM>(H()), MAKELPARAM(HScrollPos, 0));
 			ClearFocusRect(&RectCursors.CellCursor);
 			ClearFocusRect(&RectCursors.LineCursor);
 			ItemRect(HScrollPos, P_Def->_curItem() - P_Def->_topItem(), &RectCursors.CellCursor, TRUE);
@@ -2462,7 +2462,7 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 				r.right  = p_view->CliSz.x;
 				InvalidateRect(hWnd, &r, TRUE);
 				UpdateWindow(hWnd);
-				SendMessage(GetParent(hWnd), BRO_ROWCHANGED, (WPARAM) hWnd, MAKELPARAM(p_view->HScrollPos, 0));
+				SendMessage(GetParent(hWnd), BRO_ROWCHANGED, reinterpret_cast<WPARAM>(hWnd), MAKELPARAM(p_view->HScrollPos, 0));
 			}
 			return 0;
 		case WM_SIZE:
@@ -2574,11 +2574,11 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 			}
 			return 0;
 		case WM_LBUTTONDBLCLK:
-			SendMessage(GetParent(hWnd), BRO_LDBLCLKNOTIFY, (WPARAM)hWnd, lParam);
+			SendMessage(GetParent(hWnd), BRO_LDBLCLKNOTIFY, reinterpret_cast<WPARAM>(hWnd), lParam);
 			TView::messageCommand(p_view, cmaEdit);
 			return 0;
 		case WM_RBUTTONDBLCLK:
-			SendMessage(GetParent(hWnd), BRO_RDBLCLKNOTIFY, (WPARAM) hWnd, lParam);
+			SendMessage(GetParent(hWnd), BRO_RDBLCLKNOTIFY, reinterpret_cast<WPARAM>(hWnd), lParam);
 			return 0;
 		case WM_NCLBUTTONDOWN:
 			if(hWnd != GetFocus())

@@ -14,11 +14,11 @@ int FASTCALL CalcBarcodeCheckDigit(const char * pBarcode)
 
 char * FASTCALL AddBarcodeCheckDigit(char * pBarcode)
 {
-	size_t len = sstrlen(pBarcode);
+	const size_t len = sstrlen(pBarcode);
 	if(len) {
 		int    cdig = SCalcBarcodeCheckDigitL(pBarcode, len);
-		pBarcode[len++] = '0' + cdig;
-		pBarcode[len] = 0;
+		pBarcode[len] = '0' + cdig;
+		pBarcode[len+1] = 0;
 	}
 	return pBarcode;
 }
@@ -1598,10 +1598,8 @@ public:
 	// ARG(category IN): 0 - обыкновенные котировки; 1 - контрактные цены; 2 - товарная матрица; 3 - ограничение по товарной матрице; 4 - поправочный коэффициент для прогноза продаж
 	//
 	QuotationDialog(PPID goodsID, PPID selLocID, PPID selCurID, PPID selArID, PPQuotArray * pAry, int quotCls, PPID accSheetID =0) :
-		EmbedDialog(GetQuotDialogID(quotCls))
+		EmbedDialog(GetQuotDialogID(quotCls)), Spc(Spc.ctrInitializeWithCache), Cls(quotCls)
 	{
-		PPObjQuotKind::GetSpecialKinds(&Spc, 1);
-		Cls = quotCls;
 		GoodsID      = goodsID;
 		SelLocID     = (selLocID > 0) ? selLocID : -1L;
 		SelCurID     = (selCurID > 0) ? selCurID : 0L;
@@ -1701,8 +1699,8 @@ private:
 			return (CTL_GQUOT_VAL1 + i * 3);
 	}
 
+	const  PPObjQuotKind::Special Spc;
 	int    Cls;
-	PPObjQuotKind::Special Spc;
 	PPID   Kinds[NUM_QUOTS_IN_DLG];
 	PPID   GoodsID;
 	PPID   SelLocID;

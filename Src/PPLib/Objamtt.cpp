@@ -242,7 +242,7 @@ int AmtTypeDialog::setDTS(const PPAmountTypePacket * pData)
 	Data = *pData;
 
 	ushort v = 0;
-	ComboBox * p_cb_tax = (ComboBox*)getCtrlView(CTLSEL_AMOUNTTYPE_TAX);
+	ComboBox * p_cb_tax = static_cast<ComboBox *>(getCtrlView(CTLSEL_AMOUNTTYPE_TAX));
 	const long flags = Data.Rec.Flags;
 	setCtrlData(CTL_AMOUNTTYPE_NAME, Data.Rec.Name);
 	setCtrlData(CTL_AMOUNTTYPE_SYMB, Data.Rec.Symb);

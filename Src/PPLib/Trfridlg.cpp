@@ -448,7 +448,7 @@ TrfrItemDialog::TrfrItemDialog(uint dlgID, PPID opID) : TDialog(dlgID), OpID(opI
 	// } @v9.4.3
 	// @v10.2.4 {
 	{
-		TInputLine * p_pk_inp = (TInputLine *)getCtrlView(CTL_LOT_PACKS);
+		TInputLine * p_pk_inp = static_cast<TInputLine *>(getCtrlView(CTL_LOT_PACKS));
 		CALLPTRMEMB(p_pk_inp, setFormat(MKSFMTD(10, 6, NMBF_NOTRAILZ)));
 	}
 	// } @v10.2.4
@@ -1194,7 +1194,7 @@ int TrfrItemDialog::setupGoodsListByPrice()
 		THROW(p_ary = GObj.CreateListByPrice(P_Pack->Rec.LocID, Item.Price));
 		p_lw = CreateListWindow(p_ary, lbtDblClkNotify | lbtFocNotify | lbtDisposeData);
 		THROW_MEM(p_lw);
-		((ComboBox*)getCtrlView(CTLSEL_LOT_GOODS))->setListWindow(p_lw);
+		static_cast<ComboBox *>(getCtrlView(CTLSEL_LOT_GOODS))->setListWindow(p_lw);
 		messageToCtrl(CTLSEL_LOT_GOODS, cmCBActivate, 0);
 	}
 	else
@@ -1256,7 +1256,7 @@ void TrfrItemDialog::calcOrderRest()
 
 void TrfrItemDialog::setupQttyFldPrec()
 {
-	TInputLine * il = (TInputLine*)getCtrlView(CTL_LOT_QUANTITY);
+	TInputLine * il = static_cast<TInputLine *>(getCtrlView(CTL_LOT_QUANTITY));
 	if(Item.GoodsID && il) {
 		uint   prec = GObj.CheckFlag(Item.GoodsID, GF_INTVAL) ? 0 : 6;
 		long   f    = il->getFormat();
@@ -1691,7 +1691,7 @@ void TrfrItemDialog::setupQuantity(uint master, int readFlds)
 	setupRest();
 	// @v10.2.4 {
 	if(!(St & stLockQttyAutoUpd)) { // @v10.2.9
-		TInputLine * il = (TInputLine *)getCtrlView(master);
+		TInputLine * il = static_cast<TInputLine *>(getCtrlView(master));
 		CALLPTRMEMB(il, disableDeleteSelection(1));
 	}
 	// } @v10.2.4
@@ -2782,7 +2782,7 @@ int FASTCALL SelLotBrowser::AddItemToArray(SArray * pAry, const ReceiptTbl::Rec 
 //static
 int FASTCALL SelLotBrowser::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	SelLotBrowser * p_brw = (SelLotBrowser *)pBlk->ExtraPtr;
+	SelLotBrowser * p_brw = static_cast<SelLotBrowser *>(pBlk->ExtraPtr);
 	return p_brw ? p_brw->_GetDataForBrowser(pBlk) : 0;
 }
 
@@ -2791,11 +2791,11 @@ int SLAPI SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	int    ok = 0;
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
 		SString temp_buf;
-		const  SelLotBrowser::Entry * p_item = (const SelLotBrowser::Entry *)pBlk->P_SrcData;
+		const  SelLotBrowser::Entry * p_item = static_cast<const SelLotBrowser::Entry *>(pBlk->P_SrcData);
 		{
 			ok = 1;
-			AryBrowserDef * p_def = (AryBrowserDef *)getDef();
-			const SArray * p_list = p_def ? (const SArray *)p_def->getArray() : 0;
+			AryBrowserDef * p_def = static_cast<AryBrowserDef *>(getDef());
+			const SArray * p_list = p_def ? static_cast<const SArray *>(p_def->getArray()) : 0;
 			double real_val = 0.0;
 			Goods2Tbl::Rec goods_rec;
 			void * p_dest = pBlk->P_DestData;

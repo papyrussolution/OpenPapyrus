@@ -230,7 +230,7 @@ GLOBAL(void) jinit_compress_master(j_compress_ptr cinfo)
 	jinit_c_main_controller(cinfo, FALSE /* never need full buffer here */);
 	jinit_marker_writer(cinfo);
 	/* We can now tell the memory manager to allocate virtual arrays. */
-	(*cinfo->mem->realize_virt_arrays)((j_common_ptr)cinfo);
+	(*cinfo->mem->realize_virt_arrays)(reinterpret_cast<j_common_ptr>(cinfo));
 	/* Write the datastream header (SOI) immediately.
 	 * Frame and scan headers are postponed till later.
 	 * This lets application insert special markers after the SOI.

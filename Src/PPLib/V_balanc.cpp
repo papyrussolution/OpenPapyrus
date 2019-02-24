@@ -202,8 +202,7 @@ PPBaseFilt * SLAPI PPViewBalance::CreateFilt(void * extraPtr) const
 {
 	BalanceFilt * p_filt = new BalanceFilt;
 	if(p_filt) {
-		LDATE cdt = getcurdate_();
-		p_filt->Period.SetDate(cdt);
+		p_filt->Period.SetDate(getcurdate_());
 		p_filt->Flags = BALFORM_IGNOREZERO | BALFORM_ACO1GROUPING;
 		p_filt->AccType = ACY_BAL;
 		p_filt->AccID = 0;
@@ -299,8 +298,7 @@ int SLAPI PPViewBalance::ViewTotal()
 	TDialog * dlg = new TDialog(DLG_BALTOTAL);
 	if(CheckDialogPtrErr(&dlg)) {
 		char   diff_buf[32];
-		double diff = Total.InDbtRest - Total.InCrdRest + Total.DbtTrnovr -
-			Total.CrdTrnovr - (Total.OutDbtRest - Total.OutCrdRest);
+		const  double diff = Total.InDbtRest - Total.InCrdRest + Total.DbtTrnovr - Total.CrdTrnovr - (Total.OutDbtRest - Total.OutCrdRest);
 		SetPeriodInput(dlg, CTL_BALTOTAL_PERIOD, &Filt.Period);
 		dlg->setCtrlData(CTL_BALTOTAL_INREST_D, &Total.InDbtRest);
 		dlg->setCtrlData(CTL_BALTOTAL_INREST_C, &Total.InCrdRest);
@@ -320,7 +318,7 @@ int SLAPI PPViewBalance::ViewTotal()
 // static
 int FASTCALL PPViewBalance::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	PPViewBalance * p_v = (PPViewBalance *)pBlk->ExtraPtr;
+	PPViewBalance * p_v = static_cast<PPViewBalance *>(pBlk->ExtraPtr);
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
@@ -330,9 +328,9 @@ int FASTCALL PPViewBalance::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
 		ok = 1;
 		SString temp_buf;
-		BalanceViewItem * p_item = (BalanceViewItem *)pBlk->P_SrcData;
+		const BalanceViewItem * p_item = static_cast<const BalanceViewItem *>(pBlk->P_SrcData);
 		switch(pBlk->ColumnN) {
-			case 3: *(Acct *)pBlk->P_DestData = *(Acct *)&p_item->Ac; break; // Номер счета
+			case 3: *static_cast<Acct *>(pBlk->P_DestData) = *reinterpret_cast<const Acct *>(&p_item->Ac); break; // Номер счета
 			case 4: // Символ валюты
 				if(p_item->CurID > 0) {
 					PPCurrency cur_rec;

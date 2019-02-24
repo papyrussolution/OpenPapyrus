@@ -742,23 +742,16 @@ void _cairo_gstate_backend_to_user_rectangle(cairo_gstate_t * gstate, double * x
    }
  */
 
-void _cairo_gstate_path_extents(cairo_gstate_t * gstate,
-    cairo_path_fixed_t * path,
-    double * x1, double * y1,
-    double * x2, double * y2)
+void _cairo_gstate_path_extents(cairo_gstate_t * gstate, cairo_path_fixed_t * path, double * x1, double * y1, double * x2, double * y2)
 {
 	cairo_box_t box;
 	double px1, py1, px2, py2;
-
 	if(_cairo_path_fixed_extents(path, &box)) {
 		px1 = _cairo_fixed_to_double(box.p1.x);
 		py1 = _cairo_fixed_to_double(box.p1.y);
 		px2 = _cairo_fixed_to_double(box.p2.x);
 		py2 = _cairo_fixed_to_double(box.p2.y);
-
-		_cairo_gstate_backend_to_user_rectangle(gstate,
-		    &px1, &py1, &px2, &py2,
-		    NULL);
+		_cairo_gstate_backend_to_user_rectangle(gstate, &px1, &py1, &px2, &py2, NULL);
 	}
 	else {
 		px1 = 0.0;
@@ -766,71 +759,46 @@ void _cairo_gstate_path_extents(cairo_gstate_t * gstate,
 		px2 = 0.0;
 		py2 = 0.0;
 	}
-
-	if(x1)
-		*x1 = px1;
-	if(y1)
-		*y1 = py1;
-	if(x2)
-		*x2 = px2;
-	if(y2)
-		*y2 = py2;
+	ASSIGN_PTR(x1, px1);
+	ASSIGN_PTR(y1, py1);
+	ASSIGN_PTR(x2, px2);
+	ASSIGN_PTR(y2, py2);
 }
 
-static void _cairo_gstate_copy_pattern(cairo_pattern_t * pattern,
-    const cairo_pattern_t * original)
+static void _cairo_gstate_copy_pattern(cairo_pattern_t * pattern, const cairo_pattern_t * original)
 {
 	/* First check if the we can replace the original with a much simpler
 	 * pattern. For example, gradients that are uniform or just have a single
 	 * stop can sometimes be replaced with a solid.
 	 */
-
 	if(_cairo_pattern_is_clear(original)) {
-		_cairo_pattern_init_solid((cairo_solid_pattern_t*)pattern,
-		    CAIRO_COLOR_TRANSPARENT);
+		_cairo_pattern_init_solid(reinterpret_cast<cairo_solid_pattern_t *>(pattern), CAIRO_COLOR_TRANSPARENT);
 		return;
 	}
-
-	if(original->type == CAIRO_PATTERN_TYPE_LINEAR ||
-	    original->type == CAIRO_PATTERN_TYPE_RADIAL) {
+	if(original->type == CAIRO_PATTERN_TYPE_LINEAR || original->type == CAIRO_PATTERN_TYPE_RADIAL) {
 		cairo_color_t color;
-		if(_cairo_gradient_pattern_is_solid((cairo_gradient_pattern_t*)original,
-		    NULL,
-		    &color)) {
-			_cairo_pattern_init_solid((cairo_solid_pattern_t*)pattern,
-			    &color);
+		if(_cairo_gradient_pattern_is_solid((cairo_gradient_pattern_t*)original, NULL, &color)) {
+			_cairo_pattern_init_solid(reinterpret_cast<cairo_solid_pattern_t *>(pattern), &color);
 			return;
 		}
 	}
-
 	_cairo_pattern_init_static_copy(pattern, original);
 }
 
-static void _cairo_gstate_copy_transformed_pattern(cairo_gstate_t * gstate,
-    cairo_pattern_t * pattern,
-    const cairo_pattern_t * original,
-    const cairo_matrix_t * ctm_inverse)
+static void _cairo_gstate_copy_transformed_pattern(cairo_gstate_t * gstate, cairo_pattern_t * pattern, const cairo_pattern_t * original, const cairo_matrix_t * ctm_inverse)
 {
 	_cairo_gstate_copy_pattern(pattern, original);
-
 	/* apply device_transform first so that it is transformed by ctm_inverse */
 	if(original->type == CAIRO_PATTERN_TYPE_SURFACE) {
-		cairo_surface_pattern_t * surface_pattern;
-		cairo_surface_t * surface;
-
-		surface_pattern = (cairo_surface_pattern_t*)original;
-		surface = surface_pattern->surface;
-
+		cairo_surface_pattern_t * surface_pattern = (cairo_surface_pattern_t*)original;
+		cairo_surface_t * surface = surface_pattern->surface;
 		if(_cairo_surface_has_device_transform(surface))
 			_cairo_pattern_pretransform(pattern, &surface->device_transform);
 	}
-
 	if(!_cairo_matrix_is_identity(ctm_inverse))
 		_cairo_pattern_transform(pattern, ctm_inverse);
-
 	if(_cairo_surface_has_device_transform(gstate->target)) {
-		_cairo_pattern_transform(pattern,
-		    &gstate->target->device_transform_inverse);
+		_cairo_pattern_transform(pattern, &gstate->target->device_transform_inverse);
 	}
 }
 
@@ -1624,7 +1592,7 @@ cairo_status_t _cairo_gstate_glyph_extents(cairo_gstate_t * gstate, const cairo_
 	return cairo_scaled_font_status(gstate->scaled_font);
 }
 
-cairo_status_t _cairo_gstate_show_text_glyphs(cairo_gstate_t * gstate, const cairo_glyph_t * glyphs, int num_glyphs, cairo_glyph_text_info_t * info)
+cairo_status_t _cairo_gstate_show_text_glyphs(cairo_gstate_t * gstate, const cairo_glyph_t * glyphs, int num_glyphs, const cairo_glyph_text_info_t * info)
 {
 	cairo_glyph_t stack_transformed_glyphs[CAIRO_STACK_ARRAY_LENGTH(cairo_glyph_t)];
 	cairo_text_cluster_t stack_transformed_clusters[CAIRO_STACK_ARRAY_LENGTH(cairo_text_cluster_t)];

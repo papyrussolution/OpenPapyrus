@@ -18951,7 +18951,7 @@ static int xmlSchemaXPathEvaluate(xmlSchemaValidCtxt * vctxt, xmlElementType nod
 		 * Register a match in the state object history.
 		 */
 		if(sto->history == NULL) {
-			sto->history = (int*)SAlloc::M(5 * sizeof(int));
+			sto->history = (int *)SAlloc::M(5 * sizeof(int));
 			if(sto->history == NULL) {
 				xmlSchemaVErrMemory(NULL, "allocating the state object history", 0);
 				return -1;
@@ -18960,7 +18960,7 @@ static int xmlSchemaXPathEvaluate(xmlSchemaValidCtxt * vctxt, xmlElementType nod
 		}
 		else if(sto->sizeHistory <= sto->nbHistory) {
 			sto->sizeHistory *= 2;
-			sto->history = (int*)SAlloc::R(sto->history,
+			sto->history = (int *)SAlloc::R(sto->history,
 			    sto->sizeHistory * sizeof(int));
 			if(sto->history == NULL) {
 				xmlSchemaVErrMemory(NULL, "re-allocating the state object history", 0);

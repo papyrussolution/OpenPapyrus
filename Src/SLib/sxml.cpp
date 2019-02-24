@@ -1678,7 +1678,7 @@ int SoapPacketStruc::ResolveRefs(const SoapPacketStruc & rResolveList)
 			temp_buf.Z().Cat(array_type_buf).CatDiv(':', 1).Cat(struc_ref_buf).CatDiv(':', 1).Cat(item_name_buf);
 			THROW_S_S(p_item->RefP, SLERR_SOPAR_UNRESITEMHASNTREF, temp_buf);
 			for(uint k = 0; !resolved && k < rResolveList.getCount(); k++) {
-				SoapPacketStruc::InnerItem * p_ritem = (SoapPacketStruc::InnerItem *)rResolveList.at(k);
+				SoapPacketStruc::InnerItem * p_ritem = static_cast<SoapPacketStruc::InnerItem *>(rResolveList.at(k));
 				if(p_ritem->RefP == p_item->RefP) {
 					p_item->TypeP = p_ritem->TypeP;
 					p_item->ValueP = p_ritem->ValueP;

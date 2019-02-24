@@ -132,8 +132,6 @@ void * FASTCALL TView::messageBroadcast(TView * pReceiver, uint command, void * 
 //
 TCommandSet::TCommandSet()
 	{ resetbitstring(cmds, sizeof(cmds)); }
-TCommandSet::TCommandSet(const TCommandSet & tc)
-	{ memcpy(cmds, tc.cmds, sizeof(cmds)); }
 int TCommandSet::has(int cmd) const
 	{ return getbit32(cmds, sizeof(cmds), cmd); }
 void TCommandSet::enableAll()
@@ -700,7 +698,7 @@ IMPL_HANDLE_EVENT(TView)
 		event.message.infoLong = cmCancel;
 	}
 	else if(event.isCmd(cmGetHelpContext)) {
-		uint * p = (uint *)event.message.infoPtr;
+		uint * p = static_cast<uint *>(event.message.infoPtr);
 		ASSIGN_PTR(p, HelpCtx);
 		clearEvent(event);
 	}

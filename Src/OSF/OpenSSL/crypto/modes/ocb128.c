@@ -65,34 +65,25 @@ static void ocb_block_lshift(const uchar * in, size_t shift,
  */
 static void ocb_double(OCB_BLOCK * in, OCB_BLOCK * out)
 {
-	uchar mask;
-
 	/*
 	 * Calculate the mask based on the most significant bit. There are more
 	 * efficient ways to do this - but this way is constant time
 	 */
-	mask = in->c[0] & 0x80;
+	uchar mask = in->c[0] & 0x80;
 	mask >>= 7;
 	mask *= 135;
-
 	ocb_block_lshift(in->c, 1, out->c);
-
 	out->c[15] ^= mask;
 }
-
 /*
  * Perform an xor on in1 and in2 - each of len bytes. Store result in out
  */
-static void ocb_block_xor(const uchar * in1,
-    const uchar * in2, size_t len,
-    uchar * out)
+static void ocb_block_xor(const uchar * in1, const uchar * in2, size_t len, uchar * out)
 {
-	size_t i;
-	for(i = 0; i < len; i++) {
+	for(size_t i = 0; i < len; i++) {
 		out[i] = in1[i] ^ in2[i];
 	}
 }
-
 /*
  * Lookup L_index in our lookup table. If we haven't already got it we need to
  * calculate it
@@ -100,11 +91,9 @@ static void ocb_block_xor(const uchar * in1,
 static OCB_BLOCK * ocb_lookup_l(OCB128_CONTEXT * ctx, size_t idx)
 {
 	size_t l_index = ctx->l_index;
-
 	if(idx <= l_index) {
 		return ctx->l + idx;
 	}
-
 	/* We don't have it - so calculate it */
 	if(idx >= ctx->max_l_index) {
 		void * tmp_ptr;

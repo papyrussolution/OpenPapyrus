@@ -385,7 +385,7 @@ void _libssh2_init_aes_ctr(void) {
 /* TODO: Optionally call a passphrase callback specified by the
  * calling program
  */
-static int passphrase_cb(char * buf, int size, int rwflag, char * passphrase)
+static int passphrase_cb(char * buf, int size, int rwflag, const char * passphrase)
 {
 	int passphrase_len = strlen(passphrase);
 	(void)rwflag;
@@ -394,7 +394,6 @@ static int passphrase_cb(char * buf, int size, int rwflag, char * passphrase)
 	}
 	memcpy(buf, passphrase, passphrase_len);
 	buf[passphrase_len] = '\0';
-
 	return passphrase_len;
 }
 

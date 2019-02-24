@@ -1,5 +1,5 @@
 // V_GDSMOV.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev, A.Starodub 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -751,7 +751,7 @@ int PPALDD_GoodsMov::InitData(PPFilt & rFilt, long rsrv)
 
 int PPALDD_GoodsMov::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 {
-	PPViewGoodsMov * p_v = (PPViewGoodsMov *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	PPViewGoodsMov * p_v = static_cast<PPViewGoodsMov *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;
@@ -761,7 +761,7 @@ int PPALDD_GoodsMov::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 int PPALDD_GoodsMov::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
-	PPViewGoodsMov * p_v = (PPViewGoodsMov*)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	PPViewGoodsMov * p_v = static_cast<PPViewGoodsMov *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	GoodsMovViewItem item;
 	if(p_v->NextIteration(&item) > 0) {
 		long qttyf = (LConfig.Flags & CFGFLG_USEPACKAGE && !p_v->PrintWoPacks) ?

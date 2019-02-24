@@ -125,7 +125,7 @@ uint SLAPI GetComboBoxLinkID(TDialog * dlg, uint comboBoxCtlID) { return dlg->ge
 
 int FASTCALL SetComboBoxLinkText(TDialog * dlg, uint comboBoxCtlID, const char * pText)
 {
-	ComboBox * p_combo = (ComboBox *)dlg->getCtrlView(comboBoxCtlID);
+	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(comboBoxCtlID));
 	if(p_combo) {
 		p_combo->setInputLineText(pText);
 		return 1;
@@ -1435,7 +1435,7 @@ int SLAPI SetupStringComboDevice(TDialog * dlg, uint ctlID, uint dvcClass, long 
 	StrAssocArray * p_list = 0;
 	int    ini_sect_id = PPAbstractDevice::GetDrvIniSectByDvcClass(dvcClass, &str_id, 0);
 	if(ini_sect_id) {
-		ComboBox * p_cb = (ComboBox*)dlg->getCtrlView(ctlID);
+		ComboBox * p_cb = static_cast<ComboBox *>(dlg->getCtrlView(ctlID));
 		if(p_cb) {
 			int    idx = 0;
 			SString line_buf, item_buf, id_buf, txt_buf;
@@ -1482,7 +1482,7 @@ static int SLAPI Helper_SetupStringCombo(TDialog * dlg, uint ctlID, const SStrin
 	StrAssocArray * p_list = 0;
 	if(rLineBuf.NotEmpty()) {
 		ComboBox * p_cb = 0;
-		if((p_cb = (ComboBox*)dlg->getCtrlView(ctlID)) != 0) {
+		if((p_cb = static_cast<ComboBox *>(dlg->getCtrlView(ctlID))) != 0) {
 			int    idx = 0;
 			SString item_buf, id_buf, txt_buf;
 			THROW_MEM(p_list = new StrAssocArray());
@@ -1538,7 +1538,7 @@ int SLAPI SetupStringCombo(TDialog * dlg, uint ctlID, StringSet * pSs, long init
 	int    ok = 1;
 	ComboBox   * p_cb = 0;
 	ListWindow * p_lw = 0;
-	if((p_cb = (ComboBox*)dlg->getCtrlView(ctlID)) != 0) {
+	if((p_cb = static_cast<ComboBox *>(dlg->getCtrlView(ctlID))) != 0) {
 		uint   idx = 0;
 		long   id = 1;
 		SString item_buf;
@@ -1558,7 +1558,7 @@ int FASTCALL SetupStrAssocCombo(TDialog * dlg, uint ctlID, const StrAssocArray *
 	int    ok = 1;
 	ComboBox   * p_cb = 0;
 	ListWindow * p_lw = 0;
-	if((p_cb = (ComboBox*)dlg->getCtrlView(ctlID)) != 0) {
+	if((p_cb = static_cast<ComboBox *>(dlg->getCtrlView(ctlID))) != 0) {
 		uint options = ownerDrawListBox ? (lbtOwnerDraw|lbtDisposeData|lbtDblClkNotify) : (lbtDisposeData|lbtDblClkNotify);
 		StrAssocArray * p_list = new StrAssocArray;
 		THROW_MEM(p_list);
@@ -1641,7 +1641,7 @@ int SLAPI SetupSubstGoodsCombo(TDialog * dlg, uint ctlID, long initID)
 	int    ok = 1;
 	ComboBox   * p_cb = 0;
 	ListWindow * p_lw = 0;
-	if((p_cb = (ComboBox*)dlg->getCtrlView(ctlID)) != 0) {
+	if((p_cb = static_cast<ComboBox *>(dlg->getCtrlView(ctlID))) != 0) {
 		int    idx = 0;
 		PrcssrAlcReport::Config alr_cfg;
 		SString item_buf, id_buf, txt_buf;
@@ -2459,7 +2459,7 @@ int SLAPI BarcodeInputDialog(int initChar, SString & rBuf)
 			code = rBuf;
 		dlg->setCtrlString(CTL_SRCHBCODE_CODE, code);
 		if(code.NotEmpty() && isalnum(initChar)) {
-			TInputLine * il = (TInputLine*)dlg->getCtrlView(CTL_SRCHBCODE_CODE);
+			TInputLine * il = static_cast<TInputLine *>(dlg->getCtrlView(CTL_SRCHBCODE_CODE));
 			CALLPTRMEMB(il, disableDeleteSelection(1));
 		}
 		if(ExecView(dlg) == cmOK) {
@@ -2607,7 +2607,7 @@ int FASTCALL ListBoxSelDialog(uint dlgID, StrAssocArray * pAry, PPID * pID, uint
 	return ok;
 }*/
 
-int SLAPI ComboBoxSelDialog2(StrAssocArray * pAry, uint subTitleStrId, uint labelStrId, long * pSelectedId, uint flags)
+int SLAPI ComboBoxSelDialog2(const StrAssocArray * pAry, uint subTitleStrId, uint labelStrId, long * pSelectedId, uint flags)
 {
 	int    ok = -1;
 	long   sel_id = DEREFPTRORZ(pSelectedId);
@@ -2635,7 +2635,7 @@ int SLAPI ComboBoxSelDialog2(StrAssocArray * pAry, uint subTitleStrId, uint labe
 	return ok;
 }
 
-int  SLAPI AdvComboBoxSeldialog(StrAssocArray * pAry, SString & rTitle, SString & rLabel, PPID * pID, SString * pName, uint flags)
+int  SLAPI AdvComboBoxSeldialog(const StrAssocArray * pAry, SString & rTitle, SString & rLabel, PPID * pID, SString * pName, uint flags)
 {
 	int    ok = -1;
 	TDialog * p_dlg = 0;
@@ -2769,9 +2769,9 @@ int UICfgDialog::setDTS(const UserInterfaceSettings * pUICfg)
 	SString temp_buf;
 	UICfg = *pUICfg;
 	cmbb_pos = (UICfg.TableViewStyle >= 0 && UICfg.TableViewStyle < NUMBRWCOLORSCHEMA) ? (UICfg.TableViewStyle + 1) : 1;
-	((ComboBox*)getCtrlView(CTLSEL_UICFG_SELBCLRSHM))->TransmitData(+1, &cmbb_pos);
+	static_cast<ComboBox *>(getCtrlView(CTLSEL_UICFG_SELBCLRSHM))->TransmitData(+1, &cmbb_pos);
 	cmbb_pos = (UICfg.WindowViewStyle >= 0) ? (UICfg.WindowViewStyle + 1) : 1;
-	((ComboBox*)getCtrlView(CTLSEL_UICFG_WNDVIEWKIND))->TransmitData(+1, &cmbb_pos);
+	static_cast<ComboBox *>(getCtrlView(CTLSEL_UICFG_WNDVIEWKIND))->TransmitData(+1, &cmbb_pos);
 	setCtrlData(CTL_UICFG_LISTELEMCOUNT, &UICfg.ListElemCount);
 	AddClusterAssoc(CTL_UICFG_FLAGS,  0, UserInterfaceSettings::fDontExitBrowserByEsc);
 	AddClusterAssoc(CTL_UICFG_FLAGS,  1, UserInterfaceSettings::fShowShortcuts);
@@ -4800,7 +4800,7 @@ static int InputStringDialog(const char * pTitle, const char * pInpTitle, int di
 			dlg->setLabelText(CTL_INPUT_STR, pInpTitle);
 		dlg->setCtrlString(CTL_INPUT_STR, rBuf);
 		if(disableSelection) {
-			TInputLine * il = (TInputLine*)dlg->getCtrlView(CTL_INPUT_STR);
+			TInputLine * il = static_cast<TInputLine *>(dlg->getCtrlView(CTL_INPUT_STR));
 			CALLPTRMEMB(il, disableDeleteSelection(1));
 		}
 		if(ExecView(dlg) == cmOK) {
@@ -4839,7 +4839,7 @@ int FASTCALL InputStringDialog(PPInputStringDialogParam * pParam, SString & rBuf
 		}
 		if(pParam) {
 			if(pParam->Flags & pParam->fDisableSelection) {
-				TInputLine * il = (TInputLine*)dlg->getCtrlView(CTL_INPUT_STR);
+				TInputLine * il = static_cast<TInputLine *>(dlg->getCtrlView(CTL_INPUT_STR));
 				CALLPTRMEMB(il, disableDeleteSelection(1));
 			}
 			if(pParam->P_Wse) {
@@ -5891,7 +5891,7 @@ void SLAPI SetupTimePicker(TDialog * pDlg, uint editCtlID, int buttCtlID)
 	HWND   hwnd = GetDlgItem(pDlg->H(), buttCtlID);
 	if(hwnd && pDlg->getCtrlView(editCtlID)) {
 		static HBITMAP hbm_clock = 0; // @global @threadsafe
-		TimeButtonWndEx * p_cbwe = new TimeButtonWndEx(pDlg, editCtlID, (WNDPROC)TView::GetWindowProp(hwnd, GWLP_WNDPROC));
+		TimeButtonWndEx * p_cbwe = new TimeButtonWndEx(pDlg, editCtlID, static_cast<WNDPROC>(TView::GetWindowProp(hwnd, GWLP_WNDPROC)));
 		TView::SetWindowProp(hwnd, GWLP_USERDATA, p_cbwe);
 		TView::SetWindowProp(hwnd, GWLP_WNDPROC, TimeButtonWndEx::WndProc);
 		if(!hbm_clock) {
@@ -6570,7 +6570,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 							TView::SGetWindowClassName(h, cls_name);
 							if(cls_name.IsEqiAscii("Edit")) {
 								if(p_view && p_view->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
-									TInputLine * p_il = (TInputLine *)p_view;
+									TInputLine * p_il = static_cast<TInputLine *>(p_view);
 									if(p_label)
 										ctl_text = label_text;
 									ComboBox * p_cb = p_il->GetCombo();
@@ -6641,7 +6641,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 								}
 								else if(bt == BS_GROUPBOX) {
 									if(p_view && p_view->IsSubSign(TV_SUBSIGN_CLUSTER)) {
-										TCluster * p_clu = (TCluster *)p_view;
+										TCluster * p_clu = static_cast<TCluster *>(p_view);
 										const char * p_kind = 0;
 										if(p_clu->getKind() == RADIOBUTTONS) {
 											p_kind = "radiocluster";
@@ -7101,7 +7101,7 @@ int SLAPI BigTextDialog(uint maxLen, const char * pTitle, SString & rText)
 		}
 		int   setDTS(const SString * pText)
 		{
-			TInputLine * p_il = (TInputLine *)getCtrlView(CTL_BIGTXTEDIT_TEXT);
+			TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_BIGTXTEDIT_TEXT));
 			if(p_il) {
 				if(pText) {
 					setCtrlString(CTL_BIGTXTEDIT_TEXT, *pText);

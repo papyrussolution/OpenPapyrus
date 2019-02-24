@@ -1335,6 +1335,7 @@ class BNKeyList {
 friend class DBTable;
 public:
 	SLAPI  BNKeyList();
+	SLAPI  BNKeyList(const BNKeyList & rS);
 	SLAPI ~BNKeyList();
 	BNKeyList & FASTCALL operator = (const BNKeyList & s);
 	void   SLAPI reset();
@@ -1667,7 +1668,8 @@ public:
 	int    FASTCALL HasLob(DBField * pLastFld) const;
 
 	void   FASTCALL setDataBuf(void * aBuf, RECORDSIZE aBufLen);
-	char * FASTCALL getDataBuf() { return static_cast<char *>(P_DBuf); }
+	void * FASTCALL getDataBuf() { return static_cast<void *>(P_DBuf); } // @v10.3.5 (char *)-->(void *)
+	const  void * FASTCALL getDataBufConst() const{ return static_cast<const void *>(P_DBuf); } // @v10.3.5 (char *)-->(void *)
 	void   FASTCALL setBuffer(SBaseBuffer &);
 	const  SBaseBuffer FASTCALL getBuffer() const;
 	int    allocOwnBuffer(int size = -1);
@@ -3554,7 +3556,7 @@ public:
 	DBQuery & SLAPI  having(DBQ &);
 	int    FASTCALL addField(DBConst &);
 	int    FASTCALL addField(DBE &);
-	int    FASTCALL addField(DBField &);
+	int    FASTCALL addField(const DBField &);
 	int    FASTCALL addTable(DBTable *);
 	int    SLAPI addOrderField(const DBField & rFld);
 	int    SLAPI getFieldPosByName(const char * pFldName, uint * pPos) const;

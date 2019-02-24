@@ -50,7 +50,7 @@ GLOBAL(jvirt_barray_ptr *) jpeg_read_coefficients(j_decompress_ptr cinfo)
 			int retcode;
 			/* Call progress monitor hook if present */
 			if(cinfo->progress)
-				(*cinfo->progress->progress_monitor)((j_common_ptr)cinfo);
+				(*cinfo->progress->progress_monitor)(reinterpret_cast<j_common_ptr>(cinfo));
 			/* Absorb some more input */
 			retcode = (*cinfo->inputctl->consume_input)(cinfo);
 			if(retcode == JPEG_SUSPENDED)
@@ -99,7 +99,7 @@ static void transdecode_master_selection(j_decompress_ptr cinfo)
 	/* Always get a full-image coefficient buffer. */
 	jinit_d_coef_controller(cinfo, TRUE);
 	/* We can now tell the memory manager to allocate virtual arrays. */
-	(*cinfo->mem->realize_virt_arrays)((j_common_ptr)cinfo);
+	(*cinfo->mem->realize_virt_arrays)(reinterpret_cast<j_common_ptr>(cinfo));
 	/* Initialize input side of decompressor to consume first scan. */
 	(*cinfo->inputctl->start_input_pass)(cinfo);
 	/* Initialize progress monitoring. */

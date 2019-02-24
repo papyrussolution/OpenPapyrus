@@ -311,6 +311,18 @@ struct xmlNs {
 	void * _private; /* application data */
 	xmlDoc * context;       /* normally an xmlDoc */
 };
+
+struct XmlNodeBase { // @construction
+	void * _private;      // application data 
+	xmlElementType type;  // XML_DTD_NODE, must be second!
+	const xmlChar * name; // Name of the DTD 
+	xmlNode * children;   // the value of the property link 
+	xmlNode * last;       // last child link 
+	xmlDoc  * parent;     // child->parent link 
+	xmlNode * next;       // next sibling link 
+	xmlNode * prev;       // previous sibling link 
+	xmlDoc  * doc;        // the containing document
+};
 /**
  * xmlDtd:
  *
@@ -318,7 +330,6 @@ struct xmlNs {
  * the internal subset and for the external subset.
  */
 //typedef struct _xmlDtd xmlDtd;
-
 struct xmlDtd {
 	void * _private; /* application data */
 	xmlElementType type;    /* XML_DTD_NODE, must be second ! */

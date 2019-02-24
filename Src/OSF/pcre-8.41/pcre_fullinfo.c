@@ -101,19 +101,19 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_fullinfo(const pcre32 * argument_r
 #endif
 		    break;
 		case PCRE_INFO_CAPTURECOUNT:
-		    *((int*)where) = re->top_bracket;
+		    *static_cast<int *>(where) = re->top_bracket;
 		    break;
 		case PCRE_INFO_BACKREFMAX:
-		    *((int*)where) = re->top_backref;
+		    *static_cast<int *>(where) = re->top_backref;
 		    break;
 		case PCRE_INFO_FIRSTBYTE:
-		    *((int*)where) = ((re->flags & PCRE_FIRSTSET) != 0) ? (int)re->first_char : ((re->flags & PCRE_STARTLINE) != 0) ? -1 : -2;
+		    *static_cast<int *>(where) = ((re->flags & PCRE_FIRSTSET) != 0) ? (int)re->first_char : ((re->flags & PCRE_STARTLINE) != 0) ? -1 : -2;
 		    break;
 		case PCRE_INFO_FIRSTCHARACTER:
 		    *((uint32*)where) = (re->flags & PCRE_FIRSTSET) != 0 ? re->first_char : 0;
 		    break;
 		case PCRE_INFO_FIRSTCHARACTERFLAGS:
-		    *((int*)where) = ((re->flags & PCRE_FIRSTSET) != 0) ? 1 : ((re->flags & PCRE_STARTLINE) != 0) ? 2 : 0;
+		    *static_cast<int *>(where) = ((re->flags & PCRE_FIRSTSET) != 0) ? 1 : ((re->flags & PCRE_STARTLINE) != 0) ? 2 : 0;
 		    break;
 		/* Make sure we pass back the pointer to the bit vector in the external
 		   block, not the internal copy (with flipped integer fields). */
@@ -121,25 +121,25 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_fullinfo(const pcre32 * argument_r
 		    *((const pcre_uint8**)where) = (study && (study->flags & PCRE_STUDY_MAPPED) != 0) ? ((const pcre_study_data*)extra_data->study_data)->start_bits : NULL;
 		    break;
 		case PCRE_INFO_MINLENGTH:
-		    *((int*)where) = (study && (study->flags & PCRE_STUDY_MINLEN) != 0) ? (int)(study->minlength) : -1;
+		    *static_cast<int *>(where) = (study && (study->flags & PCRE_STUDY_MINLEN) != 0) ? (int)(study->minlength) : -1;
 		    break;
 		case PCRE_INFO_JIT:
-		    *((int*)where) = extra_data != NULL && (extra_data->flags & PCRE_EXTRA_EXECUTABLE_JIT) != 0 && extra_data->executable_jit != NULL;
+		    *static_cast<int *>(where) = extra_data != NULL && (extra_data->flags & PCRE_EXTRA_EXECUTABLE_JIT) != 0 && extra_data->executable_jit != NULL;
 		    break;
 		case PCRE_INFO_LASTLITERAL:
-		    *((int*)where) = ((re->flags & PCRE_REQCHSET) != 0) ? (int)re->req_char : -1;
+		    *static_cast<int *>(where) = ((re->flags & PCRE_REQCHSET) != 0) ? (int)re->req_char : -1;
 		    break;
 		case PCRE_INFO_REQUIREDCHAR:
 		    *((uint32*)where) = ((re->flags & PCRE_REQCHSET) != 0) ? re->req_char : 0;
 		    break;
 		case PCRE_INFO_REQUIREDCHARFLAGS:
-		    *((int*)where) = ((re->flags & PCRE_REQCHSET) != 0);
+		    *static_cast<int *>(where) = ((re->flags & PCRE_REQCHSET) != 0);
 		    break;
 		case PCRE_INFO_NAMEENTRYSIZE:
-		    *((int*)where) = re->name_entry_size;
+		    *static_cast<int *>(where) = re->name_entry_size;
 		    break;
 		case PCRE_INFO_NAMECOUNT:
-		    *((int*)where) = re->name_count;
+		    *static_cast<int *>(where) = re->name_count;
 		    break;
 		case PCRE_INFO_NAMETABLE:
 		    *((const pcre_uchar**)where) = (const pcre_uchar*)re + re->name_table_offset;
@@ -149,16 +149,16 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_fullinfo(const pcre32 * argument_r
 		    break;
 		// From release 8.00 this will always return TRUE because NOPARTIAL is no longer ever set (the restrictions have been removed). 
 		case PCRE_INFO_OKPARTIAL:
-		    *((int*)where) = (re->flags & PCRE_NOPARTIAL) == 0;
+		    *static_cast<int *>(where) = (re->flags & PCRE_NOPARTIAL) == 0;
 		    break;
 		case PCRE_INFO_JCHANGED:
-		    *((int*)where) = (re->flags & PCRE_JCHANGED) != 0;
+		    *static_cast<int *>(where) = (re->flags & PCRE_JCHANGED) != 0;
 		    break;
 		case PCRE_INFO_HASCRORLF:
-		    *((int*)where) = (re->flags & PCRE_HASCRORLF) != 0;
+		    *static_cast<int *>(where) = (re->flags & PCRE_HASCRORLF) != 0;
 		    break;
 		case PCRE_INFO_MAXLOOKBEHIND:
-		    *((int*)where) = re->max_lookbehind;
+		    *static_cast<int *>(where) = re->max_lookbehind;
 		    break;
 		case PCRE_INFO_MATCHLIMIT:
 		    if((re->flags & PCRE_MLSET) == 0) return PCRE_ERROR_UNSET;
@@ -169,7 +169,7 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_fullinfo(const pcre32 * argument_r
 		    *((uint32*)where) = re->limit_recursion;
 		    break;
 		case PCRE_INFO_MATCH_EMPTY:
-		    *((int*)where) = (re->flags & PCRE_MATCH_EMPTY) != 0;
+		    *static_cast<int *>(where) = (re->flags & PCRE_MATCH_EMPTY) != 0;
 		    break;
 		default: return PCRE_ERROR_BADOPTION;
 	}

@@ -47,7 +47,7 @@ int FASTCALL SLib2BtrType(int t)
 char * SLAPI GetRusNCaseACS(char * b)
 {
 	char * p = b;
-	*p++ = static_cast<char>(0xAC);
+	*p++ = '\xAC';
 	p = stpcpy(p, "RUSNCASE");
 	for(int i = 0; i < 256; i++)
 		*p++ = ToUpper866(i);

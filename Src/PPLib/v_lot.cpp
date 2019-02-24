@@ -2132,7 +2132,7 @@ DBQuery * SLAPI PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 		PPDbqFuncPool::InitObjNameFunc(dbe_ar, PPDbqFuncPool::IdObjNameAr, rcp->SupplID);
 	else {
 		dbe_ar.init();
-		dbe_ar.push((DBFunc)PPDbqFuncPool::IdEmpty); // @v9.5.3
+		dbe_ar.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty)); // @v9.5.3
 	}
 	PPDbqFuncPool::InitObjNameFunc(dbe_loc,   PPDbqFuncPool::IdObjNameLoc, rcp->LocID);
 	{
@@ -2166,7 +2166,7 @@ DBQuery * SLAPI PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 			fld_list[c++].E = dbe_serial; // #14
 		}
 		else {
-			fld_list[c++].C.init((const char *)0); // #14 @stub
+			fld_list[c++].C.init(static_cast<const char *>(0)); // #14 @stub
 		}
 		fld_list[c++].F = tt->BillStatus; // #15
 		if(Filt.ExtViewAttr == LotFilt::exvaEgaisTags) {
@@ -2196,7 +2196,7 @@ DBQuery * SLAPI PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 		if(P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1) || (Filt.Flags & LotFilt::fOrders)) // @v9.5.3 (|| (Filt.Flags & LotFilt::fOrders))
 			fld_list[c++].E = dbe_ar;     // #05
 		else
-			fld_list[c++].C.init((const char *)0); // #05 DBConst
+			fld_list[c++].C.init(static_cast<const char *>(0)); // #05 DBConst
 		fld_list[c++].F = rcp->Quantity;  // #06
 		fld_list[c++].F = rcp->Rest;      // #07
 		if(State & stAccsCost)
@@ -2211,7 +2211,7 @@ DBQuery * SLAPI PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 			fld_list[c++].E = dbe_serial; // #12
 		}
 		else {
-			fld_list[c++].C.init((const char *)0); // #12 @stub
+			fld_list[c++].C.init(static_cast<const char *>(0)); // #12 @stub
 		}
 		if(Filt.ExtViewAttr == LotFilt::exvaEgaisTags) {
 			PPDbqFuncPool::InitObjTagTextFunc(dbe_egais_ref_a, PPTAG_LOT_FSRARINFA, rcp->ID); // #13
@@ -2985,7 +2985,7 @@ int SLAPI EditLotExtCode(LotExtCodeTbl::Rec & rRec, char firstChar)
 		(temp_buf = rRec.Code).Strip();
 	dlg->setCtrlString(CTL_LOTEXTCODE_CODE, temp_buf);
 	if(firstChar) {
-		TInputLine * il = (TInputLine*)dlg->getCtrlView(CTL_LOTEXTCODE_CODE);
+		TInputLine * il = static_cast<TInputLine *>(dlg->getCtrlView(CTL_LOTEXTCODE_CODE));
 		CALLPTRMEMB(il, disableDeleteSelection(1));
 	}
 	GetGoodsName(lot_rec.GoodsID, temp_buf);

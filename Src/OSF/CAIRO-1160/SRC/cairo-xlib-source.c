@@ -1108,7 +1108,7 @@ cairo_surface_t * _cairo_xlib_source_create_for_pattern(cairo_surface_t * _dst,
 	if(pattern == NULL || pattern->type == CAIRO_PATTERN_TYPE_SOLID) {
 		if(pattern == NULL)
 			pattern = &_cairo_pattern_white.base;
-		return solid_source(dst, &((cairo_solid_pattern_t*)pattern)->color);
+		return solid_source(dst, &(static_cast<cairo_solid_pattern_t *>(pattern))->color);
 	}
 	if(pattern_is_supported(dst->display, pattern)) {
 		if(pattern->type == CAIRO_PATTERN_TYPE_SURFACE) {

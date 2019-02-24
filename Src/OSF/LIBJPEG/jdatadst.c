@@ -51,7 +51,7 @@ METHODDEF(void) init_destination(j_compress_ptr cinfo)
 {
 	my_dest_ptr dest = (my_dest_ptr)cinfo->dest;
 	/* Allocate the output buffer --- it will be released when done with image */
-	dest->buffer = (JOCTET*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, OUTPUT_BUF_SIZE * SIZEOF(JOCTET));
+	dest->buffer = (JOCTET*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, OUTPUT_BUF_SIZE * SIZEOF(JOCTET));
 	dest->pub.next_output_byte = dest->buffer;
 	dest->pub.free_in_buffer = OUTPUT_BUF_SIZE;
 }
@@ -157,7 +157,7 @@ void jpeg_stdio_dest(j_compress_ptr cinfo, FILE * outfile)
 	 * sizes may be different.  Caveat programmer.
 	 */
 	if(cinfo->dest == NULL) { /* first time for this JPEG object? */
-		cinfo->dest = (struct jpeg_destination_mgr*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_PERMANENT, SIZEOF(my_destination_mgr));
+		cinfo->dest = (struct jpeg_destination_mgr*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_PERMANENT, SIZEOF(my_destination_mgr));
 	}
 	dest = (my_dest_ptr)cinfo->dest;
 	dest->pub.init_destination = init_destination;
@@ -186,7 +186,7 @@ void jpeg_mem_dest(j_compress_ptr cinfo, uchar ** outbuffer, ulong * outsize)
 	// The destination object is made permanent so that multiple JPEG images
 	// can be written to the same buffer without re-executing jpeg_mem_dest.
 	if(cinfo->dest == NULL) { /* first time for this JPEG object? */
-		cinfo->dest = (struct jpeg_destination_mgr*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_PERMANENT, SIZEOF(my_mem_destination_mgr));
+		cinfo->dest = (struct jpeg_destination_mgr*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_PERMANENT, SIZEOF(my_mem_destination_mgr));
 	}
 	dest = (my_mem_dest_ptr)cinfo->dest;
 	dest->pub.init_destination = init_mem_destination;

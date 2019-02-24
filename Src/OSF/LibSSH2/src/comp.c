@@ -215,10 +215,10 @@ static int comp_method_zlib_decomp(LIBSSH2_SESSION * session, uchar ** dest, siz
 			return _libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to expand decompression buffer");
 		}
 		out = newout;
-		strm->next_out = (uchar*)out + out_ofs;
+		strm->next_out = reinterpret_cast<uchar *>(out) + out_ofs;
 		strm->avail_out = out_maxlen - out_ofs;
 	}
-	*dest = (uchar*)out;
+	*dest = reinterpret_cast<uchar *>(out);
 	*dest_len = out_maxlen - strm->avail_out;
 	return 0;
 }

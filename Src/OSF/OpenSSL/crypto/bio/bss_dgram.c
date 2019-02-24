@@ -380,13 +380,13 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    break;
 		case BIO_C_SET_FD:
 		    dgram_clear(b);
-		    b->num = *((int*)ptr);
+		    b->num = *((int *)ptr);
 		    b->shutdown = (int)num;
 		    b->init = 1;
 		    break;
 		case BIO_C_GET_FD:
 		    if(b->init) {
-			    ip = (int*)ptr;
+			    ip = (int *)ptr;
 			    if(ip != NULL)
 				    *ip = b->num;
 			    ret = b->num;

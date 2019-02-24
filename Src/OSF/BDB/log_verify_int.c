@@ -1238,11 +1238,9 @@ int __bam_rsplit_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret =
-	            __bam_rsplit_read(env, 0, 0, dbtp->data, &argp)) != 0)
+	if((ret = __bam_rsplit_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
-
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->pgno);
 	if((ret = __lv_on_bam_log(lvh, *lsnp, argp->fileid)) != 0)
 		goto err;

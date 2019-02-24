@@ -358,7 +358,7 @@ bad_pad:
 		    return -2;
 
 		case EVP_PKEY_CTRL_GET_RSA_PADDING:
-		    *(int*)p2 = rctx->pad_mode;
+		    *(int *)p2 = rctx->pad_mode;
 		    return 1;
 
 		case EVP_PKEY_CTRL_RSA_PSS_SALTLEN:
@@ -368,7 +368,7 @@ bad_pad:
 			    return -2;
 		    }
 		    if(type == EVP_PKEY_CTRL_GET_RSA_PSS_SALTLEN)
-			    *(int*)p2 = rctx->saltlen;
+			    *(int *)p2 = rctx->saltlen;
 		    else {
 			    if(p1 < -2)
 				    return -2;

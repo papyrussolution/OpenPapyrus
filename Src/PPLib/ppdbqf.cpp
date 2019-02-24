@@ -1612,7 +1612,7 @@ void FASTCALL PPDbqFuncPool::InitPctFunc(DBE & rDbe, DBField & rFld1, DBField & 
 	else if(incDiv == 1)
 		rDbe.push((DBFunc)PPDbqFuncPool::IdPercentIncDiv);
 	else
-		rDbe.push((DBFunc)PPDbqFuncPool::IdPercent);
+		rDbe.push(static_cast<DBFunc>(PPDbqFuncPool::IdPercent));
 }
 
 //static

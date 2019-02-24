@@ -258,7 +258,7 @@ static void FASTCALL _zip_error_set_from_source(zip_error_t * err, zip_source_t 
 
 int64 FASTCALL zip_error_to_data(const zip_error_t * error, void * data, uint64 length)
 {
-	int * e = (int*)data;
+	int * e = (int *)data;
 	if(length < sizeof(int)*2) {
 		return -1;
 	}

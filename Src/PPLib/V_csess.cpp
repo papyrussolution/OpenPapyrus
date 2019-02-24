@@ -86,8 +86,8 @@ public:
 		PosNodeCtrlGroup::Rec cn_rec(&Data.NodeList);
 		setGroupData(GRP_POSNODE, &cn_rec);
 		SetPeriodInput(this, CTL_DFRULESEL_PERIOD, &Data.Period);
-		SetupPPObjCombo(this, CTLSEL_DFRULESEL_RULEGRP, PPOBJ_DFCREATERULE, Data.RuleGrpID, 0, (void *)PPDFCRRULE_ONLYGROUPS);
-		SetupPPObjCombo(this, CTLSEL_DFRULESEL_RULE, PPOBJ_DFCREATERULE, Data.RuleID, 0, (void *)PPDFCRRULE_ONLYRULES);
+		SetupPPObjCombo(this, CTLSEL_DFRULESEL_RULEGRP, PPOBJ_DFCREATERULE, Data.RuleGrpID, 0, reinterpret_cast<void *>(PPDFCRRULE_ONLYGROUPS));
+		SetupPPObjCombo(this, CTLSEL_DFRULESEL_RULE, PPOBJ_DFCREATERULE, Data.RuleID, 0, reinterpret_cast<void *>(PPDFCRRULE_ONLYRULES));
 		AddClusterAssoc(CTL_DFRULESEL_FLAGS, 0, CSessCrDraftParam::fAllSessions);
 		SetClusterData(CTL_DFRULESEL_FLAGS, Data.Flags);
 		AddClusterAssoc(CTL_DFRULESEL_FLAGS2, 0, CSessCrDraftParam::fSuperSessOnly);
@@ -119,7 +119,7 @@ private:
 		TDialog::handleEvent(event);
 		if(event.isCbSelected(CTLSEL_DFRULESEL_RULEGRP)) {
 			PPID   rule_grp = getCtrlLong(CTLSEL_DFRULESEL_RULEGRP);
-			SetupPPObjCombo(this, CTLSEL_DFRULESEL_RULE, PPOBJ_DFCREATERULE, 0, 0, (void *)rule_grp);
+			SetupPPObjCombo(this, CTLSEL_DFRULESEL_RULE, PPOBJ_DFCREATERULE, 0, 0, reinterpret_cast<void *>(rule_grp));
 			clearEvent(event);
 		}
 	}
@@ -848,7 +848,7 @@ int SLAPI PPViewCSess::CalcCheckAmounts(TempCSessChecksTbl::Rec * pRec)
 				PPID  sess_id = sess_list.at(i);
 				SessAmtEntry sa_entry;
 				if(P_SessAmtAry->lsearch(&sess_id, &pos, CMPF_LONG))
-					sa_entry = *(SessAmtEntry *)P_SessAmtAry->at(pos);
+					sa_entry = *reinterpret_cast<SessAmtEntry *>(P_SessAmtAry->at(pos));
 				else {
 					CSessTotal  cs_total;
 					CC.GetSessTotal(sess_id, CsObj.P_Tbl->GetCcGroupingFlags(sess_rec, sess_id), &cs_total, 0);
@@ -871,7 +871,7 @@ int SLAPI PPViewCSess::CalcCheckAmounts(TempCSessChecksTbl::Rec * pRec)
 	return ok;
 }
 
-int SLAPI PPViewCSess::Add(BExtInsert * pBei, CSessionTbl::Rec * pRec)
+int SLAPI PPViewCSess::Add(BExtInsert * pBei, const CSessionTbl::Rec * pRec)
 {
 	int    ok = 1;
 	TempCSessChecksTbl::Rec csch_rec;
@@ -1053,7 +1053,15 @@ int DraftCreateRuleDialog::setDTS(const PPDfCreateRulePacket * pData)
 		AddClusterAssoc(CTL_DFRULE_WOSCARD, 1, PPDraftCreateRule::fExcludeSCardSer);
 		AddClusterAssoc(CTL_DFRULE_WOSCARD, 2, PPDraftCreateRule::fUseGoodsLocAssoc);
 		SetClusterData(CTL_DFRULE_WOSCARD, Data.Rec.Flags);
-
+		// @v10.3.5 {
+		{
+			const long ret_sale_toggle = CHKXORFLAGS(Data.Rec.Flags, PPDraftCreateRule::fRetOnly, PPDraftCreateRule::fSalesOnly);
+			AddClusterAssocDef(CTL_DFRULE_RETSALTGGL, 0, 0);
+			AddClusterAssoc(CTL_DFRULE_RETSALTGGL, 1, PPDraftCreateRule::fSalesOnly);
+			AddClusterAssoc(CTL_DFRULE_RETSALTGGL, 2, PPDraftCreateRule::fRetOnly);
+			SetClusterData(CTL_DFRULE_RETSALTGGL, ret_sale_toggle);
+		}
+		// } @v10.3.5 
 		SetupPPObjCombo(this, CTLSEL_DFRULE_SCARDSER, PPOBJ_SCARDSERIES, Data.Rec.SCardSerID, OLW_CANEDIT, 0);
 	}
 	setupCtrls();
@@ -1087,8 +1095,8 @@ int DraftCreateRuleDialog::getDTS(PPDfCreateRulePacket * pData)
 		getCtrlData(CTL_DFRULE_PPCTVAL, &Data.Rec.PPctVal);
 		GetClusterData(CTL_DFRULE_COSTALG,  &cost_alg);
 		GetClusterData(CTL_DFRULE_PRICEALG, &price_alg);
-		Data.Rec.PriceAlg = (int16)price_alg;
-		Data.Rec.CostAlg  = (int16)cost_alg;
+		Data.Rec.PriceAlg = static_cast<int16>(price_alg);
+		Data.Rec.CostAlg  = static_cast<int16>(cost_alg);
 		if(Data.Rec.PQuot)
 			Data.Rec.PriceAlg = PPDraftCreateRule::pByQuot;
 		if(Data.Rec.CQuot)
@@ -1109,6 +1117,13 @@ int DraftCreateRuleDialog::getDTS(PPDfCreateRulePacket * pData)
 		Data.Rec.Flags &= ~(PPDraftCreateRule::fOnlyBanking|PPDraftCreateRule::fOnlyNotBanking);
 		Data.Rec.Flags |= pay_type;
 		GetClusterData(CTL_DFRULE_WOSCARD,  &Data.Rec.Flags);
+		// @v10.3.5 {
+		{
+			const long ret_sale_toggle = GetClusterData(CTL_DFRULE_RETSALTGGL);
+			Data.Rec.Flags &= ~(PPDraftCreateRule::fRetOnly|PPDraftCreateRule::fSalesOnly);
+			Data.Rec.Flags |= ret_sale_toggle;
+		}
+		// } @v10.3.5 
 		getCtrlData(CTLSEL_DFRULE_SCARDSER, &Data.Rec.SCardSerID);
 	}
 	ASSIGN_PTR(pData, Data);
@@ -1140,7 +1155,7 @@ int SLAPI PPDfCreateRulePacket::CheckCash(PPID cash) const
 void SLAPI PPDfCreateRulePacket::GetCashNN(SString * pBuf, int delim) const
 {
 	PPID * p_id = 0;
-	StringSet ss((char)delim, 0);
+	StringSet ss(static_cast<char>(delim), 0);
 	for(uint i = 0; CashNN.enumItems(&i, (void**)&p_id) > 0;) {
 		char buf[24];
 		ltoa(*p_id, buf, 10);
@@ -1173,7 +1188,7 @@ int SLAPI PPDfCreateRulePacket::SetCashNN(const char * pBuf, int delim)
 		SString buf;
 		PPIDArray ary;
 		if(cash_nn.NotEmptyS()) {
-			StringSet ss((char)delim, cash_nn);
+			StringSet ss(static_cast<char>(delim), cash_nn);
 			for(uint pos = 0; ss.get(&pos, buf) > 0;)
 				if(buf.Strip().IsDigit())
 					ary.addUnique(buf.ToLong());
@@ -1190,9 +1205,9 @@ int SLAPI PPDfCreateRulePacket::SetCashNN(const char * pBuf, int delim)
 	return ok;
 }
 
-static int SLAPI RulesListFilt(void * rec, void * extraPtr)
+static int SLAPI RulesListFilt(void * pRec, void * extraPtr)
 {
-	PPDraftCreateRule * p_rule = (PPDraftCreateRule*)rec;
+	const PPDraftCreateRule * p_rule = static_cast<const PPDraftCreateRule *>(pRec);
 	const long extra_param = reinterpret_cast<long>(extraPtr);
 	int  only_grps  = BIN(extra_param == PPDFCRRULE_ONLYGROUPS);
 	int  only_rules = BIN(extra_param == PPDFCRRULE_ONLYRULES);
@@ -1268,7 +1283,7 @@ int SLAPI PPObjDraftCreateRule::GetPacket(PPID id, PPDfCreateRulePacket * pPack)
 	if(ok > 0) {
 		SString cash_nn;
 		THROW(p_ref->GetPropVlrString(PPOBJ_DFCREATERULE, id, DFCRRULPRP_CASHNN, cash_nn)); // AHTOXA
-		THROW(rule.SetCashNN((const char*)cash_nn));
+		THROW(rule.SetCashNN(cash_nn.cptr()));
 	}
 	ASSIGN_PTR(pPack, rule);
 	CATCHZOK
@@ -1326,7 +1341,7 @@ int SLAPI PPViewCSess::GetSessList(PPIDArray * pList)
 	return ok;
 }
 
-IMPL_CMPFUNC(CHKGOODSID, i1, i2) { return cmp_long(((CCheckLineTbl::Rec*)i1)->GoodsID, ((CCheckLineTbl::Rec*)i2)->GoodsID); }
+IMPL_CMPFUNC(CHKGOODSID, i1, i2) { return cmp_long(static_cast<const CCheckLineTbl::Rec *>(i1)->GoodsID, static_cast<const CCheckLineTbl::Rec *>(i2)->GoodsID); }
 
 struct _E {
 	PPID   LocID;
@@ -1338,8 +1353,8 @@ struct _E {
 
 IMPL_CMPFUNC(EGOODSLOC, i1, i2)
 {
-	const _E * p_e1 = (const _E *)i1;
-	const _E * p_e2 = (const _E *)i2;
+	const _E * p_e1 = static_cast<const _E *>(i1);
+	const _E * p_e2 = static_cast<const _E *>(i2);
 	int    r = CMPSIGN(p_e1->LocID, p_e2->LocID);
 	return r ? r : stricmp866(p_e1->GoodsName, p_e2->GoodsName);
 }
@@ -1397,7 +1412,7 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 			THROW_MEM(p_gds_assc = new GoodsToObjAssoc(PPASS_GOODS2LOC, PPOBJ_LOCATION));
 			THROW(p_gds_assc->Load());
 		}
-		if(!sess_list.getCount() && sessID)
+		if(!sess_list.getCount())
 			sess_list.add(sessID);
 		if(sess_list.getCount()) {
 			LDATE  bill_dt = ZERODATE;
@@ -1405,31 +1420,39 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 			SArray goods(sizeof(_E));
 			PPIDArray cash_list;
 			CCheckLineArray check_line_list;
-			//check_line_list.setDelta(64);
 			CSessionTbl::Rec csess_rec;
 			CCheckLineTbl::Rec * p_crec = 0;
 			PPBillPacket b_pack;
 			SString memo_buf, csess_buf;
+			const long ret_sale_toggle = CHKXORFLAGS(rule.Rec.Flags, PPDraftCreateRule::fRetOnly, PPDraftCreateRule::fSalesOnly); // @v10.3.5
 			THROW(CsObj.Search(sessID, &csess_rec) > 0);
 			bill_dt = csess_rec.Dt;
 			rule.GetCashNN(&cash_list);
 			//
 			// Фильтрация чеков по некоторым признакам
 			//
-			if((rule.Rec.Flags & PPDraftCreateRule::fWoSCard) || rule.Rec.SCardSerID || (rule.Rec.Flags & (PPDraftCreateRule::fOnlyBanking|PPDraftCreateRule::fOnlyNotBanking))) {
-				long chk_count = 0;
+			if((rule.Rec.Flags & PPDraftCreateRule::fWoSCard) || rule.Rec.SCardSerID || ret_sale_toggle ||
+				(rule.Rec.Flags & (PPDraftCreateRule::fOnlyBanking|PPDraftCreateRule::fOnlyNotBanking))) {
 				ObjIdListFilt chk_list_, sess_list_;
 				PPIDArray chk_list;
 				sess_list_.Set(&sess_list);
 				THROW(CC.LoadChecksByList(&sess_list_, &cash_list, &chk_list_, &last_check_dtm));
 				chk_list_.Sort();
 				chk_list_.CopyTo(&chk_list);
-				chk_count = (long)chk_list.getCount();
-				for(long i = chk_count - 1; i >= 0; i--) {
-					int to_del = 0;
+
+				uint cc_pos = chk_list.getCount();
+				if(cc_pos) do {
+					const  PPID cc_id = chk_list.get(--cc_pos);
+					int    to_del = 0;
 					CCheckTbl::Rec chk_rec;
-					if(CC.Search(chk_list.at((uint)i), &chk_rec) > 0) {
-						if((rule.Rec.Flags & PPDraftCreateRule::fWoSCard) && chk_rec.SCardID)
+					if(CC.Search(cc_id, &chk_rec) > 0) {
+						// @v10.3.5 {
+						if(ret_sale_toggle == PPDraftCreateRule::fRetOnly && !(chk_rec.Flags & CCHKF_RETURN))
+							to_del = 1;
+						else if(ret_sale_toggle == PPDraftCreateRule::fSalesOnly && (chk_rec.Flags & CCHKF_RETURN))
+							to_del = 1;
+						// } @v10.3.5 
+						else if((rule.Rec.Flags & PPDraftCreateRule::fWoSCard) && chk_rec.SCardID)
 							to_del = 1;
 						else if(rule.Rec.SCardSerID) {
 							SCardTbl::Rec scard_rec;
@@ -1437,7 +1460,8 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 							CC.Cards.Search(chk_rec.SCardID, &scard_rec);
 							if(chk_rec.SCardID == 0 || scard_rec.SeriesID != rule.Rec.SCardSerID)
 								to_del = 1;
-							to_del = (rule.Rec.Flags & PPDraftCreateRule::fExcludeSCardSer) ? !to_del : to_del;
+							else
+								to_del = (rule.Rec.Flags & PPDraftCreateRule::fExcludeSCardSer) ? !to_del : to_del;
 						}
 						if((rule.Rec.Flags & PPDraftCreateRule::fOnlyBanking) && !(chk_rec.Flags & CCHKF_BANKING))
 							 to_del = 1;
@@ -1447,8 +1471,8 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 					else
 						to_del = 1;
 					if(to_del)
-						chk_list.atFree(i);
-				}
+						chk_list.atFree(cc_pos);
+				} while(cc_pos);
 				chk_list_.Set(&chk_list);
 				THROW(CC.LoadLinesByList(0, &chk_list_, &check_line_list));
 			}
@@ -1473,7 +1497,7 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 					p_gds_assc->Get(p_crec->GoodsID, &_e.LocID);
 				_e.LocID = (_e.LocID == 0) ? def_loc_id : _e.LocID;
 				if(goods.lsearch(&_e, &pos, PTR_CMPFUNC(_2long))) {
-					p_e = (_E*)goods.at(pos);
+					p_e = static_cast<_E *>(goods.at(pos));
 					p_e->Qtty  += _e.Qtty;
 					p_e->Price += _e.Price;
 				}
@@ -1492,7 +1516,7 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 						//
 						_e.GoodsID = p_crec->GoodsID;
 						if(goods.lsearch(&_e, &(pos = 0), PTR_CMPFUNC(_2long))) {
-							p_e = (_E*)goods.at(pos);
+							p_e = static_cast<_E *>(goods.at(pos));
 							p_e->Qtty  += _e.Qtty;
 							p_e->Price += _e.Price;
 						}
@@ -2130,7 +2154,7 @@ IMPLEMENT_PPFILT_FACTORY(CSessExc); SLAPI CSessExcFilt::CSessExcFilt() : PPBaseF
 	Init(1, 0);
 }
 
-SLAPI PPViewCSessExc::PPViewCSessExc() : PPView(0, &Filt, PPVIEW_CSESSEXC), P_TempTbl(0)
+SLAPI PPViewCSessExc::PPViewCSessExc() : PPView(0, &Filt, PPVIEW_CSESSEXC), P_TempTbl(0), CommonLocID(0)
 {
 }
 
@@ -2144,7 +2168,7 @@ PPBaseFilt * SLAPI PPViewCSessExc::CreateFilt(void * extraPtr) const
 	PPBaseFilt * p_base_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_CSESSEXC, &p_base_filt)) {
 		PPObjCashNode cn_obj;
-		((CSessExcFilt *)p_base_filt)->CashNodeID = cn_obj.GetSingle();
+		static_cast<CSessExcFilt *>(p_base_filt)->CashNodeID = cn_obj.GetSingle();
 	}
 	return p_base_filt;
 }
@@ -2157,7 +2181,7 @@ int SLAPI PPViewCSessExc::EditBaseFilt(PPBaseFilt * pFilt)
 	THROW(Filt.IsA(pFilt));
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_CSESSEXC))));
 	{
-		CSessExcFilt * p_filt = (CSessExcFilt *)pFilt;
+		CSessExcFilt * p_filt = static_cast<CSessExcFilt *>(pFilt);
 		PPID   cashnode_id = p_filt->CashNodeID;
 		GoodsCtrlGroup::Rec rec(p_filt->GoodsGrpID, p_filt->GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
 		dlg->addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_CSESSEXC_GGRP, CTLSEL_CSESSEXC_GOODS));
@@ -2491,7 +2515,8 @@ int SLAPI PPViewCSessExc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 	struct H {
 		PPID   GoodsID;
 		int16  Sign;
-	} * p_hdr = (H *)pHdr;
+	};
+	const H * p_hdr = static_cast<const H *>(pHdr);
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
 		PPID   goods_id = p_hdr ? p_hdr->GoodsID : 0;
@@ -2521,6 +2546,10 @@ int SLAPI PPViewCSessExc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 }
 
 struct CSessExcAltGoodsParam {
+	CSessExcAltGoodsParam()
+	{
+		THISZERO();
+	}
 	PPID   GoodsID;
 	PPID   AltGoodsID;
 	PPID   LocID;
@@ -2564,8 +2593,7 @@ IMPL_HANDLE_EVENT(CSessExcAltGoodsDialog)
 	}
 	else if(event.isClusterClk(CTL_CSEXCAG_FLAGS)) {
 		GoodsCtrlGroup * p_grp = (GoodsCtrlGroup *)getGroup(GRP_GOODS);
-		if(p_grp)
-			p_grp->setFlagExistsOnly(this, getCtrlUInt16(CTL_CSEXCAG_FLAGS));
+		CALLPTRMEMB(p_grp, setFlagExistsOnly(this, getCtrlUInt16(CTL_CSEXCAG_FLAGS)));
 	}
 	else
 		return;
@@ -2800,7 +2828,7 @@ PPALDD_CONSTRUCTOR(CSession)
 PPALDD_DESTRUCTOR(CSession)
 {
 	Destroy();
-	delete (PPObjCSession*)Extra[0].Ptr;
+	delete static_cast<PPObjCSession *>(Extra[0].Ptr);
 }
 
 int PPALDD_CSession::InitData(PPFilt & rFilt, long rsrv)
@@ -2812,7 +2840,7 @@ int PPALDD_CSession::InitData(PPFilt & rFilt, long rsrv)
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
 		CSessionTbl::Rec rec;
-		if(((PPObjCSession*)Extra[0].Ptr)->Search(rFilt.ID, &rec) > 0) {
+		if(static_cast<PPObjCSession *>(Extra[0].Ptr)->Search(rFilt.ID, &rec) > 0) {
 			H.ID          = rec.ID;
 			H.CashNodeID  = rec.CashNodeID;
 			H.SuperSessID = rec.SuperSessID;
@@ -2826,7 +2854,7 @@ int PPALDD_CSession::InitData(PPFilt & rFilt, long rsrv)
 			H.AggrRest    = rec.AggrRest;
 			H.WrOffAmount = rec.WrOffAmount;
 			H.Banking     = rec.BnkAmount;
-			H.CSCardAmount = rec.CSCardAmount; // @v8.8.5
+			H.CSCardAmount = rec.CSCardAmount;
 			ok = DlRtm::InitData(rFilt, rsrv);
 		}
 	}

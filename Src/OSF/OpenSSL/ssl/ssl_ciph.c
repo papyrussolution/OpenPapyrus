@@ -866,7 +866,7 @@ static int ssl_cipher_strength_sort(CIPHER_ORDER ** head_p, CIPHER_ORDER ** tail
 			max_strength_bits = curr->cipher->strength_bits;
 		curr = curr->next;
 	}
-	number_uses = (int*)OPENSSL_zalloc(sizeof(int) * (max_strength_bits + 1));
+	number_uses = (int *)OPENSSL_zalloc(sizeof(int) * (max_strength_bits + 1));
 	if(number_uses == NULL) {
 		SSLerr(SSL_F_SSL_CIPHER_STRENGTH_SORT, ERR_R_MALLOC_FAILURE);
 		return 0;

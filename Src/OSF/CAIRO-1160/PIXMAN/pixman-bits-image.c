@@ -190,10 +190,7 @@ static force_inline uint32_t bits_image_fetch_pixel_convolution(bits_image_t * i
 	return ((satot << 24) | (srtot << 16) | (sgtot <<  8) | (sbtot));
 }
 
-static uint32_t bits_image_fetch_pixel_separable_convolution(bits_image_t * image,
-    pixman_fixed_t x,
-    pixman_fixed_t y,
-    get_pixel_t get_pixel)
+static uint32_t bits_image_fetch_pixel_separable_convolution(bits_image_t * image, pixman_fixed_t x, pixman_fixed_t y, get_pixel_t get_pixel)
 {
 	pixman_fixed_t * params = image->common.filter_params;
 	pixman_repeat_t repeat_mode = image->common.repeat;
@@ -236,29 +233,23 @@ static uint32_t bits_image_fetch_pixel_separable_convolution(bits_image_t * imag
 	for(i = y1; i < y2; ++i) {
 		pixman_fixed_48_16_t fy = *y_params++;
 		pixman_fixed_t * x_params = params + 4 + px * cwidth;
-
 		if(fy) {
 			for(j = x1; j < x2; ++j) {
 				pixman_fixed_t fx = *x_params++;
 				int rx = j;
 				int ry = i;
-
 				if(fx) {
 					pixman_fixed_t f;
 					uint32_t pixel;
-
 					if(repeat_mode != PIXMAN_REPEAT_NONE) {
 						repeat(repeat_mode, &rx, width);
 						repeat(repeat_mode, &ry, height);
-
 						pixel = get_pixel(image, rx, ry, FALSE);
 					}
 					else {
 						pixel = get_pixel(image, rx, ry, TRUE);
 					}
-
-					f = (fy * fx + 0x8000) >> 16;
-
+					f = static_cast<pixman_fixed_t>((fy * fx + 0x8000) >> 16);
 					srtot += (int)RED_8(pixel) * f;
 					sgtot += (int)GREEN_8(pixel) * f;
 					sbtot += (int)BLUE_8(pixel) * f;
@@ -267,7 +258,6 @@ static uint32_t bits_image_fetch_pixel_separable_convolution(bits_image_t * imag
 			}
 		}
 	}
-
 	satot = (satot + 0x8000) >> 16;
 	srtot = (srtot + 0x8000) >> 16;
 	sgtot = (sgtot + 0x8000) >> 16;
@@ -281,62 +271,48 @@ static uint32_t bits_image_fetch_pixel_separable_convolution(bits_image_t * imag
 	return ((satot << 24) | (srtot << 16) | (sgtot <<  8) | (sbtot));
 }
 
-static force_inline uint32_t bits_image_fetch_pixel_filtered(bits_image_t * image,
-    pixman_fixed_t x,
-    pixman_fixed_t y,
-    get_pixel_t get_pixel)
+static force_inline uint32_t bits_image_fetch_pixel_filtered(bits_image_t * image, pixman_fixed_t x, pixman_fixed_t y, get_pixel_t get_pixel)
 {
-	switch(image->common.filter)
-	{
+	switch(image->common.filter) {
 		case PIXMAN_FILTER_NEAREST:
 		case PIXMAN_FILTER_FAST:
 		    return bits_image_fetch_pixel_nearest(image, x, y, get_pixel);
 		    break;
-
 		case PIXMAN_FILTER_BILINEAR:
 		case PIXMAN_FILTER_GOOD:
 		case PIXMAN_FILTER_BEST:
 		    return bits_image_fetch_pixel_bilinear(image, x, y, get_pixel);
 		    break;
-
 		case PIXMAN_FILTER_CONVOLUTION:
 		    return bits_image_fetch_pixel_convolution(image, x, y, get_pixel);
 		    break;
-
 		case PIXMAN_FILTER_SEPARABLE_CONVOLUTION:
 		    return bits_image_fetch_pixel_separable_convolution(image, x, y, get_pixel);
 		    break;
-
 		default:
 		    break;
 	}
-
 	return 0;
 }
 
-static uint32_t * bits_image_fetch_affine_no_alpha(pixman_iter_t *  iter,
-    const uint32_t * mask)
+static uint32_t * bits_image_fetch_affine_no_alpha(pixman_iter_t *  iter, const uint32_t * mask)
 {
 	pixman_image_t * image  = iter->image;
 	int offset = iter->x;
 	int line   = iter->y++;
 	int width  = iter->width;
 	uint32_t * buffer = iter->buffer;
-
 	pixman_fixed_t x, y;
 	pixman_fixed_t ux, uy;
 	pixman_vector_t v;
 	int i;
-
 	/* reference point is the center of the pixel */
 	v.vector[0] = pixman_int_to_fixed(offset) + pixman_fixed_1 / 2;
 	v.vector[1] = pixman_int_to_fixed(line) + pixman_fixed_1 / 2;
 	v.vector[2] = pixman_fixed_1;
-
 	if(image->common.transform) {
 		if(!pixman_transform_point_3d(image->common.transform, &v))
 			return iter->buffer;
-
 		ux = image->common.transform->matrix[0][0];
 		uy = image->common.transform->matrix[1][0];
 	}
@@ -344,20 +320,15 @@ static uint32_t * bits_image_fetch_affine_no_alpha(pixman_iter_t *  iter,
 		ux = pixman_fixed_1;
 		uy = 0;
 	}
-
 	x = v.vector[0];
 	y = v.vector[1];
-
 	for(i = 0; i < width; ++i) {
 		if(!mask || mask[i]) {
-			buffer[i] = bits_image_fetch_pixel_filtered(
-				&image->bits, x, y, fetch_pixel_no_alpha);
+			buffer[i] = bits_image_fetch_pixel_filtered(&image->bits, x, y, fetch_pixel_no_alpha);
 		}
-
 		x += ux;
 		y += uy;
 	}
-
 	return buffer;
 }
 

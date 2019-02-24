@@ -4328,7 +4328,7 @@ int PPALDD_GoodsRest::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_GoodsRest::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 {
 	//INIT_PPVIEW_ALDD_ITER(GoodsRest);
-	PPViewGoodsRest * p_v = (PPViewGoodsRest *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	PPViewGoodsRest * p_v = static_cast<PPViewGoodsRest *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;
@@ -4428,7 +4428,7 @@ int PPALDD_GoodsRestTotal::InitIteration(PPIterID iterId, int sortId, long /*rsr
 int PPALDD_GoodsRestTotal::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
-	GoodsRestTotalPrintData * p_data = (GoodsRestTotalPrintData *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	GoodsRestTotalPrintData * p_data = static_cast<GoodsRestTotalPrintData *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	AmtEntry * p_item;
 	uint n = (uint)I.LineNo;
 	if(p_data->P_Total->Amounts.enumItems(&n, (void **)&p_item) > 0) {

@@ -458,7 +458,7 @@ int GoodsValRestrDialog::EditItem(ObjRestrictItem & rItem)
 	dlg->SetClusterData(CTL_GVRBAR_OPTIONS, rItem.Flags);
 	while(ok < 0 && ExecView(dlg) == cmOK) {
 		ArticleCtrlGroup::Rec acg_rec;
-		ArticleCtrlGroup * p_acg = (ArticleCtrlGroup *)getGroup(GRP_ARTICLE);
+		ArticleCtrlGroup * p_acg = static_cast<ArticleCtrlGroup *>(getGroup(GRP_ARTICLE));
 		dlg->getGroupData(GRP_ARTICLE, &acg_rec);
 		PPID   ar_id = acg_rec.ArList.GetSingle();
 		if(!ar_id) {

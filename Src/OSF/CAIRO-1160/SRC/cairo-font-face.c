@@ -74,21 +74,17 @@ const cairo_font_face_t _cairo_font_face_nil_file_not_found = {
 	NULL
 };
 
-cairo_status_t _cairo_font_face_set_error(cairo_font_face_t * font_face,
-    cairo_status_t status)
+cairo_status_t FASTCALL _cairo_font_face_set_error(cairo_font_face_t * font_face, cairo_status_t status)
 {
 	if(status == CAIRO_STATUS_SUCCESS)
 		return status;
-
 	/* Don't overwrite an existing error. This preserves the first
 	 * error, which is the most significant. */
 	_cairo_status_set_error(&font_face->status, status);
-
 	return _cairo_error(status);
 }
 
-void _cairo_font_face_init(cairo_font_face_t * font_face,
-    const cairo_font_face_backend_t * backend)
+void FASTCALL _cairo_font_face_init(cairo_font_face_t * font_face, const cairo_font_face_backend_t * backend)
 {
 	CAIRO_MUTEX_INITIALIZE();
 	font_face->status = CAIRO_STATUS_SUCCESS;
@@ -96,7 +92,6 @@ void _cairo_font_face_init(cairo_font_face_t * font_face,
 	font_face->backend = backend;
 	_cairo_user_data_array_init(&font_face->user_data);
 }
-
 /**
  * cairo_font_face_reference:
  * @font_face: a #cairo_font_face_t, (may be %NULL in which case this

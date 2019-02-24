@@ -120,7 +120,7 @@ int AmtListDialog::getDTS(AmtList * pList)
 	return 1;
 }
 
-int AmtListDialog::setupListEntry(PPID idx, AmtEntry * pEntry)
+int AmtListDialog::setupListEntry(PPID idx, const AmtEntry * pEntry)
 {
 	SString sub;
 	StringSet ss(SLBColumnDelim);

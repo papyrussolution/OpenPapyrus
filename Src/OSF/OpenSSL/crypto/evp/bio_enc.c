@@ -164,7 +164,7 @@ static int enc_read(BIO * b, char * out, int outl)
 				int j = outl - blocksize, buf_len;
 
 				if(!EVP_CipherUpdate(ctx->cipher,
-					    (uchar*)out, &buf_len,
+					    reinterpret_cast<uchar *>(out), &buf_len,
 					    ctx->read_start, i > j ? j : i)) {
 					BIO_clear_retry_flags(b);
 					return 0;

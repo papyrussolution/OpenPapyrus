@@ -377,7 +377,7 @@ void TInputLine::InputStat::CheckIn()
 //static
 LRESULT CALLBACK TInputLine::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	TInputLine * p_view = (TInputLine *)TView::GetWindowUserData(hWnd);
+	TInputLine * p_view = static_cast<TInputLine *>(TView::GetWindowUserData(hWnd));
 	switch(uMsg) {
 		case WM_DESTROY: p_view->OnDestroy(hWnd); return 0;
 		case WM_COMMAND:
@@ -1612,7 +1612,7 @@ int ComboBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					setRange(P_Def->getRecsCount());
 				}
 				TView::SetWindowProp(hcb, GWLP_USERDATA, this);
-				PrevWindowProc = (WNDPROC)TView::SetWindowProp(hcb, GWLP_WNDPROC, ComboBox::DlgProc); 
+				PrevWindowProc = static_cast<WNDPROC>(TView::SetWindowProp(hcb, GWLP_WNDPROC, ComboBox::DlgProc)); 
 				{
 					HBITMAP h_bm = APPL->FetchSystemBitmap(OBM_COMBO);
 					::SendMessage(hcb, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_bm));
@@ -1955,7 +1955,7 @@ int TImageView::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	if(uMsg == WM_INITDIALOG) {
 		HWND   h_wnd = getHandle();
 		TView::SetWindowUserData(h_wnd, this);
-		PrevWindowProc = (WNDPROC)TView::SetWindowProp(h_wnd, GWLP_WNDPROC, TImageView::DlgProc);
+		PrevWindowProc = static_cast<WNDPROC>(TView::SetWindowProp(h_wnd, GWLP_WNDPROC, TImageView::DlgProc));
 	 }
 	 return 1;
 }

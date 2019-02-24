@@ -133,7 +133,7 @@ int SLAPI PPDbTableXmlExporter::Run(const char * pOutFileName)
 					const BNField & f = r_fl[i];
 					{
 						(fld_name = f.Name).ToUtf8();
-						f.putValueToString(p_t->getDataBuf(), _buf);
+						f.putValueToString(p_t->getDataBufConst(), _buf);
 						(temp_buf = _buf).Transf(CTRANSF_INNER_TO_UTF8);
 						XMLReplaceSpecSymb(temp_buf, "&<>\'");
 						SXml::WNode(p_writer, fld_name, temp_buf);

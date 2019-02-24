@@ -2492,7 +2492,7 @@ static cairo_status_t _cairo_ps_surface_emit_image(cairo_ps_surface_t * surface,
 	if(use_mask)
 		data_size += (ps_image->width + 7)/8;
 	data_size *= ps_image->height;
-	data = (uchar *)_cairo_malloc(data_size);
+	data = static_cast<uchar *>(_cairo_malloc(data_size));
 	if(unlikely(data == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto bail1;
@@ -3181,10 +3181,8 @@ static cairo_status_t _cairo_ps_surface_emit_recording_surface(cairo_ps_surface_
 	surface->current_pattern_is_solid_color = FALSE;
 	_cairo_pdf_operators_reset(&surface->pdf_operators);
 	cairo_matrix_init(&surface->cairo_to_ps, 1, 0, 0, 1, 0, 0);
-	_cairo_pdf_operators_set_cairo_to_pdf_matrix(&surface->pdf_operators,
-	    &surface->cairo_to_ps);
+	_cairo_pdf_operators_set_cairo_to_pdf_matrix(&surface->pdf_operators, &surface->cairo_to_ps);
 	_cairo_output_stream_printf(surface->stream, "  q\n");
-
 	if(recording_surface->content == CAIRO_CONTENT_COLOR) {
 		surface->content = CAIRO_CONTENT_COLOR;
 		_cairo_output_stream_printf(surface->stream,
@@ -3194,21 +3192,14 @@ static cairo_status_t _cairo_ps_surface_emit_recording_surface(cairo_ps_surface_
 		    recording_extents->width,
 		    recording_extents->height);
 	}
-
-	status = _cairo_recording_surface_replay_region(recording_surface,
-		subsurface ? recording_extents : NULL,
-		&surface->base,
-		CAIRO_RECORDING_REGION_NATIVE);
+	status = _cairo_recording_surface_replay_region(recording_surface, subsurface ? recording_extents : NULL, &surface->base, CAIRO_RECORDING_REGION_NATIVE);
 	assert(status != CAIRO_INT_STATUS_UNSUPPORTED);
 	if(unlikely(status))
 		return status;
-
 	status = _cairo_pdf_operators_flush(&surface->pdf_operators);
 	if(unlikely(status))
 		return status;
-
 	_cairo_output_stream_printf(surface->stream, "  Q\n");
-
 	_cairo_surface_clipper_reset(&surface->clipper);
 	surface->clipper = old_clipper;
 	surface->content = old_content;
@@ -3219,26 +3210,17 @@ static cairo_status_t _cairo_ps_surface_emit_recording_surface(cairo_ps_surface_
 	surface->current_pattern_is_solid_color = FALSE;
 	_cairo_pdf_operators_reset(&surface->pdf_operators);
 	surface->cairo_to_ps = old_cairo_to_ps;
-
-	_cairo_pdf_operators_set_cairo_to_pdf_matrix(&surface->pdf_operators,
-	    &surface->cairo_to_ps);
+	_cairo_pdf_operators_set_cairo_to_pdf_matrix(&surface->pdf_operators, &surface->cairo_to_ps);
 	cairo_surface_destroy(free_me);
-
 	_cairo_array_truncate(&surface->recording_surf_stack, recording_surf_stack_size);
-
 	return status;
 }
 
-static void _cairo_ps_surface_flatten_transparency(cairo_ps_surface_t * surface,
-    const cairo_color_t * color,
-    double * red,
-    double * green,
-    double * blue)
+static void _cairo_ps_surface_flatten_transparency(cairo_ps_surface_t * surface, const cairo_color_t * color, double * red, double * green, double * blue)
 {
 	*red   = color->red;
 	*green = color->green;
 	*blue  = color->blue;
-
 	if(!CAIRO_COLOR_IS_OPAQUE(color)) {
 		*red   *= color->alpha;
 		*green *= color->alpha;
@@ -3252,23 +3234,15 @@ static void _cairo_ps_surface_flatten_transparency(cairo_ps_surface_t * surface,
 	}
 }
 
-static void _cairo_ps_surface_emit_solid_pattern(cairo_ps_surface_t * surface,
-    cairo_solid_pattern_t * pattern)
+static void _cairo_ps_surface_emit_solid_pattern(cairo_ps_surface_t * surface, const cairo_solid_pattern_t * pattern)
 {
 	double red, green, blue;
-
 	_cairo_ps_surface_flatten_transparency(surface, &pattern->color, &red, &green, &blue);
-
 	if(color_is_gray(red, green, blue))
-		_cairo_output_stream_printf(surface->stream,
-		    "%f g\n",
-		    red);
+		_cairo_output_stream_printf(surface->stream, "%f g\n", red);
 	else
-		_cairo_output_stream_printf(surface->stream,
-		    "%f %f %f rg\n",
-		    red, green, blue);
+		_cairo_output_stream_printf(surface->stream, "%f %f %f rg\n", red, green, blue);
 }
-
 /*
  * PS Forms are used for sources that have CAIRO_MIME_TYPE_UNIQUE_ID. They will be
  * emitted once in the PS header and can be rendered with the 'execform' operator.
@@ -3325,7 +3299,7 @@ static cairo_int_status_t _cairo_ps_surface_use_form(cairo_ps_surface_t * surfac
 	if(surface->total_form_size + params->approx_size > max_size)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	surface->total_form_size += params->approx_size > max_size;
-	unique_id = (uchar *)_cairo_malloc(source_key.unique_id_length);
+	unique_id = static_cast<uchar *>(_cairo_malloc(source_key.unique_id_length));
 	if(unique_id == NULL)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	unique_id_length = source_key.unique_id_length;
@@ -4145,10 +4119,7 @@ static cairo_status_t _cairo_ps_surface_emit_pattern_stops(cairo_ps_surface_t * 
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _cairo_ps_surface_emit_repeating_function(cairo_ps_surface_t * surface,
-    cairo_gradient_pattern_t * pattern,
-    int begin,
-    int end)
+static cairo_status_t _cairo_ps_surface_emit_repeating_function(cairo_ps_surface_t * surface, const cairo_gradient_pattern_t * pattern, int begin, int end)
 {
 	_cairo_output_stream_printf(surface->stream,
 	    "/CairoFunction\n"
@@ -4161,16 +4132,11 @@ static cairo_status_t _cairo_ps_surface_emit_repeating_function(cairo_ps_surface
 	    end - begin,
 	    begin + 1,
 	    end - 1);
-
 	if(pattern->base.extend == CAIRO_EXTEND_REFLECT) {
-		_cairo_output_stream_printf(surface->stream, "   /Encode [ %d 1 %d { 2 mod 0 eq {0 1} {1 0} ifelse } for ]\n",
-		    begin,
-		    end - 1);
+		_cairo_output_stream_printf(surface->stream, "   /Encode [ %d 1 %d { 2 mod 0 eq {0 1} {1 0} ifelse } for ]\n", begin, end - 1);
 	}
 	else {
-		_cairo_output_stream_printf(surface->stream, "   /Encode [ %d 1 %d { pop 0 1 } for ]\n",
-		    begin,
-		    end - 1);
+		_cairo_output_stream_printf(surface->stream, "   /Encode [ %d 1 %d { pop 0 1 } for ]\n", begin, end - 1);
 	}
 	_cairo_output_stream_printf(surface->stream, ">> def\n");
 	return CAIRO_STATUS_SUCCESS;
@@ -4410,7 +4376,7 @@ static cairo_status_t _cairo_ps_surface_emit_pattern(cairo_ps_surface_t * surfac
 			status = _cairo_pdf_operators_flush(&surface->pdf_operators);
 			if(unlikely(status))
 				return status;
-			_cairo_ps_surface_emit_solid_pattern(surface, (cairo_solid_pattern_t*)pattern);
+			_cairo_ps_surface_emit_solid_pattern(surface, reinterpret_cast<const cairo_solid_pattern_t *>(pattern));
 			surface->current_pattern_is_solid_color = TRUE;
 			surface->current_color = solid->color;
 		}
@@ -4422,32 +4388,22 @@ static cairo_status_t _cairo_ps_surface_emit_pattern(cairo_ps_surface_t * surfac
 		return status;
 	switch(pattern->type) {
 		case CAIRO_PATTERN_TYPE_SOLID:
-		    _cairo_ps_surface_emit_solid_pattern(surface, (cairo_solid_pattern_t*)pattern);
+		    _cairo_ps_surface_emit_solid_pattern(surface, reinterpret_cast<const cairo_solid_pattern_t *>(pattern));
 		    break;
-
 		case CAIRO_PATTERN_TYPE_SURFACE:
 		case CAIRO_PATTERN_TYPE_RASTER_SOURCE:
-		    status = _cairo_ps_surface_emit_surface_pattern(surface,
-			    (cairo_pattern_t*)pattern,
-			    extents,
-			    op);
+		    status = _cairo_ps_surface_emit_surface_pattern(surface, (cairo_pattern_t*)pattern, extents, op);
 		    if(unlikely(status))
 			    return status;
 		    break;
-
 		case CAIRO_PATTERN_TYPE_LINEAR:
 		case CAIRO_PATTERN_TYPE_RADIAL:
-		    status = _cairo_ps_surface_emit_gradient(surface,
-			    (cairo_gradient_pattern_t*)pattern,
-			    TRUE);
+		    status = _cairo_ps_surface_emit_gradient(surface, (cairo_gradient_pattern_t*)pattern, TRUE);
 		    if(unlikely(status))
 			    return status;
 		    break;
-
 		case CAIRO_PATTERN_TYPE_MESH:
-		    status = _cairo_ps_surface_emit_mesh_pattern(surface,
-			    (cairo_mesh_pattern_t*)pattern,
-			    TRUE);
+		    status = _cairo_ps_surface_emit_mesh_pattern(surface, (cairo_mesh_pattern_t*)pattern, TRUE);
 		    if(unlikely(status))
 			    return status;
 		    break;

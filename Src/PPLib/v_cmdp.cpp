@@ -1,5 +1,5 @@
 // V_CMDP.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019
 //
 // Редактирование списка команд
 //
@@ -202,7 +202,7 @@ private:
 	virtual int moveItem(long pos, long id, int up);
 	PPCommandItem * GetItem(long id, long * pPos, PPCommandFolder ** pFolder);
 
-	int    IsDesktop;
+	const int IsDesktop;
 	PPCommandFolder Data;
 	PPCommandGroup * P_Menus;
 };
@@ -266,11 +266,11 @@ int CommandsDialog::addItem(long * pPos, long * pID)
 		p_dlg->getCtrlData(CTLSEL_ADDCMD_PARENT, &parent_id);
 		if(v == 1) {
 			if(EditCmdItem(P_Menus, &new_cmd, IsDesktop) > 0)
-				p_item = (PPCommandItem*)&new_cmd;
+				p_item = static_cast<PPCommandItem *>(&new_cmd);
 		}
 		else if(v == 2) {
 			if(EditName(new_cmdfolder.Name) > 0)
-				p_item = (PPCommandItem*)&new_cmdfolder;
+				p_item = static_cast<PPCommandItem *>(&new_cmdfolder);
 		}
 		else {
 			new_sep.Name.Z().CatCharN('-', 40);
@@ -282,8 +282,8 @@ int CommandsDialog::addItem(long * pPos, long * pID)
 			const PPCommandItem * p_menu = P_Menus->SearchByID(Data.ID, &p);
 			P_Menus->GetUniqueID(&p_item->ID);
 			if(parent_id) {
-				const PPCommandItem * p_fi = Data.SearchByIDRecursive(parent_id, 0);
-				PPCommandFolder * p_folder = (p_fi && p_fi->Kind == PPCommandItem::kFolder) ? (PPCommandFolder *)p_fi : 0;
+				PPCommandItem * p_fi = const_cast<PPCommandItem *>(Data.SearchByIDRecursive(parent_id, 0));
+				PPCommandFolder * p_folder = (p_fi && p_fi->Kind == PPCommandItem::kFolder) ? static_cast<PPCommandFolder *>(p_fi) : 0;
 				if(p_folder)
 					THROW(p_folder->Add(-1, p_item));
 			}
@@ -291,7 +291,7 @@ int CommandsDialog::addItem(long * pPos, long * pID)
 				THROW(Data.Add(-1, p_item));
 			}
 			if(p_menu && p_menu->Kind == PPCommandItem::kFolder)
-				THROW(P_Menus->Update(p, (PPCommandItem*)&Data));
+				THROW(P_Menus->Update(p, static_cast<PPCommandItem *>(&Data)));
 			{
 				THROW(Data.GetCommandList(&cmd_list, 0));
 				//cmd_list.lsearch(&p_item->ID, &(p = 0), CMPF_LONG, sizeof(long));
@@ -336,8 +336,8 @@ int CommandsDialog::delItem(long pos, long id)
 		if(p_item) {
 			uint   p = 0;
 			if(parent_id) {
-				const PPCommandItem * p_pitem = Data.SearchByIDRecursive(parent_id, 0);
-				p_folder = (p_pitem && p_pitem->Kind == PPCommandItem::kFolder) ? (PPCommandFolder*)p_pitem : 0;
+				PPCommandItem * p_pitem = const_cast<PPCommandItem *>(Data.SearchByIDRecursive(parent_id, 0));
+				p_folder = (p_pitem && p_pitem->Kind == PPCommandItem::kFolder) ? static_cast<PPCommandFolder *>(p_pitem) : 0;
 			}
 			else
 				p_folder = &Data;
@@ -346,7 +346,7 @@ int CommandsDialog::delItem(long pos, long id)
 			if(ok > 0) {
 				const  PPCommandItem * p_menu = P_Menus->SearchByID(Data.ID, &(p = 0));
 				if(p_menu && p_menu->Kind == PPCommandItem::kFolder)
-					THROW(P_Menus->Update(p, (PPCommandItem*)&Data));
+					THROW(P_Menus->Update(p, static_cast<PPCommandItem *>(&Data)));
 			}
 		}
 	}
@@ -362,8 +362,8 @@ PPCommandItem * CommandsDialog::GetItem(long id, long * pPos, PPCommandFolder **
 	if(p_item) {
 		uint   p = 0;
 		if(parent_id) {
-			const PPCommandItem * p_pitem = Data.SearchByIDRecursive(parent_id, 0);
-			(*pFolder) = (p_pitem && p_pitem->Kind == PPCommandItem::kFolder) ? (PPCommandFolder*)p_pitem : 0;
+			PPCommandItem * p_pitem = const_cast<PPCommandItem *>(Data.SearchByIDRecursive(parent_id, 0));
+			(*pFolder) = (p_pitem && p_pitem->Kind == PPCommandItem::kFolder) ? static_cast<PPCommandFolder *>(p_pitem) : 0;
 		}
 		else
 			(*pFolder) = &Data;
@@ -408,7 +408,7 @@ int CommandsDialog::moveItem(long curPos, long id, int up)
 					p_folder->Add(-1, p_item);
 					p_folder->Add(-1, p_nbitem);
 					if(p_menu && p_menu->Kind == PPCommandItem::kFolder)
-						P_Menus->Update(p, (PPCommandItem*)&Data);
+						P_Menus->Update(p, static_cast<PPCommandItem *>(&Data));
 					ZDELETE(p_nbitem);
 					ok = 1;
 				}
@@ -423,10 +423,8 @@ int CommandsDialog::moveItem(long curPos, long id, int up)
 //
 class DesktopAssocCommandDialog : public TDialog {
 public:
-	DesktopAssocCommandDialog(long pos, PPDesktopAssocCmdPool * pCmdList) : TDialog(DLG_DESKCMDAI)
+	DesktopAssocCommandDialog(long pos, PPDesktopAssocCmdPool * pCmdList) : TDialog(DLG_DESKCMDAI), Pos(pos), P_CmdList(pCmdList)
 	{
-		Pos = pos;
-		P_CmdList = pCmdList;
 	}
 	int    setDTS(const PPDesktopAssocCmd * pData);
 	int    getDTS(PPDesktopAssocCmd * pData);
@@ -434,9 +432,9 @@ private:
 	DECL_HANDLE_EVENT;
 	void   SetupCtrls();
 
-	long   Pos;
+	const long   Pos;
+	const PPDesktopAssocCmdPool * P_CmdList;
 	PPDesktopAssocCmd Data;
-	PPDesktopAssocCmdPool * P_CmdList;
 };
 
 IMPL_HANDLE_EVENT(DesktopAssocCommandDialog)
@@ -450,7 +448,7 @@ IMPL_HANDLE_EVENT(DesktopAssocCommandDialog)
 		GetClusterData(CTL_DESKCMDAI_FLAGS, &flags);
 		if(!(flags & PPDesktopAssocCmd::fSpecCode)) {
 			SString buf;
-			KeyDownCommand * p_cmd = (KeyDownCommand*)event.message.infoPtr;
+			const KeyDownCommand * p_cmd = static_cast<const KeyDownCommand *>(event.message.infoPtr);
 			if(p_cmd && p_cmd->GetKeyName(buf, 1) > 0)
 				p_cmd->GetKeyName(buf);
 			setCtrlString(CTL_DESKCMDAI_CODE, buf);
@@ -1041,8 +1039,8 @@ int SelectMenu(long * pID, SString * pName, int selType, const PPCommandGroup * 
 		}
 	}
 	{
-		left = 0;
-		right = 0;
+		left.Z();
+		right.Z();
 		if(PPGetSubStr(PPTXT_CMDPOOLSEL, selType, buf))
 			buf.Divide(',', left, right);
 		THROW(ok = AdvComboBoxSeldialog(&ary, left, right, pID, pName, 0));
@@ -1132,7 +1130,7 @@ void SLAPI ReadMenu(HMENU hm, PPID parentID, PPCommandFolder * pMenu, StrAssocAr
 						AppendMenu(hm, MF_SEPARATOR, 0, 0);
 					else {
 						PPCommandDescr descr;
-						descr.LoadResource(((PPCommand*)p_item)->CmdID);
+						descr.LoadResource(static_cast<const PPCommand *>(p_item)->CmdID);
 						AppendMenu(hm, MF_STRING, (UINT)descr.MenuCm, name_buf); // @unicodeproblem
 					}
 				}
@@ -1217,19 +1215,19 @@ void MenuResToMenu(PPCommandFolder * pFold, LAssocArray * pCmdDescrs, TVRez * re
 int SLAPI MenuResToMenu(uint resMenuID, PPCommandFolder * pMenu)
 {
 	int    ok = -1;
+	TVRez * p_slrez = P_SlRez;
 	MITH   mith;
 	long   length = 0, menuOfs = 0;
 	LAssocArray descrs;
 	THROW(PPCommandDescr::GetResourceList(&descrs));
-	if(P_SlRez->findResource(resMenuID, 0x04, &menuOfs, &length)) {
+	if(p_slrez->findResource(resMenuID, 0x04, &menuOfs, &length)) {
 		length += menuOfs;
-		mith.versionNumber = P_SlRez->getUINT();
-		mith.offset = P_SlRez->getUINT();
-		fseek(P_SlRez->getStream(), mith.offset, SEEK_CUR);
-		MenuResToMenu(pMenu, &descrs, P_SlRez, length);
+		mith.versionNumber = p_slrez->getUINT();
+		mith.offset = p_slrez->getUINT();
+		fseek(p_slrez->getStream(), mith.offset, SEEK_CUR);
+		MenuResToMenu(pMenu, &descrs, p_slrez, length);
 		ok = 1;
 	}
 	CATCHZOK
 	return ok;
 }
-

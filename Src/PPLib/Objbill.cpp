@@ -2805,7 +2805,7 @@ int SLAPI PPObjBill::GetCorrectionBackChain(const BillTbl::Rec & rBillRec, PPIDA
 	rChainList.clear();
 	BillTbl::Rec correction_org_bill_rec;
 	BillTbl::Rec temp_bill_rec;
-	if(rBillRec.LinkBillID && Search(rBillRec.LinkBillID, &correction_org_bill_rec) > 0) {
+	if(rBillRec.LinkBillID && Fetch(rBillRec.LinkBillID, &correction_org_bill_rec) > 0) { // @v10.3.5 Search-->Fetch
 		ok = 1;
 		const LDATE tbdt = rBillRec.Dt;
 		const PPID  tbop_id = rBillRec.OpID;
@@ -2827,7 +2827,7 @@ int SLAPI PPObjBill::GetCorrectionBackChain(PPID billID, PPIDArray & rChainList)
 	int    ok = -1;
 	rChainList.clear();
 	BillTbl::Rec this_bill_rec;
-	if(Search(billID, &this_bill_rec) > 0) {
+	if(Fetch(billID, &this_bill_rec) > 0) { // @v10.3.5 Search-->Fetch
 		ok = GetCorrectionBackChain(this_bill_rec, rChainList);
 	}
 	return ok;
@@ -3739,8 +3739,6 @@ int SLAPI PPObjBill::CreateMrpTab(const PPIDArray * pList, MrpTabPacket * pMrpPa
 		cntr.Init(pList->getCount());
 		PPLoadText(PPTXT_MRPTABBUILDING_BYBILL, fmt_buf);
 		{
-			// @v8.6.10 PPTransaction tra(use_ta);
-			// @v8.6.10 THROW(tra);
 			for(i = 0; i < pList->getCount(); i++) {
 				const PPID bill_id = pList->at(i);
 				BillTbl::Rec bill_rec;
@@ -3757,7 +3755,7 @@ int SLAPI PPObjBill::CreateMrpTab(const PPIDArray * pList, MrpTabPacket * pMrpPa
 						msg_buf.Printf(fmt_buf, bill_name.cptr());
 						CALLPTRMEMB(pLogger, Log(msg_buf));
 						PPWaitMsg(msg_buf);
-						THROW(ok = Helper_PutBillToMrpTab(bill_id, pMrpPack, op_pack.P_DraftData, use_ta)); // @v8.6.10 0-->use_ta
+						THROW(ok = Helper_PutBillToMrpTab(bill_id, pMrpPack, op_pack.P_DraftData, use_ta));
 					}
 				}
 			}
@@ -3765,9 +3763,8 @@ int SLAPI PPObjBill::CreateMrpTab(const PPIDArray * pList, MrpTabPacket * pMrpPa
 				PPLoadText(PPTXT_MRPTABFINISHING, msg_buf);
 				CALLPTRMEMB(pLogger, Log(msg_buf));
 				PPWaitMsg(msg_buf);
-				THROW(mrp_obj.FinishPacket(pMrpPack, 0, use_ta)); // @v8.6.10 0-->use_ta
+				THROW(mrp_obj.FinishPacket(pMrpPack, 0, use_ta));
 			}
-			// @v8.6.10 THROW(tra.Commit());
 		}
 	}
 	CATCHZOK
@@ -3905,8 +3902,7 @@ int SLAPI PPObjBill::Helper_GetShipmentByLot(PPID lotID, const DateRange * pPeri
 	return ok;
 }
 
-int SLAPI PPObjBill::GetShippedPartOfReceipt(PPID rcptBillID, const DateRange * pPeriod,
-	const ObjIdListFilt & rOpList, long flags, double * pPart)
+int SLAPI PPObjBill::GetShippedPartOfReceipt(PPID rcptBillID, const DateRange * pPeriod, const ObjIdListFilt & rOpList, long flags, double * pPart)
 {
 	int    ok = -1;
 	double part = 0.0;
@@ -3949,8 +3945,7 @@ int SLAPI PPObjBill::CalcGoodsSaldo(PPID goodsID, PPID arID, PPID dlvrLocID, con
 	tq.select(trfr->Dt, trfr->OprNo, trfr->BillID, trfr->Quantity, trfr->Price, trfr->Discount, 0L).where(*t_dbq);
 	for(tq.initIteration(0, &tk3, spGe); tq.nextIteration() > 0;) {
 		BillTbl::Rec bill_rec;
-		// @v8.8.0 if(!endOprNo || trfr->data.Dt < pPeriod->upp || trfr->data.OprNo < endOprNo) {
-		if(!endOprNo || trfr->data.Dt < pPeriod->upp || (trfr->data.Dt == pPeriod->upp && trfr->data.OprNo < endOprNo)) { // @v8.8.0
+		if(!endOprNo || trfr->data.Dt < pPeriod->upp || (trfr->data.Dt == pPeriod->upp && trfr->data.OprNo < endOprNo)) {
 			if(Fetch(trfr->data.BillID, &bill_rec) > 0 && bill_rec.Object == arID) {
 				if(!dlvrLocID || (P_Tbl->GetFreight(bill_rec.ID, &freight) > 0 && freight.DlvrAddrID == dlvrLocID)) { // @v9.1.11
 					qt += trfr->data.Quantity;
@@ -4056,14 +4051,13 @@ static int SLAPI AutoCalcSelectQuot(PPObjBill * pBObj, AutoCalcPricesParam * pDa
 	public:
 		explicit AutoCalcSelectQuotDialog(PPObjBill * pBObj) : TDialog(DLG_SELQUOT3), Data(0), P_BObj(pBObj)
 		{
-			PPObjQuotKind::Special sqk;
-			PPObjQuotKind::GetSpecialKinds(&sqk, 1);
+			const PPObjQuotKind::Special sqk(PPObjQuotKind::Special::ctrInitializeWithCache);
 			SupplDealQkID = sqk.SupplDealID;
 		}
 		int    setDTS(const AutoCalcPricesParam * pData)
 		{
 			Data = *pData;
-			PreserveData = *(CalcPriceParam *)pData;
+			PreserveData = *static_cast<const CalcPriceParam *>(pData);
 			int    ok = 1;
 			AddClusterAssocDef(CTL_SELQUOT2_ACTION, 0, AutoCalcPricesParam::_aPrice);
 			AddClusterAssoc(CTL_SELQUOT2_ACTION, 1, AutoCalcPricesParam::_aCost);
@@ -4082,7 +4076,7 @@ static int SLAPI AutoCalcSelectQuot(PPObjBill * pBObj, AutoCalcPricesParam * pDa
 			}
 			SetClusterData(CTL_SELQUOT2_ACTION, Data._Action);
 			if(Data._Action == AutoCalcPricesParam::_aCostByContract)
-				SetupPPObjCombo(this, CTLSEL_SELQUOT2_KIND, PPOBJ_QUOTKIND, Data.QuotKindID, 0, (void *)QuotKindFilt::fSupplDeal);
+				SetupPPObjCombo(this, CTLSEL_SELQUOT2_KIND, PPOBJ_QUOTKIND, Data.QuotKindID, 0, reinterpret_cast<void *>(QuotKindFilt::fSupplDeal));
 			else
 				SetupPPObjCombo(this, CTLSEL_SELQUOT2_KIND, PPOBJ_QUOTKIND, Data.QuotKindID, 0);
 			setCtrlData(CTL_SELQUOT2_PREC, &Data.RoundPrec);
@@ -4120,7 +4114,7 @@ static int SLAPI AutoCalcSelectQuot(PPObjBill * pBObj, AutoCalcPricesParam * pDa
 			if(event.isClusterClk(CTL_SELQUOT2_ACTION)) {
 				Data._Action = GetClusterData(CTL_SELQUOT2_ACTION);
 				if(Data._Action == AutoCalcPricesParam::_aCostByContract) {
-					SetupPPObjCombo(this, CTLSEL_SELQUOT2_KIND, PPOBJ_QUOTKIND, Data.QuotKindID = SupplDealQkID, 0, (void *)QuotKindFilt::fSupplDeal);
+					SetupPPObjCombo(this, CTLSEL_SELQUOT2_KIND, PPOBJ_QUOTKIND, Data.QuotKindID = SupplDealQkID, 0, reinterpret_cast<void *>(QuotKindFilt::fSupplDeal));
 				}
 				else {
 					if(Data._Action == AutoCalcPricesParam::_aPrice && Data.StrictPriceValuation) {
@@ -4213,7 +4207,7 @@ int PPObjBill::AutoCalcPrices(PPBillPacket * pPack, int interactive, int * pIsMo
 		virtual int delItem(long pos, long id)
 		{
 			int    ok = -1;
-			if(id > 0 && id <= (long)Data.getCount()) {
+			if(id > 0 && id <= static_cast<long>(Data.getCount())) {
 				Data.at(id-1).Val = 0;
 				ok = 1;
 			}
@@ -4374,7 +4368,7 @@ int SLAPI PPObjBill::SelectQuotKind(PPBillPacket * pPack, const PPTransferItem *
 				}
 			}
 			if(qks_list.getCount() == 1)
-				qk_id = ((QuotKindSelItem *)qks_list.at(0))->ID;
+				qk_id = static_cast<const QuotKindSelItem *>(qks_list.at(0))->ID;
 			else if(qks_list.getCount() == 0)
 				qk_id = 0;
 			else {
@@ -4490,7 +4484,7 @@ int SLAPI PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 				StdListBoxDef * def = new StdListBoxDef(p_qbo_ary, lbtDblClkNotify | lbtFocNotify | lbtDisposeData,
 					MKSTYPE(S_ZSTRING, sizeof(PPObjQuotKind::ListEntry)-sizeof(PPID)));
 				THROW_MEM(def);
-				p_combo = (ComboBox*)dlg->getCtrlView(CTLSEL_SELQUOT2_KIND);
+				p_combo = static_cast<ComboBox *>(dlg->getCtrlView(CTLSEL_SELQUOT2_KIND));
 				if(p_combo) {
 					THROW_MEM(p_combo->setListWindow(new ListWindow(def, 0, 0), qk_id));
 				}
@@ -4503,7 +4497,7 @@ int SLAPI PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 				p_qbo_ary = 0;
 			}
 			else
-				qk_id = ((PPObjQuotKind::ListEntry *)p_qbo_ary->at(0))->ID;
+				qk_id = static_cast<const PPObjQuotKind::ListEntry *>(p_qbo_ary->at(0))->ID;
 			{
 				ReceiptTbl::Rec ord_lot_rec;
 				BillTbl::Rec ord_bill_rec;

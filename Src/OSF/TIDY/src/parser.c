@@ -1551,27 +1551,21 @@ void TY_(ParseInline) (TidyDocImpl* doc, Node *element, GetTokenMode mode)
 		   then infer end tag for this element
 		 */
 		if(node->type == EndTag) {
-			for(parent = element->parent;
-			    parent != NULL; parent = parent->parent) {
+			for(parent = element->parent; parent != NULL; parent = parent->parent) {
 				if(node->tag == parent->tag) {
 					if(!(element->tag->model & CM_OPT) && !element->implicit)
 						TY_(ReportError) (doc, element, node, MISSING_ENDTAG_BEFORE);
-
 					if(TY_(IsPushedLast) (doc, element, node) )
 						TY_(PopInline) (doc, element);
 					TY_(UngetToken) (doc);
-
 					if(!(mode & Preformatted))
 						TrimSpaces(doc, element);
-
 					return;
 				}
 			}
 		}
-
 		/* block level tags end this element */
-		if(!(node->tag->model & CM_INLINE) &&
-		    !(element->tag->model & CM_MIXED)) {
+		if(!(node->tag->model & CM_INLINE) && !(element->tag->model & CM_MIXED)) {
 			if(!TY_(nodeIsElement) (node) ) {
 				TY_(ReportError) (doc, element, node, DISCARDING_UNEXPECTED);
 				TY_(FreeNode) (doc, node);
@@ -1694,9 +1688,7 @@ void TY_(ParseDefList) (TidyDocImpl* doc, Node *list, GetTokenMode mode)
 				TY_(FreeNode) (doc, node);
 				continue;
 			}
-
-			for(parent = list->parent;
-			    parent != NULL; parent = parent->parent) {
+			for(parent = list->parent; parent != NULL; parent = parent->parent) {
 				/* Do not match across BODY to avoid infinite loop
 				   between ParseBody and this parser,
 				   See http://tidy.sf.net/bug/1098012. */
@@ -1706,7 +1698,6 @@ void TY_(ParseDefList) (TidyDocImpl* doc, Node *list, GetTokenMode mode)
 				}
 				if(node->tag == parent->tag) {
 					TY_(ReportError) (doc, list, node, MISSING_ENDTAG_BEFORE);
-
 					TY_(UngetToken) (doc);
 					return;
 				}
@@ -1717,7 +1708,6 @@ void TY_(ParseDefList) (TidyDocImpl* doc, Node *list, GetTokenMode mode)
 				continue;
 			}
 		}
-
 		/* center in a dt or a dl breaks the dl list in two */
 		if(nodeIsCENTER(node) ) {
 			if(list->content)
@@ -1836,16 +1826,13 @@ void TY_(ParseList) (TidyDocImpl* doc, Node *list, GetTokenMode ARG_UNUSED(mode)
 				TY_(FreeNode) (doc, node);
 				continue;
 			}
-
 			if(TY_(nodeHasCM) (node, CM_INLINE)) {
 				TY_(ReportError) (doc, list, node, DISCARDING_UNEXPECTED);
 				TY_(PopInline) (doc, node);
 				TY_(FreeNode) (doc, node);
 				continue;
 			}
-
-			for(parent = list->parent;
-			    parent != NULL; parent = parent->parent) {
+			for(parent = list->parent; parent != NULL; parent = parent->parent) {
 				/* Do not match across BODY to avoid infinite loop
 				   between ParseBody and this parser,
 				   See http://tidy.sf.net/bug/1053626. */
@@ -1857,15 +1844,12 @@ void TY_(ParseList) (TidyDocImpl* doc, Node *list, GetTokenMode ARG_UNUSED(mode)
 					return;
 				}
 			}
-
 			TY_(ReportError) (doc, list, node, DISCARDING_UNEXPECTED);
 			TY_(FreeNode) (doc, node);
 			continue;
 		}
-
 		if(!nodeIsLI(node) ) {
 			TY_(UngetToken) (doc);
-
 			if(TY_(nodeHasCM) (node, CM_BLOCK) && lexer->excludeBlocks) {
 				TY_(ReportError) (doc, list, node, MISSING_ENDTAG_BEFORE);
 				return;
@@ -2160,31 +2144,24 @@ void TY_(ParseRowGroup) (TidyDocImpl* doc, Node *rowgroup, GetTokenMode ARG_UNUS
 			if(nodeIsFORM(node) || TY_(nodeHasCM) (node, CM_BLOCK|CM_INLINE) ) {
 				if(nodeIsFORM(node) )
 					BadForm(doc);
-
 				TY_(ReportError) (doc, rowgroup, node, DISCARDING_UNEXPECTED);
 				TY_(FreeNode) (doc, node);
 				continue;
 			}
-
 			if(nodeIsTR(node) || nodeIsTD(node) || nodeIsTH(node) ) {
 				TY_(ReportError) (doc, rowgroup, node, DISCARDING_UNEXPECTED);
 				TY_(FreeNode) (doc, node);
 				continue;
 			}
-
-			for(parent = rowgroup->parent;
-			    parent != NULL;
-			    parent = parent->parent) {
+			for(parent = rowgroup->parent; parent != NULL; parent = parent->parent) {
 				if(node->tag == parent->tag) {
 					TY_(UngetToken) (doc);
 					return;
 				}
 			}
 		}
-
 		/*
 		   if THEAD, TFOOT or TBODY then implied end tag
-
 		 */
 		if(node->tag->model & CM_ROWGRP) {
 			if(node->type != EndTag) {
@@ -2192,7 +2169,6 @@ void TY_(ParseRowGroup) (TidyDocImpl* doc, Node *rowgroup, GetTokenMode ARG_UNUS
 				return;
 			}
 		}
-
 		if(node->type == EndTag) {
 			TY_(ReportError) (doc, rowgroup, node, DISCARDING_UNEXPECTED);
 			TY_(FreeNode) (doc, node);
@@ -2236,26 +2212,20 @@ void TY_(ParseColGroup) (TidyDocImpl* doc, Node *colgroup, GetTokenMode ARG_UNUS
 				TY_(FreeNode) (doc, node);
 				continue;
 			}
-
-			for(parent = colgroup->parent;
-			    parent != NULL;
-			    parent = parent->parent) {
+			for(parent = colgroup->parent; parent != NULL; parent = parent->parent) {
 				if(node->tag == parent->tag) {
 					TY_(UngetToken) (doc);
 					return;
 				}
 			}
 		}
-
 		if(TY_(nodeIsText) (node)) {
 			TY_(UngetToken) (doc);
 			return;
 		}
-
 		/* deal with comments etc. */
 		if(InsertMisc(colgroup, node))
 			continue;
-
 		/* discard unknown tags */
 		if(node->tag == NULL) {
 			TY_(ReportError) (doc, colgroup, node, DISCARDING_UNEXPECTED);
@@ -2345,18 +2315,13 @@ void TY_(ParseTableTag) (TidyDocImpl* doc, Node *table, GetTokenMode ARG_UNUSED(
 				TY_(FreeNode) (doc, node);
 				continue;
 			}
-
 			/* best to discard unexpected block/inline end tags */
-			if(TY_(nodeHasCM) (node, CM_TABLE|CM_ROW) ||
-			    TY_(nodeHasCM) (node, CM_BLOCK|CM_INLINE) ) {
+			if(TY_(nodeHasCM) (node, CM_TABLE|CM_ROW) || TY_(nodeHasCM) (node, CM_BLOCK|CM_INLINE) ) {
 				TY_(ReportError) (doc, table, node, DISCARDING_UNEXPECTED);
 				TY_(FreeNode) (doc, node);
 				continue;
 			}
-
-			for(parent = table->parent;
-			    parent != NULL;
-			    parent = parent->parent) {
+			for(parent = table->parent; parent != NULL; parent = parent->parent) {
 				if(node->tag == parent->tag) {
 					TY_(ReportError) (doc, table, node, MISSING_ENDTAG_BEFORE);
 					TY_(UngetToken) (doc);
@@ -2365,20 +2330,17 @@ void TY_(ParseTableTag) (TidyDocImpl* doc, Node *table, GetTokenMode ARG_UNUSED(
 				}
 			}
 		}
-
 		if(!(node->tag->model & CM_TABLE)) {
 			TY_(UngetToken) (doc);
 			TY_(ReportError) (doc, table, node, TAG_NOT_ALLOWED_IN);
 			lexer->istackbase = istackbase;
 			return;
 		}
-
 		if(TY_(nodeIsElement) (node)) {
 			TY_(InsertNodeAtEnd) (table, node);
 			ParseTag(doc, node, IgnoreWhitespace);
 			continue;
 		}
-
 		/* discard unexpected text nodes and end tags */
 		TY_(ReportError) (doc, table, node, DISCARDING_UNEXPECTED);
 		TY_(FreeNode) (doc, node);

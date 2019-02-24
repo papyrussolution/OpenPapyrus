@@ -136,7 +136,7 @@ int FASTCALL WhatmanObjectDrawFigure::Copy(const WhatmanObjectDrawFigure & rS)
 
 TWhatmanObject * WhatmanObjectDrawFigure::Dup() const
 {
-	WhatmanObjectDrawFigure * p_obj = new WhatmanObjectDrawFigure((const char *)0);
+	WhatmanObjectDrawFigure * p_obj = new WhatmanObjectDrawFigure(static_cast<const char *>(0));
 	CALLPTRMEMB(p_obj, Copy(*this));
 	return p_obj;
 }
@@ -446,7 +446,7 @@ int WhatmanObjectText::HandleCommand(int cmd, void * pExt)
 					SString text;
 					Tlo.GetText().CopyToUtf8(text, 0);
 					text.Transf(CTRANSF_UTF8_TO_INNER);
-					TInputLine * p_il = (TInputLine *)dlg->getCtrlView(CTL_WOTEXT_TEXT);
+					TInputLine * p_il = static_cast<TInputLine *>(dlg->getCtrlView(CTL_WOTEXT_TEXT));
 					if(p_il) {
 						p_il->setMaxLen(2048);
 						dlg->setCtrlString(CTL_WOTEXT_TEXT, text);

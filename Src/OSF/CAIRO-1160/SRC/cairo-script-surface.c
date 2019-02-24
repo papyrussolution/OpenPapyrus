@@ -1583,26 +1583,26 @@ static cairo_int_status_t _emit_source(cairo_script_surface_t * surface,
 
 static cairo_status_t _path_move_to(void * closure, const cairo_point_t * point)
 {
-	_cairo_output_stream_printf((cairo_output_stream_t *)closure, " %f %f m", _cairo_fixed_to_double(point->x), _cairo_fixed_to_double(point->y));
+	_cairo_output_stream_printf(static_cast<cairo_output_stream_t *>(closure), " %f %f m", _cairo_fixed_to_double(point->x), _cairo_fixed_to_double(point->y));
 	return CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_status_t _path_line_to(void * closure, const cairo_point_t * point)
 {
-	_cairo_output_stream_printf((cairo_output_stream_t *)closure, " %f %f l", _cairo_fixed_to_double(point->x), _cairo_fixed_to_double(point->y));
+	_cairo_output_stream_printf(static_cast<cairo_output_stream_t *>(closure), " %f %f l", _cairo_fixed_to_double(point->x), _cairo_fixed_to_double(point->y));
 	return CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_status_t _path_curve_to(void * closure, const cairo_point_t * p1, const cairo_point_t * p2, const cairo_point_t * p3)
 {
-	_cairo_output_stream_printf((cairo_output_stream_t *)closure, " %f %f %f %f %f %f c", _cairo_fixed_to_double(p1->x), _cairo_fixed_to_double(p1->y),
+	_cairo_output_stream_printf(static_cast<cairo_output_stream_t *>(closure), " %f %f %f %f %f %f c", _cairo_fixed_to_double(p1->x), _cairo_fixed_to_double(p1->y),
 	    _cairo_fixed_to_double(p2->x), _cairo_fixed_to_double(p2->y), _cairo_fixed_to_double(p3->x), _cairo_fixed_to_double(p3->y));
 	return CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_status_t _path_close(void * closure)
 {
-	_cairo_output_stream_printf((cairo_output_stream_t *)closure, " h");
+	_cairo_output_stream_printf(static_cast<cairo_output_stream_t *>(closure), " h");
 	return CAIRO_STATUS_SUCCESS;
 }
 

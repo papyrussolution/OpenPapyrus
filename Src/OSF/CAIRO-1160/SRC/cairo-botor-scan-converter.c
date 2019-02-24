@@ -649,7 +649,7 @@ static int bo_intersect_ordinate_32_compare(int32_t a, int32_t b, int exactness)
  * given edge and before the stop event for the edge. See the comments
  * in the implementation for more details.
  */
-static cairo_bool_t bo_edge_contains_intersect_point(const edge_t * edge, cairo_bo_intersect_point_t * point)
+static cairo_bool_t bo_edge_contains_intersect_point(const edge_t * edge, const cairo_bo_intersect_point_t * point)
 {
 	int cmp_top, cmp_bottom;
 
@@ -711,7 +711,6 @@ static cairo_bool_t edge_intersect(const edge_t * a, const edge_t * b, cairo_poi
 	 * remainder from the division. */
 	intersection->x = quorem.x.ordinate;
 	intersection->y = quorem.y.ordinate;
-
 	return TRUE;
 }
 
@@ -724,7 +723,6 @@ static void pqueue_init(pqueue_t * pq)
 {
 	pq->max_size = ARRAY_LENGTH(pq->elements_embedded);
 	pq->size = 0;
-
 	pq->elements = pq->elements_embedded;
 }
 
@@ -759,47 +757,31 @@ static inline void pqueue_push(sweep_line_t * sweep_line, event_t * event)
 	int i, parent;
 	if(unlikely(sweep_line->queue.pq.size + 1 == sweep_line->queue.pq.max_size)) {
 		if(unlikely(!pqueue_grow(&sweep_line->queue.pq))) {
-			longjmp(sweep_line->unwind,
-			    _cairo_error(CAIRO_STATUS_NO_MEMORY));
+			longjmp(sweep_line->unwind, _cairo_error(CAIRO_STATUS_NO_MEMORY));
 		}
 	}
-
 	elements = sweep_line->queue.pq.elements;
-	for(i = ++sweep_line->queue.pq.size;
-	    i != PQ_FIRST_ENTRY &&
-	    event_compare(event,
-	    elements[parent = PQ_PARENT_INDEX(i)]) < 0;
-	    i = parent) {
+	for(i = ++sweep_line->queue.pq.size; i != PQ_FIRST_ENTRY && event_compare(event, elements[parent = PQ_PARENT_INDEX(i)]) < 0; i = parent) {
 		elements[i] = elements[parent];
 	}
-
 	elements[i] = event;
 }
 
 static inline void pqueue_pop(pqueue_t * pq)
 {
 	event_t ** elements = pq->elements;
-	event_t * tail;
 	int child, i;
-
-	tail = elements[pq->size--];
+	event_t * tail = elements[pq->size--];
 	if(pq->size == 0) {
 		elements[PQ_FIRST_ENTRY] = NULL;
 		return;
 	}
-
-	for(i = PQ_FIRST_ENTRY;
-	    (child = PQ_LEFT_CHILD_INDEX(i)) <= pq->size;
-	    i = child) {
-		if(child != pq->size &&
-		    event_compare(elements[child+1],
-		    elements[child]) < 0) {
+	for(i = PQ_FIRST_ENTRY; (child = PQ_LEFT_CHILD_INDEX(i)) <= pq->size; i = child) {
+		if(child != pq->size && event_compare(elements[child+1], elements[child]) < 0) {
 			child++;
 		}
-
 		if(event_compare(elements[child], tail) >= 0)
 			break;
-
 		elements[i] = elements[child];
 	}
 	elements[i] = tail;
@@ -807,7 +789,7 @@ static inline void pqueue_pop(pqueue_t * pq)
 
 static inline void event_insert(sweep_line_t * sweep_line, event_type_t type, edge_t * e1, edge_t * e2, cairo_fixed_t y)
 {
-	queue_event_t * event = (queue_event_t *)_cairo_freepool_alloc(&sweep_line->queue.pool);
+	queue_event_t * event = static_cast<queue_event_t *>(_cairo_freepool_alloc(&sweep_line->queue.pool));
 	if(unlikely(event == NULL)) {
 		longjmp(sweep_line->unwind, _cairo_error(CAIRO_STATUS_NO_MEMORY));
 	}

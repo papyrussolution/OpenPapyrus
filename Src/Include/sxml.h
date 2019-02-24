@@ -1,5 +1,5 @@
 // SXML.H
-// Copyright (c) A.Sobolev 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2019
 // @codepage UTF-8
 //
 #ifndef __SXML_H
@@ -46,7 +46,7 @@ public:
 		//
 		// Descr: Создает документ без пролога 
 		//
-		WDoc(xmlTextWriter * pWriter);
+		explicit WDoc(xmlTextWriter * pWriter);
 		~WDoc();
 		operator xmlTextWriter * () { return Lx; }
 	private:
@@ -83,7 +83,6 @@ public:
     };
 
 	static int SLAPI Validate(const char * pXsdFileName, const char * pXmlFileName, SXmlValidationMessageList * pMsgList);
-
     static int FASTCALL IsName(const xmlNode * pNode, const char * pName);
     static int FASTCALL IsContent(const xmlNode * pNode, const char * pText);
     static int FASTCALL GetContent(const xmlNode * pNode, SString & rResult);
@@ -113,11 +112,10 @@ protected:
 		fEndElement    = 0x0008,
 		fCharacters    = 0x0010
 	};
-	SXmlSaxParser(long flags);
+	explicit SXmlSaxParser(long flags);
 	~SXmlSaxParser();
 	int    ParseFile(const char * pFileName);
 	void   SaxStop();
-
 	virtual int StartDocument();
 	virtual int EndDocument();
 	virtual int StartElement(const char * pName, const char ** ppAttrList);

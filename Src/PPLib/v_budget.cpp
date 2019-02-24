@@ -1603,7 +1603,7 @@ int SLAPI PPViewBudget::ViewTotal()
 int SLAPI PPViewBudget::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	long   ct_id = pHdr ? *(long*)pHdr : 0;
+	long   ct_id = pHdr ? *static_cast<const long *>(pHdr) : 0;
 	Hdr hdr;
 	GetEditIds(pHdr, &hdr, (pBrw) ? pBrw->GetCurColumn() : 0);
 	if(Filt.Kind == BudgetFilt::kBudget) {
@@ -1875,7 +1875,7 @@ int PPALDD_Budget::InitIteration(long iterId, int sortId, long rsrv)
 {
 	uint idx = 0;
 	BudgetItemTbl::Rec item;
-	PPBudgetPacket * p_pack = (PPBudgetPacket*)Extra[1].Ptr;
+	PPBudgetPacket * p_pack = static_cast<PPBudgetPacket *>(Extra[1].Ptr);
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;
@@ -1887,7 +1887,7 @@ int PPALDD_Budget::NextIteration(long iterId)
 	uint no = (uint)I.No;
 	BudgetItemTbl::Rec item;
 	IterProlog(iterId, 0);
-	PPBudgetPacket * p_pack = (PPBudgetPacket*)Extra[1].Ptr;
+	PPBudgetPacket * p_pack = static_cast<PPBudgetPacket *>(Extra[1].Ptr);
 	if(p_pack && p_pack->EnumItems(&no, &item) > 0) {
 		I.No = (long)no;
 		I.BudgItemID = item.ID;

@@ -112,7 +112,7 @@ struct jpeg_decompress_struct * _zbar_jpeg_decomp_create(void)
 			if(setjmp(jerr->env)) {
 				jpeg_destroy_decompress(cinfo);
 				/* FIXME TBD save error to errinfo_t */
-				(*cinfo->err->output_message)((j_common_ptr)cinfo);
+				(*cinfo->err->output_message)(reinterpret_cast<j_common_ptr>(cinfo));
 				SAlloc::F(jerr);
 				SAlloc::F(cinfo);
 				return NULL;
@@ -153,7 +153,7 @@ void _zbar_convert_jpeg_to_y(zbar_image_t * dst, const zbar_format_def_t * dstfm
 	jerr->valid = 1;
 	if(setjmp(jerr->env)) {
 		/* FIXME TBD save error to src->src->err */
-		(*cinfo->err->output_message)((j_common_ptr)cinfo);
+		(*cinfo->err->output_message)(reinterpret_cast<j_common_ptr>(cinfo));
 		SAlloc::F((void *)dst->P_Data);
 		dst->P_Data = NULL;
 		dst->datalen = 0;

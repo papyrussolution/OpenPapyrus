@@ -467,7 +467,7 @@ static int ec_pkey_ctrl(EVP_PKEY * pkey, int op, long arg1, void * arg2)
 		    if(arg1 == 0) {
 			    int snid, hnid;
 			    X509_ALGOR * alg1, * alg2;
-			    CMS_SignerInfo_get0_algs((CMS_SignerInfo*)arg2, NULL, NULL, &alg1, &alg2);
+			    CMS_SignerInfo_get0_algs(static_cast<CMS_SignerInfo *>(arg2), NULL, NULL, &alg1, &alg2);
 			    if(alg1 == NULL || alg1->algorithm == NULL)
 				    return -1;
 			    hnid = OBJ_obj2nid(alg1->algorithm);
@@ -487,12 +487,12 @@ static int ec_pkey_ctrl(EVP_PKEY * pkey, int op, long arg1, void * arg2)
 		    return -2;
 
 		case ASN1_PKEY_CTRL_CMS_RI_TYPE:
-		    *(int*)arg2 = CMS_RECIPINFO_AGREE;
+		    *static_cast<int *>(arg2) = CMS_RECIPINFO_AGREE;
 		    return 1;
 #endif
 
 		case ASN1_PKEY_CTRL_DEFAULT_MD_NID:
-		    *(int*)arg2 = NID_sha256;
+		    *static_cast<int *>(arg2) = NID_sha256;
 		    return 2;
 
 		case ASN1_PKEY_CTRL_SET1_TLS_ENCPT:

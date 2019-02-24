@@ -328,9 +328,10 @@ toolbar export ACCBILL TB_FIRST_TOOLBAR {
 	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,        "@{doupdateflags}\tShift-F3"
 	SETWLABEL        :  kbF8,       TBBM_MARK,            "Пометить\tF8"
 	separator
-	PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Оплаты по документу\tF5"
-	RECKON           :  kbF6,       TBBM_RECKON,          "Зачеты по документу\tF6"
-	RENTA            :  kbShiftF5,  TBBM_RENTA,           "Начисления по ренте\tShift-F5"
+	PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Связанные документы\tF5" // @v10.3.5
+	// @v10.3.5 PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Оплаты по документу\tF5"
+	// @v10.3.5 RECKON           :  kbF6,       TBBM_RECKON,          "Зачеты по документу\tF6"
+	// @v10.3.5 RENTA            :  kbShiftF5,  TBBM_RENTA,           "Начисления по ренте\tShift-F5"
 	//GOODSRET         :  kbCtrlF5,   TBBM_GOODSRET,        "Возврат по документу\tCtrl-F5"
 	RECKONPAYM       :  kbCtrlP,    TBBM_RECKONPAYM,      "Зачет платежного документа\tCtrl-P"
 	RECKONDEBT       :  kbCtrlE,    TBBM_RECKONDEBT,      "Зачет долгового документа\tCtrl-E"
@@ -341,6 +342,9 @@ toolbar export ACCBILL TB_FIRST_TOOLBAR {
 	//WROFFDRAFT       :  kbCtrlW,    TBBM_NOICON,          "@{writeoffdrafts}\tCtrl-W"
 	//TRFRANLZ         :  kbCtrlT,    TBBM_TRFRANLZ,        "@{view_trfranlz}\tCtrl-T"
 	//ATTACHBILLTOORD  :  kbCtrlY,    TBBM_LINK,            "Привязать документ к заказу\tCtrl-Y"
+	separator
+	TAGS             :  kbF6,       TBBM_TAGS,            "@{tags}\tF6" // @v10.3.5
+	//TAGSALL        :  kbAltG,     TBBM_TAGSALL,         "@{doupdatetags}\Alt-G" // @v10.3.5
 	separator
 	PRINT            :  kbF7,       TBBM_PRINT,           "Печать текущего документа\tF7"
 	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "Печать выборки документов\tAlt-F7"
@@ -384,7 +388,8 @@ toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
 	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,        "@{doupdateflags}\tShift-F3"
 	SETWLABEL        :  kbF8,       TBBM_MARK,            "Пометить\tF8"
 	separator
-	PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Оплаты по документу\tF5"
+	PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Связанные документы\tF5" // @v10.3.5
+	// @v10.3.5 PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Оплаты по документу\tF5"
 	//RECKON           :  kbF6,       TBBM_RECKON,          "Зачеты по документу\tF6"
 	//RENTA              :  kbShiftF5,  TBBM_RENTA,           "Документы покрытия дефицита\tShift-F5"
 	//GOODSRET         :  kbCtrlF5,   TBBM_GOODSRET,        "Возврат по документу\tCtrl-F5"
@@ -397,7 +402,11 @@ toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
 	WROFFDRAFT       :  kbCtrlW,    TBBM_WROFFDRAFT,      "@{writeoffdrafts}\tCtrl-W"
 	TRFRANLZ         :  kbCtrlT,    TBBM_TRFRANLZ,        "@{view_trfranlz}\tCtrl-T"
 	//ATTACHBILLTOORD  :  kbCtrlY,    TBBM_LINK,            "Привязать документ к заказу\tCtrl-Y"
-	ATTACHBILLTODRAFT:  kbNoKey,    TBBM_NOICON,          "Привязать документ к драфт-документу"
+	// @v10.3.5 ATTACHBILLTODRAFT:  kbNoKey,    TBBM_NOICON,          "Привязать документ к драфт-документу"
+	ATTACHBILLTOBILL:  kbCtrlY,     TBBM_LINK,            "Привязать документ к другому документу\tCtrl-Y" // @v10.3.5
+	separator
+	TAGS             :  kbF6,    TBBM_TAGS,            "@{tags}\tF6" // @v10.3.5
+	//TAGSALL        :  kbAltG,  TBBM_TAGSALL,         "@{doupdatetags}\Alt-G" // @v10.3.5
 	separator
 	PRINT            :  kbF7,       TBBM_PRINT,           "Печать текущего документа\tF7"
 	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "Печать выборки документов\tAlt-F7"
@@ -406,7 +415,6 @@ toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
 	// @v10.0.0 PRINTZEROCHECK   :  kbAltMinus, TBBM_NOICON,          hidden, "Печать нулевого чека\tAlt-Minus"
 	PRINTALLBILLS    :  kbCtrlS,    TBBM_NOICON,          "Печать всех документов\tCtrl-S"
 	// @v10.0.0 PRINTCHECK       :  kbCtrlF7,   TBBM_NOICON,          hidden, "@{printcheck}\tCtrl-F7"
-
 	separator
 	TOTAL            :  kbF9,       TBBM_SIGM,            "@{totals}\tF9"
 	// @v9.2.10 (объединено с TOTAL) TPIDTOTAL        :  kbCtrlF9,   TBBM_PERCENT,         hidden, "Расчет НДС по выборке\tCtrl-F9"
@@ -442,9 +450,10 @@ toolbar export ORDERBILL TB_FIRST_TOOLBAR {
 	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,        "@{doupdateflags}\tShift-F3"
 	SETWLABEL        :  kbF8,       TBBM_MARK,            "Пометить\tF8"
 	separator
-	PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Оплаты по документу\tF5"
-	RECKON           :  kbF6,       TBBM_RECKON,          "Зачеты по документу\tF6"
-	RENTA            :  kbShiftF5,  TBBM_RENTA,           "Начисления по ренте\tShift-F5"
+	// @v10.3.5 PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Оплаты по документу\tF5"
+	// @v10.3.5 RECKON           :  kbF6,       TBBM_RECKON,          "Зачеты по документу\tF6"
+	// @v10.3.5 RENTA            :  kbShiftF5,  TBBM_RENTA,           "Начисления по ренте\tShift-F5"
+	PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Связанные документы\tF5" // @v10.3.5
 	//GOODSRET         :  kbCtrlF5,   TBBM_GOODSRET,        "Возврат по документу\tCtrl-F5"
 	RECKONPAYM       :  kbCtrlP,    TBBM_RECKONPAYM,      "Зачет платежного документа\tCtrl-P"
 	RECKONDEBT       :  kbCtrlE,    TBBM_RECKONDEBT,      "Зачет долгового документа\tCtrl-E"
@@ -454,7 +463,11 @@ toolbar export ORDERBILL TB_FIRST_TOOLBAR {
 	UNITEBILLS       :  kbCtrlU,    TBBM_UNITE,           "@{unite_docs}\tCtrl-U"
 	//WROFFDRAFT       :  kbCtrlW,    TBBM_NOICON,          "@{writeoffdrafts}\tCtrl-W"
 	TRFRANLZ         :  kbCtrlT,    TBBM_TRFRANLZ,        "@{view_trfranlz}\tCtrl-T"
-	ATTACHBILLTOORD  :  kbCtrlY,    TBBM_LINK,            "Привязать документ к заказу\tCtrl-Y"
+	// @v10.3.5 ATTACHBILLTOORD  :  kbCtrlY,    TBBM_LINK,            "Привязать документ к заказу\tCtrl-Y"
+	ATTACHBILLTOBILL:  kbCtrlY,     TBBM_LINK,            "Привязать документ к другому документу\tCtrl-Y" // @v10.3.5
+	separator
+	TAGS             :  kbF6,    TBBM_TAGS,            "@{tags}\tF6" // @v10.3.5
+	//TAGSALL        :  kbAltG,  TBBM_TAGSALL,         "@{doupdatetags}\Alt-G" // @v10.3.5
 	separator
 	PRINT            :  kbF7,       TBBM_PRINT,           "Печать текущего документа\tF7"
 	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "Печать выборки документов\tAlt-F7"
@@ -463,7 +476,6 @@ toolbar export ORDERBILL TB_FIRST_TOOLBAR {
 	// @v10.0.0 PRINTZEROCHECK   :  kbAltMinus, TBBM_NOICON,          hidden, "Печать нулевого чека\tAlt-Minus"
 	PRINTALLBILLS    :  kbCtrlS,    TBBM_NOICON,          "Печать всех документов\tCtrl-S"
 	// @v10.0.0 PRINTCHECK       :  kbCtrlF7,   TBBM_NOICON,          hidden, "@{printcheck}\tCtrl-F7"
-
 	separator
 	TOTAL            :  kbF9,       TBBM_SIGM,            "@{totals}\tF9"
 	// @v9.2.10 (объединено с TOTAL) TPIDTOTAL        :  kbCtrlF9,   TBBM_PERCENT,         hidden, "Расчет НДС по выборке\tCtrl-F9"
@@ -499,6 +511,9 @@ toolbar export INVENTBILL TB_FIRST_TOOLBAR {
 	VIEWOP           :  kbCtrlQ,    TBBM_OPLIST,          "@{oprkind}\tCtrl-Q"
 	UNITEBILLS       :  kbCtrlU,    TBBM_UNITE,           "@{unite_docs}\tCtrl-U"
 	separator
+	TAGS             :  kbF6,    TBBM_TAGS,            "@{tags}\tF6" // @v10.3.5
+	//TAGSALL        :  kbAltG,  TBBM_TAGSALL,         "@{doupdatetags}\Alt-G" // @v10.3.5
+	separator
 	PRINT            :  kbF7,       TBBM_PRINT,           "Печать текущего документа\tF7"
 	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "Печать выборки документов\tAlt-F7"
 	PRINTINFOLIST    :  kbShiftF7,  TBBM_NOICON,          hidden, "Печать информации о выборке документов\tShift-F7"
@@ -533,9 +548,10 @@ toolbar export GOODSBILL TB_FIRST_TOOLBAR {
 	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,        "@{doupdateflags}\tShift-F3"
 	SETWLABEL        :  kbF8,       TBBM_MARK,            hidden, "Пометить\tF8"
 	separator
-	PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Оплаты по документу\tF5"
-	RECKON           :  kbF6,       TBBM_RECKON,          "Зачеты по документу\tF6"
-	RENTA            :  kbShiftF5,  TBBM_RENTA,           "Начисления по ренте\tShift-F5"
+	// @v10.3.5 PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Оплаты по документу\tF5"
+	PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Связанные документы\tF5" // @v10.3.5
+	// @v10.3.5 RECKON           :  kbF6,       TBBM_RECKON,          "Зачеты по документу\tF6"
+	// @v10.3.5 RENTA            :  kbShiftF5,  TBBM_RENTA,           "Начисления по ренте\tShift-F5"
 	GOODSRET         :  kbCtrlF5,   TBBM_GOODSRET,        "Возврат по документу\tCtrl-F5"
 	RECKONPAYM       :  kbCtrlP,    TBBM_RECKONPAYM,      "Зачет платежного документа\tCtrl-P"
 	RECKONDEBT       :  kbCtrlE,    TBBM_RECKONDEBT,      "Зачет долгового документа\tCtrl-E"
@@ -545,8 +561,12 @@ toolbar export GOODSBILL TB_FIRST_TOOLBAR {
 	UNITEBILLS       :  kbCtrlU,    TBBM_UNITE,           "@{unite_docs}\tCtrl-U"
 	//WROFFDRAFT       :  kbCtrlW,    TBBM_NOICON,          "@{writeoffdrafts}\tCtrl-W"
 	TRFRANLZ         :  kbCtrlT,    TBBM_TRFRANLZ,        "@{view_trfranlz}\tCtrl-T"
-	ATTACHBILLTOORD  :  kbCtrlY,    TBBM_LINK,            "Привязать документ к заказу\tCtrl-Y"
-	ATTACHBILLTODRAFT:  kbNoKey,    TBBM_NOICON,          "Привязать документ к драфт-документу"
+	// @v10.3.5 ATTACHBILLTOORD  :  kbCtrlY,    TBBM_LINK,            "Привязать документ к заказу\tCtrl-Y"
+	// @v10.3.5 ATTACHBILLTODRAFT:  kbNoKey,    TBBM_NOICON,          "Привязать документ к драфт-документу"
+	ATTACHBILLTOBILL:  kbCtrlY,     TBBM_LINK,            "Привязать документ к другому документу\tCtrl-Y" // @v10.3.5
+	separator
+	TAGS             :  kbF6,   TBBM_TAGS,            "@{tags}\tF6" // @v10.3.5
+	//TAGSALL          :  kbAltG,  TBBM_TAGSALL,         "@{doupdatetags}\Alt-G" // @v10.3.5
 	separator
 	PRINT            :  kbF7,       TBBM_PRINT,           "Печать текущего документа\tF7"
 	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "Печать выборки документов\tAlt-F7"

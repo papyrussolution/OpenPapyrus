@@ -845,8 +845,7 @@ int SLAPI QuotationCore::SetCurr(PPID * pID, const PPQuot * pQuot, int logSj, in
 	QuotationTbl::Rec rec;
 	PPObjGoods gobj;
 	PPObjQuotKind qk_obj; // Для проверки прав доступа
-	PPObjQuotKind::Special spc;
-	PPObjQuotKind::GetSpecialKinds(&spc, 1);
+	const PPObjQuotKind::Special spc(PPObjQuotKind::Special::ctrInitializeWithCache);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -2784,8 +2783,7 @@ int SLAPI Quotation2Core::Set(const PPQuot & rQ, long qtaID, int logSj, int use_
 	DBRowIdArray ri_list;
 	PPObjQuotKind qk_obj;
 	PPQuotKind qk_rec;
-	PPObjQuotKind::Special spc;
-	PROFILE(PPObjQuotKind::GetSpecialKinds(&spc, 1));
+	const PPObjQuotKind::Special spc(PPObjQuotKind::Special::ctrInitializeWithCache);
 	THROW(qk_obj.Fetch(rQ.Kind, &qk_rec) > 0);
 	{
 		PPTransaction tra(use_ta);
@@ -2795,10 +2793,9 @@ int SLAPI Quotation2Core::Set(const PPQuot & rQ, long qtaID, int logSj, int use_
 		rec.RelID = rel_id;
 		rec.GoodsID = rQ.GoodsID;
 		rec.Actual = 1;
-		rec.Flags = (int16)(rQ.Flags & PPQuot::fDbMask);
+		rec.Flags = static_cast<int16>(rQ.Flags & PPQuot::fDbMask);
 		rec.Quot = rQ.Quot;
 		rec.TaID = qtaID;
-
 		PROFILE_START
 		MEMSZERO(k2);
 		k2.Actual = 1;

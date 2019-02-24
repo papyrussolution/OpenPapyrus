@@ -35,7 +35,7 @@ static int rc5_ctrl(EVP_CIPHER_CTX * c, int type, int arg, void * ptr)
 		    data(c)->rounds = RC5_12_ROUNDS;
 		    return 1;
 		case EVP_CTRL_GET_RC5_ROUNDS:
-		    *(int*)ptr = data(c)->rounds;
+		    *(int *)ptr = data(c)->rounds;
 		    return 1;
 		case EVP_CTRL_SET_RC5_ROUNDS:
 		    switch(arg) {

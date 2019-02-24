@@ -61,7 +61,7 @@ IUnknown * FASTCALL GetPPObjIStrAssocList(SCoClass * pCls, PPObject * pObj, void
 	IUnknown * p = 0;
 	if(pObj) {
 		if(pCls->CreateInnerInstance("StrAssocList", "IStrAssocList", (void **)&p)) {
-			StrAssocArray * p_list_env = (StrAssocArray *)SCoClass::GetExtraPtrByInterface(p);
+			StrAssocArray * p_list_env = static_cast<StrAssocArray *>(SCoClass::GetExtraPtrByInterface(p));
 			if(p_list_env) {
 				StrAssocArray * p_list = pObj->MakeStrAssocList(extraPtr);
 				if(p_list) {
@@ -520,7 +520,7 @@ void DL6ICLS_StrAssocList::Clone(IStrAssocList** ppClone)
 	IStrAssocList * p = 0;
 	if(SetAppError(CreateInnerInstance(P_Scope->GetName(), "IStrAssocList", (void **)&p))) {
 		StrAssocArray * p_data = static_cast<StrAssocArray *>(ExtraPtr);
-		StrAssocArray * p_outer_data = (StrAssocArray *)SCoClass::GetExtraPtrByInterface(p);
+		StrAssocArray * p_outer_data = static_cast<StrAssocArray *>(SCoClass::GetExtraPtrByInterface(p));
 		if(SetAppError(p_data && p_outer_data))
 			*p_outer_data = *p_data;
 	}
@@ -1070,7 +1070,7 @@ int32 DL6ICLS_PPDbfTable::GetRec(ISDbfRecord* pRec)
 	int    ok = -1;
 	DbfTable * p_tbl = static_cast<DbfTable *>(ExtraPtr);
 	if(p_tbl) {
-		DbfRecord * p_rec = (DbfRecord*)SCoClass::GetExtraPtrByInterface(pRec);
+		DbfRecord * p_rec = static_cast<DbfRecord *>(SCoClass::GetExtraPtrByInterface(pRec));
 		if(p_rec)
 			ok = p_tbl->getRec(p_rec);
 	}
@@ -1082,7 +1082,7 @@ int32 DL6ICLS_PPDbfTable::AppendRec(ISDbfRecord* pRec)
 	int    ok = -1;
 	DbfTable * p_tbl = static_cast<DbfTable *>(ExtraPtr);
 	if(p_tbl) {
-		DbfRecord * p_rec = (DbfRecord*)SCoClass::GetExtraPtrByInterface(pRec);
+		DbfRecord * p_rec = static_cast<DbfRecord *>(SCoClass::GetExtraPtrByInterface(pRec));
 		if(p_rec)
 			ok = p_tbl->appendRec(p_rec);
 	}
@@ -1094,7 +1094,7 @@ int32 DL6ICLS_PPDbfTable::UpdateRec(ISDbfRecord* pRec)
 	int ok = -1;
 	DbfTable * p_tbl = static_cast<DbfTable *>(ExtraPtr);
 	if(p_tbl) {
-		DbfRecord * p_rec = (DbfRecord*)SCoClass::GetExtraPtrByInterface(pRec);
+		DbfRecord * p_rec = static_cast<DbfRecord *>(SCoClass::GetExtraPtrByInterface(pRec));
 		if(p_rec)
 			ok = p_tbl->updateRec(p_rec);
 	}
@@ -1220,7 +1220,7 @@ IStrAssocList * DL6ICLS_PPFtp::GetFileList(SString & rDir, SString & rMask)
 	WinInetFTP * p_ftp = static_cast<WinInetFTP *>(ExtraPtr);
 	StrAssocArray * p_file_list = 0;
 	THROW(CreateInnerInstance("StrAssocList", "IStrAssocList", (void **)&p));
-	THROW(p_file_list = (StrAssocArray *)SCoClass::GetExtraPtrByInterface(p));
+	THROW(p_file_list = static_cast<StrAssocArray *>(SCoClass::GetExtraPtrByInterface(p)));
 	if(p_ftp)
 		THROW(p_ftp->SafeGetFileList(rDir, p_file_list, rMask, 0));
 	CATCH
@@ -1471,7 +1471,7 @@ SString & DL6ICLS_PPUtil::MakeGUID()
 int32 DL6ICLS_PPUtil::SendMail(int32 acctID, SString & rSubject, SString & rMessage, SString & rMail, IStrAssocList * pAttachments)
 {
 	int    ok = 1;
-	StrAssocArray * p_attachments = (StrAssocArray *)SCoClass::GetExtraPtrByInterface(pAttachments);
+	const StrAssocArray * p_attachments = static_cast<const StrAssocArray *>(SCoClass::GetExtraPtrByInterface(pAttachments));
 	SStrCollection files_list;
 	if(p_attachments)
 		for(uint i = 0; i < p_attachments->getCount(); i++)
@@ -1769,7 +1769,7 @@ IStrAssocList* DL6ICLS_PPSession::GetDatabaseList(int32 nameKind)
 {
 	IUnknown * p = 0;
 	THROW(CreateInnerInstance("StrAssocList", "IStrAssocList", (void **)&p));
-	StrAssocArray * p_list_env = (StrAssocArray *)SCoClass::GetExtraPtrByInterface(p);
+	StrAssocArray * p_list_env = static_cast<StrAssocArray *>(SCoClass::GetExtraPtrByInterface(p));
 	THROW(p_list_env);
 	{
 		PPDbEntrySet2 set;
@@ -5005,7 +5005,7 @@ IStrAssocList * DL6ICLS_PPObjPerson::GetRegList(int32 psnID, int32 regType)
 	StrAssocArray * p_reg_list = 0;
 	InnerExtraObjPerson * p_e = static_cast<InnerExtraObjPerson *>(ExtraPtr);
 	THROW(CreateInnerInstance("StrAssocList", "IStrAssocList", (void **)&p));
-	THROW(p_reg_list = (StrAssocArray *)SCoClass::GetExtraPtrByInterface(p));
+	THROW(p_reg_list = static_cast<StrAssocArray *>(SCoClass::GetExtraPtrByInterface(p)));
 	if(p_e && p_e->P_Obj) {
 		RegisterArray reg_list;
 		if(p_e->P_Obj->GetRegList(psnID, &reg_list, 1) > 0) {
@@ -6247,7 +6247,7 @@ ILotList * DL6ICLS_PPObjBill::GetCurLotList(LDATE lowDt, LDATE uppDt, int32 good
 	SVector lot_list(sizeof(ReceiptTbl::Rec)); // @v9.8.8 SArray-->SVector
 	ObjIdListFilt loc_list;
 	{
-		StrAssocArray * p_loc_list = (StrAssocArray *)SCoClass::GetExtraPtrByInterface(pLocList);
+		StrAssocArray * p_loc_list = static_cast<StrAssocArray *>(SCoClass::GetExtraPtrByInterface(pLocList));
 		if(p_loc_list) {
 			uint loc_count = p_loc_list->getCount();
 			for(uint i = 0; i < loc_count; i++)
@@ -6402,7 +6402,7 @@ double DL6ICLS_PPObjBill::GetRestByTag(LDATE dt, int32 goodsID, int32 tagID, SSt
 		gp.GoodsID      = goodsID;
 		gp.DiffLotTagID = tagID;
 		if(pLocList) {
-			StrAssocArray * p_loc_list = (StrAssocArray *)SCoClass::GetExtraPtrByInterface(pLocList);
+			StrAssocArray * p_loc_list = static_cast<StrAssocArray *>(SCoClass::GetExtraPtrByInterface(pLocList));
 			if(p_loc_list) {
 				uint count = p_loc_list->getCount();
 				for(uint i = 0; i < count; i++)
@@ -6498,7 +6498,7 @@ IStrAssocList * DL6ICLS_PPObjBill::GetDeletedBillList(SDateRange * pPeriod)
 {
 	IUnknown * p = 0;
 	THROW(CreateInnerInstance("StrAssocList", "IStrAssocList", (void **)&p));
-	StrAssocArray * p_bill_list = (StrAssocArray *)SCoClass::GetExtraPtrByInterface(p);
+	StrAssocArray * p_bill_list = static_cast<StrAssocArray *>(SCoClass::GetExtraPtrByInterface(p));
 	THROW(p_bill_list);
 	{
 		SysJournal * p_sj = DS.GetTLA().P_SysJ;
@@ -6834,7 +6834,7 @@ int32 DL6ICLS_PPPersonRelTypePacket::PutInhRegTypeList(IStrAssocList * pList)
 {
 	int ok = -1;
 	PPPersonRelTypePacket * p_pack = (PPPersonRelTypePacket*)ExtraPtr;
-	StrAssocArray         * p_list = (StrAssocArray *)SCoClass::GetExtraPtrByInterface(pList);
+	StrAssocArray         * p_list = static_cast<StrAssocArray *>(SCoClass::GetExtraPtrByInterface(pList));
 	if(p_pack && pList) {
 		p_pack->InhRegTypeList.freeAll();
 		for(uint i = 0; i < p_list->getCount(); i++)
@@ -7945,7 +7945,7 @@ IUnknown * GetPPObjIStrAssocList(SCoClass * pCls, PPObject * pObj, long extraPar
 	IUnknown * p = 0;
 	if(pObj) {
 		if(pCls->CreateInnerInstance("StrAssocList", "IStrAssocList", (void **)&p)) {
-			StrAssocArray * p_list_env = (StrAssocArray *)SCoClass::GetExtraPtrByInterface(p);
+			StrAssocArray * p_list_env = static_cast<StrAssocArray *>(SCoClass::GetExtraPtrByInterface(p));
 			if(p_list_env) {
 				StrAssocArray * p_list = pObj->MakeStrAssocList(extraParam);
 				if(p_list) {
@@ -8043,7 +8043,7 @@ IStrAssocList * DL6ICLS_PrcssrAlcReport::GetWkrRegisterList(int32 wkr, int32 psn
 	StrAssocArray * p_reg_list = 0;
 	PrcssrAlcReport * p_prc = static_cast<PrcssrAlcReport *>(ExtraPtr);
 	THROW(CreateInnerInstance("StrAssocList", "IStrAssocList", (void **)&p));
-	THROW(p_reg_list = (StrAssocArray *)SCoClass::GetExtraPtrByInterface(p));
+	THROW(p_reg_list = static_cast<StrAssocArray *>(SCoClass::GetExtraPtrByInterface(p)));
 	THROW(p_prc);
 	if(p_prc->GetWkrRegisterList(wkr, psnID, locID, ZERODATE, &reg_list) > 0) {
 		SString temp_buf;

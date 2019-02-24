@@ -322,7 +322,7 @@ int SBIISampleBillRowRec::FromDbfTbl(DbfTable * pTbl)
 			dbf_rec.get(fldn_supdeallow, v);
 			SupplDealLow = static_cast<int16>(v);
 			dbf_rec.get(fldn_supdealup,  v);
-			SupplDealUp  = (int16)v;
+			SupplDealUp  = static_cast<int16>(v);
 		}
 		serial.Strip().CopyTo(Serial, sizeof(Serial));
 	}
@@ -755,9 +755,9 @@ int SBIIBillRowWithCellsRec::FromDbfTbl(DbfTable * pTbl)
 		{
 			long v = 0;
 			dbf_rec.get(fldn_rbybill,  v);
-			RByBill = (int16)v;
+			RByBill = static_cast<int16>(v);
 			dbf_rec.get(fldn_expended, (v = 0));
-			Expended = (int16)v;
+			Expended = static_cast<int16>(v);
 		}
 		dbf_rec.get(fldn_name,     name);
 		dbf_rec.get(fldn_loc,      LocID);
@@ -3177,8 +3177,8 @@ int SLAPI PPObjBHT::PrepareBillData(PPBhtTerminalPacket * pPack, int uniteGoods 
 									PPSupplDeal sd;
 									GObj.GetSupplDeal(ti.GoodsID, suppl_deal_qi, &sd);
 									sdr_brow.SuplDeal = sd.Cost;
-									sdr_brow.SuplDLow = (int16)(sd.DnDev * 100);
-									sdr_brow.SuplDUp  = (int16)(sd.UpDev * 100);
+									sdr_brow.SuplDLow = static_cast<int16>(sd.DnDev * 100);
+									sdr_brow.SuplDUp  = static_cast<int16>(sd.UpDev * 100);
 								}
 								THROW(p_ie_brow->AppendRecord(&sdr_brow, sizeof(sdr_brow)));
 							}
@@ -3354,8 +3354,8 @@ int SLAPI PPObjBHT::PrepareBillData2(PPBhtTerminalPacket * pPack, PPIDArray * pG
 								PPSupplDeal sd;
 								GObj.GetSupplDeal(ti.GoodsID, suppl_deal_qi, &sd, 1); // @v9.5.3 useCache=1
 								sdr_brow.SuplDeal = sd.Cost;
-								sdr_brow.SuplDLow = (int16)(sd.DnDev * 100);
-								sdr_brow.SuplDUp  = (int16)(sd.UpDev * 100);
+								sdr_brow.SuplDLow = static_cast<int16>(sd.DnDev * 100);
+								sdr_brow.SuplDUp  = static_cast<int16>(sd.UpDev * 100);
 							}
 							THROW(p_ie_brow->AppendRecord(&sdr_brow, sizeof(sdr_brow)));
 							result_goods_list.add(labs(ti.GoodsID));

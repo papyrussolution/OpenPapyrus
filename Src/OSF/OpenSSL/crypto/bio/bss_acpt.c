@@ -423,7 +423,7 @@ static long acpt_ctrl(BIO * b, int cmd, long num, void * ptr)
 				    data->bio_chain = (BIO*)ptr;
 			    }
 			    else if(num == 4) {
-				    data->accept_family = *(int*)ptr;
+				    data->accept_family = *(int *)ptr;
 			    }
 		    }
 		    else {
@@ -437,7 +437,7 @@ static long acpt_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    break;
 		case BIO_C_SET_FD:
 		    b->init = 1;
-		    b->num = *((int*)ptr);
+		    b->num = *((int *)ptr);
 		    data->accept_sock = b->num;
 		    data->state = ACPT_S_ACCEPT;
 		    b->shutdown = (int)num;
@@ -445,7 +445,7 @@ static long acpt_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    break;
 		case BIO_C_GET_FD:
 		    if(b->init) {
-			    ip = (int*)ptr;
+			    ip = (int *)ptr;
 				ASSIGN_PTR(ip, data->accept_sock);
 			    ret = data->accept_sock;
 		    }

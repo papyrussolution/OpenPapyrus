@@ -71,7 +71,7 @@ METHODDEF(int) decompress_onepass(j_decompress_ptr cinfo, JSAMPIMAGE output_buf)
 //
 static void start_iMCU_row(j_decompress_ptr cinfo)
 {
-	my_coef_ptr coef = (my_coef_ptr)cinfo->coef;
+	my_coef_ptr coef = reinterpret_cast<my_coef_ptr>(cinfo->coef);
 	/* In an interleaved scan, an MCU row is the same as an iMCU row.
 	 * In a noninterleaved scan, an iMCU row has v_samp_factor MCU rows.
 	 * But at the bottom of the image, process only what's left.
@@ -100,7 +100,7 @@ METHODDEF(void) start_input_pass(j_decompress_ptr cinfo)
 METHODDEF(void) start_output_pass(j_decompress_ptr cinfo)
 {
 #ifdef BLOCK_SMOOTHING_SUPPORTED
-	my_coef_ptr coef = (my_coef_ptr)cinfo->coef;
+	my_coef_ptr coef = reinterpret_cast<my_coef_ptr>(cinfo->coef);
 	/* If multipass, check to see whether to use block smoothing on this pass */
 	if(coef->pub.coef_arrays) {
 		if(cinfo->do_block_smoothing && smoothing_ok(cinfo))
@@ -122,7 +122,7 @@ METHODDEF(void) start_output_pass(j_decompress_ptr cinfo)
  */
 METHODDEF(int) decompress_onepass(j_decompress_ptr cinfo, JSAMPIMAGE output_buf)
 {
-	my_coef_ptr coef = (my_coef_ptr)cinfo->coef;
+	my_coef_ptr coef = reinterpret_cast<my_coef_ptr>(cinfo->coef);
 	JDIMENSION MCU_col_num; /* index of current MCU within row */
 	JDIMENSION last_MCU_col = cinfo->MCUs_per_row - 1;
 	JDIMENSION last_iMCU_row = cinfo->total_iMCU_rows - 1;
@@ -204,7 +204,7 @@ METHODDEF(int) dummy_consume_data(j_decompress_ptr cinfo)
  */
 METHODDEF(int) consume_data(j_decompress_ptr cinfo)
 {
-	my_coef_ptr coef = (my_coef_ptr)cinfo->coef;
+	my_coef_ptr coef = reinterpret_cast<my_coef_ptr>(cinfo->coef);
 	JDIMENSION MCU_col_num; /* index of current MCU within row */
 	int blkn, ci, xindex, yindex, yoffset;
 	JDIMENSION start_col;
@@ -214,7 +214,7 @@ METHODDEF(int) consume_data(j_decompress_ptr cinfo)
 	/* Align the virtual buffers for the components used in this scan. */
 	for(ci = 0; ci < cinfo->comps_in_scan; ci++) {
 		compptr = cinfo->cur_comp_info[ci];
-		buffer[ci] = (*cinfo->mem->access_virt_barray)((j_common_ptr)cinfo, coef->whole_image[compptr->component_index], 
+		buffer[ci] = (*cinfo->mem->access_virt_barray)(reinterpret_cast<j_common_ptr>(cinfo), coef->whole_image[compptr->component_index], 
 			cinfo->input_iMCU_row * compptr->v_samp_factor, (JDIMENSION)compptr->v_samp_factor, TRUE);
 		/* Note: entropy decoder expects buffer to be zeroed,
 		 * but this is handled automatically by the memory manager
@@ -265,7 +265,7 @@ METHODDEF(int) consume_data(j_decompress_ptr cinfo)
  */
 METHODDEF(int) decompress_data(j_decompress_ptr cinfo, JSAMPIMAGE output_buf)
 {
-	my_coef_ptr coef = (my_coef_ptr)cinfo->coef;
+	my_coef_ptr coef = reinterpret_cast<my_coef_ptr>(cinfo->coef);
 	JDIMENSION last_iMCU_row = cinfo->total_iMCU_rows - 1;
 	JDIMENSION block_num;
 	int ci, block_row, block_rows;
@@ -286,7 +286,7 @@ METHODDEF(int) decompress_data(j_decompress_ptr cinfo, JSAMPIMAGE output_buf)
 		if(!compptr->component_needed)
 			continue;
 		/* Align the virtual buffer for this component. */
-		buffer = (*cinfo->mem->access_virt_barray)((j_common_ptr)cinfo, coef->whole_image[ci], cinfo->output_iMCU_row * compptr->v_samp_factor, (JDIMENSION)compptr->v_samp_factor, FALSE);
+		buffer = (*cinfo->mem->access_virt_barray)(reinterpret_cast<j_common_ptr>(cinfo), coef->whole_image[ci], cinfo->output_iMCU_row * compptr->v_samp_factor, (JDIMENSION)compptr->v_samp_factor, FALSE);
 		/* Count non-dummy DCT block rows in this iMCU row. */
 		if(cinfo->output_iMCU_row < last_iMCU_row)
 			block_rows = compptr->v_samp_factor;
@@ -342,7 +342,7 @@ METHODDEF(int) decompress_data(j_decompress_ptr cinfo, JSAMPIMAGE output_buf)
  */
 LOCAL(boolean) smoothing_ok(j_decompress_ptr cinfo)
 {
-	my_coef_ptr coef = (my_coef_ptr)cinfo->coef;
+	my_coef_ptr coef = reinterpret_cast<my_coef_ptr>(cinfo->coef);
 	boolean smoothing_useful = FALSE;
 	int ci, coefi;
 	jpeg_component_info * compptr;
@@ -353,7 +353,7 @@ LOCAL(boolean) smoothing_ok(j_decompress_ptr cinfo)
 		return FALSE;
 	/* Allocate latch area if not already done */
 	if(coef->coef_bits_latch == NULL)
-		coef->coef_bits_latch = (int*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, cinfo->num_components * (SAVED_COEFS * SIZEOF(int)));
+		coef->coef_bits_latch = (int *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, cinfo->num_components * (SAVED_COEFS * SIZEOF(int)));
 	coef_bits_latch = coef->coef_bits_latch;
 	for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components; ci++, compptr++) {
 		/* All components' quantization values must already be latched. */
@@ -382,7 +382,7 @@ LOCAL(boolean) smoothing_ok(j_decompress_ptr cinfo)
  */
 METHODDEF(int) decompress_smooth_data(j_decompress_ptr cinfo, JSAMPIMAGE output_buf)
 {
-	my_coef_ptr coef = (my_coef_ptr)cinfo->coef;
+	my_coef_ptr coef = reinterpret_cast<my_coef_ptr>(cinfo->coef);
 	JDIMENSION last_iMCU_row = cinfo->total_iMCU_rows - 1;
 	JDIMENSION block_num, last_block_column;
 	int ci, block_row, block_rows, access_rows;
@@ -435,12 +435,12 @@ METHODDEF(int) decompress_smooth_data(j_decompress_ptr cinfo, JSAMPIMAGE output_
 		/* Align the virtual buffer for this component. */
 		if(cinfo->output_iMCU_row > 0) {
 			access_rows += compptr->v_samp_factor; /* prior iMCU row too */
-			buffer = (*cinfo->mem->access_virt_barray)((j_common_ptr)cinfo, coef->whole_image[ci], (cinfo->output_iMCU_row - 1) * compptr->v_samp_factor, (JDIMENSION)access_rows, FALSE);
+			buffer = (*cinfo->mem->access_virt_barray)(reinterpret_cast<j_common_ptr>(cinfo), coef->whole_image[ci], (cinfo->output_iMCU_row - 1) * compptr->v_samp_factor, (JDIMENSION)access_rows, FALSE);
 			buffer += compptr->v_samp_factor; /* point to current iMCU row */
 			first_row = FALSE;
 		}
 		else {
-			buffer = (*cinfo->mem->access_virt_barray)((j_common_ptr)cinfo, coef->whole_image[ci], (JDIMENSION)0, (JDIMENSION)access_rows, FALSE);
+			buffer = (*cinfo->mem->access_virt_barray)(reinterpret_cast<j_common_ptr>(cinfo), coef->whole_image[ci], (JDIMENSION)0, (JDIMENSION)access_rows, FALSE);
 			first_row = TRUE;
 		}
 		/* Fetch component-dependent info */
@@ -590,7 +590,7 @@ METHODDEF(int) decompress_smooth_data(j_decompress_ptr cinfo, JSAMPIMAGE output_
  */
 GLOBAL(void) jinit_d_coef_controller(j_decompress_ptr cinfo, boolean need_full_buffer)
 {
-	my_coef_ptr coef = (my_coef_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(my_coef_controller));
+	my_coef_ptr coef = (my_coef_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(my_coef_controller));
 	cinfo->coef = (struct jpeg_d_coef_controller*)coef;
 	coef->pub.start_input_pass = start_input_pass;
 	coef->pub.start_output_pass = start_output_pass;
@@ -612,7 +612,7 @@ GLOBAL(void) jinit_d_coef_controller(j_decompress_ptr cinfo, boolean need_full_b
 			if(cinfo->progressive_mode)
 				access_rows *= 3;
 #endif
-			coef->whole_image[ci] = (*cinfo->mem->request_virt_barray)((j_common_ptr)cinfo, JPOOL_IMAGE, TRUE, (JDIMENSION)jround_up((long)compptr->width_in_blocks,
+			coef->whole_image[ci] = (*cinfo->mem->request_virt_barray)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, TRUE, (JDIMENSION)jround_up((long)compptr->width_in_blocks,
 				(long)compptr->h_samp_factor), (JDIMENSION)jround_up((long)compptr->height_in_blocks, (long)compptr->v_samp_factor), (JDIMENSION)access_rows);
 		}
 		coef->pub.consume_data = consume_data;
@@ -625,7 +625,7 @@ GLOBAL(void) jinit_d_coef_controller(j_decompress_ptr cinfo, boolean need_full_b
 	else {
 		int i;
 		/* We only need a single-MCU buffer. */
-		JBLOCKROW buffer = (JBLOCKROW)(*cinfo->mem->alloc_large)((j_common_ptr)cinfo, JPOOL_IMAGE, D_MAX_BLOCKS_IN_MCU * SIZEOF(JBLOCK));
+		JBLOCKROW buffer = (JBLOCKROW)(*cinfo->mem->alloc_large)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, D_MAX_BLOCKS_IN_MCU * SIZEOF(JBLOCK));
 		for(i = 0; i < D_MAX_BLOCKS_IN_MCU; i++) {
 			coef->MCU_buffer[i] = buffer + i;
 		}

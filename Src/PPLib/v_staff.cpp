@@ -55,7 +55,7 @@ int SLAPI PPViewStaffList::EditBaseFilt(PPBaseFilt * pFilt)
 	THROW(Filt.IsA(pFilt));
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_STAFFLFLT))));
 	{
-		StaffListFilt * p_filt = (StaffListFilt *)pFilt;
+		StaffListFilt * p_filt = static_cast<StaffListFilt *>(pFilt);
 		dlg->addGroup(GRP_DIV, new DivisionCtrlGroup(CTLSEL_STAFFLFLT_ORG, CTLSEL_STAFFLFLT_DIV, 0, 0));
 		DivisionCtrlGroup::Rec grp_rec(p_filt->OrgID, p_filt->DivID);
 		dlg->setGroupData(GRP_DIV, &grp_rec);
@@ -97,8 +97,8 @@ IMPL_CMPCFUNC(PPViewStaffList_BrwEntry_Name, p1, p2)
 	int   si = 0;
 	PPObjStaffList * p_obj = (PPObjStaffList *)pExtraData;
 	if(p_obj) {
-		const PPViewStaffList::BrwEntry * i1 = (const PPViewStaffList::BrwEntry *)p1;
-		const PPViewStaffList::BrwEntry * i2 = (const PPViewStaffList::BrwEntry *)p2;
+		const PPViewStaffList::BrwEntry * i1 = static_cast<const PPViewStaffList::BrwEntry *>(p1);
+		const PPViewStaffList::BrwEntry * i2 = static_cast<const PPViewStaffList::BrwEntry *>(p2);
 		PPStaffEntry e1, e2;
         p_obj->Fetch(i1->ID, &e1);
         p_obj->Fetch(i2->ID, &e2);
@@ -198,7 +198,7 @@ int FASTCALL PPViewStaffList::NextIteration(StaffListViewItem * pItem)
 		if(pItem) {
 			PPStaffEntry se;
 			if(SlObj.Search(r_entry.ID, &se) > 0) {
-				*(PPStaffEntry *)pItem = se;
+				*static_cast<PPStaffEntry *>(pItem) = se;
 				ok = 1;
 			}
 		}
@@ -211,7 +211,7 @@ int FASTCALL PPViewStaffList::NextIteration(StaffListViewItem * pItem)
 // static
 int FASTCALL PPViewStaffList::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	PPViewStaffList * p_v = (PPViewStaffList *)pBlk->ExtraPtr;
+	PPViewStaffList * p_v = static_cast<PPViewStaffList *>(pBlk->ExtraPtr);
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
@@ -221,7 +221,7 @@ int SLAPI PPViewStaffList::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
 		ok = 1;
 		SString temp_buf;
-		BrwEntry * p_item = (BrwEntry *)pBlk->P_SrcData;
+		const BrwEntry * p_item = static_cast<const BrwEntry *>(pBlk->P_SrcData);
 		switch(pBlk->ColumnN) {
 			case 0: // ÈÄ
 				pBlk->Set(p_item->ID);
@@ -357,7 +357,7 @@ int SLAPI PPViewStaffList::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 		}
 	}
 	if(ok > 0) {
-		AryBrowserDef * p_def = (AryBrowserDef *)pBrw->getDef();
+		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
 		if(p_def) {
 			LongArray id_list;
 			PPID   last_id = 0;
@@ -377,7 +377,7 @@ int SLAPI PPViewStaffList::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 	/*
 	if(ok > 0) {
 		FetchData(id);
-		AryBrowserDef * p_def = (AryBrowserDef *)pBrw->getDef();
+		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
 		if(p_def) {
 			long   c = p_def->_curItem();
 			p_def->setArray(new SArray(Data), 0, 1);

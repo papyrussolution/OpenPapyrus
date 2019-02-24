@@ -1136,7 +1136,7 @@ int PPALDD_GoodsTaxAnlz::InitData(PPFilt & rFilt, long rsrv)
 
 int PPALDD_GoodsTaxAnlz::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 {
-	PPViewGoodsTaxAnalyze * p_v = (PPViewGoodsTaxAnalyze*)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	PPViewGoodsTaxAnalyze * p_v = static_cast<PPViewGoodsTaxAnalyze *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;
@@ -1148,7 +1148,7 @@ int PPALDD_GoodsTaxAnlz::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	{
-		PPViewGoodsTaxAnalyze * p_v = (PPViewGoodsTaxAnalyze*)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+		PPViewGoodsTaxAnalyze * p_v = static_cast<PPViewGoodsTaxAnalyze *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 		GoodsTaxAnalyzeViewItem item;
 		if(p_v->NextIteration(&item) > 0) {
 			I.Dt = item.Dt;
@@ -1251,9 +1251,9 @@ int PPALDD_GTaxAnlzTotal::InitIteration(PPIterID iterId, int sortId, long rsrv)
 int PPALDD_GTaxAnlzTotal::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
-	GTaxAnlzTotalPrintData * p_data = (GTaxAnlzTotalPrintData *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
+	GTaxAnlzTotalPrintData * p_data = static_cast<GTaxAnlzTotalPrintData *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	BVATAccm * p_item;
-	uint   n = (uint)I.LineNo;
+	uint   n = static_cast<uint>(I.LineNo);
 	if(p_data->P_VATList->enumItems(&n, (void **)&p_item) > 0) {
 		I.LineNo     = n;
 		I.VatRate    = p_item->PRate;

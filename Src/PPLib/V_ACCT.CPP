@@ -219,7 +219,7 @@ int FASTCALL PPViewAccount::NextIteration(AccountViewItem * pItem)
 // static
 int FASTCALL PPViewAccount::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	PPViewAccount * p_v = (PPViewAccount *)pBlk->ExtraPtr;
+	PPViewAccount * p_v = static_cast<PPViewAccount *>(pBlk->ExtraPtr);
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
@@ -229,7 +229,7 @@ int SLAPI PPViewAccount::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
 		ok = 1;
 		SString temp_buf;
-		const BrwEntry * p_item = (const BrwEntry *)pBlk->P_SrcData;
+		const BrwEntry * p_item = static_cast<const BrwEntry *>(pBlk->P_SrcData);
 		switch(pBlk->ColumnN) {
 			case 0: // ИД
 				pBlk->Set(p_item->ID);
@@ -429,7 +429,7 @@ int SLAPI PPViewAccount::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 		}
 	}
 	if(ok > 0) {
-		AryBrowserDef * p_def = (AryBrowserDef *)pBrw->getDef();
+		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
 		if(p_def) {
 			LongArray id_list;
 			PPID   last_id = 0;

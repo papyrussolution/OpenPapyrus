@@ -2342,7 +2342,7 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 int SLAPI SetupGoodsGroupCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, void * extraPtr)
 {
 	int    ok = 0;
-	ComboBox * p_combo = dlg ? (ComboBox *)dlg->getCtrlView(ctlID) : 0;
+	ComboBox * p_combo = dlg ? static_cast<ComboBox *>(dlg->getCtrlView(ctlID)) : 0;
 	if(p_combo) {
 		/*
 		StrAssocArray * p_list = PPObjOprKind::MakeOprKindList(0, pOpList, opklFlags);
@@ -2531,7 +2531,7 @@ int GoodsCtrlGroup::setFlagExistsOnly(TDialog * dlg, int on)
 
 int isComboCurrent(TDialog * dlg, TView * cb)
 {
-	return BIN(cb && (dlg->IsCurrentView(cb) || dlg->IsCurrentView(((ComboBox*)cb)->link())) && !cb->IsInState(sfDisabled));
+	return BIN(cb && (dlg->IsCurrentView(cb) || dlg->IsCurrentView(static_cast<ComboBox *>(cb)->link())) && !cb->IsInState(sfDisabled));
 }
 
 void GoodsCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
@@ -2563,7 +2563,7 @@ void GoodsCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
 			if(gobj.SelectGoodsByBarcode(0, ArID, &rec, 0, 0) > 0) {
 				if(rec.Kind == PPGDSK_GOODS) {
 					{
-						ComboBox * p_combo = (ComboBox *)dlg->getCtrlView(CtlselGrp);
+						ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(CtlselGrp));
 						if(p_combo) {
 							TView::messageCommand(p_combo->getListWindow(), cmLBLoadDef);
 							dlg->setCtrlLong(CtlselGrp, rec.ParentID);

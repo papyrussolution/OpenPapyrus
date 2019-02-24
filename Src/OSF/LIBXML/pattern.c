@@ -1627,7 +1627,7 @@ static xmlStreamCtxtPtr xmlNewStreamCtxt(xmlStreamCompPtr stream)
 	}
 	else {
 		memzero(cur, sizeof(xmlStreamCtxt));
-		cur->states = (int*)SAlloc::M(4 * 2 * sizeof(int));
+		cur->states = (int *)SAlloc::M(4 * 2 * sizeof(int));
 		if(cur->states == NULL) {
 			SAlloc::F(cur);
 			ERROR(0, 0, 0, "xmlNewStreamCtxt: malloc failed\n");
@@ -1678,7 +1678,7 @@ static int xmlStreamCtxtAddState(xmlStreamCtxtPtr comp, int idx, int level)
 		}
 	}
 	if(comp->nbState >= comp->maxState) {
-		int * cur = (int*)SAlloc::R(comp->states, comp->maxState * 4 * sizeof(int));
+		int * cur = (int *)SAlloc::R(comp->states, comp->maxState * 4 * sizeof(int));
 		if(!cur) {
 			ERROR(0, 0, 0, "xmlNewStreamCtxt: malloc failed\n");
 			return -1;
