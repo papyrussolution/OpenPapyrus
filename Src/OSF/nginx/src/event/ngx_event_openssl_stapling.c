@@ -164,7 +164,7 @@ static ngx_int_t ngx_ssl_stapling_file(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_ssl
 	if(ngx_conf_full_name(cf->cycle, file, 1) != NGX_OK) {
 		return NGX_ERROR;
 	}
-	bio = BIO_new_file((char*)file->data, "r");
+	bio = BIO_new_file((char *)file->data, "r");
 	if(bio == NULL) {
 		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0, "BIO_new_file(\"%s\") failed", file->data);
 		return NGX_ERROR;

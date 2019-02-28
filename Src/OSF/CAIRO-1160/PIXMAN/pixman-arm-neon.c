@@ -132,7 +132,7 @@ static pixman_bool_t arm_neon_fill(pixman_implementation_t * imp,
 		    pixman_composite_src_n_8_asm_neon(
 			    width,
 			    height,
-			    (uint8_t*)(((char*)bits) + y * byte_stride + x),
+			    (uint8_t*)(((char *)bits) + y * byte_stride + x),
 			    byte_stride,
 			    _xor & 0xff);
 		    return TRUE;
@@ -140,7 +140,7 @@ static pixman_bool_t arm_neon_fill(pixman_implementation_t * imp,
 		    pixman_composite_src_n_0565_asm_neon(
 			    width,
 			    height,
-			    (uint16_t*)(((char*)bits) + y * byte_stride + x * 2),
+			    (uint16_t*)(((char *)bits) + y * byte_stride + x * 2),
 			    byte_stride / 2,
 			    _xor & 0xffff);
 		    return TRUE;
@@ -148,7 +148,7 @@ static pixman_bool_t arm_neon_fill(pixman_implementation_t * imp,
 		    pixman_composite_src_n_8888_asm_neon(
 			    width,
 			    height,
-			    (uint32_t*)(((char*)bits) + y * byte_stride + x * 4),
+			    (uint32_t*)(((char *)bits) + y * byte_stride + x * 4),
 			    byte_stride / 4,
 			    _xor);
 		    return TRUE;
@@ -177,17 +177,17 @@ static pixman_bool_t arm_neon_blt(pixman_implementation_t * imp,
 		case 16:
 		    pixman_composite_src_0565_0565_asm_neon(
 			    width, height,
-			    (uint16_t*)(((char*)dst_bits) +
+			    (uint16_t*)(((char *)dst_bits) +
 			    dest_y * dst_stride * 4 + dest_x * 2), dst_stride * 2,
-			    (uint16_t*)(((char*)src_bits) +
+			    (uint16_t*)(((char *)src_bits) +
 			    src_y * src_stride * 4 + src_x * 2), src_stride * 2);
 		    return TRUE;
 		case 32:
 		    pixman_composite_src_8888_8888_asm_neon(
 			    width, height,
-			    (uint32_t*)(((char*)dst_bits) +
+			    (uint32_t*)(((char *)dst_bits) +
 			    dest_y * dst_stride * 4 + dest_x * 4), dst_stride,
-			    (uint32_t*)(((char*)src_bits) +
+			    (uint32_t*)(((char *)src_bits) +
 			    src_y * src_stride * 4 + src_x * 4), src_stride);
 		    return TRUE;
 		default:

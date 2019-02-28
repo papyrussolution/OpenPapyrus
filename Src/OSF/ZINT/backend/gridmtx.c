@@ -1359,7 +1359,7 @@ int grid_matrix(struct ZintSymbol * symbol, const uchar source[], int length)
 #ifndef _MSC_VER
 	char grid[size * size];
 #else
-	grid = (char*)_alloca((size * size) * sizeof(char));
+	grid = (char *)_alloca((size * size) * sizeof(char));
 #endif
 	for(x = 0; x < size; x++) {
 		for(y = 0; y < size; y++) {

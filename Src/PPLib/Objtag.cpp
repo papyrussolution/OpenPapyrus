@@ -933,7 +933,7 @@ int SLAPI PPObjTag::MakeReserved(long flags)
 ObjTagFilt & SLAPI PPObjTag::InitFilt(void * extraPtr, ObjTagFilt & rFilt) const
 {
 	if(extraPtr) {
-		rFilt = *(ObjTagFilt *)extraPtr;
+		rFilt = *static_cast<const ObjTagFilt *>(extraPtr);
 	}
 	else {
 		rFilt.ObjTypeID = PPOBJ_PERSON;
@@ -945,18 +945,16 @@ ObjTagFilt & SLAPI PPObjTag::InitFilt(void * extraPtr, ObjTagFilt & rFilt) const
 
 int FASTCALL PPObjTag::IsUnmirrored(PPID tagID)
 {
-	if(oneof3(tagID, PPTAG_LOT_FSRARINFA, PPTAG_LOT_FSRARINFB, PPTAG_LOT_VETIS_UUID)) // @v10.2.5 PPTAG_LOT_VETIS_UUID
-		return 1;
-	else
-		return 0;
+	return BIN(oneof3(tagID, PPTAG_LOT_FSRARINFA, PPTAG_LOT_FSRARINFB, PPTAG_LOT_VETIS_UUID)); // @v10.2.5 PPTAG_LOT_VETIS_UUID
 }
 
 int SLAPI PPObjTag::GetPacket(PPID id, PPObjTagPacket * pPack)
 {
 	int    ok = -1;
+	assert(pPack);
 	pPack->Init();
-	if(id && Search(id, &pPack->Rec) > 0) {
-		ok = 1;
+	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
+		ok = Search(id, &pPack->Rec);
 	}
 	return ok;
 }
@@ -1189,7 +1187,7 @@ SArray * SLAPI PPObjTag::CreateList(long current, long parent)
 	q.selectAll().where(ref->ObjType == PPOBJ_TAG && ref->Val2 == parent);
 	if(parent) {
 		item.id = 0;
-		STRNSCPY(item.text, (char*)&lminus);
+		STRNSCPY(item.text, (char *)&lminus);
 		THROW_SL(ary->insert(&item));
 	}
 	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
@@ -1197,7 +1195,7 @@ SArray * SLAPI PPObjTag::CreateList(long current, long parent)
 		if(!grpOnly || rec->TagDataType == 0) {
 			item.id = rec->ID;
 			if(!rec->TagDataType)
-				strcpy(stpcpy(item.text, (char*)&lplus), rec->Name);
+				strcpy(stpcpy(item.text, (char *)&lplus), rec->Name);
 			else
 				STRNSCPY(item.text, rec->Name);
 			THROW_SL(ary->insert(&item));
@@ -2720,8 +2718,7 @@ int ObjTagCache::OnSysJ(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 ObjTagCache::ObjTagCache() : AdvCookie(0), P_Items(0), MaxItems(0), MaxTries(8)
 {
 	Ss.add("$"); // zero index - is empty string
-	size_t init_size = 1024*1024;
-	uint   init_items_count = init_size / sizeof(Entry);
+	const uint init_items_count = SMEGABYTE(1) / sizeof(Entry);
 	MEMSZERO(StatData);
 	size_t i = init_items_count;
 	if(i) {
@@ -2733,7 +2730,7 @@ ObjTagCache::ObjTagCache() : AdvCookie(0), P_Items(0), MaxItems(0), MaxTries(8)
 		} while(--i);
 	}
 	assert(MaxItems);
-	P_Items = (Entry *)SAlloc::C(MaxItems, sizeof(Entry));
+	P_Items = static_cast<Entry *>(SAlloc::C(MaxItems, sizeof(Entry)));
 	if(P_Items) {
 		long   cookie = 0;
 		PPAdviseBlock adv_blk;

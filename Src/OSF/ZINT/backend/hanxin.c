@@ -123,7 +123,7 @@ int calculate_binlength(char mode[], int source[], int length, int eci)
 	return est_binlen;
 }
 
-int isRegion1(int glyph)
+static int isRegion1(int glyph)
 {
 	int    valid = 0;
 	int    first_byte = (glyph & 0xff00) >> 8;
@@ -144,7 +144,7 @@ int isRegion1(int glyph)
 	return valid;
 }
 
-int isRegion2(int glyph)
+static int isRegion2(int glyph)
 {
 	int    valid = 0;
 	int    first_byte = (glyph & 0xff00) >> 8;
@@ -157,7 +157,7 @@ int isRegion2(int glyph)
 	return valid;
 }
 
-int isDoubleByte(int glyph)
+static int isDoubleByte(int glyph)
 {
 	int    valid = 0;
 	int    first_byte = (glyph & 0xff00) >> 8;
@@ -173,7 +173,7 @@ int isDoubleByte(int glyph)
 	return valid;
 }
 
-int isFourByte(int glyph, int glyph2)
+static int isFourByte(int glyph, int glyph2)
 {
 	int    valid = 0;
 	int    first_byte = (glyph & 0xff00) >> 8;
@@ -193,7 +193,7 @@ int isFourByte(int glyph, int glyph2)
 }
 
 /* Calculate mode switching */
-void hx_define_mode(char mode[], int source[], int length)
+static void hx_define_mode(char mode[], const int source[], int length)
 {
 	char   lastmode = 't';
 	int    done;
@@ -251,7 +251,7 @@ void hx_define_mode(char mode[], int source[], int length)
 }
 
 /* Convert Text 1 sub-mode character to encoding value, as given in table 3 */
-int lookup_text1(char input)
+static int lookup_text1(char input)
 {
 	int    encoding_value = 0;
 	if((input >= '0') && (input <= '9')) {
@@ -267,7 +267,7 @@ int lookup_text1(char input)
 }
 
 /* Convert Text 2 sub-mode character to encoding value, as given in table 4 */
-int lookup_text2(char input)
+static int lookup_text2(char input)
 {
 	int    encoding_value = 0;
 	if((input >= 0) && (input <= 27)) {
@@ -286,7 +286,7 @@ int lookup_text2(char input)
 }
 
 /* Convert input data to binary stream */
-void calculate_binary(char binary[], char mode[], int source[], int length, int eci)
+static void calculate_binary(char binary[], char mode[], int source[], int length, int eci)
 {
 	int block_length;
 	int position = 0;
@@ -632,7 +632,7 @@ void calculate_binary(char binary[], char mode[], int source[], int length, int 
 }
 
 /* Finder pattern for top left of symbol */
-void hx_place_finder_top_left(uchar* grid, int size)
+static void hx_place_finder_top_left(uchar* grid, int size)
 {
 	const int x = 0, y = 0;
 	const int finder[] = {
@@ -968,7 +968,7 @@ int hx_evaluate(uchar * eval, int size, int pattern)
 #ifndef _MSC_VER
 	char local[size * size];
 #else
-	char* local = (char*)_alloca((size * size) * sizeof(char));
+	char* local = (char *)_alloca((size * size) * sizeof(char));
 #endif
 	/* all four bitmask variants have been encoded in the 4 bits of the bytes
 	 * that make up the grid array. select them for evaluation according to the
@@ -1247,7 +1247,7 @@ int han_xin(struct ZintSymbol * symbol, const uchar source[], int length)
 #else
 	int* utfdata = (int *)_alloca((length + 1) * sizeof(int));
 	int* gbdata = (int *)_alloca(((length + 1) * 2) * sizeof(int));
-	char* mode = (char*)_alloca((length + 1) * sizeof(char));
+	char* mode = (char *)_alloca((length + 1) * sizeof(char));
 	char* binary;
 	uchar * datastream;
 	uchar * fullstream;
@@ -1321,7 +1321,7 @@ int han_xin(struct ZintSymbol * symbol, const uchar source[], int length)
 #ifndef _MSC_VER
 	char binary[est_binlen + 1];
 #else
-	binary = (char*)_alloca((est_binlen + 10) * sizeof(char));
+	binary = (char *)_alloca((est_binlen + 10) * sizeof(char));
 #endif
 	memzero(binary, (est_binlen + 1) * sizeof(char));
 	if((ecc_level <= 0) || (ecc_level >= 5)) {

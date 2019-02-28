@@ -150,7 +150,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex, struct connectdata * conn)
 			us_length = htons((short)sspi_send_token.cbBuffer);
 			memcpy(socksreq+2, &us_length, sizeof(short));
 
-			code = Curl_write_plain(conn, sock, (char*)socksreq, 4, &written);
+			code = Curl_write_plain(conn, sock, (char *)socksreq, 4, &written);
 			if(code || (4 != written)) {
 				failf(data, "Failed to send SSPI authentication request.");
 				SAlloc::F(service_name);
@@ -163,7 +163,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex, struct connectdata * conn)
 				return CURLE_COULDNT_CONNECT;
 			}
 
-			code = Curl_write_plain(conn, sock, (char*)sspi_send_token.pvBuffer,
+			code = Curl_write_plain(conn, sock, (char *)sspi_send_token.pvBuffer,
 			    sspi_send_token.cbBuffer, &written);
 			if(code || (sspi_send_token.cbBuffer != (size_t)written)) {
 				failf(data, "Failed to send SSPI authentication token.");
@@ -203,7 +203,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex, struct connectdata * conn)
 		 * +----+------+-----+----------------+
 		 */
 
-		result = Curl_blockread_all(conn, sock, (char*)socksreq, 4, &actualread);
+		result = Curl_blockread_all(conn, sock, (char *)socksreq, 4, &actualread);
 		if(result || (actualread != 4)) {
 			failf(data, "Failed to receive SSPI authentication response.");
 			SAlloc::F(service_name);
@@ -243,7 +243,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex, struct connectdata * conn)
 			s_pSecFn->DeleteSecurityContext(&sspi_context);
 			return CURLE_OUT_OF_MEMORY;
 		}
-		result = Curl_blockread_all(conn, sock, (char*)sspi_recv_token.pvBuffer,
+		result = Curl_blockread_all(conn, sock, (char *)sspi_recv_token.pvBuffer,
 		    sspi_recv_token.cbBuffer, &actualread);
 
 		if(result || (actualread != us_length)) {
@@ -411,7 +411,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex, struct connectdata * conn)
 		memcpy(socksreq+2, &us_length, sizeof(short));
 	}
 
-	code = Curl_write_plain(conn, sock, (char*)socksreq, 4, &written);
+	code = Curl_write_plain(conn, sock, (char *)socksreq, 4, &written);
 	if(code || (4 != written)) {
 		failf(data, "Failed to send SSPI encryption request.");
 		if(sspi_send_token.pvBuffer)
@@ -422,7 +422,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex, struct connectdata * conn)
 
 	if(data->set.socks5_gssapi_nec) {
 		memcpy(socksreq, &gss_enc, 1);
-		code = Curl_write_plain(conn, sock, (char*)socksreq, 1, &written);
+		code = Curl_write_plain(conn, sock, (char *)socksreq, 1, &written);
 		if(code || (1 != written)) {
 			failf(data, "Failed to send SSPI encryption type.");
 			s_pSecFn->DeleteSecurityContext(&sspi_context);
@@ -430,7 +430,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex, struct connectdata * conn)
 		}
 	}
 	else {
-		code = Curl_write_plain(conn, sock, (char*)sspi_send_token.pvBuffer,
+		code = Curl_write_plain(conn, sock, (char *)sspi_send_token.pvBuffer,
 		    sspi_send_token.cbBuffer, &written);
 		if(code || (sspi_send_token.cbBuffer != (size_t)written)) {
 			failf(data, "Failed to send SSPI encryption type.");
@@ -443,7 +443,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex, struct connectdata * conn)
 			s_pSecFn->FreeContextBuffer(sspi_send_token.pvBuffer);
 	}
 
-	result = Curl_blockread_all(conn, sock, (char*)socksreq, 4, &actualread);
+	result = Curl_blockread_all(conn, sock, (char *)socksreq, 4, &actualread);
 	if(result || (actualread != 4)) {
 		failf(data, "Failed to receive SSPI encryption response.");
 		s_pSecFn->DeleteSecurityContext(&sspi_context);
@@ -473,7 +473,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex, struct connectdata * conn)
 		return CURLE_OUT_OF_MEMORY;
 	}
 
-	result = Curl_blockread_all(conn, sock, (char*)sspi_w_token[0].pvBuffer,
+	result = Curl_blockread_all(conn, sock, (char *)sspi_w_token[0].pvBuffer,
 	    sspi_w_token[0].cbBuffer, &actualread);
 
 	if(result || (actualread != us_length)) {

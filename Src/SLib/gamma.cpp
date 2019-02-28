@@ -390,7 +390,7 @@ int fpsi_1(double x, SMathResult * pResult)
 		ok = psi_n_xg0(1, x, pResult);
 	else if(x > -5.0) {
 		/* Abramowitz + Stegun 6.4.6 */
-		int    M = (int)-floor(x);
+		int    M = -ffloori(x);
 		double fx = x + M;
 		double sum = 0.0;
 		if(fx == 0.0)

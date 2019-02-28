@@ -188,7 +188,7 @@ static int ssl_session_strndup(char ** pdst, ASN1_OCTET_STRING * src)
 	*pdst = NULL;
 	if(src == NULL)
 		return 1;
-	*pdst = OPENSSL_strndup((char*)src->data, src->length);
+	*pdst = OPENSSL_strndup((char *)src->data, src->length);
 	if(*pdst == NULL)
 		return 0;
 	return 1;

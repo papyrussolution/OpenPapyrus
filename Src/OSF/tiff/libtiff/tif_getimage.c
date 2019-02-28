@@ -2372,7 +2372,7 @@ static int BuildMapUaToAa(TIFFRGBAImage* img)
 	uint8* m;
 	uint16 na, nv;
 	assert(img->UaToAa == NULL);
-	img->UaToAa = (uint8*)SAlloc::M(65536);
+	img->UaToAa = (uint8 *)SAlloc::M(65536);
 	if(!img->UaToAa) {
 		TIFFErrorExt(img->tif->tif_clientdata, module, "Out of memory");
 		return 0;

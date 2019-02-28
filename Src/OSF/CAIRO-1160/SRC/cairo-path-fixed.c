@@ -941,9 +941,7 @@ cairo_status_t _cairo_path_fixed_interpret_flat(const cairo_path_fixed_t * path,
 		   &flattener);
 }
 
-static inline void _canonical_box(cairo_box_t * box,
-    const cairo_point_t * p1,
-    const cairo_point_t * p2)
+static inline void _canonical_box(cairo_box_t * box, const cairo_point_t * p1, const cairo_point_t * p2)
 {
 	if(p1->x <= p2->x) {
 		box->p1.x = p1->x;
@@ -953,7 +951,6 @@ static inline void _canonical_box(cairo_box_t * box,
 		box->p1.x = p2->x;
 		box->p2.x = p1->x;
 	}
-
 	if(p1->y <= p2->y) {
 		box->p1.y = p1->y;
 		box->p2.y = p2->y;
@@ -1023,128 +1020,90 @@ static inline cairo_bool_t _points_form_rect(const cairo_point_t * points)
 /*
  * Check whether the given path contains a single rectangle.
  */
-cairo_bool_t _cairo_path_fixed_is_box(const cairo_path_fixed_t * path,
-    cairo_box_t * box)
+cairo_bool_t FASTCALL _cairo_path_fixed_is_box(const cairo_path_fixed_t * path, cairo_box_t * box)
 {
-	const cairo_path_buf_t * buf;
-
 	if(!path->fill_is_rectilinear)
 		return FALSE;
-
-	if(!_path_is_quad(path))
+	else if(!_path_is_quad(path))
 		return FALSE;
-
-	buf = cairo_path_head(path);
-	if(_points_form_rect(buf->points)) {
-		_canonical_box(box, &buf->points[0], &buf->points[2]);
-		return TRUE;
+	else {
+		const cairo_path_buf_t * buf = cairo_path_head(path);
+		if(_points_form_rect(buf->points)) {
+			_canonical_box(box, &buf->points[0], &buf->points[2]);
+			return TRUE;
+		}
+		else
+			return FALSE;
 	}
-
-	return FALSE;
 }
 
 /* Determine whether two lines A->B and C->D intersect based on the
  * algorithm described here: http://paulbourke.net/geometry/pointlineplane/ */
-static inline cairo_bool_t _lines_intersect_or_are_coincident(cairo_point_t a,
-    cairo_point_t b,
-    cairo_point_t c,
-    cairo_point_t d)
+static inline cairo_bool_t _lines_intersect_or_are_coincident(cairo_point_t a, cairo_point_t b, cairo_point_t c, cairo_point_t d)
 {
-	cairo_int64_t numerator_a, numerator_b, denominator;
 	cairo_bool_t denominator_negative;
-
-	denominator = _cairo_int64_sub(_cairo_int32x32_64_mul(d.y - c.y, b.x - a.x),
-		_cairo_int32x32_64_mul(d.x - c.x, b.y - a.y));
-	numerator_a = _cairo_int64_sub(_cairo_int32x32_64_mul(d.x - c.x, a.y - c.y),
-		_cairo_int32x32_64_mul(d.y - c.y, a.x - c.x));
-	numerator_b = _cairo_int64_sub(_cairo_int32x32_64_mul(b.x - a.x, a.y - c.y),
-		_cairo_int32x32_64_mul(b.y - a.y, a.x - c.x));
-
+	const cairo_int64_t denominator = _cairo_int64_sub(_cairo_int32x32_64_mul(d.y - c.y, b.x - a.x), _cairo_int32x32_64_mul(d.x - c.x, b.y - a.y));
+	const cairo_int64_t numerator_a = _cairo_int64_sub(_cairo_int32x32_64_mul(d.x - c.x, a.y - c.y), _cairo_int32x32_64_mul(d.y - c.y, a.x - c.x));
+	const cairo_int64_t numerator_b = _cairo_int64_sub(_cairo_int32x32_64_mul(b.x - a.x, a.y - c.y), _cairo_int32x32_64_mul(b.y - a.y, a.x - c.x));
 	if(_cairo_int64_is_zero(denominator)) {
-		/* If the denominator and numerators are both zero,
-		 * the lines are coincident. */
+		// If the denominator and numerators are both zero, the lines are coincident.
 		if(_cairo_int64_is_zero(numerator_a) && _cairo_int64_is_zero(numerator_b))
 			return TRUE;
-
-		/* Otherwise, a zero denominator indicates the lines are
-		 *  parallel and never intersect. */
+		// Otherwise, a zero denominator indicates the lines are parallel and never intersect.
 		return FALSE;
 	}
-
 	/* The lines intersect if both quotients are between 0 and 1 (exclusive). */
-
 	/* We first test whether either quotient is a negative number. */
 	denominator_negative = _cairo_int64_negative(denominator);
 	if(_cairo_int64_negative(numerator_a) ^ denominator_negative)
 		return FALSE;
 	if(_cairo_int64_negative(numerator_b) ^ denominator_negative)
 		return FALSE;
-
 	/* A zero quotient indicates an "intersection" at an endpoint, which
 	 * we aren't considering a true intersection. */
 	if(_cairo_int64_is_zero(numerator_a) || _cairo_int64_is_zero(numerator_b))
 		return FALSE;
-
 	/* If the absolute value of the numerator is larger than or equal to the
-	 * denominator the result of the division would be greater than or equal
-	 * to one. */
+	 * denominator the result of the division would be greater than or equal to one. */
 	if(!denominator_negative) {
-		if(!_cairo_int64_lt(numerator_a, denominator) ||
-		    !_cairo_int64_lt(numerator_b, denominator))
+		if(!_cairo_int64_lt(numerator_a, denominator) || !_cairo_int64_lt(numerator_b, denominator))
 			return FALSE;
 	}
 	else {
-		if(!_cairo_int64_lt(denominator, numerator_a) ||
-		    !_cairo_int64_lt(denominator, numerator_b))
+		if(!_cairo_int64_lt(denominator, numerator_a) || !_cairo_int64_lt(denominator, numerator_b))
 			return FALSE;
 	}
-
 	return TRUE;
 }
 
 cairo_bool_t _cairo_path_fixed_is_simple_quad(const cairo_path_fixed_t * path)
 {
 	const cairo_point_t * points;
-
 	if(!_path_is_quad(path))
 		return FALSE;
-
 	points = cairo_path_head(path)->points;
 	if(_points_form_rect(points))
 		return TRUE;
-
-	if(_lines_intersect_or_are_coincident(points[0], points[1],
-	    points[3], points[2]))
+	if(_lines_intersect_or_are_coincident(points[0], points[1], points[3], points[2]))
 		return FALSE;
-
-	if(_lines_intersect_or_are_coincident(points[0], points[3],
-	    points[1], points[2]))
+	if(_lines_intersect_or_are_coincident(points[0], points[3], points[1], points[2]))
 		return FALSE;
-
 	return TRUE;
 }
 
-cairo_bool_t _cairo_path_fixed_is_stroke_box(const cairo_path_fixed_t * path,
-    cairo_box_t * box)
+cairo_bool_t _cairo_path_fixed_is_stroke_box(const cairo_path_fixed_t * path, cairo_box_t * box)
 {
 	const cairo_path_buf_t * buf = cairo_path_head(path);
-
 	if(!path->fill_is_rectilinear)
 		return FALSE;
-
 	/* Do we have the right number of ops? */
 	if(buf->num_ops != 5)
 		return FALSE;
-
 	/* Check whether the ops are those that would be used for a rectangle */
-	if(buf->op[0] != CAIRO_PATH_OP_MOVE_TO ||
-	    buf->op[1] != CAIRO_PATH_OP_LINE_TO ||
-	    buf->op[2] != CAIRO_PATH_OP_LINE_TO ||
-	    buf->op[3] != CAIRO_PATH_OP_LINE_TO ||
-	    buf->op[4] != CAIRO_PATH_OP_CLOSE_PATH) {
+	if(buf->op[0] != CAIRO_PATH_OP_MOVE_TO || buf->op[1] != CAIRO_PATH_OP_LINE_TO || buf->op[2] != CAIRO_PATH_OP_LINE_TO || 
+		buf->op[3] != CAIRO_PATH_OP_LINE_TO || buf->op[4] != CAIRO_PATH_OP_CLOSE_PATH) {
 		return FALSE;
 	}
-
 	/* Ok, we may have a box, if the points line up */
 	if(buf->points[0].y == buf->points[1].y &&
 	    buf->points[1].x == buf->points[2].x &&
@@ -1176,26 +1135,21 @@ cairo_bool_t _cairo_path_fixed_is_stroke_box(const cairo_path_fixed_t * path,
  *   cairo_close_path (cr);
  * </programlisting></informalexample>
  */
-cairo_bool_t _cairo_path_fixed_is_rectangle(const cairo_path_fixed_t * path,
-    cairo_box_t * box)
+cairo_bool_t _cairo_path_fixed_is_rectangle(const cairo_path_fixed_t * path, cairo_box_t * box)
 {
 	const cairo_path_buf_t * buf;
-
 	if(!_cairo_path_fixed_is_box(path, box))
 		return FALSE;
-
 	/* This check is valid because the current implementation of
 	 * _cairo_path_fixed_is_box () only accepts rectangles like:
 	 * move,line,line,line[,line|close[,close|move]]. */
 	buf = cairo_path_head(path);
 	if(buf->num_ops > 4)
 		return TRUE;
-
 	return FALSE;
 }
 
-void _cairo_path_fixed_iter_init(cairo_path_fixed_iter_t * iter,
-    const cairo_path_fixed_t * path)
+void _cairo_path_fixed_iter_init(cairo_path_fixed_iter_t * iter, const cairo_path_fixed_t * path)
 {
 	iter->first = iter->buf = cairo_path_head(path);
 	iter->n_op = 0;

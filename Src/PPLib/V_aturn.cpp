@@ -450,7 +450,7 @@ int SLAPI PPViewAccturn::InitViewItem(const AccTurnTbl::Rec * pAtRec, AccturnVie
 					if(pItem) {
 						if(aturn.Flags & PPAF_OUTBAL_WITHDRAWAL)
 							aturn.Amount = -aturn.Amount;
-						*(PPAccTurn *)pItem = aturn;
+						*static_cast<PPAccTurn *>(pItem) = aturn;
 						pItem->OprNo = pAtRec->OprNo;
 						P_ATC->GetAccRelIDs(pAtRec, &pItem->DbtAccRelID, &pItem->CrdAccRelID);
 					}
@@ -879,7 +879,7 @@ int SLAPI PPViewAccturn::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 	if(ok == -2) {
 		Hdr    hdr;
 		if(pHdr)
-			hdr = *(Hdr*)pHdr;
+			hdr = *static_cast<const Hdr *>(pHdr);
 		else
 			MEMSZERO(hdr);
 		switch(ppvCmd) {

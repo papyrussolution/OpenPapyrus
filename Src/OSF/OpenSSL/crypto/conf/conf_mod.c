@@ -97,7 +97,7 @@ int CONF_modules_load_file(const char * filename, const char * appname, ulong fl
 			goto err;
 	}
 	else
-		file = (char*)filename;
+		file = (char *)filename;
 	if(NCONF_load(conf, file, NULL) <= 0) {
 		if((flags & CONF_MFLAGS_IGNORE_MISSING_FILE) && (ERR_GET_REASON(ERR_peek_last_error()) == CONF_R_NO_SUCH_FILE)) {
 			ERR_clear_error();
@@ -404,7 +404,7 @@ char * CONF_get1_default_config_file(void)
 	len++;
 #endif
 	len += strlen(OPENSSL_CONF);
-	file = (char*)OPENSSL_malloc(len + 1);
+	file = (char *)OPENSSL_malloc(len + 1);
 	if(file == NULL)
 		return NULL;
 	OPENSSL_strlcpy(file, X509_get_default_cert_area(), len + 1);

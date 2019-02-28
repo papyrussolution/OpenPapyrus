@@ -180,7 +180,7 @@ static int comp_method_zlib_decomp(LIBSSH2_SESSION * session, uchar ** dest, siz
 	strm->next_in = (uchar*)src;
 	strm->avail_in = src_len;
 	strm->next_out = (uchar*)LIBSSH2_ALLOC(session, out_maxlen);
-	out = (char*)strm->next_out;
+	out = (char *)strm->next_out;
 	strm->avail_out = out_maxlen;
 	if(!strm->next_out)
 		return _libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate decompression buffer");

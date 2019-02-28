@@ -1246,7 +1246,7 @@ static int nsPush(xmlParserCtxt * ctxt, const xmlChar * prefix, const xmlChar * 
 	else if(ctxt->nsNr >= ctxt->nsMax) {
 		const xmlChar ** tmp;
 		ctxt->nsMax *= 2;
-		tmp = (const xmlChar**)SAlloc::R((char*)ctxt->nsTab, ctxt->nsMax * sizeof(ctxt->nsTab[0]));
+		tmp = (const xmlChar**)SAlloc::R((char *)ctxt->nsTab, ctxt->nsMax * sizeof(ctxt->nsTab[0]));
 		if(!tmp) {
 			xmlErrMemory(ctxt, 0);
 			ctxt->nsMax /= 2;
@@ -6259,9 +6259,9 @@ void xmlParseReference(xmlParserCtxt * ctxt)
 				}
 				else {
 					if((hex == 'x') || (hex == 'X'))
-						snprintf((char*)out, sizeof(out), "#x%X", value);
+						snprintf((char *)out, sizeof(out), "#x%X", value);
 					else
-						snprintf((char*)out, sizeof(out), "#%d", value);
+						snprintf((char *)out, sizeof(out), "#%d", value);
 					if(ctxt->sax && ctxt->sax->reference && !ctxt->disableSAX)
 						ctxt->sax->reference(ctxt->userData, out);
 				}
@@ -7632,7 +7632,7 @@ static const xmlChar * FASTCALL xmlParseQName(xmlParserCtxt * ctxt, const xmlCha
 				tmp = xmlBuildQName(BAD_CAST "", p, NULL, 0);
 			else {
 				tmp = xmlBuildQName(l, p, NULL, 0);
-				SAlloc::F((char*)l);
+				SAlloc::F((char *)l);
 			}
 			p = xmlDictLookupSL(ctxt->dict, tmp);
 			SAlloc::F(tmp);
@@ -10835,7 +10835,7 @@ xmlParserCtxt * xmlCreatePushParserCtxt(xmlSAXHandler * sax, void * user_data, c
 	if(filename == NULL)
 		inputStream->filename = NULL;
 	else {
-		inputStream->filename = (char*)xmlCanonicPath((const xmlChar*)filename);
+		inputStream->filename = (char *)xmlCanonicPath((const xmlChar*)filename);
 		if(inputStream->filename == NULL) {
 			xmlFreeParserCtxt(ctxt);
 			xmlFreeParserInputBuffer(buf);
@@ -11138,7 +11138,7 @@ xmlDtdPtr xmlSAXParseDTD(xmlSAXHandler * sax, const xmlChar * ExternalID, const 
 		xmlSwitchEncoding(ctxt, enc);
 	}
 	if(input->filename == NULL)
-		input->filename = (char*)systemIdCanonic;
+		input->filename = (char *)systemIdCanonic;
 	else
 		SAlloc::F(systemIdCanonic);
 	input->line = 1;
@@ -11676,7 +11676,7 @@ static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxt * oldct
 	if(string == NULL)
 		return XML_ERR_INTERNAL_ERROR;
 	size = sstrlen(string);
-	ctxt = xmlCreateMemoryParserCtxt((char*)string, size);
+	ctxt = xmlCreateMemoryParserCtxt((char *)string, size);
 	if(!ctxt)
 		return XML_WAR_UNDECLARED_ENTITY;
 	ctxt->userData = NZOR(user_data, ctxt);
@@ -11860,10 +11860,10 @@ xmlParserErrors xmlParseInNodeContext(xmlNode * P_Node, const char * data, int d
 	 * node position in the tree
 	 */
 	if(doc->type == XML_DOCUMENT_NODE)
-		ctxt = xmlCreateMemoryParserCtxt((char*)data, datalen);
+		ctxt = xmlCreateMemoryParserCtxt((char *)data, datalen);
 #ifdef LIBXML_HTML_ENABLED
 	else if(doc->type == XML_HTML_DOCUMENT_NODE) {
-		ctxt = htmlCreateMemoryParserCtxt((char*)data, datalen);
+		ctxt = htmlCreateMemoryParserCtxt((char *)data, datalen);
 		/*
 		 * When parsing in context, it makes no sense to add implied
 		 * elements like html/body/etc...
@@ -12037,7 +12037,7 @@ int xmlParseBalancedChunkMemoryRecover(xmlDoc * doc, xmlSAXHandler * sax, void *
 			ret = -1;
 		else {
 			size = sstrlen(string);
-			ctxt = xmlCreateMemoryParserCtxt((char*)string, size);
+			ctxt = xmlCreateMemoryParserCtxt((char *)string, size);
 			if(!ctxt) 
 				ret = -1;
 			else {
@@ -12229,19 +12229,19 @@ static xmlParserCtxt * xmlCreateEntityParserCtxtInternal(const xmlChar * URL, co
 		}
 		uri = xmlBuildURI(URL, base);
 		if(!uri) {
-			xmlParserInput * inputStream = xmlLoadExternalEntity((char*)URL, (char*)ID, ctxt);
+			xmlParserInput * inputStream = xmlLoadExternalEntity((char *)URL, (char *)ID, ctxt);
 			if(!inputStream) {
 				xmlFreeParserCtxt(ctxt);
 				return 0;
 			}
 			inputPush(ctxt, inputStream);
 			if(!ctxt->directory && !directory)
-				directory = xmlParserGetDirectory((char*)URL);
+				directory = xmlParserGetDirectory((char *)URL);
 			if(!ctxt->directory && directory)
 				ctxt->directory = directory;
 		}
 		else {
-			xmlParserInput * inputStream = xmlLoadExternalEntity((char*)uri, (char*)ID, ctxt);
+			xmlParserInput * inputStream = xmlLoadExternalEntity((char *)uri, (char *)ID, ctxt);
 			if(!inputStream) {
 				SAlloc::F(uri);
 				xmlFreeParserCtxt(ctxt);
@@ -12249,7 +12249,7 @@ static xmlParserCtxt * xmlCreateEntityParserCtxtInternal(const xmlChar * URL, co
 			}
 			inputPush(ctxt, inputStream);
 			if(!ctxt->directory && !directory)
-				directory = xmlParserGetDirectory((char*)uri);
+				directory = xmlParserGetDirectory((char *)uri);
 			if(!ctxt->directory && directory)
 				ctxt->directory = directory;
 			SAlloc::F(uri);
@@ -12475,7 +12475,7 @@ void xmlSetupParserForBuffer(xmlParserCtxt * ctxt, const xmlChar* buffer, const 
 		else {
 			xmlClearParserCtxt(ctxt);
 			if(filename)
-				input->filename = (char*)xmlCanonicPath((const xmlChar*)filename);
+				input->filename = (char *)xmlCanonicPath((const xmlChar*)filename);
 			input->base = buffer;
 			input->cur = buffer;
 			input->end = &buffer[sstrlen(buffer)];
@@ -12926,7 +12926,7 @@ void xmlCleanupParser()
  *
  * Free a string if it is not owned by the "dict" dictionnary in the current scope
  */
-//#define DICT_FREE(str) if((str) && ((!dict) || (xmlDictOwns(dict, (const xmlChar*)(str)) == 0))) SAlloc::F((char*)(str));
+//#define DICT_FREE(str) if((str) && ((!dict) || (xmlDictOwns(dict, (const xmlChar*)(str)) == 0))) SAlloc::F((char *)(str));
 /**
  * xmlCtxtReset:
  * @ctxt: an XML parser context

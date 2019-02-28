@@ -1,5 +1,5 @@
 // SC_GOODS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2010, 2011, 2015, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2010, 2011, 2015, 2016, 2019
 // Part of StyloConduit project
 // Экспорт/Импорт товаров
 //
@@ -11,8 +11,8 @@
 
 IMPL_CMPFUNC(GOODSID, i1, i2)
 {
-	SCDBObjGoods::IdxRec * g1 = (SCDBObjGoods::IdxRec*)i1;
-	SCDBObjGoods::IdxRec * g2 = (SCDBObjGoods::IdxRec*)i2;
+	const SCDBObjGoods::IdxRec * g1 = static_cast<const SCDBObjGoods::IdxRec *>(i1);
+	const SCDBObjGoods::IdxRec * g2 = static_cast<const SCDBObjGoods::IdxRec *>(i2);
 	if(g1->ID < g2->ID)
 		return -1;
 	else if(g1->ID > g2->ID)
@@ -24,8 +24,8 @@ IMPL_CMPFUNC(GOODSID, i1, i2)
 IMPL_CMPFUNC(GOODSNAM, i1, i2)
 {
 	int r = 0;
-	SCDBObjGoods::IdxRec * g1 = (SCDBObjGoods::IdxRec*)i1;
-	SCDBObjGoods::IdxRec * g2 = (SCDBObjGoods::IdxRec*)i2;
+	const SCDBObjGoods::IdxRec * g1 = static_cast<const SCDBObjGoods::IdxRec *>(i1);
+	const SCDBObjGoods::IdxRec * g2 = static_cast<const SCDBObjGoods::IdxRec *>(i2);
 	if((r = stricmp866(g1->Name, g2->Name)) < 0)
 		return -1;
 	else if(r > 0)
@@ -38,8 +38,8 @@ IMPL_CMPFUNC(GOODSGRPIDNAM, i1, i2)
 {
 	int r = 0;
 	int cmp = 0;
-	SCDBObjGoods::IdxRec * g1 = (SCDBObjGoods::IdxRec*)i1;
-	SCDBObjGoods::IdxRec * g2 = (SCDBObjGoods::IdxRec*)i2;
+	const SCDBObjGoods::IdxRec * g1 = static_cast<const SCDBObjGoods::IdxRec *>(i1);
+	const SCDBObjGoods::IdxRec * g2 = static_cast<const SCDBObjGoods::IdxRec *>(i2);
 	if(g1->GrpID < g2->GrpID)
 		cmp = -1;
 	else if(g1->GrpID > g2->GrpID)
@@ -60,8 +60,8 @@ IMPL_CMPFUNC(GOODSGRPIDNAM, i1, i2)
 IMPL_CMPFUNC(GOODSGRPIDID, i1, i2)
 {
 	int cmp = 0;
-	SCDBObjGoods::IdxRec * g1 = (SCDBObjGoods::IdxRec*)i1;
-	SCDBObjGoods::IdxRec * g2 = (SCDBObjGoods::IdxRec*)i2;
+	const SCDBObjGoods::IdxRec * g1 = static_cast<const SCDBObjGoods::IdxRec *>(i1);
+	const SCDBObjGoods::IdxRec * g2 = static_cast<const SCDBObjGoods::IdxRec *>(i2);
 	if(g1->GrpID < g2->GrpID)
 		cmp = -1;
 	else if(g1->GrpID > g2->GrpID)
@@ -82,8 +82,8 @@ IMPL_CMPFUNC(GOODSGRPIDID, i1, i2)
 IMPL_CMPFUNC(GOODSCODE, i1, i2)
 {
 	int r = 0;
-	SCDBObjGoods::IdxRec * g1 = (SCDBObjGoods::IdxRec*)i1;
-	SCDBObjGoods::IdxRec * g2 = (SCDBObjGoods::IdxRec*)i2;
+	const SCDBObjGoods::IdxRec * g1 = static_cast<const SCDBObjGoods::IdxRec *>(i1);
+	const SCDBObjGoods::IdxRec * g2 = static_cast<const SCDBObjGoods::IdxRec *>(i2);
 	if((r = stricmp866(g1->Code, g2->Code)) < 0)
 		return -1;
 	else if(r > 0)
@@ -96,8 +96,8 @@ IMPL_CMPFUNC(GOODSGRPIDCODE, i1, i2)
 {
 	int r = 0;
 	int cmp = 0;
-	SCDBObjGoods::IdxRec * g1 = (SCDBObjGoods::IdxRec*)i1;
-	SCDBObjGoods::IdxRec * g2 = (SCDBObjGoods::IdxRec*)i2;
+	const SCDBObjGoods::IdxRec * g1 = static_cast<const SCDBObjGoods::IdxRec *>(i1);
+	const SCDBObjGoods::IdxRec * g2 = static_cast<const SCDBObjGoods::IdxRec *>(i2);
 	if(g1->GrpID < g2->GrpID)
 		cmp = -1;
 	else if(g1->GrpID > g2->GrpID)
@@ -144,7 +144,6 @@ int SCDBObjGoods::Init(const char * pExpPath, const char * pImpPath)
 	int    ok = 1;
 	char   path[MAXPATH], fname[MAXPATH];
 	setLastSlash(STRNSCPY(path, pExpPath));
-
 	P_GoodsTbl = new DbfTable(strcat(STRNSCPY(fname, path), "sp_goods.dbf"));
 	P_QkTbl = new DbfTable(strcat(STRNSCPY(fname, path), "sp_quotk.dbf"));
 	LoadQuotKindList();
@@ -153,8 +152,8 @@ int SCDBObjGoods::Init(const char * pExpPath, const char * pImpPath)
 
 IMPL_CMPFUNC(QuotKindName, i1, i2)
 {
-	SCDBObjGoods::QuotKind * p1 = (SCDBObjGoods::QuotKind *)i1;
-	SCDBObjGoods::QuotKind * p2 = (SCDBObjGoods::QuotKind *)i2;
+	const SCDBObjGoods::QuotKind * p1 = static_cast<const SCDBObjGoods::QuotKind *>(i1);
+	const SCDBObjGoods::QuotKind * p2 = static_cast<const SCDBObjGoods::QuotKind *>(i2);
 	int    r;
 	if((r = stricmp866(p1->Name, p2->Name)) < 0)
 		return -1;
@@ -180,7 +179,6 @@ int SCDBObjGoods::LoadQuotKindList()
 			MEMSZERO(qk_rec);
 			DbfRecord rec(P_QkTbl);
 			P_QkTbl->getRec(&rec);
-
 			rec.get(fldn_id, qk_rec.ID);
 			rec.get(fldn_n, qk_rec.N);
 			get_str_from_dbfrec(&rec, fldn_name, 1, qk_rec.Name, sizeof(qk_rec.Name));
@@ -194,11 +192,11 @@ int SCDBObjGoods::LoadQuotKindList()
 SCDBObjGoods::PalmRec * SCDBObjGoods::AllocPalmRec(const TSVector <Quot> * pQuotList, size_t * pBufLen) // @v9.8.4 TSArray-->TSVector
 {
 	const size_t buf_len = sizeof(PalmRec) + pQuotList->getCount() * sizeof(Quot);
-	PalmRec * p_buf = (PalmRec *)SAlloc::C(1, buf_len);
+	PalmRec * p_buf = static_cast<PalmRec *>(SAlloc::C(1, buf_len));
 	if(p_buf) {
 		p_buf->QuotCount = SyncHostToHHWord(pQuotList->getCount());
 		for(uint i = 0; i < pQuotList->getCount(); i++) {
-			((Quot *)(p_buf+1))[i] = pQuotList->at(i);
+			reinterpret_cast<Quot *>(p_buf+1)[i] = pQuotList->at(i);
 		}
 	}
 	ASSIGN_PTR(pBufLen, buf_len);

@@ -4497,7 +4497,7 @@ static StyloDisplayQueue * FASTCALL GetStyloDisplayQueue(PPID dvcID)
 }
 
 //static
-int SLAPI PPObjStyloPalm::PutDisplayBlock(PalmDisplayBlock & rBlk)
+int SLAPI PPObjStyloPalm::PutDisplayBlock(const PalmDisplayBlock & rBlk)
 {
 	int    ok = 1;
 	assert(rBlk.DvcID);
@@ -4596,13 +4596,13 @@ PPALDD_CONSTRUCTOR(UhttStyloDevice)
 PPALDD_DESTRUCTOR(UhttStyloDevice)
 {
 	Destroy();
-	delete (UhttStyloDeviceBlock *)Extra[0].Ptr;
+	delete static_cast<UhttStyloDeviceBlock *>(Extra[0].Ptr);
 }
 
 int PPALDD_UhttStyloDevice::InitData(PPFilt & rFilt, long rsrv)
 {
 	int   ok = -1;
-	UhttStyloDeviceBlock & r_blk = *(UhttStyloDeviceBlock *)Extra[0].Ptr;
+	UhttStyloDeviceBlock & r_blk = *static_cast<UhttStyloDeviceBlock *>(Extra[0].Ptr);
 	r_blk.Clear();
 	MEMSZERO(H);
 	if(r_blk.SpObj.GetPacket(rFilt.ID, &r_blk.Pack) > 0) {
@@ -4624,7 +4624,7 @@ int PPALDD_UhttStyloDevice::Set(long iterId, int commit)
 {
 	int    ok = 1;
 	SString temp_buf;
-	UhttStyloDeviceBlock & r_blk = *(UhttStyloDeviceBlock *)Extra[0].Ptr;
+	UhttStyloDeviceBlock & r_blk = *static_cast<UhttStyloDeviceBlock *>(Extra[0].Ptr);
 	const PPID glob_acc_id = DS.GetConstTLA().GlobAccID;
 	if(r_blk.State != r_blk.stSet) {
 		r_blk.Clear();

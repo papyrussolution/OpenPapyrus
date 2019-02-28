@@ -8,7 +8,7 @@
 //
 //
 //
-IMPL_CMPFUNC(PayPlanTblRec, i1, i2) { return CMPSIGN(((PayPlanTbl::Rec *)i1)->PayDate, ((PayPlanTbl::Rec *)i2)->PayDate); }
+IMPL_CMPFUNC(PayPlanTblRec, i1, i2) { return CMPSIGN(static_cast<const PayPlanTbl::Rec *>(i1)->PayDate, static_cast<const PayPlanTbl::Rec *>(i2)->PayDate); }
 
 PayPlanArray::PayPlanArray() : TSVector <PayPlanTbl::Rec>() // @v9.8.4 TSArray-->TSVector
 {
@@ -3582,8 +3582,8 @@ struct TiDisItem {
 
 IMPL_CMPFUNC(TiDisItem, i1, i2)
 {
-	const TiDisItem * p1 = (const TiDisItem *)i1;
-	const TiDisItem * p2 = (const TiDisItem *)i2;
+	const TiDisItem * p1 = static_cast<const TiDisItem *>(i1);
+	const TiDisItem * p2 = static_cast<const TiDisItem *>(i2);
 	if(p1->Price < p2->Price)
 		return -1;
 	else if(p1->Price > p2->Price)

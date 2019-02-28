@@ -46,7 +46,7 @@ ssize_t ngx_wsarecv_chain(ngx_connection_t * c, ngx_chain_t * chain, nginx_off_t
 			if(wsabuf == NULL) {
 				return NGX_ERROR;
 			}
-			wsabuf->buf = (char*)chain->buf->last;
+			wsabuf->buf = (char *)chain->buf->last;
 			wsabuf->len = n;
 		}
 		size += n;

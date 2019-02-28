@@ -730,7 +730,7 @@ static int dm200encode(struct ZintSymbol * symbol, const uchar source[],
 #ifndef _MSC_VER
 	char binary[2 * inputlen];
 #else
-	char* binary = (char*)_alloca(2 * inputlen);
+	char* binary = (char *)_alloca(2 * inputlen);
 #endif
 	sp = 0;
 	tp = 0;

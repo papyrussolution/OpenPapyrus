@@ -848,9 +848,9 @@ double _cairo_strtod(const char * nptr, char ** endptr)
 	value = strtod(buf, &end);
 	if(endptr) {
 		if(end == buf)
-			*endptr = (char*)(nptr);
+			*endptr = (char *)(nptr);
 		else
-			*endptr = (char*)(nptr + (end - buf) + delta);
+			*endptr = (char *)(nptr + (end - buf) + delta);
 	}
 	return value;
 }
@@ -1004,7 +1004,7 @@ static cairo_bool_t _intern_string_equal(const void * _a, const void * _b)
 
 cairo_status_t _cairo_intern_string(const char ** str_inout, int len)
 {
-	char * str = (char*)*str_inout;
+	char * str = (char *)*str_inout;
 	cairo_intern_string_t tmpl, * istring;
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
 	if(CAIRO_INJECT_FAULT())
@@ -1013,7 +1013,7 @@ cairo_status_t _cairo_intern_string(const char ** str_inout, int len)
 		len = strlen(str);
 	tmpl.hash_entry.hash = _cairo_string_hash(str, len);
 	tmpl.len = len;
-	tmpl.string = (char*)str;
+	tmpl.string = (char *)str;
 
 	CAIRO_MUTEX_LOCK(_cairo_intern_string_mutex);
 	if(_cairo_intern_string_ht == NULL) {
@@ -1029,7 +1029,7 @@ cairo_status_t _cairo_intern_string(const char ** str_inout, int len)
 		if(likely(istring != NULL)) {
 			istring->hash_entry.hash = tmpl.hash_entry.hash;
 			istring->len = tmpl.len;
-			istring->string = (char*)(istring + 1);
+			istring->string = (char *)(istring + 1);
 			memcpy(istring->string, str, len);
 			istring->string[len] = '\0';
 			status = _cairo_hash_table_insert(_cairo_intern_string_ht, &istring->hash_entry);

@@ -35,7 +35,7 @@ static int PackBitsPreEncode(TIFF* tif, uint16 s)
 {
 	(void)s;
 
-	tif->tif_data = (uint8*)SAlloc::M(sizeof(tmsize_t));
+	tif->tif_data = (uint8 *)SAlloc::M(sizeof(tmsize_t));
 	if(tif->tif_data == NULL)
 		return 0;
 	/*
@@ -220,7 +220,7 @@ static int PackBitsDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 	int b;
 
 	(void)s;
-	bp = (char*)tif->tif_rawcp;
+	bp = (char *)tif->tif_rawcp;
 	cc = tif->tif_rawcc;
 	while(cc > 0 && occ > 0) {
 		n = (long)*bp++;
@@ -269,7 +269,7 @@ static int PackBitsDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 			bp += n; cc -= n;
 		}
 	}
-	tif->tif_rawcp = (uint8*)bp;
+	tif->tif_rawcp = (uint8 *)bp;
 	tif->tif_rawcc = cc;
 	if(occ > 0) {
 		TIFFErrorExt(tif->tif_clientdata, module,

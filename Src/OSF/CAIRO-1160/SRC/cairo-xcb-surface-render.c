@@ -501,7 +501,7 @@ static void _cairo_xcb_picture_set_filter(cairo_xcb_picture_t * picture,
 
 	_cairo_xcb_connection_render_set_picture_filter(_picture_to_connection(picture),
 	    picture->picture,
-	    len, (char*)render_filter);
+	    len, (char *)render_filter);
 	picture->filter = filter;
 }
 

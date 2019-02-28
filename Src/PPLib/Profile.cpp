@@ -172,7 +172,7 @@ void * FASTCALL Profile::Search(const char * pFileName, long lineNum) const
 	uint pos = 0;
 	ProfileEntry pe;
 	pe.Hash    = PeHashString(pFileName);
-	pe.LineNum = (ulong)lineNum;
+	pe.LineNum = static_cast<ulong>(lineNum);
 	return bsearch(&pe, &pos, PTR_CMPFUNC(PrflEnKey)) ? &at(pos) : 0;
 }
 
@@ -184,7 +184,7 @@ int SLAPI Profile::Insert(ProfileEntry * e, uint * pPos)
 int SLAPI Profile::Output(uint fileId, const char * pDescription)
 {
 	Lck.Lock();
-	if(getCount()) { // @v8.1.6
+	if(getCount()) {
 		SETIFZ(fileId, PPFILNAM_PROFILE_LOG);
 		char   empty_descr[16];
 		SString temp_buf;

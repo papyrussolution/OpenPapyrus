@@ -247,7 +247,7 @@ static ssize_t utf8asn1str(char ** to, int type, const char * from, const char *
 	   Terminate the string with a nul byte and return the converted
 	   string length. */
 
-	*to = (char*)NULL;
+	*to = (char *)NULL;
 	switch(type) {
 		case CURL_ASN1_BMP_STRING:
 		    size = 2;
@@ -392,7 +392,7 @@ static int encodeOID(char * buf, int n, const char * beg, const char * end)
 
 static const char * OID2str(const char * beg, const char * end, bool symbolic)
 {
-	char * buf = (char*)NULL;
+	char * buf = (char *)NULL;
 	const curl_OID * op;
 	int n;
 
@@ -400,7 +400,7 @@ static const char * OID2str(const char * beg, const char * end, bool symbolic)
 	   Return the dynamically allocated string, or NULL if an error occurs. */
 
 	if(beg < end) {
-		n = encodeOID((char*)NULL, -1, beg, end);
+		n = encodeOID((char *)NULL, -1, beg, end);
 		if(n >= 0) {
 			buf = SAlloc::M(n + 1);
 			if(buf) {
@@ -595,7 +595,7 @@ static ssize_t encodeDN(char * buf, size_t n, curl_asn1Element * dn)
 					buf[l] = *p3;
 				l++;
 			}
-			SAlloc::F((char*)str);
+			SAlloc::F((char *)str);
 
 			/* Generate equal sign. */
 			if(l < n)
@@ -611,7 +611,7 @@ static ssize_t encodeDN(char * buf, size_t n, curl_asn1Element * dn)
 					buf[l] = *p3;
 				l++;
 			}
-			SAlloc::F((char*)str);
+			SAlloc::F((char *)str);
 		}
 	}
 
@@ -620,7 +620,7 @@ static ssize_t encodeDN(char * buf, size_t n, curl_asn1Element * dn)
 
 const char * Curl_DNtostr(curl_asn1Element * dn)
 {
-	char * buf = (char*)NULL;
+	char * buf = (char *)NULL;
 	ssize_t n = encodeDN(buf, 0, dn);
 
 	/* Convert an ASN.1 distinguished name into a printable string.
@@ -770,7 +770,7 @@ static void do_pubkey_field(struct Curl_easy * data, int certnum,
 			Curl_ssl_push_certinfo(data, certnum, label, output);
 		if(!certnum)
 			infof(data, "   %s: %s\n", label, output);
-		SAlloc::F((char*)output);
+		SAlloc::F((char *)output);
 	}
 }
 
@@ -807,7 +807,7 @@ static void do_pubkey(struct Curl_easy * data, int certnum,
 			q = curl_maprintf("%lu", len);
 			if(q) {
 				Curl_ssl_push_certinfo(data, certnum, "RSA Public Key", q);
-				SAlloc::F((char*)q);
+				SAlloc::F((char *)q);
 			}
 		}
 		/* Generate coefficients. */
@@ -873,7 +873,7 @@ CURLcode Curl_extract_certinfo(struct connectdata * conn,
 		Curl_ssl_push_certinfo(data, certnum, "Subject", ccp);
 	if(!certnum)
 		infof(data, "%2d Subject: %s\n", certnum, ccp);
-	SAlloc::F((char*)ccp);
+	SAlloc::F((char *)ccp);
 
 	/* Issuer. */
 	ccp = Curl_DNtostr(&cert.issuer);
@@ -883,7 +883,7 @@ CURLcode Curl_extract_certinfo(struct connectdata * conn,
 		Curl_ssl_push_certinfo(data, certnum, "Issuer", ccp);
 	if(!certnum)
 		infof(data, "   Issuer: %s\n", ccp);
-	SAlloc::F((char*)ccp);
+	SAlloc::F((char *)ccp);
 
 	/* Version (always fits in less than 32 bits). */
 	version = 0;
@@ -894,7 +894,7 @@ CURLcode Curl_extract_certinfo(struct connectdata * conn,
 		if(!ccp)
 			return CURLE_OUT_OF_MEMORY;
 		Curl_ssl_push_certinfo(data, certnum, "Version", ccp);
-		SAlloc::F((char*)ccp);
+		SAlloc::F((char *)ccp);
 	}
 	if(!certnum)
 		infof(data, "   Version: %lu (0x%lx)\n", version + 1, version);
@@ -907,7 +907,7 @@ CURLcode Curl_extract_certinfo(struct connectdata * conn,
 		Curl_ssl_push_certinfo(data, certnum, "Serial Number", ccp);
 	if(!certnum)
 		infof(data, "   Serial Number: %s\n", ccp);
-	SAlloc::F((char*)ccp);
+	SAlloc::F((char *)ccp);
 
 	/* Signature algorithm .*/
 	ccp = dumpAlgo(&param, cert.signatureAlgorithm.beg,
@@ -918,7 +918,7 @@ CURLcode Curl_extract_certinfo(struct connectdata * conn,
 		Curl_ssl_push_certinfo(data, certnum, "Signature Algorithm", ccp);
 	if(!certnum)
 		infof(data, "   Signature Algorithm: %s\n", ccp);
-	SAlloc::F((char*)ccp);
+	SAlloc::F((char *)ccp);
 
 	/* Start Date. */
 	ccp = Curl_ASN1tostr(&cert.notBefore, 0);
@@ -928,7 +928,7 @@ CURLcode Curl_extract_certinfo(struct connectdata * conn,
 		Curl_ssl_push_certinfo(data, certnum, "Start Date", ccp);
 	if(!certnum)
 		infof(data, "   Start Date: %s\n", ccp);
-	SAlloc::F((char*)ccp);
+	SAlloc::F((char *)ccp);
 
 	/* Expire Date. */
 	ccp = Curl_ASN1tostr(&cert.notAfter, 0);
@@ -938,7 +938,7 @@ CURLcode Curl_extract_certinfo(struct connectdata * conn,
 		Curl_ssl_push_certinfo(data, certnum, "Expire Date", ccp);
 	if(!certnum)
 		infof(data, "   Expire Date: %s\n", ccp);
-	SAlloc::F((char*)ccp);
+	SAlloc::F((char *)ccp);
 
 	/* Public Key Algorithm. */
 	ccp = dumpAlgo(&param, cert.subjectPublicKeyAlgorithm.beg,
@@ -950,7 +950,7 @@ CURLcode Curl_extract_certinfo(struct connectdata * conn,
 	if(!certnum)
 		infof(data, "   Public Key Algorithm: %s\n", ccp);
 	do_pubkey(data, certnum, ccp, &param, &cert.subjectPublicKey);
-	SAlloc::F((char*)ccp);
+	SAlloc::F((char *)ccp);
 
 /* @todo extensions. */
 
@@ -962,7 +962,7 @@ CURLcode Curl_extract_certinfo(struct connectdata * conn,
 		Curl_ssl_push_certinfo(data, certnum, "Signature", ccp);
 	if(!certnum)
 		infof(data, "   Signature: %s\n", ccp);
-	SAlloc::F((char*)ccp);
+	SAlloc::F((char *)ccp);
 
 	/* Generate PEM certificate. */
 	result = Curl_base64_encode(data, cert.certificate.beg,
@@ -1023,7 +1023,7 @@ static const char * checkOID(const char * beg, const char * end,
 		return (const char*)NULL;
 
 	matched = !strcmp(p, oid);
-	SAlloc::F((char*)p);
+	SAlloc::F((char *)p);
 	return matched ? ccp : (const char*)NULL;
 }
 

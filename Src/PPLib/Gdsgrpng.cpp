@@ -72,8 +72,8 @@ double FASTCALL GoodsGrpngEntry::Income(int incomeCalcMethod /*=-1*/) const
 
 IMPL_CMPFUNC(GGAKey, i1, i2)
 {
-	const GoodsGrpngEntry * k1 = (const GoodsGrpngEntry *)i1;
-	const GoodsGrpngEntry * k2 = (const GoodsGrpngEntry *)i2;
+	const GoodsGrpngEntry * k1 = static_cast<const GoodsGrpngEntry *>(i1);
+	const GoodsGrpngEntry * k2 = static_cast<const GoodsGrpngEntry *>(i2);
 	if(k1->LotID < k2->LotID) return -1;
 	if(k1->LotID > k2->LotID) return 1;
 	if(k1->OpID < k2->OpID) return -1;
@@ -121,7 +121,7 @@ int SLAPI GoodsGrpngArray::WasErrDetected() const
 
 GoodsGrpngEntry & FASTCALL GoodsGrpngArray::at(uint p)
 {
-	return *(GoodsGrpngEntry*)SVector::at(p); // @v9.8.11 SArray-->SVector
+	return *static_cast<GoodsGrpngEntry *>(SVector::at(p)); // @v9.8.11 SArray-->SVector
 }
 
 int SLAPI GoodsGrpngArray::Search(const GoodsGrpngEntry * pGGE, uint * p)
@@ -136,9 +136,9 @@ int SLAPI GoodsGrpngArray::Search(const GoodsGrpngEntry * pGGE, uint * p)
 	return bsearch(&k, p, PTR_CMPFUNC(GGAKey));
 }
 
-int SLAPI GoodsGrpngArray::Insert(GoodsGrpngEntry * e, uint * p)
+int SLAPI GoodsGrpngArray::Insert(const GoodsGrpngEntry * pEntry, uint * p)
 {
-	return ordInsert(e, p, PTR_CMPFUNC(GGAKey)) ? 1 : PPSetErrorSLib();
+	return ordInsert(pEntry, p, PTR_CMPFUNC(GGAKey)) ? 1 : PPSetErrorSLib();
 }
 
 int SLAPI AdjGdsGrpng::MakeBillIDList(const GCTFilt * pF, const PPIDArray * pOpList, int byReckon)

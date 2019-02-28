@@ -1797,15 +1797,15 @@ void SLAPI RAssocArray::SortByKey()
 
 IMPL_CMPFUNC(RAssoc_Val, i1, i2)
 {
-	const RAssoc * p1 = (const RAssoc *)i1;
-	const RAssoc * p2 = (const RAssoc *)i2;
+	const RAssoc * p1 = static_cast<const RAssoc *>(i1);
+	const RAssoc * p2 = static_cast<const RAssoc *>(i2);
 	return (p1->Val < p2->Val) ? -1 : ((p1->Val > p2->Val) ? +1 : 0);
 }
 
 IMPL_CMPFUNC(RAssoc_Val_Rev, i1, i2)
 {
-	const RAssoc * p1 = (const RAssoc *)i1;
-	const RAssoc * p2 = (const RAssoc *)i2;
+	const RAssoc * p1 = static_cast<const RAssoc *>(i1);
+	const RAssoc * p2 = static_cast<const RAssoc *>(i2);
 	return (p1->Val < p2->Val) ? +1 : ((p1->Val > p2->Val) ? -1 : 0);
 }
 
@@ -1840,8 +1840,8 @@ RPair & FASTCALL RPairArray::operator [](size_t i) const
 	return at(i);
 }
 
-IMPL_CMPFUNC(RPairX, i1, i2) { RET_CMPCASCADE2((const RPair *)i1, (const RPair *)i2, X, Y); }
-IMPL_CMPFUNC(RPairY, i1, i2) { RET_CMPCASCADE2((const RPair *)i1, (const RPair *)i2, Y, X); }
+IMPL_CMPFUNC(RPairX, i1, i2) { RET_CMPCASCADE2(static_cast<const RPair *>(i1), static_cast<const RPair *>(i2), X, Y); }
+IMPL_CMPFUNC(RPairY, i1, i2) { RET_CMPCASCADE2(static_cast<const RPair *>(i1), static_cast<const RPair *>(i2), Y, X); }
 
 void SLAPI RPairArray::SortByX()
 {

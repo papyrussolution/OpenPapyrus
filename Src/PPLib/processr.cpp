@@ -937,7 +937,7 @@ int SLAPI PPObjProcessor::GetExtention(PPID id, PPProcessorPacket::ExtBlock * pE
 	else if(p_ref->GetPropActualSize(Obj, id, PRCPRP_EXT, &sz) > 0) {
 		if(pExt) {
 			SString stub_extsting;
-			p_strg = (Strg_ProcessorExt *)SAlloc::M(sz);
+			p_strg = static_cast<Strg_ProcessorExt *>(SAlloc::M(sz));
 			ok = p_ref->GetProperty(Obj, id, PRCPRP_EXT, p_strg, sz);
 			assert(ok > 0); // Раз нам удалось считать размер буфера, то последующая ошибка чтения - критична
 			THROW(ok > 0);
@@ -945,9 +945,9 @@ int SLAPI PPObjProcessor::GetExtention(PPID id, PPProcessorPacket::ExtBlock * pE
 			pExt->CheckInTime = p_strg->CheckInTime;
 			pExt->CheckOutTime = p_strg->CheckOutTime;
 			pExt->TimeFlags = p_strg->TimeFlags;
-			pExt->InitSessStatus = p_strg->InitSessStatus; // @v8.2.9
+			pExt->InitSessStatus = p_strg->InitSessStatus;
 			if(p_strg->ExtStrLen > 0) {
-				stub_extsting = (const char *)(p_strg+1);
+				stub_extsting = reinterpret_cast<const char *>(p_strg+1);
 			}
 		}
 		ok = 2;
@@ -961,9 +961,11 @@ int SLAPI PPObjProcessor::GetPacket(PPID id, PPProcessorPacket * pPack)
 {
 	int    ok = -1;
 	pPack->destroy();
-	if(Search(id, &pPack->Rec) > 0) {
-		THROW(GetExtention(id, &pPack->Ext));
-		ok = 1;
+	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
+		ok = Search(id, &pPack->Rec);
+		if(ok > 0) {
+			THROW(GetExtention(id, &pPack->Ext));
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -1035,7 +1037,7 @@ int SLAPI ProcessorCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI ProcessorCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	ProcessorTbl::Rec * p_data_rec = (ProcessorTbl::Rec *)pDataRec;
+	ProcessorTbl::Rec * p_data_rec = static_cast<ProcessorTbl::Rec *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 #define CPY_FLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
@@ -2217,7 +2219,7 @@ PPALDD_CONSTRUCTOR(Processor)
 PPALDD_DESTRUCTOR(Processor)
 {
 	Destroy();
-	delete (PPObjProcessor *)Extra[0].Ptr;
+	delete static_cast<PPObjProcessor *>(Extra[0].Ptr);
 }
 
 int PPALDD_Processor::InitData(PPFilt & rFilt, long rsrv)
@@ -2333,7 +2335,7 @@ PPALDD_CONSTRUCTOR(UhttProcessor)
 PPALDD_DESTRUCTOR(UhttProcessor)
 {
 	Destroy();
-	delete (UhttProcessorBlock *)Extra[0].Ptr;
+	delete static_cast<UhttProcessorBlock *>(Extra[0].Ptr);
 }
 
 int PPALDD_UhttProcessor::InitData(PPFilt & rFilt, long rsrv)
@@ -2344,7 +2346,7 @@ int PPALDD_UhttProcessor::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
-		UhttProcessorBlock & r_blk = *(UhttProcessorBlock *)Extra[0].Ptr;
+		UhttProcessorBlock & r_blk = *static_cast<UhttProcessorBlock *>(Extra[0].Ptr);
 		if(r_blk.PrcObj.GetPacket(rFilt.ID, &r_blk.Pack) > 0) {
 			H.ID       = r_blk.Pack.Rec.ID;
 			H.ParentID = r_blk.Pack.Rec.ParentID;
@@ -2367,7 +2369,7 @@ int PPALDD_UhttProcessor::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_UhttProcessor::InitIteration(long iterId, int sortId, long rsrv)
 {
 	IterProlog(iterId, 1);
-	UhttProcessorBlock & r_blk = *(UhttProcessorBlock *)Extra[0].Ptr;
+	UhttProcessorBlock & r_blk = *static_cast<UhttProcessorBlock *>(Extra[0].Ptr);
 	if(iterId == GetIterID("iter@Places"))
 		r_blk.PlacePos = 0;
 	return 1;
@@ -2378,7 +2380,7 @@ int PPALDD_UhttProcessor::NextIteration(long iterId)
 	int     ok = -1;
 	SString temp_buf;
 	IterProlog(iterId, 0);
-	UhttProcessorBlock & r_blk = *(UhttProcessorBlock *)Extra[0].Ptr;
+	UhttProcessorBlock & r_blk = *static_cast<UhttProcessorBlock *>(Extra[0].Ptr);
 	if(iterId == GetIterID("iter@Places")) {
 		PPProcessorPacket::PlaceDescription pd_item;
 		if(r_blk.Pack.Ext.GetPlaceDescription(r_blk.PlacePos++, pd_item)) {
@@ -2394,7 +2396,7 @@ int PPALDD_UhttProcessor::NextIteration(long iterId)
 int PPALDD_UhttProcessor::Set(long iterId, int commit)
 {
 	int    ok = 1;
-	UhttProcessorBlock & r_blk = *(UhttProcessorBlock *)Extra[0].Ptr;
+	UhttProcessorBlock & r_blk = *static_cast<UhttProcessorBlock *>(Extra[0].Ptr);
 	if(!(r_blk.State & UhttProcessorBlock::stSet)) {
 		r_blk.Clear();
 		r_blk.State |= UhttProcessorBlock::stSet;

@@ -775,30 +775,32 @@ int SLAPI PPObjGoodsTax::PutPacket(PPID * pID, PPGoodsTaxPacket * pPack, int use
 int SLAPI PPObjGoodsTax::GetPacket(PPID id, PPGoodsTaxPacket * pPack)
 {
 	int    ok = -1;
-	if(Search(id, &pPack->Rec) > 0) {
-		ref->GetPropArray(Obj, id, GTGPRP_ENTRIES, pPack->vecptr());
-		uint i;
-		int  is_zero_excise = 1;
-		if(pPack->Rec.Excise != 0)
-			is_zero_excise = 0;
-		else {
-			for(i = 0; i < pPack->GetCount(); i++) {
-				if(pPack->Get(i).Excise != 0) {
-					is_zero_excise = 0;
-					break;
+	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
+		if(Search(id, &pPack->Rec) > 0) {
+			ref->GetPropArray(Obj, id, GTGPRP_ENTRIES, pPack->vecptr());
+			uint i;
+			int  is_zero_excise = 1;
+			if(pPack->Rec.Excise != 0)
+				is_zero_excise = 0;
+			else {
+				for(i = 0; i < pPack->GetCount(); i++) {
+					if(pPack->Get(i).Excise != 0) {
+						is_zero_excise = 0;
+						break;
+					}
 				}
 			}
+			for(i = 0; i < pPack->GetCount(); i++) {
+				PPGoodsTaxEntry & r_entry = pPack->Get(i);
+				SETFLAG(r_entry.Flags, GTAXF_ZEROEXCISE, is_zero_excise);
+				r_entry.Flags |= GTAXF_ENTRY;
+				long s = static_cast<long>(i+1);
+				r_entry.TaxGrpID = ((id & 0x00ffffffL) | (s << 24));
+			}
+			SETFLAG(pPack->Rec.Flags, GTAXF_ZEROEXCISE, is_zero_excise);
+			SETFLAG(pPack->Rec.Flags, GTAXF_USELIST, pPack->GetCount());
+			ok = 1;
 		}
-		for(i = 0; i < pPack->GetCount(); i++) {
-			PPGoodsTaxEntry & r_entry = pPack->Get(i);
-			SETFLAG(r_entry.Flags, GTAXF_ZEROEXCISE, is_zero_excise);
-			r_entry.Flags |= GTAXF_ENTRY;
-			long s = static_cast<long>(i+1);
-			r_entry.TaxGrpID = ((id & 0x00ffffffL) | (s << 24));
-		}
-		SETFLAG(pPack->Rec.Flags, GTAXF_ZEROEXCISE, is_zero_excise);
-		SETFLAG(pPack->Rec.Flags, GTAXF_USELIST, pPack->GetCount());
-		ok = 1;
 	}
 	return ok;
 }

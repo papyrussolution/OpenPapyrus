@@ -1583,47 +1583,32 @@ PNG_EXPORT(76, void *, png_get_error_ptr, (png_const_structrp png_ptr));
  * default flush function, which uses the standard *FILE structure, will
  * be used.
  */
-PNG_EXPORT(77, void, png_set_write_fn, (png_structrp png_ptr, void * io_ptr,
-    png_rw_ptr write_data_fn, png_flush_ptr output_flush_fn));
-
+PNG_EXPORT(77, void, png_set_write_fn, (png_structrp png_ptr, void * io_ptr, png_rw_ptr write_data_fn, png_flush_ptr output_flush_fn));
 /* Replace the default data input function with a user supplied one. */
-PNG_EXPORT(78, void, png_set_read_fn, (png_structrp png_ptr, void * io_ptr,
-    png_rw_ptr read_data_fn));
-
+PNG_EXPORT(78, void, png_set_read_fn, (png_structrp png_ptr, void * io_ptr, png_rw_ptr read_data_fn));
 /* Return the user pointer associated with the I/O functions */
 PNG_EXPORT(79, void *, png_get_io_ptr, (png_const_structrp png_ptr));
-
-PNG_EXPORT(80, void, png_set_read_status_fn, (png_structrp png_ptr,
-    png_read_status_ptr read_row_fn));
-
-PNG_EXPORT(81, void, png_set_write_status_fn, (png_structrp png_ptr,
-    png_write_status_ptr write_row_fn));
+PNG_EXPORT(80, void, png_set_read_status_fn, (png_structrp png_ptr, png_read_status_ptr read_row_fn));
+PNG_EXPORT(81, void, png_set_write_status_fn, (png_structrp png_ptr, png_write_status_ptr write_row_fn));
 
 #ifdef PNG_USER_MEM_SUPPORTED
 /* Replace the default memory allocation functions with user supplied one(s). */
-PNG_EXPORT(82, void, png_set_mem_fn, (png_structrp png_ptr, void * mem_ptr,
-    png_malloc_ptr malloc_fn, png_free_ptr free_fn));
+PNG_EXPORT(82, void, png_set_mem_fn, (png_structrp png_ptr, void * mem_ptr, png_malloc_ptr malloc_fn, png_free_ptr free_fn));
 /* Return the user pointer associated with the memory functions */
 PNG_EXPORT(83, void *, png_get_mem_ptr, (png_const_structrp png_ptr));
 #endif
 
 #ifdef PNG_READ_USER_TRANSFORM_SUPPORTED
-PNG_EXPORT(84, void, png_set_read_user_transform_fn, (png_structrp png_ptr,
-    png_user_transform_ptr read_user_transform_fn));
+PNG_EXPORT(84, void, png_set_read_user_transform_fn, (png_structrp png_ptr, png_user_transform_ptr read_user_transform_fn));
 #endif
-
 #ifdef PNG_WRITE_USER_TRANSFORM_SUPPORTED
-PNG_EXPORT(85, void, png_set_write_user_transform_fn, (png_structrp png_ptr,
-    png_user_transform_ptr write_user_transform_fn));
+PNG_EXPORT(85, void, png_set_write_user_transform_fn, (png_structrp png_ptr, png_user_transform_ptr write_user_transform_fn));
 #endif
 
 #ifdef PNG_USER_TRANSFORM_PTR_SUPPORTED
-PNG_EXPORT(86, void, png_set_user_transform_info, (png_structrp png_ptr,
-    void * user_transform_ptr, int user_transform_depth,
-    int user_transform_channels));
+PNG_EXPORT(86, void, png_set_user_transform_info, (png_structrp png_ptr, void * user_transform_ptr, int user_transform_depth, int user_transform_channels));
 /* Return the user pointer associated with the user transform functions */
-PNG_EXPORT(87, void *, png_get_user_transform_ptr,
-    (png_const_structrp png_ptr));
+PNG_EXPORT(87, void *, png_get_user_transform_ptr, (png_const_structrp png_ptr));
 #endif
 
 #ifdef PNG_USER_TRANSFORM_INFO_SUPPORTED

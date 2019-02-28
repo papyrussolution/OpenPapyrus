@@ -521,64 +521,46 @@ fail:
 	return status;
 }
 
-static cairo_bool_t _cliprect_covers_surface(cairo_svg_surface_t * surface,
-    cairo_path_fixed_t * path)
+static cairo_bool_t _cliprect_covers_surface(cairo_svg_surface_t * surface, const cairo_path_fixed_t * path)
 {
 	cairo_box_t box;
-
 	if(_cairo_path_fixed_is_box(path, &box)) {
-		if(box.p1.x <= 0 &&
-		    box.p1.y <= 0 &&
-		    _cairo_fixed_to_double(box.p2.x) >= surface->width &&
-		    _cairo_fixed_to_double(box.p2.y) >= surface->height) {
+		if(box.p1.x <= 0 && box.p1.y <= 0 && _cairo_fixed_to_double(box.p2.x) >= surface->width && _cairo_fixed_to_double(box.p2.y) >= surface->height) {
 			return TRUE;
 		}
 	}
-
 	return FALSE;
 }
 
-static cairo_status_t _cairo_svg_surface_clipper_intersect_clip_path(cairo_surface_clipper_t * clipper,
-    cairo_path_fixed_t * path,
-    cairo_fill_rule_t fill_rule,
-    double tolerance,
-    cairo_antialias_t antialias)
+static cairo_status_t _cairo_svg_surface_clipper_intersect_clip_path(cairo_surface_clipper_t * clipper, cairo_path_fixed_t * path,
+    cairo_fill_rule_t fill_rule, double tolerance, cairo_antialias_t antialias)
 {
-	cairo_svg_surface_t * surface = cairo_container_of(clipper,
-		cairo_svg_surface_t,
-		clipper);
+	cairo_svg_surface_t * surface = cairo_container_of(clipper, cairo_svg_surface_t, clipper);
 	cairo_svg_document_t * document = surface->document;
 	uint i;
-
 	if(path == NULL) {
 		for(i = 0; i < surface->clip_level; i++)
 			_cairo_output_stream_printf(surface->xml_node, "</g>\n");
-
 		surface->clip_level = 0;
 		return CAIRO_STATUS_SUCCESS;
 	}
-
 	/* skip trivial whole-page clips */
 	if(_cliprect_covers_surface(surface, path))
 		return CAIRO_STATUS_SUCCESS;
-
 	_cairo_output_stream_printf(document->xml_node_defs,
 	    "<clipPath id=\"clip%d\">\n"
 	    "  <path ",
 	    document->clip_id);
 	_cairo_svg_surface_emit_path(document->xml_node_defs, path, NULL);
-
 	_cairo_output_stream_printf(document->xml_node_defs,
 	    "/>\n"
 	    "</clipPath>\n");
-
 	_cairo_output_stream_printf(surface->xml_node,
 	    "<g clip-path=\"url(#clip%d)\" "
 	    "clip-rule=\"%s\">\n",
 	    document->clip_id,
 	    fill_rule == CAIRO_FILL_RULE_EVEN_ODD ?
 	    "evenodd" : "nonzero");
-
 	document->clip_id++;
 	surface->clip_level++;
 	return CAIRO_STATUS_SUCCESS;

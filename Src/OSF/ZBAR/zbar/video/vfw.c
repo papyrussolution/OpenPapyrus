@@ -33,7 +33,7 @@
 #define BIH_FMT "%ldx%ld @%dbpp (%lx) cmp=%.4s(%08lx) res=%ldx%ld clr=%ld/%ld (%lx)"
 #define BIH_FIELDS(bih)							\
 	(bih)->biWidth, (bih)->biHeight, (bih)->biBitCount, (bih)->biSizeImage,	\
-	(char*)&(bih)->biCompression, (bih)->biCompression,		\
+	(char *)&(bih)->biCompression, (bih)->biCompression,		\
 	(bih)->biXPelsPerMeter, (bih)->biYPelsPerMeter,			\
 	(bih)->biClrImportant, (bih)->biClrUsed, (bih)->biSize
 
@@ -222,7 +222,7 @@ static int vfw_set_format(zbar_video_t * vdo, uint32 fmt)
 	}
 	bih->biClrUsed = bih->biClrImportant = 0;
 	bih->biCompression = fmt;
-	zprintf(8, "seting format: %.4s(%08x) " BIH_FMT "\n", (char*)&fmt, fmt, BIH_FIELDS(bih));
+	zprintf(8, "seting format: %.4s(%08x) " BIH_FMT "\n", (char *)&fmt, fmt, BIH_FIELDS(bih));
 	if(!capSetVideoFormat(vdo->state->hwnd, bih, vdo->state->bi_size))
 		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "setting video format");
 	if(!capGetVideoFormat(vdo->state->hwnd, bih, vdo->state->bi_size))
@@ -233,7 +233,7 @@ static int vfw_set_format(zbar_video_t * vdo, uint32 fmt)
 	vdo->width = bih->biWidth;
 	vdo->height = bih->biHeight;
 	vdo->datalen = bih->biSizeImage;
-	zprintf(4, "set new format: %.4s(%08x) " BIH_FMT "\n", (char*)&fmt, fmt, BIH_FIELDS(bih));
+	zprintf(4, "set new format: %.4s(%08x) " BIH_FMT "\n", (char *)&fmt, fmt, BIH_FIELDS(bih));
 	return 0;
 }
 
@@ -295,7 +295,7 @@ static int vfw_probe_format(zbar_video_t * vdo,
 	if(!fmtdef)
 		return 0;
 
-	zprintf(4, "    trying %.4s(%08x)...\n", (char*)&fmt, fmt);
+	zprintf(4, "    trying %.4s(%08x)...\n", (char *)&fmt, fmt);
 	BITMAPINFOHEADER * bih = vdo->state->bih;
 	bih->biWidth = vdo->width;
 	bih->biHeight = vdo->height;

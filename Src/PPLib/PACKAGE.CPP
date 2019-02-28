@@ -1,5 +1,5 @@
 // PACKAGE.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2001, 2002, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2019
 // @Kernel
 //
 #include <pp.h>
@@ -29,7 +29,6 @@ int FASTCALL LPackage::Copy(const LPackage & s)
 	memcpy(Code, s.Code, sizeof(Code));
 	Closed = s.Closed;
 	UniqCntr = s.UniqCntr;
-
 	Flags = s.Flags;
 	Qtty = s.Qtty;
 	PhQtty = s.PhQtty;
@@ -54,7 +53,6 @@ int SLAPI LPackage::Init()
 	Closed = 0;
 	UniqCntr = 0;
 	Flags = 0;
-
 	PckgIdx = -1;
 	Qtty = PhQtty = 0;
 	Cost = Price = 0;
@@ -78,8 +76,8 @@ int SLAPI LPackage::EnumItems(uint * pI, int * pIdx, PPID * pID) const
 int SLAPI LPackage::UpdateItem(uint i, int idx, PPID id)
 {
 	if(i < getCount()) {
-		((LPII*)at(i))->Idx = idx;
-		((LPII*)at(i))->ID  = id;
+		static_cast<LPII *>(at(i))->Idx = idx;
+		static_cast<LPII *>(at(i))->ID  = id;
 		return 1;
 	}
 	return 0;
@@ -89,8 +87,8 @@ int SLAPI LPackage::GetLotIDList(PPIDArray * pList) const
 {
 	if(pList) {
 		for(uint i = 0; i < getCount(); i++)
-			if(((LPII*)at(i))->ID != 0)
-				if(!pList->addUnique(((LPII*)at(i))->ID))
+			if(static_cast<LPII *>(at(i))->ID != 0)
+				if(!pList->addUnique(static_cast<LPII *>(at(i))->ID))
 					return 0;
 		return 1;
 	}
@@ -101,8 +99,8 @@ int SLAPI LPackage::GetLotIDList(PPIDArray * pList) const
 int SLAPI LPackage::SearchByID(PPID lotID, int * pIdx) const
 {
 	for(uint i = 0; i < getCount(); i++)
-		if(((LPII*)at(i))->ID == lotID) {
-			ASSIGN_PTR(pIdx, ((LPII*)at(i))->Idx);
+		if(static_cast<LPII *>(at(i))->ID == lotID) {
+			ASSIGN_PTR(pIdx, static_cast<LPII *>(at(i))->Idx);
 			return 1;
 		}
 	return 0;
@@ -111,8 +109,8 @@ int SLAPI LPackage::SearchByID(PPID lotID, int * pIdx) const
 int SLAPI LPackage::SearchByIdx(int idx, PPID * pLotID) const
 {
 	for(uint i = 0; i < getCount(); i++)
-		if(((LPII*)at(i))->Idx == idx) {
-			ASSIGN_PTR(pLotID, ((LPII*)at(i))->ID);
+		if(static_cast<LPII *>(at(i))->Idx == idx) {
+			ASSIGN_PTR(pLotID, static_cast<LPII *>(at(i))->ID);
 			return 1;
 		}
 	return 0;
@@ -143,7 +141,7 @@ int SLAPI LPackage::AddItem(PPID lotID, int idx)
 int SLAPI LPackage::RemoveByID(PPID lotID)
 {
 	for(int i = getCount()-1; i >= 0; i--)
-		if(((LPII*)at(i))->ID == lotID)
+		if(static_cast<LPII *>(at(i))->ID == lotID)
 			atFree(i);
 	return 1;
 }
@@ -151,7 +149,7 @@ int SLAPI LPackage::RemoveByID(PPID lotID)
 int SLAPI LPackage::RemoveByIdx(int idx)
 {
 	for(int i = getCount()-1; i >= 0; i--)
-		if(((LPII*)at(i))->Idx == idx)
+		if(static_cast<LPII *>(at(i))->Idx == idx)
 			atFree(i);
 	return 1;
 }

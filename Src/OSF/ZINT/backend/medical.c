@@ -70,7 +70,7 @@ int pharma_one(struct ZintSymbol * symbol, uchar source[], int length)
 		return error_number;
 	}
 
-	tester = atoi((char*)source);
+	tester = atoi((char *)source);
 
 	if((tester < 3) || (tester > 131070)) {
 		sstrcpy(symbol->errtxt, "Data out of range (C52)");
@@ -111,7 +111,7 @@ int pharma_two_calc(struct ZintSymbol * symbol, uchar source[], char dest[])
 	int    counter, h;
 	char   inter[17];
 	int    error_number;
-	ulong  tester = atoi((char*)source);
+	ulong  tester = atoi((char *)source);
 	if((tester < 4) || (tester > 64570080)) {
 		sstrcpy(symbol->errtxt, "Data out of range (C53)");
 		return ZINT_ERROR_INVALID_DATA;
@@ -239,7 +239,7 @@ int code32(struct ZintSymbol * symbol, uchar source[], int length)
 	/* Add leading zeros as required */
 	zeroes = 8 - length;
 	memset(localstr, '0', zeroes);
-	sstrcpy(localstr + zeroes, (char*)source);
+	sstrcpy(localstr + zeroes, (char *)source);
 	/* Calculate the check digit */
 	checksum = 0;
 	checkpart = 0;
@@ -280,8 +280,8 @@ int code32(struct ZintSymbol * symbol, uchar source[], int length)
 		return error_number;
 	}
 	/* Override the normal text output with the Pharmacode number */
-	sstrcpy((char*)symbol->text, "A");
-	strcat((char*)symbol->text, (char*)localstr);
+	sstrcpy((char *)symbol->text, "A");
+	strcat((char *)symbol->text, (char *)localstr);
 	return error_number;
 }
 

@@ -570,7 +570,7 @@ static int aesni_cbc_hmac_sha256_cipher(EVP_CIPHER_CTX * ctx,
 				mask = (j - inp_len) >> (sizeof(j) * 8 - 8);
 				c &= mask;
 				c |= 0x80 & ~mask & ~((inp_len - j) >> (sizeof(j) * 8 - 8));
-				data->c[res++] = (uchar)c;
+				data->c[res++] = static_cast<uchar>(c);
 
 				if(res != SHA256_CBLOCK)
 					continue;

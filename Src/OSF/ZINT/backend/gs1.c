@@ -317,7 +317,7 @@ int ugs1_verify(struct ZintSymbol * symbol, const uchar source[], const uint src
 #ifndef _MSC_VER
 	char temp[src_len + 5];
 #else
-	char * temp = (char*)_alloca(src_len + 5);
+	char * temp = (char *)_alloca(src_len + 5);
 #endif
 	int error_number = gs1_verify(symbol, source, src_len, temp);
 	if(error_number != 0) {

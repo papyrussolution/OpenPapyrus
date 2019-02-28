@@ -3043,13 +3043,13 @@ PPALDD_CONSTRUCTOR(UhttWorkbook)
 PPALDD_DESTRUCTOR(UhttWorkbook)
 {
 	Destroy();
-	delete (UhttWorkbookBlock *)Extra[0].Ptr;
+	delete static_cast<UhttWorkbookBlock *>(Extra[0].Ptr);
 }
 
 int PPALDD_UhttWorkbook::InitData(PPFilt & rFilt, long rsrv)
 {
 	int   ok = -1;
-	UhttWorkbookBlock & r_blk = *(UhttWorkbookBlock *)Extra[0].Ptr;
+	UhttWorkbookBlock & r_blk = *static_cast<UhttWorkbookBlock *>(Extra[0].Ptr);
 	r_blk.Clear();
 	MEMSZERO(H);
 	if(r_blk.WbObj.GetPacket(rFilt.ID, &r_blk.Pack) > 0) {
@@ -3094,7 +3094,7 @@ int PPALDD_UhttWorkbook::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_UhttWorkbook::InitIteration(long iterId, int sortId, long rsrv)
 {
 	IterProlog(iterId, 1);
-	UhttWorkbookBlock & r_blk = *(UhttWorkbookBlock *)Extra[0].Ptr;
+	UhttWorkbookBlock & r_blk = *static_cast<UhttWorkbookBlock *>(Extra[0].Ptr);
 	if(iterId == GetIterID("iter@TagList"))
 		r_blk.TagPos = 0;
 	return -1;
@@ -3131,7 +3131,7 @@ int PPALDD_UhttWorkbook::NextIteration(long iterId)
 	int     ok = -1;
 	SString temp_buf;
 	IterProlog(iterId, 0);
-	UhttWorkbookBlock & r_blk = *(UhttWorkbookBlock *)Extra[0].Ptr;
+	UhttWorkbookBlock & r_blk = *static_cast<UhttWorkbookBlock *>(Extra[0].Ptr);
 	if(iterId == GetIterID("iter@TagList")) {
 		if(r_blk.TagPos < r_blk.Pack.TagL.GetCount()) {
 			MEMSZERO(I_TagList);
@@ -3196,16 +3196,10 @@ int PPALDD_UhttWorkbook::NextIteration(long iterId)
 					}
 					temp_buf.CopyTo(I_TagList.StrVal, sizeof(I_TagList.StrVal));
 					break;
-				case OTTYP_NUMBER:
-					p_item->GetReal(&I_TagList.RealVal);
-					break;
+				case OTTYP_NUMBER: p_item->GetReal(&I_TagList.RealVal); break;
 				case OTTYP_BOOL:
-				case OTTYP_INT:
-					p_item->GetInt(&I_TagList.IntVal);
-					break;
-				case OTTYP_DATE:
-					p_item->GetDate(&I_TagList.DateVal);
-					break;
+				case OTTYP_INT: p_item->GetInt(&I_TagList.IntVal); break;
+				case OTTYP_DATE: p_item->GetDate(&I_TagList.DateVal); break;
 			}
 			ok = DlRtm::NextIteration(iterId);
 		}
@@ -3219,7 +3213,7 @@ int PPALDD_UhttWorkbook::Set(long iterId, int commit)
 	int    ok = 1;
 	SString temp_buf;
 	WorkbookTbl::Rec temp_rec;
-	UhttWorkbookBlock & r_blk = *(UhttWorkbookBlock *)Extra[0].Ptr;
+	UhttWorkbookBlock & r_blk = *static_cast<UhttWorkbookBlock *>(Extra[0].Ptr);
 	const PPID glob_acc_id = DS.GetConstTLA().GlobAccID;
 	if(r_blk.State != UhttWorkbookBlock::stSet) {
 		r_blk.Clear();

@@ -1984,9 +1984,9 @@ int PPALDD_PsnEventItem::InitData(PPFilt & rFilt, long rsrv)
 {
 	PPPsnEventPacket * p_pack = 0;
 	if(rsrv) {
-		Extra[0].Ptr = (PsnEventItemPrintStruc *)rFilt.Ptr;
+		Extra[0].Ptr = rFilt.Ptr;
 		if(Extra[0].Ptr)
-			p_pack = ((PsnEventItemPrintStruc *)Extra[0].Ptr)->P_Pack;
+			p_pack = static_cast<PsnEventItemPrintStruc *>(Extra[0].Ptr)->P_Pack;
 	}
 	if(p_pack) {
 		PPObjRegister    reg_obj;
@@ -2024,7 +2024,7 @@ int PPALDD_PsnEventItem::NextIteration(PPIterID iterId)
 	if(IterProlog(iterId, 0) < 0)
 		I.nn = 0;
 	uint   n = static_cast<uint>(I.nn);
-	PsnEventItemPrintStruc * p_struc = (PsnEventItemPrintStruc *)Extra[0].Ptr;
+	PsnEventItemPrintStruc * p_struc = static_cast<PsnEventItemPrintStruc *>(Extra[0].Ptr);
 	PPPsnEventPacket * p_pack = (p_struc) ? p_struc->P_Pack : 0;
 	PPObjTag * p_objtag = (p_struc) ? p_struc->P_ObjTag : 0;
 	if(p_pack && p_objtag && n < p_pack->TagL.GetCount()) {

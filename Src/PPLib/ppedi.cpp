@@ -813,6 +813,17 @@ int SLAPI PPEdiProcessor::ProviderImplementation::GetGoodsInfo(PPID goodsID, PPI
 	BarcodeArray bc_list;
 	THROW(GObj.Search(goodsID, &goods_rec) > 0);
 	GObj.P_Tbl->ReadBarcodes(goodsID, bc_list);
+	// @v10.3.6 Перемещаем предпочтительный код вверх списка дабы проверить его с приоритетом {
+	{
+		uint   pref_bc_pos = 0;
+		const BarcodeTbl::Rec * p_pref_bc_rec = bc_list.GetPreferredItem(&pref_bc_pos);
+		if(p_pref_bc_rec) {
+			assert(pref_bc_pos < bc_list.getCount()); // @paranoic
+			if(pref_bc_pos > 0)
+				bc_list.swap(pref_bc_pos, 0);
+		}
+	}
+	// } @v10.3.6
 	for(uint bcidx = 0; rGtin.Empty() && bcidx < bc_list.getCount(); bcidx++) {
 		int    d = 0;
 		int    std = 0;

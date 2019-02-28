@@ -1265,7 +1265,7 @@ int SImageBuffer::PixF::SetUniform(const void * pUniformBuf, void * pDest, uint 
 {
 	int    ok = 0;
 	const  uint bpp = GetBpp();
-	const  uint32 * p_ufb = (const uint32 *)pUniformBuf;
+	const  uint32 * p_ufb = static_cast<const uint32 *>(pUniformBuf);
 	const  uint q = width / 4;
 	const  uint r = width % 4;
 	if(oneof5(S, s1Idx, s2Idx, s4Idx, s8Idx, s16Idx)) {
@@ -1320,17 +1320,17 @@ int SImageBuffer::PixF::SetUniform(const void * pUniformBuf, void * pDest, uint 
 								const uint dq = width / 8;
 								const uint dr = width % 8;
 								for(uint i = 0; i < dq; ++i) {
-									*p++ = (uint16)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
-									*p++ = (uint16)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
-									*p++ = (uint16)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
-									*p++ = (uint16)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
-									*p++ = (uint16)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
-									*p++ = (uint16)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
-									*p++ = (uint16)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
-									*p++ = (uint16)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
+									*p++ = static_cast<uint16>(SImageBuffer::PixF::UniformToGrayscale(*p_ufb++));
+									*p++ = static_cast<uint16>(SImageBuffer::PixF::UniformToGrayscale(*p_ufb++));
+									*p++ = static_cast<uint16>(SImageBuffer::PixF::UniformToGrayscale(*p_ufb++));
+									*p++ = static_cast<uint16>(SImageBuffer::PixF::UniformToGrayscale(*p_ufb++));
+									*p++ = static_cast<uint16>(SImageBuffer::PixF::UniformToGrayscale(*p_ufb++));
+									*p++ = static_cast<uint16>(SImageBuffer::PixF::UniformToGrayscale(*p_ufb++));
+									*p++ = static_cast<uint16>(SImageBuffer::PixF::UniformToGrayscale(*p_ufb++));
+									*p++ = static_cast<uint16>(SImageBuffer::PixF::UniformToGrayscale(*p_ufb++));
 								}
 								for(uint i = 0; i < dr; ++i) {
-									*p++ = (uint16)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
+									*p++ = static_cast<uint16>(SImageBuffer::PixF::UniformToGrayscale(*p_ufb++));
 								}
 							}
 							ok = 1;
@@ -1549,11 +1549,11 @@ int SImageBuffer::PixF::GetUniform(const void * pSrc, void * pUniformBuf, uint w
 				break;
 			case 16:
 				{
-					const uint16 * p = (const uint16 *)pSrc;
+					const uint16 * p = static_cast<const uint16 *>(pSrc);
 					uint i;
 					switch(S) {
 						case s16ARGB1555:
-	#define OP(c) (((uint32)((uint8)(0-((c&0x8000)>>15)))<<24)|(((c&0x7c00)|((c&0x7000)>>5))<<9)|(((c&0x3e0)|((c&0x380)>>5))<<6)|(((c&0x1c)|((c&0x1f)<<5))>>2))
+	#define OP(c) (((uint32)((uint8)(0-(((c)&0x8000)>>15)))<<24)|((((c)&0x7c00)|(((c)&0x7000)>>5))<<9)|((((c)&0x3e0)|(((c)&0x380)>>5))<<6)|((((c)&0x1c)|(((c)&0x1f)<<5))>>2))
 							for(i = 0; i < q; ++i) {
 								*p_ufb++ = OP(*p); p++;
 								*p_ufb++ = OP(*p); p++;
@@ -1566,7 +1566,7 @@ int SImageBuffer::PixF::GetUniform(const void * pSrc, void * pUniformBuf, uint w
 							break;
 	#undef OP
 						case s16RGB555:
-	#define OP(c) (0xff000000|(((c&0x7c00)|((c&0x7000)>>5))<<9)|(((c&0x3e0)|((c&0x380)>>5))<<6)|(((c&0x1c)|((c&0x1f)<<5))>>2))
+	#define OP(c) (0xff000000|((((c)&0x7c00)|(((c)&0x7000)>>5))<<9)|((((c)&0x3e0)|(((c)&0x380)>>5))<<6)|((((c)&0x1c)|(((c)&0x1f)<<5))>>2))
 							for(i = 0; i < q; ++i) {
 								*p_ufb++ = OP(*p); p++;
 								*p_ufb++ = OP(*p); p++;
@@ -1579,7 +1579,7 @@ int SImageBuffer::PixF::GetUniform(const void * pSrc, void * pUniformBuf, uint w
 							break;
 	#undef OP
 						case s16RGB565:
-	#define OP(c) (0xff000000|(((c&0xf800)|((c&0xe000)>>5))<<8)|(((c&0x7e0)|((c&0x600)>>6))<<5)|(((c&0x1c)|((c&0x1f)<<5))>>2))
+	#define OP(c) (0xff000000|((((c)&0xf800)|(((c)&0xe000)>>5))<<8)|((((c)&0x7e0)|(((c)&0x600)>>6))<<5)|((((c)&0x1c)|(((c)&0x1f)<<5))>>2))
 							for(i = 0; i < q; ++i) {
 								*p_ufb++ = OP(*p); p++;
 								*p_ufb++ = OP(*p); p++;
@@ -2476,12 +2476,12 @@ int SImageBuffer::LoadJpeg(SFile & rF, int fileFmt)
 		}
 		else {
 			jpeg_create_decompress(&di);
-			if(((FILE *)rF) != 0)
-				jpeg_stdio_src(&di, (FILE *)rF);
+			if(static_cast<FILE *>(rF) != 0)
+				jpeg_stdio_src(&di, static_cast<FILE *>(rF));
 			else {
 				SBaseBuffer buf;
 				if(rF.GetBuffer(buf)) {
-					jpeg_mem_src(&di, (uchar *)buf.P_Buf, buf.Size);
+					jpeg_mem_src(&di, reinterpret_cast<const uchar *>(buf.P_Buf), buf.Size);
 				}
 			}
 			jpeg_read_header(&di, TRUE);
@@ -2498,7 +2498,7 @@ int SImageBuffer::LoadJpeg(SFile & rF, int fileFmt)
 				{
 					const uint max_lines = 1;
 					const size_t line_size = di.output_width * di.output_components;
-					p_row_buf = (uint8 *)SAlloc::M(line_size * max_lines);
+					p_row_buf = static_cast<uint8 *>(SAlloc::M(line_size * max_lines));
 					if(p_row_buf) {
 						// @v9.5.6 {
 						{
@@ -2769,7 +2769,7 @@ int SImageBuffer::StorePng(const StoreParam & rP, SFile & rF)
 	uint8 ** volatile pp_rows = 0;
 	const uint stride = F.GetStride(S.x);
 	THROW_S((S.x >= 1 && S.x <= 30000) && (S.y >= 1 && S.y <= 30000), SLERR_INVIMAGESIZE); // no image
-	THROW(pp_rows = static_cast<uint8 **>(SAlloc::M(S.y * sizeof(uint8*))));
+	THROW(pp_rows = static_cast<uint8 **>(SAlloc::M(S.y * sizeof(uint8 *))));
 	for(int i = 0; i < S.y; i++) {
 		pp_rows[i] = PTR8(P_Buf)+i*stride;
 	}

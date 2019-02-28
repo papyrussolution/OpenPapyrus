@@ -50,14 +50,14 @@ static void png_do_pack(png_row_infop row_info, png_bytep row, uint32 bit_depth)
 
 				    else {
 					    mask = 0x80;
-					    *dp = (uint8)v;
+					    *dp = static_cast<uint8>(v);
 					    dp++;
 					    v = 0;
 				    }
 			    }
 
 			    if(mask != 0x80)
-				    *dp = (uint8)v;
+				    *dp = static_cast<uint8>(v);
 
 			    break;
 		    }
@@ -83,7 +83,7 @@ static void png_do_pack(png_row_infop row_info, png_bytep row, uint32 bit_depth)
 
 				    if(shift == 0) {
 					    shift = 6;
-					    *dp = (uint8)v;
+					    *dp = static_cast<uint8>(v);
 					    dp++;
 					    v = 0;
 				    }
@@ -95,7 +95,7 @@ static void png_do_pack(png_row_infop row_info, png_bytep row, uint32 bit_depth)
 			    }
 
 			    if(shift != 6)
-				    *dp = (uint8)v;
+				    *dp = static_cast<uint8>(v);
 
 			    break;
 		    }
@@ -121,7 +121,7 @@ static void png_do_pack(png_row_infop row_info, png_bytep row, uint32 bit_depth)
 
 				    if(shift == 0) {
 					    shift = 4;
-					    *dp = (uint8)v;
+					    *dp = static_cast<uint8>(v);
 					    dp++;
 					    v = 0;
 				    }
@@ -133,7 +133,7 @@ static void png_do_pack(png_row_infop row_info, png_bytep row, uint32 bit_depth)
 			    }
 
 			    if(shift != 4)
-				    *dp = (uint8)v;
+				    *dp = static_cast<uint8>(v);
 
 			    break;
 		    }

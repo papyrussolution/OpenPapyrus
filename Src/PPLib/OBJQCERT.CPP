@@ -584,7 +584,7 @@ PPALDD_CONSTRUCTOR(QualityCert)
 PPALDD_DESTRUCTOR(QualityCert)
 {
 	Destroy();
-	delete (PPObjQCert*)Extra[0].Ptr;
+	delete static_cast<PPObjQCert *>(Extra[0].Ptr);
 }
 
 int PPALDD_QualityCert::InitData(PPFilt & rFilt, long rsrv)
@@ -596,7 +596,7 @@ int PPALDD_QualityCert::InitData(PPFilt & rFilt, long rsrv)
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
 		QualityCertTbl::Rec rec;
-		if(((PPObjQCert*)(Extra[0].Ptr))->Search(rFilt.ID, &rec) > 0) {
+		if(static_cast<PPObjQCert *>(Extra[0].Ptr)->Search(rFilt.ID, &rec) > 0) {
 			H.ID = rec.ID;
 			H.PersonID = rec.RegOrgan;
 			STRNSCPY(H.Code, rec.Code);

@@ -16,7 +16,7 @@ void XMLCDECL xmlGenericErrorDefaultFunc(void * ctx ATTRIBUTE_UNUSED, const char
 		int    prev_size = -1;			      \
 		int    chars;					      \
 		va_list ap;						  \
-		str = (char*)SAlloc::M(150); \
+		str = (char *)SAlloc::M(150); \
 		if(str) {					   \
 			int size = 150;						    \
 			while(size < 64000) {					   \
@@ -30,7 +30,7 @@ void XMLCDECL xmlGenericErrorDefaultFunc(void * ctx ATTRIBUTE_UNUSED, const char
 						prev_size = chars;				\
 				}							\
 				size += ((chars > -1) ? (chars + 1) : 100); \
-				char * larger = (char*)SAlloc::R(str, size); \
+				char * larger = (char *)SAlloc::R(str, size); \
 				if(!larger) \
 					break;	\
 				str = larger; \
@@ -453,18 +453,18 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 		if(prev) {
 			if(prev->type == XML_XINCLUDE_START) {
 				prev->type = XML_ELEMENT_NODE;
-				to->file = (char*)xmlGetProp(prev, BAD_CAST "href");
+				to->file = (char *)xmlGetProp(prev, BAD_CAST "href");
 				prev->type = XML_XINCLUDE_START;
 			}
 			else {
-				to->file = (char*)xmlGetProp(prev, BAD_CAST "href");
+				to->file = (char *)xmlGetProp(prev, BAD_CAST "href");
 			}
 		}
 		else
 #endif
 		to->file = (char *)sstrdup(baseptr->doc->URL);
 		if(!to->file && P_Node && P_Node->doc)
-			to->file = (char*)sstrdup(P_Node->doc->URL);
+			to->file = (char *)sstrdup(P_Node->doc->URL);
 	}
 	to->line = line;
 	to->str1 = sstrdup(str1);

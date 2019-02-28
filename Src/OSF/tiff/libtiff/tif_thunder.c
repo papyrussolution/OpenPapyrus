@@ -131,7 +131,7 @@ static int ThunderDecode(TIFF* tif, uint8* op, tmsize_t maxpixels)
 			    break;
 		}
 	}
-	tif->tif_rawcp = (uint8*)bp;
+	tif->tif_rawcp = (uint8 *)bp;
 	tif->tif_rawcc = cc;
 	if(npixels != maxpixels) {
 #if defined(__WIN32__) && (defined(_MSC_VER) || defined(__MINGW32__))

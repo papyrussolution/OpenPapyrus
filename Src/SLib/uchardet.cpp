@@ -3366,14 +3366,14 @@ float nsCharSetProber::JapaneseContextAnalysis::GetConfidence() const
 //
 bool nsCharSetProber::FilterWithoutEnglishLetters(const char* aBuf, uint32 aLen, char** newBuf, uint32& newLen)
 {
-	char * newptr = (char*)SAlloc::M(aLen);
+	char * newptr = (char *)SAlloc::M(aLen);
 	*newBuf = newptr;
 	if(!newptr)
 		return false;
 	else {
 		bool meetMSB = false;
 		char * prevPtr, * curPtr;
-		for(curPtr = prevPtr = (char*)aBuf; curPtr < aBuf+aLen; curPtr++) {
+		for(curPtr = prevPtr = (char *)aBuf; curPtr < aBuf+aLen; curPtr++) {
 			if(*curPtr & 0x80) {
 				meetMSB = true;
 			}
@@ -3406,11 +3406,11 @@ bool nsCharSetProber::FilterWithEnglishLetters(const char* aBuf, uint32 aLen, ch
 	//do filtering to reduce load to probers
 	char * prevPtr, * curPtr;
 	bool isInTag = false;
-	char * newptr = (char*)SAlloc::M(aLen);
+	char * newptr = (char *)SAlloc::M(aLen);
 	*newBuf = newptr;
 	if(!newptr)
 		return false;
-	for(curPtr = prevPtr = (char*)aBuf; curPtr < aBuf+aLen; curPtr++) {
+	for(curPtr = prevPtr = (char *)aBuf; curPtr < aBuf+aLen; curPtr++) {
 		if(*curPtr == '>')
 			isInTag = false;
 		else if(*curPtr == '<')
@@ -4026,7 +4026,7 @@ nsProbingState nsLatin1Prober::HandleData(const char* aBuf, uint32 aLen)
 	char * newBuf1 = 0;
 	uint32 newLen1 = 0;
 	if(!FilterWithEnglishLetters(aBuf, aLen, &newBuf1, newLen1)) {
-		newBuf1 = (char*)aBuf;
+		newBuf1 = (char *)aBuf;
 		newLen1 = aLen;
 	}
 	for(uint32 i = 0; i < newLen1; i++) {

@@ -135,7 +135,7 @@ private:
 	// ARG(type			IN): Тип устройства sgXX
 	int FormatAnswer(StGoodInfo * pInfo, SString & rFormatedInfo, int type);
 	int GetOption(const char * pOptionType, SString & rOptionVal);
-	int GetGoodsByCode(SString & barcode, SPpyO_Goods * pRec, double * pQtty);
+	int GetGoodsByCode(const SString & barcode, SPpyO_Goods * pRec, double * pQtty);
 	int GetGoodsPrice(long goodsID, double * price);
 	// Замещает все записи <ESC>, <ETX> и <#0x80> на соответствующие символы
 	int ExpandAll(SString & rStr);
@@ -333,7 +333,7 @@ int PriceChecker::Logout()
 	return (ret > 0);
 }
 
-int PriceChecker::GetGoodsByCode(SString & rBarcode, SPpyO_Goods * pRec, double * pQtty)
+int PriceChecker::GetGoodsByCode(const SString & rBarcode, SPpyO_Goods * pRec, double * pQtty)
 {
 	int    ok = 0;
 	IPapyrusObjGoods * p_obj = NULL;

@@ -139,7 +139,7 @@ int htmlSetMetaEncoding(htmlDocPtr doc, const xmlChar * encoding)
 	if(sstreqi_ascii(encoding, BAD_CAST "html"))
 		return -1;
 	if(encoding) {
-		snprintf(newcontent, sizeof(newcontent), "text/html; charset=%s", (char*)encoding);
+		snprintf(newcontent, sizeof(newcontent), "text/html; charset=%s", (char *)encoding);
 		newcontent[sizeof(newcontent) - 1] = 0;
 	}
 	cur = doc->children;

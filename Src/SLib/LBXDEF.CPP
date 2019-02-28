@@ -362,7 +362,7 @@ int SLAPI StdListBoxDef::getIdList(LongArray & rList)
 	if(P_Data) {
 		for(uint i = 0; i < P_Data->getCount(); i++) {
 			const void * p_item = P_Data->at(i);
-			rList.addUnique((Options & lbtWordID) ? (int32)*(int16 *)p_item : *(int32 *)p_item);
+			rList.addUnique((Options & lbtWordID) ? (int32)*(const int16 *)p_item : *(const int32 *)p_item);
 			ok = 1;
 		}
 	}
@@ -611,7 +611,7 @@ int SLAPI StdTreeListBoxDef::getCurData(void * b)
 	if(P_SaList) {
 		const void * p = (const void *)getRow_(_curItem());
 		if(p)
-			strnzcpy((char *)b, ((const Item *)p)->Txt, 255);
+			strnzcpy(static_cast<char *>(b), ((const Item *)p)->Txt, 255);
 	}
 	return 0;
 }

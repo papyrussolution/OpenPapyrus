@@ -29,13 +29,13 @@ void IDEA_ofb64_encrypt(const uchar * in, uchar * out, long length, IDEA_KEY_SCH
 	n2l(iv, v1);
 	ti[0] = v0;
 	ti[1] = v1;
-	dp = (char*)d;
+	dp = (char *)d;
 	l2n(v0, dp);
 	l2n(v1, dp);
 	while(l--) {
 		if(n == 0) {
 			IDEA_encrypt((ulong*)ti, schedule);
-			dp = (char*)d;
+			dp = (char *)d;
 			t = ti[0];
 			l2n(t, dp);
 			t = ti[1];

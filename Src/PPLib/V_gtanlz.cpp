@@ -1186,7 +1186,7 @@ int PPALDD_GoodsTaxAnlz::NextIteration(PPIterID iterId)
 void PPALDD_GoodsTaxAnlz::Destroy()
 {
 	if(Extra[0].Ptr) {
-		delete (PPViewGoodsTaxAnalyze*)Extra[0].Ptr;
+		delete static_cast<PPViewGoodsTaxAnalyze*>(Extra[0].Ptr);
 		Extra[0].Ptr = 0;
 	}
 	Extra[1].Ptr = 0;

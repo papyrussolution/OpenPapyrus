@@ -187,7 +187,7 @@ static int LZMADecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 		return 0;
 	}
 
-	tif->tif_rawcp = (uint8*)sp->stream.next_in;  /* cast away const */
+	tif->tif_rawcp = (uint8 *)sp->stream.next_in;  /* cast away const */
 	tif->tif_rawcc = sp->stream.avail_in;
 
 	return 1;
@@ -382,7 +382,7 @@ int TIFFInitLZMA(TIFF* tif, int scheme)
 	/*
 	 * Allocate state block so tag methods have storage to record values.
 	 */
-	tif->tif_data = (uint8*)SAlloc::M(sizeof(LZMAState));
+	tif->tif_data = (uint8 *)SAlloc::M(sizeof(LZMAState));
 	if(tif->tif_data == NULL)
 		goto bad;
 	sp = LState(tif);

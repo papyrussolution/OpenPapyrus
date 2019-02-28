@@ -169,7 +169,7 @@ zbar_color_t zbar_decoder_get_color(const zbar_decoder_t * dcode)
 
 const char * zbar_decoder_get_data(const zbar_decoder_t * dcode)
 {
-	return((char*)dcode->buf);
+	return((char *)dcode->buf);
 }
 
 uint zbar_decoder_get_data_length(const zbar_decoder_t * dcode)

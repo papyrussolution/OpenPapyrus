@@ -2889,12 +2889,12 @@ SSL * SSL_dup(SSL * s)
 
 	/* setup rbio, and wbio */
 	if(s->rbio != NULL) {
-		if(!BIO_dup_state(s->rbio, (char*)&ret->rbio))
+		if(!BIO_dup_state(s->rbio, (char *)&ret->rbio))
 			goto err;
 	}
 	if(s->wbio != NULL) {
 		if(s->wbio != s->rbio) {
-			if(!BIO_dup_state(s->wbio, (char*)&ret->wbio))
+			if(!BIO_dup_state(s->wbio, (char *)&ret->wbio))
 				goto err;
 		}
 		else {

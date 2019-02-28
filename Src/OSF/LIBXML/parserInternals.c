@@ -1117,10 +1117,10 @@ int xmlSwitchToEncoding(xmlParserCtxt * ctxt, xmlCharEncodingHandler * handler)
 void FASTCALL xmlFreeInputStream(xmlParserInput * input)
 {
 	if(input) {
-		SAlloc::F((char*)input->filename);
-		SAlloc::F((char*)input->directory);
-		SAlloc::F((char*)input->encoding);
-		SAlloc::F((char*)input->version);
+		SAlloc::F((char *)input->filename);
+		SAlloc::F((char *)input->directory);
+		SAlloc::F((char *)input->encoding);
+		SAlloc::F((char *)input->version);
 		if(input->free && input->base)
 			input->free((xmlChar*)input->base);
 		xmlFreeParserInputBuffer(input->buf);
@@ -1204,7 +1204,7 @@ xmlParserInput * xmlNewEntityInputStream(xmlParserCtxt * ctxt, xmlEntity * entit
 			switch(entity->etype) {
 				case XML_EXTERNAL_GENERAL_UNPARSED_ENTITY: xmlErrInternal(ctxt, "Cannot parse entity %s\n", entity->name); break;
 				case XML_EXTERNAL_GENERAL_PARSED_ENTITY:
-				case XML_EXTERNAL_PARAMETER_ENTITY: return xmlLoadExternalEntity((char*)entity->URI, (char*)entity->ExternalID, ctxt);
+				case XML_EXTERNAL_PARAMETER_ENTITY: return xmlLoadExternalEntity((char *)entity->URI, (char *)entity->ExternalID, ctxt);
 				case XML_INTERNAL_GENERAL_ENTITY: xmlErrInternal(ctxt, "Internal entity %s without content !\n", entity->name); break;
 				case XML_INTERNAL_PARAMETER_ENTITY: xmlErrInternal(ctxt, "Internal parameter entity %s without content !\n", entity->name); break;
 				case XML_INTERNAL_PREDEFINED_ENTITY: xmlErrInternal(ctxt, "Predefined entity %s without content !\n", entity->name); break;
@@ -1284,9 +1284,9 @@ xmlParserInput * xmlNewInputFromFile(xmlParserCtxt * ctxt, const char * filename
 				if(inputStream) {
 					xmlChar * URI = inputStream->filename ? sstrdup((xmlChar*)inputStream->filename) : sstrdup((xmlChar*)filename);
 					char * directory = xmlParserGetDirectory((const char*)URI);
-					SAlloc::F((char*)inputStream->filename);
-					inputStream->filename = (char*)xmlCanonicPath((const xmlChar*)URI);
-					SAlloc::F((char*)URI);
+					SAlloc::F((char *)inputStream->filename);
+					inputStream->filename = (char *)xmlCanonicPath((const xmlChar*)URI);
+					SAlloc::F((char *)URI);
 					inputStream->directory = directory;
 					xmlBufResetInput(inputStream->buf->buffer, inputStream);
 					SETIFZ(ctxt->directory, sstrdup(directory));
@@ -1496,21 +1496,21 @@ void FASTCALL xmlFreeParserCtxt(xmlParserCtxt * ctxt)
 		SAlloc::F(ctxt->PP_NodeTab);
 		SAlloc::F(ctxt->nodeInfoTab);
 		SAlloc::F(ctxt->inputTab);
-		SAlloc::F((char*)ctxt->version);
-		SAlloc::F((char*)ctxt->encoding);
-		SAlloc::F((char*)ctxt->extSubURI);
-		SAlloc::F((char*)ctxt->extSubSystem);
+		SAlloc::F((char *)ctxt->version);
+		SAlloc::F((char *)ctxt->encoding);
+		SAlloc::F((char *)ctxt->extSubURI);
+		SAlloc::F((char *)ctxt->extSubSystem);
 	#ifdef LIBXML_SAX1_ENABLED
 		if(ctxt->sax && (ctxt->sax != (xmlSAXHandler *)&xmlDefaultSAXHandler))
 	#else
 		if(ctxt->sax)
 	#endif /* LIBXML_SAX1_ENABLED */
 			SAlloc::F(ctxt->sax);
-		SAlloc::F((char*)ctxt->directory);
+		SAlloc::F((char *)ctxt->directory);
 		SAlloc::F(ctxt->vctxt.PP_NodeTab);
 		SAlloc::F((xmlChar**)ctxt->atts);
 		xmlDictFree(ctxt->dict);
-		SAlloc::F((char*)ctxt->nsTab);
+		SAlloc::F((char *)ctxt->nsTab);
 		SAlloc::F(ctxt->pushTab);
 		SAlloc::F(ctxt->attallocs);
 		xmlHashFree(ctxt->attsDefault, (xmlHashDeallocator)free);

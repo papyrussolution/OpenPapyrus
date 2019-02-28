@@ -474,7 +474,7 @@ int	SLAPI PrcssrBuild::Run()
 		SString msvs_path;
 		SString name_buf;
 		StringSet result_file_list(";");
-		const char * p_prc_cur_dir = p_config_entry->SlnPath.NotEmpty() ? p_config_entry->SlnPath.cptr() : (const char *)0;
+		const char * p_prc_cur_dir = p_config_entry->SlnPath.NotEmpty() ? p_config_entry->SlnPath.cptr() : static_cast<const char *>(0);
 		logger.Log((msg_buf = "Current dir for child processes").CatDiv(':', 2).Cat(p_prc_cur_dir));
 		THROW(FindMsvs(p_config_entry->PrefMsvsVerMajor, msvs_ver_list, &msvs_path));
 		PPLoadText(PPTXT_BUILD_COMPILERNAME_VS71, temp_buf);

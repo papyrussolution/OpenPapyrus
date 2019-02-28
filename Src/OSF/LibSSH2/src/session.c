@@ -172,7 +172,7 @@ static int banner_receive(LIBSSH2_SESSION * session)
  */
 static int banner_send(LIBSSH2_SESSION * session)
 {
-	char * banner = (char*)LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF;
+	char * banner = (char *)LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF;
 	int banner_len = sizeof(LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF) - 1;
 	ssize_t ret;
 #ifdef LIBSSH2DEBUG
@@ -182,8 +182,8 @@ static int banner_send(LIBSSH2_SESSION * session)
 	if(session->banner_TxRx_state == libssh2_NB_state_idle) {
 		if(session->local.banner) {
 			/* setopt_string will have given us our \r\n characters */
-			banner_len = strlen((char*)session->local.banner);
-			banner = (char*)session->local.banner;
+			banner_len = strlen((char *)session->local.banner);
+			banner = (char *)session->local.banner;
 		}
 #ifdef LIBSSH2DEBUG
 		/* Hack and slash to avoid sending CRLF in debug output */
@@ -362,7 +362,7 @@ static int get_socket_nonblocking(int sockfd)
 	/* VMS TCP/IP Services */
 	size_t sockstat = 0;
 	size_t size = sizeof( int );
-	int callstat = getsockopt(sockfd, SOL_SOCKET, SO_STATE, (char*)&sockstat, &size);
+	int callstat = getsockopt(sockfd, SOL_SOCKET, SO_STATE, (char *)&sockstat, &size);
 	if(callstat == -1)
 		return(0);
 	if((sockstat&SS_NBIO))
@@ -638,7 +638,7 @@ static int session_startup(LIBSSH2_SESSION * session, libssh2_socket_t sock)
 			rc = banner_receive(session);
 			if(rc)
 				return _libssh2_error(session, rc, "Failed getting banner");
-		} while(strncmp("SSH-", (char*)session->remote.banner, 4));
+		} while(strncmp("SSH-", (char *)session->remote.banner, 4));
 		session->startup_state = libssh2_NB_state_sent1;
 	}
 	if(session->startup_state == libssh2_NB_state_sent1) {
@@ -668,7 +668,7 @@ static int session_startup(LIBSSH2_SESSION * session, libssh2_socket_t sock)
 		if(rc)
 			return rc;
 		session->startup_service_length = _libssh2_ntohu32(session->startup_data + 1);
-		if((session->startup_service_length != (sizeof("ssh-userauth") - 1)) || strncmp("ssh-userauth", (char*)session->startup_data + 5,
+		if((session->startup_service_length != (sizeof("ssh-userauth") - 1)) || strncmp("ssh-userauth", (char *)session->startup_data + 5,
 			    session->startup_service_length)) {
 			LIBSSH2_FREE(session, session->startup_data);
 			session->startup_data = NULL;
@@ -847,7 +847,7 @@ static int session_free(LIBSSH2_SESSION * session)
 	LIBSSH2_FREE(session, session->server_hostkey);
 	/* error string */
 	if(session->err_msg && ((session->err_flags & LIBSSH2_ERR_FLAG_DUP) != 0)) {
-		LIBSSH2_FREE(session, (char*)session->err_msg);
+		LIBSSH2_FREE(session, (char *)session->err_msg);
 	}
 	LIBSSH2_FREE(session, session);
 	return 0;
@@ -963,7 +963,7 @@ LIBSSH2_API int libssh2_session_last_error(LIBSSH2_SESSION * session, char ** er
 					**errmsg = 0;
 			}
 			else
-				*errmsg = (char*)"";
+				*errmsg = (char *)"";
 		}
 		ASSIGN_PTR(errmsg_len, 0);
 		return 0;
@@ -980,7 +980,7 @@ LIBSSH2_API int libssh2_session_last_error(LIBSSH2_SESSION * session, char ** er
 			}
 		}
 		else
-			*errmsg = (char*)error;
+			*errmsg = (char *)error;
 	}
 	ASSIGN_PTR(errmsg_len, msglen);
 	return session->err_code;

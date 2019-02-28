@@ -115,7 +115,7 @@ static int dlfcn_load(DSO * dso)
 		ERR_add_error_data(4, "filename(", filename, "): ", dlerror());
 		goto err;
 	}
-	if(!sk_void_push(dso->meth_data, (char*)ptr)) {
+	if(!sk_void_push(dso->meth_data, (char *)ptr)) {
 		DSOerr(DSO_F_DLFCN_LOAD, DSO_R_STACK_ERROR);
 		goto err;
 	}

@@ -430,7 +430,7 @@ int tls1_generate_master_secret(SSL * s, uchar * out, uchar * p, int len)
 		hashlen = ssl_handshake_hash(s, hash, sizeof(hash));
 #ifdef SSL_DEBUG
 		fprintf(stderr, "Handshake hashes:\n");
-		BIO_dump_fp(stderr, (char*)hash, hashlen);
+		BIO_dump_fp(stderr, (char *)hash, hashlen);
 #endif
 		tls1_PRF(s,
 		    TLS_MD_EXTENDED_MASTER_SECRET_CONST,
@@ -454,13 +454,13 @@ int tls1_generate_master_secret(SSL * s, uchar * out, uchar * p, int len)
 	}
 #ifdef SSL_DEBUG
 	fprintf(stderr, "Premaster Secret:\n");
-	BIO_dump_fp(stderr, (char*)p, len);
+	BIO_dump_fp(stderr, (char *)p, len);
 	fprintf(stderr, "Client Random:\n");
-	BIO_dump_fp(stderr, (char*)s->s3->client_random, SSL3_RANDOM_SIZE);
+	BIO_dump_fp(stderr, (char *)s->s3->client_random, SSL3_RANDOM_SIZE);
 	fprintf(stderr, "Server Random:\n");
-	BIO_dump_fp(stderr, (char*)s->s3->server_random, SSL3_RANDOM_SIZE);
+	BIO_dump_fp(stderr, (char *)s->s3->server_random, SSL3_RANDOM_SIZE);
 	fprintf(stderr, "Master Secret:\n");
-	BIO_dump_fp(stderr, (char*)s->session->master_key, SSL3_MASTER_SECRET_SIZE);
+	BIO_dump_fp(stderr, (char *)s->session->master_key, SSL3_MASTER_SECRET_SIZE);
 #endif
 #ifdef OPENSSL_SSL_TRACE_CRYPTO
 	if(s->msg_callback) {

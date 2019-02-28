@@ -205,7 +205,7 @@ int NgxStartUpOptions::ProcessCmdLine(int argc, const char * argv[])
 						SString signal;
 						if(*p) {
 							signal = p;
-							//ngx_signal = (char*)p;
+							//ngx_signal = (char *)p;
 						}
 						else if(argv[++i]) {
 							signal = argv[i];
@@ -314,7 +314,7 @@ static ngx_int_t ngx_get_options(int argc, char * const * argv)
 				    return NGX_ERROR;
 				case 's':
 				    if(*p) {
-					    ngx_signal = (char*)p;
+					    ngx_signal = (char *)p;
 				    }
 				    else if(argv[++i]) {
 					    ngx_signal = argv[i];
@@ -418,7 +418,7 @@ static void ngx_show_version_info(const NgxStartUpOptions & rO)
 		}
 		else {
 			ngx_write_stderr("built with " OPENSSL_VERSION_TEXT " (running with ");
-			ngx_write_stderr((char*)(uintptr_t)ngx_ssl_version());
+			ngx_write_stderr((char *)(uintptr_t)ngx_ssl_version());
 			ngx_write_stderr(")" NGX_LINEFEED);
 		}
 #ifdef SSL_CTRL_SET_TLSEXT_HOSTNAME
@@ -449,7 +449,7 @@ static ngx_int_t ngx_save_argv(ngx_cycle_t * cycle, int argc, const char * argv[
 	}
 	for(i = 0; i < argc; i++) {
 		len = ngx_strlen(argv[i]) + 1;
-		ngx_argv[i] = (char*)ngx_alloc(len, cycle->log);
+		ngx_argv[i] = (char *)ngx_alloc(len, cycle->log);
 		if(ngx_argv[i] == NULL) {
 			return NGX_ERROR;
 		}
@@ -767,7 +767,7 @@ tz_found:
 	n = 0;
 	for(i = 0; i < ccf->env.nelts; i++) {
 		if(var[i].data[var[i].len] == '=') {
-			env[n++] = (char*)var[i].data;
+			env[n++] = (char *)var[i].data;
 		}
 		else {
 			for(p = ngx_os_environ; *p; p++) {
@@ -811,7 +811,7 @@ ngx_pid_t ngx_exec_new_binary(ngx_cycle_t * pCycle, char * const * argv)
 	if(env == NULL) {
 		return NGX_INVALID_PID;
 	}
-	var = (char*)ngx_alloc(sizeof(NGINX_VAR) + pCycle->listening.nelts * (NGX_INT32_LEN + 1) + 2, pCycle->log);
+	var = (char *)ngx_alloc(sizeof(NGINX_VAR) + pCycle->listening.nelts * (NGX_INT32_LEN + 1) + 2, pCycle->log);
 	if(var == NULL) {
 		ngx_free(env);
 		return NGX_INVALID_PID;
@@ -989,7 +989,7 @@ static const char * ngx_set_user(ngx_conf_t * cf, const ngx_command_t * cmd, voi
 		}
 		else {
 			ngx_str_t * value = cf->args->elts;
-			ccf->username = (char*)value[1].data;
+			ccf->username = (char *)value[1].data;
 			ngx_set_errno(0);
 			pwd = getpwnam((const char*)value[1].data);
 			if(pwd == NULL) {
@@ -997,7 +997,7 @@ static const char * ngx_set_user(ngx_conf_t * cf, const ngx_command_t * cmd, voi
 				return NGX_CONF_ERROR;
 			}
 			ccf->user = pwd->pw_uid;
-			group = (char*)((cf->args->nelts == 2) ? value[1].data : value[2].data);
+			group = (char *)((cf->args->nelts == 2) ? value[1].data : value[2].data);
 			ngx_set_errno(0);
 			grp = getgrnam(group);
 			if(grp == NULL) {

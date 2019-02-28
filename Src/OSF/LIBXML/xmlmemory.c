@@ -83,8 +83,8 @@ typedef struct memnod {
 #endif
 #define HDR_SIZE    sizeof(MEMHDR)
 #define RESERVE_SIZE (((HDR_SIZE + (ALIGN_SIZE-1)) / ALIGN_SIZE ) * ALIGN_SIZE)
-#define CLIENT_2_HDR(a) ((MEMHDR*)(((char*)(a)) - RESERVE_SIZE))
-#define HDR_2_CLIENT(a)    ((void *)(((char*)(a)) + RESERVE_SIZE))
+#define CLIENT_2_HDR(a) ((MEMHDR*)(((char *)(a)) - RESERVE_SIZE))
+#define HDR_2_CLIENT(a)    ((void *)(((char *)(a)) + RESERVE_SIZE))
 
 static uint block = 0;
 static uint xmlMemStopAtBlock = 0;
@@ -348,7 +348,7 @@ void xmlMemFree(void * ptr)
 		xmlMallocBreakpoint();
 	}
 	TEST_POINT
-    target = (char*)ptr;
+    target = (char *)ptr;
 	p = CLIENT_2_HDR(ptr);
 	if(p->mh_tag != MEMTAG) {
 		Mem_Tag_Err(p);
@@ -415,7 +415,7 @@ char * xmlMemStrdupLoc(const char * str, const char * file, int line)
 	debugmem_list_add(p);
 #endif
 	xmlMutexUnlock(xmlMemMutex);
-	s = (char*)HDR_2_CLIENT(p);
+	s = (char *)HDR_2_CLIENT(p);
 	if(xmlMemStopAtBlock == p->mh_number) 
 		xmlMallocBreakpoint();
 	strcpy(s, str);

@@ -1438,22 +1438,14 @@ static const cairo_surface_backend_t cairo_vg_surface_backend = {
 	_vg_surface_show_glyphs,
 };
 
-static cairo_surface_t * _vg_surface_create_internal(cairo_vg_context_t * context,
-    VGImage image,
-    VGImageFormat format,
-    int width, int height)
+static cairo_surface_t * _vg_surface_create_internal(cairo_vg_context_t * context, VGImage image, VGImageFormat format, int width, int height)
 {
-	cairo_vg_surface_t * surface;
-
-	surface = _cairo_malloc(sizeof(cairo_vg_surface_t));
+	cairo_vg_surface_t * surface = _cairo_malloc(sizeof(cairo_vg_surface_t));
 	if(unlikely(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
-
 	surface->context = _vg_context_reference(context);
-
 	surface->image  = image;
 	surface->format = format;
-
 	_cairo_surface_init(&surface->base,
 	    &cairo_vg_surface_backend,
 	    NULL,              /* device */
@@ -1462,14 +1454,9 @@ static cairo_surface_t * _vg_surface_create_internal(cairo_vg_context_t * contex
 
 	surface->width  = width;
 	surface->height = height;
-
-	_cairo_surface_clipper_init(&surface->clipper,
-	    _vg_surface_clipper_intersect_clip_path);
-
+	_cairo_surface_clipper_init(&surface->clipper, _vg_surface_clipper_intersect_clip_path);
 	surface->snapshot_cache_entry.hash = 0;
-
 	surface->target_id = 0;
-
 	CHECK_VG_ERRORS();
 	return &surface->base;
 }
@@ -1480,10 +1467,8 @@ cairo_surface_t * cairo_vg_surface_create_for_image(cairo_vg_context_t * context
     int width, int height)
 {
 	cairo_bool_t premult;
-
 	if(context->status)
 		return _cairo_surface_create_in_error(context->status);
-
 	if(image == VG_INVALID_HANDLE)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	if(_vg_format_to_pixman(format, &premult) == 0)

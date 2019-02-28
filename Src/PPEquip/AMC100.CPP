@@ -73,7 +73,7 @@ static FILE * opentemp(int firstLetter, char * buf)
 	buf[0] = firstLetter;
 	memset(buf+1, 'X', 6);
 	buf[7] = 0;
-	return fopen(mktemp(buf), (char*)&wt);
+	return fopen(mktemp(buf), (char *)&wt);
 }
 
 int SLAPI SCS_AMC100::MakeHeader(char * fn, CCheckPacket * /*pack*/, uint)
@@ -167,7 +167,7 @@ int SLAPI SCS_AMC100::MakeExecFileName(char * fn, uint)
 	char * p = fn + sstrlen(fn);
 	*p++ = Handle + '0';
 	*p++ = '.';
-	strcpy(p, (char*)&exe);
+	strcpy(p, (char *)&exe);
 	return 1;
 }
 
@@ -406,7 +406,7 @@ int SLAPI SCS_AMC200::MakeExecFileName(char * fn, uint)
 	char * p = fn + sstrlen(fn);
 	//*p++ = handle + '0';
 	*p++ = '.';
-	strcpy(p, (char*)&exe);
+	strcpy(p, (char *)&exe);
 	return 1;
 }
 

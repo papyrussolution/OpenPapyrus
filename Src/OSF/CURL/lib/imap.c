@@ -1498,7 +1498,7 @@ static char * imap_atom(const char * str, bool escape_only)
 			// Calculate the new string length
 			size_t newlen = sstrlen(str) + backsp_count + quote_count + (others_exists ? 2 : 0);
 			// Allocate the new string
-			newstr = (char*)SAlloc::M((newlen + 1) * sizeof(char));
+			newstr = (char *)SAlloc::M((newlen + 1) * sizeof(char));
 			if(newstr) {
 				// Surround the string in quotes if necessary
 				char * p2 = newstr;

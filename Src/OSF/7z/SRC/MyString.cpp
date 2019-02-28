@@ -1068,7 +1068,7 @@ UString::UString(char c)
 {
 	SetStartLen(1);
 	wchar_t * chars = _chars;
-	chars[0] = (uchar)c;
+	chars[0] = static_cast<uchar>(c);
 	chars[1] = 0;
 }
 

@@ -68,7 +68,7 @@ TXT_DB * TXT_DB_read(BIO * in, int num)
 			continue;
 		else {
 			buf->data[offset - 1] = '\0'; /* blat the '\n' */
-			if((p = (char*)OPENSSL_malloc(add + offset)) == NULL)
+			if((p = (char *)OPENSSL_malloc(add + offset)) == NULL)
 				goto err;
 			offset = 0;
 		}
@@ -284,7 +284,7 @@ void TXT_DB_free(TXT_DB * db)
 			}
 			else {
 				for(n = 0; n < db->num_fields; n++) {
-					if(((p[n] < (char*)p) || (p[n] > max)))
+					if(((p[n] < (char *)p) || (p[n] > max)))
 						OPENSSL_free(p[n]);
 				}
 			}

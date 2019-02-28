@@ -28,12 +28,13 @@ public:
 		freeAll();
 	}
 	int    SLAPI Search(long VAT, long salesTax, uint * p = 0);
-	int    SLAPI Insert(BillTaxEntry * e, uint * p = 0);
-	int    SLAPI Add(BillTaxEntry * e);
+	int    SLAPI Insert(const BillTaxEntry * pEntry, uint * p = 0);
+	int    SLAPI Add(BillTaxEntry * pEntry);
 	BillTaxEntry & SLAPI  at(uint p);
 };
 
-IMPL_CMPFUNC(BillTaxEnKey, i1, i2) { RET_CMPCASCADE2((const BillTaxEntry*)i1, (const BillTaxEntry*)i2, VAT, SalesTax); }
+IMPL_CMPFUNC(BillTaxEnKey, i1, i2) 
+	{ RET_CMPCASCADE2(static_cast<const BillTaxEntry *>(i1), static_cast<const BillTaxEntry *>(i2), VAT, SalesTax); }
 
 int SLAPI BillTaxArray::Search(long VAT, long salesTax, uint * p)
 {
@@ -43,9 +44,9 @@ int SLAPI BillTaxArray::Search(long VAT, long salesTax, uint * p)
 	return bsearch(&bte, p, PTR_CMPFUNC(BillTaxEnKey));
 }
 
-int SLAPI BillTaxArray::Insert(BillTaxEntry * e, uint * p)
+int SLAPI BillTaxArray::Insert(const BillTaxEntry * pEntry, uint * p)
 {
-	return ordInsert(e, p, PTR_CMPFUNC(BillTaxEnKey)) ? 1 : PPSetErrorSLib();
+	return ordInsert(pEntry, p, PTR_CMPFUNC(BillTaxEnKey)) ? 1 : PPSetErrorSLib();
 }
 
 BillTaxEntry & SLAPI BillTaxArray::at(uint p)

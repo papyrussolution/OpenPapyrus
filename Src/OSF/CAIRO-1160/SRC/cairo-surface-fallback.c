@@ -45,13 +45,13 @@
 
 cairo_int_status_t _cairo_surface_fallback_paint(void * surface, cairo_operator_t op, const cairo_pattern_t * source, const cairo_clip_t * clip)
 {
-	return _cairo_compositor_paint(&_cairo_fallback_compositor, (cairo_surface_t *)surface, op, source, clip);
+	return _cairo_compositor_paint(&_cairo_fallback_compositor, static_cast<cairo_surface_t *>(surface), op, source, clip);
 }
 
 cairo_int_status_t _cairo_surface_fallback_mask(void * surface, cairo_operator_t op,
     const cairo_pattern_t * source, const cairo_pattern_t * mask, const cairo_clip_t * clip)
 {
-	return _cairo_compositor_mask(&_cairo_fallback_compositor, (cairo_surface_t *)surface, op, source, mask, clip);
+	return _cairo_compositor_mask(&_cairo_fallback_compositor, static_cast<cairo_surface_t *>(surface), op, source, mask, clip);
 }
 
 cairo_int_status_t _cairo_surface_fallback_stroke(void * surface,
@@ -65,17 +65,17 @@ cairo_int_status_t _cairo_surface_fallback_stroke(void * surface,
     cairo_antialias_t antialias,
     const cairo_clip_t * clip)
 {
-	return _cairo_compositor_stroke(&_cairo_fallback_compositor, (cairo_surface_t *)surface, op, source, path, style, ctm, ctm_inverse, tolerance, antialias, clip);
+	return _cairo_compositor_stroke(&_cairo_fallback_compositor, static_cast<cairo_surface_t *>(surface), op, source, path, style, ctm, ctm_inverse, tolerance, antialias, clip);
 }
 
 cairo_int_status_t _cairo_surface_fallback_fill(void * surface, cairo_operator_t op, const cairo_pattern_t * source,
     const cairo_path_fixed_t * path, cairo_fill_rule_t fill_rule, double tolerance, cairo_antialias_t antialias, const cairo_clip_t * clip)
 {
-	return _cairo_compositor_fill(&_cairo_fallback_compositor, (cairo_surface_t *)surface, op, source, path, fill_rule, tolerance, antialias, clip);
+	return _cairo_compositor_fill(&_cairo_fallback_compositor, static_cast<cairo_surface_t *>(surface), op, source, path, fill_rule, tolerance, antialias, clip);
 }
 
 cairo_int_status_t _cairo_surface_fallback_glyphs(void * surface, cairo_operator_t op, const cairo_pattern_t * source,
     cairo_glyph_t * glyphs, int num_glyphs, cairo_scaled_font_t * scaled_font, const cairo_clip_t * clip)
 {
-	return _cairo_compositor_glyphs(&_cairo_fallback_compositor, (cairo_surface_t *)surface, op, source, glyphs, num_glyphs, scaled_font, clip);
+	return _cairo_compositor_glyphs(&_cairo_fallback_compositor, static_cast<cairo_surface_t *>(surface), op, source, glyphs, num_glyphs, scaled_font, clip);
 }

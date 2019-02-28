@@ -512,7 +512,7 @@ static int PixarLogMakeTables(PixarLogState * sp)
 	FromLT2 = (uint16*)SAlloc::M(lt2size*sizeof(uint16));
 	From14 = (uint16*)SAlloc::M(16384*sizeof(uint16));
 	From8 = (uint16*)SAlloc::M(256*sizeof(uint16));
-	ToLinearF = (float*)SAlloc::M(TSIZEP1 * sizeof(float));
+	ToLinearF = (float *)SAlloc::M(TSIZEP1 * sizeof(float));
 	ToLinear16 = (uint16*)SAlloc::M(TSIZEP1 * sizeof(uint16));
 	ToLinear8 = (unsigned char*)SAlloc::M(TSIZEP1 * sizeof(unsigned char));
 	if(FromLT2 == NULL || From14  == NULL || From8   == NULL ||
@@ -546,7 +546,7 @@ static int PixarLogMakeTables(PixarLogState * sp)
 
 	for(i = 0; i < TSIZEP1; i++) {
 		v = ToLinearF[i]*65535.0 + 0.5;
-		ToLinear16[i] = (v > 65535.0) ? 65535 : (uint16)v;
+		ToLinear16[i] = (v > 65535.0) ? 65535 : static_cast<uint16>(v);
 		v = ToLinearF[i]*255.0  + 0.5;
 		ToLinear8[i]  = (v > 255.0) ? 255 : (unsigned char)v;
 	}
@@ -851,7 +851,7 @@ static int PixarLogDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 		switch(sp->user_datafmt)  {
 			case PIXARLOGDATAFMT_FLOAT:
 			    horizontalAccumulateF(up, llen, sp->stride,
-			    (float*)op, sp->ToLinearF);
+			    (float *)op, sp->ToLinearF);
 			    op += llen * sizeof(float);
 			    break;
 			case PIXARLOGDATAFMT_16BIT:
@@ -1153,7 +1153,7 @@ static int PixarLogEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 	for(i = 0, up = sp->tbuf; i < n; i += llen, up += llen) {
 		switch(sp->user_datafmt)  {
 			case PIXARLOGDATAFMT_FLOAT:
-			    horizontalDifferenceF((float*)bp, llen,
+			    horizontalDifferenceF((float *)bp, llen,
 			    sp->stride, up, sp->FromLT2);
 			    bp += llen * sizeof(float);
 			    break;
@@ -1406,7 +1406,7 @@ int TIFFInitPixarLog(TIFF* tif, int scheme)
 	/*
 	 * Allocate state block so tag methods have storage to record values.
 	 */
-	tif->tif_data = (uint8*)SAlloc::M(sizeof(PixarLogState));
+	tif->tif_data = (uint8 *)SAlloc::M(sizeof(PixarLogState));
 	if(tif->tif_data == NULL)
 		goto bad;
 	sp = (PixarLogState*)tif->tif_data;

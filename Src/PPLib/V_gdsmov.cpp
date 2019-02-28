@@ -824,7 +824,7 @@ int PPALDD_GoodsMov::NextIteration(PPIterID iterId)
 
 void PPALDD_GoodsMov::Destroy()
 {
-	delete (PPViewGoodsMov*)Extra[0].Ptr;
+	delete static_cast<PPViewGoodsMov *>(Extra[0].Ptr);
 	Extra[0].Ptr = Extra[1].Ptr = 0;
 }
 

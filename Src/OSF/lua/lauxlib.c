@@ -479,9 +479,9 @@ LUALIB_API char * luaL_prepbuffsize(luaL_Buffer * B, size_t sz) {
 			luaL_error(L, "buffer too large");
 		/* create larger buffer */
 		if(buffonstack(B))
-			newbuff = (char*)resizebox(L, -1, newsize);
+			newbuff = (char *)resizebox(L, -1, newsize);
 		else { /* no buffer yet */
-			newbuff = (char*)newbox(L, newsize);
+			newbuff = (char *)newbox(L, newsize);
 			memcpy(newbuff, B->b, B->n * sizeof(char)); /* copy original content */
 		}
 		B->b = newbuff;

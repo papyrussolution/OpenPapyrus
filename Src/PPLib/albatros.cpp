@@ -71,7 +71,7 @@ IMPL_HANDLE_EVENT(AlbatrosConfigDialog)
 		PPObjInternetAccount mac_obj;
 		PPID   mac_id = getCtrlLong(CTLSEL_ALBTRCFG_MAILACC);
 		if(mac_obj.Edit(&mac_id, 0) == cmOK)
-			SetupPPObjCombo(this, CTLSEL_ALBTRCFG_MAILACC, PPOBJ_INTERNETACCOUNT, mac_id, OLW_CANINSERT, (void *)PPObjInternetAccount::filtfMail);
+			SetupPPObjCombo(this, CTLSEL_ALBTRCFG_MAILACC, PPOBJ_INTERNETACCOUNT, mac_id, OLW_CANINSERT, reinterpret_cast<void *>(PPObjInternetAccount::filtfMail));
 	}
 	else if(event.isCmd(cmEditSmsAcc)) {
 		PPObjSmsAccount mac_obj;
@@ -96,7 +96,7 @@ int AlbatrosConfigDialog::setDTS(const PPAlbatrosConfig * pCfg)
 	if(!RVALUEPTR(Data, pCfg))
 		MEMSZERO(Data);
 	SetupOprKindCombo(this, CTLSEL_ALBTRCFG_OPKINDID, Data.Hdr.OpID, 0, &op_type_list, 0);
-	SetupPPObjCombo(this, CTLSEL_ALBTRCFG_MAILACC, PPOBJ_INTERNETACCOUNT, Data.Hdr.MailAccID, OLW_CANINSERT, (void *)PPObjInternetAccount::filtfMail);
+	SetupPPObjCombo(this, CTLSEL_ALBTRCFG_MAILACC, PPOBJ_INTERNETACCOUNT, Data.Hdr.MailAccID, OLW_CANINSERT, reinterpret_cast<void *>(PPObjInternetAccount::filtfMail));
 	SetupPPObjCombo(this, CTLSEL_ALBTRCFG_SMSACC, PPOBJ_SMSPRVACCOUNT, Data.Hdr.SmsAccID, OLW_CANINSERT, 0);
 	Data.GetExtStrData(ALBATROSEXSTR_UHTTURN, temp_buf);
 	setCtrlString(CTL_ALBTRCFG_UHTTURN, temp_buf/*Data.UhttUrn*/);

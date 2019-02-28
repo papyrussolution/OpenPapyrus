@@ -94,7 +94,7 @@ int BIO_sock_error(int sock)
 	 * choke the compiler: if you do have a cast then you can either go for
 	 * (char *) or (void *).
 	 */
-	i = getsockopt(sock, SOL_SOCKET, SO_ERROR, (char*)&j, &size);
+	i = getsockopt(sock, SOL_SOCKET, SO_ERROR, (char *)&j, &size);
 	if(i < 0)
 		return (get_last_socket_error());
 	else
@@ -109,7 +109,7 @@ struct hostent * BIO_gethostbyname(const char * name)
 	 * the true gethostbyname() worry about this
 	 */
 #  if (defined(NETWARE_BSDSOCK) && !defined(__NOVELL_LIBC__))
-	return gethostbyname((char*)name);
+	return gethostbyname((char *)name);
 #  else
 	return gethostbyname(name);
 #  endif
@@ -165,7 +165,7 @@ int BIO_socket_ioctl(int fd, long type, void * arg)
 {
 	int i;
 #ifdef __DJGPP__
-	i = ioctlsocket(fd, type, (char*)arg);
+	i = ioctlsocket(fd, type, (char *)arg);
 #else
 	#if defined(OPENSSL_SYS_VMS)
 	/*-
@@ -242,7 +242,7 @@ int BIO_accept(int sock, char ** ip_port)
 		char * host = BIO_ADDR_hostname_string(&res, 1);
 		char * port = BIO_ADDR_service_string(&res, 1);
 		if(host != NULL && port != NULL)
-			*ip_port = (char*)OPENSSL_zalloc(strlen(host) + strlen(port) + 2);
+			*ip_port = (char *)OPENSSL_zalloc(strlen(host) + strlen(port) + 2);
 		else
 			*ip_port = NULL;
 		if(*ip_port == NULL) {
@@ -277,7 +277,7 @@ int BIO_set_tcp_ndelay(int s, int on)
 #   endif
 #  endif
 
-	ret = setsockopt(s, opt, TCP_NODELAY, (char*)&on, sizeof(on));
+	ret = setsockopt(s, opt, TCP_NODELAY, (char *)&on, sizeof(on));
 # endif
 	return (ret == 0);
 }

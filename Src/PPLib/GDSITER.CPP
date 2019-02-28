@@ -872,15 +872,15 @@ int SLAPI GoodsIterator::CreateIterQuery()
 
 IMPL_CMPFUNC(_GroupListItem, i1, i2)
 {
-	const char * p1 = ((const char*)i1) + sizeof(PPID) + GRPCODESIZE;
-	const char * p2 = ((const char*)i2) + sizeof(PPID) + GRPCODESIZE;
+	const char * p1 = static_cast<const char *>(i1) + sizeof(PPID) + GRPCODESIZE;
+	const char * p2 = static_cast<const char *>(i2) + sizeof(PPID) + GRPCODESIZE;
 	return stricmp866(p1, p2);
 }
 
 IMPL_CMPFUNC(_GroupListItemCode, i1, i2)
 {
-	const char * p1 = ((const char*)i1) + sizeof(PPID);
-	const char * p2 = ((const char*)i2) + sizeof(PPID);
+	const char * p1 = static_cast<const char *>(i1) + sizeof(PPID);
+	const char * p2 = static_cast<const char *>(i2) + sizeof(PPID);
 	return strnicmp(p1, p2, GRPCODESIZE);
 }
 

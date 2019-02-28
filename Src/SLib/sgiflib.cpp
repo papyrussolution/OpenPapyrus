@@ -54,8 +54,8 @@
 // compose unsigned little endian value 
 #define UNSIGNED_LITTLE_ENDIAN(lo, hi)  ((lo) | ((hi) << 8))
 // avoid extra function call in case we use fread (TVT) 
-#define READ(_gif, _buf, _len) (((GifFilePrivateType*)_gif->Private)->Read ? ((GifFilePrivateType*)_gif->Private)->Read(_gif, _buf, _len) : \
-	fread(_buf, 1, _len, ((GifFilePrivateType*)_gif->Private)->File))
+#define READ(_gif, _buf, _len) static_cast<GifFilePrivateType *>((_gif)->Private)->Read ? static_cast<GifFilePrivateType *>((_gif)->Private)->Read(_gif, _buf, _len) : \
+	fread(_buf, 1, _len, static_cast<GifFilePrivateType *>((_gif)->Private)->File)
 #define COLOR_ARRAY_SIZE 32768
 #define BITS_PER_PRIM_COLOR 5
 #define MAX_PRIM_COLOR      0x1f
@@ -172,7 +172,7 @@ GifFileType * DGifOpenFileHandle(int FileHandle, int * Error)
 	char Buf[GIF_STAMP_LEN + 1];
 	GifFilePrivateType * p_private = 0;
 	FILE * f = 0;
-	GifFileType * p_giffile = (GifFileType *)SAlloc::M(sizeof(GifFileType));
+	GifFileType * p_giffile = static_cast<GifFileType *>(SAlloc::M(sizeof(GifFileType)));
 	if(p_giffile == NULL) {
 		ASSIGN_PTR(Error, D_GIF_ERR_NOT_ENOUGH_MEM);
 		CALLEXCEPT();
@@ -181,7 +181,7 @@ GifFileType * DGifOpenFileHandle(int FileHandle, int * Error)
 	/* Belt and suspenders, in case the null pointer isn't zero */
 	p_giffile->SavedImages = NULL;
 	p_giffile->SColorMap = NULL;
-	p_private = (GifFilePrivateType*)SAlloc::M(sizeof(GifFilePrivateType));
+	p_private = static_cast<GifFilePrivateType *>(SAlloc::M(sizeof(GifFilePrivateType)));
 	if(p_private == NULL) {
 		ASSIGN_PTR(Error, D_GIF_ERR_NOT_ENOUGH_MEM);
 		CALLEXCEPT();
@@ -200,7 +200,7 @@ GifFileType * DGifOpenFileHandle(int FileHandle, int * Error)
 	FileHandle = -1; // @sobolev
 	/*@=mustfreeonly@*/
 	// Let's see if this is a GIF file: 
-	if(READ(p_giffile, (uint8*)Buf, GIF_STAMP_LEN) != GIF_STAMP_LEN) {
+	if(READ(p_giffile, (uint8 *)Buf, GIF_STAMP_LEN) != GIF_STAMP_LEN) {
 		ASSIGN_PTR(Error, D_GIF_ERR_READ_FAILED);
 		CALLEXCEPT();
 	}
@@ -239,10 +239,10 @@ GifFileType * DGifOpen(void * userData, InputFunc readFunc, int * Error)
 	// Belt and suspenders, in case the null pointer isn't zero 
 	GifFile->SavedImages = NULL;
 	GifFile->SColorMap = NULL;
-	Private = (GifFilePrivateType*)SAlloc::M(sizeof(GifFilePrivateType));
+	Private = static_cast<GifFilePrivateType *>(SAlloc::M(sizeof(GifFilePrivateType)));
 	if(!Private) {
 		ASSIGN_PTR(Error, D_GIF_ERR_NOT_ENOUGH_MEM);
-		SAlloc::F((char*)GifFile);
+		SAlloc::F((char *)GifFile);
 		return NULL;
 	}
 	GifFile->Private = (void *)Private;
@@ -252,23 +252,23 @@ GifFileType * DGifOpen(void * userData, InputFunc readFunc, int * Error)
 	Private->Read = readFunc; /* TVT */
 	GifFile->UserData = userData; /* TVT */
 	// Lets see if this is a GIF file: 
-	if(READ(GifFile, (uint8*)Buf, GIF_STAMP_LEN) != GIF_STAMP_LEN) {
+	if(READ(GifFile, (uint8 *)Buf, GIF_STAMP_LEN) != GIF_STAMP_LEN) {
 		ASSIGN_PTR(Error, D_GIF_ERR_READ_FAILED);
-		SAlloc::F((char*)Private);
-		SAlloc::F((char*)GifFile);
+		SAlloc::F(Private);
+		SAlloc::F(GifFile);
 		return NULL;
 	}
 	// Check for GIF prefix at start of file 
 	Buf[GIF_STAMP_LEN] = '\0';
 	if(strncmp(GIF_STAMP, Buf, GIF_VERSION_POS) != 0) {
 		ASSIGN_PTR(Error, D_GIF_ERR_NOT_GIF_FILE);
-		SAlloc::F((char*)Private);
-		SAlloc::F((char*)GifFile);
+		SAlloc::F(Private);
+		SAlloc::F(GifFile);
 		return NULL;
 	}
 	if(DGifGetScreenDesc(GifFile) == GIF_ERROR) {
-		SAlloc::F((char*)Private);
-		SAlloc::F((char*)GifFile);
+		SAlloc::F(Private);
+		SAlloc::F(GifFile);
 		return NULL;
 	}
 	GifFile->Error = 0;
@@ -300,7 +300,7 @@ int DGifGetScreenDesc(GifFileType * GifFile)
 	int BitsPerPixel;
 	bool SortFlag;
 	GifByteType Buf[3];
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	if(!IS_READABLE(Private)) {
 		/* This file was NOT open for reading: */
 		GifFile->Error = D_GIF_ERR_NOT_READABLE;
@@ -350,7 +350,7 @@ int DGifGetScreenDesc(GifFileType * GifFile)
 int DGifGetRecordType(GifFileType * GifFile, GifRecordType* Type)
 {
 	GifByteType Buf;
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	if(!IS_READABLE(Private)) {
 		// This file was NOT open for reading: 
 		GifFile->Error = D_GIF_ERR_NOT_READABLE;
@@ -379,7 +379,7 @@ static int DGifSetupDecompress(GifFileType * GifFile)
 	int i, BitsPerPixel;
 	GifByteType CodeSize;
 	GifPrefixType * Prefix;
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	READ(GifFile, &CodeSize, 1); /* Read Code size from file. */
 	BitsPerPixel = CodeSize;
 	Private->Buf[0] = 0; /* Input Buffer empty. */
@@ -406,7 +406,7 @@ int DGifGetImageDesc(GifFileType * GifFile)
 {
 	uint BitsPerPixel;
 	GifByteType Buf[3];
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	GifSavedImage * sp;
 	if(!IS_READABLE(Private)) {
 		/* This file was NOT open for reading: */
@@ -471,7 +471,7 @@ int DGifGetImageDesc(GifFileType * GifFile)
 			return GIF_ERROR;
 		}
 	}
-	sp->RasterBits = (uint8*)NULL;
+	sp->RasterBits = (uint8 *)NULL;
 	sp->ExtensionBlockCount = 0;
 	sp->ExtensionBlocks = (ExtensionBlock*)NULL;
 	GifFile->ImageCount++;
@@ -555,7 +555,7 @@ static int FASTCALL DGifDecompressInput(GifFileType * GifFile, int * Code)
 		0x00ff, 0x01ff, 0x03ff, 0x07ff,
 		0x0fff
 	};
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	GifByteType NextByte;
 	// The image can't contain more than LZ_BITS per code. 
 	if(Private->RunningBits > LZ_BITS) {
@@ -598,7 +598,7 @@ static int DGifDecompressLine(GifFileType * GifFile, GifPixelType * Line, int Li
 	int j, CrntCode, EOFCode, ClearCode, CrntPrefix, LastCode, StackPtr;
 	GifByteType * Stack, * Suffix;
 	GifPrefixType * Prefix;
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	StackPtr = Private->StackPtr;
 	Prefix = Private->Prefix;
 	Suffix = Private->Suffix;
@@ -707,7 +707,7 @@ static int DGifDecompressLine(GifFileType * GifFile, GifPixelType * Line, int Li
 int DGifGetLine(GifFileType * GifFile, GifPixelType * Line, int LineLen)
 {
 	GifByteType * Dummy;
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	if(!IS_READABLE(Private)) {
 		/* This file was NOT open for reading: */
 		GifFile->Error = D_GIF_ERR_NOT_READABLE;
@@ -741,7 +741,7 @@ int DGifGetLine(GifFileType * GifFile, GifPixelType * Line, int LineLen)
 int DGifGetPixel(GifFileType * GifFile, GifPixelType Pixel)
 {
 	GifByteType * Dummy;
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	if(!IS_READABLE(Private)) {
 		/* This file was NOT open for reading: */
 		GifFile->Error = D_GIF_ERR_NOT_READABLE;
@@ -778,7 +778,7 @@ int DGifGetPixel(GifFileType * GifFile, GifPixelType Pixel)
 int DGifGetExtension(GifFileType * GifFile, int * ExtCode, GifByteType ** Extension)
 {
 	GifByteType Buf;
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	if(!IS_READABLE(Private)) {
 		/* This file was NOT open for reading: */
 		GifFile->Error = D_GIF_ERR_NOT_READABLE;
@@ -801,7 +801,7 @@ int DGifGetExtension(GifFileType * GifFile, int * ExtCode, GifByteType ** Extens
 int DGifGetExtensionNext(GifFileType * GifFile, GifByteType ** Extension)
 {
 	GifByteType Buf;
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	if(READ(GifFile, &Buf, 1) != 1) {
 		GifFile->Error = D_GIF_ERR_READ_FAILED;
 		return GIF_ERROR;
@@ -875,7 +875,7 @@ int DGifCloseFile(GifFileType * GifFile)
 		GifFile->SavedImages = NULL;
 	}
 	GifFreeExtensions(&GifFile->ExtensionBlockCount, &GifFile->ExtensionBlocks);
-	Private = (GifFilePrivateType*)GifFile->Private;
+	Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	if(!IS_READABLE(Private)) {
 		/* This file was NOT open for reading: */
 		GifFile->Error = D_GIF_ERR_NOT_READABLE;
@@ -885,7 +885,7 @@ int DGifCloseFile(GifFileType * GifFile)
 		GifFile->Error = D_GIF_ERR_CLOSE_FAILED;
 		return GIF_ERROR;
 	}
-	SAlloc::F((char*)GifFile->Private);
+	SAlloc::F((char *)GifFile->Private);
 	//
 	// Without the #ifndef, we get spurious warnings because Coverity mistakenly
 	// thinks the GIF structure is freed on an error return.
@@ -904,7 +904,7 @@ int DGifCloseFile(GifFileType * GifFile)
 // 
 int DGifGetCode(GifFileType * GifFile, int * CodeSize, GifByteType ** CodeBlock)
 {
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	if(!IS_READABLE(Private)) {
 		/* This file was NOT open for reading: */
 		GifFile->Error = D_GIF_ERR_NOT_READABLE;
@@ -921,7 +921,7 @@ int DGifGetCode(GifFileType * GifFile, int * CodeSize, GifByteType ** CodeBlock)
 int DGifGetCodeNext(GifFileType * GifFile, GifByteType ** CodeBlock)
 {
 	GifByteType Buf;
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 
 	/* coverity[tainted_data_argument] */
 	if(READ(GifFile, &Buf, 1) != 1) {
@@ -952,7 +952,7 @@ int DGifGetCodeNext(GifFileType * GifFile, GifByteType ** CodeBlock)
 // 
 int DGifGetLZCodes(GifFileType * GifFile, int * Code)
 {
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	if(!IS_READABLE(Private)) {
 		// This file was NOT open for reading: 
 		GifFile->Error = D_GIF_ERR_NOT_READABLE;
@@ -1009,7 +1009,7 @@ int DGifSlurp(GifFileType * pGifFile)
 			    if(image_size > (SIZE_MAX / sizeof(GifPixelType))) {
 				    return GIF_ERROR;
 			    }
-			    p_sp->RasterBits = (uint8*)SAlloc::M(image_size * sizeof(GifPixelType));
+			    p_sp->RasterBits = (uint8 *)SAlloc::M(image_size * sizeof(GifPixelType));
 			    if(p_sp->RasterBits == NULL) {
 				    return GIF_ERROR;
 			    }
@@ -1068,7 +1068,7 @@ int DGifSlurp(GifFileType * pGifFile)
 //
 static int FASTCALL InternalWrite(GifFileType * GifFileOut, const uint8 * buf, size_t len)
 {
-	GifFilePrivateType * p_private = (GifFilePrivateType*)GifFileOut->Private;
+	GifFilePrivateType * p_private = static_cast<GifFilePrivateType *>(GifFileOut->Private);
 	return p_private->Write ? p_private->Write(GifFileOut, buf, len) : fwrite(buf, 1, len, p_private->File);
 }
 // 
@@ -1113,7 +1113,7 @@ static int EGifBufferedOutput(GifFileType * GifFile, GifByteType * Buf, int c)
 // 
 static int EGifCompressOutput(GifFileType * GifFile, int Code)
 {
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	int retval = GIF_OK;
 	if(Code == FLUSH_OUTPUT) {
 		while(Private->CrntShiftState > 0) {
@@ -1152,7 +1152,7 @@ static int EGifSetupCompress(GifFileType * GifFile)
 {
 	int BitsPerPixel;
 	GifByteType Buf;
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	// Test and see what color map to use, and from it # bits per pixel: 
 	if(GifFile->Image.ColorMap)
 		BitsPerPixel = GifFile->Image.ColorMap->BitsPerPixel;
@@ -1194,7 +1194,7 @@ static int EGifCompressLine(GifFileType * GifFile, GifPixelType * Line, int Line
 	ulong NewKey;
 	GifPixelType Pixel;
 	GifHashTableType * HashTable;
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	HashTable = Private->HashTable;
 	if(Private->CrntCode == FIRST_CODE) /* Its first time! */
 		CrntCode = Line[i++];
@@ -1304,10 +1304,10 @@ GifFileType * EGifOpenFileHandle(const int FileHandle, int * Error)
 {
 	GifFilePrivateType * Private;
 	FILE * f = 0;
-	GifFileType * GifFile = (GifFileType*)SAlloc::M(sizeof(GifFileType));
+	GifFileType * GifFile = static_cast<GifFileType *>(SAlloc::M(sizeof(GifFileType)));
 	if(GifFile) {
 		memzero(GifFile, sizeof(GifFileType));
-		Private = (GifFilePrivateType*)SAlloc::M(sizeof(GifFilePrivateType));
+		Private = static_cast<GifFilePrivateType *>(SAlloc::M(sizeof(GifFilePrivateType)));
 		if(Private == NULL) {
 			SAlloc::F(GifFile);
 			ASSIGN_PTR(Error, E_GIF_ERR_NOT_ENOUGH_MEM);
@@ -1340,13 +1340,13 @@ GifFileType * EGifOpenFileHandle(const int FileHandle, int * Error)
 GifFileType * EGifOpen(void * userData, OutputFunc writeFunc, int * pError)
 {
 	GifFilePrivateType * Private;
-	GifFileType * GifFile = (GifFileType*)SAlloc::M(sizeof(GifFileType));
+	GifFileType * GifFile = static_cast<GifFileType *>(SAlloc::M(sizeof(GifFileType)));
 	if(GifFile == NULL) {
 		ASSIGN_PTR(pError, E_GIF_ERR_NOT_ENOUGH_MEM);
 		return NULL;
 	}
 	memzero(GifFile, sizeof(GifFileType));
-	Private = (GifFilePrivateType*)SAlloc::M(sizeof(GifFilePrivateType));
+	Private = static_cast<GifFilePrivateType *>(SAlloc::M(sizeof(GifFilePrivateType)));
 	if(Private == NULL) {
 		SAlloc::F(GifFile);
 		ASSIGN_PTR(pError, E_GIF_ERR_NOT_ENOUGH_MEM);
@@ -1359,9 +1359,9 @@ GifFileType * EGifOpen(void * userData, OutputFunc writeFunc, int * pError)
 		ASSIGN_PTR(pError, E_GIF_ERR_NOT_ENOUGH_MEM);
 		return NULL;
 	}
-	GifFile->Private = (void *)Private;
+	GifFile->Private = Private;
 	Private->FileHandle = 0;
-	Private->File = (FILE*)0;
+	Private->File = 0;
 	Private->FileState = FILE_STATE_WRITE;
 	Private->Write = writeFunc; /* User write routine (MRB) */
 	GifFile->UserData = userData; /* User write handle (MRB) */
@@ -1374,7 +1374,7 @@ GifFileType * EGifOpen(void * userData, OutputFunc writeFunc, int * pError)
 // 
 char * EGifGetGifVersion(GifFileType * pGifFile)
 {
-	GifFilePrivateType * p_private = (GifFilePrivateType*)pGifFile->Private;
+	GifFilePrivateType * p_private = static_cast<GifFilePrivateType *>(pGifFile->Private);
 	int i, j;
 	/*
 	 * Bulletproofing - always write GIF89 if we need to.
@@ -1404,7 +1404,7 @@ char * EGifGetGifVersion(GifFileType * pGifFile)
 // 
 int EGifSetGifVersion(GifFileType * GifFile, const bool gif89)
 {
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	Private->gif89 = gif89;
 	return 1;
 }
@@ -1415,7 +1415,7 @@ int EGifSetGifVersion(GifFileType * GifFile, const bool gif89)
 int EGifPutScreenDesc(GifFileType * GifFile, const int Width, const int Height, const int ColorRes, const int BackGround, const ColorMapObject * ColorMap)
 {
 	GifByteType Buf[3];
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	char * write_version;
 	if(Private->FileState & FILE_STATE_SCREEN) {
 		/* If already has screen descriptor - something is wrong! */
@@ -1429,7 +1429,7 @@ int EGifPutScreenDesc(GifFileType * GifFile, const int Width, const int Height, 
 	}
 	write_version = EGifGetGifVersion(GifFile);
 	/* First write the version prefix into the file. */
-	if(InternalWrite(GifFile, (uint8*)write_version, strlen(write_version)) != strlen(write_version)) {
+	if(InternalWrite(GifFile, reinterpret_cast<const uint8 *>(write_version), strlen(write_version)) != strlen(write_version)) {
 		GifFile->Error = E_GIF_ERR_WRITE_FAILED;
 		return GIF_ERROR;
 	}
@@ -1489,9 +1489,8 @@ int EGifPutScreenDesc(GifFileType * GifFile, const int Width, const int Height, 
 int EGifPutImageDesc(GifFileType * GifFile, const int Left, const int Top, const int Width, const int Height, const bool Interlace, ColorMapObject * ColorMap)
 {
 	GifByteType Buf[3];
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
-	if(Private->FileState & FILE_STATE_IMAGE &&
-	    Private->PixelCount > 0xffff0000UL) {
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
+	if(Private->FileState & FILE_STATE_IMAGE && Private->PixelCount > 0xffff0000UL) {
 		/* If already has active image descriptor - something is wrong! */
 		GifFile->Error = E_GIF_ERR_HAS_IMAG_DSCR;
 		return GIF_ERROR;
@@ -1507,8 +1506,7 @@ int EGifPutImageDesc(GifFileType * GifFile, const int Left, const int Top, const
 	GifFile->Image.Height = Height;
 	GifFile->Image.Interlace = Interlace;
 	if(ColorMap) {
-		GifFile->Image.ColorMap = GifMakeMapObject(ColorMap->ColorCount,
-		    ColorMap->Colors);
+		GifFile->Image.ColorMap = GifMakeMapObject(ColorMap->ColorCount, ColorMap->Colors);
 		if(GifFile->Image.ColorMap == NULL) {
 			GifFile->Error = E_GIF_ERR_NOT_ENOUGH_MEM;
 			return GIF_ERROR;
@@ -1557,7 +1555,7 @@ int EGifPutLine(GifFileType * GifFile, GifPixelType * Line, int LineLen)
 {
 	int i;
 	GifPixelType Mask;
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	if(!IS_WRITEABLE(Private)) {
 		/* This file was NOT open for writing: */
 		GifFile->Error = E_GIF_ERR_NOT_WRITEABLE;
@@ -1582,7 +1580,7 @@ int EGifPutLine(GifFileType * GifFile, GifPixelType * Line, int LineLen)
 // 
 int EGifPutPixel(GifFileType * GifFile, GifPixelType Pixel)
 {
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	if(!IS_WRITEABLE(Private)) {
 		/* This file was NOT open for writing: */
 		GifFile->Error = E_GIF_ERR_NOT_WRITEABLE;
@@ -1603,13 +1601,12 @@ int EGifPutPixel(GifFileType * GifFile, GifPixelType Pixel)
 // 
 int EGifPutComment(GifFileType * GifFile, const char * Comment)
 {
-	char * buf;
 	uint length = strlen(Comment);
 	if(length <= 255) {
 		return EGifPutExtension(GifFile, COMMENT_EXT_FUNC_CODE, length, Comment);
 	}
 	else {
-		buf = (char*)Comment;
+		const char * buf = Comment;
 		if(EGifPutExtensionLeader(GifFile, COMMENT_EXT_FUNC_CODE) == GIF_ERROR) {
 			return GIF_ERROR;
 		}
@@ -1642,7 +1639,7 @@ int EGifPutComment(GifFileType * GifFile, const char * Comment)
 int EGifPutExtensionLeader(GifFileType * GifFile, const int ExtCode)
 {
 	GifByteType Buf[3];
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	if(!IS_WRITEABLE(Private)) {
 		/* This file was NOT open for writing: */
 		GifFile->Error = E_GIF_ERR_NOT_WRITEABLE;
@@ -1662,7 +1659,7 @@ int EGifPutExtensionLeader(GifFileType * GifFile, const int ExtCode)
 int EGifPutExtensionBlock(GifFileType * GifFile, const int ExtLen, const void * Extension)
 {
 	GifByteType Buf;
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	if(!IS_WRITEABLE(Private)) {
 		/* This file was NOT open for writing: */
 		GifFile->Error = E_GIF_ERR_NOT_WRITEABLE;
@@ -1682,7 +1679,7 @@ int EGifPutExtensionBlock(GifFileType * GifFile, const int ExtLen, const void * 
 int EGifPutExtensionTrailer(GifFileType * GifFile) 
 {
 	GifByteType Buf;
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	if(!IS_WRITEABLE(Private)) {
 		/* This file was NOT open for writing: */
 		GifFile->Error = E_GIF_ERR_NOT_WRITEABLE;
@@ -1705,7 +1702,7 @@ int EGifPutExtensionTrailer(GifFileType * GifFile)
 int EGifPutExtension(GifFileType * GifFile, const int ExtCode, const int ExtLen, const void * Extension) 
 {
 	GifByteType Buf[3];
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	if(!IS_WRITEABLE(Private)) {
 		/* This file was NOT open for writing: */
 		GifFile->Error = E_GIF_ERR_NOT_WRITEABLE;
@@ -1762,7 +1759,7 @@ int EGifGCBToSavedExtension(const GraphicsControlBlock * GCB, GifFileType * GifF
 	Len = EGifGCBToExtension(GCB, (GifByteType*)buf);
 	if(GifAddExtensionBlock(&GifFile->SavedImages[ImageIndex].ExtensionBlockCount,
 		    &GifFile->SavedImages[ImageIndex].ExtensionBlocks, GRAPHICS_EXT_FUNC_CODE,
-		    Len, (uint8*)buf) == GIF_ERROR)
+		    Len, (uint8 *)buf) == GIF_ERROR)
 		return (GIF_ERROR);
 	return (GIF_OK);
 }
@@ -1776,7 +1773,7 @@ int EGifGCBToSavedExtension(const GraphicsControlBlock * GCB, GifFileType * GifF
 ******************************************************************************/
 int EGifPutCode(GifFileType * GifFile, int CodeSize, const GifByteType * CodeBlock)
 {
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	if(!IS_WRITEABLE(Private)) {
 		/* This file was NOT open for writing: */
 		GifFile->Error = E_GIF_ERR_NOT_WRITEABLE;
@@ -1801,7 +1798,7 @@ int EGifPutCode(GifFileType * GifFile, int CodeSize, const GifByteType * CodeBlo
 int EGifPutCodeNext(GifFileType * GifFile, const GifByteType * CodeBlock)
 {
 	GifByteType Buf;
-	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
+	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	if(CodeBlock) {
 		if(InternalWrite(GifFile, CodeBlock, CodeBlock[0] + 1) != (unsigned)(CodeBlock[0] + 1)) {
 			GifFile->Error = E_GIF_ERR_WRITE_FAILED;
@@ -1829,7 +1826,7 @@ int EGifCloseFile(GifFileType * GifFile)
 	FILE * File;
 	if(GifFile == NULL)
 		return GIF_ERROR;
-	Private = (GifFilePrivateType*)GifFile->Private;
+	Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	if(Private == NULL)
 		return GIF_ERROR;
 	if(!IS_WRITEABLE(Private)) {
@@ -1850,9 +1847,9 @@ int EGifCloseFile(GifFileType * GifFile)
 	}
 	if(Private) {
 		if(Private->HashTable) {
-			SAlloc::F((char*)Private->HashTable);
+			SAlloc::F((char *)Private->HashTable);
 		}
-		SAlloc::F((char*)Private);
+		SAlloc::F((char *)Private);
 	}
 	if(File && fclose(File) != 0) {
 		GifFile->Error = E_GIF_ERR_CLOSE_FAILED;
@@ -2127,13 +2124,13 @@ void GifDrawBoxedText8x8(GifSavedImage * Image, const int x, const int y, const 
 	GifDrawRectangle(Image, x + 1, y + 1, border + TextWidth * GIF_FONT_WIDTH + border - 1, border + LineCount * GIF_FONT_HEIGHT + border - 1, bg);
 	/* draw the text */
 	i = 0;
-	cp = strtok((char*)legend, "\r\n");
+	cp = strtok((char *)legend, "\r\n");
 	do {
 		int leadspace = 0;
 		if(cp[0] == '\t')
 			leadspace = (TextWidth - strlen(++cp)) / 2;
 		GifDrawText8x8(Image, x + border + (leadspace * GIF_FONT_WIDTH), y + border + (GIF_FONT_HEIGHT * i++), cp, fg);
-		cp = strtok((char*)NULL, "\r\n");
+		cp = strtok((char *)NULL, "\r\n");
 	} while(cp);
 	/* outline the box */
 	GifDrawBox(Image, x, y, border + TextWidth * GIF_FONT_WIDTH + border, border + LineCount * GIF_FONT_HEIGHT + border, fg);
@@ -2258,21 +2255,21 @@ ColorMapObject * GifMakeMapObject(int ColorCount, const SColorRGB * ColorMap)
 	/*** FIXME: Our ColorCount has to be a power of two.  Is it necessary to
 	 * make the user know that or should we automatically round up instead? */
 	if(ColorCount != (1 << GifBitSize(ColorCount))) {
-		return ((ColorMapObject*)NULL);
+		return 0;
 	}
-	Object = (ColorMapObject*)SAlloc::M(sizeof(ColorMapObject));
-	if(Object == (ColorMapObject*)NULL) {
-		return ((ColorMapObject*)NULL);
+	Object = static_cast<ColorMapObject *>(SAlloc::M(sizeof(ColorMapObject)));
+	if(Object == 0) {
+		return 0;
 	}
-	Object->Colors = (SColorRGB *)SAlloc::C(ColorCount, sizeof(SColorRGB));
+	Object->Colors = static_cast<SColorRGB *>(SAlloc::C(ColorCount, sizeof(SColorRGB)));
 	if(!Object->Colors) {
 		SAlloc::F(Object);
-		return ((ColorMapObject*)NULL);
+		return 0;
 	}
 	Object->ColorCount = ColorCount;
 	Object->BitsPerPixel = GifBitSize(ColorCount);
 	if(ColorMap) {
-		memcpy((char*)Object->Colors, (char*)ColorMap, ColorCount * sizeof(SColorRGB));
+		memcpy(Object->Colors, ColorMap, ColorCount * sizeof(SColorRGB));
 	}
 	return (Object);
 }
@@ -2355,7 +2352,7 @@ ColorMapObject * GifUnionColorMap(const ColorMapObject * ColorIn1, const ColorMa
 	}
 	if(CrntSlot > 256) {
 		GifFreeMapObject(p_color_union);
-		return ((ColorMapObject*)NULL);
+		return 0;
 	}
 	NewGifBitSize = GifBitSize(CrntSlot);
 	RoundUpTo = (1 << NewGifBitSize);
@@ -2371,7 +2368,7 @@ ColorMapObject * GifUnionColorMap(const ColorMapObject * ColorIn1, const ColorMa
 		}
 		// perhaps we can shrink the map? 
 		if(RoundUpTo < p_color_union->ColorCount)
-			p_color_union->Colors = (SColorRGB *)SAlloc::R(Map, sizeof(SColorRGB) * RoundUpTo);
+			p_color_union->Colors = static_cast<SColorRGB *>(SAlloc::R(Map, sizeof(SColorRGB) * RoundUpTo));
 	}
 	p_color_union->ColorCount = RoundUpTo;
 	p_color_union->BitsPerPixel = NewGifBitSize;
@@ -2382,9 +2379,8 @@ ColorMapObject * GifUnionColorMap(const ColorMapObject * ColorIn1, const ColorMa
 // 
 void GifApplyTranslation(GifSavedImage * pImage, GifPixelType Translation[])
 {
-	register int i;
-	register int RasterSize = pImage->ImageDesc.Height * pImage->ImageDesc.Width;
-	for(i = 0; i < RasterSize; i++)
+	int RasterSize = pImage->ImageDesc.Height * pImage->ImageDesc.Width;
+	for(int i = 0; i < RasterSize; i++)
 		pImage->RasterBits[i] = Translation[pImage->RasterBits[i]];
 }
 // 
@@ -2394,15 +2390,15 @@ int GifAddExtensionBlock(int * pExtensionBlockCount, ExtensionBlock ** ppExtensi
 {
 	ExtensionBlock * ep;
 	if(*ppExtensionBlocks == NULL)
-		*ppExtensionBlocks = (ExtensionBlock*)SAlloc::M(sizeof(ExtensionBlock));
+		*ppExtensionBlocks = static_cast<ExtensionBlock *>(SAlloc::M(sizeof(ExtensionBlock)));
 	else
-		*ppExtensionBlocks = (ExtensionBlock*)SAlloc::R(*ppExtensionBlocks, sizeof(ExtensionBlock) * (*pExtensionBlockCount + 1));
+		*ppExtensionBlocks = static_cast<ExtensionBlock *>(SAlloc::R(*ppExtensionBlocks, sizeof(ExtensionBlock) * (*pExtensionBlockCount + 1)));
 	if(*ppExtensionBlocks == NULL)
 		return (GIF_ERROR);
 	ep = &(*ppExtensionBlocks)[(*pExtensionBlockCount)++];
 	ep->Function = Function;
 	ep->ByteCount = Len;
-	ep->Bytes = (GifByteType*)SAlloc::M(ep->ByteCount);
+	ep->Bytes = static_cast<GifByteType *>(SAlloc::M(ep->ByteCount));
 	if(ep->Bytes == NULL)
 		return (GIF_ERROR);
 	if(ExtData)
@@ -2415,8 +2411,8 @@ void GifFreeExtensions(int * ExtensionBlockCount, ExtensionBlock ** ExtensionBlo
 	ExtensionBlock * ep;
 	if(*ExtensionBlocks) {
 		for(ep = *ExtensionBlocks; ep < (*ExtensionBlocks + *ExtensionBlockCount); ep++)
-			SAlloc::F((char*)ep->Bytes);
-		SAlloc::F((char*)*ExtensionBlocks);
+			SAlloc::F(ep->Bytes);
+		SAlloc::F(*ExtensionBlocks);
 		*ExtensionBlocks = NULL;
 		*ExtensionBlockCount = 0;
 	}
@@ -2438,7 +2434,7 @@ void FreeLastSavedImage(GifFileType * pGifFile)
 			GifFreeMapObject(sp->ImageDesc.ColorMap);
 			sp->ImageDesc.ColorMap = NULL;
 		}
-		SAlloc::F((char*)sp->RasterBits); // Deallocate the image data 
+		SAlloc::F((char *)sp->RasterBits); // Deallocate the image data 
 		GifFreeExtensions(&sp->ExtensionBlockCount, &sp->ExtensionBlocks); // Deallocate any extensions 
 		/*** FIXME: We could SAlloc::R the GifFile->SavedImages structure but is
 		 * there a point to it? Saves some memory but we'd have to do it every
@@ -2455,14 +2451,14 @@ GifSavedImage * GifMakeSavedImage(GifFileType * pGifFile, const GifSavedImage * 
 {
 	GifSavedImage * sp = 0;
 	if(pGifFile->SavedImages == NULL)
-		pGifFile->SavedImages = (GifSavedImage*)SAlloc::M(sizeof(GifSavedImage));
+		pGifFile->SavedImages = static_cast<GifSavedImage *>(SAlloc::M(sizeof(GifSavedImage)));
 	else
-		pGifFile->SavedImages = (GifSavedImage*)SAlloc::R(pGifFile->SavedImages, sizeof(GifSavedImage) * (pGifFile->ImageCount + 1));
+		pGifFile->SavedImages = static_cast<GifSavedImage *>(SAlloc::R(pGifFile->SavedImages, sizeof(GifSavedImage) * (pGifFile->ImageCount + 1)));
 	if(pGifFile->SavedImages) {
 		sp = &pGifFile->SavedImages[pGifFile->ImageCount++];
-		memzero((char*)sp, sizeof(GifSavedImage));
+		memzero(sp, sizeof(GifSavedImage));
 		if(pCopyFrom) {
-			memcpy((char*)sp, pCopyFrom, sizeof(GifSavedImage));
+			memcpy(sp, pCopyFrom, sizeof(GifSavedImage));
 			/*
 			 * Make our own allocated copies of the heap fields in the
 			 * copied record.  This guards against potential aliasing problems.
@@ -2476,7 +2472,7 @@ GifSavedImage * GifMakeSavedImage(GifFileType * pGifFile, const GifSavedImage * 
 				}
 			}
 			// next, the raster 
-			sp->RasterBits = (uint8*)SAlloc::M(sizeof(GifPixelType) * pCopyFrom->ImageDesc.Height * pCopyFrom->ImageDesc.Width);
+			sp->RasterBits = static_cast<uint8 *>(SAlloc::M(sizeof(GifPixelType) * pCopyFrom->ImageDesc.Height * pCopyFrom->ImageDesc.Width));
 			if(!sp->RasterBits) {
 				FreeLastSavedImage(pGifFile);
 				return 0;
@@ -2485,7 +2481,7 @@ GifSavedImage * GifMakeSavedImage(GifFileType * pGifFile, const GifSavedImage * 
 				memcpy(sp->RasterBits, pCopyFrom->RasterBits, sizeof(GifPixelType) * pCopyFrom->ImageDesc.Height * pCopyFrom->ImageDesc.Width);
 				// finally, the extension blocks 
 				if(sp->ExtensionBlocks) {
-					sp->ExtensionBlocks = (ExtensionBlock*)SAlloc::M(sizeof(ExtensionBlock) * pCopyFrom->ExtensionBlockCount);
+					sp->ExtensionBlocks = static_cast<ExtensionBlock *>(SAlloc::M(sizeof(ExtensionBlock) * pCopyFrom->ExtensionBlockCount));
 					if(sp->ExtensionBlocks == NULL) {
 						FreeLastSavedImage(pGifFile);
 						return 0;
@@ -2507,7 +2503,7 @@ void GifFreeSavedImages(GifFileType * pGifFile)
 				GifFreeMapObject(sp->ImageDesc.ColorMap);
 				sp->ImageDesc.ColorMap = NULL;
 			}
-			SAlloc::F((char*)sp->RasterBits);
+			SAlloc::F(sp->RasterBits);
 			GifFreeExtensions(&sp->ExtensionBlockCount, &sp->ExtensionBlocks);
 		}
 		ZFREE(pGifFile->SavedImages);
@@ -2585,7 +2581,7 @@ static int SubdivColorMap(NewColorMapType * pNewColorSubdiv, uint ColorMapSize, 
 			SortArray[j]->Pnext = SortArray[j + 1];
 		SortArray[pNewColorSubdiv[Index].NumEntries - 1]->Pnext = NULL;
 		pNewColorSubdiv[Index].QuantizedColors = QuantizedColor = SortArray[0];
-		SAlloc::F((char*)SortArray);
+		SAlloc::F((char *)SortArray);
 		// Now simply add the Counts until we have half of the Count: 
 		Sum = pNewColorSubdiv[Index].Count / 2 - QuantizedColor->Count;
 		NumEntries = 1;
@@ -2689,7 +2685,7 @@ int GifQuantizeBuffer(uint Width, uint Height,
 	NewColorSubdiv[0].Count = ((long)Width) * Height; /* Pixels */
 	NewColorMapSize = 1;
 	if(SubdivColorMap(NewColorSubdiv, *pColorMapSize, (uint *)&NewColorMapSize) != GIF_OK) {
-		SAlloc::F((char*)ColorArrayEntries);
+		SAlloc::F((char *)ColorArrayEntries);
 		return GIF_ERROR;
 	}
 	if(NewColorMapSize < *pColorMapSize) {
@@ -2734,7 +2730,7 @@ int GifQuantizeBuffer(uint Width, uint Height,
 #ifdef DEBUG
 	fprintf(stderr, "Quantization L(0) errors: Red = %d, Green = %d, Blue = %d.\n", MaxRGBError[0], MaxRGBError[1], MaxRGBError[2]);
 #endif /* DEBUG */
-	SAlloc::F((char*)ColorArrayEntries);
+	SAlloc::F((char *)ColorArrayEntries);
 	*pColorMapSize = NewColorMapSize;
 	return GIF_OK;
 }

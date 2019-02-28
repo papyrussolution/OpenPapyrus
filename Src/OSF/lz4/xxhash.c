@@ -406,12 +406,12 @@ FORCE_INLINE XXH_errorcode XXH32_update_endian(XXH32_state_t* state, const void*
 	    state->total_len_32 += (unsigned)len;
 	    state->large_len |= (len>=16) | (state->total_len_32>=16);
 	    if(state->memsize + len < 16) { /* fill in tmp buffer */
-		    XXH_memcpy((uint8*)(state->mem32) + state->memsize, input, len);
+		    XXH_memcpy((uint8 *)(state->mem32) + state->memsize, input, len);
 		    state->memsize += (unsigned)len;
 		    return XXH_OK;
 	    }
 	    if(state->memsize) { /* some data left from previous update */
-		    XXH_memcpy((uint8*)(state->mem32) + state->memsize, input, 16-state->memsize);
+		    XXH_memcpy((uint8 *)(state->mem32) + state->memsize, input, 16-state->memsize);
 		    {   
 				const uint32 * p32 = state->mem32;
 				state->v1 = XXH32_round(state->v1, XXH_readLE32(p32, endian)); p32++;
@@ -795,12 +795,12 @@ FORCE_INLINE XXH_errorcode XXH64_update_endian(XXH64_state_t* state, const void*
 	    const uint8 * const bEnd = p + len;
 	    state->total_len += len;
 	    if(state->memsize + len < 32) { /* fill in tmp buffer */
-		    XXH_memcpy(((uint8*)state->mem64) + state->memsize, input, len);
+		    XXH_memcpy(((uint8 *)state->mem64) + state->memsize, input, len);
 		    state->memsize += (uint32)len;
 		    return XXH_OK;
 	    }
 	    if(state->memsize) { /* tmp buffer is full */
-		    XXH_memcpy(((uint8*)state->mem64) + state->memsize, input, 32-state->memsize);
+		    XXH_memcpy(((uint8 *)state->mem64) + state->memsize, input, 32-state->memsize);
 		    state->v1 = XXH64_round(state->v1, XXH_readLE64(state->mem64+0, endian));
 		    state->v2 = XXH64_round(state->v2, XXH_readLE64(state->mem64+1, endian));
 		    state->v3 = XXH64_round(state->v3, XXH_readLE64(state->mem64+2, endian));

@@ -65,17 +65,17 @@ ngx_pid_t ngx_spawn_process(ngx_cycle_t * cycle, char * name, ngx_int_t respawn)
 	ngx_log_debug1(NGX_LOG_DEBUG_CORE, cycle->log, 0, "WaitForMultipleObjects: %ul", rc);
 	switch(rc) {
 		case WAIT_OBJECT_0:
-		    ngx_processes[s].term = OpenEvent(EVENT_MODIFY_STATE, 0, (char*)ngx_processes[s].term_event);
+		    ngx_processes[s].term = OpenEvent(EVENT_MODIFY_STATE, 0, (char *)ngx_processes[s].term_event);
 		    if(ngx_processes[s].term == NULL) {
 			    ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "OpenEvent(\"%s\") failed", ngx_processes[s].term_event);
 			    goto failed;
 		    }
-		    ngx_processes[s].quit = OpenEvent(EVENT_MODIFY_STATE, 0, (char*)ngx_processes[s].quit_event);
+		    ngx_processes[s].quit = OpenEvent(EVENT_MODIFY_STATE, 0, (char *)ngx_processes[s].quit_event);
 		    if(ngx_processes[s].quit == NULL) {
 			    ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "OpenEvent(\"%s\") failed", ngx_processes[s].quit_event);
 			    goto failed;
 		    }
-		    ngx_processes[s].reopen = OpenEvent(EVENT_MODIFY_STATE, 0, (char*)ngx_processes[s].reopen_event);
+		    ngx_processes[s].reopen = OpenEvent(EVENT_MODIFY_STATE, 0, (char *)ngx_processes[s].reopen_event);
 		    if(ngx_processes[s].reopen == NULL) {
 			    ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "OpenEvent(\"%s\") failed", ngx_processes[s].reopen_event);
 			    goto failed;

@@ -2725,7 +2725,7 @@ int SLAPI PPDS_CrrQuotKind::TransferField(long fldID, Tfd dir, uint * pIter, SSt
 			}
 			break;
 		case DSF_CRRQUOTKIND_USINGWSCARD:
-			ok = TransferData((uint8*)&Data.UsingWSCard, dir, rBuf);
+			ok = TransferData((uint8 *)&Data.UsingWSCard, dir, rBuf);
 			break;
 		case DSF_CRRQUOTKIND_FABSDIS:
 			ok = TransferDataFlag(&Data.Flags, QUOTKF_ABSDIS, dir, rBuf); break;

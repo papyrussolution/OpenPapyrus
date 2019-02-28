@@ -248,7 +248,7 @@ static int conn_new(BIO * bi)
 	bi->init = 0;
 	bi->num = (int)INVALID_SOCKET;
 	bi->flags = 0;
-	if((bi->ptr = (char*)BIO_CONNECT_new()) == NULL)
+	if((bi->ptr = (char *)BIO_CONNECT_new()) == NULL)
 		return 0;
 	else
 		return 1;

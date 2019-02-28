@@ -906,7 +906,7 @@ CURLcode Curl_setopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    result = setstropt(&data->set.str[STRING_COOKIE], va_arg(param, char *));
 		    break;
 		case CURLOPT_COOKIEFILE: // Set cookie file to read and parse. Can be used multiple times
-		    argptr = (char*)va_arg(param, void *);
+		    argptr = (char *)va_arg(param, void *);
 		    if(argptr) {
 			    struct curl_slist * cl;
 			    // append the cookie file name to the list of file names, and deal with them later
@@ -2084,13 +2084,13 @@ CURLcode Curl_setopt(struct Curl_easy * data, CURLoption option, va_list param)
 			    data->set.proxy_ssl.authtype = CURL_TLSAUTH_SRP;  /* default to SRP */
 		    break;
 		case CURLOPT_TLSAUTH_TYPE:
-		    if(strncasecompare((char*)va_arg(param, char *), "SRP", sstrlen("SRP")))
+		    if(strncasecompare((char *)va_arg(param, char *), "SRP", sstrlen("SRP")))
 			    data->set.ssl.authtype = CURL_TLSAUTH_SRP;
 		    else
 			    data->set.ssl.authtype = CURL_TLSAUTH_NONE;
 		    break;
 		case CURLOPT_PROXY_TLSAUTH_TYPE:
-		    if(strncasecompare((char*)va_arg(param, char *), "SRP", sstrlen("SRP")))
+		    if(strncasecompare((char *)va_arg(param, char *), "SRP", sstrlen("SRP")))
 			    data->set.proxy_ssl.authtype = CURL_TLSAUTH_SRP;
 		    else
 			    data->set.proxy_ssl.authtype = CURL_TLSAUTH_NONE;
@@ -3106,7 +3106,7 @@ static void FASTCALL fix_hostname(struct connectdata * conn, struct hostname * h
 #endif
 			int rc = idn2_lookup_ul((const char*)host->name, &ace_hostname, flags);
 			if(rc == IDN2_OK) {
-				host->encalloc = (char*)ace_hostname;
+				host->encalloc = (char *)ace_hostname;
 				/* change the name pointer to point to the encoded hostname */
 				host->name = host->encalloc;
 			}

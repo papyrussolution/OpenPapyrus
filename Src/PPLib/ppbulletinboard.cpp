@@ -348,11 +348,10 @@ public:
 	{
 		TimeSeriesCache * p_this = static_cast<TimeSeriesCache *>(procExtPtr);
 		if(p_this) {
-			LDATETIME cdtm = getcurdatetime_();
-			long sec = diffdatetimesec(cdtm, p_this->LastFlashDtm);
-			if(sec >= p_this->GetFlashTimeout()) {
+			const LDATETIME cdtm = getcurdatetime_();
+			const long sec = diffdatetimesec(cdtm, p_this->LastFlashDtm);
+			if(sec >= p_this->GetFlashTimeout())
 				p_this->Flash();
-			}
 		}
 		return 1;
 	}
@@ -376,7 +375,8 @@ public:
 	int    SLAPI FindOptimalStrategyAtStake(const TimeSeriesBlock & rBlk, const TsStakeEnvironment::Stake & rStk, TsStakeEnvironment::StakeRequestBlock & rResult) const;
 	int    SLAPI FindOptimalStrategyForStake(const double evaluatedUsedMargin, PotentialStakeEntry & rPse) const;
 	double SLAPI EvaluateCost(const TimeSeriesBlock & rBlk, bool sell, double volume) const;
-	int    SLAPI EvaluateStakes(TsStakeEnvironment::StakeRequestBlock & rResult);
+	int    SLAPI EvaluateStakes(TsStakeEnvironment::StakeRequestBlock & rResult) const;
+	double SLAPI EvaluateUsedMargin() const;
 private:
 	void   SLAPI LogStateEnvironment(const TsStakeEnvironment & rEnv);
 	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
@@ -414,11 +414,13 @@ void SLAPI TimeSeriesCache::LogStateEnvironment(const TsStakeEnvironment & rEnv)
 	SFile f_out(file_name, SFile::mAppend);
 	line_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0);
 	f_out.WriteLine(line_buf.CR());
+	const double evaluated_used_margin = EvaluateUsedMargin();
 	line_buf.Z().Cat("Account").CatDiv(':', 2).Cat(rEnv.Acc.ActualDtm, DATF_ISO8601|DATF_CENTURY, 0).Space().
 		Cat(rEnv.Acc.ID).Space().
-		Cat(rEnv.Acc.Balance, MKSFMTD(0, 2, 0)).Space().
-		Cat(rEnv.Acc.MarginFree, MKSFMTD(0, 2, 0)).Space().
-		Cat(rEnv.Acc.Profit, MKSFMTD(0, 2, 0));
+		CatEq("Balance", rEnv.Acc.Balance, MKSFMTD(0, 2, 0)).Space().
+		CatEq("MarginFree", rEnv.Acc.MarginFree, MKSFMTD(0, 2, 0)).Space().
+		CatEq("EvaluatedUsedMargin", evaluated_used_margin, MKSFMTD(0, 2, 0)).Space().
+		CatEq("Profit", rEnv.Acc.Profit, MKSFMTD(0, 2, 0));
 	f_out.WriteLine(line_buf.CR());
 	{
 		for(uint i = 0; i < rEnv.SL.getCount(); i++) {
@@ -905,7 +907,19 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 			insurance_balance = StkEnv.Acc.Balance * (1.0 - max_balance_part);
 		// @v10.3.5 const double margin_available = (StkEnv.Acc.Margin + StkEnv.Acc.MarginFree - insurance_balance) / max_stake;
 		const double margin_available = max_stake ? ((StkEnv.Acc.Balance - evaluatedUsedMargin - insurance_balance) / max_stake) : 0.0; // @v10.3.5 
-		if(margin_available > 0.0 && margin_available < StkEnv.Acc.MarginFree) {
+		const bool there_is_enough_margin = (margin_available > 0.0 && margin_available < StkEnv.Acc.MarginFree);
+		/*
+		{
+			log_msg.Z().Cat("Balance Evaluation").CatDiv(':', 2).Cat(r_blk.PPTS.Symb).Space().
+				CatEq("margin-req", p_tk->MarginReq, MKSFMTD(0, 5, 0)).Space().
+				CatEq("max-stake", max_stake).Space().
+				CatEq("insurance-balance", insurance_balance, MKSFMTD(0, 2, 0)).Space().
+				CatEq("margin-available", margin_available, MKSFMTD(0, 2, 0)).Space().
+				CatEq("there-is-enough-margin", there_is_enough_margin ? ":)TRUE" : ":(FALSE");
+			PPLogMessage(PPFILNAM_TSSTAKEPOTENTIAL_LOG, log_msg, LOGMSGF_TIME|LOGMSGF_DBINFO);
+		}
+		*/
+		if(there_is_enough_margin) {
 			PPObjTimeSeries::BestStrategyBlock _best_result;
 			for(uint sidx = 0; sidx < r_blk.Strategies.getCount(); sidx++) {
 				const PPObjTimeSeries::Strategy & r_s = r_blk.Strategies.at(sidx);
@@ -967,6 +981,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 					}
 				}
 				// @debug {
+				/*
 				{
 					const PPObjTimeSeries::TrendEntry * p_te = PPObjTimeSeries::SearchTrendEntry(r_blk.TrendList, r_s.InputFrameSize);
 					if(p_te) {
@@ -994,6 +1009,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 						}
 					}
 				}
+				*/
 				// } @debug 
 				//
 				// CatCharN(' ', 8) для выравнивания с вероятным выводом reverse-результата
@@ -1051,8 +1067,26 @@ double SLAPI TimeSeriesCache::EvaluateCost(const TimeSeriesBlock & rBlk, bool se
 	}
 	return cost;
 }
+
+double SLAPI TimeSeriesCache::EvaluateUsedMargin() const
+{
+	double evaluated_used_margin = 0.0;
+	const uint current_stake_count = StkEnv.SL.getCount();
+	SString stk_symb;
+	for(uint si = 0; si < current_stake_count; si++) {
+		const TsStakeEnvironment::Stake & r_stk = StkEnv.SL.at(si);
+		StkEnv.GetS(r_stk.SymbP, stk_symb);
+		const TimeSeriesBlock * p_blk = SearchBlockBySymb(stk_symb, 0);
+		if(p_blk) {
+			const bool is_short = (r_stk.Type == TsStakeEnvironment::ordtSell);
+			double stk_cost = EvaluateCost(*p_blk, is_short, r_stk.VolumeInit);
+			evaluated_used_margin += stk_cost;
+		}
+	}
+	return evaluated_used_margin;
+}
 	
-int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock & rResult)
+int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock & rResult) const
 {
 	int    ok = -1;
 	{
@@ -1065,19 +1099,7 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 		SString stk_memo;
 		TSVector <PotentialStakeEntry> potential_stake_list;
 		const uint current_stake_count = StkEnv.SL.getCount();
-		double evaluated_used_margin = 0.0;
-		{
-			for(uint si = 0; si < current_stake_count; si++) {
-				const TsStakeEnvironment::Stake & r_stk = StkEnv.SL.at(si);
-				StkEnv.GetS(r_stk.SymbP, stk_symb);
-				const TimeSeriesBlock * p_blk = SearchBlockBySymb(stk_symb, 0);
-				if(p_blk) {
-					const bool is_short = (r_stk.Type == TsStakeEnvironment::ordtSell);
-					double stk_cost = EvaluateCost(*p_blk, is_short, r_stk.VolumeInit);
-					evaluated_used_margin += stk_cost;
-				}
-			}
-		}
+		const double evaluated_used_margin = EvaluateUsedMargin();
 		for(uint i = 0; i < StkEnv.TL.getCount(); i++) {
 			const TsStakeEnvironment::Tick & r_tk = StkEnv.TL.at(i);
 			if(diffdatetimesec(now, r_tk.Dtm) <= 10) { // must be 10 (600 - for debug)

@@ -352,7 +352,7 @@ ngx_int_t ngx_open_listening_sockets(ngx_cycle_t * cycle, const NgxStartUpOption
 			if(ls[i].sockaddr->sa_family == AF_UNIX) {
 				u_char  * name = ls[i].addr_text.data + sizeof("unix:") - 1;
 				mode_t mode = (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
-				if(chmod((char*)name, mode) == -1) {
+				if(chmod((char *)name, mode) == -1) {
 					ngx_log_error(NGX_LOG_EMERG, cycle->log, ngx_errno, "chmod() \"%s\" failed", name);
 				}
 				if(ngx_test_config) {

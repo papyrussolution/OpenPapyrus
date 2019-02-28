@@ -285,7 +285,7 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy * data, const char
 		    fprintf(stderr, "**** TYPE2 header flags=0x%08.8lx ", ntlm->flags);
 		    ntlm_print_flags(stderr, ntlm->flags);
 		    fprintf(stderr, "\n                  nonce=");
-		    ntlm_print_hex(stderr, (char*)ntlm->nonce, 8);
+		    ntlm_print_hex(stderr, (char *)ntlm->nonce, 8);
 		    fprintf(stderr, "\n****\n");
 		    fprintf(stderr, "**** Header %s\n ", header);
 	    });
@@ -354,7 +354,7 @@ CURLcode Curl_auth_create_ntlm_type1_message(const char * userp, const char * pa
 #else
 #define NTLM2FLAG 0
 #endif
-	snprintf((char*)ntlmbuf, NTLM_BUFSIZE,
+	snprintf((char *)ntlmbuf, NTLM_BUFSIZE,
 	    NTLMSSP_SIGNATURE "%c"
 	    "\x01%c%c%c" /* 32-bit type = 1 */
 	    "%c%c%c%c"  /* 32-bit NTLM flag field */
@@ -409,7 +409,7 @@ CURLcode Curl_auth_create_ntlm_type1_message(const char * userp, const char * pa
 	    });
 
 	/* Return with binary blob encoded into base64 */
-	return Curl_base64_encode(NULL, (char*)ntlmbuf, size, outptr, outlen);
+	return Curl_base64_encode(NULL, (char *)ntlmbuf, size, outptr, outlen);
 }
 
 /*
@@ -580,7 +580,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data, const char
 	useroff = domoff + domlen;
 	hostoff = useroff + userlen;
 	/* Create the big type-3 message binary blob */
-	size = snprintf((char*)ntlmbuf, NTLM_BUFSIZE,
+	size = snprintf((char *)ntlmbuf, NTLM_BUFSIZE,
 	    NTLMSSP_SIGNATURE "%c"
 	    "\x03%c%c%c"        /* 32-bit type = 3 */
 
@@ -674,7 +674,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data, const char
 
 	DEBUG_OUT({
 		    fprintf(stderr, "**** TYPE3 header lmresp=");
-		    ntlm_print_hex(stderr, (char*)&ntlmbuf[lmrespoff], 0x18);
+		    ntlm_print_hex(stderr, (char *)&ntlmbuf[lmrespoff], 0x18);
 	    });
 
 #ifdef USE_NTRESPONSES
@@ -686,7 +686,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data, const char
 
 	DEBUG_OUT({
 		    fprintf(stderr, "\n   ntresp=");
-		    ntlm_print_hex(stderr, (char*)&ntlmbuf[ntrespoff], ntresplen);
+		    ntlm_print_hex(stderr, (char *)&ntlmbuf[ntrespoff], ntresplen);
 	    });
 
 	SAlloc::F(ntlmv2resp); /* Free the dynamic buffer allocated for NTLMv2 */
@@ -726,11 +726,11 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data, const char
 		memcpy(&ntlmbuf[size], host, hostlen);
 	size += hostlen;
 	/* Convert domain, user, and host to ASCII but leave the rest as-is */
-	result = Curl_convert_to_network(data, (char*)&ntlmbuf[domoff], size - domoff);
+	result = Curl_convert_to_network(data, (char *)&ntlmbuf[domoff], size - domoff);
 	if(result)
 		return CURLE_CONV_FAILED;
 	/* Return with binary blob encoded into base64 */
-	result = Curl_base64_encode(NULL, (char*)ntlmbuf, size, outptr, outlen);
+	result = Curl_base64_encode(NULL, (char *)ntlmbuf, size, outptr, outlen);
 	Curl_auth_ntlm_cleanup(ntlm);
 	return result;
 }

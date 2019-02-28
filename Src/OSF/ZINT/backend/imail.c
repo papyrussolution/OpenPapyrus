@@ -255,7 +255,7 @@ extern ushort USPS_MSB_Math_CRC11GenerateFrameCheckSequence(uchar * ByteArrayPtr
 	return FrameCheckSequence;
 }
 
-int imail(struct ZintSymbol * symbol, uchar source[], int length)
+int imail(struct ZintSymbol * symbol, const uchar source[], int length)
 {
 	char data_pattern[200];
 	int    j;

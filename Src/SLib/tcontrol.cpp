@@ -129,7 +129,7 @@ static BOOL CALLBACK ButtonDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 			break;
 		case WM_ERASEBKGND:
 			/*
-			if(p_view && APPL->EraseBackground(p_view, hWnd, (HDC)wParam, ODT_BUTTON) > 0)
+			if(p_view && APPL->EraseBackground(p_view, hWnd, reinterpret_cast<HDC>(wParam), ODT_BUTTON) > 0)
 				return 1;
 			*/
 			return 0;
@@ -1592,7 +1592,7 @@ LRESULT CALLBACK ComboBox::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 			break;
 		case WM_ERASEBKGND:
 			/*
-			if(p_view && APPL->EraseBackground(p_view, hWnd, (HDC)wParam, ODT_BUTTON) > 0)
+			if(p_view && APPL->EraseBackground(p_view, hWnd, reinterpret_cast<HDC>(wParam), ODT_BUTTON) > 0)
 				return 1;
 			*/
 			break;

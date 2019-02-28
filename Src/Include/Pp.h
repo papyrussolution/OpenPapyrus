@@ -6283,7 +6283,7 @@ protected:
 		StringSet & R_Ss; // Инициализируется DS().AcquireRvlSsSCD()
 	};
 
-	int    FASTCALL PutTextBlock(MultTextBlock & rBlk, ObjCacheEntry * pEntry);
+	int    FASTCALL PutTextBlock(const MultTextBlock & rBlk, ObjCacheEntry * pEntry);
 
 	struct ExtTextBlock {
 		void   FASTCALL Dirty(PPID id);
@@ -10200,8 +10200,7 @@ public:
 		bpkTodo,       // Документы, привязанные к задачам
 		bpkPrj,        // Документы, привязанные к проектам
 		bpkPrjPhase,   // Документы, привязанные к фазма проектов
-		bpkTSessPaym   // @v8.0.3 Документы оплаты технологической сессии. Проецируется в тот же
-			// тип ассоциации пулов документов, что и bpkTSess.
+		bpkTSessPaym   // Документы оплаты технологической сессии. Проецируется в тот же тип ассоциации пулов документов, что и bpkTSess.
 	};
 
 	static PPBillPacket::PoolKind SLAPI ObjAssocToPoolKind(PPID assocID);
@@ -11333,6 +11332,7 @@ public:
 	int    SLAPI PutContainer(PPID billID, PPLotExtCodeContainer * pC, int use_ta);
 	int    SLAPI GetContainer(PPID billID, PPLotExtCodeContainer & rC);
 	int    SLAPI GetMarkListByLot(PPID lotID, const StringSet * pExcludeList, StringSet & rSsExtCodes, uint * pExtCodeCount);
+	int    SLAPI GetRecListByMark(const char * pCode, TSVector<LotExtCodeTbl::Rec> & rList);
 	int    SLAPI FindMarkToTransfer(const char * pCode, PPID goodsID, PPID lotID, PPLotExtCodeContainer::MarkSet & rResult);
 };
 //
@@ -12062,8 +12062,8 @@ public:
 	// ARG(rBillChain IN): Цепочка идентификаторов документов, начинающаяся от оригинального и включающая
 	//   все документы коррекции, предшествующие rTi.BillID. Эта цепочка формируется функцией
 	//   PPObjBill::GetCorrectionBackChain.
-	// ARG(pOrgQtty OUT): Результирующая велична оригинального количества
-	// ARG(pOrgPrice OUT): Результирующая велична оригинальной цены (включает скидку).
+	// ARG(pOrgQtty OUT): Результирующая величина оригинального количества
+	// ARG(pOrgPrice OUT): Результирующая величина оригинальной цены (включает скидку).
 	// Returns:
 	//   <0 - строка rTi не является строкой корректировки либо не найдено даже
 	//     оригинального корректируемого документа
@@ -15685,7 +15685,7 @@ public:
 		double VolumeCurrent;  // Невыполненный объем
 		double PriceOpen;      // Цена, указанная в ордере
 		double PriceCurrent;   // Текущая цена по символу ордера
-		double Profit;         // @v10.3.5 Текущая прибыль в валюте счета   
+		double Profit;         // @v10.3.5 Текущая прибыль в валюте счета
 		double SL;             // Уровень Stop Loss
 		double TP;             // Уровень Take Profit
 		double PriceStopLimit; // Цена постановки Limit ордера при срабатывании StopLimit ордера
@@ -15931,6 +15931,7 @@ public:
 	struct StrategyResultEntry : public Strategy { // @flat
 		SLAPI  StrategyResultEntry();
 		SLAPI  StrategyResultEntry(const PPObjTimeSeries::TrainNnParam & rTnnp, int stakeMode);
+		SLAPI  StrategyResultEntry(const PPObjTimeSeries::Strategy & rS, int stakeMode);
 		void   FASTCALL SetValue(const StrategyResultValue & rV);
 		void   FASTCALL SetValue(const StrategyResultValueEx & rV);
 		void   FASTCALL SetOuter(const StrategyResultEntry & rS); // @cs
@@ -17704,7 +17705,7 @@ public:
 
 	Capability PCpb; // @vmiller
 protected:
-	int    Helper_RunCmd(SString & rCmd, SString & rArg, StrAssocArray & rOut);
+	int    Helper_RunCmd(const SString & rCmd, const SString & rArg, StrAssocArray & rOut);
 
 	enum {
 		stError     = 0x0001,
@@ -19675,7 +19676,7 @@ public:
 	static int SLAPI EditImpExpData(PalmPaneData *);
 	static int SLAPI XmlCmpDtm(LDATE dt, LTIME tm, const char * pXmlPath);
 
-	static int SLAPI PutDisplayBlock(PalmDisplayBlock & rBlk);
+	static int SLAPI PutDisplayBlock(const PalmDisplayBlock & rBlk);
 	static int SLAPI LockDisplayQueue(PPID dvcID);
 	static int SLAPI UnlockDisplayQueue(PPID dvcID);
 	static int SLAPI PeekDisplayBlock(PPID dvcID, PalmDisplayBlock & rBlk, int lock);
@@ -27959,13 +27960,11 @@ public:
 		PPID   SupplRetOpID;         // Операция возврата поставщику
 		PPID   ExpndEtcOpID;         // Операция прочего расхода
 		PPID   IntrExpndOpID;        // Операция внутреннего перемещения
-
 		PPID   AlcGoodsGrpID;        // Товарная группа, ограничивающая алкогольную продукцию
 		PPID   BeerGoodsGrpID;       // Товарная группа, ограничивающая пивную продукцию
 		PPID   CategoryTagID;        // Тег, определяющий категорию вида продукции (имеет приоритет перед CategoryClsDim)
 		int16  CategoryClsDim;       // PPGdsCls2::e... Размерность класса, определяющая категорию алкогольной продукции
 		int16  VolumeClsDim;         // PPGdsCls2::e... Размерность класса, определяющая объем алкоголя в одной торговой единице
-
 		PPID   AlcLicRegTypeID;      // Тип регистра алкогольной лицензии
 		PPID   KppRegTypeID;         // Тип регистра КПП. Если 0, то используется зарезервированный тип регистра для КПП.
 		int32  KppDlvrExt;           // Дополнительное поле адреса, содержащее КПП этого адреса (устарело - с приоритетом используется регистр адреса)
@@ -27996,9 +27995,7 @@ public:
 	};
 
 	struct EgaisMarkBlock {
-		EgaisMarkBlock() : Ver(0)
-		{
-		}
+		SLAPI  EgaisMarkBlock();
 		int16  Ver; // Первые два символа марки
 		SString EgaisCode; // Код продукции по ЕГАИС
 	};
@@ -28161,11 +28158,9 @@ protected:
 		TSCollection <EgaisPersonCore::Item> PersonList;
 		TSCollection <EgaisProductCore::Item> ProductList;
 		TSVector <EgaisRefATbl::Rec> RefAList; // @v9.8.4 TSArray-->TSVector
-
 		int    LastPersonP;
 		int    LastProductP;
 		int    LastRefAP;
-
 		EgaisProductCore PrC;
 		EgaisPersonCore  PsC;
 		EgaisRefACore    RaC;
@@ -30688,6 +30683,7 @@ public:
 	//   к какому типу операций относится пакет.
 	//
 	int    SLAPI LoadClbList(PPBillPacket * pPack, int force);
+	int    SLAPI LoadRowTagListForDraft(PPID billID, PPLotTagContainer & rContainer);
 	int    SLAPI GetClbNumberByLot(PPID lotID, int * isParentLot, SString & rBuf);
 	int    SLAPI GetSerialNumberByLot(PPID lotID, SString & rBuf, int useCache);
 	int    SLAPI GetTagListByLot(PPID lotID, int skipReserveTags, ObjTagList * pList);
@@ -31033,7 +31029,7 @@ public:
 	};
 
 	int    SLAPI InitInventoryBlock(PPID billID, InvBlock & rBlk);
-	int    SLAPI AcceptInventoryItem(InvBlock & rBlk, InvItem * pItem, int use_ta);
+	int    SLAPI AcceptInventoryItem(const InvBlock & rBlk, InvItem * pItem, int use_ta);
 	int    SLAPI LoadInventoryArray(PPID billID, InventoryArray & rList);
 	InventoryCore & SLAPI GetInvT();
 	int    SLAPI TurnInventory(PPBillPacket * pPack, int use_ta);
@@ -31877,7 +31873,7 @@ public:
 	void   SLAPI Reset();
 	GoodsGrpngEntry & FASTCALL at(uint);
 	int    SLAPI Search(const GoodsGrpngEntry *, uint *);
-	int    SLAPI Insert(GoodsGrpngEntry *, uint * p);
+	int    SLAPI Insert(const GoodsGrpngEntry *, uint * p);
 	//
 	// Descr: просматривает все товарные операции по таблице Transfer в соответствии с фильтром,
 	//   заданным первым параметром. Результатом является массив, группирующий операции по виду.
@@ -40231,7 +40227,7 @@ public:
 		fCmpWrOff_DiffOnly  = 0x00400000,   // @v9.5.8 Если отчет строится со сравнением драфт-документов и документов
 			// списания, то отображать только различающиеся позиции.
 		fUnclosedDraftsOnly = 0x00800000,   // @v10.1.10 Если отчет строится по драфт-документам, то пропускать списанные документы
-		fShowCargo          = 0x01000000    // @v10.3.4 Отображать грузовые параметры (брутто и объем)        
+		fShowCargo          = 0x01000000    // @v10.3.4 Отображать грузовые параметры (брутто и объем)
 	};
 	enum {
 		ctNone       = 0,  // Без кросстаба
@@ -47737,12 +47733,12 @@ private:
 class GoodsFiltCtrlGroup : public CtrlGroup {
 public:
 	struct Rec {
-		explicit Rec(PPID grpID = 0, PPID goodsID = 0, PPID locID = 0, long flags = 0, long extra = 0);
+		explicit Rec(PPID grpID = 0, PPID goodsID = 0, PPID locID = 0, long flags = 0, void * extraPtr = 0);
 		PPID   GoodsID;
 		PPID   GoodsGrpID;
 		PPID   LocID;
 		long   Flags;
-		long   Extra;
+		void * ExtraPtr;
 	};
 	GoodsFiltCtrlGroup(uint ctlselGoods, uint ctlselGGrp, uint cm);
 	virtual int setData(TDialog *, void *); // (GoodsFiltCtrlGroup::Rec*)
@@ -47756,9 +47752,9 @@ private:
 	int    DisableGroupSelection;
 	Rec    Data;
 	GoodsFilt Filt;
-	uint   CtlselGoods;
-	uint   CtlselGoodsGrp;
-	uint   Cm;
+	const uint CtlselGoods;
+	const uint CtlselGoodsGrp;
+	const uint Cm;
 	PPObjGoods GObj;
 };
 
@@ -50576,6 +50572,11 @@ int    SLAPI PPSetErrorSLib();
 int    SLAPI PPSetErrorDB();
 int    SLAPI PPDbSearchError(); // { return (BTROKORNFOUND) /**/ ? -1 : PPSetErrorDB(); }
 int    FASTCALL PPSetObjError(int errCode, PPID objType, PPID objID);
+//
+// Descr: Специализированная функция, используемая в стереотипных методах семейства PPObject GetPacket()
+//   для диагностики вызова с нулевым идентификатором.
+//
+int    FASTCALL PPCheckGetObjPacketID(PPID objType, PPID id);
 //
 // Database chain functions
 //

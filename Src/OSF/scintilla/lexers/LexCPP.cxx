@@ -121,7 +121,7 @@ BracketPair FindBracketPair(std::vector<std::string> &tokens)
 	return bp;
 }
 
-void highlightTaskMarker(StyleContext &sc, LexAccessor &styler, int activity, WordList &markerList, bool caseSensitive)
+void highlightTaskMarker(StyleContext &sc, LexAccessor &styler, int activity, const WordList & markerList, bool caseSensitive)
 {
 	if((isoperator(sc.chPrev) || IsASpace(sc.chPrev)) && markerList.Length()) {
 		const int lengthMarker = 50;
@@ -604,15 +604,14 @@ Sci_Position SCI_METHOD LexerCPP::WordListSet(int n, const char * wl)
 
 // Functor used to truncate history
 struct After {
-	Sci_Position line;
 	explicit After(Sci_Position line_) : line(line_)
 	{
 	}
-
-	bool operator()(PPDefinition &p) const
+	bool operator()(const PPDefinition & p) const
 	{
 		return p.line > line;
 	}
+	Sci_Position line;
 };
 
 void SCI_METHOD LexerCPP::Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess)

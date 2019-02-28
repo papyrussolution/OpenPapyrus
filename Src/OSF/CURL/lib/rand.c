@@ -40,7 +40,7 @@ static CURLcode randit(struct Curl_easy * data, uint * rnd)
 			size_t elen = sstrlen(force_entropy);
 			size_t clen = sizeof(randseed);
 			size_t min = elen < clen ? elen : clen;
-			memcpy((char*)&randseed, force_entropy, min);
+			memcpy((char *)&randseed, force_entropy, min);
 			seeded = TRUE;
 		}
 		else

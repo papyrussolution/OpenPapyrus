@@ -270,7 +270,7 @@ struct my_tm {
 // doesn't suffer from the various bugs and portability problems that
 // some systems' implementations have.
 // 
-static time_t FASTCALL my_timegm(struct my_tm * tm)
+static time_t FASTCALL my_timegm(const struct my_tm * tm)
 {
 	static const int month_days_cumulative [12] = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
 	int month, year, leap_days;

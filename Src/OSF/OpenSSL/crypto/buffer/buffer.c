@@ -51,7 +51,7 @@ void FASTCALL BUF_MEM_free(BUF_MEM * a)
  * was any, and then free it. */
 static char * sec_alloc_realloc(BUF_MEM * str, size_t len)
 {
-	char * ret = (char*)OPENSSL_secure_malloc(len);
+	char * ret = (char *)OPENSSL_secure_malloc(len);
 	if(str->data != NULL) {
 		if(ret)
 			memcpy(ret, str->data, str->length);
@@ -83,7 +83,7 @@ size_t FASTCALL BUF_MEM_grow(BUF_MEM * str, size_t len)
 	if((str->flags & BUF_MEM_FLAG_SECURE))
 		ret = sec_alloc_realloc(str, n);
 	else
-		ret = (char*)OPENSSL_realloc(str->data, n);
+		ret = (char *)OPENSSL_realloc(str->data, n);
 	if(!ret) {
 		BUFerr(BUF_F_BUF_MEM_GROW, ERR_R_MALLOC_FAILURE);
 		len = 0;
@@ -121,7 +121,7 @@ size_t FASTCALL BUF_MEM_grow_clean(BUF_MEM * str, size_t len)
 	if((str->flags & BUF_MEM_FLAG_SECURE))
 		ret = sec_alloc_realloc(str, n);
 	else
-		ret = (char*)OPENSSL_clear_realloc(str->data, str->max, n);
+		ret = (char *)OPENSSL_clear_realloc(str->data, str->max, n);
 	if(!ret) {
 		BUFerr(BUF_F_BUF_MEM_GROW_CLEAN, ERR_R_MALLOC_FAILURE);
 		len = 0;

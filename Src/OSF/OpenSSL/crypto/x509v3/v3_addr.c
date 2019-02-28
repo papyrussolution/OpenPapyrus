@@ -539,7 +539,7 @@ static int IPAddressFamily_cmp(const IPAddressFamily * const * a_, const IPAddre
 /*
  * Check whether an IPAddrBLocks is in canonical form.
  */
-int X509v3_addr_is_canonical(IPAddrBlocks * addr)
+int X509v3_addr_is_canonical(const IPAddrBlocks * addr)
 {
 	uchar a_min[ADDR_RAW_BUF_LEN], a_max[ADDR_RAW_BUF_LEN];
 	uchar b_min[ADDR_RAW_BUF_LEN], b_max[ADDR_RAW_BUF_LEN];
@@ -605,8 +605,7 @@ int X509v3_addr_is_canonical(IPAddrBlocks * addr)
 			/*
 			 * Check for range that should be expressed as a prefix.
 			 */
-			if(a->type == IPAddressOrRange_addressRange &&
-			    range_should_be_prefix(a_min, a_max, length) >= 0)
+			if(a->type == IPAddressOrRange_addressRange && range_should_be_prefix(a_min, a_max, length) >= 0)
 				return 0;
 		}
 		/*
@@ -618,8 +617,7 @@ int X509v3_addr_is_canonical(IPAddrBlocks * addr)
 			if(a && a->type == IPAddressOrRange_addressRange) {
 				if(!extract_min_max(a, a_min, a_max, length))
 					return 0;
-				if(memcmp(a_min, a_max, length) > 0 ||
-				    range_should_be_prefix(a_min, a_max, length) >= 0)
+				if(memcmp(a_min, a_max, length) > 0 || range_should_be_prefix(a_min, a_max, length) >= 0)
 					return 0;
 			}
 		}
@@ -676,7 +674,6 @@ static int IPAddressOrRanges_canonize(IPAddressOrRanges * aors, const unsigned a
 			continue;
 		}
 	}
-
 	/*
 	 * Check for inverted final range.
 	 */
@@ -878,7 +875,7 @@ const X509V3_EXT_METHOD v3_addr = {
 /*
  * Figure out whether extension sues inheritance.
  */
-int X509v3_addr_inherits(IPAddrBlocks * addr)
+int X509v3_addr_inherits(const IPAddrBlocks * addr)
 {
 	if(addr) {
 		for(int i = 0; i < sk_IPAddressFamily_num(addr); i++) {

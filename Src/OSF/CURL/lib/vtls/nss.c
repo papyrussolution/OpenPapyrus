@@ -531,7 +531,7 @@ static CURLcode nss_load_crl(const char * crlfilename)
 		goto fail;
 
 	/* place a trailing zero right after the visible data */
-	body = (char*)filedata.data;
+	body = (char *)filedata.data;
 	body[--filedata.len] = '\0';
 
 	body = strstr(body, "-----BEGIN");
@@ -658,7 +658,7 @@ static CURLcode cert_stuff(struct connectdata * conn, int sockindex,
 static char * nss_get_password(PK11SlotInfo * slot, PRBool retry, void * arg)
 {
 	(void)slot; /* unused */
-	return (retry || !arg) ? NULL : (char*)PORT_Strdup((char*)arg);
+	return (retry || !arg) ? NULL : (char *)PORT_Strdup((char *)arg);
 }
 //
 // bypass the default SSL_AuthCertificate() hook in case we do not want to verify peer 
@@ -882,7 +882,7 @@ static CURLcode display_conn_info(struct connectdata * conn, PRFileDesc * sock)
 			result = Curl_ssl_init_certinfo(conn->data, i);
 			if(!result) {
 				for(i = 0; cert; cert = cert2) {
-					result = Curl_extract_certinfo(conn, i++, (char*)cert->derCert.data, (char*)cert->derCert.data + cert->derCert.len);
+					result = Curl_extract_certinfo(conn, i++, (char *)cert->derCert.data, (char *)cert->derCert.data + cert->derCert.len);
 					if(result)
 						break;
 					if(cert->isRoot) {
@@ -1183,7 +1183,7 @@ static CURLcode nss_init(struct Curl_easy * data)
 	if(!cert_dir) {
 		if((stat(SSL_DIR, &st) == 0) &&
 		    (S_ISDIR(st.st_mode))) {
-			cert_dir = (char*)SSL_DIR;
+			cert_dir = (char *)SSL_DIR;
 		}
 	}
 

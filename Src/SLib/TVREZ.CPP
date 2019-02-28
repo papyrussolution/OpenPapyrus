@@ -195,7 +195,7 @@ struct ResIdxItem { // @flat
 	uint32 sz;
 };
 
-static IMPL_CMPFUNC(ResIdxItem, _i1, _i2) { RET_CMPCASCADE2((const ResIdxItem*)_i1, (const ResIdxItem*)_i2, type, id); }
+static IMPL_CMPFUNC(ResIdxItem, _i1, _i2) { RET_CMPCASCADE2(static_cast<const ResIdxItem *>(_i1), static_cast<const ResIdxItem *>(_i2), type, id); }
 
 int SLAPI TVRez::buildIndex()
 {

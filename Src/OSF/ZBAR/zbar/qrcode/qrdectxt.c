@@ -153,7 +153,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list * _qrlist, zbar_image
 				}
 
 			/*Step 2: Convert the entries.*/
-			sa_text = (char*)SAlloc::M((sa_ctext+1)*sizeof(*sa_text));
+			sa_text = (char *)SAlloc::M((sa_ctext+1)*sizeof(*sa_text));
 			sa_ntext = 0;
 			/*Add the encoded Application Indicator for FNC1 in the second position.*/
 			if(fnc1==MOD(ZBAR_MOD_AIM)) {
@@ -225,7 +225,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list * _qrlist, zbar_image
 					    } break;
 						case QR_MODE_ALNUM: {
 						    char * p;
-						    in = (char*)entry->payload.data.buf;
+						    in = (char *)entry->payload.data.buf;
 						    inleft = entry->payload.data.len;
 						    // FNC1 uses '%' as an escape character
 							if(fnc1) {
@@ -270,7 +270,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list * _qrlist, zbar_image
 						   It requires copying buffers around to handle correctly.*/
 						case QR_MODE_BYTE:
 						case QR_MODE_KANJI: {
-						    in = (char*)entry->payload.data.buf;
+						    in = (char *)entry->payload.data.buf;
 						    inleft = entry->payload.data.len;
 						    out = sa_text+sa_ntext;
 						    outleft = sa_ctext-sa_ntext;
@@ -295,7 +295,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list * _qrlist, zbar_image
 									    enc_list_mtf(enc_list, utf8_cd);
 									    continue;
 								    }
-								    in = (char*)entry->payload.data.buf;
+								    in = (char *)entry->payload.data.buf;
 								    inleft = entry->payload.data.len;
 								    out = sa_text+sa_ntext;
 								    outleft = sa_ctext-sa_ntext;
@@ -333,7 +333,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list * _qrlist, zbar_image
 										    enc_list_mtf(enc_list, enc_list[ei]);
 										    break;
 									    }
-									    in = (char*)entry->payload.data.buf;
+									    in = (char *)entry->payload.data.buf;
 									    inleft = entry->payload.data.len;
 									    out = sa_text+sa_ntext;
 									    outleft = sa_ctext-sa_ntext;
@@ -388,7 +388,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list * _qrlist, zbar_image
 				zbar_symbol_t * sa_sym;
 				sa_text[sa_ntext++] = '\0';
 				if(sa_ctext+1>sa_ntext) {
-					sa_text = (char*)SAlloc::R(sa_text, sa_ntext*sizeof(*sa_text));
+					sa_text = (char *)SAlloc::R(sa_text, sa_ntext*sizeof(*sa_text));
 				}
 				if(sa_size == 1)
 					sa_sym = syms;

@@ -535,7 +535,7 @@ int XMLCDECL xmlStrPrintf(xmlChar * buf, int len, const xmlChar * msg, ...)
 		return -1;
 	}
 	va_start(args, msg);
-	ret = vsnprintf((char*)buf, len, (const char*)msg, args);
+	ret = vsnprintf((char *)buf, len, (const char*)msg, args);
 	va_end(args);
 	buf[len-1] = 0; /* be safe ! */
 	return ret;
@@ -558,7 +558,7 @@ int xmlStrVPrintf(xmlChar * buf, int len, const xmlChar * msg, va_list ap)
 	if(!buf || (msg == NULL)) {
 		return -1;
 	}
-	ret = vsnprintf((char*)buf, len, (const char*)msg, ap);
+	ret = vsnprintf((char *)buf, len, (const char*)msg, ap);
 	buf[len-1] = 0; /* be safe ! */
 	return ret;
 }

@@ -121,14 +121,15 @@ public:
 	{
 	}
 	int   SLAPI Search(PPID gdsID, PPID artID, uint * p = 0);
-	int   SLAPI Insert(CalcSaldoEntry * e, uint * p = 0);
+	int   SLAPI Insert(const CalcSaldoEntry * pEntry, uint * p = 0);
 	CalcSaldoEntry & FASTCALL at(uint p) const
 	{
-		return *(CalcSaldoEntry*)SVector::at(p);
+		return *static_cast<CalcSaldoEntry *>(SVector::at(p));
 	}
 };
 
-IMPL_CMPFUNC(CalcSaldoEnKey, i1, i2) { RET_CMPCASCADE2((const CalcSaldoEntry*)i1, (const CalcSaldoEntry*)i2, GoodsID, ArticleID); }
+IMPL_CMPFUNC(CalcSaldoEnKey, i1, i2) 
+	{ RET_CMPCASCADE2(static_cast<const CalcSaldoEntry *>(i1), static_cast<const CalcSaldoEntry *>(i2), GoodsID, ArticleID); }
 
 int SLAPI CalcSaldoList::Search(PPID gdsID, PPID artID, uint * p)
 {
@@ -138,9 +139,9 @@ int SLAPI CalcSaldoList::Search(PPID gdsID, PPID artID, uint * p)
 	return bsearch(&dse, p, PTR_CMPFUNC(CalcSaldoEnKey));
 }
 
-int SLAPI CalcSaldoList::Insert(CalcSaldoEntry * e, uint * p)
+int SLAPI CalcSaldoList::Insert(const CalcSaldoEntry * pEntry, uint * p)
 {
-	return ordInsert(e, p, PTR_CMPFUNC(CalcSaldoEnKey)) ? 1 : PPSetErrorSLib();
+	return ordInsert(pEntry, p, PTR_CMPFUNC(CalcSaldoEnKey)) ? 1 : PPSetErrorSLib();
 }
 //
 //   PrcssrGoodsSaldo
@@ -314,7 +315,8 @@ int SLAPI PrcssrGoodsSaldo::Init(const Param * pPar)
 	return RVALUEPTR(Par, pPar) ? 1 : PPSetErrorInvParam();
 }
 
-IMPL_CMPFUNC(GArSEntry, i1, i2) { RET_CMPCASCADE4((const GArSEntry *)i1, (const GArSEntry *)i2, GoodsID, ArID, DlvrLocID, Dt); }
+IMPL_CMPFUNC(GArSEntry, i1, i2) 
+	{ RET_CMPCASCADE4(static_cast<const GArSEntry *>(i1), static_cast<const GArSEntry *>(i2), GoodsID, ArID, DlvrLocID, Dt); }
 
 int SLAPI PrcssrGoodsSaldo::SetupItem(PPID goodsID, PPID arID, PPID dlvrLocID, LDATE dt, double qtty, double amt, TSVector <GArSEntry> & rList) // @v9.8.4 SArray-->SVector
 {

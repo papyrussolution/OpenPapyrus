@@ -1186,7 +1186,7 @@ METHODDEF(void) start_pass_huff(j_compress_ptr cinfo, boolean gather_statistics)
 			else {
 				entropy->pub.encode_mcu = encode_mcu_AC_refine;
 				// AC refinement needs a correction bit buffer 
-				SETIFZ(entropy->bit_buffer, (char*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, MAX_CORR_BITS * SIZEOF(char)));
+				SETIFZ(entropy->bit_buffer, (char *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, MAX_CORR_BITS * SIZEOF(char)));
 			}
 		}
 		/* Initialize AC stuff */

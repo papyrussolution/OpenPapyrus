@@ -198,7 +198,7 @@ static CURLcode rtmp_connect(struct connectdata * conn, bool * done)
 	if(!(r->Link.lFlags & RTMP_LF_LIVE) && !(r->Link.protocol & RTMP_FEATURE_HTTP))
 		r->Link.lFlags |= RTMP_LF_BUFX;
 	(void)curlx_nonblock(r->m_sb.sb_socket, FALSE);
-	setsockopt(r->m_sb.sb_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&tv, sizeof(tv));
+	setsockopt(r->m_sb.sb_socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof(tv));
 
 	if(!RTMP_Connect1(r, NULL))
 		return CURLE_FAILED_INIT;
@@ -278,7 +278,7 @@ static ssize_t rtmp_send(struct connectdata * conn, int sockindex,
 
 	(void)sockindex; /* unused */
 
-	num = RTMP_Write(r, (char*)buf, curlx_uztosi(len));
+	num = RTMP_Write(r, (char *)buf, curlx_uztosi(len));
 	if(num < 0)
 		*err = CURLE_SEND_ERROR;
 

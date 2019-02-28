@@ -336,7 +336,7 @@ int SLAPI PPObjBill::InitInventoryBlock(PPID billID, InvBlock & rBlk)
 	return ok;
 }
 
-int SLAPI PPObjBill::AcceptInventoryItem(InvBlock & rBlk, InvItem * pItem, int use_ta)
+int SLAPI PPObjBill::AcceptInventoryItem(const InvBlock & rBlk, InvItem * pItem, int use_ta)
 {
 	int    ok = 1, skip = 0;
 	long   oprno = 0;

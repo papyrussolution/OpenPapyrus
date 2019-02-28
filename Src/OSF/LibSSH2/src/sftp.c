@@ -257,7 +257,7 @@ static int sftp_packet_read(LIBSSH2_SFTP * sftp)
 		    if(!packet) {
 			    // only do this if there's not already a packet buffer allocated to use 
 			    /* each packet starts with a 32 bit length field */
-			    rc = _libssh2_channel_read(channel, 0, (char*)&sftp->partial_size[ sftp->partial_size_len], 4 - sftp->partial_size_len);
+			    rc = _libssh2_channel_read(channel, 0, (char *)&sftp->partial_size[ sftp->partial_size_len], 4 - sftp->partial_size_len);
 			    if(rc == LIBSSH2_ERROR_EAGAIN)
 				    return rc;
 			    else if(rc < 0)
@@ -291,7 +291,7 @@ window_adjust:
 		    }
 		    /* Read as much of the packet as we can */
 		    while(sftp->partial_len > sftp->partial_received) {
-			    rc = _libssh2_channel_read(channel, 0, (char*)&packet[sftp->partial_received], sftp->partial_len - sftp->partial_received);
+			    rc = _libssh2_channel_read(channel, 0, (char *)&packet[sftp->partial_received], sftp->partial_len - sftp->partial_received);
 			    if(rc == LIBSSH2_ERROR_EAGAIN) {
 				    /*
 				     * We received EAGAIN, save what we have and return EAGAIN to
@@ -1444,7 +1444,7 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE * handle, char * buffer,
 			s += real_longentry_len;
 			memzero(attrs, sizeof(LIBSSH2_SFTP_ATTRIBUTES));
 			s += sftp_bin2attr(attrs ? attrs : &attrs_dummy, s);
-			handle->u.dir.next_name = (char*)s;
+			handle->u.dir.next_name = (char *)s;
 end:
 			if((--handle->u.dir.names_left) == 0)
 				LIBSSH2_FREE(session, handle->u.dir.names_packet);
@@ -1515,7 +1515,7 @@ end:
 	}
 	handle->u.dir.names_left = num_names;
 	handle->u.dir.names_packet = data;
-	handle->u.dir.next_name = (char*)data + 9;
+	handle->u.dir.next_name = (char *)data + 9;
 	/* use the name popping mechanism from the start of the function */
 	return sftp_readdir(handle, buffer, buffer_maxlen, longentry, longentry_maxlen, attrs);
 }

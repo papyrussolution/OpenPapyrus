@@ -391,7 +391,7 @@ ngx_http_variable_value_t * ngx_http_get_variable(ngx_http_request_t * r, ngx_st
 
 static ngx_int_t ngx_http_variable_request(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	ngx_str_t * s = (ngx_str_t*)((char*)r + data);
+	ngx_str_t * s = (ngx_str_t*)((char *)r + data);
 	if(s->data) {
 		v->len = s->len;
 		v->valid = 1;
@@ -408,7 +408,7 @@ static ngx_int_t ngx_http_variable_request(ngx_http_request_t * r, ngx_http_vari
 #if 0
 static void ngx_http_variable_request_set(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	ngx_str_t  * s = (ngx_str_t*)((char*)r + data);
+	ngx_str_t  * s = (ngx_str_t*)((char *)r + data);
 	s->len = v->len;
 	s->data = v->data;
 }
@@ -416,7 +416,7 @@ static void ngx_http_variable_request_set(ngx_http_request_t * r, ngx_http_varia
 
 static ngx_int_t ngx_http_variable_request_get_size(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	size_t  * sp = (size_t*)((char*)r + data);
+	size_t  * sp = (size_t*)((char *)r + data);
 	v->data = (u_char*)ngx_pnalloc(r->pool, NGX_SIZE_T_LEN);
 	if(v->data == NULL) {
 		return NGX_ERROR;
@@ -439,14 +439,14 @@ static void ngx_http_variable_request_set_size(ngx_http_request_t * r, ngx_http_
 		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "invalid size \"%V\"", &val);
 		return;
 	}
-	sp = (ssize_t*)((char*)r + data);
+	sp = (ssize_t*)((char *)r + data);
 	*sp = s;
 	return;
 }
 
 static ngx_int_t ngx_http_variable_header(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	ngx_table_elt_t  * h = *(ngx_table_elt_t**)((char*)r + data);
+	ngx_table_elt_t  * h = *(ngx_table_elt_t**)((char *)r + data);
 	if(h) {
 		v->len = h->value.len;
 		v->valid = 1;
@@ -476,7 +476,7 @@ static ngx_int_t ngx_http_variable_headers_internal(ngx_http_request_t * r, ngx_
 	u_char  * p, * end;
 	ngx_uint_t i, n;
 	ngx_table_elt_t  ** h;
-	ngx_array_t  * a = (ngx_array_t*)((char*)r + data);
+	ngx_array_t  * a = (ngx_array_t*)((char *)r + data);
 	n = a->nelts;
 	h = (ngx_table_elt_t **)a->elts;
 	len = 0;

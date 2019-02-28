@@ -209,7 +209,7 @@ static void get_resources(xcb_connection_t * connection, xcb_screen_t * screen, 
 
 		if(reply) {
 			if(reply->format == 8 && reply->type == XCB_ATOM_STRING) {
-				char * value = (char*)xcb_get_property_value(reply);
+				char * value = (char *)xcb_get_property_value(reply);
 				int length = xcb_get_property_value_length(reply);
 
 				offset += length / 4; /* X needs the offset in 'long' units */

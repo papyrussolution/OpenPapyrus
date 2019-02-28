@@ -350,7 +350,7 @@ static cairo_bool_t can_use_shm(Display * dpy, int * has_pixmap)
 
 	shm.readOnly = FALSE;
 	shm.shmaddr = shmat(shm.shmid, NULL, 0);
-	if(shm.shmaddr == (char*)-1) {
+	if(shm.shmaddr == (char *)-1) {
 		shmctl(shm.shmid, IPC_RMID, NULL);
 		return FALSE;
 	}
@@ -415,7 +415,7 @@ static void send_event(cairo_xlib_display_t * display,
 	ev.major_code = display->shm->opcode;
 	ev.minor_code = X_ShmPutImage;
 	ev.shmseg = info->pool->shm.shmid;
-	ev.offset = (char*)info->mem - (char*)info->pool->shm.shmaddr;
+	ev.offset = (char *)info->mem - (char *)info->pool->shm.shmaddr;
 
 	XSendEvent(display->display, ev.drawable, False, 0, (XEvent*)&ev);
 
@@ -558,7 +558,7 @@ static cairo_xlib_shm_t * _cairo_xlib_shm_pool_create(cairo_xlib_display_t * dis
 
 	pool->shm.readOnly = FALSE;
 	pool->shm.shmaddr = shmat(pool->shm.shmid, NULL, 0);
-	if(pool->shm.shmaddr == (char*)-1) {
+	if(pool->shm.shmaddr == (char *)-1) {
 		shmctl(pool->shm.shmid, IPC_RMID, NULL);
 		goto cleanup;
 	}
@@ -1173,8 +1173,8 @@ void _cairo_xlib_shm_surface_get_ximage(cairo_surface_t * surface,
 	ximage->width = shm->image.width;
 	ximage->height = shm->image.height;
 	ximage->format = ZPixmap;
-	ximage->data = (char*)shm->image.data;
-	ximage->obdata = (char*)&shm->info->pool->shm;
+	ximage->data = (char *)shm->image.data;
+	ximage->obdata = (char *)&shm->info->pool->shm;
 	ximage->byte_order = native_byte_order;
 	ximage->bitmap_unit = 32; /* always for libpixman */
 	ximage->bitmap_bit_order = native_byte_order;
@@ -1262,7 +1262,7 @@ static cairo_bool_t has_broken_send_shm_event(cairo_xlib_display_t * display,
 
 	info.readOnly = FALSE;
 	info.shmaddr = shmat(info.shmid, NULL, 0);
-	if(info.shmaddr == (char*)-1) {
+	if(info.shmaddr == (char *)-1) {
 		shmctl(info.shmid, IPC_RMID, NULL);
 		return TRUE;
 	}

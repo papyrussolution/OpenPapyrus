@@ -47,12 +47,12 @@ UI * UI_new_method(const UI_METHOD * method)
 static void free_string(UI_STRING * uis)
 {
 	if(uis->flags & OUT_STRING_FREEABLE) {
-		OPENSSL_free((char*)uis->out_string);
+		OPENSSL_free((char *)uis->out_string);
 		switch(uis->type) {
 			case UIT_BOOLEAN:
-			    OPENSSL_free((char*)uis->_.boolean_data.action_desc);
-			    OPENSSL_free((char*)uis->_.boolean_data.ok_chars);
-			    OPENSSL_free((char*)uis->_.boolean_data.cancel_chars);
+			    OPENSSL_free((char *)uis->_.boolean_data.action_desc);
+			    OPENSSL_free((char *)uis->_.boolean_data.ok_chars);
+			    OPENSSL_free((char *)uis->_.boolean_data.cancel_chars);
 			    break;
 			default:
 			    break;
@@ -368,7 +368,7 @@ char * UI_construct_prompt(UI * ui, const char * object_desc,
 			len += sizeof(prompt2) - 1 + strlen(object_name);
 		len += sizeof(prompt3) - 1;
 
-		prompt = (char*)OPENSSL_malloc(len + 1);
+		prompt = (char *)OPENSSL_malloc(len + 1);
 		if(prompt == NULL)
 			return NULL;
 		OPENSSL_strlcpy(prompt, prompt1, len + 1);

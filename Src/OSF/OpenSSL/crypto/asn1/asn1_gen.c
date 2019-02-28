@@ -363,7 +363,7 @@ static ASN1_TYPE * asn1_multi(int utype, const char * section, X509V3_CTX * cnf,
 	if(section) {
 		if(!cnf)
 			goto bad;
-		sect = X509V3_get_section(cnf, (char*)section);
+		sect = X509V3_get_section(cnf, (char *)section);
 		if(!sect)
 			goto bad;
 		for(i = 0; i < sk_CONF_VALUE_num(sect); i++) {
@@ -536,7 +536,7 @@ static ASN1_TYPE * asn1_str2type(const char * str, int format, int utype)
 		    }
 		    vtmp.name = NULL;
 		    vtmp.section = NULL;
-		    vtmp.value = (char*)str;
+		    vtmp.value = (char *)str;
 		    if(!X509V3_get_value_bool(&vtmp, &atmp->value.boolean)) {
 			    ASN1err(ASN1_F_ASN1_STR2TYPE, ASN1_R_ILLEGAL_BOOLEAN);
 			    goto bad_str;

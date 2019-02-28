@@ -234,7 +234,7 @@ private:
 IMPL_CMPFUNC(SfxTreeChr, p1, p2)
 {
 	int    result = 0;
-    const SSuffixTree * p_st = (const SSuffixTree *)pExtraData;
+    const SSuffixTree * p_st = static_cast<const SSuffixTree *>(pExtraData);
     if(p_st) {
 		const uint item_size = p_st->GetItemSize();
         switch(item_size) {

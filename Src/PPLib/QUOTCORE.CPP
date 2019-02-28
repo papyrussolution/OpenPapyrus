@@ -3446,14 +3446,14 @@ public:
 				p->GoodsID = pQuotList->GoodsID;
 				for(uint i = 0; i < c; i++) {
 					const PPQuot & r_quot = pQuotList->at(i);
-					Entry & r_entry = ((Entry *)(p+1))[i];
+					Entry & r_entry = reinterpret_cast<Entry *>(p+1)[i];
 					pQuotCache->GetQuotParamID(&r_quot, &r_entry.ParamID);
 					r_entry.Flags = r_quot.Flags;
 					r_entry.MinQtty = r_quot.MinQtty;
 					Quotation2Core::PeriodToPeriodIdx(&r_quot.Period, &r_entry.PeriodIdx);
 					r_entry.Val = r_quot.Quot;
 				}
-				p->EntryCount = (uint16)c;
+				p->EntryCount = static_cast<uint16>(c);
 			}
 			return p;
 		}

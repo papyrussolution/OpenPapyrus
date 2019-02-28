@@ -1,5 +1,5 @@
 // SC_GGRP.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2010, 2011, 2015, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2010, 2011, 2015, 2016, 2019
 // Part of StyloConduit project
 // Ёкспорт/»мпорт товарных групп
 //
@@ -11,8 +11,8 @@
 
 IMPL_CMPFUNC(GGROUPID, i1, i2)
 {
-	SCDBObjGoodsGrp::IdxRec * gg1 = (SCDBObjGoodsGrp::IdxRec*)i1;
-	SCDBObjGoodsGrp::IdxRec * gg2 = (SCDBObjGoodsGrp::IdxRec*)i2;
+	const SCDBObjGoodsGrp::IdxRec * gg1 = static_cast<const SCDBObjGoodsGrp::IdxRec *>(i1);
+	const SCDBObjGoodsGrp::IdxRec * gg2 = static_cast<const SCDBObjGoodsGrp::IdxRec *>(i2);
 	if(gg1->ID < gg2->ID)
 		return -1;
 	else if(gg1->ID > gg2->ID)
@@ -24,8 +24,8 @@ IMPL_CMPFUNC(GGROUPID, i1, i2)
 IMPL_CMPFUNC(GGROUPNAM, i1, i2)
 {
 	int r = 0;
-	SCDBObjGoodsGrp::IdxRec * gg1 = (SCDBObjGoodsGrp::IdxRec*)i1;
-	SCDBObjGoodsGrp::IdxRec * gg2 = (SCDBObjGoodsGrp::IdxRec*)i2;
+	const SCDBObjGoodsGrp::IdxRec * gg1 = static_cast<const SCDBObjGoodsGrp::IdxRec *>(i1);
+	const SCDBObjGoodsGrp::IdxRec * gg2 = static_cast<const SCDBObjGoodsGrp::IdxRec *>(i2);
 	if((r = stricmp866(gg1->Name, gg2->Name)) < 0)
 		return -1;
 	else if(r > 0)
@@ -34,9 +34,8 @@ IMPL_CMPFUNC(GGROUPNAM, i1, i2)
 		return 0;
 }
 
-SCDBObjGoodsGrp::SCDBObjGoodsGrp(SpiiExchgContext * pCtx) : SCDBObject(pCtx)
+SCDBObjGoodsGrp::SCDBObjGoodsGrp(SpiiExchgContext * pCtx) : SCDBObject(pCtx), P_GGrpTbl(0)
 {
-	P_GGrpTbl = 0;
 }
 
 SCDBObjGoodsGrp::~SCDBObjGoodsGrp()

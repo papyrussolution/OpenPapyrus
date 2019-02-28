@@ -111,7 +111,7 @@ bad:
 static int TIFFDefaultRefBlackWhite(TIFFDirectory* td)
 {
 	int i;
-	td->td_refblackwhite = (float*)SAlloc::M(6*sizeof(float));
+	td->td_refblackwhite = (float *)SAlloc::M(6*sizeof(float));
 	if(td->td_refblackwhite == NULL)
 		return 0;
 	if(td->td_photometric == PHOTOMETRIC_YCBCR) {

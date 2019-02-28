@@ -276,7 +276,7 @@ public:
 int SLAPI PersonRelTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	Entry * p_cache_rec = (Entry *)pEntry;
+	Entry * p_cache_rec = static_cast<Entry *>(pEntry);
 	PPPersonRelTypePacket pack;
 	PPObjPersonRelType prt_obj;
 	if(prt_obj.GetPacket(id, &pack) > 0) {
@@ -298,8 +298,8 @@ int SLAPI PersonRelTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI PersonRelTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPPersonRelTypePacket * p_pack = (PPPersonRelTypePacket *)pDataRec;
-	const Entry * p_cache_rec = (const Entry *)pEntry;
+	PPPersonRelTypePacket * p_pack = static_cast<PPPersonRelTypePacket *>(pDataRec);
+	const Entry * p_cache_rec = static_cast<const Entry *>(pEntry);
 	p_pack->Rec.Tag      = PPOBJ_PERSONRELTYPE;
 	p_pack->Rec.ID       = p_cache_rec->ID;
 	p_pack->Rec.StatusRestriction = p_cache_rec->StatusRestriction;
@@ -488,12 +488,13 @@ int SLAPI PPObjPersonRelType::PutPacket(PPID * pID, PPPersonRelTypePacket * pPac
 
 int SLAPI PPObjPersonRelType::GetPacket(PPID id, PPPersonRelTypePacket * pPack)
 {
-	int    ok = -1, r;
+	int    ok = -1;
 	pPack->InhRegTypeList.freeAll();
-	THROW(r = Search(id, &pPack->Rec));
-	if(r > 0) {
-		THROW(ref->GetPropArray(Obj, id, PRTPRP_INHREGLIST, &pPack->InhRegTypeList));
-		ok = 1;
+	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
+		ok = Search(id, &pPack->Rec);
+		if(ok > 0) {
+			THROW(ref->GetPropArray(Obj, id, PRTPRP_INHREGLIST, &pPack->InhRegTypeList));
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -1441,7 +1442,7 @@ int SLAPI PersonCore::PutELinks(PPID id, PPELinkArray * ary, int use_ta)
 					sz += (sizeof(entry->KindID) + sstrlen(entry->Addr) + 1);
 			THROW_MEM(b = (PropertyTbl::Rec*)SAlloc::C(1, sz));
 			b->Val2 = (int32)(sz - PROPRECFIXSIZE);
-			for(p = (char*)(PTR8(b)+PROPRECFIXSIZE), i = 0; ary->enumItems(&i, (void**)&entry);)
+			for(p = (char *)(PTR8(b)+PROPRECFIXSIZE), i = 0; ary->enumItems(&i, (void**)&entry);)
 				if(entry->KindID && entry->Addr[0]) {
 					size_t s = (sizeof(entry->KindID) + sstrlen(entry->Addr) + 1);
 					memmove(p, entry, s);

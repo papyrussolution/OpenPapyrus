@@ -465,7 +465,7 @@ int TIFFInitOJPEG(TIFF* tif, int scheme)
 	tif->tif_encodestrip = OJPEGEncode;
 	tif->tif_encodetile = OJPEGEncode;
 	tif->tif_cleanup = OJPEGCleanup;
-	tif->tif_data = (uint8*)sp;
+	tif->tif_data = (uint8 *)sp;
 	/* tif tag methods */
 	sp->vgetparent = tif->tif_tagmethods.vgetfield;
 	tif->tif_tagmethods.vgetfield = OJPEGVGetField;
@@ -1172,15 +1172,15 @@ static int OJPEGWriteHeaderInfo(TIFF* tif)
 			sp->subsampling_convert_cbbuf = sp->subsampling_convert_ybuf+sp->subsampling_convert_ybuflen;
 			sp->subsampling_convert_crbuf = sp->subsampling_convert_cbbuf+sp->subsampling_convert_cbuflen;
 			sp->subsampling_convert_ycbcrimagelen = 3+sp->subsampling_convert_ylines+2*sp->subsampling_convert_clines;
-			sp->subsampling_convert_ycbcrimage = SAlloc::M(sp->subsampling_convert_ycbcrimagelen*sizeof(uint8*));
+			sp->subsampling_convert_ycbcrimage = SAlloc::M(sp->subsampling_convert_ycbcrimagelen*sizeof(uint8 *));
 			if(sp->subsampling_convert_ycbcrimage==0) {
 				TIFFErrorExt(tif->tif_clientdata, module, "Out of memory");
 				return 0;
 			}
 			m = sp->subsampling_convert_ycbcrimage;
-			*m++ = (uint8*)(sp->subsampling_convert_ycbcrimage+3);
-			*m++ = (uint8*)(sp->subsampling_convert_ycbcrimage+3+sp->subsampling_convert_ylines);
-			*m++ = (uint8*)(sp->subsampling_convert_ycbcrimage+3+sp->subsampling_convert_ylines+sp->subsampling_convert_clines);
+			*m++ = (uint8 *)(sp->subsampling_convert_ycbcrimage+3);
+			*m++ = (uint8 *)(sp->subsampling_convert_ycbcrimage+3+sp->subsampling_convert_ylines);
+			*m++ = (uint8 *)(sp->subsampling_convert_ycbcrimage+3+sp->subsampling_convert_ylines+sp->subsampling_convert_clines);
 			for(n = 0; n<sp->subsampling_convert_ylines; n++)
 				*m++ = sp->subsampling_convert_ybuf+n*sp->subsampling_convert_ylinelen;
 			for(n = 0; n<sp->subsampling_convert_clines; n++)

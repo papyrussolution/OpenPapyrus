@@ -210,7 +210,7 @@ static int _TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
 		     * Setup new compression routine state.
 		     */
 		    if( (status = TIFFSetCompressionScheme(tif, v)) != 0)
-			    td->td_compression = (uint16)v;
+			    td->td_compression = static_cast<uint16>(v);
 		    else
 			    status = 0;
 		    break;
@@ -220,14 +220,14 @@ static int _TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
 		    v = (uint16)va_arg(ap, uint16_vap);
 		    if(v != FILLORDER_LSB2MSB && v != FILLORDER_MSB2LSB)
 			    goto badvalue;
-		    td->td_fillorder = (uint16)v;
+		    td->td_fillorder = static_cast<uint16>(v);
 		    break;
 		case TIFFTAG_ORIENTATION:
 		    v = (uint16)va_arg(ap, uint16_vap);
 		    if(v < ORIENTATION_TOPLEFT || ORIENTATION_LEFTBOT < v)
 			    goto badvalue;
 		    else
-			    td->td_orientation = (uint16)v;
+			    td->td_orientation = static_cast<uint16>(v);
 		    break;
 		case TIFFTAG_SAMPLESPERPIXEL:
 		    v = (uint16)va_arg(ap, uint16_vap);
@@ -248,7 +248,7 @@ static int _TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
 				    td->td_smaxsamplevalue = NULL;
 			    }
 		    }
-		    td->td_samplesperpixel = (uint16)v;
+		    td->td_samplesperpixel = static_cast<uint16>(v);
 		    break;
 		case TIFFTAG_ROWSPERSTRIP:
 		    v32 = (uint32)va_arg(ap, uint32);
@@ -290,7 +290,7 @@ static int _TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
 		    v = (uint16)va_arg(ap, uint16_vap);
 		    if(v != PLANARCONFIG_CONTIG && v != PLANARCONFIG_SEPARATE)
 			    goto badvalue;
-		    td->td_planarconfig = (uint16)v;
+		    td->td_planarconfig = static_cast<uint16>(v);
 		    break;
 		case TIFFTAG_XPOSITION:
 		    td->td_xposition = TIFFClampDoubleToFloat(va_arg(ap, double) );
@@ -302,7 +302,7 @@ static int _TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
 		    v = (uint16)va_arg(ap, uint16_vap);
 		    if(v < RESUNIT_NONE || RESUNIT_CENTIMETER < v)
 			    goto badvalue;
-		    td->td_resolutionunit = (uint16)v;
+		    td->td_resolutionunit = static_cast<uint16>(v);
 		    break;
 		case TIFFTAG_PAGENUMBER:
 		    td->td_pagenumber[0] = (uint16)va_arg(ap, uint16_vap);
@@ -364,13 +364,13 @@ static int _TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
 			    case DATATYPE_IEEEFP:   v = SAMPLEFORMAT_IEEEFP; break;
 			    default:                goto badvalue;
 		    }
-		    td->td_sampleformat = (uint16)v;
+		    td->td_sampleformat = static_cast<uint16>(v);
 		    break;
 		case TIFFTAG_SAMPLEFORMAT:
 		    v = (uint16)va_arg(ap, uint16_vap);
 		    if(v < SAMPLEFORMAT_UINT || SAMPLEFORMAT_COMPLEXIEEEFP < v)
 			    goto badvalue;
-		    td->td_sampleformat = (uint16)v;
+		    td->td_sampleformat = static_cast<uint16>(v);
 		    /*  Try to fix up the SWAB function for complex data. */
 		    if(td->td_sampleformat == SAMPLEFORMAT_COMPLEXINT && td->td_bitspersample == 32 && tif->tif_postdecode == _TIFFSwab32BitData)
 			    tif->tif_postdecode = _TIFFSwab16BitData;
@@ -485,10 +485,10 @@ static int _TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
 			    if(fip->field_passcount) {
 				    assert(fip->field_writecount==TIFF_VARIABLE2);
 				    ma = (uint32)va_arg(ap, uint32);
-				    mb = (char*)va_arg(ap, char*);
+				    mb = (char *)va_arg(ap, char*);
 			    }
 			    else {
-				    mb = (char*)va_arg(ap, char*);
+				    mb = (char *)va_arg(ap, char*);
 				    ma = (uint32)(strlen(mb)+1);
 			    }
 			    tv->count = ma;
@@ -528,7 +528,7 @@ static int _TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
 				    memcpy(tv->value, va_arg(ap, void *), tv->count * tv_size);
 			    }
 			    else {
-				    char * val = (char*)tv->value;
+				    char * val = (char *)tv->value;
 				    assert(tv->count == 1);
 				    switch(fip->field_type) {
 					    case TIFF_BYTE:
@@ -918,11 +918,11 @@ static int _TIFFVGetField(TIFF* tif, uint32 tag, va_list ap)
 					    ret_val = 1;
 				    }
 				    else {
-					    char * val = (char*)tv->value;
+					    char * val = (char *)tv->value;
 					    assert(tv->count == 1);
 					    switch(fip->field_type) {
 						    case TIFF_BYTE:
-						    case TIFF_UNDEFINED: *va_arg(ap, uint8*) = *(uint8*)val; ret_val = 1; break;
+						    case TIFF_UNDEFINED: *va_arg(ap, uint8*) = *(uint8 *)val; ret_val = 1; break;
 						    case TIFF_SBYTE: *va_arg(ap, int8*) = *(int8*)val; ret_val = 1; break;
 						    case TIFF_SHORT: *va_arg(ap, uint16*) = *(uint16*)val; ret_val = 1; break;
 						    case TIFF_SSHORT: *va_arg(ap, int16*) = *(int16*)val; ret_val = 1; break;
@@ -934,7 +934,7 @@ static int _TIFFVGetField(TIFF* tif, uint32 tag, va_list ap)
 						    case TIFF_SLONG8: *va_arg(ap, int64*) = *(int64*)val; ret_val = 1; break;
 						    case TIFF_RATIONAL:
 						    case TIFF_SRATIONAL:
-						    case TIFF_FLOAT: *va_arg(ap, float*) = *(float*)val; ret_val = 1; break;
+						    case TIFF_FLOAT: *va_arg(ap, float*) = *(float *)val; ret_val = 1; break;
 						    case TIFF_DOUBLE: *va_arg(ap, double*) = *(double*)val; ret_val = 1; break;
 						    default: ret_val = 0; break;
 					    }

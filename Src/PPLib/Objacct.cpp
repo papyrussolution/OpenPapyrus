@@ -176,7 +176,7 @@ int SLAPI PPObjAccount::PutPacket(PPID * pID, PPAccountPacket * pPack, int use_t
 			}
 		}
 		if(acc_type == ACY_AGGR)
-			THROW(PPRef->PutPropArray(PPOBJ_ACCOUNT2, *pID, ACCPRP_GENACCLIST, pPack ? &pPack->GenList : 0, 0));
+			THROW(ref->PutPropArray(PPOBJ_ACCOUNT2, *pID, ACCPRP_GENACCLIST, pPack ? &pPack->GenList : 0, 0));
 		THROW(tra.Commit());
 	}
 	CATCHZOK

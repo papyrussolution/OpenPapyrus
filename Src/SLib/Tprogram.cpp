@@ -1133,7 +1133,7 @@ struct Entry {
 BOOL CALLBACK EnumCtrls(HWND hWnd, LPARAM lParam)
 {
 	BOOL   r = true;
-	Entry * p_e = (Entry *)lParam;
+	Entry * p_e = reinterpret_cast<Entry *>(lParam);
 	if(p_e && p_e->FirstChild != hWnd) {
 		char cls_name[64];
 		long style    = TView::GetWindowStyle(hWnd);

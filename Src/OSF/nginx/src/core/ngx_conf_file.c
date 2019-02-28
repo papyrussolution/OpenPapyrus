@@ -309,7 +309,7 @@ static ngx_int_t ngx_conf_handler(ngx_conf_t * cf, ngx_int_t last)
 						conf = &(((void**)cf->ctx)[cf->cycle->modules[i]->index]);
 					}
 					else if(cf->ctx) {
-						confp = (void **)*(void**)((char*)cf->ctx + cmd->conf); // @sobolev (void **)
+						confp = (void **)*(void**)((char *)cf->ctx + cmd->conf); // @sobolev (void **)
 						if(confp)
 							conf = confp[cf->cycle->modules[i]->ctx_index];
 					}
@@ -582,7 +582,7 @@ const char * ngx_conf_include(ngx_conf_t * cf, const ngx_command_t * cmd, void *
 	if(ngx_conf_full_name(cf->cycle, &file, 1) != NGX_OK) {
 		return NGX_CONF_ERROR;
 	}
-	if(strpbrk((char*)file.data, "*?[") == NULL) {
+	if(strpbrk((char *)file.data, "*?[") == NULL) {
 		ngx_log_debug1(NGX_LOG_DEBUG_CORE, cf->log, 0, "include %s", file.data);
 		return ngx_conf_parse(cf, &file);
 	}

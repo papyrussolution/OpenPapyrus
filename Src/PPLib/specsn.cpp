@@ -144,13 +144,13 @@ PPALDD_CONSTRUCTOR(UhttSpecSeries)
 PPALDD_DESTRUCTOR(UhttSpecSeries)
 {
 	Destroy();
-	delete (UhttSpecSeriesBlock *)Extra[0].Ptr;
+	delete static_cast<UhttSpecSeriesBlock *>(Extra[0].Ptr);
 }
 
 int PPALDD_UhttSpecSeries::InitData(PPFilt & rFilt, long rsrv)
 {
 	int    ok = -1;
-	UhttSpecSeriesBlock & r_blk = *(UhttSpecSeriesBlock *)Extra[0].Ptr;
+	UhttSpecSeriesBlock & r_blk = *static_cast<UhttSpecSeriesBlock *>(Extra[0].Ptr);
 	r_blk.Clear();
 	MEMSZERO(H);
 	if(r_blk.SsCore.Search(rFilt.ID, &r_blk.Rec) > 0) {
@@ -181,7 +181,7 @@ int PPALDD_UhttSpecSeries::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_UhttSpecSeries::Set(long iterId, int commit)
 {
 	int    ok = 1;
-	UhttSpecSeriesBlock & r_blk = *(UhttSpecSeriesBlock *)Extra[0].Ptr;
+	UhttSpecSeriesBlock & r_blk = *static_cast<UhttSpecSeriesBlock *>(Extra[0].Ptr);
 	if(r_blk.State != UhttSpecSeriesBlock::stSet) {
 		r_blk.Clear();
 		r_blk.State = UhttSpecSeriesBlock::stSet;

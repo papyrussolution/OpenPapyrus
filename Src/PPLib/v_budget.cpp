@@ -1678,7 +1678,7 @@ void SLAPI PPViewBudget::GetEditIds(const void * pRow, Hdr * pHdr, long col)
 			hdr.AccID = (ObjAcct.Fetch(hdr.AccID, &rec) > 0) ? hdr.AccID : 0;
 		}
 		else
-			hdr = *(Hdr*)pRow;
+			hdr = *static_cast<const Hdr *>(pRow);
 	}
 	ASSIGN_PTR(pHdr, hdr);
 }
@@ -1830,7 +1830,7 @@ int PPALDD_BudgetItem::InitData(PPFilt & rFilt, long rsrv)
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
 		BudgetItemTbl::Rec rec;
-		if(((BudgetItemCore*)Extra[0].Ptr)->Search(rFilt.ID, &rec) > 0) {
+		if(static_cast<BudgetItemCore *>(Extra[0].Ptr)->Search(rFilt.ID, &rec) > 0) {
 			H.BudgetID = rec.BudgetID;
 			H.Acc    = rec.Acc;
 			H.Flags  = rec.Flags;

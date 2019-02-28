@@ -80,7 +80,7 @@ static int TIFFReadAndRealloc(TIFF* tif, tmsize_t size, tmsize_t rawdata_offset,
 				TIFFErrorExt(tif->tif_clientdata, module, "Invalid buffer size");
 				return 0;
 			}
-			new_rawdata = (uint8*)SAlloc::R(tif->tif_rawdata, tif->tif_rawdatasize);
+			new_rawdata = (uint8 *)SAlloc::R(tif->tif_rawdata, tif->tif_rawdatasize);
 			if(new_rawdata == 0) {
 				TIFFErrorExt(tif->tif_clientdata, module, "No space for data buffer at scanline %lu", (unsigned long)tif->tif_row);
 				SAlloc::F(tif->tif_rawdata);
@@ -329,11 +329,11 @@ int TIFFReadScanline(TIFF* tif, void* buf, uint32 row, uint16 sample)
 		/*
 		 * Decompress desired row into user buffer.
 		 */
-		e = (*tif->tif_decoderow)(tif, (uint8*)buf, tif->tif_scanlinesize, sample);
+		e = (*tif->tif_decoderow)(tif, (uint8 *)buf, tif->tif_scanlinesize, sample);
 		/* we are now poised at the beginning of the next row */
 		tif->tif_row = row + 1;
 		if(e)
-			(*tif->tif_postdecode)(tif, (uint8*)buf, tif->tif_scanlinesize);
+			(*tif->tif_postdecode)(tif, (uint8 *)buf, tif->tif_scanlinesize);
 	}
 	return (e > 0 ? 1 : -1);
 }
@@ -740,8 +740,8 @@ tmsize_t TIFFReadEncodedTile(TIFF* tif, uint32 tile, void* buf, tmsize_t size)
 		size = tilesize;
 	else if(size > tilesize)
 		size = tilesize;
-	if(TIFFFillTile(tif, tile) && (*tif->tif_decodetile)(tif, (uint8*)buf, size, (uint16)(tile/td->td_stripsperimage))) {
-		(*tif->tif_postdecode)(tif, (uint8*)buf, size);
+	if(TIFFFillTile(tif, tile) && (*tif->tif_decodetile)(tif, (uint8 *)buf, size, (uint16)(tile/td->td_stripsperimage))) {
+		(*tif->tif_postdecode)(tif, (uint8 *)buf, size);
 		return (size);
 	}
 	else
@@ -793,8 +793,8 @@ tmsize_t _TIFFReadEncodedTileAndAllocBuffer(TIFF* tif, uint32 tile, void ** buf,
 		size_to_read = tilesize;
 	else if(size_to_read > tilesize)
 		size_to_read = tilesize;
-	if((*tif->tif_decodetile)(tif, (uint8*)*buf, size_to_read, (uint16)(tile/td->td_stripsperimage))) {
-		(*tif->tif_postdecode)(tif, (uint8*)*buf, size_to_read);
+	if((*tif->tif_decodetile)(tif, (uint8 *)*buf, size_to_read, (uint16)(tile/td->td_stripsperimage))) {
+		(*tif->tif_postdecode)(tif, (uint8 *)*buf, size_to_read);
 		return (size_to_read);
 	}
 	else
@@ -1046,7 +1046,7 @@ int TIFFReadBufferSetup(TIFF* tif, void* bp, tmsize_t size)
 	}
 	if(bp) {
 		tif->tif_rawdatasize = size;
-		tif->tif_rawdata = (uint8*)bp;
+		tif->tif_rawdata = (uint8 *)bp;
 		tif->tif_flags &= ~TIFF_MYBUFFER;
 	}
 	else {
@@ -1057,7 +1057,7 @@ int TIFFReadBufferSetup(TIFF* tif, void* bp, tmsize_t size)
 		}
 		/* Initialize to zero to avoid uninitialized buffers in case of */
 		/* short reads (http://bugzilla.maptools.org/show_bug.cgi?id=2651) */
-		tif->tif_rawdata = (uint8*)SAlloc::C(1, tif->tif_rawdatasize);
+		tif->tif_rawdata = (uint8 *)SAlloc::C(1, tif->tif_rawdatasize);
 		tif->tif_flags |= TIFF_MYBUFFER;
 	}
 	if(tif->tif_rawdata == NULL) {
@@ -1164,7 +1164,7 @@ void _TIFFSwab24BitData(TIFF* tif, uint8* buf, tmsize_t cc)
 {
 	(void)tif;
 	assert((cc % 3) == 0);
-	TIFFSwabArrayOfTriples((uint8*)buf, cc/3);
+	TIFFSwabArrayOfTriples((uint8 *)buf, cc/3);
 }
 
 void _TIFFSwab32BitData(TIFF* tif, uint8* buf, tmsize_t cc)

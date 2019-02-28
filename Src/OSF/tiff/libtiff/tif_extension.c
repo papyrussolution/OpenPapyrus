@@ -81,7 +81,7 @@ void TIFFSetClientInfo(TIFF * tif, void * data, const char * name)
 		psLink = (TIFFClientInfoLink*)SAlloc::M(sizeof(TIFFClientInfoLink));
 		assert(psLink != NULL);
 		psLink->next = tif->tif_clientinfo;
-		psLink->name = (char*)SAlloc::M((tmsize_t)(strlen(name)+1));
+		psLink->name = (char *)SAlloc::M((tmsize_t)(strlen(name)+1));
 		assert(psLink->name != NULL);
 		strcpy(psLink->name, name);
 		psLink->data = data;

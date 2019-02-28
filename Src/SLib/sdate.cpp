@@ -1831,7 +1831,11 @@ int64 SLAPI STimeChunk::GetDurationMs() const
 		return -1;
 }
 
-IMPL_CMPFUNC(STimeChunk, i1, i2) { return pExtraData ? ((const STimeChunk *)i2)->cmp(*(const STimeChunk *)i1) : ((const STimeChunk *)i1)->cmp(*(const STimeChunk *)i2); }
+IMPL_CMPFUNC(STimeChunk, i1, i2) 
+{ 
+	return pExtraData ? static_cast<const STimeChunk *>(i2)->cmp(*static_cast<const STimeChunk *>(i1)) : 
+		static_cast<const STimeChunk *>(i1)->cmp(*static_cast<const STimeChunk *>(i2)); 
+}
 //
 //
 //
@@ -3090,7 +3094,7 @@ uint8  SLAPI SUniTime::Implement_Get(void * pData) const
 	uint64 value = 0;
 	uint8  signature = SUniTime_Decode(D, &value);
 	long   day_count = 0;
-	SUniTime_Inner * p_inner = (SUniTime_Inner *)pData;
+	SUniTime_Inner * p_inner = static_cast<SUniTime_Inner *>(pData);
 	switch(signature) {
 		case indDefault: __TimeToTimeFields(value, p_inner); break;
 		case indMSec: __TimeToTimeFields(value * 10000LL, p_inner); break;

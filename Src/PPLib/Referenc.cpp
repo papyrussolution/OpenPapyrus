@@ -531,7 +531,7 @@ int SLAPI Reference::SearchSymb(PPID objType, PPID * pID, const char * pSymb, si
 		long   h = -1;
 		ReferenceTbl::Rec rec;
 		for(InitEnum(objType, 0, &h); ok < 0 && NextEnum(h, &rec) > 0;) {
-			if(stricmp866(pSymb, ((char*)&rec) + offs) == 0) {
+			if(stricmp866(pSymb, ((char *)&rec) + offs) == 0) {
 				ASSIGN_PTR(pID, rec.ObjID);
 				ok =  1;
 			}
@@ -552,7 +552,7 @@ int SLAPI Reference::CheckUniqueSymb(PPID objType, PPID id, const char * pSymb, 
 		long   h = -1;
 		ReferenceTbl::Rec rec;
 		for(InitEnum(objType, 0, &h); ok && NextEnum(h, &rec) > 0;)
-			if(stricmp866(pSymb, ((char*)&rec) + offs) == 0 && rec.ObjID != id)
+			if(stricmp866(pSymb, ((char *)&rec) + offs) == 0 && rec.ObjID != id)
 				ok = (PPSetObjError(PPERR_DUPSYMB, objType, rec.ObjID), 0);
 		DestroyIter(h);
 	}
@@ -778,7 +778,7 @@ int SLAPI Reference::PutPropVlrString(PPID obj, PPID id, PPID prop, const char *
 		s = MAX(sizeof(PropVlrString) + sz, PROPRECFIXSIZE);
 		THROW_MEM(pm = (PropVlrString*)SAlloc::M(s));
 		memzero(pm, s);
-		strcpy((char*)(pm + 1), b);
+		strcpy((char *)(pm + 1), b);
 		pm->Size = sz;
 	}
 	THROW(PutProp(obj, id, prop, pm, s, use_ta));
@@ -1320,7 +1320,7 @@ int SLAPI PPRights::Get(PPID securType, PPID securID, int ignoreCheckSum)
 					ObjRestrictArray temp_orlist;
 					THROW(PPRef->GetPropArray(ObjType, ObjID, propID, &temp_orlist));
 					if(!IgnoreCheckSum && pCheckSum && *pCheckSum) {
-						ulong  chksum = _checksum__((char*)temp_orlist.dataPtr(), temp_orlist.getCount() * temp_orlist.getItemSize());
+						ulong  chksum = _checksum__((char *)temp_orlist.dataPtr(), temp_orlist.getCount() * temp_orlist.getItemSize());
 						THROW_PP(chksum == *pCheckSum, PPERR_INVRTCHKSUM);
 					}
 					if(temp_orlist.getCount()) {
@@ -1395,19 +1395,19 @@ int SLAPI PPRights::Put(PPID securType, PPID securID)
 		}
 		P_Rt->CheckSum = CheckSum();
 		if(P_OpList)
-			P_Rt->ChkSumOpList = _checksum__((char*)P_OpList->dataPtr(), P_OpList->getCount() * P_OpList->getItemSize());
+			P_Rt->ChkSumOpList = _checksum__((char *)P_OpList->dataPtr(), P_OpList->getCount() * P_OpList->getItemSize());
 		else
 			P_Rt->ChkSumOpList = _checksum__(0, 0);
 		if(P_LocList)
-			P_Rt->ChkSumLocList = _checksum__((char*)P_LocList->dataPtr(), P_LocList->getCount() * P_LocList->getItemSize());
+			P_Rt->ChkSumLocList = _checksum__((char *)P_LocList->dataPtr(), P_LocList->getCount() * P_LocList->getItemSize());
 		else
 			P_Rt->ChkSumLocList = _checksum__(0, 0);
 		if(P_CfgList)
-			P_Rt->ChkSumCfgList = _checksum__((char*)P_CfgList->dataPtr(), P_CfgList->getCount() * P_CfgList->getItemSize());
+			P_Rt->ChkSumCfgList = _checksum__((char *)P_CfgList->dataPtr(), P_CfgList->getCount() * P_CfgList->getItemSize());
 		else
 			P_Rt->ChkSumCfgList = _checksum__(0, 0);
 		if(P_AccList)
-			P_Rt->ChkSumAccList = _checksum__((char*)P_AccList->dataPtr(), P_AccList->getCount() * P_AccList->getItemSize());
+			P_Rt->ChkSumAccList = _checksum__((char *)P_AccList->dataPtr(), P_AccList->getCount() * P_AccList->getItemSize());
 		else
 			P_Rt->ChkSumAccList = _checksum__(0, 0);
 		THROW(p_ref->SetConfig(securType, securID, PPPRP_RTCOMM, P_Rt, Size()));
@@ -1590,7 +1590,7 @@ ulong SLAPI PPRights::CheckSum()
 		P_Rt->ChkSumLocList = 0;
 		P_Rt->ChkSumCfgList = 0;
 		P_Rt->ChkSumAccList = 0;
-		cs = _checksum__((char*)P_Rt, Size());
+		cs = _checksum__((char *)P_Rt, Size());
 		P_Rt->ChkSumLocList = save_locl_chksum;
 		P_Rt->ChkSumOpList  = save_opl_chksum;
 		P_Rt->ChkSumCfgList = save_cfgl_chksum;

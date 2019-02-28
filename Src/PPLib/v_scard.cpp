@@ -3181,11 +3181,9 @@ void PPALDD_SCardSerView::Destroy()
 struct DL600_SCardExt {
 	DL600_SCardExt() : CrEventSurID(0), AcEventSurID(0)
 	{
-		//MEMSZERO(ScRec);
 	}
 	PPObjSCard ScObj;
 	PPSCardPacket ScPack;
-	//SCardTbl::Rec ScRec;
 	long   CrEventSurID;
 	long   AcEventSurID;
 };
@@ -3201,7 +3199,7 @@ PPALDD_CONSTRUCTOR(SCard)
 PPALDD_DESTRUCTOR(SCard)
 {
 	Destroy();
-	delete (DL600_SCardExt *)Extra[0].Ptr;
+	delete static_cast<DL600_SCardExt *>(Extra[0].Ptr);
 }
 
 int PPALDD_SCard::InitData(PPFilt & rFilt, long rsrv)
@@ -3212,7 +3210,7 @@ int PPALDD_SCard::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
-		DL600_SCardExt * p_ext = (DL600_SCardExt *)Extra[0].Ptr;
+		DL600_SCardExt * p_ext = static_cast<DL600_SCardExt *>(Extra[0].Ptr);
 		if(p_ext) {
 			p_ext->CrEventSurID = 0;
 			p_ext->AcEventSurID = 0;
@@ -3324,7 +3322,7 @@ int PPALDD_SCard::Set(long iterId, int commit)
 	int    ok = 1;
 	SString temp_buf;
 	SETIFZ(Extra[3].Ptr, new PPSCardPacket);
-	PPSCardPacket * p_pack = (PPSCardPacket *)Extra[3].Ptr;
+	PPSCardPacket * p_pack = static_cast<PPSCardPacket *>(Extra[3].Ptr);
 	if(commit == 0) {
 		if(iterId == 0) {
 			p_pack->Rec.ID = H.ID;
@@ -3738,7 +3736,7 @@ int PPALDD_UhttSCardOpArray::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_UhttSCardOpArray::InitIteration(long iterId, int sortId, long rsrv)
 {
 	IterProlog(iterId, 1);
-	TSArray <UhttSCardOpViewItem> * p_list = (TSArray <UhttSCardOpViewItem> *)Extra[0].Ptr;
+	TSArray <UhttSCardOpViewItem> * p_list = static_cast<TSArray <UhttSCardOpViewItem> *>(Extra[0].Ptr);
 	CALLPTRMEMB(p_list, setPointer(0));
 	return 1;
 }
@@ -3747,7 +3745,7 @@ int PPALDD_UhttSCardOpArray::NextIteration(long iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
-	TSArray <UhttSCardOpViewItem> * p_list = (TSArray <UhttSCardOpViewItem> *)Extra[0].Ptr;
+	TSArray <UhttSCardOpViewItem> * p_list = static_cast<TSArray <UhttSCardOpViewItem> *>(Extra[0].Ptr);
 	if(p_list && p_list->getCount() && ((int)p_list->getPointer() < p_list->getEnd())) {
 		UhttSCardOpViewItem & r_item = p_list->at(p_list->getPointer());
 		I.SCardID = r_item.SCardID;

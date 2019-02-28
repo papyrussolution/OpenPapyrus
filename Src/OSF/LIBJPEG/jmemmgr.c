@@ -295,7 +295,7 @@ METHODDEF(void *) alloc_small(j_common_ptr cinfo, int pool_id, size_t sizeofobje
 			prev_hdr_ptr->hdr.next = hdr_ptr;
 	}
 	/* OK, allocate the object from the current pool */
-	data_ptr = (char*)(hdr_ptr + 1); /* point to first data byte in pool */
+	data_ptr = (char *)(hdr_ptr + 1); /* point to first data byte in pool */
 	data_ptr += hdr_ptr->hdr.bytes_used; /* point to place for object */
 	hdr_ptr->hdr.bytes_used += sizeofobject;
 	hdr_ptr->hdr.bytes_left -= sizeofobject;

@@ -350,7 +350,7 @@ int TIFFInitZIP(TIFF* tif, int scheme)
 	/*
 	 * Allocate state block so tag methods have storage to record values.
 	 */
-	tif->tif_data = (uint8*)SAlloc::M(sizeof(ZIPState));
+	tif->tif_data = (uint8 *)SAlloc::M(sizeof(ZIPState));
 	if(tif->tif_data == NULL)
 		goto bad;
 	sp = ZState(tif);

@@ -45,7 +45,7 @@ char * OPENSSL_uni2asc(const uchar * uni, int unilen)
 	if(!unilen || uni[unilen - 1])
 		asclen++;
 	uni++;
-	if((asctmp = (char*)OPENSSL_malloc(asclen)) == NULL)
+	if((asctmp = (char *)OPENSSL_malloc(asclen)) == NULL)
 		return NULL;
 	for(i = 0; i < unilen; i += 2)
 		asctmp[i >> 1] = uni[i];
@@ -173,7 +173,7 @@ char * OPENSSL_uni2utf8(const uchar * uni, int unilen)
 	/* If no terminating zero allow for one */
 	if(!unilen || (uni[unilen-2]||uni[unilen - 1]))
 		asclen++;
-	if((asctmp = (char*)OPENSSL_malloc(asclen)) == NULL)
+	if((asctmp = (char *)OPENSSL_malloc(asclen)) == NULL)
 		return NULL;
 	/* re-run the loop emitting UTF-8 string */
 	for(asclen = 0, i = 0; i < unilen; ) {

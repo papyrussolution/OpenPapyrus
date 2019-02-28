@@ -16,7 +16,7 @@ int SLAPI SlSession::InitGdiplus()
 	int    ok = 1;
 	if(!GdiplusToken) {
 		GdiplusStartupInput gdi_inp;
-		ok = (GdiplusStartup(&GdiplusToken, &gdi_inp, NULL) == Ok) ? 1 : 0;
+		ok = BIN(GdiplusStartup(&GdiplusToken, &gdi_inp, NULL) == Ok);
 	}
 	return ok;
 }
@@ -35,43 +35,16 @@ SImage::SImage() : P_Image(0), ClearColor(RGB(0xD4, 0xD0, 0xC8))
 
 SImage::~SImage()
 {
-	delete (Gdiplus::Image*)P_Image;
+	delete static_cast<Gdiplus::Image *>(P_Image);
 }
 
-int SImage::Init()
-{
-	return SLS.InitGdiplus();
-}
-
-void SImage::SetClearColor(COLORREF color)
-{
-	ClearColor = color;
-}
-
-int SImage::IsValid() const
-{
-	return BIN(P_Image);
-}
-
-double SImage::GetWidth()
-{
-	return P_Image ? ((Gdiplus::Image*)P_Image)->GetWidth() : 0.0;
-}
-
-double SImage::GetHeight()
-{
-	return P_Image ? ((Gdiplus::Image*)P_Image)->GetHeight() : 0.0;
-}
-
-double SImage::GetHRes()
-{
-	return P_Image ? ((Gdiplus::Image*)P_Image)->GetHorizontalResolution() : 0.0;
-}
-
-double SImage::GetVRes()
-{
-	return P_Image ? ((Gdiplus::Image*)P_Image)->GetVerticalResolution() : 0.0;
-}
+int SImage::Init() { return SLS.InitGdiplus(); }
+void SImage::SetClearColor(COLORREF color) { ClearColor = color; }
+int SImage::IsValid() const { return BIN(P_Image); }
+double SImage::GetWidth() { return P_Image ? static_cast<Gdiplus::Image *>(P_Image)->GetWidth() : 0.0; }
+double SImage::GetHeight() { return P_Image ? static_cast<Gdiplus::Image *>(P_Image)->GetHeight() : 0.0; }
+double SImage::GetHRes() { return P_Image ? static_cast<Gdiplus::Image *>(P_Image)->GetHorizontalResolution() : 0.0; }
+double SImage::GetVRes() { return P_Image ? static_cast<Gdiplus::Image *>(P_Image)->GetVerticalResolution() : 0.0; }
 
 int SImage::DrawPartUnchanged(HDC hdc, int offsX, int offsY, const RECT * pImgPart)
 {
@@ -96,7 +69,7 @@ int SImage::DrawPartUnchanged(HDC hdc, int offsX, int offsY, const RECT * pImgPa
 int SImage::DrawPart(HDC hdc, const RECT * pCliRect, const RECT * pDestRect, const RECT * pImgPart)
 {
 	int    ok = 1;
-	Gdiplus::Image * p_image = (Gdiplus::Image *)P_Image;
+	Gdiplus::Image * p_image = static_cast<Gdiplus::Image *>(P_Image);
  	if(p_image && pCliRect && pDestRect && pImgPart) {
 		Gdiplus::Graphics graph(hdc);
 		Gdiplus::REAL w = (Gdiplus::REAL)p_image->GetWidth(), h = (Gdiplus::REAL)p_image->GetHeight();

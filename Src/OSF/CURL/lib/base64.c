@@ -160,7 +160,7 @@ static CURLcode base64_encode(const char * table64, struct Curl_easy * data, con
 		return result;
 	}
 	if(convbuf)
-		indata = (char*)convbuf;
+		indata = (char *)convbuf;
 	while(insize > 0) {
 		for(i = inputparts = 0; i < 3; i++) {
 			if(insize > 0) {

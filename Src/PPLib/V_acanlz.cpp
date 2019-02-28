@@ -1616,7 +1616,7 @@ void SLAPI PPViewAccAnlz::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
-	const PPViewAccAnlz * p_view = (const PPViewAccAnlz *)extraPtr;
+	const PPViewAccAnlz * p_view = static_cast<const PPViewAccAnlz *>(extraPtr);
 	PPViewAccAnlz::BrwHdr hdr;
 	if(p_view && p_view->GetBrwHdr(pData, &hdr) && pStyle && paintAction == BrowserWindow::paintNormal) {
 		if(hdr.CorAccID && !ObjRts.CheckAccID(hdr.CorAccID, PPR_READ)) {
@@ -2253,7 +2253,7 @@ int SLAPI PPViewAccAnlz::Print(const void *)
 //
 //
 //
-int SLAPI ViewAccAnlz(const AccAnlzFilt * pFilt, AccAnlzKind aak) { return PPView::Execute(PPVIEW_ACCANLZ, pFilt, GetModelessStatus(), (void *)aak); }
+int SLAPI ViewAccAnlz(const AccAnlzFilt * pFilt, AccAnlzKind aak) { return PPView::Execute(PPVIEW_ACCANLZ, pFilt, GetModelessStatus(), reinterpret_cast<void *>(aak)); }
 //
 // Implementation of PPALDD_Account
 //
@@ -2268,7 +2268,7 @@ PPALDD_CONSTRUCTOR(Account)
 PPALDD_DESTRUCTOR(Account)
 {
 	Destroy();
-	delete (PPObjAccount*) Extra[0].Ptr;
+	delete static_cast<PPObjAccount *>(Extra[0].Ptr);
 	Extra[0].Ptr = 0;
 }
 
@@ -2281,7 +2281,7 @@ int PPALDD_Account::InitData(PPFilt & rFilt, long rsrv)
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
 		PPAccount rec;
-		if(((PPObjAccount*)(Extra[0].Ptr))->Search(rFilt.ID, &rec) > 0) {
+		if(static_cast<PPObjAccount *>(Extra[0].Ptr)->Search(rFilt.ID, &rec) > 0) {
 			H.ID    = rec.ID;
 			H.Ac    = rec.A.Ac;
 			H.Sb    = rec.A.Sb;
@@ -2311,7 +2311,7 @@ PPALDD_CONSTRUCTOR(Article)
 PPALDD_DESTRUCTOR(Article)
 {
 	Destroy();
-	delete (PPObjArticle*)Extra[0].Ptr;
+	delete static_cast<PPObjArticle *>(Extra[0].Ptr);
 	Extra[0].Ptr = 0;
 }
 
@@ -2586,7 +2586,7 @@ int PPALDD_Currency::Set(long iterId, int commit)
 {
 	int    ok = 1;
 	SETIFZ(Extra[3].Ptr, new PPCurrency);
-	PPCurrency * p_cur_rec = (PPCurrency *)Extra[3].Ptr;
+	PPCurrency * p_cur_rec = static_cast<PPCurrency *>(Extra[3].Ptr);
 	if(commit == 0) {
 		if(iterId == 0) {
 			p_cur_rec->ID = 0;
@@ -2642,7 +2642,7 @@ int PPALDD_CurRateType::Set(long iterId, int commit)
 {
 	int    ok = 1;
 	SETIFZ(Extra[3].Ptr, new PPCurRateType);
-	PPCurRateType * p_crt_rec = (PPCurRateType *)Extra[3].Ptr;
+	PPCurRateType * p_crt_rec = static_cast<PPCurRateType *>(Extra[3].Ptr);
 	if(commit == 0) {
 		if(iterId == 0) {
 			p_crt_rec->ID = 0;
@@ -2736,7 +2736,7 @@ PPALDD_CONSTRUCTOR(UhttCurRateIdent)
 PPALDD_DESTRUCTOR(UhttCurRateIdent)
 {
 	Destroy();
-	delete (UhttCurRateIdentBlock *)Extra[0].Ptr;
+	delete static_cast<UhttCurRateIdentBlock *>(Extra[0].Ptr);
 }
 
 int PPALDD_UhttCurRateIdent::InitData(PPFilt & rFilt, long rsrv)
@@ -2747,7 +2747,7 @@ int PPALDD_UhttCurRateIdent::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_UhttCurRateIdent::Set(long iterId, int commit)
 {
 	int    ok = 1;
-	UhttCurRateIdentBlock & r_blk = *(UhttCurRateIdentBlock *)Extra[0].Ptr;
+	UhttCurRateIdentBlock & r_blk = *static_cast<UhttCurRateIdentBlock *>(Extra[0].Ptr);
 	if(commit == 0) {
 		if(iterId == 0) {
 			r_blk.Rec.CurID = H.CurID;

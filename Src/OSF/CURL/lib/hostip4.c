@@ -160,7 +160,7 @@ Curl_addrinfo * Curl_ipv4_resolve_r(const char * hostname,
 		/* Solaris, IRIX and more */
 		h = gethostbyname_r(hostname,
 		    (struct hostent*)buf,
-		    (char*)buf + sizeof(struct hostent),
+		    (char *)buf + sizeof(struct hostent),
 		    CURL_HOSTENT_SIZE - sizeof(struct hostent),
 		    &h_errnop);
 
@@ -179,7 +179,7 @@ Curl_addrinfo * Curl_ipv4_resolve_r(const char * hostname,
 
 		(void)gethostbyname_r(hostname,
 		    (struct hostent*)buf,
-		    (char*)buf + sizeof(struct hostent),
+		    (char *)buf + sizeof(struct hostent),
 		    CURL_HOSTENT_SIZE - sizeof(struct hostent),
 		    &h,     /* DIFFERENCE */
 		    &h_errnop);
@@ -245,7 +245,7 @@ Curl_addrinfo * Curl_ipv4_resolve_r(const char * hostname,
 
 			res = gethostbyname_r(hostname,
 			    (struct hostent*)buf,
-			    (struct hostent_data*)((char*)buf +
+			    (struct hostent_data*)((char *)buf +
 				    sizeof(struct hostent)));
 			h_errnop = SOCKERRNO; /* we don't deal with this, but set it anyway */
 		}

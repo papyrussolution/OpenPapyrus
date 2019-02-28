@@ -206,7 +206,7 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 	Cmd     = cmd;
 	Extra   = extra;
 	SMessageWindow::DestroyByParent(hwnd_parent);
-	HWnd = APPL->CreateDlg(1013/*DLG_TOOLTIP*/, hwnd_parent, (DLGPROC)SMessageWindow::Proc, (LPARAM)this);
+	HWnd = APPL->CreateDlg(1013/*DLG_TOOLTIP*/, hwnd_parent, SMessageWindow::Proc, (LPARAM)this);
 	::GetCursorPos(&PrevMouseCoord);
 	if(HWnd) {
 		HWND   h_ctl = GetDlgItem(HWnd, 1201/*CTL_TOOLTIP_TEXT*/);
@@ -486,7 +486,7 @@ BOOL CALLBACK SMessageWindow::Proc(HWND hWnd, UINT message, WPARAM wParam, LPARA
 		case WM_CTLCOLORSTATIC:
 		case WM_CTLCOLORDLG:
 			if(p_win) {
-				HDC hdc = (HDC)wParam;
+				HDC hdc = reinterpret_cast<HDC>(wParam);
 				TCanvas canv(hdc);
 				COLORREF text_color = (labs(p_win->Color - SClrBlack) > labs(p_win->Color - SClrWhite)) ? SClrBlack : SClrWhite;
 				canv.SetTextColor(text_color);

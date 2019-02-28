@@ -1088,12 +1088,12 @@ IMPL_HANDLE_EVENT(BrowserWindow)
 			case kbCtrlF:  search(0, srchFirst); break;
 			case kbCtrlG:  search(0, srchNext);  break;
 			default:
-				uchar b[2];
+				uchar b[4];
 				b[0] = TVCHR;
 				b[1] = 0;
 				SCharToOem(reinterpret_cast<char *>(b));
 				if(isalnum(b[0]) || IsLetter866(b[0]) || b[0] == '*') {
-					search((char *)b, srchFirst);
+					search(reinterpret_cast<const char *>(b), srchFirst);
 					break;
 				}
 				else
@@ -2418,7 +2418,7 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 						PostMessage(hWnd, WM_NULL, 0, 0L);
 					}
 					else {
-						TView::SetWindowUserData(hWnd, (void *)0);
+						TView::SetWindowUserData(hWnd, 0);
 						if(!(p_view->Sf & sfOnDestroy)) {
 							delete p_view;
 						}
@@ -2432,7 +2432,7 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 			return 0;
 		case WM_SETFONT:
 			{
-				SetFontEvent sfe((void *)wParam, LOWORD(lParam));
+				SetFontEvent sfe(reinterpret_cast<void *>(wParam), LOWORD(lParam));
 				TView::messageCommand(p_view, cmSetFont, &sfe);
 			}
 			return 0;

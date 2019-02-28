@@ -189,27 +189,27 @@ static cairo_status_t cairo_type1_font_subset_find_segments(cairo_type1_font_sub
 	font->type1_end = font->type1_data + font->type1_length;
 	if(p[0] == 0x80 && p[1] == 0x01) {
 		font->header_segment_size = p[2] | (p[3] << 8) | (p[4] << 16) | (p[5] << 24);
-		font->header_segment = (char*)p + 6;
+		font->header_segment = (char *)p + 6;
 		p += 6 + font->header_segment_size;
 		font->eexec_segment_size = p[2] | (p[3] << 8) | (p[4] << 16) | (p[5] << 24);
-		font->eexec_segment = (char*)p + 6;
+		font->eexec_segment = (char *)p + 6;
 		font->eexec_segment_is_ascii = (p[1] == 1);
 		p += 6 + font->eexec_segment_size;
 		while(p < (uchar*)(font->type1_end) && p[1] != 0x03) {
 			size = p[2] | (p[3] << 8) | (p[4] << 16) | (p[5] << 24);
 			p += 6 + size;
 		}
-		font->type1_end = (char*)p;
+		font->type1_end = (char *)p;
 	}
 	else {
-		eexec_token = find_token((char*)p, font->type1_end, "eexec");
+		eexec_token = find_token((char *)p, font->type1_end, "eexec");
 		if(eexec_token == NULL)
 			return CAIRO_INT_STATUS_UNSUPPORTED;
 
-		font->header_segment_size = eexec_token - (char*)p + strlen("eexec\n");
-		font->header_segment = (char*)p;
+		font->header_segment_size = eexec_token - (char *)p + strlen("eexec\n");
+		font->header_segment = (char *)p;
 		font->eexec_segment_size = font->type1_length - font->header_segment_size;
-		font->eexec_segment = (char*)p + font->header_segment_size;
+		font->eexec_segment = (char *)p + font->header_segment_size;
 		font->eexec_segment_is_ascii = TRUE;
 		for(i = 0; i < 4; i++) {
 			if(!isxdigit(font->eexec_segment[i]))
@@ -243,7 +243,7 @@ static void cairo_type1_font_erase_dict_key(cairo_type1_font_subset_t * font, co
 			}
 			if((p + 3) < segment_end && memcmp(p, "def", 3) == 0) {
 				/* erase definition of the key */
-				memset((char*)start, ' ', p + 3 - start);
+				memset((char *)start, ' ', p + 3 - start);
 			}
 			start += strlen(key);
 		}
@@ -268,7 +268,7 @@ static cairo_status_t cairo_type1_font_subset_get_matrix(cairo_type1_font_subset
 	if(end == NULL)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	s_max = end - start + 5*decimal_point_len + 1;
-	s = (char*)_cairo_malloc(s_max);
+	s = (char *)_cairo_malloc(s_max);
 	if(unlikely(s == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	i = 0;
@@ -338,7 +338,7 @@ static cairo_status_t cairo_type1_font_subset_get_fontname(cairo_type1_font_subs
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	while(end > start && _cairo_isspace(end[-1]))
 		end--;
-	s = (char*)_cairo_malloc(end - start + 1);
+	s = (char *)_cairo_malloc(end - start + 1);
 	if(unlikely(s == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	strncpy(s, start, end - start);
@@ -504,7 +504,7 @@ static cairo_status_t cairo_type1_font_subset_decrypt_eexec_segment(cairo_type1_
 	int i;
 	uchar * in = (uchar*)font->eexec_segment;
 	uchar * end = (uchar*)in + font->eexec_segment_size;
-	font->cleartext = (char*)_cairo_malloc(font->eexec_segment_size + 1);
+	font->cleartext = (char *)_cairo_malloc(font->eexec_segment_size + 1);
 	if(unlikely(font->cleartext == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	out = font->cleartext;
@@ -936,7 +936,7 @@ static cairo_status_t cairo_type1_font_for_each_subr(cairo_type1_font_subset_t *
 			return status;
 	}
 
-	*array_end = (char*)p;
+	*array_end = (char *)p;
 
 	return CAIRO_STATUS_SUCCESS;
 }
@@ -950,7 +950,7 @@ static cairo_status_t cairo_type1_font_subset_build_glyph_list(cairo_type1_font_
 	glyph_data_t glyph;
 	cairo_status_t status;
 
-	s = (char*)_cairo_malloc(name_length + 1);
+	s = (char *)_cairo_malloc(name_length + 1);
 	if(unlikely(s == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
@@ -1127,7 +1127,7 @@ static cairo_status_t cairo_type1_font_subset_write_private_dict(cairo_type1_fon
 		if(lenIV_end == NULL)
 			return CAIRO_INT_STATUS_UNSUPPORTED;
 
-		lenIV_str = (char*)_cairo_malloc(lenIV_end - lenIV_start + 1);
+		lenIV_str = (char *)_cairo_malloc(lenIV_end - lenIV_start + 1);
 		if(unlikely(lenIV_str == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
@@ -1427,7 +1427,7 @@ static cairo_status_t cairo_type1_font_subset_generate(void * abstract_font, con
 	if(status)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	font->type1_length = data_length;
-	font->type1_data = (char*)_cairo_malloc(font->type1_length);
+	font->type1_data = (char *)_cairo_malloc(font->type1_length);
 	if(unlikely(font->type1_data == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	status = scaled_font->backend->load_type1_data(scaled_font, 0, (uchar*)font->type1_data, &data_length);
@@ -1518,7 +1518,7 @@ cairo_status_t _cairo_type1_subset_init(cairo_type1_subset_t * type1_subset, con
 	type1_subset->ascent = font.base.ascent;
 	type1_subset->descent = font.base.descent;
 	length = font.base.header_size + font.base.data_size + font.base.trailer_size;
-	type1_subset->data = (char*)_cairo_malloc(length);
+	type1_subset->data = (char *)_cairo_malloc(length);
 	if(unlikely(type1_subset->data == NULL))
 		goto fail3;
 	memcpy(type1_subset->data, _cairo_array_index(&font.contents, 0), length);

@@ -574,7 +574,7 @@ int GoodsOpAnlzFiltDialog::setDTS(const GoodsOpAnalyzeFilt * pFilt)
 	GetOpCommonAccSheet(Data.OpID, &acc_sheet_id, 0);
 	setupAccSheet(Data.AccSheetID ? Data.AccSheetID : acc_sheet_id);
 	goods_obj.GetParentID(Data.GoodsGrpID, &parent_grp_id);
-	GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel, parent_grp_id);
+	GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel, reinterpret_cast<void *>(parent_grp_id));
 	setGroupData(GRP_GOODSFILT, &gf_rec);
 	LocationCtrlGroup::Rec loc_rec(&Data.LocList);
 	setGroupData(GRP_LOC, &loc_rec);
@@ -3664,7 +3664,7 @@ DBQuery * SLAPI PPViewGoodsOpAnalyze::CreateBrowserQuery(uint * pBrwID, SString 
 			dbe_cqtty.push(dbc_long); // Trust
 			dbc_long.init(ff);
 			dbe_cqtty.push(dbc_long); // Formatting flags
-			dbe_cqtty.push((DBFunc)PPDbqFuncPool::IdCQtty);
+			dbe_cqtty.push(static_cast<DBFunc>(PPDbqFuncPool::IdCQtty));
 		}
 		{
 			dbe_crest.init();
@@ -3675,7 +3675,7 @@ DBQuery * SLAPI PPViewGoodsOpAnalyze::CreateBrowserQuery(uint * pBrwID, SString 
 			dbe_crest.push(dbc_long); // Trust
 			dbc_long.init(ff);
 			dbe_crest.push(dbc_long); // Formatting flags
-			dbe_crest.push((DBFunc)PPDbqFuncPool::IdCQtty);
+			dbe_crest.push(static_cast<DBFunc>(PPDbqFuncPool::IdCQtty));
 		}
 		q = & select(
 			tbl->LocID,          // #00
@@ -3951,7 +3951,7 @@ int SLAPI PPViewGoodsOpAnalyze::ConvertLinesToBasket()
 
 void SLAPI PPViewGoodsOpAnalyze::GetTempTableName(SString & rBuf) const
 {
-	rBuf = P_TempTbl ? P_TempTbl->GetName() : (const char *)0;
+	rBuf = P_TempTbl ? P_TempTbl->GetName() : static_cast<const char *>(0);
 }
 
 int SLAPI PPViewGoodsOpAnalyze::ABCGrpToAltGrp(short abcGroup)

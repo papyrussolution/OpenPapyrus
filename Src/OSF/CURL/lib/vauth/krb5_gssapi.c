@@ -164,7 +164,7 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy * data,
 
 	if(output_token.value && output_token.length) {
 		/* Base64 encode the response */
-		result = Curl_base64_encode(data, (char*)output_token.value,
+		result = Curl_base64_encode(data, (char *)output_token.value,
 		    output_token.length, outptr, outlen);
 
 		gss_release_buffer(&unused_status, &output_token);
@@ -349,7 +349,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 	}
 
 	/* Base64 encode the response */
-	result = Curl_base64_encode(data, (char*)output_token.value,
+	result = Curl_base64_encode(data, (char *)output_token.value,
 	    output_token.length, outptr, outlen);
 
 	/* Free the output buffer */

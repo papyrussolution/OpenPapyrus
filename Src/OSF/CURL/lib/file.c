@@ -395,7 +395,7 @@ static CURLcode file_do(struct connectdata * conn, bool * done)
 		result = Curl_client_write(conn, CLIENTWRITE_BOTH, buf, 0);
 		if(result)
 			return result;
-		result = Curl_client_write(conn, CLIENTWRITE_BOTH, (char*)"Accept-ranges: bytes\r\n", 0);
+		result = Curl_client_write(conn, CLIENTWRITE_BOTH, (char *)"Accept-ranges: bytes\r\n", 0);
 		if(result)
 			return result;
 		filetime = (time_t)statbuf.st_mtime;

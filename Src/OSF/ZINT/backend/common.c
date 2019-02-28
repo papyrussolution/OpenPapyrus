@@ -62,7 +62,7 @@ void to_upper(uchar source[])
 }
 
 // Verifies that a string only uses valid characters 
-int is_sane(const char test_string[], const uchar source[], const size_t length)
+int FASTCALL is_sane(const char test_string[], const uchar source[], const size_t length)
 {
 	const size_t lt = strlen(test_string);
 	for(size_t i = 0; i < length; i++) {

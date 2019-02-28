@@ -1927,12 +1927,11 @@ int SupplAgtDialog::setDTS(const PPSupplAgreement * pAgt)
 	setCtrlData(CTL_SUPPLAGT_PAYPERIOD, &Data.DefPayPeriod);
 	setCtrlData(CTL_SUPPLAGT_DELIVERY,  &Data.DefDlvrTerm);
 	setCtrlData(CTL_SUPPLAGT_MAXRETURN, &Data.PctRet);
-
 	SetupArCombo(this, CTLSEL_SUPPLAGT_AGENT, Data.DefAgentID, OLW_LOADDEFONOPEN|OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet|sacfNonGeneric);
-	SetupPPObjCombo(this, CTLSEL_SUPPLAGT_OPRKIND,  PPOBJ_OPRKIND,  Data.PurchaseOpID,    0, (void *)PPOPT_DRAFTRECEIPT);
-	SetupPPObjCombo(this, CTLSEL_SUPPLAGT_QUOTCOST, PPOBJ_QUOTKIND, Data.CostQuotKindID,  0, (void *)QuotKindFilt::fAll);
-	SetupPPObjCombo(this, CTLSEL_SUPPLAGT_QUOTUP,   PPOBJ_QUOTKIND, Data.DevUpQuotKindID, 0, (void *)QuotKindFilt::fAll);
-	SetupPPObjCombo(this, CTLSEL_SUPPLAGT_QUOTDOWN, PPOBJ_QUOTKIND, Data.DevDnQuotKindID, 0, (void *)QuotKindFilt::fAll);
+	SetupPPObjCombo(this, CTLSEL_SUPPLAGT_OPRKIND,  PPOBJ_OPRKIND,  Data.PurchaseOpID,    0, reinterpret_cast<void *>(PPOPT_DRAFTRECEIPT));
+	SetupPPObjCombo(this, CTLSEL_SUPPLAGT_QUOTCOST, PPOBJ_QUOTKIND, Data.CostQuotKindID,  0, reinterpret_cast<void *>(QuotKindFilt::fAll));
+	SetupPPObjCombo(this, CTLSEL_SUPPLAGT_QUOTUP,   PPOBJ_QUOTKIND, Data.DevUpQuotKindID, 0, reinterpret_cast<void *>(QuotKindFilt::fAll));
+	SetupPPObjCombo(this, CTLSEL_SUPPLAGT_QUOTDOWN, PPOBJ_QUOTKIND, Data.DevDnQuotKindID, 0, reinterpret_cast<void *>(QuotKindFilt::fAll));
 	SetupPPObjCombo(this, CTLSEL_SUPPLAGT_MNGRREL,  PPOBJ_PERSONRELTYPE, Data.MngrRelID,  0);
 	if(!ArID) {
 		long   inv_price_action = (long)Data.InvPriceAction;
@@ -1950,8 +1949,6 @@ int SupplAgtDialog::setDTS(const PPSupplAgreement * pAgt)
 		AddClusterAssoc(CTL_SUPPLAGT_FLAGS, 1, AGTF_SUBCOSTONSUBPARTSTR);
 		AddClusterAssoc(CTL_SUPPLAGT_FLAGS, 2, AGTF_AUTOORDER);
 		SetClusterData(CTL_SUPPLAGT_FLAGS, Data.Flags);
-		// @v8.5.2 long v = (long)Data.OrdPrdDays;
-		// @v8.5.2 setCtrlLong(CTL_SUPPLAGT_ORDPRD, v);
 	}
 	setupCtrls(Data.Flags);
 	updateList(-1);
@@ -2038,7 +2035,7 @@ PPALDD_CONSTRUCTOR(Agreement)
 PPALDD_DESTRUCTOR(Agreement)
 {
 	Destroy();
-	delete (PPObjArticle*)Extra[0].Ptr;
+	delete static_cast<PPObjArticle *>(Extra[0].Ptr);
 	Extra[0].Ptr = 0;
 }
 

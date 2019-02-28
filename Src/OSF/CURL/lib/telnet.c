@@ -909,7 +909,7 @@ static void suboption(struct connectdata * conn)
 	switch(CURL_SB_GET(tn)) {
 		case CURL_TELOPT_TTYPE:
 		    len = sstrlen(tn->subopt_ttype) + 4 + 2;
-		    snprintf((char*)temp, sizeof(temp),
+		    snprintf((char *)temp, sizeof(temp),
 		    "%c%c%c%c%s%c%c", CURL_IAC, CURL_SB, CURL_TELOPT_TTYPE,
 		    CURL_TELQUAL_IS, tn->subopt_ttype, CURL_IAC, CURL_SE);
 		    bytes_written = swrite(conn->sock[FIRSTSOCKET], temp, len);
@@ -921,7 +921,7 @@ static void suboption(struct connectdata * conn)
 		    break;
 		case CURL_TELOPT_XDISPLOC:
 		    len = sstrlen(tn->subopt_xdisploc) + 4 + 2;
-		    snprintf((char*)temp, sizeof(temp),
+		    snprintf((char *)temp, sizeof(temp),
 		    "%c%c%c%c%s%c%c", CURL_IAC, CURL_SB, CURL_TELOPT_XDISPLOC,
 		    CURL_TELQUAL_IS, tn->subopt_xdisploc, CURL_IAC, CURL_SE);
 		    bytes_written = swrite(conn->sock[FIRSTSOCKET], temp, len);
@@ -932,7 +932,7 @@ static void suboption(struct connectdata * conn)
 		    printsub(data, '>', &temp[2], len-2);
 		    break;
 		case CURL_TELOPT_NEW_ENVIRON:
-		    snprintf((char*)temp, sizeof(temp),
+		    snprintf((char *)temp, sizeof(temp),
 		    "%c%c%c%c", CURL_IAC, CURL_SB, CURL_TELOPT_NEW_ENVIRON,
 		    CURL_TELQUAL_IS);
 		    len = 4;
@@ -942,14 +942,14 @@ static void suboption(struct connectdata * conn)
 			    /* Add the variable only if it fits */
 			    if(len + tmplen < (int)sizeof(temp)-6) {
 				    if(sscanf(v->data, "%127[^,],%127s", varname, varval)) {
-					    snprintf((char*)&temp[len], sizeof(temp) - len,
+					    snprintf((char *)&temp[len], sizeof(temp) - len,
 					    "%c%s%c%s", CURL_NEW_ENV_VAR, varname,
 					    CURL_NEW_ENV_VALUE, varval);
 					    len += tmplen;
 				    }
 			    }
 		    }
-		    snprintf((char*)&temp[len], sizeof(temp) - len,
+		    snprintf((char *)&temp[len], sizeof(temp) - len,
 		    "%c%c", CURL_IAC, CURL_SE);
 		    len += 2;
 		    bytes_written = swrite(conn->sock[FIRSTSOCKET], temp, len);
@@ -1013,7 +1013,7 @@ static void sendsuboption(struct connectdata * conn, int option)
 		    }
 		    /* ... then the window size with the send_telnet_data() function
 		       to deal with 0xFF cases ... */
-		    send_telnet_data(conn, (char*)tn->subbuffer+3, 4);
+		    send_telnet_data(conn, (char *)tn->subbuffer+3, 4);
 		    /* ... and the footer */
 		    bytes_written = swrite(conn->sock[FIRSTSOCKET], tn->subbuffer+7, 2);
 		    if(bytes_written < 0) {
@@ -1040,7 +1040,7 @@ CURLcode telrcv(struct connectdata * conn,
 	if(startwrite >= 0) {					    \
 		result = Curl_client_write(conn,			  \
 		    CLIENTWRITE_BODY,		   \
-		    (char*)&inbuf[startwrite],	  \
+		    (char *)&inbuf[startwrite],	  \
 		    in-startwrite);		   \
 		if(result)						  \
 			return result;						\

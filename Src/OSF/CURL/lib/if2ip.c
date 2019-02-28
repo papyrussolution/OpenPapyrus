@@ -168,7 +168,7 @@ if2ip_result_t Curl_if2ip(int af, uint remote_scope,
 #endif
 						addr = &((struct sockaddr_in*)(void *)iface->ifa_addr)->sin_addr;
 						res = IF2IP_FOUND;
-						ip = (char*)Curl_inet_ntop(af, addr, ipstr, sizeof(ipstr));
+						ip = (char *)Curl_inet_ntop(af, addr, ipstr, sizeof(ipstr));
 						snprintf(buf, buf_size, "%s%s", ip, scope);
 						break;
 					}

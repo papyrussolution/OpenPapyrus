@@ -546,7 +546,7 @@ typedef const ISzAlloc * ISzAllocPtr;
 		GCC 3.4.4 : classes with constructor
 		GCC 4.8.1 : classes with non-public variable members"
 	*/
-	#define MY_container_of(ptr, type, m) ((type*)((char*)(1 ? (ptr) : &((type*)0)->m) - MY_offsetof(type, m)))
+	#define MY_container_of(ptr, type, m) ((type*)((char *)(1 ? (ptr) : &((type*)0)->m) - MY_offsetof(type, m)))
 #endif
 
 #define CONTAINER_FROM_VTBL_SIMPLE(ptr, type, m) ((type*)(ptr))
@@ -2944,7 +2944,7 @@ namespace NWildcard {
 	#ifdef _WIN32
 		// returns true, if name is like "a:", "c:", ...
 		bool   IsDriveColonName(const wchar_t * s);
-		uint   GetNumPrefixParts_if_DrivePath(UStringVector &pathParts);
+		uint   GetNumPrefixParts_if_DrivePath(const UStringVector & pathParts);
 	#endif
 
 	class CCensorNode {
@@ -2989,7 +2989,7 @@ namespace NWildcard {
 		CObjectVector <CItem> ExcludeItems;
 	private:
 		bool CheckPathCurrent(bool include, const UStringVector &pathParts, bool isFile) const;
-		void AddItemSimple(bool include, CItem &item);
+		void AddItemSimple(bool include, const CItem &item);
 
 		CCensorNode * Parent;
 	};

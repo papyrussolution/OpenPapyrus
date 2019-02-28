@@ -328,7 +328,7 @@ static int read_string_inner(UI * ui, UI_STRING * uis, int echo, int strip_nl)
 		goto error;
 	if(ferror(tty_in))
 		goto error;
-	if((p = (char*)strchr(result, '\n')) != NULL) {
+	if((p = (char *)strchr(result, '\n')) != NULL) {
 		if(strip_nl)
 			*p = '\0';
 	}

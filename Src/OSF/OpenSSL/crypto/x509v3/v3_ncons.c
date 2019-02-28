@@ -355,8 +355,8 @@ static int nc_dn(X509_NAME * nm, X509_NAME * base)
 
 static int nc_dns(ASN1_IA5STRING * dns, ASN1_IA5STRING * base)
 {
-	char * baseptr = (char*)base->data;
-	char * dnsptr = (char*)dns->data;
+	char * baseptr = (char *)base->data;
+	char * dnsptr = (char *)dns->data;
 	/* Empty matches everything */
 	if(!*baseptr)
 		return X509_V_OK;
@@ -378,8 +378,8 @@ static int nc_dns(ASN1_IA5STRING * dns, ASN1_IA5STRING * base)
 
 static int nc_email(ASN1_IA5STRING * eml, ASN1_IA5STRING * base)
 {
-	const char * baseptr = (char*)base->data;
-	const char * emlptr = (char*)eml->data;
+	const char * baseptr = (char *)base->data;
+	const char * emlptr = (char *)eml->data;
 
 	const char * baseat = strchr(baseptr, '@');
 	const char * emlat = strchr(emlptr, '@');
@@ -418,8 +418,8 @@ static int nc_email(ASN1_IA5STRING * eml, ASN1_IA5STRING * base)
 
 static int nc_uri(ASN1_IA5STRING * uri, ASN1_IA5STRING * base)
 {
-	const char * baseptr = (char*)base->data;
-	const char * hostptr = (char*)uri->data;
+	const char * baseptr = (char *)base->data;
+	const char * hostptr = (char *)uri->data;
 	const char * p = strchr(hostptr, ':');
 	int hostlen;
 	/* Check for foo:// and skip past it */

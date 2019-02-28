@@ -621,7 +621,7 @@ HEAP_RECURSE:
 		if(rdepth == 0)
 			return match((PCRE_PUCHAR)&rdepth, NULL, NULL, 0, NULL, NULL, 1);
 		else {
-			int len = (int)((char*)&rdepth - (char*)eptr);
+			int len = (int)((char *)&rdepth - (char *)eptr);
 			return (len > 0) ? -len : len;
 		}
 	}
@@ -3275,7 +3275,7 @@ REPEATCHAR:
 			       maximizing, find the maximum number of characters and work backwards. */
 
 			    DPRINTF(("matching %c{%d,%d} against subject %.*s\n", fc, min, max,
-				    max, (char*)eptr));
+				    max, (char *)eptr));
 
 			    if(op >= OP_STARI) { /* Caseless */
 #ifdef COMPILE_PCRE8
@@ -3524,7 +3524,7 @@ REPEATNOTCHAR:
 			       characters and work backwards. */
 
 			    DPRINTF(("negative matching %c{%d,%d} against subject %.*s\n", fc, min, max,
-				    max, (char*)eptr));
+				    max, (char *)eptr));
 
 			    if(op >= OP_NOTSTARI) { /* Caseless */
 #ifdef SUPPORT_UTF

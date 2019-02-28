@@ -49,7 +49,7 @@ ngx_int_t ngx_shm_alloc(ngx_shm_t * shm)
 	shm->handle = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE,
 	    (u_long)(size >> 32),
 	    (u_long)(size & 0xffffffff),
-	    (char*)name);
+	    (char *)name);
 
 	if(shm->handle == NULL) {
 		ngx_log_error(NGX_LOG_ALERT, shm->log, ngx_errno, "CreateFileMapping(%uz, %s) failed", shm->size, name);

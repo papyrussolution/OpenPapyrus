@@ -224,11 +224,11 @@ extern DBTCL_GLOBAL __dbtcl_global;
  */
 #define	MAKE_STAT_LSN(s, lsn) do {					\
 	myobjc = 2;							\
-	myobjv[0] = Tcl_NewLongObj((long)(lsn)->file);			\
-	myobjv[1] = Tcl_NewLongObj((long)(lsn)->offset);		\
+	myobjv[0] = Tcl_NewLongObj(static_cast<long>((lsn)->file));			\
+	myobjv[1] = Tcl_NewLongObj(static_cast<long>((lsn)->offset));		\
 	lsnlist = Tcl_NewListObj(myobjc, myobjv);			\
 	myobjc = 2;							\
-	myobjv[0] = Tcl_NewStringObj((s), (int)sstrlen(s));		\
+	myobjv[0] = Tcl_NewStringObj((s), static_cast<int>(sstrlen(s)));		\
 	myobjv[1] = lsnlist;						\
 	thislist = Tcl_NewListObj(myobjc, myobjv);			\
 	result = Tcl_ListObjAppendElement(interp, res, thislist);	\

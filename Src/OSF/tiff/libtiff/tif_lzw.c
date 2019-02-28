@@ -193,7 +193,7 @@ static int LZWSetupDecode(TIFF* tif)
 		// 
 		// Allocate state block so tag methods have storage to record values.
 		// 
-		tif->tif_data = (uint8*)SAlloc::M(sizeof(LZWCodecState));
+		tif->tif_data = (uint8 *)SAlloc::M(sizeof(LZWCodecState));
 		if(tif->tif_data == NULL) {
 			TIFFErrorExt(tif->tif_clientdata, module, "No space for LZW state block");
 			return 0;
@@ -329,7 +329,7 @@ static int LZWDecode(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 {
 	static const char module[] = "LZWDecode";
 	LZWCodecState * sp = DecoderState(tif);
-	char * op = (char*)op0;
+	char * op = (char *)op0;
 	long occ = (long)occ0;
 	char * tp;
 	unsigned char * bp;
@@ -501,8 +501,8 @@ static int LZWDecode(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 			occ--;
 		}
 	}
-	tif->tif_rawcc -= (tmsize_t)( (uint8*)bp - tif->tif_rawcp );
-	tif->tif_rawcp = (uint8*)bp;
+	tif->tif_rawcc -= (tmsize_t)( (uint8 *)bp - tif->tif_rawcp );
+	tif->tif_rawcp = (uint8 *)bp;
 	sp->lzw_nbits = (unsigned short)nbits;
 	sp->lzw_nextdata = nextdata;
 	sp->lzw_nextbits = nextbits;
@@ -541,7 +541,7 @@ static int LZWDecodeCompat(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 {
 	static const char module[] = "LZWDecodeCompat";
 	LZWCodecState * sp = DecoderState(tif);
-	char * op = (char*)op0;
+	char * op = (char *)op0;
 	long occ = (long)occ0;
 	char * tp;
 	unsigned char * bp;
@@ -704,8 +704,8 @@ static int LZWDecodeCompat(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 		}
 	}
 
-	tif->tif_rawcc -= (tmsize_t)( (uint8*)bp - tif->tif_rawcp );
-	tif->tif_rawcp = (uint8*)bp;
+	tif->tif_rawcc -= (tmsize_t)( (uint8 *)bp - tif->tif_rawcp );
+	tif->tif_rawcp = (uint8 *)bp;
 	sp->lzw_nbits = (unsigned short)nbits;
 	sp->lzw_nextdata = nextdata;
 	sp->lzw_nextbits = nextbits;
@@ -1062,7 +1062,7 @@ int TIFFInitLZW(TIFF* tif, int scheme)
 	/*
 	 * Allocate state block so tag methods have storage to record values.
 	 */
-	tif->tif_data = (uint8*)SAlloc::M(sizeof(LZWCodecState));
+	tif->tif_data = (uint8 *)SAlloc::M(sizeof(LZWCodecState));
 	if(tif->tif_data == NULL)
 		goto bad;
 	DecoderState(tif)->dec_codetab = NULL;

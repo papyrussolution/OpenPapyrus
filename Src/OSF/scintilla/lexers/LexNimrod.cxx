@@ -75,7 +75,7 @@ static Sci_Position scanChar(Accessor &styler, Sci_Position pos, Sci_Position ma
 	}
 }
 
-static Sci_Position scanIdent(Accessor &styler, Sci_Position pos, WordList &keywords)
+static Sci_Position scanIdent(Accessor &styler, Sci_Position pos, const WordList &keywords)
 {
 	char buf[100]; /* copy to lowercase and ignore underscores */
 	Sci_Position i = 0;

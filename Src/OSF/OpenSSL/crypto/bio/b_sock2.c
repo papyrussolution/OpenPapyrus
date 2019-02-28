@@ -145,7 +145,7 @@ int BIO_listen(int sock, const BIO_ADDR * addr, int options)
 		BIOerr(BIO_F_BIO_LISTEN, BIO_R_INVALID_SOCKET);
 		return 0;
 	}
-	if(getsockopt(sock, SOL_SOCKET, SO_TYPE, (char*)&socktype, &socktype_len) != 0 || socktype_len != sizeof(socktype)) {
+	if(getsockopt(sock, SOL_SOCKET, SO_TYPE, (char *)&socktype, &socktype_len) != 0 || socktype_len != sizeof(socktype)) {
 		SYSerr(SYS_F_GETSOCKOPT, get_last_socket_error());
 		BIOerr(BIO_F_BIO_LISTEN, BIO_R_GETTING_SOCKTYPE);
 		return 0;

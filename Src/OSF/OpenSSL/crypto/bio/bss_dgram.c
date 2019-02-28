@@ -188,7 +188,7 @@ static void dgram_adjust_rcv_timeout(BIO * b)
 #  ifdef OPENSSL_SYS_WINDOWS
 		int timeout;
 		sz.i = sizeof(timeout);
-		if(getsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, &sz.i) < 0) {
+		if(getsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, &sz.i) < 0) {
 			perror("getsockopt");
 		}
 		else {
@@ -300,7 +300,7 @@ static int dgram_write(BIO * b, const char * in, int inl)
 	else {
 		int peerlen = BIO_ADDR_sockaddr_size(&data->peer);
 # if defined(NETWARE_CLIB) && defined(NETWARE_BSDSOCK)
-		ret = sendto(b->num, (char*)in, inl, 0, BIO_ADDR_sockaddr(&data->peer), peerlen);
+		ret = sendto(b->num, (char *)in, inl, 0, BIO_ADDR_sockaddr(&data->peer), peerlen);
 # else
 		ret = sendto(b->num, in, inl, 0, BIO_ADDR_sockaddr(&data->peer), peerlen);
 # endif
@@ -578,7 +578,7 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    int timeout;
 		    struct timeval * tv = (struct timeval*)ptr;
 		    sz.i = sizeof(timeout);
-		    if(getsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, &sz.i) < 0) {
+		    if(getsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, &sz.i) < 0) {
 			    perror("getsockopt");
 			    ret = -1;
 		    }
@@ -633,7 +633,7 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    int timeout;
 		    struct timeval * tv = (struct timeval*)ptr;
 		    sz.i = sizeof(timeout);
-		    if(getsockopt(b->num, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeout, &sz.i) < 0) {
+		    if(getsockopt(b->num, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, &sz.i) < 0) {
 			    perror("getsockopt");
 			    ret = -1;
 		    }
@@ -1211,7 +1211,7 @@ static int dgram_sctp_write(BIO * b, const char * in, int inl)
 		}
 	}
 
-	iov[0].iov_base = (char*)in;
+	iov[0].iov_base = (char *)in;
 	iov[0].iov_len = inl;
 	msg.msg_name = NULL;
 	msg.msg_namelen = 0;
@@ -1549,7 +1549,7 @@ int BIO_dgram_sctp_wait_for_dry(BIO * b)
 		return -1;
 	/* peek for notification */
 	memzero(&snp, sizeof(snp));
-	iov.iov_base = (char*)&snp;
+	iov.iov_base = (char *)&snp;
 	iov.iov_len = sizeof(union sctp_notification);
 	msg.msg_name = NULL;
 	msg.msg_namelen = 0;
@@ -1568,7 +1568,7 @@ int BIO_dgram_sctp_wait_for_dry(BIO * b)
 	/* if we find a notification, process it and try again if necessary */
 	while(msg.msg_flags & MSG_NOTIFICATION) {
 		memzero(&snp, sizeof(snp));
-		iov.iov_base = (char*)&snp;
+		iov.iov_base = (char *)&snp;
 		iov.iov_len = sizeof(union sctp_notification);
 		msg.msg_name = NULL;
 		msg.msg_namelen = 0;
@@ -1615,7 +1615,7 @@ int BIO_dgram_sctp_wait_for_dry(BIO * b)
 			data->handle_notifications(b, data->notification_context, (void *)&snp);
 		/* found notification, peek again */
 		memzero(&snp, sizeof(snp));
-		iov.iov_base = (char*)&snp;
+		iov.iov_base = (char *)&snp;
 		iov.iov_len = sizeof(union sctp_notification);
 		msg.msg_name = NULL;
 		msg.msg_namelen = 0;
@@ -1654,7 +1654,7 @@ int BIO_dgram_sctp_msg_waiting(BIO * b)
 	// Check if there are any messages waiting to be read 
 	do {
 		memzero(&snp, sizeof(snp));
-		iov.iov_base = (char*)&snp;
+		iov.iov_base = (char *)&snp;
 		iov.iov_len = sizeof(union sctp_notification);
 		msg.msg_name = NULL;
 		msg.msg_namelen = 0;
@@ -1676,7 +1676,7 @@ int BIO_dgram_sctp_msg_waiting(BIO * b)
 				dgram_sctp_handle_auth_free_key_event(b, &snp);
 #  endif
 			memzero(&snp, sizeof(snp));
-			iov.iov_base = (char*)&snp;
+			iov.iov_base = (char *)&snp;
 			iov.iov_len = sizeof(union sctp_notification);
 			msg.msg_name = NULL;
 			msg.msg_namelen = 0;

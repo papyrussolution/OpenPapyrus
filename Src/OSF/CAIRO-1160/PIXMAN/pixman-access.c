@@ -491,7 +491,7 @@ static void fetch_scanline_rgbf_float(bits_image_t * image,
     uint32_t * b,
     const uint32_t * mask)
 {
-	const float * bits = (float*)image->bits + y * image->rowstride;
+	const float * bits = (float *)image->bits + y * image->rowstride;
 	const float * pixel = bits + x * 3;
 	argb_t * buffer = (argb_t*)b;
 
@@ -510,7 +510,7 @@ static void fetch_scanline_rgbaf_float(bits_image_t * image,
     uint32_t * b,
     const uint32_t * mask)
 {
-	const float * bits = (float*)image->bits + y * image->rowstride;
+	const float * bits = (float *)image->bits + y * image->rowstride;
 	const float * pixel = bits + x * 4;
 	argb_t * buffer = (argb_t*)b;
 
@@ -632,7 +632,7 @@ static void fetch_scanline_yv12(bits_image_t * image, int x, int line, int width
 #ifndef PIXMAN_FB_ACCESSORS
 static argb_t fetch_pixel_rgbf_float(bits_image_t * image, int offset, int line)
 {
-	float * bits = (float*)image->bits + line * image->rowstride;
+	float * bits = (float *)image->bits + line * image->rowstride;
 	argb_t argb;
 	argb.r = bits[offset * 3];
 	argb.g = bits[offset * 3 + 1];
@@ -643,7 +643,7 @@ static argb_t fetch_pixel_rgbf_float(bits_image_t * image, int offset, int line)
 
 static argb_t fetch_pixel_rgbaf_float(bits_image_t * image, int offset, int line)
 {
-	float * bits = (float*)image->bits + line * image->rowstride;
+	float * bits = (float *)image->bits + line * image->rowstride;
 	argb_t argb;
 	argb.r = bits[offset * 4];
 	argb.g = bits[offset * 4 + 1];
@@ -782,7 +782,7 @@ static void store_scanline_rgbaf_float(bits_image_t *  image, int x, int y, int 
 
 static void store_scanline_rgbf_float(bits_image_t *  image, int x, int y, int width, const uint32_t * v)
 {
-	float * bits = (float*)image->bits + image->rowstride * y + 3 * x;
+	float * bits = (float *)image->bits + image->rowstride * y + 3 * x;
 	const argb_t * values = reinterpret_cast<const argb_t *>(v);
 	for(; width; width--, values++) {
 		*bits++ = values->r;

@@ -14,7 +14,7 @@ ssize_t ngx_udp_wsarecv(ngx_connection_t * c, u_char * buf, size_t size)
 	WSABUF wsabuf[1];
 	ngx_err_t err;
 	ngx_event_t  * rev;
-	wsabuf[0].buf = (char*)buf;
+	wsabuf[0].buf = (char *)buf;
 	wsabuf[0].len = size;
 	flags = 0;
 	bytes = 0;
@@ -74,7 +74,7 @@ ssize_t ngx_udp_overlapped_wsarecv(ngx_connection_t * c, u_char * buf, size_t si
 			WSABUF wsabuf[1];
 			LPWSAOVERLAPPED ovlp = (LPWSAOVERLAPPED)&rev->ovlp;
 			memzero(ovlp, sizeof(WSAOVERLAPPED));
-			wsabuf[0].buf = (char*)buf;
+			wsabuf[0].buf = (char *)buf;
 			wsabuf[0].len = size;
 			flags = 0;
 			bytes = 0;

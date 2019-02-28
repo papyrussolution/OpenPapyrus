@@ -214,7 +214,7 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy * data,
 
 	if(resp_buf.cbBuffer) {
 		/* Base64 encode the response */
-		result = Curl_base64_encode(data, (char*)resp_buf.pvBuffer,
+		result = Curl_base64_encode(data, (char *)resp_buf.pvBuffer,
 		    resp_buf.cbBuffer, outptr, outlen);
 	}
 	else if(mutual_auth) {
@@ -389,7 +389,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 	   necessary to include it. */
 	outdata = htonl(max_size) | sec_layer;
 	memcpy(message, &outdata, sizeof(outdata));
-	strcpy((char*)message + sizeof(outdata), user_name);
+	strcpy((char *)message + sizeof(outdata), user_name);
 	Curl_unicodefree(user_name);
 
 	/* Allocate the padding */
@@ -446,7 +446,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 	memcpy(appdata + offset, wrap_buf[2].pvBuffer, wrap_buf[2].cbBuffer);
 
 	/* Base64 encode the response */
-	result = Curl_base64_encode(data, (char*)appdata, appdatalen, outptr,
+	result = Curl_base64_encode(data, (char *)appdata, appdatalen, outptr,
 	    outlen);
 
 	/* Free all of our local buffers */

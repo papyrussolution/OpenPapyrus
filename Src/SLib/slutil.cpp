@@ -13,30 +13,30 @@ int FASTCALL cmp_long(long a, long b)    { return COMPARE(a, b); }
 int FASTCALL cmp_ulong(ulong a, ulong b) { return COMPARE(a, b); }
 int FASTCALL cmp_int64(int64 a, int64 b) { return COMPARE(a, b); }
 int FASTCALL cmp_double(double a, double b) { return COMPARE(a, b); }
-IMPL_CMPFUNC(PcharNoCase, i1, i2) { return stricmp866((const char *)i1, (const char *)i2); }
-IMPL_CMPFUNC(Pchar, i1, i2)       { return strcmp((const char *)i1, (const char *)i2); }
-IMPL_CMPFUNC(int,   i1, i2)       { return COMPARE(*(const int *)i1, *(const int *)i2); }
-IMPL_CMPFUNC(int16, i1, i2)       { return COMPARE(*(const int16 *)i1, *(const int16 *)i2); }
-IMPL_CMPFUNC(long,  i1, i2)       { return COMPARE(*(const long *)i1, *(const long *)i2); }
-IMPL_CMPFUNC(int64, i1, i2)       { return COMPARE(*(const int64 *)i1, *(const int64 *)i2); }
-IMPL_CMPFUNC(uint,  i1, i2)       { return COMPARE(*(const uint *)i1, *(const uint *)i2); }
-IMPL_CMPFUNC(double, i1, i2)      { return COMPARE(*(const double*)i1, *(const double*)i2); }
-IMPL_CMPFUNC(LDATE, d1, d2)       { return COMPARE(((const LDATE *)d1)->v, ((const LDATE *)d2)->v); }
-IMPL_CMPFUNC(LDATETIME, d1, d2)   { return cmp(*(const LDATETIME *)d1, *(const LDATETIME *)d2); }
+IMPL_CMPFUNC(PcharNoCase, i1, i2) { return stricmp866(static_cast<const char *>(i1), static_cast<const char *>(i2)); }
+IMPL_CMPFUNC(Pchar, i1, i2)       { return strcmp(static_cast<const char *>(i1), static_cast<const char *>(i2)); }
+IMPL_CMPFUNC(int,   i1, i2)       { return COMPARE(*static_cast<const int *>(i1), *static_cast<const int *>(i2)); }
+IMPL_CMPFUNC(int16, i1, i2)       { return COMPARE(*static_cast<const int16 *>(i1), *static_cast<const int16 *>(i2)); }
+IMPL_CMPFUNC(long,  i1, i2)       { return COMPARE(*static_cast<const long *>(i1), *static_cast<const long *>(i2)); }
+IMPL_CMPFUNC(int64, i1, i2)       { return COMPARE(*static_cast<const int64 *>(i1), *static_cast<const int64 *>(i2)); }
+IMPL_CMPFUNC(uint,  i1, i2)       { return COMPARE(*(const uint *)i1, *static_cast<const uint *>(i2)); }
+IMPL_CMPFUNC(double, i1, i2)      { return COMPARE(*static_cast<const double *>(i1), *static_cast<const double *>(i2)); }
+IMPL_CMPFUNC(LDATE, d1, d2)       { return COMPARE(static_cast<const LDATE *>(d1)->v, static_cast<const LDATE *>(d2)->v); }
+IMPL_CMPFUNC(LDATETIME, d1, d2)   { return cmp(*static_cast<const LDATETIME *>(d1), *static_cast<const LDATETIME *>(d2)); }
 IMPL_CMPFUNC(S_GUID, d1, d2)      { return memcmp(d1, d2, sizeof(S_GUID)); }
 
 IMPL_CMPFUNC(_2long, i1, i2)
 {
 	struct _2long { long   v1, v2; };
-	int    r = COMPARE(((_2long *)i1)->v1, ((_2long *)i2)->v1);
-	return r ? r : COMPARE(((_2long *)i1)->v2, ((_2long *)i2)->v2);
+	int    r = COMPARE(static_cast<const _2long *>(i1)->v1, static_cast<const _2long *>(i2)->v1);
+	return r ? r : COMPARE(static_cast<const _2long *>(i1)->v2, static_cast<const _2long *>(i2)->v2);
 }
 
 IMPL_CMPFUNC(_2int64, i1, i2)
 {
 	struct _2longlong { int64   v1, v2; };
-	int    r = COMPARE(((_2longlong *)i1)->v1, ((_2longlong *)i2)->v1);
-	return r ? r : COMPARE(((_2longlong *)i1)->v2, ((_2longlong *)i2)->v2);
+	int    r = COMPARE(static_cast<const _2longlong *>(i1)->v1, static_cast<const _2longlong *>(i2)->v1);
+	return r ? r : COMPARE(static_cast<const _2longlong *>(i1)->v2, static_cast<const _2longlong *>(i2)->v2);
 }
 //
 // Check Range
@@ -176,8 +176,8 @@ long SLAPI MsecClock()
 FILETIME QuadWordToFileTime(__int64 src)
 {
 	FILETIME ft;
-	ft.dwLowDateTime  = (long)(src & 0x00000000FFFFFFFF);
-	ft.dwHighDateTime = (long)(Int64ShrlMod32(src, 32) & 0x00000000FFFFFFFF);
+	ft.dwLowDateTime  = static_cast<long>(src & 0x00000000FFFFFFFF);
+	ft.dwHighDateTime = static_cast<long>(Int64ShrlMod32(src, 32) & 0x00000000FFFFFFFF);
 	return ft;
 }
 

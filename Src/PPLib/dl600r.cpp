@@ -652,7 +652,7 @@ int DlRtm::NextIteration(long iterId/*, long rsrv*/)
 
 int DlRtm::Set(long iterId, int commit)
 {
-	PPSetError(PPERR_DL6_SETUNSUPPORTED, P_Data ? P_Data->GetName() : (const char *)0);
+	PPSetError(PPERR_DL6_SETUNSUPPORTED, P_Data ? P_Data->GetName() : static_cast<const char *>(0));
 	return 0;
 }
 

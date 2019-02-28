@@ -343,7 +343,7 @@ next_line:
 			    }
 			    goto next_io;
 		    }
-		    n = BIO_gets(rctx->mem, (char*)rctx->iobuf, rctx->iobuflen);
+		    n = BIO_gets(rctx->mem, (char *)rctx->iobuf, rctx->iobuflen);
 
 		    if(n <= 0) {
 			    if(BIO_should_retry(rctx->mem))
@@ -360,7 +360,7 @@ next_line:
 
 		    /* First line */
 		    if(rctx->state == OHS_FIRSTLINE) {
-			    if(parse_http_line1((char*)rctx->iobuf)) {
+			    if(parse_http_line1((char *)rctx->iobuf)) {
 				    rctx->state = OHS_HEADERS;
 				    goto next_line;
 			    }

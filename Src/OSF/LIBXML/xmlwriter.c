@@ -32,7 +32,7 @@
 				#define VA_COPY(dest, src) (dest) = (src)
 			#else
 				#include <string.h>
-				#define VA_COPY(dest, src) memcpy((char*)(dest), (char*)(src), sizeof(va_list))
+				#define VA_COPY(dest, src) memcpy((char *)(dest), (char *)(src), sizeof(va_list))
 			#endif
 		#endif
 	#endif
@@ -1294,7 +1294,7 @@ static int xmlOutputBufferWriteBase64(xmlOutputBuffer * out, int len, const ucha
 		igroup[0] = igroup[1] = igroup[2] = 0;
 		for(n = 0; n < 3 && i < len; n++, i++) {
 			c = data[i];
-			igroup[n] = (uchar)c;
+			igroup[n] = static_cast<uchar>(c);
 		}
 		if(n > 0) {
 			ogroup[0] = p_basis[igroup[0] >> 2];
@@ -3527,7 +3527,7 @@ static xmlChar * xmlTextWriterVSprintf(const char * format, va_list argptr)
 		int count;
 		va_list locarg;
 		VA_COPY(locarg, argptr);
-		while(((count = vsnprintf((char*)buf, size, format, locarg)) < 0) || (count == size - 1) || (count == size) || (count > size)) {
+		while(((count = vsnprintf((char *)buf, size, format, locarg)) < 0) || (count == size - 1) || (count == size) || (count > size)) {
 			va_end(locarg);
 			SAlloc::F(buf);
 			size += BUFSIZ;

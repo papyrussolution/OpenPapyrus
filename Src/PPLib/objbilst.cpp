@@ -322,7 +322,7 @@ PPALDD_CONSTRUCTOR(BillStatus)
 PPALDD_DESTRUCTOR(BillStatus)
 {
 	Destroy();
-	delete (PPObjBillStatus *)Extra[0].Ptr;
+	delete static_cast<PPObjBillStatus *>(Extra[0].Ptr);
 }
 
 int PPALDD_BillStatus::InitData(PPFilt & rFilt, long rsrv)

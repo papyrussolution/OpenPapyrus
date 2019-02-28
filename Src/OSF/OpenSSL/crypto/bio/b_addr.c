@@ -677,11 +677,11 @@ int BIO_lookup(const char * host, const char * service, enum BIO_lookup_type loo
 		/* Windows doesn't seem to have in_addr_t */
 #ifdef OPENSSL_SYS_WINDOWS
 		static uint32_t he_fallback_address;
-		static const char * he_fallback_addresses[] = { (char*)&he_fallback_address, NULL };
+		static const char * he_fallback_addresses[] = { (char *)&he_fallback_address, NULL };
 #else
 		static in_addr_t he_fallback_address;
 		static const char * he_fallback_addresses[] =
-		{ (char*)&he_fallback_address, NULL };
+		{ (char *)&he_fallback_address, NULL };
 #endif
 		static const struct hostent he_fallback = { NULL, NULL, AF_INET, sizeof(he_fallback_address), (char**)&he_fallback_addresses };
 #if defined(OPENSSL_SYS_VMS) && defined(__DECC)

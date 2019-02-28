@@ -55,21 +55,14 @@ static bool KeywordAtChar(char* lineBuffer, char* startComment, const WordList &
 #define YAML_STATE_TEXT_PARENT  (4 << YAML_STATE_BITSIZE)
 #define YAML_STATE_TEXT                 (5 << YAML_STATE_BITSIZE)
 
-static void ColouriseYAMLLine(char * lineBuffer,
-    Sci_PositionU currentLine,
-    Sci_PositionU lengthLine,
-    Sci_PositionU startLine,
-    Sci_PositionU endPos,
-    WordList &keywords,
-    Accessor &styler)
+static void ColouriseYAMLLine(char * lineBuffer, Sci_PositionU currentLine, Sci_PositionU lengthLine, Sci_PositionU startLine, Sci_PositionU endPos,
+    const WordList &keywords, Accessor &styler)
 {
 	Sci_PositionU i = 0;
 	bool bInQuotes = false;
 	uint indentAmount = SpaceCount(lineBuffer);
-
 	if(currentLine > 0) {
 		int parentLineState = styler.GetLineState(currentLine - 1);
-
 		if((parentLineState&YAML_STATE_MASK) == YAML_STATE_TEXT || (parentLineState&YAML_STATE_MASK) == YAML_STATE_TEXT_PARENT) {
 			uint parentIndentAmount = parentLineState&(~YAML_STATE_MASK);
 			if(indentAmount > parentIndentAmount) {

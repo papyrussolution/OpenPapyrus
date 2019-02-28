@@ -26,13 +26,33 @@ int CallbackCompress(long, long, const char *, int);
 //
 //
 //
+SLAPI BCopyData::BCopyData() : ID(0), BssFactor(0), Flags(0), Dtm(ZERODATETIME), SrcSize(0), DestSize(0), CheckSum(0)
+{
+}
+
+BCopyData & SLAPI BCopyData::Z()
+{
+	ID = 0;
+	BssFactor = 0;
+	Flags = 0;
+	Dtm = ZERODATETIME;
+	SrcSize = 0;
+	DestSize = 0;
+	CheckSum = 0;
+	Set.Z();
+	CopyPath.Z();
+	TempPath.Z();
+	SubDir.Z();
+	return *this;
+}
+
 #define DEFAULT_SPACE_SAFETY_FACTOR 1200
 
 SLAPI BCopySet::BCopySet(const char * pName) : TSCollection <BCopyData> (), Name(pName)
 {
 }
 
-static IMPL_CMPFUNC(BCopyData_Dt, i1, i2) { return cmp(((BCopyData *)i1)->Dtm, ((BCopyData *)i2)->Dtm); }
+static IMPL_CMPFUNC(BCopyData_Dt, i1, i2) { return cmp(static_cast<const BCopyData *>(i1)->Dtm, static_cast<const BCopyData *>(i2)->Dtm); }
 
 static IMPL_CMPFUNC(BCopyData_DtDesc, i1, i2)
 {
@@ -237,7 +257,7 @@ int SLAPI DBBackup::InfoFile::ReadRecord(FILE * stream, BCopyData * pData)
 {
 	int    ok = -1;
 	char   buf[1024];
-	memzero(pData, sizeof(*pData));
+	pData->Z();
 	while(fgets(buf, sizeof(buf), stream)) {
 		if(*strip(chomp(buf))) {
 			if(pData) {

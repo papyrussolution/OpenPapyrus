@@ -20,7 +20,7 @@ void ngx_event_acceptex(ngx_event_t * rev)
 		return;
 	}
 	/* SO_UPDATE_ACCEPT_CONTEXT is required for shutdown() to work */
-	if(setsockopt(c->fd, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (char*)&ls->fd, sizeof(ngx_socket_t)) == -1) {
+	if(setsockopt(c->fd, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (char *)&ls->fd, sizeof(ngx_socket_t)) == -1) {
 		ngx_log_error(NGX_LOG_CRIT, c->log, ngx_socket_errno, "setsockopt(SO_UPDATE_ACCEPT_CONTEXT) failed for %V", &c->addr_text);
 		/* @todo close socket */
 		return;

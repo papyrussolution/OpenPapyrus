@@ -1884,7 +1884,7 @@ int SLAPI ObjLinkFiles::Load(PPID objID, PPID addedID /*=0*/)
 		return Load(objID, added_str.Cat(addedID));
 	}
 	else
-		return Load(objID, (const char *)0);
+		return Load(objID, static_cast<const char *>(0));
 }
 
 int SLAPI ObjLinkFiles::MakeExistsFilePath(uint i, PPID objID, /*PPID addedID*/const char * pAddedStr, SString & rPath)
@@ -1908,7 +1908,7 @@ int SLAPI ObjLinkFiles::MakeExistsFilePath(uint i, PPID objID, /*PPID addedID*/c
 int SLAPI ObjLinkFiles::Helper_Save(PPID objID, const char * pAddedStr, uint idx, SString * pResultFileName)
 {
 	int    ok = 1;
-	ASSIGN_PTR(pResultFileName, (const char *)0);
+	ASSIGN_PTR(pResultFileName, static_cast<const char *>(0));
 	THROW(idx < Files.getCount());
 	{
 		uint   num = 0;
@@ -1988,7 +1988,7 @@ int SLAPI ObjLinkFiles::Save(PPID objID, PPID addedID)
 		return Save(objID, added_str.Cat(addedID));
 	}
 	else
-		return Save(objID, (const char *)0);
+		return Save(objID, static_cast<const char *>(0));
 }
 
 int SLAPI ObjLinkFiles::Serialize(int dir, int transmissionNotSupported, SBuffer & rBuf, SSerializeContext * pSCtx)
@@ -2314,7 +2314,7 @@ PPALDD_DESTRUCTOR(IntArray) { Destroy(); }
 
 int PPALDD_IntArray::InitData(PPFilt & rFilt, long rsrv)
 {
-	LongArray * p_list = (LongArray *)rFilt.Ptr;
+	LongArray * p_list = static_cast<LongArray *>(rFilt.Ptr);
 	Extra[0].Ptr = p_list;
 	return DlRtm::InitData(rFilt, rsrv);
 }
@@ -2322,7 +2322,7 @@ int PPALDD_IntArray::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_IntArray::InitIteration(long iterId, int sortId, long rsrv)
 {
 	IterProlog(iterId, 1);
-	LongArray * p_list = (LongArray *)Extra[0].Ptr;
+	LongArray * p_list = static_cast<LongArray *>(Extra[0].Ptr);
 	CALLPTRMEMB(p_list, setPointer(0));
 	return -1;
 }
@@ -2331,7 +2331,7 @@ int PPALDD_IntArray::NextIteration(long iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
-	LongArray * p_list = (LongArray *)Extra[0].Ptr;
+	LongArray * p_list = static_cast<LongArray *>(Extra[0].Ptr);
 	if(p_list && p_list->getPointer() < p_list->getCount()) {
 		I.Id = p_list->get(p_list->getPointer());
 		p_list->incPointer();
@@ -2352,7 +2352,7 @@ PPALDD_DESTRUCTOR(QuotArray) { Destroy(); }
 
 int PPALDD_QuotArray::InitData(PPFilt & rFilt, long rsrv)
 {
-	PPQuotItemArray * p_list = (PPQuotItemArray *)rFilt.Ptr;
+	PPQuotItemArray * p_list = static_cast<PPQuotItemArray *>(rFilt.Ptr);
 	Extra[0].Ptr = p_list;
 	return DlRtm::InitData(rFilt, rsrv);
 }
@@ -2360,7 +2360,7 @@ int PPALDD_QuotArray::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_QuotArray::InitIteration(long iterId, int sortId, long rsrv)
 {
 	IterProlog(iterId, 1);
-	PPQuotItemArray * p_list = (PPQuotItemArray *)Extra[0].Ptr;
+	PPQuotItemArray * p_list = static_cast<PPQuotItemArray *>(Extra[0].Ptr);
 	CALLPTRMEMB(p_list, setPointer(0));
 	return -1;
 }
@@ -2369,7 +2369,7 @@ int PPALDD_QuotArray::NextIteration(long iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
-	PPQuotItemArray * p_list = (PPQuotItemArray *)Extra[0].Ptr;
+	PPQuotItemArray * p_list = static_cast<PPQuotItemArray *>(Extra[0].Ptr);
 	if(p_list && p_list->getPointer() < p_list->getCount()) {
 		PPQuotItem_ & r_item = p_list->at(p_list->getPointer());
 		I.GoodsID = r_item.GoodsID;
@@ -2427,7 +2427,7 @@ PPALDD_DESTRUCTOR(UhttStoreItemArray) { Destroy(); }
 
 int PPALDD_UhttStoreItemArray::InitData(PPFilt & rFilt, long rsrv)
 {
-	PPQuotItemArray * p_list = (PPQuotItemArray *)rFilt.Ptr;
+	PPQuotItemArray * p_list = static_cast<PPQuotItemArray *>(rFilt.Ptr);
 	Extra[0].Ptr = p_list;
 	return DlRtm::InitData(rFilt, rsrv);
 }
@@ -2435,7 +2435,7 @@ int PPALDD_UhttStoreItemArray::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_UhttStoreItemArray::InitIteration(long iterId, int sortId, long rsrv)
 {
 	IterProlog(iterId, 1);
-	PPQuotItemArray * p_list = (PPQuotItemArray *)Extra[0].Ptr;
+	PPQuotItemArray * p_list = static_cast<PPQuotItemArray *>(Extra[0].Ptr);
 	CALLPTRMEMB(p_list, setPointer(0));
 	return -1;
 }
@@ -2444,7 +2444,7 @@ int PPALDD_UhttStoreItemArray::NextIteration(long iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
-	PPQuotItemArray * p_list = (PPQuotItemArray *)Extra[0].Ptr;
+	PPQuotItemArray * p_list = static_cast<PPQuotItemArray *>(Extra[0].Ptr);
 	if(p_list && p_list->getPointer() < p_list->getCount()) {
 		PPQuotItem_ & r_item = p_list->at(p_list->getPointer());
 		I.GoodsID = r_item.GoodsID;
@@ -2478,7 +2478,7 @@ PPALDD_DESTRUCTOR(UhttCurRateArray) { Destroy(); }
 
 int PPALDD_UhttCurRateArray::InitData(PPFilt & rFilt, long rsrv)
 {
-	TSArray <UhttCurRateIdent> * p_list = (TSArray <UhttCurRateIdent> *)rFilt.Ptr;
+	TSArray <UhttCurRateIdent> * p_list = static_cast<TSArray <UhttCurRateIdent> *>(rFilt.Ptr);
 	Extra[0].Ptr = p_list;
 	return DlRtm::InitData(rFilt, rsrv);
 }
@@ -2486,7 +2486,7 @@ int PPALDD_UhttCurRateArray::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_UhttCurRateArray::InitIteration(long iterId, int sortId, long rsrv)
 {
 	IterProlog(iterId, 1);
-	TSArray <UhttCurRateIdent> * p_list = (TSArray <UhttCurRateIdent> *)Extra[0].Ptr;
+	TSArray <UhttCurRateIdent> * p_list = static_cast<TSArray <UhttCurRateIdent> *>(Extra[0].Ptr);
 	CALLPTRMEMB(p_list, setPointer(0));
 	return -1;
 }
@@ -2496,7 +2496,7 @@ int PPALDD_UhttCurRateArray::NextIteration(long iterId)
 	int     ok = -1;
 	SString temp_buf;
 	IterProlog(iterId, 0);
-	TSArray <UhttCurRateIdent> * p_list = (TSArray <UhttCurRateIdent> *)Extra[0].Ptr;
+	TSArray <UhttCurRateIdent> * p_list = static_cast<TSArray <UhttCurRateIdent> *>(Extra[0].Ptr);
 	if(p_list && p_list->getPointer() < p_list->getCount()) {
 		UhttCurRateIdent & r_item = p_list->at(p_list->getPointer());
 		I.CurID = r_item.Ident.CurID;

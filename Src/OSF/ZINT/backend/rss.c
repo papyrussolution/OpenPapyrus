@@ -718,7 +718,7 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 			check_digit = 0;
 		}
 		hrt[13] = itoc(check_digit);
-		strcat((char*)symbol->text, hrt);
+		strcat((char *)symbol->text, hrt);
 		set_minimum_height(symbol, 14); // Minimum height is 14X for truncated symbol
 	}
 	if((symbol->Std == BARCODE_RSS14STACK) || (symbol->Std == BARCODE_RSS14STACK_CC)) {
@@ -1183,7 +1183,7 @@ int rsslimited(struct ZintSymbol * symbol, uchar source[], int src_len)
 	}
 	hrt[13] = itoc(check_digit);
 	hrt[14] = '\0';
-	strcat((char*)symbol->text, hrt);
+	strcat((char *)symbol->text, hrt);
 	set_minimum_height(symbol, 10);
 	return error_number;
 }
@@ -1304,8 +1304,8 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 	char   general_field[src_len + 1];
 	char   general_field_type[src_len + 1];
 #else
-	char * general_field = (char*)_alloca(src_len + 1);
-	char * general_field_type = (char*)_alloca(src_len + 1);
+	char * general_field = (char *)_alloca(src_len + 1);
+	char * general_field_type = (char *)_alloca(src_len + 1);
 #endif
 	int    remainder, d1, d2;
 	char   padstring[40];
@@ -2023,8 +2023,8 @@ int rssexpanded(struct ZintSymbol * symbol, uchar source[], int src_len)
 #ifndef _MSC_VER
 	char reduced[src_len + 1], binary_string[(7 * src_len) + 1];
 #else
-	char* reduced = (char*)_alloca(src_len + 1);
-	char* binary_string = (char*)_alloca((7 * src_len) + 1);
+	char* reduced = (char *)_alloca(src_len + 1);
+	char* binary_string = (char *)_alloca((7 * src_len) + 1);
 #endif
 	separator_row = 0;
 	reader = 0;

@@ -44,25 +44,18 @@ void SLAPI SStatFilt::SetupCfgOptions(const PPPredictConfig & rCfg)
 	_TrustCriterion = rCfg.TrustCriterion;
 }
 
-int SLAPI SStatFilt::GetPckgUse() const
-{
-	return PPPredictConfig::_GetPckgUse(_CFlags);
-}
-
-int SLAPI SStatFilt::GetPckgRounding() const
-{
-	return PPPredictConfig::_GetPckgRounding(_CFlags);
-}
+int SLAPI SStatFilt::GetPckgUse() const { return PPPredictConfig::_GetPckgUse(_CFlags); }
+int SLAPI SStatFilt::GetPckgRounding() const { return PPPredictConfig::_GetPckgRounding(_CFlags); }
 
 void SLAPI SStatFilt::SetPckgUse(int t)
 {
-	long   v = PPPredictConfig::_SetPckgUse(_CFlags, t);
+	const long   v = PPPredictConfig::_SetPckgUse(_CFlags, t);
 	(_CFlags &= ~(PPPredictConfig::fPrefStockPckg|PPPredictConfig::fPrefLotPckg)) |= v;
 }
 
 void SLAPI SStatFilt::SetPckgRounding(int t)
 {
-	long   v = PPPredictConfig::_SetPckgRounding(_CFlags, t);
+	const long   v = PPPredictConfig::_SetPckgRounding(_CFlags, t);
 	(_CFlags &= ~(PPPredictConfig::fRoundPckgUp|PPPredictConfig::fRoundPckgDn)) |= v;
 }
 //
@@ -112,7 +105,7 @@ public:
 
 		goods_obj.GetParentID(Data.GoodsGrpID, &prev_grp_level);
 		addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(0, CTLSEL_SSTATFLT_GGROUP, cmGoodsFilt));
-		GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel, prev_grp_level);
+		GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel, reinterpret_cast<void *>(prev_grp_level));
 		setGroupData(GRP_GOODSFILT, &gf_rec);
 		SetupArCombo(this, CTLSEL_SSTATFLT_SUPPL, Data.SupplID, 0, GetSupplAccSheet(), sacfDisableIfZeroSheet);
 		addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_SSTATFLT_LOC, 0, 0, cmLocList, 0, 0, 0));
@@ -298,7 +291,7 @@ PPBaseFilt * SLAPI PPViewSStat::CreateFilt(void * extraPtr) const
 	SStatFilt * p_filt = new SStatFilt;
 	p_filt->LocList.Add(LConfig.Location);
 	p_filt->Flags |= SStatFilt::fSkipZeroNhCount;
-	if((reinterpret_cast<long>(extraPtr)) & 0x0001) {
+	if(reinterpret_cast<long>(extraPtr) & 0x0001) {
 		p_filt->Flags |= (SStatFilt::fSupplOrderForm | SStatFilt::fRoundOrderToPack);
 		if(PrCfg.Flags & PPPredictConfig::fUseInsurStock) {
 			p_filt->Flags |= SStatFilt::fUseInsurStock;
@@ -330,7 +323,7 @@ int SLAPI PPViewSStat::EditBaseFilt(PPBaseFilt * pBaseFilt)
 				prev_grp_level = grp_rec.ParentID;
 		}
 		dlg->addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(0, CTLSEL_SSTATFLT_GGROUP, cmGoodsFilt));
-		GoodsFiltCtrlGroup::Rec gf_rec(p_filt->GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel, prev_grp_level);
+		GoodsFiltCtrlGroup::Rec gf_rec(p_filt->GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel, reinterpret_cast<void *>(prev_grp_level));
 		dlg->setGroupData(GRP_GOODSFILT, &gf_rec);
 		dlg->addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_SSTATFLT_LOC, 0, 0, cmLocList, 0, 0, 0));
 		LocationCtrlGroup::Rec loc_rec(&p_filt->LocList);
@@ -1023,7 +1016,7 @@ DBQuery * SLAPI PPViewSStat::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 					cq.push(dbc_long);
 					dbc_long.init(ff);
 					cq.push(dbc_long); // Formatting flags
-					cq.push((DBFunc)PPDbqFuncPool::IdCQtty);
+					cq.push(static_cast<DBFunc>(PPDbqFuncPool::IdCQtty));
 					p_q->addField(cq);               // #12
 				}
 				{
@@ -1034,7 +1027,7 @@ DBQuery * SLAPI PPViewSStat::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 					DBConst dbc_long;
 					dbc_long.init(ff);
 					cq.push(dbc_long); // Formatting flags
-					cq.push((DBFunc)PPDbqFuncPool::IdCQtty);
+					cq.push(static_cast<DBFunc>(PPDbqFuncPool::IdCQtty));
 					p_q->addField(cq);               // #13
 				}
 				{
@@ -1046,7 +1039,7 @@ DBQuery * SLAPI PPViewSStat::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 					cq.push(dbc_long);
 					dbc_long.init(ff);
 					cq.push(dbc_long); // Formatting flags
-					cq.push((DBFunc)PPDbqFuncPool::IdCQtty);
+					cq.push(static_cast<DBFunc>(PPDbqFuncPool::IdCQtty));
 					p_q->addField(cq);               // #14
 				}
 				p_q->addField(p_gr->IsPredictTrust); // #15
@@ -1216,7 +1209,7 @@ int SLAPI PPViewSStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   goods_id = pHdr ? (P_Ct ? ((PPID *)pHdr)[1] : ((PPID *)pHdr)[0]) : 0;
+		PPID   goods_id = pHdr ? (P_Ct ? static_cast<const PPID *>(pHdr)[1] : static_cast<const PPID *>(pHdr)[0]) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_EDITGOODS:
 				ok = -1;

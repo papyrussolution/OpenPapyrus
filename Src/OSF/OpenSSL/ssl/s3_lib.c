@@ -2958,12 +2958,12 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 			    ret = 1;
 			    if(parg == NULL)
 				    break;
-			    len = strlen((char*)parg);
+			    len = strlen((char *)parg);
 			    if(len == 0 || len > TLSEXT_MAXLEN_host_name) {
 				    SSLerr(SSL_F_SSL3_CTRL, SSL_R_SSL3_EXT_INVALID_SERVERNAME);
 				    return 0;
 			    }
-			    if((s->tlsext_hostname = OPENSSL_strdup((char*)parg)) == NULL) {
+			    if((s->tlsext_hostname = OPENSSL_strdup((char *)parg)) == NULL) {
 				    SSLerr(SSL_F_SSL3_CTRL, ERR_R_INTERNAL_ERROR);
 				    return 0;
 			    }
@@ -3367,7 +3367,7 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 			    SSLerr(SSL_F_SSL3_CTX_CTRL, SSL_R_INVALID_SRP_USERNAME);
 			    return 0;
 		    }
-		    if((ctx->srp_ctx.login = OPENSSL_strdup((char*)parg)) == NULL) {
+		    if((ctx->srp_ctx.login = OPENSSL_strdup((char *)parg)) == NULL) {
 			    SSLerr(SSL_F_SSL3_CTX_CTRL, ERR_R_INTERNAL_ERROR);
 			    return 0;
 		    }
@@ -3375,7 +3375,7 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 		case SSL_CTRL_SET_TLS_EXT_SRP_PASSWORD:
 		    ctx->srp_ctx.SRP_give_srp_client_pwd_callback =
 		    srp_password_from_info_cb;
-		    ctx->srp_ctx.info = (char*)parg;
+		    ctx->srp_ctx.info = (char *)parg;
 		    break;
 		case SSL_CTRL_SET_SRP_ARG:
 		    ctx->srp_ctx.srp_Mask |= SSL_kSRP;

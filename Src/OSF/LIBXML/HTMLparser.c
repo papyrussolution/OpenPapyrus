@@ -4313,7 +4313,7 @@ static htmlParserCtxt * htmlCreateDocParserCtxt(const xmlChar * cur, const char 
 	if(!cur)
 		return NULL;
 	len = sstrlen(cur);
-	ctxt = htmlCreateMemoryParserCtxt((char*)cur, len);
+	ctxt = htmlCreateMemoryParserCtxt((char *)cur, len);
 	if(!ctxt)
 		return NULL;
 	if(encoding) {
@@ -5292,7 +5292,7 @@ htmlParserCtxt * htmlCreatePushParserCtxt(htmlSAXHandlerPtr sax, void * user_dat
 				SAlloc::F(buf);
 				return NULL;
 			}
-			p_input_stream->filename = filename ? (char*)xmlCanonicPath((const xmlChar*)filename) : 0;
+			p_input_stream->filename = filename ? (char *)xmlCanonicPath((const xmlChar*)filename) : 0;
 			p_input_stream->buf = buf;
 			xmlBufResetInput(buf->buffer, p_input_stream);
 			inputPush(ctxt, p_input_stream);
@@ -5391,7 +5391,7 @@ htmlParserCtxt * htmlCreateFileParserCtxt(const char * filename, const char * en
 	if(!ctxt) {
 		return NULL;
 	}
-	canonicFilename = (char*)xmlCanonicPath((const xmlChar*)filename);
+	canonicFilename = (char *)xmlCanonicPath((const xmlChar*)filename);
 	if(canonicFilename == NULL) {
 #ifdef LIBXML_SAX1_ENABLED
 		if(xmlDefaultSAXHandler.error) {
@@ -5414,8 +5414,8 @@ htmlParserCtxt * htmlCreateFileParserCtxt(const char * filename, const char * en
 		if(l < 1000) {
 			xmlChar * content = (xmlChar *)SAlloc::M(sstrlen(content_line) + l + 1);
 			if(content) {
-				strcpy((char*)content, (char*)content_line);
-				strcat((char*)content, (char*)encoding);
+				strcpy((char *)content, (char *)content_line);
+				strcat((char *)content, (char *)encoding);
 				htmlCheckEncoding(ctxt, content);
 				SAlloc::F(content);
 			}
@@ -5601,7 +5601,7 @@ htmlStatus htmlNodeStatus(const htmlNodePtr P_Node, int legacy)
  * Free a string if it is not owned by the "dict" dictionnary in the
  * current scope
  */
-// #define DICT_FREE(str) if((str) && ((!dict) || (xmlDictOwns(dict, (const xmlChar*)(str)) == 0))) SAlloc::F((char*)(str));
+// #define DICT_FREE(str) if((str) && ((!dict) || (xmlDictOwns(dict, (const xmlChar*)(str)) == 0))) SAlloc::F((char *)(str));
 /**
  * htmlCtxtReset:
  * @ctxt: an HTML parser context

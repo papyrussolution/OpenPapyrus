@@ -141,7 +141,7 @@ public:
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
 	int    SLAPI base() const { return BTS_STRING; }
-	int    SLAPI tobase(const void * s, void * b) const { tostr(s, 0L, (char *)b); return 1; }
+	int    SLAPI tobase(const void * s, void * b) const { tostr(s, 0L, static_cast<char *>(b)); return 1; }
 	int    SLAPI baseto(void * s, const void * b) const { fromstr(s, 0L, (const char *)b); return 1; }
 	void   SLAPI minval(void *) const;
 	void   SLAPI maxval(void *) const;
@@ -154,7 +154,7 @@ public:
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
 	int    SLAPI base() const { return BTS_STRING; }
-	int    SLAPI tobase(const void * s, void * b) const { tostr(s, 0L, (char *)b); return 1; }
+	int    SLAPI tobase(const void * s, void * b) const { tostr(s, 0L, static_cast<char *>(b)); return 1; }
 	int    SLAPI baseto(void * s, const void * b) const { fromstr(s, 0L, (const char *)b); return 1; }
 	void   SLAPI minval(void *) const;
 	void   SLAPI maxval(void *) const;
@@ -173,7 +173,7 @@ public:
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
 	int    SLAPI base() const { return BTS_STRING; }
-	int    SLAPI tobase(const void * s, void * b) const { tostr(s, 0L, (char *)b); return 1; }
+	int    SLAPI tobase(const void * s, void * b) const { tostr(s, 0L, static_cast<char *>(b)); return 1; }
 	int    SLAPI baseto(void * s, const void * b) const { fromstr(s, 0L, (const char *)b); return 1; }
 	void   SLAPI minval(void *) const;
 	void   SLAPI maxval(void *) const;
@@ -186,7 +186,7 @@ public:
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
 	int    SLAPI base() const { return BTS_STRING; }
-	int    SLAPI tobase(const void * s, void * b) const { tostr(s, 0L, (char *)b); return 1; }
+	int    SLAPI tobase(const void * s, void * b) const { tostr(s, 0L, static_cast<char *>(b)); return 1; }
 	int    SLAPI baseto(void * s, const void * b) const { fromstr(s, 0L, (const char *)b); return 1; }
 	void   SLAPI minval(void *) const;
 	void   SLAPI maxval(void *) const;
@@ -912,12 +912,12 @@ int SLAPI SUInt::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 				spec = 1;
 			else if(S > 1 && v <= 0xffUL) {
 				*pInd = 2;
-				uint8 _v = (uint8)v;
+				uint8 _v = static_cast<uint8>(v);
 				rBuf.Write(&_v, sizeof(_v));
 			}
 			else if(S > 2 && v <= 0xffffUL) {
 				*pInd = 3;
-				uint16 _v = (uint16)v;
+				uint16 _v = static_cast<uint16>(v);
 				rBuf.Write(_v);
 			}
 			else
@@ -1337,7 +1337,7 @@ int SLAPI STime::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 			}
 			else {
 				*pInd = 4;
-				uint8 _v = (uint8)v.hour();
+				uint8 _v = static_cast<uint8>(v.hour());
 				rBuf.Write(&_v, sizeof(_v));
 			}
 		}
@@ -1403,7 +1403,7 @@ int SLAPI SDateTime::fromstr(void * v, long f, const char * b) const
 	int    ret = 0;
 	const  char * s = strchr(b, ' ');
 	LDATETIME * ldt = static_cast<LDATETIME *>(v);
-	if(!s++)
+	if(!s++) // @todo V769 The 's' pointer in the 's ++' expression could be nullptr. In such case, resulting value will be senseless and it should not be used. Bist.cpp 1406
 		ret = SLERR_INVFORMAT;
 	else {
 		ret = strtodate(b, f, &ldt->d);
@@ -1497,9 +1497,9 @@ int SLAPI SRaw::fromstr(void * pData, long, const char * pStr) const
 int SLAPI SRaw::base() const
 	{ return BTS_STRING; }
 int SLAPI SRaw::tobase(const void * s, void * b) const
-	{ tostr(s, 0L, (char *)b); return 1; }
+	{ tostr(s, 0L, static_cast<char *>(b)); return 1; }
 int SLAPI SRaw::baseto(void * s, const void * b) const
-	{ fromstr(s, 0L, (char *)b); return 1; }
+	{ fromstr(s, 0L, static_cast<const char *>(b)); return 1; }
 
 void SLAPI SRaw::minval(void * pData) const
 {

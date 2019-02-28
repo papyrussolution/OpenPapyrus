@@ -118,7 +118,7 @@ static char * userauth_list(LIBSSH2_SESSION * session, const char * username, ui
 		_libssh2_debug(session, LIBSSH2_TRACE_AUTH, "Permitted auth methods: %s", session->userauth_list_data);
 	}
 	session->userauth_list_state = libssh2_NB_state_idle;
-	return (char*)session->userauth_list_data;
+	return (char *)session->userauth_list_data;
 }
 
 /* libssh2_userauth_list
@@ -252,7 +252,7 @@ password_response:
 						_libssh2_store_str(&s, "ssh-connection", sizeof("ssh-connection") - 1);
 						_libssh2_store_str(&s, "password", sizeof("password") - 1);
 						*s++ = 0x01;
-						_libssh2_store_str(&s, (char*)password, password_len);
+						_libssh2_store_str(&s, (char *)password, password_len);
 						_libssh2_store_u32(&s, session->userauth_pswd_newpw_len);
 						/* send session->userauth_pswd_newpw separately */
 						session->userauth_pswd_state = libssh2_NB_state_sent2;
@@ -347,7 +347,7 @@ static int memory_read_publickey(LIBSSH2_SESSION * session, uchar ** method, siz
 		/* Assume that the id string is missing, but that it's okay */
 		sp2 = pubkey + pubkey_len;
 	}
-	if(libssh2_base64_decode(session, (char**)&tmp, &tmp_len, (char*)sp1, sp2 - sp1)) {
+	if(libssh2_base64_decode(session, (char**)&tmp, &tmp_len, (char *)sp1, sp2 - sp1)) {
 		LIBSSH2_FREE(session, pubkey);
 		return _libssh2_error(session, LIBSSH2_ERROR_FILE, "Invalid key data, not base64 encoded");
 	}
@@ -426,7 +426,7 @@ static int file_read_publickey(LIBSSH2_SESSION * session, uchar ** method, size_
 		/* Assume that the id string is missing, but that it's okay */
 		sp2 = pubkey + pubkey_len;
 	}
-	if(libssh2_base64_decode(session, (char**)&tmp, &tmp_len, (char*)sp1, sp2 - sp1)) {
+	if(libssh2_base64_decode(session, (char**)&tmp, &tmp_len, (char *)sp1, sp2 - sp1)) {
 		LIBSSH2_FREE(session, pubkey);
 		return _libssh2_error(session, LIBSSH2_ERROR_FILE, "Invalid key data, not base64 encoded");
 	}

@@ -10,7 +10,7 @@
 using namespace Scintilla;
 #endif
 
-static int classifyWordBullant(Sci_PositionU start, Sci_PositionU end, WordList &keywords, Accessor &styler)
+static int classifyWordBullant(Sci_PositionU start, Sci_PositionU end, const WordList &keywords, Accessor &styler)
 {
 	char s[100];
 	s[0] = '\0';

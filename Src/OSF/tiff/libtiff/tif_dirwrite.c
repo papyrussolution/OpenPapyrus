@@ -883,8 +883,8 @@ static int TIFFWriteDirectoryTagSampleformatArray(TIFF* tif, uint32* ndir, TIFFD
 		case SAMPLEFORMAT_IEEEFP:
 		    if(tif->tif_dir.td_bitspersample<=32) {
 			    for(i = 0; i < count; ++i)
-				    ((float*)conv)[i] = TIFFClampDoubleToFloat(value[i]);
-			    ok = TIFFWriteDirectoryTagFloatArray(tif, ndir, dir, tag, count, (float*)conv);
+				    ((float *)conv)[i] = TIFFClampDoubleToFloat(value[i]);
+			    ok = TIFFWriteDirectoryTagFloatArray(tif, ndir, dir, tag, count, (float *)conv);
 		    }
 		    else {
 			    ok = TIFFWriteDirectoryTagDoubleArray(tif, ndir, dir, tag, count, value);
@@ -910,8 +910,8 @@ static int TIFFWriteDirectoryTagSampleformatArray(TIFF* tif, uint32* ndir, TIFFD
 		case SAMPLEFORMAT_UINT:
 		    if(tif->tif_dir.td_bitspersample<=8) {
 			    for(i = 0; i < count; ++i)
-				    ((uint8*)conv)[i] = TIFFClampDoubleToUInt8(value[i]);
-			    ok = TIFFWriteDirectoryTagByteArray(tif, ndir, dir, tag, count, (uint8*)conv);
+				    ((uint8 *)conv)[i] = TIFFClampDoubleToUInt8(value[i]);
+			    ok = TIFFWriteDirectoryTagByteArray(tif, ndir, dir, tag, count, (uint8 *)conv);
 		    }
 		    else if(tif->tif_dir.td_bitspersample<=16) {
 			    for(i = 0; i < count; ++i)
@@ -2444,7 +2444,7 @@ int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t 
 /*      Prepare buffer of actual data to write.  This includes          */
 /*      swabbing as needed.                                             */
 /* -------------------------------------------------------------------- */
-	buf_to_write = (uint8*)_TIFFCheckMalloc(tif, count, TIFFDataWidth(datatype), "for field buffer.");
+	buf_to_write = (uint8 *)_TIFFCheckMalloc(tif, count, TIFFDataWidth(datatype), "for field buffer.");
 	if(!buf_to_write)
 		return 0;
 	if(datatype == in_datatype)

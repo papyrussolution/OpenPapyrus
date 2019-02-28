@@ -13,7 +13,7 @@
 /* Utility functions for manipulating fields and offsets */
 
 /* Add 'offset' to 'addr' */
-#define offset2ptr(addr, offset) (void *)(((char*)addr) + offset)
+#define offset2ptr(addr, offset) (void *)(((char *)addr) + offset)
 
 /*
  * Given an ASN1_ITEM CHOICE type return the selector value

@@ -1387,7 +1387,7 @@ FILE * FASTCALL soap_get_dbg_file(struct soap * pSoap, int idx);
 		    soap_open_logfile(soap, SOAP_INDEX_ ## DBGFILE); \
 	    if(soap->fdebug[SOAP_INDEX_ ## DBGFILE]) \
 	    { int i; char * s; \
-	      for(s = (char*)(MSG), i = (LEN); i; i--) \
+	      for(s = (char *)(MSG), i = (LEN); i; i--) \
 		      fprintf(soap->fdebug[SOAP_INDEX_ ## DBGFILE], "%2.2X  ", (int)*s++&0xFF);	\
 	      fflush(soap->fdebug[SOAP_INDEX_ ## DBGFILE]); \
 	    } \
@@ -2199,8 +2199,8 @@ SOAP_FMAC1 unsigned char * SOAP_FMAC2 soap_gethex(struct soap *, int *);
 	SOAP_FMAC1 int SOAP_FMAC2 soap_array_reference(struct soap *, const void * p, const struct soap_array * a, int n, int t);
 	SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_embedded_id(struct soap *, int id, const void * p, int t);
 	SOAP_FMAC1 int SOAP_FMAC2 soap_is_embedded(struct soap *, struct soap_plist *);
-	SOAP_FMAC1 int SOAP_FMAC2 soap_is_single(struct soap *, struct soap_plist *);
-	SOAP_FMAC1 void SOAP_FMAC2 soap_set_embedded(struct soap *, struct soap_plist *);
+	SOAP_FMAC1 int SOAP_FMAC2 soap_is_single(const struct soap *, const struct soap_plist *);
+	SOAP_FMAC1 void SOAP_FMAC2 soap_set_embedded(const struct soap * pSoap, struct soap_plist *);
 #endif
 SOAP_FMAC1 int /*SOAP_FMAC2*/ FASTCALL soap_begin_count(struct soap *);
 SOAP_FMAC1 int /*SOAP_FMAC2*/ FASTCALL soap_end_count(struct soap *);
@@ -2427,7 +2427,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_outliteral(struct soap *, const char * tag, char 
 	SOAP_FMAC1 int SOAP_FMAC2 soap_attachment(struct soap *, const char *, int, const void *, const struct soap_array *,
 		const char *, const char *, const char *, int, const char *, int);
 	SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_move(struct soap *, long);
-	SOAP_FMAC1 size_t SOAP_FMAC2 soap_tell(struct soap *);
+	SOAP_FMAC1 size_t SOAP_FMAC2 soap_tell(const struct soap * pSoap);
 	SOAP_FMAC1 char * SOAP_FMAC2 soap_dime_option(struct soap *, ushort, const char *);
 	SOAP_FMAC1 int SOAP_FMAC2 soap_getdimehdr(struct soap *);
 	SOAP_FMAC1 int SOAP_FMAC2 soap_getdime(struct soap *);

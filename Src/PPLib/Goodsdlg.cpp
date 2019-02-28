@@ -303,12 +303,13 @@ int SLAPI PPObjGoods::SelectBarcode(int kind, PPID parentID, SString & rBuf)
 	return ok;
 }
 
-GoodsFiltCtrlGroup::Rec::Rec(PPID grpID, PPID goodsID, PPID locID, long flags, long extra) :
-	GoodsID(goodsID), GoodsGrpID(grpID), LocID(locID), Flags(flags), Extra(extra)
+GoodsFiltCtrlGroup::Rec::Rec(PPID grpID, PPID goodsID, PPID locID, long flags, void * extraPtr) :
+	GoodsID(goodsID), GoodsGrpID(grpID), LocID(locID), Flags(flags), ExtraPtr(extraPtr)
 {
 }
 
-GoodsFiltCtrlGroup::GoodsFiltCtrlGroup(uint ctlselGoods, uint ctlselGGrp, uint cm) : CtlselGoods(ctlselGoods), CtlselGoodsGrp(ctlselGGrp), Cm(cm), DisableGroupSelection(0)
+GoodsFiltCtrlGroup::GoodsFiltCtrlGroup(uint ctlselGoods, uint ctlselGGrp, uint cm) : 
+	CtlselGoods(ctlselGoods), CtlselGoodsGrp(ctlselGGrp), Cm(cm), DisableGroupSelection(0)
 {
 }
 
@@ -322,7 +323,7 @@ int GoodsFiltCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
 	int    ok = -1;
 	if(pDlg && pData) {
-		Data = *(Rec*)pData;
+		Data = *static_cast<const Rec *>(pData);
 		const  long f = GF_DYNAMICTEMPALTGRP;
 		if(GObj.CheckFlag(Data.GoodsGrpID, f) > 0) {
 			THROW(Filt.ReadFromProp(PPOBJ_GOODSGROUP, Data.GoodsGrpID, GGPRP_GOODSFILT2, GGPRP_GOODSFLT_));
@@ -355,7 +356,7 @@ int GoodsFiltCtrlGroup::setData(TDialog * pDlg, void * pData)
 			if(Data.Flags & GoodsCtrlGroup::enableInsertGoods)
 				fl |= OLW_CANINSERT;
 			SetupPPObjCombo(pDlg, CtlselGoodsGrp, PPOBJ_GOODSGROUP, Data.GoodsGrpID,
-				((Data.Flags & GoodsCtrlGroup::enableSelUpLevel) ? (fl|OLW_CANSELUPLEVEL) : fl), (void *)Data.Extra);
+				((Data.Flags & GoodsCtrlGroup::enableSelUpLevel) ? (fl|OLW_CANSELUPLEVEL) : fl), Data.ExtraPtr);
 			if(Data.Flags & GoodsCtrlGroup::existsGoodsOnly)
 				g = (Data.GoodsGrpID) ? -labs(Data.GoodsGrpID) : LONG_MIN;
 			else
@@ -363,7 +364,7 @@ int GoodsFiltCtrlGroup::setData(TDialog * pDlg, void * pData)
 			fl = OLW_LOADDEFONOPEN;
 			if(Data.Flags & GoodsCtrlGroup::enableInsertGoods)
 				fl |= OLW_CANINSERT;
-			SetupPPObjCombo(pDlg, CtlselGoods, PPOBJ_GOODS, Data.GoodsID, fl, (void *)g);
+			SetupPPObjCombo(pDlg, CtlselGoods, PPOBJ_GOODS, Data.GoodsID, fl, reinterpret_cast<void *>(g));
 		}
 		if(DisableGroupSelection) {
 			pDlg->disableCtrl(CtlselGoodsGrp, 1);
@@ -1272,10 +1273,10 @@ int GoodsDialog::setDTS(const PPGoodsPacket * pPack)
 			SetupPPObjCombo(this, CTLSEL_GOODS_CLS, PPOBJ_GOODSCLASS, Data.Rec.GdsClsID, OLW_LOADDEFONOPEN, 0);
 			enableCommand(cmGoodsExt, BIN(Data.Rec.GdsClsID));
 		}
-		SetupPPObjCombo(this, CTLSEL_GOODS_MANUF,  PPOBJ_PERSON, Data.Rec.ManufID, OLW_CANINSERT|OLW_LOADDEFONOPEN, (void *)PPPRK_MANUF);
+		SetupPPObjCombo(this, CTLSEL_GOODS_MANUF,  PPOBJ_PERSON, Data.Rec.ManufID, OLW_CANINSERT|OLW_LOADDEFONOPEN, reinterpret_cast<void *>(PPPRK_MANUF));
 		SetupPPObjCombo(this, CTLSEL_GOODS_BRAND,  PPOBJ_BRAND,  Data.Rec.BrandID, OLW_CANINSERT|OLW_LOADDEFONOPEN);
-		SetupPPObjCombo(this, CTLSEL_GOODS_UNIT,   PPOBJ_UNIT,   Data.Rec.UnitID, OLW_CANINSERT|OLW_LOADDEFONOPEN, (void *)PPUnit::Trade);
-		SetupPPObjCombo(this, CTLSEL_GOODS_PHUNIT, PPOBJ_UNIT,   Data.Rec.PhUnitID, OLW_CANINSERT|OLW_LOADDEFONOPEN, (void *)(PPUnit::Trade|PPUnit::Physical));
+		SetupPPObjCombo(this, CTLSEL_GOODS_UNIT,   PPOBJ_UNIT,   Data.Rec.UnitID, OLW_CANINSERT|OLW_LOADDEFONOPEN, reinterpret_cast<void *>(PPUnit::Trade));
+		SetupPPObjCombo(this, CTLSEL_GOODS_PHUNIT, PPOBJ_UNIT,   Data.Rec.PhUnitID, OLW_CANINSERT|OLW_LOADDEFONOPEN, reinterpret_cast<void *>(PPUnit::Trade|PPUnit::Physical));
 		SetupPPObjCombo(this, CTLSEL_GOODS_TYPE, PPOBJ_GOODSTYPE, Data.Rec.GoodsTypeID, OLW_CANINSERT|OLW_LOADDEFONOPEN);
 		SetupPPObjCombo(this, CTLSEL_GOODS_TAX, PPOBJ_GOODSTAX, Data.Rec.TaxGrpID, OLW_CANINSERT|OLW_LOADDEFONOPEN);
 		//

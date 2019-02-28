@@ -199,8 +199,8 @@ static int SLAPI CompareELinkKinds2(const PPELinkKind * k1, const PPELinkKind * 
 
 static IMPL_CMPFUNC(PPELinkKind, i1, i2)
 {
-	const PPELinkKind * k1 = (const PPELinkKind *)i1;
-	const PPELinkKind * k2 = (const PPELinkKind *)i2;
+	const PPELinkKind * k1 = static_cast<const PPELinkKind *>(i1);
+	const PPELinkKind * k2 = static_cast<const PPELinkKind *>(i2);
 	if(k1->Flags & ELNKF_PREF)
 		if(k2->Flags & ELNKF_PREF)
 			return CompareELinkKinds2(k1, k2);

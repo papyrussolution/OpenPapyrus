@@ -2034,7 +2034,7 @@ int SLAPI PPObjLocation::GetPacket(PPID id, PPLocationPacket * pPack)
 {
 	int    ok = 1;
 	pPack->destroy();
-	if(id) {
+	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
 		int    sr = Search(id, pPack);
 		THROW(sr);
 		if(sr > 0) {

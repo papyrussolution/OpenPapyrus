@@ -81,7 +81,7 @@ static int do_create(const char * value, const char * name)
 			p--;
 		}
 		p++;
-		lntmp = (char*)OPENSSL_malloc((p - ln) + 1);
+		lntmp = (char *)OPENSSL_malloc((p - ln) + 1);
 		if(lntmp == NULL)
 			return 0;
 		memcpy(lntmp, ln, p - ln);

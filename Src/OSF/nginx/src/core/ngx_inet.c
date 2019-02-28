@@ -843,7 +843,7 @@ ngx_int_t ngx_inet_resolve_host(ngx_pool_t * pool, ngx_url_t * u)
 	hints.ai_flags = AI_ADDRCONFIG;
 #endif
 
-	if(getaddrinfo((char*)host, NULL, &hints, &res) != 0) {
+	if(getaddrinfo((char *)host, NULL, &hints, &res) != 0) {
 		u->err = "host not found";
 		ngx_free(host);
 		return NGX_ERROR;
@@ -947,7 +947,7 @@ ngx_int_t ngx_inet_resolve_host(ngx_pool_t * pool, ngx_url_t * u)
 			return NGX_ERROR;
 		}
 		(void)ngx_cpystrn(host, u->host.data, u->host.len + 1);
-		h = gethostbyname((char*)host);
+		h = gethostbyname((char *)host);
 		ngx_free(host);
 		if(h == NULL || h->h_addr_list[0] == NULL) {
 			u->err = "host not found";

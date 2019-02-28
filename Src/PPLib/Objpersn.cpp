@@ -2628,7 +2628,7 @@ int SLAPI PPObjPerson::GetPacket(PPID id, PPPersonPacket * pPack, uint flags)
 	Reference * p_ref = PPRef;
 	uint   i;
 	PPIDArray dlvr_loc_list;
-	if(id) {
+	if(PPCheckGetObjPacketID(Obj, id)) {
 		SString ext_str_buf;
 		PPLocationPacket loc_pack;
 		PropertyTbl::Rec cshr_prop;
@@ -6496,7 +6496,7 @@ PPALDD_CONSTRUCTOR(PersonReq)
 PPALDD_DESTRUCTOR(PersonReq)
 {
 	Destroy();
-	delete (PPObjPerson *)Extra[0].Ptr;
+	delete static_cast<PPObjPerson *>(Extra[0].Ptr);
 }
 
 int PPALDD_PersonReq::InitData(PPFilt & rFilt, long rsrv)
@@ -6547,7 +6547,7 @@ PPALDD_CONSTRUCTOR(BankAccount)
 PPALDD_DESTRUCTOR(BankAccount)
 {
 	Destroy();
-	delete (PPObjRegister *)Extra[0].Ptr;
+	delete static_cast<PPObjRegister *>(Extra[0].Ptr);
 }
 
 int PPALDD_BankAccount::InitData(PPFilt & rFilt, long rsrv)
@@ -6558,7 +6558,7 @@ int PPALDD_BankAccount::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
-		PPObjRegister * p_obj = (PPObjRegister *)Extra[0].Ptr;
+		PPObjRegister * p_obj = static_cast<PPObjRegister *>(Extra[0].Ptr);
 		PPBankAccount rec;
 		if(p_obj->Search(rFilt.ID, &rec) > 0) {
 			H.ID       = rec.ID;
@@ -6587,7 +6587,7 @@ PPALDD_CONSTRUCTOR(Person)
 PPALDD_DESTRUCTOR(Person)
 {
 	Destroy();
-	delete (PPObjPerson*)Extra[0].Ptr;
+	delete static_cast<PPObjPerson *>(Extra[0].Ptr);
 }
 
 int PPALDD_Person::InitData(PPFilt & rFilt, long rsrv)
@@ -6598,7 +6598,7 @@ int PPALDD_Person::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
-		PPObjPerson * p_obj = (PPObjPerson *)Extra[0].Ptr;
+		PPObjPerson * p_obj = static_cast<PPObjPerson *>(Extra[0].Ptr);
 		PersonTbl::Rec rec;
 		RegisterTbl::Rec reg_rec;
 		if(p_obj->Search(rFilt.ID, &rec) > 0) {
@@ -6714,7 +6714,7 @@ void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 	}
 	else if(pF->Name == "?GetBankAccount") {
 		_RET_INT = 0;
-		PPObjPerson * p_obj = (PPObjPerson *)Extra[0].Ptr;
+		PPObjPerson * p_obj = static_cast<PPObjPerson *>(Extra[0].Ptr);
 		if(p_obj) {
 			PPID   ba_id = 0;
 			//BankAccountTbl::Rec ba_rec;
@@ -6725,7 +6725,7 @@ void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 	}
 	else if(pF->Name == "?GetSingleRelation") {
 		_RET_INT = 0;
-		PPObjPerson * p_obj = (PPObjPerson *)Extra[0].Ptr;
+		PPObjPerson * p_obj = static_cast<PPObjPerson *>(Extra[0].Ptr);
 		if(p_obj) {
 			PPObjPersonRelType prt_obj;
 			PPID   prt_id = 0;
@@ -6740,7 +6740,7 @@ void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 	// @v9.4.1 {
 	else if(pF->Name == "?GetSingleEmail") {
 		_RET_STR.Z();
-		PPObjPerson * p_obj = (PPObjPerson *)Extra[0].Ptr;
+		PPObjPerson * p_obj = static_cast<PPObjPerson *>(Extra[0].Ptr);
 		if(p_obj) {
 			PPELinkArray ela;
 			p_obj->P_Tbl->GetELinks(H.ID, &ela);
@@ -6853,13 +6853,13 @@ PPALDD_CONSTRUCTOR(UhttPerson)
 PPALDD_DESTRUCTOR(UhttPerson)
 {
 	Destroy();
-	delete (UhttPersonBlock *)Extra[0].Ptr;
+	delete static_cast<UhttPersonBlock *>(Extra[0].Ptr);
 }
 
 int PPALDD_UhttPerson::InitData(PPFilt & rFilt, long rsrv)
 {
 	int   ok = -1;
-	UhttPersonBlock & r_blk = *(UhttPersonBlock *)Extra[0].Ptr;
+	UhttPersonBlock & r_blk = *static_cast<UhttPersonBlock *>(Extra[0].Ptr);
 	r_blk.Clear();
 	MEMSZERO(H);
 	if(r_blk.PObj.GetPacket(rFilt.ID, &r_blk.Pack, 0) > 0) {
@@ -6880,7 +6880,7 @@ int PPALDD_UhttPerson::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_UhttPerson::InitIteration(long iterId, int sortId, long rsrv)
 {
 	IterProlog(iterId, 1);
-	UhttPersonBlock & r_blk = *(UhttPersonBlock *)Extra[0].Ptr;
+	UhttPersonBlock & r_blk = *static_cast<UhttPersonBlock *>(Extra[0].Ptr);
 	if(iterId == GetIterID("iter@KindList"))
 		r_blk.Pack.Kinds.setPointer(0);
 	else if(iterId == GetIterID("iter@PhoneList"))
@@ -6900,7 +6900,7 @@ int PPALDD_UhttPerson::NextIteration(long iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
-	UhttPersonBlock & r_blk = *(UhttPersonBlock *)Extra[0].Ptr;
+	UhttPersonBlock & r_blk = *static_cast<UhttPersonBlock *>(Extra[0].Ptr);
 	if(iterId == GetIterID("iter@KindList")) {
 		if(r_blk.Pack.Kinds.getPointer() < r_blk.Pack.Kinds.getCount()) {
 			I_KindList.KindID = r_blk.Pack.Kinds.at(r_blk.Pack.Kinds.getPointer());
@@ -7035,7 +7035,7 @@ int PPALDD_UhttPerson::NextIteration(long iterId)
 int PPALDD_UhttPerson::Set(long iterId, int commit)
 {
 	int    ok = 1;
-	UhttPersonBlock & r_blk = *(UhttPersonBlock *)Extra[0].Ptr;
+	UhttPersonBlock & r_blk = *static_cast<UhttPersonBlock *>(Extra[0].Ptr);
 	if(r_blk.State != UhttPersonBlock::stSet) {
 		r_blk.Clear();
 		r_blk.State = UhttPersonBlock::stSet;
@@ -7159,7 +7159,7 @@ int PPALDD_Employee::InitData(PPFilt & rFilt, long rsrv)
 	if(rFilt.ID == H.ID)
 		ok = DlRtm::InitData(rFilt, rsrv);
 	else {
-		PPObjStaffList * p_obj = (PPObjStaffList *)Extra[0].Ptr;
+		PPObjStaffList * p_obj = static_cast<PPObjStaffList *>(Extra[0].Ptr);
 		PPID    org_id;
 		SString tab_num;
 		PersonPostArray post_list;

@@ -136,7 +136,7 @@ struct Curl_sh_entry {
 static struct Curl_sh_entry * FASTCALL sh_getentry(struct curl_hash * sh, curl_socket_t s)
 {
 	if(s != CURL_SOCKET_BAD) // only look for proper sockets 
-		return (struct Curl_sh_entry *)Curl_hash_pick(sh, (char*)&s, sizeof(curl_socket_t));
+		return (struct Curl_sh_entry *)Curl_hash_pick(sh, (char *)&s, sizeof(curl_socket_t));
 	return NULL;
 }
 
@@ -154,7 +154,7 @@ static struct Curl_sh_entry * sh_addentry(struct curl_hash * sh, curl_socket_t s
 	check->easy = data;
 	check->socket = s;
 	/* make/add new hash entry */
-	if(!Curl_hash_add(sh, (char*)&s, sizeof(curl_socket_t), check)) {
+	if(!Curl_hash_add(sh, (char *)&s, sizeof(curl_socket_t), check)) {
 		SAlloc::F(check);
 		return NULL; /* major failure */
 	}
@@ -166,7 +166,7 @@ static struct Curl_sh_entry * sh_addentry(struct curl_hash * sh, curl_socket_t s
 static void sh_delentry(struct curl_hash * sh, curl_socket_t s)
 {
 	// We remove the hash entry. This will end up in a call to sh_freeentry(). 
-	Curl_hash_delete(sh, (char*)&s, sizeof(curl_socket_t));
+	Curl_hash_delete(sh, (char *)&s, sizeof(curl_socket_t));
 }
 
 /*

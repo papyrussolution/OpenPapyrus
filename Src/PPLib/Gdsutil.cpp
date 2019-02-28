@@ -760,7 +760,7 @@ int SLAPI PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SStri
 					STempBuffer temp_buf(sz);
 					THROW_SL(temp_buf.IsValid());
 					memcpy(temp_buf, &cfg, offs);
-					THROW_SL(ser_buf.Read(((char *)temp_buf)+offs, sz - offs));
+					THROW_SL(ser_buf.Read(static_cast<char *>(temp_buf)+offs, sz - offs));
 					THROW(p_ref->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_GOODSCFG, (char *)temp_buf, sz));
 				}
 			}
@@ -995,7 +995,7 @@ int GoodsCfgDialog::setDTS(const PPGoodsConfig * pData, const SString & rGoodsEx
 	setCtrlData(CTL_GDSCFG_WPRFX,  Data.WghtPrefix);
 	setCtrlData(CTL_GDSCFG_CPRFX,  Data.WghtCntPrefix);
 	setCtrlData(CTL_GDSCFG_ACGIT,  &Data.ACGI_Threshold);
-	SetupPPObjCombo(this, CTLSEL_GDSCFG_DEFUNIT, PPOBJ_UNIT, Data.DefUnitID, OLW_CANINSERT, (void *)PPUnit::Trade);
+	SetupPPObjCombo(this, CTLSEL_GDSCFG_DEFUNIT, PPOBJ_UNIT, Data.DefUnitID, OLW_CANINSERT, reinterpret_cast<void *>(PPUnit::Trade));
 	SetupPPObjCombo(this, CTLSEL_GDSCFG_DEFPCKGTYP, PPOBJ_PCKGTYPE, Data.DefPckgTypeID, 0);
 	SetupPPObjCombo(this, CTLSEL_GDSCFG_DEFGRP,   PPOBJ_GOODSGROUP, Data.DefGroupID, OLW_CANSELUPLEVEL);
 	SetupPPObjCombo(this, CTLSEL_GDSCFG_ASSETGRP, PPOBJ_GOODSGROUP, Data.AssetGrpID, OLW_CANSELUPLEVEL);
@@ -1483,8 +1483,8 @@ struct RankNNameEntry {
 IMPL_CMPFUNC(RankNName, i1, i2)
 {
 	int    cmp = 0;
-	const RankNNameEntry * k1 = (const RankNNameEntry*)i1;
-	const RankNNameEntry * k2 = (const RankNNameEntry*)i2;
+	const RankNNameEntry * k1 = static_cast<const RankNNameEntry *>(i1);
+	const RankNNameEntry * k2 = static_cast<const RankNNameEntry *>(i2);
 	if(k1->ID == PPQUOTK_BASE && k2->ID != PPQUOTK_BASE)
 		cmp = -1;
 	else if(k1->ID != PPQUOTK_BASE && k2->ID == PPQUOTK_BASE)

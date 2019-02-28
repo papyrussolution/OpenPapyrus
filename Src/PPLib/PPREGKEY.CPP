@@ -41,7 +41,7 @@ int SLAPI Helper_CalcRegisterKey(size_t mi, const char * pName, char * pBuf)
 			if(MaskMatrix[mi] & (1 << i)) {
 				char c = (MaskMatrix[offs%MASK_MATRIX_SIZE+i] ^
 					(uint16)buf[offs%MASK_MATRIX_SIZE+i] ^
-					(uint16)((char*)&crc)[ci % 4]) % 36;
+					(uint16)((char *)&crc)[ci % 4]) % 36;
 				ci++;
 				if(c < 10)
 					target[target_len++] = '0' + c;

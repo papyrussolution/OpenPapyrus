@@ -111,7 +111,7 @@ int SLAPI PPPaths::Resize(size_t sz)
 		P = (PathData*)SAlloc::R(P, sz);
 		if(P) {
 			if(sz > prev_size)
-				memzero(((char*)P) + prev_size, sz - prev_size);
+				memzero(((char *)P) + prev_size, sz - prev_size);
 			P->TailSize = sz - sizeof(PathData);
 		}
 		else
@@ -124,7 +124,7 @@ int SLAPI PPPaths::Resize(size_t sz)
 {
 	if(P) {
 		for(uint s = 0; s < P->TailSize;) {
-			const PathItem * p = (const PathItem*)(((char*)(P + 1)) + s);
+			const PathItem * p = (const PathItem*)(((char *)(P + 1)) + s);
 			if(p->ID == pathID) {
 				ASSIGN_PTR(pFlags, p->Flags);
 				return p->GetPath(pBuf, bufLen);
@@ -165,7 +165,7 @@ int SLAPI PPPaths::SetPath(PPID pathID, const char * pBuf, short flags, int repl
 	PathItem * pi = 0;
 	if(P == 0)
 		THROW(Resize(sizeof(PathData)));
-	cp = (char*)(P + 1);
+	cp = (char *)(P + 1);
 	hs = sizeof(PathData);
 	ts = (size_t)P->TailSize;
 	THROW(pi = new(pBuf) PathItem(pathID, flags, pBuf));
@@ -201,13 +201,13 @@ int SLAPI PPPaths::SetPath(PPID pathID, const char * pBuf, short flags, int repl
 					//
 					if(pi->Size > os) {
 						THROW(Resize(hs + ts + pi->Size - os));
-						cp = (char*)(P + 1);
+						cp = (char *)(P + 1);
 					}
 					memmove(cp + s + pi->Size, cp + s + os, ts - s - os);
 					memmove(cp + s, pi, pi->Size);
 					if(pi->Size < os) {
 						THROW(Resize(hs + ts + pi->Size - os));
-						cp = (char*)(P + 1);
+						cp = (char *)(P + 1);
 					}
 				}
 			}
@@ -218,7 +218,7 @@ int SLAPI PPPaths::SetPath(PPID pathID, const char * pBuf, short flags, int repl
 	}
 	if(!found && pBuf && pBuf[0]) {
 		THROW(Resize(hs + ts + pi->Size));
-		cp = (char*)(P + 1);
+		cp = (char *)(P + 1);
 		memmove(cp + s, pi, pi->Size);
 	}
 	CATCHZOK
@@ -333,7 +333,7 @@ int SLAPI PPPaths::Get(PPID securType, PPID securID)
 		if(P->SecurObj < securType) {
 			P->Flags |= PATHF_INHERITED;
 			for(s = 0; s < P->TailSize; s += p->Size) {
-				p = (PathItem*)(((char*)(P + 1)) + s);
+				p = (PathItem*)(((char *)(P + 1)) + s);
 				p->Flags |= PATHF_INHERITED;
 			}
 		}
@@ -399,7 +399,7 @@ int SLAPI PPPaths::Put(PPID securType, PPID securID)
 		memzero(P->Reserve1, sizeof(P->Reserve2));
 		P->Reserve2 = 0;
 		for(uint s = 0; s < P->TailSize;) {
-			PathItem * p = (PathItem*)(((char*)(P + 1)) + s);
+			PathItem * p = (PathItem*)(((char *)(P + 1)) + s);
 			if(!p->Path() || p->Flags & PATHF_INHERITED) {
 				THROW(SetPath(p->ID, 0, 0, 1));
 			}

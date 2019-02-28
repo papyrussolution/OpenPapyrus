@@ -485,7 +485,7 @@ static CURLcode schannel_connect_step2(struct connectdata * conn, int sockindex)
 		if(doread) {
 			/* read encrypted handshake data from socket */
 			result = Curl_read_plain(conn->sock[sockindex],
-			    (char*)(connssl->encdata_buffer +
+			    (char *)(connssl->encdata_buffer +
 				    connssl->encdata_offset),
 			    connssl->encdata_length -
 			    connssl->encdata_offset,
@@ -1123,7 +1123,7 @@ static ssize_t schannel_recv(struct connectdata * conn, int sockindex,
 
 		/* read encrypted data from socket */
 		*err = Curl_read_plain(conn->sock[sockindex],
-		    (char*)(connssl->encdata_buffer +
+		    (char *)(connssl->encdata_buffer +
 			    connssl->encdata_offset),
 		    size, &nread);
 		if(*err) {

@@ -4829,7 +4829,7 @@ static int xmlSchemaPValAttrNodeQNameValue(xmlSchemaParserCtxtPtr ctxt, xmlSchem
 	}
 	else if(ret < 0)
 		return -1;
-	if(!strchr((char*)value, ':')) {
+	if(!strchr((char *)value, ':')) {
 		ns = xmlSearchNs(attr->doc, attr->parent, 0);
 		if(ns)
 			*uri = xmlDictLookupSL(ctxt->dict, ns->href);
@@ -19559,7 +19559,7 @@ static int xmlSchemaIDCRegisterMatchers(xmlSchemaValidCtxt * vctxt, xmlSchemaEle
 	{
 		xmlChar * str = NULL;
 		xmlGenericError(0, "IDC: REGISTER on %s, depth %d\n",
-			(char*)xmlSchemaFormatQName(&str, vctxt->inode->nsName, vctxt->inode->localName), vctxt->depth);
+			(char *)xmlSchemaFormatQName(&str, vctxt->inode->nsName, vctxt->inode->localName), vctxt->depth);
 		ZFREE(str);
 	}
 #endif
@@ -21647,7 +21647,7 @@ static int xmlSchemaVAttributesComplex(xmlSchemaValidCtxt * vctxt)
 						 * root node if no namespace declaration is in scope.
 						 */
 						do {
-							snprintf((char*)prefix, 12, "p%d", counter++);
+							snprintf((char *)prefix, 12, "p%d", counter++);
 							ns = xmlSearchNs(defAttrOwnerElem->doc, defAttrOwnerElem, BAD_CAST prefix);
 							if(counter > 1000) {
 								VERROR_INT("xmlSchemaVAttributesComplex", "could not compute a ns prefix for a default/fixed attribute");

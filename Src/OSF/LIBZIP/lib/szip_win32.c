@@ -140,7 +140,7 @@ static HANDLE _win32_create_temp_a(_zip_source_win32_read_file_t * ctx, void ** 
 			return INVALID_HANDLE_VALUE;
 		}
 	}
-	if(sprintf((char*)*temp, "%s.%08x", (const char*)ctx->fname, value) != len - 1) {
+	if(sprintf((char *)*temp, "%s.%08x", (const char*)ctx->fname, value) != len - 1) {
 		return INVALID_HANDLE_VALUE;
 	}
 	return CreateFileA((const char*)*temp, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, sa, CREATE_NEW,
@@ -313,7 +313,7 @@ static int64 _win32_read_file(void * state, void * data, uint64 len, zip_source_
 	uint64 n;
 	DWORD i;
 	_zip_source_win32_read_file_t * ctx = (_zip_source_win32_read_file_t*)state;
-	char * buf = (char*)data;
+	char * buf = (char *)data;
 	switch(cmd) {
 		case ZIP_SOURCE_BEGIN_WRITE:
 		    if(ctx->fname == NULL)

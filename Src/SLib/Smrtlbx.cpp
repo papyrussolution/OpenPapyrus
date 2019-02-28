@@ -86,7 +86,7 @@ INT_PTR CALLBACK ListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 					di.CtlID = p_view->GetId();
 					di.ItemAction = TDrawItemData::iaBackground;
 					di.H_Item = hWnd;
-					di.H_DC = (HDC)wParam;
+					di.H_DC = reinterpret_cast<HDC>(wParam);
 					GetClientRect(hWnd, &di.ItemRect);
 					di.P_View = p_view;
 					TView::messageCommand(p_view->P_Owner, cmDrawItem, &di);
@@ -110,7 +110,7 @@ INT_PTR CALLBACK ListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 
 INT_PTR CALLBACK TreeListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) // DLGPROC
 {
-	SmartListBox * p_view = (SmartListBox *)TView::GetWindowUserData(hWnd);
+	SmartListBox * p_view = static_cast<SmartListBox *>(TView::GetWindowUserData(hWnd));
 	const WNDPROC prev_wnd_proc = p_view ? p_view->PrevWindowProc : 0;
 	switch(uMsg) {
 		case WM_DESTROY: CALLPTRMEMB(p_view, OnDestroy(hWnd)); return 0; // Не вызывается. Непонятно правда почему.
@@ -128,7 +128,7 @@ INT_PTR CALLBACK TreeListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 				di.CtlID = p_view->GetId();
 				di.ItemAction = TDrawItemData::iaBackground;
 				di.H_Item = hWnd;
-				di.H_DC = (HDC)wParam;
+				di.H_DC = reinterpret_cast<HDC>(wParam);
 				GetClientRect(hWnd, &di.ItemRect);
 				di.P_View = p_view;
 				TView::messageCommand(p_view->P_Owner, cmDrawItem, &di);
@@ -152,7 +152,7 @@ INT_PTR CALLBACK TreeListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 
 INT_PTR CALLBACK ListViewDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) // DLGPROC
 {
-	SmartListBox * p_view = (SmartListBox *)TView::GetWindowUserData(hWnd);
+	SmartListBox * p_view = static_cast<SmartListBox *>(TView::GetWindowUserData(hWnd));
 	switch(uMsg) {
 		case WM_DESTROY: // Не вызывается. Непонятно правда почему.
 			CALLPTRMEMB(p_view, OnDestroy(hWnd));

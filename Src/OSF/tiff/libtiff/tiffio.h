@@ -457,7 +457,7 @@ extern void TIFFSetWriteOffset(TIFF* tif, toff_t off);
 extern void FASTCALL TIFFSwabShort(uint16*);
 extern void FASTCALL TIFFSwabLong(uint32*);
 extern void FASTCALL TIFFSwabLong8(uint64*);
-extern void TIFFSwabFloat(float*);
+extern void TIFFSwabFloat(float *);
 extern void TIFFSwabDouble(double*);
 extern void FASTCALL TIFFSwabArrayOfShort(uint16* wp, tmsize_t n);
 extern void TIFFSwabArrayOfTriples(uint8* tp, tmsize_t n);

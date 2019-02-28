@@ -865,96 +865,64 @@ static cairo_status_t _cairo_ps_surface_emit_body(cairo_ps_surface_t * surface)
 {
 	char buf[4096];
 	int n;
-
 	if(ferror(surface->tmpfile) != 0)
 		return _cairo_error(CAIRO_STATUS_TEMP_FILE_ERROR);
-
 	rewind(surface->tmpfile);
 	while((n = fread(buf, 1, sizeof(buf), surface->tmpfile)) > 0)
 		_cairo_output_stream_write(surface->final_stream, buf, n);
-
 	if(ferror(surface->tmpfile) != 0)
 		return _cairo_error(CAIRO_STATUS_TEMP_FILE_ERROR);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
 static void _cairo_ps_surface_emit_footer(cairo_ps_surface_t * surface)
 {
-	_cairo_output_stream_printf(surface->final_stream,
-	    "%%%%Trailer\n");
-
+	_cairo_output_stream_printf(surface->final_stream, "%%%%Trailer\n");
 	if(surface->eps) {
-		_cairo_output_stream_printf(surface->final_stream,
-		    "end\n");
+		_cairo_output_stream_printf(surface->final_stream, "end\n");
 	}
-
-	_cairo_output_stream_printf(surface->final_stream,
-	    "%%%%EOF\n");
+	_cairo_output_stream_printf(surface->final_stream, "%%%%EOF\n");
 }
 
-static cairo_bool_t _path_covers_bbox(cairo_ps_surface_t * surface,
-    cairo_path_fixed_t * path)
+static cairo_bool_t _path_covers_bbox(cairo_ps_surface_t * surface, const cairo_path_fixed_t * path)
 {
 	cairo_box_t box;
-
 	if(_cairo_path_fixed_is_box(path, &box)) {
 		cairo_rectangle_int_t rect;
-
 		_cairo_box_round_to_rectangle(&box, &rect);
-
 		/* skip trivial whole-page clips */
 		if(_cairo_rectangle_intersect(&rect, &surface->surface_extents)) {
-			if(rect.x == surface->surface_extents.x &&
-			    rect.width == surface->surface_extents.width &&
-			    rect.y == surface->surface_extents.y &&
-			    rect.height == surface->surface_extents.height) {
+			if(rect.x == surface->surface_extents.x && rect.width == surface->surface_extents.width &&
+			    rect.y == surface->surface_extents.y && rect.height == surface->surface_extents.height) {
 				return TRUE;
 			}
 		}
 	}
-
 	return FALSE;
 }
 
 static cairo_status_t _cairo_ps_surface_clipper_intersect_clip_path(cairo_surface_clipper_t * clipper,
-    cairo_path_fixed_t * path,
-    cairo_fill_rule_t fill_rule,
-    double tolerance,
-    cairo_antialias_t antialias)
+    cairo_path_fixed_t * path, cairo_fill_rule_t fill_rule, double tolerance, cairo_antialias_t antialias)
 {
-	cairo_ps_surface_t * surface = cairo_container_of(clipper,
-		cairo_ps_surface_t,
-		clipper);
+	cairo_ps_surface_t * surface = cairo_container_of(clipper, cairo_ps_surface_t, clipper);
 	cairo_output_stream_t * stream = surface->stream;
 	cairo_status_t status;
-
 	assert(surface->paginated_mode != CAIRO_PAGINATED_MODE_ANALYZE);
-
 #if DEBUG_PS
-	_cairo_output_stream_printf(stream,
-	    "%% _cairo_ps_surface_intersect_clip_path\n");
+	_cairo_output_stream_printf(stream, "%% _cairo_ps_surface_intersect_clip_path\n");
 #endif
-
 	if(path == NULL) {
 		status = _cairo_pdf_operators_flush(&surface->pdf_operators);
 		if(unlikely(status))
 			return status;
-
 		_cairo_output_stream_printf(stream, "Q q\n");
-
 		surface->current_pattern_is_solid_color = FALSE;
 		_cairo_pdf_operators_reset(&surface->pdf_operators);
-
 		return CAIRO_STATUS_SUCCESS;
 	}
-
 	if(_path_covers_bbox(surface, path))
 		return CAIRO_STATUS_SUCCESS;
-
-	return _cairo_pdf_operators_clip(&surface->pdf_operators,
-		   path,
-		   fill_rule);
+	return _cairo_pdf_operators_clip(&surface->pdf_operators, path, fill_rule);
 }
 
 /* PLRM specifies a tolerance of 5 points when matching page sizes */
@@ -1081,17 +1049,9 @@ static cairo_surface_t * _cairo_ps_surface_create_for_stream_internal(cairo_outp
 	surface->total_form_size = 0;
 	surface->contains_eps = FALSE;
 	surface->paint_proc = FALSE;
-
-	_cairo_surface_clipper_init(&surface->clipper,
-	    _cairo_ps_surface_clipper_intersect_clip_path);
-
-	_cairo_pdf_operators_init(&surface->pdf_operators,
-	    surface->stream,
-	    &surface->cairo_to_ps,
-	    surface->font_subsets,
-	    TRUE);
+	_cairo_surface_clipper_init(&surface->clipper, _cairo_ps_surface_clipper_intersect_clip_path);
+	_cairo_pdf_operators_init(&surface->pdf_operators, surface->stream, &surface->cairo_to_ps, surface->font_subsets, TRUE);
 	surface->num_pages = 0;
-
 	cairo_list_init(&surface->document_media);
 	_cairo_array_init(&surface->dsc_header_comments, sizeof(char *));
 	_cairo_array_init(&surface->dsc_setup_comments, sizeof(char *));
@@ -3152,10 +3112,8 @@ static cairo_status_t _cairo_ps_surface_emit_recording_surface(cairo_ps_surface_
 	status = _cairo_array_append(&surface->recording_surf_stack, &id);
 	if(unlikely(status))
 		return status;
-
 	if(_cairo_surface_is_snapshot(recording_surface))
 		free_me = recording_surface = _cairo_surface_snapshot_get_target(recording_surface);
-
 	old_content = surface->content;
 	old_width = surface->width;
 	old_height = surface->height;
@@ -3163,9 +3121,7 @@ static cairo_status_t _cairo_ps_surface_emit_recording_surface(cairo_ps_surface_
 	old_surface_bounded = surface->surface_bounded;
 	old_cairo_to_ps = surface->cairo_to_ps;
 	old_clipper = surface->clipper;
-	_cairo_surface_clipper_init(&surface->clipper,
-	    _cairo_ps_surface_clipper_intersect_clip_path);
-
+	_cairo_surface_clipper_init(&surface->clipper, _cairo_ps_surface_clipper_intersect_clip_path);
 #if DEBUG_PS
 	_cairo_output_stream_printf(surface->stream,
 	    "%% _cairo_ps_surface_emit_recording_surface"

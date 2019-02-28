@@ -30,7 +30,7 @@ void * ASN1_dup(i2d_of_void * i2d, d2i_of_void * d2i, void * x)
 	p = b;
 	i = i2d(x, &p);
 	p2 = b;
-	ret = (char*)d2i(NULL, &p2, i);
+	ret = (char *)d2i(NULL, &p2, i);
 	OPENSSL_free(b);
 	return ret;
 }

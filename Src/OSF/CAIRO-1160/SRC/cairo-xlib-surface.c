@@ -1097,7 +1097,7 @@ cairo_status_t _cairo_xlib_surface_draw_image(cairo_xlib_surface_t * surface,
 
 		ximage.bits_per_pixel = image_masks.bpp;
 		ximage.bytes_per_line = image->stride;
-		ximage.data = (char*)image->data;
+		ximage.data = (char *)image->data;
 		if(image->base.device != surface->base.device) {
 			/* If PutImage will break the image up into chunks, prefer to
 			 * send it all in one pass with ShmPutImage.  For larger images,
@@ -1122,7 +1122,7 @@ cairo_status_t _cairo_xlib_surface_draw_image(cairo_xlib_surface_t * surface,
 					    0, 0,
 					    width, height);
 					ximage.obdata = _cairo_xlib_shm_surface_get_obdata(shm_image);
-					ximage.data = (char*)clone->data;
+					ximage.data = (char *)clone->data;
 					ximage.bytes_per_line = clone->stride;
 					ximage.width = width;
 					ximage.height = height;
@@ -1163,7 +1163,7 @@ cairo_status_t _cairo_xlib_surface_draw_image(cairo_xlib_surface_t * surface,
 			    0, 0,
 			    width, height);
 
-			ximage.data = (char*)clone->data;
+			ximage.data = (char *)clone->data;
 			ximage.obdata = _cairo_xlib_shm_surface_get_obdata(&clone->base);
 			ximage.bytes_per_line = clone->stride;
 		}
@@ -1184,7 +1184,7 @@ cairo_status_t _cairo_xlib_surface_draw_image(cairo_xlib_surface_t * surface,
 			    0, 0,
 			    width, height);
 
-			ximage.data = (char*)pixman_image_get_data(pixman_image);
+			ximage.data = (char *)pixman_image_get_data(pixman_image);
 			ximage.bytes_per_line = pixman_image_get_stride(pixman_image);
 		}
 

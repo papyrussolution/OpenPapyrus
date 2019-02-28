@@ -107,10 +107,10 @@ static void _cairo_win32_printing_surface_init_ps_mode(cairo_win32_printing_surf
 {
 	INT ps_feature, ps_level;
 	DWORD word = PSIDENT_GDICENTRIC;
-	if(ExtEscape(surface->win32.dc, POSTSCRIPT_IDENTIFY, sizeof(DWORD), (char*)&word, 0, (char*)NULL) <= 0)
+	if(ExtEscape(surface->win32.dc, POSTSCRIPT_IDENTIFY, sizeof(DWORD), (char *)&word, 0, (char *)NULL) <= 0)
 		return;
 	ps_feature = FEATURESETTING_PSLEVEL;
-	if(ExtEscape(surface->win32.dc, GET_PS_FEATURESETTING, sizeof(INT), (char*)&ps_feature, sizeof(INT), (char*)&ps_level) <= 0)
+	if(ExtEscape(surface->win32.dc, GET_PS_FEATURESETTING, sizeof(INT), (char *)&ps_feature, sizeof(INT), (char *)&ps_level) <= 0)
 		return;
 	if(ps_level >= 3)
 		surface->win32.flags |= CAIRO_WIN32_SURFACE_CAN_RECT_GRADIENT;
@@ -121,11 +121,11 @@ static void _cairo_win32_printing_surface_init_image_support(cairo_win32_printin
 	DWORD word;
 
 	word = CHECKJPEGFORMAT;
-	if(ExtEscape(surface->win32.dc, QUERYESCSUPPORT, sizeof(word), (char*)&word, 0, (char*)NULL) > 0)
+	if(ExtEscape(surface->win32.dc, QUERYESCSUPPORT, sizeof(word), (char *)&word, 0, (char *)NULL) > 0)
 		surface->win32.flags |= CAIRO_WIN32_SURFACE_CAN_CHECK_JPEG;
 
 	word = CHECKPNGFORMAT;
-	if(ExtEscape(surface->win32.dc, QUERYESCSUPPORT, sizeof(word), (char*)&word, 0, (char*)NULL) > 0)
+	if(ExtEscape(surface->win32.dc, QUERYESCSUPPORT, sizeof(word), (char *)&word, 0, (char *)NULL) > 0)
 		surface->win32.flags |= CAIRO_WIN32_SURFACE_CAN_CHECK_PNG;
 }
 
@@ -670,7 +670,7 @@ static cairo_int_status_t _cairo_win32_printing_surface_check_jpeg(cairo_win32_p
 	if(status)
 		return status;
 	result = 0;
-	if(ExtEscape(surface->win32.dc, CHECKJPEGFORMAT, mime_data_length, (char*)mime_data, sizeof(result), (char*)&result) <= 0)
+	if(ExtEscape(surface->win32.dc, CHECKJPEGFORMAT, mime_data_length, (char *)mime_data, sizeof(result), (char *)&result) <= 0)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	if(result != 1)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
@@ -695,7 +695,7 @@ static cairo_int_status_t _cairo_win32_printing_surface_check_png(cairo_win32_pr
 	if(status)
 		return status;
 	result = 0;
-	if(ExtEscape(surface->win32.dc, CHECKPNGFORMAT, mime_data_length, (char*)mime_data, sizeof(result), (char*)&result) <= 0)
+	if(ExtEscape(surface->win32.dc, CHECKPNGFORMAT, mime_data_length, (char *)mime_data, sizeof(result), (char *)&result) <= 0)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	if(result != 1)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
@@ -1146,31 +1146,21 @@ static cairo_int_status_t _cairo_win32_printing_surface_show_page(void * abstrac
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _cairo_win32_printing_surface_clipper_intersect_clip_path(cairo_surface_clipper_t * clipper,
-    cairo_path_fixed_t * path,
-    cairo_fill_rule_t fill_rule,
-    double tolerance,
-    cairo_antialias_t antialias)
+static cairo_status_t _cairo_win32_printing_surface_clipper_intersect_clip_path(cairo_surface_clipper_t * clipper, cairo_path_fixed_t * path,
+    cairo_fill_rule_t fill_rule, double tolerance, cairo_antialias_t antialias)
 {
-	cairo_win32_printing_surface_t * surface = cairo_container_of(clipper,
-		cairo_win32_printing_surface_t,
-		clipper);
+	cairo_win32_printing_surface_t * surface = cairo_container_of(clipper, cairo_win32_printing_surface_t, clipper);
 	cairo_status_t status;
-
 	if(surface->paginated_mode == CAIRO_PAGINATED_MODE_ANALYZE)
 		return CAIRO_STATUS_SUCCESS;
-
 	if(path == NULL) {
 		RestoreDC(surface->win32.dc, -1);
 		SaveDC(surface->win32.dc);
-
 		return CAIRO_STATUS_SUCCESS;
 	}
-
 	BeginPath(surface->win32.dc);
 	status = _cairo_win32_printing_surface_emit_path(surface, path);
 	EndPath(surface->win32.dc);
-
 	switch(fill_rule) {
 		case CAIRO_FILL_RULE_WINDING:
 		    SetPolyFillMode(surface->win32.dc, WINDING);
@@ -1181,9 +1171,7 @@ static cairo_status_t _cairo_win32_printing_surface_clipper_intersect_clip_path(
 		default:
 		    ASSERT_NOT_REACHED;
 	}
-
 	SelectClipPath(surface->win32.dc, RGN_AND);
-
 	return status;
 }
 

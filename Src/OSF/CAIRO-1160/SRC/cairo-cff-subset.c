@@ -2995,13 +2995,13 @@ static cairo_int_status_t cairo_cff_font_fallback_generate(cairo_cff_font_t * fo
 	/* Create Top Dict */
 	font->is_cid = FALSE;
 
-	snprintf((char*)buf, sizeof(buf), "CairoFont-%u-%u",
+	snprintf((char *)buf, sizeof(buf), "CairoFont-%u-%u",
 	    font->scaled_font_subset->font_id,
 	    font->scaled_font_subset->subset_id);
 	sid = NUM_STD_STRINGS + _cairo_array_num_elements(&font->strings_subset_index);
 	status = cff_index_append_copy(&font->strings_subset_index,
 		(uchar*)buf,
-		strlen((char*)buf));
+		strlen((char *)buf));
 	if(unlikely(status))
 		return status;
 

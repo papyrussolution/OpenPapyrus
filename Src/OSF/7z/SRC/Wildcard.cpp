@@ -229,7 +229,7 @@ int CCensorNode::FindSubNode(const UString &name) const
 	return -1;
 }
 
-void CCensorNode::AddItemSimple(bool include, CItem &item)
+void CCensorNode::AddItemSimple(bool include, const CItem & item)
 {
 	if(include)
 		IncludeItems.Add(item);
@@ -419,7 +419,7 @@ int CCensor::FindPrefix(const UString &prefix) const
 		wchar_t c = s[0];
 		return c != 0 && s[1] == ':' && s[2] == 0 && (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z');
 	}
-	uint GetNumPrefixParts_if_DrivePath(UStringVector & pathParts)
+	uint GetNumPrefixParts_if_DrivePath(const UStringVector & pathParts)
 	{
 		if(pathParts.IsEmpty())
 			return 0;

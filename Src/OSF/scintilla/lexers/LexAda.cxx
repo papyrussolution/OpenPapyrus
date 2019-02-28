@@ -43,11 +43,11 @@ static void ColouriseCharacter(StyleContext& sc, bool& apostropheStartsAttribute
 static void ColouriseComment(StyleContext& sc, bool& apostropheStartsAttribute);
 static void ColouriseContext(StyleContext& sc, char chEnd, int stateEOL);
 static void ColouriseDelimiter(StyleContext& sc, bool& apostropheStartsAttribute);
-static void ColouriseLabel(StyleContext& sc, WordList& keywords, bool& apostropheStartsAttribute);
+static void ColouriseLabel(StyleContext& sc, const WordList& keywords, bool& apostropheStartsAttribute);
 static void ColouriseNumber(StyleContext& sc, bool& apostropheStartsAttribute);
 static void ColouriseString(StyleContext& sc, bool& apostropheStartsAttribute);
 static void ColouriseWhiteSpace(StyleContext& sc, bool& apostropheStartsAttribute);
-static void ColouriseWord(StyleContext& sc, WordList& keywords, bool& apostropheStartsAttribute);
+static void ColouriseWord(StyleContext& sc, const WordList& keywords, bool& apostropheStartsAttribute);
 
 static bool FASTCALL IsDelimiterCharacter(int ch);
 static bool FASTCALL IsSeparatorOrDelimiterCharacter(int ch);
@@ -102,23 +102,18 @@ static void ColouriseDelimiter(StyleContext& sc, bool& apostropheStartsAttribute
 	sc.ForwardSetState(SCE_ADA_DEFAULT);
 }
 
-static void ColouriseLabel(StyleContext& sc, WordList& keywords, bool& apostropheStartsAttribute)
+static void ColouriseLabel(StyleContext& sc, const WordList& keywords, bool& apostropheStartsAttribute)
 {
 	apostropheStartsAttribute = false;
-
 	sc.SetState(SCE_ADA_LABEL);
-
 	// Skip "<<"
 	sc.Forward();
 	sc.Forward();
-
 	std::string identifier;
-
 	while(!sc.atLineEnd && !IsSeparatorOrDelimiterCharacter(sc.ch)) {
 		identifier += static_cast<char>(tolower(sc.ch));
 		sc.Forward();
 	}
-
 	// Skip ">>"
 	if(sc.Match('>', '>')) {
 		sc.Forward();
@@ -127,12 +122,10 @@ static void ColouriseLabel(StyleContext& sc, WordList& keywords, bool& apostroph
 	else {
 		sc.ChangeState(SCE_ADA_ILLEGAL);
 	}
-
 	// If the name is an invalid identifier or a keyword, then make it invalid label
 	if(!IsValidIdentifier(identifier) || keywords.InList(identifier.c_str())) {
 		sc.ChangeState(SCE_ADA_ILLEGAL);
 	}
-
 	sc.SetState(SCE_ADA_DEFAULT);
 }
 
@@ -186,29 +179,24 @@ static void ColouriseWhiteSpace(StyleContext& sc, bool& /*apostropheStartsAttrib
 	sc.ForwardSetState(SCE_ADA_DEFAULT);
 }
 
-static void ColouriseWord(StyleContext& sc, WordList& keywords, bool& apostropheStartsAttribute)
+static void ColouriseWord(StyleContext& sc, const WordList& keywords, bool& apostropheStartsAttribute)
 {
 	apostropheStartsAttribute = true;
 	sc.SetState(SCE_ADA_IDENTIFIER);
-
 	std::string word;
-
 	while(!sc.atLineEnd && !IsSeparatorOrDelimiterCharacter(sc.ch)) {
 		word += static_cast<char>(tolower(sc.ch));
 		sc.Forward();
 	}
-
 	if(!IsValidIdentifier(word)) {
 		sc.ChangeState(SCE_ADA_ILLEGAL);
 	}
 	else if(keywords.InList(word.c_str())) {
 		sc.ChangeState(SCE_ADA_WORD);
-
 		if(word != "all") {
 			apostropheStartsAttribute = false;
 		}
 	}
-
 	sc.SetState(SCE_ADA_DEFAULT);
 }
 

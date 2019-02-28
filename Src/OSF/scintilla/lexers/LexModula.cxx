@@ -45,7 +45,7 @@ static bool FASTCALL IsDigitOfBase(unsigned ch, unsigned base)
 	return true;
 }
 
-static inline unsigned IsOperator(const StyleContext & sc, WordList & op)
+static inline unsigned IsOperator(const StyleContext & sc, const WordList & op)
 {
 	int i;
 	char s[3];

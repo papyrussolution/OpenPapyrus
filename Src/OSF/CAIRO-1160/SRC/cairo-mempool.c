@@ -238,7 +238,7 @@ cairo_status_t _cairo_mempool_init(cairo_mempool_t * pool, void * base, size_t b
 	tmp = ((ulong)base) & ((1 << min_bits) - 1);
 	if(tmp) {
 		tmp = (1 << min_bits) - tmp;
-		base = (char*)base + tmp;
+		base = (char *)base + tmp;
 		bytes -= tmp;
 	}
 	assert((((ulong)base) & ((1 << min_bits) - 1)) == 0);
@@ -283,7 +283,7 @@ void _cairo_mempool_free(cairo_mempool_t * pool, void * storage)
 {
 	size_t block_offset;
 	struct _cairo_mempool::_cairo_memblock * block;
-	block_offset = ((char*)storage - pool->base) >> pool->min_bits;
+	block_offset = ((char *)storage - pool->base) >> pool->min_bits;
 	block = (pool->blocks + block_offset);
 	BITCLEAR(pool, block_offset + ((1 << block->bits) - 1));
 	pool->free_bytes += 1 << (block->bits + pool->min_bits);

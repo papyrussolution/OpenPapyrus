@@ -201,7 +201,7 @@ static int vms_load(DSO * dso)
 	p->imagename_dsc.dsc$b_class = DSC$K_CLASS_S;
 	p->imagename_dsc.dsc$a_pointer = p->imagename;
 
-	if(!sk_void_push(dso->meth_data, (char*)p)) {
+	if(!sk_void_push(dso->meth_data, (char *)p)) {
 		DSOerr(DSO_F_VMS_LOAD, DSO_R_STACK_ERROR);
 		goto err;
 	}
@@ -284,7 +284,7 @@ void vms_bind_sym(DSO * dso, const char * symname, void ** sym)
 #  pragma pointer_size restore
 	char symname_32[NAMX_MAXRSS + 1];
 # else                          /* __INITIAL_POINTER_SIZE == 64 */
-#define SYMNAME ((char*)symname)
+#define SYMNAME ((char *)symname)
 # endif                         /* __INITIAL_POINTER_SIZE == 64 [else] */
 
 	*sym = NULL;
@@ -387,8 +387,8 @@ static char * vms_merger(DSO * dso, const char * filespec1,
 	char filespec1_32[NAMX_MAXRSS + 1];
 	char filespec2_32[NAMX_MAXRSS + 1];
 # else                          /* __INITIAL_POINTER_SIZE == 64 */
-#define FILESPEC1 ((char*)filespec1)
-#define FILESPEC2 ((char*)filespec2)
+#define FILESPEC1 ((char *)filespec1)
+#define FILESPEC2 ((char *)filespec2)
 # endif                         /* __INITIAL_POINTER_SIZE == 64 [else] */
 
 	if(!filespec1)

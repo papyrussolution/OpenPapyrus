@@ -54,17 +54,17 @@
 	#define inline _inline
 #endif
 
-//#define ustrcpy_Removed(target,source) strcpy((char*)target,(const char*)source)
+//#define ustrcpy_Removed(target,source) strcpy((char *)target,(const char*)source)
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
     //extern size_t ustrlen_(const uchar source[]);
-    extern int FASTCALL ctoi_ReplacedWith_hex(const char source);
+    extern int  FASTCALL ctoi_ReplacedWith_hex(const char source);
     extern char FASTCALL itoc(const int source);
     extern void to_upper(uchar source[]);
-    extern int is_sane(const char test_string[], const uchar source[], const size_t length);
+    extern int  FASTCALL is_sane(const char test_string[], const uchar source[], const size_t length);
     extern void lookup(const char set_string[], const char *table[], const char data, char dest[]);
     extern int posn(const char set_string[], const char data);
     extern void FASTCALL expand(struct ZintSymbol *symbol, const char data[]);

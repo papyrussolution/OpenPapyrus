@@ -940,7 +940,7 @@ static void xmlRegPrintAtom(FILE * output, xmlRegAtom * atom)
 		if(atom->quant == XML_REGEXP_QUANT_RANGE)
 			fprintf(output, "%d-%d ", atom->min, atom->max);
 		if(atom->type == XML_REGEXP_STRING)
-			fprintf(output, "'%s' ", (char*)atom->valuep);
+			fprintf(output, "'%s' ", (char *)atom->valuep);
 		if(atom->type == XML_REGEXP_CHARVAL)
 			fprintf(output, "char %c\n", atom->codepoint);
 		else if(atom->type == XML_REGEXP_RANGES) {
@@ -5314,7 +5314,7 @@ xmlAutomataStatePtr xmlAutomataNewNegTrans(xmlAutomataPtr am, xmlAutomataStatePt
 		str[lenn + lenp + 1] = 0;
 		atom->valuep = str;
 	}
-	snprintf((char*)err_msg, 199, "not %s", (const char*)atom->valuep);
+	snprintf((char *)err_msg, 199, "not %s", (const char*)atom->valuep);
 	err_msg[199] = 0;
 	atom->valuep2 = sstrdup(err_msg);
 

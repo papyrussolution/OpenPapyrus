@@ -160,7 +160,7 @@ static void ngx_stream_proxy_protocol_handler(ngx_event_t * rev)
 		ngx_stream_finalize_session(s, NGX_STREAM_OK);
 	}
 	else {
-		ssize_t n = recv(c->fd, (char*)buf, sizeof(buf), MSG_PEEK);
+		ssize_t n = recv(c->fd, (char *)buf, sizeof(buf), MSG_PEEK);
 		ngx_err_t err = ngx_socket_errno;
 		ngx_log_debug1(NGX_LOG_DEBUG_STREAM, c->log, 0, "recv(): %z", n);
 		if(n == -1) {

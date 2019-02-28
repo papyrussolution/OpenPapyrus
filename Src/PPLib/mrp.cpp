@@ -868,7 +868,7 @@ int SLAPI MrpTabPacket::GetList(PPIDArray * pList) const
 	return pList->getCount() ? 1 : -1;
 }
 
-IMPL_CMPFUNC(MrpTabLeaf, i1, i2) { RET_CMPCASCADE3((const MrpTabLeaf *)i1, (const MrpTabLeaf *)i2, Dt, LocID, TabID); }
+IMPL_CMPFUNC(MrpTabLeaf, i1, i2) { RET_CMPCASCADE3(static_cast<const MrpTabLeaf *>(i1), static_cast<const MrpTabLeaf *>(i2), Dt, LocID, TabID); }
 
 void SLAPI MrpTabPacket::Sort()
 {

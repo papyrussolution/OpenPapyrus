@@ -21,7 +21,7 @@ ssize_t ngx_wsasend(ngx_connection_t * c, u_char * buf, size_t size)
 	 * WSABUF must be 4-byte aligned otherwise
 	 * WSASend() will return undocumented WSAEINVAL error.
 	 */
-	wsabuf.buf = (char*)buf;
+	wsabuf.buf = (char *)buf;
 	wsabuf.len = size;
 	sent = 0;
 	n = WSASend(c->fd, &wsabuf, 1, &sent, 0, NULL, NULL);
@@ -63,7 +63,7 @@ ssize_t ngx_overlapped_wsasend(ngx_connection_t * c, u_char * buf, size_t size)
 		 * WSABUFs must be 4-byte aligned otherwise
 		 * WSASend() will return undocumented WSAEINVAL error.
 		 */
-		wsabuf.buf = (char*)buf;
+		wsabuf.buf = (char *)buf;
 		wsabuf.len = size;
 		sent = 0;
 		ovlp = (LPWSAOVERLAPPED)&c->P_EvWr->ovlp;

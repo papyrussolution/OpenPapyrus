@@ -284,7 +284,7 @@ ngx_int_t ngx_ssl_certificate(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_str_t * cert
 	 * it here
 	 */
 
-	bio = BIO_new_file((char*)cert->data, "r");
+	bio = BIO_new_file((char *)cert->data, "r");
 	if(bio == NULL) {
 		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0, "BIO_new_file(\"%s\") failed", cert->data);
 		return NGX_ERROR;
@@ -375,13 +375,13 @@ ngx_int_t ngx_ssl_certificate(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_str_t * cert
 			return NGX_ERROR;
 		}
 		*last = '\0';
-		engine = ENGINE_by_id((char*)p);
+		engine = ENGINE_by_id((char *)p);
 		if(engine == NULL) {
 			ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0, "ENGINE_by_id(\"%s\") failed", p);
 			return NGX_ERROR;
 		}
 		*last++ = ':';
-		pkey = ENGINE_load_private_key(engine, (char*)last, 0, 0);
+		pkey = ENGINE_load_private_key(engine, (char *)last, 0, 0);
 		if(pkey == NULL) {
 			ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0, "ENGINE_load_private_key(\"%s\") failed", last);
 			ENGINE_free(engine);
@@ -417,7 +417,7 @@ ngx_int_t ngx_ssl_certificate(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_str_t * cert
 #endif
 	}
 	for(;; ) {
-		if(SSL_CTX_use_PrivateKey_file(ssl->ctx, (char*)key->data, SSL_FILETYPE_PEM) != 0) {
+		if(SSL_CTX_use_PrivateKey_file(ssl->ctx, (char *)key->data, SSL_FILETYPE_PEM) != 0) {
 			break;
 		}
 		if(--tries) {
@@ -452,7 +452,7 @@ static int ngx_ssl_password_callback(char * buf, int size, int rwflag, void * us
 ngx_int_t ngx_ssl_ciphers(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_str_t * ciphers,
     ngx_uint_t prefer_server_ciphers)
 {
-	if(SSL_CTX_set_cipher_list(ssl->ctx, (char*)ciphers->data) == 0) {
+	if(SSL_CTX_set_cipher_list(ssl->ctx, (char *)ciphers->data) == 0) {
 		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0, "SSL_CTX_set_cipher_list(\"%V\") failed", ciphers);
 		return NGX_ERROR;
 	}
@@ -477,7 +477,7 @@ ngx_int_t ngx_ssl_client_certificate(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_str_t
 	if(ngx_conf_full_name(cf->cycle, cert, 1) != NGX_OK) {
 		return NGX_ERROR;
 	}
-	if(SSL_CTX_load_verify_locations(ssl->ctx, (char*)cert->data, NULL) == 0) {
+	if(SSL_CTX_load_verify_locations(ssl->ctx, (char *)cert->data, NULL) == 0) {
 		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0, "SSL_CTX_load_verify_locations(\"%s\") failed", cert->data);
 		return NGX_ERROR;
 	}
@@ -486,7 +486,7 @@ ngx_int_t ngx_ssl_client_certificate(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_str_t
 	 * while returning success
 	 */
 	ERR_clear_error();
-	list = SSL_load_client_CA_file((char*)cert->data);
+	list = SSL_load_client_CA_file((char *)cert->data);
 	if(list == NULL) {
 		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0, "SSL_load_client_CA_file(\"%s\") failed", cert->data);
 		return NGX_ERROR;
@@ -509,7 +509,7 @@ ngx_int_t ngx_ssl_trusted_certificate(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_str_
 	if(ngx_conf_full_name(cf->cycle, cert, 1) != NGX_OK) {
 		return NGX_ERROR;
 	}
-	if(SSL_CTX_load_verify_locations(ssl->ctx, (char*)cert->data, NULL) == 0) {
+	if(SSL_CTX_load_verify_locations(ssl->ctx, (char *)cert->data, NULL) == 0) {
 		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0, "SSL_CTX_load_verify_locations(\"%s\") failed", cert->data);
 		return NGX_ERROR;
 	}
@@ -550,7 +550,7 @@ ngx_int_t ngx_ssl_crl(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_str_t * crl)
 		return NGX_ERROR;
 	}
 
-	if(X509_LOOKUP_load_file(lookup, (char*)crl->data, X509_FILETYPE_PEM)
+	if(X509_LOOKUP_load_file(lookup, (char *)crl->data, X509_FILETYPE_PEM)
 	    == 0) {
 		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0, "X509_LOOKUP_load_file(\"%s\") failed", crl->data);
 		return NGX_ERROR;
@@ -755,7 +755,7 @@ ngx_int_t ngx_ssl_dhparam(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_str_t * file)
 		return NGX_ERROR;
 	}
 
-	bio = BIO_new_file((char*)file->data, "r");
+	bio = BIO_new_file((char *)file->data, "r");
 	if(bio == NULL) {
 		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0, "BIO_new_file(\"%s\") failed", file->data);
 		return NGX_ERROR;
@@ -811,7 +811,7 @@ ngx_int_t ngx_ssl_ecdh_curve(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_str_t * name)
 	if(sstreq(name->data, "auto")) {
 		return NGX_OK;
 	}
-	if(SSL_CTX_set1_curves_list(ssl->ctx, (char*)name->data) == 0) {
+	if(SSL_CTX_set1_curves_list(ssl->ctx, (char *)name->data) == 0) {
 		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0, "SSL_CTX_set1_curves_list(\"%s\") failed", name->data);
 		return NGX_ERROR;
 	}
@@ -824,7 +824,7 @@ ngx_int_t ngx_ssl_ecdh_curve(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_str_t * name)
 		curve = "prime256v1";
 	}
 	else {
-		curve = (char*)name->data;
+		curve = (char *)name->data;
 	}
 	nid = OBJ_sn2nid(curve);
 	if(nid == 0) {
@@ -1553,7 +1553,7 @@ void ngx_cdecl ngx_ssl_error(ngx_uint_t level, ngx_log_t * log, ngx_err_t err, c
 			goto next;
 		}
 		*p++ = ' ';
-		ERR_error_string_n(n, (char*)p, last - p);
+		ERR_error_string_n(n, (char *)p, last - p);
 		while(p < last && *p) {
 			p++;
 		}
@@ -2210,7 +2210,7 @@ ngx_int_t ngx_ssl_check_host(ngx_connection_t * c, ngx_str_t * name)
 	if(name->len == 0) {
 		goto failed;
 	}
-	if(X509_check_host(cert, (char*)name->data, name->len, 0, NULL) != 1) {
+	if(X509_check_host(cert, (char *)name->data, name->len, 0, NULL) != 1) {
 		ngx_log_debug0(NGX_LOG_DEBUG_EVENT, c->log, 0, "X509_check_host(): no match");
 		goto failed;
 	}
@@ -2370,7 +2370,7 @@ ngx_int_t ngx_ssl_get_ciphers(ngx_connection_t * c, ngx_pool_t * pool, ngx_str_t
 	s->len = p - s->data;
 #else
 	u_char buf[4096];
-	if(SSL_get_shared_ciphers(c->ssl->connection, (char*)buf, 4096)
+	if(SSL_get_shared_ciphers(c->ssl->connection, (char *)buf, 4096)
 	    == NULL) {
 		s->len = 0;
 		return NGX_OK;
@@ -2923,7 +2923,7 @@ static const char * ngx_openssl_engine(ngx_conf_t * cf, const ngx_command_t * cm
 	else {
 		oscf->engine = 1;
 		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
-		ENGINE * engine = ENGINE_by_id((char*)value[1].data);
+		ENGINE * engine = ENGINE_by_id((char *)value[1].data);
 		if(engine == NULL) {
 			ngx_ssl_error(NGX_LOG_EMERG, cf->log, 0, "ENGINE_by_id(\"%V\") failed", &value[1]);
 			return NGX_CONF_ERROR;

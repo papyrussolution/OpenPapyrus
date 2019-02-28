@@ -36,16 +36,16 @@ TYPEID SLAPI DBItem::stype() const
 	int    bt;
 	TYPEID st = 0;
 	if(Id > 0)
-		st = ((DBField *)this)->getField().T;
+		st = static_cast<const DBField *>(this)->getField().T;
 	else if(Id == DBE_ID) {
-		if(((DBE *)this)->Count) {
-			DBE::T & t = ((DBE *)this)->P_Terms[((DBE *)this)->Count-1];
+		if(static_cast<const DBE *>(this)->Count) {
+			DBE::T & t = static_cast<const DBE *>(this)->P_Terms[static_cast<const DBE *>(this)->Count-1];
 			//CHECK(t.tag == DBE::T::func);
 			bt = DbqFuncTab::Get(t.function)->typ;
 			if(bt == BTS_STRING) {
 				DBConst len;
 				len.init(0L);
-				((DBE *)this)->evaluate(CALC_SIZE, &len);
+				const_cast<DBE *>(static_cast<const DBE *>(this))->evaluate(CALC_SIZE, &len); // @badcast
 				st = MKSTYPE(S_ZSTRING, (int)len.lval);
 			}
 			else
@@ -53,9 +53,9 @@ TYPEID SLAPI DBItem::stype() const
 		}
 	}
 	else if(Id == DBConst_ID) {
-		bt = ((DBConst *)this)->Tag;
+		bt = static_cast<const DBConst *>(this)->Tag;
 		if(bt == BTS_STRING) {
-			const char * p = ((DBConst *)this)->sptr;
+			const char * p = static_cast<const DBConst *>(this)->sptr;
 			st = MKSTYPE(S_ZSTRING, (p ? sstrlen(p) : 0) + 1);
 		}
 		else
@@ -68,16 +68,16 @@ int SLAPI DBItem::baseType() const
 {
 	int    bt = BTS_VOID;
 	if(Id > 0)
-		bt = stbase(((DBField *)this)->getField().T);
+		bt = stbase(static_cast<const DBField *>(this)->getField().T);
 	else if(Id == DBE_ID) {
-		if(((DBE *)this)->Count) {
-			DBE::T & t = ((DBE *)this)->P_Terms[((DBE *)this)->Count-1];
+		if(static_cast<const DBE *>(this)->Count) {
+			DBE::T & t = static_cast<const DBE *>(this)->P_Terms[static_cast<const DBE *>(this)->Count-1];
 			//CHECK(t.tag == DBE::T::func);
 			bt = DbqFuncTab::Get(t.function)->typ;
 		}
 	}
 	else if(Id == DBConst_ID)
-		bt = ((DBConst *)this)->Tag;
+		bt = static_cast<const DBConst *>(this)->Tag;
 	return bt;
 }
 //
@@ -229,8 +229,8 @@ char * FASTCALL DBConst::tostring(long fmt, char * pBuf) const
 
 int FASTCALL DBConst::fromfld(DBField f)
 {
-	TYPEID t = f.getField().T;
-	void * v = f.getValuePtr();
+	const TYPEID t = f.getField().T;
+	const void * v = f.getValuePtr();
 	Tag = /*(DBConst::_tag)*/stbase(t);
 	if(Tag == BTS_VOID)
 		return 0;
@@ -309,7 +309,7 @@ int FASTCALL DBE::evaluate(int option, DBConst * r)
 
 int FASTCALL DBE::push(DBE::T * t)
 {
-	P_Terms = (DBE::T*)SAlloc::R(P_Terms, sizeof(DBE::T) * (Count+1));
+	P_Terms = static_cast<DBE::T *>(SAlloc::R(P_Terms, sizeof(DBE::T) * (Count+1)));
 	if(P_Terms == 0) {
 		Count = 0;
 		return 0;
@@ -671,14 +671,14 @@ SLAPI DBQ::DBQ(DBItem & left, int cmp, DBItem & right) : count(1), items(new T)
 	}
 	items[0].cmp = cmp;
 	switch(left.typeOfItem()) {
-		case DBConst_ID: items[0].left.C  = *(DBConst *)&left;  break;
-		case DBE_ID:     items[0].left.E  = *(DBE *)&left; break;
-		case DBField_ID: items[0].left.F  = *(DBField *)&left;  break;
+		case DBConst_ID: items[0].left.C  = *static_cast<DBConst *>(&left);  break;
+		case DBE_ID:     items[0].left.E  = *static_cast<DBE *>(&left); break;
+		case DBField_ID: items[0].left.F  = *static_cast<DBField *>(&left);  break;
 	}
 	switch(right.typeOfItem()) {
-		case DBConst_ID: items[0].right.C = *(DBConst *)&right; break;
-		case DBE_ID:     items[0].right.E = *(DBE *)&right;     break;
-		case DBField_ID: items[0].right.F = *(DBField *)&right; break;
+		case DBConst_ID: items[0].right.C = *static_cast<DBConst *>(&right); break;
+		case DBE_ID:     items[0].right.E = *static_cast<DBE *>(&right);     break;
+		case DBField_ID: items[0].right.F = *static_cast<DBField *>(&right); break;
 	}
 	tree = new DBTree(this);
 	tree->addLeaf(0, 0, &tree->Root);

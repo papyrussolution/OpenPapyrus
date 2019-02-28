@@ -51,7 +51,7 @@
 int FASTCALL _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode, const char* errmsg, int errflags)
 {
 	if(session->err_flags & LIBSSH2_ERR_FLAG_DUP)
-		LIBSSH2_FREE(session, (char*)session->err_msg);
+		LIBSSH2_FREE(session, (char *)session->err_msg);
 	session->err_code = errcode;
 	session->err_flags = 0;
 	if(errmsg && ((errflags & LIBSSH2_ERR_FLAG_DUP) != 0)) {
@@ -230,7 +230,7 @@ LIBSSH2_API int libssh2_base64_decode(LIBSSH2_SESSION * session, char ** data, u
 	if(!d) {
 		return _libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for base64 decoding");
 	}
-	for(s = (uchar*)src; ((char*)s) < (src + src_len); s++) {
+	for(s = (uchar*)src; ((char *)s) < (src + src_len); s++) {
 		if((v = base64_reverse_table[*s]) < 0)
 			continue;
 		switch(i % 4) {

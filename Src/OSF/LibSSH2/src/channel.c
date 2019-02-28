@@ -669,7 +669,7 @@ static int channel_request_pty(LIBSSH2_CHANNEL * channel, const char * term, uin
 		s = channel->reqPTY_packet;
 		*(s++) = SSH_MSG_CHANNEL_REQUEST;
 		_libssh2_store_u32(&s, channel->remote.id);
-		_libssh2_store_str(&s, (char*)"pty-req", sizeof("pty-req") - 1);
+		_libssh2_store_str(&s, (char *)"pty-req", sizeof("pty-req") - 1);
 		*(s++) = 0x01;
 		_libssh2_store_str(&s, term, term_len);
 		_libssh2_store_u32(&s, width);
@@ -744,7 +744,7 @@ static int channel_request_pty_size(LIBSSH2_CHANNEL * channel, int width, int he
 		s = channel->reqPTY_packet;
 		*(s++) = SSH_MSG_CHANNEL_REQUEST;
 		_libssh2_store_u32(&s, channel->remote.id);
-		_libssh2_store_str(&s, (char*)"window-change", sizeof("window-change") - 1);
+		_libssh2_store_str(&s, (char *)"window-change", sizeof("window-change") - 1);
 		*(s++) = 0x00; /* Don't reply */
 		_libssh2_store_u32(&s, width);
 		_libssh2_store_u32(&s, height);
@@ -827,7 +827,7 @@ static int channel_x11_req(LIBSSH2_CHANNEL * channel, int single_connection, con
 
 			_libssh2_random(buffer, LIBSSH2_X11_RANDOM_COOKIE_LEN / 2);
 			for(i = 0; i < (LIBSSH2_X11_RANDOM_COOKIE_LEN / 2); i++) {
-				sprintf((char*)&s[i*2], "%02X", buffer[i]);
+				sprintf((char *)&s[i*2], "%02X", buffer[i]);
 			}
 		}
 		s += cookie_len;

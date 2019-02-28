@@ -1441,7 +1441,7 @@ PCRE_EXP_DEFN pcre32_extra * PCRE_CALL_CONVENTION pcre32_study(const pcre32 * ex
 			    *errorptr = "failed to get memory";
 			    return NULL;
 		    }
-		    study = (pcre_study_data*)((char*)extra + sizeof(PUBL(extra)));
+		    study = (pcre_study_data*)((char *)extra + sizeof(PUBL(extra)));
 		    extra->flags = PCRE_EXTRA_STUDY_DATA;
 		    extra->study_data = study;
 		    study->size = sizeof(pcre_study_data);

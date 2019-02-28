@@ -103,7 +103,7 @@ void FASTCALL dectodec(double val, char * dc, int16 len, int16 prec)
 	uchar * tmp = (uchar *)fcvt(val, prec, &dec, &sign);
 	memzero(dc, len);
 	uchar * di = (uchar*)(dc + len - 1);
-	size_t i = strlen((char*)tmp);
+	size_t i = strlen((const char *)tmp);
 	uchar * si = tmp + i - 1;
 	*di  = sign ? 0xd : 0xc;
 	sign = 1;

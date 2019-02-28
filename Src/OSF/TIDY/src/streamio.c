@@ -157,7 +157,7 @@ StreamIn* TY_(BufferInput) (TidyDocImpl* doc, TidyBuffer* buf, int encoding)
 	return in;
 }
 
-StreamIn* TY_(UserInput) (TidyDocImpl* doc, TidyInputSource* source, int encoding)
+StreamIn* TY_(UserInput) (TidyDocImpl* doc, const TidyInputSource* source, int encoding)
 {
 	StreamIn * in = TY_(initStreamIn) (doc, encoding);
 	memcpy(&in->source, source, sizeof(TidyInputSource));
@@ -553,7 +553,7 @@ StreamOut* TY_(BufferOutput) (TidyDocImpl *doc, TidyBuffer* buf, int encoding, u
 	out->iotype = BufferIO;
 	return out;
 }
-StreamOut* TY_(UserOutput) (TidyDocImpl *doc, TidyOutputSink* sink, int encoding, uint nl)
+StreamOut* TY_(UserOutput) (TidyDocImpl *doc, const TidyOutputSink* sink, int encoding, uint nl)
 {
 	StreamOut* out = initStreamOut(doc, encoding, nl);
 	memcpy(&out->sink, sink, sizeof(TidyOutputSink));
@@ -570,7 +570,6 @@ void TY_(WriteChar) (uint c, StreamOut* out)
 		else if(out->nl == TidyCR)
 			c = CR;
 	}
-
 	if(out->encoding == MACROMAN) {
 		EncodeMacRoman(c, out);
 	}
@@ -583,10 +582,8 @@ void TY_(WriteChar) (uint c, StreamOut* out)
 	else if(out->encoding == LATIN0) {
 		EncodeLatin0(c, out);
 	}
-
 	else if(out->encoding == UTF8) {
 		int count = 0;
-
 		TY_(EncodeCharToUTF8Bytes) (c, NULL, &out->sink, &count);
 		if(count <= 0) {
 			/* TY_(ReportEncodingError)(in->lexer, INVALID_UTF8 | REPLACED_CHAR, c); */

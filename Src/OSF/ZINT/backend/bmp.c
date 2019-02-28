@@ -72,7 +72,7 @@ int bmp_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 	bitmap_info_header_t info_header;
 	SAlloc::F(symbol->bitmap);
 	row_size = (int)(4 * floor((24.0 * symbol->bitmap_width + 31) / 32));
-	bitmap = (char*)SAlloc::M(row_size * symbol->bitmap_height);
+	bitmap = (char *)SAlloc::M(row_size * symbol->bitmap_height);
 	/*
 	fgred = (16 * hex(symbol->fgcolour[0])) + hex(symbol->fgcolour[1]);
 	fggrn = (16 * hex(symbol->fgcolour[2])) + hex(symbol->fgcolour[3]);

@@ -744,7 +744,7 @@ static int FASTCALL doapr_outch(char ** sbuffer, char ** buffer, size_t * currle
 			return 0;
 		*maxlen += BUFFER_INC;
 		if(*buffer == NULL) {
-			*buffer = (char*)OPENSSL_malloc(*maxlen);
+			*buffer = (char *)OPENSSL_malloc(*maxlen);
 			if(*buffer == NULL)
 				return 0;
 			if(*currlen > 0) {
@@ -754,7 +754,7 @@ static int FASTCALL doapr_outch(char ** sbuffer, char ** buffer, size_t * currle
 			*sbuffer = NULL;
 		}
 		else {
-			char * tmpbuf = (char*)OPENSSL_realloc(*buffer, *maxlen);
+			char * tmpbuf = (char *)OPENSSL_realloc(*buffer, *maxlen);
 			if(tmpbuf == NULL)
 				return 0;
 			*buffer = tmpbuf;

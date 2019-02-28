@@ -62,7 +62,7 @@ static int do_esc_char(ulong c, uchar flags, char * do_quotes, char_io * io_ch, 
 		BIO_snprintf(tmphex, sizeof tmphex, "\\U%04lX", c);
 		return io_ch(arg, tmphex, 6) ? 6 :  -1;
 	}
-	chtmp = (uchar)c;
+	chtmp = static_cast<uchar>(c);
 	chflgs = (chtmp > 0x7f) ? (flags & ASN1_STRFLGS_ESC_MSB) : (char_type[chtmp] & flags);
 	if(chflgs & CHARTYPE_BS_ESC) {
 		/* If we don't escape with quotes, signal we need quotes */
@@ -214,7 +214,7 @@ static int do_dump(ulong lflags, char_io * io_ch, void * arg, const ASN1_STRING 
 		return outlen + 1;
 	}
 	t.type = str->type;
-	t.value.ptr = (char*)str;
+	t.value.ptr = (char *)str;
 	der_len = i2d_ASN1_TYPE(&t, 0);
 	der_buf = (uchar*)OPENSSL_malloc(der_len);
 	if(der_buf == NULL)

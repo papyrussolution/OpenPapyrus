@@ -48,8 +48,8 @@ int IconvGetChar(byte firstByte, StreamIn * in, uint * bytesRead)
 	inbuf[inbufsize++] = (char)firstByte;
 
 	while(inbufsize < TC_INBUFSIZE) {
-		char * outbufptr = (char*)outbuf;
-		char * inbufptr = (char*)inbuf;
+		char * outbufptr = (char *)outbuf;
+		char * inbufptr = (char *)inbuf;
 		size_t readNow = inbufsize;
 		size_t writeNow = TC_OUTBUFSIZE;
 		size_t result = 0;

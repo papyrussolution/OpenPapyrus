@@ -363,13 +363,13 @@ static int fpAcc(TIFF* tif, uint8* cp0, tmsize_t cc)
 	uint32 bps = tif->tif_dir.td_bitspersample / 8;
 	tmsize_t wc = cc / bps;
 	tmsize_t count = cc;
-	uint8 * cp = (uint8*)cp0;
+	uint8 * cp = (uint8 *)cp0;
 	uint8 * tmp;
 	if(cc%(bps*stride)!=0) {
 		TIFFErrorExt(tif->tif_clientdata, "fpAcc", "%s", "cc%(bps*stride))!=0");
 		return 0;
 	}
-	tmp = (uint8*)SAlloc::M(cc);
+	tmp = (uint8 *)SAlloc::M(cc);
 	if(!tmp)
 		return 0;
 	while(count > stride) {
@@ -377,7 +377,7 @@ static int fpAcc(TIFF* tif, uint8* cp0, tmsize_t cc)
 		count -= stride;
 	}
 	memcpy(tmp, cp0, cc);
-	cp = (uint8*)cp0;
+	cp = (uint8 *)cp0;
 	for(count = 0; count < wc; count++) {
 		uint32 byte;
 		for(byte = 0; byte < bps; byte++) {
@@ -562,13 +562,13 @@ static int fpDiff(TIFF* tif, uint8* cp0, tmsize_t cc)
 	uint32 bps = tif->tif_dir.td_bitspersample / 8;
 	tmsize_t wc = cc / bps;
 	tmsize_t count;
-	uint8 * cp = (uint8*)cp0;
+	uint8 * cp = (uint8 *)cp0;
 	uint8 * tmp;
 	if((cc%(bps*stride))!=0) {
 		TIFFErrorExt(tif->tif_clientdata, "fpDiff", "%s", "(cc%(bps*stride))!=0");
 		return 0;
 	}
-	tmp = (uint8*)SAlloc::M(cc);
+	tmp = (uint8 *)SAlloc::M(cc);
 	if(!tmp)
 		return 0;
 	memcpy(tmp, cp0, cc);
@@ -583,7 +583,7 @@ static int fpDiff(TIFF* tif, uint8* cp0, tmsize_t cc)
 		}
 	}
 	SAlloc::F(tmp);
-	cp = (uint8*)cp0;
+	cp = (uint8 *)cp0;
 	cp += cc - stride - 1;
 	for(count = cc; count > stride; count -= stride)
 		REPEAT4(stride, cp[stride] = (unsigned char)((cp[stride] - cp[0])&0xff); cp--)
@@ -617,7 +617,7 @@ static int PredictorEncodeTile(TIFF* tif, uint8* bp0, tmsize_t cc0, uint16 s)
 	 * Do predictor manipulation in a working buffer to avoid altering
 	 * the callers buffer. http://trac.osgeo.org/gdal/ticket/1965
 	 */
-	working_copy = (uint8*)SAlloc::M(cc0);
+	working_copy = (uint8 *)SAlloc::M(cc0);
 	if(working_copy == NULL) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Out of memory allocating " TIFF_SSIZE_FORMAT " byte temp buffer.", cc0);
 		return 0;

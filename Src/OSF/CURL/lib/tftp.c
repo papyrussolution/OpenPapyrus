@@ -387,7 +387,7 @@ static CURLcode tftp_send_first(tftp_state_data_t * state, tftp_event_t event)
 			    /* If we are uploading, send an WRQ */
 			    setpacketevent(&state->spacket, TFTP_EVENT_WRQ);
 			    state->conn->data->req.upload_fromhere =
-			    (char*)state->spacket.data+4;
+			    (char *)state->spacket.data+4;
 			    if(data->state.infilesize != -1)
 				    Curl_pgrsSetUploadSize(data, data->state.infilesize);
 		    }
@@ -401,7 +401,7 @@ static CURLcode tftp_send_first(tftp_state_data_t * state, tftp_event_t event)
 		    result = Curl_urldecode(data, &state->conn->data->state.path[1], 0, &filename, NULL, FALSE);
 		    if(result)
 			    return result;
-		    snprintf((char*)state->spacket.data+2, state->blksize, "%s%c%s%c", filename, '\0',  mode, '\0');
+		    snprintf((char *)state->spacket.data+2, state->blksize, "%s%c%s%c", filename, '\0',  mode, '\0');
 		    sbytes = 4 + sstrlen(filename) + sstrlen(mode);
 		    /* optional addition of TFTP options */
 		    if(!data->set.tftp_no_options) {
@@ -410,24 +410,24 @@ static CURLcode tftp_send_first(tftp_state_data_t * state, tftp_event_t event)
 				    snprintf(buf, sizeof(buf), "%" CURL_FORMAT_CURL_OFF_T, data->state.infilesize);
 			    else
 				    strcpy(buf, "0");  /* the destination is large enough */
-			    sbytes += tftp_option_add(state, sbytes, (char*)state->spacket.data+sbytes, TFTP_OPTION_TSIZE);
+			    sbytes += tftp_option_add(state, sbytes, (char *)state->spacket.data+sbytes, TFTP_OPTION_TSIZE);
 			    sbytes += tftp_option_add(state, sbytes,
-			    (char*)state->spacket.data+sbytes, buf);
+			    (char *)state->spacket.data+sbytes, buf);
 			    /* add blksize option */
 			    snprintf(buf, sizeof(buf), "%d", state->requested_blksize);
 			    sbytes += tftp_option_add(state, sbytes,
-			    (char*)state->spacket.data+sbytes,
+			    (char *)state->spacket.data+sbytes,
 			    TFTP_OPTION_BLKSIZE);
 			    sbytes += tftp_option_add(state, sbytes,
-			    (char*)state->spacket.data+sbytes, buf);
+			    (char *)state->spacket.data+sbytes, buf);
 
 			    /* add timeout option */
 			    snprintf(buf, sizeof(buf), "%d", state->retry_time);
 			    sbytes += tftp_option_add(state, sbytes,
-			    (char*)state->spacket.data+sbytes,
+			    (char *)state->spacket.data+sbytes,
 			    TFTP_OPTION_INTERVAL);
 			    sbytes += tftp_option_add(state, sbytes,
-			    (char*)state->spacket.data+sbytes, buf);
+			    (char *)state->spacket.data+sbytes, buf);
 		    }
 
 		    /* the typecase for the 3rd argument is mostly for systems that do
@@ -629,7 +629,7 @@ static CURLcode tftp_tx(tftp_state_data_t * state, tftp_event_t event)
 		     * data block.
 		     * */
 		    state->sbytes = 0;
-		    state->conn->data->req.upload_fromhere = (char*)state->spacket.data+4;
+		    state->conn->data->req.upload_fromhere = (char *)state->spacket.data+4;
 		    do {
 			    result = Curl_fillreadbuffer(state->conn, state->blksize - state->sbytes, &cb);
 			    if(result)
@@ -910,7 +910,7 @@ static CURLcode tftp_receive_packet(struct connectdata * conn)
 			case TFTP_EVENT_DATA:
 			    /* Don't pass to the client empty or retransmitted packets */
 			    if(state->rbytes > 4 && (NEXT_BLOCKNUM(state->block) == getrpacketblock(&state->rpacket))) {
-				    result = Curl_client_write(conn, CLIENTWRITE_BODY, (char*)state->rpacket.data+4, state->rbytes-4);
+				    result = Curl_client_write(conn, CLIENTWRITE_BODY, (char *)state->rpacket.data+4, state->rbytes-4);
 				    if(result) {
 					    tftp_state_machine(state, TFTP_EVENT_ERROR);
 					    return result;

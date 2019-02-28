@@ -30,13 +30,13 @@ char * curlx_strdup(const char * str)
 	size_t len;
 	char * newstr;
 	if(!str)
-		return (char*)NULL;
+		return (char *)NULL;
 	len = sstrlen(str);
 	if(len >= ((size_t)-1) / sizeof(char))
-		return (char*)NULL;
+		return (char *)NULL;
 	newstr = SAlloc::M((len+1)*sizeof(char));
 	if(!newstr)
-		return (char*)NULL;
+		return (char *)NULL;
 	memcpy(newstr, str, (len+1)*sizeof(char));
 	return newstr;
 }

@@ -46,7 +46,7 @@ static const char * MSITable[10] = {
 //
 // Not MSI/Plessey but the older Plessey standard 
 //
-int plessey(struct ZintSymbol * symbol, uchar source[], int length)
+int plessey(struct ZintSymbol * symbol, const uchar source[], int length)
 {
 	static const char grid[9] = {1, 1, 1, 1, 0, 1, 0, 0, 1};
 	char dest[1024]; /* 8 + 65 * 8 + 8 * 2 + 9 + 1 ~ 1024 */
@@ -100,7 +100,7 @@ int plessey(struct ZintSymbol * symbol, uchar source[], int length)
 //
 // Plain MSI Plessey - does not calculate any check character 
 //
-int msi_plessey(struct ZintSymbol * symbol, uchar source[], int length)
+static int msi_plessey(struct ZintSymbol * symbol, const uchar source[], int length)
 {
 	if(length > 55) {
 		sstrcpy(symbol->errtxt, "Input too long (C72)");
@@ -124,7 +124,7 @@ int msi_plessey(struct ZintSymbol * symbol, uchar source[], int length)
 // MSI Plessey with Modulo 10 check digit - algorithm from Barcode Island
 // http://www.barcodeisland.com/
 //
-int msi_plessey_mod10(struct ZintSymbol * symbol, uchar source[], int length)
+static int msi_plessey_mod10(struct ZintSymbol * symbol, const uchar source[], int length)
 {
 	int    error_number = 0;
 	if(length > 18) {
@@ -188,7 +188,7 @@ int msi_plessey_mod10(struct ZintSymbol * symbol, uchar source[], int length)
 // MSI Plessey with two Modulo 10 check digits - algorithm from
 // Barcode Island http://www.barcodeisland.com/ 
 //
-int msi_plessey_mod1010(struct ZintSymbol * symbol, uchar source[], const uint src_len)
+static int msi_plessey_mod1010(struct ZintSymbol * symbol, const uchar source[], const uint src_len)
 {
 	int    error_number = 0;
 	if(src_len > 18) { // No Entry Stack Smashers! limit because of str->number conversion
@@ -272,7 +272,7 @@ int msi_plessey_mod1010(struct ZintSymbol * symbol, uchar source[], const uint s
 
 /* Calculate a Modulo 11 check digit using the system discussed on Wikipedia -
     see http://en.wikipedia.org/wiki/Talk:MSI_Barcode */
-int msi_plessey_mod11(struct ZintSymbol * symbol, uchar source[], const uint src_len)
+static int msi_plessey_mod11(struct ZintSymbol * symbol, const uchar source[], const uint src_len)
 {
 	// uses the IBM weight system 
 	int    error_number = 0;
@@ -316,7 +316,7 @@ int msi_plessey_mod11(struct ZintSymbol * symbol, uchar source[], const uint src
 				expand(symbol, dest);
 				sstrcpy(symbol->text, source);
 				if(check == 10) {
-					strcat((char*)symbol->text, "10");
+					strcat((char *)symbol->text, "10");
 				}
 				else {
 					symbol->text[src_len] = itoc(check);
@@ -330,7 +330,7 @@ int msi_plessey_mod11(struct ZintSymbol * symbol, uchar source[], const uint src
 
 /* Combining the Barcode Island and Wikipedia code
  * Verified against http://www.bokai.com/BarcodeJSP/applet/BarcodeSampleApplet.htm */
-int msi_plessey_mod1110(struct ZintSymbol * symbol, uchar source[], const uint src_len)
+static int msi_plessey_mod1110(struct ZintSymbol * symbol, const uchar source[], const uint src_len)
 {
 	// Weighted using the IBM system 
 	ulong i, weight, x, check, wright, dau, pedwar, pump, h;
@@ -367,7 +367,7 @@ int msi_plessey_mod1110(struct ZintSymbol * symbol, uchar source[], const uint s
 		if(check == 10) {
 			lookup(NEON, MSITable, '1', dest);
 			lookup(NEON, MSITable, '0', dest);
-			strcat((char*)temp, "10");
+			strcat((char *)temp, "10");
 			temp_len += 2;
 		}
 		else {

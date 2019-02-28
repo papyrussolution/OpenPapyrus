@@ -111,7 +111,7 @@ int FASTCALL OPENSSL_sk_insert(OPENSSL_STACK * st, const void * data, int loc)
 		/* Avoid overflow due to multiplication by sizeof(char *) */
 		if(doub_num_alloc > SIZE_MAX / sizeof(char *))
 			return 0;
-		tmpdata = (const char**)OPENSSL_realloc((char*)st->data, sizeof(char *) * doub_num_alloc);
+		tmpdata = (const char**)OPENSSL_realloc((char *)st->data, sizeof(char *) * doub_num_alloc);
 		if(tmpdata == NULL)
 			return 0;
 		st->data = tmpdata;
@@ -223,7 +223,7 @@ void OPENSSL_sk_pop_free(OPENSSL_STACK * st, OPENSSL_sk_freefunc func)
 	if(st) {
 		for(int i = 0; i < st->num; i++)
 			if(st->data[i] != NULL)
-				func((char*)st->data[i]);
+				func((char *)st->data[i]);
 		OPENSSL_sk_free(st);
 	}
 }

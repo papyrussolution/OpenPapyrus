@@ -775,7 +775,7 @@ int SLAPI STimeSeries::SearchEntryReverse(const SUniTime & rUt, uint startPos, u
 static IMPL_CMPFUNC(SUniTime, p1, p2)
 {
 	int sq;
-	return ((SUniTime *)p1)->Compare(*(SUniTime *)p2, &sq);
+	return static_cast<const SUniTime *>(p1)->Compare(*static_cast<const SUniTime *>(p2), &sq);
 }
 
 int SLAPI STimeSeries::SearchEntryBinary(const SUniTime & rUt, uint * pIdx) const
@@ -883,11 +883,11 @@ int SLAPI STimeSeries::AddItems(const STimeSeries & rSrc, AppendStat * pStat)
 static IMPL_CMPFUNC(STimeSeriesIndex, p1, p2)
 {
 	int    si = 0;
-	const  STimeSeries * p_ts = (const STimeSeries *)pExtraData;
+	const  STimeSeries * p_ts = static_cast<const STimeSeries *>(pExtraData);
 	if(p_ts) {
 		SUniTime t1;
 		SUniTime t2;
-		if(p_ts->GetTime(*(uint *)p1, &t1) && p_ts->GetTime(*(uint *)p2, &t2)) {
+		if(p_ts->GetTime(*static_cast<const uint *>(p1), &t1) && p_ts->GetTime(*static_cast<const uint *>(p2), &t2)) {
 			int sq;
 			si = t1.Compare(t2, &sq);
 		}

@@ -147,7 +147,7 @@ int australia_post(struct ZintSymbol * symbol, uchar source[], int length)
 		memset(localstr, '0', zeroes);
 		localstr[8] = '\0';
 	}
-	strcat(localstr, (char*)source);
+	strcat(localstr, (char *)source);
 	h = strlen(localstr);
 	error_number = is_sane(GDSET, (uchar*)localstr, h);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {

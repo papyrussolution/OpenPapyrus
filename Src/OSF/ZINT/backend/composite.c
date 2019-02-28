@@ -163,7 +163,7 @@ static int encode928(ushort bitString[], ushort codeWords[], int bitLng)
 //
 // CC-A 2D component 
 //
-static int cc_a(struct ZintSymbol * symbol, char source[], int cc_width)
+static int cc_a(struct ZintSymbol * symbol, const char source[], int cc_width)
 {
 	int i, strpos, segment, bitlen, cwCnt, rows;
 	int k, offset, j, total, rsCodeWords[8];
@@ -980,8 +980,8 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 #ifndef _MSC_VER
 	char general_field[src_len + 1], general_field_type[src_len + 1];
 #else
-	char* general_field = (char*)_alloca(src_len + 1);
-	char* general_field_type = (char*)_alloca(src_len + 1);
+	char* general_field = (char *)_alloca(src_len + 1);
+	char* general_field_type = (char *)_alloca(src_len + 1);
 #endif
 	int    target_bitsize = 0;
 	int    encoding_method = 1;
@@ -1052,7 +1052,7 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 #ifndef _MSC_VER
 		char ninety[src_len + 1];
 #else
-		char* ninety = (char*)_alloca(src_len + 1);
+		char* ninety = (char *)_alloca(src_len + 1);
 #endif
 		char numeric_part[4];
 		int alpha, alphanum, numeric, test1, test2, test3, next_ai_posn;
@@ -1739,8 +1739,8 @@ int composite(struct ZintSymbol * symbol, uchar source[], int length)
 	char reduced[rs];
 	char binary_string[bs];
 #else
-	char* reduced = (char*)_alloca(rs);
-	char* binary_string = (char*)_alloca(bs);
+	char* reduced = (char *)_alloca(rs);
+	char* binary_string = (char *)_alloca(bs);
 #endif
 	struct ZintSymbol * linear;
 	int top_shift, bottom_shift;

@@ -169,7 +169,7 @@ static void _cairo_toy_font_face_fini(cairo_toy_font_face_t * font_face)
 	/* We assert here that we own font_face->family before casting
 	 * away the const qualifer. */
 	assert(font_face->owns_family);
-	SAlloc::F((char*)font_face->family);
+	SAlloc::F((char *)font_face->family);
 	if(font_face->impl_face)
 		cairo_font_face_destroy(font_face->impl_face);
 }

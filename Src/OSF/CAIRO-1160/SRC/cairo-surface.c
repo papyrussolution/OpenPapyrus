@@ -1045,7 +1045,7 @@ void cairo_surface_get_mime_data(cairo_surface_t * surface,
 	num_slots = surface->mime_data.num_elements;
 	slots = (cairo_user_data_slot_t *)_cairo_array_index(&surface->mime_data, 0);
 	for(i = 0; i < num_slots; i++) {
-		if(slots[i].key != NULL && strcmp((char*)slots[i].key, mime_type) == 0) {
+		if(slots[i].key != NULL && strcmp((char *)slots[i].key, mime_type) == 0) {
 			cairo_mime_data_t * mime_data = (cairo_mime_data_t *)slots[i].user_data;
 			*data = mime_data->data;
 			*length = mime_data->length;
@@ -1093,7 +1093,7 @@ cairo_bool_t _cairo_surface_has_mime_image(cairo_surface_t * surface)
 	for(i = 0; i < num_slots; i++) {
 		if(slots[i].key != NULL) {
 			for(j = 0; j < ARRAY_LENGTH(_cairo_surface_image_mime_types); j++) {
-				if(strcmp((char*)slots[i].key, _cairo_surface_image_mime_types[j]) == 0)
+				if(strcmp((char *)slots[i].key, _cairo_surface_image_mime_types[j]) == 0)
 					return TRUE;
 			}
 		}
@@ -1869,21 +1869,16 @@ cairo_status_t _cairo_surface_default_acquire_source_image(void * _surface,
  *
  * Releases any resources obtained with _cairo_surface_acquire_source_image()
  **/
-void _cairo_surface_release_source_image(cairo_surface_t * surface,
-    cairo_image_surface_t * image,
-    void * image_extra)
+void _cairo_surface_release_source_image(cairo_surface_t * surface, cairo_image_surface_t * image, void * image_extra)
 {
 	assert(!surface->finished);
-
 	if(surface->backend->release_source_image)
 		surface->backend->release_source_image(surface, image, image_extra);
 }
 
-void _cairo_surface_default_release_source_image(void * surface,
-    cairo_image_surface_t * image,
-    void * image_extra)
+void _cairo_surface_default_release_source_image(void * surface, cairo_image_surface_t * image, void * image_extra)
 {
-	cairo_status_t ignored = _cairo_surface_unmap_image((cairo_surface_t *)surface, image);
+	cairo_status_t ignored = _cairo_surface_unmap_image(static_cast<cairo_surface_t *>(surface), image);
 	(void)ignored;
 }
 
@@ -1896,8 +1891,8 @@ cairo_surface_t * _cairo_surface_get_source(cairo_surface_t * surface, cairo_rec
 cairo_surface_t * _cairo_surface_default_source(void * surface, cairo_rectangle_int_t * extents)
 {
 	if(extents)
-		_cairo_surface_get_extents((cairo_surface_t *)surface, extents);
-	return (cairo_surface_t *)surface;
+		_cairo_surface_get_extents(static_cast<cairo_surface_t *>(surface), extents);
+	return static_cast<cairo_surface_t *>(surface);
 }
 
 static cairo_status_t FASTCALL _pattern_has_error(const cairo_pattern_t * pattern)
@@ -2454,7 +2449,7 @@ cairo_status_t _cairo_surface_show_text_glyphs(cairo_surface_t * surface,
 	if(_cairo_scaled_font_has_color_glyphs(scaled_font)) {
 		status = composite_color_glyphs(surface, op,
 			source,
-			(char*)utf8, &utf8_len,
+			(char *)utf8, &utf8_len,
 			glyphs, &num_glyphs,
 			(cairo_text_cluster_t*)clusters, &num_clusters, cluster_flags,
 			scaled_font,

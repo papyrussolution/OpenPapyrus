@@ -13,7 +13,7 @@ u_char * ngx_strerror(ngx_err_t err, u_char * errstr, size_t size)
 	if(size == 0) {
 		return errstr;
 	}
-	len = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, lang, (char*)errstr, size, NULL);
+	len = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, lang, (char *)errstr, size, NULL);
 	if(len == 0 && lang && GetLastError() == ERROR_RESOURCE_LANG_NOT_FOUND) {
 		/*
 		 * Try to use English messages first and fallback to a language,
@@ -22,7 +22,7 @@ u_char * ngx_strerror(ngx_err_t err, u_char * errstr, size_t size)
 		 * Windows with MUI.
 		 */
 		lang = 0;
-		len = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, lang, (char*)errstr, size, NULL);
+		len = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, lang, (char *)errstr, size, NULL);
 	}
 	if(len == 0) {
 		return ngx_snprintf(errstr, size, "FormatMessage() error:(%d)", GetLastError());

@@ -677,7 +677,7 @@ void ERR_add_error_vdata(int num, va_list args)
 	int i, n;
 	char * p, * a;
 	int s = 80;
-	char * str = (char*)OPENSSL_malloc(s + 1);
+	char * str = (char *)OPENSSL_malloc(s + 1);
 	if(str) {
 		str[0] = '\0';
 		n = 0;
@@ -688,7 +688,7 @@ void ERR_add_error_vdata(int num, va_list args)
 				n += strlen(a);
 				if(n > s) {
 					s = n + 20;
-					p = (char*)OPENSSL_realloc(str, s + 1);
+					p = (char *)OPENSSL_realloc(str, s + 1);
 					if(!p) {
 						OPENSSL_free(str);
 						return;

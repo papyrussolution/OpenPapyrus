@@ -1186,7 +1186,7 @@ static void xmlSchematronReportSuccess(xmlSchematronValidCtxtPtr ctxt, xmlSchema
 		else {
 			xmlSchematronReportOutput(ctxt, cur, &msg[0]);
 		}
-		SAlloc::F((char*)report);
+		SAlloc::F((char *)report);
 		if((path != NULL) && (path != (xmlChar*)cur->name))
 			SAlloc::F(path);
 	}

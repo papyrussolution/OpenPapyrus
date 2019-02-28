@@ -58,11 +58,11 @@ long SLAPI SearchStrInFile(FILE * fpFile, long lOffset, const char *pszStr, int 
 	size_t pattern_len = strlen(pszStr);
 
 	lPosInFile = filelength(fileno(fpFile)); // Find filesize
-	iNoBlocks = (int)(lPosInFile / (int) iBufferSize) ;
+	// @v10.3.6 (see below) iNoBlocks = (int)(lPosInFile / (int) iBufferSize) ;
 	// Calculate remaining no of blocks 
 	fseek(fpFile, lOffset, SEEK_SET); // Go to start offset 
 	lCurrentPos = lOffset;
-	iNoBlocks = (int)((lPosInFile - lOffset) / (int) iBufferSize);
+	iNoBlocks = (lPosInFile - lOffset) / iBufferSize;
 	// Calculate remaining no of blocks 
 	if((pszBuffer = (char *)SAlloc::C(2 * iBufferSize, sizeof(char))) == 0)
 		return -2;

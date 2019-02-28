@@ -1,5 +1,5 @@
 // SC_CLI.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2010, 2011, 2016, 2017
+// Copyright (c) A.Sobolev 2005, 2006, 2010, 2011, 2016, 2017, 2019
 // Part of StyloConduit project
 // Экспорт/Импорт клиентов
 //
@@ -11,16 +11,16 @@
 
 IMPL_CMPFUNC(CLIENTID, i1, i2)
 {
-	const SCDBObjClient::IdxRec * cl1 = (SCDBObjClient::IdxRec *)i1;
-	const SCDBObjClient::IdxRec * cl2 = (SCDBObjClient::IdxRec *)i2;
+	const SCDBObjClient::IdxRec * cl1 = static_cast<const SCDBObjClient::IdxRec *>(i1);
+	const SCDBObjClient::IdxRec * cl2 = static_cast<const SCDBObjClient::IdxRec *>(i2);
 	return CMPSIGN(cl1->ID, cl2->ID);
 }
 
 IMPL_CMPFUNC(CLIENTNAM, i1, i2)
 {
 	int r = 0;
-	const SCDBObjClient::IdxRec * cl1 = (SCDBObjClient::IdxRec *)i1;
-	const SCDBObjClient::IdxRec * cl2 = (SCDBObjClient::IdxRec *)i2;
+	const SCDBObjClient::IdxRec * cl1 = static_cast<const SCDBObjClient::IdxRec *>(i1);
+	const SCDBObjClient::IdxRec * cl2 = static_cast<const SCDBObjClient::IdxRec *>(i2);
 	if((r = stricmp866(cl1->Name, cl2->Name)) < 0)
 		return -1;
 	else if(r > 0)
@@ -256,8 +256,8 @@ int SCDBObjClient::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 IMPL_CMPFUNC(CLIDEBT, i1, i2)
 {
 	int    r = 0;
-	const SCDBObjClientDebt::IdxRec * cl1 = (SCDBObjClientDebt::IdxRec *)i1;
-	const SCDBObjClientDebt::IdxRec * cl2 = (SCDBObjClientDebt::IdxRec *)i2;
+	const SCDBObjClientDebt::IdxRec * cl1 = static_cast<const SCDBObjClientDebt::IdxRec *>(i1);
+	const SCDBObjClientDebt::IdxRec * cl2 = static_cast<const SCDBObjClientDebt::IdxRec *>(i2);
 	if(cl1->CliID < cl2->CliID)
 		return -1;
 	else if(cl1->CliID > cl2->CliID)
@@ -277,8 +277,8 @@ IMPL_CMPFUNC(CLIDEBT, i1, i2)
 IMPL_CMPFUNC(SCDBObjClientDebtTempRec, i1, i2)
 {
 	int r = 0;
-	SCDBObjClientDebt::TempRec * cl1 = (SCDBObjClientDebt::TempRec *)i1;
-	SCDBObjClientDebt::TempRec * cl2 = (SCDBObjClientDebt::TempRec *)i2;
+	const SCDBObjClientDebt::TempRec * cl1 = static_cast<const SCDBObjClientDebt::TempRec *>(i1);
+	const SCDBObjClientDebt::TempRec * cl2 = static_cast<const SCDBObjClientDebt::TempRec *>(i2);
 	if(cl1->ClientID < cl2->ClientID)
 		return -1;
 	else if(cl1->ClientID > cl2->ClientID)
@@ -460,8 +460,8 @@ SCDBObjSell::~SCDBObjSell()
 
 IMPL_CMPFUNC(SCDBObjSellTempRec, i1, i2)
 {
-	const SCDBObjSell::TempRec * r1 = (const SCDBObjSell::TempRec *)i1;
-	const SCDBObjSell::TempRec * r2 = (const SCDBObjSell::TempRec *)i2;
+	const SCDBObjSell::TempRec * r1 = static_cast<const SCDBObjSell::TempRec *>(i1);
+	const SCDBObjSell::TempRec * r2 = static_cast<const SCDBObjSell::TempRec *>(i2);
 	if(r1->ClientID < r2->ClientID)
 		return -1;
 	else if(r1->ClientID > r2->ClientID)
@@ -484,8 +484,8 @@ IMPL_CMPFUNC(SCDBObjSellTempRec, i1, i2)
 
 IMPL_CMPFUNC(SCDBObjSellIdxRec, i1, i2)
 {
-	const SCDBObjSell::IdxRec * r1 = (SCDBObjSell::IdxRec *)i1;
-	const SCDBObjSell::IdxRec * r2 = (SCDBObjSell::IdxRec *)i2;
+	const SCDBObjSell::IdxRec * r1 = static_cast<const SCDBObjSell::IdxRec *>(i1);
+	const SCDBObjSell::IdxRec * r2 = static_cast<const SCDBObjSell::IdxRec *>(i2);
 	if(r1->CliID < r2->CliID)
 		return -1;
 	else if(r1->CliID > r2->CliID)

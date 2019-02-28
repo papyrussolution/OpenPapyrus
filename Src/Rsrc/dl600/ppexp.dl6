@@ -2312,7 +2312,7 @@ data GoodsBillBase {
 	// Descr: Возвращает количественное сальдо по товару goodsID
 	//   для контрагента ObjectID (член структуры).
 	//   Сальдо - входящее, то есть без учета количества, присутствующего в документе.
-	//   Если ObjectID == 0, то реузльтат - 0.
+	//   Если ObjectID == 0, то результат - 0.
 	//
 	double CalcInSaldo(long goodsID);
 	//
@@ -2356,6 +2356,26 @@ data GoodsBillBase {
 		//   Фактически, функция нужна для того, чтобы определить привязаны ли к строке марки или нет.
 		//
 		// @v10.2.12 @construction int    GetEgaisMarkCount();
+		//
+		// Descr: Возвращает суммовую величину по строке. Тип величины задается строковым параметром amtSymb[]
+		// Возможные значения amtSymb:
+		//   "qty" | "qtty" | "quantity"
+		//   "cost"
+		//   "costsum"
+		//   "price"
+		//   "pricesum"
+		//   "discount"
+		//   "vatrate"         ставка НДС в номинальных ценах
+		//   "vat"             велична НДС в номинальной цене
+		//   "vatsum"          велична НДС в номинальной сумме (в цене, умноженной на количество)
+		//   "costvatrate"     ставка НДС в ценах поступления
+		//   "costvat"         величина НДС в цене поступления
+		//   "costvatsum"      велична НДС в сумме поступления (в цене поступления, умноженной на количество)
+		//   "pricevatrate"
+		//   "pricevat"
+		//   "pricevatsum"
+		//
+		double GetRowAmount(string amtSymb[32]); // @v10.3.6 @construction
 	}
 }
 //
@@ -2513,7 +2533,7 @@ data GoodsReval {
 	// } Грузополучатель
 	PaymBillCode = BillID.PaymBillCode; //
 	PaymBillDate = BillID.PaymBillDate; //
-	fUnlimGoodsOnly = UnlimGoodsOnly(); // @v8.6.2 Признак того, что в документе - только нелимитированные товары
+	fUnlimGoodsOnly = UnlimGoodsOnly(); // Признак того, что в документе - только нелимитированные товары
 	iteration {
 		link   Goods GoodsID;
 		long   nn;
@@ -2549,8 +2569,28 @@ data GoodsReval {
 		PriceSum  = (NewPrice-OldPrice)*Quantity;
 		CostSum   = (NewCost-OldCost)*Quantity;
 		GoodsName = GoodsID.Name;          // Наименование товара
-		Serial    = LotID.Serial;          // @v7.5.8 Серийный номер лота
-		Barcode   = GoodsID.SingleBarCode; // @v8.2.6 Штрихкод товара
+		Serial    = LotID.Serial;          // Серийный номер лота
+		Barcode   = GoodsID.SingleBarCode; // Штрихкод товара
+		//
+		// Descr: Возвращает суммовую величину по строке. Тип величины задается строковым параметром amtSymb[]
+		// Возможные значения amtSymb:
+		//   "qty" | "qtty" | "quantity"
+		//   "cost"
+		//   "costsum"
+		//   "price"
+		//   "pricesum"
+		//   "discount"
+		//   "vatrate"         ставка НДС в номинальных ценах
+		//   "vat"             велична НДС в номинальной цене
+		//   "vatsum"          велична НДС в номинальной сумме (в цене, умноженной на количество)
+		//   "costvatrate"     ставка НДС в ценах поступления
+		//   "costvat"         величина НДС в цене поступления
+		//   "costvatsum"      велична НДС в сумме поступления (в цене поступления, умноженной на количество)
+		//   "pricevatrate"
+		//   "pricevat"
+		//   "pricevatsum"
+		//
+		double GetRowAmount(string amtSymb[32]); // @v10.3.6 @construction
 	}
 }
 //

@@ -632,7 +632,7 @@ cairo_status_t _cairo_win32_display_surface_set_clip(const cairo_win32_display_s
 		rects[i].bottom = rect.y + rect.height;
 	}
 	gdi_region = ExtCreateRegion(NULL, data_size, data);
-	if((char*)data != stack)
+	if((char *)data != stack)
 		SAlloc::F(data);
 	if(!gdi_region)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -679,7 +679,7 @@ static cairo_int_status_t _cairo_win32_display_surface_paint(void * surface, cai
 	TRACE((stderr, "%s (surface=%d)\n", __FUNCTION__, to_win32_surface(surface)->base.unique_id));
 	if(clip == NULL && (op == CAIRO_OPERATOR_SOURCE || op == CAIRO_OPERATOR_CLEAR))
 		_cairo_win32_display_surface_discard_fallback((cairo_win32_display_surface_t *)surface);
-	return _cairo_compositor_paint(device->compositor, (cairo_surface_t *)surface, op, source, clip);
+	return _cairo_compositor_paint(device->compositor, static_cast<cairo_surface_t *>(surface), op, source, clip);
 }
 
 static cairo_int_status_t _cairo_win32_display_surface_mask(void * surface,
@@ -689,7 +689,7 @@ static cairo_int_status_t _cairo_win32_display_surface_mask(void * surface,
 	TRACE((stderr, "%s (surface=%d)\n", __FUNCTION__, to_win32_surface(surface)->base.unique_id));
 	if(clip == NULL && op == CAIRO_OPERATOR_SOURCE)
 		_cairo_win32_display_surface_discard_fallback((cairo_win32_display_surface_t *)surface);
-	return _cairo_compositor_mask(device->compositor, (cairo_surface_t *)surface, op, source, mask, clip);
+	return _cairo_compositor_mask(device->compositor, static_cast<cairo_surface_t *>(surface), op, source, mask, clip);
 }
 
 static cairo_int_status_t _cairo_win32_display_surface_stroke(void * surface, cairo_operator_t op, const cairo_pattern_t * source,
@@ -698,7 +698,7 @@ static cairo_int_status_t _cairo_win32_display_surface_stroke(void * surface, ca
 {
 	cairo_win32_device_t * device = to_win32_device_from_surface(surface);
 	TRACE((stderr, "%s (surface=%d)\n", __FUNCTION__, to_win32_surface(surface)->base.unique_id));
-	return _cairo_compositor_stroke(device->compositor, (cairo_surface_t *)surface, op, source, path, style, ctm, ctm_inverse, tolerance, antialias, clip);
+	return _cairo_compositor_stroke(device->compositor, static_cast<cairo_surface_t *>(surface), op, source, path, style, ctm, ctm_inverse, tolerance, antialias, clip);
 }
 
 static cairo_int_status_t _cairo_win32_display_surface_fill(void * surface, cairo_operator_t op, const cairo_pattern_t * source,
@@ -706,7 +706,7 @@ static cairo_int_status_t _cairo_win32_display_surface_fill(void * surface, cair
 {
 	cairo_win32_device_t * device = to_win32_device_from_surface(surface);
 	TRACE((stderr, "%s (surface=%d)\n", __FUNCTION__, to_win32_surface(surface)->base.unique_id));
-	return _cairo_compositor_fill(device->compositor, (cairo_surface_t *)surface, op, source, path, fill_rule, tolerance, antialias, clip);
+	return _cairo_compositor_fill(device->compositor, static_cast<cairo_surface_t *>(surface), op, source, path, fill_rule, tolerance, antialias, clip);
 }
 
 static cairo_int_status_t _cairo_win32_display_surface_glyphs(void * surface, cairo_operator_t op,
@@ -714,7 +714,7 @@ static cairo_int_status_t _cairo_win32_display_surface_glyphs(void * surface, ca
 {
 	cairo_win32_device_t * device = to_win32_device_from_surface(surface);
 	TRACE((stderr, "%s (surface=%d)\n", __FUNCTION__, to_win32_surface(surface)->base.unique_id));
-	return _cairo_compositor_glyphs(device->compositor, (cairo_surface_t *)surface, op, source, glyphs, num_glyphs, scaled_font, clip);
+	return _cairo_compositor_glyphs(device->compositor, static_cast<cairo_surface_t *>(surface), op, source, glyphs, num_glyphs, scaled_font, clip);
 }
 
 static const cairo_surface_backend_t cairo_win32_display_surface_backend = {

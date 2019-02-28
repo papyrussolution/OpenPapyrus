@@ -288,11 +288,9 @@ static const char * const magikWordListDesc[] = {
  * \return 1 if it is a folding start-keyword, -1 if it is a folding end-keyword
  *         0 otherwise
  */
-static inline int IsFoldingContainer(WordList &keywordslist, char * keyword)
+static inline int IsFoldingContainer(const WordList & keywordslist, char * keyword)
 {
-	if(
-	    sstrlen(keyword) > 3 &&
-	    keyword[0] == 'e' && keyword[1] == 'n' && keyword[2] == 'd') {
+	if(sstrlen(keyword) > 3 && keyword[0] == 'e' && keyword[1] == 'n' && keyword[2] == 'd') {
 		if(keywordslist.InList(keyword + 3)) {
 			return -1;
 		}
@@ -302,7 +300,6 @@ static inline int IsFoldingContainer(WordList &keywordslist, char * keyword)
 			return 1;
 		}
 	}
-
 	return 0;
 }
 

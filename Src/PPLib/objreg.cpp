@@ -1108,7 +1108,7 @@ PPALDD_CONSTRUCTOR(PersonRegister)
 PPALDD_DESTRUCTOR(PersonRegister)
 {
 	Destroy();
-	delete (DlPersonRegisterBlock *)Extra[0].Ptr;
+	delete static_cast<DlPersonRegisterBlock *>(Extra[0].Ptr);
 }
 
 int PPALDD_PersonRegister::InitData(PPFilt & rFilt, long rsrv)
@@ -1119,7 +1119,7 @@ int PPALDD_PersonRegister::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
-		DlPersonRegisterBlock * p_blk = (DlPersonRegisterBlock *)Extra[0].Ptr;
+		DlPersonRegisterBlock * p_blk = static_cast<DlPersonRegisterBlock *>(Extra[0].Ptr);
 		if(p_blk->RegObj.Search(rFilt.ID, &p_blk->Rec) > 0) {
 			H.ID = p_blk->Rec.ID;
 			if(p_blk->Rec.ObjType == PPOBJ_PERSON)
@@ -1149,7 +1149,7 @@ void PPALDD_PersonRegister::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, Rt
 	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
 	if(pF->Name == "?Format") {
 		_RET_STR.Z();
-		DlPersonRegisterBlock * p_blk = (DlPersonRegisterBlock *)Extra[0].Ptr;
+		DlPersonRegisterBlock * p_blk = static_cast<DlPersonRegisterBlock *>(Extra[0].Ptr);
 		if(p_blk && p_blk->Rec.ID) {
 			PPObjRegister::Format(p_blk->Rec, 0, _RET_STR);
 		}

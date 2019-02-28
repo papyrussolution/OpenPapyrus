@@ -818,7 +818,7 @@ void Curl_sndbufset(curl_socket_t sockfd)
 	if(detectOsState == DETECT_OS_VISTA_OR_LATER)
 		return;
 
-	if(getsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, (char*)&curval, &curlen) == 0)
+	if(getsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, (char *)&curval, &curlen) == 0)
 		if(curval > val)
 			return;
 

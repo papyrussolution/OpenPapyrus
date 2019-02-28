@@ -566,7 +566,7 @@ static IMPL_DBE_PROC(dbqf_objnamefromlist_ppvsj_iip)
 	else {
 		PPObjID oid;
 		oid.Set(params[0].lval, params[1].lval);
-		const PPViewSysJournal * p_view = (const PPViewSysJournal *)params[2].ptrval;
+		const PPViewSysJournal * p_view = static_cast<const PPViewSysJournal *>(params[2].ptrval);
 		if(p_view) {
 			SString temp_buf;
 			p_view->GetObjName(oid, temp_buf);
@@ -599,7 +599,7 @@ static IMPL_DBE_PROC(dbqf_evvertextfromlist_ppvsj_iidtp)
 		PPViewSysJournal::EvVerEntry key;
 		key.Set(params[0].lval, params[1].lval);
 		key.Dtm.Set(params[2].dval, params[3].tval);
-		const PPViewSysJournal * p_view = (const PPViewSysJournal *)params[4].ptrval;
+		const PPViewSysJournal * p_view = static_cast<const PPViewSysJournal *>(params[4].ptrval);
 		if(p_view) {
 			SString temp_buf;
 			p_view->GetEvVerText(key, temp_buf);
@@ -706,7 +706,7 @@ DBQuery * SLAPI PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 	DBE    dbe_evvertext; // @v9.9.2
 	DBQ  * dbq = 0;
 	TempSysJournalTbl * p_t = 0;
-	SysJournalTbl * sj  = new SysJournalTbl(P_TmpTbl ? P_TmpTbl->GetName().cptr() : (const char *)0);
+	SysJournalTbl * sj  = new SysJournalTbl(P_TmpTbl ? P_TmpTbl->GetName().cptr() : static_cast<const char *>(0));
 	if(P_SubstTbl) {
 		brw_id = BROWSER_SYSJ_SUBST;
 		THROW_MEM(p_t = new TempSysJournalTbl(P_SubstTbl->GetName().cptr()));
@@ -1577,7 +1577,7 @@ DBQuery * SLAPI PPViewGtaJournal::CreateBrowserQuery(uint * pBrwId, SString * pS
 	DBE    dbe_action;
 	DBE    dbe_objname; // @v9.9.0
 	DBQ  * dbq = 0;
-	GtaJournalTbl * t  = new GtaJournalTbl(P_TmpTbl ? P_TmpTbl->GetName().cptr() : (const char *)0);
+	GtaJournalTbl * t  = new GtaJournalTbl(P_TmpTbl ? P_TmpTbl->GetName().cptr() : static_cast<const char *>(0));
 	// @v9.9.0 TempDoubleIDTbl * nm  = 0;
 
 	THROW(CheckTblPtr(t));

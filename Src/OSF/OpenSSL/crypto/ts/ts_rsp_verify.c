@@ -451,7 +451,7 @@ static char * ts_get_status_text(STACK_OF(ASN1_UTF8STRING) * text)
 		length += ASN1_STRING_length(current);
 		length += 1;    /* separator character */
 	}
-	if((result = (char*)OPENSSL_malloc(length)) == NULL) {
+	if((result = (char *)OPENSSL_malloc(length)) == NULL) {
 		TSerr(TS_F_TS_GET_STATUS_TEXT, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}

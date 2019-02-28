@@ -237,7 +237,7 @@ LUA_API void(lua_setallocf) (lua_State *L, lua_Alloc f, void * ud);
 ** some useful macros
 ** ===============================================================
 */
-#define lua_getextraspace(L)    ((void *)((char*)(L)-LUA_EXTRASPACE))
+#define lua_getextraspace(L)    ((void *)((char *)(L)-LUA_EXTRASPACE))
 #define lua_tonumber(L, i)       lua_tonumberx(L, (i), NULL)
 #define lua_tointeger(L, i)      lua_tointegerx(L, (i), NULL)
 #define lua_pop(L, n)            lua_settop(L, -(n)-1)

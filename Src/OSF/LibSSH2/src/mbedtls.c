@@ -254,7 +254,7 @@ int _libssh2_mbedtls_rsa_new_private(libssh2_rsa_ctx ** rsa, LIBSSH2_SESSION * s
 		return -1;
 	mbedtls_rsa_init(*rsa, MBEDTLS_RSA_PKCS_V15, 0);
 	mbedtls_pk_init(&pkey);
-	ret = mbedtls_pk_parse_keyfile(&pkey, filename, (char*)passphrase);
+	ret = mbedtls_pk_parse_keyfile(&pkey, filename, (char *)passphrase);
 	if(ret != 0 || mbedtls_pk_get_type(&pkey) != MBEDTLS_PK_RSA) {
 		mbedtls_pk_free(&pkey);
 		mbedtls_rsa_free(*rsa);
@@ -409,7 +409,7 @@ int _libssh2_mbedtls_pub_priv_keyfile(LIBSSH2_SESSION * session, uchar ** method
 	mbedtls_pk_init(&pkey);
 	ret = mbedtls_pk_parse_keyfile(&pkey, privatekey, passphrase);
 	if(ret != 0) {
-		mbedtls_strerror(ret, (char*)buf, sizeof(buf));
+		mbedtls_strerror(ret, (char *)buf, sizeof(buf));
 		mbedtls_pk_free(&pkey);
 		return _libssh2_error(session, LIBSSH2_ERROR_FILE, buf);
 	}
@@ -428,7 +428,7 @@ int _libssh2_mbedtls_pub_priv_keyfilememory(LIBSSH2_SESSION * session, uchar ** 
 	mbedtls_pk_init(&pkey);
 	ret = mbedtls_pk_parse_key(&pkey, (uchar*)privatekeydata, privatekeydata_len, NULL, 0);
 	if(ret != 0) {
-		mbedtls_strerror(ret, (char*)buf, sizeof(buf));
+		mbedtls_strerror(ret, (char *)buf, sizeof(buf));
 		mbedtls_pk_free(&pkey);
 		return _libssh2_error(session, LIBSSH2_ERROR_FILE, buf);
 	}

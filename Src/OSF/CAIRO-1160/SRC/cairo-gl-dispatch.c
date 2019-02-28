@@ -79,7 +79,7 @@ static void _cairo_gl_dispatch_init_entries(cairo_gl_dispatch_t * dispatch,
 	cairo_gl_dispatch_entry_t * entry = entries;
 	void * handle = _cairo_gl_dispatch_open_lib();
 	while(entry->name[CAIRO_GL_DISPATCH_NAME_CORE] != NULL) {
-		void * dispatch_ptr = &((char*)dispatch)[entry->offset];
+		void * dispatch_ptr = &((char *)dispatch)[entry->offset];
 		const char * name = entry->name[dispatch_name];
 		/*
 		 * In strictly conforming EGL implementations, eglGetProcAddress() can

@@ -441,23 +441,18 @@ void PNGAPI png_free_data(png_const_structrp png_ptr, png_inforp info_ptr, uint3
 
 #ifdef PNG_sPLT_SUPPORTED
 	/* Free a given sPLT entry, or (if num == -1) all sPLT entries */
-	if(info_ptr->splt_palettes != 0 &&
-	    ((mask & PNG_FREE_SPLT) & info_ptr->free_me) != 0) {
+	if(info_ptr->splt_palettes != 0 && ((mask & PNG_FREE_SPLT) & info_ptr->free_me) != 0) {
 		if(num != -1) {
 			png_free(png_ptr, info_ptr->splt_palettes[num].name);
 			png_free(png_ptr, info_ptr->splt_palettes[num].entries);
 			info_ptr->splt_palettes[num].name = NULL;
 			info_ptr->splt_palettes[num].entries = NULL;
 		}
-
 		else {
-			int i;
-
-			for(i = 0; i < info_ptr->splt_palettes_num; i++) {
+			for(int i = 0; i < info_ptr->splt_palettes_num; i++) {
 				png_free(png_ptr, info_ptr->splt_palettes[i].name);
 				png_free(png_ptr, info_ptr->splt_palettes[i].entries);
 			}
-
 			png_free(png_ptr, info_ptr->splt_palettes);
 			info_ptr->splt_palettes = NULL;
 			info_ptr->splt_palettes_num = 0;
@@ -465,10 +460,8 @@ void PNGAPI png_free_data(png_const_structrp png_ptr, png_inforp info_ptr, uint3
 		}
 	}
 #endif
-
 #ifdef PNG_STORE_UNKNOWN_CHUNKS_SUPPORTED
-	if(info_ptr->unknown_chunks != 0 &&
-	    ((mask & PNG_FREE_UNKN) & info_ptr->free_me) != 0) {
+	if(info_ptr->unknown_chunks != 0 && ((mask & PNG_FREE_UNKN) & info_ptr->free_me) != 0) {
 		if(num != -1) {
 			png_free(png_ptr, info_ptr->unknown_chunks[num].data);
 			info_ptr->unknown_chunks[num].data = NULL;
@@ -476,10 +469,8 @@ void PNGAPI png_free_data(png_const_structrp png_ptr, png_inforp info_ptr, uint3
 
 		else {
 			int i;
-
 			for(i = 0; i < info_ptr->unknown_chunks_num; i++)
 				png_free(png_ptr, info_ptr->unknown_chunks[i].data);
-
 			png_free(png_ptr, info_ptr->unknown_chunks);
 			info_ptr->unknown_chunks = NULL;
 			info_ptr->unknown_chunks_num = 0;
@@ -511,17 +502,14 @@ void PNGAPI png_free_data(png_const_structrp png_ptr, png_inforp info_ptr, uint3
 			uint32 row;
 			for(row = 0; row < info_ptr->height; row++)
 				png_free(png_ptr, info_ptr->row_pointers[row]);
-
 			png_free(png_ptr, info_ptr->row_pointers);
 			info_ptr->row_pointers = NULL;
 		}
 		info_ptr->valid &= ~PNG_INFO_IDAT;
 	}
 #endif
-
 	if(num != -1)
 		mask &= ~PNG_FREE_MUL;
-
 	info_ptr->free_me &= ~mask;
 }
 
@@ -533,9 +521,7 @@ void PNGAPI png_free_data(png_const_structrp png_ptr, png_inforp info_ptr, uint3
  */
 void * PNGAPI png_get_io_ptr(png_const_structrp png_ptr)
 {
-	if(!png_ptr)
-		return NULL;
-	return (png_ptr->io_ptr);
+	return png_ptr ? png_ptr->io_ptr : 0;
 }
 
 #if defined(PNG_READ_SUPPORTED) || defined(PNG_WRITE_SUPPORTED)

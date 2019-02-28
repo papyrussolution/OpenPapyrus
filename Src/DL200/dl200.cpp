@@ -33,7 +33,7 @@ static int SLAPI ReadSArrayFromFile(SArray * pAry, FILE * pStream)
 	size_t item_size = pAry->getItemSize();
 	long   beg_pos = ftell(pStream);
 	pAry->freeAll();
-	char * p_buf = (char*)SAlloc::M(item_size);
+	char * p_buf = (char *)SAlloc::M(item_size);
 	THROW(p_buf);
 	THROW_V(fread(&c, sizeof(c), 1, pStream) == 1, SLERR_READFAULT);
 	for(i = 0; i < c; i++) {
@@ -106,7 +106,7 @@ static int SLAPI ReadPStrFromFile(char ** ppStr, FILE * pStream)
 
 int SLAPI PPSetErrorNoMem() { return PPSetError(PPERR_NOMEM); }
 int SLAPI PPSetErrorSLib() { return PPSetError(PPERR_SLIB); }
-int FASTCALL PPSetError(int errCode) { return PPSetError(errCode, (const char *)0); }
+int FASTCALL PPSetError(int errCode) { return PPSetError(errCode, static_cast<const char *>(0)); }
 int FASTCALL PPSetError(int errCode, const char * pAddedMsg)
 {
 	PPErrCode = errCode;
@@ -1590,8 +1590,8 @@ int SLAPI DL2_Acc::GetFromStr(const char * pStr, int substAr)
 //
 IMPL_CMPFUNC(DL2_IndexItem, i1, i2)
 {
-	DL2_Storage::IndexItem * e1 = (DL2_Storage::IndexItem *)i1;
-	DL2_Storage::IndexItem * e2 = (DL2_Storage::IndexItem *)i2;
+	const DL2_Storage::IndexItem * e1 = static_cast<const DL2_Storage::IndexItem *>(i1);
+	const DL2_Storage::IndexItem * e2 = static_cast<const DL2_Storage::IndexItem *>(i2);
 	int    r = (int)(e1->EntryType - e2->EntryType);
 	if(r == 0)
 		r = stricmp866(e1->Name, e2->Name);

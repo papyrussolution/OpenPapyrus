@@ -355,7 +355,7 @@ void xmlSAX2ExternalSubset(void * ctx, const xmlChar * name, const xmlChar * Ext
 			enc = xmlDetectCharEncoding(ctxt->input->cur, 4);
 			xmlSwitchEncoding(ctxt, enc);
 		}
-		SETIFZ(input->filename, (char*)xmlCanonicPath(SystemID));
+		SETIFZ(input->filename, (char *)xmlCanonicPath(SystemID));
 		input->line = 1;
 		input->col = 1;
 		input->base = ctxt->input->cur;

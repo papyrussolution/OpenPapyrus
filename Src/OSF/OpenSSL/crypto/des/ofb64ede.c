@@ -30,7 +30,7 @@ void DES_ede3_ofb64_encrypt(register const uchar * in, register uchar * out, lon
 	c2l(iv, v1);
 	ti[0] = v0;
 	ti[1] = v1;
-	dp = (char*)d;
+	dp = (char *)d;
 	l2c(v0, dp);
 	l2c(v1, dp);
 	while(l--) {
@@ -41,7 +41,7 @@ void DES_ede3_ofb64_encrypt(register const uchar * in, register uchar * out, lon
 			v0 = ti[0];
 			v1 = ti[1];
 
-			dp = (char*)d;
+			dp = (char *)d;
 			l2c(v0, dp);
 			l2c(v1, dp);
 			save++;

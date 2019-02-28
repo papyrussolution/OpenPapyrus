@@ -199,7 +199,7 @@ GLOBAL(djpeg_dest_ptr) jinit_write_targa(j_decompress_ptr cinfo)
 	jpeg_calc_output_dimensions(cinfo);
 	/* Create I/O buffer.  Note we make this near on a PC. */
 	dest->buffer_width = cinfo->output_width * cinfo->output_components;
-	dest->iobuffer = (char*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (size_t)(dest->buffer_width * SIZEOF(char)));
+	dest->iobuffer = (char *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (size_t)(dest->buffer_width * SIZEOF(char)));
 	/* Create decompressor output buffer. */
 	dest->pub.buffer = (*cinfo->mem->alloc_sarray)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, dest->buffer_width, (JDIMENSION)1);
 	dest->pub.buffer_height = 1;

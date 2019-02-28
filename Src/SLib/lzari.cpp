@@ -655,7 +655,7 @@ int LZAri::Encode(ulong * pFileSize, PercentFunc pf)
 		for(i = s; i < r; i++)
 			P_Tree->P_TextBuf[i] = ' ';
 		for(len = 0; len < F && (c = getc(P_InFile)) != EOF; len++)
-			P_Tree->P_TextBuf[r+len] = (uchar)c;
+			P_Tree->P_TextBuf[r+len] = static_cast<uchar>(c);
 		TextSize = len;
 		for(i = 1; i <= F; i++)
 			THROW(P_Tree->InsertNode(r - i) > 0);
@@ -674,9 +674,9 @@ int LZAri::Encode(ulong * pFileSize, PercentFunc pf)
 			last_match_length = P_Tree->MatchLength;
 			for(i = 0; i < last_match_length && (c = getc(P_InFile)) != EOF; i++) {
 				THROW(P_Tree->DeleteNode(s));
-				P_Tree->P_TextBuf[s] = (uchar)c;
+				P_Tree->P_TextBuf[s] = static_cast<uchar>(c);
 				if(s < F - 1)
-					P_Tree->P_TextBuf[s+N] = (uchar)c;
+					P_Tree->P_TextBuf[s+N] = static_cast<uchar>(c);
 				s = (s + 1) & (N - 1);
 				r = (r + 1) & (N - 1);
 				THROW(P_Tree->InsertNode(r) > 0);
@@ -718,7 +718,7 @@ int LZAri::Decode(PercentFunc pf)
 			c = DecodeChar();
 			if(c < 256) {
  				putc(c, P_OutFile);
-				P_Tree->P_TextBuf[r++] = (uchar) c;
+				P_Tree->P_TextBuf[r++] = static_cast<uchar>(c);
 				r &= (N - 1);
 				count++;
 			}
@@ -727,8 +727,8 @@ int LZAri::Decode(PercentFunc pf)
 				j = c - 255 + THRESHOLD;
 				for(k = 0; k < j; k++) {
 					c = P_Tree->P_TextBuf[(i + k) & (N - 1)];
-					putc((uchar) c, P_OutFile);
-					P_Tree->P_TextBuf[r++] = (uchar) c;
+					putc((uchar)c, P_OutFile);
+					P_Tree->P_TextBuf[r++] = static_cast<uchar>(c);
 					r &= (N - 1);
 					count++;
 				}

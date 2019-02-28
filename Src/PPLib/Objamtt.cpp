@@ -645,7 +645,7 @@ int SLAPI AmountTypeCache::InitTaxBlock()
 	MEMSZERO(TaxBlock);
 	IsThereDistribCostAmounts = 0;
 	for(uint j = 0; j < P_Ary->getCount(); j++) {
-		const AmountTypeData * p_entry = (AmountTypeData *)P_Ary->at(j);
+		const AmountTypeData * p_entry = static_cast<const AmountTypeData *>(P_Ary->at(j));
 		if(p_entry->Flags & PPAmountType::fDistribCost)
 			IsThereDistribCostAmounts = 1;
 		if(p_entry->Flags & PPAmountType::fTax) {
@@ -707,7 +707,7 @@ int SLAPI AmountTypeCache::FetchTaxIDs(TaxAmountIDs * pBlk)
 int SLAPI AmountTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
-	AmountTypeData * p_cache_rec = (AmountTypeData *)pEntry;
+	AmountTypeData * p_cache_rec = static_cast<AmountTypeData *>(pEntry);
 	PPAmountTypePacket pack;
 	PPObjAmountType at_obj;
 	if((ok = at_obj.GetPacket(id, &pack)) > 0) {
@@ -729,8 +729,8 @@ int SLAPI AmountTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI AmountTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPAmountType * p_data_rec = (PPAmountType*)pDataRec;
-	const AmountTypeData * p_cache_rec = (const AmountTypeData *)pEntry;
+	PPAmountType * p_data_rec = static_cast<PPAmountType *>(pDataRec);
+	const AmountTypeData * p_cache_rec = static_cast<const AmountTypeData *>(pEntry);
 	memzero(p_data_rec, sizeof(PPAmountType));
 	p_data_rec->Tag = PPOBJ_AMOUNTTYPE;
 	#define FLD(f) p_data_rec->f = p_cache_rec->f
@@ -754,17 +754,15 @@ int SLAPI AmountTypeCache::FetchByTax(PPID * pID, PPID tax, double taxRate)
 {
 	int    ok = -1;
 	{
-		//RwL.ReadLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		const uint c = GetCount();
 		for(uint i = 0; ok < 0 && i < c; i++) {
-			const AmountTypeData * p_entry = (const AmountTypeData *)SearchByPos(i, 0);
+			const AmountTypeData * p_entry = static_cast<const AmountTypeData *>(SearchByPos(i, 0));
 			if(p_entry->Tax == tax && p_entry->TaxRate == R0i(taxRate * 100L)) {
 				ASSIGN_PTR(pID, p_entry->ID);
 				ok = 1;
 			}
 		}
-		//RwL.Unlock();
 	}
 	return ok;
 }
@@ -777,7 +775,7 @@ int SLAPI AmountTypeCache::FetchCompl(PPID srcAmtID, PPID * pInAmtID, PPID * pOu
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		const uint c = GetCount();
 		for(uint i = 0; i < c; i++) {
-			const AmountTypeData * p_entry = (const AmountTypeData *)SearchByPos(i, 0);
+			const AmountTypeData * p_entry = static_cast<const AmountTypeData *>(SearchByPos(i, 0));
 			if(p_entry->RefAmtTypeID == srcAmtID)
 				if(p_entry->Flags & PPAmountType::fInAmount && !in_id)
 					in_id = p_entry->ID;

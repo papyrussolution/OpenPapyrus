@@ -2298,10 +2298,10 @@ extern const uint32 PRIV(vspace_list)[];
 // 
 // String comparison functions. 
 #if defined COMPILE_PCRE8
-	#define STRCMP_UC_UC(str1, str2)       strcmp((char*)(str1), (char*)(str2))
-	#define STRCMP_UC_C8(str1, str2)       strcmp((char*)(str1), (str2))
-	#define STRNCMP_UC_UC(str1, str2, num) strncmp((char*)(str1), (char*)(str2), (num))
-	#define STRNCMP_UC_C8(str1, str2, num) strncmp((char*)(str1), (str2), (num))
+	#define STRCMP_UC_UC(str1, str2)       strcmp((char *)(str1), (char *)(str2))
+	#define STRCMP_UC_C8(str1, str2)       strcmp((char *)(str1), (str2))
+	#define STRNCMP_UC_UC(str1, str2, num) strncmp((char *)(str1), (char *)(str2), (num))
+	#define STRNCMP_UC_C8(str1, str2, num) strncmp((char *)(str1), (str2), (num))
 	#define STRLEN_UC(str)                 strlen((const char*)str)
 #elif defined COMPILE_PCRE16 || defined COMPILE_PCRE32
 	extern int PRIV(strcmp_uc_uc) (const pcre_uchar *, const pcre_uchar *);

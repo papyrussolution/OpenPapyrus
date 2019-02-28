@@ -58,7 +58,7 @@ ngx_chain_t * ngx_wsasend_chain(ngx_connection_t * c, ngx_chain_t * in, nginx_of
 				if(wsabuf == NULL) {
 					return NGX_CHAIN_ERROR;
 				}
-				wsabuf->buf = (char*)cl->buf->pos;
+				wsabuf->buf = (char *)cl->buf->pos;
 				wsabuf->len = cl->buf->last - cl->buf->pos;
 			}
 			prev = cl->buf->last;
@@ -141,7 +141,7 @@ ngx_chain_t * ngx_overlapped_wsasend_chain(ngx_connection_t * c, ngx_chain_t * i
 				if(wsabuf == NULL) {
 					return NGX_CHAIN_ERROR;
 				}
-				wsabuf->buf = (char*)cl->buf->pos;
+				wsabuf->buf = (char *)cl->buf->pos;
 				wsabuf->len = cl->buf->last - cl->buf->pos;
 			}
 			prev = cl->buf->last;

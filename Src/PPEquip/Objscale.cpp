@@ -1318,7 +1318,7 @@ int SLAPI CasCL5000J::CheckAck()
 	if(Data.Flags & SCALF_TCPIP) {
 		char recv_buf[1024];
 		memzero(recv_buf, sizeof(recv_buf));
-		recv(SocketHandle, (char*)recv_buf, sizeof(recv_buf), 0);
+		recv(SocketHandle, (char *)recv_buf, sizeof(recv_buf), 0);
 		if(recv_buf[0] == 'G')
 			ok = 1;
 		else if(recv_buf[0] == 'N') {
@@ -1460,7 +1460,7 @@ int SLAPI CasCL5000J::SendPLU(const ScalePLU * pPLU)
 		*((uint32*)(data_buf + p)) = pPLU->GoodsNo;
 		p += sizeof(uint32);
 		// TYPE
-		*((uint8*)(data_buf + p))  = 1;
+		*((uint8 *)(data_buf + p))  = 1;
 		p += sizeof(uint8);
 		// NAME1
 		{
@@ -1497,7 +1497,7 @@ int SLAPI CasCL5000J::SendPLU(const ScalePLU * pPLU)
 		*((uint16*)(data_buf + p)) = 0;
 		p += sizeof(uint16);
 		// RESERVE
-		*((uint8*)(data_buf + p)) = 0;
+		*((uint8 *)(data_buf + p)) = 0;
 		p += sizeof(uint8);
 		// FIXED WEIGHT
 		*((uint32*)(data_buf + p)) = 0;
@@ -1509,10 +1509,10 @@ int SLAPI CasCL5000J::SendPLU(const ScalePLU * pPLU)
 		*((uint16*)(data_buf + p)) = 0;
 		p += sizeof(uint16);
 		// PCS SYMBOL
-		*((uint8*)(data_buf + p)) = 0;
+		*((uint8 *)(data_buf + p)) = 0;
 		p += sizeof(uint8);
 		// USE FIXED PRICE TYPE
-		*((uint8*)(data_buf + p)) = 0;
+		*((uint8 *)(data_buf + p)) = 0;
 		p += sizeof(uint8);
 		// UNIT PRICE
 		*((uint32*)(data_buf + p)) = R0i(pPLU->Price * 100L);
@@ -1524,7 +1524,7 @@ int SLAPI CasCL5000J::SendPLU(const ScalePLU * pPLU)
 		*((uint32*)(data_buf + p)) = 0;
 		p += sizeof(uint32);
 		// TARE NUMBER
-		*((uint8*)(data_buf + p)) = 0;
+		*((uint8 *)(data_buf + p)) = 0;
 		p += sizeof(uint8);
 		// BARCODE NUMBER
 		*((uint16*)(data_buf + p)) = (uint16)1;
@@ -1539,7 +1539,7 @@ int SLAPI CasCL5000J::SendPLU(const ScalePLU * pPLU)
 		*((uint16*)(data_buf + p)) = 0;
 		p += sizeof(uint16);
 		// PACKED TIME
-		*((uint8*)(data_buf + p)) = 0;
+		*((uint8 *)(data_buf + p)) = 0;
 		p += sizeof(uint8);
 		// SELL BY DATE (EXPIRY in days)
 		{
@@ -1551,7 +1551,7 @@ int SLAPI CasCL5000J::SendPLU(const ScalePLU * pPLU)
 		}
 		p += sizeof(uint32);
 		// SELL BY TIME
-		*((uint8*)(data_buf + p)) = 0;
+		*((uint8 *)(data_buf + p)) = 0;
 		p += sizeof(uint8);
 		// MESSAGE NUMBER
 		*((uint16*)(data_buf + p)) = 0;
@@ -1563,7 +1563,7 @@ int SLAPI CasCL5000J::SendPLU(const ScalePLU * pPLU)
 		*((uint16*)(data_buf + p)) = 0;
 		p += sizeof(uint16);
 		// SALE MESSAGE NUMBER
-		*((uint8*)(data_buf + p)) = 0;
+		*((uint8 *)(data_buf + p)) = 0;
 		p += sizeof(uint8);
 		if(msg_pos) {
 			memcpy(data_buf+p, direct_message, msg_pos);
@@ -1606,7 +1606,7 @@ int SLAPI CasCL5000J::SendBarcodeFormat(const char * pFmt)
 		*(uint32*)(data_buf + p)= 1;
 		p += sizeof(uint32);
 		// BARCODE Type
-		*(uint8*)(data_buf + p)= 1; // EAN13
+		*(uint8 *)(data_buf + p)= 1; // EAN13
 		p += sizeof(uint8);
 		// BARCODE format
 		strnzcpy((data_buf + p), fmt, sstrlen(fmt) + 1);
@@ -5032,7 +5032,7 @@ int SLAPI PPObjScale::TransmitData(PPID id, long flags, PPLogger * pLogger)
 						THROW(GetPort(strip(scale.Port), &port));
 					}
 				THROW(SendPlu(&scale, fname, BIN(flags & fTrUpdateOnly), pLogger));
-				SPathStruc::ReplaceExt(nname = fname, (char*)&sPL_, 1);
+				SPathStruc::ReplaceExt(nname = fname, (char *)&sPL_, 1);
 				SFile::Remove(nname);
 				SFile::Rename(fname, nname);
 				PPWait(0);

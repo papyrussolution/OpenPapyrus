@@ -292,7 +292,7 @@ static CURLcode set_ciphers(struct connectdata * conn,
 	   GSKit tokens are always shorter than their cipher names, allocated buffers
 	   will always be large enough to accommodate the result. */
 	l = sstrlen(cipherlist) + 1;
-	memzero((char*)ciphers, sizeof ciphers);
+	memzero((char *)ciphers, sizeof ciphers);
 	for(i = 0; i < CURL_GSKPROTO_LAST; i++) {
 		ciphers[i].buf = SAlloc::M(l);
 		if(!ciphers[i].buf) {
@@ -495,7 +495,7 @@ static int inetsocketpair(int sv[2])
 	lfd = socket(AF_INET, SOCK_STREAM, 0);
 	if(lfd < 0)
 		return -1;
-	memzero((char*)&addr1, sizeof addr1);
+	memzero((char *)&addr1, sizeof addr1);
 	addr1.sin_family = AF_INET;
 	addr1.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 	addr1.sin_port = 0;
@@ -662,7 +662,7 @@ static ssize_t gskit_send(struct connectdata * conn, int sockindex,
 	if(pipe_ssloverssl(conn, sockindex, SOS_WRITE) >= 0) {
 		cc = gskit_status(data,
 		    gsk_secure_soc_write(conn->ssl[sockindex].handle,
-			    (char*)mem, (int)len, &written),
+			    (char *)mem, (int)len, &written),
 		    "gsk_secure_soc_write()", CURLE_SEND_ERROR);
 		if(cc == CURLE_OK)
 			if(pipe_ssloverssl(conn, sockindex, SOS_WRITE) < 0)

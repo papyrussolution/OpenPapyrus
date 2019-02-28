@@ -438,7 +438,7 @@ int PPBizScoreWindow::Create()
 {
 	int    ok = 0;
 	Destroy();
-	HW = APPL->CreateDlg(DLG_BUSPARAMS, HParentWnd, (DLGPROC)PPBizScoreWindow::Proc, (LPARAM)(long)this);
+	HW = APPL->CreateDlg(DLG_BUSPARAMS, HParentWnd, PPBizScoreWindow::Proc, reinterpret_cast<LPARAM>(this));
 	if(H()) {
 		Brush = CreateSolidBrush(RGB(0xFF, 0xF7, 0x94));
 		Move();
@@ -551,7 +551,7 @@ BOOL CALLBACK PPBizScoreWindow::Proc(HWND hWnd, UINT message, WPARAM wParam, LPA
 		case WM_CTLCOLORSTATIC:
 		case WM_CTLCOLORDLG:
 			if(p_win) {
-				HDC hdc = (HDC)wParam;
+				HDC hdc = reinterpret_cast<HDC>(wParam);
 				SetBkMode(hdc, TRANSPARENT);
 				return (BOOL)p_win->Brush;
 			}

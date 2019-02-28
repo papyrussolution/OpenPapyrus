@@ -2108,7 +2108,7 @@ PPALDD_CONSTRUCTOR(PrjTask)
 PPALDD_DESTRUCTOR(PrjTask)
 {
 	Destroy();
-	delete (PPObjPrjTask *)Extra[0].Ptr;
+	delete static_cast<PPObjPrjTask *>(Extra[0].Ptr);
 }
 
 int PPALDD_PrjTask::InitData(PPFilt & rFilt, long rsrv)
@@ -2120,7 +2120,7 @@ int PPALDD_PrjTask::InitData(PPFilt & rFilt, long rsrv)
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
 		PrjTaskTbl::Rec rec;
-		if(rFilt.ID && ((PPObjPrjTask *)(Extra[0].Ptr))->Search(rFilt.ID, &rec) > 0) {
+		if(rFilt.ID && static_cast<PPObjPrjTask *>(Extra[0].Ptr)->Search(rFilt.ID, &rec) > 0) {
 			H.ID          = rec.ID;
 			H.Kind        = rec.Kind;
 			H.ProjectID   = rec.ProjectID;

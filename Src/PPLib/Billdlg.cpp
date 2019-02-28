@@ -987,7 +987,7 @@ int BillDialog::editPaymOrder(int forceUpdateRcvr)
 	return ok;
 }
 
-IMPL_CMPFUNC(PPLinkFile, i1, i2) { return stricmp866(((PPLinkFile*)i1)->Path, ((PPLinkFile*)i2)->Path); }
+IMPL_CMPFUNC(PPLinkFile, i1, i2) { return stricmp866(static_cast<const PPLinkFile *>(i1)->Path, static_cast<const PPLinkFile *>(i2)->Path); }
 
 SLAPI PPLinkFile::PPLinkFile()
 {
@@ -3155,9 +3155,9 @@ int SLAPI PPObjBill::EditFreightDialog(PPBillPacket * pPack)
 			disableCtrl(CTL_FREIGHT_TRTYP, BIN(Data.ShipID));
 			disableCtrl(CTL_FREIGHT_COST, (P_Pack->Rec.ID && !BillObj->CheckRights(PPR_MOD)));
 			setCtrlData(CTL_FREIGHT_NAME, Data.Name);
-			SetupPPObjCombo(this, CTLSEL_FREIGHT_SHIP,     PPOBJ_TRANSPORT, Data.ShipID, OLW_CANINSERT|OLW_LOADDEFONOPEN, (void *)Data.TrType);
-			SetupPPObjCombo(this, CTLSEL_FREIGHT_CAPTAIN,  PPOBJ_PERSON, Data.CaptainID, OLW_CANINSERT/*|OLW_LOADDEFONOPEN*/, (void *)PPPRK_CAPTAIN);
-			SetupPPObjCombo(this, CTLSEL_FREIGHT_AGENT,    PPOBJ_PERSON, Data.AgentID, OLW_CANINSERT|OLW_LOADDEFONOPEN, (void *)PPPRK_VESSELSAGENT);
+			SetupPPObjCombo(this, CTLSEL_FREIGHT_SHIP,     PPOBJ_TRANSPORT, Data.ShipID, OLW_CANINSERT|OLW_LOADDEFONOPEN, reinterpret_cast<void *>(Data.TrType));
+			SetupPPObjCombo(this, CTLSEL_FREIGHT_CAPTAIN,  PPOBJ_PERSON, Data.CaptainID, OLW_CANINSERT/*|OLW_LOADDEFONOPEN*/, reinterpret_cast<void *>(PPPRK_CAPTAIN));
+			SetupPPObjCombo(this, CTLSEL_FREIGHT_AGENT,    PPOBJ_PERSON, Data.AgentID, OLW_CANINSERT|OLW_LOADDEFONOPEN, reinterpret_cast<void *>(PPPRK_VESSELSAGENT));
 			SetupPPObjCombo(this, CTLSEL_FREIGHT_ISSLOC,   PPOBJ_WORLD, Data.PortOfLoading,   OLW_CANINSERT|OLW_LOADDEFONOPEN|OLW_CANSELUPLEVEL,
 				PPObjWorld::MakeExtraParam(WORLDOBJ_CITY|WORLDOBJ_CITYAREA, 0, 0));
 			SetupPPObjCombo(this, CTLSEL_FREIGHT_ARRIVLOC, PPOBJ_WORLD, Data.PortOfDischarge, OLW_CANINSERT|OLW_LOADDEFONOPEN|OLW_CANSELUPLEVEL,
@@ -3272,7 +3272,7 @@ int SLAPI PPObjBill::EditFreightDialog(PPBillPacket * pPack)
 			}
 			else if(event.isClusterClk(CTL_FREIGHT_TRTYP)) {
 				GetClusterData(CTL_FREIGHT_TRTYP, &Data.TrType);
-				SetupPPObjCombo(this, CTLSEL_FREIGHT_SHIP, PPOBJ_TRANSPORT, 0, OLW_CANINSERT, (void *)Data.TrType);
+				SetupPPObjCombo(this, CTLSEL_FREIGHT_SHIP, PPOBJ_TRANSPORT, 0, OLW_CANINSERT, reinterpret_cast<void *>(Data.TrType));
 			}
 			else if(event.isCmd(cmFreightEditDlvrLocList)) {
 				if(P_Pack) {
@@ -3364,8 +3364,8 @@ int BillDialog::calcAdvanceRepRest()
 IMPL_CMPFUNC(PPBillStatus_Rank_Name, i1, i2)
 {
 	int    r = 0;
-	const PPBillStatus2 * p_s1 = (const PPBillStatus *)i1;
-	const PPBillStatus * p_s2 = (const PPBillStatus *)i2;
+	const PPBillStatus2 * p_s1 = static_cast<const PPBillStatus *>(i1);
+	const PPBillStatus * p_s2 = static_cast<const PPBillStatus *>(i2);
 	if(p_s1->Rank < p_s2->Rank)
 		r = -1;
 	else if(p_s1->Rank > p_s2->Rank)

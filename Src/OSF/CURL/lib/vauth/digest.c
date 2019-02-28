@@ -42,7 +42,7 @@
    what ultimately goes over the network.
  */
 #define CURL_OUTPUT_DIGEST_CONV(a, b) \
-	result = Curl_convert_to_network(a, (char*)b, sstrlen((const char*)b)); \
+	result = Curl_convert_to_network(a, (char *)b, sstrlen((const char*)b)); \
 	if(result) { \
 		SAlloc::F(b); \
 		return result; \
@@ -115,11 +115,10 @@ bool Curl_auth_digest_get_pair(const char * str, char * value, char * content, c
 
 #if !defined(USE_WINDOWS_SSPI)
 /* Convert md5 chunk to RFC2617 (section 3.1.3) -suitable ascii string*/
-static void auth_digest_md5_to_ascii(uchar * source, /* 16 bytes */
-    uchar * dest)                                 /* 33 bytes */
+static void auth_digest_md5_to_ascii(const uchar * source/* 16 bytes */, uchar * dest/* 33 bytes */)
 {
 	for(int i = 0; i < 16; i++)
-		snprintf((char*)&dest[i * 2], 3, "%02x", source[i]);
+		snprintf((char *)&dest[i * 2], 3, "%02x", source[i]);
 }
 
 /* Perform quoted-string escaping as described in RFC2616 and its errata */
@@ -235,27 +234,27 @@ static CURLcode auth_decode_digest_md5_message(const char * chlg64,
 		return CURLE_BAD_CONTENT_ENCODING;
 
 	/* Retrieve nonce string from the challenge */
-	if(!auth_digest_get_key_value((char*)chlg, "nonce=\"", nonce, nlen,
+	if(!auth_digest_get_key_value((char *)chlg, "nonce=\"", nonce, nlen,
 		    '\"')) {
 		SAlloc::F(chlg);
 		return CURLE_BAD_CONTENT_ENCODING;
 	}
 
 	/* Retrieve realm string from the challenge */
-	if(!auth_digest_get_key_value((char*)chlg, "realm=\"", realm, rlen,
+	if(!auth_digest_get_key_value((char *)chlg, "realm=\"", realm, rlen,
 		    '\"')) {
 		/* Challenge does not have a realm, set empty string [RFC2831] page 6 */
 		strcpy(realm, "");
 	}
 
 	/* Retrieve algorithm string from the challenge */
-	if(!auth_digest_get_key_value((char*)chlg, "algorithm=", alg, alen, ',')) {
+	if(!auth_digest_get_key_value((char *)chlg, "algorithm=", alg, alen, ',')) {
 		SAlloc::F(chlg);
 		return CURLE_BAD_CONTENT_ENCODING;
 	}
 
 	/* Retrieve qop-options string from the challenge */
-	if(!auth_digest_get_key_value((char*)chlg, "qop=\"", qop, qlen, '\"')) {
+	if(!auth_digest_get_key_value((char *)chlg, "qop=\"", qop, qlen, '\"')) {
 		SAlloc::F(chlg);
 		return CURLE_BAD_CONTENT_ENCODING;
 	}

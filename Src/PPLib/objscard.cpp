@@ -982,7 +982,7 @@ struct Storage_SCardSerExt {
 
 int SLAPI PPObjSCardSeries::Search(PPID id, void * b)
 {
-	PPSCardSeries2 * p_rec = (PPSCardSeries2 *)b;
+	PPSCardSeries2 * p_rec = static_cast<PPSCardSeries2 *>(b);
 	int    ok = PPObjReference::Search(id, p_rec);
 	if(ok > 0 && p_rec)
 		p_rec->Verify();
@@ -996,7 +996,7 @@ int SLAPI PPObjSCardSeries::GetPacket(PPID id, PPSCardSerPacket * pPack)
 	PropPPIDArray * p_rec = 0;
 	Storage_SCardRule * p_strg = 0;
 	PPSCardSerPacket pack;
-	if(id) {
+	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
 		THROW(Search(id, &pack.Rec) > 0);
 		//
 		// Правила для чеков
@@ -3831,14 +3831,16 @@ int SLAPI PPObjSCard::GetPacket(PPID id, PPSCardPacket * pPack)
 	int    ok = -1;
 	assert(pPack);
 	pPack->Clear();
-	if(Search(id, &pPack->Rec) > 0) {
-		{
-			SString text_buf;
-			THROW(PPRef->UtrC.GetText(TextRefIdent(Obj, id, PPTRPROP_SCARDEXT), text_buf));
-			text_buf.Transf(CTRANSF_UTF8_TO_INNER);
-			pPack->SetBuffer(text_buf.Strip());
+	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
+		if(Search(id, &pPack->Rec) > 0) {
+			{
+				SString text_buf;
+				THROW(PPRef->UtrC.GetText(TextRefIdent(Obj, id, PPTRPROP_SCARDEXT), text_buf));
+				text_buf.Transf(CTRANSF_UTF8_TO_INNER);
+				pPack->SetBuffer(text_buf.Strip());
+			}
+			ok = 1;
 		}
-        ok = 1;
 	}
 	CATCHZOK
 	return ok;
@@ -3848,6 +3850,7 @@ int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 {
 	int    ok = 1, r;
 	Reference * p_ref = PPRef;
+	LocationCore * p_loc_core = LocObj.P_Tbl;
 	int    do_dirty = 0;
 	const  int do_index_phones = BIN(CConfig.Flags2 & CCFLG2_INDEXEADDR);
 	SString temp_buf;
@@ -3878,7 +3881,7 @@ int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 					org_pack.GetExtStrData(PPSCardPacket::extssPhone, temp_buf);
 					PPObjID objid;
 					objid.Set(Obj, *pID);
-					THROW(LocObj.P_Tbl->IndexPhone(temp_buf, &objid, 1, 0));
+					THROW(p_loc_core->IndexPhone(temp_buf, &objid, 1, 0));
 				}
 				do_dirty = 1;
 			}
@@ -3908,8 +3911,8 @@ int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 						if(temp_buf != org_pack_phone) { // @v10.0.01
 							PPObjID objid;
 							objid.Set(Obj, *pID);
-							THROW(LocObj.P_Tbl->IndexPhone(org_pack_phone, &objid, 1, 0)); // @v10.0.01
-							THROW(LocObj.P_Tbl->IndexPhone(temp_buf, &objid, 0, 0));
+							THROW(p_loc_core->IndexPhone(org_pack_phone, &objid, 1, 0)); // @v10.0.01
+							THROW(p_loc_core->IndexPhone(temp_buf, &objid, 0, 0));
 						}
 					}
 					// } @v9.4.7
@@ -3941,7 +3944,7 @@ int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 				pPack->GetExtStrData(PPSCardPacket::extssPhone, temp_buf);
 				PPObjID objid;
 				objid.Set(Obj, *pID);
-				THROW(LocObj.P_Tbl->IndexPhone(temp_buf, &objid, 0, 0));
+				THROW(p_loc_core->IndexPhone(temp_buf, &objid, 0, 0));
 			}
 			// } @v9.4.7
 			pPack->Rec.ID = *pID;
@@ -4437,7 +4440,7 @@ int SLAPI SCardSeriesCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		CPY_FLD(BonusGrpID);
 		CPY_FLD(BonusChrgGrpID);
 		CPY_FLD(ChargeGoodsID);
-		CPY_FLD(BonusChrgExtRule); // @v8.2.10
+		CPY_FLD(BonusChrgExtRule);
 		CPY_FLD(ParentID); // @v9.8.9
 #undef CPY_FLD
 		// @v9.9.5 PPStringSetSCD ss;
@@ -4558,7 +4561,7 @@ private:
 		}
 		void   FASTCALL Dirty(PPID cardID)
 		{
-			DirtyTable.Add((uint32)labs(cardID));
+			DirtyTable.Add(static_cast<uint32>(labs(cardID)));
 		}
 		int    Use;
 		int    Inited;

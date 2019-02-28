@@ -1097,7 +1097,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 					    break;
 				    }
 				    if(data->set.verbose) {
-					    Curl_debug(data, CURLINFO_HEADER_OUT, (char*)"PWD\n", 4, conn);
+					    Curl_debug(data, CURLINFO_HEADER_OUT, (char *)"PWD\n", 4, conn);
 					    Curl_debug(data, CURLINFO_HEADER_IN, tmp, sstrlen(tmp), conn);
 				    }
 				    /* this sends an FTP-like "header" to the header callback so that the

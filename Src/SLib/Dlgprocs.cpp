@@ -75,7 +75,7 @@ int TView::HandleKeyboardEvent(WPARAM wParam, int isPpyCodeType)
 	TEvent event;
 	event.what = TEvent::evKeyDown;
 	if(isPpyCodeType)
-		event.keyDown.keyCode = (uchar)wParam;
+		event.keyDown.keyCode = static_cast<uchar>(wParam);
 	else {
 		if(GetKeyState(VK_SHIFT) & 0x8000) {
 			event.keyDown.keyCode = __MapVk(wParam, 1);
@@ -295,7 +295,7 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
 				event.what              = TEvent::evMouseDown;
-				event.mouse.buttons     = (uchar)wParam;
+				event.mouse.buttons     = static_cast<uchar>(wParam);
 				event.mouse.WhereX      = LOWORD(lParam);
 				event.mouse.WhereY      = HIWORD(lParam);
 				event.mouse.doubleClick = 1;
@@ -306,7 +306,7 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
 				event.what = TEvent::evMouseDown;
-				event.mouse.buttons = (uchar)wParam;
+				event.mouse.buttons = static_cast<uchar>(wParam);
 				event.mouse.WhereX = LOWORD(lParam);
 				event.mouse.WhereY = HIWORD(lParam);
 				p_dlg->handleEvent(event);
@@ -323,7 +323,7 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
 				event.what = TEvent::evMouseUp;
-				event.mouse.buttons = (uchar)wParam;
+				event.mouse.buttons = static_cast<uchar>(wParam);
 				event.mouse.WhereX = LOWORD(lParam);
 				event.mouse.WhereY = HIWORD(lParam);
 				p_dlg->handleEvent(event);
@@ -341,7 +341,7 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
 				event.what = TEvent::evMouseMove;
-				event.mouse.buttons = (uchar)wParam;
+				event.mouse.buttons = static_cast<uchar>(wParam);
 				event.mouse.WhereX = LOWORD(lParam);
 				event.mouse.WhereY = HIWORD(lParam);
 				p_dlg->handleEvent(event);
@@ -372,7 +372,7 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 					key_cmd.Code = (uint16)wParam;
 					event.what = TEvent::evCommand;
 					event.message.command = cmWinKeyDown;
-					event.message.infoPtr = (void *)&key_cmd;
+					event.message.infoPtr = &key_cmd;
 					p_dlg->handleEvent(event);
 				}
 			}
@@ -446,7 +446,7 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 		case WM_ERASEBKGND:
 			/*
 			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
-			if(p_dlg && APPL->EraseBackground(p_dlg, hwndDlg, (HDC)wParam, 0) > 0)
+			if(p_dlg && APPL->EraseBackground(p_dlg, hwndDlg, reinterpret_cast<HDC>(wParam), 0) > 0)
 				return 1;
 			*/
 			return 0;
@@ -492,7 +492,7 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 				else
 					dc.Src = 0;
 				dc.H_Ctl = reinterpret_cast<HWND>(lParam);
-				dc.H_DC  = (HDC)wParam;
+				dc.H_DC  = reinterpret_cast<HDC>(wParam);
 				dc.H_Br  = 0;
 				if(TView::messageCommand(p_dlg, cmCtlColor, &dc))
 					return (BOOL)dc.H_Br;

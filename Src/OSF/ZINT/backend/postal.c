@@ -79,7 +79,7 @@ static const char * JapanTable[19] = {
 };
 
 /* Handles the PostNet system used for Zip codes in the US */
-int postnet(struct ZintSymbol * symbol, uchar source[], char dest[], int length)
+static int postnet(struct ZintSymbol * symbol, const uchar source[], char dest[], int length)
 {
 	uint   sum, check_digit;
 	int    error_number = 0;
@@ -136,7 +136,7 @@ int post_plot(struct ZintSymbol * symbol, uchar source[], int length)
 }
 
 /* Handles the PLANET  system used for item tracking in the US */
-int planet(struct ZintSymbol * symbol, uchar source[], char dest[], int length)
+static int planet(struct ZintSymbol * symbol, const uchar source[], char dest[], int length)
 {
 	uint sum, check_digit;
 	int error_number = 0;
@@ -210,7 +210,7 @@ int korea_post(struct ZintSymbol * symbol, uchar source[], int length)
 	}
 	zeroes = 6 - length;
 	memset(localstr, '0', zeroes);
-	sstrcpy(localstr + zeroes, (char*)source);
+	sstrcpy(localstr + zeroes, (char *)source);
 
 	total = 0;
 	for(loop = 0; loop < 6; loop++) {
@@ -234,15 +234,13 @@ int korea_post(struct ZintSymbol * symbol, uchar source[], int length)
 
 /* The simplest barcode symbology ever! Supported by MS Word, so here it is!
     glyphs from http://en.wikipedia.org/wiki/Facing_Identification_Mark */
-int fim(struct ZintSymbol * symbol, uchar source[], int length)
+int fim(struct ZintSymbol * symbol, const uchar source[], int length)
 {
 	char dest[16] = {0};
-
 	if(length > 1) {
 		sstrcpy(symbol->errtxt, "Input too long (D86)");
 		return ZINT_ERROR_TOO_LONG;
 	}
-
 	switch((char)source[0]) {
 		case 'a':
 		case 'A':
@@ -265,7 +263,6 @@ int fim(struct ZintSymbol * symbol, uchar source[], int length)
 		    return ZINT_ERROR_INVALID_DATA;
 		    break;
 	}
-
 	expand(symbol, dest);
 	return 0;
 }
@@ -278,10 +275,10 @@ char rm4scc(char source[], uchar dest[], int length)
 	int    top = 0;
 	int    bottom = 0;
 	// start character 
-	sstrcpy((char*)dest, "1");
+	sstrcpy((char *)dest, "1");
 	{
 		for(int i = 0; i < length; i++) {
-			lookup(KRSET, RoyalTable, source[i], (char*)dest);
+			lookup(KRSET, RoyalTable, source[i], (char *)dest);
 			sstrcpy(values, RoyalValues[posn(KRSET, source[i])]);
 			top += hex(values[0]);
 			bottom += hex(values[1]);
@@ -297,9 +294,9 @@ char rm4scc(char source[], uchar dest[], int length)
 		column = 5;
 	}
 	check_digit = (6 * row) + column;
-	strcat((char*)dest, RoyalTable[check_digit]);
+	strcat((char *)dest, RoyalTable[check_digit]);
 	// stop character 
-	strcat((char*)dest, "0");
+	strcat((char *)dest, "0");
 	return set_copy[check_digit];
 }
 
@@ -324,7 +321,7 @@ int royal_plot(struct ZintSymbol * symbol, uchar source[], int length)
 		sstrcpy(symbol->errtxt, "Invalid characters in data (D89)");
 		return error_number;
 	}
-	/*check = */ rm4scc((char*)source, (uchar*)height_pattern, length);
+	/*check = */ rm4scc((char *)source, (uchar*)height_pattern, length);
 
 	writer = 0;
 	h = strlen(height_pattern);
@@ -367,7 +364,7 @@ int kix_code(struct ZintSymbol * symbol, uchar source[], int length)
 		sstrcpy(symbol->errtxt, "Invalid characters in data (D8B)");
 		return error_number;
 	}
-	sstrcpy(localstr, (char*)source);
+	sstrcpy(localstr, (char *)source);
 	// Encode data 
 	for(i = 0; i < length; i++) {
 		lookup(KRSET, RoyalTable, localstr[i], height_pattern);
@@ -490,7 +487,7 @@ int japan_post(struct ZintSymbol * symbol, uchar source[], int length)
 #ifndef _MSC_VER
 	char local_source[length + 1];
 #else
-	char* local_source = (char*)_alloca(length + 1);
+	char* local_source = (char *)_alloca(length + 1);
 #endif
 
 	if(length > 20) {
@@ -499,7 +496,7 @@ int japan_post(struct ZintSymbol * symbol, uchar source[], int length)
 	}
 	inter_posn = 0;
 	error_number = 0;
-	sstrcpy(local_source, (char*)source);
+	sstrcpy(local_source, (char *)source);
 	for(i = 0; i < length; i++) {
 		local_source[i] = source[i];
 	}

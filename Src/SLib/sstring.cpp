@@ -7277,8 +7277,8 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("email-list.txt");
 				SFile inf(in_buf, SFile::mRead);
 				line_no = 0;
-				SLTEST_CHECK_NZ(sstreq((const char *)0, (const char *)0));
-				SLTEST_CHECK_NZ(sstreqi_ascii((const char *)0, (const char *)0));
+				SLTEST_CHECK_NZ(sstreq(static_cast<const char *>(0), static_cast<const char *>(0)));
+				SLTEST_CHECK_NZ(sstreqi_ascii(static_cast<const char *>(0), static_cast<const char *>(0)));
 				SLTEST_CHECK_NZ(sstreqi_ascii((const uchar *)0, (const uchar *)0));
 				while(inf.ReadLine(str)) {
 					line_no++;

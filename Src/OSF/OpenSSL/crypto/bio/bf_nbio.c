@@ -50,7 +50,7 @@ static int nbiof_new(BIO * bi)
 		return 0;
 	nt->lrn = -1;
 	nt->lwn = -1;
-	bi->ptr = (char*)nt;
+	bi->ptr = (char *)nt;
 	bi->init = 1;
 	return 1;
 }

@@ -4176,7 +4176,7 @@ int PPALDD_CCheck::InitData(PPFilt & rFilt, long rsrv)
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
 		CCheckPacket pack;
-		CCheckCore & r_cc = *(CCheckCore*)Extra[0].Ptr;
+		CCheckCore & r_cc = *static_cast<CCheckCore *>(Extra[0].Ptr);
 		if(r_cc.LoadPacket(rFilt.ID, CCheckCore::lpfNoLines, &pack) > 0) {
 			H.ID       = pack.Rec.ID;
 			H.Code     = pack.Rec.Code;

@@ -20,7 +20,7 @@ int CMS_RecipientInfo_set0_password(CMS_RecipientInfo * ri, uchar * pass, ossl_s
 	pwri = ri->d.pwri;
 	pwri->pass = pass;
 	if(pass && passlen < 0)
-		passlen = strlen((char*)pass);
+		passlen = strlen((char *)pass);
 	pwri->passlen = passlen;
 	return 1;
 }
@@ -271,7 +271,7 @@ int cms_RecipientInfo_pwri_crypt(CMS_ContentInfo * cms, CMS_RecipientInfo * ri, 
 	}
 	algtmp = pwri->keyDerivationAlgorithm;
 	/* Finish password based key derivation to setup key in "ctx" */
-	if(EVP_PBE_CipherInit(algtmp->algorithm, (char*)pwri->pass, pwri->passlen, algtmp->parameter, kekctx, en_de) < 0) {
+	if(EVP_PBE_CipherInit(algtmp->algorithm, (char *)pwri->pass, pwri->passlen, algtmp->parameter, kekctx, en_de) < 0) {
 		CMSerr(CMS_F_CMS_RECIPIENTINFO_PWRI_CRYPT, ERR_R_EVP_LIB);
 		goto err;
 	}

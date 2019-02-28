@@ -188,7 +188,7 @@ int ShipmAnalyzeCache::Add(int kind, long flags, const BillTbl::Rec * pBillRec, 
 			s = Search(goodsID, &spos);
 		}
 		if(s) {
-			Entry * p_entry = (Entry *)at(spos);
+			Entry * p_entry = static_cast<Entry *>(at(spos));
 			if(kind == 1) {
 				p_entry->OrderQtty += qtty;
 				p_entry->OrderAmount += (qtty * price);

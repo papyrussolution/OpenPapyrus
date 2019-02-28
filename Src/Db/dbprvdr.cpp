@@ -579,14 +579,14 @@ int SLAPI DbProvider::SetupProtectData(const char * pOldPw, const char * pNewPw)
 		DBS.GetProtectData(buf, 1);
 	else {
 		THROW(GetProtectData(f, buf));
-		::decrypt((char*)buf, sizeof(buf));
+		::decrypt((char *)buf, sizeof(buf));
 	}
-	THROW(stricmp((char*)buf, pOldPw) == 0);
+	THROW(stricmp((char *)buf, pOldPw) == 0);
 	p_temp = (char *)SAlloc::M(PASZ);
 	IdeaRandMem(p_temp, PASZ);
 	IdeaRandMem(buf, sizeof(buf));
-	strcpy((char*)buf, pNewPw);
-	::encrypt((char*)buf, sizeof(buf));
+	strcpy((char *)buf, pNewPw);
+	::encrypt((char *)buf, sizeof(buf));
 	memcpy(p_temp + PAOFS, buf, sizeof(buf));
 	IdeaEncrypt(cryptPassword(cpw), p_temp, PASZ);
 	rewind(f);

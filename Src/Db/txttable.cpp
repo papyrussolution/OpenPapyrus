@@ -436,7 +436,7 @@ int TextDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 				}
 			}
 			if(P.Flags & fVerticalRec) {
-				line = (P.VertRecTerm.Cmp("\\n", 0) == 0) ? (const char *)0 : P.VertRecTerm;
+				line = (P.VertRecTerm.Cmp("\\n", 0) == 0) ? static_cast<const char *>(0) : P.VertRecTerm;
 			}
 			THROW(F.WriteLine(line.CR()));
 		}
@@ -456,7 +456,7 @@ int TextDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 				line = field_buf;
 			THROW(F.WriteLine(line.CR()));
 		}
-		line = (P.VertRecTerm.Cmp("\\n", 0) == 0) ? (const char *)0 : P.VertRecTerm;
+		line = (P.VertRecTerm.Cmp("\\n", 0) == 0) ? static_cast<const char *>(0) : P.VertRecTerm;
 	}
 	else {
 		line = 0;
@@ -512,7 +512,7 @@ int TextDbFile::AppendHeader(const SdRecord & rRec, const void * pDataBuf)
 				}
 			}
 			if(P.Flags & fVerticalRec) {
-				line = (P.VertRecTerm.Cmp("\\n", 0) == 0) ? (const char *)0 : P.VertRecTerm;
+				line = (P.VertRecTerm.Cmp("\\n", 0) == 0) ? static_cast<const char *>(0) : P.VertRecTerm;
 			}
 			THROW(F.WriteLine(line.CR()));
 		}

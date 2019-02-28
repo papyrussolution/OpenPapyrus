@@ -293,7 +293,7 @@ again:
 			}
 			if(psection == NULL)
 				psection = section;
-			v->name = (char*)OPENSSL_malloc(strlen(pname) + 1);
+			v->name = (char *)OPENSSL_malloc(strlen(pname) + 1);
 			v->value = NULL;
 			if(v->name == NULL) {
 				CONFerr(CONF_F_DEF_LOAD_BIO, ERR_R_MALLOC_FAILURE);

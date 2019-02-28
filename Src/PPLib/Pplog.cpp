@@ -736,7 +736,7 @@ long SLAPI PPMsgLog::EnumMessages(long nmsg, void * buff, int16 bsize, int16 * r
 	_read(Stream, (void *)hsize, sizeof(int16));
 	int    len = (int) (GetLogIdx(CurMsg).address - GetLogIdx(CurMsg-1).address) - sizeof(int16);
 	*rsize = _read(Stream, buff, len > bsize ? bsize : len); // exception was here!
-	char * bb = (char*)buff;
+	char * bb = (char *)buff;
 	bb[((*rsize >= bsize) ? (*rsize - 1) : *rsize)] = 0;
 	return CurMsg;
 }
@@ -1485,7 +1485,7 @@ int PPALDD_LogList::NextIteration(PPIterID iterId)
 
 void PPALDD_LogList::Destroy()
 {
-	delete ((PPMsgLog *)Extra[0].Ptr);
+	delete static_cast<PPMsgLog *>(Extra[0].Ptr);
 	Extra[0].Ptr = Extra[1].Ptr = 0;
 }
 //

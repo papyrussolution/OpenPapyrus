@@ -214,7 +214,7 @@ static cairo_status_t picture_set_filter(Display * dpy,
 		    break;
 	}
 
-	XRenderSetPictureFilter(dpy, picture, (char*)render_filter, NULL, 0);
+	XRenderSetPictureFilter(dpy, picture, (char *)render_filter, NULL, 0);
 	return CAIRO_STATUS_SUCCESS;
 }
 

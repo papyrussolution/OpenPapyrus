@@ -77,11 +77,11 @@
 //
 #ifndef __GENERIC_MAIN_CONDUIT__
 extern "C" {
-	typedef  long (*PROGRESSFN) (char*);
+	typedef  long (*PROGRESSFN) (char *);
 }
 #else
 extern "C" {
-	typedef  long (*PROGRESSFN) (char*);
+	typedef  long (*PROGRESSFN) (char *);
 	ExportFunc long OpenConduit(PROGRESSFN, CSyncProperties&);
 	ExportFunc long GetConduitName(char*,WORD);
 	ExportFunc DWORD GetConduitVersion();

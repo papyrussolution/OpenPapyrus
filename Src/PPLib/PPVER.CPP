@@ -109,33 +109,33 @@ int SLAPI PPVersionInfo::Decrypt()
 						fseek(p_file, offs, SEEK_SET);
 						SLibError = SLERR_READFAULT;
 						THROW_SL(fread(b, 64, 1, p_file) == 1);
-						struc_size = *(uint16 *)(b+sstrlen((char*)b)+1);
-						THROW_MEM(p_data_pre9303 = (uchar *)SAlloc::M(struc_size));
+						struc_size = *(uint16 *)(b+sstrlen(reinterpret_cast<char *>(b))+1);
+						THROW_MEM(p_data_pre9303 = static_cast<uchar *>(SAlloc::M(struc_size)));
 						SLibError = SLERR_READFAULT;
 						fseek(p_file, offs, SEEK_SET);
 						THROW_SL(fread(p_data_pre9303, struc_size, 1, p_file) == 1);
 						//
 						THROW_MEM(P_Info_Pre9303 = SAlloc::M(sizeof(__VerInfo)));
-						p_info_pre9303 = (__VerInfo*)P_Info_Pre9303;
+						p_info_pre9303 = static_cast<__VerInfo *>(P_Info_Pre9303);
 
 						memcpy(b, p_data_pre9303, struc_size);
-						dl = sstrlen((char*)b)+1+sizeof(struc_size);
-						IdeaDecrypt((char*)b, (char*)b+dl, struc_size-dl);
+						dl = sstrlen(reinterpret_cast<const char *>(b))+1+sizeof(struc_size);
+						IdeaDecrypt(reinterpret_cast<char *>(b), reinterpret_cast<char *>(b)+dl, struc_size-dl);
 
-						STRNSCPY(p_info_pre9303->ProductName, (char*)b+dl); dl += sstrlen((char*)b+dl)+1;
-						STRNSCPY(p_info_pre9303->ProductTeam, (char*)b+dl); dl += sstrlen((char*)b+dl)+1;
-						STRNSCPY(p_info_pre9303->Demo, (char*)b+dl);        dl += sstrlen((char*)b+dl)+1;
-						STRNSCPY(p_info_pre9303->Secret, (char*)b+dl);      dl += sstrlen((char*)b+dl)+1;
-						p_info_pre9303->StartDevYear = *(uint16*)(b+dl); dl += sizeof(uint16);
-						p_info_pre9303->LastDevYear = *(uint16*)(b+dl);  dl += sizeof(uint16);
-						p_info_pre9303->MajorVer = *(uint16*)(b+dl);     dl += sizeof(uint16);
-						p_info_pre9303->MinorVer = *(uint16*)(b+dl);     dl += sizeof(uint16);
-						p_info_pre9303->Revision = *(uint16*)(b+dl);     dl += sizeof(uint16);
+						STRNSCPY(p_info_pre9303->ProductName, reinterpret_cast<char *>(b)+dl); dl += sstrlen(reinterpret_cast<char *>(b)+dl)+1;
+						STRNSCPY(p_info_pre9303->ProductTeam, reinterpret_cast<char *>(b)+dl); dl += sstrlen(reinterpret_cast<char *>(b)+dl)+1;
+						STRNSCPY(p_info_pre9303->Demo, reinterpret_cast<char *>(b)+dl);        dl += sstrlen(reinterpret_cast<char *>(b)+dl)+1;
+						STRNSCPY(p_info_pre9303->Secret, reinterpret_cast<char *>(b)+dl);      dl += sstrlen(reinterpret_cast<char *>(b)+dl)+1;
+						p_info_pre9303->StartDevYear = *reinterpret_cast<const uint16 *>(b+dl); dl += sizeof(uint16);
+						p_info_pre9303->LastDevYear = *reinterpret_cast<const uint16 *>(b+dl);  dl += sizeof(uint16);
+						p_info_pre9303->MajorVer = *reinterpret_cast<const uint16 *>(b+dl);     dl += sizeof(uint16);
+						p_info_pre9303->MinorVer = *reinterpret_cast<const uint16 *>(b+dl);     dl += sizeof(uint16);
+						p_info_pre9303->Revision = *reinterpret_cast<const uint16 *>(b+dl);     dl += sizeof(uint16);
 						p_info_pre9303->MaxUsers = -1;
 						//
-						p_info_pre9303->MinMajorVer = *(uint16*)(b+dl);     dl += sizeof(uint16);
-						p_info_pre9303->MinMinorVer = *(uint16*)(b+dl);     dl += sizeof(uint16);
-						p_info_pre9303->MinRevision = *(uint16*)(b+dl);     dl += sizeof(uint16);
+						p_info_pre9303->MinMajorVer = *reinterpret_cast<const uint16 *>(b+dl);     dl += sizeof(uint16);
+						p_info_pre9303->MinMinorVer = *reinterpret_cast<const uint16 *>(b+dl);     dl += sizeof(uint16);
+						p_info_pre9303->MinRevision = *reinterpret_cast<const uint16 *>(b+dl);     dl += sizeof(uint16);
 						IdeaRandMem(b, sizeof(b));
 					}
 					else

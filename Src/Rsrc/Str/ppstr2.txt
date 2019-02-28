@@ -2099,6 +2099,7 @@ PPERR_SCARDSERMUSTBERSRVPOOL     "Серия карт (%s) должна быть
 PPERR_SCARDSERMUSTBEREGTYPE      "Серия карт (%s) должна иметь регулярный тип (дисконтная, кредитная или бонусная)"
 PPERR_SCARDSERRSRVPOOLISEMPTY    "Нет доступных карт в резервном пуле %s"
 PPERR_TIMSERNEEDED               "Необходимо указать временную серию"
+PPERR_QUERYOBJPACKBYZEROID       "Запрос пакета объекта '%s' по нулевому идентификатору"
 // LastError
 
 [102] // confirmation
@@ -4508,6 +4509,7 @@ PPTXT_EGAIS_BILLFULLYREJECTED       "Документ '%s' не имеет ни 
 PPTXT_EGAIS_BILLFULLYACCEPTED       "Документ '%s' имеет полное соответствия в документе списания - отправляется уведомление о безусловной приемке"
 PPTXT_EGAIS_BILLPARTACCEPTEDM       "Документ '%s' имеет сниженное количество в документе списания - отправляется уведомление о рассогласовании"
 PPTXT_EGAIS_BILLPARTACCEPTEDP       "Документ '%s' имеет завышенное количество в документе списания - необходимо запросить дополнительную накладную"
+PPTXT_EGAIS_NEQMARKINACTROW         "Количество марок в строке документа списания не соответствует принятому количеству товара: %s"
 PPTXT_EGAIS_BILLSELFREJECTED        "Для собственного документа '%s' отправляется отказ в проведении"
 PPTXT_EGAIS_BILLUNCNDACCEPTED       "Документ '%s' распознан как принимаемый безусловно - отправляется уведомление о полной приемке"
 PPTXT_EGAIS_BILLEDIIDNINFB          "EDI-идентификатор документа '%s' не согласован с соответствующей справкой Б"
@@ -6985,7 +6987,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_recover_v242 				          "Корректировка проблемы @v2.4.2"
 @cmd_recoverabsenceaccounts 	          "Восстановление отсутствующих счетов"
 @cmd_recoverabsencebills 		          "Восстановление отсутствующих документов"
-@cmd_recoverabsenceprjtaskperson           "Восстановление отсутствующих персоналий в задачах"
+@cmd_recoverabsenceprjtaskperson          "Восстановление отсутствующих персоналий в задачах"
 @cmd_recoverlostunifiedlinks 	          "Корректировка потерянных в результате объединения объектов ссылок в тегах"
 @cmd_registercomserver 			          "Регистрация/Де-регистрация COM-сервера"
 @cmd_registertype 				          "Типы регистрационных документов"
@@ -7570,6 +7572,13 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @billstatus_symb                          "@{symbol}"
 @billstatus_tag                           "@{tag}"
 @billstatus_indcolor                      "@{color}"
+
+@billrecalcparam_flags                    "@{flags}"
+@billrecalcparam_fnorecalcamounts         "Не пересчитывать суммы"
+@billrecalcparam_frecalctrfrs             "Пересчитывать товарные строки"
+@billrecalcparam_period                   "@{daterange}"
+@billrecalcparam_op                       "@{oprkind}"
+@billrecalcparam_logfilename              "@{logfilename}"
 
 @billrunie                                "Конфигурация экспорта/импорта документов"
 @billrunie_exp                            "Конфигурация экспорта документов"

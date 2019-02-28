@@ -3047,11 +3047,11 @@ int SLAPI PPKeywordListGenerator::GenerateByGroup(uint grpPos, const SString * p
 					}
 					else if(special == spcGroup) {
 						assert(pGrpText); // Выше мы уже убедились, что pGrpText != 0
-						temp_buf = pGrpText ? *pGrpText : (const char *)0;
+						temp_buf = pGrpText ? *pGrpText : static_cast<const char *>(0);
 					}
 					else if(special == spcLoc) {
 						assert(pLoc); // Выше мы уже убедились, что pLoc != 0
-						temp_buf = pLoc ? *pLoc : (const char *)0;
+						temp_buf = pLoc ? *pLoc : static_cast<const char *>(0);
 					}
 					if(temp_buf.NotEmpty()) {
 						rSs.add(temp_buf, &(ss_pos = 0));
@@ -3068,11 +3068,11 @@ int SLAPI PPKeywordListGenerator::GenerateByGroup(uint grpPos, const SString * p
 						}
 						else if(special == spcGroup) {
 							assert(pGrpText); // Выше мы уже убедились, что pGrpText != 0
-							temp_buf = pGrpText ? *pGrpText : (const char *)0;
+							temp_buf = pGrpText ? *pGrpText : static_cast<const char *>(0);
 						}
 						else if(special == spcLoc) {
 							assert(pLoc); // Выше мы уже убедились, что pLoc != 0
-							temp_buf = pLoc ? *pLoc : (const char *)0;
+							temp_buf = pLoc ? *pLoc : static_cast<const char *>(0);
 						}
 						if(temp_buf.NotEmpty()) {
 							rSs.add(temp_buf, &(ss_pos = 0));

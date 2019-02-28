@@ -96,7 +96,7 @@ static void FASTCALL xmlCleanURI(xmlURI * uri);
  *
  * path          = [ abs_path | opaque_part ]
  */
-#define STRNDUP(s, n) (char*)xmlStrndup((const xmlChar*)(s), (n))
+#define STRNDUP(s, n) (char *)xmlStrndup((const xmlChar*)(s), (n))
 // 
 // RFC 3986 parser
 // 
@@ -1020,7 +1020,7 @@ xmlChar * xmlSaveUri(xmlURIPtr uri)
 							goto mem_error;
 						ret = temp;
 					}
-					len += snprintf((char*)&ret[len], max - len, ":%d", uri->port);
+					len += snprintf((char *)&ret[len], max - len, ":%d", uri->port);
 				}
 			}
 		}
@@ -1186,7 +1186,7 @@ void xmlPrintURI(FILE * stream, xmlURIPtr uri)
 {
 	xmlChar * out = xmlSaveUri(uri);
 	if(out) {
-		fprintf(stream, "%s", (char*)out);
+		fprintf(stream, "%s", (char *)out);
 		SAlloc::F(out);
 	}
 }
@@ -1415,7 +1415,7 @@ char * FASTCALL xmlURIUnescapeString(const char * str, int len, char * target)
 		if(len < 0) 
 			return 0;
 		if(target == NULL) {
-			ret = (char*)SAlloc::M(len + 1);
+			ret = (char *)SAlloc::M(len + 1);
 			if(!ret) {
 				xmlURIErrMemory("unescaping URI value\n");
 				return 0;
@@ -1601,7 +1601,7 @@ xmlChar * FASTCALL xmlURIEscape(const xmlChar * str)
 	}
 	if(uri->port) {
 		xmlChar port[10];
-		snprintf((char*)port, 10, "%d", uri->port);
+		snprintf((char *)port, 10, "%d", uri->port);
 		ret = xmlStrcat(ret, BAD_CAST ":");
 		ret = xmlStrcat(ret, port);
 	}
@@ -1807,7 +1807,7 @@ xmlChar * xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 	len = 2; /* extra / and 0 */
 	len += sstrlen(ref->path);
 	len += sstrlen(bas->path);
-	res->path = (char*)SAlloc::M(len);
+	res->path = (char *)SAlloc::M(len);
 	if(res->path == NULL) {
 		xmlURIErrMemory("resolving URI against base\n");
 		goto done;
@@ -1925,7 +1925,7 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 			goto done;  /* Error in URI, return NULL */
 	}
 	else
-		ref->path = (char*)sstrdup(URI);
+		ref->path = (char *)sstrdup(URI);
 	/*
 	 * Next parse base into the same standard form
 	 */
@@ -1942,7 +1942,7 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 			goto done;  /* Error in base, return NULL */
 	}
 	else
-		bas->path = (char*)sstrdup(base);
+		bas->path = (char *)sstrdup(base);
 	/*
 	 * If the scheme / server on the URI differs from the base, just return the URI
 	 */
@@ -1959,7 +1959,7 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 		goto done;
 	}
 	if(ref->path == NULL) {
-		ref->path = (char*)"/";
+		ref->path = (char *)"/";
 		remove_path = 1;
 	}
 	/*
@@ -2258,7 +2258,7 @@ xmlChar * xmlPathToURI(const xmlChar * path)
 	}
 #endif
 	MEMSZERO(temp);
-	temp.path = (char*)cal;
+	temp.path = (char *)cal;
 	ret = xmlSaveUri(&temp);
 	SAlloc::F(cal);
 	return ret;

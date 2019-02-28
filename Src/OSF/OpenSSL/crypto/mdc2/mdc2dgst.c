@@ -115,8 +115,8 @@ int MDC2_Final(uchar * md, MDC2_CTX * c)
 		memzero(&(c->data[i]), MDC2_BLOCK - i);
 		mdc2_body(c, c->data, MDC2_BLOCK);
 	}
-	memcpy(md, (char*)c->h, MDC2_BLOCK);
-	memcpy(&(md[MDC2_BLOCK]), (char*)c->hh, MDC2_BLOCK);
+	memcpy(md, (char *)c->h, MDC2_BLOCK);
+	memcpy(&(md[MDC2_BLOCK]), (char *)c->hh, MDC2_BLOCK);
 	return 1;
 }
 

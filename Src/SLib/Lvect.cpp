@@ -501,7 +501,7 @@ int SLAPI minv(LMatrix & a)
 	LMIDX pa, pd;
 	LMIDX i, j, k, /*m, l,*/ lc;
 	LMIDX N = a.rows();
-	LMIDX * le = (LMIDX *)SAlloc::M(N * sizeof(LMIDX));
+	LMIDX * le = static_cast<LMIDX *>(SAlloc::M(N * sizeof(LMIDX)));
 	LVect q0;
 	q0.init(N);
 	/*

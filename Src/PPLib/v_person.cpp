@@ -3008,7 +3008,7 @@ int PPALDD_PersonCat::Set(long iterId, int commit)
 {
 	int    ok = 1;
 	SETIFZ(Extra[3].Ptr, new PPPersonCat);
-	PPPersonCat * p_prsn_cat = (PPPersonCat *)Extra[3].Ptr;
+	PPPersonCat * p_prsn_cat = static_cast<PPPersonCat *>(Extra[3].Ptr);
 	if(commit == 0) {
 		if(iterId == 0) {
 			p_prsn_cat->ID = 0;
@@ -3122,7 +3122,7 @@ PPALDD_CONSTRUCTOR(World)
 PPALDD_DESTRUCTOR(World)
 {
 	Destroy();
-	delete (PPObjWorld*)Extra[0].Ptr;
+	delete static_cast<PPObjWorld *>(Extra[0].Ptr);
 }
 
 int PPALDD_World::InitData(PPFilt & rFilt, long rsrv)
@@ -3134,7 +3134,7 @@ int PPALDD_World::InitData(PPFilt & rFilt, long rsrv)
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
 		WorldTbl::Rec rec;
-		if(((PPObjWorld*)Extra[0].Ptr)->Fetch(rFilt.ID, &rec) > 0) {
+		if(static_cast<PPObjWorld *>(Extra[0].Ptr)->Fetch(rFilt.ID, &rec) > 0) {
 			H.ID = rec.ID;
 			H.Kind = rec.Kind;
 			H.ParentID = rec.ParentID;
@@ -3168,7 +3168,7 @@ PPALDD_CONSTRUCTOR(City)
 PPALDD_DESTRUCTOR(City)
 {
 	Destroy();
-	delete (PPObjWorld*)Extra[0].Ptr;
+	delete static_cast<PPObjWorld *>(Extra[0].Ptr);
 }
 
 int PPALDD_City::InitData(PPFilt & rFilt, long rsrv)
@@ -3180,7 +3180,7 @@ int PPALDD_City::InitData(PPFilt & rFilt, long rsrv)
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
 		WorldTbl::Rec rec;
-		if(((PPObjWorld*)Extra[0].Ptr)->Fetch(rFilt.ID, &rec) > 0) {
+		if(static_cast<PPObjWorld *>(Extra[0].Ptr)->Fetch(rFilt.ID, &rec) > 0) {
 			H.ID = H.WID = rec.ID;
 			H.CountryID = rec.CountryID;
 			H.RegionID  = rec.ParentID;
@@ -3207,7 +3207,7 @@ PPALDD_CONSTRUCTOR(Country)
 PPALDD_DESTRUCTOR(Country)
 {
 	Destroy();
-	delete (PPObjWorld *)Extra[0].Ptr;
+	delete static_cast<PPObjWorld *>(Extra[0].Ptr);
 }
 
 int PPALDD_Country::InitData(PPFilt & rFilt, long rsrv)
@@ -3219,7 +3219,7 @@ int PPALDD_Country::InitData(PPFilt & rFilt, long rsrv)
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
 		WorldTbl::Rec rec;
-		if(((PPObjWorld *)Extra[0].Ptr)->Fetch(rFilt.ID, &rec) > 0) {
+		if(static_cast<PPObjWorld *>(Extra[0].Ptr)->Fetch(rFilt.ID, &rec) > 0) {
 			H.ID = H.WID = rec.ID;
 			STRNSCPY(H.Name,  rec.Name);
 			STRNSCPY(H.Abbr,  rec.Abbr);

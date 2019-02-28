@@ -491,7 +491,7 @@ void   FASTCALL _zip_ef_free(zip_extra_field_t *);
 const uint8 *_zip_ef_get_by_id(const zip_extra_field_t *, uint16 *, uint16, uint16, zip_flags_t, zip_error_t *);
 zip_extra_field_t *_zip_ef_merge(zip_extra_field_t *, zip_extra_field_t *);
 zip_extra_field_t *_zip_ef_new(uint16, uint16, const uint8 *, zip_flags_t);
-bool _zip_ef_parse(const uint8 *, uint16, zip_flags_t, zip_extra_field_t **, zip_error_t *);
+bool _zip_ef_parse(uint8 *, uint16, zip_flags_t, zip_extra_field_t **, zip_error_t *);
 zip_extra_field_t *_zip_ef_remove_internal(zip_extra_field_t *);
 uint16 _zip_ef_size(const zip_extra_field_t *, zip_flags_t);
 int    _zip_ef_write(zip_t *za, const zip_extra_field_t *ef, zip_flags_t flags);

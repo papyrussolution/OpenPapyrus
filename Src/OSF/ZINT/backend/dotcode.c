@@ -1073,10 +1073,10 @@ int dotcode(struct ZintSymbol * symbol, const uchar source[], int length)
 		char dot_stream[height * width * 3];
 		char dot_array[width * height * sizeof(char) ];
 	#else
-		dot_stream = (char*)_alloca(height * width * 3);
+		dot_stream = (char *)_alloca(height * width * 3);
 		if(!dot_stream) 
 			return ZINT_ERROR_MEMORY;
-		dot_array = (char*)_alloca(width * height * sizeof(char));
+		dot_array = (char *)_alloca(width * height * sizeof(char));
 		if(!dot_array) return ZINT_ERROR_MEMORY;
 	#endif
 		// Add pad characters 

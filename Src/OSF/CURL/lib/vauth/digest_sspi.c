@@ -205,7 +205,7 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy * data,
 		return CURLE_RECV_ERROR;
 	}
 	/* Base64 encode the response */
-	result = Curl_base64_encode(data, (char*)output_token, resp_buf.cbBuffer, outptr, outlen);
+	result = Curl_base64_encode(data, (char *)output_token, resp_buf.cbBuffer, outptr, outlen);
 	/* Free our handles */
 	s_pSecFn->DeleteSecurityContext(&context);
 	s_pSecFn->FreeCredentialsHandle(&credentials);
@@ -249,7 +249,7 @@ CURLcode Curl_override_sspi_http_realm(const char * chlg,
 			if(Curl_auth_digest_get_pair(chlg, value, content, &chlg)) {
 				if(strcasecompare(value, "realm")) {
 					/* Setup identity's domain and length */
-					domain.tchar_ptr = Curl_convert_UTF8_to_tchar((char*)content);
+					domain.tchar_ptr = Curl_convert_UTF8_to_tchar((char *)content);
 					if(!domain.tchar_ptr)
 						return CURLE_OUT_OF_MEMORY;
 
@@ -463,7 +463,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data, const cha
 		resp_buf.BufferType = SECBUFFER_TOKEN;
 		resp_buf.pvBuffer   = output_token;
 		resp_buf.cbBuffer   = curlx_uztoul(token_max);
-		spn = Curl_convert_UTF8_to_tchar((char*)uripath);
+		spn = Curl_convert_UTF8_to_tchar((char *)uripath);
 		if(!spn) {
 			s_pSecFn->FreeCredentialsHandle(&credentials);
 			Curl_sspi_free_identity(p_identity);

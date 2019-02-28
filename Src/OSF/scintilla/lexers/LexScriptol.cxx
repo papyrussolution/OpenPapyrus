@@ -11,7 +11,7 @@
 using namespace Scintilla;
 #endif
 
-static void ClassifyWordSol(Sci_PositionU start, Sci_PositionU end, WordList &keywords, Accessor &styler, char * prevWord)
+static void ClassifyWordSol(Sci_PositionU start, Sci_PositionU end, const WordList &keywords, Accessor &styler, char * prevWord)
 {
 	char s[100] = "";
 	bool wordIsNumber = isdec(styler[start]) != 0;

@@ -1807,7 +1807,7 @@ PPALDD_CONSTRUCTOR(Tech)
 PPALDD_DESTRUCTOR(Tech)
 {
 	Destroy();
-	delete (PPObjTech *)Extra[0].Ptr;
+	delete static_cast<PPObjTech *>(Extra[0].Ptr);
 }
 
 int PPALDD_Tech::InitData(PPFilt & rFilt, long rsrv)

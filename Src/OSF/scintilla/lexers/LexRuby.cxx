@@ -91,13 +91,10 @@ static bool followsDot(Sci_PositionU pos, Accessor &styler)
 
 // Forward declarations
 static bool keywordIsAmbiguous(const char * prevWord);
-static bool keywordDoStartsLoop(Sci_Position pos,
-    Accessor &styler);
-static bool keywordIsModifier(const char * word,
-    Sci_Position pos,
-    Accessor &styler);
+static bool keywordDoStartsLoop(Sci_Position pos, Accessor &styler);
+static bool keywordIsModifier(const char * word, Sci_Position pos, Accessor &styler);
 
-static int ClassifyWordRb(Sci_PositionU start, Sci_PositionU end, WordList &keywords, Accessor &styler, char * prevWord)
+static int ClassifyWordRb(Sci_PositionU start, Sci_PositionU end, const WordList &keywords, Accessor &styler, char * prevWord)
 {
 	char s[MAX_KEYWORD_LENGTH];
 	Sci_PositionU i, j;

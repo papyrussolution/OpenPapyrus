@@ -11,6 +11,6 @@ char * ngx_dlerror(void)
 	static u_char errstr[NGX_MAX_ERROR_STR];
 	u_char * p = ngx_strerror(ngx_errno, errstr, NGX_MAX_ERROR_STR);
 	*p = '\0';
-	return (char*)errstr;
+	return (char *)errstr;
 }
 

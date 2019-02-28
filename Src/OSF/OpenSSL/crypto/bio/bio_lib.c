@@ -109,7 +109,7 @@ int FASTCALL BIO_read(BIO * b, void * out, int outl)
 		BIOerr(BIO_F_BIO_READ, BIO_R_UNINITIALIZED);
 		return (-2);
 	}
-	i = b->method->bread(b, (char*)out, outl);
+	i = b->method->bread(b, (char *)out, outl);
 	if(i > 0)
 		b->num_read += (uint64_t)i;
 	if(cb)
@@ -199,13 +199,13 @@ int FASTCALL BIO_indent(BIO * b, int indent, int max)
 long BIO_int_ctrl(BIO * b, int cmd, long larg, int iarg)
 {
 	int i = iarg;
-	return (BIO_ctrl(b, cmd, larg, (char*)&i));
+	return (BIO_ctrl(b, cmd, larg, (char *)&i));
 }
 
 void * BIO_ptr_ctrl(BIO * b, int cmd, long larg)
 {
 	void * p = NULL;
-	return (BIO_ctrl(b, cmd, larg, (char*)&p) > 0) ? p : 0;
+	return (BIO_ctrl(b, cmd, larg, (char *)&p) > 0) ? p : 0;
 }
 
 long FASTCALL BIO_ctrl(BIO * b, int cmd, long larg, void * parg)
@@ -380,7 +380,7 @@ BIO * BIO_dup_chain(BIO * in)
 		new_bio->flags = bio->flags;
 		/* This will let SSL_s_sock() work with stdin/stdout */
 		new_bio->num = bio->num;
-		if(!BIO_dup_state(bio, (char*)new_bio)) {
+		if(!BIO_dup_state(bio, (char *)new_bio)) {
 			BIO_free(new_bio);
 			goto err;
 		}

@@ -34,14 +34,14 @@ SLAPI PPViewAccount::~PPViewAccount()
 // virtual
 void * SLAPI PPViewAccount::GetEditExtraParam()
 {
-	return (void *)Filt.Type;
+	return reinterpret_cast<void *>(Filt.Type);
 }
 
 // virtual
 PPBaseFilt * SLAPI PPViewAccount::CreateFilt(void * extraPtr) const
 {
 	AccountFilt * p_filt = 0;
-	if(PPView::CreateFiltInstance(PPFILT_ACCOUNT, (PPBaseFilt**)&p_filt))
+	if(PPView::CreateFiltInstance(PPFILT_ACCOUNT, reinterpret_cast<PPBaseFilt **>(&p_filt)))
 		p_filt->Type = (reinterpret_cast<long>(extraPtr));
 	return static_cast<PPBaseFilt *>(p_filt);
 }
@@ -91,7 +91,7 @@ int SLAPI PPViewAccount::ViewAccAnalyze(PPID accID)
 	if(accID && AccObj.Search(accID, &acc_rec) > 0) {
 		PPViewAccAnlz * p_temp_view = new PPViewAccAnlz;
 		if(P_AnlzFilt == 0) {
-			P_AnlzFilt = (AccAnlzFilt*)p_temp_view->CreateFilt((void *)aakndGeneric);
+			P_AnlzFilt = static_cast<AccAnlzFilt *>(p_temp_view->CreateFilt(reinterpret_cast<void *>(aakndGeneric)));
 			P_AnlzFilt->Period.Z();
 		}
 		P_AnlzFilt->AccID = accID;
@@ -136,7 +136,7 @@ int FASTCALL PPViewAccount::CheckForFilt(const PPAccount & rItem) const
 	return BIN(rItem.CurID == 0 && (!Filt.Type || rItem.Type == Filt.Type) && ObjRts.CheckAccID(rItem.ID, PPR_READ));
 }
 
-IMPL_CMPCFUNC(PPViewAccount_BrwEntry_A, p1, p2) { RET_CMPCASCADE2((const PPViewAccount::BrwEntry *)p1, (const PPViewAccount::BrwEntry *)p2, A.Ac, A.Sb); }
+IMPL_CMPCFUNC(PPViewAccount_BrwEntry_A, p1, p2) { RET_CMPCASCADE2(static_cast<const PPViewAccount::BrwEntry *>(p1), static_cast<const PPViewAccount::BrwEntry *>(p2), A.Ac, A.Sb); }
 
 int SLAPI PPViewAccount::FetchData(long id)
 {
@@ -205,7 +205,7 @@ int FASTCALL PPViewAccount::NextIteration(AccountViewItem * pItem)
 					if(cur_obj.Fetch(cur_id_list.get(i), &cur_rec) > 0)
 						temp_buf.CatDiv(',', 1).Cat(cur_rec.Symb);
 				}
-                *(PPAccount *)pItem = acc_rec;
+                *static_cast<PPAccount *>(pItem) = acc_rec;
 				STRNSCPY(pItem->CurList, temp_buf);
 				ok = 1;
 			}
@@ -409,7 +409,7 @@ int SLAPI PPViewAccount::Transmit(PPID id, int transmitKind)
 int SLAPI PPViewAccount::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	Hdr    hdr;
-	if(!RVALUEPTR(hdr, (Hdr*)pHdr))
+	if(!RVALUEPTR(hdr, static_cast<const Hdr *>(pHdr)))
 		MEMSZERO(hdr);
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {

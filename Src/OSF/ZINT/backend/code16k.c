@@ -230,7 +230,7 @@ void c16k_set_c(uchar source_a, uchar source_b, uint values[], uint * bar_chars)
 	(*bar_chars)++;
 }
 
-int code16k(struct ZintSymbol * symbol, uchar source[], int length)
+int code16k(struct ZintSymbol * symbol, const uchar source[], int length)
 {
 	char   width_pattern[100];
 	int    current_row, rows_needed, flip_flop, looper, first_check, second_check;

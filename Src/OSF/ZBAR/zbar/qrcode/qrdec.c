@@ -3155,14 +3155,14 @@ static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar 
 						return -1;
 				    c = '0'+bits/100;
 				    self_parity ^= c;
-				    *buf++ = (uchar)c;
+				    *buf++ = static_cast<uchar>(c);
 				    bits %= 100;
 				    c = '0'+bits/10;
 				    self_parity ^= c;
-				    *buf++ = (uchar)c;
+				    *buf++ = static_cast<uchar>(c);
 				    c = '0'+bits%10;
 				    self_parity ^= c;
-				    *buf++ = (uchar)c;
+				    *buf++ = static_cast<uchar>(c);
 			    }
 			    /*Read the last two digits encoded in 7 bits.*/
 			    if(rem>1) {
@@ -3171,10 +3171,10 @@ static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar 
 						return -1;
 				    c = '0'+bits/10;
 				    self_parity ^= c;
-				    *buf++ = (uchar)c;
+				    *buf++ = static_cast<uchar>(c);
 				    c = '0'+bits%10;
 				    self_parity ^= c;
-				    *buf++ = (uchar)c;
+				    *buf++ = static_cast<uchar>(c);
 			    }
 			    /*Or the last one digit encoded in 4 bits.*/
 			    else if(rem) {
@@ -3183,7 +3183,7 @@ static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar 
 						return -1;
 				    c = '0'+bits;
 				    self_parity ^= c;
-				    *buf++ = (uchar)c;
+				    *buf++ = static_cast<uchar>(c);
 			    }
 		    } break;
 			case QR_MODE_ALNUM: {
@@ -3209,10 +3209,10 @@ static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar 
 						return -1;
 				    c = QR_ALNUM_TABLE[bits/45];
 				    self_parity ^= c;
-				    *buf++ = (uchar)c;
+				    *buf++ = static_cast<uchar>(c);
 				    c = QR_ALNUM_TABLE[bits%45];
 				    self_parity ^= c;
-				    *buf++ = (uchar)c;
+				    *buf++ = static_cast<uchar>(c);
 				    len -= 2;
 			    }
 			    /*Read the last character encoded in 6 bits.*/
@@ -3222,7 +3222,7 @@ static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar 
 						return -1;
 				    c = QR_ALNUM_TABLE[bits];
 				    self_parity ^= c;
-				    *buf++ = (uchar)c;
+				    *buf++ = static_cast<uchar>(c);
 			    }
 		    } break;
 			/*Structured-append header.*/
@@ -3256,7 +3256,7 @@ static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar 
 			    while(len-->0) {
 				    c = qr_pack_buf_read(&qpb, 8);
 				    self_parity ^= c;
-				    *buf++ = (uchar)c;
+				    *buf++ = static_cast<uchar>(c);
 			    }
 		    } break;
 			/*FNC1 first position marker.*/

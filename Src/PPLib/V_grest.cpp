@@ -3451,7 +3451,7 @@ DBQuery * SLAPI PPViewGoodsRest::CreateBrowserQuery(uint * pBrwId, SString * pSu
 			cq.push(dbc_long); // Trust
 			dbc_long.init(ff);
 			cq.push(dbc_long); // Formatting flags
-			cq.push((DBFunc)PPDbqFuncPool::IdCQtty);
+			cq.push(static_cast<DBFunc>(PPDbqFuncPool::IdCQtty));
 			q->addField(cq);             // #10
 		}
 		{
@@ -3462,7 +3462,7 @@ DBQuery * SLAPI PPViewGoodsRest::CreateBrowserQuery(uint * pBrwId, SString * pSu
 			DBConst dbc_long;
 			dbc_long.init(ff);
 			cq.push(dbc_long); // Formatting flags
-			cq.push((DBFunc)PPDbqFuncPool::IdCQtty);
+			cq.push(static_cast<DBFunc>(PPDbqFuncPool::IdCQtty));
 			q->addField(cq);             // #11
 		}
 		q->addField(tbl->Cost);            // #12

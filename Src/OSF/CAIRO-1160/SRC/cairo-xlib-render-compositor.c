@@ -1301,7 +1301,7 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 
 	XRenderAddGlyphs(display->display, info->glyphset,
 	    &glyph_index, &glyph_info, 1,
-	    (char*)data,
+	    (char *)data,
 	    glyph_surface->stride * glyph_surface->height);
 
 	if(data != glyph_surface->data)
@@ -1388,7 +1388,7 @@ static cairo_status_t _emit_glyphs_chunk(cairo_xlib_display_t * display,
 	XGlyphElt8 stack_elts[CAIRO_STACK_ARRAY_LENGTH(XGlyphElt8)];
 
 	/* Reuse the input glyph array for output char generation */
-	char * char8 = (char*)glyphs;
+	char * char8 = (char *)glyphs;
 	unsigned short * char16 = (unsigned short*)glyphs;
 	uint * char32 = (uint*)glyphs;
 

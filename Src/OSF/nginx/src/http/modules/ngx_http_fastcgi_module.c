@@ -1116,7 +1116,7 @@ static ngx_int_t ngx_http_fastcgi_process_header(ngx_http_request_t * r)
 				if(flcf->catch_stderr) {
 					pattern = (ngx_str_t *)flcf->catch_stderr->elts;
 					for(i = 0; i < flcf->catch_stderr->nelts; i++) {
-						if(ngx_strnstr(msg, (char*)pattern[i].data, p - msg) != NULL) {
+						if(ngx_strnstr(msg, (char *)pattern[i].data, p - msg) != NULL) {
 							return NGX_HTTP_UPSTREAM_INVALID_HEADER;
 						}
 					}

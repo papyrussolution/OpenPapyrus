@@ -127,7 +127,7 @@ static void setup_des_key(const uchar * key_56,
 	DES_cblock key;
 
 	/* Expand the 56-bit key to 64-bits */
-	extend_key_56_to_64(key_56, (char*)&key);
+	extend_key_56_to_64(key_56, (char *)&key);
 
 	/* Set the key parity to odd */
 	DES_set_odd_parity(&key);
@@ -425,13 +425,13 @@ CURLcode Curl_ntlm_core_mk_lm_hash(struct Curl_easy * data, const char * passwor
 		0x4B, 0x47, 0x53, 0x21, 0x40, 0x23, 0x24, 0x25 /* i.e. KGS!@#$% */
 	};
 	size_t len = MIN(sstrlen(password), 14);
-	Curl_strntoupper((char*)pw, password, len);
+	Curl_strntoupper((char *)pw, password, len);
 	memzero(&pw[len], 14 - len);
 	/*
 	 * The LanManager hashed password needs to be created using the
 	 * password in the network encoding not the host encoding.
 	 */
-	result = Curl_convert_to_network(data, (char*)pw, 14);
+	result = Curl_convert_to_network(data, (char *)pw, 14);
 	if(result)
 		return result;
 
@@ -507,7 +507,7 @@ CURLcode Curl_ntlm_core_mk_nt_hash(struct Curl_easy * data, const char * passwor
 	 * The NT hashed password needs to be created using the password in the
 	 * network encoding not the host encoding.
 	 */
-	result = Curl_convert_to_network(data, (char*)pw, len * 2);
+	result = Curl_convert_to_network(data, (char *)pw, len * 2);
 	if(result)
 		return result;
 
@@ -652,7 +652,7 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_resp(uchar * ntlmv2hash,
 		return CURLE_OUT_OF_MEMORY;
 	memzero(ptr, len);
 	/* Create the BLOB structure */
-	snprintf((char*)ptr + NTLM_HMAC_MD5_LEN, NTLMv2_BLOB_LEN, "%c%c%c%c"  /* NTLMv2_BLOB_SIGNATURE */
+	snprintf((char *)ptr + NTLM_HMAC_MD5_LEN, NTLMv2_BLOB_LEN, "%c%c%c%c"  /* NTLMv2_BLOB_SIGNATURE */
 	    "%c%c%c%c", /* Reserved = 0 */ NTLMv2_BLOB_SIGNATURE[0], NTLMv2_BLOB_SIGNATURE[1],
 	    NTLMv2_BLOB_SIGNATURE[2], NTLMv2_BLOB_SIGNATURE[3], 0, 0, 0, 0);
 	Curl_write64_le(tw, ptr + 24);

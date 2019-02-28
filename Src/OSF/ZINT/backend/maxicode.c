@@ -187,16 +187,14 @@ void maxi_do_secondary_chk_even(int ecclen)
 /* Moves everything up so that a shift or latch can be inserted */
 void maxi_bump(int set[], int character[], int bump_posn)
 {
-	int i;
-
-	for(i = 143; i > bump_posn; i--) {
+	for(int i = 143; i > bump_posn; i--) {
 		set[i] = set[i - 1];
 		character[i] = character[i - 1];
 	}
 }
 
 /* Format text according to Appendix A */
-int maxi_text_process(int mode, uchar source[], int length, int eci)
+static int maxi_text_process(int mode, const uchar source[], int length, int eci)
 {
 	/* This code doesn't make use of [Lock in C], [Lock in D]
 	   and [Lock in E] and so is not always the most efficient at

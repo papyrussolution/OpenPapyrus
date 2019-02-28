@@ -38,7 +38,7 @@ int NETSCAPE_SPKI_print(BIO * out, NETSCAPE_SPKI * spki)
 	    (i == NID_undef) ? "UNKNOWN" : OBJ_nid2ln(i));
 
 	n = spki->signature->length;
-	s = (char*)spki->signature->data;
+	s = (char *)spki->signature->data;
 	for(i = 0; i < n; i++) {
 		if((i % 18) == 0)
 			BIO_write(out, "\n      ", 7);

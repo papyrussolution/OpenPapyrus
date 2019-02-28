@@ -87,13 +87,13 @@ static void xz_error(xz_statep state, int err, const char * msg)
 		return;
 	/* for an out of memory error, save as static string */
 	if(err == LZMA_MEM_ERROR) {
-		state->msg = (char*)msg;
+		state->msg = (char *)msg;
 		return;
 	}
 	/* construct error message with path */
 	if((state->msg = SAlloc::M(sstrlen(state->path) + sstrlen(msg) + 3)) == NULL) {
 		state->err = LZMA_MEM_ERROR;
-		state->msg = (char*)"out of memory";
+		state->msg = (char *)"out of memory";
 		return;
 	}
 	strcpy(state->msg, state->path);
@@ -717,7 +717,7 @@ int __libxml2_xzread(xzFile file, void * buf, unsigned len)
 
 		/* update progress */
 		len -= n;
-		buf = (char*)buf + n;
+		buf = (char *)buf + n;
 		got += n;
 		state->pos += n;
 	} while(len);

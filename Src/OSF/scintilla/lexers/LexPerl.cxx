@@ -59,7 +59,7 @@ using namespace Scintilla;
 // we also assume SCE_PL_STRING_VAR is the interpolated style with the smallest value
 #define INTERPOLATE_SHIFT       (SCE_PL_STRING_VAR - SCE_PL_STRING)
 
-static bool isPerlKeyword(Sci_PositionU start, Sci_PositionU end, WordList &keywords, LexAccessor &styler)
+static bool isPerlKeyword(Sci_PositionU start, Sci_PositionU end, const WordList &keywords, LexAccessor & styler)
 {
 	// old-style keyword matcher; needed because GetCurrent() needs
 	// current segment to be committed, but we may abandon early...
@@ -68,7 +68,8 @@ static bool isPerlKeyword(Sci_PositionU start, Sci_PositionU end, WordList &keyw
 	if(len > 30) {
 		len = 30;
 	}
-	for(i = 0; i < len; i++, start++) s[i] = styler[start];
+	for(i = 0; i < len; i++, start++) 
+		s[i] = styler[start];
 	s[i] = '\0';
 	return keywords.InList(s);
 }

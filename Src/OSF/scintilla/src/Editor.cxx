@@ -1693,15 +1693,12 @@ void Editor::LinesJoin()
 
 const char * Editor::StringFromEOLMode(int eolMode)
 {
-	if(eolMode == SC_EOL_CRLF) {
+	if(eolMode == SC_EOL_CRLF)
 		return "\r\n";
-	}
-	else if(eolMode == SC_EOL_CR) {
+	else if(eolMode == SC_EOL_CR)
 		return "\r";
-	}
-	else {
+	else
 		return "\n";
-	}
 }
 
 void Editor::LinesSplit(int pixelWidth)
@@ -1723,10 +1720,7 @@ void Editor::LinesSplit(int pixelWidth)
 				view.LayoutLine(*this, line, surface, vs, ll, pixelWidth);
 				int lengthInsertedTotal = 0;
 				for(int subLine = 1; subLine < ll->lines; subLine++) {
-					const int lengthInserted = pdoc->InsertString(
-					    static_cast<int>(posLineStart + lengthInsertedTotal +
-						    ll->LineStart(subLine)),
-					    eol, istrlen(eol));
+					const int lengthInserted = pdoc->InsertString(static_cast<int>(posLineStart + lengthInsertedTotal + ll->LineStart(subLine)), eol, istrlen(eol));
 					targetEnd += lengthInserted;
 					lengthInsertedTotal += lengthInserted;
 				}
@@ -1736,7 +1730,7 @@ void Editor::LinesSplit(int pixelWidth)
 	}
 }
 
-void Editor::PaintSelMargin(Surface * surfWindow, PRectangle &rc)
+void Editor::PaintSelMargin(Surface * surfWindow, const PRectangle & rc)
 {
 	if(vs.fixedColumnWidth) {
 		AllocateGraphics();

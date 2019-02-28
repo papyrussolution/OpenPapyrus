@@ -109,7 +109,7 @@ noconv:
 	else if(neg)
 		acc = -acc;
 	if(endptr != NULL)
-		*endptr = (char*)(any ? s - 1 : nptr);
+		*endptr = (char *)(any ? s - 1 : nptr);
 	return (acc);
 }
 

@@ -386,7 +386,7 @@ static void ngx_http_ssl_handshake(ngx_event_t * rev)
 		ngx_http_close_connection(c);
 	else {
 		size_t size = hc->proxy_protocol ? sizeof(buf) : 1;
-		ssize_t n = recv(c->fd, (char*)buf, size, MSG_PEEK);
+		ssize_t n = recv(c->fd, (char *)buf, size, MSG_PEEK);
 		ngx_err_t err = ngx_socket_errno;
 		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, rev->log, 0, "http recv(): %z", n);
 		if(n == -1) {
@@ -1018,7 +1018,7 @@ static ngx_int_t ngx_http_alloc_large_header_buffer(ngx_http_request_t * r, ngx_
 
 static ngx_int_t ngx_http_process_header_line(ngx_http_request_t * r, ngx_table_elt_t * h, ngx_uint_t offset)
 {
-	ngx_table_elt_t  ** ph = (ngx_table_elt_t**)((char*)&r->headers_in + offset);
+	ngx_table_elt_t  ** ph = (ngx_table_elt_t**)((char *)&r->headers_in + offset);
 	if(*ph == NULL) {
 		*ph = h;
 	}
@@ -1027,7 +1027,7 @@ static ngx_int_t ngx_http_process_header_line(ngx_http_request_t * r, ngx_table_
 
 static ngx_int_t ngx_http_process_unique_header_line(ngx_http_request_t * r, ngx_table_elt_t * h, ngx_uint_t offset)
 {
-	ngx_table_elt_t  ** ph = (ngx_table_elt_t**)((char*)&r->headers_in + offset);
+	ngx_table_elt_t  ** ph = (ngx_table_elt_t**)((char *)&r->headers_in + offset);
 	if(*ph == NULL) {
 		*ph = h;
 		return NGX_OK;
@@ -1134,7 +1134,7 @@ static ngx_int_t ngx_http_process_user_agent(ngx_http_request_t * r, ngx_table_e
 static ngx_int_t ngx_http_process_multi_header_lines(ngx_http_request_t * r, ngx_table_elt_t * h, ngx_uint_t offset)
 {
 	ngx_table_elt_t  ** ph;
-	ngx_array_t  * headers = (ngx_array_t*)((char*)&r->headers_in + offset);
+	ngx_array_t  * headers = (ngx_array_t*)((char *)&r->headers_in + offset);
 	if(headers->elts == NULL) {
 		if(ngx_array_init(headers, r->pool, 1, sizeof(ngx_table_elt_t *)) != NGX_OK) {
 			ngx_http_close_request(r, NGX_HTTP_INTERNAL_SERVER_ERROR);

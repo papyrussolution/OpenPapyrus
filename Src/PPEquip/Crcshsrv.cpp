@@ -3319,13 +3319,13 @@ int SLAPI XmlReader::Next(Packet * pPack)
 			if(p_cards_fld && p_cards_fld->children) {
 				xmlNode * p_dis_fld = 0;
 				for(p_fld = p_cards_fld->children; !p_dis_fld && p_fld; p_fld = p_fld->next)
-					if(sstreqi_ascii((const char*)p_fld->name, "discountCard"))
+					if(sstreqi_ascii((const char *)p_fld->name, "discountCard"))
 						p_dis_fld = p_fld;
 				if(p_dis_fld && p_dis_fld->children && p_dis_fld->children->content) {
 					Header head;
 					MEMSZERO(head);
 					pack.GetHead(&head);
-					STRNSCPY(head.SCardNum, (const char*)p_dis_fld->children->content);
+					STRNSCPY(head.SCardNum, p_dis_fld->children->content);
 					pack.PutHead(&head);
 				}
 			}
@@ -3340,8 +3340,8 @@ int SLAPI XmlReader::Next(Packet * pPack)
 
 IMPL_CMPFUNC(AcceptedCheck_, i1, i2)
 {
-	ACS_CRCSHSRV::AcceptedCheck_ * p_i1 = (ACS_CRCSHSRV::AcceptedCheck_*)i1;
-	ACS_CRCSHSRV::AcceptedCheck_ * p_i2 = (ACS_CRCSHSRV::AcceptedCheck_*)i2;
+	const ACS_CRCSHSRV::AcceptedCheck_ * p_i1 = static_cast<const ACS_CRCSHSRV::AcceptedCheck_ *>(i1);
+	const ACS_CRCSHSRV::AcceptedCheck_ * p_i2 = static_cast<const ACS_CRCSHSRV::AcceptedCheck_ *>(i2);
 	if(p_i1->CashNum > p_i2->CashNum)
 		return 1;
 	else if(p_i1->CashNum < p_i2->CashNum)

@@ -1906,15 +1906,15 @@ private:
 //
 #define BREV_START       1 // Начало процесса (открыт исходный файл, создан
 	// и открыт файл-приемник).
-	// Параметры (char*)lp1 - имя исходного файла
-	//           (char*)lp2 - имя файла-приемника
+	// Параметры (char *)lp1 - имя исходного файла
+	//           (char *)lp2 - имя файла-приемника
 #define BREV_FINISH      2 // Процесс завершен
 	// Параметры lp1 - общее количество перенесенных записей
 	//           lp2 - общее количество записей в исходном файле
 #define BREV_PROGRESS    3 // Успешно перенесена одна запись
 	// Параметры lp1 - общее количество перенесенных записей
 	//           lp2 - общее количество записей в исходном файле
-	//           (char*)vp  - имя исходного файла
+	//           (char *)vp  - имя исходного файла
 #define BREV_ERRINS      4 // Ошибка переноса записи в файл-приемник
 	// Параметры lp1 - физический адрес записи
 	//           lp2 - длина записи
@@ -1923,9 +1923,9 @@ private:
 	// Параметры lp1 - физический адрес предыдущей записи
 	//
 #define BREV_ERRCREATE   6 // Ошибка создания файла-приемника.
-	// Параметры (char*)lp1 - имя файла-приемника
+	// Параметры (char *)lp1 - имя файла-приемника
 #define BREV_ERRDELPREV  7 // Ошибка удаления предшествующего файла-приемника
-	// Параметры (char*)lp1 - имя файла-приемника
+	// Параметры (char *)lp1 - имя файла-приемника
 #define BREV_ERRRENAME   8 // Ошибка переименования файла
 	// Параметры (const char*)lp1 - имя файла-источника, (const char*)lp2 - имя файла-приемника
 //
@@ -2348,6 +2348,8 @@ private:
 #define BCOPYDF_RELEASECONT 0x00000004 // Форсированное освобождение файлов из режима CopyContinuous
 
 struct BCopyData {
+	SLAPI  BCopyData();
+	BCopyData & SLAPI Z();
 	long   ID;         // IN/OUT   ID of copy
 	long   BssFactor;  // IN       Backup safety space factor
 	long   Flags;      // IN       0x01 - use compression
@@ -3774,7 +3776,7 @@ public:
 	// Если sz == 0, то размер записи полагается равным fixRecSize.
 	// Если sz >  0, то размер записи полагается равным sz
 	// Если sz <  0, то размер записи равен
-	//      FixRecSize + sstrlen(((char*)b) + FixRecSize) + 1
+	//      FixRecSize + sstrlen(((char *)b) + FixRecSize) + 1
 	//
 	int    FASTCALL insert(const void * b);
 	int    SLAPI flash();

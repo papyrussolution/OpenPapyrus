@@ -187,7 +187,7 @@ static int passwd_callback(char * buf, int num, int encrypting,
 	DEBUGASSERT(0 == encrypting);
 
 	if(!encrypting) {
-		int klen = curlx_uztosi(sstrlen((char*)global_passwd));
+		int klen = curlx_uztosi(sstrlen((char *)global_passwd));
 		if(num > klen) {
 			memcpy(buf, global_passwd, klen+1);
 			return klen;
@@ -574,7 +574,7 @@ fail:
 				    EVP_PKEY * priv_key = NULL;
 				    if(data->state.engine) {
 					    UI_METHOD * ui_method =
-					    UI_create_method((char*)"curl user interface");
+					    UI_create_method((char *)"curl user interface");
 					    if(!ui_method) {
 						    failf(data, "unable do create " OSSL_PACKAGE
 						    " user-interface method");
@@ -1132,7 +1132,7 @@ static CURLcode verifyhost(struct connectdata * conn, X509 * server_cert)
 			/* only check alternatives of the same type the target is */
 			if(check->type == target) {
 				/* get data and length */
-				const char * altptr = (char*)ASN1_STRING_get0_data(check->d.ia5);
+				const char * altptr = (char *)ASN1_STRING_get0_data(check->d.ia5);
 				size_t altlen = (size_t)ASN1_STRING_length(check->d.ia5);
 				switch(target) {
 					case GEN_DNS: /* name/pattern comparison */
@@ -1209,7 +1209,7 @@ static CURLcode verifyhost(struct connectdata * conn, X509 * server_cert)
 				}
 				else /* not a UTF8 name */
 					j = ASN1_STRING_to_UTF8(&peer_CN, tmp);
-				if(peer_CN && (curlx_uztosi(sstrlen((char*)peer_CN)) != j)) {
+				if(peer_CN && (curlx_uztosi(sstrlen((char *)peer_CN)) != j)) {
 					// there was a terminating zero before the end of string, this cannot match and we return failure! 
 					failf(data, "SSL: illegal cert name field");
 					result = CURLE_PEER_FAILED_VERIFICATION;
@@ -1464,12 +1464,12 @@ static void ssl_tls_trace(int direction, int ssl_ver, int content_type, const vo
 			tls_rt_name = tls_rt_type(content_type);
 		else
 			tls_rt_name = "";
-		msg_type = *(char*)buf;
+		msg_type = *(char *)buf;
 		msg_name = ssl_msg_type(ssl_ver, msg_type);
 		txt_len = snprintf(ssl_buf, sizeof(ssl_buf), "%s (%s), %s, %s (%d):\n", verstr, direction ? "OUT" : "IN", tls_rt_name, msg_name, msg_type);
 		Curl_debug(data, CURLINFO_TEXT, ssl_buf, (size_t)txt_len, 0);
 	}
-	Curl_debug(data, (direction == 1) ? CURLINFO_SSL_DATA_OUT : CURLINFO_SSL_DATA_IN, (char*)buf, len, 0);
+	Curl_debug(data, (direction == 1) ? CURLINFO_SSL_DATA_OUT : CURLINFO_SSL_DATA_IN, (char *)buf, len, 0);
 	(void)ssl;
 }
 
@@ -1925,7 +1925,7 @@ static CURLcode ossl_connect_step1(struct connectdata * conn, int sockindex)
 
 	ciphers = SSL_CONN_CONFIG(cipher_list);
 	if(!ciphers)
-		ciphers = (char*)DEFAULT_CIPHER_SELECTION;
+		ciphers = (char *)DEFAULT_CIPHER_SELECTION;
 	if(!SSL_CTX_set_cipher_list(connssl->ctx, ciphers)) {
 		failf(data, "failed setting cipher list: %s", ciphers);
 		return CURLE_SSL_CIPHER;

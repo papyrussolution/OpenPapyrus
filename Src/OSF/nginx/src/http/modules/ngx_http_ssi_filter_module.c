@@ -1962,7 +1962,7 @@ static ngx_int_t ngx_http_ssi_date_gmt_local_variable(ngx_http_request_t * r, ng
 	else {
 		ngx_libc_localtime(now, &tm);
 	}
-	v->len = strftime(buf, NGX_HTTP_SSI_DATE_LEN, (char*)timefmt->data, &tm);
+	v->len = strftime(buf, NGX_HTTP_SSI_DATE_LEN, (char *)timefmt->data, &tm);
 	if(v->len == 0) {
 		return NGX_ERROR;
 	}

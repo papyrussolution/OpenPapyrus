@@ -232,9 +232,9 @@ int SLAPI SRowId::fromstr(void * pData, long, const char * pStr) const
 int SLAPI SRowId::base() const
 	{ return BTS_STRING; }
 int SLAPI SRowId::tobase(const void * s, void * b) const
-	{ tostr(s, 0L, (char *)b); return 1; }
+	{ tostr(s, 0L, static_cast<char *>(b)); return 1; }
 int SLAPI SRowId::baseto(void * s, const void * b) const
-	{ fromstr(s, 0L, (char *)b); return 1; }
+	{ fromstr(s, 0L, static_cast<const char *>(b)); return 1; }
 
 void SLAPI SRowId::minval(void * pData) const
 {

@@ -697,7 +697,7 @@ int ean_128(struct ZintSymbol * symbol, uchar source[], const size_t length)
 #ifndef _MSC_VER
 	char reduced[length + 1];
 #else
-	char * reduced = (char*)_alloca(length + 1);
+	char * reduced = (char *)_alloca(length + 1);
 #endif
 	sstrcpy(dest, "");
 	memzero(values, sizeof(values));
@@ -989,13 +989,12 @@ int nve_18(struct ZintSymbol * symbol, uchar source[], int length)
 		return error_number;
 	}
 	zeroes = 17 - sourcelen;
-	sstrcpy((char*)ean128_equiv, "[00]");
+	sstrcpy((char *)ean128_equiv, "[00]");
 	memset(ean128_equiv + 4, '0', zeroes);
-	sstrcpy((char*)ean128_equiv + 4 + zeroes, (char*)source);
+	sstrcpy((char *)ean128_equiv + 4 + zeroes, (char *)source);
 	total_sum = 0;
 	for(i = sourcelen - 1; i >= 0; i--) {
 		total_sum += hex(source[i]);
-
 		if(!(i & 1)) {
 			total_sum += 2 * hex(source[i]);
 		}
@@ -1006,39 +1005,32 @@ int nve_18(struct ZintSymbol * symbol, uchar source[], int length)
 	}
 	ean128_equiv[21] = itoc(nve_check);
 	ean128_equiv[22] = '\0';
-
 	error_number = ean_128(symbol, ean128_equiv, sstrlen(ean128_equiv));
-
 	return error_number;
 }
 
 /* EAN-14 - A version of EAN-128 */
-int ean_14(struct ZintSymbol * symbol, uchar source[], int length)
+int ean_14(struct ZintSymbol * symbol, const uchar source[], int length)
 {
 	int i, count, check_digit;
 	int error_number, zeroes;
 	uchar ean128_equiv[20];
-
 	if(length > 13) {
 		sstrcpy(symbol->errtxt, "Input wrong length (C47)");
 		return ZINT_ERROR_TOO_LONG;
 	}
-
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
 		sstrcpy(symbol->errtxt, "Invalid character in data (C48)");
 		return error_number;
 	}
-
 	zeroes = 13 - length;
-	sstrcpy((char*)ean128_equiv, "[01]");
+	sstrcpy((char *)ean128_equiv, "[01]");
 	memset(ean128_equiv + 4, '0', zeroes);
 	sstrcpy(ean128_equiv + 4 + zeroes, source);
-
 	count = 0;
 	for(i = length - 1; i >= 0; i--) {
 		count += hex(source[i]);
-
 		if(!(i & 1)) {
 			count += 2 * hex(source[i]);
 		}
@@ -1049,9 +1041,7 @@ int ean_14(struct ZintSymbol * symbol, uchar source[], int length)
 	}
 	ean128_equiv[17] = itoc(check_digit);
 	ean128_equiv[18] = '\0';
-
 	error_number = ean_128(symbol, ean128_equiv, sstrlen(ean128_equiv));
-
 	return error_number;
 }
 

@@ -129,8 +129,8 @@ typedef struct {
 		sp->bit = BitsAvail;						    \
 		sp->data = BitAcc;						    \
 		sp->EOLcnt = EOLcnt;						    \
-		tif->tif_rawcc -= (tmsize_t)((uint8*)cp - tif->tif_rawcp);	   \
-		tif->tif_rawcp = (uint8*)cp;					   \
+		tif->tif_rawcc -= (tmsize_t)((uint8 *)cp - tif->tif_rawcp);	   \
+		tif->tif_rawcp = (uint8 *)cp;					   \
 } while(0)
 /*
  * Setup state for decoding a strip.
@@ -1230,7 +1230,7 @@ static int InitCCITTFax3(TIFF* tif)
 	/*
 	 * Allocate state block so tag methods have storage to record values.
 	 */
-	tif->tif_data = (uint8*)SAlloc::M(sizeof(Fax3CodecState));
+	tif->tif_data = (uint8 *)SAlloc::M(sizeof(Fax3CodecState));
 	if(tif->tif_data == NULL) {
 		TIFFErrorExt(tif->tif_clientdata, module, "No space for state block");
 		return 0;

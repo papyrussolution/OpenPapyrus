@@ -188,14 +188,14 @@ static cairo_status_t write_png(cairo_surface_t * surface,
 	status = clone->base.status;
 	if(unlikely(status))
 		goto BAIL1;
-	rows = (uint8 ** volatile)_cairo_malloc_ab(clone->height, sizeof(uint8*));
+	rows = (uint8 ** volatile)_cairo_malloc_ab(clone->height, sizeof(uint8 *));
 	if(unlikely(rows == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto BAIL2;
 	}
 
 	for(i = 0; i < clone->height; i++)
-		rows[i] = (uint8*)clone->data + i * clone->stride;
+		rows[i] = (uint8 *)clone->data + i * clone->stride;
 
 	png = png_create_write_struct(PNG_LIBPNG_VER_STRING, &status,
 		png_simple_error_callback,

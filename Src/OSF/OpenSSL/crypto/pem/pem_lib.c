@@ -299,7 +299,7 @@ int PEM_ASN1_write_bio(i2d_of_void * i2d, const char * name, BIO * bp, void * x,
 		OPENSSL_assert(strlen(objstr) + 23 + 2 * EVP_CIPHER_iv_length(enc) + 13 <= sizeof buf);
 		buf[0] = '\0';
 		PEM_proc_type(buf, PEM_TYPE_ENCRYPTED);
-		PEM_dek_info(buf, objstr, EVP_CIPHER_iv_length(enc), (char*)iv);
+		PEM_dek_info(buf, objstr, EVP_CIPHER_iv_length(enc), (char *)iv);
 		/* k=strlen(buf); */
 		ret = 1;
 		if((ctx = EVP_CIPHER_CTX_new()) == NULL || !EVP_EncryptInit_ex(ctx, enc, NULL, key, iv) || !EVP_EncryptUpdate(ctx, data, &j, data, i) || !EVP_EncryptFinal_ex(ctx, &(data[j]), &i))
@@ -374,8 +374,8 @@ int PEM_do_header(EVP_CIPHER_INFO * cipher, uchar * data, long * plen, pem_passw
 		PEMerr(PEM_F_PEM_DO_HEADER, PEM_R_BAD_DECRYPT);
 
 	EVP_CIPHER_CTX_free(ctx);
-	OPENSSL_cleanse((char*)buf, sizeof(buf));
-	OPENSSL_cleanse((char*)key, sizeof(key));
+	OPENSSL_cleanse((char *)buf, sizeof(buf));
+	OPENSSL_cleanse((char *)key, sizeof(key));
 	return ok;
 }
 
@@ -544,14 +544,14 @@ int PEM_write_bio(BIO * bp, const char * name, const char * header,
 		n = (int)((len > (PEM_BUFSIZE * 5)) ? (PEM_BUFSIZE * 5) : len);
 		if(!EVP_EncodeUpdate(ctx, buf, &outl, &(data[j]), n))
 			goto err;
-		if((outl) && (BIO_write(bp, (char*)buf, outl) != outl))
+		if((outl) && (BIO_write(bp, (char *)buf, outl) != outl))
 			goto err;
 		i += outl;
 		len -= n;
 		j += n;
 	}
 	EVP_EncodeFinal(ctx, buf, &outl);
-	if((outl > 0) && (BIO_write(bp, (char*)buf, outl) != outl))
+	if((outl > 0) && (BIO_write(bp, (char *)buf, outl) != outl))
 		goto err;
 	if((BIO_write(bp, "-----END ", 9) != 9) ||
 	    (BIO_write(bp, name, nlen) != nlen) ||

@@ -78,7 +78,7 @@ bool Curl_ssl_config_matches(struct ssl_primary_config * data, struct ssl_primar
 	return FALSE;
 }
 
-bool Curl_clone_primary_ssl_config(struct ssl_primary_config * source, struct ssl_primary_config * dest)
+bool Curl_clone_primary_ssl_config(const struct ssl_primary_config * source, struct ssl_primary_config * dest)
 {
 	dest->verifyhost = source->verifyhost;
 	dest->verifypeer = source->verifypeer;
@@ -679,7 +679,7 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data, const char * pinnedpubkey
 		if(!sha256sumdigest)
 			return CURLE_OUT_OF_MEMORY;
 		curlssl_sha256sum(pubkey, pubkeylen, sha256sumdigest, SHA256_DIGEST_LENGTH);
-		encode = Curl_base64_encode(data, (char*)sha256sumdigest, SHA256_DIGEST_LENGTH, &encoded, &encodedlen);
+		encode = Curl_base64_encode(data, (char *)sha256sumdigest, SHA256_DIGEST_LENGTH, &encoded, &encodedlen);
 		ZFREE(sha256sumdigest);
 		if(encode)
 			return encode;

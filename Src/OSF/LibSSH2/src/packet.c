@@ -287,7 +287,7 @@ static inline int packet_x11_open(LIBSSH2_SESSION * session, uchar * data, ulong
 			 * Pass control to the callback, they may turn right around and
 			 * free the channel, or actually use it
 			 */
-			LIBSSH2_X11_OPEN(channel, (char*)x11open_state->shost, x11open_state->sport);
+			LIBSSH2_X11_OPEN(channel, (char *)x11open_state->shost, x11open_state->sport);
 			x11open_state->state = libssh2_NB_state_idle;
 			return 0;
 		}
@@ -342,7 +342,7 @@ int _libssh2_packet_add(LIBSSH2_SESSION * session, uchar * data,
 	switch(session->packAdd_state) {
 		case libssh2_NB_state_idle:
 		    _libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Packet type %d received, length=%d", (int)msg, (int)datalen);
-		    if((macstate == LIBSSH2_MAC_INVALID) && (!session->macerror || LIBSSH2_MACERROR(session, (char*)data, datalen))) {
+		    if((macstate == LIBSSH2_MAC_INVALID) && (!session->macerror || LIBSSH2_MACERROR(session, (char *)data, datalen))) {
 			    // Bad MAC input, but no callback set or non-zero return from the callback 
 			    LIBSSH2_FREE(session, data);
 			    return _libssh2_error(session, LIBSSH2_ERROR_INVALID_MAC, "Invalid MAC received");
@@ -379,9 +379,9 @@ int _libssh2_packet_add(LIBSSH2_SESSION * session, uchar * data,
 					    message_len = _libssh2_ntohu32(data + 5);
 					    if(message_len < datalen-13) {
 						    /* 9 = packet_type(1) + reason(4) + message_len(4) */
-						    message = (char*)data + 9;
+						    message = (char *)data + 9;
 						    language_len = _libssh2_ntohu32(data + 9 + message_len);
-						    language = (char*)data + 9 + message_len + 4;
+						    language = (char *)data + 9 + message_len + 4;
 						    if(language_len > (datalen-13-message_len)) {
 							    /* bad input, clear info */
 							    language = message = NULL;
@@ -409,7 +409,7 @@ int _libssh2_packet_add(LIBSSH2_SESSION * session, uchar * data,
 			case SSH_MSG_IGNORE:
 			    if(datalen >= 2) {
 				    if(session->ssh_msg_ignore) {
-					    LIBSSH2_IGNORE(session, (char*)data + 1, datalen - 1);
+					    LIBSSH2_IGNORE(session, (char *)data + 1, datalen - 1);
 				    }
 			    }
 			    else if(session->ssh_msg_ignore) {
@@ -433,10 +433,10 @@ int _libssh2_packet_add(LIBSSH2_SESSION * session, uchar * data,
 					    message_len = _libssh2_ntohu32(data + 2);
 					    if(message_len <= (datalen - 10)) {
 						    /* 6 = packet_type(1) + display(1) + message_len(4) */
-						    message = (char*)data + 6;
+						    message = (char *)data + 6;
 						    language_len = _libssh2_ntohu32(data + 6 + message_len);
 						    if(language_len <= (datalen - 10 - message_len))
-							    language = (char*)data + 10 + message_len;
+							    language = (char *)data + 10 + message_len;
 					    }
 				    }
 				    if(session->ssh_msg_debug) {
@@ -879,7 +879,7 @@ int _libssh2_packet_askv(LIBSSH2_SESSION * session,
     const uchar * match_buf,
     size_t match_len)
 {
-	int i, packet_types_len = strlen((char*)packet_types);
+	int i, packet_types_len = strlen((char *)packet_types);
 
 	for(i = 0; i < packet_types_len; i++) {
 		if(0 == _libssh2_packet_ask(session, packet_types[i], data,
@@ -1037,7 +1037,7 @@ int _libssh2_packet_requirev(LIBSSH2_SESSION * session, const uchar * packet_typ
 				return ret;
 			}
 		}
-		if(strchr((char*)packet_types, ret)) {
+		if(strchr((char *)packet_types, ret)) {
 			/* Be lazy, let packet_ask pull it out of the brigade */
 			return _libssh2_packet_askv(session, packet_types, data, data_len, match_ofs, match_buf, match_len);
 		}

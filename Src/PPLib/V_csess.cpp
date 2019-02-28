@@ -81,8 +81,7 @@ public:
 	}
 	int    setDTS(const CSessCrDraftParam * pData)
 	{
-		if(!RVALUEPTR(Data, pData))
-			MEMSZERO(Data);
+		RVALUEPTR(Data, pData);
 		PosNodeCtrlGroup::Rec cn_rec(&Data.NodeList);
 		setGroupData(GRP_POSNODE, &cn_rec);
 		SetPeriodInput(this, CTL_DFRULESEL_PERIOD, &Data.Period);
@@ -724,7 +723,6 @@ int SLAPI PPViewCSess::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 				{
 					int    all_sess = 0;
 					CSessCrDraftParam item;
-					MEMSZERO(item);
 					if(SelectRule(&item) > 0)
 						CreateDrafts(item.RuleGrpID, item.RuleID, (item.Flags & CSessCrDraftParam::fAllSessions) ? 0 : id);
 				}
@@ -1378,10 +1376,11 @@ int SLAPI PPViewCSess::CreateDrafts(PPID ruleGrpID, PPID ruleID, PPID sessID)
 		rules.add(ruleID);
 	PPLoadText(PPTXT_CRTGOODSLIST,   msg1);
 	PPLoadText(PPTXT_ADDGOODSTOPACK, msg2);
-	for(uint i = 0; i < sess_list.getCount(); i++)
+	const uint sess_count = sess_list.getCount();
+	for(uint i = 0; i < sess_count; i++)
 		for(uint j = 0; j < rules.getCount(); j++) {
-			c_msg1.Printf(msg1, i+1, sess_list.getCount(), j+1, rules.getCount());
-			c_msg2.Printf(msg2, i+1, sess_list.getCount(), j+1, rules.getCount());
+			c_msg1.Printf(msg1, i+1, sess_count, j+1, rules.getCount());
+			c_msg2.Printf(msg2, i+1, sess_count, j+1, rules.getCount());
 			//
 			// По каждой паре {сессия-правило} используем отдельную транзакцию
 			//
@@ -1455,13 +1454,31 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 						else if((rule.Rec.Flags & PPDraftCreateRule::fWoSCard) && chk_rec.SCardID)
 							to_del = 1;
 						else if(rule.Rec.SCardSerID) {
-							SCardTbl::Rec scard_rec;
-							MEMSZERO(scard_rec);
-							CC.Cards.Search(chk_rec.SCardID, &scard_rec);
-							if(chk_rec.SCardID == 0 || scard_rec.SeriesID != rule.Rec.SCardSerID)
+							SCardTbl::Rec sc_rec;
+							// @v10.3.6 {
+							if(CC.Cards.Search(chk_rec.SCardID, &sc_rec) > 0) {
+								if(sc_rec.SeriesID == rule.Rec.SCardSerID) {
+									if(rule.Rec.Flags & PPDraftCreateRule::fExcludeSCardSer)
+										to_del = 1;
+								}
+								else {
+									if(!(rule.Rec.Flags & PPDraftCreateRule::fExcludeSCardSer))
+										to_del = 1;
+								}
+							}
+							else {
+								if(!(rule.Rec.Flags & PPDraftCreateRule::fExcludeSCardSer))
+									to_del = 1;
+							}
+							// } @v10.3.6 
+							/* @v10.3.6
+							MEMSZERO(sc_rec);
+							CC.Cards.Search(chk_rec.SCardID, &sc_rec);
+							if(chk_rec.SCardID == 0 || sc_rec.SeriesID != rule.Rec.SCardSerID)
 								to_del = 1;
 							else
 								to_del = (rule.Rec.Flags & PPDraftCreateRule::fExcludeSCardSer) ? !to_del : to_del;
+							*/
 						}
 						if((rule.Rec.Flags & PPDraftCreateRule::fOnlyBanking) && !(chk_rec.Flags & CCHKF_BANKING))
 							 to_del = 1;

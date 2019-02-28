@@ -478,7 +478,7 @@ int PPAbstractDevice::RunCmd(int cmdId, const StrAssocArray & rIn, StrAssocArray
 	return -1;
 }
 
-int PPAbstractDevice::Helper_RunCmd(SString & rCmd, SString & rArg, StrAssocArray & rOut)
+int PPAbstractDevice::Helper_RunCmd(const SString & rCmd, const SString & rArg, StrAssocArray & rOut)
 {
 	int    ok = 1, r = 0;
 	SString s_arr;

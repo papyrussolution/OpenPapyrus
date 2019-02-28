@@ -709,7 +709,7 @@ static EVP_PKEY * hwcrhk_load_privkey(ENGINE * eng, const char * key_id,
 #  endif
 #  ifndef OPENSSL_NO_RSA
 	rtmp = RSA_new_method(eng);
-	RSA_set_ex_data(rtmp, hndidx_rsa, (char*)hptr);
+	RSA_set_ex_data(rtmp, hndidx_rsa, (char *)hptr);
 	rtmp->e = BN_new();
 	rtmp->n = BN_new();
 	rtmp->flags |= RSA_FLAG_EXT_PKEY;

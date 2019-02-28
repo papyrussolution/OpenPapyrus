@@ -2122,19 +2122,12 @@ static cairo_int_status_t _cairo_quartz_surface_glyphs(void * surface,
 }
 
 static cairo_status_t _cairo_quartz_surface_clipper_intersect_clip_path(cairo_surface_clipper_t * clipper,
-    cairo_path_fixed_t * path,
-    cairo_fill_rule_t fill_rule,
-    double tolerance,
-    cairo_antialias_t antialias)
+    cairo_path_fixed_t * path, cairo_fill_rule_t fill_rule, double tolerance, cairo_antialias_t antialias)
 {
-	cairo_quartz_surface_t * surface =
-	    cairo_container_of(clipper, cairo_quartz_surface_t, clipper);
-
+	cairo_quartz_surface_t * surface = cairo_container_of(clipper, cairo_quartz_surface_t, clipper);
 	ND((stderr, "%p _cairo_quartz_surface_intersect_clip_path path: %p\n", surface, path));
-
 	if(IS_EMPTY(surface))
 		return CAIRO_STATUS_SUCCESS;
-
 	if(path == NULL) {
 		/* If we're being asked to reset the clip, we can only do it
 		 * by restoring the gstate to our previous saved one, and
@@ -2148,17 +2141,13 @@ static cairo_status_t _cairo_quartz_surface_clipper_intersect_clip_path(cairo_su
 	}
 	else {
 		CGContextSetShouldAntialias(surface->cgContext, (antialias != CAIRO_ANTIALIAS_NONE));
-
 		_cairo_quartz_cairo_path_to_quartz_context(path, surface->cgContext);
-
 		if(fill_rule == CAIRO_FILL_RULE_WINDING)
 			CGContextClip(surface->cgContext);
 		else
 			CGContextEOClip(surface->cgContext);
 	}
-
 	ND((stderr, "-- intersect_clip_path\n"));
-
 	return CAIRO_STATUS_SUCCESS;
 }
 

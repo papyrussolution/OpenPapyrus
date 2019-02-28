@@ -55,7 +55,7 @@ int curlx_nonblock(curl_socket_t sockfd/* operate on this */, int nonblock /* TR
 #elif defined(HAVE_IOCTLSOCKET_CAMEL_FIONBIO)
 	/* Amiga */
 	long flags = nonblock ? 1L : 0L;
-	return IoctlSocket(sockfd, FIONBIO, (char*)&flags);
+	return IoctlSocket(sockfd, FIONBIO, (char *)&flags);
 #elif defined(HAVE_SETSOCKOPT_SO_NONBLOCK)
 	/* BeOS */
 	long b = nonblock ? 1L : 0L;

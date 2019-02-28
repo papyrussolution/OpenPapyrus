@@ -68,7 +68,7 @@ static char * xmlShellReadline(const char * prompt) {
 		return 0;
 	line_read[500] = 0;
 	len = sstrlen(line_read);
-	ret = (char*)malloc(len + 1);
+	ret = (char *)malloc(len + 1);
 	if(ret) {
 		memcpy(ret, line_read, len + 1);
 	}
@@ -180,7 +180,7 @@ static void usershell() {
 					printf("No entry for PUBLIC %s\n", argv[0]);
 				}
 				else {
-					printf("%s\n", (char*)ans);
+					printf("%s\n", (char *)ans);
 					SAlloc::F(ans);
 				}
 			}
@@ -195,7 +195,7 @@ static void usershell() {
 					printf("No entry for SYSTEM %s\n", argv[0]);
 				}
 				else {
-					printf("%s\n", (char*)ans);
+					printf("%s\n", (char *)ans);
 					SAlloc::F(ans);
 				}
 			}
@@ -253,7 +253,7 @@ static void usershell() {
 					printf("Resolver failed to find an answer\n");
 				}
 				else {
-					printf("%s\n", (char*)ans);
+					printf("%s\n", (char *)ans);
 					SAlloc::F(ans);
 				}
 			}
@@ -540,7 +540,7 @@ int main(int argc, char ** argv)
 					exit_value = 4;
 				}
 				else {
-					printf("%s\n", (char*)ans);
+					printf("%s\n", (char *)ans);
 					SAlloc::F(ans);
 				}
 			}
@@ -555,12 +555,12 @@ int main(int argc, char ** argv)
 						exit_value = 4;
 					}
 					else {
-						printf("%s\n", (char*)ans);
+						printf("%s\n", (char *)ans);
 						SAlloc::F(ans);
 					}
 				}
 				else {
-					printf("%s\n", (char*)ans);
+					printf("%s\n", (char *)ans);
 					SAlloc::F(ans);
 				}
 			}

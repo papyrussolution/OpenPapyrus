@@ -719,7 +719,6 @@ struct zint_render_ring * render_plot_create_ring(float x, float y, float radius
 	ring->y = y;
 	ring->radius = radius;
 	ring->line_width = line_width;
-
 	return ring;
 }
 
@@ -730,32 +729,28 @@ int render_plot_add_ring(struct ZintSymbol * symbol, struct zint_render_ring * r
 		(*last_ring)->next = ring;
 	else
 		symbol->rendered->rings = ring;  // first ring
-
 	*last_ring = ring;
 	return 1;
 }
 
 struct zint_render_hexagon * render_plot_create_hexagon(float x, float y)
 {
-	struct zint_render_hexagon * hexagon;
-
-	hexagon = (struct zint_render_hexagon*)SAlloc::M(sizeof(struct zint_render_hexagon));
+	struct zint_render_hexagon * hexagon = (struct zint_render_hexagon*)SAlloc::M(sizeof(struct zint_render_hexagon));
 	if(!hexagon) return NULL;
 	hexagon->next = NULL;
 	hexagon->x = x;
 	hexagon->y = y;
-
 	return hexagon;
 }
 
 int render_plot_add_hexagon(struct ZintSymbol * symbol, struct zint_render_hexagon * hexagon, struct zint_render_hexagon ** last_hexagon)
 {
-	if(!hexagon) return ZINT_ERROR_MEMORY;
+	if(!hexagon) 
+		return ZINT_ERROR_MEMORY;
 	if(*last_hexagon)
 		(*last_hexagon)->next = hexagon;
 	else
 		symbol->rendered->hexagons = hexagon;  // first hexagon
-
 	*last_hexagon = hexagon;
 	return 1;
 }
@@ -764,13 +759,10 @@ int render_plot_add_hexagon(struct ZintSymbol * symbol, struct zint_render_hexag
  * Add a string structure to the symbol.
  * Coordinates assumed to be from top-center.
  */
-int render_plot_add_string(struct ZintSymbol * symbol,
-    uchar * text, float x, float y, float fsize, float width,
+int render_plot_add_string(struct ZintSymbol * symbol, uchar * text, float x, float y, float fsize, float width,
     struct zint_render_string ** last_string)
 {
-	struct zint_render_string * string;
-
-	string = (struct zint_render_string*)SAlloc::M(sizeof(struct zint_render_string));
+	struct zint_render_string * string = (struct zint_render_string*)SAlloc::M(sizeof(struct zint_render_string));
 	string->next = NULL;
 	string->x = x;
 	string->y = y;
@@ -779,13 +771,11 @@ int render_plot_add_string(struct ZintSymbol * symbol,
 	string->length = sstrlen(text);
 	string->text = (uchar*)SAlloc::M(sizeof(uchar) * (sstrlen(text) + 1));
 	sstrcpy(string->text, text);
-
 	if(*last_string)
 		(*last_string)->next = string;
 	else
 		symbol->rendered->strings = string;  // First character
 	*last_string = string;
-
 	return 1;
 }
 

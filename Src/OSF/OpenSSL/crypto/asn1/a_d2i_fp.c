@@ -73,7 +73,7 @@ void * ASN1_item_d2i_fp(const ASN1_ITEM * it, FILE * in, void * x)
 		return NULL;
 	}
 	BIO_set_fp(b, in, BIO_NOCLOSE);
-	ret = (char*)ASN1_item_d2i_bio(it, b, x);
+	ret = (char *)ASN1_item_d2i_bio(it, b, x);
 	BIO_free(b);
 	return ret;
 }

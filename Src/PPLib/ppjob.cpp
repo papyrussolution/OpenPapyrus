@@ -1485,8 +1485,7 @@ private:
 		TDialog::handleEvent(event);
 		if(event.isClusterClk(CTL_LAUNCHAPP_FLAGS)) {
 			GetClusterData(CTL_LAUNCHAPP_FLAGS, &Data.Flags);
-			disableCtrls((Data.Flags & LaunchAppParam::fRemote) ? 0 : 1,
-				CTL_LAUNCHAPP_SERVER, CTL_LAUNCHAPP_USER, CTL_LAUNCHAPP_PWD, 0);
+			disableCtrls((Data.Flags & LaunchAppParam::fRemote) ? 0 : 1, CTL_LAUNCHAPP_SERVER, CTL_LAUNCHAPP_USER, CTL_LAUNCHAPP_PWD, 0);
 			clearEvent(event);
 		}
 	}
@@ -1510,8 +1509,7 @@ int LaunchAppDialog::setDTS(const LaunchAppParam * pData)
 	IdeaDecrypt(0, pw_buf, ret_len);
 	setCtrlData(CTL_LAUNCHAPP_PWD, pw_buf);
 	memzero(pw_buf, sizeof(pw_buf));
-	disableCtrls((Data.Flags & LaunchAppParam::fRemote) ? 0 : 1,
-		CTL_LAUNCHAPP_SERVER, CTL_LAUNCHAPP_USER, CTL_LAUNCHAPP_PWD, 0);
+	disableCtrls((Data.Flags & LaunchAppParam::fRemote) ? 0 : 1, CTL_LAUNCHAPP_SERVER, CTL_LAUNCHAPP_USER, CTL_LAUNCHAPP_PWD, 0);
 	return 1;
 }
 

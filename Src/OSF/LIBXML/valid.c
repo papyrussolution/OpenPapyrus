@@ -42,7 +42,7 @@ static void FASTCALL xmlVErrMemory(xmlValidCtxtPtr ctxt, const char * extra)
 		data = ctxt->userData;
 		// Use the special values to detect if it is part of a parsing context 
 		if(oneof2(ctxt->finishDtd, XML_CTXT_FINISH_DTD_0, XML_CTXT_FINISH_DTD_1)) {
-			long delta = (char*)ctxt - (char*)ctxt->userData;
+			long delta = (char *)ctxt - (char *)ctxt->userData;
 			if((delta > 0) && (delta < 250))
 				pctxt = (xmlParserCtxt *)ctxt->userData;
 		}
@@ -70,7 +70,7 @@ static void xmlErrValid(xmlValidCtxtPtr ctxt, xmlParserErrors error, const char 
 		data = ctxt->userData;
 		// Use the special values to detect if it is part of a parsing context 
 		if(oneof2(ctxt->finishDtd, XML_CTXT_FINISH_DTD_0, XML_CTXT_FINISH_DTD_1)) {
-			long delta = (char*)ctxt - (char*)ctxt->userData;
+			long delta = (char *)ctxt - (char *)ctxt->userData;
 			if((delta > 0) && (delta < 250))
 				pctxt = (xmlParserCtxt *)ctxt->userData;
 		}
@@ -104,7 +104,7 @@ static void xmlErrValidNode(xmlValidCtxtPtr ctxt, xmlNode * P_Node, xmlParserErr
 		data = ctxt->userData;
 		// Use the special values to detect if it is part of a parsing context 
 		if((ctxt->finishDtd == XML_CTXT_FINISH_DTD_0) || (ctxt->finishDtd == XML_CTXT_FINISH_DTD_1)) {
-			long delta = (char*)ctxt - (char*)ctxt->userData;
+			long delta = (char *)ctxt - (char *)ctxt->userData;
 			if((delta > 0) && (delta < 250))
 				pctxt = (xmlParserCtxt *)ctxt->userData;
 		}
@@ -138,7 +138,7 @@ static void xmlErrValidNodeNr(xmlValidCtxtPtr ctxt, xmlNode * P_Node, xmlParserE
 		data = ctxt->userData;
 		// Use the special values to detect if it is part of a parsing context 
 		if((ctxt->finishDtd == XML_CTXT_FINISH_DTD_0) || (ctxt->finishDtd == XML_CTXT_FINISH_DTD_1)) {
-			long delta = (char*)ctxt - (char*)ctxt->userData;
+			long delta = (char *)ctxt - (char *)ctxt->userData;
 			if((delta > 0) && (delta < 250))
 				pctxt = (xmlParserCtxt *)ctxt->userData;
 		}
@@ -171,7 +171,7 @@ static void xmlErrValidWarning(xmlValidCtxtPtr ctxt,
 		data = ctxt->userData;
 		// Use the special values to detect if it is part of a parsing context 
 		if((ctxt->finishDtd == XML_CTXT_FINISH_DTD_0) || (ctxt->finishDtd == XML_CTXT_FINISH_DTD_1)) {
-			long delta = (char*)ctxt - (char*)ctxt->userData;
+			long delta = (char *)ctxt - (char *)ctxt->userData;
 			if((delta > 0) && (delta < 250))
 				pctxt = (xmlParserCtxt *)ctxt->userData;
 		}
@@ -1049,7 +1049,7 @@ void xmlSnprintfElementContent(char * buf, int size, xmlElementContent * content
 							strcat(buf, " ...");
 							return;
 						}
-						strcat(buf, (char*)content->prefix);
+						strcat(buf, (char *)content->prefix);
 						strcat(buf, ":");
 					}
 					if((size - len) < (int)(sstrlen(content->name) + 10)) {
@@ -1057,7 +1057,7 @@ void xmlSnprintfElementContent(char * buf, int size, xmlElementContent * content
 						return;
 					}
 					if(content->name)
-						strcat(buf, (char*)content->name);
+						strcat(buf, (char *)content->name);
 					break;
 				case XML_ELEMENT_CONTENT_SEQ:
 					if((content->c1->type == XML_ELEMENT_CONTENT_OR) || (content->c1->type == XML_ELEMENT_CONTENT_SEQ))
@@ -2129,7 +2129,7 @@ void xmlDumpNotationTable(xmlBuffer * buf, xmlNotationTablePtr table)
  *
  * Free a string if it is not owned by the "dict" dictionnary in the current scope
  */
-//#define DICT_FREE(p_dict__, str) if((str) && ((!p_dict__) || (xmlDictOwns(p_dict__, (const xmlChar*)(str)) == 0))) SAlloc::F((char*)(str));
+//#define DICT_FREE(p_dict__, str) if((str) && ((!p_dict__) || (xmlDictOwns(p_dict__, (const xmlChar*)(str)) == 0))) SAlloc::F((char *)(str));
 /**
  * xmlFreeID:
  * @not:  A id
@@ -2494,8 +2494,8 @@ xmlRefPtr xmlAddRef(xmlValidCtxtPtr ctxt, xmlDoc * doc, const xmlChar * value, x
 	return ret;
 failed:
 	if(ret) {
-		SAlloc::F((char*)ret->value);
-		SAlloc::F((char*)ret->name);
+		SAlloc::F((char *)ret->value);
+		SAlloc::F((char *)ret->name);
 		SAlloc::F(ret);
 	}
 	return 0;
@@ -4457,7 +4457,7 @@ static void xmlSnprintfElements(char * buf, int size, xmlNode * P_Node, int glob
 								strcat(buf, " ...");
 							return;
 						}
-						strcat(buf, (char*)cur->ns->prefix);
+						strcat(buf, (char *)cur->ns->prefix);
 						strcat(buf, ":");
 					}
 					if((size - len) < (int)(sstrlen(cur->name) + 10)) {
@@ -4465,7 +4465,7 @@ static void xmlSnprintfElements(char * buf, int size, xmlNode * P_Node, int glob
 							strcat(buf, " ...");
 						return;
 					}
-					strcat(buf, (char*)cur->name);
+					strcat(buf, (char *)cur->name);
 					if(cur->next)
 						strcat(buf, " ");
 					break;
@@ -5565,7 +5565,7 @@ int xmlValidateElement(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem)
 			value = xmlNodeListGetString(doc, attr->children, 0);
 			ret &= xmlValidateOneAttribute(ctxt, doc, elem, attr, value);
 			if(value)
-				SAlloc::F((char*)value);
+				SAlloc::F((char *)value);
 			attr = attr->next;
 		}
 		for(ns = elem->nsDef; ns; ns = ns->next) {

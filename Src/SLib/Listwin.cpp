@@ -35,7 +35,7 @@ void ListWindow::executeNM(HWND parent)
 	HWND   hwnd_parent = parent ? parent : APPL->H_MainWnd;
 	MessageCommandToOwner(cmLBLoadDef);
 	Id = (isTreeList()) ? DLGW_TREELBX : DLGW_LBX;
-	HW = APPL->CreateDlg(Id, hwnd_parent, (DLGPROC)TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
+	HW = APPL->CreateDlg(Id, hwnd_parent, TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
 	TView::SetWindowProp(H(), GWL_STYLE, WS_CHILD);
 	TView::SetWindowProp(H(), GWL_EXSTYLE, 0L);
 	SetParent(H(), hwnd_parent);
@@ -99,7 +99,7 @@ IMPL_HANDLE_EVENT(ListWindow)
 		HWND   hwnd_parent = p_combo ? p_combo->link()->Parent : APPL->H_MainWnd;
 		MessageCommandToOwner(cmLBLoadDef);
 		Id = isTreeList() ? DLGW_TREELBX : ((P_Def && P_Def->Options & lbtOwnerDraw) ? DLGW_OWNDRAWLBX : lw_dlg_id);
-		HW = APPL->CreateDlg(Id, hwnd_parent, (DLGPROC)TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
+		HW = APPL->CreateDlg(Id, hwnd_parent, TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
 		if(oneof2(Id, DLGW_LBX, DLGW_TREELBX)) {
 			UserInterfaceSettings ui_cfg;
 			if(ui_cfg.Restore() > 0) {
@@ -378,7 +378,7 @@ StrAssocArray * WordSel_ExtraBlock::GetList(const char * pText)
 				TView * p_view = P_OutDlg->getCtrlView(OutCtlId);
 				if(p_view && (p_view->IsSubSign(TV_SUBSIGN_LISTBOX) || p_view->IsSubSign(TV_SUBSIGN_COMBOBOX))) {
 					//SmartListBox * p_lbx = (P_OutDlg) ? (SmartListBox *)P_OutDlg->getCtrlView(OutCtlId) : 0;
-					SmartListBox * p_lbx = (SmartListBox *)p_view;
+					SmartListBox * p_lbx = static_cast<SmartListBox *>(p_view);
 					p_list = p_lbx->def ? p_lbx->def->GetListByPattern(pText) : 0;
 				}
 			}
@@ -494,7 +494,7 @@ IMPL_HANDLE_EVENT(WordSelector)
 			HWND   hwnd_parent = P_Blk->H_InputDlg;
 			MessageCommandToOwner(cmLBLoadDef);
 			Id = lw_dlg_id;
-			HW = APPL->CreateDlg(Id, hwnd_parent, (DLGPROC)TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
+			HW = APPL->CreateDlg(Id, hwnd_parent, TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
 			APPL->SetWindowViewByKind(H(), TProgram::wndtypListDialog);
 			MoveWindow(P_Blk->H_InputDlg, 0);
 			if(APPL->PushModalWindow(this, H())) {
@@ -627,7 +627,7 @@ void WordSelector::DrawListItem2(TDrawItemData * pDrawItem)
 				canv.Rect(_rc, 0, _clr_id);
 				{
 					SString & r_temp_buf = SLS.AcquireRvlStr();
-					SmartListBox * p_lbx = (SmartListBox *)pDrawItem->P_View;
+					SmartListBox * p_lbx = static_cast<SmartListBox *>(pDrawItem->P_View);
 					p_lbx->getText((long)pDrawItem->ItemData, r_temp_buf);
 					r_temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 					canv._DrawText(_rc, r_temp_buf.cptr(), DT_LEFT|DT_VCENTER|DT_SINGLELINE);

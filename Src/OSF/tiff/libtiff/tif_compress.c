@@ -186,8 +186,8 @@ TIFFCodec* TIFFRegisterCODEC(uint16 scheme, const char* name, TIFFInitMethod ini
 {
 	codec_t* cd = (codec_t*)SAlloc::M((tmsize_t)(sizeof(codec_t) + sizeof(TIFFCodec) + strlen(name)+1));
 	if(cd) {
-		cd->info = (TIFFCodec*)((uint8*)cd + sizeof(codec_t));
-		cd->info->name = (char*)((uint8*)cd->info + sizeof(TIFFCodec));
+		cd->info = (TIFFCodec*)((uint8 *)cd + sizeof(codec_t));
+		cd->info->name = (char *)((uint8 *)cd->info + sizeof(TIFFCodec));
 		strcpy(cd->info->name, name);
 		cd->info->scheme = scheme;
 		cd->info->init = init;

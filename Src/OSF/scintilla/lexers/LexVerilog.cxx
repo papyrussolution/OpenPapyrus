@@ -344,7 +344,7 @@ struct After {
 	explicit After(Sci_Position line_) : line(line_)
 	{
 	}
-	bool operator()(PPDefinition &p) const
+	bool operator()(const PPDefinition &p) const
 	{
 		return p.line > line;
 	}

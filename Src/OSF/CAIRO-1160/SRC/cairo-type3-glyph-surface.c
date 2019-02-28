@@ -48,24 +48,15 @@
 
 extern const cairo_surface_backend_t cairo_type3_glyph_surface_backend;
 
-static cairo_status_t _cairo_type3_glyph_surface_clipper_intersect_clip_path(cairo_surface_clipper_t * clipper,
-    cairo_path_fixed_t * path,
-    cairo_fill_rule_t fill_rule,
-    double tolerance,
-    cairo_antialias_t antialias)
+static cairo_status_t _cairo_type3_glyph_surface_clipper_intersect_clip_path(cairo_surface_clipper_t * clipper, cairo_path_fixed_t * path,
+    cairo_fill_rule_t fill_rule, double tolerance, cairo_antialias_t antialias)
 {
-	cairo_type3_glyph_surface_t * surface = cairo_container_of(clipper,
-		cairo_type3_glyph_surface_t,
-		clipper);
-
+	cairo_type3_glyph_surface_t * surface = cairo_container_of(clipper, cairo_type3_glyph_surface_t, clipper);
 	if(path == NULL) {
 		_cairo_output_stream_printf(surface->stream, "Q q\n");
 		return CAIRO_STATUS_SUCCESS;
 	}
-
-	return _cairo_pdf_operators_clip(&surface->pdf_operators,
-		   path,
-		   fill_rule);
+	return _cairo_pdf_operators_clip(&surface->pdf_operators, path, fill_rule);
 }
 
 cairo_surface_t * _cairo_type3_glyph_surface_create(cairo_scaled_font_t * scaled_font, cairo_output_stream_t * stream,
@@ -86,37 +77,25 @@ cairo_surface_t * _cairo_type3_glyph_surface_create(cairo_scaled_font_t * scaled
 	surface->scaled_font = scaled_font;
 	surface->stream = stream;
 	surface->emit_image = emit_image;
-
 	/* Setup the transform from the user-font device space to Type 3
 	 * font space. The Type 3 font space is defined by the FontMatrix
 	 * entry in the Type 3 dictionary. In the PDF backend this is an
 	 * identity matrix. */
 	surface->cairo_to_pdf = scaled_font->scale_inverse;
-
-	_cairo_pdf_operators_init(&surface->pdf_operators,
-	    surface->stream,
-	    &surface->cairo_to_pdf,
-	    font_subsets,
-	    ps);
-
-	_cairo_surface_clipper_init(&surface->clipper,
-	    _cairo_type3_glyph_surface_clipper_intersect_clip_path);
-
+	_cairo_pdf_operators_init(&surface->pdf_operators, surface->stream, &surface->cairo_to_pdf, font_subsets, ps);
+	_cairo_surface_clipper_init(&surface->clipper, _cairo_type3_glyph_surface_clipper_intersect_clip_path);
 	return &surface->base;
 }
 
 static cairo_status_t _cairo_type3_glyph_surface_emit_image(cairo_type3_glyph_surface_t * surface,
-    cairo_image_surface_t * image,
-    cairo_matrix_t * image_matrix)
+    cairo_image_surface_t * image, cairo_matrix_t * image_matrix)
 {
 	cairo_status_t status;
-
 	/* The only image type supported by Type 3 fonts are 1-bit masks */
 	image = _cairo_image_surface_coerce_to_format(image, CAIRO_FORMAT_A1);
 	status = image->base.status;
 	if(unlikely(status))
 		return status;
-
 	_cairo_output_stream_printf(surface->stream,
 	    "q %f %f %f %f %f %f cm\n",
 	    image_matrix->xx,

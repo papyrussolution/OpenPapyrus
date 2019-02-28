@@ -238,7 +238,7 @@ private:
 	void   updateList();
 	void   addItem();
 	void   delItem();
-	void   SetupAddr(SString & rAddrList);
+	void   SetupAddr(const SString & rAddrList);
 	DBDivPack data;
 };
 
@@ -281,7 +281,7 @@ void DBDivDialog::updateList()
 	}
 }
 
-void DBDivDialog::SetupAddr(SString & rAddrList)
+void DBDivDialog::SetupAddr(const SString & rAddrList)
 {
 	SString temp_buf;
 	StringSet ss(';', rAddrList);
@@ -328,17 +328,14 @@ int DBDivDialog::setDTS(const DBDivPack * p)
 	updateList();
 	setCtrlData(CTL_DBDIV_ID,   &data.Rec.ID);
 	disableCtrl(CTL_DBDIV_ID,   (int)data.Rec.ID);
-	// @v8.0.11 {
 	data.Rec.Uuid.ToStr(S_GUID::fmtIDL, temp_buf);
 	setCtrlString(CTL_DBDIV_UUID, temp_buf.Strip());
-	// } @v8.0.11
 	setCtrlData(CTL_DBDIV_CNT,  &data.Rec.OutCounter);
 	setCtrlData(CTL_DBDIV_NAME, data.Rec.Name);
 	{
-		data.GetExtStrData(DBDIVEXSTR_GATEWAYLIST, temp_buf); // @v8.0.11
+		data.GetExtStrData(DBDIVEXSTR_GATEWAYLIST, temp_buf);
 		temp_buf.SetIfEmpty(data.Rec.Addr);
-		SetupAddr(temp_buf); // @v8.0.11
-		// @v8.0.11 setCtrlData(CTL_DBDIV_ADDR, data.Rec.Addr);
+		SetupAddr(temp_buf);
 	}
 	data.GetExtStrData(DBDIVEXSTR_ACCLIST, temp_buf);
 	setCtrlString(CTL_DBDIV_ACCLIST, temp_buf);

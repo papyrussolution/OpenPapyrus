@@ -862,7 +862,7 @@ int ssl3_write_pending(SSL * s, int type, const uchar * buf, uint len)
 		clear_sys_error();
 		if(s->wbio != NULL) {
 			s->rwstate = SSL_WRITING;
-			i = BIO_write(s->wbio, (char*)&(SSL3_BUFFER_get_buf(&wb[currbuf])[SSL3_BUFFER_get_offset(&wb[currbuf])]), (uint)SSL3_BUFFER_get_left(&wb[currbuf]));
+			i = BIO_write(s->wbio, (char *)&(SSL3_BUFFER_get_buf(&wb[currbuf])[SSL3_BUFFER_get_offset(&wb[currbuf])]), (uint)SSL3_BUFFER_get_left(&wb[currbuf]));
 		}
 		else {
 			SSLerr(SSL_F_SSL3_WRITE_PENDING, SSL_R_BIO_NOT_SET);

@@ -166,7 +166,7 @@ static void ngx_select_repair_fd_sets(ngx_cycle_t * cycle)
 	for(i = 0; i < _ModulBlk.master_read_fd_set.fd_count; i++) {
 		ngx_socket_t s = _ModulBlk.master_read_fd_set.fd_array[i];
 		socklen_t len = sizeof(int);
-		if(getsockopt(s, SOL_SOCKET, SO_TYPE, (char*)&n, &len) == -1) {
+		if(getsockopt(s, SOL_SOCKET, SO_TYPE, (char *)&n, &len) == -1) {
 			ngx_err_t err = ngx_socket_errno;
 			ngx_log_error(NGX_LOG_ALERT, cycle->log, err, "invalid descriptor #%d in read fd_set", s);
 			FD_CLR(s, &_ModulBlk.master_read_fd_set);
@@ -175,7 +175,7 @@ static void ngx_select_repair_fd_sets(ngx_cycle_t * cycle)
 	for(i = 0; i < _ModulBlk.master_write_fd_set.fd_count; i++) {
 		ngx_socket_t s = _ModulBlk.master_write_fd_set.fd_array[i];
 		socklen_t len = sizeof(int);
-		if(getsockopt(s, SOL_SOCKET, SO_TYPE, (char*)&n, &len) == -1) {
+		if(getsockopt(s, SOL_SOCKET, SO_TYPE, (char *)&n, &len) == -1) {
 			ngx_err_t err = ngx_socket_errno;
 			ngx_log_error(NGX_LOG_ALERT, cycle->log, err, "invalid descriptor #%d in write fd_set", s);
 			FD_CLR(s, &_ModulBlk.master_write_fd_set);

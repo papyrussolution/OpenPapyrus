@@ -3782,12 +3782,16 @@ int SLAPI PrcssrAlcReport::Config::Serialize(int dir, SBuffer & rBuf, SSerialize
             ZDELETE(P_CcFilt);
 		}
 		else {
-			THROW(PPView::ReadFiltPtr(rBuf, (PPBaseFilt **)&P_CcFilt));
+			THROW(PPView::ReadFiltPtr(rBuf, reinterpret_cast<PPBaseFilt **>(&P_CcFilt)));
 		}
 	}
 	// } @v9.4.0
 	CATCHZOK
 	return ok;
+}
+
+SLAPI PrcssrAlcReport::EgaisMarkBlock::EgaisMarkBlock() : Ver(0)
+{
 }
 
 PrcssrAlcReport::GoodsItem::GoodsItem()

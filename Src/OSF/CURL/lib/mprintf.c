@@ -230,7 +230,7 @@ static bool dprintf_IsQualifierNoDollar(const char * fmt)
 static int dprintf_Pass1(const char * format, va_stack_t * vto, char ** endpos,
     va_list arglist)
 {
-	char * fmt = (char*)format;
+	char * fmt = (char *)format;
 	int param_num = 0;
 	long this_param;
 	long width;
@@ -575,7 +575,7 @@ static int dprintf_formatf(void * data, /* untouched by format(), just sent to t
 	if(dprintf_Pass1(format, vto, endpos, ap_save))
 		return -1;
 	end = &endpos[0]; /* the initial end-position from the list dprintf_Pass1() created for us */
-	f = (char*)format;
+	f = (char *)format;
 	while(*f != '\0') {
 		int is_alt; /* Format spec modifiers.  */
 		long width; /* Width of a field.  */
@@ -744,7 +744,7 @@ number:
 		    {
 			    static const char null[] = "(nil)";
 			    size_t len;
-			    const char * str = (char*)p->data.str;
+			    const char * str = (char *)p->data.str;
 			    if(!str) {
 				    /* Write null[] if there's space.  */
 				    if(prec == -1 || prec >= (long)sizeof(null) - 1) {

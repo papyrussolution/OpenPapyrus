@@ -63,7 +63,7 @@ int FASTCALL HashTableBase::Copy(const HashTableBase & rSrc)
 
 int HashTableBase::InitTab()
 {
-	SETIFZ(P_Tab, (Entry *)SAlloc::C(Size, sizeof(Entry)));
+	SETIFZ(P_Tab, static_cast<Entry *>(SAlloc::C(Size, sizeof(Entry))));
 	return BIN(P_Tab);
 }
 
@@ -1462,7 +1462,7 @@ struct UT_hash_handle {
 	#define DECLTYPE_ASSIGN(dst, src)						  \
 		do {										 \
 			char ** _da_dst = (char**)(&(dst));						\
-			*_da_dst = (char*)(src);						       \
+			*_da_dst = (char *)(src);						       \
 		} while(0)
 #else
 	#define DECLTYPE_ASSIGN(dst, src) do { (dst) = DECLTYPE(dst) (src); } while(0)
@@ -1494,7 +1494,7 @@ struct UT_hash_handle {
 #define HASH_BKT_CAPACITY_THRESH 10      /* expand when bucket count reaches */
 
 /* calculate the element whose hash handle address is hhe */
-#define ELMT_FROM_HH(tbl, hhp) ((void *)(((char*)(hhp)) - ((tbl)->hho)))
+#define ELMT_FROM_HH(tbl, hhp) ((void *)(((char *)(hhp)) - ((tbl)->hho)))
 
 #define HASH_FIND(hh, head, keyptr, keylen, out)				     \
 	do {										 \
@@ -1541,7 +1541,7 @@ struct UT_hash_handle {
 		(head)->hh.tbl->tail = &((head)->hh);					       \
 		(head)->hh.tbl->num_buckets = HASH_INITIAL_NUM_BUCKETS;			       \
 		(head)->hh.tbl->log2_num_buckets = HASH_INITIAL_NUM_BUCKETS_LOG2;	       \
-		(head)->hh.tbl->hho = (char*)(&(head)->hh) - (char*)(head);		       \
+		(head)->hh.tbl->hho = (char *)(&(head)->hh) - (char *)(head);		       \
 		(head)->hh.tbl->buckets = (UT_hash_bucket*)SAlloc::M(HASH_INITIAL_NUM_BUCKETS*sizeof(struct UT_hash_bucket)); \
 		if(!(head)->hh.tbl->buckets) { uthash_fatal("out of memory"); }		    \
 		memzero((head)->hh.tbl->buckets, HASH_INITIAL_NUM_BUCKETS*sizeof(struct UT_hash_bucket)); \
@@ -1555,7 +1555,7 @@ struct UT_hash_handle {
 	do {										 \
 		unsigned _ha_bkt;								\
 		(add)->hh.next = NULL;								\
-		(add)->hh.key = (char*)keyptr;							\
+		(add)->hh.key = (char *)keyptr;							\
 		(add)->hh.keylen = (unsigned)keylen_in;							  \
 		if(!(head)) {								       \
 			head = (add);								     \
@@ -1645,11 +1645,11 @@ struct UT_hash_handle {
 				_thh = (head)->hh.tbl->buckets[_bkt_i].hh_head;			     \
 				_prev = NULL;							     \
 				while(_thh) {							    \
-					if(_prev != (char*)(_thh->hh_prev)) {				 \
+					if(_prev != (char *)(_thh->hh_prev)) {				 \
 						HASH_OOPS("invalid hh_prev %p, actual %p\n", _thh->hh_prev, _prev); \
 					}								  \
 					_bkt_count++;							  \
-					_prev = (char*)(_thh);						  \
+					_prev = (char *)(_thh);						  \
 					_thh = _thh->hh_next;						  \
 				}								     \
 				_count += _bkt_count;						     \
@@ -1666,11 +1666,11 @@ struct UT_hash_handle {
 			_thh =  &(head)->hh;							 \
 			while(_thh) {								\
 				_count++;							      \
-				if(_prev !=(char*)(_thh->prev)) {				     \
+				if(_prev !=(char *)(_thh->prev)) {				     \
 					HASH_OOPS("invalid prev %p, actual %p\n", _thh->prev, _prev); \
 				}								      \
-				_prev = (char*)ELMT_FROM_HH((head)->hh.tbl, _thh);		      \
-				_thh = (_thh->next ?  (UT_hash_handle*)((char*)(_thh->next) + (head)->hh.tbl->hho) : NULL); \
+				_prev = (char *)ELMT_FROM_HH((head)->hh.tbl, _thh);		      \
+				_thh = (_thh->next ?  (UT_hash_handle*)((char *)(_thh->next) + (head)->hh.tbl->hho) : NULL); \
 			}									 \
 			if(_count != (head)->hh.tbl->num_items) {				\
 				HASH_OOPS("invalid app item count %d, actual %d\n", (head)->hh.tbl->num_items, _count); \
@@ -1706,7 +1706,7 @@ struct UT_hash_handle {
 #define HASH_BER(key, keylen, num_bkts, hashv, bkt)				     \
 	do {										 \
 		unsigned _hb_keylen = keylen;							 \
-		char * _hb_key = (char*)(key);							  \
+		char * _hb_key = (char *)(key);							  \
 		(hashv) = 0;								       \
 		while(_hb_keylen--)  { (hashv) = ((hashv) * 33) + *_hb_key++; }		      \
 		bkt = (hashv) & (num_bkts-1);						       \
@@ -1717,7 +1717,7 @@ struct UT_hash_handle {
 #define HASH_SAX(key, keylen, num_bkts, hashv, bkt)				     \
 	do {										 \
 		unsigned _sx_i;								       \
-		char * _hs_key = (char*)(key);							  \
+		char * _hs_key = (char *)(key);							  \
 		hashv = 0;								       \
 		for(_sx_i = 0; _sx_i < keylen; _sx_i++)						 \
 			hashv ^= (hashv << 5) + (hashv >> 2) + _hs_key[_sx_i];			   \
@@ -1727,7 +1727,7 @@ struct UT_hash_handle {
 #define HASH_FNV(key, keylen, num_bkts, hashv, bkt)				     \
 	do {										 \
 		unsigned _fn_i;								       \
-		char * _hf_key = (char*)(key);							  \
+		char * _hf_key = (char *)(key);							  \
 		hashv = 2166136261UL;							       \
 		for(_fn_i = 0; _fn_i < keylen; _fn_i++)						 \
 			hashv = (hashv * 16777619) ^ _hf_key[_fn_i];				   \
@@ -1737,7 +1737,7 @@ struct UT_hash_handle {
 #define HASH_OAT(key, keylen, num_bkts, hashv, bkt)				     \
 	do {										 \
 		unsigned _ho_i;								       \
-		char * _ho_key = (char*)(key);							  \
+		char * _ho_key = (char *)(key);							  \
 		hashv = 0;								       \
 		for(_ho_i = 0; _ho_i < keylen; _ho_i++) {					 \
 			hashv += _ho_key[_ho_i];						   \
@@ -1787,7 +1787,7 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 	uint   bkt = 0;
 	uint32 hashv = 0xfeedbeef;
 	uint32 _hj_i, _hj_j;
-	char * _hj_key = (char*)pKey;
+	char * _hj_key = (char *)pKey;
 	_hj_i = _hj_j = 0x9e3779b9;
 	size_t _hj_k = keyLen;
 	for(; _hj_k >= 12; _hj_k -= 12) {
@@ -1820,7 +1820,7 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 #define HASH_JEN(key, keylen, num_bkts, hashv, bkt)				     \
 	do {										 \
 		unsigned _hj_i, _hj_j, _hj_k;							 \
-		char * _hj_key = (char*)(key);							  \
+		char * _hj_key = (char *)(key);							  \
 		hashv = 0xfeedbeef;							       \
 		_hj_i = _hj_j = 0x9e3779b9;						       \
 		_hj_k = (uint)keylen;								 \
@@ -1863,7 +1863,7 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 #endif
 #define HASH_SFH(key, keylen, num_bkts, hashv, bkt)				     \
 	do {										 \
-		char * _sfh_key = (char*)(key);							  \
+		char * _sfh_key = (char *)(key);							  \
 		uint32_t _sfh_tmp, _sfh_len = keylen;					       \
 										 \
 		int _sfh_rem = _sfh_len & 3;						       \
@@ -2121,26 +2121,26 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 					_hs_psize = 0;							   \
 					for(_hs_i = 0; _hs_i  < _hs_insize; _hs_i++) {			\
 						_hs_psize++;						       \
-						_hs_q = (UT_hash_handle*)((_hs_q->next) ? ((void *)((char*)(_hs_q->next) + (head)->hh.tbl->hho)) : NULL); \
+						_hs_q = (UT_hash_handle*)((_hs_q->next) ? ((void *)((char *)(_hs_q->next) + (head)->hh.tbl->hho)) : NULL); \
 						if(!(_hs_q)) break;					     \
 					}								   \
 					_hs_qsize = _hs_insize;						   \
 					while((_hs_psize > 0) || ((_hs_qsize > 0) && _hs_q)) {		  \
 						if(_hs_psize == 0) {					      \
 							_hs_e = _hs_q;						   \
-							_hs_q = (UT_hash_handle*)((_hs_q->next) ? ((void *)((char*)(_hs_q->next) + (head)->hh.tbl->hho)) : NULL); \
+							_hs_q = (UT_hash_handle*)((_hs_q->next) ? ((void *)((char *)(_hs_q->next) + (head)->hh.tbl->hho)) : NULL); \
 							_hs_qsize--;						   \
 						} else if((_hs_qsize == 0) || !(_hs_q)) {		      \
 							_hs_e = _hs_p;						   \
-							_hs_p = (UT_hash_handle*)((_hs_p->next) ? ((void *)((char*)(_hs_p->next) + (head)->hh.tbl->hho)) : NULL); \
+							_hs_p = (UT_hash_handle*)((_hs_p->next) ? ((void *)((char *)(_hs_p->next) + (head)->hh.tbl->hho)) : NULL); \
 							_hs_psize--;						   \
 						} else if((cmpfcn(DECLTYPE(head) (ELMT_FROM_HH((head)->hh.tbl, _hs_p)), DECLTYPE(head) (ELMT_FROM_HH((head)->hh.tbl, _hs_q)))) <= 0) { \
 							_hs_e = _hs_p;						   \
-							_hs_p = (UT_hash_handle*)((_hs_p->next) ? ((void *)((char*)(_hs_p->next) + (head)->hh.tbl->hho)) : NULL); \
+							_hs_p = (UT_hash_handle*)((_hs_p->next) ? ((void *)((char *)(_hs_p->next) + (head)->hh.tbl->hho)) : NULL); \
 							_hs_psize--;						   \
 						} else {						       \
 							_hs_e = _hs_q;						   \
-							_hs_q = (UT_hash_handle*)((_hs_q->next) ? ((void *)((char*)(_hs_q->next) + (head)->hh.tbl->hho)) : NULL); \
+							_hs_q = (UT_hash_handle*)((_hs_q->next) ? ((void *)((char *)(_hs_q->next) + (head)->hh.tbl->hho)) : NULL); \
 							_hs_qsize--;						   \
 						}							       \
 						if(_hs_tail) {						    \
@@ -2175,7 +2175,7 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 		unsigned _src_bkt, _dst_bkt;						       \
 		void * _last_elt = NULL, * _elt;						   \
 		UT_hash_handle * _src_hh, * _dst_hh, * _last_elt_hh = NULL;			    \
-		ptrdiff_t _dst_hho = ((char*)(&(dst)->hh_dst) - (char*)(dst));		       \
+		ptrdiff_t _dst_hho = ((char *)(&(dst)->hh_dst) - (char *)(dst));		       \
 		if(src) {								      \
 			for(_src_bkt = 0; _src_bkt < (src)->hh_src.tbl->num_buckets; _src_bkt++) {     \
 				for(_src_hh = (src)->hh_src.tbl->buckets[_src_bkt].hh_head;		   \
@@ -2183,7 +2183,7 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 				    _src_hh = _src_hh->hh_next) {					   \
 					_elt = ELMT_FROM_HH((src)->hh_src.tbl, _src_hh);		       \
 					if(cond(_elt)) {						      \
-						_dst_hh = (UT_hash_handle*)(((char*)_elt) + _dst_hho);		     \
+						_dst_hh = (UT_hash_handle*)(((char *)_elt) + _dst_hho);		     \
 						_dst_hh->key = _src_hh->key;					     \
 						_dst_hh->keylen = _src_hh->keylen;				     \
 						_dst_hh->hashv = _src_hh->hashv;				     \
@@ -2210,8 +2210,8 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 
 #ifdef NO_DECLTYPE
 #define HASH_ITER(hh, head, el, tmp)						    \
-	for((el) = (head), (*(char**)(&(tmp))) = (char*)((head) ? (head)->hh.next : NULL);	 \
-	    el; (el) = (tmp), (*(char**)(&(tmp))) = (char*)((tmp) ? (tmp)->hh.next : NULL))
+	for((el) = (head), (*(char**)(&(tmp))) = (char *)((head) ? (head)->hh.next : NULL);	 \
+	    el; (el) = (tmp), (*(char**)(&(tmp))) = (char *)((tmp) ? (tmp)->hh.next : NULL))
 #else
 #define HASH_ITER(hh, head, el, tmp)						    \
 	for((el) = (head), (tmp) = DECLTYPE(el) ((head) ? (head)->hh.next : NULL);		   \

@@ -23,7 +23,7 @@ char * FASTCALL CRYPTO_strdup(const char * str, const char* file, int line)
 	char * ret = 0;
 	if(str) {
 		size_t size = strlen(str) + 1;
-		ret = (char*)CRYPTO_malloc(size, file, line);
+		ret = (char *)CRYPTO_malloc(size, file, line);
 		if(ret)
 			memcpy(ret, str, size);
 	}
@@ -35,7 +35,7 @@ char * CRYPTO_strndup(const char * str, size_t s, const char* file, int line)
 	char * ret = NULL;
 	if(str) {
 		size_t maxlen = OPENSSL_strnlen(str, s);
-		ret = (char*)CRYPTO_malloc(maxlen + 1, file, line);
+		ret = (char *)CRYPTO_malloc(maxlen + 1, file, line);
 		if(ret) {
 			memcpy(ret, str, maxlen);
 			ret[maxlen] = '\0';
@@ -160,9 +160,9 @@ char * OPENSSL_buf2hexstr(const uchar * buffer, long len)
 	const uchar * p;
 	int i;
 	if(len == 0) {
-		return (char*)OPENSSL_zalloc(1);
+		return (char *)OPENSSL_zalloc(1);
 	}
-	if((tmp = (char*)OPENSSL_malloc(len * 3)) == NULL) {
+	if((tmp = (char *)OPENSSL_malloc(len * 3)) == NULL) {
 		CRYPTOerr(CRYPTO_F_OPENSSL_BUF2HEXSTR, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}

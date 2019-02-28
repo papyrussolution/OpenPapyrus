@@ -373,7 +373,7 @@ static void std_term_destination(j_compress_ptr cinfo)
 {
 	JPEGState* sp = (JPEGState*)cinfo;
 	TIFF* tif = sp->tif;
-	tif->tif_rawcp = (uint8*)sp->dest.next_output_byte;
+	tif->tif_rawcp = (uint8 *)sp->dest.next_output_byte;
 	tif->tif_rawcc = tif->tif_rawdatasize - (tmsize_t)sp->dest.free_in_buffer;
 	/* NB: libtiff does the final buffer flush */
 }
@@ -958,7 +958,7 @@ int TIFFJPEGIsFullStripRequired(TIFF* tif)
 	 */
 	if(TIFFjpeg_read_header(sp, TRUE) != JPEG_HEADER_OK)
 		return 0;
-	tif->tif_rawcp = (uint8*)sp->src.next_input_byte;
+	tif->tif_rawcp = (uint8 *)sp->src.next_input_byte;
 	tif->tif_rawcc = sp->src.bytes_in_buffer;
 	/*
 	 * Check image parameters and set decompression parameters.
@@ -1182,7 +1182,7 @@ static int JPEGDecode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 	}
 
 	/* Update information on consumed data */
-	tif->tif_rawcp = (uint8*)sp->src.next_input_byte;
+	tif->tif_rawcp = (uint8 *)sp->src.next_input_byte;
 	tif->tif_rawcc = sp->src.bytes_in_buffer;
 	/* Close down the decompressor if we've finished the strip or tile. */
 	return sp->cinfo.d.output_scanline < sp->cinfo.d.output_height || TIFFjpeg_finish_decompress(sp);
@@ -1258,7 +1258,7 @@ static int JPEGDecode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 	}
 
 	/* Update information on consumed data */
-	tif->tif_rawcp = (uint8*)sp->src.next_input_byte;
+	tif->tif_rawcp = (uint8 *)sp->src.next_input_byte;
 	tif->tif_rawcc = sp->src.bytes_in_buffer;
 
 	/* Close down the decompressor if we've finished the strip or tile. */
@@ -2184,7 +2184,7 @@ int TIFFInitJPEG(TIFF* tif, int scheme)
 	/*
 	 * Allocate state block so tag methods have storage to record values.
 	 */
-	tif->tif_data = (uint8*)SAlloc::M(sizeof(JPEGState));
+	tif->tif_data = (uint8 *)SAlloc::M(sizeof(JPEGState));
 	if(tif->tif_data == NULL) {
 		TIFFErrorExt(tif->tif_clientdata, "TIFFInitJPEG", "No space for JPEG state block");
 		return 0;

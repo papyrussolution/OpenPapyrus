@@ -1481,11 +1481,9 @@ int SLAPI GoodsCore::ReadBarcodes(PPID id, BarcodeArray & rCodeList)
 		if(BCTbl.search(1, &k, spEq))
 			do {
 				BCTbl.copyBufTo(&rec);
-				// @5.2.5 VADIM {
 				int    is_gds_article = 0;
 				if(rec.Code[0] == '$' && (barcode = (rec.Code + 1)).IsDigit() && rec.BarcodeType == -1)
 					is_gds_article = 1;
-				// } @5.2.5 VADIM
 				if(!is_gds_article && !rCodeList.insert(&rec))
 					ok = PPSetErrorSLib();
 			} while(ok && BCTbl.search(1, &k, spNext) && k.GoodsID == id);
@@ -1842,19 +1840,19 @@ int SLAPI GoodsCore::GetBarcodeByTemplate(PPID grp, /*const char * pWghtPrefix*/
 		while(*p) {
 			if(isdec(*p))
 				*c++ = *p++;
-			else if(strnicmp(p, (char*)&sGRP, 3) == 0 || strnicmp(p, (char*)&sGR, 3) == 0) {
+			else if(strnicmp(p, (char *)&sGRP, 3) == 0 || strnicmp(p, (char *)&sGR, 3) == 0) {
 				if(GetSingleBarcode(grp, temp_buf) > 0) {
 					temp_buf.ShiftLeftChr('@').Strip();
 					c += sstrlen(strcpy(c, temp_buf));
 				}
 				p += 3;
 			}
-			else if(strnicmp(p, (char*)&sWP, 3) == 0) {
+			else if(strnicmp(p, (char *)&sWP, 3) == 0) {
 				if(rCfg.WghtPrefix[0])
 					c += sstrlen(strip(strcpy(c, rCfg.WghtPrefix)));
 			   	p += 3;
 			}
-			else if(strnicmp(p, (char*)&sCP, 3) == 0) {
+			else if(strnicmp(p, (char *)&sCP, 3) == 0) {
 				if(rCfg.WghtCntPrefix[0])
 					c += sstrlen(strip(strcpy(c, rCfg.WghtCntPrefix)));
 			   	p += 3;

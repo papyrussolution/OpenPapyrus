@@ -1190,7 +1190,7 @@ static int xmlGzfileRead(void * context, char * buffer, int len)
  */
 static int xmlGzfileWrite(void * context, const char * buffer, int len)
 {
-	int ret = gzwrite((gzFile)context, (char*)&buffer[0], len);
+	int ret = gzwrite((gzFile)context, (char *)&buffer[0], len);
 	if(ret < 0) 
 		xmlIOErr(0, "gzwrite()");
 	return ret;
@@ -1452,7 +1452,7 @@ static void * xmlCreateZMemBuff(int compression)
 					int hdr_lgth;
 					/*  Set the header data.  The CRC will be needed for the trailer  */
 					buff->crc = crc32(0L, NULL, 0);
-					hdr_lgth = snprintf( (char*)buff->zbuff, buff->size, "%c%c%c%c%c%c%c%c%c%c", GZ_MAGIC1, GZ_MAGIC2, Z_DEFLATED,
+					hdr_lgth = snprintf( (char *)buff->zbuff, buff->size, "%c%c%c%c%c%c%c%c%c%c", GZ_MAGIC1, GZ_MAGIC2, Z_DEFLATED,
 						0, 0, 0, 0, 0, 0, LXML_ZLIB_OS_CODE);
 					buff->zctrl.next_out  = buff->zbuff + hdr_lgth;
 					buff->zctrl.avail_out = buff->size - hdr_lgth;
@@ -1598,7 +1598,7 @@ static int xmlZMemBuffGetContent(xmlZMemBuffPtr buff, char ** data_ref)
 		append_reverse_ulong(buff, buff->zctrl.total_in);
 
 		zlgth = buff->zctrl.next_out - buff->zbuff;
-		*data_ref = (char*)buff->zbuff;
+		*data_ref = (char *)buff->zbuff;
 	}
 
 	else {
@@ -1822,7 +1822,7 @@ static int xmlIOHTTPCloseWrite(void * context, const char * http_mthd)
 	xmlIOHTTPWriteCtxtPtr ctxt = (xmlIOHTTPWriteCtxtPtr)context;
 	char * http_content = NULL;
 	char * content_encoding = NULL;
-	char * content_type = (char*)"text/xml";
+	char * content_type = (char *)"text/xml";
 	void * http_ctxt = NULL;
 	if(( ctxt == NULL ) || ( http_mthd == NULL ) )
 		return ( -1 );
@@ -1833,7 +1833,7 @@ static int xmlIOHTTPCloseWrite(void * context, const char * http_mthd)
 
 	if(ctxt->compression > 0) {
 		content_lgth = xmlZMemBuffGetContent(ctxt->doc_buff, &http_content);
-		content_encoding = (char*)"Content-Encoding: gzip";
+		content_encoding = (char *)"Content-Encoding: gzip";
 	}
 	else
 #endif
@@ -1841,7 +1841,7 @@ static int xmlIOHTTPCloseWrite(void * context, const char * http_mthd)
 		/*  Pull the data out of the memory output buffer  */
 
 		xmlOutputBuffer * dctxt = (xmlOutputBuffer *)ctxt->doc_buff;
-		http_content = (char*)xmlBufContent(dctxt->buffer);
+		http_content = (char *)xmlBufContent(dctxt->buffer);
 		content_lgth = xmlBufUse(dctxt->buffer);
 	}
 
@@ -2376,7 +2376,7 @@ xmlParserInputBuffer * __xmlParserInputBufferCreateFilename(const char * URI, xm
 #else
 			if(((z_stream*)context)->avail_in > 4) {
 				char * cptr, buff4[4];
-				cptr = (char*)((z_stream*)context)->next_in;
+				cptr = (char *)((z_stream*)context)->next_in;
 				if(gzread(context, buff4, 4) == 4) {
 					if(strncmp(buff4, cptr, 4) == 0)
 						ret->compressed = 0;
@@ -2956,7 +2956,7 @@ int xmlParserInputBufferGrow(xmlParserInputBuffer * in, int len)
 		in->error = XML_ERR_NO_MEMORY;
 		return -1;
 	}
-	buffer = (char*)xmlBufEnd(in->buffer);
+	buffer = (char *)xmlBufEnd(in->buffer);
 	/*
 	 * Call the read method for this I/O type.
 	 */
@@ -3677,7 +3677,7 @@ xmlParserInput * xmlLoadExternalEntity(const char * URL, const char * ID, xmlPar
 {
 	if(URL && !xmlNoNetExists(URL)) {
 		xmlParserInput * ret = 0;
-		char * canonicFilename = (char*)xmlCanonicPath((const xmlChar*)URL);
+		char * canonicFilename = (char *)xmlCanonicPath((const xmlChar*)URL);
 		if(canonicFilename == NULL) {
 			xmlIOErrMemory("building canonical path\n");
 		}

@@ -669,8 +669,8 @@ int OBJ_create(const char * oid, const char * sn, const char * ln)
 		goto err;
 	}
 	tmpoid->nid = OBJ_new_nid(1);
-	tmpoid->sn = (char*)sn;
-	tmpoid->ln = (char*)ln;
+	tmpoid->sn = (char *)sn;
+	tmpoid->ln = (char *)ln;
 	ok = OBJ_add_object(tmpoid);
 	tmpoid->sn = NULL;
 	tmpoid->ln = NULL;

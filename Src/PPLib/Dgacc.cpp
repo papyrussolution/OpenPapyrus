@@ -94,7 +94,7 @@ void AcctCtrlGroup::setup(TDialog * dlg, const Acct * pAcct, int sheetChanged, i
 				p_combo->setInputLineText(0);
 		}
 		else
-			SetupPPObjCombo(p_combo, PPOBJ_ACCOUNT2, AcctId.ac, OLW_CANINSERT, (void *)AccSelParam);
+			SetupPPObjCombo(p_combo, PPOBJ_ACCOUNT2, AcctId.ac, OLW_CANINSERT, reinterpret_cast<void *>(AccSelParam));
 	}
 	if(sheetChanged) {
 		if(AccSheetID)

@@ -328,7 +328,7 @@ static void qr_binary(int datastream[], int version, int target_binlen, char mod
 #ifndef _MSC_VER
 	char binary[est_binlen + 12];
 #else
-	char* binary = (char*)_alloca(est_binlen + 12);
+	char* binary = (char *)_alloca(est_binlen + 12);
 #endif
 	sstrcpy(binary, "");
 	if(gs1) {
@@ -894,7 +894,7 @@ static int evaluate(uchar * eval, int size, int pattern)
 #ifndef _MSC_VER
 	char local[size * size];
 #else
-	char* local = (char*)_alloca((size * size) * sizeof(char));
+	char* local = (char *)_alloca((size * size) * sizeof(char));
 #endif
 
 #ifdef ZINTLOG
@@ -1338,7 +1338,7 @@ static void applyOptimisation(int version, char inputMode[], int inputLength)
 	assert(p_block_length);
 	if(!p_block_length) 
 		return;
-	blockMode = (char*)SAlloc::M(sizeof(char)*blockCount);
+	blockMode = (char *)SAlloc::M(sizeof(char)*blockCount);
 	assert(blockMode);
 	if(!blockMode) {
 		SAlloc::F(p_block_length);
@@ -1511,7 +1511,7 @@ int qr_code(struct ZintSymbol * symbol, const uchar source[], int length)
 	uchar* grid;
 	int* utfdata = (int *)_alloca((length + 1) * sizeof(int));
 	int* jisdata = (int *)_alloca((length + 1) * sizeof(int));
-	char* mode = (char*)_alloca(length + 1);
+	char* mode = (char *)_alloca(length + 1);
 #endif
 	gs1 = (symbol->input_mode == GS1_MODE);
 	if((symbol->input_mode == DATA_MODE) || (symbol->eci != 3)) {

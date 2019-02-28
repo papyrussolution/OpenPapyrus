@@ -138,7 +138,7 @@ int FASTCALL stcast(TYPEID st, TYPEID dt, const void * sd, void * dd, long f)
 		return 1;
 	}
 	else {
-		char   str_base[8192]; // @v8.1.0 [512]-->[8192]
+		char   str_base[8192];
 		long   int_base;
 		double real_base;
 		LDATE  date_base;
@@ -164,14 +164,11 @@ int FASTCALL stcast(TYPEID st, TYPEID dt, const void * sd, void * dd, long f)
 			}
 			else if(sbt == BTS_STRING) {
 				stype(st, &_t).tobase(sd, &str_base);
-				// @v8.1.2 int_base = *strip(str_base) ? 1 : 0;
-				stype(dt, &_t).fromstr(&int_base, 0, str_base); // @v8.1.2
+				stype(dt, &_t).fromstr(&int_base, 0, str_base);
 			}
-			// @v8.1.2 {
 			else if(sbt == BTS_BOOL) {
 				stype(st, &_t).tobase(sd, &int_base);
 			}
-			// } @v8.1.2
 			else
 				cvt = 0;
 			if(cvt)

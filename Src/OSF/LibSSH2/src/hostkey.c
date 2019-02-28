@@ -76,7 +76,7 @@ static int hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
 	len = _libssh2_ntohu32(s);
 	s += 4;
 
-	if(len != 7 || strncmp((char*)s, "ssh-rsa", 7) != 0) {
+	if(len != 7 || strncmp((char *)s, "ssh-rsa", 7) != 0) {
 		return -1;
 	}
 	s += 7;
@@ -286,7 +286,7 @@ static int hostkey_method_ssh_dss_init(LIBSSH2_SESSION * session,
 	s = hostkey_data;
 	len = _libssh2_ntohu32(s);
 	s += 4;
-	if(len != 7 || strncmp((char*)s, "ssh-dss", 7) != 0) {
+	if(len != 7 || strncmp((char *)s, "ssh-dss", 7) != 0) {
 		return -1;
 	}
 	s += 7;
@@ -478,13 +478,13 @@ LIBSSH2_API const char * libssh2_hostkey_hash(LIBSSH2_SESSION * session, int has
 #if LIBSSH2_MD5
 		case LIBSSH2_HOSTKEY_HASH_MD5:
 		    return (session->server_hostkey_md5_valid)
-			   ? (char*)session->server_hostkey_md5
+			   ? (char *)session->server_hostkey_md5
 			   : NULL;
 		    break;
 #endif /* LIBSSH2_MD5 */
 		case LIBSSH2_HOSTKEY_HASH_SHA1:
 		    return (session->server_hostkey_sha1_valid)
-			   ? (char*)session->server_hostkey_sha1
+			   ? (char *)session->server_hostkey_sha1
 			   : NULL;
 		    break;
 		default:
@@ -527,7 +527,7 @@ LIBSSH2_API const char * libssh2_session_hostkey(LIBSSH2_SESSION * session, size
 		if(type)
 			*type = hostkey_type(session->server_hostkey,
 			    session->server_hostkey_len);
-		return (char*)session->server_hostkey;
+		return (char *)session->server_hostkey;
 	}
 	if(len)
 		*len = 0;

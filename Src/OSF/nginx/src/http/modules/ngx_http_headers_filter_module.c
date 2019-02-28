@@ -432,7 +432,7 @@ static ngx_int_t ngx_http_set_last_modified(ngx_http_request_t * r, ngx_http_hea
 static ngx_int_t ngx_http_set_response_header(ngx_http_request_t * r, ngx_http_header_val_t * hv, ngx_str_t * value)
 {
 	ngx_table_elt_t * h;
-	ngx_table_elt_t ** old = reinterpret_cast<ngx_table_elt_t**>((char*)&r->headers_out + hv->offset);
+	ngx_table_elt_t ** old = reinterpret_cast<ngx_table_elt_t**>((char *)&r->headers_out + hv->offset);
 	if(value->len == 0) {
 		if(*old) {
 			(*old)->hash = 0;
@@ -558,7 +558,7 @@ static const char * ngx_http_headers_add(ngx_conf_t * cf, const ngx_command_t * 
 	ngx_http_set_header_t    * set;
 	ngx_http_compile_complex_value_t ccv;
 	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
-	ngx_array_t ** headers = (ngx_array_t**)((char*)hcf + cmd->offset);
+	ngx_array_t ** headers = (ngx_array_t**)((char *)hcf + cmd->offset);
 	if(*headers == NULL) {
 		*headers = ngx_array_create(cf->pool, 1, sizeof(ngx_http_header_val_t));
 		if(*headers == NULL) {

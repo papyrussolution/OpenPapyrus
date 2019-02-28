@@ -1330,7 +1330,7 @@ SLAPI PPViewBizScoreVal::~PPViewBizScoreVal()
 PPBaseFilt * SLAPI PPViewBizScoreVal::CreateFilt(void * extraPtr) const
 {
 	BizScoreValFilt * p_filt = new BizScoreValFilt;
-	p_filt->UserID = (reinterpret_cast<long>(extraPtr));
+	p_filt->UserID = reinterpret_cast<long>(extraPtr);
 	return p_filt;
 }
 
@@ -1494,14 +1494,14 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 {
 	int    ok = -1;
 	if(pData && pCellStyle && col == 5) {
-		struct tag_Item {
+		const struct tag_Item {
 			PPID   ScoreID;
 			LDATE  ActualDate;
 			PPID   ObjID;
 			LDATETIME Dtm;
 			double Val;
 			char   Str[252];
-		} * p_item = (tag_Item *)pData;
+		} * p_item = static_cast<const tag_Item *>(pData);
 		if(p_item->ScoreID) {
 			PPObjBizScore bs_obj;
 			PPBizScorePacket bs_pack;
@@ -1586,7 +1586,7 @@ int SLAPI PPViewBizScoreVal::ProcessCommand(uint ppvCmd, const void * pHdr, PPVi
 	};
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		Hdr * p_hdr = (Hdr *)pHdr;
+		const Hdr * p_hdr = static_cast<const Hdr *>(pHdr);
 		switch(ppvCmd) {
 			case PPVCMD_VIEWBIZSCORE:
 				ok = -1;
@@ -2168,7 +2168,7 @@ struct BizScoreSetBlock {
 PPALDD_DESTRUCTOR(BizScore)
 {
 	if(Extra[3].Ptr) {
-		delete (BizScoreSetBlock *)Extra[3].Ptr;
+		delete static_cast<BizScoreSetBlock *>(Extra[3].Ptr);
 		Extra[3].Ptr = 0;
 	}
 	Destroy();
@@ -2202,7 +2202,7 @@ int PPALDD_BizScore::Set(long iterId, int commit)
 	int    ok = 1;
 	PPObjBizScore bs_obj;
 	SETIFZ(Extra[3].Ptr, new BizScoreSetBlock);
-	BizScoreSetBlock * p_blk = (BizScoreSetBlock *)Extra[3].Ptr;
+	BizScoreSetBlock * p_blk = static_cast<BizScoreSetBlock *>(Extra[3].Ptr);
 	if(commit == 0) {
 		if(iterId == 0) {
 			//PPBizScorePacket

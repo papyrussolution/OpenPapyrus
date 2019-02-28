@@ -791,14 +791,14 @@
  * systems where (char) is more than 8 bits.
  */
 #define PNG_STRING_FROM_CHUNK(s, c) \
-	(void)(((char*)(s))[0] = (char)(((c)>>24) & 0xff), \
-	    ((char*)(s))[1] = (char)(((c)>>16) & 0xff),	\
-	    ((char*)(s))[2] = (char)(((c)>>8) & 0xff), \
-	    ((char*)(s))[3] = (char)((c & 0xff)))
+	(void)(((char *)(s))[0] = (char)(((c)>>24) & 0xff), \
+	    ((char *)(s))[1] = (char)(((c)>>16) & 0xff),	\
+	    ((char *)(s))[2] = (char)(((c)>>8) & 0xff), \
+	    ((char *)(s))[3] = (char)((c & 0xff)))
 
 /* Do the same but terminate with a null character. */
 #define PNG_CSTRING_FROM_CHUNK(s, c) \
-	(void)(PNG_STRING_FROM_CHUNK(s, c), ((char*)(s))[4] = 0)
+	(void)(PNG_STRING_FROM_CHUNK(s, c), ((char *)(s))[4] = 0)
 
 /* Test on flag values as defined in the spec (section 5.4): */
 #define PNG_CHUNK_ANCILLARY(c)   (1 & ((c) >> 29))

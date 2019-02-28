@@ -459,7 +459,7 @@ SString & DL6ICLS_StrAssocList::GetTextById(int32 id)
 	StrAssocArray * p_data = static_cast<StrAssocArray *>(ExtraPtr);
 	if(p_data) {
 		uint pos = 0;
-		RetStrBuf = p_data->Search(id, &pos) ? p_data->Get(pos).Txt : (const char *)0;
+		RetStrBuf = p_data->Search(id, &pos) ? p_data->Get(pos).Txt : static_cast<const char *>(0);
 	}
 	else {
 		RetStrBuf.Z();
@@ -2120,7 +2120,7 @@ int32 DL6ICLS_PPSession::LoginDialog(PPYHWND pParent, SString * pDbName, SString
 		dbentry_id = 1;
 	dbes.SetSelection(dbentry_id);
 	param.P_DbEs = &dbes;
-	while(ok <= 0 && DialogBoxParam(SLS.GetHInst(), MAKEINTRESOURCE(DLGW_LOGIN), parent, (DLGPROC)LoginDialogProc, (LPARAM)(long)&param) == cmOK) {
+	while(ok <= 0 && DialogBoxParam(SLS.GetHInst(), MAKEINTRESOURCE(DLGW_LOGIN), parent, LoginDialogProc, reinterpret_cast<LPARAM>(&param)) == cmOK) {
 		DS.SetOperDate(dt);
 		dbes.GetByID(dbentry_id = dbes.GetSelection(), &dlb);
 		dlb.GetAttr(DbLoginBlock::attrDbSymb, db_name);

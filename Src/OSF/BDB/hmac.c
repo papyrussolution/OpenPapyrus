@@ -177,7 +177,7 @@ retry:
 		ret = memcmp((uint32 *)chksum, &hash4, sum_len) ? -1 : 0;
 	}
 	else {
-		__db_hmac(mac_key, (uint8 *)data, data_len, new_key);
+		__db_hmac(mac_key, static_cast<uint8 *>(data), data_len, new_key);
 		if(hdr)
 			LOG_HDR_SUM(1, hdr, new_key);
 		ret = memcmp(chksum, new_key, sum_len) ? -1 : 0;

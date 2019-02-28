@@ -44,7 +44,7 @@ static const char * ngx_http_core_keepalive(ngx_conf_t * cf, const ngx_command_t
 static const char * ngx_http_core_internal(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 static const char * ngx_http_core_resolver(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 #if (NGX_HTTP_GZIP)
-	static ngx_int_t ngx_http_gzip_accept_encoding(ngx_str_t * ae);
+	static ngx_int_t ngx_http_gzip_accept_encoding(const ngx_str_t * ae);
 	static ngx_uint_t FASTCALL ngx_http_gzip_quantity(const u_char * p, const u_char * last);
 	static const char * ngx_http_gzip_disable(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 #endif
@@ -1297,7 +1297,7 @@ ok:
  *     "gzip; q=0" ... "gzip; q=0.000", and for any invalid cases
  */
 
-static ngx_int_t ngx_http_gzip_accept_encoding(ngx_str_t * ae)
+static ngx_int_t ngx_http_gzip_accept_encoding(const ngx_str_t * ae)
 {
 	const u_char * p;
 	const u_char * start = ae->data;
@@ -2492,7 +2492,7 @@ static const char * ngx_http_core_listen(ngx_conf_t * cf, const ngx_command_t * 
 		}
 		if(ngx_strncmp(value[n].data, "accept_filter=", 14) == 0) {
 #if (NGX_HAVE_DEFERRED_ACCEPT && defined SO_ACCEPTFILTER)
-			lsopt.accept_filter = (char*)&value[n].data[14];
+			lsopt.accept_filter = (char *)&value[n].data[14];
 			lsopt.set = 1;
 			lsopt.bind = 1;
 #else

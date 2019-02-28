@@ -395,13 +395,14 @@ int SLAPI SFSortChunkInfoList::Merge(uint firstIdx, uint lastIdx, SFSortChunkInf
 
 static SString & FASTCALL _SfSortMakeFinishEvntName(const char * pSrcFileName, SString & rBuf)
 {
-    size_t len = sstrlen(pSrcFileName);
-    uint32 hash = BobJencHash(pSrcFileName, len);
+    const size_t len = sstrlen(pSrcFileName);
+    const uint32 hash = BobJencHash(pSrcFileName, len);
 	(rBuf = "SFSORTFINISHEVNT").CatChar('-').Cat(hash);
 	return rBuf;
 }
 
-IMPL_CMPFUNC(SfSortStringPool, i1, i2) { return SfSortStringPool::Helper_CmpFunc_ByText((const uint *)i1, (const uint *)i2, (SfSortStringPool *)pExtraData); }
+IMPL_CMPFUNC(SfSortStringPool, i1, i2) 
+	{ return SfSortStringPool::Helper_CmpFunc_ByText(static_cast<const uint *>(i1), static_cast<const uint *>(i2), static_cast<SfSortStringPool *>(pExtraData)); }
 
 //static
 int SLAPI SfSortStringPool::Helper_CmpFunc_ByText(const uint * p1, const uint * p2, SfSortStringPool * pArray)

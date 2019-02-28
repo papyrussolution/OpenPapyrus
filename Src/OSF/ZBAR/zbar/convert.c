@@ -218,7 +218,7 @@ static inline int verify_format_sort(void)
 	}
 	fprintf(stderr, "correct sort order is:");
 	for(i = 0; i < num_format_defs; i++)
-		fprintf(stderr, " %4.4s", (char*)&ordered[i]);
+		fprintf(stderr, " %4.4s", (char *)&ordered[i]);
 	fprintf(stderr, "\n");
 #endif
 	return -1;
@@ -368,7 +368,7 @@ static void convert_uvp_append(zbar_image_t * dst,
 	if(!dst->P_Data) 
 		return;
 	convert_y_resize(dst, dstfmt, src, srcfmt, n);
-	memset((uint8*)dst->P_Data + n, 0x80, dst->datalen - n);
+	memset((uint8 *)dst->P_Data + n, 0x80, dst->datalen - n);
 }
 
 /* interleave YUV planes into packed YUV */
@@ -391,11 +391,11 @@ static void convert_yuv_pack(zbar_image_t * dst, const zbar_format_def_t * dstfm
 	flags = dstfmt->p.yuv.packorder ^ srcfmt->p.yuv.packorder;
 	srcy = (uint8 *)src->P_Data;
 	if(flags & 1) {
-		srcv = (uint8*)src->P_Data + srcn;
+		srcv = (uint8 *)src->P_Data + srcn;
 		srcu = srcv + srcm;
 	}
 	else {
-		srcu = (uint8*)src->P_Data + srcn;
+		srcu = (uint8 *)src->P_Data + srcn;
 		srcv = srcu + srcm;
 	}
 	flags = dstfmt->p.yuv.packorder & 2;
@@ -458,8 +458,8 @@ static void convert_yuv_unpack(zbar_image_t * dst,
 	if(!dst->P_Data) 
 		return;
 	if(dstm2)
-		memset((uint8*)dst->P_Data + dstn, 0x80, dstm2);
-	dsty = (uint8*)dst->P_Data;
+		memset((uint8 *)dst->P_Data + dstn, 0x80, dstm2);
+	dsty = (uint8 *)dst->P_Data;
 	flags = srcfmt->p.yuv.packorder ^ dstfmt->p.yuv.packorder;
 	flags &= 2;
 	srcp = (const uint8 *)src->P_Data;
@@ -497,7 +497,7 @@ static void convert_uvp_resample(zbar_image_t * dst, const zbar_format_def_t * d
 		return;
 	convert_y_resize(dst, dstfmt, src, srcfmt, dstn);
 	if(dstm2)
-		memset((uint8*)dst->P_Data + dstn, 0x80, dstm2);
+		memset((uint8 *)dst->P_Data + dstn, 0x80, dstm2);
 }
 
 // rearrange interleaved UV componets 
@@ -615,7 +615,7 @@ static void convert_rgb_to_yuvp(zbar_image_t * dst, const zbar_format_def_t * ds
 	if(!dst->P_Data) 
 		return;
 	if(dstm2)
-		memset((uint8*)dst->P_Data + dstn, 0x80, dstm2);
+		memset((uint8 *)dst->P_Data + dstn, 0x80, dstm2);
 	dsty = (uint8 *)dst->P_Data;
 	assert(src->datalen >= (src->width * src->height * srcfmt->p.rgb.bpp));
 	srcp = (const uint8 *)src->P_Data;
@@ -990,14 +990,14 @@ int _zbar_best_format(uint32 src, uint32 * dst, const uint32 * dsts)
 	if(!dsts)
 		return -1;
 	if(has_format(src, dsts)) {
-		zprintf(8, "shared format: %4.4s\n", (char*)&src);
+		zprintf(8, "shared format: %4.4s\n", (char *)&src);
 		ASSIGN_PTR(dst, src);
 		return 0;
 	}
 	srcfmt = _zbar_format_lookup(src);
 	if(!srcfmt)
 		return -1;
-	zprintf(8, "from %.4s(%08" PRIx32 ") to", (char*)&src, src);
+	zprintf(8, "from %.4s(%08" PRIx32 ") to", (char *)&src, src);
 	for(; *dsts; dsts++) {
 		const zbar_format_def_t * dstfmt = _zbar_format_lookup(*dsts);
 		int cost;
@@ -1008,7 +1008,7 @@ int _zbar_best_format(uint32 src, uint32 * dst, const uint32 * dsts)
 		else
 			cost = conversions[srcfmt->group][dstfmt->group].cost;
 		if(_zbar_verbosity >= 8)
-			fprintf(stderr, " %.4s(%08" PRIx32 ")=%d", (char*)dsts, *dsts, cost);
+			fprintf(stderr, " %.4s(%08" PRIx32 ")=%d", (char *)dsts, *dsts, cost);
 		if(cost >= 0 && (int)min_cost > cost) {
 			min_cost = cost;
 			ASSIGN_PTR(dst, *dsts);
@@ -1052,10 +1052,10 @@ int zbar_negotiate_format(zbar_video_t * vdo, zbar_window_t * win)
 			continue;
 		cost = _zbar_best_format(*fmt, &win_fmt, dsts);
 		if(cost < 0) {
-			zprintf(4, "%.4s(%08" PRIx32 ") -> ? (unsupported)\n", (char*)fmt, *fmt);
+			zprintf(4, "%.4s(%08" PRIx32 ") -> ? (unsupported)\n", (char *)fmt, *fmt);
 			continue;
 		}
-		zprintf(4, "%.4s(%08" PRIx32 ") -> %.4s(%08" PRIx32 ") (%d)\n", (char*)fmt, *fmt, (char*)&win_fmt, win_fmt, cost);
+		zprintf(4, "%.4s(%08" PRIx32 ") -> %.4s(%08" PRIx32 ") (%d)\n", (char *)fmt, *fmt, (char *)&win_fmt, win_fmt, cost);
 		if((int)min_cost > cost) {
 			min_cost = cost;
 			min_fmt = *fmt;
@@ -1069,7 +1069,7 @@ int zbar_negotiate_format(zbar_video_t * vdo, zbar_window_t * win)
 		return err_capture(errdst, SEV_ERROR, ZBAR_ERR_UNSUPPORTED, __func__, "no supported image formats available");
 	if(!vdo)
 		return 0;
-	zprintf(2, "setting best format %.4s(%08" PRIx32 ") (%d)\n", (char*)&min_fmt, min_fmt, min_cost);
+	zprintf(2, "setting best format %.4s(%08" PRIx32 ") (%d)\n", (char *)&min_fmt, min_fmt, min_cost);
 	return(zbar_video_init(vdo, min_fmt));
 }
 

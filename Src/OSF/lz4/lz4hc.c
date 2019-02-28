@@ -466,8 +466,8 @@ LZ4_FORCE_INLINE int LZ4HC_compress_hashChain(LZ4HC_CCtx_internal* const ctx, co
 	const uint8* const iend = ip + inputSize;
 	const uint8* const mflimit = iend - MFLIMIT;
 	const uint8* const matchlimit = (iend - LASTLITERALS);
-	uint8* optr = (uint8*)dest;
-	uint8* op = (uint8*)dest;
+	uint8* optr = (uint8 *)dest;
+	uint8* op = (uint8 *)dest;
 	uint8* oend = op + maxOutputSize;
 	int ml0, ml, ml2, ml3;
 	const uint8* start0;
@@ -653,7 +653,7 @@ _last_literals:
 
 	/* End */
 	*srcSizePtr = (int)(((const char*)ip) - source);
-	return (int)(((char*)op)-dest);
+	return (int)(((char *)op)-dest);
 
 _dest_overflow:
 	if(limit == limitedDestSize) {
@@ -1053,7 +1053,7 @@ char* LZ4_slideInputBufferHC(void* LZ4HC_Data)
 	const uint8 * bufferStart = ctx->internal_donotuse.base + ctx->internal_donotuse.lowLimit;
 	LZ4_resetStreamHC_fast(ctx, ctx->internal_donotuse.compressionLevel);
 	/* avoid const char * -> char * conversion warning :( */
-	return (char*)(uptrval)bufferStart;
+	return (char *)(uptrval)bufferStart;
 }
 // 
 // LZ4 Optimal parser (levels 10-12)
@@ -1123,8 +1123,8 @@ static int LZ4HC_compress_optimal(LZ4HC_CCtx_internal* ctx, const char* const so
 	const uint8* const iend = ip + *srcSizePtr;
 	const uint8* const mflimit = iend - MFLIMIT;
 	const uint8* const matchlimit = iend - LASTLITERALS;
-	uint8* op = (uint8*)dst;
-	uint8* opSaved = (uint8*)dst;
+	uint8* op = (uint8 *)dst;
+	uint8* opSaved = (uint8 *)dst;
 	uint8* oend = op + dstCapacity;
 	/* init */
 	//DEBUGLOG(5, "LZ4HC_compress_optimal");
@@ -1351,7 +1351,7 @@ _last_literals:
 	    op += lastRunSize;}
 	/* End */
 	*srcSizePtr = (int)(((const char*)ip) - source);
-	return (int)((char*)op-dst);
+	return (int)((char *)op-dst);
 _dest_overflow:
 	if(limit == limitedDestSize) {
 		op = opSaved; /* restore correct out pointer */

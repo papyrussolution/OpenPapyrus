@@ -408,9 +408,9 @@ static int append_ia5(STACK_OF(OPENSSL_STRING) ** sk, const ASN1_IA5STRING * ema
 	if(*sk == NULL)
 		return 0;
 	/* Don't add duplicates */
-	if(sk_OPENSSL_STRING_find(*sk, (char*)email->data) != -1)
+	if(sk_OPENSSL_STRING_find(*sk, (char *)email->data) != -1)
 		return 1;
-	emtmp = OPENSSL_strdup((char*)email->data);
+	emtmp = OPENSSL_strdup((char *)email->data);
 	if(emtmp == NULL || !sk_OPENSSL_STRING_push(*sk, emtmp)) {
 		OPENSSL_free(emtmp); /* free on push failure */
 		X509_email_free(*sk);
@@ -544,7 +544,7 @@ static int wildcard_match(const uchar * prefix, size_t prefix_len, const uchar *
 			allow_multi = 1;
 	}
 	/* IDNA labels cannot match partial wildcards */
-	if(!allow_idna && subject_len >= 4 && strncasecmp((char*)subject, "xn--", 4) == 0)
+	if(!allow_idna && subject_len >= 4 && strncasecmp((char *)subject, "xn--", 4) == 0)
 		return 0;
 	/* The wildcard may match a literal '*' */
 	if(wildcard_end == wildcard_start + 1 && *wildcard_start == '*')
@@ -596,7 +596,7 @@ static const uchar * valid_star(const uchar * p, size_t len, uint flags)
 			state &= ~LABEL_START;
 		}
 		else if(('a' <= p[i] && p[i] <= 'z') || ('A' <= p[i] && p[i] <= 'Z') || ('0' <= p[i] && p[i] <= '9')) {
-			if((state & LABEL_START) != 0 && len - i >= 4 && strncasecmp((char*)&p[i], "xn--", 4) == 0)
+			if((state & LABEL_START) != 0 && len - i >= 4 && strncasecmp((char *)&p[i], "xn--", 4) == 0)
 				state |= LABEL_IDNA;
 			state &= ~(LABEL_HYPHEN | LABEL_START);
 		}
@@ -655,7 +655,7 @@ static int do_check_string(const ASN1_STRING * a, int cmp_type, equal_fn equal, 
 		else if(a->length == (int)blen && !memcmp(a->data, b, blen))
 			rv = 1;
 		if(rv > 0 && peername)
-			*peername = OPENSSL_strndup((char*)a->data, a->length);
+			*peername = OPENSSL_strndup((char *)a->data, a->length);
 	}
 	else {
 		uchar * astr;
@@ -669,7 +669,7 @@ static int do_check_string(const ASN1_STRING * a, int cmp_type, equal_fn equal, 
 		}
 		rv = equal(astr, astrlen, (uchar*)b, blen, flags);
 		if(rv > 0 && peername)
-			*peername = OPENSSL_strndup((char*)astr, astrlen);
+			*peername = OPENSSL_strndup((char *)astr, astrlen);
 		OPENSSL_free(astr);
 	}
 	return rv;
@@ -775,7 +775,7 @@ int X509_check_email(X509 * x, const char * chk, size_t chklen, uint flags)
 	 * NUL in string length).
 	 */
 	if(chklen == 0)
-		chklen = strlen((char*)chk);
+		chklen = strlen((char *)chk);
 	else if(memchr(chk, '\0', chklen > 1 ? chklen - 1 : chklen))
 		return -2;
 	if(chklen > 1 && chk[chklen - 1] == '\0')
@@ -785,7 +785,7 @@ int X509_check_email(X509 * x, const char * chk, size_t chklen, uint flags)
 
 int X509_check_ip(X509 * x, const uchar * chk, size_t chklen, uint flags)
 {
-	return chk ? do_x509_check(x, (char*)chk, chklen, flags, GEN_IPADD, 0) : -2;
+	return chk ? do_x509_check(x, (char *)chk, chklen, flags, GEN_IPADD, 0) : -2;
 }
 
 int X509_check_ip_asc(X509 * x, const char * ipasc, uint flags)
@@ -795,7 +795,7 @@ int X509_check_ip_asc(X509 * x, const char * ipasc, uint flags)
 	else {
 		uchar ipout[16];
 		const size_t iplen = (size_t)a2i_ipadd(ipout, ipasc);
-		return iplen ? do_x509_check(x, (char*)ipout, iplen, flags, GEN_IPADD, 0) : -2;
+		return iplen ? do_x509_check(x, (char *)ipout, iplen, flags, GEN_IPADD, 0) : -2;
 	}
 }
 /*

@@ -197,8 +197,8 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_get_stringtable_entries(const pcre
 				last += entrysize;
 			}
 #if defined COMPILE_PCRE8
-			*firstptr = (char*)first;
-			*lastptr = (char*)last;
+			*firstptr = (char *)first;
+			*lastptr = (char *)last;
 #elif defined COMPILE_PCRE16
 			*firstptr = (PCRE_UCHAR16*)first;
 			*lastptr = (PCRE_UCHAR16*)last;

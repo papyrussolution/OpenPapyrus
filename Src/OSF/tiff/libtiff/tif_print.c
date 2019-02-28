@@ -66,7 +66,7 @@ static void _TIFFPrintField(FILE* fd, const TIFFField * fip, uint32 value_count,
 	fprintf(fd, "  %s: ", fip->field_name);
 	for(uint32 j = 0; j < value_count; j++) {
 		if(fip->field_type == TIFF_BYTE)
-			fprintf(fd, "%u", ((uint8*)raw_data)[j]);
+			fprintf(fd, "%u", ((uint8 *)raw_data)[j]);
 		else if(fip->field_type == TIFF_UNDEFINED)
 			fprintf(fd, "0x%x",
 			    (unsigned int)((unsigned char*)raw_data)[j]);
@@ -83,7 +83,7 @@ static void _TIFFPrintField(FILE* fd, const TIFFField * fip, uint32 value_count,
 		else if(fip->field_type == TIFF_IFD)
 			fprintf(fd, "0x%lx", (unsigned long)((uint32*)raw_data)[j]);
 		else if(oneof3(fip->field_type, TIFF_RATIONAL, TIFF_SRATIONAL, TIFF_FLOAT))
-			fprintf(fd, "%f", ((float*)raw_data)[j]);
+			fprintf(fd, "%f", ((float *)raw_data)[j]);
 		else if(fip->field_type == TIFF_LONG8)
 #if defined(__WIN32__) && (defined(_MSC_VER) || defined(__MINGW32__))
 			fprintf(fd, "%I64u", (unsigned __int64)((uint64*)raw_data)[j]);
@@ -103,11 +103,11 @@ static void _TIFFPrintField(FILE* fd, const TIFFField * fip, uint32 value_count,
 			fprintf(fd, "0x%llx", (unsigned long long)((uint64*)raw_data)[j]);
 #endif
 		else if(fip->field_type == TIFF_FLOAT)
-			fprintf(fd, "%f", ((float*)raw_data)[j]);
+			fprintf(fd, "%f", ((float *)raw_data)[j]);
 		else if(fip->field_type == TIFF_DOUBLE)
 			fprintf(fd, "%f", ((double*)raw_data)[j]);
 		else if(fip->field_type == TIFF_ASCII) {
-			fprintf(fd, "%s", (char*)raw_data);
+			fprintf(fd, "%s", (char *)raw_data);
 			break;
 		}
 		else {
@@ -146,7 +146,7 @@ static int _TIFFPrettyPrintField(TIFF* tif, const TIFFField * fip, FILE* fd, uin
 		    return 0;
 		case TIFFTAG_WHITEPOINT:
 		    if(value_count == 2 && fip->field_type == TIFF_RATIONAL) {
-			    fprintf(fd, "  White Point: %g-%g\n", ((float*)raw_data)[0], ((float*)raw_data)[1]);
+			    fprintf(fd, "  White Point: %g-%g\n", ((float *)raw_data)[0], ((float *)raw_data)[1]);
 			    return 1;
 		    }
 		    return 0;
@@ -154,7 +154,7 @@ static int _TIFFPrettyPrintField(TIFF* tif, const TIFFField * fip, FILE* fd, uin
 			{
 				fprintf(fd, "  XMLPacket (XMP Metadata):\n");
 				for(uint32 i = 0; i < value_count; i++)
-					fputc(((char*)raw_data)[i], fd);
+					fputc(((char *)raw_data)[i], fd);
 				fprintf(fd, "\n");
 				return 1;
 			}

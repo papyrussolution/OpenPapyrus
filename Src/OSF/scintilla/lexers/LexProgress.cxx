@@ -31,7 +31,7 @@ static bool FASTCALL IsSpaceEquiv(int state)
 	return (state == SCE_ABL_COMMENT || state == SCE_ABL_LINECOMMENT || state == SCE_ABL_DEFAULT);
 }
 
-void highlightTaskMarker(StyleContext &sc, LexAccessor &styler, WordList &markerList)
+void highlightTaskMarker(StyleContext &sc, LexAccessor &styler, const WordList &markerList)
 {
 	if((isoperator(sc.chPrev) || IsASpace(sc.chPrev)) && markerList.Length()) {
 		const int lengthMarker = 50;

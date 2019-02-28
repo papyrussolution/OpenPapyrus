@@ -261,7 +261,7 @@ static CURLFORMcode FormAdd(struct curl_httppost ** httppost, struct curl_httppo
 		if(array_state && forms) {
 			/* get the upcoming option from the given array */
 			option = forms->option;
-			array_value = (char*)forms->value;
+			array_value = (char *)forms->value;
 			forms++; /* advance this to next entry */
 			if(CURLFORM_END == option) {
 				/* end of array state */
@@ -760,7 +760,7 @@ static CURLcode AddFormData(struct FormData ** formp, enum formtype type, const 
 	if(type <= FORM_CONTENT) {
 		/* we make it easier for plain strings: */
 		if(!length)
-			length = sstrlen((char*)line);
+			length = sstrlen((char *)line);
 #if (SIZEOF_SIZE_T < CURL_SIZEOF_CURL_OFF_T)
 		else if(length >= (curl_off_t)(size_t)-1) {
 			result = CURLE_BAD_FUNCTION_ARGUMENT;
@@ -780,7 +780,7 @@ static CURLcode AddFormData(struct FormData ** formp, enum formtype type, const 
 			newform->line[(size_t)length] = 0;
 		}
 		else {
-			newform->line = (char*)line;
+			newform->line = (char *)line;
 			type = FORM_DATA; /* in all other aspects this is just FORM_DATA */
 		}
 		newform->length = (size_t)length;
@@ -788,7 +788,7 @@ static CURLcode AddFormData(struct FormData ** formp, enum formtype type, const 
 	else
 		/* For callbacks and files we don't have any actual data so we just keep a
 		   pointer to whatever this points to */
-		newform->line = (char*)line;
+		newform->line = (char *)line;
 
 	newform->type = type;
 

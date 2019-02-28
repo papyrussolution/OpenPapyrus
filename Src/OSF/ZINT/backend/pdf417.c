@@ -576,13 +576,13 @@ int pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 	for(i = 0; i < indexliste; i++) {
 		switch(liste[1][i]) {
 			case TEX: /* 547 - text mode */
-			    textprocess(chainemc, &mclength, (char*)chaine, indexchaine, liste[0][i], i);
+			    textprocess(chainemc, &mclength, (char *)chaine, indexchaine, liste[0][i], i);
 			    break;
 			case BYT: /* 670 - octet stream mode */
 			    byteprocess(chainemc, &mclength, chaine, indexchaine, liste[0][i], i);
 			    break;
 			case NUM: /* 712 - numeric mode */
-			    numbprocess(chainemc, &mclength, (char*)chaine, indexchaine, liste[0][i], i);
+			    numbprocess(chainemc, &mclength, (char *)chaine, indexchaine, liste[0][i], i);
 			    break;
 		}
 		indexchaine = indexchaine + liste[0][i];
@@ -865,9 +865,9 @@ int micro_pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 	}
 	for(i = 0; i < indexliste; i++) {
 		switch(liste[1][i]) {
-			case TEX: textprocess(chainemc, &mclength, (char*)chaine, indexchaine, liste[0][i], i); break; /* 547 - text mode */
+			case TEX: textprocess(chainemc, &mclength, (char *)chaine, indexchaine, liste[0][i], i); break; /* 547 - text mode */
 			case BYT: byteprocess(chainemc, &mclength, chaine, indexchaine, liste[0][i], i); break; /* 670 - octet stream mode */
-			case NUM: numbprocess(chainemc, &mclength, (char*)chaine, indexchaine, liste[0][i], i); break; /* 712 - numeric mode */
+			case NUM: numbprocess(chainemc, &mclength, (char *)chaine, indexchaine, liste[0][i], i); break; /* 712 - numeric mode */
 		}
 		indexchaine = indexchaine + liste[0][i];
 	}

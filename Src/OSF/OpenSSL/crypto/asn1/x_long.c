@@ -52,7 +52,7 @@ static int long_i2c(ASN1_VALUE ** pval, uchar * cont, int * putype, const ASN1_I
 	ulong utmp;
 	int clen, pad, i;
 	/* this exists to bypass broken gcc optimization */
-	char * cp = (char*)pval;
+	char * cp = (char *)pval;
 	/* use memcpy, because we may not be long aligned */
 	memcpy(&ltmp, cp, sizeof(long));
 	if(ltmp == it->size)
@@ -91,7 +91,7 @@ static int long_c2i(ASN1_VALUE ** pval, const uchar * cont, int len, int utype, 
 	int neg, i;
 	long ltmp;
 	ulong utmp = 0;
-	char * cp = (char*)pval;
+	char * cp = (char *)pval;
 	if(len > (int)sizeof(long)) {
 		ASN1err(ASN1_F_LONG_C2I, ASN1_R_INTEGER_TOO_LARGE_FOR_LONG);
 		return 0;

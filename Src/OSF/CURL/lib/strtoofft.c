@@ -57,7 +57,7 @@ curl_off_t curlx_strtoll(const char * nptr, char ** endptr, int base)
 	curl_off_t value = 0;
 	curl_off_t newval;
 	/* Skip leading whitespace. */
-	end = (char*)nptr;
+	end = (char *)nptr;
 	while(ISSPACE(end[0])) {
 		end++;
 	}

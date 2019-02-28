@@ -5246,7 +5246,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 			    /* Add room for leading/trailing zero. */
 			    if((dec.frac == 0) || (dec.frac == dec.total))
 				    bufsize++;
-			    buf = (char*)SAlloc::M(bufsize);
+			    buf = (char *)SAlloc::M(bufsize);
 			    if(!buf)
 				    return -1;
 			    offs = buf;
@@ -5322,21 +5322,21 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 				    return -1;
 			    if(dec.hi != 0) {
 				    if(dec.sign)
-					    snprintf((char*)*retValue, bufsize, "-%lu%lu%lu", dec.hi, dec.mi, dec.lo);
+					    snprintf((char *)*retValue, bufsize, "-%lu%lu%lu", dec.hi, dec.mi, dec.lo);
 				    else
-					    snprintf((char*)*retValue, bufsize, "%lu%lu%lu", dec.hi, dec.mi, dec.lo);
+					    snprintf((char *)*retValue, bufsize, "%lu%lu%lu", dec.hi, dec.mi, dec.lo);
 			    }
 			    else if(dec.mi != 0) {
 				    if(dec.sign)
-					    snprintf((char*)*retValue, bufsize, "-%lu%lu", dec.mi, dec.lo);
+					    snprintf((char *)*retValue, bufsize, "-%lu%lu", dec.mi, dec.lo);
 				    else
-					    snprintf((char*)*retValue, bufsize, "%lu%lu", dec.mi, dec.lo);
+					    snprintf((char *)*retValue, bufsize, "%lu%lu", dec.mi, dec.lo);
 			    }
 			    else {
 				    if(dec.sign)
-					    snprintf((char*)*retValue, bufsize, "-%lu", dec.lo);
+					    snprintf((char *)*retValue, bufsize, "-%lu", dec.lo);
 				    else
-					    snprintf((char*)*retValue, bufsize, "%lu", dec.lo);
+					    snprintf((char *)*retValue, bufsize, "%lu", dec.lo);
 			    }
 		    }
 		    break;
@@ -5389,7 +5389,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		    *retValue = (xmlChar *)SAlloc::M(6);
 		    if(*retValue == NULL)
 			    return -1;
-		    snprintf((char*)*retValue, 6, "--%02u", val->value.date.mon);
+		    snprintf((char *)*retValue, 6, "--%02u", val->value.date.mon);
 	    }
 	    break;
 		case XML_SCHEMAS_GDAY: {
@@ -5398,7 +5398,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		    *retValue = (xmlChar *)SAlloc::M(6);
 		    if(*retValue == NULL)
 			    return -1;
-		    snprintf((char*)*retValue, 6, "---%02u", val->value.date.day);
+		    snprintf((char *)*retValue, 6, "---%02u", val->value.date.day);
 	    }
 	    break;
 		case XML_SCHEMAS_GMONTHDAY: {
@@ -5407,7 +5407,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		    *retValue = (xmlChar *)SAlloc::M(8);
 		    if(*retValue == NULL)
 			    return -1;
-		    snprintf((char*)*retValue, 8, "--%02u-%02u", val->value.date.mon, val->value.date.day);
+		    snprintf((char *)*retValue, 8, "--%02u-%02u", val->value.date.mon, val->value.date.day);
 	    }
 	    break;
 		case XML_SCHEMAS_GYEARMONTH: {

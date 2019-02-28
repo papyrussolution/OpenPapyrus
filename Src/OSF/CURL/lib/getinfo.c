@@ -76,13 +76,13 @@ static CURLcode getinfo_char(struct Curl_easy * data, CURLINFO info, const char 
 {
 	switch(info) {
 		case CURLINFO_EFFECTIVE_URL:
-		    *param_charp = data->change.url ? data->change.url : (char*)"";
+		    *param_charp = data->change.url ? data->change.url : (char *)"";
 		    break;
 		case CURLINFO_CONTENT_TYPE:
 		    *param_charp = data->info.contenttype;
 		    break;
 		case CURLINFO_PRIVATE:
-		    *param_charp = (char*)data->set.private_data;
+		    *param_charp = (char *)data->set.private_data;
 		    break;
 		case CURLINFO_FTP_ENTRY_PATH:
 		    /* Return the entrypath string from the most recent connection.

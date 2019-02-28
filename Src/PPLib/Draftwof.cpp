@@ -131,7 +131,7 @@ int DraftWrOffDialog::setDTS(const PPDraftWrOffPacket * pData)
 	setCtrlData(CTL_DRAFTWROFF_ID, &Data.Rec.ID);
 	AddClusterAssoc(CTL_DRAFTWROFF_FLAGS, 0, DWOF_USEMRPTAB);
 	SetClusterData(CTL_DRAFTWROFF_FLAGS, Data.Rec.Flags);
-	SetupPPObjCombo(this, CTLSEL_DRAFTWROFF_POOLOP, PPOBJ_OPRKIND, Data.Rec.PoolOpID, 0, (void *)PPOPT_POOL);
+	SetupPPObjCombo(this, CTLSEL_DRAFTWROFF_POOLOP, PPOBJ_OPRKIND, Data.Rec.PoolOpID, 0, reinterpret_cast<void *>(PPOPT_POOL));
 	for(PPID op_id = 0; EnumOperations(0, &op_id, &op_rec) > 0;) {
 		if(op_rec.OpTypeID == PPOPT_GOODSRECEIPT)
 			types.add(op_id);
@@ -453,7 +453,7 @@ struct DwoBillEntry { // @flat
 	PPID   ID;
 };
 
-static IMPL_CMPFUNC(DwoBillEntry, i1, i2) { RET_CMPCASCADE3((const DwoBillEntry *)i1, (const DwoBillEntry *)i2, Dt, LocID, ID); }
+static IMPL_CMPFUNC(DwoBillEntry, i1, i2) { RET_CMPCASCADE3(static_cast<const DwoBillEntry *>(i1), static_cast<const DwoBillEntry *>(i2), Dt, LocID, ID); }
 
 int SLAPI PrcssrWrOffDraft::ArrangeBillList(PPIDArray * pList)
 {
@@ -474,7 +474,7 @@ int SLAPI PrcssrWrOffDraft::ArrangeBillList(PPIDArray * pList)
 	temp_list.sort(PTR_CMPFUNC(DwoBillEntry));
 	pList->clear();
 	for(i = 0; i < temp_list.getCount(); i++) {
-		pList->addUnique(((DwoBillEntry *)temp_list.at(i))->ID);
+		pList->addUnique(static_cast<const DwoBillEntry *>(temp_list.at(i))->ID);
 	}
 	CATCHZOK
 	return ok;

@@ -166,7 +166,7 @@ void OPENSSL_showfatal(const char * fmta, ...)
 		int len;
 		DWORD out;
 		va_start(ap, fmta);
-		len = _vsnprintf((char*)buf, sizeof(buf), fmta, ap);
+		len = _vsnprintf((char *)buf, sizeof(buf), fmta, ap);
 		WriteFile(h, buf, len < 0 ? sizeof(buf) : (DWORD)len, &out, 0);
 		va_end(ap);
 		return;

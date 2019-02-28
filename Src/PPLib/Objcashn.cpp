@@ -198,11 +198,11 @@ int SLAPI PPAsyncCashNode::GetLogNumList(PPIDArray & rList) const
 		char * p;
 		long   n, sDELIM = 0x0000202CL; // ", "
 		STRNSCPY(tempbuf, log_num_list);
-		if((p = strtok(tempbuf, (char*)&sDELIM)) != 0) {
+		if((p = strtok(tempbuf, (char *)&sDELIM)) != 0) {
 			do {
 				if((n = atol(p)) > 0)
 					rList.add(n);
-			} while((p = strtok(0, (char*)&sDELIM)) != 0);
+			} while((p = strtok(0, (char *)&sDELIM)) != 0);
 		}
 	}
 	*/

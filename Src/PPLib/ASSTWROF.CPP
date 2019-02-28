@@ -200,7 +200,7 @@ int SLAPI PrcssrAssetDeprec::EditParam(Param * pData)
 	if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_ASSTREVAL)))) {
 		dlg->SetupCalDate(CTLCAL_ASSTREVAL_DT, CTL_ASSTREVAL_DT);
 		dlg->setCtrlData(CTL_ASSTREVAL_DT, &pData->Dt);
-		SetupPPObjCombo(dlg, CTLSEL_ASSTREVAL_OPRKIND, PPOBJ_OPRKIND,    pData->RevalOpID,   0, (void *)PPOPT_GOODSREVAL);
+		SetupPPObjCombo(dlg, CTLSEL_ASSTREVAL_OPRKIND, PPOBJ_OPRKIND,    pData->RevalOpID,   0, reinterpret_cast<void *>(PPOPT_GOODSREVAL));
 		SetupPPObjCombo(dlg, CTLSEL_ASSTREVAL_LOC,     PPOBJ_LOCATION,   pData->LocID,       0);
 		SetupPPObjCombo(dlg, CTLSEL_ASSTREVAL_GT,      PPOBJ_GOODSTYPE,  pData->GoodsTypeID, 0);
 		SetupPPObjCombo(dlg, CTLSEL_ASSTREVAL_GGRP,    PPOBJ_GOODSGROUP, pData->GoodsGrpID,  OLW_CANSELUPLEVEL);

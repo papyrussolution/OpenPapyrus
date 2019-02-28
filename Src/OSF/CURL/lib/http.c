@@ -2245,7 +2245,7 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 				       read callback, but only if we're not in authenticate
 				       negotiation  */
 				    if(!conn->bits.authneg) {
-					    http->postdata = (char*)&http->postdata;
+					    http->postdata = (char *)&http->postdata;
 					    http->postsize = postsize;
 				    }
 			    }

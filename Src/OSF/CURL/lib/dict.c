@@ -142,13 +142,13 @@ static CURLcode dict_do(struct connectdata * conn, bool * done)
 
 		if((word == NULL) || (*word == (char)0)) {
 			infof(data, "lookup word is missing\n");
-			word = (char*)"default";
+			word = (char *)"default";
 		}
 		if((database == NULL) || (*database == (char)0)) {
-			database = (char*)"!";
+			database = (char *)"!";
 		}
 		if((strategy == NULL) || (*strategy == (char)0)) {
-			strategy = (char*)".";
+			strategy = (char *)".";
 		}
 
 		eword = unescape_word(data, word);
@@ -195,10 +195,10 @@ static CURLcode dict_do(struct connectdata * conn, bool * done)
 
 		if((word == NULL) || (*word == (char)0)) {
 			infof(data, "lookup word is missing\n");
-			word = (char*)"default";
+			word = (char *)"default";
 		}
 		if((database == NULL) || (*database == (char)0)) {
-			database = (char*)"!";
+			database = (char *)"!";
 		}
 
 		eword = unescape_word(data, word);

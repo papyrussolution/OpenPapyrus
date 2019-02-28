@@ -53,7 +53,7 @@ static inline char check_digit(uint count)
 }
 
 /* Code 2 of 5 Standard (Code 2 of 5 Matrix) */
-int matrix_two_of_five(struct ZintSymbol * symbol, uchar source[], int length)
+int matrix_two_of_five(struct ZintSymbol * symbol, const uchar source[], int length)
 {
 	int i, error_number;
 	char dest[512]; /* 6 + 80 * 6 + 6 + 1 ~ 512*/
@@ -79,7 +79,7 @@ int matrix_two_of_five(struct ZintSymbol * symbol, uchar source[], int length)
 }
 
 /* Code 2 of 5 Industrial */
-int industrial_two_of_five(struct ZintSymbol * symbol, uchar source[], int length)
+int industrial_two_of_five(struct ZintSymbol * symbol, const uchar source[], int length)
 {
 	int i, error_number;
 	char dest[512]; /* 6 + 40 * 10 + 6 + 1 */
@@ -105,7 +105,7 @@ int industrial_two_of_five(struct ZintSymbol * symbol, uchar source[], int lengt
 }
 
 /* Code 2 of 5 IATA */
-int iata_two_of_five(struct ZintSymbol * symbol, uchar source[], int length)
+int iata_two_of_five(struct ZintSymbol * symbol, const uchar source[], int length)
 {
 	int i, error_number;
 	char dest[512]; /* 4 + 45 * 10 + 3 + 1 */
@@ -131,7 +131,7 @@ int iata_two_of_five(struct ZintSymbol * symbol, uchar source[], int length)
 }
 
 /* Code 2 of 5 Data Logic */
-int logic_two_of_five(struct ZintSymbol * symbol, uchar source[], int length)
+int logic_two_of_five(struct ZintSymbol * symbol, const uchar source[], int length)
 {
 	int i, error_number;
 	char dest[512]; /* 4 + 80 * 6 + 3 + 1 */
@@ -182,7 +182,7 @@ int interleaved_two_of_five(struct ZintSymbol * symbol, const uchar source[], si
 		sstrcpy(temp, (uchar*)"0");
 		length++;
 	}
-	strcat((char*)temp, (char*)source);
+	strcat((char *)temp, (char *)source);
 	/* start character */
 	sstrcpy(dest, "1111");
 	{
@@ -231,7 +231,7 @@ int itf14(struct ZintSymbol * symbol, uchar source[], int length)
 	for(i = 0; i < zeroes; i++) {
 		localstr[i] = '0';
 	}
-	sstrcpy(localstr + zeroes, (char*)source);
+	sstrcpy(localstr + zeroes, (char *)source);
 	/* Calculate the check digit - the same method used for EAN-13 */
 	for(i = 12; i >= 0; i--) {
 		count += hex(localstr[i]);
@@ -265,7 +265,7 @@ int dpleit(struct ZintSymbol * symbol, uchar source[], int length)
 	zeroes = 13 - length;
 	for(i = 0; i < zeroes; i++)
 		localstr[i] = '0';
-	sstrcpy(localstr + zeroes, (char*)source);
+	sstrcpy(localstr + zeroes, (char *)source);
 	for(i = 12; i >= 0; i--) {
 		count += 4 * hex(localstr[i]);
 		if(i & 1) {
@@ -298,7 +298,7 @@ int dpident(struct ZintSymbol * symbol, uchar source[], int length)
 	zeroes = 11 - length;
 	for(i = 0; i < zeroes; i++)
 		localstr[i] = '0';
-	sstrcpy(localstr + zeroes, (char*)source);
+	sstrcpy(localstr + zeroes, (char *)source);
 	for(i = 10; i >= 0; i--) {
 		count += 4 * hex(localstr[i]);
 		if(i & 1) {

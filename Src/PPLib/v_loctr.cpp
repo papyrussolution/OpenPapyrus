@@ -1052,7 +1052,7 @@ int SLAPI PPViewLocTransf::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	int    ok = -1;
 	Hdr    hdr;
 	if(pHdr)
-		hdr = *(Hdr *)pHdr;
+		hdr = *static_cast<const Hdr *>(pHdr);
 	else
 		MEMSZERO(hdr);
 	if(hdr.LocID) {
@@ -1071,7 +1071,7 @@ int SLAPI PPViewLocTransf::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 	if(ok == -2) {
 		Hdr    hdr;
 		if(pHdr)
-			hdr = *(Hdr *)pHdr;
+			hdr = *static_cast<const Hdr *>(pHdr);
 		else
 			MEMSZERO(hdr);
 		switch(ppvCmd) {

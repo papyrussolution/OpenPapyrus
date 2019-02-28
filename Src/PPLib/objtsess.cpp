@@ -29,11 +29,10 @@ public:
 	int    SLAPI SearchBySess(PPID sessID, uint * pPos) const { return lsearch(&sessID, pPos, CMPF_LONG, offsetof(PSE, SessID)); }
 	PPID   SLAPI GetLastUsedSessID() const { return (LastUsedEntryPos < getCount()) ? static_cast<const PSE *>(at(LastUsedEntryPos))->SessID : 0; }
 	int    SLAPI Add(const TSessionTbl::Rec * pSessRec, int isProper);
-	int    SLAPI SetLastLine(PPID sessID, long oprNo)
+	void   SLAPI SetLastLine(PPID sessID, long oprNo)
 	{
 		LastLine_SessID = sessID;
 		LastLine_OprNo = oprNo;
-		return 1;
 	}
 	int    SLAPI RemoveLastLine(int use_ta)
 	{
@@ -53,9 +52,8 @@ public:
 		if(LastUsedEntryPos < getCount()) {
 			const PSE & entry = Get(LastUsedEntryPos);
 			ProcessorTbl::Rec prc_rec;
-			if(TSesObj.GetPrc(entry.PrcID, &prc_rec, 1, 1) && prc_rec.Flags & PRCF_ACCDUPSERIALINSESS) {
+			if(TSesObj.GetPrc(entry.PrcID, &prc_rec, 1, 1) && prc_rec.Flags & PRCF_ACCDUPSERIALINSESS)
 				return 1;
-			}
 		}
 		return 0;
 	}
@@ -2300,24 +2298,27 @@ int SLAPI PPObjTSession::GetExtention(PPID id, PPProcessorPacket::ExtBlock * pEx
 
 int SLAPI PPObjTSession::GetPacket(PPID id, TSessionPacket * pPack, long options)
 {
-	int    ok = -1, r = 0;
-	PPCheckInPersonMngr ci_mgr;
+	int    ok = -1;
 	pPack->destroy();
-	if((r = Search(id, &pPack->Rec)) > 0) {
-		THROW(ci_mgr.GetList(PPCheckInPersonItem::kTSession, id, pPack->CiList));
-		if(options & gpoLoadLines) {
-			TSessLineTbl::Rec line_rec;
-			for(SEnum en = P_Tbl->EnumLines(id); en.Next(&line_rec) > 0;) {
-				THROW_SL(pPack->Lines.insert(&line_rec));
+	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
+		int    r = Search(id, &pPack->Rec);
+		if(r > 0) {
+			PPCheckInPersonMngr ci_mgr;
+			THROW(ci_mgr.GetList(PPCheckInPersonItem::kTSession, id, pPack->CiList));
+			if(options & gpoLoadLines) {
+				TSessLineTbl::Rec line_rec;
+				for(SEnum en = P_Tbl->EnumLines(id); en.Next(&line_rec) > 0;) {
+					THROW_SL(pPack->Lines.insert(&line_rec));
+				}
+				pPack->Flags |= TSessionPacket::fLinesInited;
 			}
-			pPack->Flags |= TSessionPacket::fLinesInited;
+			THROW(GetTagList(pPack->Rec.ID, &pPack->TagL));
+			THROW(GetExtention(pPack->Rec.ID, &pPack->Ext));
+			ok = 1;
 		}
-		THROW(GetTagList(pPack->Rec.ID, &pPack->TagL));
-		THROW(GetExtention(pPack->Rec.ID, &pPack->Ext));
-		ok = 1;
-	}
-	else {
-		THROW(r);
+		else {
+			THROW(r);
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -4412,7 +4413,7 @@ int SLAPI PPObjTSession::ProcessBhtRec(int signal, const BhtTSessRec * pRec, PPL
 						long   oprno = 0;
 						line_rec.Flags |= TSESLF_EXPANDSESS;
 						THROW(PutLine(sess_id, &oprno, &line_rec, 0));
-						P_BhtCurSess->SetLastLine(sess_id, oprno); // @v5.3.2
+						P_BhtCurSess->SetLastLine(sess_id, oprno);
 					}
 				}
 			}
@@ -4947,7 +4948,7 @@ PPALDD_CONSTRUCTOR(UhttTSession)
 PPALDD_DESTRUCTOR(UhttTSession)
 {
 	Destroy();
-	delete (UhttTSessionBlock *)Extra[0].Ptr;
+	delete static_cast<UhttTSessionBlock *>(Extra[0].Ptr);
 }
 
 int PPALDD_UhttTSession::InitData(PPFilt & rFilt, long rsrv)
@@ -4958,7 +4959,7 @@ int PPALDD_UhttTSession::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
-		UhttTSessionBlock & r_blk = *(UhttTSessionBlock *)Extra[0].Ptr;
+		UhttTSessionBlock & r_blk = *static_cast<UhttTSessionBlock *>(Extra[0].Ptr);
 		if(r_blk.TSesObj.GetPacket(rFilt.ID, &r_blk.Pack, PPObjTSession::gpoLoadLines) > 0) {
 			LDATETIME dtm;
 			SString temp_buf;
@@ -4988,7 +4989,7 @@ int PPALDD_UhttTSession::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_UhttTSession::InitIteration(long iterId, int sortId, long rsrv)
 {
 	IterProlog(iterId, 1);
-	UhttTSessionBlock & r_blk = *(UhttTSessionBlock *)Extra[0].Ptr;
+	UhttTSessionBlock & r_blk = *static_cast<UhttTSessionBlock *>(Extra[0].Ptr);
 	if(iterId == GetIterID("iter@Lines"))
 		r_blk.LinePos = 0;
 	if(iterId == GetIterID("iter@Cips"))
@@ -5006,7 +5007,7 @@ int PPALDD_UhttTSession::NextIteration(long iterId)
 	LDATETIME dtm;
 	SString temp_buf;
 	IterProlog(iterId, 0);
-	UhttTSessionBlock & r_blk = *(UhttTSessionBlock *)Extra[0].Ptr;
+	UhttTSessionBlock & r_blk = *static_cast<UhttTSessionBlock *>(Extra[0].Ptr);
 	if(iterId == GetIterID("iter@Lines")) {
         if(r_blk.LinePos < r_blk.Pack.Lines.getCount()) {
 			const TSessLineTbl::Rec & r_item = r_blk.Pack.Lines.at(r_blk.LinePos);
@@ -5102,7 +5103,7 @@ int PPALDD_UhttTSession::NextIteration(long iterId)
 int PPALDD_UhttTSession::Set(long iterId, int commit)
 {
 	int    ok = 1;
-	UhttTSessionBlock & r_blk = *(UhttTSessionBlock *)Extra[0].Ptr;
+	UhttTSessionBlock & r_blk = *static_cast<UhttTSessionBlock *>(Extra[0].Ptr);
 	if(r_blk.State != UhttTSessionBlock::stSet) {
 		r_blk.Clear();
 		r_blk.State = UhttTSessionBlock::stSet;
@@ -5238,7 +5239,7 @@ PPALDD_DESTRUCTOR(UhttTSessPlaceStatusList) { Destroy(); }
 
 int PPALDD_UhttTSessPlaceStatusList::InitData(PPFilt & rFilt, long rsrv)
 {
-	TSCollection <PPObjTSession::PlaceStatus> * p_list = (TSCollection <PPObjTSession::PlaceStatus> *)rFilt.Ptr;
+	TSCollection <PPObjTSession::PlaceStatus> * p_list = static_cast<TSCollection <PPObjTSession::PlaceStatus> *>(rFilt.Ptr);
 	Extra[0].Ptr = p_list;
 	return DlRtm::InitData(rFilt, rsrv);
 }
@@ -5246,7 +5247,7 @@ int PPALDD_UhttTSessPlaceStatusList::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_UhttTSessPlaceStatusList::InitIteration(long iterId, int sortId, long rsrv)
 {
 	IterProlog(iterId, 1);
-	TSCollection <PPObjTSession::PlaceStatus> * p_list = (TSCollection <PPObjTSession::PlaceStatus> *)Extra[0].Ptr;
+	TSCollection <PPObjTSession::PlaceStatus> * p_list = static_cast<TSCollection <PPObjTSession::PlaceStatus> *>(Extra[0].Ptr);
 	CALLPTRMEMB(p_list, setPointer(0));
 	return -1;
 }
@@ -5255,7 +5256,7 @@ int PPALDD_UhttTSessPlaceStatusList::NextIteration(long iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
-	TSCollection <PPObjTSession::PlaceStatus> * p_list = (TSCollection <PPObjTSession::PlaceStatus> *)Extra[0].Ptr;
+	TSCollection <PPObjTSession::PlaceStatus> * p_list = static_cast<TSCollection <PPObjTSession::PlaceStatus> *>(Extra[0].Ptr);
 	if(p_list && p_list->getPointer() < p_list->getCount()) {
 		PPObjTSession::PlaceStatus * p_item = p_list->at(p_list->getPointer());
 		I.TSessID = p_item->TSessID;

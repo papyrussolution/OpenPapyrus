@@ -7006,7 +7006,7 @@ static IMPL_DBE_PROC(dbqf_vetis_vetstockbydoc_i)
 {
 	double stock = -1.0; // Индицирует отсутствие связанной записи
 	PPID   doc_id = params[0].lval;
-	VetisEntityCore * p_ec = (VetisEntityCore *)params[1].ptrval;
+	VetisEntityCore * p_ec = const_cast<VetisEntityCore *>(static_cast<const VetisEntityCore *>(params[1].ptrval)); // @badcast
 	if(doc_id) {
 		VetisDocumentTbl::Key9 k9;
 		k9.OrgDocEntityID = doc_id;

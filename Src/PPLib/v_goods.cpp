@@ -714,7 +714,7 @@ int SLAPI GoodsFilt::WriteToProp(PPID obj, PPID id, PPID prop)
 		p_buf->BrandOwnerID = BrandOwnerID;
 		p_buf->MtxLocID = MtxLocID;
 		p_buf->InitOrder = InitOrder;
-		p = (char*)(p_buf + 1);
+		p = (char *)(p_buf + 1);
 		strnzcpy(p, SrchStr_, 0);
 		p += sstrlen(p) + 1;
 		p = WriteObjIdListFilt(p, GrpIDList);
@@ -858,18 +858,18 @@ int SLAPI GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 							MtxLocID = p_buf->MtxLocID;
 							InitOrder = p_buf->InitOrder;
 						}
-						p = (char*)(p_buf+1);
+						p = (char *)(p_buf+1);
 					}
 					else {
-						p = (char*)(p_buf+1) - sizeof(p_buf->VatRate) - sizeof(p_buf->VatDate)  - sizeof(p_buf->BrandID) -
+						p = (char *)(p_buf+1) - sizeof(p_buf->VatRate) - sizeof(p_buf->VatDate)  - sizeof(p_buf->BrandID) -
 							sizeof(p_buf->CodeArID) - sizeof(p_buf->BrandOwnerID) - 20;
 					}
 				}
 				else
-					p = (char*)(p_buf+1) - sizeof(p_buf->LotPeriod) - sizeof(p_buf->LocID);
+					p = (char *)(p_buf+1) - sizeof(p_buf->LotPeriod) - sizeof(p_buf->LocID);
 			}
 			else
-				p = (char*)(p_buf+1) - sizeof(p_buf->ManufCountryID) - sizeof(p_buf->LotPeriod) - sizeof(p_buf->LocID);
+				p = (char *)(p_buf+1) - sizeof(p_buf->ManufCountryID) - sizeof(p_buf->LotPeriod) - sizeof(p_buf->LocID);
 			SrchStr_ = p;
 			p += sstrlen(p) + 1;
 			p = ReadObjIdListFilt(p, GrpIDList);
@@ -992,7 +992,7 @@ int SLAPI GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 			GrpIDList.Set(0);
    	    	c = (uint)((PropertyTbl::Rec*)p_buf)->Val2;
 			for(i = 0; i < c; i++)
-				GrpIDList.Add(*(PPID *)(((char*)p_buf) + PROPRECFIXSIZE + i * sizeof(PPID)));
+				GrpIDList.Add(*(PPID *)(((char *)p_buf) + PROPRECFIXSIZE + i * sizeof(PPID)));
 		}
 	   	Setup();
 	}
@@ -4865,13 +4865,13 @@ PPALDD_CONSTRUCTOR(UhttGoods)
 PPALDD_DESTRUCTOR(UhttGoods)
 {
 	Destroy();
-	delete (UhttGoodsBlock *)Extra[0].Ptr;
+	delete static_cast<UhttGoodsBlock *>(Extra[0].Ptr);
 }
 
 int PPALDD_UhttGoods::InitData(PPFilt & rFilt, long rsrv)
 {
 	int   ok = -1;
-	UhttGoodsBlock & r_blk = *(UhttGoodsBlock *)Extra[0].Ptr;
+	UhttGoodsBlock & r_blk = *static_cast<UhttGoodsBlock *>(Extra[0].Ptr);
 	r_blk.Clear();
 	MEMSZERO(H);
 	if(r_blk.GObj.GetPacket(rFilt.ID, &r_blk.Pack, PPObjGoods::gpoSkipQuot) > 0) { // @v8.3.7 PPObjGoods::gpoSkipQuot
@@ -4908,7 +4908,7 @@ int PPALDD_UhttGoods::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_UhttGoods::InitIteration(long iterId, int sortId, long rsrv)
 {
 	IterProlog(iterId, 1);
-	UhttGoodsBlock & r_blk = *(UhttGoodsBlock *)Extra[0].Ptr;
+	UhttGoodsBlock & r_blk = *static_cast<UhttGoodsBlock *>(Extra[0].Ptr);
 	if(iterId == GetIterID("iter@BarcodeList"))
 		r_blk.BarcodeIterCounter = 0;
 	else if(iterId == GetIterID("iter@TagList"))
@@ -4921,7 +4921,7 @@ int PPALDD_UhttGoods::NextIteration(long iterId)
 	int     ok = -1;
 	SString temp_buf;
 	IterProlog(iterId, 0);
-	UhttGoodsBlock & r_blk = *(UhttGoodsBlock *)Extra[0].Ptr;
+	UhttGoodsBlock & r_blk = *static_cast<UhttGoodsBlock *>(Extra[0].Ptr);
 	if(iterId == GetIterID("iter@BarcodeList")) {
 		if(r_blk.BarcodeIterCounter < r_blk.Pack.Codes.getCount()) {
 			STRNSCPY(I_BarcodeList.Code, r_blk.Pack.Codes.at(r_blk.BarcodeIterCounter).Code);
@@ -5206,7 +5206,7 @@ PPALDD_CONSTRUCTOR(Transport)
 PPALDD_DESTRUCTOR(Transport)
 {
 	Destroy();
-	delete (PPObjTransport*)Extra[0].Ptr;
+	delete static_cast<PPObjTransport *>(Extra[0].Ptr);
 }
 
 int PPALDD_Transport::InitData(PPFilt & rFilt, long rsrv)
@@ -5490,7 +5490,7 @@ int PPALDD_GoodsClassView::InitData(PPFilt & rFilt, long rsrv)
 
 int PPALDD_GoodsClassView::InitIteration(PPIterID iterId, int sortId, long rsrv)
 {
-	StrAssocArray * p_list = (StrAssocArray *)Extra[0].Ptr;
+	StrAssocArray * p_list = static_cast<StrAssocArray *>(Extra[0].Ptr);
 	CALLPTRMEMB(p_list, setPointer(0));
 	IterProlog(iterId, 1);
 	return 1;
@@ -5500,7 +5500,7 @@ int PPALDD_GoodsClassView::NextIteration(PPIterID iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
-	StrAssocArray * p_list = (StrAssocArray *)Extra[0].Ptr;
+	StrAssocArray * p_list = static_cast<StrAssocArray *>(Extra[0].Ptr);
 	if(p_list && p_list->getPointer() < p_list->getCount()) {
 		I.GcID = p_list->Get(p_list->incPointer()).Id;
 		ok = DlRtm::NextIteration(iterId);
@@ -5510,7 +5510,7 @@ int PPALDD_GoodsClassView::NextIteration(PPIterID iterId)
 
 void PPALDD_GoodsClassView::Destroy()
 {
-	StrAssocArray * p_list = (StrAssocArray *)Extra[0].Ptr;
+	StrAssocArray * p_list = static_cast<StrAssocArray *>(Extra[0].Ptr);
 	delete p_list;
 	Extra[1].Ptr = 0;
 }

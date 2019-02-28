@@ -1493,7 +1493,7 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 			return 0;
 		case WM_SETFONT:
 			{
-				SetFontEvent sfe((void *)wParam, LOWORD(lParam));
+				SetFontEvent sfe(reinterpret_cast<void *>(wParam), LOWORD(lParam));
 				if(TView::messageCommand(p_view, cmSetFont, &sfe))
 					return 0;
 			}
@@ -1578,7 +1578,7 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 				PaintEvent pe;
 				MEMSZERO(pe);
 				pe.PaintType = PaintEvent::tEraseBackground;
-				pe.H_DeviceContext = (void *)wParam;
+				pe.H_DeviceContext = reinterpret_cast<void *>(wParam);
 				pe.Rect = p_view->getClientRect();
 				void * p_ret = TView::messageCommand(p_view, cmPaint, &pe);
 				//

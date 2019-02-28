@@ -101,7 +101,7 @@ void TY_(freeStreamIn) (StreamIn* in);
 
 StreamIn* TY_(FileInput) (TidyDocImpl* doc, FILE* fp, int encoding);
 StreamIn* TY_(BufferInput) (TidyDocImpl* doc, TidyBuffer* content, int encoding);
-StreamIn* TY_(UserInput) (TidyDocImpl* doc, TidyInputSource* source, int encoding);
+StreamIn* TY_(UserInput) (TidyDocImpl* doc, const TidyInputSource* source, int encoding);
 
 int TY_(ReadBOMEncoding) (StreamIn *in);
 uint TY_(ReadChar) (StreamIn* in);
@@ -127,7 +127,7 @@ struct _StreamOut {
 
 StreamOut* TY_(FileOutput) (TidyDocImpl *doc, FILE* fp, int encoding, uint newln);
 StreamOut* TY_(BufferOutput) (TidyDocImpl *doc, TidyBuffer* buf, int encoding, uint newln);
-StreamOut* TY_(UserOutput) (TidyDocImpl *doc, TidyOutputSink* sink, int encoding, uint newln);
+StreamOut* TY_(UserOutput) (TidyDocImpl *doc, const TidyOutputSink* sink, int encoding, uint newln);
 
 StreamOut* TY_(StdErrOutput) (void);
 /* StreamOut* StdOutOutput(void); */

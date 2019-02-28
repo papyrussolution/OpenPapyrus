@@ -701,7 +701,7 @@ PPALDD_CONSTRUCTOR(PersonEventBase)
 PPALDD_DESTRUCTOR(PersonEventBase)
 {
 	Destroy();
-	delete (PPObjPersonEvent *)Extra[0].Ptr;
+	delete static_cast<PPObjPersonEvent *>(Extra[0].Ptr);
 }
 
 int PPALDD_PersonEventBase::InitData(PPFilt & rFilt, long rsrv)
@@ -712,7 +712,7 @@ int PPALDD_PersonEventBase::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
-		PPObjPersonEvent * p_obj = (PPObjPersonEvent *)Extra[0].Ptr;
+		PPObjPersonEvent * p_obj = static_cast<PPObjPersonEvent *>(Extra[0].Ptr);
 		PersonEventTbl::Rec rec;
 		if(p_obj && p_obj->Search(H.ID, &rec) > 0) {
 			#define CPY_FLD(f) H.f = rec.f
@@ -745,7 +745,7 @@ void PPALDD_PersonEventBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, R
 	#define _RET_LONG    (*static_cast<long *>(rS.GetPtr(pApl->Get(0))))
 	#define _RET_DBL     (*static_cast<double *>(rS.GetPtr(pApl->Get(0)))
 	#define _RET_STR     (**static_cast<SString **>(rS.GetPtr(pApl->Get(0))))
-	PPObjPersonEvent * p_pe_obj = (PPObjPersonEvent *)Extra[0].Ptr;
+	PPObjPersonEvent * p_pe_obj = static_cast<PPObjPersonEvent *>(Extra[0].Ptr);
 	if(pF->Name == "?GetPair") {
 		PPID   pair_id = 0;
 		if(p_pe_obj) {
@@ -852,7 +852,7 @@ int PPALDD_PsnOpKindView::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_PsnOpKindView::InitIteration(PPIterID iterId, int /*sortId*/, long /*rsrv*/)
 {
 	IterProlog(iterId, 1);
-	ALD_PsnOpKindBlock * p_blk = (ALD_PsnOpKindBlock *)Extra[0].Ptr;
+	ALD_PsnOpKindBlock * p_blk = static_cast<ALD_PsnOpKindBlock *>(Extra[0].Ptr);
 	if(p_blk) {
 		ZDELETE(p_blk->P_En);
 		p_blk->P_En = new SEnum(PPRef->Enum(PPOBJ_PERSONOPKIND, 0));
@@ -864,7 +864,7 @@ int PPALDD_PsnOpKindView::NextIteration(PPIterID iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
-	ALD_PsnOpKindBlock * p_blk = (ALD_PsnOpKindBlock *)Extra[0].Ptr;
+	ALD_PsnOpKindBlock * p_blk = static_cast<ALD_PsnOpKindBlock *>(Extra[0].Ptr);
 	PPPsnOpKind  item;
 	if(p_blk && p_blk->P_En && p_blk->P_En->Next(&item) > 0) {
 		I.PsnOpKindID = item.ID;
@@ -876,7 +876,7 @@ int PPALDD_PsnOpKindView::NextIteration(PPIterID iterId)
 
 void PPALDD_PsnOpKindView::Destroy()
 {
-	delete ((ALD_PsnOpKindBlock *)Extra[0].Ptr);
+	delete static_cast<ALD_PsnOpKindBlock *>(Extra[0].Ptr);
 	Extra[0].Ptr = 0;
 	Extra[1].Ptr = 0;
 }

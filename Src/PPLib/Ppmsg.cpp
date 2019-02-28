@@ -252,6 +252,17 @@ int FASTCALL PPSetObjError(int errCode, PPID objType, PPID objID)
 	return 0; // @v8.7.0 1-->0
 }
 
+int FASTCALL PPCheckGetObjPacketID(PPID objType, PPID id)
+{
+	int    ok = 1;
+	if(!id) {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		GetObjectTitle(objType, r_temp_buf);
+		ok = PPSetError(PPERR_QUERYOBJPACKBYZEROID, r_temp_buf);
+	}
+	return ok;
+}
+
 void FASTCALL PPSetAddedMsgString(const char * pStr)
 {
 	DS.GetTLA().AddedMsgString = pStr;
@@ -649,7 +660,7 @@ int SLAPI PPThreadLocalArea::WaitBlock::Start()
 	State |= stValid;
 	if(!WaitDlg) {
 		PrevView = 0;
-		WaitDlg = APPL->CreateDlg(DLG_WAIT, APPL->H_MainWnd, (DLGPROC)0L, 0);
+		WaitDlg = APPL->CreateDlg(DLG_WAIT, APPL->H_MainWnd, static_cast<DLGPROC>(0), 0);
 		PrevPercent = -1;
 		IdleTimer.Restart(1000);
 		if(WaitDlg) {
@@ -740,7 +751,7 @@ int FASTCALL PPThreadLocalArea::WaitBlock::SetMessage(const char * pMsg)
 			if(adv_blk.Proc) {
 				ev.Clear();
 				// @v9.8.12 ev.ExtStr = pMsg;
-				ev.PutExtStrData(PPNotifyEvent::extssMessage, pMsg); // @v9.8.12 
+				ev.PutExtStrData(PPNotifyEvent::extssMessage, pMsg); // @v9.8.12
 				adv_blk.Proc(PPAdviseBlock::evWaitMsg, &ev, adv_blk.ProcExtPtr);
 			}
 		}

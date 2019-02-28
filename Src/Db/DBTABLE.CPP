@@ -185,16 +185,16 @@ int DBTable::Btr_ProcessLobOnReading()
 					size_t temp_buf_offs = 0;
 					*(RECORDNUMBER *)(char *)temp_buf = pos;
 					temp_buf_offs += sizeof(RECORDNUMBER);
-					*(long *)(((char *)temp_buf) + temp_buf_offs) = CHUNK_DIR_RAND;
+					*(long *)(static_cast<char *>(temp_buf) + temp_buf_offs) = CHUNK_DIR_RAND;
 					temp_buf_offs += sizeof(long);
-					*(long *)(((char *)temp_buf) + temp_buf_offs) = 1; // number of chunks
+					*(long *)(static_cast<char *>(temp_buf) + temp_buf_offs) = 1; // number of chunks
 					temp_buf_offs += sizeof(long);
 					// chunk definition
-					*(long *)(((char *)temp_buf) + temp_buf_offs) = rec_offs; // chunk offset
+					*(long *)(static_cast<char *>(temp_buf) + temp_buf_offs) = rec_offs; // chunk offset
 					temp_buf_offs += sizeof(long);
-					*(long *)(((char *)temp_buf) + temp_buf_offs) = chunk_size; // chunk length (buffer size - fixed header)
+					*(long *)(static_cast<char *>(temp_buf) + temp_buf_offs) = chunk_size; // chunk length (buffer size - fixed header)
 					temp_buf_offs += sizeof(long);
-					*(long *)(((char *)temp_buf) + temp_buf_offs) = 0; // data ptr (ignored for CHUNK_DIR_RAND)
+					*(long *)(static_cast<char *>(temp_buf) + temp_buf_offs) = 0; // data ptr (ignored for CHUNK_DIR_RAND)
 					temp_buf_offs += sizeof(long);
 					assert(temp_buf_offs == fixed_header_size);
 					retBufLen = (RECORDSIZE)chunk_size;
@@ -404,7 +404,7 @@ int DBTable::Btr_Implement_InsertRec(int idx, void * pKeyBuf, const void * pData
 		}
 	}
 	else if(HasNote(&last_fld) > 0) {
-		size_t tail_len = sstrlen(((char*)P_DBuf) + FixRecSize);
+		size_t tail_len = sstrlen(((char *)P_DBuf) + FixRecSize);
 		if(tail_len > 0)
 			tail_len++;
 		retBufLen = (RECORDSIZE)(FixRecSize + tail_len);
@@ -493,7 +493,7 @@ int DBTable::Btr_Implement_UpdateRec(const void * pDataBuf, int ncc)
 		}
 	}
 	else if(HasNote(&last_fld) > 0) {
-		size_t tail_len = sstrlen(((char*)P_DBuf) + FixRecSize);
+		size_t tail_len = sstrlen(((char *)P_DBuf) + FixRecSize);
 		if(tail_len > 0)
 			tail_len++;
 		retBufLen = (RECORDSIZE)(FixRecSize + tail_len);

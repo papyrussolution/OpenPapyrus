@@ -1198,7 +1198,7 @@ static const char *c49_appxe_odd[2401] = {
 
 /* "!" represents Shift 1 and "&" represents Shift 2, "*" represents FNC1 */
 
-int code_49(struct ZintSymbol * symbol, uchar source[], const int length)
+int code_49(struct ZintSymbol * symbol, const uchar source[], const int length)
 {
 	int i, j, rows, M, x_count, y_count, z_count, posn_val, local_value;
 	char intermediate[170] = "";

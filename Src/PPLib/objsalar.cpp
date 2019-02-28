@@ -509,7 +509,7 @@ PPALDD_CONSTRUCTOR(SalCharge)
 PPALDD_DESTRUCTOR(SalCharge)
 {
 	Destroy();
-	delete (PPObjSalCharge *)Extra[0].Ptr;
+	delete static_cast<PPObjSalCharge *>(Extra[0].Ptr);
 }
 
 int PPALDD_SalCharge::InitData(PPFilt & rFilt, long rsrv)
@@ -520,7 +520,7 @@ int PPALDD_SalCharge::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		MEMSZERO(H);
 		PPSalChargePacket pack;
-		PPObjSalCharge * p_obj = (PPObjSalCharge *)Extra[0].Ptr;
+		PPObjSalCharge * p_obj = static_cast<PPObjSalCharge *>(Extra[0].Ptr);
 		if(p_obj->Fetch(rFilt.ID, &pack) > 0) {
 			H.ID = pack.Rec.ID;
 			STRNSCPY(H.Name, pack.Rec.Name);

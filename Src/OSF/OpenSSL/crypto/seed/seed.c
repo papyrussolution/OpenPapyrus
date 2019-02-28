@@ -393,18 +393,14 @@ static const uchar SEED_Sbox[2][256] = {
 
 static uint G_FUNC(uint v)
 {
-    uint s0, s1, s2, s3, ret;
-
-    s0 = SEED_Sbox[0][(uchar)      (v) & 0xff];
-    s1 = SEED_Sbox[1][(uchar)((v)>> 8) & 0xff];
-    s2 = SEED_Sbox[0][(uchar)((v)>>16) & 0xff];
-    s3 = SEED_Sbox[1][(uchar)((v)>>24) & 0xff];
-
-    ret  = ((s0 & 0xFC) ^ (s1 & 0xF3) ^ (s2 & 0xCF) ^ (s3 & 0x3F));
+    uint s0 = SEED_Sbox[0][(uchar)      (v) & 0xff];
+    uint s1 = SEED_Sbox[1][(uchar)((v)>> 8) & 0xff];
+    uint s2 = SEED_Sbox[0][(uchar)((v)>>16) & 0xff];
+    uint s3 = SEED_Sbox[1][(uchar)((v)>>24) & 0xff];
+    uint ret  = ((s0 & 0xFC) ^ (s1 & 0xF3) ^ (s2 & 0xCF) ^ (s3 & 0x3F));
     ret |= ((s0 & 0xF3) ^ (s1 & 0xCF) ^ (s2 & 0x3F) ^ (s3 & 0xFC)) << 8;
     ret |= ((s0 & 0xCF) ^ (s1 & 0x3F) ^ (s2 & 0xFC) ^ (s3 & 0xF3)) << 16;
     ret |= ((s0 & 0x3F) ^ (s1 & 0xFC) ^ (s2 & 0xF3) ^ (s3 & 0xCF)) << 24;
-
     return ret;
 }
 # endif

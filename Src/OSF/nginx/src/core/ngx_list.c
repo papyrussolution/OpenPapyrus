@@ -53,7 +53,7 @@ void * FASTCALL ngx_list_push(ngx_list_t * l)
 		l->last->next = last;
 		l->last = last;
 	}
-	elt = (char*)last->elts + l->size * last->nelts;
+	elt = (char *)last->elts + l->size * last->nelts;
 	last->nelts++;
 	return elt;
 }

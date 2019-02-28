@@ -2525,10 +2525,10 @@ int SFileFormat::Register()
 	Register(Xml,    mtApplication, "xml", "xml", "T<?xml");                 // XML
 	Register(Svg,    mtImage, "svg+xml",   "svg", "T<?xml"); // SVG // @todo Необходимо проверить XML-контент на наличие тега <svg>
 	Register(Html,   mtText,  "html",  "html;htm", "T<!DOCTYPE HTML"); // HTML
-	Register(Ini,    mtText,  "plain", "ini", (const char *)0);  // INI
+	Register(Ini,    mtText,  "plain", "ini", static_cast<const char *>(0));  // INI
 
-	Register(Latex,            mtApplication, "x-latex", "tex", (const char *)0);  // LATEX
-	Register(Latex,            "latex", (const char *)0);         // LATEX
+	Register(Latex,            mtApplication, "x-latex", "tex", static_cast<const char *>(0));  // LATEX
+	Register(Latex,            "latex", static_cast<const char *>(0));         // LATEX
 	Register(TxtBomUTF8,       "txt;csv", "EFBBBF");
 	Register(TxtBomUTF16BE,    "txt;csv", "FEFF");
 	Register(TxtBomUTF16LE,    "txt;csv", "FFFE");

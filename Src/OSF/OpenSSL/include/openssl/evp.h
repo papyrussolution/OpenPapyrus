@@ -282,16 +282,16 @@ typedef struct evp_cipher_info_st {
 /*@funcdef*/typedef int (EVP_PBE_KEYGEN)(EVP_CIPHER_CTX * ctx, const char * pass, int passlen, ASN1_TYPE * param, const EVP_CIPHER * cipher, const EVP_MD * md, int en_de);
 
 #ifndef OPENSSL_NO_RSA
-	#define EVP_PKEY_assign_RSA(pkey, rsa) EVP_PKEY_assign((pkey), EVP_PKEY_RSA, (char*)(rsa))
+	#define EVP_PKEY_assign_RSA(pkey, rsa) EVP_PKEY_assign((pkey), EVP_PKEY_RSA, (char *)(rsa))
 #endif
 #ifndef OPENSSL_NO_DSA
-	#define EVP_PKEY_assign_DSA(pkey, dsa) EVP_PKEY_assign((pkey), EVP_PKEY_DSA, (char*)(dsa))
+	#define EVP_PKEY_assign_DSA(pkey, dsa) EVP_PKEY_assign((pkey), EVP_PKEY_DSA, (char *)(dsa))
 #endif
 #ifndef OPENSSL_NO_DH
-	#define EVP_PKEY_assign_DH(pkey, dh) EVP_PKEY_assign((pkey), EVP_PKEY_DH, (char*)(dh))
+	#define EVP_PKEY_assign_DH(pkey, dh) EVP_PKEY_assign((pkey), EVP_PKEY_DH, (char *)(dh))
 #endif
 #ifndef OPENSSL_NO_EC
-	#define EVP_PKEY_assign_EC_KEY(pkey, eckey) EVP_PKEY_assign((pkey), EVP_PKEY_EC, (char*)(eckey))
+	#define EVP_PKEY_assign_EC_KEY(pkey, eckey) EVP_PKEY_assign((pkey), EVP_PKEY_EC, (char *)(eckey))
 #endif
 
 /* Add some extra combinations */
@@ -364,13 +364,13 @@ void * EVP_CIPHER_CTX_set_cipher_data(EVP_CIPHER_CTX * ctx, void * cipher_data);
 # ifdef CONST_STRICT
 void BIO_set_md(BIO *, const EVP_MD * md);
 # else
-#define BIO_set_md(b, md)               BIO_ctrl(b, BIO_C_SET_MD, 0, (char*)md)
+#define BIO_set_md(b, md)               BIO_ctrl(b, BIO_C_SET_MD, 0, (char *)md)
 # endif
-#define BIO_get_md(b, mdp)               BIO_ctrl(b, BIO_C_GET_MD, 0, (char*)mdp)
-#define BIO_get_md_ctx(b, mdcp)     BIO_ctrl(b, BIO_C_GET_MD_CTX, 0, (char*)mdcp)
-#define BIO_set_md_ctx(b, mdcp)     BIO_ctrl(b, BIO_C_SET_MD_CTX, 0, (char*)mdcp)
+#define BIO_get_md(b, mdp)               BIO_ctrl(b, BIO_C_GET_MD, 0, (char *)mdp)
+#define BIO_get_md_ctx(b, mdcp)     BIO_ctrl(b, BIO_C_GET_MD_CTX, 0, (char *)mdcp)
+#define BIO_set_md_ctx(b, mdcp)     BIO_ctrl(b, BIO_C_SET_MD_CTX, 0, (char *)mdcp)
 #define BIO_get_cipher_status(b)        BIO_ctrl(b, BIO_C_GET_CIPHER_STATUS, 0, NULL)
-#define BIO_get_cipher_ctx(b, c_pp)      BIO_ctrl(b, BIO_C_GET_CIPHER_CTX, 0, (char*)c_pp)
+#define BIO_get_cipher_ctx(b, c_pp)      BIO_ctrl(b, BIO_C_GET_CIPHER_CTX, 0, (char *)c_pp)
 
 /*__owur*/ int EVP_Cipher(EVP_CIPHER_CTX * c, uchar * out, const uchar * in, uint inl);
 

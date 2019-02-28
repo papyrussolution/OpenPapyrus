@@ -144,7 +144,7 @@ PKCS12_SAFEBAG * PKCS12_add_cert(STACK_OF(PKCS12_SAFEBAG) ** pbags, X509 * cert)
 	 * Use friendlyName and localKeyID in certificate. (if present)
 	 */
 
-	name = (char*)X509_alias_get0(cert, &namelen);
+	name = (char *)X509_alias_get0(cert, &namelen);
 
 	if(name && !PKCS12_add_friendlyname(bag, name, namelen))
 		goto err;

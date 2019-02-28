@@ -362,7 +362,7 @@ static cairo_status_t _cairo_sub_font_glyph_lookup_unicode(cairo_scaled_font_t *
 	if(unicode != (uint32_t)-1) {
 		len = _cairo_ucs4_to_utf8(unicode, buf);
 		if(len > 0) {
-			*utf8_out = (char*)_cairo_malloc(len + 1);
+			*utf8_out = (char *)_cairo_malloc(len + 1);
 			if(unlikely(*utf8_out == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
@@ -398,7 +398,7 @@ static cairo_status_t _cairo_sub_font_glyph_map_to_unicode(cairo_sub_font_glyph_
 		}
 		else {
 			/* No existing mapping. Use the requested mapping */
-			sub_font_glyph->utf8 = (char*)_cairo_malloc(utf8_len + 1);
+			sub_font_glyph->utf8 = (char *)_cairo_malloc(utf8_len + 1);
 			if(unlikely(sub_font_glyph->utf8 == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
@@ -550,7 +550,7 @@ static cairo_status_t _cairo_sub_font_map_glyph(cairo_sub_font_t * sub_font, ulo
 				if(ucs4_len == 1) {
 					font_unicode = ucs4[0];
 					SAlloc::F(font_utf8);
-					font_utf8 = (char*)_cairo_malloc(text_utf8_len + 1);
+					font_utf8 = (char *)_cairo_malloc(text_utf8_len + 1);
 					if(font_utf8 == NULL) {
 						SAlloc::F(ucs4);
 						return _cairo_error(CAIRO_STATUS_NO_MEMORY);

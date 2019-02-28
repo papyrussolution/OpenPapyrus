@@ -934,9 +934,9 @@ struct ArrangeCellParam {
 
 IMPL_CMPFUNC(ArrangeCellItem, i1, i2)
 {
-	const ArrangeCellParam * p_param = (const ArrangeCellParam *)pExtraData;
-	const ArrangeCellItem * p1 = (const ArrangeCellItem *)i1;
-	const ArrangeCellItem * p2 = (const ArrangeCellItem *)i2;
+	const ArrangeCellParam * p_param = static_cast<const ArrangeCellParam *>(pExtraData);
+	const ArrangeCellItem * p1 = static_cast<const ArrangeCellItem *>(i1);
+	const ArrangeCellItem * p2 = static_cast<const ArrangeCellItem *>(i2);
 	const int op = p_param ? p_param->Op : 0; //LOCTRFROP_GET
 	if(p1->ColumnOrder < p2->ColumnOrder)
 		return -1;

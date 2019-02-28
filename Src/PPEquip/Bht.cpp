@@ -408,7 +408,7 @@ int SBIIOpRestrRec::ToBuf(void * pBuf, size_t * pBufSize)
 			ok = -1;
 		}
 		else {
-			char * p_buf = (char*)pBuf;
+			char * p_buf = (char *)pBuf;
 			size_t bytes = 0;
 
 			memcpy(p_buf + bytes,                              &ID,              sizeof(ID));
@@ -493,7 +493,7 @@ int SBIIBillRec::ToBuf(void * pBuf, size_t * pBufSize)
 			ok = -1;
 		}
 		else {
-			char * p_buf = (char*)pBuf;
+			char * p_buf = (char *)pBuf;
 			size_t bytes = 0;
 
 			memcpy(p_buf + bytes,                             &ID,           sizeof(ID));
@@ -581,7 +581,7 @@ int SBIIBillRowRec::ToBuf(void * pBuf, size_t * pBufSize)
 			ok = -1;
 		}
 		else {
-			char * p_buf = (char*)pBuf;
+			char * p_buf = (char *)pBuf;
 			size_t bytes = 0;
 
 			memcpy(p_buf + bytes,                           &BillID,       sizeof(BillID));
@@ -1036,8 +1036,8 @@ int BhtDialog::setDTS(const PPBhtTerminalPacket * pData)
 	}
 	else if(Data.Rec.BhtTypeID != PPObjBHT::btCom)
 		setCtrlString(CTL_BHT_IMPEXPPATH, Data.ImpExpPath_);
-	SetupLocationCombo(this, CTLSEL_BHT_LOC, Data.Rec.LocID, 0, LOCTYP_WAREHOUSE, 0); // @v8.4.2
-	SetupPPObjCombo(this, CTLSEL_BHT_INVENTOP, PPOBJ_OPRKIND, Data.Rec.InventOpID, 0, (void *)PPOPT_INVENTORY);
+	SetupLocationCombo(this, CTLSEL_BHT_LOC, Data.Rec.LocID, 0, LOCTYP_WAREHOUSE, 0);
+	SetupPPObjCombo(this, CTLSEL_BHT_INVENTOP, PPOBJ_OPRKIND, Data.Rec.InventOpID, 0, reinterpret_cast<void *>(PPOPT_INVENTORY));
 	PPIDArray op_type_list;
 	op_type_list.addzlist(PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND, 0L);
 	SetupOprKindCombo(this, CTLSEL_BHT_EXPENDOP, Data.Rec.ExpendOpID,    0, &op_type_list, 0);
@@ -1771,7 +1771,7 @@ int SLAPI PPObjBHT::PutPacket(PPID * pID, PPBhtTerminalPacket * pPack, int use_t
 	}
 	THROW(ref->RemoveProperty(Obj, *pID, BHTPRP_SBIICFG, 0)); // Удаляем прежнюю версию записи
 	THROW(ref->PutPropVlrString(PPOBJ_BHT, *pID, BHTPRP_PATH,
-		oneof3(pPack->Rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII) ? pPack->ImpExpPath_ : (const char *)0));
+		oneof3(pPack->Rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII) ? pPack->ImpExpPath_ : static_cast<const char *>(0)));
 	THROW(tra.Commit());
 	CATCHZOK
 	SAlloc::F(p_buf);
@@ -2676,7 +2676,7 @@ int SLAPI CipherProtocol::ReceiveBlock(uint * pRecNo, size_t * pDataLen, char * 
 		   			c = GetChr();
 					THROW(c);
 					recno_buf[i] = c;
-					sum += (uint)(uchar)c;
+					sum += (uint)static_cast<uchar>(c);
 				}
 				recno_buf[RECNOLEN] = 0;
 				recno = atoi(recno_buf);
@@ -2685,7 +2685,7 @@ int SLAPI CipherProtocol::ReceiveBlock(uint * pRecNo, size_t * pDataLen, char * 
 			c = GetChr();
 			while(c != 0 && c != EOS) {
 				buf[p++] = c;
-				sum += (uint)(uchar)c;
+				sum += (uint)static_cast<uchar>(c);
 				c = GetChr();
 			}
 			sum -= (uint)(uchar)buf[p-2] + (uint)(uchar)buf[p-1];
@@ -4406,8 +4406,8 @@ int SLAPI PPObjBHT::AcceptBillsPalm(const char * pHName, const char * pLName, PP
 
 IMPL_CMPFUNC(Sdr_SBIIBillRow, i1, i2)
 {
-	const Sdr_SBIIBillRow * p_i1 = (const Sdr_SBIIBillRow*)i1;
-	const Sdr_SBIIBillRow * p_i2 = (const Sdr_SBIIBillRow*)i2;
+	const Sdr_SBIIBillRow * p_i1 = static_cast<const Sdr_SBIIBillRow *>(i1);
+	const Sdr_SBIIBillRow * p_i2 = static_cast<const Sdr_SBIIBillRow *>(i2);
 	if(p_i1->Number < p_i2->Number)
 		return -1;
 	else if(p_i1->Number > p_i2->Number)

@@ -614,7 +614,7 @@ static void SLAPI IdeaCrypt(const char * pPw, void * pBuf, size_t bufLen, int de
 	hashpass(temp_pw, strlen(temp_pw), key);
 	memzero(iv, sizeof(iv));
 	IDEACFB idea(iv, key, decrypt);
-	idea.run((uint8*)pBuf, bufLen);
+	idea.run((uint8 *)pBuf, bufLen);
 }
 
 void SLAPI IdeaEncrypt(const char * pw, void * buf, size_t len)
@@ -641,7 +641,7 @@ void FASTCALL IdeaRandMem(void * buf, size_t len)
 	time(&tm);
 	IDEARAND rand(key, seed, (uint32)tm);
 	for(i = 0; i < len; i++)
-		((uint8*)buf)[i] = rand.rand();
+		((uint8 *)buf)[i] = rand.rand();
 }
 
 #ifdef TEST2

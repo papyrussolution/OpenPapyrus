@@ -227,7 +227,7 @@ static int int_x509_param_set1(char ** pdest, size_t * pdestlen, const char * sr
 		srclen = 0;
 	}
 	OPENSSL_free(*pdest);
-	*pdest = (char*)tmp;
+	*pdest = (char *)tmp;
 	ASSIGN_PTR(pdestlen, srclen);
 	return 1;
 }
@@ -392,7 +392,7 @@ int X509_VERIFY_PARAM_set1_ip(X509_VERIFY_PARAM * param,
 	if(iplen != 0 && iplen != 4 && iplen != 16)
 		return 0;
 	return int_x509_param_set1((char**)&param->ip, &param->iplen,
-	    (char*)ip, iplen);
+	    (char *)ip, iplen);
 }
 
 int X509_VERIFY_PARAM_set1_ip_asc(X509_VERIFY_PARAM * param, const char * ipasc)
@@ -547,7 +547,7 @@ const X509_VERIFY_PARAM * X509_VERIFY_PARAM_get0(int id)
 const X509_VERIFY_PARAM * X509_VERIFY_PARAM_lookup(const char * name)
 {
 	X509_VERIFY_PARAM pm;
-	pm.name = (char*)name;
+	pm.name = (char *)name;
 	if(param_table) {
 		int idx = sk_X509_VERIFY_PARAM_find(param_table, &pm);
 		if(idx != -1)

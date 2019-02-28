@@ -546,7 +546,7 @@ static CURLcode pop3_state_servergreet_resp(struct connectdata * conn, int pop3c
 					if(!timestamplen)
 						break;
 					/* Allocate some memory for the timestamp */
-					pop3c->apoptimestamp = (char*)SAlloc::C(1, timestamplen + 1);
+					pop3c->apoptimestamp = (char *)SAlloc::C(1, timestamplen + 1);
 					if(!pop3c->apoptimestamp)
 						break;
 					/* Copy the timestamp */
@@ -1230,7 +1230,7 @@ CURLcode Curl_pop3_write(struct connectdata * conn, char * str, size_t nread)
 			if(prev) {
 				/* If the partial match was the CRLF and dot then only write the CRLF
 				   as the server would have inserted the dot */
-				result = Curl_client_write(conn, CLIENTWRITE_BODY, (char*)POP3_EOB, strip_dot ? prev - 1 : prev);
+				result = Curl_client_write(conn, CLIENTWRITE_BODY, (char *)POP3_EOB, strip_dot ? prev - 1 : prev);
 				if(result)
 					return result;
 				last = i;
@@ -1242,7 +1242,7 @@ CURLcode Curl_pop3_write(struct connectdata * conn, char * str, size_t nread)
 		/* We have a full match so the transfer is done, however we must transfer
 		   the CRLF at the start of the EOB as this is considered to be part of the
 		   message as per RFC-1939, sect. 3 */
-		result = Curl_client_write(conn, CLIENTWRITE_BODY, (char*)POP3_EOB, 2);
+		result = Curl_client_write(conn, CLIENTWRITE_BODY, (char *)POP3_EOB, 2);
 		k->keepon &= ~KEEP_RECV;
 		pop3c->eob = 0;
 		return result;

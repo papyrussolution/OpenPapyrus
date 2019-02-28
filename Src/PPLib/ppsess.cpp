@@ -2772,7 +2772,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				if(pw[0] && (r_lc.Flags & CFGFLG_SEC_CASESENSPASSW) ? strcmp(pw, pPassword) : stricmp866(pw, pPassword)) {
 					if(logmode == logmSystem) {
 						// для совместимости со старыми версиями (раньше использовался другой механизм шифрования)
-						decrypt((char*)memcpy(pw, usr_rec.Password, sizeof(pw)), sizeof(pw));
+						decrypt((char *)memcpy(pw, usr_rec.Password, sizeof(pw)), sizeof(pw));
 						if(stricmp866(pw, pPassword) == 0)
 							pw_is_wrong = 0;
 					}
@@ -3623,9 +3623,9 @@ int SLAPI PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAd
 				}
 				assert(p_ev_list && p_addendum_ev_list && p_comm_dirty_cache_ev_list);
 			}
-			const uint64 tm_start = SLS.GetProfileTime();
-			const LDATETIME cur = getcurdatetime_();
-			LDATETIME last_cache_update = CMng.GetLastUpdate(dbPathID);
+			const  uint64 tm_start = SLS.GetProfileTime();
+			const  LDATETIME cur = getcurdatetime_();
+			const  LDATETIME last_cache_update = CMng.GetLastUpdate(dbPathID);
 			uint   dirty_call_count = 0;
 			PPAdviseList adv_list;
 			struct SjEntry { // @flat

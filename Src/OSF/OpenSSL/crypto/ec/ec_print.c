@@ -64,7 +64,7 @@ char * EC_POINT_point2hex(const EC_GROUP * group, const EC_POINT * point, point_
 	size_t buf_len = EC_POINT_point2buf(group, point, form, &buf, ctx);
 	if(buf_len == 0)
 		return NULL;
-	ret = (char*)OPENSSL_malloc(buf_len * 2 + 2);
+	ret = (char *)OPENSSL_malloc(buf_len * 2 + 2);
 	if(ret == NULL) {
 		OPENSSL_free(buf);
 		return NULL;

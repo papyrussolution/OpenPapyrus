@@ -2076,7 +2076,7 @@ int SLAPI ZebraLabelPrinter::PutCtrl(uint16 code)
 {
 	int    i = 0;
 	char   buf[32];
-	char * cc = (char*)&code;
+	char * cc = (char *)&code;
 	if(*cc) {
 		buf[i++] = '^';
 		buf[i++] = *cc++;
@@ -2422,7 +2422,7 @@ PPALDD_CONSTRUCTOR(BarcodeLabelList)
 
 PPALDD_DESTRUCTOR(BarcodeLabelList)
 {
-	DlBarcodeLabelListBlock * p_blk = (DlBarcodeLabelListBlock *)Extra[0].Ptr;
+	DlBarcodeLabelListBlock * p_blk = static_cast<DlBarcodeLabelListBlock *>(Extra[0].Ptr);
 	delete p_blk;
 	Destroy();
 }
@@ -2442,7 +2442,7 @@ int PPALDD_BarcodeLabelList::InitData(PPFilt & rFilt, long rsrv)
 
 int PPALDD_BarcodeLabelList::InitIteration(long iterId, int sortId, long rsrv)
 {
-	DlBarcodeLabelListBlock * p_blk = (DlBarcodeLabelListBlock *)Extra[0].Ptr;
+	DlBarcodeLabelListBlock * p_blk = static_cast<DlBarcodeLabelListBlock *>(Extra[0].Ptr);
 	//TSCollection <RetailGoodsInfo> * p_rgi_list = (TSCollection <RetailGoodsInfo> *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
 	IterProlog(iterId, 1);
 	if(p_blk && p_blk->P_RgiList) {
@@ -2462,7 +2462,7 @@ int PPALDD_BarcodeLabelList::NextIteration(long iterId)
 	int    ok = -1;
 	IterProlog(iterId, 0);
 	//TSCollection <RetailGoodsInfo> * p_rgi_list = (TSCollection <RetailGoodsInfo> *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
-	DlBarcodeLabelListBlock * p_blk = (DlBarcodeLabelListBlock *)Extra[0].Ptr;
+	DlBarcodeLabelListBlock * p_blk = static_cast<DlBarcodeLabelListBlock *>(Extra[0].Ptr);
 	if(p_blk && p_blk->P_RgiList && p_blk->N < (int)p_blk->P_RgiList->getCount()) {
 		const RetailGoodsInfo * p_rgi = p_blk->P_RgiList->at(p_blk->N);
         const uint num_copies = (p_rgi->LabelCount > 1 && p_rgi->LabelCount < 1000) ? p_rgi->LabelCount : 1;

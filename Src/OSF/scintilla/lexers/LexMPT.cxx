@@ -16,7 +16,7 @@
 using namespace Scintilla;
 #endif
 
-static int GetLotLineState(std::string &line)
+static int GetLotLineState(const std::string &line)
 {
 	if(line.length()) {
 		// Most of the time the first non-blank character in line determines that line's type

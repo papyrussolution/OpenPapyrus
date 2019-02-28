@@ -105,7 +105,7 @@ TIFF * TIFFClientOpen(const char * name, const char * mode, thandle_t clientdata
 		goto bad2;
 	}
 	memzero(tif, sizeof(*tif));
-	tif->tif_name = (char*)tif + sizeof(TIFF);
+	tif->tif_name = (char *)tif + sizeof(TIFF);
 	strcpy(tif->tif_name, name);
 	tif->tif_mode = m &~(O_CREAT|O_TRUNC);
 	tif->tif_curdir = (uint16)-1;          /* non-existent directory */
@@ -351,7 +351,7 @@ TIFF * TIFFClientOpen(const char * name, const char * mode, thandle_t clientdata
 		tif->tif_header_size = sizeof(TIFFHeaderClassic);
 	}
 	else {
-		if(!ReadOK(tif, ((uint8*)(&tif->tif_header) + sizeof(TIFFHeaderClassic)), (sizeof(TIFFHeaderBig)-sizeof(TIFFHeaderClassic)))) {
+		if(!ReadOK(tif, ((uint8 *)(&tif->tif_header) + sizeof(TIFFHeaderClassic)), (sizeof(TIFFHeaderBig)-sizeof(TIFFHeaderClassic)))) {
 			TIFFErrorExt(tif->tif_clientdata, name, "Cannot read TIFF header");
 			goto bad;
 		}
@@ -446,7 +446,7 @@ const char * TIFFFileName(TIFF* tif)
 const char * TIFFSetFileName(TIFF* tif, const char * name)
 {
 	const char* old_name = tif->tif_name;
-	tif->tif_name = (char*)name;
+	tif->tif_name = (char *)name;
 	return (old_name);
 }
 /*

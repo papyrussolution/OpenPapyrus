@@ -83,8 +83,8 @@ int ASN1_sign(i2d_of_void * i2d, X509_ALGOR * algor1, X509_ALGOR * algor2,
 	signature->flags |= ASN1_STRING_FLAG_BITS_LEFT;
 err:
 	EVP_MD_CTX_free(ctx);
-	OPENSSL_clear_free((char*)buf_in, (uint)inl);
-	OPENSSL_clear_free((char*)buf_out, outll);
+	OPENSSL_clear_free((char *)buf_in, (uint)inl);
+	OPENSSL_clear_free((char *)buf_out, outll);
 	return (outl);
 }
 
@@ -179,7 +179,7 @@ int ASN1_item_sign_ctx(const ASN1_ITEM * it, X509_ALGOR * algor1, X509_ALGOR * a
 	signature->flags &= ~(ASN1_STRING_FLAG_BITS_LEFT | 0x07);
 	signature->flags |= ASN1_STRING_FLAG_BITS_LEFT;
 err:
-	OPENSSL_clear_free((char*)buf_in, (uint)inl);
-	OPENSSL_clear_free((char*)buf_out, outll);
+	OPENSSL_clear_free((char *)buf_in, (uint)inl);
+	OPENSSL_clear_free((char *)buf_out, outll);
 	return (outl);
 }

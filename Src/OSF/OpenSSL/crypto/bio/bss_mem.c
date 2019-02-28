@@ -86,7 +86,7 @@ BIO * BIO_new_mem_buf(const void * buf, int len)
 	bb = (BIO_BUF_MEM*)ret->ptr;
 	b = bb->buf;
 	/* Cast away const and trust in the MEM_RDONLY flag. */
-	b->data = (char*)buf;
+	b->data = (char *)buf;
 	b->length = sz;
 	b->max = sz;
 	*bb->readp = *bb->buf;
@@ -115,7 +115,7 @@ static int mem_init(BIO * bi, ulong flags)
 	bi->shutdown = 1;
 	bi->init = 1;
 	bi->num = -1;
-	bi->ptr = (char*)bb;
+	bi->ptr = (char *)bb;
 	return 1;
 }
 
@@ -251,7 +251,7 @@ static long mem_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    ret = (long)bm->length;
 		    if(ptr) {
 			    pptr = (char**)ptr;
-			    *pptr = (char*)&(bm->data[0]);
+			    *pptr = (char *)&(bm->data[0]);
 		    }
 		    break;
 		case BIO_C_SET_BUF_MEM:
@@ -266,7 +266,7 @@ static long mem_ctrl(BIO * b, int cmd, long num, void * ptr)
 			    mem_buf_sync(b);
 			    bm = bbm->readp;
 			    pptr = (char**)ptr;
-			    *pptr = (char*)bm;
+			    *pptr = (char *)bm;
 		    }
 		    break;
 		case BIO_CTRL_GET_CLOSE:

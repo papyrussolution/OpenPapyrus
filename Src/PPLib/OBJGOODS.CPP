@@ -851,41 +851,44 @@ int SLAPI PPObjGoods::GetPacket(PPID id, PPGoodsPacket * pPack, long options)
 	int    ok = 1;
 	id = labs(id);
 	pPack->destroy();
-	if((ok = Search(id, &pPack->Rec)) > 0) {
-		if(pPack->Rec.PhUPerU == HUGE_VAL)
-			pPack->Rec.PhUPerU = 0.0;
-		THROW(ReadBarcodes(id, pPack->Codes));
-		THROW(P_Tbl->ReadArCodes(id, &pPack->ArCodes));
-		THROW(P_Tbl->GetExt(id, &pPack->ExtRec));
-		THROW(GetStockExt(id, &pPack->Stock, 0));
-		if(pPack->Rec.StrucID) {
-			int r = GSObj.Get(pPack->Rec.StrucID, &pPack->GS);
-			THROW(r);
-			if(r > 0)
-				pPack->GS.GoodsID = id;
-			else {
-				SString msg_buf;
-				msg_buf.Cat(pPack->Rec.Name).CatDiv(';', 2).CatEq("ID", id).CatDiv(';', 2).CatEq("StrucID", pPack->Rec.StrucID);
-				PPSetError(PPERR_STRUCBYGOODSNFOUND, msg_buf);
-				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_USER|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_LASTERR);
-				pPack->GS.GoodsID = 0;
+	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
+		ok = Search(id, &pPack->Rec);
+		if(ok > 0) {
+			if(pPack->Rec.PhUPerU == HUGE_VAL)
+				pPack->Rec.PhUPerU = 0.0;
+			THROW(ReadBarcodes(id, pPack->Codes));
+			THROW(P_Tbl->ReadArCodes(id, &pPack->ArCodes));
+			THROW(P_Tbl->GetExt(id, &pPack->ExtRec));
+			THROW(GetStockExt(id, &pPack->Stock, 0));
+			if(pPack->Rec.StrucID) {
+				int r = GSObj.Get(pPack->Rec.StrucID, &pPack->GS);
+				THROW(r);
+				if(r > 0)
+					pPack->GS.GoodsID = id;
+				else {
+					SString msg_buf;
+					msg_buf.Cat(pPack->Rec.Name).CatDiv(';', 2).CatEq("ID", id).CatDiv(';', 2).CatEq("StrucID", pPack->Rec.StrucID);
+					PPSetError(PPERR_STRUCBYGOODSNFOUND, msg_buf);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_USER|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_LASTERR);
+					pPack->GS.GoodsID = 0;
+				}
 			}
+			if(oneof2(pPack->Rec.Kind, PPGDSK_GOODS, PPGDSK_GROUP) && !(options & gpoSkipQuot)) { // @v8.3.7 && !(options & gpoSkipQuot)
+				PPQuotArray quots;
+				if(GetQuotList(pPack->Rec.ID, 0, quots) > 0 && quots.getCount())
+					THROW_MEM(pPack->P_Quots = new PPQuotArray(quots));
+			}
+			if(pPack->Rec.Kind == PPGDSK_GROUP && pPack->Rec.Flags & GF_ALTGROUP) {
+				GoodsFilt flt;
+				if(flt.ReadFromProp(PPOBJ_GOODSGROUP, id, GGPRP_GOODSFILT2, GGPRP_GOODSFLT_) > 0)
+					if(!flt.IsEmpty())
+						THROW_MEM(pPack->P_Filt = new GoodsFilt(flt));
+			}
+			THROW(GetValueAddedData(id, pPack));
+			if(pPack->Rec.Kind == PPGDSK_GROUP)
+				THROW(PPRef->GetPropVlrString(PPOBJ_GOODSGROUP, id, GGPRP_EXSTRTITLES, pPack->ExTitles));
+			THROW(GetTagList(pPack->Rec.ID, &pPack->TagL));
 		}
-		if(oneof2(pPack->Rec.Kind, PPGDSK_GOODS, PPGDSK_GROUP) && !(options & gpoSkipQuot)) { // @v8.3.7 && !(options & gpoSkipQuot)
-			PPQuotArray quots;
-			if(GetQuotList(pPack->Rec.ID, 0, quots) > 0 && quots.getCount())
-				THROW_MEM(pPack->P_Quots = new PPQuotArray(quots));
-		}
-		if(pPack->Rec.Kind == PPGDSK_GROUP && pPack->Rec.Flags & GF_ALTGROUP) {
-			GoodsFilt flt;
-			if(flt.ReadFromProp(PPOBJ_GOODSGROUP, id, GGPRP_GOODSFILT2, GGPRP_GOODSFLT_) > 0)
-				if(!flt.IsEmpty())
-					THROW_MEM(pPack->P_Filt = new GoodsFilt(flt));
-		}
-		THROW(GetValueAddedData(id, pPack));
-		if(pPack->Rec.Kind == PPGDSK_GROUP)
-			THROW(PPRef->GetPropVlrString(PPOBJ_GOODSGROUP, id, GGPRP_EXSTRTITLES, pPack->ExTitles));
-		THROW(GetTagList(pPack->Rec.ID, &pPack->TagL));
 	}
 	else
 		ok = -1;

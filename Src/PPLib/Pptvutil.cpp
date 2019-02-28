@@ -1588,7 +1588,7 @@ int FASTCALL SetupSCollectionComboBox(TDialog * dlg, uint ctl, SCollection * pSC
 	if(cb && pSC && pSC->getCount()) {
 		ListWindow * lw = CreateListWindow(128, lbtDisposeData);
 		for(uint i = 0; i < pSC->getCount(); i++) {
-			char * p_buf = (char*)pSC->at(i);
+			char * p_buf = (char *)pSC->at(i);
 			if(p_buf && p_buf[0] != '\0') {
 				char   temp_buf[128];
 				long   id = 0;

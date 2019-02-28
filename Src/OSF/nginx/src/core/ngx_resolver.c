@@ -93,7 +93,7 @@ static ngx_int_t ngx_resolver_cmp_srvs(const void * one, const void * two);
 
 #if (NGX_HAVE_INET6)
 static void ngx_resolver_rbtree_insert_addr6_value(ngx_rbtree_node_t * temp, ngx_rbtree_node_t * node, ngx_rbtree_node_t * sentinel);
-static ngx_resolver_node_t * ngx_resolver_lookup_addr6(ngx_resolver_t * r, struct in6_addr * addr, uint32_t hash);
+static ngx_resolver_node_t * ngx_resolver_lookup_addr6(ngx_resolver_t * r, const struct in6_addr * addr, uint32_t hash);
 #endif
 
 ngx_resolver_t * ngx_resolver_create(ngx_conf_t * cf, ngx_str_t * names, ngx_uint_t n)
@@ -2714,7 +2714,7 @@ static ngx_resolver_node_t * ngx_resolver_lookup_addr(ngx_resolver_t * r, in_add
 
 #if (NGX_HAVE_INET6)
 
-static ngx_resolver_node_t * ngx_resolver_lookup_addr6(ngx_resolver_t * r, struct in6_addr * addr, uint32_t hash)
+static ngx_resolver_node_t * ngx_resolver_lookup_addr6(ngx_resolver_t * r, const struct in6_addr * addr, uint32_t hash)
 {
 	ngx_int_t rc;
 	ngx_resolver_node_t  * rn;

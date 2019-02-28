@@ -143,7 +143,7 @@ void _cairo_xcb_connection_put_image(cairo_xcb_connection_t * connection,
 
 				height -= rows;
 				dst_y += rows;
-				data = (char*)data + length;
+				data = (char *)data + length;
 			} while(height);
 		}
 		else {
@@ -204,7 +204,7 @@ static void _cairo_xcb_connection_do_put_subimage(cairo_xcb_connection_t * conne
 	data += src_y * stride + src_x * cpp;
 	/* vec[1] will be used in XCB if it has to use BigRequests or insert a sync,
 	 * vec[0] is used if the internal queue needs to be flushed. */
-	vec[2].iov_base = (char*)&req;
+	vec[2].iov_base = (char *)&req;
 	vec[2].iov_len = sizeof(req);
 
 	/* Now comes the actual data */
@@ -263,7 +263,7 @@ void _cairo_xcb_connection_put_subimage(cairo_xcb_connection_t * connection,
 				    width, rows, cpp, stride, dst_x, dst_y, depth, _data);
 				height -= rows;
 				dst_y += rows;
-				_data = (char*)_data + stride * rows;
+				_data = (char *)_data + stride * rows;
 			} while(height);
 		}
 		else {

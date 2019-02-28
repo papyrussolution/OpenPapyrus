@@ -3325,7 +3325,7 @@ void BillItemBrowser::addItemBySerial()
 		isd_param.P_Wse = new ObjTagSelExtra(PPOBJ_LOT, PPTAG_LOT_SN);
 		{
 			const long _flags = opened_only ? ObjTagSelExtra::lfOpenedSerialsOnly : 0;
-			((ObjTagSelExtra *)isd_param.P_Wse)->SetupLotSerialParam(P_Pack->Rec.LocID, _flags);
+			static_cast<ObjTagSelExtra *>(isd_param.P_Wse)->SetupLotSerialParam(P_Pack->Rec.LocID, _flags);
 		}
 		if(InputStringDialog(&isd_param, serial) > 0 && serial.NotEmptyS()) {
 			ReceiptTbl::Rec lot_rec;
@@ -3713,7 +3713,7 @@ void CompleteBrowser::update(int pos)
 				view->go(c);
 			else if(pos == pos_bottom)
 				view->go(a->getCount() - 2);
-			else if(pos >= 0 && pos < (int)a->getCount())
+			else if(pos >= 0 && pos < static_cast<int>(a->getCount()))
 				view->go(pos);
 		}
 	}
@@ -3725,7 +3725,7 @@ IMPL_HANDLE_EVENT(CompleteBrowser)
 	if(event.isCmd(cmaEdit)) {
 		if(AsSelector) {
 			if(IsInState(sfModal)) {
-				SelectedPos = (int)view->getDef()->_curItem();
+				SelectedPos = view->getDef()->_curItem();
 				endModal(cmOK);
 				return; // После endModal не следует обращаться к this
 			}
@@ -3777,7 +3777,7 @@ IMPL_HANDLE_EVENT(CompleteBrowser)
 int CompleteBrowser::GetSelectedItem(CompleteItem * pItem)
 {
 	int    ok = 1;
-	if(AsSelector && SelectedPos >= 0 && (uint)SelectedPos < Data.getCount()) {
+	if(AsSelector && SelectedPos >= 0 && SelectedPos < static_cast<int>(Data.getCount())) {
 		ASSIGN_PTR(pItem, Data.at(SelectedPos));
 	}
 	else

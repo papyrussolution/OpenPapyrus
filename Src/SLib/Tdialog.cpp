@@ -488,7 +488,7 @@ void SLAPI TDialog::Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc,
 		// TView::messageCommand(APPL->P_DeskTop, cmGetFocusedNumber, &c); в калькуляторе).
 		//
 		TView * preserve_current = APPL->P_DeskTop->GetCurrentView();
-		HW = APPL->CreateDlg(resourceID, APPL->H_TopOfStack, (DLGPROC)TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
+		HW = APPL->CreateDlg(resourceID, APPL->H_TopOfStack, TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
 		::ShowWindow(H(), SW_HIDE);
 		APPL->P_DeskTop->SetCurrentView(preserve_current, leaveSelect);
 	}

@@ -809,7 +809,7 @@ PPALDD_CONSTRUCTOR(MrpTab)
 PPALDD_DESTRUCTOR(MrpTab)
 {
 	Destroy();
-	delete (PPObjMrpTab *)Extra[0].Ptr;
+	delete static_cast<PPObjMrpTab *>(Extra[0].Ptr);
 }
 
 int PPALDD_MrpTab::InitData(PPFilt & rFilt, long rsrv)

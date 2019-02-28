@@ -193,7 +193,7 @@ GLOBAL(djpeg_dest_ptr) jinit_write_ppm(j_decompress_ptr cinfo)
 	/* Create physical I/O buffer.  Note we make this near on a PC. */
 	dest->samples_per_row = cinfo->output_width * cinfo->out_color_components;
 	dest->buffer_width = dest->samples_per_row * (BYTESPERSAMPLE * SIZEOF(char));
-	dest->iobuffer = (char*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, dest->buffer_width);
+	dest->iobuffer = (char *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, dest->buffer_width);
 	if(cinfo->quantize_colors || BITS_IN_JSAMPLE != 8 || SIZEOF(JSAMPLE) != SIZEOF(char)) {
 		/* When quantizing, we need an output buffer for colormap indexes
 		 * that's separate from the physical I/O buffer.  We also need a

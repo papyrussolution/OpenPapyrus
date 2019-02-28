@@ -97,7 +97,7 @@ int PalmConfig::ToBuf(void * pBuf, size_t * pBufSize)
 			ok = -1;
 		}
 		else {
-			char * p_buf = (char*)pBuf;
+			char * p_buf = (char *)pBuf;
 			size_t bytes = 0;
 			memcpy(p_buf + bytes,                             &Size,           sizeof(Size));
 			memcpy(p_buf + (bytes += sizeof(Size)),           &Ver,            sizeof(Ver));
@@ -249,7 +249,7 @@ int PalmArcHdr::ToBuf(void * pBuf, size_t * pBufSize)
 			ok = -1;
 		}
 		else {
-			char * p_buf = (char*)pBuf;
+			char * p_buf = (char *)pBuf;
 			size_t bytes = 0;
 			memcpy(p_buf,                               &Ver,     sizeof(Ver));
 			memcpy(p_buf + (bytes += sizeof(Ver)),      &NumRecs, sizeof(NumRecs));
@@ -539,7 +539,7 @@ int SpOrdHeaderStruc::ToBuf(void * pBuf, size_t * pBufSize)
 			ok = -1;
 		}
 		else {
-			char * p_buf = (char*)pBuf;
+			char * p_buf = (char *)pBuf;
 			size_t bytes = 0;
 			memcpy(p_buf,                                 &ID,         sizeof(ID));
 			memcpy(p_buf + (bytes += sizeof(ID)),         &Date,       sizeof(Date));
@@ -589,7 +589,7 @@ int SpOrdLineStruc::ToBuf(void * pBuf, size_t * pBufSize)
 			ok = -1;
 		}
 		else {
-			char * p_buf = (char*)pBuf;
+			char * p_buf = (char *)pBuf;
 			size_t bytes = 0;
 			memcpy(p_buf,                              &ID,      sizeof(ID));
 			memcpy(p_buf + (bytes += sizeof(ID)),      &OrderID, sizeof(OrderID));

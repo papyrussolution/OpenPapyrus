@@ -1429,7 +1429,7 @@ PPALDD_CONSTRUCTOR(StaffNom)
 PPALDD_DESTRUCTOR(StaffNom)
 {
 	Destroy();
-	delete (PPObjStaffList *)Extra[0].Ptr;
+	delete static_cast<PPObjStaffList *>(Extra[0].Ptr);
 }
 
 int PPALDD_StaffNom::InitData(PPFilt & rFilt, long rsrv)
@@ -1439,7 +1439,7 @@ int PPALDD_StaffNom::InitData(PPFilt & rFilt, long rsrv)
 		ok = DlRtm::InitData(rFilt, rsrv);
 	else {
 		MEMSZERO(H);
-		PPObjStaffList * p_obj = (PPObjStaffList *)Extra[0].Ptr;
+		PPObjStaffList * p_obj = static_cast<PPObjStaffList *>(Extra[0].Ptr);
 		PPStaffEntry rec;
 		if(p_obj->Search(rFilt.ID, &rec) > 0) {
 			H.ID           = rec.ID;
@@ -1469,7 +1469,7 @@ PPALDD_CONSTRUCTOR(PersonPost)
 PPALDD_DESTRUCTOR(PersonPost)
 {
 	Destroy();
-	delete (PPObjStaffList *)Extra[0].Ptr;
+	delete static_cast<PPObjStaffList *>(Extra[0].Ptr);
 }
 
 int PPALDD_PersonPost::InitData(PPFilt & rFilt, long rsrv)
@@ -1479,7 +1479,7 @@ int PPALDD_PersonPost::InitData(PPFilt & rFilt, long rsrv)
 		ok = DlRtm::InitData(rFilt, rsrv);
 	else {
 		MEMSZERO(H);
-		PPObjStaffList * p_obj = (PPObjStaffList *)Extra[0].Ptr;
+		PPObjStaffList * p_obj = static_cast<PPObjStaffList *>(Extra[0].Ptr);
 		PersonPostTbl::Rec rec;
 		if(p_obj->SearchPost(rFilt.ID, &rec) > 0) {
 			H.ID           = rec.ID;

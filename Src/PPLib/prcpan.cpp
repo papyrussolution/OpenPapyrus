@@ -540,7 +540,7 @@ void PrcPaneDialog::ProcessEnter()
 {
 	int    prev_state = State;
 	SString temp_buf;
-	setCtrlString(CTL_PRCPAN_INFO, (const char *)0);
+	setCtrlString(CTL_PRCPAN_INFO, static_cast<const char *>(0));
 	if(State == sIDLE) {
 		if(CONFIRM(PPCFM_PRCIDLECANCEL))
 			setIdleMode(0);
@@ -741,7 +741,7 @@ void PrcPaneDialog::clearPanel()
 
 void PrcPaneDialog::selectGoods(int mode)
 {
-	setCtrlString(CTL_PRCPAN_INFO, (const char *)0);
+	setCtrlString(CTL_PRCPAN_INFO, static_cast<const char *>(0));
 	if(H.SessID && oneof6(State, sEMPTY_SESS, sGOODS_NOQTTY, sGOODS_QTTY, sREST, sREST_SERIAL_NOQTTY, sREST_SERIAL_QTTY)) {
 		if(mode == 0) {
 			ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(0, NewGoodsGrpID);

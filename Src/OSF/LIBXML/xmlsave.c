@@ -332,7 +332,7 @@ static void FASTCALL xmlSaveCtxtInit(xmlSaveCtxtPtr ctxt)
 static void FASTCALL xmlFreeSaveCtxt(xmlSaveCtxtPtr ctxt)
 {
 	if(ctxt) {
-		SAlloc::F((char*)ctxt->encoding);
+		SAlloc::F((char *)ctxt->encoding);
 		xmlOutputBufferClose(ctxt->buf);
 		SAlloc::F(ctxt);
 	}
@@ -2286,7 +2286,7 @@ int xmlDocFormatDump(FILE * f, xmlDoc * cur, int format)
 	if(encoding) {
 		handler = xmlFindCharEncodingHandler(encoding);
 		if(handler == NULL) {
-			SAlloc::F((char*)cur->encoding);
+			SAlloc::F((char *)cur->encoding);
 			cur->encoding = NULL;
 			encoding = NULL;
 		}

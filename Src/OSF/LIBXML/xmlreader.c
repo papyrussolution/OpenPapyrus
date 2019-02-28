@@ -48,7 +48,7 @@
 	#define VA_COPY(dest, src) (dest) = (src)
       #else
 	#include <string.h>
-	#define VA_COPY(dest, src) memcpy((char*)(dest), (char*)(src), sizeof(va_list))
+	#define VA_COPY(dest, src) memcpy((char *)(dest), (char *)(src), sizeof(va_list))
       #endif
     #endif
   #endif
@@ -188,7 +188,7 @@ static int xmlTextReaderNextTree(xmlTextReader * reader);
  *
  * Free a string if it is not owned by the "dict" dictionnary in the current scope
  */
-//#define DICT_FREE(str) if((str) && ((!dict) || (xmlDictOwns(dict, (const xmlChar*)(str)) == 0))) SAlloc::F((char*)(str));
+//#define DICT_FREE(str) if((str) && ((!dict) || (xmlDictOwns(dict, (const xmlChar*)(str)) == 0))) SAlloc::F((char *)(str));
 
 static void xmlTextReaderFreeNode(xmlTextReader * reader, xmlNode * cur);
 static void FASTCALL xmlTextReaderFreeNodeList(xmlTextReader * reader, xmlNode * cur);
@@ -435,12 +435,12 @@ static void xmlTextReaderFreeDoc(xmlTextReader * reader, xmlDoc * cur)
 			xmlFreeDtd(intSubset);
 		}
 		xmlTextReaderFreeNodeList(reader, cur->children);
-		SAlloc::F((char*)cur->version);
-		SAlloc::F((char*)cur->name);
-		SAlloc::F((char*)cur->encoding);
+		SAlloc::F((char *)cur->version);
+		SAlloc::F((char *)cur->name);
+		SAlloc::F((char *)cur->encoding);
 		if(cur->oldNs)
 			xmlFreeNsList(cur->oldNs);
-		SAlloc::F((char*)cur->URL);
+		SAlloc::F((char *)cur->URL);
 		xmlDictFree(cur->dict);
 		SAlloc::F(cur);
 	}
@@ -3948,7 +3948,7 @@ static char * xmlTextReaderBuildMessage(const char * msg, va_list ap)
 		if((chars < size) || (size == MAX_ERR_MSG_SIZE))
 			break;
 		size = (chars < MAX_ERR_MSG_SIZE) ? (chars + 1) : MAX_ERR_MSG_SIZE;
-		if((larger = (char*)SAlloc::R(str, size)) == NULL) {
+		if((larger = (char *)SAlloc::R(str, size)) == NULL) {
 			xmlGenericError(0, "xmlRealloc failed !\n");
 			SAlloc::F(str);
 			return NULL;
@@ -4326,7 +4326,7 @@ else {
 				xmlFreeParserInputBuffer(buf);
 				return -1;
 			}
-			inputStream->filename = URL ? (char*)xmlCanonicPath((const xmlChar*)URL) : 0;
+			inputStream->filename = URL ? (char *)xmlCanonicPath((const xmlChar*)URL) : 0;
 			inputStream->buf = buf;
 			xmlBufResetInput(buf->buffer, inputStream);
 			inputPush(reader->ctxt, inputStream);

@@ -645,7 +645,7 @@ void FASTCALL xmlXPathErr(xmlXPathParserContextPtr ctxt, int error)
 	ctxt->context->lastError.domain = XML_FROM_XPATH;
 	ctxt->context->lastError.code = error + XML_XPATH_EXPRESSION_OK - XPATH_EXPRESSION_OK;
 	ctxt->context->lastError.level = XML_ERR_ERROR;
-	ctxt->context->lastError.str1 = (char*)sstrdup(ctxt->base);
+	ctxt->context->lastError.str1 = (char *)sstrdup(ctxt->base);
 	ctxt->context->lastError.int1 = ctxt->cur - ctxt->base;
 	ctxt->context->lastError.P_Node = ctxt->context->debugNode;
 	if(ctxt->context->error) {
@@ -4915,7 +4915,7 @@ xmlXPathObjectPtr xmlXPathObjectCopy(xmlXPathObject * val)
 			    xmlDocPtr top;
 			    ret->boolval = 1;
 			    top =  xmlNewDoc(NULL);
-			    top->name = (char*)sstrdup(val->nodesetval->nodeTab[0]->name);
+			    top->name = (char *)sstrdup(val->nodesetval->nodeTab[0]->name);
 			    ret->user = top;
 			    if(top) {
 				    top->doc = top;
@@ -12505,7 +12505,7 @@ static int xmlXPathCompOpEval(xmlXPathParserContextPtr ctxt, xmlXPathStepOpPtr o
 				const xmlChar * URI;
 				URI = xmlXPathNsLookup(ctxt->context, (const xmlChar *)op->value5);
 				if(URI == NULL) {
-					xmlGenericError(0, "xmlXPathCompOpEval: variable %s bound to undefined prefix %s\n", (char*)op->value4, (char*)op->value5);
+					xmlGenericError(0, "xmlXPathCompOpEval: variable %s bound to undefined prefix %s\n", (char *)op->value4, (char *)op->value5);
 					ctxt->error = XPATH_UNDEF_PREFIX_ERROR;
 					return (total);
 				}
@@ -12553,7 +12553,7 @@ static int xmlXPathCompOpEval(xmlXPathParserContextPtr ctxt, xmlXPathStepOpPtr o
 				else {
 					URI = xmlXPathNsLookup(ctxt->context, (const xmlChar *)op->value5);
 					if(URI == NULL) {
-						xmlGenericError(0, "xmlXPathCompOpEval: function %s bound to undefined prefix %s\n", (char*)op->value4, (char*)op->value5);
+						xmlGenericError(0, "xmlXPathCompOpEval: function %s bound to undefined prefix %s\n", (char *)op->value4, (char *)op->value5);
 						xmlXPathPopFrame(ctxt, frame);
 						ctxt->error = XPATH_UNDEF_PREFIX_ERROR;
 						return (total);
@@ -12561,7 +12561,7 @@ static int xmlXPathCompOpEval(xmlXPathParserContextPtr ctxt, xmlXPathStepOpPtr o
 					func = xmlXPathFunctionLookupNS(ctxt->context, (const xmlChar *)op->value4, URI);
 				}
 				if(func == NULL) {
-					xmlGenericError(0, "xmlXPathCompOpEval: function %s not found\n", (char*)op->value4);
+					xmlGenericError(0, "xmlXPathCompOpEval: function %s not found\n", (char *)op->value4);
 					XP_ERROR0(XPATH_UNKNOWN_FUNC_ERROR);
 				}
 				op->cache = XML_CAST_FPTR(func);

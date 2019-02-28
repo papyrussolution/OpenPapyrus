@@ -20,7 +20,7 @@ int FASTCALL dbl_cmp(double v1, double v2)
 		return 0;
 }
 
-IMPL_CMPFUNC(PPLBItem, i1, i2) { return stricmp866(((char*)i1)+sizeof(long), ((char*)i2)+sizeof(long)); }
+IMPL_CMPFUNC(PPLBItem, i1, i2) { return stricmp866(((char *)i1)+sizeof(long), ((char *)i2)+sizeof(long)); }
 
 IMPL_CMPFUNC(PPTLBItem, i1, i2)
 {
@@ -30,7 +30,7 @@ IMPL_CMPFUNC(PPTLBItem, i1, i2)
 		return 1;
 	else if(parent_id1 < parent_id2)
 		return -1;
-	int    cmp = stricmp866(((char*)i1)+sizeof(long)*2, ((char*)i2)+sizeof(long)*2);
+	int    cmp = stricmp866(((char *)i1)+sizeof(long)*2, ((char *)i2)+sizeof(long)*2);
 	if(cmp > 0)
 		return 1;
 	else if(cmp < 0)

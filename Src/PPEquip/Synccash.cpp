@@ -58,7 +58,7 @@ public:
 	{
 	}
 	int    SLAPI Search(long VAT, long salesTax, uint * p = 0);
-	int    SLAPI Insert(Sync_BillTaxEntry * e, uint * p = 0);
+	int    SLAPI Insert(const Sync_BillTaxEntry * pEntry, uint * p = 0);
 	int    SLAPI Add(Sync_BillTaxEntry * e);
 	Sync_BillTaxEntry & SLAPI  at(uint p);
 };
@@ -73,8 +73,8 @@ int SLAPI Sync_BillTaxArray::Search(long VAT, long salesTax, uint * p)
 	return bsearch(&bte, p, PTR_CMPFUNC(Sync_BillTaxEnKey));
 }
 
-int SLAPI Sync_BillTaxArray::Insert(Sync_BillTaxEntry * e, uint * p)
-	{ return ordInsert(e, p, PTR_CMPFUNC(Sync_BillTaxEnKey)) ? 1 : PPSetErrorSLib(); }
+int SLAPI Sync_BillTaxArray::Insert(const Sync_BillTaxEntry * pEntry, uint * p)
+	{ return ordInsert(pEntry, p, PTR_CMPFUNC(Sync_BillTaxEnKey)) ? 1 : PPSetErrorSLib(); }
 Sync_BillTaxEntry & SLAPI Sync_BillTaxArray::at(uint p)
 	{ return *(Sync_BillTaxEntry*)SVector::at(p); } // @v9.8.4 SArray-->SVector
 

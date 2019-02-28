@@ -330,7 +330,7 @@ static void smb_format_message(struct connectdata * conn, struct smb_header * h,
 	uint pid;
 	memzero(h, sizeof(*h));
 	h->nbt_length = htons((ushort)(sizeof(*h) - sizeof(uint) + len));
-	memcpy((char*)h->magic, "\xffSMB", 4);
+	memcpy((char *)h->magic, "\xffSMB", 4);
 	h->command = cmd;
 	h->flags = SMB_FLAGS_CANONICAL_PATHNAMES | SMB_FLAGS_CASELESS_PATHNAMES;
 	h->flags2 = smb_swap16(SMB_FLAGS2_IS_LONG_NAME | SMB_FLAGS2_KNOWS_LONG_NAME);
@@ -729,7 +729,7 @@ static CURLcode smb_request_state(struct connectdata * conn, bool * done)
 			    }
 			    else
 				    result = Curl_client_write(conn, CLIENTWRITE_BODY,
-				    (char*)msg + off + sizeof(uint),
+				    (char *)msg + off + sizeof(uint),
 				    len);
 			    if(result) {
 				    req->result = result;

@@ -7038,7 +7038,7 @@ namespace NArchive {
 			return S_OK;
 		}
 
-		static int FASTCALL FindLinkBuf(CObjectVector<CLinkFile> & linkFiles, unsigned index)
+		static int FASTCALL FindLinkBuf(const CObjectVector <CLinkFile> & linkFiles, unsigned index)
 		{
 			for(uint left = 0, right = linkFiles.Size();;) {
 				if(left == right)

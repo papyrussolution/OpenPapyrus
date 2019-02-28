@@ -179,7 +179,7 @@ void cairo_test_fini(cairo_test_context_t * ctx)
 	cairo_surface_destroy(ctx->ref_image);
 	cairo_surface_destroy(ctx->ref_image_flattened);
 	if(ctx->test_name != NULL)
-		free((char*)ctx->test_name);
+		free((char *)ctx->test_name);
 	if(ctx->own_targets)
 		cairo_boilerplate_free_targets(ctx->targets_to_test);
 	cairo_boilerplate_fini();
@@ -521,12 +521,12 @@ static cairo_test_status_t cairo_test_for_target(cairo_test_context_t * ctx, con
 	if(dev_offset)
 		xasprintf(&offset_str, ".%d", dev_offset);
 	else
-		offset_str = (char*)empty_str;
+		offset_str = (char *)empty_str;
 
 	if(dev_scale != 1)
 		xasprintf(&scale_str, ".x%d", dev_scale);
 	else
-		scale_str = (char*)empty_str;
+		scale_str = (char *)empty_str;
 
 	xasprintf(&base_name, "%s.%s.%s%s%s%s",
 	    ctx->test_name,

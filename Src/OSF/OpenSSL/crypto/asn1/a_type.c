@@ -28,7 +28,7 @@ void ASN1_TYPE_set(ASN1_TYPE * a, int type, void * value)
 	if(type == V_ASN1_BOOLEAN)
 		a->value.boolean = value ? 0xff : 0;
 	else
-		a->value.ptr = (char*)value;
+		a->value.ptr = (char *)value;
 }
 
 int ASN1_TYPE_set1(ASN1_TYPE * a, int type, const void * value)

@@ -1,5 +1,5 @@
 // C_BILL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 // Корректировка документов
 //
@@ -77,6 +77,10 @@ private:
 };
 
 struct RecoverAbsBillData {
+	RecoverAbsBillData()
+	{
+		THISZERO();
+	}
 	PPID   BillID;
 	PPID   OpTypeID;
 	PPID   OpID;
@@ -85,7 +89,6 @@ struct RecoverAbsBillData {
 	LDATE  Dt;
 	uint   Flags; //  PrcssrAbcentBill::AbsentEntry::fXXX
 	int    Stop;
-
 	double Cost;
 	double Price;
 	double Discount;
@@ -205,7 +208,7 @@ static int SLAPI RecalcBillDialog(uint rezID, BillRecalcParam * pFilt)
 		SetPeriodInput(dlg, CTL_BILLFLT_PERIOD, &pFilt->Period);
 		dlg->setCtrlString(CTL_BILLFLT_LOGFILE, pFilt->LogFileName);
 		types.addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSORDER,
-			PPOPT_PAYMENT, PPOPT_GOODSRETURN, PPOPT_GOODSREVAL, PPOPT_GOODSACK, PPOPT_GOODSMODIF, PPOPT_GENERIC, 0L);
+			PPOPT_PAYMENT, PPOPT_GOODSRETURN, PPOPT_GOODSREVAL, PPOPT_GOODSACK, PPOPT_GOODSMODIF, PPOPT_GENERIC, PPOPT_CORRECTION, 0L); // @v10.3.6 PPOPT_CORRECTION
 		SetupOprKindCombo(dlg, CTLSEL_BILLFLT_OPRKIND, pFilt->OpID, 0, &types, 0);
 		dlg->AddClusterAssoc(CTL_BILLFLT_FLAGS, 0, BillRecalcParam::fNoRecalcAmounts);
 		dlg->AddClusterAssoc(CTL_BILLFLT_FLAGS, 1, BillRecalcParam::fRecalcTrfrs);
@@ -244,11 +247,9 @@ int SLAPI RecalcBillTurns(int checkAmounts)
 			PPViewBill bill_view;
 			BillFilt bill_flt;
 			BillViewItem view_item;
-
 			bill_flt.Bbt = bbtRealTypes;
 			bill_flt.Period = flt.Period;
 			bill_flt.OpID = flt.OpID;
-
 			PPWait(1);
 			bill_view.Init_(&bill_flt);
 			if(!checkAmounts) {
@@ -527,7 +528,6 @@ int SLAPI PrcssrAbsentBill::Repair(const AbsentEntry * pEntry)
 	PPTransferItem ti;
 	int    rbybill = 0;
 	RecoverAbsBillData rabd;
-	MEMSZERO(rabd);
 	while(P_BObj->trfr->EnumItems(pEntry->ID, &rbybill, &ti) > 0) {
 		rabd.LinesCount++;
 		rabd.Cost += ti.Cost * ti.Qtty();
@@ -590,7 +590,7 @@ int SLAPI PrcssrAbsentBill::Run()
 	THROW(ScanTransfer(&bill_list));
 	THROW(ScanAccturn(&bill_list));
 	for(uint i = 0; i < bill_list.getCount(); i++) {
-		int r = Repair((AbsentEntry *)bill_list.at(i));
+		int r = Repair(static_cast<AbsentEntry *>(bill_list.at(i)));
 		if(r == 0)
 			PPError();
 		else if(r == -2) {
@@ -714,7 +714,7 @@ int SLAPI PPObjBill::SearchPaymWOLinkBill()
 	if(repare >= 0) {
 		PPWait(1);
 		PPWaitMsg(PPLoadTextS(PPTXT_WAIT_SEARCHUNLINKEDPAYMS, wait_msg_buf));
-		PPTransaction tra(repare > 0);
+		PPTransaction tra(BIN(repare > 0));
 		THROW(tra);
 		for(op_id = 0; EnumOperations(PPOPT_PAYMENT, &op_id, &opk) > 0;) {
 			THROW(op_ary.add(op_id));
@@ -774,8 +774,7 @@ int SLAPI PPObjBill::RecoverUnitedFreightPorts()
 		PropertyTbl::Key0 k0, k0_;
 		BExtQuery q(p_prop, 0, 256);
 		DBQ * dbq = &(p_prop->ObjType == PPOBJ_BILL && p_prop->Prop == BILLPRP_FREIGHT);
-		q.select(p_prop->ObjType, p_prop->ObjID, p_prop->Prop,
-			p_prop->Text, p_prop->Val1, p_prop->Val2, 0L).where(*dbq);
+		q.select(p_prop->ObjType, p_prop->ObjID, p_prop->Prop, p_prop->Text, p_prop->Val1, p_prop->Val2, 0L).where(*dbq);
 		MEMSZERO(k0);
 		k0.ObjType = PPOBJ_BILL;
 		PPWait(1);

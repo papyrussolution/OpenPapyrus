@@ -23,7 +23,7 @@ CONF_VALUE * _CONF_get_section(const CONF * conf, const char * section)
 	if((conf == NULL) || (section == NULL))
 		return NULL;
 	vv.name = NULL;
-	vv.section = (char*)section;
+	vv.section = (char *)section;
 	v = lh_CONF_VALUE_retrieve(conf->data, &vv);
 	return (v);
 }
@@ -60,8 +60,8 @@ char * _CONF_get_string(const CONF * conf, const char * section, const char * na
 	else if(conf) {
 		CONF_VALUE * v, vv;
 		if(section) {
-			vv.name = (char*)name;
-			vv.section = (char*)section;
+			vv.name = (char *)name;
+			vv.section = (char *)section;
 			v = lh_CONF_VALUE_retrieve(conf->data, &vv);
 			if(v)
 				return (v->value);
@@ -72,7 +72,7 @@ char * _CONF_get_string(const CONF * conf, const char * section, const char * na
 			}
 		}
 		vv.section = "default";
-		vv.name = (char*)name;
+		vv.name = (char *)name;
 		v = lh_CONF_VALUE_retrieve(conf->data, &vv);
 		return v ? v->value : 0;
 	}
@@ -168,12 +168,12 @@ CONF_VALUE * _CONF_new_section(CONF * conf, const char * section)
 	if((v = (CONF_VALUE*)OPENSSL_malloc(sizeof(*v))) == NULL)
 		goto err;
 	i = strlen(section) + 1;
-	if((v->section = (char*)OPENSSL_malloc(i)) == NULL)
+	if((v->section = (char *)OPENSSL_malloc(i)) == NULL)
 		goto err;
 
 	memcpy(v->section, section, i);
 	v->name = NULL;
-	v->value = (char*)sk;
+	v->value = (char *)sk;
 
 	vv = lh_CONF_VALUE_insert(conf->data, v);
 	OPENSSL_assert(vv == NULL);

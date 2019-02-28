@@ -115,7 +115,7 @@ void curl_memdebug(const char * logname)
 			logfile = stderr;
 #ifdef MEMDEBUG_LOG_SYNC
 		/* Flush the log file after every line so the log isn't lost in a crash */
-		setbuf(logfile, (char*)NULL);
+		setbuf(logfile, (char *)NULL);
 #endif
 	}
 }
@@ -246,7 +246,7 @@ void * curl_dorealloc(void * ptr, size_t wantedsize, int line, const char * sour
 		/* 1684: conversion from pointer to same-sized integral type */
 #endif
 	if(ptr)
-		mem = (void *)((char*)ptr - offsetof(struct memdebug, mem));
+		mem = (void *)((char *)ptr - offsetof(struct memdebug, mem));
 #ifdef __INTEL_COMPILER
 	#pragma warning(pop)
 #endif
@@ -269,7 +269,7 @@ void curl_dofree(void * ptr, int line, const char * source)
 	#pragma warning(disable:1684)
 		/* 1684: conversion from pointer to same-sized integral type */
 #endif
-		mem = (void *)((char*)ptr - offsetof(struct memdebug, mem));
+		mem = (void *)((char *)ptr - offsetof(struct memdebug, mem));
 #ifdef __INTEL_COMPILER
 	#pragma warning(pop)
 #endif

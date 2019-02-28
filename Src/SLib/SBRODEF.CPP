@@ -513,7 +513,7 @@ int SLAPI BrowserDef::search2(const void * data, CompFunc cmpFunc, int srchMode,
 		int    r = (srchMode == srchFirst) ? top() : step(1);
 		if(r)
 			do {
-				const char * p = (char*)getRow(_curItem());
+				const char * p = (char *)getRow(_curItem());
 				if(p && cmpFunc(p + offs, data, 0) == 0)
 					found = 1;
 			} while(!found && step(1) > 0);

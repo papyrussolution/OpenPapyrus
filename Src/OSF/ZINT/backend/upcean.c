@@ -105,7 +105,7 @@ int upca(struct ZintSymbol * symbol, uchar source[], char dest[])
 {
 	int length;
 	char gtin[15];
-	sstrcpy(gtin, (char*)source);
+	sstrcpy(gtin, (char *)source);
 	length = strlen(gtin);
 	if(length == 11) {
 		gtin[length] = upc_check(gtin);
@@ -140,8 +140,8 @@ int upce(struct ZintSymbol * symbol, uchar source[], char dest[])
 				case '1': num_system = 1; break;
 				default: num_system = 0; source[0] = '0'; break;
 			}
-			sstrcpy(temp, (char*)source);
-			sstrcpy(hrt, (char*)source);
+			sstrcpy(temp, (char *)source);
+			sstrcpy(hrt, (char *)source);
 			for(i = 1; i <= 7; i++) {
 				source[i - 1] = temp[i];
 			}
@@ -150,7 +150,7 @@ int upce(struct ZintSymbol * symbol, uchar source[], char dest[])
 			num_system = 0;
 			hrt[0] = '0';
 			hrt[1] = '\0';
-			strcat(hrt, (char*)source);
+			strcat(hrt, (char *)source);
 		}
 	}
 	else {
@@ -161,8 +161,8 @@ int upce(struct ZintSymbol * symbol, uchar source[], char dest[])
 				case '1': num_system = 1; break;
 				default: num_system = 0; source[0] = '0'; break;
 			}
-			sstrcpy(temp, (char*)source);
-			sstrcpy(hrt, (char*)source);
+			sstrcpy(temp, (char *)source);
+			sstrcpy(hrt, (char *)source);
 			for(i = 1; i <= 7; i++) {
 				source[i - 1] = temp[i];
 			}
@@ -171,7 +171,7 @@ int upce(struct ZintSymbol * symbol, uchar source[], char dest[])
 			num_system = 0;
 			hrt[0] = '0';
 			hrt[1] = '\0';
-			strcat(hrt, (char*)source);
+			strcat(hrt, (char *)source);
 		}
 	}
 
@@ -345,7 +345,7 @@ int ean13(struct ZintSymbol * symbol, uchar source[], char dest[])
 	char parity[6];
 	char gtin[15];
 	sstrcpy(parity, "");
-	sstrcpy(gtin, (char*)source);
+	sstrcpy(gtin, (char *)source);
 	/* Add the appropriate check digit */
 	length = strlen(gtin);
 	if(length == 12) {
@@ -395,7 +395,7 @@ int ean8(struct ZintSymbol * symbol, uchar source[], char dest[])
 	/* EAN-8 is basically the same as UPC-A but with fewer digits */
 	int length;
 	char gtin[10];
-	sstrcpy(gtin, (char*)source);
+	sstrcpy(gtin, (char *)source);
 	length = strlen(gtin);
 	if(length == 7) {
 		gtin[length] = upc_check(gtin);
@@ -633,18 +633,18 @@ void ean_leading_zeroes(struct ZintSymbol * symbol, uchar source[], uchar local_
 	}
 	// Add leading zeroes 
 	for(i = 0; i < (zfirst_len - first_len); i++) {
-		strcat((char*)zfirst_part, "0");
+		strcat((char *)zfirst_part, "0");
 	}
-	strcat((char*)zfirst_part, (char*)first_part);
+	strcat((char *)zfirst_part, (char *)first_part);
 	for(i = 0; i < (zsecond_len - second_len); i++) {
-		strcat((char*)zsecond_part, "0");
+		strcat((char *)zsecond_part, "0");
 	}
-	strcat((char*)zsecond_part, (char*)second_part);
+	strcat((char *)zsecond_part, (char *)second_part);
 	// Copy adjusted data back to local_source 
-	strcat((char*)local_source, (char*)zfirst_part);
+	strcat((char *)local_source, (char *)zfirst_part);
 	if(zsecond_len != 0) {
-		strcat((char*)local_source, "+");
-		strcat((char*)local_source, (char*)zsecond_part);
+		strcat((char *)local_source, "+");
+		strcat((char *)local_source, (char *)zsecond_part);
 	}
 }
 //
@@ -713,18 +713,18 @@ int eanx(struct ZintSymbol * symbol, uchar source[], int src_len)
 		} while(reader <= sstrlen(local_source));
 	}
 	else {
-		sstrcpy((char*)first_part, (char*)local_source);
+		sstrcpy((char *)first_part, (char *)local_source);
 	}
 	switch(symbol->Std) {
 		case BARCODE_EANX:
 		case BARCODE_EANX_CHK:
 		    switch(sstrlen(first_part)) {
-			    case 2: add_on(first_part, (char*)dest, 0); sstrcpy(symbol->text, first_part); break;
-			    case 5: add_on(first_part, (char*)dest, 0); sstrcpy(symbol->text, first_part); break;
+			    case 2: add_on(first_part, (char *)dest, 0); sstrcpy(symbol->text, first_part); break;
+			    case 5: add_on(first_part, (char *)dest, 0); sstrcpy(symbol->text, first_part); break;
 			    case 7:
-			    case 8: error_number = ean8(symbol, first_part, (char*)dest); break;
+			    case 8: error_number = ean8(symbol, first_part, (char *)dest); break;
 			    case 12:
-			    case 13: error_number = ean13(symbol, first_part, (char*)dest); break;
+			    case 13: error_number = ean13(symbol, first_part, (char *)dest); break;
 			    default: sstrcpy(symbol->errtxt, "Invalid length input (C6G)"); return ZINT_ERROR_TOO_LONG;
 		    }
 		    break;
@@ -740,7 +740,7 @@ int eanx(struct ZintSymbol * symbol, uchar source[], int src_len)
 				symbol->row_height[symbol->rows + 1] = 2;
 				symbol->row_height[symbol->rows + 2] = 2;
 				symbol->rows += 3;
-				error_number = ean8(symbol, first_part, (char*)dest);
+				error_number = ean8(symbol, first_part, (char *)dest);
 				break;
 			    case 12: set_module(symbol, symbol->rows, 1);
 				set_module(symbol, symbol->rows, 95);
@@ -752,7 +752,7 @@ int eanx(struct ZintSymbol * symbol, uchar source[], int src_len)
 				symbol->row_height[symbol->rows + 1] = 2;
 				symbol->row_height[symbol->rows + 2] = 2;
 				symbol->rows += 3;
-				error_number = ean13(symbol, first_part, (char*)dest);
+				error_number = ean13(symbol, first_part, (char *)dest);
 				break;
 			    default: sstrcpy(symbol->errtxt, "Invalid length EAN input (C6H)");
 				return ZINT_ERROR_TOO_LONG;
@@ -761,7 +761,7 @@ int eanx(struct ZintSymbol * symbol, uchar source[], int src_len)
 		case BARCODE_UPCA:
 		case BARCODE_UPCA_CHK:
 		    if((sstrlen(first_part) == 11) || (sstrlen(first_part) == 12)) {
-			    error_number = upca(symbol, first_part, (char*)dest);
+			    error_number = upca(symbol, first_part, (char *)dest);
 		    }
 		    else {
 			    sstrcpy(symbol->errtxt, "Input wrong length (C6I)");
@@ -780,7 +780,7 @@ int eanx(struct ZintSymbol * symbol, uchar source[], int src_len)
 			    symbol->row_height[symbol->rows + 1] = 2;
 			    symbol->row_height[symbol->rows + 2] = 2;
 			    symbol->rows += 3;
-			    error_number = upca(symbol, first_part, (char*)dest);
+			    error_number = upca(symbol, first_part, (char *)dest);
 		    }
 		    else {
 			    sstrcpy(symbol->errtxt, "UPCA input wrong length (C6J)");
@@ -790,7 +790,7 @@ int eanx(struct ZintSymbol * symbol, uchar source[], int src_len)
 		case BARCODE_UPCE:
 		case BARCODE_UPCE_CHK:
 		    if((sstrlen(first_part) >= 6) && (sstrlen(first_part) <= 8)) {
-			    error_number = upce(symbol, first_part, (char*)dest);
+			    error_number = upce(symbol, first_part, (char *)dest);
 		    }
 		    else {
 			    sstrcpy(symbol->errtxt, "Input wrong length (C6K)");
@@ -809,7 +809,7 @@ int eanx(struct ZintSymbol * symbol, uchar source[], int src_len)
 			    symbol->row_height[symbol->rows + 1] = 2;
 			    symbol->row_height[symbol->rows + 2] = 2;
 			    symbol->rows += 3;
-			    error_number = upce(symbol, first_part, (char*)dest);
+			    error_number = upce(symbol, first_part, (char *)dest);
 		    }
 		    else {
 			    sstrcpy(symbol->errtxt, "UPCE input wrong length (C6L)");
@@ -817,7 +817,7 @@ int eanx(struct ZintSymbol * symbol, uchar source[], int src_len)
 		    }
 		    break;
 		case BARCODE_ISBNX:
-		    error_number = isbn(symbol, first_part, sstrlen(first_part), (char*)dest);
+		    error_number = isbn(symbol, first_part, sstrlen(first_part), (char *)dest);
 		    break;
 	}
 	if(error_number > 4) {
@@ -826,20 +826,20 @@ int eanx(struct ZintSymbol * symbol, uchar source[], int src_len)
 	switch(sstrlen(second_part)) {
 		case 0: break;
 		case 2:
-		    add_on(second_part, (char*)dest, 1);
-		    strcat((char*)symbol->text, "+");
-		    strcat((char*)symbol->text, (char*)second_part);
+		    add_on(second_part, (char *)dest, 1);
+		    strcat((char *)symbol->text, "+");
+		    strcat((char *)symbol->text, (char *)second_part);
 		    break;
 		case 5:
-		    add_on(second_part, (char*)dest, 1);
-		    strcat((char*)symbol->text, "+");
-		    strcat((char*)symbol->text, (char*)second_part);
+		    add_on(second_part, (char *)dest, 1);
+		    strcat((char *)symbol->text, "+");
+		    strcat((char *)symbol->text, (char *)second_part);
 		    break;
 		default:
 		    sstrcpy(symbol->errtxt, "Invalid length input (C6M)");
 		    return ZINT_ERROR_TOO_LONG;
 	}
-	expand(symbol, (char*)dest);
+	expand(symbol, (char *)dest);
 	switch(symbol->Std) {
 		case BARCODE_EANX_CC:
 		case BARCODE_UPCA_CC:

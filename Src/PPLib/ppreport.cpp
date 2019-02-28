@@ -1350,13 +1350,13 @@ int SLAPI SReport::prepareData()
 									break;
 								case S_FLOAT:
 									if(_s == 4)
-										rec.put(di+1, (double)*(float*)f->data);
+										rec.put(di+1, (double)*(float *)f->data);
 									else if(_s == 8)
 										rec.put(di+1, *(double*)f->data);
 									break;
 								case S_DEC:
 								case S_MONEY: {
-										double _dbl_temp = dectobin((char*)f->data, (int16)GETSSIZED(f->type),
+										double _dbl_temp = dectobin((char *)f->data, (int16)GETSSIZED(f->type),
 											(int16)GETSPRECD(f->type));
 										rec.put(di+1, _dbl_temp);
 									}
@@ -1376,7 +1376,7 @@ int SLAPI SReport::prepareData()
 									rec.put(di+1, buf);
 									break;
 								case S_ZSTRING:
-									rec.put(di+1, (char*)f->data);
+									rec.put(di+1, (char *)f->data);
 									break;
 							}
 						}
@@ -1409,7 +1409,7 @@ int SLAPI SReport::prepareData()
 			if(f->type != 0) {
 				if(f->data)
 					if(GETSTYPE(f->type) == S_ZSTRING)
-						STRNSCPY(buf, (char*)f->data);
+						STRNSCPY(buf, (char *)f->data);
 					else
 						sttostr(f->type, f->data, f->format, buf);
 				else {
@@ -2190,7 +2190,7 @@ int SLAPI MakeCRptDataFiles(int verifyAll /*=0*/)
 			PPWait(1);
 			if(rpt_name.NotEmptyS()) {
 				uint      pos = 0;
-				SReport rpt((char*)0);
+				SReport rpt((char *)0);
 				StringSet ss;
 				SStrCollection ss_col;
 				SString data_path;

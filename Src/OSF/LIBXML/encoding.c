@@ -1075,7 +1075,7 @@ int xmlAddEncodingAlias(const char * name, const char * alias)
 	for(i = 0; i < EncBlk.xmlCharEncodingAliasesNb; i++) {
 		if(strcmp(EncBlk.xmlCharEncodingAliases[i].alias, upper) == 0) {
 			// Replace the definition.
-			SAlloc::F((char*)EncBlk.xmlCharEncodingAliases[i].name);
+			SAlloc::F((char *)EncBlk.xmlCharEncodingAliases[i].name);
 			EncBlk.xmlCharEncodingAliases[i].name = sstrdup(name);
 			return 0;
 		}
@@ -1108,8 +1108,8 @@ int xmlDelEncodingAlias(const char * alias)
 	 */
 	for(i = 0; i < EncBlk.xmlCharEncodingAliasesNb; i++) {
 		if(strcmp(EncBlk.xmlCharEncodingAliases[i].alias, alias) == 0) {
-			SAlloc::F((char*)EncBlk.xmlCharEncodingAliases[i].name);
-			SAlloc::F((char*)EncBlk.xmlCharEncodingAliases[i].alias);
+			SAlloc::F((char *)EncBlk.xmlCharEncodingAliases[i].name);
+			SAlloc::F((char *)EncBlk.xmlCharEncodingAliases[i].alias);
 			EncBlk.xmlCharEncodingAliasesNb--;
 			memmove(&EncBlk.xmlCharEncodingAliases[i], &EncBlk.xmlCharEncodingAliases[i + 1], sizeof(xmlCharEncodingAlias) * (EncBlk.xmlCharEncodingAliasesNb - i));
 			return 0;
@@ -1390,7 +1390,7 @@ static int xmlIconvWrapper(iconv_t cd, uchar * out, int * outlen, const uchar * 
 {
 	size_t icv_inlen, icv_outlen;
 	const char * icv_in = (const char*)in;
-	char * icv_out = (char*)out;
+	char * icv_out = (char *)out;
 	int ret;
 	if((out == NULL) || (outlen == NULL) || (inlen == NULL) || (in == NULL)) {
 		ASSIGN_PTR(outlen, 0);
@@ -1458,7 +1458,7 @@ static int xmlIconvWrapper(iconv_t cd, uchar * out, int * outlen, const uchar * 
 static int xmlUconvWrapper(uconv_t * cd, int toUnicode, uchar * out, int * outlen, const uchar * in, int * inlen)
 {
 	const char * ucv_in = (const char*)in;
-	char * ucv_out = (char*)out;
+	char * ucv_out = (char *)out;
 	UErrorCode err = U_ZERO_ERROR;
 	if((out == NULL) || (outlen == NULL) || (inlen == NULL) || (in == NULL)) {
 		ASSIGN_PTR(outlen, 0);
@@ -1479,7 +1479,7 @@ static int xmlUconvWrapper(uconv_t * cd, int toUnicode, uchar * out, int * outle
 		ucnv_convertEx(cd->uconv, cd->utf8, &ucv_out, ucv_out + *outlen, &ucv_in, ucv_in + *inlen, NULL, NULL, NULL, NULL, 0, TRUE, &err);
 	}
 	*inlen = ucv_in - (const char*)in;
-	*outlen = ucv_out - (char*)out;
+	*outlen = ucv_out - (char *)out;
 	if(U_SUCCESS(err))
 		return 0;
 	if(err == U_BUFFER_OVERFLOW_ERROR)
@@ -2068,7 +2068,7 @@ retry:
 			     * and continue the transcoding phase, hoping the error
 			     * did not mangle the encoder state.
 			     */
-			    charref_len = snprintf((char*)&charref[0], sizeof(charref), "&#%d;", cur);
+			    charref_len = snprintf((char *)&charref[0], sizeof(charref), "&#%d;", cur);
 			    xmlBufShrink(in, len);
 			    xmlBufAddHead(in, charref, -1);
 			    goto retry;
@@ -2256,7 +2256,7 @@ retry:
 			    // and continue the transcoding phase, hoping the error
 			    // did not mangle the encoder state.
 				//
-			    charref_len = snprintf((char*)&charref[0], sizeof(charref), "&#%d;", cur);
+			    charref_len = snprintf((char *)&charref[0], sizeof(charref), "&#%d;", cur);
 			    xmlBufferShrink(in, len);
 			    xmlBufferAddHead(in, charref, -1);
 			    goto retry;
@@ -3006,8 +3006,8 @@ void LibXmlEncoderBlock::CleanupEncodingAliases()
 {
 	if(xmlCharEncodingAliases) {
 		for(int i = 0; i < xmlCharEncodingAliasesNb; i++) {
-			SAlloc::F((char*)xmlCharEncodingAliases[i].name);
-			SAlloc::F((char*)xmlCharEncodingAliases[i].alias);
+			SAlloc::F((char *)xmlCharEncodingAliases[i].name);
+			SAlloc::F((char *)xmlCharEncodingAliases[i].alias);
 		}
 		xmlCharEncodingAliasesNb = 0;
 		xmlCharEncodingAliasesMax = 0;

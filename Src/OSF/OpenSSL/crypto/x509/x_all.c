@@ -354,7 +354,7 @@ int X509_digest(const X509 * data, const EVP_MD * type, uchar * md, uint * len)
 		memcpy(md, data->sha1_hash, sizeof(data->sha1_hash));
 		return 1;
 	}
-	return (ASN1_item_digest(ASN1_ITEM_rptr(X509), type, (char*)data, md, len));
+	return (ASN1_item_digest(ASN1_ITEM_rptr(X509), type, (char *)data, md, len));
 }
 
 int X509_CRL_digest(const X509_CRL * data, const EVP_MD * type, uchar * md, uint * len)
@@ -365,22 +365,22 @@ int X509_CRL_digest(const X509_CRL * data, const EVP_MD * type, uchar * md, uint
 		memcpy(md, data->sha1_hash, sizeof(data->sha1_hash));
 		return 1;
 	}
-	return (ASN1_item_digest(ASN1_ITEM_rptr(X509_CRL), type, (char*)data, md, len));
+	return (ASN1_item_digest(ASN1_ITEM_rptr(X509_CRL), type, (char *)data, md, len));
 }
 
 int X509_REQ_digest(const X509_REQ * data, const EVP_MD * type, uchar * md, uint * len)
 {
-	return (ASN1_item_digest(ASN1_ITEM_rptr(X509_REQ), type, (char*)data, md, len));
+	return (ASN1_item_digest(ASN1_ITEM_rptr(X509_REQ), type, (char *)data, md, len));
 }
 
 int X509_NAME_digest(const X509_NAME * data, const EVP_MD * type, uchar * md, uint * len)
 {
-	return (ASN1_item_digest(ASN1_ITEM_rptr(X509_NAME), type, (char*)data, md, len));
+	return (ASN1_item_digest(ASN1_ITEM_rptr(X509_NAME), type, (char *)data, md, len));
 }
 
 int PKCS7_ISSUER_AND_SERIAL_digest(PKCS7_ISSUER_AND_SERIAL * data, const EVP_MD * type, uchar * md, uint * len)
 {
-	return (ASN1_item_digest(ASN1_ITEM_rptr(PKCS7_ISSUER_AND_SERIAL), type, (char*)data, md, len));
+	return (ASN1_item_digest(ASN1_ITEM_rptr(PKCS7_ISSUER_AND_SERIAL), type, (char *)data, md, len));
 }
 
 #ifndef OPENSSL_NO_STDIO

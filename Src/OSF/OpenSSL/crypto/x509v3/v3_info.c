@@ -68,7 +68,7 @@ ASN1_ITEM_TEMPLATE(AUTHORITY_INFO_ACCESS) =
 		vtmp = sk_CONF_VALUE_value(ret, i);
 		i2t_ASN1_OBJECT(objtmp, sizeof objtmp, desc->method);
 		nlen = strlen(objtmp) + strlen(vtmp->name) + 5;
-		ntmp = (char*)OPENSSL_malloc(nlen);
+		ntmp = (char *)OPENSSL_malloc(nlen);
 		if(ntmp == NULL) {
 			X509V3err(X509V3_F_I2V_AUTHORITY_INFO_ACCESS, ERR_R_MALLOC_FAILURE);
 			return NULL;

@@ -689,7 +689,7 @@ int SLAPI AccTurnCore::LockingFRR(int lock, int * pFRRL_Tag, int use_ta)
 	return ok;
 }
 
-IMPL_CMPFUNC(__Acct, k1, k2) { RET_CMPCASCADE3((const Acct*)k1, (const Acct*)k2, ac, sb, ar); }
+IMPL_CMPFUNC(__Acct, k1, k2) { RET_CMPCASCADE3(static_cast<const Acct *>(k1), static_cast<const Acct *>(k2), ac, sb, ar); }
 
 int SLAPI AccTurnCore::SortGenAccList(ObjRestrictArray * pGenList)
 {

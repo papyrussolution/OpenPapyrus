@@ -761,7 +761,7 @@ xmlDocPtr xmlParseCatalogFile(const char * filename)
 		xmlFreeParserCtxt(ctxt);
 		return 0;
 	}
-	inputStream->filename = (char*)xmlCanonicPath((const xmlChar*)filename);
+	inputStream->filename = (char *)xmlCanonicPath((const xmlChar*)filename);
 	inputStream->buf = buf;
 	xmlBufResetInput(buf->buffer, inputStream);
 	inputPush(ctxt, inputStream);
@@ -2714,7 +2714,7 @@ void xmlInitializeCatalog()
 						paths = cur;
 						while((*cur != 0) && (!xmlIsBlank_ch(*cur)))
 							cur++;
-						path = (char*)xmlStrndup((const xmlChar*)paths, cur - paths);
+						path = (char *)xmlStrndup((const xmlChar*)paths, cur - paths);
 						if(path) {
 							*nextent = xmlNewCatalogEntry(XML_CATA_CATALOG, NULL, NULL, BAD_CAST path, xmlCatalogDefaultPrefer, 0);
 							if(*nextent)
@@ -3188,7 +3188,7 @@ const xmlChar * xmlCatalogGetSystem(const xmlChar * sysID)
 	if(xmlDefaultCatalog) {
 		ret = xmlCatalogListXMLResolve(xmlDefaultCatalog->xml, NULL, sysID);
 		if(ret && ret != XML_CATAL_BREAK) {
-			snprintf((char*)result, sizeof(result) - 1, "%s", (char*)ret);
+			snprintf((char *)result, sizeof(result) - 1, "%s", (char *)ret);
 			result[sizeof(result) - 1] = 0;
 			return result;
 		}
@@ -3224,7 +3224,7 @@ const xmlChar * xmlCatalogGetPublic(const xmlChar * pubID)
 	if(xmlDefaultCatalog) {
 		ret = xmlCatalogListXMLResolve(xmlDefaultCatalog->xml, pubID, 0);
 		if(ret && ret != XML_CATAL_BREAK) {
-			snprintf((char*)result, sizeof(result) - 1, "%s", (char*)ret);
+			snprintf((char *)result, sizeof(result) - 1, "%s", (char *)ret);
 			result[sizeof(result) - 1] = 0;
 			return result;
 		}

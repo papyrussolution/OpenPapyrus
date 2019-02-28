@@ -36,7 +36,7 @@ static int t_fromb64(uchar * a, size_t alen, const char * src)
 	i = 0;
 	while(i < size) {
 		loc = strchr(b64table, src[i]);
-		if(loc == (char*)0)
+		if(loc == (char *)0)
 			break;
 		else
 			a[i] = loc - b64table;
@@ -520,12 +520,12 @@ char * SRP_create_verifier(const char * user, const char * pass, char ** salt,
 		goto err;
 	BN_bn2bin(v, tmp);
 	vfsize = BN_num_bytes(v) * 2;
-	if(((vf = (char*)OPENSSL_malloc(vfsize)) == NULL))
+	if(((vf = (char *)OPENSSL_malloc(vfsize)) == NULL))
 		goto err;
 	t_tob64(vf, tmp, BN_num_bytes(v));
 	if(*salt == NULL) {
 		char * tmp_salt;
-		if((tmp_salt = (char*)OPENSSL_malloc(SRP_RANDOM_SALT_LEN * 2)) == NULL) {
+		if((tmp_salt = (char *)OPENSSL_malloc(SRP_RANDOM_SALT_LEN * 2)) == NULL) {
 			goto err;
 		}
 		t_tob64(tmp_salt, tmp2, SRP_RANDOM_SALT_LEN);

@@ -237,7 +237,7 @@ static int krb5_auth(void * app_data, struct connectdata * conn)
 			if(output_buffer.length != 0) {
 				char * cmd;
 
-				result = Curl_base64_encode(data, (char*)output_buffer.value,
+				result = Curl_base64_encode(data, (char *)output_buffer.value,
 				    output_buffer.length, &p, &base64_sz);
 				if(result) {
 					Curl_infof(data, "base64-encoding: %s\n",

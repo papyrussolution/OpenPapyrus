@@ -24,7 +24,7 @@ int asn1_generalizedtime_to_tm(struct tm * tm, const ASN1_GENERALIZEDTIME * d)
 	if(d->type != V_ASN1_GENERALIZEDTIME)
 		return 0;
 	l = d->length;
-	a = (char*)d->data;
+	a = (char *)d->data;
 	o = 0;
 	/*
 	 * GENERALIZEDTIME is similar to UTCTIME except the year is represented
@@ -177,9 +177,9 @@ ASN1_GENERALIZEDTIME * ASN1_GENERALIZEDTIME_adj(ASN1_GENERALIZEDTIME * s, time_t
 		if(!OPENSSL_gmtime_adj(ts, offset_day, offset_sec))
 			goto err;
 	}
-	p = (char*)tmps->data;
+	p = (char *)tmps->data;
 	if((p == NULL) || ((size_t)tmps->length < len)) {
-		p = (char*)OPENSSL_malloc(len);
+		p = (char *)OPENSSL_malloc(len);
 		if(!p) {
 			ASN1err(ASN1_F_ASN1_GENERALIZEDTIME_ADJ, ERR_R_MALLOC_FAILURE);
 			goto err;
@@ -209,7 +209,7 @@ int ASN1_GENERALIZEDTIME_print(BIO * bp, const ASN1_GENERALIZEDTIME * tm)
 	char * f = NULL;
 	int f_len = 0;
 	int i = tm->length;
-	char * v = (char*)tm->data;
+	char * v = (char *)tm->data;
 	if(i < 12)
 		goto err;
 	if(v[i - 1] == 'Z')

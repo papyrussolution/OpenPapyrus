@@ -20,7 +20,7 @@ int asn1_utctime_to_tm(struct tm * tm, const ASN1_UTCTIME * d)
 	if(d->type != V_ASN1_UTCTIME)
 		return 0;
 	l = d->length;
-	a = (char*)d->data;
+	a = (char *)d->data;
 	o = 0;
 
 	if(l < 11)
@@ -161,9 +161,9 @@ ASN1_UTCTIME * ASN1_UTCTIME_adj(ASN1_UTCTIME * s, time_t t,
 	if((ts->tm_year < 50) || (ts->tm_year >= 150))
 		goto err;
 
-	p = (char*)s->data;
+	p = (char *)s->data;
 	if((p == NULL) || ((size_t)s->length < len)) {
-		p = (char*)OPENSSL_malloc(len);
+		p = (char *)OPENSSL_malloc(len);
 		if(!p) {
 			ASN1err(ASN1_F_ASN1_UTCTIME_ADJ, ERR_R_MALLOC_FAILURE);
 			goto err;

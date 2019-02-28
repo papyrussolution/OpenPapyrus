@@ -968,7 +968,14 @@ int SLAPI PPViewDebtTrnovr::ProcessBillPaymPlanEntry(const BillTbl::Rec & rRec, 
 			rBlk.Paym = rRec.PaymAmount;
 		else
 			P_BObj->P_Tbl->CalcPayment(rRec.ID, rBlk.ByLinks, rBlk.P_PaymPeriod, rRec.CurID, &rBlk.Paym);
-		rBlk.Debt = (rRec.Amount - rBlk.Paym);
+		// @v10.3.6 {
+		if(rRec.Amount < 0.0) {
+			rBlk.Paym = -rBlk.Paym;
+			rBlk.Debt = (rRec.Amount - rBlk.Paym);
+		}
+		else { // } @v10.3.6
+			rBlk.Debt = (rRec.Amount - rBlk.Paym);
+		}
 		if(!(Filt.Flags & DebtTrnovrFilt::fDebtOnly) || rBlk.Debt > 0.0) {
 			if(Filt.Flags & DebtTrnovrFilt::fByCost)
 				P_BObj->P_Tbl->GetAmount(rRec.ID, PPAMT_BUYING, rRec.CurID, &rBlk.Cost);
@@ -2034,7 +2041,7 @@ int SLAPI PPViewDebtTrnovr::ViewTotal()
 
 int SLAPI PPViewDebtTrnovr::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
-	return Detail((const BrwHdr *)pHdr, 0);
+	return Detail(static_cast<const BrwHdr *>(pHdr), 0);
 }
 
 int SLAPI PPViewDebtTrnovr::Detail(const BrwHdr * pHdr, int mode)

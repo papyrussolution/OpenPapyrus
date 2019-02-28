@@ -44,13 +44,13 @@ static int buffer_new(BIO * bi)
 	if(!ctx)
 		return 0;
 	ctx->ibuf_size = DEFAULT_BUFFER_SIZE;
-	ctx->ibuf = (char*)OPENSSL_malloc(DEFAULT_BUFFER_SIZE);
+	ctx->ibuf = (char *)OPENSSL_malloc(DEFAULT_BUFFER_SIZE);
 	if(ctx->ibuf == NULL) {
 		OPENSSL_free(ctx);
 		return 0;
 	}
 	ctx->obuf_size = DEFAULT_BUFFER_SIZE;
-	ctx->obuf = (char*)OPENSSL_malloc(DEFAULT_BUFFER_SIZE);
+	ctx->obuf = (char *)OPENSSL_malloc(DEFAULT_BUFFER_SIZE);
 	if(ctx->obuf == NULL) {
 		OPENSSL_free(ctx->ibuf);
 		OPENSSL_free(ctx);
@@ -58,7 +58,7 @@ static int buffer_new(BIO * bi)
 	}
 	else {
 		bi->init = 1;
-		bi->ptr = (char*)ctx;
+		bi->ptr = (char *)ctx;
 		bi->flags = 0;
 		return 1;
 	}
@@ -264,7 +264,7 @@ static long buffer_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    break;
 		case BIO_C_SET_BUFF_READ_DATA:
 		    if(num > ctx->ibuf_size) {
-			    p1 = (char*)OPENSSL_malloc((int)num);
+			    p1 = (char *)OPENSSL_malloc((int)num);
 			    if(p1 == NULL)
 				    goto malloc_error;
 			    OPENSSL_free(ctx->ibuf);
@@ -294,12 +294,12 @@ static long buffer_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    p1 = ctx->ibuf;
 		    p2 = ctx->obuf;
 		    if((ibs > DEFAULT_BUFFER_SIZE) && (ibs != ctx->ibuf_size)) {
-			    p1 = (char*)OPENSSL_malloc((int)num);
+			    p1 = (char *)OPENSSL_malloc((int)num);
 			    if(p1 == NULL)
 				    goto malloc_error;
 		    }
 		    if((obs > DEFAULT_BUFFER_SIZE) && (obs != ctx->obuf_size)) {
-			    p2 = (char*)OPENSSL_malloc((int)num);
+			    p2 = (char *)OPENSSL_malloc((int)num);
 			    if(p2 == NULL) {
 				    if(p1 != ctx->ibuf)
 					    OPENSSL_free(p1);

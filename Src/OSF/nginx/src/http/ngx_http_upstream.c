@@ -1092,7 +1092,7 @@ static ngx_int_t ngx_http_upstream_ssl_name(ngx_http_request_t * r, ngx_http_ups
 	(void)ngx_cpystrn(p, name.data, name.len + 1);
 	name.data = p;
 	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "upstream SSL server name: \"%s\"", name.data);
-	if(SSL_set_tlsext_host_name(c->ssl->connection, (char*)name.data) == 0) {
+	if(SSL_set_tlsext_host_name(c->ssl->connection, (char *)name.data) == 0) {
 		ngx_ssl_error(NGX_LOG_ERR, r->connection->log, 0, "SSL_set_tlsext_host_name(\"%s\") failed", name.data);
 		return NGX_ERROR;
 	}
@@ -2754,7 +2754,7 @@ static void ngx_http_upstream_finalize_request(ngx_http_request_t * r, ngx_http_
 
 static ngx_int_t ngx_http_upstream_process_header_line(ngx_http_request_t * r, ngx_table_elt_t * h, ngx_uint_t offset)
 {
-	ngx_table_elt_t  ** ph = (ngx_table_elt_t**)((char*)&r->upstream->headers_in + offset);
+	ngx_table_elt_t  ** ph = (ngx_table_elt_t**)((char *)&r->upstream->headers_in + offset);
 	if(*ph == NULL) {
 		*ph = h;
 	}
@@ -3070,7 +3070,7 @@ static ngx_int_t ngx_http_upstream_copy_header_line(ngx_http_request_t * r, ngx_
 	}
 	*ho = *h;
 	if(offset) {
-		ph = (ngx_table_elt_t**)((char*)&r->headers_out + offset);
+		ph = (ngx_table_elt_t**)((char *)&r->headers_out + offset);
 		*ph = ho;
 	}
 	return NGX_OK;
@@ -3079,7 +3079,7 @@ static ngx_int_t ngx_http_upstream_copy_header_line(ngx_http_request_t * r, ngx_
 static ngx_int_t ngx_http_upstream_copy_multi_header_lines(ngx_http_request_t * r, ngx_table_elt_t * h, ngx_uint_t offset)
 {
 	ngx_table_elt_t  * ho, ** ph;
-	ngx_array_t * pa = (ngx_array_t*)((char*)&r->headers_out + offset);
+	ngx_array_t * pa = (ngx_array_t*)((char *)&r->headers_out + offset);
 	if(pa->elts == NULL) {
 		if(ngx_array_init(pa, r->pool, 2, sizeof(ngx_table_elt_t *)) != NGX_OK) {
 			return NGX_ERROR;

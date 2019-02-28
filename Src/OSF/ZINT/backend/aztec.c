@@ -1657,7 +1657,7 @@ int aztec(struct ZintSymbol * symbol, uchar source[], int length)
 //
 // Encodes Aztec runes as specified in ISO/IEC 24778:2008 Annex A 
 //
-int aztec_runes(struct ZintSymbol * symbol, uchar source[], int length)
+int aztec_runes(struct ZintSymbol * symbol, const uchar source[], int length)
 {
 	int i, p, y, x;
 	char binary_string[28];

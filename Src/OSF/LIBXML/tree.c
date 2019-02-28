@@ -702,8 +702,8 @@ void FASTCALL xmlFreeNs(xmlNs * cur)
 #endif
 		return;
 	}
-	SAlloc::F((char*)cur->href);
-	SAlloc::F((char*)cur->prefix);
+	SAlloc::F((char *)cur->href);
+	SAlloc::F((char *)cur->prefix);
 	SAlloc::F(cur);
 }
 /**
@@ -744,7 +744,7 @@ xmlDtdPtr xmlNewDtd(xmlDoc * doc, const xmlChar * name, const xmlChar * External
 	xmlDtd * cur = 0;
 	if(doc && doc->extSubset) {
 #ifdef DEBUG_TREE
-		xmlGenericError(0, "xmlNewDtd(%s): document %s already have a DTD %s\n", /* !!! */ (char*)name, doc->name, /* !!! */ (char*)doc->extSubset->name);
+		xmlGenericError(0, "xmlNewDtd(%s): document %s already have a DTD %s\n", /* !!! */ (char *)name, doc->name, /* !!! */ (char *)doc->extSubset->name);
 #endif
 	}
 	else {
@@ -838,8 +838,8 @@ xmlDtd * xmlCreateIntSubset(xmlDoc * doc, const xmlChar * name, const xmlChar * 
 		cur->SystemID = sstrdup(SystemID);
 		if(!cur->SystemID) {
 			xmlTreeErrMemory("building internal subset");
-			SAlloc::F((char*)cur->name);
-			SAlloc::F((char*)cur->ExternalID);
+			SAlloc::F((char *)cur->name);
+			SAlloc::F((char *)cur->ExternalID);
 			SAlloc::F(cur);
 			return 0;
 		}
@@ -891,7 +891,7 @@ xmlDtd * xmlCreateIntSubset(xmlDoc * doc, const xmlChar * name, const xmlChar * 
  * Free a string if it is not owned by the "dict" dictionnary in the
  * current scope
  */
-//#define DICT_FREE(p_dict__, str) if((str) && ((!p_dict__) || (xmlDictOwns(p_dict__, (const xmlChar*)(str)) == 0))) SAlloc::F((char*)(str));
+//#define DICT_FREE(p_dict__, str) if((str) && ((!p_dict__) || (xmlDictOwns(p_dict__, (const xmlChar*)(str)) == 0))) SAlloc::F((char *)(str));
 /**
  * DICT_COPY:
  * @str:  a string
@@ -4065,7 +4065,7 @@ xmlChar * xmlGetNodePath(const xmlNode * P_Node)
 			name = (const char*)cur->name;
 			if(cur->ns) {
 				if(cur->ns->prefix) {
-					snprintf(nametemp, sizeof(nametemp) - 1, "%s:%s", (char*)cur->ns->prefix, (char*)cur->name);
+					snprintf(nametemp, sizeof(nametemp) - 1, "%s:%s", (char *)cur->ns->prefix, (char *)cur->name);
 					nametemp[sizeof(nametemp) - 1] = 0;
 					name = nametemp;
 				}
@@ -4163,7 +4163,7 @@ xmlChar * xmlGetNodePath(const xmlNode * P_Node)
 		}
 		else if(cur->type == XML_PI_NODE) {
 			sep = "/";
-			snprintf(nametemp, sizeof(nametemp) - 1, "processing-instruction('%s')", (char*)cur->name);
+			snprintf(nametemp, sizeof(nametemp) - 1, "processing-instruction('%s')", (char *)cur->name);
 			nametemp[sizeof(nametemp) - 1] = 0;
 			name = nametemp;
 			next = cur->parent;
@@ -4194,9 +4194,9 @@ xmlChar * xmlGetNodePath(const xmlNode * P_Node)
 			name = (const char*)(((xmlAttr *)cur)->name);
 			if(cur->ns) {
 				if(cur->ns->prefix)
-					snprintf(nametemp, sizeof(nametemp) - 1, "%s:%s", (char*)cur->ns->prefix, (char*)cur->name);
+					snprintf(nametemp, sizeof(nametemp) - 1, "%s:%s", (char *)cur->ns->prefix, (char *)cur->name);
 				else
-					snprintf(nametemp, sizeof(nametemp) - 1, "%s", (char*)cur->name);
+					snprintf(nametemp, sizeof(nametemp) - 1, "%s", (char *)cur->name);
 				nametemp[sizeof(nametemp) - 1] = 0;
 				name = nametemp;
 			}
@@ -4229,10 +4229,10 @@ xmlChar * xmlGetNodePath(const xmlNode * P_Node)
 			buf = temp;
 		}
 		if(occur == 0)
-			snprintf((char*)buf, buf_len, "%s%s%s", sep, name, (char*)buffer);
+			snprintf((char *)buf, buf_len, "%s%s%s", sep, name, (char *)buffer);
 		else
-			snprintf((char*)buf, buf_len, "%s%s[%d]%s", sep, name, occur, (char*)buffer);
-		snprintf((char*)buffer, buf_len, "%s", (char*)buf);
+			snprintf((char *)buf, buf_len, "%s%s[%d]%s", sep, name, occur, (char *)buffer);
+		snprintf((char *)buffer, buf_len, "%s", (char *)buf);
 		cur = next;
 	} while(cur);
 	SAlloc::F(buf);
@@ -5468,17 +5468,17 @@ static xmlNs * xmlNewReconciliedNs(xmlDoc * doc, xmlNode * tree, xmlNs * ns)
 	 * Let's strip namespace prefixes longer than 20 chars !
 	 */
 	if(ns->prefix == NULL)
-		snprintf((char*)prefix, sizeof(prefix), "default");
+		snprintf((char *)prefix, sizeof(prefix), "default");
 	else
-		snprintf((char*)prefix, sizeof(prefix), "%.20s", (char*)ns->prefix);
+		snprintf((char *)prefix, sizeof(prefix), "%.20s", (char *)ns->prefix);
 	def = xmlSearchNs(doc, tree, prefix);
 	while(def) {
 		if(counter > 1000) 
 			return 0;
 		if(ns->prefix == NULL)
-			snprintf((char*)prefix, sizeof(prefix), "default%d", counter++);
+			snprintf((char *)prefix, sizeof(prefix), "default%d", counter++);
 		else
-			snprintf((char*)prefix, sizeof(prefix), "%.20s%d", (char*)ns->prefix, counter++);
+			snprintf((char *)prefix, sizeof(prefix), "%.20s%d", (char *)ns->prefix, counter++);
 		def = xmlSearchNs(doc, tree, prefix);
 	}
 	/*
@@ -7154,7 +7154,7 @@ static int FASTCALL xmlDOMWrapNSNormGatherInScopeNs(xmlNsMap ** map, xmlNode * P
 			const xmlChar * old = str;   \
 			str = xmlDictLookupSL(destDoc->dict, str); \
 			if(!sourceDoc || !sourceDoc->dict || !xmlDictOwns(sourceDoc->dict, old)) \
-				SAlloc::F((char*)old); \
+				SAlloc::F((char *)old); \
 		} else if((sourceDoc) && (sourceDoc->dict) && xmlDictOwns(sourceDoc->dict, str)) { \
 			str = BAD_CAST sstrdup(str); \
 		} \
@@ -7522,10 +7522,10 @@ ns_next_prefix:
 		if(counter > 1000)
 			return 0;
 		if(prefix == NULL) {
-			snprintf((char*)buf, sizeof(buf), "ns_%d", counter);
+			snprintf((char *)buf, sizeof(buf), "ns_%d", counter);
 		}
 		else
-			snprintf((char*)buf, sizeof(buf), "%.30s_%d", (char*)prefix, counter);
+			snprintf((char *)buf, sizeof(buf), "%.30s_%d", (char *)prefix, counter);
 		pref = BAD_CAST buf;
 	}
 }

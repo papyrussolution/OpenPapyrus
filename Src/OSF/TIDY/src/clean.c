@@ -1079,13 +1079,10 @@ static bool NestedList(TidyDocImpl* doc, Node * node, Node ** pnode)
 		 */
 
 		if(list->prev) {
-			if( (nodeIsUL(list->prev) || nodeIsOL(list->prev))
-			    && list->prev->last) {
+			if( (nodeIsUL(list->prev) || nodeIsOL(list->prev)) && list->prev->last) {
 				node = list;
 				list = node->prev;
-
 				child = list->last; /* <li> */
-
 				list->next = node->next;
 				TY_(FixNodeLinks) (list);
 
@@ -1096,25 +1093,20 @@ static bool NestedList(TidyDocImpl* doc, Node * node, Node ** pnode)
 				CleanNode(doc, node);
 			}
 		}
-
 		return true;
 	}
-
 	return false;
 }
 
 /* Find CSS equivalent in a SPAN element */
-static
-bool FindCSSSpanEq(Node * node, ctmbstr * s, bool deprecatedOnly)
+static bool FindCSSSpanEq(Node * node, ctmbstr * s, bool deprecatedOnly)
 {
 	struct {
 		TidyTagId id;
 		ctmbstr CSSeq;
 		bool deprecated;
 	}
-
-	const CSS_SpanEq[] =
-	{
+	const CSS_SpanEq[] = {
 		{ TidyTag_B, "font-weight: bold", false },
 		{ TidyTag_I, "font-style: italic", false },
 		{ TidyTag_S, "text-decoration: line-through", true},
@@ -1123,10 +1115,8 @@ bool FindCSSSpanEq(Node * node, ctmbstr * s, bool deprecatedOnly)
 		{ TidyTag_UNKNOWN, NULL, false }
 	};
 	uint i;
-
 	for(i = 0; CSS_SpanEq[i].CSSeq; ++i)
-		if( (!deprecatedOnly || CSS_SpanEq[i].deprecated)
-		    && TagIsId(node, CSS_SpanEq[i].id) ) {
+		if( (!deprecatedOnly || CSS_SpanEq[i].deprecated) && TagIsId(node, CSS_SpanEq[i].id) ) {
 			*s = CSS_SpanEq[i].CSSeq;
 			return true;
 		}
@@ -1136,8 +1126,7 @@ bool FindCSSSpanEq(Node * node, ctmbstr * s, bool deprecatedOnly)
 /* Necessary conditions to apply BlockStyle(). */
 static bool CanApplyBlockStyle(Node * node)
 {
-	if(TY_(nodeHasCM) (node, CM_BLOCK | CM_LIST | CM_DEFLIST | CM_TABLE)
-	    && !nodeIsTABLE(node) && !nodeIsTR(node) && !nodeIsLI(node) ) {
+	if(TY_(nodeHasCM) (node, CM_BLOCK|CM_LIST|CM_DEFLIST|CM_TABLE) && !nodeIsTABLE(node) && !nodeIsTR(node) && !nodeIsLI(node) ) {
 		return true;
 	}
 	return false;

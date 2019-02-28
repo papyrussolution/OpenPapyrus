@@ -43,7 +43,7 @@ int FASTCALL ObjCache::MultTextBlock::Get(SString & rBuf)
 	return RdMode ? R_Ss.get(&CurPos, rBuf) : 0;
 }
 
-int FASTCALL ObjCache::PutTextBlock(MultTextBlock & rBlk, ObjCacheEntry * pEntry)
+int FASTCALL ObjCache::PutTextBlock(const MultTextBlock & rBlk, ObjCacheEntry * pEntry)
 {
 	assert(rBlk.RdMode == 0);
 	return rBlk.RdMode ? 0 : PutName(rBlk.R_Ss.getBuf(), pEntry);

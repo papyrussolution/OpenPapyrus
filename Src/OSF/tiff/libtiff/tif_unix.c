@@ -67,7 +67,7 @@ static tmsize_t _tiffReadProc(thandle_t fd, void* buf, tmsize_t size)
 	else {
 		fdh.h = fd;
 		for(bytes_read = 0; bytes_read < bytes_total; bytes_read += count) {
-			char * buf_offset = (char*)buf+bytes_read;
+			char * buf_offset = (char *)buf+bytes_read;
 			size_t io_size = bytes_total-bytes_read;
 			SETMIN(io_size, TIFF_IO_MAX);
 			count = _read(fdh.fd, buf_offset, (TIFFIOSize_t)io_size);
@@ -91,7 +91,7 @@ static tmsize_t _tiffWriteProc(thandle_t fd, void* buf, tmsize_t size)
 	else {
 		fdh.h = fd;
 		for(bytes_written = 0; bytes_written < bytes_total; bytes_written += count) {
-			const char * buf_offset = (char*)buf+bytes_written;
+			const char * buf_offset = (char *)buf+bytes_written;
 			size_t io_size = bytes_total-bytes_written;
 			SETMIN(io_size, TIFF_IO_MAX);
 			count = _write(fdh.fd, buf_offset, (TIFFIOSize_t)io_size);

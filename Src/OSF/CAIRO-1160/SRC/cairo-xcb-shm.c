@@ -229,7 +229,7 @@ cairo_int_status_t _cairo_xcb_connection_allocate_shm_info(cairo_xcb_connection_
 	}
 
 	pool->shm = shmat(pool->shmid, NULL, 0);
-	if(unlikely(pool->shm == (char*)-1)) {
+	if(unlikely(pool->shm == (char *)-1)) {
 		shmctl(pool->shmid, IPC_RMID, NULL);
 		SAlloc::F(pool);
 		CAIRO_MUTEX_UNLOCK(connection->shm_mutex);
@@ -263,7 +263,7 @@ allocate_shm_info:
 	shm_info->pool = pool;
 	shm_info->shm = pool->shmseg;
 	shm_info->size = size;
-	shm_info->offset = (char*)mem - (char*)pool->shm;
+	shm_info->offset = (char *)mem - (char *)pool->shm;
 	shm_info->mem = mem;
 	shm_info->sync.sequence = XCB_NONE;
 

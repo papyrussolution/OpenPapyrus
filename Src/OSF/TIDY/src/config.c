@@ -391,7 +391,7 @@ static void GetOptionDefault(const TidyOptionImpl* option,
     TidyOptionValue* dflt)
 {
 	if(option->type == TidyString)
-		dflt->p = (char*)option->pdflt;
+		dflt->p = (char *)option->pdflt;
 	else
 		dflt->v = option->dflt;
 }

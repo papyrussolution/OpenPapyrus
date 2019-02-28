@@ -1911,7 +1911,7 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	//	ShowError();
 
 	THROW_PP(ObjIdfrDerEncode("1.2.643.2.2.9", hashalg_der), PPERR_EDS_DERENCODEFAILED); // идентификатор алгоритма хеширования
-	hash_str.CopyFromN((char*)hash, hash_size);
+	hash_str.CopyFromN((char *)hash, hash_size);
 	//THROW_PP(ObjIdfrDerEncode("1.2.643.2.2.38.4", policy_der), PPERR_EDS_DERENCODEFAILED); // политика безопасности // @vmiller comment
 
 	req_struct.HashAlgorytm.Z().Cat(hashalg_der);

@@ -139,7 +139,7 @@ xlinkType xlinkIsLink(xmlDoc * doc, xmlNodePtr P_Node)
 				}
 				else {
 					xmlChar buf[200];
-					snprintf((char*)buf, sizeof(buf), "%s:external-linkset", (char*)xlink->prefix);
+					snprintf((char *)buf, sizeof(buf), "%s:external-linkset", (char *)xlink->prefix);
 					buf[sizeof(buf) - 1] = 0;
 					if(sstreq(role, buf))
 						ret = XLINK_TYPE_EXTENDED_SET;

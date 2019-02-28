@@ -159,13 +159,13 @@ static void xmlCtxtNsCheckScope(xmlDebugCtxt * ctxt, xmlNode * P_Node, xmlNs * n
 		if(ns->prefix == NULL)
 			xmlDebugErr(ctxt, XML_CHECK_NS_SCOPE, "Reference to default namespace not in scope\n");
 		else
-			xmlDebugErr3(ctxt, XML_CHECK_NS_SCOPE, "Reference to namespace '%s' not in scope\n", (char*)ns->prefix);
+			xmlDebugErr3(ctxt, XML_CHECK_NS_SCOPE, "Reference to namespace '%s' not in scope\n", (char *)ns->prefix);
 	}
 	if(ret == -3) {
 		if(ns->prefix == NULL)
 			xmlDebugErr(ctxt, XML_CHECK_NS_ANCESTOR, "Reference to default namespace not on ancestor\n");
 		else
-			xmlDebugErr3(ctxt, XML_CHECK_NS_ANCESTOR, "Reference to namespace '%s' not on ancestor\n", (char*)ns->prefix);
+			xmlDebugErr3(ctxt, XML_CHECK_NS_ANCESTOR, "Reference to namespace '%s' not on ancestor\n", (char *)ns->prefix);
 	}
 }
 
@@ -357,13 +357,13 @@ static void xmlCtxtDumpDtdNode(xmlDebugCtxt * ctxt, xmlDtdPtr dtd)
 	else {
 		if(!ctxt->check) {
 			if(dtd->name)
-				fprintf(ctxt->output, "DTD(%s)", (char*)dtd->name);
+				fprintf(ctxt->output, "DTD(%s)", (char *)dtd->name);
 			else
 				fprintf(ctxt->output, "DTD");
 			if(dtd->ExternalID)
-				fprintf(ctxt->output, ", PUBLIC %s", (char*)dtd->ExternalID);
+				fprintf(ctxt->output, ", PUBLIC %s", (char *)dtd->ExternalID);
 			if(dtd->SystemID)
-				fprintf(ctxt->output, ", SYSTEM %s", (char*)dtd->SystemID);
+				fprintf(ctxt->output, ", SYSTEM %s", (char *)dtd->SystemID);
 			fprintf(ctxt->output, "\n");
 		}
 		/*
@@ -387,13 +387,13 @@ static void xmlCtxtDumpAttrDecl(xmlDebugCtxt * ctxt, xmlAttribute * attr)
 	}
 	if(attr->name != NULL) {
 		if(!ctxt->check)
-			fprintf(ctxt->output, "ATTRDECL(%s)", (char*)attr->name);
+			fprintf(ctxt->output, "ATTRDECL(%s)", (char *)attr->name);
 	}
 	else
 		xmlDebugErr(ctxt, XML_CHECK_NO_NAME, "Node attribute declaration has no name");
 	if(attr->elem != NULL) {
 		if(!ctxt->check)
-			fprintf(ctxt->output, " for %s", (char*)attr->elem);
+			fprintf(ctxt->output, " for %s", (char *)attr->elem);
 	}
 	else
 		xmlDebugErr(ctxt, XML_CHECK_NO_ELEM, "Node attribute declaration has no element name");
@@ -415,9 +415,9 @@ static void xmlCtxtDumpAttrDecl(xmlDebugCtxt * ctxt, xmlAttribute * attr)
 			xmlEnumeration * cur = attr->tree;
 			for(indx = 0; indx < 5; indx++) {
 				if(indx != 0)
-					fprintf(ctxt->output, "|%s", (char*)cur->name);
+					fprintf(ctxt->output, "|%s", (char *)cur->name);
 				else
-					fprintf(ctxt->output, " (%s", (char*)cur->name);
+					fprintf(ctxt->output, " (%s", (char *)cur->name);
 				cur = cur->next;
 				if(!cur)
 					break;
@@ -521,15 +521,15 @@ static void xmlCtxtDumpEntityDecl(xmlDebugCtxt * ctxt, xmlEntity * ent)
 			}
 			if(ent->ExternalID) {
 				xmlCtxtDumpSpaces(ctxt);
-				fprintf(ctxt->output, " ExternalID=%s\n", (char*)ent->ExternalID);
+				fprintf(ctxt->output, " ExternalID=%s\n", (char *)ent->ExternalID);
 			}
 			if(ent->SystemID) {
 				xmlCtxtDumpSpaces(ctxt);
-				fprintf(ctxt->output, " SystemID=%s\n", (char*)ent->SystemID);
+				fprintf(ctxt->output, " SystemID=%s\n", (char *)ent->SystemID);
 			}
 			if(ent->URI != NULL) {
 				xmlCtxtDumpSpaces(ctxt);
-				fprintf(ctxt->output, " URI=%s\n", (char*)ent->URI);
+				fprintf(ctxt->output, " URI=%s\n", (char *)ent->URI);
 			}
 			if(ent->content) {
 				xmlCtxtDumpSpaces(ctxt);
@@ -557,13 +557,13 @@ static void xmlCtxtDumpNamespace(xmlDebugCtxt * ctxt, xmlNs * ns)
 	}
 	else if(!ns->href) {
 		if(ns->prefix)
-			xmlDebugErr3(ctxt, XML_CHECK_NO_HREF, "Incomplete namespace %s href=NULL\n", (char*)ns->prefix);
+			xmlDebugErr3(ctxt, XML_CHECK_NO_HREF, "Incomplete namespace %s href=NULL\n", (char *)ns->prefix);
 		else
 			xmlDebugErr(ctxt, XML_CHECK_NO_HREF, "Incomplete default namespace href=NULL\n");
 	}
 	else if(!ctxt->check) {
 		if(ns->prefix != NULL)
-			fprintf(ctxt->output, "namespace %s href=", (char*)ns->prefix);
+			fprintf(ctxt->output, "namespace %s href=", (char *)ns->prefix);
 		else
 			fprintf(ctxt->output, "default namespace href=");
 		xmlCtxtDumpString(ctxt, ns->href);
@@ -599,15 +599,15 @@ static void xmlCtxtDumpEntity(xmlDebugCtxt * ctxt, xmlEntity * ent)
 			fprintf(ctxt->output, "%s\n", ent->name);
 			if(ent->ExternalID) {
 				xmlCtxtDumpSpaces(ctxt);
-				fprintf(ctxt->output, "ExternalID=%s\n", (char*)ent->ExternalID);
+				fprintf(ctxt->output, "ExternalID=%s\n", (char *)ent->ExternalID);
 			}
 			if(ent->SystemID) {
 				xmlCtxtDumpSpaces(ctxt);
-				fprintf(ctxt->output, "SystemID=%s\n", (char*)ent->SystemID);
+				fprintf(ctxt->output, "SystemID=%s\n", (char *)ent->SystemID);
 			}
 			if(ent->URI) {
 				xmlCtxtDumpSpaces(ctxt);
-				fprintf(ctxt->output, "URI=%s\n", (char*)ent->URI);
+				fprintf(ctxt->output, "URI=%s\n", (char *)ent->URI);
 			}
 			if(ent->content) {
 				xmlCtxtDumpSpaces(ctxt);
@@ -986,7 +986,7 @@ static void xmlCtxtDumpEntityCallback(xmlEntity * cur, xmlDebugCtxt * ctxt)
 		if(!cur)
 			fprintf(ctxt->output, "Entity is NULL");
 		else {
-			fprintf(ctxt->output, "%s : ", (char*)cur->name);
+			fprintf(ctxt->output, "%s : ", (char *)cur->name);
 			switch(cur->etype) {
 				case XML_INTERNAL_GENERAL_ENTITY: fprintf(ctxt->output, "INTERNAL GENERAL, "); break;
 				case XML_EXTERNAL_GENERAL_PARSED_ENTITY: fprintf(ctxt->output, "EXTERNAL PARSED, "); break;
@@ -996,13 +996,13 @@ static void xmlCtxtDumpEntityCallback(xmlEntity * cur, xmlDebugCtxt * ctxt)
 				default: xmlDebugErr2(ctxt, XML_CHECK_ENTITY_TYPE, "Unknown entity type %d\n", cur->etype);
 			}
 			if(cur->ExternalID != NULL)
-				fprintf(ctxt->output, "ID \"%s\"", (char*)cur->ExternalID);
+				fprintf(ctxt->output, "ID \"%s\"", (char *)cur->ExternalID);
 			if(cur->SystemID != NULL)
-				fprintf(ctxt->output, "SYSTEM \"%s\"", (char*)cur->SystemID);
+				fprintf(ctxt->output, "SYSTEM \"%s\"", (char *)cur->SystemID);
 			if(cur->orig != NULL)
-				fprintf(ctxt->output, "\n orig \"%s\"", (char*)cur->orig);
+				fprintf(ctxt->output, "\n orig \"%s\"", (char *)cur->orig);
 			if((cur->type != XML_ELEMENT_NODE) && (cur->content != NULL))
-				fprintf(ctxt->output, "\n content \"%s\"", (char*)cur->content);
+				fprintf(ctxt->output, "\n content \"%s\"", (char *)cur->content);
 			fprintf(ctxt->output, "\n");
 		}
 	}
@@ -1414,9 +1414,9 @@ void xmlLsOneNode(FILE * output, xmlNode * P_Node)
 			case XML_NAMESPACE_DECL: {
 				xmlNs * ns = (xmlNs *)P_Node;
 				if(ns->prefix == NULL)
-					fprintf(output, "default -> %s", (char*)ns->href);
+					fprintf(output, "default -> %s", (char *)ns->href);
 				else
-					fprintf(output, "%s -> %s", (char*)ns->prefix, (char*)ns->href);
+					fprintf(output, "%s -> %s", (char *)ns->prefix, (char *)ns->href);
 				break;
 			}
 			default:
@@ -2017,7 +2017,7 @@ int xmlShellLoad(xmlShellCtxtPtr ctxt, char * filename, xmlNode * P_Node ATTRIBU
 #ifdef LIBXML_XPATH_ENABLED
 		ctxt->pctxt = xmlXPathNewContext(doc);
 #endif /* LIBXML_XPATH_ENABLED */
-		ctxt->filename = (char*)xmlCanonicPath((xmlChar*)filename);
+		ctxt->filename = (char *)xmlCanonicPath((xmlChar*)filename);
 	}
 	else
 		return -1;
@@ -2045,33 +2045,33 @@ int xmlShellWrite(xmlShellCtxtPtr ctxt, char * filename, xmlNode * P_Node, xmlNo
 	if(isempty(filename))
 		return -1;
 #ifdef W_OK
-	if(access((char*)filename, W_OK)) {
+	if(access((char *)filename, W_OK)) {
 		xmlGenericError(0, "Cannot write to %s\n", filename);
 		return -1;
 	}
 #endif
 	switch(P_Node->type) {
 		case XML_DOCUMENT_NODE:
-		    if(xmlSaveFile((char*)filename, ctxt->doc) < -1) {
+		    if(xmlSaveFile((char *)filename, ctxt->doc) < -1) {
 			    xmlGenericError(0, "Failed to write to %s\n", filename);
 			    return -1;
 		    }
 		    break;
 		case XML_HTML_DOCUMENT_NODE:
 #ifdef LIBXML_HTML_ENABLED
-		    if(htmlSaveFile((char*)filename, ctxt->doc) < 0) {
+		    if(htmlSaveFile((char *)filename, ctxt->doc) < 0) {
 			    xmlGenericError(0, "Failed to write to %s\n", filename);
 			    return -1;
 		    }
 #else
-		    if(xmlSaveFile((char*)filename, ctxt->doc) < -1) {
+		    if(xmlSaveFile((char *)filename, ctxt->doc) < -1) {
 			    xmlGenericError(0, "Failed to write to %s\n", filename);
 			    return -1;
 		    }
 #endif /* LIBXML_HTML_ENABLED */
 		    break;
 		default: {
-		    FILE * f = fopen((char*)filename, "w");
+		    FILE * f = fopen((char *)filename, "w");
 		    if(f == NULL) {
 			    xmlGenericError(0, "Failed to write to %s\n", filename);
 			    return -1;
@@ -2103,24 +2103,24 @@ int xmlShellSave(xmlShellCtxtPtr ctxt, char * filename, xmlNode * P_Node ATTRIBU
 	if(filename == NULL)
 		return -1;
 #ifdef W_OK
-	if(access((char*)filename, W_OK)) {
+	if(access((char *)filename, W_OK)) {
 		xmlGenericError(0, "Cannot save to %s\n", filename);
 		return -1;
 	}
 #endif
 	switch(ctxt->doc->type) {
 		case XML_DOCUMENT_NODE:
-		    if(xmlSaveFile((char*)filename, ctxt->doc) < 0) {
+		    if(xmlSaveFile((char *)filename, ctxt->doc) < 0) {
 			    xmlGenericError(0, "Failed to save to %s\n", filename);
 		    }
 		    break;
 		case XML_HTML_DOCUMENT_NODE:
 #ifdef LIBXML_HTML_ENABLED
-		    if(htmlSaveFile((char*)filename, ctxt->doc) < 0) {
+		    if(htmlSaveFile((char *)filename, ctxt->doc) < 0) {
 			    xmlGenericError(0, "Failed to save to %s\n", filename);
 		    }
 #else
-		    if(xmlSaveFile((char*)filename, ctxt->doc) < 0) {
+		    if(xmlSaveFile((char *)filename, ctxt->doc) < 0) {
 			    xmlGenericError(0, "Failed to save to %s\n", filename);
 		    }
 #endif /* LIBXML_HTML_ENABLED */

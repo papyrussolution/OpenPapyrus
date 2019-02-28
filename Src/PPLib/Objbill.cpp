@@ -2538,7 +2538,7 @@ int SLAPI PPObjBill::SetStatus(PPID id, PPID statusID, int use_ta)
 					THROW(ExtractPacket(id, &pack) > 0);
 					pack.Rec.StatusID = statusID;
 					SETFLAG(pack.Rec.Flags, BILLF_NOATURN, (set_noaturn_flag > 0));
-					if(bs_rec.CheckFields)
+					if(bs_rec.CheckFields || (bs_rec.Flags & BILSTF_STRICTPRICECONSTRAINS)) // @v10.3.6 @fix (bs_rec.Flags & BILSTF_STRICTPRICECONSTRAINS)
 						THROW(ValidatePacket(&pack, 0));
 					if(set_counter > 0)
 						THROW(opc_obj.GetCode(bs_rec.CounterID, 0, pack.Rec.Code, sizeof(pack.Rec.Code), pack.Rec.LocID, 0));
@@ -2548,7 +2548,7 @@ int SLAPI PPObjBill::SetStatus(PPID id, PPID statusID, int use_ta)
 				}
 				else {
 					rec.StatusID = statusID;
-					if(bs_rec.CheckFields) {
+					if(bs_rec.CheckFields || (bs_rec.Flags & BILSTF_STRICTPRICECONSTRAINS)) { // @v10.3.6 @fix (bs_rec.Flags & BILSTF_STRICTPRICECONSTRAINS)
 						//
 						// Если новый статус требует проверки заполнения полей, то придется извлечь
 						// пакет документа полностью.
@@ -2635,7 +2635,7 @@ int SLAPI PPObjBill::GetSnByTemplate(const char * pBillCode, PPID goodsID, const
 			while(*p) {
 				if(isdec(*p))
 					*c++ = *p++;
-				else if(strnicmp(p, (char*)&sGR, 3) == 0) {
+				else if(strnicmp(p, (char *)&sGR, 3) == 0) {
 					if(GObj.Fetch(goodsID, &goods_rec) > 0) {
 						if(GObj.GetSingleBarcode(goods_rec.ParentID, code) > 0) {
 							code.ShiftLeftChr('@').Strip();
@@ -2644,12 +2644,12 @@ int SLAPI PPObjBill::GetSnByTemplate(const char * pBillCode, PPID goodsID, const
 						p += 3;
 					}
 				}
-				else if(strnicmp(p, (char*)&sGS, 3) == 0) {
+				else if(strnicmp(p, (char *)&sGS, 3) == 0) {
 					if(GObj.GetSingleBarcode(goodsID, code) > 0)
 						c += sstrlen(strcpy(c, code.Strip()));
 					p += 3;
 				}
-				else if(strnicmp(p, (char*)&sBN, 3) == 0) {
+				else if(strnicmp(p, (char *)&sBN, 3) == 0) {
 					c += sstrlen(strcpy(c, (code = pBillCode).Strip()));
 					p += 3;
 				}
@@ -2985,7 +2985,7 @@ int SLAPI PPObjBill_WriteConfig(PPBillConfig * pCfg, PPOpCounterPacket * pSnCntr
 		sz += ser_buf.GetAvailableSize();
 		const  size_t offs = sizeof(__PPBillConfig);
 		THROW_SL(temp_buf.Alloc(sz));
-		THROW_SL(ser_buf.Read(((char *)temp_buf)+offs, sz - offs));
+		THROW_SL(ser_buf.Read(static_cast<char *>(temp_buf)+offs, sz - offs));
 		p_temp = (__PPBillConfig *)(const char *)temp_buf;
 	}
 	memzero(p_temp, sizeof(__PPBillConfig));
@@ -5800,6 +5800,21 @@ int SLAPI PPObjBill::SelectLotFromSerialList(const PPIDArray * pList, PPID locID
 	return ok;
 }
 
+int SLAPI PPObjBill::LoadRowTagListForDraft(PPID billID, PPLotTagContainer & rContainer)
+{
+	int    ok = -1;
+	SBuffer sbuf;
+	rContainer.Release();
+	if(PPRef->GetPropSBuffer(Obj, billID, BILLPRP_DRAFTTAGLIST, sbuf) > 0) {
+		SSerializeContext sctx;
+		THROW(rContainer.Serialize(-1, sbuf, &sctx));
+		if(rContainer.GetCount() > 0)
+			ok = 1;
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SLAPI PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 {
 	int    ok = 1;
@@ -5813,30 +5828,26 @@ int SLAPI PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 			pPack->LTagL.Release();
 		// } @v10.0.0
 		if(pPack->LTagL.GetCount() == 0) {
-			SBuffer sbuf;
-			if(PPRef->GetPropSBuffer(Obj, pPack->Rec.ID, BILLPRP_DRAFTTAGLIST, sbuf) > 0) {
-				SSerializeContext sctx;
-				THROW(pPack->LTagL.Serialize(-1, sbuf, &sctx));
-				if(pPack->LTagL.GetCount()) {
-					SString img_path;
-					SString img_tag_addendum;
-					SPathStruc sp;
-					for(uint i = 0; i < pPack->GetTCount(); i++) {
-						ObjTagList * p_tag_list = pPack->LTagL.Get(i);
-						if(p_tag_list) {
-							const PPTransferItem & r_ti = pPack->ConstTI(i);
-							for(uint j = 0; j < p_tag_list->GetCount(); j++) {
-								const ObjTagItem * p_tag_item = p_tag_list->GetItemByPos(j);
-								if(p_tag_item->TagDataType == OTTYP_IMAGE) {
-									ObjTagItem tag_item = *p_tag_item;
-									//
-									img_tag_addendum.Z().Cat(pPack->Rec.ID).CatChar('-').Cat(r_ti.RByBill);
-									ObjLinkFiles link_files(PPOBJ_TAG);
-									link_files.Load(tag_item.TagID, img_tag_addendum);
-									link_files.At(0, img_path);
-									tag_item.SetStr(tag_item.TagID, img_path);
-									p_tag_list->PutItem(tag_item.TagID, &tag_item);
-								}
+			const int lrtr = LoadRowTagListForDraft(pPack->Rec.ID, pPack->LTagL);
+			THROW(lrtr);
+			if(lrtr > 0) {
+				SString img_path;
+				SString img_tag_addendum;
+				SPathStruc sp;
+				for(uint i = 0; i < pPack->GetTCount(); i++) {
+					ObjTagList * p_tag_list = pPack->LTagL.Get(i);
+					if(p_tag_list) {
+						const PPTransferItem & r_ti = pPack->ConstTI(i);
+						for(uint j = 0; j < p_tag_list->GetCount(); j++) {
+							const ObjTagItem * p_tag_item = p_tag_list->GetItemByPos(j);
+							if(p_tag_item->TagDataType == OTTYP_IMAGE) {
+								ObjTagItem tag_item = *p_tag_item;
+								img_tag_addendum.Z().Cat(pPack->Rec.ID).CatChar('-').Cat(r_ti.RByBill);
+								ObjLinkFiles link_files(PPOBJ_TAG);
+								link_files.Load(tag_item.TagID, img_tag_addendum);
+								link_files.At(0, img_path);
+								tag_item.SetStr(tag_item.TagID, img_path);
+								p_tag_list->PutItem(tag_item.TagID, &tag_item);
 							}
 						}
 					}

@@ -106,7 +106,7 @@ struct _LotCmp { // @flat
 	double price_diff;
 };
 
-IMPL_CMPFUNC(_LotCmp, p1, p2) { RET_CMPCASCADE3((const _LotCmp*)p1, (const _LotCmp*)p2, cost_diff, price_diff, pos); }
+IMPL_CMPFUNC(_LotCmp, p1, p2) { RET_CMPCASCADE3(static_cast<const _LotCmp *>(p1), static_cast<const _LotCmp *>(p2), cost_diff, price_diff, pos); }
 
 int SLAPI PPObjBill::OrderLots(const PPBillPacket * pPack, PPIDArray * pLots, PPID genGoodsID, double cost, double price, double qtty)
 {

@@ -368,7 +368,7 @@ int SLAPI PPBackup::GetScen(long id, PPBackupScen * pScen)
 {
 	int    ok = 1;
 	if(P_ScenList && id > 0 && id <= (long)P_ScenList->getCount())
-		*pScen = *(PPBackupScen*)P_ScenList->at((uint)(id - 1));
+		*pScen = *static_cast<const PPBackupScen *>(P_ScenList->at((uint)(id - 1)));
 	else
 		ok = 0;
 	return ok;
@@ -1853,10 +1853,9 @@ int SLAPI DoServerBackup(SString & rDBSymb, PPBackupScen * pScen)
 	SString data_path;
 	PPBackup * p_bu = 0;
 	BCopyData copy_data;
-	MEMSZERO(copy_data);
 	THROW(ini_file.IsValid());
 	THROW(dbes.ReadFromProfile(&ini_file, 0));
-	drv_map.Load(&ini_file); // @v6.8.11
+	drv_map.Load(&ini_file);
 	THROW_SL(db_id = dbes.GetBySymb(rDBSymb, &dlb));
 	dlb.GetAttr(DbLoginBlock::attrDbPath, data_path);
 	THROW_PP_S(::access(data_path, 0) == 0, PPERR_DBDIRNFOUND, data_path);
@@ -1874,7 +1873,7 @@ int SLAPI DoServerBackup(SString & rDBSymb, PPBackupScen * pScen)
 		BCopySet bcset(pScen->Name);
 		is_locked = use_copy_continouos ? 0 : 1;
 		ini_file.GetInt(PPINISECT_SYSTEM, PPINIPARAM_BSSFACTOR, &bss_factor);
-		copy_data.BssFactor = (long)bss_factor;
+		copy_data.BssFactor = bss_factor;
 		ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_BACKUPTEMP, copy_data.TempPath);
 		if(!copy_data.TempPath.NotEmptyS()) {
 			char * p_path = getenv("TMP");
@@ -1928,7 +1927,6 @@ static int SLAPI _DoAutoBackup(PPBackup * pBu, PPBackupScen * pScen, int useCopy
 		PPDriveMapping drv_map;
 		PPIniFile ini_file;
 		int    bss_factor = 0;
-		MEMSZERO(copy_data);
 		drv_map.Load(&ini_file);
 		ini_file.GetInt(PPINISECT_SYSTEM, PPINIPARAM_BSSFACTOR, &bss_factor);
 		copy_data.BssFactor = (long)bss_factor;
@@ -2015,7 +2013,6 @@ static int SLAPI _DoBackup(PPBackup * ppb, BackupDlgData & bdd, int useCopyConti
 				THROW_PP(ppb->GetCopyData(bdd.CopyID, &copy_data), PPERR_DBLIB);
 				THROW_PP(ppb->RemoveCopy(&copy_data, CallbackBuLog, 0), PPERR_DBLIB);
 			}
-			MEMSZERO(copy_data);
 			copy_data.Set = bdd.Scen.Name;
 			copy_data.CopyPath = bdd.Scen.BackupPath;
 			copy_data.Flags = bdd.Scen.Flags;
@@ -2036,12 +2033,11 @@ static int SLAPI _DoBackup(PPBackup * ppb, BackupDlgData & bdd, int useCopyConti
 	return ok;
 }
 
-static int SLAPI _DoRemoveCopy(PPBackup * ppb, BackupDlgData & bdd)
+static int SLAPI _DoRemoveCopy(PPBackup * ppb, const BackupDlgData & bdd)
 {
 	int    ok = -1;
 	if(bdd.CopyID && PPMessage(mfConf|mfYesNo, PPCFM_BREMOVE) == cmYes) {
 		BCopyData copy_data;
-		MEMSZERO(copy_data);
 		THROW_PP(ppb->GetCopyData(bdd.CopyID, &copy_data), PPERR_DBLIB);
 		THROW_PP(ppb->RemoveCopy(&copy_data, CallbackBuLog, 0), PPERR_DBLIB);
 		ok = 1;
@@ -2050,14 +2046,13 @@ static int SLAPI _DoRemoveCopy(PPBackup * ppb, BackupDlgData & bdd)
 	return ok;
 }
 
-static int SLAPI _DoRestore(PPBackup * ppb, BackupDlgData & bdd)
+static int SLAPI _DoRestore(PPBackup * ppb, const BackupDlgData & bdd)
 {
 	int    ok = -1;
 	if(bdd.CopyID && PPMessage(mfConf|mfYesNo, PPCFM_BRESTORE) == cmYes) {
 		THROW(ok = ppb->LockDatabase());
 		if(ok > 0) {
 			BCopyData copy_data;
-			MEMSZERO(copy_data);
 			THROW_PP(ppb->GetCopyData(bdd.CopyID, &copy_data), PPERR_DBLIB);
 			PPWait(1);
 			THROW_PP(ppb->Restore(&copy_data, CallbackBuLog, 0), PPERR_DBLIB);
@@ -2385,7 +2380,6 @@ int SLAPI DBMaintenance(PPDbEntrySet2 * pDbes, int autoMode)
    	        		    			r = _DoRemoveCopy(ppb, bdd);
 								else if(reply == cmBuReleaseContinuous && UseCopyContinouos(pDbes)) {
 									BCopyData copy_data;
-									MEMSZERO(copy_data);
 									copy_data.Set = bdd.Scen.Name;
 									copy_data.CopyPath = bdd.Scen.BackupPath;
 									copy_data.Flags = (bdd.Scen.Flags | BCOPYDF_RELEASECONT);

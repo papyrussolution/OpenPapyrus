@@ -297,8 +297,8 @@ static const TIFFFieldArray * _GetExifFieldArray() { return &exifFieldArray; }
 static void * td_lfind(const void * key, const void * base, size_t * nmemb, size_t size, int (* compar)(const void *, const void *))
 {
 	char * element;
-	char * end = (char*)base + *nmemb * size;
-	for(element = (char*)base; element < end; element += size)
+	char * end = (char *)base + *nmemb * size;
+	for(element = (char *)base; element < end; element += size)
 		if(!compar(key, element))       /* key found */
 			return element;
 	return NULL;
@@ -497,7 +497,7 @@ static const TIFFField* _TIFFFindFieldByName(TIFF* tif, const char * field_name,
 	if(!tif->tif_fields)
 		return NULL;
 	/* NB: use linear search since list is sorted by key#, not name */
-	key.field_name = (char*)field_name;
+	key.field_name = (char *)field_name;
 	key.field_type = dt;
 	ret = (const TIFFField**)td_lfind(&pkey, tif->tif_fields, &tif->tif_nfields, sizeof(TIFFField *), tagNameCompare);
 	return tif->tif_foundfield = (ret ? *ret : NULL);
@@ -641,7 +641,7 @@ TIFFField* _TIFFCreateAnonField(TIFF * tif, uint32 tag, TIFFDataType field_type)
 	fld->field_bit = FIELD_CUSTOM;
 	fld->field_oktochange = TRUE;
 	fld->field_passcount = TRUE;
-	fld->field_name = (char*)SAlloc::M(32);
+	fld->field_name = (char *)SAlloc::M(32);
 	if(fld->field_name == NULL) {
 		SAlloc::F(fld);
 		return NULL;

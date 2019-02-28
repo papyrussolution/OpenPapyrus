@@ -1530,7 +1530,7 @@ int X509_cmp_time(const ASN1_TIME * ctm, time_t * cmp_time)
 	int i, j;
 	char * p = buff1;
 	int remaining = ctm->length;
-	char * str = (char*)ctm->data;
+	char * str = (char *)ctm->data;
 	/*
 	 * Note that the following (historical) code allows much more slack in the
 	 * time format than RFC5280. In RFC5280, the representation is fixed:

@@ -122,10 +122,10 @@ CAIRO_BEGIN_DECLS
 #if defined (__GNUC__)
 #define cairo_container_of(ptr, type, member) ({ \
 		const __typeof__(((type*)0)->member) *mptr__ = (ptr); \
-		(type*)((char*)mptr__ - offsetof(type, member)); \
+		(type*)((char *)mptr__ - offsetof(type, member)); \
 	})
 #else
-#define cairo_container_of(ptr, type, member) ((type*)((char*)(ptr) - (char*)&((type*)0)->member))
+#define cairo_container_of(ptr, type, member) ((type*)((char *)(ptr) - (char *)&((type*)0)->member))
 #endif
 
 #define ASSERT_NOT_REACHED do { assert(!"reached"); } while(0)
@@ -648,7 +648,7 @@ cairo_private void _cairo_path_fixed_approximate_stroke_extents(const cairo_path
 cairo_private cairo_status_t _cairo_path_fixed_stroke_extents(const cairo_path_fixed_t * path, const cairo_stroke_style_t * style,
     const cairo_matrix_t * ctm, const cairo_matrix_t * ctm_inverse, double tolerance, cairo_rectangle_int_t * extents);
 cairo_private void _cairo_path_fixed_transform(cairo_path_fixed_t * path, const cairo_matrix_t * matrix);
-cairo_private cairo_bool_t _cairo_path_fixed_is_box(const cairo_path_fixed_t * path, cairo_box_t * box);
+cairo_private cairo_bool_t FASTCALL _cairo_path_fixed_is_box(const cairo_path_fixed_t * path, cairo_box_t * box);
 cairo_private cairo_bool_t _cairo_path_fixed_is_rectangle(const cairo_path_fixed_t * path, cairo_box_t * box);
 
 /* cairo-path-in-fill.c */

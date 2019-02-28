@@ -277,7 +277,7 @@ static int capi_ctrl(ENGINE * e, int cmd, long i, void * p, void (* f)(void))
 		    break;
 
 		case CAPI_CMD_LOOKUP_CERT:
-		    ret = capi_list_certs(ctx, out, (char*)p);
+		    ret = capi_list_certs(ctx, out, (char *)p);
 		    break;
 
 		case CAPI_CMD_LIST_CONTAINERS:
@@ -1073,7 +1073,7 @@ static char * wide_to_asc(LPCWSTR wstr)
 		CAPIerr(CAPI_F_WIDE_TO_ASC, CAPI_R_WIN32_ERROR);
 		return NULL;
 	}
-	str = (char*)OPENSSL_malloc(sz);
+	str = (char *)OPENSSL_malloc(sz);
 	if(!str) {
 		CAPIerr(CAPI_F_WIDE_TO_ASC, ERR_R_MALLOC_FAILURE);
 		return NULL;
@@ -1121,7 +1121,7 @@ static int capi_get_provname(CAPI_CTX * ctx, LPSTR * pname, DWORD * ptype,
 			return 0;
 	}
 	else
-		*pname = (char*)name;
+		*pname = (char *)name;
 	CAPI_trace(ctx, "capi_get_provname, returned name=%s, type=%d\n", *pname,
 	    *ptype);
 

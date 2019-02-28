@@ -149,7 +149,7 @@ CURLcode Curl_auth_create_ntlm_type1_message(const char * userp,
 		return CURLE_RECV_ERROR;
 
 	/* Base64 encode the response */
-	return Curl_base64_encode(NULL, (char*)ntlm->output_token,
+	return Curl_base64_encode(NULL, (char *)ntlm->output_token,
 	    type_1_buf.cbBuffer, outptr, outlen);
 }
 
@@ -269,7 +269,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 	}
 
 	/* Base64 encode the response */
-	result = Curl_base64_encode(data, (char*)ntlm->output_token,
+	result = Curl_base64_encode(data, (char *)ntlm->output_token,
 	    type_3_buf.cbBuffer, outptr, outlen);
 
 	Curl_auth_ntlm_cleanup(ntlm);

@@ -480,25 +480,25 @@ int FASTCALL strtotime(const char * pBuf, long fmt, LTIME * v)
 			switch(fmt & 7) {
 				case TIMF_HMS:
 					if(checkdeccount(pBuf, 6)) {
-						h = (int)_texttodec32(pBuf, 2);
-						m = (int)_texttodec32(pBuf+2, 2);
-						s = (int)_texttodec32(pBuf+4, 2);
+						h = static_cast<int>(_texttodec32(pBuf, 2));
+						m = static_cast<int>(_texttodec32(pBuf+2, 2));
+						s = static_cast<int>(_texttodec32(pBuf+4, 2));
 					}
 					else
 						ok = 0;
 					break;
 				case TIMF_HM:
 					if(checkdeccount(pBuf, 4)) {
-						h = (int)_texttodec32(pBuf, 2);
-						m = (int)_texttodec32(pBuf+2, 2);
+						h = static_cast<int>(_texttodec32(pBuf, 2));
+						m = static_cast<int>(_texttodec32(pBuf+2, 2));
 					}
 					else
 						ok = 0;
 					break;
 				case TIMF_MS:
 					if(checkdeccount(pBuf, 4)) {
-						m = (int)_texttodec32(pBuf, 2);
-						s = (int)_texttodec32(pBuf+2, 2);
+						m = static_cast<int>(_texttodec32(pBuf, 2));
+						s = static_cast<int>(_texttodec32(pBuf+2, 2));
 					}
 					else
 						ok = 0;
@@ -510,7 +510,7 @@ int FASTCALL strtotime(const char * pBuf, long fmt, LTIME * v)
 							do {
 								p++;
 							} while(isdec(pBuf[p]));
-							s = (int)_texttodec32(pBuf, p);
+							s = static_cast<int>(_texttodec32(pBuf, p));
 						}
 						else
 							ok = 0;
@@ -524,25 +524,25 @@ int FASTCALL strtotime(const char * pBuf, long fmt, LTIME * v)
 			uint   p = 0;
 			if(isdec(pBuf[0])) {
 				do { p++; } while(isdec(pBuf[p]));
-				h = (int)_texttodec32(pBuf, p);
+				h = static_cast<int>(_texttodec32(pBuf, p));
 				if(oneof3(pBuf[p], ':', ';', ' ')) {
 					pBuf = pBuf+p+1;
 					p = 0;
 					if(isdec(pBuf[0])) {
 						do { p++; } while(isdec(pBuf[p]));
-						m = (int)_texttodec32(pBuf, p);
+						m = static_cast<int>(_texttodec32(pBuf, p));
 						if(oneof3(pBuf[p], ':', ';', ' ')) {
 							pBuf = pBuf+p+1;
 							p = 0;
 							if(isdec(pBuf[0])) {
 								do { p++; } while(isdec(pBuf[p]));
-								s = (int)_texttodec32(pBuf, p);
+								s = static_cast<int>(_texttodec32(pBuf, p));
 								if(pBuf[p] == '.') {
 									pBuf = pBuf+p+1;
 									p = 0;
 									if(isdec(pBuf[0])) {
 										do { p++; } while(isdec(pBuf[p]));
-										ms = (int)_texttodec32(pBuf, p);
+										ms = static_cast<int>(_texttodec32(pBuf, p));
 									}
 								}
 							}

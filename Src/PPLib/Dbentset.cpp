@@ -199,9 +199,9 @@ int SLAPI PPDbEntrySet2::ReadFromProfile(PPIniFile * pIniFile, int existsPathOnl
 		}
 	}
 	if(def_data.Empty())
-		GetAveragePath((char*)&sDAT, def_data);
+		GetAveragePath((char *)&sDAT, def_data);
 	if(def_dict.Empty())
-		GetAveragePath((char*)&sSYS, def_dict);
+		GetAveragePath((char *)&sSYS, def_dict);
 	{
 		DbLoginBlock blk;
 		blk.SetAttr(DbLoginBlock::attrDbSymb, P_DefaultSymb);

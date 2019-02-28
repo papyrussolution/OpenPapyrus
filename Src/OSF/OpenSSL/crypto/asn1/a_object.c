@@ -115,7 +115,7 @@ int a2d_ASN1_OBJECT(uchar * out, int olen, const char * buf, int num)
 				if(tmp != ftmp)
 					OPENSSL_free(tmp);
 				tmpsize = blsize + 32;
-				tmp = (char*)OPENSSL_malloc(tmpsize);
+				tmp = (char *)OPENSSL_malloc(tmpsize);
 				if(!tmp)
 					goto err;
 			}
@@ -171,7 +171,7 @@ int i2a_ASN1_OBJECT(BIO * bp, const ASN1_OBJECT * a)
 		return (BIO_write(bp, "NULL", 4));
 	i = i2t_ASN1_OBJECT(buf, sizeof buf, a);
 	if(i > (int)(sizeof(buf) - 1)) {
-		p = (char*)OPENSSL_malloc(i + 1);
+		p = (char *)OPENSSL_malloc(i + 1);
 		if(!p)
 			return -1;
 		i2t_ASN1_OBJECT(p, i + 1, a);

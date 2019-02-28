@@ -823,7 +823,7 @@ int X509v3_addr_get_range(IPAddressOrRange * aor, const unsigned afi,
  * Canonical forms.
  */
 int X509v3_asid_is_canonical(ASIdentifiers * asid);
-int X509v3_addr_is_canonical(IPAddrBlocks * addr);
+int X509v3_addr_is_canonical(const IPAddrBlocks * addr);
 int X509v3_asid_canonize(ASIdentifiers * asid);
 int X509v3_addr_canonize(IPAddrBlocks * addr);
 
@@ -831,7 +831,7 @@ int X509v3_addr_canonize(IPAddrBlocks * addr);
  * Tests for inheritance and containment.
  */
 int X509v3_asid_inherits(ASIdentifiers * asid);
-int X509v3_addr_inherits(IPAddrBlocks * addr);
+int X509v3_addr_inherits(const IPAddrBlocks * addr);
 int X509v3_asid_subset(ASIdentifiers * a, ASIdentifiers * b);
 int X509v3_addr_subset(IPAddrBlocks * a, IPAddrBlocks * b);
 

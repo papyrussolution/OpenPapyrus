@@ -404,7 +404,7 @@ static int read_private_key_from_memory(void ** key_ctx, pem_read_bio_func read_
 {
 	BIO * bp;
 	*key_ctx = NULL;
-	bp = BIO_new_mem_buf((char*)filedata, filedata_len);
+	bp = BIO_new_mem_buf((char *)filedata, filedata_len);
 	if(!bp) {
 		return -1;
 	}
@@ -850,7 +850,7 @@ int _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION * session, uchar ** method, 
 	EVP_PKEY* pk;
 	int pktype;
 	_libssh2_debug(session, LIBSSH2_TRACE_AUTH, "Computing public key from private key.");
-	bp = BIO_new_mem_buf((char*)privatekeydata, privatekeydata_len);
+	bp = BIO_new_mem_buf((char *)privatekeydata, privatekeydata_len);
 	if(!bp) {
 		return -1;
 	}

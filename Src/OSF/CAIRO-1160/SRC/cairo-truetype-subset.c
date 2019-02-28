@@ -213,7 +213,7 @@ static cairo_status_t _cairo_truetype_font_create(cairo_scaled_font_subset_t * s
 
 	/* If the PS name is not found, create a CairoFont-x-y name. */
 	if(font->base.ps_name == NULL) {
-		font->base.ps_name = (char*)_cairo_malloc(30);
+		font->base.ps_name = (char *)_cairo_malloc(30);
 		if(unlikely(font->base.ps_name == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto fail3;
@@ -817,7 +817,7 @@ static cairo_status_t cairo_truetype_font_write_offset_table(cairo_truetype_font
 static uint32_t cairo_truetype_font_calculate_checksum(cairo_truetype_font_t * font, ulong start, ulong end)
 {
 	uint32_t checksum = 0;
-	char * data = (char*)_cairo_array_index(&font->output, 0);
+	char * data = (char *)_cairo_array_index(&font->output, 0);
 	uint32_t * p = (uint32_t*)(data + start);
 	uint32_t * padded_end = (uint32_t*)(data + ((end + 3) & ~3));
 	while(p < padded_end)
@@ -1138,7 +1138,7 @@ static cairo_int_status_t _cairo_truetype_reverse_cmap(cairo_scaled_font_t * sca
 			uint16_t g_id_be = cpu_to_be16(static_cast<uint16_t>(index));
 			int j;
 			if(range_size > 0) {
-				if((char*)glyph_ids + 2*range_size > (char*)map + size)
+				if((char *)glyph_ids + 2*range_size > (char *)map + size)
 					return CAIRO_INT_STATUS_UNSUPPORTED;
 				for(j = 0; j < range_size; j++) {
 					if(glyph_ids[j] == g_id_be) {
@@ -1216,10 +1216,10 @@ static cairo_status_t find_name(tt_name_t * name, int name_id, int platform, int
 				break;
 			if(len > MAX_FONT_NAME_LENGTH)
 				break;
-			str = (char*)_cairo_malloc(len + 1);
+			str = (char *)_cairo_malloc(len + 1);
 			if(str == NULL)
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-			memcpy(str, ((char*)name) + be16_to_cpu(name->strings_offset) + be16_to_cpu(record->offset), len);
+			memcpy(str, ((char *)name) + be16_to_cpu(name->strings_offset) + be16_to_cpu(record->offset), len);
 			str[be16_to_cpu(record->length)] = 0;
 			break;
 		}
@@ -1237,7 +1237,7 @@ static cairo_status_t find_name(tt_name_t * name, int name_id, int platform, int
 		for(i = 0; i < u_len; i++)
 			size += _cairo_ucs4_to_utf8(be16_to_cpu(u[i]), NULL);
 
-		utf8 = (char*)_cairo_malloc(size + 1);
+		utf8 = (char *)_cairo_malloc(size + 1);
 		if(utf8 == NULL) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto fail;
@@ -1273,7 +1273,7 @@ static cairo_status_t find_name(tt_name_t * name, int name_id, int platform, int
 		}
 	}
 	if(has_tag) {
-		p = (char*)_cairo_malloc(len - 6);
+		p = (char *)_cairo_malloc(len - 6);
 		if(unlikely(p == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto fail;

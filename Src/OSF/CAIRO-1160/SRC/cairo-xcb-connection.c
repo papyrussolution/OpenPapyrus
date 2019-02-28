@@ -439,7 +439,7 @@ static cairo_bool_t can_use_shm(cairo_xcb_connection_t * connection)
 		return FALSE;
 
 	ptr = shmat(shmid, NULL, 0);
-	if(ptr == (char*)-1) {
+	if(ptr == (char *)-1) {
 		shmctl(shmid, IPC_RMID, NULL);
 		return FALSE;
 	}

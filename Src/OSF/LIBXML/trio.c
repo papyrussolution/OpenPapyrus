@@ -1520,7 +1520,7 @@ static int TrioParse(int type, const char * format, trio_parameter_t * parameter
 				    int without_namespace = TRUE;
 				    parameters[pos].type = FORMAT_USER_DEFINED;
 				    parameters[pos].user_name[0] = NIL;
-				    tmpformat = (char*)&format[index];
+				    tmpformat = (char *)&format[index];
 				    while((ch = format[index])) {
 					    index++;
 					    if(ch == SPECIFIER_USER_DEFINED_END) {
@@ -1552,7 +1552,7 @@ static int TrioParse(int type, const char * format, trio_parameter_t * parameter
 						    if(max > MAX_USER_NAME)
 							    max = MAX_USER_NAME;
 						    trio_copy_max(parameters[pos].user_name, max, tmpformat);
-						    tmpformat = (char*)&format[index];
+						    tmpformat = (char *)&format[index];
 					    }
 				    }
 				    if(ch != SPECIFIER_USER_DEFINED_END)
@@ -1641,7 +1641,7 @@ static int TrioParse(int type, const char * format, trio_parameter_t * parameter
 			    else
 #endif
 			    {
-				    parameters[i].data.string = (argarray == NULL) ? va_arg(TRIO_VA_LIST_DEREF(arglist), char *) : (char*)(argarray[num]);
+				    parameters[i].data.string = (argarray == NULL) ? va_arg(TRIO_VA_LIST_DEREF(arglist), char *) : (char *)(argarray[num]);
 			    }
 			    break;
 #if defined(FORMAT_USER_DEFINED)
@@ -1659,7 +1659,7 @@ static int TrioParse(int type, const char * format, trio_parameter_t * parameter
 					    parameters[i].data.pointer = (void *)va_arg(TRIO_VA_LIST_DEREF(arglist), trio_pointer_t);
 				    else {
 					    if(parameters[i].type == FORMAT_CHAR)
-						    parameters[i].data.pointer = (void *)((char*)argarray[num]);
+						    parameters[i].data.pointer = (void *)((char *)argarray[num]);
 					    else if(parameters[i].flags & FLAGS_SHORT)
 						    parameters[i].data.pointer = (void *)((short*)argarray[num]);
 					    else
@@ -1732,7 +1732,7 @@ static int TrioParse(int type, const char * format, trio_parameter_t * parameter
 						    (trio_uintmax_t)va_arg(TRIO_VA_LIST_DEREF(arglist), int);
 					    else {
 						    if(parameters[i].type == FORMAT_CHAR)
-							    parameters[i].data.number.as_unsigned = (trio_uintmax_t)(*((char*)argarray[num]));
+							    parameters[i].data.number.as_unsigned = (trio_uintmax_t)(*((char *)argarray[num]));
 						    else if(parameters[i].flags & FLAGS_SHORT)
 							    parameters[i].data.number.as_unsigned =
 							    (trio_uintmax_t)(*((short*)argarray[num]));
@@ -1762,7 +1762,7 @@ static int TrioParse(int type, const char * format, trio_parameter_t * parameter
 					    if(parameters[i].flags & FLAGS_LONG)
 						    parameters[i].data.doublePointer = (!argarray) ? va_arg(TRIO_VA_LIST_DEREF(arglist), double *) : (double*)argarray[num];
 					    else
-						    parameters[i].data.doublePointer = (!argarray) ? (double*)va_arg(TRIO_VA_LIST_DEREF(arglist), float *) : (double*)((float*)argarray[num]);
+						    parameters[i].data.doublePointer = (!argarray) ? (double*)va_arg(TRIO_VA_LIST_DEREF(arglist), float *) : (double*)((float *)argarray[num]);
 				    }
 			    }
 			    else {
@@ -1773,7 +1773,7 @@ static int TrioParse(int type, const char * format, trio_parameter_t * parameter
 						    parameters[i].data.longdoubleNumber = (trio_long_double_t)va_arg(TRIO_VA_LIST_DEREF(arglist), double);
 					    else {
 						    if(parameters[i].flags & FLAGS_SHORT)
-							    parameters[i].data.longdoubleNumber = (trio_long_double_t)(*((float*)argarray[num]));
+							    parameters[i].data.longdoubleNumber = (trio_long_double_t)(*((float *)argarray[num]));
 						    else
 							    parameters[i].data.longdoubleNumber = (trio_long_double_t)(*((double*)argarray[num]));
 					    }
@@ -3614,7 +3614,7 @@ void trio_print_pointer(trio_pointer_t ref, trio_pointer_t pointer)
 		 * optimizing compiler). The (char *) casting is done
 		 * to please ANSI C++.
 		 */
-		number = (trio_uintmax_t)((char*)pointer - (char*)0);
+		number = (trio_uintmax_t)((char *)pointer - (char *)0);
 		/* Shrink to size of pointer */
 		number &= (trio_uintmax_t)-1;
 		flags = self->parameter->flags;
@@ -4350,7 +4350,7 @@ static BOOLEAN_T TrioReadPointer(trio_class_t * self, trio_pointer_t * target, t
 	flags |= (FLAGS_UNSIGNED | FLAGS_ALTERNATIVE | FLAGS_NILPADDING);
 	if(TrioReadNumber(self, &number, flags, POINTER_WIDTH, BASE_HEX)) {
 		// The strange assignment of number is a workaround for a compiler warning
-		ASSIGN_PTR(target, (char*)0 + number);
+		ASSIGN_PTR(target, (char *)0 + number);
 		return TRUE;
 	}
 	else if(TrioReadString(self, (flags & FLAGS_IGNORE) ? NULL : buffer, 0, sizeof(internalNullString) - 1)) {

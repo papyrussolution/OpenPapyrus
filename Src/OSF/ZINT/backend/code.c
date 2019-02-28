@@ -102,7 +102,7 @@ void NextS(int Chan, int i, int MaxS, int MaxB);
 void NextB(int Chan, int i, int MaxB, int MaxS);
 
 /* *********************** CODE 11 ******************** */
-int code_11(struct ZintSymbol * symbol, uchar source[], int length)   /* Code 11 */
+int code_11(struct ZintSymbol * symbol, const uchar source[], int length)   /* Code 11 */
 {
 	uint i;
 	int h, c_digit, c_weight, c_count, k_digit, k_weight, k_count;
@@ -178,7 +178,7 @@ int code_11(struct ZintSymbol * symbol, uchar source[], int length)   /* Code 11
 	expand(symbol, dest);
 
 	sstrcpy(symbol->text, source);
-	strcat((char*)symbol->text, checkstr);
+	strcat((char *)symbol->text, checkstr);
 	return error_number;
 }
 
@@ -257,14 +257,14 @@ int c39(struct ZintSymbol * symbol, uchar source[], const size_t length)
 	}
 	expand(symbol, dest);
 	if(symbol->Std == BARCODE_CODE39) {
-		sstrcpy((char*)symbol->text, "*");
-		strcat((char*)symbol->text, (char*)source);
-		strcat((char*)symbol->text, localstr);
-		strcat((char*)symbol->text, "*");
+		sstrcpy((char *)symbol->text, "*");
+		strcat((char *)symbol->text, (char *)source);
+		strcat((char *)symbol->text, localstr);
+		strcat((char *)symbol->text, "*");
 	}
 	else {
-		sstrcpy((char*)symbol->text, (char*)source);
-		strcat((char*)symbol->text, localstr);
+		sstrcpy((char *)symbol->text, (char *)source);
+		strcat((char *)symbol->text, localstr);
 	}
 	return error_number;
 }
@@ -289,7 +289,7 @@ int pharmazentral(struct ZintSymbol * symbol, uchar source[], int length)
 	zeroes = 6 - length + 1;
 	for(i = 1; i < zeroes; i++)
 		localstr[i] = '0';
-	sstrcpy(localstr + zeroes, (char*)source);
+	sstrcpy(localstr + zeroes, (char *)source);
 	for(i = 1; i < 7; i++) {
 		count += (i + 1) * hex(localstr[i]);
 	}
@@ -305,12 +305,12 @@ int pharmazentral(struct ZintSymbol * symbol, uchar source[], int length)
 	}
 	error_number = c39(symbol, (uchar*)localstr, strlen(localstr));
 	sstrcpy(symbol->text, (uchar*)"PZN");
-	strcat((char*)symbol->text, localstr);
+	strcat((char *)symbol->text, localstr);
 	return error_number;
 }
 
 /* Extended Code 39 - ISO/IEC 16388:2007 Annex A */
-int ec39(struct ZintSymbol * symbol, uchar source[], int length)
+int ec39(struct ZintSymbol * symbol, const uchar source[], int length)
 {
 	uchar buffer[150] = {0};
 	uint i;
@@ -326,7 +326,7 @@ int ec39(struct ZintSymbol * symbol, uchar source[], int length)
 			sstrcpy(symbol->errtxt, "Invalid characters in input data (C29)");
 			return ZINT_ERROR_INVALID_DATA;
 		}
-		strcat((char*)buffer, EC39Ctrl[source[i]]);
+		strcat((char *)buffer, EC39Ctrl[source[i]]);
 	}
 
 	/* Then sends the buffer to the C39 function */
@@ -553,7 +553,7 @@ int channel_code(struct ZintSymbol * symbol, const uchar source[], int length)
 	NextS(channels, 3, channels, channels);
 	zeroes = channels - 1 - length;
 	memset(hrt, '0', zeroes);
-	sstrcpy(hrt + zeroes, (char*)source);
+	sstrcpy(hrt + zeroes, (char *)source);
 	sstrcpy(symbol->text, (uchar*)hrt);
 	expand(symbol, pattern);
 	return error_number;

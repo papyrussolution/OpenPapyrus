@@ -314,7 +314,7 @@ static cairo_status_t cairo_gl_shader_get_vertex_source(cairo_gl_var_type_t src,
 	status = _cairo_memory_stream_destroy(stream, &source, &length);
 	if(unlikely(status))
 		return status;
-	*out = (char*)source;
+	*out = (char *)source;
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -680,7 +680,7 @@ static cairo_status_t cairo_gl_shader_get_fragment_source(cairo_gl_context_t * c
 	status = _cairo_memory_stream_destroy(stream, &source, &length);
 	if(unlikely(status))
 		return status;
-	*out = (char*)source;
+	*out = (char *)source;
 	return CAIRO_STATUS_SUCCESS;
 }
 

@@ -60,7 +60,7 @@ int _zbar_process_image(zbar_processor_t * proc, zbar_image_t * img)
 			proc->dumping = 0;
 		}
 		uint32 format = zbar_image_get_format(img);
-		zprintf(16, "processing: %.4s(%08" PRIx32 ") %dx%d @%p\n", (char*)&format, format,
+		zprintf(16, "processing: %.4s(%08" PRIx32 ") %dx%d @%p\n", (char *)&format, format,
 		    zbar_image_get_width(img), zbar_image_get_height(img), zbar_image_get_data(img));
 		/* FIXME locking all other interfaces while processing is conservative
 		 * but easier for now and we don't expect this to take long...

@@ -284,7 +284,7 @@ const char * RAND_file_name(char * buf, size_t size)
 		int sz;
 		val = (WCHAR*)_alloca(len * sizeof(WCHAR));
 		if(GetEnvironmentVariableW(var, val, len) < len && (sz = WideCharToMultiByte(CP_UTF8, 0, val, -1, NULL, 0, NULL, NULL)) != 0) {
-			s = (char*)_alloca(sz);
+			s = (char *)_alloca(sz);
 			if(WideCharToMultiByte(CP_UTF8, 0, val, -1, s, sz, NULL, NULL) == 0)
 				s = NULL;
 		}

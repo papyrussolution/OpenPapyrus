@@ -181,11 +181,10 @@ class LexerJSON : public ILexer {
 		return false;
 	}
 
-	static bool IsNextWordInList(WordList &keywordList, CharacterSet wordSet,
-	    StyleContext &context, LexAccessor &styler)
+	static bool IsNextWordInList(const WordList &keywordList, CharacterSet wordSet, StyleContext &context, LexAccessor &styler)
 	{
 		char word[51];
-		Sci_Position currPos = (Sci_Position)context.currentPos;
+		Sci_Position currPos = static_cast<Sci_Position>(context.currentPos);
 		int i = 0;
 		while(i < 50) {
 			char ch = styler.SafeGetCharAt(currPos + i);

@@ -410,7 +410,7 @@ static IMPL_DBE_PROC(dbqf_checkcsposnode_ii) // (csessID, posNodeID)
 static IMPL_DBE_PROC(dbqf_checkcsposnodelist_ii)
 {
 	long   r = 0;
-	const LongArray * p_list = (const LongArray *)params[1].ptrval;
+	const LongArray * p_list = static_cast<const LongArray *>(params[1].ptrval);
 	if(p_list) {
 		if(params[0].lval) {
 			PPObjCSession cs_obj;
@@ -430,7 +430,7 @@ static IMPL_DBE_PROC(dbqf_strbystrgrouppos_ip)
 	if(option == CALC_SIZE)
 		result->init((long)sizeof(text_buf));
 	else {
-		const SStrGroup * p_pool = (const SStrGroup *)params[1].ptrval;
+		const SStrGroup * p_pool = static_cast<const SStrGroup *>(params[1].ptrval);
 		if(p_pool) {
 			SString & r_temp_buf = SLS.AcquireRvlStr();
 			p_pool->GetS(params[0].lval, r_temp_buf);

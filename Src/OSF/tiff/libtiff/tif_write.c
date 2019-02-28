@@ -166,9 +166,9 @@ int TIFFWriteScanline(TIFF* tif, void* buf, uint32 row, uint16 sample)
 	}
 
 	/* swab if needed - note that source buffer will be altered */
-	tif->tif_postdecode(tif, (uint8*)buf, tif->tif_scanlinesize);
+	tif->tif_postdecode(tif, (uint8 *)buf, tif->tif_scanlinesize);
 
-	status = (*tif->tif_encoderow)(tif, (uint8*)buf,
+	status = (*tif->tif_encoderow)(tif, (uint8 *)buf,
 	    tif->tif_scanlinesize, sample);
 
 	/* we are now poised at the beginning of the next row */
@@ -248,43 +248,31 @@ tmsize_t TIFFWriteEncodedStrip(TIFF* tif, uint32 strip, void* data, tmsize_t cc)
 		   of file. */
 		tif->tif_curoff = 0;
 	}
-
 	tif->tif_rawcc = 0;
 	tif->tif_rawcp = tif->tif_rawdata;
-
 	tif->tif_flags &= ~TIFF_POSTENCODE;
-
 	/* shortcut to avoid an extra memcpy() */
 	if(td->td_compression == COMPRESSION_NONE) {
 		/* swab if needed - note that source buffer will be altered */
-		tif->tif_postdecode(tif, (uint8*)data, cc);
-
-		if(!isFillOrder(tif, td->td_fillorder) &&
-		    (tif->tif_flags & TIFF_NOBITREV) == 0)
-			TIFFReverseBits((uint8*)data, cc);
-
-		if(cc > 0 &&
-		    !TIFFAppendToStrip(tif, strip, (uint8*)data, cc))
+		tif->tif_postdecode(tif, static_cast<uint8 *>(data), cc);
+		if(!isFillOrder(tif, td->td_fillorder) && (tif->tif_flags & TIFF_NOBITREV) == 0)
+			TIFFReverseBits(static_cast<uint8 *>(data), cc);
+		if(cc > 0 && !TIFFAppendToStrip(tif, strip, static_cast<uint8 *>(data), cc))
 			return ((tmsize_t)-1);
 		return (cc);
 	}
-
 	sample = (uint16)(strip / td->td_stripsperimage);
 	if(!(*tif->tif_preencode)(tif, sample))
 		return ((tmsize_t)-1);
-
 	/* swab if needed - note that source buffer will be altered */
-	tif->tif_postdecode(tif, (uint8*)data, cc);
-
-	if(!(*tif->tif_encodestrip)(tif, (uint8*)data, cc, sample))
+	tif->tif_postdecode(tif, static_cast<uint8 *>(data), cc);
+	if(!(*tif->tif_encodestrip)(tif, static_cast<uint8 *>(data), cc, sample))
 		return ((tmsize_t)-1);
 	if(!(*tif->tif_postencode)(tif))
 		return ((tmsize_t)-1);
-	if(!isFillOrder(tif, td->td_fillorder) &&
-	    (tif->tif_flags & TIFF_NOBITREV) == 0)
+	if(!isFillOrder(tif, td->td_fillorder) && (tif->tif_flags & TIFF_NOBITREV) == 0)
 		TIFFReverseBits(tif->tif_rawdata, tif->tif_rawcc);
-	if(tif->tif_rawcc > 0 &&
-	    !TIFFAppendToStrip(tif, strip, tif->tif_rawdata, tif->tif_rawcc))
+	if(tif->tif_rawcc > 0 && !TIFFAppendToStrip(tif, strip, tif->tif_rawdata, tif->tif_rawcc))
 		return ((tmsize_t)-1);
 	tif->tif_rawcc = 0;
 	tif->tif_rawcp = tif->tif_rawdata;
@@ -300,7 +288,6 @@ tmsize_t TIFFWriteRawStrip(TIFF* tif, uint32 strip, void* data, tmsize_t cc)
 {
 	static const char module[] = "TIFFWriteRawStrip";
 	TIFFDirectory * td = &tif->tif_dir;
-
 	if(!WRITECHECKSTRIPS(tif, module))
 		return ((tmsize_t)-1);
 	/*
@@ -324,8 +311,7 @@ tmsize_t TIFFWriteRawStrip(TIFF* tif, uint32 strip, void* data, tmsize_t cc)
 		 * can't be deduced until the imagelength is known).
 		 */
 		if(strip >= td->td_stripsperimage)
-			td->td_stripsperimage =
-			    TIFFhowmany_32(td->td_imagelength, td->td_rowsperstrip);
+			td->td_stripsperimage = TIFFhowmany_32(td->td_imagelength, td->td_rowsperstrip);
 		if(!TIFFGrowStrips(tif, 1, module))
 			return ((tmsize_t)-1);
 	}
@@ -335,8 +321,7 @@ tmsize_t TIFFWriteRawStrip(TIFF* tif, uint32 strip, void* data, tmsize_t cc)
 		return ((tmsize_t)-1);
 	}
 	tif->tif_row = (strip % td->td_stripsperimage) * td->td_rowsperstrip;
-	return (TIFFAppendToStrip(tif, strip, (uint8*)data, cc) ?
-	    cc : (tmsize_t)-1);
+	return (TIFFAppendToStrip(tif, strip, static_cast<uint8 *>(data), cc) ? cc : (tmsize_t)-1);
 }
 
 /*
@@ -353,8 +338,7 @@ tmsize_t TIFFWriteTile(TIFF* tif, void* buf, uint32 x, uint32 y, uint32 z, uint1
 	 *     This is done because the tile size may not be defined until
 	 *     after the output buffer is setup in TIFFWriteBufferSetup.
 	 */
-	return (TIFFWriteEncodedTile(tif,
-		    TIFFComputeTile(tif, x, y, z, s), buf, (tmsize_t)(-1)));
+	return (TIFFWriteEncodedTile(tif, TIFFComputeTile(tif, x, y, z, s), buf, (tmsize_t)(-1)));
 }
 
 /*
@@ -445,37 +429,28 @@ tmsize_t TIFFWriteEncodedTile(TIFF* tif, uint32 tile, void* data, tmsize_t cc)
 	 */
 	if(cc < 1 || cc > tif->tif_tilesize)
 		cc = tif->tif_tilesize;
-
 	/* shortcut to avoid an extra memcpy() */
 	if(td->td_compression == COMPRESSION_NONE) {
 		/* swab if needed - note that source buffer will be altered */
-		tif->tif_postdecode(tif, (uint8*)data, cc);
-
-		if(!isFillOrder(tif, td->td_fillorder) &&
-		    (tif->tif_flags & TIFF_NOBITREV) == 0)
-			TIFFReverseBits((uint8*)data, cc);
-
-		if(cc > 0 &&
-		    !TIFFAppendToStrip(tif, tile, (uint8*)data, cc))
+		tif->tif_postdecode(tif, static_cast<uint8 *>(data), cc);
+		if(!isFillOrder(tif, td->td_fillorder) && (tif->tif_flags & TIFF_NOBITREV) == 0)
+			TIFFReverseBits(static_cast<uint8 *>(data), cc);
+		if(cc > 0 && !TIFFAppendToStrip(tif, tile, static_cast<uint8 *>(data), cc))
 			return ((tmsize_t)-1);
 		return (cc);
 	}
-
 	sample = (uint16)(tile/td->td_stripsperimage);
 	if(!(*tif->tif_preencode)(tif, sample))
 		return ((tmsize_t)(-1));
 	/* swab if needed - note that source buffer will be altered */
-	tif->tif_postdecode(tif, (uint8*)data, cc);
-
-	if(!(*tif->tif_encodetile)(tif, (uint8*)data, cc, sample))
+	tif->tif_postdecode(tif, static_cast<uint8 *>(data), cc);
+	if(!(*tif->tif_encodetile)(tif, static_cast<uint8 *>(data), cc, sample))
 		return ((tmsize_t)-1);
 	if(!(*tif->tif_postencode)(tif))
 		return ((tmsize_t)(-1));
-	if(!isFillOrder(tif, td->td_fillorder) &&
-	    (tif->tif_flags & TIFF_NOBITREV) == 0)
-		TIFFReverseBits((uint8*)tif->tif_rawdata, tif->tif_rawcc);
-	if(tif->tif_rawcc > 0 && !TIFFAppendToStrip(tif, tile,
-		    tif->tif_rawdata, tif->tif_rawcc))
+	if(!isFillOrder(tif, td->td_fillorder) && (tif->tif_flags & TIFF_NOBITREV) == 0)
+		TIFFReverseBits((uint8 *)tif->tif_rawdata, tif->tif_rawcc);
+	if(tif->tif_rawcc > 0 && !TIFFAppendToStrip(tif, tile, tif->tif_rawdata, tif->tif_rawcc))
 		return ((tmsize_t)(-1));
 	tif->tif_rawcc = 0;
 	tif->tif_rawcp = tif->tif_rawdata;
@@ -494,41 +469,29 @@ tmsize_t TIFFWriteEncodedTile(TIFF* tif, uint32 tile, void* data, tmsize_t cc)
 tmsize_t TIFFWriteRawTile(TIFF* tif, uint32 tile, void* data, tmsize_t cc)
 {
 	static const char module[] = "TIFFWriteRawTile";
-
 	if(!WRITECHECKTILES(tif, module))
 		return ((tmsize_t)(-1));
 	if(tile >= tif->tif_dir.td_nstrips) {
-		TIFFErrorExt(tif->tif_clientdata, module, "Tile %lu out of range, max %lu",
-		    (unsigned long)tile,
-		    (unsigned long)tif->tif_dir.td_nstrips);
+		TIFFErrorExt(tif->tif_clientdata, module, "Tile %lu out of range, max %lu", (unsigned long)tile, (unsigned long)tif->tif_dir.td_nstrips);
 		return ((tmsize_t)(-1));
 	}
-	return (TIFFAppendToStrip(tif, tile, (uint8*)data, cc) ?
-	    cc : (tmsize_t)(-1));
+	return (TIFFAppendToStrip(tif, tile, static_cast<uint8 *>(data), cc) ? cc : (tmsize_t)(-1));
 }
 
-#define isUnspecified(tif, f) \
-	(TIFFFieldSet(tif, f) && (tif)->tif_dir.td_imagelength == 0)
+#define isUnspecified(tif, f) (TIFFFieldSet(tif, f) && (tif)->tif_dir.td_imagelength == 0)
 
 int TIFFSetupStrips(TIFF* tif)
 {
 	TIFFDirectory* td = &tif->tif_dir;
-
 	if(isTiled(tif))
-		td->td_stripsperimage =
-		    isUnspecified(tif, FIELD_TILEDIMENSIONS) ?
-		    td->td_samplesperpixel : TIFFNumberOfTiles(tif);
+		td->td_stripsperimage = isUnspecified(tif, FIELD_TILEDIMENSIONS) ? td->td_samplesperpixel : TIFFNumberOfTiles(tif);
 	else
-		td->td_stripsperimage =
-		    isUnspecified(tif, FIELD_ROWSPERSTRIP) ?
-		    td->td_samplesperpixel : TIFFNumberOfStrips(tif);
+		td->td_stripsperimage = isUnspecified(tif, FIELD_ROWSPERSTRIP) ? td->td_samplesperpixel : TIFFNumberOfStrips(tif);
 	td->td_nstrips = td->td_stripsperimage;
 	if(td->td_planarconfig == PLANARCONFIG_SEPARATE)
 		td->td_stripsperimage /= td->td_samplesperpixel;
-	td->td_stripoffset = (uint64*)
-	    SAlloc::M(td->td_nstrips * sizeof(uint64));
-	td->td_stripbytecount = (uint64*)
-	    SAlloc::M(td->td_nstrips * sizeof(uint64));
+	td->td_stripoffset = (uint64*)SAlloc::M(td->td_nstrips * sizeof(uint64));
+	td->td_stripbytecount = (uint64*)SAlloc::M(td->td_nstrips * sizeof(uint64));
 	if(td->td_stripoffset == NULL || td->td_stripbytecount == NULL)
 		return 0;
 	/*
@@ -557,14 +520,10 @@ int TIFFWriteCheck(TIFF* tif, int tiles, const char* module)
 		return 0;
 	}
 	if(tiles ^ isTiled(tif)) {
-		TIFFErrorExt(tif->tif_clientdata, module, tiles ?
-		    "Can not write tiles to a stripped image" :
-		    "Can not write scanlines to a tiled image");
+		TIFFErrorExt(tif->tif_clientdata, module, tiles ? "Can not write tiles to a stripped image" : "Can not write scanlines to a tiled image");
 		return 0;
 	}
-
 	_TIFFFillStriles(tif);
-
 	/*
 	 * On the first write verify all the required information
 	 * has been setup and initialize any data structures that
@@ -576,8 +535,7 @@ int TIFFWriteCheck(TIFF* tif, int tiles, const char* module)
 	 * the image's length to be changed).
 	 */
 	if(!TIFFFieldSet(tif, FIELD_IMAGEDIMENSIONS)) {
-		TIFFErrorExt(tif->tif_clientdata, module,
-		    "Must set \"ImageWidth\" before writing data");
+		TIFFErrorExt(tif->tif_clientdata, module, "Must set \"ImageWidth\" before writing data");
 		return 0;
 	}
 	if(tif->tif_dir.td_samplesperpixel == 1) {
@@ -651,7 +609,7 @@ int TIFFWriteBufferSetup(TIFF* tif, void* bp, tmsize_t size)
 	}
 	else
 		tif->tif_flags &= ~TIFF_MYBUFFER;
-	tif->tif_rawdata = (uint8*)bp;
+	tif->tif_rawdata = (uint8 *)bp;
 	tif->tif_rawdatasize = size;
 	tif->tif_rawcc = 0;
 	tif->tif_rawcp = tif->tif_rawdata;
@@ -766,7 +724,7 @@ int TIFFFlushData1(TIFF* tif)
 	if(tif->tif_rawcc > 0 && tif->tif_flags & TIFF_BUF4WRITE) {
 		if(!isFillOrder(tif, tif->tif_dir.td_fillorder) &&
 		    (tif->tif_flags & TIFF_NOBITREV) == 0)
-			TIFFReverseBits((uint8*)tif->tif_rawdata,
+			TIFFReverseBits((uint8 *)tif->tif_rawdata,
 			    tif->tif_rawcc);
 		if(!TIFFAppendToStrip(tif,
 			    isTiled(tif) ? tif->tif_curtile : tif->tif_curstrip,

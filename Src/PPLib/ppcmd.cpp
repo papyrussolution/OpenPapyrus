@@ -452,19 +452,19 @@ int SLAPI PPCommandFolder::Read(SBuffer & rBuf, long extraParam)
 		THROW(item.Read(rBuf, extraParam));
 		rBuf.SetRdOffs(offs);
 		if(item.Kind == PPCommandItem::kCommand) {
-			ptr = /*(char*)*/new PPCommand;
+			ptr = /*(char *)*/new PPCommand;
 			((PPCommand*)ptr)->Read(rBuf, extraParam);
 		}
 		else if(item.Kind == PPCommandItem::kFolder) {
-			ptr = /*(char*)*/new PPCommandFolder;
+			ptr = /*(char *)*/new PPCommandFolder;
 			((PPCommandFolder*)ptr)->Read(rBuf, extraParam);
 		}
 		else if(item.Kind == PPCommandItem::kGroup) {
-			ptr = /*(char*)*/new PPCommandGroup;
+			ptr = /*(char *)*/new PPCommandGroup;
 			((PPCommandGroup*)ptr)->Read(rBuf, extraParam);
 		}
 		else if(item.Kind == PPCommandItem::kSeparator) {
-			ptr = /*(char*)*/new PPCommandItem;
+			ptr = /*(char *)*/new PPCommandItem;
 			((PPCommandItem*)ptr)->Read(rBuf, extraParam);
 		}
 		THROW_SL(List.insert(/*(PPCommandItem*)*/ptr));

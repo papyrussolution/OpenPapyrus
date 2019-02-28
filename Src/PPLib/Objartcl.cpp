@@ -1299,27 +1299,30 @@ int SLAPI PPObjArticle::GetPacket(PPID id, PPArticlePacket * pPack)
 {
 	int    ok = 1, r;
 	pPack->Init();
-	if(Search(id, &pPack->Rec) > 0) {
-		LAssocArray alias_subst;
-		PPObjAccSheet acs_obj;
-		PPAccSheet acs_rec;
-		if(acs_obj.Fetch(pPack->Rec.AccSheetID, &acs_rec) > 0) {
-			pPack->Assoc = acs_rec.Assoc;
-			if(acs_rec.Flags & ACSHF_USESUPPLAGT || pPack->Rec.AccSheetID == GetSupplAccSheet()) {
-				PPSupplAgreement agt;
-				THROW(r = GetSupplAgreement(id, &agt, 0));
-				if(r > 0)
-					THROW(pPack->SetSupplAgreement(&agt));
+	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
+		ok = Search(id, &pPack->Rec);
+		if(ok > 0) {
+			LAssocArray alias_subst;
+			PPObjAccSheet acs_obj;
+			PPAccSheet acs_rec;
+			if(acs_obj.Fetch(pPack->Rec.AccSheetID, &acs_rec) > 0) {
+				pPack->Assoc = acs_rec.Assoc;
+				if(acs_rec.Flags & ACSHF_USESUPPLAGT || pPack->Rec.AccSheetID == GetSupplAccSheet()) {
+					PPSupplAgreement agt;
+					THROW(r = GetSupplAgreement(id, &agt, 0));
+					if(r > 0)
+						THROW(pPack->SetSupplAgreement(&agt));
+				}
+				else if(acs_rec.Flags & ACSHF_USECLIAGT || pPack->Rec.AccSheetID == GetSellAccSheet()) {
+					PPClientAgreement agt;
+					THROW(r = GetClientAgreement(id, &agt, 0));
+					if(r > 0)
+						THROW(pPack->SetClientAgreement(&agt, 0));
+				}
+				if(GetAliasSubst(id, &alias_subst) > 0)
+					for(uint i = 0; i < alias_subst.getCount(); i++)
+						pPack->AddAliasSubst(alias_subst.at(i).Key, alias_subst.at(i).Val);
 			}
-			else if(acs_rec.Flags & ACSHF_USECLIAGT || pPack->Rec.AccSheetID == GetSellAccSheet()) {
-				PPClientAgreement agt;
-				THROW(r = GetClientAgreement(id, &agt, 0));
-				if(r > 0)
-					THROW(pPack->SetClientAgreement(&agt, 0));
-			}
-			if(GetAliasSubst(id, &alias_subst) > 0)
-				for(uint i = 0; i < alias_subst.getCount(); i++)
-					pPack->AddAliasSubst(alias_subst.at(i).Key, alias_subst.at(i).Val);
 		}
 	}
 	else
@@ -2354,7 +2357,7 @@ int SLAPI PPObjDebtDim::Edit(PPID * pID, void * extraPtr)
 int SLAPI PPObjDebtDim::GetPacket(PPID id, PPDebtDimPacket * pPack)
 {
 	int    ok = -1;
-	if(id) {
+	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
 		PPIDArray agent_list;
 		PPDebtDimPacket pack;
 		THROW(Search(id, &pack.Rec) > 0);

@@ -139,7 +139,7 @@ static int NeXTDecode(TIFF* tif, uint8* buf, tmsize_t occ, uint16 s)
 		    }
 		}
 	}
-	tif->tif_rawcp = (uint8*)bp;
+	tif->tif_rawcp = (uint8 *)bp;
 	tif->tif_rawcc = cc;
 	return 1;
 bad:
