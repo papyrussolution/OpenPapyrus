@@ -2461,13 +2461,13 @@ int SLAPI PrcssrImportKLADR::SearchStatus(const char * pName, int abbr, long * p
 		if(abbr) {
 			if(stricmp866(p_item->Abbr, pName) == 0) {
 				ASSIGN_PTR(pCode, p_item->Code);
-				return (int)i;
+				return static_cast<int>(i);
 			}
 		}
 		else {
 			if(stricmp866(p_item->Name, pName) == 0) {
 				ASSIGN_PTR(pCode, p_item->Code);
-				return (int)i;
+				return static_cast<int>(i);
 			}
 		}
 	}

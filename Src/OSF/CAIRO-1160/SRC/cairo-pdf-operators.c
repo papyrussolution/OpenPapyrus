@@ -43,9 +43,9 @@
 #if CAIRO_HAS_PDF_OPERATORS
 //#include "cairo-error-private.h"
 #include "cairo-pdf-operators-private.h"
-#include "cairo-path-fixed-private.h"
-#include "cairo-output-stream-private.h"
-#include "cairo-scaled-font-subsets-private.h"
+//#include "cairo-path-fixed-private.h"
+//#include "cairo-output-stream-private.h"
+//#include "cairo-scaled-font-subsets-private.h"
 
 static cairo_status_t _cairo_pdf_operators_end_text(cairo_pdf_operators_t * pdf_operators);
 
@@ -395,7 +395,7 @@ static cairo_status_t _cairo_pdf_path_close_path(void * closure)
 	return _cairo_output_stream_get_status(info->output);
 }
 
-static cairo_status_t _cairo_pdf_path_rectangle(pdf_path_info_t * info, cairo_box_t * box)
+static cairo_status_t _cairo_pdf_path_rectangle(pdf_path_info_t * info, const cairo_box_t * box)
 {
 	double x1 = _cairo_fixed_to_double(box->p1.x);
 	double y1 = _cairo_fixed_to_double(box->p1.y);

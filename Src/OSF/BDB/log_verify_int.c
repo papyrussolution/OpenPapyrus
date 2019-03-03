@@ -26,7 +26,7 @@
 #include "db_int.h"
 #pragma hdrstop
 
-static int __log_vrfy_proc(DB_LOG_VRFY_INFO*, DB_LSN, DB_LSN, uint32, DB_TXN*, int32, int *);
+static int FASTCALL __log_vrfy_proc(DB_LOG_VRFY_INFO*, DB_LSN, DB_LSN, uint32, const DB_TXN*, int32, int *);
 static int __lv_ckp_vrfy_handler(DB_LOG_VRFY_INFO*, VRFY_TXN_INFO*, void *);
 static const char * FASTCALL __lv_dbreg_str(uint32);
 static int __lv_dbregid_to_dbtype(DB_LOG_VRFY_INFO*, int32, DBTYPE *);
@@ -41,7 +41,7 @@ static int __lv_on_ham_log(DB_LOG_VRFY_INFO*, DB_LSN, int32);
 static int __lv_on_heap_log(DB_LOG_VRFY_INFO*, DB_LSN, int32);
 static int __lv_on_new_txn(DB_LOG_VRFY_INFO*, const DB_LSN*, const DB_TXN*, uint32, int32, const DBT *);
 static int __lv_on_nontxn_update(DB_LOG_VRFY_INFO*, const DB_LSN*, uint32, uint32, int32);
-static int __lv_on_page_update(DB_LOG_VRFY_INFO*, DB_LSN, int32, db_pgno_t, DB_TXN*, int *);
+static int FASTCALL __lv_on_page_update(DB_LOG_VRFY_INFO*, DB_LSN, int32, db_pgno_t, const DB_TXN*, int *);
 static int __lv_on_qam_log(DB_LOG_VRFY_INFO*, DB_LSN, int32);
 static int __lv_on_timestamp(DB_LOG_VRFY_INFO*, const DB_LSN*, int32, uint32);
 static int __lv_on_txn_aborted(DB_LOG_VRFY_INFO *);
@@ -92,7 +92,7 @@ static int __lv_vrfy_for_dbfile(DB_LOG_VRFY_INFO*, int32, int *);
 			DB_ASSERT(lvh->dbenv->env, __lv_onpgupdate_res == 0);   \
 } while(0)
 
-static int __lv_on_page_update(DB_LOG_VRFY_INFO * lvh, DB_LSN lsn, int32 fileid, db_pgno_t pgno, DB_TXN * txnp, int * step)
+static int FASTCALL __lv_on_page_update(DB_LOG_VRFY_INFO * lvh, DB_LSN lsn, int32 fileid, db_pgno_t pgno, const DB_TXN * txnp, int * step)
 {
 	uint32 otxn;
 	uint32 txnid = txnp->txnid;
@@ -145,7 +145,7 @@ err:
 /*
  * General log record handler used by all log verify functions.
  */
-static int __log_vrfy_proc(DB_LOG_VRFY_INFO * lvh, DB_LSN lsn, DB_LSN prev_lsn, uint32 type /* Log record type */, DB_TXN * txnp, int32 fileid, int * step)
+static int FASTCALL __log_vrfy_proc(DB_LOG_VRFY_INFO * lvh, DB_LSN lsn, DB_LSN prev_lsn, uint32 type /* Log record type */, const DB_TXN * txnp, int32 fileid, int * step)
 {
 	int dovrfy = 1;
 	int ret = 0;

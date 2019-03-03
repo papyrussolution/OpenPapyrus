@@ -46,7 +46,7 @@
 #pragma hdrstop
 //#include "cairo-clip-inline.h"
 //#include "cairo-compositor-private.h"
-#include "cairo-image-surface-private.h"
+//#include "cairo-image-surface-private.h"
 #include "cairo-pattern-inline.h"
 //#include "cairo-region-private.h"
 #include "cairo-surface-observer-private.h"
@@ -436,39 +436,23 @@ static cairo_status_t fixup_unbounded(const cairo_mask_compositor_t * compositor
 			n++;
 		}
 	}
-
-	return compositor->fill_rectangles(dst, CAIRO_OPERATOR_CLEAR,
-		   CAIRO_COLOR_TRANSPARENT,
-		   rects, n);
+	return compositor->fill_rectangles(dst, CAIRO_OPERATOR_CLEAR, CAIRO_COLOR_TRANSPARENT, rects, n);
 }
 
-static cairo_status_t fixup_unbounded_with_mask(const cairo_mask_compositor_t * compositor,
-    cairo_surface_t * dst,
-    const cairo_composite_rectangles_t * extents)
+static cairo_status_t fixup_unbounded_with_mask(const cairo_mask_compositor_t * compositor, cairo_surface_t * dst, const cairo_composite_rectangles_t * extents)
 {
-	cairo_surface_t * mask;
 	int mask_x, mask_y;
-
-	mask = get_clip_source(compositor,
-		extents->clip, dst, &extents->unbounded,
-		&mask_x, &mask_y);
+	cairo_surface_t * mask = get_clip_source(compositor, extents->clip, dst, &extents->unbounded, &mask_x, &mask_y);
 	if(unlikely(mask->status))
 		return mask->status;
-
 	/* top */
 	if(extents->bounded.y != extents->unbounded.y) {
 		int x = extents->unbounded.x;
 		int y = extents->unbounded.y;
 		int width = extents->unbounded.width;
 		int height = extents->bounded.y - y;
-
-		compositor->composite(dst, CAIRO_OPERATOR_DEST_OUT, mask, NULL,
-		    x + mask_x, y + mask_y,
-		    0, 0,
-		    x, y,
-		    width, height);
+		compositor->composite(dst, CAIRO_OPERATOR_DEST_OUT, mask, NULL, x + mask_x, y + mask_y, 0, 0, x, y, width, height);
 	}
-
 	/* left */
 	if(extents->bounded.x != extents->unbounded.x) {
 		int x = extents->unbounded.x;

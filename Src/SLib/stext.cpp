@@ -42,22 +42,22 @@ int FASTCALL STextConst::GetIdx(int c, const char * pText)
 		case cMon_En_Sh:
 			for(; i < SIZEOFARRAY(p_mon_en_sh); i++)
 				if(sstreqi_ascii(pText, p_mon_en_sh[i]))
-					return (int)i;
+					return static_cast<int>(i);
 			break;
 		case cDow_En_Sh:
 			for(; i < SIZEOFARRAY(p_dow_en_sh); i++)
 				if(sstreqi_ascii(pText, p_dow_en_sh[i]))
-					return (int)i;
+					return static_cast<int>(i);
 			break;
 		case cDow_En:
 			for(; i < SIZEOFARRAY(p_dow_en); i++)
 				if(sstreqi_ascii(pText, p_dow_en[i]))
-					return (int)i;
+					return static_cast<int>(i);
 			break;
 		case cAsciiCtrl:
 			for(; i < SIZEOFARRAY(p_asciictrl); i++)
 				if(sstreqi_ascii(pText, p_asciictrl[i]))
-					return (int)i;
+					return static_cast<int>(i);
 			break;
 	}
 	return -1;

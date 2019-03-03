@@ -43,9 +43,9 @@
 #include "cairo-gl-private.h"
 //#include "cairo-composite-rectangles-private.h"
 //#include "cairo-compositor-private.h"
-#include "cairo-default-context-private.h"
+//#include "cairo-default-context-private.h"
 //#include "cairo-error-private.h"
-#include "cairo-image-surface-inline.h"
+//#include "cairo-image-surface-inline.h"
 #include "cairo-surface-backend-private.h"
 
 static const cairo_surface_backend_t _cairo_gl_surface_backend;
@@ -849,9 +849,7 @@ cairo_status_t _cairo_gl_surface_draw_image(cairo_gl_surface_t * dst,
 				goto FAIL;
 
 			_cairo_pattern_init_for_surface(&pattern, &src->base);
-			status = _cairo_surface_paint(&rgba_clone->base,
-				CAIRO_OPERATOR_SOURCE,
-				&pattern.base, NULL);
+			status = _cairo_surface_paint(&rgba_clone->base, CAIRO_OPERATOR_SOURCE, &pattern.base, NULL);
 			_cairo_pattern_fini(&pattern.base);
 			if(unlikely(status))
 				goto FAIL;

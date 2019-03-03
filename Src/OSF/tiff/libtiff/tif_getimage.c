@@ -294,9 +294,9 @@ int TIFFRGBAImageBegin(TIFFRGBAImage* img, TIFF* tif, int stop, char emsg[1024])
 		    }
 		    /* copy the colormaps so we can modify them */
 		    n_color = (1U << img->bitspersample);
-		    img->redcmap = (uint16*)SAlloc::M(sizeof(uint16)*n_color);
-		    img->greencmap = (uint16*)SAlloc::M(sizeof(uint16)*n_color);
-		    img->bluecmap = (uint16*)SAlloc::M(sizeof(uint16)*n_color);
+		    img->redcmap = (uint16 *)SAlloc::M(sizeof(uint16)*n_color);
+		    img->greencmap = (uint16 *)SAlloc::M(sizeof(uint16)*n_color);
+		    img->bluecmap = (uint16 *)SAlloc::M(sizeof(uint16)*n_color);
 		    if(!img->redcmap || !img->greencmap || !img->bluecmap) {
 			    sprintf(emsg, "Out of memory for colormap copy");
 			    goto fail_return;
@@ -1065,7 +1065,7 @@ DECLAREContigPutFunc(put16bitbwtile)
 	uint32** BWmap = img->BWmap;
 	(void)y;
 	for(; h > 0; --h) {
-		uint16 * wp = (uint16*)pp;
+		uint16 * wp = (uint16 *)pp;
 		for(x = w; x > 0; --x) {
 			/* use high order byte of 16bit value */
 			*cp++ = BWmap[*wp >> 8][0];
@@ -1182,7 +1182,7 @@ DECLAREContigPutFunc(putRGBUAcontig8bittile)
 DECLAREContigPutFunc(putRGBcontig16bittile)
 {
 	int samplesperpixel = img->samplesperpixel;
-	uint16 * wp = (uint16*)pp;
+	uint16 * wp = (uint16 *)pp;
 	(void)y;
 	fromskew *= samplesperpixel;
 	for(; h > 0; --h) {
@@ -1201,7 +1201,7 @@ DECLAREContigPutFunc(putRGBcontig16bittile)
 DECLAREContigPutFunc(putRGBAAcontig16bittile)
 {
 	int samplesperpixel = img->samplesperpixel;
-	uint16 * wp = (uint16*)pp;
+	uint16 * wp = (uint16 *)pp;
 	(void)y;
 	fromskew *= samplesperpixel;
 	for(; h > 0; --h) {
@@ -1220,7 +1220,7 @@ DECLAREContigPutFunc(putRGBAAcontig16bittile)
 DECLAREContigPutFunc(putRGBUAcontig16bittile)
 {
 	int samplesperpixel = img->samplesperpixel;
-	uint16 * wp = (uint16*)pp;
+	uint16 * wp = (uint16 *)pp;
 	(void)y;
 	fromskew *= samplesperpixel;
 	for(; h > 0; --h) {
@@ -1352,9 +1352,9 @@ DECLARESepPutFunc(putRGBUAseparate8bittile)
  */
 DECLARESepPutFunc(putRGBseparate16bittile)
 {
-	uint16 * wr = (uint16*)r;
-	uint16 * wg = (uint16*)g;
-	uint16 * wb = (uint16*)b;
+	uint16 * wr = (uint16 *)r;
+	uint16 * wg = (uint16 *)g;
+	uint16 * wb = (uint16 *)b;
 	(void)img; (void)y; (void)a;
 	for(; h > 0; --h) {
 		for(x = 0; x < w; x++)
@@ -1368,10 +1368,10 @@ DECLARESepPutFunc(putRGBseparate16bittile)
  */
 DECLARESepPutFunc(putRGBAAseparate16bittile)
 {
-	uint16 * wr = (uint16*)r;
-	uint16 * wg = (uint16*)g;
-	uint16 * wb = (uint16*)b;
-	uint16 * wa = (uint16*)a;
+	uint16 * wr = (uint16 *)r;
+	uint16 * wg = (uint16 *)g;
+	uint16 * wb = (uint16 *)b;
+	uint16 * wa = (uint16 *)a;
 	(void)img; (void)y;
 	for(; h > 0; --h) {
 		for(x = 0; x < w; x++)
@@ -1385,10 +1385,10 @@ DECLARESepPutFunc(putRGBAAseparate16bittile)
  */
 DECLARESepPutFunc(putRGBUAseparate16bittile)
 {
-	uint16 * wr = (uint16*)r;
-	uint16 * wg = (uint16*)g;
-	uint16 * wb = (uint16*)b;
-	uint16 * wa = (uint16*)a;
+	uint16 * wr = (uint16 *)r;
+	uint16 * wg = (uint16 *)g;
+	uint16 * wb = (uint16 *)b;
+	uint16 * wa = (uint16 *)a;
 	(void)img; (void)y;
 	for(; h > 0; --h) {
 		uint32 r2, g2, b2, a2;
@@ -1978,7 +1978,7 @@ static int makebwmap(TIFFRGBAImage* img)
 		TIFFErrorExt(img->tif->tif_clientdata, TIFFFileName(img->tif), "No space for B&W mapping table");
 		return 0;
 	}
-	p = (uint32*)(img->BWmap + 256);
+	p = (uint32 *)(img->BWmap + 256);
 	for(i = 0; i < 256; i++) {
 		TIFFRGBValue c;
 		img->BWmap[i] = p;
@@ -2101,7 +2101,7 @@ static int makecmap(TIFFRGBAImage* img)
 		TIFFErrorExt(img->tif->tif_clientdata, TIFFFileName(img->tif), "No space for Palette mapping table");
 		return 0;
 	}
-	p = (uint32*)(img->PALmap + 256);
+	p = (uint32 *)(img->PALmap + 256);
 	for(i = 0; i < 256; i++) {
 		TIFFRGBValue c;
 		img->PALmap[i] = p;

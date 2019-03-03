@@ -370,23 +370,18 @@ done:
 	return(rc);
 }
 
-zbar_image_data_handler_t* zbar_processor_set_data_handler(zbar_processor_t * proc,
-    zbar_image_data_handler_t * handler,
-    const void * userdata)
+zbar_image_data_handler_t* zbar_processor_set_data_handler(zbar_processor_t * proc, zbar_image_data_handler_t * handler, const void * userdata)
 {
 	zbar_image_data_handler_t * result = NULL;
 	proc_enter(proc);
-
 	result = proc->handler;
 	proc->handler = handler;
 	proc->userdata = userdata;
-
 	proc_leave(proc);
 	return result;
 }
 
-void zbar_processor_set_userdata(zbar_processor_t * proc,
-    void * userdata)
+void zbar_processor_set_userdata(zbar_processor_t * proc, void * userdata)
 {
 	_zbar_mutex_lock(&proc->mutex);
 	proc->userdata = userdata;
@@ -402,10 +397,7 @@ void * zbar_processor_get_userdata(const zbar_processor_t * proc)
 	return(userdata);
 }
 
-int zbar_processor_set_config(zbar_processor_t * proc,
-    zbar_symbol_type_t sym,
-    zbar_config_t cfg,
-    int val)
+int zbar_processor_set_config(zbar_processor_t * proc, zbar_symbol_type_t sym, zbar_config_t cfg, int val)
 {
 	proc_enter(proc);
 	int rc = zbar_image_scanner_set_config(proc->scanner, sym, cfg, val);
@@ -413,9 +405,7 @@ int zbar_processor_set_config(zbar_processor_t * proc,
 	return(rc);
 }
 
-int zbar_processor_request_size(zbar_processor_t * proc,
-    uint width,
-    uint height)
+int zbar_processor_request_size(zbar_processor_t * proc, uint width, uint height)
 {
 	proc_enter(proc);
 	proc->req_width = width;
@@ -424,8 +414,7 @@ int zbar_processor_request_size(zbar_processor_t * proc,
 	return 0;
 }
 
-int zbar_processor_request_interface(zbar_processor_t * proc,
-    int ver)
+int zbar_processor_request_interface(zbar_processor_t * proc, int ver)
 {
 	proc_enter(proc);
 	proc->req_intf = ver;
@@ -433,8 +422,7 @@ int zbar_processor_request_interface(zbar_processor_t * proc,
 	return 0;
 }
 
-int zbar_processor_request_iomode(zbar_processor_t * proc,
-    int iomode)
+int zbar_processor_request_iomode(zbar_processor_t * proc, int iomode)
 {
 	proc_enter(proc);
 	proc->req_iomode = iomode;
@@ -442,9 +430,7 @@ int zbar_processor_request_iomode(zbar_processor_t * proc,
 	return 0;
 }
 
-int zbar_processor_force_format(zbar_processor_t * proc,
-    ulong input,
-    ulong output)
+int zbar_processor_force_format(zbar_processor_t * proc, ulong input, ulong output)
 {
 	proc_enter(proc);
 	proc->force_input = input;

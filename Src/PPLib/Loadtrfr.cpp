@@ -153,7 +153,7 @@ int SLAPI Transfer::EnumItems(PPID billID, int *pRByBill, PPTransferItem * pTI)
 	return ok;
 }
 
-int SLAPI Transfer::GetOriginalValuesForCorrection(const PPTransferItem & rTi, const PPIDArray & rBillChain, double * pOrgQtty, double * pOrgPrice)
+int SLAPI Transfer::GetOriginalValuesForCorrection(const PPTransferItem & rTi, const PPIDArray & rBillChain, long options, double * pOrgQtty, double * pOrgPrice)
 {
 	int    ok = -1;
 	double org_qtty = 0.0;
@@ -163,7 +163,7 @@ int SLAPI Transfer::GetOriginalValuesForCorrection(const PPTransferItem & rTi, c
 			const PPID org_corr_bill_id = rBillChain.get(0);
 			TransferTbl::Rec _rec;
 			if(SearchByBill(org_corr_bill_id, 0, rTi.RByBill, &_rec) > 0) {
-				if(_rec.GoodsID == rTi.GoodsID) {
+				if(!(options & govcoVerifyGoods) || _rec.GoodsID == rTi.GoodsID) {
 					org_qtty = _rec.Quantity;
 					org_price = _rec.Price - _rec.Discount;
 					ok = 1;
@@ -256,7 +256,7 @@ int SLAPI Transfer::LoadItems(PPBillPacket & rPack, const PPIDArray * pGoodsList
 			if(p_ti->IsCorrectionExp()) {
 				double org_qtty = 0.0;
 				double org_price = 0.0;
-				if(GetOriginalValuesForCorrection(*p_ti, correction_bill_chain, &org_qtty, &org_price) > 0) {
+				if(GetOriginalValuesForCorrection(*p_ti, correction_bill_chain, 0, &org_qtty, &org_price) > 0) {
 					p_ti->Quantity_ += org_qtty;
 					p_ti->RevalCost = org_price;
 					p_ti->QuotPrice = fabs(org_qtty);

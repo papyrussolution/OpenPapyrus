@@ -42,12 +42,12 @@
 #define __STDC_LIMIT_MACROS
 
 //#include "cairo-clip-private.h"
-#include "cairo-default-context-private.h"
+//#include "cairo-default-context-private.h"
 //#include "cairo-error-private.h"
 //#include "cairo-region-private.h"
-#include "cairo-surface-clipper-private.h"
+//#include "cairo-surface-clipper-private.h"
 //#include "cairo-types-private.h"
-#include "cairo-image-surface-private.h"
+//#include "cairo-image-surface-private.h"
 //#include "cairo-pattern-private.h"
 #include "cairo-surface-backend-private.h"
 #include "cairo-surface-fallback-private.h"
@@ -353,37 +353,23 @@ static cairo_status_t _cairo_path_to_qpainterpath_close_path(void * closure)
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static QPainterPath path_to_qt(const cairo_path_fixed_t * path,
-    const cairo_matrix_t * ctm_inverse = NULL)
+static QPainterPath path_to_qt(const cairo_path_fixed_t * path, const cairo_matrix_t * ctm_inverse = NULL)
 {
 	qpainter_path_data data;
 	cairo_status_t status;
-
 	if(ctm_inverse && _cairo_matrix_is_identity(ctm_inverse))
 		ctm_inverse = NULL;
 	data.ctm_inverse = ctm_inverse;
-
-	status = _cairo_path_fixed_interpret(path,
-		_cairo_path_to_qpainterpath_move_to,
-		_cairo_path_to_qpainterpath_line_to,
-		_cairo_path_to_qpainterpath_curve_to,
-		_cairo_path_to_qpainterpath_close_path,
-		&data);
+	status = _cairo_path_fixed_interpret(path, _cairo_path_to_qpainterpath_move_to, _cairo_path_to_qpainterpath_line_to,
+		_cairo_path_to_qpainterpath_curve_to, _cairo_path_to_qpainterpath_close_path, &data);
 	assert(status == CAIRO_STATUS_SUCCESS);
-
 	return data.path;
 }
 
-static inline QPainterPath path_to_qt(const cairo_path_fixed_t * path,
-    cairo_fill_rule_t fill_rule,
-    cairo_matrix_t * ctm_inverse = NULL)
+static inline QPainterPath path_to_qt(const cairo_path_fixed_t * path, cairo_fill_rule_t fill_rule, cairo_matrix_t * ctm_inverse = NULL)
 {
 	QPainterPath qpath = path_to_qt(path, ctm_inverse);
-
-	qpath.setFillRule(fill_rule == CAIRO_FILL_RULE_WINDING ?
-	    Qt::WindingFill :
-	    Qt::OddEvenFill);
-
+	qpath.setFillRule(fill_rule == CAIRO_FILL_RULE_WINDING ? Qt::WindingFill : Qt::OddEvenFill);
 	return qpath;
 }
 

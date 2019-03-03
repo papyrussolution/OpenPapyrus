@@ -1342,17 +1342,17 @@ int SLAPI SReport::prepareData()
 							switch (GETSTYPE(f->type)) {
 								case S_INT:
 									if(_s == 1)
-										rec.put(di+1, (long)*(int8*)f->data);
+										rec.put(di+1, (long)*(int8 *)f->data);
 									else if(_s == 2)
-										rec.put(di+1, (long)*(int16*)f->data);
+										rec.put(di+1, (long)*(int16 *)f->data);
 									else if(_s == 4)
-										rec.put(di+1, (long)*(int32*)f->data);
+										rec.put(di+1, (long)*(int32 *)f->data);
 									break;
 								case S_FLOAT:
 									if(_s == 4)
 										rec.put(di+1, (double)*(float *)f->data);
 									else if(_s == 8)
-										rec.put(di+1, *(double*)f->data);
+										rec.put(di+1, *(double *)f->data);
 									break;
 								case S_DEC:
 								case S_MONEY: {

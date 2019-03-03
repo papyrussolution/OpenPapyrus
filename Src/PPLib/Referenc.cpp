@@ -916,7 +916,7 @@ int SLAPI Reference::PutPropArray(PPID obj, PPID id, PPID prop, const SVectorBas
 		p_rec->Count = count;
 		for(i = 0; i < count; i++) {
 			size_t offs = i*ary->getItemSize();
-			memcpy((int8*)(p_rec+1) + offs, ary->at(i), ary->getItemSize());
+			memcpy((int8 *)(p_rec+1) + offs, ary->at(i), ary->getItemSize());
 		}
 	}
 	THROW(PutProp(obj, id, prop, p_rec, sz, use_ta));

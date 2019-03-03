@@ -1400,8 +1400,8 @@ int SLAPI PPObjArticle::Browse(void * extraPtr /*(ArticleFilt *)*/)
 {
 	if(extraPtr) {
 		ArticleFilt filt;
-		if(filt.IsA((PPBaseFilt *)extraPtr)) {
-			filt = *(ArticleFilt *)extraPtr;
+		if(filt.IsA(static_cast<PPBaseFilt *>(extraPtr))) {
+			filt = *static_cast<const ArticleFilt *>(extraPtr);
 			return ViewArticle(&filt);
 		}
 		else

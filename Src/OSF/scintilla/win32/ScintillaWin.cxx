@@ -232,7 +232,7 @@ private:
 	virtual void StartDrag();
 	int TargetAsUTF8(char * text);
 	void AddCharUTF16(wchar_t const * wcs, uint wclen);
-	int EncodedFromUTF8(char * utf8, char * encoded) const;
+	int EncodedFromUTF8(const char * utf8, char * encoded) const;
 	sptr_t WndPaint(uptr_t wParam);
 
 	sptr_t HandleCompositionWindowed(uptr_t wParam, sptr_t lParam);
@@ -671,7 +671,7 @@ int ScintillaWin::TargetAsUTF8(char * text)
 
 // Translates a nul terminated UTF8 string into the document encoding.
 // Return the length of the result in bytes.
-int ScintillaWin::EncodedFromUTF8(char * utf8, char * encoded) const
+int ScintillaWin::EncodedFromUTF8(const char * utf8, char * encoded) const
 {
 	int inputLength = (lengthForEncode >= 0) ? lengthForEncode : static_cast<int>(sstrlen(utf8));
 	if(IsUnicodeMode()) {

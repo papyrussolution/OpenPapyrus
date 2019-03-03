@@ -42,7 +42,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-image-surface-private.h"
+//#include "cairo-image-surface-private.h"
 //#include "cairo-compositor-private.h"
 #include "cairo-spans-compositor-private.h"
 //#include "cairo-region-private.h"
@@ -308,17 +308,8 @@ static cairo_int_status_t composite(void * _dst, cairo_operator_t op, cairo_surf
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_int_status_t lerp(void * _dst,
-    cairo_surface_t * abstract_src,
-    cairo_surface_t * abstract_mask,
-    int src_x,
-    int src_y,
-    int mask_x,
-    int mask_y,
-    int dst_x,
-    int dst_y,
-    uint width,
-    uint height)
+static cairo_int_status_t lerp(void * _dst, cairo_surface_t * abstract_src, cairo_surface_t * abstract_mask,
+    int src_x, int src_y, int mask_x, int mask_y, int dst_x, int dst_y, uint width, uint height)
 {
 	cairo_image_surface_t * dst = (cairo_image_surface_t *)_dst;
 	cairo_image_source_t * src = (cairo_image_source_t*)abstract_src;
@@ -639,13 +630,9 @@ static cairo_int_status_t composite_tristrip(void * _dst,
 		_pixman_image_add_tristrip(dst->pixman_image, dst_x, dst_y, strip);
 		return CAIRO_STATUS_SUCCESS;
 	}
-
-	mask = pixman_image_create_bits(format,
-		extents->width, extents->height,
-		NULL, 0);
+	mask = pixman_image_create_bits(format, extents->width, extents->height, NULL, 0);
 	if(unlikely(mask == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	_pixman_image_add_tristrip(mask, extents->x, extents->y, strip);
 	pixman_image_composite32(_pixman_operator(op),
 	    src->pixman_image, mask, dst->pixman_image,
@@ -653,18 +640,14 @@ static cairo_int_status_t composite_tristrip(void * _dst,
 	    0, 0,
 	    extents->x - dst_x, extents->y - dst_y,
 	    extents->width, extents->height);
-
 	pixman_image_unref(mask);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
 #endif
 
 static cairo_int_status_t check_composite_glyphs(const cairo_composite_rectangles_t * extents,
-    cairo_scaled_font_t * scaled_font,
-    cairo_glyph_t * glyphs,
-    int * num_glyphs)
+    cairo_scaled_font_t * scaled_font, cairo_glyph_t * glyphs, int * num_glyphs)
 {
 	return CAIRO_STATUS_SUCCESS;
 }
@@ -676,32 +659,24 @@ static inline pixman_glyph_cache_t * get_glyph_cache(void)
 {
 	if(!global_glyph_cache)
 		global_glyph_cache = pixman_glyph_cache_create();
-
 	return global_glyph_cache;
 }
 
 void _cairo_image_compositor_reset_static_data(void)
 {
 	CAIRO_MUTEX_LOCK(_cairo_glyph_cache_mutex);
-
 	if(global_glyph_cache)
 		pixman_glyph_cache_destroy(global_glyph_cache);
 	global_glyph_cache = NULL;
-
 	CAIRO_MUTEX_UNLOCK(_cairo_glyph_cache_mutex);
 }
 
-void _cairo_image_scaled_glyph_fini(cairo_scaled_font_t * scaled_font,
-    cairo_scaled_glyph_t * scaled_glyph)
+void _cairo_image_scaled_glyph_fini(cairo_scaled_font_t * scaled_font, cairo_scaled_glyph_t * scaled_glyph)
 {
 	CAIRO_MUTEX_LOCK(_cairo_glyph_cache_mutex);
-
 	if(global_glyph_cache) {
-		pixman_glyph_cache_remove(
-			global_glyph_cache, scaled_font,
-			(void *)_cairo_scaled_glyph_index(scaled_glyph));
+		pixman_glyph_cache_remove(global_glyph_cache, scaled_font, (void *)_cairo_scaled_glyph_index(scaled_glyph));
 	}
-
 	CAIRO_MUTEX_UNLOCK(_cairo_glyph_cache_mutex);
 }
 
@@ -779,12 +754,8 @@ static cairo_int_status_t composite_glyphs(void * _dst,
 		pg->glyph = glyph;
 		pg++;
 	}
-
 	if(info->use_mask) {
-		pixman_format_code_t mask_format;
-
-		mask_format = pixman_glyph_get_mask_format(glyph_cache, pg - pglyphs, pglyphs);
-
+		pixman_format_code_t mask_format = pixman_glyph_get_mask_format(glyph_cache, pg - pglyphs, pglyphs);
 		pixman_composite_glyphs(_pixman_operator(op),
 		    ((cairo_image_source_t*)_src)->pixman_image,
 		    to_pixman_image(_dst),
@@ -820,8 +791,7 @@ void _cairo_image_compositor_reset_static_data(void)
 {
 }
 
-void _cairo_image_scaled_glyph_fini(cairo_scaled_font_t * scaled_font,
-    cairo_scaled_glyph_t * scaled_glyph)
+void _cairo_image_scaled_glyph_fini(cairo_scaled_font_t * scaled_font, cairo_scaled_glyph_t * scaled_glyph)
 {
 }
 
@@ -906,38 +876,23 @@ static cairo_int_status_t composite_glyphs_via_mask(void * _dst, cairo_operator_
 				pixman_image_unref(white);
 				return status;
 			}
-
 			glyph_cache[cache_index] = scaled_glyph;
 		}
-
 		glyph_surface = scaled_glyph->surface;
 		if(glyph_surface->width && glyph_surface->height) {
-			if(glyph_surface->base.content & CAIRO_CONTENT_COLOR &&
-			    format == PIXMAN_a8) {
+			if(glyph_surface->base.content & CAIRO_CONTENT_COLOR && format == PIXMAN_a8) {
 				pixman_image_t * ca_mask;
-
 				format = PIXMAN_a8r8g8b8;
-				ca_mask = pixman_image_create_bits(format,
-					info->extents.width,
-					info->extents.height,
-					NULL, 0);
+				ca_mask = pixman_image_create_bits(format, info->extents.width, info->extents.height, NULL, 0);
 				if(unlikely(ca_mask == NULL)) {
 					pixman_image_unref(mask);
 					pixman_image_unref(white);
 					return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 				}
-
-				pixman_image_composite32(PIXMAN_OP_SRC,
-				    white, mask, ca_mask,
-				    0, 0,
-				    0, 0,
-				    0, 0,
-				    info->extents.width,
-				    info->extents.height);
+				pixman_image_composite32(PIXMAN_OP_SRC, white, mask, ca_mask, 0, 0, 0, 0, 0, 0, info->extents.width, info->extents.height);
 				pixman_image_unref(mask);
 				mask = ca_mask;
 			}
-
 			/* round glyph locations to the nearest pixel */
 			/* XXX: FRAGILE: We're ignoring device_transform scaling here. A bug? */
 			x = _cairo_lround(info->glyphs[i].P.x - glyph_surface->base.device_transform.x0);
@@ -962,14 +917,8 @@ static cairo_int_status_t composite_glyphs_via_mask(void * _dst, cairo_operator_
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_int_status_t composite_glyphs(void * _dst,
-    cairo_operator_t op,
-    cairo_surface_t * _src,
-    int src_x,
-    int src_y,
-    int dst_x,
-    int dst_y,
-    cairo_composite_glyphs_info_t * info)
+static cairo_int_status_t composite_glyphs(void * _dst, cairo_operator_t op, cairo_surface_t * _src,
+    int src_x, int src_y, int dst_x, int dst_y, cairo_composite_glyphs_info_t * info)
 {
 	cairo_scaled_glyph_t * glyph_cache[64];
 	pixman_image_t * dst, * src;

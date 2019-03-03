@@ -25,7 +25,7 @@ int __db_close(DB*, DB_TXN*, uint32);
 int __db_refresh(DB*, DB_TXN*, uint32, int *, int);
 int __db_log_page(DB*, DB_TXN*, DB_LSN*, db_pgno_t, PAGE *);
 int __db_walk_cursors(DB*, DBC*, int (*)__P((DBC*, DBC*, uint32*, db_pgno_t, uint32, void *)), uint32*, db_pgno_t, uint32, void *);
-int __db_backup_name(ENV*, const char *, DB_TXN*, char **);
+int __db_backup_name(ENV*, const char *, const DB_TXN*, char **);
 #ifdef CONFIG_TEST
 int __db_testcopy(ENV*, DB*, const char *);
 #endif

@@ -828,27 +828,21 @@ static void fast_composite_add_n_8_8(pixman_implementation_t * imp,
 #define SET_BIT(p, n)                                                   \
 	do { *((p) + ((n) >> 5)) |= CREATE_BITMASK((n) & 31); } while(0);
 
-static void fast_composite_add_1_1(pixman_implementation_t * imp,
-    pixman_composite_info_t * info)
+static void fast_composite_add_1_1(pixman_implementation_t * imp, pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
 	uint32_t * dst_line, * dst;
 	uint32_t * src_line, * src;
 	int dst_stride, src_stride;
 	int32_t w;
-
-	PIXMAN_IMAGE_GET_LINE(src_image, 0, src_y, uint32_t,
-	    src_stride, src_line, 1);
-	PIXMAN_IMAGE_GET_LINE(dest_image, 0, dest_y, uint32_t,
-	    dst_stride, dst_line, 1);
-
+	PIXMAN_IMAGE_GET_LINE(src_image, 0, src_y, uint32_t, src_stride, src_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, 0, dest_y, uint32_t, dst_stride, dst_line, 1);
 	while(height--) {
 		dst = dst_line;
 		dst_line += dst_stride;
 		src = src_line;
 		src_line += src_stride;
 		w = width;
-
 		while(w--) {
 			/*
 			 * TODO: improve performance by processing uint32_t data instead
@@ -870,21 +864,15 @@ static void fast_composite_over_n_1_8888(pixman_implementation_t * imp,
 	int mask_stride, dst_stride;
 	uint32_t bitcache, bitmask;
 	int32_t w;
-
 	if(width <= 0)
 		return;
-
 	src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
 	srca = src >> 24;
 	if(src == 0)
 		return;
-
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32_t,
-	    dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(mask_image, 0, mask_y, uint32_t,
-	    mask_stride, mask_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32_t, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(mask_image, 0, mask_y, uint32_t, mask_stride, mask_line, 1);
 	mask_line += mask_x >> 5;
-
 	if(srca == 0xff) {
 		while(height--) {
 			dst = dst_line;
@@ -953,13 +941,9 @@ static void fast_composite_over_n_1_0565(pixman_implementation_t * imp,
 	srca = src >> 24;
 	if(src == 0)
 		return;
-
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16_t,
-	    dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(mask_image, 0, mask_y, uint32_t,
-	    mask_stride, mask_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16_t, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(mask_image, 0, mask_y, uint32_t, mask_stride, mask_line, 1);
 	mask_line += mask_x >> 5;
-
 	if(srca == 0xff) {
 		src565 = convert_8888_to_0565(src);
 		while(height--) {

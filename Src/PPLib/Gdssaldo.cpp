@@ -1,5 +1,5 @@
 // GDSSALDO.CPP
-// Copyright (c) V.Nasonov 2003, 2005, 2007, 2009, 2010, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) V.Nasonov 2003, 2005, 2007, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2019
 // @codepage windows-1251
 //
 // Расчет сальдо по товарам
@@ -128,7 +128,7 @@ public:
 	}
 };
 
-IMPL_CMPFUNC(CalcSaldoEnKey, i1, i2) 
+IMPL_CMPFUNC(CalcSaldoEnKey, i1, i2)
 	{ RET_CMPCASCADE2(static_cast<const CalcSaldoEntry *>(i1), static_cast<const CalcSaldoEntry *>(i2), GoodsID, ArticleID); }
 
 int SLAPI CalcSaldoList::Search(PPID gdsID, PPID artID, uint * p)
@@ -281,7 +281,7 @@ int GoodsSaldoParamDlg::getDTS(PrcssrGoodsSaldo::Param * pPar)
 	GSParam.GoodsGrpID = rec.GrpID;
 	GSParam.GoodsID    = rec.GoodsID;
 	sel = CTL_GDSSALDO_GGRP;
-	THROW_PP(GSParam.GoodsGrpID, PPERR_GOODSGROUPNEEDED);
+	THROW_PP_S(GSParam.GoodsGrpID, PPERR_GOODSGROUPNEEDED, GetGoodsName(rec.GoodsID, SLS.AcquireRvlStr())); // @v10.3.6 THROW_PP-->THROW_PP_S(..,GetGoodsName(rec.GoodsID))
 	getCtrlData(CTLSEL_GDSSALDO_CNTRAGNT, &GSParam.ArID);
 	getCtrlData(CTLSEL_GDSSALDO_PERIOD,   &GSParam.CalcPeriod);
 	getCtrlData(CTL_GDSSALDO_HOW, &v);
@@ -315,7 +315,7 @@ int SLAPI PrcssrGoodsSaldo::Init(const Param * pPar)
 	return RVALUEPTR(Par, pPar) ? 1 : PPSetErrorInvParam();
 }
 
-IMPL_CMPFUNC(GArSEntry, i1, i2) 
+IMPL_CMPFUNC(GArSEntry, i1, i2)
 	{ RET_CMPCASCADE4(static_cast<const GArSEntry *>(i1), static_cast<const GArSEntry *>(i2), GoodsID, ArID, DlvrLocID, Dt); }
 
 int SLAPI PrcssrGoodsSaldo::SetupItem(PPID goodsID, PPID arID, PPID dlvrLocID, LDATE dt, double qtty, double amt, TSVector <GArSEntry> & rList) // @v9.8.4 SArray-->SVector
@@ -427,7 +427,6 @@ int SLAPI PrcssrGoodsSaldo::Run()
 	SString goods_name, temp_buf;
 	IterCounter cntr;
 	TSVector <GArSEntry> list; // @v9.8.4 SArray-->SVector
-	//TSArray <GArSLastEntry> idx_list;
 	THROW_INVARG(Par.GoodsGrpID || Par.GoodsID);
 	PPWait(1);
 	if(!Par.GoodsID) {
@@ -450,8 +449,8 @@ int SLAPI PrcssrGoodsSaldo::Run()
 		GCTIterator gctiter(&gct_filt, &gct_filt.Period);
 		if(gctiter.First(&trfr_rec, &bill_rec) > 0) {
 			do {
-				const PPID ar_id = bill_rec.Object;
-				LDATE dt = trfr_rec.Dt;
+				const PPID  ar_id = bill_rec.Object;
+				const LDATE dt = trfr_rec.Dt;
 				PPWaitMsg((temp_buf = goods_name).CatDiv('-', 1).Cat(dt));
 				if(ar_id != 0 && GetOpType(bill_rec.OpID) != PPOPT_GOODSREVAL) {
 					const double qtty = trfr_rec.Quantity;

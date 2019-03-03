@@ -36,7 +36,7 @@
 #include "cairoint.h"
 #pragma hdrstop
 #define _DEFAULT_SOURCE /* for snprintf() */
-#include "cairo-output-stream-private.h"
+//#include "cairo-output-stream-private.h"
 //#include "cairo-array-private.h"
 //#include "cairo-error-private.h"
 //#include "cairo-compiler-private.h"
@@ -64,12 +64,10 @@
  * We can replace ceil(x) with (int)(x+1) since x will never be an
  * integer for any likely value of %CAIRO_FIXED_FRAC_BITS.
  */
-#define FIXED_POINT_DECIMAL_DIGITS ((int)(CAIRO_FIXED_FRAC_BITS*0.301029996 + 1))
+#define FIXED_POINT_DECIMAL_DIGITS (static_cast<int>(CAIRO_FIXED_FRAC_BITS*0.301029996 + 1))
 
-void _cairo_output_stream_init(cairo_output_stream_t * stream,
-    cairo_output_stream_write_func_t write_func,
-    cairo_output_stream_flush_func_t flush_func,
-    cairo_output_stream_close_func_t close_func)
+void _cairo_output_stream_init(cairo_output_stream_t * stream, cairo_output_stream_write_func_t write_func,
+    cairo_output_stream_flush_func_t flush_func, cairo_output_stream_close_func_t close_func)
 {
 	stream->write_func = write_func;
 	stream->flush_func = flush_func;
@@ -111,7 +109,7 @@ typedef struct _cairo_output_stream_with_closure {
 
 static cairo_status_t closure_write(cairo_output_stream_t * stream, const uchar * data, uint length)
 {
-	cairo_output_stream_with_closure_t * stream_with_closure = (cairo_output_stream_with_closure_t*)stream;
+	cairo_output_stream_with_closure_t * stream_with_closure = reinterpret_cast<cairo_output_stream_with_closure_t *>(stream);
 	if(stream_with_closure->write_func == NULL)
 		return CAIRO_STATUS_SUCCESS;
 	return stream_with_closure->write_func(stream_with_closure->closure, data, length);
@@ -119,7 +117,7 @@ static cairo_status_t closure_write(cairo_output_stream_t * stream, const uchar 
 
 static cairo_status_t closure_close(cairo_output_stream_t * stream)
 {
-	cairo_output_stream_with_closure_t * stream_with_closure = (cairo_output_stream_with_closure_t*)stream;
+	cairo_output_stream_with_closure_t * stream_with_closure = reinterpret_cast<cairo_output_stream_with_closure_t *>(stream);
 	if(stream_with_closure->close_func != NULL)
 		return stream_with_closure->close_func(stream_with_closure->closure);
 	else
@@ -128,7 +126,7 @@ static cairo_status_t closure_close(cairo_output_stream_t * stream)
 
 cairo_output_stream_t * _cairo_output_stream_create(cairo_write_func_t write_func, cairo_close_func_t close_func, void * closure)
 {
-	cairo_output_stream_with_closure_t * stream = (cairo_output_stream_with_closure_t *)_cairo_malloc(sizeof(cairo_output_stream_with_closure_t));
+	cairo_output_stream_with_closure_t * stream = static_cast<cairo_output_stream_with_closure_t *>(_cairo_malloc(sizeof(cairo_output_stream_with_closure_t)));
 	if(unlikely(stream == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil;

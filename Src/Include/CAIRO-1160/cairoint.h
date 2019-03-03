@@ -251,12 +251,12 @@ cairo_private_no_warn cairo_bool_t FASTCALL _cairo_rectangle_intersect(cairo_rec
 
 static inline cairo_bool_t _cairo_rectangle_intersects(const cairo_rectangle_int_t * dst, const cairo_rectangle_int_t * src)
 {
-	return !(src->x >= dst->x + (int)dst->width || src->x + (int)src->width <= dst->x || src->y >= dst->y + (int)dst->height || src->y + (int)src->height <= dst->y);
+	return !(src->x >= dst->x + dst->width || src->x + src->width <= dst->x || src->y >= dst->y + dst->height || src->y + src->height <= dst->y);
 }
 
 static inline cairo_bool_t _cairo_rectangle_contains_rectangle(const cairo_rectangle_int_t * a, const cairo_rectangle_int_t * b)
 {
-	return (a->x <= b->x && a->x + (int)a->width >= b->x + (int)b->width && a->y <= b->y && a->y + (int)a->height >= b->y + (int)b->height);
+	return (a->x <= b->x && a->x + a->width >= b->x + b->width && a->y <= b->y && a->y + a->height >= b->y + b->height);
 }
 
 cairo_private void _cairo_rectangle_int_from_double(cairo_rectangle_int_t * recti, const cairo_rectangle_t * rectf);
@@ -290,7 +290,7 @@ cairo_private ulong FASTCALL _cairo_hash_bytes(ulong hash, const void * bytes, u
 #define _cairo_scaled_glyph_index(g) ((g)->hash_entry.hash)
 #define _cairo_scaled_glyph_set_index(g, i)  ((g)->hash_entry.hash = (i))
 
-////#include "cairo-scaled-font-private.h"
+//#include "cairo-scaled-font-private.h"
 
 struct _cairo_font_face {
 	/* hash_entry must be first */
@@ -537,8 +537,8 @@ static inline double cairo_const _cairo_round(double r)
 #endif
 
 cairo_private uint16_t _cairo_half_from_float(float f) cairo_const;
-cairo_private cairo_bool_t _cairo_operator_bounded_by_mask(cairo_operator_t op) cairo_const;
-cairo_private cairo_bool_t _cairo_operator_bounded_by_source(cairo_operator_t op) cairo_const;
+cairo_private cairo_bool_t FASTCALL _cairo_operator_bounded_by_mask(cairo_operator_t op) cairo_const;
+cairo_private cairo_bool_t FASTCALL _cairo_operator_bounded_by_source(cairo_operator_t op) cairo_const;
 
 enum {
 	CAIRO_OPERATOR_BOUND_BY_MASK = 1 << 1,
@@ -558,12 +558,12 @@ FORCEINLINE uint16_t _cairo_color_double_to_short(double d)
 {
 	return static_cast<uint16_t>(d * 65535.0 + 0.5);
 }
-cairo_private void _cairo_color_init_rgba(cairo_color_t * color, double red, double green, double blue, double alpha);
+cairo_private void FASTCALL _cairo_color_init_rgba(cairo_color_t * color, double red, double green, double blue, double alpha);
 cairo_private void _cairo_color_multiply_alpha(cairo_color_t * color, double alpha);
-cairo_private void _cairo_color_get_rgba(cairo_color_t * color, double * red, double * green, double * blue, double * alpha);
+cairo_private void _cairo_color_get_rgba(const cairo_color_t * color, double * red, double * green, double * blue, double * alpha);
 cairo_private void _cairo_color_get_rgba_premultiplied(cairo_color_t * color, double * red, double * green, double * blue, double * alpha);
-cairo_private cairo_bool_t _cairo_color_equal(const cairo_color_t * color_a, const cairo_color_t * color_b) cairo_pure;
-cairo_private cairo_bool_t _cairo_color_stop_equal(const cairo_color_stop_t * color_a, const cairo_color_stop_t * color_b) cairo_pure;
+cairo_private cairo_bool_t FASTCALL _cairo_color_equal(const cairo_color_t * color_a, const cairo_color_t * color_b) cairo_pure;
+cairo_private cairo_bool_t FASTCALL _cairo_color_stop_equal(const cairo_color_stop_t * color_a, const cairo_color_stop_t * color_b) cairo_pure;
 cairo_private cairo_content_t _cairo_color_get_content(const cairo_color_t * color) cairo_pure;
 
 /* cairo-font-face.c */
@@ -604,7 +604,7 @@ cairo_private uchar * _cairo_lzw_compress(uchar * data, ulong * size_in_out);
 /* cairo-misc.c */
 cairo_private cairo_status_t _cairo_validate_text_clusters(const char * utf8, int utf8_len, const cairo_glyph_t * glyphs,
     int num_glyphs, const cairo_text_cluster_t * clusters, int num_clusters, cairo_text_cluster_flags_t cluster_flags);
-cairo_private ulong _cairo_string_hash(const char * str, int len);
+cairo_private ulong FASTCALL _cairo_string_hash(const char * str, int len);
 cairo_private cairo_status_t _cairo_intern_string(const char ** str_inout, int len);
 cairo_private void _cairo_intern_string_reset_static_data(void);
 cairo_private const char * _cairo_get_locale_decimal_point(void);
@@ -633,7 +633,7 @@ typedef cairo_status_t (cairo_path_fixed_line_to_func_t) (void * closure, const 
 typedef cairo_status_t (cairo_path_fixed_curve_to_func_t) (void * closure, const cairo_point_t * p0, const cairo_point_t * p1, const cairo_point_t * p2);
 typedef cairo_status_t (cairo_path_fixed_close_path_func_t) (void * closure);
 
-cairo_private cairo_status_t _cairo_path_fixed_interpret(const cairo_path_fixed_t * path, cairo_path_fixed_move_to_func_t * move_to,
+cairo_private cairo_status_t FASTCALL _cairo_path_fixed_interpret(const cairo_path_fixed_t * path, cairo_path_fixed_move_to_func_t * move_to,
     cairo_path_fixed_line_to_func_t * line_to, cairo_path_fixed_curve_to_func_t * curve_to, cairo_path_fixed_close_path_func_t * close_path, void * closure);
 cairo_private cairo_status_t _cairo_path_fixed_interpret_flat(const cairo_path_fixed_t * path,
     cairo_path_fixed_move_to_func_t * move_to, cairo_path_fixed_line_to_func_t * line_to,
@@ -749,7 +749,7 @@ cairo_private void _cairo_scaled_glyph_set_surface(cairo_scaled_glyph_t * scaled
 cairo_private void _cairo_scaled_glyph_set_path(cairo_scaled_glyph_t * scaled_glyph, cairo_scaled_font_t * scaled_font, cairo_path_fixed_t * path);
 cairo_private void _cairo_scaled_glyph_set_recording_surface(cairo_scaled_glyph_t * scaled_glyph, cairo_scaled_font_t * scaled_font, cairo_surface_t * recording_surface);
 cairo_private void _cairo_scaled_glyph_set_color_surface(cairo_scaled_glyph_t * scaled_glyph, cairo_scaled_font_t * scaled_font, cairo_image_surface_t * surface);
-cairo_private cairo_int_status_t _cairo_scaled_glyph_lookup(cairo_scaled_font_t * scaled_font, ulong index, cairo_scaled_glyph_info_t info, cairo_scaled_glyph_t ** scaled_glyph_ret);
+cairo_private cairo_int_status_t FASTCALL _cairo_scaled_glyph_lookup(cairo_scaled_font_t * scaled_font, ulong index, cairo_scaled_glyph_info_t info, cairo_scaled_glyph_t ** scaled_glyph_ret);
 cairo_private double _cairo_scaled_font_get_max_scale(cairo_scaled_font_t * scaled_font);
 cairo_private void _cairo_scaled_font_map_destroy(void);
 
@@ -777,16 +777,13 @@ cairo_private cairo_status_t _cairo_surface_copy_mime_data(cairo_surface_t * dst
 cairo_private_no_warn cairo_int_status_t FASTCALL _cairo_surface_set_error(cairo_surface_t * surface, cairo_int_status_t status);
 cairo_private void _cairo_surface_set_resolution(cairo_surface_t * surface, double x_res, double y_res);
 cairo_private cairo_surface_t * _cairo_surface_create_for_rectangle_int(cairo_surface_t * target, const cairo_rectangle_int_t * extents);
-cairo_private cairo_surface_t * _cairo_surface_create_scratch(cairo_surface_t * other, cairo_content_t content,
-    int width, int height, const cairo_color_t * color);
-cairo_private void _cairo_surface_init(cairo_surface_t * surface, const cairo_surface_backend_t * backend,
-    cairo_device_t * device, cairo_content_t content, cairo_bool_t is_vector);
+cairo_private cairo_surface_t * _cairo_surface_create_scratch(cairo_surface_t * other, cairo_content_t content, int width, int height, const cairo_color_t * color);
+cairo_private void _cairo_surface_init(cairo_surface_t * surface, const cairo_surface_backend_t * backend, cairo_device_t * device, cairo_content_t content, cairo_bool_t is_vector);
 cairo_private void _cairo_surface_set_font_options(cairo_surface_t * surface, const cairo_font_options_t * options);
-cairo_private cairo_status_t _cairo_surface_paint(cairo_surface_t * surface, cairo_operator_t op, const cairo_pattern_t * source, const cairo_clip_t * clip);
-cairo_private cairo_image_surface_t * _cairo_surface_map_to_image(cairo_surface_t * surface, const cairo_rectangle_int_t * extents);
-cairo_private_no_warn cairo_int_status_t _cairo_surface_unmap_image(cairo_surface_t * surface, cairo_image_surface_t * image);
-cairo_private cairo_status_t _cairo_surface_mask(cairo_surface_t * surface, cairo_operator_t op, const cairo_pattern_t * source,
-    const cairo_pattern_t * mask, const cairo_clip_t * clip);
+cairo_private cairo_status_t FASTCALL _cairo_surface_paint(cairo_surface_t * surface, cairo_operator_t op, const cairo_pattern_t * source, const cairo_clip_t * clip);
+cairo_private cairo_image_surface_t * FASTCALL _cairo_surface_map_to_image(cairo_surface_t * surface, const cairo_rectangle_int_t * extents);
+cairo_private_no_warn cairo_int_status_t FASTCALL _cairo_surface_unmap_image(cairo_surface_t * surface, cairo_image_surface_t * image);
+cairo_private cairo_status_t _cairo_surface_mask(cairo_surface_t * surface, cairo_operator_t op, const cairo_pattern_t * source, const cairo_pattern_t * mask, const cairo_clip_t * clip);
 cairo_private cairo_status_t _cairo_surface_fill_stroke(cairo_surface_t * surface,
     cairo_operator_t fill_op,
     const cairo_pattern_t * fill_source,
@@ -854,7 +851,7 @@ cairo_private cairo_surface_t * _cairo_surface_has_snapshot(cairo_surface_t * su
 cairo_private void FASTCALL _cairo_surface_detach_snapshot(cairo_surface_t * snapshot);
 cairo_private cairo_status_t FASTCALL _cairo_surface_begin_modification(cairo_surface_t * surface);
 cairo_private_no_warn cairo_bool_t FASTCALL _cairo_surface_get_extents(cairo_surface_t * surface, cairo_rectangle_int_t * extents);
-cairo_private cairo_bool_t _cairo_surface_has_device_transform(cairo_surface_t * surface) cairo_pure;
+cairo_private cairo_bool_t _cairo_surface_has_device_transform(const cairo_surface_t * surface) cairo_pure;
 cairo_private void _cairo_surface_release_device_reference(cairo_surface_t * surface);
 
 /* cairo-image-surface.c */
@@ -896,14 +893,14 @@ cairo_private void _cairo_surface_release_device_reference(cairo_surface_t * sur
 #define CAIRO_STRIDE_FOR_WIDTH_BPP(w, bpp) ((((bpp)*(w)+7)/8 + CAIRO_STRIDE_ALIGNMENT-1) & -CAIRO_STRIDE_ALIGNMENT)
 #define CAIRO_CONTENT_VALID(content) ((content) && (((content) & ~(CAIRO_CONTENT_COLOR | CAIRO_CONTENT_ALPHA | CAIRO_CONTENT_COLOR_ALPHA)) == 0))
 
-cairo_private int _cairo_format_bits_per_pixel(cairo_format_t format) cairo_const;
-cairo_private cairo_format_t _cairo_format_from_content(cairo_content_t content) cairo_const;
-cairo_private cairo_format_t _cairo_format_from_pixman_format(pixman_format_code_t pixman_format);
-cairo_private cairo_content_t _cairo_content_from_format(cairo_format_t format) cairo_const;
+cairo_private int FASTCALL _cairo_format_bits_per_pixel(cairo_format_t format) cairo_const;
+cairo_private cairo_format_t FASTCALL _cairo_format_from_content(cairo_content_t content) cairo_const;
+cairo_private cairo_format_t FASTCALL _cairo_format_from_pixman_format(pixman_format_code_t pixman_format);
+cairo_private cairo_content_t FASTCALL _cairo_content_from_format(cairo_format_t format) cairo_const;
 cairo_private cairo_content_t _cairo_content_from_pixman_format(pixman_format_code_t pixman_format);
 cairo_private cairo_surface_t * _cairo_image_surface_create_for_pixman_image(pixman_image_t * pixman_image, pixman_format_code_t pixman_format);
-cairo_private pixman_format_code_t _cairo_format_to_pixman_format_code(cairo_format_t format);
-cairo_private cairo_bool_t _pixman_format_from_masks(cairo_format_masks_t * masks, pixman_format_code_t * format_ret);
+cairo_private pixman_format_code_t FASTCALL _cairo_format_to_pixman_format_code(cairo_format_t format);
+cairo_private cairo_bool_t _pixman_format_from_masks(const cairo_format_masks_t * masks, pixman_format_code_t * format_ret);
 cairo_private cairo_bool_t _pixman_format_to_masks(pixman_format_code_t pixman_format, cairo_format_masks_t * masks);
 cairo_private void _cairo_image_scaled_glyph_fini(cairo_scaled_font_t * scaled_font, cairo_scaled_glyph_t * scaled_glyph);
 cairo_private void _cairo_image_reset_static_data(void);
@@ -917,7 +914,7 @@ cairo_private cairo_surface_t * _cairo_image_surface_create_with_pixman_format(u
 cairo_private cairo_surface_t * _cairo_image_surface_create_with_content(cairo_content_t content, int width, int height);
 cairo_private void _cairo_image_surface_assume_ownership_of_data(cairo_image_surface_t * surface);
 cairo_private cairo_image_surface_t * _cairo_image_surface_coerce(cairo_image_surface_t * surface);
-cairo_private cairo_image_surface_t * _cairo_image_surface_coerce_to_format(cairo_image_surface_t * surface, cairo_format_t format);
+cairo_private cairo_image_surface_t * FASTCALL _cairo_image_surface_coerce_to_format(cairo_image_surface_t * surface, cairo_format_t format);
 cairo_private cairo_image_transparency_t _cairo_image_analyze_transparency(cairo_image_surface_t * image);
 cairo_private cairo_image_color_t _cairo_image_analyze_color(cairo_image_surface_t * image);
 
@@ -964,8 +961,8 @@ cairo_private cairo_status_t _cairo_spline_bound(cairo_spline_add_point_func_t a
 
 /* cairo-matrix.c */
 cairo_private void _cairo_matrix_get_affine(const cairo_matrix_t * matrix, double * xx, double * yx, double * xy, double * yy, double * x0, double * y0);
-cairo_private void _cairo_matrix_transform_bounding_box(const cairo_matrix_t * matrix, double * x1, double * y1, double * x2, double * y2, cairo_bool_t * is_tight);
-cairo_private void _cairo_matrix_transform_bounding_box_fixed(const cairo_matrix_t * matrix, cairo_box_t * bbox, cairo_bool_t * is_tight);
+cairo_private void FASTCALL _cairo_matrix_transform_bounding_box(const cairo_matrix_t * matrix, double * x1, double * y1, double * x2, double * y2, cairo_bool_t * is_tight);
+cairo_private void FASTCALL _cairo_matrix_transform_bounding_box_fixed(const cairo_matrix_t * matrix, cairo_box_t * bbox, cairo_bool_t * is_tight);
 cairo_private cairo_bool_t FASTCALL _cairo_matrix_is_invertible(const cairo_matrix_t * matrix) cairo_pure;
 cairo_private cairo_bool_t FASTCALL _cairo_matrix_is_scale_0(const cairo_matrix_t * matrix) cairo_pure;
 cairo_private double FASTCALL _cairo_matrix_compute_determinant(const cairo_matrix_t * matrix) cairo_pure;
@@ -1006,16 +1003,16 @@ cairo_private void _cairo_pattern_reset_static_data(void);
 
 /* cairo-unicode.c */
 
-cairo_private int _cairo_utf8_get_char_validated(const char * p, uint32_t * unicode);
+cairo_private int FASTCALL _cairo_utf8_get_char_validated(const char * p, uint32_t * unicode);
 cairo_private cairo_status_t _cairo_utf8_to_ucs4(const char * str, int len, uint32_t ** result, int * items_written);
 cairo_private int _cairo_ucs4_to_utf8(uint32_t unicode, char * utf8);
-cairo_private int _cairo_ucs4_to_utf16(uint32_t unicode, uint16_t * utf16);
+cairo_private int FASTCALL _cairo_ucs4_to_utf16(uint32_t unicode, uint16_t * utf16);
 
 #if CAIRO_HAS_WIN32_FONT || CAIRO_HAS_QUARTZ_FONT || CAIRO_HAS_PDF_OPERATORS
 	#define CAIRO_HAS_UTF8_TO_UTF16 1
 #endif
 #if CAIRO_HAS_UTF8_TO_UTF16
-	cairo_private cairo_status_t _cairo_utf8_to_utf16(const char * str, int len, uint16_t ** result, int * items_written);
+	cairo_private cairo_status_t FASTCALL _cairo_utf8_to_utf16(const char * str, int len, uint16_t ** result, int * items_written);
 #endif
 
 cairo_private void _cairo_matrix_multiply(cairo_matrix_t * r, const cairo_matrix_t * a, const cairo_matrix_t * b);
@@ -1206,6 +1203,7 @@ CAIRO_END_DECLS
 #include "cairo-list-inline.h"
 #include "cairo-path-private.h"
 #include "cairo-pattern-private.h"
+#include "cairo-image-surface-inline.h"
 #include "cairo-recording-surface-private.h"
 #include "cairo-recording-surface-inline.h"
 #include "cairo-surface-snapshot-private.h"
@@ -1229,6 +1227,16 @@ CAIRO_END_DECLS
 #include "cairo-freelist-private.h"
 #include "cairo-surface-subsurface-private.h"
 #include "cairo-surface-subsurface-inline.h"
+#include "cairo-damage-private.h"
+#include "cairo-tee-surface-private.h"
+#include "cairo-output-stream-private.h"
+#include "cairo-script.h"
+#include "cairo-script-private.h"
+#include "cairo-analysis-surface-private.h"
+#include "cairo-default-context-private.h"
+#include "cairo-surface-clipper-private.h"
+#include "cairo-surface-wrapper-private.h"
+#include "cairo-scaled-font-subsets-private.h"
 
 #if HAVE_VALGRIND
 	#include <memcheck.h>

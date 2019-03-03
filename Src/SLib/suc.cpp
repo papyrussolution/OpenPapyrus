@@ -1111,7 +1111,7 @@ int SLAPI SCodepageMapPool::ParseXmlSingle(void * pXmlContext, const char * pFil
 											if(two_c_start[i] == map_entry.B[0])
 												_2f = 1;
 											else if(two_c_start[i] == 0 && _fz < 0)
-												_fz = (int)i;
+												_fz = static_cast<int>(i);
                                         }
 										if(!_2f) {
 											assert(_fz >= 0);
@@ -1127,7 +1127,7 @@ int SLAPI SCodepageMapPool::ParseXmlSingle(void * pXmlContext, const char * pFil
 											if(four_c_start[i] == map_entry.B[0])
 												_4f = 1;
 											else if(four_c_start[i] == 0 && _fz < 0)
-												_fz = (int)i;
+												_fz = static_cast<int>(i);
 										}
 										if(!_4f) {
 											assert(_fz >= 0);

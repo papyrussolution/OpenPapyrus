@@ -40,7 +40,7 @@ static int __lock_sort_cmp(const void *, const void *);
 
 /*
  * These macros are bigger than one might expect because some compilers say a
- * cast does not return an lvalue, so constructs like *(uint32*)dp = count;
+ * cast does not return an lvalue, so constructs like *(uint32 *)dp = count;
  * generate warnings.
  */
 #define RET_SIZE(size, count)  ((size)+sizeof(uint32)+(count)*2*sizeof(uint16))

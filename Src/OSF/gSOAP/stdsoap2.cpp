@@ -10751,9 +10751,9 @@ SOAP_FMAC1 double * SOAP_FMAC2 soap_indouble(struct soap * soap, const char * ta
 	if(*soap->type != '\0' && soap_isnumeric(soap, type))
 		return NULL;
  #endif
-	p = (double*)soap_id_enter(soap, soap->id, p, t, sizeof(double), 0, 0, 0, 0);
+	p = (double *)soap_id_enter(soap, soap->id, p, t, sizeof(double), 0, 0, 0, 0);
 	if(*soap->href)
-		p = (double*)soap_id_forward(soap, soap->href, p, 0, t, 0, sizeof(double), 0, 0);
+		p = (double *)soap_id_forward(soap, soap->href, p, 0, t, 0, sizeof(double), 0, 0);
 	else if(p) {
 		if(soap_s2double(soap, soap_value(soap), p))
 			return NULL;
@@ -13447,7 +13447,7 @@ SOAP_FMAC1 const char * SOAP_FMAC2 soap_base642s(struct soap * soap, const char 
 						    i += 2;
 					}
 					if(n)
-						*n += (int)i;
+						*n += static_cast<int>(i);
 					if(l >= j)
 						*t = '\0';
 					return p;
@@ -13469,7 +13469,7 @@ SOAP_FMAC1 const char * SOAP_FMAC2 soap_base642s(struct soap * soap, const char 
 			}
 			if(l < 3) {
 				if(n)
-					*n += (int)i;
+					*n += static_cast<int>(i);
 				*t = '\0';
 				return p;
 			}

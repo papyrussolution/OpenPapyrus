@@ -1451,9 +1451,7 @@ int SLAPI PPObjPerson::GetListByKind(PPID psnKindID, PPIDArray * pList, StrAssoc
 							if(pList) {
 								THROW_SL(pList->add(id));
 							}
-							if(pNameList) {
-								THROW_SL(pNameList->AddFast(id, psn_rec.Name));
-							}
+							THROW_SL(pNameList->AddFast(id, psn_rec.Name));
 						}
 					}
 				}
@@ -1471,9 +1469,7 @@ int SLAPI PPObjPerson::GetListByKind(PPID psnKindID, PPIDArray * pList, StrAssoc
 							if(pList) {
 								THROW_SL(pList->add(id));
 							}
-							if(pNameList) {
-								THROW_SL(pNameList->AddFast(id, P_Tbl->data.Name));
-							}
+							THROW_SL(pNameList->AddFast(id, P_Tbl->data.Name));
                         }
 					}
 				}
@@ -2692,16 +2688,16 @@ int SLAPI PPObjPerson::GetSingleBnkAcct(PPID personID, PPID bankID, PPID * pBnkA
 		for(uint i = 0; !found && i < bacc_list.getCount(); i++) {
 			PPBankAccount & r_rec = bacc_list.at(i);
 			if(pBnkAcctID && *pBnkAcctID && r_rec.ID == *pBnkAcctID) {
-				pref_idx = (int)i;
+				pref_idx = static_cast<int>(i);
 				found = 1;
 			}
 			else if(!bankID || r_rec.BankID == bankID) {
 				if(!pref_found && r_rec.Flags & BACCTF_PREFERRED) {
-					pref_idx = (int)i;
+					pref_idx = static_cast<int>(i);
 					pref_found = 1;
 				}
 				else if(pref_idx < 0)
-					pref_idx = (int)i;
+					pref_idx = static_cast<int>(i);
 			}
 		}
 		if(pref_idx >= 0) {
@@ -3722,7 +3718,7 @@ int ShortPersonDialog::setDTS(const PPPersonPacket * pData)
 	}
 	// } @v10.0.01
 	if(Data.ELA.GetSinglePhone(temp_buf, &i) > 0) {
-		PhonePos = (int)i;
+		PhonePos = static_cast<int>(i);
 		setCtrlString(CTL_PERSON_PHONE, temp_buf);
 	}
 	if(KindID) {
@@ -5619,7 +5615,7 @@ int PersonRelListDialog::addItem(long * pPos, long * pID)
 
 int PersonRelListDialog::delItem(long pos, long id)
 {
-	return (!IsReverse && Data.RemoveRelationByPos((uint)pos)) ? 1 : -1;
+	return (!IsReverse && Data.RemoveRelationByPos(static_cast<uint>(pos))) ? 1 : -1;
 }
 
 int PersonRelListDialog::editItem(long pos, long id)

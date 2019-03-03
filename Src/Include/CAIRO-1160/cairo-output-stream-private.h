@@ -38,7 +38,6 @@
 
 //#include "cairo-compiler-private.h"
 //#include "cairo-types-private.h"
-
 //#include <stdlib.h>
 //#include <stdio.h>
 //#include <stdarg.h>

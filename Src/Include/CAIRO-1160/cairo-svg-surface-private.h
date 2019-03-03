@@ -44,7 +44,7 @@
 #include "cairo-svg.h"
 
 #include "cairo-surface-private.h"
-#include "cairo-surface-clipper-private.h"
+//#include "cairo-surface-clipper-private.h"
 
 typedef struct cairo_svg_document cairo_svg_document_t;
 

@@ -61,33 +61,19 @@ pixman_composite_##name##_asm_##cputype (int32_t   w,                   \
                                          src_type *src,                 \
                                          int32_t   src_stride);         \
                                                                         \
-static void                                              \
-cputype##_composite_##name (pixman_implementation_t *imp,               \
-                            pixman_composite_info_t *info)              \
+static void cputype##_composite_##name (pixman_implementation_t *imp, pixman_composite_info_t *info) \
 {                                                                       \
     PIXMAN_COMPOSITE_ARGS (info);                                       \
     dst_type *dst_line;							\
     src_type *src_line;                                                 \
     int32_t dst_stride, src_stride;                                     \
-                                                                        \
-    PIXMAN_IMAGE_GET_LINE (src_image, src_x, src_y, src_type,           \
-                           src_stride, src_line, src_cnt);              \
-    PIXMAN_IMAGE_GET_LINE (dest_image, dest_x, dest_y, dst_type,        \
-                           dst_stride, dst_line, dst_cnt);              \
-                                                                        \
-    pixman_composite_##name##_asm_##cputype (width, height,             \
-                                             dst_line, dst_stride,      \
-                                             src_line, src_stride);     \
+    PIXMAN_IMAGE_GET_LINE (src_image, src_x, src_y, src_type, src_stride, src_line, src_cnt);              \
+    PIXMAN_IMAGE_GET_LINE (dest_image, dest_x, dest_y, dst_type, dst_stride, dst_line, dst_cnt);              \
+    pixman_composite_##name##_asm_##cputype (width, height, dst_line, dst_stride, src_line, src_stride);     \
 }
 
-#define PIXMAN_ARM_BIND_FAST_PATH_N_DST(flags, cputype, name,           \
-                                        dst_type, dst_cnt)              \
-void                                                     \
-pixman_composite_##name##_asm_##cputype (int32_t    w,                  \
-                                         int32_t    h,                  \
-                                         dst_type  *dst,                \
-                                         int32_t    dst_stride,         \
-                                         uint32_t   src);               \
+#define PIXMAN_ARM_BIND_FAST_PATH_N_DST(flags, cputype, name, dst_type, dst_cnt)              \
+void pixman_composite_##name##_asm_##cputype (int32_t w, int32_t h, dst_type * dst, int32_t dst_stride, uint32_t src); \
                                                                         \
 static void                                              \
 cputype##_composite_##name (pixman_implementation_t *imp,               \

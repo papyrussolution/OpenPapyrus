@@ -65,9 +65,7 @@
  * cK represents cos(K*pi/16).
  */
 
-GLOBAL(void) jpeg_idct_float(j_decompress_ptr cinfo, jpeg_component_info * compptr,
-    JCOEFPTR coef_block,
-    JSAMPARRAY output_buf, JDIMENSION output_col)
+GLOBAL(void) jpeg_idct_float(j_decompress_ptr cinfo, jpeg_component_info * compptr, JCOEFPTR coef_block, JSAMPARRAY output_buf, JDIMENSION output_col)
 {
 	FAST_FLOAT tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
 	FAST_FLOAT tmp10, tmp11, tmp12, tmp13;
@@ -187,8 +185,7 @@ GLOBAL(void) jpeg_idct_float(j_decompress_ptr cinfo, jpeg_component_info * compp
 		tmp11 = z5 - wsptr[4];
 
 		tmp13 = wsptr[2] + wsptr[6];
-		tmp12 = (wsptr[2] - wsptr[6]) *
-		    ((FAST_FLOAT)1.414213562) - tmp13; /* 2*c4 */
+		tmp12 = (wsptr[2] - wsptr[6]) * ((FAST_FLOAT)1.414213562) - tmp13; /* 2*c4 */
 
 		tmp0 = tmp10 + tmp13;
 		tmp3 = tmp10 - tmp13;

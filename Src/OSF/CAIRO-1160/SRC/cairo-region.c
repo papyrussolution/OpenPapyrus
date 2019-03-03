@@ -58,12 +58,10 @@ static const cairo_region_t _cairo_region_nil = {
 	CAIRO_STATUS_NO_MEMORY,         /* status */
 };
 
-cairo_region_t * _cairo_region_create_in_error(cairo_status_t status)
+cairo_region_t * FASTCALL _cairo_region_create_in_error(cairo_status_t status)
 {
 	switch(status) {
-		case CAIRO_STATUS_NO_MEMORY:
-		    return (cairo_region_t*)&_cairo_region_nil;
-
+		case CAIRO_STATUS_NO_MEMORY: return (cairo_region_t*)&_cairo_region_nil;
 		case CAIRO_STATUS_SUCCESS:
 		case CAIRO_STATUS_LAST_STATUS:
 		    ASSERT_NOT_REACHED;
@@ -135,41 +133,33 @@ cairo_region_t * _cairo_region_create_in_error(cairo_status_t status)
  *
  * Return value: the error status.
  **/
-static cairo_status_t _cairo_region_set_error(cairo_region_t * region,
-    cairo_status_t status)
+static cairo_status_t FASTCALL _cairo_region_set_error(cairo_region_t * region, cairo_status_t status)
 {
 	if(status == CAIRO_STATUS_SUCCESS)
 		return CAIRO_STATUS_SUCCESS;
-
 	/* Don't overwrite an existing error. This preserves the first
 	 * error, which is the most significant. */
 	_cairo_status_set_error(&region->status, status);
-
 	return _cairo_error(status);
 }
 
 void _cairo_region_init(cairo_region_t * region)
 {
 	VG(VALGRIND_MAKE_MEM_UNDEFINED(region, sizeof(cairo_region_t)));
-
 	region->status = CAIRO_STATUS_SUCCESS;
 	CAIRO_REFERENCE_COUNT_INIT(&region->ref_count, 0);
 	pixman_region32_init(&region->rgn);
 }
 
-void _cairo_region_init_rectangle(cairo_region_t * region,
-    const cairo_rectangle_int_t * rectangle)
+void _cairo_region_init_rectangle(cairo_region_t * region, const cairo_rectangle_int_t * rectangle)
 {
 	VG(VALGRIND_MAKE_MEM_UNDEFINED(region, sizeof(cairo_region_t)));
-
 	region->status = CAIRO_STATUS_SUCCESS;
 	CAIRO_REFERENCE_COUNT_INIT(&region->ref_count, 0);
-	pixman_region32_init_rect(&region->rgn,
-	    rectangle->x, rectangle->y,
-	    rectangle->width, rectangle->height);
+	pixman_region32_init_rect(&region->rgn, rectangle->x, rectangle->y, rectangle->width, rectangle->height);
 }
 
-void _cairo_region_fini(cairo_region_t * region)
+void FASTCALL _cairo_region_fini(cairo_region_t * region)
 {
 	assert(!CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&region->ref_count));
 	pixman_region32_fini(&region->rgn);
@@ -217,7 +207,7 @@ slim_hidden_def(cairo_region_create);
  *
  * Since: 1.10
  **/
-cairo_region_t * cairo_region_create_rectangles(const cairo_rectangle_int_t * rects, int count)
+cairo_region_t * FASTCALL cairo_region_create_rectangles(const cairo_rectangle_int_t * rects, int count)
 {
 	pixman_box32_t stack_pboxes[CAIRO_STACK_ARRAY_LENGTH(pixman_box32_t)];
 	pixman_box32_t * pboxes = stack_pboxes;
@@ -349,13 +339,11 @@ slim_hidden_def(cairo_region_copy);
  *
  * Since: 1.10
  **/
-cairo_region_t * cairo_region_reference(cairo_region_t * region)
+cairo_region_t * FASTCALL cairo_region_reference(cairo_region_t * region)
 {
 	if(region == NULL || CAIRO_REFERENCE_COUNT_IS_INVALID(&region->ref_count))
 		return NULL;
-
 	assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&region->ref_count));
-
 	_cairo_reference_count_inc(&region->ref_count);
 	return region;
 }

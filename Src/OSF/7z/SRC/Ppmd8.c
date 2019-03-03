@@ -212,7 +212,7 @@ static void * AllocUnits(CPpmd8 * p, unsigned indx)
 }
 
 #define MyMem12Cpy(dest, src, num) \
-	{ uint32 * d = (uint32*)dest; const uint32 * z = (const uint32*)src; uint32 n = num; \
+	{ uint32 * d = (uint32 *)dest; const uint32 * z = (const uint32*)src; uint32 n = num; \
 	  do { d[0] = z[0]; d[1] = z[1]; d[2] = z[2]; z += 3; d += 3; } while(--n); }
 
 static void * ShrinkUnits(CPpmd8 * p, void * oldPtr, unsigned oldNU, unsigned newNU)
@@ -242,7 +242,7 @@ static void SpecialFreeUnit(CPpmd8 * p, void * ptr)
 		InsertNode(p, ptr, 0);
 	else {
     #ifdef PPMD8_FREEZE_SUPPORT
-		*(uint32*)ptr = EMPTY_NODE; /* it's used for(Flags == 0xFF) check in RemoveBinContexts */
+		*(uint32 *)ptr = EMPTY_NODE; /* it's used for(Flags == 0xFF) check in RemoveBinContexts */
     #endif
 		p->UnitsStart += UNIT_SIZE;
 	}

@@ -1512,14 +1512,14 @@ void BillItemBrowser::update(int pos)
 				for(uint i = 0; i < p_def->getCount(); i++) {
 					const BroColumn & r_col = p_def->at(i);
 					switch(r_col.Offs) {
-						case 25: ext_cost_col = (int)i; break;
-						case  3: cost_col = (int)i; break;
-						case  2: qtty_col = (int)i; break;
-						case  7: phqtty_col = (int)i; break;
-						case 29: upp_col = (int)i; break;
-						case 30: setup_quot_info_col = (int)i; break;
-						case 31: ordqtty_col = (int)i; break;
-						case 32: vetis_uuid_col = (int)i; break;
+						case 25: ext_cost_col = static_cast<int>(i); break;
+						case  3: cost_col = static_cast<int>(i); break;
+						case  2: qtty_col = static_cast<int>(i); break;
+						case  7: phqtty_col = static_cast<int>(i); break;
+						case 29: upp_col = static_cast<int>(i); break;
+						case 30: setup_quot_info_col = static_cast<int>(i); break;
+						case 31: ordqtty_col = static_cast<int>(i); break;
+						case 32: vetis_uuid_col = static_cast<int>(i); break;
 					}
 				}
 				if(Total.ExtCost != 0.0) {
@@ -1686,7 +1686,7 @@ int BillItemBrowser::_moveItem2(int srcRowIdx)
 			if(P_BObj->GetCorrectionBackChain(P_Pack->Rec, chain_list) > 0) {
 				double org_qtty = 0.0;
 				double org_price = 0.0;
-				if(P_BObj->trfr->GetOriginalValuesForCorrection(new_ti, chain_list, &org_qtty, &org_price) > 0) {
+				if(P_BObj->trfr->GetOriginalValuesForCorrection(new_ti, chain_list, Transfer::govcoVerifyGoods, &org_qtty, &org_price) > 0) {
 					new_ti.RevalCost = org_price;
 					new_ti.QuotPrice = fabs(org_qtty);
 				}

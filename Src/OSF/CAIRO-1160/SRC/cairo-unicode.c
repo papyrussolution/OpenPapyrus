@@ -121,7 +121,7 @@ static const char utf8_skip_data[256] = {
  * If @p does not point to a valid UTF-8 encoded character, results are
  * undefined.
  **/
-static uint32_t _utf8_get_char(const uchar * p)
+static uint32_t FASTCALL _utf8_get_char(const uchar * p)
 {
 	int i, mask = 0, len;
 	uint32_t result;
@@ -136,7 +136,7 @@ static uint32_t _utf8_get_char(const uchar * p)
 /* Like _utf8_get_char, but take a maximum length
  * and return (uint32_t)-2 on incomplete trailing character
  */
-static uint32_t _utf8_get_char_extended(const uchar * p, long max_len)
+static uint32_t FASTCALL _utf8_get_char_extended(const uchar * p, long max_len)
 {
 	int i, len;
 	uint32_t wc = static_cast<uchar>(*p);
@@ -206,7 +206,7 @@ static uint32_t _utf8_get_char_extended(const uchar * p, long max_len)
  *
  * Returns: the number of bytes forming the character returned.
  **/
-int _cairo_utf8_get_char_validated(const char * p, uint32_t * unicode)
+int FASTCALL _cairo_utf8_get_char_validated(const char * p, uint32_t * unicode)
 {
 	int i, mask = 0, len;
 	uint32_t result;
@@ -326,7 +326,7 @@ int _cairo_ucs4_to_utf8(uint32_t unicode, char * utf8)
  * Return value: Number of elements in the utf16 string or 0 if an
  * invalid unicode character
  **/
-int _cairo_ucs4_to_utf16(uint32_t unicode, uint16_t * utf16)
+int FASTCALL _cairo_ucs4_to_utf16(uint32_t unicode, uint16_t * utf16)
 {
 	if(unicode < 0x10000) {
 		if(utf16)
@@ -367,7 +367,7 @@ int _cairo_ucs4_to_utf16(uint32_t unicode, uint16_t * utf16)
  *   successfully converted. %CAIRO_STATUS_INVALID_STRING if an
  *   an invalid sequence was found.
  **/
-cairo_status_t _cairo_utf8_to_utf16(const char * str, int len, uint16_t ** result, int * items_written)
+cairo_status_t FASTCALL _cairo_utf8_to_utf16(const char * str, int len, uint16_t ** result, int * items_written)
 {
 	uint16_t * str16 = NULL;
 	int i;

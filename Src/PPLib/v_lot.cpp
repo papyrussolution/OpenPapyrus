@@ -1119,16 +1119,41 @@ int SLAPI PPViewLot::MakeLotListForEgaisRetReg2ToWh(PPEgaisProcessor & rEp, PPID
 			PPBillPacket bp;
 			SString ref_b;
 			SString egais_code;
+			LotExtCodeCore * p_lec_t = P_BObj->P_LotXcT;
 			for(bill_view.InitIteration(PPViewBill::OrdByDefault); bill_view.NextIteration(&bill_item) > 0;) {
 				if(P_BObj->ExtractPacket(bill_item.ID, &bp) > 0) {
 					for(uint i = 0; i < bp.GetTCount(); i++) {
 						const PPTransferItem & r_ti = bp.ConstTI(i);
 						if(r_ti.GoodsID > 0 && r_ti.LotID && rEp.IsAlcGoods(r_ti.GoodsID)) {
-							p_ref->Ot.GetTagStr(PPOBJ_LOT, r_ti.LotID, PPTAG_LOT_FSRARINFB, ref_b);
-							p_ref->Ot.GetTagStr(PPOBJ_LOT, r_ti.LotID, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
-							if(ref_b.NotEmpty() && egais_code.NotEmpty()) {
-								rList.Add(r_ti.LotID, fabs(r_ti.Quantity_));
-								ok = 1;
+							// @v10.3.6 {
+							int    is_lot_in_3format = 0;
+							if(p_lec_t) {
+								int16 row_idx = 0;
+								int   row_is_found = 0;
+								for(int   rbb_iter = 0; !row_is_found && P_BObj->trfr->EnumItems(bp.Rec.ID, &rbb_iter, 0) > 0;) {
+									row_idx++;
+									if(rbb_iter == r_ti.RByBill)
+										row_is_found = 1;
+								}
+								if(row_is_found) {
+									LotExtCodeTbl::Key2 k2;
+									MEMSZERO(k2);
+									k2.BillID = bp.Rec.ID;
+									k2.RByBill = row_idx;
+									if(p_lec_t->search(2, &k2, spGe) && p_lec_t->data.BillID == bp.Rec.ID && p_lec_t->data.RByBill == row_idx) do {
+										if(p_lec_t->data.Code[0])
+											is_lot_in_3format = 1;
+									} while(!is_lot_in_3format && p_lec_t->search(2, &k2, spGe) && p_lec_t->data.BillID == bp.Rec.ID && p_lec_t->data.RByBill == row_idx);
+								}
+							}
+							// } @v10.3.6 
+							if(!is_lot_in_3format) {
+								p_ref->Ot.GetTagStr(PPOBJ_LOT, r_ti.LotID, PPTAG_LOT_FSRARINFB, ref_b);
+								p_ref->Ot.GetTagStr(PPOBJ_LOT, r_ti.LotID, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
+								if(ref_b.NotEmpty() && egais_code.NotEmpty()) {
+									rList.Add(r_ti.LotID, fabs(r_ti.Quantity_));
+									ok = 1;
+								}
 							}
 						}
 					}
@@ -1179,9 +1204,6 @@ int SLAPI PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 					}
 				}
 				break;
-			case PPVCMD_SYSTEMINFO:
-				ok = P_BObj->EditLotSystemInfo(lot_id);
-				break;
 			case PPVCMD_ADDEDINFO:
 				if(P_BObj->EditLotExtData(lot_id) > 0) {
 					CalcTotal(LotTotal::Undef, 0);
@@ -1190,12 +1212,11 @@ int SLAPI PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 				else
 					ok = -1;
 				break;
-			case PPVCMD_DORETURN:
-				ok = P_BObj->AddRetBillByLot(lot_id);
-				break;
-			case PPVCMD_MOVLOTOP:
-				ok = MovLotOps(lot_id);
-				break;
+			case PPVCMD_SYSTEMINFO: ok = P_BObj->EditLotSystemInfo(lot_id); break;
+			case PPVCMD_DORETURN: ok = P_BObj->AddRetBillByLot(lot_id); break;
+			case PPVCMD_MOVLOTOP: ok = MovLotOps(lot_id); break;
+			case PPVCMD_DORECOVER: ok = RecoverLots(); break;
+			case PPVCMD_TAGS: ok = EditObjTagValList(PPOBJ_LOT, lot_id, 0); break;
 			case PPVCMD_EXTUPDATE:
 				ok = -1;
 				if(lot_id)
@@ -1217,9 +1238,6 @@ int SLAPI PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 			case PPVCMD_PUTTOBASKETALL:
 				ok = -1;
 				PutAllToBasket();
-				break;
-			case PPVCMD_DORECOVER:
-				ok = RecoverLots();
 				break;
 			case PPVCMD_VIEWCOMPLETE:
 				ok = -1;
@@ -1263,9 +1281,6 @@ int SLAPI PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 						PsnObj.Edit(&ar_rec.ObjID, 0);
 					}
 				}
-				break;
-			case PPVCMD_TAGS:
-				ok = EditObjTagValList(PPOBJ_LOT, lot_id, 0);
 				break;
 			case PPVCMD_TAGSALL:
 				ok = -1;

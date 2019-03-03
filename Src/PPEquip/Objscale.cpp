@@ -1447,17 +1447,17 @@ int SLAPI CasCL5000J::SendPLU(const ScalePLU * pPLU)
 		memzero(data_buf, sizeof(data_buf));
 		data_buf[p++] = 'W';            // Write
 		data_buf[p++] = 'L';            // Barcode
-		*((uint32*)(data_buf + p)) = 0; // Address
+		*((uint32 *)(data_buf + p)) = 0; // Address
 		p += sizeof(uint32);
 		data_buf[p++] = ',';
 		data_buf[p] = (char)(data_size+msg_pos); // Size of data
 		p += sizeof(uint16);
 		data_buf[p++] = ':';
 		// DEPARTMENT NUMBER
-		*((uint16*)(data_buf + p)) = 1;
+		PTR16(data_buf + p)[0] = 1;
 		p += sizeof(uint16);
 		// PLU
-		*((uint32*)(data_buf + p)) = pPLU->GoodsNo;
+		*((uint32 *)(data_buf + p)) = pPLU->GoodsNo;
 		p += sizeof(uint32);
 		// TYPE
 		*((uint8 *)(data_buf + p))  = 1;
@@ -1485,28 +1485,28 @@ int SLAPI CasCL5000J::SendPLU(const ScalePLU * pPLU)
 			p += 5;
 		}
 		// GROUP CODE
-		*((uint16*)(data_buf + p)) = 0;
+		PTR16(data_buf + p)[0] = 0;
 		p += sizeof(uint16);
 		// LABEL NUMBER
-		*((uint16*)(data_buf + p)) = 0;
+		PTR16(data_buf + p)[0] = 0;
 		p += sizeof(uint16);
 		// RESERVE
-		*((uint16*)(data_buf + p)) = 0;
+		PTR16(data_buf + p)[0] = 0;
 		p += sizeof(uint16);
 		// ORIGIN NUMBER
-		*((uint16*)(data_buf + p)) = 0;
+		PTR16(data_buf + p)[0] = 0;
 		p += sizeof(uint16);
 		// RESERVE
 		*((uint8 *)(data_buf + p)) = 0;
 		p += sizeof(uint8);
 		// FIXED WEIGHT
-		*((uint32*)(data_buf + p)) = 0;
+		*((uint32 *)(data_buf + p)) = 0;
 		p += sizeof(uint32);
 		// ITEM CODE
-		*((uint32*)(data_buf + p)) = barcode.ToLong();
+		*((uint32 *)(data_buf + p)) = barcode.ToLong();
 		p += sizeof(uint32);
 		// PCS
-		*((uint16*)(data_buf + p)) = 0;
+		PTR16(data_buf + p)[0] = 0;
 		p += sizeof(uint16);
 		// PCS SYMBOL
 		*((uint8 *)(data_buf + p)) = 0;
@@ -1515,28 +1515,28 @@ int SLAPI CasCL5000J::SendPLU(const ScalePLU * pPLU)
 		*((uint8 *)(data_buf + p)) = 0;
 		p += sizeof(uint8);
 		// UNIT PRICE
-		*((uint32*)(data_buf + p)) = R0i(pPLU->Price * 100L);
+		*((uint32 *)(data_buf + p)) = R0i(pPLU->Price * 100L);
 		p += sizeof(uint32);
 		// SPECIAL PRICE
-		*((uint32*)(data_buf + p)) = 0;
+		*((uint32 *)(data_buf + p)) = 0;
 		p += sizeof(uint32);
 		// TARE WEIGHT
-		*((uint32*)(data_buf + p)) = 0;
+		*((uint32 *)(data_buf + p)) = 0;
 		p += sizeof(uint32);
 		// TARE NUMBER
 		*((uint8 *)(data_buf + p)) = 0;
 		p += sizeof(uint8);
 		// BARCODE NUMBER
-		*((uint16*)(data_buf + p)) = (uint16)1;
+		PTR16(data_buf + p)[0] = (uint16)1;
 		p += sizeof(uint16);
 		// RESERVE
-		*((uint16*)(data_buf + p)) = 0;
+		PTR16(data_buf + p)[0] = 0;
 		p += sizeof(uint16);
 		// PRODUCE DATE
-		*((uint16*)(data_buf + p)) = 0;
+		PTR16(data_buf + p)[0] = 0;
 		p += sizeof(uint16);
 		// PACKED DATE
-		*((uint16*)(data_buf + p)) = 0;
+		PTR16(data_buf + p)[0] = 0;
 		p += sizeof(uint16);
 		// PACKED TIME
 		*((uint8 *)(data_buf + p)) = 0;
@@ -1544,23 +1544,23 @@ int SLAPI CasCL5000J::SendPLU(const ScalePLU * pPLU)
 		// SELL BY DATE (EXPIRY in days)
 		{
 			if(pPLU->Expiry.year()) {
-				*((uint32*)(data_buf + p)) = diffdate(pPLU->Expiry, getcurdate_()) + 1;
+				*((uint32 *)(data_buf + p)) = diffdate(pPLU->Expiry, getcurdate_()) + 1;
 			}
 			else
-				*((uint32*)(data_buf + p)) = 0;
+				*((uint32 *)(data_buf + p)) = 0;
 		}
 		p += sizeof(uint32);
 		// SELL BY TIME
 		*((uint8 *)(data_buf + p)) = 0;
 		p += sizeof(uint8);
 		// MESSAGE NUMBER
-		*((uint16*)(data_buf + p)) = 0;
+		PTR16(data_buf + p)[0] = 0;
 		p += sizeof(uint16);
 		// RESERVE
-		*((uint16*)(data_buf + p)) = 0;
+		PTR16(data_buf + p)[0] = 0;
 		p += sizeof(uint16);
 		// RESERVE
-		*((uint16*)(data_buf + p)) = 0;
+		PTR16(data_buf + p)[0] = 0;
 		p += sizeof(uint16);
 		// SALE MESSAGE NUMBER
 		*((uint8 *)(data_buf + p)) = 0;
@@ -1596,17 +1596,17 @@ int SLAPI CasCL5000J::SendBarcodeFormat(const char * pFmt)
 		strnzcpy(fmt, pFmt, sstrlen(pFmt) + 1);
 		data_buf[p++] = 'W';                      // Op Write
 		data_buf[p++] = 'B';                      // Barcode
-		*((uint32*)(data_buf + p)) = 0;           // Address
+		*((uint32 *)(data_buf + p)) = 0;           // Address
 		p += sizeof(uint32);
 		data_buf[p++] = ',';
-		*(uint16*)(data_buf + p) = data_size;     // Size of data
+		PTR16(data_buf + p)[0] = data_size;     // Size of data
 		p += sizeof(uint16);
 		data_buf[p++] = ':';
 		// BARCODE NUMBER
-		*(uint32*)(data_buf + p)= 1;
+		*(uint32 *)(data_buf + p) = 1;
 		p += sizeof(uint32);
 		// BARCODE Type
-		*(uint8 *)(data_buf + p)= 1; // EAN13
+		*(uint8 *)(data_buf + p) = 1; // EAN13
 		p += sizeof(uint8);
 		// BARCODE format
 		strnzcpy((data_buf + p), fmt, sstrlen(fmt) + 1);

@@ -32,9 +32,9 @@ SLAPI PPViewAccturn::~PPViewAccturn()
 PPBaseFilt * SLAPI PPViewAccturn::CreateFilt(void * extraPtr) const
 {
 	AccturnFilt * p_filt = 0;
-	if(PPView::CreateFiltInstance(PPFILT_ACCTURN, (PPBaseFilt**)&p_filt))
+	if(PPView::CreateFiltInstance(PPFILT_ACCTURN, reinterpret_cast<PPBaseFilt **>(&p_filt)))
 		p_filt->Period.SetDate(LConfig.OperDate);
-	return (PPBaseFilt*)p_filt;
+	return static_cast<PPBaseFilt *>(p_filt);
 }
 
 int SLAPI PPViewAccturn::DeleteItem(PPID billID)

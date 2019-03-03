@@ -32,7 +32,7 @@
 #ifndef CAIRO_COGL_UTILS_PRIVATE_H
 #define CAIRO_COGL_UTILS_PRIVATE_H
 
-#include "cairo-path-fixed-private.h"
+//#include "cairo-path-fixed-private.h"
 #include <cogl/cogl2-experimental.h>
 
 CoglPath *

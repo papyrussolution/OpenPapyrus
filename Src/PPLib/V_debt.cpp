@@ -214,7 +214,7 @@ SLAPI PPViewDebtTrnovr::~PPViewDebtTrnovr()
 PPBaseFilt * PPViewDebtTrnovr::CreateFilt(void * extraPtr) const
 {
 	DebtTrnovrFilt * p_filt = 0;
-	if(PPView::CreateFiltInstance(PPFILT_DEBTTRNOVR, (PPBaseFilt **)&p_filt)) {
+	if(PPView::CreateFiltInstance(PPFILT_DEBTTRNOVR, reinterpret_cast<PPBaseFilt **>(&p_filt))) {
 		p_filt->Sgb.Reset();
 		p_filt->Sgb.S = SubstGrpBill::sgbObject;
 		if(extraPtr == 0)
@@ -225,7 +225,7 @@ PPBaseFilt * PPViewDebtTrnovr::CreateFilt(void * extraPtr) const
 	}
 	else
 		PPErrCode = PPERR_BASEFILTUNSUPPORTED;
-	return (PPBaseFilt*)p_filt;
+	return static_cast<PPBaseFilt *>(p_filt);
 }
 
 int FASTCALL PPViewDebtTrnovr::CheckAddress(PPID locID)

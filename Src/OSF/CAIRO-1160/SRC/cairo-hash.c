@@ -151,7 +151,7 @@ static cairo_bool_t _cairo_hash_table_uid_keys_equal(const void * key_a, const v
  *
  * Return value: the new hash table or %NULL if out of memory.
  **/
-cairo_hash_table_t * _cairo_hash_table_create(cairo_hash_keys_equal_func_t keys_equal)
+cairo_hash_table_t * FASTCALL _cairo_hash_table_create(cairo_hash_keys_equal_func_t keys_equal)
 {
 	cairo_hash_table_t * hash_table = (cairo_hash_table_t *)_cairo_malloc(sizeof(cairo_hash_table_t));
 	if(unlikely(hash_table == NULL)) {
@@ -192,7 +192,7 @@ cairo_hash_table_t * _cairo_hash_table_create(cairo_hash_keys_equal_func_t keys_
  * _cairo_hash_table_destroy is called. It is a fatal error otherwise,
  * and this function will halt.
  **/
-void _cairo_hash_table_destroy(cairo_hash_table_t * hash_table)
+void FASTCALL _cairo_hash_table_destroy(cairo_hash_table_t * hash_table)
 {
 	/* The hash table must be empty. Otherwise, halt. */
 	assert(hash_table->live_entries == 0);
@@ -202,7 +202,7 @@ void _cairo_hash_table_destroy(cairo_hash_table_t * hash_table)
 	SAlloc::F(hash_table);
 }
 
-static cairo_hash_entry_t ** _cairo_hash_table_lookup_unique_key(cairo_hash_table_t * hash_table, const cairo_hash_entry_t * key)
+static cairo_hash_entry_t ** FASTCALL _cairo_hash_table_lookup_unique_key(cairo_hash_table_t * hash_table, const cairo_hash_entry_t * key)
 {
 	ulong i, step;
 	ulong table_size = *hash_table->table_size;
@@ -236,24 +236,19 @@ static cairo_hash_entry_t ** _cairo_hash_table_lookup_unique_key(cairo_hash_tabl
  * Return value: %CAIRO_STATUS_SUCCESS if successful or
  * %CAIRO_STATUS_NO_MEMORY if out of memory.
  **/
-static cairo_status_t _cairo_hash_table_manage(cairo_hash_table_t * hash_table)
+static cairo_status_t FASTCALL _cairo_hash_table_manage(cairo_hash_table_t * hash_table)
 {
 	cairo_hash_table_t tmp;
 	ulong new_size, i;
-
-	/* Keep between 12.5% and 50% entries in the hash table alive and
-	 * at least 25% free. */
+	// Keep between 12.5% and 50% entries in the hash table alive and at least 25% free. 
 	ulong live_high = *hash_table->table_size >> 1;
 	ulong live_low = live_high >> 2;
 	ulong free_low = live_high >> 1;
-
 	tmp = *hash_table;
-
 	if(hash_table->live_entries > live_high) {
 		tmp.table_size = hash_table->table_size + 1;
 		/* This code is being abused if we can't make a table big enough. */
-		assert(tmp.table_size - hash_table_sizes <
-		    ARRAY_LENGTH(hash_table_sizes));
+		assert(tmp.table_size - hash_table_sizes < ARRAY_LENGTH(hash_table_sizes));
 	}
 	else if(hash_table->live_entries < live_low) {
 		/* Can't shrink if we're at the smallest size */
@@ -476,7 +471,7 @@ void FASTCALL _cairo_hash_table_remove(cairo_hash_table_t * hash_table, const ca
  * be destroyed by code executed from @hash_callback. The relevant
  * functions will halt in these cases.
  **/
-void _cairo_hash_table_foreach(cairo_hash_table_t * hash_table, cairo_hash_callback_func_t hash_callback, void * closure)
+void FASTCALL _cairo_hash_table_foreach(cairo_hash_table_t * hash_table, cairo_hash_callback_func_t hash_callback, void * closure)
 {
 	ulong i;
 	cairo_hash_entry_t * entry;

@@ -355,11 +355,11 @@ struct TagrCacheItem {
 	DBRowId DbPos;
 };
 
-IMPL_CMPFUNC(TagrCacheItem, i1, i2) { RET_CMPCASCADE5((const TagrCacheItem *)i1, (const TagrCacheItem *)i2, Dt, GoodsID, PersonID, BillID, DlvrLocID); }
+IMPL_CMPFUNC(TagrCacheItem, i1, i2) { RET_CMPCASCADE5(static_cast<const TagrCacheItem *>(i1), static_cast<const TagrCacheItem *>(i2), Dt, GoodsID, PersonID, BillID, DlvrLocID); }
 
 TagrCacheItem & FASTCALL PPViewTrfrAnlz::GetCacheItem(uint pos) const
 {
-	return *(TagrCacheItem *)Cache.at(pos);
+	return *static_cast<TagrCacheItem *>(Cache.at(pos));
 }
 
 int SLAPI PPViewTrfrAnlz::FlashCacheItem(BExtInsert * pBei, const TagrCacheItem & rItem)
@@ -812,7 +812,7 @@ int SLAPI PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 				}
 				if(!(Filt.Flags & TrfrAnlzFilt::fDontInitSubstNames)) {
 					THROW(InitGrpngNames());
-					THROW(CreateOrderTable((IterOrder)Filt.InitOrd));
+					THROW(CreateOrderTable(static_cast<IterOrder>(Filt.InitOrd)));
 				}
 				THROW(tra.Commit());
 			}
@@ -1946,9 +1946,9 @@ static IMPL_DBE_PROC(dbqf_trfrnalz_getavgrest_iidp)
 {
 	double rest = 0.0;
 	if(option != CALC_SIZE) {
-		PPID   goods_id = params[0].lval;
-		PPID   loc_id = params[1].lval;
-		LDATE  dt = params[2].dval;
+		const PPID   goods_id = params[0].lval;
+		const PPID   loc_id = params[1].lval;
+		const LDATE  dt = params[2].dval;
 		const  GCTIterator::GoodsRestArray * p_rest_list = static_cast<const GCTIterator::GoodsRestArray *>(params[3].ptrval);
         if(p_rest_list) {
 			DateRange period;
@@ -2426,7 +2426,7 @@ void SLAPI PPViewTrfrAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 					if(P_TrAnlzTbl) {
 						for(uint i = 0; col_pos < 0 && i < p_def->getCount(); i++)
 							if(p_def->at(i).OrgOffs == 3) // #3
-								col_pos = (int)i;
+								col_pos = static_cast<int>(i);
 						if(col_pos >= 0) {
 							if(Filt.Flags & TrfrAnlzFilt::fShowGoodsCode) {
 								pBrw->InsColumn(++col_pos, "@barcode", 18, 0, 0, 0); // @v9.3.5 #13-->14 // @v9.4.10 #14-->17 // @v10.3.5 17-->18
@@ -2440,7 +2440,7 @@ void SLAPI PPViewTrfrAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 						if(Filt.Flags & TrfrAnlzFilt::fShowGoodsCode) {
 							for(uint i = 0; col_pos < 0 && i < p_def->getCount(); i++)
 								if(p_def->at(i).OrgOffs == 6) // #6
-									col_pos = (int)i;
+									col_pos = static_cast<int>(i);
 							if(col_pos >= 0)
 								pBrw->InsColumn(++col_pos, "@barcode", 23, 0, 0, 0); // @v9.3.5 #18-->19 // @v9.4.10 #19-->22 // @v10.3.5 22-->23
 						}

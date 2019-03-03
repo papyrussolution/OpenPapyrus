@@ -37,9 +37,9 @@
 //#include "cairo-clip-inline.h"
 //#include "cairo-clip-private.h"
 //#include "cairo-composite-rectangles-private.h"
-#include "cairo-image-surface-inline.h"
-#include "cairo-image-surface-private.h"
-#include "cairo-list-inline.h"
+//#include "cairo-image-surface-inline.h"
+//#include "cairo-image-surface-private.h"
+//#include "cairo-list-inline.h"
 //#include "cairo-region-private.h"
 #include "cairo-surface-offset-private.h"
 #include "cairo-surface-snapshot-inline.h"
@@ -1041,19 +1041,14 @@ static cairo_xcb_picture_t * record_to_picture(cairo_surface_t * target,
 
 	if(!_cairo_matrix_is_identity(&pattern->base.matrix)) {
 		double x1, y1, x2, y2;
-
 		matrix = pattern->base.matrix;
 		status = cairo_matrix_invert(&matrix);
 		assert(status == CAIRO_STATUS_SUCCESS);
-
 		x1 = limit.x;
 		y1 = limit.y;
 		x2 = limit.x + limit.width;
 		y2 = limit.y + limit.height;
-
-		_cairo_matrix_transform_bounding_box(&matrix,
-		    &x1, &y1, &x2, &y2, NULL);
-
+		_cairo_matrix_transform_bounding_box(&matrix, &x1, &y1, &x2, &y2, NULL);
 		limit.x = floor(x1);
 		limit.y = floor(y1);
 		limit.width  = ceil(x2) - limit.x;
@@ -4324,8 +4319,7 @@ static cairo_status_t _cairo_xcb_surface_add_glyph(cairo_xcb_connection_t * conn
 	 * format.
 	 */
 	if(glyph_surface->format != info->format) {
-		glyph_surface = _cairo_image_surface_coerce_to_format(glyph_surface,
-			info->format);
+		glyph_surface = _cairo_image_surface_coerce_to_format(glyph_surface, info->format);
 		status = glyph_surface->base.status;
 		if(unlikely(status))
 			goto BAIL;

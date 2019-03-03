@@ -553,7 +553,7 @@ static int OJPEGVSetField(TIFF* tif, uint32 tag, va_list ap)
 				    return 0;
 			    }
 			    sp->qtable_offset_count = (uint8)ma;
-			    mb = (uint64*)va_arg(ap, uint64*);
+			    mb = (uint64 *)va_arg(ap, uint64*);
 			    for(n = 0; n<ma; n++)
 				    sp->qtable_offset[n] = mb[n];
 		    }
@@ -566,7 +566,7 @@ static int OJPEGVSetField(TIFF* tif, uint32 tag, va_list ap)
 				    return 0;
 			    }
 			    sp->dctable_offset_count = (uint8)ma;
-			    mb = (uint64*)va_arg(ap, uint64*);
+			    mb = (uint64 *)va_arg(ap, uint64*);
 			    for(n = 0; n<ma; n++)
 				    sp->dctable_offset[n] = mb[n];
 		    }
@@ -579,7 +579,7 @@ static int OJPEGVSetField(TIFF* tif, uint32 tag, va_list ap)
 				    return 0;
 			    }
 			    sp->actable_offset_count = (uint8)ma;
-			    mb = (uint64*)va_arg(ap, uint64*);
+			    mb = (uint64 *)va_arg(ap, uint64*);
 			    for(n = 0; n<ma; n++)
 				    sp->actable_offset[n] = mb[n];
 		    }
@@ -1389,7 +1389,7 @@ static int OJPEGReadHeaderInfoSecStreamDqt(TIFF* tif)
 				TIFFErrorExt(tif->tif_clientdata, module, "Out of memory");
 				return 0;
 			}
-			*(uint32*)nb = na;
+			*(uint32 *)nb = na;
 			nb[sizeof(uint32)] = 255;
 			nb[sizeof(uint32)+1] = JPEG_MARKER_DQT;
 			nb[sizeof(uint32)+2] = 0;
@@ -1441,7 +1441,7 @@ static int OJPEGReadHeaderInfoSecStreamDht(TIFF* tif)
 			TIFFErrorExt(tif->tif_clientdata, module, "Out of memory");
 			return 0;
 		}
-		*(uint32*)nb = na;
+		*(uint32 *)nb = na;
 		nb[sizeof(uint32)] = 255;
 		nb[sizeof(uint32)+1] = JPEG_MARKER_DHT;
 		nb[sizeof(uint32)+2] = (m>>8);
@@ -1687,7 +1687,7 @@ static int OJPEGReadHeaderInfoSecTablesQTable(TIFF* tif)
 				TIFFErrorExt(tif->tif_clientdata, module, "Out of memory");
 				return 0;
 			}
-			*(uint32*)ob = oa;
+			*(uint32 *)ob = oa;
 			ob[sizeof(uint32)] = 255;
 			ob[sizeof(uint32)+1] = JPEG_MARKER_DQT;
 			ob[sizeof(uint32)+2] = 0;
@@ -1747,7 +1747,7 @@ static int OJPEGReadHeaderInfoSecTablesDcTable(TIFF* tif)
 				TIFFErrorExt(tif->tif_clientdata, module, "Out of memory");
 				return 0;
 			}
-			*(uint32*)rb = ra;
+			*(uint32 *)rb = ra;
 			rb[sizeof(uint32)] = 255;
 			rb[sizeof(uint32)+1] = JPEG_MARKER_DHT;
 			rb[sizeof(uint32)+2] = (uint8)((19+q)>>8);
@@ -1808,7 +1808,7 @@ static int OJPEGReadHeaderInfoSecTablesAcTable(TIFF* tif)
 				TIFFErrorExt(tif->tif_clientdata, module, "Out of memory");
 				return 0;
 			}
-			*(uint32*)rb = ra;
+			*(uint32 *)rb = ra;
 			rb[sizeof(uint32)] = 255;
 			rb[sizeof(uint32)+1] = JPEG_MARKER_DHT;
 			rb[sizeof(uint32)+2] = (uint8)((19+q)>>8);
@@ -2090,7 +2090,7 @@ static void OJPEGWriteStreamQTable(TIFF* tif, uint8 table_index, void** mem, uin
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	if(sp->qtable[table_index]!=0) {
 		*mem = (void *)(sp->qtable[table_index]+sizeof(uint32));
-		*len = *((uint32*)sp->qtable[table_index])-sizeof(uint32);
+		*len = *((uint32 *)sp->qtable[table_index])-sizeof(uint32);
 	}
 	sp->out_state++;
 }
@@ -2100,7 +2100,7 @@ static void OJPEGWriteStreamDcTable(TIFF* tif, uint8 table_index, void** mem, ui
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	if(sp->dctable[table_index]!=0) {
 		*mem = (void *)(sp->dctable[table_index]+sizeof(uint32));
-		*len = *((uint32*)sp->dctable[table_index])-sizeof(uint32);
+		*len = *((uint32 *)sp->dctable[table_index])-sizeof(uint32);
 	}
 	sp->out_state++;
 }
@@ -2110,7 +2110,7 @@ static void OJPEGWriteStreamAcTable(TIFF* tif, uint8 table_index, void** mem, ui
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	if(sp->actable[table_index]!=0) {
 		*mem = (void *)(sp->actable[table_index]+sizeof(uint32));
-		*len = *((uint32*)sp->actable[table_index])-sizeof(uint32);
+		*len = *((uint32 *)sp->actable[table_index])-sizeof(uint32);
 	}
 	sp->out_state++;
 }

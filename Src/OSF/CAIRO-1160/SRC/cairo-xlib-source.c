@@ -48,7 +48,7 @@
 #include "cairo-xlib-surface-private.h"
 
 //#include "cairo-error-private.h"
-#include "cairo-image-surface-inline.h"
+//#include "cairo-image-surface-inline.h"
 #include "cairo-paginated-private.h"
 #include "cairo-pattern-inline.h"
 #include "cairo-recording-surface-private.h"
@@ -726,22 +726,15 @@ static cairo_surface_t * subsurface_source(cairo_xlib_surface_t * dst,
 			local_pattern.base.matrix.x0 += sub->extents.x;
 			local_pattern.base.matrix.y0 += sub->extents.y;
 			local_pattern.base.extend = CAIRO_EXTEND_NONE;
-			return embedded_source(dst, &local_pattern, extents,
-				   src_x, src_y, init_source(dst, src));
+			return embedded_source(dst, &local_pattern, extents, src_x, src_y, init_source(dst, src));
 		}
 	}
-
 	if(sub->snapshot && sub->snapshot->type == CAIRO_SURFACE_TYPE_XLIB) {
 		src = (cairo_xlib_surface_t*)cairo_surface_reference(sub->snapshot);
 		source = &src->embedded_source;
 	}
 	else {
-		src = (cairo_xlib_surface_t*)
-		    _cairo_surface_create_scratch(&dst->base,
-			sub->base.content,
-			sub->extents.width,
-			sub->extents.height,
-			NULL);
+		src = (cairo_xlib_surface_t*)_cairo_surface_create_scratch(&dst->base, sub->base.content, sub->extents.width, sub->extents.height, NULL);
 		if(src->base.type != CAIRO_SURFACE_TYPE_XLIB) {
 			cairo_surface_destroy(&src->base);
 			return _cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);
@@ -863,50 +856,33 @@ static cairo_surface_t * recording_pattern_get_surface(const cairo_pattern_t * p
 	return cairo_surface_reference(surface);
 }
 
-static cairo_surface_t * record_source(cairo_xlib_surface_t * dst,
-    const cairo_surface_pattern_t * pattern,
-    cairo_bool_t is_mask,
-    const cairo_rectangle_int_t * extents,
-    const cairo_rectangle_int_t * sample,
-    int * src_x, int * src_y)
+static cairo_surface_t * record_source(cairo_xlib_surface_t * dst, const cairo_surface_pattern_t * pattern,
+    cairo_bool_t is_mask, const cairo_rectangle_int_t * extents, const cairo_rectangle_int_t * sample, int * src_x, int * src_y)
 {
 	cairo_xlib_surface_t * src;
 	cairo_surface_t * recording;
 	cairo_matrix_t matrix, m;
 	cairo_status_t status;
 	cairo_rectangle_int_t upload, limit;
-
 	upload = *sample;
-	if(_cairo_surface_get_extents(pattern->surface, &limit) &&
-	    !_cairo_rectangle_intersect(&upload, &limit)) {
+	if(_cairo_surface_get_extents(pattern->surface, &limit) && !_cairo_rectangle_intersect(&upload, &limit)) {
 		if(pattern->base.extend == CAIRO_EXTEND_NONE)
 			return alpha_source(dst, 0);
-
 		upload = limit;
 	}
-
-	src = (cairo_xlib_surface_t*)
-	    _cairo_surface_create_scratch(&dst->base,
-		pattern->surface->content,
-		upload.width,
-		upload.height,
-		NULL);
+	src = (cairo_xlib_surface_t*)_cairo_surface_create_scratch(&dst->base, pattern->surface->content, upload.width, upload.height, NULL);
 	if(src->base.type != CAIRO_SURFACE_TYPE_XLIB) {
 		cairo_surface_destroy(&src->base);
 		return _cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);
 	}
-
 	cairo_matrix_init_translate(&matrix, upload.x, upload.y);
 	recording = recording_pattern_get_surface(&pattern->base),
-	status = _cairo_recording_surface_replay_with_clip(recording,
-		&matrix, &src->base,
-		NULL);
+	status = _cairo_recording_surface_replay_with_clip(recording, &matrix, &src->base, NULL);
 	cairo_surface_destroy(recording);
 	if(unlikely(status)) {
 		cairo_surface_destroy(&src->base);
 		return _cairo_surface_create_in_error(status);
 	}
-
 	matrix = pattern->base.matrix;
 	if(upload.x | upload.y) {
 		cairo_matrix_init_translate(&m, -upload.x, -upload.y);
@@ -990,41 +966,22 @@ static cairo_surface_t * surface_source(cairo_xlib_surface_t * dst,
 			}
 		}
 	}
-
-	xsrc = (cairo_xlib_surface_t*)
-	    _cairo_surface_create_scratch(&dst->base,
-		src->content,
-		upload.width,
-		upload.height,
-		NULL);
+	xsrc = (cairo_xlib_surface_t*)_cairo_surface_create_scratch(&dst->base, src->content, upload.width, upload.height, NULL);
 	if(xsrc->base.type != CAIRO_SURFACE_TYPE_XLIB) {
 		cairo_surface_destroy(src);
 		cairo_surface_destroy(&xsrc->base);
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	}
-
 	if(_cairo_surface_is_image(src)) {
-		status = _cairo_xlib_surface_draw_image(xsrc, (cairo_image_surface_t*)src,
-			upload.x, upload.y,
-			upload.width, upload.height,
-			0, 0);
+		status = _cairo_xlib_surface_draw_image(xsrc, (cairo_image_surface_t*)src, upload.x, upload.y, upload.width, upload.height, 0, 0);
 	}
 	else {
-		cairo_image_surface_t * image;
 		cairo_rectangle_int_t map_extents = { 0, 0, upload.width, upload.height };
-
-		image = _cairo_surface_map_to_image(&xsrc->base, &map_extents);
-
+		cairo_image_surface_t * image = _cairo_surface_map_to_image(&xsrc->base, &map_extents);
 		_cairo_pattern_init_for_surface(&local_pattern, pattern->surface);
-		cairo_matrix_init_translate(&local_pattern.base.matrix,
-		    upload.x, upload.y);
-
-		status = _cairo_surface_paint(&image->base,
-			CAIRO_OPERATOR_SOURCE,
-			&local_pattern.base,
-			NULL);
+		cairo_matrix_init_translate(&local_pattern.base.matrix, upload.x, upload.y);
+		status = _cairo_surface_paint(&image->base, CAIRO_OPERATOR_SOURCE, &local_pattern.base, NULL);
 		_cairo_pattern_fini(&local_pattern.base);
-
 		status = _cairo_surface_unmap_image(&xsrc->base, image);
 		if(unlikely(status)) {
 			cairo_surface_destroy(&xsrc->base);

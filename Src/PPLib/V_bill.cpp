@@ -1344,9 +1344,8 @@ int SLAPI PPViewBill::Helper_EnumProc(PPID billID, const BillTbl::Rec * pRec, in
 			if(!P_BObj->P_Tbl->CalcPayment(item.ID, 1, &Filt.PaymPeriod, Filt.CurID, &item.Credit))
 				return 0;
 			// @v10.3.6 {
-			if(item.Amount < 0.0) {
+			if(item.Amount < 0.0)
 				item.Credit = -item.Credit;
-			}
 			// } @v10.3.6
 			item.Debit = item.Amount;
 			item.Saldo = item.Debit - item.Credit;
@@ -1475,6 +1474,10 @@ int SLAPI PPViewBill::Enumerator(BillViewEnumProc proc, void * pExtraPtr)
 }
 
 struct IterProcParam_Total {
+	IterProcParam_Total(PPObjBill * pBObj, const BillFilt * pFilt, int byCashCheck, BillTotal * pTotal) :
+		P_BObj(pBObj), P_Filt(pFilt), CashChecks(byCashCheck), Data(pTotal)
+	{
+	}
 	int    CashChecks;
 	const  BillFilt * P_Filt;
 	PPObjBill * P_BObj;
@@ -1518,14 +1521,9 @@ static int IterProc_Total(const BillViewItem * pItem, void * pExtraPtr)
 
 int SLAPI PPViewBill::CalcTotal(BillTotal * pTotal)
 {
-	int    ok = 1;
 	pTotal->Reset();
-	IterProcParam_Total param;
-	param.P_BObj = P_BObj;
-	param.Data = pTotal;
-	param.P_Filt = &Filt;
-	param.CashChecks = BIN(Filt.Flags & BillFilt::fCashOnly);
-	ok = Enumerator(IterProc_Total, &param);
+	IterProcParam_Total param(P_BObj, &Filt, BIN(Filt.Flags & BillFilt::fCashOnly), pTotal);
+	int    ok = Enumerator(IterProc_Total, &param);
 	if(ok)
 		if(Filt.ObjectID && Filt.Flags & BillFilt::fDebtsWithPayments) {
 			CalcDebtCardInSaldo(&pTotal->InSaldo);
@@ -5908,10 +5906,59 @@ int FASTCALL BrowseBills(BrowseBillsType bbt)
 struct DlGoodsBillBaseBlock {
 	DlGoodsBillBaseBlock(PPBillPacket * pPack) : P_Pack(pPack), Iter(pPack, 0, 0)
 	{
+		ResetRow();
+	}
+	void ResetRow()
+	{
+		Qtty = 0.0;
+		Cost = 0.0;
+		Price = 0.0;
+		Discount = 0.0;
+		CurPrice = 0.0;
+		CurSum = 0.0;
+		MainPrice = 0.0;
+		ExtPrice = 0.0;
+		VATRate = 0.0;
+		VATSum = 0.0;
+		ExcRate = 0.0;
+		ExcSum = 0.0;
+		STRate = 0.0;
+		STSum = 0.0;
+		NewPrice = 0.0;
+		NewCost = 0.0;
+		OldPrice = 0.0;
+		OldCost = 0.0;
+		VatSum_OldCost = 0.0;
+		VatSum_NewCost = 0.0;
+		VatSum_OldPrice = 0.0;
+		VatSum_NewPrice = 0.0;
 	}
 	PPBillPacket * P_Pack; // @notowned
 	TiIter Iter;
 	PPBillPacket::TiItemExt Item; // Последняя сканированная итератором строка (используется функциями)
+
+	double Qtty;
+	double Cost;
+	double Price;
+	double Discount;
+	double CurPrice;
+	double CurSum;
+	double MainPrice;
+	double ExtPrice;
+	double VATRate;
+	double VATSum;
+	double ExcRate;
+	double ExcSum;
+	double STRate;
+	double STSum;
+	double NewPrice;
+	double NewCost;
+	double OldPrice;
+	double OldCost;
+	double VatSum_OldCost;
+	double VatSum_NewCost;
+	double VatSum_OldPrice;
+	double VatSum_NewPrice;
 };
 
 PPALDD_CONSTRUCTOR(GoodsBillBase)
@@ -6355,6 +6402,17 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 	}
 	else
 		p_extra->Item.Clb.CopyTo(I.CLB, sizeof(I.CLB));
+	// @v10.3.7 {
+	{
+		p_extra->ResetRow();
+		p_extra->Qtty = I.Qtty;
+		p_extra->Cost = I.Cost;
+		p_extra->Price = I.Price;
+		p_extra->Discount = I.Discount;
+		p_extra->CurPrice = I.CurPrice;
+		p_extra->CurSum = I.CurSum;
+	}
+	// } @v10.3.7 
 	return DlRtm::NextIteration(iterId);
 }
 
@@ -7374,11 +7432,11 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId)
 	IterProlog(iterId, 0);
 	{
 		// @v10.3.6 const PPBillPacket * p_pack = static_cast<const PPBillPacket *>(Extra[0].Ptr);
-		const DlGoodsBillBaseBlock * p_extra = static_cast<const DlGoodsBillBaseBlock *>(Extra[0].Ptr); // @v10.3.6 
-		const PPBillPacket * p_pack = p_extra->P_Pack; // @v10.3.6
+		DlGoodsBillBaseBlock * p_extra = static_cast<DlGoodsBillBaseBlock *>(Extra[0].Ptr); // @v10.3.6 
+		const PPBillPacket * p_pack = p_extra ? p_extra->P_Pack : 0; // @v10.3.6
 		PPTransferItem * p_ti;
 		uint   nn = static_cast<uint>(I.nn);
-		if(p_pack->EnumTItems(&nn, &p_ti)) {
+		if(p_pack && p_pack->EnumTItems(&nn, &p_ti)) {
 			int    reval_assets_wo_vat = 1;
 			double new_price = p_ti->Price;
 			double new_cost  = p_ti->Cost;
@@ -7472,6 +7530,16 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId)
 			else {
 				I.Quantity = qtty;
 			}
+			// @v10.3.7 {
+			{
+				p_extra->ResetRow();
+				p_extra->Qtty = I.Quantity;
+				p_extra->OldCost = I.OldCost;
+				p_extra->OldPrice = I.OldPrice;
+				p_extra->NewCost = I.NewCost;
+				p_extra->NewPrice = I.NewPrice;
+			}
+			// } @v10.3.7 
 		}
 		else
 			return -1;

@@ -143,55 +143,16 @@ static inline cairo_fixed_t _cairo_fixed_from_16_16(uint32_t i)
 #endif
 }
 
-static inline double _cairo_fixed_to_double(cairo_fixed_t f)
-{
-	return ((double)f) / CAIRO_FIXED_ONE_DOUBLE;
-}
-
-static inline int _cairo_fixed_is_integer(cairo_fixed_t f)
-{
-	return (f & CAIRO_FIXED_FRAC_MASK) == 0;
-}
-
-static inline cairo_fixed_t _cairo_fixed_floor(cairo_fixed_t f)
-{
-	return f & ~CAIRO_FIXED_FRAC_MASK;
-}
-
-static inline cairo_fixed_t _cairo_fixed_ceil(cairo_fixed_t f)
-{
-	return _cairo_fixed_floor(f + CAIRO_FIXED_FRAC_MASK);
-}
-
-static inline cairo_fixed_t _cairo_fixed_round(cairo_fixed_t f)
-{
-	return _cairo_fixed_floor(f + (CAIRO_FIXED_FRAC_MASK+1)/2);
-}
-
-static inline cairo_fixed_t _cairo_fixed_round_down(cairo_fixed_t f)
-{
-	return _cairo_fixed_floor(f + CAIRO_FIXED_FRAC_MASK/2);
-}
-
-static inline int _cairo_fixed_integer_part(cairo_fixed_t f)
-{
-	return f >> CAIRO_FIXED_FRAC_BITS;
-}
-
-static inline int _cairo_fixed_integer_round(cairo_fixed_t f)
-{
-	return _cairo_fixed_integer_part(f + (CAIRO_FIXED_FRAC_MASK+1)/2);
-}
-
-static inline int _cairo_fixed_integer_round_down(cairo_fixed_t f)
-{
-	return _cairo_fixed_integer_part(f + CAIRO_FIXED_FRAC_MASK/2);
-}
-
-static inline int _cairo_fixed_fractional_part(cairo_fixed_t f)
-{
-	return f & CAIRO_FIXED_FRAC_MASK;
-}
+static inline double _cairo_fixed_to_double(cairo_fixed_t f) { return static_cast<double>(f) / CAIRO_FIXED_ONE_DOUBLE; }
+static inline int _cairo_fixed_is_integer(cairo_fixed_t f) { return (f & CAIRO_FIXED_FRAC_MASK) == 0; }
+static inline cairo_fixed_t _cairo_fixed_floor(cairo_fixed_t f) { return f & ~CAIRO_FIXED_FRAC_MASK; }
+static inline cairo_fixed_t _cairo_fixed_ceil(cairo_fixed_t f) { return _cairo_fixed_floor(f + CAIRO_FIXED_FRAC_MASK); }
+static inline cairo_fixed_t _cairo_fixed_round(cairo_fixed_t f) { return _cairo_fixed_floor(f + (CAIRO_FIXED_FRAC_MASK+1)/2); }
+static inline cairo_fixed_t _cairo_fixed_round_down(cairo_fixed_t f) { return _cairo_fixed_floor(f + CAIRO_FIXED_FRAC_MASK/2); }
+static inline int _cairo_fixed_integer_part(cairo_fixed_t f) { return f >> CAIRO_FIXED_FRAC_BITS; }
+static inline int _cairo_fixed_integer_round(cairo_fixed_t f) { return _cairo_fixed_integer_part(f + (CAIRO_FIXED_FRAC_MASK+1)/2); }
+static inline int _cairo_fixed_integer_round_down(cairo_fixed_t f) { return _cairo_fixed_integer_part(f + CAIRO_FIXED_FRAC_MASK/2); }
+static inline int _cairo_fixed_fractional_part(cairo_fixed_t f) { return f & CAIRO_FIXED_FRAC_MASK; }
 
 static inline int _cairo_fixed_integer_floor(cairo_fixed_t f)
 {

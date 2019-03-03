@@ -100,7 +100,7 @@ int PRIV(valid_utf) (PCRE_PUCHAR string, int length, int * erroroffset)
 	register PCRE_PUCHAR p;
 	if(length < 0) {
 		for(p = string; *p != 0; p++) ;
-		length = (int)(p - string);
+		length = static_cast<int>(p - string);
 	}
 	for(p = string; length-- > 0; p++) {
 		register pcre_uchar ab, c, d;
@@ -108,16 +108,16 @@ int PRIV(valid_utf) (PCRE_PUCHAR string, int length, int * erroroffset)
 		if(c < 128) continue;   /* ASCII character */
 
 		if(c < 0xc0) {          /* Isolated 10xx xxxx byte */
-			*erroroffset = (int)(p - string);
+			*erroroffset = static_cast<int>(p - string);
 			return PCRE_UTF8_ERR20;
 		}
 		if(c >= 0xfe) {         /* Invalid 0xfe or 0xff bytes */
-			*erroroffset = (int)(p - string);
+			*erroroffset = static_cast<int>(p - string);
 			return PCRE_UTF8_ERR21;
 		}
 		ab = PRIV(utf8_table4)[c & 0x3f]; /* Number of additional bytes */
 		if(length < ab) {
-			*erroroffset = (int)(p - string); /* Missing bytes */
+			*erroroffset = static_cast<int>(p - string); /* Missing bytes */
 			return ab - length; /* Codes ERR1 to ERR5 */
 		}
 		length -= ab;           /* Length remaining */
@@ -125,7 +125,7 @@ int PRIV(valid_utf) (PCRE_PUCHAR string, int length, int * erroroffset)
 		/* Check top bits in the second byte */
 
 		if(((d = *(++p)) & 0xc0) != 0x80) {
-			*erroroffset = (int)(p - string) - 1;
+			*erroroffset = static_cast<int>(p - string) - 1;
 			return PCRE_UTF8_ERR6;
 		}
 
@@ -133,13 +133,12 @@ int PRIV(valid_utf) (PCRE_PUCHAR string, int length, int * erroroffset)
 		   set and not the 0x40 bit. Then check for an overlong sequence, and for the
 		   excluded range 0xd800 to 0xdfff. */
 
-		switch(ab)
-		{
+		switch(ab) {
 			/* 2-byte character. No further bytes to check for 0x80. Check first byte
 			   for for xx00 000x (overlong sequence). */
 
 			case 1: if((c & 0x3e) == 0) {
-				    *erroroffset = (int)(p - string) - 1;
+				    *erroroffset = static_cast<int>(p - string) - 1;
 				    return PCRE_UTF8_ERR15;
 			}
 			    break;
@@ -150,15 +149,15 @@ int PRIV(valid_utf) (PCRE_PUCHAR string, int length, int * erroroffset)
 
 			case 2:
 			    if((*(++p) & 0xc0) != 0x80) { /* Third byte */
-				    *erroroffset = (int)(p - string) - 2;
+				    *erroroffset = static_cast<int>(p - string) - 2;
 				    return PCRE_UTF8_ERR7;
 			    }
 			    if(c == 0xe0 && (d & 0x20) == 0) {
-				    *erroroffset = (int)(p - string) - 2;
+				    *erroroffset = static_cast<int>(p - string) - 2;
 				    return PCRE_UTF8_ERR16;
 			    }
 			    if(c == 0xed && d >= 0xa0) {
-				    *erroroffset = (int)(p - string) - 2;
+				    *erroroffset = static_cast<int>(p - string) - 2;
 				    return PCRE_UTF8_ERR14;
 			    }
 			    break;
@@ -169,19 +168,19 @@ int PRIV(valid_utf) (PCRE_PUCHAR string, int length, int * erroroffset)
 
 			case 3:
 			    if((*(++p) & 0xc0) != 0x80) { /* Third byte */
-				    *erroroffset = (int)(p - string) - 2;
+				    *erroroffset = static_cast<int>(p - string) - 2;
 				    return PCRE_UTF8_ERR7;
 			    }
 			    if((*(++p) & 0xc0) != 0x80) { /* Fourth byte */
-				    *erroroffset = (int)(p - string) - 3;
+				    *erroroffset = static_cast<int>(p - string) - 3;
 				    return PCRE_UTF8_ERR8;
 			    }
 			    if(c == 0xf0 && (d & 0x30) == 0) {
-				    *erroroffset = (int)(p - string) - 3;
+				    *erroroffset = static_cast<int>(p - string) - 3;
 				    return PCRE_UTF8_ERR17;
 			    }
 			    if(c > 0xf4 || (c == 0xf4 && d > 0x8f)) {
-				    *erroroffset = (int)(p - string) - 3;
+				    *erroroffset = static_cast<int>(p - string) - 3;
 				    return PCRE_UTF8_ERR13;
 			    }
 			    break;
@@ -196,19 +195,19 @@ int PRIV(valid_utf) (PCRE_PUCHAR string, int length, int * erroroffset)
 
 			case 4:
 			    if((*(++p) & 0xc0) != 0x80) { /* Third byte */
-				    *erroroffset = (int)(p - string) - 2;
+				    *erroroffset = static_cast<int>(p - string) - 2;
 				    return PCRE_UTF8_ERR7;
 			    }
 			    if((*(++p) & 0xc0) != 0x80) { /* Fourth byte */
-				    *erroroffset = (int)(p - string) - 3;
+				    *erroroffset = static_cast<int>(p - string) - 3;
 				    return PCRE_UTF8_ERR8;
 			    }
 			    if((*(++p) & 0xc0) != 0x80) { /* Fifth byte */
-				    *erroroffset = (int)(p - string) - 4;
+				    *erroroffset = static_cast<int>(p - string) - 4;
 				    return PCRE_UTF8_ERR9;
 			    }
 			    if(c == 0xf8 && (d & 0x38) == 0) {
-				    *erroroffset = (int)(p - string) - 4;
+				    *erroroffset = static_cast<int>(p - string) - 4;
 				    return PCRE_UTF8_ERR18;
 			    }
 			    break;
@@ -218,23 +217,23 @@ int PRIV(valid_utf) (PCRE_PUCHAR string, int length, int * erroroffset)
 
 			case 5:
 			    if((*(++p) & 0xc0) != 0x80) { /* Third byte */
-				    *erroroffset = (int)(p - string) - 2;
+				    *erroroffset = static_cast<int>(p - string) - 2;
 				    return PCRE_UTF8_ERR7;
 			    }
 			    if((*(++p) & 0xc0) != 0x80) { /* Fourth byte */
-				    *erroroffset = (int)(p - string) - 3;
+				    *erroroffset = static_cast<int>(p - string) - 3;
 				    return PCRE_UTF8_ERR8;
 			    }
 			    if((*(++p) & 0xc0) != 0x80) { /* Fifth byte */
-				    *erroroffset = (int)(p - string) - 4;
+				    *erroroffset = static_cast<int>(p - string) - 4;
 				    return PCRE_UTF8_ERR9;
 			    }
 			    if((*(++p) & 0xc0) != 0x80) { /* Sixth byte */
-				    *erroroffset = (int)(p - string) - 5;
+				    *erroroffset = static_cast<int>(p - string) - 5;
 				    return PCRE_UTF8_ERR10;
 			    }
 			    if(c == 0xfc && (d & 0x3c) == 0) {
-				    *erroroffset = (int)(p - string) - 5;
+				    *erroroffset = static_cast<int>(p - string) - 5;
 				    return PCRE_UTF8_ERR19;
 			    }
 			    break;
@@ -245,7 +244,7 @@ int PRIV(valid_utf) (PCRE_PUCHAR string, int length, int * erroroffset)
 		   character. */
 
 		if(ab > 3) {
-			*erroroffset = (int)(p - string) - ab;
+			*erroroffset = static_cast<int>(p - string) - ab;
 			return (ab == 4) ? PCRE_UTF8_ERR11 : PCRE_UTF8_ERR12;
 		}
 	}

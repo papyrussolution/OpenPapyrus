@@ -110,7 +110,7 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_fullinfo(const pcre32 * argument_r
 		    *static_cast<int *>(where) = ((re->flags & PCRE_FIRSTSET) != 0) ? (int)re->first_char : ((re->flags & PCRE_STARTLINE) != 0) ? -1 : -2;
 		    break;
 		case PCRE_INFO_FIRSTCHARACTER:
-		    *((uint32*)where) = (re->flags & PCRE_FIRSTSET) != 0 ? re->first_char : 0;
+		    *((uint32 *)where) = (re->flags & PCRE_FIRSTSET) != 0 ? re->first_char : 0;
 		    break;
 		case PCRE_INFO_FIRSTCHARACTERFLAGS:
 		    *static_cast<int *>(where) = ((re->flags & PCRE_FIRSTSET) != 0) ? 1 : ((re->flags & PCRE_STARTLINE) != 0) ? 2 : 0;
@@ -130,7 +130,7 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_fullinfo(const pcre32 * argument_r
 		    *static_cast<int *>(where) = ((re->flags & PCRE_REQCHSET) != 0) ? (int)re->req_char : -1;
 		    break;
 		case PCRE_INFO_REQUIREDCHAR:
-		    *((uint32*)where) = ((re->flags & PCRE_REQCHSET) != 0) ? re->req_char : 0;
+		    *((uint32 *)where) = ((re->flags & PCRE_REQCHSET) != 0) ? re->req_char : 0;
 		    break;
 		case PCRE_INFO_REQUIREDCHARFLAGS:
 		    *static_cast<int *>(where) = ((re->flags & PCRE_REQCHSET) != 0);
@@ -162,11 +162,11 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_fullinfo(const pcre32 * argument_r
 		    break;
 		case PCRE_INFO_MATCHLIMIT:
 		    if((re->flags & PCRE_MLSET) == 0) return PCRE_ERROR_UNSET;
-		    *((uint32*)where) = re->limit_match;
+		    *((uint32 *)where) = re->limit_match;
 		    break;
 		case PCRE_INFO_RECURSIONLIMIT:
 		    if((re->flags & PCRE_RLSET) == 0) return PCRE_ERROR_UNSET;
-		    *((uint32*)where) = re->limit_recursion;
+		    *((uint32 *)where) = re->limit_recursion;
 		    break;
 		case PCRE_INFO_MATCH_EMPTY:
 		    *static_cast<int *>(where) = (re->flags & PCRE_MATCH_EMPTY) != 0;

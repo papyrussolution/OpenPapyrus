@@ -163,7 +163,7 @@ int SLAPI PPBasketPacket::AddItem(const ILTI * pItem, uint * pPos, int replaceOp
 
 int SLAPI PPBasketPacket::DelItem(long pos)
 {
-	return Lots.atFree((uint)pos) ? 1 : -1;
+	return Lots.atFree(static_cast<uint>(pos)) ? 1 : -1;
 }
 
 int SLAPI PPBasketPacket::SearchGoodsID(PPID goodsID, uint * pPos) const
@@ -1722,7 +1722,7 @@ int GBDialog::setupList()
 int GBDialog::delItem(long pos, long)
 {
 	if(pos >= 0) {
-		R_Data.Pack.DelItem((uint)pos);
+		R_Data.Pack.DelItem(static_cast<uint>(pos));
 		Flags |= gbdfChanged;
 		return 1;
 	}

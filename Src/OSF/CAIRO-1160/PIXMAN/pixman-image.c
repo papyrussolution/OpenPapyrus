@@ -39,9 +39,7 @@ static void gradient_property_changed(pixman_image_t * image)
 	pixman_gradient_stop_t * stops = gradient->stops;
 	pixman_gradient_stop_t * begin = &(gradient->stops[-1]);
 	pixman_gradient_stop_t * end = &(gradient->stops[n]);
-
-	switch(gradient->common.repeat)
-	{
+	switch(gradient->common.repeat) {
 		default:
 		case PIXMAN_REPEAT_NONE:
 		    begin->x = INT32_MIN;
@@ -172,26 +170,23 @@ static void image_property_changed(pixman_image_t * image)
 }
 
 /* Ref Counting */
-PIXMAN_EXPORT pixman_image_t * pixman_image_ref(pixman_image_t * image)
+PIXMAN_EXPORT pixman_image_t * FASTCALL pixman_image_ref(pixman_image_t * image)
 {
 	image->common.ref_count++;
 	return image;
 }
 
 /* returns TRUE when the image is freed */
-PIXMAN_EXPORT pixman_bool_t pixman_image_unref(pixman_image_t * image)
+PIXMAN_EXPORT pixman_bool_t FASTCALL pixman_image_unref(pixman_image_t * image)
 {
 	if(_pixman_image_fini(image)) {
 		SAlloc::F(image);
 		return TRUE;
 	}
-
 	return FALSE;
 }
 
-PIXMAN_EXPORT void pixman_image_set_destroy_function(pixman_image_t * image,
-    pixman_image_destroy_func_t func,
-    void *    data)
+PIXMAN_EXPORT void pixman_image_set_destroy_function(pixman_image_t * image, pixman_image_destroy_func_t func, void *    data)
 {
 	image->common.destroy_func = func;
 	image->common.destroy_data = data;
@@ -434,10 +429,8 @@ static void compute_image_info(pixman_image_t * image)
 		case CONICAL:
 		case LINEAR:
 		    code = PIXMAN_unknown;
-
 		    if(image->common.repeat != PIXMAN_REPEAT_NONE) {
 			    int i;
-
 			    flags |= FAST_PATH_IS_OPAQUE;
 			    for(i = 0; i < image->gradient.n_stops; ++i) {
 				    if(image->gradient.stops[i].color.alpha != 0xffff) {
@@ -493,41 +486,32 @@ void _pixman_image_validate(pixman_image_t * image)
 		 */
 		if(image->common.property_changed)
 			image->common.property_changed(image);
-
 		image->common.dirty = FALSE;
 	}
-
 	if(image->common.alpha_map)
 		_pixman_image_validate((pixman_image_t*)image->common.alpha_map);
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_image_set_clip_region32(pixman_image_t *   image,
-    pixman_region32_t * region)
+PIXMAN_EXPORT pixman_bool_t pixman_image_set_clip_region32(pixman_image_t *   image, pixman_region32_t * region)
 {
 	image_common_t * common = (image_common_t*)image;
 	pixman_bool_t result;
-
 	if(region) {
 		if((result = pixman_region32_copy(&common->clip_region, region)))
 			image->common.have_clip_region = TRUE;
 	}
 	else {
 		_pixman_image_reset_clip_region(image);
-
 		result = TRUE;
 	}
-
 	image_property_changed(image);
-
 	return result;
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_image_set_clip_region(pixman_image_t *   image,
-    pixman_region16_t * region)
+PIXMAN_EXPORT pixman_bool_t pixman_image_set_clip_region(pixman_image_t *   image, pixman_region16_t * region)
 {
 	image_common_t * common = (image_common_t*)image;
 	pixman_bool_t result;
-
 	if(region) {
 		if((result = pixman_region32_copy_from_region16(&common->clip_region, region)))
 			image->common.have_clip_region = TRUE;
@@ -684,94 +668,48 @@ PIXMAN_EXPORT void pixman_image_set_alpha_map(pixman_image_t * image, pixman_ima
 	image_property_changed(image);
 }
 
-PIXMAN_EXPORT void pixman_image_set_component_alpha(pixman_image_t * image,
-    pixman_bool_t component_alpha)
+PIXMAN_EXPORT void pixman_image_set_component_alpha(pixman_image_t * image, pixman_bool_t component_alpha)
 {
 	if(image->common.component_alpha == component_alpha)
 		return;
-
 	image->common.component_alpha = component_alpha;
-
 	image_property_changed(image);
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_image_get_component_alpha(pixman_image_t * image)
+PIXMAN_EXPORT pixman_bool_t pixman_image_get_component_alpha(const pixman_image_t * image)
 {
 	return image->common.component_alpha;
 }
 
-PIXMAN_EXPORT void pixman_image_set_accessors(pixman_image_t *  image,
-    pixman_read_memory_func_t read_func,
-    pixman_write_memory_func_t write_func)
+PIXMAN_EXPORT void pixman_image_set_accessors(pixman_image_t *  image, pixman_read_memory_func_t read_func, pixman_write_memory_func_t write_func)
 {
 	return_if_fail(image != NULL);
-
 	if(image->type == BITS) {
 		/* Accessors only work for <= 32 bpp. */
 		if(PIXMAN_FORMAT_BPP(image->bits.format) > 32)
 			return_if_fail(!read_func && !write_func);
-
 		image->bits.read_func = read_func;
 		image->bits.write_func = write_func;
-
 		image_property_changed(image);
 	}
 }
 
 PIXMAN_EXPORT uint32_t * pixman_image_get_data(pixman_image_t * image)
-{
-	if(image->type == BITS)
-		return image->bits.bits;
+	{ return (image->type == BITS) ? image->bits.bits : NULL; }
+PIXMAN_EXPORT int pixman_image_get_width(const pixman_image_t * image)
+	{ return (image->type == BITS) ? image->bits.width : 0; }
+PIXMAN_EXPORT int pixman_image_get_height(const pixman_image_t * image)
+	{ return (image->type == BITS) ? image->bits.height : 0; }
+PIXMAN_EXPORT int pixman_image_get_stride(const pixman_image_t * image)
+	{ return (image->type == BITS) ? (image->bits.rowstride * static_cast<int>(sizeof(uint32_t))) : 0; }
+PIXMAN_EXPORT int pixman_image_get_depth(const pixman_image_t * image)
+	{ return (image->type == BITS) ? PIXMAN_FORMAT_DEPTH(image->bits.format) : 0; }
+PIXMAN_EXPORT pixman_format_code_t pixman_image_get_format(const pixman_image_t * image)
+	{ return (image->type == BITS) ? image->bits.format : PIXMAN_null; }
 
-	return NULL;
-}
-
-PIXMAN_EXPORT int pixman_image_get_width(pixman_image_t * image)
-{
-	if(image->type == BITS)
-		return image->bits.width;
-
-	return 0;
-}
-
-PIXMAN_EXPORT int pixman_image_get_height(pixman_image_t * image)
-{
-	if(image->type == BITS)
-		return image->bits.height;
-
-	return 0;
-}
-
-PIXMAN_EXPORT int pixman_image_get_stride(pixman_image_t * image)
-{
-	if(image->type == BITS)
-		return image->bits.rowstride * (int)sizeof(uint32_t);
-
-	return 0;
-}
-
-PIXMAN_EXPORT int pixman_image_get_depth(pixman_image_t * image)
-{
-	if(image->type == BITS)
-		return PIXMAN_FORMAT_DEPTH(image->bits.format);
-
-	return 0;
-}
-
-PIXMAN_EXPORT pixman_format_code_t pixman_image_get_format(pixman_image_t * image)
-{
-	if(image->type == BITS)
-		return image->bits.format;
-
-	return PIXMAN_null;
-}
-
-uint32_t _pixman_image_get_solid(pixman_implementation_t * imp,
-    pixman_image_t * image,
-    pixman_format_code_t format)
+uint32_t FASTCALL _pixman_image_get_solid(pixman_implementation_t * imp, pixman_image_t * image, pixman_format_code_t format)
 {
 	uint32_t result;
-
 	if(image->type == SOLID) {
 		result = image->solid.color_32;
 	}

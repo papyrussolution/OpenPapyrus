@@ -421,7 +421,7 @@ int FASTCALL PPGoodsStruc::HasGoods(PPID goodsID) const
 	if(goodsID)
 		for(uint i = 0; !ok && Items.enumItems(&i, (void **)&p_item);) {
 			if(p_item->GoodsID == goodsID) {
-				ok = (int)i;
+				ok = static_cast<int>(i);
 			}
 		}
 	return ok;
@@ -1388,7 +1388,7 @@ int GSDialog::setupList()
 int GSDialog::delItem(long pos, long)
 {
 	if(pos >= 0) {
-		Data.Items.atFree((uint)pos);
+		Data.Items.atFree(static_cast<uint>(pos));
 		Changed = 1;
 		return 1;
 	}
@@ -1895,7 +1895,7 @@ int GSExtDialog::delItem(long pos, long)
 {
 	if(pos >= 0) {
 		if(CONFIRM(PPCFM_DELETE)) {
-			Data.Childs.atFree((uint)pos);
+			Data.Childs.atFree(static_cast<uint>(pos));
 			enableCommand(cmGStrucExpandReduce, Data.CanReduce());
 			return 1;
 		}

@@ -310,7 +310,7 @@ static int capi_ctrl(ENGINE * e, int cmd, long i, void * p, void (* f)(void))
 		    break;
 
 		case CAPI_CMD_DEBUG_LEVEL:
-		    ctx->debug_level = (int)i;
+		    ctx->debug_level = static_cast<int>(i);
 		    CAPI_trace(ctx, "Setting debug level to %d\n", ctx->debug_level);
 		    break;
 

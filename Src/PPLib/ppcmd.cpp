@@ -774,7 +774,7 @@ const PPCommandItem * SLAPI PPCommandFolder::SearchFirst(uint * pPos)
 		}
 	}
 	ASSIGN_PTR(pPos, (uint)pos);
-	return (pos >= 0) ? Get((uint)pos) : 0;
+	return (pos >= 0) ? Get(static_cast<uint>(pos)) : 0;
 }
 
 const PPCommandItem * SLAPI PPCommandFolder::SearchNextByCoord(POINT coord, const PPDesktop & rD, Direction next, uint * pPos)
@@ -804,7 +804,7 @@ const PPCommandItem * SLAPI PPCommandFolder::SearchNextByCoord(POINT coord, cons
 		}
 	}
 	ASSIGN_PTR(pPos, (uint)pos);
-	return (pos >= 0) ? Get((uint)pos) : 0;
+	return (pos >= 0) ? Get(static_cast<uint>(pos)) : 0;
 }
 
 int SLAPI PPCommandFolder::GetIntersectIDs(const TRect & rR, const PPDesktop & rD, PPIDArray * pAry)
@@ -1931,13 +1931,13 @@ long CashNodeFiltDialog::ConvertCommand(PPID cashNodeID, long cmd, int toDlgCmd)
 		PPCashNode cn_rec;
 		MEMSZERO(cn_rec);
 		if(CashNObj.Search(cashNodeID, &cn_rec) > 0) {
-			int    is_async = BIN(cn_rec.Flags & CASHF_ASYNC);
-			static uint async_cmds[] = { cmCSOpen, cmACSUpdate, cmCSClose, cmCSViewCheckList,  cmACSViewExcess };
-			static uint sync_cmds[] =  { cmCSOpen, cmCSClose, cmCSViewCheckList, cmSCSLock, cmSCSUnlock, cmSCSXReport, cmSCSZReportCopy, cmSCSIncasso };
-			uint count = (is_async) ? (sizeof(async_cmds)/sizeof(uint)) : (sizeof(sync_cmds)/sizeof(uint));
+			static const uint async_cmds[] = { cmCSOpen, cmACSUpdate, cmCSClose, cmCSViewCheckList,  cmACSViewExcess };
+			static const uint sync_cmds[] =  { cmCSOpen, cmCSClose, cmCSViewCheckList, cmSCSLock, cmSCSUnlock, cmSCSXReport, cmSCSZReportCopy, cmSCSIncasso };
+			const  int  is_async = BIN(cn_rec.Flags & CASHF_ASYNC);
+			const  uint count = is_async ? SIZEOFARRAY(async_cmds) : SIZEOFARRAY(sync_cmds);
 			if(toDlgCmd) {
 				cmd--;
-				out_cmd = (cmd >= 0 && cmd < (long)count) ? ((is_async) ? async_cmds[cmd] : sync_cmds[cmd]) : 0;
+				out_cmd = (cmd >= 0 && cmd < static_cast<long>(count)) ? ((is_async) ? async_cmds[cmd] : sync_cmds[cmd]) : 0;
 			}
 			else {
 				for(uint i = 0; !out_cmd && i < count; i++)
@@ -1982,9 +1982,9 @@ public:
 		THROW_INVARG(pParam);
 		THROW(CheckDialogPtr(&(p_dlg = new CashNodeFiltDialog)));
 		sav_offs = pParam->GetRdOffs();
-		THROW(PPView::ReadFiltPtr(*pParam, (PPBaseFilt**)&p_filt));
+		THROW(PPView::ReadFiltPtr(*pParam, reinterpret_cast<PPBaseFilt **>(&p_filt)));
 		if(!p_filt)
-			THROW(PPView::CreateFiltInstance(PPFILT_CASHNODEPANE, (PPBaseFilt**)&p_filt) > 0);
+			THROW(PPView::CreateFiltInstance(PPFILT_CASHNODEPANE, reinterpret_cast<PPBaseFilt **>(&p_filt)) > 0);
 		p_dlg->setDTS(p_filt);
 		while(!valid_data && ExecView(p_dlg) == cmOK) {
 			if(p_dlg->getDTS(p_filt) > 0)
@@ -2011,7 +2011,7 @@ public:
 		if((D.MenuCm || cmdID) && APPL) {
 			CashNodePaneFilt * p_filt = 0;
 			static_cast<PPApp *>(APPL)->LastCmd = cmdID ? (cmdID + ICON_COMMAND_BIAS) : D.MenuCm;
-			PPView::ReadFiltPtr(*pParam, (PPBaseFilt**)&p_filt);
+			PPView::ReadFiltPtr(*pParam, reinterpret_cast<PPBaseFilt **>(&p_filt));
 			ok = ExecCSPanel(p_filt);
 			static_cast<PPApp *>(APPL)->LastCmd = 0;
 		}

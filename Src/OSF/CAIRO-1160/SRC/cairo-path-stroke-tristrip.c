@@ -42,7 +42,7 @@
 //#include "cairo-box-inline.h"
 //#include "cairo-boxes-private.h"
 //#include "cairo-error-private.h"
-#include "cairo-path-fixed-private.h"
+//#include "cairo-path-fixed-private.h"
 //#include "cairo-slope-private.h"
 #include "cairo-tristrip-private.h"
 

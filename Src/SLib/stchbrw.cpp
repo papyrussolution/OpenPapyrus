@@ -1832,11 +1832,11 @@ static int AddIntersectRectPair(uint p1, uint p2, TSCollection <LongArray> & rLi
 		LongArray & r_item = *rList.at(i);
 		if(r_item.lsearch(p1)) {
 			assert(s1 == -1);
-			s1 = (int)i;
+			s1 = static_cast<int>(i);
 		}
 		if(r_item.lsearch(p2)) {
 			assert(s2 == -1);
-			s2 = (int)i;
+			s2 = static_cast<int>(i);
 		}
 	}
 	if(s1 >= 0) {

@@ -71,41 +71,41 @@ static void _TIFFPrintField(FILE* fd, const TIFFField * fip, uint32 value_count,
 			fprintf(fd, "0x%x",
 			    (unsigned int)((unsigned char*)raw_data)[j]);
 		else if(fip->field_type == TIFF_SBYTE)
-			fprintf(fd, "%d", ((int8*)raw_data)[j]);
+			fprintf(fd, "%d", ((int8 *)raw_data)[j]);
 		else if(fip->field_type == TIFF_SHORT)
-			fprintf(fd, "%u", ((uint16*)raw_data)[j]);
+			fprintf(fd, "%u", ((uint16 *)raw_data)[j]);
 		else if(fip->field_type == TIFF_SSHORT)
-			fprintf(fd, "%d", ((int16*)raw_data)[j]);
+			fprintf(fd, "%d", ((int16 *)raw_data)[j]);
 		else if(fip->field_type == TIFF_LONG)
-			fprintf(fd, "%lu", (unsigned long)((uint32*)raw_data)[j]);
+			fprintf(fd, "%lu", (unsigned long)((uint32 *)raw_data)[j]);
 		else if(fip->field_type == TIFF_SLONG)
-			fprintf(fd, "%ld", (long)((int32*)raw_data)[j]);
+			fprintf(fd, "%ld", (long)((int32 *)raw_data)[j]);
 		else if(fip->field_type == TIFF_IFD)
-			fprintf(fd, "0x%lx", (unsigned long)((uint32*)raw_data)[j]);
+			fprintf(fd, "0x%lx", (unsigned long)((uint32 *)raw_data)[j]);
 		else if(oneof3(fip->field_type, TIFF_RATIONAL, TIFF_SRATIONAL, TIFF_FLOAT))
 			fprintf(fd, "%f", ((float *)raw_data)[j]);
 		else if(fip->field_type == TIFF_LONG8)
 #if defined(__WIN32__) && (defined(_MSC_VER) || defined(__MINGW32__))
-			fprintf(fd, "%I64u", (unsigned __int64)((uint64*)raw_data)[j]);
+			fprintf(fd, "%I64u", (unsigned __int64)((uint64 *)raw_data)[j]);
 #else
-			fprintf(fd, "%llu", (unsigned long long)((uint64*)raw_data)[j]);
+			fprintf(fd, "%llu", (unsigned long long)((uint64 *)raw_data)[j]);
 #endif
 		else if(fip->field_type == TIFF_SLONG8)
 #if defined(__WIN32__) && (defined(_MSC_VER) || defined(__MINGW32__))
-			fprintf(fd, "%I64d", (__int64)((int64*)raw_data)[j]);
+			fprintf(fd, "%I64d", (__int64)((int64 *)raw_data)[j]);
 #else
-			fprintf(fd, "%lld", (long long)((int64*)raw_data)[j]);
+			fprintf(fd, "%lld", (long long)((int64 *)raw_data)[j]);
 #endif
 		else if(fip->field_type == TIFF_IFD8)
 #if defined(__WIN32__) && (defined(_MSC_VER) || defined(__MINGW32__))
-			fprintf(fd, "0x%I64x", (unsigned __int64)((uint64*)raw_data)[j]);
+			fprintf(fd, "0x%I64x", (unsigned __int64)((uint64 *)raw_data)[j]);
 #else
-			fprintf(fd, "0x%llx", (unsigned long long)((uint64*)raw_data)[j]);
+			fprintf(fd, "0x%llx", (unsigned long long)((uint64 *)raw_data)[j]);
 #endif
 		else if(fip->field_type == TIFF_FLOAT)
 			fprintf(fd, "%f", ((float *)raw_data)[j]);
 		else if(fip->field_type == TIFF_DOUBLE)
-			fprintf(fd, "%f", ((double*)raw_data)[j]);
+			fprintf(fd, "%f", ((double *)raw_data)[j]);
 		else if(fip->field_type == TIFF_ASCII) {
 			fprintf(fd, "%s", (char *)raw_data);
 			break;
@@ -131,16 +131,16 @@ static int _TIFFPrettyPrintField(TIFF* tif, const TIFFField * fip, FILE* fd, uin
 		case TIFFTAG_INKSET:
 		    if(value_count == 2 && fip->field_type == TIFF_SHORT) {
 			    fprintf(fd, "  Ink Set: ");
-			    switch(*((uint16*)raw_data)) {
+			    switch(*((uint16 *)raw_data)) {
 				    case INKSET_CMYK: fprintf(fd, "CMYK\n"); break;
-				    default: fprintf(fd, "%u (0x%x)\n", *((uint16*)raw_data), *((uint16*)raw_data)); break;
+				    default: fprintf(fd, "%u (0x%x)\n", *((uint16 *)raw_data), *((uint16 *)raw_data)); break;
 			    }
 			    return 1;
 		    }
 		    return 0;
 		case TIFFTAG_DOTRANGE:
 		    if(value_count == 2 && fip->field_type == TIFF_SHORT) {
-			    fprintf(fd, "  Dot Range: %u-%u\n", ((uint16*)raw_data)[0], ((uint16*)raw_data)[1]);
+			    fprintf(fd, "  Dot Range: %u-%u\n", ((uint16 *)raw_data)[0], ((uint16 *)raw_data)[1]);
 			    return 1;
 		    }
 		    return 0;
@@ -173,7 +173,7 @@ static int _TIFFPrettyPrintField(TIFF* tif, const TIFFField * fip, FILE* fd, uin
 		    return 1;
 		case TIFFTAG_STONITS:
 		    if(value_count == 1 && fip->field_type == TIFF_DOUBLE) {
-			    fprintf(fd, "  Sample to Nits conversion factor: %.4e\n", *((double*)raw_data));
+			    fprintf(fd, "  Sample to Nits conversion factor: %.4e\n", *((double *)raw_data));
 			    return 1;
 		    }
 		    return 0;

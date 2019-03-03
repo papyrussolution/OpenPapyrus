@@ -268,7 +268,7 @@ void FASTCALL AesCtr_Code(uint32 * p, Byte * data, size_t numBlocks)
 		for(i = 0; i < 4; i++, data += 4) {
 			uint32 t = temp[i];
       #ifdef MY_CPU_LE_UNALIGN
-			*((uint32*)data) ^= t;
+			*((uint32 *)data) ^= t;
       #else
 			data[0] ^= (t & 0xFF);
 			data[1] ^= ((t >> 8) & 0xFF);

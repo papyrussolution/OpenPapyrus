@@ -42,7 +42,7 @@
 #if CAIRO_HAS_FONT_SUBSET
 
 #include "cairo-surface-private.h"
-#include "cairo-surface-clipper-private.h"
+//#include "cairo-surface-clipper-private.h"
 #include "cairo-pdf-operators-private.h"
 
 typedef cairo_int_status_t

@@ -110,7 +110,7 @@ namespace NCompress {
 		bool CThreadInfo::Alloc()
 		{
 			if(m_BlockSorterIndex == 0) {
-				m_BlockSorterIndex = (uint32*)::BigAlloc(BLOCK_SORT_BUF_SIZE(kBlockSizeMax) * sizeof(uint32));
+				m_BlockSorterIndex = (uint32 *)::BigAlloc(BLOCK_SORT_BUF_SIZE(kBlockSizeMax) * sizeof(uint32));
 				if(m_BlockSorterIndex == 0)
 					return false;
 			}
@@ -1881,7 +1881,7 @@ namespace NCompress {
 					return false;
 			}
 			if(!_counters) {
-				_counters = (uint32*)::BigAlloc((256 + kBlockSizeMax) * sizeof(uint32)
+				_counters = (uint32 *)::BigAlloc((256 + kBlockSizeMax) * sizeof(uint32)
 			  #ifdef BZIP2_BYTE_MODE
 							+ kBlockSizeMax
 			  #endif

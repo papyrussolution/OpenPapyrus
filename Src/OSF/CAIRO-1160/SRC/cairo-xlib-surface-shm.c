@@ -121,10 +121,10 @@ void _cairo_xlib_display_fini_shm(cairo_xlib_display_t * display) {
 
 #else
 
-#include "cairo-damage-private.h"
-#include "cairo-default-context-private.h"
-#include "cairo-image-surface-private.h"
-#include "cairo-list-inline.h"
+//#include "cairo-damage-private.h"
+//#include "cairo-default-context-private.h"
+//#include "cairo-image-surface-private.h"
+//#include "cairo-list-inline.h"
 #include "cairo-mempool-private.h"
 
 #include <X11/Xlibint.h>

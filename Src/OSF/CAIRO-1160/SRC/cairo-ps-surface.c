@@ -60,17 +60,17 @@
 #include "cairo-pdf-shading-private.h"
 //#include "cairo-array-private.h"
 //#include "cairo-composite-rectangles-private.h"
-#include "cairo-default-context-private.h"
+//#include "cairo-default-context-private.h"
 //#include "cairo-error-private.h"
-#include "cairo-image-surface-inline.h"
-#include "cairo-list-inline.h"
-#include "cairo-scaled-font-subsets-private.h"
+//#include "cairo-image-surface-inline.h"
+//#include "cairo-list-inline.h"
+//#include "cairo-scaled-font-subsets-private.h"
 #include "cairo-paginated-private.h"
 #include "cairo-recording-surface-private.h"
-#include "cairo-surface-clipper-private.h"
+//#include "cairo-surface-clipper-private.h"
 #include "cairo-surface-snapshot-inline.h"
 #include "cairo-surface-subsurface-private.h"
-#include "cairo-output-stream-private.h"
+//#include "cairo-output-stream-private.h"
 #include "cairo-type3-glyph-surface-private.h"
 #include "cairo-image-info-private.h"
 #include "cairo-tag-attributes-private.h"
@@ -841,23 +841,15 @@ static cairo_status_t _cairo_ps_surface_emit_font_subsets(cairo_ps_surface_t * s
 		surface);
 	if(unlikely(status))
 		return status;
-
-	status = _cairo_scaled_font_subsets_foreach_scaled(surface->font_subsets,
-		_cairo_ps_surface_emit_scaled_font_subset,
-		surface);
+	status = _cairo_scaled_font_subsets_foreach_scaled(surface->font_subsets, _cairo_ps_surface_emit_scaled_font_subset, surface);
 	if(unlikely(status))
 		return status;
-
-	return _cairo_scaled_font_subsets_foreach_user(surface->font_subsets,
-		   _cairo_ps_surface_emit_scaled_font_subset,
-		   surface);
+	return _cairo_scaled_font_subsets_foreach_user(surface->font_subsets, _cairo_ps_surface_emit_scaled_font_subset, surface);
 }
 
 static cairo_int_status_t _cairo_ps_surface_emit_forms(cairo_ps_surface_t * surface)
 {
-	_cairo_hash_table_foreach(surface->forms,
-	    _cairo_ps_form_emit,
-	    surface);
+	_cairo_hash_table_foreach(surface->forms, _cairo_ps_form_emit, surface);
 	return surface->base.status;
 }
 
@@ -1577,83 +1569,56 @@ static cairo_status_t _cairo_ps_surface_finish(void * abstract_surface)
 	cairo_ps_surface_t * surface = (cairo_ps_surface_t *)abstract_surface;
 	int i, num_comments;
 	char ** comments;
-
 	status = surface->base.status;
 	if(unlikely(status))
 		goto CLEANUP;
-
 	_cairo_ps_surface_emit_header(surface);
-
-	_cairo_output_stream_printf(surface->final_stream,
-	    "%%%%BeginSetup\n");
-
+	_cairo_output_stream_printf(surface->final_stream, "%%%%BeginSetup\n");
 	status = _cairo_ps_surface_emit_font_subsets(surface);
 	if(unlikely(status))
 		goto CLEANUP;
-
 	status = _cairo_ps_surface_emit_forms(surface);
 	if(unlikely(status))
 		goto CLEANUP;
-
-	_cairo_output_stream_printf(surface->final_stream,
-	    "%%%%EndSetup\n");
-
+	_cairo_output_stream_printf(surface->final_stream, "%%%%EndSetup\n");
 	status = _cairo_ps_surface_emit_body(surface);
 	if(unlikely(status))
 		goto CLEANUP;
-
 	_cairo_ps_surface_emit_footer(surface);
-
 CLEANUP:
-	_cairo_hash_table_foreach(surface->forms,
-	    _cairo_ps_form_pluck,
-	    surface->forms);
+	_cairo_hash_table_foreach(surface->forms, _cairo_ps_form_pluck, surface->forms);
 	_cairo_hash_table_destroy(surface->forms);
 	_cairo_scaled_font_subsets_destroy(surface->font_subsets);
-
 	status2 = _cairo_output_stream_destroy(surface->stream);
 	if(status == CAIRO_STATUS_SUCCESS)
 		status = status2;
-
 	fclose(surface->tmpfile);
-
 	status2 = _cairo_output_stream_destroy(surface->final_stream);
 	if(status == CAIRO_STATUS_SUCCESS)
 		status = status2;
-
 	while(!cairo_list_is_empty(&surface->document_media)) {
-		cairo_page_media_t * page;
-
-		page = cairo_list_first_entry(&surface->document_media,
-			cairo_page_media_t,
-			link);
+		cairo_page_media_t * page = cairo_list_first_entry(&surface->document_media, cairo_page_media_t, link);
 		cairo_list_del(&page->link);
 		SAlloc::F(page->name);
 		SAlloc::F(page);
 	}
-
 	num_comments = _cairo_array_num_elements(&surface->dsc_header_comments);
 	comments = (char **)_cairo_array_index(&surface->dsc_header_comments, 0);
 	for(i = 0; i < num_comments; i++)
 		SAlloc::F(comments[i]);
 	_cairo_array_fini(&surface->dsc_header_comments);
-
 	num_comments = _cairo_array_num_elements(&surface->dsc_setup_comments);
 	comments = (char **)_cairo_array_index(&surface->dsc_setup_comments, 0);
 	for(i = 0; i < num_comments; i++)
 		SAlloc::F(comments[i]);
 	_cairo_array_fini(&surface->dsc_setup_comments);
-
 	num_comments = _cairo_array_num_elements(&surface->dsc_page_setup_comments);
 	comments = (char **)_cairo_array_index(&surface->dsc_page_setup_comments, 0);
 	for(i = 0; i < num_comments; i++)
 		SAlloc::F(comments[i]);
 	_cairo_array_fini(&surface->dsc_page_setup_comments);
-
 	_cairo_array_fini(&surface->recording_surf_stack);
-
 	_cairo_surface_clipper_reset(&surface->clipper);
-
 	return status;
 }
 
@@ -3521,39 +3486,24 @@ static void _cairo_ps_form_emit(void * entry, void * closure)
 		surface->base.status = status;
 }
 
-static void _path_fixed_init_rectangle(cairo_path_fixed_t * path,
-    cairo_rectangle_int_t * rect)
+static void _path_fixed_init_rectangle(cairo_path_fixed_t * path, cairo_rectangle_int_t * rect)
 {
 	cairo_status_t status;
-
 	_cairo_path_fixed_init(path);
-
-	status = _cairo_path_fixed_move_to(path,
-		_cairo_fixed_from_int(rect->x),
-		_cairo_fixed_from_int(rect->y));
+	status = _cairo_path_fixed_move_to(path, _cairo_fixed_from_int(rect->x), _cairo_fixed_from_int(rect->y));
 	assert(status == CAIRO_STATUS_SUCCESS);
-	status = _cairo_path_fixed_rel_line_to(path,
-		_cairo_fixed_from_int(rect->width),
-		_cairo_fixed_from_int(0));
+	status = _cairo_path_fixed_rel_line_to(path, _cairo_fixed_from_int(rect->width), _cairo_fixed_from_int(0));
 	assert(status == CAIRO_STATUS_SUCCESS);
-	status = _cairo_path_fixed_rel_line_to(path,
-		_cairo_fixed_from_int(0),
-		_cairo_fixed_from_int(rect->height));
+	status = _cairo_path_fixed_rel_line_to(path, _cairo_fixed_from_int(0), _cairo_fixed_from_int(rect->height));
 	assert(status == CAIRO_STATUS_SUCCESS);
-	status = _cairo_path_fixed_rel_line_to(path,
-		_cairo_fixed_from_int(-rect->width),
-		_cairo_fixed_from_int(0));
+	status = _cairo_path_fixed_rel_line_to(path, _cairo_fixed_from_int(-rect->width), _cairo_fixed_from_int(0));
 	assert(status == CAIRO_STATUS_SUCCESS);
-
 	status = _cairo_path_fixed_close_path(path);
 	assert(status == CAIRO_STATUS_SUCCESS);
 }
 
-static cairo_status_t _cairo_ps_surface_paint_surface(cairo_ps_surface_t * surface,
-    const cairo_pattern_t * pattern,
-    cairo_rectangle_int_t * extents,
-    cairo_operator_t op,
-    cairo_bool_t stencil_mask)
+static cairo_status_t _cairo_ps_surface_paint_surface(cairo_ps_surface_t * surface, const cairo_pattern_t * pattern,
+    cairo_rectangle_int_t * extents, cairo_operator_t op, cairo_bool_t stencil_mask)
 {
 	cairo_rectangle_int_t src_surface_extents;
 	cairo_bool_t src_surface_bounded;
@@ -3768,16 +3718,13 @@ static cairo_status_t _cairo_ps_surface_emit_surface_pattern(cairo_ps_surface_t 
 		    double x1 = 0.0, y1 = 0.0;
 		    double x2 = surface->surface_extents.width;
 		    double y2 = surface->surface_extents.height;
-		    _cairo_matrix_transform_bounding_box(&pattern->matrix,
-			&x1, &y1, &x2, &y2,
-			NULL);
+		    _cairo_matrix_transform_bounding_box(&pattern->matrix, &x1, &y1, &x2, &y2, NULL);
 
 		    /* Rather than computing precise bounds of the union, just
 		 * add the surface extents unconditionally. We only
 		 * required an answer that's large enough, we don't really
 		 * care if it's not as tight as possible.*/
-		    xstep = ystep = ceil((x2 - x1) + (y2 - y1) +
-				pattern_extents.width + pattern_extents.height);
+		    xstep = ystep = ceil((x2 - x1) + (y2 - y1) + pattern_extents.width + pattern_extents.height);
 		    break;
 	    }
 		case CAIRO_EXTEND_REPEAT:
@@ -4113,19 +4060,14 @@ static cairo_status_t _cairo_ps_surface_emit_gradient(cairo_ps_surface_t * surfa
 	/* cairo_pattern_set_matrix ensures the matrix is invertible */
 	assert(status == CAIRO_STATUS_SUCCESS);
 	cairo_matrix_multiply(&pat_to_ps, &pat_to_ps, &surface->cairo_to_ps);
-	if(pattern->base.extend == CAIRO_EXTEND_REPEAT ||
-	    pattern->base.extend == CAIRO_EXTEND_REFLECT) {
-		double bounds_x1, bounds_x2, bounds_y1, bounds_y2;
+	if(pattern->base.extend == CAIRO_EXTEND_REPEAT || pattern->base.extend == CAIRO_EXTEND_REFLECT) {
 		double x_scale, y_scale, tolerance;
 		/* TODO: use tighter extents */
-		bounds_x1 = 0;
-		bounds_y1 = 0;
-		bounds_x2 = surface->width;
-		bounds_y2 = surface->height;
-		_cairo_matrix_transform_bounding_box(&pattern->base.matrix,
-		    &bounds_x1, &bounds_y1,
-		    &bounds_x2, &bounds_y2,
-		    NULL);
+		double bounds_x1 = 0;
+		double bounds_y1 = 0;
+		double bounds_x2 = surface->width;
+		double bounds_y2 = surface->height;
+		_cairo_matrix_transform_bounding_box(&pattern->base.matrix, &bounds_x1, &bounds_y1, &bounds_x2, &bounds_y2, NULL);
 		x_scale = surface->base.x_resolution / surface->base.x_fallback_resolution;
 		y_scale = surface->base.y_resolution / surface->base.y_fallback_resolution;
 		tolerance = fabs(_cairo_matrix_compute_determinant(&pattern->base.matrix));

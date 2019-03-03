@@ -42,7 +42,7 @@
 #if CAIRO_HAS_FT_FONT // {
 #define _DEFAULT_SOURCE /* for strdup() */
 //#include "cairo-error-private.h"
-#include "cairo-image-surface-private.h"
+//#include "cairo-image-surface-private.h"
 #include "cairo-ft-private.h"
 //#include "cairo-pattern-private.h"
 #include "cairo-pixman-private.h"
@@ -1572,14 +1572,8 @@ static cairo_status_t _transform_glyph_bitmap(cairo_matrix_t * shape,
 	 */
 	_cairo_pattern_init_for_surface(&pattern, &(*surface)->base);
 	cairo_pattern_set_matrix(&pattern.base, &transformed_to_original);
-
-	status = _cairo_surface_paint(image,
-		CAIRO_OPERATOR_SOURCE,
-		&pattern.base,
-		NULL);
-
+	status = _cairo_surface_paint(image, CAIRO_OPERATOR_SOURCE, &pattern.base, NULL);
 	_cairo_pattern_fini(&pattern.base);
-
 	if(unlikely(status)) {
 		cairo_surface_destroy(image);
 		return status;

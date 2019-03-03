@@ -103,7 +103,7 @@ cairo_private cairo_status_t _cairo_freepool_alloc_array(cairo_freepool_t * free
 
 static inline void _cairo_freepool_free(cairo_freepool_t * freepool, void * ptr)
 {
-	cairo_freelist_node_t * node = (cairo_freelist_node_t *)ptr;
+	cairo_freelist_node_t * node = static_cast<cairo_freelist_node_t *>(ptr);
 	node->next = freepool->first_free_node;
 	freepool->first_free_node = node;
 	VG(VALGRIND_MAKE_MEM_UNDEFINED(node, freepool->nodesize));

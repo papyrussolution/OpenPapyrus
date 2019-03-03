@@ -193,7 +193,7 @@ static int searchupvalue(FuncState * fs, TString * name)
 	return -1; /* not found */
 }
 
-static int newupvalue(FuncState * fs, TString * name, expdesc * v) 
+static int newupvalue(FuncState * fs, TString * name, const expdesc * v) 
 {
 	Proto * f = fs->f;
 	int oldsize = f->sizeupvalues;

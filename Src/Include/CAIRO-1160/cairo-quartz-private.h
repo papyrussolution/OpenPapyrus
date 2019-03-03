@@ -42,7 +42,7 @@
 
 #if CAIRO_HAS_QUARTZ_SURFACE
 #include "cairo-quartz.h"
-#include "cairo-surface-clipper-private.h"
+//#include "cairo-surface-clipper-private.h"
 
 #ifndef CGFLOAT_DEFINED
 /* On 10.4, Quartz APIs used float instead of CGFloat */

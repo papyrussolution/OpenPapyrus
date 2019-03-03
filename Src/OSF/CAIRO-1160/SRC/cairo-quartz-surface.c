@@ -41,12 +41,12 @@
 #include "cairo-quartz-private.h"
 //#include "cairo-composite-rectangles-private.h"
 //#include "cairo-compositor-private.h"
-#include "cairo-default-context-private.h"
+//#include "cairo-default-context-private.h"
 //#include "cairo-error-private.h"
-#include "cairo-image-surface-inline.h"
+//#include "cairo-image-surface-inline.h"
 //#include "cairo-pattern-private.h"
 #include "cairo-surface-backend-private.h"
-#include "cairo-surface-clipper-private.h"
+//#include "cairo-surface-clipper-private.h"
 #include "cairo-recording-surface-private.h"
 #include <dlfcn.h>
 #ifndef RTLD_DEFAULT
@@ -699,36 +699,22 @@ static const CGFunctionCallbacks gradient_callbacks = {
  * samples. */
 #define MAX_GRADIENT_RANGE 1024
 
-static CGFunctionRef CairoQuartzCreateGradientFunction(const cairo_gradient_pattern_t * gradient,
-    const cairo_rectangle_int_t * extents,
-    cairo_circle_double_t * start,
-    cairo_circle_double_t * end)
+static CGFunctionRef CairoQuartzCreateGradientFunction(const cairo_gradient_pattern_t * gradient, const cairo_rectangle_int_t * extents,
+    cairo_circle_double_t * start, cairo_circle_double_t * end)
 {
 	cairo_pattern_t * pat;
 	cairo_quartz_float_t input_value_range[2];
-
 	if(gradient->base.extend != CAIRO_EXTEND_NONE) {
 		double bounds_x1, bounds_x2, bounds_y1, bounds_y2;
 		double t[2], tolerance;
-
 		tolerance = fabs(_cairo_matrix_compute_determinant(&gradient->base.matrix));
 		tolerance /= _cairo_matrix_transformed_circle_major_axis(&gradient->base.matrix, 1);
-
 		bounds_x1 = extents->x;
 		bounds_y1 = extents->y;
 		bounds_x2 = extents->x + extents->width;
 		bounds_y2 = extents->y + extents->height;
-		_cairo_matrix_transform_bounding_box(&gradient->base.matrix,
-		    &bounds_x1, &bounds_y1,
-		    &bounds_x2, &bounds_y2,
-		    NULL);
-
-		_cairo_gradient_pattern_box_to_parameter(gradient,
-		    bounds_x1, bounds_y1,
-		    bounds_x2, bounds_y2,
-		    tolerance,
-		    t);
-
+		_cairo_matrix_transform_bounding_box(&gradient->base.matrix, &bounds_x1, &bounds_y1, &bounds_x2, &bounds_y2, NULL);
+		_cairo_gradient_pattern_box_to_parameter(gradient, bounds_x1, bounds_y1, bounds_x2, bounds_y2, tolerance, t);
 		if(gradient->base.extend == CAIRO_EXTEND_PAD) {
 			t[0] = MAX(t[0], -0.5);
 			t[1] = MIN(t[1],  1.5);

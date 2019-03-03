@@ -10813,7 +10813,7 @@ int CPosProcessor::ProcessGift()
 				if(i) do {
 					const uint pos = pos_list.get(--i);
 					assert(P.at(pos).Flags & cifGift);
-					P.atFree((uint)pos);
+					P.atFree(static_cast<uint>(pos));
 				} while(i);
 			}
 			OnUpdateList(0);

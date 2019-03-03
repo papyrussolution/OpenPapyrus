@@ -153,7 +153,7 @@ int SLAPI RegisterArray::SelectRegister(PPID regTyp, LDATE dt, uint * pPos, Regi
 		const RegisterTbl::Rec & r_reg = at(i);
 		if(r_reg.RegTypeID == regTyp) {
 			if(!dt) {
-				optimal_pos = (int)i;
+				optimal_pos = static_cast<int>(i);
 				ok = srrEmptyDateCrit;
 			}
 			else if((!r_reg.Expiry || r_reg.Expiry >= dt) && (!r_reg.Dt || r_reg.Dt <= dt)) {

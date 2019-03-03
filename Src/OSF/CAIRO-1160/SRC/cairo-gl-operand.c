@@ -45,9 +45,9 @@
 #include "cairo-gl-private.h"
 //#include "cairo-composite-rectangles-private.h"
 //#include "cairo-compositor-private.h"
-#include "cairo-default-context-private.h"
+//#include "cairo-default-context-private.h"
 //#include "cairo-error-private.h"
-#include "cairo-image-surface-private.h"
+//#include "cairo-image-surface-private.h"
 #include "cairo-surface-backend-private.h"
 #include "cairo-surface-offset-private.h"
 #include "cairo-surface-subsurface-inline.h"
@@ -106,15 +106,10 @@ static cairo_status_t _cairo_gl_subsurface_clone_operand_init(cairo_gl_operand_t
 			return _cairo_gl_context_release(ctx, surface->base.status);
 
 		_cairo_pattern_init_for_surface(&local_pattern, sub->target);
-		cairo_matrix_init_translate(&local_pattern.base.matrix,
-		    sub->extents.x, sub->extents.y);
+		cairo_matrix_init_translate(&local_pattern.base.matrix, sub->extents.x, sub->extents.y);
 		local_pattern.base.filter = CAIRO_FILTER_NEAREST;
-		status = _cairo_surface_paint(&surface->base,
-			CAIRO_OPERATOR_SOURCE,
-			&local_pattern.base,
-			NULL);
+		status = _cairo_surface_paint(&surface->base, CAIRO_OPERATOR_SOURCE, &local_pattern.base, NULL);
 		_cairo_pattern_fini(&local_pattern.base);
-
 		status = _cairo_gl_context_release(ctx, status);
 		if(unlikely(status)) {
 			cairo_surface_destroy(&surface->base);

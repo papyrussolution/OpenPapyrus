@@ -267,7 +267,7 @@ int GoodsTaxListDialog::editItem(long pos, long)
 {
 	int    ok = -1;
 	if(pos >= 0 && pos < (long)Data.GetCount()) {
-		PPGoodsTaxEntry item = Data.Get((uint)pos);
+		PPGoodsTaxEntry item = Data.Get(static_cast<uint>(pos));
 		if(editItemDialog((int)pos, &item) > 0)
 			ok = 1;
 	}

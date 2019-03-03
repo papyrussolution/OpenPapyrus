@@ -175,7 +175,7 @@ cairo_int_status_t _cairo_composite_rectangles_intersect_source_extents(cairo_co
 	return CAIRO_INT_STATUS_SUCCESS;
 }
 
-cairo_int_status_t _cairo_composite_rectangles_intersect_mask_extents(cairo_composite_rectangles_t * extents, const cairo_box_t * box)
+cairo_int_status_t FASTCALL _cairo_composite_rectangles_intersect_mask_extents(cairo_composite_rectangles_t * extents, const cairo_box_t * box)
 {
 	cairo_rectangle_int_t mask;
 	cairo_clip_t * clip;

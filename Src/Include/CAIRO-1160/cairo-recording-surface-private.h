@@ -38,8 +38,8 @@
 #define CAIRO_RECORDING_SURFACE_H
 
 //#include "cairoint.h"
-//#include "cairo-path-fixed-private.h"
-////#include "cairo-pattern-private.h"
+////#include "cairo-path-fixed-private.h"
+//#include "cairo-pattern-private.h"
 //#include "cairo-surface-backend-private.h"
 
 typedef enum {

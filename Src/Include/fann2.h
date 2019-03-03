@@ -298,12 +298,12 @@ __doublefann_h__ is not defined
 /* FANN_GAUSSIAN */
 /* #define fann_gaussian(steepness, sum) (exp(-sum * steepness * sum * steepness)) */
 #define fann_gaussian_real(sum) (FANN_EXP(-(sum) * (sum)))
-#define fann_gaussian_derive(steepness, value, sum) (-2.0f * sum * value * steepness * steepness)
+#define fann_gaussian_derive(steepness, value, sum) (-2.0f * (sum) * (value) * (steepness) * (steepness))
 
 /* FANN_GAUSSIAN_SYMMETRIC */
 /* #define fann_gaussian_symmetric(steepness, sum) ((exp(-sum * steepness * sum * steepness)*2.0)-1.0) */
 #define fann_gaussian_symmetric_real(sum) ((FANN_EXP(-(sum) * (sum))*2.0f)-1.0f)
-#define fann_gaussian_symmetric_derive(steepness, value, sum) (-2.0f * sum * (value+1.0f) * steepness * steepness)
+#define fann_gaussian_symmetric_derive(steepness, value, sum) (-2.0f * sum * (value+1.0f) * (steepness) * (steepness))
 
 /* FANN_ELLIOT */
 /* #define fann_elliot(steepness, sum) (((sum * steepness) / 2.0f) / (1.0f + fabsf(sum * steepness)) + 0.5f) */
@@ -2336,7 +2336,7 @@ FANN_EXTERNAL Fann2::ActivationFunc * FANN_API fann_get_cascade_activation_funct
 
         This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_cascade_activation_functions(Fann2 * ann, Fann2::ActivationFunc * cascade_activation_functions, uint cascade_activation_functions_count);
+FANN_EXTERNAL void FANN_API fann_set_cascade_activation_functions(Fann2 * ann, const Fann2::ActivationFunc * cascade_activation_functions, uint cascade_activation_functions_count);
 // 
 // The number of activation steepnesses in the <fann_get_cascade_activation_functions> array.
 // The default number of activation steepnesses is 4.

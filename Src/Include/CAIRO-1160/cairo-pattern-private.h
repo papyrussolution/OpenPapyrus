@@ -187,7 +187,7 @@ cairo_private cairo_status_t _cairo_pattern_init_copy(cairo_pattern_t * pattern,
 cairo_private void _cairo_pattern_init_static_copy(cairo_pattern_t * pattern, const cairo_pattern_t * other);
 cairo_private cairo_status_t _cairo_pattern_init_snapshot(cairo_pattern_t * pattern, const cairo_pattern_t * other);
 cairo_private void FASTCALL _cairo_pattern_init_solid(cairo_solid_pattern_t * pattern, const cairo_color_t * color);
-cairo_private void _cairo_pattern_init_for_surface(cairo_surface_pattern_t * pattern, cairo_surface_t * surface);
+cairo_private void FASTCALL _cairo_pattern_init_for_surface(cairo_surface_pattern_t * pattern, cairo_surface_t * surface);
 cairo_private void _cairo_pattern_fini(cairo_pattern_t * pattern);
 cairo_private cairo_pattern_t * _cairo_pattern_create_solid(const cairo_color_t * color);
 cairo_private void _cairo_pattern_transform(cairo_pattern_t * pattern, const cairo_matrix_t * ctm_inverse);
@@ -204,7 +204,7 @@ cairo_private void _cairo_gradient_pattern_interpolate(const cairo_gradient_patt
 cairo_private void _cairo_pattern_alpha_range(const cairo_pattern_t * pattern, double * out_min, double * out_max);
 cairo_private cairo_bool_t _cairo_mesh_pattern_coord_box(const cairo_mesh_pattern_t * mesh,
     double * out_xmin, double * out_ymin, double * out_xmax, double * out_ymax);
-cairo_private void _cairo_pattern_sampled_area(const cairo_pattern_t * pattern, const cairo_rectangle_int_t * extents, cairo_rectangle_int_t * sample);
+cairo_private void FASTCALL _cairo_pattern_sampled_area(const cairo_pattern_t * pattern, const cairo_rectangle_int_t * extents, cairo_rectangle_int_t * sample);
 cairo_private void _cairo_pattern_get_extents(const cairo_pattern_t * pattern, cairo_rectangle_int_t * extents, cairo_bool_t is_vector);
 cairo_private cairo_int_status_t _cairo_pattern_get_ink_extents(const cairo_pattern_t * pattern, cairo_rectangle_int_t * extents);
 cairo_private ulong _cairo_pattern_hash(const cairo_pattern_t * pattern);

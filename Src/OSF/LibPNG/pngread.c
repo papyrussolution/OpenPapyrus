@@ -1610,7 +1610,7 @@ static int make_gray_file_colormap(png_image_read_control * display)
 	uint i;
 	for(i = 0; i<256; ++i)
 		png_create_colormap_entry(display, i, i, i, i, 255, P_FILE);
-	return (int)i;
+	return static_cast<int>(i);
 }
 
 static int make_gray_colormap(png_image_read_control * display)
@@ -1618,7 +1618,7 @@ static int make_gray_colormap(png_image_read_control * display)
 	uint i;
 	for(i = 0; i<256; ++i)
 		png_create_colormap_entry(display, i, i, i, i, 255, P_sRGB);
-	return (int)i;
+	return static_cast<int>(i);
 }
 
 #define PNG_GRAY_COLORMAP_ENTRIES 256
@@ -1663,7 +1663,7 @@ static int make_ga_colormap(png_image_read_control * display)
 		for(g = 0; g<6; ++g)
 			png_create_colormap_entry(display, i++, g*51, g*51, g*51, a*51, P_sRGB);
 	}
-	return (int)i;
+	return static_cast<int>(i);
 }
 
 #define PNG_GA_COLORMAP_ENTRIES 256
@@ -1680,7 +1680,7 @@ static int make_rgb_colormap(png_image_read_control * display)
 				png_create_colormap_entry(display, i++, r*51, g*51, b*51, 255, P_sRGB);
 		}
 	}
-	return (int)i;
+	return static_cast<int>(i);
 }
 
 #define PNG_RGB_COLORMAP_ENTRIES 216

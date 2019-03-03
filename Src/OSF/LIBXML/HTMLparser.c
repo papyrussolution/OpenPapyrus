@@ -252,7 +252,7 @@ static htmlParserNodeInfo * htmlNodeInfoPop(htmlParserCtxt * ctxt)
 
 /* Inported from XML */
 
-/* #define CUR (ctxt->token ? ctxt->token : (int) (*ctxt->input->cur)) */
+/* #define CUR (ctxt->token ? ctxt->token : (int)(*ctxt->input->cur)) */
 #define CUR ((int)(* ctxt->input->cur))
 #define NEXT xmlNextChar(ctxt)
 

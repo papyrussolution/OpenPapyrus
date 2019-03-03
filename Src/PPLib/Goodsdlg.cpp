@@ -642,7 +642,7 @@ int BarcodeListDialog::editItem(long pos, long)
 
 int BarcodeListDialog::delItem(long pos, long)
 {
-	return Data.atFree((uint)pos) ? 1 : -1;
+	return Data.atFree(static_cast<uint>(pos)) ? 1 : -1;
 }
 
 int BarcodeListDialog::setupList()
@@ -872,7 +872,7 @@ int ArGoodsCodeListDialog::moveItem(long pos, long id, int up)
 
 int ArGoodsCodeListDialog::delItem(long pos, long id)
 {
-	return Data.atFree((uint)pos) ? 1 : -1;
+	return Data.atFree(static_cast<uint>(pos)) ? 1 : -1;
 }
 
 int SLAPI PPObjGoods::EditArCode(PPID goodsID, PPID arID, int ownCode)

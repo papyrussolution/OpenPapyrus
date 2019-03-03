@@ -41,11 +41,11 @@ int SLAPI ShipmAnalyzeFilt::TranslateToBillFilt(BillFilt * pBillFilt)
 PPBaseFilt * SLAPI PPViewShipmAnalyze::CreateFilt(void * extraPtr) const
 {
 	ShipmAnalyzeFilt * p_filt = 0;
-	if(PPView::CreateFiltInstance(PPFILT_SHIPMANALYZE, (PPBaseFilt**)&p_filt))
+	if(PPView::CreateFiltInstance(PPFILT_SHIPMANALYZE, reinterpret_cast<PPBaseFilt **>(&p_filt)))
 		p_filt->Init(1, 0);
 	else
 		PPErrCode = PPERR_BASEFILTUNSUPPORTED;
-	return (PPBaseFilt*)p_filt;
+	return static_cast<PPBaseFilt *>(p_filt);
 }
 
 SLAPI PPViewShipmAnalyze::PPViewShipmAnalyze() : PPView(0, &Filt, PPVIEW_SHIPMANALYZE), BObj(BillObj), Tbl(0)

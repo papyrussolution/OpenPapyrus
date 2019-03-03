@@ -283,7 +283,7 @@ int SLAPI SCardFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 		CPYFLD(Flags);
 		CPYFLD(Reserve);
 		CPYFLD(Number);
-		THROW(PPBaseFilt::CopyBaseFiltPtr(PPFILT_SYSJOURNAL, fv.P_SjF, (PPBaseFilt **)&P_SjF));
+		THROW(PPBaseFilt::CopyBaseFiltPtr(PPFILT_SYSJOURNAL, fv.P_SjF, reinterpret_cast<PPBaseFilt **>(&P_SjF)));
 		ok = 1;
 	}
 #undef CPYFLD

@@ -124,7 +124,7 @@ int SLAPI PPGoodsTaxPacket::PutEntry(int pos, const PPGoodsTaxEntry * pEntry)
 	}
 	else {
 		assert(pos >= 0 && pos < static_cast<int>(getCount()));
-		THROW_SL(atFree((uint)pos));
+		THROW_SL(atFree(static_cast<uint>(pos)));
 	}
 	CATCHZOK
 	return ok;

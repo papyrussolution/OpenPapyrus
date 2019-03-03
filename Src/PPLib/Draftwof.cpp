@@ -210,7 +210,7 @@ int DraftWrOffDialog::setupList()
 
 int DraftWrOffDialog::delItem(long pos, long)
 {
-	return (Data.P_List && Data.P_List->atFree((uint)pos)) ? 1 : -1;
+	return (Data.P_List && Data.P_List->atFree(static_cast<uint>(pos))) ? 1 : -1;
 }
 
 int DraftWrOffDialog::setupDfctSelectors(PPID arID)

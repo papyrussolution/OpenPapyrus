@@ -35,9 +35,9 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-analysis-surface-private.h"
+//#include "cairo-analysis-surface-private.h"
 //#include "cairo-box-inline.h"
-#include "cairo-default-context-private.h"
+//#include "cairo-default-context-private.h"
 //#include "cairo-error-private.h"
 #include "cairo-paginated-private.h"
 //#include "cairo-recording-surface-inline.h"
@@ -144,42 +144,33 @@ static cairo_int_status_t _add_operation(cairo_analysis_surface_t * surface,
 
 	if(surface->has_ctm) {
 		int tx, ty;
-
 		if(_cairo_matrix_is_integer_translation(&surface->ctm, &tx, &ty)) {
 			rect->x += tx;
 			rect->y += ty;
-
 			tx = _cairo_fixed_from_int(tx);
 			bbox.p1.x += tx;
 			bbox.p2.x += tx;
-
 			ty = _cairo_fixed_from_int(ty);
 			bbox.p1.y += ty;
 			bbox.p2.y += ty;
 		}
 		else {
-			_cairo_matrix_transform_bounding_box_fixed(&surface->ctm,
-			    &bbox, NULL);
-
+			_cairo_matrix_transform_bounding_box_fixed(&surface->ctm, &bbox, NULL);
 			if(bbox.p1.x == bbox.p2.x || bbox.p1.y == bbox.p2.y) {
 				/* Even though the operation is not visible we must be
 				 * careful to not allow unsupported operations to be
 				 * replayed to the backend during
 				 * CAIRO_PAGINATED_MODE_RENDER */
-				if(backend_status == CAIRO_INT_STATUS_SUCCESS ||
-				    backend_status == CAIRO_INT_STATUS_FLATTEN_TRANSPARENCY ||
-				    backend_status == CAIRO_INT_STATUS_NOTHING_TO_DO) {
+				if(backend_status == CAIRO_INT_STATUS_SUCCESS || backend_status == CAIRO_INT_STATUS_FLATTEN_TRANSPARENCY || backend_status == CAIRO_INT_STATUS_NOTHING_TO_DO) {
 					return CAIRO_INT_STATUS_SUCCESS;
 				}
 				else {
 					return CAIRO_INT_STATUS_IMAGE_FALLBACK;
 				}
 			}
-
 			_cairo_box_round_to_rectangle(&bbox, rect);
 		}
 	}
-
 	if(surface->first_op) {
 		surface->first_op = FALSE;
 		surface->page_bbox = bbox;
@@ -287,28 +278,23 @@ static cairo_int_status_t _analyze_recording_surface_pattern(cairo_analysis_surf
 		surface->has_supported = TRUE;
 		unused = cairo_region_union(&surface->supported_region, &tmp->supported_region);
 	}
-
 	if(tmp->has_unsupported) {
 		surface->has_unsupported = TRUE;
 		unused = cairo_region_union(&surface->fallback_region, &tmp->fallback_region);
 	}
-
 	analysis_status = tmp->has_unsupported ? CAIRO_INT_STATUS_IMAGE_FALLBACK : CAIRO_INT_STATUS_SUCCESS;
 	if(pattern->extend != CAIRO_EXTEND_NONE) {
 		_cairo_unbounded_rectangle_init(extents);
 	}
 	else {
 		status = cairo_matrix_invert(&tmp->ctm);
-		_cairo_matrix_transform_bounding_box_fixed(&tmp->ctm,
-		    &tmp->page_bbox, NULL);
+		_cairo_matrix_transform_bounding_box_fixed(&tmp->ctm, &tmp->page_bbox, NULL);
 		_cairo_box_round_to_rectangle(&tmp->page_bbox, extents);
 	}
-
 cleanup2:
 	detach_proxy(proxy);
 cleanup1:
 	cairo_surface_destroy(&tmp->base);
-
 	if(unlikely(status))
 		return status;
 	else
@@ -318,20 +304,15 @@ cleanup1:
 static cairo_status_t _cairo_analysis_surface_finish(void * abstract_surface)
 {
 	cairo_analysis_surface_t * surface = (cairo_analysis_surface_t*)abstract_surface;
-
 	_cairo_region_fini(&surface->supported_region);
 	_cairo_region_fini(&surface->fallback_region);
-
 	cairo_surface_destroy(surface->target);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_bool_t _cairo_analysis_surface_get_extents(void * abstract_surface,
-    cairo_rectangle_int_t * rectangle)
+static cairo_bool_t _cairo_analysis_surface_get_extents(void * abstract_surface, cairo_rectangle_int_t * rectangle)
 {
 	cairo_analysis_surface_t * surface = (cairo_analysis_surface_t *)abstract_surface;
-
 	return _cairo_surface_get_extents(surface->target, rectangle);
 }
 
@@ -341,55 +322,37 @@ static void _rectangle_intersect_clip(cairo_rectangle_int_t * extents, const cai
 		_cairo_rectangle_intersect(extents, _cairo_clip_get_extents(clip));
 }
 
-static void _cairo_analysis_surface_operation_extents(cairo_analysis_surface_t * surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_clip_t * clip,
-    cairo_rectangle_int_t * extents)
+static void _cairo_analysis_surface_operation_extents(cairo_analysis_surface_t * surface, cairo_operator_t op,
+    const cairo_pattern_t * source, const cairo_clip_t * clip, cairo_rectangle_int_t * extents)
 {
-	cairo_bool_t is_empty;
-
-	is_empty = _cairo_surface_get_extents(&surface->base, extents);
-
+	cairo_bool_t is_empty = _cairo_surface_get_extents(&surface->base, extents);
 	if(_cairo_operator_bounded_by_source(op)) {
 		cairo_rectangle_int_t source_extents;
-
 		_cairo_pattern_get_extents(source, &source_extents, surface->target->is_vector);
 		_cairo_rectangle_intersect(extents, &source_extents);
 	}
-
 	_rectangle_intersect_clip(extents, clip);
 }
 
-static cairo_int_status_t _cairo_analysis_surface_paint(void * abstract_surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_clip_t * clip)
+static cairo_int_status_t _cairo_analysis_surface_paint(void * abstract_surface, cairo_operator_t op, const cairo_pattern_t * source, const cairo_clip_t * clip)
 {
 	cairo_analysis_surface_t * surface = (cairo_analysis_surface_t *)abstract_surface;
 	cairo_int_status_t backend_status;
 	cairo_rectangle_int_t extents;
-
 	if(surface->target->backend->paint == NULL) {
 		backend_status = CAIRO_INT_STATUS_UNSUPPORTED;
 	}
 	else {
-		backend_status =
-		    surface->target->backend->paint(surface->target,
-			op, source, clip);
+		backend_status = surface->target->backend->paint(surface->target, op, source, clip);
 		if(_cairo_int_status_is_error(backend_status))
 			return backend_status;
 	}
-
-	_cairo_analysis_surface_operation_extents(surface,
-	    op, source, clip,
-	    &extents);
+	_cairo_analysis_surface_operation_extents(surface, op, source, clip, &extents);
 	if(backend_status == CAIRO_INT_STATUS_ANALYZE_RECORDING_SURFACE_PATTERN) {
 		cairo_rectangle_int_t rec_extents;
 		backend_status = _analyze_recording_surface_pattern(surface, source, &rec_extents);
 		_cairo_rectangle_intersect(&extents, &rec_extents);
 	}
-
 	return _add_operation(surface, &extents, backend_status);
 }
 

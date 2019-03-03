@@ -776,7 +776,7 @@ double RandNumbGen::Gaussian(const Rng * P_r, const double sigma)
 //ГЕНЕРАЦИЯ ТОВАРНЫХ ДОКУМЕНТОВ ПО ЭКСПОНЕНЦИАЛЬНОМУ З-НУ
 int GetRandom(int min, int max)
 {
-	return (int) (((double)rand() / (RAND_MAX + 1)) * (max - min) + min);  //генератор псевдослучайных чисел
+	return (int)(((double)rand() / (RAND_MAX + 1)) * (max - min) + min);  //генератор псевдослучайных чисел
 }
 
 int SLAPI GenerateGoodsBills()

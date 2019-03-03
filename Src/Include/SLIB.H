@@ -4677,7 +4677,7 @@ char * FASTCALL int64fmt(int64 val, long fmt, char * pBuf);
 char * FASTCALL longfmtz(long val, int numDigits, char * pBuf, size_t bufLen);
 char * FASTCALL uintfmt(ulong val, long fmt, char * pBuf);
 char * FASTCALL uint64fmt(uint64 val, long fmt, char * pBuf);
-char * SLAPI decfmt(BCD_T val, int len, int prec, long fmt, char * pBuf);
+char * SLAPI decfmt(const BCD_T val, int len, int prec, long fmt, char * pBuf);
 char * SLAPI datefmt(const void *, long fmt, char *);
 char * SLAPI timefmt(LTIME, long fmt, char *);
 char * SLAPI datetimefmt(LDATETIME dtm, long dtfmt, long tmfmt, char * pBuf, size_t bufLen);

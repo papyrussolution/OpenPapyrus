@@ -5973,7 +5973,7 @@ static int xmlXPathCompareNodeSets(int inf, int strict, xmlXPathObjectPtr arg1, 
 		xmlXPathFreeObject(arg2);
 		return 0;
 	}
-	values2 = (double*)SAlloc::M(ns2->nodeNr * sizeof(double));
+	values2 = (double *)SAlloc::M(ns2->nodeNr * sizeof(double));
 	if(!values2) {
 		xmlXPathErrMemory(NULL, "comparing nodesets");
 		xmlXPathFreeObject(arg1);

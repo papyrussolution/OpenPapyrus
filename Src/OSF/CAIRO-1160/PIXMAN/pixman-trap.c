@@ -35,10 +35,7 @@ PIXMAN_EXPORT pixman_fixed_t pixman_sample_ceil_y(pixman_fixed_t y, int n)
 {
 	pixman_fixed_t f = pixman_fixed_frac(y);
 	pixman_fixed_t i = pixman_fixed_floor(y);
-
-	f = DIV(f - Y_FRAC_FIRST(n) + (STEP_Y_SMALL(n) - pixman_fixed_e), STEP_Y_SMALL(n)) * STEP_Y_SMALL(n) +
-	    Y_FRAC_FIRST(n);
-
+	f = DIV(f - Y_FRAC_FIRST(n) + (STEP_Y_SMALL(n) - pixman_fixed_e), STEP_Y_SMALL(n)) * STEP_Y_SMALL(n) + Y_FRAC_FIRST(n);
 	if(f > Y_FRAC_LAST(n)) {
 		if(pixman_fixed_to_int(i) == 0x7fff) {
 			f = 0xffff; /* saturate */
@@ -55,15 +52,11 @@ PIXMAN_EXPORT pixman_fixed_t pixman_sample_ceil_y(pixman_fixed_t y, int n)
  * Compute the largest value strictly less than y which is on a
  * grid row.
  */
-PIXMAN_EXPORT pixman_fixed_t pixman_sample_floor_y(pixman_fixed_t y,
-    int n)
+PIXMAN_EXPORT pixman_fixed_t pixman_sample_floor_y(pixman_fixed_t y, int n)
 {
 	pixman_fixed_t f = pixman_fixed_frac(y);
 	pixman_fixed_t i = pixman_fixed_floor(y);
-
-	f = DIV(f - pixman_fixed_e - Y_FRAC_FIRST(n), STEP_Y_SMALL(n)) * STEP_Y_SMALL(n) +
-	    Y_FRAC_FIRST(n);
-
+	f = DIV(f - pixman_fixed_e - Y_FRAC_FIRST(n), STEP_Y_SMALL(n)) * STEP_Y_SMALL(n) + Y_FRAC_FIRST(n);
 	if(f < Y_FRAC_FIRST(n)) {
 		if(pixman_fixed_to_int(i) == 0x8000) {
 			f = 0; /* saturate */
@@ -351,37 +344,21 @@ static pixman_bool_t get_trap_extents(pixman_op_t op, pixman_image_t * dest, con
  * the (x, y) coordinates of the destination. Then these three images are
  * composited across the entire destination.
  */
-PIXMAN_EXPORT void pixman_composite_trapezoids(pixman_op_t op,
-    pixman_image_t *    src,
-    pixman_image_t *    dst,
-    pixman_format_code_t mask_format,
-    int x_src,
-    int y_src,
-    int x_dst,
-    int y_dst,
-    int n_traps,
-    const pixman_trapezoid_t * traps)
+PIXMAN_EXPORT void pixman_composite_trapezoids(pixman_op_t op, pixman_image_t *    src, pixman_image_t *    dst,
+    pixman_format_code_t mask_format, int x_src, int y_src, int x_dst, int y_dst, int n_traps, const pixman_trapezoid_t * traps)
 {
 	int i;
-
 	return_if_fail(PIXMAN_FORMAT_TYPE(mask_format) == PIXMAN_TYPE_A);
-
 	if(n_traps <= 0)
 		return;
-
 	_pixman_image_validate(src);
 	_pixman_image_validate(dst);
-
-	if(op == PIXMAN_OP_ADD &&
-	    (src->common.flags & FAST_PATH_IS_OPAQUE)               &&
-	    (mask_format == dst->common.extended_format_code)       &&
+	if(op == PIXMAN_OP_ADD && (src->common.flags & FAST_PATH_IS_OPAQUE)  && (mask_format == dst->common.extended_format_code) &&
 	    !(dst->common.have_clip_region)) {
 		for(i = 0; i < n_traps; ++i) {
 			const pixman_trapezoid_t * trap = &(traps[i]);
-
 			if(!pixman_trapezoid_valid(trap))
 				continue;
-
 			pixman_rasterize_trapezoid(dst, trap, x_dst, y_dst);
 		}
 	}
@@ -389,29 +366,17 @@ PIXMAN_EXPORT void pixman_composite_trapezoids(pixman_op_t op,
 		pixman_image_t * tmp;
 		pixman_box32_t box;
 		int i;
-
 		if(!get_trap_extents(op, dst, traps, n_traps, &box))
 			return;
-
-		if(!(tmp = pixman_image_create_bits(
-			    mask_format, box.x2 - box.x1, box.y2 - box.y1, NULL, -1)))
+		if(!(tmp = pixman_image_create_bits(mask_format, box.x2 - box.x1, box.y2 - box.y1, NULL, -1)))
 			return;
-
 		for(i = 0; i < n_traps; ++i) {
 			const pixman_trapezoid_t * trap = &(traps[i]);
-
 			if(!pixman_trapezoid_valid(trap))
 				continue;
-
 			pixman_rasterize_trapezoid(tmp, trap, -box.x1, -box.y1);
 		}
-
-		pixman_image_composite(op, src, tmp, dst,
-		    x_src + box.x1, y_src + box.y1,
-		    0, 0,
-		    x_dst + box.x1, y_dst + box.y1,
-		    box.x2 - box.x1, box.y2 - box.y1);
-
+		pixman_image_composite(op, src, tmp, dst, x_src + box.x1, y_src + box.y1, 0, 0, x_dst + box.x1, y_dst + box.y1, box.x2 - box.x1, box.y2 - box.y1);
 		pixman_image_unref(tmp);
 	}
 }

@@ -39,7 +39,7 @@
 //#include "cairo-combsort-inline.h"
 //#include "cairo-composite-rectangles-private.h"
 //#include "cairo-error-private.h"
-//#include "cairo-image-surface-private.h"
+////#include "cairo-image-surface-private.h"
 //#include "cairo-list-inline.h"
 //#include "cairo-pattern-private.h"
 //#include "cairo-output-stream-private.h"
@@ -47,7 +47,7 @@
 //#include "cairo-surface-subsurface-inline.h"
 //#include "cairo-reference-count-private.h"
 #if CAIRO_HAS_SCRIPT_SURFACE
-	#include "cairo-script-private.h"
+	//#include "cairo-script-private.h"
 #endif
 
 extern const cairo_surface_backend_t _cairo_surface_observer_backend;
@@ -1291,7 +1291,7 @@ static const char * operator_names[] = {
 	"HSL_COLOR",    /* CAIRO_OPERATOR_HSL_COLOR */
 	"HSL_LUMINOSITY" /* CAIRO_OPERATOR_HSL_LUMINOSITY */
 };
-static void print_operators(cairo_output_stream_t * stream, uint * array)
+static void FASTCALL print_operators(cairo_output_stream_t * stream, const uint * array)
 {
 	_cairo_output_stream_printf(stream, "  op:");
 	print_array(stream, array, operator_names, NUM_OPERATORS);
@@ -1302,7 +1302,8 @@ static const char * fill_rule_names[] = {
 	"non-zero",
 	"even-odd",
 };
-static void print_fill_rule(cairo_output_stream_t * stream, uint * array)
+
+static void print_fill_rule(cairo_output_stream_t * stream, const uint * array)
 {
 	_cairo_output_stream_printf(stream, "  fill rule:");
 	print_array(stream, array, fill_rule_names, ARRAY_LENGTH(fill_rule_names));
@@ -1314,7 +1315,7 @@ static const char * cap_names[] = {
 	"round", /* CAIRO_LINE_CAP_ROUND */
 	"square" /* CAIRO_LINE_CAP_SQUARE */
 };
-static void print_line_caps(cairo_output_stream_t * stream, uint * array)
+static void print_line_caps(cairo_output_stream_t * stream, const uint * array)
 {
 	_cairo_output_stream_printf(stream, "  caps:");
 	print_array(stream, array, cap_names, NUM_CAPS);
@@ -1326,7 +1327,7 @@ static const char * join_names[] = {
 	"round", /* CAIRO_LINE_JOIN_ROUND */
 	"bevel", /* CAIRO_LINE_JOIN_BEVEL */
 };
-static void print_line_joins(cairo_output_stream_t * stream, uint * array)
+static void print_line_joins(cairo_output_stream_t * stream, const uint * array)
 {
 	_cairo_output_stream_printf(stream, "  joins:");
 	print_array(stream, array, join_names, NUM_JOINS);
@@ -1342,7 +1343,7 @@ static const char * antialias_names[] = {
 	"good",
 	"best"
 };
-static void print_antialias(cairo_output_stream_t * stream, uint * array)
+static void print_antialias(cairo_output_stream_t * stream, const uint * array)
 {
 	_cairo_output_stream_printf(stream, "  antialias:");
 	print_array(stream, array, antialias_names, NUM_ANTIALIAS);

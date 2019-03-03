@@ -45,25 +45,22 @@
 #include "cairo-win32-private.h"
 //#include "cairo-array-private.h"
 //#include "cairo-error-private.h"
-#include "cairo-image-surface-private.h"
+//#include "cairo-image-surface-private.h"
 //#include "cairo-pattern-private.h"
-#include "cairo-scaled-font-subsets-private.h"
-
+//#include "cairo-scaled-font-subsets-private.h"
 #include <wchar.h>
-
 #ifndef SPI_GETFONTSMOOTHINGTYPE
-#define SPI_GETFONTSMOOTHINGTYPE 0x200a
+	#define SPI_GETFONTSMOOTHINGTYPE 0x200a
 #endif
 #ifndef FE_FONTSMOOTHINGCLEARTYPE
-#define FE_FONTSMOOTHINGCLEARTYPE 2
+	#define FE_FONTSMOOTHINGCLEARTYPE 2
 #endif
 #ifndef CLEARTYPE_QUALITY
-#define CLEARTYPE_QUALITY 5
+	#define CLEARTYPE_QUALITY 5
 #endif
 #ifndef TT_PRIM_CSPLINE
-#define TT_PRIM_CSPLINE 3
+	#define TT_PRIM_CSPLINE 3
 #endif
-
 #define CMAP_TAG 0x70616d63
 
 /**

@@ -641,8 +641,9 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 	Goods2Tbl::Rec goods_rec;
 	PPGoodsTaxEntry gtx;
 	MEMSZERO(lotr);
-
-	SString msg_buf, temp_buf;
+	SString temp_buf;
+	SString fmt_buf;
+	SString msg_buf;
 	SString serial;
 	(serial = pSerial).Strip();
 	int    by_serial = BIN(!(flags & CILTIF_EXCLUDESERIAL) && serial.NotEmpty());
@@ -661,7 +662,7 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 		THROW(pPack->InsertRow(&ti, &rows));
 		if(flags & CILTIF_SYNC) {
 			if(_RowNSyncDiag(ilti, rows, flags)) {
-				const uint ti_pos = (uint)rows.at(0);
+				const uint ti_pos = static_cast<uint>(rows.at(0));
 				pPack->TI(ti_pos).RByBill = ilti->RByBill;
 				full_sync = 1;
 			}
@@ -750,13 +751,17 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 				if(GetCorrectionBackChain(pPack->Rec, correction_bill_chain) > 0) {
 					double org_qtty = 0.0;
 					double org_price = 0.0;
-					if(trfr->GetOriginalValuesForCorrection(ti, correction_bill_chain, &org_qtty, &org_price) > 0) {
+					if(trfr->GetOriginalValuesForCorrection(ti, correction_bill_chain, 0, &org_qtty, &org_price) > 0) {
 						ti.Quantity_ += org_qtty;
 						ti.RevalCost = org_price;
 						ti.QuotPrice = fabs(org_qtty);
 					}
 					else {
-						// @todo Здесь надо как-то отреагировать (в лог что-то написать или что-то в этом роде)
+						PPLoadText(PPTXT_SYNCLOG_NOMATCHROWFOREXPCORR, fmt_buf);
+						PPObjBill::MakeCodeString(&pPack->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddObjName, temp_buf);
+						temp_buf.CatDiv(';', 2).CatChar('[').Cat(ti.RByBill).CatChar(']').Space().Cat(GetGoodsName(ti.GoodsID, SLS.AcquireRvlStr()));
+						msg_buf.Printf(fmt_buf, temp_buf.cptr());
+						PPLogMessage(PPFILNAM_SYNCLOT_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 					}
 				}
 			}
@@ -856,7 +861,7 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 			if(feqeps(qtty, 0.0, _qtty_epsilon)) { // @v9.4.0
 				if(flags & CILTIF_SYNC && sync_lot_id) {
 					if(_RowNSyncDiag(ilti, rows, flags)) {
-						const uint ti_pos = (uint)rows.at(0);
+						const uint ti_pos = static_cast<uint>(rows.at(0));
 						if(pPack->TI(ti_pos).LotID == sync_lot_id) {
 							pPack->TI(ti_pos).RByBill = ilti->RByBill;
 							full_sync = 1;

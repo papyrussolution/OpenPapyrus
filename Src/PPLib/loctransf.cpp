@@ -877,7 +877,7 @@ int SLAPI LocTransfDisposer::Dispose(const LocTransfDisposeItem & rItem, LocTran
 					double delta = rest - req_qtty;
 					if(delta < min_delta) {
 						min_delta = delta;
-						min_delta_idx = (int)i;
+						min_delta_idx = static_cast<int>(i);
 					}
 				}
 			}

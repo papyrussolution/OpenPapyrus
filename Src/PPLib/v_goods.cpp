@@ -610,7 +610,7 @@ struct __GoodsFilt {
 char * SLAPI GoodsFilt::WriteObjIdListFilt(char * p, const ObjIdListFilt & rList) const
 {
 	if(!rList.IsEmpty()) {
-		*(uint32*)p = rList.GetCount();
+		*(uint32 *)p = rList.GetCount();
 		p += sizeof(uint32);
 		PPID * p_id = (PPID *)p;
 		for(uint i = 0; i < rList.GetCount(); i++)
@@ -618,7 +618,7 @@ char * SLAPI GoodsFilt::WriteObjIdListFilt(char * p, const ObjIdListFilt & rList
 		p = (char *)p_id;
 	}
 	else {
-		*(uint32*)p = 0;
+		*(uint32 *)p = 0;
 		p += sizeof(uint32);
 	}
 	return p;
@@ -626,7 +626,7 @@ char * SLAPI GoodsFilt::WriteObjIdListFilt(char * p, const ObjIdListFilt & rList
 
 char * SLAPI GoodsFilt::ReadObjIdListFilt(char * p, ObjIdListFilt & rList)
 {
-	uint   list_count = (uint)*(uint32*)p;
+	uint   list_count = (uint)*(uint32 *)p;
 	p += sizeof(uint32);
 	rList.Set(0);
 	for(uint i = 0; i < list_count; i++) {
@@ -747,7 +747,7 @@ int SLAPI GoodsFilt::WriteToProp(PPID obj, PPID id, PPID prop)
 			CPY(Flags, long);
 #undef CPY
 			uint16 c = (uint16)P_SjF->ActionIDList.getCount();
-			*(uint16 *)p = c;
+			PTR16(p)[0] = c;
 			p += sizeof(uint16);
 			for(uint16 i = 0; i < c; i++) {
 				*(int32 *)p = P_SjF->ActionIDList.get(i);

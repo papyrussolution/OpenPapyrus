@@ -166,7 +166,7 @@ static const int num_format_defs =
 static int intsort(const void * a,
     const void * b)
 {
-	return(*(uint32*)a - *(uint32*)b);
+	return(*(uint32 *)a - *(uint32 *)b);
 }
 
 #endif
@@ -265,9 +265,9 @@ static inline uint32 convert_read_rgb(const uint8 * srcp, int bpp)
 		p |= *(srcp + 2) << 16;
 	}
 	else if(bpp == 4)
-		p = *((uint32*)(srcp));
+		p = *((uint32 *)(srcp));
 	else if(bpp == 2)
-		p = *((uint16*)(srcp));
+		p = *((uint16 *)(srcp));
 	else
 		p = *srcp;
 	return(p);
@@ -281,9 +281,9 @@ static inline void convert_write_rgb(uint8 * dstp, uint32 p, int bpp)
 		*(dstp + 2) = (uint8)((p >> 16) & 0xff);
 	}
 	else if(bpp == 4)
-		*((uint32*)dstp) = p;
+		*((uint32 *)dstp) = p;
 	else if(bpp == 2)
-		*((uint16*)dstp) = (uint16)p;
+		*((uint16 *)dstp) = (uint16)p;
 	else
 		*dstp = (uint8)p;
 }

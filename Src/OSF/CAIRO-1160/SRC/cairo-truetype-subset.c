@@ -48,7 +48,7 @@
 
 #if CAIRO_HAS_FONT_SUBSET
 
-#include "cairo-scaled-font-subsets-private.h"
+//#include "cairo-scaled-font-subsets-private.h"
 #include "cairo-truetype-subset-private.h"
 
 typedef struct subset_glyph subset_glyph_t;
@@ -441,7 +441,6 @@ static cairo_status_t cairo_truetype_font_write_cmap_table(cairo_truetype_font_t
 		for(j = winansi_unicode_ranges[i].start; j < winansi_unicode_ranges[i].end + 1; j++) {
 			int ch = _cairo_unicode_to_winansi(j);
 			int glyph;
-
 			if(ch > 0)
 				glyph = font->scaled_font_subset->latin_to_subset_glyph_index[ch];
 			else
@@ -449,12 +448,10 @@ static cairo_status_t cairo_truetype_font_write_cmap_table(cairo_truetype_font_t
 			cairo_truetype_font_write_be16(font, glyph);
 		}
 	}
-
 	return font->status;
 }
 
-static cairo_status_t cairo_truetype_font_write_generic_table(cairo_truetype_font_t * font,
-    ulong tag)
+static cairo_status_t cairo_truetype_font_write_generic_table(cairo_truetype_font_t * font, ulong tag)
 {
 	cairo_status_t status;
 	uchar * buffer;

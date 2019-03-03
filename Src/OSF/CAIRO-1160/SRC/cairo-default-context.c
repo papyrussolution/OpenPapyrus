@@ -43,9 +43,9 @@
 #include "cairo-arc-private.h"
 #include "cairo-backend-private.h"
 //#include "cairo-clip-inline.h"
-#include "cairo-default-context-private.h"
-////#include "cairo-error-private.h"
-#include "cairo-freed-pool-private.h"
+//#include "cairo-default-context-private.h"
+//#include "cairo-error-private.h"
+//#include "cairo-freed-pool-private.h"
 #include "cairo-path-private.h"
 //#include "cairo-pattern-private.h"
 
@@ -169,21 +169,13 @@ static cairo_status_t _cairo_default_context_push_group(void * abstract_cr, cair
 		 * the source pattern will get fixed up for the appropriate target surface
 		 * device offsets, so we want to set our own surface offsets from /that/,
 		 * and not from the device origin. */
-		cairo_surface_set_device_offset(group_surface,
-		    parent_surface->device_transform.x0 - extents.x,
-		    parent_surface->device_transform.y0 - extents.y);
-
-		cairo_surface_set_device_scale(group_surface,
-		    parent_surface->device_transform.xx,
-		    parent_surface->device_transform.yy);
+		cairo_surface_set_device_offset(group_surface, parent_surface->device_transform.x0 - extents.x, parent_surface->device_transform.y0 - extents.y);
+		cairo_surface_set_device_scale(group_surface, parent_surface->device_transform.xx, parent_surface->device_transform.yy);
 
 		/* If we have a current path, we need to adjust it to compensate for
 		 * the device offset just applied. */
-		_cairo_path_fixed_translate(cr->path,
-		    _cairo_fixed_from_int(-extents.x),
-		    _cairo_fixed_from_int(-extents.y));
+		_cairo_path_fixed_translate(cr->path, _cairo_fixed_from_int(-extents.x), _cairo_fixed_from_int(-extents.y));
 	}
-
 	/* create a new gstate for the redirect */
 	status = _cairo_gstate_save(&cr->gstate, &cr->gstate_freelist);
 	if(unlikely(status))

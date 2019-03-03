@@ -350,13 +350,13 @@ int SLAPI GoodsCore::Validate(const Goods2Tbl::Rec * pRec)
 	const  long  k = pRec->Kind;
 	Goods2Tbl::Rec parent_rec;
 	if(k == PPGDSK_GOODS) {
-		THROW_PP(pRec->ParentID, PPERR_GOODSGROUPNEEDED);
-		THROW_PP(Fetch(pRec->ParentID, &parent_rec) > 0, PPERR_GOODSGROUPNEEDED);
+		THROW_PP_S(pRec->ParentID, PPERR_GOODSGROUPNEEDED, pRec->Name); // @v10.3.6 THROW_PP-->THROW_PP_S(..,pRec->Name)
+		THROW_PP_S(Fetch(pRec->ParentID, &parent_rec) > 0, PPERR_GOODSGROUPNEEDED, pRec->Name); // @v10.3.6 THROW_PP-->THROW_PP_S(..,pRec->Name)
 		THROW_PP_S(!(parent_rec.Flags & (GF_ALTGROUP|GF_FOLDER)), PPERR_INVGOODSPARENT, pRec->Name)
 	}
 	else if(k == PPGDSK_GROUP) {
 		if(pRec->ParentID) {
-			THROW_PP(Fetch(pRec->ParentID, &parent_rec) > 0, PPERR_GOODSGROUPNEEDED);
+			THROW_PP_S(Fetch(pRec->ParentID, &parent_rec) > 0, PPERR_GOODSGROUPNEEDED, pRec->Name); // @v10.3.6 THROW_PP-->THROW_PP_S(..,pRec->Name)
 			THROW_PP_S(parent_rec.Flags & GF_FOLDER, PPERR_INVGOODSPARENT, pRec->Name)
 		}
 	}
@@ -1542,7 +1542,7 @@ int SLAPI GoodsCore::Helper_ReadArCodes(PPID goodsID, PPID arID, ArGoodsCodeArra
 				ok = 1;
 			}
 		} while(ACodT.search(2, &k2, spNext) && k2.GoodsID == goodsID);
-		// } @v10.3.0 
+		// } @v10.3.0
 		THROW_DB(BTROKORNFOUND);
 	}
 	CATCHZOK
@@ -2289,7 +2289,7 @@ int SLAPI GoodsCore::BelongToGen(PPID goodsID, PPID * pGenID, ObjAssocTbl::Rec *
 		}
 		else {
 			ObjAssocTbl::Rec assc_rec;
-			SEnum en = P_Ref->Assc.Enum(PPASS_GENGOODS, goodsID, 1); 
+			SEnum en = P_Ref->Assc.Enum(PPASS_GENGOODS, goodsID, 1);
 			if(en.Next(&assc_rec) > 0) {
 				ASSIGN_PTR(pGenID, assc_rec.PrmrObjID);
 				ASSIGN_PTR(b, assc_rec);

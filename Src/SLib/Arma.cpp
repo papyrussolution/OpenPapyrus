@@ -578,7 +578,7 @@ void TestRdi(const char * pOutFileName)
 	}
 	fprintf(p_out, "Queue\n");
 	for(i = 0; i < 7; i++)
-		fprintf(p_out, "%f ", *(double*) queue.get(i));
+		fprintf(p_out, "%f ", *(double *) queue.get(i));
 	rdi.Init(&queue);
 	fprintf(p_out, "\n\n Diff. Vals.\n");
 	for(i = 8; i < 11; i++) {
@@ -589,7 +589,7 @@ void TestRdi(const char * pOutFileName)
 	rdi.GetQueue(&queue);
 	fprintf(p_out, "\n\nChanged Queue\n");
 	for(i = 0; i < 7; i++)
-		fprintf(p_out, "%f ", *(double*) queue.get(i));
+		fprintf(p_out, "%f ", *(double *) queue.get(i));
 	SFile::ZClose(&p_out);
 }
 

@@ -33,7 +33,6 @@ template <class objcls, class objrec> inline void dbqf_objname_i(int option, DBC
 		}
 		// @v9.9.4
 		//result->init(rec.Name);
-
 		result->InitForeignStr(SLS.AcquireRvlStr() = rec.Name); // @v9.9.4
 	}
 }
@@ -97,7 +96,7 @@ template <class objcls, class objrec> inline void dbqf_objsymb_i(int option, DBC
 static IMPL_DBE_PROC(dbqf_empty)
 {
 	if(option == CALC_SIZE)
-		result->init((long)4);
+		result->init(4L);
 	else {
 		union {
 			char   buf[16];
@@ -111,7 +110,7 @@ static IMPL_DBE_PROC(dbqf_empty)
 static IMPL_DBE_PROC(dbqf_tseslnflags_i)
 {
 	if(option == CALC_SIZE)
-		result->init((long)8);
+		result->init(8L);
 	else {
 		long   flags = params[0].lval;
 		char   buf[8];
@@ -1572,7 +1571,7 @@ void FASTCALL PPDbqFuncPool::InitObjNameFunc(DBE & rDbe, int funcId, DBField & r
 {
 	rDbe.init();
 	rDbe.push(rFld);
-	rDbe.push((DBFunc)funcId);
+	rDbe.push(static_cast<DBFunc>(funcId));
 }
 
 // static
@@ -1581,7 +1580,7 @@ void FASTCALL PPDbqFuncPool::InitObjTagTextFunc(DBE & rDbe, PPID tagID, DBField 
 	rDbe.init();
 	rDbe.push(dbconst(tagID));
 	rDbe.push(rFld);
-	rDbe.push((DBFunc)PPDbqFuncPool::IdObjTagText);
+	rDbe.push(static_cast<DBFunc>(PPDbqFuncPool::IdObjTagText));
 }
 
 //static
@@ -1589,7 +1588,7 @@ void FASTCALL PPDbqFuncPool::InitLongFunc(DBE & rDbe, int funcId, DBField & rFld
 {
 	rDbe.init();
 	rDbe.push(rFld);
-	rDbe.push((DBFunc)funcId);
+	rDbe.push(static_cast<DBFunc>(funcId));
 }
 
 //static
@@ -1598,7 +1597,7 @@ void FASTCALL PPDbqFuncPool::InitFunc2Arg(DBE & rDbe, int funcId, DBItem & rA1, 
 	rDbe.init();
 	rDbe.push(rA1);
 	rDbe.push(rA2);
-	rDbe.push((DBFunc)funcId);
+	rDbe.push(static_cast<DBFunc>(funcId));
 }
 
 //static

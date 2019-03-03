@@ -41,20 +41,17 @@
 //#include "cairo-clip-private.h"
 
 CAIRO_BEGIN_DECLS
+	typedef struct _cairo_surface_clipper cairo_surface_clipper_t;
+	typedef cairo_status_t (*cairo_surface_clipper_intersect_clip_path_func_t)(cairo_surface_clipper_t *, cairo_path_fixed_t *, cairo_fill_rule_t, double, cairo_antialias_t);
 
-typedef struct _cairo_surface_clipper cairo_surface_clipper_t;
+	struct _cairo_surface_clipper {
+		cairo_clip_t * clip;
+		cairo_surface_clipper_intersect_clip_path_func_t intersect_clip_path;
+	};
 
-typedef cairo_status_t (*cairo_surface_clipper_intersect_clip_path_func_t)(cairo_surface_clipper_t *, cairo_path_fixed_t *, cairo_fill_rule_t, double, cairo_antialias_t);
-
-struct _cairo_surface_clipper {
-	cairo_clip_t * clip;
-	cairo_surface_clipper_intersect_clip_path_func_t intersect_clip_path;
-};
-
-cairo_private cairo_status_t _cairo_surface_clipper_set_clip(cairo_surface_clipper_t * clipper, const cairo_clip_t * clip);
-cairo_private void _cairo_surface_clipper_init(cairo_surface_clipper_t * clipper, cairo_surface_clipper_intersect_clip_path_func_t intersect);
-cairo_private void _cairo_surface_clipper_reset(cairo_surface_clipper_t * clipper);
-
+	cairo_private cairo_status_t _cairo_surface_clipper_set_clip(cairo_surface_clipper_t * clipper, const cairo_clip_t * clip);
+	cairo_private void _cairo_surface_clipper_init(cairo_surface_clipper_t * clipper, cairo_surface_clipper_intersect_clip_path_func_t intersect);
+	cairo_private void _cairo_surface_clipper_reset(cairo_surface_clipper_t * clipper);
 CAIRO_END_DECLS
 
 #endif /* CAIRO_SURFACE_CLIPPER_PRIVATE_H */

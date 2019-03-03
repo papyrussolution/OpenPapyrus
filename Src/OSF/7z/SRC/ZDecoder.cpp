@@ -53,7 +53,7 @@ namespace NCompress {
 			// Speed optimization: blockSymbol can contain unused velue.
 			if(maxbits != _numMaxBits || _parents == 0 || _suffixes == 0 || _stack == 0) {
 				Free();
-				_parents = (uint16*)SAlloc::M(numItems * sizeof(uint16)); if(_parents == 0) return E_OUTOFMEMORY;
+				_parents = (uint16 *)SAlloc::M(numItems * sizeof(uint16)); if(_parents == 0) return E_OUTOFMEMORY;
 				_suffixes = (Byte*)SAlloc::M(numItems * sizeof(Byte)); if(_suffixes == 0) return E_OUTOFMEMORY;
 				_stack = (Byte*)SAlloc::M(numItems * sizeof(Byte)); if(_stack == 0) return E_OUTOFMEMORY;
 				_numMaxBits = maxbits;

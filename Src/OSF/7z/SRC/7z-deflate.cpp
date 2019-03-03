@@ -141,14 +141,14 @@ namespace NCompress {
 				}
 				if(m_IsMultiPass) {
 					if(m_OnePosMatchesMemory == 0) {
-						m_OnePosMatchesMemory = (uint16*)::MidAlloc(kMatchArraySize * sizeof(uint16));
+						m_OnePosMatchesMemory = (uint16 *)::MidAlloc(kMatchArraySize * sizeof(uint16));
 						if(m_OnePosMatchesMemory == 0)
 							return E_OUTOFMEMORY;
 					}
 				}
 				else {
 					if(m_DistanceMemory == 0) {
-						m_DistanceMemory = (uint16*)SAlloc::M((kMatchMaxLen + 2) * 2 * sizeof(uint16));
+						m_DistanceMemory = (uint16 *)SAlloc::M((kMatchMaxLen + 2) * 2 * sizeof(uint16));
 						if(m_DistanceMemory == 0)
 							return E_OUTOFMEMORY;
 						m_MatchDistances = m_DistanceMemory;

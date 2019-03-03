@@ -39,13 +39,13 @@
 #define CAIRO_IMAGE_SURFACE_INLINE_H
 
 //#include "cairo-surface-private.h"
-//#include "cairo-image-surface-private.h"
+////#include "cairo-image-surface-private.h"
 
 CAIRO_BEGIN_DECLS
 
 static inline cairo_image_surface_t * _cairo_image_surface_create_in_error(cairo_status_t status)
 {
-	return (cairo_image_surface_t *)_cairo_surface_create_in_error(status);
+	return reinterpret_cast<cairo_image_surface_t *>(_cairo_surface_create_in_error(status));
 }
 
 static inline void _cairo_image_surface_set_parent(cairo_image_surface_t * image, cairo_surface_t * parent)

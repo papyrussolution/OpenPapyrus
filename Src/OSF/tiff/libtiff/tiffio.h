@@ -454,11 +454,11 @@ extern tmsize_t TIFFWriteEncodedTile(TIFF* tif, uint32 tile, void* data, tmsize_
 extern tmsize_t TIFFWriteRawTile(TIFF* tif, uint32 tile, void* data, tmsize_t cc);  
 extern int TIFFDataWidth(TIFFDataType);    /* table of tag datatype widths */
 extern void TIFFSetWriteOffset(TIFF* tif, toff_t off);
-extern void FASTCALL TIFFSwabShort(uint16*);
-extern void FASTCALL TIFFSwabLong(uint32*);
-extern void FASTCALL TIFFSwabLong8(uint64*);
+extern void FASTCALL TIFFSwabShort(uint16 *);
+extern void FASTCALL TIFFSwabLong(uint32 *);
+extern void FASTCALL TIFFSwabLong8(uint64 *);
 extern void TIFFSwabFloat(float *);
-extern void TIFFSwabDouble(double*);
+extern void TIFFSwabDouble(double *);
 extern void FASTCALL TIFFSwabArrayOfShort(uint16* wp, tmsize_t n);
 extern void TIFFSwabArrayOfTriples(uint8* tp, tmsize_t n);
 extern void FASTCALL TIFFSwabArrayOfLong(uint32* lp, tmsize_t n);

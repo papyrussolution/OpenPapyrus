@@ -177,7 +177,6 @@ static inline cairo_quorem64_t _cairo_int64_divrem(cairo_int64_t num, cairo_int6
 	int den_neg = _cairo_int64_negative(den);
 	cairo_uquorem64_t uqr;
 	cairo_quorem64_t qr;
-
 	if(num_neg)
 		num = _cairo_int64_negate(num);
 	if(den_neg)
@@ -188,9 +187,9 @@ static inline cairo_quorem64_t _cairo_int64_divrem(cairo_int64_t num, cairo_int6
 	else
 		qr.rem = uqr.rem;
 	if(num_neg != den_neg)
-		qr.quo = (cairo_int64_t)_cairo_int64_negate(uqr.quo);
+		qr.quo = static_cast<cairo_int64_t>(_cairo_int64_negate(uqr.quo));
 	else
-		qr.quo = (cairo_int64_t)uqr.quo;
+		qr.quo = static_cast<cairo_int64_t>(uqr.quo);
 	return qr;
 }
 
@@ -199,7 +198,7 @@ static inline int32_t _cairo_int64_32_div(cairo_int64_t num, int32_t den)
 #if !HAVE_UINT64_T
 	return _cairo_int64_to_int32 (_cairo_int64_divrem(num, _cairo_int32_to_int64(den)).quo);
 #else
-	return (int32_t)(num / den);
+	return static_cast<int32_t>(num / den);
 #endif
 }
 

@@ -37,12 +37,12 @@
 #pragma hdrstop
 #if CAIRO_HAS_QUARTZ_SURFACE // {
 
-#include "cairo-image-surface-inline.h"
+//#include "cairo-image-surface-inline.h"
 #include "cairo-quartz-image.h"
 #include "cairo-quartz-private.h"
 #include "cairo-surface-backend-private.h"
 //#include "cairo-error-private.h"
-#include "cairo-default-context-private.h"
+//#include "cairo-default-context-private.h"
 
 #define SURFACE_ERROR_NO_MEMORY (_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY)))
 #define SURFACE_ERROR_TYPE_MISMATCH (_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH)))

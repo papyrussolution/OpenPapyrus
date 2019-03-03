@@ -209,7 +209,7 @@ int SLAPI PPViewLinkedBill::InitIteration()
 int FASTCALL PPViewLinkedBill::NextIteration(LinkedBillViewItem * pItem)
 {
 	int    ok = -1;
-	if(pItem && P_BObj) {
+	if(P_BObj) {
 		while(Counter < Counter.GetTotal() && ok < 0) {
 			if(pItem) {
 				const Entry & r_entry = List.at(Counter);
@@ -330,7 +330,7 @@ int SLAPI PPViewLinkedBill::MakeList()
 
 	int    ok = 1;
 	BillCore * p_bt = P_BObj->P_Tbl;
-	Entry  entry, * p_entry;
+	Entry  entry;
 	uint   blnk = 0;
 	PPID   member_id = 0;
 	PPObjBillStatus bs_obj;
@@ -391,6 +391,9 @@ int SLAPI PPViewLinkedBill::MakeList()
 				r = p_bt->EnumLinks(Filt.BillID, &diter, blnk, &bill_rec);
 				link_kind = 3;
 				break;
+			default: // @v10.3.6
+				r = -1;
+				break;
 		}
 		THROW(r)
 		if(r > 0) {
@@ -423,8 +426,17 @@ int SLAPI PPViewLinkedBill::MakeList()
 	}
 	List.sort(CMPF_LONG);
 	if(Filt.Kind__ != LinkedBillFilt::lkCharge) {
+		// @v10.3.6 {
+		for(uint i = 0; i < List.getCount(); i++) {
+			Entry & r_entry = List.at(i);
+			r_entry.Rest = (debt -= r_entry.Payment);
+		}
+		// } @v10.3.6 
+		/* @v10.3.6 
+		Entry * p_entry;
 		for(uint i = 0; List.enumItems(&i, (void**)&p_entry);)
 			p_entry->Rest = (debt -= p_entry->Payment);
+		*/
 	}
 	CATCHZOK
 	return ok;
@@ -455,7 +467,7 @@ int SLAPI PPViewLinkedBill::Print(const void * pHdr)
 	int    ok = -1;
 	if(pHdr) {
 		PPBillPacket pack;
-		PPID   bill_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   bill_id = *static_cast<const PPID *>(pHdr);
 		if(bill_id) {
 			if(P_BObj->ExtractPacket(bill_id, &pack))
 				if(Filt.Kind__ == LinkedBillFilt::lkWrOffDraft || pack.Rec.Flags & BILLF_BANKING || CheckOpPrnFlags(pack.Rec.OpID, OPKF_PRT_INVOICE))
@@ -638,7 +650,7 @@ int SLAPI PPViewLinkedBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 					if(pBrw && pBrw->GetToolbarComboData(&kind) && Filt.Kind__ != kind) {
 						Filt.Kind__ = kind;
 						ok = ChangeFilt(1, pBrw);
-						p_def = pBrw ? static_cast<AryBrowserDef *>(pBrw->getDef()) : 0; // @v10.3.1
+						p_def = static_cast<AryBrowserDef *>(pBrw->getDef()); // @v10.3.1
 					}
 				}
 				break;

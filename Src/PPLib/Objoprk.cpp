@@ -939,6 +939,18 @@ int SLAPI PPObjOprKind::GetEdiWrOffShopOp(PPID * pID, int use_ta)
 	return Helper_GetReservedOp(pID, blk, use_ta);
 }
 
+int SLAPI PPObjOprKind::GetEdiWrOffWithMarksOp(PPID * pID, int use_ta)
+{
+	ReservedOpCreateBlock blk;
+	blk.OpID = PPOPK_EDI_WROFFWITHMARKS;
+	blk.OpTypeID = PPOPT_DRAFTEXPEND;
+	blk.NameTxtId = PPTXT_OPK_EDI_WRITEOFFWITHMARKS;
+	blk.Flags = 0;
+	blk.P_Symb = "EDIWROFFWITHMARKS";
+	blk.P_CodeTempl = "EDIWOM%05";
+	return Helper_GetReservedOp(pID, blk, use_ta);
+}
+
 //virtual
 int SLAPI PPObjOprKind::MakeReserved(long flags)
 {

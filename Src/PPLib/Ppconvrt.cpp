@@ -1227,7 +1227,7 @@ public:
 		p_data->ObjType = p_old_sj_rec->ObjType;
 		p_data->ObjID = p_old_sj_rec->ObjID;
 		if(p_data->Action == PPACN_EXPCASHSESS) {
-			int16 e = *(int16*)p_old_sj_rec->Info;
+			int16 e = *(int16 *)p_old_sj_rec->Info;
 			p_data->Extra = e;
 		}
 		else
@@ -4014,7 +4014,7 @@ public:
 	}
 	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
-		ObjAssocTbl::Rec * p_data = (ObjAssocTbl::Rec*)pNewTbl->getDataBuf();
+		ObjAssocTbl::Rec * p_data = static_cast<ObjAssocTbl::Rec *>(pNewTbl->getDataBuf());
 		memcpy(p_data, pOldRec, sizeof(ObjAssocTbl::Rec));
 		return 1;
 	}
@@ -4181,7 +4181,7 @@ public:
 	{
 #define FLD_ASSIGN(f) p_data->f = p_old_rec->f
 		pNewTbl->clearDataBuf();
-		LocationTbl::Rec * p_data = (LocationTbl::Rec *)pNewTbl->getDataBuf();
+		LocationTbl::Rec * p_data = static_cast<LocationTbl::Rec *>(pNewTbl->getDataBuf());
 		if(Before5207) {
 			struct OldLocationRec {
 				long   ID;
@@ -4197,13 +4197,13 @@ public:
 				char   Reserve[2];
 				long   RspnsPersonID;
 				char   Code[10];
-			} * p_old_rec = (OldLocationRec*)pOldRec;
+			} * p_old_rec = static_cast<OldLocationRec *>(pOldRec);
 			FLD_ASSIGN(ID);
 			FLD_ASSIGN(Counter);
 			FLD_ASSIGN(ParentID);
 			FLD_ASSIGN(OwnerID);
-			p_data->Type  = (int16)p_old_rec->Type;
-			p_data->Flags = (int16)p_old_rec->Flags;
+			p_data->Type  = static_cast<int16>(p_old_rec->Type);
+			p_data->Flags = static_cast<int16>(p_old_rec->Flags);
 			FLD_ASSIGN(CityID);
 			FLD_ASSIGN(RspnsPersonID);
 			STRNSCPY(p_data->Name, p_old_rec->Name);
@@ -4213,13 +4213,13 @@ public:
 			return 1;
 		}
 		else {
-			Location_Before6202 * p_old_rec = (Location_Before6202 *)pOldRec;
+			Location_Before6202 * p_old_rec = static_cast<Location_Before6202 *>(pOldRec);
 			FLD_ASSIGN(ID);
 			FLD_ASSIGN(Counter);
 			FLD_ASSIGN(ParentID);
 			FLD_ASSIGN(OwnerID);
-			p_data->Type  = (int16)p_old_rec->Type;
-			p_data->Flags = (int16)p_old_rec->Flags;
+			p_data->Type  = static_cast<int16>(p_old_rec->Type);
+			p_data->Flags = static_cast<int16>(p_old_rec->Flags);
 			FLD_ASSIGN(CityID);
 			FLD_ASSIGN(RspnsPersonID);
 			FLD_ASSIGN(NumRows);
@@ -4270,8 +4270,8 @@ public:
 	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		pNewTbl->clearDataBuf();
-		WorldTbl::Rec * p_data = (WorldTbl::Rec *)pNewTbl->getDataBuf();
-		World_Before6202 * p_old_rec = (World_Before6202 *)pOldRec;
+		WorldTbl::Rec * p_data = static_cast<WorldTbl::Rec *>(pNewTbl->getDataBuf());
+		World_Before6202 * p_old_rec = static_cast<World_Before6202 *>(pOldRec);
 #define FLD_ASSIGN(f) p_data->f = p_old_rec->f
 		FLD_ASSIGN(ID);
 		FLD_ASSIGN(Kind);
@@ -4318,7 +4318,7 @@ public:
 	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		pNewTbl->clearDataBuf();
-		PersonTbl::Rec * p_data = (PersonTbl::Rec *)pNewTbl->getDataBuf();
+		PersonTbl::Rec * p_data = static_cast<PersonTbl::Rec *>(pNewTbl->getDataBuf());
 		Person_Before6202 * p_old_rec = (Person_Before6202 *)pOldRec;
 #define FLD_ASSIGN(f) p_data->f = p_old_rec->f
 		FLD_ASSIGN(ID);
@@ -4358,8 +4358,8 @@ public:
 	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		pNewTbl->clearDataBuf();
-		PersonKindTbl::Rec * p_data = (PersonKindTbl::Rec *)pNewTbl->getDataBuf();
-		PersonKind_Before6202 * p_old_rec = (PersonKind_Before6202 *)pOldRec;
+		PersonKindTbl::Rec * p_data = static_cast<PersonKindTbl::Rec *>(pNewTbl->getDataBuf());
+		PersonKind_Before6202 * p_old_rec = static_cast<PersonKind_Before6202 *>(pOldRec);
 #define FLD_ASSIGN(f) p_data->f = p_old_rec->f
 		FLD_ASSIGN(KindID);
 		FLD_ASSIGN(PersonID);
@@ -4397,8 +4397,8 @@ public:
 	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		pNewTbl->clearDataBuf();
-		ArticleTbl::Rec * p_data = (ArticleTbl::Rec *)pNewTbl->getDataBuf();
-		Article_Before6202 * p_old_rec = (Article_Before6202 *)pOldRec;
+		ArticleTbl::Rec * p_data = static_cast<ArticleTbl::Rec *>(pNewTbl->getDataBuf());
+		Article_Before6202 * p_old_rec = static_cast<Article_Before6202 *>(pOldRec);
 #define FLD_ASSIGN(f) p_data->f = p_old_rec->f
 		FLD_ASSIGN(ID);
 		FLD_ASSIGN(AccSheetID);
@@ -4611,8 +4611,8 @@ public:
 	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		pNewTbl->clearDataBuf();
-		AdvBillItemTbl::Rec * p_data = (AdvBillItemTbl::Rec *)pNewTbl->getDataBuf();
-		AdvBillItem_Before6202 * p_old_rec = (AdvBillItem_Before6202 *)pOldRec;
+		AdvBillItemTbl::Rec * p_data = static_cast<AdvBillItemTbl::Rec *>(pNewTbl->getDataBuf());
+		AdvBillItem_Before6202 * p_old_rec = static_cast<AdvBillItem_Before6202 *>(pOldRec);
 #define FLD_ASSIGN(f) p_data->f = p_old_rec->f
 		FLD_ASSIGN(BillID);
 		FLD_ASSIGN(RByBill);
@@ -4686,8 +4686,8 @@ public:
 	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		pNewTbl->clearDataBuf();
-		PrjTaskTbl::Rec * p_data = (PrjTaskTbl::Rec *)pNewTbl->getDataBuf();
-		PrjTask_Before6202 * p_old_rec = (PrjTask_Before6202 *)pOldRec;
+		PrjTaskTbl::Rec * p_data = static_cast<PrjTaskTbl::Rec *>(pNewTbl->getDataBuf());
+		PrjTask_Before6202 * p_old_rec = static_cast<PrjTask_Before6202 *>(pOldRec);
 #define FLD_ASSIGN(f) p_data->f = p_old_rec->f
 		FLD_ASSIGN(ID);
 		FLD_ASSIGN(ProjectID);
@@ -4761,8 +4761,8 @@ public:
 	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		pNewTbl->clearDataBuf();
-		ProjectTbl::Rec * p_data = (ProjectTbl::Rec *)pNewTbl->getDataBuf();
-		Project_Before6202 * p_old_rec = (Project_Before6202 *)pOldRec;
+		ProjectTbl::Rec * p_data = static_cast<ProjectTbl::Rec *>(pNewTbl->getDataBuf());
+		Project_Before6202 * p_old_rec = static_cast<Project_Before6202 *>(pOldRec);
 #define FLD_ASSIGN(f) p_data->f = p_old_rec->f
 		FLD_ASSIGN(ID);
 		FLD_ASSIGN(Kind);
@@ -4820,8 +4820,8 @@ public:
 	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		pNewTbl->clearDataBuf();
-		ObjSyncQueueTbl::Rec * p_data = (ObjSyncQueueTbl::Rec *)pNewTbl->getDataBuf();
-		ObjSyncQueue_Before6202 * p_old_rec = (ObjSyncQueue_Before6202 *)pOldRec;
+		ObjSyncQueueTbl::Rec * p_data = static_cast<ObjSyncQueueTbl::Rec *>(pNewTbl->getDataBuf());
+		ObjSyncQueue_Before6202 * p_old_rec = static_cast<ObjSyncQueue_Before6202 *>(pOldRec);
 #define FLD_ASSIGN(f) p_data->f = p_old_rec->f
 		FLD_ASSIGN(ID);
 		FLD_ASSIGN(DBID);
@@ -5162,7 +5162,7 @@ class PPCvtCurRest6611 : public PPTableConversion {
 	}
 	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
-		CurRestTbl::Rec * p_data = (CurRestTbl::Rec*)pNewTbl->getDataBuf();
+		CurRestTbl::Rec * p_data = static_cast<CurRestTbl::Rec *>(pNewTbl->getDataBuf());
 		memcpy(p_data, pOldRec, sizeof(CurRestTbl::Rec));
 		return 1;
 	}
@@ -5317,7 +5317,7 @@ class PPCvtQuot2Rel7305 : public PPTableConversion {
 	}
 	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
-		Quot2RelTbl::Rec * p_data = (Quot2RelTbl::Rec*)pNewTbl->getDataBuf();
+		Quot2RelTbl::Rec * p_data = static_cast<Quot2RelTbl::Rec *>(pNewTbl->getDataBuf());
 		memcpy(p_data, pOldRec, sizeof(Quot2RelTbl::Rec));
 		return 1;
 	}
@@ -5340,8 +5340,8 @@ class PPCvtObjTag7305 : public PPTableConversion {
 	}
 	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
-		ObjTagTbl::Rec * p_data = (ObjTagTbl::Rec*)pNewTbl->getDataBuf();
-		ObjTagTbl::Rec * p_old_rec = (ObjTagTbl::Rec *)pOldRec;
+		ObjTagTbl::Rec * p_data = static_cast<ObjTagTbl::Rec *>(pNewTbl->getDataBuf());
+		ObjTagTbl::Rec * p_old_rec = static_cast<ObjTagTbl::Rec *>(pOldRec);
 		memzero(p_data, sizeof(*p_data));
 #define CPYFLD(f) p_data->f = p_old_rec->f
 		CPYFLD(ObjType);
@@ -5500,7 +5500,7 @@ class PPCvtTech7506 : public PPTableConversion {
 	}
 	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
-		TechTbl::Rec * p_data = (TechTbl::Rec*)pNewTbl->getDataBuf();
+		TechTbl::Rec * p_data = static_cast<TechTbl::Rec *>(pNewTbl->getDataBuf());
 		memcpy(p_data, pOldRec, sizeof(TechTbl::Rec));
 		p_data->ParentID = 0;
 		p_data->OrderN = ++OrderN_Counter;
@@ -5571,9 +5571,9 @@ private:
 	}
 	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
-		CCheckExtTbl::Rec * p_data = (CCheckExtTbl::Rec *)pNewTbl->getDataBuf();
-		CCheckExt_Before6708 * p_old_rec_6708 = (CCheckExt_Before6708 *)pOldRec;
-		CCheckExt_Before7601 * p_old_rec_7601 = (CCheckExt_Before7601 *)pOldRec;
+		CCheckExtTbl::Rec * p_data = static_cast<CCheckExtTbl::Rec *>(pNewTbl->getDataBuf());
+		CCheckExt_Before6708 * p_old_rec_6708 = static_cast<CCheckExt_Before6708 *>(pOldRec);
+		CCheckExt_Before7601 * p_old_rec_7601 = static_cast<CCheckExt_Before7601 *>(pOldRec);
 		memzero(p_data, sizeof(*p_data));
 		if(Pre6708) {
 			p_data->CheckID = p_old_rec_6708->CheckID;
@@ -5719,7 +5719,7 @@ public:
 	}
 	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
-		SysJournalTbl::Rec * p_data = (SysJournalTbl::Rec*)pNewTbl->getDataBuf();
+		SysJournalTbl::Rec * p_data = static_cast<SysJournalTbl::Rec *>(pNewTbl->getDataBuf());
 		memcpy(p_data, pOldRec, sizeof(*p_data));
 		return 1;
 	}
@@ -5742,7 +5742,7 @@ public:
 	}
 	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
-		SjRsrvTbl::Rec * p_data = (SjRsrvTbl::Rec*)pNewTbl->getDataBuf();
+		SjRsrvTbl::Rec * p_data = static_cast<SjRsrvTbl::Rec *>(pNewTbl->getDataBuf());
 		memcpy(p_data, pOldRec, sizeof(*p_data));
 		return 1;
 	}
@@ -5836,7 +5836,7 @@ public:
 	}
 	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
-		CSessionTbl::Rec * p_data = (CSessionTbl::Rec*)pNewTbl->getDataBuf();
+		CSessionTbl::Rec * p_data = static_cast<CSessionTbl::Rec *>(pNewTbl->getDataBuf());
 		memcpy(p_data, pOldRec, sizeof(*p_data));
 		return 1;
 	}
@@ -6177,8 +6177,8 @@ public:
 			long   Flags;
 			long   ExtID; // @v9.0.4 Reserve-->ExtID
 		};
-		RegisterTbl::Rec * p_data = (RegisterTbl::Rec*)pNewTbl->getDataBuf();
-		RegisterTblRec_Before8306 * p_old_rec = (RegisterTblRec_Before8306 *)pOldRec;
+		RegisterTbl::Rec * p_data = static_cast<RegisterTbl::Rec *>(pNewTbl->getDataBuf());
+		RegisterTblRec_Before8306 * p_old_rec = static_cast<RegisterTblRec_Before8306 *>(pOldRec);
 		memzero(p_data, sizeof(*p_data));
 #define CPYFLD(f) p_data->f = p_old_rec->f
 		CPYFLD(ID);
@@ -6740,8 +6740,8 @@ public:
 			double SaldoAmount;
 			uint8  Reserve[20];
 		};
-		GoodsDebtTbl::Rec * p_data = (GoodsDebtTbl::Rec*)pNewTbl->getDataBuf();
-		GoodsDebtTblRec_Before9108 * p_old_rec = (GoodsDebtTblRec_Before9108 *)pOldRec;
+		GoodsDebtTbl::Rec * p_data = static_cast<GoodsDebtTbl::Rec *>(pNewTbl->getDataBuf());
+		GoodsDebtTblRec_Before9108 * p_old_rec = static_cast<GoodsDebtTblRec_Before9108 *>(pOldRec);
 		memzero(p_data, sizeof(*p_data));
 #define CPYFLD(f) p_data->f = p_old_rec->f
 		CPYFLD(GoodsID);
@@ -6784,8 +6784,8 @@ public:
 			LDATE  ActualDate;
 			//long   Flags; // @v9.2.12
 		};
-		EgaisProductTbl::Rec * p_data = (EgaisProductTbl::Rec*)pNewTbl->getDataBuf();
-		EgaisProductTblRec_Before9214 * p_old_rec = (EgaisProductTblRec_Before9214 *)pOldRec;
+		EgaisProductTbl::Rec * p_data = static_cast<EgaisProductTbl::Rec *>(pNewTbl->getDataBuf());
+		EgaisProductTblRec_Before9214 * p_old_rec = static_cast<EgaisProductTblRec_Before9214 *>(pOldRec);
 		memzero(p_data, sizeof(*p_data));
 #define CPYFLD(f) p_data->f = p_old_rec->f
 		CPYFLD(ID);
@@ -6877,12 +6877,12 @@ private:
 			uint8  Reserve[20];
 		};
 		int    ok = 1;
-		SCardTbl::Rec * p_data = (SCardTbl::Rec*)pNewTbl->getDataBuf();
+		SCardTbl::Rec * p_data = static_cast<SCardTbl::Rec *>(pNewTbl->getDataBuf());
 		memzero(p_data, sizeof(*p_data));
 		SString pw_buf;
 		if(Stage == 1) {
 			assert(sizeof(SCard_Before7702)==104);
-			SCard_Before7702 * p_old_rec = (SCard_Before7702 *)pOldRec;
+			SCard_Before7702 * p_old_rec = static_cast<SCard_Before7702 *>(pOldRec);
 			p_data->ID = p_old_rec->ID;
 			p_data->SeriesID = p_old_rec->SeriesID;
 			p_data->PersonID = p_old_rec->PersonID;
@@ -7111,16 +7111,16 @@ public:
 	}
 	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
 	{
-		LotExtCodeTbl::Rec * p_data = (LotExtCodeTbl::Rec *)pNewTbl->getDataBuf();
+		LotExtCodeTbl::Rec * p_data = static_cast<LotExtCodeTbl::Rec *>(pNewTbl->getDataBuf());
 		if(Before9811) {
-			LotExtCodeTbl::Rec * p_data = (LotExtCodeTbl::Rec *)pNewTbl->getDataBuf();
-			LotExtCodeRec_Before9811 * p_old_rec = (LotExtCodeRec_Before9811 *)pOldRec;
+			LotExtCodeTbl::Rec * p_data = static_cast<LotExtCodeTbl::Rec *>(pNewTbl->getDataBuf());
+			LotExtCodeRec_Before9811 * p_old_rec = static_cast<LotExtCodeRec_Before9811 *>(pOldRec);
 			memzero(p_data, sizeof(*p_data));
 			p_data->LotID = p_old_rec->LotID;
 			STRNSCPY(p_data->Code, p_old_rec->Code);
 		}
 		else if(Before10012) {
-			LotExtCodeRec_Before10012 * p_old_rec = (LotExtCodeRec_Before10012 *)pOldRec;
+			LotExtCodeRec_Before10012 * p_old_rec = static_cast<LotExtCodeRec_Before10012 *>(pOldRec);
 			memzero(p_data, sizeof(*p_data));
 			p_data->LotID = p_old_rec->LotID;
 			p_data->BillID = p_old_rec->BillID;
@@ -7129,7 +7129,7 @@ public:
 			STRNSCPY(p_data->Code, p_old_rec->Code);
 		}
 		else {
-			LotExtCodeRec_Before10209 * p_old_rec = (LotExtCodeRec_Before10209 *)pOldRec;
+			LotExtCodeRec_Before10209 * p_old_rec = static_cast<LotExtCodeRec_Before10209 *>(pOldRec);
 			memzero(p_data, sizeof(*p_data));
 			p_data->LotID = p_old_rec->LotID;
 			p_data->BillID = p_old_rec->BillID;

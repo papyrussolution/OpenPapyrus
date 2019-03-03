@@ -81,26 +81,19 @@ static cairo_bool_t _cairo_cache_entry_is_non_zero(const void * entry)
  * used to establish a window during which no automatic removal of
  * entries will occur.
  **/
-cairo_status_t _cairo_cache_init(cairo_cache_t * cache,
-    cairo_cache_keys_equal_func_t keys_equal,
-    cairo_cache_predicate_func_t predicate,
-    cairo_destroy_func_t entry_destroy,
-    ulong max_size)
+cairo_status_t FASTCALL _cairo_cache_init(cairo_cache_t * cache, cairo_cache_keys_equal_func_t keys_equal,
+    cairo_cache_predicate_func_t predicate, cairo_destroy_func_t entry_destroy, ulong max_size)
 {
 	cache->hash_table = _cairo_hash_table_create(keys_equal);
 	if(unlikely(cache->hash_table == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	if(predicate == NULL)
 		predicate = _cairo_cache_entry_is_non_zero;
 	cache->predicate = predicate;
 	cache->entry_destroy = entry_destroy;
-
 	cache->max_size = max_size;
 	cache->size = 0;
-
 	cache->freeze_count = 0;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -118,11 +111,9 @@ static void _cairo_cache_pluck(void * entry, void * closure)
  * function, (as passed to _cairo_cache_init()), will be called for
  * each entry in the cache.
  **/
-void _cairo_cache_fini(cairo_cache_t * cache)
+void FASTCALL _cairo_cache_fini(cairo_cache_t * cache)
 {
-	_cairo_hash_table_foreach(cache->hash_table,
-	    _cairo_cache_pluck,
-	    cache);
+	_cairo_hash_table_foreach(cache->hash_table, _cairo_cache_pluck, cache);
 	assert(cache->size == 0);
 	_cairo_hash_table_destroy(cache->hash_table);
 }
@@ -184,11 +175,10 @@ void _cairo_cache_thaw(cairo_cache_t * cache)
  * @key, (which will now be in *entry_return). %FALSE otherwise, (in
  * which case *entry_return will be %NULL).
  **/
-void * _cairo_cache_lookup(cairo_cache_t * cache, cairo_cache_entry_t * key)
+void * FASTCALL _cairo_cache_lookup(cairo_cache_t * cache, cairo_cache_entry_t * key)
 {
 	return _cairo_hash_table_lookup(cache->hash_table, (cairo_hash_entry_t*)key);
 }
-
 /**
  * _cairo_cache_remove_random:
  * @cache: a cache
@@ -236,7 +226,7 @@ static void _cairo_cache_shrink_to_accommodate(cairo_cache_t * cache, ulong addi
  * Return value: %CAIRO_STATUS_SUCCESS if successful or
  * %CAIRO_STATUS_NO_MEMORY if insufficient memory is available.
  **/
-cairo_status_t _cairo_cache_insert(cairo_cache_t * cache, cairo_cache_entry_t * entry)
+cairo_status_t FASTCALL _cairo_cache_insert(cairo_cache_t * cache, cairo_cache_entry_t * entry)
 {
 	cairo_status_t status;
 	if(entry->size && !cache->freeze_count)

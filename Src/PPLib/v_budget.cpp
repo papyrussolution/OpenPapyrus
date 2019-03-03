@@ -1099,9 +1099,9 @@ void * SLAPI PPViewBudget::GetEditExtraParam()
 PPBaseFilt * SLAPI PPViewBudget::CreateFilt(void * extraPtr) const
 {
 	BudgetFilt * p_filt = 0;
-	if(PPView::CreateFiltInstance(PPFILT_BUDGET, (PPBaseFilt**)&p_filt))
+	if(PPView::CreateFiltInstance(PPFILT_BUDGET, reinterpret_cast<PPBaseFilt **>(&p_filt)))
 		p_filt->Kind = reinterpret_cast<uint16>(extraPtr); // @valid
-	return (PPBaseFilt*)p_filt;
+	return static_cast<PPBaseFilt *>(p_filt);
 }
 
 class BudgetFiltDialog : public TDialog {

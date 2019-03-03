@@ -1082,7 +1082,7 @@ loop:
 #undef  MAX_INT_TO_HEX
 #define MAX_INT_TO_HEX  8
 
-int __db_backup_name(ENV * env, const char * name, DB_TXN * txn, char ** backup)
+int __db_backup_name(ENV * env, const char * name, const DB_TXN * txn, char ** backup)
 {
 	uint32 id;
 	size_t len;

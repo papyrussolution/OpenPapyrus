@@ -139,16 +139,16 @@ int SLAPI VCalendar::PutTodoProperty(TodoProperty prop, const void * pVal, long 
 				}
 				break;
 			case prpSequence:
-				temp_buf.Cat(*(int16*)pVal);
+				temp_buf.Cat(*(int16 *)pVal);
 				break;
 			case prpStatus:
-				temp_buf.GetSubFrom(Status, ';', *(int16*)pVal);
+				temp_buf.GetSubFrom(Status, ';', *(int16 *)pVal);
 				break;
 			case prpClassification:
-				temp_buf.GetSubFrom(Classification, ';', *(int16*)pVal);
+				temp_buf.GetSubFrom(Classification, ';', *(int16 *)pVal);
 				break;
 			case prpPriority:
-				temp_buf.Cat(*(int16*)pVal);
+				temp_buf.Cat(*(int16 *)pVal);
 				break;
 			case prpCategory:
 			case prpOwner:

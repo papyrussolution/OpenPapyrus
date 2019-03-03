@@ -34,14 +34,14 @@ static char * FASTCALL format_uuid_part(const uint8 * pData, size_t numBytes, in
 {
 	if(useLower)
 		switch(numBytes) {
-			case 2: sprintf(pBuf, "%04x", *(uint16*)pData); break;
-			case 4: sprintf(pBuf, "%08x", *(uint32*)pData); break;
+			case 2: sprintf(pBuf, "%04x", *(uint16 *)pData); break;
+			case 4: sprintf(pBuf, "%08x", *(uint32 *)pData); break;
 			case 1: sprintf(pBuf, "%02x", *pData); break;
 		}
 	else
 		switch(numBytes) {
-			case 2:	sprintf(pBuf, "%04X", *(uint16*)pData); break;
-			case 4: sprintf(pBuf, "%08X", *(uint32*)pData); break;
+			case 2:	sprintf(pBuf, "%04X", *(uint16 *)pData); break;
+			case 4: sprintf(pBuf, "%08X", *(uint32 *)pData); break;
 			case 1: sprintf(pBuf, "%02X", *pData); break;
 		}
 	return pBuf;

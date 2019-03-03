@@ -1139,14 +1139,10 @@ int SLAPI PPObjLocation::ResolveWhCellList(const PPIDArray * pList, long options
 		GetWarehouseList(&wh_list);
 		pList = &wh_list;
 	}
-	if(pList) {
-		const int use_cache = 1;
-		for(uint i = 0; i < pList->getCount(); i++)
-			THROW(ResolveWhCell(pList->get(i), temp_list, 0, use_cache));
-	}
-	else {
-		ok = -1;
-	}
+	assert(pList); // @paranoic
+	const int use_cache = 1;
+	for(uint i = 0; i < pList->getCount(); i++)
+		THROW(ResolveWhCell(pList->get(i), temp_list, 0, use_cache));
 	CATCHZOK
 	rDestList = temp_list;
 	return ok;

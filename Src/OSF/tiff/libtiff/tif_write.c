@@ -490,8 +490,8 @@ int TIFFSetupStrips(TIFF* tif)
 	td->td_nstrips = td->td_stripsperimage;
 	if(td->td_planarconfig == PLANARCONFIG_SEPARATE)
 		td->td_stripsperimage /= td->td_samplesperpixel;
-	td->td_stripoffset = (uint64*)SAlloc::M(td->td_nstrips * sizeof(uint64));
-	td->td_stripbytecount = (uint64*)SAlloc::M(td->td_nstrips * sizeof(uint64));
+	td->td_stripoffset = (uint64 *)SAlloc::M(td->td_nstrips * sizeof(uint64));
+	td->td_stripbytecount = (uint64 *)SAlloc::M(td->td_nstrips * sizeof(uint64));
 	if(td->td_stripoffset == NULL || td->td_stripbytecount == NULL)
 		return 0;
 	/*
@@ -627,8 +627,8 @@ static int TIFFGrowStrips(TIFF* tif, uint32 delta, const char* module)
 	uint64* new_stripbytecount;
 
 	assert(td->td_planarconfig == PLANARCONFIG_CONTIG);
-	new_stripoffset = (uint64*)SAlloc::R(td->td_stripoffset, (td->td_nstrips + delta) * sizeof(uint64));
-	new_stripbytecount = (uint64*)SAlloc::R(td->td_stripbytecount, (td->td_nstrips + delta) * sizeof(uint64));
+	new_stripoffset = (uint64 *)SAlloc::R(td->td_stripoffset, (td->td_nstrips + delta) * sizeof(uint64));
+	new_stripbytecount = (uint64 *)SAlloc::R(td->td_stripbytecount, (td->td_nstrips + delta) * sizeof(uint64));
 	if(new_stripoffset == NULL || new_stripbytecount == NULL) {
 		SAlloc::F(new_stripoffset);
 		SAlloc::F(new_stripbytecount);

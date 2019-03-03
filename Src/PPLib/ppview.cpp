@@ -8,7 +8,7 @@
 //
 //
 //static
-DBQuery * PPView::CrosstabDbQueryStub = (DBQuery *)0x0001;
+DBQuery * PPView::CrosstabDbQueryStub = reinterpret_cast<DBQuery *>(0x0001);
 //
 //
 //
@@ -355,7 +355,7 @@ int SLAPI PPViewDisplayExtList::Pack()
 		void * p_pack_handle = Pack_Start();
 		if(p_pack_handle) {
 			const uint c = L.getCount();
-			for(uint i = 0; ok && i < c; i++) {
+			for(uint i = 0; i < c; i++) {
 				InnerItem & r_item = L.at(i);
 				Pack_Replace(p_pack_handle, r_item.TitleP);
 			}
@@ -472,9 +472,9 @@ void FASTCALL PPBaseFilt::PutObjMembListToBuf(PPID objType, const ObjIdListFilt 
 }
 
 // static
-void FASTCALL PPBaseFilt::PutFlagsMembToBuf(StrAssocArray * pFlagList, const char * pMembName, SString & rBuf)
+void FASTCALL PPBaseFilt::PutFlagsMembToBuf(const StrAssocArray * pFlagList, const char * pMembName, SString & rBuf)
 {
-	uint   count = pFlagList ? pFlagList->getCount() : 0;
+	const uint count = pFlagList ? pFlagList->getCount() : 0;
 	if(count) {
 		SString buf;
 		for(uint i = 0; i < count; i++) {
@@ -644,7 +644,7 @@ void SLAPI PPBaseFilt::SetFlatChunk(size_t offs, size_t size)
 int FASTCALL PPBaseFilt::CheckBranchOffs(size_t offs)
 {
 	assert(offs >= sizeof(*this));
-	assert(!FlatOffs || offs < FlatOffs || offs >= (size_t)(FlatOffs + FlatSize));
+	assert(!FlatOffs || offs < FlatOffs || offs >= static_cast<size_t>(FlatOffs + FlatSize));
 	return 1;
 }
 
@@ -723,7 +723,7 @@ int SLAPI PPBaseFilt::Init(int fullyDestroy, long extraData)
 static const char * P_FiltTag = "PPFILT";
 
 //static
-int FASTCALL PPView::WriteFiltPtr(SBuffer & rBuf, PPBaseFilt * pFilt)
+int FASTCALL PPView::WriteFiltPtr(SBuffer & rBuf, const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -800,35 +800,35 @@ int SLAPI PPBaseFilt::Write(SBuffer & rBuf, long) const
 	THROW_SL(rBuf.Write(Signature));
 	THROW_SL(rBuf.Write(Capability));
 	THROW_SL(rBuf.Write(Ver));
-	THROW(!FlatSize || rBuf.Write(((const uint8 *)this) + FlatOffs, FlatSize));
+	THROW(!FlatSize || rBuf.Write(PTR8C(this) + FlatOffs, FlatSize));
 	for(uint i = 0; i < BranchList.getCount(); i++) {
-		const Branch * p_b = (Branch *)BranchList.at(i);
+		const Branch * p_b = reinterpret_cast<const Branch *>(BranchList.at(i));
 		if(p_b->Type == Branch::tSString) {
-			const SString * p_str = (const SString *)(((const uint8 *)this) + p_b->Offs);
+			const SString * p_str = reinterpret_cast<const SString *>(PTR8C(this) + p_b->Offs);
 			THROW_SL(rBuf.Write(*p_str));
 		}
 		else if(p_b->Type == Branch::tSArray) {
-			const SArray * p_ary = (const SArray *)(((const uint8 *)this) + p_b->Offs);
+			const SArray * p_ary = reinterpret_cast<const SArray *>(PTR8C(this) + p_b->Offs);
 			THROW_SL(rBuf.Write(p_ary, 0));
 		}
 		else if(p_b->Type == Branch::tSVector) {
-			const SVector * p_ary = (const SVector *)(((const uint8 *)this) + p_b->Offs);
+			const SVector * p_ary = reinterpret_cast<const SVector *>(PTR8C(this) + p_b->Offs);
 			THROW_SL(rBuf.Write(p_ary, 0));
 		}
 		else if(p_b->Type == Branch::tObjIdListFilt) {
-			const ObjIdListFilt * p_list = (const ObjIdListFilt *)(((const uint8 *)this) + p_b->Offs);
+			const ObjIdListFilt * p_list = reinterpret_cast<const ObjIdListFilt *>(PTR8C(this) + p_b->Offs);
 			THROW_SL(p_list->Write(rBuf));
 		}
 		else if(p_b->Type == Branch::tStrAssocArray) {
-			const StrAssocArray * p_ary = (const StrAssocArray *)(((const uint8 *)this) + p_b->Offs);
+			const StrAssocArray * p_ary = reinterpret_cast<const StrAssocArray *>(PTR8C(this) + p_b->Offs);
 			THROW_SL(p_ary->Write(rBuf, 0));
 		}
 		else if(p_b->Type == Branch::tDisplayExtList) {
-			const PPViewDisplayExtList * p_list = (const PPViewDisplayExtList *)(((const uint8 *)this) + p_b->Offs);
+			const PPViewDisplayExtList * p_list = reinterpret_cast<const PPViewDisplayExtList *>(PTR8C(this) + p_b->Offs);
 			THROW(p_list->Write(rBuf));
 		}
 		else if(p_b->Type == Branch::tBaseFiltPtr) {
-			PPBaseFilt ** pp_filt = (PPBaseFilt **)(((const uint8 *)this) + p_b->Offs);
+			const PPBaseFilt ** pp_filt = (const PPBaseFilt **)(PTR8C(this) + p_b->Offs);
 			THROW(PPView::WriteFiltPtr(rBuf, *pp_filt));
 		}
 	}
@@ -891,35 +891,35 @@ int SLAPI PPBaseFilt::Read(SBuffer & rBuf, long extraParam)
 			}
 			else {
 				THROW_PP(preserve_ver == Ver, PPERR_INVFILTVERSION);
-				THROW_SL(!FlatSize || rBuf.Read(((uint8 *)this) + FlatOffs, FlatSize));
+				THROW_SL(!FlatSize || rBuf.Read(PTR8(this) + FlatOffs, FlatSize));
 				for(uint i = 0; i < BranchList.getCount(); i++) {
-					const Branch * p_b = (Branch *)BranchList.at(i);
+					const Branch * p_b = static_cast<Branch *>(BranchList.at(i));
 					if(p_b->Type == Branch::tSString) {
-						SString * p_str = (SString *)(((const uint8 *)this) + p_b->Offs);
+						SString * p_str = reinterpret_cast<SString *>(PTR8(this) + p_b->Offs);
 						THROW_SL(rBuf.Read(*p_str));
 					}
 					else if(p_b->Type == Branch::tSArray) {
-						SArray * p_ary = (SArray *)(((const uint8 *)this) + p_b->Offs);
+						SArray * p_ary = reinterpret_cast<SArray *>(PTR8(this) + p_b->Offs);
 						THROW_SL(rBuf.Read(p_ary, 0));
 					}
 					else if(p_b->Type == Branch::tSVector) {
-						SVector * p_ary = (SVector *)(((const uint8 *)this) + p_b->Offs);
+						SVector * p_ary = reinterpret_cast<SVector *>(PTR8(this) + p_b->Offs);
 						THROW_SL(rBuf.Read(p_ary, 0));
 					}
 					else if(p_b->Type == Branch::tObjIdListFilt) {
-						ObjIdListFilt * p_list = (ObjIdListFilt *)(((const uint8 *)this) + p_b->Offs);
+						ObjIdListFilt * p_list = reinterpret_cast<ObjIdListFilt *>(PTR8(this) + p_b->Offs);
 						THROW_SL(p_list->Read(rBuf));
 					}
 					else if(p_b->Type == Branch::tStrAssocArray) {
-						StrAssocArray * p_ary = (StrAssocArray *)(((const uint8 *)this) + p_b->Offs);
+						StrAssocArray * p_ary = reinterpret_cast<StrAssocArray *>(PTR8(this) + p_b->Offs);
 						THROW_SL(p_ary->Read(rBuf, 0));
 					}
 					else if(p_b->Type == Branch::tDisplayExtList) {
-						PPViewDisplayExtList * p_list = (PPViewDisplayExtList *)(((const uint8 *)this) + p_b->Offs);
+						PPViewDisplayExtList * p_list = reinterpret_cast<PPViewDisplayExtList *>(PTR8(this) + p_b->Offs);
 						THROW(p_list->Read(rBuf));
 					}
 					else if(p_b->Type == Branch::tBaseFiltPtr) {
-						PPBaseFilt ** pp_filt = (PPBaseFilt**)(((const uint8 *)this) + p_b->Offs);
+						PPBaseFilt ** pp_filt = reinterpret_cast<PPBaseFilt **>(PTR8(this) + p_b->Offs);
 						THROW(PPView::ReadFiltPtr(rBuf, pp_filt));
 					}
 				}
@@ -971,52 +971,43 @@ int SLAPI PPBaseFilt::Copy(const PPBaseFilt * pS, int)
 	FlatOffs = pS->FlatOffs;
 	FlatSize = pS->FlatSize;
 	if(FlatSize)
-		memcpy(((uint8 *)this) + FlatOffs, ((uint8 *)pS) + FlatOffs, FlatSize);
+		memcpy(PTR8(this) + FlatOffs, PTR8C(pS) + FlatOffs, FlatSize);
 	for(uint i = 0; i < BranchList.getCount(); i++) {
-		const Branch * p_b = (Branch *)BranchList.at(i);
+		const Branch * p_b = static_cast<Branch *>(BranchList.at(i));
 		if(p_b->Type == Branch::tSString) {
-			SString * p_str = (SString *)(((const uint8 *)this) + p_b->Offs);
-			const SString * p_src_str = (const SString *)(((const uint8 *)pS) + p_b->Offs);
+			SString * p_str = reinterpret_cast<SString *>(PTR8(this) + p_b->Offs);
+			const SString * p_src_str = reinterpret_cast<const SString *>(PTR8C(pS) + p_b->Offs);
 			*p_str = *p_src_str;
 		}
 		else if(p_b->Type == Branch::tSArray) {
-			SArray * p_ary = (SArray *)(((const uint8 *)this) + p_b->Offs);
-			const SArray * p_src_ary = (const SArray *)(((const uint8 *)pS) + p_b->Offs);
+			SArray * p_ary = reinterpret_cast<SArray *>(PTR8(this) + p_b->Offs);
+			const SArray * p_src_ary = reinterpret_cast<const SArray *>(PTR8C(pS) + p_b->Offs);
 			*p_ary = *p_src_ary;
 		}
 		else if(p_b->Type == Branch::tSVector) {
-			SVector * p_ary = (SVector *)(((const uint8 *)this) + p_b->Offs);
-			const SVector * p_src_ary = (const SVector *)(((const uint8 *)pS) + p_b->Offs);
+			SVector * p_ary = reinterpret_cast<SVector *>(PTR8(this) + p_b->Offs);
+			const SVector * p_src_ary = reinterpret_cast<const SVector *>(PTR8C(pS) + p_b->Offs);
 			*p_ary = *p_src_ary;
 		}
 		else if(p_b->Type == Branch::tObjIdListFilt) {
-			ObjIdListFilt * p_list = (ObjIdListFilt *)(((const uint8 *)this) + p_b->Offs);
-			const ObjIdListFilt * p_src_list = (const ObjIdListFilt *)(((const uint8 *)pS) + p_b->Offs);
+			ObjIdListFilt * p_list = reinterpret_cast<ObjIdListFilt *>(PTR8(this) + p_b->Offs);
+			const ObjIdListFilt * p_src_list = reinterpret_cast<const ObjIdListFilt *>(PTR8C(pS) + p_b->Offs);
 			*p_list = *p_src_list;
 		}
 		else if(p_b->Type == Branch::tStrAssocArray) {
-			StrAssocArray * p_ary = (StrAssocArray *)(((const uint8 *)this) + p_b->Offs);
-			const StrAssocArray * p_src_ary = (const StrAssocArray *)(((const uint8 *)pS) + p_b->Offs);
+			StrAssocArray * p_ary = reinterpret_cast<StrAssocArray *>(PTR8(this) + p_b->Offs);
+			const StrAssocArray * p_src_ary = reinterpret_cast<const StrAssocArray *>(PTR8C(pS) + p_b->Offs);
 			*p_ary = *p_src_ary;
 		}
 		else if(p_b->Type == Branch::tDisplayExtList) {
-			PPViewDisplayExtList * p_list = (PPViewDisplayExtList *)(((const uint8 *)this) + p_b->Offs);
-			const PPViewDisplayExtList * p_src_list = (PPViewDisplayExtList *)(((const uint8 *)pS) + p_b->Offs);
+			PPViewDisplayExtList * p_list = reinterpret_cast<PPViewDisplayExtList *>(PTR8(this) + p_b->Offs);
+			const PPViewDisplayExtList * p_src_list = reinterpret_cast<const PPViewDisplayExtList *>(PTR8C(pS) + p_b->Offs);
 			*p_list = *p_src_list;
 		}
 		else if(p_b->Type == Branch::tBaseFiltPtr) {
 			PPBaseFilt ** pp_filt = (PPBaseFilt**)(((const uint8 *)this) + p_b->Offs);
-			const PPBaseFilt * p_src_filt = *(const PPBaseFilt **)(((const uint8 *)pS) + p_b->Offs);
-			THROW(CopyBaseFiltPtr(p_b->ExtraId, p_src_filt, pp_filt)); // @v8.4.2
-			/* @v8.4.2
-			if(p_src_filt) {
-				if((*pp_filt) == 0)
-					THROW(PPView::CreateFiltInstance(p_b->ExtraId, pp_filt));
-				THROW((*pp_filt)->Copy(p_src_filt, 0));
-			}
-			else
-				ZDELETE(*pp_filt);
-			*/
+			const PPBaseFilt * p_src_filt = *(const PPBaseFilt **)(PTR8C(pS) + p_b->Offs);
+			THROW(CopyBaseFiltPtr(p_b->ExtraId, p_src_filt, pp_filt));
 		}
 	}
 	CATCHZOK
@@ -1028,49 +1019,49 @@ int SLAPI PPBaseFilt::IsEqual(const PPBaseFilt * pS, int) const
 	int    ok = 0;
 	if(IsA(pS)) {
 		if(Signature == pS->Signature && Capability == pS->Capability) {
-			if(!FlatSize || memcmp(((const uint8 *)this) + FlatOffs, ((const uint8 *)pS) + FlatOffs, FlatSize) == 0) {
+			if(!FlatSize || memcmp(PTR8C(this) + FlatOffs, PTR8C(pS) + FlatOffs, FlatSize) == 0) {
 				ok = 1;
 				for(uint i = 0; ok && i < BranchList.getCount(); i++) {
-					const Branch * p_b = (Branch *)BranchList.at(i);
+					const Branch * p_b = static_cast<const Branch *>(BranchList.at(i));
 					if(p_b->Type == Branch::tSString) {
-						const SString * p_str = (const SString *)(((const uint8 *)this) + p_b->Offs);
-						const SString * p_src_str = (const SString *)(((const uint8 *)pS) + p_b->Offs);
+						const SString * p_str = reinterpret_cast<const SString *>(PTR8C(this) + p_b->Offs);
+						const SString * p_src_str = reinterpret_cast<const SString *>(PTR8C(pS) + p_b->Offs);
 						if(p_str->Cmp(*p_src_str, 0) != 0)
 							ok = 0;
 					}
 					else if(p_b->Type == Branch::tSArray) {
-						const SArray * p_ary = (const SArray *)(((const uint8 *)this) + p_b->Offs);
-						const SArray * p_src_ary = (const SArray *)(((const uint8 *)pS) + p_b->Offs);
+						const SArray * p_ary = reinterpret_cast<const SArray *>(PTR8C(this) + p_b->Offs);
+						const SArray * p_src_ary = reinterpret_cast<const SArray *>(PTR8C(pS) + p_b->Offs);
 						if(!p_ary->IsEqual(*p_src_ary))
 							ok = 0;
 					}
 					else if(p_b->Type == Branch::tSVector) {
-						const SVector * p_ary = (const SVector *)(((const uint8 *)this) + p_b->Offs);
-						const SVector * p_src_ary = (const SVector *)(((const uint8 *)pS) + p_b->Offs);
+						const SVector * p_ary = reinterpret_cast<const SVector *>(PTR8C(this) + p_b->Offs);
+						const SVector * p_src_ary = reinterpret_cast<const SVector *>(PTR8C(pS) + p_b->Offs);
 						if(!p_ary->IsEqual(*p_src_ary))
 							ok = 0;
 					}
 					else if(p_b->Type == Branch::tObjIdListFilt) {
-						const ObjIdListFilt * p_list = (const ObjIdListFilt *)(((const uint8 *)this) + p_b->Offs);
-						const ObjIdListFilt * p_src_list = (const ObjIdListFilt *)(((const uint8 *)pS) + p_b->Offs);
+						const ObjIdListFilt * p_list = reinterpret_cast<const ObjIdListFilt *>(PTR8C(this) + p_b->Offs);
+						const ObjIdListFilt * p_src_list = reinterpret_cast<const ObjIdListFilt *>(PTR8C(pS) + p_b->Offs);
 						if(!p_list->IsEqual(*p_src_list))
 							ok = 0;
 					}
 					else if(p_b->Type == Branch::tStrAssocArray) {
-						const StrAssocArray * p_ary = (StrAssocArray *)(((const uint8 *)this) + p_b->Offs);
-						const StrAssocArray * p_src_ary = (const StrAssocArray *)(((const uint8 *)pS) + p_b->Offs);
+						const StrAssocArray * p_ary = reinterpret_cast<const StrAssocArray *>(PTR8C(this) + p_b->Offs);
+						const StrAssocArray * p_src_ary = reinterpret_cast<const StrAssocArray *>(PTR8C(pS) + p_b->Offs);
 						if(!p_ary->IsEqual(*p_src_ary))
 							ok = 0;
 					}
 					else if(p_b->Type == Branch::tDisplayExtList) {
-						const PPViewDisplayExtList * p_list = (const PPViewDisplayExtList *)(((const uint8 *)this) + p_b->Offs);
-						const PPViewDisplayExtList * p_src_list = (const PPViewDisplayExtList *)(((const uint8 *)pS) + p_b->Offs);
+						const PPViewDisplayExtList * p_list = reinterpret_cast<const PPViewDisplayExtList *>(PTR8C(this) + p_b->Offs);
+						const PPViewDisplayExtList * p_src_list = reinterpret_cast<const PPViewDisplayExtList *>(PTR8C(pS) + p_b->Offs);
 						if(!p_list->IsEqual(*p_src_list))
 							ok = 0;
 					}
 					else if(p_b->Type == Branch::tBaseFiltPtr) {
-						const PPBaseFilt * p_filt = *(const PPBaseFilt**)(((const uint8 *)this) + p_b->Offs);
-						const PPBaseFilt * p_src_filt = *(const PPBaseFilt **)(((const uint8 *)pS) + p_b->Offs);
+						const PPBaseFilt * p_filt = *(const PPBaseFilt**)(PTR8C(this) + p_b->Offs);
+						const PPBaseFilt * p_src_filt = *(const PPBaseFilt **)(PTR8C(pS) + p_b->Offs);
 						if(p_filt && p_src_filt) {
 							if(!p_filt->IsEqual(p_src_filt, 0))
 								ok = 0;
@@ -1328,7 +1319,7 @@ int SLAPI PPView::ExecuteServer(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply)
 		struct AdviseProcWrapper {
 			static int Proc(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 			{
-				PPJobSrvReply * p_reply = (PPJobSrvReply *)procExtPtr;
+				PPJobSrvReply * p_reply = static_cast<PPJobSrvReply *>(procExtPtr);
 				if(p_reply) {
 					SString temp_buf;
 					pEv->GetExtStrData(PPNotifyEvent::extssMessage, temp_buf);
@@ -1873,7 +1864,7 @@ int PPViewBrowser::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, void *
 {
 	int    ok = -1;
 	if(pEv) {
-		PPViewBrowser * p_brw = (PPViewBrowser*)extraProcPtr;
+		PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraProcPtr);
 		if(p_brw && p_brw->P_View)
 			ok = p_brw->P_View->HandleNotifyEvent(kind, pEv, p_brw, extraProcPtr);
 	}
@@ -1909,7 +1900,7 @@ int PPViewBrowser::getCurHdr(void * pHdr)
 		void * p_row = view->getCurItem();
 		if(p_row) {
 			if(pHdr)
-				*(long *)pHdr = *(long *)p_row;
+				*static_cast<long *>(pHdr) = *static_cast<const long *>(p_row);
 			return 1;
 		}
 	}
@@ -2113,7 +2104,7 @@ void * PPViewBrowser::Helper_InitToolbarCombo()
 int PPViewBrowser::Helper_SetupToolbarStringCombo(uint strID, PPID id)
 {
 	int    ok = -1;
-	HWND   hw_parent = (HWND)Helper_InitToolbarCombo();
+	HWND   hw_parent = static_cast<HWND>(Helper_InitToolbarCombo());
 	if(hw_parent) {
 		SString item_buf, id_buf, txt_buf;
 		SString line_buf;
@@ -2194,14 +2185,14 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 	int    skip_inherited_processing = 0;
 	if(TVKEYDOWN) {
 		int    is_rus = 0;
-		uchar  b[2];
+		char   b[4];
 		b[0] = TVCHR;
 		b[1] = 0;
-		SCharToOem(reinterpret_cast<char *>(b));
+		SCharToOem(b);
 		is_rus = IsLetter866(b[0]);
-		SOemToChar(reinterpret_cast<char *>(b));
+		SOemToChar(b);
 		if(isalnum(c = TVCHR) || is_rus || c == '*') {
-			if((VbState & vbsKbF10) && (b[0] == (uchar)'x' || b[0] == (uchar)'X' || is_rus && (b[0] == (uchar)'÷' || b[0] == (uchar)'×'))) {
+			if((VbState & vbsKbF10) && (b[0] == 'x' || b[0] == 'X' || (is_rus && (b[0] == '÷' || b[0] == '×')))) {
 				Export();
 				clearEvent(event);
 			}
@@ -2315,7 +2306,7 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 		}
 		else {
 			char   temp_buf[32];
-			temp_buf[0] = (char)TVKEY;
+			temp_buf[0] = static_cast<char>(TVKEY);
 			temp_buf[1] = 0;
 			if(P_View->ProcessCommand(PPVCMD_INPUTCHAR, temp_buf, this) > 0)
 				updateView();

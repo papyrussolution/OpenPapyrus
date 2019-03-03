@@ -359,7 +359,7 @@ BAD:
  *
  * Return value: %TRUE if the operator is bounded by the mask operand
  **/
-cairo_bool_t _cairo_operator_bounded_by_mask(cairo_operator_t op)
+cairo_bool_t FASTCALL _cairo_operator_bounded_by_mask(cairo_operator_t op)
 {
 	switch(op) {
 		case CAIRO_OPERATOR_CLEAR:
@@ -413,7 +413,7 @@ cairo_bool_t _cairo_operator_bounded_by_mask(cairo_operator_t op)
  *
  * Return value: %TRUE if the operator is bounded by the source operand
  **/
-cairo_bool_t _cairo_operator_bounded_by_source(cairo_operator_t op)
+cairo_bool_t FASTCALL _cairo_operator_bounded_by_source(cairo_operator_t op)
 {
 	switch(op) {
 		case CAIRO_OPERATOR_OVER:
@@ -984,9 +984,9 @@ typedef struct _cairo_intern_string {
 
 static cairo_hash_table_t * _cairo_intern_string_ht;
 
-ulong _cairo_string_hash(const char * str, int len)
+ulong FASTCALL _cairo_string_hash(const char * str, int len)
 {
-	const signed char * p = (const signed char*)str;
+	const signed char * p = reinterpret_cast<const signed char *>(str);
 	uint h = *p;
 	for(p += 1; len > 0; len--, p++)
 		h = (h << 5) - h + *p;
@@ -995,8 +995,8 @@ ulong _cairo_string_hash(const char * str, int len)
 
 static cairo_bool_t _intern_string_equal(const void * _a, const void * _b)
 {
-	const cairo_intern_string_t * a = (const cairo_intern_string_t *)_a;
-	const cairo_intern_string_t * b = (const cairo_intern_string_t *)_b;
+	const cairo_intern_string_t * a = static_cast<const cairo_intern_string_t *>(_a);
+	const cairo_intern_string_t * b = static_cast<const cairo_intern_string_t *>(_b);
 	if(a->len != b->len)
 		return FALSE;
 	return memcmp(a->string, b->string, a->len) == 0;
@@ -1059,9 +1059,7 @@ void _cairo_intern_string_reset_static_data(void)
 {
 	CAIRO_MUTEX_LOCK(_cairo_intern_string_mutex);
 	if(_cairo_intern_string_ht != NULL) {
-		_cairo_hash_table_foreach(_cairo_intern_string_ht,
-		    _intern_string_pluck,
-		    _cairo_intern_string_ht);
+		_cairo_hash_table_foreach(_cairo_intern_string_ht, _intern_string_pluck, _cairo_intern_string_ht);
 		_cairo_hash_table_destroy(_cairo_intern_string_ht);
 		_cairo_intern_string_ht = NULL;
 	}

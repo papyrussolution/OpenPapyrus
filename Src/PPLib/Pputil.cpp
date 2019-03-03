@@ -739,7 +739,7 @@ DBQ * FASTCALL ppcheckweekday(DBQ * pDbq, DBItem & rDbi, int dayOfWeek)
 //
 // Check functions
 //
-int FASTCALL CheckTblPtr(DBTable * tbl)
+int FASTCALL CheckTblPtr(const DBTable * tbl)
 {
 	if(tbl == 0)
 		return PPSetErrorNoMem();

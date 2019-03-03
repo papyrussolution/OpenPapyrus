@@ -325,7 +325,7 @@ static int dynamic_ctrl(ENGINE * e, int cmd, long i, void * p, void (* f)(void))
 			    ENGINEerr(ENGINE_F_DYNAMIC_CTRL, ENGINE_R_INVALID_ARGUMENT);
 			    return 0;
 		    }
-		    ctx->list_add_value = (int)i;
+		    ctx->list_add_value = static_cast<int>(i);
 		    return 1;
 		case DYNAMIC_CMD_LOAD:
 		    return dynamic_load(e, ctx);
@@ -334,7 +334,7 @@ static int dynamic_ctrl(ENGINE * e, int cmd, long i, void * p, void (* f)(void))
 			    ENGINEerr(ENGINE_F_DYNAMIC_CTRL, ENGINE_R_INVALID_ARGUMENT);
 			    return 0;
 		    }
-		    ctx->dir_load = (int)i;
+		    ctx->dir_load = static_cast<int>(i);
 		    return 1;
 		case DYNAMIC_CMD_DIR_ADD:
 		    /* a NULL 'p' or a string of zero-length is the same thing */

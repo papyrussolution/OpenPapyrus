@@ -128,7 +128,7 @@ int x86cpuid_GetFirm(const Cx86cpuid * p)
 	for(uint i = 0; i < sizeof(kVendors) / sizeof(kVendors[i]); i++) {
 		const uint32 * v = kVendors[i];
 		if(v[0] == p->vendor[0] && v[1] == p->vendor[1] && v[2] == p->vendor[2])
-			return (int)i;
+			return static_cast<int>(i);
 	}
 	return -1;
 }

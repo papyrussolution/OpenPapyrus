@@ -2625,7 +2625,7 @@ browser TRFRGR_DPAG north(100), 1, 2, "Группировка товарных операций по дате, ко
 {
 	"@date",            8, notype, 0, 10
 	"@contractor",      7, notype, 0, 30
-	"@agent",          21, notype, 0, 30
+	"@agent",          22, notype, 0, 30 // @v10.3.6 21-->22
 	"@ware",            6, notype, 0, 30
 	"@qtty",            9, notype, NMBF_NOTRAILZ, 8.3
 	"@phqtty",         10, notype, NMBF_NOTRAILZ, 8.3

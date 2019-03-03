@@ -2631,7 +2631,7 @@ protected:
 	// Вспомогательные методы для функции Describe
 	//
 	static void FASTCALL PutObjMembListToBuf(PPID objType, const ObjIdListFilt * pList, const char * pMembName, SString & rBuf);
-	static void FASTCALL PutFlagsMembToBuf(StrAssocArray * pFlagList, const char * pMembName, SString & rBuf);
+	static void FASTCALL PutFlagsMembToBuf(const StrAssocArray * pFlagList, const char * pMembName, SString & rBuf);
 	static void FASTCALL PutObjMembToBuf(PPID objType, PPID objID, const char * pMembName, SString & rBuf);
 	static void FASTCALL PutMembToBuf(LDATE, const char * pMembName, SString & rBuf);
 	static void FASTCALL PutMembToBuf(const DateRange *, const char * pMembName, SString & rBuf);
@@ -7136,7 +7136,7 @@ int    FASTCALL RemoveByID(DBTable *, PPID objID, int use_ta);
 //   позиции и заполнение буфера данных расчитывать нельзя.
 //
 int    FASTCALL IncDateKey(DBTable * pTbl, int idx, LDATE, long * pOprno);
-int    FASTCALL CheckTblPtr(DBTable *);
+int    FASTCALL CheckTblPtr(const DBTable *);
 int    FASTCALL CheckQueryPtr(const DBQuery *);
 TempOrderTbl * SLAPI CreateTempOrderFile();
 
@@ -12057,6 +12057,12 @@ public:
 	//
 	int    SLAPI GetAvailableGoodsRest(PPID goodsID, PPID locID, const DateRange & rPeriod, double ignoreEpsilon, double * pRest);
 	//
+	// Descr: Опции функции GetOriginalValuesForCorrection
+	//
+	enum {
+		govcoVerifyGoods = 0x0001 // Сверять идентичность товаров между строкой корректирующего документа и основного.
+	};
+	//
 	// Descr: Получает оригинальные значения количества и цены для строки корректирующего документа rTi.
 	// ARG(rTi IN): Строка корректирующего документа
 	// ARG(rBillChain IN): Цепочка идентификаторов документов, начинающаяся от оригинального и включающая
@@ -12071,7 +12077,7 @@ public:
 	//    2 - найдена строка, относящаяся к оригинальному корректируемому документу, а также
 	//      одна или более строк, принадлежащих другим документам коррекции.
 	//
-	int    SLAPI GetOriginalValuesForCorrection(const PPTransferItem & rTi, const PPIDArray & rBillChain, double * pOrgQtty, double * pOrgPrice);
+	int    SLAPI GetOriginalValuesForCorrection(const PPTransferItem & rTi, const PPIDArray & rBillChain, long options, double * pOrgQtty, double * pOrgPrice);
 	int    SLAPI AddLotItem(PPTransferItem * pTi, PPID forceID = 0);
 	int    SLAPI AddItem(PPTransferItem * pTi, int16 & rByBill, int use_ta);
 	enum {
@@ -14265,7 +14271,7 @@ public:
 	static int FASTCALL CreateInstance(int viewID, PPView ** ppV);
 	static int FASTCALL CreateFiltInstance(int filtID, PPBaseFilt ** ppF);
 	static int FASTCALL CreateFiltInstanceBySymb(const char * pSymb, PPBaseFilt ** ppF);
-	static int FASTCALL WriteFiltPtr(SBuffer & rBuf, PPBaseFilt * pFilt);
+	static int FASTCALL WriteFiltPtr(SBuffer & rBuf, const PPBaseFilt * pFilt);
 	static int FASTCALL ReadFiltPtr(SBuffer & rBuf, PPBaseFilt ** ppFilt);
 
 	enum {
@@ -16003,7 +16009,6 @@ public:
 private:
 	virtual int SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam);
 	int    SLAPI EditDialog(PPTimeSeries * pEntry);
-	//int    SLAPI IsCase(const STimeSeries & rTs, const TrainNnParam & rP, uint vecIdx, uint lastIdx) const;
 };
 //
 //
@@ -16849,6 +16854,7 @@ public:
 	int    SLAPI GetEdiStockOp(PPID * pID, int use_ta);
 	int    SLAPI GetEdiShopChargeOnOp(PPID * pID, int use_ta);
 	int    SLAPI GetEdiWrOffShopOp(PPID * pID, int use_ta);
+	int    SLAPI GetEdiWrOffWithMarksOp(PPID * pID, int use_ta);
 private:
 	struct ReservedOpCreateBlock {
 		SLAPI  ReservedOpCreateBlock();
@@ -44680,11 +44686,11 @@ public:
 		void   Clear();
 
         SString Id;
-        SString WBRegId;   // ИД накладной в системе (присвоенный)
-        SString FixNumber; // Номер фиксации накладной(отгрузки) в ЕГАИС
+        SString WBRegId;      // ИД накладной в системе (присвоенный)
+        SString FixNumber;    // Номер фиксации накладной(отгрузки) в ЕГАИС
         LDATE  FixDate;
-        SString OuterCode; // Номер накладной (у отправителя)
-        LDATE  OuterDate;  // Дата накладной (у отправителя)
+        SString OuterCode;    // Номер накладной (у отправителя)
+        LDATE  OuterDate;     // Дата накладной (у отправителя)
         PPID   ShipperPsnID;
         PPID   ConsigneePsnID;
         PPID   SupplPsnID;
@@ -44848,23 +44854,23 @@ public:
 	// Descr: Флаги состояния документа в базе данных
 	//
 	enum {
-		bilstfAccepted         = 0x00000001, // Документ принят из ЕГАИС-сервера
-		bilstfWritedOff        = 0x00000002, // Документ списан
-		bilstfReadyForAck      = 0x00000004, // Документ готов к отправке подтверждения
-		bilstfChargeOn         = 0x00000008, // Документы постановки на баланс начальных остатков
-		bilstfExpend           = 0x00000010, // Документы продажи товара
-		bilstfIntrExpend       = 0x00000020, // Документы внутренней передачи
-		bilstfReturnToSuppl    = 0x00000040, // Документы возврата поставщику
-		bilstfLosses           = 0x00000080, // @v8.9.12 Документы потерь (прочие расходы)
-		bilstfRepeal           = 0x00000100, // @v9.2.8 Документы с запросом на отмену проведения
-		bilstfTransferToShop   = 0x00000200, // @v9.2.11 Документы передачи в торговый зал (Регистр 2)
-		bilstfChargeOnShop     = 0x00000400, // @v9.2.11 Документы постановки на баланс начальных остатков в торговом зале (Регистр 2)
-		bilstfTransferFromShop = 0x00000800, // @v9.3.10 Документы возврата из торговый зал (Регистр 2) на склад
-		bilstfWriteOffShop     = 0x00001000, // @v9.4.0  Документы списания с баланса торгового зала (Регистр 2)
-		bilstfWbRepealConf     = 0x00002000, // @v9.5.12 Документы, для которых получен и ожидает подтверждения запрос на отмету проведения
-		bilstfV1               = 0x00004000, // @v9.7.5  Специальный флаг, явно указывающий на 1-ю версию формата ЕГАИС
-		bilstfV2               = 0x00008000, // @v9.7.5  Документы 2-й версии ЕГАИС
-		bilstfV3               = 0x00010000, // @v9.9.5  Документы 3-й версии ЕГАИС
+		bilstfAccepted          = 0x00000001, // Документ принят из ЕГАИС-сервера
+		bilstfWritedOff         = 0x00000002, // Документ списан
+		bilstfReadyForAck       = 0x00000004, // Документ готов к отправке подтверждения
+		bilstfChargeOn          = 0x00000008, // Документы постановки на баланс начальных остатков
+		bilstfExpend            = 0x00000010, // Документы продажи товара
+		bilstfIntrExpend        = 0x00000020, // Документы внутренней передачи
+		bilstfReturnToSuppl     = 0x00000040, // Документы возврата поставщику
+		bilstfLosses            = 0x00000080, // @v8.9.12 Документы потерь (прочие расходы)
+		bilstfRepeal            = 0x00000100, // @v9.2.8 Документы с запросом на отмену проведения
+		bilstfTransferToShop    = 0x00000200, // @v9.2.11 Документы передачи в торговый зал (Регистр 2)
+		bilstfChargeOnShop      = 0x00000400, // @v9.2.11 Документы постановки на баланс начальных остатков в торговом зале (Регистр 2)
+		bilstfTransferFromShop  = 0x00000800, // @v9.3.10 Документы возврата из торговый зал (Регистр 2) на склад
+		bilstfWriteOffShop      = 0x00001000, // @v9.4.0  Документы списания с баланса торгового зала (Регистр 2)
+		bilstfWbRepealConf      = 0x00002000, // @v9.5.12 Документы, для которых получен и ожидает подтверждения запрос на отмету проведения
+		bilstfV1                = 0x00004000, // @v9.7.5  Специальный флаг, явно указывающий на 1-ю версию формата ЕГАИС
+		bilstfV2                = 0x00008000, // @v9.7.5  Документы 2-й версии ЕГАИС
+		bilstfV3                = 0x00010000, // @v9.9.5  Документы 3-й версии ЕГАИС
 	};
 	int    SLAPI GetAcceptedBillList(const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList);
 	int    SLAPI GetBillListForTransmission(const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList, PPIDArray * pRejectList);

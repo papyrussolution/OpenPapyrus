@@ -1229,7 +1229,7 @@ cairo_public void cairo_font_options_destroy(cairo_font_options_t * options);
 cairo_public cairo_status_t FASTCALL cairo_font_options_status(const cairo_font_options_t * options);
 cairo_public void cairo_font_options_merge(cairo_font_options_t * options, const cairo_font_options_t * other);
 cairo_public cairo_bool_t cairo_font_options_equal(const cairo_font_options_t * options, const cairo_font_options_t * other);
-cairo_public ulong cairo_font_options_hash(const cairo_font_options_t * options);
+cairo_public ulong FASTCALL cairo_font_options_hash(const cairo_font_options_t * options);
 cairo_public void cairo_font_options_set_antialias(cairo_font_options_t * options, cairo_antialias_t antialias);
 cairo_public cairo_antialias_t cairo_font_options_get_antialias(const cairo_font_options_t * options);
 cairo_public void cairo_font_options_set_subpixel_order(cairo_font_options_t * options, cairo_subpixel_order_t subpixel_order);
@@ -1725,7 +1725,7 @@ cairo_public const char * cairo_status_to_string(cairo_status_t status);
 
 /* Backend device manipulation */
 
-cairo_public cairo_device_t * cairo_device_reference(cairo_device_t * device);
+cairo_public cairo_device_t * FASTCALL cairo_device_reference(cairo_device_t * device);
 
 /**
  * cairo_device_type_t:
@@ -1771,13 +1771,13 @@ typedef enum _cairo_device_type {
 	CAIRO_DEVICE_TYPE_INVALID = -1
 } cairo_device_type_t;
 
-cairo_public cairo_device_type_t cairo_device_get_type(cairo_device_t * device);
-cairo_public cairo_status_t cairo_device_status(cairo_device_t * device);
+cairo_public cairo_device_type_t cairo_device_get_type(const cairo_device_t * device);
+cairo_public cairo_status_t cairo_device_status(const cairo_device_t * device);
 cairo_public cairo_status_t cairo_device_acquire(cairo_device_t * device);
 cairo_public void cairo_device_release(cairo_device_t * device);
-cairo_public void cairo_device_flush(cairo_device_t * device);
-cairo_public void cairo_device_finish(cairo_device_t * device);
-cairo_public void cairo_device_destroy(cairo_device_t * device);
+cairo_public void FASTCALL cairo_device_flush(cairo_device_t * device);
+cairo_public void FASTCALL cairo_device_finish(cairo_device_t * device);
+cairo_public void FASTCALL cairo_device_destroy(cairo_device_t * device);
 cairo_public uint cairo_device_get_reference_count(cairo_device_t * device);
 cairo_public void * cairo_device_get_user_data(cairo_device_t * device, const cairo_user_data_key_t * key);
 cairo_public cairo_status_t cairo_device_set_user_data(cairo_device_t * device, const cairo_user_data_key_t * key, void * user_data, cairo_destroy_func_t destroy);
@@ -1827,7 +1827,7 @@ cairo_public void FASTCALL cairo_surface_finish(cairo_surface_t * surface);
 cairo_public void FASTCALL cairo_surface_destroy(cairo_surface_t * surface);
 cairo_public cairo_device_t * cairo_surface_get_device(cairo_surface_t * surface);
 cairo_public uint cairo_surface_get_reference_count(cairo_surface_t * surface);
-cairo_public cairo_status_t cairo_surface_status(cairo_surface_t * surface);
+cairo_public cairo_status_t FASTCALL cairo_surface_status(const cairo_surface_t * surface);
 
 /**
  * cairo_surface_type_t:
@@ -1911,8 +1911,8 @@ typedef enum _cairo_surface_type {
 } cairo_surface_type_t;
 #endif
 
-cairo_public cairo_surface_type_t cairo_surface_get_type(cairo_surface_t * surface);
-cairo_public cairo_content_t cairo_surface_get_content(cairo_surface_t * surface);
+cairo_public cairo_surface_type_t cairo_surface_get_type(const cairo_surface_t * surface);
+cairo_public cairo_content_t cairo_surface_get_content(const cairo_surface_t * surface);
 
 #if CAIRO_HAS_PNG_FUNCTIONS
 
@@ -1945,11 +1945,11 @@ cairo_public void cairo_surface_flush(cairo_surface_t * surface);
 cairo_public void cairo_surface_mark_dirty(cairo_surface_t * surface);
 cairo_public void cairo_surface_mark_dirty_rectangle(cairo_surface_t * surface, int x, int y, int width, int height);
 cairo_public void cairo_surface_set_device_scale(cairo_surface_t * surface, double x_scale, double y_scale);
-cairo_public void cairo_surface_get_device_scale(cairo_surface_t * surface, double * x_scale, double * y_scale);
+cairo_public void cairo_surface_get_device_scale(const cairo_surface_t * surface, double * x_scale, double * y_scale);
 cairo_public void cairo_surface_set_device_offset(cairo_surface_t * surface, double x_offset, double y_offset);
-cairo_public void cairo_surface_get_device_offset(cairo_surface_t * surface, double * x_offset, double * y_offset);
+cairo_public void FASTCALL cairo_surface_get_device_offset(const cairo_surface_t * surface, double * x_offset, double * y_offset);
 cairo_public void cairo_surface_set_fallback_resolution(cairo_surface_t * surface, double x_pixels_per_inch, double y_pixels_per_inch);
-cairo_public void cairo_surface_get_fallback_resolution(cairo_surface_t * surface, double * x_pixels_per_inch, double * y_pixels_per_inch);
+cairo_public void cairo_surface_get_fallback_resolution(const cairo_surface_t * surface, double * x_pixels_per_inch, double * y_pixels_per_inch);
 cairo_public void cairo_surface_copy_page(cairo_surface_t * surface);
 cairo_public void cairo_surface_show_page(cairo_surface_t * surface);
 cairo_public cairo_bool_t cairo_surface_has_show_text_glyphs(cairo_surface_t * surface);
@@ -1957,13 +1957,13 @@ cairo_public cairo_bool_t cairo_surface_has_show_text_glyphs(cairo_surface_t * s
 /* Image-surface functions */
 
 cairo_public cairo_surface_t * cairo_image_surface_create(cairo_format_t format, int width, int height);
-cairo_public int cairo_format_stride_for_width(cairo_format_t format, int width);
+cairo_public int FASTCALL cairo_format_stride_for_width(cairo_format_t format, int width);
 cairo_public cairo_surface_t * cairo_image_surface_create_for_data(uchar * data, cairo_format_t format, int width, int height, int stride);
 cairo_public uchar * cairo_image_surface_get_data(cairo_surface_t * surface);
 cairo_public cairo_format_t cairo_image_surface_get_format(cairo_surface_t * surface);
-cairo_public int cairo_image_surface_get_width(cairo_surface_t * surface);
-cairo_public int cairo_image_surface_get_height(cairo_surface_t * surface);
-cairo_public int cairo_image_surface_get_stride(cairo_surface_t * surface);
+cairo_public int cairo_image_surface_get_width(const cairo_surface_t * surface);
+cairo_public int cairo_image_surface_get_height(const cairo_surface_t * surface);
+cairo_public int cairo_image_surface_get_stride(const cairo_surface_t * surface);
 
 #if CAIRO_HAS_PNG_FUNCTIONS
 
@@ -2284,9 +2284,9 @@ typedef enum _cairo_region_overlap {
 
 cairo_public cairo_region_t * cairo_region_create(void);
 cairo_public cairo_region_t * cairo_region_create_rectangle(const cairo_rectangle_int_t * rectangle);
-cairo_public cairo_region_t * cairo_region_create_rectangles(const cairo_rectangle_int_t * rects, int count);
+cairo_public cairo_region_t * FASTCALL cairo_region_create_rectangles(const cairo_rectangle_int_t * rects, int count);
 cairo_public cairo_region_t * cairo_region_copy(const cairo_region_t * original);
-cairo_public cairo_region_t * cairo_region_reference(cairo_region_t * region);
+cairo_public cairo_region_t * FASTCALL cairo_region_reference(cairo_region_t * region);
 cairo_public void cairo_region_destroy(cairo_region_t * region);
 cairo_public cairo_bool_t cairo_region_equal(const cairo_region_t * a, const cairo_region_t * b);
 cairo_public cairo_status_t cairo_region_status(const cairo_region_t * region);

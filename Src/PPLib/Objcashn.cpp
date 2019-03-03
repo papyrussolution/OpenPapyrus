@@ -1228,7 +1228,7 @@ int DivGrpAsscListDialog::editItem(long pos, long /*id*/)
 
 int DivGrpAsscListDialog::delItem(long pos, long /*id*/)
 {
-	return P_Data->atFree((uint)pos) ? 1 : -1;
+	return P_Data->atFree(static_cast<uint>(pos)) ? 1 : -1;
 }
 //
 // ExtDevicesDialog

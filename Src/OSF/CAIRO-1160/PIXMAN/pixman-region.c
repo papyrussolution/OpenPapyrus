@@ -2075,28 +2075,22 @@ PIXMAN_EXPORT void PREFIX(_translate) (region_type_t *region, int x, int y)
 		region->data = pixman_region_empty_data;
 		return;
 	}
-
 	if(x1 < PIXMAN_REGION_MIN)
 		region->extents.x1 = PIXMAN_REGION_MIN;
 	else if(x2 > PIXMAN_REGION_MAX)
 		region->extents.x2 = PIXMAN_REGION_MAX;
-
 	if(y1 < PIXMAN_REGION_MIN)
 		region->extents.y1 = PIXMAN_REGION_MIN;
 	else if(y2 > PIXMAN_REGION_MAX)
 		region->extents.y2 = PIXMAN_REGION_MAX;
-
 	if(region->data && (nbox = region->data->numRects)) {
 		box_type_t * pbox_out;
-
 		for(pbox_out = pbox = PIXREGION_BOXPTR(region); nbox--; pbox++) {
 			pbox_out->x1 = x1 = pbox->x1 + x;
 			pbox_out->y1 = y1 = pbox->y1 + y;
 			pbox_out->x2 = x2 = pbox->x2 + x;
 			pbox_out->y2 = y2 = pbox->y2 + y;
-
-			if(((x2 - PIXMAN_REGION_MIN) | (y2 - PIXMAN_REGION_MIN) |
-			    (PIXMAN_REGION_MAX - x1) | (PIXMAN_REGION_MAX - y1)) <= 0) {
+			if(((x2 - PIXMAN_REGION_MIN) | (y2 - PIXMAN_REGION_MIN) | (PIXMAN_REGION_MAX - x1) | (PIXMAN_REGION_MAX - y1)) <= 0) {
 				region->data->numRects--;
 				continue;
 			}

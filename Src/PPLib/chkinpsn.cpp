@@ -1374,7 +1374,7 @@ int CheckInPersonListDialog::editItem(long pos, long id)
 
 int CheckInPersonListDialog::delItem(long pos, long id)
 {
-	return Data.RemoveItem((uint)pos) ? 1 : -1;
+	return Data.RemoveItem(static_cast<uint>(pos)) ? 1 : -1;
 }
 
 int SLAPI EditCheckInPersonList(const PPCheckInPersonConfig * pCfg, PPCheckInPersonArray * pData) { DIALOG_PROC_BODY_P1(CheckInPersonListDialog, pCfg, pData); }

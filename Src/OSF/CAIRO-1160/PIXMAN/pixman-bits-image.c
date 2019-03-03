@@ -368,29 +368,24 @@ static force_inline uint32_t fetch_pixel_general(bits_image_t * image, int x, in
 	return pixel;
 }
 
-static uint32_t * bits_image_fetch_general(pixman_iter_t * iter,
-    const uint32_t * mask)
+static uint32_t * bits_image_fetch_general(pixman_iter_t * iter, const uint32_t * mask)
 {
 	pixman_image_t * image  = iter->image;
 	int offset = iter->x;
 	int line   = iter->y++;
 	int width  = iter->width;
 	uint32_t * buffer = iter->buffer;
-
 	pixman_fixed_t x, y, w;
 	pixman_fixed_t ux, uy, uw;
 	pixman_vector_t v;
 	int i;
-
 	/* reference point is the center of the pixel */
 	v.vector[0] = pixman_int_to_fixed(offset) + pixman_fixed_1 / 2;
 	v.vector[1] = pixman_int_to_fixed(line) + pixman_fixed_1 / 2;
 	v.vector[2] = pixman_fixed_1;
-
 	if(image->common.transform) {
 		if(!pixman_transform_point_3d(image->common.transform, &v))
 			return buffer;
-
 		ux = image->common.transform->matrix[0][0];
 		uy = image->common.transform->matrix[1][0];
 		uw = image->common.transform->matrix[2][0];
@@ -400,14 +395,11 @@ static uint32_t * bits_image_fetch_general(pixman_iter_t * iter,
 		uy = 0;
 		uw = 0;
 	}
-
 	x = v.vector[0];
 	y = v.vector[1];
 	w = v.vector[2];
-
 	for(i = 0; i < width; ++i) {
 		pixman_fixed_t x0, y0;
-
 		if(!mask || mask[i]) {
 			if(w != 0) {
 				x0 = ((pixman_fixed_48_16_t)x << 16) / w;
@@ -417,11 +409,8 @@ static uint32_t * bits_image_fetch_general(pixman_iter_t * iter,
 				x0 = 0;
 				y0 = 0;
 			}
-
-			buffer[i] = bits_image_fetch_pixel_filtered(
-				&image->bits, x0, y0, fetch_pixel_general);
+			buffer[i] = bits_image_fetch_pixel_filtered(&image->bits, x0, y0, fetch_pixel_general);
 		}
-
 		x += ux;
 		y += uy;
 		w += uw;
@@ -677,14 +666,12 @@ static void dest_write_back_wide(pixman_iter_t * iter)
 void _pixman_bits_image_dest_iter_init(pixman_image_t * image, pixman_iter_t * iter)
 {
 	if(iter->iter_flags & ITER_NARROW) {
-		if((iter->iter_flags & (ITER_IGNORE_RGB | ITER_IGNORE_ALPHA)) ==
-		    (ITER_IGNORE_RGB | ITER_IGNORE_ALPHA)) {
+		if((iter->iter_flags & (ITER_IGNORE_RGB | ITER_IGNORE_ALPHA)) == (ITER_IGNORE_RGB | ITER_IGNORE_ALPHA)) {
 			iter->get_scanline = _pixman_iter_get_scanline_noop;
 		}
 		else {
 			iter->get_scanline = dest_get_scanline_narrow;
 		}
-
 		iter->write_back = dest_write_back_narrow;
 	}
 	else {
@@ -741,63 +728,35 @@ pixman_bool_t _pixman_bits_image_init(pixman_image_t * image, pixman_format_code
 	image->bits.write_func = NULL;
 	image->bits.rowstride = rowstride;
 	image->bits.indexed = NULL;
-
 	image->common.property_changed = bits_image_property_changed;
-
 	_pixman_image_reset_clip_region(image);
-
 	return TRUE;
 }
 
-static pixman_image_t * create_bits_image_internal(pixman_format_code_t format,
-    int width,
-    int height,
-    uint32_t *  bits,
-    int rowstride_bytes,
-    pixman_bool_t clear)
+static pixman_image_t * create_bits_image_internal(pixman_format_code_t format, int width, int height, uint32_t *  bits, int rowstride_bytes, pixman_bool_t clear)
 {
-	pixman_image_t * image;
-
 	/* must be a whole number of uint32_t's
 	 */
-	return_val_if_fail(
-		bits == NULL || (rowstride_bytes % sizeof(uint32_t)) == 0, NULL);
-
+	return_val_if_fail(bits == NULL || (rowstride_bytes % sizeof(uint32_t)) == 0, NULL);
 	return_val_if_fail(PIXMAN_FORMAT_BPP(format) >= PIXMAN_FORMAT_DEPTH(format), NULL);
-
-	image = _pixman_image_allocate();
-
+	pixman_image_t * image = _pixman_image_allocate();
 	if(!image)
 		return NULL;
-
-	if(!_pixman_bits_image_init(image, format, width, height, bits,
-	    rowstride_bytes / (int)sizeof(uint32_t),
-	    clear)) {
+	if(!_pixman_bits_image_init(image, format, width, height, bits, rowstride_bytes / (int)sizeof(uint32_t), clear)) {
 		SAlloc::F(image);
 		return NULL;
 	}
-
 	return image;
 }
 
 /* If bits is NULL, a buffer will be allocated and initialized to 0 */
-PIXMAN_EXPORT pixman_image_t * pixman_image_create_bits(pixman_format_code_t format,
-    int width,
-    int height,
-    uint32_t *  bits,
-    int rowstride_bytes)
+PIXMAN_EXPORT pixman_image_t * pixman_image_create_bits(pixman_format_code_t format, int width, int height, uint32_t *  bits, int rowstride_bytes)
 {
-	return create_bits_image_internal(
-		format, width, height, bits, rowstride_bytes, TRUE);
+	return create_bits_image_internal(format, width, height, bits, rowstride_bytes, TRUE);
 }
 
 /* If bits is NULL, a buffer will be allocated and _not_ initialized */
-PIXMAN_EXPORT pixman_image_t * pixman_image_create_bits_no_clear(pixman_format_code_t format,
-    int width,
-    int height,
-    uint32_t *  bits,
-    int rowstride_bytes)
+PIXMAN_EXPORT pixman_image_t * pixman_image_create_bits_no_clear(pixman_format_code_t format, int width, int height, uint32_t *  bits, int rowstride_bytes)
 {
-	return create_bits_image_internal(
-		format, width, height, bits, rowstride_bytes, FALSE);
+	return create_bits_image_internal(format, width, height, bits, rowstride_bytes, FALSE);
 }

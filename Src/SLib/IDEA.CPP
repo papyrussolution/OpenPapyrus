@@ -668,7 +668,7 @@ void main()
 	fwrite(buffer, sizeof(buffer), 1, out);
 	fprintf(out, "\n");
 
-	idea.init((uint16*)memset(iv, 'z', sizeof(iv)), key, 0);
+	idea.init((uint16 *)memset(iv, 'z', sizeof(iv)), key, 0);
 	idea.run(buffer, sizeof(buffer));
 	idea.close();
 
@@ -676,7 +676,7 @@ void main()
 	fwrite(buffer, sizeof(buffer), 1, out);
 	fprintf(out, "\n");
 
-	idea.init((uint16*)memset(iv, 'z', sizeof(iv)), key, 1);
+	idea.init((uint16 *)memset(iv, 'z', sizeof(iv)), key, 1);
 	idea.run(buffer, sizeof(buffer));
 	idea.close();
 

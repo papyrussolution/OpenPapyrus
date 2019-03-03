@@ -39,7 +39,7 @@
 #include "cairoint.h"
 #pragma hdrstop
 //#include "cairo-box-inline.h"
-#include "cairo-path-fixed-private.h"
+//#include "cairo-path-fixed-private.h"
 //#include "cairo-slope-private.h"
 #include "cairo-stroke-dash-private.h"
 #include "cairo-traps-private.h"
@@ -1029,32 +1029,15 @@ cairo_int_status_t _cairo_path_fixed_stroke_to_traps(const cairo_path_fixed_t * 
     cairo_traps_t * traps)
 {
 	struct stroker stroker;
-	cairo_status_t status;
-
-	status = stroker_init(&stroker, path, style,
-		ctm, ctm_inverse, tolerance,
-		traps);
+	cairo_status_t status = stroker_init(&stroker, path, style, ctm, ctm_inverse, tolerance, traps);
 	if(unlikely(status))
 		return status;
-
 	if(stroker.dash.dashed)
-		status = _cairo_path_fixed_interpret(path,
-			move_to_dashed,
-			line_to_dashed,
-			curve_to_dashed,
-			close_path_dashed,
-			&stroker);
+		status = _cairo_path_fixed_interpret(path, move_to_dashed, line_to_dashed, curve_to_dashed, close_path_dashed, &stroker);
 	else
-		status = _cairo_path_fixed_interpret(path,
-			move_to,
-			line_to,
-			curve_to,
-			close_path,
-			&stroker);
+		status = _cairo_path_fixed_interpret(path, move_to, line_to, curve_to, close_path, &stroker);
 	assert(status == CAIRO_STATUS_SUCCESS);
 	add_caps(&stroker);
-
 	stroker_fini(&stroker);
-
 	return traps->status;
 }

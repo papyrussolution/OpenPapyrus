@@ -131,7 +131,7 @@ int TStatusWin::RemoveItem(int pos)
 	if(pos == -1)
 		Items.clear();
 	else if(pos >= 0 && (uint)pos < Items.getCount())
-		ok = Items.atFree((uint)pos);
+		ok = Items.atFree(static_cast<uint>(pos));
 	return ok;
 }
 

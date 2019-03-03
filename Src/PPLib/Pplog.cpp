@@ -734,7 +734,7 @@ long SLAPI PPMsgLog::EnumMessages(long nmsg, void * buff, int16 bsize, int16 * r
 		return 0;
 	lseek(Stream, GetLogIdx(CurMsg-1).address, SEEK_SET);
 	_read(Stream, (void *)hsize, sizeof(int16));
-	int    len = (int) (GetLogIdx(CurMsg).address - GetLogIdx(CurMsg-1).address) - sizeof(int16);
+	int    len = (int)(GetLogIdx(CurMsg).address - GetLogIdx(CurMsg-1).address) - sizeof(int16);
 	*rsize = _read(Stream, buff, len > bsize ? bsize : len); // exception was here!
 	char * bb = (char *)buff;
 	bb[((*rsize >= bsize) ? (*rsize - 1) : *rsize)] = 0;

@@ -251,7 +251,7 @@ int CRevalDialog::addItem(long * pPos, long * pID)
 
 int CRevalDialog::delItem(long pos, long /*id*/)
 {
-	return Data.AccList.atFree((uint)pos) ? 1 : -1;
+	return Data.AccList.atFree(static_cast<uint>(pos)) ? 1 : -1;
 }
 
 int SLAPI EditCRevalParam(CurRevalParam * pData) { DIALOG_PROC_BODY(CRevalDialog, pData); }

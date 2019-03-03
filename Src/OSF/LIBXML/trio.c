@@ -1760,9 +1760,9 @@ static int TrioParse(int type, const char * format, trio_parameter_t * parameter
 					    parameters[i].data.longdoublePointer = (!argarray) ? va_arg(TRIO_VA_LIST_DEREF(arglist), trio_long_double_t *) : (trio_long_double_t*)argarray[num];
 				    else {
 					    if(parameters[i].flags & FLAGS_LONG)
-						    parameters[i].data.doublePointer = (!argarray) ? va_arg(TRIO_VA_LIST_DEREF(arglist), double *) : (double*)argarray[num];
+						    parameters[i].data.doublePointer = (!argarray) ? va_arg(TRIO_VA_LIST_DEREF(arglist), double *) : (double *)argarray[num];
 					    else
-						    parameters[i].data.doublePointer = (!argarray) ? (double*)va_arg(TRIO_VA_LIST_DEREF(arglist), float *) : (double*)((float *)argarray[num]);
+						    parameters[i].data.doublePointer = (!argarray) ? (double *)va_arg(TRIO_VA_LIST_DEREF(arglist), float *) : (double *)((float *)argarray[num]);
 				    }
 			    }
 			    else {
@@ -1775,7 +1775,7 @@ static int TrioParse(int type, const char * format, trio_parameter_t * parameter
 						    if(parameters[i].flags & FLAGS_SHORT)
 							    parameters[i].data.longdoubleNumber = (trio_long_double_t)(*((float *)argarray[num]));
 						    else
-							    parameters[i].data.longdoubleNumber = (trio_long_double_t)(*((double*)argarray[num]));
+							    parameters[i].data.longdoubleNumber = (trio_long_double_t)(*((double *)argarray[num]));
 					    }
 				    }
 			    }
@@ -4257,10 +4257,10 @@ static BOOLEAN_T TrioReadDouble(trio_class_t * self, trio_pointer_t target, trio
 			    }
 			    else {
 				    if((start == 1) && (doubleString[0] == '-')) {
-					    *((double*)target) = trio_ninf();
+					    *((double *)target) = trio_ninf();
 				    }
 				    else {
-					    *((double*)target) = trio_pinf();
+					    *((double *)target) = trio_pinf();
 				    }
 			    }
 			    return TRUE;
@@ -4271,7 +4271,7 @@ static BOOLEAN_T TrioReadDouble(trio_class_t * self, trio_pointer_t target, trio
 				    *((trio_long_double_t*)target) = trio_nan();
 			    }
 			    else {
-				    *((double*)target) = trio_nan();
+				    *((double *)target) = trio_nan();
 			    }
 			    return TRUE;
 		    }
@@ -4338,7 +4338,7 @@ static BOOLEAN_T TrioReadDouble(trio_class_t * self, trio_pointer_t target, trio
 		*((trio_long_double_t*)target) = trio_to_long_double(doubleString, 0);
 	}
 	else {
-		*((double*)target) = trio_to_double(doubleString, 0);
+		*((double *)target) = trio_to_double(doubleString, 0);
 	}
 	return TRUE;
 }

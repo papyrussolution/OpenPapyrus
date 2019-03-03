@@ -41,7 +41,6 @@
 
 //#include "cairo-compiler-private.h"
 //#include "cairo-types-private.h"
-
 /**
  * _cairo_cache_entry:
  *
@@ -49,7 +48,7 @@
  * #cairo_cache_t. User-derived types for #cairo_cache_entry_t must
  * have a #cairo_cache_entry_t as their first field. For example:
  *
- * 	typedef _my_entry {
+ *      typedef _my_entry {
  *	    cairo_cache_entry_t base;
  *	    ... Remainder of key and value fields here ..
  *	} my_entry_t;
@@ -84,62 +83,32 @@
  * not be initialized if so desired.
  **/
 typedef struct _cairo_cache_entry {
-    ulong hash;
-    ulong size;
+	ulong hash;
+	ulong size;
 } cairo_cache_entry_t;
 
-typedef cairo_bool_t (*cairo_cache_predicate_func_t) (const void *entry);
+typedef cairo_bool_t (* cairo_cache_predicate_func_t) (const void * entry);
 
 struct _cairo_cache {
-    cairo_hash_table_t *hash_table;
-
-    cairo_cache_predicate_func_t predicate;
-    cairo_destroy_func_t entry_destroy;
-
-    ulong max_size;
-    ulong size;
-
-    int freeze_count;
+	cairo_hash_table_t * hash_table;
+	cairo_cache_predicate_func_t predicate;
+	cairo_destroy_func_t entry_destroy;
+	ulong max_size;
+	ulong size;
+	int freeze_count;
 };
 
-typedef cairo_bool_t
-(*cairo_cache_keys_equal_func_t) (const void *key_a, const void *key_b);
+typedef cairo_bool_t (* cairo_cache_keys_equal_func_t) (const void * key_a, const void * key_b);
+typedef void (* cairo_cache_callback_func_t) (void * entry, void * closure);
 
-typedef void
-(*cairo_cache_callback_func_t) (void *entry,
-				void *closure);
-
-cairo_private cairo_status_t
-_cairo_cache_init (cairo_cache_t *cache,
-	           cairo_cache_keys_equal_func_t keys_equal,
-		   cairo_cache_predicate_func_t  predicate,
-		   cairo_destroy_func_t	   entry_destroy,
-		   ulong		   max_size);
-
-cairo_private void
-_cairo_cache_fini (cairo_cache_t *cache);
-
-cairo_private void
-_cairo_cache_freeze (cairo_cache_t *cache);
-
-cairo_private void
-_cairo_cache_thaw (cairo_cache_t *cache);
-
-cairo_private void *
-_cairo_cache_lookup (cairo_cache_t	  *cache,
-		     cairo_cache_entry_t  *key);
-
-cairo_private cairo_status_t
-_cairo_cache_insert (cairo_cache_t	 *cache,
-		     cairo_cache_entry_t *entry);
-
-cairo_private void
-_cairo_cache_remove (cairo_cache_t	 *cache,
-		     cairo_cache_entry_t *entry);
-
-cairo_private void
-_cairo_cache_foreach (cairo_cache_t		 *cache,
-		      cairo_cache_callback_func_t cache_callback,
-		      void			 *closure);
+cairo_private cairo_status_t FASTCALL _cairo_cache_init(cairo_cache_t * cache, cairo_cache_keys_equal_func_t keys_equal,
+    cairo_cache_predicate_func_t predicate, cairo_destroy_func_t entry_destroy, ulong max_size);
+cairo_private void FASTCALL _cairo_cache_fini(cairo_cache_t * cache);
+cairo_private void _cairo_cache_freeze(cairo_cache_t * cache);
+cairo_private void _cairo_cache_thaw(cairo_cache_t * cache);
+cairo_private void * FASTCALL _cairo_cache_lookup(cairo_cache_t  * cache, cairo_cache_entry_t  * key);
+cairo_private cairo_status_t FASTCALL _cairo_cache_insert(cairo_cache_t * cache, cairo_cache_entry_t * entry);
+cairo_private void _cairo_cache_remove(cairo_cache_t * cache, cairo_cache_entry_t * entry);
+cairo_private void _cairo_cache_foreach(cairo_cache_t * cache, cairo_cache_callback_func_t cache_callback, void * closure);
 
 #endif

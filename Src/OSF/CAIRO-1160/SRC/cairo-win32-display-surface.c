@@ -50,14 +50,14 @@
 //#include "cairo-clip-private.h"
 //#include "cairo-composite-rectangles-private.h"
 //#include "cairo-compositor-private.h"
-#include "cairo-damage-private.h"
-#include "cairo-default-context-private.h"
+//#include "cairo-damage-private.h"
+//#include "cairo-default-context-private.h"
 //#include "cairo-error-private.h"
-#include "cairo-image-surface-inline.h"
+//#include "cairo-image-surface-inline.h"
 #include "cairo-paginated-private.h"
 //#include "cairo-pattern-private.h"
 #include "cairo-win32-private.h"
-#include "cairo-scaled-font-subsets-private.h"
+//#include "cairo-scaled-font-subsets-private.h"
 #include "cairo-surface-fallback-private.h"
 #include "cairo-surface-backend-private.h"
 //#include <wchar.h>
@@ -277,22 +277,12 @@ static cairo_surface_t * _cairo_win32_display_surface_create_for_dc(HDC original
 	surface->win32.extents.height = height;
 	surface->win32.x_ofs = 0;
 	surface->win32.y_ofs = 0;
-
 	surface->initial_clip_rgn = NULL;
 	surface->had_simple_clip = FALSE;
-
 	device = _cairo_win32_device_get();
-
-	_cairo_surface_init(&surface->win32.base,
-	    &cairo_win32_display_surface_backend,
-	    device,
-	    _cairo_content_from_format(format),
-	    FALSE);              /* is_vector */
-
+	_cairo_surface_init(&surface->win32.base, &cairo_win32_display_surface_backend, device, _cairo_content_from_format(format), FALSE/* is_vector */);
 	cairo_device_destroy(device);
-
 	return &surface->win32.base;
-
 FAIL:
 	if(surface->bitmap) {
 		SelectObject(surface->win32.dc, surface->saved_dc_bitmap);
@@ -300,7 +290,6 @@ FAIL:
 		DeleteDC(surface->win32.dc);
 	}
 	SAlloc::F(surface);
-
 	return _cairo_surface_create_in_error(status);
 }
 
@@ -363,41 +352,26 @@ static cairo_status_t _cairo_win32_display_surface_finish(void * abstract_surfac
 		DeleteObject(surface->bitmap);
 		DeleteDC(surface->win32.dc);
 	}
-
 	_cairo_win32_display_surface_discard_fallback(surface);
-
 	if(surface->initial_clip_rgn)
 		DeleteObject(surface->initial_clip_rgn);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_image_surface_t * _cairo_win32_display_surface_map_to_image(void * abstract_surface,
-    const cairo_rectangle_int_t * extents)
+static cairo_image_surface_t * _cairo_win32_display_surface_map_to_image(void * abstract_surface, const cairo_rectangle_int_t * extents)
 {
 	cairo_win32_display_surface_t * surface = static_cast<cairo_win32_display_surface_t *>(abstract_surface);
 	cairo_status_t status;
-
-	TRACE((stderr, "%s (surface=%d)\n",
-	    __FUNCTION__, surface->win32.base.unique_id));
-
+	TRACE((stderr, "%s (surface=%d)\n", __FUNCTION__, surface->win32.base.unique_id));
 	if(surface->image)
 		goto done;
-
 	if(surface->fallback == NULL) {
-		surface->fallback =
-		    _cairo_win32_display_surface_create_for_dc(surface->win32.dc,
-			surface->win32.format,
-			surface->win32.extents.x + surface->win32.extents.width,
-			surface->win32.extents.y + surface->win32.extents.height);
+		surface->fallback = _cairo_win32_display_surface_create_for_dc(surface->win32.dc,
+			surface->win32.format, surface->win32.extents.x + surface->win32.extents.width, surface->win32.extents.y + surface->win32.extents.height);
 		if(unlikely(status = surface->fallback->status))
 			goto err;
-
-		if(!BitBlt(to_win32_surface(surface->fallback)->dc,
-		    surface->win32.extents.x, surface->win32.extents.y,
-		    surface->win32.extents.width,
-		    surface->win32.extents.height,
-		    surface->win32.dc,
+		if(!BitBlt(to_win32_surface(surface->fallback)->dc, surface->win32.extents.x, surface->win32.extents.y,
+		    surface->win32.extents.width, surface->win32.extents.height, surface->win32.dc,
 		    surface->win32.extents.x + surface->win32.x_ofs,  /* Handling multi-monitor... */
 		    surface->win32.extents.y + surface->win32.y_ofs,  /* ... setup on Win32 */
 		    SRCCOPY)) {
@@ -405,16 +379,13 @@ static cairo_image_surface_t * _cairo_win32_display_surface_map_to_image(void * 
 			goto err;
 		}
 	}
-
 	surface = to_win32_display_surface(surface->fallback);
 done:
 	GdiFlush();
 	return _cairo_surface_map_to_image(surface->image, extents);
-
 err:
 	cairo_surface_destroy(surface->fallback);
 	surface->fallback = NULL;
-
 	return _cairo_image_surface_create_in_error(status);
 }
 

@@ -121,13 +121,13 @@ LMatrix2D & SViewPort::GetMatrix(const FRect & rBounds, LMatrix2D & rMtx) const
 	if((ParX == parNone && ParY == parNone) || r == r0) {
 		if(Flags & fDontEnlarge) {
 			if(ParX == parMax)
-				diff = diff.AddX((float)(w_c - w0));
+				diff = diff.AddX(static_cast<float>(w_c - w0));
 			else if(oneof2(ParX, parMid, parNone))
-				diff = diff.AddX((float)((w_c - w0)/2.0));
+				diff = diff.AddX(static_cast<float>((w_c - w0)/2.0));
 			if(ParY == parMax)
-				diff = diff.AddY((float)(h_c - h0));
+				diff = diff.AddY(static_cast<float>(h_c - h0));
 			else if(oneof2(ParY, parMid, parNone))
-				diff = diff.AddY((float)((h_c - h0)/2.0));
+				diff = diff.AddY(static_cast<float>((h_c - h0)/2.0));
 			h_c = h0;
 			w_c = w0;
 		}
@@ -137,30 +137,30 @@ LMatrix2D & SViewPort::GetMatrix(const FRect & rBounds, LMatrix2D & rMtx) const
 		if((r > r0 && Flags & fSlice) || (r < r0 && !(Flags & fSlice))) {
 			if(Flags & fDontEnlarge && h_c > h0) {
 				if(ParY == parMax)
-					diff = diff.AddY((float)(h_c - h0));
+					diff = diff.AddY(static_cast<float>(h_c - h0));
 				else if(oneof2(ParY, parMid, parNone))
-					diff = diff.AddY((float)((h_c - h0)/2.0));
+					diff = diff.AddY(static_cast<float>((h_c - h0)/2.0));
 				h_c = h0;
 			}
 			rMtx.InitScale(h_c/h0, h_c/h0);
 			if(ParX == parMax)
-				diff = diff.AddX((float)(w_c - h_c / r0));
+				diff = diff.AddX(static_cast<float>(w_c - h_c / r0));
 			else if(oneof2(ParX, parMid, parNone))
-				diff = diff.AddX((float)((w_c - h_c / r0)/2.0));
+				diff = diff.AddX(static_cast<float>((w_c - h_c / r0)/2.0));
 		}
 		else {
 			if(Flags & fDontEnlarge && w_c > w0) {
 				if(ParX == parMax)
-					diff = diff.AddX((float)(w_c - w0));
+					diff = diff.AddX(static_cast<float>(w_c - w0));
 				else if(oneof2(ParX, parMid, parNone))
-					diff = diff.AddX((float)((w_c - w0)/2.0));
+					diff = diff.AddX(static_cast<float>((w_c - w0)/2.0));
 				w_c = w0;
 			}
 			rMtx.InitScale(w_c/w0, w_c/w0);
 			if(ParY == parMax)
-				diff = diff.AddY((float)(h_c - w_c * r0));
+				diff = diff.AddY(static_cast<float>(h_c - w_c * r0));
 			else if(oneof2(ParY, parMid, parNone))
-				diff = diff.AddY((float)((h_c - w_c * r0)/2.0));
+				diff = diff.AddY(static_cast<float>((h_c - w_c * r0)/2.0));
 		}
 	}
 	transl_mtx.InitTranslate(diff);
@@ -2939,7 +2939,7 @@ int SImageBuffer::LoadTiff(SFile & rF, int fileFmt)
 		TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &w);
 		TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &h);
 		npixels = w * h;
-		raster = (uint32*) _TIFFmalloc(npixels * sizeof (uint32));
+		raster = (uint32 *) _TIFFmalloc(npixels * sizeof (uint32));
 		if(raster != NULL) {
 			if(TIFFReadRGBAImage(tif, w, h, raster, 0)) {
 				...process raster data...

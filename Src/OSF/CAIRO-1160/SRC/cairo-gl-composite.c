@@ -49,7 +49,7 @@
 //#include "cairo-composite-rectangles-private.h"
 //#include "cairo-clip-private.h"
 //#include "cairo-error-private.h"
-#include "cairo-image-surface-private.h"
+//#include "cairo-image-surface-private.h"
 
 /* FIXME: Copy of same routine in cairo-gl-msaa-compositor.c */
 static cairo_int_status_t _draw_int_rect(cairo_gl_context_t * ctx,

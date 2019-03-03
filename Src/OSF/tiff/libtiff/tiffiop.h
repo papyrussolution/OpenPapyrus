@@ -336,10 +336,8 @@ extern uint32 FASTCALL _TIFFMultiply32(TIFF*, uint32, uint32, const char*);
 extern uint64 FASTCALL _TIFFMultiply64(TIFF*, uint64, uint64, const char*);
 extern void * FASTCALL _TIFFCheckMalloc(TIFF*, tmsize_t, tmsize_t, const char*);
 extern void * _TIFFCheckRealloc(TIFF*, void*, tmsize_t, tmsize_t, const char*);
-
 extern double _TIFFUInt64ToDouble(uint64);
 extern float _TIFFUInt64ToFloat(uint64);
-
 extern tmsize_t _TIFFReadEncodedStripAndAllocBuffer(TIFF* tif, uint32 strip, void **buf, tmsize_t bufsizetoalloc, tmsize_t size_to_read);
 extern tmsize_t _TIFFReadEncodedTileAndAllocBuffer(TIFF* tif, uint32 tile, void **buf, tmsize_t bufsizetoalloc, tmsize_t size_to_read);
 extern tmsize_t _TIFFReadTileAndAllocBuffer(TIFF* tif, void **buf, tmsize_t bufsizetoalloc, uint32 x, uint32 y, uint32 z, uint16 s);

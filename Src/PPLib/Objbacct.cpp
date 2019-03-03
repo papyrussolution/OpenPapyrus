@@ -438,7 +438,7 @@ private:
 					return PPErrorZ();
 			}
 			if(CONFIRM(PPCFM_DELETE)) {
-				Data.atFree((uint)pos);
+				Data.atFree(static_cast<uint>(pos));
 				return 1;
 			}
 		}

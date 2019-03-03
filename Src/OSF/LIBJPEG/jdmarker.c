@@ -794,8 +794,7 @@ METHODDEF(boolean) save_marker(j_decompress_ptr cinfo)
 		    examine_app14(cinfo, data, data_length, length);
 		    break;
 		default:
-		    TRACEMS2(cinfo, 1, JTRC_MISC_MARKER, cinfo->unread_marker,
-		    (int)(data_length + length));
+		    TRACEMS2(cinfo, 1, JTRC_MISC_MARKER, cinfo->unread_marker, (int)(data_length + length));
 		    break;
 	}
 	/* skip any remaining data -- could be lots */

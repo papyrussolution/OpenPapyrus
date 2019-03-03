@@ -748,8 +748,8 @@ EXTERN_C_BEGIN
 		#define GetUi32(p) (*(const uint32*)(const void*)(p))
 		#define GetUi64(p) (*(const uint64*)(const void*)(p))
 		#define SetUi16(p, v) { *(uint16*)(p) = (v); }
-		#define SetUi32(p, v) { *(uint32*)(p) = (v); }
-		#define SetUi64(p, v) { *(uint64*)(p) = (v); }
+		#define SetUi32(p, v) { *(uint32 *)(p) = (v); }
+		#define SetUi64(p, v) { *(uint64 *)(p) = (v); }
 	#else
 		#define GetUi16(p) ( (uint16)(((const Byte*)(p))[0] | ((uint16)((const Byte*)(p))[1] << 8) ))
 		#define GetUi32(p) ( ((const Byte*)(p))[0]        | \
@@ -769,11 +769,11 @@ EXTERN_C_BEGIN
 		#pragma intrinsic(_byteswap_uint64)
 		#define GetBe32(p) _byteswap_ulong(*(const uint32*)(const Byte*)(p))
 		#define GetBe64(p) _byteswap_uint64(*(const uint64*)(const Byte*)(p))
-		#define SetBe32(p, v) (*(uint32*)(void *)(p)) = _byteswap_ulong(v)
+		#define SetBe32(p, v) (*(uint32 *)(void *)(p)) = _byteswap_ulong(v)
 	#elif defined(MY_CPU_LE_UNALIGN) && defined (__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3))
 		#define GetBe32(p) __builtin_bswap32(*(const uint32*)(const Byte*)(p))
 		#define GetBe64(p) __builtin_bswap64(*(const uint64*)(const Byte*)(p))
-		#define SetBe32(p, v) (*(uint32*)(void *)(p)) = __builtin_bswap32(v)
+		#define SetBe32(p, v) (*(uint32 *)(void *)(p)) = __builtin_bswap32(v)
 	#else
 		#define GetBe32(p) (((uint32)((const Byte*)(p))[0] << 24) | \
 				((uint32)((const Byte*)(p))[1] << 16) | ((uint32)((const Byte*)(p))[2] <<  8) | \

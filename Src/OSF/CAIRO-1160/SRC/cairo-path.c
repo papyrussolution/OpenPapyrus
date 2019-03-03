@@ -39,7 +39,7 @@
 #include "cairo-backend-private.h"
 //#include "cairo-error-private.h"
 #include "cairo-path-private.h"
-#include "cairo-path-fixed-private.h"
+//#include "cairo-path-fixed-private.h"
 
 /**
  * SECTION:cairo-paths

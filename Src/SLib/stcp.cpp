@@ -944,7 +944,7 @@ int FASTCALL InetUrl::GetSchemeId(const char * pSchemeMnem)
 {
 	for(uint i = 0; i < SIZEOFARRAY(SchemeMnem); i++) {
 		if(sstreqi_ascii(pSchemeMnem, SchemeMnem[i]))
-			return (int)i;
+			return static_cast<int>(i);
 	}
 	return protUnkn;
 }

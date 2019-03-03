@@ -2888,8 +2888,8 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 												SXml::WNode n_mci(_doc, SXml::nst("awr", "MarkCodeInfo"));
 												for(uint markidx = 0; markidx < ext_codes_set.GetCount(); markidx++) {
 													if(ext_codes_set.GetByIdx(markidx, msentry) && !(msentry.Flags & PPLotExtCodeContainer::fBox)) {
-														SXml::WNode w_amclist(_doc, SXml::nst("ce", "amclist"));
-														w_amclist.PutInner(SXml::nst("ce", "amc"), EncText(msentry.Num));
+														//SXml::WNode w_amclist(_doc, SXml::nst("ce", "amclist"));
+														/*w_amclist*/n_mci.PutInner(SXml::nst("ce", "amc"), EncText(msentry.Num));
 													}
 												}
 											}
@@ -3951,9 +3951,8 @@ int SLAPI PPEgaisProcessor::Read_TTNIformBReg(xmlNode * pFirstNode, Packet * pPa
                                 STRNSCPY(item.Ident, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 							else if(SXml::GetContentByName(p_pos, "InformF2RegId", temp_buf)) // @v9.5.5 PPEDIOP_EGAIS_TTNINFORMF2REG
 								STRNSCPY(item.Ident, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
-							else if(SXml::GetContentByName(p_pos, "BottlingDate", temp_buf)) { // @v9.5.5
+							else if(SXml::GetContentByName(p_pos, "BottlingDate", temp_buf)) // @v9.5.5
 								strtodate(temp_buf, DATF_ISO8601, &item.BottlingDate);
-							}
 						}
 						p_data->Items.insert(&item);
 					}
@@ -4933,8 +4932,48 @@ int SLAPI PPEgaisProcessor::Helper_AcceptTtnRefB(const Packet * pPack, const TSC
 						}
 					}
 					if(_bill_found) {
+						LongArray potential_row_n_list;
 						for(uint bi = 0; bi < p_inf->Items.getCount(); bi++) {
-							const InformBItem & r_bitem = p_inf->Items.at(bi);
+							const  InformBItem & r_bitem = p_inf->Items.at(bi);
+							// @v10.3.6 {
+							int    row_idx = -1;
+							potential_row_n_list.Z();
+							if(r_bitem.OrgRowIdent[0])
+								bp.LTagL.SearchString(r_bitem.OrgRowIdent, PPTAG_LOT_ORGLINEIDENT, 0, potential_row_n_list);
+							if(potential_row_n_list.getCount() == 1) {
+								const long temp_row_idx = potential_row_n_list.get(0);
+								if(temp_row_idx >= 0 && temp_row_idx < static_cast<int>(bp.GetTCount())) 
+									row_idx = temp_row_idx;
+							}
+							if(row_idx < 0 && r_bitem.P && r_bitem.Ident[0]) {
+								for(uint t = 0; t < bp.GetTCount(); t++) {
+									if(bp.TI(t).RByBill == r_bitem.P)
+										row_idx = static_cast<int>(t);
+								}
+							}
+							if(row_idx >= 0) {
+								assert(row_idx >= 0 && row_idx < static_cast<int>(bp.GetTCount())); // @paranoic
+								PPTransferItem & r_ti = bp.TI(row_idx);
+								if(r_ti.RByBill == r_bitem.P) {
+									const ObjTagList * p_ex_tag_list = bp.LTagL.Get(row_idx);
+									ObjTagList tag_list;
+									int    do_update_informb = 1;
+									if(p_ex_tag_list) {
+										p_ex_tag_item = p_ex_tag_list->GetItem(PPTAG_LOT_FSRARINFB);
+										if(p_ex_tag_item && p_ex_tag_item->GetStr(temp_buf) > 0 && temp_buf.CmpNC(r_bitem.Ident) == 0)
+											do_update_informb = 0;
+										else
+											tag_list = *p_ex_tag_list;
+									}
+									if(do_update_informb) {
+										tag_list.PutItemStr(PPTAG_LOT_FSRARINFB, r_bitem.Ident);
+										THROW(bp.LTagL.Set(row_idx, &tag_list));
+										do_update = 1;
+									}
+								}
+							}
+							// } @v10.3.6 
+							/* @v10.3.6 
 							if(r_bitem.P && r_bitem.Ident[0]) {
 								for(uint t = 0; t < bp.GetTCount(); t++) {
 									PPTransferItem & r_ti = bp.TI(t);
@@ -4958,6 +4997,7 @@ int SLAPI PPEgaisProcessor::Helper_AcceptTtnRefB(const Packet * pPack, const TSC
 									}
 								}
 							}
+							*/
 						}
 						{
 							//
@@ -5093,9 +5133,15 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBi
     PPIDArray alco_goods_list;
     PPID   wos_op_id = 0;
     if((!v3markMode || use_lotxcode) && oneof3(Cfg.E.WrOffShopWay, Cfg.woswBalanceWithLots, Cfg.woswByBills, Cfg.woswByCChecks)) {
-		if(!op_obj.GetEdiWrOffShopOp(&wos_op_id, 1))
-			LogLastError();
-		else if(wos_op_id) {
+		if(v3markMode) {
+			if(!op_obj.GetEdiWrOffWithMarksOp(&wos_op_id, 1))
+				LogLastError();
+		}
+		else {
+			if(!op_obj.GetEdiWrOffShopOp(&wos_op_id, 1))
+				LogLastError();
+		}
+		if(wos_op_id) {
 			PPID   ex_today_bill_id = 0;
 			{
 				DateRange test_period;
@@ -5228,27 +5274,40 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBi
 											ref_b.Z();
 											egais_code_by_mark.Z();
 											if(P_LecT->GetRecListByMark(egais_mark, lec_rec_list) > 0) {
+												enum {
+													emrfAlreadyWrittenOff = 0x0001,
+													emrfInitBillFound     = 0x0002
+												};
+												int    ex_mark_results = 0;
 												for(uint mridx = 0; mridx < lec_rec_list.getCount(); mridx++) {
 													const LotExtCodeTbl::Rec & r_lec_rec = lec_rec_list.at(mridx);
 													BillTbl::Rec lec_bill_rec;
-													if(P_BObj->Fetch(r_lec_rec.BillID, &lec_bill_rec) > 0 && lec_bill_rec.OpID == draft_rcpt_op_id) {
-														int16 ln = 0;
-														PPTransferItem lec_ti;
-														for(int lec_rbb = 0; P_BObj->P_CpTrfr->EnumItems(lec_bill_rec.ID, &lec_rbb, &lec_ti, 0) > 0;) {
-															ln++;
-															if(ln == r_lec_rec.RByBill)
-																break;
+													if(P_BObj->Fetch(r_lec_rec.BillID, &lec_bill_rec) > 0) {
+														if(lec_bill_rec.OpID == wos_op_id) {
+															// Уже есть документ со списанием этой марки
+															ex_mark_results |= emrfAlreadyWrittenOff;
 														}
-														if(ln == r_lec_rec.RByBill) {
-															PPLotTagContainer ltc;
-															P_BObj->LoadRowTagListForDraft(lec_bill_rec.ID, ltc);
-															ltc.GetTagStr(ln-1, PPTAG_LOT_FSRARINFB, ref_b);
-															ltc.GetTagStr(ln-1, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code_by_mark);
+														else if(lec_bill_rec.OpID == draft_rcpt_op_id) {
+															if(!(ex_mark_results & emrfInitBillFound)) {
+																int16 ln = 0;
+																PPTransferItem lec_ti;
+																for(int lec_rbb = 0; P_BObj->P_CpTrfr->EnumItems(lec_bill_rec.ID, &lec_rbb, &lec_ti, 0) > 0;) {
+																	ln++;
+																	if(ln == r_lec_rec.RByBill)
+																		break;
+																}
+																if(ln == r_lec_rec.RByBill) {
+																	PPLotTagContainer ltc;
+																	P_BObj->LoadRowTagListForDraft(lec_bill_rec.ID, ltc);
+																	ltc.GetTagStr(ln-1, PPTAG_LOT_FSRARINFB, ref_b);
+																	ltc.GetTagStr(ln-1, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code_by_mark);
+																}
+																ex_mark_results |= emrfInitBillFound;
+															}
 														}
-														break;
 													}
 												}
-												if(ref_b.NotEmpty() && egais_code_by_mark.NotEmpty()) {
+												if(!(ex_mark_results & emrfAlreadyWrittenOff) && ref_b.NotEmpty() && egais_code_by_mark.NotEmpty()) {
 													double ex_row_qtty = 0.0;
 													double crest = 0.0;
 													if(p_wroff_bp) {
@@ -5300,7 +5359,8 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBi
 																THROW(p_wroff_bp->LoadTItem(&ti, 0, 0));
 																{
 																	ObjTagList tag_list;
-																	tag_list.PutItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
+																	tag_list.PutItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, egais_code_by_mark);
+																	tag_list.PutItemStr(PPTAG_LOT_FSRARINFB, ref_b);
 																	THROW(p_wroff_bp->LTagL.Set(new_pos, &tag_list));
 																}
 																if(use_lotxcode && egais_mark.NotEmpty())
@@ -5387,7 +5447,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBi
 					p_wroff_bp->InitAmounts();
 					THROW(P_BObj->TurnPacket(p_wroff_bp, 1));
 					PPObjBill::MakeCodeString(&p_wroff_bp->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
-					LogTextWithAddendum(PPTXT_EGAIS_REG2WBCREATED, bill_text);
+					LogTextWithAddendum(v3markMode ? PPTXT_EGAIS_WROFFMARKSCREATED : PPTXT_EGAIS_REG2WBCREATED, bill_text);
 				}
 			}
 		}
@@ -7403,8 +7463,13 @@ int SLAPI PPEgaisProcessor::GetBillListForTransmission(const PPBillIterchangeFil
 			base_op_list.add(Cfg.IntrExpndOpID);
 		if(flags & bilstfReturnToSuppl)
 			base_op_list.add(Cfg.SupplRetOpID);
-		if(flags & bilstfLosses)
+		if(flags & bilstfLosses) {
 			base_op_list.add(Cfg.ExpndEtcOpID);
+			// @v10.3.7 {
+			if(flags & bilstfV3) 
+				base_op_list.add(PPOPK_EDI_WROFFWITHMARKS); 
+			// } @v10.3.7 
+		}
 		// @v9.5.12 {
 		if(flags & bilstfWbRepealConf) {
 			base_op_list.add(Cfg.ExpndOpID);

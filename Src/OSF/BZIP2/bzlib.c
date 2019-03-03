@@ -171,7 +171,7 @@ int BZ_API(BZ2_bzCompressInit)(bz_stream* strm, int blockSize100k, int verbosity
 	s->block             = (uchar*)s->arr2;
 	s->mtfv              = (uint16*)s->arr1;
 	s->zbits             = NULL;
-	s->ptr               = (uint32*)s->arr1;
+	s->ptr               = (uint32 *)s->arr1;
 
 	strm->state          = s;
 	strm->total_in_lo32  = 0;

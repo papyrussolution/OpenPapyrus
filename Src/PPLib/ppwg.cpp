@@ -508,7 +508,7 @@ int DutySchedDialog::editItem(long pos, long id)
 
 int DutySchedDialog::delItem(long pos, long id)
 {
-	return Data.List.atFree((uint)pos) ? 1 : -1;
+	return Data.List.atFree(static_cast<uint>(pos)) ? 1 : -1;
 }
 
 int DutySchedDialog::setupObjType()

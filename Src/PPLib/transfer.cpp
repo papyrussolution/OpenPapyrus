@@ -1108,7 +1108,7 @@ int SLAPI Transfer::PreprocessCorrectionExp(PPTransferItem & rTi, const PPIDArra
 	if(rTi.IsCorrectionExp()) {
 		double org_qtty = 0.0;
 		double org_price = 0.0;
-		GetOriginalValuesForCorrection(rTi, rBillChain, &org_qtty, &org_price);
+		GetOriginalValuesForCorrection(rTi, rBillChain, 0, &org_qtty, &org_price);
 		rTi.QuotPrice = org_qtty;
 		rTi.RevalCost = org_price;
 		ok = rTi.PreprocessCorrectionExp();

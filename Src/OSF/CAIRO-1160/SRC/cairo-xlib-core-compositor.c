@@ -56,7 +56,7 @@
 //#include "cairo-boxes-private.h"
 //#include "cairo-clip-inline.h"
 //#include "cairo-compositor-private.h"
-#include "cairo-image-surface-private.h"
+//#include "cairo-image-surface-private.h"
 //#include "cairo-pattern-private.h"
 //#include "cairo-region-private.h"
 #include "cairo-surface-offset-private.h"
@@ -338,11 +338,9 @@ static cairo_bool_t image_upload_box(cairo_box_t * box, void * closure)
 		   x, y) == CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_bool_t surface_matches_image_format(cairo_xlib_surface_t * surface,
-    cairo_image_surface_t * image)
+static cairo_bool_t surface_matches_image_format(cairo_xlib_surface_t * surface, cairo_image_surface_t * image)
 {
 	cairo_format_masks_t format;
-
 	return (_pixman_format_to_masks(image->pixman_format, &format) &&
 	       (format.alpha_mask == surface->a_mask || surface->a_mask == 0) &&
 	       (format.red_mask   == surface->r_mask || surface->r_mask == 0) &&
@@ -350,49 +348,35 @@ static cairo_bool_t surface_matches_image_format(cairo_xlib_surface_t * surface,
 	       (format.blue_mask  == surface->b_mask || surface->b_mask == 0));
 }
 
-static cairo_status_t upload_image_inplace(cairo_xlib_surface_t * dst,
-    const cairo_pattern_t * source,
-    cairo_boxes_t * boxes)
+static cairo_status_t upload_image_inplace(cairo_xlib_surface_t * dst, const cairo_pattern_t * source, cairo_boxes_t * boxes)
 {
 	const cairo_surface_pattern_t * pattern;
 	struct _box_data iub;
 	cairo_image_surface_t * image;
-
 	if(source->type != CAIRO_PATTERN_TYPE_SURFACE)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
 	pattern = (const cairo_surface_pattern_t*)source;
 	if(pattern->surface->type != CAIRO_SURFACE_TYPE_IMAGE)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
 	image = (cairo_image_surface_t*)pattern->surface;
 	if(image->format == CAIRO_FORMAT_INVALID)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
 	if(image->depth != dst->depth)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
 	if(!surface_matches_image_format(dst, image))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
 	/* XXX subsurface */
-
-	if(!_cairo_matrix_is_integer_translation(&source->matrix,
-	    &iub.tx, &iub.ty))
+	if(!_cairo_matrix_is_integer_translation(&source->matrix, &iub.tx, &iub.ty))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
 	iub.dst = dst;
 	iub.src = &image->base;
 	iub.width  = image->width;
 	iub.height = image->height;
-
 	/* First check that the data is entirely within the image */
 	if(!_cairo_boxes_for_each_box(boxes, source_contains_box, &iub))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
 	if(!_cairo_boxes_for_each_box(boxes, image_upload_box, &iub))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -403,26 +387,16 @@ static cairo_bool_t copy_box(cairo_box_t * box, void * closure)
 	int y = _cairo_fixed_integer_part(box->p1.y);
 	int width  = _cairo_fixed_integer_part(box->p2.x - box->p1.x);
 	int height = _cairo_fixed_integer_part(box->p2.y - box->p1.y);
-
-	XCopyArea(cb->dpy,
-	    ((cairo_xlib_surface_t*)cb->src)->drawable,
-	    cb->dst->drawable,
-	    cb->gc,
-	    x + cb->tx, y + cb->ty,
-	    width, height,
-	    x, y);
+	XCopyArea(cb->dpy, ((cairo_xlib_surface_t*)cb->src)->drawable, cb->dst->drawable, cb->gc, x + cb->tx, y + cb->ty, width, height, x, y);
 	return TRUE;
 }
 
-static cairo_status_t copy_boxes(cairo_xlib_surface_t * dst,
-    const cairo_pattern_t * source,
-    cairo_boxes_t * boxes)
+static cairo_status_t copy_boxes(cairo_xlib_surface_t * dst, const cairo_pattern_t * source, cairo_boxes_t * boxes)
 {
 	const cairo_surface_pattern_t * pattern;
 	struct _box_data cb;
 	cairo_xlib_surface_t * src;
 	cairo_status_t status;
-
 	if(source->type != CAIRO_PATTERN_TYPE_SURFACE)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 

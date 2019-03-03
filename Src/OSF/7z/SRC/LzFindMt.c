@@ -437,7 +437,7 @@ SRes MatchFinderMt_Create(CMatchFinderMt * p, uint32 historySize, uint32 keepAdd
 	if(kMtBtBlockSize <= matchMaxLen * 4)
 		return SZ_ERROR_PARAM;
 	if(!p->hashBuf) {
-		p->hashBuf = (uint32*)ISzAlloc_Alloc(alloc, (kHashBufferSize + kBtBufferSize) * sizeof(uint32));
+		p->hashBuf = (uint32 *)ISzAlloc_Alloc(alloc, (kHashBufferSize + kBtBufferSize) * sizeof(uint32));
 		if(!p->hashBuf)
 			return SZ_ERROR_MEM;
 		p->btBuf = p->hashBuf + kHashBufferSize;

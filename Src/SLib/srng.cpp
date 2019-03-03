@@ -928,14 +928,14 @@ TryAgain:
 		}
 		else if (u <= p3) {
 			/* Left tail */
-			ix = (int) (xl + log(v) / lambda_l);
+			ix = (int)(xl + log(v) / lambda_l);
 			if(ix < 0)
 				goto TryAgain;
 			v *= ((u - p2) * lambda_l);
 		}
 		else {
 			/* Right tail */
-			ix = (int) (xr - log (v) / lambda_r);
+			ix = (int)(xr - log (v) / lambda_r);
 			if(ix > (double)n)
 				goto TryAgain;
 			v *= ((u - p3) * lambda_r);

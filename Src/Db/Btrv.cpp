@@ -709,7 +709,7 @@ int SLAPI DbDict_Btrieve::getIndexList(BTBLID tblID, BNKeyList * pKeyList)
 	do {
 		memcpy(q, &ilq, sizeof(ilq));
 		THROW(xindex.getExtended(&key, spNext) || BTRNFOUND || (BtrError == BE_REJECTLIMIT));
-		count = *(uint16*)q;
+		count = *(uint16 *)q;
 		for(i = 0; i < count; i++) {
    	    	const XIndex * d = (XIndex*)(q + sizeof(BExtResultHeader) +
 				i * (sizeof(BExtResultItem) + sizeof(XIndex)) + sizeof(BExtResultItem));

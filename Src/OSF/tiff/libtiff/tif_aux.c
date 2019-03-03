@@ -81,7 +81,7 @@ static int TIFFDefaultTransferFunction(TIFFDirectory* td)
 		return 0;
 	n = ((tmsize_t)1)<<td->td_bitspersample;
 	nbytes = n * sizeof(uint16);
-	tf[0] = (uint16*)SAlloc::M(nbytes);
+	tf[0] = (uint16 *)SAlloc::M(nbytes);
 	if(tf[0] == NULL)
 		return 0;
 	tf[0][0] = 0;
@@ -90,11 +90,11 @@ static int TIFFDefaultTransferFunction(TIFFDirectory* td)
 		tf[0][i] = (uint16)floor(65535.*pow(t, 2.2) + .5);
 	}
 	if(td->td_samplesperpixel - td->td_extrasamples > 1) {
-		tf[1] = (uint16*)SAlloc::M(nbytes);
+		tf[1] = (uint16 *)SAlloc::M(nbytes);
 		if(tf[1] == NULL)
 			goto bad;
 		memcpy(tf[1], tf[0], nbytes);
-		tf[2] = (uint16*)SAlloc::M(nbytes);
+		tf[2] = (uint16 *)SAlloc::M(nbytes);
 		if(tf[2] == NULL)
 			goto bad;
 		memcpy(tf[2], tf[0], nbytes);
@@ -111,7 +111,7 @@ bad:
 static int TIFFDefaultRefBlackWhite(TIFFDirectory* td)
 {
 	int i;
-	td->td_refblackwhite = (float *)SAlloc::M(6*sizeof(float));
+	td->td_refblackwhite = static_cast<float *>(SAlloc::M(6*sizeof(float)));
 	if(td->td_refblackwhite == NULL)
 		return 0;
 	if(td->td_photometric == PHOTOMETRIC_YCBCR) {

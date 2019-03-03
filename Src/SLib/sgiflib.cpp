@@ -54,8 +54,8 @@
 // compose unsigned little endian value 
 #define UNSIGNED_LITTLE_ENDIAN(lo, hi)  ((lo) | ((hi) << 8))
 // avoid extra function call in case we use fread (TVT) 
-#define READ(_gif, _buf, _len) static_cast<GifFilePrivateType *>((_gif)->Private)->Read ? static_cast<GifFilePrivateType *>((_gif)->Private)->Read(_gif, _buf, _len) : \
-	fread(_buf, 1, _len, static_cast<GifFilePrivateType *>((_gif)->Private)->File)
+#define READ(_gif, _buf, _len) (static_cast<GifFilePrivateType *>((_gif)->Private)->Read ? static_cast<GifFilePrivateType *>((_gif)->Private)->Read(_gif, _buf, _len) : \
+	fread(_buf, 1, _len, static_cast<GifFilePrivateType *>((_gif)->Private)->File))
 #define COLOR_ARRAY_SIZE 32768
 #define BITS_PER_PRIM_COLOR 5
 #define MAX_PRIM_COLOR      0x1f
@@ -230,7 +230,7 @@ GifFileType * DGifOpen(void * userData, InputFunc readFunc, int * Error)
 {
 	char Buf[GIF_STAMP_LEN + 1];
 	GifFilePrivateType * Private;
-	GifFileType * GifFile = (GifFileType*)SAlloc::M(sizeof(GifFileType));
+	GifFileType * GifFile = static_cast<GifFileType *>(SAlloc::M(sizeof(GifFileType)));
 	if(GifFile == NULL) {
 		ASSIGN_PTR(Error, D_GIF_ERR_NOT_ENOUGH_MEM);
 		return NULL;
@@ -242,17 +242,20 @@ GifFileType * DGifOpen(void * userData, InputFunc readFunc, int * Error)
 	Private = static_cast<GifFilePrivateType *>(SAlloc::M(sizeof(GifFilePrivateType)));
 	if(!Private) {
 		ASSIGN_PTR(Error, D_GIF_ERR_NOT_ENOUGH_MEM);
-		SAlloc::F((char *)GifFile);
+		SAlloc::F(GifFile);
 		return NULL;
 	}
-	GifFile->Private = (void *)Private;
+	GifFile->Private = Private;
 	Private->FileHandle = 0;
 	Private->File = NULL;
 	Private->FileState = FILE_STATE_READ;
 	Private->Read = readFunc; /* TVT */
 	GifFile->UserData = userData; /* TVT */
 	// Lets see if this is a GIF file: 
-	if(READ(GifFile, (uint8 *)Buf, GIF_STAMP_LEN) != GIF_STAMP_LEN) {
+	const size_t hdr_size = GIF_STAMP_LEN;
+	const size_t rd_hdr_size = READ(GifFile, (uint8 *)Buf, GIF_STAMP_LEN);
+	if(rd_hdr_size != hdr_size) {
+	//if(READ(GifFile, (uint8 *)Buf, GIF_STAMP_LEN) != GIF_STAMP_LEN) {
 		ASSIGN_PTR(Error, D_GIF_ERR_READ_FAILED);
 		SAlloc::F(Private);
 		SAlloc::F(GifFile);
@@ -413,10 +416,8 @@ int DGifGetImageDesc(GifFileType * GifFile)
 		GifFile->Error = D_GIF_ERR_NOT_READABLE;
 		return GIF_ERROR;
 	}
-	if(DGifGetWord(GifFile, &GifFile->Image.Left) == GIF_ERROR ||
-	    DGifGetWord(GifFile, &GifFile->Image.Top) == GIF_ERROR ||
-	    DGifGetWord(GifFile, &GifFile->Image.Width) == GIF_ERROR ||
-	    DGifGetWord(GifFile, &GifFile->Image.Height) == GIF_ERROR)
+	if(DGifGetWord(GifFile, &GifFile->Image.Left) == GIF_ERROR || DGifGetWord(GifFile, &GifFile->Image.Top) == GIF_ERROR ||
+	    DGifGetWord(GifFile, &GifFile->Image.Width) == GIF_ERROR || DGifGetWord(GifFile, &GifFile->Image.Height) == GIF_ERROR)
 		return GIF_ERROR;
 	if(READ(GifFile, Buf, 1) != 1) {
 		GifFile->Error = D_GIF_ERR_READ_FAILED;
@@ -451,13 +452,13 @@ int DGifGetImageDesc(GifFileType * GifFile)
 		}
 	}
 	if(GifFile->SavedImages) {
-		if((GifFile->SavedImages = (GifSavedImage*)SAlloc::R(GifFile->SavedImages, sizeof(GifSavedImage) * (GifFile->ImageCount + 1))) == NULL) {
+		if((GifFile->SavedImages = static_cast<GifSavedImage *>(SAlloc::R(GifFile->SavedImages, sizeof(GifSavedImage) * (GifFile->ImageCount + 1)))) == NULL) {
 			GifFile->Error = D_GIF_ERR_NOT_ENOUGH_MEM;
 			return GIF_ERROR;
 		}
 	}
 	else {
-		if((GifFile->SavedImages = (GifSavedImage*)SAlloc::M(sizeof(GifSavedImage))) == NULL) {
+		if((GifFile->SavedImages = static_cast<GifSavedImage *>(SAlloc::M(sizeof(GifSavedImage)))) == NULL) {
 			GifFile->Error = D_GIF_ERR_NOT_ENOUGH_MEM;
 			return GIF_ERROR;
 		}
@@ -2249,7 +2250,7 @@ int FASTCALL GifBitSize(int n)
 // Allocate a color map of given size; initialize with contents of
 // ColorMap if that pointer is non-NULL.
 // 
-ColorMapObject * GifMakeMapObject(int ColorCount, const SColorRGB * ColorMap)
+ColorMapObject * FASTCALL GifMakeMapObject(int ColorCount, const SColorRGB * ColorMap)
 {
 	ColorMapObject * Object;
 	/*** FIXME: Our ColorCount has to be a power of two.  Is it necessary to
@@ -2276,7 +2277,7 @@ ColorMapObject * GifMakeMapObject(int ColorCount, const SColorRGB * ColorMap)
 // 
 // Free a color map object
 // 
-void GifFreeMapObject(ColorMapObject * Object)
+void FASTCALL GifFreeMapObject(ColorMapObject * Object)
 {
 	if(Object) {
 		SAlloc::F(Object->Colors);

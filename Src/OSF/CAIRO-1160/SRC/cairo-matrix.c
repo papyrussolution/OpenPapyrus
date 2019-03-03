@@ -368,7 +368,7 @@ void FASTCALL cairo_matrix_transform_point(const cairo_matrix_t * matrix, double
 
 slim_hidden_def(cairo_matrix_transform_point);
 
-void _cairo_matrix_transform_bounding_box(const cairo_matrix_t * matrix, double * x1, double * y1, double * x2, double * y2, cairo_bool_t * is_tight)
+void FASTCALL _cairo_matrix_transform_bounding_box(const cairo_matrix_t * matrix, double * x1, double * y1, double * x2, double * y2, cairo_bool_t * is_tight)
 {
 	int i;
 	double quad_x[4], quad_y[4];
@@ -456,7 +456,7 @@ void _cairo_matrix_transform_bounding_box(const cairo_matrix_t * matrix, double 
 	}
 }
 
-cairo_private void _cairo_matrix_transform_bounding_box_fixed(const cairo_matrix_t * matrix, cairo_box_t * bbox, cairo_bool_t * is_tight)
+cairo_private void FASTCALL _cairo_matrix_transform_bounding_box_fixed(const cairo_matrix_t * matrix, cairo_box_t * bbox, cairo_bool_t * is_tight)
 {
 	double x1, y1, x2, y2;
 	_cairo_box_to_doubles(bbox, &x1, &y1, &x2, &y2);

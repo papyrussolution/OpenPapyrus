@@ -220,8 +220,8 @@ extern char * GifErrorString(int ErrorCode);     /* new in 2012 - ESR */
 // 
 // Color map handling from gif_alloc.c
 // 
-extern ColorMapObject * GifMakeMapObject(int ColorCount, const SColorRGB * ColorMap);
-extern void GifFreeMapObject(ColorMapObject * Object);
+extern ColorMapObject * FASTCALL GifMakeMapObject(int ColorCount, const SColorRGB * ColorMap);
+extern void FASTCALL GifFreeMapObject(ColorMapObject * Object);
 extern ColorMapObject * GifUnionColorMap(const ColorMapObject *ColorIn1, const ColorMapObject *ColorIn2, GifPixelType ColorTransIn2[]);
 extern int FASTCALL GifBitSize(int n);
 // 

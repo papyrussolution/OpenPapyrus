@@ -51,10 +51,10 @@ struct _cairo_region {
 	pixman_region32_t rgn;
 };
 
-cairo_private cairo_region_t * _cairo_region_create_in_error(cairo_status_t status);
+cairo_private cairo_region_t * FASTCALL _cairo_region_create_in_error(cairo_status_t status);
 cairo_private void _cairo_region_init(cairo_region_t * region);
 cairo_private void _cairo_region_init_rectangle(cairo_region_t * region, const cairo_rectangle_int_t * rectangle);
-cairo_private void _cairo_region_fini(cairo_region_t * region);
+cairo_private void FASTCALL _cairo_region_fini(cairo_region_t * region);
 cairo_private cairo_region_t * _cairo_region_create_from_boxes(const cairo_box_t * boxes, int count);
 cairo_private cairo_box_t * _cairo_region_get_boxes(const cairo_region_t * region, int * nbox);
 

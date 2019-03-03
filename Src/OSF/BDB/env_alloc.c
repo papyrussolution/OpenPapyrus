@@ -98,7 +98,7 @@ typedef struct __alloc_element {
 #define SET_QUEUE_FOR_SIZE(head, q, i, len) do {                        \
 		for(i = 0; i < DB_SIZE_Q_COUNT; ++i) {                         \
 			q = &(head)->sizeq[i];                                  \
-			if((len) <= (uint64)1024<<i)                      \
+			if((len) <= /*(uint64)*/1024ULL<<i)                      \
 				break;                                          \
 		}                                                               \
 } while(0)
@@ -129,7 +129,7 @@ void __env_alloc_init(REGINFO * infop, size_t size)
 	/*
 	 * The rest of the memory is the first available chunk.
 	 */
-	elp = (ALLOC_ELEMENT *)((uint8 *)head+sizeof(ALLOC_LAYOUT));
+	elp = (ALLOC_ELEMENT *)(PTR8(head)+sizeof(ALLOC_LAYOUT));
 	elp->len = size-sizeof(ALLOC_LAYOUT);
 	elp->ulen = 0;
 

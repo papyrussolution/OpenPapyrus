@@ -45,9 +45,9 @@
 #include "cairo-pdf.h"
 
 #include "cairo-surface-private.h"
-#include "cairo-surface-clipper-private.h"
+//#include "cairo-surface-clipper-private.h"
 #include "cairo-pdf-operators-private.h"
-#include "cairo-path-fixed-private.h"
+//#include "cairo-path-fixed-private.h"
 #include "cairo-tag-attributes-private.h"
 #include "cairo-tag-stack-private.h"
 

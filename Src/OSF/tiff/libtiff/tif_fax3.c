@@ -503,7 +503,7 @@ static int Fax3SetupState(TIFF* tif)
 	   Assure that allocation computations do not overflow.
 	   TIFFroundup and TIFFSafeMultiply return zero on integer overflow
 	 */
-	dsp->runs = (uint32*)NULL;
+	dsp->runs = (uint32 *)NULL;
 	nruns = TIFFroundup_32(rowpixels, 32);
 	if(needsRefLine) {
 		nruns = TIFFSafeMultiply(uint32, nruns, 2);
@@ -512,7 +512,7 @@ static int Fax3SetupState(TIFF* tif)
 		TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "Row pixels integer overflow (rowpixels %u)", rowpixels);
 		return 0;
 	}
-	dsp->runs = (uint32*)_TIFFCheckMalloc(tif, TIFFSafeMultiply(uint32, nruns, 2), sizeof(uint32), "for Group 3/4 run arrays");
+	dsp->runs = (uint32 *)_TIFFCheckMalloc(tif, TIFFSafeMultiply(uint32, nruns, 2), sizeof(uint32), "for Group 3/4 run arrays");
 	if(dsp->runs == NULL)
 		return 0;
 	memzero(dsp->runs, TIFFSafeMultiply(uint32, nruns, 2)*sizeof(uint32));

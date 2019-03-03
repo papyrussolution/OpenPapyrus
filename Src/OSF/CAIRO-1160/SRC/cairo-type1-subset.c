@@ -47,8 +47,8 @@
 #if CAIRO_HAS_FONT_SUBSET
 
 #include "cairo-type1-private.h"
-#include "cairo-scaled-font-subsets-private.h"
-#include "cairo-output-stream-private.h"
+//#include "cairo-scaled-font-subsets-private.h"
+//#include "cairo-output-stream-private.h"
 //#include <ctype.h>
 
 #define TYPE1_STACKSIZE 24 /* Defined in Type 1 Font Format */

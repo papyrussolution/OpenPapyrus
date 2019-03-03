@@ -621,8 +621,8 @@ int ObjRestrictListDialog::editItem(long pos, long id)
 int ObjRestrictListDialog::delItem(long pos, long id)
 {
 	ObjRestrictArray * p_orlist = P_ORList;
-	if(p_orlist && ((uint)pos) < p_orlist->getCount()) {
-		p_orlist->atFree((uint)pos);
+	if(p_orlist && (static_cast<uint>(pos)) < p_orlist->getCount()) {
+		p_orlist->atFree(static_cast<uint>(pos));
 		return 1;
 	}
 	else

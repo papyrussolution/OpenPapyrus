@@ -1165,7 +1165,7 @@ int SLAPI PPLotExtCodeContainer::Delete(int rowIdx, uint itemIdx)
 						const InnerItem * p_ii = static_cast<const InnerItem *>(SVector::at(i));
 						if(p_ii->BoxId == item.BoxId) {
 							if(p_ii->Flags & fBox)
-								box_pos = (int)i;
+								box_pos = static_cast<int>(i);
 							else
 								is_other_by_box = 1;
 						}
@@ -2983,7 +2983,7 @@ int SLAPI PPBillPacket::GetSyncStatus()
 int FASTCALL PPBillPacket::SetTPointer(int pos)
 {
 	if((pos >= 0 && pos < (int)Lots.getCount()) || pos == -1) {
-		Lots.setPointer((uint)pos);
+		Lots.setPointer(static_cast<uint>(pos));
 		return 1;
 	}
 	else
@@ -2992,8 +2992,8 @@ int FASTCALL PPBillPacket::SetTPointer(int pos)
 
 static IMPL_CMPCFUNC(PPTransferItem_RByBill, p1, p2)
 {
-	const PPTransferItem * p_ti1 = (const PPTransferItem *)p1;
-	const PPTransferItem * p_ti2 = (const PPTransferItem *)p2;
+	const PPTransferItem * p_ti1 = static_cast<const PPTransferItem *>(p1);
+	const PPTransferItem * p_ti2 = static_cast<const PPTransferItem *>(p2);
 	return CMPSIGN(p_ti1->RByBill, p_ti2->RByBill);
 }
 

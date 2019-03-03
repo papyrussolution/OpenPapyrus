@@ -509,11 +509,11 @@ static int PixarLogMakeTables(PixarLogState * sp)
 	LogK1 = (float)(1./c);  /* if (v >= 2)  token = k1*log(v*k2) */
 	LogK2 = (float)(1./b);
 	lt2size = (int)(2./linstep) + 1;
-	FromLT2 = (uint16*)SAlloc::M(lt2size*sizeof(uint16));
-	From14 = (uint16*)SAlloc::M(16384*sizeof(uint16));
-	From8 = (uint16*)SAlloc::M(256*sizeof(uint16));
-	ToLinearF = (float *)SAlloc::M(TSIZEP1 * sizeof(float));
-	ToLinear16 = (uint16*)SAlloc::M(TSIZEP1 * sizeof(uint16));
+	FromLT2 = (uint16 *)SAlloc::M(lt2size*sizeof(uint16));
+	From14 = (uint16 *)SAlloc::M(16384*sizeof(uint16));
+	From8 = (uint16 *)SAlloc::M(256*sizeof(uint16));
+	ToLinearF = static_cast<float *>(SAlloc::M(TSIZEP1 * sizeof(float)));
+	ToLinear16 = (uint16 *)SAlloc::M(TSIZEP1 * sizeof(uint16));
 	ToLinear8 = (unsigned char*)SAlloc::M(TSIZEP1 * sizeof(unsigned char));
 	if(FromLT2 == NULL || From14  == NULL || From8   == NULL ||
 	    ToLinearF == NULL || ToLinear16 == NULL || ToLinear8 == NULL) {
@@ -692,7 +692,7 @@ static int PixarLogSetupDecode(TIFF* tif)
 	tbuf_size = add_ms(tbuf_size, sizeof(uint16) * sp->stride);
 	if(tbuf_size == 0)
 		return 0;   /* TODO: this is an error return without error report through TIFFErrorExt */
-	sp->tbuf = (uint16*)SAlloc::M(tbuf_size);
+	sp->tbuf = (uint16 *)SAlloc::M(tbuf_size);
 	if(sp->tbuf == NULL)
 		return 0;
 	sp->tbuf_size = tbuf_size;
@@ -856,17 +856,17 @@ static int PixarLogDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 			    break;
 			case PIXARLOGDATAFMT_16BIT:
 			    horizontalAccumulate16(up, llen, sp->stride,
-			    (uint16*)op, sp->ToLinear16);
+			    (uint16 *)op, sp->ToLinear16);
 			    op += llen * sizeof(uint16);
 			    break;
 			case PIXARLOGDATAFMT_12BITPICIO:
 			    horizontalAccumulate12(up, llen, sp->stride,
-			    (int16*)op, sp->ToLinearF);
+			    (int16 *)op, sp->ToLinearF);
 			    op += llen * sizeof(int16);
 			    break;
 			case PIXARLOGDATAFMT_11BITLOG:
 			    horizontalAccumulate11(up, llen, sp->stride,
-			    (uint16*)op);
+			    (uint16 *)op);
 			    op += llen * sizeof(uint16);
 			    break;
 			case PIXARLOGDATAFMT_8BIT:
@@ -907,7 +907,7 @@ static int PixarLogSetupEncode(TIFF* tif)
 		    td->td_rowsperstrip), sizeof(uint16));
 	if(tbuf_size == 0)
 		return 0;  /* TODO: this is an error return without error report through TIFFErrorExt */
-	sp->tbuf = (uint16*)SAlloc::M(tbuf_size);
+	sp->tbuf = (uint16 *)SAlloc::M(tbuf_size);
 	if(sp->tbuf == NULL)
 		return 0;
 	if(sp->user_datafmt == PIXARLOGDATAFMT_UNKNOWN)
@@ -956,10 +956,7 @@ static void horizontalDifferenceF(float * ip, int n, int stride, uint16 * wp, ui
 	int32 r1, g1, b1, a1, r2, g2, b2, a2, mask;
 	float fltsize = Fltsize;
 
-#define  CLAMP(v) ( (v<(float)0.)   ? 0				\
-	    : (v<(float)2.)   ? FromLT2[(int)(v*fltsize)] \
-	    : (v>(float)24.2) ? 2047			  \
-	    : LogK1*log(v*LogK2) + 0.5 )
+#define  CLAMP(v) ((v<0.0f) ? 0 : (v<2.0f)   ? FromLT2[(int)(v*fltsize)] : (v>24.2f) ? 2047 : LogK1*log(v*LogK2) + 0.5)
 
 	mask = CODE_MASK;
 	if(n >= stride) {
@@ -1158,7 +1155,7 @@ static int PixarLogEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 			    bp += llen * sizeof(float);
 			    break;
 			case PIXARLOGDATAFMT_16BIT:
-			    horizontalDifference16((uint16*)bp, llen,
+			    horizontalDifference16((uint16 *)bp, llen,
 			    sp->stride, up, sp->From14);
 			    bp += llen * sizeof(uint16);
 			    break;

@@ -40,19 +40,19 @@
 
 static inline cairo_surface_t * _cairo_surface_subsurface_get_target(cairo_surface_t * surface)
 {
-	return ((cairo_surface_subsurface_t*)surface)->target;
+	return reinterpret_cast<cairo_surface_subsurface_t *>(surface)->target;
 }
 
-static inline void _cairo_surface_subsurface_offset(cairo_surface_t * surface, int * x, int * y)
+static inline void _cairo_surface_subsurface_offset(const cairo_surface_t * surface, int * x, int * y)
 {
-	cairo_surface_subsurface_t * ss = (cairo_surface_subsurface_t*)surface;
+	const cairo_surface_subsurface_t * ss = reinterpret_cast<const cairo_surface_subsurface_t *>(surface);
 	*x += ss->extents.x;
 	*y += ss->extents.y;
 }
 
-static inline cairo_surface_t * _cairo_surface_subsurface_get_target_with_offset(cairo_surface_t * surface, int * x, int * y)
+static inline cairo_surface_t * _cairo_surface_subsurface_get_target_with_offset(const cairo_surface_t * surface, int * x, int * y)
 {
-	cairo_surface_subsurface_t * ss = (cairo_surface_subsurface_t*)surface;
+	const cairo_surface_subsurface_t * ss = reinterpret_cast<const cairo_surface_subsurface_t *>(surface);
 	*x += ss->extents.x;
 	*y += ss->extents.y;
 	return ss->target;

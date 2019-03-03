@@ -43,7 +43,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-image-surface-private.h"
+//#include "cairo-image-surface-private.h"
 //#include "cairo-compositor-private.h"
 //#include "cairo-error-private.h"
 #include "cairo-pattern-inline.h"
@@ -193,31 +193,22 @@ static pixman_image_t * _pixman_white_image(void)
 
 #endif /* !PIXMAN_HAS_ATOMIC_OPS */
 
-pixman_image_t * _pixman_image_for_color(const cairo_color_t * cairo_color)
+pixman_image_t * FASTCALL _pixman_image_for_color(const cairo_color_t * cairo_color)
 {
 	pixman_color_t color;
 	pixman_image_t * image;
-
 #if PIXMAN_HAS_ATOMIC_OPS
 	int i;
-
 	if(CAIRO_COLOR_IS_CLEAR(cairo_color))
 		return _pixman_transparent_image();
-
 	if(CAIRO_COLOR_IS_OPAQUE(cairo_color)) {
-		if(cairo_color->red_short <= 0x00ff &&
-		    cairo_color->green_short <= 0x00ff &&
-		    cairo_color->blue_short <= 0x00ff) {
+		if(cairo_color->red_short <= 0x00ff && cairo_color->green_short <= 0x00ff && cairo_color->blue_short <= 0x00ff) {
 			return _pixman_black_image();
 		}
-
-		if(cairo_color->red_short >= 0xff00 &&
-		    cairo_color->green_short >= 0xff00 &&
-		    cairo_color->blue_short >= 0xff00) {
+		if(cairo_color->red_short >= 0xff00 && cairo_color->green_short >= 0xff00 && cairo_color->blue_short >= 0xff00) {
 			return _pixman_white_image();
 		}
 	}
-
 	CAIRO_MUTEX_LOCK(_cairo_image_solid_cache_mutex);
 	for(i = 0; i < n_cached; i++) {
 		if(_cairo_color_equal(&cache[i].color, cairo_color)) {
@@ -226,17 +217,14 @@ pixman_image_t * _pixman_image_for_color(const cairo_color_t * cairo_color)
 		}
 	}
 #endif
-
 	color.red   = cairo_color->red_short;
 	color.green = cairo_color->green_short;
 	color.blue  = cairo_color->blue_short;
 	color.alpha = cairo_color->alpha_short;
-
 	image = pixman_image_create_solid_fill(&color);
 #if PIXMAN_HAS_ATOMIC_OPS
 	if(image == NULL)
 		goto UNLOCK;
-
 	if(n_cached < ARRAY_LENGTH(cache)) {
 		i = n_cached++;
 	}
@@ -246,7 +234,6 @@ pixman_image_t * _pixman_image_for_color(const cairo_color_t * cairo_color)
 	}
 	cache[i].image = pixman_image_ref(image);
 	cache[i].color = *cairo_color;
-
 UNLOCK:
 	CAIRO_MUTEX_UNLOCK(_cairo_image_solid_cache_mutex);
 #endif

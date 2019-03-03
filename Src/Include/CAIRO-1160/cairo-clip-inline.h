@@ -47,7 +47,7 @@ static inline cairo_bool_t _cairo_clip_is_all_clipped(const cairo_clip_t * clip)
 static inline cairo_clip_t * _cairo_clip_set_all_clipped(cairo_clip_t * clip)
 {
 	_cairo_clip_destroy(clip);
-	return (cairo_clip_t*)&__cairo_clip_all;
+	return const_cast<cairo_clip_t *>(&__cairo_clip_all);
 }
 
 static inline cairo_clip_t * _cairo_clip_copy_intersect_rectangle(const cairo_clip_t * clip, const cairo_rectangle_int_t * r)

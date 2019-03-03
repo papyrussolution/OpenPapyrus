@@ -39,7 +39,7 @@
 #include "cairoint.h"
 #pragma hdrstop
 //#include "cairo-error-private.h"
-#include "cairo-image-surface-private.h"
+//#include "cairo-image-surface-private.h"
 #include "cairo-surface-snapshot-inline.h"
 
 static cairo_status_t _cairo_surface_snapshot_finish(void * abstract_surface)

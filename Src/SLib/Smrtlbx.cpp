@@ -262,7 +262,7 @@ int SmartListBox::AddColumn(int pos, const char * pTitle, uint width, uint forma
 		pos = Columns.getCount();
 	ok = Columns.atInsert((uint)pos, &item);
 	if(ok /* @v9.2.9 && !(State & stInited)*/)
-		Helper_InsertColumn((uint)pos);
+		Helper_InsertColumn(static_cast<uint>(pos));
 	return ok;
 }
 

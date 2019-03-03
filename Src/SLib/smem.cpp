@@ -418,7 +418,7 @@ public:
 			SRng * p_rng = SRng::CreateInstance(SRng::algMT, 0);
 			p_rng->Set(7619);
 			for(size_t i = 0; i < BYTES_SIZE/sizeof(uint32); i++) {
-				((uint32*)P_Bytes)[i] = ((uint32*)P_Pattern)[i] = p_rng->Get();
+				((uint32 *)P_Bytes)[i] = ((uint32 *)P_Pattern)[i] = p_rng->Get();
 			}
 			delete p_rng;
 		}

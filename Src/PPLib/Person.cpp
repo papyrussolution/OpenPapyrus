@@ -419,7 +419,7 @@ int PersonRelTypeDialog::addItem(long * pPos, long * pID)
 int PersonRelTypeDialog::delItem(long pos, long /*id*/)
 {
 	if(pos >= 0 && pos < (long)Data.InhRegTypeList.getCount())
-		return (Data.InhRegTypeList.atFree((uint)pos) > 0) ? 1 : -1;
+		return (Data.InhRegTypeList.atFree(static_cast<uint>(pos)) > 0) ? 1 : -1;
 	return -1;
 }
 

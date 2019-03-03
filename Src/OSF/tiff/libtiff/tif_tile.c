@@ -238,9 +238,9 @@ void TIFFDefaultTileSize(TIFF* tif, uint32* tw, uint32* th)
 void _TIFFDefaultTileSize(TIFF* tif, uint32* tw, uint32* th)
 {
 	(void)tif;
-	if(*(int32*)tw < 1)
+	if(*(int32 *)tw < 1)
 		*tw = 256;
-	if(*(int32*)th < 1)
+	if(*(int32 *)th < 1)
 		*th = 256;
 	/* roundup to a multiple of 16 per the spec */
 	if(*tw & 0xf)

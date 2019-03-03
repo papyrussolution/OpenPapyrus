@@ -289,21 +289,14 @@ slim_hidden_def(cairo_font_options_equal);
  *
  * Since: 1.0
  **/
-ulong cairo_font_options_hash(const cairo_font_options_t * options)
+ulong FASTCALL cairo_font_options_hash(const cairo_font_options_t * options)
 {
 	ulong hash = 0;
-
 	if(cairo_font_options_status((cairo_font_options_t*)options))
 		options = &_cairo_font_options_nil; /* force default values */
-
 	if(options->variations)
 		hash = _cairo_string_hash(options->variations, strlen(options->variations));
-
-	return ((options->antialias) |
-	       (options->subpixel_order << 4) |
-	       (options->lcd_filter << 8) |
-	       (options->hint_style << 12) |
-	       (options->hint_metrics << 16)) ^ hash;
+	return ((options->antialias) | (options->subpixel_order << 4) | (options->lcd_filter << 8) | (options->hint_style << 12) | (options->hint_metrics << 16)) ^ hash;
 }
 
 slim_hidden_def(cairo_font_options_hash);

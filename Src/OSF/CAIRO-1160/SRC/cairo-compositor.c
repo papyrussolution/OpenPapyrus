@@ -37,49 +37,35 @@
 #include "cairoint.h"
 #pragma hdrstop
 //#include "cairo-compositor-private.h"
-#include "cairo-damage-private.h"
+//#include "cairo-damage-private.h"
 //#include "cairo-error-private.h"
 
-cairo_int_status_t _cairo_compositor_paint(const cairo_compositor_t * compositor,
-    cairo_surface_t * surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_clip_t * clip)
+cairo_int_status_t _cairo_compositor_paint(const cairo_compositor_t * compositor, cairo_surface_t * surface, cairo_operator_t op,
+    const cairo_pattern_t * source, const cairo_clip_t * clip)
 {
 	cairo_composite_rectangles_t extents;
 	cairo_int_status_t status;
-
 	TRACE((stderr, "%s\n", __FUNCTION__));
-	status = _cairo_composite_rectangles_init_for_paint(&extents, surface,
-		op, source,
-		clip);
+	status = _cairo_composite_rectangles_init_for_paint(&extents, surface, op, source, clip);
 	if(unlikely(status))
 		return status;
-
 	do {
 		while(compositor->paint == NULL)
 			compositor = compositor->delegate;
 		status = compositor->paint(compositor, &extents);
 		compositor = compositor->delegate;
 	} while(status == CAIRO_INT_STATUS_UNSUPPORTED);
-
 	if(status == CAIRO_INT_STATUS_SUCCESS && surface->damage) {
 		TRACE((stderr, "%s: applying damage (%d,%d)x(%d, %d)\n", __FUNCTION__,
-		    extents.unbounded.x, extents.unbounded.y,
-		    extents.unbounded.width, extents.unbounded.height));
-		surface->damage = _cairo_damage_add_rectangle(surface->damage,
-			&extents.unbounded);
+		    extents.unbounded.x, extents.unbounded.y, extents.unbounded.width, extents.unbounded.height));
+		surface->damage = _cairo_damage_add_rectangle(surface->damage, &extents.unbounded);
 	}
 	_cairo_composite_rectangles_fini(&extents);
 	return status;
 }
 
-cairo_int_status_t _cairo_compositor_mask(const cairo_compositor_t * compositor,
-    cairo_surface_t * surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_pattern_t * mask,
-    const cairo_clip_t * clip)
+cairo_int_status_t _cairo_compositor_mask(const cairo_compositor_t * compositor, cairo_surface_t * surface,
+    cairo_operator_t op, const cairo_pattern_t * source, const cairo_pattern_t * mask, const cairo_clip_t * clip)
 {
 	cairo_composite_rectangles_t extents;
 	cairo_int_status_t status;
@@ -90,34 +76,21 @@ cairo_int_status_t _cairo_compositor_mask(const cairo_compositor_t * compositor,
 	do {
 		while(compositor->mask == NULL)
 			compositor = compositor->delegate;
-
 		status = compositor->mask(compositor, &extents);
-
 		compositor = compositor->delegate;
 	} while(status == CAIRO_INT_STATUS_UNSUPPORTED);
 	if(status == CAIRO_INT_STATUS_SUCCESS && surface->damage) {
-		TRACE((stderr, "%s: applying damage (%d,%d)x(%d, %d)\n",
-		    __FUNCTION__,
-		    extents.unbounded.x, extents.unbounded.y,
-		    extents.unbounded.width, extents.unbounded.height));
-		surface->damage = _cairo_damage_add_rectangle(surface->damage,
-			&extents.unbounded);
+		TRACE((stderr, "%s: applying damage (%d,%d)x(%d, %d)\n", __FUNCTION__,
+		    extents.unbounded.x, extents.unbounded.y, extents.unbounded.width, extents.unbounded.height));
+		surface->damage = _cairo_damage_add_rectangle(surface->damage, &extents.unbounded);
 	}
 	_cairo_composite_rectangles_fini(&extents);
 	return status;
 }
 
-cairo_int_status_t _cairo_compositor_stroke(const cairo_compositor_t * compositor,
-    cairo_surface_t * surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_path_fixed_t * path,
-    const cairo_stroke_style_t * style,
-    const cairo_matrix_t * ctm,
-    const cairo_matrix_t * ctm_inverse,
-    double tolerance,
-    cairo_antialias_t antialias,
-    const cairo_clip_t * clip)
+cairo_int_status_t _cairo_compositor_stroke(const cairo_compositor_t * compositor, cairo_surface_t * surface, cairo_operator_t op,
+    const cairo_pattern_t * source, const cairo_path_fixed_t * path, const cairo_stroke_style_t * style, const cairo_matrix_t * ctm,
+    const cairo_matrix_t * ctm_inverse, double tolerance, cairo_antialias_t antialias, const cairo_clip_t * clip)
 {
 	cairo_composite_rectangles_t extents;
 	cairo_int_status_t status;
@@ -142,15 +115,9 @@ cairo_int_status_t _cairo_compositor_stroke(const cairo_compositor_t * composito
 	return status;
 }
 
-cairo_int_status_t _cairo_compositor_fill(const cairo_compositor_t * compositor,
-    cairo_surface_t * surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_path_fixed_t * path,
-    cairo_fill_rule_t fill_rule,
-    double tolerance,
-    cairo_antialias_t antialias,
-    const cairo_clip_t * clip)
+cairo_int_status_t _cairo_compositor_fill(const cairo_compositor_t * compositor, cairo_surface_t * surface, cairo_operator_t op,
+    const cairo_pattern_t * source, const cairo_path_fixed_t * path, cairo_fill_rule_t fill_rule, double tolerance,
+    cairo_antialias_t antialias, const cairo_clip_t * clip)
 {
 	cairo_composite_rectangles_t extents;
 	cairo_int_status_t status;

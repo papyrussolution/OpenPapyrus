@@ -33,14 +33,14 @@ SLAPI PPViewGoodsBillCmp::~PPViewGoodsBillCmp()
 PPBaseFilt * SLAPI PPViewGoodsBillCmp::CreateFilt(void * extraPtr) const
 {
 	GoodsBillCmpFilt * p_filt = 0;
-	if(PPView::CreateFiltInstance(PPFILT_GOODSBILLCMP, (PPBaseFilt**)&p_filt)) {
+	if(PPView::CreateFiltInstance(PPFILT_GOODSBILLCMP, reinterpret_cast<PPBaseFilt **>(&p_filt))) {
 		if(extraPtr) {
 			const GoodsBillCmpFilt * p_sample_filt = static_cast<const GoodsBillCmpFilt *>(extraPtr);
 			if(p_filt->IsA(p_sample_filt))
 				*p_filt = *p_sample_filt;
 		}
 	}
-	return (PPBaseFilt*)p_filt;
+	return static_cast<PPBaseFilt *>(p_filt);
 }
 
 int SLAPI PPViewGoodsBillCmp::GetBillCodes(const GoodsBillCmpFilt * pFilt, SString & rLhCode, SString & rRhCode)

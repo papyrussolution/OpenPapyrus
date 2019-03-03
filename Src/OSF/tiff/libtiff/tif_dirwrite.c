@@ -728,24 +728,24 @@ static int TIFFWriteDirectorySec(TIFF* tif, int isimage, int imagedone, uint64* 
 		uint32 nTmp;
 		TIFFDirEntry* o;
 		uint8 * n = (uint8 *)dirmem;
-		*(uint16*)n = (uint16)ndir;
+		*(uint16 *)n = (uint16)ndir;
 		if(tif->tif_flags&TIFF_SWAB)
-			TIFFSwabShort((uint16*)n);
+			TIFFSwabShort((uint16 *)n);
 		n += 2;
 		o = dir;
 		for(m = 0; m<ndir; m++) {
-			*(uint16*)n = o->tdir_tag;
+			*(uint16 *)n = o->tdir_tag;
 			if(tif->tif_flags&TIFF_SWAB)
-				TIFFSwabShort((uint16*)n);
+				TIFFSwabShort((uint16 *)n);
 			n += 2;
-			*(uint16*)n = o->tdir_type;
+			*(uint16 *)n = o->tdir_type;
 			if(tif->tif_flags&TIFF_SWAB)
-				TIFFSwabShort((uint16*)n);
+				TIFFSwabShort((uint16 *)n);
 			n += 2;
 			nTmp = (uint32)o->tdir_count;
 			memcpy(n, &nTmp, 4);
 			if(tif->tif_flags&TIFF_SWAB)
-				TIFFSwabLong((uint32*)n);
+				TIFFSwabLong((uint32 *)n);
 			n += 4;
 			/* This is correct. The data has been */
 			/* swabbed previously in TIFFWriteDirectoryTagData */
@@ -761,23 +761,23 @@ static int TIFFWriteDirectorySec(TIFF* tif, int isimage, int imagedone, uint64* 
 	else {
 		TIFFDirEntry * o;
 		uint8 * n = (uint8 *)dirmem;
-		*(uint64*)n = ndir;
+		*(uint64 *)n = ndir;
 		if(tif->tif_flags&TIFF_SWAB)
-			TIFFSwabLong8((uint64*)n);
+			TIFFSwabLong8((uint64 *)n);
 		n += 8;
 		o = dir;
 		for(m = 0; m<ndir; m++) {
-			*(uint16*)n = o->tdir_tag;
+			*(uint16 *)n = o->tdir_tag;
 			if(tif->tif_flags&TIFF_SWAB)
-				TIFFSwabShort((uint16*)n);
+				TIFFSwabShort((uint16 *)n);
 			n += 2;
-			*(uint16*)n = o->tdir_type;
+			*(uint16 *)n = o->tdir_type;
 			if(tif->tif_flags&TIFF_SWAB)
-				TIFFSwabShort((uint16*)n);
+				TIFFSwabShort((uint16 *)n);
 			n += 2;
 			memcpy(n, &o->tdir_count, 8);
 			if(tif->tif_flags&TIFF_SWAB)
-				TIFFSwabLong8((uint64*)n);
+				TIFFSwabLong8((uint64 *)n);
 			n += 8;
 			memcpy(n, &o->tdir_offset, 8);
 			n += 8;
@@ -785,7 +785,7 @@ static int TIFFWriteDirectorySec(TIFF* tif, int isimage, int imagedone, uint64* 
 		}
 		memcpy(n, &tif->tif_nextdiroff, 8);
 		if(tif->tif_flags&TIFF_SWAB)
-			TIFFSwabLong8((uint64*)n);
+			TIFFSwabLong8((uint64 *)n);
 	}
 	SAlloc::F(dir);
 	dir = NULL;
@@ -893,18 +893,18 @@ static int TIFFWriteDirectoryTagSampleformatArray(TIFF* tif, uint32* ndir, TIFFD
 		case SAMPLEFORMAT_INT:
 		    if(tif->tif_dir.td_bitspersample<=8) {
 			    for(i = 0; i < count; ++i)
-				    ((int8*)conv)[i] = TIFFClampDoubleToInt8(value[i]);
-			    ok = TIFFWriteDirectoryTagSbyteArray(tif, ndir, dir, tag, count, (int8*)conv);
+				    ((int8 *)conv)[i] = TIFFClampDoubleToInt8(value[i]);
+			    ok = TIFFWriteDirectoryTagSbyteArray(tif, ndir, dir, tag, count, (int8 *)conv);
 		    }
 		    else if(tif->tif_dir.td_bitspersample<=16) {
 			    for(i = 0; i < count; ++i)
-				    ((int16*)conv)[i] = TIFFClampDoubleToInt16(value[i]);
-			    ok = TIFFWriteDirectoryTagSshortArray(tif, ndir, dir, tag, count, (int16*)conv);
+				    ((int16 *)conv)[i] = TIFFClampDoubleToInt16(value[i]);
+			    ok = TIFFWriteDirectoryTagSshortArray(tif, ndir, dir, tag, count, (int16 *)conv);
 		    }
 		    else {
 			    for(i = 0; i < count; ++i)
-				    ((int32*)conv)[i] = TIFFClampDoubleToInt32(value[i]);
-			    ok = TIFFWriteDirectoryTagSlongArray(tif, ndir, dir, tag, count, (int32*)conv);
+				    ((int32 *)conv)[i] = TIFFClampDoubleToInt32(value[i]);
+			    ok = TIFFWriteDirectoryTagSlongArray(tif, ndir, dir, tag, count, (int32 *)conv);
 		    }
 		    break;
 		case SAMPLEFORMAT_UINT:
@@ -915,13 +915,13 @@ static int TIFFWriteDirectoryTagSampleformatArray(TIFF* tif, uint32* ndir, TIFFD
 		    }
 		    else if(tif->tif_dir.td_bitspersample<=16) {
 			    for(i = 0; i < count; ++i)
-				    ((uint16*)conv)[i] = TIFFClampDoubleToUInt16(value[i]);
-			    ok = TIFFWriteDirectoryTagShortArray(tif, ndir, dir, tag, count, (uint16*)conv);
+				    ((uint16 *)conv)[i] = TIFFClampDoubleToUInt16(value[i]);
+			    ok = TIFFWriteDirectoryTagShortArray(tif, ndir, dir, tag, count, (uint16 *)conv);
 		    }
 		    else {
 			    for(i = 0; i < count; ++i)
-				    ((uint32*)conv)[i] = TIFFClampDoubleToUInt32(value[i]);
-			    ok = TIFFWriteDirectoryTagLongArray(tif, ndir, dir, tag, count, (uint32*)conv);
+				    ((uint32 *)conv)[i] = TIFFClampDoubleToUInt32(value[i]);
+			    ok = TIFFWriteDirectoryTagLongArray(tif, ndir, dir, tag, count, (uint32 *)conv);
 		    }
 		    break;
 		default:
@@ -1783,7 +1783,7 @@ static int TIFFWriteDirectoryTagCheckedSshort(TIFF* tif, uint32* ndir, TIFFDirEn
 	assert(sizeof(int16)==2);
 	m = value;
 	if(tif->tif_flags&TIFF_SWAB)
-		TIFFSwabShort((uint16*)(&m));
+		TIFFSwabShort((uint16 *)(&m));
 	return(TIFFWriteDirectoryTagData(tif, ndir, dir, tag, TIFF_SSHORT, 1, 2, &m));
 }
 
@@ -1794,7 +1794,7 @@ static int TIFFWriteDirectoryTagCheckedSshortArray(TIFF* tif, uint32* ndir, TIFF
 	assert(count<0x80000000);
 	assert(sizeof(int16)==2);
 	if(tif->tif_flags&TIFF_SWAB)
-		TIFFSwabArrayOfShort((uint16*)value, count);
+		TIFFSwabArrayOfShort((uint16 *)value, count);
 	return(TIFFWriteDirectoryTagData(tif, ndir, dir, tag, TIFF_SSHORT, count, count*2, value));
 }
 
@@ -1824,7 +1824,7 @@ static int TIFFWriteDirectoryTagCheckedSlong(TIFF* tif, uint32* ndir, TIFFDirEnt
 	assert(sizeof(int32)==4);
 	m = value;
 	if(tif->tif_flags&TIFF_SWAB)
-		TIFFSwabLong((uint32*)(&m));
+		TIFFSwabLong((uint32 *)(&m));
 	return(TIFFWriteDirectoryTagData(tif, ndir, dir, tag, TIFF_SLONG, 1, 4, &m));
 }
 #endif
@@ -1834,7 +1834,7 @@ static int TIFFWriteDirectoryTagCheckedSlongArray(TIFF* tif, uint32* ndir, TIFFD
 	assert(count<0x40000000);
 	assert(sizeof(int32)==4);
 	if(tif->tif_flags&TIFF_SWAB)
-		TIFFSwabArrayOfLong((uint32*)value, count);
+		TIFFSwabArrayOfLong((uint32 *)value, count);
 	return(TIFFWriteDirectoryTagData(tif, ndir, dir, tag, TIFF_SLONG, count, count*4, value));
 }
 
@@ -1879,7 +1879,7 @@ static int TIFFWriteDirectoryTagCheckedSlong8(TIFF* tif, uint32* ndir, TIFFDirEn
 	}
 	m = value;
 	if(tif->tif_flags&TIFF_SWAB)
-		TIFFSwabLong8((uint64*)(&m));
+		TIFFSwabLong8((uint64 *)(&m));
 	return(TIFFWriteDirectoryTagData(tif, ndir, dir, tag, TIFF_SLONG8, 1, 8, &m));
 }
 
@@ -1894,7 +1894,7 @@ static int TIFFWriteDirectoryTagCheckedSlong8Array(TIFF* tif, uint32* ndir, TIFF
 		return 0;
 	}
 	if(tif->tif_flags&TIFF_SWAB)
-		TIFFSwabArrayOfLong8((uint64*)value, count);
+		TIFFSwabArrayOfLong8((uint64 *)value, count);
 	return(TIFFWriteDirectoryTagData(tif, ndir, dir, tag, TIFF_SLONG8, count, count*8, value));
 }
 
@@ -2018,7 +2018,7 @@ static int TIFFWriteDirectoryTagCheckedSrationalArray(TIFF* tif, uint32* ndir, T
 		}
 	}
 	if(tif->tif_flags&TIFF_SWAB)
-		TIFFSwabArrayOfLong((uint32*)m, count*2);
+		TIFFSwabArrayOfLong((uint32 *)m, count*2);
 	o = TIFFWriteDirectoryTagData(tif, ndir, dir, tag, TIFF_SRATIONAL, count, count*8, &m[0]);
 	SAlloc::F(m);
 	return(o);
@@ -2451,8 +2451,8 @@ int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t 
 		memcpy(buf_to_write, data, count * TIFFDataWidth(datatype) );
 	else if(datatype == TIFF_SLONG && in_datatype == TIFF_SLONG8) {
 		for(tmsize_t i = 0; i < count; i++) {
-			((int32*)buf_to_write)[i] = (int32)((int64*)data)[i];
-			if((int64)((int32*)buf_to_write)[i] != ((int64*)data)[i]) {
+			((int32 *)buf_to_write)[i] = (int32)((int64 *)data)[i];
+			if((int64)((int32 *)buf_to_write)[i] != ((int64 *)data)[i]) {
 				SAlloc::F(buf_to_write);
 				TIFFErrorExt(tif->tif_clientdata, module, "Value exceeds 32bit range of output type.");
 				return 0;
@@ -2461,8 +2461,8 @@ int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t 
 	}
 	else if((datatype == TIFF_LONG && in_datatype == TIFF_LONG8) || (datatype == TIFF_IFD && in_datatype == TIFF_IFD8)) {
 		for(tmsize_t i = 0; i < count; i++) {
-			((uint32*)buf_to_write)[i] = (uint32)((uint64*)data)[i];
-			if((uint64)((uint32*)buf_to_write)[i] != ((uint64*)data)[i]) {
+			((uint32 *)buf_to_write)[i] = (uint32)((uint64 *)data)[i];
+			if((uint64)((uint32 *)buf_to_write)[i] != ((uint64 *)data)[i]) {
 				SAlloc::F(buf_to_write);
 				TIFFErrorExt(tif->tif_clientdata, module, "Value exceeds 32bit range of output type.");
 				return 0;
@@ -2472,11 +2472,11 @@ int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t 
 
 	if(TIFFDataWidth(datatype) > 1 && (tif->tif_flags&TIFF_SWAB) ) {
 		if(TIFFDataWidth(datatype) == 2)
-			TIFFSwabArrayOfShort( (uint16*)buf_to_write, count);
+			TIFFSwabArrayOfShort( (uint16 *)buf_to_write, count);
 		else if(TIFFDataWidth(datatype) == 4)
-			TIFFSwabArrayOfLong( (uint32*)buf_to_write, count);
+			TIFFSwabArrayOfLong( (uint32 *)buf_to_write, count);
 		else if(TIFFDataWidth(datatype) == 8)
-			TIFFSwabArrayOfLong8( (uint64*)buf_to_write, count);
+			TIFFSwabArrayOfLong8( (uint64 *)buf_to_write, count);
 	}
 
 /* -------------------------------------------------------------------- */
@@ -2537,24 +2537,24 @@ int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t 
 	entry_type = datatype;
 	memcpy(direntry_raw + 2, &entry_type, sizeof(uint16) );
 	if(tif->tif_flags&TIFF_SWAB)
-		TIFFSwabShort( (uint16*)(direntry_raw + 2) );
+		TIFFSwabShort( (uint16 *)(direntry_raw + 2) );
 	if(!(tif->tif_flags&TIFF_BIGTIFF)) {
 		uint32 value = (uint32)entry_count;
 		memcpy(direntry_raw + 4, &value, sizeof(uint32) );
 		if(tif->tif_flags&TIFF_SWAB)
-			TIFFSwabLong( (uint32*)(direntry_raw + 4) );
+			TIFFSwabLong( (uint32 *)(direntry_raw + 4) );
 		value = (uint32)entry_offset;
 		memcpy(direntry_raw + 8, &value, sizeof(uint32) );
 		if(tif->tif_flags&TIFF_SWAB)
-			TIFFSwabLong( (uint32*)(direntry_raw + 8) );
+			TIFFSwabLong( (uint32 *)(direntry_raw + 8) );
 	}
 	else {
 		memcpy(direntry_raw + 4, &entry_count, sizeof(uint64) );
 		if(tif->tif_flags&TIFF_SWAB)
-			TIFFSwabLong8( (uint64*)(direntry_raw + 4) );
+			TIFFSwabLong8( (uint64 *)(direntry_raw + 4) );
 		memcpy(direntry_raw + 12, &entry_offset, sizeof(uint64) );
 		if(tif->tif_flags&TIFF_SWAB)
-			TIFFSwabLong8( (uint64*)(direntry_raw + 12) );
+			TIFFSwabLong8( (uint64 *)(direntry_raw + 12) );
 	}
 /* -------------------------------------------------------------------- */
 /*      Write the directory entry out to disk.                          */

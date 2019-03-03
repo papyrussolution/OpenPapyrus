@@ -41,9 +41,9 @@
 #if CAIRO_HAS_FONT_SUBSET
 
 #include "cairo-type1-private.h"
-#include "cairo-scaled-font-subsets-private.h"
-#include "cairo-path-fixed-private.h"
-#include "cairo-output-stream-private.h"
+//#include "cairo-scaled-font-subsets-private.h"
+//#include "cairo-path-fixed-private.h"
+//#include "cairo-output-stream-private.h"
 
 typedef enum {
 	CAIRO_CHARSTRING_TYPE1,

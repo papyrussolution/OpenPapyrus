@@ -526,6 +526,7 @@
 	#define PPOPK_EDI_WRITEOFFSHOP    17L // @v9.3.19 Списание с баланса торгового зала в ЕГАИС (регистр 2)
 		// @v10.3.5 Если документ содержит специальную метку, то это - автоматическое списание реализации по акцизным маркам
 	#define PPOPK_EDI_ORDERRSP        18L // @v10.2.11 Драфт-операция подтверждения заказа, переденного в EDI
+	#define PPOPK_EDI_WROFFWITHMARKS  19L // @v10.3.6  Драфт-операция списание с отстатков ЕГАИС акцизных марок
 	#define PPOPK_UNASSIGNED        1000L // Специальный идентификатор
 	//
 	// Extra records of PPOBJ_OPRKIND
@@ -10841,24 +10842,22 @@
 // PPERR_BL_XXX - висячие ссылки
 // PPERR_INVXXX - нечто недопустимое
 //
-#define PPERR_DBNOTACTIVE           1 // Процессор БД не запущен
-#define PPERR_UNCHANGABLEPERSONKIND 26 // Данный вид персоналии не может быть присвоен или удален произвольно
-#define PPERR_DUPARTICLE           27 // Дублирование номера статьи аналитического учета
-#define PPERR_INVACCSHEETASSOC     28 // Ошибочный код ассоциации в таблице аналитических статей (очень неприятный
-	// и совершенно непонятный сбой. Причина: некорректная работа программы)
-#define PPERR_REFSEXISTS           29 // Удаление запрещено по причине существования ссылок
-#define PPERR_USERBREAK            30
-#define PPERR_LASTPERSONSKIND      31 // Персоналия должна принадлежать хотя-бы к одному виду
-#define PPERR_ACC1NEEDED           32 // Должен быть указан балансовый счет
-#define PPERR_BALNOTEXISTS         33 // Указанный балансовый счет не существует
-#define PPERR_INVALIDVATAX         34 // Введенный НДС выходит из диапазона [0..50]
-#define PPERR_GGCODENEEDED         35 // @unused
-#define PPERR_GGCODEMUSTBEUNIQ     36 // Код должен быть уникальным
-#define PPERR_UNITNEEDED           37 // Для товара необходимо ввести единицу измерени
-#define PPERR_GOODSGROUPNEEDED     38 // Необходимо выбрать товарную группу
-#define PPERR_MANUFACTURERNEEDED   39 // @unused Необходимо выбрать производителя товара
-#define PPERR_INVALIDPHUPERU       40 // Если для товара введена физическая единица измерения, то необходимо
-	// задать корректное соотношение физической единицы к торговой
+// @v10.3.6 #define PPERR_DBNOTACTIVE           1 // Процессор БД не запущен
+// @v10.3.6 #define PPERR_UNCHANGABLEPERSONKIND 26 // Данный вид персоналии не может быть присвоен или удален произвольно
+// @v10.3.6 #define PPERR_DUPARTICLE           27 // Дублирование номера статьи аналитического учета
+// @v10.3.6 #define PPERR_INVACCSHEETASSOC     28 // Ошибочный код ассоциации в таблице аналитических статей (очень неприятный и совершенно непонятный сбой. Причина: некорректная работа программы)
+// @v10.3.6 #define PPERR_REFSEXISTS           29 // Удаление запрещено по причине существования ссылок
+// @v10.3.6 #define PPERR_USERBREAK            30
+// @v10.3.6 #define PPERR_LASTPERSONSKIND      31 // Персоналия должна принадлежать хотя-бы к одному виду
+// @v10.3.6 #define PPERR_ACC1NEEDED           32 // Должен быть указан балансовый счет
+// @v10.3.6 #define PPERR_BALNOTEXISTS         33 // Указанный балансовый счет не существует
+// @v10.3.6 #define PPERR_INVALIDVATAX         34 // Введенный НДС выходит из диапазона [0..50]
+// @v10.3.6 #define PPERR_GGCODENEEDED         35 // @unused
+// @v10.3.6 #define PPERR_GGCODEMUSTBEUNIQ     36 // Код должен быть уникальным
+// @v10.3.6 #define PPERR_UNITNEEDED           37 // Для товара необходимо ввести единицу измерени
+// @v10.3.6 #define PPERR_GOODSGROUPNEEDED     38 // Необходимо выбрать товарную группу
+// @v10.3.6 #define PPERR_MANUFACTURERNEEDED   39 // @unused Необходимо выбрать производителя товара
+// @v10.3.6 #define PPERR_INVALIDPHUPERU       40 // Если для товара введена физическая единица измерения, то необходимо задать корректное соотношение физической единицы к торговой
 #define PPERR_ACCHASBRANCH         41 // Счет нельзя удалить поскольку он имеет субсчета
 #define PPERR_NOTFOUND             42
 #define PPERR_ACCNFOUND            43 // Счет не найден

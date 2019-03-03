@@ -455,7 +455,7 @@ int    SLAPI StrAssocListBoxDef::valid() { return (P_Data != 0); }
 long   SLAPI StrAssocListBoxDef::getRecsCount() { return P_Data ? P_Data->getCount() : 0; }
 int    SLAPI StrAssocListBoxDef::GetFrameSize() { return P_Data ? P_Data->getCount() : 0; }
 int    SLAPI StrAssocListBoxDef::GetFrameState() { return -1; }
-int    SLAPI StrAssocListBoxDef::removeItem(long pos) { return (P_Data && pos >= 0) ? P_Data->AtFree((uint)pos) : 0; }
+int    SLAPI StrAssocListBoxDef::removeItem(long pos) { return (P_Data && pos >= 0) ? P_Data->AtFree(static_cast<uint>(pos)) : 0; }
 void   SLAPI StrAssocListBoxDef::freeAll() { CALLPTRMEMB(P_Data, Z()); }
 
 int SLAPI StrAssocListBoxDef::getIdList(LongArray & rList)
@@ -766,7 +766,7 @@ int SLAPI StringListBoxDef::addItem(long id, const char * s, long * pPos)
 }
 
 int SLAPI StringListBoxDef::removeItem(long pos)
-	{ return (P_Data && pos >= 0) ? P_Data->atFree((uint)pos) : 0; }
+	{ return (P_Data && pos >= 0) ? P_Data->atFree(static_cast<uint>(pos)) : 0; }
 void SLAPI StringListBoxDef::freeAll()
 	{ CALLPTRMEMB(P_Data, freeAll()); }
 //

@@ -32,7 +32,7 @@
 #ifndef CAIRO_COGL_CONTEXT_PRIVATE_H
 #define CAIRO_COGL_CONTEXT_PRIVATE_H
 
-#include "cairo-default-context-private.h"
+//#include "cairo-default-context-private.h"
 #include "cairo-cogl-private.h"
 
 typedef struct _cairo_cogl_context {

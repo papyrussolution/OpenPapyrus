@@ -67,7 +67,7 @@ static void setDoubleArrayOneValue(double** vpp, double value, size_t nmemb)
 	*vpp = (double *)SAlloc::M(nmemb*sizeof(double));
 	if(*vpp) {
 		while(nmemb--)
-			((double*)*vpp)[nmemb] = value;
+			((double *)*vpp)[nmemb] = value;
 	}
 }
 /*
@@ -383,7 +383,7 @@ static int _TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
 		case TIFFTAG_SUBIFD:
 		    if((tif->tif_flags & TIFF_INSUBIFD) == 0) {
 			    td->td_nsubifd = (uint16)va_arg(ap, uint16_vap);
-			    _TIFFsetLong8Array(&td->td_subifd, (uint64*)va_arg(ap, uint64*), (uint32)td->td_nsubifd);
+			    _TIFFsetLong8Array(&td->td_subifd, (uint64 *)va_arg(ap, uint64*), (uint32)td->td_nsubifd);
 		    }
 		    else {
 			    TIFFErrorExt(tif->tif_clientdata, module, "%s: Sorry, cannot nest SubIFDs", tif->tif_name);
@@ -740,7 +740,7 @@ static int _TIFFVGetField(TIFF* tif, uint32 tag, va_list ap)
 				continue;
 			if(tv->value == NULL)
 				return 0;
-			val = *(uint16*)tv->value;
+			val = *(uint16 *)tv->value;
 			/* Truncate to SamplesPerPixel, since the */
 			/* setting code for INKNAMES assume that there are SamplesPerPixel */
 			/* inknames. */
@@ -908,8 +908,8 @@ static int _TIFFVGetField(TIFF* tif, uint32 tag, va_list ap)
 				       handled this way ... likely best if we move it into
 				       the directory structure with an explicit field in
 				       libtiff 4.1 and assign it a FIELD_ value */
-				    *va_arg(ap, uint16*) = ((uint16*)tv->value)[0];
-				    *va_arg(ap, uint16*) = ((uint16*)tv->value)[1];
+				    *va_arg(ap, uint16*) = ((uint16 *)tv->value)[0];
+				    *va_arg(ap, uint16*) = ((uint16 *)tv->value)[1];
 				    ret_val = 1;
 			    }
 			    else {
@@ -923,19 +923,19 @@ static int _TIFFVGetField(TIFF* tif, uint32 tag, va_list ap)
 					    switch(fip->field_type) {
 						    case TIFF_BYTE:
 						    case TIFF_UNDEFINED: *va_arg(ap, uint8*) = *(uint8 *)val; ret_val = 1; break;
-						    case TIFF_SBYTE: *va_arg(ap, int8*) = *(int8*)val; ret_val = 1; break;
-						    case TIFF_SHORT: *va_arg(ap, uint16*) = *(uint16*)val; ret_val = 1; break;
-						    case TIFF_SSHORT: *va_arg(ap, int16*) = *(int16*)val; ret_val = 1; break;
+						    case TIFF_SBYTE: *va_arg(ap, int8*) = *(int8 *)val; ret_val = 1; break;
+						    case TIFF_SHORT: *va_arg(ap, uint16*) = *(uint16 *)val; ret_val = 1; break;
+						    case TIFF_SSHORT: *va_arg(ap, int16*) = *(int16 *)val; ret_val = 1; break;
 						    case TIFF_LONG:
-						    case TIFF_IFD: *va_arg(ap, uint32*) = *(uint32*)val; ret_val = 1; break;
-						    case TIFF_SLONG: *va_arg(ap, int32*) = *(int32*)val; ret_val = 1; break;
+						    case TIFF_IFD: *va_arg(ap, uint32*) = *(uint32 *)val; ret_val = 1; break;
+						    case TIFF_SLONG: *va_arg(ap, int32*) = *(int32 *)val; ret_val = 1; break;
 						    case TIFF_LONG8:
-						    case TIFF_IFD8: *va_arg(ap, uint64*) = *(uint64*)val; ret_val = 1; break;
-						    case TIFF_SLONG8: *va_arg(ap, int64*) = *(int64*)val; ret_val = 1; break;
+						    case TIFF_IFD8: *va_arg(ap, uint64*) = *(uint64 *)val; ret_val = 1; break;
+						    case TIFF_SLONG8: *va_arg(ap, int64*) = *(int64 *)val; ret_val = 1; break;
 						    case TIFF_RATIONAL:
 						    case TIFF_SRATIONAL:
 						    case TIFF_FLOAT: *va_arg(ap, float*) = *(float *)val; ret_val = 1; break;
-						    case TIFF_DOUBLE: *va_arg(ap, double*) = *(double*)val; ret_val = 1; break;
+						    case TIFF_DOUBLE: *va_arg(ap, double*) = *(double *)val; ret_val = 1; break;
 						    default: ret_val = 0; break;
 					    }
 				    }

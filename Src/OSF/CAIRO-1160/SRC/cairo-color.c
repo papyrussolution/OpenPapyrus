@@ -88,7 +88,7 @@ static void FASTCALL _cairo_color_compute_shorts(cairo_color_t * color)
 	color->alpha_short = _cairo_color_double_to_short(color->alpha);
 }
 
-void _cairo_color_init_rgba(cairo_color_t * color, double red, double green, double blue, double alpha)
+void FASTCALL _cairo_color_init_rgba(cairo_color_t * color, double red, double green, double blue, double alpha)
 {
 	color->red   = red;
 	color->green = green;
@@ -103,7 +103,7 @@ void _cairo_color_multiply_alpha(cairo_color_t * color, double alpha)
 	_cairo_color_compute_shorts(color);
 }
 
-void _cairo_color_get_rgba(cairo_color_t * color, double * red, double * green, double * blue, double * alpha)
+void _cairo_color_get_rgba(const cairo_color_t * color, double * red, double * green, double * blue, double * alpha)
 {
 	*red   = color->red;
 	*green = color->green;
@@ -111,11 +111,7 @@ void _cairo_color_get_rgba(cairo_color_t * color, double * red, double * green, 
 	*alpha = color->alpha;
 }
 
-void _cairo_color_get_rgba_premultiplied(cairo_color_t * color,
-    double * red,
-    double * green,
-    double * blue,
-    double * alpha)
+void _cairo_color_get_rgba_premultiplied(cairo_color_t * color, double * red, double * green, double * blue, double * alpha)
 {
 	*red   = color->red * color->alpha;
 	*green = color->green * color->alpha;
@@ -124,45 +120,31 @@ void _cairo_color_get_rgba_premultiplied(cairo_color_t * color,
 }
 
 /* NB: This function works both for unmultiplied and premultiplied colors */
-cairo_bool_t _cairo_color_equal(const cairo_color_t * color_a,
-    const cairo_color_t * color_b)
+cairo_bool_t FASTCALL _cairo_color_equal(const cairo_color_t * color_a, const cairo_color_t * color_b)
 {
 	if(color_a == color_b)
 		return TRUE;
-
 	if(color_a->alpha_short != color_b->alpha_short)
 		return FALSE;
-
 	if(color_a->alpha_short == 0)
 		return TRUE;
-
-	return color_a->red_short   == color_b->red_short   &&
-	       color_a->green_short == color_b->green_short &&
-	       color_a->blue_short  == color_b->blue_short;
+	return color_a->red_short == color_b->red_short  && color_a->green_short == color_b->green_short && color_a->blue_short  == color_b->blue_short;
 }
 
-cairo_bool_t _cairo_color_stop_equal(const cairo_color_stop_t * color_a,
-    const cairo_color_stop_t * color_b)
+cairo_bool_t FASTCALL _cairo_color_stop_equal(const cairo_color_stop_t * color_a, const cairo_color_stop_t * color_b)
 {
 	if(color_a == color_b)
 		return TRUE;
-
-	return color_a->alpha_short == color_b->alpha_short &&
-	       color_a->red_short   == color_b->red_short   &&
-	       color_a->green_short == color_b->green_short &&
-	       color_a->blue_short  == color_b->blue_short;
+	return color_a->alpha_short == color_b->alpha_short && color_a->red_short   == color_b->red_short   && 
+		color_a->green_short == color_b->green_short && color_a->blue_short  == color_b->blue_short;
 }
 
 cairo_content_t _cairo_color_get_content(const cairo_color_t * color)
 {
 	if(CAIRO_COLOR_IS_OPAQUE(color))
 		return CAIRO_CONTENT_COLOR;
-
-	if(color->red_short == 0 &&
-	    color->green_short == 0 &&
-	    color->blue_short == 0) {
+	if(color->red_short == 0 && color->green_short == 0 && color->blue_short == 0) {
 		return CAIRO_CONTENT_ALPHA;
 	}
-
 	return CAIRO_CONTENT_COLOR_ALPHA;
 }

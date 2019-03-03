@@ -38,10 +38,10 @@
 #define CAIRO_CLIP_PRIVATE_H
 
 //#include "cairo-types-private.h"
-////#include "cairo-boxes-private.h"
-////#include "cairo-error-private.h"
+//#include "cairo-boxes-private.h"
+//#include "cairo-error-private.h"
 //#include "cairo-compiler-private.h"
-//#include "cairo-path-fixed-private.h"
+////#include "cairo-path-fixed-private.h"
 //#include "cairo-reference-count-private.h"
 
 extern const cairo_private cairo_rectangle_list_t _cairo_rectangles_nil;
@@ -88,8 +88,8 @@ cairo_private cairo_surface_t * _cairo_clip_get_surface(const cairo_clip_t * cli
 cairo_private cairo_surface_t * _cairo_clip_get_image(const cairo_clip_t * clip, cairo_surface_t * target, const cairo_rectangle_int_t * extents);
 cairo_private cairo_status_t _cairo_clip_combine_with_surface(const cairo_clip_t * clip, cairo_surface_t * dst, int dst_x, int dst_y);
 cairo_private cairo_clip_t * _cairo_clip_from_boxes(const cairo_boxes_t * boxes);
-cairo_private cairo_region_t * _cairo_clip_get_region(const cairo_clip_t * clip);
-cairo_private cairo_bool_t _cairo_clip_is_region(const cairo_clip_t * clip);
+cairo_private cairo_region_t * FASTCALL _cairo_clip_get_region(const cairo_clip_t * clip);
+cairo_private cairo_bool_t FASTCALL _cairo_clip_is_region(const cairo_clip_t * clip);
 cairo_private cairo_clip_t * FASTCALL _cairo_clip_reduce_to_rectangle(const cairo_clip_t * clip, const cairo_rectangle_int_t * r);
 cairo_private cairo_clip_t * FASTCALL _cairo_clip_reduce_for_composite(const cairo_clip_t * clip, cairo_composite_rectangles_t * extents);
 cairo_private cairo_bool_t FASTCALL _cairo_clip_contains_rectangle(const cairo_clip_t * clip, const cairo_rectangle_int_t * rect);

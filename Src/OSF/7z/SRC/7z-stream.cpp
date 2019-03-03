@@ -208,7 +208,7 @@ bool CCachedInStream::Alloc(unsigned blockSizeLog, unsigned numBlocksLog) throw(
 	}
 	if(_tags == 0 || numBlocksLog != _numBlocksLog) {
 		SAlloc::F(_tags);
-		_tags = (uint64*)SAlloc::M(sizeof(uint64) << numBlocksLog);
+		_tags = (uint64 *)SAlloc::M(sizeof(uint64) << numBlocksLog);
 		if(_tags == 0)
 			return false;
 		_numBlocksLog = numBlocksLog;

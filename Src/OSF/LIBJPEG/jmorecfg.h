@@ -56,13 +56,13 @@
 	 */
 	#ifdef HAVE_UNSIGNED_CHAR
 		typedef uchar JSAMPLE;
-		#define GETJSAMPLE(value)  ((int)(value))
+		#define GETJSAMPLE(value)  (static_cast<int>(value))
 	#else /* not HAVE_UNSIGNED_CHAR */
 		typedef char JSAMPLE;
 		#ifdef CHAR_IS_UNSIGNED
-			#define GETJSAMPLE(value)  ((int) (value))
+			#define GETJSAMPLE(value)  (static_cast<int>(value))
 		#else
-			#define GETJSAMPLE(value)  ((int) (value) & 0xFF)
+			#define GETJSAMPLE(value)  (static_cast<int>(value) & 0xFF)
 		#endif /* CHAR_IS_UNSIGNED */
 	#endif /* HAVE_UNSIGNED_CHAR */
 	#define MAXJSAMPLE	255
@@ -72,7 +72,7 @@
 	// JSAMPLE should be the smallest type that will hold the values 0..511.
 	// On nearly all machines "short" will do nicely.
 	typedef short JSAMPLE;
-	#define GETJSAMPLE(value)  ((int) (value))
+	#define GETJSAMPLE(value)  (static_cast<int>(value))
 	#define MAXJSAMPLE	511
 	#define CENTERJSAMPLE	256
 #endif /* BITS_IN_JSAMPLE == 9 */
@@ -80,7 +80,7 @@
 	// JSAMPLE should be the smallest type that will hold the values 0..1023.
 	// On nearly all machines "short" will do nicely.
 	typedef short JSAMPLE;
-	#define GETJSAMPLE(value)  ((int) (value))
+	#define GETJSAMPLE(value)  (static_cast<int>(value))
 	#define MAXJSAMPLE	1023
 	#define CENTERJSAMPLE	512
 #endif /* BITS_IN_JSAMPLE == 10 */
@@ -88,7 +88,7 @@
 	// JSAMPLE should be the smallest type that will hold the values 0..2047.
 	// On nearly all machines "short" will do nicely.
 	typedef short JSAMPLE;
-	#define GETJSAMPLE(value)  ((int) (value))
+	#define GETJSAMPLE(value)  (static_cast<int>(value))
 	#define MAXJSAMPLE	2047
 	#define CENTERJSAMPLE	1024
 #endif /* BITS_IN_JSAMPLE == 11 */
@@ -97,7 +97,7 @@
 	 * On nearly all machines "short" will do nicely.
 	 */
 	typedef short JSAMPLE;
-	#define GETJSAMPLE(value)  ((int) (value))
+	#define GETJSAMPLE(value)  (static_cast<int>(value))
 	#define MAXJSAMPLE	4095
 	#define CENTERJSAMPLE	2048
 #endif /* BITS_IN_JSAMPLE == 12 */

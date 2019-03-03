@@ -195,14 +195,14 @@ static int LogL16Decode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 	npixels = occ / sp->pixel_size;
 
 	if(sp->user_datafmt == SGILOGDATAFMT_16BIT)
-		tp = (int16*)op;
+		tp = (int16 *)op;
 	else {
 		if(sp->tbuflen < npixels) {
 			TIFFErrorExt(tif->tif_clientdata, module,
 			    "Translation buffer too short");
 			return 0;
 		}
-		tp = (int16*)sp->tbuf;
+		tp = (int16 *)sp->tbuf;
 	}
 	memzero((void *)tp, npixels*sizeof(tp[0]));
 
@@ -268,14 +268,14 @@ static int LogLuvDecode24(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 	npixels = occ / sp->pixel_size;
 
 	if(sp->user_datafmt == SGILOGDATAFMT_RAW)
-		tp = (uint32*)op;
+		tp = (uint32 *)op;
 	else {
 		if(sp->tbuflen < npixels) {
 			TIFFErrorExt(tif->tif_clientdata, module,
 			    "Translation buffer too short");
 			return 0;
 		}
-		tp = (uint32*)sp->tbuf;
+		tp = (uint32 *)sp->tbuf;
 	}
 	/* copy to array of uint32 */
 	bp = (unsigned char*)tif->tif_rawcp;
@@ -328,14 +328,14 @@ static int LogLuvDecode32(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 	npixels = occ / sp->pixel_size;
 
 	if(sp->user_datafmt == SGILOGDATAFMT_RAW)
-		tp = (uint32*)op;
+		tp = (uint32 *)op;
 	else {
 		if(sp->tbuflen < npixels) {
 			TIFFErrorExt(tif->tif_clientdata, module,
 			    "Translation buffer too short");
 			return 0;
 		}
-		tp = (uint32*)sp->tbuf;
+		tp = (uint32 *)sp->tbuf;
 	}
 	memzero((void *)tp, npixels*sizeof(tp[0]));
 
@@ -445,9 +445,9 @@ static int LogL16Encode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 	npixels = cc / sp->pixel_size;
 
 	if(sp->user_datafmt == SGILOGDATAFMT_16BIT)
-		tp = (int16*)bp;
+		tp = (int16 *)bp;
 	else {
-		tp = (int16*)sp->tbuf;
+		tp = (int16 *)sp->tbuf;
 		if(sp->tbuflen < npixels) {
 			TIFFErrorExt(tif->tif_clientdata, module,
 			    "Translation buffer too short");
@@ -538,9 +538,9 @@ static int LogLuvEncode24(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 	npixels = cc / sp->pixel_size;
 
 	if(sp->user_datafmt == SGILOGDATAFMT_RAW)
-		tp = (uint32*)bp;
+		tp = (uint32 *)bp;
 	else {
-		tp = (uint32*)sp->tbuf;
+		tp = (uint32 *)sp->tbuf;
 		if(sp->tbuflen < npixels) {
 			TIFFErrorExt(tif->tif_clientdata, module,
 			    "Translation buffer too short");
@@ -595,9 +595,9 @@ static int LogLuvEncode32(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 	npixels = cc / sp->pixel_size;
 
 	if(sp->user_datafmt == SGILOGDATAFMT_RAW)
-		tp = (uint32*)bp;
+		tp = (uint32 *)bp;
 	else {
-		tp = (uint32*)sp->tbuf;
+		tp = (uint32 *)sp->tbuf;
 		if(sp->tbuflen < npixels) {
 			TIFFErrorExt(tif->tif_clientdata, module,
 			    "Translation buffer too short");
@@ -767,7 +767,7 @@ int LogL16fromY(double Y, int em)   /* get 16-bit LogL from Y */
 
 static void L16toY(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	int16* l16 = (int16*)sp->tbuf;
+	int16* l16 = (int16 *)sp->tbuf;
 	float* yp = reinterpret_cast<float *>(op);
 	while(n-- > 0)
 		*yp++ = (float)LogL16toY(*l16++);
@@ -775,7 +775,7 @@ static void L16toY(LogLuvState* sp, uint8* op, tmsize_t n)
 
 static void L16toGry(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	int16* l16 = (int16*)sp->tbuf;
+	int16* l16 = (int16 *)sp->tbuf;
 	uint8* gp = (uint8 *)op;
 
 	while(n-- > 0) {
@@ -786,7 +786,7 @@ static void L16toGry(LogLuvState* sp, uint8* op, tmsize_t n)
 
 static void L16fromY(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	int16* l16 = (int16*)sp->tbuf;
+	int16* l16 = (int16 *)sp->tbuf;
 	float* yp = reinterpret_cast<float *>(op);
 	while(n-- > 0)
 		*l16++ = (int16)(LogL16fromY(*yp++, sp->encode_meth));
@@ -995,7 +995,7 @@ uint32 LogLuv24fromXYZ(float XYZ[3], int em)
 
 static void Luv24toXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	uint32* luv = (uint32*)sp->tbuf;
+	uint32* luv = (uint32 *)sp->tbuf;
 	float* xyz = reinterpret_cast<float *>(op);
 	while(n-- > 0) {
 		LogLuv24toXYZ(*luv, xyz);
@@ -1006,8 +1006,8 @@ static void Luv24toXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
 
 static void Luv24toLuv48(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	uint32* luv = (uint32*)sp->tbuf;
-	int16* luv3 = (int16*)op;
+	uint32* luv = (uint32 *)sp->tbuf;
+	int16* luv3 = (int16 *)op;
 	while(n-- > 0) {
 		double u, v;
 		*luv3++ = (int16)((*luv >> 12 & 0xffd) + 13314);
@@ -1023,7 +1023,7 @@ static void Luv24toLuv48(LogLuvState* sp, uint8* op, tmsize_t n)
 
 static void Luv24toRGB(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	uint32* luv = (uint32*)sp->tbuf;
+	uint32* luv = (uint32 *)sp->tbuf;
 	uint8* rgb = (uint8 *)op;
 	while(n-- > 0) {
 		float xyz[3];
@@ -1035,7 +1035,7 @@ static void Luv24toRGB(LogLuvState* sp, uint8* op, tmsize_t n)
 
 static void Luv24fromXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	uint32* luv = (uint32*)sp->tbuf;
+	uint32* luv = (uint32 *)sp->tbuf;
 	float* xyz = reinterpret_cast<float *>(op);
 	while(n-- > 0) {
 		*luv++ = LogLuv24fromXYZ(xyz, sp->encode_meth);
@@ -1045,8 +1045,8 @@ static void Luv24fromXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
 
 static void Luv24fromLuv48(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	uint32* luv = (uint32*)sp->tbuf;
-	int16* luv3 = (int16*)op;
+	uint32* luv = (uint32 *)sp->tbuf;
+	int16* luv3 = (int16 *)op;
 	while(n-- > 0) {
 		int Le, Ce;
 		if(luv3[0] <= 0)
@@ -1120,7 +1120,7 @@ uint32 LogLuv32fromXYZ(float XYZ[3], int em)
 
 static void Luv32toXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	uint32* luv = (uint32*)sp->tbuf;
+	uint32* luv = (uint32 *)sp->tbuf;
 	float* xyz = reinterpret_cast<float *>(op);
 	while(n-- > 0) {
 		LogLuv32toXYZ(*luv++, xyz);
@@ -1130,8 +1130,8 @@ static void Luv32toXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
 
 static void Luv32toLuv48(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	uint32* luv = (uint32*)sp->tbuf;
-	int16* luv3 = (int16*)op;
+	uint32* luv = (uint32 *)sp->tbuf;
+	int16* luv3 = (int16 *)op;
 	while(n-- > 0) {
 		double u, v;
 		*luv3++ = (int16)(*luv >> 16);
@@ -1145,7 +1145,7 @@ static void Luv32toLuv48(LogLuvState* sp, uint8* op, tmsize_t n)
 
 static void Luv32toRGB(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	uint32* luv = (uint32*)sp->tbuf;
+	uint32* luv = (uint32 *)sp->tbuf;
 	uint8* rgb = (uint8 *)op;
 	while(n-- > 0) {
 		float xyz[3];
@@ -1157,7 +1157,7 @@ static void Luv32toRGB(LogLuvState* sp, uint8* op, tmsize_t n)
 
 static void Luv32fromXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	uint32* luv = (uint32*)sp->tbuf;
+	uint32* luv = (uint32 *)sp->tbuf;
 	float* xyz = reinterpret_cast<float *>(op);
 	while(n-- > 0) {
 		*luv++ = LogLuv32fromXYZ(xyz, sp->encode_meth);
@@ -1167,8 +1167,8 @@ static void Luv32fromXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
 
 static void Luv32fromLuv48(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	uint32* luv = (uint32*)sp->tbuf;
-	int16* luv3 = (int16*)op;
+	uint32* luv = (uint32 *)sp->tbuf;
+	int16* luv3 = (int16 *)op;
 	if(sp->encode_meth == SGILOGENCODE_NODITHER) {
 		while(n-- > 0) {
 			*luv++ = (uint32)luv3[0] << 16 | (luv3[1]*(uint32)(UVSCALE+.5) >> 7 & 0xff00) | (luv3[2]*(uint32)(UVSCALE+.5) >> 15 & 0xff);

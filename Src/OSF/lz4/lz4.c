@@ -188,8 +188,8 @@ static unsigned LZ4_isLittleEndian(void)
 	static uint16 FASTCALL LZ4_read16(const void* memPtr) { return *(const uint16*)memPtr; }
 	static uint32 FASTCALL LZ4_read32(const void* memPtr) { return *(const uint32*)memPtr; }
 	static reg_t FASTCALL LZ4_read_ARCH(const void* memPtr) { return *(const reg_t*)memPtr; }
-	static void  FASTCALL LZ4_write16(void* memPtr, uint16 value) { *(uint16*)memPtr = value; }
-	static void  FASTCALL LZ4_write32(void* memPtr, uint32 value) { *(uint32*)memPtr = value; }
+	static void  FASTCALL LZ4_write16(void* memPtr, uint16 value) { *(uint16 *)memPtr = value; }
+	static void  FASTCALL LZ4_write32(void* memPtr, uint32 value) { *(uint32 *)memPtr = value; }
 #elif defined(LZ4_FORCE_MEMORY_ACCESS) && (LZ4_FORCE_MEMORY_ACCESS==1)
 	// __pack instructions are safer, but compiler specific, hence potentially problematic for some compilers 
 	// currently only defined for gcc and icc 
@@ -509,8 +509,8 @@ static void LZ4_putIndexOnHash(uint32 idx, uint32 h, void* tableBase, tableType_
 		default: /* fallthrough */
 		case clearedTable: /* fallthrough */
 		case byPtr: { /* illegal! */ assert(0); return; }
-		case byU32: { uint32* hashTable = (uint32*)tableBase; hashTable[h] = idx; return; }
-		case byU16: { uint16* hashTable = (uint16*)tableBase; assert(idx < 65536); hashTable[h] = (uint16)idx; return; }
+		case byU32: { uint32* hashTable = (uint32 *)tableBase; hashTable[h] = idx; return; }
+		case byU16: { uint16* hashTable = (uint16 *)tableBase; assert(idx < 65536); hashTable[h] = (uint16)idx; return; }
 	}
 }
 
@@ -519,8 +519,8 @@ static void LZ4_putPositionOnHash(const uint8* p, uint32 h, void* tableBase, tab
 	switch(tableType) {
 		case clearedTable: { /* illegal! */ assert(0); return; }
 		case byPtr: { const uint8** hashTable = (const uint8**)tableBase; hashTable[h] = p; return; }
-		case byU32: { uint32* hashTable = (uint32*)tableBase; hashTable[h] = (uint32)(p-srcBase); return; }
-		case byU16: { uint16* hashTable = (uint16*)tableBase; hashTable[h] = (uint16)(p-srcBase); return; }
+		case byU32: { uint32* hashTable = (uint32 *)tableBase; hashTable[h] = (uint32)(p-srcBase); return; }
+		case byU16: { uint16* hashTable = (uint16 *)tableBase; hashTable[h] = (uint16)(p-srcBase); return; }
 	}
 }
 

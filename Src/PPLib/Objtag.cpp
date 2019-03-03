@@ -1690,7 +1690,7 @@ private:
 	}
 	virtual int delItem(long pos, long)
 	{
-		return Data.TagsRestrict.AtFree((uint)pos) ? 1 : -1;
+		return Data.TagsRestrict.AtFree(static_cast<uint>(pos)) ? 1 : -1;
 	}
 	virtual int editItem(long pos, long)
 	{
@@ -2553,7 +2553,7 @@ int TagValListDialog::addItem(long * pPos, long * pID)
 int TagValListDialog::editItem(long pos, long id)
 {
 	int    ok = -1;
-	const  ObjTagItem * p_item = Data.GetItemByPos((uint)pos);
+	const  ObjTagItem * p_item = Data.GetItemByPos(static_cast<uint>(pos));
    	if(p_item && p_item->TagID == id)
 		if(EditObjTagItem(Data.ObjType, Data.ObjID, (ObjTagItem *)p_item, P_AllowedTags) > 0)
 			ok = 1;

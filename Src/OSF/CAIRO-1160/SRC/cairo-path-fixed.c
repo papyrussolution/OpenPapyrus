@@ -40,7 +40,7 @@
 //#include "cairo-box-inline.h"
 //#include "cairo-error-private.h"
 //#include "cairo-list-inline.h"
-//#include "cairo-path-fixed-private.h"
+////#include "cairo-path-fixed-private.h"
 //#include "cairo-slope-private.h"
 
 static cairo_status_t FASTCALL _cairo_path_fixed_add(cairo_path_fixed_t * path, cairo_path_op_t op, const cairo_point_t * points, int num_points);
@@ -562,8 +562,7 @@ static cairo_status_t FASTCALL _cairo_path_fixed_add(cairo_path_fixed_t * path, 
 		len += snprintf(buf + len, sizeof(buf), "]");
 
 #define STRINGIFYFLAG(x)  (path->x ? #x " " : "")
-		fprintf(stderr,
-		    "_cairo_path_fixed_add (%s, %s) [%s%s%s%s%s%s%s%s]\n",
+		fprintf(stderr, "_cairo_path_fixed_add (%s, %s) [%s%s%s%s%s%s%s%s]\n",
 		    op_str[(int)op], buf,
 		    STRINGIFYFLAG(has_current_point),
 		    STRINGIFYFLAG(needs_move_to),
@@ -622,7 +621,7 @@ static void FASTCALL _cairo_path_buf_add_points(cairo_path_buf_t * buf, const ca
 	}
 }
 
-cairo_status_t _cairo_path_fixed_interpret(const cairo_path_fixed_t * path,
+cairo_status_t FASTCALL _cairo_path_fixed_interpret(const cairo_path_fixed_t * path,
     cairo_path_fixed_move_to_func_t * move_to, cairo_path_fixed_line_to_func_t * line_to,
     cairo_path_fixed_curve_to_func_t * curve_to, cairo_path_fixed_close_path_func_t * close_path, void * closure)
 {
@@ -666,35 +665,30 @@ typedef struct _cairo_path_fixed_append_closure {
 
 static cairo_status_t _append_move_to(void * abstract_closure, const cairo_point_t * point)
 {
-	cairo_path_fixed_append_closure_t * closure = (cairo_path_fixed_append_closure_t *)abstract_closure;
+	cairo_path_fixed_append_closure_t * closure = static_cast<cairo_path_fixed_append_closure_t *>(abstract_closure);
 	return _cairo_path_fixed_move_to(closure->path, point->x + closure->offset.x, point->y + closure->offset.y);
 }
 
 static cairo_status_t _append_line_to(void * abstract_closure, const cairo_point_t * point)
 {
-	cairo_path_fixed_append_closure_t * closure = (cairo_path_fixed_append_closure_t *)abstract_closure;
+	cairo_path_fixed_append_closure_t * closure = static_cast<cairo_path_fixed_append_closure_t *>(abstract_closure);
 	return _cairo_path_fixed_line_to(closure->path, point->x + closure->offset.x, point->y + closure->offset.y);
 }
 
 static cairo_status_t _append_curve_to(void * abstract_closure, const cairo_point_t * p0, const cairo_point_t * p1, const cairo_point_t * p2)
 {
-	cairo_path_fixed_append_closure_t * closure = (cairo_path_fixed_append_closure_t *)abstract_closure;
-	return _cairo_path_fixed_curve_to(closure->path,
-		   p0->x + closure->offset.x,
-		   p0->y + closure->offset.y,
-		   p1->x + closure->offset.x,
-		   p1->y + closure->offset.y,
-		   p2->x + closure->offset.x,
-		   p2->y + closure->offset.y);
+	cairo_path_fixed_append_closure_t * closure = static_cast<cairo_path_fixed_append_closure_t *>(abstract_closure);
+	return _cairo_path_fixed_curve_to(closure->path, p0->x + closure->offset.x, p0->y + closure->offset.y,
+		   p1->x + closure->offset.x, p1->y + closure->offset.y, p2->x + closure->offset.x, p2->y + closure->offset.y);
 }
 
 static cairo_status_t _append_close_path(void * abstract_closure)
 {
-	cairo_path_fixed_append_closure_t * closure = (cairo_path_fixed_append_closure_t *)abstract_closure;
+	cairo_path_fixed_append_closure_t * closure = static_cast<cairo_path_fixed_append_closure_t *>(abstract_closure);
 	return _cairo_path_fixed_close_path(closure->path);
 }
 
-cairo_status_t _cairo_path_fixed_append(cairo_path_fixed_t * path, const cairo_path_fixed_t * other, cairo_fixed_t tx, cairo_fixed_t ty)
+cairo_status_t FASTCALL _cairo_path_fixed_append(cairo_path_fixed_t * path, const cairo_path_fixed_t * other, cairo_fixed_t tx, cairo_fixed_t ty)
 {
 	cairo_path_fixed_append_closure_t closure;
 	closure.path = path;
@@ -753,31 +747,23 @@ static void _cairo_path_fixed_offset_and_scale(cairo_path_fixed_t * path, cairo_
 	}
 }
 
-void _cairo_path_fixed_translate(cairo_path_fixed_t * path,
-    cairo_fixed_t offx,
-    cairo_fixed_t offy)
+void FASTCALL _cairo_path_fixed_translate(cairo_path_fixed_t * path, cairo_fixed_t offx, cairo_fixed_t offy)
 {
 	cairo_path_buf_t * buf;
 	uint i;
-
 	if(offx == 0 && offy == 0)
 		return;
-
 	path->last_move_point.x += offx;
 	path->last_move_point.y += offy;
 	path->current_point.x += offx;
 	path->current_point.y += offy;
-
 	path->fill_maybe_region = TRUE;
-
 	cairo_path_foreach_buf_start(buf, path) {
 		for(i = 0; i < buf->num_points; i++) {
 			buf->points[i].x += offx;
 			buf->points[i].y += offy;
-
 			if(path->fill_maybe_region) {
-				path->fill_maybe_region = _cairo_fixed_is_integer(buf->points[i].x) &&
-				    _cairo_fixed_is_integer(buf->points[i].y);
+				path->fill_maybe_region = _cairo_fixed_is_integer(buf->points[i].x) && _cairo_fixed_is_integer(buf->points[i].y);
 			}
 		}
 	} cairo_path_foreach_buf_end(buf, path);
@@ -790,13 +776,10 @@ void _cairo_path_fixed_translate(cairo_path_fixed_t * path,
 	path->extents.p2.y += offy;
 }
 
-static inline void _cairo_path_fixed_transform_point(cairo_point_t * p,
-    const cairo_matrix_t * matrix)
+static inline void _cairo_path_fixed_transform_point(cairo_point_t * p, const cairo_matrix_t * matrix)
 {
-	double dx, dy;
-
-	dx = _cairo_fixed_to_double(p->x);
-	dy = _cairo_fixed_to_double(p->y);
+	double dx = _cairo_fixed_to_double(p->x);
+	double dy = _cairo_fixed_to_double(p->y);
 	cairo_matrix_transform_point(matrix, &dx, &dy);
 	p->x = _cairo_fixed_from_double(dx);
 	p->y = _cairo_fixed_from_double(dy);
@@ -828,34 +811,26 @@ void _cairo_path_fixed_transform(cairo_path_fixed_t * path,
 		    _cairo_fixed_from_double(matrix->yy));
 		return;
 	}
-
 	_cairo_path_fixed_transform_point(&path->last_move_point, matrix);
 	_cairo_path_fixed_transform_point(&path->current_point, matrix);
-
 	buf = cairo_path_head(path);
 	if(buf->num_points == 0)
 		return;
-
 	extents = path->extents;
 	point = buf->points[0];
 	_cairo_path_fixed_transform_point(&point, matrix);
 	_cairo_box_set(&path->extents, &point, &point);
-
 	cairo_path_foreach_buf_start(buf, path) {
 		for(i = 0; i < buf->num_points; i++) {
 			_cairo_path_fixed_transform_point(&buf->points[i], matrix);
 			_cairo_box_add_point(&path->extents, &buf->points[i]);
 		}
 	} cairo_path_foreach_buf_end(buf, path);
-
 	if(path->has_curve_to) {
 		cairo_bool_t is_tight;
-
 		_cairo_matrix_transform_bounding_box_fixed(matrix, &extents, &is_tight);
 		if(!is_tight) {
-			cairo_bool_t has_extents;
-
-			has_extents = _cairo_path_bounder_extents(path, &extents);
+			cairo_bool_t has_extents = _cairo_path_bounder_extents(path, &extents);
 			assert(has_extents);
 		}
 		path->extents = extents;
@@ -918,27 +893,15 @@ cairo_status_t _cairo_path_fixed_interpret_flat(const cairo_path_fixed_t * path,
     double tolerance)
 {
 	cpf_t flattener;
-
 	if(!path->has_curve_to) {
-		return _cairo_path_fixed_interpret(path,
-			   move_to,
-			   line_to,
-			   NULL,
-			   close_path,
-			   closure);
+		return _cairo_path_fixed_interpret(path, move_to, line_to, NULL, close_path, closure);
 	}
-
 	flattener.tolerance = tolerance;
 	flattener.move_to = move_to;
 	flattener.line_to = line_to;
 	flattener.close_path = close_path;
 	flattener.closure = closure;
-	return _cairo_path_fixed_interpret(path,
-		   _cpf_move_to,
-		   _cpf_line_to,
-		   _cpf_curve_to,
-		   _cpf_close_path,
-		   &flattener);
+	return _cairo_path_fixed_interpret(path, _cpf_move_to, _cpf_line_to, _cpf_curve_to, _cpf_close_path, &flattener);
 }
 
 static inline void _canonical_box(cairo_box_t * box, const cairo_point_t * p1, const cairo_point_t * p2)
@@ -964,59 +927,42 @@ static inline void _canonical_box(cairo_box_t * box, const cairo_point_t * p1, c
 static inline cairo_bool_t _path_is_quad(const cairo_path_fixed_t * path)
 {
 	const cairo_path_buf_t * buf = cairo_path_head(path);
-
 	/* Do we have the right number of ops? */
 	if(buf->num_ops < 4 || buf->num_ops > 6)
 		return FALSE;
-
 	/* Check whether the ops are those that would be used for a rectangle */
-	if(buf->op[0] != CAIRO_PATH_OP_MOVE_TO ||
-	    buf->op[1] != CAIRO_PATH_OP_LINE_TO ||
-	    buf->op[2] != CAIRO_PATH_OP_LINE_TO ||
-	    buf->op[3] != CAIRO_PATH_OP_LINE_TO) {
+	if(buf->op[0] != CAIRO_PATH_OP_MOVE_TO || buf->op[1] != CAIRO_PATH_OP_LINE_TO || buf->op[2] != CAIRO_PATH_OP_LINE_TO || buf->op[3] != CAIRO_PATH_OP_LINE_TO) {
 		return FALSE;
 	}
-
 	/* we accept an implicit close for filled paths */
 	if(buf->num_ops > 4) {
 		/* Now, there are choices. The rectangle might end with a LINE_TO
 		 * (to the original point), but this isn't required. If it
 		 * doesn't, then it must end with a CLOSE_PATH. */
 		if(buf->op[4] == CAIRO_PATH_OP_LINE_TO) {
-			if(buf->points[4].x != buf->points[0].x ||
-			    buf->points[4].y != buf->points[0].y)
+			if(buf->points[4].x != buf->points[0].x || buf->points[4].y != buf->points[0].y)
 				return FALSE;
 		}
 		else if(buf->op[4] != CAIRO_PATH_OP_CLOSE_PATH) {
 			return FALSE;
 		}
-
 		if(buf->num_ops == 6) {
 			/* A trailing CLOSE_PATH or MOVE_TO is ok */
-			if(buf->op[5] != CAIRO_PATH_OP_MOVE_TO &&
-			    buf->op[5] != CAIRO_PATH_OP_CLOSE_PATH)
+			if(buf->op[5] != CAIRO_PATH_OP_MOVE_TO && buf->op[5] != CAIRO_PATH_OP_CLOSE_PATH)
 				return FALSE;
 		}
 	}
-
 	return TRUE;
 }
 
 static inline cairo_bool_t _points_form_rect(const cairo_point_t * points)
 {
-	if(points[0].y == points[1].y &&
-	    points[1].x == points[2].x &&
-	    points[2].y == points[3].y &&
-	    points[3].x == points[0].x)
+	if(points[0].y == points[1].y && points[1].x == points[2].x && points[2].y == points[3].y && points[3].x == points[0].x)
 		return TRUE;
-	if(points[0].x == points[1].x &&
-	    points[1].y == points[2].y &&
-	    points[2].x == points[3].x &&
-	    points[3].y == points[0].y)
+	if(points[0].x == points[1].x && points[1].y == points[2].y && points[2].x == points[3].x && points[3].y == points[0].y)
 		return TRUE;
 	return FALSE;
 }
-
 /*
  * Check whether the given path contains a single rectangle.
  */

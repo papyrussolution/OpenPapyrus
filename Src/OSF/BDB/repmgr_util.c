@@ -478,7 +478,7 @@ int __repmgr_become_master(ENV * env)
 	FOR_EACH_REMOTE_SITE_INDEX(i) {
 		site = SITE_FROM_EID(i);
 		if(site->membership == SITE_ADDING || site->membership == SITE_DELETING) {
-			db_rep->limbo_victim = (int)i;
+			db_rep->limbo_victim = static_cast<int>(i);
 			db_rep->limbo_resolution_needed = TRUE;
 			/*
 			 * Since there can never be more than one limbo victim,
@@ -705,7 +705,7 @@ int __repmgr_join(ENV * env, void * rep_)
 				 * it matches the one from shared memory.
 				 */
 				if(db_rep->self_eid == (int)j)
-					db_rep->self_eid = (int)i;
+					db_rep->self_eid = static_cast<int>(i);
 			}
 		}
 	}

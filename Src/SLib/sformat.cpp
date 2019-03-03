@@ -639,7 +639,7 @@ static char * FASTCALL fmtnumber(const char * ptr, int dec, int sign, long fmt, 
 	return _commfmt(fmt, buf);
 }
 
-char * SLAPI decfmt(BCD_T val, int len, int prec, long fmt, char * pBuf)
+char * SLAPI decfmt(const BCD_T val, int len, int prec, long fmt, char * pBuf)
 {
 	char   str[64];
 	char * c, *s = str;

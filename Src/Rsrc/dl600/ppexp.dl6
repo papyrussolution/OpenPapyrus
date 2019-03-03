@@ -3491,7 +3491,6 @@ data InvoiceData : GoodsBillBase {
 	TextSum      = Money2Str(TotalSum-TotalSalesTax, 90);
 	Accountant   = Glb.Accountant;
 	Director     = Glb.Director;
-
 	SupplName    = DlvrReq.ExtName2;
 	SupplNameShrt = DlvrReq.Name;       // Сокращенное наименование поставщика
 	SupplMemo    = DlvrReq.Memo;

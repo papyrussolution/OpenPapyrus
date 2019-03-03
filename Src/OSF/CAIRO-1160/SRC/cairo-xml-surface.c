@@ -45,10 +45,10 @@
 #include "cairo-xml.h"
 //#include "cairo-clip-private.h"
 //#include "cairo-device-private.h"
-#include "cairo-default-context-private.h"
-#include "cairo-image-surface-private.h"
+//#include "cairo-default-context-private.h"
+//#include "cairo-image-surface-private.h"
 //#include "cairo-error-private.h"
-#include "cairo-output-stream-private.h"
+//#include "cairo-output-stream-private.h"
 //#include "cairo-recording-surface-inline.h"
 
 #define static cairo_warn static

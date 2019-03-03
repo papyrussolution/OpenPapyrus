@@ -694,66 +694,49 @@ REPEAT:
 		goto REPEAT;
 	}
 #endif
-
 	if(cairo_surface_status(surface)) {
 		MF(MEMFAULT_PRINT_FAULTS());
-		cairo_test_log(ctx, "Error: Created an error surface: %s\n",
-		    cairo_status_to_string(cairo_surface_status(surface)));
+		cairo_test_log(ctx, "Error: Created an error surface: %s\n", cairo_status_to_string(cairo_surface_status(surface)));
 		ret = CAIRO_TEST_FAILURE;
 		goto UNWIND_STRINGS;
 	}
-
 	/* Check that we created a surface of the expected type. */
 	if(cairo_surface_get_type(surface) != target->expected_type) {
 		MF(MEMFAULT_PRINT_FAULTS());
-		cairo_test_log(ctx, "Error: Created surface is of type %d (expected %d)\n",
-		    cairo_surface_get_type(surface), target->expected_type);
+		cairo_test_log(ctx, "Error: Created surface is of type %d (expected %d)\n", cairo_surface_get_type(surface), target->expected_type);
 		ret = CAIRO_TEST_UNTESTED;
 		goto UNWIND_SURFACE;
 	}
-
 	/* Check that we created a surface of the expected content,
 	 * (ignore the artificial CAIRO_TEST_CONTENT_COLOR_ALPHA_FLATTENED value).
 	 */
 	expected_content = cairo_boilerplate_content(target->content);
-
 	if(cairo_surface_get_content(surface) != expected_content) {
 		MF(MEMFAULT_PRINT_FAULTS());
-		cairo_test_log(ctx, "Error: Created surface has content %d (expected %d)\n",
-		    cairo_surface_get_content(surface), expected_content);
+		cairo_test_log(ctx, "Error: Created surface has content %d (expected %d)\n", cairo_surface_get_content(surface), expected_content);
 		ret = CAIRO_TEST_FAILURE;
 		goto UNWIND_SURFACE;
 	}
-
-	if(cairo_surface_set_user_data(surface,
-		    &cairo_boilerplate_output_basename_key,
-		    base_path,
-		    NULL)) {
+	if(cairo_surface_set_user_data(surface, &cairo_boilerplate_output_basename_key, base_path, NULL)) {
 #if HAVE_MEMFAULT
 		cairo_surface_destroy(surface);
-
 		if(target->cleanup)
 			target->cleanup(closure);
-
 		goto REPEAT;
 #else
 		ret = CAIRO_TEST_FAILURE;
 		goto UNWIND_SURFACE;
 #endif
 	}
-
 	cairo_surface_set_device_offset(surface, dev_offset, dev_offset);
 	cairo_surface_set_device_scale(surface, dev_scale, dev_scale);
-
 	cr = cairo_create(surface);
 	if(cairo_set_user_data(cr, &_cairo_test_context_key, (void *)ctx, NULL)) {
 #if HAVE_MEMFAULT
 		cairo_destroy(cr);
 		cairo_surface_destroy(surface);
-
 		if(target->cleanup)
 			target->cleanup(closure);
-
 		goto REPEAT;
 #else
 		ret = CAIRO_TEST_FAILURE;

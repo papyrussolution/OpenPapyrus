@@ -1520,7 +1520,7 @@ int PsnEventDialog::addItem(long * pPos, long * pID)
 int PsnEventDialog::editItem(long pos, long id)
 {
 	int    ok = -1;
-	const  ObjTagItem * p_item = Pack.TagL.GetItemByPos((uint)pos);
+	const  ObjTagItem * p_item = Pack.TagL.GetItemByPos(static_cast<uint>(pos));
    	if(p_item && p_item->TagID == id)
 		if(EditObjTagItem(Pack.TagL.ObjType, Pack.TagL.ObjID, (ObjTagItem *)p_item, 0) > 0)
 			ok = 1;

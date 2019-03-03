@@ -88,7 +88,7 @@ long SLAPI HistGoodsCore::GetNextVer(PPID goodsID)
 	HistGoodsTbl::Rec rec;
 	return (Search(goodsID, 0, &rec) > 0) ? (rec.Ver + 1) : 1;
 }
-#endif // } 0 
+#endif // } 0
 //
 //static
 int SLAPI PPObjGoods::GetBarcodeDiagText(int diag, SString & rBuf)
@@ -629,7 +629,7 @@ int SLAPI PPObjGoods::ValidatePacket(const PPGoodsPacket * pPack)
 			THROW_PP(temp_buf.NotEmptyS(), PPERR_ABBRNEEDED);
 			THROW_PP(pPack->Rec.UnitID, PPERR_UNITNEEDED);
 			THROW_PP(!pPack->Rec.PhUnitID || (pPack->Rec.PhUPerU > 0.0 && pPack->Rec.PhUPerU != HUGE_VAL), PPERR_INVALIDPHUPERU);
-			THROW_PP(pPack->Rec.ParentID, PPERR_GOODSGROUPNEEDED);
+			THROW_PP_S(pPack->Rec.ParentID, PPERR_GOODSGROUPNEEDED, temp_buf); // @v10.3.6 THROW_PP-->THROW_PP_S(..,temp_buf)
 		}
 		THROW_PP(!pPack->Rec.ID || pPack->Rec.ID != pPack->Rec.ParentID, PPERR_GOODSGRPLOOP);
 		if(pPack->Rec.ParentID) {
@@ -1322,7 +1322,7 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 							DS.LogAction(PPACN_GSTRUCATTACHED, Obj, *pID, pPack->Rec.StrucID, 0);
 						else if(org_rec.StrucID && !pPack->Rec.StrucID)
 							DS.LogAction(PPACN_GSTRUCDETACHED, Obj, *pID, org_rec.StrucID, 0);
-						// } @v10.2.1 
+						// } @v10.2.1
 					}
 				}
 			}

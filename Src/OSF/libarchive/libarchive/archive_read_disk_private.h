@@ -33,7 +33,7 @@
 #ifndef ARCHIVE_READ_DISK_PRIVATE_H_INCLUDED
 #define ARCHIVE_READ_DISK_PRIVATE_H_INCLUDED
 
-////#include "archive_platform_acl.h"
+//#include "archive_platform_acl.h"
 
 struct tree;
 struct archive_entry;
