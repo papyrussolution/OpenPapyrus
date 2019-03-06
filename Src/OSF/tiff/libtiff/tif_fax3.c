@@ -37,7 +37,7 @@
  *
  * Decoder support is derived, with permission, from the code
  * in Frank Cringle's viewfax program;
- *      Copyright (C) 1990, 1995  Frank D. Cringle.
+ *    Copyright (C) 1990, 1995  Frank D. Cringle.
  */
 #include "tif_fax3.h"
 #define G3CODES

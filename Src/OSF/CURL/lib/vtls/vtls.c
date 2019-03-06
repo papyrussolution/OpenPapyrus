@@ -512,9 +512,9 @@ size_t Curl_ssl_version(char * buffer, size_t size)
  * This function tries to determine connection status.
  *
  * Return codes:
- *     1 means the connection is still in place
- *     0 means the connection has been closed
- *    -1 means the connection status is unknown
+ *   1 means the connection is still in place
+ *   0 means the connection has been closed
+ *  -1 means the connection status is unknown
  */
 int Curl_ssl_check_cxn(struct connectdata * conn)
 {
@@ -764,7 +764,7 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data, const char * pinnedpubkey
 		 * after placing null terminator
 		 */
 		buf[size] = '\0';
-		pem_read = pubkey_pem_to_der((const char*)buf, &pem_ptr, &pem_len);
+		pem_read = pubkey_pem_to_der((const char *)buf, &pem_ptr, &pem_len);
 		/* if it wasn't read successfully, exit */
 		if(pem_read)
 			break;

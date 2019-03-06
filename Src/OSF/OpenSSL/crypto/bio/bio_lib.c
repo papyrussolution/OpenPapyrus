@@ -103,7 +103,7 @@ int FASTCALL BIO_read(BIO * b, void * out, int outl)
 		return (-2);
 	}
 	cb = b->callback;
-	if(cb && ((i = (int)cb(b, BIO_CB_READ, (const char*)out, outl, 0L, 1L)) <= 0))
+	if(cb && ((i = (int)cb(b, BIO_CB_READ, (const char *)out, outl, 0L, 1L)) <= 0))
 		return (i);
 	if(!b->init) {
 		BIOerr(BIO_F_BIO_READ, BIO_R_UNINITIALIZED);
@@ -113,7 +113,7 @@ int FASTCALL BIO_read(BIO * b, void * out, int outl)
 	if(i > 0)
 		b->num_read += (uint64_t)i;
 	if(cb)
-		i = (int)cb(b, BIO_CB_READ | BIO_CB_RETURN, (const char*)out, outl, 0L, (long)i);
+		i = (int)cb(b, BIO_CB_READ | BIO_CB_RETURN, (const char *)out, outl, 0L, (long)i);
 	return (i);
 }
 
@@ -128,17 +128,17 @@ int FASTCALL BIO_write(BIO * b, const void * in, int inl)
 		BIOerr(BIO_F_BIO_WRITE, BIO_R_UNSUPPORTED_METHOD);
 		return (-2);
 	}
-	if(cb && ((i = (int)cb(b, BIO_CB_WRITE, (const char*)in, inl, 0L, 1L)) <= 0))
+	if(cb && ((i = (int)cb(b, BIO_CB_WRITE, (const char *)in, inl, 0L, 1L)) <= 0))
 		return (i);
 	if(!b->init) {
 		BIOerr(BIO_F_BIO_WRITE, BIO_R_UNINITIALIZED);
 		return (-2);
 	}
-	i = b->method->bwrite(b, (const char*)in, inl);
+	i = b->method->bwrite(b, (const char *)in, inl);
 	if(i > 0)
 		b->num_write += (uint64_t)i;
 	if(cb)
-		i = (int)cb(b, BIO_CB_WRITE | BIO_CB_RETURN, (const char*)in, inl, 0L, (long)i);
+		i = (int)cb(b, BIO_CB_WRITE | BIO_CB_RETURN, (const char *)in, inl, 0L, (long)i);
 	return (i);
 }
 
@@ -218,12 +218,12 @@ long FASTCALL BIO_ctrl(BIO * b, int cmd, long larg, void * parg)
 		}
 		else {
 			long (*cb)(BIO *, int, const char *, int, long, long) = b->callback;
-			if(cb && ((ret = cb(b, BIO_CB_CTRL, (const char*)parg, cmd, larg, 1L)) <= 0))
+			if(cb && ((ret = cb(b, BIO_CB_CTRL, (const char *)parg, cmd, larg, 1L)) <= 0))
 				return ret;
 			else {
 				ret = b->method->ctrl(b, cmd, larg, parg);
 				if(cb)
-					ret = cb(b, BIO_CB_CTRL | BIO_CB_RETURN, (const char*)parg, cmd, larg, ret);
+					ret = cb(b, BIO_CB_CTRL | BIO_CB_RETURN, (const char *)parg, cmd, larg, ret);
 			}
 		}
 	}
@@ -241,11 +241,11 @@ long BIO_callback_ctrl(BIO * b, int cmd, void (* fp)(struct bio_st *, int, const
 		return (-2);
 	}
 	cb = b->callback;
-	if(cb && ((ret = cb(b, BIO_CB_CTRL, (const char*)&fp, cmd, 0, 1L)) <= 0))
+	if(cb && ((ret = cb(b, BIO_CB_CTRL, (const char *)&fp, cmd, 0, 1L)) <= 0))
 		return ret;
 	ret = b->method->callback_ctrl(b, cmd, fp);
 	if(cb)
-		ret = cb(b, BIO_CB_CTRL | BIO_CB_RETURN, (const char*)&fp, cmd, 0, ret);
+		ret = cb(b, BIO_CB_CTRL | BIO_CB_RETURN, (const char *)&fp, cmd, 0, ret);
 	return ret;
 }
 

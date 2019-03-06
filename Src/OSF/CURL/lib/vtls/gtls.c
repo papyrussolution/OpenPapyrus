@@ -690,14 +690,14 @@ static CURLcode gtls_connect_step1(struct connectdata * conn,
 		gnutls_datum_t protocols[2];
 #ifdef USE_NGHTTP2
 		if(data->set.httpversion >= CURL_HTTP_VERSION_2) {
-			protocols[cur].data = (uchar*)NGHTTP2_PROTO_VERSION_ID;
+			protocols[cur].data = (uchar *)NGHTTP2_PROTO_VERSION_ID;
 			protocols[cur].size = NGHTTP2_PROTO_VERSION_ID_LEN;
 			cur++;
 			infof(data, "ALPN, offering %s\n", NGHTTP2_PROTO_VERSION_ID);
 		}
 #endif
 
-		protocols[cur].data = (uchar*)ALPN_HTTP_1_1;
+		protocols[cur].data = (uchar *)ALPN_HTTP_1_1;
 		protocols[cur].size = ALPN_HTTP_1_1_LENGTH;
 		cur++;
 		infof(data, "ALPN, offering %s\n", ALPN_HTTP_1_1);
@@ -940,7 +940,7 @@ static CURLcode gtls_connect_step3(struct connectdata * conn,
 			return result;
 
 		for(i = 0; i < cert_list_size; i++) {
-			const char * beg = (const char*)chainp[i].data;
+			const char * beg = (const char *)chainp[i].data;
 			const char * end = beg + chainp[i].size;
 
 			result = Curl_extract_certinfo(conn, i, beg, end);

@@ -90,7 +90,7 @@ int a2i_ASN1_STRING(BIO * bp, ASN1_STRING * bs, char * buf, int size)
 		 */
 		if(i < 2)
 			goto err;
-		bufp = (uchar*)buf;
+		bufp = (uchar *)buf;
 		k = 0;
 		i -= again;
 		if(i % 2 != 0) {
@@ -100,7 +100,7 @@ int a2i_ASN1_STRING(BIO * bp, ASN1_STRING * bs, char * buf, int size)
 		}
 		i /= 2;
 		if(num + i > slen) {
-			sp = (uchar*)OPENSSL_realloc(s, (uint)num + i * 2);
+			sp = (uchar *)OPENSSL_realloc(s, (uint)num + i * 2);
 			if(sp == NULL) {
 				ASN1err(ASN1_F_A2I_ASN1_STRING, ERR_R_MALLOC_FAILURE);
 				OPENSSL_free(s);

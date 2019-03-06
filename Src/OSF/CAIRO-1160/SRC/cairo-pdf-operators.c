@@ -1040,7 +1040,7 @@ static cairo_status_t _cairo_pdf_operators_set_text_position(cairo_pdf_operators
 
 	/* The Td operator transforms the text_matrix with:
 	 *
-	 *   text_matrix' = T x text_matrix
+	 * text_matrix' = T x text_matrix
 	 *
 	 * where T is a translation matrix with the translation components
 	 * set to the Td operands tx and ty.

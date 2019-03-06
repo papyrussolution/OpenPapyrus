@@ -1,8 +1,8 @@
 /*
  * Summary: interfaces for tree manipulation
  * Description: this module describes the structures found in an tree resulting
- *              from an XML or HTML parsing, as well as the API provided for
- *              various processing on that tree
+ *            from an XML or HTML parsing, as well as the API provided for
+ *            various processing on that tree
  *
  * Copy: See Copyright for the status of this software.
  *
@@ -113,7 +113,7 @@ XMLPUBFUN size_t /*XMLCALL*/FASTCALL xmlBufShrink(xmlBuf * buf, size_t len);
  * The different element types carried by an XML tree.
  *
  * NOTE: This is synchronized with DOM Level1 values
- *       See http://www.w3.org/TR/REC-DOM-Level-1/
+ *     See http://www.w3.org/TR/REC-DOM-Level-1/
  *
  * Actually this had diverged a bit, and now XML_DOCUMENT_TYPE_NODE should
  * be deprecated to use an XML_DTD_NODE.

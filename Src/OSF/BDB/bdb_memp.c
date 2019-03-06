@@ -194,9 +194,9 @@ search:
 		 * when we free any space.)  Aggressive means:
 		 *
 		 * a: set a flag to attempt to flush high priority buffers as
-		 *    well as other buffers.
+		 *  well as other buffers.
 		 * b: look at a buffer in every hash bucket rather than choose
-		 *    the more preferable of two.
+		 *  the more preferable of two.
 		 * c: start to think about giving up.
 		 *
 		 * If we get here three or more times, sync the mpool to force

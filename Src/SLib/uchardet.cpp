@@ -417,19 +417,19 @@ protected:
  * To sum up all of the above, the Hebrew probing mechanism knows about two
  * charsets:
  * Visual Hebrew - "ISO-8859-8" - backwards text - Words and sentences are
- *    backwards while line order is natural. For charset recognition purposes
- *    the line order is unimportant (In fact, for this implementation, even
- *    word order is unimportant).
+ *  backwards while line order is natural. For charset recognition purposes
+ *  the line order is unimportant (In fact, for this implementation, even
+ *  word order is unimportant).
  * Logical Hebrew - "windows-1255" - normal, naturally ordered text.
  *
  * "ISO-8859-8-I" is a subset of windows-1255 and doesn't need to be
- *    specifically identified.
+ *  specifically identified.
  * "x-mac-hebrew" is also identified as windows-1255. A text in x-mac-hebrew
- *    that contain special punctuation marks or diacritics is displayed with
- *    some unconverted characters showing as question marks. This problem might
- *    be corrected using another model prober for x-mac-hebrew. Due to the fact
- *    that x-mac-hebrew texts are so rare, writing another model prober isn't
- *    worth the effort and performance hit.
+ *  that contain special punctuation marks or diacritics is displayed with
+ *  some unconverted characters showing as question marks. This problem might
+ *  be corrected using another model prober for x-mac-hebrew. Due to the fact
+ *  that x-mac-hebrew texts are so rare, writing another model prober isn't
+ *  worth the effort and performance hit.
  *
  * *** The Prober ***
  *
@@ -3854,16 +3854,16 @@ bool FASTCALL nsHebrewProber::isNonFinal(char c)
  * visual Hebrew.
  * The following cases are checked:
  * 1) A word longer than 1 letter, ending with a final letter. This is an
- *    indication that the text is laid out "naturally" since the final letter
- *    really appears at the end. +1 for logical score.
+ *  indication that the text is laid out "naturally" since the final letter
+ *  really appears at the end. +1 for logical score.
  * 2) A word longer than 1 letter, ending with a Non-Final letter. In normal
- *    Hebrew, words ending with Kaf, Mem, Nun, Pe or Tsadi, should not end with
- *    the Non-Final form of that letter. Exceptions to this rule are mentioned
- *    above in isNonFinal(). This is an indication that the text is laid out
- *    backwards. +1 for visual score
+ *  Hebrew, words ending with Kaf, Mem, Nun, Pe or Tsadi, should not end with
+ *  the Non-Final form of that letter. Exceptions to this rule are mentioned
+ *  above in isNonFinal(). This is an indication that the text is laid out
+ *  backwards. +1 for visual score
  * 3) A word longer than 1 letter, starting with a final letter. Final letters
- *    should not appear at the beginning of a word. This is an indication that
- *    the text is laid out backwards. +1 for visual score.
+ *  should not appear at the beginning of a word. This is an indication that
+ *  the text is laid out backwards. +1 for visual score.
  *
  * The visual score and logical score are accumulated throughout the text and
  * are finally checked against each other in GetCharSetName().

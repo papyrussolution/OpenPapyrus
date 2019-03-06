@@ -60,7 +60,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list * _qrlist, zbar_image
 	int i;
 	qrdata = _qrlist->qrdata;
 	nqrdata = _qrlist->nqrdata;
-	mark = (uchar*)SAlloc::C(nqrdata, sizeof(*mark));
+	mark = (uchar *)SAlloc::C(nqrdata, sizeof(*mark));
 	ntext = 0;
 	// This is the encoding the standard says is the default
 	latin1_cd = iconv_open("UTF-8", "ISO8859-1");
@@ -302,7 +302,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list * _qrlist, zbar_image
 							    }
 							    /*If the text is 8-bit clean, prefer UTF-8 over SJIS, since
 							       SJIS will corrupt the backslashes used for DoCoMo formats.*/
-							    else if(text_is_ascii((uchar*)in, inleft)) {
+							    else if(text_is_ascii((uchar *)in, inleft)) {
 								    enc_list_mtf(enc_list, utf8_cd);
 							    }
 							    /*Try our list of encodings.*/
@@ -319,7 +319,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list * _qrlist, zbar_image
 									       So if we see any of those characters, move this
 									       conversion to the end of the list.*/
 									    if(ei<2&&enc_list[ei]==latin1_cd&&
-										    !text_is_latin1((uchar*)in, inleft)) {
+										    !text_is_latin1((uchar *)in, inleft)) {
 										    int ej;
 										    for(ej = ei+1; ej<3;
 											    ej++) enc_list[ej-1] = enc_list[ej];

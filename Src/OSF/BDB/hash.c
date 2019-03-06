@@ -17,13 +17,13 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ *  notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ *  notice, this list of conditions and the following disclaimer in the
+ *  documentation and/or other materials provided with the distribution.
  * 3. Neither the name of the University nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
+ *  may be used to endorse or promote products derived from this software
+ *  without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -695,14 +695,14 @@ get_space:
 			 * We're about to crack the offset(s) and length(s)
 			 * out of an H_KEYDATA or H_DUPLICATE item.
 			 * There are three cases:
-			 *   1. We were moved into a duplicate set by
+			 * 1. We were moved into a duplicate set by
 			 *	the standard hash cursor code.  Respect
 			 *	the dup_off and dup_tlen we were given.
-			 *   2. We stumbled upon a duplicate set while
+			 * 2. We stumbled upon a duplicate set while
 			 *	walking the page on our own.  We need to
 			 *	recognize it as a dup and set dup_off and
 			 *	dup_tlen.
-			 *   3. The current item is not a dup.
+			 * 3. The current item is not a dup.
 			 */
 			if(F_ISSET(cp, H_ISDUP)) {
 				/* Case 1 */
@@ -1205,7 +1205,7 @@ static int __ham_dup_return(DBC*dbc, DBT * val, uint32 flags)
 	/*
 	 * There are 4 cases:
 	 * 1. We are not in duplicate, simply return; the upper layer
-	 *    will do the right thing.
+	 *  will do the right thing.
 	 * 2. We are looking at keys and stumbled onto a duplicate.
 	 * 3. We are in the middle of a duplicate set. (ISDUP set)
 	 * 4. We need to check for particular data match.

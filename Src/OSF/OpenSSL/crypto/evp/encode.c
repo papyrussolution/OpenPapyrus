@@ -224,12 +224,12 @@ void EVP_DecodeInit(EVP_ENCODE_CTX * ctx)
  * Note: even though EVP_DecodeUpdate has historically tried to detect end of
  * content based on line length, this has never worked properly. Therefore,
  * we now return 0 when one of the following is true:
- *   - Padding or B64_EOF was detected and the last block is complete.
- *   - Input has zero-length.
+ * - Padding or B64_EOF was detected and the last block is complete.
+ * - Input has zero-length.
  * -1 is returned if:
- *   - Invalid characters are detected.
- *   - There is extra trailing padding, or data after padding.
- *   - B64_EOF is detected after an incomplete base64 block.
+ * - Invalid characters are detected.
+ * - There is extra trailing padding, or data after padding.
+ * - B64_EOF is detected after an incomplete base64 block.
  */
 int EVP_DecodeUpdate(EVP_ENCODE_CTX * ctx, uchar * out, int * outl, const uchar * in, int inl)
 {

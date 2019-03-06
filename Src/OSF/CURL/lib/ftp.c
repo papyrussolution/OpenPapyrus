@@ -829,8 +829,8 @@ static CURLcode ftp_state_use_port(struct connectdata * conn, /*ftpport*/int fcm
 		/* correct errors like:
 		 *  :1234-1230
 		 *  :-4711,  in this case port_min is (uint)-1,
-		 *           therefore port_min > port_max for all cases
-		 *           but port_max = (uint)-1
+		 *         therefore port_min > port_max for all cases
+		 *         but port_max = (uint)-1
 		 */
 		if(port_min > port_max)
 			port_min = port_max = 0;

@@ -34,9 +34,9 @@
  * when the timer was initialized.
  *
  * _zbar_timer_init() initialized timer with specified ms delay.
- *     returns timer or NULL if timeout < 0 (no/infinite timeout)
+ *   returns timer or NULL if timeout < 0 (no/infinite timeout)
  * _zbar_timer_check() returns ms remaining until expiration.
- *     will be <= 0 if timer has expired
+ *   will be <= 0 if timer has expired
  */
 
 #if _POSIX_TIMERS > 0

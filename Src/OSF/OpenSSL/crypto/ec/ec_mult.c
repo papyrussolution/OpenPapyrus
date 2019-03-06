@@ -97,9 +97,9 @@ void EC_ec_pre_comp_free(EC_PRE_COMP * pre)
 
 /*-
  * Compute
- *      \sum scalars[i]*points[i],
+ *    \sum scalars[i]*points[i],
  * also including
- *      scalar*generator
+ *    scalar*generator
  * in the addition if scalar != NULL
  */
 int ec_wNAF_mul(const EC_GROUP * group, EC_POINT * r, const BIGNUM * scalar,
@@ -337,10 +337,10 @@ int ec_wNAF_mul(const EC_GROUP * group, EC_POINT * r, const BIGNUM * scalar,
 		goto err;
 	/*-
 	 * prepare precomputed values:
-	 *    val_sub[i][0] :=     points[i]
-	 *    val_sub[i][1] := 3 * points[i]
-	 *    val_sub[i][2] := 5 * points[i]
-	 *    ...
+	 *  val_sub[i][0] :=     points[i]
+	 *  val_sub[i][1] := 3 * points[i]
+	 *  val_sub[i][2] := 5 * points[i]
+	 *  ...
 	 */
 	for(i = 0; i < num + num_scalar; i++) {
 		if(i < num) {

@@ -1660,11 +1660,11 @@ const cairo_font_face_backend_t _cairo_win32_font_face_backend = {
 /**
  * cairo_win32_font_face_create_for_logfontw_hfont:
  * @logfont: A #LOGFONTW structure specifying the font to use.
- *   If @font is %NULL then the lfHeight, lfWidth, lfOrientation and lfEscapement
- *   fields of this structure are ignored. Otherwise lfWidth, lfOrientation and
- *   lfEscapement must be zero.
+ * If @font is %NULL then the lfHeight, lfWidth, lfOrientation and lfEscapement
+ * fields of this structure are ignored. Otherwise lfWidth, lfOrientation and
+ * lfEscapement must be zero.
  * @font: An #HFONT that can be used when the font matrix is a scale by
- *   -lfHeight and the CTM is identity.
+ * -lfHeight and the CTM is identity.
  *
  * Creates a new font for the Win32 font backend based on a
  * #LOGFONT. This font can then be used with
@@ -1728,8 +1728,8 @@ FAIL:
 /**
  * cairo_win32_font_face_create_for_logfontw:
  * @logfont: A #LOGFONTW structure specifying the font to use.
- *   The lfHeight, lfWidth, lfOrientation and lfEscapement
- *   fields of this structure are ignored.
+ * The lfHeight, lfWidth, lfOrientation and lfEscapement
+ * fields of this structure are ignored.
  *
  * Creates a new font for the Win32 font backend based on a
  * #LOGFONT. This font can then be used with
@@ -1787,7 +1787,7 @@ static cairo_bool_t _cairo_scaled_font_is_win32(cairo_scaled_font_t * scaled_fon
 /**
  * cairo_win32_scaled_font_select_font:
  * @scaled_font: A #cairo_scaled_font_t from the Win32 font backend. Such an
- *   object can be created with cairo_win32_font_face_create_for_logfontw().
+ * object can be created with cairo_win32_font_face_create_for_logfontw().
  * @hdc: a device context
  *
  * Selects the font into the given device context and changes the
@@ -1805,8 +1805,8 @@ static cairo_bool_t _cairo_scaled_font_is_win32(cairo_scaled_font_t * scaled_fon
  * the use of this function to preserve the original graphics state.
  *
  * Return value: %CAIRO_STATUS_SUCCESS if the operation succeeded.
- *   otherwise an error such as %CAIRO_STATUS_NO_MEMORY and
- *   the device context is unchanged.
+ * otherwise an error such as %CAIRO_STATUS_NO_MEMORY and
+ * the device context is unchanged.
  *
  * Since: 1.0
  **/

@@ -269,7 +269,7 @@ int PEM_X509_INFO_write_bio(BIO * bp, X509_INFO * xi, EVP_CIPHER * enc, uchar * 
 			}
 			/* copy from weirdo names into more normal things */
 			iv = xi->enc_cipher.iv;
-			data = (uchar*)xi->enc_data;
+			data = (uchar *)xi->enc_data;
 			i = xi->enc_len;
 
 			/*

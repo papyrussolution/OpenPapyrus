@@ -150,7 +150,7 @@ void * FASTCALL _cairo_array_index(cairo_array_t * array, uint index)
 	 *
 	 * elements = _cairo_array_index (array, 0);
 	 *	  for (i=0; i < num_elements; i++) {
-	 *   ... use elements[i] here ...
+	 * ... use elements[i] here ...
 	 * }
 	 *
 	 * which in the num_elements==0 case gets the NULL pointer here,
@@ -190,7 +190,7 @@ const void * _cairo_array_index_const(const cairo_array_t * array, uint index)
 	 *
 	 * elements = _cairo_array_index_const (array, 0);
 	 *	  for (i=0; i < num_elements; i++) {
-	 *   ... read elements[i] here ...
+	 * ... read elements[i] here ...
 	 * }
 	 *
 	 * which in the num_elements==0 case gets the NULL pointer here,

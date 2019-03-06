@@ -418,7 +418,7 @@ static uint32_t * bits_image_fetch_general(pixman_iter_t * iter, const uint32_t 
 	return buffer;
 }
 
-static void replicate_pixel_32(bits_image_t *   bits, int x, int y, int width, uint32_t *  buffer)
+static void replicate_pixel_32(bits_image_t * bits, int x, int y, int width, uint32_t *  buffer)
 {
 	uint32_t color = bits->fetch_pixel_32(bits, x, y);
 	uint32_t * end = buffer + width;
@@ -426,7 +426,7 @@ static void replicate_pixel_32(bits_image_t *   bits, int x, int y, int width, u
 		*(buffer++) = color;
 }
 
-static void replicate_pixel_float(bits_image_t *   bits, int x, int y, int width, uint32_t *  b)
+static void replicate_pixel_float(bits_image_t * bits, int x, int y, int width, uint32_t *  b)
 {
 	argb_t * buffer = (argb_t*)b;
 	argb_t color = bits->fetch_pixel_float(bits, x, y);
@@ -615,7 +615,7 @@ static uint32_t * dest_get_scanline_wide(pixman_iter_t * iter, const uint32_t * 
 	int x      = iter->x;
 	int y      = iter->y;
 	int width  = iter->width;
-	argb_t *   buffer = (argb_t*)iter->buffer;
+	argb_t * buffer = (argb_t*)iter->buffer;
 	image->fetch_scanline_float(image, x, y, width, (uint32_t*)buffer, mask);
 	if(image->common.alpha_map) {
 		argb_t * alpha = static_cast<argb_t *>(SAlloc::M(width * sizeof(argb_t)));

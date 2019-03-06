@@ -30,7 +30,7 @@
 /*
  * @todo (general)
  *  -incoming server requests
- *      -server CSeq counter
+ *    -server CSeq counter
  *  -digest authentication
  *  -connect thru proxy
  *  -pipelining?
@@ -50,7 +50,7 @@ static int rtsp_getsock_do(struct connectdata * conn, curl_socket_t * socks, int
  * Parse and write out any available RTP data.
  *
  * nread: amount of data left after k->str. will be modified if RTP
- *        data is parsed and k->str is moved up
+ *      data is parsed and k->str is moved up
  * readmore: whether or not the RTP parser needs more data right away
  */
 static CURLcode rtsp_rtp_readwrite(struct Curl_easy * data, struct connectdata * conn, ssize_t * nread, bool * readmore);

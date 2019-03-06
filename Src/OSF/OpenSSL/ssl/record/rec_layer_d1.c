@@ -287,9 +287,9 @@ int dtls1_process_buffered_records(SSL * s)
  * Return up to 'len' payload bytes received in 'type' records.
  * 'type' is one of the following:
  *
- *   -  SSL3_RT_HANDSHAKE (when ssl3_get_message calls us)
- *   -  SSL3_RT_APPLICATION_DATA (when ssl3_read calls us)
- *   -  0 (during a shutdown, no data has to be returned)
+ * -  SSL3_RT_HANDSHAKE (when ssl3_get_message calls us)
+ * -  SSL3_RT_APPLICATION_DATA (when ssl3_read calls us)
+ * -  0 (during a shutdown, no data has to be returned)
  *
  * If we don't have stored data to work from, read a SSL/TLS record first
  * (possibly multiple records if we still don't have anything to return).
@@ -301,16 +301,16 @@ int dtls1_process_buffered_records(SSL * s)
  * Also if record payloads contain fragments too small to process, we store
  * them until there is enough for the respective protocol (the record protocol
  * may use arbitrary fragmentation and even interleaving):
- *     Change cipher spec protocol
- *             just 1 byte needed, no need for keeping anything stored
- *     Alert protocol
- *             2 bytes needed (AlertLevel, AlertDescription)
- *     Handshake protocol
- *             4 bytes needed (HandshakeType, uint24 length) -- we just have
- *             to detect unexpected Client Hello and Hello Request messages
- *             here, anything else is handled by higher layers
- *     Application data protocol
- *             none of our business
+ *   Change cipher spec protocol
+ *           just 1 byte needed, no need for keeping anything stored
+ *   Alert protocol
+ *           2 bytes needed (AlertLevel, AlertDescription)
+ *   Handshake protocol
+ *           4 bytes needed (HandshakeType, uint24 length) -- we just have
+ *           to detect unexpected Client Hello and Hello Request messages
+ *           here, anything else is handled by higher layers
+ *   Application data protocol
+ *           none of our business
  */
 int dtls1_read_bytes(SSL * s, int type, int * recvd_type, uchar * buf, int len, int peek)
 {
@@ -1020,7 +1020,7 @@ int do_dtls1_write(SSL * s, int type, const uchar * buf,
 	/* lets setup the record stuff. */
 	SSL3_RECORD_set_data(&wr, p + eivlen); /* make room for IV in case of CBC */
 	SSL3_RECORD_set_length(&wr, (int)len);
-	SSL3_RECORD_set_input(&wr, (uchar*)buf);
+	SSL3_RECORD_set_input(&wr, (uchar *)buf);
 	/*
 	 * we now 'read' from wr.input, wr.length bytes into wr.data
 	 */

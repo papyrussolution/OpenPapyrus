@@ -28,7 +28,7 @@ EC_POINT * EC_POINT_bn2point(const EC_GROUP * group, const BIGNUM * bn, EC_POINT
 	EC_POINT * ret;
 	if((buf_len = BN_num_bytes(bn)) == 0)
 		return NULL;
-	buf = (uchar*)OPENSSL_malloc(buf_len);
+	buf = (uchar *)OPENSSL_malloc(buf_len);
 	if(buf == NULL)
 		return NULL;
 	if(!BN_bn2bin(bn, buf)) {

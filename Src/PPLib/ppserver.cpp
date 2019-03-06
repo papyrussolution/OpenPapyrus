@@ -2493,7 +2493,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 				MEMSZERO(rec);
 				pEv->GetParam(1, temp_buf); // PPGetExtStrData(1, pEv->Params, temp_buf);
 				temp_buf.Divide(' ', left, right);
-				memcpy(&rec, (const char*)right, sizeof(rec));
+				memcpy(&rec, (const char *)right, sizeof(rec));
 				decrypt(&rec, sizeof(rec));
 				rReply.Write((const char *)&rec, sizeof(rec));
 				rReply.SetDataType(PPJobSrvReply::htFile, 0);
@@ -4521,7 +4521,7 @@ int SLAPI RFIDPrcssr()
 			// ReadFile(h_port, ret_buf, 1, &sz, 0);
 			if(sz != 0) {
 				/*
-				if(WriteFile(h_port, (const char*)query_str, sz, &sz, 0) > 0)
+				if(WriteFile(h_port, (const char *)query_str, sz, &sz, 0) > 0)
 					r = ReadFile(h_port, ret_buf, 1, &(sz = sizeof(ret_buf)), 0);
 				*/
 				int a;
@@ -4568,7 +4568,7 @@ int SLAPI RFIDPrcssr()
 				memzero(crc_buf, sizeof(crc_buf));
 				ltoa(crc, crc_buf, 16);
 				query_str.Cat(crc_buf);
-				if(sock.Send((const char*)query_str, query_str.Len(), &sended) > 0) {
+				if(sock.Send((const char *)query_str, query_str.Len(), &sended) > 0) {
 					char recv_buf[256];
 					size_t recv = 0;
 					memzero(recv_buf, sizeof(recv_buf));
@@ -4586,7 +4586,7 @@ int SLAPI RFIDPrcssr()
 						memzero(crc_buf, sizeof(crc_buf));
 						ltoa(crc, crc_buf, 16);
 						query_str.Cat(crc_buf);
-						sock.Send((const char*)query_str, query_str.Len(), &sended);
+						sock.Send((const char *)query_str, query_str.Len(), &sended);
 					}
 				}
 				sock.Disconnect();

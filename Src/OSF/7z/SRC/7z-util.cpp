@@ -782,7 +782,7 @@ static const char k_DefultChar = '_';
 		}
 		{
 			uint i;
-			const char * s = (const char*)src;
+			const char * s = (const char *)src;
 			for(i = 0;; ) {
 				Byte c = (Byte)s[i];
 				if(c == 0)

@@ -291,7 +291,7 @@ static int padlock_cipher_nids_num = (sizeof(padlock_cipher_nids) /
 static int padlock_aes_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
     const uchar * iv, int enc);
 
-#   define NEAREST_ALIGNED(ptr) ( (uchar*)(ptr) +	  \
+#   define NEAREST_ALIGNED(ptr) ( (uchar *)(ptr) +	  \
 	    ( (0x10 - ((size_t)(ptr) & 0x0F)) & 0x0F )      )
 #   define ALIGNED_CIPHER_DATA(ctx) ((struct padlock_cipher_data*) \
 	    NEAREST_ALIGNED(EVP_CIPHER_CTX_get_cipher_data(ctx)))

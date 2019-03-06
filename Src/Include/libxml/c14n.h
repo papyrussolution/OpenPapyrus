@@ -40,16 +40,16 @@ extern "C" {
  * In order to achive this in libxml2 the document MUST be loaded with
  * following global setings:
  *
- *    xmlLoadExtDtdDefaultValue = XML_DETECT_IDS | XML_COMPLETE_ATTRS;
- *    xmlSubstituteEntitiesDefault(1);
+ *  xmlLoadExtDtdDefaultValue = XML_DETECT_IDS | XML_COMPLETE_ATTRS;
+ *  xmlSubstituteEntitiesDefault(1);
  *
  * or corresponding parser context setting:
- *    xmlParserCtxt * ctxt;
+ *  xmlParserCtxt * ctxt;
  *
- *    ...
- *    ctxt->loadsubset = XML_DETECT_IDS | XML_COMPLETE_ATTRS;
- *    ctxt->replaceEntities = 1;
- *    ...
+ *  ...
+ *  ctxt->loadsubset = XML_DETECT_IDS | XML_COMPLETE_ATTRS;
+ *  ctxt->replaceEntities = 1;
+ *  ...
  */
 //
 // Descr: Predefined values for C14N modes

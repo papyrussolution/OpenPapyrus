@@ -39,7 +39,7 @@ static inline int __db_addrem_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __db_addrem_desc, sizeof(__db_addrem_args), (void**)arg));
+	    dbpp, td, data, __db_addrem_desc, sizeof(__db_addrem_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___db_addrem_42	41
 typedef struct ___db_addrem_42_args {
@@ -62,7 +62,7 @@ static inline int __db_addrem_42_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __db_addrem_42_desc, sizeof(__db_addrem_42_args), (void**)arg));
+	    dbpp, td, data, __db_addrem_42_desc, sizeof(__db_addrem_42_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___db_big	43
 typedef struct ___db_big_args {
@@ -102,7 +102,7 @@ static inline int __db_big_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __db_big_desc, sizeof(__db_big_args), (void**)arg));
+	    dbpp, td, data, __db_big_desc, sizeof(__db_big_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___db_big_42	43
 typedef struct ___db_big_42_args {
@@ -126,7 +126,7 @@ static inline int __db_big_42_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __db_big_42_desc, sizeof(__db_big_42_args), (void**)arg));
+	    dbpp, td, data, __db_big_42_desc, sizeof(__db_big_42_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___db_ovref	44
 typedef struct ___db_ovref_args {
@@ -156,7 +156,7 @@ static inline int __db_ovref_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __db_ovref_desc, sizeof(__db_ovref_args), (void**)arg));
+	    dbpp, td, data, __db_ovref_desc, sizeof(__db_ovref_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___db_relink_42	45
 typedef struct ___db_relink_42_args {
@@ -179,7 +179,7 @@ static inline int __db_relink_42_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __db_relink_42_desc, sizeof(__db_relink_42_args), (void**)arg));
+	    dbpp, td, data, __db_relink_42_desc, sizeof(__db_relink_42_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___db_debug	47
 typedef struct ___db_debug_args {
@@ -212,7 +212,7 @@ static inline int __db_debug_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    NULL, NULL, data, __db_debug_desc, sizeof(__db_debug_args), (void**)arg));
+	    NULL, NULL, data, __db_debug_desc, sizeof(__db_debug_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___db_noop	48
 typedef struct ___db_noop_args {
@@ -240,7 +240,7 @@ static inline int __db_noop_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __db_noop_desc, sizeof(__db_noop_args), (void**)arg));
+	    dbpp, td, data, __db_noop_desc, sizeof(__db_noop_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___db_pg_alloc_42	49
 typedef struct ___db_pg_alloc_42_args {
@@ -262,7 +262,7 @@ static inline int __db_pg_alloc_42_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __db_pg_alloc_42_desc, sizeof(__db_pg_alloc_42_args), (void**)arg));
+	    dbpp, td, data, __db_pg_alloc_42_desc, sizeof(__db_pg_alloc_42_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___db_pg_alloc	49
 typedef struct ___db_pg_alloc_args {
@@ -298,7 +298,7 @@ static inline int __db_pg_alloc_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __db_pg_alloc_desc, sizeof(__db_pg_alloc_args), (void**)arg));
+	    dbpp, td, data, __db_pg_alloc_desc, sizeof(__db_pg_alloc_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___db_pg_free_42	50
 typedef struct ___db_pg_free_42_args {
@@ -319,7 +319,7 @@ static inline int __db_pg_free_42_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __db_pg_free_42_desc, sizeof(__db_pg_free_42_args), (void**)arg));
+	    dbpp, td, data, __db_pg_free_42_desc, sizeof(__db_pg_free_42_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___db_pg_free	50
 typedef struct ___db_pg_free_args {
@@ -354,7 +354,7 @@ static inline int __db_pg_free_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __db_pg_free_desc, sizeof(__db_pg_free_args), (void**)arg));
+	    dbpp, td, data, __db_pg_free_desc, sizeof(__db_pg_free_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___db_cksum	51
 typedef struct ___db_cksum_args {
@@ -378,7 +378,7 @@ static inline int __db_cksum_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    NULL, NULL, data, __db_cksum_desc, sizeof(__db_cksum_args), (void**)arg));
+	    NULL, NULL, data, __db_cksum_desc, sizeof(__db_cksum_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___db_pg_freedata_42	52
 typedef struct ___db_pg_freedata_42_args {
@@ -400,7 +400,7 @@ static inline int __db_pg_freedata_42_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __db_pg_freedata_42_desc, sizeof(__db_pg_freedata_42_args), (void**)arg));
+	    dbpp, td, data, __db_pg_freedata_42_desc, sizeof(__db_pg_freedata_42_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___db_pg_freedata	52
 typedef struct ___db_pg_freedata_args {
@@ -436,7 +436,7 @@ static inline int __db_pg_freedata_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __db_pg_freedata_desc, sizeof(__db_pg_freedata_args), (void**)arg));
+	    dbpp, td, data, __db_pg_freedata_desc, sizeof(__db_pg_freedata_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___db_pg_init	60
 typedef struct ___db_pg_init_args {
@@ -466,7 +466,7 @@ static inline int __db_pg_init_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __db_pg_init_desc, sizeof(__db_pg_init_args), (void**)arg));
+	    dbpp, td, data, __db_pg_init_desc, sizeof(__db_pg_init_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___db_pg_sort_44	61
 typedef struct ___db_pg_sort_44_args {
@@ -488,7 +488,7 @@ static inline int __db_pg_sort_44_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __db_pg_sort_44_desc, sizeof(__db_pg_sort_44_args), (void**)arg));
+	    dbpp, td, data, __db_pg_sort_44_desc, sizeof(__db_pg_sort_44_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___db_pg_trunc	66
 typedef struct ___db_pg_trunc_args {
@@ -524,7 +524,7 @@ static inline int __db_pg_trunc_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __db_pg_trunc_desc, sizeof(__db_pg_trunc_args), (void**)arg));
+	    dbpp, td, data, __db_pg_trunc_desc, sizeof(__db_pg_trunc_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___db_realloc	36
 typedef struct ___db_realloc_args {
@@ -557,7 +557,7 @@ static inline int __db_realloc_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __db_realloc_desc, sizeof(__db_realloc_args), (void**)arg));
+	    dbpp, td, data, __db_realloc_desc, sizeof(__db_realloc_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___db_relink	147
 typedef struct ___db_relink_args {
@@ -592,7 +592,7 @@ static inline int __db_relink_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __db_relink_desc, sizeof(__db_relink_args), (void**)arg));
+	    dbpp, td, data, __db_relink_desc, sizeof(__db_relink_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___db_merge	148
 typedef struct ___db_merge_args {
@@ -628,7 +628,7 @@ static inline int __db_merge_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __db_merge_desc, sizeof(__db_merge_args), (void**)arg));
+	    dbpp, td, data, __db_merge_desc, sizeof(__db_merge_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___db_pgno	149
 typedef struct ___db_pgno_args {
@@ -661,6 +661,6 @@ static inline int __db_pgno_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __db_pgno_desc, sizeof(__db_pgno_args), (void**)arg));
+	    dbpp, td, data, __db_pgno_desc, sizeof(__db_pgno_args), reinterpret_cast<void **>(arg)));
 }
 #endif

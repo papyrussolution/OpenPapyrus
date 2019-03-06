@@ -90,12 +90,12 @@ end:
 /*-
  * There were two reasons for implementing this template:
  * - GNU C generates a call to a function (__udivdi3 to be exact)
- *   in reply to ((((BN_ULLONG)n0)<<BN_BITS2)|n1)/d0 (I fail to
- *   understand why...);
+ * in reply to ((((BN_ULLONG)n0)<<BN_BITS2)|n1)/d0 (I fail to
+ * understand why...);
  * - divl doesn't only calculate quotient, but also leaves
- *   remainder in %edx which we can definitely use here:-)
+ * remainder in %edx which we can definitely use here:-)
  *
- *                                   <appro@fy.chalmers.se>
+ *                                 <appro@fy.chalmers.se>
  */
 #    undef bn_div_words
 #    define bn_div_words(n0, n1, d0)		    \
@@ -110,7 +110,7 @@ end:
 #   elif defined(__x86_64) && defined(SIXTY_FOUR_BIT_LONG)
 /*
  * Same story here, but it's 128-bit by 64-bit division. Wow!
- *                                   <appro@fy.chalmers.se>
+ *                                 <appro@fy.chalmers.se>
  */
 #    undef bn_div_words
 #    define bn_div_words(n0, n1, d0)		    \
@@ -130,8 +130,8 @@ end:
  * BN_div computes  dv := num / divisor, rounding towards
  * zero, and sets up rm  such that  dv*divisor + rm = num  holds.
  * Thus:
- *     dv->neg == num->neg ^ divisor->neg  (unless the result is zero)
- *     rm->neg == num->neg                 (unless the remainder is zero)
+ *   dv->neg == num->neg ^ divisor->neg  (unless the result is zero)
+ *   rm->neg == num->neg                 (unless the remainder is zero)
  * If 'dv' or 'rm' is NULL, the respective value is not returned.
  */
 int BN_div(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num, const BIGNUM * divisor, BN_CTX * ctx)

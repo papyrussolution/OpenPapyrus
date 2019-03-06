@@ -152,18 +152,18 @@ cairo_private void _cairo_scaled_font_subsets_enable_latin_subset(cairo_scaled_f
  * Otherwise, the return tuple will be constructed as follows:
  *
  * 1) There is a 1:1 correspondence between the input scaled_font
- *    value and the output font_id value. If no mapping has been
- *    previously performed with the scaled_font value then the
- *    smallest unused font_id value will be returned.
+ *  value and the output font_id value. If no mapping has been
+ *  previously performed with the scaled_font value then the
+ *  smallest unused font_id value will be returned.
  *
  * 2) Within the set of output tuples of the same font_id value the
- *    smallest value of subset_id will be returned such that
- *    subset_glyph_index does not exceed max_glyphs_per_subset (as
- *    passed to _cairo_scaled_font_subsets_create()) and that the
- *    resulting tuple is unique.
+ *  smallest value of subset_id will be returned such that
+ *  subset_glyph_index does not exceed max_glyphs_per_subset (as
+ *  passed to _cairo_scaled_font_subsets_create()) and that the
+ *  resulting tuple is unique.
  *
  * 3) The smallest value of subset_glyph_index is returned such that
- *    the resulting tuple is unique.
+ *  the resulting tuple is unique.
  *
  * The net result is that any #cairo_scaled_font_t will be represented
  * by one or more font subsets. Each subset is effectively a tuple of
@@ -586,7 +586,7 @@ cairo_private cairo_int_status_t _cairo_truetype_index_to_ucs4(cairo_scaled_font
  * _cairo_truetype_read_font_name:
  * @scaled_font: the #cairo_scaled_font_t
  * @ps_name: returns the PostScript name of the font
- *           or %NULL if the name could not be found.
+ *         or %NULL if the name could not be found.
  * @font_name: returns the font name or %NULL if the name could not be found.
  *
  * If possible (depending on the format of the underlying

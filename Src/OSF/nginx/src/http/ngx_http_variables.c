@@ -73,11 +73,11 @@ static ngx_int_t ngx_http_variable_time_iso8601(ngx_http_request_t * r, ngx_http
 static ngx_int_t ngx_http_variable_time_local(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 /*
  * @todo 
- *     Apache CGI: AUTH_TYPE, PATH_INFO (null), PATH_TRANSLATED
- *                 REMOTE_HOST (null), REMOTE_IDENT (null),
- *                 SERVER_SOFTWARE
+ *   Apache CGI: AUTH_TYPE, PATH_INFO (null), PATH_TRANSLATED
+ *               REMOTE_HOST (null), REMOTE_IDENT (null),
+ *               SERVER_SOFTWARE
  *
- *     Apache SSI: DOCUMENT_NAME, LAST_MODIFIED, USER_NAME (file owner)
+ *   Apache SSI: DOCUMENT_NAME, LAST_MODIFIED, USER_NAME (file owner)
  */
 
 /*

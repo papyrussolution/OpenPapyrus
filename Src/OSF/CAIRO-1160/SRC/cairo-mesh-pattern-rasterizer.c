@@ -44,38 +44,38 @@
  * papers (available from ACM):
  *
  * - Lien, Shantz and Pratt "Adaptive Forward Differencing for
- *   Rendering Curves and Surfaces" (discussion of the AFD technique,
- *   bound of 1/sqrt(2) on step length without proof)
+ * Rendering Curves and Surfaces" (discussion of the AFD technique,
+ * bound of 1/sqrt(2) on step length without proof)
  *
  * - Popescu and Rosen, "Forward rasterization" (description of
- *   forward rasterization, proof of the previous bound)
+ * forward rasterization, proof of the previous bound)
  *
  * - Klassen, "Integer Forward Differencing of Cubic Polynomials:
- *   Analysis and Algorithms"
+ * Analysis and Algorithms"
  *
  * - Klassen, "Exact Integer Hybrid Subdivision and Forward
- *   Differencing of Cubics" (improving the bound on the minimum
- *   number of steps)
+ * Differencing of Cubics" (improving the bound on the minimum
+ * number of steps)
  *
  * - Chang, Shantz and Rocchetti, "Rendering Cubic Curves and Surfaces
- *   with Integer Adaptive Forward Differencing" (analysis of forward
- *   differencing applied to Bezier patches)
+ * with Integer Adaptive Forward Differencing" (analysis of forward
+ * differencing applied to Bezier patches)
  *
  * Notes:
  * - Poor performance expected in degenerate cases
  *
  * - Patches mostly outside the drawing area are drawn completely (and
- *   clipped), wasting time
+ * clipped), wasting time
  *
  * - Both previous problems are greatly reduced by splitting until a
- *   reasonably small size and clipping the new tiles: execution time
- *   is quadratic in the convex-hull diameter instead than linear to
- *   the painted area. Splitting the tiles doesn't change the painted
- *   area but (usually) reduces the bounding box area (bbox area can
- *   remain the same after splitting, but cannot grow)
+ * reasonably small size and clipping the new tiles: execution time
+ * is quadratic in the convex-hull diameter instead than linear to
+ * the painted area. Splitting the tiles doesn't change the painted
+ * area but (usually) reduces the bounding box area (bbox area can
+ * remain the same after splitting, but cannot grow)
  *
  * - The initial implementation used adaptive forward differencing,
- *   but simple forward differencing scored better in benchmarks
+ * but simple forward differencing scored better in benchmarks
  *
  * Idea:
  *
@@ -84,8 +84,8 @@
  * be at most at 1/sqrt(2) from its adjacent points. In formulae
  * (assuming B is the patch):
  *
- *   |B(u,v) - B(u+du,v)| < 1/sqrt(2)
- *   |B(u,v) - B(u,v+dv)| < 1/sqrt(2)
+ * |B(u,v) - B(u+du,v)| < 1/sqrt(2)
+ * |B(u,v) - B(u,v+dv)| < 1/sqrt(2)
  *
  * This means that every pixel covered by the patch will contain at
  * least one of the samples, thus forward rasterization can be
@@ -106,22 +106,22 @@
  * Since the pixel is covered by the patch, its center will belong to
  * (at least) one of the quads:
  *
- *   {(B(u,v), B(u+du,v), B(u,v+dv), B(u+du,v+dv)) for u,v in [0,1]}
+ * {(B(u,v), B(u+du,v), B(u,v+dv), B(u+du,v+dv)) for u,v in [0,1]}
  *
  * If P doesn't contain any of the corners of the quad:
  *
  * - if one of the corners is in 1,3,5 or 7, other two of them have to
- *   be in 2,4,6 or 8, thus if the last corner is not in P, the length
- *   of one of the edges will be > 1/sqrt(2)
+ * be in 2,4,6 or 8, thus if the last corner is not in P, the length
+ * of one of the edges will be > 1/sqrt(2)
  *
  * - if none of the corners is in 1,3,5 or 7, all of them are in 2,4,6
- *   and/or 8. If they are all in different regions, they can't
- *   satisfy the distance constraint. If two of them are in the same
- *   region (let's say 2), no point is in 6 and again it is impossible
- *   to have the center of P in the quad respecting the distance
- *   constraint (both these assertions can be checked by continuity
- *   considering the length of the edges of a quad with the vertices
- *   on the edges of P)
+ * and/or 8. If they are all in different regions, they can't
+ * satisfy the distance constraint. If two of them are in the same
+ * region (let's say 2), no point is in 6 and again it is impossible
+ * to have the center of P in the quad respecting the distance
+ * constraint (both these assertions can be checked by continuity
+ * considering the length of the edges of a quad with the vertices
+ * on the edges of P)
  *
  * Each of the cases led to a contradiction, so P contains at least
  * one of the corners of the quad.
@@ -193,7 +193,7 @@ static inline int sqsteps2shift(double steps_sq)
  * A Bezier curve is defined (with respect to a parameter t in
  * [0,1]) from its nodes (x,y,z,w) like this:
  *
- *   B(t) = x(1-t)^3 + 3yt(1-t)^2 + 3zt^2(1-t) + wt^3
+ * B(t) = x(1-t)^3 + 3yt(1-t)^2 + 3zt^2(1-t) + wt^3
  *
  * To efficiently evaluate a Bezier curve, the rasterizer uses forward
  * differences. Given x, y, z, w (the 4 nodes of the Bezier curve), it
@@ -321,7 +321,7 @@ static inline void fd_fixed_fwd(int32_t f[4])
  *
  * So, to guarantee a maximum step length of 1/sqrt(2) we must do:
  *
- *   3 max (|p1-p0|, |p2-p0|/2, |p3-p1|/2, |p3-p2|) sqrt(2) steps
+ * 3 max (|p1-p0|, |p2-p0|/2, |p3-p1|/2, |p3-p2|) sqrt(2) steps
  */
 static inline double bezier_steps_sq(const cairo_point_double_t p[4])
 {
@@ -391,7 +391,7 @@ typedef enum _intersection {
  * Check if an interval if inside another.
  *
  * Input: a,b are the extrema of the first interval
- *   c,d are the extrema of the second interval
+ * c,d are the extrema of the second interval
  *
  * Returns: INSIDE  iff [a,b) intersection [c,d) = [a,b)
  * OUTSIDE iff [a,b) intersection [c,d) = {}
@@ -415,10 +415,10 @@ static inline int intersect_interval(double a, double b, double c, double d)
  * Set the color of a pixel.
  *
  * Input: data is the base pointer of the image
- *   width, height are the dimensions of the image
- *   stride is the stride in bytes between adjacent rows
- *   x, y are the coordinates of the pixel to be colored
- *   r,g,b,a are the color components of the color to be set
+ * width, height are the dimensions of the image
+ * stride is the stride in bytes between adjacent rows
+ * x, y are the coordinates of the pixel to be colored
+ * r,g,b,a are the color components of the color to be set
  *
  * Output: the (x,y) pixel in data has the (r,g,b,a) color
  *
@@ -449,12 +449,12 @@ static inline void draw_pixel(uchar * data, int width, int height, int stride, i
  * Forward-rasterize a cubic curve using forward differences.
  *
  * Input: data is the base pointer of the image
- *   width, height are the dimensions of the image
- *   stride is the stride in bytes between adjacent rows
- *   ushift is log2(n) if n is the number of desired steps
- *   dxu[i], dyu[i] are the x,y forward differences of the curve
- *   r0,g0,b0,a0 are the color components of the start point
- *   r3,g3,b3,a3 are the color components of the end point
+ * width, height are the dimensions of the image
+ * stride is the stride in bytes between adjacent rows
+ * ushift is log2(n) if n is the number of desired steps
+ * dxu[i], dyu[i] are the x,y forward differences of the curve
+ * r0,g0,b0,a0 are the color components of the start point
+ * r3,g3,b3,a3 are the color components of the end point
  *
  * Output: data will be changed to have the requested curve drawn in
  * the specified colors
@@ -521,11 +521,11 @@ static inline void rasterize_bezier_curve(uchar * data, int width, int height, i
  * Clip, split and rasterize a Bezier curve.
  *
  * Input: data is the base pointer of the image
- *   width, height are the dimensions of the image
- *   stride is the stride in bytes between adjacent rows
- *   p[i] is the i-th node of the Bezier curve
- *   c0[i] is the i-th color component at the start point
- *   c3[i] is the i-th color component at the end point
+ * width, height are the dimensions of the image
+ * stride is the stride in bytes between adjacent rows
+ * p[i] is the i-th node of the Bezier curve
+ * c0[i] is the i-th color component at the start point
+ * c3[i] is the i-th color component at the end point
  *
  * Output: data will be changed to have the requested curve drawn in
  * the specified colors
@@ -612,11 +612,11 @@ static void draw_bezier_curve(uchar * data, int width, int height, int stride, c
  * Forward-rasterize a cubic Bezier patch using forward differences.
  *
  * Input: data is the base pointer of the image
- *   width, height are the dimensions of the image
- *   stride is the stride in bytes between adjacent rows
- *   vshift is log2(n) if n is the number of desired steps
- *   p[i][j], p[i][j] are the the nodes of the Bezier patch
- *   col[i][j] is the j-th color component of the i-th corner
+ * width, height are the dimensions of the image
+ * stride is the stride in bytes between adjacent rows
+ * vshift is log2(n) if n is the number of desired steps
+ * p[i][j], p[i][j] are the the nodes of the Bezier patch
+ * col[i][j] is the j-th color component of the i-th corner
  *
  * Output: data will be changed to have the requested patch drawn in
  * the specified colors
@@ -706,10 +706,10 @@ static inline void rasterize_bezier_patch(uchar * data, int width, int height, i
  * Clip, split and rasterize a Bezier cubic patch.
  *
  * Input: data is the base pointer of the image
- *   width, height are the dimensions of the image
- *   stride is the stride in bytes between adjacent rows
- *   p[i][j], p[i][j] are the nodes of the patch
- *   col[i][j] is the j-th color component of the i-th corner
+ * width, height are the dimensions of the image
+ * stride is the stride in bytes between adjacent rows
+ * p[i][j], p[i][j] are the nodes of the patch
+ * col[i][j] is the j-th color component of the i-th corner
  *
  * Output: data will be changed to have the requested patch drawn in
  * the specified colors
@@ -818,9 +818,9 @@ static void draw_bezier_patch(uchar * data, int width, int height, int stride,
  * Draw a tensor product shading pattern.
  *
  * Input: mesh is the mesh pattern
- *   data is the base pointer of the image
- *   width, height are the dimensions of the image
- *   stride is the stride in bytes between adjacent rows
+ * data is the base pointer of the image
+ * width, height are the dimensions of the image
+ * stride is the stride in bytes between adjacent rows
  *
  * Output: data will be changed to have the pattern drawn on it
  *

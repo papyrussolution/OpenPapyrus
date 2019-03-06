@@ -569,7 +569,7 @@ int FASTCALL AdjustNewObjID(DBTable * tbl, PPID objType, void * b)
 		}
 		if(inc > 0) {
 			if(b)
-				*(long *)b = potential_key+inc;
+				*static_cast<long *>(b) = potential_key+inc;
 			ok = 2;
 		}
 	}
@@ -590,7 +590,7 @@ int FASTCALL AddObjRecByID(DBTable * tbl, PPID objType, PPID * pID, void * b, in
 		THROW(tra.Commit());
 	}
 	if(b)
-		*(long *)b = tmp_id;
+		*static_cast<long *>(b) = tmp_id;
 	CATCHZOK
 	if(ok == 2 && CConfig.Flags & CCFLG_DEBUG) {
 		SString msg_buf, fmt_buf, obj_title;
@@ -1305,8 +1305,8 @@ DBFCreateFld * SLAPI LoadDBFStruct(uint rezID, uint * pNumFlds)
 		for(i = 0; i < num_flds; i++) {
 			STRNSCPY(p_flds[i].Name, newStr(p_rez->getString(name)));
 			p_flds[i].Type = p_rez->getChar();
-			p_flds[i].Size = (uchar)p_rez->getUINT();
-			p_flds[i].Prec = (uchar)p_rez->getUINT();
+			p_flds[i].Size = static_cast<uchar>(p_rez->getUINT());
+			p_flds[i].Prec = static_cast<uchar>(p_rez->getUINT());
 		}
 	}
 	CATCH

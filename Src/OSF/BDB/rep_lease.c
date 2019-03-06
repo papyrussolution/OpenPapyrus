@@ -12,7 +12,7 @@
 static void __rep_find_entry(ENV*, REP*, int, REP_LEASE_ENTRY**);
 /*
  * __rep_update_grant -
- *      Update a client's lease grant for this perm record
+ *    Update a client's lease grant for this perm record
  *	and send the grant to the master.  Caller must
  *	hold the mtx_clientdb mutex.  Timespec given is in
  *	host local format.
@@ -71,10 +71,10 @@ int __rep_update_grant(ENV*env, db_timespec * ts)
 
 /*
  * __rep_islease_granted -
- *      Return 0 if this client has no outstanding lease granted.
+ *    Return 0 if this client has no outstanding lease granted.
  *	Return 1 otherwise.
  *	Caller must hold the REP_SYSTEM (region) mutex, and (rep_elect) relies
- *      on us not dropping it.
+ *    on us not dropping it.
  *
  * PUBLIC: int __rep_islease_granted(ENV *);
  */
@@ -229,7 +229,7 @@ static void __rep_find_entry(ENV*env, REP * rep, int eid, REP_LEASE_ENTRY ** lep
 }
 /*
  * __rep_lease_check -
- *      Return 0 if this master holds valid leases and can confirm
+ *    Return 0 if this master holds valid leases and can confirm
  *	its mastership.  If leases are expired, an attempt is made
  *	to refresh the leases.  If that fails, then return the
  *	DB_REP_LEASE_EXPIRED error to the user.  No mutexes held.

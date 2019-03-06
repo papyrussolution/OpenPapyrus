@@ -32,8 +32,8 @@ static int __lock_sort_cmp(const void *, const void *);
  * Consider a lock list for: File A, pages 1&2, File B pages 3-5, Applock
  * This would be represented as:
  *	5 1 [fid=A;page=1] 2 2 [fid=B;page=3] 4 5 0 APPLOCK
- *        ------------------ -------------------- ---------
- *         LOCK for file A    LOCK for file B     application-specific lock
+ *      ------------------ -------------------- ---------
+ *       LOCK for file A    LOCK for file B     application-specific lock
  */
 
 #define MAX_PGNOS       0xffff

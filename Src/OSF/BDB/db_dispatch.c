@@ -14,13 +14,13 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ *  notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ *  notice, this list of conditions and the following disclaimer in the
+ *  documentation and/or other materials provided with the distribution.
  * 3. Neither the name of the University nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
+ *  may be used to endorse or promote products derived from this software
+ *  without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -112,21 +112,21 @@ int __db_dispatch(ENV * env, DB_DISTAB * dtab, DBT * db /* The log record upon w
 		 * to aborted transactions.  Unfortunately, there are several
 		 * exceptions:
 		 * 1. If this is a meta-record, one not associated with
-		 *    a transaction, then we must always process it.
+		 *  a transaction, then we must always process it.
 		 * 2. If this is a transaction commit/abort, we must
-		 *    always process it, so that we know the status of
-		 *    every transaction.
+		 *  always process it, so that we know the status of
+		 *  every transaction.
 		 * 3. If this is a child commit, we need to process it
-		 *    because the outcome of the child transaction depends
-		 *    on the outcome of the parent.
+		 *  because the outcome of the child transaction depends
+		 *  on the outcome of the parent.
 		 * 4. If this is a dbreg_register record, we must always
-		 *    process is because they contain non-transactional
-		 *    closes that must be properly handled.
+		 *  process is because they contain non-transactional
+		 *  closes that must be properly handled.
 		 * 5. If this is a noop, we must always undo it so that we
-		 *    properly handle any aborts before a file was closed.
+		 *  properly handle any aborts before a file was closed.
 		 * 6. If this a file remove, we need to process it to
-		 *    determine if the on-disk file is the same as the
-		 *    one being described.
+		 *  determine if the on-disk file is the same as the
+		 *  one being described.
 		 */
 		switch(rectype) {
 		    /*

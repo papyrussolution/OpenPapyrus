@@ -261,17 +261,14 @@ int srp_generate_server_master_secret(SSL * s)
 	BIGNUM * K = NULL, * u = NULL;
 	int ret = -1, tmp_len = 0;
 	uchar * tmp = NULL;
-
 	if(!SRP_Verify_A_mod_N(s->srp_ctx.A, s->srp_ctx.N))
 		goto err;
 	if((u = SRP_Calc_u(s->srp_ctx.A, s->srp_ctx.B, s->srp_ctx.N)) == NULL)
 		goto err;
-	if((K = SRP_Calc_server_key(s->srp_ctx.A, s->srp_ctx.v, u, s->srp_ctx.b,
-			    s->srp_ctx.N)) == NULL)
+	if((K = SRP_Calc_server_key(s->srp_ctx.A, s->srp_ctx.v, u, s->srp_ctx.b, s->srp_ctx.N)) == NULL)
 		goto err;
-
 	tmp_len = BN_num_bytes(K);
-	if((tmp = (uchar*)OPENSSL_malloc(tmp_len)) == NULL)
+	if((tmp = (uchar *)OPENSSL_malloc(tmp_len)) == NULL)
 		goto err;
 	BN_bn2bin(K, tmp);
 	ret = ssl_generate_master_secret(s, tmp, tmp_len, 1);
@@ -305,7 +302,7 @@ int srp_generate_client_master_secret(SSL * s)
 		goto err;
 
 	tmp_len = BN_num_bytes(K);
-	if((tmp = (uchar*)OPENSSL_malloc(tmp_len)) == NULL)
+	if((tmp = (uchar *)OPENSSL_malloc(tmp_len)) == NULL)
 		goto err;
 	BN_bn2bin(K, tmp);
 	ret = ssl_generate_master_secret(s, tmp, tmp_len, 1);

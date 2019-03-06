@@ -621,7 +621,7 @@ void maxi_do_primary_3(char postcode[], int country, int service)
 	int i, h;
 
 	h = strlen(postcode);
-	to_upper((uchar*)postcode);
+	to_upper((uchar *)postcode);
 	for(i = 0; i < h; i++) {
 		if((postcode[i] >= 'A') && (postcode[i] <= 'Z')) {
 			/* (Capital) letters shifted to Code Set A values */

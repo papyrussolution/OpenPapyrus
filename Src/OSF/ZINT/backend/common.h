@@ -54,7 +54,7 @@
 	#define inline _inline
 #endif
 
-//#define ustrcpy_Removed(target,source) strcpy((char *)target,(const char*)source)
+//#define ustrcpy_Removed(target,source) strcpy((char *)target,(const char *)source)
 
 #ifdef __cplusplus
 extern "C" {

@@ -184,7 +184,7 @@ static int md_gets(BIO * bp, char * buf, int size)
 	EVP_MD_CTX * ctx = static_cast<EVP_MD_CTX *>(BIO_get_data(bp));
 	if(size < ctx->digest->md_size)
 		return 0;
-	else if(EVP_DigestFinal_ex(ctx, (uchar*)buf, &ret) <= 0)
+	else if(EVP_DigestFinal_ex(ctx, (uchar *)buf, &ret) <= 0)
 		return -1;
 	else
 		return ((int)ret);

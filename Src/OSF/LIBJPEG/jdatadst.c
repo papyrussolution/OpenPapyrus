@@ -197,7 +197,7 @@ void jpeg_mem_dest(j_compress_ptr cinfo, uchar ** outbuffer, ulong * outsize)
 	dest->newbuffer = NULL;
 	if(*outbuffer == NULL || *outsize == 0) {
 		// Allocate initial buffer 
-		dest->newbuffer = *outbuffer = (uchar*)SAlloc::M(OUTPUT_BUF_SIZE);
+		dest->newbuffer = *outbuffer = (uchar *)SAlloc::M(OUTPUT_BUF_SIZE);
 		if(dest->newbuffer == NULL)
 			ERREXIT1(cinfo, JERR_OUT_OF_MEMORY, 10);
 		*outsize = OUTPUT_BUF_SIZE;

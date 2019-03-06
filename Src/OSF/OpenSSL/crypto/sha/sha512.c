@@ -15,23 +15,23 @@
  *
  * - permit SHA_LONG to be wider than 32-bit
  * - optimized versions implement two transform functions: one operating
- *   on [aligned] data in host byte order and one - on data in input
- *   stream byte order;
+ * on [aligned] data in host byte order and one - on data in input
+ * stream byte order;
  * - share common byte-order neutral collector and padding function
- *   implementations, ../md32_common.h;
+ * implementations, ../md32_common.h;
  *
  * Neither of the above applies to this SHA-512 implementations. Reasons
  * [in reverse order] are:
  *
  * - it's the only 64-bit hash algorithm for the moment of this writing,
- *   there is no need for common collector/padding implementation [yet];
+ * there is no need for common collector/padding implementation [yet];
  * - by supporting only one transform function [which operates on
- *   *aligned* data in input stream byte order, big-endian in this case]
- *   we minimize burden of maintenance in two ways: a) collector/padding
- *   function is simpler; b) only one transform function to stare at;
+ * *aligned* data in input stream byte order, big-endian in this case]
+ * we minimize burden of maintenance in two ways: a) collector/padding
+ * function is simpler; b) only one transform function to stare at;
  * - SHA_LONG64 is required to be exactly 64-bit in order to be able to
- *   apply a number of optimizations to mitigate potential performance
- *   penalties caused by previous design decision;
+ * apply a number of optimizations to mitigate potential performance
+ * penalties caused by previous design decision;
  *
  * Caveat lector.
  *
@@ -41,7 +41,7 @@
  * As this implementation relies on 64-bit integer type, it's totally
  * inappropriate for platforms which don't support it, most notably
  * 16-bit platforms.
- *                                      <appro@fy.chalmers.se>
+ *                                    <appro@fy.chalmers.se>
  */
 
 #if defined(__i386) || defined(__i386__) || defined(_M_IX86) ||	\
@@ -95,7 +95,7 @@ void sha512_block_data_order(SHA512_CTX * ctx, const void * in, size_t num);
 
 int SHA512_Final(uchar * md, SHA512_CTX * c)
 {
-	uchar * p = (uchar*)c->u.p;
+	uchar * p = (uchar *)c->u.p;
 	size_t n = c->num;
 	p[n] = 0x80;            /* There always is a room for one */
 	n++;

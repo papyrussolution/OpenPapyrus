@@ -35,8 +35,8 @@ extern "C" {
  * Pthreads-based mutexes (exclusive-only) and latches (possibly shared)
  * have the same MUTEX_FIELDS union. Different parts of the union are used
  * depending on:
- *    -	whether HAVE_SHARED_LATCHES is defined, and
- *    - if HAVE_SHARED_LATCHES, whether this particular instance of a mutex
+ *  -	whether HAVE_SHARED_LATCHES is defined, and
+ *  - if HAVE_SHARED_LATCHES, whether this particular instance of a mutex
  *	is a shared mutexDB_MUTEX_SHARED.
  *
  * The rwlock part of the union is used *only* for non-hybrid shared latches;

@@ -19,7 +19,7 @@ static inline int __txn_regop_42_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    NULL, NULL, data, __txn_regop_42_desc, sizeof(__txn_regop_42_args), (void**)arg));
+	    NULL, NULL, data, __txn_regop_42_desc, sizeof(__txn_regop_42_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___txn_regop	10
 typedef struct ___txn_regop_args {
@@ -51,7 +51,7 @@ static inline int __txn_regop_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    NULL, NULL, data, __txn_regop_desc, sizeof(__txn_regop_args), (void**)arg));
+	    NULL, NULL, data, __txn_regop_desc, sizeof(__txn_regop_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___txn_ckp_42	11
 typedef struct ___txn_ckp_42_args {
@@ -70,7 +70,7 @@ static inline int __txn_ckp_42_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    NULL, NULL, data, __txn_ckp_42_desc, sizeof(__txn_ckp_42_args), (void**)arg));
+	    NULL, NULL, data, __txn_ckp_42_desc, sizeof(__txn_ckp_42_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___txn_ckp	11
 typedef struct ___txn_ckp_args {
@@ -96,7 +96,7 @@ static inline int __txn_ckp_log(ENV *env, DB_TXN *txnp, DB_LSN *ret_lsnp, uint32
 static inline int __txn_ckp_read(ENV *env, void *data, __txn_ckp_args **arg)
 {
 	*arg = NULL;
-	return (__log_read_record(env, 0, 0, data, __txn_ckp_desc, sizeof(__txn_ckp_args), (void**)arg));
+	return (__log_read_record(env, 0, 0, data, __txn_ckp_desc, sizeof(__txn_ckp_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___txn_child	12
 typedef struct ___txn_child_args {
@@ -125,7 +125,7 @@ static inline int __txn_child_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    NULL, NULL, data, __txn_child_desc, sizeof(__txn_child_args), (void**)arg));
+	    NULL, NULL, data, __txn_child_desc, sizeof(__txn_child_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___txn_xa_regop_42	13
 typedef struct ___txn_xa_regop_42_args {
@@ -147,7 +147,7 @@ static inline int __txn_xa_regop_42_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    NULL, NULL, data, __txn_xa_regop_42_desc, sizeof(__txn_xa_regop_42_args), (void**)arg));
+	    NULL, NULL, data, __txn_xa_regop_42_desc, sizeof(__txn_xa_regop_42_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___txn_prepare	13
 typedef struct ___txn_prepare_args {
@@ -161,25 +161,18 @@ typedef struct ___txn_prepare_args {
 } __txn_prepare_args;
 
 extern __DB_IMPORT DB_LOG_RECSPEC __txn_prepare_desc[];
-static inline int
-__txn_prepare_log(ENV *env, DB_TXN *txnp, DB_LSN *ret_lsnp, uint32 flags,
-    uint32 opcode, const DBT *gid, DB_LSN * begin_lsn, const DBT *locks)
+static inline int __txn_prepare_log(ENV *env, DB_TXN *txnp, DB_LSN *ret_lsnp, uint32 flags, uint32 opcode, const DBT *gid, DB_LSN * begin_lsn, const DBT *locks)
 {
-	return (__log_put_record(env, NULL, txnp, ret_lsnp,
-	    flags, DB___txn_prepare, 0,
-	    sizeof(uint32) + sizeof(uint32) + sizeof(DB_LSN) +
-	    sizeof(uint32) + LOG_DBT_SIZE(gid) + sizeof(*begin_lsn) +
-	    LOG_DBT_SIZE(locks),
-	    __txn_prepare_desc,
-	    opcode, gid, begin_lsn, locks));
+	return (__log_put_record(env, NULL, txnp, ret_lsnp, flags, DB___txn_prepare, 0,
+	    sizeof(uint32) + sizeof(uint32) + sizeof(DB_LSN) + sizeof(uint32) + LOG_DBT_SIZE(gid) + sizeof(*begin_lsn) + LOG_DBT_SIZE(locks),
+	    __txn_prepare_desc, opcode, gid, begin_lsn, locks));
 }
 
-static inline int __txn_prepare_read(ENV *env, 
-    void *data, __txn_prepare_args **arg)
+static inline int __txn_prepare_read(ENV *env, void *data, __txn_prepare_args **arg)
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    NULL, NULL, data, __txn_prepare_desc, sizeof(__txn_prepare_args), (void**)arg));
+	    NULL, NULL, data, __txn_prepare_desc, sizeof(__txn_prepare_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___txn_recycle	14
 typedef struct ___txn_recycle_args {
@@ -191,23 +184,16 @@ typedef struct ___txn_recycle_args {
 } __txn_recycle_args;
 
 extern __DB_IMPORT DB_LOG_RECSPEC __txn_recycle_desc[];
-static inline int
-__txn_recycle_log(ENV *env, DB_TXN *txnp, DB_LSN *ret_lsnp, uint32 flags,
-    uint32 min, uint32 max)
+static inline int __txn_recycle_log(ENV *env, DB_TXN *txnp, DB_LSN *ret_lsnp, uint32 flags, uint32 min, uint32 max)
 {
-	return (__log_put_record(env, NULL, txnp, ret_lsnp,
-	    flags, DB___txn_recycle, 0,
-	    sizeof(uint32) + sizeof(uint32) + sizeof(DB_LSN) +
-	    sizeof(uint32) + sizeof(uint32),
-	    __txn_recycle_desc,
-	    min, max));
+	return (__log_put_record(env, NULL, txnp, ret_lsnp, flags, DB___txn_recycle, 0,
+	    sizeof(uint32) + sizeof(uint32) + sizeof(DB_LSN) + sizeof(uint32) + sizeof(uint32), __txn_recycle_desc, min, max));
 }
 
-static inline int __txn_recycle_read(ENV *env, 
-    void *data, __txn_recycle_args **arg)
+static inline int __txn_recycle_read(ENV *env, void *data, __txn_recycle_args **arg)
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    NULL, NULL, data, __txn_recycle_desc, sizeof(__txn_recycle_args), (void**)arg));
+	    NULL, NULL, data, __txn_recycle_desc, sizeof(__txn_recycle_args), reinterpret_cast<void **>(arg)));
 }
 #endif

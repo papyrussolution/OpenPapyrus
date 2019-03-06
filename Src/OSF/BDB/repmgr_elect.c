@@ -270,7 +270,7 @@ static int __repmgr_elect_main(ENV * env, REPMGR_RUNNABLE * th)
 	 * could be very weird if we were "off somewhat".  For example, we could
 	 * get a negative value.  And this is not a high-traffic, performance-
 	 * critical path.
-	 *     On the other hand, it suffices to take repmgr's (handle-based)
+	 *   On the other hand, it suffices to take repmgr's (handle-based)
 	 * mutex, rather than the rep mutex which normally protects shared
 	 * memory, since all election thread activity must be occurring in the
 	 * single listener process, under control of one single rep handle.

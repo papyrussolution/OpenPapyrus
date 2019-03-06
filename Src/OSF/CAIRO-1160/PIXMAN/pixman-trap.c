@@ -344,7 +344,7 @@ static pixman_bool_t get_trap_extents(pixman_op_t op, pixman_image_t * dest, con
  * the (x, y) coordinates of the destination. Then these three images are
  * composited across the entire destination.
  */
-PIXMAN_EXPORT void pixman_composite_trapezoids(pixman_op_t op, pixman_image_t *    src, pixman_image_t *    dst,
+PIXMAN_EXPORT void pixman_composite_trapezoids(pixman_op_t op, pixman_image_t *  src, pixman_image_t *  dst,
     pixman_format_code_t mask_format, int x_src, int y_src, int x_dst, int y_dst, int n_traps, const pixman_trapezoid_t * traps)
 {
 	int i;
@@ -475,15 +475,15 @@ static pixman_trapezoid_t * convert_triangles(int n_tris, const pixman_triangle_
 }
 
 PIXMAN_EXPORT void pixman_composite_triangles(pixman_op_t op,
-    pixman_image_t *     src,
-    pixman_image_t *     dst,
+    pixman_image_t *   src,
+    pixman_image_t *   dst,
     pixman_format_code_t mask_format,
     int x_src,
     int y_src,
     int x_dst,
     int y_dst,
     int n_tris,
-    const pixman_triangle_t *   tris)
+    const pixman_triangle_t * tris)
 {
 	pixman_trapezoid_t * traps;
 

@@ -104,13 +104,13 @@ int __db_appname(ENV * env, APPNAME appname, const char * file, const char ** di
 		return __os_strdup(env, file, namep);
 	/*
 	 * DB_APP_NONE:
-	 *      DB_HOME/file
+	 *    DB_HOME/file
 	 * DB_APP_DATA:
-	 *      DB_HOME/DB_DATA_DIR/file
+	 *    DB_HOME/DB_DATA_DIR/file
 	 * DB_APP_LOG:
-	 *      DB_HOME/DB_LOG_DIR/file
+	 *    DB_HOME/DB_LOG_DIR/file
 	 * DB_APP_TMP:
-	 *      DB_HOME/DB_TMP_DIR/<create>
+	 *    DB_HOME/DB_TMP_DIR/<create>
 	 */
 	switch(appname) {
 	    case DB_APP_NONE:
@@ -198,10 +198,10 @@ int __db_tmp_open(ENV * env, uint32 oflags, DB_FH ** fhpp)
 		/*
 		 * Generate temporary file names in a backwards-compatible way.
 		 * If pid == 12345, the result is:
-		 *   <path>/DB12345 (tried above, the first time through).
-		 *   <path>/DBa2345 ...  <path>/DBz2345
-		 *   <path>/DBaa345 ...  <path>/DBaz345
-		 *   <path>/DBba345, and so on.
+		 * <path>/DB12345 (tried above, the first time through).
+		 * <path>/DBa2345 ...  <path>/DBz2345
+		 * <path>/DBaa345 ...  <path>/DBaz345
+		 * <path>/DBba345, and so on.
 		 *
 		 * XXX
 		 * This algorithm is O(n**2) -- that is, creating 100 temporary

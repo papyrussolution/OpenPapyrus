@@ -9,8 +9,8 @@
 
 /*-
  * MessageImprint ::= SEQUENCE  {
- *      hashAlgorithm                AlgorithmIdentifier,
- *      hashedMessage                OCTET STRING  }
+ *    hashAlgorithm                AlgorithmIdentifier,
+ *    hashedMessage                OCTET STRING  }
  */
 struct TS_msg_imprint_st {
     X509_ALGOR *hash_algo;
@@ -19,8 +19,8 @@ struct TS_msg_imprint_st {
 
 /*-
  * TimeStampResp ::= SEQUENCE  {
- *     status                  PKIStatusInfo,
- *     timeStampToken          TimeStampToken     OPTIONAL }
+ *   status                  PKIStatusInfo,
+ *   timeStampToken          TimeStampToken     OPTIONAL }
  */
 struct TS_resp_st {
     TS_STATUS_INFO *status_info;
@@ -30,14 +30,14 @@ struct TS_resp_st {
 
 /*-
  * TimeStampReq ::= SEQUENCE  {
- *    version                  INTEGER  { v1(1) },
- *    messageImprint           MessageImprint,
- *      --a hash algorithm OID and the hash value of the data to be
- *      --time-stamped
- *    reqPolicy                TSAPolicyId                OPTIONAL,
- *    nonce                    INTEGER                    OPTIONAL,
- *    certReq                  BOOLEAN                    DEFAULT FALSE,
- *    extensions               [0] IMPLICIT Extensions    OPTIONAL  }
+ *  version                  INTEGER  { v1(1) },
+ *  messageImprint           MessageImprint,
+ *    --a hash algorithm OID and the hash value of the data to be
+ *    --time-stamped
+ *  reqPolicy                TSAPolicyId                OPTIONAL,
+ *  nonce                    INTEGER                    OPTIONAL,
+ *  certReq                  BOOLEAN                    DEFAULT FALSE,
+ *  extensions               [0] IMPLICIT Extensions    OPTIONAL  }
  */
 struct TS_req_st {
     ASN1_INTEGER *version;
@@ -50,9 +50,9 @@ struct TS_req_st {
 
 /*-
  * Accuracy ::= SEQUENCE {
- *                 seconds        INTEGER           OPTIONAL,
- *                 millis     [0] INTEGER  (1..999) OPTIONAL,
- *                 micros     [1] INTEGER  (1..999) OPTIONAL  }
+ *               seconds        INTEGER           OPTIONAL,
+ *               millis     [0] INTEGER  (1..999) OPTIONAL,
+ *               micros     [1] INTEGER  (1..999) OPTIONAL  }
  */
 struct TS_accuracy_st {
     ASN1_INTEGER *seconds;
@@ -62,22 +62,22 @@ struct TS_accuracy_st {
 
 /*-
  * TSTInfo ::= SEQUENCE  {
- *     version                      INTEGER  { v1(1) },
- *     policy                       TSAPolicyId,
- *     messageImprint               MessageImprint,
- *       -- MUST have the same value as the similar field in
- *       -- TimeStampReq
- *     serialNumber                 INTEGER,
- *      -- Time-Stamping users MUST be ready to accommodate integers
- *      -- up to 160 bits.
- *     genTime                      GeneralizedTime,
- *     accuracy                     Accuracy                 OPTIONAL,
- *     ordering                     BOOLEAN             DEFAULT FALSE,
- *     nonce                        INTEGER                  OPTIONAL,
- *       -- MUST be present if the similar field was present
- *       -- in TimeStampReq.  In that case it MUST have the same value.
- *     tsa                          [0] GeneralName          OPTIONAL,
- *     extensions                   [1] IMPLICIT Extensions  OPTIONAL   }
+ *   version                      INTEGER  { v1(1) },
+ *   policy                       TSAPolicyId,
+ *   messageImprint               MessageImprint,
+ *     -- MUST have the same value as the similar field in
+ *     -- TimeStampReq
+ *   serialNumber                 INTEGER,
+ *    -- Time-Stamping users MUST be ready to accommodate integers
+ *    -- up to 160 bits.
+ *   genTime                      GeneralizedTime,
+ *   accuracy                     Accuracy                 OPTIONAL,
+ *   ordering                     BOOLEAN             DEFAULT FALSE,
+ *   nonce                        INTEGER                  OPTIONAL,
+ *     -- MUST be present if the similar field was present
+ *     -- in TimeStampReq.  In that case it MUST have the same value.
+ *   tsa                          [0] GeneralName          OPTIONAL,
+ *   extensions                   [1] IMPLICIT Extensions  OPTIONAL   }
  */
 struct TS_tst_info_st {
     ASN1_INTEGER *version;
@@ -100,9 +100,9 @@ struct TS_status_info_st {
 
 /*-
  * IssuerSerial ::= SEQUENCE {
- *         issuer                   GeneralNames,
- *         serialNumber             CertificateSerialNumber
- *         }
+ *       issuer                   GeneralNames,
+ *       serialNumber             CertificateSerialNumber
+ *       }
  */
 struct ESS_issuer_serial {
     STACK_OF(GENERAL_NAME) *issuer;
@@ -111,8 +111,8 @@ struct ESS_issuer_serial {
 
 /*-
  * ESSCertID ::=  SEQUENCE {
- *         certHash                 Hash,
- *         issuerSerial             IssuerSerial OPTIONAL
+ *       certHash                 Hash,
+ *       issuerSerial             IssuerSerial OPTIONAL
  * }
  */
 struct ESS_cert_id {
@@ -122,8 +122,8 @@ struct ESS_cert_id {
 
 /*-
  * SigningCertificate ::=  SEQUENCE {
- *        certs        SEQUENCE OF ESSCertID,
- *        policies     SEQUENCE OF PolicyInformation OPTIONAL
+ *      certs        SEQUENCE OF ESSCertID,
+ *      policies     SEQUENCE OF PolicyInformation OPTIONAL
  * }
  */
 struct ESS_signing_cert {

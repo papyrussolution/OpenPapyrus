@@ -113,7 +113,7 @@ int ASN1_UTCTIME_set_string(ASN1_UTCTIME * s, const char * str)
 
 	t.type = V_ASN1_UTCTIME;
 	t.length = strlen(str);
-	t.data = (uchar*)str;
+	t.data = (uchar *)str;
 	if(ASN1_UTCTIME_check(&t)) {
 		if(s != NULL) {
 			if(!ASN1_STRING_set((ASN1_STRING*)s, str, t.length))
@@ -169,7 +169,7 @@ ASN1_UTCTIME * ASN1_UTCTIME_adj(ASN1_UTCTIME * s, time_t t,
 			goto err;
 		}
 		OPENSSL_free(s->data);
-		s->data = (uchar*)p;
+		s->data = (uchar *)p;
 	}
 
 	BIO_snprintf(p, len, "%02d%02d%02d%02d%02d%02dZ", ts->tm_year % 100,
@@ -221,7 +221,7 @@ int ASN1_UTCTIME_print(BIO * bp, const ASN1_UTCTIME * tm)
 	int y = 0, M = 0, d = 0, h = 0, m = 0, s = 0;
 
 	i = tm->length;
-	v = (const char*)tm->data;
+	v = (const char *)tm->data;
 
 	if(i < 10)
 		goto err;

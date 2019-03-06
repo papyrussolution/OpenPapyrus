@@ -263,12 +263,12 @@ void _cairo_traps_tessellate_convex_quad(cairo_traps_t * traps, const cairo_poin
 		if(b_left_of_d) {
 			/* Y-sort is abcd and b is left of d, (slope(ab) > slope (ad))
 			 *
-			 *    top bot left right
-			 *   _a  a  a
+			 *  top bot left right
+			 * _a  a  a
 			 * / /  /|  |\      a.y b.y  ab   ad
 			 * b /  b |  b \
 			 * / /   | |   \ \    b.y c.y  bc   ad
-			 *   c /    c |    c \
+			 * c /    c |    c \
 			 *  | /      \|     \ \  c.y d.y  cd   ad
 			 *  d         d       d
 			 */
@@ -287,7 +287,7 @@ void _cairo_traps_tessellate_convex_quad(cairo_traps_t * traps, const cairo_poin
 			 * /|  |\  \ \     a.y b.y  ad  ab
 			 * / b  | b  \ b
 			 * / /   | |   \ \   b.y c.y  ad  bc
-			 *   / c    | c    \ c
+			 * / c    | c    \ c
 			 *  / /     |/      \ | c.y d.y  ad  cd
 			 *  d       d         d
 			 */
@@ -304,11 +304,11 @@ void _cairo_traps_tessellate_convex_quad(cairo_traps_t * traps, const cairo_poin
 		if(b_left_of_d) {
 			/* Y-sort is abdc and b is left of d, (slope (ab) > slope (ad))
 			 *
-			 *   a   a     a
+			 * a   a     a
 			 *  //  / \    |\     a.y b.y  ab  ad
 			 * /b/  b   \   b \
 			 * / /    \   \   \ \   b.y d.y  bc  ad
-			 *   /d/      \   d   \ d
+			 * /d/      \   d   \ d
 			 *  //         \ /     \|  d.y c.y  bc  dc
 			 *  c           c       c
 			 */
@@ -326,7 +326,7 @@ void _cairo_traps_tessellate_convex_quad(cairo_traps_t * traps, const cairo_poin
 			 * a     a   a
 			 * /|    / \  \\       a.y b.y  ad  ab
 			 * / b   /   b  \b\
-			 *   / /   /   /    \ \    b.y d.y  ad  bc
+			 * / /   /   /    \ \    b.y d.y  ad  bc
 			 *  d /   d   /	 \d\
 			 *  |/     \ /         \\  d.y c.y  dc  bc
 			 *  c       c	   c
@@ -639,49 +639,38 @@ void _cairo_trapezoid_array_translate_and_scale(cairo_trapezoid_t * offset_traps
 	}
 }
 
-static cairo_bool_t _cairo_trap_contains(cairo_trapezoid_t * t, cairo_point_t * pt)
+static cairo_bool_t _cairo_trap_contains(cairo_trapezoid_t * t, const cairo_point_t * pt)
 {
 	cairo_slope_t slope_left, slope_pt, slope_right;
-
 	if(t->top > pt->y)
 		return FALSE;
 	if(t->bottom < pt->y)
 		return FALSE;
-
 	_cairo_slope_init(&slope_left, &t->left.p1, &t->left.p2);
 	_cairo_slope_init(&slope_pt, &t->left.p1, pt);
-
 	if(_cairo_slope_compare(&slope_left, &slope_pt) < 0)
 		return FALSE;
-
 	_cairo_slope_init(&slope_right, &t->right.p1, &t->right.p2);
 	_cairo_slope_init(&slope_pt, &t->right.p1, pt);
-
 	if(_cairo_slope_compare(&slope_pt, &slope_right) < 0)
 		return FALSE;
-
 	return TRUE;
 }
 
-cairo_bool_t _cairo_traps_contain(const cairo_traps_t * traps,
-    double x, double y)
+cairo_bool_t _cairo_traps_contain(const cairo_traps_t * traps, double x, double y)
 {
 	int i;
 	cairo_point_t point;
-
 	point.x = _cairo_fixed_from_double(x);
 	point.y = _cairo_fixed_from_double(y);
-
 	for(i = 0; i < traps->num_traps; i++) {
 		if(_cairo_trap_contains(&traps->traps[i], &point))
 			return TRUE;
 	}
-
 	return FALSE;
 }
 
-static cairo_fixed_t _line_compute_intersection_x_for_y(const cairo_line_t * line,
-    cairo_fixed_t y)
+static cairo_fixed_t _line_compute_intersection_x_for_y(const cairo_line_t * line, cairo_fixed_t y)
 {
 	return _cairo_edge_compute_intersection_x_for_y(&line->p1, &line->p2, y);
 }

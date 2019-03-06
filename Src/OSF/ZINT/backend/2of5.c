@@ -164,7 +164,7 @@ int interleaved_two_of_five(struct ZintSymbol * symbol, const uchar source[], si
 #ifndef _MSC_VER
 	uchar temp[length + 2];
 #else
-	uchar * temp = (uchar*)_alloca((length + 2) * sizeof(uchar));
+	uchar * temp = (uchar *)_alloca((length + 2) * sizeof(uchar));
 #endif
 	if(length > 89) {
 		sstrcpy(symbol->errtxt, "Input too long (C09)");
@@ -175,11 +175,11 @@ int interleaved_two_of_five(struct ZintSymbol * symbol, const uchar source[], si
 		sstrcpy(symbol->errtxt, "Invalid characters in data (C0A)");
 		return error_number;
 	}
-	sstrcpy(temp, (uchar*)"");
+	sstrcpy(temp, (uchar *)"");
 	/* Input must be an even number of characters for Interlaced 2 of 5 to work:
 	   if an odd number of characters has been entered then add a leading zero */
 	if(length & 1) {
-		sstrcpy(temp, (uchar*)"0");
+		sstrcpy(temp, (uchar *)"0");
 		length++;
 	}
 	strcat((char *)temp, (char *)source);
@@ -241,8 +241,8 @@ int itf14(struct ZintSymbol * symbol, uchar source[], int length)
 	}
 	localstr[13] = check_digit(count);
 	localstr[14] = '\0';
-	error_number = interleaved_two_of_five(symbol, (uchar*)localstr, strlen(localstr));
-	sstrcpy(symbol->text, (uchar*)localstr);
+	error_number = interleaved_two_of_five(symbol, (uchar *)localstr, strlen(localstr));
+	sstrcpy(symbol->text, (uchar *)localstr);
 	return error_number;
 }
 
@@ -274,8 +274,8 @@ int dpleit(struct ZintSymbol * symbol, uchar source[], int length)
 	}
 	localstr[13] = check_digit(count);
 	localstr[14] = '\0';
-	error_number = interleaved_two_of_five(symbol, (uchar*)localstr, strlen(localstr));
-	sstrcpy(symbol->text, (uchar*)localstr);
+	error_number = interleaved_two_of_five(symbol, (uchar *)localstr, strlen(localstr));
+	sstrcpy(symbol->text, (uchar *)localstr);
 	return error_number;
 }
 
@@ -307,8 +307,8 @@ int dpident(struct ZintSymbol * symbol, uchar source[], int length)
 	}
 	localstr[11] = check_digit(count);
 	localstr[12] = '\0';
-	error_number = interleaved_two_of_five(symbol, (uchar*)localstr, strlen(localstr));
-	sstrcpy(symbol->text, (uchar*)localstr);
+	error_number = interleaved_two_of_five(symbol, (uchar *)localstr, strlen(localstr));
+	sstrcpy(symbol->text, (uchar *)localstr);
 	return error_number;
 }
 

@@ -1336,8 +1336,8 @@ static int xmlXzfileClose(void * context)
 #ifdef LIBXML_OUTPUT_ENABLED
 typedef struct xmlIOHTTPWriteCtxt_ {
 	int compression;
-	char *              uri;
-	void *              doc_buff;
+	char *            uri;
+	void *            doc_buff;
 } xmlIOHTTPWriteCtxt, * xmlIOHTTPWriteCtxtPtr;
 
 #ifdef HAVE_ZLIB_H
@@ -1358,7 +1358,7 @@ typedef struct xmlIOHTTPWriteCtxt_ {
 typedef struct xmlZMemBuff_ {
 	unsigned long size;
 	unsigned long crc;
-	uchar *      zbuff;
+	uchar *    zbuff;
 	z_stream zctrl;
 } xmlZMemBuff, * xmlZMemBuffPtr;
 
@@ -1445,7 +1445,7 @@ static void * xmlCreateZMemBuff(int compression)
 					buff = NULL;
 					xmlStrPrintf(msg, 500, (const xmlChar*)"xmlCreateZMemBuff:  %s %d\n",
 						"Error initializing compression context.  ZLIB error:", z_err);
-					xmlIOErr(XML_IO_WRITE, (const char*)msg);
+					xmlIOErr(XML_IO_WRITE, (const char *)msg);
 					buff = 0;
 				}
 				else {
@@ -1503,7 +1503,7 @@ static int xmlZMemBuffExtend(xmlZMemBuffPtr buff, size_t ext_amt)
 		xmlChar msg[500];
 		xmlStrPrintf(msg, 500, (const xmlChar*)"xmlZMemBuffExtend:  %s %lu bytes.\n",
 		    "Allocation failure extending output buffer to", new_size);
-		xmlIOErr(XML_IO_WRITE, (const char*)msg);
+		xmlIOErr(XML_IO_WRITE, (const char *)msg);
 	}
 	return ( rc );
 }
@@ -1526,7 +1526,7 @@ static int xmlZMemBuffAppend(xmlZMemBuffPtr buff, const char * src, int len)
 	if(( buff == NULL ) || ( src == NULL ) )
 		return ( -1 );
 	buff->zctrl.avail_in = len;
-	buff->zctrl.next_in  = (uchar*)src;
+	buff->zctrl.next_in  = (uchar *)src;
 	while(buff->zctrl.avail_in > 0) {
 		/*
 		**  Extend the buffer prior to deflate call if a reasonable amount
@@ -1542,11 +1542,11 @@ static int xmlZMemBuffAppend(xmlZMemBuffPtr buff, const char * src, int len)
 		if(z_err != Z_OK) {
 			xmlChar msg[500];
 			xmlStrPrintf(msg, 500, (const xmlChar*)"xmlZMemBuffAppend:  %s %d %s - %d", "Compression error while appending", len, "bytes to buffer.  ZLIB error", z_err);
-			xmlIOErr(XML_IO_WRITE, (const char*)msg);
+			xmlIOErr(XML_IO_WRITE, (const char *)msg);
 			return ( -1 );
 		}
 	}
-	buff->crc = crc32(buff->crc, (uchar*)src, len);
+	buff->crc = crc32(buff->crc, (uchar *)src, len);
 	return ( len );
 }
 
@@ -1604,7 +1604,7 @@ static int xmlZMemBuffGetContent(xmlZMemBuffPtr buff, char ** data_ref)
 	else {
 		xmlChar msg[500];
 		xmlStrPrintf(msg, 500, (const xmlChar*)"xmlZMemBuffGetContent:  %s - %d\n", "Error flushing zlib buffers.  Error code", z_err);
-		xmlIOErr(XML_IO_WRITE, (const char*)msg);
+		xmlIOErr(XML_IO_WRITE, (const char *)msg);
 	}
 	return ( zlgth );
 }
@@ -1784,7 +1784,7 @@ static int xmlIOHTTPWrite(void * context, const char * buffer, int len)
 			xmlChar msg[500];
 			xmlStrPrintf(msg, 500, (const xmlChar*)"xmlIOHTTPWrite:  %s\n%s '%s'.\n",
 			    "Error appending to internal buffer.", "Error sending document to URI", ctxt->uri);
-			xmlIOErr(XML_IO_WRITE, (const char*)msg);
+			xmlIOErr(XML_IO_WRITE, (const char *)msg);
 		}
 	}
 	return len;
@@ -1849,7 +1849,7 @@ static int xmlIOHTTPCloseWrite(void * context, const char * http_mthd)
 		xmlChar msg[500];
 		xmlStrPrintf(msg, 500, (const xmlChar*)"xmlIOHTTPCloseWrite:  %s '%s' %s '%s'.\n",
 		    "Error retrieving content.\nUnable to", http_mthd, "data to URI", ctxt->uri);
-		xmlIOErr(XML_IO_WRITE, (const char*)msg);
+		xmlIOErr(XML_IO_WRITE, (const char *)msg);
 	}
 
 	else {
@@ -1858,9 +1858,9 @@ static int xmlIOHTTPCloseWrite(void * context, const char * http_mthd)
 #ifdef DEBUG_HTTP
 			/*  If testing/debugging - dump reply with request content  */
 
-			FILE *      tst_file = NULL;
+			FILE *    tst_file = NULL;
 			char buffer[ 4096 ];
-			char *      dump_name = NULL;
+			char *    dump_name = NULL;
 			int avail;
 			xmlGenericError(0, "xmlNanoHTTPCloseWrite:  HTTP %s to\n%s returned %d.\n",
 			    http_mthd, ctxt->uri, xmlNanoHTTPReturnCode(http_ctxt) );
@@ -1900,7 +1900,7 @@ static int xmlIOHTTPCloseWrite(void * context, const char * http_mthd)
 				    http_mthd, content_lgth,
 				    "bytes to URI", ctxt->uri,
 				    "failed.  HTTP return code:", http_rtn);
-				xmlIOErr(XML_IO_WRITE, (const char*)msg);
+				xmlIOErr(XML_IO_WRITE, (const char *)msg);
 			}
 			xmlNanoHTTPClose(http_ctxt);
 			SAlloc::F(content_type);
@@ -2541,7 +2541,7 @@ xmlOutputBuffer * __xmlOutputBufferCreateFilename(const char * URI, xmlCharEncod
  * Automatic support for ZLIB/Compress compressed document is provided
  * by default if found at compile-time.
  * @todo currently if compression is set, the library only support
- *       writing to a local file.
+ *     writing to a local file.
  *
  * Returns the new output or NULL
  */
@@ -2867,7 +2867,7 @@ xmlOutputBufferCreateFilenameFunc xmlOutputBufferCreateFilenameDefault(xmlOutput
  * This is used when operating the parser in progressive (push) mode.
  *
  * Returns the number of chars read and stored in the buffer, or -1
- *         in case of error.
+ *       in case of error.
  */
 int xmlParserInputBufferPush(xmlParserInputBuffer * in, int len, const char * buf) 
 {
@@ -2902,7 +2902,7 @@ int xmlParserInputBufferPush(xmlParserInputBuffer * in, int len, const char * bu
 	}
 	else {
 		nbchars = len;
-		ret = xmlBufAdd(in->buffer, (xmlChar*)buf, nbchars);
+		ret = xmlBufAdd(in->buffer, (xmlChar *)buf, nbchars);
 		if(ret != 0)
 			return -1;
 	}
@@ -2932,10 +2932,10 @@ static int endOfInput(void * context ATTRIBUTE_UNUSED, char * buffer ATTRIBUTE_U
  * This routine is used when operating the parser in normal (pull) mode
  *
  * @todo one should be able to remove one extra copy by copying directly
- *       onto in->buffer or in->raw
+ *     onto in->buffer or in->raw
  *
  * Returns the number of chars read and stored in the buffer, or -1
- *         in case of error.
+ *       in case of error.
  */
 int xmlParserInputBufferGrow(xmlParserInputBuffer * in, int len)
 {
@@ -3025,7 +3025,7 @@ int xmlParserInputBufferGrow(xmlParserInputBuffer * in, int len)
  * This routine handle the I18N transcoding to internal UTF-8
  *
  * Returns the number of chars read and stored in the buffer, or -1
- *         in case of error.
+ *       in case of error.
  */
 int xmlParserInputBufferRead(xmlParserInputBuffer * in, int len)
 {
@@ -3052,7 +3052,7 @@ int xmlParserInputBufferRead(xmlParserInputBuffer * in, int len)
  * or delayed writes.
  *
  * Returns the number of chars immediately written, or -1
- *         in case of error.
+ *       in case of error.
  */
 int FASTCALL xmlOutputBufferWrite(xmlOutputBuffer * out, int len, const char * buf)
 {
@@ -3109,12 +3109,12 @@ int FASTCALL xmlOutputBufferWrite(xmlOutputBuffer * out, int len, const char * b
 			// second write the stuff to the I/O channel
 			//
 			if(out->encoder) {
-				ret = out->writecallback(out->context, (const char*)xmlBufContent(out->conv), nbchars);
+				ret = out->writecallback(out->context, (const char *)xmlBufContent(out->conv), nbchars);
 				if(ret >= 0)
 					xmlBufShrink(out->conv, ret);
 			}
 			else {
-				ret = out->writecallback(out->context, (const char*)xmlBufContent(out->buffer), nbchars);
+				ret = out->writecallback(out->context, (const char *)xmlBufContent(out->buffer), nbchars);
 				if(ret >= 0)
 					xmlBufShrink(out->buffer, ret);
 			}
@@ -3143,7 +3143,7 @@ done:
  * Take a block of UTF-8 chars in and escape them.
  * Returns 0 if success, or -1 otherwise
  * The value of @inlen after return is the number of octets consumed
- *     if the return value is positive, else unpredictable.
+ *   if the return value is positive, else unpredictable.
  * The value of @outlen after return is the number of octets consumed.
  */
 static int xmlEscapeContent(uchar* out, int * outlen, const xmlChar* in, int * inlen)
@@ -3211,7 +3211,7 @@ static int xmlEscapeContent(uchar* out, int * outlen, const xmlChar* in, int * i
  * or delayed writes.
  *
  * Returns the number of chars immediately written, or -1
- *         in case of error.
+ *       in case of error.
  */
 int xmlOutputBufferWriteEscape(xmlOutputBuffer * out, const xmlChar * str, xmlCharEncodingOutputFunc escaping)
 {
@@ -3289,12 +3289,12 @@ int xmlOutputBufferWriteEscape(xmlOutputBuffer * out, const xmlChar * str, xmlCh
 			 * second write the stuff to the I/O channel
 			 */
 			if(out->encoder) {
-				ret = out->writecallback(out->context, (const char*)xmlBufContent(out->conv), nbchars);
+				ret = out->writecallback(out->context, (const char *)xmlBufContent(out->conv), nbchars);
 				if(ret >= 0)
 					xmlBufShrink(out->conv, ret);
 			}
 			else {
-				ret = out->writecallback(out->context, (const char*)xmlBufContent(out->buffer), nbchars);
+				ret = out->writecallback(out->context, (const char *)xmlBufContent(out->buffer), nbchars);
 				if(ret >= 0)
 					xmlBufShrink(out->buffer, ret);
 			}
@@ -3327,7 +3327,7 @@ done:
  * or delayed writes.
  *
  * Returns the number of chars immediately written, or -1
- *         in case of error.
+ *       in case of error.
  */
 int FASTCALL xmlOutputBufferWriteString(xmlOutputBuffer * out, const char * str)
 {
@@ -3372,12 +3372,12 @@ int xmlOutputBufferFlush(xmlOutputBuffer * out)
 	 * second flush the stuff to the I/O channel
 	 */
 	if(out->conv && out->encoder && out->writecallback) {
-		ret = out->writecallback(out->context, (const char*)xmlBufContent(out->conv), xmlBufUse(out->conv));
+		ret = out->writecallback(out->context, (const char *)xmlBufContent(out->conv), xmlBufUse(out->conv));
 		if(ret >= 0)
 			xmlBufShrink(out->conv, ret);
 	}
 	else if(out->writecallback) {
-		ret = out->writecallback(out->context, (const char*)xmlBufContent(out->buffer), xmlBufUse(out->buffer));
+		ret = out->writecallback(out->context, (const char *)xmlBufContent(out->buffer), xmlBufUse(out->buffer));
 		if(ret >= 0)
 			xmlBufShrink(out->buffer, ret);
 	}
@@ -3474,7 +3474,7 @@ xmlParserInput * xmlCheckHTTPInput(xmlParserCtxt * ctxt, xmlParserInput * ret)
 		if(code >= 400) {
 			/* fatal error */
 			if(ret->filename)
-				__xmlLoaderErr(ctxt, "failed to load HTTP resource \"%s\"\n", (const char*)ret->filename);
+				__xmlLoaderErr(ctxt, "failed to load HTTP resource \"%s\"\n", (const char *)ret->filename);
 			else
 				__xmlLoaderErr(ctxt, "failed to load HTTP resource\n", 0);
 			xmlFreeInputStream(ret);
@@ -3502,8 +3502,8 @@ xmlParserInput * xmlCheckHTTPInput(xmlParserCtxt * ctxt, xmlParserInput * ret)
 			}
 			redir = xmlNanoHTTPRedir(ret->buf->context);
 			if(redir) {
-				SAlloc::F((xmlChar*)ret->filename);
-				SAlloc::F((xmlChar*)ret->directory);
+				SAlloc::F((xmlChar *)ret->filename);
+				SAlloc::F((xmlChar *)ret->directory);
 				ret->directory = NULL;
 				ret->filename = sstrdup(redir);
 			}
@@ -3576,7 +3576,7 @@ static xmlChar * xmlResolveResourceFromCatalog(const char * URL, const char * ID
 		/*
 		 * @todo do an URI lookup on the reference
 		 */
-		if(resource && !xmlNoNetExists((const char*)resource)) {
+		if(resource && !xmlNoNetExists((const char *)resource)) {
 			xmlChar * tmp = NULL;
 			if(ctxt && ctxt->catalogs && ((pref == XML_CATA_ALLOW_ALL) || (pref == XML_CATA_ALLOW_DOCUMENT))) {
 				tmp = xmlCatalogLocalResolveURI(ctxt->catalogs, resource);
@@ -3622,15 +3622,15 @@ static xmlParserInput * xmlDefaultExternalEntityLoader(const char * URL, const c
 #else
 		xmlChar * resource = 0;
 #endif
-		SETIFZ(resource, (xmlChar*)URL);
+		SETIFZ(resource, (xmlChar *)URL);
 		if(resource == NULL) {
 			SETIFZ(ID, "NULL");
 			__xmlLoaderErr(ctxt, "failed to load external entity \"%s\"\n", ID);
 			ret = 0;
 		}
 		else {
-			ret = xmlNewInputFromFile(ctxt, (const char*)resource);
-			if(resource && resource != (xmlChar*)URL)
+			ret = xmlNewInputFromFile(ctxt, (const char *)resource);
+			if(resource && resource != (xmlChar *)URL)
 				SAlloc::F(resource);
 		}
 	}
@@ -3711,17 +3711,17 @@ xmlParserInput * xmlNoNetExternalEntityLoader(const char * URL, const char * ID,
 #ifdef LIBXML_CATALOG_ENABLED
 	resource = xmlResolveResourceFromCatalog(URL, ID, ctxt);
 #endif
-	SETIFZ(resource, (xmlChar*)URL);
+	SETIFZ(resource, (xmlChar *)URL);
 	if(resource) {
 		if((!xmlStrncasecmp(BAD_CAST resource, BAD_CAST "ftp://", 6)) || (!xmlStrncasecmp(BAD_CAST resource, BAD_CAST "http://", 7))) {
-			xmlIOErr(XML_IO_NETWORK_ATTEMPT, (const char*)resource);
-			if(resource != (xmlChar*)URL)
+			xmlIOErr(XML_IO_NETWORK_ATTEMPT, (const char *)resource);
+			if(resource != (xmlChar *)URL)
 				SAlloc::F(resource);
 			return 0;
 		}
 	}
-	input = xmlDefaultExternalEntityLoader((const char*)resource, ID, ctxt);
-	if(resource != (xmlChar*)URL)
+	input = xmlDefaultExternalEntityLoader((const char *)resource, ID, ctxt);
+	if(resource != (xmlChar *)URL)
 		SAlloc::F(resource);
 	return input;
 }

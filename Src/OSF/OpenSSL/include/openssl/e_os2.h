@@ -184,11 +184,11 @@ extern "C" {
  * required (if a shared library version requires it, for example.
  * The way it's done allows definitions like this:
  *
- *      // in foobar.c
- *      OPENSSL_IMPLEMENT_GLOBAL(int,foobar,0)
- *      // in foobar.h
- *      OPENSSL_DECLARE_GLOBAL(int,foobar);
- *      #define foobar OPENSSL_GLOBAL_REF(foobar)
+ *    // in foobar.c
+ *    OPENSSL_IMPLEMENT_GLOBAL(int,foobar,0)
+ *    // in foobar.h
+ *    OPENSSL_DECLARE_GLOBAL(int,foobar);
+ *    #define foobar OPENSSL_GLOBAL_REF(foobar)
  */
 # ifdef OPENSSL_EXPORT_VAR_AS_FUNCTION
 #define OPENSSL_IMPLEMENT_GLOBAL(type,name,value)                      \

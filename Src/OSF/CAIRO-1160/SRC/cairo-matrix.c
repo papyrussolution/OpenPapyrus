@@ -971,8 +971,8 @@ cairo_status_t _cairo_matrix_to_pixman_matrix_offset(const cairo_matrix_t * matr
 			 * spread the bits between the two.
 			 *
 			 * To do this, find the solutions of:
-			 *   |x| = |x*m.xx + y*m.xy + m.x0|
-			 *   |y| = |x*m.yx + y*m.yy + m.y0|
+			 * |x| = |x*m.xx + y*m.xy + m.x0|
+			 * |y| = |x*m.yx + y*m.yy + m.y0|
 			 *
 			 * and select the one whose maximum norm is smallest.
 			 */

@@ -31,8 +31,8 @@
  * Compute the x-coordinate x/z for the point 2*(x/z) in Montgomery projective
  * coordinates.
  * Uses algorithm Mdouble in appendix of
- *     Lopez, J. and Dahab, R.  "Fast multiplication on elliptic curves over
- *     GF(2^m) without precomputation" (CHES '99, LNCS 1717).
+ *   Lopez, J. and Dahab, R.  "Fast multiplication on elliptic curves over
+ *   GF(2^m) without precomputation" (CHES '99, LNCS 1717).
  * modified to not require precomputation of c=b^{2^{m-1}}.
  */
 static int gf2m_Mdouble(const EC_GROUP * group, BIGNUM * x, BIGNUM * z, BN_CTX * ctx)
@@ -68,8 +68,8 @@ err:
  * Compute the x-coordinate x1/z1 for the point (x1/z1)+(x2/x2) in Montgomery
  * projective coordinates.
  * Uses algorithm Madd in appendix of
- *     Lopez, J. and Dahab, R.  "Fast multiplication on elliptic curves over
- *     GF(2^m) without precomputation" (CHES '99, LNCS 1717).
+ *   Lopez, J. and Dahab, R.  "Fast multiplication on elliptic curves over
+ *   GF(2^m) without precomputation" (CHES '99, LNCS 1717).
  */
 static int gf2m_Madd(const EC_GROUP * group, const BIGNUM * x, BIGNUM * x1, BIGNUM * z1, const BIGNUM * x2, const BIGNUM * z2, BN_CTX * ctx)
 {
@@ -105,12 +105,12 @@ err:
 /*-
  * Compute the x, y affine coordinates from the point (x1, z1) (x2, z2)
  * using Montgomery point multiplication algorithm Mxy() in appendix of
- *     Lopez, J. and Dahab, R.  "Fast multiplication on elliptic curves over
- *     GF(2^m) without precomputation" (CHES '99, LNCS 1717).
+ *   Lopez, J. and Dahab, R.  "Fast multiplication on elliptic curves over
+ *   GF(2^m) without precomputation" (CHES '99, LNCS 1717).
  * Returns:
- *     0 on error
- *     1 if return value should be the point at infinity
- *     2 otherwise
+ *   0 on error
+ *   1 if return value should be the point at infinity
+ *   2 otherwise
  */
 static int gf2m_Mxy(const EC_GROUP * group, const BIGNUM * x, const BIGNUM * y, BIGNUM * x1, BIGNUM * z1, BIGNUM * x2, BIGNUM * z2, BN_CTX * ctx)
 {
@@ -182,8 +182,8 @@ err:
  * Computes scalar*point and stores the result in r.
  * point can not equal r.
  * Uses a modified algorithm 2P of
- *     Lopez, J. and Dahab, R.  "Fast multiplication on elliptic curves over
- *     GF(2^m) without precomputation" (CHES '99, LNCS 1717).
+ *   Lopez, J. and Dahab, R.  "Fast multiplication on elliptic curves over
+ *   GF(2^m) without precomputation" (CHES '99, LNCS 1717).
  *
  * To protect against side-channel attack the function uses constant time swap,
  * avoiding conditional branches.
@@ -282,7 +282,7 @@ err:
 
 /*-
  * Computes the sum
- *     scalar*group->generator + scalars[0]*points[0] + ... + scalars[num-1]*points[num-1]
+ *   scalar*group->generator + scalars[0]*points[0] + ... + scalars[num-1]*points[num-1]
  * gracefully ignoring NULL scalar values.
  */
 int ec_GF2m_simple_mul(const EC_GROUP * group, EC_POINT * r, const BIGNUM * scalar, size_t num, const EC_POINT * points[], const BIGNUM * scalars[], BN_CTX * ctx)

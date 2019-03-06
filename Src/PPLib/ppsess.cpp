@@ -4094,9 +4094,9 @@ static int FASTCALL Helper_GetRFileInfo(PPID fileId, PPRFile & rInfo)
 			rInfo.ID = fileId;
 			p_rez->getString(temp_buf, 2); // symbol
 			p_rez->getString(rInfo.Name, 2);    // name (Char encoding)
-			rInfo.PathID    = (long)p_rez->getUINT();
-			rInfo.SrcPathID = (long)p_rez->getUINT();
-			rInfo.Flags     = (long)p_rez->getUINT();
+			rInfo.PathID    = static_cast<long>(p_rez->getUINT());
+			rInfo.SrcPathID = static_cast<long>(p_rez->getUINT());
+			rInfo.Flags     = static_cast<long>(p_rez->getUINT());
 			p_rez->getString(rInfo.Descr, 2);   // description (OEM encoding)
 			ok = 1;
 		}

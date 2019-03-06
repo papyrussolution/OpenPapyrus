@@ -40,11 +40,11 @@ Sorry, this code only copes with 8-bit JSAMPLEs.   /* deliberate syntax err */
 /*
  * We support the following types of RLE files:
  *
- *   GRAYSCALE   - 8 bits, no colormap
- *   MAPPEDGRAY  - 8 bits, 1 channel colomap
- *   PSEUDOCOLOR - 8 bits, 3 channel colormap
- *   TRUECOLOR   - 24 bits, 3 channel colormap
- *   DIRECTCOLOR - 24 bits, no colormap
+ * GRAYSCALE   - 8 bits, no colormap
+ * MAPPEDGRAY  - 8 bits, 1 channel colomap
+ * PSEUDOCOLOR - 8 bits, 3 channel colormap
+ * TRUECOLOR   - 24 bits, 3 channel colormap
+ * DIRECTCOLOR - 24 bits, no colormap
  *
  * For now, we ignore any alpha channel in the image.
  */

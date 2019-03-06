@@ -2908,7 +2908,7 @@ static void * ngx_openssl_create_conf(ngx_cycle_t * cycle)
 	/*
 	 * set by ngx_pcalloc():
 	 *
-	 *     oscf->engine = 0;
+	 *   oscf->engine = 0;
 	 */
 	return oscf;
 }

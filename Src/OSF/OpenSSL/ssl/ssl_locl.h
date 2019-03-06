@@ -449,26 +449,26 @@ struct ssl_method_st {
 /*-
  * Lets make this into an ASN.1 type structure as follows
  * SSL_SESSION_ID ::= SEQUENCE {
- *      version                 INTEGER,        -- structure version number
- *      SSLversion              INTEGER,        -- SSL version number
- *      Cipher                  OCTET STRING,   -- the 3 byte cipher ID
- *      Session_ID              OCTET STRING,   -- the Session ID
- *      Master_key              OCTET STRING,   -- the master key
- *      Key_Arg [ 0 ] IMPLICIT  OCTET STRING,   -- the optional Key argument
- *      Time [ 1 ] EXPLICIT     INTEGER,        -- optional Start Time
- *      Timeout [ 2 ] EXPLICIT  INTEGER,        -- optional Timeout ins seconds
- *      Peer [ 3 ] EXPLICIT     X509,           -- optional Peer Certificate
- *      Session_ID_context [ 4 ] EXPLICIT OCTET STRING,   -- the Session ID context
- *      Verify_result [ 5 ] EXPLICIT INTEGER,   -- X509_V_... code for `Peer'
- *      HostName [ 6 ] EXPLICIT OCTET STRING,   -- optional HostName from servername TLS extension
- *      PSK_identity_hint [ 7 ] EXPLICIT OCTET STRING, -- optional PSK identity hint
- *      PSK_identity [ 8 ] EXPLICIT OCTET STRING,  -- optional PSK identity
- *      Ticket_lifetime_hint [9] EXPLICIT INTEGER, -- server's lifetime hint for session ticket
- *      Ticket [10]             EXPLICIT OCTET STRING, -- session ticket (clients only)
- *      Compression_meth [11]   EXPLICIT OCTET STRING, -- optional compression method
- *      SRP_username [ 12 ] EXPLICIT OCTET STRING -- optional SRP username
- *      flags [ 13 ] EXPLICIT INTEGER -- optional flags
- *      }
+ *    version                 INTEGER,        -- structure version number
+ *    SSLversion              INTEGER,        -- SSL version number
+ *    Cipher                  OCTET STRING,   -- the 3 byte cipher ID
+ *    Session_ID              OCTET STRING,   -- the Session ID
+ *    Master_key              OCTET STRING,   -- the master key
+ *    Key_Arg [ 0 ] IMPLICIT  OCTET STRING,   -- the optional Key argument
+ *    Time [ 1 ] EXPLICIT     INTEGER,        -- optional Start Time
+ *    Timeout [ 2 ] EXPLICIT  INTEGER,        -- optional Timeout ins seconds
+ *    Peer [ 3 ] EXPLICIT     X509,           -- optional Peer Certificate
+ *    Session_ID_context [ 4 ] EXPLICIT OCTET STRING,   -- the Session ID context
+ *    Verify_result [ 5 ] EXPLICIT INTEGER,   -- X509_V_... code for `Peer'
+ *    HostName [ 6 ] EXPLICIT OCTET STRING,   -- optional HostName from servername TLS extension
+ *    PSK_identity_hint [ 7 ] EXPLICIT OCTET STRING, -- optional PSK identity hint
+ *    PSK_identity [ 8 ] EXPLICIT OCTET STRING,  -- optional PSK identity
+ *    Ticket_lifetime_hint [9] EXPLICIT INTEGER, -- server's lifetime hint for session ticket
+ *    Ticket [10]             EXPLICIT OCTET STRING, -- session ticket (clients only)
+ *    Compression_meth [11]   EXPLICIT OCTET STRING, -- optional compression method
+ *    SRP_username [ 12 ] EXPLICIT OCTET STRING -- optional SRP username
+ *    flags [ 13 ] EXPLICIT INTEGER -- optional flags
+ *    }
  * Look in ssl/ssl_asn1.c for more details
  * I'm using EXPLICIT tags so I can read the damn things using asn1parse :-).
  */
@@ -738,12 +738,12 @@ struct ssl_ctx_st {
 	/*-
 	 * For a server, this contains a callback function that allows the
 	 * server to select the protocol for the connection.
-	 *   out: on successful return, this must point to the raw protocol
-	 *        name (without the length prefix).
-	 *   outlen: on successful return, this contains the length of |*out|.
-	 *   in: points to the client's list of supported protocols in
-	 *       wire-format.
-	 *   inlen: the length of |in|.
+	 * out: on successful return, this must point to the raw protocol
+	 *      name (without the length prefix).
+	 * outlen: on successful return, this contains the length of |*out|.
+	 * in: points to the client's list of supported protocols in
+	 *     wire-format.
+	 * inlen: the length of |in|.
 	 */
 	int (* alpn_select_cb)(SSL * s, const unsigned char ** out, unsigned char * outlen, const unsigned char * in, unsigned int inlen, void * arg);
 	void * alpn_select_cb_arg;
@@ -1256,9 +1256,9 @@ typedef struct cert_pkey_st {
 	/*-
 	 * serverinfo data for this certificate.  The data is in TLS Extension
 	 * wire format, specifically it's a series of records like:
-	 *   uint16_t extension_type; // (RFC 5246, 7.4.1.4, Extension)
-	 *   uint16_t length;
-	 *   uint8_t data[length];
+	 * uint16_t extension_type; // (RFC 5246, 7.4.1.4, Extension)
+	 * uint16_t length;
+	 * uint8_t data[length];
 	 */
 	unsigned char * serverinfo;
 	size_t serverinfo_length;

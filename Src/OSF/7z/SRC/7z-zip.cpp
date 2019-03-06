@@ -1817,14 +1817,14 @@ namespace NArchive {
 						if(!_cryptoStreamSpec->Filter) {
 							_cryptoStreamSpec->Filter = _filterAesSpec = new NCrypto::NWzAes::CEncoder;
 							_filterAesSpec->SetKeyMode(_options.AesKeyMode);
-							RINOK(_filterAesSpec->CryptoSetPassword((const Byte*)(const char*)_options.Password, _options.Password.Len()));
+							RINOK(_filterAesSpec->CryptoSetPassword((const Byte*)(const char *)_options.Password, _options.Password.Len()));
 						}
 						RINOK(_filterAesSpec->WriteHeader(outStream));
 					}
 					else {
 						if(!_cryptoStreamSpec->Filter) {
 							_cryptoStreamSpec->Filter = _filterSpec = new NCrypto::NZip::CEncoder;
-							_filterSpec->CryptoSetPassword((const Byte*)(const char*)_options.Password, _options.Password.Len());
+							_filterSpec->CryptoSetPassword((const Byte*)(const char *)_options.Password, _options.Password.Len());
 						}
 						uint32 check;
 						if(inStream2) {
@@ -4651,7 +4651,7 @@ namespace NArchive {
 			WRITE_32_VAL_SPEC(size, isZip64);
 			Write16((uint16)item.Name.Len());
 			Write16((uint16)localExtraSize);
-			WriteBytes((const char*)item.Name, (uint16)item.Name.Len());
+			WriteBytes((const char *)item.Name, (uint16)item.Name.Len());
 			if(isZip64) {
 				Write16(NFileHeader::NExtraID::kZip64);
 				Write16(8 + 8);
@@ -4726,7 +4726,7 @@ namespace NArchive {
 			Write16(item.InternalAttrib);
 			Write32(item.ExternalAttrib);
 			WRITE_32_VAL_SPEC(item.LocalHeaderPos, isPosition64);
-			WriteBytes((const char*)item.Name, item.Name.Len());
+			WriteBytes((const char *)item.Name, item.Name.Len());
 			if(isZip64) {
 				Write16(NFileHeader::NExtraID::kZip64);
 				Write16(zip64ExtraSize);
@@ -4924,7 +4924,7 @@ namespace NArchive {
 		static AString BytesToString(const CByteBuffer & data)
 		{
 			AString s;
-			s.SetFrom_CalcLen((const char*)(const Byte*)data, (uint)data.Size());
+			s.SetFrom_CalcLen((const char *)(const Byte*)data, (uint)data.Size());
 			return s;
 		}
 
@@ -5485,7 +5485,7 @@ namespace NArchive {
 						   }
 						 */
 					}
-					HRESULT result = cryptoSetPassword->CryptoSetPassword((const Byte*)(const char*)charPassword, charPassword.Len());
+					HRESULT result = cryptoSetPassword->CryptoSetPassword((const Byte*)(const char *)charPassword, charPassword.Len());
 					if(result != S_OK) {
 						res = NExtractArc::NOperationResult::kWrongPassword;
 						return S_OK;
@@ -5995,7 +5995,7 @@ namespace NArchive {
 							}
 							if(a.Len() >= (1 << 16))
 								return E_INVALIDARG;
-							ui.Comment.CopyFrom((const Byte*)(const char*)a, a.Len());
+							ui.Comment.CopyFrom((const Byte*)(const char *)a, a.Len());
 						}
 					}
 

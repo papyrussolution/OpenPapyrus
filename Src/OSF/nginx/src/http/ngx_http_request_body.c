@@ -42,11 +42,11 @@ ngx_int_t ngx_http_read_client_request_body(ngx_http_request_t * pReq, ngx_http_
 	/*
 	 * set by ngx_pcalloc():
 	 *
-	 *     rb->bufs = NULL;
-	 *     rb->buf = NULL;
-	 *     rb->free = NULL;
-	 *     rb->busy = NULL;
-	 *     rb->chunked = NULL;
+	 *   rb->bufs = NULL;
+	 *   rb->buf = NULL;
+	 *   rb->free = NULL;
+	 *   rb->busy = NULL;
+	 *   rb->chunked = NULL;
 	 */
 	rb->rest = -1;
 	rb->post_handler = post_handler;

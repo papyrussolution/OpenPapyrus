@@ -40,7 +40,7 @@ GLOBAL(void) jpeg_abort(j_common_ptr cinfo)
 		/* Try to keep application from accessing now-deleted marker list.
 		 * A bit kludgy to do it here, but this is the most central place.
 		 */
-		((j_decompress_ptr)cinfo)->marker_list = NULL;
+		reinterpret_cast<j_decompress_ptr>(cinfo)->marker_list = NULL;
 	}
 	else {
 		cinfo->global_state = CSTATE_START;

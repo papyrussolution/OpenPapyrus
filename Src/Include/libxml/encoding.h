@@ -1,18 +1,18 @@
 /*
  * Summary: interface for the encoding conversion functions
  * Description: interface for the encoding conversion functions needed for
- *              XML basic encoding and iconv() support.
+ *            XML basic encoding and iconv() support.
  *
  * Related specs are
  * rfc2044        (UTF-8 and UTF-16) F. Yergeau Alis Technologies
  * [ISO-10646]    UTF-8 and UTF-16 in Annexes
  * [ISO-8859-1]   ISO Latin-1 characters codes.
  * [UNICODE]      The Unicode Consortium, "The Unicode Standard --
- *                Worldwide Character Encoding -- Version 1.0", Addison-
- *                Wesley, Volume 1, 1991, Volume 2, 1992.  UTF-8 is
- *                described in Unicode Technical Report #4.
+ *              Worldwide Character Encoding -- Version 1.0", Addison-
+ *              Wesley, Volume 1, 1991, Volume 2, 1992.  UTF-8 is
+ *              described in Unicode Technical Report #4.
  * [US-ASCII]     Coded Character Set--7-bit American Standard Code for
- *                Information Interchange, ANSI X3.4-1986.
+ *              Information Interchange, ANSI X3.4-1986.
  *
  * Copy: See Copyright for the status of this software.
  *
@@ -95,9 +95,9 @@ typedef enum {
  * it to an UTF-8 block of chars out.
  *
  * Returns the number of bytes written, -1 if lack of space, or -2
- *     if the transcoding failed.
+ *   if the transcoding failed.
  * The value of @inlen after return is the number of octets consumed
- *     if the return value is positive, else unpredictiable.
+ *   if the return value is positive, else unpredictiable.
  * The value of @outlen after return is the number of octets consumed.
  */
 typedef int (* xmlCharEncodingInputFunc)(uchar *out, int *outlen, const uchar *in, int *inlen);
@@ -114,9 +114,9 @@ typedef int (* xmlCharEncodingInputFunc)(uchar *out, int *outlen, const uchar *i
  * in = NULL. If stateful this should also initialize the encoder state.
  *
  * Returns the number of bytes written, -1 if lack of space, or -2
- *     if the transcoding failed.
+ *   if the transcoding failed.
  * The value of @inlen after return is the number of octets consumed
- *     if the return value is positive, else unpredictiable.
+ *   if the return value is positive, else unpredictiable.
  * The value of @outlen after return is the number of octets produced.
  */
 typedef int (* xmlCharEncodingOutputFunc)(uchar *out, int *outlen, const uchar *in, int *inlen);

@@ -403,8 +403,8 @@ tmsize_t TIFFReadEncodedStrip(TIFF* tif, uint32 strip, void* buf, tmsize_t size)
 
 /* Variant of TIFFReadEncodedStrip() that does
  * * if *buf == NULL, *buf = SAlloc::M(bufsizetoalloc) only after TIFFFillStrip() has
- *   succeeded. This avoid excessive memory allocation in case of truncated
- *   file.
+ * succeeded. This avoid excessive memory allocation in case of truncated
+ * file.
  * * calls regular TIFFReadEncodedStrip() if *buf != NULL
  */
 tmsize_t _TIFFReadEncodedStripAndAllocBuffer(TIFF* tif, uint32 strip, void ** buf, tmsize_t bufsizetoalloc, tmsize_t size_to_read)
@@ -750,8 +750,8 @@ tmsize_t TIFFReadEncodedTile(TIFF* tif, uint32 tile, void* buf, tmsize_t size)
 
 /* Variant of TIFFReadTile() that does
  * * if *buf == NULL, *buf = SAlloc::M(bufsizetoalloc) only after TIFFFillTile() has
- *   succeeded. This avoid excessive memory allocation in case of truncated
- *   file.
+ * succeeded. This avoid excessive memory allocation in case of truncated
+ * file.
  * * calls regular TIFFReadEncodedTile() if *buf != NULL
  */
 tmsize_t _TIFFReadTileAndAllocBuffer(TIFF* tif, void ** buf, tmsize_t bufsizetoalloc, uint32 x, uint32 y, uint32 z, uint16 s)
@@ -763,8 +763,8 @@ tmsize_t _TIFFReadTileAndAllocBuffer(TIFF* tif, void ** buf, tmsize_t bufsizetoa
 
 /* Variant of TIFFReadEncodedTile() that does
  * * if *buf == NULL, *buf = SAlloc::M(bufsizetoalloc) only after TIFFFillTile() has
- *   succeeded. This avoid excessive memory allocation in case of truncated
- *   file.
+ * succeeded. This avoid excessive memory allocation in case of truncated
+ * file.
  * * calls regular TIFFReadEncodedTile() if *buf != NULL
  */
 tmsize_t _TIFFReadEncodedTileAndAllocBuffer(TIFF* tif, uint32 tile, void ** buf, tmsize_t bufsizetoalloc, tmsize_t size_to_read)

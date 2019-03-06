@@ -239,7 +239,7 @@ static CURLcode connect_prep(struct connectdata * conn, int sockindex)
 
 	/* gtls.c does more here that is being left out for now
 	 * 1) set session credentials.  can probably ignore since axtls puts this
-	 *    info in the ssl_ctx struct
+	 *  info in the ssl_ctx struct
 	 * 2) setting up callbacks.  these seem gnutls specific
 	 */
 
@@ -299,10 +299,10 @@ static CURLcode connect_finish(struct connectdata * conn, int sockindex)
 
 	/* Here, gtls.c does the following
 	 * 1) x509 hostname checking per RFC2818.  axTLS doesn't support this, but
-	 *    it seems useful. This is now implemented, by Oscar Koeroo
+	 *  it seems useful. This is now implemented, by Oscar Koeroo
 	 * 2) checks cert validity based on time.  axTLS does this in ssl_verify_cert
 	 * 3) displays a bunch of cert information.  axTLS doesn't support most of
-	 *    this, but a couple fields are available.
+	 *  this, but a couple fields are available.
 	 */
 	/* There is no (DNS) Altnames count in the version 1.4.8 API. There is a
 	   risk of an inifite loop */
@@ -343,7 +343,7 @@ static CURLcode connect_finish(struct connectdata * conn, int sockindex)
 				infof(data, "unable to obtain common name from peer certificate");
 		}
 		else {
-			if(!Curl_cert_hostcheck((const char*)peer_CN, hostname)) {
+			if(!Curl_cert_hostcheck((const char *)peer_CN, hostname)) {
 				if(SSL_CONN_CONFIG(verifyhost)) {
 					/* Break connection ! */
 					Curl_axtls_close(conn, sockindex);
@@ -623,9 +623,9 @@ static ssize_t axtls_recv(struct connectdata * conn, /* connection data */
 
 /*
  * Return codes:
- *     1 means the connection is still in place
- *     0 means the connection has been closed
- *    -1 means the connection status is unknown
+ *   1 means the connection is still in place
+ *   0 means the connection has been closed
+ *  -1 means the connection status is unknown
  */
 int Curl_axtls_check_cxn(struct connectdata * conn)
 {

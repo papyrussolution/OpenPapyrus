@@ -222,9 +222,9 @@ void ngx_gmtime(time_t t, ngx_tm_t * tp)
 	/*
 	 * The empirical formula that maps "yday" to month.
 	 * There are at least 10 variants, some of them are:
-	 *     mon = (yday + 31) * 15 / 459
-	 *     mon = (yday + 31) * 17 / 520
-	 *     mon = (yday + 31) * 20 / 612
+	 *   mon = (yday + 31) * 15 / 459
+	 *   mon = (yday + 31) * 17 / 520
+	 *   mon = (yday + 31) * 20 / 612
 	 */
 	mon = (yday + 31) * 10 / 306;
 	/* the Gauss' formula that evaluates days before the month */

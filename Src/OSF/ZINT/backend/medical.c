@@ -275,7 +275,7 @@ int code32(struct ZintSymbol * symbol, uchar source[], int length)
 	}
 	risultante[6] = '\0';
 	/* Plot the barcode using Code 39 */
-	error_number = c39(symbol, (uchar*)risultante, strlen(risultante));
+	error_number = c39(symbol, (uchar *)risultante, strlen(risultante));
 	if(error_number != 0) {
 		return error_number;
 	}

@@ -48,7 +48,7 @@ static inline int __bam_split_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __bam_split_desc, sizeof(__bam_split_args), (void**)arg));
+	    dbpp, td, data, __bam_split_desc, sizeof(__bam_split_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___bam_split_48	62
 typedef struct ___bam_split_48_args {
@@ -78,7 +78,7 @@ static inline int __bam_split_48_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __bam_split_48_desc, sizeof(__bam_split_48_args), (void**)arg));
+	    dbpp, td, data, __bam_split_48_desc, sizeof(__bam_split_48_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___bam_split_42	62
 typedef struct ___bam_split_42_args {
@@ -104,7 +104,7 @@ static inline int __bam_split_42_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __bam_split_42_desc, sizeof(__bam_split_42_args), (void**)arg));
+	    dbpp, td, data, __bam_split_42_desc, sizeof(__bam_split_42_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___bam_rsplit	63
 typedef struct ___bam_rsplit_args {
@@ -139,7 +139,7 @@ static inline int __bam_rsplit_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __bam_rsplit_desc, sizeof(__bam_rsplit_args), (void**)arg));
+	    dbpp, td, data, __bam_rsplit_desc, sizeof(__bam_rsplit_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___bam_adj	55
 typedef struct ___bam_adj_args {
@@ -172,7 +172,7 @@ static inline int __bam_adj_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __bam_adj_desc, sizeof(__bam_adj_args), (void**)arg));
+	    dbpp, td, data, __bam_adj_desc, sizeof(__bam_adj_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___bam_cadjust	56
 typedef struct ___bam_cadjust_args {
@@ -205,7 +205,7 @@ static inline int __bam_cadjust_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __bam_cadjust_desc, sizeof(__bam_cadjust_args), (void**)arg));
+	    dbpp, td, data, __bam_cadjust_desc, sizeof(__bam_cadjust_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___bam_cdel	57
 typedef struct ___bam_cdel_args {
@@ -235,7 +235,7 @@ static inline int __bam_cdel_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __bam_cdel_desc, sizeof(__bam_cdel_args), (void**)arg));
+	    dbpp, td, data, __bam_cdel_desc, sizeof(__bam_cdel_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___bam_repl	58
 typedef struct ___bam_repl_args {
@@ -273,7 +273,7 @@ static inline int __bam_repl_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __bam_repl_desc, sizeof(__bam_repl_args), (void**)arg));
+	    dbpp, td, data, __bam_repl_desc, sizeof(__bam_repl_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___bam_irep	67
 typedef struct ___bam_irep_args {
@@ -309,7 +309,7 @@ static inline int __bam_irep_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __bam_irep_desc, sizeof(__bam_irep_args), (void**)arg));
+	    dbpp, td, data, __bam_irep_desc, sizeof(__bam_irep_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___bam_root	59
 typedef struct ___bam_root_args {
@@ -339,7 +339,7 @@ static inline int __bam_root_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __bam_root_desc, sizeof(__bam_root_args), (void**)arg));
+	    dbpp, td, data, __bam_root_desc, sizeof(__bam_root_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___bam_curadj	64
 typedef struct ___bam_curadj_args {
@@ -375,7 +375,7 @@ static inline int __bam_curadj_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __bam_curadj_desc, sizeof(__bam_curadj_args), (void**)arg));
+	    dbpp, td, data, __bam_curadj_desc, sizeof(__bam_curadj_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___bam_rcuradj	65
 typedef struct ___bam_rcuradj_args {
@@ -406,7 +406,7 @@ static inline int __bam_rcuradj_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __bam_rcuradj_desc, sizeof(__bam_rcuradj_args), (void**)arg));
+	    dbpp, td, data, __bam_rcuradj_desc, sizeof(__bam_rcuradj_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___bam_relink_43	147
 typedef struct ___bam_relink_43_args {
@@ -428,7 +428,7 @@ static inline int __bam_relink_43_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __bam_relink_43_desc, sizeof(__bam_relink_43_args), (void**)arg));
+	    dbpp, td, data, __bam_relink_43_desc, sizeof(__bam_relink_43_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___bam_merge_44	148
 typedef struct ___bam_merge_44_args {
@@ -451,6 +451,6 @@ static inline int __bam_merge_44_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __bam_merge_44_desc, sizeof(__bam_merge_44_args), (void**)arg));
+	    dbpp, td, data, __bam_merge_44_desc, sizeof(__bam_merge_44_args), reinterpret_cast<void **>(arg)));
 }
 #endif

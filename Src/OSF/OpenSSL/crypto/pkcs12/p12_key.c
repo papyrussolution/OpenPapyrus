@@ -104,16 +104,16 @@ int PKCS12_key_gen_uni(uchar * pass, int passlen, uchar * salt,
 	u = EVP_MD_size(md_type);
 	if(u < 0 || v <= 0)
 		goto err;
-	D = (uchar*)OPENSSL_malloc(v);
-	Ai = (uchar*)OPENSSL_malloc(u);
-	B = (uchar*)OPENSSL_malloc(v + 1);
+	D = (uchar *)OPENSSL_malloc(v);
+	Ai = (uchar *)OPENSSL_malloc(u);
+	B = (uchar *)OPENSSL_malloc(v + 1);
 	Slen = v * ((saltlen + v - 1) / v);
 	if(passlen)
 		Plen = v * ((passlen + v - 1) / v);
 	else
 		Plen = 0;
 	Ilen = Slen + Plen;
-	I = (uchar*)OPENSSL_malloc(Ilen);
+	I = (uchar *)OPENSSL_malloc(Ilen);
 	Ij = BN_new();
 	Bpl1 = BN_new();
 	if(D == NULL || Ai == NULL || B == NULL || I == NULL || Ij == NULL

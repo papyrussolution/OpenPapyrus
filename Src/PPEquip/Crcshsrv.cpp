@@ -949,7 +949,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		_MaxDisEntry * p_entry = (_MaxDisEntry*)max_dis_list.at(i);
 		(restr_id = p_subj_type).CatChar('-').Cat(p_entry->Barcode).CatChar('-').Cat(p_type);
 		p_writer->StartElement("max-discount-restriction");
-	 	p_writer->AddAttrib("id", (const char*)restr_id);
+	 	p_writer->AddAttrib("id", (const char *)restr_id);
 		p_writer->AddAttrib("subject-type", p_subj_type);
 		p_writer->AddAttrib("subject-code", p_entry->Barcode);
 		p_writer->AddAttrib("type", p_type);
@@ -1018,7 +1018,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		MEMSZERO(ser_rec);
 		sp.Split(path_cards);
 		getcurdatetime(&cur_dtm);
-		// @v9.0.9 name.Printf("%s_%02d-%02d-%04d_%02d-%02d-%02d", (const char*)sp.Nam, cur_dtm.d.day(), cur_dtm.d.month(), cur_dtm.d.year(), cur_dtm.t.hour(), cur_dtm.t.minut(), cur_dtm.t.sec());
+		// @v9.0.9 name.Printf("%s_%02d-%02d-%04d_%02d-%02d-%02d", (const char *)sp.Nam, cur_dtm.d.day(), cur_dtm.d.month(), cur_dtm.d.year(), cur_dtm.t.hour(), cur_dtm.t.minut(), cur_dtm.t.sec());
 		// @v9.0.9 {
 		(name = sp.Nam).CatChar('_').CatLongZ((long)cur_dtm.d.day(), 2).CatChar('-').CatLongZ((long)cur_dtm.d.month(), 2).CatChar('-').CatLongZ((long)cur_dtm.d.year(), 4).
 			CatChar('_').CatLongZ((long)cur_dtm.t.hour(), 2).CatChar('-').CatLongZ((long)cur_dtm.t.minut(), 2).CatChar('-').CatLongZ((long)cur_dtm.t.sec(), 2);
@@ -2855,7 +2855,7 @@ static int FindFirstRec(xmlNode * pChild, xmlNode ** ppCurRec, const char * pTag
 	if(pChild)
 		p_rec = pChild;
 	for(; p_rec && ok < 0; p_rec = p_rec->next) {
-		if(sstreqi_ascii((const char*)p_rec->name, pTag)) {
+		if(sstreqi_ascii((const char *)p_rec->name, pTag)) {
 			*ppCurRec = p_rec;
 			ok = 1;
 		}
@@ -2968,7 +2968,7 @@ SLAPI XmlReader::XmlReader(const char * pPath, PPIDArray * pLogNumList, int subV
 		P_Reader = xmlReaderForFile(pPath, NULL, XML_PARSE_NOENT);
 	if(P_Reader) {
 		int r = 0;
-		xmlTextReaderPreservePattern(P_Reader, (const xmlChar*)(const char*)p_chr_tag, 0);
+		xmlTextReaderPreservePattern(P_Reader, (const xmlChar*)(const char *)p_chr_tag, 0);
 		r = xmlTextReaderRead(P_Reader);
 		while(r == 1)
 			r = xmlTextReaderRead(P_Reader);
@@ -2976,10 +2976,10 @@ SLAPI XmlReader::XmlReader(const char * pPath, PPIDArray * pLogNumList, int subV
 			P_Doc = xmlTextReaderCurrentDoc(P_Reader);
 			if(P_Doc) {
 				xmlNode * p_root = xmlDocGetRootElement(P_Doc);
-				if(FindFirstRec(p_root, &P_CurRec, p_chr_tag) > 0 && P_CurRec && sstreqi_ascii((const char*)P_CurRec->name, p_chr_tag)) {
+				if(FindFirstRec(p_root, &P_CurRec, p_chr_tag) > 0 && P_CurRec && sstreqi_ascii((const char *)P_CurRec->name, p_chr_tag)) {
 					xmlNode * p_rec = P_CurRec;
 					for(ChecksCount = 1; p_rec = p_rec->next;)
-						if(sstreqi_ascii((const char*)p_rec->name, p_chr_tag))
+						if(sstreqi_ascii((const char *)p_rec->name, p_chr_tag))
 							ChecksCount++;
 				}
 			}
@@ -3010,15 +3010,15 @@ int SLAPI XmlReader::GetGiftCard(xmlNode ** pPlugins, SString & rSerial, int isP
 	rSerial.Z();
 	if(pPlugins) {
 		for(xmlNode * p_plugins = *pPlugins; !is_gift_card && p_plugins; p_plugins = p_plugins->next) {
-			if(sstreqi_ascii((const char*)p_plugins->name, "plugin-property") && p_plugins->properties) {
+			if(sstreqi_ascii((const char *)p_plugins->name, "plugin-property") && p_plugins->properties) {
 				xmlAttr * p_fld = p_plugins->properties;
 				is_gift_card = 0;
 				serial = 0;
 				for(; p_fld; p_fld = p_fld->next) {
 					if(p_fld->children && p_fld->children->content) {
 						int idx = 0;
-						val = (const char*)p_fld->children->content;
-						if(PPSearchSubStr(p_plug_card_attr, &(idx = 0), (const char*)p_fld->name, 1) > 0) {
+						val = (const char *)p_fld->children->content;
+						if(PPSearchSubStr(p_plug_card_attr, &(idx = 0), (const char *)p_fld->name, 1) > 0) {
 							switch(idx) {
 								case 0: // Серийный номер подарочной карты
 									serial = val;
@@ -3112,11 +3112,11 @@ int SLAPI XmlReader::Next(Packet * pPack)
 		xmlNode * p_items = 0;
 		xmlNode * p_fld_ = 0;
 		for(p_fld_ = P_CurRec->children; !p_root && p_fld_; p_fld_ = p_fld_->next)
-			if(sstreqi_ascii((const char*)p_fld_->name, "positions"))
+			if(sstreqi_ascii((const char *)p_fld_->name, "positions"))
 				p_root = p_fld_;
 		if(p_root) {
 			for(p_fld_ = p_root->children; !p_items && p_fld_; p_fld_ = p_fld_->next)
-				if(sstreqi_ascii((const char*)p_fld_->name, "position"))
+				if(sstreqi_ascii((const char *)p_fld_->name, "position"))
 					p_items = p_fld_;
 		}
 		if(p_items) {
@@ -3175,15 +3175,15 @@ int SLAPI XmlReader::Next(Packet * pPack)
 							serial.CopyTo(item.Serial, sizeof(item.Serial));
 						/*
 						for(xmlNode * p_plugins = p_items->children; !is_gift_card && p_plugins; p_plugins = p_plugins->next) {
-							if(stricmp((const char*)p_plugins->name, "plugin-property") == 0 && p_plugins->properties) {
+							if(stricmp((const char *)p_plugins->name, "plugin-property") == 0 && p_plugins->properties) {
 								xmlAttr * p_fld = p_plugins->properties;
 								is_gift_card = 0;
 								serial = 0;
 								for(; p_fld; p_fld = p_fld->next) {
 									if(p_fld->children && p_fld->children->content) {
 										int idx = 0;
-										val = (const char*)p_fld->children->content;
-										if(PPSearchSubStr(p_plug_card_attr, &(idx = 0), (const char*)p_fld->name, 1) > 0) {
+										val = (const char *)p_fld->children->content;
+										if(PPSearchSubStr(p_plug_card_attr, &(idx = 0), (const char *)p_fld->name, 1) > 0) {
 											switch(idx) {
 												case 0: // Серийный номер подарочной карты
 													serial = val;
@@ -3219,7 +3219,7 @@ int SLAPI XmlReader::Next(Packet * pPack)
 			*/
 			SString gift_card_code;
 			for(xmlNode * p_fld = P_CurRec->children; p_fld; p_fld = p_fld->next) {
-				if(sstreqi_ascii((const char*)p_fld->name, "payments")) {
+				if(sstreqi_ascii((const char *)p_fld->name, "payments")) {
 					//const char * p_items_attr = "amount;typeClass";
 					CcAmountList ccpl;
 					Header head;
@@ -3276,7 +3276,7 @@ int SLAPI XmlReader::Next(Packet * pPack)
 		{
 			xmlNode * p_fld = P_CurRec->children;
 			for(; p_fld != 0; p_fld = p_fld->next) {
-				if(sstreqi_ascii((const char*)p_fld->name, "discounts")) {
+				if(sstreqi_ascii((const char *)p_fld->name, "discounts")) {
 					const char * p_items_attr = "positionOrder;amount";
 					Header head;
 					MEMSZERO(head);
@@ -3288,8 +3288,8 @@ int SLAPI XmlReader::Next(Packet * pPack)
 						for(xmlAttr * p_props = p_dis_fld->properties; p_props; p_props = p_props->next) {
 							if(p_props->children && p_props->children->content) {
 								int idx = 0;
-								val = (const char*)p_props->children->content;
-								if(PPSearchSubStr(p_items_attr, &idx, (const char*)p_props->name, 1) > 0) {
+								val = (const char *)p_props->children->content;
+								if(PPSearchSubStr(p_items_attr, &idx, (const char *)p_props->name, 1) > 0) {
 									switch(idx) {
 										case 0:
 											pos = val.ToLong();
@@ -3314,7 +3314,7 @@ int SLAPI XmlReader::Next(Packet * pPack)
 			xmlNode * p_cards_fld = 0;
 			p_fld = P_CurRec->children;
 			for(; !p_cards_fld && p_fld; p_fld = p_fld->next)
-				if(sstreqi_ascii((const char*)p_fld->name, "discountCards"))
+				if(sstreqi_ascii((const char *)p_fld->name, "discountCards"))
 					p_cards_fld = p_fld;
 			if(p_cards_fld && p_cards_fld->children) {
 				xmlNode * p_dis_fld = 0;
@@ -4047,10 +4047,10 @@ SLAPI XmlZRepReader::XmlZRepReader(const char * pPath)
 			P_Doc = xmlTextReaderCurrentDoc(P_Reader);
 			if(P_Doc) {
 				xmlNode * p_root = xmlDocGetRootElement(P_Doc);
-				if(FindFirstRec(p_root, &P_CurRec, p_chr_tag) > 0 && P_CurRec && sstreqi_ascii((const char*)P_CurRec->name, p_chr_tag)) {
+				if(FindFirstRec(p_root, &P_CurRec, p_chr_tag) > 0 && P_CurRec && sstreqi_ascii((const char *)P_CurRec->name, p_chr_tag)) {
 					xmlNode * p_rec = P_CurRec;
 					for(ZRepsCount = 1; p_rec = p_rec->next;)
-						if(sstreqi_ascii((const char*)p_rec->name, p_chr_tag))
+						if(sstreqi_ascii((const char *)p_rec->name, p_chr_tag))
 							ZRepsCount++;
 				}
 			}
@@ -4083,7 +4083,7 @@ int SLAPI XmlZRepReader::Next(ZRep * pItem)
 			if(p_fld->children && p_fld->children->content) {
 				int idx = 0;
 				val.Set(p_fld->children->content);
-				if(PPSearchSubStr(p_tag_names, &(idx = 0), (const char*)p_fld->name, 1) > 0) {
+				if(PPSearchSubStr(p_tag_names, &(idx = 0), (const char *)p_fld->name, 1) > 0) {
 					switch(idx) {
 						case 0: item.ZRepCode = val.ToLong(); break; // Номер смены
 						case 1: item.CashCode = val.ToLong(); break; // Номер кассы

@@ -44,7 +44,7 @@ static char * filename = NULL;
  * Read a string
  *
  * Returns a pointer to it or NULL on EOF the caller is expected to
- *     free the returned string.
+ *   free the returned string.
  */
 static char * xmlShellReadline(const char * prompt) {
 #ifdef HAVE_LIBREADLINE

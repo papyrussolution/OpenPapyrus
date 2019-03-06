@@ -301,12 +301,12 @@ int dsa_builtin_paramgen2(DSA * ret, size_t L, size_t N,
 		if(seed_len == 0)
 			seed_len = mdsize;
 
-		seed = (uchar*)OPENSSL_malloc(seed_len);
+		seed = (uchar *)OPENSSL_malloc(seed_len);
 
 		if(seed_out)
 			seed_tmp = seed_out;
 		else
-			seed_tmp = (uchar*)OPENSSL_malloc(seed_len);
+			seed_tmp = (uchar *)OPENSSL_malloc(seed_len);
 
 		if(seed == NULL || seed_tmp == NULL)
 			goto err;

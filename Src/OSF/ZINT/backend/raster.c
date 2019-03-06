@@ -491,8 +491,8 @@ static int save_raster_image_to_file(struct ZintSymbol * symbol, int image_heigh
 	}
 	// sort out colour options 
 	/* @sobolev
-	to_upper((uchar*)symbol->fgcolour);
-	to_upper((uchar*)symbol->bgcolour);
+	to_upper((uchar *)symbol->fgcolour);
+	to_upper((uchar *)symbol->bgcolour);
 	if(strlen(symbol->fgcolour) != 6) {
 		sstrcpy(symbol->errtxt, "Malformed foreground colour target (F51)");
 		return ZINT_ERROR_INVALID_OPTION;
@@ -501,12 +501,12 @@ static int save_raster_image_to_file(struct ZintSymbol * symbol, int image_heigh
 		sstrcpy(symbol->errtxt, "Malformed background colour target (F52)");
 		return ZINT_ERROR_INVALID_OPTION;
 	}
-	error_number = is_sane(SSET, (uchar*)symbol->fgcolour, strlen(symbol->fgcolour));
+	error_number = is_sane(SSET, (uchar *)symbol->fgcolour, strlen(symbol->fgcolour));
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
 		sstrcpy(symbol->errtxt, "Malformed foreground colour target (F53)");
 		return ZINT_ERROR_INVALID_OPTION;
 	}
-	error_number = is_sane(SSET, (uchar*)symbol->bgcolour, strlen(symbol->fgcolour));
+	error_number = is_sane(SSET, (uchar *)symbol->bgcolour, strlen(symbol->fgcolour));
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
 		sstrcpy(symbol->errtxt, "Malformed background colour target (F54)");
 		return ZINT_ERROR_INVALID_OPTION;
@@ -984,7 +984,7 @@ static int plot_raster_default(struct ZintSymbol * symbol, int rotate_angle, int
 #ifndef _MSC_VER
 	uchar local_text[sstrlen(symbol->text) + 1];
 #else
-	uchar * local_text = (uchar*)_alloca(sstrlen(symbol->text) + 1);
+	uchar * local_text = (uchar *)_alloca(sstrlen(symbol->text) + 1);
 #endif
 	if(symbol->show_hrt != 0) {
 		to_latin1(symbol->text, local_text); // Copy text from symbol 

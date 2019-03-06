@@ -610,7 +610,7 @@ ngx_int_t ngx_send_lowat(ngx_connection_t * c, size_t lowat)
 		return NGX_OK;
 	}
 	sndlowat = (int)lowat;
-	if(setsockopt(c->fd, SOL_SOCKET, SO_SNDLOWAT, (const char*)&sndlowat, sizeof(int)) == -1) {
+	if(setsockopt(c->fd, SOL_SOCKET, SO_SNDLOWAT, (const char *)&sndlowat, sizeof(int)) == -1) {
 		ngx_connection_error(c, ngx_socket_errno, "setsockopt(SO_SNDLOWAT) failed");
 		return NGX_ERROR;
 	}

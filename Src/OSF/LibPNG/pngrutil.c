@@ -2444,11 +2444,11 @@ void /* PRIVATE */ png_handle_unknown(png_structrp png_ptr, png_inforp info_ptr,
 
 			/* ret is:
 			 * negative: An error occurred; png_chunk_error will be called.
-			 *     zero: The chunk was not handled, the chunk will be discarded
-			 *           unless png_set_keep_unknown_chunks has been used to set
-			 *           a 'keep' behavior for this particular chunk, in which
-			 *           case that will be used.  A critical chunk will cause an
-			 *           error at this point unless it is to be saved.
+			 *   zero: The chunk was not handled, the chunk will be discarded
+			 *         unless png_set_keep_unknown_chunks has been used to set
+			 *         a 'keep' behavior for this particular chunk, in which
+			 *         case that will be used.  A critical chunk will cause an
+			 *         error at this point unless it is to be saved.
 			 * positive: The chunk was handled, libpng will ignore/discard it.
 			 */
 			if(ret < 0)
@@ -2711,7 +2711,7 @@ void /* PRIVATE */ png_combine_row(png_const_structrp png_ptr, png_bytep pDp, in
 			 *
 			 * With some compilers a compile time expression of the general form:
 			 *
-			 *    (shift >= 32) ? (a >> (shift-32)) : (b >> shift)
+			 *  (shift >= 32) ? (a >> (shift-32)) : (b >> shift)
 			 *
 			 * Produces warnings with values of 'shift' in the range 33 to 63
 			 * because the right hand side of the ?: expression is evaluated by

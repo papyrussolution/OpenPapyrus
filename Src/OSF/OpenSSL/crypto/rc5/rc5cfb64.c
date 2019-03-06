@@ -22,7 +22,7 @@ void RC5_32_cfb64_encrypt(const uchar * in, uchar * out, long length, RC5_32_KEY
 	long l = length;
 	ulong ti[2];
 	uchar c, cc;
-	uchar * iv = (uchar*)ivec;
+	uchar * iv = (uchar *)ivec;
 	if(encrypt) {
 		while(l--) {
 			if(n == 0) {
@@ -31,12 +31,12 @@ void RC5_32_cfb64_encrypt(const uchar * in, uchar * out, long length, RC5_32_KEY
 				c2l(iv, v1);
 				ti[1] = v1;
 				RC5_32_encrypt((ulong*)ti, schedule);
-				iv = (uchar*)ivec;
+				iv = (uchar *)ivec;
 				t = ti[0];
 				l2c(t, iv);
 				t = ti[1];
 				l2c(t, iv);
-				iv = (uchar*)ivec;
+				iv = (uchar *)ivec;
 			}
 			c = *(in++) ^ iv[n];
 			*(out++) = c;
@@ -52,12 +52,12 @@ void RC5_32_cfb64_encrypt(const uchar * in, uchar * out, long length, RC5_32_KEY
 				c2l(iv, v1);
 				ti[1] = v1;
 				RC5_32_encrypt((ulong*)ti, schedule);
-				iv = (uchar*)ivec;
+				iv = (uchar *)ivec;
 				t = ti[0];
 				l2c(t, iv);
 				t = ti[1];
 				l2c(t, iv);
-				iv = (uchar*)ivec;
+				iv = (uchar *)ivec;
 			}
 			cc = *(in++);
 			c = iv[n];

@@ -212,7 +212,7 @@ int dtls1_do_write(SSL * s, int type)
 				return -1;
 			}
 			dtls1_fix_message_header(s, frag_off, len - DTLS1_HM_HEADER_LENGTH);
-			dtls1_write_message_header(s, (uchar*)&s->init_buf->data[s->init_off]);
+			dtls1_write_message_header(s, (uchar *)&s->init_buf->data[s->init_off]);
 		}
 		ret = dtls1_write_bytes(s, type, &s->init_buf->data[s->init_off], len);
 		if(ret < 0) {
@@ -248,7 +248,7 @@ int dtls1_do_write(SSL * s, int type)
 				 * should not be done for 'Hello Request's, but in that case
 				 * we'll ignore the result anyway
 				 */
-				uchar * p = (uchar*)&s->init_buf->data[s->init_off];
+				uchar * p = (uchar *)&s->init_buf->data[s->init_off];
 				const struct hm_header_st * msg_hdr = &s->d1->w_msg_hdr;
 				int xlen;
 				if(frag_off == 0 && s->version != DTLS1_BAD_VER) {
@@ -315,7 +315,7 @@ again:
 		return 0;
 	}
 	*mt = s->s3->tmp.message_type;
-	p = (uchar*)s->init_buf->data;
+	p = (uchar *)s->init_buf->data;
 	if(*mt == SSL3_MT_CHANGE_CIPHER_SPEC) {
 		if(s->msg_callback) {
 			s->msg_callback(0, s->version, SSL3_RT_CHANGE_CIPHER_SPEC,
@@ -450,7 +450,7 @@ static int dtls1_retrieve_buffered_fragment(SSL * s, int * ok)
 
 		if(al == 0) {   /* no alert */
 			uchar * p =
-			    (uchar*)s->init_buf->data + DTLS1_HM_HEADER_LENGTH;
+			    (uchar *)s->init_buf->data + DTLS1_HM_HEADER_LENGTH;
 			memcpy(&p[frag->msg_header.frag_off], frag->fragment,
 			    frag->msg_header.frag_len);
 		}
@@ -785,7 +785,7 @@ redo:
 
 	if(frag_len > 0) {
 		uchar * p =
-		    (uchar*)s->init_buf->data + DTLS1_HM_HEADER_LENGTH;
+		    (uchar *)s->init_buf->data + DTLS1_HM_HEADER_LENGTH;
 
 		i = s->method->ssl_read_bytes(s, SSL3_RT_HANDSHAKE, NULL,
 		    &p[frag_off], frag_len, 0);
@@ -842,7 +842,7 @@ int dtls_construct_change_cipher_spec(SSL * s)
 {
 	uchar * p;
 
-	p = (uchar*)s->init_buf->data;
+	p = (uchar *)s->init_buf->data;
 	*p++ = SSL3_MT_CCS;
 	s->d1->handshake_write_seq = s->d1->next_handshake_write_seq;
 	s->init_num = DTLS1_CCS_HEADER_LENGTH;

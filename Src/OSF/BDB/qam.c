@@ -68,7 +68,7 @@ int __qam_position(DBC * dbc, db_recno_t * recnop, uint32 get_mode /* flags to _
  *	VALID and SET bits.  If logging and the record was previously set,
  *	log that data, otherwise just log the new data.
  *
- *   pagep must be write locked
+ * pagep must be write locked
  *
  * PUBLIC: int __qam_pitem
  * PUBLIC:    __P((DBC *,  QPAGE *, uint32, db_recno_t, DBT *));

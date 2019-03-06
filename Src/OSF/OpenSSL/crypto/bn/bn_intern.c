@@ -13,7 +13,7 @@
  * Determine the modified width-(w+1) Non-Adjacent Form (wNAF) of 'scalar'.
  * This is an array  r[]  of values that are either zero or odd with an
  * absolute value less than  2^w  satisfying
- *     scalar = \sum_j r[j]*2^j
+ *   scalar = \sum_j r[j]*2^j
  * where at most one of any  w+1  consecutive digits is non-zero
  * with the exception that the most significant digit may be only
  * w-1 zeros away from that next non-zero digit.

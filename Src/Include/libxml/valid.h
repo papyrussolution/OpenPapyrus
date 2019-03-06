@@ -27,8 +27,8 @@ typedef xmlValidState * xmlValidStatePtr;
 /**
  * xmlValidityErrorFunc:
  * @ctx:  usually an xmlValidCtxtPtr to a validity error context,
- *        but comes from ctxt->userData (which normally contains such
- *        a pointer); ctxt->userData can be changed by the user.
+ *      but comes from ctxt->userData (which normally contains such
+ *      a pointer); ctxt->userData can be changed by the user.
  * @msg:  the string to format *printf like vararg
  * @...:  remaining arguments to the format
  *
@@ -40,8 +40,8 @@ typedef void (XMLCDECL *xmlValidityErrorFunc)(void * ctx, const char * msg, ...)
 /**
  * xmlValidityWarningFunc:
  * @ctx:  usually an xmlValidCtxtPtr to a validity error context,
- *        but comes from ctxt->userData (which normally contains such
- *        a pointer); ctxt->userData can be changed by the user.
+ *      but comes from ctxt->userData (which normally contains such
+ *      a pointer); ctxt->userData can be changed by the user.
  * @msg:  the string to format *printf like vararg
  * @...:  remaining arguments to the format
  *

@@ -44,7 +44,7 @@ static int encode_pkcs1(uchar ** out, int * out_len, int type, const uchar * m, 
 	sig.algor->parameter = &parameter;
 
 	sig.digest = &digest;
-	sig.digest->data = (uchar*)m;
+	sig.digest->data = (uchar *)m;
 	sig.digest->length = m_len;
 
 	len = i2d_X509_SIG(&sig, &der);
@@ -113,7 +113,7 @@ int int_rsa_verify(int type, const uchar * m, uint m_len, uchar * rm, size_t * p
 		return 0;
 	}
 	// Recover the encoded digest. 
-	decrypt_buf = (uchar*)OPENSSL_malloc(siglen);
+	decrypt_buf = (uchar *)OPENSSL_malloc(siglen);
 	if(decrypt_buf == NULL) {
 		RSAerr(RSA_F_INT_RSA_VERIFY, ERR_R_MALLOC_FAILURE);
 		goto err;

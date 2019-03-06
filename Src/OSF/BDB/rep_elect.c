@@ -132,7 +132,7 @@ int __rep_elect_int(ENV*env, uint32 given_nsites, uint32 nvotes, uint32 flags)
 	 * Old sites will never elect us, with 0 priority, but if all
 	 * we have are new sites, then we can elect the best electable
 	 * site of the group.
-	 *     Thus 'priority' is this special, possibly-fake, effective
+	 *   Thus 'priority' is this special, possibly-fake, effective
 	 * priority that we'll use for this election, while 'realpri' is our
 	 * real, configured priority, as retrieved from REP region.
 	 */

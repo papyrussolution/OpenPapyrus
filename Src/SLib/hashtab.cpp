@@ -1912,8 +1912,8 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
  *
  * Note the preprocessor built-in defines can be emitted using:
  *
- *   gcc -m64 -dM -E - < /dev/null                  (on gcc)
- *   cc -## a.c (where a.c is a simple test file)   (Sun Studio)
+ * gcc -m64 -dM -E - < /dev/null                  (on gcc)
+ * cc -## a.c (where a.c is a simple test file)   (Sun Studio)
  */
 #if (defined(__i386__) || defined(__x86_64__)  || defined(_M_IX86))
 #define MUR_GETBLOCK(p, i) p[i]
@@ -2045,14 +2045,14 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
  * ceil(n/b). We don't depend on floating point arithmetic in this
  * hash, so to calculate ceil(n/b) with integers we could write
  *
- *      ceil(n/b) = (n/b) + ((n%b)?1:0)
+ *    ceil(n/b) = (n/b) + ((n%b)?1:0)
  *
  * and in fact a previous version of this hash did just that.
  * But now we have improved things a bit by recognizing that b is
  * always a power of two. We keep its base 2 log handy (call it lb),
  * so now we can write this with a bit shift and logical AND:
  *
- *      ceil(n/b) = (n>>lb) + ((n & (b-1)) ? 1:0)
+ *    ceil(n/b) = (n>>lb) + ((n & (b-1)) ? 1:0)
  *
  */
 #define HASH_EXPAND_BUCKETS(tbl)						 \

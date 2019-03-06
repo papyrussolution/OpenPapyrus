@@ -18,7 +18,7 @@ int RSA_padding_add_SSLv23(uchar * to, int tlen, const uchar * from, int flen)
 		    RSA_R_DATA_TOO_LARGE_FOR_KEY_SIZE);
 		return 0;
 	}
-	p = (uchar*)to;
+	p = (uchar *)to;
 	*(p++) = 0;
 	*(p++) = 2;             /* Public Key BT (Block Type) */
 	/* pad out with non-zero random data */

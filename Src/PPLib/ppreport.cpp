@@ -89,7 +89,7 @@ static TVRez * SLAPI PPOpenReportResource()
 {
 	SString path;
 	long   EXT = 0x00534552L; // "RES"
-	makeExecPathFileName("PPRPT", (const char*)&EXT, path);
+	makeExecPathFileName("PPRPT", (const char *)&EXT, path);
 	TVRez * p_rez = new TVRez(path, 0 /* useIndex */);
 	if(p_rez == 0)
 		PPSetErrorNoMem();

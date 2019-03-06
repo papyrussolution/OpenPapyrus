@@ -83,7 +83,7 @@
 #define UNSUPPORTED(reason) CAIRO_INT_STATUS_UNSUPPORTED
 #endif
 
-#define CAIRO_GL_VERSION_ENCODE(major, minor) (((major) * 256) + ((minor) *   1))
+#define CAIRO_GL_VERSION_ENCODE(major, minor) (((major) * 256) + ((minor) * 1))
 
 /* maximal number of shaders we keep in the cache.
  * Random number that is hopefully big enough to not cause many cache evictions. */

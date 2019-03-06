@@ -3883,7 +3883,7 @@ namespace NArchive {
 				uint i;
 				for(i = 0; i < nameSize && p[i] != 0; i++) 
 					;
-				item.Name.SetFrom((const char*)p, i);
+				item.Name.SetFrom((const char *)p, i);
 
 				if(item.HasUnicodeName()) {
 					if(i < nameSize) {
@@ -4956,7 +4956,7 @@ namespace NArchive {
 									unicode.DeleteFrom(kPasswordLen_MAX);
 								oemPassword = UnicodeStringToMultiByte(unicode, CP_OEMCP);
 							}
-							rar20CryptoDecoderSpec->SetPassword((const Byte*)(const char*)oemPassword, oemPassword.Len());
+							rar20CryptoDecoderSpec->SetPassword((const Byte*)(const char *)oemPassword, oemPassword.Len());
 						}
 					}
 					/*
@@ -5409,7 +5409,7 @@ namespace NArchive {
 					}
 				}
 				AString s;
-				s.SetFrom_CalcLen((const char*)(Extra + link.NameOffset), link.NameLen);
+				s.SetFrom_CalcLen((const char *)(Extra + link.NameOffset), link.NameLen);
 				UString unicode;
 				if(ConvertUTF8ToUnicode(s, unicode))
 					prop = NItemName::GetOsPath(unicode);
@@ -5423,7 +5423,7 @@ namespace NArchive {
 			int offset = FindExtra(NExtraID::kSubdata, size);
 			if(offset < 0)
 				return false;
-			name.SetFrom_CalcLen((const char*)(Extra + (uint)offset), size);
+			name.SetFrom_CalcLen((const char *)(Extra + (uint)offset), size);
 			return true;
 		}
 
@@ -5613,7 +5613,7 @@ namespace NArchive {
 			if(unicode.Len() > kPasswordLen_MAX)
 				unicode.DeleteFrom(kPasswordLen_MAX);
 			ConvertUnicodeToUTF8(unicode, utf8);
-			cryptoDecoderSpec->SetPassword((const Byte*)(const char*)utf8, utf8.Len());
+			cryptoDecoderSpec->SetPassword((const Byte*)(const char *)utf8, utf8.Len());
 			return S_OK;
 		}
 		bool CInArchive::ReadVar(uint64 &val)
@@ -5912,7 +5912,7 @@ namespace NArchive {
 				if(!ReadVar(len)) return false;
 				if(len > _bufSize - _bufPos)
 					return false;
-				item.Name.SetFrom_CalcLen((const char*)(_buf + _bufPos), (uint)len);
+				item.Name.SetFrom_CalcLen((const char *)(_buf + _bufPos), (uint)len);
 				_bufPos += (uint)len;
 			}
 
@@ -6248,7 +6248,7 @@ namespace NArchive {
 						const CByteBuffer &cmt = _comment;
 						if(cmt.Size() != 0 && cmt.Size() < (1 << 16)) {
 							AString s;
-							s.SetFrom_CalcLen((const char*)(const Byte*)cmt, (uint)cmt.Size());
+							s.SetFrom_CalcLen((const char *)(const Byte*)cmt, (uint)cmt.Size());
 							UString unicode;
 							if(ConvertUTF8ToUnicode(s, unicode))
 								prop = unicode;
@@ -6683,7 +6683,7 @@ namespace NArchive {
 					CLinkInfo linkInfo;
 					if(!item.FindExtra_Link(linkInfo) || linkInfo.Type != NLinkType::kFileCopy)
 						continue;
-					link.SetFrom_CalcLen((const char*)(item.Extra + linkInfo.NameOffset), linkInfo.NameLen);
+					link.SetFrom_CalcLen((const char *)(item.Extra + linkInfo.NameOffset), linkInfo.NameLen);
 					int linkIndex = FindLink(*this, sorted, link, i);
 					if(linkIndex < 0)
 						continue;

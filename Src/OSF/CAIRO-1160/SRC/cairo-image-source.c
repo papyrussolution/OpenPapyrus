@@ -50,7 +50,7 @@
 #include "cairo-paginated-private.h"
 #include "cairo-recording-surface-private.h"
 #include "cairo-surface-observer-private.h"
-#include "cairo-surface-snapshot-inline.h"
+//#include "cairo-surface-snapshot-inline.h"
 #include "cairo-surface-subsurface-private.h"
 
 #define PIXMAN_MAX_INT ((pixman_fixed_1 >> 1) - pixman_fixed_e) /* need to ensure deltas also fit */
@@ -907,13 +907,13 @@ struct proxy {
 
 static cairo_status_t proxy_acquire_source_image(void * abstract_surface, cairo_image_surface_t ** image_out, void ** image_extra)
 {
-	struct proxy * proxy = (struct proxy *)abstract_surface;
+	struct proxy * proxy = static_cast<struct proxy *>(abstract_surface);
 	return _cairo_surface_acquire_source_image(proxy->image, image_out, image_extra);
 }
 
 static void proxy_release_source_image(void * abstract_surface, cairo_image_surface_t * image, void * image_extra)
 {
-	struct proxy * proxy = (struct proxy *)abstract_surface;
+	struct proxy * proxy = static_cast<struct proxy *>(abstract_surface);
 	_cairo_surface_release_source_image(proxy->image, image, image_extra);
 }
 

@@ -207,7 +207,7 @@ static void * ngx_http_auth_request_create_conf(ngx_conf_t * cf)
 		/*
 		 * set by ngx_pcalloc():
 		 *
-		 *     conf->uri = { 0, NULL };
+		 *   conf->uri = { 0, NULL };
 		 */
 		conf->vars = (ngx_array_t*)NGX_CONF_UNSET_PTR;
 	}

@@ -426,7 +426,7 @@ int SBIIOpRestrRec::ToBuf(void * pBuf, size_t * pBufSize)
 
 int SBIIOpRestrRec::FromBuf(const void * pBuf)
 {
-	const char * p_buf = (const char*)pBuf;
+	const char * p_buf = static_cast<const char *>(pBuf);
 	size_t bytes = 0;
 	memcpy(&ID,              p_buf + bytes,                              sizeof(ID));
 	memcpy(&AccSheetID,      p_buf + (bytes += sizeof(ID)),              sizeof(AccSheetID));
@@ -478,7 +478,7 @@ int SBIIBillRec::ToDbfTbl(DbfTable * pTbl)
 		dbf_rec.put(5, ArticleID);
 		dbf_rec.put(6, OpID);
 		dbf_rec.put(7, Code);
-		dbf_rec.put(8, (const char*)str_guid);
+		dbf_rec.put(8, (const char *)str_guid);
 		ok = pTbl->appendRec(&dbf_rec);
 	}
 	return ok;
@@ -513,7 +513,7 @@ int SBIIBillRec::ToBuf(void * pBuf, size_t * pBufSize)
 
 int SBIIBillRec::FromBuf(const void * pBuf)
 {
-	const char * p_buf = (const char*)pBuf;
+	const char * p_buf = static_cast<const char *>(pBuf);
 	size_t bytes = 0;
 	memcpy(&ID,           p_buf + bytes,                           sizeof(ID));
 	memcpy(&SampleBillID, p_buf + (bytes += sizeof(ID)),           sizeof(SampleBillID));
@@ -602,7 +602,7 @@ int SBIIBillRowRec::ToBuf(void * pBuf, size_t * pBufSize)
 
 int SBIIBillRowRec::FromBuf(const void * pBuf)
 {
-	const char * p_buf = (const char*)pBuf;
+	const char * p_buf = static_cast<const char *>(pBuf);
 	size_t bytes = 0;
 	memcpy(&BillID,       p_buf + bytes,                           sizeof(BillID));
 	memcpy(&GoodsID,      p_buf + (bytes += sizeof(BillID)),       sizeof(GoodsID));
@@ -4741,7 +4741,7 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 								ilti.Setup(sdr_brow.GoodsID, sign, sdr_brow.Qtty, ilti.Cost, ilti.Price);
 								SETFLAG(ilti.Flags, PPTFR_RECEIPT, sign > 0);
 								ilti.Expiry = sdr_brow.Expiry;
-								if(p_bobj->ConvertILTI(&ilti, &pack, 0, CILTIF_INHLOTTAGS|CILTIF_ALLOWZPRICE, is_serial ? serial : (const char*)0) > 0) {
+								if(p_bobj->ConvertILTI(&ilti, &pack, 0, CILTIF_INHLOTTAGS|CILTIF_ALLOWZPRICE, is_serial ? serial : (const char *)0) > 0) {
 									// @v9.4.9 if(ilti.Rest != 0.0 && sign == -1) {
 									if(sign == -1 && ilti.HasDeficit()) { // @v9.4.9
 										if(pLog) {

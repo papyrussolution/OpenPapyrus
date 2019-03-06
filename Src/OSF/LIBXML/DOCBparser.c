@@ -28,7 +28,7 @@
  *
  * Returns 0 if success, -2 if the transcoding fails, or -1 otherwise
  * The value of @inlen after return is the number of octets consumed
- *     as the return value is positive, else unpredictable.
+ *   as the return value is positive, else unpredictable.
  * The value of @outlen after return is the number of octets consumed.
  */
 int docbEncodeEntities(uchar * out ATTRIBUTE_UNUSED, int * outlen ATTRIBUTE_UNUSED, 
@@ -50,7 +50,7 @@ int docbEncodeEntities(uchar * out ATTRIBUTE_UNUSED, int * outlen ATTRIBUTE_UNUS
  * interface).
  *
  * Returns 0, -1 in case of error. the parser context is augmented
- *                as a result of the parsing.
+ *              as a result of the parsing.
  */
 
 int docbParseDocument(docbParserCtxtPtr ctxt ATTRIBUTE_UNUSED)
@@ -158,7 +158,7 @@ docbDocPtr docbSAXParseDoc(xmlChar * cur ATTRIBUTE_UNUSED,
 		xmlGenericError(0, "docbParseChunk() deprecated function reached\n");
 		deprecated = 1;
 	}
-	return (xmlSAXParseMemoryWithData(sax, (const char*)cur, sstrlen((const xmlChar*)cur), 0,  userData));
+	return (xmlSAXParseMemoryWithData(sax, (const char *)cur, sstrlen((const xmlChar*)cur), 0,  userData));
 }
 
 /**

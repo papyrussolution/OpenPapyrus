@@ -6,19 +6,19 @@
  * with or without modification, are permitted provided
  * that the following conditions are met:
  *
- *   Redistributions of source code must retain the above
- *   copyright notice, this list of conditions and the
- *   following disclaimer.
+ * Redistributions of source code must retain the above
+ * copyright notice, this list of conditions and the
+ * following disclaimer.
  *
- *   Redistributions in binary form must reproduce the above
- *   copyright notice, this list of conditions and the following
- *   disclaimer in the documentation and/or other materials
- *   provided with the distribution.
+ * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials
+ * provided with the distribution.
  *
- *   Neither the name of the copyright holder nor the names
- *   of any other contributors may be used to endorse or
- *   promote products derived from this software without
- *   specific prior written permission.
+ * Neither the name of the copyright holder nor the names
+ * of any other contributors may be used to endorse or
+ * promote products derived from this software without
+ * specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
  * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
@@ -71,7 +71,7 @@ static int comp_method_none_decomp(LIBSSH2_SESSION * session, uchar ** dest, siz
 	(void)session;
 	(void)payload_limit;
 	(void)abstract;
-	*dest = (uchar*)src;
+	*dest = (uchar *)src;
 	*dest_len = src_len;
 	return 0;
 }
@@ -147,7 +147,7 @@ static int comp_method_zlib_comp(LIBSSH2_SESSION * session, uchar * dest,
 	z_stream * strm = (z_stream *)*abstract;
 	int out_maxlen = *dest_len;
 	int status;
-	strm->next_in = (uchar*)src;
+	strm->next_in = (uchar *)src;
 	strm->avail_in = src_len;
 	strm->next_out = dest;
 	strm->avail_out = out_maxlen;
@@ -177,9 +177,9 @@ static int comp_method_zlib_decomp(LIBSSH2_SESSION * session, uchar ** dest, siz
 	// In practice they never come smaller than this 
 	SETMAX(out_maxlen, 25);
 	SETMIN(out_maxlen, (int)payload_limit);
-	strm->next_in = (uchar*)src;
+	strm->next_in = (uchar *)src;
 	strm->avail_in = src_len;
-	strm->next_out = (uchar*)LIBSSH2_ALLOC(session, out_maxlen);
+	strm->next_out = (uchar *)LIBSSH2_ALLOC(session, out_maxlen);
 	out = (char *)strm->next_out;
 	strm->avail_out = out_maxlen;
 	if(!strm->next_out)

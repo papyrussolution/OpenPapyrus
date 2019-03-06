@@ -968,7 +968,7 @@ int UnknownGoodsSubstDialog::setupList()
 			goods_name = p_brow->GoodsName;
 			if(!goods_name.NotEmptyS())
 				(goods_name = p_brow->Barcode).CatChar(' ').Cat(p_brow->Quantity, MKSFMTD(10, 2, 0));
-			THROW(addStringToList(i + 1, (const char*)goods_name));
+			THROW(addStringToList(i + 1, (const char *)goods_name));
 		}
 	}
 	CATCHZOKPPERR
@@ -1735,7 +1735,7 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 			// @v9.0.2 PPGetWord(PPWORD_GOODS, 0, (word = 0));
 			PPLoadString("ware", word); // @v9.0.2
 			goods_info.Cat(word).Space().Cat(brow_.GoodsName);
-			msg.Printf(temp_buf, (const char*)file_name, (const char*)goods_info);
+			msg.Printf(temp_buf, (const char *)file_name, (const char *)goods_info);
 			Logger.Log(msg);
 		}
 		else { //if(mode == 2 || Bills.lsearch(bill_ident, &(p = 0), PTR_CMPFUNC(Pchar)) > 0) { // bsearch->lsearch

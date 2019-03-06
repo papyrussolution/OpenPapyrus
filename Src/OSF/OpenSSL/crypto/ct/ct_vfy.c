@@ -28,15 +28,15 @@ static int sct_ctx_update(EVP_MD_CTX * ctx, const SCT_CTX * sctx, const SCT * sc
 	size_t derlen;
 	/*+
 	 * digitally-signed struct {
-	 *   (1 byte) Version sct_version;
-	 *   (1 byte) SignatureType signature_type = certificate_timestamp;
-	 *   (8 bytes) uint64 timestamp;
-	 *   (2 bytes) LogEntryType entry_type;
-	 *   (? bytes) select(entry_type) {
-	 *     case x509_entry: ASN.1Cert;
-	 *     case precert_entry: PreCert;
-	 *   } signed_entry;
-	 *   (2 bytes + sct->ext_len) CtExtensions extensions;
+	 * (1 byte) Version sct_version;
+	 * (1 byte) SignatureType signature_type = certificate_timestamp;
+	 * (8 bytes) uint64 timestamp;
+	 * (2 bytes) LogEntryType entry_type;
+	 * (? bytes) select(entry_type) {
+	 *   case x509_entry: ASN.1Cert;
+	 *   case precert_entry: PreCert;
+	 * } signed_entry;
+	 * (2 bytes + sct->ext_len) CtExtensions extensions;
 	 * }
 	 */
 	if(sct->entry_type == CT_LOG_ENTRY_TYPE_NOT_SET)

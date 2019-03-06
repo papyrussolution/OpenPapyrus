@@ -1237,17 +1237,17 @@ static void * ngx_stream_proxy_create_srv_conf(ngx_conf_t * cf)
 		/*
 		 * set by ngx_pcalloc():
 		 *
-		 *     conf->ssl_protocols = 0;
-		 *     conf->ssl_ciphers = { 0, NULL };
-		 *     conf->ssl_name = NULL;
-		 *     conf->ssl_trusted_certificate = { 0, NULL };
-		 *     conf->ssl_crl = { 0, NULL };
-		 *     conf->ssl_certificate = { 0, NULL };
-		 *     conf->ssl_certificate_key = { 0, NULL };
+		 *   conf->ssl_protocols = 0;
+		 *   conf->ssl_ciphers = { 0, NULL };
+		 *   conf->ssl_name = NULL;
+		 *   conf->ssl_trusted_certificate = { 0, NULL };
+		 *   conf->ssl_crl = { 0, NULL };
+		 *   conf->ssl_certificate = { 0, NULL };
+		 *   conf->ssl_certificate_key = { 0, NULL };
 		 *
-		 *     conf->ssl = NULL;
-		 *     conf->upstream = NULL;
-		 *     conf->upstream_value = NULL;
+		 *   conf->ssl = NULL;
+		 *   conf->upstream = NULL;
+		 *   conf->upstream_value = NULL;
 		 */
 		conf->connect_timeout = NGX_CONF_UNSET_MSEC;
 		conf->timeout = NGX_CONF_UNSET_MSEC;

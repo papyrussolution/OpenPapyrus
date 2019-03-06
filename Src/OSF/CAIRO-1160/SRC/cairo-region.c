@@ -172,10 +172,10 @@ void FASTCALL _cairo_region_fini(cairo_region_t * region)
  * Allocates a new empty region object.
  *
  * Return value: A newly allocated #cairo_region_t. Free with
- *   cairo_region_destroy(). This function always returns a
- *   valid pointer; if memory cannot be allocated, then a special
- *   error object is returned where all operations on the object do nothing.
- *   You can check for this with cairo_region_status().
+ * cairo_region_destroy(). This function always returns a
+ * valid pointer; if memory cannot be allocated, then a special
+ * error object is returned where all operations on the object do nothing.
+ * You can check for this with cairo_region_status().
  *
  * Since: 1.10
  **/
@@ -200,10 +200,10 @@ slim_hidden_def(cairo_region_create);
  * Allocates a new region object containing the union of all given @rects.
  *
  * Return value: A newly allocated #cairo_region_t. Free with
- *   cairo_region_destroy(). This function always returns a
- *   valid pointer; if memory cannot be allocated, then a special
- *   error object is returned where all operations on the object do nothing.
- *   You can check for this with cairo_region_status().
+ * cairo_region_destroy(). This function always returns a
+ * valid pointer; if memory cannot be allocated, then a special
+ * error object is returned where all operations on the object do nothing.
+ * You can check for this with cairo_region_status().
  *
  * Since: 1.10
  **/
@@ -276,10 +276,10 @@ cairo_box_t * _cairo_region_get_boxes(const cairo_region_t * region, int * nbox)
  * Allocates a new region object containing @rectangle.
  *
  * Return value: A newly allocated #cairo_region_t. Free with
- *   cairo_region_destroy(). This function always returns a
- *   valid pointer; if memory cannot be allocated, then a special
- *   error object is returned where all operations on the object do nothing.
- *   You can check for this with cairo_region_status().
+ * cairo_region_destroy(). This function always returns a
+ * valid pointer; if memory cannot be allocated, then a special
+ * error object is returned where all operations on the object do nothing.
+ * You can check for this with cairo_region_status().
  *
  * Since: 1.10
  **/
@@ -303,10 +303,10 @@ slim_hidden_def(cairo_region_create_rectangle);
  * Allocates a new region object copying the area from @original.
  *
  * Return value: A newly allocated #cairo_region_t. Free with
- *   cairo_region_destroy(). This function always returns a
- *   valid pointer; if memory cannot be allocated, then a special
- *   error object is returned where all operations on the object do nothing.
- *   You can check for this with cairo_region_status().
+ * cairo_region_destroy(). This function always returns a
+ * valid pointer; if memory cannot be allocated, then a special
+ * error object is returned where all operations on the object do nothing.
+ * You can check for this with cairo_region_status().
  *
  * Since: 1.10
  **/
@@ -406,20 +406,15 @@ slim_hidden_def(cairo_region_num_rectangles);
  *
  * Since: 1.10
  **/
-void cairo_region_get_rectangle(const cairo_region_t * region,
-    int nth,
-    cairo_rectangle_int_t * rectangle)
+void FASTCALL cairo_region_get_rectangle(const cairo_region_t * region, int nth, cairo_rectangle_int_t * rectangle)
 {
 	pixman_box32_t * pbox;
-
 	if(region->status) {
 		rectangle->x = rectangle->y = 0;
 		rectangle->width = rectangle->height = 0;
 		return;
 	}
-
 	pbox = pixman_region32_rectangles(CONST_CAST &region->rgn, NULL) + nth;
-
 	rectangle->x = pbox->x1;
 	rectangle->y = pbox->y1;
 	rectangle->width = pbox->x2 - pbox->x1;
@@ -437,19 +432,15 @@ slim_hidden_def(cairo_region_get_rectangle);
  *
  * Since: 1.10
  **/
-void cairo_region_get_extents(const cairo_region_t * region,
-    cairo_rectangle_int_t * extents)
+void cairo_region_get_extents(const cairo_region_t * region, cairo_rectangle_int_t * extents)
 {
 	pixman_box32_t * pextents;
-
 	if(region->status) {
 		extents->x = extents->y = 0;
 		extents->width = extents->height = 0;
 		return;
 	}
-
 	pextents = pixman_region32_extents(CONST_CAST &region->rgn);
-
 	extents->x = pextents->x1;
 	extents->y = pextents->y1;
 	extents->width = pextents->x2 - pextents->x1;
@@ -794,9 +785,9 @@ slim_hidden_def(cairo_region_translate);
  * in @region
  *
  * Return value:
- *   %CAIRO_REGION_OVERLAP_IN if @rectangle is entirely inside @region,
- *   %CAIRO_REGION_OVERLAP_OUT if @rectangle is entirely outside @region, or
- *   %CAIRO_REGION_OVERLAP_PART if @rectangle is partially inside and partially outside @region.
+ * %CAIRO_REGION_OVERLAP_IN if @rectangle is entirely inside @region,
+ * %CAIRO_REGION_OVERLAP_OUT if @rectangle is entirely outside @region, or
+ * %CAIRO_REGION_OVERLAP_PART if @rectangle is partially inside and partially outside @region.
  *
  * Since: 1.10
  **/

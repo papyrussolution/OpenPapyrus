@@ -126,7 +126,7 @@ X509_ALGOR * PKCS5_pbkdf2_set(int iter, uchar * salt, int saltlen,
 	kdf->salt->value.octet_string = osalt;
 	kdf->salt->type = V_ASN1_OCTET_STRING;
 	SETIFZ(saltlen, PKCS5_SALT_LEN);
-	if((osalt->data = (uchar*)OPENSSL_malloc(saltlen)) == NULL)
+	if((osalt->data = (uchar *)OPENSSL_malloc(saltlen)) == NULL)
 		goto merr;
 	osalt->length = saltlen;
 	if(salt)

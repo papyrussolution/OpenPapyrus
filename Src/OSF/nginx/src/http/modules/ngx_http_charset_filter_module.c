@@ -1042,8 +1042,8 @@ static void * ngx_http_charset_create_loc_conf(ngx_conf_t * cf)
 	/*
 	 * set by ngx_pcalloc():
 	 *
-	 *     lcf->types = { NULL };
-	 *     lcf->types_keys = NULL;
+	 *   lcf->types = { NULL };
+	 *   lcf->types_keys = NULL;
 	 */
 	lcf->charset = NGX_CONF_UNSET;
 	lcf->source_charset = NGX_CONF_UNSET;

@@ -24,7 +24,7 @@ static BIGNUM * srp_Calc_xy(const BIGNUM * x, const BIGNUM * y, const BIGNUM * N
 		return NULL;
 	if(y != N && BN_ucmp(y, N) >= 0)
 		return NULL;
-	if((tmp = (uchar*)OPENSSL_malloc(numN * 2)) == NULL)
+	if((tmp = (uchar *)OPENSSL_malloc(numN * 2)) == NULL)
 		goto err;
 	if(BN_bn2binpad(x, tmp, numN) < 0
 	    || BN_bn2binpad(y, tmp + numN, numN) < 0
@@ -113,7 +113,7 @@ BIGNUM * SRP_Calc_x(const BIGNUM * s, const char * user, const char * pass)
 	ctxt = EVP_MD_CTX_new();
 	if(ctxt == NULL)
 		return NULL;
-	if((cs = (uchar*)OPENSSL_malloc(BN_num_bytes(s))) == NULL)
+	if((cs = (uchar *)OPENSSL_malloc(BN_num_bytes(s))) == NULL)
 		goto err;
 
 	if(!EVP_DigestInit_ex(ctxt, EVP_sha1(), NULL)

@@ -339,7 +339,7 @@ int BN_GF2m_mod_solve_quad(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, BN_CTX *
 /*-
  * Some functions allow for representation of the irreducible polynomials
  * as an uint[], say p.  The irreducible f(t) is then of the form:
- *     t^p[0] + t^p[1] + ... + t^p[k]
+ *   t^p[0] + t^p[1] + ... + t^p[k]
  * where m = p[0] > p[1] > ... > p[k] = 0.
  */
 /* r = a mod p */

@@ -417,7 +417,7 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 		data_character[i] = 0;
 		data_group[i] = 0;
 	}
-	binary_load(accum, (const char*)source, src_len);
+	binary_load(accum, (const char *)source, src_len);
 	sstrcpy(temp, "10000000000000");
 	if(symbol->option_1 == 2) {
 		/* Add symbol linkage flag */
@@ -699,7 +699,7 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 		count = 0;
 		check_digit = 0;
 		/* Calculate check digit from Annex A and place human readable text */
-		sstrcpy(symbol->text, (uchar*)"(01)");
+		sstrcpy(symbol->text, (uchar *)"(01)");
 		for(i = 0; i < 14; i++) {
 			hrt[i] = '0';
 		}
@@ -960,7 +960,7 @@ int rsslimited(struct ZintSymbol * symbol, uchar source[], int src_len)
 		x_reg[i] = 0;
 		y_reg[i] = 0;
 	}
-	binary_load(accum, (const char*)source, src_len);
+	binary_load(accum, (const char *)source, src_len);
 	if(symbol->option_1 == 2) {
 		/* Add symbol linkage flag */
 		sstrcpy(temp, "2015133531096");
@@ -1164,7 +1164,7 @@ int rsslimited(struct ZintSymbol * symbol, uchar source[], int src_len)
 	/* Calculate check digit from Annex A and place human readable text */
 	check_digit = 0;
 	count = 0;
-	sstrcpy(symbol->text, (uchar*)"(01)");
+	sstrcpy(symbol->text, (uchar *)"(01)");
 	for(i = 0; i < 14; i++) {
 		hrt[i] = '0';
 	}

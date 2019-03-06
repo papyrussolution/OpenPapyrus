@@ -1207,7 +1207,7 @@ int SLAPI GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSo
 				THROW(LoadSdRecord(PPREC_BIZSCOREVAL, &imp_exp_par.InrRec));
 				imp_exp_par.Direction  = 1;
 				imp_exp_par.DataFormat = PPImpExpParam::dfXml;
-				imp_exp_par.XdfParam.RootTag = (const char*)rpt_name;
+				imp_exp_par.XdfParam.RootTag = (const char *)rpt_name;
 				imp_exp_par.XdfParam.RecTag  = "Iter";
 				imp_exp_par.FileName.CopyFrom(bizsc_path);
 				imp_exp_par.OtrRec = imp_exp_par.InrRec;

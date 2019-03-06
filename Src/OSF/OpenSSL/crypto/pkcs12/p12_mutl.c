@@ -190,7 +190,7 @@ int PKCS12_setup_mac(PKCS12 * p12, int iter, uchar * salt, int saltlen, const EV
 		}
 	}
 	SETIFZ(saltlen, PKCS12_SALT_LEN);
-	if((p12->mac->salt->data = (uchar*)OPENSSL_malloc(saltlen)) == NULL) {
+	if((p12->mac->salt->data = (uchar *)OPENSSL_malloc(saltlen)) == NULL) {
 		PKCS12err(PKCS12_F_PKCS12_SETUP_MAC, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}

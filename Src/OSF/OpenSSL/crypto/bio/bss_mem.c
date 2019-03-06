@@ -80,7 +80,7 @@ BIO * BIO_new_mem_buf(const void * buf, int len)
 		BIOerr(BIO_F_BIO_NEW_MEM_BUF, BIO_R_NULL_PARAMETER);
 		return NULL;
 	}
-	sz = (len < 0) ? strlen((const char*)buf) : (size_t)len;
+	sz = (len < 0) ? strlen((const char *)buf) : (size_t)len;
 	if((ret = BIO_new(BIO_s_mem())) == NULL)
 		return NULL;
 	bb = (BIO_BUF_MEM*)ret->ptr;

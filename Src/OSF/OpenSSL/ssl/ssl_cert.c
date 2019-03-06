@@ -109,7 +109,7 @@ CERT * ssl_cert_dup(CERT * cert)
 		if(cert->pkeys[i].serverinfo != NULL) {
 			/* Just copy everything. */
 			ret->pkeys[i].serverinfo =
-			    (uchar*)OPENSSL_malloc(cert->pkeys[i].serverinfo_length);
+			    (uchar *)OPENSSL_malloc(cert->pkeys[i].serverinfo_length);
 			if(ret->pkeys[i].serverinfo == NULL) {
 				SSLerr(SSL_F_SSL_CERT_DUP, ERR_R_MALLOC_FAILURE);
 				goto err;
@@ -122,7 +122,7 @@ CERT * ssl_cert_dup(CERT * cert)
 
 	/* Configured sigalgs copied across */
 	if(cert->conf_sigalgs) {
-		ret->conf_sigalgs = (uchar*)OPENSSL_malloc(cert->conf_sigalgslen);
+		ret->conf_sigalgs = (uchar *)OPENSSL_malloc(cert->conf_sigalgslen);
 		if(ret->conf_sigalgs == NULL)
 			goto err;
 		memcpy(ret->conf_sigalgs, cert->conf_sigalgs, cert->conf_sigalgslen);
@@ -132,7 +132,7 @@ CERT * ssl_cert_dup(CERT * cert)
 		ret->conf_sigalgs = NULL;
 
 	if(cert->client_sigalgs) {
-		ret->client_sigalgs = (uchar*)OPENSSL_malloc(cert->client_sigalgslen);
+		ret->client_sigalgs = (uchar *)OPENSSL_malloc(cert->client_sigalgslen);
 		if(ret->client_sigalgs == NULL)
 			goto err;
 		memcpy(ret->client_sigalgs, cert->client_sigalgs,
@@ -145,7 +145,7 @@ CERT * ssl_cert_dup(CERT * cert)
 	ret->shared_sigalgs = NULL;
 	/* Copy any custom client certificate types */
 	if(cert->ctypes) {
-		ret->ctypes = (uchar*)OPENSSL_malloc(cert->ctype_num);
+		ret->ctypes = (uchar *)OPENSSL_malloc(cert->ctype_num);
 		if(ret->ctypes == NULL)
 			goto err;
 		memcpy(ret->ctypes, cert->ctypes, cert->ctype_num);
@@ -689,7 +689,7 @@ static int ssl_add_cert_to_buf(BUF_MEM * buf, ulong * l, X509 * x)
 		SSLerr(SSL_F_SSL_ADD_CERT_TO_BUF, ERR_R_BUF_LIB);
 		return 0;
 	}
-	p = (uchar*)&(buf->data[*l]);
+	p = (uchar *)&(buf->data[*l]);
 	l2n3(n, p);
 	n = i2d_X509(x, &p);
 	if(n < 0) {

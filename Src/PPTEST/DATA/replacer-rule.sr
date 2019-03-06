@@ -535,7 +535,8 @@ folder%<fldr%|foldr
 garden%<grdn
 grapefruit%<grpfrt%|grpfruit
 half&half%<half and half
-hazelnut%<hzlnut
+hazelnut%<hzlnut%|hazel nut%|hazlnt%|hazlenut%|hazlnut%|hzlnt
+hazelnuts%<hazel nuts
 hello kitty%<õåëëîó êèòòè%.%|õıëëîó êèòòè%.%|õåëëî êèòòè%.%|õåëîó êèòòè%.%|õıëëî êèòòè%.%|õıëîó êèòòè%.%|õåëëî êèòè%.%|hellokitty
 multi-tool%<multitool%|multi tool
 cookie%<ckie
@@ -3620,6 +3621,12 @@ caboodles
 %(%@tiretitle.%) %(%f/%d R%f%) c%>%1 %2c
 %(%@tiretitle.%) %(%f R%f%) ñ%>%1 %2c
 %(%@tiretitle.%) %(%f R%f%) c%>%1 %2c
+
+
+%^%(%w%d-%w%d%) %(%*%)%$%>%2 %1
+%^%(%w-%w-%d%) %(%*%)%$%>%2 %1
+%^%(%w%d-%d%) %(%*%)%$%>%2 %1
+%^%(%w%d%) %(%*%)%$%>%2 %1
 
 %^%(%D03-%D02-%D01-%D01%) %(%*%)%$%>%2 %1
 %^%(%D04-%D03-%D04%) %(%*%)%$%>%2 %1

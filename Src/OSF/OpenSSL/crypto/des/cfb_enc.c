@@ -32,7 +32,7 @@ void DES_cfb_encrypt(const uchar * in, uchar * out, int numbits, long length, DE
 	uchar ovec[16];
 #else
 	uint sh[4];
-	uchar * ovec = (uchar*)sh;
+	uchar * ovec = (uchar *)sh;
 
 	/* I kind of count that compiler optimizes away this assertioni, */
 	assert(sizeof(sh[0]) == 4); /* as this holds true for all, */

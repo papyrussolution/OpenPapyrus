@@ -9,9 +9,9 @@
 
 /*-
  * This is an implementation of the ASN1 Time structure which is:
- *    Time ::= CHOICE {
- *      utcTime        UTCTime,
- *      generalTime    GeneralizedTime }
+ *  Time ::= CHOICE {
+ *    utcTime        UTCTime,
+ *    generalTime    GeneralizedTime }
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
@@ -90,7 +90,7 @@ int ASN1_TIME_set_string(ASN1_TIME * s, const char * str)
 {
 	ASN1_TIME t;
 	t.length = strlen(str);
-	t.data = (uchar*)str;
+	t.data = (uchar *)str;
 	t.flags = 0;
 	t.type = V_ASN1_UTCTIME;
 	if(!ASN1_TIME_check(&t)) {

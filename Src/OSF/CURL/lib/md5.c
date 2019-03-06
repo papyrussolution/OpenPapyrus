@@ -127,7 +127,7 @@ static void MD5_Init(MD5_CTX * ctx)
 
 static void MD5_Update(MD5_CTX * ctx, const uchar * input, uint inputLen)
 {
-	CryptHashData(ctx->hHash, (uchar*)input, inputLen, 0);
+	CryptHashData(ctx->hHash, (uchar *)input, inputLen, 0);
 }
 
 static void MD5_Final(uchar digest[16], MD5_CTX * ctx)

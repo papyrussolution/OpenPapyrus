@@ -1017,7 +1017,7 @@ static int aes_gcm_ctrl(EVP_CIPHER_CTX * c, int type, int arg, void * ptr)
 		    if((arg > EVP_MAX_IV_LENGTH) && (arg > gctx->ivlen)) {
 			    if(gctx->iv != EVP_CIPHER_CTX_iv_noconst(c))
 				    OPENSSL_free(gctx->iv);
-			    gctx->iv = (uchar*)OPENSSL_malloc(arg);
+			    gctx->iv = (uchar *)OPENSSL_malloc(arg);
 			    if(gctx->iv == NULL)
 				    return 0;
 		    }
@@ -1112,7 +1112,7 @@ static int aes_gcm_ctrl(EVP_CIPHER_CTX * c, int type, int arg, void * ptr)
 		    if(gctx->iv == EVP_CIPHER_CTX_iv_noconst(c))
 			    gctx_out->iv = EVP_CIPHER_CTX_iv_noconst(out);
 		    else {
-			    gctx_out->iv = (uchar*)OPENSSL_malloc(gctx->ivlen);
+			    gctx_out->iv = (uchar *)OPENSSL_malloc(gctx->ivlen);
 			    if(gctx_out->iv == NULL)
 				    return 0;
 			    memcpy(gctx_out->iv, gctx->iv, gctx->ivlen);
@@ -1605,7 +1605,7 @@ static int aes_ccm_ctrl(EVP_CIPHER_CTX * c, int type, int arg, void * ptr)
 		case EVP_CTRL_AEAD_GET_TAG:
 		    if(!EVP_CIPHER_CTX_encrypting(c) || !cctx->tag_set)
 			    return 0;
-		    if(!CRYPTO_ccm128_tag(&cctx->ccm, (uchar*)ptr, (size_t)arg))
+		    if(!CRYPTO_ccm128_tag(&cctx->ccm, (uchar *)ptr, (size_t)arg))
 			    return 0;
 		    cctx->tag_set = 0;
 		    cctx->iv_set = 0;

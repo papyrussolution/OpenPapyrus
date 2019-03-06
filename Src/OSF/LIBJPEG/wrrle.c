@@ -72,13 +72,13 @@ METHODDEF(void) start_output_rle(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 	 * Make sure the image can be stored in RLE format.
 	 *
 	 * - RLE stores image dimensions as *signed* 16 bit integers.  JPEG
-	 *   uses unsigned, so we have to check the width.
+	 * uses unsigned, so we have to check the width.
 	 *
 	 * - Colorspace is expected to be grayscale or RGB.
 	 *
 	 * - The number of channels (components) is expected to be 1 (grayscale/
-	 *   pseudocolor) or 3 (truecolor/directcolor).
-	 *   (could be 2 or 4 if using an alpha channel, but we aren't)
+	 * pseudocolor) or 3 (truecolor/directcolor).
+	 * (could be 2 or 4 if using an alpha channel, but we aren't)
 	 */
 
 	if(cinfo->output_width > 32767 || cinfo->output_height > 32767)

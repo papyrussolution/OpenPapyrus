@@ -8,10 +8,10 @@
  *  Based on the LexMarkdown.cxx by Jon Strait - jstrait@moonloop.net
  *
  *  What could be improved:
- *   - Verbatim lines could be like for raw lines : when there is no space between the ``` and the following text, the first letter should
+ * - Verbatim lines could be like for raw lines : when there is no space between the ``` and the following text, the first letter should
  *be colored so the user would understand there must be a space for a valid tag.
- *   - marks such as bold, italic, strikeout, underline should begin to be highlighted only when they are closed and valid.
- *   - verbatim and raw area should be highlighted too.
+ * - marks such as bold, italic, strikeout, underline should begin to be highlighted only when they are closed and valid.
+ * - verbatim and raw area should be highlighted too.
  *
  *  The License.txt file describes the conditions under which this
  *  software may be distributed.

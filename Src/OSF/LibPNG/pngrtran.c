@@ -263,9 +263,9 @@ void PNGFAPI png_set_alpha_mode_fixed(png_structrp png_ptr, int mode, png_fixed_
 	/* There are really 8 possibilities here, composed of any combination
 	 * of:
 	 *
-	 *    premultiply the color channels
-	 *    do not encode non-opaque pixels
-	 *    encode the alpha as well as the color channels
+	 *  premultiply the color channels
+	 *  do not encode non-opaque pixels
+	 *  encode the alpha as well as the color channels
 	 *
 	 * The differences disappear if the input/output ('screen') gamma is 1.0,
 	 * because then the encoding is a no-op and there is only the choice of
@@ -349,7 +349,7 @@ typedef struct png_dsort_struct {
 	uint8 right;
 } png_dsort;
 
-typedef png_dsort *   png_dsortp;
+typedef png_dsort * png_dsortp;
 typedef png_dsort ** png_dsortpp;
 
 void PNGAPI png_set_quantize(png_structrp png_ptr, png_colorp palette, int num_palette, int maximum_colors, png_const_uint_16p histogram, int full_quantize)
@@ -2073,7 +2073,7 @@ static void png_do_scale_16_to_8(png_row_infop row_info, png_bytep row)
 			 * 8 bits each.  For a 16-bit value V the required value (from the PNG
 			 * specification) is:
 			 *
-			 *    (V * 255) / 65535
+			 *  (V * 255) / 65535
 			 *
 			 * This reduces to round(V / 257), or floor((V + 128.5)/257)
 			 *
@@ -2081,24 +2081,24 @@ static void png_do_scale_16_to_8(png_row_infop row_info, png_bytep row)
 			 * result is the top byte of V, vhi, then the correction to this value
 			 * is:
 			 *
-			 *    error = floor(((V-vhi.vhi) + 128.5) / 257)
-			 *          = floor(((vlo-vhi) + 128.5) / 257)
+			 *  error = floor(((V-vhi.vhi) + 128.5) / 257)
+			 *        = floor(((vlo-vhi) + 128.5) / 257)
 			 *
 			 * This can be approximated using integer arithmetic (and a signed
 			 * shift):
 			 *
-			 *    error = (vlo-vhi+128) >> 8;
+			 *  error = (vlo-vhi+128) >> 8;
 			 *
 			 * The approximate differs from the exact answer only when (vlo-vhi) is
 			 * 128; it then gives a correction of +1 when the exact correction is
 			 * 0.  This gives 128 errors.  The exact answer (correct for all 16-bit
 			 * input values) is:
 			 *
-			 *    error = (vlo-vhi+128)*65535 >> 24;
+			 *  error = (vlo-vhi+128)*65535 >> 24;
 			 *
 			 * An alternative arithmetic calculation which also gives no errors is:
 			 *
-			 *    (V * 255 + 32895) >> 16
+			 *  (V * 255 + 32895) >> 16
 			 */
 
 			png_int_32 tmp = *sp++; /* must be signed! */
@@ -2570,21 +2570,21 @@ static void png_do_gray_to_rgb(png_row_infop row_info, png_bytep row)
  * ~poynton/notes/colour_and_gamma/ColorFAQ.txt )
  * Charles Poynton poynton at poynton.com
  *
- *     Y = 0.212671 * R + 0.715160 * G + 0.072169 * B
+ *   Y = 0.212671 * R + 0.715160 * G + 0.072169 * B
  *
  *  which can be expressed with integers as
  *
- *     Y = (6969 * R + 23434 * G + 2365 * B)/32768
+ *   Y = (6969 * R + 23434 * G + 2365 * B)/32768
  *
  * Poynton's current link (as of January 2003 through July 2011):
  * <http://www.poynton.com/notes/colour_and_gamma/>
  * has changed the numbers slightly:
  *
- *     Y = 0.2126*R + 0.7152*G + 0.0722*B
+ *   Y = 0.2126*R + 0.7152*G + 0.0722*B
  *
  *  which can be expressed with integers as
  *
- *     Y = (6966 * R + 23436 * G + 2366 * B)/32768
+ *   Y = (6966 * R + 23436 * G + 2366 * B)/32768
  *
  *  Historically, however, libpng uses numbers derived from the ITU-R Rec 709
  *  end point chromaticities and the D65 white point.  Depending on the
@@ -2592,13 +2592,13 @@ static void png_do_gray_to_rgb(png_row_infop row_info, png_bytep row)
  *  numbers, however if the four decimal place value used in ITU-R Rec 709 is
  *  used (0.3127,0.3290) the Y calculation would be:
  *
- *     Y = (6968 * R + 23435 * G + 2366 * B)/32768
+ *   Y = (6968 * R + 23435 * G + 2366 * B)/32768
  *
  *  While this is correct the rounding results in an overflow for white, because
  *  the sum of the rounded coefficients is 32769, not 32768.  Consequently
  *  libpng uses, instead, the closest non-overflowing approximation:
  *
- *     Y = (6968 * R + 23434 * G + 2366 * B)/32768
+ *   Y = (6968 * R + 23434 * G + 2366 * B)/32768
  *
  *  Starting with libpng-1.5.5, if the image being converted has a cHRM chunk
  *  (including an sRGB chunk) then the chromaticities are used to calculate the
@@ -4016,8 +4016,8 @@ static void png_do_quantize(png_row_infop row_info, png_bytep row, png_const_byt
 				 * it down to a reasonable formula.  For example, with
 				 * 5 bits per color, we get:
 				 * p = (((r >> 3) & 0x1f) << 10) |
-				 *    (((g >> 3) & 0x1f) << 5) |
-				 *    ((b >> 3) & 0x1f);
+				 *  (((g >> 3) & 0x1f) << 5) |
+				 *  ((b >> 3) & 0x1f);
 				 */
 				p = (((r >> (8 - PNG_QUANTIZE_RED_BITS)) & ((1 << PNG_QUANTIZE_RED_BITS) - 1)) << (PNG_QUANTIZE_GREEN_BITS + PNG_QUANTIZE_BLUE_BITS)) |
 				    (((g >> (8 - PNG_QUANTIZE_GREEN_BITS)) & ((1 << PNG_QUANTIZE_GREEN_BITS) - 1)) << (PNG_QUANTIZE_BLUE_BITS)) |
@@ -4127,28 +4127,28 @@ void /* PRIVATE */ png_do_read_transformations(png_structrp png_ptr, png_row_inf
 
 /* From Andreas Dilger e-mail to png-implement, 26 March 1998:
  *
- *   In most cases, the "simple transparency" should be done prior to doing
- *   gray-to-RGB, or you will have to test 3x as many bytes to check if a
- *   pixel is transparent.  You would also need to make sure that the
- *   transparency information is upgraded to RGB.
+ * In most cases, the "simple transparency" should be done prior to doing
+ * gray-to-RGB, or you will have to test 3x as many bytes to check if a
+ * pixel is transparent.  You would also need to make sure that the
+ * transparency information is upgraded to RGB.
  *
- *   To summarize, the current flow is:
- *   - Gray + simple transparency -> compare 1 or 2 gray bytes and composite
- *                                   with background "in place" if transparent,
- *                                   convert to RGB if necessary
- *   - Gray + alpha -> composite with gray background and remove alpha bytes,
- *                                   convert to RGB if necessary
+ * To summarize, the current flow is:
+ * - Gray + simple transparency -> compare 1 or 2 gray bytes and composite
+ *                                 with background "in place" if transparent,
+ *                                 convert to RGB if necessary
+ * - Gray + alpha -> composite with gray background and remove alpha bytes,
+ *                                 convert to RGB if necessary
  *
- *   To support RGB backgrounds for gray images we need:
- *   - Gray + simple transparency -> convert to RGB + simple transparency,
- *                                   compare 3 or 6 bytes and composite with
- *                                   background "in place" if transparent
- *                                   (3x compare/pixel compared to doing
- *                                   composite with gray bkgrnd)
- *   - Gray + alpha -> convert to RGB + alpha, composite with background and
- *                                   remove alpha bytes (3x float
- *                                   operations/pixel compared with composite
- *                                   on gray background)
+ * To support RGB backgrounds for gray images we need:
+ * - Gray + simple transparency -> convert to RGB + simple transparency,
+ *                                 compare 3 or 6 bytes and composite with
+ *                                 background "in place" if transparent
+ *                                 (3x compare/pixel compared to doing
+ *                                 composite with gray bkgrnd)
+ * - Gray + alpha -> convert to RGB + alpha, composite with background and
+ *                                 remove alpha bytes (3x float
+ *                                 operations/pixel compared with composite
+ *                                 on gray background)
  *
  *  Greg's change will do this.  The reason it wasn't done before is for
  *  performance, as this increases the per-pixel operations.  If we would check

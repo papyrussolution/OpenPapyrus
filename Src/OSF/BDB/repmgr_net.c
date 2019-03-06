@@ -23,18 +23,18 @@
  * and without first copying the message, by using scatter/gather I/O, using
  * iovecs to point to the various pieces of the message.  If that all works
  * without blocking, that's optimal.
- *     If we find that, for a particular connection, we can't send without
+ *   If we find that, for a particular connection, we can't send without
  * blocking, then we must copy the message for sending later in the select()
  * thread.  In the course of doing that, we might as well "flatten" the message,
  * forming one single buffer, to simplify life.  Not only that, once we've gone
  * to the trouble of doing that, other sites to which we also want to send the
  * message (in the case of a broadcast), may as well take advantage of the
  * simplified structure also.
- *     The sending_msg structure below holds it all.  Note that this structure,
+ *   The sending_msg structure below holds it all.  Note that this structure,
  * and the "flat_msg" structure, are allocated separately, because (1) the
  * flat_msg version is usually not needed; and (2) when a flat_msg is needed, it
  * will need to live longer than the wrapping sending_msg structure.
- *     Note that, for the broadcast case, where we're going to use this
+ *   Note that, for the broadcast case, where we're going to use this
  * repeatedly, the iovecs is a template that must be copied, since in normal use
  * the iovecs pointers and lengths get adjusted after every partial write.
  */

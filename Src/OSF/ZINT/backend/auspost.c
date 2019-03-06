@@ -79,7 +79,7 @@ static void rs_error(char data_pattern[])
 	}
 	rs_init_gf(0x43);
 	rs_init_code(4, 1);
-	rs_encode(triple_writer, (uchar*)inv_triple, result);
+	rs_encode(triple_writer, (uchar *)inv_triple, result);
 	for(reader = 4; reader > 0; reader--) {
 		strcat(data_pattern, AusBarTable[(int)result[reader-1]]);
 	}
@@ -149,7 +149,7 @@ int australia_post(struct ZintSymbol * symbol, uchar source[], int length)
 	}
 	strcat(localstr, (char *)source);
 	h = strlen(localstr);
-	error_number = is_sane(GDSET, (uchar*)localstr, h);
+	error_number = is_sane(GDSET, (uchar *)localstr, h);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
 		sstrcpy(symbol->errtxt, "Invalid characters in data (D04)");
 		return error_number;
@@ -157,7 +157,7 @@ int australia_post(struct ZintSymbol * symbol, uchar source[], int length)
 	/* Verifiy that the first 8 characters are numbers */
 	memcpy(dpid, localstr, 8);
 	dpid[8] = '\0';
-	error_number = is_sane(NEON, (uchar*)dpid, strlen(dpid));
+	error_number = is_sane(NEON, (uchar *)dpid, strlen(dpid));
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
 		sstrcpy(symbol->errtxt, "Invalid characters in DPID (D05)");
 		return error_number;

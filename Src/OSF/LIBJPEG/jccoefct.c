@@ -249,9 +249,7 @@ METHODDEF(boolean) compress_first_pass(j_compress_ptr cinfo, JSAMPIMAGE input_bu
 		 */
 		for(block_row = 0; block_row < block_rows; block_row++) {
 			thisblockrow = buffer[block_row];
-			(*forward_DCT)(cinfo, compptr, input_buf[ci], thisblockrow,
-			    (JDIMENSION)(block_row * compptr->DCT_v_scaled_size),
-			    (JDIMENSION)0, blocks_across);
+			(*forward_DCT)(cinfo, compptr, input_buf[ci], thisblockrow, (JDIMENSION)(block_row * compptr->DCT_v_scaled_size), (JDIMENSION)0, blocks_across);
 			if(ndummy > 0) {
 				/* Create dummy blocks at the right edge of the image. */
 				thisblockrow += blocks_across; /* => first dummy block */

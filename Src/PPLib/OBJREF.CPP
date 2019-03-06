@@ -2334,7 +2334,7 @@ static SString & MakeMsgStr(int fmtId, const char * pName, const char * pUuid, P
 	PPLoadString("id", temp_buf);
 	info_buf.CatDiv(',', 2).CatEq(temp_buf, localId);
 	if(fmtId)
-		rBuf.Printf(fmt_buf, (const char*)info_buf);
+		rBuf.Printf(fmt_buf, (const char *)info_buf);
 	else
 		rBuf = info_buf;
 	return rBuf;
@@ -2387,7 +2387,7 @@ int SLAPI PPObjGlobalUserAcc::Register(PPID & ID, const char * pName, const char
 				}
 			}
 			THROW(tra.Commit());
-			PPLogMessage((const char*)0, MakeMsgStr(PPTXT_GLBUSERACCT_REGSUCCESS, pName, s_guid, localUserID, msg), LOGMSGF_TIME|LOGMSGF_USER);
+			PPLogMessage((const char *)0, MakeMsgStr(PPTXT_GLBUSERACCT_REGSUCCESS, pName, s_guid, localUserID, msg), LOGMSGF_TIME|LOGMSGF_USER);
 			ok = 1;
 		}
 	}

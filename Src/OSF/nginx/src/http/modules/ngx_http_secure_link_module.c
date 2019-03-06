@@ -262,9 +262,9 @@ static void * ngx_http_secure_link_create_conf(ngx_conf_t * cf)
 	/*
 	 * set by ngx_pcalloc():
 	 *
-	 *     conf->variable = NULL;
-	 *     conf->md5 = NULL;
-	 *     conf->secret = { 0, NULL };
+	 *   conf->variable = NULL;
+	 *   conf->md5 = NULL;
+	 *   conf->secret = { 0, NULL };
 	 */
 
 	return conf;

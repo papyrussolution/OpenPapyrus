@@ -89,13 +89,13 @@ final_pixel:
 		 * and after shifting and packing, we get these bytes:
 		 *
 		 * iw0, w0, iw0, w0, iw1, w1, iw1, w1,
-		 *   iw0, w0, iw0, w0, iw1, w1, iw1, w1,
+		 * iw0, w0, iw0, w0, iw1, w1, iw1, w1,
 		 *
 		 * which means the first and the second input pixel
 		 * have to be interleaved like this:
 		 *
 		 * la0, ra0, lr0, rr0, la1, ra1, lr1, rr1,
-		 *   lg0, rg0, lb0, rb0, lg1, rg1, lb1, rb1
+		 * lg0, rg0, lb0, rb0, lg1, rg1, lb1, rb1
 		 *
 		 * before maddubsw can be used.
 		 */

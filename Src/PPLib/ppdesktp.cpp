@@ -462,7 +462,7 @@ int PPBizScoreWindow::Update()
 		(buf = name).CatDiv(':', 1).Cat(value).CRB();
 		text.Cat(buf);
 	}
-	// @v9.1.5 SendDlgItemMessage(H(), CTL_BUSPARAMS_TEXT, WM_SETTEXT, 0, (LPARAM)(const char*)text.Transf(CTRANSF_INNER_TO_OUTER).Strip());
+	// @v9.1.5 SendDlgItemMessage(H(), CTL_BUSPARAMS_TEXT, WM_SETTEXT, 0, (LPARAM)(const char *)text.Transf(CTRANSF_INNER_TO_OUTER).Strip());
 	TView::SSetWindowText(GetDlgItem(H(), CTL_BUSPARAMS_TEXT), text.Transf(CTRANSF_INNER_TO_OUTER).Strip()); // @v9.1.5
 	UpdateWindow(H());
 	return 1;
@@ -1120,7 +1120,7 @@ ushort PPDesktop::Execute()
 	r.bottom = r.bottom - r.top - 2;
 	DWORD style = WS_CHILD | WS_CLIPSIBLINGS | WS_TABSTOP;
 	SString title = P_ActiveDesktop->Name;
-	HW = CreateWindowEx(0, PPDesktop::WndClsName, (const char*)title.Transf(CTRANSF_INNER_TO_OUTER), style, 0, 0, r.right - r.left - 18, r.bottom, h_frame, 0, TProgram::GetInst(), this); // @unicodeproblem
+	HW = CreateWindowEx(0, PPDesktop::WndClsName, (const char *)title.Transf(CTRANSF_INNER_TO_OUTER), style, 0, 0, r.right - r.left - 18, r.bottom, h_frame, 0, TProgram::GetInst(), this); // @unicodeproblem
 	ShowWindow(H(), SW_SHOW);
 	UpdateWindow(H());
 	HwndTT = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP,

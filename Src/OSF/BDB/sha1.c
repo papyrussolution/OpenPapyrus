@@ -169,7 +169,7 @@ void __db_SHA1Transform(uint32 * state, unsigned char * buffer)
 
 /*
  * __db_SHA1Init --
- *      Initialize new context
+ *    Initialize new context
  *
  * PUBLIC: void __db_SHA1Init __P((SHA1_CTX *));
  */
@@ -188,7 +188,7 @@ void __db_SHA1Init(SHA1_CTX * context)
 
 /*
  * __db_SHA1Update --
- *      Run your data through this.
+ *    Run your data through this.
  *
  * PUBLIC: void __db_SHA1Update __P((SHA1_CTX *, unsigned char *,
  * PUBLIC:     size_t));
@@ -223,7 +223,7 @@ void __db_SHA1Update(SHA1_CTX * context, unsigned char * data, size_t len)
 
 /*
  * __db_SHA1Final --
- *      Add padding and return the message digest.
+ *    Add padding and return the message digest.
  *
  * PUBLIC: void __db_SHA1Final __P((unsigned char *, SHA1_CTX *));
  */

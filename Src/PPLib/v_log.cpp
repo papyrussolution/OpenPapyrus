@@ -127,7 +127,7 @@ int LogsDialog::SendByEmail()
 			if(ListBoxSelDialog(PPOBJ_INTERNETACCOUNT, &acct_id, (void *)PPObjInternetAccount::filtfMail/*INETACCT_ONLYMAIL*/) > 0) {
 				GetMainOrgName(temp_buf);
 				PPLoadText(PPTXT_LOGFILEMAILSUBJ, fmt_buf);
-				subj.Printf(fmt_buf, r_e.FileName, (const char*)temp_buf).Transf(CTRANSF_INNER_TO_OUTER);
+				subj.Printf(fmt_buf, r_e.FileName, (const char *)temp_buf).Transf(CTRANSF_INNER_TO_OUTER);
 				PPWait(1);
 				THROW(SendMailWithAttach(subj, path, 0, support, acct_id));
 				ok = 1;

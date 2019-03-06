@@ -21,20 +21,20 @@
 /*
  * This code is loosely based on ppmtogif from the PBMPLUS distribution
  * of Feb. 1991.  That file contains the following copyright notice:
- *    Based on GIFENCODE by David Rowley <mgardi@watdscu.waterloo.edu>.
- *    Lempel-Ziv compression based on "compress" by Spencer W. Thomas et al.
- *    Copyright (C) 1989 by Jef Poskanzer.
- *    Permission to use, copy, modify, and distribute this software and its
- *    documentation for any purpose and without fee is hereby granted, provided
- *    that the above copyright notice appear in all copies and that both that
- *    copyright notice and this permission notice appear in supporting
- *    documentation.  This software is provided "as is" without express or
- *    implied warranty.
+ *  Based on GIFENCODE by David Rowley <mgardi@watdscu.waterloo.edu>.
+ *  Lempel-Ziv compression based on "compress" by Spencer W. Thomas et al.
+ *  Copyright (C) 1989 by Jef Poskanzer.
+ *  Permission to use, copy, modify, and distribute this software and its
+ *  documentation for any purpose and without fee is hereby granted, provided
+ *  that the above copyright notice appear in all copies and that both that
+ *  copyright notice and this permission notice appear in supporting
+ *  documentation.  This software is provided "as is" without express or
+ *  implied warranty.
  *
  * We are also required to state that
- *    "The Graphics Interchange Format(c) is the Copyright property of
- *    CompuServe Incorporated. GIF(sm) is a Service Mark property of
- *    CompuServe Incorporated."
+ *  "The Graphics Interchange Format(c) is the Copyright property of
+ *  CompuServe Incorporated. GIF(sm) is a Service Mark property of
+ *  CompuServe Incorporated."
  */
 // @v9c(done)
 #define JPEG_INTERNALS

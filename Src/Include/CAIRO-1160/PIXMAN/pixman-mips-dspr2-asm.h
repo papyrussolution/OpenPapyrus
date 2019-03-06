@@ -295,8 +295,8 @@ LEAF_MIPS32R2(symbol)                                   \
  * returned in (out1_8888 and out2_8888) registers. Requires four scratch
  * registers (scratch1 ... scratch4). It also requires maskG and maskB for
  * color component extractions. These masks must have following values:
- *   li       maskG, 0x07e007e0
- *   li       maskB, 0x001F001F
+ * li       maskG, 0x07e007e0
+ * li       maskB, 0x001F001F
  */
 .macro CONVERT_2x0565_TO_2x8888 in1_565, in2_565,     \
                                 out1_8888, out2_8888, \
@@ -346,9 +346,9 @@ LEAF_MIPS32R2(symbol)                                   \
  * pixels returned in (out1_565 and out2_565) registers. Requires two temporary
  * registers (scratch1 and scratch2). It also requires maskR, maskG and maskB
  * for color component extractions. These masks must have following values:
- *   li       maskR, 0xf800f800
- *   li       maskG, 0x07e007e0
- *   li       maskB, 0x001F001F
+ * li       maskR, 0xf800f800
+ * li       maskG, 0x07e007e0
+ * li       maskB, 0x001F001F
  * Value of input register in2_8888 is lost.
  */
 .macro CONVERT_2x8888_TO_2x0565 in1_8888, in2_8888,  \
@@ -370,7 +370,7 @@ LEAF_MIPS32R2(symbol)                                   \
 /*
  * Multiply pixel (a8) with single pixel (a8r8g8b8). It requires maskLSR needed
  * for rounding process. maskLSR must have following value:
- *   li       maskLSR, 0x00ff00ff
+ * li       maskLSR, 0x00ff00ff
  */
 .macro MIPS_UN8x4_MUL_UN8 s_8888,  \
                           m_8,     \
@@ -394,7 +394,7 @@ LEAF_MIPS32R2(symbol)                                   \
 /*
  * Multiply two pixels (a8) with two pixels (a8r8g8b8). It requires maskLSR
  * needed for rounding process. maskLSR must have following value:
- *   li       maskLSR, 0x00ff00ff
+ * li       maskLSR, 0x00ff00ff
  */
 .macro MIPS_2xUN8x4_MUL_2xUN8 s1_8888, \
                               s2_8888, \
@@ -434,7 +434,7 @@ LEAF_MIPS32R2(symbol)                                   \
 /*
  * Multiply pixel (a8r8g8b8) with single pixel (a8r8g8b8). It requires maskLSR
  * needed for rounding process. maskLSR must have following value:
- *   li       maskLSR, 0x00ff00ff
+ * li       maskLSR, 0x00ff00ff
  */
 .macro MIPS_UN8x4_MUL_UN8x4 s_8888,  \
                             m_8888,  \
@@ -459,7 +459,7 @@ LEAF_MIPS32R2(symbol)                                   \
 /*
  * Multiply two pixels (a8r8g8b8) with two pixels (a8r8g8b8). It requires
  * maskLSR needed for rounding process. maskLSR must have following value:
- *   li       maskLSR, 0x00ff00ff
+ * li       maskLSR, 0x00ff00ff
  */
 
 .macro MIPS_2xUN8x4_MUL_2xUN8x4 s1_8888,  \
@@ -503,7 +503,7 @@ LEAF_MIPS32R2(symbol)                                   \
  * OVER operation on single a8r8g8b8 source pixel (s_8888) and single a8r8g8b8
  * destination pixel (d_8888) using a8 mask (m_8). It also requires maskLSR
  * needed for rounding process. maskLSR must have following value:
- *   li       maskLSR, 0x00ff00ff
+ * li       maskLSR, 0x00ff00ff
  */
 .macro OVER_8888_8_8888 s_8888,   \
                         m_8,      \
@@ -530,7 +530,7 @@ LEAF_MIPS32R2(symbol)                                   \
  * a8r8g8b8 destination pixels (d1_8888 and d2_8888) using a8 masks (m1_8 and
  * m2_8). It also requires maskLSR needed for rounding process. maskLSR must
  * have following value:
- *   li       maskLSR, 0x00ff00ff
+ * li       maskLSR, 0x00ff00ff
  */
 .macro OVER_2x8888_2x8_2x8888 s1_8888,   \
                               s2_8888,   \
@@ -570,7 +570,7 @@ LEAF_MIPS32R2(symbol)                                   \
  * OVER operation on single a8r8g8b8 source pixel (s_8888) and single a8r8g8b8
  * destination pixel (d_8888). It also requires maskLSR needed for rounding
  * process. maskLSR must have following value:
- *   li       maskLSR, 0x00ff00ff
+ * li       maskLSR, 0x00ff00ff
  */
 .macro OVER_8888_8888 s_8888,   \
                       d_8888,   \
@@ -591,7 +591,7 @@ LEAF_MIPS32R2(symbol)                                   \
  * OVER operation on two a8r8g8b8 source pixels (s1_8888 and s2_8888) and two
  * a8r8g8b8 destination pixels (d1_8888 and d2_8888). It also requires maskLSR
  * needed for rounding process. maskLSR must have following value:
- *   li       maskLSR, 0x00ff00ff
+ * li       maskLSR, 0x00ff00ff
  */
 .macro OVER_2x8888_2x8888 s1_8888,   \
                           s2_8888,   \

@@ -464,7 +464,7 @@ int SLAPI ObjSyncCore::RemoveByPrivateID(PPID objType, PPID objID, int use_ta)
 			if(rec.Flags & OBJSYNCF_DELETED) {
 				SString fmt_buf, add_buf, msg_buf;
 				PPLoadText(PPTXT_ERR_OBJSYNCALLREADYRMVD, fmt_buf);
-				msg_buf.Printf(fmt_buf, (const char*)add_buf.Cat(objType).CatDiv(';', 2).Cat(objID));
+				msg_buf.Printf(fmt_buf, (const char *)add_buf.Cat(objType).CatDiv(';', 2).Cat(objID));
 				PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 			}
 			rec.Flags |= OBJSYNCF_DELETED;

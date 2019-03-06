@@ -207,7 +207,7 @@ static int des_ctrl(EVP_CIPHER_CTX * c, int type, int arg, void * ptr)
 {
 	switch(type) {
 		case EVP_CTRL_RAND_KEY:
-		    if(RAND_bytes((uchar*)ptr, 8) <= 0)
+		    if(RAND_bytes((uchar *)ptr, 8) <= 0)
 			    return 0;
 		    DES_set_odd_parity((DES_cblock*)ptr);
 		    return 1;

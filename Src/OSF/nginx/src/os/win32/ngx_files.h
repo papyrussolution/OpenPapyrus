@@ -67,7 +67,7 @@ ngx_fd_t ngx_open_file(u_char * name, u_long mode, u_long create, u_long access)
 #define NGX_FILE_OWNER_ACCESS       0
 
 #define ngx_open_tempfile(name, persistent, access)			     \
-	CreateFile((const char*)name, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, \
+	CreateFile((const char *)name, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, \
 	    NULL, CREATE_NEW, persistent ? 0 : FILE_ATTRIBUTE_TEMPORARY|FILE_FLAG_DELETE_ON_CLOSE, NULL);
 
 #define ngx_open_tempfile_n         "CreateFile()"
@@ -86,10 +86,10 @@ ssize_t ngx_write_console(ngx_fd_t fd, const void * buf, size_t size);
 #define NGX_LINEFEED_SIZE           2
 #define NGX_LINEFEED                CRLF
 
-#define ngx_delete_file(name)       DeleteFile((const char*)name)
+#define ngx_delete_file(name)       DeleteFile((const char *)name)
 #define ngx_delete_file_n           "DeleteFile()"
 
-#define ngx_rename_file(o, n)       MoveFile((const char*)o, (const char*)n)
+#define ngx_rename_file(o, n)       MoveFile((const char *)o, (const char *)n)
 #define ngx_rename_file_n           "MoveFile()"
 ngx_err_t ngx_win32_rename_file(ngx_str_t * from, ngx_str_t * to, ngx_log_t * log);
 
@@ -143,10 +143,10 @@ ngx_int_t ngx_read_dir(ngx_dir_t * dir);
 ngx_int_t ngx_close_dir(ngx_dir_t * dir);
 #define ngx_close_dir_n             "FindClose()"
 
-#define ngx_create_dir(name, access) CreateDirectory((const char*)name, NULL)
+#define ngx_create_dir(name, access) CreateDirectory((const char *)name, NULL)
 #define ngx_create_dir_n            "CreateDirectory()"
 
-#define ngx_delete_dir(name)        RemoveDirectory((const char*)name)
+#define ngx_delete_dir(name)        RemoveDirectory((const char *)name)
 #define ngx_delete_dir_n            "RemoveDirectory()"
 
 #define ngx_dir_access(a)           (a)

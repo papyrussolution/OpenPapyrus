@@ -35,7 +35,7 @@ static inline int __repmgr_member_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    NULL, NULL, data, __repmgr_member_desc, sizeof(__repmgr_member_args), (void**)arg));
+	    NULL, NULL, data, __repmgr_member_desc, sizeof(__repmgr_member_args), reinterpret_cast<void **>(arg)));
 }
 #endif /* HAVE_REPLICATION_THREADS */
 #endif

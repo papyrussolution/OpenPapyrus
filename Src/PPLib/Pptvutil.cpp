@@ -359,7 +359,7 @@ int FASTCALL PPSetupCtrlMenu(TDialog * pDlg, uint ctl, uint ctlButton, uint ctrl
 				for(uint i = 0; i < cnt; i++) {
 					p_rez->getString(descr, 2);
 					SLS.ExpandString(descr, CTRANSF_UTF8_TO_INNER); // @v9.2.1
-					key_code = (long)p_rez->getUINT();
+					key_code = static_cast<long>(p_rez->getUINT());
 					pDlg->AddLocalMenuItem(ctl, ctlButton, key_code, descr.Transf(CTRANSF_INNER_TO_OUTER));
 				}
 			}
@@ -3463,7 +3463,7 @@ StrAssocArray * PersonSelExtra::GetList(const char * pText)
 							if(ea_rec.LinkObjType == PPOBJ_PERSON && ea_rec.LinkObjID > 0) {
 								psn_list.add(ea_rec.LinkObjID);
 								((PPEAddr*)ea_rec.Addr)->GetPhone(phone_buf.Z());
-								phone_list.Add(ea_rec.LinkObjID, (const char*)phone_buf);
+								phone_list.Add(ea_rec.LinkObjID, (const char *)phone_buf);
 							}
 						}
 					}
@@ -3731,7 +3731,7 @@ int PersonCtrlGroup::SelectByCode(TDialog * pDlg)
 			if(InputStringDialog(&isd_param, code) > 0) {
 				PPIDArray   psn_list;
 				PPObjPerson psn_obj;
-				if(psn_obj.GetListByRegNumber(reg_type_id, 0, (const char*)code, psn_list) > 0)
+				if(psn_obj.GetListByRegNumber(reg_type_id, 0, (const char *)code, psn_list) > 0)
 					if(psn_list.getCount()) {
 						pDlg->setCtrlData(Ctlsel, &psn_list.at(0));
 						TView::messageCommand(pDlg, cmCBSelected, p_combo);
@@ -3902,7 +3902,7 @@ int PersonListCtrlGroup::selectByCode(TDialog * pDlg)
 			if(InputStringDialog(title, reg_type_rec.Name, 0, 0, code) > 0) {
 				PPIDArray   psn_list;
 				PPObjPerson psn_obj;
-				if(psn_obj.GetListByRegNumber(reg_type_id, 0, (const char*)code, psn_list) > 0)
+				if(psn_obj.GetListByRegNumber(reg_type_id, 0, (const char *)code, psn_list) > 0)
 					if(psn_list.getCount()) {
 						pDlg->setCtrlData(Ctlsel, &psn_list.at(0));
 						TView::messageCommand(pDlg, cmCBSelected, p_combo);
@@ -4031,7 +4031,7 @@ int PersonListCtrlGroup::SelectByCode(TDialog * pDlg)
 			if(InputStringDialog(&isd_param, code) > 0) {
 				PPIDArray   psn_list;
 				PPObjPerson psn_obj;
-				if(psn_obj.GetListByRegNumber(reg_type_id, 0, (const char*)code, psn_list) > 0)
+				if(psn_obj.GetListByRegNumber(reg_type_id, 0, (const char *)code, psn_list) > 0)
 					if(psn_list.getCount()) {
 						pDlg->setCtrlData(Ctlsel, &psn_list.at(0));
 						TView::messageCommand(pDlg, cmCBSelected, p_combo);
@@ -5067,7 +5067,7 @@ int ResolveGoodsDialog::setupList()
 				if(p_item->ResolvedGoodsID)
 					buf.Cat(SLBColumnDelim).Cat(GetGoodsName(p_item->ResolvedGoodsID, resolve_name));
 			}
-			THROW(addStringToList(i, (const char*)buf));
+			THROW(addStringToList(i, (const char *)buf));
 		}
 	}
 	CATCHZOKPPERR
@@ -6250,8 +6250,8 @@ int SendMailDialog::addItem(long * pPos, long * pId)
 	long   pos = -1, id = -1;
 	SString path;
 	if(PPOpenFile(PPTXT_FILPAT_ALL, path, 0, 0) > 0) {
-		if(Data.FilesList.lsearch((const char*)path, 0, PTR_CMPFUNC(PcharNoCase)) <= 0) {
-			Data.FilesList.insert(newStr((const char*)path));
+		if(Data.FilesList.lsearch((const char *)path, 0, PTR_CMPFUNC(PcharNoCase)) <= 0) {
+			Data.FilesList.insert(newStr((const char *)path));
 			id = pos = Data.FilesList.getCount() - 1;
 			ok = 1;
 		}
@@ -6271,11 +6271,11 @@ int SendMailDialog::editItem(long pos, long id)
 		SString path = Data.FilesList.at(pos);
 		if(PPOpenFile(PPTXT_FILPAT_ALL, path,  0, 0) > 0) {
 			uint p = 0;
-			if(Data.FilesList.lsearch((const char*)path, &p, PTR_CMPFUNC(PcharNoCase)) > 0 && p != pos)
+			if(Data.FilesList.lsearch((const char *)path, &p, PTR_CMPFUNC(PcharNoCase)) > 0 && p != pos)
 				PPError(PPERR_ITEMALREADYEXISTS);
 			else {
 				Data.FilesList.atFree(pos);
-				Data.FilesList.atInsert(pos, newStr((const char*)path));
+				Data.FilesList.atInsert(pos, newStr((const char *)path));
 				ok = 1;
 			}
 		}
@@ -7011,7 +7011,7 @@ int SLAPI PPEditTextFile(const char * pFileName)
 							RecentItems.AddFast(++fid, temp_buf);
 							ss.add(temp_buf);
 							ss.add(temp_buf.Z());
-							p_recent_box->addItem(fid, (const char*)ss.getBuf());
+							p_recent_box->addItem(fid, (const char *)ss.getBuf());
 						}
 					}
 					p_recent_box->Draw_();
@@ -7043,7 +7043,7 @@ int SLAPI PPEditTextFile(const char * pFileName)
 							temp_buf.Cat(dtm, DATF_DMY, TIMF_HMS);
 						}
 						ss.add(temp_buf);
-						p_reserv_box->addItem(fi.ID, (const char*)ss.getBuf());
+						p_reserv_box->addItem(fi.ID, (const char *)ss.getBuf());
 					}
 				}
 				p_reserv_box->Draw_();

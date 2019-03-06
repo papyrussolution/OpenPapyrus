@@ -278,7 +278,7 @@ cairo_status_t _cairo_spline_bound(cairo_spline_add_point_func_t add_point_func,
 
 	/* The spline can be written as a polynomial of the four points:
 	 *
-	 *   (1-t)³p0 + 3t(1-t)²p1 + 3t²(1-t)p2 + t³p3
+	 * (1-t)³p0 + 3t(1-t)²p1 + 3t²(1-t)p2 + t³p3
 	 *
 	 * for 0≤t≤1.  Now, the X and Y components of the spline follow the
 	 * same polynomial but with x and y replaced for p.  To find the
@@ -288,21 +288,21 @@ cairo_status_t _cairo_spline_bound(cairo_spline_add_point_func_t add_point_func,
 	 *
 	 * Here is the derivative of the curve, sorted on t:
 	 *
-	 *   3t²(-p0+3p1-3p2+p3) + 2t(3p0-6p1+3p2) -3p0+3p1
+	 * 3t²(-p0+3p1-3p2+p3) + 2t(3p0-6p1+3p2) -3p0+3p1
 	 *
 	 * Let:
 	 *
-	 *   a = -p0+3p1-3p2+p3
-	 *   b =  p0-2p1+p2
-	 *   c = -p0+p1
+	 * a = -p0+3p1-3p2+p3
+	 * b =  p0-2p1+p2
+	 * c = -p0+p1
 	 *
 	 * Gives:
 	 *
-	 *   a.t² + 2b.t + c = 0
+	 * a.t² + 2b.t + c = 0
 	 *
 	 * With:
 	 *
-	 *   delta = b*b - a*c
+	 * delta = b*b - a*c
 	 *
 	 * the extreme points are at -c/2b if a is zero, at (-b±√delta)/a if
 	 * delta is positive, and at -b/a if delta is zero.
@@ -330,7 +330,7 @@ cairo_status_t _cairo_spline_bound(cairo_spline_add_point_func_t add_point_func,
 				 * here.  We do some checks to avoid sqrt if the solutions \
 				 * are not in that range.  The checks can be derived from: \
 				 * \
-				 *   0 < (-b±√delta)/a < 1 \
+				 * 0 < (-b±√delta)/a < 1 \
 				 */\
 				if(_2ab >= 0) \
 					feasible = delta > b2 && delta < a*a + b2 + _2ab; \

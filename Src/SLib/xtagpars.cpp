@@ -23,12 +23,12 @@ int SLAPI XTagParser::GetToken(const char * pCurTag, char * pTagBuf, size_t bufL
 		c = fgetc(P_Stream);
 		if(c == '<') {
 			while((c = fgetc(P_Stream)) != EOF && c != '>') {
-				if(!bufLen || i < (long) bufLen) {
+				if(!bufLen || i < (long)bufLen) {
 					pTagBuf[i] = c;
 				}
 				i++;
 			}
-			if(!bufLen || i < (long) bufLen) {
+			if(!bufLen || i < (long)bufLen) {
 				pTagBuf[i] = '\0';
 			}
 			if(c == '>') {

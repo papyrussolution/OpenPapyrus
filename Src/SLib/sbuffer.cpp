@@ -955,7 +955,7 @@ int SLAPI SSerializeContext::Serialize(int dir, double & rV, SBuffer & rBuf) { r
 int SLAPI SSerializeContext::Serialize(int dir, S_GUID & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_UUID_, sizeof(rV)), &rV, 0, rBuf); } // @v8.1.1
 int SLAPI SSerializeContext::Serialize(int dir, TPoint & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_IPOINT2, 4), &rV, 0, rBuf); }
 int SLAPI SSerializeContext::Serialize(int dir, FPoint & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_FPOINT2, 8), &rV, 0, rBuf); }
-int SLAPI SSerializeContext::Serialize(int dir, char *   pV, size_t valBufLen, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_ZSTRING, valBufLen), pV, 0, rBuf); }
+int SLAPI SSerializeContext::Serialize(int dir, char * pV, size_t valBufLen, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_ZSTRING, valBufLen), pV, 0, rBuf); }
 
 int SLAPI SSerializeContext::Serialize(int dir, DateRange & rV, SBuffer & rBuf)
 {

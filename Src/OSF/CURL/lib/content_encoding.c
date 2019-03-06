@@ -44,7 +44,7 @@ static void * zalloc_cb(void * opaque, uint items, uint size)
 {
 	(void)opaque;
 	/* not a typo, keep it SAlloc::C() */
-	return (void *)SAlloc::C(items, size);
+	return SAlloc::C(items, size);
 }
 
 static void zfree_cb(void * opaque, void * ptr)
@@ -294,7 +294,7 @@ CURLcode Curl_unencode_gzip_write(struct connectdata * conn, struct SingleReques
 		    /* Initial call state */
 		    ssize_t hlen;
 
-		    switch(check_gzip_header((uchar*)k->str, nread, &hlen)) {
+		    switch(check_gzip_header((uchar *)k->str, nread, &hlen)) {
 			    case GZIP_OK:
 				z->next_in = (Bytef*)k->str + hlen;
 				z->avail_in = (uInt)(nread - hlen);

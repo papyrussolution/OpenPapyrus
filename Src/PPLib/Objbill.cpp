@@ -4559,8 +4559,9 @@ int SLAPI PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 //
 class BillCache : public ObjCacheHash {
 public:
-	struct Data : public ObjCacheEntry { // size=48+16 // @v8.8.0 44-->48 // @v10.0.04 48-->52
+	struct Data : public ObjCacheEntry { // size=48+16 // @v8.8.0 44-->48 // @v10.0.04 48-->52 // @v10.3.8 52-->56
 		LDATE  Dt;
+		long   BillNo; // @v10.3.8
 		PPID   OpID;
 		PPID   LocID;
 		PPID   Object;
@@ -4786,13 +4787,14 @@ int SLAPI BillCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 		if(id && p_bobj->Search(id, &rec) > 0) {
 			#define FLD(f) p_cache_rec->f = rec.f
 			FLD(Dt);
+			FLD(BillNo); // @v10.3.8
 			FLD(OpID);
 			FLD(LocID);
 			FLD(Object);
 			FLD(Object2);
 			FLD(StatusID);
 			FLD(LinkBillID);
-			FLD(EdiOp); // @v8.8.0
+			FLD(EdiOp);
 			FLD(Flags);
 			FLD(Flags2);
 			FLD(DueDate); // @v10.0.04
@@ -4816,13 +4818,14 @@ void SLAPI BillCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec)
 	#define FLD(f) p_data_rec->f = p_cache_rec->f
 	FLD(ID);
 	FLD(Dt);
+	FLD(BillNo); // @v10.3.8
 	FLD(OpID);
 	FLD(LocID);
 	FLD(Object);
 	FLD(Object2);
 	FLD(StatusID);
 	FLD(LinkBillID);
-	FLD(EdiOp); // @v8.8.0
+	FLD(EdiOp);
 	FLD(Flags);
 	FLD(Flags2);
 	FLD(DueDate); // @v10.0.04
@@ -4841,7 +4844,7 @@ int SLAPI BillCache::GetCrBillEntry(long & rTempID, PPBillPacket * pPack)
 		for(uint i = 0; !ok && i < CrBillList.getCount(); i++) {
 			const CrBillEntry * p_entry = CrBillList.at(i);
 			if(p_entry && p_entry->TempID == rTempID) {
-				ASSIGN_PTR(pPack, *(PPBillPacket *)p_entry);
+				ASSIGN_PTR(pPack, *static_cast<const PPBillPacket *>(p_entry));
 				ok = 1;
 			}
 		}
@@ -4851,9 +4854,9 @@ int SLAPI BillCache::GetCrBillEntry(long & rTempID, PPBillPacket * pPack)
 		CrBillEntry * p_new_entry = new CrBillEntry;
 		if(p_new_entry) {
 			if(pPack) {
-				*(PPBillPacket *)p_new_entry = *pPack;
+				*static_cast<PPBillPacket *>(p_new_entry) = *pPack;
 			}
-			p_new_entry->TempID = (long)SLS.GetSequenceValue();
+			p_new_entry->TempID = static_cast<long>(SLS.GetSequenceValue());
 			p_new_entry->CrDtm = getcurdatetime_();
 			rTempID = p_new_entry->TempID;
 			CrBillList.insert(p_new_entry);
@@ -4872,7 +4875,7 @@ int SLAPI BillCache::SetCrBillEntry(long tempID, const PPBillPacket * pPack)
 			CrBillEntry * p_entry = CrBillList.at(i);
 			if(p_entry && p_entry->TempID == tempID) {
 				if(pPack)
-					*(PPBillPacket *)p_entry = *pPack;
+					*static_cast<PPBillPacket *>(p_entry) = *pPack;
 				else
 					CrBillList.atFree(i);
 				ok = 1;

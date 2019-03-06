@@ -9,7 +9,7 @@
 /**
  * @todo 
  * - add support for DTD compatibility spec
- *   http://www.oasis-open.org/committees/relax-ng/compatibility-20011203.html
+ * http://www.oasis-open.org/committees/relax-ng/compatibility-20011203.html
  * - report better mem allocations pbms at runtime and abort immediately.
  */
 
@@ -460,7 +460,7 @@ static void FASTCALL xmlRngPErr(xmlRelaxNGParserCtxtPtr ctxt, xmlNode * P_Node, 
 		data = ctxt->userData;
 		ctxt->nbErrors++;
 	}
-	__xmlRaiseError(schannel, channel, data, NULL, P_Node, XML_FROM_RELAXNGP, error, XML_ERR_ERROR, NULL, 0, (const char*)str1, (const char*)str2, NULL, 0, 0, msg, str1, str2);
+	__xmlRaiseError(schannel, channel, data, NULL, P_Node, XML_FROM_RELAXNGP, error, XML_ERR_ERROR, NULL, 0, (const char *)str1, (const char *)str2, NULL, 0, 0, msg, str1, str2);
 }
 /**
  * xmlRngVErr:
@@ -487,7 +487,7 @@ static void xmlRngVErr(xmlRelaxNGValidCtxtPtr ctxt, xmlNode * P_Node, int error,
 		ctxt->nbErrors++;
 	}
 	__xmlRaiseError(schannel, channel, data, NULL, P_Node, XML_FROM_RELAXNGV, error, XML_ERR_ERROR, NULL, 0,
-	    (const char*)str1, (const char*)str2, NULL, 0, 0, msg, str1, str2);
+	    (const char *)str1, (const char *)str2, NULL, 0, 0, msg, str1, str2);
 }
 /************************************************************************
 *									*
@@ -1362,7 +1362,7 @@ static xmlRelaxNGIncludePtr xmlRelaxNGLoadInclude(xmlRelaxNGParserCtxtPtr ctxt, 
 	/*
 	 * load the document
 	 */
-	doc = xmlReadFile((const char*)URL, NULL, 0);
+	doc = xmlReadFile((const char *)URL, NULL, 0);
 	if(!doc) {
 		xmlRngPErr(ctxt, P_Node, XML_RNGP_PARSE_ERROR, "xmlRelaxNG: could not load %s\n", URL, 0);
 		return 0;
@@ -1540,9 +1540,9 @@ static void xmlRelaxNGValidErrorPop(xmlRelaxNGValidCtxtPtr ctxt)
 		ctxt->err = (ctxt->errNr > 0) ? &ctxt->errTab[ctxt->errNr-1] : 0;
 		cur = &ctxt->errTab[ctxt->errNr];
 		if(cur->flags & ERROR_IS_DUP) {
-			SAlloc::F((xmlChar*)cur->arg1);
+			SAlloc::F((xmlChar *)cur->arg1);
 			cur->arg1 = NULL;
-			SAlloc::F((xmlChar*)cur->arg2);
+			SAlloc::F((xmlChar *)cur->arg2);
 			cur->arg2 = NULL;
 			cur->flags = 0;
 		}
@@ -1630,7 +1630,7 @@ static xmlRelaxNGDocumentPtr xmlRelaxNGLoadExternalRef(xmlRelaxNGParserCtxtPtr c
 	/*
 	 * load the document
 	 */
-	doc = xmlReadFile((const char*)URL, NULL, 0);
+	doc = xmlReadFile((const char *)URL, NULL, 0);
 	if(!doc) {
 		xmlRngPErr(ctxt, NULL, XML_RNGP_PARSE_ERROR, "xmlRelaxNG: could not load %s\n", URL, 0);
 		return 0;
@@ -1777,7 +1777,7 @@ static xmlChar * xmlRelaxNGGetErrorString(xmlRelaxNGValidErr err, const xmlChar 
 		snprintf(msg, 1000, "Unknown error code %d\n", err);
 	}
 	msg[1000 - 1] = 0;
-	return sstrdup((xmlChar*)msg);
+	return sstrdup((xmlChar *)msg);
 }
 /**
  * xmlRelaxNGShowValidError:
@@ -1802,7 +1802,7 @@ static void xmlRelaxNGShowValidError(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGVali
 	if(msg) {
 		if(ctxt->errNo == XML_RELAXNG_OK)
 			ctxt->errNo = err;
-		xmlRngVErr(ctxt, (child == NULL ? P_Node : child), err, (const char*)msg, arg1, arg2);
+		xmlRngVErr(ctxt, (child == NULL ? P_Node : child), err, (const char *)msg, arg1, arg2);
 		SAlloc::F(msg);
 	}
 }
@@ -1823,9 +1823,9 @@ static void FASTCALL xmlRelaxNGPopErrors(xmlRelaxNGValidCtxt * ctxt, int level)
 	for(i = level; i < ctxt->errNr; i++) {
 		err = &ctxt->errTab[i];
 		if(err->flags & ERROR_IS_DUP) {
-			SAlloc::F((xmlChar*)err->arg1);
+			SAlloc::F((xmlChar *)err->arg1);
 			err->arg1 = NULL;
-			SAlloc::F((xmlChar*)err->arg2);
+			SAlloc::F((xmlChar *)err->arg2);
 			err->arg2 = NULL;
 			err->flags = 0;
 		}
@@ -1861,9 +1861,9 @@ static void FASTCALL xmlRelaxNGDumpValidError(xmlRelaxNGValidCtxt * ctxt)
 		}
 skip:
 		if(err->flags & ERROR_IS_DUP) {
-			SAlloc::F((xmlChar*)err->arg1);
+			SAlloc::F((xmlChar *)err->arg1);
 			err->arg1 = NULL;
-			SAlloc::F((xmlChar*)err->arg2);
+			SAlloc::F((xmlChar *)err->arg2);
 			err->arg2 = NULL;
 			err->flags = 0;
 		}
@@ -3489,12 +3489,12 @@ static void xmlRelaxNGCheckGroupAttrs(xmlRelaxNGParserCtxtPtr ctxt, xmlRelaxNGDe
  *
  * A lot of work for preprocessing interleave definitions
  * is potentially needed to get a decent execution speed at runtime
- *   - trying to get a total order on the element nodes generated
- *     by the interleaves, order the list of interleave definitions
- *     following that order.
- *   - if <text/> is used to handle mixed content, it is better to
- *     flag this in the define and simplify the runtime checking
- *     algorithm
+ * - trying to get a total order on the element nodes generated
+ *   by the interleaves, order the list of interleave definitions
+ *   following that order.
+ * - if <text/> is used to handle mixed content, it is better to
+ *   flag this in the define and simplify the runtime checking
+ *   algorithm
  */
 static void xmlRelaxNGComputeInterleaves(xmlRelaxNGDefinePtr def, xmlRelaxNGParserCtxtPtr ctxt, xmlChar * name ATTRIBUTE_UNUSED)
 {
@@ -3926,7 +3926,7 @@ static xmlRelaxNGDefinePtr xmlRelaxNGProcessExternalRef(xmlRelaxNGParserCtxtPtr 
  * parse the content of a RelaxNG pattern node.
  *
  * Returns the definition pointer or NULL in case of error or if no
- *     pattern is generated.
+ *   pattern is generated.
  */
 static xmlRelaxNGDefinePtr xmlRelaxNGParsePattern(xmlRelaxNGParserCtxtPtr ctxt, xmlNode * P_Node)
 {
@@ -5367,7 +5367,7 @@ static xmlRelaxNGContentType xmlRelaxNGCheckRules(xmlRelaxNGParserCtxtPtr ctxt,
 		else if(ptype == XML_RELAXNG_INTERLEAVE) {
 			/*
 			 * @todo scan complain that tmp is never used, seems on purpose
-			 *       need double-checking
+			 *     need double-checking
 			 */
 			tmp = xmlRelaxNGGroupContentType(val, ret);
 			if(tmp != XML_RELAXNG_CONTENT_ERROR)
@@ -5400,7 +5400,7 @@ static xmlRelaxNGContentType xmlRelaxNGCheckRules(xmlRelaxNGParserCtxtPtr ctxt,
  * parse a Relax-NG <grammar> node
  *
  * Returns the internal xmlRelaxNGGrammarPtr built or
- *         NULL in case of error
+ *       NULL in case of error
  */
 static xmlRelaxNGGrammarPtr xmlRelaxNGParseGrammar(xmlRelaxNGParserCtxtPtr ctxt, xmlNode * nodes)
 {
@@ -5460,7 +5460,7 @@ static xmlRelaxNGGrammarPtr xmlRelaxNGParseGrammar(xmlRelaxNGParserCtxtPtr ctxt,
  * xmlRelaxNG struture which can be used to validate instances.
  *
  * Returns the internal XML RelaxNG structure built or
- *         NULL in case of error
+ *       NULL in case of error
  */
 static xmlRelaxNGPtr xmlRelaxNGParseDocument(xmlRelaxNGParserCtxtPtr ctxt, xmlNode * P_Node)
 {
@@ -5592,7 +5592,7 @@ xmlRelaxNGParserCtxtPtr xmlRelaxNGNewMemParserCtxt(const char * buffer, int size
  *
  * Create an XML RelaxNGs parser context for that document.
  * Note: since the process of compiling a RelaxNG schemas modifies the
- *       document, the @doc parameter is duplicated internally.
+ *     document, the @doc parameter is duplicated internally.
  *
  * Returns the parser context or NULL in case of error
  */
@@ -5727,7 +5727,7 @@ static void xmlRelaxNGCleanupAttributes(xmlRelaxNGParserCtxtPtr ctxt, xmlNode * 
 				xmlChar * val = xmlNodeListGetString(P_Node->doc, cur->children, 1);
 				if(val) {
 					if(val[0] != 0) {
-						xmlURI * uri = xmlParseURI((const char*)val);
+						xmlURI * uri = xmlParseURI((const char *)val);
 						if(!uri) {
 							xmlRngPErr(ctxt, P_Node, XML_RNGP_INVALID_URI, "Attribute %s contains invalid URI %s\n", cur->name, val);
 						}
@@ -5806,7 +5806,7 @@ static void xmlRelaxNGCleanupTree(xmlRelaxNGParserCtxtPtr ctxt, xmlNode * root)
 						p_delete = cur;
 						goto skip_children;
 					}
-					uri = xmlParseURI((const char*)href);
+					uri = xmlParseURI((const char *)href);
 					if(!uri) {
 						xmlRngPErr(ctxt, cur, XML_RNGP_HREF_ERROR, "Incorrect URI for externalRef %s\n", href, 0);
 						SAlloc::F(ns);
@@ -6142,7 +6142,7 @@ static xmlDoc * xmlRelaxNGCleanupDoc(xmlRelaxNGParserCtxtPtr ctxt, xmlDoc * doc)
  * XML Shema struture which can be used to validate instances.
  *
  * Returns the internal XML RelaxNG structure built from the resource or
- *         NULL in case of error
+ *       NULL in case of error
  */
 xmlRelaxNGPtr xmlRelaxNGParse(xmlRelaxNGParserCtxtPtr ctxt)
 {
@@ -6156,7 +6156,7 @@ xmlRelaxNGPtr xmlRelaxNGParse(xmlRelaxNGParserCtxtPtr ctxt)
 	 * First step is to parse the input document into an DOM/Infoset
 	 */
 	if(ctxt->URL) {
-		doc = xmlReadFile((const char*)ctxt->URL, NULL, 0);
+		doc = xmlReadFile((const char *)ctxt->URL, NULL, 0);
 		if(!doc) {
 			xmlRngPErr(ctxt, NULL, XML_RNGP_PARSE_ERROR, "xmlRelaxNGParse: could not load %s\n", ctxt->URL, 0);
 			return 0;
@@ -6881,7 +6881,7 @@ static void xmlRelaxNGValidateProgressiveCallback(xmlRegExecCtxtPtr exec ATTRIBU
  * Push a new element start on the RelaxNG validation stack.
  *
  * returns 1 if no validation problem was found or 0 if validating the
- *         element requires a full node, and -1 in case of error.
+ *       element requires a full node, and -1 in case of error.
  */
 int xmlRelaxNGValidatePushElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc ATTRIBUTE_UNUSED, xmlNode * elem)
 {
@@ -7111,7 +7111,7 @@ static xmlChar * xmlRelaxNGNormalize(xmlRelaxNGValidCtxtPtr ctxt, const xmlChar 
 		while(*tmp != 0)
 			tmp++;
 		len = tmp - str;
-		ret = (xmlChar*)SAlloc::M((len + 1) * sizeof(xmlChar));
+		ret = (xmlChar *)SAlloc::M((len + 1) * sizeof(xmlChar));
 		if(!ret) {
 			xmlRngVErrMemory(ctxt, "validating\n");
 			return 0;
@@ -7193,11 +7193,11 @@ static int xmlRelaxNGValidateDatatype(xmlRelaxNGValidCtxtPtr ctxt, const xmlChar
 	if((ret == 0) && define->content) {
 		const xmlChar * oldvalue = ctxt->state->value;
 		const xmlChar * oldendvalue = ctxt->state->endvalue;
-		ctxt->state->value = (xmlChar*)value;
+		ctxt->state->value = (xmlChar *)value;
 		ctxt->state->endvalue = NULL;
 		ret = xmlRelaxNGValidateValue(ctxt, define->content);
-		ctxt->state->value = (xmlChar*)oldvalue;
-		ctxt->state->endvalue = (xmlChar*)oldendvalue;
+		ctxt->state->value = (xmlChar *)oldvalue;
+		ctxt->state->endvalue = (xmlChar *)oldendvalue;
 	}
 	if(result && lib && lib->freef)
 		lib->freef(lib->data, result);
@@ -9134,7 +9134,7 @@ static int xmlRelaxNGValidateDocument(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc)
  * to be able to differentiate from line numbers.
  *
  * Returns the number of elements found in the document or -1 in case
- *    of error.
+ *  of error.
  */
 static void xmlRelaxNGCleanPSVI(xmlNode * P_Node) 
 {
@@ -9303,7 +9303,7 @@ int xmlRelaxNGGetValidErrors(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGValidityErro
  * Validate a document tree in memory.
  *
  * Returns 0 if the document is valid, a positive error code
- *     number otherwise and -1 in case of internal or API error.
+ *   number otherwise and -1 in case of internal or API error.
  */
 int xmlRelaxNGValidateDoc(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc)
 {

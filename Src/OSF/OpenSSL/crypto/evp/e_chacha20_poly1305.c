@@ -229,7 +229,7 @@ static int chacha20_poly1305_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uch
 		if((rem = (size_t)actx->len.text % POLY1305_BLOCK_SIZE))
 			Poly1305_Update(POLY1305_ctx(actx), zero, POLY1305_BLOCK_SIZE - rem);
 		if(is_endian.little) {
-			Poly1305_Update(POLY1305_ctx(actx), (uchar*)&actx->len, POLY1305_BLOCK_SIZE);
+			Poly1305_Update(POLY1305_ctx(actx), (uchar *)&actx->len, POLY1305_BLOCK_SIZE);
 		}
 		else {
 			temp[0]  = (uchar)(actx->len.aad);
@@ -324,11 +324,11 @@ static int chacha20_poly1305_ctrl(EVP_CIPHER_CTX * ctx, int type, int arg, void 
 		    if(arg != 12)
 			    return 0;
 		    actx->nonce[0] = actx->key.counter[1]
-			    = CHACHA_U8TOU32((uchar*)ptr);
+			    = CHACHA_U8TOU32((uchar *)ptr);
 		    actx->nonce[1] = actx->key.counter[2]
-			    = CHACHA_U8TOU32((uchar*)ptr+4);
+			    = CHACHA_U8TOU32((uchar *)ptr+4);
 		    actx->nonce[2] = actx->key.counter[3]
-			    = CHACHA_U8TOU32((uchar*)ptr+8);
+			    = CHACHA_U8TOU32((uchar *)ptr+8);
 		    return 1;
 
 		case EVP_CTRL_AEAD_SET_TAG:

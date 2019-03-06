@@ -419,12 +419,12 @@ static bool verifyconnect(curl_socket_t sockfd, int * error)
 	 * Gisle Vanem could reproduce the former problems with this function, but
 	 * could avoid them by adding this SleepEx() call below:
 	 *
-	 *    "I don't have Rational Quantify, but the hint from his post was
-	 *    ntdll::NtRemoveIoCompletion(). So I'd assume the SleepEx (or maybe
-	 *    just Sleep(0) would be enough?) would release whatever
-	 *    mutex/critical-section the ntdll call is waiting on.
+	 *  "I don't have Rational Quantify, but the hint from his post was
+	 *  ntdll::NtRemoveIoCompletion(). So I'd assume the SleepEx (or maybe
+	 *  just Sleep(0) would be enough?) would release whatever
+	 *  mutex/critical-section the ntdll call is waiting on.
 	 *
-	 *    Someone got to verify this on Win-NT 4.0, 2000."
+	 *  Someone got to verify this on Win-NT 4.0, 2000."
 	 */
 #ifdef _WIN32_WCE
 	Sleep(0);
@@ -822,7 +822,7 @@ void Curl_sndbufset(curl_socket_t sockfd)
 		if(curval > val)
 			return;
 
-	setsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, (const char*)&val, sizeof(val));
+	setsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, (const char *)&val, sizeof(val));
 }
 
 #endif
@@ -1040,7 +1040,7 @@ curl_socket_t Curl_getconnectinfo(struct Curl_easy * data, struct connectdata **
 	/* this works for an easy handle:
 	 * - that has been used for curl_easy_perform()
 	 * - that is associated with a multi handle, and whose connection
-	 *   was detached with CURLOPT_CONNECT_ONLY
+	 * was detached with CURLOPT_CONNECT_ONLY
 	 */
 	if(data->state.lastconnect && (data->multi_easy || data->multi)) {
 		struct connectdata * c = data->state.lastconnect;

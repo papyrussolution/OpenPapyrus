@@ -62,7 +62,7 @@ static void FASTCALL xmlLinkDeallocator(xmlList * l, xmlLink * lk)
  * Compares two arbitrary data
  *
  * Returns -1, 0 or 1 depending on whether data1 is greater equal or smaller
- *          than data0
+ *        than data0
  */
 static int xmlLinkCompare(const void * data0, const void * data1)
 {

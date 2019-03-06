@@ -391,7 +391,7 @@ static CURLcode nss_create_object(struct ssl_connect_data * ssl,
 
 	PK11_SETATTRS(attrs, attr_cnt, CKA_CLASS, &obj_class, sizeof(obj_class));
 	PK11_SETATTRS(attrs, attr_cnt, CKA_TOKEN, &cktrue, sizeof(CK_BBOOL));
-	PK11_SETATTRS(attrs, attr_cnt, CKA_LABEL, (uchar*)filename,
+	PK11_SETATTRS(attrs, attr_cnt, CKA_LABEL, (uchar *)filename,
 	    (CK_ULONG)sstrlen(filename) + 1);
 
 	if(CKO_CERTIFICATE == obj_class) {
@@ -1291,9 +1291,9 @@ void Curl_nss_cleanup(void)
  * This function uses SSL_peek to determine connection status.
  *
  * Return codes:
- *     1 means the connection is still in place
- *     0 means the connection has been closed
- *    -1 means the connection status is unknown
+ *   1 means the connection is still in place
+ *   0 means the connection has been closed
+ *  -1 means the connection status is unknown
  */
 int Curl_nss_check_cxn(struct connectdata * conn)
 {

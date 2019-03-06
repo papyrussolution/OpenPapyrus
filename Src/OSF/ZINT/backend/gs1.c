@@ -324,7 +324,7 @@ int ugs1_verify(struct ZintSymbol * symbol, const uchar source[], const uint src
 		return error_number;
 	}
 	else if(strlen(temp) < (src_len + 5)) {
-		sstrcpy(reduced, (uchar*)temp);
+		sstrcpy(reduced, (uchar *)temp);
 		return 0;
 	}
 	else {

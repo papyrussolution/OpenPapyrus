@@ -13,7 +13,7 @@
  *
  * Each record (line) is built as follows:
  *
- *    field       digits          states
+ *  field       digits          states
  *
  *  +----------+
  *  | start    |  1 ('S')         SCE_HEX_RECSTART
@@ -36,7 +36,7 @@
  *
  * Each record (line) is built as follows:
  *
- *    field       digits          states
+ *  field       digits          states
  *
  *  +----------+
  *  | start    |  1 (':')         SCE_HEX_RECSTART
@@ -56,13 +56,13 @@
  *
  * Folding:
  *
- *   Data records (type 0x00), which follow an extended address record (type
- *   0x02 or 0x04), can be folded. The extended address record is the fold
- *   point at fold level 0, the corresponding data records are set to level 1.
+ * Data records (type 0x00), which follow an extended address record (type
+ * 0x02 or 0x04), can be folded. The extended address record is the fold
+ * point at fold level 0, the corresponding data records are set to level 1.
  *
- *   Any record, which is not a data record, sets the fold level back to 0.
- *   Any line, which is not a record (blank lines and lines starting with a
- *   character other than ':'), leaves the fold level unchanged.
+ * Any record, which is not a data record, sets the fold level back to 0.
+ * Any line, which is not a record (blank lines and lines starting with a
+ * character other than ':'), leaves the fold level unchanged.
  *
  *
  *  Tektronix extended HEX
@@ -70,7 +70,7 @@
  *
  * Each record (line) is built as follows:
  *
- *    field       digits          states
+ *  field       digits          states
  *
  *  +----------+
  *  | start    |  1 ('%')         SCE_HEX_RECSTART
@@ -91,15 +91,15 @@
  * ===============================
  *
  * - Depending on where the helper functions are invoked, some of them have to
- *   read beyond the current position. In case of malformed data (record too
- *   short), it has to be ensured that this either does not have bad influence
- *   or will be captured deliberately.
+ * read beyond the current position. In case of malformed data (record too
+ * short), it has to be ensured that this either does not have bad influence
+ * or will be captured deliberately.
  *
  * - States in parentheses in the upper format descriptions indicate that they
- *   should not appear in a valid hex file.
+ * should not appear in a valid hex file.
  *
  * - State SCE_HEX_GARBAGE means garbage data after the intended end of the
- *   record, the line is too long then. This state is used in all lexers.
+ * record, the line is too long then. This state is used in all lexers.
  */
 #include <Platform.h>
 #include <Scintilla.h>

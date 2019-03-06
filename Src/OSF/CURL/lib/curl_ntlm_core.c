@@ -147,7 +147,7 @@ static void setup_des_key(const uchar * key_56,
 	extend_key_56_to_64(key_56, key);
 
 	/* Set the key parity to odd */
-	Curl_des_set_odd_parity((uchar*)key, sizeof(key));
+	Curl_des_set_odd_parity((uchar *)key, sizeof(key));
 
 	/* Set the key */
 	des_set_key(des, (const uint8_t*)key);
@@ -167,7 +167,7 @@ static void setup_des_key(const uchar * key_56,
 	extend_key_56_to_64(key_56, key);
 
 	/* Set the key parity to odd */
-	Curl_des_set_odd_parity((uchar*)key, sizeof(key));
+	Curl_des_set_odd_parity((uchar *)key, sizeof(key));
 
 	/* Set the key */
 	gcry_cipher_setkey(*des, key, sizeof(key));
@@ -185,11 +185,11 @@ static bool encrypt_des(const uchar * in, uchar * out,
 	extend_key_56_to_64(key_56, key);
 
 	/* Set the key parity to odd */
-	mbedtls_des_key_set_parity((uchar*)key);
+	mbedtls_des_key_set_parity((uchar *)key);
 
 	/* Perform the encryption */
 	mbedtls_des_init(&ctx);
-	mbedtls_des_setkey_enc(&ctx, (uchar*)key);
+	mbedtls_des_setkey_enc(&ctx, (uchar *)key);
 	return mbedtls_des_crypt_ecb(&ctx, in, out) == 0;
 }
 
@@ -222,10 +222,10 @@ static bool encrypt_des(const uchar * in, uchar * out,
 	extend_key_56_to_64(key_56, key);
 
 	/* Set the key parity to odd */
-	Curl_des_set_odd_parity((uchar*)key, sizeof(key));
+	Curl_des_set_odd_parity((uchar *)key, sizeof(key));
 
 	/* Import the key */
-	key_item.data = (uchar*)key;
+	key_item.data = (uchar *)key;
 	key_item.len = sizeof(key);
 	symkey = PK11_ImportSymKey(slot, mech, PK11_OriginUnwrap, CKA_ENCRYPT,
 	    &key_item, 0);
@@ -242,7 +242,7 @@ static bool encrypt_des(const uchar * in, uchar * out,
 
 	/* Perform the encryption */
 	if(SECSuccess == PK11_CipherOp(ctx, out, &out_len, /* outbuflen */ 8,
-		    (uchar*)in, /* inbuflen */ 8)
+		    (uchar *)in, /* inbuflen */ 8)
 	    && SECSuccess == PK11_Finalize(ctx))
 		rv = /* all OK */ TRUE;
 
@@ -271,7 +271,7 @@ static bool encrypt_des(const uchar * in, uchar * out,
 	extend_key_56_to_64(key_56, key);
 
 	/* Set the key parity to odd */
-	Curl_des_set_odd_parity((uchar*)key, sizeof(key));
+	Curl_des_set_odd_parity((uchar *)key, sizeof(key));
 
 	/* Perform the encryption */
 	err = CCCrypt(kCCEncrypt, kCCAlgorithmDES, kCCOptionECBMode, key,
@@ -297,7 +297,7 @@ static bool encrypt_des(const uchar * in, uchar * out,
 	extend_key_56_to_64(key_56, ctl.Crypto_Key);
 
 	/* Set the key parity to odd */
-	Curl_des_set_odd_parity((uchar*)ctl.Crypto_Key, ctl.Data_Len);
+	Curl_des_set_odd_parity((uchar *)ctl.Crypto_Key, ctl.Data_Len);
 
 	/* Perform the encryption */
 	_CIPHER((_SPCPTR*)&out, &ctl, (_SPCPTR*)&in);
@@ -336,7 +336,7 @@ static bool encrypt_des(const uchar * in, uchar * out,
 	extend_key_56_to_64(key_56, blob.key);
 
 	/* Set the key parity to odd */
-	Curl_des_set_odd_parity((uchar*)blob.key, sizeof(blob.key));
+	Curl_des_set_odd_parity((uchar *)blob.key, sizeof(blob.key));
 
 	/* Import the key */
 	if(!CryptImportKey(hprov, (BYTE*)&blob, sizeof(blob), 0, 0, &hkey)) {
@@ -599,7 +599,7 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_hash(const char * user, size_t userlen, const 
  * ntlm             [in] - The ntlm data struct being used to read TargetInfo
                            and Server challenge received in the type-2 message
  * ntresp          [out] - The address where a pointer to newly allocated
- *                         memory holding the NTLMv2 response.
+ *                       memory holding the NTLMv2 response.
  * ntresp_len      [out] - The length of the output message.
  *
  * Returns CURLE_OK on success.

@@ -1030,11 +1030,11 @@ int SLAPI PPLinkFile::CopyTo(void ** ppBuf)
 	memcpy(p, &Id, sizeof(Id));
 	memcpy(p += sizeof(Id), &Flags, sizeof(Flags));
 	memcpy(p += sizeof(Flags), &ext_len, sizeof(ext_len));
-	memcpy(p += sizeof(ext_len), (const char*)Ext, ext_len);
+	memcpy(p += sizeof(ext_len), (const char *)Ext, ext_len);
 	memcpy(p += ext_len, &path_len, sizeof(path_len));
-	memcpy(p += sizeof(path_len), (const char*)Path, path_len);
+	memcpy(p += sizeof(path_len), (const char *)Path, path_len);
 	memcpy(p += path_len, &descr_len, sizeof(descr_len));
-	memcpy(p += sizeof(descr_len), (const char*)Description, descr_len);
+	memcpy(p += sizeof(descr_len), (const char *)Description, descr_len);
 	return 1;
 }
 

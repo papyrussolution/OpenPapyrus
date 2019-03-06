@@ -15,7 +15,7 @@ int ASN1_digest(i2d_of_void * i2d, const EVP_MD * type, char * data, uchar * md,
 {
 	int    ok = 1;
 	const  int i = i2d(data, 0);
-	uchar * str = (uchar*)OPENSSL_malloc(i);
+	uchar * str = (uchar *)OPENSSL_malloc(i);
 	if(!str) {
 		ASN1err(ASN1_F_ASN1_DIGEST, ERR_R_MALLOC_FAILURE);
 		ok = 0;

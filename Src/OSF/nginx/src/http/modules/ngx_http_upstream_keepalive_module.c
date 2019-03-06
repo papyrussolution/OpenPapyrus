@@ -373,9 +373,9 @@ static void * ngx_http_upstream_keepalive_create_conf(ngx_conf_t * cf)
 	/*
 	 * set by ngx_pcalloc():
 	 *
-	 *     conf->original_init_upstream = NULL;
-	 *     conf->original_init_peer = NULL;
-	 *     conf->max_cached = 0;
+	 *   conf->original_init_upstream = NULL;
+	 *   conf->original_init_peer = NULL;
+	 *   conf->max_cached = 0;
 	 */
 
 	return conf;

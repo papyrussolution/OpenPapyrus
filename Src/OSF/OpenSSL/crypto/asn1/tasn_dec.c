@@ -841,7 +841,7 @@ static int asn1_ex_c2i(ASN1_VALUE ** pval, const uchar * cont, int len,
 		    /* If we've already allocated a buffer use it */
 		    if(*free_cont) {
 			    OPENSSL_free(stmp->data);
-			    stmp->data = (uchar*)cont; /* UGLY CAST! RL */
+			    stmp->data = (uchar *)cont; /* UGLY CAST! RL */
 			    stmp->length = len;
 			    *free_cont = 0;
 		    }

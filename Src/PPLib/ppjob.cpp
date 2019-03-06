@@ -1137,7 +1137,7 @@ int CashNodeDialog::SetPeriod()
 		else
 			ok = 1;
 	}
-	setCtrlData(CTL_SELCNODE_PERIOD, (void *)(const char *)ss);
+	setCtrlString(CTL_SELCNODE_PERIOD, ss);
 	return ok;
 }
 
@@ -2837,7 +2837,7 @@ int RFIDDevPrcssr::Run()
 					}
 					else {
 						cmd = DVCCMD_SETTEXT;
-						in_params.Z().Add(DVCCMDPAR_TEXT, (const char*)GetCard);
+						in_params.Z().Add(DVCCMDPAR_TEXT, (const char *)GetCard);
 					}
 					if(!p_dvc->RunCmd(cmd, in_params, out_params))
 						AddToBadList(&cp);

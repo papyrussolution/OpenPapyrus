@@ -13,7 +13,7 @@ static int __rep_chk_newfile(ENV*, DB_LOGC*, REP*, __rep_control_args*, int);
 static int __rep_log_split(ENV*, DB_THREAD_INFO*, __rep_control_args*, DBT*, DB_LSN*, DB_LSN *);
 /*
  * __rep_allreq --
- *      Handle a REP_ALL_REQ message.
+ *    Handle a REP_ALL_REQ message.
  *
  * PUBLIC: int __rep_allreq __P((ENV *, __rep_control_args *, int));
  */
@@ -198,7 +198,7 @@ err:
 }
 /*
  * __rep_log --
- *      Handle a REP_LOG/REP_LOG_MORE message.
+ *    Handle a REP_LOG/REP_LOG_MORE message.
  *
  * PUBLIC: int __rep_log __P((ENV *, DB_THREAD_INFO *,
  * PUBLIC:     __rep_control_args *, DBT *, int, __time64_t, DB_LSN *));
@@ -301,7 +301,7 @@ out:
 }
 /*
  * __rep_bulk_log --
- *      Handle a REP_BULK_LOG message.
+ *    Handle a REP_BULK_LOG message.
  *
  * PUBLIC: int __rep_bulk_log __P((ENV *, DB_THREAD_INFO *,
  * PUBLIC:     __rep_control_args *, DBT *, __time64_t, DB_LSN *));
@@ -450,7 +450,7 @@ out:
 }
 /*
  * __rep_log_req --
- *      Handle a REP_LOG_REQ message.
+ *    Handle a REP_LOG_REQ message.
  *
  * PUBLIC: int __rep_logreq __P((ENV *, __rep_control_args *, DBT *, int));
  */
@@ -493,8 +493,8 @@ int __rep_logreq(ENV * env, __rep_control_args * rp, DBT * rec, int eid)
 	 *	and then the record that was requested.
 	 * 3. We asked logc_get for an LSN and it is already archived.
 	 * 4. We asked logc_get for an LSN and it simply doesn't exist, but
-	 *    doesn't meet any of those other criteria, in which case
-	 *    it's an error (that should never happen on a master).
+	 *  doesn't meet any of those other criteria, in which case
+	 *  it's an error (that should never happen on a master).
 	 *
 	 * If we have a valid LSN and the request has a data_dbt with
 	 * it, the sender is asking for a chunk of log records.
@@ -801,7 +801,7 @@ err:
 
 /*
  * __rep_chk_newfile --
- *     Determine if getting DB_NOTFOUND is because we're at the
+ *   Determine if getting DB_NOTFOUND is because we're at the
  * end of a log file and need to send a NEWFILE message.
  *
  * This function handles these cases:
@@ -810,8 +810,8 @@ err:
  * 2. We asked logc_get for an LSN and it's not found because it is
  *	beyond the end of a log file and we need a NEWFILE msg.
  * 3. We asked logc_get for an LSN and it simply doesn't exist, but
- *    doesn't meet any of those other criteria, in which case
- *    we return DB_NOTFOUND and the caller decides if it's an error.
+ *  doesn't meet any of those other criteria, in which case
+ *  we return DB_NOTFOUND and the caller decides if it's an error.
  *
  * This function returns 0 if we had to send a message and the bad
  * LSN is dealt with and DB_NOTFOUND if this really is an unknown LSN

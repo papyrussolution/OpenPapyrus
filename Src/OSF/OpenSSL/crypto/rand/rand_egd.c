@@ -23,35 +23,35 @@ NON_EMPTY_TRANSLATION_UNIT
  * This module supplies three routines:
  *
  * RAND_query_egd_bytes(path, buf, bytes)
- *   will actually query "bytes" bytes of entropy form the egd-socket located
- *   at path and will write them to buf (if supplied) or will directly feed
- *   it to RAND_seed() if buf==NULL.
- *   The number of bytes is not limited by the maximum chunk size of EGD,
- *   which is 255 bytes. If more than 255 bytes are wanted, several chunks
- *   of entropy bytes are requested. The connection is left open until the
- *   query is competed.
- *   RAND_query_egd_bytes() returns with
- *     -1  if an error occurred during connection or communication.
- *     num the number of bytes read from the EGD socket. This number is either
- *         the number of bytes requested or smaller, if the EGD pool is
- *         drained and the daemon signals that the pool is empty.
- *   This routine does not touch any RAND_status(). This is necessary, since
- *   PRNG functions may call it during initialization.
+ * will actually query "bytes" bytes of entropy form the egd-socket located
+ * at path and will write them to buf (if supplied) or will directly feed
+ * it to RAND_seed() if buf==NULL.
+ * The number of bytes is not limited by the maximum chunk size of EGD,
+ * which is 255 bytes. If more than 255 bytes are wanted, several chunks
+ * of entropy bytes are requested. The connection is left open until the
+ * query is competed.
+ * RAND_query_egd_bytes() returns with
+ *   -1  if an error occurred during connection or communication.
+ *   num the number of bytes read from the EGD socket. This number is either
+ *       the number of bytes requested or smaller, if the EGD pool is
+ *       drained and the daemon signals that the pool is empty.
+ * This routine does not touch any RAND_status(). This is necessary, since
+ * PRNG functions may call it during initialization.
  *
  * RAND_egd_bytes(path, bytes) will query "bytes" bytes and have them
- *   used to seed the PRNG.
- *   RAND_egd_bytes() is a wrapper for RAND_query_egd_bytes() with buf=NULL.
- *   Unlike RAND_query_egd_bytes(), RAND_status() is used to test the
- *   seed status so that the return value can reflect the seed state:
- *     -1  if an error occurred during connection or communication _or_
- *         if the PRNG has still not received the required seeding.
- *     num the number of bytes read from the EGD socket. This number is either
- *         the number of bytes requested or smaller, if the EGD pool is
- *         drained and the daemon signals that the pool is empty.
+ * used to seed the PRNG.
+ * RAND_egd_bytes() is a wrapper for RAND_query_egd_bytes() with buf=NULL.
+ * Unlike RAND_query_egd_bytes(), RAND_status() is used to test the
+ * seed status so that the return value can reflect the seed state:
+ *   -1  if an error occurred during connection or communication _or_
+ *       if the PRNG has still not received the required seeding.
+ *   num the number of bytes read from the EGD socket. This number is either
+ *       the number of bytes requested or smaller, if the EGD pool is
+ *       drained and the daemon signals that the pool is empty.
  *
  * RAND_egd(path) will query 255 bytes and use the bytes retrieved to seed
- *   the PRNG.
- *   RAND_egd() is a wrapper for RAND_egd_bytes() with numbytes=255.
+ * the PRNG.
+ * RAND_egd() is a wrapper for RAND_egd_bytes() with numbytes=255.
  */
 
 # if defined(OPENSSL_SYS_WIN32) || defined(OPENSSL_SYS_VMS) || defined(OPENSSL_SYS_MSDOS) || defined(OPENSSL_SYS_VXWORKS) || \

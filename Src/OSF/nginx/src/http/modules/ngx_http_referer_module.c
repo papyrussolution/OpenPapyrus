@@ -191,9 +191,9 @@ static void * ngx_http_referer_create_conf(ngx_conf_t * cf)
 	/*
 	 * set by ngx_pcalloc():
 	 *
-	 *     conf->hash = { NULL };
-	 *     conf->server_names = 0;
-	 *     conf->keys = NULL;
+	 *   conf->hash = { NULL };
+	 *   conf->server_names = 0;
+	 *   conf->keys = NULL;
 	 */
 
 #if (NGX_PCRE)

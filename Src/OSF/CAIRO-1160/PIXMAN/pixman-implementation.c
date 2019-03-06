@@ -48,7 +48,7 @@ pixman_implementation_t * _pixman_implementation_create(pixman_implementation_t 
 
 typedef struct {
 	struct {
-		pixman_implementation_t *   imp;
+		pixman_implementation_t * imp;
 		pixman_fast_path_t fast_path;
 	} cache [N_CACHED_FAST_PATHS];
 } cache_t;

@@ -451,7 +451,7 @@ int SLAPI PPSync::CreateMutex(long sessID, long objtype, long objid, long * pMut
 		DS.GetMachineID(&mac_addr, 0);
 		GetCurUserName(user_name);
 		ProcessIdToSessionId(GetCurrentProcessId(), &term_sess_id);
-		long   recid = AddRecord(PPSYNC_MUTEX, sessID, (const char*)user_name, objtype, objid, &offs, &mac_addr, term_sess_id);
+		long   recid = AddRecord(PPSYNC_MUTEX, sessID, (const char *)user_name, objtype, objid, &offs, &mac_addr, term_sess_id);
 		if(recid) {
 			if(!Lock(offs, 0))
 				ok = 0;

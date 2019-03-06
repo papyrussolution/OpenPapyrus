@@ -1998,6 +1998,7 @@
 	#define CTL_USRGRP_PATH             (10 + WINDOWS_ID_BIAS) // Button "Пути..."
 	#define CTL_USRGRP_CFG              (11 + WINDOWS_ID_BIAS) // Button "Конфигурация..."
 	#define CTL_USRGRP_RIGHTS           (13 + WINDOWS_ID_BIAS) // Button "Права..."
+	#define CTL_USRGRP_SYMB             (14 + WINDOWS_ID_BIAS) // @v10.3.8
 #define DLG_USR                    41 // Пользователь
 	#define CTL_USR_NAME                 (1 + WINDOWS_ID_BIAS)
 	#define CTL_USR_GRP                  (4 + WINDOWS_ID_BIAS)
@@ -2016,6 +2017,7 @@
 	#define CTLSEL_USR_UER              (17 + WINDOWS_ID_BIAS)
 	#define CTL_USR_UERFLAGS            (18 + WINDOWS_ID_BIAS)
 	#define CTL_USR_EXPIRY              (19 + WINDOWS_ID_BIAS)
+	#define CTL_USR_SYMB                (20 + WINDOWS_ID_BIAS) // @v10.3.8
 #define DLG_GRPNUSR                42 // Просмотр групп и пользователей
 	#define cmAddSecurGrp                111
 	#define cmEditSecurGrp               112

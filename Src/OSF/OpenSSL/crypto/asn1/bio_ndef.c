@@ -92,7 +92,7 @@ static int ndef_prefix(BIO * b, uchar ** pbuf, int * plen, void * parg)
 		return 0;
 	ndef_aux = *(NDEF_SUPPORT**)parg;
 	derlen = ASN1_item_ndef_i2d(ndef_aux->val, NULL, ndef_aux->it);
-	p = (uchar*)OPENSSL_malloc(derlen);
+	p = (uchar *)OPENSSL_malloc(derlen);
 	if(p == NULL)
 		return 0;
 	ndef_aux->derbuf = p;
@@ -145,7 +145,7 @@ static int ndef_suffix(BIO * b, uchar ** pbuf, int * plen, void * parg)
 	if(aux->asn1_cb(ASN1_OP_STREAM_POST, &ndef_aux->val, ndef_aux->it, &sarg) <= 0)
 		return 0;
 	derlen = ASN1_item_ndef_i2d(ndef_aux->val, NULL, ndef_aux->it);
-	p = (uchar*)OPENSSL_malloc(derlen);
+	p = (uchar *)OPENSSL_malloc(derlen);
 	if(p == NULL)
 		return 0;
 	ndef_aux->derbuf = p;

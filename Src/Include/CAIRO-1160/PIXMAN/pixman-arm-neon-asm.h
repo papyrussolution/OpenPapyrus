@@ -518,9 +518,9 @@ local skip1
  * and saved to memory.
  *
  * cache_preload_flag - allows to suppress prefetch if
- *    set to 0
+ *  set to 0
  * dst_aligned_flag   - selects whether destination buffer
- *    is aligned
+ *  is aligned
  */
 .macro process_trailing_pixels cache_preload_flag, \
                                dst_aligned_flag, \

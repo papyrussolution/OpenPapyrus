@@ -78,7 +78,7 @@
 //#include "cairo-recording-surface-inline.h"
 //#include "cairo-scaled-font-private.h"
 //#include "cairo-surface-clipper-private.h"
-//#include "cairo-surface-snapshot-inline.h"
+////#include "cairo-surface-snapshot-inline.h"
 //#include "cairo-surface-subsurface-private.h"
 //#include "cairo-surface-wrapper-private.h"
 #if CAIRO_HAS_FT_FONT

@@ -2038,8 +2038,8 @@ static void * ngx_http_ssi_create_loc_conf(ngx_conf_t * cf)
 		/*
 		 * set by ngx_pcalloc():
 		 *
-		 *     conf->types = { NULL };
-		 *     conf->types_keys = NULL;
+		 *   conf->types = { NULL };
+		 *   conf->types_keys = NULL;
 		 */
 		slcf->enable = NGX_CONF_UNSET;
 		slcf->silent_errors = NGX_CONF_UNSET;

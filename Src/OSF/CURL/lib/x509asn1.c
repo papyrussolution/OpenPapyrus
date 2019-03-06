@@ -88,7 +88,7 @@ static const curl_OID OIDtable[] = {
 	{ "2.16.840.1.101.3.4.2.1",   "sha256" },
 	{ "2.16.840.1.101.3.4.2.2",   "sha384" },
 	{ "2.16.840.1.101.3.4.2.3",   "sha512" },
-	{ (const char*)NULL,        (const char*)NULL }
+	{ (const char *)NULL,        (const char *)NULL }
 };
 
 /*
@@ -111,7 +111,7 @@ const char * Curl_getASN1Element(curl_asn1Element * elem, const char * beg, cons
 	   if an error occurs. */
 	if(!beg || !end || beg >= end || !*beg ||
 	    (size_t)(end - beg) > CURL_ASN1_MAX)
-		return (const char*)NULL;
+		return (const char *)NULL;
 
 	/* Process header byte. */
 	elem->header = beg;
@@ -120,12 +120,12 @@ const char * Curl_getASN1Element(curl_asn1Element * elem, const char * beg, cons
 	elem->class = (b >> 6) & 3;
 	b &= 0x1F;
 	if(b == 0x1F)
-		return (const char*)NULL;  /* Long tag values not supported here. */
+		return (const char *)NULL;  /* Long tag values not supported here. */
 	elem->tag = b;
 
 	/* Process length. */
 	if(beg >= end)
-		return (const char*)NULL;
+		return (const char *)NULL;
 	b = (uchar)*beg++;
 	if(!(b & 0x80))
 		len = b;
@@ -133,31 +133,31 @@ const char * Curl_getASN1Element(curl_asn1Element * elem, const char * beg, cons
 		/* Unspecified length. Since we have all the data, we can determine the
 		   effective length by skipping element until an end element is found. */
 		if(!elem->constructed)
-			return (const char*)NULL;
+			return (const char *)NULL;
 		elem->beg = beg;
 		while(beg < end && *beg) {
 			beg = Curl_getASN1Element(&lelem, beg, end);
 			if(!beg)
-				return (const char*)NULL;
+				return (const char *)NULL;
 		}
 		if(beg >= end)
-			return (const char*)NULL;
+			return (const char *)NULL;
 		elem->end = beg;
 		return beg + 1;
 	}
 	else if((uint)b > (size_t)(end - beg))
-		return (const char*)NULL;  /* Does not fit in source. */
+		return (const char *)NULL;  /* Does not fit in source. */
 	else {
 		/* Get long length. */
 		len = 0;
 		do {
 			if(len & 0xFF000000L)
-				return (const char*)NULL;  /* Lengths > 32 bits are not supported. */
+				return (const char *)NULL;  /* Lengths > 32 bits are not supported. */
 			len = (len << 8) | (uchar)*beg++;
 		} while(--b);
 	}
 	if(len > (size_t)(end - beg))
-		return (const char*)NULL;  /* Element data does not fit in source. */
+		return (const char *)NULL;  /* Element data does not fit in source. */
 	elem->beg = beg;
 	elem->end = beg + len;
 	return elem->end;
@@ -183,7 +183,7 @@ static const char * bool2str(const char * beg, const char * end)
 	   Return the dynamically allocated string, or NULL if source is not an
 	   ASN.1 Boolean value. */
 	if(end - beg != 1)
-		return (const char*)NULL;
+		return (const char *)NULL;
 	return _strdup(*beg ? "TRUE" : "FALSE");
 }
 
@@ -208,7 +208,7 @@ static const char * bit2str(const char * beg, const char * end)
 	   Return the dynamically allocated string, or NULL if an error occurs. */
 
 	if(++beg > end)
-		return (const char*)NULL;
+		return (const char *)NULL;
 	return octet2str(beg, end);
 }
 
@@ -220,7 +220,7 @@ static const char * int2str(const char * beg, const char * end)
 	   Return the dynamically allocated string, or NULL if source is not an
 	   ASN.1 integer value. */
 	if(!n)
-		return (const char*)NULL;
+		return (const char *)NULL;
 	if(n > 4)
 		return octet2str(beg, end);
 	/* Represent integers <= 32-bit as a single value. */
@@ -329,7 +329,7 @@ static const char * string2str(int type, const char * beg, const char * end)
 	/* Convert an ASN.1 String into its UTF-8 string representation.
 	   Return the dynamically allocated string, or NULL if an error occurs. */
 	if(utf8asn1str(&buf, type, beg, end) < 0)
-		return (const char*)NULL;
+		return (const char *)NULL;
 	return buf;
 }
 
@@ -447,7 +447,7 @@ static const char * GTime2str(const char * beg, const char * end)
 		    sec2 = fracp[-1];
 		    break;
 		default:
-		    return (const char*)NULL;
+		    return (const char *)NULL;
 	}
 
 	/* Scan for timezone, measure fractional seconds. */
@@ -502,12 +502,12 @@ static const char * UTime2str(const char * beg, const char * end)
 		case 2:
 		    break;
 		default:
-		    return (const char*)NULL;
+		    return (const char *)NULL;
 	}
 
 	/* Process timezone. */
 	if(tzp >= end)
-		return (const char*)NULL;
+		return (const char *)NULL;
 	if(*tzp == 'Z') {
 		tzp = "GMT";
 		end = tzp + 3;
@@ -527,7 +527,7 @@ const char * Curl_ASN1tostr(curl_asn1Element * elem, int type)
 	/* Convert an ASN.1 element to a printable string.
 	   Return the dynamically allocated string, or NULL if an error occurs. */
 	if(elem->constructed)
-		return (const char*)NULL;  /* No conversion of structured elements. */
+		return (const char *)NULL;  /* No conversion of structured elements. */
 	if(!type)
 		type = elem->tag;  /* Type not forced: use element tag as type. */
 	switch(type) {
@@ -549,7 +549,7 @@ const char * Curl_ASN1tostr(curl_asn1Element * elem, int type)
 		case CURL_ASN1_UNIVERSAL_STRING:
 		case CURL_ASN1_BMP_STRING: return string2str(type, elem->beg, elem->end);
 	}
-	return (const char*)NULL; /* Unsupported. */
+	return (const char *)NULL; /* Unsupported. */
 }
 
 static ssize_t encodeDN(char * buf, size_t n, curl_asn1Element * dn)
@@ -633,7 +633,7 @@ const char * Curl_DNtostr(curl_asn1Element * dn)
 			buf[n] = '\0';
 		}
 	}
-	return (const char*)buf;
+	return (const char *)buf;
 }
 
 /*
@@ -797,7 +797,7 @@ static void do_pubkey(struct Curl_easy * data, int certnum,
 			;
 		len = (ulong)((elem.end - q) * 8);
 		if(len)
-			for(i = *(uchar*)q; !(i & 0x80); i <<= 1)
+			for(i = *(uchar *)q; !(i & 0x80); i <<= 1)
 				len--;
 		if(len > 32)
 			elem.beg = q;  /* Strip leading zero bytes. */
@@ -1016,15 +1016,15 @@ static const char * checkOID(const char * beg, const char * end,
 
 	ccp = Curl_getASN1Element(&e, beg, end);
 	if(!ccp || e.tag != CURL_ASN1_OBJECT_IDENTIFIER)
-		return (const char*)NULL;
+		return (const char *)NULL;
 
 	p = OID2str(e.beg, e.end, FALSE);
 	if(!p)
-		return (const char*)NULL;
+		return (const char *)NULL;
 
 	matched = !strcmp(p, oid);
 	SAlloc::F((char *)p);
-	return matched ? ccp : (const char*)NULL;
+	return matched ? ccp : (const char *)NULL;
 }
 
 CURLcode Curl_verifyhost(struct connectdata * conn,
@@ -1148,7 +1148,7 @@ CURLcode Curl_verifyhost(struct connectdata * conn,
 		}
 		if(sstrlen(dnsname) != (size_t)len) /* Nul byte in string ? */
 			failf(data, "SSL: illegal cert name field");
-		else if(Curl_cert_hostcheck((const char*)dnsname, hostname)) {
+		else if(Curl_cert_hostcheck((const char *)dnsname, hostname)) {
 			infof(data, "\t common name: %s (matched)\n", dnsname);
 			SAlloc::F(dnsname);
 			return CURLE_OK;

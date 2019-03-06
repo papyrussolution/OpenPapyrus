@@ -2438,7 +2438,7 @@ SLAPI GStrucIterator::GStrucIterator() : Idx(0), LoadRecurItems(0)
 
 const PPGoodsStruc * SLAPI GStrucIterator::GetStruc() const { return &GStruc; }
 
-int SLAPI GStrucIterator::LoadItems(PPGoodsStruc * pStruc, PPID parentGoodsID, double srcQtty, int level)
+int SLAPI GStrucIterator::LoadItems(const PPGoodsStruc * pStruc, PPID parentGoodsID, double srcQtty, int level)
 {
 	int    ok = 1;
 	if(pStruc) {
@@ -2486,7 +2486,7 @@ int SLAPI GStrucIterator::LoadItems(PPGoodsStruc * pStruc, PPID parentGoodsID, d
 	return ok;
 }
 
-void SLAPI GStrucIterator::Init(PPGoodsStruc * pStruc, int loadRecurItems)
+void SLAPI GStrucIterator::Init(const PPGoodsStruc * pStruc, int loadRecurItems)
 {
 	RVALUEPTR(GStruc, pStruc);
 	LoadRecurItems = loadRecurItems;

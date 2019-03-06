@@ -57,7 +57,7 @@
 #include "cairo-paginated-private.h"
 //#include "cairo-scaled-font-subsets-private.h"
 //#include "cairo-surface-clipper-private.h"
-#include "cairo-surface-snapshot-inline.h"
+//#include "cairo-surface-snapshot-inline.h"
 #include "cairo-surface-subsurface-private.h"
 #include "cairo-type3-glyph-surface-private.h"
 #include <zlib.h>
@@ -82,30 +82,30 @@
  * write to the currently open stream.
  *
  * PDF Stream:
- *   A PDF Stream may be opened and closed with the following functions:
+ * A PDF Stream may be opened and closed with the following functions:
  * _cairo_pdf_surface_open stream ()
  * _cairo_pdf_surface_close_stream ()
  *
- *   PDF Streams are written directly to the PDF file. They are used for
- *   fonts, images and patterns.
+ * PDF Streams are written directly to the PDF file. They are used for
+ * fonts, images and patterns.
  *
  * Content Stream:
- *   The Content Stream is opened and closed with the following functions:
+ * The Content Stream is opened and closed with the following functions:
  * _cairo_pdf_surface_open_content_stream ()
  * _cairo_pdf_surface_close_content_stream ()
  *
- *   The Content Stream contains the text and graphics operators.
+ * The Content Stream contains the text and graphics operators.
  *
  * Group Stream:
- *   A Group Stream may be opened and closed with the following functions:
+ * A Group Stream may be opened and closed with the following functions:
  * _cairo_pdf_surface_open_group ()
  * _cairo_pdf_surface_close_group ()
  *
- *   A Group Stream is a Form XObject. It is used for short sequences
- *   of operators. As the content is very short the group is stored in
- *   memory until it is closed. This allows some optimization such as
- *   including the Resource dictionary and stream length inside the
- *   XObject instead of using an indirect object.
+ * A Group Stream is a Form XObject. It is used for short sequences
+ * of operators. As the content is very short the group is stored in
+ * memory until it is closed. This allows some optimization such as
+ * including the Resource dictionary and stream length inside the
+ * XObject instead of using an indirect object.
  */
 
 /**
@@ -417,9 +417,9 @@ BAIL0:
 /**
  * cairo_pdf_surface_create_for_stream:
  * @write_func: a #cairo_write_func_t to accept the output data, may be %NULL
- *   to indicate a no-op @write_func. With a no-op @write_func,
- *   the surface may be queried or used as a source without
- *   generating any temporary files.
+ * to indicate a no-op @write_func. With a no-op @write_func,
+ * the surface may be queried or used as a source without
+ * generating any temporary files.
  * @closure: the closure argument for @write_func
  * @width_in_points: width of the surface, in points (1 point == 1/72.0 inch)
  * @height_in_points: height of the surface, in points (1 point == 1/72.0 inch)
@@ -4766,7 +4766,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_unicode_for_glyph(cairo_pdf_su
 /* Bob Jenkins hash
  *
  * Public domain code from:
- *   http://burtleburtle.net/bob/hash/doobs.html
+ * http://burtleburtle.net/bob/hash/doobs.html
  */
 
 #define HASH_MIX(a, b, c)                 \
@@ -4823,8 +4823,8 @@ static void _create_font_subset_tag(cairo_scaled_font_subset_t * font_subset, co
 	int i;
 	long numerator;
 	ldiv_t d;
-	hash = _hash_data((uchar*)font_name, strlen(font_name), 0);
-	hash = _hash_data((uchar*)(font_subset->glyphs), font_subset->num_glyphs * sizeof(ulong), hash);
+	hash = _hash_data((uchar *)font_name, strlen(font_name), 0);
+	hash = _hash_data((uchar *)(font_subset->glyphs), font_subset->num_glyphs * sizeof(ulong), hash);
 	numerator = abs((long)hash);
 	for(i = 0; i < 6; i++) {
 		d = ldiv(numerator, 26);

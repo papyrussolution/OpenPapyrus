@@ -259,7 +259,7 @@ void SLAPI RegisterBIST()
 	RegisterSType(S_VOID,     &SVoid());
 	RegisterSType(S_CHAR,     &SChar());
 	RegisterSType(S_INT,      &SInt());
-	RegisterSType(S_BOOL,     &SBool()); // @v8.1.2
+	RegisterSType(S_BOOL,     &SBool());
 	RegisterSType(S_UINT,     &SUInt());
 	RegisterSType(S_LOGICAL,  &SBool());
 	RegisterSType(S_FLOAT,    &SFloat());
@@ -274,11 +274,11 @@ void SLAPI RegisterBIST()
 	RegisterSType(S_LSTRING,  &SLString());
 	RegisterSType(S_VARIANT,  &SVariant());
 	RegisterSType(S_WCHAR,    &SWcString());
-	RegisterSType(S_WZSTRING, &SWcString()); // @v8.6.2
+	RegisterSType(S_WZSTRING, &SWcString());
 	RegisterSType(S_RAW,      &SRaw());
 	RegisterSType(S_IPOINT2,  &SIPoint2());
 	RegisterSType(S_FPOINT2,  &SFPoint2());
-	RegisterSType(S_UUID_,    &SGuid());     // @v8.0.10
+	RegisterSType(S_UUID_,    &SGuid());
 }
 //
 // SChar
@@ -289,12 +289,12 @@ SLAPI SChar::SChar(uint32 sz) : DataType(sz)
 
 int SLAPI SChar::comp(const void * i1, const void * i2) const
 {
-	return S ? strncmp((char *)i1, (char *)i2, S) : strcmp((char *)i1, (char *)i2);
+	return S ? strncmp(static_cast<const char *>(i1), static_cast<const char *>(i2), S) : strcmp(static_cast<const char *>(i1), static_cast<const char *>(i2));
 }
 
 char * SLAPI SChar::tostr(const void * d, long fmt, char * buf) const
 {
-	return strfmt(strnzcpy(buf, (char *)d, S), fmt, buf);
+	return strfmt(strnzcpy(buf, static_cast<const char *>(d), S), fmt, buf);
 }
 
 int SLAPI SChar::fromstr(void * d, long, const char * buf) const
@@ -302,11 +302,11 @@ int SLAPI SChar::fromstr(void * d, long, const char * buf) const
 	if(S) {
 		memset(d, ' ', S);
 		const size_t bl = sstrlen(buf);
-		memmove((char *)d, buf, MIN(bl, S));
+		memmove(static_cast<char *>(d), buf, MIN(bl, S));
 		return 1;
 	}
 	else {
-		strcpy((char *)d, buf);
+		strcpy(static_cast<char *>(d), buf);
 		return 0;
 	}
 }
@@ -316,7 +316,7 @@ void SLAPI SChar::minval(void * d) const
 	if(S)
 		memset(d, ' ', S);
 	else
-		*(char *)d = 0;
+		*static_cast<char *>(d) = 0;
 }
 
 void SLAPI SChar::maxval(void * d) const
@@ -324,8 +324,8 @@ void SLAPI SChar::maxval(void * d) const
 	if(S)
 		memset(d, 254, S);
 	else {
-		*(char *)d = (char)254;
-		((char *)d)[1] = 0;
+		*static_cast<char *>(d) = (char)254;
+		static_cast<char *>(d)[1] = 0;
 	}
 }
 //
@@ -337,30 +337,30 @@ SLAPI SWcString::SWcString(uint32 sz) : DataType(ALIGNSIZE(sz, 1))
 
 int SLAPI SWcString::comp(const void * i1, const void * i2) const
 {
-	return S ? wcsncmp((wchar_t *)i1, (wchar_t *)i2, S/2) : wcscmp((wchar_t *)i1, (wchar_t *)i2);
+	return S ? wcsncmp(static_cast<const wchar_t *>(i1), static_cast<const wchar_t *>(i2), S/2) : wcscmp(static_cast<const wchar_t *>(i1), static_cast<const wchar_t *>(i2));
 }
 
 char * SLAPI SWcString::tostr(const void * d, long fmt, char * buf) const
 {
-	WideCharToMultiByte(CP_OEMCP, 0, (wchar_t *)d, -1, buf, 254, 0, 0);
+	WideCharToMultiByte(CP_OEMCP, 0, static_cast<const wchar_t *>(d), -1, buf, 254, 0, 0);
 	return buf;
 }
 
 int SLAPI SWcString::fromstr(void * d, long, const char * buf) const
 {
-	MultiByteToWideChar(CP_OEMCP, 0, buf, -1, (wchar_t *)d, 254);
+	MultiByteToWideChar(CP_OEMCP, 0, buf, -1, static_cast<wchar_t *>(d), 254);
 	return 1;
 }
 
 void SLAPI SWcString::minval(void * d) const
 {
-	((wchar_t *)d)[0] = 0;
+	static_cast<wchar_t *>(d)[0] = 0;
 }
 
 void SLAPI SWcString::maxval(void * d) const
 {
-	((wchar_t *)d)[0] = (wchar_t)MAXSHORT;
-	((wchar_t *)d)[1] = 0;
+	static_cast<wchar_t *>(d)[0] = static_cast<wchar_t>(MAXSHORT);
+	static_cast<wchar_t *>(d)[1] = 0;
 }
 //
 // SZString
@@ -373,25 +373,25 @@ SLAPI SZString::SZString(uint32 sz) : DataType(sz)
 
 int SLAPI SZString::comp(const void * i1, const void * i2) const
 {
-	return S ? strncmp((char *)i1, (char *)i2, S) : strcmp((char *)i1, (char *)i2);
+	return S ? strncmp(static_cast<const char *>(i1), static_cast<const char *>(i2), S) : strcmp(static_cast<const char *>(i1), static_cast<const char *>(i2));
 }
 
 #pragma option -K.
 
 char * SLAPI SZString::tostr(const void * d, long fmt, char * buf) const
 {
-	return strfmt(strnzcpy(buf, (char *)d, S), fmt, buf);
+	return strfmt(strnzcpy(buf, static_cast<const char *>(d), S), fmt, buf);
 }
 
 int SLAPI SZString::fromstr(void * d, long, const char * buf) const
 {
-	strnzcpy((char *)d, buf, S);
+	strnzcpy(static_cast<char *>(d), buf, S);
 	return 1;
 }
 
 void SLAPI SZString::minval(void * d) const
 {
-	((char *)d)[0] = 0;
+	static_cast<char *>(d)[0] = 0;
 }
 
 void SLAPI SZString::maxval(void * d) const
@@ -407,25 +407,25 @@ int SLAPI SZString::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBu
 	int    ok = 1;
 	if(dir > 0) {
 		size_t sz = size();
-		size_t len = sstrlen((char *)pData);
+		size_t len = sstrlen(static_cast<const char *>(pData));
 		if(len == 0) {
 			*pInd = 1;
 		}
 		else if(len <= 0x000000ffU) {
 			*pInd = 3;
-			uint8 _len = (uint8)len;
+			uint8 _len = static_cast<uint8>(len);
 			rBuf.Write(&_len, sizeof(_len));
 			rBuf.Write(pData, _len);
 		}
 		else if(len <= 0x0000ffffU) {
 			*pInd = 0;
-			uint16 _len = (uint16)len;
+			uint16 _len = static_cast<uint16>(len);
 			rBuf.Write(_len);
 			rBuf.Write(pData, _len);
 		}
 		else {
 			*pInd = 2;
-			uint32 _len = (uint32)len;
+			uint32 _len = static_cast<uint32>(len);
 			rBuf.Write(_len);
 			rBuf.Write(pData, _len);
 		}
@@ -471,16 +471,16 @@ SLAPI SLString::SLString(uint32 sz) : DataType(sz)
 
 int SLAPI SLString::comp(const void * i1, const void * i2) const
 {
-	const size_t l1 = *(const char *)i1;
-	const size_t l2 = *(const char *)i2;
-	return strncmp(((char *)i1)+1, ((char *)i2)+1, MIN(l1, l2));
+	const size_t l1 = *static_cast<const char *>(i1);
+	const size_t l2 = *static_cast<const char *>(i2);
+	return strncmp(static_cast<const char *>(i1)+1, static_cast<const char *>(i2)+1, MIN(l1, l2));
 }
 
 #pragma option -K.
 
 char * SLAPI SLString::tostr(const void * d, long fmt, char * buf) const
 {
-	size_t l = *(const char *)d;
+	size_t l = *static_cast<const char *>(d);
 	return strfmt(strnzcpy(buf, ((char *)d)+1, MIN(S, l+1)), fmt, buf);
 }
 

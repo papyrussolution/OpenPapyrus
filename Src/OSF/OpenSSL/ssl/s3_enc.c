@@ -256,7 +256,7 @@ int ssl3_setup_key_block(SSL * s)
 	num = EVP_CIPHER_key_length(c) + num + EVP_CIPHER_iv_length(c);
 	num *= 2;
 	ssl3_cleanup_key_block(s);
-	if((p = (uchar*)OPENSSL_malloc(num)) == NULL)
+	if((p = (uchar *)OPENSSL_malloc(num)) == NULL)
 		goto err;
 	s->s3->tmp.key_block_length = num;
 	s->s3->tmp.key_block = p;
@@ -413,7 +413,7 @@ int ssl3_generate_master_secret(SSL * s, uchar * out, uchar * p, int len)
 	}
 	for(i = 0; i < 3; i++) {
 		if(EVP_DigestInit_ex(ctx, s->ctx->sha1, NULL) <= 0
-		    || EVP_DigestUpdate(ctx, salt[i], strlen((const char*)salt[i])) <= 0
+		    || EVP_DigestUpdate(ctx, salt[i], strlen((const char *)salt[i])) <= 0
 		    || EVP_DigestUpdate(ctx, p, len) <= 0
 		    || EVP_DigestUpdate(ctx, &(s->s3->client_random[0]), SSL3_RANDOM_SIZE) <= 0
 		    || EVP_DigestUpdate(ctx, &(s->s3->server_random[0]), SSL3_RANDOM_SIZE) <= 0

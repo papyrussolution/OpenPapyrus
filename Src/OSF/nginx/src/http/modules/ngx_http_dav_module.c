@@ -738,7 +738,7 @@ static void * ngx_http_dav_create_loc_conf(ngx_conf_t * cf)
 	/*
 	 * set by ngx_pcalloc():
 	 *
-	 *     conf->methods = 0;
+	 *   conf->methods = 0;
 	 */
 	conf->min_delete_depth = NGX_CONF_UNSET_UINT;
 	conf->access = NGX_CONF_UNSET_UINT;

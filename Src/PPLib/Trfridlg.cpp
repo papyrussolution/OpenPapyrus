@@ -2861,8 +2861,10 @@ int SLAPI SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				case 16: // VETIS UUID лота
 					{
 						ObjTagItem tag_item;
-						if(TagObj.FetchTag(p_item->LotID, PPTAG_LOT_VETIS_UUID, &tag_item) > 0)
+						// @v10.3.8 if(TagObj.FetchTag(p_item->LotID, PPTAG_LOT_VETIS_UUID, &tag_item) > 0)
+						if(PPRef->Ot.GetTag(PPOBJ_LOT, p_item->LotID, PPTAG_LOT_VETIS_UUID, &tag_item) > 0) { // @v10.3.8 
 							tag_item.GetStr(temp_buf);
+						}
 						pBlk->Set(temp_buf);
 					}
 					break;

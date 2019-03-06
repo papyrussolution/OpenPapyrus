@@ -104,7 +104,7 @@ static xmlEntity * xmlCreateEntity(xmlDict * dict, const xmlChar * name, int typ
 		}
 		if(content) {
 			ret->length = sstrlen(content);
-			ret->content = (dict && (ret->length < 5)) ? (xmlChar*)xmlDictLookup(dict, content, ret->length) : xmlStrndup(content, ret->length);
+			ret->content = (dict && (ret->length < 5)) ? (xmlChar *)xmlDictLookup(dict, content, ret->length) : xmlStrndup(content, ret->length);
 		}
 		else {
 			ret->length = 0;
@@ -400,7 +400,7 @@ xmlEntity * FASTCALL xmlGetDocEntity(const xmlDoc * doc, const xmlChar * name)
 		xmlChar * tmp;							     \
 		size_t new_size = buffer_size * 2;				    \
 		if(new_size < buffer_size) goto mem_error;			   \
-		tmp = (xmlChar*)SAlloc::R(buffer, new_size);			  \
+		tmp = static_cast<xmlChar *>(SAlloc::R(buffer, new_size)); \
 		if(!tmp) goto mem_error;					   \
 		buffer = tmp;							    \
 		buffer_size = new_size;						    \
@@ -434,7 +434,7 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDoc * doc, const xmlChar * input, 
 	// allocate an translation buffer.
 	// 
 	buffer_size = 1000;
-	buffer = (xmlChar*)SAlloc::M(buffer_size * sizeof(xmlChar));
+	buffer = (xmlChar *)SAlloc::M(buffer_size * sizeof(xmlChar));
 	if(!buffer) {
 		xmlEntitiesErrMemory("xmlEncodeEntities: malloc failed");
 		return 0;
@@ -484,7 +484,7 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDoc * doc, const xmlChar * input, 
 			// Special handling of &{...} construct from HTML 4, see
 			// http://www.w3.org/TR/html401/appendix/notes.html#h-B.7.1
 			// 
-			if(html && attr && (cur[1] == '{') && (strchr((const char*)cur, '}'))) {
+			if(html && attr && (cur[1] == '{') && (strchr((const char *)cur, '}'))) {
 				while(*cur != '}') {
 					*out++ = *cur++;
 					indx = out - buffer;
@@ -657,7 +657,7 @@ xmlChar * xmlEncodeSpecialChars(const xmlDoc * doc ATTRIBUTE_UNUSED, const xmlCh
 	 * allocate an translation buffer.
 	 */
 	buffer_size = 1000;
-	buffer = (xmlChar*)SAlloc::M(buffer_size * sizeof(xmlChar));
+	buffer = (xmlChar *)SAlloc::M(buffer_size * sizeof(xmlChar));
 	if(!buffer) {
 		xmlEntitiesErrMemory("xmlEncodeSpecialChars: malloc failed");
 		return 0;

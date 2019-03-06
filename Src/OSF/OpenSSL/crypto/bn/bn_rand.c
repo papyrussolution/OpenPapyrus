@@ -28,7 +28,7 @@ static int bnrand(int pseudorand, BIGNUM * rnd, int bits, int top, int bottom)
 	bit = (bits - 1) % 8;
 	mask = 0xff << (bit + 1);
 
-	buf = (uchar*)OPENSSL_malloc(bytes);
+	buf = (uchar *)OPENSSL_malloc(bytes);
 	if(!buf) {
 		BNerr(BN_F_BNRAND, ERR_R_MALLOC_FAILURE);
 		goto err;
@@ -205,7 +205,7 @@ int BN_generate_dsa_nonce(BIGNUM * out, const BIGNUM * range,
 	uchar * k_bytes;
 	int ret = 0;
 
-	k_bytes = (uchar*)OPENSSL_malloc(num_k_bytes);
+	k_bytes = (uchar *)OPENSSL_malloc(num_k_bytes);
 	if(k_bytes == NULL)
 		goto err;
 

@@ -480,14 +480,14 @@ typedef struct {
 static int PixarLogMakeTables(PixarLogState * sp)
 {
 /*
- *    We make several tables here to convert between various external
- *    representations (float, 16-bit, and 8-bit) and the internal
- *    11-bit companded representation.  The 11-bit representation has two
- *    distinct regions.  A linear bottom end up through .018316 in steps
- *    of about .000073, and a region of constant ratio up to about 25.
- *    These floating point numbers are stored in the main table ToLinearF.
- *    All other tables are derived from this one.  The tables (and the
- *    ratios) are continuous at the internal seam.
+ *  We make several tables here to convert between various external
+ *  representations (float, 16-bit, and 8-bit) and the internal
+ *  11-bit companded representation.  The 11-bit representation has two
+ *  distinct regions.  A linear bottom end up through .018316 in steps
+ *  of about .000073, and a region of constant ratio up to about 25.
+ *  These floating point numbers are stored in the main table ToLinearF.
+ *  All other tables are derived from this one.  The tables (and the
+ *  ratios) are continuous at the internal seam.
  */
 
 	int nlin, lt2size;

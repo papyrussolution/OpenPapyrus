@@ -76,14 +76,14 @@ int BIO_connect(int sock, const BIO_ADDR * addr, int options)
 	if(!BIO_socket_nbio(sock, (options & BIO_SOCK_NONBLOCK) != 0))
 		return 0;
 	if(options & BIO_SOCK_KEEPALIVE) {
-		if(setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, (const char*)&on, sizeof(on)) != 0) {
+		if(setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, (const char *)&on, sizeof(on)) != 0) {
 			SYSerr(SYS_F_SETSOCKOPT, get_last_socket_error());
 			BIOerr(BIO_F_BIO_CONNECT, BIO_R_UNABLE_TO_KEEPALIVE);
 			return 0;
 		}
 	}
 	if(options & BIO_SOCK_NODELAY) {
-		if(setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (const char*)&on, sizeof(on)) != 0) {
+		if(setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (const char *)&on, sizeof(on)) != 0) {
 			SYSerr(SYS_F_SETSOCKOPT, get_last_socket_error());
 			BIOerr(BIO_F_BIO_CONNECT, BIO_R_UNABLE_TO_NODELAY);
 			return 0;
@@ -113,9 +113,9 @@ int BIO_connect(int sock, const BIO_ADDR * addr, int options)
  * - BIO_SOCK_NONBLOCK: Make the socket non-blocking.
  * - BIO_SOCK_NODELAY: don't delay small messages.
  * - BIO_SOCK_REUSEADDR: Try to reuse the address and port combination
- *   for a recently closed port.
+ * for a recently closed port.
  * - BIO_SOCK_V6_ONLY: When creating an IPv6 socket, make it listen only
- *   for IPv6 addresses and not IPv4 addresses mapped to IPv6.
+ * for IPv6 addresses and not IPv4 addresses mapped to IPv6.
  *
  * It's recommended that you set up both an IPv6 and IPv4 listen socket, and
  * then check both for new clients that connect to it.  You want to set up
@@ -164,14 +164,14 @@ int BIO_listen(int sock, const BIO_ADDR * addr, int options)
 	}
 # endif
 	if(options & BIO_SOCK_KEEPALIVE) {
-		if(setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, (const char*)&on, sizeof(on)) != 0) {
+		if(setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, (const char *)&on, sizeof(on)) != 0) {
 			SYSerr(SYS_F_SETSOCKOPT, get_last_socket_error());
 			BIOerr(BIO_F_BIO_LISTEN, BIO_R_UNABLE_TO_KEEPALIVE);
 			return 0;
 		}
 	}
 	if(options & BIO_SOCK_NODELAY) {
-		if(setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (const char*)&on, sizeof(on)) != 0) {
+		if(setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (const char *)&on, sizeof(on)) != 0) {
 			SYSerr(SYS_F_SETSOCKOPT, get_last_socket_error());
 			BIOerr(BIO_F_BIO_LISTEN, BIO_R_UNABLE_TO_NODELAY);
 			return 0;
@@ -179,7 +179,7 @@ int BIO_listen(int sock, const BIO_ADDR * addr, int options)
 	}
 # ifdef IPV6_V6ONLY
 	if((options & BIO_SOCK_V6_ONLY) && BIO_ADDR_family(addr) == AF_INET6) {
-		if(setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY, (const char*)&on, sizeof(on)) != 0) {
+		if(setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY, (const char *)&on, sizeof(on)) != 0) {
 			SYSerr(SYS_F_SETSOCKOPT, get_last_socket_error());
 			BIOerr(BIO_F_BIO_LISTEN, BIO_R_LISTEN_V6_ONLY);
 			return 0;

@@ -32,6 +32,7 @@ void SLAPI PPGoodsPacket::destroy()
 	LinkFiles.Clear();
 	TagL.Destroy();
 	GenericList.Set(0);
+	GS.Init(); // @v10.3.8 @fix
 }
 
 PPGoodsPacket & FASTCALL PPGoodsPacket::operator = (const PPGoodsPacket & rS)

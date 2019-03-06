@@ -46,17 +46,17 @@ typedef struct tiff TIFF;
  * tiff.h directly.
  *
  * NB: ttag_t is unsigned int and not unsigned short because
- *     ANSI C requires that the type before the ellipsis be a
- *     promoted type (i.e. one of int, unsigned int, pointer,
- *     or double) and because we defined pseudo-tags that are
- *     outside the range of legal Aldus-assigned tags.
+ *   ANSI C requires that the type before the ellipsis be a
+ *   promoted type (i.e. one of int, unsigned int, pointer,
+ *   or double) and because we defined pseudo-tags that are
+ *   outside the range of legal Aldus-assigned tags.
  * NB: tsize_t is int32 and not uint32 because some functions
- *     return -1.
+ *   return -1.
  * NB: toff_t is not off_t for many reasons; TIFFs max out at
- *     32-bit file offsets, and BigTIFF maxes out at 64-bit
- *     offsets being the most important, and to ensure use of
- *     a consistently unsigned type across architectures.
- *     Prior to libtiff 4.0, this was an unsigned 32 bit type.
+ *   32-bit file offsets, and BigTIFF maxes out at 64-bit
+ *   offsets being the most important, and to ensure use of
+ *   a consistently unsigned type across architectures.
+ *   Prior to libtiff 4.0, this was an unsigned 32 bit type.
  */
 /*
  * this is the machine addressing size type, only it's signed, so make it
@@ -500,7 +500,7 @@ extern int TIFFYCbCrToRGBInit(TIFFYCbCrToRGB*, float*, float*);
 extern void FASTCALL TIFFYCbCrtoRGB(TIFFYCbCrToRGB *, uint32, int32, int32, uint32 *, uint32 *, uint32 *);
 
 /****************************************************************************
- *               O B S O L E T E D    I N T E R F A C E S
+ *             O B S O L E T E D    I N T E R F A C E S
  *
  * Don't use this stuff in your applications, it may be removed in the future
  * libtiff versions.

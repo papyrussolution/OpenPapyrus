@@ -54,12 +54,12 @@
 /*
  * The list of available ciphers, mostly organized into the following
  * groups:
- *      Always there
- *      EC
- *      PSK
- *      SRP (within that: RSA EC PSK)
- *      Cipher families: Chacha/poly, Camellila, Gost, IDEA, SEED
- *      Weak ciphers
+ *    Always there
+ *    EC
+ *    PSK
+ *    SRP (within that: RSA EC PSK)
+ *    Cipher families: Chacha/poly, Camellila, Gost, IDEA, SEED
+ *    Weak ciphers
  */
 static SSL_CIPHER ssl3_ciphers[] = {
 	{
@@ -2772,7 +2772,7 @@ const SSL_CIPHER * ssl3_get_cipher(uint u)
 
 int ssl3_set_handshake_header(SSL * s, int htype, unsigned long len)
 {
-	uchar * p = (uchar*)s->init_buf->data;
+	uchar * p = (uchar *)s->init_buf->data;
 	*(p++) = htype;
 	l2n3(len, p);
 	s->init_num = (int)len + SSL3_HM_HEADER_LENGTH;
@@ -3013,7 +3013,7 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 
 		case SSL_CTRL_SET_TLSEXT_STATUS_REQ_OCSP_RESP:
 		    OPENSSL_free(s->tlsext_ocsp_resp);
-		    s->tlsext_ocsp_resp = (uchar*)parg;
+		    s->tlsext_ocsp_resp = (uchar *)parg;
 		    s->tlsext_ocsp_resplen = larg;
 		    ret = 1;
 		    break;
@@ -3111,7 +3111,7 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 		    return tls1_set_curves(&s->tlsext_ellipticcurvelist, &s->tlsext_ellipticcurvelist_length, (int *)parg, larg);
 
 		case SSL_CTRL_SET_CURVES_LIST:
-		    return tls1_set_curves_list(&s->tlsext_ellipticcurvelist, &s->tlsext_ellipticcurvelist_length, (const char*)parg);
+		    return tls1_set_curves_list(&s->tlsext_ellipticcurvelist, &s->tlsext_ellipticcurvelist_length, (const char *)parg);
 
 		case SSL_CTRL_GET_SHARED_CURVE:
 		    return tls1_shared_curve(s, larg);
@@ -3121,13 +3121,13 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 		    return tls1_set_sigalgs(s->cert, (const int*)parg, larg, 0);
 
 		case SSL_CTRL_SET_SIGALGS_LIST:
-		    return tls1_set_sigalgs_list(s->cert, (const char*)parg, 0);
+		    return tls1_set_sigalgs_list(s->cert, (const char *)parg, 0);
 
 		case SSL_CTRL_SET_CLIENT_SIGALGS:
 		    return tls1_set_sigalgs(s->cert, (const int*)parg, larg, 1);
 
 		case SSL_CTRL_SET_CLIENT_SIGALGS_LIST:
-		    return tls1_set_sigalgs_list(s->cert, (const char*)parg, 1);
+		    return tls1_set_sigalgs_list(s->cert, (const char *)parg, 1);
 
 		case SSL_CTRL_GET_CLIENT_CERT_TYPES:
 	    {
@@ -3140,14 +3140,14 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 			    return (int)s->cert->ctype_num;
 		    }
 		    if(pctype)
-			    *pctype = (uchar*)s->s3->tmp.ctype;
+			    *pctype = (uchar *)s->s3->tmp.ctype;
 		    return s->s3->tmp.ctype_num;
 	    }
 
 		case SSL_CTRL_SET_CLIENT_CERT_TYPES:
 		    if(!s->server)
 			    return 0;
-		    return ssl3_set_req_cert_type(s->cert, (uchar*)parg, larg);
+		    return ssl3_set_req_cert_type(s->cert, (uchar *)parg, larg);
 
 		case SSL_CTRL_BUILD_CERT_CHAIN:
 		    return ssl_build_cert_chain(s, NULL, larg);
@@ -3302,7 +3302,7 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 		case SSL_CTRL_SET_TLSEXT_TICKET_KEYS:
 		case SSL_CTRL_GET_TLSEXT_TICKET_KEYS:
 	    {
-		    uchar * keys = (uchar*)parg;
+		    uchar * keys = (uchar *)parg;
 		    long tlsext_tick_keylen = (sizeof(ctx->tlsext_tick_key_name) +
 			    sizeof(ctx->tlsext_tick_hmac_key) +
 			    sizeof(ctx->tlsext_tick_aes_key));
@@ -3363,7 +3363,7 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 		    ctx->srp_ctx.login = NULL;
 		    if(parg == NULL)
 			    break;
-		    if(strlen((const char*)parg) > 255 || strlen((const char*)parg) < 1) {
+		    if(strlen((const char *)parg) > 255 || strlen((const char *)parg) < 1) {
 			    SSLerr(SSL_F_SSL3_CTX_CTRL, SSL_R_INVALID_SRP_USERNAME);
 			    return 0;
 		    }
@@ -3392,22 +3392,22 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 		    return tls1_set_curves(&ctx->tlsext_ellipticcurvelist, &ctx->tlsext_ellipticcurvelist_length, (int *)parg, larg);
 
 		case SSL_CTRL_SET_CURVES_LIST:
-		    return tls1_set_curves_list(&ctx->tlsext_ellipticcurvelist, &ctx->tlsext_ellipticcurvelist_length, (const char*)parg);
+		    return tls1_set_curves_list(&ctx->tlsext_ellipticcurvelist, &ctx->tlsext_ellipticcurvelist_length, (const char *)parg);
 #endif
 		case SSL_CTRL_SET_SIGALGS:
 		    return tls1_set_sigalgs(ctx->cert, (const int*)parg, larg, 0);
 
 		case SSL_CTRL_SET_SIGALGS_LIST:
-		    return tls1_set_sigalgs_list(ctx->cert, (const char*)parg, 0);
+		    return tls1_set_sigalgs_list(ctx->cert, (const char *)parg, 0);
 
 		case SSL_CTRL_SET_CLIENT_SIGALGS:
 		    return tls1_set_sigalgs(ctx->cert, (const int*)parg, larg, 1);
 
 		case SSL_CTRL_SET_CLIENT_SIGALGS_LIST:
-		    return tls1_set_sigalgs_list(ctx->cert, (const char*)parg, 1);
+		    return tls1_set_sigalgs_list(ctx->cert, (const char *)parg, 1);
 
 		case SSL_CTRL_SET_CLIENT_CERT_TYPES:
-		    return ssl3_set_req_cert_type(ctx->cert, (uchar*)parg, larg);
+		    return ssl3_set_req_cert_type(ctx->cert, (uchar *)parg, larg);
 
 		case SSL_CTRL_BUILD_CERT_CHAIN:
 		    return ssl_build_cert_chain(NULL, ctx, larg);
@@ -3729,7 +3729,7 @@ static int ssl3_set_req_cert_type(CERT * c, const uchar * p, size_t len)
 		return 1;
 	if(len > 0xff)
 		return 0;
-	c->ctypes = (uchar*)OPENSSL_malloc(len);
+	c->ctypes = (uchar *)OPENSSL_malloc(len);
 	if(c->ctypes == NULL)
 		return 0;
 	memcpy(c->ctypes, p, len);
@@ -3804,7 +3804,7 @@ static int ssl3_read_internal(SSL * s, void * buf, int len, int peek)
 	if(s->s3->renegotiate)
 		ssl3_renegotiate_check(s);
 	s->s3->in_read_app_data = 1;
-	ret = s->method->ssl_read_bytes(s, SSL3_RT_APPLICATION_DATA, NULL, (uchar*)buf, len, peek);
+	ret = s->method->ssl_read_bytes(s, SSL3_RT_APPLICATION_DATA, NULL, (uchar *)buf, len, peek);
 	if((ret == -1) && (s->s3->in_read_app_data == 2)) {
 		/*
 		 * ssl3_read_bytes decided to call s->handshake_func, which called
@@ -3814,7 +3814,7 @@ static int ssl3_read_internal(SSL * s, void * buf, int len, int peek)
 		 * application data again.
 		 */
 		ossl_statem_set_in_handshake(s, 1);
-		ret = s->method->ssl_read_bytes(s, SSL3_RT_APPLICATION_DATA, NULL, (uchar*)buf, len, peek);
+		ret = s->method->ssl_read_bytes(s, SSL3_RT_APPLICATION_DATA, NULL, (uchar *)buf, len, peek);
 		ossl_statem_set_in_handshake(s, 0);
 	}
 	else
@@ -3932,7 +3932,7 @@ int ssl_generate_master_secret(SSL * s, uchar * pms, size_t pmslen,
 			pmslen = psklen;
 
 		pskpmslen = 4 + pmslen + psklen;
-		pskpms = (uchar*)OPENSSL_malloc(pskpmslen);
+		pskpms = (uchar *)OPENSSL_malloc(pskpmslen);
 		if(pskpms == NULL) {
 			s->session->master_key_length = 0;
 			goto err;
@@ -4049,7 +4049,7 @@ int ssl_derive(SSL * s, EVP_PKEY * privkey, EVP_PKEY * pubkey)
 	    || EVP_PKEY_derive(pctx, NULL, &pmslen) <= 0) {
 		goto err;
 	}
-	pms = (uchar*)OPENSSL_malloc(pmslen);
+	pms = (uchar *)OPENSSL_malloc(pmslen);
 	if(pms == NULL)
 		goto err;
 	if(EVP_PKEY_derive(pctx, pms, &pmslen) <= 0)

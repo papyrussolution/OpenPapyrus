@@ -432,7 +432,7 @@ static void * ngx_http_gunzip_create_conf(ngx_conf_t * cf)
 		/*
 		 * set by ngx_pcalloc():
 		 *
-		 *     conf->bufs.num = 0;
+		 *   conf->bufs.num = 0;
 		 */
 		conf->enable = NGX_CONF_UNSET;
 	}

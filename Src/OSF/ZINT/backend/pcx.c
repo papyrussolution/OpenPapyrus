@@ -73,7 +73,7 @@ int pcx_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 #ifndef _MSC_VER
 	uchar rle_row[symbol->bitmap_width];
 #else
-	rle_row = (uchar*)_alloca((symbol->bitmap_width * 6) * sizeof(uchar));
+	rle_row = (uchar *)_alloca((symbol->bitmap_width * 6) * sizeof(uchar));
 #endif /* _MSC_VER */
 	//const int fgred = (16 * hex(symbol->fgcolour[0])) + hex(symbol->fgcolour[1]);
 	//const int fggrn = (16 * hex(symbol->fgcolour[2])) + hex(symbol->fgcolour[3]);

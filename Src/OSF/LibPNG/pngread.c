@@ -1276,11 +1276,11 @@ static void png_image_skip_unused_chunks(png_structrp png_ptr)
 	 * be used, i.e., all chunks recognized by libpng except for those
 	 * involved in basic image reading:
 	 *
-	 *    IHDR, PLTE, IDAT, IEND
+	 *  IHDR, PLTE, IDAT, IEND
 	 *
 	 * Or image data handling:
 	 *
-	 *    tRNS, bKGD, gAMA, cHRM, sRGB, [iCCP] and sBIT.
+	 *  tRNS, bKGD, gAMA, cHRM, sRGB, [iCCP] and sBIT.
 	 *
 	 * This provides a small performance improvement and eliminates any
 	 * potential vulnerability to security problems in the unused chunks.
@@ -1635,19 +1635,19 @@ static int make_ga_colormap(png_image_read_control * display)
 	 *
 	 * if (alpha > 229) // opaque
 	 * {
-	 *    // The 231 entries are selected to make the math below work:
-	 *    base = 0;
-	 *    entry = (231 * gray + 128) >> 8;
+	 *  // The 231 entries are selected to make the math below work:
+	 *  base = 0;
+	 *  entry = (231 * gray + 128) >> 8;
 	 * }
 	 * else if (alpha < 26) // transparent
 	 * {
-	 *    base = 231;
-	 *    entry = 0;
+	 *  base = 231;
+	 *  entry = 0;
 	 * }
 	 * else // partially opaque
 	 * {
-	 *    base = 226 + 6 * PNG_DIV51(alpha);
-	 *    entry = PNG_DIV51(gray);
+	 *  base = 226 + 6 * PNG_DIV51(alpha);
+	 *  entry = PNG_DIV51(gray);
 	 * }
 	 */
 	i = 0;

@@ -33,8 +33,8 @@ static ulong order = 0; /* number of memory requests */
  * For application-defined information (static C-string `info')
  * to be displayed in memory leak list.
  * Each thread has its own stack.  For applications, there is
- *   OPENSSL_mem_debug_push("...")     to push an entry,
- *   OPENSSL_mem_debug_pop()     to pop an entry,
+ * OPENSSL_mem_debug_push("...")     to push an entry,
+ * OPENSSL_mem_debug_pop()     to pop an entry,
  */
 struct app_mem_info_st {
 	CRYPTO_THREAD_ID threadid;
@@ -204,7 +204,7 @@ static int mem_check_on(void)
 static int mem_cmp(const MEM * a, const MEM * b)
 {
 #ifdef _WIN64
-	const char * ap = (const char*)a->addr, * bp = (const char*)b->addr;
+	const char * ap = (const char *)a->addr, * bp = (const char *)b->addr;
 	if(ap == bp)
 		return 0;
 	else if(ap > bp)
@@ -212,7 +212,7 @@ static int mem_cmp(const MEM * a, const MEM * b)
 	else
 		return -1;
 #else
-	return (const char*)a->addr - (const char*)b->addr;
+	return (const char *)a->addr - (const char *)b->addr;
 #endif
 }
 

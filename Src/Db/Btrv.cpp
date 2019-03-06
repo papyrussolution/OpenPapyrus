@@ -711,8 +711,7 @@ int SLAPI DbDict_Btrieve::getIndexList(BTBLID tblID, BNKeyList * pKeyList)
 		THROW(xindex.getExtended(&key, spNext) || BTRNFOUND || (BtrError == BE_REJECTLIMIT));
 		count = *(uint16 *)q;
 		for(i = 0; i < count; i++) {
-   	    	const XIndex * d = (XIndex*)(q + sizeof(BExtResultHeader) +
-				i * (sizeof(BExtResultItem) + sizeof(XIndex)) + sizeof(BExtResultItem));
+   	    	const XIndex * d = reinterpret_cast<const XIndex *>(q + sizeof(BExtResultHeader) + i * (sizeof(BExtResultItem) + sizeof(XIndex)) + sizeof(BExtResultItem));
 			k.addSegment(d->XiField, d->XiFlags);
 			if(!(d->XiFlags & XIF_SEG)) {
 				k.setKeyParams(d->XiNumber, 0);

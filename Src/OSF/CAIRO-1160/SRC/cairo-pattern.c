@@ -37,7 +37,7 @@
 //#include "cairo-path-private.h"
 //#include "cairo-pattern-private.h"
 //#include "cairo-recording-surface-inline.h"
-//#include "cairo-surface-snapshot-inline.h"
+////#include "cairo-surface-snapshot-inline.h"
 //#include <float.h>
 
 #define PIXMAN_MAX_INT ((pixman_fixed_1 >> 1) - pixman_fixed_e) /* need to ensure deltas also fit */
@@ -741,16 +741,16 @@ static const int mesh_control_point_j[4] = { 1, 2, 2, 1 };
  *
  * <informalexample><screen>
  *  C1     Side 1       C2
- *   +---------------+
- *   |               |
- *   |  P1       P2  |
- *   |               |
+ * +---------------+
+ * |               |
+ * |  P1       P2  |
+ * |               |
  * Side 0 |               | Side 2
- *   |               |
- *   |               |
- *   |  P0       P3  |
- *   |               |
- *   +---------------+
+ * |               |
+ * |               |
+ * |  P0       P3  |
+ * |               |
+ * +---------------+
  * C0     Side 3        C3
  * </screen></informalexample>
  *
@@ -1982,7 +1982,7 @@ static void _cairo_linear_pattern_box_to_parameter(const cairo_linear_pattern_t 
 	 *
 	 * The parameter value t for a point (x,y) can be computed as:
 	 *
-	 *   t = (p2 - p1) . (x,y) / |p2 - p1|^2
+	 * t = (p2 - p1) . (x,y) / |p2 - p1|^2
 	 *
 	 * t0  is the t value for the top left corner
 	 * tdx is the difference between left and right corners
@@ -2154,10 +2154,10 @@ static void _cairo_radial_pattern_box_to_parameter(const cairo_radial_pattern_t 
 	 * If the circle is tangent to the line defined by the edge of the
 	 * box, then at least one of the following holds true:
 	 *
-	 *   (dx*t) + (cr + dr*t) == x0 (left   edge)
-	 *   (dx*t) - (cr + dr*t) == x1 (right  edge)
-	 *   (dy*t) + (cr + dr*t) == y0 (top    edge)
-	 *   (dy*t) - (cr + dr*t) == y1 (bottom edge)
+	 * (dx*t) + (cr + dr*t) == x0 (left   edge)
+	 * (dx*t) - (cr + dr*t) == x1 (right  edge)
+	 * (dy*t) + (cr + dr*t) == y0 (top    edge)
+	 * (dy*t) - (cr + dr*t) == y1 (bottom edge)
 	 *
 	 * The solution is only valid if the tangent point is actually on
 	 * the edge, i.e. if its y coordinate is in [y0,y1] for left/right
@@ -2166,14 +2166,14 @@ static void _cairo_radial_pattern_box_to_parameter(const cairo_radial_pattern_t 
 	 *
 	 * For the first equation:
 	 *
-	 *   (dx + dr) * t = x0 - cr
-	 *   t = (x0 - cr) / (dx + dr)
-	 *   y = dy * t
+	 * (dx + dr) * t = x0 - cr
+	 * t = (x0 - cr) / (dx + dr)
+	 * y = dy * t
 	 *
 	 * in the code this becomes:
 	 *
-	 *   t_edge = (num) / (den)
-	 *   v = (delta) * t_edge
+	 * t_edge = (num) / (den)
+	 * v = (delta) * t_edge
 	 *
 	 * If the denominator in t is 0, the pattern is tangent to a line
 	 * parallel to the edge under examination. The corner-case where
@@ -2206,11 +2206,11 @@ static void _cairo_radial_pattern_box_to_parameter(const cairo_radial_pattern_t 
 	 * (x-t*dx)^2 + (y-t*dy)^2 == (cr + t*dr)^2
 	 *
 	 * If we set:
-	 *   a = dx^2 + dy^2 - dr^2
-	 *   b = x*dx + y*dy + cr*dr
-	 *   c = x^2 + y^2 - cr^2
+	 * a = dx^2 + dy^2 - dr^2
+	 * b = x*dx + y*dy + cr*dr
+	 * c = x^2 + y^2 - cr^2
 	 * we have:
-	 *   a*t^2 - 2*b*t + c == 0
+	 * a*t^2 - 2*b*t + c == 0
 	 */
 	a = dx * dx + dy * dy - dr * dr;
 	if(fabs(a) < DBL_EPSILON * DBL_EPSILON) {
@@ -2226,7 +2226,7 @@ static void _cairo_radial_pattern_box_to_parameter(const cairo_radial_pattern_t 
 		 *  AND
 		 *  2a) The circles are both very small:
 		 * min (r0, r1) < DBL_EPSILON
-		 *   OR
+		 * OR
 		 *  2b) The circles are very close to each other:
 		 * max (|dx|, |dy|) < 2 * DBL_EPSILON
 		 *
@@ -2236,14 +2236,14 @@ static void _cairo_radial_pattern_box_to_parameter(const cairo_radial_pattern_t 
 		 * If the gradient is not degenerate yet it has |dr| <
 		 * DBL_EPSILON, (2b) is false, thus:
 		 *
-		 *   max (|dx|, |dy|) >= 2*DBL_EPSILON
+		 * max (|dx|, |dy|) >= 2*DBL_EPSILON
 		 * which implies:
-		 *   4*DBL_EPSILON^2 <= max (|dx|, |dy|)^2 <= dx^2 + dy^2
+		 * 4*DBL_EPSILON^2 <= max (|dx|, |dy|)^2 <= dx^2 + dy^2
 		 *
 		 * From the definition of a, we get:
-		 *   a = dx^2 + dy^2 - dr^2 < DBL_EPSILON^2
-		 *   dx^2 + dy^2 - DBL_EPSILON^2 < dr^2
-		 *   3*DBL_EPSILON^2 < dr^2
+		 * a = dx^2 + dy^2 - dr^2 < DBL_EPSILON^2
+		 * dx^2 + dy^2 - DBL_EPSILON^2 < dr^2
+		 * 3*DBL_EPSILON^2 < dr^2
 		 *
 		 * which is inconsistent with the hypotheses, thus |dr| <
 		 * DBL_EPSILON is false or the gradient is degenerate.
@@ -2259,7 +2259,7 @@ static void _cairo_radial_pattern_box_to_parameter(const cairo_radial_pattern_t 
 		 * bounding box does not exceed tolerance.
 		 *
 		 * The equation of the line is b==0, i.e.:
-		 *   x*dx + y*dy + cr*dr == 0
+		 * x*dx + y*dy + cr*dr == 0
 		 *
 		 * We compute the intersection of the line with the box and
 		 * keep the intersection with maximum square distance (maxd2)
@@ -2275,17 +2275,17 @@ static void _cairo_radial_pattern_box_to_parameter(const cairo_radial_pattern_t 
 		 *
 		 * For example:
 		 *
-		 *   y = y0
-		 *   x*dx + y0*dy + cr*dr == 0
-		 *   x = -(y0*dy + cr*dr) / dx
+		 * y = y0
+		 * x*dx + y0*dy + cr*dr == 0
+		 * x = -(y0*dy + cr*dr) / dx
 		 *
 		 * which in (u,v) is:
-		 *   u = y0 - y_focus
-		 *   v = -(y0*dy + cr*dr) / dx - x_focus
+		 * u = y0 - y_focus
+		 * v = -(y0*dy + cr*dr) / dx - x_focus
 		 *
 		 * In the code:
-		 *   u = (edge) - (u_origin)
-		 *   v = -((edge) * (delta) + cr*dr) / (den) - v_focus
+		 * u = (edge) - (u_origin)
+		 * v = -((edge) * (delta) + cr*dr) / (den) - v_focus
 		 */
 #define T_EDGE(edge, delta, den, lower, upper, u_origin, v_origin)    \
 	if(fabs(den) >= DBL_EPSILON) {                        \
@@ -2317,14 +2317,14 @@ static void _cairo_radial_pattern_box_to_parameter(const cairo_radial_pattern_t 
 		 * The limit circle can be transformed rigidly to the y=0 line
 		 * and the circles tangent to it in (0,0) are:
 		 *
-		 *   x^2 + (y-r)^2 = r^2  <=>  x^2 + y^2 - 2*y*r = 0
+		 * x^2 + (y-r)^2 = r^2  <=>  x^2 + y^2 - 2*y*r = 0
 		 *
 		 * y is the distance from the line, in our case tolerance;
 		 * x is the distance along the line, i.e. sqrt(maxd2),
 		 * so:
 		 *
-		 *   r = cr + dr * t = (maxd2 + tolerance^2) / (2*tolerance)
-		 *   t = (r - cr) / dr =
+		 * r = cr + dr * t = (maxd2 + tolerance^2) / (2*tolerance)
+		 * t = (r - cr) / dr =
 		 *  (maxd2 + tolerance^2 - 2*tolerance*cr) / (2*tolerance*dr)
 		 */
 		if(maxd2 > 0) {
@@ -2627,12 +2627,12 @@ static void _gradient_color_average(const cairo_gradient_pattern_t * gradient,
 		 * the following triangles (taken with height 1, since the whole [0-1]
 		 * will have total weight 1 this way): b*h/2
 		     *
-		 *   +                   +
+		 * +                   +
 		 * / |\                / | \
 		 * /   | \             /   |   \
-		 *   /     |  \          /     |     \
+		 * /     |  \          /     |     \
 		 * ~~~~~+---+---+---+~~~~~~~+-------+---+---+~~~~~
-		 *   -1+Sz  0  Sa   Sb      Sy     Sz   1  1+Sa
+		 * -1+Sz  0  Sa   Sb      Sy     Sz   1  1+Sa
 		     *
 		 * For the first stop: (Sb-(-1+Sz)/2 = (1+Sb-Sz)/2
 		 * For the last stop: ((1+Sa)-Sy)/2 = (1+Sa-Sy)/2

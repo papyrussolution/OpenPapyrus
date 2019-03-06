@@ -35,10 +35,10 @@
  * NOTE: THIS ARRAY IS ASSUMED TO BE SORTED BY TAG.
  *
  * NOTE: The second field (field_readcount) and third field (field_writecount)
- *       sometimes use the values TIFF_VARIABLE (-1), TIFF_VARIABLE2 (-3)
- *       and TIFF_SPP (-2). The macros should be used but would throw off
- *       the formatting of the code, so please interpret the -1, -2 and -3
- *       values accordingly.
+ *     sometimes use the values TIFF_VARIABLE (-1), TIFF_VARIABLE2 (-3)
+ *     and TIFF_SPP (-2). The macros should be used but would throw off
+ *     the formatting of the code, so please interpret the -1, -2 and -3
+ *     values accordingly.
  */
 //
 // const object should be initialized 

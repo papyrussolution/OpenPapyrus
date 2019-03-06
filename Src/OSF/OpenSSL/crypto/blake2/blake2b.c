@@ -108,11 +108,11 @@ static void blake2b_compress(BLAKE2B_CTX * S, const uint8_t * blocks, size_t len
 	 * There are two distinct usage vectors for this function:
 	 *
 	 * a) BLAKE2b_Update uses it to process complete blocks,
-	 *    possibly more than one at a time;
+	 *  possibly more than one at a time;
 	 *
 	 * b) BLAK2b_Final uses it to process last block, always
-	 *    single but possibly incomplete, in which case caller
-	 *    pads input with zeros.
+	 *  single but possibly incomplete, in which case caller
+	 *  pads input with zeros.
 	 */
 	assert(len < BLAKE2B_BLOCKBYTES || len % BLAKE2B_BLOCKBYTES == 0);
 

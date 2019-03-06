@@ -28,7 +28,7 @@ int ssl3_do_write(SSL * s, int type)
 		/*
 		 * should not be done for 'Hello Request's, but in that case we'll ignore the result anyway
 		 */
-		if(!ssl3_finish_mac(s, (uchar*)&s->init_buf->data[s->init_off], ret))
+		if(!ssl3_finish_mac(s, (uchar *)&s->init_buf->data[s->init_off], ret))
 			return -1;
 	if(ret == s->init_num) {
 		if(s->msg_callback)
@@ -200,7 +200,7 @@ f_err:
 
 int tls_construct_change_cipher_spec(SSL * s)
 {
-	uchar * p = (uchar*)s->init_buf->data;
+	uchar * p = (uchar *)s->init_buf->data;
 	*p = SSL3_MT_CCS;
 	s->init_num = 1;
 	s->init_off = 0;
@@ -286,7 +286,7 @@ int tls_get_message_header(SSL * s, int * mt)
 	/* s->init_num < SSL3_HM_HEADER_LENGTH */
 	int skip_message, i, recvd_type, al;
 	unsigned long l;
-	uchar * p = (uchar*)s->init_buf->data;
+	uchar * p = (uchar *)s->init_buf->data;
 	do {
 		while(s->init_num < SSL3_HM_HEADER_LENGTH) {
 			i = s->method->ssl_read_bytes(s, SSL3_RT_HANDSHAKE, &recvd_type, &p[s->init_num], SSL3_HM_HEADER_LENGTH - s->init_num, 0);
@@ -376,7 +376,7 @@ int tls_get_message_body(SSL * s, unsigned long * len)
 		*len = (unsigned long)s->init_num;
 		return 1;
 	}
-	p = (uchar*)s->init_msg;
+	p = (uchar *)s->init_msg;
 	n = s->s3->tmp.message_size - s->init_num;
 	while(n > 0) {
 		i = s->method->ssl_read_bytes(s, SSL3_RT_HANDSHAKE, NULL, &p[s->init_num], n, 0);
@@ -398,7 +398,7 @@ int tls_get_message_body(SSL * s, unsigned long * len)
 #endif
 	/* Feed this message into MAC computation. */
 	if(RECORD_LAYER_is_sslv2_record(&s->rlayer)) {
-		if(!ssl3_finish_mac(s, (uchar*)s->init_buf->data, s->init_num)) {
+		if(!ssl3_finish_mac(s, (uchar *)s->init_buf->data, s->init_num)) {
 			SSLerr(SSL_F_TLS_GET_MESSAGE_BODY, ERR_R_EVP_LIB);
 			ssl3_send_alert(s, SSL3_AL_FATAL, SSL_AD_INTERNAL_ERROR);
 			*len = 0;
@@ -408,7 +408,7 @@ int tls_get_message_body(SSL * s, unsigned long * len)
 			s->msg_callback(0, SSL2_VERSION, 0, s->init_buf->data, (size_t)s->init_num, s, s->msg_callback_arg);
 	}
 	else {
-		if(!ssl3_finish_mac(s, (uchar*)s->init_buf->data, s->init_num + SSL3_HM_HEADER_LENGTH)) {
+		if(!ssl3_finish_mac(s, (uchar *)s->init_buf->data, s->init_num + SSL3_HM_HEADER_LENGTH)) {
 			SSLerr(SSL_F_TLS_GET_MESSAGE_BODY, ERR_R_EVP_LIB);
 			ssl3_send_alert(s, SSL3_AL_FATAL, SSL_AD_INTERNAL_ERROR);
 			*len = 0;
@@ -771,8 +771,8 @@ int ssl_choose_server_version(SSL * s)
 	/*-
 	 * With version-flexible methods we have an initial state with:
 	 *
-	 *   s->method->version == (D)TLS_ANY_VERSION,
-	 *   s->version == (D)TLS_MAX_VERSION.
+	 * s->method->version == (D)TLS_ANY_VERSION,
+	 * s->version == (D)TLS_MAX_VERSION.
 	 *
 	 * So we detect version-flexible methods via the method version, not the
 	 * handle version.

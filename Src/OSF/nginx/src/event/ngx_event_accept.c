@@ -192,11 +192,11 @@ void ngx_event_accept(ngx_event_t * ev)
 		wev->log = log;
 		/*
 		 * @todo MT: - ngx_atomic_fetch_add()
-		 *             or protection by critical section or light mutex
+		 *           or protection by critical section or light mutex
 		 *
 		 * @todo MP: - allocated in a shared memory
-		 *           - ngx_atomic_fetch_add()
-		 *             or protection by critical section or light mutex
+		 *         - ngx_atomic_fetch_add()
+		 *           or protection by critical section or light mutex
 		 */
 		c->number = ngx_atomic_fetch_add(ngx_connection_counter, 1);
 #if (NGX_STAT_STUB)
@@ -415,11 +415,11 @@ void ngx_event_recvmsg(ngx_event_t * ev)
 		wev->log = log;
 		/*
 		 * @todo MT: - ngx_atomic_fetch_add()
-		 *             or protection by critical section or light mutex
+		 *           or protection by critical section or light mutex
 		 *
 		 * @todo MP: - allocated in a shared memory
-		 *           - ngx_atomic_fetch_add()
-		 *             or protection by critical section or light mutex
+		 *         - ngx_atomic_fetch_add()
+		 *           or protection by critical section or light mutex
 		 */
 		c->number = ngx_atomic_fetch_add(ngx_connection_counter, 1);
 #if (NGX_STAT_STUB)

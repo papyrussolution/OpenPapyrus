@@ -235,7 +235,7 @@ struct __mpool { /* SHARED */
  * with the number of buckets in the region.
  *
  * This is equivalent to:
- *     mask = (1 << __db_log2(nbuckets)) - 1;
+ *   mask = (1 << __db_log2(nbuckets)) - 1;
  */
 #define	MP_MASK(nbuckets, mask) do { for(mask = 1; mask < (nbuckets); mask = (mask << 1) | 1) ; } while (0)
 

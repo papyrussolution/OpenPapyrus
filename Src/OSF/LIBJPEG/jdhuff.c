@@ -120,9 +120,9 @@ typedef struct {                /* Bitreading working state within an MCU */
  * but the state struct might not be (jpeg_huff_decode needs this).
  *	CHECK_BIT_BUFFER(state,n,action);
  *		Ensure there are N bits in get_buffer; if suspend, take action.
- *      val = GET_BITS(n);
+ *    val = GET_BITS(n);
  *		Fetch next N bits.
- *      val = PEEK_BITS(n);
+ *    val = PEEK_BITS(n);
  *		Fetch next N bits without removing them from the buffer.
  *	DROP_BITS(n);
  *		Discard next N bits.
@@ -149,9 +149,9 @@ typedef struct {                /* Bitreading working state within an MCU */
  *
  * Notes about the HUFF_DECODE macro:
  * 1. Near the end of the data segment, we may fail to get enough bits
- *    for a lookahead.  In that case, we do it the hard way.
+ *  for a lookahead.  In that case, we do it the hard way.
  * 2. If the lookahead table contains no entry, the next code must be
- *    more than HUFF_LOOKAHEAD bits long.
+ *  more than HUFF_LOOKAHEAD bits long.
  * 3. jpeg_huff_decode returns -1 if forced to suspend.
  */
 
@@ -583,7 +583,7 @@ static int jpeg_huff_decode(bitread_working_state * state, bit_buf_type get_buff
 
 METHODDEF(void) finish_pass_huff(j_decompress_ptr cinfo)
 {
-	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
+	huff_entropy_ptr entropy = reinterpret_cast<huff_entropy_ptr>(cinfo->entropy);
 	/* Throw away any unused bits remaining in bit buffer; */
 	/* include any full bytes in next_marker's count of discarded bytes */
 	cinfo->marker->discarded_bytes += entropy->bitstate.bits_left / 8;
@@ -595,7 +595,7 @@ METHODDEF(void) finish_pass_huff(j_decompress_ptr cinfo)
  */
 static boolean FASTCALL process_restart(j_decompress_ptr cinfo)
 {
-	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
+	huff_entropy_ptr entropy = reinterpret_cast<huff_entropy_ptr>(cinfo->entropy);
 	int ci;
 	finish_pass_huff(cinfo);
 	/* Advance past the RSTn marker */
@@ -642,7 +642,7 @@ static boolean FASTCALL process_restart(j_decompress_ptr cinfo)
 
 METHODDEF(boolean) decode_mcu_DC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 {
-	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
+	huff_entropy_ptr entropy = reinterpret_cast<huff_entropy_ptr>(cinfo->entropy);
 	int Al = cinfo->Al;
 	register int s, r;
 	int blkn, ci;
@@ -706,7 +706,7 @@ METHODDEF(boolean) decode_mcu_DC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
  */
 METHODDEF(boolean) decode_mcu_AC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 {
-	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
+	huff_entropy_ptr entropy = reinterpret_cast<huff_entropy_ptr>(cinfo->entropy);
 	register int s, k, r;
 	uint EOBRUN;
 	int Se, Al;
@@ -785,7 +785,7 @@ METHODDEF(boolean) decode_mcu_AC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
 
 METHODDEF(boolean) decode_mcu_DC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 {
-	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
+	huff_entropy_ptr entropy = reinterpret_cast<huff_entropy_ptr>(cinfo->entropy);
 	int p1, blkn;
 	BITREAD_STATE_VARS;
 
@@ -830,7 +830,7 @@ METHODDEF(boolean) decode_mcu_DC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_d
 
 METHODDEF(boolean) decode_mcu_AC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 {
-	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
+	huff_entropy_ptr entropy = reinterpret_cast<huff_entropy_ptr>(cinfo->entropy);
 	register int s, k, r;
 	uint EOBRUN;
 	int Se, p1, m1;
@@ -984,7 +984,7 @@ undoit:
  */
 METHODDEF(boolean) decode_mcu_sub(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 {
-	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
+	huff_entropy_ptr entropy = reinterpret_cast<huff_entropy_ptr>(cinfo->entropy);
 	const uint8 * natural_order; // @sobolev int-->uint8
 	int Se, blkn;
 	BITREAD_STATE_VARS;
@@ -1110,7 +1110,7 @@ EndOfBlock:;
 
 METHODDEF(boolean) decode_mcu(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 {
-	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
+	huff_entropy_ptr entropy = reinterpret_cast<huff_entropy_ptr>(cinfo->entropy);
 	int blkn;
 	BITREAD_STATE_VARS;
 	savable_state state;
@@ -1233,7 +1233,7 @@ EndOfBlock:;
 
 METHODDEF(void) start_pass_huff_decoder(j_decompress_ptr cinfo)
 {
-	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
+	huff_entropy_ptr entropy = reinterpret_cast<huff_entropy_ptr>(cinfo->entropy);
 	int ci, blkn, tbl, i;
 	jpeg_component_info * compptr;
 

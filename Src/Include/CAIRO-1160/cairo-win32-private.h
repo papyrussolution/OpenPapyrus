@@ -177,7 +177,7 @@ static inline void _cairo_matrix_to_win32_xform(const cairo_matrix_t * m, XFORM 
 	xform->eDy = (FLOAT)m->y0;
 }
 
-cairo_status_t _cairo_win32_display_surface_set_clip(const cairo_win32_display_surface_t * surface, cairo_clip_t * clip);
+cairo_status_t _cairo_win32_display_surface_set_clip(const cairo_win32_display_surface_t * surface, const cairo_clip_t * clip);
 void _cairo_win32_display_surface_unset_clip(const cairo_win32_display_surface_t * surface);
 void _cairo_win32_debug_dump_hrgn(HRGN rgn, char * header);
 cairo_bool_t _cairo_win32_scaled_font_is_type1(cairo_scaled_font_t * scaled_font);

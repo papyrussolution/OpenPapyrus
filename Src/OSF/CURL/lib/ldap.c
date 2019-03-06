@@ -694,13 +694,13 @@ static bool split_str(char * str, char *** out, size_t * count)
 /*
  * Break apart the pieces of an LDAP URL.
  * Syntax:
- *   ldap://<hostname>:<port>/<base_dn>?<attributes>?<scope>?<filter>?<ext>
+ * ldap://<hostname>:<port>/<base_dn>?<attributes>?<scope>?<filter>?<ext>
  *
  * <hostname> already known from 'conn->host.name'.
  * <port>     already known from 'conn->remote_port'.
  * extract the rest from 'conn->data->state.path+1'. All fields are optional.
  * e.g.
- *   ldap://<hostname>:<port>/?<attributes>?<scope>?<filter>
+ * ldap://<hostname>:<port>/?<attributes>?<scope>?<filter>
  * yields ludp->lud_dn = "".
  *
  * Defined in RFC4516 section 2.

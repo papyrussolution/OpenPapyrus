@@ -179,11 +179,11 @@ char * ngx_conf_parse(ngx_conf_t * cf, ngx_str_t * filename)
 		/*
 		 * ngx_conf_read_token() may return
 		 *
-		 *    NGX_ERROR             there is error
-		 *    NGX_OK                the token terminated by ";" was found
-		 *    NGX_CONF_BLOCK_START  the token terminated by "{" was found
-		 *    NGX_CONF_BLOCK_DONE   the "}" was found
-		 *    NGX_CONF_FILE_DONE    the configuration file is done
+		 *  NGX_ERROR             there is error
+		 *  NGX_OK                the token terminated by ";" was found
+		 *  NGX_CONF_BLOCK_START  the token terminated by "{" was found
+		 *  NGX_CONF_BLOCK_DONE   the "}" was found
+		 *  NGX_CONF_FILE_DONE    the configuration file is done
 		 */
 		if(rc == NGX_ERROR) {
 			goto done;

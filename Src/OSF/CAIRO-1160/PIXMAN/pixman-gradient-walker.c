@@ -29,7 +29,7 @@
 #endif
 //#include "pixman-private.h"
 
-void _pixman_gradient_walker_init(pixman_gradient_walker_t * walker, gradient_t *   gradient, pixman_repeat_t repeat)
+void _pixman_gradient_walker_init(pixman_gradient_walker_t * walker, gradient_t * gradient, pixman_repeat_t repeat)
 {
 	walker->num_stops = gradient->n_stops;
 	walker->stops     = gradient->stops;

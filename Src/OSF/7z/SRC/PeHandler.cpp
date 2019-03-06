@@ -318,7 +318,7 @@ namespace NArchive {
 
 	static void GetName(const Byte * name, AString &res)
 	{
-		res.SetFrom_CalcLen((const char*)name, kNameSize);
+		res.SetFrom_CalcLen((const char *)name, kNameSize);
 	}
 
 	void CSection::Parse(const Byte * p)

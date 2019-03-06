@@ -464,7 +464,7 @@ namespace NArchive {
 			lic.Name = fileName;
 			lic.Offset = offset;
 			if(!IsUnicode)
-				lic.Size = (uint32)strlen((const char*)sz + 1);
+				lic.Size = (uint32)strlen((const char *)sz + 1);
 			else {
 				sz += 2;
 				uint32 len = GetUi16Str_Len(sz);
@@ -638,9 +638,9 @@ namespace NArchive {
 				}
 				else {
 					p += offset;
-					if(strcmp((const char*)p, "ProgramFilesDir") == 0)
+					if(strcmp((const char *)p, "ProgramFilesDir") == 0)
 						id = 0;
-					else if(strcmp((const char*)p, "CommonFilesDir") == 0)
+					else if(strcmp((const char *)p, "CommonFilesDir") == 0)
 						id = 1;
 				}
 
@@ -662,7 +662,7 @@ namespace NArchive {
 						}
 					}
 					else
-						s += (const char*)p;
+						s += (const char *)p;
 					s += ')';
 				}
 				return;
@@ -1503,7 +1503,7 @@ namespace NArchive {
 			if(IsUnicode)
 				return AreStringsEqual_16and8(_data + _stringsPos + offset * 2, s);
 			else
-				return strcmp((const char*)(const Byte*)_data + _stringsPos + offset, s) == 0;
+				return strcmp((const char *)(const Byte*)_data + _stringsPos + offset, s) == 0;
 		}
 
 		static bool StringToUInt32(const char * s, uint32 &res)
@@ -4878,7 +4878,7 @@ namespace NArchive {
 				if(IsUnicode)
 					i += GetUi16Str_Len((const Byte*)_data + _stringsPos + i * 2);
 				else
-					i += (uint32)strlen((const char*)(const Byte*)_data + _stringsPos + i);
+					i += (uint32)strlen((const char *)(const Byte*)_data + _stringsPos + i);
 				i++;
 			}
 			CommentClose();

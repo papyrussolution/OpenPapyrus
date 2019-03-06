@@ -1036,7 +1036,7 @@ int __db_tas_mutex_init(ENV*env, db_mutex_t mutex, uint32 flags)
 }
 /*
  * __db_tas_mutex_lock_int
- *     Internal function to lock a mutex, or just try to lock it without waiting
+ *   Internal function to lock a mutex, or just try to lock it without waiting
  */
 inline static int __db_tas_mutex_lock_int(ENV*env, db_mutex_t mutex, db_timeout_t timeout, int nowait)
 {
@@ -1239,7 +1239,7 @@ int __db_tas_mutex_trylock(ENV * env, db_mutex_t mutex)
 #if defined(HAVE_SHARED_LATCHES)
 /*
  * __db_tas_mutex_readlock_int
- *    Internal function to get a shared lock on a latch, blocking if necessary.
+ *  Internal function to get a shared lock on a latch, blocking if necessary.
  *
  */
 static inline int __db_tas_mutex_readlock_int(ENV * env, db_mutex_t mutex, int nowait)

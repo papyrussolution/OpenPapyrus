@@ -507,8 +507,8 @@ WORK_STATE ossl_statem_client_post_work(SSL * s, WORK_STATE wst)
  * Construct a message to be sent from the client to the server.
  *
  * Valid return values are:
- *   1: Success
- *   0: Error
+ * 1: Success
+ * 0: Error
  */
 int ossl_statem_client_construct_message(SSL * s)
 {
@@ -701,7 +701,7 @@ int tls_construct_client_hello(SSL * s)
 #endif
 	SSL_SESSION * sess = s->session;
 
-	buf = (uchar*)s->init_buf->data;
+	buf = (uchar *)s->init_buf->data;
 
 	/* Work out what SSL/TLS/DTLS version to use */
 	protverr = ssl_set_client_hello_version(s);
@@ -759,15 +759,15 @@ int tls_construct_client_hello(SSL * s)
 	 * 1.0.
 	 *
 	 * Possible scenario with previous logic:
-	 *      1. Client hello indicates TLS 1.2
-	 *      2. Server hello says TLS 1.0
-	 *      3. RSA encrypted premaster secret uses 1.2.
-	 *      4. Handshake proceeds using TLS 1.0.
-	 *      5. Server sends hello request to renegotiate.
-	 *      6. Client hello indicates TLS v1.0 as we now
-	 *         know that is maximum server supports.
-	 *      7. Server chokes on RSA encrypted premaster secret
-	 *         containing version 1.0.
+	 *    1. Client hello indicates TLS 1.2
+	 *    2. Server hello says TLS 1.0
+	 *    3. RSA encrypted premaster secret uses 1.2.
+	 *    4. Handshake proceeds using TLS 1.0.
+	 *    5. Server sends hello request to renegotiate.
+	 *    6. Client hello indicates TLS v1.0 as we now
+	 *       know that is maximum server supports.
+	 *    7. Server chokes on RSA encrypted premaster secret
+	 *       containing version 1.0.
 	 *
 	 * For interoperability it should be OK to always use the
 	 * maximum version we support in client hello and then rely
@@ -1721,7 +1721,7 @@ MSG_PROCESS_RETURN tls_process_certificate_request(SSL * s, PACKET * pkt)
 	s->cert->ctypes = NULL;
 	if(ctype_num > SSL3_CT_NUMBER) {
 		/* If we exceed static buffer copy all to cert structure */
-		s->cert->ctypes = (uchar*)OPENSSL_malloc(ctype_num);
+		s->cert->ctypes = (uchar *)OPENSSL_malloc(ctype_num);
 		if(s->cert->ctypes == NULL) {
 			SSLerr(SSL_F_TLS_PROCESS_CERTIFICATE_REQUEST, ERR_R_MALLOC_FAILURE);
 			goto err;
@@ -1849,7 +1849,7 @@ MSG_PROCESS_RETURN tls_process_new_session_ticket(SSL * s, PACKET * pkt)
 	}
 	OPENSSL_free(s->session->tlsext_tick);
 	s->session->tlsext_ticklen = 0;
-	s->session->tlsext_tick = (uchar*)OPENSSL_malloc(ticklen);
+	s->session->tlsext_tick = (uchar *)OPENSSL_malloc(ticklen);
 	if(s->session->tlsext_tick == NULL) {
 		SSLerr(SSL_F_TLS_PROCESS_NEW_SESSION_TICKET, ERR_R_MALLOC_FAILURE);
 		goto err;
@@ -1900,7 +1900,7 @@ MSG_PROCESS_RETURN tls_process_cert_status(SSL * s, PACKET * pkt)
 		SSLerr(SSL_F_TLS_PROCESS_CERT_STATUS, SSL_R_LENGTH_MISMATCH);
 		goto f_err;
 	}
-	s->tlsext_ocsp_resp = (uchar*)OPENSSL_malloc(resplen);
+	s->tlsext_ocsp_resp = (uchar *)OPENSSL_malloc(resplen);
 	if(s->tlsext_ocsp_resp == NULL) {
 		al = SSL_AD_INTERNAL_ERROR;
 		SSLerr(SSL_F_TLS_PROCESS_CERT_STATUS, ERR_R_MALLOC_FAILURE);
@@ -2031,7 +2031,7 @@ static int tls_construct_cke_psk_preamble(SSL * s, uchar ** p,
 		goto err;
 	}
 
-	tmppsk = (uchar*)OPENSSL_memdup(psk, psklen);
+	tmppsk = (uchar *)OPENSSL_memdup(psk, psklen);
 	tmpidentity = OPENSSL_strdup(identity);
 	if(tmppsk == NULL || tmpidentity == NULL) {
 		SSLerr(SSL_F_TLS_CONSTRUCT_CKE_PSK_PREAMBLE, ERR_R_MALLOC_FAILURE);
@@ -2802,7 +2802,7 @@ int tls_construct_next_proto(SSL * s)
 	uchar * d;
 	len = s->next_proto_negotiated_len;
 	padding_len = 32 - ((len + 2) % 32);
-	d = (uchar*)s->init_buf->data;
+	d = (uchar *)s->init_buf->data;
 	d[4] = len;
 	memcpy(d + 5, s->next_proto_negotiated, len);
 	d[5 + len] = padding_len;

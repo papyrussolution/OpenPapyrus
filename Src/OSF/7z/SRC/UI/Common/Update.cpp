@@ -2199,8 +2199,8 @@ HRESULT UpdateArchive(CCodecs * codecs, const CObjectVector<COpenType> &types, c
 			MapiFileDesc f;
 			memzero(&f, sizeof(f));
 			f.nPosition = 0xFFFFFFFF;
-			f.lpszPathName = (char *)(const char*)path;
-			f.lpszFileName = (char *)(const char*)name;
+			f.lpszPathName = (char *)(const char *)path;
+			f.lpszFileName = (char *)(const char *)name;
 			MapiMessage m;
 			memzero(&m, sizeof(m));
 			m.nFileCount = 1;
@@ -2210,7 +2210,7 @@ HRESULT UpdateArchive(CCodecs * codecs, const CObjectVector<COpenType> &types, c
 			if(!addr.IsEmpty()) {
 				memzero(&rec, sizeof(rec));
 				rec.ulRecipClass = MAPI_TO;
-				rec.lpszAddress = (char *)(const char*)addr;
+				rec.lpszAddress = (char *)(const char *)addr;
 				m.nRecipCount = 1;
 				m.lpRecips = &rec;
 			}

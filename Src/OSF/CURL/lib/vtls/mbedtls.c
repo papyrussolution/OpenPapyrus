@@ -714,7 +714,7 @@ static ssize_t mbed_send(struct connectdata * conn, int sockindex,
 	int ret = -1;
 
 	ret = mbedtls_ssl_write(&conn->ssl[sockindex].ssl,
-	    (uchar*)mem, len);
+	    (uchar *)mem, len);
 
 	if(ret < 0) {
 		*curlcode = (ret == MBEDTLS_ERR_SSL_WANT_WRITE) ?
@@ -749,7 +749,7 @@ static ssize_t mbed_recv(struct connectdata * conn, int num, char * buf, size_t 
 	int ret = -1;
 	ssize_t len = -1;
 	memzero(buf, buffersize);
-	ret = mbedtls_ssl_read(&conn->ssl[num].ssl, (uchar*)buf, buffersize);
+	ret = mbedtls_ssl_read(&conn->ssl[num].ssl, (uchar *)buf, buffersize);
 	if(ret <= 0) {
 		if(ret == MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY)
 			return 0;

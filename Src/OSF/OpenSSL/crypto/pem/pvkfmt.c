@@ -210,7 +210,7 @@ static EVP_PKEY * do_b2i_bio(BIO * in, int ispub)
 		PEMerr(PEM_F_DO_B2I_BIO, PEM_R_HEADER_TOO_LONG);
 		return NULL;
 	}
-	buf = (uchar*)OPENSSL_malloc(length);
+	buf = (uchar *)OPENSSL_malloc(length);
 	if(!buf) {
 		PEMerr(PEM_F_DO_B2I_BIO, ERR_R_MALLOC_FAILURE);
 		goto err;
@@ -427,7 +427,7 @@ static int do_i2b(uchar ** out, EVP_PKEY * pk, int ispub)
 	if(*out)
 		p = *out;
 	else {
-		p = (uchar*)OPENSSL_malloc(outlen);
+		p = (uchar *)OPENSSL_malloc(outlen);
 		if(!p)
 			return -1;
 		*out = p;
@@ -672,13 +672,13 @@ static EVP_PKEY * do_PVK_body(const uchar ** in, uint saltlen, uint keylen, pem_
 			PEMerr(PEM_F_DO_PVK_BODY, PEM_R_BAD_PASSWORD_READ);
 			goto err;
 		}
-		enctmp = (uchar*)OPENSSL_malloc(keylen + 8);
+		enctmp = (uchar *)OPENSSL_malloc(keylen + 8);
 		if(enctmp == NULL) {
 			PEMerr(PEM_F_DO_PVK_BODY, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}
 		if(!derive_pvk_key(keybuf, p, saltlen,
-			    (uchar*)psbuf, inlen))
+			    (uchar *)psbuf, inlen))
 			goto err;
 		p += saltlen;
 		/* Copy BLOBHEADER across, decrypt rest */
@@ -740,7 +740,7 @@ EVP_PKEY * b2i_PVK_bio(BIO * in, pem_password_cb * cb, void * u)
 	if(!do_PVK_header(&p, 24, 0, &saltlen, &keylen))
 		return 0;
 	buflen = (int)keylen + saltlen;
-	buf = (uchar*)OPENSSL_malloc(buflen);
+	buf = (uchar *)OPENSSL_malloc(buflen);
 	if(!buf) {
 		PEMerr(PEM_F_B2I_PVK_BIO, ERR_R_MALLOC_FAILURE);
 		return 0;
@@ -774,7 +774,7 @@ static int i2b_PVK(uchar ** out, EVP_PKEY * pk, int enclevel, pem_password_cb * 
 		p = *out;
 	}
 	else {
-		start = p = (uchar*)OPENSSL_malloc(outlen);
+		start = p = (uchar *)OPENSSL_malloc(outlen);
 		if(!p) {
 			PEMerr(PEM_F_I2B_PVK, ERR_R_MALLOC_FAILURE);
 			return -1;
@@ -813,7 +813,7 @@ static int i2b_PVK(uchar ** out, EVP_PKEY * pk, int enclevel, pem_password_cb * 
 			goto error;
 		}
 		if(!derive_pvk_key(keybuf, salt, PVK_SALTLEN,
-			    (uchar*)psbuf, inlen))
+			    (uchar *)psbuf, inlen))
 			goto error;
 		if(enclevel == 1)
 			memzero(keybuf + 5, 11);

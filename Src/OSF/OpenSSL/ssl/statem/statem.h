@@ -8,10 +8,10 @@
  */
 
 /*****************************************************************************
- *                                                                           *
+ *                                                                         *
  * These enums should be considered PRIVATE to the state machine. No         *
  * non-state machine code should need to use these                           *
- *                                                                           *
+ *                                                                         *
  *****************************************************************************/
 /*
  * Valid return codes used for functions performing work prior to or after
@@ -58,11 +58,11 @@ typedef enum {
 } WRITE_STATE;
 
 /*****************************************************************************
- *                                                                           *
+ *                                                                         *
  * This structure should be considered "opaque" to anything outside of the   *
  * state machine. No non-state machine code should be accessing the members  *
  * of this structure.                                                        *
- *                                                                           *
+ *                                                                         *
  *****************************************************************************/
 
 struct ossl_statem_st {

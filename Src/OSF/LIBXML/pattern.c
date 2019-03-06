@@ -2,9 +2,9 @@
  * pattern.c: Implemetation of selectors for nodes
  *
  * Reference:
- *   http://www.w3.org/TR/2001/REC-xmlschema-1-20010502/
- *   to some extent
- *   http://www.w3.org/TR/1999/REC-xml-19991116
+ * http://www.w3.org/TR/2001/REC-xmlschema-1-20010502/
+ * to some extent
+ * http://www.w3.org/TR/1999/REC-xml-19991116
  *
  * See Copyright for the status of this software.
  *
@@ -14,11 +14,11 @@
 /*
  * @todo 
  * - compilation flags to check for specific syntaxes
- *   using flags of xmlPatterncompile()
+ * using flags of xmlPatterncompile()
  * - making clear how pattern starting with / or . need to be handled,
- *   currently push(NULL, NULL) means a reset of the streaming context
- *   and indicating we are on / (the document node), probably need
- *   something similar for .
+ * currently push(NULL, NULL) means a reset of the streaming context
+ * and indicating we are on / (the document node), probably need
+ * something similar for .
  * - get rid of the "compile" starting with lowercase
  * - DONE (2006-05-16): get rid of the Strdup/Strndup in case of dictionary
  */
@@ -47,9 +47,9 @@
 
 /*
  * NOTE: Those private flags (XML_STREAM_xxx) are used
- *   in _xmlStreamCtxt->flag. They extend the public
- *   xmlPatternFlags, so be carefull not to interfere with the
- *   reserved values for xmlPatternFlags.
+ * in _xmlStreamCtxt->flag. They extend the public
+ * xmlPatternFlags, so be carefull not to interfere with the
+ * reserved values for xmlPatternFlags.
  */
 #define XML_STREAM_FINAL_IS_ANY_NODE 1<<14
 #define XML_STREAM_FROM_ROOT 1<<15
@@ -67,7 +67,7 @@
 #define XML_STREAM_XS_IDC_FIELD(c) ((c)->flags & XML_PATTERN_XSFIELD)
 
 #define XML_PAT_COPY_NSNAME(c, r, nsname) \
-	r = ((c)->comp->dict) ? (xmlChar*)xmlDictLookupSL((c)->comp->dict, BAD_CAST nsname) : sstrdup(BAD_CAST nsname);
+	r = ((c)->comp->dict) ? (xmlChar *)xmlDictLookupSL((c)->comp->dict, BAD_CAST nsname) : sstrdup(BAD_CAST nsname);
 
 #define XML_PAT_FREE_STRING(c, r) if((c)->comp->dict == NULL) SAlloc::F(r);
 
@@ -227,13 +227,13 @@ void xmlFreePattern(xmlPattern * comp)
 	if(comp) {
 		xmlFreePattern(comp->next); // @recursion
 		xmlFreeStreamComp(comp->stream);
-		SAlloc::F((xmlChar*)comp->pattern);
+		SAlloc::F((xmlChar *)comp->pattern);
 		if(comp->steps) {
 			if(comp->dict == NULL) {
 				for(int i = 0; i < comp->nbStep; i++) {
 					xmlStepOpPtr op = &comp->steps[i];
-					SAlloc::F((xmlChar*)op->value);
-					SAlloc::F((xmlChar*)op->value2);
+					SAlloc::F((xmlChar *)op->value);
+					SAlloc::F((xmlChar *)op->value2);
 				}
 			}
 			SAlloc::F(comp->steps);
@@ -263,7 +263,7 @@ void xmlFreePatternList(xmlPattern * comp)
  * @pattern:  the pattern context
  * @dict:  the inherited dictionary or NULL
  * @namespaces: the prefix definitions, array of [URI, prefix] terminated
- *              with [NULL, NULL] or NULL if no namespace is used
+ *            with [NULL, NULL] or NULL if no namespace is used
  *
  * Create a new XML pattern parser context
  *
@@ -681,7 +681,7 @@ rollback:
  * Parse an XPath Litteral:
  *
  * [29] Literal ::= '"' [^"]* '"'
- *                | "'" [^']* "'"
+ *              | "'" [^']* "'"
  *
  * Returns the Literal parsed or NULL
  */
@@ -706,7 +706,7 @@ static xmlChar * xmlPatScanLiteral(xmlPatParserContextPtr ctxt)
 		}
 		else {
 			if(ctxt->dict)
-				ret = (xmlChar*)xmlDictLookup(ctxt->dict, q, cur - q);
+				ret = (xmlChar *)xmlDictLookup(ctxt->dict, q, cur - q);
 			else
 				ret = xmlStrndup(q, cur - q);
 		}
@@ -727,7 +727,7 @@ static xmlChar * xmlPatScanLiteral(xmlPatParserContextPtr ctxt)
 		}
 		else {
 			if(ctxt->dict)
-				ret = (xmlChar*)xmlDictLookup(ctxt->dict, q, cur - q);
+				ret = (xmlChar *)xmlDictLookup(ctxt->dict, q, cur - q);
 			else
 				ret = xmlStrndup(q, cur - q);
 		}
@@ -749,7 +749,7 @@ static xmlChar * xmlPatScanLiteral(xmlPatParserContextPtr ctxt)
  * @ctxt:  the XPath Parser context
  *
  * [4] NameChar ::= Letter | Digit | '.' | '-' | '_' |
- *                  CombiningChar | Extender
+ *                CombiningChar | Extender
  *
  * [5] Name ::= (Letter | '_' | ':') (NameChar)*
  *
@@ -772,7 +772,7 @@ static xmlChar * xmlPatScanName(xmlPatParserContextPtr ctxt)
 		cur += len;
 		val = xmlStringCurrentChar(NULL, cur, &len);
 	}
-	ret = (ctxt->dict) ? (xmlChar*)xmlDictLookup(ctxt->dict, q, cur - q) : xmlStrndup(q, cur - q);
+	ret = (ctxt->dict) ? (xmlChar *)xmlDictLookup(ctxt->dict, q, cur - q) : xmlStrndup(q, cur - q);
 	CUR_PTR = cur;
 	return ret;
 }
@@ -800,7 +800,7 @@ static xmlChar * xmlPatScanNCName(xmlPatParserContextPtr ctxt)
 		cur += len;
 		val = xmlStringCurrentChar(NULL, cur, &len);
 	}
-	ret = (ctxt->dict) ? (xmlChar*)xmlDictLookup(ctxt->dict, q, cur - q) : xmlStrndup(q, cur - q);
+	ret = (ctxt->dict) ? (xmlChar *)xmlDictLookup(ctxt->dict, q, cur - q) : xmlStrndup(q, cur - q);
 	CUR_PTR = cur;
 	return ret;
 }
@@ -1704,7 +1704,7 @@ static int xmlStreamCtxtAddState(xmlStreamCtxtPtr comp, int idx, int level)
  * This can also act as a reset.
  *
  * Returns: -1 in case of error, 1 if the current state in the stream is a
- *    match and 0 otherwise.
+ *  match and 0 otherwise.
  */
 static int xmlStreamPushInternal(xmlStreamCtxtPtr stream, const xmlChar * name, const xmlChar * ns, int nodeType)
 {
@@ -2033,7 +2033,7 @@ stream_next:
  * Otherwise the function will act as if it has been given an element-node.
  *
  * Returns: -1 in case of error, 1 if the current state in the stream is a
- *    match and 0 otherwise.
+ *  match and 0 otherwise.
  */
 				int xmlStreamPush(xmlStreamCtxtPtr stream, const xmlChar * name, const xmlChar * ns)
 				{
@@ -2057,7 +2057,7 @@ stream_next:
  * processing-instruction-node.
  *
  * Returns: -1 in case of error, 1 if the current state in the stream is a
- *    match and 0 otherwise.
+ *  match and 0 otherwise.
  */
 int xmlStreamPushNode(xmlStreamCtxtPtr stream, const xmlChar * name, const xmlChar * ns, int nodeType)
 {
@@ -2077,7 +2077,7 @@ int xmlStreamPushNode(xmlStreamCtxtPtr stream, const xmlChar * name, const xmlCh
  * Otherwise the function will act as if it has been given an attribute-node.
  *
  * Returns: -1 in case of error, 1 if the current state in the stream is a
- *    match and 0 otherwise.
+ *  match and 0 otherwise.
  */
 int xmlStreamPushAttr(xmlStreamCtxtPtr stream, const xmlChar * name, const xmlChar * ns)
 {
@@ -2135,7 +2135,7 @@ int xmlStreamPop(xmlStreamCtxtPtr stream)
  * need to be pushed.
  *
  * Returns: 1 in case of need of nodes of the above described types,
- *          0 otherwise. -1 on API errors.
+ *        0 otherwise. -1 on API errors.
  */
 int xmlStreamWantsAnyNode(xmlStreamCtxtPtr streamCtxt)
 {
@@ -2342,7 +2342,7 @@ int xmlPatternStreamable(xmlPattern * comp)
  * Check the maximum depth reachable by a pattern
  *
  * Returns -2 if no limit (using //), otherwise the depth,
- *         and -1 in case of error
+ *       and -1 in case of error
  */
 int xmlPatternMaxDepth(xmlPattern * comp)
 {

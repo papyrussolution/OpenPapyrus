@@ -602,9 +602,9 @@ ngx_int_t ngx_http_core_post_rewrite_phase(ngx_http_request_t * r, ngx_http_phas
 	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "uri changes: %d", r->uri_changes);
 	/*
 	 * gcc before 3.3 compiles the broken code for
-	 *     if (r->uri_changes-- == 0)
+	 *   if (r->uri_changes-- == 0)
 	 * if the r->uri_changes is defined as
-	 *     unsigned  uri_changes:4
+	 *   unsigned  uri_changes:4
 	 */
 	r->uri_changes--;
 	if(r->uri_changes == 0) {
@@ -1207,11 +1207,11 @@ ngx_int_t ngx_http_gzip_ok(ngx_http_request_t * pReq)
 	}
 	/*
 	 * test first for the most common case "gzip,...":
-	 *   MSIE:    "gzip, deflate"
-	 *   Firefox: "gzip,deflate"
-	 *   Chrome:  "gzip,deflate,sdch"
-	 *   Safari:  "gzip, deflate"
-	 *   Opera:   "gzip, deflate"
+	 * MSIE:    "gzip, deflate"
+	 * Firefox: "gzip,deflate"
+	 * Chrome:  "gzip,deflate,sdch"
+	 * Safari:  "gzip, deflate"
+	 * Opera:   "gzip, deflate"
 	 */
 	if(memcmp(ae->value.data, "gzip,", 5) != 0 && ngx_http_gzip_accept_encoding(&ae->value) != NGX_OK) {
 		return NGX_DECLINED;
@@ -1292,9 +1292,9 @@ ok:
 }
 /*
  * gzip is enabled for the following quantities:
- *     "gzip; q=0.001" ... "gzip; q=1.000"
+ *   "gzip; q=0.001" ... "gzip; q=1.000"
  * gzip is disabled for the following quantities:
- *     "gzip; q=0" ... "gzip; q=0.000", and for any invalid cases
+ *   "gzip; q=0" ... "gzip; q=0.000", and for any invalid cases
  */
 
 static ngx_int_t ngx_http_gzip_accept_encoding(const ngx_str_t * ae)
@@ -2047,7 +2047,7 @@ static void * ngx_http_core_create_srv_conf(ngx_conf_t * cf)
 		/*
 		 * set by ngx_pcalloc():
 		 *
-		 *     conf->client_large_buffers.num = 0;
+		 *   conf->client_large_buffers.num = 0;
 		 */
 		if(ngx_array_init(&cscf->server_names, cf->temp_pool, 4, sizeof(ngx_http_server_name_t)) != NGX_OK) {
 			return NULL;
@@ -2121,20 +2121,20 @@ static void * ngx_http_core_create_loc_conf(ngx_conf_t * cf)
 		/*
 		 * set by ngx_pcalloc():
 		 *
-		 *     clcf->root = { 0, NULL };
-		 *     clcf->limit_except = 0;
-		 *     clcf->post_action = { 0, NULL };
-		 *     clcf->types = NULL;
-		 *     clcf->default_type = { 0, NULL };
-		 *     clcf->error_log = NULL;
-		 *     clcf->error_pages = NULL;
-		 *     clcf->client_body_path = NULL;
-		 *     clcf->regex = NULL;
-		 *     clcf->exact_match = 0;
-		 *     clcf->auto_redirect = 0;
-		 *     clcf->alias = 0;
-		 *     clcf->gzip_proxied = 0;
-		 *     clcf->keepalive_disable = 0;
+		 *   clcf->root = { 0, NULL };
+		 *   clcf->limit_except = 0;
+		 *   clcf->post_action = { 0, NULL };
+		 *   clcf->types = NULL;
+		 *   clcf->default_type = { 0, NULL };
+		 *   clcf->error_log = NULL;
+		 *   clcf->error_pages = NULL;
+		 *   clcf->client_body_path = NULL;
+		 *   clcf->regex = NULL;
+		 *   clcf->exact_match = 0;
+		 *   clcf->auto_redirect = 0;
+		 *   clcf->alias = 0;
+		 *   clcf->gzip_proxied = 0;
+		 *   clcf->keepalive_disable = 0;
 		 */
 		clcf->client_max_body_size = NGX_CONF_UNSET;
 		clcf->client_body_buffer_size = NGX_CONF_UNSET_SIZE;

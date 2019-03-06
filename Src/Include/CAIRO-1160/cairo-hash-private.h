@@ -31,7 +31,7 @@
  * The Initial Developer of the Original Code is Red Hat, Inc.
  *
  * Contributor(s):
- *      Keith Packard <keithp@keithp.com>
+ *    Keith Packard <keithp@keithp.com>
  *	Graydon Hoare <graydon@redhat.com>
  *	Carl Worth <cworth@cworth.org>
  */

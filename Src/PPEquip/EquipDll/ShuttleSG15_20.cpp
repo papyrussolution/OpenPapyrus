@@ -281,7 +281,7 @@ int PriceChecker::ConcoleMessage(const char * pMsg, ...)
 		pp_msg++;
 	}
 	str.ToOem();
-	printf("%s\n", (const char*)str);
+	printf("%s\n", (const char *)str);
 	return 1;
 }
 
@@ -319,8 +319,8 @@ int PriceChecker::Login()
 		SysFreeString(user_name);
 		SysFreeString(passw);
 		if(!(ok = (ret > 0))) {
-			ConcoleMessage(LOGINERR, ".", DATABASESTR, ":", (const char*)IniParam.DataBaseName, LOGINSTR, ":", (const char*)IniParam.UserName, "");
-			LogMessage(LOGINERR, ".", DATABASESTR, ":", (const char*)IniParam.DataBaseName, LOGINSTR, ":", (const char*)IniParam.UserName, "");
+			ConcoleMessage(LOGINERR, ".", DATABASESTR, ":", (const char *)IniParam.DataBaseName, LOGINSTR, ":", (const char *)IniParam.UserName, "");
+			LogMessage(LOGINERR, ".", DATABASESTR, ":", (const char *)IniParam.DataBaseName, LOGINSTR, ":", (const char *)IniParam.UserName, "");
 		}
 	}
 	return ok;
@@ -593,7 +593,7 @@ int PriceChecker::GetGoodInfo(const char * pRequest, StGoodInfo & rGoodInfo)
 	rGoodInfo.Clear();
 	GetFirstTag(pRequest, Tag);
 	if(Tag.Name.CmpNC("request") == 0) {
-		LogMessage(ISREQUEST, (const char*)Tag.Data, "");
+		LogMessage(ISREQUEST, (const char *)Tag.Data, "");
 		//Tag.Data.Z().Cat("210000000008"); // @vmiller
 		if(GetGoodsByCode(Tag.Data, &goods_rec, &qtty) > 0) {
 			rGoodInfo.Name.CopyFromOleStr(goods_rec.Name);
@@ -616,12 +616,12 @@ int PriceChecker::GetGoodInfo(const char * pRequest, StGoodInfo & rGoodInfo)
 				/*SString price_str;
 				price_str.Z().Cat(price);
 				FormatPrice(price_str);
-				ConcoleMessage((const char*)rGoodInfo.Name, (const char *)price_str, RUB, "");
-				LogMessage((const char*)rGoodInfo.Name, (const char *)price_str, RUB, "");*/
+				ConcoleMessage((const char *)rGoodInfo.Name, (const char *)price_str, RUB, "");
+				LogMessage((const char *)rGoodInfo.Name, (const char *)price_str, RUB, "");*/
 			}
 			/*else {
-				ConcoleMessage((const char*)rGoodInfo.Name, "");
-				LogMessage((const char*)rGoodInfo.Name, "");
+				ConcoleMessage((const char *)rGoodInfo.Name, "");
+				LogMessage((const char *)rGoodInfo.Name, "");
 			}*/
 			CreateGoodInfoMessage(rGoodInfo, msg);
 			ConcoleMessage(msg.cptr(), "");

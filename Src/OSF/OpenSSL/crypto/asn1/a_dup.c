@@ -22,7 +22,7 @@ void * ASN1_dup(i2d_of_void * i2d, d2i_of_void * d2i, void * x)
 		return NULL;
 
 	i = i2d(x, 0);
-	b = (uchar*)OPENSSL_malloc(i + 10);
+	b = (uchar *)OPENSSL_malloc(i + 10);
 	if(!b) {
 		ASN1err(ASN1_F_ASN1_DUP, ERR_R_MALLOC_FAILURE);
 		return NULL;

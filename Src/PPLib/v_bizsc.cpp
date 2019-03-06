@@ -652,7 +652,7 @@ int BizScTemplDialog::SetupCellInfo()
 			text.Cat(empty_word);
 		}
 	}
-	setStaticText(CTL_BIZSCT_CELLTEXT, (const char*)text);
+	setStaticText(CTL_BIZSCT_CELLTEXT, (const char *)text);
 	return 1;
 }
 

@@ -90,7 +90,7 @@ typedef my_color_converter * my_cconvert_ptr;
  */
 METHODDEF(void) rgb_ycc_start(j_compress_ptr cinfo)
 {
-	my_cconvert_ptr cconvert = (my_cconvert_ptr)cinfo->cconvert;
+	my_cconvert_ptr cconvert = reinterpret_cast<my_cconvert_ptr>(cinfo->cconvert);
 	INT32 * rgb_ycc_tab;
 	INT32 i;
 	// Allocate and fill in the conversion tables. 
@@ -128,7 +128,7 @@ METHODDEF(void) rgb_ycc_start(j_compress_ptr cinfo)
 
 METHODDEF(void) rgb_ycc_convert(j_compress_ptr cinfo, JSAMPARRAY input_buf, JSAMPIMAGE output_buf, JDIMENSION output_row, int num_rows)
 {
-	my_cconvert_ptr cconvert = (my_cconvert_ptr)cinfo->cconvert;
+	my_cconvert_ptr cconvert = reinterpret_cast<my_cconvert_ptr>(cinfo->cconvert);
 	const INT32 * ctab = cconvert->rgb_ycc_tab;
 	const JDIMENSION num_cols = cinfo->image_width;
 	while(--num_rows >= 0) {
@@ -167,7 +167,7 @@ METHODDEF(void) rgb_ycc_convert(j_compress_ptr cinfo, JSAMPARRAY input_buf, JSAM
  */
 METHODDEF(void) rgb_gray_convert(j_compress_ptr cinfo, JSAMPARRAY input_buf, JSAMPIMAGE output_buf, JDIMENSION output_row, int num_rows)
 {
-	my_cconvert_ptr cconvert = (my_cconvert_ptr)cinfo->cconvert;
+	my_cconvert_ptr cconvert = reinterpret_cast<my_cconvert_ptr>(cinfo->cconvert);
 	const INT32 * ctab = cconvert->rgb_ycc_tab;
 	const JDIMENSION num_cols = cinfo->image_width;
 	while(--num_rows >= 0) {
@@ -192,7 +192,7 @@ METHODDEF(void) rgb_gray_convert(j_compress_ptr cinfo, JSAMPARRAY input_buf, JSA
  */
 METHODDEF(void) cmyk_ycck_convert(j_compress_ptr cinfo, JSAMPARRAY input_buf, JSAMPIMAGE output_buf, JDIMENSION output_row, int num_rows)
 {
-	my_cconvert_ptr cconvert = (my_cconvert_ptr)cinfo->cconvert;
+	my_cconvert_ptr cconvert = reinterpret_cast<my_cconvert_ptr>(cinfo->cconvert);
 	const INT32 * ctab = cconvert->rgb_ycc_tab;
 	const JDIMENSION num_cols = cinfo->image_width;
 	while(--num_rows >= 0) {

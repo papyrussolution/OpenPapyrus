@@ -390,7 +390,7 @@ int SLAPI STabFile::LoadTab(const char * pTabName, STab & rTab)
 	return ok;
 }
 
-int SLAPI STabFile::Helper_WriteTab(const char * pTabName, STab * pTab, SFile & rFile)
+int SLAPI STabFile::Helper_WriteTab(const char * pTabName, const STab * pTab, SFile & rFile)
 {
 	int    ok = 1;
 	if(pTab) {
@@ -423,9 +423,7 @@ int SLAPI STabFile::Helper_WriteTab(const char * pTabName, STab * pTab, SFile & 
 			THROW(rFile.WriteLine(line_buf.Z().Cat("END").CR()));
 		}
 	}
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 

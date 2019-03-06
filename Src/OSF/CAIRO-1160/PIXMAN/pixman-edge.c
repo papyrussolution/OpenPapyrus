@@ -140,8 +140,8 @@ static force_inline uint8_t clip255(int x)
  *
  *  +--------------------------+
  *  fill_height =|   \                      /
- *   +------------------+
- *    |================|
+ * +------------------+
+ *  |================|
  * fill_start       fill_end
  */
 static void rasterize_edges_8(pixman_image_t * image,

@@ -45,7 +45,7 @@ ngx_int_t ngx_event_connect_peer(ngx_peer_connection_t * pc)
 	}
 	c->type = type;
 	if(pc->rcvbuf) {
-		if(setsockopt(s, SOL_SOCKET, SO_RCVBUF, (const char*)&pc->rcvbuf, sizeof(int)) == -1) {
+		if(setsockopt(s, SOL_SOCKET, SO_RCVBUF, (const char *)&pc->rcvbuf, sizeof(int)) == -1) {
 			ngx_log_error(NGX_LOG_ALERT, pc->log, ngx_socket_errno, "setsockopt(SO_RCVBUF) failed");
 			goto failed;
 		}

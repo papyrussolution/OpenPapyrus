@@ -2889,7 +2889,7 @@ static cairo_status_t _cairo_ft_font_face_create_for_toy(cairo_toy_font_face_t *
 	}
 
 	if(!FcPatternAddString(pattern,
-	    FC_FAMILY, (uchar*)toy_face->family)) {
+	    FC_FAMILY, (uchar *)toy_face->family)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		goto FREE_PATTERN;
 	}
@@ -2951,8 +2951,8 @@ static cairo_bool_t _cairo_ft_font_face_destroy(void * abstract_face)
 	 *
 	 * We go from:
 	 *
-	 *   font_face ------> unscaled
-	 *   <-....weak....../
+	 * font_face ------> unscaled
+	 * <-....weak....../
 	 *
 	 * To:
 	 *
@@ -3469,18 +3469,18 @@ cairo_font_face_t * cairo_ft_font_face_create_for_pattern(FcPattern * pattern)
 /**
  * cairo_ft_font_face_create_for_ft_face:
  * @face: A FreeType face object, already opened. This must
- *   be kept around until the face's ref_count drops to
- *   zero and it is freed. Since the face may be referenced
- *   internally to Cairo, the best way to determine when it
- *   is safe to free the face is to pass a
- *   #cairo_destroy_func_t to cairo_font_face_set_user_data()
+ * be kept around until the face's ref_count drops to
+ * zero and it is freed. Since the face may be referenced
+ * internally to Cairo, the best way to determine when it
+ * is safe to free the face is to pass a
+ * #cairo_destroy_func_t to cairo_font_face_set_user_data()
  * @load_flags: flags to pass to FT_Load_Glyph when loading
- *   glyphs from the font. These flags are OR'ed together with
- *   the flags derived from the #cairo_font_options_t passed
- *   to cairo_scaled_font_create(), so only a few values such
- *   as %FT_LOAD_VERTICAL_LAYOUT, and %FT_LOAD_FORCE_AUTOHINT
- *   are useful. You should not pass any of the flags affecting
- *   the load target, such as %FT_LOAD_TARGET_LIGHT.
+ * glyphs from the font. These flags are OR'ed together with
+ * the flags derived from the #cairo_font_options_t passed
+ * to cairo_scaled_font_create(), so only a few values such
+ * as %FT_LOAD_VERTICAL_LAYOUT, and %FT_LOAD_FORCE_AUTOHINT
+ * are useful. You should not pass any of the flags affecting
+ * the load target, such as %FT_LOAD_TARGET_LIGHT.
  *
  * Creates a new font face for the FreeType font backend from a
  * pre-opened FreeType face. This font can then be used with
@@ -3501,7 +3501,7 @@ cairo_font_face_t * cairo_ft_font_face_create_for_pattern(FcPattern * pattern)
  *
  * font_face = cairo_ft_font_face_create_for_ft_face (ft_face, 0);
  * status = cairo_font_face_set_user_data (font_face, &key,
- *              ft_face, (cairo_destroy_func_t) FT_Done_Face);
+ *            ft_face, (cairo_destroy_func_t) FT_Done_Face);
  * if (status) {
  * cairo_font_face_destroy (font_face);
  * FT_Done_Face (ft_face);
@@ -3604,9 +3604,9 @@ uint cairo_ft_font_face_get_synthesize(cairo_font_face_t * font_face)
 /**
  * cairo_ft_scaled_font_lock_face:
  * @scaled_font: A #cairo_scaled_font_t from the FreeType font backend. Such an
- *   object can be created by calling cairo_scaled_font_create() on a
- *   FreeType backend font face (see cairo_ft_font_face_create_for_pattern(),
- *   cairo_ft_font_face_create_for_ft_face()).
+ * object can be created by calling cairo_scaled_font_create() on a
+ * FreeType backend font face (see cairo_ft_font_face_create_for_pattern(),
+ * cairo_ft_font_face_create_for_ft_face()).
  *
  * cairo_ft_scaled_font_lock_face() gets the #FT_Face object from a FreeType
  * backend font and scales it appropriately for the font and applies OpenType
@@ -3678,9 +3678,9 @@ FT_Face cairo_ft_scaled_font_lock_face(cairo_scaled_font_t * abstract_font)
 /**
  * cairo_ft_scaled_font_unlock_face:
  * @scaled_font: A #cairo_scaled_font_t from the FreeType font backend. Such an
- *   object can be created by calling cairo_scaled_font_create() on a
- *   FreeType backend font face (see cairo_ft_font_face_create_for_pattern(),
- *   cairo_ft_font_face_create_for_ft_face()).
+ * object can be created by calling cairo_scaled_font_create() on a
+ * FreeType backend font face (see cairo_ft_font_face_create_for_pattern(),
+ * cairo_ft_font_face_create_for_ft_face()).
  *
  * Releases a face obtained with cairo_ft_scaled_font_lock_face().
  *

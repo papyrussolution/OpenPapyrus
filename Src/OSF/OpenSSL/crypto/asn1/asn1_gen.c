@@ -173,7 +173,7 @@ static ASN1_TYPE * generate_v3(const char * str, X509V3_CTX * cnf, int depth, in
 		len = ASN1_object_size(0, len, etmp->exp_tag);
 	}
 	/* Allocate buffer for new encoding */
-	new_der = (uchar*)OPENSSL_malloc(len);
+	new_der = (uchar *)OPENSSL_malloc(len);
 	if(new_der == NULL)
 		goto err;
 	/* Generate tagged encoding */
@@ -603,7 +603,7 @@ static ASN1_TYPE * asn1_str2type(const char * str, int format, int utype)
 			    ASN1err(ASN1_F_ASN1_STR2TYPE, ASN1_R_ILLEGAL_FORMAT);
 			    goto bad_form;
 		    }
-		    if(ASN1_mbstring_copy(&atmp->value.asn1_string, (uchar*)str, -1, format, ASN1_tag2bit(utype)) <= 0) {
+		    if(ASN1_mbstring_copy(&atmp->value.asn1_string, (uchar *)str, -1, format, ASN1_tag2bit(utype)) <= 0) {
 			    ASN1err(ASN1_F_ASN1_STR2TYPE, ERR_R_MALLOC_FAILURE);
 			    goto bad_str;
 		    }

@@ -44,8 +44,8 @@ typedef struct glyph_t glyph_t;
 #define HASH_MASK (HASH_SIZE - 1)
 
 struct glyph_t {
-	void *   font_key;
-	void *   glyph_key;
+	void * font_key;
+	void * glyph_key;
 	int origin_x;
 	int origin_y;
 	pixman_image_t * image;
@@ -536,8 +536,8 @@ out:
  * rectangle.
  *
  * TODO:
- *   - Trim the mask to the destination clip/image?
- *   - Trim composite region based on sources, when the op ignores 0s.
+ * - Trim the mask to the destination clip/image?
+ * - Trim composite region based on sources, when the op ignores 0s.
  */
 #if defined(__GNUC__) && !defined(__x86_64__) && !defined(__amd64__)
 __attribute__((__force_align_arg_pointer__))

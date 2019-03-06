@@ -2728,7 +2728,7 @@ int BrowserWindow::search(void * pPattern, CompFunc fcmp, int srchMode)
 			if(p_win) {
 				SString msg_buf, fmt_buf;
 				SLS.LoadString("strnfound", fmt_buf);
-				msg_buf.Printf(fmt_buf, (const char *)pPattern);
+				msg_buf.Printf(fmt_buf, static_cast<const char *>(pPattern));
 				p_win->Open(msg_buf, 0, H(), 0, 5000, GetColorRef(SClrRed), SMessageWindow::fShowOnCenter|SMessageWindow::fChildWindow, 0);
 			}
 		}

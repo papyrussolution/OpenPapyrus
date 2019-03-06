@@ -5908,15 +5908,70 @@ struct DlGoodsBillBaseBlock {
 	{
 		ResetRow();
 	}
+	SString & UnifySymb(const char * pSymb) const
+	{
+		SString & r_buf = SLS.AcquireRvlStr();
+		(r_buf = pSymb).Strip().ToLower().ReplaceStr("-", 0, 0).ReplaceStr("_", 0, 0).ReplaceStr(" ", 0, 0);
+		return r_buf;
+	}
+	double GetValueBySymb(const char * pSymb) const
+	{
+		SString & r_symb = UnifySymb(pSymb);
+		if(r_symb == "qtty" || r_symb == "quantity" || r_symb == "qty") return Qtty;
+		else if(r_symb == "oldqtty") return OldQtty;
+		else if(r_symb == "cost") return Cost;
+		else if(r_symb == "price") return Price;
+		else if(r_symb == "discount") return Discount;
+		else if(r_symb == "curprice") return CurPrice;
+		else if(r_symb == "cursum") return CurSum;
+		else if(r_symb == "mainprice") return MainPrice;
+		else if(r_symb == "mainsum") return MainSum;
+		else if(r_symb == "mainsumwovat") return MainSumWoVat;
+		else if(r_symb == "extprice") return ExtPrice;
+		else if(r_symb == "vatrate") return VATRate;
+		else if(r_symb == "vatsum") return VATSum;
+		else if(r_symb == "excrate") return ExcRate;
+		else if(r_symb == "excsum") return ExcSum;
+		else if(r_symb == "strate") return STRate;
+		else if(r_symb == "stsum") return STSum;
+		else if(r_symb == "newprice") return NewPrice;
+		else if(r_symb == "newpricewovat") return NewPriceWoVat;
+		else if(r_symb == "newcost") return NewCost;
+		else if(r_symb == "newcostwovat") return NewCostWoVat;
+		else if(r_symb == "newpricesum") return NewPriceSum;
+		else if(r_symb == "newcostsum") return NewCostSum;
+		else if(r_symb == "newpricesumwovat") return NewPriceSumWoVat;
+		else if(r_symb == "newcostsumwovat") return NewCostSumWoVat;
+		else if(r_symb == "oldprice") return OldPrice;
+		else if(r_symb == "oldpricewovat") return OldPriceWoVat;
+		else if(r_symb == "oldcost") return OldCost;
+		else if(r_symb == "oldcostwovat") return OldCostWoVat;
+		else if(r_symb == "oldpricesum") return OldPriceSum;
+		else if(r_symb == "oldcostsum") return OldCostSum;
+		else if(r_symb == "oldpricesumwovat") return OldPriceSumWoVat;
+		else if(r_symb == "oldcostsumwovat") return OldCostSumWoVat;
+		else if(r_symb == "vatsumoldcost") return VatSum_OldCost;
+		else if(r_symb == "vatsumnewcost") return VatSum_NewCost;
+		else if(r_symb == "vatsumoldprice") return VatSum_OldPrice;
+		else if(r_symb == "vatsumnewprice") return VatSum_NewPrice;
+		else if(r_symb == "oldpricevat") return OldPriceVat;
+		else if(r_symb == "oldcostvat") return OldCostVat;
+		else if(r_symb == "newpricevat") return NewPriceVat;
+		else if(r_symb == "newcostvat") return NewCostVat;
+		else return 0.0;
+	}
 	void ResetRow()
 	{
 		Qtty = 0.0;
+		OldQtty = 0.0;
 		Cost = 0.0;
 		Price = 0.0;
 		Discount = 0.0;
 		CurPrice = 0.0;
 		CurSum = 0.0;
 		MainPrice = 0.0;
+		MainSum = 0.0;
+		MainSumWoVat = 0.0;
 		ExtPrice = 0.0;
 		VATRate = 0.0;
 		VATSum = 0.0;
@@ -5926,8 +5981,24 @@ struct DlGoodsBillBaseBlock {
 		STSum = 0.0;
 		NewPrice = 0.0;
 		NewCost = 0.0;
+		NewPriceWoVat = 0.0;
+		NewCostWoVat = 0.0;
+		NewPriceSum = 0.0;
+		NewCostSum = 0.0;
+		NewPriceSumWoVat = 0.0;
+		NewCostSumWoVat = 0.0;
+		OldPriceVat = 0.0;
+		OldCostVat = 0.0;
+		NewPriceVat = 0.0;
+		NewCostVat = 0.0;
 		OldPrice = 0.0;
 		OldCost = 0.0;
+		OldPriceWoVat = 0.0;
+		OldCostWoVat = 0.0;
+		OldPriceSum = 0.0;
+		OldCostSum = 0.0;
+		OldPriceSumWoVat = 0.0;
+		OldCostSumWoVat = 0.0;
 		VatSum_OldCost = 0.0;
 		VatSum_NewCost = 0.0;
 		VatSum_OldPrice = 0.0;
@@ -5938,12 +6009,15 @@ struct DlGoodsBillBaseBlock {
 	PPBillPacket::TiItemExt Item; // Последняя сканированная итератором строка (используется функциями)
 
 	double Qtty;
+	double OldQtty;
 	double Cost;
 	double Price;
 	double Discount;
 	double CurPrice;
 	double CurSum;
 	double MainPrice;
+	double MainSum;
+	double MainSumWoVat;
 	double ExtPrice;
 	double VATRate;
 	double VATSum;
@@ -5953,8 +6027,24 @@ struct DlGoodsBillBaseBlock {
 	double STSum;
 	double NewPrice;
 	double NewCost;
+	double NewPriceWoVat;
+	double NewCostWoVat;
+	double NewPriceSum;
+	double NewCostSum;
+	double NewPriceSumWoVat;
+	double NewCostSumWoVat;
 	double OldPrice;
 	double OldCost;
+	double OldPriceVat;
+	double OldCostVat;
+	double NewPriceVat;
+	double NewCostVat;
+	double OldPriceWoVat;
+	double OldCostWoVat;
+	double OldPriceSum;
+	double OldCostSum;
+	double OldPriceSumWoVat;
+	double OldCostSumWoVat;
 	double VatSum_OldCost;
 	double VatSum_NewCost;
 	double VatSum_OldPrice;
@@ -6055,7 +6145,7 @@ int PPALDD_GoodsBillBase::InitData(PPFilt & rFilt, long rsrv)
 				H.RcvrReq = H.RcvrID;
 			}
 	}
-	else if(optype == PPOPT_DRAFTRECEIPT || bill_f & BILLF_GRECEIPT ||
+	else if(optype == PPOPT_DRAFTRECEIPT || (bill_f & BILLF_GRECEIPT) ||
 		(oneof3(optype, PPOPT_ACCTURN, PPOPT_PAYMENT, PPOPT_CHARGE) && op_rec.PrnFlags & OPKF_PRT_INCINVC)) {
 		H.ExpendFlag = 2;
 		H.RcvrID    = main_org_id;
@@ -6174,9 +6264,12 @@ int PPALDD_GoodsBillBase::InitIteration(PPIterID iterId, int sortId, long)
 int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
-	// @v10.3.6 PPBillPacket * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
-	DlGoodsBillBaseBlock * p_extra = static_cast<DlGoodsBillBaseBlock *>(Extra[0].Ptr); // @v10.3.6 
-	PPBillPacket * p_pack = p_extra->P_Pack; // @v10.3.6 
+	// @v10.3.7 PPBillPacket * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
+	// @v10.3.7 {
+	DlGoodsBillBaseBlock * p_extra = static_cast<DlGoodsBillBaseBlock *>(Extra[0].Ptr);
+	PPBillPacket * p_pack = p_extra ? p_extra->P_Pack : 0; 
+	CALLPTRMEMB(p_extra, ResetRow());
+	// } @v10.3.7
 	//
 	// Возможны два алгоритма расчета налогов по объединенным строкам документа:
 	// 1. Объединенная строка обсчитывается сама по себе, как единая
@@ -6192,7 +6285,6 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 	PPObjBill * p_bobj = BillObj;
 	ReceiptCore * p_rcpt = (p_bobj && p_bobj->trfr) ? &p_bobj->trfr->Rcpt : 0;
 	PPTransferItem * p_ti, temp_ti;
-	//PPBillPacket::TiItemExt tiie;
 	PPObjGoods goods_obj;
 	Goods2Tbl::Rec goods_rec;
 	PPObjQuotKind qk_obj;
@@ -6302,15 +6394,11 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 	upp = p_ti->UnitPerPack;
 	if(upp <= 0.0) {
 		GoodsStockExt gse;
-		if(goods_obj.GetStockExt(p_ti->GoodsID, &gse, 1) > 0)
+		ReceiptTbl::Rec lot_rec;
+		if(goods_obj.GetStockExt(p_ti->GoodsID, &gse, 1) > 0 && gse.Package > 0.0)
 			upp = gse.Package;
-	}
-	if(upp <= 0.0 && p_pack->IsDraft()) {
-		if(p_rcpt) {
-			ReceiptTbl::Rec lot_rec;
-			if(p_rcpt->GetLastLot(p_ti->GoodsID, p_pack->Rec.LocID, p_pack->Rec.Dt, &lot_rec) > 0)
-				upp = lot_rec.UnitPerPack;
-		}
+		else if(p_pack->IsDraft() && p_rcpt && p_rcpt->GetLastLot(p_ti->GoodsID, p_pack->Rec.LocID, p_pack->Rec.Dt, &lot_rec) > 0)
+			upp = lot_rec.UnitPerPack;
 	}
 	I.UnitsPerPack = upp;
 	I.FullPack = 0;
@@ -6387,7 +6475,7 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 				I.Price = rpi.Price;
 			}
 			SString obj_assc_name;
-			p_pack->GetNextPLU(&plu, obj_assc_name);
+			p_pack->GetNextPLU(&p_extra->Iter, &plu, obj_assc_name);
 			STRNSCPY(I.CQtty, obj_assc_name);
 			I.STSum = plu;
 		}
@@ -6404,13 +6492,17 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 		p_extra->Item.Clb.CopyTo(I.CLB, sizeof(I.CLB));
 	// @v10.3.7 {
 	{
-		p_extra->ResetRow();
 		p_extra->Qtty = I.Qtty;
 		p_extra->Cost = I.Cost;
 		p_extra->Price = I.Price;
 		p_extra->Discount = I.Discount;
 		p_extra->CurPrice = I.CurPrice;
 		p_extra->CurSum = I.CurSum;
+		p_extra->VATRate = I.VATRate;
+		p_extra->VATSum = I.VATSum;
+		p_extra->ExcRate = I.ExcRate;
+		p_extra->ExcSum = I.ExcSum;
+		p_extra->ExtPrice = I.ExtPrice;
 	}
 	// } @v10.3.7 
 	return DlRtm::NextIteration(iterId);
@@ -6458,52 +6550,7 @@ void PPALDD_GoodsBillBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, Rtm
         //
 	}*/
 	else if(pF->Name == "?GetRowAmount") { // iterator
-		const SString & r_arg = _ARG_STR(1);
-		double result = 0.0;
-		//   "qty" | "qtty" | "quantity"
-		//   "cost"
-		//   "costsum"
-		//   "price"
-		//   "pricesum"
-		//   "discount"
-		//   "costvatrate"
-		//   "costvat"
-		//   "costvatsum"
-		//   "pricevatrate"
-		//   "pricevat"
-		//   "pricevatsum"
-		if(r_arg.IsEqiAscii("quantity") || r_arg.IsEqiAscii("qtty") || r_arg.IsEqiAscii("qty")) {
-			//result = 
-		}
-		else if(r_arg.IsEqiAscii("cost")) {
-		}
-		else if(r_arg.IsEqiAscii("costsum")) {
-		}
-		else if(r_arg.IsEqiAscii("price")) {
-		}
-		else if(r_arg.IsEqiAscii("pricesum")) {
-		}
-		else if(r_arg.IsEqiAscii("discount")) {
-		}
-		else if(r_arg.IsEqiAscii("vatrate")) {
-		}
-		else if(r_arg.IsEqiAscii("vat")) {
-		}
-		else if(r_arg.IsEqiAscii("vatsum")) {
-		}
-		else if(r_arg.IsEqiAscii("costvatrate")) {
-		}
-		else if(r_arg.IsEqiAscii("costvat")) {
-		}
-		else if(r_arg.IsEqiAscii("costvatsum")) {
-		}
-		else if(r_arg.IsEqiAscii("pricevatrate")) {
-		}
-		else if(r_arg.IsEqiAscii("pricevat")) {
-		}
-		else if(r_arg.IsEqiAscii("pricevatsum")) {
-		}
-		_RET_DBL = result;
+		_RET_DBL = p_extra ? p_extra->GetValueBySymb(_ARG_STR(1)) : 0.0;
 	}
 }
 //
@@ -7432,17 +7479,22 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId)
 	IterProlog(iterId, 0);
 	{
 		// @v10.3.6 const PPBillPacket * p_pack = static_cast<const PPBillPacket *>(Extra[0].Ptr);
-		DlGoodsBillBaseBlock * p_extra = static_cast<DlGoodsBillBaseBlock *>(Extra[0].Ptr); // @v10.3.6 
-		const PPBillPacket * p_pack = p_extra ? p_extra->P_Pack : 0; // @v10.3.6
+		// @v10.3.8 {
+		DlGoodsBillBaseBlock * p_extra = static_cast<DlGoodsBillBaseBlock *>(Extra[0].Ptr);
+		const PPBillPacket * p_pack = p_extra ? p_extra->P_Pack : 0; 
+		CALLPTRMEMB(p_extra, ResetRow());
+		// } @v10.3.8 
 		PPTransferItem * p_ti;
 		uint   nn = static_cast<uint>(I.nn);
 		if(p_pack && p_pack->EnumTItems(&nn, &p_ti)) {
+			const  int correction_type = p_ti->IsCorrectionExp() ? -1 : (p_ti->IsCorrectionRcpt() ? +1 : 0);
 			int    reval_assets_wo_vat = 1;
-			double new_price = p_ti->Price;
+			double new_price = (correction_type == -1) ? (p_ti->Price-p_ti->Discount) : p_ti->Price;
 			double new_cost  = p_ti->Cost;
-			double old_price = p_ti->Discount;
-			double old_cost  = p_ti->RevalCost;
-			double qtty      = fabs(p_ti->Rest_);
+			double old_price = (correction_type == -1) ? p_ti->RevalCost : ((correction_type == 0) ? p_ti->Discount : 0.0);
+			double old_cost  = (correction_type == +1) ? p_ti->RevalCost : ((correction_type == 0) ? p_ti->Discount : 0.0);
+			const double qtty      = correction_type ? fabs(p_ti->Quantity_) : fabs(p_ti->Rest_);
+			const double old_qtty  = correction_type ? fabs(p_ti->QuotPrice) : fabs(qtty);
 			double vatsum_oldcost = 0.0;
 			double vatsum_newcost = 0.0;
 			double vatsum_oldprice = 0.0;
@@ -7465,8 +7517,10 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId)
 			else {
 				gtx_cost = gtx_price;
 			}
-			double tax_qtty = qtty;
-			gobj.MultTaxFactor(p_ti->GoodsID, &tax_qtty);
+			double tax_new_qtty = qtty;
+			double tax_old_qtty = old_qtty;
+			gobj.MultTaxFactor(p_ti->GoodsID, &tax_old_qtty);
+			gobj.MultTaxFactor(p_ti->GoodsID, &tax_new_qtty);
 			if(p_ti->Flags & PPTFR_CORRECTION) {
 				GTaxVect gt_vect;
 				{
@@ -7478,17 +7532,17 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId)
 						excl_flags |= GTAXVF_VAT;
 					if(gtx_cost.Flags & GTAXF_NOLOTEXCISE)
 						excl_flags |= GTAXVF_EXCISE;
-					gt_vect.Calc_(&gtx_cost, old_cost, tax_qtty, amt_flags, excl_flags);
+					gt_vect.Calc_(&gtx_cost, old_cost, tax_old_qtty, amt_flags, excl_flags);
 					vatsum_oldcost = gt_vect.GetValue(GTAXVF_VAT);
-					gt_vect.Calc_(&gtx_cost, new_cost,  tax_qtty, amt_flags, excl_flags);
+					gt_vect.Calc_(&gtx_cost, new_cost,  tax_new_qtty, amt_flags, excl_flags);
 					vatsum_newcost  = gt_vect.GetValue(GTAXVF_VAT);
 				}
 				{
 					long   amt_flags  = ~0L;
 					long   excl_flags = 0L;
-					gt_vect.Calc_(&gtx_price, old_price, tax_qtty, amt_flags, excl_flags);
+					gt_vect.Calc_(&gtx_price, old_price * old_qtty, tax_old_qtty, amt_flags, excl_flags);
 					vatsum_oldprice = gt_vect.GetValue(GTAXVF_VAT);
-					gt_vect.Calc_(&gtx_price, new_price,  tax_qtty, amt_flags, excl_flags);
+					gt_vect.Calc_(&gtx_price, new_price * qtty,  tax_new_qtty, amt_flags, excl_flags);
 					vatsum_newprice = gt_vect.GetValue(GTAXVF_VAT);
 				}
 			}
@@ -7502,44 +7556,93 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId)
 					excl_flags |= GTAXVF_VAT;
 				if(gtx_cost.Flags & GTAXF_NOLOTEXCISE)
 					excl_flags |= GTAXVF_EXCISE;
-				gt_vect.Calc_(&gtx_cost, new_price, tax_qtty, amt_flags, excl_flags);
+				gt_vect.Calc_(&gtx_cost, new_price, tax_new_qtty, amt_flags, excl_flags);
 				new_price = gt_vect.GetValue(~GTAXVF_BEFORETAXES & ~GTAXVF_VAT);
-				gt_vect.Calc_(&gtx_cost, new_cost,  tax_qtty, amt_flags, excl_flags);
+				gt_vect.Calc_(&gtx_cost, new_cost,  tax_new_qtty, amt_flags, excl_flags);
 				new_cost  = gt_vect.GetValue(~GTAXVF_BEFORETAXES & ~GTAXVF_VAT);
-				gt_vect.Calc_(&gtx_cost, old_price, tax_qtty, amt_flags, excl_flags);
+				gt_vect.Calc_(&gtx_cost, old_price, tax_old_qtty, amt_flags, excl_flags);
 				old_price = gt_vect.GetValue(~GTAXVF_BEFORETAXES & ~GTAXVF_VAT);
-				gt_vect.Calc_(&gtx_cost, old_cost,  tax_qtty, amt_flags, excl_flags);
+				gt_vect.Calc_(&gtx_cost, old_cost,  tax_old_qtty, amt_flags, excl_flags);
 				old_cost  = gt_vect.GetValue(~GTAXVF_BEFORETAXES & ~GTAXVF_VAT);
 			}
-			I.nn       = nn;
-			I.GoodsID  = p_ti->GoodsID;
-			I.LotID    = p_ti->LotID;
-			I.NewPrice = new_price;
-			I.NewCost  = new_cost;
-			I.OldPrice = old_price;
-			I.OldCost  = old_cost;
-			I.VATRate  = gtx_cost.GetVatRate();
-			I.VATSumOldCost = vatsum_oldcost;
-			I.VATSumNewCost = vatsum_newcost;
-			I.VATSumOldPrice = vatsum_oldprice;
-			I.VATSumNewPrice = vatsum_newprice;
-			if(p_ti->Flags & PPTFR_CORRECTION) {
-				I.Quantity = fabs(p_ti->Quantity_);
-				I.OldQtty  = fabs(p_ti->QuotPrice);
-			}
-			else {
-				I.Quantity = qtty;
-			}
-			// @v10.3.7 {
+			// @v10.3.8 {
 			{
-				p_extra->ResetRow();
-				p_extra->Qtty = I.Quantity;
-				p_extra->OldCost = I.OldCost;
-				p_extra->OldPrice = I.OldPrice;
-				p_extra->NewCost = I.NewCost;
-				p_extra->NewPrice = I.NewPrice;
+				/*if(p_ti->Flags & PPTFR_CORRECTION) {
+					p_extra->Qtty = fabs(p_ti->Quantity_);
+					p_extra->OldQtty  = fabs(p_ti->QuotPrice);
+				}
+				else {
+					p_extra->Qtty = qtty;
+					p_extra->OldQtty = qtty;
+				}*/
+				p_extra->OldCostVat = vatsum_oldcost;
+				p_extra->NewCostVat = vatsum_newcost;
+				p_extra->OldPriceVat = fdivnz(vatsum_oldprice, old_qtty);
+				p_extra->NewPriceVat = fdivnz(vatsum_newprice, qtty);
+				p_extra->VatSum_OldCost = vatsum_oldcost * old_qtty;
+				p_extra->VatSum_NewCost = vatsum_newcost * qtty;
+				p_extra->VatSum_OldPrice = vatsum_oldprice;
+				p_extra->VatSum_NewPrice = vatsum_newprice;
+				p_extra->Qtty = qtty;
+				p_extra->OldQtty = old_qtty;
+				p_extra->OldCost = old_cost;
+				p_extra->OldCostWoVat = old_cost-vatsum_oldcost;
+				p_extra->OldPrice = old_price;
+				p_extra->OldPriceWoVat = old_price-p_extra->OldPriceVat;
+				p_extra->NewCost = new_cost;
+				p_extra->NewCostWoVat = new_cost-vatsum_newcost;
+				p_extra->NewCostSum = new_cost * qtty;
+				p_extra->OldCostSum = old_cost * p_extra->OldQtty;
+				p_extra->NewPrice = new_price;
+				p_extra->NewPriceWoVat = new_price-p_extra->NewPriceVat;
+				p_extra->NewPriceSum = new_price * qtty;
+				p_extra->OldPriceSum = old_price * p_extra->OldQtty;
+				p_extra->VATRate = gtx_cost.GetVatRate();
+				p_extra->NewCostSumWoVat = p_extra->NewCostSum - p_extra->VatSum_NewCost;
+				p_extra->OldCostSumWoVat = p_extra->OldCostSum - p_extra->VatSum_OldCost;
+				p_extra->NewPriceSumWoVat = p_extra->NewPriceSum - p_extra->VatSum_NewPrice;
+				p_extra->OldPriceSumWoVat = p_extra->OldPriceSum - p_extra->VatSum_OldPrice;
+				if(p_ti->IsCorrectionExp()) {
+					p_extra->MainPrice = p_extra->NewPrice;
+					p_extra->MainSum = p_extra->NewPriceSum - p_extra->OldPriceSum;
+					p_extra->VATSum = p_extra->VatSum_NewPrice - p_extra->VatSum_OldPrice;
+				}
+				else if(p_ti->IsCorrectionRcpt()) {
+					p_extra->MainPrice = p_extra->NewCost;
+					p_extra->MainSum = p_extra->NewCostSum - p_extra->OldCostSum;
+					p_extra->VATSum = p_extra->VatSum_NewCost - p_extra->VatSum_OldCost;
+				}
+				else {
+					p_extra->MainPrice = p_extra->NewPrice;
+					p_extra->MainSum = p_extra->NewPriceSum;
+					p_extra->VATSum = p_extra->VatSum_NewPrice;
+				}
+				p_extra->MainSumWoVat = p_extra->MainSum - p_extra->VATSum;
 			}
-			// } @v10.3.7 
+			// } @v10.3.8 
+			{
+				I.nn       = nn;
+				I.GoodsID  = p_ti->GoodsID;
+				I.LotID    = p_ti->LotID;
+				I.Quantity = p_extra->Qtty;    // @v10.3.8
+				I.OldQtty  = p_extra->OldQtty; // @v10.3.8
+				I.NewPrice = new_price;
+				I.NewCost  = new_cost;
+				I.OldPrice = old_price;
+				I.OldCost  = old_cost;
+				I.VATRate  = gtx_cost.GetVatRate();
+				I.VATSumOldCost = p_extra->VatSum_OldCost;
+				I.VATSumNewCost = p_extra->VatSum_NewCost;
+				I.VATSumOldPrice = p_extra->VatSum_OldPrice;
+				I.VATSumNewPrice = p_extra->VatSum_NewPrice;
+				/* @v10.3.8 if(p_ti->Flags & PPTFR_CORRECTION) {
+					I.Quantity = fabs(p_ti->Quantity_);
+					I.OldQtty  = fabs(p_ti->QuotPrice);
+				}
+				else {
+					I.Quantity = qtty;
+				}*/
+			}
 		}
 		else
 			return -1;
@@ -7560,9 +7663,7 @@ void PPALDD_GoodsReval::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmSta
 		_RET_INT = BIN(p_pack && p_pack->ProcessFlags & PPBillPacket::pfAllGoodsUnlim);
 	}
 	else if(pF->Name == "?GetRowAmount") {
-		double result = 0.0;
-		//
-		_RET_DBL = result;
+		_RET_DBL = p_extra ? p_extra->GetValueBySymb(_ARG_STR(1)) : 0.0;
 	}
 }
 //

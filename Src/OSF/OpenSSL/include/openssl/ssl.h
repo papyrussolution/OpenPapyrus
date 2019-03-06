@@ -755,8 +755,8 @@ int SSL_is_init_finished(SSL *s);
 
 /*-
  * Obtain latest Finished message
- *   -- that we sent (SSL_get_finished)
- *   -- that we expected from peer (SSL_get_peer_finished).
+ * -- that we sent (SSL_get_finished)
+ * -- that we expected from peer (SSL_get_peer_finished).
  * Returns length (0 == no Finished so far), copies up to 'count' bytes.
  */
 size_t SSL_get_finished(const SSL *s, void *buf, size_t count);
@@ -1543,7 +1543,7 @@ int DTLSv1_listen(SSL *s, BIO_ADDR *client);
  * is invoked. Ownership of |arg| remains with the caller.
  *
  * NOTE: A side-effect of setting a CT callback is that an OCSP stapled response
- *       will be requested.
+ *     will be requested.
  */
 int SSL_set_ct_validation_callback(SSL *s, ssl_ct_validation_cb callback, void *arg);
 int SSL_CTX_set_ct_validation_callback(SSL_CTX *ctx, ssl_ct_validation_cb callback, void *arg);

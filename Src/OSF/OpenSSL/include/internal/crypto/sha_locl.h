@@ -118,7 +118,7 @@ int HASH_INIT(SHA_CTX *c)
    * "find" this expectation reasonable:-( On order to make such
    * compilers generate better code I replace X[] with a bunch of
    * X0, X1, etc. See the function body below...
-   *                                    <appro@fy.chalmers.se>
+   *                                  <appro@fy.chalmers.se>
    */
 #  define X(i)   XX##i
 # else

@@ -293,49 +293,30 @@ cairo_int_status_t _cairo_composite_rectangles_init_for_boxes(cairo_composite_re
 	return _cairo_composite_rectangles_intersect(extents, clip);
 }
 
-cairo_int_status_t _cairo_composite_rectangles_init_for_glyphs(cairo_composite_rectangles_t * extents,
-    cairo_surface_t * surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    cairo_scaled_font_t * scaled_font,
-    cairo_glyph_t * glyphs,
-    int num_glyphs,
-    const cairo_clip_t * clip,
-    cairo_bool_t * overlap)
+cairo_int_status_t _cairo_composite_rectangles_init_for_glyphs(cairo_composite_rectangles_t * extents, cairo_surface_t * surface,
+    cairo_operator_t op, const cairo_pattern_t * source, cairo_scaled_font_t * scaled_font, cairo_glyph_t * glyphs,
+    int num_glyphs, const cairo_clip_t * clip, cairo_bool_t * overlap)
 {
 	cairo_status_t status;
-
 	if(!_cairo_composite_rectangles_init(extents, surface, op, source, clip))
 		return CAIRO_INT_STATUS_NOTHING_TO_DO;
-
 	/* Computing the exact bbox and the overlap is expensive.
 	 * First perform a cheap test to see if the glyphs are all clipped out.
 	 */
-	if(extents->is_bounded & CAIRO_OPERATOR_BOUND_BY_MASK &&
-	    _cairo_scaled_font_glyph_approximate_extents(scaled_font,
-	    glyphs, num_glyphs,
-	    &extents->mask)) {
+	if(extents->is_bounded & CAIRO_OPERATOR_BOUND_BY_MASK && _cairo_scaled_font_glyph_approximate_extents(scaled_font, glyphs, num_glyphs, &extents->mask)) {
 		if(!_cairo_rectangle_intersect(&extents->bounded, &extents->mask))
 			return CAIRO_INT_STATUS_NOTHING_TO_DO;
 	}
-
-	status = _cairo_scaled_font_glyph_device_extents(scaled_font,
-		glyphs, num_glyphs,
-		&extents->mask,
-		overlap);
+	status = _cairo_scaled_font_glyph_device_extents(scaled_font, glyphs, num_glyphs, &extents->mask, overlap);
 	if(unlikely(status))
 		return status;
-
-	if(overlap && *overlap &&
-	    scaled_font->options.antialias == CAIRO_ANTIALIAS_NONE &&
-	    _cairo_pattern_is_opaque_solid(&extents->source_pattern.base)) {
+	if(overlap && *overlap && scaled_font->options.antialias == CAIRO_ANTIALIAS_NONE && _cairo_pattern_is_opaque_solid(&extents->source_pattern.base)) {
 		*overlap = FALSE;
 	}
-
 	return _cairo_composite_rectangles_intersect(extents, clip);
 }
 
-cairo_bool_t _cairo_composite_rectangles_can_reduce_clip(cairo_composite_rectangles_t * composite, cairo_clip_t * clip)
+cairo_bool_t _cairo_composite_rectangles_can_reduce_clip(cairo_composite_rectangles_t * composite, const cairo_clip_t * clip)
 {
 	cairo_rectangle_int_t extents;
 	cairo_box_t box;

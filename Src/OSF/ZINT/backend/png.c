@@ -71,7 +71,7 @@ int png_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 #ifndef _MSC_VER
 	uchar outdata[symbol->bitmap_width * 3];
 #else
-	uchar* outdata = (uchar*)_alloca(symbol->bitmap_width * 3);
+	uchar* outdata = (uchar *)_alloca(symbol->bitmap_width * 3);
 #endif
 	graphic = &wpng_info;
 	graphic->width = symbol->bitmap_width;

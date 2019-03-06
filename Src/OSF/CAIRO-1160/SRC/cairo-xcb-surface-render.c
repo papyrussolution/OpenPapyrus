@@ -42,7 +42,7 @@
 //#include "cairo-list-inline.h"
 //#include "cairo-region-private.h"
 #include "cairo-surface-offset-private.h"
-#include "cairo-surface-snapshot-inline.h"
+//#include "cairo-surface-snapshot-inline.h"
 #include "cairo-surface-subsurface-private.h"
 #include "cairo-traps-private.h"
 //#include "cairo-recording-surface-inline.h"

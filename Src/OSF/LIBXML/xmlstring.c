@@ -35,7 +35,7 @@ xmlChar * xmlStrndup(const xmlChar * cur, /*int*/SSIZE_T len)
 {
 	xmlChar * ret = 0;
 	if(cur && len >= 0) {
-		ret = (xmlChar*)SAlloc::M((len + 1) * sizeof(xmlChar));
+		ret = (xmlChar *)SAlloc::M((len + 1) * sizeof(xmlChar));
 		if(!ret) {
 			xmlErrMemory(NULL, 0);
 		}
@@ -81,7 +81,7 @@ xmlChar * xmlCharStrndup(const char * cur, int len)
 	int i;
 	xmlChar * ret;
 	if(!cur || (len < 0)) return 0;
-	ret = (xmlChar*)SAlloc::M((len + 1) * sizeof(xmlChar));
+	ret = (xmlChar *)SAlloc::M((len + 1) * sizeof(xmlChar));
 	if(!ret) {
 		xmlErrMemory(NULL, 0);
 		return 0;
@@ -203,7 +203,7 @@ int FASTCALL xmlStrncmp(const xmlChar * str1, const xmlChar * str2, int len)
 	if(str1 == NULL) return -1;
 	if(str2 == NULL) return 1;
 #ifdef __GNUC__
-	tmp = strncmp((const char*)str1, (const char*)str2, len);
+	tmp = strncmp((const char *)str1, (const char *)str2, len);
 	return tmp;
 #else
 	do {
@@ -445,7 +445,7 @@ xmlChar * xmlStrncat(xmlChar * cur, const xmlChar * add, int len)
 		return xmlStrndup(add, len);
 	else {
 		int size = sstrlen(cur);
-		xmlChar * ret = (xmlChar*)SAlloc::R(cur, (size + len + 1) * sizeof(xmlChar));
+		xmlChar * ret = (xmlChar *)SAlloc::R(cur, (size + len + 1) * sizeof(xmlChar));
 		if(!ret) {
 			xmlErrMemory(NULL, 0);
 			return cur;
@@ -480,7 +480,7 @@ xmlChar * xmlStrncatNew(const xmlChar * str1, const xmlChar * str2, int len)
 	if(!str1)
 		return xmlStrndup(str2, len);
 	size = sstrlen(str1);
-	ret = (xmlChar*)SAlloc::M((size + len + 1) * sizeof(xmlChar));
+	ret = (xmlChar *)SAlloc::M((size + len + 1) * sizeof(xmlChar));
 	if(!ret) {
 		xmlErrMemory(NULL, 0);
 		return xmlStrndup(str1, size);
@@ -535,7 +535,7 @@ int XMLCDECL xmlStrPrintf(xmlChar * buf, int len, const xmlChar * msg, ...)
 		return -1;
 	}
 	va_start(args, msg);
-	ret = vsnprintf((char *)buf, len, (const char*)msg, args);
+	ret = vsnprintf((char *)buf, len, (const char *)msg, args);
 	va_end(args);
 	buf[len-1] = 0; /* be safe ! */
 	return ret;
@@ -558,7 +558,7 @@ int xmlStrVPrintf(xmlChar * buf, int len, const xmlChar * msg, va_list ap)
 	if(!buf || (msg == NULL)) {
 		return -1;
 	}
-	ret = vsnprintf((char *)buf, len, (const char*)msg, ap);
+	ret = vsnprintf((char *)buf, len, (const char *)msg, ap);
 	buf[len-1] = 0; /* be safe ! */
 	return ret;
 }
@@ -666,13 +666,13 @@ int FASTCALL xmlUTF8Strlen(const xmlChar * utf)
  * xmlGetUTF8Char:
  * @utf:  a sequence of UTF-8 encoded bytes
  * @len:  a pointer to the minimum number of bytes present in
- *        the sequence.  This is used to assure the next character
- *        is completely contained within the sequence.
+ *      the sequence.  This is used to assure the next character
+ *      is completely contained within the sequence.
  *
  * Read the first UTF8 character from @utf
  *
  * Returns the char value or -1 in case of error, and sets *len to
- *        the actual number of bytes consumed (0 in case of error)
+ *      the actual number of bytes consumed (0 in case of error)
  */
 int xmlGetUTF8Char(const uchar * utf, int * len) 
 {
@@ -753,10 +753,10 @@ int xmlCheckUTF8(const uchar * utf)
 	/*
 	 * utf is a string of 1, 2, 3 or 4 bytes.  The valid strings
 	 * are as follows (in "bit format"):
-	 *    0xxxxxxx                                      valid 1-byte
-	 *    110xxxxx 10xxxxxx                             valid 2-byte
-	 *    1110xxxx 10xxxxxx 10xxxxxx                    valid 3-byte
-	 *    11110xxx 10xxxxxx 10xxxxxx 10xxxxxx           valid 4-byte
+	 *  0xxxxxxx                                      valid 1-byte
+	 *  110xxxxx 10xxxxxx                             valid 2-byte
+	 *  1110xxxx 10xxxxxx 10xxxxxx                    valid 3-byte
+	 *  11110xxx 10xxxxxx 10xxxxxx 10xxxxxx           valid 4-byte
 	 */
 	for(ix = 0; (c = utf[ix]); ) {  /* string is 0-terminated */
 		if((c & 0x80) == 0x00) { /* 1-byte code, starts with 10 */
@@ -830,7 +830,7 @@ xmlChar * xmlUTF8Strndup(const xmlChar * utf, int len)
 	int i;
 	if((utf == NULL) || (len < 0)) return 0;
 	i = xmlUTF8Strsize(utf, len);
-	ret = (xmlChar*)SAlloc::M((i + 1) * sizeof(xmlChar));
+	ret = (xmlChar *)SAlloc::M((i + 1) * sizeof(xmlChar));
 	if(!ret) {
 		xmlGenericError(0, "malloc of %ld byte failed\n", (len + 1) * (long)sizeof(xmlChar));
 		return 0;
@@ -868,7 +868,7 @@ const xmlChar * xmlUTF8Strpos(const xmlChar * utf, int pos)
 					return 0;
 		}
 	}
-	return((xmlChar*)utf);
+	return((xmlChar *)utf);
 }
 /**
  * xmlUTF8Strloc:

@@ -921,12 +921,12 @@ static CURLcode tftp_receive_packet(struct connectdata * conn)
 			    break;
 			case TFTP_EVENT_ERROR:
 			    state->error = (tftp_error_t)getrpacketblock(&state->rpacket);
-			    infof(data, "%s\n", (const char*)state->rpacket.data+4);
+			    infof(data, "%s\n", (const char *)state->rpacket.data+4);
 			    break;
 			case TFTP_EVENT_ACK:
 			    break;
 			case TFTP_EVENT_OACK:
-			    result = tftp_parse_option_ack(state, (const char*)state->rpacket.data+2, state->rbytes-2);
+			    result = tftp_parse_option_ack(state, (const char *)state->rpacket.data+2, state->rbytes-2);
 			    if(result)
 				    return result;
 			    break;

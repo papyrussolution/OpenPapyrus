@@ -14,7 +14,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -153,32 +153,32 @@ void ec_GFp_nistp_points_make_affine_internal(size_t num, void * point_array,
  *
  * (1) Given a binary representation
  *
- *       b_k  ...  b_2  b_1  b_0,
+ *     b_k  ...  b_2  b_1  b_0,
  *
- *     of a nonnegative integer (b_k in {0, 1}), rewrite it in digits 0, 1, -1
- *     by using bit-wise subtraction as follows:
+ *   of a nonnegative integer (b_k in {0, 1}), rewrite it in digits 0, 1, -1
+ *   by using bit-wise subtraction as follows:
  *
- *        b_k b_(k-1)  ...  b_2  b_1  b_0
- *      -     b_k      ...  b_3  b_2  b_1  b_0
- *       -------------------------------------
- *        s_k b_(k-1)  ...  s_3  s_2  s_1  s_0
+ *      b_k b_(k-1)  ...  b_2  b_1  b_0
+ *    -     b_k      ...  b_3  b_2  b_1  b_0
+ *     -------------------------------------
+ *      s_k b_(k-1)  ...  s_3  s_2  s_1  s_0
  *
- *     A left-shift followed by subtraction of the original value yields a new
- *     representation of the same value, using signed bits s_i = b_(i+1) - b_i.
- *     This representation from Booth's paper has since appeared in the
- *     literature under a variety of different names including "reversed binary
- *     form", "alternating greedy expansion", "mutual opposite form", and
- *     "sign-alternating {+-1}-representation".
+ *   A left-shift followed by subtraction of the original value yields a new
+ *   representation of the same value, using signed bits s_i = b_(i+1) - b_i.
+ *   This representation from Booth's paper has since appeared in the
+ *   literature under a variety of different names including "reversed binary
+ *   form", "alternating greedy expansion", "mutual opposite form", and
+ *   "sign-alternating {+-1}-representation".
  *
- *     An interesting property is that among the nonzero bits, values 1 and -1
- *     strictly alternate.
+ *   An interesting property is that among the nonzero bits, values 1 and -1
+ *   strictly alternate.
  *
  * (2) Various window schemes can be applied to the Booth representation of
- *     integers: for example, right-to-left sliding windows yield the wNAF
- *     (a signed-digit encoding independently discovered by various researchers
- *     in the 1990s), and left-to-right sliding windows yield a left-to-right
- *     equivalent of the wNAF (independently discovered by various researchers
- *     around 2004).
+ *   integers: for example, right-to-left sliding windows yield the wNAF
+ *   (a signed-digit encoding independently discovered by various researchers
+ *   in the 1990s), and left-to-right sliding windows yield a left-to-right
+ *   equivalent of the wNAF (independently discovered by various researchers
+ *   around 2004).
  *
  * To prevent leaking information through side channels in point multiplication,
  * we need to recode the given integer into a regular pattern: sliding windows
@@ -188,7 +188,7 @@ void ec_GFp_nistp_points_make_affine_internal(size_t num, void * point_array,
  * (1961), pp. 67-91), in a radix-2^5 setting.  That is, we always combine five
  * signed bits into a signed digit:
  *
- *       s_(4j + 4) s_(4j + 3) s_(4j + 2) s_(4j + 1) s_(4j)
+ *     s_(4j + 4) s_(4j + 3) s_(4j + 2) s_(4j + 1) s_(4j)
  *
  * The sign-alternating property implies that the resulting digit values are
  * integers from -16 to 16.

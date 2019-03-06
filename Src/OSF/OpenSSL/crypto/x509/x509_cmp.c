@@ -31,11 +31,11 @@ ulong X509_issuer_and_serial_hash(X509 * a)
 	f = X509_NAME_oneline(a->cert_info.issuer, NULL, 0);
 	if(!EVP_DigestInit_ex(ctx, EVP_md5(), NULL))
 		goto err;
-	if(!EVP_DigestUpdate(ctx, (uchar*)f, strlen(f)))
+	if(!EVP_DigestUpdate(ctx, (uchar *)f, strlen(f)))
 		goto err;
 	OPENSSL_free(f);
 	if(!EVP_DigestUpdate
-		    (ctx, (uchar*)a->cert_info.serialNumber.data,
+		    (ctx, (uchar *)a->cert_info.serialNumber.data,
 		    (ulong)a->cert_info.serialNumber.length))
 		goto err;
 	if(!EVP_DigestFinal_ex(ctx, &(md[0]), NULL))

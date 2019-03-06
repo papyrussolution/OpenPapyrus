@@ -149,7 +149,7 @@ namespace NArchive {
 			for(; i > 0 && p[i - 1] == ' '; i--) ;
 			if(i != 0) {
 				AString d;
-				d.SetFrom((const char*)p, i);
+				d.SetFrom((const char *)p, i);
 				s += '\n';
 				s += name;
 				s += ": ";

@@ -8,9 +8,9 @@
 //#include <ngx_event.h>
 /*
  * open file cache caches
- *    open file handles with stat() info;
- *    directories stat() info;
- *    files and directories errors: not found, access denied, etc.
+ *  open file handles with stat() info;
+ *  directories stat() info;
+ *  files and directories errors: not found, access denied, etc.
  */
 #define NGX_MIN_READ_AHEAD  (128 * 1024)
 
@@ -400,16 +400,16 @@ static ngx_int_t ngx_file_o_path_info(ngx_fd_t fd, ngx_file_info_t * fi, ngx_log
 	 * Three scenarios are handled in this function:
 	 *
 	 * 1) The kernel is newer than 3.6 or fstat() with O_PATH support was
-	 *    backported by vendor.  Then fstat() is used.
+	 *  backported by vendor.  Then fstat() is used.
 	 *
 	 * 2) The kernel is newer than 2.6.39 but older than 3.6.  In this case
-	 *    the first call of fstat() returns EBADF and we fallback to fstatat()
-	 *    with AT_EMPTY_PATH which was introduced at the same time as O_PATH.
+	 *  the first call of fstat() returns EBADF and we fallback to fstatat()
+	 *  with AT_EMPTY_PATH which was introduced at the same time as O_PATH.
 	 *
 	 * 3) The kernel is older than 2.6.39 but nginx was build with O_PATH
-	 *    support.  Since descriptors are opened with O_PATH|O_RDONLY flags
-	 *    and O_PATH is ignored by the kernel then the O_RDONLY flag is
-	 *    actually used.  In this case fstat() just works.
+	 *  support.  Since descriptors are opened with O_PATH|O_RDONLY flags
+	 *  and O_PATH is ignored by the kernel then the O_RDONLY flag is
+	 *  actually used.  In this case fstat() just works.
 	 */
 
 	if(use_fstat) {
@@ -820,7 +820,7 @@ static void ngx_expire_old_cached_files(ngx_open_file_cache_t * cache, ngx_uint_
 	/*
 	 * n == 1 deletes one or two inactive files
 	 * n == 0 deletes least recently used file by force
-	 *        and one or two inactive files
+	 *      and one or two inactive files
 	 */
 	while(n < 3) {
 		if(ngx_queue_empty(&cache->expire_queue)) {

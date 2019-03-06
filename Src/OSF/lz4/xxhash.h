@@ -83,8 +83,8 @@ typedef enum { XXH_OK=0, XXH_ERROR } XXH_errorcode;
  *  in order to inline them, and remove their symbol from the public list.
  *  Inlining can offer dramatic performance improvement on small keys.
  *  Methodology :
- *     #define XXH_INLINE_ALL
- *     #include "xxhash.h"
+ *   #define XXH_INLINE_ALL
+ *   #include "xxhash.h"
  * `xxhash.c` is automatically included.
  *  It's not useful to compile and link it as a separate module.
  */

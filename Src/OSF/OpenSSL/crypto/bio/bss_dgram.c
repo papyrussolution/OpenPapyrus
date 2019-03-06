@@ -229,7 +229,7 @@ static void dgram_adjust_rcv_timeout(BIO * b)
 			    && data->socket_timeout.tv_usec >= timeleft.tv_usec)) {
 #  ifdef OPENSSL_SYS_WINDOWS
 			timeout = timeleft.tv_sec * 1000 + timeleft.tv_usec / 1000;
-			if(setsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout)) < 0) {
+			if(setsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO, (const char *)&timeout, sizeof(timeout)) < 0) {
 				perror("setsockopt");
 			}
 #  else
@@ -250,7 +250,7 @@ static void dgram_reset_rcv_timeout(BIO * b)
 	if(data->next_timeout.tv_sec > 0 || data->next_timeout.tv_usec > 0) {
 #  ifdef OPENSSL_SYS_WINDOWS
 		int timeout = data->socket_timeout.tv_sec * 1000 + data->socket_timeout.tv_usec / 1000;
-		if(setsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout)) < 0) {
+		if(setsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO, (const char *)&timeout, sizeof(timeout)) < 0) {
 			perror("setsockopt");
 		}
 #  else
@@ -554,7 +554,7 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    {
 			    struct timeval * tv = (struct timeval*)ptr;
 			    int timeout = tv->tv_sec * 1000 + tv->tv_usec / 1000;
-			    if(setsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout)) < 0) {
+			    if(setsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO, (const char *)&timeout, sizeof(timeout)) < 0) {
 				    perror("setsockopt");
 				    ret = -1;
 			    }
@@ -609,7 +609,7 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    {
 			    struct timeval * tv = (struct timeval*)ptr;
 			    int timeout = tv->tv_sec * 1000 + tv->tv_usec / 1000;
-			    if(setsockopt(b->num, SOL_SOCKET, SO_SNDTIMEO, (const char*)&timeout, sizeof(timeout)) < 0) {
+			    if(setsockopt(b->num, SOL_SOCKET, SO_SNDTIMEO, (const char *)&timeout, sizeof(timeout)) < 0) {
 				    perror("setsockopt");
 				    ret = -1;
 			    }
@@ -699,7 +699,7 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 					ret = -1;
 				}
 # elif defined(OPENSSL_SYS_WINDOWS) && defined(IP_DONTFRAGMENT)
-				if((ret = setsockopt(b->num, IPPROTO_IP, IP_DONTFRAGMENT, (const char*)&sockopt_val, sizeof(sockopt_val))) < 0) {
+				if((ret = setsockopt(b->num, IPPROTO_IP, IP_DONTFRAGMENT, (const char *)&sockopt_val, sizeof(sockopt_val))) < 0) {
 					perror("setsockopt");
 					ret = -1;
 				}
@@ -710,7 +710,7 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 # if OPENSSL_USE_IPV6
 			    case AF_INET6:
 #  if defined(IPV6_DONTFRAG)
-				if((ret = setsockopt(b->num, IPPROTO_IPV6, IPV6_DONTFRAG, (const char*)&sockopt_val, sizeof(sockopt_val))) < 0) {
+				if((ret = setsockopt(b->num, IPPROTO_IPV6, IPV6_DONTFRAG, (const char *)&sockopt_val, sizeof(sockopt_val))) < 0) {
 					perror("setsockopt");
 					ret = -1;
 				}
@@ -812,8 +812,8 @@ BIO * BIO_new_dgram_sctp(int fd, int close_flag)
 		return NULL;
 	}
 
-	for(p = (uchar*)authchunks->gauth_chunks;
-	    p < (uchar*)authchunks + sockopt_len;
+	for(p = (uchar *)authchunks->gauth_chunks;
+	    p < (uchar *)authchunks + sockopt_len;
 	    p += sizeof(uint8_t)) {
 		if(*p == OPENSSL_SCTP_DATA_CHUNK_TYPE)
 			auth_data = 1;
@@ -1124,8 +1124,8 @@ static int dgram_sctp_read(BIO * b, char * out, int outl)
 			    authchunks, &optlen);
 
 			if(ii >= 0)
-				for(p = (uchar*)authchunks->gauth_chunks;
-				    p < (uchar*)authchunks + optlen;
+				for(p = (uchar *)authchunks->gauth_chunks;
+				    p < (uchar *)authchunks + optlen;
 				    p += sizeof(uint8_t)) {
 					if(*p == OPENSSL_SCTP_DATA_CHUNK_TYPE)
 						auth_data = 1;

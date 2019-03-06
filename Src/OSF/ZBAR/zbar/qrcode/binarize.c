@@ -484,7 +484,7 @@ void qr_binarize(uchar * _img, int _width, int _height)
 	   image_write_png(_img,_width,_height,fout);
 	   fclose(fout);
 	   }*/
-	uchar * mask = (uchar*)SAlloc::M(_width*_height*sizeof(*mask));
+	uchar * mask = (uchar *)SAlloc::M(_width*_height*sizeof(*mask));
 	qr_sauvola_mask(mask, &b, &nb, _img, _width, _height);
 	/*{
 	   FILE *fout;
@@ -492,7 +492,7 @@ void qr_binarize(uchar * _img, int _width, int _height)
 	   image_write_png(mask,_width,_height,fout);
 	   fclose(fout);
 	   }*/
-	background = (uchar*)SAlloc::M(_width*_height*sizeof(*mask));
+	background = (uchar *)SAlloc::M(_width*_height*sizeof(*mask));
 	qr_interpolate_background(background, &delta, &ndelta, _img, mask, _width, _height, b, nb);
 	/*{
 	   FILE *fout;
@@ -539,7 +539,7 @@ uchar * qr_binarize(const uchar * _img, int _width, int _height)
 		uint g;
 		int x;
 		int y;
-		mask = (uchar*)SAlloc::M(_width*_height*sizeof(*mask));
+		mask = (uchar *)SAlloc::M(_width*_height*sizeof(*mask));
 		//
 		// We keep the window size fairly large to ensure it doesn't fit completely
 		// inside the center of a finder pattern of a version 1 QR code at full resolution.

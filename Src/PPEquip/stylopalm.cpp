@@ -128,7 +128,7 @@ int PalmConfig::ToBuf(void * pBuf, size_t * pBufSize)
 
 int PalmConfig::FromBuf(const void * pBuf)
 {
-	const char * p_buf = (const char*)pBuf;
+	const char * p_buf = static_cast<const char *>(pBuf);
 	size_t bytes = 0;
 	memcpy(&Size,           p_buf + bytes,                             sizeof(Size));
 	memcpy(&Ver,            p_buf + (bytes += sizeof(Size)),           sizeof(Ver));
@@ -264,7 +264,7 @@ int PalmArcHdr::ToBuf(void * pBuf, size_t * pBufSize)
 
 int PalmArcHdr::FromBuf(const void * pBuf)
 {
-	const char * p_buf = (const char*)pBuf;
+	const char * p_buf = static_cast<const char *>(pBuf);
 	size_t bytes = 0;
 	memcpy(&Ver,     p_buf,                              sizeof(Ver));
 	memcpy(&NumRecs, p_buf + (bytes += sizeof(Ver)),     sizeof(NumRecs));
@@ -387,7 +387,7 @@ void SpBrandStruc::ToHostRec()
 int SpBrandStruc::FromBuf(const void * pBuf)
 {
 	int ok = 1;
-	const char * p_buf = (const char*)pBuf;
+	const char * p_buf = static_cast<const char *>(pBuf);
 	size_t bytes = 0;
 	memcpy(&ID,       p_buf,                              sizeof(ID));
 	memcpy(&OwnerID,  p_buf + (bytes += sizeof(ID)),      sizeof(OwnerID));
@@ -416,7 +416,7 @@ void SpLocStruc::ToHostRec()
 int SpLocStruc::FromBuf(const void * pBuf)
 {
 	int ok = 1;
-	const char * p_buf = (const char*)pBuf;
+	const char * p_buf = static_cast<const char *>(pBuf);
 	size_t bytes = 0;
 	memcpy(&ID,       p_buf,                         sizeof(ID));
 	memcpy(Name,      p_buf + (bytes += sizeof(ID)), sizeof(Name));
@@ -441,7 +441,7 @@ void SpGoodsGrpStruc::ToHostRec()
 	
 int SpGoodsGrpStruc::FromBuf(const void * pBuf)
 {
-	const char * p_buf = (const char*)pBuf;
+	const char * p_buf = static_cast<const char *>(pBuf);
 	size_t bytes = 0;
 	memcpy(&ID,   p_buf, sizeof(ID));
 	memcpy(&Code, p_buf + (bytes += sizeof(ID)), sizeof(Code));
@@ -480,7 +480,7 @@ void SpClientStruc::ToHostRec()
 int SpClientStruc::FromBuf(const void * pBuf)
 {
 	int ok = 1;
-	const char * p_buf = (const char*)pBuf;
+	const char * p_buf = static_cast<const char *>(pBuf);
 	size_t bytes = 0;
 	memcpy(&ID,         p_buf,                                 sizeof(ID));
 	memcpy(&QuotKindID, p_buf + (bytes += sizeof(ID)),         sizeof(QuotKindID));

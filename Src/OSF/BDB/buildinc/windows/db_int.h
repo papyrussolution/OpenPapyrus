@@ -353,16 +353,16 @@ typedef struct __db_msgbuf {
  * available:
  *  - Default behavior is to output error strings with its unique identifier.
  *  - If HAVE_STRIPPED_MESSAGES is enabled, a unique identifier along with any
- *    parameters to the error string will be output.
+ *  parameters to the error string will be output.
  *  - If HAVE_LOCALIZATION is defined, and the '_()' macro is implemented, a
- *    gettext or ICU style translation will be done.
+ *  gettext or ICU style translation will be done.
  *
  * Each new string that will be output should be wrapped in a DB_STR* macro.
  * There are three versions of this macro for different scenarions:
  *  - DB_STR for strings that need an identifier, and don't have any argument.
  *  - DB_STR_A for strings that need an identifier, and have argument(s).
  *  - DB_STR_P for strings that don't need an identifier, and don't have
- *    arguments.
+ *  arguments.
  *
  * Error message IDs are automatically assigned by dist/s_message_id script.
  */

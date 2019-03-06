@@ -120,7 +120,7 @@ uchar * OPENSSL_hexstr2buf(const char * str, long * len)
 	int chi, cli;
 	const uchar * p;
 	size_t s = strlen(str);
-	if((hexbuf = (uchar*)OPENSSL_malloc(s >> 1)) == NULL) {
+	if((hexbuf = (uchar *)OPENSSL_malloc(s >> 1)) == NULL) {
 		CRYPTOerr(CRYPTO_F_OPENSSL_HEXSTR2BUF, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}

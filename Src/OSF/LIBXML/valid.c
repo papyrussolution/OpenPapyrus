@@ -1,6 +1,6 @@
 /*
  * valid.c : part of the code use to do the DTD handling and the validity
- *           checking
+ *         checking
  *
  * See Copyright for the status of this software.
  *
@@ -110,7 +110,7 @@ static void xmlErrValidNode(xmlValidCtxtPtr ctxt, xmlNode * P_Node, xmlParserErr
 		}
 	}
 	__xmlRaiseError(schannel, channel, data, pctxt, P_Node, XML_FROM_VALID, error, XML_ERR_ERROR, NULL, 0,
-	    (const char*)str1, (const char*)str1, (const char*)str3, 0, 0, msg, str1, str2, str3);
+	    (const char *)str1, (const char *)str1, (const char *)str3, 0, 0, msg, str1, str2, str3);
 }
 
 #endif /* LIBXML_VALID_ENABLED or LIBXML_SCHEMAS_ENABLED */
@@ -143,7 +143,7 @@ static void xmlErrValidNodeNr(xmlValidCtxtPtr ctxt, xmlNode * P_Node, xmlParserE
 				pctxt = (xmlParserCtxt *)ctxt->userData;
 		}
 	}
-	__xmlRaiseError(schannel, channel, data, pctxt, P_Node, XML_FROM_VALID, error, XML_ERR_ERROR, NULL, 0, (const char*)str1, (const char*)str3, NULL, int2, 0, msg, str1, int2, str3);
+	__xmlRaiseError(schannel, channel, data, pctxt, P_Node, XML_FROM_VALID, error, XML_ERR_ERROR, NULL, 0, (const char *)str1, (const char *)str3, NULL, int2, 0, msg, str1, int2, str3);
 }
 
 /**
@@ -177,7 +177,7 @@ static void xmlErrValidWarning(xmlValidCtxtPtr ctxt,
 		}
 	}
 	__xmlRaiseError(schannel, channel, data, pctxt, P_Node, XML_FROM_VALID, error, XML_ERR_WARNING, NULL, 0,
-	    (const char*)str1, (const char*)str1, (const char*)str3, 0, 0, msg, str1, str2, str3);
+	    (const char *)str1, (const char *)str1, (const char *)str3, 0, 0, msg, str1, str2, str3);
 }
 
 #ifdef LIBXML_REGEXP_ENABLED
@@ -627,7 +627,7 @@ static int xmlValidBuildAContentModel(xmlElementContent * content, xmlValidCtxtP
 		    break;
 	    }
 		default:
-		    xmlErrValid(ctxt, XML_ERR_INTERNAL_ERROR, "ContentModel broken for element %s\n", (const char*)name);
+		    xmlErrValid(ctxt, XML_ERR_INTERNAL_ERROR, "ContentModel broken for element %s\n", (const char *)name);
 		    return 0;
 	}
 	return 1;
@@ -911,13 +911,13 @@ void FASTCALL xmlFreeDocElementContent(xmlDoc * pDoc, xmlElementContent * pCur)
 			xmlFreeDocElementContent(pDoc, pCur->c1); // @recursion
 			if(dict) {
 				if(pCur->name && (!xmlDictOwns(dict, pCur->name)))
-					SAlloc::F((xmlChar*)pCur->name);
+					SAlloc::F((xmlChar *)pCur->name);
 				if(pCur->prefix && (!xmlDictOwns(dict, pCur->prefix)))
-					SAlloc::F((xmlChar*)pCur->prefix);
+					SAlloc::F((xmlChar *)pCur->prefix);
 			}
 			else {
-				SAlloc::F((xmlChar*)pCur->name);
-				SAlloc::F((xmlChar*)pCur->prefix);
+				SAlloc::F((xmlChar *)pCur->name);
+				SAlloc::F((xmlChar *)pCur->prefix);
 			}
 			SAlloc::F(pCur);
 			pCur = next;
@@ -1119,8 +1119,8 @@ static void xmlFreeElement(xmlElement * pElem)
 	if(pElem) {
 		xmlUnlinkNode((xmlNode *)pElem);
 		xmlFreeDocElementContent(pElem->doc, pElem->content);
-		SAlloc::F((xmlChar*)pElem->name);
-		SAlloc::F((xmlChar*)pElem->prefix);
+		SAlloc::F((xmlChar *)pElem->name);
+		SAlloc::F((xmlChar *)pElem->prefix);
 #ifdef LIBXML_REGEXP_ENABLED
 		xmlRegFreeRegexp(pElem->contModel);
 #endif
@@ -1463,7 +1463,7 @@ void FASTCALL xmlFreeEnumeration(xmlEnumeration * cur)
 {
 	if(cur) {
 		xmlFreeEnumeration(cur->next); // @recursion
-		SAlloc::F((xmlChar*)cur->name);
+		SAlloc::F((xmlChar *)cur->name);
 		SAlloc::F(cur);
 	}
 }
@@ -1478,7 +1478,7 @@ void FASTCALL xmlFreeEnumeration(xmlEnumeration * cur)
  */
 xmlEnumeration * xmlCopyEnumeration(xmlEnumeration * cur) 
 {
-	xmlEnumeration * ret = cur ? xmlCreateEnumeration((xmlChar*)cur->name) : 0;
+	xmlEnumeration * ret = cur ? xmlCreateEnumeration((xmlChar *)cur->name) : 0;
 	if(ret) 
 		ret->next = cur->next ? xmlCopyEnumeration(cur->next) : NULL;
 	return ret;
@@ -1552,19 +1552,19 @@ static void xmlFreeAttribute(xmlAttribute * pAttr)
 		xmlFreeEnumeration(pAttr->tree);
 		if(dict) {
 			if(pAttr->elem && !xmlDictOwns(dict, pAttr->elem))
-				SAlloc::F((xmlChar*)pAttr->elem);
+				SAlloc::F((xmlChar *)pAttr->elem);
 			if(pAttr->name && !xmlDictOwns(dict, pAttr->name))
-				SAlloc::F((xmlChar*)pAttr->name);
+				SAlloc::F((xmlChar *)pAttr->name);
 			if(pAttr->prefix && !xmlDictOwns(dict, pAttr->prefix))
-				SAlloc::F((xmlChar*)pAttr->prefix);
+				SAlloc::F((xmlChar *)pAttr->prefix);
 			if(pAttr->defaultValue && !xmlDictOwns(dict, pAttr->defaultValue))
-				SAlloc::F((xmlChar*)pAttr->defaultValue);
+				SAlloc::F((xmlChar *)pAttr->defaultValue);
 		}
 		else {
-			SAlloc::F((xmlChar*)pAttr->elem);
-			SAlloc::F((xmlChar*)pAttr->name);
-			SAlloc::F((xmlChar*)pAttr->defaultValue);
-			SAlloc::F((xmlChar*)pAttr->prefix);
+			SAlloc::F((xmlChar *)pAttr->elem);
+			SAlloc::F((xmlChar *)pAttr->name);
+			SAlloc::F((xmlChar *)pAttr->defaultValue);
+			SAlloc::F((xmlChar *)pAttr->prefix);
 		}
 		SAlloc::F(pAttr);
 	}
@@ -1946,9 +1946,9 @@ void xmlDumpAttributeTable(xmlBuffer * buf, xmlAttributeTablePtr table)
 static void xmlFreeNotation(xmlNotation * nota) 
 {
 	if(nota) {
-		SAlloc::F((xmlChar*)nota->name);
-		SAlloc::F((xmlChar*)nota->PublicID);
-		SAlloc::F((xmlChar*)nota->SystemID);
+		SAlloc::F((xmlChar *)nota->name);
+		SAlloc::F((xmlChar *)nota->PublicID);
+		SAlloc::F((xmlChar *)nota->SystemID);
 		SAlloc::F(nota);
 	}
 }
@@ -2008,7 +2008,7 @@ xmlNotation * xmlAddNotationDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlC
 	 */
 	if(xmlHashAddEntry(table, name, ret)) {
 #ifdef LIBXML_VALID_ENABLED
-		xmlErrValid(NULL, XML_DTD_NOTATION_REDEFINED, "xmlAddNotationDecl: %s already defined\n", (const char*)name);
+		xmlErrValid(NULL, XML_DTD_NOTATION_REDEFINED, "xmlAddNotationDecl: %s already defined\n", (const char *)name);
 #endif /* LIBXML_VALID_ENABLED */
 		xmlFreeNotation(ret);
 		return 0;
@@ -2256,8 +2256,8 @@ int xmlIsID(xmlDoc * doc, xmlNode * elem, xmlAttr * attr)
 	else {
 		xmlAttribute * attrDecl = NULL;
 		xmlChar felem[50], fattr[50];
-		xmlChar * fullelemname = (elem->ns && elem->ns->prefix) ? xmlBuildQName(elem->name, elem->ns->prefix, felem, 50) : (xmlChar*)elem->name;
-		xmlChar * fullattrname = (attr->ns && attr->ns->prefix) ? xmlBuildQName(attr->name, attr->ns->prefix, fattr, 50) : (xmlChar*)attr->name;
+		xmlChar * fullelemname = (elem->ns && elem->ns->prefix) ? xmlBuildQName(elem->name, elem->ns->prefix, felem, 50) : (xmlChar *)elem->name;
+		xmlChar * fullattrname = (attr->ns && attr->ns->prefix) ? xmlBuildQName(attr->name, attr->ns->prefix, fattr, 50) : (xmlChar *)attr->name;
 		if(fullelemname && fullattrname) {
 			attrDecl = xmlGetDtdAttrDesc(doc->intSubset, fullelemname, fullattrname);
 			if(!attrDecl && doc->extSubset)
@@ -2371,8 +2371,8 @@ static void xmlFreeRef(xmlLink * lk)
 {
 	xmlRef * ref = (xmlRef *)xmlLinkGetData(lk);
 	if(ref) {
-		SAlloc::F((xmlChar*)ref->value);
-		SAlloc::F((xmlChar*)ref->name);
+		SAlloc::F((xmlChar *)ref->value);
+		SAlloc::F((xmlChar *)ref->name);
 		SAlloc::F(ref);
 	}
 }
@@ -3369,7 +3369,7 @@ static int xmlValidateAttributeValue2(xmlValidCtxtPtr ctxt, xmlDoc * doc, const 
  *  ctxt->valid accordingly
  *
  * returns a new normalized string if normalization is needed, NULL otherwise
- *      the caller must free the returned value.
+ *    the caller must free the returned value.
  */
 
 xmlChar * xmlValidCtxtNormalizeAttributeValue(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem, const xmlChar * name, const xmlChar * value) 
@@ -3453,7 +3453,7 @@ xmlChar * xmlValidCtxtNormalizeAttributeValue(xmlValidCtxtPtr ctxt, xmlDoc * doc
  * (#x20) characters by single space (#x20) character.
  *
  * Returns a new normalized string if normalization is needed, NULL otherwise
- *      the caller must free the returned value.
+ *    the caller must free the returned value.
  */
 
 xmlChar * xmlValidNormalizeAttributeValue(xmlDoc * doc, xmlNode * elem, const xmlChar * name, const xmlChar * value) 
@@ -4049,8 +4049,8 @@ static xmlNode * xmlValidateSkipIgnorable(xmlNode * child)
  * Try to validate the content model of an element internal function
  *
  * returns 1 if valid or 0 ,-1 in case of error, -2 if an entity
- *           reference is found and -3 if the validation succeeded but
- *           the content model is not determinist.
+ *         reference is found and -3 if the validation succeeded but
+ *         the content model is not determinist.
  */
 
 static int xmlValidateElementType(xmlValidCtxtPtr ctxt) {
@@ -4915,7 +4915,7 @@ static int xmlValidateCheckMixed(xmlValidCtxtPtr ctxt, xmlElementContent * cont,
  * @doc:  a document instance
  * @elem:  an element instance
  * @extsubset:  pointer, (out) indicate if the declaration was found
- *              in the external subset.
+ *            in the external subset.
  *
  * Finds a declaration associated to an element in the document.
  *
@@ -5023,8 +5023,8 @@ int xmlValidatePushElement(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem, c
 				    /*
 				     * @todo 
 				     * VC: Standalone Document Declaration
-				     *     - element types with element content, if white space
-				     *       occurs directly within any instance of those types.
+				     *   - element types with element content, if white space
+				     *     occurs directly within any instance of those types.
 				     */
 				    if(state->exec != NULL) {
 					    ret = xmlRegExecPushString(state->exec, qname, 0);
@@ -5330,8 +5330,8 @@ child_ok:
 			    if((doc->standalone == 1) && (extsubset == 1)) {
 				    /*
 				     * VC: Standalone Document Declaration
-				     *     - element types with element content, if white space
-				     *       occurs directly within any instance of those types.
+				     *   - element types with element content, if white space
+				     *     occurs directly within any instance of those types.
 				     */
 				    child = elem->children;
 				    while(child) {
@@ -5828,7 +5828,7 @@ static void xmlValidateAttributeCallback(xmlAttribute * cur, xmlValidCtxtPtr ctx
 		if(cur->atype == XML_ATTRIBUTE_NOTATION) {
 			doc = cur->doc;
 			if(cur->elem == NULL) {
-				xmlErrValid(ctxt, XML_ERR_INTERNAL_ERROR, "xmlValidateAttributeCallback(%s): internal error\n", (const char*)cur->name);
+				xmlErrValid(ctxt, XML_ERR_INTERNAL_ERROR, "xmlValidateAttributeCallback(%s): internal error\n", (const char *)cur->name);
 			}
 			else {
 				if(doc)
@@ -5860,9 +5860,9 @@ static void xmlValidateAttributeCallback(xmlAttribute * cur, xmlValidCtxtPtr ctx
  *
  * basically it does the following checks described by the XML Rec
  * - check that ENTITY and ENTITIES type attributes default or
- *   possible values matches one of the defined entities.
+ * possible values matches one of the defined entities.
  * - check that NOTATION type attributes default or
- *   possible values matches one of the defined notations.
+ * possible values matches one of the defined notations.
  *
  * returns 1 if valid or 0 if invalid and -1 if not well-formed
  */
@@ -5927,7 +5927,7 @@ int xmlValidateDocument(xmlValidCtxtPtr ctxt, xmlDoc * doc)
 		if(doc->intSubset->SystemID) {
 			sysID = xmlBuildURI(doc->intSubset->SystemID, doc->URL);
 			if(sysID == NULL) {
-				xmlErrValid(ctxt, XML_DTD_LOAD_ERROR, "Could not build URI for external subset \"%s\"\n", (const char*)doc->intSubset->SystemID);
+				xmlErrValid(ctxt, XML_DTD_LOAD_ERROR, "Could not build URI for external subset \"%s\"\n", (const char *)doc->intSubset->SystemID);
 				return 0;
 			}
 		}
@@ -5937,10 +5937,10 @@ int xmlValidateDocument(xmlValidCtxtPtr ctxt, xmlDoc * doc)
 		SAlloc::F(sysID);
 		if(doc->extSubset == NULL) {
 			if(doc->intSubset->SystemID) {
-				xmlErrValid(ctxt, XML_DTD_LOAD_ERROR, "Could not load the external subset \"%s\"\n", (const char*)doc->intSubset->SystemID);
+				xmlErrValid(ctxt, XML_DTD_LOAD_ERROR, "Could not load the external subset \"%s\"\n", (const char *)doc->intSubset->SystemID);
 			}
 			else {
-				xmlErrValid(ctxt, XML_DTD_LOAD_ERROR, "Could not load the external subset \"%s\"\n", (const char*)doc->intSubset->ExternalID);
+				xmlErrValid(ctxt, XML_DTD_LOAD_ERROR, "Could not load the external subset \"%s\"\n", (const char *)doc->intSubset->ExternalID);
 			}
 			return 0;
 		}
@@ -6032,8 +6032,8 @@ static void XMLCDECL xmlNoValidityErr(void * ctx ATTRIBUTE_UNUSED, const char * 
  * and do not need to be freed.
  *
  * returns the number of element in the list, or -1 in case of error. If
- *    the function returns the value @max the caller is invited to grow the
- *    receiving array and retry.
+ *  the function returns the value @max the caller is invited to grow the
+ *  receiving array and retry.
  */
 
 int xmlValidGetValidElements(xmlNode * prev, xmlNode * next, const xmlChar ** names, int max)

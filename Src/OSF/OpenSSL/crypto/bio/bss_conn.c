@@ -362,7 +362,7 @@ static long conn_ctrl(BIO * b, int cmd, long num, void * ptr)
 				    *pptr = data->param_service;
 			    }
 			    else if(num == 2) {
-				    *pptr = (const char*)BIO_ADDRINFO_address(data->addr_iter);
+				    *pptr = (const char *)BIO_ADDRINFO_address(data->addr_iter);
 			    }
 			    else if(num == 3) {
 				    switch(BIO_ADDRINFO_family(data->addr_iter)) {
@@ -401,7 +401,7 @@ static long conn_ctrl(BIO * b, int cmd, long num, void * ptr)
 				     */
 				    OPENSSL_free(data->param_hostname);
 				    data->param_hostname = NULL;
-				    ret = BIO_parse_hostserv((const char*)ptr,
+				    ret = BIO_parse_hostserv((const char *)ptr,
 				    &data->param_hostname,
 				    &data->param_service,
 				    BIO_PARSE_PRIO_HOST);
@@ -410,7 +410,7 @@ static long conn_ctrl(BIO * b, int cmd, long num, void * ptr)
 			    }
 			    else if(num == 1) {
 				    OPENSSL_free(data->param_service);
-				    data->param_service = BUF_strdup((const char*)ptr);
+				    data->param_service = BUF_strdup((const char *)ptr);
 			    }
 			    else if(num == 2) {
 				    const BIO_ADDR * addr = (const BIO_ADDR*)ptr;

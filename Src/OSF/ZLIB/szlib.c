@@ -1002,7 +1002,7 @@ ulong ZEXPORT crc32_z(ulong crc, const uchar  * buf, size_t len)
 #ifdef BYFOUR
 	if(sizeof(void *) == sizeof(ptrdiff_t)) {
 		z_crc_t endian = 1;
-		if(*((uchar*)(&endian)))
+		if(*((uchar *)(&endian)))
 			return crc32_little(crc, buf, len);
 		else
 			return crc32_big(crc, buf, len);
@@ -1361,7 +1361,7 @@ const char * ZEXPORT zError(int err)
 					return NULL;
 				table[next_ptr].org_ptr = buf;
 				/* Normalize the pointer to seg:0 */
-				*((ushort*)&buf+1) += ((ushort)((uchar*)buf-0) + 15) >> 4;
+				*((ushort*)&buf+1) += ((ushort)((uchar *)buf-0) + 15) >> 4;
 				*(ushort*)&buf = 0;
 				table[next_ptr++].new_ptr = buf;
 				return buf;
@@ -1417,7 +1417,7 @@ const char * ZEXPORT zError(int err)
 		void * ZLIB_INTERNAL zcalloc(void * opaque, uint items, uint size)
 		{
 			(void)opaque;
-			return sizeof(uInt) > 2 ? (void *)SAlloc::M(items * size) : (void *)calloc(items, size);
+			return sizeof(uInt) > 2 ? SAlloc::M(items * size) : SAlloc::C(items, size);
 		}
 		void ZLIB_INTERNAL zcfree(void * opaque, void * ptr)
 		{
@@ -1827,7 +1827,7 @@ static int gz_init(gz_state * state)
 	int ret;
 	z_stream * p_strm = &(state->strm);
 	// allocate input buffer (double size for gzprintf) 
-	state->in = (uchar*)SAlloc::M(state->want << 1);
+	state->in = (uchar *)SAlloc::M(state->want << 1);
 	if(state->in == NULL) {
 		gz_error(state, Z_MEM_ERROR, "out of memory");
 		return -1;
@@ -1836,7 +1836,7 @@ static int gz_init(gz_state * state)
 		// only need output buffer and deflate state if compressing 
 		if(!state->direct) {
 			// allocate output buffer 
-			state->out = (uchar*)SAlloc::M(state->want);
+			state->out = (uchar *)SAlloc::M(state->want);
 			if(state->out == NULL) {
 				SAlloc::F(state->in);
 				gz_error(state, Z_MEM_ERROR, "out of memory");
@@ -1993,7 +1993,7 @@ static size_t FASTCALL gz_write(gz_state * state, voidpc buf, size_t len)
 			memcpy(state->in + have, buf, copy);
 			state->strm.avail_in += copy;
 			state->x.pos += copy;
-			buf = (const char*)buf + copy;
+			buf = (const char *)buf + copy;
 			len -= copy;
 			if(len && gz_comp(state, Z_NO_FLUSH) == -1)
 				return 0;
@@ -2440,8 +2440,8 @@ static int FASTCALL gz_look(gz_state * state)
 	// allocate read buffers and inflate memory 
 	if(state->size == 0) {
 		// allocate buffers 
-		state->in = (uchar*)SAlloc::M(state->want);
-		state->out = (uchar*)SAlloc::M(state->want << 1);
+		state->in = (uchar *)SAlloc::M(state->want);
+		state->out = (uchar *)SAlloc::M(state->want << 1);
 		if(state->in == NULL || state->out == NULL) {
 			SAlloc::F(state->out);
 			SAlloc::F(state->in);
@@ -2648,13 +2648,13 @@ static size_t FASTCALL gz_read(gz_state * state, void * buf, size_t len)
 			}
 			// large len -- read directly into user buffer 
 			else if(state->how == GZSTATE_COPY) { // read directly 
-				if(gz_load(state, (uchar*)buf, n, &n) == -1)
+				if(gz_load(state, (uchar *)buf, n, &n) == -1)
 					return 0;
 			}
 			// large len -- decompress directly into user buffer 
 			else { // state->how == GZSTATE_GZIP 
 				state->strm.avail_out = n;
-				state->strm.next_out = (uchar*)buf;
+				state->strm.next_out = (uchar *)buf;
 				if(gz_decomp(state) == -1)
 					return 0;
 				n = state->x.have;
@@ -2838,7 +2838,7 @@ char * ZEXPORT gzgets(gzFile file, char * buf, int len)
 		}
 		/* look for end-of-line in current output buffer */
 		n = state->x.have > left ? left : state->x.have;
-		eol = (uchar*)memchr(state->x.next, '\n', n);
+		eol = (uchar *)memchr(state->x.next, '\n', n);
 		if(eol != NULL)
 			n = (uint)(eol - state->x.next) + 1;
 		/* copy through end-of-line, or remainder if not found */
@@ -3063,7 +3063,7 @@ static gzFile gz_open(const void * path, int fd, const char * mode)
 	}
 	else
 #endif
-	len = strlen((const char*)path);
+	len = strlen((const char *)path);
 	state->path = (char *)SAlloc::M(len + 1);
 	if(state->path == NULL) {
 		SAlloc::F(state);
@@ -3078,7 +3078,7 @@ static gzFile gz_open(const void * path, int fd, const char * mode)
 	else
 #endif
 #if !defined(NO_snprintf) && !defined(NO_vsnprintf)
-	(void)snprintf(state->path, len + 1, "%s", (const char*)path);
+	(void)snprintf(state->path, len + 1, "%s", (const char *)path);
 #else
 	strcpy(state->path, path);
 #endif
@@ -3104,7 +3104,7 @@ static gzFile gz_open(const void * path, int fd, const char * mode)
 #ifdef WIDECHAR
 	    fd == -2 ? _wopen(path, oflag, 0666) :
 #endif
-	    open((const char*)path, oflag, 0666));
+	    open((const char *)path, oflag, 0666));
 	if(state->fd == -1) {
 		SAlloc::F(state->path);
 		SAlloc::F(state);
@@ -3972,42 +3972,42 @@ int ZEXPORT inflateBackEnd(z_streamp strm)
 /*
  *  ALGORITHM
  *
- *      The "deflation" process depends on being able to identify portions
- *      of the input text which are identical to earlier input (within a
- *      sliding window trailing behind the input currently being processed).
+ *    The "deflation" process depends on being able to identify portions
+ *    of the input text which are identical to earlier input (within a
+ *    sliding window trailing behind the input currently being processed).
  *
- *      The most straightforward technique turns out to be the fastest for
- *      most input files: try all possible matches and select the longest.
- *      The key feature of this algorithm is that insertions into the string
- *      dictionary are very simple and thus fast, and deletions are avoided
- *      completely. Insertions are performed at each input character, whereas
- *      string matches are performed only when the previous match ends. So it
- *      is preferable to spend more time in matches to allow very fast string
- *      insertions and avoid deletions. The matching algorithm for small
- *      strings is inspired from that of Rabin & Karp. A brute force approach
- *      is used to find longer strings when a small match has been found.
- *      A similar algorithm is used in comic (by Jan-Mark Wams) and freeze
- *      (by Leonid Broukhis).
- *         A previous version of this file used a more sophisticated algorithm
- *      (by Fiala and Greene) which is guaranteed to run in linear amortized
- *      time, but has a larger average cost, uses more memory and is patented.
- *      However the F&G algorithm may be faster for some highly redundant
- *      files if the parameter max_chain_length (described below) is too large.
+ *    The most straightforward technique turns out to be the fastest for
+ *    most input files: try all possible matches and select the longest.
+ *    The key feature of this algorithm is that insertions into the string
+ *    dictionary are very simple and thus fast, and deletions are avoided
+ *    completely. Insertions are performed at each input character, whereas
+ *    string matches are performed only when the previous match ends. So it
+ *    is preferable to spend more time in matches to allow very fast string
+ *    insertions and avoid deletions. The matching algorithm for small
+ *    strings is inspired from that of Rabin & Karp. A brute force approach
+ *    is used to find longer strings when a small match has been found.
+ *    A similar algorithm is used in comic (by Jan-Mark Wams) and freeze
+ *    (by Leonid Broukhis).
+ *       A previous version of this file used a more sophisticated algorithm
+ *    (by Fiala and Greene) which is guaranteed to run in linear amortized
+ *    time, but has a larger average cost, uses more memory and is patented.
+ *    However the F&G algorithm may be faster for some highly redundant
+ *    files if the parameter max_chain_length (described below) is too large.
  *
  *  ACKNOWLEDGEMENTS
  *
- *      The idea of lazy evaluation of matches is due to Jan-Mark Wams, and
- *      I found it in 'freeze' written by Leonid Broukhis.
- *      Thanks to many people for bug reports and testing.
+ *    The idea of lazy evaluation of matches is due to Jan-Mark Wams, and
+ *    I found it in 'freeze' written by Leonid Broukhis.
+ *    Thanks to many people for bug reports and testing.
  *
  *  REFERENCES
  *
- *      Deutsch, L.P.,"DEFLATE Compressed Data Format Specification".
- *      Available in http://tools.ietf.org/html/rfc1951
+ *    Deutsch, L.P.,"DEFLATE Compressed Data Format Specification".
+ *    Available in http://tools.ietf.org/html/rfc1951
  *
- *      A description of the Rabin and Karp algorithm is given in the book "Algorithms" by R. Sedgewick, Addison-Wesley, p252.
+ *    A description of the Rabin and Karp algorithm is given in the book "Algorithms" by R. Sedgewick, Addison-Wesley, p252.
  *
- *      Fiala,E.R., and Greene,D.H. Data Compression with Finite Windows, Comm.ACM, 32,4 (1989) 490-595
+ *    Fiala,E.R., and Greene,D.H. Data Compression with Finite Windows, Comm.ACM, 32,4 (1989) 490-595
  *
  */
 const char deflate_copyright[] = " deflate 1.2.11 Copyright 1995-2017 Jean-loup Gailly and Mark Adler ";
@@ -4081,8 +4081,8 @@ static const config configuration_table[10] = {
  * If this file is compiled with -DFASTEST, the compression level is forced
  * to 1, and no hash chains are maintained.
  * IN  assertion: all calls to INSERT_STRING are made with consecutive input
- *    characters and the first MIN_MATCH bytes of str are valid (except for
- *    the last MIN_MATCH-1 bytes of the input file).
+ *  characters and the first MIN_MATCH bytes of str are valid (except for
+ *  the last MIN_MATCH-1 bytes of the input file).
  */
 #ifdef FASTEST
 #define INSERT_STRING(s, str, match_head) \
@@ -4200,7 +4200,7 @@ int ZEXPORT deflateInit2_(z_streamp strm, int level, int method, int windowBits,
 	s->high_water = 0;  /* nothing written to s->window yet */
 	s->lit_bufsize = 1 << (memLevel + 6); /* 16K elements by default */
 	overlay = (ushort*)ZLIB_ALLOC(strm, s->lit_bufsize, sizeof(ushort)+2);
-	s->pending_buf = (uchar*)overlay;
+	s->pending_buf = (uchar *)overlay;
 	s->pending_buf_size = (ulong)s->lit_bufsize * (sizeof(ushort)+2L);
 	if(s->window == Z_NULL || s->prev == Z_NULL || s->head == Z_NULL ||
 	    s->pending_buf == Z_NULL) {
@@ -4903,7 +4903,7 @@ int ZEXPORT deflateCopy(z_streamp dest, z_streamp source)
 	ds->prev   = (Posf*)ZLIB_ALLOC(dest, ds->w_size, sizeof(Pos));
 	ds->head   = (Posf*)ZLIB_ALLOC(dest, ds->hash_size, sizeof(Pos));
 	overlay = (ushort*)ZLIB_ALLOC(dest, ds->lit_bufsize, sizeof(ushort)+2);
-	ds->pending_buf = (uchar*)overlay;
+	ds->pending_buf = (uchar *)overlay;
 	if(ds->window == Z_NULL || ds->prev == Z_NULL || ds->head == Z_NULL ||
 	    ds->pending_buf == Z_NULL) {
 		deflateEnd(dest);
@@ -5197,13 +5197,13 @@ static void FASTCALL fill_window(deflate_state * s)
 		if(s->strm->avail_in == 0) break;
 
 		/* If there was no sliding:
-		 *    strstart <= WSIZE+MAX_DIST-1 && lookahead <= MIN_LOOKAHEAD - 1 &&
-		 *    more == window_size - lookahead - strstart
+		 *  strstart <= WSIZE+MAX_DIST-1 && lookahead <= MIN_LOOKAHEAD - 1 &&
+		 *  more == window_size - lookahead - strstart
 		 * => more >= window_size - (MIN_LOOKAHEAD-1 + WSIZE + MAX_DIST-1)
 		 * => more >= window_size - 2*WSIZE + 2
 		 * In the BIG_MEM or MMAP case (not yet supported),
-		 *   window_size == input_size + MIN_LOOKAHEAD  &&
-		 *   strstart + s->lookahead <= input_size => more >= MIN_LOOKAHEAD.
+		 * window_size == input_size + MIN_LOOKAHEAD  &&
+		 * strstart + s->lookahead <= input_size => more >= MIN_LOOKAHEAD.
 		 * Otherwise, window_size == 2*WSIZE so more >= 2.
 		 * If there was sliding, more >= WSIZE. So in all cases, more >= 2.
 		 */
@@ -5773,10 +5773,10 @@ static block_state FASTCALL deflate_huff(deflate_state * s, int flush)
 /*
  *  ALGORITHM
  *
- *      The "deflation" process uses several Huffman trees. The more
- *      common source values are represented by shorter bit sequences.
+ *    The "deflation" process uses several Huffman trees. The more
+ *    common source values are represented by shorter bit sequences.
  *
- *      Each code tree is stored in a compressed form which is itself
+ *    Each code tree is stored in a compressed form which is itself
  * a Huffman encoding of the lengths of all the code strings (in
  * ascending order by source values).  The actual code strings are
  * reconstructed from the lengths in the inflate process, as described
@@ -5784,16 +5784,16 @@ static block_state FASTCALL deflate_huff(deflate_state * s, int flush)
  *
  *  REFERENCES
  *
- *      Deutsch, L.P.,"'Deflate' Compressed Data Format Specification".
- *      Available in ftp.uu.net:/pub/archiving/zip/doc/deflate-1.1.doc
+ *    Deutsch, L.P.,"'Deflate' Compressed Data Format Specification".
+ *    Available in ftp.uu.net:/pub/archiving/zip/doc/deflate-1.1.doc
  *
- *      Storer, James A.
- *          Data Compression:  Methods and Theory, pp. 49-50.
- *          Computer Science Press, 1988.  ISBN 0-7167-8156-5.
+ *    Storer, James A.
+ *        Data Compression:  Methods and Theory, pp. 49-50.
+ *        Computer Science Press, 1988.  ISBN 0-7167-8156-5.
  *
- *      Sedgewick, R.
- *          Algorithms, p290.
- *          Addison-Wesley, 1983. ISBN 0-201-06672-6.
+ *    Sedgewick, R.
+ *        Algorithms, p290.
+ *        Addison-Wesley, 1983. ISBN 0-201-06672-6.
  */
 /* #define GEN_TREES_H */
 // 
@@ -7128,9 +7128,9 @@ dodist:
  *
  * 1.2.beta0    24 Nov 2002
  * - First version -- complete rewrite of inflate to simplify code, avoid
- *   creation of window when not needed, minimize use of window when it is
- *   needed, make inffast.c even faster, implement gzip decoding, and to
- *   improve code readability and style over the previous zlib inflate code
+ * creation of window when not needed, minimize use of window when it is
+ * needed, make inffast.c even faster, implement gzip decoding, and to
+ * improve code readability and style over the previous zlib inflate code
  *
  * 1.2.beta1    25 Nov 2002
  * - Use pointers for available input and output checking in inffast.c
@@ -7144,7 +7144,7 @@ dodist:
  * - Correct filename to inffixed.h for fixed tables in inflate.c
  * - Make hbuf[] uchar to match parameter type in inflate.c
  * - Change strm->next_out[-state->offset] to *(strm->next_out - state->offset)
- *   to avoid negation problem on Alphas (64 bit) in inflate.c
+ * to avoid negation problem on Alphas (64 bit) in inflate.c
  *
  * 1.2.beta3    22 Dec 2002
  * - Add comments on state->bits assertion in inffast.c
@@ -7156,7 +7156,7 @@ dodist:
  * - Add compile time option, POSTINC, to use post-increments instead (Intel?)
  * - Make MATCH copy in inflate() much faster for when inflate_fast() not used
  * - Use local copies of stream next and avail values, as well as local bit
- *   buffer and bit count in inflate()--for speed when inflate_fast() not used
+ * buffer and bit count in inflate()--for speed when inflate_fast() not used
  *
  * 1.2.beta4    1 Jan 2003
  * - Split ptr - 257 statements in inflate_table() to avoid compiler warnings
@@ -7170,20 +7170,20 @@ dodist:
  * - Add FAR to lcode and dcode declarations in inflate_fast()
  * - Simplified bad distance check in inflate_fast()
  * - Added inflateBackInit(), inflateBack(), and inflateBackEnd() in new
- *   source file infback.c to provide a call-back interface to inflate for
- *   programs like gzip and unzip -- uses window as output buffer to avoid
- *   window copying
+ * source file infback.c to provide a call-back interface to inflate for
+ * programs like gzip and unzip -- uses window as output buffer to avoid
+ * window copying
  *
  * 1.2.beta5    1 Jan 2003
  * - Improved inflateBack() interface to allow the caller to provide initial
- *   input in strm.
+ * input in strm.
  * - Fixed stored blocks bug in inflateBack()
  *
  * 1.2.beta6    4 Jan 2003
  * - Added comments in inffast.c on effectiveness of POSTINC
  * - Typecasting all around to reduce compiler warnings
  * - Changed loops from while (1) or do {} while (1) to for (;;), again to
- *   make compilers happy
+ * make compilers happy
  * - Changed type of window in inflateBackInit() to uchar *
  *
  * 1.2.beta7    27 Jan 2003
@@ -7192,9 +7192,9 @@ dodist:
  *
  * 1.2.0        9 Mar 2003
  * - Changed inflateBack() interface to provide separate opaque descriptors
- *   for the in() and out() functions
+ * for the in() and out() functions
  * - Changed inflateBack() argument and in_func typedef to swap the length
- *   and buffer address return values for the input function
+ * and buffer address return values for the input function
  * - Check next_in and next_out for Z_NULL on entry to inflate()
  *
  * The history for versions after 1.2.0 are in ChangeLog in zlib distribution.

@@ -142,7 +142,7 @@ int SLAPI PPPaths::GetPath(PPID pathID, short * pFlags, SString & rBuf) const
 	rBuf.Z();
 	if(P) {
 		for(uint s = 0; s < P->TailSize;) {
-			const PathItem * p = (const PathItem*)(((const char*)(P + 1)) + s);
+			const PathItem * p = (const PathItem*)(((const char *)(P + 1)) + s);
 			if(p->ID == pathID) {
 				ASSIGN_PTR(pFlags, p->Flags);
 				return p->GetPath(rBuf).NotEmpty() ? 1 : -1;

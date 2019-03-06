@@ -620,20 +620,20 @@ int _cairo_lround(double d)
 	 * all possible values for "shift_amount" at this point:
 	 *
 	 * - {shift_amount < 0} Since shift_amount is an unsigned integer, it
-	 *   really can't have a value less than zero. But, if the shift_amount
-	 *   calculation above caused underflow (which would happen with
-	 *   input > INT_MAX or input <= INT_MIN) then shift_amount will now be
-	 *   a very large number, and so this shift will result in complete
-	 *   garbage. But that's OK, as the input was out of our range, so our
-	 *   output is undefined.
+	 * really can't have a value less than zero. But, if the shift_amount
+	 * calculation above caused underflow (which would happen with
+	 * input > INT_MAX or input <= INT_MIN) then shift_amount will now be
+	 * a very large number, and so this shift will result in complete
+	 * garbage. But that's OK, as the input was out of our range, so our
+	 * output is undefined.
 	 *
 	 * - {shift_amount > 31} If the magnitude of the input was very small
-	 *   (i.e. |input| << 1.0), shift_amount will have a value greater than
-	 *   31. Thus, this shift will also result in garbage. After performing
-	 *   the shift, we will zero-out "output" if this is the case.
+	 * (i.e. |input| << 1.0), shift_amount will have a value greater than
+	 * 31. Thus, this shift will also result in garbage. After performing
+	 * the shift, we will zero-out "output" if this is the case.
 	 *
 	 * - {0 <= shift_amount < 32} In this case, the shift will properly convert
-	 *   the mantissa into a 31.1 fixed-point number.
+	 * the mantissa into a 31.1 fixed-point number.
 	 */
 	output >>= shift_amount;
 

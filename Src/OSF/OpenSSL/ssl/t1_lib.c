@@ -370,7 +370,7 @@ int tls1_set_curves(uchar ** pext, size_t * pextlen,
 	 * ids < 32
 	 */
 	unsigned long dup_list = 0;
-	clist = (uchar*)OPENSSL_malloc(ncurves * 2);
+	clist = (uchar *)OPENSSL_malloc(ncurves * 2);
 	if(clist == NULL)
 		return 0;
 	for(i = 0, p = clist; i < ncurves; i++) {
@@ -1146,7 +1146,7 @@ uchar * ssl_add_clienthello_tlsext(SSL * s, uchar * buf,
 		else if(s->session && s->tlsext_session_ticket &&
 		    s->tlsext_session_ticket->data) {
 			ticklen = s->tlsext_session_ticket->length;
-			s->session->tlsext_tick = (uchar*)OPENSSL_malloc(ticklen);
+			s->session->tlsext_tick = (uchar *)OPENSSL_malloc(ticklen);
 			if(s->session->tlsext_tick == NULL)
 				return NULL;
 			memcpy(s->session->tlsext_tick,
@@ -1399,7 +1399,7 @@ skip_ext:
 	 * appear last.
 	 */
 	if(s->options & SSL_OP_TLSEXT_PADDING) {
-		int hlen = ret - (uchar*)s->init_buf->data;
+		int hlen = ret - (uchar *)s->init_buf->data;
 
 		if(hlen > 0xff && hlen < 0x200) {
 			hlen = 0x200 - hlen;
@@ -1773,7 +1773,7 @@ static int tls1_alpn_handle_client_hello_late(SSL * s, int * al)
 
 		if(r == SSL_TLSEXT_ERR_OK) {
 			OPENSSL_free(s->s3->alpn_selected);
-			s->s3->alpn_selected = (uchar*)OPENSSL_memdup(selected, selected_len);
+			s->s3->alpn_selected = (uchar *)OPENSSL_memdup(selected, selected_len);
 			if(s->s3->alpn_selected == NULL) {
 				*al = SSL_AD_INTERNAL_ERROR;
 				return 0;
@@ -1798,9 +1798,9 @@ static int tls1_alpn_handle_client_hello_late(SSL * s, int * al)
  * ssl_check_for_safari attempts to fingerprint Safari using OS X
  * SecureTransport using the TLS extension block in |pkt|.
  * Safari, since 10.6, sends exactly these extensions, in this order:
- *   SNI,
- *   elliptic_curves
- *   ec_point_formats
+ * SNI,
+ * elliptic_curves
+ * ec_point_formats
  *
  * We wish to fingerprint Safari because they broke ECDHE-ECDSA support in 10.8,
  * but they advertise support. So enabling ECDHE-ECDSA ciphers breaks them.
@@ -1946,22 +1946,22 @@ static int ssl_scan_clienthello_tlsext(SSL * s, PACKET * pkt, int * al)
  *
  * - Only the hostname type is supported with a maximum length of 255.
  * - The servername is rejected if too long or if it contains zeros,
- *   in which case an fatal alert is generated.
+ * in which case an fatal alert is generated.
  * - The servername field is maintained together with the session cache.
  * - When a session is resumed, the servername call back invoked in order
- *   to allow the application to position itself to the right context.
+ * to allow the application to position itself to the right context.
  * - The servername is acknowledged if it is new for a session or when
- *   it is identical to a previously used for the same session.
- *   Applications can control the behaviour.  They can at any time
- *   set a 'desirable' servername for a new SSL object. This can be the
- *   case for example with HTTPS when a Host: header field is received and
- *   a renegotiation is requested. In this case, a possible servername
- *   presented in the new client hello is only acknowledged if it matches
- *   the value of the Host: field.
+ * it is identical to a previously used for the same session.
+ * Applications can control the behaviour.  They can at any time
+ * set a 'desirable' servername for a new SSL object. This can be the
+ * case for example with HTTPS when a Host: header field is received and
+ * a renegotiation is requested. In this case, a possible servername
+ * presented in the new client hello is only acknowledged if it matches
+ * the value of the Host: field.
  * - Applications must  use SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION
- *   if they provide for changing an explicit servername context for the
- *   session, i.e. when the session has been established with a servername
- *   extension.
+ * if they provide for changing an explicit servername context for the
+ * session, i.e. when the session has been established with a servername
+ * extension.
  * - On session reconnect, the servername extension may be absent.
  *
  */
@@ -2395,7 +2395,7 @@ static int ssl_scan_serverhello_tlsext(SSL * s, PACKET * pkt, int * al)
 			if(!s->hit) {
 				s->session->tlsext_ecpointformatlist_length = 0;
 				OPENSSL_free(s->session->tlsext_ecpointformatlist);
-				if((s->session->tlsext_ecpointformatlist = (uchar*)OPENSSL_malloc(ecpointformatlist_length)) == NULL) {
+				if((s->session->tlsext_ecpointformatlist = (uchar *)OPENSSL_malloc(ecpointformatlist_length)) == NULL) {
 					*al = TLS1_AD_INTERNAL_ERROR;
 					return 0;
 				}
@@ -2444,7 +2444,7 @@ static int ssl_scan_serverhello_tlsext(SSL * s, PACKET * pkt, int * al)
 			}
 			s->tlsext_scts_len = size;
 			if(size > 0) {
-				s->tlsext_scts = (uchar*)OPENSSL_malloc(size);
+				s->tlsext_scts = (uchar *)OPENSSL_malloc(size);
 				if(s->tlsext_scts == NULL) {
 					*al = TLS1_AD_INTERNAL_ERROR;
 					return 0;
@@ -2476,7 +2476,7 @@ static int ssl_scan_serverhello_tlsext(SSL * s, PACKET * pkt, int * al)
 			 * a single Serverhello
 			 */
 			OPENSSL_free(s->next_proto_negotiated);
-			s->next_proto_negotiated = (uchar*)OPENSSL_malloc(selected_len);
+			s->next_proto_negotiated = (uchar *)OPENSSL_malloc(selected_len);
 			if(s->next_proto_negotiated == NULL) {
 				*al = TLS1_AD_INTERNAL_ERROR;
 				return 0;
@@ -2496,16 +2496,16 @@ static int ssl_scan_serverhello_tlsext(SSL * s, PACKET * pkt, int * al)
 			}
 			/*-
 			 * The extension data consists of:
-			 *   uint16 list_length
-			 *   uint8 proto_length;
-			 *   uint8 proto[proto_length];
+			 * uint16 list_length
+			 * uint8 proto_length;
+			 * uint8 proto[proto_length];
 			 */
 			if(!PACKET_get_net_2(&spkt, &len) || PACKET_remaining(&spkt) != len || !PACKET_get_1(&spkt, &len) || PACKET_remaining(&spkt) != len) {
 				*al = TLS1_AD_DECODE_ERROR;
 				return 0;
 			}
 			OPENSSL_free(s->s3->alpn_selected);
-			s->s3->alpn_selected = (uchar*)OPENSSL_malloc(len);
+			s->s3->alpn_selected = (uchar *)OPENSSL_malloc(len);
 			if(s->s3->alpn_selected == NULL) {
 				*al = TLS1_AD_INTERNAL_ERROR;
 				return 0;
@@ -2850,33 +2850,33 @@ int ssl_parse_serverhello_tlsext(SSL * s, PACKET * pkt)
  * Two extensions are currently handled, session ticket and extended master
  * secret.
  *
- *   session_id: ClientHello session ID.
- *   ext: ClientHello extensions (including length prefix)
- *   ret: (output) on return, if a ticket was decrypted, then this is set to
- *       point to the resulting session.
+ * session_id: ClientHello session ID.
+ * ext: ClientHello extensions (including length prefix)
+ * ret: (output) on return, if a ticket was decrypted, then this is set to
+ *     point to the resulting session.
  *
  * If s->tls_session_secret_cb is set then we are expecting a pre-shared key
  * ciphersuite, in which case we have no use for session tickets and one will
  * never be decrypted, nor will s->tlsext_ticket_expected be set to 1.
  *
  * Returns:
- *   -1: fatal error, either from parsing or decrypting the ticket.
- *    0: no ticket was found (or was ignored, based on settings).
- *    1: a zero length extension was found, indicating that the client supports
- *       session tickets but doesn't currently have one to offer.
- *    2: either s->tls_session_secret_cb was set, or a ticket was offered but
- *       couldn't be decrypted because of a non-fatal error.
- *    3: a ticket was successfully decrypted and *ret was set.
+ * -1: fatal error, either from parsing or decrypting the ticket.
+ *  0: no ticket was found (or was ignored, based on settings).
+ *  1: a zero length extension was found, indicating that the client supports
+ *     session tickets but doesn't currently have one to offer.
+ *  2: either s->tls_session_secret_cb was set, or a ticket was offered but
+ *     couldn't be decrypted because of a non-fatal error.
+ *  3: a ticket was successfully decrypted and *ret was set.
  *
  * Side effects:
- *   Sets s->tlsext_ticket_expected to 1 if the server will have to issue
- *   a new session ticket to the client because the client indicated support
- *   (and s->tls_session_secret_cb is NULL) but the client either doesn't have
- *   a session ticket or we couldn't use the one it gave us, or if
- *   s->ctx->tlsext_ticket_key_cb asked to renew the client's ticket.
- *   Otherwise, s->tlsext_ticket_expected is set to 0.
+ * Sets s->tlsext_ticket_expected to 1 if the server will have to issue
+ * a new session ticket to the client because the client indicated support
+ * (and s->tls_session_secret_cb is NULL) but the client either doesn't have
+ * a session ticket or we couldn't use the one it gave us, or if
+ * s->ctx->tlsext_ticket_key_cb asked to renew the client's ticket.
+ * Otherwise, s->tlsext_ticket_expected is set to 0.
  *
- *   For extended master secret flag is set if the extension is present.
+ * For extended master secret flag is set if the extension is present.
  *
  */
 int tls_check_serverhello_tlsext_early(SSL * s, const PACKET * ext, const PACKET * session_id, SSL_SESSION ** ret)
@@ -2983,19 +2983,19 @@ end:
 /*-
  * tls_decrypt_ticket attempts to decrypt a session ticket.
  *
- *   etick: points to the body of the session ticket extension.
- *   eticklen: the length of the session tickets extension.
- *   sess_id: points at the session ID.
- *   sesslen: the length of the session ID.
- *   psess: (output) on return, if a ticket was decrypted, then this is set to
- *       point to the resulting session.
+ * etick: points to the body of the session ticket extension.
+ * eticklen: the length of the session tickets extension.
+ * sess_id: points at the session ID.
+ * sesslen: the length of the session ID.
+ * psess: (output) on return, if a ticket was decrypted, then this is set to
+ *     point to the resulting session.
  *
  * Returns:
- *   -2: fatal error, malloc failure.
- *   -1: fatal error, either from parsing or decrypting the ticket.
- *    2: the ticket couldn't be decrypted.
- *    3: a ticket was successfully decrypted and *psess was set.
- *    4: same as 3, but the ticket needs to be renewed.
+ * -2: fatal error, malloc failure.
+ * -1: fatal error, either from parsing or decrypting the ticket.
+ *  2: the ticket couldn't be decrypted.
+ *  3: a ticket was successfully decrypted and *psess was set.
+ *  4: same as 3, but the ticket needs to be renewed.
  */
 static int tls_decrypt_ticket(SSL * s, const uchar * etick,
     int eticklen, const uchar * sess_id,
@@ -3020,7 +3020,7 @@ static int tls_decrypt_ticket(SSL * s, const uchar * etick,
 		goto err;
 	}
 	if(tctx->tlsext_ticket_key_cb) {
-		uchar * nctick = (uchar*)etick;
+		uchar * nctick = (uchar *)etick;
 		int rv = tctx->tlsext_ticket_key_cb(s, nctick, nctick + 16,
 		    ctx, hctx, 0);
 		if(rv < 0)
@@ -3078,7 +3078,7 @@ static int tls_decrypt_ticket(SSL * s, const uchar * etick,
 	/* Move p after IV to start of encrypted ticket, update length */
 	p = etick + TLSEXT_KEYNAME_LENGTH + EVP_CIPHER_CTX_iv_length(ctx);
 	eticklen -= TLSEXT_KEYNAME_LENGTH + EVP_CIPHER_CTX_iv_length(ctx);
-	sdec = (uchar*)OPENSSL_malloc(eticklen);
+	sdec = (uchar *)OPENSSL_malloc(eticklen);
 	if(sdec == NULL || EVP_DecryptUpdate(ctx, sdec, &slen, p, eticklen) <= 0) {
 		EVP_CIPHER_CTX_free(ctx);
 		OPENSSL_free(sdec);
@@ -3459,7 +3459,7 @@ int tls1_save_sigalgs(SSL * s, const uchar * data, int dsize)
 		return 0;
 
 	OPENSSL_free(s->s3->tmp.peer_sigalgs);
-	s->s3->tmp.peer_sigalgs = (uchar*)OPENSSL_malloc(dsize);
+	s->s3->tmp.peer_sigalgs = (uchar *)OPENSSL_malloc(dsize);
 	if(s->s3->tmp.peer_sigalgs == NULL)
 		return 0;
 	s->s3->tmp.peer_sigalgslen = dsize;
@@ -3655,7 +3655,7 @@ int tls1_set_sigalgs(CERT * c, const int * psig_nids, size_t salglen, int client
 	size_t i;
 	if(salglen & 1)
 		return 0;
-	sigalgs = (uchar*)OPENSSL_malloc(salglen);
+	sigalgs = (uchar *)OPENSSL_malloc(salglen);
 	if(sigalgs == NULL)
 		return 0;
 	for(i = 0, sptr = sigalgs; i < salglen; i += 2) {
@@ -3909,7 +3909,7 @@ skip_sigs:
 				ctypelen = (int)c->ctype_num;
 			}
 			else {
-				ctypes = (uchar*)s->s3->tmp.ctype;
+				ctypes = (uchar *)s->s3->tmp.ctype;
 				ctypelen = s->s3->tmp.ctype_num;
 			}
 			for(i = 0; i < ctypelen; i++) {

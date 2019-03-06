@@ -559,7 +559,7 @@
 /*-
  * This is one sun will soon be using :-(
  * id-dsa-with-sha1 ID  ::= {
- *   iso(1) member-body(2) us(840) x9-57 (10040) x9cm(4) 3 }
+ * iso(1) member-body(2) us(840) x9-57 (10040) x9cm(4) 3 }
  */
 #define SN_dsaWithSHA1                  "DSA-SHA1"
 #define LN_dsaWithSHA1                  "dsaWithSHA1"
@@ -597,11 +597,11 @@
 /*-
  * Taken from rfc2040
  *  RC5_CBC_Parameters ::= SEQUENCE {
- *      version           INTEGER (v1_0(16)),
- *      rounds            INTEGER (8..127),
- *      blockSizeInBits   INTEGER (64, 128),
- *      iv                OCTET STRING OPTIONAL
- *      }
+ *    version           INTEGER (v1_0(16)),
+ *    rounds            INTEGER (8..127),
+ *    blockSizeInBits   INTEGER (64, 128),
+ *    iv                OCTET STRING OPTIONAL
+ *    }
  */
 #define SN_rc5_cbc                      "RC5-CBC"
 #define LN_rc5_cbc                      "rc5-cbc"

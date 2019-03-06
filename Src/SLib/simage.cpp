@@ -181,7 +181,7 @@ int SImage::LoadImage(const char * pPicPath)
 	FileName = 0;
 	if(pPicPath && fileExists(pPicPath)) {
 		OLECHAR wstr[MAXPATH];
-		MultiByteToWideChar(1251, MB_PRECOMPOSED, (const char*)pPicPath, -1, wstr, SIZEOFARRAY(wstr) - 1);
+		MultiByteToWideChar(1251, MB_PRECOMPOSED, (const char *)pPicPath, -1, wstr, SIZEOFARRAY(wstr) - 1);
 		P_Image = new Image(wstr);
 		FileName.CopyFrom(pPicPath);
 		ok = 1;
@@ -198,7 +198,7 @@ int SImage::LoadThumbnailImage(const char * pPicPath, int width, int height)
 	if(pPicPath && fileExists(pPicPath)) {
 		Gdiplus::Image * p_img = 0;
 		OLECHAR wstr[MAXPATH];
-		MultiByteToWideChar(1251, MB_PRECOMPOSED, (const char*)pPicPath, -1, wstr, SIZEOFARRAY(wstr) - 1);
+		MultiByteToWideChar(1251, MB_PRECOMPOSED, (const char *)pPicPath, -1, wstr, SIZEOFARRAY(wstr) - 1);
 		p_img = new Gdiplus::Image(wstr);
 		P_Image = p_img->GetThumbnailImage(width, height, 0, 0);
 		ZDELETE(p_img);
@@ -280,7 +280,7 @@ int SClipboard::CopyPaste(HWND hWnd, int copy, const char * pPath)
 	if(::OpenClipboard(hWnd)) {
 		if(copy) {
 			::EmptyClipboard();
-			MultiByteToWideChar(1251, MB_PRECOMPOSED, (const char*)pPath, -1, wstr, SIZEOFARRAY(wstr) - 1);
+			MultiByteToWideChar(1251, MB_PRECOMPOSED, (const char *)pPath, -1, wstr, SIZEOFARRAY(wstr) - 1);
 			p_bmp = new Gdiplus::Bitmap(wstr);
 			p_bmp->GetHBITMAP(0, &h_bmp);
 			SetClipboardData(CF_BITMAP, h_bmp);

@@ -433,7 +433,7 @@ int SMessageWindow::Move()
 			toolt_rect.top  -= parent_rect.top;
 		}
 		::SetWindowPos(HWnd, (Flags & fTopmost) ? HWND_TOP : 0, toolt_rect.left, toolt_rect.top, toolt_w, toolt_h, (Flags & fTopmost) ? 0 : SWP_NOZORDER);
-		// @v9.1.5 ::SendMessage(h_ctl, WM_SETTEXT, 0, (LPARAM)(const char*)Text);
+		// @v9.1.5 ::SendMessage(h_ctl, WM_SETTEXT, 0, (LPARAM)(const char *)Text);
 		TView::SSetWindowText(h_ctl, Text); // @v9.1.5 
 	}
 	return 1;

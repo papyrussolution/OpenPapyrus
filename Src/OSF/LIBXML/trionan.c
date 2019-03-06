@@ -25,16 +25,16 @@
  *
  * The approach used here (approximately) is to:
  *
- *   1. Use C99 functionality when available.
- *   2. Use IEEE 754 bit-patterns if possible.
- *   3. Use platform-specific techniques.
+ * 1. Use C99 functionality when available.
+ * 2. Use IEEE 754 bit-patterns if possible.
+ * 3. Use platform-specific techniques.
  *
  ************************************************************************/
 
 /*
  * @todo 
  *  o Put all the magic into trio_fpclassify_and_signbit(), and use this from
- *    trio_isnan() etc.
+ *  trio_isnan() etc.
  */
 
 /*************************************************************************
@@ -91,14 +91,14 @@
  * In ANSI/IEEE 754-1985 64-bits double format numbers have the
  * following properties (amoungst others)
  *
- *   o FLT_RADIX == 2: binary encoding
- *   o DBL_MAX_EXP == 1024: 11 bits exponent, where one bit is used
- *     to indicate special numbers (e.g. NaN and Infinity), so the
- *     maximum exponent is 10 bits wide (2^10 == 1024).
- *   o DBL_MANT_DIG == 53: The mantissa is 52 bits wide, but because
- *     numbers are normalized the initial binary 1 is represented
- *     implicitly (the so-called "hidden bit"), which leaves us with
- *     the ability to represent 53 bits wide mantissa.
+ * o FLT_RADIX == 2: binary encoding
+ * o DBL_MAX_EXP == 1024: 11 bits exponent, where one bit is used
+ *   to indicate special numbers (e.g. NaN and Infinity), so the
+ *   maximum exponent is 10 bits wide (2^10 == 1024).
+ * o DBL_MANT_DIG == 53: The mantissa is 52 bits wide, but because
+ *   numbers are normalized the initial binary 1 is represented
+ *   implicitly (the so-called "hidden bit"), which leaves us with
+ *   the ability to represent 53 bits wide mantissa.
  */
 #if (FLT_RADIX == 2) && (DBL_MAX_EXP == 1024) && (DBL_MANT_DIG == 53)
 #define USE_IEEE_754

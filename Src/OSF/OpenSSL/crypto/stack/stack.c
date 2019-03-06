@@ -65,7 +65,7 @@ OPENSSL_STACK * OPENSSL_sk_deep_copy(const OPENSSL_STACK * sk, OPENSSL_sk_copyfu
 	}
 	for(i = 0; i < ret->num; ++i) {
 		if(sk->data[i]) {
-			if((ret->data[i] = (const char*)copy_func(sk->data[i])) == NULL) {
+			if((ret->data[i] = (const char *)copy_func(sk->data[i])) == NULL) {
 				while(--i >= 0)
 					if(ret->data[i] != NULL)
 						free_func((void *)ret->data[i]);
@@ -118,11 +118,11 @@ int FASTCALL OPENSSL_sk_insert(OPENSSL_STACK * st, const void * data, int loc)
 		st->num_alloc = doub_num_alloc;
 	}
 	if((loc >= st->num) || (loc < 0)) {
-		st->data[st->num] = (const char*)data;
+		st->data[st->num] = (const char *)data;
 	}
 	else {
 		memmove((void *)&st->data[loc + 1], &st->data[loc], sizeof(st->data[0]) * (st->num - loc)); // @badcast
-		st->data[loc] = (const char*)data;
+		st->data[loc] = (const char *)data;
 	}
 	st->num++;
 	st->sorted = 0;
@@ -250,7 +250,7 @@ void * FASTCALL OPENSSL_sk_set(OPENSSL_STACK * st, int i, const void * data)
 {
 	if(st == NULL || i < 0 || i >= st->num)
 		return NULL;
-	st->data[i] = (const char*)data;
+	st->data[i] = (const char *)data;
 	return (void *)st->data[i];
 }
 

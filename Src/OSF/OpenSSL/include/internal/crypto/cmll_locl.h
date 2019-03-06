@@ -12,10 +12,10 @@
  * ALL RIGHTS RESERVED.
  *
  * Intellectual Property information for Camellia:
- *     http://info.isl.ntt.co.jp/crypt/eng/info/chiteki.html
+ *   http://info.isl.ntt.co.jp/crypt/eng/info/chiteki.html
  *
  * News Release for Announcement of Camellia open source:
- *     http://www.ntt.co.jp/news/news06e/0604/060413a.html
+ *   http://www.ntt.co.jp/news/news06e/0604/060413a.html
  *
  * The Camellia Code included herein is developed by
  * NTT (Nippon Telegraph and Telephone Corporation), and is contributed

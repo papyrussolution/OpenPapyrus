@@ -119,32 +119,32 @@ struct zbar_image_t;
  * these interfaces wrap all library functionality into an easy-to-use
  * package for a specific toolkit:
  * - the "GTK+ 2.x widget" may be used with GTK GUI applications.  a
- *   Python wrapper is included for PyGtk
+ * Python wrapper is included for PyGtk
  * - the @ref zbar::QZBar "Qt4 widget" may be used with Qt GUI
- *   applications
+ * applications
  * - the Processor interface (in @ref c-processor "C" or @ref
- *   zbar::Processor "C++") adds a scanning window to an application
- *   with no GUI.
+ * zbar::Processor "C++") adds a scanning window to an application
+ * with no GUI.
  *
  * @section mid-level Intermediate Interfaces
  *
  * building blocks used to construct high-level interfaces:
  * - the ImageScanner (in @ref c-imagescanner "C" or @ref
- *   zbar::ImageScanner "C++") looks for barcodes in a library defined
- *   image object
+ * zbar::ImageScanner "C++") looks for barcodes in a library defined
+ * image object
  * - the Window abstraction (in @ref c-window "C" or @ref
- *   zbar::Window "C++") sinks library images, displaying them on the
- *   platform display
+ * zbar::Window "C++") sinks library images, displaying them on the
+ * platform display
  * - the Video abstraction (in @ref c-video "C" or @ref zbar::Video
- *   "C++") sources library images from a video device
+ * "C++") sources library images from a video device
  *
  * @section low-level Low-Level Interfaces
  *
  * direct interaction with barcode scanning and decoding:
  * - the Scanner (in @ref c-scanner "C" or @ref zbar::Scanner "C++")
- *   looks for barcodes in a linear intensity sample stream
+ * looks for barcodes in a linear intensity sample stream
  * - the Decoder (in @ref c-decoder "C" or @ref zbar::Decoder "C++")
- *   extracts barcodes from a stream of bar and space widths
+ * extracts barcodes from a stream of bar and space widths
  */
 
 #ifdef __cplusplus
@@ -1088,11 +1088,11 @@ extern void * zbar_image_get_userdata(const zbar_image_t * image);
 
 /** dump raw image data to a file for debug.
  * the data will be prefixed with a 16 byte header consisting of:
- *   - 4 bytes uint = 0x676d697a ("zimg")
- *   - 4 bytes format fourcc
- *   - 2 bytes width
- *   - 2 bytes height
- *   - 4 bytes size of following image data in bytes
+ * - 4 bytes uint = 0x676d697a ("zimg")
+ * - 4 bytes format fourcc
+ * - 2 bytes width
+ * - 2 bytes height
+ * - 4 bytes size of following image data in bytes
  * this header can be dumped w/eg:
  * @verbatim
        od -Ax -tx1z -N16 -w4 [file]

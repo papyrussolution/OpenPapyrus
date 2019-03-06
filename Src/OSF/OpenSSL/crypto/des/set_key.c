@@ -122,8 +122,8 @@ int DES_is_weak_key(const_DES_cblock * key)
  * NOW DEFINED IN des_local.h
  * See ecb_encrypt.c for a pseudo description of these macros.
  * #define PERM_OP(a,b,t,n,m) ((t)=((((a)>>(n))^(b))&(m)),\
- *      (b)^=(t),\
- *      (a)=((a)^((t)<<(n))))
+ *    (b)^=(t),\
+ *    (a)=((a)^((t)<<(n))))
  */
 
 #define HPERM_OP(a, t, n, m) ((t) = ((((a)<<(16-(n)))^(a))&(m)), \

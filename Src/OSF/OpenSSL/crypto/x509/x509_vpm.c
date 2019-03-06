@@ -111,11 +111,11 @@ void X509_VERIFY_PARAM_free(X509_VERIFY_PARAM * param)
  * to another. There are several different ways this can happen.
  *
  * 1. If a child structure needs to have its values initialized from a parent
- *    they are simply copied across. For example SSL_CTX copied to SSL.
+ *  they are simply copied across. For example SSL_CTX copied to SSL.
  * 2. If the structure should take on values only if they are currently unset.
- *    For example the values in an SSL structure will take appropriate value
- *    for SSL servers or clients but only if the application has not set new
- *    ones.
+ *  For example the values in an SSL structure will take appropriate value
+ *  for SSL servers or clients but only if the application has not set new
+ *  ones.
  *
  * The "inh_flags" field determines how this function behaves.
  *

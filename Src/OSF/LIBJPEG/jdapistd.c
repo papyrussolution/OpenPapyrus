@@ -81,7 +81,7 @@ GLOBAL(boolean) jpeg_start_decompress(j_decompress_ptr cinfo)
  * Common subroutine for jpeg_start_decompress and jpeg_start_output.
  * Entry: global_state = DSTATE_PRESCAN only if previously suspended.
  * Exit: If done, returns TRUE and sets global_state for proper output mode.
- *       If suspended, returns FALSE and sets global_state = DSTATE_PRESCAN.
+ *     If suspended, returns FALSE and sets global_state = DSTATE_PRESCAN.
  */
 LOCAL(boolean) output_pass_setup(j_decompress_ptr cinfo)
 {

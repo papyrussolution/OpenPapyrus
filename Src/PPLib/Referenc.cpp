@@ -19,7 +19,7 @@ int SLAPI Reference::Helper_EncodeOtherPw(const char * pEncPw, const char * pPw,
 	IdeaEncrypt(pEncPw, temp_pw, pwBufSize);
 	size_t p = 0;
 	for(size_t i = 0; i < pwBufSize; i++) {
-		sprintf(temp_str+p, "%03u", (uint8)temp_pw[i]);
+		sprintf(temp_str+p, "%03u", static_cast<uint8>(temp_pw[i]));
 		p += 3;
 	}
 	temp_str[p] = 0;
@@ -354,18 +354,15 @@ int SLAPI Reference::UpdateItem(PPID obj, PPID id, const void * b, int logAction
 			ReferenceTbl::Key0 k;
 			k.ObjType = obj;
 			k.ObjID   = id;
-			if(search(0, &k, spEq)) { // @v8.1.4 searchForUpdate-->search
+			if(search(0, &k, spEq)) {
 				copyBufTo(&prev_rec);
 				new_rec = *(ReferenceTbl::Rec *)b;
 				new_rec.ObjType = obj;
 				new_rec.ObjID   = id;
-				// @v8.3.6 if(memcmp(&prev_rec, &new_rec, sizeof(new_rec)) != 0) {
-				if(!DBTable::GetFields().IsEqualRecords(&prev_rec, &new_rec)) { // @v8.3.6
-					// @v8.1.4 {
+				if(!DBTable::GetFields().IsEqualRecords(&prev_rec, &new_rec)) {
 					DBRowId _dbpos;
 					THROW_DB(getPosition(&_dbpos));
 					THROW_DB(getDirectForUpdate(0, &k, _dbpos));
-					// } @v8.1.4
 					r = updateRecBuf(&new_rec); // @sfu
 					if(!r) {
 						THROW_DB(BtrError == BE_CONFLICT && try_count > 0);
@@ -531,7 +528,7 @@ int SLAPI Reference::SearchSymb(PPID objType, PPID * pID, const char * pSymb, si
 		long   h = -1;
 		ReferenceTbl::Rec rec;
 		for(InitEnum(objType, 0, &h); ok < 0 && NextEnum(h, &rec) > 0;) {
-			if(stricmp866(pSymb, ((char *)&rec) + offs) == 0) {
+			if(stricmp866(pSymb, reinterpret_cast<const char *>(&rec) + offs) == 0) {
 				ASSIGN_PTR(pID, rec.ObjID);
 				ok =  1;
 			}
@@ -552,7 +549,7 @@ int SLAPI Reference::CheckUniqueSymb(PPID objType, PPID id, const char * pSymb, 
 		long   h = -1;
 		ReferenceTbl::Rec rec;
 		for(InitEnum(objType, 0, &h); ok && NextEnum(h, &rec) > 0;)
-			if(stricmp866(pSymb, ((char *)&rec) + offs) == 0 && rec.ObjID != id)
+			if(stricmp866(pSymb, reinterpret_cast<const char *>(&rec) + offs) == 0 && rec.ObjID != id)
 				ok = (PPSetObjError(PPERR_DUPSYMB, objType, rec.ObjID), 0);
 		DestroyIter(h);
 	}
@@ -686,14 +683,9 @@ int SLAPI Reference::_SearchProp(PPID obj, PPID id, PPID prop, int spMode, void 
 }
 
 int SLAPI Reference::GetProperty(PPID obj, PPID id, PPID prop, void * b, size_t s)
-{
-	return _SearchProp(obj, id, prop, spEq, b, s);
-}
-
+	{ return _SearchProp(obj, id, prop, spEq, b, s); }
 int SLAPI Reference::GetPropMainConfig(PPID prop, void * b, size_t s)
-{
-	return _SearchProp(PPOBJ_CONFIG, PPCFG_MAIN, prop, spEq, b, s);
-}
+	{ return _SearchProp(PPOBJ_CONFIG, PPCFG_MAIN, prop, spEq, b, s); }
 
 int SLAPI Reference::GetPropActualSize(PPID obj, PPID id, PPID prop, size_t * pActualSize)
 {
@@ -749,15 +741,15 @@ int SLAPI Reference::GetPropVlrString(PPID obj, PPID id, PPID prop, SString & rB
 		actual_size += fix_size;
 		// +32 - страховка
 		if((actual_size+32) <= sizeof(pm_fixed_buf)) {
-			pm = (PropVlrString *)pm_fixed_buf;
+			pm = reinterpret_cast<PropVlrString *>(pm_fixed_buf);
 		}
 		else {
-			THROW_MEM(pm = (PropVlrString*)SAlloc::M(actual_size+32));
+			THROW_MEM(pm = static_cast<PropVlrString *>(SAlloc::M(actual_size+32)));
 			is_pm_allocated = 1;
 		}
 		ReadPropBuf(pm, actual_size, &test_actual_size);
 		assert(actual_size == test_actual_size);
-		(rBuf = (const char *)(pm + 1)).Strip();
+		(rBuf = reinterpret_cast<const char *>(pm + 1)).Strip();
 	}
 	else
 		ok = PPDbSearchError();
@@ -776,9 +768,9 @@ int SLAPI Reference::PutPropVlrString(PPID obj, PPID id, PPID prop, const char *
 	if(!isempty(b)) {
 		uint sz = sstrlen(b) + 1;
 		s = MAX(sizeof(PropVlrString) + sz, PROPRECFIXSIZE);
-		THROW_MEM(pm = (PropVlrString*)SAlloc::M(s));
+		THROW_MEM(pm = static_cast<PropVlrString *>(SAlloc::M(s)));
 		memzero(pm, s);
-		strcpy((char *)(pm + 1), b);
+		strcpy(reinterpret_cast<char *>(pm + 1), b);
 		pm->Size = sz;
 	}
 	THROW(PutProp(obj, id, prop, pm, s, use_ta));
@@ -795,7 +787,7 @@ int SLAPI Reference::PutPropSBuffer(PPID obj, PPID id, PPID prop, const SBuffer 
 	uint   sz = rBuf.GetAvailableSize();
 	if(sz) {
 		s = MAX(sizeof(PropVlrString) + sz, PROPRECFIXSIZE);
-		THROW_MEM(pm = (PropVlrString*)SAlloc::M(s));
+		THROW_MEM(pm = static_cast<PropVlrString *>(SAlloc::M(s)));
 		memzero(pm, s);
 		THROW_SL(rBuf.ReadStatic((void *)(pm + 1), sz));
 		pm->Size = sz;
@@ -814,7 +806,7 @@ int FASTCALL Reference::GetPropSBuffer_Current(SBuffer & rBuf)
 	RECORDSIZE fix_size = Prop.getRecSize();
 	Prop.getLobSize(Prop.VT, &actual_size);
 	actual_size += fix_size;
-	THROW_MEM(pm = (PropVlrString*)SAlloc::M(actual_size + 32)); // +32 - страховка
+	THROW_MEM(pm = static_cast<PropVlrString *>(SAlloc::M(actual_size + 32))); // +32 - страховка
 	ReadPropBuf(pm, actual_size, &test_actual_size);
 	assert(actual_size == test_actual_size);
 	// @v9.1.11 if(actual_size == test_actual_size && actual_size == (pm->Size+sizeof(*pm))) {
@@ -860,8 +852,7 @@ int SLAPI Reference::GetPropArrayFromRecBuf(SVectorBase * pAry)
 		RECORDSIZE fix_size = Prop.getRecSize();
 		Prop.getLobSize(Prop.VT, &actual_size);
 		actual_size += fix_size;
-
-		THROW_MEM(p_rec = (PropPPIDArray *)SAlloc::C(1, actual_size + 32)); // +32 - страховка
+		THROW_MEM(p_rec = static_cast<PropPPIDArray *>(SAlloc::C(1, actual_size + 32))); // +32 - страховка
 		ReadPropBuf(p_rec, actual_size, &test_actual_size);
 		assert(actual_size == test_actual_size);
 		for(int i = 0; i < p_rec->Count; i++) {
@@ -874,10 +865,7 @@ int SLAPI Reference::GetPropArrayFromRecBuf(SVectorBase * pAry)
 			}
 		}
 	}
-	CATCH
-		ok = 0;
-		// @v9.8.4 (Из-за замены SArray-->SVectorBase) pAry->freeAll();
-	ENDCATCH
+	CATCHZOK
 	SAlloc::F(p_rec);
 	return ok;
 }
@@ -894,10 +882,7 @@ int SLAPI Reference::GetPropArray(PPID obj, PPID id, PPID prop, SVectorBase * pA
 	}
 	else
 		ok = PPDbSearchError();
-	CATCH
-		ok = 0;
-		// @v9.8.4 (Из-за замены SArray-->SVectorBase) pAry->freeAll();
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -912,11 +897,11 @@ int SLAPI Reference::PutPropArray(PPID obj, PPID id, PPID prop, const SVectorBas
 		const  uint minCount = (PROPRECFIXSIZE - sizeof(PropPPIDArray)) / ary->getItemSize();
 		sz = sizeof(PropPPIDArray) + (MAX(count, minCount) * ary->getItemSize());
 		SETMAX(sz, PROPRECFIXSIZE);
-		THROW_MEM(p_rec = (PropPPIDArray*)SAlloc::C(1, sz));
+		THROW_MEM(p_rec = static_cast<PropPPIDArray *>(SAlloc::C(1, sz)));
 		p_rec->Count = count;
 		for(i = 0; i < count; i++) {
 			size_t offs = i*ary->getItemSize();
-			memcpy((int8 *)(p_rec+1) + offs, ary->at(i), ary->getItemSize());
+			memcpy(PTR8(p_rec+1) + offs, ary->at(i), ary->getItemSize());
 		}
 	}
 	THROW(PutProp(obj, id, prop, p_rec, sz, use_ta));
@@ -930,8 +915,8 @@ int SLAPI Reference::GetConfig(PPID obj, PPID id, PPID cfgID, void * b, uint s)
 	int    r = GetProperty(obj, id, cfgID, b, s);
 	if(r < 0 && oneof2(obj, PPOBJ_USRGRP, PPOBJ_USR))
 		if(GetItem(obj, id) > 0) {
-			PPID   prev_level_id = (obj == PPOBJ_USRGRP) ? PPOBJ_CONFIG : PPOBJ_USRGRP;
-			r = GetConfig(prev_level_id, ((PPSecur*)&data)->ParentID, cfgID, b, s); // @recursion
+			const PPID prev_level_id = (obj == PPOBJ_USRGRP) ? PPOBJ_CONFIG : PPOBJ_USRGRP;
+			r = GetConfig(prev_level_id, reinterpret_cast<const PPSecur *>(&data)->ParentID, cfgID, b, s); // @recursion
 		}
 		else {
 			PPSetAddedMsgObjName(obj, id);
@@ -969,7 +954,7 @@ int SLAPI Reference::EditSecur(PPID obj, PPID id, PPSecurPacket * pPack, int isN
 				pPack->Secur.PwUpdate = getcurdate_();
 			else {
 				THROW_DB(GetItem(obj, id) > 0);
-				if(memcmp(pPack->Secur.Password, ((PPSecur*)&data)->Password, sizeof(pPack->Secur.Password)))
+				if(memcmp(pPack->Secur.Password, reinterpret_cast<PPSecur *>(&data)->Password, sizeof(pPack->Secur.Password)))
 					pPack->Secur.PwUpdate = getcurdate_();
 			}
 		}

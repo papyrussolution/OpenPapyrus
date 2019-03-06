@@ -40,7 +40,7 @@ static inline int __heap_addrem_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __heap_addrem_desc, sizeof(__heap_addrem_args), (void**)arg));
+	    dbpp, td, data, __heap_addrem_desc, sizeof(__heap_addrem_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___heap_pg_alloc	152
 typedef struct ___heap_pg_alloc_args {
@@ -73,7 +73,7 @@ static inline int __heap_pg_alloc_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __heap_pg_alloc_desc, sizeof(__heap_pg_alloc_args), (void**)arg));
+	    dbpp, td, data, __heap_pg_alloc_desc, sizeof(__heap_pg_alloc_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___heap_trunc_meta	153
 typedef struct ___heap_trunc_meta_args {
@@ -109,7 +109,7 @@ static inline int __heap_trunc_meta_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __heap_trunc_meta_desc, sizeof(__heap_trunc_meta_args), (void**)arg));
+	    dbpp, td, data, __heap_trunc_meta_desc, sizeof(__heap_trunc_meta_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___heap_trunc_page	154
 typedef struct ___heap_trunc_page_args {
@@ -140,7 +140,7 @@ static inline int __heap_trunc_page_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __heap_trunc_page_desc, sizeof(__heap_trunc_page_args), (void**)arg));
+	    dbpp, td, data, __heap_trunc_page_desc, sizeof(__heap_trunc_page_args), reinterpret_cast<void **>(arg)));
 }
 #endif /* HAVE_HEAP */
 #endif

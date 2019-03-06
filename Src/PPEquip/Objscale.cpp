@@ -1393,7 +1393,7 @@ int SLAPI CasCL5000J::SendData(const char * pBuf, size_t bufLen)
 	// CR
 	p_buf[bufLen + 2] = 0x0D;
 	if(Data.Flags & SCALF_TCPIP) {
-		THROW_PP(send(SocketHandle, (const char*)p_buf, (int)data_size, 0) != SOCKET_ERROR, PPERR_SCALE_SEND);
+		THROW_PP(send(SocketHandle, (const char *)p_buf, (int)data_size, 0) != SOCKET_ERROR, PPERR_SCALE_SEND);
 	}
 	else {
 		for(uint i = 0; i < data_size; i++)
@@ -1646,7 +1646,7 @@ private:
 	int    SLAPI PutBuf(char *, size_t numBytes);
 	int    SLAPI PutNumber(long number, size_t numBytes);
 	int    SLAPI MakeNumber(long number, char * pBuf, size_t bufLen);
-	int    SLAPI MakeString(char * pStr, char * pBuf, size_t bufLen);
+	int    SLAPI MakeString(const char * pStr, char * pBuf, size_t bufLen);
 
 	int    Err;
 };
@@ -1673,7 +1673,7 @@ int SLAPI CommMassaK::MakeNumber(long number, char * pBuf, size_t bufLen)
 	return 1;
 }
 
-int SLAPI CommMassaK::MakeString(char * pStr, char * pBuf, size_t bufLen)
+int SLAPI CommMassaK::MakeString(const char * pStr, char * pBuf, size_t bufLen)
 {
 	size_t len = sstrlen(pStr);
 	for(size_t i = 0; i < bufLen; i++)
@@ -1993,7 +1993,7 @@ int SLAPI COMMassaKVPN::SendPLU(const ScalePLU * pScalePLU)
 			DbfRecord dbf_rec(P_DbfTbl);
 
 			dbf_rec.put(1, pScalePLU->GoodsID);              // PRD_ID
-			dbf_rec.put(2, (const char*)goods_name.Transf(CTRANSF_INNER_TO_OUTER)); // PRD_NAME
+			dbf_rec.put(2, (const char *)goods_name.Transf(CTRANSF_INNER_TO_OUTER)); // PRD_NAME
 			dbf_rec.put(3, "0");                             // FLG_CNTR
 			dbf_rec.put(4, pScalePLU->Barcode);              // PRD_CODE
 			dbf_rec.put(5, pScalePLU->GoodsNo);              // PRD_PLU
@@ -2007,7 +2007,7 @@ int SLAPI COMMassaKVPN::SendPLU(const ScalePLU * pScalePLU)
 			dbf_rec.put(13, "");                             // PRD_CERT
 
 			for(uint p = 0, j = 0; ss.get(&p, temp_buf.Z()) > 0 && j < 2; j++)
-				dbf_rec.put(14 + j, (const char*)temp_buf.Transf(CTRANSF_INNER_TO_OUTER));  // PRD_CMP1, PRD_CMP2
+				dbf_rec.put(14 + j, (const char *)temp_buf.Transf(CTRANSF_INNER_TO_OUTER));  // PRD_CMP1, PRD_CMP2
 			dbf_rec.put(16, "0");                            // PRD_TARE
 			dbf_rec.put(17, expiry_minutes);                 // PRD_LIFE
 			dbf_rec.put(18, "");                             // PRD_DATE
@@ -2282,7 +2282,7 @@ private:
 	int  SLAPI NewAlgSendPLU(const ScalePLU *);
 	ComDispInterface * P_DrvMT;
 	SArray * P_AddStrAry;
-	FILE *   P_PLUStream;
+	FILE * P_PLUStream;
 	HMODULE  TrfrDLLHandle;
 	MT_EthernetProc TrfrDLLCall;
 	MT_CalcCrcProc  CalcCrcCall;
@@ -3217,7 +3217,7 @@ int SLAPI DIGI::SendPLU(const ScalePLU * pScalePLU)
 		out_rec[len++] = (char)0xF1; // #1
 		out_rec[len++] = 0x25;       // #2 признак того, что грузим товар
 		for(j = 0; j < 4; j++)
-			out_rec[len++] = ((const char*)goods_no)[j]; // #6 Номер PLU
+			out_rec[len++] = ((const char *)goods_no)[j]; // #6 Номер PLU
 		size_offs = len; // По этому смещению в конце процедуры запишем размер записи
 
 		out_rec[len++] = 0; // Два байта длины записи
@@ -3291,22 +3291,22 @@ int SLAPI DIGI::SendPLU(const ScalePLU * pScalePLU)
 		// срока  продажи в часах и срока упаковки в днях. Нет полей бонуса и номера места хранения.
 		out_rec[len++] = 0x01;                          // #13 PLU статус 2
 		for(j = 0; j < 3; j++)
-			out_rec[len++] = ((const char*)rub)[j];      // #15
-		out_rec[len++] = ((const char*)kop)[0];          // #16
+			out_rec[len++] = ((const char *)rub)[j];      // #15
+		out_rec[len++] = ((const char *)kop)[0];          // #16
 		out_rec[len++] = 0x11; // #17 номер формата этикетки – будет использоваться свободный формат F1
 		out_rec[len++] = 0x05; // #18 формат штрихкода (2 цифры флага, 5 артикула и 5 веса)
 		for(j = 0; j < 7; j++)
-			out_rec[len++] = ((const char*)barcode)[j]; // #25
+			out_rec[len++] = ((const char *)barcode)[j]; // #25
 		for(j = 0; j < 2; j++)
-			out_rec[len++] = ((const char*)grp_no)[j];  // #27
+			out_rec[len++] = ((const char *)grp_no)[j];  // #27
 		for(j = 0; j < 2; j++)
-			out_rec[len++] = ((const char*)s_expiry)[j]; // #29
+			out_rec[len++] = ((const char *)s_expiry)[j]; // #29
 		for(j = 0; j < goods_name.Len(); j++) {
-			out_rec[len++] = ((const char*)goods_name)[j]; // #29 + goods_name.Len()
+			out_rec[len++] = ((const char *)goods_name)[j]; // #29 + goods_name.Len()
 		}
 		if(ext_text_buf.NotEmpty()) {
 			for(j = 0; j < ext_text_buf.Len(); j++) {
-				out_rec[len++] = ((const char*)ext_text_buf)[j]; // #29 + goods_name.Len() + ext_text_buf.Len()
+				out_rec[len++] = ((const char *)ext_text_buf)[j]; // #29 + goods_name.Len() + ext_text_buf.Len()
 			}
 		}
 		out_rec[len++] = 0x00; // контрольная сумма (должна быть 0x00) // #29 + goods_name.Len() + ext_text_buf.Len() + 1
@@ -3315,7 +3315,7 @@ int SLAPI DIGI::SendPLU(const ScalePLU * pScalePLU)
 		//
 		LongToHexBytesStr((long)(len - 2), 2, data_len); // -2 - размер заголовка записи
 		for(j = 0; j < 2; j++)
-			out_rec[size_offs+j] = ((const char*)data_len)[j]; // #8
+			out_rec[size_offs+j] = ((const char *)data_len)[j]; // #8
 
 		/*
 		const char test[] = {0xF1, 0x25, 0x00, 0x00, 0x00, 0x01, 0x00, 0x3B, 0x54, 0x00, 0x0D, 0x26, 0x01, 0x00, 0x02,
@@ -4195,7 +4195,7 @@ int SLAPI ExportToFile::SendPLU(const ScalePLU * pScalePLU)
 		if(GObj.GetPacket(pScalePLU->GoodsID, &pack, 0) > 0) {
 			SString barcode;
 			barcode.Cat(pScalePLU->Barcode);
-			ok = P_GoodsExp->ExportPacket(&pack, (const char*)barcode, Data.AltGoodsGrp);
+			ok = P_GoodsExp->ExportPacket(&pack, (const char *)barcode, Data.AltGoodsGrp);
 		}
 	}
 	return ok;
@@ -4362,7 +4362,7 @@ void ScaleDialog::ReplyScaleTypeSelection(PPID scaleTypeID)
 			sys_btn_text = DefSysBtnText;
 		sys_btn_text.Transf(CTRANSF_INNER_TO_OUTER);
 		p_sys_btn->Title = sys_btn_text;
-		// @v9.1.5 SendDlgItemMessage(H(), CTL_SCALE_SYSBTN, WM_SETTEXT, 0, (LPARAM)(const char*)p_sys_btn->Title);
+		// @v9.1.5 SendDlgItemMessage(H(), CTL_SCALE_SYSBTN, WM_SETTEXT, 0, (LPARAM)(const char *)p_sys_btn->Title);
 		TView::SSetWindowText(GetDlgItem(H(), CTL_SCALE_SYSBTN), p_sys_btn->Title); // @v9.1.5
 	}
 }

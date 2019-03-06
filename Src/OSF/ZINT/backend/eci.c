@@ -464,7 +464,7 @@ int get_best_eci(uchar source[], int length)
 #ifndef _MSC_VER
 	uchar local_source[length + 1];
 #else
-	uchar * local_source = (uchar*)_alloca(length + 1);
+	uchar * local_source = (uchar *)_alloca(length + 1);
 #endif
 	do {
 		if(utf_to_eci(eci, source, local_source, &length) == 0) {

@@ -240,7 +240,7 @@ int RAND_poll(void)
 				}
 #   endif
 				if(try_read) {
-					r = read(fd, (uchar*)tmpbuf + n, ENTROPY_NEEDED - n);
+					r = read(fd, (uchar *)tmpbuf + n, ENTROPY_NEEDED - n);
 					if(r > 0)
 						n += r;
 				}
@@ -268,7 +268,7 @@ int RAND_poll(void)
 	 * collecting daemon.
 	 */
 	for(egdsocket = egdsockets; *egdsocket && n < ENTROPY_NEEDED; egdsocket++) {
-		int r = RAND_query_egd_bytes(*egdsocket, (uchar*)tmpbuf + n, ENTROPY_NEEDED - n);
+		int r = RAND_query_egd_bytes(*egdsocket, (uchar *)tmpbuf + n, ENTROPY_NEEDED - n);
 		if(r > 0)
 			n += r;
 	}

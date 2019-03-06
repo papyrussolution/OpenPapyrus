@@ -19,7 +19,7 @@ uchar * OPENSSL_asc2uni(const char * asc, int asclen, uchar ** uni, int * unilen
 	if(asclen == -1)
 		asclen = strlen(asc);
 	ulen = asclen * 2 + 2;
-	if((unitmp = (uchar*)OPENSSL_malloc(ulen)) == NULL)
+	if((unitmp = (uchar *)OPENSSL_malloc(ulen)) == NULL)
 		return NULL;
 	for(i = 0; i < ulen - 2; i += 2) {
 		unitmp[i] = 0;
@@ -97,7 +97,7 @@ uchar * OPENSSL_utf82uni(const char * asc, int asclen, uchar ** uni, int * unile
 			ulen += 2;
 	}
 	ulen += 2; /* for trailing UTF16 zero */
-	if((ret = (uchar*)OPENSSL_malloc(ulen)) == NULL)
+	if((ret = (uchar *)OPENSSL_malloc(ulen)) == NULL)
 		return NULL;
 	/* re-run the loop writing down UTF-16 characters in big-endian order */
 	for(unitmp = ret, i = 0; i < asclen; i += j) {
@@ -145,7 +145,7 @@ static int bmp_to_utf8(char * str, const uchar * utf16, int len)
 		utf32chr |= lo-0xDC00;
 		utf32chr += 0x10000;
 	}
-	return UTF8_putc((uchar*)str, len > 4 ? 4 : len, utf32chr);
+	return UTF8_putc((uchar *)str, len > 4 ? 4 : len, utf32chr);
 }
 
 char * OPENSSL_uni2utf8(const uchar * uni, int unilen)

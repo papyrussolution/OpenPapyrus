@@ -14,9 +14,9 @@
  *****************************************************************************
  *
  * We are required to state that
- *    "The Graphics Interchange Format(c) is the Copyright property of
- *    CompuServe Incorporated. GIF(sm) is a Service Mark property of
- *    CompuServe Incorporated."
+ *  "The Graphics Interchange Format(c) is the Copyright property of
+ *  CompuServe Incorporated. GIF(sm) is a Service Mark property of
+ *  CompuServe Incorporated."
  */
 #define JPEG_INTERNALS
 #include "cdjpeg.h"

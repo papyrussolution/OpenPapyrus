@@ -1116,11 +1116,11 @@ static void FASTCALL mkmailcmd(SString & rBuf, const char * pCmd, int type, cons
 {
 	rBuf = pCmd;
 	if(type == 1)
-		rBuf.Space().Cat((const char *)pAddInfo);
+		rBuf.Space().Cat(static_cast<const char *>(pAddInfo));
 	else if(type == 2)
-		rBuf.Space().Cat((long)pAddInfo);
+		rBuf.Space().Cat(reinterpret_cast<long>(pAddInfo));
 	else if(type == 3)
-		rBuf.Cat((const char *)pAddInfo);
+		rBuf.Cat(static_cast<const char *>(pAddInfo));
 }
 //
 //
@@ -1532,7 +1532,7 @@ int SLAPI PPMailSmtp::SendMsgToFile(SMailMessage * pMsg, SString & rFileName)
 				}
 			}
 			if(is_img)
-				(temp_buf = "image").CatChar('/').Cat((const char*)ext).CatDiv(';', 2).CatEq("name", fn);
+				(temp_buf = "image").CatChar('/').Cat((const char *)ext).CatDiv(';', 2).CatEq("name", fn);
 			else
 				(temp_buf = "application/X-Papyrus").CatDiv(';', 2).CatEq("name", fn);
 			PutField(PPMAILFLD_CONTENTTYPE, temp_buf, buf);

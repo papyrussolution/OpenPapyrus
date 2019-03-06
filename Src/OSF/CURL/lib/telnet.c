@@ -905,7 +905,7 @@ static void suboption(struct connectdata * conn)
 	struct Curl_easy * data = conn->data;
 	struct TELNET * tn = (struct TELNET*)data->req.protop;
 
-	printsub(data, '<', (uchar*)tn->subbuffer, CURL_SB_LEN(tn)+2);
+	printsub(data, '<', (uchar *)tn->subbuffer, CURL_SB_LEN(tn)+2);
 	switch(CURL_SB_GET(tn)) {
 		case CURL_TELOPT_TTYPE:
 		    len = sstrlen(tn->subopt_ttype) + 4 + 2;
@@ -990,8 +990,8 @@ static void sendsuboption(struct connectdata * conn, int option)
 		    /* Window size must be sent according to the 'network order' */
 		    x = htons(tn->subopt_wsx);
 		    y = htons(tn->subopt_wsy);
-		    uc1 = (uchar*)&x;
-		    uc2 = (uchar*)&y;
+		    uc1 = (uchar *)&x;
+		    uc2 = (uchar *)&y;
 		    CURL_SB_ACCUM(tn, uc1[0]);
 		    CURL_SB_ACCUM(tn, uc1[1]);
 		    CURL_SB_ACCUM(tn, uc2[0]);
@@ -1002,7 +1002,7 @@ static void sendsuboption(struct connectdata * conn, int option)
 		    CURL_SB_TERM(tn);
 		    /* data suboption is now ready */
 
-		    printsub(data, '>', (uchar*)tn->subbuffer+2,
+		    printsub(data, '>', (uchar *)tn->subbuffer+2,
 		    CURL_SB_LEN(tn)-2);
 
 		    /* we send the header of the suboption... */
@@ -1476,7 +1476,7 @@ static CURLcode telnet_do(struct connectdata * conn, bool * done)
 					    break;
 				    }
 
-				    result = telrcv(conn, (uchar*)buf, nread);
+				    result = telrcv(conn, (uchar *)buf, nread);
 				    if(result) {
 					    keepon = FALSE;
 					    break;
@@ -1566,7 +1566,7 @@ static CURLcode telnet_do(struct connectdata * conn, bool * done)
 
 				    total_dl += nread;
 				    Curl_pgrsSetDownloadCounter(data, total_dl);
-				    result = telrcv(conn, (uchar*)buf, nread);
+				    result = telrcv(conn, (uchar *)buf, nread);
 				    if(result) {
 					    keepon = FALSE;
 					    break;

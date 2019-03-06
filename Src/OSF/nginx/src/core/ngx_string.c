@@ -66,33 +66,33 @@ int SStrDupToNgxStr(ngx_pool_t * pPool, const SString * pSrc, ngx_str_t * pDest)
 }
 /*
  * supported formats:
- *    %[0][width][x][X]O        nginx_off_t
- *    %[0][width]T              time_t
- *    %[0][width][u][x|X]z      ssize_t/size_t
- *    %[0][width][u][x|X]d      int/u_int
- *    %[0][width][u][x|X]l      long
- *    %[0][width|m][u][x|X]i    ngx_int_t/ngx_uint_t
- *    %[0][width][u][x|X]D      int32_t/uint32_t
- *    %[0][width][u][x|X]L      int64_t/uint64_t
- *    %[0][width|m][u][x|X]A    ngx_atomic_int_t/ngx_atomic_uint_t
- *    %[0][width][.width]f      double, max valid number fits to %18.15f
- *    %P                        ngx_pid_t
- *    %M                        ngx_msec_t
- *    %r                        rlim_t
- *    %p                        void *
- *    %V                        ngx_str_t *
- *    %v                        ngx_variable_value_t *
- *    %s                        null-terminated string
- *    %*s                       length and string
- *    %Z                        '\0'
- *    %N                        '\n'
- *    %c                        char
- *    %%                        %
+ *  %[0][width][x][X]O        nginx_off_t
+ *  %[0][width]T              time_t
+ *  %[0][width][u][x|X]z      ssize_t/size_t
+ *  %[0][width][u][x|X]d      int/u_int
+ *  %[0][width][u][x|X]l      long
+ *  %[0][width|m][u][x|X]i    ngx_int_t/ngx_uint_t
+ *  %[0][width][u][x|X]D      int32_t/uint32_t
+ *  %[0][width][u][x|X]L      int64_t/uint64_t
+ *  %[0][width|m][u][x|X]A    ngx_atomic_int_t/ngx_atomic_uint_t
+ *  %[0][width][.width]f      double, max valid number fits to %18.15f
+ *  %P                        ngx_pid_t
+ *  %M                        ngx_msec_t
+ *  %r                        rlim_t
+ *  %p                        void *
+ *  %V                        ngx_str_t *
+ *  %v                        ngx_variable_value_t *
+ *  %s                        null-terminated string
+ *  %*s                       length and string
+ *  %Z                        '\0'
+ *  %N                        '\n'
+ *  %c                        char
+ *  %%                        %
  *
  *  reserved:
- *    %t                        ptrdiff_t
- *    %S                        null-terminated wchar string
- *    %C                        wchar
+ *  %t                        ptrdiff_t
+ *  %S                        null-terminated wchar string
+ *  %C                        wchar
  */
 
 u_char * ngx_cdecl ngx_sprintf(u_char * buf, const char * fmt, ...)
@@ -415,7 +415,7 @@ static u_char * ngx_sprintf_num(u_char * buf, u_char * last, uint64_t ui64, u_ch
 			 * a inlined multiplication and shifts.  For example,
 			 * unsigned "i32 / 10" is compiled to
 			 *
-			 *     (i32 * 0xCCCCCCCD) >> 35
+			 *   (i32 * 0xCCCCCCCD) >> 35
 			 */
 			ui32 = (uint32_t)ui64;
 			do {
@@ -978,10 +978,10 @@ static ngx_int_t ngx_decode_base64_internal(ngx_str_t * dst, const ngx_str_t * s
 /*
  * ngx_utf8_decode() decodes two and more bytes UTF sequences only
  * the return values:
- *    0x80 - 0x10ffff         valid character
- *    0x110000 - 0xfffffffd   invalid sequence
- *    0xfffffffe              incomplete sequence
- *    0xffffffff              error
+ *  0x80 - 0x10ffff         valid character
+ *  0x110000 - 0xfffffffd   invalid sequence
+ *  0xfffffffe              incomplete sequence
+ *  0xffffffff              error
  */
 uint32_t FASTCALL ngx_utf8_decode(const u_char ** p, size_t n)
 {

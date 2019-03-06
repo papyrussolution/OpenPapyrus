@@ -296,8 +296,8 @@ void FASTCALL OPENSSL_die(const char * message, const char * file, int line)
 /* volatile uchar* pointers are there because
  * 1. Accessing a variable declared volatile via a pointer that lacks a volatile qualifier causes undefined behavior.
  * 2. When the variable itself is not volatile the compiler is
- *    not required to keep all those reads and can convert
- *    this into canonical memcmp() which doesn't read the whole block.
+ *  not required to keep all those reads and can convert
+ *  this into canonical memcmp() which doesn't read the whole block.
  * Pointers to volatile resolve the first problem fully. The second
  * problem cannot be resolved in any Standard-compliant way but this
  * works the problem around. Compilers typically react to

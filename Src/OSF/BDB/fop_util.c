@@ -270,7 +270,7 @@ retry:
 		 * 2. We are truncating, and it doesn't matter what kind
 		 *	of file it is, we should open/create it.
 		 * 3. It is 0-length, we are not doing transactions (i.e.,
-		 *      we are sendmail), we should open/create into it.
+		 *    we are sendmail), we should open/create into it.
 		 *	-- on-disk files only!
 		 * 4. Is it a Berkeley DB file and we should simply open it.
 		 * 5. It is not a BDB file and we should return an error.

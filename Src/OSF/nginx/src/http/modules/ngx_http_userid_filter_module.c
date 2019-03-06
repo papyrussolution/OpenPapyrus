@@ -220,7 +220,7 @@ static ngx_http_userid_ctx_t * ngx_http_userid_get_uid(ngx_http_request_t * r, n
 	 * we have to limit the encoded string to 22 characters because
 	 *  1) cookie may be marked by "userid_mark",
 	 *  2) and there are already the millions cookies with a garbage
-	 *     instead of the correct base64 trail "=="
+	 *   instead of the correct base64 trail "=="
 	 */
 	src.len = 22;
 	dst.data = (u_char*)ctx->uid_got;
@@ -452,10 +452,10 @@ static void * ngx_http_userid_create_conf(ngx_conf_t * cf)
 	/*
 	 * set by ngx_pcalloc():
 	 *
-	 *     conf->name = { 0, NULL };
-	 *     conf->domain = { 0, NULL };
-	 *     conf->path = { 0, NULL };
-	 *     conf->p3p = { 0, NULL };
+	 *   conf->name = { 0, NULL };
+	 *   conf->domain = { 0, NULL };
+	 *   conf->path = { 0, NULL };
+	 *   conf->p3p = { 0, NULL };
 	 */
 
 	conf->enable = NGX_CONF_UNSET_UINT;

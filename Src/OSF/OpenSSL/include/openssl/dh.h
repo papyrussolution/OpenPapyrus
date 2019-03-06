@@ -100,7 +100,7 @@ const DH_METHOD *DH_get_default_method(void);
 int DH_set_method(DH *dh, const DH_METHOD *meth);
 DH *DH_new_method(ENGINE *engine);
 
-DH *   DH_new(void);
+DH * DH_new(void);
 void   FASTCALL DH_free(DH * dh);
 int    FASTCALL DH_up_ref(DH * dh);
 int    DH_bits(const DH *dh);

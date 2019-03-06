@@ -378,7 +378,7 @@ private:
 	//
 	int    DestroyDataBuf();
 	int    SetupOffsets();
-	F *    FASTCALL Get(uint) const;
+	F *  FASTCALL Get(uint) const;
 
 	int32  Ver;              // @persistent (Serialize())
 	int32  Flags;            // @persistent
@@ -1927,7 +1927,7 @@ private:
 #define BREV_ERRDELPREV  7 // Ошибка удаления предшествующего файла-приемника
 	// Параметры (char *)lp1 - имя файла-приемника
 #define BREV_ERRRENAME   8 // Ошибка переименования файла
-	// Параметры (const char*)lp1 - имя файла-источника, (const char*)lp2 - имя файла-приемника
+	// Параметры (const char *)lp1 - имя файла-источника, (const char *)lp2 - имя файла-приемника
 //
 // Descr: Структура, передаваемая в качестве параметра функции BDictionary::recoverTable
 //
@@ -2615,24 +2615,19 @@ private:
 class SOraDbProvider : public DbProvider, private Ocif {
 public:
 	//friend class SSqlStmt;
-
 	SOraDbProvider(const char * pDataPath);
 	virtual ~SOraDbProvider();
-
 	virtual SString & SLAPI MakeFileName_(const char * pTblName, SString & rBuf);
 	virtual int SLAPI IsFileExists_(const char * pFileName);
 	virtual SString & SLAPI GetTempFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath);
 	virtual int SLAPI CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode);
 	virtual int SLAPI DropFile(const char * pFileName);
-
 	virtual int SLAPI Login(const DbLoginBlock * pBlk, long options);
 	virtual int SLAPI Logout();
-	virtual int SLAPI PostProcessAfterUndump(DBTable * pTbl);
-
+	virtual int SLAPI PostProcessAfterUndump(const DBTable * pTbl);
 	virtual int SLAPI StartTransaction();
 	virtual int SLAPI CommitWork();
 	virtual int SLAPI RollbackWork();
-
 	virtual int SLAPI GetFileStat(DBTable * pTbl, long reqItems, DbTableStat * pStat);
 	virtual int SLAPI Implement_Open(DBTable * pTbl, const char * pFileName, int openMode, char * pPassword);
 	virtual int SLAPI Implement_Close(DBTable * pTbl);
@@ -2642,9 +2637,7 @@ public:
 	virtual int SLAPI Implement_DeleteRec(DBTable * pTbl);
 	virtual int SLAPI Implement_BExtInsert(BExtInsert * pBei);
 	virtual int SLAPI Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ);
-
 	virtual int SLAPI ProtectTable(long dbTableID, char * pResetOwnrName, char * pSetOwnrName, int clearProtection);
-
 	virtual int CreateStmt(SSqlStmt * pS, const char * pText, long flags);
 	virtual int DestroyStmt(SSqlStmt * pS);
 	virtual int Binding(SSqlStmt & rS, int dir);
@@ -2663,7 +2656,6 @@ public:
 	virtual int Exec(SSqlStmt & rS, uint count, int mode);
 	virtual int Describe(SSqlStmt & rS, SdRecord &);
 	virtual int Fetch(SSqlStmt & rS, uint count, uint * pActualCount);
-
 	int    GetAutolongVal(const DBTable & rTbl, uint fldN, long * pVal); // v
 	int    Insert(const BExtInsert *);
 	int    SelectByKey(DBTable & rTbl, int idx, void * pKey, int sp, int forUpdate);
@@ -3383,7 +3375,7 @@ struct DBQ {
 		uint   flags;
 		DBDataCell left, right;
 	};
-	T *    items;
+	T *  items;
 };
 
 #define NOKEY 0x0001

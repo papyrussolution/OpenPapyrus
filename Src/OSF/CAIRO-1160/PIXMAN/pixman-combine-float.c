@@ -365,20 +365,20 @@ static force_inline float blend_screen(float sa, float s, float da, float d)
  * Overlay
  *
  * ad * as * B(d/ad, s/as)
- *   = ad * as * Hardlight (s, d)
- *   = if (d / ad < 0.5)
+ * = ad * as * Hardlight (s, d)
+ * = if (d / ad < 0.5)
  * as * ad * Multiply (s/as, 2 * d/ad)
  * else
  * as * ad * Screen (s/as, 2 * d / ad - 1)
- *   = if (d < 0.5 * ad)
+ * = if (d < 0.5 * ad)
  * as * ad * s/as * 2 * d /ad
  * else
  * as * ad * (s/as + 2 * d / ad - 1 - s / as * (2 * d / ad - 1))
- *   = if (2 * d < ad)
+ * = if (2 * d < ad)
  * 2 * s * d
  * else
  * ad * s + 2 * as * d - as * ad - ad * s * (2 * d / ad - 1)
- *   = if (2 * d < ad)
+ * = if (2 * d < ad)
  * 2 * s * d
  * else
  * as * ad - 2 * (ad - d) * (as - s)
@@ -395,8 +395,8 @@ static force_inline float blend_overlay(float sa, float s, float da, float d)
  * Darken
  *
  * ad * as * B(d/ad, s/as)
- *   = ad * as * MIN(d/ad, s/as)
- *   = MIN (as * d, ad * s)
+ * = ad * as * MIN(d/ad, s/as)
+ * = MIN (as * d, ad * s)
  */
 static force_inline float blend_darken(float sa, float s, float da, float d)
 {
@@ -413,8 +413,8 @@ static force_inline float blend_darken(float sa, float s, float da, float d)
  * Lighten
  *
  * ad * as * B(d/ad, s/as)
- *   = ad * as * MAX(d/ad, s/as)
- *   = MAX (as * d, ad * s)
+ * = ad * as * MAX(d/ad, s/as)
+ * = MAX (as * d, ad * s)
  */
 static force_inline float blend_lighten(float sa, float s, float da, float d)
 {
@@ -431,13 +431,13 @@ static force_inline float blend_lighten(float sa, float s, float da, float d)
  * Color dodge
  *
  * ad * as * B(d/ad, s/as)
- *   = if d/ad = 0
+ * = if d/ad = 0
  * ad * as * 0
  * else if (d/ad >= (1 - s/as)
  * ad * as * 1
  * else
  * ad * as * ((d/ad) / (1 - s/as))
- *   = if d = 0
+ * = if d = 0
  * 0
  * elif as * d >= ad * (as - s)
  * ad * as
@@ -464,13 +464,13 @@ static force_inline float blend_color_dodge(float sa, float s, float da, float d
  * premultiplied colors d > 1 can actually happen.
  *
  * ad * as * B(d/ad, s/as)
- *   = if d/ad >= 1
+ * = if d/ad >= 1
  * ad * as * 1
  * elif (1 - d/ad) >= s/as
  * ad * as * 0
  * else
  * ad * as * (1 - ((1 - d/ad) / (s/as)))
- *   = if d >= ad
+ * = if d >= ad
  * ad * as
  * elif as * ad - as * d >= ad * s
  * 0
@@ -493,15 +493,15 @@ static force_inline float blend_color_burn(float sa, float s, float da, float d)
  * Hard light
  *
  * ad * as * B(d/ad, s/as)
- *   = if (s/as <= 0.5)
+ * = if (s/as <= 0.5)
  * ad * as * Multiply (d/ad, 2 * s/as)
  * else
  * ad * as * Screen (d/ad, 2 * s/as - 1)
- *   = if 2 * s <= as
+ * = if 2 * s <= as
  * ad * as * d/ad * 2 * s / as
  * else
  * ad * as * (d/ad + (2 * s/as - 1) + d/ad * (2 * s/as - 1))
- *   = if 2 * s <= as
+ * = if 2 * s <= as
  * 2 * s * d
  * else
  * as * ad - 2 * (ad - d) * (as - s)
@@ -518,13 +518,13 @@ static force_inline float blend_hard_light(float sa, float s, float da, float d)
  * Soft light
  *
  * ad * as * B(d/ad, s/as)
- *   = if (s/as <= 0.5)
+ * = if (s/as <= 0.5)
  * ad * as * (d/ad - (1 - 2 * s/as) * d/ad * (1 - d/ad))
  * else if (d/ad <= 0.25)
  * ad * as * (d/ad + (2 * s/as - 1) * ((((16 * d/ad - 12) * d/ad + 4) * d/ad) - d/ad))
  * else
  * ad * as * (d/ad + (2 * s/as - 1) * sqrt (d/ad))
- *   = if (2 * s <= as)
+ * = if (2 * s <= as)
  * d * as - d * (ad - d) * (as - 2 * s) / ad;
  * else if (4 * d <= ad)
  * (2 * s - as) * d * ((16 * d / ad - 12) * d / ad + 3);
@@ -556,15 +556,15 @@ static force_inline float blend_soft_light(float sa, float s, float da, float d)
  * Difference
  *
  * ad * as * B(s/as, d/ad)
- *   = ad * as * abs (s/as - d/ad)
- *   = if (s/as <= d/ad)
+ * = ad * as * abs (s/as - d/ad)
+ * = if (s/as <= d/ad)
  * ad * as * (d/ad - s/as)
  * else
  * ad * as * (s/as - d/ad)
- *   = if (ad * s <= as * d)
- *   as * d - ad * s
+ * = if (ad * s <= as * d)
+ * as * d - ad * s
  * else
- *   ad * s - as * d
+ * ad * s - as * d
  */
 static force_inline float blend_difference(float sa, float s, float da, float d)
 {
@@ -581,8 +581,8 @@ static force_inline float blend_difference(float sa, float s, float da, float d)
  * Exclusion
  *
  * ad * as * B(s/as, d/ad)
- *   = ad * as * (d/ad + s/as - 2 * d/ad * s/as)
- *   = as * d + ad * s - 2 * s * d
+ * = ad * as * (d/ad + s/as - 2 * d/ad * s/as)
+ * = as * d + ad * s - 2 * s * d
  */
 static force_inline float blend_exclusion(float sa, float s, float da, float d)
 {
@@ -837,10 +837,10 @@ static force_inline void blend_hsl_hue(rgb_t * res,
  * Saturation
  *
  * as * ad * B(s/as, d/ad)
- *   = as * ad * set_lum (set_sat (d/ad, SAT (s/as)), LUM (d/ad), 1)
- *   = set_lum (as * ad * set_sat (d/ad, SAT (s/as)),
- *                     as * LUM (d), as * ad)
- *   = set_lum (set_sat (as * d, ad * SAT (s), as * LUM (d), as * ad))
+ * = as * ad * set_lum (set_sat (d/ad, SAT (s/as)), LUM (d/ad), 1)
+ * = set_lum (as * ad * set_sat (d/ad, SAT (s/as)),
+ *                   as * LUM (d), as * ad)
+ * = set_lum (set_sat (as * d, ad * SAT (s), as * LUM (d), as * ad))
  */
 static force_inline void blend_hsl_saturation(rgb_t * res,
     const rgb_t * dest, float da,
@@ -858,8 +858,8 @@ static force_inline void blend_hsl_saturation(rgb_t * res,
  * Color
  *
  * as * ad * B(s/as, d/as)
- *   = as * ad * set_lum (s/as, LUM (d/ad), 1)
- *   = set_lum (s * ad, as * LUM (d), as * ad)
+ * = as * ad * set_lum (s/as, LUM (d/ad), 1)
+ * = set_lum (s * ad, as * LUM (d), as * ad)
  */
 static force_inline void blend_hsl_color(rgb_t * res,
     const rgb_t * dest, float da,
@@ -876,8 +876,8 @@ static force_inline void blend_hsl_color(rgb_t * res,
  * Luminosity
  *
  * as * ad * B(s/as, d/ad)
- *   = as * ad * set_lum (d/ad, LUM (s/as), 1)
- *   = set_lum (as * d, ad * LUM (s), as * ad)
+ * = as * ad * set_lum (d/ad, LUM (s/as), 1)
+ * = set_lum (as * d, ad * LUM (s), as * ad)
  */
 static force_inline void blend_hsl_luminosity(rgb_t * res,
     const rgb_t * dest, float da,

@@ -271,8 +271,8 @@ static void * ngx_stream_core_create_srv_conf(ngx_conf_t * cf)
 	/*
 	 * set by ngx_pcalloc():
 	 *
-	 *     cscf->handler = NULL;
-	 *     cscf->error_log = NULL;
+	 *   cscf->handler = NULL;
+	 *   cscf->error_log = NULL;
 	 */
 	cscf->file_name = cf->conf_file->file.name.data;
 	cscf->line = cf->conf_file->line;

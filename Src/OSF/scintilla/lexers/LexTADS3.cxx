@@ -50,17 +50,17 @@ static bool FASTCALL IsEOL(const int ch, const int chNext)
 }
 
 /*
- *   Test the current character to see if it's the START of an EOL sequence;
- *   if so, skip ahead to the last character of the sequence and return true,
- *   and if not just return false.  There are a few places where we want to
- *   check to see if a newline sequence occurs at a particular point, but
- *   where a caller expects a subroutine to stop only upon reaching the END
- *   of a newline sequence (in particular, CR-LF on Windows).  That's why
- *   IsEOL() above only returns true on CR if the CR isn't followed by an LF
- *   - it doesn't want to admit that there's a newline until reaching the END
- *   of the sequence.  We meet both needs by saying that there's a newline
- *   when we see the CR in a CR-LF, but skipping the CR before returning so
- *   that the caller's caller will see that we've stopped at the LF.
+ * Test the current character to see if it's the START of an EOL sequence;
+ * if so, skip ahead to the last character of the sequence and return true,
+ * and if not just return false.  There are a few places where we want to
+ * check to see if a newline sequence occurs at a particular point, but
+ * where a caller expects a subroutine to stop only upon reaching the END
+ * of a newline sequence (in particular, CR-LF on Windows).  That's why
+ * IsEOL() above only returns true on CR if the CR isn't followed by an LF
+ * - it doesn't want to admit that there's a newline until reaching the END
+ * of the sequence.  We meet both needs by saying that there's a newline
+ * when we see the CR in a CR-LF, but skipping the CR before returning so
+ * that the caller's caller will see that we've stopped at the LF.
  */
 static bool FASTCALL IsEOLSkip(StyleContext &sc)
 {
@@ -72,8 +72,8 @@ static bool FASTCALL IsEOLSkip(StyleContext &sc)
 	}
 
 	/*
-	 *   in other cases, we have at most a 1-character newline, so do the
-	 *   normal IsEOL test
+	 * in other cases, we have at most a 1-character newline, so do the
+	 * normal IsEOL test
 	 */
 	return IsEOL(sc.ch, sc.chNext);
 }

@@ -369,8 +369,8 @@ METHODDEF(void) start_pass_fdctmgr(j_compress_ptr cinfo)
 		    {
 			    /* For AA&N IDCT method, divisors are equal to quantization
 			     * coefficients scaled by scalefactor[row]*scalefactor[col], where
-			     *   scalefactor[0] = 1
-			     *   scalefactor[k] = cos(k*PI/16) * sqrt(2)    for k=1..7
+			     * scalefactor[0] = 1
+			     * scalefactor[k] = cos(k*PI/16) * sqrt(2)    for k=1..7
 			     * We apply a further scale factor of 8.
 			     */
 #define CONST_BITS 14
@@ -400,8 +400,8 @@ METHODDEF(void) start_pass_fdctmgr(j_compress_ptr cinfo)
 		    {
 			    /* For float AA&N IDCT method, divisors are equal to quantization
 			     * coefficients scaled by scalefactor[row]*scalefactor[col], where
-			     *   scalefactor[0] = 1
-			     *   scalefactor[k] = cos(k*PI/16) * sqrt(2)    for k=1..7
+			     * scalefactor[0] = 1
+			     * scalefactor[k] = cos(k*PI/16) * sqrt(2)    for k=1..7
 			     * We apply a further scale factor of 8.
 			     * What's actually stored is 1/divisor so that the inner loop can
 			     * use a multiplication rather than a division.

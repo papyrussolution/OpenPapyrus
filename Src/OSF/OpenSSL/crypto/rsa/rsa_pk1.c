@@ -18,7 +18,7 @@ int RSA_padding_add_PKCS1_type_1(uchar * to, int tlen, const uchar * from, int f
 		RSAerr(RSA_F_RSA_PADDING_ADD_PKCS1_TYPE_1, RSA_R_DATA_TOO_LARGE_FOR_KEY_SIZE);
 		return 0;
 	}
-	p = (uchar*)to;
+	p = (uchar *)to;
 	*(p++) = 0;
 	*(p++) = 1;             /* Private Key BT (Block Type) */
 	/* pad out with 0xff data */
@@ -100,7 +100,7 @@ int RSA_padding_add_PKCS1_type_2(uchar * to, int tlen,
 		return 0;
 	}
 
-	p = (uchar*)to;
+	p = (uchar *)to;
 
 	*(p++) = 0;
 	*(p++) = 2;             /* Public Key BT (Block Type) */
@@ -149,7 +149,7 @@ int RSA_padding_check_PKCS1_type_2(uchar * to, int tlen,
 	if(num < 11)
 		goto err;
 
-	em = (uchar*)OPENSSL_zalloc(num);
+	em = (uchar *)OPENSSL_zalloc(num);
 	if(em == NULL) {
 		RSAerr(RSA_F_RSA_PADDING_CHECK_PKCS1_TYPE_2, ERR_R_MALLOC_FAILURE);
 		return -1;

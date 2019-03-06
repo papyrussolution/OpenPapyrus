@@ -181,7 +181,7 @@ int i2d_X509_AUX(X509 * a, uchar ** pp)
 		return length;
 
 	/* Allocate requisite combined storage */
-	*pp = tmp = (uchar*)OPENSSL_malloc(length);
+	*pp = tmp = (uchar *)OPENSSL_malloc(length);
 	if(!tmp)
 		return -1;  /* Push error onto error stack? */
 

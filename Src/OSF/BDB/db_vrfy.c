@@ -508,8 +508,8 @@ static int __db_vrfy_walkpages(DB * dbp, VRFY_DBINFO * vdp, void * handle, int (
 		/*
 		 * An individual page get can fail if:
 		 *  * This is a hash database, it is expected to find
-		 *    empty buckets, which don't have allocated pages. Create
-		 *    a dummy page so the verification can proceed.
+		 *  empty buckets, which don't have allocated pages. Create
+		 *  a dummy page so the verification can proceed.
 		 *  * We are salvaging, flag the error and continue.
 		 */
 		if((t_ret = __memp_fget(mpf, &i, vdp->thread_info, NULL, 0, &h)) != 0) {
@@ -2136,8 +2136,8 @@ err:
 }
 /*
  * __db_salvage --
- *      Given a meta page number, salvage all data from leaf pages found by
- *      walking the meta page's tree.
+ *    Given a meta page number, salvage all data from leaf pages found by
+ *    walking the meta page's tree.
  */
 static int __db_salvage(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t meta_pgno, void * handle, int (*callback)__P((void *, const void *)), uint32 flags)
 {

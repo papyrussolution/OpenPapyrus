@@ -81,7 +81,7 @@ private:
 	DECL_HANDLE_EVENT;
 	void   InLnCalcCapture();                  // Win32
 	void   InLnCalcUncapture();                // Win32
-	int    IsWindowArea(RECT &, int x, int y); // Win32
+	int    IsWindowArea(const RECT &, int x, int y); // Win32
 	void   ShowNumber();
 	int    Calculate();
 	void   ProcessCommand(uint cmd);
@@ -187,7 +187,7 @@ void InputLineCalc::InLnCalcUncapture()
 		ReleaseCapture();
 }
 
-int InputLineCalc::IsWindowArea(RECT & r, int x, int y)
+int InputLineCalc::IsWindowArea(const RECT & r, int x, int y)
 {
 	return (x >= r.left && x < r.right && y >= r.top && y < r.bottom);
 }
@@ -406,7 +406,7 @@ int SLAPI showInputLineCalc(TDialog * pParentDlg, uint fieldCtlId)
 
 LRESULT CALLBACK InLnCalcWindProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	VirtButtonWndEx * p_vbwe = (VirtButtonWndEx *)TView::GetWindowUserData(hWnd);
+	VirtButtonWndEx * p_vbwe = static_cast<VirtButtonWndEx *>(TView::GetWindowUserData(hWnd));
 	if(msg == WM_LBUTTONUP)
 		showInputLineCalc(p_vbwe->P_Dlg, p_vbwe->FieldCtrlId);
 	return CallWindowProc(p_vbwe->PrevWndProc, hWnd, msg, wParam, lParam);

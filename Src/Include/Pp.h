@@ -1223,6 +1223,7 @@ public:
 	static int IdBillAgentName;     // (billID) Наименование агента по документу (извлекается из записи расширения документа)
 	static int IdRegisterText;      // (registerID) Текст описания регистрационного документа
 	static int IdObjTagText;        // (tagid, objid) Текстовое представление тега объекта
+	static int IdObjTagText_NoCache; // (tagid, objid) Текстовое представление тега объекта (без посредничества кэша)
 	static int IdDateRange;         // (low, upp) Текстовое представление периода
 	static int IdOidText;           // (objType, objID) Текстовое представление полного OID
 	static int IdDateBase;          // (dateValue, baseDate) Текстовое представление даты, сжатой в виде количества дней, прошедших с baseDate
@@ -1233,7 +1234,7 @@ public:
 
 	static int SLAPI Register();
 	static void FASTCALL InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld);
-	static void FASTCALL InitObjTagTextFunc(DBE & rDbe, PPID tagID, DBField & rFld);
+	static void FASTCALL InitObjTagTextFunc(DBE & rDbe, PPID tagID, DBField & rFld, int dontUseCache = 0);
 	static void FASTCALL InitLongFunc(DBE & rDbe, int funcId, DBField & rFld);
 	static void FASTCALL InitFunc2Arg(DBE & rDbe, int funcId, DBItem & rA1, DBItem & rA2);
 	//
@@ -6025,7 +6026,7 @@ protected:
 template <class T> class PPThrLocPtr : public __PPThrLocPtr {
 public:
 	SLAPI  PPThrLocPtr() : __PPThrLocPtr() {}
-	T *    SLAPI Open() { return static_cast<T *>(Helper_Open(Cw)); }
+	T *  SLAPI Open() { return static_cast<T *>(Helper_Open(Cw)); }
 	void   SLAPI Close(T * p) { Helper_Close(Cw, p); }
 	TSClassWrapper <T> Cw;
 };
@@ -10289,7 +10290,7 @@ public:
 	//
 	int    SLAPI GetSyncStatus();
 	int    FASTCALL EnumTItems(uint *, PPTransferItem **) const;
-	int    SLAPI GetNextPLU(long * pPLU, SString & rObjAsscName);
+	int    SLAPI GetNextPLU(TiIter * pI, long * pPLU, SString & rObjAsscName);
 	//
 	// Descr: перечисляет товарные строки документа с одновременным слиянием,
 	//   определяемым флагами flags. Если pIter == 0, то используется внутренний
@@ -21352,11 +21353,11 @@ class GStrucIterator {
 public:
 	SLAPI  GStrucIterator();
 	const  PPGoodsStruc * SLAPI GetStruc() const;
-	void   SLAPI Init(PPGoodsStruc * pStruc, int loadRecurItems);
+	void   SLAPI Init(const PPGoodsStruc * pStruc, int loadRecurItems);
 	void   SLAPI InitIteration();
 	int    FASTCALL NextIteration(GStrucRecurItem * pItem);
 private:
-	int    SLAPI LoadItems(PPGoodsStruc * pStruc, PPID parentGoodsID, double srcQtty, int level);
+	int    SLAPI LoadItems(const PPGoodsStruc * pStruc, PPID parentGoodsID, double srcQtty, int level);
 
 	int    LoadRecurItems;
 	uint   Idx;
@@ -32292,8 +32293,7 @@ struct TrnovrRngDis {      // @persistent @flat
 	};
 	RealRange R;
 	double Value;          // @v7.9.5 PDis-->Value
-	PPID   SeriesID;       // ->Ref(PPOBJ_SCARDSERIES) Серия, в которую следует переместить карту, если
-		// обороты по ней попадают в интервал [Beg..End]
+	PPID   SeriesID;       // ->Ref(PPOBJ_SCARDSERIES) Серия, в которую следует переместить карту, если обороты по ней попадают в интервал [Beg..End]
 	PPID   LocID;          // @v7.5.0 Локация, для которой применяется данный элемент правила.
 	long   Flags;          // @v7.9.5 Reserve-->Flags
 };
@@ -42831,7 +42831,7 @@ private:
 	int    SLAPI Verify(long id);
 	int    SLAPI CallCR(long id);
 	int    SLAPI GetAltPath(long type, const char * pPath, const char * pStdName, SString & rPath);
-	int    SLAPI SplitLocalRptStr(PPIniFile * pFile, int codepage, SString & rSect, SString & rBuf, ReportViewItem * pItem);
+	int    SLAPI SplitLocalRptStr(PPIniFile * pFile, int codepage, const SString & rSect, SString & rBuf, ReportViewItem * pItem);
 
 	int     LocalRptCodepage;
 	SString SystemSect;

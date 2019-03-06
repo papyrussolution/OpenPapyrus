@@ -303,7 +303,7 @@ static void * ngx_http_limit_conn_create_conf(ngx_conf_t * cf)
 		/*
 		 * set by ngx_pcalloc():
 		 *
-		 *     conf->limits.elts = NULL;
+		 *   conf->limits.elts = NULL;
 		 */
 		conf->log_level = NGX_CONF_UNSET_UINT;
 		conf->status_code = NGX_CONF_UNSET_UINT;

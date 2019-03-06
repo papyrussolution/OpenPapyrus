@@ -31,7 +31,7 @@
  * The Initial Developer of the Original Code is Red Hat, Inc.
  *
  * Contributor(s):
- *      Keith Packard <keithp@keithp.com>
+ *    Keith Packard <keithp@keithp.com>
  *	Graydon Hoare <graydon@redhat.com>
  *	Carl Worth <cworth@cworth.org>
  */
@@ -48,7 +48,7 @@
  * #cairo_cache_t. User-derived types for #cairo_cache_entry_t must
  * have a #cairo_cache_entry_t as their first field. For example:
  *
- *      typedef _my_entry {
+ *    typedef _my_entry {
  *	    cairo_cache_entry_t base;
  *	    ... Remainder of key and value fields here ..
  *	} my_entry_t;

@@ -299,11 +299,11 @@ static int dynamic_ctrl(ENGINE * e, int cmd, long i, void * p, void (* f)(void))
 	switch(cmd) {
 		case DYNAMIC_CMD_SO_PATH:
 		    /* a NULL 'p' or a string of zero-length is the same thing */
-		    if(p && (strlen((const char*)p) < 1))
+		    if(p && (strlen((const char *)p) < 1))
 			    p = NULL;
 		    OPENSSL_free(ctx->DYNAMIC_LIBNAME);
 		    if(p)
-			    ctx->DYNAMIC_LIBNAME = OPENSSL_strdup((const char*)p);
+			    ctx->DYNAMIC_LIBNAME = OPENSSL_strdup((const char *)p);
 		    else
 			    ctx->DYNAMIC_LIBNAME = NULL;
 		    return (ctx->DYNAMIC_LIBNAME ? 1 : 0);
@@ -312,11 +312,11 @@ static int dynamic_ctrl(ENGINE * e, int cmd, long i, void * p, void (* f)(void))
 		    return 1;
 		case DYNAMIC_CMD_ID:
 		    /* a NULL 'p' or a string of zero-length is the same thing */
-		    if(p && (strlen((const char*)p) < 1))
+		    if(p && (strlen((const char *)p) < 1))
 			    p = NULL;
 		    OPENSSL_free(ctx->engine_id);
 		    if(p)
-			    ctx->engine_id = OPENSSL_strdup((const char*)p);
+			    ctx->engine_id = OPENSSL_strdup((const char *)p);
 		    else
 			    ctx->engine_id = NULL;
 		    return (ctx->engine_id ? 1 : 0);
@@ -338,12 +338,12 @@ static int dynamic_ctrl(ENGINE * e, int cmd, long i, void * p, void (* f)(void))
 		    return 1;
 		case DYNAMIC_CMD_DIR_ADD:
 		    /* a NULL 'p' or a string of zero-length is the same thing */
-		    if(!p || (strlen((const char*)p) < 1)) {
+		    if(!p || (strlen((const char *)p) < 1)) {
 			    ENGINEerr(ENGINE_F_DYNAMIC_CTRL, ENGINE_R_INVALID_ARGUMENT);
 			    return 0;
 		    }
 		    {
-			    char * tmp_str = OPENSSL_strdup((const char*)p);
+			    char * tmp_str = OPENSSL_strdup((const char *)p);
 			    if(tmp_str == NULL) {
 				    ENGINEerr(ENGINE_F_DYNAMIC_CTRL, ERR_R_MALLOC_FAILURE);
 				    return 0;

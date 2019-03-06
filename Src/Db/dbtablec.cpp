@@ -17,7 +17,7 @@ DBTable * FASTCALL _GetTable(int handle)
 //
 //
 // static members of DBTable {
-const char * DBTable::CrTempFileNamePtr = (const char *)0x0003;
+const char * DBTable::CrTempFileNamePtr = reinterpret_cast<const char *>(0x0003);
 
 void   FASTCALL DBTable::InitErrFileName(const char * pFileName) { DBS.GetTLA().InitErrFileName(pFileName); }
 const  char * SLAPI DBTable::GetLastErrorFileName() { return DBS.GetConstTLA().GetLastErrFileName(); }
@@ -64,7 +64,7 @@ SString & FASTCALL DBRowId::ToStr(SString & rBuf) const
 		if(PTR32C(S)[1] == 0)
 			rBuf.Z().Cat(B);
 		else
-			rBuf = (const char *)S;
+			rBuf = reinterpret_cast<const char *>(S);
 	else
 		rBuf.Z();
 	return rBuf;
@@ -103,14 +103,10 @@ int FASTCALL DBRowId::FromStr(const char * pStr)
 // extern const uint32 SLobSignature[4];
 static const uint32 SLobSignature[4] = { 0x2efc, 0xd421, 0x426c, 0xee07 }; // @v9.7.11 static
 
-int    SLob::IsStructured() const
-	{ return BIN(memcmp(Buf.H.Signature, SLobSignature, sizeof(SLobSignature)) == 0); }
-int    SLob::IsPtr() const 
-	{ return BIN(IsStructured() && Buf.H.Flags & hfPtr); }
-void * SLob::GetRawDataPtr()
-	{ return IsStructured() ? ((Buf.H.Flags & hfPtr) ? (void *)Buf.H.H : 0) : Buf.B; }
-size_t SLob::GetPtrSize() const
-	{ return (IsStructured() && Buf.H.Flags & hfPtr) ? Buf.H.PtrSize : 0; }
+int    SLob::IsStructured() const { return BIN(memcmp(Buf.H.Signature, SLobSignature, sizeof(SLobSignature)) == 0); }
+int    SLob::IsPtr() const { return BIN(IsStructured() && Buf.H.Flags & hfPtr); }
+void * SLob::GetRawDataPtr() { return IsStructured() ? ((Buf.H.Flags & hfPtr) ? (void *)Buf.H.H : 0) : Buf.B; }
+size_t SLob::GetPtrSize() const { return (IsStructured() && Buf.H.Flags & hfPtr) ? Buf.H.PtrSize : 0; }
 
 int SLob::SetStructured()
 {
@@ -236,7 +232,7 @@ int FASTCALL DBLobBlock::SearchPos(uint fldIdx, uint * pPos) const
 	const  uint c = getCount();
 	if(c) {
 		for(uint i = 0; i < c; i++) {
-			if(((DBLobItem *)at(i))->FldN == fldIdx) {
+			if(static_cast<DBLobItem *>(at(i))->FldN == fldIdx) {
 				pos = i;
 				ok = 1;
 				break;
@@ -254,7 +250,7 @@ int DBLobBlock::SetSize(uint fldIdx, size_t sz)
 	uint   pos = 0;
 	int    ok = SearchPos(fldIdx, &pos);
 	if(ok > 0)
-		((DBLobItem *)at(pos))->Size = sz;
+		static_cast<DBLobItem *>(at(pos))->Size = sz;
 	return ok;
 }
 
@@ -264,7 +260,7 @@ int DBLobBlock::GetSize(uint fldIdx, size_t * pSz) const
 	uint   pos = 0;
 	int    ok = SearchPos(fldIdx, &pos);
 	if(ok > 0)
-		sz = ((DBLobItem *)at(pos))->Size;
+		sz = static_cast<DBLobItem *>(at(pos))->Size;
 	ASSIGN_PTR(pSz, sz);
 	return ok;
 }
@@ -274,7 +270,7 @@ int DBLobBlock::SetLocator(uint fldIdx, uint32 loc)
 	uint   pos = 0;
 	int    ok = SearchPos(fldIdx, &pos);
 	if(ok > 0)
-		((DBLobItem *)at(pos))->Loc = loc;
+		static_cast<DBLobItem *>(at(pos))->Loc = loc;
 	return ok;
 }
 
@@ -284,7 +280,7 @@ int DBLobBlock::GetLocator(uint fldIdx, uint32 * pLoc) const
 	uint   pos = 0;
 	int    ok = SearchPos(fldIdx, &pos);
 	if(ok > 0)
-		loc = ((DBLobItem *)at(pos))->Loc;
+		loc = static_cast<DBLobItem *>(at(pos))->Loc;
 	ASSIGN_PTR(pLoc, loc);
 	return ok;
 }

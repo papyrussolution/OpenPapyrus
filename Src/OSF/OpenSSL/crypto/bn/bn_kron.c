@@ -23,7 +23,7 @@ int BN_kronecker(const BIGNUM * a, const BIGNUM * b, BN_CTX * ctx)
 	/*-
 	 * In 'tab', only odd-indexed entries are relevant:
 	 * For any odd BIGNUM n,
-	 *     tab[BN_lsw(n) & 7]
+	 *   tab[BN_lsw(n) & 7]
 	 * is $(-1)^{(n^2-1)/8}$ (using TeX notation).
 	 * Note that the sign of n does not matter.
 	 */

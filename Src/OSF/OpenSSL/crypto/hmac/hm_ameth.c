@@ -79,7 +79,7 @@ static int old_hmac_encode(const EVP_PKEY * pkey, uchar ** pder)
 	ASN1_OCTET_STRING * os = (ASN1_OCTET_STRING*)EVP_PKEY_get0(pkey);
 	if(pder) {
 		if(!*pder) {
-			*pder = (uchar*)OPENSSL_malloc(os->length);
+			*pder = (uchar *)OPENSSL_malloc(os->length);
 			if(*pder == NULL)
 				return -1;
 			inc = 0;

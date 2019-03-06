@@ -129,24 +129,24 @@
 
 /* Configuration defines here are:
  * JPEG_ENCAP_EXTERNAL: The normal way to call libjpeg, uses longjump. In some environments,
- *      like eg LibTiffDelphi, this is not possible. For this reason, the actual calls to
- *      libjpeg, with longjump stuff, are encapsulated in dedicated functions. When
- *      JPEG_ENCAP_EXTERNAL is defined, these encapsulating functions are declared external
- *      to this unit, and can be defined elsewhere to use stuff other then longjump.
- *      The default mode, without JPEG_ENCAP_EXTERNAL, implements the call encapsulators
- *      here, internally, with normal longjump.
+ *    like eg LibTiffDelphi, this is not possible. For this reason, the actual calls to
+ *    libjpeg, with longjump stuff, are encapsulated in dedicated functions. When
+ *    JPEG_ENCAP_EXTERNAL is defined, these encapsulating functions are declared external
+ *    to this unit, and can be defined elsewhere to use stuff other then longjump.
+ *    The default mode, without JPEG_ENCAP_EXTERNAL, implements the call encapsulators
+ *    here, internally, with normal longjump.
  * SETJMP, LONGJMP, JMP_BUF: On some machines/environments a longjump equivalent is
- *      conveniently available, but still it may be worthwhile to use _setjmp or sigsetjmp
- *      in place of plain setjmp. These macros will make it easier. It is useless
- *      to fiddle with these if you define JPEG_ENCAP_EXTERNAL.
+ *    conveniently available, but still it may be worthwhile to use _setjmp or sigsetjmp
+ *    in place of plain setjmp. These macros will make it easier. It is useless
+ *    to fiddle with these if you define JPEG_ENCAP_EXTERNAL.
  * OJPEG_BUFFER: Define the size of the desired buffer here. Should be small enough so as to guarantee
- *      instant processing, optimal streaming and optimal use of processor cache, but also big
- *      enough so as to not result in significant call overhead. It should be at least a few
- *      bytes to accommodate some structures (this is verified in asserts), but it would not be
- *      sensible to make it this small anyway, and it should be at most 64K since it is indexed
- *      with uint16. We recommend 2K.
+ *    instant processing, optimal streaming and optimal use of processor cache, but also big
+ *    enough so as to not result in significant call overhead. It should be at least a few
+ *    bytes to accommodate some structures (this is verified in asserts), but it would not be
+ *    sensible to make it this small anyway, and it should be at most 64K since it is indexed
+ *    with uint16. We recommend 2K.
  * EGYPTIANWALK: You could also define EGYPTIANWALK here, but it is not used anywhere and has
- *      absolutely no effect. That is why most people insist the EGYPTIANWALK is a bit silly.
+ *    absolutely no effect. That is why most people insist the EGYPTIANWALK is a bit silly.
  */
 
 /* define LIBJPEG_ENCAP_EXTERNAL */

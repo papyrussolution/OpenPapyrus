@@ -410,7 +410,7 @@ static void longswap(void * _ptr, size_t len)
 		1
 	};
 	if(is_endian.little) {
-		uchar * p = (uchar*)_ptr, c;
+		uchar * p = (uchar *)_ptr, c;
 		for(size_t i = 0; i < len; i += 4) {
 			c = p[0], p[0] = p[3], p[3] = c;
 			c = p[1], p[1] = p[2], p[2] = c;
@@ -441,7 +441,7 @@ static int sig_out(BIO * b)
 	 * FIXME: there's absolutely no guarantee this makes any sense at all,
 	 * particularly now EVP_MD_CTX has been restructured.
 	 */
-	if(RAND_bytes((uchar*)md_data, md_size) <= 0)
+	if(RAND_bytes((uchar *)md_data, md_size) <= 0)
 		goto berr;
 	memcpy(&(ctx->buf[ctx->buf_len]), md_data, md_size);
 	longswap(&(ctx->buf[ctx->buf_len]), md_size);
@@ -528,7 +528,7 @@ static int block_out(BIO * b)
 	ctx->buf[2] = (uchar)(tl >> 8);
 	ctx->buf[3] = (uchar)(tl);
 	if(!EVP_DigestUpdate(md,
-		    (uchar*)&(ctx->buf[OK_BLOCK_BLOCK]), tl))
+		    (uchar *)&(ctx->buf[OK_BLOCK_BLOCK]), tl))
 		goto berr;
 	if(!EVP_DigestFinal_ex(md, &(ctx->buf[ctx->buf_len]), NULL))
 		goto berr;
@@ -565,7 +565,7 @@ static int block_in(BIO * b)
 		return 1;
 
 	if(!EVP_DigestUpdate(md,
-		    (uchar*)&(ctx->buf[OK_BLOCK_BLOCK]), tl))
+		    (uchar *)&(ctx->buf[OK_BLOCK_BLOCK]), tl))
 		goto berr;
 	if(!EVP_DigestFinal_ex(md, tmp, NULL))
 		goto berr;

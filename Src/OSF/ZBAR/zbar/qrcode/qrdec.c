@@ -151,7 +151,7 @@ static int qr_finder_cluster_lines(qr_finder_cluster * _clusters,
 {
 	int nneighbors;
 	// @todo Kalman filters!
-	uchar * mark = (uchar*)SAlloc::C(_nlines, sizeof(*mark));
+	uchar * mark = (uchar *)SAlloc::C(_nlines, sizeof(*mark));
 	qr_finder_line ** neighbors = _neighbors;
 	int nclusters = 0;
 	for(int i = 0; i<_nlines-1; i++) {
@@ -279,8 +279,8 @@ static int qr_finder_find_crossings(qr_finder_center * _centers,
 	int j;
 	qr_finder_cluster ** hneighbors = (qr_finder_cluster**)SAlloc::M(_nhclusters*sizeof(*hneighbors));
 	qr_finder_cluster ** vneighbors = (qr_finder_cluster**)SAlloc::M(_nvclusters*sizeof(*vneighbors));
-	uchar * hmark = (uchar*)SAlloc::C(_nhclusters, sizeof(*hmark));
-	uchar * vmark = (uchar*)SAlloc::C(_nvclusters, sizeof(*vmark));
+	uchar * hmark = (uchar *)SAlloc::C(_nhclusters, sizeof(*hmark));
+	uchar * vmark = (uchar *)SAlloc::C(_nvclusters, sizeof(*vmark));
 	int ncenters = 0;
 	/* @todo This may need some re-working.
 	   We should be finding groups of clusters such that _all_ horizontal lines in
@@ -1273,7 +1273,7 @@ static void qr_finder_dump_aff_undistorted(qr_finder * _ul, qr_finder * _ur,
 	lpsz = qr_ilog(_ur->size[0]+_ur->size[1]+_dl->size[0]+_dl->size[1])-6;
 	pixel_size = 1<<lpsz;
 	dim = (1<<_aff->res-lpsz)+128;
-	gimg = (uchar*)SAlloc::M(dim*dim*sizeof(*gimg));
+	gimg = (uchar *)SAlloc::M(dim*dim*sizeof(*gimg));
 	for(i = 0; i<dim; i++) 
 		for(j = 0; j<dim; j++) {
 			qr_point p;
@@ -1349,7 +1349,7 @@ static void qr_finder_dump_hom_undistorted(qr_finder * _ul, qr_finder * _ur,
 	lpsz = qr_ilog(_ur->size[0]+_ur->size[1]+_dl->size[0]+_dl->size[1])-6;
 	pixel_size = 1<<lpsz;
 	dim = (1<<_hom->res-lpsz)+256;
-	gimg = (uchar*)SAlloc::M(dim*dim*sizeof(*gimg));
+	gimg = (uchar *)SAlloc::M(dim*dim*sizeof(*gimg));
 	for(i = 0; i<dim; i++) 
 		for(j = 0; j<dim; j++) {
 			qr_point p;
@@ -2691,7 +2691,7 @@ static void qr_sampling_grid_dump(qr_sampling_grid * _grid, int _version,
 	int r;
 	int s;
 	int dim = 17+(_version<<2)+8<<QR_ALIGN_SUBPREC;
-	uchar * gimg = (uchar*)SAlloc::M(dim*dim*sizeof(*gimg));
+	uchar * gimg = (uchar *)SAlloc::M(dim*dim*sizeof(*gimg));
 	{
 		for(int i = 0; i<dim; i++) {
 			for(int j = 0; j<dim; j++) {
@@ -3146,7 +3146,7 @@ static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar 
 			    rem = len%3;
 			    if(qr_pack_buf_avail(&qpb)<10*count+7*(rem>>1&1)+4*(rem&1)) 
 					return -1;
-			    entry->payload.data.buf = buf = (uchar*)SAlloc::M(len*sizeof(*buf));
+			    entry->payload.data.buf = buf = (uchar *)SAlloc::M(len*sizeof(*buf));
 			    entry->payload.data.len = len;
 			    /*Read groups of 3 digits encoded in 10 bits.*/
 			    while(count-->0) {
@@ -3200,7 +3200,7 @@ static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar 
 			    rem = len&1;
 			    if(qr_pack_buf_avail(&qpb)<11*count+6*rem) 
 					return -1;
-			    entry->payload.data.buf = buf = (uchar*)SAlloc::M(len*sizeof(*buf));
+			    entry->payload.data.buf = buf = (uchar *)SAlloc::M(len*sizeof(*buf));
 			    entry->payload.data.len = len;
 			    /*Read groups of two characters encoded in 11 bits.*/
 			    while(count-->0) {
@@ -3251,7 +3251,7 @@ static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar 
 			       in the decode loop.*/
 			    if(qr_pack_buf_avail(&qpb) < (len<<3)) 
 					return -1;
-			    entry->payload.data.buf = buf = (uchar*)SAlloc::M(len*sizeof(*buf));
+			    entry->payload.data.buf = buf = (uchar *)SAlloc::M(len*sizeof(*buf));
 			    entry->payload.data.len = len;
 			    while(len-->0) {
 				    c = qr_pack_buf_read(&qpb, 8);
@@ -3304,7 +3304,7 @@ static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar 
 			    /*Check to see if there are enough bits left now, so we don't have to
 			       in the decode loop.*/
 			    if(qr_pack_buf_avail(&qpb)<13*len) return -1;
-			    entry->payload.data.buf = buf = (uchar*)SAlloc::M(2*len*sizeof(*buf));
+			    entry->payload.data.buf = buf = (uchar *)SAlloc::M(2*len*sizeof(*buf));
 			    entry->payload.data.len = 2*len;
 			    /*Decode 2-byte SJIS characters encoded in 13 bits.*/
 			    while(len-->0) {
@@ -3508,7 +3508,7 @@ static int qr_code_decode(qr_code_data * _qrdata, const rs_gf256 * _gf,
 	block_sz = ncodewords/nblocks;
 	nshort_blocks = nblocks-(ncodewords%nblocks);
 	blocks = (uchar**)SAlloc::M(nblocks*sizeof(*blocks));
-	block_data = (uchar*)SAlloc::M(ncodewords*sizeof(*block_data));
+	block_data = (uchar *)SAlloc::M(ncodewords*sizeof(*block_data));
 	blocks[0] = block_data;
 	for(i = 1; i<nblocks; i++) 
 		blocks[i] = blocks[i-1]+block_sz+(i>nshort_blocks);
@@ -3798,7 +3798,7 @@ void qr_reader_match_centers(qr_reader * _reader, qr_code_data_list * _qrlist,
 	int i;
 	int j;
 	int k;
-	uchar * mark = (uchar*)SAlloc::C(_ncenters, sizeof(*mark));
+	uchar * mark = (uchar *)SAlloc::C(_ncenters, sizeof(*mark));
 	int nfailures_max = QR_MAXI(8192, _width*_height>>9);
 	int nfailures = 0;
 	for(i = 0; i<_ncenters; i++) {

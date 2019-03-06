@@ -467,7 +467,7 @@ int DTLSv1_listen(SSL * s, BIO_ADDR * client)
 		}
 		s->init_buf = bufm;
 	}
-	buf = (uchar*)s->init_buf->data;
+	buf = (uchar *)s->init_buf->data;
 
 	do {
 		/* Get a packet */

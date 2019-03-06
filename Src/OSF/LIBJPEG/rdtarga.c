@@ -209,7 +209,7 @@ METHODDEF(JDIMENSION) get_16bit_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo
 		t += UCH(source->tga_pixel[1]) << 8;
 		/* We expand 5 bit data to 8 bit sample width.
 		 * The format of the 16-bit (LSB first) input word is
-		 *     xRRRRRGGGGGBBBBB
+		 *   xRRRRRGGGGGBBBBB
 		 */
 		ptr[2] = (JSAMPLE)c5to8bits[t & 0x1F];
 		t >>= 5;

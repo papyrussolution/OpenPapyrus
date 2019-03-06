@@ -73,21 +73,21 @@
  * void
  * modify_image_surface (cairo_surface_t *surface)
  * {
- *   uchar *data;
- *   int width, height, stride;
+ * uchar *data;
+ * int width, height, stride;
  *
- *   // flush to ensure all writing to the image was done
- *   cairo_surface_flush (surface);
+ * // flush to ensure all writing to the image was done
+ * cairo_surface_flush (surface);
  *
- *   // modify the image
- *   data = cairo_image_surface_get_data (surface);
- *   width = cairo_image_surface_get_width (surface);
- *   height = cairo_image_surface_get_height (surface);
- *   stride = cairo_image_surface_get_stride (surface);
- *   modify_image_data (data, width, height, stride);
+ * // modify the image
+ * data = cairo_image_surface_get_data (surface);
+ * width = cairo_image_surface_get_width (surface);
+ * height = cairo_image_surface_get_height (surface);
+ * stride = cairo_image_surface_get_stride (surface);
+ * modify_image_data (data, width, height, stride);
  *
- *   // mark the image dirty so Cairo clears its caches.
- *   cairo_surface_mark_dirty (surface);
+ * // mark the image dirty so Cairo clears its caches.
+ * cairo_surface_mark_dirty (surface);
  * }
  * </programlisting>
  * </example>
@@ -1264,7 +1264,7 @@ cairo_status_t cairo_surface_set_mime_data(cairo_surface_t * surface,
 
 		CAIRO_REFERENCE_COUNT_INIT(&mime_data->ref_count, 1);
 
-		mime_data->data = (uchar*)data;
+		mime_data->data = (uchar *)data;
 		mime_data->length = length;
 		mime_data->destroy = destroy;
 		mime_data->closure = closure;
@@ -1361,8 +1361,8 @@ cairo_status_t _cairo_surface_copy_mime_data(cairo_surface_t * dst, cairo_surfac
  * _cairo_surface_set_font_options:
  * @surface: a #cairo_surface_t
  * @options: a #cairo_font_options_t object that contains the
- *   options to use for this surface instead of backend's default
- *   font options.
+ * options to use for this surface instead of backend's default
+ * font options.
  *
  * Sets the default font rendering options for the surface.
  * This is useful to correctly propagate default font options when
@@ -1394,7 +1394,7 @@ void _cairo_surface_set_font_options(cairo_surface_t * surface, const cairo_font
  * cairo_surface_get_font_options:
  * @surface: a #cairo_surface_t
  * @options: a #cairo_font_options_t object into which to store
- *   the retrieved options. All existing values are overwritten
+ * the retrieved options. All existing values are overwritten
  *
  * Retrieves the default font rendering options for the surface.
  * This allows display surfaces to report the correct subpixel order

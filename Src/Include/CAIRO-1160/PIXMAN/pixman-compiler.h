@@ -11,11 +11,11 @@
  * force_inline   must be defined
  */
 #if defined (__GNUC__)
-	#define FUNC     ((const char*)(__PRETTY_FUNCTION__))
+	#define FUNC     ((const char *)(__PRETTY_FUNCTION__))
 #elif defined (__sun) || (defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L)
-	#define FUNC     ((const char*)(__func__))
+	#define FUNC     ((const char *)(__func__))
 #else
-	#define FUNC     ((const char*)("???"))
+	#define FUNC     ((const char *)("???"))
 #endif
 #if defined (__GNUC__)
 	#define unlikely(expr) __builtin_expect((expr), 0)
@@ -178,7 +178,7 @@
 		return value;                                                   \
 	}                                                                   \
                                                                         \
-	static force_inline type *                    \
+	static force_inline type *                  \
 	    tls_ ## name ## _get(void)                                         \
 	{                                                                   \
 		type * value = NULL;                                             \

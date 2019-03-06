@@ -103,39 +103,39 @@ static uint adapt(uint delta, uint numpoints, int firsttime)
 /**
  * punycode_encode:
  * @input_length: The number of code points in the @input array and
- *   the number of flags in the @pCaseFlags array.
+ * the number of flags in the @pCaseFlags array.
  * @input: An array of code points.  They are presumed to be Unicode
- *   code points, but that is not strictly REQUIRED.  The array
- *   contains code points, not code units.  UTF-16 uses code units
- *   D800 through DFFF to refer to code points 10000..10FFFF.  The
- *   code points D800..DFFF do not occur in any valid Unicode string.
- *   The code points that can occur in Unicode strings (0..D7FF and
- *   E000..10FFFF) are also called Unicode scalar values.
+ * code points, but that is not strictly REQUIRED.  The array
+ * contains code points, not code units.  UTF-16 uses code units
+ * D800 through DFFF to refer to code points 10000..10FFFF.  The
+ * code points D800..DFFF do not occur in any valid Unicode string.
+ * The code points that can occur in Unicode strings (0..D7FF and
+ * E000..10FFFF) are also called Unicode scalar values.
  * @pCaseFlags: A %NULL pointer or an array of boolean values parallel
- *   to the @input array.  Nonzero (true, flagged) suggests that the
- *   corresponding Unicode character be forced to uppercase after
- *   being decoded (if possible), and zero (false, unflagged) suggests
- *   that it be forced to lowercase (if possible).  ASCII code points
- *   (0..7F) are encoded literally, except that ASCII letters are
- *   forced to uppercase or lowercase according to the corresponding
- *   case flags.  If @pCaseFlags is a %NULL pointer then ASCII letters
- *   are left as they are, and other code points are treated as
- *   unflagged.
+ * to the @input array.  Nonzero (true, flagged) suggests that the
+ * corresponding Unicode character be forced to uppercase after
+ * being decoded (if possible), and zero (false, unflagged) suggests
+ * that it be forced to lowercase (if possible).  ASCII code points
+ * (0..7F) are encoded literally, except that ASCII letters are
+ * forced to uppercase or lowercase according to the corresponding
+ * case flags.  If @pCaseFlags is a %NULL pointer then ASCII letters
+ * are left as they are, and other code points are treated as
+ * unflagged.
  * @output_length: The caller passes in the maximum number of ASCII
- *   code points that it can receive.  On successful return it will
- *   contain the number of ASCII code points actually output.
+ * code points that it can receive.  On successful return it will
+ * contain the number of ASCII code points actually output.
  * @output: An array of ASCII code points.  It is *not*
- *   null-terminated; it will contain zeros if and only if the @input
- *   contains zeros.  (Of course the caller can leave room for a
- *   terminator and add one if needed.)
+ * null-terminated; it will contain zeros if and only if the @input
+ * contains zeros.  (Of course the caller can leave room for a
+ * terminator and add one if needed.)
  *
  * Converts a sequence of code points (presumed to be Unicode code
  * points) to Punycode.
  *
  * Return value: The return value can be any of the #Punycode_status
- *   values defined above except %PUNYCODE_BAD_INPUT.  If not
- *   %PUNYCODE_SUCCESS, then @output_size and @output might contain
- *   garbage.
+ * values defined above except %PUNYCODE_BAD_INPUT.  If not
+ * %PUNYCODE_SUCCESS, then @output_size and @output might contain
+ * garbage.
  **/
 int SPunycodeEncode(const uint * input, size_t input_length, SString & rOut, const uchar * pCaseFlags)
 {
@@ -224,34 +224,34 @@ int SPunycodeEncode(const uint * input, size_t input_length, SString & rOut, con
  * @input_length: The number of ASCII code points in the @input array.
  * @input: An array of ASCII code points (0..7F).
  * @output_length: The caller passes in the maximum number of code
- *   points that it can receive into the @output array (which is also
- *   the maximum number of flags that it can receive into the
- *   @pCaseFlags array, if @pCaseFlags is not a %NULL pointer).  On
- *   successful return it will contain the number of code points
- *   actually output (which is also the number of flags actually
- *   output, if pCaseFlags is not a null pointer).  The decoder will
- *   never need to output more code points than the number of ASCII
- *   code points in the input, because of the way the encoding is
- *   defined.  The number of code points output cannot exceed the
- *   maximum possible value of a uint, even if the supplied
- *   @output_length is greater than that.
+ * points that it can receive into the @output array (which is also
+ * the maximum number of flags that it can receive into the
+ * @pCaseFlags array, if @pCaseFlags is not a %NULL pointer).  On
+ * successful return it will contain the number of code points
+ * actually output (which is also the number of flags actually
+ * output, if pCaseFlags is not a null pointer).  The decoder will
+ * never need to output more code points than the number of ASCII
+ * code points in the input, because of the way the encoding is
+ * defined.  The number of code points output cannot exceed the
+ * maximum possible value of a uint, even if the supplied
+ * @output_length is greater than that.
  * @output: An array of code points like the input argument of
- *   punycode_encode() (see above).
+ * punycode_encode() (see above).
  * @pCaseFlags: A %NULL pointer (if the flags are not needed by the
- *   caller) or an array of boolean values parallel to the @output
- *   array.  Nonzero (true, flagged) suggests that the corresponding
- *   Unicode character be forced to uppercase by the caller (if
- *   possible), and zero (false, unflagged) suggests that it be forced
- *   to lowercase (if possible).  ASCII code points (0..7F) are output
- *   already in the proper case, but their flags will be set
- *   appropriately so that applying the flags would be harmless.
+ * caller) or an array of boolean values parallel to the @output
+ * array.  Nonzero (true, flagged) suggests that the corresponding
+ * Unicode character be forced to uppercase by the caller (if
+ * possible), and zero (false, unflagged) suggests that it be forced
+ * to lowercase (if possible).  ASCII code points (0..7F) are output
+ * already in the proper case, but their flags will be set
+ * appropriately so that applying the flags would be harmless.
  *
  * Converts Punycode to a sequence of code points (presumed to be
  * Unicode code points).
  *
  * Return value: The return value can be any of the #Punycode_status
- *   values defined above.  If not %PUNYCODE_SUCCESS, then
- *   @output_length, @output, and @pCaseFlags might contain garbage.
+ * values defined above.  If not %PUNYCODE_SUCCESS, then
+ * @output_length, @output, and @pCaseFlags might contain garbage.
  *
  **/
 int SPunycodeDecode(const char * input, size_t input_length, size_t * output_length, uint * output, uchar * pCaseFlags)

@@ -687,7 +687,7 @@ const char * _zip_get_name(zip_t * za, uint64 idx, zip_flags_t flags, zip_error_
 {
 	zip_dirent_t * de = _zip_get_dirent(za, idx, flags, error);
 	const uint8 * str = de ? _zip_string_get(de->filename, NULL, flags, error) : 0;
-	return (const char*)str;
+	return (const char *)str;
 }
 
 ZIP_EXTERN int zip_get_num_files(zip_t * za)
@@ -1344,7 +1344,7 @@ ZIP_EXTERN const char * zip_file_get_comment(zip_t * za, uint64 idx, uint32 * le
 		return NULL;
 	else {
 		ASSIGN_PTR(lenp, len);
-		return (const char*)str;
+		return (const char *)str;
 	}
 }
 
@@ -2337,7 +2337,7 @@ ZIP_EXTERN const char * zip_get_archive_comment(zip_t * za, int * lenp, zip_flag
 	if((str = _zip_string_get(comment, &len, flags, &za->error)) == NULL)
 		return NULL;
 	ASSIGN_PTR(lenp, (int)len);
-	return (const char*)str;
+	return (const char *)str;
 }
 
 ZIP_EXTERN int zip_get_archive_flag(zip_t * za, zip_flags_t flag, zip_flags_t flags)
@@ -4221,7 +4221,7 @@ bool _zip_hash_add(zip_hash_t * hash, const uint8 * name, uint64 index, zip_flag
 	}
 	hash_value = _hash_string(name, hash->table_size);
 	for(entry = hash->table[hash_value]; entry != NULL; entry = entry->next) {
-		if(strcmp((const char*)name, (const char*)entry->name) == 0) {
+		if(strcmp((const char *)name, (const char *)entry->name) == 0) {
 			if(((flags & ZIP_FL_UNCHANGED) && entry->orig_index != -1) || entry->current_index != -1) {
 				zip_error_set(error, SLERR_ZIP_EXISTS, 0);
 				return false;
@@ -4260,7 +4260,7 @@ bool _zip_hash_delete(zip_hash_t * hash, const uint8 * name, zip_error_t * error
 		zip_hash_entry_t * previous = NULL;
 		zip_hash_entry_t * entry = hash->table[hash_value];
 		while(entry) {
-			if(strcmp((const char*)name, (const char*)entry->name) == 0) {
+			if(strcmp((const char *)name, (const char *)entry->name) == 0) {
 				if(entry->orig_index == -1) {
 					if(previous) {
 						previous->next = entry->next;
@@ -4293,7 +4293,7 @@ int64 _zip_hash_lookup(zip_hash_t * hash, const uint8 * name, zip_flags_t flags,
 	else {
 		uint16 hash_value = _hash_string(name, hash->table_size);
 		for(zip_hash_entry_t * entry = hash->table[hash_value]; entry != NULL; entry = entry->next) {
-			if(strcmp((const char*)name, (const char*)entry->name) == 0) {
+			if(strcmp((const char *)name, (const char *)entry->name) == 0) {
 				if(flags & ZIP_FL_UNCHANGED) {
 					if(entry->orig_index != -1)
 						return entry->orig_index;
@@ -5503,7 +5503,7 @@ static uchar * _zip_memmem(const uchar * big, size_t biglen, const uchar * littl
 	p = big-1;
 	while((p = (const uchar*)memchr(p+1, little[0], (size_t)(big-(p+1))+(size_t)(biglen-littlelen)+1)) != NULL) {
 		if(memcmp(p+1, little+1, littlelen-1)==0)
-			return (uchar*)p;
+			return (uchar *)p;
 	}
 	return NULL;
 }

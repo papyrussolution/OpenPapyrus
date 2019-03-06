@@ -14,9 +14,9 @@
  * much more complex and seem not to be any faster when reduced to code.
  *
  * This implementation is based on an algorithm described in
- *   C. Loeffler, A. Ligtenberg and G. Moschytz, "Practical Fast 1-D DCT
- *   Algorithms with 11 Multiplications", Proc. Int'l. Conf. on Acoustics,
- *   Speech, and Signal Processing 1989 (ICASSP '89), pp. 988-991.
+ * C. Loeffler, A. Ligtenberg and G. Moschytz, "Practical Fast 1-D DCT
+ * Algorithms with 11 Multiplications", Proc. Int'l. Conf. on Acoustics,
+ * Speech, and Signal Processing 1989 (ICASSP '89), pp. 988-991.
  * The primary algorithm described there uses 11 multiplies and 29 adds.
  * We use their alternate method with 12 multiplies and 32 adds.
  * The advantage of this method is that no data path contains more than one

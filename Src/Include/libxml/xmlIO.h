@@ -50,7 +50,7 @@ typedef void * (XMLCALL *xmlInputOpenCallback) (char const *filename);
  *
  * Returns the number of bytes read or -1 in case of error
  */
-typedef int (XMLCALL *xmlInputReadCallback) (void * context, char * buffer, int len);
+typedef int (XMLCALL *xmlInputReadCallback)(void * context, char * buffer, int len);
 /**
  * xmlInputCloseCallback:
  * @context:  an Input context

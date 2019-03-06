@@ -30,10 +30,10 @@
 
 /*
  * Based upon the PolarSSL implementation in polarssl.c and polarssl.h:
- *   Copyright (C) 2010, 2011, Hoi-Ho Chan, <hoiho.chan@gmail.com>
+ * Copyright (C) 2010, 2011, Hoi-Ho Chan, <hoiho.chan@gmail.com>
  *
  * Based upon the CyaSSL implementation in cyassl.c and cyassl.h:
- *   Copyright (C) 1998 - 2012, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2012, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * Thanks for code and inspiration!
  */
@@ -774,7 +774,7 @@ static CURLcode schannel_connect_step3(struct connectdata * conn, int sockindex)
 		if(!result) {
 			if(((ccert_context->dwCertEncodingType & X509_ASN_ENCODING) != 0) &&
 			    (ccert_context->cbCertEncoded > 0)) {
-				const char * beg = (const char*)ccert_context->pbCertEncoded;
+				const char * beg = (const char *)ccert_context->pbCertEncoded;
 				const char * end = beg + ccert_context->cbCertEncoded;
 				result = Curl_extract_certinfo(conn, 0, beg, end);
 			}
@@ -930,7 +930,7 @@ static ssize_t schannel_send(struct connectdata * conn, int sockindex,
 	/* calculate the complete message length and allocate a buffer for it */
 	data_len = connssl->stream_sizes.cbHeader + len +
 	    connssl->stream_sizes.cbTrailer;
-	data = (uchar*)SAlloc::M(data_len);
+	data = (uchar *)SAlloc::M(data_len);
 	if(data == NULL) {
 		*err = CURLE_OUT_OF_MEMORY;
 		return -1;

@@ -1119,7 +1119,7 @@ CURLcode Curl_http2_request_upgrade(Curl_send_buffer * req,
 	}
 	conn->proto.httpc.binlen = binlen;
 
-	result = Curl_base64url_encode(conn->data, (const char*)binsettings, binlen,
+	result = Curl_base64url_encode(conn->data, (const char *)binsettings, binlen,
 	    &base64, &blen);
 	if(result)
 		return result;
@@ -1745,9 +1745,9 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 	end = memchr(hdbuf, ' ', line_end - hdbuf);
 	if(!end || end == hdbuf)
 		goto fail;
-	nva[0].name = (uchar*)":method";
+	nva[0].name = (uchar *)":method";
 	nva[0].namelen = sstrlen((char *)nva[0].name);
-	nva[0].value = (uchar*)hdbuf;
+	nva[0].value = (uchar *)hdbuf;
 	nva[0].valuelen = (size_t)(end - hdbuf);
 	nva[0].flags = NGHTTP2_NV_FLAG_NONE;
 	if(HEADER_OVERFLOW(nva[0])) {
@@ -1767,9 +1767,9 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 	}
 	if(!end || end == hdbuf)
 		goto fail;
-	nva[1].name = (uchar*)":path";
+	nva[1].name = (uchar *)":path";
 	nva[1].namelen = sstrlen((char *)nva[1].name);
-	nva[1].value = (uchar*)hdbuf;
+	nva[1].value = (uchar *)hdbuf;
 	nva[1].valuelen = (size_t)(end - hdbuf);
 	nva[1].flags = NGHTTP2_NV_FLAG_NONE;
 	if(HEADER_OVERFLOW(nva[1])) {
@@ -1780,12 +1780,12 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 	hdbuf = end + 1;
 
 	end = line_end;
-	nva[2].name = (uchar*)":scheme";
+	nva[2].name = (uchar *)":scheme";
 	nva[2].namelen = sstrlen((char *)nva[2].name);
 	if(conn->handler->flags & PROTOPT_SSL)
-		nva[2].value = (uchar*)"https";
+		nva[2].value = (uchar *)"https";
 	else
-		nva[2].value = (uchar*)"http";
+		nva[2].value = (uchar *)"http";
 	nva[2].valuelen = sstrlen((char *)nva[2].value);
 	nva[2].flags = NGHTTP2_NV_FLAG_NONE;
 	if(HEADER_OVERFLOW(nva[2])) {
@@ -1811,11 +1811,11 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 		hlen = end - hdbuf;
 		if(hlen == 4 && strncasecompare("host", hdbuf, 4)) {
 			authority_idx = i;
-			nva[i].name = (uchar*)":authority";
+			nva[i].name = (uchar *)":authority";
 			nva[i].namelen = sstrlen((char *)nva[i].name);
 		}
 		else {
-			nva[i].name = (uchar*)hdbuf;
+			nva[i].name = (uchar *)hdbuf;
 			nva[i].namelen = (size_t)(end - hdbuf);
 		}
 		hdbuf = end + 1;
@@ -1823,7 +1823,7 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 			++hdbuf;
 		end = line_end;
 
-		switch(inspect_header((const char*)nva[i].name, nva[i].namelen, hdbuf,
+		switch(inspect_header((const char *)nva[i].name, nva[i].namelen, hdbuf,
 			    end - hdbuf)) {
 			case HEADERINST_IGNORE:
 			    /* skip header fields prohibited by HTTP/2 specification. */
@@ -1834,7 +1834,7 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 			    nva[i].valuelen = sizeof("trailers") - 1;
 			    break;
 			default:
-			    nva[i].value = (uchar*)hdbuf;
+			    nva[i].value = (uchar *)hdbuf;
 			    nva[i].valuelen = (size_t)(end - hdbuf);
 		}
 

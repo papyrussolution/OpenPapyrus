@@ -55,7 +55,7 @@ static int idea_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * 
 		IDEA_KEY_SCHEDULE tmp;
 		IDEA_set_encrypt_key(key, &tmp);
 		IDEA_set_decrypt_key(&tmp, &EVP_C_DATA(EVP_IDEA_KEY, ctx)->ks);
-		OPENSSL_cleanse((uchar*)&tmp, sizeof(IDEA_KEY_SCHEDULE));
+		OPENSSL_cleanse((uchar *)&tmp, sizeof(IDEA_KEY_SCHEDULE));
 	}
 	return 1;
 }

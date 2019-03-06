@@ -12,11 +12,11 @@
  */
 /*
  * Define BITS_IN_JSAMPLE as either
- *   8   for 8-bit sample values (the usual setting)
- *   9   for 9-bit sample values
- *   10  for 10-bit sample values
- *   11  for 11-bit sample values
- *   12  for 12-bit sample values
+ * 8   for 8-bit sample values (the usual setting)
+ * 9   for 9-bit sample values
+ * 10  for 10-bit sample values
+ * 11  for 11-bit sample values
+ * 12  for 12-bit sample values
  * Only 8, 9, 10, 11, and 12 bits sample data precision are supported for
  * full-feature DCT processing.  Further depths up to 16-bit may be added
  * later for the lossless modes of operation.
@@ -313,8 +313,8 @@ typedef unsigned int JDIMENSION;
  * RESTRICTIONS:
  * 1. The sample applications cjpeg,djpeg do NOT support modified RGB formats.
  * 2. The color quantizer modules will not behave desirably if RGB_PIXELSIZE
- *    is not 3 (they don't understand about dummy color components!).  So you
- *    can't use color quantization if you change that value.
+ *  is not 3 (they don't understand about dummy color components!).  So you
+ *  can't use color quantization if you change that value.
  */
 #define RGB_RED		0	/* Offset of Red in an RGB scanline element */
 #define RGB_GREEN	1	/* Offset of Green */

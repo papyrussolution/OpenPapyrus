@@ -2770,21 +2770,21 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 		uInt lit_bufsize;
 		/* Size of match buffer for literals/lengths.  There are 4 reasons for
 		 * limiting lit_bufsize to 64K:
-		 *   - frequencies can be kept in 16 bit counters
-		 *   - if compression is not successful for the first block, all input
-		 *     data is still in the window so we can still emit a stored block even
-		 *     when input comes from standard input.  (This can also be done for
-		 *     all blocks if lit_bufsize is not greater than 32K.)
-		 *   - if compression is not successful for a file smaller than 64K, we can
-		 *     even emit a stored file instead of a stored block (saving 5 bytes).
-		 *     This is applicable only for zip (not gzip or zlib).
-		 *   - creating new Huffman trees less frequently may not provide fast
-		 *     adaptation to changes in the input data statistics. (Take for
-		 *     example a binary file with poorly compressible code followed by
-		 *     a highly compressible string table.) Smaller buffer sizes give
-		 *     fast adaptation but have of course the overhead of transmitting
-		 *     trees more frequently.
-		 *   - I can't count above 4
+		 * - frequencies can be kept in 16 bit counters
+		 * - if compression is not successful for the first block, all input
+		 *   data is still in the window so we can still emit a stored block even
+		 *   when input comes from standard input.  (This can also be done for
+		 *   all blocks if lit_bufsize is not greater than 32K.)
+		 * - if compression is not successful for a file smaller than 64K, we can
+		 *   even emit a stored file instead of a stored block (saving 5 bytes).
+		 *   This is applicable only for zip (not gzip or zlib).
+		 * - creating new Huffman trees less frequently may not provide fast
+		 *   adaptation to changes in the input data statistics. (Take for
+		 *   example a binary file with poorly compressible code followed by
+		 *   a highly compressible string table.) Smaller buffer sizes give
+		 *   fast adaptation but have of course the overhead of transmitting
+		 *   trees more frequently.
+		 * - I can't count above 4
 		 */
 		uInt last_lit;  /* running index in l_buf */
 		ushort * d_buf; // Buffer for distances. To simplify the code, d_buf and l_buf have

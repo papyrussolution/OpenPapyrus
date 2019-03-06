@@ -525,7 +525,7 @@ int ec_GF2m_simple_is_at_infinity(const EC_GROUP * group,
 /*-
  * Determines whether the given EC_POINT is an actual point on the curve defined
  * in the EC_GROUP.  A point is valid if it satisfies the Weierstrass equation:
- *      y^2 + x*y = x^3 + a*x^2 + b.
+ *    y^2 + x*y = x^3 + a*x^2 + b.
  */
 int ec_GF2m_simple_is_on_curve(const EC_GROUP * group, const EC_POINT * point,
     BN_CTX * ctx)
@@ -561,7 +561,7 @@ int ec_GF2m_simple_is_on_curve(const EC_GROUP * group, const EC_POINT * point,
 
 	/*-
 	 * We have a curve defined by a Weierstrass equation
-	 *      y^2 + x*y = x^3 + a*x^2 + b.
+	 *    y^2 + x*y = x^3 + a*x^2 + b.
 	 *  <=> x^3 + a*x^2 + x*y + b + y^2 = 0
 	 *  <=> ((x + a) * x + y ) * x + b + y^2 = 0
 	 */
@@ -590,8 +590,8 @@ err:
  * Indicates whether two points are equal.
  * Return values:
  *  -1   error
- *   0   equal (in affine coordinates)
- *   1   not equal
+ * 0   equal (in affine coordinates)
+ * 1   not equal
  */
 int ec_GF2m_simple_cmp(const EC_GROUP * group, const EC_POINT * a,
     const EC_POINT * b, BN_CTX * ctx)

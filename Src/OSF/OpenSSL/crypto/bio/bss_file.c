@@ -9,8 +9,8 @@
 
 /*-
  * 03-Dec-1997  rdenny@dc3.com  Fix bug preventing use of stdin/stdout
- *              with binary data (e.g. asn1parse -inform DER < xxx) under
- *              Windows
+ *            with binary data (e.g. asn1parse -inform DER < xxx) under
+ *            Windows
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
@@ -276,7 +276,7 @@ static long file_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    else
 			    strcat(p, "t");
 #  endif
-		    fp = openssl_fopen((const char*)ptr, p);
+		    fp = openssl_fopen((const char *)ptr, p);
 		    if(fp == NULL) {
 			    SYSerr(SYS_F_FOPEN, get_last_sys_error());
 			    ERR_add_error_data(5, "fopen('", ptr, "','", p, "')");

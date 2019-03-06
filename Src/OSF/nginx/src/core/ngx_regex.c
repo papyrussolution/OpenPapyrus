@@ -78,7 +78,7 @@ ngx_int_t ngx_regex_compile(ngx_regex_compile_t * rc)
 
 	ngx_regex_malloc_init(rc->pool);
 
-	re = pcre_compile((const char*)rc->pattern.data, (int)rc->options,
+	re = pcre_compile((const char *)rc->pattern.data, (int)rc->options,
 	    &errstr, &erroff, NULL);
 
 	/* ensure that there is no current pool */

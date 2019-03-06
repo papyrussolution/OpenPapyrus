@@ -263,7 +263,7 @@ int __rep_env_refresh(ENV*env)
 }
 /*
  * __rep_close --
- *      Shut down all of replication.
+ *    Shut down all of replication.
  *
  * PUBLIC: int __rep_env_close(ENV *);
  */

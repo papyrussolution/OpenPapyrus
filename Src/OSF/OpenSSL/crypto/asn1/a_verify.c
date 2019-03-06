@@ -32,14 +32,14 @@ int ASN1_verify(i2d_of_void * i2d, X509_ALGOR * a, ASN1_BIT_STRING * signature, 
 		goto err;
 	}
 	inl = i2d(data, 0);
-	buf_in = (uchar*)OPENSSL_malloc((uint)inl);
+	buf_in = (uchar *)OPENSSL_malloc((uint)inl);
 	if(buf_in == NULL) {
 		ASN1err(ASN1_F_ASN1_VERIFY, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
 	p = buf_in;
 	i2d(data, &p);
-	ret = EVP_VerifyInit_ex(ctx, type, NULL) && EVP_VerifyUpdate(ctx, (uchar*)buf_in, inl);
+	ret = EVP_VerifyInit_ex(ctx, type, NULL) && EVP_VerifyUpdate(ctx, (uchar *)buf_in, inl);
 	OPENSSL_clear_free(buf_in, (uint)inl);
 
 	if(!ret) {
@@ -48,7 +48,7 @@ int ASN1_verify(i2d_of_void * i2d, X509_ALGOR * a, ASN1_BIT_STRING * signature, 
 	}
 	ret = -1;
 
-	if(EVP_VerifyFinal(ctx, (uchar*)signature->data, (uint)signature->length, pkey) <= 0) {
+	if(EVP_VerifyFinal(ctx, (uchar *)signature->data, (uint)signature->length, pkey) <= 0) {
 		ASN1err(ASN1_F_ASN1_VERIFY, ERR_R_EVP_LIB);
 		ret = 0;
 		goto err;

@@ -471,7 +471,7 @@ int BIO_parse_hostserv(const char * hostserv, char ** host, char ** service, enu
 		 * 1. IPv6 address with port number, last colon being separator.
 		 * 2. IPv6 address only.
 		 * 3. IPv6 address only if hostserv_prio == BIO_PARSE_PRIO_HOST,
-		 *    IPv6 address and port number if hostserv_prio == BIO_PARSE_PRIO_SERV
+		 *  IPv6 address and port number if hostserv_prio == BIO_PARSE_PRIO_SERV
 		 * Because of this ambiguity, we currently choose to make it an
 		 * error.
 		 */

@@ -296,7 +296,7 @@ int CRYPTO_ocb128_aad(OCB128_CONTEXT * ctx, const uchar * aad,
 		/* CipherInput = (A_* || 1 || zeros(127-bitlen(A_*))) xor Offset_* */
 		memzero(&tmp1, 16);
 		memcpy(&tmp1, aad + (num_blocks * 16), last_len);
-		((uchar*)&tmp1)[last_len] = 0x80;
+		((uchar *)&tmp1)[last_len] = 0x80;
 		ocb_block16_xor(&ctx->offset_aad, &tmp1, &tmp2);
 
 		/* Sum = Sum_m xor ENCIPHER(K, CipherInput) */
@@ -385,11 +385,11 @@ int CRYPTO_ocb128_encrypt(OCB128_CONTEXT * ctx,
 		/* Pad = ENCIPHER(K, Offset_*) */
 		ctx->encrypt(ctx->offset.c, pad.c, ctx->keyenc);
 		/* C_* = P_* xor Pad[1..bitlen(P_*)] */
-		ocb_block_xor(in + (len / 16) * 16, (uchar*)&pad, last_len, out + (num_blocks * 16));
+		ocb_block_xor(in + (len / 16) * 16, (uchar *)&pad, last_len, out + (num_blocks * 16));
 		/* Checksum_* = Checksum_m xor (P_* || 1 || zeros(127-bitlen(P_*))) */
 		memzero(&tmp1, 16);
 		memcpy(&tmp1, in + (len / 16) * 16, last_len);
-		((uchar*)(&tmp1))[last_len] = 0x80;
+		((uchar *)(&tmp1))[last_len] = 0x80;
 		ocb_block16_xor(&ctx->checksum, &tmp1, &ctx->checksum);
 	}
 
@@ -473,11 +473,11 @@ int CRYPTO_ocb128_decrypt(OCB128_CONTEXT * ctx,
 		/* Pad = ENCIPHER(K, Offset_*) */
 		ctx->encrypt(ctx->offset.c, pad.c, ctx->keyenc);
 		/* P_* = C_* xor Pad[1..bitlen(C_*)] */
-		ocb_block_xor(in + (len / 16) * 16, (uchar*)&pad, last_len, out + (num_blocks * 16));
+		ocb_block_xor(in + (len / 16) * 16, (uchar *)&pad, last_len, out + (num_blocks * 16));
 		/* Checksum_* = Checksum_m xor (P_* || 1 || zeros(127-bitlen(P_*))) */
 		memzero(&tmp1, 16);
 		memcpy(&tmp1, out + (len / 16) * 16, last_len);
-		((uchar*)(&tmp1))[last_len] = 0x80;
+		((uchar *)(&tmp1))[last_len] = 0x80;
 		ocb_block16_xor(&ctx->checksum, &tmp1, &ctx->checksum);
 	}
 	ctx->blocks_processed = all_num_blocks;

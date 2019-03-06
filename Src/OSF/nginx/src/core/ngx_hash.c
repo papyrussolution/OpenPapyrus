@@ -52,10 +52,10 @@ void * ngx_hash_find_wc_head(ngx_hash_wildcard_t * hwc, const u_char * name, siz
 	if(value) {
 		/*
 		 * the 2 low bits of value have the special meaning:
-		 *     00 - value is data pointer for both "example.com" and "*.example.com";
-		 *     01 - value is data pointer for "*.example.com" only;
-		 *     10 - value is pointer to wildcard hash allowing both "example.com" and "*.example.com";
-		 *     11 - value is pointer to wildcard hash allowing "*.example.com" only.
+		 *   00 - value is data pointer for both "example.com" and "*.example.com";
+		 *   01 - value is data pointer for "*.example.com" only;
+		 *   10 - value is pointer to wildcard hash allowing both "example.com" and "*.example.com";
+		 *   11 - value is pointer to wildcard hash allowing "*.example.com" only.
 		 */
 		if((uintptr_t)value & 2) {
 			if(n == 0) {
@@ -112,8 +112,8 @@ void * ngx_hash_find_wc_tail(ngx_hash_wildcard_t * hwc, const u_char * name, siz
 	if(value) {
 		/*
 		 * the 2 low bits of value have the special meaning:
-		 *     00 - value is data pointer;
-		 *     11 - value is pointer to wildcard hash allowing "example.*".
+		 *   00 - value is data pointer;
+		 *   11 - value is pointer to wildcard hash allowing "example.*".
 		 */
 		if((uintptr_t)value & 2) {
 			i++;
@@ -468,7 +468,7 @@ ngx_int_t ngx_hash_add_key(ngx_hash_keys_arrays_t * ha, ngx_str_t * key, void * 
 	if(flags & NGX_HASH_WILDCARD_KEY) {
 		/*
 		 * supported wildcards:
-		 *     "*.example.com", ".example.com", and "www.example.*"
+		 *   "*.example.com", ".example.com", and "www.example.*"
 		 */
 		n = 0;
 		for(i = 0; i < key->len; i++) {
@@ -579,7 +579,7 @@ wildcard:
 	if(skip) {
 		/*
 		 * convert "*.example.com" to "com.example.\0"
-		 *      and ".example.com" to "com.example\0"
+		 *    and ".example.com" to "com.example\0"
 		 */
 		p = (u_char *)ngx_pnalloc(ha->temp_pool, last);
 		if(!p) {

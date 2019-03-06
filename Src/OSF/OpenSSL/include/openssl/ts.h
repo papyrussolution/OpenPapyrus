@@ -406,12 +406,12 @@ STACK_OF(X509) *TS_VERIFY_CTS_set_certs(TS_VERIFY_CTX *ctx, STACK_OF(X509) *cert
  * certs = NULL
  * store = NULL
  * policy = policy from the request or NULL if absent (in this case
- *      TS_VFY_POLICY is cleared from flags as well)
+ *    TS_VFY_POLICY is cleared from flags as well)
  * md_alg = MD algorithm from request
  * imprint, imprint_len = imprint from request
  * data = NULL
  * nonce, nonce_len = nonce from the request or NULL if absent (in this case
- *      TS_VFY_NONCE is cleared from flags as well)
+ *    TS_VFY_NONCE is cleared from flags as well)
  * tsa_name = NULL
  * Important: after calling this method TS_VFY_SIGNATURE should be added!
  */

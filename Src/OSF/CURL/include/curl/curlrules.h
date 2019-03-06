@@ -1,11 +1,11 @@
 #ifndef __CURL_CURLRULES_H
 #define __CURL_CURLRULES_H
 /***************************************************************************
- *                                  _   _ ____  _
+ *                                _   _ ____  _
  *  Project                     ___| | | |  _ \| |
- *                             / __| | | | |_) | |
- *                            | (__| |_| |  _ <| |___
- *                             \___|\___/|_| \_\_____|
+ *                           / __| | | | |_) | |
+ *                          | (__| |_| |  _ <| |___
+ *                           \___|\___/|_| \_\_____|
  *
  * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
@@ -58,10 +58,10 @@
  * will fail issuing an error. The error description wording is compiler
  * dependent but it will be quite similar to one of the following:
  *
- *   "negative subscript or subscript is too large"
- *   "array must have at least one element"
- *   "-1 is an illegal array size"
- *   "size of array is negative"
+ * "negative subscript or subscript is too large"
+ * "array must have at least one element"
+ * "-1 is an illegal array size"
+ * "size of array is negative"
  *
  * If you are building an application which tries to use an already
  * built libcurl library and you are getting this kind of errors on

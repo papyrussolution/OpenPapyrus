@@ -1616,25 +1616,32 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 				PPIDArray op_list_exp;
 				PPIDArray op_list_rcpt;
 				PPIDArray op_list_ret;
+				PPIDArray op_list_rcptret;
 				PPIDArray op_list_movout;
 				PPIDArray op_list_movin;
 				MEMSZERO(op_kind);
 				for(PPID op_id = 0; EnumOperations(0, &op_id, &op_kind) > 0;) {
-					if(oneof2(op_kind.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GENERIC))  // Расход товара
-						op_list_exp.add(op_id);
-					if(oneof2(op_kind.OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GENERIC)) // Приход товара
-						op_list_rcpt.add(op_id);
-					if(oneof2(op_kind.OpTypeID, PPOPT_GOODSRETURN, PPOPT_GENERIC)) // Возврат товара от покупателя и поставщику
-						op_list_ret.add(op_id);
+					if(oneof2(op_kind.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GENERIC)) { // Расход товара
+						op_list_exp.addUnique(op_id);
+						op_list_rcptret.addUnique(op_id);
+					}
+					if(oneof2(op_kind.OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GENERIC)) { // Приход товара
+						op_list_rcpt.addUnique(op_id);
+						op_list_ret.addUnique(op_id);
+					}
+					if(oneof2(op_kind.OpTypeID, PPOPT_GOODSRETURN, PPOPT_GENERIC)) { // Возврат товара от покупателя и поставщику
+						op_list_ret.addUnique(op_id);
+						op_list_rcptret.addUnique(op_id);
+					}
 					if(op_kind.OpTypeID == PPOPT_GOODSEXPEND) // Межскладской расход товара, возврат товара поставщику
-						op_list_movout.add(op_id);
+						op_list_movout.addUnique(op_id);
 					if(op_kind.OpTypeID == PPOPT_GOODSRECEIPT) // Межсладской приход товара
-						op_list_movin.add(op_id);
+						op_list_movin.addUnique(op_id);
 				}
 				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_EXP, Data.ExpendOp, 0, &op_list_exp, OPKLF_OPLIST);
 				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_RCPT, Data.RcptOp, 0, &op_list_rcpt, OPKLF_OPLIST);
 				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_RET, Data.RetOp, 0, &op_list_ret, OPKLF_OPLIST);
-				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_SUPRET, Data.SupplRetOp, 0, &op_list_ret, OPKLF_OPLIST);
+				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_SUPRET, Data.SupplRetOp, 0, &op_list_rcptret, OPKLF_OPLIST);
 				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_MOVOUT, Data.MovOutOp, 0, &op_list_movout, OPKLF_OPLIST);
 				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_MOVIN, Data.MovInOp, 0, &op_list_movin, OPKLF_OPLIST);
 			}

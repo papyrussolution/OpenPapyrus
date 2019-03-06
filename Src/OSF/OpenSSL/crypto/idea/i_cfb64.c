@@ -23,7 +23,7 @@ void IDEA_cfb64_encrypt(const uchar * in, uchar * out, long length, IDEA_KEY_SCH
 	register long l = length;
 	ulong ti[2];
 	uchar c, cc;
-	uchar * iv = (uchar*)ivec;
+	uchar * iv = (uchar *)ivec;
 	if(encrypt) {
 		while(l--) {
 			if(n == 0) {
@@ -32,12 +32,12 @@ void IDEA_cfb64_encrypt(const uchar * in, uchar * out, long length, IDEA_KEY_SCH
 				n2l(iv, v1);
 				ti[1] = v1;
 				IDEA_encrypt((ulong*)ti, schedule);
-				iv = (uchar*)ivec;
+				iv = (uchar *)ivec;
 				t = ti[0];
 				l2n(t, iv);
 				t = ti[1];
 				l2n(t, iv);
-				iv = (uchar*)ivec;
+				iv = (uchar *)ivec;
 			}
 			c = *(in++) ^ iv[n];
 			*(out++) = c;
@@ -53,12 +53,12 @@ void IDEA_cfb64_encrypt(const uchar * in, uchar * out, long length, IDEA_KEY_SCH
 				n2l(iv, v1);
 				ti[1] = v1;
 				IDEA_encrypt((ulong*)ti, schedule);
-				iv = (uchar*)ivec;
+				iv = (uchar *)ivec;
 				t = ti[0];
 				l2n(t, iv);
 				t = ti[1];
 				l2n(t, iv);
-				iv = (uchar*)ivec;
+				iv = (uchar *)ivec;
 			}
 			cc = *(in++);
 			c = iv[n];

@@ -95,11 +95,11 @@ cairo_drm_surface_get_stride (cairo_surface_t *surface);
 /* XXX map/unmap, general surface layer? */
 
 /* Rough outline, culled from a conversation on IRC:
- *   map() returns an image-surface representation of the drm-surface,
- *   which you unmap() when you are finished, i.e. map() pulls the buffer back
- *   from the GPU, maps it into the CPU domain and gives you direct access to
- *   the pixels.  With the unmap(), the buffer is ready to be used again by the
- *   GPU and *until* the unmap(), all operations will be done in software.
+ * map() returns an image-surface representation of the drm-surface,
+ * which you unmap() when you are finished, i.e. map() pulls the buffer back
+ * from the GPU, maps it into the CPU domain and gives you direct access to
+ * the pixels.  With the unmap(), the buffer is ready to be used again by the
+ * GPU and *until* the unmap(), all operations will be done in software.
  *
  *  (Technically calling cairo_surface_flush() on the underlying drm-surface
  *  will also disassociate the mapping.)

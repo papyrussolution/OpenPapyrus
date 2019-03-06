@@ -2,8 +2,8 @@
 /* cairo - a vector graphics library with display and print output
  *
  * The code in this file is derived from GLib's gutf8.c and
- *   ultimately from libunicode. It is relicensed under the
- *   dual LGPL/MPL with permission of the original authors.
+ * ultimately from libunicode. It is relicensed under the
+ * dual LGPL/MPL with permission of the original authors.
  *
  * Copyright © 1999 Tom Tromey
  * Copyright © 2005 Red Hat, Inc
@@ -115,7 +115,7 @@ static const char utf8_skip_data[256] = {
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 1, 1
 };
 
-#define UTF8_NEXT_CHAR(p) ((p) + utf8_skip_data[*(uchar*)(p)])
+#define UTF8_NEXT_CHAR(p) ((p) + utf8_skip_data[*(uchar *)(p)])
 
 /* Converts a sequence of bytes encoded as UTF-8 to a Unicode character.
  * If @p does not point to a valid UTF-8 encoded character, results are
@@ -171,13 +171,13 @@ static uint32_t FASTCALL _utf8_get_char_extended(const uchar * p, long max_len)
 	}
 	if(max_len >= 0 && len > max_len) {
 		for(i = 1; i < max_len; i++) {
-			if((((uchar*)p)[i] & 0xc0) != 0x80)
+			if((((uchar *)p)[i] & 0xc0) != 0x80)
 				return static_cast<uint32_t>(-1);
 		}
 		return (uint32_t)-2;
 	}
 	for(i = 1; i < len; ++i) {
-		uint32_t ch = ((uchar*)p)[i];
+		uint32_t ch = ((uchar *)p)[i];
 		if((ch & 0xc0) != 0x80) {
 			if(ch)
 				return static_cast<uint32_t>(-1);
@@ -225,21 +225,21 @@ int FASTCALL _cairo_utf8_get_char_validated(const char * p, uint32_t * unicode)
  * _cairo_utf8_to_ucs4:
  * @str: an UTF-8 string
  * @len: length of @str in bytes, or -1 if it is nul-terminated.
- *   If @len is supplied and the string has an embedded nul
- *   byte, only the portion before the nul byte is converted.
+ * If @len is supplied and the string has an embedded nul
+ * byte, only the portion before the nul byte is converted.
  * @result: location to store a pointer to a newly allocated UTF-32
- *   string (always native endian), or %NULL. Free with SAlloc::F(). A 0
- *   word will be written after the last character.
+ * string (always native endian), or %NULL. Free with SAlloc::F(). A 0
+ * word will be written after the last character.
  * @items_written: location to store number of 32-bit words
- *   written. (Not including the trailing 0)
+ * written. (Not including the trailing 0)
  *
  * Converts a UTF-8 string to UCS-4. UCS-4 is an encoding of Unicode
  * with 1 32-bit word per character. The string is validated to
  * consist entirely of valid Unicode characters.
  *
  * Return value: %CAIRO_STATUS_SUCCESS if the entire string was
- *   successfully converted. %CAIRO_STATUS_INVALID_STRING if an
- *   invalid sequence was found.
+ * successfully converted. %CAIRO_STATUS_INVALID_STRING if an
+ * invalid sequence was found.
  **/
 cairo_status_t _cairo_utf8_to_ucs4(const char * str, int len, uint32_t ** result, int * items_written)
 {
@@ -350,13 +350,13 @@ int FASTCALL _cairo_ucs4_to_utf16(uint32_t unicode, uint16_t * utf16)
  * _cairo_utf8_to_utf16:
  * @str: an UTF-8 string
  * @len: length of @str in bytes, or -1 if it is nul-terminated.
- *   If @len is supplied and the string has an embedded nul
- *   byte, only the portion before the nul byte is converted.
+ * If @len is supplied and the string has an embedded nul
+ * byte, only the portion before the nul byte is converted.
  * @result: location to store a pointer to a newly allocated UTF-16
- *   string (always native endian). Free with SAlloc::F(). A 0
- *   word will be written after the last character.
+ * string (always native endian). Free with SAlloc::F(). A 0
+ * word will be written after the last character.
  * @items_written: location to store number of 16-bit words
- *   written. (Not including the trailing 0)
+ * written. (Not including the trailing 0)
  *
  * Converts a UTF-8 string to UTF-16. UTF-16 is an encoding of Unicode
  * where characters are represented either as a single 16-bit word, or
@@ -364,8 +364,8 @@ int FASTCALL _cairo_ucs4_to_utf16(uint32_t unicode, uint16_t * utf16)
  * consist entirely of valid Unicode characters.
  *
  * Return value: %CAIRO_STATUS_SUCCESS if the entire string was
- *   successfully converted. %CAIRO_STATUS_INVALID_STRING if an
- *   an invalid sequence was found.
+ * successfully converted. %CAIRO_STATUS_INVALID_STRING if an
+ * an invalid sequence was found.
  **/
 cairo_status_t FASTCALL _cairo_utf8_to_utf16(const char * str, int len, uint16_t ** result, int * items_written)
 {

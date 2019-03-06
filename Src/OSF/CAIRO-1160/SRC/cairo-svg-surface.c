@@ -54,7 +54,7 @@
 #include "cairo-paginated-private.h"
 //#include "cairo-scaled-font-subsets-private.h"
 //#include "cairo-surface-clipper-private.h"
-//#include "cairo-surface-snapshot-inline.h"
+////#include "cairo-surface-snapshot-inline.h"
 #include "cairo-svg-surface-private.h"
 
 /**
@@ -173,9 +173,9 @@ extern const cairo_paginated_surface_backend_t cairo_svg_surface_paginated_backe
 /**
  * cairo_svg_surface_create_for_stream:
  * @write_func: a #cairo_write_func_t to accept the output data, may be %NULL
- *   to indicate a no-op @write_func. With a no-op @write_func,
- *   the surface may be queried or used as a source without
- *   generating any temporary files.
+ * to indicate a no-op @write_func. With a no-op @write_func,
+ * the surface may be queried or used as a source without
+ * generating any temporary files.
  * @closure: the closure argument for @write_func
  * @width_in_points: width of the surface, in points (1 point == 1/72.0 inch)
  * @height_in_points: height of the surface, in points (1 point == 1/72.0 inch)
@@ -489,7 +489,7 @@ static cairo_status_t _cairo_svg_surface_add_source_surface(cairo_svg_surface_t 
 		return CAIRO_STATUS_SUCCESS;
 	}
 	if(source_key.unique_id && source_key.unique_id_length > 0) {
-		unique_id = (uchar*)_cairo_malloc(source_key.unique_id_length);
+		unique_id = (uchar *)_cairo_malloc(source_key.unique_id_length);
 		if(unique_id == NULL) {
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}
@@ -2476,20 +2476,20 @@ static cairo_status_t _cairo_svg_document_finish(cairo_svg_document_t * document
 	 * Google says no.
 	 *
 	 * http://tech.groups.yahoo.com/group/svg-developers/message/48562:
-	 *   There's a bunch of issues, but just to pick a few:
-	 *   - they'll give false positives.
-	 *   - they'll give false negatives.
-	 *   - they're namespace-unaware.
-	 *   - they don't wildcard.
-	 *   So when they say OK they really haven't checked anything, when
-	 *   they say NOT OK they might be on crack, and like all
-	 *   namespace-unaware things they're a dead branch of the XML tree.
+	 * There's a bunch of issues, but just to pick a few:
+	 * - they'll give false positives.
+	 * - they'll give false negatives.
+	 * - they're namespace-unaware.
+	 * - they don't wildcard.
+	 * So when they say OK they really haven't checked anything, when
+	 * they say NOT OK they might be on crack, and like all
+	 * namespace-unaware things they're a dead branch of the XML tree.
 	 *
 	 * http://jwatt.org/svg/authoring/:
-	 *   Unfortunately the SVG DTDs are a source of so many issues that the
-	 *   SVG WG has decided not to write one for the upcoming SVG 1.2
-	 *   standard. In fact SVG WG members are even telling people not to use
-	 *   a DOCTYPE declaration in SVG 1.0 and 1.1 documents.
+	 * Unfortunately the SVG DTDs are a source of so many issues that the
+	 * SVG WG has decided not to write one for the upcoming SVG 1.2
+	 * standard. In fact SVG WG members are even telling people not to use
+	 * a DOCTYPE declaration in SVG 1.0 and 1.1 documents.
 	 */
 
 	_cairo_output_stream_printf(output,

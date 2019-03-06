@@ -216,7 +216,7 @@ static int do_dump(ulong lflags, char_io * io_ch, void * arg, const ASN1_STRING 
 	t.type = str->type;
 	t.value.ptr = (char *)str;
 	der_len = i2d_ASN1_TYPE(&t, 0);
-	der_buf = (uchar*)OPENSSL_malloc(der_len);
+	der_buf = (uchar *)OPENSSL_malloc(der_len);
 	if(der_buf == NULL)
 		return -1;
 	p = der_buf;

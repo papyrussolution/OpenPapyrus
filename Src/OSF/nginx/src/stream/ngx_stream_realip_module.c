@@ -200,7 +200,7 @@ static void * ngx_stream_realip_create_srv_conf(ngx_conf_t * cf)
 	/*
 	 * set by ngx_pcalloc():
 	 *
-	 *     conf->from = NULL;
+	 *   conf->from = NULL;
 	 */
 	return conf;
 }

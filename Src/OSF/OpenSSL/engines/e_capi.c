@@ -285,7 +285,7 @@ static int capi_ctrl(ENGINE * e, int cmd, long i, void * p, void (* f)(void))
 		    break;
 
 		case CAPI_CMD_STORE_NAME:
-		    tmpstr = OPENSSL_strdup((const char*)p);
+		    tmpstr = OPENSSL_strdup((const char *)p);
 		    if(tmpstr != NULL) {
 			    OPENSSL_free(ctx->storename);
 			    ctx->storename = tmpstr;
@@ -315,7 +315,7 @@ static int capi_ctrl(ENGINE * e, int cmd, long i, void * p, void (* f)(void))
 		    break;
 
 		case CAPI_CMD_DEBUG_FILE:
-		    tmpstr = OPENSSL_strdup((const char*)p);
+		    tmpstr = OPENSSL_strdup((const char *)p);
 		    if(tmpstr != NULL) {
 			    ctx->debug_file = tmpstr;
 			    CAPI_trace(ctx, "Setting debug file to %s\n", ctx->debug_file);
@@ -606,7 +606,7 @@ static EVP_PKEY * capi_get_pkey(ENGINE * eng, CAPI_KEY * key)
 		return NULL;
 	}
 
-	pubkey = (uchar*)OPENSSL_malloc(len);
+	pubkey = (uchar *)OPENSSL_malloc(len);
 
 	if(pubkey == NULL)
 		goto memerr;
@@ -636,7 +636,7 @@ static EVP_PKEY * capi_get_pkey(ENGINE * eng, CAPI_KEY * key)
 			ERR_add_error_data(2, "magic=0x", magstr);
 			goto err;
 		}
-		rsa_modulus = (uchar*)(rp + 1);
+		rsa_modulus = (uchar *)(rp + 1);
 		rkey = RSA_new_method(eng);
 		if(!rkey)
 			goto memerr;
@@ -684,7 +684,7 @@ static EVP_PKEY * capi_get_pkey(ENGINE * eng, CAPI_KEY * key)
 			goto err;
 		}
 		dsa_plen = dp->bitlen / 8;
-		btmp = (uchar*)(dp + 1);
+		btmp = (uchar *)(dp + 1);
 		dkey = DSA_new_method(eng);
 		if(!dkey)
 			goto memerr;
@@ -845,7 +845,7 @@ int capi_rsa_sign(int dtype, const uchar * m, uint m_len,
 	}
 /* Set the hash value to the value passed */
 
-	if(!CryptSetHashParam(hash, HP_HASHVAL, (uchar*)m, 0)) {
+	if(!CryptSetHashParam(hash, HP_HASHVAL, (uchar *)m, 0)) {
 		CAPIerr(CAPI_F_CAPI_RSA_SIGN, CAPI_R_CANT_SET_HASH_VALUE);
 		capi_addlasterror();
 		goto err;
@@ -909,7 +909,7 @@ int capi_rsa_priv_dec(int flen, const uchar * from,
 	}
 
 	/* Create temp reverse order version of input */
-	if((tmpbuf = (uchar*)OPENSSL_malloc(flen)) == NULL) {
+	if((tmpbuf = (uchar *)OPENSSL_malloc(flen)) == NULL) {
 		CAPIerr(CAPI_F_CAPI_RSA_PRIV_DEC, ERR_R_MALLOC_FAILURE);
 		return -1;
 	}
@@ -978,7 +978,7 @@ static DSA_SIG * capi_dsa_do_sign(const uchar * digest, int dlen,
 	}
 
 	/* Set the hash value to the value passed */
-	if(!CryptSetHashParam(hash, HP_HASHVAL, (uchar*)digest, 0)) {
+	if(!CryptSetHashParam(hash, HP_HASHVAL, (uchar *)digest, 0)) {
 		CAPIerr(CAPI_F_CAPI_DSA_DO_SIGN, CAPI_R_CANT_SET_HASH_VALUE);
 		capi_addlasterror();
 		goto err;

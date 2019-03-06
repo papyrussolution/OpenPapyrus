@@ -694,9 +694,9 @@ void /* PRIVATE */ png_write_IHDR(png_structrp png_ptr, uint32 width, uint32 hei
 	/* Write filter_method 64 (intrapixel differencing) only if
 	 * 1. Libpng was compiled with PNG_MNG_FEATURES_SUPPORTED and
 	 * 2. Libpng did not write a PNG signature (this filter_method is only
-	 *    used in PNG datastreams that are embedded in MNG datastreams) and
+	 *  used in PNG datastreams that are embedded in MNG datastreams) and
 	 * 3. The application called png_permit_mng_features with a mask that
-	 *    included PNG_FLAG_MNG_FILTER_64 and
+	 *  included PNG_FLAG_MNG_FILTER_64 and
 	 * 4. The filter_method is 64 and
 	 * 5. The color_type is RGB or RGBA
 	 */
@@ -2097,15 +2097,15 @@ void /* PRIVATE */ png_write_find_filter(png_structrp png_ptr, png_row_infop row
 	 *
 	 * GRR 980525:  consider also
 	 *
-	 *   (1) minimum sum of absolute differences from running average (i.e.,
-	 *       keep running sum of non-absolute differences & count of bytes)
-	 *       [track dispersion, too?  restart average if dispersion too large?]
+	 * (1) minimum sum of absolute differences from running average (i.e.,
+	 *     keep running sum of non-absolute differences & count of bytes)
+	 *     [track dispersion, too?  restart average if dispersion too large?]
 	 *
 	 *  (1b) minimum sum of absolute differences from sliding average, probably
-	 *       with window size <= deflate window (usually 32K)
+	 *     with window size <= deflate window (usually 32K)
 	 *
-	 *   (2) minimum sum of squared differences from zero or running average
-	 *       (i.e., ~ root-mean-square approach)
+	 * (2) minimum sum of squared differences from zero or running average
+	 *     (i.e., ~ root-mean-square approach)
 	 */
 	/* We don't need to test the 'no filter' case if this is the only filter
 	 * that has been chosen, as it doesn't actually do anything to the data.

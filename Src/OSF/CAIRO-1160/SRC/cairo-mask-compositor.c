@@ -262,7 +262,7 @@ static cairo_status_t clip_and_composite_with_mask(const cairo_mask_compositor_t
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_surface_t * get_clip_source(const cairo_mask_compositor_t * compositor, cairo_clip_t * clip,
+static cairo_surface_t * get_clip_source(const cairo_mask_compositor_t * compositor, const cairo_clip_t * clip,
     cairo_surface_t * dst, const cairo_rectangle_int_t * bounds, int * out_x, int * out_y)
 {
 	cairo_surface_pattern_t pattern;
@@ -715,25 +715,17 @@ static cairo_status_t composite_boxes(const cairo_mask_compositor_t * compositor
 		cairo_surface_t * src, * mask = NULL;
 		int src_x, src_y;
 		int mask_x = 0, mask_y = 0;
-
 		if(need_clip_mask) {
-			mask = get_clip_source(compositor,
-				extents->clip, dst, &extents->bounded,
-				&mask_x, &mask_y);
+			mask = get_clip_source(compositor, extents->clip, dst, &extents->bounded, &mask_x, &mask_y);
 			if(unlikely(mask->status))
 				return mask->status;
-
 			if(op == CAIRO_OPERATOR_CLEAR) {
 				source = NULL;
 				op = CAIRO_OPERATOR_DEST_OUT;
 			}
 		}
-
 		if(source || mask == NULL) {
-			src = compositor->pattern_to_surface(dst, source, FALSE,
-				&extents->bounded,
-				&extents->source_sample_area,
-				&src_x, &src_y);
+			src = compositor->pattern_to_surface(dst, source, FALSE, &extents->bounded, &extents->source_sample_area, &src_x, &src_y);
 		}
 		else {
 			src = mask;
@@ -741,13 +733,7 @@ static cairo_status_t composite_boxes(const cairo_mask_compositor_t * compositor
 			src_y = mask_y;
 			mask = NULL;
 		}
-
-		status = compositor->composite_boxes(dst, op, src, mask,
-			src_x, src_y,
-			mask_x, mask_y,
-			0, 0,
-			boxes, &extents->bounded);
-
+		status = compositor->composite_boxes(dst, op, src, mask, src_x, src_y, mask_x, mask_y, 0, 0, boxes, &extents->bounded);
 		cairo_surface_destroy(src);
 		cairo_surface_destroy(mask);
 	}

@@ -55,7 +55,7 @@ static const char * utf8_decode(const char * o, int * val)
 		s += count; /* skip continuation bytes read */
 	}
 	if(val) *val = res;
-	return (const char*)s + 1; /* +1 to include first byte */
+	return (const char *)s + 1; /* +1 to include first byte */
 }
 /*
 ** utf8len(s [, i [, j]]) --> number of characters that start in the

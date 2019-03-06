@@ -50,7 +50,7 @@ static CURLcode randit(struct Curl_easy * data, uint * rnd)
 	}
 #endif
 	// data may be NULL! 
-	result = Curl_ssl_random(data, (uchar*)rnd, sizeof(*rnd));
+	result = Curl_ssl_random(data, (uchar *)rnd, sizeof(*rnd));
 	if(result != CURLE_NOT_BUILT_IN)
 		// only if there is no random function in the TLS backend do the non crypto version, otherwise return result 
 		return result;

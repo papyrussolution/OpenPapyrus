@@ -402,7 +402,7 @@ static long acpt_ctrl(BIO * b, int cmd, long num, void * ptr)
 				     */
 				    OPENSSL_free(data->param_addr);
 				    data->param_addr = NULL;
-				    ret = BIO_parse_hostserv((const char*)ptr,
+				    ret = BIO_parse_hostserv((const char *)ptr,
 				    &data->param_addr,
 				    &data->param_serv,
 				    BIO_PARSE_PRIO_SERV);
@@ -412,7 +412,7 @@ static long acpt_ctrl(BIO * b, int cmd, long num, void * ptr)
 			    }
 			    else if(num == 1) {
 				    OPENSSL_free(data->param_serv);
-				    data->param_serv = BUF_strdup((const char*)ptr);
+				    data->param_serv = BUF_strdup((const char *)ptr);
 				    b->init = 1;
 			    }
 			    else if(num == 2) {

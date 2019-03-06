@@ -346,8 +346,8 @@ start_with_b:
  *  - limit: Recursion limit.
  * Output:
  *  - head_out: The head of the sorted list containing the first 2^(level+1) elements of the
- *   input list; if the input list has fewer elements, head_out be a sorted list
- *   containing all the elements of the input list.
+ * input list; if the input list has fewer elements, head_out be a sorted list
+ * containing all the elements of the input list.
  * Returns the head of the list of unprocessed elements (NULL if the sorted list contains
  * all the elements of the input list).
  *

@@ -29,7 +29,7 @@
  * The source is from commit 734c53237a867a773640bd5b64816249fa1730f8
  * of
  *
- *   https://gitweb.freedesktop.org/?p=users/joonas/glitter-paths
+ * https://gitweb.freedesktop.org/?p=users/joonas/glitter-paths
  */
 /* Glitter-paths is a stand alone polygon rasteriser derived from
  * David Turner's reimplementation of Tor Anderssons's 15x17
@@ -40,7 +40,7 @@
  *
  * David Turner's code can be found at
  *
- *   http://david.freetype.org/rasterizer-shootout/raster-comparison-20070813.tar.bz2
+ * http://david.freetype.org/rasterizer-shootout/raster-comparison-20070813.tar.bz2
  *
  * In particular this file incorporates large parts of ftgrays_tor10.h
  * from raster-comparison-20070813.tar.bz2
@@ -79,19 +79,19 @@
  * used whenever some edge starts or stops within the row or there are
  * edge intersections in the row.
  *
- *   polygon bucket for       \
- *   current pixel row        |
+ * polygon bucket for       \
+ * current pixel row        |
  * |                     |
  * | activate new edges  |  Repeat GRID_Y times if we
  * V                     \  are supersampling this row,
- *   active list              /  or just once if we're computing
+ * active list              /  or just once if we're computing
  * |                     |  analytical coverage.
  * | coverage deltas     |
  * V                     |
- *   pixel coverage list     /
+ * pixel coverage list     /
  * |
  * V
- *   coverage blitter
+ * coverage blitter
  */
 #include "cairoint.h"
 #pragma hdrstop
@@ -532,7 +532,7 @@ static void * _pool_alloc_from_new_chunk(struct pool * pool,
 		chunk = _pool_chunk_create(pool, capacity);
 	pool->current = chunk;
 
-	obj = ((uchar*)&chunk->data + chunk->size);
+	obj = ((uchar *)&chunk->data + chunk->size);
 	chunk->size += size;
 	return obj;
 }
@@ -548,7 +548,7 @@ inline static void * pool_alloc(struct pool * pool, size_t size)
 	struct _pool_chunk * chunk = pool->current;
 
 	if(size <= chunk->capacity - chunk->size) {
-		void * obj = ((uchar*)&chunk->data + chunk->size);
+		void * obj = ((uchar *)&chunk->data + chunk->size);
 		chunk->size += size;
 		return obj;
 	}
@@ -656,8 +656,8 @@ inline static struct cell * cell_list_find(struct cell_list * cells, int x)
 /* Find two cells at x1 and x2.	 This is exactly equivalent
  * to
  *
- *   pair.cell1 = cell_list_find(cells, x1);
- *   pair.cell2 = cell_list_find(cells, x2);
+ * pair.cell1 = cell_list_find(cells, x1);
+ * pair.cell2 = cell_list_find(cells, x2);
  *
  * except with less function call overhead. */
 inline static struct cell_pair cell_list_find_pair(struct cell_list * cells, int x1, int x2)                                
@@ -1029,8 +1029,8 @@ start_with_b:
  *  - limit: Recursion limit.
  * Output:
  *  - head_out: The head of the sorted list containing the first 2^(level+1) elements of the
- *   input list; if the input list has fewer elements, head_out be a sorted list
- *   containing all the elements of the input list.
+ * input list; if the input list has fewer elements, head_out be a sorted list
+ * containing all the elements of the input list.
  * Returns the head of the list of unprocessed elements (NULL if the sorted list contains
  * all the elements of the input list).
  *
@@ -1363,8 +1363,8 @@ I glitter_status_t glitter_scan_converter_reset(glitter_scan_converter_t * conve
 }
 
 /* INPUT_TO_GRID_X/Y (in_coord, out_grid_scaled, grid_scale)
- *   These macros convert an input coordinate in the client's
- *   device space to the rasterisation grid.
+ * These macros convert an input coordinate in the client's
+ * device space to the rasterisation grid.
  */
 /* Gah.. this bit of ugly defines INPUT_TO_GRID_X/Y so as to use
  * shifts if possible, and something saneish if not.

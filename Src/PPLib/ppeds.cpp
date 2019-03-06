@@ -248,7 +248,7 @@ int PPEds::EncodeData(const char * pOwnerName, const char * pFileName, int sameF
 		encode_file.Write(pb_indata, buf_len);
 	}
 	// Теперь работаем с последним блоком
-	block_size_to_read = (DWORD)file_size;
+	block_size_to_read = static_cast<DWORD>(file_size);
 	ZDELETE(pb_indata);
 	cb_indata = block_size_to_read;
 	buf_len = block_size_to_read;
@@ -324,7 +324,7 @@ int PPEds::DecodeData(const char * pOwnerName, const char * pFileName)
 	for(size_t i = 0; i < (size_t)blob_count; i++, file_size -= block_len) {
 		cb_indata = block_len;
 		if(file_size < block_len)
-			cb_indata = (DWORD)file_size;
+			cb_indata = static_cast<DWORD>(file_size);
 		// Выделим память
 		THROW_MEM(pb_indata = new BYTE[cb_indata]);
 		memzero(pb_indata, cb_indata);
@@ -405,7 +405,7 @@ int PPEds::FirstSignData(const char * pSignerName, const char * pFileName, SStri
 		if(file_size > SIZE_TO_READ)
 			cb_indata = (DWORD)SIZE_TO_READ;
 		else
-			cb_indata = (DWORD)file_size;
+			cb_indata = static_cast<DWORD>(file_size);
 		THROW_MEM(pb_indata = new BYTE[cb_indata]);
 		memzero(pb_indata, cb_indata);
 		file.ReadV(pb_indata, cb_indata);
@@ -489,7 +489,7 @@ int PPEds::CoSignData(const char * pCosignerName, const char * pFileName, const 
 	SFile file;
 	THROW_SL(file.Open(pSignFileName, SFile::mRead | SFile::mBinary));
 	file.CalcSize(&file_size);
-	cb_sign_data = (DWORD)file_size;
+	cb_sign_data = static_cast<DWORD>(file_size);
 	THROW_MEM(pb_sign_data = new BYTE[cb_sign_data]);
 	memzero(pb_sign_data, cb_sign_data);
 	file.ReadV(pb_sign_data, cb_sign_data);
@@ -514,7 +514,7 @@ int PPEds::CoSignData(const char * pCosignerName, const char * pFileName, const 
 	THROW_SL(file.Open(pFileName, SFile::mRead | SFile::mBinary));
 	file_size = 0;
 	file.CalcSize(&file_size);
-	cb_indata = (DWORD)file_size;
+	cb_indata = static_cast<DWORD>(file_size);
 	THROW_MEM(pb_indata = new BYTE[SIZE_TO_READ]);
 	size_t actual_size = 0;
 	blob_count = fceili((double)file_size / SIZE_TO_READ);
@@ -599,7 +599,7 @@ int PPEds::CountersignData(const char * pCountersignerName, int signerNumber, co
 	THROW_SL(file.Open(pSignFileName, SFile::mRead | SFile::mBinary));
 	int64 file_size = 0;
 	file.CalcSize(&file_size);
-	cb_indata = (DWORD)file_size;
+	cb_indata = static_cast<DWORD>(file_size);
 	THROW_MEM(pb_indata = new BYTE[cb_indata]);
 	memzero(pb_indata, cb_indata);
 	file.ReadV(pb_indata, cb_indata);
@@ -698,7 +698,7 @@ int PPEds::DeleteSign(const char * pSignFileName, int signNumber)
 	THROW_SL(file.Open(pSignFileName, SFile::mRead | SFile::mBinary));
 	int64 file_size = 0;
 	file.CalcSize(&file_size);
-	cb_indata = (DWORD)file_size;
+	cb_indata = static_cast<DWORD>(file_size);
 	THROW_MEM(pb_indata = new BYTE[cb_indata]);
 	memzero(pb_indata, cb_indata);
 	file.ReadV(pb_indata, cb_indata);
@@ -788,7 +788,7 @@ int PPEds::DeleteCountersign(char * pSignFileName, const int signerNumber)
 	THROW_SL(file.Open(pSignFileName, SFile::mRead | SFile::mBinary));
 	int64 file_size = 0;
 	file.CalcSize(&file_size);
-	cb_indata = (DWORD)file_size;
+	cb_indata = static_cast<DWORD>(file_size);
 	THROW_MEM(pb_indata = new BYTE[cb_indata]);
 	memzero(pb_indata, cb_indata);
 	file.ReadV(pb_indata, cb_indata);
@@ -863,7 +863,7 @@ int PPEds::GetSignsCount(const char * pSignFileName, int & rCount)
 	else {
 		int64 file_size = 0;
 		file.CalcSize(&file_size);
-		cb_indata = (DWORD)file_size;
+		cb_indata = static_cast<DWORD>(file_size);
 		THROW_MEM(pb_indata = new BYTE[cb_indata]);
 		memzero(pb_indata, cb_indata);
 		file.ReadV(pb_indata, cb_indata);
@@ -908,7 +908,7 @@ int PPEds::GetSignerNameByNumber(const char * pSignFileName, int signNumber, SSt
 
 	THROW_SL(file.Open(pSignFileName, SFile::mRead | SFile::mBinary));
 	file.CalcSize(&file_size);
-	cb_indata = (DWORD)file_size;
+	cb_indata = static_cast<DWORD>(file_size);
 	THROW_MEM(pb_indata = new BYTE[cb_indata]);
 	memzero(pb_indata, cb_indata);
 	file.ReadV(pb_indata, cb_indata);
@@ -980,7 +980,7 @@ int PPEds::GetCertIndexBySignerName(const char * pSignFileName, const char * pSi
 
 	THROW_SL(file.Open(pSignFileName, SFile::mRead | SFile::mBinary));
 	file.CalcSize(&file_size);
-	cb_indata = (DWORD)file_size;
+	cb_indata = static_cast<DWORD>(file_size);
 	THROW_MEM(pb_indata = new BYTE[cb_indata]);
 	memzero(pb_indata, cb_indata);
 	file.ReadV(pb_indata, cb_indata);
@@ -1094,7 +1094,7 @@ int PPEds::GetCountersignerNameBySignerNumber(const char * pSignFileName, int si
 	// Считаем данные из файла с подписью
 	THROW_SL(file.Open(pSignFileName, SFile::mRead | SFile::mBinary));
 	file.CalcSize(&file_size);
-	cb_sign_data = (DWORD)file_size;
+	cb_sign_data = static_cast<DWORD>(file_size);
 	THROW_MEM(pb_sign_data = new BYTE[cb_sign_data]);
 	memzero(pb_sign_data, cb_sign_data);
 	file.ReadV(pb_sign_data, cb_sign_data);
@@ -1222,7 +1222,7 @@ int PPEds::VerifySign(const char * pFileName, const char * pSignFileName, int si
 	// Считаем данные из документа
 	THROW_SL(file.Open(pFileName, SFile::mRead | SFile::mBinary));
 	file.CalcSize(&file_size);
-	cb_indata = (DWORD)file_size;
+	cb_indata = static_cast<DWORD>(file_size);
 	THROW_MEM(pb_indata = new BYTE[cb_indata]);
 	memzero(pb_indata, cb_indata);
 	file.ReadV(pb_indata, cb_indata);
@@ -1232,7 +1232,7 @@ int PPEds::VerifySign(const char * pFileName, const char * pSignFileName, int si
 	THROW_SL(file.Open(pSignFileName, SFile::mRead | SFile::mBinary));
 	file_size = 0;
 	file.CalcSize(&file_size);
-	cb_sign_data = (DWORD)file_size;
+	cb_sign_data = static_cast<DWORD>(file_size);
 	THROW_MEM(pb_sign_data = new BYTE[cb_sign_data]);
 	memzero(pb_sign_data, cb_sign_data);
 	file.ReadV(pb_sign_data, cb_sign_data);
@@ -1299,7 +1299,7 @@ int PPEds::VerifyCountersign(const char * pSignFileName, const int signerNumber)
 	// Считаем данные из файла с подписью
 	THROW_SL(file.Open(pSignFileName, SFile::mRead | SFile::mBinary));
 	file.CalcSize(&file_size);
-	cb_sign_data = (DWORD)file_size;
+	cb_sign_data = static_cast<DWORD>(file_size);
 	THROW_MEM(pb_sign_data = new BYTE[cb_sign_data]);
 	memzero(pb_sign_data, cb_sign_data);
 	file.ReadV(pb_sign_data, cb_sign_data);
@@ -1943,21 +1943,21 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	THROW_SL(sock.Connect(inet_addr));
 	str.Z().Cat("POST ").Cat(URL).Space().Cat("HTTP/1.1\r\n");
 	THROW_SL(sock.Send(str, str.Len(), NULL));
-	printf("%s", (const char*)str);
+	printf("%s", str.cptr());
 	str.Z().Cat("Host: ").Cat(HOST).Cat("\r\n");
 	THROW_SL(sock.Send(str, str.Len(), NULL));
-	printf("%s", (const char*)str);
+	printf("%s", str.cptr());
 	str.Z().Cat("Content-Type: application/timestamp-query\r\n");
 	THROW_SL(sock.Send(str, str.Len(), NULL));
-	printf("%s", (const char*)str);
+	printf("%s", str.cptr());
 	str.Z().Cat("Content-Length: ").Cat((uint)request.Len()).Cat("\r\n");
 	THROW_SL(sock.Send(str, str.Len(), NULL));
-	printf("%s", (const char*)str);
+	printf("%s", str.cptr());
 	str.Z().Cat("\r\n");
 	THROW_SL(sock.Send(str, str.Len(), NULL));
-	printf("%s", (const char*)str);
+	printf("%s", str.cptr());
 	THROW_SL(sock.Send(request, request.Len(), NULL));
-	printf("%s", (const char*)request);
+	printf("%s", request.cptr());
 	printf("\n");
 
 	uint   size = SIZEOFARRAY(resp_buf);
@@ -2011,7 +2011,7 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 		THROW_PP(diff_time < five_minutes, PPERR_EDS_TSPFAILED);
 
 		buf.SetRdOffs(0);
-		file.Write((const char*)buf.GetBuf() + pos + 4, buf.GetSize() - pos - 4);
+		file.Write((const char *)buf.GetBuf() + pos + 4, buf.GetSize() - pos - 4);
 		file.Close();
 	}
 

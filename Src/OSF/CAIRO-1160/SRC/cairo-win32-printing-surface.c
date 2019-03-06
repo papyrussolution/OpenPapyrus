@@ -58,7 +58,7 @@
 //#include "cairo-image-surface-private.h"
 #include "cairo-surface-backend-private.h"
 //#include "cairo-surface-clipper-private.h"
-#include "cairo-surface-snapshot-inline.h"
+//#include "cairo-surface-snapshot-inline.h"
 #include "cairo-surface-subsurface-private.h"
 
 #include <windows.h>
@@ -133,7 +133,7 @@ static void _cairo_win32_printing_surface_init_image_support(cairo_win32_printin
  * work unless the GDI function GdiInitializeLanguagePack() has been
  * called.
  *
- *   http://m-a-tech.blogspot.com/2009/04/emf-buffer-idiocracy.html
+ * http://m-a-tech.blogspot.com/2009/04/emf-buffer-idiocracy.html
  *
  * The only information I could find on the how to use this
  * undocumented function is the use in:
@@ -143,7 +143,7 @@ static void _cairo_win32_printing_surface_init_image_support(cairo_win32_printin
  * to solve the same problem. The above code first checks if LPK.DLL
  * is already loaded. If it is not it calls
  * GdiInitializeLanguagePack() using the prototype
- *   BOOL GdiInitializeLanguagePack (int)
+ * BOOL GdiInitializeLanguagePack (int)
  * and argument 0.
  */
 static void _cairo_win32_printing_surface_init_language_pack(cairo_win32_printing_surface_t * surface)
@@ -1773,10 +1773,10 @@ static cairo_int_status_t _cairo_win32_printing_surface_start_page(void * abstra
 	 * rounding errors. For example the obvious way to paint a recording
 	 * pattern is to:
 	 *
-	 *   SaveDC()
-	 *   transform the device context DC by the pattern to device matrix
-	 *   replay the recording surface
-	 *   RestoreDC()
+	 * SaveDC()
+	 * transform the device context DC by the pattern to device matrix
+	 * replay the recording surface
+	 * RestoreDC()
 	 *
 	 * The problem here is that if the pattern to device matrix is
 	 * [100 0 0 100 0 0], coordinates in the recording pattern such as

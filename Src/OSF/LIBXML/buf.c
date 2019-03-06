@@ -111,7 +111,7 @@ xmlBuf * xmlBufCreate()
 		p_ret->size = xmlDefaultBufferSize;
 		p_ret->compat_size = xmlDefaultBufferSize;
 		p_ret->alloc = xmlBufferAllocScheme;
-		p_ret->content = (xmlChar*)SAlloc::M(p_ret->size * sizeof(xmlChar));
+		p_ret->content = (xmlChar *)SAlloc::M(p_ret->size * sizeof(xmlChar));
 		if(p_ret->content == NULL) {
 			xmlBufMemoryError(p_ret, "creating buffer");
 			ZFREE(p_ret);
@@ -145,7 +145,7 @@ xmlBuf * FASTCALL xmlBufCreateSize(size_t size)
 		ret->size = (size ? size+2 : 0);     /* +1 for ending null */
 		ret->compat_size = (int)ret->size;
 		if(ret->size) {
-			ret->content = (xmlChar*)SAlloc::M(ret->size * sizeof(xmlChar));
+			ret->content = (xmlChar *)SAlloc::M(ret->size * sizeof(xmlChar));
 			if(ret->content == NULL) {
 				xmlBufMemoryError(ret, "creating buffer");
 				SAlloc::F(ret);
@@ -212,7 +212,7 @@ xmlBuf * FASTCALL xmlBufCreateStatic(void * pMem, size_t size)
 			p_ret->use = size;
 			p_ret->size = size;
 			p_ret->alloc = XML_BUFFER_ALLOC_IMMUTABLE;
-			p_ret->content = (xmlChar*)pMem;
+			p_ret->content = (xmlChar *)pMem;
 			p_ret->error = 0;
 			p_ret->buffer = NULL;
 		}
@@ -409,7 +409,7 @@ static size_t FASTCALL xmlBufGrowInternal(xmlBuf * pBuf, size_t len)
 #endif
 	if(pBuf->alloc == XML_BUFFER_ALLOC_IO && pBuf->contentIO) {
 		size_t start_buf = pBuf->content - pBuf->contentIO;
-		p_newbuf = (xmlChar*)SAlloc::R(pBuf->contentIO, start_buf + size);
+		p_newbuf = (xmlChar *)SAlloc::R(pBuf->contentIO, start_buf + size);
 		if(!p_newbuf) {
 			xmlBufMemoryError(pBuf, "growing buffer");
 			return 0;
@@ -418,7 +418,7 @@ static size_t FASTCALL xmlBufGrowInternal(xmlBuf * pBuf, size_t len)
 		pBuf->content = p_newbuf + start_buf;
 	}
 	else {
-		p_newbuf = (xmlChar*)SAlloc::R(pBuf->content, size);
+		p_newbuf = (xmlChar *)SAlloc::R(pBuf->content, size);
 		if(!p_newbuf) {
 			xmlBufMemoryError(pBuf, "growing buffer");
 			return 0;
@@ -722,7 +722,7 @@ int FASTCALL xmlBufResize(xmlBuf * buf, size_t size)
 			buf->size += start_buf;
 		}
 		else {
-			rebuf = (xmlChar*)SAlloc::R(buf->contentIO, start_buf + newSize);
+			rebuf = (xmlChar *)SAlloc::R(buf->contentIO, start_buf + newSize);
 			if(rebuf == NULL) {
 				xmlBufMemoryError(buf, "growing buffer");
 				return 0;
@@ -733,10 +733,10 @@ int FASTCALL xmlBufResize(xmlBuf * buf, size_t size)
 	}
 	else {
 		if(buf->content == NULL) {
-			rebuf = (xmlChar*)SAlloc::M(newSize);
+			rebuf = (xmlChar *)SAlloc::M(newSize);
 		}
 		else if(buf->size - buf->use < 100) {
-			rebuf = (xmlChar*)SAlloc::R(buf->content, newSize);
+			rebuf = (xmlChar *)SAlloc::R(buf->content, newSize);
 		}
 		else {
 			/*
@@ -744,7 +744,7 @@ int FASTCALL xmlBufResize(xmlBuf * buf, size_t size)
 			 * better to make a new allocation and copy only the used range
 			 * and free the old one.
 			 */
-			rebuf = (xmlChar*)SAlloc::M(newSize);
+			rebuf = (xmlChar *)SAlloc::M(newSize);
 			if(rebuf) {
 				memcpy(rebuf, buf->content, buf->use);
 				SAlloc::F(buf->content);
@@ -771,7 +771,7 @@ int FASTCALL xmlBufResize(xmlBuf * buf, size_t size)
  * str is recomputed.
  *
  * Returns 0 successful, a positive error code number otherwise
- *         and -1 in case of internal or API error.
+ *       and -1 in case of internal or API error.
  */
 int FASTCALL xmlBufAdd(xmlBuf * buf, const xmlChar * str, int len)
 {
@@ -818,7 +818,7 @@ int FASTCALL xmlBufAdd(xmlBuf * buf, const xmlChar * str, int len)
  * if len == -1, the length of @str is recomputed.
  *
  * Returns 0 successful, a positive error code number otherwise
- *         and -1 in case of internal or API error.
+ *       and -1 in case of internal or API error.
  */
 int xmlBufAddHead(xmlBufPtr buf, const xmlChar * str, int len)
 {
@@ -882,7 +882,7 @@ int xmlBufAddHead(xmlBufPtr buf, const xmlChar * str, int len)
  * Append a zero terminated string to an XML buffer.
  *
  * Returns 0 successful, a positive error code number otherwise
- *         and -1 in case of internal or API error.
+ *       and -1 in case of internal or API error.
  */
 int FASTCALL xmlBufCat(xmlBuf * buf, const xmlChar * str)
 {
@@ -901,7 +901,7 @@ int FASTCALL xmlBufCat(xmlBuf * buf, const xmlChar * str)
  * Append a zero terminated C string to an XML buffer.
  *
  * Returns 0 successful, a positive error code number otherwise
- *         and -1 in case of internal or API error.
+ *       and -1 in case of internal or API error.
  */
 int FASTCALL xmlBufCCat(xmlBuf * buf, const char * str)
 {
@@ -939,7 +939,7 @@ int FASTCALL xmlBufCCat(xmlBuf * buf, const char * str)
  * xmlChars at the end of the buffer.
  *
  * Returns 0 if successful, a positive error code number otherwise
- *         and -1 in case of internal or API error.
+ *       and -1 in case of internal or API error.
  */
 int FASTCALL xmlBufWriteCHAR(xmlBuf * buf, const xmlChar * string) 
 {
@@ -957,7 +957,7 @@ int FASTCALL xmlBufWriteCHAR(xmlBuf * buf, const xmlChar * string)
  * C chars at the end of the array.
  *
  * Returns 0 if successful, a positive error code number otherwise
- *         and -1 in case of internal or API error.
+ *       and -1 in case of internal or API error.
  */
 int FASTCALL xmlBufWriteChar(xmlBuf * buf, const char * string) 
 {
@@ -976,7 +976,7 @@ int FASTCALL xmlBufWriteChar(xmlBuf * buf, const char * string)
  * quote or double-quotes internally
  *
  * Returns 0 if successful, a positive error code number otherwise
- *         and -1 in case of internal or API error.
+ *       and -1 in case of internal or API error.
  */
 int FASTCALL xmlBufWriteQuotedString(xmlBufPtr buf, const xmlChar * string)
 {

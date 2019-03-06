@@ -607,8 +607,8 @@ static void add_ecc(int fullstream[], int datastream[], int version, int data_cw
 	int interleaved_data[data_cw + 2];
 	int interleaved_ecc[ecc_cw + 2];
 #else
-	uchar* data_block = (uchar*)_alloca(short_data_block_length + 2);
-	uchar* ecc_block = (uchar*)_alloca(ecc_block_length + 2);
+	uchar* data_block = (uchar *)_alloca(short_data_block_length + 2);
+	uchar* ecc_block = (uchar *)_alloca(ecc_block_length + 2);
 	int* interleaved_data = (int *)_alloca((data_cw + 2) * sizeof(int));
 	int* interleaved_ecc = (int *)_alloca((ecc_cw + 2) * sizeof(int));
 #endif
@@ -1176,8 +1176,8 @@ static int apply_bitmask(uchar * grid, int size, int ecc_level)
 	uchar mask[size * size];
 	uchar eval[size * size];
 #else
-	uchar* mask = (uchar*)_alloca((size * size) * sizeof(uchar));
-	uchar* eval = (uchar*)_alloca((size * size) * sizeof(uchar));
+	uchar* mask = (uchar *)_alloca((size * size) * sizeof(uchar));
+	uchar* eval = (uchar *)_alloca((size * size) * sizeof(uchar));
 #endif
 	// Perform data masking 
 	for(x = 0; x < size; x++) {
@@ -1669,7 +1669,7 @@ int qr_code(struct ZintSymbol * symbol, const uchar source[], int length)
 #ifndef _MSC_VER
 	uchar grid[size * size];
 #else
-	grid = (uchar*)_alloca((size * size) * sizeof(uchar));
+	grid = (uchar *)_alloca((size * size) * sizeof(uchar));
 #endif
 	for(i = 0; i < size; i++) {
 		for(j = 0; j < size; j++) {
@@ -2422,8 +2422,8 @@ static int micro_apply_bitmask(uchar * grid, int size)
 	uchar mask[size * size];
 	uchar eval[size * size];
 #else
-	uchar* mask = (uchar*)_alloca((size * size) * sizeof(uchar));
-	uchar* eval = (uchar*)_alloca((size * size) * sizeof(uchar));
+	uchar* mask = (uchar *)_alloca((size * size) * sizeof(uchar));
+	uchar* eval = (uchar *)_alloca((size * size) * sizeof(uchar));
 #endif
 	// Perform data masking 
 	for(x = 0; x < size; x++) {
@@ -2675,7 +2675,7 @@ int microqr(struct ZintSymbol * symbol, const uchar source[], int length)
 #ifndef _MSC_VER
 	uchar grid[size * size];
 #else
-	grid = (uchar*)_alloca((size * size) * sizeof(uchar));
+	grid = (uchar *)_alloca((size * size) * sizeof(uchar));
 #endif
 	for(i = 0; i < size; i++) {
 		for(j = 0; j < size; j++) {

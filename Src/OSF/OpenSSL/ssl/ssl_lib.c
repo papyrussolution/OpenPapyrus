@@ -286,7 +286,7 @@ static int dane_tlsa_add(SSL_DANE * dane, uint8_t usage, uint8_t selector, uint8
 	t->usage = usage;
 	t->selector = selector;
 	t->mtype = mtype;
-	t->data = (uchar*)OPENSSL_malloc(ilen);
+	t->data = (uchar *)OPENSSL_malloc(ilen);
 	if(t->data == NULL) {
 		tlsa_free(t);
 		SSLerr(SSL_F_DANE_TLSA_ADD, ERR_R_MALLOC_FAILURE);
@@ -555,14 +555,14 @@ SSL * SSL_new(SSL_CTX * ctx)
 	s->session_ctx = ctx;
 #ifndef OPENSSL_NO_EC
 	if(ctx->tlsext_ecpointformatlist) {
-		s->tlsext_ecpointformatlist = (uchar*)OPENSSL_memdup(ctx->tlsext_ecpointformatlist,
+		s->tlsext_ecpointformatlist = (uchar *)OPENSSL_memdup(ctx->tlsext_ecpointformatlist,
 		    ctx->tlsext_ecpointformatlist_length);
 		if(!s->tlsext_ecpointformatlist)
 			goto err;
 		s->tlsext_ecpointformatlist_length = ctx->tlsext_ecpointformatlist_length;
 	}
 	if(ctx->tlsext_ellipticcurvelist) {
-		s->tlsext_ellipticcurvelist = (uchar*)OPENSSL_memdup(ctx->tlsext_ellipticcurvelist,
+		s->tlsext_ellipticcurvelist = (uchar *)OPENSSL_memdup(ctx->tlsext_ellipticcurvelist,
 		    ctx->tlsext_ellipticcurvelist_length);
 		if(!s->tlsext_ellipticcurvelist)
 			goto err;
@@ -573,7 +573,7 @@ SSL * SSL_new(SSL_CTX * ctx)
 	s->next_proto_negotiated = NULL;
 #endif
 	if(s->ctx->alpn_client_proto_list) {
-		s->alpn_client_proto_list = (uchar*)OPENSSL_malloc(s->ctx->alpn_client_proto_list_len);
+		s->alpn_client_proto_list = (uchar *)OPENSSL_malloc(s->ctx->alpn_client_proto_list_len);
 		if(s->alpn_client_proto_list == NULL)
 			goto err;
 		memcpy(s->alpn_client_proto_list, s->ctx->alpn_client_proto_list, s->ctx->alpn_client_proto_list_len);
@@ -1590,11 +1590,11 @@ long SSL_CTX_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 		switch(cmd) {
 #ifndef OPENSSL_NO_EC
 			case SSL_CTRL_SET_CURVES_LIST:
-			    return tls1_set_curves_list(NULL, NULL, (const char*)parg);
+			    return tls1_set_curves_list(NULL, NULL, (const char *)parg);
 #endif
 			case SSL_CTRL_SET_SIGALGS_LIST:
 			case SSL_CTRL_SET_CLIENT_SIGALGS_LIST:
-			    return tls1_set_sigalgs_list(NULL, (const char*)parg, 0);
+			    return tls1_set_sigalgs_list(NULL, (const char *)parg, 0);
 			default:
 			    return 0;
 		}
@@ -1941,7 +1941,7 @@ int SSL_select_next_proto(uchar ** out, uchar * outlen, const uchar * server, ui
 	status = OPENSSL_NPN_NO_OVERLAP;
 
 found:
-	*out = (uchar*)result + 1;
+	*out = (uchar *)result + 1;
 	*outlen = result[0];
 	return status;
 }
@@ -2009,7 +2009,7 @@ int SSL_CTX_set_alpn_protos(SSL_CTX * ctx, const uchar * protos,
     uint protos_len)
 {
 	OPENSSL_free(ctx->alpn_client_proto_list);
-	ctx->alpn_client_proto_list = (uchar*)OPENSSL_memdup(protos, protos_len);
+	ctx->alpn_client_proto_list = (uchar *)OPENSSL_memdup(protos, protos_len);
 	if(ctx->alpn_client_proto_list == NULL) {
 		SSLerr(SSL_F_SSL_CTX_SET_ALPN_PROTOS, ERR_R_MALLOC_FAILURE);
 		return 1;
@@ -2027,7 +2027,7 @@ int SSL_CTX_set_alpn_protos(SSL_CTX * ctx, const uchar * protos,
 int SSL_set_alpn_protos(SSL * ssl, const uchar * protos, uint protos_len)
 {
 	OPENSSL_free(ssl->alpn_client_proto_list);
-	ssl->alpn_client_proto_list = (uchar*)OPENSSL_memdup(protos, protos_len);
+	ssl->alpn_client_proto_list = (uchar *)OPENSSL_memdup(protos, protos_len);
 	if(ssl->alpn_client_proto_list == NULL) {
 		SSLerr(SSL_F_SSL_SET_ALPN_PROTOS, ERR_R_MALLOC_FAILURE);
 		return 1;

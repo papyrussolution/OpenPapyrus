@@ -108,10 +108,10 @@ CURLcode Curl_fillreadbuffer(struct connectdata * conn, int bytes, int * nreadp)
 
 	if(!data->req.forbidchunk && data->req.upload_chunky) {
 		/* if chunked Transfer-Encoding
-		 *    build chunk:
+		 *  build chunk:
 		 *
-		 *        <HEX SIZE> CRLF
-		 *        <DATA> CRLF
+		 *      <HEX SIZE> CRLF
+		 *      <DATA> CRLF
 		 */
 		/* On non-ASCII platforms the <DATA> may or may not be
 		   translated based on set.prefer_ascii while the protocol
@@ -1108,7 +1108,7 @@ static size_t strlen_url(const char * url)
 	const uchar * ptr;
 	size_t newlen = 0;
 	bool left = TRUE; /* left side of the ? */
-	for(ptr = (uchar*)url; *ptr; ptr++) {
+	for(ptr = (uchar *)url; *ptr; ptr++) {
 		switch(*ptr) {
 			case '?':
 			    left = FALSE;
@@ -1138,7 +1138,7 @@ static void strcpy_url(char * output, const char * url)
 	bool left = TRUE;
 	const uchar * iptr;
 	char * optr = output;
-	for(iptr = (uchar*)url; /* read from here */
+	for(iptr = (uchar *)url; /* read from here */
 	    *iptr;   /* until zero byte */
 	    iptr++) {
 		switch(*iptr) {

@@ -66,17 +66,17 @@ struct _cairo_scaled_font {
 	 *
 	 * 1. The reference count (scaled_font->ref_count)
 	 *
-	 *    Modifications to the reference count are protected by the
-	 *    _cairo_scaled_font_map_mutex. This is because the reference
-	 *    count of a scaled font is intimately related with the font
-	 *    map itself, (and the magic holdovers array).
+	 *  Modifications to the reference count are protected by the
+	 *  _cairo_scaled_font_map_mutex. This is because the reference
+	 *  count of a scaled font is intimately related with the font
+	 *  map itself, (and the magic holdovers array).
 	 *
 	 * 2. The cache of glyphs (scaled_font->glyphs)
 	 * 3. The backend private data (scaled_font->surface_backend,
 	 *				    scaled_font->surface_private)
 	 *
-	 *    Modifications to these fields are protected with locks on
-	 *    scaled_font->mutex in the generic scaled_font code.
+	 *  Modifications to these fields are protected with locks on
+	 *  scaled_font->mutex in the generic scaled_font code.
 	 */
 	cairo_hash_entry_t hash_entry;
 	/* useful bits for _cairo_scaled_font_nil */

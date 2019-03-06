@@ -373,11 +373,11 @@ static void * ngx_http_memcached_create_loc_conf(ngx_conf_t * cf)
 		/*
 		 * set by ngx_pcalloc():
 		 *
-		 *     conf->upstream.bufs.num = 0;
-		 *     conf->upstream.next_upstream = 0;
-		 *     conf->upstream.temp_path = NULL;
-		 *     conf->upstream.uri = { 0, NULL };
-		 *     conf->upstream.location = NULL;
+		 *   conf->upstream.bufs.num = 0;
+		 *   conf->upstream.next_upstream = 0;
+		 *   conf->upstream.temp_path = NULL;
+		 *   conf->upstream.uri = { 0, NULL };
+		 *   conf->upstream.location = NULL;
 		 */
 		conf->upstream.local = (ngx_http_upstream_local_t*)NGX_CONF_UNSET_PTR;
 		conf->upstream.next_upstream_tries = NGX_CONF_UNSET_UINT;

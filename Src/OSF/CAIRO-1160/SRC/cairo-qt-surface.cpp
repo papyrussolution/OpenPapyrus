@@ -1623,8 +1623,8 @@ cairo_surface_t * cairo_qt_surface_get_image(cairo_surface_t * surface)
  * - Figure out why QBrush isn't working with non-repeated images
  *
  * - Correct repeat mode; right now, every surface source is EXTEND_REPEAT
- *   - implement EXTEND_NONE (?? probably need to clip to the extents of the source)
- *   - implement EXTEND_REFLECT (create temporary and copy 4x, then EXTEND_REPEAT that)
+ * - implement EXTEND_NONE (?? probably need to clip to the extents of the source)
+ * - implement EXTEND_REFLECT (create temporary and copy 4x, then EXTEND_REPEAT that)
  *
  * - stroke-image failure
  *
@@ -1633,7 +1633,7 @@ cairo_surface_t * cairo_qt_surface_get_image(cairo_surface_t * surface)
  * - Implement gradient sources
  *
  * - Make create_similar smarter -- create QPixmaps in more circumstances
- *   (e.g. if the pixmap can have alpha)
+ * (e.g. if the pixmap can have alpha)
  *
  * - Implement show_glyphs() in terms of Qt
  *

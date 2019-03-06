@@ -407,10 +407,10 @@ int __qam_gen_filelist(DB*dbp, DB_THREAD_INFO * ip, QUEUE_FILELIST ** filelistp)
 	 * Allocate the extent array.  Calculate the worst case number of
 	 * pages and convert that to a count of extents.   The count of
 	 * extents has 3 or 4 extra slots:
-	 *   roundoff at first (e.g., current record in extent);
-	 *   roundoff at current (e.g., first record in extent);
-	 *   NULL termination; and
-	 *   UINT32_MAX wraparound (the last extent can be small).
+	 * roundoff at first (e.g., current record in extent);
+	 * roundoff at current (e.g., first record in extent);
+	 * NULL termination; and
+	 * UINT32_MAX wraparound (the last extent can be small).
 	 */
 	rec_extent = qp->rec_page*qp->page_ext;
 	extent_cnt = (current >= first) ? ((current-first)/rec_extent+3) : ((current+(UINT32_MAX-first))/rec_extent+4);

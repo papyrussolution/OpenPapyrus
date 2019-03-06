@@ -123,7 +123,7 @@ int MailSession::doConnect(u_long ip, int port)
 
 int MailSession::putBuffer(const void * pBuf, size_t bufLen)
 {
-	const char * p_buf = (const char *)pBuf;
+	const char * p_buf = static_cast<const char *>(pBuf);
 	for(size_t written = 0; written < bufLen;) {
 		fd_set wset;
 		FD_ZERO(&wset);
@@ -452,13 +452,13 @@ int SLAPI SMailClient::Auth(int authtype, const char * pName, const char * pPass
 					memzero(param, sizeof(param));
 					memzero(time_stamp, sizeof(time_stamp));
 					md5.Init();
-					md5.Update((uchar*)pPassword, strlen(pPassword));
+					md5.Update((uchar *)pPassword, strlen(pPassword));
 					md5.Final(digest);
 					sprintf(param, "%s %s", user, digest);
 					encode64(param, strlen(param), param_64, sizeof(param_64), 0);
 					THROW(SendCmd(SMTPCMD_AUTH, "CRAM-MD5", reply_buf));
 					decode64(strchr(reply_buf, ' '), strlen(strchr(reply_buf, ' ')), time_stamp, 0);
-					THROW(SendCmd(SMTPCMD_STRING, (const char*)param_64, reply_buf));
+					THROW(SendCmd(SMTPCMD_STRING, (const char *)param_64, reply_buf));
 				}
 				break;
 			*/

@@ -98,9 +98,9 @@ void term_source(j_decompress_ptr cinfo)
 
 struct jpeg_decompress_struct * _zbar_jpeg_decomp_create(void)
 {
-	j_decompress_ptr cinfo = (j_decompress_ptr)SAlloc::C(1, sizeof(struct jpeg_decompress_struct));
+	j_decompress_ptr cinfo = static_cast<j_decompress_ptr>(SAlloc::C(1, sizeof(struct jpeg_decompress_struct)));
 	if(cinfo) {
-		errenv_t * jerr = (errenv_t *)SAlloc::C(1, sizeof(errenv_t));
+		errenv_t * jerr = static_cast<errenv_t *>(SAlloc::C(1, sizeof(errenv_t)));
 		if(!jerr) {
 			SAlloc::F(cinfo);
 			return NULL;

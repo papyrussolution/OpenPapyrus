@@ -889,7 +889,7 @@ int SLAPI Tddo::Helper_Process(TddoProcessBlock & rBlk, SBuffer & rOut, Meta & r
 		if(iter_id) {
 			Scan.Push(&prev_scan_stack_pos);
 		}
-		for(int exit_loop = 0; !exit_loop && !isempty((const char*)Scan);) {
+		for(int exit_loop = 0; !exit_loop && !isempty((const char *)Scan);) {
 			int    r = ScanMeta(meta);
 			if(r > 0) {
 				switch(meta.Tok) {

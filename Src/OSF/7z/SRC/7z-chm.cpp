@@ -413,7 +413,7 @@ namespace NArchive {
 						if(testMode || realOutStream) {
 							if(!testMode) {
 								uint32 size = m_Database.NewFormatString.Len();
-								RINOK(WriteStream(realOutStream, (const char*)m_Database.NewFormatString, size));
+								RINOK(WriteStream(realOutStream, (const char *)m_Database.NewFormatString, size));
 							}
 							RINOK(extractCallback->SetOperationResult(NExtractArc::NOperationResult::kOK));
 						}

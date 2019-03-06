@@ -805,18 +805,18 @@ struct __db_rep {
 #ifdef HAVE_REPLICATION_THREADS
 /*
  * Application type is set to be repmgr when:
- *   1. A local site is defined.
- *   2. A remote site is defined.
- *   3. An acknowledgement policy is configured.
- *   4. A repmgr flag is configured.
- *   5. A timeout value is configured for one of the repmgr timeouts.
+ * 1. A local site is defined.
+ * 2. A remote site is defined.
+ * 3. An acknowledgement policy is configured.
+ * 4. A repmgr flag is configured.
+ * 5. A timeout value is configured for one of the repmgr timeouts.
  */
 #define	APP_IS_REPMGR(env) (REP_ON(env) ? F_ISSET((env)->rep_handle->region, REP_F_APP_REPMGR) : F_ISSET((env)->rep_handle, DBREP_APP_REPMGR))
 
 /*
  * Application type is set to be base replication API when:
- *   1. Transport send function is defined and is not the repmgr send
- *      function.
+ * 1. Transport send function is defined and is not the repmgr send
+ *    function.
  */
 #define	APP_IS_BASEAPI(env) (REP_ON(env) ? F_ISSET((env)->rep_handle->region, REP_F_APP_BASEAPI) : F_ISSET((env)->rep_handle, DBREP_APP_BASEAPI))
 

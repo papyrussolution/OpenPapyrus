@@ -18,12 +18,12 @@ ngx_buf_t * FASTCALL ngx_create_temp_buf(ngx_pool_t * pool, size_t size)
 			/*
 			 * set by ngx_calloc_buf():
 			 *
-			 *     b->file_pos = 0;
-			 *     b->file_last = 0;
-			 *     b->file = NULL;
-			 *     b->shadow = NULL;
-			 *     b->tag = 0;
-			 *     and flags
+			 *   b->file_pos = 0;
+			 *   b->file_last = 0;
+			 *   b->file = NULL;
+			 *   b->shadow = NULL;
+			 *   b->tag = 0;
+			 *   and flags
 			 */
 			b->pos = b->start;
 			b->last = b->start;
@@ -62,12 +62,12 @@ ngx_chain_t * ngx_create_chain_of_bufs(ngx_pool_t * pool, ngx_bufs_t * bufs)
 		/*
 		 * set by ngx_calloc_buf():
 		 *
-		 *     b->file_pos = 0;
-		 *     b->file_last = 0;
-		 *     b->file = NULL;
-		 *     b->shadow = NULL;
-		 *     b->tag = 0;
-		 *     and flags
+		 *   b->file_pos = 0;
+		 *   b->file_last = 0;
+		 *   b->file = NULL;
+		 *   b->shadow = NULL;
+		 *   b->tag = 0;
+		 *   and flags
 		 *
 		 */
 		b->pos = p;

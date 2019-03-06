@@ -271,7 +271,7 @@ static int cms_RecipientInfo_ktri_encrypt(CMS_ContentInfo * cms, CMS_RecipientIn
 	}
 	if(EVP_PKEY_encrypt(pctx, NULL, &eklen, ec->key, ec->keylen) <= 0)
 		goto err;
-	ek = (uchar*)OPENSSL_malloc(eklen);
+	ek = (uchar *)OPENSSL_malloc(eklen);
 	if(ek == NULL) {
 		CMSerr(CMS_F_CMS_RECIPIENTINFO_KTRI_ENCRYPT, ERR_R_MALLOC_FAILURE);
 		goto err;
@@ -315,7 +315,7 @@ static int cms_RecipientInfo_ktri_decrypt(CMS_ContentInfo * cms, CMS_RecipientIn
 	}
 	if(EVP_PKEY_decrypt(ktri->pctx, NULL, &eklen, ktri->encryptedKey->data, ktri->encryptedKey->length) <= 0)
 		goto err;
-	ek = (uchar*)OPENSSL_malloc(eklen);
+	ek = (uchar *)OPENSSL_malloc(eklen);
 	if(ek == NULL) {
 		CMSerr(CMS_F_CMS_RECIPIENTINFO_KTRI_DECRYPT, ERR_R_MALLOC_FAILURE);
 		goto err;
@@ -349,7 +349,7 @@ int CMS_RecipientInfo_kekri_id_cmp(CMS_RecipientInfo * ri, const uchar * id, siz
 	kekri = ri->d.kekri;
 	tmp_os.type = V_ASN1_OCTET_STRING;
 	tmp_os.flags = 0;
-	tmp_os.data = (uchar*)id;
+	tmp_os.data = (uchar *)id;
 	tmp_os.length = (int)idlen;
 	return ASN1_OCTET_STRING_cmp(&tmp_os, kekri->kekid->keyIdentifier);
 }
@@ -490,7 +490,7 @@ static int cms_RecipientInfo_kekri_encrypt(CMS_ContentInfo * cms, CMS_RecipientI
 		CMSerr(CMS_F_CMS_RECIPIENTINFO_KEKRI_ENCRYPT, CMS_R_ERROR_SETTING_KEY);
 		goto err;
 	}
-	wkey = (uchar*)OPENSSL_malloc(ec->keylen + 8);
+	wkey = (uchar *)OPENSSL_malloc(ec->keylen + 8);
 	if(wkey == NULL) {
 		CMSerr(CMS_F_CMS_RECIPIENTINFO_KEKRI_ENCRYPT, ERR_R_MALLOC_FAILURE);
 		goto err;
@@ -537,7 +537,7 @@ static int cms_RecipientInfo_kekri_decrypt(CMS_ContentInfo * cms, CMS_RecipientI
 		CMSerr(CMS_F_CMS_RECIPIENTINFO_KEKRI_DECRYPT, CMS_R_ERROR_SETTING_KEY);
 		goto err;
 	}
-	ukey = (uchar*)OPENSSL_malloc(kekri->encryptedKey->length - 8);
+	ukey = (uchar *)OPENSSL_malloc(kekri->encryptedKey->length - 8);
 	if(ukey == NULL) {
 		CMSerr(CMS_F_CMS_RECIPIENTINFO_KEKRI_DECRYPT, ERR_R_MALLOC_FAILURE);
 		goto err;

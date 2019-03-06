@@ -37,7 +37,7 @@ static int skip_asn1(uchar ** pp, long * plen, int exptag)
 	if(tag == V_ASN1_OBJECT)
 		q += tmplen;
 	*plen -= q - *pp;
-	*pp = (uchar*)q;
+	*pp = (uchar *)q;
 	return 1;
 }
 
@@ -71,7 +71,7 @@ static int dh_sharedinfo_encode(uchar ** pder, uchar ** pctr,
 	if(ukm) {
 		ukm_oct.type = V_ASN1_OCTET_STRING;
 		ukm_oct.flags = 0;
-		ukm_oct.data = (uchar*)ukm;
+		ukm_oct.data = (uchar *)ukm;
 		ukm_oct.length = ukmlen;
 		pukm_oct = &ukm_oct;
 	}

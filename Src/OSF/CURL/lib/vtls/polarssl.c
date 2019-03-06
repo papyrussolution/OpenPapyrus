@@ -604,7 +604,7 @@ static ssize_t polarssl_send(struct connectdata * conn,
 	int ret = -1;
 
 	ret = ssl_write(&conn->ssl[sockindex].ssl,
-	    (uchar*)mem, len);
+	    (uchar *)mem, len);
 
 	if(ret < 0) {
 		*curlcode = (ret == POLARSSL_ERR_NET_WANT_WRITE) ?
@@ -629,7 +629,7 @@ static ssize_t polarssl_recv(struct connectdata * conn, int num, char * buf, siz
 	int ret = -1;
 	ssize_t len = -1;
 	memzero(buf, buffersize);
-	ret = ssl_read(&conn->ssl[num].ssl, (uchar*)buf, buffersize);
+	ret = ssl_read(&conn->ssl[num].ssl, (uchar *)buf, buffersize);
 
 	if(ret <= 0) {
 		if(ret == POLARSSL_ERR_SSL_PEER_CLOSE_NOTIFY)

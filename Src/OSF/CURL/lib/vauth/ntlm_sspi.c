@@ -58,7 +58,7 @@ bool Curl_auth_is_ntlm_supported(void)
  * passdwp [in]     - The user's password.
  * ntlm    [in/out] - The NTLM data struct being used and modified.
  * outptr  [in/out] - The address where a pointer to newly allocated memory
- *                    holding the result will be stored upon completion.
+ *                  holding the result will be stored upon completion.
  * outlen  [out]    - The length of the output message.
  *
  * Returns CURLE_OK on success.
@@ -213,7 +213,7 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy * data,
  * passdwp [in]     - The user's password.
  * ntlm    [in/out] - The NTLM data struct being used and modified.
  * outptr  [in/out] - The address where a pointer to newly allocated memory
- *                    holding the result will be stored upon completion.
+ *                  holding the result will be stored upon completion.
  * outlen  [out]    - The length of the output message.
  *
  * Returns CURLE_OK on success.

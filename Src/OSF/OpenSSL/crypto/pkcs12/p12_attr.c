@@ -33,7 +33,7 @@ int PKCS8_add_keyusage(PKCS8_PRIV_KEY_INFO * p8, int usage)
 
 int PKCS12_add_friendlyname_asc(PKCS12_SAFEBAG * bag, const char * name, int namelen)
 {
-	if(X509at_add1_attr_by_NID(&bag->attrib, NID_friendlyName, MBSTRING_ASC, (uchar*)name, namelen))
+	if(X509at_add1_attr_by_NID(&bag->attrib, NID_friendlyName, MBSTRING_ASC, (uchar *)name, namelen))
 		return 1;
 	else
 		return 0;
@@ -41,7 +41,7 @@ int PKCS12_add_friendlyname_asc(PKCS12_SAFEBAG * bag, const char * name, int nam
 
 int PKCS12_add_friendlyname_utf8(PKCS12_SAFEBAG * bag, const char * name, int namelen)
 {
-	if(X509at_add1_attr_by_NID(&bag->attrib, NID_friendlyName, MBSTRING_UTF8, (uchar*)name, namelen))
+	if(X509at_add1_attr_by_NID(&bag->attrib, NID_friendlyName, MBSTRING_UTF8, (uchar *)name, namelen))
 		return 1;
 	else
 		return 0;
@@ -57,7 +57,7 @@ int PKCS12_add_friendlyname_uni(PKCS12_SAFEBAG * bag, const uchar * name, int na
 
 int PKCS12_add_CSPName_asc(PKCS12_SAFEBAG * bag, const char * name, int namelen)
 {
-	if(X509at_add1_attr_by_NID(&bag->attrib, NID_ms_csp_name, MBSTRING_ASC, (uchar*)name, namelen))
+	if(X509at_add1_attr_by_NID(&bag->attrib, NID_ms_csp_name, MBSTRING_ASC, (uchar *)name, namelen))
 		return 1;
 	else
 		return 0;

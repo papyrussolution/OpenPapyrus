@@ -1037,8 +1037,8 @@ int dotcode(struct ZintSymbol * symbol, const uchar source[], int length)
 #else
 	char* dot_stream;
 	char* dot_array;
-	uchar* codeword_array = (uchar*)_alloca(length * 3 * sizeof(uchar));
-	uchar* masked_codeword_array = (uchar*)_alloca(length * 3 * sizeof(uchar));
+	uchar* codeword_array = (uchar *)_alloca(length * 3 * sizeof(uchar));
+	uchar* masked_codeword_array = (uchar *)_alloca(length * 3 * sizeof(uchar));
 #endif /* _MSC_VER */
 	data_length = dotcode_encode_message(symbol, source, length, codeword_array);
 	ecc_length = 3 + (data_length / 2);

@@ -223,7 +223,7 @@ int SMIME_write_ASN1(BIO * bio, ASN1_VALUE * val, BIO * data, int flags,
 	if((flags & SMIME_DETACHED) && data) {
 		/* We want multipart/signed */
 		/* Generate a random boundary */
-		if(RAND_bytes((uchar*)bound, 32) <= 0)
+		if(RAND_bytes((uchar *)bound, 32) <= 0)
 			return 0;
 		for(i = 0; i < 32; i++) {
 			c = bound[i] & 0xf;

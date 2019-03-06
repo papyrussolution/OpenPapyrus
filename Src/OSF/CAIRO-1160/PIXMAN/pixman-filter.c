@@ -314,8 +314,8 @@ static void gnuplot_filter(int width, int n_phases, const pixman_fixed_t* p)
 	 * For odd widths, we have
 	 *
 	 * ceil (frac - width / 2.0 - 0.5) + 0.5 - frac
-	 *   = ceil (frac) + K - frac
-	 *   = 1 + K - frac
+	 * = ceil (frac) + K - frac
+	 * = 1 + K - frac
 	 *
 	 * for some K, so this is minimized when frac is maximized and
 	 * strictly growing with frac. So for odd widths, we can simply
@@ -324,11 +324,11 @@ static void gnuplot_filter(int width, int n_phases, const pixman_fixed_t* p)
 	 * For even widths, we have
 	 *
 	 * ceil (frac - width / 2.0 - 0.5) + 0.5 - frac
-	 *   = ceil (frac - 0.5) + K - frac
+	 * = ceil (frac - 0.5) + K - frac
 	 *
 	 * The graph for this function (ignoring K) looks like this:
 	 *
-	 *   0.5
+	 * 0.5
 	 *  |    |\
 	 *  |    | \
 	 *  |    |  \
@@ -337,7 +337,7 @@ static void gnuplot_filter(int width, int n_phases, const pixman_fixed_t* p)
 	 *  | \  |
 	 *  |  \ |
 	 * -0.5 |   \|
-	 *   ---------------------------------
+	 * ---------------------------------
 	 *  0    0.5   1
 	 *
 	 * So in this case we need to start with the phase whose frac is

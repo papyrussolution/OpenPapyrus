@@ -271,13 +271,13 @@ typedef struct ENGINE_CMD_DEFN_st {
 /*-
  * These callback types are for an ENGINE's handler for cipher and digest logic.
  * These handlers have these prototypes;
- *   int foo(ENGINE *e, const EVP_CIPHER **cipher, const int **nids, int nid);
- *   int foo(ENGINE *e, const EVP_MD **digest, const int **nids, int nid);
+ * int foo(ENGINE *e, const EVP_CIPHER **cipher, const int **nids, int nid);
+ * int foo(ENGINE *e, const EVP_MD **digest, const int **nids, int nid);
  * Looking at how to implement these handlers in the case of cipher support, if
  * the framework wants the EVP_CIPHER for 'nid', it will call;
- *   foo(e, &p_evp_cipher, NULL, nid);    (return zero for failure)
+ * foo(e, &p_evp_cipher, NULL, nid);    (return zero for failure)
  * If the framework wants a list of supported 'nid's, it will call;
- *   foo(e, NULL, &p_nids, 0); (returns number of 'nids' or -1 for error)
+ * foo(e, NULL, &p_nids, 0); (returns number of 'nids' or -1 for error)
  */
 /*
  * Returns to a pointer to the array of supported cipher 'nid's. If the
@@ -333,9 +333,9 @@ void ENGINE_set_table_flags(uint flags);
 
 /*- Manage registration of ENGINEs per "table". For each type, there are 3
  * functions;
- *   ENGINE_register_***(e) - registers the implementation from 'e' (if it has one)
- *   ENGINE_unregister_***(e) - unregister the implementation from 'e'
- *   ENGINE_register_all_***() - call ENGINE_register_***() for each 'e' in the list
+ * ENGINE_register_***(e) - registers the implementation from 'e' (if it has one)
+ * ENGINE_unregister_***(e) - unregister the implementation from 'e'
+ * ENGINE_register_all_***() - call ENGINE_register_***() for each 'e' in the list
  * Cleanup is automatically registered from each table when required.
  */
 

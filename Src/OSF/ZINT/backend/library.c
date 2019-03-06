@@ -312,24 +312,24 @@ static int hibc(struct ZintSymbol * symbol, uchar source[], size_t length)
 	length = strlen(to_process);
 	switch(symbol->Std) {
 		case BARCODE_HIBC_128:
-		    error_number = code_128(symbol, (uchar*)to_process, length);
-		    sstrcpy(symbol->text, (uchar*)"*");
+		    error_number = code_128(symbol, (uchar *)to_process, length);
+		    sstrcpy(symbol->text, (uchar *)"*");
 		    strcat((char *)symbol->text, to_process);
 		    strcat((char *)symbol->text, "*");
 		    break;
 		case BARCODE_HIBC_39:
 		    symbol->option_2 = 0;
-		    error_number = c39(symbol, (uchar*)to_process, length);
-		    sstrcpy(symbol->text, (uchar*)"*");
+		    error_number = c39(symbol, (uchar *)to_process, length);
+		    sstrcpy(symbol->text, (uchar *)"*");
 		    strcat((char *)symbol->text, to_process);
 		    strcat((char *)symbol->text, "*");
 		    break;
-		case BARCODE_HIBC_DM: error_number = dmatrix(symbol, (uchar*)to_process, length); break;
-		case BARCODE_HIBC_QR: error_number = qr_code(symbol, (uchar*)to_process, length); break;
-		case BARCODE_HIBC_PDF: error_number = pdf417enc(symbol, (uchar*)to_process, length); break;
-		case BARCODE_HIBC_MICPDF: error_number = micro_pdf417(symbol, (uchar*)to_process, length); break;
-		case BARCODE_HIBC_AZTEC: error_number = aztec(symbol, (uchar*)to_process, length); break;
-		case BARCODE_HIBC_BLOCKF: error_number = codablock(symbol, (uchar*)to_process, length); break;
+		case BARCODE_HIBC_DM: error_number = dmatrix(symbol, (uchar *)to_process, length); break;
+		case BARCODE_HIBC_QR: error_number = qr_code(symbol, (uchar *)to_process, length); break;
+		case BARCODE_HIBC_PDF: error_number = pdf417enc(symbol, (uchar *)to_process, length); break;
+		case BARCODE_HIBC_MICPDF: error_number = micro_pdf417(symbol, (uchar *)to_process, length); break;
+		case BARCODE_HIBC_AZTEC: error_number = aztec(symbol, (uchar *)to_process, length); break;
+		case BARCODE_HIBC_BLOCKF: error_number = codablock(symbol, (uchar *)to_process, length); break;
 	}
 	return error_number;
 }
@@ -559,7 +559,7 @@ static int reduced_charset(struct ZintSymbol * symbol, const uchar * source, int
 #ifndef _MSC_VER
 	uchar preprocessed[in_length + 1];
 #else
-	uchar* preprocessed = (uchar*)_alloca(in_length + 1);
+	uchar* preprocessed = (uchar *)_alloca(in_length + 1);
 #endif
 	if(symbol->Std == BARCODE_CODE16K) {
 		symbol->whitespace_width = 16;
@@ -704,7 +704,7 @@ int ZBarcode_Encode(struct ZintSymbol * symbol, const uchar * source, int length
 #ifndef _MSC_VER
 	uchar local_source[length + 1];
 #else
-	local_source = (uchar*)_alloca(length + 1);
+	local_source = (uchar *)_alloca(length + 1);
 #endif
 	// First check the symbology field
 	if(symbol->Std < 1) {
@@ -944,7 +944,7 @@ int ZBarcode_Print(struct ZintSymbol * symbol, int rotate_angle)
 		output[1] = symbol->outfile[strlen(symbol->outfile) - 2];
 		output[2] = symbol->outfile[strlen(symbol->outfile) - 1];
 		output[3] = '\0';
-		to_upper((uchar*)output);
+		to_upper((uchar *)output);
 		if(!(strcmp(output, "PNG"))) {
 			if(symbol->scale < 1.0) {
 				symbol->text[0] = '\0';
@@ -1060,7 +1060,7 @@ int ZBarcode_Encode_File(struct ZintSymbol * symbol, char * filename)
 		}
 	}
 	// Allocate memory 
-	buffer = (uchar*)SAlloc::M(fileLen * sizeof(uchar));
+	buffer = (uchar *)SAlloc::M(fileLen * sizeof(uchar));
 	if(!buffer) {
 		sstrcpy(symbol->errtxt, "Internal memory error (B31)");
 		if(strcmp(filename, "-"))

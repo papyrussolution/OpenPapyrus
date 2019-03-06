@@ -87,7 +87,7 @@ namespace NArchive {
 			if(src.Len() >= maxSize)
 				return false;
 			else {
-				sstrcpy(dest, (const char*)src);
+				sstrcpy(dest, (const char *)src);
 				return true;
 			}
 		}
@@ -156,7 +156,7 @@ namespace NArchive {
 		{
 			if(size < NFileHeader::kRecordSize)
 				return k_IsArc_Res_NEED_MORE;
-			const char * p = (const char*)p2;
+			const char * p = (const char *)p2;
 			p += NFileHeader::kNameSize;
 			uint32 mode;
 			CHECK(OctalToNumber32(p, 8, mode)); p += 8;
@@ -624,7 +624,7 @@ namespace NArchive {
 					uint   nameStreamSize = name->Len() + 1;
 					mi.PackSize = nameStreamSize;
 					RINOK(WriteHeaderReal(mi));
-					RINOK(WriteBytes((const char*)*name, nameStreamSize));
+					RINOK(WriteBytes((const char *)*name, nameStreamSize));
 					RINOK(FillDataResidual(nameStreamSize));
 				}
 			}
@@ -1231,7 +1231,7 @@ namespace NArchive {
 				}
 				{
 					if(item->IsSymLink()) {
-						RINOK(WriteStream(outStreamSpec, (const char*)item->LinkName, item->LinkName.Len()));
+						RINOK(WriteStream(outStreamSpec, (const char *)item->LinkName, item->LinkName.Len()));
 					}
 					else {
 						if(!seqMode) {
@@ -1370,7 +1370,7 @@ namespace NArchive {
 				return S_OK;
 			}
 			else if(item.IsSymLink()) {
-				Create_BufInStream_WithReference((const Byte*)(const char*)item.LinkName, item.LinkName.Len(), (IInArchive*)this, stream);
+				Create_BufInStream_WithReference((const Byte*)(const char *)item.LinkName, item.LinkName.Len(), (IInArchive*)this, stream);
 				return S_OK;
 			}
 			else

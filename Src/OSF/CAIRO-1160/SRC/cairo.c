@@ -2872,7 +2872,7 @@ slim_hidden_def(cairo_set_font_options);
  * cairo_get_font_options:
  * @cr: a #cairo_t
  * @options: a #cairo_font_options_t object into which to store
- *   the retrieved options. All existing values are overwritten
+ * the retrieved options. All existing values are overwritten
  *
  * Retrieves font rendering options set via #cairo_set_font_options.
  * Note that the returned options do not include any options derived

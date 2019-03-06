@@ -91,7 +91,7 @@ void _cairo_boxes_init_for_array(cairo_boxes_t * boxes, cairo_box_t * array, int
  *
  * @param boxes        the box set to be filled (return buffer)
  * @param limits       array of the limiting boxes to compute the bounding
- *   box from
+ * box from
  * @param num_limits   length of the limits array
  */
 void FASTCALL _cairo_boxes_limit(cairo_boxes_t * boxes, const cairo_box_t * limits, int num_limits)

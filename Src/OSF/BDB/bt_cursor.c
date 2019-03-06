@@ -272,22 +272,22 @@ static int __bamc_close(DBC * dbc, db_pgno_t root_pgno, int * rmroot)
 	 * There are 3 ways this function is called:
 	 *
 	 * 1. Closing a primary cursor: we get called with a pointer to a
-	 *    primary cursor that has a NULL opd field.  This happens when
-	 *    closing a btree/recno database cursor without an associated
-	 *    off-page duplicate tree.
+	 *  primary cursor that has a NULL opd field.  This happens when
+	 *  closing a btree/recno database cursor without an associated
+	 *  off-page duplicate tree.
 	 *
 	 * 2. Closing a primary and an off-page duplicate cursor stack: we
-	 *    get called with a pointer to the primary cursor which has a
-	 *    non-NULL opd field.  This happens when closing a btree cursor
-	 *    into database with an associated off-page btree/recno duplicate
-	 *    tree. (It can't be a primary recno database, recno databases
-	 *    don't support duplicates.)
+	 *  get called with a pointer to the primary cursor which has a
+	 *  non-NULL opd field.  This happens when closing a btree cursor
+	 *  into database with an associated off-page btree/recno duplicate
+	 *  tree. (It can't be a primary recno database, recno databases
+	 *  don't support duplicates.)
 	 *
 	 * 3. Closing an off-page duplicate cursor stack: we get called with
-	 *    a pointer to the off-page duplicate cursor.  This happens when
-	 *    closing a non-btree database that has an associated off-page
-	 *    btree/recno duplicate tree or for a btree database when the
-	 *    opd tree is not empty (root_pgno == PGNO_INVALID).
+	 *  a pointer to the off-page duplicate cursor.  This happens when
+	 *  closing a non-btree database that has an associated off-page
+	 *  btree/recno duplicate tree or for a btree database when the
+	 *  opd tree is not empty (root_pgno == PGNO_INVALID).
 	 *
 	 * If either the primary or off-page duplicate cursor deleted a btree
 	 * key/data pair, check to see if the item is still referenced by a

@@ -116,9 +116,9 @@ int DSA_sign(int type, const uchar * dgst, int dlen, uchar * sig, uint * siglen,
 /* data has already been hashed (probably with SHA or SHA-1). */
 /*-
  * returns
- *      1: correct signature
- *      0: incorrect signature
- *     -1: error
+ *    1: correct signature
+ *    0: incorrect signature
+ *   -1: error
  */
 int DSA_verify(int type, const uchar * dgst, int dgst_len, const uchar * sigbuf, int siglen, DSA * dsa)
 {

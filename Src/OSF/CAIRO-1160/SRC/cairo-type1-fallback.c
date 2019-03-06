@@ -261,7 +261,7 @@ static void charstring_encrypt(cairo_array_t * data)
 {
 	uint16_t c, p;
 	uint16_t r = CAIRO_TYPE1_CHARSTRING_KEY;
-	uchar * d = (uchar*)_cairo_array_index(data, 0);
+	uchar * d = (uchar *)_cairo_array_index(data, 0);
 	uchar * end = d + _cairo_array_num_elements(data);
 	while(d < end) {
 		p = *d;
@@ -566,7 +566,7 @@ static cairo_int_status_t cairo_type1_font_generate(cairo_type1_font_t * font, c
 	status = cairo_type1_font_write(font, name);
 	if(unlikely(status))
 		return status;
-	font->data = (const char*)_cairo_array_index(&font->contents, 0);
+	font->data = (const char *)_cairo_array_index(&font->contents, 0);
 	return CAIRO_STATUS_SUCCESS;
 }
 

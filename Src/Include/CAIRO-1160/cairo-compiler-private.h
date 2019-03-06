@@ -59,23 +59,23 @@
  * slim_hidden_proto(f)
  * slim_hidden_proto_no_warn(f)
  *
- *   Declares `f' as a library internal function and hides the
- *   function from the global symbol table.  This macro must be
- *   expanded after `f' has been declared with a prototype but before
- *   any calls to the function are seen by the compiler.  The no_warn
- *   variant inhibits warnings about the return value being unused at
- *   call sites.  The macro works by renaming `f' to an internal name
- *   in the symbol table and hiding that.  As far as cairo internal
- *   calls are concerned they're calling a library internal function
- *   and thus don't need to bounce via the procedure linkage table (PLT).
+ * Declares `f' as a library internal function and hides the
+ * function from the global symbol table.  This macro must be
+ * expanded after `f' has been declared with a prototype but before
+ * any calls to the function are seen by the compiler.  The no_warn
+ * variant inhibits warnings about the return value being unused at
+ * call sites.  The macro works by renaming `f' to an internal name
+ * in the symbol table and hiding that.  As far as cairo internal
+ * calls are concerned they're calling a library internal function
+ * and thus don't need to bounce via the procedure linkage table (PLT).
  *
  * slim_hidden_def(f)
  *
- *   Exports `f' back to the global symbol table.  This macro must be
- *   expanded right after the function definition and only for symbols
- *   hidden previously with slim_hidden_proto().  The macro works by
- *   adding a global entry to the symbol table which points at the
- *   internal name of `f' created by slim_hidden_proto().
+ * Exports `f' back to the global symbol table.  This macro must be
+ * expanded right after the function definition and only for symbols
+ * hidden previously with slim_hidden_proto().  The macro works by
+ * adding a global entry to the symbol table which points at the
+ * internal name of `f' created by slim_hidden_proto().
  *
  * Functions in the public API which aren't called by the library
  * don't need to be hidden and re-exported using the slim hidden
@@ -146,17 +146,17 @@
  * Cairo uses the following function attributes in order to improve the
  * generated code (effectively by manual inter-procedural analysis).
  *
- *   'cairo_pure': The function is only allowed to read from its arguments
- *                 and global memory (i.e. following a pointer argument or
- *                 accessing a shared variable). The return value should
- *                 only depend on its arguments, and for an identical set of
- *                 arguments should return the same value.
+ * 'cairo_pure': The function is only allowed to read from its arguments
+ *               and global memory (i.e. following a pointer argument or
+ *               accessing a shared variable). The return value should
+ *               only depend on its arguments, and for an identical set of
+ *               arguments should return the same value.
  *
- *   'cairo_const': The function is only allowed to read from its arguments.
- *                  It is not allowed to access global memory. The return
- *                  value should only depend its arguments, and for an
- *                  identical set of arguments should return the same value.
- *                  This is currently the most strict function attribute.
+ * 'cairo_const': The function is only allowed to read from its arguments.
+ *                It is not allowed to access global memory. The return
+ *                value should only depend its arguments, and for an
+ *                identical set of arguments should return the same value.
+ *                This is currently the most strict function attribute.
  *
  * Both these function attributes allow gcc to perform CSE and
  * constant-folding, with 'cairo_const 'also guaranteeing that pointer contents

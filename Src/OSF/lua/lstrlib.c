@@ -168,7 +168,7 @@ static int str_char(lua_State * L)
 static int writer(lua_State * L, const void * b, size_t size, void * B) 
 {
 	(void)L;
-	luaL_addlstring((luaL_Buffer*)B, (const char*)b, size);
+	luaL_addlstring((luaL_Buffer*)B, (const char *)b, size);
 	return 0;
 }
 
@@ -501,7 +501,7 @@ static const char * lmemfind(const char * s1, size_t l1, const char * s2, size_t
 		const char * init; /* to search for a '*s2' inside 's1' */
 		l2--; /* 1st char will be checked by 'memchr' */
 		l1 = l1-l2; /* 's2' cannot be found after that */
-		while(l1 > 0 && (init = (const char*)memchr(s1, *s2, l1)) != NULL) {
+		while(l1 > 0 && (init = (const char *)memchr(s1, *s2, l1)) != NULL) {
 			init++; /* 1st char is already checked */
 			if(memcmp(init, s2+1, l2) == 0)
 				return init-1;

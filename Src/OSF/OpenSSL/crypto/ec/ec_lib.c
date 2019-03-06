@@ -194,7 +194,7 @@ int EC_GROUP_copy(EC_GROUP * dest, const EC_GROUP * src)
 	dest->asn1_form = src->asn1_form;
 	if(src->seed) {
 		OPENSSL_free(dest->seed);
-		dest->seed = (uchar*)OPENSSL_malloc(src->seed_len);
+		dest->seed = (uchar *)OPENSSL_malloc(src->seed_len);
 		if(dest->seed == NULL)
 			return 0;
 		if(!memcpy(dest->seed, src->seed, src->seed_len))
@@ -358,7 +358,7 @@ size_t EC_GROUP_set_seed(EC_GROUP * group, const uchar * p, size_t len)
 	group->seed_len = 0;
 	if(!len || !p)
 		return 1;
-	if((group->seed = (uchar*)OPENSSL_malloc(len)) == NULL)
+	if((group->seed = (uchar *)OPENSSL_malloc(len)) == NULL)
 		return 0;
 	memcpy(group->seed, p, len);
 	group->seed_len = len;

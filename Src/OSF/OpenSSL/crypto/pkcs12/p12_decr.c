@@ -41,7 +41,7 @@ uchar * PKCS12_pbe_crypt(const X509_ALGOR * algor,
 		goto err;
 	}
 
-	if((out = (uchar*)OPENSSL_malloc(inlen + EVP_CIPHER_CTX_block_size(ctx)))
+	if((out = (uchar *)OPENSSL_malloc(inlen + EVP_CIPHER_CTX_block_size(ctx)))
 	    == NULL) {
 		PKCS12err(PKCS12_F_PKCS12_PBE_CRYPT, ERR_R_MALLOC_FAILURE);
 		goto err;

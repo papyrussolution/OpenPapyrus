@@ -1542,7 +1542,7 @@ int TIFFInitSGILog(TIFF* tif, int scheme)
 	/*
 	 * Install codec methods.
 	 * NB: tif_decoderow & tif_encoderow are filled
-	 *     in at setup time.
+	 *   in at setup time.
 	 */
 	tif->tif_fixuptags = LogLuvFixupTags;
 	tif->tif_setupdecode = LogLuvSetupDecode;

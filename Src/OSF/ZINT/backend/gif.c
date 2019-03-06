@@ -375,7 +375,7 @@ int gif_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 	outbuf[9] = (uchar)(0 | (0x7 & (DESTINATION_IMAGE_BITS - 1)));
 	fwrite(outbuf, 10, 1, gif_file);
 	/* call lzw encoding */
-	byte_out = gif_lzw((uchar*)lzwoutbuf, symbol->bitmap_height * symbol->bitmap_width, (uchar*)pixelbuf, symbol->bitmap_height * symbol->bitmap_width);
+	byte_out = gif_lzw((uchar *)lzwoutbuf, symbol->bitmap_height * symbol->bitmap_width, (uchar *)pixelbuf, symbol->bitmap_height * symbol->bitmap_width);
 	if(byte_out <= 0) {
 		fclose(gif_file);
 		return ZINT_ERROR_MEMORY;

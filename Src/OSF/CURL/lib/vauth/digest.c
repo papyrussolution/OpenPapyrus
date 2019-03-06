@@ -42,7 +42,7 @@
    what ultimately goes over the network.
  */
 #define CURL_OUTPUT_DIGEST_CONV(a, b) \
-	result = Curl_convert_to_network(a, (char *)b, sstrlen((const char*)b)); \
+	result = Curl_convert_to_network(a, (char *)b, sstrlen((const char *)b)); \
 	if(result) { \
 		SAlloc::F(b); \
 		return result; \
@@ -292,7 +292,7 @@ bool Curl_auth_is_digest_supported(void)
  * passdwp [in]     - The user's password.
  * service [in]     - The service type such as http, smtp, pop or imap.
  * outptr  [in/out] - The address where a pointer to newly allocated memory
- *                    holding the result will be stored upon completion.
+ *                  holding the result will be stored upon completion.
  * outlen  [out]    - The length of the output message.
  *
  * Returns CURLE_OK on success.
@@ -575,7 +575,7 @@ CURLcode Curl_auth_decode_digest_http_message(const char * chlg,
  * uripath [in]     - The path of the HTTP uri.
  * digest  [in/out] - The digest data struct being used and modified.
  * outptr  [in/out] - The address where a pointer to newly allocated memory
- *                    holding the result will be stored upon completion.
+ *                  holding the result will be stored upon completion.
  * outlen  [out]    - The length of the output message.
  *
  * Returns CURLE_OK on success.
@@ -631,7 +631,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 	         unq(nonce-value) ":" unq(cnonce-value)
 	 */
 
-	md5this = (uchar*)
+	md5this = (uchar *)
 	    aprintf("%s:%s:%s", userp, digest->realm, passwdp);
 	if(!md5this)
 		return CURLE_OUT_OF_MEMORY;
@@ -648,7 +648,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 			return CURLE_OUT_OF_MEMORY;
 
 		CURL_OUTPUT_DIGEST_CONV(data, tmp); /* Convert on non-ASCII machines */
-		Curl_md5it(md5buf, (uchar*)tmp);
+		Curl_md5it(md5buf, (uchar *)tmp);
 		SAlloc::F(tmp);
 		auth_digest_md5_to_ascii(md5buf, ha1);
 	}
@@ -664,11 +664,11 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 	   (The "Method" value is the HTTP request method as specified in section
 	   5.1.1 of RFC 2616)
 	 */
-	md5this = (uchar*)aprintf("%s:%s", request, uripath);
+	md5this = (uchar *)aprintf("%s:%s", request, uripath);
 	if(digest->qop && sstreqi_ascii(digest->qop, "auth-int")) {
 		/* We don't support auth-int for PUT or POST at the moment.
 		   TODO: replace md5 of empty string with entity-body for PUT/POST */
-		uchar * md5this2 = (uchar*)aprintf("%s:%s", md5this, "d41d8cd98f00b204e9800998ecf8427e");
+		uchar * md5this2 = (uchar *)aprintf("%s:%s", md5this, "d41d8cd98f00b204e9800998ecf8427e");
 		SAlloc::F(md5this);
 		md5this = md5this2;
 	}
@@ -682,7 +682,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 	auth_digest_md5_to_ascii(md5buf, ha2);
 
 	if(digest->qop) {
-		md5this = (uchar*)aprintf("%s:%s:%08x:%s:%s:%s",
+		md5this = (uchar *)aprintf("%s:%s:%08x:%s:%s:%s",
 		    ha1,
 		    digest->nonce,
 		    digest->nc,
@@ -691,7 +691,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 		    ha2);
 	}
 	else {
-		md5this = (uchar*)aprintf("%s:%s:%s",
+		md5this = (uchar *)aprintf("%s:%s:%s",
 		    ha1,
 		    digest->nonce,
 		    ha2);

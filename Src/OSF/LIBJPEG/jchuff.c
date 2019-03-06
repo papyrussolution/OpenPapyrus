@@ -425,7 +425,7 @@ static void FASTCALL emit_restart_e(huff_entropy_ptr entropy, int restart_num)
 // 
 METHODDEF(boolean) encode_mcu_DC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 {
-	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
+	huff_entropy_ptr entropy = reinterpret_cast<huff_entropy_ptr>(cinfo->entropy);
 	register int temp, temp2;
 	register int nbits;
 	int blkn, ci, tbl;
@@ -492,7 +492,7 @@ METHODDEF(boolean) encode_mcu_DC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data
 // 
 METHODDEF(boolean) encode_mcu_AC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 {
-	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
+	huff_entropy_ptr entropy = reinterpret_cast<huff_entropy_ptr>(cinfo->entropy);
 	const uint8 * natural_order; // @sobolev int-->uint8
 	JBLOCKROW block;
 	int temp, temp2;
@@ -584,7 +584,7 @@ METHODDEF(boolean) encode_mcu_AC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data
  */
 METHODDEF(boolean) encode_mcu_DC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 {
-	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
+	huff_entropy_ptr entropy = reinterpret_cast<huff_entropy_ptr>(cinfo->entropy);
 	int Al, blkn;
 	entropy->next_output_byte = cinfo->dest->next_output_byte;
 	entropy->free_in_buffer = cinfo->dest->free_in_buffer;
@@ -616,7 +616,7 @@ METHODDEF(boolean) encode_mcu_DC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_dat
  */
 METHODDEF(boolean) encode_mcu_AC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 {
-	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
+	huff_entropy_ptr entropy = reinterpret_cast<huff_entropy_ptr>(cinfo->entropy);
 	const uint8 * natural_order; // @sobolev int-->uint8
 	JBLOCKROW block;
 	int temp;
@@ -726,7 +726,7 @@ METHODDEF(boolean) encode_mcu_AC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_dat
 //
 // Encode a single block's worth of coefficients 
 //
-LOCAL(boolean) encode_one_block(working_state * state, JCOEFPTR block, int last_dc_val, c_derived_tbl *dctbl, c_derived_tbl *actbl)
+LOCAL(boolean) encode_one_block(working_state * state, const JCOEFPTR block, int last_dc_val, const c_derived_tbl *dctbl, const c_derived_tbl *actbl)
 {
 	int temp, temp2;
 	int nbits;
@@ -808,7 +808,7 @@ LOCAL(boolean) encode_one_block(working_state * state, JCOEFPTR block, int last_
  */
 METHODDEF(boolean) encode_mcu_huff(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 {
-	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
+	huff_entropy_ptr entropy = reinterpret_cast<huff_entropy_ptr>(cinfo->entropy);
 	working_state state;
 	int blkn, ci;
 	jpeg_component_info * compptr;
@@ -852,7 +852,7 @@ METHODDEF(boolean) encode_mcu_huff(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
  */
 METHODDEF(void) finish_pass_huff(j_compress_ptr cinfo)
 {
-	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
+	huff_entropy_ptr entropy = reinterpret_cast<huff_entropy_ptr>(cinfo->entropy);
 	working_state state;
 	if(cinfo->progressive_mode) {
 		entropy->next_output_byte = cinfo->dest->next_output_byte;
@@ -891,7 +891,7 @@ METHODDEF(void) finish_pass_huff(j_compress_ptr cinfo)
 
 /* Process a single block's worth of coefficients */
 
-static void htest_one_block(j_compress_ptr cinfo, JCOEFPTR block, int last_dc_val, long dc_counts[], long ac_counts[])
+static void htest_one_block(j_compress_ptr cinfo, const JCOEFPTR block, int last_dc_val, long dc_counts[], long ac_counts[])
 {
 	int nbits;
 	int r, k;
@@ -951,7 +951,7 @@ static void htest_one_block(j_compress_ptr cinfo, JCOEFPTR block, int last_dc_va
  */
 METHODDEF(boolean) encode_mcu_gather(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 {
-	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
+	huff_entropy_ptr entropy = reinterpret_cast<huff_entropy_ptr>(cinfo->entropy);
 	int blkn, ci;
 	jpeg_component_info * compptr;
 	/* Take care of restart intervals if needed */
@@ -1122,7 +1122,7 @@ static void jpeg_gen_optimal_table(j_compress_ptr cinfo, JHUFF_TBL * htbl, long 
  */
 METHODDEF(void) finish_pass_gather(j_compress_ptr cinfo)
 {
-	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
+	huff_entropy_ptr entropy = reinterpret_cast<huff_entropy_ptr>(cinfo->entropy);
 	int ci, tbl;
 	jpeg_component_info * compptr;
 	JHUFF_TBL ** htblptr;
@@ -1168,7 +1168,7 @@ METHODDEF(void) finish_pass_gather(j_compress_ptr cinfo)
  */
 METHODDEF(void) start_pass_huff(j_compress_ptr cinfo, boolean gather_statistics)
 {
-	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
+	huff_entropy_ptr entropy = reinterpret_cast<huff_entropy_ptr>(cinfo->entropy);
 	int ci, tbl;
 	jpeg_component_info * compptr;
 	entropy->pub.finish_pass = gather_statistics ? finish_pass_gather : finish_pass_huff;

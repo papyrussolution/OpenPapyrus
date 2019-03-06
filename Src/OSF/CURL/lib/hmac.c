@@ -29,7 +29,7 @@
 /*
  * Generic HMAC algorithm.
  *
- *   This module computes HMAC digests based on any hash function. Parameters
+ * This module computes HMAC digests based on any hash function. Parameters
  * and computing procedures are set-up dynamically at HMAC computation
  * context initialisation.
  */
@@ -51,7 +51,7 @@ HMAC_context * Curl_HMAC_init(const HMAC_params * hashparams, const uchar * key,
 		if(keylen > hashparams->hmac_maxkeylen) {
 			(*hashparams->hmac_hinit)(ctxt->hmac_hashctxt1);
 			(*hashparams->hmac_hupdate)(ctxt->hmac_hashctxt1, key, keylen);
-			hkey = (uchar*)ctxt->hmac_hashctxt2 + hashparams->hmac_ctxtsize;
+			hkey = (uchar *)ctxt->hmac_hashctxt2 + hashparams->hmac_ctxtsize;
 			(*hashparams->hmac_hfinal)(hkey, ctxt->hmac_hashctxt1);
 			key = hkey;
 			keylen = hashparams->hmac_resultlen;
@@ -85,7 +85,7 @@ int Curl_HMAC_final(HMAC_context * ctxt, uchar * result)
 	const HMAC_params * hashparams = ctxt->hmac_hash;
 	// Do not get result if called with a null parameter: only release storage
 	if(!result)
-		result = (uchar*)ctxt->hmac_hashctxt2 + ctxt->hmac_hash->hmac_ctxtsize;
+		result = (uchar *)ctxt->hmac_hashctxt2 + ctxt->hmac_hash->hmac_ctxtsize;
 	(*hashparams->hmac_hfinal)(result, ctxt->hmac_hashctxt1);
 	(*hashparams->hmac_hupdate)(ctxt->hmac_hashctxt2, result, hashparams->hmac_resultlen);
 	(*hashparams->hmac_hfinal)(result, ctxt->hmac_hashctxt2);

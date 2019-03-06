@@ -839,7 +839,7 @@ int SLAPI PPViewArticle::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 				}
 				break;
 			case PPVCMD_INPUTCHAR:
-				if(((const char*)pHdr)[0] == kbCtrlX)
+				if(((const char *)pHdr)[0] == kbCtrlX)
 					CtrlX++;
 				else
 					CtrlX = 0;

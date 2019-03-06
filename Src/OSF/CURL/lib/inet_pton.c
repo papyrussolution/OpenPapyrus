@@ -46,28 +46,28 @@ static int      inet_pton6(const char * src, uchar * dst);
 
 /* int
  * inet_pton(af, src, dst)
- *      convert from presentation format (which usually means ASCII printable)
- *      to network format (which is usually some kind of binary format).
+ *    convert from presentation format (which usually means ASCII printable)
+ *    to network format (which is usually some kind of binary format).
  * return:
- *      1 if the address was valid for the specified address family
- *      0 if the address wasn't valid (`dst' is untouched in this case)
- *      -1 if some other error occurred (`dst' is untouched in this case, too)
+ *    1 if the address was valid for the specified address family
+ *    0 if the address wasn't valid (`dst' is untouched in this case)
+ *    -1 if some other error occurred (`dst' is untouched in this case, too)
  * notice:
- *      On Windows we store the error in the thread errno, not
- *      in the winsock error code. This is to avoid losing the
- *      actual last winsock error. So use macro ERRNO to fetch the
- *      errno this function sets when returning (-1), not SOCKERRNO.
+ *    On Windows we store the error in the thread errno, not
+ *    in the winsock error code. This is to avoid losing the
+ *    actual last winsock error. So use macro ERRNO to fetch the
+ *    errno this function sets when returning (-1), not SOCKERRNO.
  * author:
- *      Paul Vixie, 1996.
+ *    Paul Vixie, 1996.
  */
 int Curl_inet_pton(int af, const char * src, void * dst)
 {
 	switch(af) {
 		case AF_INET:
-		    return (inet_pton4(src, (uchar*)dst));
+		    return (inet_pton4(src, (uchar *)dst));
 #ifdef ENABLE_IPV6
 		case AF_INET6:
-		    return (inet_pton6(src, (uchar*)dst));
+		    return (inet_pton6(src, (uchar *)dst));
 #endif
 		default:
 		    SET_ERRNO(EAFNOSUPPORT);
@@ -78,13 +78,13 @@ int Curl_inet_pton(int af, const char * src, void * dst)
 
 /* int
  * inet_pton4(src, dst)
- *      like inet_aton() but without all the hexadecimal and shorthand.
+ *    like inet_aton() but without all the hexadecimal and shorthand.
  * return:
- *      1 if `src' is a valid dotted quad, else 0.
+ *    1 if `src' is a valid dotted quad, else 0.
  * notice:
- *      does not touch `dst' unless it's returning 1.
+ *    does not touch `dst' unless it's returning 1.
  * author:
- *      Paul Vixie, 1996.
+ *    Paul Vixie, 1996.
  */
 static int inet_pton4(const char * src, uchar * dst)
 {
@@ -132,16 +132,16 @@ static int inet_pton4(const char * src, uchar * dst)
 #ifdef ENABLE_IPV6
 /* int
  * inet_pton6(src, dst)
- *      convert presentation level address to network order binary form.
+ *    convert presentation level address to network order binary form.
  * return:
- *      1 if `src' is a valid [RFC1884 2.2] address, else 0.
+ *    1 if `src' is a valid [RFC1884 2.2] address, else 0.
  * notice:
- *      (1) does not touch `dst' unless it's returning 1.
- *      (2) :: in a full address is silently ignored.
+ *    (1) does not touch `dst' unless it's returning 1.
+ *    (2) :: in a full address is silently ignored.
  * credit:
- *      inspired by Mark Andrews.
+ *    inspired by Mark Andrews.
  * author:
- *      Paul Vixie, 1996.
+ *    Paul Vixie, 1996.
  */
 static int inet_pton6(const char * src, uchar * dst)
 {

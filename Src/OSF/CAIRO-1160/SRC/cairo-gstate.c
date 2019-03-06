@@ -1489,7 +1489,7 @@ cairo_status_t _cairo_gstate_get_scaled_font(cairo_gstate_t * gstate,
  * pixel size. So if the user asks to "scale the font by 12", the matrix
  * is:
  *
- *   [ 12.0, 0.0, 0.0, 12.0, 0.0, 0.0 ]
+ * [ 12.0, 0.0, 0.0, 12.0, 0.0, 0.0 ]
  *
  * It is an affine matrix, like all cairo matrices, where its tx and ty
  * components are used to "nudging" fonts around and are handled in gstate

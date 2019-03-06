@@ -802,7 +802,7 @@ METHODDEF(void) start_pass(j_compress_ptr cinfo, boolean gather_statistics)
 			if(tbl < 0 || tbl >= NUM_ARITH_TBLS)
 				ERREXIT1(cinfo, JERR_NO_ARITH_TABLE, tbl);
 			if(entropy->dc_stats[tbl] == NULL)
-				entropy->dc_stats[tbl] = (uchar*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, DC_STAT_BINS);
+				entropy->dc_stats[tbl] = (uchar *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, DC_STAT_BINS);
 			memzero(entropy->dc_stats[tbl], DC_STAT_BINS);
 			// Initialize DC predictions to 0 
 			entropy->last_dc_val[ci] = 0;
@@ -814,7 +814,7 @@ METHODDEF(void) start_pass(j_compress_ptr cinfo, boolean gather_statistics)
 			if(tbl < 0 || tbl >= NUM_ARITH_TBLS)
 				ERREXIT1(cinfo, JERR_NO_ARITH_TABLE, tbl);
 			if(entropy->ac_stats[tbl] == NULL)
-				entropy->ac_stats[tbl] = (uchar*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, AC_STAT_BINS);
+				entropy->ac_stats[tbl] = (uchar *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, AC_STAT_BINS);
 			memzero(entropy->ac_stats[tbl], AC_STAT_BINS);
 #ifdef CALCULATE_SPECTRAL_CONDITIONING
 			if(cinfo->progressive_mode)

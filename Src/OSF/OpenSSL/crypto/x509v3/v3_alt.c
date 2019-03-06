@@ -394,7 +394,7 @@ GENERAL_NAME * a2i_GENERAL_NAME(GENERAL_NAME * out, const X509V3_EXT_METHOD * me
 	}
 
 	if(is_string) {
-		if((gen->d.ia5 = ASN1_IA5STRING_new()) == NULL || !ASN1_STRING_set(gen->d.ia5, (uchar*)value, strlen(value))) {
+		if((gen->d.ia5 = ASN1_IA5STRING_new()) == NULL || !ASN1_STRING_set(gen->d.ia5, (uchar *)value, strlen(value))) {
 			X509V3err(X509V3_F_A2I_GENERAL_NAME, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}

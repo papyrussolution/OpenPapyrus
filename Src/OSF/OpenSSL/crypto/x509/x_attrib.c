@@ -13,10 +13,10 @@
  * X509_ATTRIBUTE: this has the following form:
  *
  * typedef struct x509_attributes_st
- *      {
- *      ASN1_OBJECT *object;
- *      STACK_OF(ASN1_TYPE) *set;
- *      } X509_ATTRIBUTE;
+ *    {
+ *    ASN1_OBJECT *object;
+ *    STACK_OF(ASN1_TYPE) *set;
+ *    } X509_ATTRIBUTE;
  *
  */
 

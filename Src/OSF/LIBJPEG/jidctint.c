@@ -16,9 +16,9 @@
  * complex and seem not to be any faster when reduced to code.
  *
  * This implementation is based on an algorithm described in
- *   C. Loeffler, A. Ligtenberg and G. Moschytz, "Practical Fast 1-D DCT
- *   Algorithms with 11 Multiplications", Proc. Int'l. Conf. on Acoustics,
- *   Speech, and Signal Processing 1989 (ICASSP '89), pp. 988-991.
+ * C. Loeffler, A. Ligtenberg and G. Moschytz, "Practical Fast 1-D DCT
+ * Algorithms with 11 Multiplications", Proc. Int'l. Conf. on Acoustics,
+ * Speech, and Signal Processing 1989 (ICASSP '89), pp. 988-991.
  * The primary algorithm described there uses 11 multiplies and 29 adds.
  * We use their alternate method with 12 multiplies and 32 adds.
  * The advantage of this method is that no data path contains more than one
@@ -149,16 +149,16 @@ Sorry, this code only copes with 8x8 DCT blocks.   /* deliberate syntax err */
  */
 
 #if BITS_IN_JSAMPLE == 8
-#define MULTIPLY(var, const)  MULTIPLY16C16(var, const)
+	#define MULTIPLY(var, const)  MULTIPLY16C16(var, const)
 #else
-#define MULTIPLY(var, const)  ((var) * (const))
+	#define MULTIPLY(var, const)  ((var) * (const))
 #endif
 // 
 // Dequantize a coefficient by multiplying it by the multiplier-table
 // entry; produce an int result.  In this module, both inputs and result
 // are 16 bits or less, so either int or short multiply will work.
 // 
-#define DEQUANTIZE(coef, quantval)  (((ISLOW_MULT_TYPE)(coef)) * (quantval))
+#define DEQUANTIZE(coef, quantval)  (static_cast<ISLOW_MULT_TYPE>(coef) * (quantval))
 // 
 // Perform dequantization and inverse DCT on one block of coefficients.
 // 
@@ -184,7 +184,7 @@ GLOBAL(void) jpeg_idct_islow(j_decompress_ptr cinfo, jpeg_component_info * compp
 	// furthermore, we scale the results by 2**PASS1_BITS.
 	// 
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = DCTSIZE; ctr > 0; ctr--) {
 		/* Due to quantization, we will usually find that many of the input
@@ -298,12 +298,8 @@ GLOBAL(void) jpeg_idct_islow(j_decompress_ptr cinfo, jpeg_component_info * compp
 	wsptr = workspace;
 	for(ctr = 0; ctr < DCTSIZE; ctr++) {
 		outptr = output_buf[ctr] + output_col;
-
 		/* Add range center and fudge factor for final descale and range-limit. */
-		z2 = (INT32)wsptr[0] +
-		    ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) +
-		    (ONE << (PASS1_BITS+2)));
-
+		z2 = static_cast<INT32>(wsptr[0]) + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
 		/* Rows of zeroes can be exploited in the same way as we did with columns.
 		 * However, the column calculation has created many nonzero AC terms, so
 		 * the simplification applies less often (typically 5% to 10% of the time).
@@ -311,14 +307,10 @@ GLOBAL(void) jpeg_idct_islow(j_decompress_ptr cinfo, jpeg_component_info * compp
 		 * test takes more time than it's worth.  In that case this section
 		 * may be commented out.
 		 */
-
 #ifndef NO_ZERO_ROW_TEST
-		if(wsptr[1] == 0 && wsptr[2] == 0 && wsptr[3] == 0 && wsptr[4] == 0 &&
-		    wsptr[5] == 0 && wsptr[6] == 0 && wsptr[7] == 0) {
+		if(wsptr[1] == 0 && wsptr[2] == 0 && wsptr[3] == 0 && wsptr[4] == 0 && wsptr[5] == 0 && wsptr[6] == 0 && wsptr[7] == 0) {
 			/* AC terms all zero */
-			JSAMPLE dcval = range_limit[(int)RIGHT_SHIFT(z2, PASS1_BITS+3)
-			    & RANGE_MASK];
-
+			JSAMPLE dcval = range_limit[(int)RIGHT_SHIFT(z2, PASS1_BITS+3) & RANGE_MASK];
 			outptr[0] = dcval;
 			outptr[1] = dcval;
 			outptr[2] = dcval;
@@ -327,23 +319,18 @@ GLOBAL(void) jpeg_idct_islow(j_decompress_ptr cinfo, jpeg_component_info * compp
 			outptr[5] = dcval;
 			outptr[6] = dcval;
 			outptr[7] = dcval;
-
 			wsptr += DCTSIZE; /* advance pointer to next row */
 			continue;
 		}
 #endif
-
-		/* Even part: reverse the even part of the forward DCT.
-		 * The rotator is c(-6).
-		 */
-
-		z3 = (INT32)wsptr[4];
+		// Even part: reverse the even part of the forward DCT. The rotator is c(-6).
+		z3 = static_cast<INT32>(wsptr[4]);
 
 		tmp0 = (z2 + z3) << CONST_BITS;
 		tmp1 = (z2 - z3) << CONST_BITS;
 
-		z2 = (INT32)wsptr[2];
-		z3 = (INT32)wsptr[6];
+		z2 = static_cast<INT32>(wsptr[2]);
+		z3 = static_cast<INT32>(wsptr[6]);
 
 		z1 = MULTIPLY(z2 + z3, FIX_0_541196100); /* c6 */
 		tmp2 = z1 + MULTIPLY(z2, FIX_0_765366865); /* c2-c6 */
@@ -353,15 +340,12 @@ GLOBAL(void) jpeg_idct_islow(j_decompress_ptr cinfo, jpeg_component_info * compp
 		tmp13 = tmp0 - tmp2;
 		tmp11 = tmp1 + tmp3;
 		tmp12 = tmp1 - tmp3;
-
-		/* Odd part per figure 8; the matrix is unitary and hence its
-		 * transpose is its inverse.  i0..i3 are y7,y5,y3,y1 respectively.
-		 */
-
-		tmp0 = (INT32)wsptr[7];
-		tmp1 = (INT32)wsptr[5];
-		tmp2 = (INT32)wsptr[3];
-		tmp3 = (INT32)wsptr[1];
+		// Odd part per figure 8; the matrix is unitary and hence its
+		// transpose is its inverse.  i0..i3 are y7,y5,y3,y1 respectively.
+		tmp0 = static_cast<INT32>(wsptr[7]);
+		tmp1 = static_cast<INT32>(wsptr[5]);
+		tmp2 = static_cast<INT32>(wsptr[3]);
+		tmp3 = static_cast<INT32>(wsptr[1]);
 
 		z2 = tmp0 + tmp2;
 		z3 = tmp1 + tmp3;
@@ -418,7 +402,7 @@ GLOBAL(void) jpeg_idct_7x7(j_decompress_ptr cinfo, jpeg_component_info * compptr
 	SHIFT_TEMPS
 	/* Pass 1: process columns from input, store into work array. */
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = 0; ctr < 7; ctr++, inptr++, quantptr++, wsptr++) {
 		/* Even part */
@@ -474,12 +458,12 @@ GLOBAL(void) jpeg_idct_7x7(j_decompress_ptr cinfo, jpeg_component_info * compptr
 		outptr = output_buf[ctr] + output_col;
 		/* Even part */
 		/* Add range center and fudge factor for final descale and range-limit. */
-		tmp13 = (INT32)wsptr[0] + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
+		tmp13 = static_cast<INT32>(wsptr[0]) + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
 		tmp13 <<= CONST_BITS;
 
-		z1 = (INT32)wsptr[2];
-		z2 = (INT32)wsptr[4];
-		z3 = (INT32)wsptr[6];
+		z1 = static_cast<INT32>(wsptr[2]);
+		z2 = static_cast<INT32>(wsptr[4]);
+		z3 = static_cast<INT32>(wsptr[6]);
 
 		tmp10 = MULTIPLY(z2 - z3, FIX(0.881747734)); /* c4 */
 		tmp12 = MULTIPLY(z1 - z2, FIX(0.314692123)); /* c6 */
@@ -493,9 +477,9 @@ GLOBAL(void) jpeg_idct_7x7(j_decompress_ptr cinfo, jpeg_component_info * compptr
 
 		/* Odd part */
 
-		z1 = (INT32)wsptr[1];
-		z2 = (INT32)wsptr[3];
-		z3 = (INT32)wsptr[5];
+		z1 = static_cast<INT32>(wsptr[1]);
+		z2 = static_cast<INT32>(wsptr[3]);
+		z3 = static_cast<INT32>(wsptr[5]);
 
 		tmp1 = MULTIPLY(z1 + z2, FIX(0.935414347)); /* (c3+c1-c5)/2 */
 		tmp2 = MULTIPLY(z1 - z2, FIX(0.170262339)); /* (c3+c5-c1)/2 */
@@ -542,7 +526,7 @@ GLOBAL(void) jpeg_idct_6x6(j_decompress_ptr cinfo, jpeg_component_info * compptr
 	/* Pass 1: process columns from input, store into work array. */
 
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = 0; ctr < 6; ctr++, inptr++, quantptr++, wsptr++) {
 		/* Even part */
@@ -579,34 +563,28 @@ GLOBAL(void) jpeg_idct_6x6(j_decompress_ptr cinfo, jpeg_component_info * compptr
 		wsptr[6*2] = (int)RIGHT_SHIFT(tmp12 + tmp2, CONST_BITS-PASS1_BITS);
 		wsptr[6*3] = (int)RIGHT_SHIFT(tmp12 - tmp2, CONST_BITS-PASS1_BITS);
 	}
-
 	/* Pass 2: process 6 rows from work array, store into output array. */
-
 	wsptr = workspace;
 	for(ctr = 0; ctr < 6; ctr++) {
 		outptr = output_buf[ctr] + output_col;
-
 		/* Even part */
-
 		/* Add range center and fudge factor for final descale and range-limit. */
-		tmp0 = (INT32)wsptr[0] +
-		    ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) +
-		    (ONE << (PASS1_BITS+2)));
+		tmp0 = static_cast<INT32>(wsptr[0]) + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
 		tmp0 <<= CONST_BITS;
-		tmp2 = (INT32)wsptr[4];
+		tmp2 = static_cast<INT32>(wsptr[4]);
 		tmp10 = MULTIPLY(tmp2, FIX(0.707106781)); /* c4 */
 		tmp1 = tmp0 + tmp10;
 		tmp11 = tmp0 - tmp10 - tmp10;
-		tmp10 = (INT32)wsptr[2];
+		tmp10 = static_cast<INT32>(wsptr[2]);
 		tmp0 = MULTIPLY(tmp10, FIX(1.224744871)); /* c2 */
 		tmp10 = tmp1 + tmp0;
 		tmp12 = tmp1 - tmp0;
 
 		/* Odd part */
 
-		z1 = (INT32)wsptr[1];
-		z2 = (INT32)wsptr[3];
-		z3 = (INT32)wsptr[5];
+		z1 = static_cast<INT32>(wsptr[1]);
+		z2 = static_cast<INT32>(wsptr[3]);
+		z3 = static_cast<INT32>(wsptr[5]);
 		tmp1 = MULTIPLY(z1 + z3, FIX(0.366025404)); /* c5 */
 		tmp0 = tmp1 + ((z1 + z2) << CONST_BITS);
 		tmp2 = tmp1 + ((z3 - z2) << CONST_BITS);
@@ -644,7 +622,7 @@ GLOBAL(void) jpeg_idct_5x5(j_decompress_ptr cinfo, jpeg_component_info * compptr
 	/* Pass 1: process columns from input, store into work array. */
 
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = 0; ctr < 5; ctr++, inptr++, quantptr++, wsptr++) {
 		/* Even part */
@@ -689,10 +667,10 @@ GLOBAL(void) jpeg_idct_5x5(j_decompress_ptr cinfo, jpeg_component_info * compptr
 		/* Even part */
 
 		/* Add range center and fudge factor for final descale and range-limit. */
-		tmp12 = (INT32)wsptr[0] + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
+		tmp12 = static_cast<INT32>(wsptr[0]) + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
 		tmp12 <<= CONST_BITS;
-		tmp0 = (INT32)wsptr[2];
-		tmp1 = (INT32)wsptr[4];
+		tmp0 = static_cast<INT32>(wsptr[2]);
+		tmp1 = static_cast<INT32>(wsptr[4]);
 		z1 = MULTIPLY(tmp0 + tmp1, FIX(0.790569415)); /* (c2+c4)/2 */
 		z2 = MULTIPLY(tmp0 - tmp1, FIX(0.353553391)); /* (c2-c4)/2 */
 		z3 = tmp12 + z2;
@@ -702,8 +680,8 @@ GLOBAL(void) jpeg_idct_5x5(j_decompress_ptr cinfo, jpeg_component_info * compptr
 
 		/* Odd part */
 
-		z2 = (INT32)wsptr[1];
-		z3 = (INT32)wsptr[3];
+		z2 = static_cast<INT32>(wsptr[1]);
+		z3 = static_cast<INT32>(wsptr[3]);
 
 		z1 = MULTIPLY(z2 + z3, FIX(0.831253876)); /* c3 */
 		tmp0 = z1 + MULTIPLY(z2, FIX(0.513743148)); /* c1-c3 */
@@ -740,8 +718,8 @@ GLOBAL(void) jpeg_idct_4x4(j_decompress_ptr cinfo, jpeg_component_info * compptr
 
 	/* Pass 1: process columns from input, store into work array. */
 
-	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+    inptr = coef_block;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = 0; ctr < 4; ctr++, inptr++, quantptr++, wsptr++) {
 		/* Even part */
@@ -781,8 +759,8 @@ GLOBAL(void) jpeg_idct_4x4(j_decompress_ptr cinfo, jpeg_component_info * compptr
 		/* Even part */
 
 		/* Add range center and fudge factor for final descale and range-limit. */
-		tmp0 = (INT32)wsptr[0] + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
-		tmp2 = (INT32)wsptr[2];
+		tmp0 = static_cast<INT32>(wsptr[0]) + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
+		tmp2 = static_cast<INT32>(wsptr[2]);
 
 		tmp10 = (tmp0 + tmp2) << CONST_BITS;
 		tmp12 = (tmp0 - tmp2) << CONST_BITS;
@@ -790,8 +768,8 @@ GLOBAL(void) jpeg_idct_4x4(j_decompress_ptr cinfo, jpeg_component_info * compptr
 		/* Odd part */
 		/* Same rotation as in the even part of the 8x8 LL&M IDCT */
 
-		z2 = (INT32)wsptr[1];
-		z3 = (INT32)wsptr[3];
+		z2 = static_cast<INT32>(wsptr[1]);
+		z3 = static_cast<INT32>(wsptr[3]);
 
 		z1 = MULTIPLY(z2 + z3, FIX_0_541196100); /* c6 */
 		tmp0 = z1 + MULTIPLY(z2, FIX_0_765366865); /* c2-c6 */
@@ -831,7 +809,7 @@ GLOBAL(void) jpeg_idct_3x3(j_decompress_ptr cinfo, jpeg_component_info * compptr
 	/* Pass 1: process columns from input, store into work array. */
 
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = 0; ctr < 3; ctr++, inptr++, quantptr++, wsptr++) {
 		/* Even part */
@@ -866,16 +844,16 @@ GLOBAL(void) jpeg_idct_3x3(j_decompress_ptr cinfo, jpeg_component_info * compptr
 		/* Even part */
 
 		/* Add range center and fudge factor for final descale and range-limit. */
-		tmp0 = (INT32)wsptr[0] + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
+		tmp0 = static_cast<INT32>(wsptr[0]) + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
 		tmp0 <<= CONST_BITS;
-		tmp2 = (INT32)wsptr[2];
+		tmp2 = static_cast<INT32>(wsptr[2]);
 		tmp12 = MULTIPLY(tmp2, FIX(0.707106781)); /* c2 */
 		tmp10 = tmp0 + tmp12;
 		tmp2 = tmp0 - tmp12 - tmp12;
 
 		/* Odd part */
 
-		tmp12 = (INT32)wsptr[1];
+		tmp12 = static_cast<INT32>(wsptr[1]);
 		tmp0 = MULTIPLY(tmp12, FIX(1.224744871)); /* c1 */
 
 		/* Final output stage */
@@ -892,20 +870,15 @@ GLOBAL(void) jpeg_idct_3x3(j_decompress_ptr cinfo, jpeg_component_info * compptr
  * Multiplication-less algorithm.
  */
 
-GLOBAL(void) jpeg_idct_2x2(j_decompress_ptr cinfo, jpeg_component_info * compptr,
-    JCOEFPTR coef_block,
-    JSAMPARRAY output_buf, JDIMENSION output_col)
+GLOBAL(void) jpeg_idct_2x2(j_decompress_ptr cinfo, jpeg_component_info * compptr, JCOEFPTR coef_block, JSAMPARRAY output_buf, JDIMENSION output_col)
 {
 	DCTELEM tmp0, tmp1, tmp2, tmp3, tmp4, tmp5;
 	ISLOW_MULT_TYPE * quantptr;
 	JSAMPROW outptr;
 	JSAMPLE * range_limit = IDCT_range_limit(cinfo);
 	ISHIFT_TEMPS
-
 	/* Pass 1: process columns from input. */
-
-	    quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
-
+	    quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	/* Column 0 */
 	tmp4 = DEQUANTIZE(coef_block[DCTSIZE*0], quantptr[DCTSIZE*0]);
 	tmp5 = DEQUANTIZE(coef_block[DCTSIZE*1], quantptr[DCTSIZE*1]);
@@ -951,7 +924,7 @@ GLOBAL(void) jpeg_idct_1x1(j_decompress_ptr cinfo, jpeg_component_info * compptr
 	JSAMPLE * range_limit = IDCT_range_limit(cinfo);
 	ISHIFT_TEMPS
 	/* 1x1 is trivial: just take the DC coefficient divided by 8. */
-	    quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	    quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	dcval = DEQUANTIZE(coef_block[0], quantptr[0]);
 	/* Add range center and fudge factor for descale and range-limit. */
 	dcval += (((DCTELEM)RANGE_CENTER) << 3) + (1 << 2);
@@ -980,7 +953,7 @@ GLOBAL(void) jpeg_idct_9x9(j_decompress_ptr cinfo, jpeg_component_info * compptr
 	/* Pass 1: process columns from input, store into work array. */
 
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = 0; ctr < 8; ctr++, inptr++, quantptr++, wsptr++) {
 		/* Even part */
@@ -1045,18 +1018,14 @@ GLOBAL(void) jpeg_idct_9x9(j_decompress_ptr cinfo, jpeg_component_info * compptr
 	wsptr = workspace;
 	for(ctr = 0; ctr < 9; ctr++) {
 		outptr = output_buf[ctr] + output_col;
-
 		/* Even part */
-
 		/* Add range center and fudge factor for final descale and range-limit. */
-		tmp0 = (INT32)wsptr[0] +
-		    ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) +
-		    (ONE << (PASS1_BITS+2)));
+		tmp0 = static_cast<INT32>(wsptr[0]) + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
 		tmp0 <<= CONST_BITS;
 
-		z1 = (INT32)wsptr[2];
-		z2 = (INT32)wsptr[4];
-		z3 = (INT32)wsptr[6];
+		z1 = static_cast<INT32>(wsptr[2]);
+		z2 = static_cast<INT32>(wsptr[4]);
+		z3 = static_cast<INT32>(wsptr[6]);
 
 		tmp3 = MULTIPLY(z3, FIX(0.707106781)); /* c6 */
 		tmp1 = tmp0 + tmp3;
@@ -1076,10 +1045,10 @@ GLOBAL(void) jpeg_idct_9x9(j_decompress_ptr cinfo, jpeg_component_info * compptr
 
 		/* Odd part */
 
-		z1 = (INT32)wsptr[1];
-		z2 = (INT32)wsptr[3];
-		z3 = (INT32)wsptr[5];
-		z4 = (INT32)wsptr[7];
+		z1 = static_cast<INT32>(wsptr[1]);
+		z2 = static_cast<INT32>(wsptr[3]);
+		z3 = static_cast<INT32>(wsptr[5]);
+		z4 = static_cast<INT32>(wsptr[7]);
 
 		z2 = MULTIPLY(z2, -FIX(1.224744871)); /* -c3 */
 
@@ -1152,7 +1121,7 @@ GLOBAL(void) jpeg_idct_10x10(j_decompress_ptr cinfo, jpeg_component_info * compp
 	/* Pass 1: process columns from input, store into work array. */
 
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = 0; ctr < 8; ctr++, inptr++, quantptr++, wsptr++) {
 		/* Even part */
@@ -1222,21 +1191,15 @@ GLOBAL(void) jpeg_idct_10x10(j_decompress_ptr cinfo, jpeg_component_info * compp
 		wsptr[8*4] = (int)RIGHT_SHIFT(tmp24 + tmp14, CONST_BITS-PASS1_BITS);
 		wsptr[8*5] = (int)RIGHT_SHIFT(tmp24 - tmp14, CONST_BITS-PASS1_BITS);
 	}
-
 	/* Pass 2: process 10 rows from work array, store into output array. */
-
 	wsptr = workspace;
 	for(ctr = 0; ctr < 10; ctr++) {
 		outptr = output_buf[ctr] + output_col;
-
 		/* Even part */
-
 		/* Add range center and fudge factor for final descale and range-limit. */
-		z3 = (INT32)wsptr[0] +
-		    ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) +
-		    (ONE << (PASS1_BITS+2)));
+		z3 = static_cast<INT32>(wsptr[0]) + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
 		z3 <<= CONST_BITS;
-		z4 = (INT32)wsptr[4];
+		z4 = static_cast<INT32>(wsptr[4]);
 		z1 = MULTIPLY(z4, FIX(1.144122806)); /* c4 */
 		z2 = MULTIPLY(z4, FIX(0.437016024)); /* c8 */
 		tmp10 = z3 + z1;
@@ -1244,8 +1207,8 @@ GLOBAL(void) jpeg_idct_10x10(j_decompress_ptr cinfo, jpeg_component_info * compp
 
 		tmp22 = z3 - ((z1 - z2) << 1);   /* c0 = (c4-c8)*2 */
 
-		z2 = (INT32)wsptr[2];
-		z3 = (INT32)wsptr[6];
+		z2 = static_cast<INT32>(wsptr[2]);
+		z3 = static_cast<INT32>(wsptr[6]);
 
 		z1 = MULTIPLY(z2 + z3, FIX(0.831253876)); /* c6 */
 		tmp12 = z1 + MULTIPLY(z2, FIX(0.513743148)); /* c2-c6 */
@@ -1258,11 +1221,11 @@ GLOBAL(void) jpeg_idct_10x10(j_decompress_ptr cinfo, jpeg_component_info * compp
 
 		/* Odd part */
 
-		z1 = (INT32)wsptr[1];
-		z2 = (INT32)wsptr[3];
-		z3 = (INT32)wsptr[5];
+		z1 = static_cast<INT32>(wsptr[1]);
+		z2 = static_cast<INT32>(wsptr[3]);
+		z3 = static_cast<INT32>(wsptr[5]);
 		z3 <<= CONST_BITS;
-		z4 = (INT32)wsptr[7];
+		z4 = static_cast<INT32>(wsptr[7]);
 
 		tmp11 = z2 + z4;
 		tmp13 = z2 - z4;
@@ -1347,7 +1310,7 @@ GLOBAL(void) jpeg_idct_11x11(j_decompress_ptr cinfo, jpeg_component_info * compp
 	/* Pass 1: process columns from input, store into work array. */
 
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = 0; ctr < 8; ctr++, inptr++, quantptr++, wsptr++) {
 		/* Even part */
@@ -1421,18 +1384,14 @@ GLOBAL(void) jpeg_idct_11x11(j_decompress_ptr cinfo, jpeg_component_info * compp
 	wsptr = workspace;
 	for(ctr = 0; ctr < 11; ctr++) {
 		outptr = output_buf[ctr] + output_col;
-
 		/* Even part */
-
 		/* Add range center and fudge factor for final descale and range-limit. */
-		tmp10 = (INT32)wsptr[0] +
-		    ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) +
-		    (ONE << (PASS1_BITS+2)));
+		tmp10 = static_cast<INT32>(wsptr[0]) + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
 		tmp10 <<= CONST_BITS;
 
-		z1 = (INT32)wsptr[2];
-		z2 = (INT32)wsptr[4];
-		z3 = (INT32)wsptr[6];
+		z1 = static_cast<INT32>(wsptr[2]);
+		z2 = static_cast<INT32>(wsptr[4]);
+		z3 = static_cast<INT32>(wsptr[6]);
 
 		tmp20 = MULTIPLY(z2 - z3, FIX(2.546640132)); /* c2+c4 */
 		tmp23 = MULTIPLY(z2 - z1, FIX(0.430815045)); /* c2-c6 */
@@ -1452,10 +1411,10 @@ GLOBAL(void) jpeg_idct_11x11(j_decompress_ptr cinfo, jpeg_component_info * compp
 
 		/* Odd part */
 
-		z1 = (INT32)wsptr[1];
-		z2 = (INT32)wsptr[3];
-		z3 = (INT32)wsptr[5];
-		z4 = (INT32)wsptr[7];
+		z1 = static_cast<INT32>(wsptr[1]);
+		z2 = static_cast<INT32>(wsptr[3]);
+		z3 = static_cast<INT32>(wsptr[5]);
+		z4 = static_cast<INT32>(wsptr[7]);
 
 		tmp11 = z1 + z2;
 		tmp14 = MULTIPLY(tmp11 + z3 + z4, FIX(0.398430003)); /* c9 */
@@ -1541,7 +1500,7 @@ GLOBAL(void) jpeg_idct_12x12(j_decompress_ptr cinfo, jpeg_component_info * compp
 	/* Pass 1: process columns from input, store into work array. */
 
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = 0; ctr < 8; ctr++, inptr++, quantptr++, wsptr++) {
 		/* Even part */
@@ -1619,31 +1578,25 @@ GLOBAL(void) jpeg_idct_12x12(j_decompress_ptr cinfo, jpeg_component_info * compp
 		wsptr[8*5]  = (int)RIGHT_SHIFT(tmp25 + tmp15, CONST_BITS-PASS1_BITS);
 		wsptr[8*6]  = (int)RIGHT_SHIFT(tmp25 - tmp15, CONST_BITS-PASS1_BITS);
 	}
-
 	/* Pass 2: process 12 rows from work array, store into output array. */
-
 	wsptr = workspace;
 	for(ctr = 0; ctr < 12; ctr++) {
 		outptr = output_buf[ctr] + output_col;
-
 		/* Even part */
-
 		/* Add range center and fudge factor for final descale and range-limit. */
-		z3 = (INT32)wsptr[0] +
-		    ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) +
-		    (ONE << (PASS1_BITS+2)));
+		z3 = static_cast<INT32>(wsptr[0]) + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
 		z3 <<= CONST_BITS;
 
-		z4 = (INT32)wsptr[4];
+		z4 = static_cast<INT32>(wsptr[4]);
 		z4 = MULTIPLY(z4, FIX(1.224744871)); /* c4 */
 
 		tmp10 = z3 + z4;
 		tmp11 = z3 - z4;
 
-		z1 = (INT32)wsptr[2];
+		z1 = static_cast<INT32>(wsptr[2]);
 		z4 = MULTIPLY(z1, FIX(1.366025404)); /* c2 */
 		z1 <<= CONST_BITS;
-		z2 = (INT32)wsptr[6];
+		z2 = static_cast<INT32>(wsptr[6]);
 		z2 <<= CONST_BITS;
 
 		tmp12 = z1 - z2;
@@ -1663,10 +1616,10 @@ GLOBAL(void) jpeg_idct_12x12(j_decompress_ptr cinfo, jpeg_component_info * compp
 
 		/* Odd part */
 
-		z1 = (INT32)wsptr[1];
-		z2 = (INT32)wsptr[3];
-		z3 = (INT32)wsptr[5];
-		z4 = (INT32)wsptr[7];
+		z1 = static_cast<INT32>(wsptr[1]);
+		z2 = static_cast<INT32>(wsptr[3]);
+		z3 = static_cast<INT32>(wsptr[5]);
+		z4 = static_cast<INT32>(wsptr[7]);
 
 		tmp11 = MULTIPLY(z2, FIX(1.306562965));      /* c3 */
 		tmp14 = MULTIPLY(z2, -FIX_0_541196100);      /* -c9 */
@@ -1757,7 +1710,7 @@ GLOBAL(void) jpeg_idct_13x13(j_decompress_ptr cinfo, jpeg_component_info * compp
 	/* Pass 1: process columns from input, store into work array. */
 
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = 0; ctr < 8; ctr++, inptr++, quantptr++, wsptr++) {
 		/* Even part */
@@ -1840,24 +1793,18 @@ GLOBAL(void) jpeg_idct_13x13(j_decompress_ptr cinfo, jpeg_component_info * compp
 		wsptr[8*7]  = (int)RIGHT_SHIFT(tmp25 - tmp15, CONST_BITS-PASS1_BITS);
 		wsptr[8*6]  = (int)RIGHT_SHIFT(tmp26, CONST_BITS-PASS1_BITS);
 	}
-
 	/* Pass 2: process 13 rows from work array, store into output array. */
-
 	wsptr = workspace;
 	for(ctr = 0; ctr < 13; ctr++) {
 		outptr = output_buf[ctr] + output_col;
-
 		/* Even part */
-
 		/* Add range center and fudge factor for final descale and range-limit. */
-		z1 = (INT32)wsptr[0] +
-		    ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) +
-		    (ONE << (PASS1_BITS+2)));
+		z1 = static_cast<INT32>(wsptr[0]) + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
 		z1 <<= CONST_BITS;
 
-		z2 = (INT32)wsptr[2];
-		z3 = (INT32)wsptr[4];
-		z4 = (INT32)wsptr[6];
+		z2 = static_cast<INT32>(wsptr[2]);
+		z3 = static_cast<INT32>(wsptr[4]);
+		z4 = static_cast<INT32>(wsptr[6]);
 
 		tmp10 = z3 + z4;
 		tmp11 = z3 - z4;
@@ -1884,10 +1831,10 @@ GLOBAL(void) jpeg_idct_13x13(j_decompress_ptr cinfo, jpeg_component_info * compp
 
 		/* Odd part */
 
-		z1 = (INT32)wsptr[1];
-		z2 = (INT32)wsptr[3];
-		z3 = (INT32)wsptr[5];
-		z4 = (INT32)wsptr[7];
+		z1 = static_cast<INT32>(wsptr[1]);
+		z2 = static_cast<INT32>(wsptr[3]);
+		z3 = static_cast<INT32>(wsptr[5]);
+		z4 = static_cast<INT32>(wsptr[7]);
 
 		tmp11 = MULTIPLY(z1 + z2, FIX(1.322312651)); /* c3 */
 		tmp12 = MULTIPLY(z1 + z3, FIX(1.163874945)); /* c5 */
@@ -1985,7 +1932,7 @@ GLOBAL(void) jpeg_idct_14x14(j_decompress_ptr cinfo, jpeg_component_info * compp
 	/* Pass 1: process columns from input, store into work array. */
 
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = 0; ctr < 8; ctr++, inptr++, quantptr++, wsptr++) {
 		/* Even part */
@@ -2067,21 +2014,15 @@ GLOBAL(void) jpeg_idct_14x14(j_decompress_ptr cinfo, jpeg_component_info * compp
 		wsptr[8*6]  = (int)RIGHT_SHIFT(tmp26 + tmp16, CONST_BITS-PASS1_BITS);
 		wsptr[8*7]  = (int)RIGHT_SHIFT(tmp26 - tmp16, CONST_BITS-PASS1_BITS);
 	}
-
 	/* Pass 2: process 14 rows from work array, store into output array. */
-
 	wsptr = workspace;
 	for(ctr = 0; ctr < 14; ctr++) {
 		outptr = output_buf[ctr] + output_col;
-
 		/* Even part */
-
 		/* Add range center and fudge factor for final descale and range-limit. */
-		z1 = (INT32)wsptr[0] +
-		    ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) +
-		    (ONE << (PASS1_BITS+2)));
+		z1 = static_cast<INT32>(wsptr[0]) + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
 		z1 <<= CONST_BITS;
-		z4 = (INT32)wsptr[4];
+		z4 = static_cast<INT32>(wsptr[4]);
 		z2 = MULTIPLY(z4, FIX(1.274162392)); /* c4 */
 		z3 = MULTIPLY(z4, FIX(0.314692123)); /* c12 */
 		z4 = MULTIPLY(z4, FIX(0.881747734)); /* c8 */
@@ -2092,8 +2033,8 @@ GLOBAL(void) jpeg_idct_14x14(j_decompress_ptr cinfo, jpeg_component_info * compp
 
 		tmp23 = z1 - ((z2 + z3 - z4) << 1); /* c0 = (c4+c12-c8)*2 */
 
-		z1 = (INT32)wsptr[2];
-		z2 = (INT32)wsptr[6];
+		z1 = static_cast<INT32>(wsptr[2]);
+		z2 = static_cast<INT32>(wsptr[6]);
 
 		z3 = MULTIPLY(z1 + z2, FIX(1.105676686)); /* c6 */
 
@@ -2111,10 +2052,10 @@ GLOBAL(void) jpeg_idct_14x14(j_decompress_ptr cinfo, jpeg_component_info * compp
 
 		/* Odd part */
 
-		z1 = (INT32)wsptr[1];
-		z2 = (INT32)wsptr[3];
-		z3 = (INT32)wsptr[5];
-		z4 = (INT32)wsptr[7];
+		z1 = static_cast<INT32>(wsptr[1]);
+		z2 = static_cast<INT32>(wsptr[3]);
+		z3 = static_cast<INT32>(wsptr[5]);
+		z4 = static_cast<INT32>(wsptr[7]);
 		z4 <<= CONST_BITS;
 
 		tmp14 = z1 + z3;
@@ -2211,7 +2152,7 @@ GLOBAL(void) jpeg_idct_15x15(j_decompress_ptr cinfo, jpeg_component_info * compp
 	/* Pass 1: process columns from input, store into work array. */
 
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = 0; ctr < 8; ctr++, inptr++, quantptr++, wsptr++) {
 		/* Even part */
@@ -2299,24 +2240,18 @@ GLOBAL(void) jpeg_idct_15x15(j_decompress_ptr cinfo, jpeg_component_info * compp
 		wsptr[8*8]  = (int)RIGHT_SHIFT(tmp26 - tmp16, CONST_BITS-PASS1_BITS);
 		wsptr[8*7]  = (int)RIGHT_SHIFT(tmp27, CONST_BITS-PASS1_BITS);
 	}
-
 	/* Pass 2: process 15 rows from work array, store into output array. */
-
 	wsptr = workspace;
 	for(ctr = 0; ctr < 15; ctr++) {
 		outptr = output_buf[ctr] + output_col;
-
 		/* Even part */
-
 		/* Add range center and fudge factor for final descale and range-limit. */
-		z1 = (INT32)wsptr[0] +
-		    ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) +
-		    (ONE << (PASS1_BITS+2)));
+		z1 = static_cast<INT32>(wsptr[0]) + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
 		z1 <<= CONST_BITS;
 
-		z2 = (INT32)wsptr[2];
-		z3 = (INT32)wsptr[4];
-		z4 = (INT32)wsptr[6];
+		z2 = static_cast<INT32>(wsptr[2]);
+		z3 = static_cast<INT32>(wsptr[4]);
+		z4 = static_cast<INT32>(wsptr[6]);
 
 		tmp10 = MULTIPLY(z4, FIX(0.437016024)); /* c12 */
 		tmp11 = MULTIPLY(z4, FIX(1.144122806)); /* c6 */
@@ -2351,11 +2286,11 @@ GLOBAL(void) jpeg_idct_15x15(j_decompress_ptr cinfo, jpeg_component_info * compp
 
 		/* Odd part */
 
-		z1 = (INT32)wsptr[1];
-		z2 = (INT32)wsptr[3];
-		z4 = (INT32)wsptr[5];
+		z1 = static_cast<INT32>(wsptr[1]);
+		z2 = static_cast<INT32>(wsptr[3]);
+		z4 = static_cast<INT32>(wsptr[5]);
 		z3 = MULTIPLY(z4, FIX(1.224744871));        /* c5 */
-		z4 = (INT32)wsptr[7];
+		z4 = static_cast<INT32>(wsptr[7]);
 
 		tmp13 = z2 - z4;
 		tmp15 = MULTIPLY(z1 + tmp13, FIX(0.831253876)); /* c9 */
@@ -2419,7 +2354,7 @@ GLOBAL(void) jpeg_idct_16x16(j_decompress_ptr cinfo, jpeg_component_info * compp
 	/* Pass 1: process columns from input, store into work array. */
 
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = 0; ctr < 8; ctr++, inptr++, quantptr++, wsptr++) {
 		/* Even part */
@@ -2525,10 +2460,10 @@ GLOBAL(void) jpeg_idct_16x16(j_decompress_ptr cinfo, jpeg_component_info * compp
 		/* Even part */
 
 		/* Add range center and fudge factor for final descale and range-limit. */
-		tmp0 = (INT32)wsptr[0] + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
+		tmp0 = static_cast<INT32>(wsptr[0]) + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
 		tmp0 <<= CONST_BITS;
 
-		z1 = (INT32)wsptr[4];
+		z1 = static_cast<INT32>(wsptr[4]);
 		tmp1 = MULTIPLY(z1, FIX(1.306562965)); /* c4[16] = c2[8] */
 		tmp2 = MULTIPLY(z1, FIX_0_541196100); /* c12[16] = c6[8] */
 
@@ -2537,8 +2472,8 @@ GLOBAL(void) jpeg_idct_16x16(j_decompress_ptr cinfo, jpeg_component_info * compp
 		tmp12 = tmp0 + tmp2;
 		tmp13 = tmp0 - tmp2;
 
-		z1 = (INT32)wsptr[2];
-		z2 = (INT32)wsptr[6];
+		z1 = static_cast<INT32>(wsptr[2]);
+		z2 = static_cast<INT32>(wsptr[6]);
 		z3 = z1 - z2;
 		z4 = MULTIPLY(z3, FIX(0.275899379)); /* c14[16] = c7[8] */
 		z3 = MULTIPLY(z3, FIX(1.387039845)); /* c2[16] = c1[8] */
@@ -2559,10 +2494,10 @@ GLOBAL(void) jpeg_idct_16x16(j_decompress_ptr cinfo, jpeg_component_info * compp
 
 		/* Odd part */
 
-		z1 = (INT32)wsptr[1];
-		z2 = (INT32)wsptr[3];
-		z3 = (INT32)wsptr[5];
-		z4 = (INT32)wsptr[7];
+		z1 = static_cast<INT32>(wsptr[1]);
+		z2 = static_cast<INT32>(wsptr[3]);
+		z3 = static_cast<INT32>(wsptr[5]);
+		z4 = static_cast<INT32>(wsptr[7]);
 
 		tmp11 = z1 + z3;
 
@@ -2643,7 +2578,7 @@ GLOBAL(void) jpeg_idct_16x8(j_decompress_ptr cinfo, jpeg_component_info * comppt
 	 */
 
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = DCTSIZE; ctr > 0; ctr--) {
 		/* Due to quantization, we will usually find that many of the input
@@ -2760,10 +2695,10 @@ GLOBAL(void) jpeg_idct_16x8(j_decompress_ptr cinfo, jpeg_component_info * comppt
 		/* Even part */
 
 		/* Add range center and fudge factor for final descale and range-limit. */
-		tmp0 = (INT32)wsptr[0] + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
+		tmp0 = static_cast<INT32>(wsptr[0]) + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
 		tmp0 <<= CONST_BITS;
 
-		z1 = (INT32)wsptr[4];
+		z1 = static_cast<INT32>(wsptr[4]);
 		tmp1 = MULTIPLY(z1, FIX(1.306562965)); /* c4[16] = c2[8] */
 		tmp2 = MULTIPLY(z1, FIX_0_541196100); /* c12[16] = c6[8] */
 
@@ -2772,8 +2707,8 @@ GLOBAL(void) jpeg_idct_16x8(j_decompress_ptr cinfo, jpeg_component_info * comppt
 		tmp12 = tmp0 + tmp2;
 		tmp13 = tmp0 - tmp2;
 
-		z1 = (INT32)wsptr[2];
-		z2 = (INT32)wsptr[6];
+		z1 = static_cast<INT32>(wsptr[2]);
+		z2 = static_cast<INT32>(wsptr[6]);
 		z3 = z1 - z2;
 		z4 = MULTIPLY(z3, FIX(0.275899379)); /* c14[16] = c7[8] */
 		z3 = MULTIPLY(z3, FIX(1.387039845)); /* c2[16] = c1[8] */
@@ -2794,10 +2729,10 @@ GLOBAL(void) jpeg_idct_16x8(j_decompress_ptr cinfo, jpeg_component_info * comppt
 
 		/* Odd part */
 
-		z1 = (INT32)wsptr[1];
-		z2 = (INT32)wsptr[3];
-		z3 = (INT32)wsptr[5];
-		z4 = (INT32)wsptr[7];
+		z1 = static_cast<INT32>(wsptr[1]);
+		z2 = static_cast<INT32>(wsptr[3]);
+		z3 = static_cast<INT32>(wsptr[5]);
+		z4 = static_cast<INT32>(wsptr[7]);
 
 		tmp11 = z1 + z3;
 
@@ -2880,7 +2815,7 @@ GLOBAL(void) jpeg_idct_14x7(j_decompress_ptr cinfo, jpeg_component_info * comppt
 	 */
 
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = 0; ctr < 8; ctr++, inptr++, quantptr++, wsptr++) {
 		/* Even part */
@@ -2930,23 +2865,16 @@ GLOBAL(void) jpeg_idct_14x7(j_decompress_ptr cinfo, jpeg_component_info * comppt
 		wsptr[8*4] = (int)RIGHT_SHIFT(tmp22 - tmp12, CONST_BITS-PASS1_BITS);
 		wsptr[8*3] = (int)RIGHT_SHIFT(tmp23, CONST_BITS-PASS1_BITS);
 	}
-
-	/* Pass 2: process 7 rows from work array, store into output array.
-	 * 14-point IDCT kernel, cK represents sqrt(2) * cos(K*pi/28).
-	 */
-
+	// Pass 2: process 7 rows from work array, store into output array.
+	// 14-point IDCT kernel, cK represents sqrt(2) * cos(K*pi/28).
 	wsptr = workspace;
 	for(ctr = 0; ctr < 7; ctr++) {
 		outptr = output_buf[ctr] + output_col;
-
 		/* Even part */
-
 		/* Add range center and fudge factor for final descale and range-limit. */
-		z1 = (INT32)wsptr[0] +
-		    ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) +
-		    (ONE << (PASS1_BITS+2)));
+		z1 = static_cast<INT32>(wsptr[0]) + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
 		z1 <<= CONST_BITS;
-		z4 = (INT32)wsptr[4];
+		z4 = static_cast<INT32>(wsptr[4]);
 		z2 = MULTIPLY(z4, FIX(1.274162392)); /* c4 */
 		z3 = MULTIPLY(z4, FIX(0.314692123)); /* c12 */
 		z4 = MULTIPLY(z4, FIX(0.881747734)); /* c8 */
@@ -2957,15 +2885,14 @@ GLOBAL(void) jpeg_idct_14x7(j_decompress_ptr cinfo, jpeg_component_info * comppt
 
 		tmp23 = z1 - ((z2 + z3 - z4) << 1); /* c0 = (c4+c12-c8)*2 */
 
-		z1 = (INT32)wsptr[2];
-		z2 = (INT32)wsptr[6];
+		z1 = static_cast<INT32>(wsptr[2]);
+		z2 = static_cast<INT32>(wsptr[6]);
 
 		z3 = MULTIPLY(z1 + z2, FIX(1.105676686)); /* c6 */
 
 		tmp13 = z3 + MULTIPLY(z1, FIX(0.273079590)); /* c2-c6 */
 		tmp14 = z3 - MULTIPLY(z2, FIX(1.719280954)); /* c6+c10 */
-		tmp15 = MULTIPLY(z1, FIX(0.613604268)) - /* c10 */
-		    MULTIPLY(z2, FIX(1.378756276)); /* c2 */
+		tmp15 = MULTIPLY(z1, FIX(0.613604268)) - /* c10 */ MULTIPLY(z2, FIX(1.378756276)); /* c2 */
 
 		tmp20 = tmp10 + tmp13;
 		tmp26 = tmp10 - tmp13;
@@ -2976,10 +2903,10 @@ GLOBAL(void) jpeg_idct_14x7(j_decompress_ptr cinfo, jpeg_component_info * comppt
 
 		/* Odd part */
 
-		z1 = (INT32)wsptr[1];
-		z2 = (INT32)wsptr[3];
-		z3 = (INT32)wsptr[5];
-		z4 = (INT32)wsptr[7];
+		z1 = static_cast<INT32>(wsptr[1]);
+		z2 = static_cast<INT32>(wsptr[3]);
+		z3 = static_cast<INT32>(wsptr[5]);
+		z4 = static_cast<INT32>(wsptr[7]);
 		z4 <<= CONST_BITS;
 
 		tmp14 = z1 + z3;
@@ -3077,7 +3004,7 @@ GLOBAL(void) jpeg_idct_12x6(j_decompress_ptr cinfo, jpeg_component_info * comppt
 	 */
 
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = 0; ctr < 8; ctr++, inptr++, quantptr++, wsptr++) {
 		/* Even part */
@@ -3114,33 +3041,26 @@ GLOBAL(void) jpeg_idct_12x6(j_decompress_ptr cinfo, jpeg_component_info * comppt
 		wsptr[8*2] = (int)RIGHT_SHIFT(tmp22 + tmp12, CONST_BITS-PASS1_BITS);
 		wsptr[8*3] = (int)RIGHT_SHIFT(tmp22 - tmp12, CONST_BITS-PASS1_BITS);
 	}
-
-	/* Pass 2: process 6 rows from work array, store into output array.
-	 * 12-point IDCT kernel, cK represents sqrt(2) * cos(K*pi/24).
-	 */
-
+	// Pass 2: process 6 rows from work array, store into output array.
+	// 12-point IDCT kernel, cK represents sqrt(2) * cos(K*pi/24).
 	wsptr = workspace;
 	for(ctr = 0; ctr < 6; ctr++) {
 		outptr = output_buf[ctr] + output_col;
-
 		/* Even part */
-
 		/* Add range center and fudge factor for final descale and range-limit. */
-		z3 = (INT32)wsptr[0] +
-		    ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) +
-		    (ONE << (PASS1_BITS+2)));
+		z3 = static_cast<INT32>(wsptr[0]) + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
 		z3 <<= CONST_BITS;
 
-		z4 = (INT32)wsptr[4];
+		z4 = static_cast<INT32>(wsptr[4]);
 		z4 = MULTIPLY(z4, FIX(1.224744871)); /* c4 */
 
 		tmp10 = z3 + z4;
 		tmp11 = z3 - z4;
 
-		z1 = (INT32)wsptr[2];
+		z1 = static_cast<INT32>(wsptr[2]);
 		z4 = MULTIPLY(z1, FIX(1.366025404)); /* c2 */
 		z1 <<= CONST_BITS;
-		z2 = (INT32)wsptr[6];
+		z2 = static_cast<INT32>(wsptr[6]);
 		z2 <<= CONST_BITS;
 
 		tmp12 = z1 - z2;
@@ -3160,10 +3080,10 @@ GLOBAL(void) jpeg_idct_12x6(j_decompress_ptr cinfo, jpeg_component_info * comppt
 
 		/* Odd part */
 
-		z1 = (INT32)wsptr[1];
-		z2 = (INT32)wsptr[3];
-		z3 = (INT32)wsptr[5];
-		z4 = (INT32)wsptr[7];
+		z1 = static_cast<INT32>(wsptr[1]);
+		z2 = static_cast<INT32>(wsptr[3]);
+		z3 = static_cast<INT32>(wsptr[5]);
+		z4 = static_cast<INT32>(wsptr[7]);
 
 		tmp11 = MULTIPLY(z2, FIX(1.306562965));      /* c3 */
 		tmp14 = MULTIPLY(z2, -FIX_0_541196100);      /* -c9 */
@@ -3255,7 +3175,7 @@ GLOBAL(void) jpeg_idct_10x5(j_decompress_ptr cinfo, jpeg_component_info * comppt
 	 */
 
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = 0; ctr < 8; ctr++, inptr++, quantptr++, wsptr++) {
 		/* Even part */
@@ -3290,23 +3210,16 @@ GLOBAL(void) jpeg_idct_10x5(j_decompress_ptr cinfo, jpeg_component_info * comppt
 		wsptr[8*3] = (int)RIGHT_SHIFT(tmp11 - tmp14, CONST_BITS-PASS1_BITS);
 		wsptr[8*2] = (int)RIGHT_SHIFT(tmp12, CONST_BITS-PASS1_BITS);
 	}
-
-	/* Pass 2: process 5 rows from work array, store into output array.
-	 * 10-point IDCT kernel, cK represents sqrt(2) * cos(K*pi/20).
-	 */
-
+	// Pass 2: process 5 rows from work array, store into output array.
+	// 10-point IDCT kernel, cK represents sqrt(2) * cos(K*pi/20).
 	wsptr = workspace;
 	for(ctr = 0; ctr < 5; ctr++) {
 		outptr = output_buf[ctr] + output_col;
-
 		/* Even part */
-
 		/* Add range center and fudge factor for final descale and range-limit. */
-		z3 = (INT32)wsptr[0] +
-		    ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) +
-		    (ONE << (PASS1_BITS+2)));
+		z3 = static_cast<INT32>(wsptr[0]) + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
 		z3 <<= CONST_BITS;
-		z4 = (INT32)wsptr[4];
+		z4 = static_cast<INT32>(wsptr[4]);
 		z1 = MULTIPLY(z4, FIX(1.144122806)); /* c4 */
 		z2 = MULTIPLY(z4, FIX(0.437016024)); /* c8 */
 		tmp10 = z3 + z1;
@@ -3314,8 +3227,8 @@ GLOBAL(void) jpeg_idct_10x5(j_decompress_ptr cinfo, jpeg_component_info * comppt
 
 		tmp22 = z3 - ((z1 - z2) << 1);   /* c0 = (c4-c8)*2 */
 
-		z2 = (INT32)wsptr[2];
-		z3 = (INT32)wsptr[6];
+		z2 = static_cast<INT32>(wsptr[2]);
+		z3 = static_cast<INT32>(wsptr[6]);
 
 		z1 = MULTIPLY(z2 + z3, FIX(0.831253876)); /* c6 */
 		tmp12 = z1 + MULTIPLY(z2, FIX(0.513743148)); /* c2-c6 */
@@ -3328,11 +3241,11 @@ GLOBAL(void) jpeg_idct_10x5(j_decompress_ptr cinfo, jpeg_component_info * comppt
 
 		/* Odd part */
 
-		z1 = (INT32)wsptr[1];
-		z2 = (INT32)wsptr[3];
-		z3 = (INT32)wsptr[5];
+		z1 = static_cast<INT32>(wsptr[1]);
+		z2 = static_cast<INT32>(wsptr[3]);
+		z3 = static_cast<INT32>(wsptr[5]);
 		z3 <<= CONST_BITS;
-		z4 = (INT32)wsptr[7];
+		z4 = static_cast<INT32>(wsptr[7]);
 
 		tmp11 = z2 + z4;
 		tmp13 = z2 - z4;
@@ -3419,7 +3332,7 @@ GLOBAL(void) jpeg_idct_8x4(j_decompress_ptr cinfo, jpeg_component_info * compptr
 	 */
 
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = 0; ctr < 8; ctr++, inptr++, quantptr++, wsptr++) {
 		/* Even part */
@@ -3451,32 +3364,24 @@ GLOBAL(void) jpeg_idct_8x4(j_decompress_ptr cinfo, jpeg_component_info * compptr
 		wsptr[8*1] = (int)(tmp12 + tmp2);
 		wsptr[8*2] = (int)(tmp12 - tmp2);
 	}
-
 	/* Pass 2: process rows from work array, store into output array.
 	 * Note that we must descale the results by a factor of 8 == 2**3,
 	 * and also undo the PASS1_BITS scaling.
 	 * 8-point IDCT kernel, cK represents sqrt(2) * cos(K*pi/16).
 	 */
-
 	wsptr = workspace;
 	for(ctr = 0; ctr < 4; ctr++) {
 		outptr = output_buf[ctr] + output_col;
-
-		/* Even part: reverse the even part of the forward DCT.
-		 * The rotator is c(-6).
-		 */
-
+		// Even part: reverse the even part of the forward DCT. The rotator is c(-6).
 		/* Add range center and fudge factor for final descale and range-limit. */
-		z2 = (INT32)wsptr[0] +
-		    ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) +
-		    (ONE << (PASS1_BITS+2)));
-		z3 = (INT32)wsptr[4];
+		z2 = static_cast<INT32>(wsptr[0]) + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
+		z3 = static_cast<INT32>(wsptr[4]);
 
 		tmp0 = (z2 + z3) << CONST_BITS;
 		tmp1 = (z2 - z3) << CONST_BITS;
 
-		z2 = (INT32)wsptr[2];
-		z3 = (INT32)wsptr[6];
+		z2 = static_cast<INT32>(wsptr[2]);
+		z3 = static_cast<INT32>(wsptr[6]);
 
 		z1 = MULTIPLY(z2 + z3, FIX_0_541196100); /* c6 */
 		tmp2 = z1 + MULTIPLY(z2, FIX_0_765366865); /* c2-c6 */
@@ -3491,10 +3396,10 @@ GLOBAL(void) jpeg_idct_8x4(j_decompress_ptr cinfo, jpeg_component_info * compptr
 		 * transpose is its inverse.  i0..i3 are y7,y5,y3,y1 respectively.
 		 */
 
-		tmp0 = (INT32)wsptr[7];
-		tmp1 = (INT32)wsptr[5];
-		tmp2 = (INT32)wsptr[3];
-		tmp3 = (INT32)wsptr[1];
+		tmp0 = static_cast<INT32>(wsptr[7]);
+		tmp1 = static_cast<INT32>(wsptr[5]);
+		tmp2 = static_cast<INT32>(wsptr[3]);
+		tmp3 = static_cast<INT32>(wsptr[1]);
 
 		z2 = tmp0 + tmp2;
 		z3 = tmp1 + tmp3;
@@ -3575,7 +3480,7 @@ GLOBAL(void) jpeg_idct_6x3(j_decompress_ptr cinfo, jpeg_component_info * compptr
 	 */
 
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = 0; ctr < 6; ctr++, inptr++, quantptr++, wsptr++) {
 		/* Even part */
@@ -3600,36 +3505,29 @@ GLOBAL(void) jpeg_idct_6x3(j_decompress_ptr cinfo, jpeg_component_info * compptr
 		wsptr[6*2] = (int)RIGHT_SHIFT(tmp10 - tmp0, CONST_BITS-PASS1_BITS);
 		wsptr[6*1] = (int)RIGHT_SHIFT(tmp2, CONST_BITS-PASS1_BITS);
 	}
-
-	/* Pass 2: process 3 rows from work array, store into output array.
-	 * 6-point IDCT kernel, cK represents sqrt(2) * cos(K*pi/12).
-	 */
-
+	// Pass 2: process 3 rows from work array, store into output array.
+	// 6-point IDCT kernel, cK represents sqrt(2) * cos(K*pi/12).
 	wsptr = workspace;
 	for(ctr = 0; ctr < 3; ctr++) {
 		outptr = output_buf[ctr] + output_col;
-
 		/* Even part */
-
 		/* Add range center and fudge factor for final descale and range-limit. */
-		tmp0 = (INT32)wsptr[0] +
-		    ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) +
-		    (ONE << (PASS1_BITS+2)));
+		tmp0 = static_cast<INT32>(wsptr[0]) + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
 		tmp0 <<= CONST_BITS;
-		tmp2 = (INT32)wsptr[4];
+		tmp2 = static_cast<INT32>(wsptr[4]);
 		tmp10 = MULTIPLY(tmp2, FIX(0.707106781)); /* c4 */
 		tmp1 = tmp0 + tmp10;
 		tmp11 = tmp0 - tmp10 - tmp10;
-		tmp10 = (INT32)wsptr[2];
+		tmp10 = static_cast<INT32>(wsptr[2]);
 		tmp0 = MULTIPLY(tmp10, FIX(1.224744871)); /* c2 */
 		tmp10 = tmp1 + tmp0;
 		tmp12 = tmp1 - tmp0;
 
 		/* Odd part */
 
-		z1 = (INT32)wsptr[1];
-		z2 = (INT32)wsptr[3];
-		z3 = (INT32)wsptr[5];
+		z1 = static_cast<INT32>(wsptr[1]);
+		z2 = static_cast<INT32>(wsptr[3]);
+		z3 = static_cast<INT32>(wsptr[5]);
 		tmp1 = MULTIPLY(z1 + z3, FIX(0.366025404)); /* c5 */
 		tmp0 = tmp1 + ((z1 + z2) << CONST_BITS);
 		tmp2 = tmp1 + ((z3 - z2) << CONST_BITS);
@@ -3685,7 +3583,7 @@ GLOBAL(void) jpeg_idct_4x2(j_decompress_ptr cinfo, jpeg_component_info * compptr
 	/* Pass 1: process columns from input, store into work array. */
 
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = 0; ctr < 4; ctr++, inptr++, quantptr++, wsptr++) {
 		/* Even part */
@@ -3770,7 +3668,7 @@ GLOBAL(void) jpeg_idct_2x1(j_decompress_ptr cinfo, jpeg_component_info * compptr
 
 	/* Pass 2: process 1 row from input, store into output array. */
 
-	    quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	    quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	outptr = output_buf[0] + output_col;
 
 	/* Even part */
@@ -3817,7 +3715,7 @@ GLOBAL(void) jpeg_idct_8x16(j_decompress_ptr cinfo, jpeg_component_info * comppt
 	 */
 
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = 0; ctr < 8; ctr++, inptr++, quantptr++, wsptr++) {
 		/* Even part */
@@ -3914,32 +3812,24 @@ GLOBAL(void) jpeg_idct_8x16(j_decompress_ptr cinfo, jpeg_component_info * comppt
 		wsptr[8*7]  = (int)RIGHT_SHIFT(tmp27 + tmp13, CONST_BITS-PASS1_BITS);
 		wsptr[8*8]  = (int)RIGHT_SHIFT(tmp27 - tmp13, CONST_BITS-PASS1_BITS);
 	}
-
 	/* Pass 2: process rows from work array, store into output array.
 	 * Note that we must descale the results by a factor of 8 == 2**3,
 	 * and also undo the PASS1_BITS scaling.
 	 * 8-point IDCT kernel, cK represents sqrt(2) * cos(K*pi/16).
 	 */
-
 	wsptr = workspace;
 	for(ctr = 0; ctr < 16; ctr++) {
 		outptr = output_buf[ctr] + output_col;
-
-		/* Even part: reverse the even part of the forward DCT.
-		 * The rotator is c(-6).
-		 */
-
+		// Even part: reverse the even part of the forward DCT. The rotator is c(-6).
 		/* Add range center and fudge factor for final descale and range-limit. */
-		z2 = (INT32)wsptr[0] +
-		    ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) +
-		    (ONE << (PASS1_BITS+2)));
-		z3 = (INT32)wsptr[4];
+		z2 = static_cast<INT32>(wsptr[0]) + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
+		z3 = static_cast<INT32>(wsptr[4]);
 
 		tmp0 = (z2 + z3) << CONST_BITS;
 		tmp1 = (z2 - z3) << CONST_BITS;
 
-		z2 = (INT32)wsptr[2];
-		z3 = (INT32)wsptr[6];
+		z2 = static_cast<INT32>(wsptr[2]);
+		z3 = static_cast<INT32>(wsptr[6]);
 
 		z1 = MULTIPLY(z2 + z3, FIX_0_541196100); /* c6 */
 		tmp2 = z1 + MULTIPLY(z2, FIX_0_765366865); /* c2-c6 */
@@ -3954,10 +3844,10 @@ GLOBAL(void) jpeg_idct_8x16(j_decompress_ptr cinfo, jpeg_component_info * comppt
 		 * transpose is its inverse.  i0..i3 are y7,y5,y3,y1 respectively.
 		 */
 
-		tmp0 = (INT32)wsptr[7];
-		tmp1 = (INT32)wsptr[5];
-		tmp2 = (INT32)wsptr[3];
-		tmp3 = (INT32)wsptr[1];
+		tmp0 = static_cast<INT32>(wsptr[7]);
+		tmp1 = static_cast<INT32>(wsptr[5]);
+		tmp2 = static_cast<INT32>(wsptr[3]);
+		tmp3 = static_cast<INT32>(wsptr[1]);
 
 		z2 = tmp0 + tmp2;
 		z3 = tmp1 + tmp3;
@@ -4039,7 +3929,7 @@ GLOBAL(void) jpeg_idct_7x14(j_decompress_ptr cinfo, jpeg_component_info * comppt
 	 */
 
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = 0; ctr < 7; ctr++, inptr++, quantptr++, wsptr++) {
 		/* Even part */
@@ -4121,26 +4011,20 @@ GLOBAL(void) jpeg_idct_7x14(j_decompress_ptr cinfo, jpeg_component_info * comppt
 		wsptr[7*6]  = (int)RIGHT_SHIFT(tmp26 + tmp16, CONST_BITS-PASS1_BITS);
 		wsptr[7*7]  = (int)RIGHT_SHIFT(tmp26 - tmp16, CONST_BITS-PASS1_BITS);
 	}
-
 	/* Pass 2: process 14 rows from work array, store into output array.
 	 * 7-point IDCT kernel, cK represents sqrt(2) * cos(K*pi/14).
 	 */
-
 	wsptr = workspace;
 	for(ctr = 0; ctr < 14; ctr++) {
 		outptr = output_buf[ctr] + output_col;
-
 		/* Even part */
-
 		/* Add range center and fudge factor for final descale and range-limit. */
-		tmp23 = (INT32)wsptr[0] +
-		    ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) +
-		    (ONE << (PASS1_BITS+2)));
+		tmp23 = static_cast<INT32>(wsptr[0]) + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
 		tmp23 <<= CONST_BITS;
 
-		z1 = (INT32)wsptr[2];
-		z2 = (INT32)wsptr[4];
-		z3 = (INT32)wsptr[6];
+		z1 = static_cast<INT32>(wsptr[2]);
+		z2 = static_cast<INT32>(wsptr[4]);
+		z3 = static_cast<INT32>(wsptr[6]);
 
 		tmp20 = MULTIPLY(z2 - z3, FIX(0.881747734)); /* c4 */
 		tmp22 = MULTIPLY(z1 - z2, FIX(0.314692123)); /* c6 */
@@ -4154,9 +4038,9 @@ GLOBAL(void) jpeg_idct_7x14(j_decompress_ptr cinfo, jpeg_component_info * comppt
 
 		/* Odd part */
 
-		z1 = (INT32)wsptr[1];
-		z2 = (INT32)wsptr[3];
-		z3 = (INT32)wsptr[5];
+		z1 = static_cast<INT32>(wsptr[1]);
+		z2 = static_cast<INT32>(wsptr[3]);
+		z3 = static_cast<INT32>(wsptr[5]);
 
 		tmp11 = MULTIPLY(z1 + z2, FIX(0.935414347)); /* (c3+c1-c5)/2 */
 		tmp12 = MULTIPLY(z1 - z2, FIX(0.170262339)); /* (c3+c5-c1)/2 */
@@ -4224,7 +4108,7 @@ GLOBAL(void) jpeg_idct_6x12(j_decompress_ptr cinfo, jpeg_component_info * comppt
 	 */
 
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = 0; ctr < 6; ctr++, inptr++, quantptr++, wsptr++) {
 		/* Even part */
@@ -4302,36 +4186,30 @@ GLOBAL(void) jpeg_idct_6x12(j_decompress_ptr cinfo, jpeg_component_info * comppt
 		wsptr[6*5]  = (int)RIGHT_SHIFT(tmp25 + tmp15, CONST_BITS-PASS1_BITS);
 		wsptr[6*6]  = (int)RIGHT_SHIFT(tmp25 - tmp15, CONST_BITS-PASS1_BITS);
 	}
-
 	/* Pass 2: process 12 rows from work array, store into output array.
 	 * 6-point IDCT kernel, cK represents sqrt(2) * cos(K*pi/12).
 	 */
-
 	wsptr = workspace;
 	for(ctr = 0; ctr < 12; ctr++) {
 		outptr = output_buf[ctr] + output_col;
-
 		/* Even part */
-
 		/* Add range center and fudge factor for final descale and range-limit. */
-		tmp10 = (INT32)wsptr[0] +
-		    ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) +
-		    (ONE << (PASS1_BITS+2)));
+		tmp10 = static_cast<INT32>(wsptr[0]) + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
 		tmp10 <<= CONST_BITS;
-		tmp12 = (INT32)wsptr[4];
+		tmp12 = static_cast<INT32>(wsptr[4]);
 		tmp20 = MULTIPLY(tmp12, FIX(0.707106781)); /* c4 */
 		tmp11 = tmp10 + tmp20;
 		tmp21 = tmp10 - tmp20 - tmp20;
-		tmp20 = (INT32)wsptr[2];
+		tmp20 = static_cast<INT32>(wsptr[2]);
 		tmp10 = MULTIPLY(tmp20, FIX(1.224744871)); /* c2 */
 		tmp20 = tmp11 + tmp10;
 		tmp22 = tmp11 - tmp10;
 
 		/* Odd part */
 
-		z1 = (INT32)wsptr[1];
-		z2 = (INT32)wsptr[3];
-		z3 = (INT32)wsptr[5];
+		z1 = static_cast<INT32>(wsptr[1]);
+		z2 = static_cast<INT32>(wsptr[3]);
+		z3 = static_cast<INT32>(wsptr[5]);
 		tmp11 = MULTIPLY(z1 + z3, FIX(0.366025404)); /* c5 */
 		tmp10 = tmp11 + ((z1 + z2) << CONST_BITS);
 		tmp12 = tmp11 + ((z3 - z2) << CONST_BITS);
@@ -4390,7 +4268,7 @@ GLOBAL(void) jpeg_idct_5x10(j_decompress_ptr cinfo, jpeg_component_info * comppt
 	 */
 
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = 0; ctr < 5; ctr++, inptr++, quantptr++, wsptr++) {
 		/* Even part */
@@ -4472,10 +4350,10 @@ GLOBAL(void) jpeg_idct_5x10(j_decompress_ptr cinfo, jpeg_component_info * comppt
 		/* Even part */
 
 		/* Add range center and fudge factor for final descale and range-limit. */
-		tmp12 = (INT32)wsptr[0] + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
+		tmp12 = static_cast<INT32>(wsptr[0]) + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
 		tmp12 <<= CONST_BITS;
-		tmp13 = (INT32)wsptr[2];
-		tmp14 = (INT32)wsptr[4];
+		tmp13 = static_cast<INT32>(wsptr[2]);
+		tmp14 = static_cast<INT32>(wsptr[4]);
 		z1 = MULTIPLY(tmp13 + tmp14, FIX(0.790569415)); /* (c2+c4)/2 */
 		z2 = MULTIPLY(tmp13 - tmp14, FIX(0.353553391)); /* (c2-c4)/2 */
 		z3 = tmp12 + z2;
@@ -4485,8 +4363,8 @@ GLOBAL(void) jpeg_idct_5x10(j_decompress_ptr cinfo, jpeg_component_info * comppt
 
 		/* Odd part */
 
-		z2 = (INT32)wsptr[1];
-		z3 = (INT32)wsptr[3];
+		z2 = static_cast<INT32>(wsptr[1]);
+		z3 = static_cast<INT32>(wsptr[3]);
 
 		z1 = MULTIPLY(z2 + z3, FIX(0.831253876)); /* c3 */
 		tmp13 = z1 + MULTIPLY(z2, FIX(0.513743148)); /* c1-c3 */
@@ -4526,7 +4404,7 @@ GLOBAL(void) jpeg_idct_4x8(j_decompress_ptr cinfo, jpeg_component_info * compptr
 	 * 8-point IDCT kernel, cK represents sqrt(2) * cos(K*pi/16).
 	 */
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = 4; ctr > 0; ctr--) {
 		/* Due to quantization, we will usually find that many of the input
@@ -4644,8 +4522,8 @@ GLOBAL(void) jpeg_idct_4x8(j_decompress_ptr cinfo, jpeg_component_info * compptr
 		/* Even part */
 
 		/* Add range center and fudge factor for final descale and range-limit. */
-		tmp0 = (INT32)wsptr[0] + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
-		tmp2 = (INT32)wsptr[2];
+		tmp0 = static_cast<INT32>(wsptr[0]) + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
+		tmp2 = static_cast<INT32>(wsptr[2]);
 
 		tmp10 = (tmp0 + tmp2) << CONST_BITS;
 		tmp12 = (tmp0 - tmp2) << CONST_BITS;
@@ -4653,8 +4531,8 @@ GLOBAL(void) jpeg_idct_4x8(j_decompress_ptr cinfo, jpeg_component_info * compptr
 		/* Odd part */
 		/* Same rotation as in the even part of the 8x8 LL&M IDCT */
 
-		z2 = (INT32)wsptr[1];
-		z3 = (INT32)wsptr[3];
+		z2 = static_cast<INT32>(wsptr[1]);
+		z3 = static_cast<INT32>(wsptr[3]);
 
 		z1 = MULTIPLY(z2 + z3, FIX_0_541196100); /* c6 */
 		tmp0 = z1 + MULTIPLY(z2, FIX_0_765366865); /* c2-c6 */
@@ -4693,7 +4571,7 @@ GLOBAL(void) jpeg_idct_3x6(j_decompress_ptr cinfo, jpeg_component_info * compptr
 	 */
 
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = 0; ctr < 3; ctr++, inptr++, quantptr++, wsptr++) {
 		/* Even part */
@@ -4742,16 +4620,16 @@ GLOBAL(void) jpeg_idct_3x6(j_decompress_ptr cinfo, jpeg_component_info * compptr
 		/* Even part */
 
 		/* Add range center and fudge factor for final descale and range-limit. */
-		tmp0 = (INT32)wsptr[0] + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
+		tmp0 = static_cast<INT32>(wsptr[0]) + ((((INT32)RANGE_CENTER) << (PASS1_BITS+3)) + (ONE << (PASS1_BITS+2)));
 		tmp0 <<= CONST_BITS;
-		tmp2 = (INT32)wsptr[2];
+		tmp2 = static_cast<INT32>(wsptr[2]);
 		tmp12 = MULTIPLY(tmp2, FIX(0.707106781)); /* c2 */
 		tmp10 = tmp0 + tmp12;
 		tmp2 = tmp0 - tmp12 - tmp12;
 
 		/* Odd part */
 
-		tmp12 = (INT32)wsptr[1];
+		tmp12 = static_cast<INT32>(wsptr[1]);
 		tmp0 = MULTIPLY(tmp12, FIX(1.224744871)); /* c1 */
 
 		/* Final output stage */
@@ -4790,7 +4668,7 @@ GLOBAL(void) jpeg_idct_2x4(j_decompress_ptr cinfo, jpeg_component_info * compptr
 	 */
 
 	    inptr = coef_block;
-	quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	wsptr = workspace;
 	for(ctr = 0; ctr < 2; ctr++, inptr++, quantptr++, wsptr++) {
 		/* Even part */
@@ -4849,7 +4727,7 @@ GLOBAL(void) jpeg_idct_1x2(j_decompress_ptr cinfo, jpeg_component_info * compptr
 	JSAMPLE * range_limit = IDCT_range_limit(cinfo);
 	ISHIFT_TEMPS
 	/* Process 1 column from input, store into output array. */
-	    quantptr = (ISLOW_MULT_TYPE*)compptr->dct_table;
+	    quantptr = static_cast<ISLOW_MULT_TYPE *>(compptr->dct_table);
 	/* Even part */
 	tmp0 = DEQUANTIZE(coef_block[DCTSIZE*0], quantptr[DCTSIZE*0]);
 	/* Add range center and fudge factor for final descale and range-limit. */

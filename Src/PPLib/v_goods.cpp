@@ -2175,7 +2175,7 @@ int SLAPI PPViewGoods::RemoveAll()
 		}
 		GoodsMoveParam Data;
 	};
-	const  size_t max_nm_len = sizeof(((Goods2Tbl::Rec*)0)->Name)-1;
+	const  size_t max_nm_len = sizeof(static_cast<const Goods2Tbl::Rec *>(0)->Name)-1;
 	int    ok = -1;
 	GoodsMoveDialog * dlg = 0;
 	int    valid_data = 0;

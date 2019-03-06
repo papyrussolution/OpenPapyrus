@@ -391,7 +391,7 @@ typedef enum {
 
 /* LZ4HC_encodeSequence() :
  * @return : 0 if ok,
- *           1 if buffer issue detected */
+ *         1 if buffer issue detected */
 LZ4_FORCE_INLINE int LZ4HC_encodeSequence(const uint8** ip, uint8** op, const uint8** anchor, int matchLength, const uint8* const match, limitedOutput_directive limit, uint8* oend)
 {
 	size_t length;
@@ -652,7 +652,7 @@ _last_literals:
 	    op += lastRunSize;}
 
 	/* End */
-	*srcSizePtr = (int)(((const char*)ip) - source);
+	*srcSizePtr = (int)(((const char *)ip) - source);
 	return (int)(((char *)op)-dest);
 
 _dest_overflow:
@@ -907,7 +907,7 @@ static int LZ4_compressHC_continue_generic(LZ4_streamHC_t* LZ4_streamHCPtr, cons
 	if((size_t)(ctxPtr->end - ctxPtr->base) > 2 GB) {
 		size_t dictSize = (size_t)(ctxPtr->end - ctxPtr->base) - ctxPtr->dictLimit;
 		if(dictSize > 64 KB) dictSize = 64 KB;
-		LZ4_loadDictHC(LZ4_streamHCPtr, (const char*)(ctxPtr->end) - dictSize, (int)dictSize);
+		LZ4_loadDictHC(LZ4_streamHCPtr, (const char *)(ctxPtr->end) - dictSize, (int)dictSize);
 	}
 
 	/* Check if blocks follow each other */
@@ -1350,7 +1350,7 @@ _last_literals:
 	    memcpy(op, anchor, lastRunSize);
 	    op += lastRunSize;}
 	/* End */
-	*srcSizePtr = (int)(((const char*)ip) - source);
+	*srcSizePtr = (int)(((const char *)ip) - source);
 	return (int)((char *)op-dst);
 _dest_overflow:
 	if(limit == limitedDestSize) {

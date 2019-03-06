@@ -152,7 +152,7 @@
  */
 
 #define YV12_SETUP(image)                                               \
-	bits_image_t *__bits_image = (bits_image_t*)image;                 \
+	bits_image_t *__bits_image = static_cast<bits_image_t *>(image); \
 	uint32_t * bits = __bits_image->bits;                                \
 	int stride = __bits_image->rowstride;                               \
 	int offset0 = stride < 0 ?                                          \
@@ -272,7 +272,7 @@ static force_inline uint32_t convert_pixel_from_a8r8g8b8(const pixman_image_t * 
 	}
 }
 
-static force_inline uint32_t fetch_and_convert_pixel(bits_image_t * image, const uint8_t *   bits, int offset, pixman_format_code_t format)
+static force_inline uint32_t fetch_and_convert_pixel(bits_image_t * image, const uint8_t * bits, int offset, pixman_format_code_t format)
 {
 	uint32_t pixel;
 	switch(PIXMAN_FORMAT_BPP(format)) {
@@ -302,28 +302,18 @@ static force_inline void convert_and_store_pixel(bits_image_t * image, uint8_t *
 }
 
 #define MAKE_ACCESSORS(format)                                          \
-	static void                                          \
-	fetch_scanline_ ## format(bits_image_t *image,                     \
-	    int x,                       \
-	    int y,                       \
-	    int width,                   \
-	    uint32_t * buffer,                  \
-	    const uint32_t *mask)                    \
+	static void fetch_scanline_ ## format(bits_image_t *image, int x, int y, int width, uint32_t * buffer, const uint32_t *mask) \
 	{                                                                   \
-		uint8_t * bits =                                                 \
-		    (uint8_t*)(image->bits + y * image->rowstride);            \
+		uint8_t * bits = reinterpret_cast<uint8_t *>(image->bits + y * image->rowstride);            \
 		int i;                                                          \
-                                                                        \
-		for(i = 0; i < width; ++i)                                     \
-		{                                                               \
-			*buffer++ =                                                 \
-			    fetch_and_convert_pixel(image, bits, x + i, PIXMAN_ ## format); \
+		for(i = 0; i < width; ++i) { \
+			*buffer++ = fetch_and_convert_pixel(image, bits, x + i, PIXMAN_ ## format); \
 		}                                                               \
 	}                                                                   \
                                                                         \
 	static void store_scanline_ ## format(bits_image_t *  image, int x, int y, int width, const uint32_t *values) \
 	{                                                                   \
-		uint8_t * dest = (uint8_t*)(image->bits + y * image->rowstride);            \
+		uint8_t * dest = reinterpret_cast<uint8_t *>(image->bits + y * image->rowstride);            \
 		for(int i = 0; i < width; ++i) { \
 			convert_and_store_pixel(image, dest, i + x, PIXMAN_ ## format, values[i]); \
 		}                                                               \
@@ -331,7 +321,7 @@ static force_inline void convert_and_store_pixel(bits_image_t * image, uint8_t *
                                                                         \
 	static uint32_t fetch_pixel_ ## format(bits_image_t *image, int offset, int line) \
 	{                                                                   \
-		uint8_t * bits = (uint8_t*)(image->bits + line * image->rowstride); \
+		uint8_t * bits = reinterpret_cast<uint8_t *>(image->bits + line * image->rowstride); \
 		return fetch_and_convert_pixel(image, bits, offset, PIXMAN_ ## format); \
 	}                                                                   \
                                                                         \

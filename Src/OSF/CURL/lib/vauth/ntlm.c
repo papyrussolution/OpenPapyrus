@@ -317,7 +317,7 @@ static void unicodecpy(uchar * dest, const char * src, size_t length)
  * passdwp [in]     - The user's password.
  * ntlm    [in/out] - The NTLM data struct being used and modified.
  * outptr  [in/out] - The address where a pointer to newly allocated memory
- *                    holding the result will be stored upon completion.
+ *                  holding the result will be stored upon completion.
  * outlen  [out]    - The length of the output message.
  *
  * Returns CURLE_OK on success.
@@ -425,7 +425,7 @@ CURLcode Curl_auth_create_ntlm_type1_message(const char * userp, const char * pa
  * passdwp [in]     - The user's password.
  * ntlm    [in/out] - The NTLM data struct being used and modified.
  * outptr  [in/out] - The address where a pointer to newly allocated memory
- *                    holding the result will be stored upon completion.
+ *                  holding the result will be stored upon completion.
  * outlen  [out]    - The length of the output message.
  *
  * Returns CURLE_OK on success.
@@ -504,11 +504,11 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data, const char
 		if(result)
 			return result;
 		/* LMv2 response */
-		result = Curl_ntlm_core_mk_lmv2_resp(ntlmv2hash, (uchar*)&entropy[0], &ntlm->nonce[0], lmresp);
+		result = Curl_ntlm_core_mk_lmv2_resp(ntlmv2hash, (uchar *)&entropy[0], &ntlm->nonce[0], lmresp);
 		if(result)
 			return result;
 		/* NTLMv2 response */
-		result = Curl_ntlm_core_mk_ntlmv2_resp(ntlmv2hash, (uchar*)&entropy[0], ntlm, &ntlmv2resp, &ntresplen);
+		result = Curl_ntlm_core_mk_ntlmv2_resp(ntlmv2hash, (uchar *)&entropy[0], ntlm, &ntlmv2resp, &ntresplen);
 		if(result)
 			return result;
 		ptr_ntresp = ntlmv2resp;
@@ -562,7 +562,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data, const char
 			return result;
 		Curl_ntlm_core_lm_resp(lmbuffer, &ntlm->nonce[0], lmresp);
 		/* A safer but less compatible alternative is:
-		 *   Curl_ntlm_core_lm_resp(ntbuffer, &ntlm->nonce[0], lmresp);
+		 * Curl_ntlm_core_lm_resp(ntbuffer, &ntlm->nonce[0], lmresp);
 		 * See https://davenport.sourceforge.io/ntlm.html#ntlmVersion2 */
 	}
 	if(unicode) {

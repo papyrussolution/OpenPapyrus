@@ -697,9 +697,9 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 				const int16 dec_len = (int16)GETSSIZED(pBind->Typ);
 				const int16 dec_prc = (int16)GETSPRECD(pBind->Typ);
 				if(action < 0)
-					*(double *)pStmt->GetBindOuterPtr(pBind, count) = dectobin((char *)pBind->P_Data, dec_len, dec_prc);
+					*(double *)pStmt->GetBindOuterPtr(pBind, count) = dectobin(static_cast<const char *>(pBind->P_Data), dec_len, dec_prc);
 				else if(action == 1)
-					dectodec(*(double *)pStmt->GetBindOuterPtr(pBind, count), (char *)pBind->P_Data, dec_len, dec_prc);
+					dectodec(*(double *)pStmt->GetBindOuterPtr(pBind, count), static_cast<char *>(pBind->P_Data), dec_len, dec_prc);
 			}
 			break;
 		case S_NOTE:
@@ -741,7 +741,7 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 								break;
 							}
 					}
-					strnzcpy(p_outer, (char *)pBind->P_Data, sz);
+					strnzcpy(p_outer, static_cast<const char *>(pBind->P_Data), sz);
 					if(!is_max)
 						SOemToChar(p_outer);
 				}
@@ -754,13 +754,13 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 				*/
 			}
 			else if(action == 1) {
-				int16 * p_ind = (int16 *)pStmt->GetIndPtr(pBind, count);
+				const int16 * p_ind = static_cast<const int16 *>(pStmt->GetIndPtr(pBind, count));
 				if(p_ind && *p_ind == -1) {
-					*(char *)pBind->P_Data = 0;
+					PTR8(pBind->P_Data)[0] = 0;
 				}
 				else {
-					CharToOem((char *)pStmt->GetBindOuterPtr(pBind, count), (char *)pBind->P_Data); // @unicodeproblem
-					trimright((char *)pBind->P_Data);
+					CharToOem((char *)pStmt->GetBindOuterPtr(pBind, count), static_cast<char *>(pBind->P_Data)); // @unicodeproblem
+					trimright(static_cast<char *>(pBind->P_Data));
 				}
 			}
 			break;
@@ -771,7 +771,7 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 				pStmt->AllocBindSubst(count, (sz * 2), pBind);
 			}
 			else if(action < 0) {
-				uint16 * p_outer = (uint16 *)pStmt->GetBindOuterPtr(pBind, count);
+				uint16 * p_outer = static_cast<uint16 *>(pStmt->GetBindOuterPtr(pBind, count));
 				memcpy(p_outer, pBind->P_Data, sz);
 				/*
 				for(uint i = 0; i < sz; i++)
@@ -779,7 +779,7 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 				*/
 			}
 			else if(action == 1) {
-				uint16 * p_outer = (uint16 *)pStmt->GetBindOuterPtr(pBind, count);
+				const uint16 * p_outer = static_cast<const uint16 *>(pStmt->GetBindOuterPtr(pBind, count));
 				memcpy(pBind->P_Data, p_outer, sz);
 				/*
 				for(uint i = 0; i < sz; i++)
@@ -794,9 +794,9 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 				//assert(0);
 			}
 			else if(action == 1) {
-				OD ocirid = *(OD *)pStmt->GetBindOuterPtr(pBind, count);
+				OD ocirid = *static_cast<const OD *>(pStmt->GetBindOuterPtr(pBind, count));
 				uint16 len = sizeof(DBRowId);
-				OCIRowidToChar(ocirid, (OraText *)pBind->P_Data, &len, Err);
+				OCIRowidToChar(ocirid, static_cast<OraText *>(pBind->P_Data), &len, Err);
 			}
 			else if(action == 1000)
 				ProcessBinding_FreeDescr(count, pStmt, pBind);
@@ -836,9 +836,8 @@ int SOraDbProvider::Binding(SSqlStmt & rS, int dir)
 				THROW(ProcessBinding(0, row_count, &rS, &r_bind));
 				{
 					void * p_data = rS.GetBindOuterPtr(&r_bind, 0);
-					uint16 * p_ind = r_bind.IndPos ? (uint16 *)(rS.BS.P_Buf + r_bind.IndPos) : 0;
-					THROW(ProcessError(OCIBindByPos(h_stmt, &p_bd, Err, -r_bind.Pos,
-						p_data, r_bind.NtvSize, r_bind.NtvTyp,
+					uint16 * p_ind = r_bind.IndPos ? reinterpret_cast<uint16 *>(rS.BS.P_Buf + r_bind.IndPos) : 0;
+					THROW(ProcessError(OCIBindByPos(h_stmt, &p_bd, Err, -r_bind.Pos, p_data, r_bind.NtvSize, r_bind.NtvTyp,
 						p_ind, 0/*alenp*/, 0/*rcodep*/, 0/*maxarr_len*/, 0/*curelep*/, OCI_DEFAULT)));
 					r_bind.H = (uint32)p_bd;
 				}
@@ -856,11 +855,9 @@ int SOraDbProvider::Binding(SSqlStmt & rS, int dir)
 				THROW(ProcessBinding(0, row_count, &rS, &r_bind));
 				{
 					void * p_data = rS.GetBindOuterPtr(&r_bind, 0);
-					uint16 * p_ind = r_bind.IndPos ? (uint16 *)(rS.BS.P_Buf + r_bind.IndPos) : 0;
-					uint16 * p_fsl = r_bind.FslPos ? (uint16 *)(rS.BS.P_Buf + r_bind.FslPos) : 0;
-					THROW(ProcessError(OCIDefineByPos(h_stmt, &p_bd, Err, r_bind.Pos,
-						p_data, r_bind.NtvSize, r_bind.NtvTyp,
-						p_ind, p_fsl, 0, OCI_DEFAULT)));
+					uint16 * p_ind = r_bind.IndPos ? reinterpret_cast<uint16 *>(rS.BS.P_Buf + r_bind.IndPos) : 0;
+					uint16 * p_fsl = r_bind.FslPos ? reinterpret_cast<uint16 *>(rS.BS.P_Buf + r_bind.FslPos) : 0;
+					THROW(ProcessError(OCIDefineByPos(h_stmt, &p_bd, Err, r_bind.Pos, p_data, r_bind.NtvSize, r_bind.NtvTyp, p_ind, p_fsl, 0, OCI_DEFAULT)));
 					r_bind.H = (uint32)p_bd;
 				}
 				if(row_count > 1) {
@@ -1004,7 +1001,7 @@ int SOraDbProvider::Fetch(SSqlStmt & rS, uint count, uint * pActualCount)
 			ok = 1;
 		}
 		else if(err == OCI_NO_DATA) {
-			OhAttrGet(StmtHandle(rS), OCI_ATTR_ROWS_FETCHED, (void *)&actual, 0);
+			OhAttrGet(StmtHandle(rS), OCI_ATTR_ROWS_FETCHED, &actual, 0);
 			rS.Flags |= SSqlStmt::fNoMoreData;
 			ok = actual ? 1 : -1;
 		}
@@ -1016,7 +1013,7 @@ int SOraDbProvider::Fetch(SSqlStmt & rS, uint count, uint * pActualCount)
 	return ok;
 }
 
-int SLAPI SOraDbProvider::PostProcessAfterUndump(DBTable * pTbl)
+int SLAPI SOraDbProvider::PostProcessAfterUndump(const DBTable * pTbl)
 {
 	int    ok = -1;
 	if(pTbl->State & DBTable::sHasAutoinc) {
@@ -1032,7 +1029,7 @@ int SLAPI SOraDbProvider::PostProcessAfterUndump(DBTable * pTbl)
 				sg.GetSequenceNameOnField(*pTbl, i, seq_name);
 				{
 					sg.Reset().Tok(Generator_SQL::tokSelect).Sp().Text(seq_name).Dot().Text("nextval").Sp().From("DUAL");
-					SSqlStmt stmt(this, (const SString &)sg);
+					SSqlStmt stmt(this, static_cast<const SString &>(sg));
 					THROW(stmt.Exec(0, OCI_DEFAULT));
 					THROW(stmt.BindItem(+1, 1, T_INT32, &seq));
 					THROW(Binding(stmt, +1));
@@ -1043,7 +1040,7 @@ int SLAPI SOraDbProvider::PostProcessAfterUndump(DBTable * pTbl)
 					// select max(ID) from tbl
 					sg.Reset().Tok(Generator_SQL::tokSelect).Sp().
 						Func(Generator_SQL::tokMax, r_fld.Name).Sp().From(pTbl->fileName);
-					SSqlStmt stmt(this, (const SString &)sg);
+					SSqlStmt stmt(this, static_cast<const SString &>(sg));
 					THROW(stmt.Exec(0, OCI_DEFAULT));
 					THROW(stmt.BindItem(+1, 1, T_INT32, &max_val));
 					THROW(Binding(stmt, +1));
@@ -1053,7 +1050,7 @@ int SLAPI SOraDbProvider::PostProcessAfterUndump(DBTable * pTbl)
 				if(max_val > seq) {
 					{
 						sg.Reset().Tok(Generator_SQL::tokDrop).Sp().Tok(Generator_SQL::tokSequence).Sp().Text(seq_name);
-						SSqlStmt stmt(this, (const SString &)sg);
+						SSqlStmt stmt(this, static_cast<const SString &>(sg));
 						THROW(stmt.Exec(1, OCI_DEFAULT));
 					}
 					//
@@ -1061,7 +1058,7 @@ int SLAPI SOraDbProvider::PostProcessAfterUndump(DBTable * pTbl)
 					//
 					{
 						sg.Reset().CreateSequenceOnField(*pTbl, pTbl->fileName, i, max_val+1);
-						SSqlStmt stmt(this, (const SString &)sg);
+						SSqlStmt stmt(this, static_cast<const SString &>(sg));
 						THROW(stmt.Exec(1, OCI_DEFAULT));
 					}
 					ok = 1;
@@ -1085,7 +1082,7 @@ int SOraDbProvider::GetAutolongVal(const DBTable & rTbl, uint fldN, long * pVal)
 	sg.GetSequenceNameOnField(rTbl, fldN, seq_name);
 	seq_name.Dot().Cat("nextval");
 	sg.Reset().Tok(Generator_SQL::tokSelect).Sp().Text(seq_name).Sp().From("DUAL");
-	SSqlStmt stmt(this, (const SString &)sg);
+	SSqlStmt stmt(this, static_cast<const SString &>(sg));
 	THROW(stmt.Exec(0, OCI_DEFAULT));
 	THROW(stmt.BindItem(+1, 1, T_INT32, &val));
 	THROW(Binding(stmt, +1));

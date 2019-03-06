@@ -178,11 +178,11 @@ static float CLAMPw(float v, float vmin, float vmax)
  * Initialize the YCbCr->RGB conversion tables.  The conversion
  * is done according to the 6.0 spec:
  *
- *    R = Y + Cr*(2 - 2*LumaRed)
- *    B = Y + Cb*(2 - 2*LumaBlue)
- *    G =   Y
- *        - LumaBlue*Cb*(2-2*LumaBlue)/LumaGreen
- *        - LumaRed*Cr*(2-2*LumaRed)/LumaGreen
+ *  R = Y + Cr*(2 - 2*LumaRed)
+ *  B = Y + Cb*(2 - 2*LumaBlue)
+ *  G =   Y
+ *      - LumaBlue*Cb*(2-2*LumaBlue)/LumaGreen
+ *      - LumaRed*Cr*(2-2*LumaRed)/LumaGreen
  *
  * To avoid floating point arithmetic the fractional constants that
  * come out of the equations are represented as fixed point values

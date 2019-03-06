@@ -47,7 +47,7 @@ int ec_GFp_simple_set_compressed_coordinates(const EC_GROUP * group,
 
 	/*-
 	 * Recover y.  We have a Weierstrass equation
-	 *     y^2 = x^3 + a*x + b,
+	 *   y^2 = x^3 + a*x + b,
 	 * so  y  is one of the square roots of  x^3 + a*x + b.
 	 */
 

@@ -60,7 +60,7 @@ void ngx_cdecl ngx_event_log(ngx_err_t err, const char * fmt, ...)
 	msgarg[8] = NULL;
 	/*
 	 * the 3299 event id in netmsg.dll has the generic message format:
-	 *     "%1 %2 %3 %4 %5 %6 %7 %8 %9"
+	 *   "%1 %2 %3 %4 %5 %6 %7 %8 %9"
 	 */
 	ReportEvent(ev, EVENTLOG_ERROR_TYPE, 0, 3299, NULL, 9, 0, msgarg, NULL);
 	DeregisterEventSource(ev);

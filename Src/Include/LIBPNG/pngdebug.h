@@ -17,19 +17,19 @@
  * libpng yet, but more support will be added as needed.
  *
  * png_debug[1-2]?(level, message ,arg{0-2})
- *   Expands to a statement (either a simple expression or a compound
- *   do..while(0) statement) that outputs a message with parameter
- *   substitution if PNG_DEBUG is defined to 2 or more.  If PNG_DEBUG
- *   is undefined, 0 or 1 every png_debug expands to a simple expression
- *   (actually ((void)0)).
+ * Expands to a statement (either a simple expression or a compound
+ * do..while(0) statement) that outputs a message with parameter
+ * substitution if PNG_DEBUG is defined to 2 or more.  If PNG_DEBUG
+ * is undefined, 0 or 1 every png_debug expands to a simple expression
+ * (actually ((void)0)).
  *
- *   level: level of detail of message, starting at 0.  A level 'n'
- *          message is preceded by 'n' 3-space indentations (not implemented
- *          on Microsoft compilers unless PNG_DEBUG_FILE is also
- *          defined, to allow debug DLL compilation with no standard IO).
- *   message: a printf(3) style text string.  A trailing '\n' is added
- *            to the message.
- *   arg: 0 to 2 arguments for printf(3) style substitution in message.
+ * level: level of detail of message, starting at 0.  A level 'n'
+ *        message is preceded by 'n' 3-space indentations (not implemented
+ *        on Microsoft compilers unless PNG_DEBUG_FILE is also
+ *        defined, to allow debug DLL compilation with no standard IO).
+ * message: a printf(3) style text string.  A trailing '\n' is added
+ *          to the message.
+ * arg: 0 to 2 arguments for printf(3) style substitution in message.
  */
 #ifndef PNGDEBUG_H
 #define PNGDEBUG_H

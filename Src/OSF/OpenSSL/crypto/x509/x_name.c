@@ -245,7 +245,7 @@ static int x509_name_encode(X509_NAME * a)
 	    ASN1_ITEM_rptr(X509_NAME_INTERNAL), -1, -1);
 	if(!BUF_MEM_grow(a->bytes, len))
 		goto memerr;
-	p = (uchar*)a->bytes->data;
+	p = (uchar *)a->bytes->data;
 	ASN1_item_ex_i2d(&intname.a,
 	    &p, ASN1_ITEM_rptr(X509_NAME_INTERNAL), -1, -1);
 	sk_STACK_OF_X509_NAME_ENTRY_pop_free(intname.s,
@@ -527,7 +527,7 @@ int X509_NAME_get0_der(X509_NAME * nm, const uchar ** pder,
 	if(i2d_X509_NAME(nm, NULL) <= 0)
 		return 0;
 	if(pder != NULL)
-		*pder = (uchar*)nm->bytes->data;
+		*pder = (uchar *)nm->bytes->data;
 	if(pderlen != NULL)
 		*pderlen = nm->bytes->length;
 	return 1;

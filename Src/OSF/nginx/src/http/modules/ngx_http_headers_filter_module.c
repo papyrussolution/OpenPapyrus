@@ -463,10 +463,10 @@ static void * ngx_http_headers_create_conf(ngx_conf_t * cf)
 		/*
 		 * set by ngx_pcalloc():
 		 *
-		 *     conf->headers = NULL;
-		 *     conf->trailers = NULL;
-		 *     conf->expires_time = 0;
-		 *     conf->expires_value = NULL;
+		 *   conf->headers = NULL;
+		 *   conf->trailers = NULL;
+		 *   conf->expires_time = 0;
+		 *   conf->expires_value = NULL;
 		 */
 		conf->expires = NGX_HTTP_EXPIRES_UNSET;
 	}

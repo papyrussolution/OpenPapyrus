@@ -146,7 +146,7 @@ static int kek_unwrap_key(uchar * out, size_t * outlen,
 		/* Invalid size */
 		return 0;
 	}
-	tmp = (uchar*)OPENSSL_malloc(inlen);
+	tmp = (uchar *)OPENSSL_malloc(inlen);
 	if(!tmp)
 		return 0;
 	/* setup IV by decrypting last two blocks */
@@ -279,7 +279,7 @@ int cms_RecipientInfo_pwri_crypt(CMS_ContentInfo * cms, CMS_RecipientInfo * ri, 
 	if(en_de) {
 		if(!kek_wrap_key(NULL, &keylen, ec->key, ec->keylen, kekctx))
 			goto err;
-		key = (uchar*)OPENSSL_malloc(keylen);
+		key = (uchar *)OPENSSL_malloc(keylen);
 		if(key == NULL)
 			goto err;
 		if(!kek_wrap_key(key, &keylen, ec->key, ec->keylen, kekctx))
@@ -288,7 +288,7 @@ int cms_RecipientInfo_pwri_crypt(CMS_ContentInfo * cms, CMS_RecipientInfo * ri, 
 		pwri->encryptedKey->length = keylen;
 	}
 	else {
-		key = (uchar*)OPENSSL_malloc(pwri->encryptedKey->length);
+		key = (uchar *)OPENSSL_malloc(pwri->encryptedKey->length);
 		if(key == NULL) {
 			CMSerr(CMS_F_CMS_RECIPIENTINFO_PWRI_CRYPT, ERR_R_MALLOC_FAILURE);
 			goto err;

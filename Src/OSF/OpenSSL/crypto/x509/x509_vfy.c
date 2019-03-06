@@ -378,11 +378,11 @@ static int check_chain_extensions(X509_STORE_CTX * ctx)
 	/*-
 	 *  must_be_ca can have 1 of 3 values:
 	 * -1: we accept both CA and non-CA certificates, to allow direct
-	 *     use of self-signed certificates (which are marked as CA).
+	 *   use of self-signed certificates (which are marked as CA).
 	 * 0:  we only accept non-CA certificates.  This is currently not
-	 *     used, but the possibility is present for future extensions.
+	 *   used, but the possibility is present for future extensions.
 	 * 1:  we only accept CA certificates.  This is currently used for
-	 *     all certificates in the chain except the leaf certificate.
+	 *   all certificates in the chain except the leaf certificate.
 	 */
 	must_be_ca = -1;
 
@@ -1613,7 +1613,7 @@ int X509_cmp_time(const ASN1_TIME * ctm, time_t * cmp_time)
 	atm.type = ctm->type;
 	atm.flags = 0;
 	atm.length = sizeof(buff2);
-	atm.data = (uchar*)buff2;
+	atm.data = (uchar *)buff2;
 	if(X509_time_adj(&atm, offset * 60, cmp_time) == NULL)
 		return 0;
 	if(ctm->type == V_ASN1_UTCTIME) {
@@ -2316,7 +2316,7 @@ static int dane_match(X509_STORE_CTX * ctx, X509 * cert, int depth)
 			/*-
 			 * Digest agility:
 			 *
-			 *     <https://tools.ietf.org/html/rfc7671#section-9>
+			 *   <https://tools.ietf.org/html/rfc7671#section-9>
 			 *
 			 * For a fixed selector, after processing all records with the
 			 * highest mtype ordinal, ignore all mtypes with lower ordinals
@@ -2447,10 +2447,10 @@ static int dane_verify(X509_STORE_CTX * ctx)
 	 * return value is 0, because we still need to find a PKIX trust-anchor.
 	 * Therefore, when DANE authentication is enabled (required), we're done
 	 * if:
-	 *   + matched < 0, internal error.
-	 *   + matched == 1, we matched a DANE-EE(3) record
-	 *   + matched == 0, mdepth < 0 (no PKIX-EE match) and there are no
-	 *     DANE-TA(2) or PKIX-TA(0) to test.
+	 * + matched < 0, internal error.
+	 * + matched == 1, we matched a DANE-EE(3) record
+	 * + matched == 0, mdepth < 0 (no PKIX-EE match) and there are no
+	 *   DANE-TA(2) or PKIX-TA(0) to test.
 	 */
 	matched = dane_match(ctx, ctx->cert, 0);
 	done = matched != 0 || (!DANETLS_HAS_TA(dane) && dane->mdpth < 0);

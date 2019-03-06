@@ -88,11 +88,11 @@ int Curl_blockread_all(struct connectdata * conn, /* connection data */
  * destination server.
  *
  * Reference :
- *   http://socks.permeo.com/protocol/socks4.protocol
+ * http://socks.permeo.com/protocol/socks4.protocol
  *
  * Note :
- *   Set protocol4a=true for  "SOCKS 4A (Simple Extension to SOCKS 4 Protocol)"
- *   Nonsupport "Identification Protocol (RFC1413)"
+ * Set protocol4a=true for  "SOCKS 4A (Simple Extension to SOCKS 4 Protocol)"
+ * Nonsupport "Identification Protocol (RFC1413)"
  */
 CURLcode Curl_SOCKS4(const char * proxy_name, const char * hostname, int remote_port, int sockindex, struct connectdata * conn)
 {
@@ -117,9 +117,9 @@ CURLcode Curl_SOCKS4(const char * proxy_name, const char * hostname, int remote_
 	 *
 	 * Request format
 	 *
-	 *     +----+----+----+----+----+----+----+----+----+----+....+----+
-	 *     | VN | CD | DSTPORT |      DSTIP        | USERID       |NULL|
-	 *     +----+----+----+----+----+----+----+----+----+----+....+----+
+	 *   +----+----+----+----+----+----+----+----+----+----+....+----+
+	 *   | VN | CD | DSTPORT |      DSTIP        | USERID       |NULL|
+	 *   +----+----+----+----+----+----+----+----+----+----+....+----+
 	 * # of bytes:  1    1      2              4           variable       1
 	 */
 
@@ -148,10 +148,10 @@ CURLcode Curl_SOCKS4(const char * proxy_name, const char * hostname, int remote_
 			Curl_printable_address(hp, buf, sizeof(buf));
 			if(hp->ai_family == AF_INET) {
 				struct sockaddr_in * saddr_in = (struct sockaddr_in*)(void *)hp->ai_addr;
-				socksreq[4] = ((uchar*)&saddr_in->sin_addr.s_addr)[0];
-				socksreq[5] = ((uchar*)&saddr_in->sin_addr.s_addr)[1];
-				socksreq[6] = ((uchar*)&saddr_in->sin_addr.s_addr)[2];
-				socksreq[7] = ((uchar*)&saddr_in->sin_addr.s_addr)[3];
+				socksreq[4] = ((uchar *)&saddr_in->sin_addr.s_addr)[0];
+				socksreq[5] = ((uchar *)&saddr_in->sin_addr.s_addr)[1];
+				socksreq[6] = ((uchar *)&saddr_in->sin_addr.s_addr)[2];
+				socksreq[7] = ((uchar *)&saddr_in->sin_addr.s_addr)[3];
 				infof(data, "SOCKS4 connect to IPv4 %s (locally resolved)\n", buf);
 			}
 			else {
@@ -226,9 +226,9 @@ CURLcode Curl_SOCKS4(const char * proxy_name, const char * hostname, int remote_
 		/*
 		 * Response format
 		 *
-		 *     +----+----+----+----+----+----+----+----+
-		 *     | VN | CD | DSTPORT |      DSTIP        |
-		 *     +----+----+----+----+----+----+----+----+
+		 *   +----+----+----+----+----+----+----+----+
+		 *   | VN | CD | DSTPORT |      DSTIP        |
+		 *   +----+----+----+----+----+----+----+----+
 		 * # of bytes:  1    1      2              4
 		 *
 		 * VN is the version of the reply code and should be 0. CD is the result
@@ -237,9 +237,9 @@ CURLcode Curl_SOCKS4(const char * proxy_name, const char * hostname, int remote_
 		 * 90: request granted
 		 * 91: request rejected or failed
 		 * 92: request rejected because SOCKS server cannot connect to
-		 *     identd on the client
+		 *   identd on the client
 		 * 93: request rejected because the client program and identd
-		 *     report different user-ids
+		 *   report different user-ids
 		 */
 		/* wrong version ? */
 		if(socksreq[0] != 0) {
@@ -518,7 +518,7 @@ CURLcode Curl_SOCKS5(const char * proxy_name, const char * proxy_password, const
 				socksreq[len++] = 1; /* ATYP: IPv4 = 1 */
 				saddr_in = (struct sockaddr_in*)(void *)hp->ai_addr;
 				for(i = 0; i < 4; i++) {
-					socksreq[len++] = ((uchar*)&saddr_in->sin_addr.s_addr)[i];
+					socksreq[len++] = ((uchar *)&saddr_in->sin_addr.s_addr)[i];
 				}
 				infof(data, "SOCKS5 connect to IPv4 %s (locally resolved)\n", buf);
 			}
@@ -528,7 +528,7 @@ CURLcode Curl_SOCKS5(const char * proxy_name, const char * proxy_password, const
 				socksreq[len++] = 4; /* ATYP: IPv6 = 4 */
 				saddr_in6 = (struct sockaddr_in6*)(void *)hp->ai_addr;
 				for(i = 0; i < 16; i++) {
-					socksreq[len++] = ((uchar*)&saddr_in6->sin6_addr.s6_addr)[i];
+					socksreq[len++] = ((uchar *)&saddr_in6->sin6_addr.s6_addr)[i];
 				}
 				infof(data, "SOCKS5 connect to IPv6 %s (locally resolved)\n", buf);
 			}

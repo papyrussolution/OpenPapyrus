@@ -191,14 +191,14 @@ SSL_SESSION * ssl_session_dup(SSL_SESSION * src, int ticket)
 #ifndef OPENSSL_NO_EC
 	if(src->tlsext_ecpointformatlist) {
 		dest->tlsext_ecpointformatlist =
-		    (uchar*)OPENSSL_memdup(src->tlsext_ecpointformatlist,
+		    (uchar *)OPENSSL_memdup(src->tlsext_ecpointformatlist,
 		    src->tlsext_ecpointformatlist_length);
 		if(dest->tlsext_ecpointformatlist == NULL)
 			goto err;
 	}
 	if(src->tlsext_ellipticcurvelist) {
 		dest->tlsext_ellipticcurvelist =
-		    (uchar*)OPENSSL_memdup(src->tlsext_ellipticcurvelist,
+		    (uchar *)OPENSSL_memdup(src->tlsext_ellipticcurvelist,
 		    src->tlsext_ellipticcurvelist_length);
 		if(dest->tlsext_ellipticcurvelist == NULL)
 			goto err;
@@ -207,7 +207,7 @@ SSL_SESSION * ssl_session_dup(SSL_SESSION * src, int ticket)
 
 	if(ticket != 0) {
 		dest->tlsext_tick =
-		    (uchar*)OPENSSL_memdup(src->tlsext_tick, src->tlsext_ticklen);
+		    (uchar *)OPENSSL_memdup(src->tlsext_tick, src->tlsext_ticklen);
 		if(dest->tlsext_tick == NULL)
 			goto err;
 	}
@@ -340,16 +340,16 @@ int ssl_get_new_session(SSL * s, int session)
 		 * If RFC5077 ticket, use empty session ID (as server).
 		 * Note that:
 		 * (a) ssl_get_prev_session() does lookahead into the
-		 *     ClientHello extensions to find the session ticket.
-		 *     When ssl_get_prev_session() fails, statem_srvr.c calls
-		 *     ssl_get_new_session() in tls_process_client_hello().
-		 *     At that point, it has not yet parsed the extensions,
-		 *     however, because of the lookahead, it already knows
-		 *     whether a ticket is expected or not.
+		 *   ClientHello extensions to find the session ticket.
+		 *   When ssl_get_prev_session() fails, statem_srvr.c calls
+		 *   ssl_get_new_session() in tls_process_client_hello().
+		 *   At that point, it has not yet parsed the extensions,
+		 *   however, because of the lookahead, it already knows
+		 *   whether a ticket is expected or not.
 		 *
 		 * (b) statem_clnt.c calls ssl_get_new_session() before parsing
-		 *     ServerHello extensions, and before recording the session
-		 *     ID received from the server, so this block is a noop.
+		 *   ServerHello extensions, and before recording the session
+		 *   ID received from the server, so this block is a noop.
 		 */
 		if(s->tlsext_ticket_expected) {
 			ss->session_id_length = 0;
@@ -428,18 +428,18 @@ sess_id_done:
  * ssl_get_prev attempts to find an SSL_SESSION to be used to resume this
  * connection. It is only called by servers.
  *
- *   ext: ClientHello extensions (including length prefix)
- *   session_id: ClientHello session ID.
+ * ext: ClientHello extensions (including length prefix)
+ * session_id: ClientHello session ID.
  *
  * Returns:
- *   -1: error
- *    0: a session may have been found.
+ * -1: error
+ *  0: a session may have been found.
  *
  * Side effects:
- *   - If a session is found then s->session is pointed at it (after freeing an
- *     existing session if need be) and s->verify_result is set from the session.
- *   - Both for new and resumed sessions, s->tlsext_ticket_expected is set to 1
- *     if the server should issue a new session ticket (to 0 otherwise).
+ * - If a session is found then s->session is pointed at it (after freeing an
+ *   existing session if need be) and s->verify_result is set from the session.
+ * - Both for new and resumed sessions, s->tlsext_ticket_expected is set to 1
+ *   if the server should issue a new session ticket (to 0 otherwise).
  */
 int ssl_get_prev_session(SSL * s, const PACKET * ext, const PACKET * session_id)
 {

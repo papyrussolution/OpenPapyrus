@@ -16,21 +16,13 @@
 #ifndef __ASSEMBLER__
 
 #ifndef PACKAGE
-#  error config.h must be included before pixman-private.h
+	#error config.h must be included before pixman-private.h
 #endif
-
 #define PIXMAN_DISABLE_DEPRECATED
 #define PIXMAN_USE_INTERNAL_API
 
 #include "pixman.h"
-//#include <time.h>
-//#include <assert.h>
-//#include <stdio.h>
-//#include <string.h>
-//#include <stddef.h>
-//#include <float.h>
 #include "pixman-compiler.h"
-
 /*
  * Images
  */
@@ -44,7 +36,6 @@ typedef struct conical_gradient conical_gradient_t;
 typedef struct radial_gradient radial_gradient_t;
 typedef struct bits_image bits_image_t;
 typedef struct circle circle_t;
-
 typedef struct argb_t argb_t;
 
 struct argb_t {
@@ -54,26 +45,10 @@ struct argb_t {
 	float b;
 };
 
-typedef void (* fetch_scanline_t) (bits_image_t * image,
-    int x,
-    int y,
-    int width,
-    uint32_t * buffer,
-    const uint32_t * mask);
-
-typedef uint32_t (* fetch_pixel_32_t) (bits_image_t * image,
-    int x,
-    int y);
-
-typedef argb_t (* fetch_pixel_float_t) (bits_image_t * image,
-    int x,
-    int y);
-
-typedef void (* store_scanline_t) (bits_image_t *  image,
-    int x,
-    int y,
-    int width,
-    const uint32_t * values);
+typedef void (* fetch_scanline_t) (bits_image_t * image, int x, int y, int width, uint32_t * buffer, const uint32_t * mask);
+typedef uint32_t (* fetch_pixel_32_t) (bits_image_t * image, int x, int y);
+typedef argb_t (* fetch_pixel_float_t) (bits_image_t * image, int x, int y);
+typedef void (* store_scanline_t) (bits_image_t *  image, int x, int y, int width, const uint32_t * values);
 
 typedef enum {
 	BITS,
@@ -89,28 +64,23 @@ struct image_common {
 	image_type_t type;
 	int32_t ref_count;
 	pixman_region32_t clip_region;
-	int32_t alpha_count;                        /* How many times this image is being used as an alpha map */
-	pixman_bool_t have_clip_region;             /* FALSE if there is no clip */
-	pixman_bool_t client_clip;                  /* Whether the source clip was
-	                                               set by a client */
-	pixman_bool_t clip_sources;                 /* Whether the clip applies when
-	 * the image is used as a source
-	                                             */
+	int32_t alpha_count;            // How many times this image is being used as an alpha map 
+	pixman_bool_t have_clip_region; // FALSE if there is no clip 
+	pixman_bool_t client_clip;      // Whether the source clip was set by a client 
+	pixman_bool_t clip_sources;     // Whether the clip applies when the image is used as a source 
 	pixman_bool_t dirty;
-	pixman_transform_t *   transform;
+	pixman_transform_t * transform;
 	pixman_repeat_t repeat;
 	pixman_filter_t filter;
 	pixman_fixed_t * filter_params;
 	int n_filter_params;
-	bits_image_t *   alpha_map;
+	bits_image_t * alpha_map;
 	int alpha_origin_x;
 	int alpha_origin_y;
 	pixman_bool_t component_alpha;
 	property_changed_func_t property_changed;
-
 	pixman_image_destroy_func_t destroy_func;
-	void *    destroy_data;
-
+	void *  destroy_data;
 	uint32_t flags;
 	pixman_format_code_t extended_format_code;
 };
@@ -118,7 +88,6 @@ struct image_common {
 struct solid_fill {
 	image_common_t common;
 	pixman_color_t color;
-
 	uint32_t color_32;
 	argb_t color_float;
 };
@@ -162,7 +131,7 @@ struct conical_gradient {
 struct bits_image {
 	image_common_t common;
 	pixman_format_code_t format;
-	const pixman_indexed_t *   indexed;
+	const pixman_indexed_t * indexed;
 	int width;
 	int height;
 	uint32_t *  bits;
@@ -231,7 +200,7 @@ typedef enum {
 struct pixman_iter_t {
 	/* These are initialized by _pixman_implementation_{src,dest}_init */
 	pixman_image_t * image;
-	uint32_t *   buffer;
+	uint32_t * buffer;
 	int x, y;
 	int width;
 	int height;
@@ -244,7 +213,7 @@ struct pixman_iter_t {
 	pixman_iter_fini_t fini;
 
 	/* These fields are scratch data that implementations can use */
-	void *    data;
+	void *  data;
 	uint8_t * bits;
 	int stride;
 };
@@ -270,7 +239,7 @@ void _pixman_image_init(pixman_image_t * image);
 pixman_bool_t _pixman_bits_image_init(pixman_image_t * image, pixman_format_code_t format, int width, int height, uint32_t *  bits, int rowstride, pixman_bool_t clear);
 pixman_bool_t _pixman_image_fini(pixman_image_t * image);
 pixman_image_t * _pixman_image_allocate(void);
-pixman_bool_t _pixman_init_gradient(gradient_t *   gradient, const pixman_gradient_stop_t * stops, int n_stops);
+pixman_bool_t _pixman_init_gradient(gradient_t * gradient, const pixman_gradient_stop_t * stops, int n_stops);
 void _pixman_image_reset_clip_region(pixman_image_t * image);
 void _pixman_image_validate(pixman_image_t * image);
 
@@ -298,7 +267,7 @@ typedef struct {
 	pixman_bool_t need_reset;
 } pixman_gradient_walker_t;
 
-void _pixman_gradient_walker_init(pixman_gradient_walker_t * walker, gradient_t *   gradient, pixman_repeat_t repeat);
+void _pixman_gradient_walker_init(pixman_gradient_walker_t * walker, gradient_t * gradient, pixman_repeat_t repeat);
 void _pixman_gradient_walker_reset(pixman_gradient_walker_t * walker, pixman_fixed_48_16_t pos);
 uint32_t _pixman_gradient_walker_pixel(pixman_gradient_walker_t * walker, pixman_fixed_48_16_t x);
 /*
@@ -348,9 +317,9 @@ typedef struct {
 
 #define PIXMAN_COMPOSITE_ARGS(info)                                     \
 	MAYBE_UNUSED pixman_op_t op = info->op;                      \
-	MAYBE_UNUSED pixman_image_t *   src_image = info->src_image;        \
-	MAYBE_UNUSED pixman_image_t *   mask_image = info->mask_image;      \
-	MAYBE_UNUSED pixman_image_t *   dest_image = info->dest_image;      \
+	MAYBE_UNUSED pixman_image_t * src_image = info->src_image;        \
+	MAYBE_UNUSED pixman_image_t * mask_image = info->mask_image;      \
+	MAYBE_UNUSED pixman_image_t * dest_image = info->dest_image;      \
 	MAYBE_UNUSED int32_t src_x = info->src_x;                \
 	MAYBE_UNUSED int32_t src_y = info->src_y;                \
 	MAYBE_UNUSED int32_t mask_x = info->mask_x;              \
@@ -361,7 +330,7 @@ typedef struct {
 	MAYBE_UNUSED int32_t height = info->height
 
 typedef void (* pixman_combine_32_func_t) (pixman_implementation_t * imp, pixman_op_t op, uint32_t * dest, const uint32_t * src, const uint32_t * mask, int width);
-typedef void (* pixman_combine_float_func_t) (pixman_implementation_t * imp, pixman_op_t op, float *   dest, const float * src, const float * mask, int n_pixels);
+typedef void (* pixman_combine_float_func_t) (pixman_implementation_t * imp, pixman_op_t op, float * dest, const float * src, const float * mask, int n_pixels);
 typedef void (* pixman_composite_func_t) (pixman_implementation_t * imp, pixman_composite_info_t * info);
 typedef pixman_bool_t (* pixman_blt_func_t) (pixman_implementation_t * imp, uint32_t * src_bits, uint32_t * dst_bits, int src_stride, int dst_stride,
     int src_bpp, int dst_bpp, int src_x, int src_y, int dest_x, int dest_y, int width, int height);
@@ -381,8 +350,8 @@ typedef struct {
 } pixman_fast_path_t;
 
 struct pixman_implementation_t {
-	pixman_implementation_t *   toplevel;
-	pixman_implementation_t *   fallback;
+	pixman_implementation_t * toplevel;
+	pixman_implementation_t * fallback;
 	const pixman_fast_path_t *  fast_paths;
 	const pixman_iter_info_t *  iter_info;
 	pixman_blt_func_t blt;

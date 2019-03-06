@@ -8,19 +8,19 @@
  * with or without modification, are permitted provided
  * that the following conditions are met:
  *
- *   Redistributions of source code must retain the above
- *   copyright notice, this list of conditions and the
- *   following disclaimer.
+ * Redistributions of source code must retain the above
+ * copyright notice, this list of conditions and the
+ * following disclaimer.
  *
- *   Redistributions in binary form must reproduce the above
- *   copyright notice, this list of conditions and the following
- *   disclaimer in the documentation and/or other materials
- *   provided with the distribution.
+ * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials
+ * provided with the distribution.
  *
- *   Neither the name of the copyright holder nor the names
- *   of any other contributors may be used to endorse or
- *   promote products derived from this software without
- *   specific prior written permission.
+ * Neither the name of the copyright holder nor the names
+ * of any other contributors may be used to endorse or
+ * promote products derived from this software without
+ * specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
  * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
@@ -251,7 +251,7 @@ LIBSSH2_API LIBSSH2_CHANNEL * libssh2_channel_open_ex(LIBSSH2_SESSION * session,
 	LIBSSH2_CHANNEL * ptr;
 	if(!session)
 		return NULL;
-	BLOCK_ADJUST_ERRNO(ptr, session, _libssh2_channel_open(session, type, type_len, window_size, packet_size, (uchar*)msg, msg_len));
+	BLOCK_ADJUST_ERRNO(ptr, session, _libssh2_channel_open(session, type, type_len, window_size, packet_size, (uchar *)msg, msg_len));
 	return ptr;
 }
 /*
@@ -924,7 +924,7 @@ int _libssh2_channel_process_startup(LIBSSH2_CHANNEL * channel,
 		channel->process_state = libssh2_NB_state_created;
 	}
 	if(channel->process_state == libssh2_NB_state_created) {
-		rc = _libssh2_transport_send(session, channel->process_packet, channel->process_packet_len, (uchar*)message, message_len);
+		rc = _libssh2_transport_send(session, channel->process_packet, channel->process_packet_len, (uchar *)message, message_len);
 		if(rc == LIBSSH2_ERROR_EAGAIN) {
 			_libssh2_error(session, rc, "Would block sending channel request");
 			return rc;
@@ -1566,7 +1566,7 @@ LIBSSH2_API ssize_t libssh2_channel_write_ex(LIBSSH2_CHANNEL * channel, int stre
 	ssize_t rc;
 	if(!channel)
 		return LIBSSH2_ERROR_BAD_USE;
-	BLOCK_ADJUST(rc, channel->session, _libssh2_channel_write(channel, stream_id, (uchar*)buf, buflen));
+	BLOCK_ADJUST(rc, channel->session, _libssh2_channel_write(channel, stream_id, (uchar *)buf, buflen));
 	return rc;
 }
 /*

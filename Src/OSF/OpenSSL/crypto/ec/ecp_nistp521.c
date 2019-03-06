@@ -14,7 +14,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -124,7 +124,7 @@ static const felem_bytearray nistp521_curve_params[5] = {
  *
  * We represent field elements with nine values. These values are either 64 or
  * 128 bits and the field element represented is:
- *   v[0]*2^0 + v[1]*2^58 + v[2]*2^116 + ... + v[8]*2^464  (mod p)
+ * v[0]*2^0 + v[1]*2^58 + v[2]*2^116 + ... + v[8]*2^464  (mod p)
  * Each of the nine values is called a 'limb'. Since the limbs are spaced only
  * 58 bits apart, but are greater than 58 bits in length, the most significant
  * bits of each limb overlap with the least significant bits of the next.
@@ -307,9 +307,9 @@ static void felem_scalar128(largefelem out, limb scalar)
 /*-
  * felem_neg sets |out| to |-in|
  * On entry:
- *   in[i] < 2^59 + 2^14
+ * in[i] < 2^59 + 2^14
  * On exit:
- *   out[i] < 2^62
+ * out[i] < 2^62
  */
 static void felem_neg(felem out, const felem in)
 {
@@ -331,9 +331,9 @@ static void felem_neg(felem out, const felem in)
 /*-
  * felem_diff64 subtracts |in| from |out|
  * On entry:
- *   in[i] < 2^59 + 2^14
+ * in[i] < 2^59 + 2^14
  * On exit:
- *   out[i] < out[i] + 2^62
+ * out[i] < out[i] + 2^62
  */
 static void felem_diff64(felem out, const felem in)
 {
@@ -357,9 +357,9 @@ static void felem_diff64(felem out, const felem in)
 /*-
  * felem_diff_128_64 subtracts |in| from |out|
  * On entry:
- *   in[i] < 2^62 + 2^17
+ * in[i] < 2^62 + 2^17
  * On exit:
- *   out[i] < out[i] + 2^63
+ * out[i] < out[i] + 2^63
  */
 static void felem_diff_128_64(largefelem out, const felem in)
 {
@@ -383,9 +383,9 @@ static void felem_diff_128_64(largefelem out, const felem in)
 /*-
  * felem_diff_128_64 subtracts |in| from |out|
  * On entry:
- *   in[i] < 2^126
+ * in[i] < 2^126
  * On exit:
- *   out[i] < out[i] + 2^127 - 2^69
+ * out[i] < out[i] + 2^127 - 2^69
  */
 static void felem_diff128(largefelem out, const largefelem in)
 {
@@ -411,9 +411,9 @@ static void felem_diff128(largefelem out, const largefelem in)
 /*-
  * felem_square sets |out| = |in|^2
  * On entry:
- *   in[i] < 2^62
+ * in[i] < 2^62
  * On exit:
- *   out[i] < 17 * max(in[i]) * max(in[i])
+ * out[i] < 17 * max(in[i]) * max(in[i])
  */
 static void felem_square(largefelem out, const felem in)
 {
@@ -423,10 +423,10 @@ static void felem_square(largefelem out, const felem in)
 
 	/*-
 	 * We have many cases were we want to do
-	 *   in[x] * in[y] +
-	 *   in[y] * in[x]
+	 * in[x] * in[y] +
+	 * in[y] * in[x]
 	 * This is obviously just
-	 *   2 * in[x] * in[y]
+	 * 2 * in[x] * in[y]
 	 * However, rather than do the doubling on the 128 bit result, we
 	 * double one of the inputs to the multiplication by reading from
 	 * |inx2|
@@ -494,10 +494,10 @@ static void felem_square(largefelem out, const felem in)
 /*-
  * felem_mul sets |out| = |in1| * |in2|
  * On entry:
- *   in1[i] < 2^64
- *   in2[i] < 2^63
+ * in1[i] < 2^64
+ * in2[i] < 2^63
  * On exit:
- *   out[i] < 17 * max(in1[i]) * max(in2[i])
+ * out[i] < 17 * max(in1[i]) * max(in2[i])
  */
 static void felem_mul(largefelem out, const felem in1, const felem in2)
 {
@@ -610,9 +610,9 @@ static const limb bottom52bits = 0xfffffffffffff;
 /*-
  * felem_reduce converts a largefelem to an felem.
  * On entry:
- *   in[i] < 2^128
+ * in[i] < 2^128
  * On exit:
- *   out[i] < 2^59 + 2^14
+ * out[i] < 2^59 + 2^14
  */
 static void felem_reduce(felem out, const largefelem in)
 {
@@ -634,7 +634,7 @@ static void felem_reduce(felem out, const largefelem in)
 	out[1] += (((limb)(in[0] >> 64)) & bottom52bits) << 6;
 	/*-
 	 * out[1] < 2^58 + 2^6 + 2^58
-	 *        = 2^59 + 2^6
+	 *      = 2^59 + 2^6
 	 */
 	out[2] += ((limb)(in[0] >> 64)) >> 52;
 
@@ -666,7 +666,7 @@ static void felem_reduce(felem out, const largefelem in)
 	out[8] += (((limb)(in[7] >> 64)) & bottom52bits) << 6;
 	/*-
 	 * out[x > 1] < 2^58 + 2^6 + 2^58 + 2^12
-	 *            < 2^59 + 2^13
+	 *          < 2^59 + 2^13
 	 */
 	overflow1 = ((limb)(in[7] >> 64)) >> 52;
 
@@ -685,7 +685,7 @@ static void felem_reduce(felem out, const largefelem in)
 	/*-
 	 * out[0] < 2^58
 	 * out[1] < 2^59 + 2^6 + 2^13 + 2^2
-	 *        < 2^59 + 2^14
+	 *      < 2^59 + 2^14
 	 */
 }
 
@@ -707,9 +707,9 @@ static void felem_mul_reduce(felem out, const felem in1, const felem in2)
  * felem_inv calculates |out| = |in|^{-1}
  *
  * Based on Fermat's Little Theorem:
- *   a^p = a (mod p)
- *   a^{p-1} = 1 (mod p)
- *   a^{p-2} = a^{-1} (mod p)
+ * a^p = a (mod p)
+ * a^{p-1} = 1 (mod p)
+ * a^{p-2} = a^{-1} (mod p)
  */
 static void felem_inv(felem out, const felem in)
 {
@@ -822,7 +822,7 @@ static const felem kPrime = {
  * felem_is_zero returns a limb with all bits set if |in| == 0 (mod p) and 0
  * otherwise.
  * On entry:
- *   in[i] < 2^59 + 2^14
+ * in[i] < 2^59 + 2^14
  */
 static limb felem_is_zero(const felem in)
 {
@@ -900,7 +900,7 @@ static int felem_is_zero_int(const felem in)
 /*-
  * felem_contract converts |in| to its unique, minimal representation.
  * On entry:
- *   in[i] < 2^59 + 2^14
+ * in[i] < 2^59 + 2^14
  */
 static void felem_contract(felem out, const felem in)
 {
@@ -1043,7 +1043,7 @@ static void felem_contract(felem out, const felem in)
  * point_double calculates 2*(x_in, y_in, z_in)
  *
  * The method is taken from:
- *   http://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-3.html#doubling-dbl-2001-b
+ * http://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-3.html#doubling-dbl-2001-b
  *
  * Outputs can equal corresponding inputs, i.e., x_out == x_in is allowed.
  * while x_out == y_in is not (maybe this works, but it's not tested). */
@@ -1078,10 +1078,10 @@ static void point_double(felem x_out, felem y_out, felem z_out,
 	felem_mul(tmp, ftmp, ftmp2);
 	/*-
 	 * tmp[i] < 17(3*2^121 + 3*2^76)
-	 *        = 61*2^121 + 61*2^76
-	 *        < 64*2^121 + 64*2^76
-	 *        = 2^127 + 2^82
-	 *        < 2^128
+	 *      = 61*2^121 + 61*2^76
+	 *      < 64*2^121 + 64*2^76
+	 *      = 2^127 + 2^82
+	 *      < 2^128
 	 */
 	felem_reduce(alpha, tmp);
 
@@ -1119,27 +1119,27 @@ static void point_double(felem x_out, felem y_out, felem z_out,
 	felem_mul(tmp, alpha, beta);
 	/*-
 	 * tmp[i] < 17*((2^59 + 2^14)(2^61 + 2^60 + 2^16))
-	 *        = 17*(2^120 + 2^75 + 2^119 + 2^74 + 2^75 + 2^30)
-	 *        = 17*(2^120 + 2^119 + 2^76 + 2^74 + 2^30)
-	 *        < 2^128
+	 *      = 17*(2^120 + 2^75 + 2^119 + 2^74 + 2^75 + 2^30)
+	 *      = 17*(2^120 + 2^119 + 2^76 + 2^74 + 2^30)
+	 *      < 2^128
 	 */
 	felem_square(tmp2, gamma);
 	/*-
 	 * tmp2[i] < 17*(2^59 + 2^14)^2
-	 *         = 17*(2^118 + 2^74 + 2^28)
+	 *       = 17*(2^118 + 2^74 + 2^28)
 	 */
 	felem_scalar128(tmp2, 8);
 	/*-
 	 * tmp2[i] < 8*17*(2^118 + 2^74 + 2^28)
-	 *         = 2^125 + 2^121 + 2^81 + 2^77 + 2^35 + 2^31
-	 *         < 2^126
+	 *       = 2^125 + 2^121 + 2^81 + 2^77 + 2^35 + 2^31
+	 *       < 2^126
 	 */
 	felem_diff128(tmp, tmp2);
 	/*-
 	 * tmp[i] < 2^127 - 2^69 + 17(2^120 + 2^119 + 2^76 + 2^74 + 2^30)
-	 *        = 2^127 + 2^124 + 2^122 + 2^120 + 2^118 + 2^80 + 2^78 + 2^76 +
-	 *          2^74 + 2^69 + 2^34 + 2^30
-	 *        < 2^128
+	 *      = 2^127 + 2^124 + 2^122 + 2^120 + 2^118 + 2^80 + 2^78 + 2^76 +
+	 *        2^74 + 2^69 + 2^34 + 2^30
+	 *      < 2^128
 	 */
 	felem_reduce(y_out, tmp);
 }
@@ -1158,7 +1158,7 @@ static void copy_conditional(felem out, const felem in, limb mask)
  * point_add calculates (x1, y1, z1) + (x2, y2, z2)
  *
  * The method is taken from
- *   http://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-3.html#addition-add-2007-bl,
+ * http://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-3.html#addition-add-2007-bl,
  * adapted for mixed addition (z2 = 1, or z2 = 0 for the point at infinity).
  *
  * This function includes a branch for checking whether the two input points
@@ -1305,8 +1305,8 @@ static void point_add(felem x3, felem y3, felem z3,
 	felem_diff128(tmp, tmp2);
 	/*-
 	 * tmp[i] < 2^127 - 2^69 + 17*2^122
-	 *        = 2^126 - 2^122 - 2^6 - 2^2 - 1
-	 *        < 2^127
+	 *      = 2^126 - 2^122 - 2^6 - 2^2 - 1
+	 *      < 2^127
 	 */
 	felem_reduce(y_out, tmp);
 
@@ -1333,22 +1333,22 @@ static void point_add(felem x3, felem y3, felem z3,
  * This table has 16 elements:
  * index | bits    | point
  * ------+---------+------------------------------
- *     0 | 0 0 0 0 | 0G
- *     1 | 0 0 0 1 | 1G
- *     2 | 0 0 1 0 | 2^130G
- *     3 | 0 0 1 1 | (2^130 + 1)G
- *     4 | 0 1 0 0 | 2^260G
- *     5 | 0 1 0 1 | (2^260 + 1)G
- *     6 | 0 1 1 0 | (2^260 + 2^130)G
- *     7 | 0 1 1 1 | (2^260 + 2^130 + 1)G
- *     8 | 1 0 0 0 | 2^390G
- *     9 | 1 0 0 1 | (2^390 + 1)G
- *    10 | 1 0 1 0 | (2^390 + 2^130)G
- *    11 | 1 0 1 1 | (2^390 + 2^130 + 1)G
- *    12 | 1 1 0 0 | (2^390 + 2^260)G
- *    13 | 1 1 0 1 | (2^390 + 2^260 + 1)G
- *    14 | 1 1 1 0 | (2^390 + 2^260 + 2^130)G
- *    15 | 1 1 1 1 | (2^390 + 2^260 + 2^130 + 1)G
+ *   0 | 0 0 0 0 | 0G
+ *   1 | 0 0 0 1 | 1G
+ *   2 | 0 0 1 0 | 2^130G
+ *   3 | 0 0 1 1 | (2^130 + 1)G
+ *   4 | 0 1 0 0 | 2^260G
+ *   5 | 0 1 0 1 | (2^260 + 1)G
+ *   6 | 0 1 1 0 | (2^260 + 2^130)G
+ *   7 | 0 1 1 1 | (2^260 + 2^130 + 1)G
+ *   8 | 1 0 0 0 | 2^390G
+ *   9 | 1 0 0 1 | (2^390 + 1)G
+ *  10 | 1 0 1 0 | (2^390 + 2^130)G
+ *  11 | 1 0 1 1 | (2^390 + 2^130 + 1)G
+ *  12 | 1 1 0 0 | (2^390 + 2^260)G
+ *  13 | 1 1 0 1 | (2^390 + 2^260 + 1)G
+ *  14 | 1 1 1 0 | (2^390 + 2^260 + 2^130)G
+ *  15 | 1 1 1 1 | (2^390 + 2^260 + 2^130 + 1)G
  *
  * The reason for this is so that we can clock bits into four different
  * locations when doing simple scalar multiplies against the base point.

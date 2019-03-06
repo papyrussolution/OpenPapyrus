@@ -1609,7 +1609,7 @@ SOAP_FMAC1 uchar * SOAP_FMAC2 soap_gethex(struct soap * soap, int * n)
  #ifdef WITH_DOM
 	if((soap->mode&SOAP_XML_DOM) && soap->dom) {
 		soap->dom->data = soap_string_in(soap, 0, -1, -1);
-		return (uchar*)soap_hex2s(soap, soap->dom->data, NULL, 0, n);
+		return (uchar *)soap_hex2s(soap, soap->dom->data, NULL, 0, n);
 	}
  #endif
  #ifdef WITH_FAST
@@ -1640,7 +1640,7 @@ SOAP_FMAC1 uchar * SOAP_FMAC2 soap_gethex(struct soap * soap, int * n)
 				uchar * p;
 				soap_unget(soap, c);
 				ASSIGN_PTR(n, (int)(soap->lablen+i-k));
-				p = (uchar*)soap_malloc(soap, soap->lablen+i-k);
+				p = (uchar *)soap_malloc(soap, soap->lablen+i-k);
 				if(p)
 					memcpy(p, soap->labbuf, soap->lablen+i-k);
 				return p;
@@ -1677,7 +1677,7 @@ SOAP_FMAC1 uchar * SOAP_FMAC2 soap_gethex(struct soap * soap, int * n)
 			      soap_unget(soap, c);
 			      if(n)
 				      *n = (int)soap_size_block(soap, NULL, i);
-			      p = (uchar*)soap_save_block(soap, NULL, 0);
+			      p = (uchar *)soap_save_block(soap, NULL, 0);
 			      return p; }
 			*s++ = ((d1 >= 'A' ? (d1&0x7)+9 : d1-'0')<<4)+(d2 >= 'A' ? (d2&0x7)+9 : d2-'0');
 		}
@@ -1731,7 +1731,7 @@ SOAP_FMAC1 uchar * SOAP_FMAC2 soap_getbase64(struct soap * soap, int * n, int ma
  #ifdef WITH_DOM
 	if((soap->mode&SOAP_XML_DOM) && soap->dom) {
 		soap->dom->data = soap_string_in(soap, 0, -1, -1);
-		return (uchar*)soap_base642s(soap, soap->dom->data, NULL, 0, n);
+		return (uchar *)soap_base642s(soap, soap->dom->data, NULL, 0, n);
 	}
  #endif
  #ifdef WITH_FAST
@@ -1768,7 +1768,7 @@ SOAP_FMAC1 uchar * SOAP_FMAC2 soap_getbase64(struct soap * soap, int * n, int ma
 					    }
 					    if(n)
 						    *n = (int)(soap->lablen+i-k);
-					    p = (uchar*)soap_malloc(soap, soap->lablen+i-k);
+					    p = (uchar *)soap_malloc(soap, soap->lablen+i-k);
 					    if(p)
 						    memcpy(p, soap->labbuf, soap->lablen+i-k);
 					    if(c >= 0) {
@@ -1829,7 +1829,7 @@ SOAP_FMAC1 uchar * SOAP_FMAC2 soap_getbase64(struct soap * soap, int * n, int ma
 				    }
 				    if(n)
 					    *n = (int)soap_size_block(soap, NULL, i);
-				    p = (uchar*)soap_save_block(soap, NULL, 0);
+				    p = (uchar *)soap_save_block(soap, NULL, 0);
 				    if(c >= 0) {
 					    while((int)((c = soap_get(soap)) != EOF) && c != SOAP_LT && c != SOAP_TT)
 						    ;
@@ -2037,11 +2037,11 @@ static int soap_has_copies(struct soap * soap, const char * start, const char * 
 {
 	for(int i = 0; i < SOAP_IDHASH; i++) {
 		for(struct soap_ilist * ip = soap->iht[i]; ip; ip = ip->next) {
-			for(const char * p = (const char*)ip->copy; p; p = *(const char**)p)
+			for(const char * p = (const char *)ip->copy; p; p = *(const char**)p)
 				if(p >= start && p < end)
 					return SOAP_ERR;
 			for(struct soap_flist * fp = ip->flist; fp; fp = fp->next)
-				if((const char*)fp->ptr >= start && (const char*)fp->ptr < end)
+				if((const char *)fp->ptr >= start && (const char *)fp->ptr < end)
 					return SOAP_ERR;
 		}
 	}
@@ -2084,8 +2084,8 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_resolve(struct soap * soap)
 			for(ip = soap->iht[i]; ip; ip = ip->next) {
 				if(ip->ptr &&
 					!soap_has_copies(soap,
-						(const char*)ip->ptr,
-						(const char*)ip->ptr+ip->size)) {
+						(const char *)ip->ptr,
+						(const char *)ip->ptr+ip->size)) {
 					if(ip->copy) {
 						void * p, ** q = (void**)ip->copy;
 						DBGLOG(TEST, if(q) SOAP_MESSAGE(fdebug, "Traversing copy chain to resolve id='%s'\n", ip->id));
@@ -2666,7 +2666,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_ssl_server_context(struct soap * soap, ushort fla
   #ifdef WITH_OPENSSL
 	if(!err) {
 		if(sid)
-			SSL_CTX_set_session_id_context(soap->ctx, (uchar*)sid, (uint)sstrlen(sid));
+			SSL_CTX_set_session_id_context(soap->ctx, (uchar *)sid, (uint)sstrlen(sid));
 		else
 			SSL_CTX_set_session_cache_mode(soap->ctx, SSL_SESS_CACHE_OFF);
 	}
@@ -3853,9 +3853,9 @@ again:
 						if(name) {
 							int stc_r = 0;
 #if (OPENSSL_VERSION_NUMBER >= 0x10100000L)
-							stc_r = soap_tag_cmp(host, (const char*)ASN1_STRING_get0_data(name));
+							stc_r = soap_tag_cmp(host, (const char *)ASN1_STRING_get0_data(name));
 #else
-							stc_r = soap_tag_cmp(host, (const char*)M_ASN1_STRING_data(name));
+							stc_r = soap_tag_cmp(host, (const char *)M_ASN1_STRING_data(name));
 #endif
 				                        //if(!soap_tag_cmp(host, (const char
 				                        // *)M_ASN1_STRING_data(name)))
@@ -3865,11 +3865,11 @@ again:
 								uchar * tmp = NULL;
 								ASN1_STRING_to_UTF8(&tmp, name);
 								if(tmp) {
-									if(!soap_tag_cmp(host, (const char*)tmp))
+									if(!soap_tag_cmp(host, (const char *)tmp))
 										ok = 1;
 									else if(tmp[0] == '*') { /* wildcard domain */
 										const char * t = strchr(host, '.');
-										if(t && !soap_tag_cmp(t, (const char*)tmp+1))
+										if(t && !soap_tag_cmp(t, (const char *)tmp+1))
 											ok = 1;
 									}
 									OPENSSL_free(tmp);
@@ -10796,9 +10796,9 @@ SOAP_FMAC1 uchar * SOAP_FMAC2 soap_inunsignedByte(struct soap * soap, const char
 		return NULL;
 	}
  #endif
-	p = (uchar*)soap_id_enter(soap, soap->id, p, t, sizeof(uchar), 0, 0, 0, 0);
+	p = (uchar *)soap_id_enter(soap, soap->id, p, t, sizeof(uchar), 0, 0, 0, 0);
 	if(*soap->href)
-		p = (uchar*)soap_id_forward(soap, soap->href, p, 0, t, 0, sizeof(uchar), 0, 0);
+		p = (uchar *)soap_id_forward(soap, soap->href, p, 0, t, 0, sizeof(uchar), 0, 0);
 	else if(p) {
 		if(soap_s2unsignedByte(soap, soap_value(soap), p))
 			return NULL;
@@ -12373,7 +12373,7 @@ static void FASTCALL soap_resolve_attachment(struct soap * soap, struct soap_mul
 			if(!soap_match_cid(soap, xq->id, content->id)) {
 				DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Found matching attachment %s for content id=%s\n", xq->id, content->id));
 				*xp = xq->next;
-				*xq->ptr = (uchar*)content->ptr;
+				*xq->ptr = (uchar *)content->ptr;
 				*xq->size = (int)content->size;
 				*xq->type = (char *)content->type;
 				*xq->options = content->options ? (char *)content->options : (char *)content->description;
@@ -12577,7 +12577,7 @@ static int soap_valid_mime_boundary(struct soap * soap)
 	for(content = soap->mime.first; content; content = content->next) {
 		if(content->ptr && content->size >=
 			    k) {
-			const char * p = (const char*)content->ptr;
+			const char * p = (const char *)content->ptr;
 			size_t i;
 			for(i = 0; i < content->size-k; i++, p++) {
 				if(!strncmp(p, soap->mime.boundary, k))
@@ -13324,7 +13324,7 @@ static int soap_ntlm_handshake(struct soap * soap, int command, const char * end
 			            WWW-Authenticate: NTLM
 			 */
 			buildSmbNtlmAuthRequest(&req, userid, soap->authrealm);
-			soap->ntlm_challenge = soap_s2base64(soap, (uchar*)&req, NULL, SmbLength(&req));
+			soap->ntlm_challenge = soap_s2base64(soap, (uchar *)&req, NULL, SmbLength(&req));
 			DBGLOG(TEST, SOAP_MESSAGE(fdebug, "NTLM C->S Type 2: sending NTLM authorization to server\nAuthorization: NTLM %s\n", soap->ntlm_challenge));
 			/* C -> S   GET ...
 			            Authorization: NTLM
@@ -13354,7 +13354,7 @@ static int soap_ntlm_handshake(struct soap * soap, int command, const char * end
 		 */
 		soap_base642s(soap, soap->ntlm_challenge, (char *)&ch, sizeof(tSmbNtlmAuthChallenge), 0);
 		buildSmbNtlmAuthResponse(&ch, &res, userid, passwd);
-		soap->ntlm_challenge = soap_s2base64(soap, (uchar*)&res, NULL, SmbLength(&res));
+		soap->ntlm_challenge = soap_s2base64(soap, (uchar *)&res, NULL, SmbLength(&res));
 		DBGLOG(TEST,
 			    SOAP_MESSAGE(fdebug, "NTLM C->S Type 3: sending NTLM authorization to server\nAuthorization: NTLM %s\n", soap->ntlm_challenge));
 		/* C -> S   GET ...

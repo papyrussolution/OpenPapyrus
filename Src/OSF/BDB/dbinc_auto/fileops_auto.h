@@ -19,7 +19,7 @@ static inline int __fop_create_42_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    NULL, NULL, data, __fop_create_42_desc, sizeof(__fop_create_42_args), (void**)arg));
+	    NULL, NULL, data, __fop_create_42_desc, sizeof(__fop_create_42_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___fop_create	143
 typedef struct ___fop_create_args {
@@ -51,7 +51,7 @@ static inline int __fop_create_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    NULL, NULL, data, __fop_create_desc, sizeof(__fop_create_args), (void**)arg));
+	    NULL, NULL, data, __fop_create_desc, sizeof(__fop_create_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___fop_remove	144
 typedef struct ___fop_remove_args {
@@ -81,7 +81,7 @@ static inline int __fop_remove_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    NULL, NULL, data, __fop_remove_desc, sizeof(__fop_remove_args), (void**)arg));
+	    NULL, NULL, data, __fop_remove_desc, sizeof(__fop_remove_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___fop_write_42	145
 typedef struct ___fop_write_42_args {
@@ -103,7 +103,7 @@ static inline int __fop_write_42_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    NULL, NULL, data, __fop_write_42_desc, sizeof(__fop_write_42_args), (void**)arg));
+	    NULL, NULL, data, __fop_write_42_desc, sizeof(__fop_write_42_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___fop_write	145
 typedef struct ___fop_write_args {
@@ -141,7 +141,7 @@ static inline int __fop_write_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    NULL, NULL, data, __fop_write_desc, sizeof(__fop_write_args), (void**)arg));
+	    NULL, NULL, data, __fop_write_desc, sizeof(__fop_write_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___fop_rename_42	146
 #define	DB___fop_rename_noundo_46	150
@@ -161,7 +161,7 @@ static inline int __fop_rename_42_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    NULL, NULL, data, __fop_rename_42_desc, sizeof(__fop_rename_42_args), (void**)arg));
+	    NULL, NULL, data, __fop_rename_42_desc, sizeof(__fop_rename_42_args), reinterpret_cast<void **>(arg)));
 }
 extern __DB_IMPORT DB_LOG_RECSPEC __fop_rename_noundo_46_desc[];
 static inline int __fop_rename_noundo_46_read(ENV *env, 
@@ -169,7 +169,7 @@ static inline int __fop_rename_noundo_46_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    NULL, NULL, data, __fop_rename_noundo_46_desc, sizeof(__fop_rename_42_args), (void**)arg));
+	    NULL, NULL, data, __fop_rename_noundo_46_desc, sizeof(__fop_rename_42_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___fop_rename	146
 #define	DB___fop_rename_noundo	150
@@ -203,7 +203,7 @@ static inline int __fop_rename_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    NULL, NULL, data, __fop_rename_desc, sizeof(__fop_rename_args), (void**)arg));
+	    NULL, NULL, data, __fop_rename_desc, sizeof(__fop_rename_args), reinterpret_cast<void **>(arg)));
 }
 extern __DB_IMPORT DB_LOG_RECSPEC __fop_rename_noundo_desc[];
 static inline int
@@ -224,7 +224,7 @@ static inline int __fop_rename_noundo_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    NULL, NULL, data, __fop_rename_noundo_desc, sizeof(__fop_rename_args), (void**)arg));
+	    NULL, NULL, data, __fop_rename_noundo_desc, sizeof(__fop_rename_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___fop_file_remove	141
 typedef struct ___fop_file_remove_args {
@@ -257,6 +257,6 @@ static inline int __fop_file_remove_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    NULL, NULL, data, __fop_file_remove_desc, sizeof(__fop_file_remove_args), (void**)arg));
+	    NULL, NULL, data, __fop_file_remove_desc, sizeof(__fop_file_remove_args), reinterpret_cast<void **>(arg)));
 }
 #endif

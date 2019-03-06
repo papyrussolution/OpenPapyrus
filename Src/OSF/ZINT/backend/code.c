@@ -303,8 +303,8 @@ int pharmazentral(struct ZintSymbol * symbol, uchar source[], int length)
 		sstrcpy(symbol->errtxt, "Invalid PZN Data (C27)");
 		return ZINT_ERROR_INVALID_DATA;
 	}
-	error_number = c39(symbol, (uchar*)localstr, strlen(localstr));
-	sstrcpy(symbol->text, (uchar*)"PZN");
+	error_number = c39(symbol, (uchar *)localstr, strlen(localstr));
+	sstrcpy(symbol->text, (uchar *)"PZN");
 	strcat((char *)symbol->text, localstr);
 	return error_number;
 }
@@ -554,7 +554,7 @@ int channel_code(struct ZintSymbol * symbol, const uchar source[], int length)
 	zeroes = channels - 1 - length;
 	memset(hrt, '0', zeroes);
 	sstrcpy(hrt + zeroes, (char *)source);
-	sstrcpy(symbol->text, (uchar*)hrt);
+	sstrcpy(symbol->text, (uchar *)hrt);
 	expand(symbol, pattern);
 	return error_number;
 }

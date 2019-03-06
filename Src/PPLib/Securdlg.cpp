@@ -46,6 +46,7 @@ public:
 		disableCtrl(CTL_USRGRP_ID, (!PPMaster || ObjID));
 		if(ObjType == PPOBJ_USR) {
 			disableCtrl(CTL_USRGRP_NAME, p_secur->ID == PPUSR_MASTER);
+			setCtrlData(CTL_USR_SYMB, p_secur->Symb); // @v10.3.8
 			memzero(Password, sizeof(Password));
 			memcpy(Password, p_secur->Password, sizeof(p_secur->Password));
 			SetupPPObjCombo(this, CTLSEL_USR_GRP,    PPOBJ_USRGRP, p_secur->ParentID, OLW_CANINSERT);
@@ -56,6 +57,11 @@ public:
 			setCtrlData(CTL_USR_FLAGS, &v);
 			setCtrlData(CTL_USR_EXPIRY, &p_secur->ExpiryDate); // @v10.1.10
 		}
+		// @v10.3.8 {
+		else if(ObjType == PPOBJ_USRGRP) {
+			setCtrlData(CTL_USRGRP_SYMB, p_secur->Symb); 
+		}
+		// } @v10.3.8 
 		else if(ObjType == PPOBJ_USREXCLRIGHTS) {
 			AddClusterAssoc(CTL_USR_UERFLAGS, 0, PPEXCLRT_OBJDBDIVACCEPT);
 			AddClusterAssoc(CTL_USR_UERFLAGS, 1, PPEXCLRT_CSESSWROFF);
@@ -77,6 +83,7 @@ public:
 		getCtrlData(CTL_USRGRP_ID,   &p_secur->ID);
 		ObjID = p_secur->ID;
 		if(ObjType == PPOBJ_USR) {
+			getCtrlData(CTL_USR_SYMB, p_secur->Symb); // @v10.3.8
 			memcpy(p_secur->Password, Password, sizeof(p_secur->Password));
 			getCtrlData(CTLSEL_USR_GRP, &p_secur->ParentID);
 			getCtrlData(CTLSEL_USR_PERSON, &p_secur->PersonID);
@@ -86,6 +93,11 @@ public:
 			SETFLAG(p_secur->Flags, USRF_INHRIGHTS, v & 2);
 			getCtrlData(CTL_USR_EXPIRY, &p_secur->ExpiryDate); // @v10.1.10
 		}
+		// @v10.3.8 {
+		else if(ObjType == PPOBJ_USRGRP) {
+			getCtrlData(CTL_USRGRP_SYMB, p_secur->Symb); 
+		}
+		// } @v10.3.8 
 		else if(ObjType == PPOBJ_USREXCLRIGHTS) {
 			GetClusterData(CTL_USR_UERFLAGS, &p_secur->UerFlags);
 		}
@@ -635,7 +647,7 @@ int ActiveUserListDlg::setupList()
 				GetFirstHostByMACAddr(&p_item->MchnID, &addr);
 				addr.ToStr(InetAddr::fmtHost, host);
 			}
-			ss.add((const char*)host, 0);
+			ss.add((const char *)host, 0);
 			GetDtm(p_item->UserID, p_item->ID, &login_dtm, work_dtm_buf.Z());
 			ss.add(buf.Z().Cat(login_dtm), 0);
 			ss.add(work_dtm_buf, 0);

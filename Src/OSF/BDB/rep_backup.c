@@ -960,7 +960,7 @@ static int __rep_remove_all(ENV * env, uint32 msg_version, DBT * rec)
 	rep = db_rep->region;
 	/*
 	 * 1. Get list of databases currently present at this client, which we
-	 *    intend to remove.
+	 *  intend to remove.
 	 */
 	if((ret = __os_calloc(env, 1, MEGABYTE, &context.buf)) != 0)
 		return ret;
@@ -981,9 +981,9 @@ static int __rep_remove_all(ENV * env, uint32 msg_version, DBT * rec)
 	DB_ASSERT(env, updlen == __REP_UPDATE_SIZE);
 	/*
 	 * 2. Before removing anything, safe-store the database list, so that in
-	 *    case we crash before we've removed them all, when we restart we
-	 *    can clean up what we were doing. Only write database list to
-	 *    file if not running in-memory replication.
+	 *  case we crash before we've removed them all, when we restart we
+	 *  can clean up what we were doing. Only write database list to
+	 *  file if not running in-memory replication.
 	 *
 	 * The original version of the file contains:
 	 * data1 size (4 bytes)
@@ -1031,7 +1031,7 @@ static int __rep_remove_all(ENV * env, uint32 msg_version, DBT * rec)
 	}
 	/*
 	 * 3. Go ahead and remove logs and databases.  The databases get removed
-	 *    according to the list we just finished safe-storing.
+	 *  according to the list we just finished safe-storing.
 	 *
 	 * Clearing NIMDBS_LOADED might not really be necessary, since once
 	 * we've committed to removing all there's no chance of doing an
@@ -1047,11 +1047,11 @@ static int __rep_remove_all(ENV * env, uint32 msg_version, DBT * rec)
 		goto out;
 	/*
 	 * 4. Safe-store the (new) list of database files we intend to copy from
-	 *    the master (again, so that in case we crash before we're finished
-	 *    doing so, we'll have enough information to clean up and start over
-	 *    again).  This list is the list from the master, so it uses
-	 *    the message version. Only write to file if not running
-	 *    in-memory replication.
+	 *  the master (again, so that in case we crash before we're finished
+	 *  doing so, we'll have enough information to clean up and start over
+	 *  again).  This list is the list from the master, so it uses
+	 *  the message version. Only write to file if not running
+	 *  in-memory replication.
 	 */
 	if(!FLD_ISSET(rep->config, REP_C_INMEM)) {
 		mvers = msg_version;
@@ -1768,8 +1768,8 @@ static int __rep_clean_interrupted(ENV*env)
 	infop = env->reginfo;
 	/*
 	 * 1. logs
-	 *   a) remove old log files
-	 *   b) set up initial log file #1
+	 * a) remove old log files
+	 * b) set up initial log file #1
 	 * 2. database files
 	 * 3. the "init file"
 	 *
@@ -2322,9 +2322,9 @@ static int __rep_queue_filedone(ENV * env, DB_THREAD_INFO * ip, REP * rep, __rep
 	/*
 	 * We can be at the end of 3 possible states.
 	 * 1.  We have received the meta-page and now need to get the
-	 *     rest of the pages in the database.
+	 *   rest of the pages in the database.
 	 * 2.  We have received from first -> max_pgno.  We might be done,
-	 *     or we might need to ask for wrapped pages.
+	 *   or we might need to ask for wrapped pages.
 	 * 3.  We have received all pages in the file.  We're done.
 	 */
 	if(rfp->max_pgno == 0) {
@@ -2441,10 +2441,10 @@ int __rep_reset_init(ENV * env)
 	}
 	RPRINT(env, (env, DB_VERB_REP_SYNC, "Cleaning up interrupted internal init"));
 	/* There are a few possibilities:
-	 *   1. no init file, or less than 1 full file list
-	 *   2. exactly one full file list
-	 *   3. more than one, less then a second full file list
-	 *   4. second file list in full
+	 * 1. no init file, or less than 1 full file list
+	 * 2. exactly one full file list
+	 * 3. more than one, less then a second full file list
+	 * 4. second file list in full
 	 *
 	 * In cases 2 or 4, we need to remove all logs, and then remove files
 	 * according to the (most recent) file list.  (In case 1 or 3, we don't

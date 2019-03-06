@@ -1,7 +1,7 @@
 /*
  * Summary: pattern expression handling
  * Description: allows to compile and test pattern expressions for nodes
- *              either in a tree or based on a parser state.
+ *            either in a tree or based on a parser state.
  *
  * Copy: See Copyright for the status of this software.
  *

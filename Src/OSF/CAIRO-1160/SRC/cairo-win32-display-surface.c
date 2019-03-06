@@ -302,7 +302,7 @@ static cairo_surface_t * _cairo_win32_display_surface_create_similar(void * abst
 	 * - we need alpha; or
 	 * - the parent is a DIB; or
 	 * - the parent is for printing (because we don't care about the
-	 *   bit depth at that point)
+	 * bit depth at that point)
 	 *
 	 * We also might end up with a DIB even if a DDB is requested if
 	 * DDB creation failed due to out of memory.
@@ -548,7 +548,7 @@ static cairo_int_status_t _cairo_win32_save_initial_clip(HDC hdc, cairo_win32_di
 	return CAIRO_STATUS_SUCCESS;
 }
 
-cairo_status_t _cairo_win32_display_surface_set_clip(const cairo_win32_display_surface_t * surface, cairo_clip_t * clip)
+cairo_status_t _cairo_win32_display_surface_set_clip(const cairo_win32_display_surface_t * surface, const cairo_clip_t * clip)
 {
 	char stack[512];
 	cairo_rectangle_int_t extents;
@@ -724,8 +724,8 @@ static const cairo_surface_backend_t cairo_win32_display_surface_backend = {
  *  as a 32bpp DIB, since the alpha isn't discarded!)
  *
  * AlphaBlend - if both the source and dest have alpha, even if AC_SRC_ALPHA isn't set,
- *   it will still copy over the src alpha, because the SCA value (255) will be
- *   multiplied by all the src components.
+ * it will still copy over the src alpha, because the SCA value (255) will be
+ * multiplied by all the src components.
  */
 
 /**

@@ -305,15 +305,15 @@ static inline int _slope_compare(const cairo_bo_edge_t * a,
  * given x, without loss of precision.
  *
  * The x-coordinate along an edge for a given y is:
- *   X = A_x + (Y - A_y) * A_dx / A_dy
+ * X = A_x + (Y - A_y) * A_dx / A_dy
  *
  * So the inequality we wish to test is:
- *   A_x + (Y - A_y) * A_dx / A_dy ∘ X
+ * A_x + (Y - A_y) * A_dx / A_dy ∘ X
  * where ∘ is our inequality operator.
  *
  * By construction, we know that A_dy (and (Y - A_y)) are
  * all positive, so we can rearrange it thus without causing a sign change:
- *   (Y - A_y) * A_dx ∘ (X - A_x) * A_dy
+ * (Y - A_y) * A_dx ∘ (X - A_x) * A_dy
  *
  * Given the assumption that all the deltas fit within 32 bits, we can compute
  * this comparison directly using 64 bit arithmetic.
@@ -417,20 +417,20 @@ static cairo_bool_t intersect_lines(cairo_bo_edge_t * a,
 	 * much more cheaply than computing the intersection point i.e. by
 	 * avoiding the division?
 	 *
-	 *   X = ax + t * adx = bx + s * bdx;
-	 *   Y = ay + t * ady = by + s * bdy;
-	 *   ∴ t * (ady*bdx - bdy*adx) = bdx * (by - ay) + bdy * (ax - bx)
-	 *   => t * L = R
+	 * X = ax + t * adx = bx + s * bdx;
+	 * Y = ay + t * ady = by + s * bdy;
+	 * ∴ t * (ady*bdx - bdy*adx) = bdx * (by - ay) + bdy * (ax - bx)
+	 * => t * L = R
 	 *
 	 * Therefore we can reject any intersection (under the criteria for
 	 * valid intersection events) if:
-	 *   L^R < 0 => t < 0, or
-	 *   L<R => t > 1
+	 * L^R < 0 => t < 0, or
+	 * L<R => t > 1
 	 *
 	 * (where top/bottom must at least extend to the line endpoints).
 	 *
 	 * A similar substitution can be performed for s, yielding:
-	 *   s * (ady*bdx - bdy*adx) = ady * (ax - bx) - adx * (ay - by)
+	 * s * (ady*bdx - bdy*adx) = ady * (ax - bx) - adx * (ay - by)
 	 */
 	R = det32_64(dx2, dy2,
 		b->edge.line.p1.x - a->edge.line.p1.x,

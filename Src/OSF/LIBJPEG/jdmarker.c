@@ -149,13 +149,13 @@ typedef my_marker_reader * my_marker_ptr;
  * Routines to process JPEG markers.
  *
  * Entry condition: JPEG marker itself has been read and its code saved
- *   in cinfo->unread_marker; input restart point is just after the marker.
+ * in cinfo->unread_marker; input restart point is just after the marker.
  *
  * Exit: if return TRUE, have read and processed any parameters, and have
- *   updated the restart point to point after the parameters.
- *   If return FALSE, was forced to suspend before reaching end of
- *   marker parameters; restart point has not been moved.  Same routine
- *   will be called again after application supplies more input data.
+ * updated the restart point to point after the parameters.
+ * If return FALSE, was forced to suspend before reaching end of
+ * marker parameters; restart point has not been moved.  Same routine
+ * will be called again after application supplies more input data.
  *
  * This approach to suspension assumes that all of a marker's parameters
  * can fit into a single input bufferload.  This should hold for "normal"
@@ -1111,16 +1111,16 @@ METHODDEF(boolean) read_restart_marker(j_decompress_ptr cinfo)
  * This implementation is substantially constrained by wanting to treat the
  * input as a data stream; this means we can't back up.  Therefore, we have
  * only the following actions to work with:
- *   1. Simply discard the marker and let the entropy decoder resume at next
- *      byte of file.
- *   2. Read forward until we find another marker, discarding intervening
- *      data.  (In theory we could look ahead within the current bufferload,
- *      without having to discard data if we don't find the desired marker.
- *      This idea is not implemented here, in part because it makes behavior
- *      dependent on buffer size and chance buffer-boundary positions.)
- *   3. Leave the marker unread (by failing to zero cinfo->unread_marker).
- *      This will cause the entropy decoder to process an empty data segment,
- *      inserting dummy zeroes, and then we will reprocess the marker.
+ * 1. Simply discard the marker and let the entropy decoder resume at next
+ *    byte of file.
+ * 2. Read forward until we find another marker, discarding intervening
+ *    data.  (In theory we could look ahead within the current bufferload,
+ *    without having to discard data if we don't find the desired marker.
+ *    This idea is not implemented here, in part because it makes behavior
+ *    dependent on buffer size and chance buffer-boundary positions.)
+ * 3. Leave the marker unread (by failing to zero cinfo->unread_marker).
+ *    This will cause the entropy decoder to process an empty data segment,
+ *    inserting dummy zeroes, and then we will reprocess the marker.
  *
  * #2 is appropriate if we think the desired marker lies ahead, while #3 is
  * appropriate if the found marker is a future restart marker (indicating

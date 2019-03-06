@@ -46,7 +46,7 @@ static void setByteArray(void** vpp, void* vp, size_t nmemb, size_t elem_size)
 	if(vp) {
 		tmsize_t bytes = (tmsize_t)(nmemb * elem_size);
 		if(elem_size && bytes / elem_size == nmemb)
-			*vpp = (void *)SAlloc::M(bytes);
+			*vpp = SAlloc::M(bytes);
 		if(*vpp)
 			memcpy(*vpp, vp, bytes);
 	}

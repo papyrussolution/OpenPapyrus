@@ -1563,7 +1563,7 @@ int SSL_COMP_add_compression_method(int id, COMP_METHOD * cm)
 	 * According to draft-ietf-tls-compression-04.txt, the
 	 * compression number ranges should be the following:
 	 *
-	 *   0 to  63:  methods defined by the IETF
+	 * 0 to  63:  methods defined by the IETF
 	 *  64 to 192:  external party methods assigned by IANA
 	 * 193 to 255:  reserved for private use
 	 */

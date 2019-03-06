@@ -55,9 +55,9 @@ int ASN1_sign(i2d_of_void * i2d, X509_ALGOR * algor1, X509_ALGOR * algor2,
 		}
 	}
 	inl = i2d(data, 0);
-	buf_in = (uchar*)OPENSSL_malloc((uint)inl);
+	buf_in = (uchar *)OPENSSL_malloc((uint)inl);
 	outll = outl = EVP_PKEY_size(pkey);
-	buf_out = (uchar*)OPENSSL_malloc((uint)outl);
+	buf_out = (uchar *)OPENSSL_malloc((uint)outl);
 	if((buf_in == NULL) || (buf_out == NULL)) {
 		outl = 0;
 		ASN1err(ASN1_F_ASN1_SIGN, ERR_R_MALLOC_FAILURE);
@@ -66,7 +66,7 @@ int ASN1_sign(i2d_of_void * i2d, X509_ALGOR * algor1, X509_ALGOR * algor2,
 	p = buf_in;
 
 	i2d(data, &p);
-	if(!EVP_SignInit_ex(ctx, type, NULL) || !EVP_SignUpdate(ctx, (uchar*)buf_in, inl) || !EVP_SignFinal(ctx, (uchar*)buf_out, (uint*)&outl, pkey)) {
+	if(!EVP_SignInit_ex(ctx, type, NULL) || !EVP_SignUpdate(ctx, (uchar *)buf_in, inl) || !EVP_SignFinal(ctx, (uchar *)buf_out, (uint*)&outl, pkey)) {
 		outl = 0;
 		ASN1err(ASN1_F_ASN1_SIGN, ERR_R_EVP_LIB);
 		goto err;
@@ -130,9 +130,9 @@ int ASN1_item_sign_ctx(const ASN1_ITEM * it, X509_ALGOR * algor1, X509_ALGOR * a
 		/*-
 		 * Return value meanings:
 		 * <=0: error.
-		 *   1: method does everything.
-		 *   2: carry on as normal.
-		 *   3: ASN1 method sets algorithm identifiers: just sign.
+		 * 1: method does everything.
+		 * 2: carry on as normal.
+		 * 3: ASN1 method sets algorithm identifiers: just sign.
 		 */
 		if(rv <= 0)
 			ASN1err(ASN1_F_ASN1_ITEM_SIGN_CTX, ERR_R_EVP_LIB);
@@ -157,7 +157,7 @@ int ASN1_item_sign_ctx(const ASN1_ITEM * it, X509_ALGOR * algor1, X509_ALGOR * a
 	}
 	inl = ASN1_item_i2d((ASN1_VALUE*)asn, &buf_in, it);
 	outll = outl = EVP_PKEY_size(pkey);
-	buf_out = (uchar*)OPENSSL_malloc((uint)outl);
+	buf_out = (uchar *)OPENSSL_malloc((uint)outl);
 	if((buf_in == NULL) || (buf_out == NULL)) {
 		outl = 0;
 		ASN1err(ASN1_F_ASN1_ITEM_SIGN_CTX, ERR_R_MALLOC_FAILURE);

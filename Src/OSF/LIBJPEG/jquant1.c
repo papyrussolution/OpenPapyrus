@@ -38,7 +38,7 @@
  * representative value (grid plane) for that component; this index is
  * multiplied by the array stride for component i, so that the
  * index of the colormap entry closest to a given pixel value is just
- *    sum( colorindex[component-number][pixel-component-value] )
+ *  sum( colorindex[component-number][pixel-component-value] )
  * Aside from being fast, this scheme allows for variable spacing between
  * representative values with no additional lookup cost.
  *
@@ -168,10 +168,10 @@ typedef my_cquantizer * my_cquantize_ptr;
  * only assumes that the colormap is orthogonal.
  *
  *  * select_ncolors decides how to divvy up the available colors
- *    among the components.
+ *  among the components.
  *  * output_value defines the set of representative values for a component.
  *  * largest_input_value defines the mapping from input values to
- *    representative values for a component.
+ *  representative values for a component.
  * Note that the latter two routines may impose different policies for
  * different components, though this is not currently done.
  */

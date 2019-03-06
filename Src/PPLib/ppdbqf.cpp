@@ -281,6 +281,28 @@ static IMPL_DBE_PROC(dbqf_registertext_i)
 	}
 }
 
+static IMPL_DBE_PROC(dbqf_objtagtextnocache_ii)
+{
+	const  size_t buffer_size = 128;
+	if(option == CALC_SIZE)
+		result->init((long)buffer_size);
+	else {
+		SString temp_buf;
+		const PPID tag_id = params[0].lval;
+		const PPID obj_id = params[1].lval;
+		if(tag_id && obj_id) {
+			Reference * p_ref = PPRef;
+			if(p_ref) {
+				PPObjTag tag_obj;
+				PPObjectTag tag_rec;
+				if(tag_obj.Fetch(tag_id, &tag_rec) > 0)
+					p_ref->Ot.GetTagStr(tag_rec.ObjTypeID, obj_id, tag_id, temp_buf);
+			}
+		}
+		result->init(temp_buf.Trim(buffer_size-1));
+	}
+}
+
 static IMPL_DBE_PROC(dbqf_objtagtext_ii)
 {
 	const  size_t buffer_size = 128;
@@ -1237,6 +1259,7 @@ int PPDbqFuncPool::IdGetAgrmntSymbol   = 0; // @vmiller
 int PPDbqFuncPool::IdBillAgentName     = 0; // @v8.3.6 (billID) Наименование агента по документу (извлекается из записи расширения документа)
 int PPDbqFuncPool::IdRegisterText      = 0; // @v8.4.4 (registerID) Текст описания регистрационного документа
 int PPDbqFuncPool::IdObjTagText        = 0; // @v8.4.11(tagid, objid) Текстовое представление тега объекта
+int PPDbqFuncPool::IdObjTagText_NoCache = 0; // @v10.3.8
 int PPDbqFuncPool::IdDateRange         = 0; // @v8.6.4
 //int PPDbqFuncPool::IdObjNameOpTypeK    = 0; // @v8.6.
 int PPDbqFuncPool::IdOidText           = 0; // @v8.6.11 (objType, objID) Текстовое представление полного OID
@@ -1558,6 +1581,7 @@ int SLAPI PPDbqFuncPool::Register()
 	THROW(DbqFuncTab::RegisterDyn(&IdGetAgrmntSymbol,     BTS_STRING, dbqf_getagrmntsymbol_i,  1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdRegisterText,        BTS_STRING, dbqf_registertext_i,     1, BTS_INT)); // @v8.4.4
 	THROW(DbqFuncTab::RegisterDyn(&IdObjTagText,          BTS_STRING, dbqf_objtagtext_ii,      2, BTS_INT, BTS_INT)); // @v8.4.11
+	THROW(DbqFuncTab::RegisterDyn(&IdObjTagText_NoCache,  BTS_STRING, dbqf_objtagtextnocache_ii, 2, BTS_INT, BTS_INT)); // @v10.3.8
 	THROW(DbqFuncTab::RegisterDyn(&IdDateRange,           BTS_STRING, dbqf_daterange_dd,       2, BTS_DATE, BTS_DATE)); // @v8.6.4
 	THROW(DbqFuncTab::RegisterDyn(&IdOidText,             BTS_STRING, dbqf_oidtext_ii,         2, BTS_INT, BTS_INT)); // @v8.6.11
 	THROW(DbqFuncTab::RegisterDyn(&IdDateBase,            BTS_DATE,   dbqf_datebase_id,        2, BTS_INT, BTS_DATE)); // @v8.6.11
@@ -1575,12 +1599,12 @@ void FASTCALL PPDbqFuncPool::InitObjNameFunc(DBE & rDbe, int funcId, DBField & r
 }
 
 // static
-void FASTCALL PPDbqFuncPool::InitObjTagTextFunc(DBE & rDbe, PPID tagID, DBField & rFld)
+void FASTCALL PPDbqFuncPool::InitObjTagTextFunc(DBE & rDbe, PPID tagID, DBField & rFld, int dontUseCache)
 {
 	rDbe.init();
 	rDbe.push(dbconst(tagID));
 	rDbe.push(rFld);
-	rDbe.push(static_cast<DBFunc>(PPDbqFuncPool::IdObjTagText));
+	rDbe.push(static_cast<DBFunc>(dontUseCache ? PPDbqFuncPool::IdObjTagText_NoCache : PPDbqFuncPool::IdObjTagText));
 }
 
 //static

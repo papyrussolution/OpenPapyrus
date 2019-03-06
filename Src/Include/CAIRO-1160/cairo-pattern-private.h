@@ -124,17 +124,17 @@ typedef union {
  * the points and side of the patch.
  *
  *
- *                      Side 1
+ *                    Side 1
  *
- *          p[0][3] p[1][3] p[2][3] p[3][3]
+ *        p[0][3] p[1][3] p[2][3] p[3][3]
  * Side 0   p[0][2] p[1][2] p[2][2] p[3][2]  Side 2
- *          p[0][1] p[1][1] p[2][1] p[3][1]
- *          p[0][0] p[1][0] p[2][0] p[3][0]
+ *        p[0][1] p[1][1] p[2][1] p[3][1]
+ *        p[0][0] p[1][0] p[2][0] p[3][0]
  *
- *                      Side 3
+ *                    Side 3
  *
  *
- *   Point            Color
+ * Point            Color
  *  -------------------------
  *  points[0][0]    colors[0]
  *  points[0][3]    colors[1]

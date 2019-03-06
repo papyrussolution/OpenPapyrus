@@ -350,7 +350,7 @@ static int ec_asn1_group2curve(const EC_GROUP * group, X9_62_CURVE * curve)
 		len_1 = 1;
 	}
 	else {
-		if((buffer_1 = (uchar*)OPENSSL_malloc(len_1)) == NULL) {
+		if((buffer_1 = (uchar *)OPENSSL_malloc(len_1)) == NULL) {
 			ECerr(EC_F_EC_ASN1_GROUP2CURVE, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}
@@ -367,7 +367,7 @@ static int ec_asn1_group2curve(const EC_GROUP * group, X9_62_CURVE * curve)
 		len_2 = 1;
 	}
 	else {
-		if((buffer_2 = (uchar*)OPENSSL_malloc(len_2)) == NULL) {
+		if((buffer_2 = (uchar *)OPENSSL_malloc(len_2)) == NULL) {
 			ECerr(EC_F_EC_ASN1_GROUP2CURVE, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}
@@ -689,7 +689,7 @@ EC_GROUP * EC_GROUP_new_from_ecparameters(const ECPARAMETERS * params)
 	/* extract seed (optional) */
 	if(params->curve->seed != NULL) {
 		OPENSSL_free(ret->seed);
-		if((ret->seed = (uchar*)OPENSSL_malloc(params->curve->seed->length)) == NULL) {
+		if((ret->seed = (uchar *)OPENSSL_malloc(params->curve->seed->length)) == NULL) {
 			ECerr(EC_F_EC_GROUP_NEW_FROM_ECPARAMETERS, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}
@@ -1019,7 +1019,7 @@ int i2o_ECPublicKey(const EC_KEY * a, uchar ** out)
 	if(out == NULL || buf_len == 0)
 		return buf_len; // out == NULL => just return the length of the octet string 
 	if(*out == NULL) {
-		if((*out = (uchar*)OPENSSL_malloc(buf_len)) == NULL) {
+		if((*out = (uchar *)OPENSSL_malloc(buf_len)) == NULL) {
 			ECerr(EC_F_I2O_ECPUBLICKEY, ERR_R_MALLOC_FAILURE);
 			return 0;
 		}

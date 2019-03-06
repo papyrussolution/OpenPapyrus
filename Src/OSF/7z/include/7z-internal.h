@@ -3587,7 +3587,7 @@ namespace NWindows {
 			CPropVariant & operator=(const UString &s);
 			CPropVariant & operator=(const UString2 &s);
 			CPropVariant & operator=(const char * s);
-			CPropVariant & operator=(const AString &s) { return (*this) = (const char*)s; }
+			CPropVariant & operator=(const AString &s) { return (*this) = (const char *)s; }
 			CPropVariant & operator=(bool bSrc) throw();
 			CPropVariant & operator=(Byte value) throw();
 		private:
@@ -5289,7 +5289,7 @@ namespace NArchive {
 						return false;
 					else {
 						size -= 5;
-						name.SetFrom_CalcLen((const char*)p + 5, size);
+						name.SetFrom_CalcLen((const char *)p + 5, size);
 						return (size != name.Len()) ? false : CheckUTF8(name, false);
 					}
 				}

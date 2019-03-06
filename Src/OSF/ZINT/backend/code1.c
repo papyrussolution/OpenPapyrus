@@ -1176,7 +1176,7 @@ int code_one(struct ZintSymbol * symbol, const uchar source[], int length)
 			codewords = 4;
 			block_width = 2;
 		}
-		binary_load(elreg, (const char*)source, length);
+		binary_load(elreg, (const char *)source, length);
 		for(i = 0; i < 15; i++) {
 			data[i] = 0;
 			ecc[i] = 0;

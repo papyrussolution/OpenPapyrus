@@ -1,9 +1,9 @@
 /***************************************************************************
- *                                  _   _ ____  _
+ *                                _   _ ____  _
  *  Project                     ___| | | |  _ \| |
- *                             / __| | | | |_) | |
- *                            | (__| |_| |  _ <| |___
- *                             \___|\___/|_| \_\_____|
+ *                           / __| | | | |_) | |
+ *                          | (__| |_| |  _ <| |___
+ *                           \___|\___/|_| \_\_____|
  *
  * Copyright (C) 2009, 2011, Markus Moeller, <markus_moeller@compuserve.com>
  * Copyright (C) 2012 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
@@ -355,13 +355,13 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex,
    *  + 0x01 | 0x02 | 0x02 | up to 2^16 - 1 octets |
    *  +------+------+------+.......................+
    *
-   *   Where:
+   * Where:
    *
    *  - "ver" is the protocol version number, here 1 to represent the
-   *    first version of the SOCKS/GSS-API protocol
+   *  first version of the SOCKS/GSS-API protocol
    *
    *  - "mtyp" is the message type, here 2 to represent a protection
-   *    -level negotiation message
+   *  -level negotiation message
    *
    *  - "len" is the length of the "token" field in octets
    *

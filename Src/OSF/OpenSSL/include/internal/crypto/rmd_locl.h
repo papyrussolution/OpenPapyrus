@@ -14,7 +14,7 @@
 /*
  * DO EXAMINE COMMENTS IN crypto/md5/md5_locl.h & crypto/md5/md5_dgst.c
  * FOR EXPLANATIONS ON FOLLOWING "CODE."
- *                                      <appro@fy.chalmers.se>
+ *                                    <appro@fy.chalmers.se>
  */
 #ifdef RMD160_ASM
 # if defined(__i386) || defined(__i386__) || defined(_M_IX86)

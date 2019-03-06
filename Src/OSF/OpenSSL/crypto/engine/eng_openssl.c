@@ -155,11 +155,11 @@ IMPLEMENT_DYNAMIC_BIND_FN(bind_fn)
  * RC4 into this ENGINE. The result is that EVP_CIPHER operation for "rc4"
  * should under normal circumstances go via this support rather than the default
  * EVP support. There are other symbols to tweak the testing;
- *    TEST_ENC_OPENSSL_RC4_OTHERS - print a one line message to stderr each time
- *        we're asked for a cipher we don't support (should not happen).
- *    TEST_ENG_OPENSSL_RC4_P_INIT - print a one line message to stderr each time
- *        the "init_key" handler is called.
- *    TEST_ENG_OPENSSL_RC4_P_CIPHER - ditto for the "cipher" handler.
+ *  TEST_ENC_OPENSSL_RC4_OTHERS - print a one line message to stderr each time
+ *      we're asked for a cipher we don't support (should not happen).
+ *  TEST_ENG_OPENSSL_RC4_P_INIT - print a one line message to stderr each time
+ *      the "init_key" handler is called.
+ *  TEST_ENG_OPENSSL_RC4_P_CIPHER - ditto for the "cipher" handler.
  */
 //#include <openssl/rc4.h>
 #define TEST_RC4_KEY_SIZE               16

@@ -35,7 +35,7 @@
  *
  * Contributor(s):
  *	Carl D. Worth <cworth@cworth.org>
- *      Joonas Pihlaja <jpihlaja@cc.helsinki.fi>
+ *    Joonas Pihlaja <jpihlaja@cc.helsinki.fi>
  *	Chris Wilson <chris@chris-wilson.co.uk>
  */
 

@@ -1,6 +1,6 @@
 /*
  * parserInternals.c : Internal routines (and obsolete ones) needed for the
- *                     XML and HTML parsers.
+ *                   XML and HTML parsers.
  *
  * See Copyright for the status of this software.
  *
@@ -86,7 +86,7 @@ void FASTCALL __xmlErrEncoding(xmlParserCtxt * ctxt, xmlParserErrors xmlerr, con
 		return;
 	if(ctxt)
 		ctxt->errNo = xmlerr;
-	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, xmlerr, XML_ERR_FATAL, NULL, 0, (const char*)str1, (const char*)str2, NULL, 0, 0, msg, str1, str2);
+	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, xmlerr, XML_ERR_FATAL, NULL, 0, (const char *)str1, (const char *)str2, NULL, 0, 0, msg, str1, str2);
 	if(ctxt) {
 		ctxt->wellFormed = 0;
 		if(ctxt->recovery == 0)
@@ -107,7 +107,7 @@ static void FASTCALL xmlErrInternal(xmlParserCtxt * ctxt, const char * msg, cons
 		return;
 	if(ctxt)
 		ctxt->errNo = XML_ERR_INTERNAL_ERROR;
-	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, XML_ERR_INTERNAL_ERROR, XML_ERR_FATAL, NULL, 0, (const char*)str, NULL, NULL, 0, 0, msg, str);
+	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, XML_ERR_INTERNAL_ERROR, XML_ERR_FATAL, NULL, 0, (const char *)str, NULL, NULL, 0, 0, msg, str);
 	if(ctxt) {
 		ctxt->wellFormed = 0;
 		if(ctxt->recovery == 0)
@@ -236,9 +236,9 @@ int FASTCALL xmlParserInputGrow(xmlParserInput * in, int len)
 		return 0;
 	/*
 	 * NOTE : in->base may be a "dangling" i.e. freed pointer in this
-	 *        block, but we use it really as an integer to do some
-	 *        pointer arithmetic. Insure will raise it as a bug but in
-	 *        that specific case, that's not !
+	 *      block, but we use it really as an integer to do some
+	 *      pointer arithmetic. Insure will raise it as a bug but in
+	 *      that specific case, that's not !
 	 */
 	content = xmlBufContent(in->buf->buffer);
 	if(in->base != content) {
@@ -321,10 +321,10 @@ void FASTCALL xmlNextChar(xmlParserCtxt * ctxt)
 			const uchar * cur;
 			uchar c;
 			/*
-			 *   2.11 End-of-Line Handling
-			 *   the literal two-character sequence "#xD#xA" or a standalone
-			 *   literal #xD, an XML processor must pass to the application
-			 *   the single character #xA.
+			 * 2.11 End-of-Line Handling
+			 * the literal two-character sequence "#xD#xA" or a standalone
+			 * literal #xD, an XML processor must pass to the application
+			 * the single character #xA.
 			 */
 			if(*(ctxt->input->cur) == '\n') {
 				ctxt->input->line++; 
@@ -1122,7 +1122,7 @@ void FASTCALL xmlFreeInputStream(xmlParserInput * input)
 		SAlloc::F((char *)input->encoding);
 		SAlloc::F((char *)input->version);
 		if(input->free && input->base)
-			input->free((xmlChar*)input->base);
+			input->free((xmlChar *)input->base);
 		xmlFreeParserInputBuffer(input->buf);
 		SAlloc::F(input);
 	}
@@ -1274,7 +1274,7 @@ xmlParserInput * xmlNewInputFromFile(xmlParserCtxt * ctxt, const char * filename
 				msg_buf.Space().CatQStr(filename);
 			else
 				msg_buf.CatDiv(':', 2).Cat("NULL").Space().Cat("filename").Space();
-			__xmlLoaderErr(ctxt, msg_buf.CR(), (const char*)filename);
+			__xmlLoaderErr(ctxt, msg_buf.CR(), (const char *)filename);
 		}
 		else {
 			inputStream = xmlNewInputStream(ctxt);
@@ -1282,8 +1282,8 @@ xmlParserInput * xmlNewInputFromFile(xmlParserCtxt * ctxt, const char * filename
 				inputStream->buf = buf;
 				inputStream = xmlCheckHTTPInput(ctxt, inputStream);
 				if(inputStream) {
-					xmlChar * URI = inputStream->filename ? sstrdup((xmlChar*)inputStream->filename) : sstrdup((xmlChar*)filename);
-					char * directory = xmlParserGetDirectory((const char*)URI);
+					xmlChar * URI = inputStream->filename ? sstrdup((xmlChar *)inputStream->filename) : sstrdup((xmlChar *)filename);
+					char * directory = xmlParserGetDirectory((const char *)URI);
 					SAlloc::F((char *)inputStream->filename);
 					inputStream->filename = (char *)xmlCanonicPath((const xmlChar*)URI);
 					SAlloc::F((char *)URI);
@@ -1624,7 +1624,7 @@ void xmlInitNodeInfoSeq(xmlParserNodeInfoSeqPtr seq)
  * @seq:  a node info sequence pointer
  *
  * -- Clear (release memory and reinitialize) node
- *   info sequence
+ * info sequence
  */
 void xmlClearNodeInfoSeq(xmlParserNodeInfoSeqPtr seq)
 {
@@ -1640,7 +1640,7 @@ void xmlClearNodeInfoSeq(xmlParserNodeInfoSeqPtr seq)
  *
  *
  * xmlParserFindNodeInfoIndex : Find the index that the info record for
- *   the given node is or should be at in a sorted sequence
+ * the given node is or should be at in a sorted sequence
  *
  * Returns a long indicating the position of the record
  */

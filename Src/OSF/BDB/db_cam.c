@@ -1036,7 +1036,7 @@ err:
 /*
  * __dbc_put_partial --
  *	Ensure that the data item we are using is complete and correct.
- *      Otherwise we could break the secondary constraints.
+ *    Otherwise we could break the secondary constraints.
  */
 static inline int __dbc_put_partial(DBC*dbc, DBT * pkey, DBT * data, DBT * orig_data, DBT * out_data, uint32 * put_statep, uint32 flags)
 {
@@ -1084,7 +1084,7 @@ static inline int __dbc_put_partial(DBC*dbc, DBT * pkey, DBT * data, DBT * orig_
 }
 /*
  * __dbc_put_fixed_len --
- *      Handle padding for fixed-length records.
+ *    Handle padding for fixed-length records.
  */
 static inline int __dbc_put_fixed_len(DBC*dbc, DBT * data, DBT * out_data)
 {
@@ -1410,32 +1410,32 @@ static int __dbc_put_primary(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 	 * hopefully solve this problem in the common case:
 	 *
 	 * 1) If this is a c_put(DB_CURRENT), go ahead and get the
-	 *    old record.  We already hold the lock on this page in
-	 *    the primary, so no harm done, and we'll need the primary
-	 *    key (which we weren't passed in this case) to do any
-	 *    secondary puts anyway.
-	 *    If this is a put(DB_APPEND), then we need to insert the item,
-	 *    so that we can know the key value. So go ahead and insert. In
-	 *    the case of a put(DB_APPEND) without secondaries it is
-	 *    implemented in the __db_put method as an optimization.
+	 *  old record.  We already hold the lock on this page in
+	 *  the primary, so no harm done, and we'll need the primary
+	 *  key (which we weren't passed in this case) to do any
+	 *  secondary puts anyway.
+	 *  If this is a put(DB_APPEND), then we need to insert the item,
+	 *  so that we can know the key value. So go ahead and insert. In
+	 *  the case of a put(DB_APPEND) without secondaries it is
+	 *  implemented in the __db_put method as an optimization.
 	 *
 	 * 2) If we're doing a partial put, we need to perform the
-	 *    get on the primary key right away, since we don't have
-	 *    the whole datum that the secondary key is based on.
-	 *    We may also need to pad out the record if the primary
-	 *    has a fixed record length.
+	 *  get on the primary key right away, since we don't have
+	 *  the whole datum that the secondary key is based on.
+	 *  We may also need to pad out the record if the primary
+	 *  has a fixed record length.
 	 *
 	 * 3) Loop through the secondary indices, putting into each a
-	 *    new secondary key that corresponds to the new record.
+	 *  new secondary key that corresponds to the new record.
 	 *
 	 * 4) If we haven't done so in (1) or (2), get the old primary
-	 *    key/data pair.  If one does not exist--the common case--we're
-	 *    done with secondary indices, and can go straight on to the
-	 *    primary put.
+	 *  key/data pair.  If one does not exist--the common case--we're
+	 *  done with secondary indices, and can go straight on to the
+	 *  primary put.
 	 *
 	 * 5) If we do have an old primary key/data pair, however, we need
-	 *    to loop through all the secondaries a second time and delete
-	 *    the old secondary in each.
+	 *  to loop through all the secondaries a second time and delete
+	 *  the old secondary in each.
 	 */
 	s_count = __db_s_count(dbp);
 	if((ret = __os_calloc(env, (uint)s_count, sizeof(DBT), &all_skeys)) != 0)
@@ -2435,14 +2435,14 @@ err:
  *	database when an item is being deleted (dbc points at item being deleted
  *	in the foreign database.)
  *
- *      Delete happens in dbp, check for occurrences of key in pdpb.
- *      Terminology:
- *        Foreign db = Where delete occurs (dbp).
- *        Secondary db = Where references to dbp occur (sdbp, a secondary)
- *        Primary db = sdbp's primary database, references to dbp are secondary
- *                      keys here
- *        Foreign Key = Key being deleted in dbp (fkey)
- *        Primary Key = Key of the corresponding entry in sdbp's primary (pkey).
+ *    Delete happens in dbp, check for occurrences of key in pdpb.
+ *    Terminology:
+ *      Foreign db = Where delete occurs (dbp).
+ *      Secondary db = Where references to dbp occur (sdbp, a secondary)
+ *      Primary db = sdbp's primary database, references to dbp are secondary
+ *                    keys here
+ *      Foreign Key = Key being deleted in dbp (fkey)
+ *      Primary Key = Key of the corresponding entry in sdbp's primary (pkey).
  */
 static int __dbc_del_foreign(DBC * dbc)
 {
@@ -2512,12 +2512,12 @@ static int __dbc_del_foreign(DBC * dbc)
 		 * items corresponding to a deleted item:
 		 * DB_FOREIGN_ABORT - The delete operation should be aborted.
 		 * DB_FOREIGN_CASCADE - All corresponding foreign items should
-		 *    be deleted.
+		 *  be deleted.
 		 * DB_FOREIGN_NULLIFY - A callback needs to be made, allowing
-		 *    the application to modify the data DBT from the
-		 *    associated database.  If the callback makes a
-		 *    modification, the updated item needs to replace the
-		 *    original item in the foreign db
+		 *  the application to modify the data DBT from the
+		 *  associated database.  If the callback makes a
+		 *  modification, the updated item needs to replace the
+		 *  original item in the foreign db
 		 */
 		memzero(&pkey, sizeof(DBT));
 		memzero(&data, sizeof(DBT));

@@ -81,12 +81,12 @@ SCT * o2i_SCT(SCT ** psct, const uchar ** in, size_t len)
 		size_t len2;
 		/*-
 		 * Fixed-length header:
-		 *   struct {
-		 *     Version sct_version;     (1 byte)
-		 *     log_id id;               (32 bytes)
-		 *     uint64 timestamp;        (8 bytes)
-		 *     CtExtensions extensions; (2 bytes + ?)
-		 *   }
+		 * struct {
+		 *   Version sct_version;     (1 byte)
+		 *   log_id id;               (32 bytes)
+		 *   uint64 timestamp;        (8 bytes)
+		 *   CtExtensions extensions; (2 bytes + ?)
+		 * }
 		 */
 		if(len < 43) {
 			CTerr(CT_F_O2I_SCT, CT_R_SCT_INVALID);

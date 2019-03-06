@@ -508,17 +508,17 @@ int XmlDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 				for(uint fp = 0, fno = 0; r < 0 && fld_set.get(&fp, temp_buf);) {
 					fno++;
 					for(xmlNodePtr p_fld = p_rec->children; p_fld != 0; p_fld = p_fld->next) {
-						if(temp_buf.CmpNC((const char*)p_fld->name) == 0) {
+						if(temp_buf.CmpNC((const char *)p_fld->name) == 0) {
 							if(fno == fld_count) {
 								p_fld = p_fld->children;
 								if(p_fld) {
 									if(p_fld->type == XML_CDATA_SECTION_NODE) {
 										if(p_fld->content)
-											field_buf.CopyFrom((const char*)p_fld->content);
+											field_buf.CopyFrom((const char *)p_fld->content);
 									}
-									else if(p_fld->name && stricmp((const char*)p_fld->name, PPYXML_TAGCONT) == 0) {
+									else if(p_fld->name && stricmp((const char *)p_fld->name, PPYXML_TAGCONT) == 0) {
 										if(p_fld->content)
-											field_buf.CopyFrom((const char*)p_fld->content);
+											field_buf.CopyFrom((const char *)p_fld->content);
 									}
 								}
 								if(St.GetParam().Flags & XmlDbFile::Param::fUtf8Codepage)
@@ -665,7 +665,7 @@ int XmlDbFile::WriteDTDS(const SdRecord & rRec)
 
 const char * XmlDbFile::GetFileName() const
 {
-	return (const char*)FileName;
+	return (const char *)FileName;
 }
 
 #if SLTEST_RUNNING // {

@@ -181,18 +181,18 @@ double _cairo_stroke_style_dash_period(const cairo_stroke_style_t * style)
  *
  * This can be computed in the following way:
  * the area inside the circle with radius w/2 and the region -d/2 <= x <= d/2 is:
- *   f(w,d) = 2 * integrate (sqrt (w*w/4 - x*x), x, -d/2, d/2)
+ * f(w,d) = 2 * integrate (sqrt (w*w/4 - x*x), x, -d/2, d/2)
  * The square difference to a generic linear approximation (c*d) in the range (0,w) would be:
- *   integrate ((f(w,d) - c*d)^2, d, 0, w)
+ * integrate ((f(w,d) - c*d)^2, d, 0, w)
  * To minimize this difference it is sufficient to find a solution of the differential with
  * respect to c:
- *   solve ( diff (integrate ((f(w,d) - c*d)^2, d, 0, w), c), c)
+ * solve ( diff (integrate ((f(w,d) - c*d)^2, d, 0, w), c), c)
  * Which leads to c = 9/32*pi*w
  * Since we're not interested in the true area, but just in a coverage extimate,
  * we always divide the real area by the line width (w).
  * The same computation for square caps would be
- *   f(w,d) = 2 * integrate(w/2, x, -d/2, d/2)
- *   c = 1*w
+ * f(w,d) = 2 * integrate(w/2, x, -d/2, d/2)
+ * c = 1*w
  * but in this case it would not be an approximation, since f is already linear in d.
  */
 #define ROUND_MINSQ_APPROXIMATION (9*M_PI/32)
@@ -287,25 +287,25 @@ void _cairo_stroke_style_dash_approximate(const cairo_stroke_style_t * style,
 	 * but composed of just 2 elements with total length equal to scale.
 	 * Based on the formula in _cairo_stroke_style_dash_stroked:
 	 * scale * coverage = dashes[0] + cap_scale * MIN (dashes[1], line_width)
-	 *   = MIN (dashes[0] + cap_scale * (scale - dashes[0]),
-	 *       dashes[0] + cap_scale * line_width) =
-	 *   = MIN (dashes[0] * (1 - cap_scale) + cap_scale * scale,
+	 * = MIN (dashes[0] + cap_scale * (scale - dashes[0]),
+	 *     dashes[0] + cap_scale * line_width) =
+	 * = MIN (dashes[0] * (1 - cap_scale) + cap_scale * scale,
 	 *	                       dashes[0] + cap_scale * line_width)
 	 *
 	 * Solving both cases we get:
-	 *   dashes[0] = scale * (coverage - cap_scale) / (1 - cap_scale)
+	 * dashes[0] = scale * (coverage - cap_scale) / (1 - cap_scale)
 	 *	  when scale - dashes[0] <= line_width
 	 *	dashes[0] = scale * coverage - cap_scale * line_width
 	 *	  when scale - dashes[0] > line_width.
 	 *
 	 * Comparing the two cases we get:
-	 *   second > first
-	 *   second > scale * (coverage - cap_scale) / (1 - cap_scale)
-	 *   second - cap_scale * second - scale * coverage + scale * cap_scale > 0
+	 * second > first
+	 * second > scale * (coverage - cap_scale) / (1 - cap_scale)
+	 * second - cap_scale * second - scale * coverage + scale * cap_scale > 0
 	 *  (scale * coverage - cap_scale * line_width) - cap_scale * second - scale * coverage + scale * cap_scale
 	 *> 0
-	 *   - line_width - second + scale > 0
-	 *   scale - second > line_width
+	 * - line_width - second + scale > 0
+	 * scale - second > line_width
 	 * which is the condition for the second solution to be the valid one.
 	 * So when second > first, the second solution is the correct one (i.e.
 	 * the solution is always MAX (first, second).

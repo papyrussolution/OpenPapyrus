@@ -98,12 +98,12 @@ int BN_mod_exp(BIGNUM * r, const BIGNUM * a, const BIGNUM * p, const BIGNUM * m,
 	 * 4096, 8192 bits], compared to the running time of the
 	 * standard algorithm:
 	 *
-	 *   BN_mod_exp_mont   33 .. 40 %  [AMD K6-2, Linux, debug configuration]
-	 *                     55 .. 77 %  [UltraSparc processor, but
-	 *                                  debug-solaris-sparcv8-gcc conf.]
+	 * BN_mod_exp_mont   33 .. 40 %  [AMD K6-2, Linux, debug configuration]
+	 *                   55 .. 77 %  [UltraSparc processor, but
+	 *                                debug-solaris-sparcv8-gcc conf.]
 	 *
-	 *   BN_mod_exp_recp   50 .. 70 %  [AMD K6-2, Linux, debug configuration]
-	 *                     62 .. 118 % [UltraSparc, debug-solaris-sparcv8-gcc]
+	 * BN_mod_exp_recp   50 .. 70 %  [AMD K6-2, Linux, debug configuration]
+	 *                   62 .. 118 % [UltraSparc, debug-solaris-sparcv8-gcc]
 	 *
 	 * On the Sparc, BN_mod_exp_recp was faster than BN_mod_exp_mont
 	 * at 2048 and more bits, but at 512 and 1024 bits, it was
@@ -546,7 +546,7 @@ static int MOD_EXP_CTIME_COPY_FROM_PREBUF(BIGNUM * b, int top, uchar * buf, int 
  * multiple.
  */
 #define MOD_EXP_CTIME_ALIGN(x_)	\
-	((uchar*)(x_) + (MOD_EXP_CTIME_MIN_CACHE_LINE_WIDTH - (((size_t)(x_)) & (MOD_EXP_CTIME_MIN_CACHE_LINE_MASK))))
+	((uchar *)(x_) + (MOD_EXP_CTIME_MIN_CACHE_LINE_WIDTH - (((size_t)(x_)) & (MOD_EXP_CTIME_MIN_CACHE_LINE_MASK))))
 
 /*
  * This variant of BN_mod_exp_mont() uses fixed windows and the special
@@ -657,10 +657,10 @@ int BN_mod_exp_mont_consttime(BIGNUM * rr, const BIGNUM * a, const BIGNUM * p, c
 	powerbufLen += sizeof(m->d[0]) * (top * numPowers + ((2 * top) > numPowers ? (2 * top) : numPowers));
 #ifdef alloca
 	if(powerbufLen < 3072)
-		powerbufFree = (uchar*)alloca(powerbufLen + MOD_EXP_CTIME_MIN_CACHE_LINE_WIDTH);
+		powerbufFree = (uchar *)alloca(powerbufLen + MOD_EXP_CTIME_MIN_CACHE_LINE_WIDTH);
 	else
 #endif
-	if((powerbufFree = (uchar*)OPENSSL_malloc(powerbufLen + MOD_EXP_CTIME_MIN_CACHE_LINE_WIDTH)) == NULL)
+	if((powerbufFree = (uchar *)OPENSSL_malloc(powerbufLen + MOD_EXP_CTIME_MIN_CACHE_LINE_WIDTH)) == NULL)
 		goto err;
 	powerbuf = MOD_EXP_CTIME_ALIGN(powerbufFree);
 	memzero(powerbuf, powerbufLen);

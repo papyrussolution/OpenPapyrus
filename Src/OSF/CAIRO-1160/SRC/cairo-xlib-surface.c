@@ -854,15 +854,15 @@ static cairo_surface_t * _get_image_surface(cairo_xlib_surface_t * surface,
 	_swap_ximage_to_native(ximage);
 
 	/* We can't use pixman to simply write to image if:
-	 *   (a) the pixels are not appropriately aligned,
-	 *   (b) pixman does not the pixel format, or
-	 *   (c) if the image is palettized and we need to convert.
+	 * (a) the pixels are not appropriately aligned,
+	 * (b) pixman does not the pixel format, or
+	 * (c) if the image is palettized and we need to convert.
 	 */
 	if(pixman_format &&
 	    ximage->bitmap_unit == 32 && ximage->bitmap_pad == 32 &&
 	    (surface->visual == NULL || surface->visual->class == TrueColor)) {
 		image = (cairo_image_surface_t*)
-		    _cairo_image_surface_create_with_pixman_format((uchar*)ximage->data,
+		    _cairo_image_surface_create_with_pixman_format((uchar *)ximage->data,
 			pixman_format,
 			ximage->width,
 			ximage->height,

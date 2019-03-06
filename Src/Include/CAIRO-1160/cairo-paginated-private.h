@@ -36,7 +36,7 @@
 #ifndef CAIRO_PAGINATED_H
 #define CAIRO_PAGINATED_H
 
-#include "cairoint.h"
+//#include "cairoint.h"
 
 struct _cairo_paginated_surface_backend {
 	/* Optional. Will be called once for each page.
@@ -106,18 +106,18 @@ struct _cairo_paginated_surface_backend {
  * cairo_paginated_surface_create()):
  *
  * 1. Calls start_page() (if not %NULL). At this point, it is appropriate
- *    for the target to emit any page-specific header information into
- *    its output.
+ *  for the target to emit any page-specific header information into
+ *  its output.
  *
  * 2. Calls set_paginated_mode() with an argument of %CAIRO_PAGINATED_MODE_ANALYZE
  *
  * 3. Replays the recording-surface to the target surface, (with an
- *    analysis surface inserted between which watches the return value
- *    from each operation). This analysis stage is used to decide which
- *    operations will require fallbacks.
+ *  analysis surface inserted between which watches the return value
+ *  from each operation). This analysis stage is used to decide which
+ *  operations will require fallbacks.
  *
  * 4. Calls set_bounding_box() to provide the target surface with the
- *    tight bounding box of the page.
+ *  tight bounding box of the page.
  *
  * 5. Calls set_paginated_mode() with an argument of %CAIRO_PAGINATED_MODE_RENDER
  *
@@ -126,8 +126,8 @@ struct _cairo_paginated_surface_backend {
  * 7. Calls set_paginated_mode() with an argument of %CAIRO_PAGINATED_MODE_FALLBACK
  *
  * 8. Replays the remaining operations to an image surface, sets an
- *    appropriate clip on the target, then paints the resulting image
- *    surface to the target.
+ *  appropriate clip on the target, then paints the resulting image
+ *  surface to the target.
  *
  * So, the target will see drawing operations during three separate
  * stages, (ANALYZE, RENDER and FALLBACK). During the ANALYZE phase

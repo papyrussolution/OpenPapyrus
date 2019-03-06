@@ -7,11 +7,11 @@
  * [ISO-10646]    UTF-8 and UTF-16 in Annexes
  * [ISO-8859-1]   ISO Latin-1 characters codes.
  * [UNICODE]      The Unicode Consortium, "The Unicode Standard --
- *                Worldwide Character Encoding -- Version 1.0", Addison-
- *                Wesley, Volume 1, 1991, Volume 2, 1992.  UTF-8 is
- *                described in Unicode Technical Report #4.
+ *              Worldwide Character Encoding -- Version 1.0", Addison-
+ *              Wesley, Volume 1, 1991, Volume 2, 1992.  UTF-8 is
+ *              described in Unicode Technical Report #4.
  * [US-ASCII]     Coded Character Set--7-bit American Standard Code for
- *                Information Interchange, ANSI X3.4-1986.
+ *              Information Interchange, ANSI X3.4-1986.
  *
  * See Copyright for the status of this software.
  *
@@ -164,7 +164,7 @@ static int UTF16LEToUTF8(uchar* out, int * outlen, const uchar* inb, int * inlen
 			c = *in++;
 		}
 		else {
-			tmp = (uchar*)in;
+			tmp = (uchar *)in;
 			c = *tmp++;
 			c = c | (((uint)*tmp) << 8);
 			in++;
@@ -177,7 +177,7 @@ static int UTF16LEToUTF8(uchar* out, int * outlen, const uchar* inb, int * inlen
 				d = *in++;
 			}
 			else {
-				tmp = (uchar*)in;
+				tmp = (uchar *)in;
 				d = *tmp++;
 				d = d | (((uint)*tmp) << 8);
 				in++;
@@ -293,7 +293,7 @@ static void closeIcuConverter(uconv_t * conv)
  * block of chars out.
  * Returns 0 if success, or -1 otherwise
  * The value of @inlen after return is the number of octets consumed
- *     if the return value is positive, else unpredictable.
+ *   if the return value is positive, else unpredictable.
  * The value of @outlen after return is the number of octets consumed.
  */
 static int asciiToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen)
@@ -335,7 +335,7 @@ static int asciiToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen)
  *
  * Returns 0 if success, -2 if the transcoding fails, or -1 otherwise
  * The value of @inlen after return is the number of octets consumed
- *     if the return value is positive, else unpredictable.
+ *   if the return value is positive, else unpredictable.
  * The value of @outlen after return is the number of octets consumed.
  */
 static int UTF8Toascii(uchar* out, int * outlen, const uchar* in, int * inlen)
@@ -425,7 +425,7 @@ static int UTF8Toascii(uchar* out, int * outlen, const uchar* in, int * inlen)
  * block of chars out.
  * Returns the number of bytes written if success, or -1 otherwise
  * The value of @inlen after return is the number of octets consumed
- *     if the return value is positive, else unpredictable.
+ *   if the return value is positive, else unpredictable.
  * The value of @outlen after return is the number of octets consumed.
  */
 int isolat1ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen)
@@ -473,7 +473,7 @@ int isolat1ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen)
  * Returns the number of bytes written if success, -2 if the transcoding fails,
            or -1 otherwise
  * The value of @inlen after return is the number of octets consumed
- *     if the return value is positive, else unpredictable.
+ *   if the return value is positive, else unpredictable.
  * The value of @outlen after return is the number of octets consumed.
  */
 int UTF8Toisolat1(uchar* out, int * outlen, const uchar* in, int * inlen)
@@ -729,9 +729,9 @@ static int UTF8ToUTF16(uchar* outb, int * outlen, const uchar* in, int * inlen)
  * inputed one.
  *
  * Returns the number of bytes written, or -1 if lack of space, or -2
- *     if the transcoding fails (if *in is not a valid utf16 string)
+ *   if the transcoding fails (if *in is not a valid utf16 string)
  * The value of *inlen after return is the number of octets consumed
- *     if the return value is positive, else unpredictable.
+ *   if the return value is positive, else unpredictable.
  */
 static int UTF16BEToUTF8(uchar* out, int * outlen, const uchar* inb, int * inlenb)
 {
@@ -749,7 +749,7 @@ static int UTF16BEToUTF8(uchar* out, int * outlen, const uchar* inb, int * inlen
 	inend = in + inlen;
 	while(in < inend) {
 		if(EncBlk.xmlLittleEndian) {
-			tmp = (uchar*)in;
+			tmp = (uchar *)in;
 			c = *tmp++;
 			c = c << 8;
 			c = c | (uint)*tmp;
@@ -765,7 +765,7 @@ static int UTF16BEToUTF8(uchar* out, int * outlen, const uchar* inb, int * inlen
 				return -2;
 			}
 			if(EncBlk.xmlLittleEndian) {
-				tmp = (uchar*)in;
+				tmp = (uchar *)in;
 				d = *tmp++;
 				d = d << 8;
 				d = d | (uint)*tmp;
@@ -830,7 +830,7 @@ static int UTF16BEToUTF8(uchar* out, int * outlen, const uchar* inb, int * inlen
  * block of chars out.
  *
  * Returns the number of byte written, or -1 by lack of space, or -2
- *     if the transcoding failed.
+ *   if the transcoding failed.
  */
 static int UTF8ToUTF16BE(uchar* outb, int * outlen, const uchar* in, int * inlen)
 {
@@ -946,7 +946,7 @@ static int UTF8ToUTF16BE(uchar* outb, int * outlen, const uchar* in, int * inlen
 /**
  * xmlDetectCharEncoding:
  * @in:  a pointer to the first bytes of the XML entity, must be at least
- *       2 bytes long (at least 4 if encoding is UTF4 variant).
+ *     2 bytes long (at least 4 if encoding is UTF4 variant).
  * @len:  pointer to the length of the buffer
  *
  * Guess the encoding of the entity using the first bytes of the entity content
@@ -1310,7 +1310,7 @@ xmlCharEncodingHandler * xmlNewCharEncodingHandler(const char * name, xmlCharEnc
  * Initialize the char encoding support, it registers the default
  * encoding supported.
  * NOTE: while public, this function usually doesn't need to be called
- *       in normal processing.
+ *     in normal processing.
  */
 void xmlInitCharEncodingHandlers()
 {
@@ -1377,19 +1377,19 @@ xmlCharEncodingHandler * FASTCALL xmlFindCharEncodingHandler(const char * name)
  * @inlen:  the length of @in
  *
  * Returns 0 if success, or
- *     -1 by lack of space, or
- *     -2 if the transcoding fails (for *in is not valid utf8 string or
- *        the result of transformation can't fit into the encoding we want), or
- *     -3 if there the last byte can't form a single output char.
+ *   -1 by lack of space, or
+ *   -2 if the transcoding fails (for *in is not valid utf8 string or
+ *      the result of transformation can't fit into the encoding we want), or
+ *   -3 if there the last byte can't form a single output char.
  *
  * The value of @inlen after return is the number of octets consumed
- *     as the return value is positive, else unpredictable.
+ *   as the return value is positive, else unpredictable.
  * The value of @outlen after return is the number of ocetes consumed.
  */
 static int xmlIconvWrapper(iconv_t cd, uchar * out, int * outlen, const uchar * in, int * inlen)
 {
 	size_t icv_inlen, icv_outlen;
-	const char * icv_in = (const char*)in;
+	const char * icv_in = (const char *)in;
 	char * icv_out = (char *)out;
 	int ret;
 	if((out == NULL) || (outlen == NULL) || (inlen == NULL) || (in == NULL)) {
@@ -1446,18 +1446,18 @@ static int xmlIconvWrapper(iconv_t cd, uchar * out, int * outlen, const uchar * 
  * @inlen:  the length of @in
  *
  * Returns 0 if success, or
- *     -1 by lack of space, or
- *     -2 if the transcoding fails (for *in is not valid utf8 string or
- *        the result of transformation can't fit into the encoding we want), or
- *     -3 if there the last byte can't form a single output char.
+ *   -1 by lack of space, or
+ *   -2 if the transcoding fails (for *in is not valid utf8 string or
+ *      the result of transformation can't fit into the encoding we want), or
+ *   -3 if there the last byte can't form a single output char.
  *
  * The value of @inlen after return is the number of octets consumed
- *     as the return value is positive, else unpredictable.
+ *   as the return value is positive, else unpredictable.
  * The value of @outlen after return is the number of ocetes consumed.
  */
 static int xmlUconvWrapper(uconv_t * cd, int toUnicode, uchar * out, int * outlen, const uchar * in, int * inlen)
 {
-	const char * ucv_in = (const char*)in;
+	const char * ucv_in = (const char *)in;
 	char * ucv_out = (char *)out;
 	UErrorCode err = U_ZERO_ERROR;
 	if((out == NULL) || (outlen == NULL) || (inlen == NULL) || (in == NULL)) {
@@ -1478,7 +1478,7 @@ static int xmlUconvWrapper(uconv_t * cd, int toUnicode, uchar * out, int * outle
 		/* UTF-8 => UTF-16 => encoding */
 		ucnv_convertEx(cd->uconv, cd->utf8, &ucv_out, ucv_out + *outlen, &ucv_in, ucv_in + *inlen, NULL, NULL, NULL, NULL, 0, TRUE, &err);
 	}
-	*inlen = ucv_in - (const char*)in;
+	*inlen = ucv_in - (const char *)in;
 	*outlen = ucv_out - (char *)out;
 	if(U_SUCCESS(err))
 		return 0;
@@ -1509,9 +1509,9 @@ static int xmlUconvWrapper(uconv_t * cd, int toUnicode, uchar * out, int * outle
  * the very first line, i.e. limit itself to 45 chars.
  *
  * Returns the number of byte written if success, or
- *     -1 general error
- *     -2 if the transcoding fails (for *in is not valid utf8 string or
- *        the result of transformation can't fit into the encoding we want), or
+ *   -1 general error
+ *   -2 if the transcoding fails (for *in is not valid utf8 string or
+ *      the result of transformation can't fit into the encoding we want), or
  */
 int xmlCharEncFirstLineInt(xmlCharEncodingHandler * handler, xmlBuffer * out, xmlBuffer * in, int len)
 {
@@ -1589,9 +1589,9 @@ int xmlCharEncFirstLineInt(xmlCharEncodingHandler * handler, xmlBuffer * out, xm
  * the very first line, i.e. limit itself to 45 chars.
  *
  * Returns the number of byte written if success, or
- *     -1 general error
- *     -2 if the transcoding fails (for *in is not valid utf8 string or
- *        the result of transformation can't fit into the encoding we want), or
+ *   -1 general error
+ *   -2 if the transcoding fails (for *in is not valid utf8 string or
+ *      the result of transformation can't fit into the encoding we want), or
  */
 int xmlCharEncFirstLine(xmlCharEncodingHandler * handler, xmlBuffer * out, xmlBuffer * in)
 {
@@ -1609,9 +1609,9 @@ int xmlCharEncFirstLine(xmlCharEncodingHandler * handler, xmlBuffer * out, xmlBu
  * out that a different decoder is needed to process the input.
  *
  * Returns the number of byte written if success, or
- *     -1 general error
- *     -2 if the transcoding fails (for *in is not valid utf8 string or
- *        the result of transformation can't fit into the encoding we want), or
+ *   -1 general error
+ *   -2 if the transcoding fails (for *in is not valid utf8 string or
+ *      the result of transformation can't fit into the encoding we want), or
  */
 int xmlCharEncFirstLineInput(xmlParserInputBuffer * input, int len)
 {
@@ -1716,9 +1716,9 @@ int xmlCharEncFirstLineInput(xmlParserInputBuffer * input, int len)
  * Generic front-end for the encoding handler on parser input
  *
  * Returns the number of byte written if success, or
- *     -1 general error
- *     -2 if the transcoding fails (for *in is not valid utf8 string or
- *        the result of transformation can't fit into the encoding we want), or
+ *   -1 general error
+ *   -2 if the transcoding fails (for *in is not valid utf8 string or
+ *      the result of transformation can't fit into the encoding we want), or
  */
 int xmlCharEncInput(xmlParserInputBuffer * input, int flush)
 {
@@ -1815,9 +1815,9 @@ int xmlCharEncInput(xmlParserInputBuffer * input, int flush)
  * Generic front-end for the encoding handler input function
  *
  * Returns the number of byte written if success, or
- *     -1 general error
- *     -2 if the transcoding fails (for *in is not valid utf8 string or
- *        the result of transformation can't fit into the encoding we want), or
+ *   -1 general error
+ *   -2 if the transcoding fails (for *in is not valid utf8 string or
+ *      the result of transformation can't fit into the encoding we want), or
  */
 int xmlCharEncInFunc(xmlCharEncodingHandler * handler, xmlBuffer * out, xmlBuffer * in)
 {
@@ -1909,9 +1909,9 @@ int xmlCharEncInFunc(xmlCharEncodingHandler * handler, xmlBuffer * out, xmlBuffe
  * the content will be automatically remapped to a CharRef sequence.
  *
  * Returns the number of byte written if success, or
- *     -1 general error
- *     -2 if the transcoding fails (for *in is not valid utf8 string or
- *        the result of transformation can't fit into the encoding we want), or
+ *   -1 general error
+ *   -2 if the transcoding fails (for *in is not valid utf8 string or
+ *      the result of transformation can't fit into the encoding we want), or
  */
 int FASTCALL xmlCharEncOutput(xmlOutputBuffer * output, int init)
 {
@@ -2102,9 +2102,9 @@ retry:
  * the content will be automatically remapped to a CharRef sequence.
  *
  * Returns the number of byte written if success, or
- *     -1 general error
- *     -2 if the transcoding fails (for *in is not valid utf8 string or
- *        the result of transformation can't fit into the encoding we want), or
+ *   -1 general error
+ *   -2 if the transcoding fails (for *in is not valid utf8 string or
+ *      the result of transformation can't fit into the encoding we want), or
  */
 int xmlCharEncOutFunc(xmlCharEncodingHandler * handler, xmlBuffer * out, xmlBuffer * in)
 {
@@ -2298,7 +2298,7 @@ int xmlCharEncCloseFunc(xmlCharEncodingHandler * handler)
  * on non-UTF-8 input.
  *
  * Returns the index in bytes from the beginning of the entity or -1
- *         in case the index could not be computed.
+ *       in case the index could not be computed.
  */
 long xmlByteConsumed(xmlParserCtxt * ctxt)
 {
@@ -2390,7 +2390,7 @@ long xmlByteConsumed(xmlParserCtxt * ctxt)
  *
  * Returns 0 if success, -2 if the transcoding fails, or -1 otherwise
  * The value of @inlen after return is the number of octets consumed
- *     as the return value is positive, else unpredictable.
+ *   as the return value is positive, else unpredictable.
  * The value of @outlen after return is the number of ocetes consumed.
  */
 static int UTF8ToISO8859x(uchar* out, int * outlen, const uchar* in, int * inlen, uchar const * xlattable)
@@ -2577,7 +2577,7 @@ void LibXmlEncoderBlock::InitCharEncodingHandlers()
 {
 	if(!PP_Tab) {
 		ushort tst = 0x1234;
-		uchar * ptr = (uchar*)&tst;
+		uchar * ptr = (uchar *)&tst;
 		PP_Tab = (xmlCharEncodingHandler **)SAlloc::M(MAX_ENCODING_HANDLERS * sizeof(xmlCharEncodingHandler *));
 		if(*ptr == 0x12)
 			xmlLittleEndian = 0;

@@ -427,7 +427,7 @@ struct LZ4F_CDict_s {
 // 
 LZ4F_CDict* LZ4F_createCDict(const void* dictBuffer, size_t dictSize)
 {
-    const char* dictStart = (const char*)dictBuffer;
+    const char* dictStart = (const char *)dictBuffer;
     LZ4F_CDict * cdict = (LZ4F_CDict *)SAlloc::M(sizeof(*cdict));
     //DEBUGLOG(4, "LZ4F_createCDict");
     if(!cdict) return NULL;
@@ -443,9 +443,9 @@ LZ4F_CDict* LZ4F_createCDict(const void* dictBuffer, size_t dictSize)
         return NULL;
     }
     memcpy(cdict->dictContent, dictStart, dictSize);
-    LZ4_loadDict (cdict->fastCtx, (const char*)cdict->dictContent, (int)dictSize);
+    LZ4_loadDict (cdict->fastCtx, (const char *)cdict->dictContent, (int)dictSize);
     LZ4_setCompressionLevel(cdict->HCCtx, LZ4HC_CLEVEL_DEFAULT);
-    LZ4_loadDictHC(cdict->HCCtx, (const char*)cdict->dictContent, (int)dictSize);
+    LZ4_loadDictHC(cdict->HCCtx, (const char *)cdict->dictContent, (int)dictSize);
     return cdict;
 }
 
@@ -653,7 +653,7 @@ static size_t LZ4F_makeBlock(void* dst, const void* src, size_t srcSize, compres
 	const LZ4F_CDict* cdict, LZ4F_blockChecksum_t crcFlag)
 {
     uint8* const cSizePtr = (uint8 *)dst;
-    uint32 cSize = (uint32)compress(lz4ctx, (const char*)src, (char *)(cSizePtr+4), (int)(srcSize), (int)(srcSize-1), level, cdict);
+    uint32 cSize = (uint32)compress(lz4ctx, (const char *)src, (char *)(cSizePtr+4), (int)(srcSize), (int)(srcSize-1), level, cdict);
     LZ4F_writeLE32(cSizePtr, cSize);
     if(cSize == 0) {  /* compression failed */
         cSize = (uint32)srcSize;
@@ -857,7 +857,7 @@ size_t LZ4F_flush(LZ4F_cctx* cctxPtr, void* dstBuffer, size_t dstCapacity, const
  *  but also properly finalize the frame, with an endMark and an (optional) checksum.
  *  LZ4F_compressOptions_t structure is optional : you can provide NULL as argument.
  * @return: the number of bytes written into dstBuffer (necessarily >= 4 (endMark size))
- *       or an error code if it fails (can be tested using LZ4F_isError())
+ *     or an error code if it fails (can be tested using LZ4F_isError())
  *  The context can then be used again to compress a new frame, starting with LZ4F_compressBegin().
  */
 size_t LZ4F_compressEnd(LZ4F_cctx* cctxPtr,
@@ -982,8 +982,8 @@ void LZ4F_resetDecompressionContext(LZ4F_dctx* dctx)
 }
 
 /*! LZ4F_headerSize() :
- *   @return : size of frame header
- *             or an error code, which can be tested using LZ4F_isError()
+ * @return : size of frame header
+ *           or an error code, which can be tested using LZ4F_isError()
  */
 static size_t LZ4F_headerSize(const void* src, size_t srcSize)
 {
@@ -1102,14 +1102,14 @@ static size_t LZ4F_decodeHeader(LZ4F_dctx* dctx, const void* src, size_t srcSize
  *  This function extracts frame parameters (max blockSize, frame checksum, etc.).
  *  Usage is optional. Objective is to provide relevant information for allocation purposes.
  *  This function works in 2 situations :
- *   - At the beginning of a new frame, in which case it will decode this information from `srcBuffer`, and start the decoding process.
- *     Amount of input data provided must be large enough to successfully decode the frame header.
- *     A header size is variable, but is guaranteed to be <= LZ4F_HEADER_SIZE_MAX bytes. It's possible to provide more input data than this minimum.
- *   - After decoding has been started. In which case, no input is read, frame parameters are extracted from dctx.
+ * - At the beginning of a new frame, in which case it will decode this information from `srcBuffer`, and start the decoding process.
+ *   Amount of input data provided must be large enough to successfully decode the frame header.
+ *   A header size is variable, but is guaranteed to be <= LZ4F_HEADER_SIZE_MAX bytes. It's possible to provide more input data than this minimum.
+ * - After decoding has been started. In which case, no input is read, frame parameters are extracted from dctx.
  *  The number of bytes consumed from srcBuffer will be updated within *srcSizePtr (necessarily <= original value).
  *  Decompression must resume from (srcBuffer + *srcSizePtr).
  * @return : an hint about how many srcSize bytes LZ4F_decompress() expects for next call,
- *           or an error code which can be tested using LZ4F_isError()
+ *         or an error code which can be tested using LZ4F_isError()
  *  note 1 : in case of error, dctx is not modified. Decoding operations can resume from where they stopped.
  *  note 2 : frame parameters are *copied into* an already allocated LZ4F_frameInfo_t structure.
  */
@@ -1457,7 +1457,7 @@ size_t LZ4F_decompress(LZ4F_dctx* dctx, void* dstBuffer, size_t* dstSizePtr,
             }   }
 
             if((size_t)(dstEnd-dstPtr) >= dctx->maxBlockSize) {
-                const char* dict = (const char*)dctx->dict;
+                const char* dict = (const char *)dctx->dict;
                 size_t dictSize = dctx->dictSize;
                 int decodedSize;
                 if(dict && dictSize > 1 GB) {
@@ -1467,7 +1467,7 @@ size_t LZ4F_decompress(LZ4F_dctx* dctx, void* dstBuffer, size_t* dstSizePtr,
                 }
                 /* enough capacity in `dst` to decompress directly there */
                 decodedSize = LZ4_decompress_safe_usingDict(
-                        (const char*)selectedIn, (char *)dstPtr,
+                        (const char *)selectedIn, (char *)dstPtr,
                         (int)dctx->tmpInTarget, (int)dctx->maxBlockSize,
                         dict, (int)dictSize);
                 if(decodedSize < 0) return err0r(LZ4F_ERROR_GENERIC);   /* decompression failed */
@@ -1501,7 +1501,7 @@ size_t LZ4F_decompress(LZ4F_dctx* dctx, void* dstBuffer, size_t* dstSizePtr,
             }   }
 
             /* Decode block */
-            {   const char* dict = (const char*)dctx->dict;
+            {   const char* dict = (const char *)dctx->dict;
                 size_t dictSize = dctx->dictSize;
                 int decodedSize;
                 if(dict && dictSize > 1 GB) {
@@ -1510,7 +1510,7 @@ size_t LZ4F_decompress(LZ4F_dctx* dctx, void* dstBuffer, size_t* dstSizePtr,
                     dictSize = 64 KB;
                 }
                 decodedSize = LZ4_decompress_safe_usingDict(
-                        (const char*)selectedIn, (char *)dctx->tmpOut,
+                        (const char *)selectedIn, (char *)dctx->tmpOut,
                         (int)dctx->tmpInTarget, (int)dctx->maxBlockSize,
                         dict, (int)dictSize);
                 if(decodedSize < 0)  /* decompression failed */

@@ -18,13 +18,13 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ *  notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ *  notice, this list of conditions and the following disclaimer in the
+ *  documentation and/or other materials provided with the distribution.
  * 3. Neither the name of the University nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
+ *  may be used to endorse or promote products derived from this software
+ *  without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -1139,9 +1139,9 @@ int __ham_replpair(DBC * dbc, DBT * dbt, uint32 newtype)
 	 * 1. Original data onpage; new data is smaller
 	 * 2. Original data onpage; new data is the same size
 	 * 3. Original data onpage; new data is bigger, but not ISBIG,
-	 *    fits on page
+	 *  fits on page
 	 * 4. Original data onpage; new data is bigger, but not ISBIG,
-	 *    does not fit on page
+	 *  does not fit on page
 	 * 5. Original data onpage; New data is an off-page item.
 	 * 6. Original data was offpage; new item is smaller.
 	 * 7. Original data was offpage; new item is supplied as a partial.
@@ -1219,9 +1219,9 @@ int __ham_replpair(DBC * dbc, DBT * dbt, uint32 newtype)
 		/*
 		 * Cases 4-6 -- two subcases.
 		 * A. This is not really a partial operation, but an overwrite.
-		 *    Simple del and add works.
+		 *  Simple del and add works.
 		 * B. This is a partial and we need to construct the data that
-		 *    we are really inserting (yuck).
+		 *  we are really inserting (yuck).
 		 * In both cases, we need to grab the key off the page (in
 		 * some cases we could do this outside of this routine; for
 		 * cleanliness we do it here.  If you happen to be on a big
@@ -2268,13 +2268,13 @@ int __ham_get_cpage(DBC * dbc, db_lockmode_t mode)
 	/*
 	 * There are four cases with respect to buckets and locks.
 	 * 1. If there is no lock held, then if we are locking, we should
-	 *    get the lock.
+	 *  get the lock.
 	 * 2. If there is a lock held, it's for the current bucket, and it's
-	 *    for the right mode, we don't need to do anything.
+	 *  for the right mode, we don't need to do anything.
 	 * 3. If there is a lock held for the current bucket but it's not
-	 *    strong enough, we need to upgrade.
+	 *  strong enough, we need to upgrade.
 	 * 4. If there is a lock, but it's for a different bucket, then we need
-	 *    to release the existing lock and get a new lock.
+	 *  to release the existing lock and get a new lock.
 	 */
 	LOCK_INIT(tmp_lock);
 	if(STD_LOCKING(dbc)) {

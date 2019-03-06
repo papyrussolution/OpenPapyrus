@@ -320,7 +320,7 @@ static void stdio_write_func(png_structp png, png_bytep data, size_t size)
  * cairo_surface_write_to_png:
  * @surface: a #cairo_surface_t with pixel contents
  * @filename: the name of a file to write to; on Windows this filename
- *   is encoded in UTF-8.
+ * is encoded in UTF-8.
  *
  * Writes the contents of @surface to a new file @filename as a PNG
  * image.
@@ -677,7 +677,7 @@ BAIL:
 /**
  * cairo_image_surface_create_from_png:
  * @filename: name of PNG file to load. On Windows this filename
- *   is encoded in UTF-8.
+ * is encoded in UTF-8.
  *
  * Creates a new image surface and initializes the contents to the
  * given PNG file.

@@ -310,7 +310,7 @@ static int ssl_ui_reader(UI * ui, UI_STRING * uis)
 	switch(UI_get_string_type(uis)) {
 		case UIT_PROMPT:
 		case UIT_VERIFY:
-		    password = (const char*)UI_get0_user_data(ui);
+		    password = (const char *)UI_get0_user_data(ui);
 		    if(password && (UI_get_input_flags(uis) & UI_INPUT_FLAG_DEFAULT_PWD)) {
 			    UI_set_result(ui, uis, password);
 			    return 1;
@@ -761,9 +761,9 @@ void Curl_ossl_cleanup(void)
  * This function is used to determine connection status.
  *
  * Return codes:
- *     1 means the connection is still in place
- *     0 means the connection has been closed
- *    -1 means the connection status is unknown
+ *   1 means the connection is still in place
+ *   0 means the connection has been closed
+ *  -1 means the connection status is unknown
  */
 int Curl_ossl_check_cxn(struct connectdata * conn)
 {
@@ -1180,7 +1180,7 @@ static CURLcode verifyhost(struct connectdata * conn, X509 * server_cert)
 		   distinguished one to get the most significant one. */
 		int j, i = -1;
 		/* The following is done because of a bug in 0.9.6b */
-		uchar * nulstr = (uchar*)"";
+		uchar * nulstr = (uchar *)"";
 		uchar * peer_CN = nulstr;
 		X509_NAME * name = X509_get_subject_name(server_cert);
 		if(name)
@@ -1234,7 +1234,7 @@ static CURLcode verifyhost(struct connectdata * conn, X509 * server_cert)
 			failf(data, "SSL: unable to obtain common name from peer certificate");
 			result = CURLE_PEER_FAILED_VERIFICATION;
 		}
-		else if(!Curl_cert_hostcheck((const char*)peer_CN, hostname)) {
+		else if(!Curl_cert_hostcheck((const char *)peer_CN, hostname)) {
 			failf(data, "SSL: certificate subject name '%s' does not match target host name '%s'", peer_CN, dispname);
 			result = CURLE_PEER_FAILED_VERIFICATION;
 		}
@@ -1513,7 +1513,7 @@ static int select_next_protocol(uchar ** out, uchar * outlen,
 	uint i;
 	for(i = 0; i + keylen <= inlen; i += in[i] + 1) {
 		if(memcmp(&in[i + 1], key, keylen) == 0) {
-			*out = (uchar*)&in[i + 1];
+			*out = (uchar *)&in[i + 1];
 			*outlen = in[i];
 			return 0;
 		}
@@ -1549,7 +1549,7 @@ static int select_next_proto_cb(SSL * ssl,
 	}
 
 	infof(conn->data, "NPN, no overlap, use HTTP1.1\n");
-	*out = (uchar*)ALPN_HTTP_1_1;
+	*out = (uchar *)ALPN_HTTP_1_1;
 	*outlen = ALPN_HTTP_1_1_LENGTH;
 	conn->negnpn = CURL_HTTP_VERSION_1_1;
 

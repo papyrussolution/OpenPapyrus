@@ -207,7 +207,7 @@ static uint32_t * radial_get_scanline_narrow(pixman_iter_t * iter, const uint32_
 	 * A does not depend on p
 	 *
 	 * A < 0 <=> one of the two circles completely contains the other one
-	 *   <=> for every p, the radiuses associated with the two t solutions
+	 * <=> for every p, the radiuses associated with the two t solutions
 	 *  have opposite sign
 	 */
 	pixman_image_t * image = iter->image;

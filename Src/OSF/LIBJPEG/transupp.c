@@ -52,24 +52,24 @@
  * Some notes about the operating environment of the individual transform
  * routines:
  * 1. Both the source and destination virtual arrays are allocated from the
- *    source JPEG object, and therefore should be manipulated by calling the
- *    source's memory manager.
+ *  source JPEG object, and therefore should be manipulated by calling the
+ *  source's memory manager.
  * 2. The destination's component count should be used.  It may be smaller
- *    than the source's when forcing to grayscale.
+ *  than the source's when forcing to grayscale.
  * 3. Likewise the destination's sampling factors should be used.  When
- *    forcing to grayscale the destination's sampling factors will be all 1,
- *    and we may as well take that as the effective iMCU size.
+ *  forcing to grayscale the destination's sampling factors will be all 1,
+ *  and we may as well take that as the effective iMCU size.
  * 4. When "trim" is in effect, the destination's dimensions will be the
- *    trimmed values but the source's will be untrimmed.
+ *  trimmed values but the source's will be untrimmed.
  * 5. When "crop" is in effect, the destination's dimensions will be the
- *    cropped values but the source's will be uncropped.  Each transform
- *    routine is responsible for picking up source data starting at the
- *    correct X and Y offset for the crop region.  (The X and Y offsets
- *    passed to the transform routines are measured in iMCU blocks of the
- *    destination.)
+ *  cropped values but the source's will be uncropped.  Each transform
+ *  routine is responsible for picking up source data starting at the
+ *  correct X and Y offset for the crop region.  (The X and Y offsets
+ *  passed to the transform routines are measured in iMCU blocks of the
+ *  destination.)
  * 6. All the routines assume that the source and destination buffers are
- *    padded out to a full iMCU boundary.  This is true, although for the
- *    source buffer it is an undocumented property of jdcoefct.c.
+ *  padded out to a full iMCU boundary.  This is true, although for the
+ *  source buffer it is an undocumented property of jdcoefct.c.
  */
 
 static void do_crop(j_decompress_ptr srcinfo, j_compress_ptr dstinfo, JDIMENSION x_crop_offset, JDIMENSION y_crop_offset,
@@ -474,8 +474,8 @@ static void do_rot_90(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
     jvirt_barray_ptr *src_coef_arrays,
     jvirt_barray_ptr *dst_coef_arrays)
 /* 90 degree rotation is equivalent to
- *   1. Transposing the image;
- *   2. Horizontal mirroring.
+ * 1. Transposing the image;
+ * 2. Horizontal mirroring.
  * These two steps are merged into a single processing routine.
  */
 {
@@ -545,8 +545,8 @@ static void do_rot_270(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
     jvirt_barray_ptr *src_coef_arrays,
     jvirt_barray_ptr *dst_coef_arrays)
 /* 270 degree rotation is equivalent to
- *   1. Horizontal mirroring;
- *   2. Transposing the image.
+ * 1. Horizontal mirroring;
+ * 2. Transposing the image.
  * These two steps are merged into a single processing routine.
  */
 {
@@ -608,8 +608,8 @@ static void do_rot_180(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
     jvirt_barray_ptr *src_coef_arrays,
     jvirt_barray_ptr *dst_coef_arrays)
 /* 180 degree rotation is equivalent to
- *   1. Vertical mirroring;
- *   2. Horizontal mirroring.
+ * 1. Vertical mirroring;
+ * 2. Horizontal mirroring.
  * These two steps are merged into a single processing routine.
  */
 {
@@ -705,12 +705,12 @@ static void do_transverse(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
     jvirt_barray_ptr *src_coef_arrays,
     jvirt_barray_ptr *dst_coef_arrays)
 /* Transverse transpose is equivalent to
- *   1. 180 degree rotation;
- *   2. Transposition;
+ * 1. 180 degree rotation;
+ * 2. Transposition;
  * or
- *   1. Horizontal mirroring;
- *   2. Transposition;
- *   3. Horizontal mirroring.
+ * 1. Horizontal mirroring;
+ * 2. Transposition;
+ * 3. Horizontal mirroring.
  * These steps are merged into a single processing routine.
  */
 {

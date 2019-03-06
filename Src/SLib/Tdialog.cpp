@@ -511,7 +511,7 @@ SLAPI TDialog::~TDialog()
 {
 	if(P_FontsAry) {
 		for(uint c = 0; c < P_FontsAry->getCount(); c++)
-			::DeleteObject(*(HFONT *)P_FontsAry->at(c));
+			::DeleteObject(*static_cast<HFONT *>(P_FontsAry->at(c)));
 		ZDELETE(P_FontsAry);
 	}
 	ZDELETE(P_SymbList);

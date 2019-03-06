@@ -130,8 +130,8 @@ typedef struct jpeg_error_mgr jpeg_error_mgr;
  * which are common to both.
  *
  * NB: cinfo is required to be the first member of JPEGState,
- *     so we can safely cast JPEGState* -> jpeg_xxx_struct*
- *     and vice versa!
+ *   so we can safely cast JPEGState* -> jpeg_xxx_struct*
+ *   and vice versa!
  */
 typedef struct {
 	union {
@@ -217,7 +217,7 @@ static const TIFFField jpegFields[] = {
  */
 static void TIFFjpeg_error_exit(j_common_ptr cinfo)
 {
-	JPEGState * sp = (JPEGState*)cinfo;     /* NB: cinfo assumed first */
+	JPEGState * sp = reinterpret_cast<JPEGState *>(cinfo);     /* NB: cinfo assumed first */
 	char buffer[JMSG_LENGTH_MAX];
 	(*cinfo->err->format_message)(cinfo, buffer);
 	TIFFErrorExt(sp->tif->tif_clientdata, "JPEGLib", "%s", buffer);         /* display the error message */
@@ -240,9 +240,9 @@ static void TIFFjpeg_output_message(j_common_ptr cinfo)
 /* See http://www.libjpeg-turbo.org/pmwiki/uploads/About/TwoIssueswiththeJPEGStandard.pdf */
 static void TIFFjpeg_progress_monitor(j_common_ptr cinfo)
 {
-	JPEGState * sp = (JPEGState*)cinfo;     /* NB: cinfo assumed first */
+	JPEGState * sp = reinterpret_cast<JPEGState *>(cinfo);     /* NB: cinfo assumed first */
 	if(cinfo->is_decompressor) {
-		const int scan_no = ((j_decompress_ptr)cinfo)->input_scan_number;
+		const int scan_no = reinterpret_cast<j_decompress_ptr>(cinfo)->input_scan_number;
 		if(scan_no >= sp->max_allowed_scan_number) {
 			TIFFErrorExt(((JPEGState*)cinfo)->tif->tif_clientdata, "TIFFjpeg_progress_monitor",
 			    "Scan number %d exceeds maximum scans (%d). This limit can be raised through the LIBTIFF_JPEG_MAX_ALLOWED_SCAN_NUMBER environment variable.",
@@ -339,16 +339,15 @@ static JSAMPARRAY TIFFjpeg_alloc_sarray(JPEGState* sp, int pool_id, JDIMENSION s
  */
 static void std_init_destination(j_compress_ptr cinfo)
 {
-	JPEGState* sp = (JPEGState*)cinfo;
+	JPEGState* sp = reinterpret_cast<JPEGState *>(cinfo);
 	TIFF* tif = sp->tif;
-
 	sp->dest.next_output_byte = (JOCTET*)tif->tif_rawdata;
 	sp->dest.free_in_buffer = (size_t)tif->tif_rawdatasize;
 }
 
 static boolean std_empty_output_buffer(j_compress_ptr cinfo)
 {
-	JPEGState* sp = (JPEGState*)cinfo;
+	JPEGState* sp = reinterpret_cast<JPEGState *>(cinfo);
 	TIFF* tif = sp->tif;
 	/* the entire buffer has been filled */
 	tif->tif_rawcc = tif->tif_rawdatasize;
@@ -357,7 +356,7 @@ static boolean std_empty_output_buffer(j_compress_ptr cinfo)
 	 * The Intel IPP performance library does not necessarily fill up
 	 * the whole output buffer on each pass, so only dump out the parts
 	 * that have been filled.
-	 *   http://trac.osgeo.org/gdal/wiki/JpegIPP
+	 * http://trac.osgeo.org/gdal/wiki/JpegIPP
 	 */
 	if(sp->dest.free_in_buffer >= 0) {
 		tif->tif_rawcc = tif->tif_rawdatasize - sp->dest.free_in_buffer;
@@ -371,7 +370,7 @@ static boolean std_empty_output_buffer(j_compress_ptr cinfo)
 
 static void std_term_destination(j_compress_ptr cinfo)
 {
-	JPEGState* sp = (JPEGState*)cinfo;
+	JPEGState* sp = reinterpret_cast<JPEGState *>(cinfo);
 	TIFF* tif = sp->tif;
 	tif->tif_rawcp = (uint8 *)sp->dest.next_output_byte;
 	tif->tif_rawcc = tif->tif_rawdatasize - (tmsize_t)sp->dest.free_in_buffer;
@@ -391,7 +390,7 @@ static void TIFFjpeg_data_dest(JPEGState* sp, TIFF* tif)
  */
 static void tables_init_destination(j_compress_ptr cinfo)
 {
-	JPEGState* sp = (JPEGState*)cinfo;
+	JPEGState* sp = reinterpret_cast<JPEGState *>(cinfo);
 	/* while building, jpegtables_length is allocated buffer size */
 	sp->dest.next_output_byte = (JOCTET*)sp->jpegtables;
 	sp->dest.free_in_buffer = (size_t)sp->jpegtables_length;
@@ -399,7 +398,7 @@ static void tables_init_destination(j_compress_ptr cinfo)
 
 static boolean tables_empty_output_buffer(j_compress_ptr cinfo)
 {
-	JPEGState* sp = (JPEGState*)cinfo;
+	JPEGState* sp = reinterpret_cast<JPEGState *>(cinfo);
 	void* newbuf;
 	/* the entire buffer has been filled; enlarge it by 1000 bytes */
 	newbuf = SAlloc::R((void *)sp->jpegtables, (tmsize_t)(sp->jpegtables_length + 1000));
@@ -414,7 +413,7 @@ static boolean tables_empty_output_buffer(j_compress_ptr cinfo)
 
 static void tables_term_destination(j_compress_ptr cinfo)
 {
-	JPEGState* sp = (JPEGState*)cinfo;
+	JPEGState* sp = reinterpret_cast<JPEGState *>(cinfo);
 	/* set tables length to number of bytes actually emitted */
 	sp->jpegtables_length -= (uint32)sp->dest.free_in_buffer;
 }
@@ -429,7 +428,7 @@ static int TIFFjpeg_tables_dest(JPEGState* sp, TIFF* tif)
 	if(sp->jpegtables)
 		SAlloc::F(sp->jpegtables);
 	sp->jpegtables_length = 1000;
-	sp->jpegtables = (void *)SAlloc::M((tmsize_t)sp->jpegtables_length);
+	sp->jpegtables = SAlloc::M((tmsize_t)sp->jpegtables_length);
 	if(sp->jpegtables == NULL) {
 		sp->jpegtables_length = 0;
 		TIFFErrorExt(sp->tif->tif_clientdata, "TIFFjpeg_tables_dest", "No space for JPEGTables");
@@ -447,7 +446,7 @@ static int TIFFjpeg_tables_dest(JPEGState* sp, TIFF* tif)
  */
 static void std_init_source(j_decompress_ptr cinfo)
 {
-	JPEGState* sp = (JPEGState*)cinfo;
+	JPEGState* sp = reinterpret_cast<JPEGState *>(cinfo);
 	TIFF* tif = sp->tif;
 	sp->src.next_input_byte = (const JOCTET*)tif->tif_rawdata;
 	sp->src.bytes_in_buffer = (size_t)tif->tif_rawcc;
@@ -455,7 +454,7 @@ static void std_init_source(j_decompress_ptr cinfo)
 
 static boolean std_fill_input_buffer(j_decompress_ptr cinfo)
 {
-	JPEGState* sp = (JPEGState*)cinfo;
+	JPEGState* sp = reinterpret_cast<JPEGState *>(cinfo);
 	static const JOCTET dummy_EOI[2] = { 0xFF, JPEG_EOI };
 
 #ifdef IPPJ_HUFF
@@ -490,7 +489,7 @@ static boolean std_fill_input_buffer(j_decompress_ptr cinfo)
 
 static void std_skip_input_data(j_decompress_ptr cinfo, long num_bytes)
 {
-	JPEGState* sp = (JPEGState*)cinfo;
+	JPEGState* sp = reinterpret_cast<JPEGState *>(cinfo);
 
 	if(num_bytes > 0) {
 		if((size_t)num_bytes > sp->src.bytes_in_buffer) {
@@ -529,7 +528,7 @@ static void TIFFjpeg_data_src(JPEGState* sp)
 
 static void tables_init_source(j_decompress_ptr cinfo)
 {
-	JPEGState* sp = (JPEGState*)cinfo;
+	JPEGState* sp = reinterpret_cast<JPEGState *>(cinfo);
 
 	sp->src.next_input_byte = (const JOCTET*)sp->jpegtables;
 	sp->src.bytes_in_buffer = (size_t)sp->jpegtables_length;
@@ -2252,7 +2251,7 @@ int TIFFInitJPEG(TIFF* tif, int scheme)
             TIFFSetFieldBit(tif, FIELD_JPEGTABLES);
  */
 		sp->jpegtables_length = SIZE_OF_JPEGTABLES;
-		sp->jpegtables = (void *)SAlloc::M(sp->jpegtables_length);
+		sp->jpegtables = SAlloc::M(sp->jpegtables_length);
 		if(sp->jpegtables) {
 			memzero(sp->jpegtables, SIZE_OF_JPEGTABLES);
 		}

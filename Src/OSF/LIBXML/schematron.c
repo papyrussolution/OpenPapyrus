@@ -8,8 +8,8 @@
 /*
  * @todo 
  * + double check the semantic, especially
- *        - multiple rules applying in a single pattern/node
- *        - the semantic of libxml2 patterns vs. XSLT production referenced by the spec.
+ *      - multiple rules applying in a single pattern/node
+ *      - the semantic of libxml2 patterns vs. XSLT production referenced by the spec.
  * + export of results in SVRL
  * + full parsing and coverage of the spec, conformance of the input to the spec
  * + divergences between the draft and the ISO proposed standard :-(
@@ -214,7 +214,7 @@ static void FASTCALL xmlSchematronPErr(xmlSchematronParserCtxtPtr ctxt, xmlNode 
 		schannel = ctxt->serror;
 	}
 	__xmlRaiseError(schannel, channel, data, ctxt, P_Node, XML_FROM_SCHEMASP, error, XML_ERR_ERROR, NULL, 0, 
-		(const char*)str1, (const char*)str2, NULL, 0, 0, msg, str1, str2);
+		(const char *)str1, (const char *)str2, NULL, 0, 0, msg, str1, str2);
 }
 /**
  * xmlSchematronVTypeErrMemory:
@@ -638,7 +638,7 @@ static void xmlSchematronPushInclude(xmlSchematronParserCtxtPtr ctxt, xmlDoc * d
  * Pop an include level. The included document is being freed
  *
  * Returns the node immediately following the include or NULL if the
- *         include list was empty.
+ *       include list was empty.
  */
 static xmlNode * xmlSchematronPopInclude(xmlSchematronParserCtxtPtr ctxt)
 {
@@ -849,7 +849,7 @@ static xmlNode * xmlSchematronLoadInclude(xmlSchematronParserCtxtPtr ctxt, xmlNo
 	/* do the URI base composition, load and find the root */
 	base = xmlNodeGetBase(cur->doc, cur);
 	URI = xmlBuildURI(href, base);
-	doc = xmlReadFile((const char*)URI, NULL, SCHEMATRON_PARSE_OPTIONS);
+	doc = xmlReadFile((const char *)URI, NULL, SCHEMATRON_PARSE_OPTIONS);
 	if(!doc) {
 		xmlSchematronPErr(ctxt, cur, XML_SCHEMAP_FAILED_LOAD, "could not load include '%s'.\n", URI, 0);
 		goto done;
@@ -883,7 +883,7 @@ done:
  * XML Shema struture which can be used to validate instances.
  *
  * Returns the internal XML Schematron structure built from the resource or
- *         NULL in case of error
+ *       NULL in case of error
  */
 xmlSchematronPtr xmlSchematronParse(xmlSchematronParserCtxtPtr ctxt)
 {
@@ -899,7 +899,7 @@ xmlSchematronPtr xmlSchematronParse(xmlSchematronParserCtxtPtr ctxt)
 	 * First step is to parse the input document into an DOM/Infoset
 	 */
 	if(ctxt->URL != NULL) {
-		doc = xmlReadFile((const char*)ctxt->URL, NULL, SCHEMATRON_PARSE_OPTIONS);
+		doc = xmlReadFile((const char *)ctxt->URL, NULL, SCHEMATRON_PARSE_OPTIONS);
 		if(!doc) {
 			xmlSchematronPErr(ctxt, NULL, XML_SCHEMAP_FAILED_LOAD, "xmlSchematronParse: could not load '%s'.\n", ctxt->URL, 0);
 			return 0;
@@ -1061,7 +1061,7 @@ static void xmlSchematronReportOutput(xmlSchematronValidCtxtPtr ctxt ATTRIBUTE_U
  * Build the string being reported to the user.
  *
  * Returns a report string or NULL in case of error. The string needs
- *         to be deallocated by teh caller
+ *       to be deallocated by teh caller
  */
 static xmlChar * xmlSchematronFormatReport(xmlSchematronValidCtxtPtr ctxt, xmlNode * test, xmlNode * cur)
 {
@@ -1151,7 +1151,7 @@ static void xmlSchematronReportSuccess(xmlSchematronValidCtxtPtr ctxt, xmlSchema
 			return;
 		line = xmlGetLineNo(cur);
 		path = xmlGetNodePath(cur);
-		SETIFZ(path, (xmlChar*)cur->name);
+		SETIFZ(path, (xmlChar *)cur->name);
 #if 0
 		if((test->report != NULL) && (test->report[0] != 0))
 			report = test->report;
@@ -1166,7 +1166,7 @@ static void xmlSchematronReportSuccess(xmlSchematronValidCtxtPtr ctxt, xmlSchema
 				report = sstrdup((const xmlChar*)"node failed report");
 			}
 		}
-		snprintf(msg, 999, "%s line %ld: %s\n", (const char*)path, line, (const char*)report);
+		snprintf(msg, 999, "%s line %ld: %s\n", (const char *)path, line, (const char *)report);
 		if(ctxt->flags & XML_SCHEMATRON_OUT_ERROR) {
 			xmlStructuredErrorFunc schannel = NULL;
 			xmlGenericErrorFunc channel = NULL;
@@ -1180,14 +1180,14 @@ static void xmlSchematronReportSuccess(xmlSchematronValidCtxtPtr ctxt, xmlSchema
 			}
 			__xmlRaiseError(schannel, channel, data, NULL, cur, XML_FROM_SCHEMATRONV,
 			    (test->type == XML_SCHEMATRON_ASSERT) ? XML_SCHEMATRONV_ASSERT : XML_SCHEMATRONV_REPORT,
-			    XML_ERR_ERROR, NULL, line, (pattern == NULL) ? NULL : ((const char*)pattern->name),
-			    (const char*)path, (const char*)report, 0, 0, "%s", msg);
+			    XML_ERR_ERROR, NULL, line, (pattern == NULL) ? NULL : ((const char *)pattern->name),
+			    (const char *)path, (const char *)report, 0, 0, "%s", msg);
 		}
 		else {
 			xmlSchematronReportOutput(ctxt, cur, &msg[0]);
 		}
 		SAlloc::F((char *)report);
-		if((path != NULL) && (path != (xmlChar*)cur->name))
+		if((path != NULL) && (path != (xmlChar *)cur->name))
 			SAlloc::F(path);
 	}
 }
@@ -1209,7 +1209,7 @@ static void xmlSchematronReportPattern(xmlSchematronValidCtxtPtr ctxt, xmlSchema
 	}
 	else if(pattern->name) {
 		char msg[1000];
-		snprintf(msg, 999, "Pattern: %s\n", (const char*)pattern->name);
+		snprintf(msg, 999, "Pattern: %s\n", (const char *)pattern->name);
 		xmlSchematronReportOutput(ctxt, NULL, &msg[0]);
 	}
 }
@@ -1385,7 +1385,7 @@ static int xmlSchematronRunTest(xmlSchematronValidCtxtPtr ctxt,
  * Validate a tree instance against the schematron
  *
  * Returns 0 in case of success, -1 in case of internal error
- *         and an error count otherwise.
+ *       and an error count otherwise.
  */
 int xmlSchematronValidateDoc(xmlSchematronValidCtxtPtr ctxt, xmlDoc * instance)
 {

@@ -121,7 +121,7 @@ struct _cairo_observer {
  * ulong as the first parameter. The easiest way to get this
  * is to use:
  *
- *      typedef _my_entry {
+ *    typedef _my_entry {
  *	    cairo_hash_entry_t base;
  *	    ... Remainder of key and value fields here ..
  *	} my_entry_t;
@@ -160,7 +160,7 @@ struct _cairo_array {
 /**
  * _cairo_lcd_filter:
  * @CAIRO_LCD_FILTER_DEFAULT: Use the default LCD filter for
- *   font backend and target device
+ * font backend and target device
  * @CAIRO_LCD_FILTER_NONE: Do not perform LCD filtering
  * @CAIRO_LCD_FILTER_INTRA_PIXEL: Intra-pixel filter
  * @CAIRO_LCD_FILTER_FIR3: FIR filter with a 3x3 kernel

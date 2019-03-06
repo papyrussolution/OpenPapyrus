@@ -24,7 +24,7 @@ int PEM_def_callback(char * buf, int num, int w, void * key)
 	const char * prompt;
 #endif
 	if(key) {
-		i = strlen((const char*)key);
+		i = strlen((const char *)key);
 		i = (i > num) ? num : i;
 		memcpy(buf, key, i);
 		return i;
@@ -261,7 +261,7 @@ int PEM_ASN1_write_bio(i2d_of_void * i2d, const char * name, BIO * bp, void * x,
 	}
 	// dsize + 8 bytes are needed 
 	// actually it needs the cipher block size extra... 
-	data = (uchar*)OPENSSL_malloc((uint)dsize + 20);
+	data = (uchar *)OPENSSL_malloc((uint)dsize + 20);
 	if(data == NULL) {
 		PEMerr(PEM_F_PEM_ASN1_WRITE_BIO, ERR_R_MALLOC_FAILURE);
 		goto err;
@@ -282,7 +282,7 @@ int PEM_ASN1_write_bio(i2d_of_void * i2d, const char * name, BIO * bp, void * x,
 			/* Convert the pass phrase from EBCDIC */
 			ebcdic2ascii(buf, buf, klen);
 #endif
-			kstr = (uchar*)buf;
+			kstr = (uchar *)buf;
 		}
 		RAND_add(data, i, 0); /* put in the RSA key. */
 		OPENSSL_assert(EVP_CIPHER_iv_length(enc) <= (int)sizeof(iv));
@@ -294,7 +294,7 @@ int PEM_ASN1_write_bio(i2d_of_void * i2d, const char * name, BIO * bp, void * x,
 		 */
 		if(!EVP_BytesToKey(enc, EVP_md5(), iv, kstr, klen, 1, key, NULL))
 			goto err;
-		if(kstr == (uchar*)buf)
+		if(kstr == (uchar *)buf)
 			OPENSSL_cleanse(buf, PEM_BUFSIZE);
 		OPENSSL_assert(strlen(objstr) + 23 + 2 * EVP_CIPHER_iv_length(enc) + 13 <= sizeof buf);
 		buf[0] = '\0';
@@ -354,7 +354,7 @@ int PEM_do_header(EVP_CIPHER_INFO * cipher, uchar * data, long * plen, pem_passw
 	/* Convert the pass phrase from EBCDIC */
 	ebcdic2ascii(buf, buf, keylen);
 #endif
-	if(!EVP_BytesToKey(cipher->cipher, EVP_md5(), &(cipher->iv[0]), (uchar*)buf, keylen, 1, key, NULL))
+	if(!EVP_BytesToKey(cipher->cipher, EVP_md5(), &(cipher->iv[0]), (uchar *)buf, keylen, 1, key, NULL))
 		return 0;
 	ctx = EVP_CIPHER_CTX_new();
 	if(!ctx)
@@ -533,7 +533,7 @@ int PEM_write_bio(BIO * bp, const char * name, const char * header,
 			goto err;
 	}
 
-	buf = (uchar*)OPENSSL_malloc(PEM_BUFSIZE * 8);
+	buf = (uchar *)OPENSSL_malloc(PEM_BUFSIZE * 8);
 	if(!buf) {
 		reason = ERR_R_MALLOC_FAILURE;
 		goto err;
@@ -710,12 +710,12 @@ int PEM_read_bio(BIO * bp, char ** name, char ** header, uchar ** data, long * l
 		goto err;
 	}
 	EVP_DecodeInit(ctx);
-	i = EVP_DecodeUpdate(ctx, (uchar*)dataB->data, &bl, (uchar*)dataB->data, bl);
+	i = EVP_DecodeUpdate(ctx, (uchar *)dataB->data, &bl, (uchar *)dataB->data, bl);
 	if(i < 0) {
 		PEMerr(PEM_F_PEM_READ_BIO, PEM_R_BAD_BASE64_DECODE);
 		goto err;
 	}
-	i = EVP_DecodeFinal(ctx, (uchar*)&(dataB->data[bl]), &k);
+	i = EVP_DecodeFinal(ctx, (uchar *)&(dataB->data[bl]), &k);
 	if(i < 0) {
 		PEMerr(PEM_F_PEM_READ_BIO, PEM_R_BAD_BASE64_DECODE);
 		goto err;
@@ -726,7 +726,7 @@ int PEM_read_bio(BIO * bp, char ** name, char ** header, uchar ** data, long * l
 		goto err;
 	*name = nameB->data;
 	*header = headerB->data;
-	*data = (uchar*)dataB->data;
+	*data = (uchar *)dataB->data;
 	*len = bl;
 	OPENSSL_free(nameB);
 	OPENSSL_free(headerB);

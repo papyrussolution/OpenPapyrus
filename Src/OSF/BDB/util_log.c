@@ -8,21 +8,20 @@
 #include "db_config.h"
 #include "db_int.h"
 #pragma hdrstop
-/*
- * __db_util_logset --
- *	Log that we're running.
- */
+// 
+// Log that we're running.
+// 
 int __db_util_logset(const char * progname, char * fname)
 {
 	pid_t pid;
-	FILE * fp;
 	__time64_t now;
 	char time_buf[CTIME_BUFLEN];
-	if((fp = fopen(fname, "w")) == NULL)
+	FILE * fp = fopen(fname, "w");
+	if(fp == NULL)
 		goto err;
 	_time64(&now);
 	__os_id(NULL, &pid, 0);
-	fprintf(fp, "%s: %lu %s", progname, (ulong)pid, __os_ctime(&now, time_buf));
+	fprintf(fp, "%s: %lu %s", progname, static_cast<ulong>(pid), __os_ctime(&now, time_buf));
 	if(fclose(fp) == EOF)
 		goto err;
 	return 0;

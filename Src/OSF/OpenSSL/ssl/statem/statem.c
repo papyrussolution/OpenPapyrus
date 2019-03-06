@@ -114,8 +114,8 @@ void FASTCALL ossl_statem_set_error(SSL * s)
  * Discover whether the current connection is in the error state.
  *
  * Valid return values are:
- *   1: Yes
- *   0: No
+ * 1: Yes
+ * 0: No
  */
 int ossl_statem_in_error(const SSL * s)
 {
@@ -181,16 +181,16 @@ static info_cb get_callback(SSL * s)
  * transitions are as follows:
  *
  * MSG_FLOW_UNINITED     MSG_FLOW_RENEGOTIATE
- *        |                       |
- *        +-----------------------+
- *        v
+ *      |                       |
+ *      +-----------------------+
+ *      v
  * MSG_FLOW_WRITING <---> MSG_FLOW_READING
- *        |
- *        V
+ *      |
+ *      V
  * MSG_FLOW_FINISHED
- *        |
- *        V
- *    [SUCCESS]
+ *      |
+ *      V
+ *  [SUCCESS]
  *
  * We may exit at any point due to an error or NBIO event. If an NBIO event
  * occurs then we restart at the point we left off when we are recalled.
@@ -200,7 +200,7 @@ static info_cb get_callback(SSL * s)
  * into that state at any point in the event that an irrecoverable error occurs.
  *
  * Valid return values are:
- *   1: Success
+ * 1: Success
  * <=0: NBIO or error
  */
 static int FASTCALL state_machine(SSL * s, int server)
@@ -417,12 +417,12 @@ static int grow_init_buf(SSL * s, size_t size)
  * MSG_FLOW_READING. The valid sub-states and transitions are:
  *
  * READ_STATE_HEADER <--+<-------------+
- *        |             |              |
- *        v             |              |
+ *      |             |              |
+ *      v             |              |
  * READ_STATE_BODY -----+-->READ_STATE_POST_PROCESS
- *        |                            |
- *        +----------------------------+
- *        v
+ *      |                            |
+ *      +----------------------------+
+ *      v
  * [SUB_STATE_FINISHED]
  *
  * READ_STATE_HEADER has the responsibility for reading in the message header
@@ -736,8 +736,8 @@ int statem_flush(SSL * s)
  * allowed to be sent in the current handshake state or not.
  *
  * Return values are:
- *   1: Yes (application data allowed)
- *   0: No (application data not allowed)
+ * 1: Yes (application data allowed)
+ * 0: No (application data not allowed)
  */
 int ossl_statem_app_data_allowed(SSL * s)
 {
@@ -784,8 +784,8 @@ void ossl_statem_set_sctp_read_sock(SSL * s, int read_sock)
  * state or not.
  *
  * Return values are:
- *   1: Yes (we are in the read sock state)
- *   0: No (we are not in the read sock state)
+ * 1: Yes (we are in the read sock state)
+ * 0: No (we are not in the read sock state)
  */
 int ossl_statem_in_sctp_read_sock(SSL * s)
 {

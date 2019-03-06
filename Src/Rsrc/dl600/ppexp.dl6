@@ -2534,6 +2534,8 @@ data GoodsReval {
 	PaymBillCode = BillID.PaymBillCode; //
 	PaymBillDate = BillID.PaymBillDate; //
 	fUnlimGoodsOnly = UnlimGoodsOnly(); // Признак того, что в документе - только нелимитированные товары
+	LinkBillCode = LinkBillID.Code;
+	LinkBillDate = LinkBillID.Dt;
 	iteration {
 		link   Goods GoodsID;
 		long   nn;
@@ -2544,22 +2546,12 @@ data GoodsReval {
 		double NewPrice;
 		double Quantity;
 		double OldQtty;   // @v8.1.2
-
-		double VATRate;   // @v8.2.6 Ставка НДС (%)
-		double VATSum;    // @v8.2.6 Сумма НДС
-		double ExcRate;   // @v8.2.6 Ставка акциза (%)
-		double ExcSum;    // @v8.2.6 Сумма акциза
-		double STRate;    // @v8.2.6 Ставка налога с продаж (%)
-		double STSum;     // @v8.2.6 Сумма налога с продаж (при печати ценников - номер товара в альт группе)
-		/*
-		double VATRate;                 // Ставка НДС (%)
-		double VATSum;                  // Сумма НДС
-		double ExcRate;                 // Ставка акциза (%)
-		double ExcSum;                  // Сумма акциза
-		double STRate;                  // Ставка налога с продаж (%)
-		double STSum;                   // Сумма налога с продаж (при печати ценников - номер товара в альт группе)
-		*/
-
+		double VATRate;   // Ставка НДС (%)
+		double VATSum;    // Сумма НДС
+		double ExcRate;   // Ставка акциза (%)
+		double ExcSum;    // Сумма акциза
+		double STRate;    // Ставка налога с продаж (%)
+		double STSum;     // Сумма налога с продаж (при печати ценников - номер товара в альт группе)
 		double VATSumOldCost;
 		double VATSumNewCost;
 		double VATSumOldPrice;
@@ -2574,7 +2566,7 @@ data GoodsReval {
 		//
 		// Descr: Возвращает суммовую величину по строке. Тип величины задается строковым параметром amtSymb[]
 		// Возможные значения amtSymb:
-		//   "qty" | "qtty" | "quantity"
+		//   "qty" | "qtty" | "quantity" абсолютное значение количества
 		//   "cost"
 		//   "costsum"
 		//   "price"
@@ -2591,6 +2583,17 @@ data GoodsReval {
 		//   "pricevatsum"
 		//
 		double GetRowAmount(string amtSymb[32]); // @v10.3.6 @construction
+
+		OldPriceWoVat = GetRowAmount("old-price-wo-vat");
+		OldPriceSumWoVat = GetRowAmount("old-price-sum-wo-vat");
+		OldPriceSum = GetRowAmount("old-price-sum");
+		NewPriceWoVat = GetRowAmount("new-price-wo-vat");
+		NewPriceSumWoVat = GetRowAmount("new-price-sum-wo-vat");
+		NewPriceSum = GetRowAmount("new-price-sum");
+		OldCostVat = GetRowAmount("old-cost-vat");
+		NewCostVat = GetRowAmount("new-cost-vat");
+		OldPriceVat = GetRowAmount("old-price-vat");
+		NewPriceVat = GetRowAmount("new-price-vat");
 	}
 }
 //
@@ -3541,8 +3544,11 @@ data InvoiceData : GoodsBillBase {
 					"---"
 				else
 					GoodsID.ManufID.LocID.CityID.CountryID.Name;
-		ManufCntryCode = GoodsID.GetManufCountryText(2); // @v7.1.12 Цифровой код страны-производителя //
-		UnitCode = GoodsID.UnitID.Code;                  // @v7.1.12 Цифровой код единицы измерения //
+		ManufCntryCode = GoodsID.GetManufCountryText(2); // Цифровой код страны-производителя //
+		UnitCode = GoodsID.UnitID.Code;                  // Цифровой код единицы измерения //
+
+		//TestAmount01 = GetRowAmount("qtty"); // @debug
+		//TestAmount02 = GetRowAmount("pricesum"); // @debug
 	}
 }
 

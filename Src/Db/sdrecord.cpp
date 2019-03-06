@@ -638,7 +638,7 @@ int SdRecord::SetupOffsets()
 		RecSize = 0;
 	}
 	else {
-		F *    p_item;
+		F *  p_item;
 		size_t offs = 0, rec_size = 0;
 		for(uint i = 0; Items.enumItems(&i, (void **)&p_item);) {
 			p_item->InnerOffs = offs;

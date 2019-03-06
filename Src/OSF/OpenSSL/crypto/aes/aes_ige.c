@@ -51,7 +51,7 @@ void AES_ige_encrypt(const uchar * in, uchar * out, size_t length, const AES_KEY
 					aes_block_t * outp = (aes_block_t*)out;
 					for(n = 0; n < N_WORDS; ++n)
 						outp->data[n] = inp->data[n] ^ ivp->data[n];
-					AES_encrypt((uchar*)outp->data, (uchar*)outp->data, key);
+					AES_encrypt((uchar *)outp->data, (uchar *)outp->data, key);
 					for(n = 0; n < N_WORDS; ++n)
 						outp->data[n] ^= iv2p->data[n];
 					ivp = outp;
@@ -73,7 +73,7 @@ void AES_ige_encrypt(const uchar * in, uchar * out, size_t length, const AES_KEY
 					load_block(tmp, in);
 					for(n = 0; n < N_WORDS; ++n)
 						tmp2.data[n] = tmp.data[n] ^ iv.data[n];
-					AES_encrypt((uchar*)tmp2.data, (uchar*)tmp2.data, key);
+					AES_encrypt((uchar *)tmp2.data, (uchar *)tmp2.data, key);
 					for(n = 0; n < N_WORDS; ++n)
 						tmp2.data[n] ^= iv2.data[n];
 					store_block(out, tmp2);
@@ -97,7 +97,7 @@ void AES_ige_encrypt(const uchar * in, uchar * out, size_t length, const AES_KEY
 					aes_block_t * outp = (aes_block_t*)out;
 					for(n = 0; n < N_WORDS; ++n)
 						tmp.data[n] = inp->data[n] ^ iv2p->data[n];
-					AES_decrypt((uchar*)tmp.data, (uchar*)outp->data, key);
+					AES_decrypt((uchar *)tmp.data, (uchar *)outp->data, key);
 					for(n = 0; n < N_WORDS; ++n)
 						outp->data[n] ^= ivp->data[n];
 					ivp = inp;
@@ -120,7 +120,7 @@ void AES_ige_encrypt(const uchar * in, uchar * out, size_t length, const AES_KEY
 					tmp2 = tmp;
 					for(n = 0; n < N_WORDS; ++n)
 						tmp.data[n] ^= iv2.data[n];
-					AES_decrypt((uchar*)tmp.data, (uchar*)tmp.data, key);
+					AES_decrypt((uchar *)tmp.data, (uchar *)tmp.data, key);
 					for(n = 0; n < N_WORDS; ++n)
 						tmp.data[n] ^= iv.data[n];
 					store_block(out, tmp);

@@ -1,7 +1,7 @@
 /*
  * Summary: set of routines to process strings
  * Description: type and interfaces needed for the internal string handling
- *              of the library, especially UTF8 processing.
+ *            of the library, especially UTF8 processing.
  *
  * Copy: See Copyright for the status of this software.
  *

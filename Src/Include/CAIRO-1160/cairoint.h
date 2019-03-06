@@ -399,7 +399,7 @@ struct _cairo_scaled_font_backend {
 	 * The function returns the index of the glyph in the list of glyph names.
 	 * @scaled_font: font
 	 * @glyph_names: the names of each glyph in the Type 1 font in the
-	 *   order they appear in the CharStrings array
+	 * order they appear in the CharStrings array
 	 * @num_glyph_names: the number of names in the glyph_names array
 	 * @glyph_index: the given glyph index
 	 * @glyph_array_index: (index into glyph_names) the glyph name corresponding

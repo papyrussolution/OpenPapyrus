@@ -27,8 +27,8 @@
  * This module implements the well-known Heckbert paradigm for color
  * quantization.  Most of the ideas used here can be traced back to
  * Heckbert's seminal paper
- *   Heckbert, Paul.  "Color Image Quantization for Frame Buffer Display",
- *   Proc. SIGGRAPH '82, Computer Graphics v.16 #3 (July 1982), pp 297-304.
+ * Heckbert, Paul.  "Color Image Quantization for Frame Buffer Display",
+ * Proc. SIGGRAPH '82, Computer Graphics v.16 #3 (July 1982), pp 297-304.
  *
  * In the first pass over the image, we accumulate a histogram showing the
  * usage count of each possible color.  To keep the histogram to a reasonable
@@ -656,7 +656,7 @@ static int find_nearby_colors(j_decompress_ptr cinfo, int minc0, int minc1, int 
 
 	/* For each color in colormap, find:
 	 *  1. its minimum squared-distance to any point in the update box
-	 *     (zero if color is within update box);
+	 *   (zero if color is within update box);
 	 *  2. its maximum squared-distance to any point in the update box.
 	 * Both of these can be found by considering only the corners of the box.
 	 * We save the minimum distance for each color in mindist[];

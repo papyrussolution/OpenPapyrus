@@ -1,11 +1,11 @@
 #ifndef HEADER_CURL_POLARSSL_THREADLOCK_H
 #define HEADER_CURL_POLARSSL_THREADLOCK_H
 /***************************************************************************
- *                                  _   _ ____  _
+ *                                _   _ ____  _
  *  Project                     ___| | | |  _ \| |
- *                             / __| | | | |_) | |
- *                            | (__| |_| |  _ <| |___
- *                             \___|\___/|_| \_\_____|
+ *                           / __| | | | |_) | |
+ *                          | (__| |_| |  _ <| |___
+ *                           \___|\___/|_| \_\_____|
  *
  * Copyright (C) 2013-2015, Daniel Stenberg, <daniel@haxx.se>, et al.
  * Copyright (C) 2010, Hoi-Ho Chan, <hoiho.chan@gmail.com>

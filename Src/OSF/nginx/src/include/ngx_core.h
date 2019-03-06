@@ -132,13 +132,13 @@ struct ngx_variable_value_t {
 
 void FASTCALL ngx_strlow(u_char * dst, const u_char * src, size_t n);
 
-#define ngx_strncmp(s1, s2, n)  strncmp((const char*)s1, (const char*)s2, n)
+#define ngx_strncmp(s1, s2, n)  strncmp((const char *)s1, (const char *)s2, n)
 
 /* msvc and icc7 compile strcmp() to inline loop */
-#define ngx_strcmp(s1, s2)  strcmp((const char*)s1, (const char*)s2)
-#define ngx_strstr(s1, s2)  strstr((const char*)s1, (const char*)s2)
-#define ngx_strlen(s)       strlen((const char*)s)
-#define ngx_strchr(s1, c)   strchr((const char*)s1, (int)c)
+#define ngx_strcmp(s1, s2)  strcmp((const char *)s1, (const char *)s2)
+#define ngx_strstr(s1, s2)  strstr((const char *)s1, (const char *)s2)
+#define ngx_strlen(s)       strlen((const char *)s)
+#define ngx_strchr(s1, c)   strchr((const char *)s1, (int)c)
 
 static ngx_inline u_char * ngx_strlchr(u_char * p, u_char * last, u_char c)
 {
@@ -196,7 +196,7 @@ static ngx_inline u_char * ngx_strlchr(u_char * p, u_char * last, u_char c)
 #define ngx_memmove_Removed(dst, src, n)   (void)memmove(dst, src, n)
 #define ngx_movemem(dst, src, n)   (((u_char*)memmove(dst, src, n)) + (n))
 // msvc and icc7 compile memcmp() to the inline loop 
-#define ngx_memcmp_Removed(s1, s2, n)  memcmp((const char*)s1, (const char*)s2, n)
+#define ngx_memcmp_Removed(s1, s2, n)  memcmp((const char *)s1, (const char *)s2, n)
 
 int SStrDupToNgxStr(ngx_pool_t * pPool, const SString * pSrc, ngx_str_t * pDest);
 
@@ -740,15 +740,15 @@ ngx_int_t ngx_list_init(ngx_list_t * list, ngx_pool_t * pool, ngx_uint_t n, size
  *  part = &list.part;
  *  data = part->elts;
  *  for(i = 0 ;; i++) {
- *      if(i >= part->nelts) {
- *          if(part->next == NULL) {
- *              break;
- *          }
- *          part = part->next;
- *          data = part->elts;
- *          i = 0;
- *      }
- *      ...  data[i] ...
+ *    if(i >= part->nelts) {
+ *        if(part->next == NULL) {
+ *            break;
+ *        }
+ *        part = part->next;
+ *        data = part->elts;
+ *        i = 0;
+ *    }
+ *    ...  data[i] ...
  *  }
  */
 void * FASTCALL ngx_list_push(ngx_list_t * list);
@@ -1048,7 +1048,7 @@ uint32_t ngx_murmur_hash2(u_char *data, size_t len);
 	ngx_int_t ngx_regex_compile(ngx_regex_compile_t * rc);
 	ngx_int_t ngx_regex_exec_array(ngx_array_t * a, ngx_str_t * s, ngx_log_t * log);
 
-	#define ngx_regex_exec(re, s, captures, size) pcre_exec(re->code, re->extra, (const char*)(s)->data, (s)->len, 0, 0, captures, size)
+	#define ngx_regex_exec(re, s, captures, size) pcre_exec(re->code, re->extra, (const char *)(s)->data, (s)->len, 0, 0, captures, size)
 	#define ngx_regex_exec_n      "pcre_exec()"
 	//
 #endif
@@ -1752,9 +1752,9 @@ char * ngx_resolver_strerror(ngx_int_t err);
 //#include <ngx_conf_file.h>
 //
 /*
- *        AAAA  number of arguments
- *      FF      command flags
- *    TT        command type, i.e. HTTP "location" or "server" command
+ *      AAAA  number of arguments
+ *    FF      command flags
+ *  TT        command type, i.e. HTTP "location" or "server" command
  */
 #define NGX_CONF_NOARGS      0x00000001 // The directive does not take any arguments
 #define NGX_CONF_TAKE1       0x00000002 // The directive takes 1 argument
@@ -3253,15 +3253,15 @@ struct /*ngx_event_s*/ngx_event_t {
 #endif
 	/*
 	 * kqueue only:
-	 *   accept:     number of sockets that wait to be accepted
-	 *   read:       bytes to read when event is ready or lowat when event is set with NGX_LOWAT_EVENT flag
-	 *   write:      available space in buffer when event is ready or lowat when event is set with NGX_LOWAT_EVENT flag
+	 * accept:     number of sockets that wait to be accepted
+	 * read:       bytes to read when event is ready or lowat when event is set with NGX_LOWAT_EVENT flag
+	 * write:      available space in buffer when event is ready or lowat when event is set with NGX_LOWAT_EVENT flag
 	 * epoll with EPOLLRDHUP:
-	 *   accept:     1 if accept many, 0 otherwise
-	 *   read:       1 if there can be data to read, 0 otherwise
+	 * accept:     1 if accept many, 0 otherwise
+	 * read:       1 if there can be data to read, 0 otherwise
 	 * iocp: TODO
 	 * otherwise:
-	 *   accept:     1 if accept many, 0 otherwise
+	 * accept:     1 if accept many, 0 otherwise
 	 */
 #if (NGX_HAVE_KQUEUE) || (NGX_HAVE_IOCP)
 	int available;
@@ -3358,11 +3358,11 @@ extern ngx_event_actions_t ngx_event_actions; // @global
  * The event filter is deleted just before the closing file.
  * Has no meaning for select and poll.
  * kqueue, epoll, eventport:         allows to avoid explicit delete,
- *                                   because filter automatically is deleted
- *                                   on file close,
+ *                                 because filter automatically is deleted
+ *                                 on file close,
  *
  * /dev/poll:                        we need to flush POLLREMOVE event
- *                                   before closing file.
+ *                                 before closing file.
  */
 #define NGX_CLOSE_EVENT    1
 #define NGX_DISABLE_EVENT  2 // disable temporarily event filter, this may avoid locks in kernel malloc()/free(): kqueue.

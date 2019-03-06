@@ -482,7 +482,7 @@ static void xmlMemContentShow(FILE * fp, MEMHDR * p)
 		return;
 	}
 	len = p->mh_size;
-	buf = (const char*)HDR_2_CLIENT(p);
+	buf = (const char *)HDR_2_CLIENT(p);
 	for(i = 0; i < len; i++) {
 		if(buf[i] == 0) 
 			break;
@@ -530,7 +530,7 @@ static void xmlMemContentShow(FILE * fp, MEMHDR * p)
 /**
  * xmlMemDisplayLast:
  * @fp:  a FILE descriptor used as the output file, if NULL, the result is
- *       written to the file .memorylist
+ *     written to the file .memorylist
  * @nbBytes: the amount of memory to dump
  *
  * the last nbBytes of memory allocated and not freed, useful for dumping
@@ -602,7 +602,7 @@ void xmlMemDisplayLast(FILE * fp, long nbBytes)
 /**
  * xmlMemDisplay:
  * @fp:  a FILE descriptor used as the output file, if NULL, the result is
- *       written to the file .memorylist
+ *     written to the file .memorylist
  *
  * show in-extenso the memory blocks allocated
  */

@@ -31,7 +31,7 @@ static inline int __crdel_metasub_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __crdel_metasub_desc, sizeof(__crdel_metasub_args), (void**)arg));
+	    dbpp, td, data, __crdel_metasub_desc, sizeof(__crdel_metasub_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___crdel_inmem_create	138
 typedef struct ___crdel_inmem_create_args {
@@ -63,7 +63,7 @@ static inline int __crdel_inmem_create_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    NULL, NULL, data, __crdel_inmem_create_desc, sizeof(__crdel_inmem_create_args), (void**)arg));
+	    NULL, NULL, data, __crdel_inmem_create_desc, sizeof(__crdel_inmem_create_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___crdel_inmem_rename	139
 typedef struct ___crdel_inmem_rename_args {
@@ -93,7 +93,7 @@ static inline int __crdel_inmem_rename_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    NULL, NULL, data, __crdel_inmem_rename_desc, sizeof(__crdel_inmem_rename_args), (void**)arg));
+	    NULL, NULL, data, __crdel_inmem_rename_desc, sizeof(__crdel_inmem_rename_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___crdel_inmem_remove	140
 typedef struct ___crdel_inmem_remove_args {
@@ -122,6 +122,6 @@ static inline int __crdel_inmem_remove_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    NULL, NULL, data, __crdel_inmem_remove_desc, sizeof(__crdel_inmem_remove_args), (void**)arg));
+	    NULL, NULL, data, __crdel_inmem_remove_desc, sizeof(__crdel_inmem_remove_args), reinterpret_cast<void **>(arg)));
 }
 #endif

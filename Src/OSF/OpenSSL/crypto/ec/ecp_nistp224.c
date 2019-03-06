@@ -14,7 +14,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -113,22 +113,22 @@ static const felem_bytearray nistp224_curve_params[5] = {
  * The table has 2 * 16 elements, starting with the following:
  * index | bits    | point
  * ------+---------+------------------------------
- *     0 | 0 0 0 0 | 0G
- *     1 | 0 0 0 1 | 1G
- *     2 | 0 0 1 0 | 2^56G
- *     3 | 0 0 1 1 | (2^56 + 1)G
- *     4 | 0 1 0 0 | 2^112G
- *     5 | 0 1 0 1 | (2^112 + 1)G
- *     6 | 0 1 1 0 | (2^112 + 2^56)G
- *     7 | 0 1 1 1 | (2^112 + 2^56 + 1)G
- *     8 | 1 0 0 0 | 2^168G
- *     9 | 1 0 0 1 | (2^168 + 1)G
- *    10 | 1 0 1 0 | (2^168 + 2^56)G
- *    11 | 1 0 1 1 | (2^168 + 2^56 + 1)G
- *    12 | 1 1 0 0 | (2^168 + 2^112)G
- *    13 | 1 1 0 1 | (2^168 + 2^112 + 1)G
- *    14 | 1 1 1 0 | (2^168 + 2^112 + 2^56)G
- *    15 | 1 1 1 1 | (2^168 + 2^112 + 2^56 + 1)G
+ *   0 | 0 0 0 0 | 0G
+ *   1 | 0 0 0 1 | 1G
+ *   2 | 0 0 1 0 | 2^56G
+ *   3 | 0 0 1 1 | (2^56 + 1)G
+ *   4 | 0 1 0 0 | 2^112G
+ *   5 | 0 1 0 1 | (2^112 + 1)G
+ *   6 | 0 1 1 0 | (2^112 + 2^56)G
+ *   7 | 0 1 1 1 | (2^112 + 2^56 + 1)G
+ *   8 | 1 0 0 0 | 2^168G
+ *   9 | 1 0 0 1 | (2^168 + 1)G
+ *  10 | 1 0 1 0 | (2^168 + 2^56)G
+ *  11 | 1 0 1 1 | (2^168 + 2^56 + 1)G
+ *  12 | 1 1 0 0 | (2^168 + 2^112)G
+ *  13 | 1 1 0 1 | (2^168 + 2^112 + 1)G
+ *  14 | 1 1 1 0 | (2^168 + 2^112 + 2^56)G
+ *  15 | 1 1 1 1 | (2^168 + 2^112 + 2^56 + 1)G
  * followed by a copy of this with each element multiplied by 2^28.
  *
  * The reason for this is so that we can clock bits into four different
@@ -362,7 +362,7 @@ static BIGNUM * felem_to_BN(BIGNUM * out, const felem in)
 
 /******************************************************************************/
 /*-
- *                              FIELD OPERATIONS
+ *                            FIELD OPERATIONS
  *
  * Field operations, using the internal representation of field elements.
  * NB! These operations are specific to our point multiplication and cannot be
@@ -806,7 +806,7 @@ static void copy_conditional(felem out, const felem in, limb icopy)
 
 /******************************************************************************/
 /*-
- *                       ELLIPTIC CURVE POINT OPERATIONS
+ *                     ELLIPTIC CURVE POINT OPERATIONS
  *
  * Points are represented in Jacobian projective coordinates:
  * (X, Y, Z) corresponds to the affine point (X/Z^2, Y/Z^3),
@@ -899,7 +899,7 @@ static void point_double(felem x_out, felem y_out, felem z_out,
  * X_3 = (Z_1^3 * Y_2 - Z_2^3 * Y_1)^2 - (Z_1^2 * X_2 - Z_2^2 * X_1)^3 -
  * 2 * Z_2^2 * X_1 * (Z_1^2 * X_2 - Z_2^2 * X_1)^2
  * Y_3 = (Z_1^3 * Y_2 - Z_2^3 * Y_1) * (Z_2^2 * X_1 * (Z_1^2 * X_2 - Z_2^2 * X_1)^2 - X_3) -
- *        Z_2^3 * Y_1 * (Z_1^2 * X_2 - Z_2^2 * X_1)^3
+ *      Z_2^3 * Y_1 * (Z_1^2 * X_2 - Z_2^2 * X_1)^3
  * Z_3 = (Z_1^2 * X_2 - Z_2^2 * X_1) * (Z_1 * Z_2)
  *
  * This runs faster if 'mixed' is set, which requires Z_2 = 1 or Z_2 = 0.

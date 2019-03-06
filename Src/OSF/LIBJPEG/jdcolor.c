@@ -106,7 +106,7 @@ typedef my_color_deconverter * my_cconvert_ptr;
 static void build_ycc_rgb_table(j_decompress_ptr cinfo)
 /* Normal case, sYCC */
 {
-	my_cconvert_ptr cconvert = (my_cconvert_ptr)cinfo->cconvert;
+	my_cconvert_ptr cconvert = reinterpret_cast<my_cconvert_ptr>(cinfo->cconvert);
 	int i;
 	INT32 x;
 	SHIFT_TEMPS
@@ -132,7 +132,7 @@ static void build_ycc_rgb_table(j_decompress_ptr cinfo)
 static void build_bg_ycc_rgb_table(j_decompress_ptr cinfo)
 /* Wide gamut case, bg-sYCC */
 {
-	my_cconvert_ptr cconvert = (my_cconvert_ptr)cinfo->cconvert;
+	my_cconvert_ptr cconvert = reinterpret_cast<my_cconvert_ptr>(cinfo->cconvert);
 	int i;
 	INT32 x;
 	SHIFT_TEMPS
@@ -166,7 +166,7 @@ static void build_bg_ycc_rgb_table(j_decompress_ptr cinfo)
  */
 METHODDEF(void) ycc_rgb_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION input_row, JSAMPARRAY output_buf, int num_rows)
 {
-	my_cconvert_ptr cconvert = (my_cconvert_ptr)cinfo->cconvert;
+	my_cconvert_ptr cconvert = reinterpret_cast<my_cconvert_ptr>(cinfo->cconvert);
 	int y, cb, cr;
 	JSAMPROW outptr;
 	JSAMPROW inptr0, inptr1, inptr2;
@@ -207,7 +207,7 @@ METHODDEF(void) ycc_rgb_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JD
  */
 static void build_rgb_y_table(j_decompress_ptr cinfo)
 {
-	my_cconvert_ptr cconvert = (my_cconvert_ptr)cinfo->cconvert;
+	my_cconvert_ptr cconvert = reinterpret_cast<my_cconvert_ptr>(cinfo->cconvert);
 	INT32 * rgb_y_tab;
 	INT32 i;
 	/* Allocate and fill in the conversion tables. */
@@ -225,7 +225,7 @@ static void build_rgb_y_table(j_decompress_ptr cinfo)
 
 METHODDEF(void) rgb_gray_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION input_row, JSAMPARRAY output_buf, int num_rows)
 {
-	my_cconvert_ptr cconvert = (my_cconvert_ptr)cinfo->cconvert;
+	my_cconvert_ptr cconvert = reinterpret_cast<my_cconvert_ptr>(cinfo->cconvert);
 	INT32 * ctab = cconvert->rgb_y_tab;
 	int r, g, b;
 	JSAMPROW outptr;
@@ -290,7 +290,7 @@ METHODDEF(void) rgb1_rgb_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, J
  */
 METHODDEF(void) rgb1_gray_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION input_row, JSAMPARRAY output_buf, int num_rows)
 {
-	my_cconvert_ptr cconvert = (my_cconvert_ptr)cinfo->cconvert;
+	my_cconvert_ptr cconvert = reinterpret_cast<my_cconvert_ptr>(cinfo->cconvert);
 	INT32 * ctab = cconvert->rgb_y_tab;
 	int r, g, b;
 	JSAMPROW outptr;
@@ -405,7 +405,7 @@ METHODDEF(void) gray_rgb_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, J
  */
 METHODDEF(void) ycck_cmyk_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION input_row, JSAMPARRAY output_buf, int num_rows)
 {
-	my_cconvert_ptr cconvert = (my_cconvert_ptr)cinfo->cconvert;
+	my_cconvert_ptr cconvert = reinterpret_cast<my_cconvert_ptr>(cinfo->cconvert);
 	int y, cb, cr;
 	JSAMPROW outptr;
 	JSAMPROW inptr0, inptr1, inptr2, inptr3;

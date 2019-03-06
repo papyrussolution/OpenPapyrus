@@ -55,7 +55,7 @@
 #include "cairo-surface-backend-private.h"
 #include "cairo-surface-offset-private.h"
 #include "cairo-surface-observer-private.h"
-#include "cairo-surface-snapshot-inline.h"
+//#include "cairo-surface-snapshot-inline.h"
 #include "cairo-surface-subsurface-inline.h"
 
 #define PIXMAN_MAX_INT ((pixman_fixed_1 >> 1) - pixman_fixed_e) /* need to ensure deltas also fit */

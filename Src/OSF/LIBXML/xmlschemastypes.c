@@ -1,6 +1,6 @@
 /*
  * schemastypes.c : implementation of the XML Schema Datatypes
- *             definition and validity checking
+ *           definition and validity checking
  *
  * See Copyright for the status of this software.
  *
@@ -671,7 +671,7 @@ xmlSchemaValPtr xmlSchemaValueGetNext(xmlSchemaValPtr cur)
  * Accessor for the string value of a computed value.
  *
  * Returns the string value or NULL if there was none, or on
- *         API errors.
+ *       API errors.
  */
 const xmlChar * xmlSchemaValueGetAsString(xmlSchemaValPtr val)
 {
@@ -734,7 +734,7 @@ xmlSchemaValPtr xmlSchemaNewStringValue(xmlSchemaValType type, const xmlChar * v
 	}
 	memzero(val, sizeof(xmlSchemaVal));
 	val->type = type;
-	val->value.str = (xmlChar*)value;
+	val->value.str = (xmlChar *)value;
 	return val;
 }
 
@@ -752,9 +752,9 @@ xmlSchemaValPtr xmlSchemaNewNOTATIONValue(const xmlChar * name, const xmlChar * 
 {
 	xmlSchemaValPtr val = xmlSchemaNewValue(XML_SCHEMAS_NOTATION);
 	if(val) {
-		val->value.qname.name = (xmlChar*)name;
+		val->value.qname.name = (xmlChar *)name;
 		if(ns)
-			val->value.qname.uri = (xmlChar*)ns;
+			val->value.qname.uri = (xmlChar *)ns;
 	}
 	return val;
 }
@@ -773,8 +773,8 @@ xmlSchemaValPtr xmlSchemaNewQNameValue(const xmlChar * namespaceName, const xmlC
 {
 	xmlSchemaValPtr val = xmlSchemaNewValue(XML_SCHEMAS_QNAME);
 	if(val) {
-		val->value.qname.name = (xmlChar*)localName;
-		val->value.qname.uri = (xmlChar*)namespaceName;
+		val->value.qname.name = (xmlChar *)localName;
+		val->value.qname.uri = (xmlChar *)namespaceName;
 	}
 	return val;
 }
@@ -1274,7 +1274,7 @@ static int FASTCALL _xmlSchemaBase64Decode(const xmlChar ch)
  * if true a value is computed and returned in @val.
  *
  * Returns 0 if this validates, a positive error code number otherwise
- *         and -1 in case of internal or API error.
+ *       and -1 in case of internal or API error.
  */
 static int xmlSchemaValidateDates(xmlSchemaValType type,
     const xmlChar * dateTime, xmlSchemaValPtr * val,
@@ -1492,7 +1492,7 @@ error:
  * if true a value is computed and returned in @val.
  *
  * Returns 0 if this validates, a positive error code number otherwise
- *         and -1 in case of internal or API error.
+ *       and -1 in case of internal or API error.
  */
 static int xmlSchemaValidateDuration(xmlSchemaTypePtr type ATTRIBUTE_UNUSED,
     const xmlChar * duration, xmlSchemaValPtr * val,
@@ -1646,7 +1646,7 @@ xmlChar * xmlSchemaWhiteSpaceReplace(const xmlChar * value)
 		return 0;
 	ret = sstrdup(value);
 	/* @todo FIXME: I guess gcc will bark at this. */
-	mcur = (xmlChar*)(ret + (cur - value));
+	mcur = (xmlChar *)(ret + (cur - value));
 	do {
 		if(((*mcur) == 0xd) || ((*mcur) == 0x9) || ((*mcur) == 0xa) )
 			*mcur = ' ';
@@ -1694,7 +1694,7 @@ xmlChar * xmlSchemaCollapseString(const xmlChar * value) {
 	start = sstrdup(start);
 	if(start == NULL) 
 		return 0;
-	g = (xmlChar*)(start + col);
+	g = (xmlChar *)(start + col);
 	end = g;
 	while(*end != 0) {
 		if(IS_BLANK_CH(*end)) {
@@ -1707,7 +1707,7 @@ xmlChar * xmlSchemaCollapseString(const xmlChar * value) {
 			*g++ = *end++;
 	}
 	*g = 0;
-	return((xmlChar*)start);
+	return((xmlChar *)start);
 }
 
 /**
@@ -1721,7 +1721,7 @@ xmlChar * xmlSchemaCollapseString(const xmlChar * value) {
  * list type. if true a value is computed and returned in @ret.
  *
  * Returns the number of items if this validates, a negative error code
- *         number otherwise
+ *       number otherwise
  */
 static int xmlSchemaValAtomicListNode(xmlSchemaTypePtr type, const xmlChar * value, xmlSchemaValPtr * ret, xmlNodePtr P_Node) 
 {
@@ -1843,7 +1843,7 @@ static int xmlSchemaParseUInt(const xmlChar ** str, ulong * llo, ulong * lmi, ul
  * This checks the value space for list types as well (IDREFS, NMTOKENS).
  *
  * Returns 0 if this validates, a positive error code number otherwise
- *         and -1 in case of internal or API error.
+ *       and -1 in case of internal or API error.
  */
 static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value, xmlSchemaValPtr * val, xmlNode * pNode, int flags,
     xmlSchemaWhitespaceValueType ws, int normOnTheFly, int applyNorm, int createStringValue)
@@ -2229,7 +2229,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value, 
 					     * value for extremely high/low values.
 					     * E.g. "1E-149" results in zero.
 					     */
-					    if(sscanf((const char*)value, "%f",
+					    if(sscanf((const char *)value, "%f",
 							    &(v->value.f)) == 1) {
 						    *val = v;
 					    }
@@ -2249,7 +2249,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value, 
 					     * @todo sscanf seems not to give the correct
 					     * value for extremely high/low values.
 					     */
-					    if(sscanf((const char*)value, "%lf",
+					    if(sscanf((const char *)value, "%lf",
 							    &(v->value.d)) == 1) {
 						    *val = v;
 					    }
@@ -2638,7 +2638,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value, 
 					    *cur == '{' || *cur == '}' || *cur == '|' || *cur == '\\' || *cur == '^' || *cur == '`' || *cur == '\'')
 					    *cur = '_';
 			    }
-			    uri = xmlParseURI((const char*)tmpval);
+			    uri = xmlParseURI((const char *)tmpval);
 			    SAlloc::F(tmpval);
 			    if(!uri)
 				    goto return1;
@@ -2689,13 +2689,13 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value, 
 				    goto return1;
 			    }
 			    total = i / 2; /* number of octets */
-			    base = (xmlChar*)cur;
+			    base = (xmlChar *)cur;
 			    while(i-- > 0) {
 				    if(*base >= 'a')
 					    *base = *base - ('a' - 'A');
 				    base++;
 			    }
-			    v->value.hex.str = (xmlChar*)cur;
+			    v->value.hex.str = (xmlChar *)cur;
 			    v->value.hex.total = total;
 			    *val = v;
 		    }
@@ -2798,7 +2798,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value, 
 			    v = xmlSchemaNewValue(XML_SCHEMAS_BASE64BINARY);
 			    if(!v)
 				    goto error;
-			    base = (xmlChar*)SAlloc::M((i + pad + 1) * sizeof(xmlChar));
+			    base = (xmlChar *)SAlloc::M((i + pad + 1) * sizeof(xmlChar));
 			    if(base == NULL) {
 				    xmlSchemaTypeErrMemory(pNode, "allocating base64 data");
 				    SAlloc::F(v);
@@ -3044,7 +3044,7 @@ error:
  * if true a value is computed and returned in @val.
  *
  * Returns 0 if this validates, a positive error code number otherwise
- *         and -1 in case of internal or API error.
+ *       and -1 in case of internal or API error.
  */
 int xmlSchemaValPredefTypeNode(xmlSchemaTypePtr type, const xmlChar * value,
     xmlSchemaValPtr * val, xmlNodePtr P_Node) {
@@ -3064,7 +3064,7 @@ int xmlSchemaValPredefTypeNode(xmlSchemaTypePtr type, const xmlChar * value,
  * This one does apply any normalization to the value.
  *
  * Returns 0 if this validates, a positive error code number otherwise
- *         and -1 in case of internal or API error.
+ *       and -1 in case of internal or API error.
  */
 int xmlSchemaValPredefTypeNodeNoNorm(xmlSchemaTypePtr type, const xmlChar * value,
     xmlSchemaValPtr * val, xmlNodePtr P_Node) {
@@ -3082,7 +3082,7 @@ int xmlSchemaValPredefTypeNodeNoNorm(xmlSchemaTypePtr type, const xmlChar * valu
  * if true a value is computed and returned in @val.
  *
  * Returns 0 if this validates, a positive error code number otherwise
- *         and -1 in case of internal or API error.
+ *       and -1 in case of internal or API error.
  */
 int xmlSchemaValidatePredefinedType(xmlSchemaTypePtr type, const xmlChar * value,
     xmlSchemaValPtr * val) {
@@ -3144,12 +3144,12 @@ static int xmlSchemaCompareDecimals(xmlSchemaValPtr x, xmlSchemaValPtr y)
 	integy = y->value.decimal.total - y->value.decimal.frac;
 	/*
 	 * NOTE: We changed the "total" for values like "0.1"
-	 *   (or "-0.1" or ".1") to be 1, which was 2 previously.
-	 *   Therefore the special case, when such values are
-	 *   compared with 0, needs to be handled separately;
-	 *   otherwise a zero would be recognized incorrectly as
-	 *   greater than those values. This has the nice side effect
-	 *   that we gain an overall optimized comparison with zeroes.
+	 * (or "-0.1" or ".1") to be 1, which was 2 previously.
+	 * Therefore the special case, when such values are
+	 * compared with 0, needs to be handled separately;
+	 * otherwise a zero would be recognized incorrectly as
+	 * greater than those values. This has the nice side effect
+	 * that we gain an overall optimized comparison with zeroes.
 	 * Note that a "0" has a "total" of 1 already.
 	 */
 	if(integx == 1) {
@@ -4847,7 +4847,7 @@ int xmlSchemaValidateLengthFacetWhtsp(xmlSchemaFacetPtr facet, xmlSchemaValType 
  * Check a value against a facet condition
  *
  * Returns 0 if the element is schemas valid, a positive error code
- *     number otherwise and -1 in case of internal or API error.
+ *   number otherwise and -1 in case of internal or API error.
  */
 static int xmlSchemaValidateFacetInternal(xmlSchemaFacetPtr facet, xmlSchemaWhitespaceValueType fws, xmlSchemaValType valType,
     const xmlChar * value, xmlSchemaValPtr val, xmlSchemaWhitespaceValueType ws)
@@ -5037,7 +5037,7 @@ static int xmlSchemaValidateFacetInternal(xmlSchemaFacetPtr facet, xmlSchemaWhit
  * Check a value against a facet condition
  *
  * Returns 0 if the element is schemas valid, a positive error code
- *     number otherwise and -1 in case of internal or API error.
+ *   number otherwise and -1 in case of internal or API error.
  */
 int xmlSchemaValidateFacet(xmlSchemaTypePtr base, xmlSchemaFacetPtr facet, const xmlChar * value, xmlSchemaValPtr val)
 {
@@ -5068,7 +5068,7 @@ int xmlSchemaValidateFacet(xmlSchemaTypePtr base, xmlSchemaFacetPtr facet, const
  * is of type "pattern".
  *
  * Returns 0 if the element is schemas valid, a positive error code
- *     number otherwise and -1 in case of internal or API error.
+ *   number otherwise and -1 in case of internal or API error.
  */
 int xmlSchemaValidateFacetWhtsp(xmlSchemaFacetPtr facet, xmlSchemaWhitespaceValueType fws, xmlSchemaValType valType,
     const xmlChar * value, xmlSchemaValPtr val, xmlSchemaWhitespaceValueType ws)
@@ -5223,9 +5223,9 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		    }
 		    else {
 			    *retValue = sstrdup(BAD_CAST "{");
-			    *retValue = BAD_CAST xmlStrcat((xmlChar*)(*retValue), BAD_CAST val->value.qname.uri);
-			    *retValue = BAD_CAST xmlStrcat((xmlChar*)(*retValue), BAD_CAST "}");
-			    *retValue = BAD_CAST xmlStrcat((xmlChar*)(*retValue), BAD_CAST val->value.qname.uri);
+			    *retValue = BAD_CAST xmlStrcat((xmlChar *)(*retValue), BAD_CAST val->value.qname.uri);
+			    *retValue = BAD_CAST xmlStrcat((xmlChar *)(*retValue), BAD_CAST "}");
+			    *retValue = BAD_CAST xmlStrcat((xmlChar *)(*retValue), BAD_CAST val->value.qname.uri);
 		    }
 		    break;
 		case XML_SCHEMAS_DECIMAL:
@@ -5317,7 +5317,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 			    /* Add room for the decimal point as well. */
 			    if(dec.sign)
 				    bufsize++;
-			    *retValue = (xmlChar*)SAlloc::M(bufsize);
+			    *retValue = (xmlChar *)SAlloc::M(bufsize);
 			    if(*retValue == NULL)
 				    return -1;
 			    if(dec.hi != 0) {

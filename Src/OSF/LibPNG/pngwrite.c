@@ -795,9 +795,9 @@ void PNGAPI png_write_row(png_structrp png_ptr, png_const_bytep row)
 	/* Write filter_method 64 (intrapixel differencing) only if
 	 * 1. Libpng was compiled with PNG_MNG_FEATURES_SUPPORTED and
 	 * 2. Libpng did not write a PNG signature (this filter_method is only
-	 *    used in PNG datastreams that are embedded in MNG datastreams) and
+	 *  used in PNG datastreams that are embedded in MNG datastreams) and
 	 * 3. The application called png_permit_mng_features with a mask that
-	 *    included PNG_FLAG_MNG_FILTER_64 and
+	 *  included PNG_FLAG_MNG_FILTER_64 and
 	 * 4. The filter_method is 64 and
 	 * 5. The color_type is RGB or RGBA
 	 */

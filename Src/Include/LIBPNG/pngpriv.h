@@ -139,8 +139,8 @@
 	 * to be broken.  This is controlled by PNG_ARM_NEON_IMPLEMENTATION which can
 	 * be:
 	 *
-	 *    1  The intrinsics code (the default with __ARM_NEON__)
-	 *    2  The hand coded assembler (the default without __ARM_NEON__)
+	 *  1  The intrinsics code (the default with __ARM_NEON__)
+	 *  2  The hand coded assembler (the default without __ARM_NEON__)
 	 *
 	 * It is possible to set PNG_ARM_NEON_IMPLEMENTATION in CPPFLAGS, however
 	 * this is *NOT* supported and may cease to work even after a minor revision
@@ -351,11 +351,11 @@
  * default is just to use PNG_LIBPNG_BUILD_BASE_TYPE.  Set this in CPPFLAGS
  * with either:
  *
- *   -DPNG_RELEASE_BUILD Turns on the release compile path
- *   -DPNG_RELEASE_BUILD=0 Turns it off
+ * -DPNG_RELEASE_BUILD Turns on the release compile path
+ * -DPNG_RELEASE_BUILD=0 Turns it off
  * or in your pngusr.h with
- *   #define PNG_RELEASE_BUILD=1 Turns on the release compile path
- *   #define PNG_RELEASE_BUILD=0 Turns it off
+ * #define PNG_RELEASE_BUILD=1 Turns on the release compile path
+ * #define PNG_RELEASE_BUILD=0 Turns it off
  */
 #ifndef PNG_RELEASE_BUILD
 #define PNG_RELEASE_BUILD (PNG_LIBPNG_BUILD_BASE_TYPE >= PNG_LIBPNG_BUILD_RC)
@@ -533,8 +533,8 @@
 #endif
 // This implicitly assumes alignment is always to a power of 2. 
 #ifdef png_alignof
-	// @libpng-1629 #define png_isaligned(ptr, type) ((((const char*)ptr-(const char*)0) & (png_alignof(type)-1)) == 0)
-	#define png_isaligned(ptr, type) (((type)((const char*)ptr-(const char*)0) & (type)(png_alignof(type)-1)) == 0) // @libpng-1629 
+	// @libpng-1629 #define png_isaligned(ptr, type) ((((const char *)ptr-(const char *)0) & (png_alignof(type)-1)) == 0)
+	#define png_isaligned(ptr, type) (((type)((const char *)ptr-(const char *)0) & (type)(png_alignof(type)-1)) == 0) // @libpng-1629 
 #else
 	#define png_isaligned(ptr, type) 0
 #endif
@@ -1510,15 +1510,15 @@ PNG_INTERNAL_FUNCTION(void, png_chunk_report, (png_const_structrp png_ptr, const
  * fraction is permitted to have no digits only if the integer is present.
  *
  * NOTE: The dangling E problem.
- *   There is a PNG valid floating point number in the following:
+ * There is a PNG valid floating point number in the following:
  *
- *       PNG floating point numbers are not greedy.
+ *     PNG floating point numbers are not greedy.
  *
- *   Working this out requires *TWO* character lookahead (because of the
- *   sign), the parser does not do this - it will fail at the 'r' - this
- *   doesn't matter for PNG sCAL chunk values, but it requires more care
- *   if the value were ever to be embedded in something more complex.  Use
- *   ANSI-C strtod if you need the lookahead.
+ * Working this out requires *TWO* character lookahead (because of the
+ * sign), the parser does not do this - it will fail at the 'r' - this
+ * doesn't matter for PNG sCAL chunk values, but it requires more care
+ * if the value were ever to be embedded in something more complex.  Use
+ * ANSI-C strtod if you need the lookahead.
  */
 /* State table for the parser. */
 #define PNG_FP_INTEGER    0  /* before or in integer */

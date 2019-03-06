@@ -32,8 +32,8 @@
  *
  * Contributor(s):
  *	Owen Taylor <otaylor@redhat.com>
- *      Vladimir Vukicevic <vladimir@pobox.com>
- *      Søren Sandmann <sandmann@daimi.au.dk>
+ *    Vladimir Vukicevic <vladimir@pobox.com>
+ *    Søren Sandmann <sandmann@daimi.au.dk>
  */
 
 #ifndef CAIRO_REGION_PRIVATE_H

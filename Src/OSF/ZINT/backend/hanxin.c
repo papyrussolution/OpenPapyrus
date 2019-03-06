@@ -1140,8 +1140,8 @@ int hx_apply_bitmask(uchar * grid, int size)
 	uchar mask[size * size];
 	uchar eval[size * size];
 #else
-	uchar* mask = (uchar*)_alloca((size * size) * sizeof(uchar));
-	uchar* eval = (uchar*)_alloca((size * size) * sizeof(uchar));
+	uchar* mask = (uchar *)_alloca((size * size) * sizeof(uchar));
+	uchar* eval = (uchar *)_alloca((size * size) * sizeof(uchar));
 #endif
 	/* Perform data masking */
 	for(x = 0; x < size; x++) {
@@ -1391,10 +1391,10 @@ int han_xin(struct ZintSymbol * symbol, const uchar source[], int length)
 	uchar picket_fence[hx_total_codewords[version - 1]];
 	uchar grid[size * size];
 #else
-	datastream = (uchar*)_alloca((data_codewords) * sizeof(uchar));
-	fullstream = (uchar*)_alloca((hx_total_codewords[version - 1]) * sizeof(uchar));
-	picket_fence = (uchar*)_alloca((hx_total_codewords[version - 1]) * sizeof(uchar));
-	grid = (uchar*)_alloca((size * size) * sizeof(uchar));
+	datastream = (uchar *)_alloca((data_codewords) * sizeof(uchar));
+	fullstream = (uchar *)_alloca((hx_total_codewords[version - 1]) * sizeof(uchar));
+	picket_fence = (uchar *)_alloca((hx_total_codewords[version - 1]) * sizeof(uchar));
+	grid = (uchar *)_alloca((size * size) * sizeof(uchar));
 #endif
 	for(i = 0; i < data_codewords; i++) {
 		datastream[i] = 0;

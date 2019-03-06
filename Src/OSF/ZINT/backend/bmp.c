@@ -127,7 +127,7 @@ int bmp_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 	info_header.colours = 0;
 	info_header.important_colours = 0;
 
-	bitmap_file_start = (uchar*)SAlloc::M(file_header.file_size);
+	bitmap_file_start = (uchar *)SAlloc::M(file_header.file_size);
 	memset(bitmap_file_start, 0xff, file_header.file_size);
 
 	bmp_posn = bitmap_file_start;

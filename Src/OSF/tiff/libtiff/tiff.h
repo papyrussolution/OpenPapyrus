@@ -32,18 +32,18 @@
  * Tag Image File Format (TIFF)
  *
  * Based on Rev 6.0 from:
- *    Developer's Desk
- *    Aldus Corporation
- *    411 First Ave. South
- *    Suite 200
- *    Seattle, WA  98104
- *    206-622-5500
+ *  Developer's Desk
+ *  Aldus Corporation
+ *  411 First Ave. South
+ *  Suite 200
+ *  Seattle, WA  98104
+ *  206-622-5500
  *
- *    (http://partners.adobe.com/asn/developer/PDFS/TN/TIFF6.pdf)
+ *  (http://partners.adobe.com/asn/developer/PDFS/TN/TIFF6.pdf)
  *
  * For BigTIFF design notes see the following links
- *    http://www.remotesensing.org/libtiff/bigtiffdesign.html
- *    http://www.awaresystems.be/imaging/tiff/bigtiff.html
+ *  http://www.remotesensing.org/libtiff/bigtiffdesign.html
+ *  http://www.awaresystems.be/imaging/tiff/bigtiff.html
  */
 
 #define TIFF_VERSION_CLASSIC 42

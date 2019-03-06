@@ -56,7 +56,7 @@ static ulong added_obj_hash(const ADDED_OBJ * ca)
 	switch(ca->type) {
 		case ADDED_DATA:
 		    ret = a->length << 20L;
-		    p = (uchar*)a->data;
+		    p = (uchar *)a->data;
 		    for(i = 0; i < a->length; i++)
 			    ret ^= p[i] << ((i * 3) % 24);
 		    break;
@@ -350,7 +350,7 @@ ASN1_OBJECT * FASTCALL OBJ_txt2obj(const char * s, int no_name)
 	j = ASN1_object_size(0, i, V_ASN1_OBJECT);
 	if(j < 0)
 		return NULL;
-	if((buf = (uchar*)OPENSSL_malloc(j)) == NULL)
+	if((buf = (uchar *)OPENSSL_malloc(j)) == NULL)
 		return NULL;
 	p = buf;
 	/* Write out tag+length */
@@ -561,7 +561,7 @@ const void * OBJ_bsearch_(const void * key, const void * base, int num, int size
 const void * OBJ_bsearch_ex_(const void * key, const void * base_, int num,
     int size, int (* cmp)(const void *, const void *), int flags)
 {
-	const char * base = (const char*)base_;
+	const char * base = (const char *)base_;
 	int l, h, i = 0, c = 0;
 	const char * p = NULL;
 	if(num == 0)

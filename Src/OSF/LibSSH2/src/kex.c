@@ -6,19 +6,19 @@
  * with or without modification, are permitted provided
  * that the following conditions are met:
  *
- *   Redistributions of source code must retain the above
- *   copyright notice, this list of conditions and the
- *   following disclaimer.
+ * Redistributions of source code must retain the above
+ * copyright notice, this list of conditions and the
+ * following disclaimer.
  *
- *   Redistributions in binary form must reproduce the above
- *   copyright notice, this list of conditions and the following
- *   disclaimer in the documentation and/or other materials
- *   provided with the distribution.
+ * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials
+ * provided with the distribution.
  *
- *   Neither the name of the copyright holder nor the names
- *   of any other contributors may be used to endorse or
- *   promote products derived from this software without
- *   specific prior written permission.
+ * Neither the name of the copyright holder nor the names
+ * of any other contributors may be used to endorse or
+ * promote products derived from this software without
+ * specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
  * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
@@ -1536,7 +1536,7 @@ static uchar * kex_agree_instr(uchar * haystack, ulong haystack_len, const uchar
 	s = haystack;
 	/* Search until we run out of comas or we run out of haystack,
 	   whichever comes first */
-	while((s = (uchar*)strchr((char *)s, ',')) && ((haystack_len - (s - haystack)) > needle_len)) {
+	while((s = (uchar *)strchr((char *)s, ',')) && ((haystack_len - (s - haystack)) > needle_len)) {
 		s++;
 		/* Needle at X position */
 		if((strncmp((char *)s, (char *)needle, needle_len) == 0) && (((s - haystack) + needle_len) == haystack_len || s[needle_len] == ',')) {
@@ -1567,9 +1567,9 @@ static int kex_agree_hostkey(LIBSSH2_SESSION * session, ulong kex_flags, uchar *
 	const LIBSSH2_HOSTKEY_METHOD ** hostkeyp = libssh2_hostkey_methods();
 	uchar * s;
 	if(session->hostkey_prefs) {
-		s = (uchar*)session->hostkey_prefs;
+		s = (uchar *)session->hostkey_prefs;
 		while(s && *s) {
-			uchar * p = (uchar*)strchr((char *)s, ',');
+			uchar * p = (uchar *)strchr((char *)s, ',');
 			size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
 			if(kex_agree_instr(hostkey, hostkey_len, s, method_len)) {
 				const LIBSSH2_HOSTKEY_METHOD * method = (const LIBSSH2_HOSTKEY_METHOD*)kex_get_method_by_name((char *)s, method_len, (const LIBSSH2_COMMON_METHOD**)hostkeyp);
@@ -1593,7 +1593,7 @@ static int kex_agree_hostkey(LIBSSH2_SESSION * session, ulong kex_flags, uchar *
 		return -1;
 	}
 	while(hostkeyp && (*hostkeyp) && (*hostkeyp)->name) {
-		s = kex_agree_instr(hostkey, hostkey_len, (uchar*)(*hostkeyp)->name, strlen((*hostkeyp)->name));
+		s = kex_agree_instr(hostkey, hostkey_len, (uchar *)(*hostkeyp)->name, strlen((*hostkeyp)->name));
 		if(s) {
 			// So far so good, but does it suit our purposes? (Encrypting vs Signing) 
 			if(((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0) ||
@@ -1619,9 +1619,9 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION * session, uchar * kex, ulong k
 	const LIBSSH2_KEX_METHOD ** kexp = libssh2_kex_methods;
 	uchar * s;
 	if(session->kex_prefs) {
-		s = (uchar*)session->kex_prefs;
+		s = (uchar *)session->kex_prefs;
 		while(s && *s) {
-			uchar * q, * p = (uchar*)strchr((char *)s, ',');
+			uchar * q, * p = (uchar *)strchr((char *)s, ',');
 			size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
 			if((q = kex_agree_instr(kex, kex_len, s, method_len))) {
 				const LIBSSH2_KEX_METHOD * method = (const LIBSSH2_KEX_METHOD*)kex_get_method_by_name((char *)s, method_len, (const LIBSSH2_COMMON_METHOD**)kexp);
@@ -1648,7 +1648,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION * session, uchar * kex, ulong k
 		return -1;
 	}
 	while(*kexp && (*kexp)->name) {
-		s = kex_agree_instr(kex, kex_len, (uchar*)(*kexp)->name, strlen((*kexp)->name));
+		s = kex_agree_instr(kex, kex_len, (uchar *)(*kexp)->name, strlen((*kexp)->name));
 		if(s) {
 			/* We've agreed on a key exchange method,
 			 * Can we agree on a hostkey that works with this kex?
@@ -1678,9 +1678,9 @@ static int kex_agree_crypt(LIBSSH2_SESSION * session, libssh2_endpoint_data * en
 	uchar * s;
 	(void)session;
 	if(endpoint->crypt_prefs) {
-		s = (uchar*)endpoint->crypt_prefs;
+		s = (uchar *)endpoint->crypt_prefs;
 		while(s && *s) {
-			uchar * p = (uchar*)strchr((char *)s, ',');
+			uchar * p = (uchar *)strchr((char *)s, ',');
 			size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
 			if(kex_agree_instr(crypt, crypt_len, s, method_len)) {
 				const LIBSSH2_CRYPT_METHOD * method = (const LIBSSH2_CRYPT_METHOD*)kex_get_method_by_name((char *)s, method_len, (const LIBSSH2_COMMON_METHOD**)cryptp);
@@ -1696,7 +1696,7 @@ static int kex_agree_crypt(LIBSSH2_SESSION * session, libssh2_endpoint_data * en
 		return -1;
 	}
 	while(*cryptp && (*cryptp)->name) {
-		s = kex_agree_instr(crypt, crypt_len, (uchar*)(*cryptp)->name, strlen((*cryptp)->name));
+		s = kex_agree_instr(crypt, crypt_len, (uchar *)(*cryptp)->name, strlen((*cryptp)->name));
 		if(s) {
 			endpoint->crypt = *cryptp;
 			return 0;
@@ -1715,9 +1715,9 @@ static int kex_agree_mac(LIBSSH2_SESSION * session, libssh2_endpoint_data * endp
 	uchar * s;
 	(void)session;
 	if(endpoint->mac_prefs) {
-		s = (uchar*)endpoint->mac_prefs;
+		s = (uchar *)endpoint->mac_prefs;
 		while(s && *s) {
-			uchar * p = (uchar*)strchr((char *)s, ',');
+			uchar * p = (uchar *)strchr((char *)s, ',');
 			size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
 			if(kex_agree_instr(mac, mac_len, s, method_len)) {
 				const LIBSSH2_MAC_METHOD * method = (const LIBSSH2_MAC_METHOD*)kex_get_method_by_name((char *)s, method_len, (const LIBSSH2_COMMON_METHOD**)macp);
@@ -1733,7 +1733,7 @@ static int kex_agree_mac(LIBSSH2_SESSION * session, libssh2_endpoint_data * endp
 		return -1;
 	}
 	while(*macp && (*macp)->name) {
-		s = kex_agree_instr(mac, mac_len, (uchar*)(*macp)->name, strlen((*macp)->name));
+		s = kex_agree_instr(mac, mac_len, (uchar *)(*macp)->name, strlen((*macp)->name));
 		if(s) {
 			endpoint->mac = *macp;
 			return 0;
@@ -1752,9 +1752,9 @@ static int kex_agree_comp(LIBSSH2_SESSION * session, libssh2_endpoint_data * end
 	uchar * s;
 	(void)session;
 	if(endpoint->comp_prefs) {
-		s = (uchar*)endpoint->comp_prefs;
+		s = (uchar *)endpoint->comp_prefs;
 		while(s && *s) {
-			uchar * p = (uchar*)strchr((char *)s, ',');
+			uchar * p = (uchar *)strchr((char *)s, ',');
 			size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
 			if(kex_agree_instr(comp, comp_len, s, method_len)) {
 				const LIBSSH2_COMP_METHOD * method = (const LIBSSH2_COMP_METHOD*)kex_get_method_by_name((char *)s, method_len, (const LIBSSH2_COMMON_METHOD**)compp);
@@ -1770,7 +1770,7 @@ static int kex_agree_comp(LIBSSH2_SESSION * session, libssh2_endpoint_data * end
 		return -1;
 	}
 	while(*compp && (*compp)->name) {
-		s = kex_agree_instr(comp, comp_len, (uchar*)(*compp)->name, strlen((*compp)->name));
+		s = kex_agree_instr(comp, comp_len, (uchar *)(*compp)->name, strlen((*compp)->name));
 		if(s) {
 			endpoint->comp = *compp;
 			return 0;
@@ -2158,7 +2158,7 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session, int met
 	if(0==ialg)
 		return _libssh2_error(session, LIBSSH2_ERROR_INVAL, "No algorithm found");
 	/* allocate buffer */
-	*algs = (const char**)LIBSSH2_ALLOC(session, ialg*sizeof(const char*));
+	*algs = (const char**)LIBSSH2_ALLOC(session, ialg*sizeof(const char *));
 	if(NULL==*algs) {
 		return _libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Memory allocation failed");
 	}

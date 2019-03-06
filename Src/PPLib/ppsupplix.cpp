@@ -489,7 +489,7 @@ private:
 					case BTS_STRING: field_type = "String"; break;
 					default: field_type.Z(); break;
 				}
-				// @v9.1.4 buf.Printf("<f name=\"%s\" type=\"%s\"/>", (const char*)field_name, (const char*)field_type);
+				// @v9.1.4 buf.Printf("<f name=\"%s\" type=\"%s\"/>", (const char *)field_name, (const char *)field_type);
 				buf.Z().CatChar('<').Cat("f").Space().CatEqQ("name", field_name).Space().CatEqQ("type", field_type).Cat("/>"); // @v9.1.4
 				F.WriteLine(buf);
 			}

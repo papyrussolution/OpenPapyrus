@@ -186,7 +186,7 @@ int SCDBObjOrder::PutLineRec(void * pRec)
 	long   goods_id = 0;
 	double qtty = 0, price = 0;
 	union {
-		OrdLine *    p_rec;
+		OrdLine *  p_rec;
 		OrdLine158 * p_rec158;
 	} b;
 	if(ver < 158)

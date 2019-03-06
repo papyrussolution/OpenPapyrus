@@ -32,11 +32,11 @@
 
 /* Suggested pending improvements:
  * - add a field 'ignore' to the TIFFDirEntry structure, to flag status,
- *   eliminating current use of the IGNORE value, and therefore eliminating
- *   current irrational behaviour on tags with tag id code 0
+ * eliminating current use of the IGNORE value, and therefore eliminating
+ * current irrational behaviour on tags with tag id code 0
  * - add a field 'field_info' to the TIFFDirEntry structure, and set that with
- *   the pointer to the appropriate TIFFField structure early on in
- *   TIFFReadDirectory, so as to eliminate current possibly repetitive lookup.
+ * the pointer to the appropriate TIFFField structure early on in
+ * TIFFReadDirectory, so as to eliminate current possibly repetitive lookup.
  */
 #include "tiffiop.h"
 #pragma hdrstop
@@ -3220,15 +3220,15 @@ int TIFFReadDirectory(TIFF* tif)
 			/*
 			 * Assume we have wrong StripByteCount value (in case
 			 * of single strip) in following cases:
-			 *   - it is equal to zero along with StripOffset;
-			 *   - it is larger than file itself (in case of uncompressed
-			 *     image);
-			 *   - it is smaller than the size of the bytes per row
-			 *     multiplied on the number of rows.  The last case should
-			 *     not be checked in the case of writing new image,
-			 *     because we may do not know the exact strip size
-			 *     until the whole image will be written and directory
-			 *     dumped out.
+			 * - it is equal to zero along with StripOffset;
+			 * - it is larger than file itself (in case of uncompressed
+			 *   image);
+			 * - it is smaller than the size of the bytes per row
+			 *   multiplied on the number of rows.  The last case should
+			 *   not be checked in the case of writing new image,
+			 *   because we may do not know the exact strip size
+			 *   until the whole image will be written and directory
+			 *   dumped out.
 			 */
 		#define BYTECOUNTLOOKSBAD \
 	( (tif->tif_dir.td_stripbytecount[0] == 0 && tif->tif_dir.td_stripoffset[0] != 0) || \

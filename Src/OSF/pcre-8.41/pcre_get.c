@@ -514,7 +514,7 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_get_substring(PCRE_SPTR32 subject,
 	memcpy(substring, subject + ovector[stringnumber], IN_UCHARS(yield));
 	substring[yield] = 0;
 #if defined COMPILE_PCRE8
-	*stringptr = (const char*)substring;
+	*stringptr = (const char *)substring;
 #elif defined COMPILE_PCRE16
 	*stringptr = (PCRE_SPTR16)substring;
 #elif defined COMPILE_PCRE32

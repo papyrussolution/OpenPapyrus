@@ -55,14 +55,14 @@
  * all-round performance. "All-round" refers to things like:
  *
  * - shorter setup time effectively improves overall timing for
- *   handling short messages;
+ * handling short messages;
  * - larger table allocation can become unbearable because of VM
- *   subsystem penalties (for example on Windows large enough free
- *   results in VM working set trimming, meaning that consequent
- *   malloc would immediately incur working set expansion);
+ * subsystem penalties (for example on Windows large enough free
+ * results in VM working set trimming, meaning that consequent
+ * malloc would immediately incur working set expansion);
  * - larger table has larger cache footprint, which can affect
- *   performance of other code paths (not necessarily even from same
- *   thread in Hyper-Threading world);
+ * performance of other code paths (not necessarily even from same
+ * thread in Hyper-Threading world);
  *
  * Value of 1 is not appropriate for performance reasons.
  */

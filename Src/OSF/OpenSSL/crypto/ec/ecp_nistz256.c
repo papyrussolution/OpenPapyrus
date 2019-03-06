@@ -53,7 +53,7 @@
 #define ALIGN32
 #endif
 
-#define ALIGNPTR(p, N)   ((uchar*)p+N-(size_t)p%N)
+#define ALIGNPTR(p, N)   ((uchar *)p+N-(size_t)p%N)
 #define P256_LIMBS      (256/BN_BITS2)
 
 typedef unsigned short u16;

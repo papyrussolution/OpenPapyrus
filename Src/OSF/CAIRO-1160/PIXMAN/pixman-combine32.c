@@ -480,20 +480,20 @@ PDF_SEPARABLE_BLEND_MODE(screen)
  * Overlay
  *
  * ad * as * B(d/ad, s/as)
- *   = ad * as * Hardlight (s, d)
- *   = if (d / ad < 0.5)
+ * = ad * as * Hardlight (s, d)
+ * = if (d / ad < 0.5)
  * as * ad * Multiply (s/as, 2 * d/ad)
  * else
  * as * ad * Screen (s/as, 2 * d / ad - 1)
- *   = if (d < 0.5 * ad)
+ * = if (d < 0.5 * ad)
  * as * ad * s/as * 2 * d /ad
  * else
  * as * ad * (s/as + 2 * d / ad - 1 - s / as * (2 * d / ad - 1))
- *   = if (2 * d < ad)
+ * = if (2 * d < ad)
  * 2 * s * d
  * else
  * ad * s + 2 * as * d - as * ad - ad * s * (2 * d / ad - 1)
- *   = if (2 * d < ad)
+ * = if (2 * d < ad)
  * 2 * s * d
  * else
  * as * ad - 2 * (ad - d) * (as - s)
@@ -514,8 +514,8 @@ PDF_SEPARABLE_BLEND_MODE(overlay)
  * Darken
  *
  * ad * as * B(d/ad, s/as)
- *   = ad * as * MIN(d/ad, s/as)
- *   = MIN (as * d, ad * s)
+ * = ad * as * MIN(d/ad, s/as)
+ * = MIN (as * d, ad * s)
  */
 static inline int32_t blend_darken(int32_t d, int32_t ad, int32_t s, int32_t as)
 {
@@ -531,8 +531,8 @@ PDF_SEPARABLE_BLEND_MODE(darken)
  * Lighten
  *
  * ad * as * B(d/ad, s/as)
- *   = ad * as * MAX(d/ad, s/as)
- *   = MAX (as * d, ad * s)
+ * = ad * as * MAX(d/ad, s/as)
+ * = MAX (as * d, ad * s)
  */
 static inline int32_t blend_lighten(int32_t d, int32_t ad, int32_t s, int32_t as)
 {
@@ -547,15 +547,15 @@ PDF_SEPARABLE_BLEND_MODE(lighten)
  * Hard light
  *
  * ad * as * B(d/ad, s/as)
- *   = if (s/as <= 0.5)
+ * = if (s/as <= 0.5)
  * ad * as * Multiply (d/ad, 2 * s/as)
  * else
  * ad * as * Screen (d/ad, 2 * s/as - 1)
- *   = if 2 * s <= as
+ * = if 2 * s <= as
  * ad * as * d/ad * 2 * s / as
  * else
  * ad * as * (d/ad + (2 * s/as - 1) + d/ad * (2 * s/as - 1))
- *   = if 2 * s <= as
+ * = if 2 * s <= as
  * 2 * s * d
  * else
  * as * ad - 2 * (ad - d) * (as - s)
@@ -574,15 +574,15 @@ PDF_SEPARABLE_BLEND_MODE(hard_light)
  * Difference
  *
  * ad * as * B(s/as, d/ad)
- *   = ad * as * abs (s/as - d/ad)
- *   = if (s/as <= d/ad)
+ * = ad * as * abs (s/as - d/ad)
+ * = if (s/as <= d/ad)
  * ad * as * (d/ad - s/as)
  * else
  * ad * as * (s/as - d/ad)
- *   = if (ad * s <= as * d)
- *   as * d - ad * s
+ * = if (ad * s <= as * d)
+ * as * d - ad * s
  * else
- *   ad * s - as * d
+ * ad * s - as * d
  */
 static inline int32_t blend_difference(int32_t d, int32_t ad, int32_t s, int32_t as)
 {
@@ -600,8 +600,8 @@ PDF_SEPARABLE_BLEND_MODE(difference)
  * Exclusion
  *
  * ad * as * B(s/as, d/ad)
- *   = ad * as * (d/ad + s/as - 2 * d/ad * s/as)
- *   = as * d + ad * s - 2 * s * d
+ * = ad * as * (d/ad + s/as - 2 * d/ad * s/as)
+ * = as * d + ad * s - 2 * s * d
  */
 
 /* This can be made faster by writing it directly and not using

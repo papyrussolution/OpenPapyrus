@@ -21,9 +21,9 @@ extern "C" {
  * of a conditional in constant time. For example,
  *
  * if (a < b) {
- *   c = a;
+ * c = a;
  * } else {
- *   c = b;
+ * c = b;
  * }
  *
  * can be written as

@@ -72,6 +72,6 @@ ulong SLAPI _checksum__(const char * buf, size_t len)
 	ulong r = 0xc22cc22cUL;
 	size_t i;
 	for(i = 0; i < len; i++)
-		((uchar*)&r)[i % 4] += (uchar)((uint)buf[i] ^ (uint)((uchar*)&r)[3 - (i % 4)]);
+		((uchar *)&r)[i % 4] += (uchar)((uint)buf[i] ^ (uint)((uchar *)&r)[3 - (i % 4)]);
 	return r;
 }

@@ -101,21 +101,21 @@ static void fe_frombytes(fe h, const uint8_t * s)
  * Basic claim: q = floor(2^(-255)(h + 19 2^(-25)h9 + 2^(-1))).
  *
  * Proof:
- *   Have |h|<=p so |q|<=1 so |19^2 2^(-255) q|<1/4.
- *   Also have |h-2^230 h9|<2^231 so |19 2^(-255)(h-2^230 h9)|<1/4.
+ * Have |h|<=p so |q|<=1 so |19^2 2^(-255) q|<1/4.
+ * Also have |h-2^230 h9|<2^231 so |19 2^(-255)(h-2^230 h9)|<1/4.
  *
- *   Write y=2^(-1)-19^2 2^(-255)q-19 2^(-255)(h-2^230 h9).
- *   Then 0<y<1.
+ * Write y=2^(-1)-19^2 2^(-255)q-19 2^(-255)(h-2^230 h9).
+ * Then 0<y<1.
  *
- *   Write r=h-pq.
- *   Have 0<=r<=p-1=2^255-20.
- *   Thus 0<=r+19(2^-255)r<r+19(2^-255)2^255<=2^255-1.
+ * Write r=h-pq.
+ * Have 0<=r<=p-1=2^255-20.
+ * Thus 0<=r+19(2^-255)r<r+19(2^-255)2^255<=2^255-1.
  *
- *   Write x=r+19(2^-255)r+y.
- *   Then 0<x<2^255 so floor(2^(-255)x) = 0 so floor(q+2^(-255)x) = q.
+ * Write x=r+19(2^-255)r+y.
+ * Then 0<x<2^255 so floor(2^(-255)x) = 0 so floor(q+2^(-255)x) = q.
  *
- *   Have q+2^(-255)x = 2^(-255)(h + 19 2^(-25) h9 + 2^(-1))
- *   so floor(2^(-255)(h + 19 2^(-25) h9 + 2^(-1))) = q. */
+ * Have q+2^(-255)x = 2^(-255)(h + 19 2^(-25) h9 + 2^(-1))
+ * so floor(2^(-255)(h + 19 2^(-25) h9 + 2^(-1))) = q. */
 static void fe_tobytes(uint8_t * s, const fe h)
 {
 	int32_t h0 = h[0];
@@ -220,11 +220,11 @@ static void FASTCALL fe_1(fe h)
  * Can overlap h with f or g.
  *
  * Preconditions:
- *    |f| bounded by 1.1*2^25,1.1*2^24,1.1*2^25,1.1*2^24,etc.
- *    |g| bounded by 1.1*2^25,1.1*2^24,1.1*2^25,1.1*2^24,etc.
+ *  |f| bounded by 1.1*2^25,1.1*2^24,1.1*2^25,1.1*2^24,etc.
+ *  |g| bounded by 1.1*2^25,1.1*2^24,1.1*2^25,1.1*2^24,etc.
  *
  * Postconditions:
- *    |h| bounded by 1.1*2^26,1.1*2^25,1.1*2^26,1.1*2^25,etc. */
+ *  |h| bounded by 1.1*2^26,1.1*2^25,1.1*2^26,1.1*2^25,etc. */
 static void FASTCALL fe_add(fe h, const fe f, const fe g)
 {
 	for(unsigned i = 0; i < 10; i++) {
@@ -236,11 +236,11 @@ static void FASTCALL fe_add(fe h, const fe f, const fe g)
  * Can overlap h with f or g.
  *
  * Preconditions:
- *    |f| bounded by 1.1*2^25,1.1*2^24,1.1*2^25,1.1*2^24,etc.
- *    |g| bounded by 1.1*2^25,1.1*2^24,1.1*2^25,1.1*2^24,etc.
+ *  |f| bounded by 1.1*2^25,1.1*2^24,1.1*2^25,1.1*2^24,etc.
+ *  |g| bounded by 1.1*2^25,1.1*2^24,1.1*2^25,1.1*2^24,etc.
  *
  * Postconditions:
- *    |h| bounded by 1.1*2^26,1.1*2^25,1.1*2^26,1.1*2^25,etc. */
+ *  |h| bounded by 1.1*2^26,1.1*2^25,1.1*2^26,1.1*2^25,etc. */
 static void FASTCALL fe_sub(fe h, const fe f, const fe g)
 {
 	for(unsigned i = 0; i < 10; i++) {
@@ -252,11 +252,11 @@ static void FASTCALL fe_sub(fe h, const fe f, const fe g)
  * Can overlap h with f or g.
  *
  * Preconditions:
- *    |f| bounded by 1.65*2^26,1.65*2^25,1.65*2^26,1.65*2^25,etc.
- *    |g| bounded by 1.65*2^26,1.65*2^25,1.65*2^26,1.65*2^25,etc.
+ *  |f| bounded by 1.65*2^26,1.65*2^25,1.65*2^26,1.65*2^25,etc.
+ *  |g| bounded by 1.65*2^26,1.65*2^25,1.65*2^26,1.65*2^25,etc.
  *
  * Postconditions:
- *    |h| bounded by 1.01*2^25,1.01*2^24,1.01*2^25,1.01*2^24,etc.
+ *  |h| bounded by 1.01*2^25,1.01*2^24,1.01*2^25,1.01*2^24,etc.
  *
  * Notes on implementation strategy:
  *
@@ -433,9 +433,9 @@ static void FASTCALL fe_mul(fe h, const fe f, const fe g)
 	int64_t carry9;
 
 	/* |h0| <= (1.65*1.65*2^52*(1+19+19+19+19)+1.65*1.65*2^50*(38+38+38+38+38))
-	 *   i.e. |h0| <= 1.4*2^60; narrower ranges for h2, h4, h6, h8
+	 * i.e. |h0| <= 1.4*2^60; narrower ranges for h2, h4, h6, h8
 	 * |h1| <= (1.65*1.65*2^51*(1+1+19+19+19+19+19+19+19+19))
-	 *   i.e. |h1| <= 1.7*2^59; narrower ranges for h3, h5, h7, h9 */
+	 * i.e. |h1| <= 1.7*2^59; narrower ranges for h3, h5, h7, h9 */
 
 	carry0 = h0 + (1 << 25); h1 += carry0 >> 26; h0 -= carry0 & kTop38Bits;
 	carry4 = h4 + (1 << 25); h5 += carry4 >> 26; h4 -= carry4 & kTop38Bits;
@@ -496,10 +496,10 @@ static void FASTCALL fe_mul(fe h, const fe f, const fe g)
  * Can overlap h with f.
  *
  * Preconditions:
- *    |f| bounded by 1.65*2^26,1.65*2^25,1.65*2^26,1.65*2^25,etc.
+ *  |f| bounded by 1.65*2^26,1.65*2^25,1.65*2^26,1.65*2^25,etc.
  *
  * Postconditions:
- *    |h| bounded by 1.01*2^25,1.01*2^24,1.01*2^25,1.01*2^24,etc.
+ *  |h| bounded by 1.01*2^25,1.01*2^24,1.01*2^25,1.01*2^24,etc.
  *
  * See fe_mul.c for discussion of implementation strategy. */
 static void FASTCALL fe_sq(fe h, const fe f)
@@ -727,10 +727,10 @@ static void FASTCALL fe_invert(fe out, const fe z)
 /* h = -f
  *
  * Preconditions:
- *    |f| bounded by 1.1*2^25,1.1*2^24,1.1*2^25,1.1*2^24,etc.
+ *  |f| bounded by 1.1*2^25,1.1*2^24,1.1*2^25,1.1*2^24,etc.
  *
  * Postconditions:
- *    |h| bounded by 1.1*2^25,1.1*2^24,1.1*2^25,1.1*2^24,etc. */
+ *  |h| bounded by 1.1*2^25,1.1*2^24,1.1*2^25,1.1*2^24,etc. */
 static void FASTCALL fe_neg(fe h, const fe f)
 {
 	for(unsigned i = 0; i < 10; i++) {
@@ -757,10 +757,10 @@ static void FASTCALL fe_cmov(fe f, const fe g, unsigned b)
  * Can overlap h with f.
  *
  * Preconditions:
- *    |f| bounded by 1.65*2^26,1.65*2^25,1.65*2^26,1.65*2^25,etc.
+ *  |f| bounded by 1.65*2^26,1.65*2^25,1.65*2^26,1.65*2^25,etc.
  *
  * Postconditions:
- *    |h| bounded by 1.01*2^25,1.01*2^24,1.01*2^25,1.01*2^24,etc.
+ *  |h| bounded by 1.01*2^25,1.01*2^24,1.01*2^25,1.01*2^24,etc.
  *
  * See fe_mul.c for discussion of implementation strategy. */
 static void fe_sq2(fe h, const fe f)
@@ -907,10 +907,10 @@ static void fe_sq2(fe h, const fe f)
  * where d = -121665/121666.
  *
  * Representations:
- *   ge_p2 (projective): (X:Y:Z) satisfying x=X/Z, y=Y/Z
- *   ge_p3 (extended): (X:Y:Z:T) satisfying x=X/Z, y=Y/Z, XY=ZT
- *   ge_p1p1 (completed): ((X:Z),(Y:T)) satisfying x=X/Z, y=Y/T
- *   ge_precomp (Duif): (y+x,y-x,2dxy) */
+ * ge_p2 (projective): (X:Y:Z) satisfying x=X/Z, y=Y/Z
+ * ge_p3 (extended): (X:Y:Z:T) satisfying x=X/Z, y=Y/Z, XY=ZT
+ * ge_p1p1 (completed): ((X:Z),(Y:T)) satisfying x=X/Z, y=Y/T
+ * ge_precomp (Duif): (y+x,y-x,2dxy) */
 
 typedef struct {
 	fe X;
@@ -3192,7 +3192,7 @@ static void table_select(ge_precomp * t, int pos, signed char b)
  * B is the Ed25519 base point (x,4/5) with x positive.
  *
  * Preconditions:
- *   a[31] <= 127 */
+ * a[31] <= 127 */
 static void FASTCALL ge_scalarmult_base(ge_p3 * h, const uint8_t * a)
 {
 	signed char e[64];
@@ -3262,10 +3262,10 @@ static void FASTCALL fe_cswap(fe f, fe g, uint b)
  * Can overlap h with f.
  *
  * Preconditions:
- *    |f| bounded by 1.1*2^26,1.1*2^25,1.1*2^26,1.1*2^25,etc.
+ *  |f| bounded by 1.1*2^26,1.1*2^25,1.1*2^26,1.1*2^25,etc.
  *
  * Postconditions:
- *    |h| bounded by 1.1*2^25,1.1*2^24,1.1*2^25,1.1*2^24,etc. */
+ *  |h| bounded by 1.1*2^25,1.1*2^24,1.1*2^25,1.1*2^24,etc. */
 static void fe_mul121666(fe h, fe f)
 {
 	int32_t f0 = f[0];

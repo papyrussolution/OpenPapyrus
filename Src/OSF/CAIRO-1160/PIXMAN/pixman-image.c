@@ -71,7 +71,7 @@ static void gradient_property_changed(pixman_image_t * image)
 	}
 }
 
-pixman_bool_t _pixman_init_gradient(gradient_t *   gradient,
+pixman_bool_t _pixman_init_gradient(gradient_t * gradient,
     const pixman_gradient_stop_t * stops,
     int n_stops)
 {
@@ -124,7 +124,7 @@ void _pixman_image_init(pixman_image_t * image)
 
 pixman_bool_t _pixman_image_fini(pixman_image_t * image)
 {
-	image_common_t * common = (image_common_t*)image;
+	image_common_t * common = reinterpret_cast<image_common_t *>(image);
 	common->ref_count--;
 	if(common->ref_count == 0) {
 		if(image->common.destroy_func)
@@ -143,22 +143,18 @@ pixman_bool_t _pixman_image_fini(pixman_image_t * image)
 			 * method to the linear/radial/conical gradient overwriting
 			 * the general one.
 			 */
-			assert(
-				image->common.property_changed == gradient_property_changed);
+			assert(image->common.property_changed == gradient_property_changed);
 		}
-
 		if(image->type == BITS && image->bits.free_me)
 			SAlloc::F(image->bits.free_me);
-
 		return TRUE;
 	}
-
 	return FALSE;
 }
 
 pixman_image_t * _pixman_image_allocate(void)
 {
-	pixman_image_t * image = (pixman_image_t *)SAlloc::M(sizeof(pixman_image_t));
+	pixman_image_t * image = static_cast<pixman_image_t *>(SAlloc::M(sizeof(pixman_image_t)));
 	if(image)
 		_pixman_image_init(image);
 	return image;
@@ -186,7 +182,7 @@ PIXMAN_EXPORT pixman_bool_t FASTCALL pixman_image_unref(pixman_image_t * image)
 	return FALSE;
 }
 
-PIXMAN_EXPORT void pixman_image_set_destroy_function(pixman_image_t * image, pixman_image_destroy_func_t func, void *    data)
+PIXMAN_EXPORT void pixman_image_set_destroy_function(pixman_image_t * image, pixman_image_destroy_func_t func, void *  data)
 {
 	image->common.destroy_func = func;
 	image->common.destroy_data = data;
@@ -228,57 +224,40 @@ static void compute_image_info(pixman_image_t * image)
 {
 	pixman_format_code_t code;
 	uint32_t flags = 0;
-
 	/* Transform */
 	if(!image->common.transform) {
-		flags |= (FAST_PATH_ID_TRANSFORM        |
-		    FAST_PATH_X_UNIT_POSITIVE     |
-		    FAST_PATH_Y_UNIT_ZERO         |
-		    FAST_PATH_AFFINE_TRANSFORM);
+		flags |= (FAST_PATH_ID_TRANSFORM|FAST_PATH_X_UNIT_POSITIVE|FAST_PATH_Y_UNIT_ZERO|FAST_PATH_AFFINE_TRANSFORM);
 	}
 	else {
 		flags |= FAST_PATH_HAS_TRANSFORM;
-
-		if(image->common.transform->matrix[2][0] == 0                  &&
-		    image->common.transform->matrix[2][1] == 0                  &&
-		    image->common.transform->matrix[2][2] == pixman_fixed_1) {
+		if(image->common.transform->matrix[2][0] == 0 && image->common.transform->matrix[2][1] == 0 && image->common.transform->matrix[2][2] == pixman_fixed_1) {
 			flags |= FAST_PATH_AFFINE_TRANSFORM;
-
-			if(image->common.transform->matrix[0][1] == 0 &&
-			    image->common.transform->matrix[1][0] == 0) {
-				if(image->common.transform->matrix[0][0] == -pixman_fixed_1 &&
-				    image->common.transform->matrix[1][1] == -pixman_fixed_1) {
+			if(image->common.transform->matrix[0][1] == 0 && image->common.transform->matrix[1][0] == 0) {
+				if(image->common.transform->matrix[0][0] == -pixman_fixed_1 && image->common.transform->matrix[1][1] == -pixman_fixed_1) {
 					flags |= FAST_PATH_ROTATE_180_TRANSFORM;
 				}
 				flags |= FAST_PATH_SCALE_TRANSFORM;
 			}
-			else if(image->common.transform->matrix[0][0] == 0 &&
-			    image->common.transform->matrix[1][1] == 0) {
+			else if(image->common.transform->matrix[0][0] == 0 && image->common.transform->matrix[1][1] == 0) {
 				pixman_fixed_t m01 = image->common.transform->matrix[0][1];
 				pixman_fixed_t m10 = image->common.transform->matrix[1][0];
-
 				if(m01 == -pixman_fixed_1 && m10 == pixman_fixed_1)
 					flags |= FAST_PATH_ROTATE_90_TRANSFORM;
 				else if(m01 == pixman_fixed_1 && m10 == -pixman_fixed_1)
 					flags |= FAST_PATH_ROTATE_270_TRANSFORM;
 			}
 		}
-
 		if(image->common.transform->matrix[0][0] > 0)
 			flags |= FAST_PATH_X_UNIT_POSITIVE;
-
 		if(image->common.transform->matrix[1][0] == 0)
 			flags |= FAST_PATH_Y_UNIT_ZERO;
 	}
-
 	/* Filter */
-	switch(image->common.filter)
-	{
+	switch(image->common.filter) {
 		case PIXMAN_FILTER_NEAREST:
 		case PIXMAN_FILTER_FAST:
 		    flags |= (FAST_PATH_NEAREST_FILTER | FAST_PATH_NO_CONVOLUTION_FILTER);
 		    break;
-
 		case PIXMAN_FILTER_BILINEAR:
 		case PIXMAN_FILTER_GOOD:
 		case PIXMAN_FILTER_BEST:
@@ -301,7 +280,7 @@ static void compute_image_info(pixman_image_t * image)
 			 * the transformed x coordinate is:
 			     *
 			 * tx = t00 * (n + 0.5) + t01 * (m + 0.5) + t02
-			 *   = t00 * n + t01 * m + t02 + (t00 + t01) * 0.5
+			 * = t00 * n + t01 * m + t02 + (t00 + t01) * 0.5
 			     *
 			 * which implies that if t00, t01 and t02 are all integers
 			 * and (t00 + t01) is odd, then tx will be an integer plus 0.5,
@@ -310,11 +289,7 @@ static void compute_image_info(pixman_image_t * image)
 			     */
 			    pixman_fixed_t(*t)[3] = image->common.transform->matrix;
 
-			    if((pixman_fixed_frac(
-					t[0][0] | t[0][1] | t[0][2] |
-					t[1][0] | t[1][1] | t[1][2]) == 0)                 &&
-				(pixman_fixed_to_int(
-					(t[0][0] + t[0][1]) & (t[1][0] + t[1][1])) % 2) == 1) {
+			    if((pixman_fixed_frac(t[0][0] | t[0][1] | t[0][2] | t[1][0] | t[1][1] | t[1][2]) == 0) && (pixman_fixed_to_int((t[0][0] + t[0][1]) & (t[1][0] + t[1][1])) % 2) == 1) {
 				    /* FIXME: there are some affine-test failures, showing that
 				 * handling of BILINEAR and NEAREST filter is not quite
 				 * equivalent when getting close to 32K for the translation
@@ -322,68 +297,45 @@ static void compute_image_info(pixman_image_t * image)
 				 * now just skip BILINEAR->NEAREST optimization in this case.
 				     */
 				    pixman_fixed_t magic_limit = pixman_int_to_fixed(30000);
-				    if(image->common.transform->matrix[0][2] <= magic_limit  &&
-					image->common.transform->matrix[1][2] <= magic_limit  &&
-					image->common.transform->matrix[0][2] >= -magic_limit &&
-					image->common.transform->matrix[1][2] >= -magic_limit) {
+				    if(image->common.transform->matrix[0][2] <= magic_limit  && image->common.transform->matrix[1][2] <= magic_limit  &&
+					image->common.transform->matrix[0][2] >= -magic_limit && image->common.transform->matrix[1][2] >= -magic_limit) {
 					    flags |= FAST_PATH_NEAREST_FILTER;
 				    }
 			    }
 		    }
 		    break;
-
 		case PIXMAN_FILTER_CONVOLUTION:
 		    break;
-
 		case PIXMAN_FILTER_SEPARABLE_CONVOLUTION:
 		    flags |= FAST_PATH_SEPARABLE_CONVOLUTION_FILTER;
 		    break;
-
 		default:
 		    flags |= FAST_PATH_NO_CONVOLUTION_FILTER;
 		    break;
 	}
 
 	/* Repeat mode */
-	switch(image->common.repeat)
-	{
+	switch(image->common.repeat) {
 		case PIXMAN_REPEAT_NONE:
-		    flags |=
-			FAST_PATH_NO_REFLECT_REPEAT         |
-			FAST_PATH_NO_PAD_REPEAT             |
-			FAST_PATH_NO_NORMAL_REPEAT;
+		    flags |= FAST_PATH_NO_REFLECT_REPEAT|FAST_PATH_NO_PAD_REPEAT|FAST_PATH_NO_NORMAL_REPEAT;
 		    break;
-
 		case PIXMAN_REPEAT_REFLECT:
-		    flags |=
-			FAST_PATH_NO_PAD_REPEAT             |
-			FAST_PATH_NO_NONE_REPEAT            |
-			FAST_PATH_NO_NORMAL_REPEAT;
+		    flags |= FAST_PATH_NO_PAD_REPEAT|FAST_PATH_NO_NONE_REPEAT|FAST_PATH_NO_NORMAL_REPEAT;
 		    break;
 
 		case PIXMAN_REPEAT_PAD:
-		    flags |=
-			FAST_PATH_NO_REFLECT_REPEAT         |
-			FAST_PATH_NO_NONE_REPEAT            |
-			FAST_PATH_NO_NORMAL_REPEAT;
+		    flags |= FAST_PATH_NO_REFLECT_REPEAT|FAST_PATH_NO_NONE_REPEAT|FAST_PATH_NO_NORMAL_REPEAT;
 		    break;
-
 		default:
-		    flags |=
-			FAST_PATH_NO_REFLECT_REPEAT         |
-			FAST_PATH_NO_PAD_REPEAT             |
-			FAST_PATH_NO_NONE_REPEAT;
+		    flags |= FAST_PATH_NO_REFLECT_REPEAT|FAST_PATH_NO_PAD_REPEAT|FAST_PATH_NO_NONE_REPEAT;
 		    break;
 	}
-
 	/* Component alpha */
 	if(image->common.component_alpha)
 		flags |= FAST_PATH_COMPONENT_ALPHA;
 	else
 		flags |= FAST_PATH_UNIFIED_ALPHA;
-
 	flags |= (FAST_PATH_NO_ACCESSORS | FAST_PATH_NARROW_FORMAT);
-
 	/* Type specific checks */
 	switch(image->type) {
 		case SOLID:
@@ -492,9 +444,9 @@ void _pixman_image_validate(pixman_image_t * image)
 		_pixman_image_validate((pixman_image_t*)image->common.alpha_map);
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_image_set_clip_region32(pixman_image_t *   image, pixman_region32_t * region)
+PIXMAN_EXPORT pixman_bool_t pixman_image_set_clip_region32(pixman_image_t * image, pixman_region32_t * region)
 {
-	image_common_t * common = (image_common_t*)image;
+	image_common_t * common = reinterpret_cast<image_common_t *>(image);
 	pixman_bool_t result;
 	if(region) {
 		if((result = pixman_region32_copy(&common->clip_region, region)))
@@ -508,9 +460,9 @@ PIXMAN_EXPORT pixman_bool_t pixman_image_set_clip_region32(pixman_image_t *   im
 	return result;
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_image_set_clip_region(pixman_image_t *   image, pixman_region16_t * region)
+PIXMAN_EXPORT pixman_bool_t pixman_image_set_clip_region(pixman_image_t * image, pixman_region16_t * region)
 {
-	image_common_t * common = (image_common_t*)image;
+	image_common_t * common = reinterpret_cast<image_common_t *>(image);
 	pixman_bool_t result;
 	if(region) {
 		if((result = pixman_region32_copy_from_region16(&common->clip_region, region)))
@@ -518,17 +470,13 @@ PIXMAN_EXPORT pixman_bool_t pixman_image_set_clip_region(pixman_image_t *   imag
 	}
 	else {
 		_pixman_image_reset_clip_region(image);
-
 		result = TRUE;
 	}
-
 	image_property_changed(image);
-
 	return result;
 }
 
-PIXMAN_EXPORT void pixman_image_set_has_client_clip(pixman_image_t * image,
-    pixman_bool_t client_clip)
+PIXMAN_EXPORT void pixman_image_set_has_client_clip(pixman_image_t * image, pixman_bool_t client_clip)
 {
 	image->common.client_clip = client_clip;
 }
@@ -540,7 +488,7 @@ PIXMAN_EXPORT pixman_bool_t pixman_image_set_transform(pixman_image_t * image, c
 		  { 0, pixman_fixed_1, 0 },
 		  { 0, 0, pixman_fixed_1 } }
 	};
-	image_common_t * common = (image_common_t*)image;
+	image_common_t * common = reinterpret_cast<image_common_t *>(image);
 	pixman_bool_t result;
 	if(common->transform == transform)
 		return TRUE;
@@ -577,7 +525,7 @@ PIXMAN_EXPORT void pixman_image_set_repeat(pixman_image_t * image, pixman_repeat
 
 PIXMAN_EXPORT pixman_bool_t pixman_image_set_filter(pixman_image_t * image, pixman_filter_t filter, const pixman_fixed_t * params, int n_params)
 {
-	image_common_t * common = (image_common_t*)image;
+	image_common_t * common = reinterpret_cast<image_common_t *>(image);
 	pixman_fixed_t * new_params;
 	if(params == common->filter_params && filter == common->filter)
 		return TRUE;
@@ -629,42 +577,31 @@ PIXMAN_EXPORT void pixman_image_set_indexed(pixman_image_t * image, const pixman
 
 PIXMAN_EXPORT void pixman_image_set_alpha_map(pixman_image_t * image, pixman_image_t * alpha_map, int16_t x, int16_t y)
 {
-	image_common_t * common = (image_common_t*)image;
+	image_common_t * common = reinterpret_cast<image_common_t *>(image);
 	return_if_fail(!alpha_map || alpha_map->type == BITS);
 	if(alpha_map && common->alpha_count > 0) {
-		/* If this image is being used as an alpha map itself,
-		 * then you can't give it an alpha map of its own.
-		 */
+		// If this image is being used as an alpha map itself, then you can't give it an alpha map of its own.
 		return;
 	}
-
 	if(alpha_map && alpha_map->common.alpha_map) {
-		/* If the image has an alpha map of its own,
-		 * then it can't be used as an alpha map itself
-		 */
+		// If the image has an alpha map of its own, then it can't be used as an alpha map itself
 		return;
 	}
-
 	if(common->alpha_map != (bits_image_t*)alpha_map) {
 		if(common->alpha_map) {
 			common->alpha_map->common.alpha_count--;
-
 			pixman_image_unref((pixman_image_t*)common->alpha_map);
 		}
-
 		if(alpha_map) {
 			common->alpha_map = (bits_image_t*)pixman_image_ref(alpha_map);
-
 			common->alpha_map->common.alpha_count++;
 		}
 		else {
 			common->alpha_map = NULL;
 		}
 	}
-
 	common->alpha_origin_x = x;
 	common->alpha_origin_y = y;
-
 	image_property_changed(image);
 }
 

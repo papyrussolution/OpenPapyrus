@@ -30,7 +30,7 @@
  */
 GLOBAL(void *) jpeg_get_small(j_common_ptr cinfo, size_t sizeofobject)
 {
-	return (void *)SAlloc::M(sizeofobject);
+	return SAlloc::M(sizeofobject);
 }
 
 GLOBAL(void) jpeg_free_small(j_common_ptr cinfo, void * object, size_t sizeofobject)

@@ -54,7 +54,7 @@ int ps_plot(struct ZintSymbol * symbol)
 #ifndef _MSC_VER
 	uchar local_text[sstrlen(symbol->text) + 1];
 #else
-	uchar* local_text = (uchar*)SAlloc::M(sstrlen(symbol->text) + 1);
+	uchar* local_text = (uchar *)SAlloc::M(sstrlen(symbol->text) + 1);
 #endif
 	row_height = 0;
 	textdone = 0;
@@ -100,8 +100,8 @@ int ps_plot(struct ZintSymbol * symbol)
 	}
 	// sort out colour options 
 	/* @sobolev
-	to_upper((uchar*)symbol->fgcolour);
-	to_upper((uchar*)symbol->bgcolour);
+	to_upper((uchar *)symbol->fgcolour);
+	to_upper((uchar *)symbol->bgcolour);
 	if(strlen(symbol->fgcolour) != 6) {
 		sstrcpy(symbol->errtxt, "Malformed foreground colour target (F41)");
 		fclose(feps);
@@ -118,7 +118,7 @@ int ps_plot(struct ZintSymbol * symbol)
 #endif
 		return ZINT_ERROR_INVALID_OPTION;
 	}
-	error_number = is_sane(SSET, (uchar*)symbol->fgcolour, strlen(symbol->fgcolour));
+	error_number = is_sane(SSET, (uchar *)symbol->fgcolour, strlen(symbol->fgcolour));
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
 		sstrcpy(symbol->errtxt, "Malformed foreground colour target (F43)");
 		fclose(feps);
@@ -127,7 +127,7 @@ int ps_plot(struct ZintSymbol * symbol)
 #endif
 		return ZINT_ERROR_INVALID_OPTION;
 	}
-	error_number = is_sane(SSET, (uchar*)symbol->bgcolour, strlen(symbol->bgcolour));
+	error_number = is_sane(SSET, (uchar *)symbol->bgcolour, strlen(symbol->bgcolour));
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
 		sstrcpy(symbol->errtxt, "Malformed background colour target (F44)");
 		fclose(feps);

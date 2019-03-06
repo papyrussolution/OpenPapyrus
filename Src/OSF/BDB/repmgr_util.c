@@ -54,7 +54,7 @@ int __repmgr_schedule_connection_attempt(ENV * env, uint eid, int immediate)
 		 * amount to break the cycle.  Since each site has its own
 		 * address, it's always possible to decide which is "greater
 		 * than".
-		 *     (The mnemonic is that a server conventionally has a
+		 *   (The mnemonic is that a server conventionally has a
 		 * small well-known port number.  And clients have the right to
 		 * connect to servers, not the other way around.)
 		 */
@@ -280,7 +280,7 @@ void __repmgr_add_dbt(REPMGR_IOVECS * v, const DBT * dbt)
  * Update a set of iovecs to reflect the number of bytes transferred in an I/O
  * operation, so that the iovecs can be used to continue transferring where we
  * left off.
- *     Returns TRUE if the set of buffers is now fully consumed, FALSE if more
+ *   Returns TRUE if the set of buffers is now fully consumed, FALSE if more
  * remains.
  *
  * PUBLIC: int __repmgr_update_consumed __P((REPMGR_IOVECS *, size_t));

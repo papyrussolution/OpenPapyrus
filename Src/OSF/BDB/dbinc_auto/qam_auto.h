@@ -30,7 +30,7 @@ static inline int __qam_incfirst_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __qam_incfirst_desc, sizeof(__qam_incfirst_args), (void**)arg));
+	    dbpp, td, data, __qam_incfirst_desc, sizeof(__qam_incfirst_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___qam_mvptr	85
 typedef struct ___qam_mvptr_args {
@@ -68,7 +68,7 @@ static inline int __qam_mvptr_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __qam_mvptr_desc, sizeof(__qam_mvptr_args), (void**)arg));
+	    dbpp, td, data, __qam_mvptr_desc, sizeof(__qam_mvptr_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___qam_del	79
 typedef struct ___qam_del_args {
@@ -99,7 +99,7 @@ static inline int __qam_del_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __qam_del_desc, sizeof(__qam_del_args), (void**)arg));
+	    dbpp, td, data, __qam_del_desc, sizeof(__qam_del_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___qam_add	80
 typedef struct ___qam_add_args {
@@ -135,7 +135,7 @@ static inline int __qam_add_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __qam_add_desc, sizeof(__qam_add_args), (void**)arg));
+	    dbpp, td, data, __qam_add_desc, sizeof(__qam_add_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___qam_delext	83
 typedef struct ___qam_delext_args {
@@ -168,7 +168,7 @@ static inline int __qam_delext_read(ENV *env,
 {
 	*arg = NULL;
 	return (__log_read_record(env, 
-	    dbpp, td, data, __qam_delext_desc, sizeof(__qam_delext_args), (void**)arg));
+	    dbpp, td, data, __qam_delext_desc, sizeof(__qam_delext_args), reinterpret_cast<void **>(arg)));
 }
 #endif /* HAVE_QUEUE */
 #endif

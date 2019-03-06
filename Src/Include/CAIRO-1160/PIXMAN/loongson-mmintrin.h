@@ -2,17 +2,17 @@
  * to be of any use, otherwise I'd use them.
  *
  * - The hardware instructions are very similar to MMX or iwMMXt. Certainly
- *   close enough that they could have implemented the _mm_*-style intrinsic
- *   interface and had a ton of optimized code available to them. Instead they
- *   implemented something much, much worse.
+ * close enough that they could have implemented the _mm_*-style intrinsic
+ * interface and had a ton of optimized code available to them. Instead they
+ * implemented something much, much worse.
  *
  * - pshuf takes a dead first argument, causing extra instructions to be
- *   generated.
+ * generated.
  *
  * - There are no 64-bit shift or logical intrinsics, which means you have
- *   to implement them with inline assembly, but this is a nightmare because
- *   gcc doesn't understand that the integer vector datatypes are actually in
- *   floating-point registers, so you end up with braindead code like
+ * to implement them with inline assembly, but this is a nightmare because
+ * gcc doesn't understand that the integer vector datatypes are actually in
+ * floating-point registers, so you end up with braindead code like
  *
  *	punpcklwd	$f9,$f9,$f5
  *	    dmtc1	v0,$f8
@@ -23,8 +23,8 @@
  *	    dmfc1	s0,$f19
  *	punpcklbh	$f20,$f20,$f2
  *
- *   where crap just gets copied back and forth between integer and floating-
- *   point registers ad nauseum.
+ * where crap just gets copied back and forth between integer and floating-
+ * point registers ad nauseum.
  *
  * Instead of trying to workaround the problems from these crap intrinsics, I
  * just implement the _mm_* intrinsics needed for pixman-mmx.c using inline

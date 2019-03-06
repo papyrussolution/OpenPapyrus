@@ -120,7 +120,7 @@ struct __cond_waiters_table;
  * a queue per connection, waiting for TCP buffer space to become available in
  * the kernel.  Rather than exceeding this limit, we simply discard additional
  * messages (since this is always allowed by the replication protocol).
- *    As a special dispensation, if a message is destined for a specific remote
+ *  As a special dispensation, if a message is destined for a specific remote
  * site (i.e., it's not a broadcast), then we first try blocking the sending
  * thread, waiting for space to become available (though we only wait a limited
  * time).  This is so as to be able to handle the immediate flood of (a
@@ -310,7 +310,7 @@ struct __repmgr_connection {
 	 * destroyed.  Referents include:
 	 *
 	 * - the select() loop, which owns the right to do all reading, as well
-	 *   as the exclusive right to eventually close the socket
+	 * as the exclusive right to eventually close the socket
 	 *
 	 * - a "channel" that owns this APP_CONNECTION (on the originating side)
 	 *
@@ -327,9 +327,9 @@ struct __repmgr_connection {
 /*
  * When we make an outgoing connection, it starts in CONNECTED state.  When we
  * get the response to our version negotiation, we move to READY.
- *     For incoming connections that we accept, we start in NEGOTIATE, then to
+ *   For incoming connections that we accept, we start in NEGOTIATE, then to
  * PARAMETERS, and then to READY.
- *     CONGESTED is a hierarchical substate of READY: it's just like READY, with
+ *   CONGESTED is a hierarchical substate of READY: it's just like READY, with
  * the additional wrinkle that we don't bother waiting for the outgoing queue to
  * drain in certain circumstances.
  */
@@ -350,7 +350,7 @@ struct __repmgr_connection {
 	 * our progress within the phase.  Depending upon the message type, we
 	 * end up with either a rep_message (which is a wrapper for the control
 	 * and rec DBTs), or a single generic DBT.
-	 *     Any time we're in DATA_PHASE, it means we have already received
+	 *   Any time we're in DATA_PHASE, it means we have already received
 	 * the message header (consisting of msg_type and 2 sizes), and
 	 * therefore we have allocated buffer space to read the data.  (This is
 	 * important for resource clean-up.)
@@ -595,34 +595,34 @@ struct __channel {
  * sometimes call these "orphans").  There are two times when this can
  * be:
  *
- *   a) When we accept an incoming connection, we don't know what site it
- *      comes from until we read the initial handshake message.
+ * a) When we accept an incoming connection, we don't know what site it
+ *    comes from until we read the initial handshake message.
  *
- *   b) When an error occurs on a connection, we first mark it as DEFUNCT
- *      and stop using it.  Then, at a later, well-defined time, we close
- *      the connection's file descriptor and get rid of the connection
- *      struct.
+ * b) When an error occurs on a connection, we first mark it as DEFUNCT
+ *    and stop using it.  Then, at a later, well-defined time, we close
+ *    the connection's file descriptor and get rid of the connection
+ *    struct.
  *
  * In light of the above, we can see that the following describes the
  * rules for how connections may be moved among these three kinds of
  * "places":
  *
  * - when we initiate an outgoing connection, we of course know what site
- *   it's going to be going to, and so we immediately put the pointer to
- *   the connection struct into SITE->ref.conn
+ * it's going to be going to, and so we immediately put the pointer to
+ * the connection struct into SITE->ref.conn
  *
  * - when we accept an incoming connection, we don't immediately know
- *   whom it's from, so we have to put it on the orphans list
- *   (db_rep->connections).
+ * whom it's from, so we have to put it on the orphans list
+ * (db_rep->connections).
  *
  * - (incoming, cont.) But as soon as we complete the initial "handshake"
- *   message exchange, we will know which site it's from and whether it's
- *   a subordinate or main connection.  At that point we remove it from
- *   db_rep->connections and either point to it by SITE->ref.conn, or add
- *   it to the SITE->sub_conns list.
+ * message exchange, we will know which site it's from and whether it's
+ * a subordinate or main connection.  At that point we remove it from
+ * db_rep->connections and either point to it by SITE->ref.conn, or add
+ * it to the SITE->sub_conns list.
  *
  * - (for any active connection) when an error occurs, we move the
- *   connection to the orphans list until we have a chance to close it.
+ * connection to the orphans list until we have a chance to close it.
  */
 
 /*
@@ -735,15 +735,15 @@ typedef struct {
  * fraction of the code, it's a tiny fraction of the time: repmgr spends most of
  * its time in a call to select(), and as well a bit in calls into the Base
  * replication API.  All of those release the mutex.
- *     Access to repmgr's shared list of site addresses is protected by
+ *   Access to repmgr's shared list of site addresses is protected by
  * another mutex: mtx_repmgr.  And, when changing space allocation for that site
  * list we conform to the convention of acquiring renv->mtx_regenv.  These are
  * less frequent of course.
- *     When it's necessary to acquire more than one of these mutexes, the
+ *   When it's necessary to acquire more than one of these mutexes, the
  * ordering priority (or "lock ordering protocol") is:
- *        db_rep->mutex (first)
- *        mtx_repmgr    (briefly)
- *        mtx_regenv    (last, and most briefly)
+ *      db_rep->mutex (first)
+ *      mtx_repmgr    (briefly)
+ *      mtx_regenv    (last, and most briefly)
  *
  * There are also mutexes for app message "channels".  Each channel has a mutex,
  * which is used to serialize any connection re-establishment that may become
@@ -751,11 +751,11 @@ typedef struct {
  * happens on a simple, specific-EID channel, but in other cases multiple app
  * threads could be making send_xxx() calls concurrently, and it would not do to
  * have two of them try to re-connect concurrently.
- *     When re-establishing a connection, the channel lock is held while
+ *   When re-establishing a connection, the channel lock is held while
  * grabbing first the mtx_repmgr, and then the db_rep mutex (but not both
  * together).  I.e., we have:
- *        channel->mutex (first)
- *        [mtx_repmgr (very briefly)] and then [db_rep->mutex (very briefly)]
+ *      channel->mutex (first)
+ *      [mtx_repmgr (very briefly)] and then [db_rep->mutex (very briefly)]
  */
 
 #define	LOCK_MUTEX(m) do {						\

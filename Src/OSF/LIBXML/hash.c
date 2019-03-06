@@ -508,9 +508,9 @@ int FASTCALL xmlHashAddEntry3(xmlHashTable * table, const xmlChar * name, const 
 			return -1;
 	}
 	if(table->dict) {
-		entry->name = (xmlChar*)name;
-		entry->name2 = (xmlChar*)name2;
-		entry->name3 = (xmlChar*)name3;
+		entry->name = (xmlChar *)name;
+		entry->name2 = (xmlChar *)name2;
+		entry->name3 = (xmlChar *)name3;
 	}
 	else {
 		entry->name = sstrdup(name);
@@ -620,9 +620,9 @@ int xmlHashUpdateEntry3(xmlHashTable * table, const xmlChar * name, const xmlCha
 			return -1;
 	}
 	if(table->dict != NULL) {
-		entry->name = (xmlChar*)name;
-		entry->name2 = (xmlChar*)name2;
-		entry->name3 = (xmlChar*)name3;
+		entry->name = (xmlChar *)name;
+		entry->name2 = (xmlChar *)name2;
+		entry->name3 = (xmlChar *)name3;
 	}
 	else {
 		entry->name = sstrdup(name);
@@ -709,7 +709,7 @@ static void stubHashScannerFull(void * payload, void * data, const xmlChar * nam
     const xmlChar * name2 ATTRIBUTE_UNUSED, const xmlChar * name3 ATTRIBUTE_UNUSED)
 {
 	stubData * stubdata = (stubData*)data;
-	stubdata->hashscanner(payload, stubdata->data, (xmlChar*)name);
+	stubdata->hashscanner(payload, stubdata->data, (xmlChar *)name);
 }
 /**
  * xmlHashScan:

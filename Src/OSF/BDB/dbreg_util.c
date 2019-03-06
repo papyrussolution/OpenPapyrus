@@ -523,7 +523,7 @@ err:
 		 * internal init via replication that is trying to open and
 		 * access this as a named in-mem database will not find it
 		 * on-disk, and we need to try to open it in-memory too.
-		 *     But don't do this for [P]REOPEN, since we're already
+		 *   But don't do this for [P]REOPEN, since we're already
 		 * handling those cases specially, above.
 		 */
 		if(try_inmem == 0 && opcode != DBREG_PREOPEN && opcode != DBREG_REOPEN) {

@@ -73,7 +73,7 @@ int _libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx * ctx, _libssh2_cipher_typ
 	(void)encrypt;
 	(void)algo;
 	osize = blocklen+mbedtls_cipher_get_block_size(ctx);
-	output = (uchar*)mbedtls_calloc(osize, sizeof(char));
+	output = (uchar *)mbedtls_calloc(osize, sizeof(char));
 	if(output) {
 		ret = mbedtls_cipher_reset(ctx);
 		if(!ret)
@@ -277,7 +277,7 @@ int _libssh2_mbedtls_rsa_new_private_frommemory(libssh2_rsa_ctx ** rsa, LIBSSH2_
 	if(*rsa == NULL)
 		return -1;
 	mbedtls_pk_init(&pkey);
-	ret = mbedtls_pk_parse_key(&pkey, (uchar*)filedata, filedata_len, NULL, 0);
+	ret = mbedtls_pk_parse_key(&pkey, (uchar *)filedata, filedata_len, NULL, 0);
 	if(ret != 0 || mbedtls_pk_get_type(&pkey) != MBEDTLS_PK_RSA) {
 		mbedtls_pk_free(&pkey);
 		mbedtls_rsa_free(*rsa);
@@ -426,7 +426,7 @@ int _libssh2_mbedtls_pub_priv_keyfilememory(LIBSSH2_SESSION * session, uchar ** 
 	char buf[1024];
 	int ret;
 	mbedtls_pk_init(&pkey);
-	ret = mbedtls_pk_parse_key(&pkey, (uchar*)privatekeydata, privatekeydata_len, NULL, 0);
+	ret = mbedtls_pk_parse_key(&pkey, (uchar *)privatekeydata, privatekeydata_len, NULL, 0);
 	if(ret != 0) {
 		mbedtls_strerror(ret, (char *)buf, sizeof(buf));
 		mbedtls_pk_free(&pkey);

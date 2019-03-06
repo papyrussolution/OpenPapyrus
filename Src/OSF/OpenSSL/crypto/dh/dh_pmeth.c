@@ -84,7 +84,7 @@ static int pkey_dh_copy(EVP_PKEY_CTX * dst, EVP_PKEY_CTX * src)
 		return 0;
 	dctx->kdf_md = sctx->kdf_md;
 	if(sctx->kdf_ukm != NULL) {
-		dctx->kdf_ukm = (uchar*)OPENSSL_memdup(sctx->kdf_ukm, sctx->kdf_ukmlen);
+		dctx->kdf_ukm = (uchar *)OPENSSL_memdup(sctx->kdf_ukm, sctx->kdf_ukmlen);
 		if(dctx->kdf_ukm == NULL)
 			return 0;
 		dctx->kdf_ukmlen = sctx->kdf_ukmlen;
@@ -168,7 +168,7 @@ static int pkey_dh_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 
 		case EVP_PKEY_CTRL_DH_KDF_UKM:
 		    OPENSSL_free(dctx->kdf_ukm);
-		    dctx->kdf_ukm = (uchar*)p2;
+		    dctx->kdf_ukm = (uchar *)p2;
 		    if(p2)
 			    dctx->kdf_ukmlen = p1;
 		    else
@@ -401,7 +401,7 @@ static int pkey_dh_derive(EVP_PKEY_CTX * ctx, uchar * key,
 			return 0;
 		ret = 0;
 		Zlen = DH_size(dh);
-		Z = (uchar*)OPENSSL_malloc(Zlen);
+		Z = (uchar *)OPENSSL_malloc(Zlen);
 		if(Z == NULL) {
 			goto err;
 		}

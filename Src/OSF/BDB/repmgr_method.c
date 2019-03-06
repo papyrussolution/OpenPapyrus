@@ -452,7 +452,7 @@ static int __repmgr_restart(ENV*env, int nthreads, uint32 flags)
 		 * array in the handle in the pending state while waiting,
 		 * another thread could come along wanting to make another
 		 * change, and would make a mess.
-		 *     The alternative is about as inelegant: we could do these
+		 *   The alternative is about as inelegant: we could do these
 		 * one at a time here if we added another field to the handle,
 		 * to keep track of both the actual number of threads and the
 		 * user's desired number of threads.
@@ -1634,10 +1634,10 @@ static int __repmgr_build_data_out(ENV * env, DBT * msg, uint32 nmsg, __repmgr_m
 	 *
 	 * (a) the 9-byte header
 	 * (b) for each msg DBT ('nmsg' of them):
-	 *     (b.1) the data itself, and
-	 *     (b.2) an alignment pad, if necessary
+	 *   (b.1) the data itself, and
+	 *   (b.2) an alignment pad, if necessary
 	 * (c) trailing section for bulk-style pointers (2 words per segment,
-	 *     plus a -1 end-marker)
+	 *   plus a -1 end-marker)
 	 * (d) message meta-data (optionally)
 	 *
 	 * Note that nmsg could be 0.

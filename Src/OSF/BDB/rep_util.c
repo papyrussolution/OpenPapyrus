@@ -751,7 +751,7 @@ newmaster_complete:
 
 /*
  * __rep_newmaster_empty
- *      Handle the case of a NEWMASTER message received when we have an empty
+ *    Handle the case of a NEWMASTER message received when we have an empty
  * log.  This requires internal init.  If we can't do that because
  * AUTOINIT off, return JOIN_FAILURE.  If F_DELAY is in effect, don't even
  * consider AUTOINIT yet, because they could change it before rep_sync call.
@@ -2010,7 +2010,7 @@ void __rep_fire_event(ENV*env, uint32 event, void * info)
 
 /*
  * __rep_msg --
- *      Rep system diagnostic messaging routine.
+ *    Rep system diagnostic messaging routine.
  * This function is called from the __db_msg subsystem to
  * write out diagnostic messages to replication-owned files.
  *
@@ -2136,7 +2136,7 @@ int __rep_check_goal(ENV*env, struct rep_waitgoal * goal)
 		/*
 		 * Have we made any progress whatsoever, beyond where we were at
 		 * the time the waiting thread noted the current LSN?
-		 *     When we have to wait for replication of the LSN history
+		 *   When we have to wait for replication of the LSN history
 		 * database, we don't know what LSN it's going to occur at.  So
 		 * we have to wake up every time we get a new transaction.
 		 * Fortunately, this should be exceedingly rare, and the number

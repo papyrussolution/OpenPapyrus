@@ -116,9 +116,9 @@ int FASTCALL Curl_wait_ms(int timeout_ms)
  * negative timeout is ignored and the function times out immediately.
  *
  * Return values:
- *   -1 = system call error or fd >= FD_SETSIZE
- *    0 = timeout
- *    [bitmask] = action as described below
+ * -1 = system call error or fd >= FD_SETSIZE
+ *  0 = timeout
+ *  [bitmask] = action as described below
  *
  * CURL_CSELECT_IN - first socket is readable
  * CURL_CSELECT_IN2 - second socket is readable

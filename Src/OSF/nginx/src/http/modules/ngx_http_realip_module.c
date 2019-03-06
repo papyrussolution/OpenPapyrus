@@ -315,9 +315,9 @@ static void * ngx_http_realip_create_loc_conf(ngx_conf_t * cf)
 		/*
 		 * set by ngx_pcalloc():
 		 *
-		 *     conf->from = NULL;
-		 *     conf->hash = 0;
-		 *     conf->header = { 0, NULL };
+		 *   conf->from = NULL;
+		 *   conf->hash = 0;
+		 *   conf->header = { 0, NULL };
 		 */
 		conf->type = NGX_CONF_UNSET_UINT;
 		conf->recursive = NGX_CONF_UNSET;

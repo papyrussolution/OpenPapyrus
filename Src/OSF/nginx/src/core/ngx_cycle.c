@@ -763,7 +763,7 @@ void ngx_reopen_files(ngx_cycle_t * cycle, ngx_uid_t user)
 				continue;
 			}
 			if(fi.st_uid != user) {
-				if(chown((const char*)file[i].name.data, user, -1) == -1) {
+				if(chown((const char *)file[i].name.data, user, -1) == -1) {
 					ngx_log_error(NGX_LOG_EMERG, cycle->log, ngx_errno, "chown(\"%s\", %d) failed", file[i].name.data, user);
 					if(ngx_close_file(fd) == NGX_FILE_ERROR) {
 						ngx_log_error(NGX_LOG_EMERG, cycle->log, ngx_errno, ngx_close_file_n " \"%s\" failed", file[i].name.data);
@@ -773,7 +773,7 @@ void ngx_reopen_files(ngx_cycle_t * cycle, ngx_uid_t user)
 			}
 			if((fi.st_mode & (S_IRUSR|S_IWUSR)) != (S_IRUSR|S_IWUSR)) {
 				fi.st_mode |= (S_IRUSR|S_IWUSR);
-				if(chmod((const char*)file[i].name.data, fi.st_mode) == -1) {
+				if(chmod((const char *)file[i].name.data, fi.st_mode) == -1) {
 					ngx_log_error(NGX_LOG_EMERG, cycle->log, ngx_errno, "chmod() \"%s\" failed", file[i].name.data);
 					if(ngx_close_file(fd) == NGX_FILE_ERROR) {
 						ngx_log_error(NGX_LOG_EMERG, cycle->log, ngx_errno, ngx_close_file_n " \"%s\" failed", file[i].name.data);

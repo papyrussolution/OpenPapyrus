@@ -1580,9 +1580,9 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    ulong flags;
 			    /*
 			     * NOTE!!!  libssh2 requires that the destination path is a full path
-			     *          that includes the destination file and name OR ends in a "/"
-			     *          If this is not done the destination file will be named the
-			     *          same name as the last directory in the path.
+			     *        that includes the destination file and name OR ends in a "/"
+			     *        If this is not done the destination file will be named the
+			     *        same name as the last directory in the path.
 			     */
 
 			    if(data->state.resume_from != 0) {

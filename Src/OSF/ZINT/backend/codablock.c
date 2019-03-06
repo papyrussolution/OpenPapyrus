@@ -98,12 +98,12 @@ int GetPossibleCharacterSet(uchar C)
 
 /* Create a Table with the following information for each Data character:
  *  int CharacterSet    is an or of CodeA,CodeB,CodeC,CodeFNC1, in
- *          dependency which character set is applicable.
- *          (Result of GetPossibleCharacterSet)
+ *        dependency which character set is applicable.
+ *        (Result of GetPossibleCharacterSet)
  *  int AFollowing,BFollowing   The number of source characters you still may encode
- *          in this character set.
+ *        in this character set.
  *  int CFollowing  The number of characters encodable in CodeC if we
- *          start here.
+ *        start here.
  */
 void CreateCharacterSetTable(CharacterSetTable T[], uchar * data, int dataLength)
 {
@@ -175,8 +175,8 @@ int RemainingDigits(CharacterSetTable * T, int charCur, int emptyColumns)
  * A oneLigner may be choosen if shorter.
  * Parameters :
  *  T       Pointer on the Characters which fit in the row
- *          If a different count is calculated it is corrected
- *          in the callers workspace.
+ *        If a different count is calculated it is corrected
+ *        in the callers workspace.
  *  pFillings   Output of filling characters
  *  pSet        Output of the character sets used, allocated by me.
  *  Data        The Data string to encode, exceptionnally not an out
@@ -627,7 +627,7 @@ int codablock(struct ZintSymbol * symbol, uchar source[], int length)
 #ifndef _MSC_VER
 	uchar data[length*2+1];
 #else
-	data = (uchar*)_alloca(length * 2+1);
+	data = (uchar *)_alloca(length * 2+1);
 #endif
 
 	dataLength = 0;
@@ -734,7 +734,7 @@ int codablock(struct ZintSymbol * symbol, uchar source[], int length)
 #ifndef _MSC_VER
 	uchar pOutput[columns * rows];
 #else
-	pOutput = (uchar*)_alloca(columns * rows * sizeof(char));
+	pOutput = (uchar *)_alloca(columns * rows * sizeof(char));
 #endif
 	pOutPos = pOutput;
 	charCur = 0;

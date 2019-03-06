@@ -111,11 +111,11 @@ extern __inline __m64 __attribute__((__gnu_inline__, __always_inline__, __artifi
  * first, gcc will first load it into a register, then use that
  * register
  *
- *   ie. use
+ * ie. use
  *
  * _mm_mullo_pi16 (x, mmx_constant);
  *
- *   not
+ * not
  *
  * _mm_mullo_pi16 (mmx_constant, x);
  *
@@ -284,7 +284,7 @@ static force_inline __m64 negate(__m64 mask)
  * Jim Blinn gives multiple ways to compute this in "Jim Blinn's Corner:
  * Notation, Notation, Notation", the first of which is
  *
- *   prod(a, b) = (a * b + 128) / 255.
+ * prod(a, b) = (a * b + 128) / 255.
  *
  * By approximating the division by 255 as 257/65536 it can be replaced by a
  * multiply and a right shift. This is the implementation that we use in
@@ -292,14 +292,14 @@ static force_inline __m64 negate(__m64 mask)
  * 3DNow!, and unavailable at the time of the book's publication) to perform
  * the multiplication and right shift in a single operation.
  *
- *   prod(a, b) = ((a * b + 128) * 257) >> 16.
+ * prod(a, b) = ((a * b + 128) * 257) >> 16.
  *
  * A third way (how pix_multiply() was implemented prior to 14208344) exists
  * also that performs the multiplication by 257 with adds and shifts.
  *
  * Where temp = a * b + 128
  *
- *   prod(a, b) = (temp + (temp >> 8)) >> 8.
+ * prod(a, b) = (temp + (temp >> 8)) >> 8.
  */
 static force_inline __m64 pix_multiply(__m64 a, __m64 b)
 {
@@ -3031,8 +3031,8 @@ static pixman_bool_t mmx_blt(pixman_implementation_t * imp,
     int width,
     int height)
 {
-	uint8_t *   src_bytes;
-	uint8_t *   dst_bytes;
+	uint8_t * src_bytes;
+	uint8_t * dst_bytes;
 	int byte_width;
 
 	if(src_bpp != dst_bpp)

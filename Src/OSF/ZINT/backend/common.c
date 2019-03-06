@@ -35,7 +35,7 @@
 // Local replacement for strlen() with uchar strings 
 /*size_t ustrlen_(const uchar data[])
 {
-	return strlen((const char*)data);
+	return strlen((const char *)data);
 }*/
 
 // Converts a character 0-9 to its equivalent integer value 

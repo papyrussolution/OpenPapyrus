@@ -213,7 +213,7 @@ uint cairo_font_face_get_reference_count(cairo_font_face_t * font_face)
  * font face
  *
  * Return value: %CAIRO_STATUS_SUCCESS or another error such as
- *   %CAIRO_STATUS_NO_MEMORY.
+ * %CAIRO_STATUS_NO_MEMORY.
  *
  * Since: 1.0
  **/

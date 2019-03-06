@@ -5,11 +5,11 @@
  * XML Path Language implementation
  * XPath is a language for addressing parts of an XML document,
  * designed to be used by both XSLT and XPointer
- *     http://www.w3.org/TR/xpath
+ *   http://www.w3.org/TR/xpath
  *
  * Implements
  * W3C Recommendation 16 November 1999
- *     http://www.w3.org/TR/1999/REC-xpath-19991116
+ *   http://www.w3.org/TR/1999/REC-xpath-19991116
  *
  * Copy: See Copyright for the status of this software.
  *
@@ -75,10 +75,10 @@ typedef xmlNodeSet * xmlNodeSetPtr;
 /*
  * An expression is evaluated to yield an object, which
  * has one of the following four basic types:
- *   - node-set
- *   - boolean
- *   - number
- *   - string
+ * - node-set
+ * - boolean
+ * - number
+ * - string
  *
  * @@ XPointer will add more types !
  */
@@ -224,11 +224,11 @@ typedef xmlXPathFunction (*xmlXPathFuncLookupFunc) (void *ctxt, const xmlChar *n
  *
  * Expression evaluation occurs with respect to a context.
  * he context consists of:
- *    - a node (the context node)
- *    - a node list (the context node list)
- *    - a set of variable bindings
- *    - a function library
- *    - the set of namespace declarations in scope for the expression
+ *  - a node (the context node)
+ *  - a node list (the context node list)
+ *  - a set of variable bindings
+ *  - a function library
+ *  - the set of namespace declarations in scope for the expression
  * Following the switch to hash tables, this need to be trimmed up at
  * the next binary incompatible release.
  * The node may be modified when the context is passed to libxml2
@@ -343,7 +343,7 @@ XMLPUBVAR double xmlXPathNINF;
  * Implements a functionality similar to the DOM NodeList.item().
  *
  * Returns the xmlNodePtr at the given @index in @ns or NULL if
- *         @index is out of range (0 to length-1)
+ *       @index is out of range (0 to length-1)
  */
 #define xmlXPathNodeSetItem(ns, index) ((((ns) != NULL) && ((index) >= 0) && ((index) < (ns)->nodeNr)) ? (ns)->PP_NodeTab[(index)] : NULL)
 /**

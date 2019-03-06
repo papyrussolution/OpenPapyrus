@@ -411,7 +411,7 @@ static uint32 BobJencHash_Little(const void * key, size_t length, uint32 initval
 	uint32 c = a;
 	u.ptr = key;
 	if(!(SLS.GetSSys().Flags & SSystem::fBigEndian) && ((u.i & 0x3) == 0)) {
-		const uint32 * k = (const uint32*)key; // read 32-bit chunks
+		const uint32 * k = static_cast<const uint32 *>(key); // read 32-bit chunks
 		//
 		// all but last block: aligned reads and affect 32 bits of (a,b,c)
 		//
@@ -451,7 +451,7 @@ static uint32 BobJencHash_Little(const void * key, size_t length, uint32 initval
 		}
 	}
 	else if(!(SLS.GetSSys().Flags & SSystem::fBigEndian) && ((u.i & 0x1) == 0)) {
-		const uint16 * k = (const uint16 *)key; /* read 16-bit chunks */
+		const uint16 * k = static_cast<const uint16 *>(key); /* read 16-bit chunks */
 		const uint8  * k8;
 		//
 		// all but last block: aligned reads and different mixing
@@ -467,7 +467,7 @@ static uint32 BobJencHash_Little(const void * key, size_t length, uint32 initval
 		//
 		// handle the last (probably partial) block
 		//
-		k8 = (const uint8*)k;
+		k8 = reinterpret_cast<const uint8 *>(k);
 		switch(length) {
 			case 12:
 				c += k[4]+(((uint32)k[5])<<16);
@@ -511,7 +511,7 @@ static uint32 BobJencHash_Little(const void * key, size_t length, uint32 initval
 		}
 	}
 	else { // need to read the key one byte at a time
-		const uint8 * k = (const uint8*)key;
+		const uint8 * k = static_cast<const uint8 *>(key);
 		//
 		// all but the last block: affect some 32 bits of (a,b,c)
 		//
@@ -580,7 +580,7 @@ static void BobJencHash_Little2(const void * key, size_t length, uint32 * pc, ui
 	uint32 c = a + *pb;
 	u.ptr = key;
 	if(((u.i & 0x3) == 0) && !(SLS.GetSSys().Flags & SSystem::fBigEndian)) {
-		const uint32 * k = (const uint32*)key; /* read 32-bit chunks */
+		const uint32 * k = static_cast<const uint32 *>(key); /* read 32-bit chunks */
 		//
 		// all but last block: aligned reads and affect 32 bits of (a,b,c)
 		//
@@ -619,7 +619,7 @@ static void BobJencHash_Little2(const void * key, size_t length, uint32 * pc, ui
 		}
 	}
 	else if(((u.i & 0x1) == 0) && !(SLS.GetSSys().Flags & SSystem::fBigEndian)) {
-		const uint16 * k = (const uint16*)key; /* read 16-bit chunks */
+		const uint16 * k = static_cast<const uint16 *>(key); /* read 16-bit chunks */
 		const uint8  * k8;
 
 		/*--------------- all but last block: aligned reads and different mixing */
@@ -632,7 +632,7 @@ static void BobJencHash_Little2(const void * key, size_t length, uint32 * pc, ui
 			k += 6;
 		}
 		/*----------------------------- handle the last (probably partial) block */
-		k8 = (const uint8*)k;
+		k8 = reinterpret_cast<const uint8 *>(k);
 		switch(length) {
 			case 12: c += k[4]+(((uint32)k[5])<<16);
 			    b += k[2]+(((uint32)k[3])<<16);

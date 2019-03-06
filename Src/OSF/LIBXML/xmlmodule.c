@@ -38,7 +38,7 @@ static int xmlModulePlatformSymbol(void * handle, const char * name, void ** res
  */
 static void xmlModuleErrMemory(xmlModulePtr module, const char * extra)
 {
-	const char * name = module ? (const char*)module->name : 0;
+	const char * name = module ? (const char *)module->name : 0;
 	__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, extra, name, NULL, 0, 0, "Memory allocation failed : %s\n", extra);
 }
 /**
@@ -109,7 +109,7 @@ int xmlModuleSymbol(xmlModulePtr module, const char * name, void ** symbol)
  * data associated to the module.
  *
  * Returns 0 in case of success, -1 in case of argument error and -2
- *         if the module could not be closed/unloaded.
+ *       if the module could not be closed/unloaded.
  */
 int xmlModuleClose(xmlModulePtr module)
 {
@@ -121,7 +121,7 @@ int xmlModuleClose(xmlModulePtr module)
 	rc = xmlModulePlatformClose(module->handle);
 	if(rc != 0) {
 		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_MODULE_CLOSE, XML_ERR_FATAL, NULL, 0, 0,
-		    (const char*)module->name, NULL, 0, 0, "failed to close: %s\n", module->name);
+		    (const char *)module->name, NULL, 0, 0, "failed to close: %s\n", module->name);
 		return -2;
 	}
 	rc = xmlModuleFree(module);

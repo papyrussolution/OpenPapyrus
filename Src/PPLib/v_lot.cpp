@@ -1467,8 +1467,8 @@ int SLAPI PPViewLot::Debug()
 		buf.Z().CR().Cat(item.Cost, MKSFMTD(0, 12, 0)).Space().CatCharN('-', 2).Space().Cat(item.Price, MKSFMTD(0, 12, 0));
 		PPLogMessage(PPFILNAM_DEBUG_LOG, buf, 0);
 		for(int i = 2; i <= 6; i++) {
-			double c = round(item.Cost, i);
-			double p = round(item.Price, i);
+			const double c = round(item.Cost, i);
+			const double p = round(item.Price, i);
 			buf.Z().Cat(i).CatDiv(':', 2).Cat(c, MKSFMTD(0, 12, 0)).Space().CatCharN('-', 2).Space().Cat(p, MKSFMTD(0, 12, 0));
 			PPLogMessage(PPFILNAM_DEBUG_LOG, buf, 0);
 		}
@@ -1980,7 +1980,7 @@ int FASTCALL PPViewLot::NextIteration(LotViewItem * pItem)
 				TempLotTbl::Rec & r_temp_rec = P_TempTbl->data;
 				PPID   lot_id = r_temp_rec.LotID;
 				if(P_Tbl->Search(lot_id) > 0) {
-					*(ReceiptTbl::Rec *)&item = P_Tbl->data;
+					*static_cast<ReceiptTbl::Rec *>(&item) = P_Tbl->data;
 					STRNSCPY(item.Serial, r_temp_rec.Serial);
 					item.BegRest   = r_temp_rec.BegRest;
 					item.EndRest   = r_temp_rec.EndRest;
@@ -2010,7 +2010,7 @@ int FASTCALL PPViewLot::NextIteration(LotViewItem * pItem)
 			Counter.Increment();
 			PPID   lot_id = Itd.IdList.get(Itd.IdList.incPointer());
 			if(P_Tbl->Search(lot_id) > 0) {
-				*(ReceiptTbl::Rec *)&item = P_Tbl->data;
+				*static_cast<ReceiptTbl::Rec *>(&item) = P_Tbl->data;
 				if(!(State & stAccsCost))
 					item.Cost = 0.0;
 			}
@@ -2036,7 +2036,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	if(p_brw && pData && pStyle) {
 		PPViewLot * p_view = (PPViewLot *)p_brw->P_View;
 		const LotFilt * p_filt = (const LotFilt *)p_view->GetBaseFilt();
-		PPViewLot::BrwHdr * p_hdr = (PPViewLot::BrwHdr *)pData;
+		const PPViewLot::BrwHdr * p_hdr = static_cast<const PPViewLot::BrwHdr *>(pData);
 		const long qtty_col = 4;
 		const long cost_col = p_filt->Operation.IsZero() ? 7 : 8;
 		const long price_col = p_filt->Operation.IsZero() ? 8 : 9;
@@ -2239,7 +2239,7 @@ DBQuery * SLAPI PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 			//DBE    dbe_egais_prodtypecode;
 		}
 		else if(Filt.ExtViewAttr == LotFilt::exvaVetisTags) {
-			PPDbqFuncPool::InitObjTagTextFunc(dbe_vetis_vdocuuid, PPTAG_LOT_VETIS_UUID, rcp->ID); // #13
+			PPDbqFuncPool::InitObjTagTextFunc(dbe_vetis_vdocuuid, PPTAG_LOT_VETIS_UUID, rcp->ID, 0/*dontUseCache*/); // #13 
 			fld_list[c++].E = dbe_vetis_vdocuuid;
 		}
 		if(Filt.QCertID || (Filt.Flags & LotFilt::fWithoutQCert))

@@ -936,7 +936,7 @@ CStdOutStream & CStdOutStream::operator << (const wchar_t * s)
 		ConvertUnicodeToUTF8(s, dest);
 	else
 		UnicodeStringToMultiByte2(dest, s, (UINT)codePage);
-	return operator<<((const char*)dest);
+	return operator<<((const char *)dest);
 }
 
 void StdOut_Convert_UString_to_AString(const UString &s, AString &temp)
@@ -953,7 +953,7 @@ void StdOut_Convert_UString_to_AString(const UString &s, AString &temp)
 void CStdOutStream::PrintUString(const UString &s, AString &temp)
 {
 	StdOut_Convert_UString_to_AString(s, temp);
-	*this << (const char*)temp;
+	*this << (const char *)temp;
 }
 
 CStdOutStream & CStdOutStream::operator<<(int32 number) throw()

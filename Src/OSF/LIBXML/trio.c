@@ -32,12 +32,12 @@
  *  - Complex numbers? (C99 _Complex)
  *  - Boolean values? (C99 _Bool)
  *  - C99 NaN(n-char-sequence) missing. The n-char-sequence can be used
- *    to print the mantissa, e.g. NaN(0xc000000000000000)
+ *  to print the mantissa, e.g. NaN(0xc000000000000000)
  *  - Should we support the GNU %a alloc modifier? GNU has an ugly hack
- *    for %a, because C99 used %a for other purposes. If specified as
- *    %as or %a[ it is interpreted as the alloc modifier, otherwise as
- *    the C99 hex-float. This means that you cannot scan %as as a hex-float
- *    immediately followed by an 's'.
+ *  for %a, because C99 used %a for other purposes. If specified as
+ *  %as or %a[ it is interpreted as the alloc modifier, otherwise as
+ *  the C99 hex-float. This means that you cannot scan %as as a hex-float
+ *  immediately followed by an 's'.
  *  - Scanning of collating symbols.
  */
 
@@ -485,44 +485,44 @@ enum {
  *
  *
  * 9$ Position
- *      Use the 9th parameter. 9 can be any number between 1 and
- *      the maximal argument
+ *    Use the 9th parameter. 9 can be any number between 1 and
+ *    the maximal argument
  *
  * 9 Width
- *      Set width to 9. 9 can be any number, but must not be postfixed
- *      by '$'
+ *    Set width to 9. 9 can be any number, but must not be postfixed
+ *    by '$'
  *
  * h  Short
- *    Numbers:
- *      (unsigned) short int
+ *  Numbers:
+ *    (unsigned) short int
  *
  * hh Short short
- *    Numbers:
- *      (unsigned) char
+ *  Numbers:
+ *    (unsigned) char
  *
  * l  Long
- *    Numbers:
- *      (unsigned) long int
- *    String:
- *      as the S specifier
- *    Char:
- *      as the C specifier
+ *  Numbers:
+ *    (unsigned) long int
+ *  String:
+ *    as the S specifier
+ *  Char:
+ *    as the C specifier
  *
  * ll Long Long
- *    Numbers:
- *      (unsigned) long long int
+ *  Numbers:
+ *    (unsigned) long long int
  *
  * L  Long Double
- *    Float
- *      long double
+ *  Float
+ *    long double
  *
  * #  Alternative
- *    Float:
- *      Decimal-point is always present
- *    String:
- *      non-printable characters are handled as \number
+ *  Float:
+ *    Decimal-point is always present
+ *  String:
+ *    non-printable characters are handled as \number
  *
- *    Spacing
+ *  Spacing
  *
  * +  Sign
  *
@@ -531,8 +531,8 @@ enum {
  * .  Precision
  *
  * *  Parameter
- *    print: use parameter
- *    scan: no parameter (ignore)
+ *  print: use parameter
+ *  scan: no parameter (ignore)
  *
  * q  Quad
  *
@@ -541,12 +541,12 @@ enum {
  * w  Widechar
  *
  * '  Thousands/quote
- *    Numbers:
- *      Integer part grouped in thousands
- *    Binary numbers:
- *      Number grouped in nibbles (4 bits)
- *    String:
- *      Quoted string
+ *  Numbers:
+ *    Integer part grouped in thousands
+ *  Binary numbers:
+ *    Number grouped in nibbles (4 bits)
+ *  String:
+ *    Quoted string
  *
  * j  intmax_t
  * t  prtdiff_t
@@ -556,12 +556,12 @@ enum {
  * @  Parameter (for both print and scan)
  *
  * I  n-bit Integer
- *    Numbers:
- *      The following options exists
- *        I8  = 8-bit integer
- *        I16 = 16-bit integer
- *        I32 = 32-bit integer
- *        I64 = 64-bit integer
+ *  Numbers:
+ *    The following options exists
+ *      I8  = 8-bit integer
+ *      I16 = 16-bit integer
+ *      I32 = 32-bit integer
+ *      I64 = 64-bit integer
  */
 #define QUALIFIER_POSITION '$'
 #define QUALIFIER_SHORT 'h'
@@ -2146,7 +2146,7 @@ static void TrioWriteWideString(trio_class_t * self, const trio_wchar_t * wstrin
  *  <stdio.h>"
  */
 /* FIXME: handle all instances of constant long-double number (L)
- *   and *l() math functions.
+ * and *l() math functions.
  */
 static void TrioWriteDouble(trio_class_t * self, trio_long_double_t number, trio_flags_t flags, int width, int precision, int base)
 {
@@ -3678,7 +3678,7 @@ TRIO_PUBLIC void trio_locale_set_thousand_separator(char * thousandSeparator)
  *
  *  CHAR_MAX : No further grouping
  *  0        : Repeat last group for the remaining digits (not necessary
- *             as C strings are zero-terminated)
+ *           as C strings are zero-terminated)
  *  n        : Set current group to n
  *
  * Same order as the grouping attribute in LC_NUMERIC.
@@ -3785,9 +3785,9 @@ static int TrioGetCharacterClass(const char * format, int * indexPointer, trio_f
 			     * - only increasing ranges, ie. [a-b] but not [b-a]
 			     * - transitive ranges, ie. [a-b-c] == [a-c]
 			     * - trailing minus, ie. [a-] is interpreted as an 'a'
-			     *   and a '-'
+			     * and a '-'
 			     * - duplicates (although we can easily convert these
-			     *   into errors)
+			     * into errors)
 			     */
 			    range_begin = format[index - 1];
 			    range_end = format[++index];

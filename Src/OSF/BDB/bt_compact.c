@@ -1694,7 +1694,7 @@ done:
 
 /*
  * __bam_truncate_root_page -- swap a page which is
- *    the root of an off page dup tree or the head of an overflow.
+ *  the root of an off page dup tree or the head of an overflow.
  * The page is reference by the pg/indx passed in.
  */
 static int __bam_truncate_root_page(DBC * dbc, PAGE * pg, uint32 indx, DB_COMPACT * c_data)

@@ -6,19 +6,19 @@
  * with or without modification, are permitted provided
  * that the following conditions are met:
  *
- *   Redistributions of source code must retain the above
- *   copyright notice, this list of conditions and the
- *   following disclaimer.
+ * Redistributions of source code must retain the above
+ * copyright notice, this list of conditions and the
+ * following disclaimer.
  *
- *   Redistributions in binary form must reproduce the above
- *   copyright notice, this list of conditions and the following
- *   disclaimer in the documentation and/or other materials
- *   provided with the distribution.
+ * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials
+ * provided with the distribution.
  *
- *   Neither the name of the copyright holder nor the names
- *   of any other contributors may be used to endorse or
- *   promote products derived from this software without
- *   specific prior written permission.
+ * Neither the name of the copyright holder nor the names
+ * of any other contributors may be used to endorse or
+ * promote products derived from this software without
+ * specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
  * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
@@ -125,7 +125,7 @@ static unsigned shell_quotearg(const char * path, uchar * buf,
 	/*
 	 * Processing States:
 	 *  UQSTRING:       unquoted string: ... -- used for quoting exclamation
-	 *                  marks. This is the initial state
+	 *                marks. This is the initial state
 	 *  SQSTRING:       single-quoted-string: '... -- any character may follow
 	 *  QSTRING:        quoted string: "... -- only apostrophes may follow
 	 */
@@ -446,7 +446,7 @@ static LIBSSH2_CHANNEL * scp_recv(LIBSSH2_SESSION * session, const char * path, 
 
 				s = session->scpRecv_response + 1;
 
-				p = (uchar*)strchr((char *)s, ' ');
+				p = (uchar *)strchr((char *)s, ' ');
 				if(!p || ((p - s) <= 0)) {
 					/* No spaces or space in the wrong spot */
 					_libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
@@ -459,7 +459,7 @@ static LIBSSH2_CHANNEL * scp_recv(LIBSSH2_SESSION * session, const char * path, 
 				/* Make sure we don't get fooled by leftover values */
 				session->scpRecv_mtime = strtol((char *)s, NULL, 10);
 
-				s = (uchar*)strchr((char *)p, ' ');
+				s = (uchar *)strchr((char *)p, ' ');
 				if(!s || ((s - p) <= 0)) {
 					/* No spaces or space in the wrong spot */
 					_libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
@@ -469,7 +469,7 @@ static LIBSSH2_CHANNEL * scp_recv(LIBSSH2_SESSION * session, const char * path, 
 
 				/* Ignore mtime.usec */
 				s++;
-				p = (uchar*)strchr((char *)s, ' ');
+				p = (uchar *)strchr((char *)s, ' ');
 				if(!p || ((p - s) <= 0)) {
 					/* No spaces or space in the wrong spot */
 					_libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,

@@ -371,18 +371,18 @@ int __os_fs_notzero()
 	 * Win32 documentation makes it clear that there are no guarantees that
 	 * uninitialized bytes will be zeroed:
 	 *
-	 *   If the file is extended, the contents of the file between the old
-	 *   EOF position and the new position are not defined.
+	 * If the file is extended, the contents of the file between the old
+	 * EOF position and the new position are not defined.
 	 *
 	 * Experiments confirm that NT/2K/XP all zero fill for both NTFS and
 	 * FAT32.  Cygwin also relies on this behavior.  This is the relevant
 	 * comment from Cygwin:
 	 *
-	 *    Oops, this is the bug case - Win95 uses whatever is on the disk
-	 *    instead of some known (safe) value, so we must seek back and fill
-	 *    in the gap with zeros. - DJ
-	 *    Note: this bug doesn't happen on NT4, even though the
-	 *    documentation for WriteFile() says that it *may* happen on any OS.
+	 *  Oops, this is the bug case - Win95 uses whatever is on the disk
+	 *  instead of some known (safe) value, so we must seek back and fill
+	 *  in the gap with zeros. - DJ
+	 *  Note: this bug doesn't happen on NT4, even though the
+	 *  documentation for WriteFile() says that it *may* happen on any OS.
 	 *
 	 * We're making a bet, here, but we made it a long time ago and haven't
 	 * yet seen any evidence that it was wrong.
@@ -1506,18 +1506,18 @@ static int __os_map(ENV * env, char * path, REGINFO * infop, DB_FH * fhp, size_t
 	 * really creating the section.  There are two reasons:
 	 *
 	 * 1) We only create the mapping if we have newly created the region.
-	 *    This avoids a long-running problem caused by Windows reference
-	 *    counting, where regions that are closed by all processes are
-	 *    deleted.  It turns out that just checking for a zeroed region
-	 *    is not good enough. See [#4882] and [#7127] for the details.
+	 *  This avoids a long-running problem caused by Windows reference
+	 *  counting, where regions that are closed by all processes are
+	 *  deleted.  It turns out that just checking for a zeroed region
+	 *  is not good enough. See [#4882] and [#7127] for the details.
 	 *
 	 * 2) CreateFileMapping seems to mess up making the commit charge to
-	 *    the process. It thinks, incorrectly, that when we want to join a
-	 *    previously existing section, that it should make a commit charge
-	 *    for the whole section.  In fact, there is no new committed memory
-	 *    whatever.  The call can fail if there is insufficient memory free
-	 *    to handle the erroneous commit charge.  So, we find that the
-	 *    bogus commit is not made if we call OpenFileMapping.
+	 *  the process. It thinks, incorrectly, that when we want to join a
+	 *  previously existing section, that it should make a commit charge
+	 *  for the whole section.  In fact, there is no new committed memory
+	 *  whatever.  The call can fail if there is insufficient memory free
+	 *  to handle the erroneous commit charge.  So, we find that the
+	 *  bogus commit is not made if we call OpenFileMapping.
 	 */
 	hMemory = NULL;
 	if(use_pagefile) {
@@ -1997,13 +1997,13 @@ int __os_truncate(ENV * env, DB_FH * fhp, db_pgno_t pgno, uint32 pgsize)
 	 * and a SetEndOfFile, but there are several complications:
 	 *
 	 * 1) since the Windows API deals in 32-bit values, it's possible that
-	 *    the return from SetFilePointer (the low 32-bits) is
-	 *    INVALID_SET_FILE_POINTER even when the call has succeeded.  So we
-	 *    have to also check whether GetLastError() returns NO_ERROR.
+	 *  the return from SetFilePointer (the low 32-bits) is
+	 *  INVALID_SET_FILE_POINTER even when the call has succeeded.  So we
+	 *  have to also check whether GetLastError() returns NO_ERROR.
 	 *
 	 * 2) when it returns, SetFilePointer overwrites the high bits of the
-	 *    offset, so if we need to retry, we have to reset the offset each
-	 *    time.
+	 *  offset, so if we need to retry, we have to reset the offset each
+	 *  time.
 	 *
 	 * We can't switch to SetFilePointerEx, which knows about 64-bit
 	 * offsets, because it isn't supported on Win9x/ME.

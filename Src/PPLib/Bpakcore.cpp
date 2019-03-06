@@ -4781,14 +4781,12 @@ int SLAPI TiIter::Init(const PPBillPacket * pPack, long flags, long filtGrpID, O
 			int    is_present = 0;
 			double qtty = 0.0;
 			long   oprno = 0;
+			TransferTbl::Rec rec;
 			for(uint pos = 0; !oprno && pPack->SearchGoods(goods_id, &pos); pos++) {
 				is_present = 1;
 				const PPTransferItem & r_ti = pPack->ConstTI(pos);
-				if(oprno == 0 && r_ti.RByBill) {
-					TransferTbl::Rec rec;
-					if(p_bobj->trfr->SearchByBill(r_ti.BillID, 0, r_ti.RByBill, &rec) > 0)
-						oprno = rec.OprNo;
-				}
+				if(oprno == 0 && r_ti.RByBill && p_bobj->trfr->SearchByBill(r_ti.BillID, 0, r_ti.RByBill, &rec) > 0)
+					oprno = rec.OprNo;
 			}
 			p_bobj->GetGoodsSaldo(goods_id, pPack->Rec.Object, dlvr_loc_id, pPack->Rec.Dt, oprno, &saldo, 0);
 			if(is_present || saldo != 0.0)
@@ -4862,11 +4860,9 @@ int SLAPI PPBillPacket::MergeTI(PPTransferItem * pTI, int idx, long flags, LongA
 			const double q1 = pTI->Quantity_;
 			const double q2 = p_ti->Quantity_;
 			const double q = q1 + q2;
-
 			const double s_np = (pTI->NetPrice() * q1 + p_ti->NetPrice() * q2);
 			const double s_p  = (pTI->Price * q1 + p_ti->Price * q2);
 			const double s_d  = s_p - s_np;
-
 			const double p    = s_p / q;
 			const double d    = s_d / q;
 			pTI->Quantity_ = q;
@@ -4882,21 +4878,23 @@ int SLAPI PPBillPacket::MergeTI(PPTransferItem * pTI, int idx, long flags, LongA
 	return ok;
 }
 
-int SLAPI PPBillPacket::GetNextPLU(long * pPLU, SString & rObjAsscName)
+int SLAPI PPBillPacket::GetNextPLU(TiIter * pI, long * pPLU, SString & rObjAsscName)
 {
-	int    ok = 1;
+	int    ok = -1;
 	long   plu = 0;
-	uint   pos = P_Iter->I-1;
-	TiIter::IndexItem * p_p = 0;
-	if(P_Iter->Index.enumItems(&pos, (void**)&p_p)) {
-		ObjAssocTbl::Rec oa_rec;
-		if(PPRef->Assc.Search(p_p->Ext, &oa_rec) > 0) {
-			plu = oa_rec.InnerNum;
-			GetGoodsName(oa_rec.PrmrObjID, rObjAsscName);
+	TiIter * p_iter = NZOR(pI, P_Iter);
+	if(p_iter) {
+		uint   pos = p_iter->I-1;
+		TiIter::IndexItem * p_p = 0;
+		if(p_iter->Index.enumItems(&pos, reinterpret_cast<void **>(&p_p))) {
+			ObjAssocTbl::Rec oa_rec;
+			if(PPRef->Assc.Search(p_p->Ext, &oa_rec) > 0) {
+				plu = oa_rec.InnerNum;
+				GetGoodsName(oa_rec.PrmrObjID, rObjAsscName);
+			}
+			ok = 1;
 		}
 	}
-	else
-		ok = -1;
 	ASSIGN_PTR(pPLU, plu);
 	return ok;
 }

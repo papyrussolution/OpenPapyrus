@@ -119,7 +119,7 @@ int asn1_enc_save(ASN1_VALUE ** pval, const uchar * in, int inlen, const ASN1_IT
 	if(!enc)
 		return 1;
 	OPENSSL_free(enc->enc);
-	enc->enc = (uchar*)OPENSSL_malloc(inlen);
+	enc->enc = (uchar *)OPENSSL_malloc(inlen);
 	if(enc->enc == NULL)
 		return 0;
 	memcpy(enc->enc, in, inlen);

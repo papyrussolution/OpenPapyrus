@@ -24,7 +24,7 @@ void IDEA_ofb64_encrypt(const uchar * in, uchar * out, long length, IDEA_KEY_SCH
 	register char * dp;
 	ulong  ti[2];
 	int    save = 0;
-	uchar * iv = (uchar*)ivec;
+	uchar * iv = (uchar *)ivec;
 	n2l(iv, v0);
 	n2l(iv, v1);
 	ti[0] = v0;
@@ -48,7 +48,7 @@ void IDEA_ofb64_encrypt(const uchar * in, uchar * out, long length, IDEA_KEY_SCH
 	if(save) {
 		v0 = ti[0];
 		v1 = ti[1];
-		iv = (uchar*)ivec;
+		iv = (uchar *)ivec;
 		l2n(v0, iv);
 		l2n(v1, iv);
 	}

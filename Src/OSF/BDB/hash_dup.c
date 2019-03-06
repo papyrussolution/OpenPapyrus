@@ -14,13 +14,13 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ *  notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ *  notice, this list of conditions and the following disclaimer in the
+ *  documentation and/or other materials provided with the distribution.
  * 3. Neither the name of the University nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
+ *  may be used to endorse or promote products derived from this software
+ *  without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -373,9 +373,9 @@ static int __ham_check_move(DBC * dbc, uint32 add_len)
 	/*
 	 * We need to add a new page under two conditions:
 	 * 1. The addition makes the total data length cross the BIG
-	 *    threshold and the OFFDUP structure won't fit on this page.
+	 *  threshold and the OFFDUP structure won't fit on this page.
 	 * 2. The addition does not make the total data cross the
-	 *    threshold, but the new data won't fit on the page.
+	 *  threshold, but the new data won't fit on the page.
 	 * If neither of these is true, then we can return.
 	 */
 	if(ISBIG(hcp, new_datalen) && (old_len > HOFFDUP_SIZE || HOFFDUP_SIZE-old_len <= P_FREESPACE(dbp, hcp->page)))

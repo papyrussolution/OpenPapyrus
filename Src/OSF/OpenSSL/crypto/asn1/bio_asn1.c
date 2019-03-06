@@ -95,7 +95,7 @@ static int asn1_bio_new(BIO * b)
 
 static int asn1_bio_init(BIO_ASN1_BUF_CTX * ctx, int size)
 {
-	ctx->buf = (uchar*)OPENSSL_malloc(size);
+	ctx->buf = (uchar *)OPENSSL_malloc(size);
 	if(ctx->buf == NULL)
 		return 0;
 	ctx->bufsize = size;

@@ -151,19 +151,19 @@ ngx_err_t ngx_win32_rename_file(ngx_str_t * from, ngx_str_t * to, ngx_log_t * lo
 	for(;; ) {
 		num = ngx_next_temp_number(collision);
 		ngx_sprintf(name + to->len, ".%0muA.DELETE%Z", num);
-		if(MoveFile((const char*)to->data, (const char*)name) != 0) {
+		if(MoveFile((const char *)to->data, (const char *)name) != 0) {
 			break;
 		}
 		collision = 1;
 		ngx_log_error(NGX_LOG_CRIT, log, ngx_errno, "MoveFile() \"%s\" to \"%s\" failed", to->data, name);
 	}
-	if(MoveFile((const char*)from->data, (const char*)to->data) == 0) {
+	if(MoveFile((const char *)from->data, (const char *)to->data) == 0) {
 		err = ngx_errno;
 	}
 	else {
 		err = 0;
 	}
-	if(DeleteFile((const char*)name) == 0) {
+	if(DeleteFile((const char *)name) == 0) {
 		ngx_log_error(NGX_LOG_CRIT, log, ngx_errno, "DeleteFile() \"%s\" failed", name);
 	}
 	/* mutex_unlock() */
@@ -279,7 +279,7 @@ u_char * ngx_realpath(u_char * path, u_char * resolved)
 ngx_int_t ngx_open_dir(ngx_str_t * name, ngx_dir_t * dir)
 {
 	ngx_cpystrn(name->data + name->len, NGX_DIR_MASK, NGX_DIR_MASK_LEN + 1);
-	dir->dir = FindFirstFile((const char*)name->data, &dir->finddata);
+	dir->dir = FindFirstFile((const char *)name->data, &dir->finddata);
 	name->data[name->len] = '\0';
 	if(dir->dir == INVALID_HANDLE_VALUE) {
 		return NGX_ERROR;
@@ -312,7 +312,7 @@ ngx_int_t ngx_open_glob(ngx_glob_t * gl)
 	u_char   * p;
 	size_t len;
 	ngx_err_t err;
-	gl->dir = FindFirstFile((const char*)gl->pattern, &gl->finddata);
+	gl->dir = FindFirstFile((const char *)gl->pattern, &gl->finddata);
 	if(gl->dir == INVALID_HANDLE_VALUE) {
 		err = ngx_errno;
 		if((err == ERROR_FILE_NOT_FOUND || err == ERROR_PATH_NOT_FOUND) && gl->test) {
@@ -418,7 +418,7 @@ size_t ngx_fs_bsize(u_char * name)
 		ngx_cpystrn(root, name, 4);
 		name = root;
 	}
-	if(GetDiskFreeSpace((const char*)name, &sc, &bs, &nfree, &ncl) == 0) {
+	if(GetDiskFreeSpace((const char *)name, &sc, &bs, &nfree, &ncl) == 0) {
 		return 512;
 	}
 	return sc * bs;

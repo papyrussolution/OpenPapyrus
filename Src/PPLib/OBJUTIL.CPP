@@ -1499,7 +1499,7 @@ int FASTCALL ShowObjects(PPID obj, void * extraPtr)
 	PPObject * ppobj = GetPPObject(obj, extraPtr);
 	PPObjListWindow * p_lw = ppobj ? (PPObjListWindow*)ppobj->CreateObjListWin(OLW_CANEDIT|OLW_CANINSERT|OLW_CANDELETE, extraPtr) : 0;
 	SString obj_title;
-	if(!p_lw || APPL->AddListToTree(static_cast<PPApp *>(APPL)->LastCmd, (const char*)GetObjectTitle(obj, obj_title).Transf(CTRANSF_INNER_TO_OUTER), p_lw) <= 0) {
+	if(!p_lw || APPL->AddListToTree(static_cast<PPApp *>(APPL)->LastCmd, (const char *)GetObjectTitle(obj, obj_title).Transf(CTRANSF_INNER_TO_OUTER), p_lw) <= 0) {
 		ok = 0;
 		ZDELETE(p_lw);
 	}
@@ -1867,7 +1867,7 @@ int SLAPI ObjLinkFiles::Load(PPID objID, const char * pAddedStr)
 			(path = StoreDir).SetLastSlash().Cat(e.FileName);
 			if(GetNum(path, &num) > 0) {
 				FilesNums |= (1 << (num - 1));
-				THROW_SL(Files.insert(newStr((const char*)path)));
+				THROW_SL(Files.insert(newStr((const char *)path)));
 			}
 		}
 		ok = 1;

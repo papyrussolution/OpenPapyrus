@@ -106,7 +106,7 @@ int ASN1_mbstring_ncopy(ASN1_STRING ** out, const uchar * in, int len, int infor
 	char strbuf[32];
 	int (* cpyfunc)(ulong, void *) = NULL;
 	if(len == -1)
-		len = strlen((const char*)in);
+		len = strlen((const char *)in);
 	SETIFZ(mask, DIRSTRING_TYPE);
 	// First do a string check and work out the number of characters 
 	switch(inform) {
@@ -226,7 +226,7 @@ int ASN1_mbstring_ncopy(ASN1_STRING ** out, const uchar * in, int len, int infor
 		    cpyfunc = cpy_utf8;
 		    break;
 	}
-	if((p = (uchar*)OPENSSL_malloc(outlen + 1)) == NULL) {
+	if((p = (uchar *)OPENSSL_malloc(outlen + 1)) == NULL) {
 		if(free_out)
 			ASN1_STRING_free(dest);
 		ASN1err(ASN1_F_ASN1_MBSTRING_NCOPY, ERR_R_MALLOC_FAILURE);

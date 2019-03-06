@@ -217,8 +217,7 @@ int GetDevProperty(HDEVINFO handle, SP_DEVINFO_DATA * pDevInfo, int property, SS
 	if(retnd_size) {
 		p_buf = new BYTE [retnd_size];
 		memzero(p_buf, retnd_size);
-		THROW_S_S(SetupDiGetDeviceRegistryProperty(handle, pDevInfo, (DWORD)property,
-			NULL, p_buf, retnd_size, &retnd_size), SLERR_USB, GetErrorStr());
+		THROW_S_S(SetupDiGetDeviceRegistryProperty(handle, pDevInfo, (DWORD)property, NULL, p_buf, retnd_size, &retnd_size), SLERR_USB, GetErrorStr());
 		rStr = (const char *)p_buf;
 	}
 	CATCHZOK
@@ -829,7 +828,7 @@ void SRawInputData::Reset()
 
 SRawInputData::operator RAWINPUT * ()
 {
-	return (RAWINPUT *)P_Buf;
+	return static_cast<RAWINPUT *>(P_Buf);
 }
 
 int FASTCALL SRawInputData::Get(/*long*/void * rawInputHandle)

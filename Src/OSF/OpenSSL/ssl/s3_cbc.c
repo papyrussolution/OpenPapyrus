@@ -96,17 +96,17 @@ char ssl3_cbc_record_digest_supported(const EVP_MD_CTX * ctx)
  * ssl3_cbc_digest_record computes the MAC of a decrypted, padded SSLv3/TLS
  * record.
  *
- *   ctx: the EVP_MD_CTX from which we take the hash function.
- *     ssl3_cbc_record_digest_supported must return true for this EVP_MD_CTX.
- *   md_out: the digest output. At most EVP_MAX_MD_SIZE bytes will be written.
- *   md_out_size: if non-NULL, the number of output bytes is written here.
- *   header: the 13-byte, TLS record header.
- *   data: the record data itself, less any preceding explicit IV.
- *   data_plus_mac_size: the secret, reported length of the data and MAC
- *     once the padding has been removed.
- *   data_plus_mac_plus_padding_size: the public length of the whole
- *     record, including padding.
- *   is_sslv3: non-zero if we are to use SSLv3. Otherwise, TLS.
+ * ctx: the EVP_MD_CTX from which we take the hash function.
+ *   ssl3_cbc_record_digest_supported must return true for this EVP_MD_CTX.
+ * md_out: the digest output. At most EVP_MAX_MD_SIZE bytes will be written.
+ * md_out_size: if non-NULL, the number of output bytes is written here.
+ * header: the 13-byte, TLS record header.
+ * data: the record data itself, less any preceding explicit IV.
+ * data_plus_mac_size: the secret, reported length of the data and MAC
+ *   once the padding has been removed.
+ * data_plus_mac_plus_padding_size: the public length of the whole
+ *   record, including padding.
+ * is_sslv3: non-zero if we are to use SSLv3. Otherwise, TLS.
  *
  * On entry: by virtue of having been through one of the remove_padding
  * functions, above, we know that data_plus_mac_size is large enough to contain

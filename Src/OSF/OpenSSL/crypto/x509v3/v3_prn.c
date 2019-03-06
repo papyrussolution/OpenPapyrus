@@ -166,7 +166,7 @@ static int unknown_ext_print(BIO * out, const uchar * ext, int extlen, ulong fla
 		case X509V3_EXT_PARSE_UNKNOWN:
 		    return ASN1_parse_dump(out, ext, extlen, indent, -1);
 		case X509V3_EXT_DUMP_UNKNOWN:
-		    return BIO_dump_indent(out, (const char*)ext, extlen, indent);
+		    return BIO_dump_indent(out, (const char *)ext, extlen, indent);
 		default:
 		    return 1;
 	}

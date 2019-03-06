@@ -143,7 +143,7 @@ typedef struct {
 	 * of samples at the main buffer (preprocessing/compression interface);
 	 * DCT scaling is included, so
 	 * downsampled_width =
-	 *   ceil(image_width * Hi/Hmax * DCT_h_scaled_size/block_size)
+	 * ceil(image_width * Hi/Hmax * DCT_h_scaled_size/block_size)
 	 * and similarly for height.
 	 */
 	JDIMENSION downsampled_width; /* actual width in samples */

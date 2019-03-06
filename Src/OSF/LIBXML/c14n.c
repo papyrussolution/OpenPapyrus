@@ -439,7 +439,7 @@ static int xmlC14NPrintNamespaces(const xmlNs * ns, xmlC14NCtxPtr ctx)
 	else {
 		if(ns->prefix) {
 			xmlOutputBufferWriteString(ctx->buf, " xmlns:");
-			xmlOutputBufferWriteString(ctx->buf, (const char*)ns->prefix);
+			xmlOutputBufferWriteString(ctx->buf, (const char *)ns->prefix);
 			xmlOutputBufferWriteString(ctx->buf, "=");
 		}
 		else
@@ -467,10 +467,10 @@ static int xmlC14NPrintNamespaces(const xmlNs * ns, xmlC14NCtxPtr ctx)
  * processing L, if the first node is not the default namespace node (a node
  * with no namespace URI and no local name), then generate a space followed
  * by xmlns="" if and only if the following conditions are met:
- *    - the element E that owns the axis is in the node-set
- *    - The nearest ancestor element of E in the node-set has a default
+ *  - the element E that owns the axis is in the node-set
+ *  - The nearest ancestor element of E in the node-set has a default
  *	    namespace node in the node-set (default namespace nodes always
- *      have non-empty values in XPath)
+ *    have non-empty values in XPath)
  * The latter condition eliminates unnecessary occurrences of xmlns="" in
  * the canonical form since an element only receives an xmlns="" if its
  * default namespace is empty and if it has an immediate parent in the
@@ -534,8 +534,8 @@ static int xmlC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int v
 	 * xmlns="" if and only if the following conditions are met:
 	 *  - the element E that owns the axis is in the node-set
 	 *  - the nearest ancestor element of E in the node-set has a default
-	 *     namespace node in the node-set (default namespace nodes always
-	 *     have non-empty values in XPath)
+	 *   namespace node in the node-set (default namespace nodes always
+	 *   have non-empty values in XPath)
 	 */
 	if(visible && !has_empty_ns) {
 		static xmlNs ns_default;
@@ -572,12 +572,12 @@ static int xmlC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int v
  * rendered as follows:
  *
  * 1. Render each namespace node iff:
- *    * it is visibly utilized by the immediate parent element or one of
- *      its attributes, or is present in InclusiveNamespaces PrefixList, and
- *    * its prefix and value do not appear in ns_rendered. ns_rendered is
- *      obtained by popping the state stack in order to obtain a list of
- *      prefixes and their values which have already been rendered by
- *      an output ancestor of the namespace node's parent element.
+ *  * it is visibly utilized by the immediate parent element or one of
+ *    its attributes, or is present in InclusiveNamespaces PrefixList, and
+ *  * its prefix and value do not appear in ns_rendered. ns_rendered is
+ *    obtained by popping the state stack in order to obtain a list of
+ *    prefixes and their values which have already been rendered by
+ *    an output ancestor of the namespace node's parent element.
  * 2. Append the rendered namespace node to the list ns_rendered of namespace
  * nodes rendered by output ancestors. Push ns_rendered on state stack and
  * recurse.
@@ -801,10 +801,10 @@ static int xmlC14NPrintAttrs(const xmlAttr * attr, xmlC14NCtxPtr ctx)
 	}
 	xmlOutputBufferWriteString(ctx->buf, " ");
 	if(attr->ns && sstrlen(attr->ns->prefix)) {
-		xmlOutputBufferWriteString(ctx->buf, (const char*)attr->ns->prefix);
+		xmlOutputBufferWriteString(ctx->buf, (const char *)attr->ns->prefix);
 		xmlOutputBufferWriteString(ctx->buf, ":");
 	}
-	xmlOutputBufferWriteString(ctx->buf, (const char*)attr->name);
+	xmlOutputBufferWriteString(ctx->buf, (const char *)attr->name);
 	xmlOutputBufferWriteString(ctx->buf, "=\"");
 	value = xmlNodeListGetString(ctx->doc, attr->children, 1);
 	/* todo: should we log an error if value==NULL ? */
@@ -812,7 +812,7 @@ static int xmlC14NPrintAttrs(const xmlAttr * attr, xmlC14NCtxPtr ctx)
 		buffer = xmlC11NNormalizeAttr(value);
 		SAlloc::F(value);
 		if(buffer) {
-			xmlOutputBufferWriteString(ctx->buf, (const char*)buffer);
+			xmlOutputBufferWriteString(ctx->buf, (const char *)buffer);
 			SAlloc::F(buffer);
 		}
 		else {
@@ -1162,7 +1162,7 @@ static int xmlC14NCheckForRelativeNamespaces(xmlC14NCtxPtr ctx, xmlNode * cur)
 	else {
 		for(xmlNs * ns = cur->nsDef; ns; ns = ns->next) {
 			if(sstrlen(ns->href)) {
-				xmlURIPtr uri = xmlParseURI((const char*)ns->href);
+				xmlURIPtr uri = xmlParseURI((const char *)ns->href);
 				if(!uri) {
 					xmlC14NErrInternal("parsing namespace uri");
 					return -1;
@@ -1240,10 +1240,10 @@ static int xmlC14NProcessElementNode(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visi
 		}
 		xmlOutputBufferWriteString(ctx->buf, "<");
 		if(cur->ns && sstrlen(cur->ns->prefix)) {
-			xmlOutputBufferWriteString(ctx->buf, (const char*)cur->ns->prefix);
+			xmlOutputBufferWriteString(ctx->buf, (const char *)cur->ns->prefix);
 			xmlOutputBufferWriteString(ctx->buf, ":");
 		}
-		xmlOutputBufferWriteString(ctx->buf, (const char*)cur->name);
+		xmlOutputBufferWriteString(ctx->buf, (const char *)cur->name);
 	}
 	if(!xmlC14NIsExclusive(ctx)) {
 		ret = xmlC14NProcessNamespacesAxis(ctx, cur, visible);
@@ -1277,10 +1277,10 @@ static int xmlC14NProcessElementNode(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visi
 	if(visible) {
 		xmlOutputBufferWriteString(ctx->buf, "</");
 		if(cur->ns && sstrlen(cur->ns->prefix)) {
-			xmlOutputBufferWriteString(ctx->buf, (const char*)cur->ns->prefix);
+			xmlOutputBufferWriteString(ctx->buf, (const char *)cur->ns->prefix);
 			xmlOutputBufferWriteString(ctx->buf, ":");
 		}
-		xmlOutputBufferWriteString(ctx->buf, (const char*)cur->name);
+		xmlOutputBufferWriteString(ctx->buf, (const char *)cur->name);
 		xmlOutputBufferWriteString(ctx->buf, ">");
 		if(parent_is_doc) {
 			/* restore this flag from the stack for next node */
@@ -1334,7 +1334,7 @@ static int xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNode * cur)
 		    if((visible) && cur->content) {
 			    xmlChar * buffer = xmlC11NNormalizeText(cur->content);
 			    if(buffer) {
-				    xmlOutputBufferWriteString(ctx->buf, (const char*)buffer);
+				    xmlOutputBufferWriteString(ctx->buf, (const char *)buffer);
 				    SAlloc::F(buffer);
 			    }
 			    else {
@@ -1364,14 +1364,14 @@ static int xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNode * cur)
 				    xmlOutputBufferWriteString(ctx->buf, "<?");
 			    }
 
-			    xmlOutputBufferWriteString(ctx->buf, (const char*)cur->name);
+			    xmlOutputBufferWriteString(ctx->buf, (const char *)cur->name);
 			    if(cur->content && (*(cur->content) != '\0')) {
 				    xmlChar * buffer;
 				    xmlOutputBufferWriteString(ctx->buf, " ");
 				    /* todo: do we need to normalize pi? */
 				    buffer = xmlC11NNormalizePI(cur->content);
 				    if(buffer) {
-					    xmlOutputBufferWriteString(ctx->buf, (const char*)buffer);
+					    xmlOutputBufferWriteString(ctx->buf, (const char *)buffer);
 					    SAlloc::F(buffer);
 				    }
 				    else {
@@ -1414,7 +1414,7 @@ static int xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNode * cur)
 				    // todo: do we need to normalize comment? 
 				    xmlChar * buffer = xmlC11NNormalizeComment(cur->content);
 				    if(buffer) {
-					    xmlOutputBufferWriteString(ctx->buf, (const char*)buffer);
+					    xmlOutputBufferWriteString(ctx->buf, (const char *)buffer);
 					    SAlloc::F(buffer);
 				    }
 				    else {
@@ -1827,7 +1827,7 @@ int xmlC14NDocSave(xmlDoc * doc, xmlNodeSetPtr nodes, int mode, xmlChar ** inclu
  */
 #define growBufferReentrant() {						\
 		buffer_size *= 2;						    \
-		buffer = (xmlChar*)SAlloc::R(buffer, buffer_size * sizeof(xmlChar));	    \
+		buffer = (xmlChar *)SAlloc::R(buffer, buffer_size * sizeof(xmlChar));	    \
 		if(!buffer) {						   \
 			xmlC14NErrMemory("growing buffer");				\
 			return 0;							\
@@ -1858,7 +1858,7 @@ static xmlChar * xmlC11NNormalizeString(const xmlChar * input, xmlC14NNormalizat
 	 * allocate an translation buffer.
 	 */
 	buffer_size = 1000;
-	buffer = (xmlChar*)SAlloc::M(buffer_size * sizeof(xmlChar));
+	buffer = (xmlChar *)SAlloc::M(buffer_size * sizeof(xmlChar));
 	if(!buffer) {
 		xmlC14NErrMemory("allocating buffer");
 		return 0;

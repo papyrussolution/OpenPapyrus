@@ -332,7 +332,7 @@ namespace NArchive {
 		// crc = CrcUpdate(CRC_INIT_VAL, buf, 10);
 		if(NameIsPresent()) {
 			// crc = CrcUpdate(crc, (const char *)Name, Name.Len() + 1);
-			RINOK(WriteStream(stream, (const char*)Name, Name.Len() + 1));
+			RINOK(WriteStream(stream, (const char *)Name, Name.Len() + 1));
 		}
 		// SetUi16(buf, (uint16)CRC_GET_DIGEST(crc));
 		// RINOK(WriteStream(stream, buf, 2));

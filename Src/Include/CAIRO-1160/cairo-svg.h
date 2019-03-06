@@ -57,8 +57,8 @@ typedef enum _cairo_svg_version {
  * cairo_svg_unit_t:
  *
  * @CAIRO_SVG_UNIT_USER: User unit, a value in the current coordinate system.
- *   If used in the root element for the initial coordinate systems it
- *   corresponds to pixels. (Since 1.16)
+ * If used in the root element for the initial coordinate systems it
+ * corresponds to pixels. (Since 1.16)
  * @CAIRO_SVG_UNIT_EM: The size of the element's font. (Since 1.16)
  * @CAIRO_SVG_UNIT_EX: The x-height of the element’s font. (Since 1.16)
  * @CAIRO_SVG_UNIT_PX: Pixels (1px = 1/96th of 1in). (Since 1.16)
@@ -68,7 +68,7 @@ typedef enum _cairo_svg_version {
  * @CAIRO_SVG_UNIT_PT: Points (1pt = 1/72th of 1in). (Since 1.16)
  * @CAIRO_SVG_UNIT_PC: Picas (1pc = 1/6th of 1in). (Since 1.16)
  * @CAIRO_SVG_UNIT_PERCENT: Percent, a value that is some fraction of another
- *   reference value. (Since 1.16)
+ * reference value. (Since 1.16)
  *
  * #cairo_svg_unit_t is used to describe the units valid for coordinates and
  * lengths in the SVG specification.

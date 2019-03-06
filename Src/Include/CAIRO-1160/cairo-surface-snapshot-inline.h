@@ -30,7 +30,7 @@
  * The Initial Developer of the Original Code is Intel Corporation.
  *
  * Contributor(s):
- *      Chris Wilson <chris@chris-wilson.co.uk>
+ *    Chris Wilson <chris@chris-wilson.co.uk>
  */
 
 #ifndef CAIRO_SURFACE_SNAPSHOT_INLINE_H

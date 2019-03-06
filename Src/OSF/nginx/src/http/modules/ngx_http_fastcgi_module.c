@@ -1770,20 +1770,20 @@ static void * ngx_http_fastcgi_create_loc_conf(ngx_conf_t * cf)
 	/*
 	 * set by ngx_pcalloc():
 	 *
-	 *     conf->upstream.bufs.num = 0;
-	 *     conf->upstream.ignore_headers = 0;
-	 *     conf->upstream.next_upstream = 0;
-	 *     conf->upstream.cache_zone = NULL;
-	 *     conf->upstream.cache_use_stale = 0;
-	 *     conf->upstream.cache_methods = 0;
-	 *     conf->upstream.temp_path = NULL;
-	 *     conf->upstream.hide_headers_hash = { NULL, 0 };
-	 *     conf->upstream.uri = { 0, NULL };
-	 *     conf->upstream.location = NULL;
-	 *     conf->upstream.store_lengths = NULL;
-	 *     conf->upstream.store_values = NULL;
+	 *   conf->upstream.bufs.num = 0;
+	 *   conf->upstream.ignore_headers = 0;
+	 *   conf->upstream.next_upstream = 0;
+	 *   conf->upstream.cache_zone = NULL;
+	 *   conf->upstream.cache_use_stale = 0;
+	 *   conf->upstream.cache_methods = 0;
+	 *   conf->upstream.temp_path = NULL;
+	 *   conf->upstream.hide_headers_hash = { NULL, 0 };
+	 *   conf->upstream.uri = { 0, NULL };
+	 *   conf->upstream.location = NULL;
+	 *   conf->upstream.store_lengths = NULL;
+	 *   conf->upstream.store_values = NULL;
 	 *
-	 *     conf->index.len = { 0, NULL };
+	 *   conf->index.len = { 0, NULL };
 	 */
 	conf->upstream.store = NGX_CONF_UNSET;
 	conf->upstream.store_access = NGX_CONF_UNSET_UINT;

@@ -228,7 +228,7 @@ int korea_post(struct ZintSymbol * symbol, uchar source[], int length)
 	}
 	lookup(NEON, KoreaTable, localstr[6], dest);
 	expand(symbol, dest);
-	sstrcpy(symbol->text, (uchar*)localstr);
+	sstrcpy(symbol->text, (uchar *)localstr);
 	return error_number;
 }
 
@@ -321,7 +321,7 @@ int royal_plot(struct ZintSymbol * symbol, uchar source[], int length)
 		sstrcpy(symbol->errtxt, "Invalid characters in data (D89)");
 		return error_number;
 	}
-	/*check = */ rm4scc((char *)source, (uchar*)height_pattern, length);
+	/*check = */ rm4scc((char *)source, (uchar *)height_pattern, length);
 
 	writer = 0;
 	h = strlen(height_pattern);
@@ -404,8 +404,8 @@ int daft_code(struct ZintSymbol * symbol, uchar source[], int length)
 		sstrcpy(symbol->errtxt, "Input too long (D8C)");
 		return ZINT_ERROR_TOO_LONG;
 	}
-	to_upper((uchar*)source);
-	error_number = is_sane(DAFTSET, (uchar*)source, length);
+	to_upper((uchar *)source);
+	error_number = is_sane(DAFTSET, (uchar *)source, length);
 
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
 		sstrcpy(symbol->errtxt, "Invalid characters in data (D8D)");
@@ -500,8 +500,8 @@ int japan_post(struct ZintSymbol * symbol, uchar source[], int length)
 	for(i = 0; i < length; i++) {
 		local_source[i] = source[i];
 	}
-	to_upper((uchar*)local_source);
-	error_number = is_sane(SHKASUTSET, (uchar*)local_source, length);
+	to_upper((uchar *)local_source);
+	error_number = is_sane(SHKASUTSET, (uchar *)local_source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
 		sstrcpy(symbol->errtxt, "Invalid characters in data (D8H)");
 		return error_number;

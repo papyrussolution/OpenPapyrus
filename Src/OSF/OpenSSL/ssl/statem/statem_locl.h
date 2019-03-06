@@ -8,10 +8,10 @@
  */
 
 /*****************************************************************************
- *                                                                           *
+ *                                                                         *
  * The following definitions are PRIVATE to the state machine. They should   *
  * NOT be used outside of the state machine.                                 *
- *                                                                           *
+ *                                                                         *
  *****************************************************************************/
 
 /* Max message length definitions */

@@ -185,7 +185,7 @@ static cairo_status_t cairo_type1_font_subset_find_segments(cairo_type1_font_sub
 {
 	const char * eexec_token;
 	int size, i;
-	uchar * p = (uchar*)font->type1_data;
+	uchar * p = (uchar *)font->type1_data;
 	font->type1_end = font->type1_data + font->type1_length;
 	if(p[0] == 0x80 && p[1] == 0x01) {
 		font->header_segment_size = p[2] | (p[3] << 8) | (p[4] << 16) | (p[5] << 24);
@@ -195,7 +195,7 @@ static cairo_status_t cairo_type1_font_subset_find_segments(cairo_type1_font_sub
 		font->eexec_segment = (char *)p + 6;
 		font->eexec_segment_is_ascii = (p[1] == 1);
 		p += 6 + font->eexec_segment_size;
-		while(p < (uchar*)(font->type1_end) && p[1] != 0x03) {
+		while(p < (uchar *)(font->type1_end) && p[1] != 0x03) {
 			size = p[2] | (p[3] << 8) | (p[4] << 16) | (p[5] << 24);
 			p += 6 + size;
 		}
@@ -502,8 +502,8 @@ static cairo_status_t cairo_type1_font_subset_decrypt_eexec_segment(cairo_type1_
 	char * out;
 	int c, p;
 	int i;
-	uchar * in = (uchar*)font->eexec_segment;
-	uchar * end = (uchar*)in + font->eexec_segment_size;
+	uchar * in = (uchar *)font->eexec_segment;
+	uchar * end = (uchar *)in + font->eexec_segment_size;
 	font->cleartext = (char *)_cairo_malloc(font->eexec_segment_size + 1);
 	if(unlikely(font->cleartext == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -884,7 +884,7 @@ static cairo_status_t cairo_type1_font_for_each_subr(cairo_type1_font_subset_t *
 	/* We're looking at "dup" at the start of the first subroutine. The subroutines
 	 * definitions are on the form:
 	 *
-	 *   dup 5 23 RD <23 binary bytes> NP
+	 * dup 5 23 RD <23 binary bytes> NP
 	 *
 	 * or alternatively using -| and |- instead of RD and ND.
 	 * The first number is the subroutine number.
@@ -1040,7 +1040,7 @@ static cairo_status_t cairo_type1_font_subset_for_each_glyph(cairo_type1_font_su
 	/* We're looking at '/' in the name of the first glyph.  The glyph
 	 * definitions are on the form:
 	 *
-	 *   /name 23 RD <23 binary bytes> ND
+	 * /name 23 RD <23 binary bytes> ND
 	 *
 	 * or alternatively using -| and |- instead of RD and ND.
 	 *
@@ -1430,10 +1430,10 @@ static cairo_status_t cairo_type1_font_subset_generate(void * abstract_font, con
 	font->type1_data = (char *)_cairo_malloc(font->type1_length);
 	if(unlikely(font->type1_data == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-	status = scaled_font->backend->load_type1_data(scaled_font, 0, (uchar*)font->type1_data, &data_length);
+	status = scaled_font->backend->load_type1_data(scaled_font, 0, (uchar *)font->type1_data, &data_length);
 	if(unlikely(status))
 		return status;
-	if(!check_fontdata_is_type1((uchar*)font->type1_data, data_length))
+	if(!check_fontdata_is_type1((uchar *)font->type1_data, data_length))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	status = _cairo_array_grow_by(&font->contents, 4096);
 	if(unlikely(status))
@@ -1444,7 +1444,7 @@ static cairo_status_t cairo_type1_font_subset_generate(void * abstract_font, con
 	status = cairo_type1_font_subset_write(font, name);
 	if(unlikely(status))
 		return status;
-	font->base.data = (const char*)_cairo_array_index(&font->contents, 0);
+	font->base.data = (const char *)_cairo_array_index(&font->contents, 0);
 	return status;
 }
 

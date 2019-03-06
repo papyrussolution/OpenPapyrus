@@ -264,7 +264,7 @@ ASN1_STRING * ASN1_STRING_dup(const ASN1_STRING * str)
 int ASN1_STRING_set(ASN1_STRING * str, const void * _data, int len)
 {
 	uchar * c;
-	const char * data = (const char*)_data;
+	const char * data = (const char *)_data;
 	if(len < 0) {
 		if(data == NULL)
 			return 0;
@@ -273,7 +273,7 @@ int ASN1_STRING_set(ASN1_STRING * str, const void * _data, int len)
 	}
 	if((str->length <= len) || (str->data == NULL)) {
 		c = str->data;
-		str->data = (uchar*)OPENSSL_realloc(c, len + 1);
+		str->data = (uchar *)OPENSSL_realloc(c, len + 1);
 		if(str->data == NULL) {
 			ASN1err(ASN1_F_ASN1_STRING_SET, ERR_R_MALLOC_FAILURE);
 			str->data = c;
@@ -292,7 +292,7 @@ int ASN1_STRING_set(ASN1_STRING * str, const void * _data, int len)
 void ASN1_STRING_set0(ASN1_STRING * str, void * data, int len)
 {
 	OPENSSL_free(str->data);
-	str->data = (uchar*)data;
+	str->data = (uchar *)data;
 	str->length = len;
 }
 

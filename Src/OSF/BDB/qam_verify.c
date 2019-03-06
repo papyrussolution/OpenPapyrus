@@ -308,7 +308,7 @@ err:
 }
 /*
  * __qam_vrfy_walkqueue --
- *    Do a "walkpages" per-page verification pass over the set of Queue
+ *  Do a "walkpages" per-page verification pass over the set of Queue
  * extent pages.
  *
  * PUBLIC: int __qam_vrfy_walkqueue __P((DB *, VRFY_DBINFO *, void *,

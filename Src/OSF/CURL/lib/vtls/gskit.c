@@ -125,7 +125,7 @@ static const gskit_cipher ciphertable[] = {
 	{ "exp-rc2-md5",      "4",    CURL_GSKPROTO_SSLV2_MASK },
 	{ "des-cbc-md5",      "6",    CURL_GSKPROTO_SSLV2_MASK },
 	{ "des-cbc3-md5",     "7",    CURL_GSKPROTO_SSLV2_MASK },
-	{ (const char*)NULL, (const char*)NULL, 0       }
+	{ (const char *)NULL, (const char *)NULL, 0       }
 };
 
 static bool is_separator(char c)
@@ -473,12 +473,12 @@ static void close_async_handshake(struct ssl_connect_data * connssl)
 /* SSL over SSL
  * Problems:
  * 1) GSKit can only perform SSL on an AF_INET or AF_INET6 stream socket. To
- *    pipe an SSL stream into another, it is therefore needed to have a pair
- *    of such communicating sockets and handle the pipelining explicitly.
+ *  pipe an SSL stream into another, it is therefore needed to have a pair
+ *  of such communicating sockets and handle the pipelining explicitly.
  * 2) OS/400 socketpair() is only implemented for domain AF_UNIX, thus cannot
- *    be used to produce the pipeline.
+ *  be used to produce the pipeline.
  * The solution is to simulate socketpair() for AF_INET with low-level API
- *    listen(), bind() and connect().
+ *  listen(), bind() and connect().
  */
 
 static int inetsocketpair(int sv[2])
@@ -770,11 +770,11 @@ static CURLcode gskit_connect_step1(struct connectdata * conn, int sockindex)
 	envir = (gsk_handle)NULL;
 	if(keyringlabel && *keyringlabel && !keyringpwd && !strcmp(keyringfile, CURL_CA_BUNDLE)) {
 		/* Try application identifier mode. */
-		init_environment(data, &envir, keyringlabel, (const char*)NULL, (const char*)NULL, (const char*)NULL);
+		init_environment(data, &envir, keyringlabel, (const char *)NULL, (const char *)NULL, (const char *)NULL);
 	}
 	if(!envir) {
 		/* Use keyring mode. */
-		result = init_environment(data, &envir, (const char*)NULL, keyringfile, keyringlabel, keyringpwd);
+		result = init_environment(data, &envir, (const char *)NULL, keyringfile, keyringlabel, keyringpwd);
 		if(result)
 			return result;
 	}
@@ -990,7 +990,7 @@ static CURLcode gskit_connect_step3(struct connectdata * conn, int sockindex)
 	const gsk_cert_data_elem * cdev;
 	int cdec;
 	const gsk_cert_data_elem * p;
-	const char * cert = (const char*)NULL;
+	const char * cert = (const char *)NULL;
 	const char * certend;
 	const char * ptr;
 	int i;
@@ -1238,7 +1238,7 @@ int Curl_gskit_check_cxn(struct connectdata * cxn)
 		return 0;  /* connection has been closed */
 	err = 0;
 	errlen = sizeof err;
-	if(getsockopt(cxn->sock[FIRSTSOCKET], SOL_SOCKET, SO_ERROR, (uchar*)&err, &errlen) || errlen != sizeof err || err)
+	if(getsockopt(cxn->sock[FIRSTSOCKET], SOL_SOCKET, SO_ERROR, (uchar *)&err, &errlen) || errlen != sizeof err || err)
 		return 0;  /* connection has been closed */
 	return -1; /* connection status unknown */
 }

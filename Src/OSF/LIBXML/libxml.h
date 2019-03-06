@@ -20,7 +20,7 @@
 //
 // Descr: Macro to cast a string to an xmlChar * when one know its safe.
 //
-#define BAD_CAST (xmlChar*)
+#define BAD_CAST (xmlChar *)
 
 #if defined(macintosh)
 	#include "config-mac.h"
@@ -503,11 +503,11 @@ int xmlNop(void);
 		 * Various defines for the various Link properties.
 		 *
 		 * NOTE: the link detection layer will try to resolve QName expansion
-		 *       of namespaces. If "foo" is the prefix for "http://foo.com/"
-		 *       then the link detection layer will expand role="foo:myrole"
-		 *       to "http://foo.com/:myrole".
+		 *     of namespaces. If "foo" is the prefix for "http://foo.com/"
+		 *     then the link detection layer will expand role="foo:myrole"
+		 *     to "http://foo.com/:myrole".
 		 * NOTE: the link detection layer will expand URI-Refences found on
-		 *       href attributes by using the base mechanism if found.
+		 *     href attributes by using the base mechanism if found.
 		 */
 		typedef xmlChar * xlinkHRef;
 		typedef xmlChar * xlinkRole;

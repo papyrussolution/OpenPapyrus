@@ -589,12 +589,12 @@ static void * ngx_http_sub_create_conf(ngx_conf_t * cf)
 		/*
 		 * set by ngx_pcalloc():
 		 *
-		 *     conf->dynamic = 0;
-		 *     conf->pairs = NULL;
-		 *     conf->tables = NULL;
-		 *     conf->types = { NULL };
-		 *     conf->types_keys = NULL;
-		 *     conf->matches = NULL;
+		 *   conf->dynamic = 0;
+		 *   conf->pairs = NULL;
+		 *   conf->tables = NULL;
+		 *   conf->types = { NULL };
+		 *   conf->types_keys = NULL;
+		 *   conf->matches = NULL;
 		 */
 
 		slcf->once = NGX_CONF_UNSET;

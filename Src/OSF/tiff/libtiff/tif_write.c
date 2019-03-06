@@ -334,9 +334,9 @@ tmsize_t TIFFWriteTile(TIFF* tif, void* buf, uint32 x, uint32 y, uint32 z, uint1
 		return ((tmsize_t)(-1));
 	/*
 	 * NB: A tile size of -1 is used instead of tif_tilesize knowing
-	 *     that TIFFWriteEncodedTile will clamp this to the tile size.
-	 *     This is done because the tile size may not be defined until
-	 *     after the output buffer is setup in TIFFWriteBufferSetup.
+	 *   that TIFFWriteEncodedTile will clamp this to the tile size.
+	 *   This is done because the tile size may not be defined until
+	 *   after the output buffer is setup in TIFFWriteBufferSetup.
 	 */
 	return (TIFFWriteEncodedTile(tif, TIFFComputeTile(tif, x, y, z, s), buf, (tmsize_t)(-1)));
 }
@@ -350,8 +350,8 @@ tmsize_t TIFFWriteTile(TIFF* tif, void* buf, uint32 x, uint32 y, uint32 z, uint1
  * tile do not write more than tile size data.
  *
  * NB: Image length must be setup before writing; this
- *     interface does not support automatically growing
- *     the image on each write (as TIFFWriteScanline does).
+ *   interface does not support automatically growing
+ *   the image on each write (as TIFFWriteScanline does).
  */
 tmsize_t TIFFWriteEncodedTile(TIFF* tif, uint32 tile, void* data, tmsize_t cc)
 {
@@ -463,8 +463,8 @@ tmsize_t TIFFWriteEncodedTile(TIFF* tif, uint32 tile, void* data, tmsize_t cc)
  * if strips overlap!
  *
  * NB: Image length must be setup before writing; this
- *     interface does not support automatically growing
- *     the image on each write (as TIFFWriteScanline does).
+ *   interface does not support automatically growing
+ *   the image on each write (as TIFFWriteScanline does).
  */
 tmsize_t TIFFWriteRawTile(TIFF* tif, uint32 tile, void* data, tmsize_t cc)
 {

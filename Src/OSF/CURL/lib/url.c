@@ -3104,7 +3104,7 @@ static void FASTCALL fix_hostname(struct connectdata * conn, struct hostname * h
 #else
 			int flags = IDN2_NFC_INPUT;
 #endif
-			int rc = idn2_lookup_ul((const char*)host->name, &ace_hostname, flags);
+			int rc = idn2_lookup_ul((const char *)host->name, &ace_hostname, flags);
 			if(rc == IDN2_OK) {
 				host->encalloc = (char *)ace_hostname;
 				/* change the name pointer to point to the encoded hostname */
@@ -3625,9 +3625,9 @@ static CURLcode parseurlandfillconn(struct Curl_easy * data, struct connectdata 
 	}
 	/*
 	 * So if the URL was A://B/C#D,
-	 *   protop is A
-	 *   conn->host.name is B
-	 *   data->state.path is /C
+	 * protop is A
+	 * conn->host.name is B
+	 * data->state.path is /C
 	 */
 	return CURLE_OK;
 }
@@ -3708,9 +3708,9 @@ void Curl_free_request_state(struct Curl_easy * data)
 static bool check_noproxy(const char * name, const char * no_proxy)
 {
 	/* no_proxy=domain1.dom,host.domain2.dom
-	 *   (a comma-separated list of hosts which should
-	 *   not be proxied, or an asterisk to override
-	 *   all proxy variables)
+	 * (a comma-separated list of hosts which should
+	 * not be proxied, or an asterisk to override
+	 * all proxy variables)
 	 */
 	size_t tok_start;
 	size_t tok_end;
@@ -3779,12 +3779,12 @@ static char * detect_proxy(struct connectdata * conn)
 	 * https_proxy=http://some.server.dom:port/
 	 * ftp_proxy=http://some.server.dom:port/
 	 * no_proxy=domain1.dom,host.domain2.dom
-	 *   (a comma-separated list of hosts which should
-	 *   not be proxied, or an asterisk to override
-	 *   all proxy variables)
+	 * (a comma-separated list of hosts which should
+	 * not be proxied, or an asterisk to override
+	 * all proxy variables)
 	 * all_proxy=http://some.server.dom:port/
-	 *   (seems to exist for the CERN www lib. Probably
-	 *   the first to check for.)
+	 * (seems to exist for the CERN www lib. Probably
+	 * the first to check for.)
 	 *
 	 * For compatibility, the all-uppercase versions of these variables are
 	 * checked if the lowercase versions don't exist.
@@ -4160,14 +4160,14 @@ out:
  * strip them out of the host name
  *
  * Inputs: data->set.use_netrc (CURLOPT_NETRC)
- *         conn->host.name
+ *       conn->host.name
  *
  * Outputs: (almost :- all currently undefined)
- *          conn->bits.user_passwd  - non-zero if non-default passwords exist
- *          user                    - non-zero length if defined
- *          passwd                  - non-zero length if defined
- *          options                 - non-zero length if defined
- *          conn->host.name         - remove user name and password
+ *        conn->bits.user_passwd  - non-zero if non-default passwords exist
+ *        user                    - non-zero length if defined
+ *        passwd                  - non-zero length if defined
+ *        options                 - non-zero length if defined
+ *        conn->host.name         - remove user name and password
  */
 static CURLcode parse_url_login(struct Curl_easy * data, struct connectdata * conn, char ** user, char ** passwd, char ** options)
 {
@@ -4178,7 +4178,7 @@ static CURLcode parse_url_login(struct Curl_easy * data, struct connectdata * co
 
 	/* At this point, we're hoping all the other special cases have
 	 * been taken care of, so conn->host.name is at most
-	 *    [user[:password][;options]]@]hostname
+	 *  [user[:password][;options]]@]hostname
 	 *
 	 * We need somewhere to put the embedded details, so do that first.
 	 */
@@ -4251,26 +4251,26 @@ out:
  * This is used to parse a login string for user name, password and options in
  * the following formats:
  *
- *   user
- *   user:password
- *   user:password;options
- *   user;options
- *   user;options:password
- *   :password
- *   :password;options
- *   ;options
- *   ;options:password
+ * user
+ * user:password
+ * user:password;options
+ * user;options
+ * user;options:password
+ * :password
+ * :password;options
+ * ;options
+ * ;options:password
  *
  * Parameters:
  *
  * login    [in]     - The login string.
  * len      [in]     - The length of the login string.
  * userp    [in/out] - The address where a pointer to newly allocated memory
- *                     holding the user will be stored upon completion.
+ *                   holding the user will be stored upon completion.
  * passdwp  [in/out] - The address where a pointer to newly allocated memory
- *                     holding the password will be stored upon completion.
+ *                   holding the password will be stored upon completion.
  * optionsp [in/out] - The address where a pointer to newly allocated memory
- *                     holding the options will be stored upon completion.
+ *                   holding the options will be stored upon completion.
  *
  * Returns CURLE_OK on success.
  */

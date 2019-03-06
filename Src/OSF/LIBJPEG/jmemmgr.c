@@ -10,11 +10,11 @@
  * routines.  This code is usable across a wide variety of machines; most
  * of the system dependencies have been isolated in a separate file.
  * The major functions provided here are:
- *   * pool-based allocation and freeing of memory;
- *   * policy decisions about how to divide available memory among the
- *     virtual arrays;
- *   * control logic for swapping virtual arrays between main memory and
- *     backing storage.
+ * * pool-based allocation and freeing of memory;
+ * * policy decisions about how to divide available memory among the
+ *   virtual arrays;
+ * * control logic for swapping virtual arrays between main memory and
+ *   backing storage.
  * The separate system-dependent file provides the actual backing-storage
  * access code, and it contains the policy decision about how much total
  * main memory to use.
@@ -40,14 +40,14 @@
 #endif
 /*
  * Some important notes:
- *   The allocation routines provided here must never return NULL.
- *   They should exit to error_exit if unsuccessful.
+ * The allocation routines provided here must never return NULL.
+ * They should exit to error_exit if unsuccessful.
  *
- *   It's not a good idea to try to merge the sarray and barray routines,
- *   even though they are textually almost the same, because samples are
- *   usually stored as bytes while coefficients are shorts or ints.  Thus,
- *   in machines where byte pointers have a different representation from
- *   word pointers, the resulting machine code could not be the same.
+ * It's not a good idea to try to merge the sarray and barray routines,
+ * even though they are textually almost the same, because samples are
+ * usually stored as bytes while coefficients are shorts or ints.  Thus,
+ * in machines where byte pointers have a different representation from
+ * word pointers, the resulting machine code could not be the same.
  */
 
 /*

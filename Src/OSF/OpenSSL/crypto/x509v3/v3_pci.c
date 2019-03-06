@@ -16,15 +16,15 @@
  * are met:
  *
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ *  notice, this list of conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ *  notice, this list of conditions and the following disclaimer in the
+ *  documentation and/or other materials provided with the distribution.
  *
  * 3. Neither the name of the Institute nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
+ *  may be used to endorse or promote products derived from this software
+ *  without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -119,7 +119,7 @@ static int process_pci_value(CONF_VALUE * val, ASN1_OBJECT ** language, ASN1_INT
 				goto err;
 			}
 
-			tmp_data = (uchar*)OPENSSL_realloc((*policy)->data, (*policy)->length + val_len + 1);
+			tmp_data = (uchar *)OPENSSL_realloc((*policy)->data, (*policy)->length + val_len + 1);
 			if(tmp_data) {
 				(*policy)->data = tmp_data;
 				memcpy(&(*policy)->data[(*policy)->length],
@@ -156,7 +156,7 @@ static int process_pci_value(CONF_VALUE * val, ASN1_OBJECT ** language, ASN1_INT
 				if(!n)
 					continue;
 
-				tmp_data = (uchar*)OPENSSL_realloc((*policy)->data,
+				tmp_data = (uchar *)OPENSSL_realloc((*policy)->data,
 				    (*policy)->length + n + 1);
 
 				if(!tmp_data) {
@@ -185,7 +185,7 @@ static int process_pci_value(CONF_VALUE * val, ASN1_OBJECT ** language, ASN1_INT
 		}
 		else if(strncmp(val->value, "text:", 5) == 0) {
 			val_len = strlen(val->value + 5);
-			tmp_data = (uchar*)OPENSSL_realloc((*policy)->data, (*policy)->length + val_len + 1);
+			tmp_data = (uchar *)OPENSSL_realloc((*policy)->data, (*policy)->length + val_len + 1);
 			if(tmp_data) {
 				(*policy)->data = tmp_data;
 				memcpy(&(*policy)->data[(*policy)->length],

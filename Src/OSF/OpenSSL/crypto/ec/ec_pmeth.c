@@ -65,7 +65,7 @@ static int pkey_ec_copy(EVP_PKEY_CTX * dst, EVP_PKEY_CTX * src)
 	dctx->kdf_md = sctx->kdf_md;
 	dctx->kdf_outlen = sctx->kdf_outlen;
 	if(sctx->kdf_ukm) {
-		dctx->kdf_ukm = (uchar*)OPENSSL_memdup(sctx->kdf_ukm, sctx->kdf_ukmlen);
+		dctx->kdf_ukm = (uchar *)OPENSSL_memdup(sctx->kdf_ukm, sctx->kdf_ukmlen);
 		if(!dctx->kdf_ukm)
 			return 0;
 	}
@@ -174,7 +174,7 @@ static int pkey_ec_kdf_derive(EVP_PKEY_CTX * ctx, uchar * key, size_t * keylen)
 		return 0;
 	if(!pkey_ec_derive(ctx, NULL, &ktmplen))
 		return 0;
-	ktmp = (uchar*)OPENSSL_malloc(ktmplen);
+	ktmp = (uchar *)OPENSSL_malloc(ktmplen);
 	if(ktmp == NULL)
 		return 0;
 	if(!pkey_ec_derive(ctx, ktmp, &ktmplen))
@@ -274,7 +274,7 @@ static int pkey_ec_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 		    return 1;
 		case EVP_PKEY_CTRL_EC_KDF_UKM:
 		    OPENSSL_free(dctx->kdf_ukm);
-		    dctx->kdf_ukm = (uchar*)p2;
+		    dctx->kdf_ukm = (uchar *)p2;
 		    if(p2)
 			    dctx->kdf_ukmlen = p1;
 		    else

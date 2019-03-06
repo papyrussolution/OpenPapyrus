@@ -39,7 +39,7 @@
  * userp   [in]     - The user name.
  * passdwp [in]     - The user's password.
  * outptr  [in/out] - The address where a pointer to newly allocated memory
- *                    holding the result will be stored upon completion.
+ *                  holding the result will be stored upon completion.
  * outlen  [out]    - The length of the output message.
  *
  * Returns CURLE_OK on success.
@@ -94,7 +94,7 @@ CURLcode Curl_auth_create_plain_message(struct Curl_easy * data, const char * us
  * data    [in]     - The session handle.
  * valuep  [in]     - The user name or user's password.
  * outptr  [in/out] - The address where a pointer to newly allocated memory
- *                    holding the result will be stored upon completion.
+ *                  holding the result will be stored upon completion.
  * outlen  [out]    - The length of the output message.
  *
  * Returns CURLE_OK on success.
@@ -127,7 +127,7 @@ CURLcode Curl_auth_create_login_message(struct Curl_easy * data, const char * va
  * data    [in]     - The session handle.
  * user    [in]     - The user name.
  * outptr  [in/out] - The address where a pointer to newly allocated memory
- *                    holding the result will be stored upon completion.
+ *                  holding the result will be stored upon completion.
  * outlen  [out]    - The length of the output message.
  *
  * Returns CURLE_OK on success.

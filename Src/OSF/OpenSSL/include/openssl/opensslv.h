@@ -52,11 +52,11 @@ extern "C" {
  * be greater or equal to what it was at application link time.  With this
  * scheme, the version number is usually part of the file name, like this:
  *
- *      libcrypto.so.0.9
+ *    libcrypto.so.0.9
  *
  * Some unixen also make a softlink with the major version number only:
  *
- *      libcrypto.so.0
+ *    libcrypto.so.0
  *
  * On Tru64 and IRIX 6.x it works a little bit differently.  There, the
  * shared library version is stored in the file, and is actually a series
@@ -71,11 +71,11 @@ extern "C" {
  * to highest, should be part of the string.  Consecutive builds would
  * give the following versions strings:
  *
- *      3.0
- *      3.0:3.1
- *      3.0:3.1:3.2
- *      4.0
- *      4.0:4.1
+ *    3.0
+ *    3.0:3.1
+ *    3.0:3.1:3.2
+ *    4.0
+ *    4.0:4.1
  *
  * Notice how version 4 is completely incompatible with version, and
  * therefore give the breach you can see.

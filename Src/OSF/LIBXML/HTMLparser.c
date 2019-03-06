@@ -80,7 +80,7 @@ static void htmlParseErr(xmlParserCtxt * ctxt, xmlParserErrors error, const char
 		return;
 	if(ctxt)
 		ctxt->errNo = error;
-	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_HTML, error, XML_ERR_ERROR, NULL, 0, (const char*)str1, (const char*)str2, NULL, 0, 0, msg, str1, str2);
+	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_HTML, error, XML_ERR_ERROR, NULL, 0, (const char *)str1, (const char *)str2, NULL, 0, 0, msg, str1, str2);
 	if(ctxt)
 		ctxt->wellFormed = 0;
 }
@@ -210,27 +210,27 @@ static htmlParserNodeInfo * htmlNodeInfoPop(htmlParserCtxt * ctxt)
  *
  * Dirty macros, i.e. one need to make assumption on the context to use them
  *
- *   CUR_PTR return the current pointer to the xmlChar to be parsed.
- *   CUR     returns the current xmlChar value, i.e. a 8 bit value if compiled
- *           in ISO-Latin or UTF-8, and the current 16 bit value if compiled
- *           in UNICODE mode. This should be used internally by the parser
- *           only to compare to ASCII values otherwise it would break when
- *           running with UTF-8 encoding.
- *   NXT(n)  returns the n'th next xmlChar. Same as CUR is should be used only
- *           to compare on ASCII based substring.
- *   UPP(n)  returns the n'th next xmlChar converted to uppercase. Same as CUR
- *           it should be used only to compare on ASCII based substring.
- *   SKIP(n) Skip n xmlChar, and must also be used only to skip ASCII defined
- *           strings without newlines within the parser.
+ * CUR_PTR return the current pointer to the xmlChar to be parsed.
+ * CUR     returns the current xmlChar value, i.e. a 8 bit value if compiled
+ *         in ISO-Latin or UTF-8, and the current 16 bit value if compiled
+ *         in UNICODE mode. This should be used internally by the parser
+ *         only to compare to ASCII values otherwise it would break when
+ *         running with UTF-8 encoding.
+ * NXT(n)  returns the n'th next xmlChar. Same as CUR is should be used only
+ *         to compare on ASCII based substring.
+ * UPP(n)  returns the n'th next xmlChar converted to uppercase. Same as CUR
+ *         it should be used only to compare on ASCII based substring.
+ * SKIP(n) Skip n xmlChar, and must also be used only to skip ASCII defined
+ *         strings without newlines within the parser.
  *
  * Clean macros, not dependent of an ASCII context, expect UTF-8 encoding
  *
- *   CURRENT Returns the current char value, with the full decoding of
- *           UTF-8 if we are using this mode. It returns an int.
- *   NEXT    Skip to the next character, this does the proper decoding
- *           in UTF-8 mode. It also pop-up unfinished entities on the fly.
- *   NEXTL(l) Skip the current unicode character of l xmlChars long.
- *   COPY(to) copy one char to *to, increment CUR_PTR and to accordingly
+ * CURRENT Returns the current char value, with the full decoding of
+ *         UTF-8 if we are using this mode. It returns an int.
+ * NEXT    Skip to the next character, this does the proper decoding
+ *         in UTF-8 mode. It also pop-up unfinished entities on the fly.
+ * NEXTL(l) Skip the current unicode character of l xmlChars long.
+ * COPY(to) copy one char to *to, increment CUR_PTR and to accordingly
  */
 
 #define UPPER (toupper(* ctxt->input->cur))
@@ -287,7 +287,7 @@ static htmlParserNodeInfo * htmlNodeInfoPop(htmlParserCtxt * ctxt)
  * should only be used in case of error, not as a default.
  *
  * Returns an encoding string or NULL if not found, the string need to
- *   be freed
+ * be freed
  */
 static xmlChar * htmlFindEncoding(xmlParserCtxt * ctxt)
 {
@@ -435,9 +435,9 @@ static int FASTCALL htmlCurrentChar(xmlParserCtxt * ctxt, int * len)
 			xmlSwitchEncoding(ctxt, XML_CHAR_ENCODING_8859_1);
 		}
 		else {
-			SAlloc::F((xmlChar*)ctxt->input->encoding);
+			SAlloc::F((xmlChar *)ctxt->input->encoding);
 			ctxt->input->encoding = guess;
-			handler = xmlFindCharEncodingHandler((const char*)guess);
+			handler = xmlFindCharEncodingHandler((const char *)guess);
 			if(handler) {
 				xmlSwitchToEncoding(ctxt, handler);
 			}
@@ -511,11 +511,11 @@ static int htmlSkipBlankChars(xmlParserCtxt * ctxt)
 /*
  *  Start Tag: 1 means the start tag can be ommited
  *  End Tag:   1 means the end tag can be ommited
- *             2 means it's forbidden (empty elements)
- *             3 means the tag is stylistic and should be closed easily
+ *           2 means it's forbidden (empty elements)
+ *           3 means the tag is stylistic and should be closed easily
  *  Depr:      this element is deprecated
  *  DTD:       1 means that this element is valid only in the Loose DTD
- *             2 means that this element is valid only in the Frameset DTD
+ *           2 means that this element is valid only in the Frameset DTD
  *
  * Name,Start Tag,End Tag,Save End,Empty,Deprecated,DTD,inline,Description
         , subElements , impliedsubelt , Attributes, userdata
@@ -871,7 +871,7 @@ static const char * const htmlStartClose[] = {
  * CDATA content and where a p element will be implied
  *
  * @todo extend that list by reading the HTML SGML DTD on
- *       implied paragraph
+ *     implied paragraph
  */
 static const char * const htmlNoContentElements[] = {
 	"html",
@@ -882,7 +882,7 @@ static const char * const htmlNoContentElements[] = {
 /*
  * The list of HTML attributes which are of content %Script;
  * NOTE: when adding ones, check htmlIsScriptAttribute() since
- *       it assumes the name starts with 'on'
+ *     it assumes the name starts with 'on'
  */
 static const char * const htmlScriptAttributes[] = {
 	"onclick",
@@ -1223,7 +1223,7 @@ static void htmlCheckImplied(htmlParserCtxt * ctxt, const xmlChar * newtag)
  * characters in the current element.
  *
  * Returns 1 if a paragraph has been inserted, 0 if not and -1
- *         in case of error.
+ *       in case of error.
  */
 static int FASTCALL htmlCheckParagraph(htmlParserCtxt * ctxt) 
 {
@@ -1577,7 +1577,7 @@ static const htmlEntityDesc html40EntitiesTable[] = {
  */
 #define growBuffer(buffer) {						\
 		buffer ## _size *= 2;						      \
-		xmlChar * tmp = (xmlChar*)SAlloc::R(buffer, buffer ## _size * sizeof(xmlChar)); \
+		xmlChar * tmp = (xmlChar *)SAlloc::R(buffer, buffer ## _size * sizeof(xmlChar)); \
 		if(!tmp) {					   \
 			htmlErrMemory(ctxt, "growing buffer\n");			\
 			SAlloc::F(buffer);						\
@@ -1638,7 +1638,7 @@ const htmlEntityDesc * htmlEntityValueLookup(uint value)
  *
  * Returns 0 if success, -2 if the transcoding fails, or -1 otherwise
  * The value of @inlen after return is the number of octets consumed
- *     as the return value is positive, else unpredictable.
+ *   as the return value is positive, else unpredictable.
  * The value of @outlen after return is the number of octets consumed.
  */
 int UTF8ToHtml(uchar* out, int * outlen, const uchar* in, int * inlen)
@@ -1745,7 +1745,7 @@ int UTF8ToHtml(uchar* out, int * outlen, const uchar* in, int * inlen)
  *
  * Returns 0 if success, -2 if the transcoding fails, or -1 otherwise
  * The value of @inlen after return is the number of octets consumed
- *     as the return value is positive, else unpredictable.
+ *   as the return value is positive, else unpredictable.
  * The value of @outlen after return is the number of octets consumed.
  */
 int htmlEncodeEntities(uchar* out, int * outlen, const uchar* in, int * inlen, int quoteChar)
@@ -2160,7 +2160,7 @@ static xmlChar * FASTCALL htmlParseHTMLAttribute(htmlParserCtxt * ctxt, const xm
 	 * allocate a translation buffer.
 	 */
 	buffer_size = HTML_PARSER_BUFFER_SIZE;
-	buffer = (xmlChar*)SAlloc::M(buffer_size * sizeof(xmlChar));
+	buffer = (xmlChar *)SAlloc::M(buffer_size * sizeof(xmlChar));
 	if(!buffer) {
 		htmlErrMemory(ctxt, "buffer allocation failed\n");
 		return NULL;
@@ -2302,7 +2302,7 @@ static xmlChar * FASTCALL htmlParseHTMLAttribute(htmlParserCtxt * ctxt, const xm
  * [68] EntityRef ::= '&' Name ';'
  *
  * Returns the associated htmlEntityDescPtr if found, or NULL otherwise,
- *         if non-NULL *str will have to be freed by the caller.
+ *       if non-NULL *str will have to be freed by the caller.
  */
 const htmlEntityDesc * htmlParseEntityRef(htmlParserCtxt * ctxt, const xmlChar ** str) 
 {
@@ -2495,8 +2495,8 @@ static xmlChar * htmlParsePubidLiteral(htmlParserCtxt * ctxt)
  * NOTES:
  * - The content is passed like CDATA
  * - the attributes for style and scripting "onXXX" are also described
- *   as CDATA but SGML allows entities references in attributes so their
- *   processing is identical as other attributes
+ * as CDATA but SGML allows entities references in attributes so their
+ * processing is identical as other attributes
  */
 static void htmlParseScript(htmlParserCtxt * ctxt) 
 {
@@ -2666,13 +2666,13 @@ static void htmlParseCharData(htmlParserCtxt * ctxt)
  * Parse an External ID or a Public ID
  *
  * [75] ExternalID ::= 'SYSTEM' S SystemLiteral
- *                   | 'PUBLIC' S PubidLiteral S SystemLiteral
+ *                 | 'PUBLIC' S PubidLiteral S SystemLiteral
  *
  * [83] PublicID ::= 'PUBLIC' S PubidLiteral
  *
  * Returns the function returns SystemLiteral and in the second
- *                case publicID receives PubidLiteral, is strict is off
- *                it is possible to return NULL and have publicID set.
+ *              case publicID receives PubidLiteral, is strict is off
+ *              it is possible to return NULL and have publicID set.
  */
 
 static xmlChar * htmlParseExternalID(htmlParserCtxt * ctxt, xmlChar ** publicID) 
@@ -2765,7 +2765,7 @@ static void htmlParsePI(htmlParserCtxt * ctxt)
 				if(len + 5 >= size) {
 					xmlChar * tmp;
 					size *= 2;
-					tmp = (xmlChar*)SAlloc::R(buf, size * sizeof(xmlChar));
+					tmp = (xmlChar *)SAlloc::R(buf, size * sizeof(xmlChar));
 					if(!tmp) {
 						htmlErrMemory(ctxt, 0);
 						SAlloc::F(buf);
@@ -2857,7 +2857,7 @@ static void htmlParseComment(htmlParserCtxt * ctxt)
 			xmlChar * tmp;
 
 			size *= 2;
-			tmp = (xmlChar*)SAlloc::R(buf, size * sizeof(xmlChar));
+			tmp = (xmlChar *)SAlloc::R(buf, size * sizeof(xmlChar));
 			if(!tmp) {
 				SAlloc::F(buf);
 				htmlErrMemory(ctxt, "growing buffer failed\n");
@@ -2900,7 +2900,7 @@ static void htmlParseComment(htmlParserCtxt * ctxt)
  * parse Reference declarations
  *
  * [66] CharRef ::= '&#' [0-9]+ ';' |
- *                  '&#x' [0-9a-fA-F]+ ';'
+ *                '&#x' [0-9a-fA-F]+ ';'
  *
  * Returns the value parsed (as an int)
  */
@@ -2966,7 +2966,7 @@ int htmlParseCharRef(htmlParserCtxt * ctxt)
  * parse a DOCTYPE declaration
  *
  * [28] doctypedecl ::= '<!DOCTYPE' S Name (S ExternalID)? S?
- *                      ('[' (markupdecl | PEReference | S)* ']' S?)? '>'
+ *                    ('[' (markupdecl | PEReference | S)* ']' S?)? '>'
  */
 
 static void htmlParseDocTypeDecl(htmlParserCtxt * ctxt) 
@@ -3086,9 +3086,9 @@ static void htmlCheckEncodingDirect(htmlParserCtxt * ctxt, const xmlChar * encod
 		xmlCharEncodingHandler * handler;
 		while((*encoding == ' ') || (*encoding == '\t'))
 			encoding++;
-		SAlloc::F((xmlChar*)ctxt->input->encoding);
+		SAlloc::F((xmlChar *)ctxt->input->encoding);
 		ctxt->input->encoding = sstrdup(encoding);
-		enc = xmlParseCharEncoding((const char*)encoding);
+		enc = xmlParseCharEncoding((const char *)encoding);
 		/*
 		 * registered set of known encodings
 		 */
@@ -3106,7 +3106,7 @@ static void htmlCheckEncodingDirect(htmlParserCtxt * ctxt, const xmlChar * encod
 			/*
 			 * fallback for unknown encodings
 			 */
-			handler = xmlFindCharEncodingHandler((const char*)encoding);
+			handler = xmlFindCharEncodingHandler((const char *)encoding);
 			if(handler) {
 				xmlSwitchToEncoding(ctxt, handler);
 				ctxt->charset = XML_CHAR_ENCODING_UTF8;
@@ -3368,7 +3368,7 @@ failed:
 	}
 	if(atts != NULL) {
 		for(i = 1; i < nbatts; i += 2) {
-			SAlloc::F((xmlChar*)atts[i]);
+			SAlloc::F((xmlChar *)atts[i]);
 		}
 	}
 	return(discardtag);
@@ -3650,7 +3650,7 @@ static void htmlParseContent(htmlParserCtxt * ctxt)
 
 			/*
 			 * Fourth case : a reference. If if has not been resolved,
-			 *    parsing returns it's Name, create the node
+			 *  parsing returns it's Name, create the node
 			 */
 			else if(CUR == '&') {
 				htmlParseReference(ctxt);
@@ -3991,7 +3991,7 @@ static void htmlParseContentInternal(htmlParserCtxt * ctxt)
 			}
 			/*
 			 * Fourth case : a reference. If if has not been resolved,
-			 *    parsing returns it's Name, create the node
+			 *  parsing returns it's Name, create the node
 			 */
 			else if(CUR == '&')
 				htmlParseReference(ctxt);
@@ -4037,7 +4037,7 @@ void __htmlParseContent(void * ctxt)
  * interface).
  *
  * Returns 0, -1 in case of error. the parser context is augmented
- *                as a result of the parsing.
+ *              as a result of the parsing.
  */
 int htmlParseDocument(htmlParserCtxt * ctxt)
 {
@@ -4319,7 +4319,7 @@ static htmlParserCtxt * htmlCreateDocParserCtxt(const xmlChar * cur, const char 
 	if(encoding) {
 		xmlCharEncoding enc;
 		xmlCharEncodingHandler * handler;
-		SAlloc::F((xmlChar*)ctxt->input->encoding);
+		SAlloc::F((xmlChar *)ctxt->input->encoding);
 		ctxt->input->encoding = sstrdup((const xmlChar*)encoding);
 		enc = xmlParseCharEncoding(encoding);
 		/*
@@ -4335,7 +4335,7 @@ static htmlParserCtxt * htmlCreateDocParserCtxt(const xmlChar * cur, const char 
 			/*
 			 * fallback for unknown encodings
 			 */
-			handler = xmlFindCharEncodingHandler((const char*)encoding);
+			handler = xmlFindCharEncodingHandler((const char *)encoding);
 			if(handler) {
 				xmlSwitchToEncoding(ctxt, handler);
 			}
@@ -4370,7 +4370,7 @@ static htmlParserCtxt * htmlCreateDocParserCtxt(const xmlChar * cur, const char 
  * This is basically similar to xmlParseLookupSequence()
  *
  * Returns the index to the current parsing point if the full sequence
- *      is available, -1 otherwise.
+ *    is available, -1 otherwise.
  */
 static int htmlParseLookupSequence(htmlParserCtxt * ctxt, xmlChar first, xmlChar next, xmlChar third, int iscomment, int ignoreattrval)
 {
@@ -4480,7 +4480,7 @@ static int htmlParseLookupSequence(htmlParserCtxt * ctxt, xmlChar first, xmlChar
  * parser, do not use liberally.
  *
  * Returns the index to the current parsing point if a stopChar
- *      is available, -1 otherwise.
+ *    is available, -1 otherwise.
  */
 static int htmlParseLookupChars(htmlParserCtxt * ctxt, const xmlChar * stop, int stopLen)
 {
@@ -5325,7 +5325,7 @@ htmlParserCtxt * htmlCreatePushParserCtxt(htmlSAXHandlerPtr sax, void * user_dat
  * behavior and return a tree.
  *
  * Returns the resulting document tree unless SAX is NULL or the document is
- *     not well formed.
+ *   not well formed.
  */
 
 htmlDocPtr htmlSAXParseDoc(xmlChar * cur, const char * encoding, htmlSAXHandlerPtr sax, void * userData)
@@ -5384,7 +5384,7 @@ htmlParserCtxt * htmlCreateFileParserCtxt(const char * filename, const char * en
 	htmlParserInputPtr inputStream;
 	char * canonicFilename;
 	/* htmlCharEncoding enc; */
-	xmlChar * content_line = (xmlChar*)"charset=";
+	xmlChar * content_line = (xmlChar *)"charset=";
 	if(filename == NULL)
 		return NULL;
 	ctxt = htmlNewParserCtxt();
@@ -5437,7 +5437,7 @@ htmlParserCtxt * htmlCreateFileParserCtxt(const char * filename, const char * en
  * If sax is NULL, fallback to the default DOM tree building routines.
  *
  * Returns the resulting document tree unless SAX is NULL or the document is
- *     not well formed.
+ *   not well formed.
  */
 
 htmlDocPtr htmlSAXParseFile(const char * filename, const char * encoding, htmlSAXHandlerPtr sax, void * userData)
@@ -5569,7 +5569,7 @@ htmlStatus htmlAttrAllowed(const htmlElemDesc* elt, const xmlChar* attr, int leg
  *	for Element nodes)
  *
  * Checks whether the tree node is valid.  Experimental (the author
- *     only uses the HTML enhancements in a SAX parser)
+ *   only uses the HTML enhancements in a SAX parser)
  *
  * Return: for Element nodes, a return from htmlElementAllowedHere (if
  *	legacy allowed) or htmlElementStatusHere (otherwise).
@@ -5682,7 +5682,7 @@ void htmlCtxtReset(htmlParserCtxt * ctxt)
  * Applies the options to the parser context
  *
  * Returns 0 in case of success, the set of unknown or unimplemented options
- *         in case of error.
+ *       in case of error.
  */
 int htmlCtxtUseOptions(htmlParserCtxt * ctxt, int options)
 {
@@ -5767,8 +5767,8 @@ static htmlDocPtr FASTCALL htmlDoRead(htmlParserCtxt * ctxt, const char * URL, c
 		xmlCharEncodingHandler * hdlr = xmlFindCharEncodingHandler(encoding);
 		if(hdlr) {
 			xmlSwitchToEncoding(ctxt, hdlr);
-			SAlloc::F((xmlChar*)ctxt->input->encoding);
-			ctxt->input->encoding = sstrdup((xmlChar*)encoding);
+			SAlloc::F((xmlChar *)ctxt->input->encoding);
+			ctxt->input->encoding = sstrdup((xmlChar *)encoding);
 		}
 	}
 	if(URL && ctxt->input && (ctxt->input->filename == NULL))

@@ -1816,20 +1816,20 @@ static bool IsCommentLine(Sci_Position line, Accessor &styler)
  *  The language is quite complex to analyze without a full parse.
  *  For example, this line shouldn't affect fold level:
  *
- *   print "hello" if feeling_friendly?
+ * print "hello" if feeling_friendly?
  *
  *  Neither should this:
  *
- *   print "hello" \
- *      if feeling_friendly?
+ * print "hello" \
+ *    if feeling_friendly?
  *
  *
  *  But this should:
  *
- *   if feeling_friendly?  #++
- *     print "hello" \
- *     print "goodbye"
- *   end                   #--
+ * if feeling_friendly?  #++
+ *   print "hello" \
+ *   print "goodbye"
+ * end                   #--
  *
  *  So we cheat, by actually looking at the existing indentation
  *  levels for each line, and just echoing it back.  Like Python.

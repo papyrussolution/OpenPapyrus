@@ -53,7 +53,7 @@ err:
 
 int X509V3_add_value_uchar(const char * name, const uchar * value, STACK_OF(CONF_VALUE) ** extlist)
 {
-	return X509V3_add_value(name, (const char*)value, extlist);
+	return X509V3_add_value(name, (const char *)value, extlist);
 }
 
 /* Free function for STACK_OF(CONF_VALUE) */
@@ -651,7 +651,7 @@ static int do_check_string(const ASN1_STRING * a, int cmp_type, equal_fn equal, 
 		if(cmp_type != a->type)
 			return 0;
 		if(cmp_type == V_ASN1_IA5STRING)
-			rv = equal(a->data, a->length, (uchar*)b, blen, flags);
+			rv = equal(a->data, a->length, (uchar *)b, blen, flags);
 		else if(a->length == (int)blen && !memcmp(a->data, b, blen))
 			rv = 1;
 		if(rv > 0 && peername)
@@ -667,7 +667,7 @@ static int do_check_string(const ASN1_STRING * a, int cmp_type, equal_fn equal, 
 			 */
 			return -1;
 		}
-		rv = equal(astr, astrlen, (uchar*)b, blen, flags);
+		rv = equal(astr, astrlen, (uchar *)b, blen, flags);
 		if(rv > 0 && peername)
 			*peername = OPENSSL_strndup((char *)astr, astrlen);
 		OPENSSL_free(astr);
@@ -1040,7 +1040,7 @@ int X509V3_NAME_from_section(X509_NAME * nm, STACK_OF(CONF_VALUE) * dn_sk, ulong
 		}
 		else
 			mval = 0;
-		if(!X509_NAME_add_entry_by_txt(nm, type, chtype, (uchar*)v->value, -1, -1, mval))
+		if(!X509_NAME_add_entry_by_txt(nm, type, chtype, (uchar *)v->value, -1, -1, mval))
 			return 0;
 	}
 	return 1;

@@ -60,7 +60,7 @@ struct _xmlXIncludeCtxt {
 	xmlNode ** txtTab; /* array of unparsed text nodes */
 	xmlURL         * txturlTab; /* array of unparsed text URLs */
 
-	xmlChar *             url; /* the current URL processed */
+	xmlChar *           url; /* the current URL processed */
 	int urlNr;             /* number of URLs stacked */
 	int urlMax;            /* size of URL stack */
 	xmlChar ** urlTab;     /* URL stack */
@@ -68,7 +68,7 @@ struct _xmlXIncludeCtxt {
 	int nbErrors;          /* the number of errors detected */
 	int legacy;            /* using XINCLUDE_OLD_NS */
 	int parseFlags;        /* the flags used for parsing XML documents */
-	xmlChar *            base; /* the current xml:base */
+	xmlChar *          base; /* the current xml:base */
 
 	void            * _private; /* application data */
 };
@@ -106,7 +106,7 @@ static void xmlXIncludeErr(xmlXIncludeCtxtPtr ctxt, xmlNode * P_Node, int error,
 {
 	if(ctxt)
 		ctxt->nbErrors++;
-	__xmlRaiseError(0, 0, 0, ctxt, P_Node, XML_FROM_XINCLUDE, error, XML_ERR_ERROR, NULL, 0, (const char*)extra, NULL, NULL, 0, 0, msg, (const char*)extra);
+	__xmlRaiseError(0, 0, 0, ctxt, P_Node, XML_FROM_XINCLUDE, error, XML_ERR_ERROR, NULL, 0, (const char *)extra, NULL, NULL, 0, 0, msg, (const char *)extra);
 }
 #if 0
 /**
@@ -120,7 +120,7 @@ static void xmlXIncludeErr(xmlXIncludeCtxtPtr ctxt, xmlNode * P_Node, int error,
  */
 static void xmlXIncludeWarn(xmlXIncludeCtxtPtr ctxt, xmlNode * node, int error, const char * msg, const xmlChar * extra)
 {
-	__xmlRaiseError(0, 0, 0, ctxt, node, XML_FROM_XINCLUDE, error, XML_ERR_WARNING, NULL, 0, (const char*)extra, NULL, NULL, 0, 0, msg, (const char*)extra);
+	__xmlRaiseError(0, 0, 0, ctxt, node, XML_FROM_XINCLUDE, error, XML_ERR_WARNING, NULL, 0, (const char *)extra, NULL, NULL, 0, 0, msg, (const char *)extra);
 }
 #endif
 
@@ -467,7 +467,7 @@ static int xmlXIncludeAddNode(xmlXIncludeCtxtPtr ctxt, xmlNode * cur)
 	/*
 	 * Check the URL and remove any fragment identifier
 	 */
-	uri = xmlParseURI((const char*)URI);
+	uri = xmlParseURI((const char *)URI);
 	if(!uri) {
 		xmlXIncludeErr(ctxt, cur, XML_XINCLUDE_HREF_URI, "invalid value URI %s\n", URI);
 		SAlloc::F(fragment);
@@ -477,7 +477,7 @@ static int xmlXIncludeAddNode(xmlXIncludeCtxtPtr ctxt, xmlNode * cur)
 	if(uri->fragment != NULL) {
 		if(ctxt->legacy != 0) {
 			if(fragment == NULL) {
-				fragment = (xmlChar*)uri->fragment;
+				fragment = (xmlChar *)uri->fragment;
 			}
 			else {
 				SAlloc::F(uri->fragment);
@@ -763,7 +763,7 @@ xmlNode * xmlXPtrAdvanceNode(xmlNode * cur, int * level); /* in xpointer.c */
  * Build a node list tree copy of the XPointer result.
  *
  * Returns an xmlNode * list or NULL.
- *         The caller has to free the node tree.
+ *       The caller has to free the node tree.
  */
 static xmlNode * xmlXIncludeCopyRange(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target, xmlDocPtr source, xmlXPathObjectPtr range)
 {
@@ -988,7 +988,7 @@ static xmlNode * xmlXIncludeCopyRange(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target,
  * This will drop Attributes and Namespace declarations.
  *
  * Returns an xmlNode * list or NULL.
- *         the caller has to free the node tree.
+ *       the caller has to free the node tree.
  */
 static xmlNode * xmlXIncludeCopyXPointer(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target, xmlDocPtr source, xmlXPathObject * obj) 
 {
@@ -1265,13 +1265,13 @@ static int xmlXIncludeLoadDoc(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 	/*
 	 * Check the URL and remove any fragment identifier
 	 */
-	uri = xmlParseURI((const char*)url);
+	uri = xmlParseURI((const char *)url);
 	if(!uri) {
 		xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_HREF_URI, "invalid value URI %s\n", url);
 		return -1;
 	}
 	if(uri->fragment) {
-		fragment = (xmlChar*)uri->fragment;
+		fragment = (xmlChar *)uri->fragment;
 		uri->fragment = NULL;
 	}
 	if(ctxt->incTab && ctxt->incTab[nr] && ctxt->incTab[nr]->fragment) {
@@ -1326,7 +1326,7 @@ static int xmlXIncludeLoadDoc(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 		ctxt->parseFlags |= XML_PARSE_NOENT;
 	}
 #endif
-	doc = xmlXIncludeParseFile(ctxt, (const char*)URL);
+	doc = xmlXIncludeParseFile(ctxt, (const char *)URL);
 #ifdef LIBXML_XPTR_ENABLED
 	ctxt->parseFlags = saveFlags;
 #endif
@@ -1595,7 +1595,7 @@ static int xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 	/*
 	 * Check the URL and remove any fragment identifier
 	 */
-	xmlURI * uri = xmlParseURI((const char*)url);
+	xmlURI * uri = xmlParseURI((const char *)url);
 	if(!uri) {
 		xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_HREF_URI, "invalid value URI %s\n", url);
 		return -1;
@@ -1638,11 +1638,11 @@ static int xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 	if(encoding) {
 		/*
 		 * @todo we should not have to remap to the xmlCharEncoding
-		 *       predefined set, a better interface than
-		 *       xmlParserInputBufferCreateFilename should allow any
-		 *       encoding supported by iconv
+		 *     predefined set, a better interface than
+		 *     xmlParserInputBufferCreateFilename should allow any
+		 *     encoding supported by iconv
 		 */
-		enc = xmlParseCharEncoding((const char*)encoding);
+		enc = xmlParseCharEncoding((const char *)encoding);
 		if(enc == XML_CHAR_ENCODING_ERROR) {
 			xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_UNKNOWN_ENCODING, "encoding %s not supported\n", encoding);
 			SAlloc::F(encoding);
@@ -1656,7 +1656,7 @@ static int xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 	 * Load it.
 	 */
 	pctxt = xmlNewParserCtxt();
-	inputStream = xmlLoadExternalEntity((const char*)URL, NULL, pctxt);
+	inputStream = xmlLoadExternalEntity((const char *)URL, NULL, pctxt);
 	if(!inputStream) {
 		xmlFreeParserCtxt(pctxt);
 		SAlloc::F(URL);
@@ -2048,7 +2048,7 @@ static int FASTCALL xmlXIncludeTestNode(xmlXIncludeCtxtPtr ctxt, xmlNode * P_Nod
  * Implement the XInclude substitution on the XML document @doc
  *
  * Returns 0 if no substitution were done, -1 if some processing failed
- *    or the number of substitutions done.
+ *  or the number of substitutions done.
  */
 static int xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlDoc * doc, xmlNode * tree)
 {
@@ -2148,12 +2148,12 @@ int xmlXIncludeSetFlags(xmlXIncludeCtxtPtr ctxt, int flags)
  * @tree: an XML node
  * @flags: a set of xmlParserOption used for parsing XML includes
  * @data: application data that will be passed to the parser context
- *        in the _private field of the parser context(s)
+ *      in the _private field of the parser context(s)
  *
  * Implement the XInclude substitution on the XML node @tree
  *
  * Returns 0 if no substitution were done, -1 if some processing failed
- *    or the number of substitutions done.
+ *  or the number of substitutions done.
  */
 int xmlXIncludeProcessTreeFlagsData(xmlNode * tree, int flags, void * data)
 {
@@ -2166,7 +2166,7 @@ int xmlXIncludeProcessTreeFlagsData(xmlNode * tree, int flags, void * data)
 			ret = -1;
 		else {
 			ctxt->_private = data;
-			ctxt->base = sstrdup((xmlChar*)tree->doc->URL);
+			ctxt->base = sstrdup((xmlChar *)tree->doc->URL);
 			xmlXIncludeSetFlags(ctxt, flags);
 			ret = xmlXIncludeDoProcess(ctxt, tree->doc, tree);
 			if((ret >= 0) && (ctxt->nbErrors > 0))
@@ -2181,12 +2181,12 @@ int xmlXIncludeProcessTreeFlagsData(xmlNode * tree, int flags, void * data)
  * @doc: an XML document
  * @flags: a set of xmlParserOption used for parsing XML includes
  * @data: application data that will be passed to the parser context
- *        in the _private field of the parser context(s)
+ *      in the _private field of the parser context(s)
  *
  * Implement the XInclude substitution on the XML document @doc
  *
  * Returns 0 if no substitution were done, -1 if some processing failed
- *    or the number of substitutions done.
+ *  or the number of substitutions done.
  */
 int xmlXIncludeProcessFlagsData(xmlDoc * doc, int flags, void * data)
 {
@@ -2205,7 +2205,7 @@ int xmlXIncludeProcessFlagsData(xmlDoc * doc, int flags, void * data)
  * Implement the XInclude substitution on the XML document @doc
  *
  * Returns 0 if no substitution were done, -1 if some processing failed
- *    or the number of substitutions done.
+ *  or the number of substitutions done.
  */
 int xmlXIncludeProcessFlags(xmlDoc * doc, int flags)
 {
@@ -2218,7 +2218,7 @@ int xmlXIncludeProcessFlags(xmlDoc * doc, int flags)
  * Implement the XInclude substitution on the XML document @doc
  *
  * Returns 0 if no substitution were done, -1 if some processing failed
- *    or the number of substitutions done.
+ *  or the number of substitutions done.
  */
 int xmlXIncludeProcess(xmlDocPtr doc)
 {
@@ -2233,7 +2233,7 @@ int xmlXIncludeProcess(xmlDocPtr doc)
  * Implement the XInclude substitution for the given subtree
  *
  * Returns 0 if no substitution were done, -1 if some processing failed
- *    or the number of substitutions done.
+ *  or the number of substitutions done.
  */
 int xmlXIncludeProcessTreeFlags(xmlNode * tree, int flags)
 {
@@ -2259,7 +2259,7 @@ int xmlXIncludeProcessTreeFlags(xmlNode * tree, int flags)
  * Implement the XInclude substitution for the given subtree
  *
  * Returns 0 if no substitution were done, -1 if some processing failed
- *    or the number of substitutions done.
+ *  or the number of substitutions done.
  */
 int xmlXIncludeProcessTree(xmlNode * tree)
 {
@@ -2274,7 +2274,7 @@ int xmlXIncludeProcessTree(xmlNode * tree)
  * the informations and data coming from the given context.
  *
  * Returns 0 if no substitution were done, -1 if some processing failed
- *    or the number of substitutions done.
+ *  or the number of substitutions done.
  */
 int xmlXIncludeProcessNode(xmlXIncludeCtxtPtr ctxt, xmlNode * P_Node)
 {

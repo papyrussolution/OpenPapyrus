@@ -67,22 +67,22 @@
  * void
  * my_device_modifying_function (cairo_device_t *device)
  * {
- *   cairo_status_t status;
+ * cairo_status_t status;
  *
- *   // Ensure the device is properly reset
- *   cairo_device_flush (device);
- *   // Try to acquire the device
- *   status = cairo_device_acquire (device);
- *   if (status != CAIRO_STATUS_SUCCESS) {
+ * // Ensure the device is properly reset
+ * cairo_device_flush (device);
+ * // Try to acquire the device
+ * status = cairo_device_acquire (device);
+ * if (status != CAIRO_STATUS_SUCCESS) {
  * printf ("Failed to acquire the device: %s\n", cairo_status_to_string (status));
  * return;
- *   }
+ * }
  *
- *   // Do the custom operations on the device here.
- *   // But do not call any Cairo functions that might acquire devices.
+ * // Do the custom operations on the device here.
+ * // But do not call any Cairo functions that might acquire devices.
  *
- *   // Release the device when done.
- *   cairo_device_release (device);
+ * // Release the device when done.
+ * cairo_device_release (device);
  * }
  * </programlisting></informalexample>
  *

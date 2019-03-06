@@ -845,7 +845,7 @@ int ec_GFp_simple_dbl(const EC_GROUP * group, EC_POINT * r, const EC_POINT * a, 
 			goto err;
 		/*-
 		 * n1 = 3 * (X_a + Z_a^2) * (X_a - Z_a^2)
-		 *    = 3 * X_a^2 - 3 * Z_a^4
+		 *  = 3 * X_a^2 - 3 * Z_a^4
 		 */
 	}
 	else {
@@ -970,11 +970,11 @@ int ec_GFp_simple_is_on_curve(const EC_GROUP * group, const EC_POINT * point,
 
 	/*-
 	 * We have a curve defined by a Weierstrass equation
-	 *      y^2 = x^3 + a*x + b.
+	 *    y^2 = x^3 + a*x + b.
 	 * The point to consider is given in Jacobian projective coordinates
 	 * where  (X, Y, Z)  represents  (x, y) = (X/Z^2, Y/Z^3).
 	 * Substituting this and multiplying by  Z^6  transforms the above equation into
-	 *      Y^2 = X^3 + a*X*Z^4 + b*Z^6.
+	 *    Y^2 = X^3 + a*X*Z^4 + b*Z^6.
 	 * To test this, we add up the right-hand side in 'rh'.
 	 */
 
@@ -1044,8 +1044,8 @@ int ec_GFp_simple_cmp(const EC_GROUP * group, const EC_POINT * a,
 	/*-
 	 * return values:
 	 *  -1   error
-	 *   0   equal (in affine coordinates)
-	 *   1   not equal
+	 * 0   equal (in affine coordinates)
+	 * 1   not equal
 	 */
 
 	int (* field_mul)(const EC_GROUP *, BIGNUM *, const BIGNUM *,
@@ -1086,9 +1086,9 @@ int ec_GFp_simple_cmp(const EC_GROUP * group, const EC_POINT * a,
 
 	/*-
 	 * We have to decide whether
-	 *     (X_a/Z_a^2, Y_a/Z_a^3) = (X_b/Z_b^2, Y_b/Z_b^3),
+	 *   (X_a/Z_a^2, Y_a/Z_a^3) = (X_b/Z_b^2, Y_b/Z_b^3),
 	 * or equivalently, whether
-	 *     (X_a*Z_b^2, Y_a*Z_b^3) = (X_b*Z_a^2, Y_b*Z_a^3).
+	 *   (X_a*Z_b^2, Y_a*Z_b^3) = (X_b*Z_a^2, Y_b*Z_a^3).
 	 */
 
 	if(!b->Z_is_one) {

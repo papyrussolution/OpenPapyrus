@@ -305,8 +305,8 @@ fail:
 static int loop(const uchar * pattern, const uchar * string)
 {
 	loop_state state = CURLFNM_LOOP_DEFAULT;
-	uchar * p = (uchar*)pattern;
-	uchar * s = (uchar*)string;
+	uchar * p = (uchar *)pattern;
+	uchar * s = (uchar *)string;
 	uchar charset[CURLFNM_CHSET_SIZE] = { 0 };
 	int rc = 0;
 
@@ -409,6 +409,6 @@ static int loop(const uchar * pattern, const uchar * string)
 int Curl_fnmatch(void * ptr, const char * pattern, const char * string)
 {
 	(void)ptr; // the argument is specified by the curl_fnmatch_callback prototype, but not used by Curl_fnmatch() 
-	return (!pattern || !string) ? CURL_FNMATCH_FAIL : loop((uchar*)pattern, (uchar*)string);
+	return (!pattern || !string) ? CURL_FNMATCH_FAIL : loop((uchar *)pattern, (uchar *)string);
 }
 

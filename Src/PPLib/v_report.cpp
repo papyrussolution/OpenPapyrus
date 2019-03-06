@@ -83,7 +83,7 @@ int SLAPI PPInetAccountManager::GetOutlookAccounts(PPID * pActiveID, PPInetAccnt
 		SString accnt_par;
 		WinRegKey reg;
 		accnt_par.CopyFrom(p_root_key).SetLastSlash().Cat(accnt_id);
-		if(reg.Open(HKEY_CURRENT_USER, (const char*)accnt_par, 1, 1) > 0) {
+		if(reg.Open(HKEY_CURRENT_USER, (const char *)accnt_par, 1, 1) > 0) {
 			SString name, fromaddr, sendserv, port;
 			PPInternetAccount * p_account = 0;
 			if(reg.GetBinary(p_param_name, w_buf, sizeof(w_buf)) > 0) {
@@ -147,7 +147,7 @@ int SLAPI PPInetAccountManager::GetOutlookExpressAccounts(PPID * pActiveID, PPIn
 		SString accnt_par;
 		WinRegKey reg;
 		accnt_par.CopyFrom(p_root_key).SetLastSlash().Cat(accnt_id);
-		if(reg.Open(HKEY_CURRENT_USER, (const char*)accnt_par, 1, 1) > 0) {
+		if(reg.Open(HKEY_CURRENT_USER, (const char *)accnt_par, 1, 1) > 0) {
 			SString str_port;
 			DWORD port = 0;
 			SString name, fromaddr, sendserv;
@@ -718,7 +718,7 @@ int SLAPI PPViewReport::CallCR(long id)
 			setLastSlash(crr_path);
 			strcat(crr_path, "crw32.exe");
 			THROW(GetAltPath(r_rec.Type, r_rec.Path, r_rec.StdName, alt_path));
-			ok = spawnl(_P_NOWAIT, crr_path, (const char*)alt_path, (const char*)alt_path, 0);
+			ok = spawnl(_P_NOWAIT, crr_path, (const char *)alt_path, (const char *)alt_path, 0);
 		}
 	}
 	CATCHZOK
@@ -770,7 +770,7 @@ int SLAPI PPViewReport::CreateStdRptList(ReportViewItemArray * pList)
 				item.ID = id + 1;
 				sect.CopyTo(item.StdName, sizeof(item.StdName));
 				data.CopyTo(item.StrucName, sizeof(item.StrucName));
-				strtodate((const char*)dt, DATF_DMY, &item.ModifDt);
+				strtodate((const char *)dt, DATF_DMY, &item.ModifDt);
 				if(_cp == cp866)
 					descr.Transf(CTRANSF_OUTER_TO_INNER);
 				descr.CopyTo(item.Descr, sizeof(item.Descr));
@@ -785,7 +785,7 @@ int SLAPI PPViewReport::CreateStdRptList(ReportViewItemArray * pList)
 	return ok;
 }
 
-int SLAPI PPViewReport::SplitLocalRptStr(PPIniFile * pFile, int codepage, SString & rSect, SString & rBuf, ReportViewItem * pItem)
+int SLAPI PPViewReport::SplitLocalRptStr(PPIniFile * pFile, int codepage, const SString & rSect, SString & rBuf, ReportViewItem * pItem)
 {
 	int    ok = -1;
 	long   id = 0;

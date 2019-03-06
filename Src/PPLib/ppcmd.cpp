@@ -81,13 +81,13 @@ int SLAPI PPCommandDescr::LoadResource(long cmdDescrID)
 		p_rez->getString(Symb, 2);
 		p_rez->getString(Text, 2);
 		SLS.ExpandString(Text, CTRANSF_UTF8_TO_INNER); // @v9.0.11
-		IconId    = (long)p_rez->getUINT();
-		ToolbarId = (long)p_rez->getUINT();
-		MenuCm    = (long)p_rez->getUINT();
-		Flags     = (long)p_rez->getUINT();
-		ViewId    = (long)p_rez->getUINT();
-		FiltId    = (long)p_rez->getUINT();
-		FiltExtId = (long)p_rez->getUINT();
+		IconId    = static_cast<long>(p_rez->getUINT());
+		ToolbarId = static_cast<long>(p_rez->getUINT());
+		MenuCm    = static_cast<long>(p_rez->getUINT());
+		Flags     = static_cast<long>(p_rez->getUINT());
+		ViewId    = static_cast<long>(p_rez->getUINT());
+		FiltId    = static_cast<long>(p_rez->getUINT());
+		FiltExtId = static_cast<long>(p_rez->getUINT());
 	}
 	CATCHZOK
 	return ok;
@@ -1749,7 +1749,7 @@ int SLAPI CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 							PPLoadText(PPTXT_USAGETM, buf);
 							low_tm.Cat(psn_data.UsageTm.low, TIMF_HM);
 							upp_tm.Cat(psn_data.UsageTm.upp, TIMF_HM);
-							warn.Printf(buf, (const char*)low_tm, (const char *)upp_tm);
+							warn.Printf(buf, (const char *)low_tm, (const char *)upp_tm);
 						}
 					}
 					*/

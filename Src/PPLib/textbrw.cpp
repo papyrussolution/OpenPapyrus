@@ -1604,7 +1604,7 @@ int STextBrowser::ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw)
 				blk.TidyOptions.Add(TidyBodyOnly, "yes");
 				if(TidyProcessText(blk) > 0) {
 					CallFunc(SCI_CLEARALL, 0, 0);
-					CallFunc(SCI_APPENDTEXT, (int)blk.Output.Len(), (int)(const char*)blk.Output);
+					CallFunc(SCI_APPENDTEXT, (int)blk.Output.Len(), (int)(const char *)blk.Output);
 					ok = 1;
 				}
 			}

@@ -353,8 +353,7 @@ static int i2r_certpol(X509V3_EXT_METHOD * method, STACK_OF(POLICYINFO) * pol, B
 	return 1;
 }
 
-static void print_qualifiers(BIO * out, STACK_OF(POLICYQUALINFO) * quals,
-    int indent)
+static void print_qualifiers(BIO * out, STACK_OF(POLICYQUALINFO) * quals, int indent)
 {
 	POLICYQUALINFO * qualinfo;
 	int i;
@@ -365,15 +364,12 @@ static void print_qualifiers(BIO * out, STACK_OF(POLICYQUALINFO) * quals,
 			    BIO_printf(out, "%*sCPS: %s\n", indent, "",
 			    qualinfo->d.cpsuri->data);
 			    break;
-
 			case NID_id_qt_unotice:
 			    BIO_printf(out, "%*sUser Notice:\n", indent, "");
 			    print_notice(out, qualinfo->d.usernotice, indent + 2);
 			    break;
-
 			default:
 			    BIO_printf(out, "%*sUnknown Qualifier: ", indent + 2, "");
-
 			    i2a_ASN1_OBJECT(out, qualinfo->pqualid);
 			    BIO_puts(out, "\n");
 			    break;

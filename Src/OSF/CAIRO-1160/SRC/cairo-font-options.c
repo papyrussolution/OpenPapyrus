@@ -94,10 +94,10 @@ void _cairo_font_options_init_copy(cairo_font_options_t * options,
  *  to default values.
  *
  * Return value: a newly allocated #cairo_font_options_t. Free with
- *   cairo_font_options_destroy(). This function always returns a
- *   valid pointer; if memory cannot be allocated, then a special
- *   error object is returned where all operations on the object do nothing.
- *   You can check for this with cairo_font_options_status().
+ * cairo_font_options_destroy(). This function always returns a
+ * valid pointer; if memory cannot be allocated, then a special
+ * error object is returned where all operations on the object do nothing.
+ * You can check for this with cairo_font_options_status().
  *
  * Since: 1.0
  **/
@@ -119,10 +119,10 @@ cairo_font_options_t * cairo_font_options_create(void)
  *  @original.
  *
  * Return value: a newly allocated #cairo_font_options_t. Free with
- *   cairo_font_options_destroy(). This function always returns a
- *   valid pointer; if memory cannot be allocated, then a special
- *   error object is returned where all operations on the object do nothing.
- *   You can check for this with cairo_font_options_status().
+ * cairo_font_options_destroy(). This function always returns a
+ * valid pointer; if memory cannot be allocated, then a special
+ * error object is returned where all operations on the object do nothing.
+ * You can check for this with cairo_font_options_status().
  *
  * Since: 1.0
  **/
@@ -284,8 +284,8 @@ slim_hidden_def(cairo_font_options_equal);
  * in a hash table.
  *
  * Return value: the hash value for the font options object.
- *   The return value can be cast to a 32-bit type if a
- *   32-bit hash value is needed.
+ * The return value can be cast to a 32-bit type if a
+ * 32-bit hash value is needed.
  *
  * Since: 1.0
  **/
@@ -573,10 +573,10 @@ void cairo_font_options_set_variations(cairo_font_options_t * options,
  * string format.
  *
  * Return value: the font variations for the font options object. The
- *   returned string belongs to the @options and must not be modified.
- *   It is valid until either the font options object is destroyed or
- *   the font variations in this object is modified with
- *   cairo_font_options_set_variations().
+ * returned string belongs to the @options and must not be modified.
+ * It is valid until either the font options object is destroyed or
+ * the font variations in this object is modified with
+ * cairo_font_options_set_variations().
  *
  * Since: 1.16
  **/

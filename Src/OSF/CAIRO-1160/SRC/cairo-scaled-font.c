@@ -100,7 +100,7 @@ struct _cairo_scaled_glyph_page {
  *  the surface, device_offset values are positive.  It may look like this:
  *
  *  Device space:
- *   (-x,-y) <-- negative numbers
+ * (-x,-y) <-- negative numbers
  *  +----------------+
  *  |      .         |
  *  |      .         |
@@ -119,7 +119,7 @@ struct _cairo_scaled_glyph_page {
  *  |               |
  *  |               |
  *  +---------------+
- *   (width,height)
+ * (width,height)
  *
  *  In other words: device_offset is the coordinates of the device-space
  *  origin relative to the top-left of the surface.
@@ -159,7 +159,7 @@ struct _cairo_scaled_glyph_page {
  *
  * Scaled-glyph space:
  *
- *   (x_bearing,y_bearing) <-- negative numbers
+ * (x_bearing,y_bearing) <-- negative numbers
  *  +----------------+
  *  |      .         |
  *  |      .         |
@@ -307,7 +307,7 @@ cairo_font_type_t cairo_scaled_font_get_type(cairo_scaled_font_t * scaled_font)
  * scaled_font.
  *
  * Return value: %CAIRO_STATUS_SUCCESS or another error such as
- *   %CAIRO_STATUS_NO_MEMORY.
+ * %CAIRO_STATUS_NO_MEMORY.
  *
  * Since: 1.0
  **/
@@ -585,11 +585,11 @@ static cairo_bool_t _cairo_scaled_font_keys_equal(const void * abstract_key_a, c
 {
 	const cairo_scaled_font_t * key_a = (const cairo_scaled_font_t *)abstract_key_a;
 	const cairo_scaled_font_t * key_b = (const cairo_scaled_font_t *)abstract_key_b;
-	return key_a->original_font_face == key_b->original_font_face && memcmp((uchar*)(&key_a->font_matrix.xx),
-		   (uchar*)(&key_b->font_matrix.xx),
+	return key_a->original_font_face == key_b->original_font_face && memcmp((uchar *)(&key_a->font_matrix.xx),
+		   (uchar *)(&key_b->font_matrix.xx),
 		   sizeof(cairo_matrix_t)) == 0 &&
-	       memcmp((uchar*)(&key_a->ctm.xx),
-		   (uchar*)(&key_b->ctm.xx),
+	       memcmp((uchar *)(&key_a->ctm.xx),
+		   (uchar *)(&key_b->ctm.xx),
 		   sizeof(cairo_matrix_t)) == 0 &&
 	       cairo_font_options_equal(&key_a->options, &key_b->options);
 }
@@ -601,11 +601,11 @@ static cairo_bool_t _cairo_scaled_font_matches(const cairo_scaled_font_t * scale
     const cairo_font_options_t * options)
 {
 	return scaled_font->original_font_face == font_face &&
-	       memcmp((uchar*)(&scaled_font->font_matrix.xx),
-		   (uchar*)(&font_matrix->xx),
+	       memcmp((uchar *)(&scaled_font->font_matrix.xx),
+		   (uchar *)(&font_matrix->xx),
 		   sizeof(cairo_matrix_t)) == 0 &&
-	       memcmp((uchar*)(&scaled_font->ctm.xx),
-		   (uchar*)(&ctm->xx),
+	       memcmp((uchar *)(&scaled_font->ctm.xx),
+		   (uchar *)(&ctm->xx),
 		   sizeof(cairo_matrix_t)) == 0 &&
 	       cairo_font_options_equal(&scaled_font->options, options);
 }
@@ -1664,16 +1664,16 @@ static cairo_status_t cairo_scaled_font_text_to_glyphs_internal_uncached(cairo_s
  * cairo_text_cluster_flags_t cluster_flags;
  *
  * status = cairo_scaled_font_text_to_glyphs (scaled_font,
- *    x, y,
- *    utf8, utf8_len,
- *    &amp;glyphs, &amp;num_glyphs,
- *    &amp;clusters, &amp;num_clusters, &amp;cluster_flags);
+ *  x, y,
+ *  utf8, utf8_len,
+ *  &amp;glyphs, &amp;num_glyphs,
+ *  &amp;clusters, &amp;num_clusters, &amp;cluster_flags);
  *
  * if (status == CAIRO_STATUS_SUCCESS) {
  * cairo_show_text_glyphs (cr,
- *           utf8, utf8_len,
- *           glyphs, num_glyphs,
- *           clusters, num_clusters, cluster_flags);
+ *         utf8, utf8_len,
+ *         glyphs, num_glyphs,
+ *         clusters, num_clusters, cluster_flags);
  *
  * cairo_glyph_free (glyphs);
  * cairo_text_cluster_free (clusters);
@@ -1688,11 +1688,11 @@ static cairo_status_t cairo_scaled_font_text_to_glyphs_internal_uncached(cairo_s
  * int num_glyphs;
  *
  * status = cairo_scaled_font_text_to_glyphs (scaled_font,
- *    x, y,
- *    utf8, utf8_len,
- *    &amp;glyphs, &amp;num_glyphs,
- *    NULL, NULL,
- *    NULL);
+ *  x, y,
+ *  utf8, utf8_len,
+ *  &amp;glyphs, &amp;num_glyphs,
+ *  NULL, NULL,
+ *  NULL);
  *
  * if (status == CAIRO_STATUS_SUCCESS) {
  * cairo_show_glyphs (cr, glyphs, num_glyphs);
@@ -1714,16 +1714,16 @@ static cairo_status_t cairo_scaled_font_text_to_glyphs_internal_uncached(cairo_s
  * cairo_text_cluster_flags_t cluster_flags;
  *
  * status = cairo_scaled_font_text_to_glyphs (scaled_font,
- *    x, y,
- *    utf8, utf8_len,
- *    &amp;glyphs, &amp;num_glyphs,
- *    &amp;clusters, &amp;num_clusters, &amp;cluster_flags);
+ *  x, y,
+ *  utf8, utf8_len,
+ *  &amp;glyphs, &amp;num_glyphs,
+ *  &amp;clusters, &amp;num_clusters, &amp;cluster_flags);
  *
  * if (status == CAIRO_STATUS_SUCCESS) {
  * cairo_show_text_glyphs (cr,
- *           utf8, utf8_len,
- *           glyphs, num_glyphs,
- *           clusters, num_clusters, cluster_flags);
+ *         utf8, utf8_len,
+ *         glyphs, num_glyphs,
+ *         clusters, num_clusters, cluster_flags);
  *
  * if (glyphs != stack_glyphs)
  * cairo_glyph_free (glyphs);

@@ -24,10 +24,10 @@
 
 /*
  * If you have libcurl problems, all docs and details are found here:
- *   https://curl.haxx.se/libcurl/
+ * https://curl.haxx.se/libcurl/
  *
  * curl-library mailing list subscription and unsubscription web interface:
- *   https://cool.haxx.se/mailman/listinfo/curl-library/
+ * https://cool.haxx.se/mailman/listinfo/curl-library/
  */
 #ifdef CURL_NO_OLDIES
 	#define CURL_STRICTER
@@ -577,7 +577,7 @@ typedef enum {
  * CURLAUTH_DIGEST_IE    - HTTP Digest authentication with IE flavour
  * CURLAUTH_NTLM_WB      - HTTP NTLM authentication delegated to winbind helper
  * CURLAUTH_ONLY         - Use together with a single other type to force no
- *                         authentication or just that single type
+ *                       authentication or just that single type
  * CURLAUTH_ANY          - All fine types set
  * CURLAUTH_ANYSAFE      - All fine types except Basic
  */
@@ -1566,10 +1566,10 @@ CURL_EXTERN CURLFORMcode curl_formadd(struct curl_httppost ** httppost, struct c
 /*
  * callback function for curl_formget()
  * The void *arg pointer will be the one passed as second argument to
- *   curl_formget().
+ * curl_formget().
  * The character buffer passed to it must not be freed.
  * Should return the buffer length passed to it as the argument "len" on
- *   success.
+ * success.
  */
 typedef size_t (*curl_formget_callback)(void * arg, const char * buf, size_t len);
 

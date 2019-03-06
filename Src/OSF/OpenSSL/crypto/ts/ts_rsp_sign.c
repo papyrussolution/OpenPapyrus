@@ -714,7 +714,7 @@ static int ESS_add_signing_cert(PKCS7_SIGNER_INFO * si, ESS_SIGNING_CERT * sc)
 	ASN1_STRING * seq = NULL;
 	uchar * p, * pp = NULL;
 	int len = i2d_ESS_SIGNING_CERT(sc, 0);
-	if((pp = (uchar*)OPENSSL_malloc(len)) == NULL) {
+	if((pp = (uchar *)OPENSSL_malloc(len)) == NULL) {
 		TSerr(TS_F_ESS_ADD_SIGNING_CERT, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}

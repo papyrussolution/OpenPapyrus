@@ -1158,14 +1158,14 @@ static cairo_int_status_t _cairo_quartz_setup_state(cairo_quartz_drawing_state_t
 	 * opportunities:
 	 *
 	 * - CLEAR completely ignores the source, thus we can just use a
-	 *   solid color fill.
+	 * solid color fill.
 	 *
 	 * - SOURCE can be implemented by drawing the source and clearing
-	 *   outside of the source as long as the two regions have no
-	 *   intersection. This happens when the source is a pixel-aligned
-	 *   rectangle. If the source is at least as big as the
-	 *   intersection between the clip rectangle and the mask
-	 *   rectangle, no clear operation is needed.
+	 * outside of the source as long as the two regions have no
+	 * intersection. This happens when the source is a pixel-aligned
+	 * rectangle. If the source is at least as big as the
+	 * intersection between the clip rectangle and the mask
+	 * rectangle, no clear operation is needed.
 	 */
 	needs_temp = !_cairo_operator_bounded_by_mask(op);
 

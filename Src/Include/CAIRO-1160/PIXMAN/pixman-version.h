@@ -39,7 +39,7 @@
 
 #define PIXMAN_VERSION_ENCODE(major, minor, micro) (	\
 	  ((major) * 10000)				\
-	+ ((minor) *   100)				\
+	+ ((minor) * 100)				\
 	+ ((micro) * 1))
 
 #define PIXMAN_VERSION PIXMAN_VERSION_ENCODE(	\

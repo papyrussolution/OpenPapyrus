@@ -120,11 +120,11 @@ extern "C" {
  * changes have been made to sort this out;
  * - bn_fix_top()s implementation has been moved to bn_correct_top()
  * - if BN_DEBUG isn't defined, bn_fix_top() maps to bn_correct_top(), and
- *   bn_check_top() is as before.
+ * bn_check_top() is as before.
  * - if BN_DEBUG *is* defined;
- *   - bn_check_top() tries to pollute unused words even if the bignum 'top' is
- *     consistent. (ed: only if BN_DEBUG_RAND is defined)
- *   - bn_fix_top() maps to bn_check_top() rather than "fixing" anything.
+ * - bn_check_top() tries to pollute unused words even if the bignum 'top' is
+ *   consistent. (ed: only if BN_DEBUG_RAND is defined)
+ * - bn_fix_top() maps to bn_check_top() rather than "fixing" anything.
  * The idea is to have debug builds flag up inconsistent bignums when they
  * occur. If that occurs in a bn_fix_top(), we examine the code in question; if
  * the use of bn_fix_top() was appropriate (ie. it follows directly after code
@@ -250,7 +250,7 @@ struct bn_gencb_st {
  * For window size 'w' (w >= 2) and a random 'b' bits exponent,
  * the number of multiplications is a constant plus on average
  *
- *    2^(w-1) + (b-w)/(w+1);
+ *  2^(w-1) + (b-w)/(w+1);
  *
  * here  2^(w-1)  is for precomputing the table (we actually need
  * entries only for windows that have the lowest bit set), and
@@ -259,11 +259,11 @@ struct bn_gencb_st {
  *
  * Thus we should use
  *
- *    w >= 6  if        b > 671
- *     w = 5  if  671 > b > 239
- *     w = 4  if  239 > b >  79
- *     w = 3  if   79 > b >  23
- *    w <= 2  if   23 > b
+ *  w >= 6  if        b > 671
+ *   w = 5  if  671 > b > 239
+ *   w = 4  if  239 > b >  79
+ *   w = 3  if   79 > b >  23
+ *  w <= 2  if   23 > b
  *
  * (with draws in between).  Very small exponents are often selected
  * with low Hamming weight, so we use  w = 1  for b <= 23.
@@ -339,7 +339,7 @@ struct bn_gencb_st {
  * exhibiting "native" performance in C. That's what BN_UMULT_HIGH
  * macro is about:-)
  *
- *                                      <appro@fy.chalmers.se>
+ *                                    <appro@fy.chalmers.se>
  */
 #  if defined(__alpha) && (defined(SIXTY_FOUR_BIT_LONG) || defined(SIXTY_FOUR_BIT))
 #   if defined(__DECC)

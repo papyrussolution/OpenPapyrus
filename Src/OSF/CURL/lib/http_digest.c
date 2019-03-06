@@ -109,11 +109,11 @@ CURLcode Curl_output_digest(struct connectdata * conn, bool proxy, const uchar *
 		tmp = strchr((char *)uripath, '?');
 		if(tmp) {
 			size_t urilen = tmp - (char *)uripath;
-			path = (uchar*)aprintf("%.*s", urilen, uripath);
+			path = (uchar *)aprintf("%.*s", urilen, uripath);
 		}
 	}
 	if(!tmp)
-		path = (uchar*)_strdup((char *)uripath);
+		path = (uchar *)_strdup((char *)uripath);
 	if(!path)
 		return CURLE_OUT_OF_MEMORY;
 	result = Curl_auth_create_digest_http_message(data, userp, passwdp, request, path, digest, &response, &len);

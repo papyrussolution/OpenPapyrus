@@ -162,11 +162,10 @@ int i2t_ASN1_OBJECT(char * buf, int buf_len, const ASN1_OBJECT * a)
 	return OBJ_obj2txt(buf, buf_len, a, 0);
 }
 
-int i2a_ASN1_OBJECT(BIO * bp, const ASN1_OBJECT * a)
+int FASTCALL i2a_ASN1_OBJECT(BIO * bp, const ASN1_OBJECT * a)
 {
 	char buf[80], * p = buf;
 	int i;
-
 	if((a == NULL) || (a->data == NULL))
 		return (BIO_write(bp, "NULL", 4));
 	i = i2t_ASN1_OBJECT(buf, sizeof buf, a);
@@ -178,7 +177,7 @@ int i2a_ASN1_OBJECT(BIO * bp, const ASN1_OBJECT * a)
 	}
 	if(i <= 0) {
 		i = BIO_write(bp, "<INVALID>", 9);
-		i += BIO_dump(bp, (const char*)a->data, a->length);
+		i += BIO_dump(bp, (const char *)a->data, a->length);
 		return i;
 	}
 	BIO_write(bp, p, i);
@@ -279,13 +278,13 @@ ASN1_OBJECT * c2i_ASN1_OBJECT(ASN1_OBJECT ** a, const uchar ** pp,
 
 	p = *pp;
 	/* detach data from object */
-	data = (uchar*)ret->data;
+	data = (uchar *)ret->data;
 	ret->data = NULL;
 	/* once detached we can change it */
 	if((data == NULL) || (ret->length < length)) {
 		ret->length = 0;
 		OPENSSL_free(data);
-		data = (uchar*)OPENSSL_malloc(length);
+		data = (uchar *)OPENSSL_malloc(length);
 		if(data == NULL) {
 			i = ERR_R_MALLOC_FAILURE;
 			goto err;

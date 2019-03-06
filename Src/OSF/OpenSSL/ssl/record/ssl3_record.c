@@ -320,9 +320,9 @@ int ssl3_get_record(SSL * s)
 	enc_err = s->method->ssl3_enc->enc(s, rr, num_recs, 0);
 	/*-
 	 * enc_err is:
-	 *    0: (in non-constant time) if the record is publically invalid.
-	 *    1: if the padding is valid
-	 *    -1: if the padding is invalid
+	 *  0: (in non-constant time) if the record is publically invalid.
+	 *  1: if the padding is valid
+	 *  -1: if the padding is invalid
 	 */
 	if(enc_err == 0) {
 		al = SSL_AD_DECRYPTION_FAILED;
@@ -452,7 +452,7 @@ int ssl3_do_uncompress(SSL * ssl, SSL3_RECORD * rr)
 #ifndef OPENSSL_NO_COMP
 	int i;
 	if(rr->comp == NULL) {
-		rr->comp = (uchar*)OPENSSL_malloc(SSL3_RT_MAX_ENCRYPTED_LENGTH);
+		rr->comp = (uchar *)OPENSSL_malloc(SSL3_RT_MAX_ENCRYPTED_LENGTH);
 	}
 	if(rr->comp == NULL)
 		return 0;
@@ -482,11 +482,11 @@ int ssl3_do_compress(SSL * ssl, SSL3_RECORD * wr)
  * ssl3_enc encrypts/decrypts |n_recs| records in |inrecs|
  *
  * Returns:
- *   0: (in non-constant time) if the record is publically invalid (i.e. too
- *       short etc).
- *   1: if the record's padding is valid / the encryption was successful.
- *   -1: if the record's padding is invalid or, if sending, an internal error
- *       occurred.
+ * 0: (in non-constant time) if the record is publically invalid (i.e. too
+ *     short etc).
+ * 1: if the record's padding is valid / the encryption was successful.
+ * -1: if the record's padding is invalid or, if sending, an internal error
+ *     occurred.
  */
 int ssl3_enc(SSL * s, SSL3_RECORD * inrecs, uint n_recs, int send)
 {
@@ -552,11 +552,11 @@ int ssl3_enc(SSL * s, SSL3_RECORD * inrecs, uint n_recs, int send)
  * tls1_enc encrypts/decrypts |n_recs| in |recs|.
  *
  * Returns:
- *   0: (in non-constant time) if the record is publically invalid (i.e. too
- *       short etc).
- *   1: if the record's padding is valid / the encryption was successful.
- *   -1: if the record's padding/AEAD-authenticator is invalid or, if sending,
- *       an internal error occurred.
+ * 0: (in non-constant time) if the record is publically invalid (i.e. too
+ *     short etc).
+ * 1: if the record's padding is valid / the encryption was successful.
+ * -1: if the record's padding/AEAD-authenticator is invalid or, if sending,
+ *     an internal error occurred.
  */
 int tls1_enc(SSL * s, SSL3_RECORD * recs, uint n_recs, int send)
 {
@@ -776,7 +776,7 @@ int n_ssl3_mac(SSL * ssl, SSL3_RECORD * rec, uchar * md, int send)
 
 		/*-
 		 * npad is, at most, 48 bytes and that's with MD5:
-		 *   16 + 48 + 8 (sequence bytes) + 1 + 2 = 75.
+		 * 16 + 48 + 8 (sequence bytes) + 1 + 2 = 75.
 		 *
 		 * With SHA-1 (the largest hash speced for SSLv3) the hash size
 		 * goes up 4, but npad goes down by 8, resulting in a smaller
@@ -970,8 +970,8 @@ int tls1_mac(SSL * ssl, SSL3_RECORD * rec, uchar * md, int send)
  *
  * block_size: the block size of the cipher used to encrypt the record.
  * returns:
- *   0: (in non-constant time) if the record is publicly invalid.
- *   1: if the padding was valid
+ * 0: (in non-constant time) if the record is publicly invalid.
+ * 1: if the padding was valid
  *  -1: otherwise.
  */
 int ssl3_cbc_remove_padding(SSL3_RECORD * rec,
@@ -1003,8 +1003,8 @@ int ssl3_cbc_remove_padding(SSL3_RECORD * rec,
  *
  * block_size: the block size of the cipher used to encrypt the record.
  * returns:
- *   0: (in non-constant time) if the record is publicly invalid.
- *   1: if the padding was valid
+ * 0: (in non-constant time) if the record is publicly invalid.
+ * 1: if the padding was valid
  *  -1: otherwise.
  */
 int tls1_cbc_remove_padding(const SSL * s,
@@ -1082,8 +1082,8 @@ int tls1_cbc_remove_padding(const SSL * s,
  * this function.
  *
  * On entry:
- *   rec->orig_len >= md_size
- *   md_size <= EVP_MAX_MD_SIZE
+ * rec->orig_len >= md_size
+ * md_size <= EVP_MAX_MD_SIZE
  *
  * If CBC_MAC_ROTATE_IN_PLACE is defined then the rotation is performed with
  * variable accesses in a 64-byte-aligned buffer. Assuming that this fits into
@@ -1207,9 +1207,9 @@ int dtls1_process_record(SSL * s, DTLS1_BITMAP * bitmap)
 	enc_err = s->method->ssl3_enc->enc(s, rr, 1, 0);
 	/*-
 	 * enc_err is:
-	 *    0: (in non-constant time) if the record is publically invalid.
-	 *    1: if the padding is valid
-	 *   -1: if the padding is invalid
+	 *  0: (in non-constant time) if the record is publically invalid.
+	 *  1: if the padding is valid
+	 * -1: if the padding is invalid
 	 */
 	if(enc_err == 0) {
 		/* For DTLS we simply ignore bad packets. */
@@ -1311,7 +1311,7 @@ int dtls1_process_record(SSL * s, DTLS1_BITMAP * bitmap)
 	 * ssl->s3->rrec.length == number of bytes in record
 	 * ssl->s3->rrec.off    == offset to first valid byte
 	 * ssl->s3->rrec.data   == where to take bytes from, increment
-	 *                         after use :-).
+	 *                       after use :-).
 	 */
 
 	/* we have pulled in a full packet so zero things */

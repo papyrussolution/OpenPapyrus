@@ -34,10 +34,10 @@
  *
  * The method is from the following publication:
  *
- *     Harper, Menezes, Vanstone:
- *     "Public-Key Cryptosystems with Very Small Key Lengths",
- *     EUROCRYPT '92, Springer-Verlag LNCS 658,
- *     published February 1993
+ *   Harper, Menezes, Vanstone:
+ *   "Public-Key Cryptosystems with Very Small Key Lengths",
+ *   EUROCRYPT '92, Springer-Verlag LNCS 658,
+ *   published February 1993
  *
  * US Patents 6,141,420 and 6,618,483 (Vanstone, Mullin, Agnew) describe
  * the same method, but claim no priority date earlier than July 29, 1994

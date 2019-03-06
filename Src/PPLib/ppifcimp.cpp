@@ -778,12 +778,12 @@ int32 DL6ICLS_PPDbfRecord::PutString(int32 fldN, SString & val)
 		if(cp == cpANSI || cp == cp1251) {
 			val.Transf(CTRANSF_INNER_TO_OUTER);
 		}
-		return p_rec->put(fldN, (const char*)val);
+		return p_rec->put(fldN, (const char *)val);
 	}
 	else
 		return 0;
 	// } @v8.4.2
-	// @v8.4.2 return p_rec ? p_rec->put(fldN, (const char*)val) : 0;
+	// @v8.4.2 return p_rec ? p_rec->put(fldN, (const char *)val) : 0;
 }
 
 int32 DL6ICLS_PPDbfRecord::PutDouble(int32 fldN, double val)
@@ -1998,7 +1998,7 @@ void LoginDialogParam::SetText(HWND hDlg, uint ctl, SString & rBuf)
 {
 	SString buf;
 	(buf = rBuf).Transf(CTRANSF_INNER_TO_OUTER);
-	// @v9.1.5 SendMessage(GetDlgItem(hDlg, ctl), (UINT)WM_SETTEXT, (WPARAM)0, (LPARAM)(const char*)buf);
+	// @v9.1.5 SendMessage(GetDlgItem(hDlg, ctl), (UINT)WM_SETTEXT, (WPARAM)0, (LPARAM)(const char *)buf);
 	TView::SSetWindowText(GetDlgItem(hDlg, ctl), buf); // @v9.1.5
 }
 
@@ -4903,7 +4903,7 @@ IStrAssocList * DL6ICLS_PPObjPerson::GetListByRegNumber(long regTypeID, long kin
 	InnerExtraObjPerson * p_e = static_cast<InnerExtraObjPerson *>(ExtraPtr);
 	if(p_e && p_e->P_Obj) {
 		PPIDArray psn_list;
-		if(p_e->P_Obj->GetListByRegNumber(regTypeID, kindID, (const char*)rSerial, (const char*)rNumber, psn_list) > 0) {
+		if(p_e->P_Obj->GetListByRegNumber(regTypeID, kindID, (const char *)rSerial, (const char *)rNumber, psn_list) > 0) {
 			THROW_MEM(p_list = new StrAssocArray);
 			for(uint i = 0; i < psn_list.getCount(); i++)
 				p_list->Add(psn_list.at(i), 0, rNumber);
@@ -5972,7 +5972,7 @@ int32 DL6ICLS_PPObjBill::GetGuid(long billID, SString * pGuidStr)
 		SString temp_buf;
 		if(p_e->P_BObj->GetGuid(billID, &uuid) > 0) {
 			uuid.ToStr(S_GUID::fmtIDL, temp_buf);
-			ASSIGN_PTR(pGuidStr, (const char*)temp_buf);
+			ASSIGN_PTR(pGuidStr, (const char *)temp_buf);
 			ok = 1;
 		}
 	}

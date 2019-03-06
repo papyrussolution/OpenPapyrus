@@ -280,7 +280,7 @@ static void * ngx_http_try_files_create_loc_conf(ngx_conf_t * cf)
 	/*
 	 * set by ngx_pcalloc():
 	 *
-	 *     tlcf->try_files = NULL;
+	 *   tlcf->try_files = NULL;
 	 */
 	return tlcf;
 }

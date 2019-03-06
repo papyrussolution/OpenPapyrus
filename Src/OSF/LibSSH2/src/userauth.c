@@ -7,19 +7,19 @@
  * with or without modification, are permitted provided
  * that the following conditions are met:
  *
- *   Redistributions of source code must retain the above
- *   copyright notice, this list of conditions and the
- *   following disclaimer.
+ * Redistributions of source code must retain the above
+ * copyright notice, this list of conditions and the
+ * following disclaimer.
  *
- *   Redistributions in binary form must reproduce the above
- *   copyright notice, this list of conditions and the following
- *   disclaimer in the documentation and/or other materials
- *   provided with the distribution.
+ * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials
+ * provided with the distribution.
  *
- *   Neither the name of the copyright holder nor the names
- *   of any other contributors may be used to endorse or
- *   promote products derived from this software without
- *   specific prior written permission.
+ * Neither the name of the copyright holder nor the names
+ * of any other contributors may be used to endorse or
+ * promote products derived from this software without
+ * specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
  * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
@@ -74,7 +74,7 @@ static char * userauth_list(LIBSSH2_SESSION * session, const char * username, ui
 		session->userauth_list_state = libssh2_NB_state_created;
 	}
 	if(session->userauth_list_state == libssh2_NB_state_created) {
-		rc = _libssh2_transport_send(session, session->userauth_list_data, session->userauth_list_data_len, (uchar*)"none", 4);
+		rc = _libssh2_transport_send(session, session->userauth_list_data, session->userauth_list_data_len, (uchar *)"none", 4);
 		if(rc == LIBSSH2_ERROR_EAGAIN) {
 			_libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block requesting userauth list");
 			return NULL;
@@ -138,7 +138,7 @@ LIBSSH2_API char * libssh2_userauth_list(LIBSSH2_SESSION * session, const char *
  * libssh2_userauth_authenticated
  *
  * Returns: 0 if not yet authenticated
- *          1 if already authenticated
+ *        1 if already authenticated
  */
 LIBSSH2_API int libssh2_userauth_authenticated(LIBSSH2_SESSION * session)
 {
@@ -262,7 +262,7 @@ password_response:
 						rc = _libssh2_transport_send(session,
 						    session->userauth_pswd_data,
 						    session->userauth_pswd_data_len,
-						    (uchar*)
+						    (uchar *)
 						    session->userauth_pswd_newpw,
 						    session->userauth_pswd_newpw_len);
 						if(rc == LIBSSH2_ERROR_EAGAIN) {
@@ -311,7 +311,7 @@ LIBSSH2_API int libssh2_userauth_password_ex(LIBSSH2_SESSION * session, const ch
     LIBSSH2_PASSWD_CHANGEREQ_FUNC((*passwd_change_cb)))
 {
 	int rc;
-	BLOCK_ADJUST(rc, session, userauth_password(session, username, username_len, (uchar*)password, password_len, passwd_change_cb));
+	BLOCK_ADJUST(rc, session, userauth_password(session, username, username_len, (uchar *)password, password_len, passwd_change_cb));
 	return rc;
 }
 
@@ -330,7 +330,7 @@ static int memory_read_publickey(LIBSSH2_SESSION * session, uchar ** method, siz
 	}
 	memcpy(pubkey, pubkeyfiledata, pubkeyfiledata_len);
 	/*
-	 *   Remove trailing whitespace
+	 * Remove trailing whitespace
 	 */
 	while(pubkey_len && isspace(pubkey[pubkey_len - 1]))
 		pubkey_len--;
@@ -456,7 +456,7 @@ static int memory_read_privatekey(LIBSSH2_SESSION * session,
 	*hostkey_abstract = NULL;
 	while(*hostkey_methods_avail && (*hostkey_methods_avail)->name) {
 		if((*hostkey_methods_avail)->initPEMFromMemory
-		    && strncmp((*hostkey_methods_avail)->name, (const char*)method,
+		    && strncmp((*hostkey_methods_avail)->name, (const char *)method,
 			    method_len) == 0) {
 			*hostkey_method = *hostkey_methods_avail;
 			break;
@@ -470,7 +470,7 @@ static int memory_read_privatekey(LIBSSH2_SESSION * session,
 
 	if((*hostkey_method)->
 	    initPEMFromMemory(session, privkeyfiledata, privkeyfiledata_len,
-		    (uchar*)passphrase,
+		    (uchar *)passphrase,
 		    hostkey_abstract)) {
 		return _libssh2_error(session, LIBSSH2_ERROR_FILE,
 		    "Unable to initialize private key from file");
@@ -497,7 +497,7 @@ static int file_read_privatekey(LIBSSH2_SESSION * session,
 	*hostkey_abstract = NULL;
 	while(*hostkey_methods_avail && (*hostkey_methods_avail)->name) {
 		if((*hostkey_methods_avail)->initPEM
-		    && strncmp((*hostkey_methods_avail)->name, (const char*)method,
+		    && strncmp((*hostkey_methods_avail)->name, (const char *)method,
 			    method_len) == 0) {
 			*hostkey_method = *hostkey_methods_avail;
 			break;
@@ -510,7 +510,7 @@ static int file_read_privatekey(LIBSSH2_SESSION * session,
 	}
 
 	if((*hostkey_method)->
-	    initPEM(session, privkeyfile, (uchar*)passphrase,
+	    initPEM(session, privkeyfile, (uchar *)passphrase,
 		    hostkey_abstract)) {
 		return _libssh2_error(session, LIBSSH2_ERROR_FILE,
 		    "Unable to initialize private key from file");
@@ -629,8 +629,8 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION * session, const char * u
 		_libssh2_store_str(&session->userauth_host_s, username, username_len);
 		_libssh2_store_str(&session->userauth_host_s, "ssh-connection", 14);
 		_libssh2_store_str(&session->userauth_host_s, "hostbased", 9);
-		_libssh2_store_str(&session->userauth_host_s, (const char*)session->userauth_host_method, session->userauth_host_method_len);
-		_libssh2_store_str(&session->userauth_host_s, (const char*)pubkeydata, pubkeydata_len);
+		_libssh2_store_str(&session->userauth_host_s, (const char *)session->userauth_host_method, session->userauth_host_method_len);
+		_libssh2_store_str(&session->userauth_host_s, (const char *)pubkeydata, pubkeydata_len);
 		LIBSSH2_FREE(session, pubkeydata);
 		_libssh2_store_str(&session->userauth_host_s, hostname, hostname_len);
 		_libssh2_store_str(&session->userauth_host_s, local_username, local_username_len);
@@ -681,10 +681,10 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION * session, const char * u
 		}
 		session->userauth_host_s = session->userauth_host_packet + session->userauth_host_packet_len;
 		_libssh2_store_u32(&session->userauth_host_s, 4 + session->userauth_host_method_len + 4 + sig_len);
-		_libssh2_store_str(&session->userauth_host_s, (const char*)session->userauth_host_method, session->userauth_host_method_len);
+		_libssh2_store_str(&session->userauth_host_s, (const char *)session->userauth_host_method, session->userauth_host_method_len);
 		LIBSSH2_FREE(session, session->userauth_host_method);
 		session->userauth_host_method = NULL;
-		_libssh2_store_str(&session->userauth_host_s, (const char*)sig, sig_len);
+		_libssh2_store_str(&session->userauth_host_s, (const char *)sig, sig_len);
 		LIBSSH2_FREE(session, sig);
 		_libssh2_debug(session, LIBSSH2_TRACE_AUTH, "Attempting hostbased authentication");
 		session->userauth_host_state = libssh2_NB_state_created;
@@ -830,9 +830,9 @@ int _libssh2_userauth_publickey(LIBSSH2_SESSION * session,
 		/* Not sending signature with *this* packet */
 		*s++ = 0;
 
-		_libssh2_store_str(&s, (const char*)session->userauth_pblc_method,
+		_libssh2_store_str(&s, (const char *)session->userauth_pblc_method,
 		    session->userauth_pblc_method_len);
-		_libssh2_store_str(&s, (const char*)pubkeydata, pubkeydata_len);
+		_libssh2_store_str(&s, (const char *)pubkeydata, pubkeydata_len);
 
 		_libssh2_debug(session, LIBSSH2_TRACE_AUTH,
 		    "Attempting publickey authentication");
@@ -926,7 +926,7 @@ int _libssh2_userauth_publickey(LIBSSH2_SESSION * session,
 		if(!buf) {
 			return _libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for userauth-publickey signed data");
 		}
-		_libssh2_store_str(&s, (const char*)session->session_id, session->session_id_len);
+		_libssh2_store_str(&s, (const char *)session->session_id, session->session_id_len);
 		memcpy(s, session->userauth_pblc_packet, session->userauth_pblc_packet_len);
 		s += session->userauth_pblc_packet_len;
 		rc = sign_callback(session, &sig, &sig_len, buf, s - buf, (void **)abstract);
@@ -970,13 +970,13 @@ int _libssh2_userauth_publickey(LIBSSH2_SESSION * session,
 
 		_libssh2_store_u32(&s,
 		    4 + session->userauth_pblc_method_len + 4 + sig_len);
-		_libssh2_store_str(&s, (const char*)session->userauth_pblc_method,
+		_libssh2_store_str(&s, (const char *)session->userauth_pblc_method,
 		    session->userauth_pblc_method_len);
 
 		LIBSSH2_FREE(session, session->userauth_pblc_method);
 		session->userauth_pblc_method = NULL;
 
-		_libssh2_store_str(&s, (const char*)sig, sig_len);
+		_libssh2_store_str(&s, (const char *)sig, sig_len);
 		LIBSSH2_FREE(session, sig);
 
 		_libssh2_debug(session, LIBSSH2_TRACE_AUTH,

@@ -281,9 +281,9 @@ TYPEDEF_D2I2D_OF(void);
  * The structure will look like this:
  *
  * typedef struct SOMETHING_st {
- *      ...
- *      ASN1_ITEM_EXP *iptr;
- *      ...
+ *    ...
+ *    ASN1_ITEM_EXP *iptr;
+ *    ...
  * } SOMETHING;
  *
  * It would be initialised as e.g.:
@@ -561,7 +561,7 @@ int i2a_ASN1_INTEGER(BIO * bp, const ASN1_INTEGER * a);
 int a2i_ASN1_INTEGER(BIO * bp, ASN1_INTEGER * bs, char * buf, int size);
 int i2a_ASN1_ENUMERATED(BIO * bp, const ASN1_ENUMERATED * a);
 int a2i_ASN1_ENUMERATED(BIO * bp, ASN1_ENUMERATED * bs, char * buf, int size);
-int i2a_ASN1_OBJECT(BIO * bp, const ASN1_OBJECT * a);
+int FASTCALL i2a_ASN1_OBJECT(BIO * bp, const ASN1_OBJECT * a);
 int a2i_ASN1_STRING(BIO * bp, ASN1_STRING * bs, char * buf, int size);
 int i2a_ASN1_STRING(BIO * bp, const ASN1_STRING * a, int type);
 int i2t_ASN1_OBJECT(char * buf, int buf_len, const ASN1_OBJECT * a);
@@ -654,9 +654,9 @@ void * ASN1_d2i_bio(void *(*xnew)(void), d2i_of_void * d2i, BIO * in, void ** x)
 void * ASN1_item_d2i_bio(const ASN1_ITEM * it, BIO * in, void * x);
 int ASN1_i2d_bio(i2d_of_void * i2d, BIO * out, uchar * x);
 
-#define ASN1_i2d_bio_of(type, i2d, out, x) (ASN1_i2d_bio(CHECKED_I2D_OF(type, i2d), out, (uchar*)CHECKED_PTR_OF(type, x)))
+#define ASN1_i2d_bio_of(type, i2d, out, x) (ASN1_i2d_bio(CHECKED_I2D_OF(type, i2d), out, (uchar *)CHECKED_PTR_OF(type, x)))
 
-#define ASN1_i2d_bio_of_const(type, i2d, out, x) (ASN1_i2d_bio(CHECKED_I2D_OF(const type, i2d), out, (uchar*)CHECKED_PTR_OF(const type, x)))
+#define ASN1_i2d_bio_of_const(type, i2d, out, x) (ASN1_i2d_bio(CHECKED_I2D_OF(const type, i2d), out, (uchar *)CHECKED_PTR_OF(const type, x)))
 
 int ASN1_item_i2d_bio(const ASN1_ITEM * it, BIO * out, void * x);
 int ASN1_UTCTIME_print(BIO * fp, const ASN1_UTCTIME * a);

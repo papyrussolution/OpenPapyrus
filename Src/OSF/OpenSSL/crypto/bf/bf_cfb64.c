@@ -22,7 +22,7 @@ void BF_cfb64_encrypt(const uchar * in, uchar * out, long length, const BF_KEY *
 	register long l = length;
 	BF_LONG ti[2];
 	uchar   c, cc;
-	uchar * iv = (uchar*)ivec;
+	uchar * iv = (uchar *)ivec;
 	if(encrypt) {
 		while(l--) {
 			if(n == 0) {
@@ -31,12 +31,12 @@ void BF_cfb64_encrypt(const uchar * in, uchar * out, long length, const BF_KEY *
 				n2l(iv, v1);
 				ti[1] = v1;
 				BF_encrypt((BF_LONG*)ti, schedule);
-				iv = (uchar*)ivec;
+				iv = (uchar *)ivec;
 				t = ti[0];
 				l2n(t, iv);
 				t = ti[1];
 				l2n(t, iv);
-				iv = (uchar*)ivec;
+				iv = (uchar *)ivec;
 			}
 			c = *(in++) ^ iv[n];
 			*(out++) = c;
@@ -52,12 +52,12 @@ void BF_cfb64_encrypt(const uchar * in, uchar * out, long length, const BF_KEY *
 				n2l(iv, v1);
 				ti[1] = v1;
 				BF_encrypt((BF_LONG*)ti, schedule);
-				iv = (uchar*)ivec;
+				iv = (uchar *)ivec;
 				t = ti[0];
 				l2n(t, iv);
 				t = ti[1];
 				l2n(t, iv);
-				iv = (uchar*)ivec;
+				iv = (uchar *)ivec;
 			}
 			cc = *(in++);
 			c = iv[n];

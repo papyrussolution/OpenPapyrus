@@ -546,7 +546,7 @@ void PNGAPI png_init_io(png_structrp png_ptr, png_FILE_p fp)
  * defines a cast of a signed integer to an unsigned integer either to preserve
  * the value, if it is positive, or to calculate:
  *
- *     (UNSIGNED_MAX+1) + integer
+ *   (UNSIGNED_MAX+1) + integer
  *
  * Where UNSIGNED_MAX is the appropriate maximum unsigned value, so when the
  * negative integral value is added the result will be an unsigned value
@@ -872,9 +872,9 @@ static int png_colorspace_check_gamma(png_const_structrp png_ptr,
  *
  * 'from' says where the new gamma value comes from:
  *
- *    0: the new gamma value is the libpng estimate for an ICC profile
- *    1: the new gamma value comes from a gAMA chunk
- *    2: the new gamma value comes from an sRGB chunk
+ *  0: the new gamma value is the libpng estimate for an ICC profile
+ *  1: the new gamma value comes from a gAMA chunk
+ *  2: the new gamma value comes from an sRGB chunk
  */
 {
 	png_fixed_point gtest;
@@ -1087,15 +1087,15 @@ static int png_XYZ_from_xy(png_XYZ * XYZ, const png_xy * xy)
 	 * Think of the original end-points as points in (X,Y,Z) space.  The
 	 * chromaticity values (c) have the property:
 	 *
-	 *           C
-	 *   c = ---------
-	 *       X + Y + Z
+	 *         C
+	 * c = ---------
+	 *     X + Y + Z
 	 *
 	 * For each c (x,y,z) from the corresponding original C (X,Y,Z).  Thus the
 	 * three chromaticity values (x,y,z) for each end-point obey the
 	 * relationship:
 	 *
-	 *   x + y + z = 1
+	 * x + y + z = 1
 	 *
 	 * This describes the plane in (X,Y,Z) space that intersects each axis at the
 	 * value 1.0; call this the chromaticity plane.  Thus the chromaticity
@@ -1109,29 +1109,29 @@ static int png_XYZ_from_xy(png_XYZ * XYZ, const png_xy * xy)
 	 * recorded the chromaticity of this.  The reference white (X,Y,Z) would have
 	 * given all three of the scale factors since:
 	 *
-	 *    color-C = color-c * color-scale
-	 *    white-C = red-C + green-C + blue-C
-	 *            = red-c*red-scale + green-c*green-scale + blue-c*blue-scale
+	 *  color-C = color-c * color-scale
+	 *  white-C = red-C + green-C + blue-C
+	 *          = red-c*red-scale + green-c*green-scale + blue-c*blue-scale
 	 *
 	 * But cHRM records only white-x and white-y, so we have lost the white scale
 	 * factor:
 	 *
-	 *    white-C = white-c*white-scale
+	 *  white-C = white-c*white-scale
 	 *
 	 * To handle this the inverse transformation makes an arbitrary assumption
 	 * about white-scale:
 	 *
-	 *    Assume: white-Y = 1.0
-	 *    Hence:  white-scale = 1/white-y
-	 *    Or:     red-Y + green-Y + blue-Y = 1.0
+	 *  Assume: white-Y = 1.0
+	 *  Hence:  white-scale = 1/white-y
+	 *  Or:     red-Y + green-Y + blue-Y = 1.0
 	 *
 	 * Notice the last statement of the assumption gives an equation in three of
 	 * the nine values we want to calculate.  8 more equations come from the
 	 * above routine as summarised at the top above (the chromaticity
 	 * calculation):
 	 *
-	 *    Given: color-x = color-X / (color-X + color-Y + color-Z)
-	 *    Hence: (color-x - 1)*color-X + color.x*color-Y + color.x*color-Z = 0
+	 *  Given: color-x = color-X / (color-X + color-Y + color-Z)
+	 *  Hence: (color-x - 1)*color-X + color.x*color-Y + color.x*color-Z = 0
 	 *
 	 * This is 9 simultaneous equations in the 9 variables "color-C" and can be
 	 * solved by Cramer's rule.  Cramer's rule requires calculating 10 9x9 matrix
@@ -1153,27 +1153,27 @@ static int png_XYZ_from_xy(png_XYZ * XYZ, const png_xy * xy)
 	 * libpng arithmetic: a simple inversion of the above equations
 	 * ------------------------------------------------------------
 	 *
-	 *    white_scale = 1/white-y
-	 *    white-X = white-x * white-scale
-	 *    white-Y = 1.0
-	 *    white-Z = (1 - white-x - white-y) * white_scale
+	 *  white_scale = 1/white-y
+	 *  white-X = white-x * white-scale
+	 *  white-Y = 1.0
+	 *  white-Z = (1 - white-x - white-y) * white_scale
 	 *
-	 *    white-C = red-C + green-C + blue-C
-	 *            = red-c*red-scale + green-c*green-scale + blue-c*blue-scale
+	 *  white-C = red-C + green-C + blue-C
+	 *          = red-c*red-scale + green-c*green-scale + blue-c*blue-scale
 	 *
 	 * This gives us three equations in (red-scale,green-scale,blue-scale) where
 	 * all the coefficients are now known:
 	 *
-	 *    red-x*red-scale + green-x*green-scale + blue-x*blue-scale
-	 *       = white-x/white-y
-	 *    red-y*red-scale + green-y*green-scale + blue-y*blue-scale = 1
-	 *    red-z*red-scale + green-z*green-scale + blue-z*blue-scale
-	 *       = (1 - white-x - white-y)/white-y
+	 *  red-x*red-scale + green-x*green-scale + blue-x*blue-scale
+	 *     = white-x/white-y
+	 *  red-y*red-scale + green-y*green-scale + blue-y*blue-scale = 1
+	 *  red-z*red-scale + green-z*green-scale + blue-z*blue-scale
+	 *     = (1 - white-x - white-y)/white-y
 	 *
 	 * In the last equation color-z is (1 - color-x - color-y) so we can add all
 	 * three equations together to get an alternative third:
 	 *
-	 *    red-scale + green-scale + blue-scale = 1/white-y = white-scale
+	 *  red-scale + green-scale + blue-scale = 1/white-y = white-scale
 	 *
 	 * So now we have a Cramer's rule solution where the determinants are just
 	 * 3x3 - far more tractible.  Unfortunately 3x3 determinants still involve
@@ -1183,39 +1183,39 @@ static int png_XYZ_from_xy(png_XYZ * XYZ, const png_xy * xy)
 	 * fixed point.  Instead proceed to simplify the first two equations by
 	 * eliminating what is likely to be the largest value, blue-scale:
 	 *
-	 *    blue-scale = white-scale - red-scale - green-scale
+	 *  blue-scale = white-scale - red-scale - green-scale
 	 *
 	 * Hence:
 	 *
-	 *    (red-x - blue-x)*red-scale + (green-x - blue-x)*green-scale =
-	 *                (white-x - blue-x)*white-scale
+	 *  (red-x - blue-x)*red-scale + (green-x - blue-x)*green-scale =
+	 *              (white-x - blue-x)*white-scale
 	 *
-	 *    (red-y - blue-y)*red-scale + (green-y - blue-y)*green-scale =
-	 *                1 - blue-y*white-scale
+	 *  (red-y - blue-y)*red-scale + (green-y - blue-y)*green-scale =
+	 *              1 - blue-y*white-scale
 	 *
 	 * And now we can trivially solve for (red-scale,green-scale):
 	 *
-	 *    green-scale =
-	 *                (white-x - blue-x)*white-scale - (red-x - blue-x)*red-scale
-	 *                -----------------------------------------------------------
-	 *                                  green-x - blue-x
+	 *  green-scale =
+	 *              (white-x - blue-x)*white-scale - (red-x - blue-x)*red-scale
+	 *              -----------------------------------------------------------
+	 *                                green-x - blue-x
 	 *
-	 *    red-scale =
-	 *                1 - blue-y*white-scale - (green-y - blue-y) * green-scale
-	 *                ---------------------------------------------------------
-	 *                                  red-y - blue-y
+	 *  red-scale =
+	 *              1 - blue-y*white-scale - (green-y - blue-y) * green-scale
+	 *              ---------------------------------------------------------
+	 *                                red-y - blue-y
 	 *
 	 * Hence:
 	 *
-	 *    red-scale =
-	 *          ( (green-x - blue-x) * (white-y - blue-y) -
-	 *            (green-y - blue-y) * (white-x - blue-x) ) / white-y
+	 *  red-scale =
+	 *        ( (green-x - blue-x) * (white-y - blue-y) -
+	 *          (green-y - blue-y) * (white-x - blue-x) ) / white-y
 	 * -------------------------------------------------------------------------
 	 *  (green-x - blue-x)*(red-y - blue-y)-(green-y - blue-y)*(red-x - blue-x)
 	 *
-	 *    green-scale =
-	 *          ( (red-y - blue-y) * (white-x - blue-x) -
-	 *            (red-x - blue-x) * (white-y - blue-y) ) / white-y
+	 *  green-scale =
+	 *        ( (red-y - blue-y) * (white-x - blue-x) -
+	 *          (red-x - blue-x) * (white-y - blue-y) ) / white-y
 	 * -------------------------------------------------------------------------
 	 *  (green-x - blue-x)*(red-y - blue-y)-(green-y - blue-y)*(red-x - blue-x)
 	 *
@@ -1245,13 +1245,13 @@ static int png_XYZ_from_xy(png_XYZ * XYZ, const png_xy * xy)
 	 *  color space definitions are (to 15 decimal places):
 	 *
 	 *  sRGB
-	 *    0.212639005871510 0.715168678767756 0.072192315360734
+	 *  0.212639005871510 0.715168678767756 0.072192315360734
 	 *  Kodak ProPhoto
-	 *    0.288071128229293 0.711843217810102 0.000085653960605
+	 *  0.288071128229293 0.711843217810102 0.000085653960605
 	 *  Adobe RGB
-	 *    0.297344975250536 0.627363566255466 0.075291458493998
+	 *  0.297344975250536 0.627363566255466 0.075291458493998
 	 *  Adobe Wide Gamut RGB
-	 *    0.258728243040113 0.724682314948566 0.016589442011321
+	 *  0.258728243040113 0.724682314948566 0.016589442011321
 	 */
 	/* By the argument, above overflow should be impossible here. The return
 	 * value of 2 indicates an internal error to the caller.
@@ -1719,7 +1719,7 @@ int /* PRIVATE */ png_colorspace_set_sRGB(png_const_structrp png_ptr, png_colors
 /* Encoded value of D50 as an ICC XYZNumber.  From the ICC 2010 spec the value
  * is XYZ(0.9642,1.0,0.8249), which scales to:
  *
- *    (63189.8112, 65536, 54060.6464)
+ *  (63189.8112, 65536, 54060.6464)
  */
 static const uint8 D50_nCIEXYZ[12] = { 0x00, 0x00, 0xf6, 0xd6, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0xd3, 0x2d };
 
@@ -2285,9 +2285,9 @@ void /* PRIVATE */ png_check_IHDR(png_const_structrp png_ptr, uint32 width, uint
 	/* Accept filter_method 64 (intrapixel differencing) only if
 	 * 1. Libpng was compiled with PNG_MNG_FEATURES_SUPPORTED and
 	 * 2. Libpng did not read a PNG signature (this filter_method is only
-	 *    used in PNG datastreams that are embedded in MNG datastreams) and
+	 *  used in PNG datastreams that are embedded in MNG datastreams) and
 	 * 3. The application called png_permit_mng_features with a mask that
-	 *    included PNG_FLAG_MNG_FILTER_64 and
+	 *  included PNG_FLAG_MNG_FILTER_64 and
 	 * 4. The filter_method is 64 and
 	 * 5. The color_type is RGB or RGBA
 	 */
@@ -3083,9 +3083,9 @@ png_fixed_point png_reciprocal2(png_fixed_point a, png_fixed_point b)
  * precision floating point arithmetic would work fine.
  *
  * 8-bit log table
- *   This is a table of -log(value/255)/log(2) for 'value' in the range 128 to
- *   255, so it's the base 2 logarithm of a normalized 8-bit floating point
- *   mantissa.  The numbers are 32-bit fractions.
+ * This is a table of -log(value/255)/log(2) for 'value' in the range 128 to
+ * 255, so it's the base 2 logarithm of a normalized 8-bit floating point
+ * mantissa.  The numbers are 32-bit fractions.
  */
 static const uint32
     png_8bit_l2[128] =
@@ -3167,8 +3167,8 @@ static png_int_32 png_log8bit(unsigned int x)
  *
  * We want log2(value/65535), we have log2(v'/255), where:
  *
- *    value = v' * 256 + v''
- *          = v' * f
+ *  value = v' * 256 + v''
+ *        = v' * f
  *
  * So f is value/v', which is equal to (256+v''/v') since v' is in the range 128
  * to 255 and v'' is in the range 0 to 255 f will be in the range 256 to less
@@ -3178,7 +3178,7 @@ static png_int_32 png_log8bit(unsigned int x)
  * This gives a final formula using a calculated value 'x' which is value/v' and
  * scaling by 65536 to match the above table:
  *
- *   log2(x/257) * 65536
+ * log2(x/257) * 65536
  *
  * Since these numbers are so close to '1' we can use simple linear
  * interpolation between the two end values 256/257 (result -368.61) and 258/257
@@ -3690,7 +3690,7 @@ void /* PRIVATE */ png_build_gamma_table(png_structrp png_ptr, int bit_depth)
 
 		/* 16-bit gamma code uses this equation:
 		 *
-		 *   ov = table[(iv & 0xff) >> gamma_shift][iv >> 8]
+		 * ov = table[(iv & 0xff) >> gamma_shift][iv >> 8]
 		 *
 		 * Where 'iv' is the input color value and 'ov' is the output value -
 		 * pow(iv, gamma).
@@ -3699,11 +3699,11 @@ void /* PRIVATE */ png_build_gamma_table(png_structrp png_ptr, int bit_depth)
 		 * is selected by the (8-gamma_shift) most significant of the low 8 bits of
 		 * the color value then indexed by the upper 8 bits:
 		 *
-		 *   table[low bits][high 8 bits]
+		 * table[low bits][high 8 bits]
 		 *
 		 * So the table 'n' corresponds to all those 'iv' of:
 		 *
-		 *   <all high 8-bit values><n << gamma_shift>..<(n+1 << gamma_shift)-1>
+		 * <all high 8-bit values><n << gamma_shift>..<(n+1 << gamma_shift)-1>
 		 *
 		 */
 		if(sig_bit > 0 && sig_bit < 16U)
@@ -3792,11 +3792,11 @@ int PNGAPI png_set_option(png_structrp png_ptr, int option, int onoff)
  *
  * For all possible (255*65535+1) input values:
  *
- *    error: -0.515566 - 0.625971, 79441 (0.475369%) of readings inexact
+ *  error: -0.515566 - 0.625971, 79441 (0.475369%) of readings inexact
  *
  * For the input values corresponding to the 65536 16-bit values:
  *
- *    error: -0.513727 - 0.607759, 308 (0.469978%) of readings inexact
+ *  error: -0.513727 - 0.607759, 308 (0.469978%) of readings inexact
  *
  * In all cases the inexact readings are only off by one.
  */

@@ -30,7 +30,7 @@
  * The Initial Developer of the Original Code is Chris Wilson.
  *
  * Contributor(s):
- *      Chris Wilson <chris@chris-wilson.co.uk>
+ *    Chris Wilson <chris@chris-wilson.co.uk>
  *
  */
 

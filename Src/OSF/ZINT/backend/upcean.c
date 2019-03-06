@@ -120,7 +120,7 @@ int upca(struct ZintSymbol * symbol, uchar source[], char dest[])
 		gtin[length - 1] = upc_check(gtin);
 	}
 	upca_draw(gtin, dest);
-	sstrcpy(symbol->text, (uchar*)gtin);
+	sstrcpy(symbol->text, (uchar *)gtin);
 	return 0;
 }
 //
@@ -267,7 +267,7 @@ int upce(struct ZintSymbol * symbol, uchar source[], char dest[])
 			return ZINT_ERROR_INVALID_DATA;
 		}
 	}
-	sstrcpy(symbol->text, (uchar*)hrt);
+	sstrcpy(symbol->text, (uchar *)hrt);
 	return 0;
 }
 
@@ -385,7 +385,7 @@ int ean13(struct ZintSymbol * symbol, uchar source[], char dest[])
 	}
 	// stop character 
 	strcat(dest, "111");
-	sstrcpy(symbol->text, (uchar*)gtin);
+	sstrcpy(symbol->text, (uchar *)gtin);
 	return 0;
 }
 
@@ -410,7 +410,7 @@ int ean8(struct ZintSymbol * symbol, uchar source[], char dest[])
 		gtin[length - 1] = upc_check(gtin);
 	}
 	upca_draw(gtin, dest);
-	sstrcpy(symbol->text, (uchar*)gtin);
+	sstrcpy(symbol->text, (uchar *)gtin);
 	return 0;
 }
 
@@ -544,10 +544,10 @@ void ean_leading_zeroes(struct ZintSymbol * symbol, uchar source[], uchar local_
 			}
 		}
 	}
-	sstrcpy(first_part, (uchar*)"");
-	sstrcpy(second_part, (uchar*)"");
-	sstrcpy(zfirst_part, (uchar*)"");
-	sstrcpy(zsecond_part, (uchar*)"");
+	sstrcpy(first_part, (uchar *)"");
+	sstrcpy(second_part, (uchar *)"");
+	sstrcpy(zfirst_part, (uchar *)"");
+	sstrcpy(zsecond_part, (uchar *)"");
 	// Split input into two strings 
 	for(i = 0; i < first_len; i++) {
 		first_part[i] = source[i];
@@ -681,7 +681,7 @@ int eanx(struct ZintSymbol * symbol, uchar source[], int src_len)
 		}
 	}
 	// Add leading zeroes 
-	sstrcpy(local_source, (uchar*)"");
+	sstrcpy(local_source, (uchar *)"");
 	if(symbol->Std == BARCODE_ISBNX) {
 		to_upper(local_source);
 	}

@@ -15,18 +15,18 @@
  * This routine gets called in three different ways:
  *
  * 1. It can be called to open a file/database.  In this case, subdb will
- *    be NULL and meta_pgno will be PGNO_BASE_MD.
+ *  be NULL and meta_pgno will be PGNO_BASE_MD.
  * 2. It can be called to open a subdatabase during normal operation.  In
- *    this case, name and subname will both be non-NULL and meta_pgno will
- *    be PGNO_BASE_MD (also PGNO_INVALID).
+ *  this case, name and subname will both be non-NULL and meta_pgno will
+ *  be PGNO_BASE_MD (also PGNO_INVALID).
  * 3. It can be called to open an in-memory database (name == NULL;
- *    subname = name).
+ *  subname = name).
  * 4. It can be called during recovery to open a file/database, in which case
- *    name will be non-NULL, subname will be NULL, and meta-pgno will be
- *    PGNO_BASE_MD.
+ *  name will be non-NULL, subname will be NULL, and meta-pgno will be
+ *  PGNO_BASE_MD.
  * 5. It can be called during recovery to open a subdatabase, in which case
- *    name will be non-NULL, subname may be NULL and meta-pgno will be
- *    a valid pgno (i.e., not PGNO_BASE_MD).
+ *  name will be non-NULL, subname may be NULL and meta-pgno will be
+ *  a valid pgno (i.e., not PGNO_BASE_MD).
  * 6. It can be called during recovery to open an in-memory database.
  *
  * PUBLIC: int __db_open __P((DB *, DB_THREAD_INFO *, DB_TXN *,

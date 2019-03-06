@@ -43,10 +43,10 @@ ngx_radix_tree_t * ngx_radix_tree_create(ngx_pool_t * pool, ngx_int_t preallocat
 	 * may distribute several bits per page.
 	 *
 	 * Thus, by default we preallocate maximum
-	 *     6 bits on amd64 (64-bit platform and 4K pages)
-	 *     7 bits on i386 (32-bit platform and 4K pages)
-	 *     7 bits on sparc64 in 64-bit mode (8K pages)
-	 *     8 bits on sparc64 in 32-bit mode (8K pages)
+	 *   6 bits on amd64 (64-bit platform and 4K pages)
+	 *   7 bits on i386 (32-bit platform and 4K pages)
+	 *   7 bits on sparc64 in 64-bit mode (8K pages)
+	 *   8 bits on sparc64 in 32-bit mode (8K pages)
 	 */
 
 	if(preallocate == -1) {

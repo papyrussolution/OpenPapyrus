@@ -358,16 +358,16 @@ static void * ngx_http_ssl_create_srv_conf(ngx_conf_t * cf)
 		/*
 		 * set by ngx_pcalloc():
 		 *
-		 *     sscf->protocols = 0;
-		 *     sscf->dhparam = { 0, NULL };
-		 *     sscf->ecdh_curve = { 0, NULL };
-		 *     sscf->client_certificate = { 0, NULL };
-		 *     sscf->trusted_certificate = { 0, NULL };
-		 *     sscf->crl = { 0, NULL };
-		 *     sscf->ciphers = { 0, NULL };
-		 *     sscf->shm_zone = NULL;
-		 *     sscf->stapling_file = { 0, NULL };
-		 *     sscf->stapling_responder = { 0, NULL };
+		 *   sscf->protocols = 0;
+		 *   sscf->dhparam = { 0, NULL };
+		 *   sscf->ecdh_curve = { 0, NULL };
+		 *   sscf->client_certificate = { 0, NULL };
+		 *   sscf->trusted_certificate = { 0, NULL };
+		 *   sscf->crl = { 0, NULL };
+		 *   sscf->ciphers = { 0, NULL };
+		 *   sscf->shm_zone = NULL;
+		 *   sscf->stapling_file = { 0, NULL };
+		 *   sscf->stapling_responder = { 0, NULL };
 		 */
 		sscf->enable = NGX_CONF_UNSET;
 		sscf->prefer_server_ciphers = NGX_CONF_UNSET;

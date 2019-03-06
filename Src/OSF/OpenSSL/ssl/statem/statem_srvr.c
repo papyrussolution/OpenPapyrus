@@ -86,10 +86,10 @@ int ossl_statem_server_read_transition(SSL * s, int mt)
 		     * 1) We didn't request a Certificate
 		     * OR
 		     * 2) If we did request one then
-		     *      a) We allow no Certificate to be returned
-		     *      AND
-		     *      b) We are running SSL3 (in TLS1.0+ the client must return a 0
-		     *         list if we requested a certificate)
+		     *    a) We allow no Certificate to be returned
+		     *    AND
+		     *    b) We are running SSL3 (in TLS1.0+ the client must return a 0
+		     *       list if we requested a certificate)
 		     */
 		    if(mt == SSL3_MT_CLIENT_KEY_EXCHANGE) {
 			    if(s->s3->tmp.cert_request) {
@@ -207,8 +207,8 @@ int ossl_statem_server_read_transition(SSL * s, int mt)
  * Should we send a ServerKeyExchange message?
  *
  * Valid return values are:
- *   1: Yes
- *   0: No
+ * 1: Yes
+ * 0: No
  */
 static int send_server_key_exchange(SSL * s)
 {
@@ -246,8 +246,8 @@ static int send_server_key_exchange(SSL * s)
  * Should we send a CertificateRequest message?
  *
  * Valid return values are:
- *   1: Yes
- *   0: No
+ * 1: Yes
+ * 0: No
  */
 static int send_certificate_request(SSL * s)
 {
@@ -583,8 +583,8 @@ WORK_STATE ossl_statem_server_post_work(SSL * s, WORK_STATE wst)
  * Construct a message to be sent from the server to the client.
  *
  * Valid return values are:
- *   1: Success
- *   0: Error
+ * 1: Success
+ * 0: Error
  */
 int ossl_statem_server_construct_message(SSL * s)
 {
@@ -842,7 +842,7 @@ int dtls_construct_hello_verify_request(SSL * s)
 	uint len;
 	uchar * buf;
 
-	buf = (uchar*)s->init_buf->data;
+	buf = (uchar *)s->init_buf->data;
 
 	if(s->ctx->app_gen_cookie_cb == NULL ||
 	    s->ctx->app_gen_cookie_cb(s, s->d1->cookie,
@@ -1477,7 +1477,7 @@ int tls_construct_server_hello(SSL * s)
 	int al = 0;
 	unsigned long l;
 
-	buf = (uchar*)s->init_buf->data;
+	buf = (uchar *)s->init_buf->data;
 
 	/* Do the message type and length last */
 	d = p = ssl_handshake_start(s);
@@ -1496,14 +1496,14 @@ int tls_construct_server_hello(SSL * s)
 	 * There are several cases for the session ID to send
 	 * back in the server hello:
 	 * - For session reuse from the session cache,
-	 *   we send back the old session ID.
+	 * we send back the old session ID.
 	 * - If stateless session reuse (using a session ticket)
-	 *   is successful, we send back the client's "session ID"
-	 *   (which doesn't actually identify the session).
+	 * is successful, we send back the client's "session ID"
+	 * (which doesn't actually identify the session).
 	 * - If it is a new session, we send back the new
-	 *   session ID.
+	 * session ID.
 	 * - However, if we want the new session to be single-use,
-	 *   we send back a 0-length session ID.
+	 * we send back a 0-length session ID.
 	 * s->hit is non-zero in either case of session reuse,
 	 * so the following won't overwrite an ID that we're supposed
 	 * to send back.
@@ -2059,7 +2059,7 @@ static int tls_process_cke_psk_preamble(SSL * s, PACKET * pkt, int * al)
 	}
 
 	OPENSSL_free(s->s3->tmp.psk);
-	s->s3->tmp.psk = (uchar*)OPENSSL_memdup(psk, psklen);
+	s->s3->tmp.psk = (uchar *)OPENSSL_memdup(psk, psklen);
 	OPENSSL_cleanse(psk, psklen);
 
 	if(s->s3->tmp.psk == NULL) {
@@ -3161,10 +3161,10 @@ MSG_PROCESS_RETURN tls_process_next_proto(SSL * s, PACKET * pkt)
 
 	/*-
 	 * The payload looks like:
-	 *   uint8 proto_len;
-	 *   uint8 proto[proto_len];
-	 *   uint8 padding_len;
-	 *   uint8 padding[padding_len];
+	 * uint8 proto_len;
+	 * uint8 proto[proto_len];
+	 * uint8 padding_len;
+	 * uint8 padding[padding_len];
 	 */
 	if(!PACKET_get_length_prefixed_1(pkt, &next_proto)
 	    || !PACKET_get_length_prefixed_1(pkt, &padding)

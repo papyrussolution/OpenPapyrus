@@ -1253,8 +1253,8 @@ int SLAPI AndroidReader::ReadBills(PalmInputParam * pParam, long billIdBias, lon
 				for(; p_fld; p_fld = p_fld->next) {
 					if(p_fld->children && p_fld->children->content) {
 						int idx = 0;
-						val = (const char*)p_fld->children->content;
-						if(PPSearchSubStr(p_bill_tags, &(idx = 0), (const char*)p_fld->name, 1) > 0) {
+						val = (const char *)p_fld->children->content;
+						if(PPSearchSubStr(p_bill_tags, &(idx = 0), (const char *)p_fld->name, 1) > 0) {
 							switch(idx) {
 								case 0:   // _id
 									p_pack->Hdr.OrgID = val.ToLong();
@@ -1345,8 +1345,8 @@ int SLAPI AndroidReader::ReadBills(PalmInputParam * pParam, long billIdBias, lon
 							for(; p_fld; p_fld = p_fld->next) {
 								if(p_fld->children && p_fld->children->content) {
 									int idx = 0;
-									val = (const char*)p_fld->children->content;
-									if(PPSearchSubStr(p_brow_tags, &(idx = 0), (const char*)p_fld->name, 1) > 0) {
+									val = (const char *)p_fld->children->content;
+									if(PPSearchSubStr(p_brow_tags, &(idx = 0), (const char *)p_fld->name, 1) > 0) {
 										switch(idx) {
 											case 0:   // _id
 												break;
@@ -3151,7 +3151,7 @@ int SLAPI PPObjStyloPalm::XmlCmpDtm(LDATE dt, LTIME tm, const char * pXmlPath)
 		p_reader = xmlReaderForFile(pXmlPath, NULL, XML_PARSE_NOENT);
 	if(p_reader) {
 		int r = 0;
-		xmlTextReaderPreservePattern(p_reader, (const xmlChar*)(const char*)p_tag, 0);
+		xmlTextReaderPreservePattern(p_reader, (const xmlChar*)(const char *)p_tag, 0);
 		r = xmlTextReaderRead(p_reader);
 		/*
 		while(r == 1)
@@ -3165,10 +3165,10 @@ int SLAPI PPObjStyloPalm::XmlCmpDtm(LDATE dt, LTIME tm, const char * pXmlPath)
 					xmlAttr * p_attr = p_root->properties;
 					for(; p_attr; p_attr = p_attr->next) {
 						if(p_attr->children && p_attr->children->content) {
-							if(sstreqi_ascii("CreateDt", (const char*)p_attr->name))
-								strtodate((const char*)p_attr->children->content, DATF_DMY, &dtm.d);
-							else if(sstreqi_ascii("CreateTm", (const char*)p_attr->name))
-								strtotime((const char*)p_attr->children->content, TIMF_HMS, &dtm.t);
+							if(sstreqi_ascii("CreateDt", (const char *)p_attr->name))
+								strtodate((const char *)p_attr->children->content, DATF_DMY, &dtm.d);
+							else if(sstreqi_ascii("CreateTm", (const char *)p_attr->name))
+								strtotime((const char *)p_attr->children->content, TIMF_HMS, &dtm.t);
 						}
 					}
 				}
@@ -3742,7 +3742,7 @@ int SLAPI PPObjStyloPalm::ExportClients(PPID acsID, long palmFlags, ExportBlock 
 								drec_debt.put(5, amt);
 								drec_debt.put(6, debt);
 								drec_debt.put(7, bill_ext.AgentID);
-								// drec_debt.put(8, (const char*)memo);
+								// drec_debt.put(8, (const char *)memo);
 								PPSetAddedMsgString(p_debt_tbl->getName());
 								THROW_PP(p_debt_tbl->appendRec(&drec_debt), PPERR_DBFWRFAULT);
 							}

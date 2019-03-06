@@ -1,21 +1,21 @@
 /******************************************************************
- *    LexHaskell.cxx
+ *  LexHaskell.cxx
  *
- *    A haskell lexer for the scintilla code control.
- *    Some stuff "lended" from LexPython.cxx and LexCPP.cxx.
- *    External lexer stuff inspired from the caml external lexer.
- *    Folder copied from Python's.
+ *  A haskell lexer for the scintilla code control.
+ *  Some stuff "lended" from LexPython.cxx and LexCPP.cxx.
+ *  External lexer stuff inspired from the caml external lexer.
+ *  Folder copied from Python's.
  *
- *    Written by Tobias Engvall - tumm at dtek dot chalmers dot se
+ *  Written by Tobias Engvall - tumm at dtek dot chalmers dot se
  *
- *    Several bug fixes by Krasimir Angelov - kr.angelov at gmail.com
+ *  Several bug fixes by Krasimir Angelov - kr.angelov at gmail.com
  *
- *    Improved by kudah <kudahkukarek@gmail.com>
+ *  Improved by kudah <kudahkukarek@gmail.com>
  *
- *    TODO:
- *    * A proper lexical folder to fold group declarations, comments, pragmas,
- *      #ifdefs, explicit layout, lists, tuples, quasi-quotes, splces, etc, etc,
- *      etc.
+ *  TODO:
+ *  * A proper lexical folder to fold group declarations, comments, pragmas,
+ *    #ifdefs, explicit layout, lists, tuples, quasi-quotes, splces, etc, etc,
+ *    etc.
  *
  *****************************************************************/
 #include <Platform.h>

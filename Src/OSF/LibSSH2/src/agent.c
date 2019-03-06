@@ -7,19 +7,19 @@
  * with or without modification, are permitted provided
  * that the following conditions are met:
  *
- *   Redistributions of source code must retain the above
- *   copyright notice, this list of conditions and the
- *   following disclaimer.
+ * Redistributions of source code must retain the above
+ * copyright notice, this list of conditions and the
+ * following disclaimer.
  *
- *   Redistributions in binary form must reproduce the above
- *   copyright notice, this list of conditions and the following
- *   disclaimer in the documentation and/or other materials
- *   provided with the distribution.
+ * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials
+ * provided with the distribution.
  *
- *   Neither the name of the copyright holder nor the names
- *   of any other contributors may be used to endorse or
- *   promote products derived from this software without
- *   specific prior written permission.
+ * Neither the name of the copyright holder nor the names
+ * of any other contributors may be used to endorse or
+ * promote products derived from this software without
+ * specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
  * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
@@ -265,7 +265,7 @@ static int agent_transact_pageant(LIBSSH2_AGENT * agent, agent_transaction_ctx_t
 		CloseHandle(filemap);
 		return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL, "failed to open pageant filemap for writing");
 	}
-	_libssh2_store_str(&p2, (const char*)transctx->request, transctx->request_len);
+	_libssh2_store_str(&p2, (const char *)transctx->request, transctx->request_len);
 	cds.dwData = PAGEANT_COPYDATA_ID;
 	cds.cbData = 1 + strlen(mapname);
 	cds.lpData = mapname;
@@ -333,9 +333,9 @@ static int agent_sign(LIBSSH2_SESSION * session, uchar ** sig, size_t * sig_len,
 			return _libssh2_error(session, LIBSSH2_ERROR_ALLOC, "out of memory");
 		*s++ = SSH2_AGENTC_SIGN_REQUEST;
 		/* key blob */
-		_libssh2_store_str(&s, (const char*)identity->external.blob, identity->external.blob_len);
+		_libssh2_store_str(&s, (const char *)identity->external.blob, identity->external.blob_len);
 		/* data */
-		_libssh2_store_str(&s, (const char*)data, data_len);
+		_libssh2_store_str(&s, (const char *)data, data_len);
 		/* flags */
 		_libssh2_store_u32(&s, 0);
 		transctx->request_len = s - transctx->request;

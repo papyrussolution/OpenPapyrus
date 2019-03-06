@@ -772,9 +772,9 @@ static void * ngx_http_gzip_create_conf(ngx_conf_t * cf)
 		/*
 		 * set by ngx_pcalloc():
 		 *
-		 *     conf->bufs.num = 0;
-		 *     conf->types = { NULL };
-		 *     conf->types_keys = NULL;
+		 *   conf->bufs.num = 0;
+		 *   conf->types = { NULL };
+		 *   conf->types_keys = NULL;
 		 */
 		conf->enable = NGX_CONF_UNSET;
 		conf->no_buffer = NGX_CONF_UNSET;

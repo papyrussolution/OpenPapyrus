@@ -63,7 +63,7 @@ CAIRO_BEGIN_DECLS
 
 #define CAIRO_VERSION_ENCODE(major, minor, micro) (     \
 		((major) * 10000)                             \
-		+ ((minor) *   100)                             \
+		+ ((minor) * 100)                             \
 		+ ((micro) * 1))
 
 #define CAIRO_VERSION CAIRO_VERSION_ENCODE(     \
@@ -287,20 +287,20 @@ typedef struct _cairo_user_data_key {
  * @CAIRO_STATUS_DEVICE_TYPE_MISMATCH: the device type is not appropriate for the operation (Since 1.10)
  * @CAIRO_STATUS_DEVICE_ERROR: an operation to the device caused an unspecified error (Since 1.10)
  * @CAIRO_STATUS_INVALID_MESH_CONSTRUCTION: a mesh pattern
- *   construction operation was used outside of a
- *   cairo_mesh_pattern_begin_patch()/cairo_mesh_pattern_end_patch()
- *   pair (Since 1.12)
+ * construction operation was used outside of a
+ * cairo_mesh_pattern_begin_patch()/cairo_mesh_pattern_end_patch()
+ * pair (Since 1.12)
  * @CAIRO_STATUS_DEVICE_FINISHED: target device has been finished (Since 1.12)
  * @CAIRO_STATUS_JBIG2_GLOBAL_MISSING: %CAIRO_MIME_TYPE_JBIG2_GLOBAL_ID has been used on at least one image
- *   but no image provided %CAIRO_MIME_TYPE_JBIG2_GLOBAL (Since 1.14)
+ * but no image provided %CAIRO_MIME_TYPE_JBIG2_GLOBAL (Since 1.14)
  * @CAIRO_STATUS_PNG_ERROR: error occurred in libpng while reading from or writing to a PNG file (Since 1.16)
  * @CAIRO_STATUS_FREETYPE_ERROR: error occurred in libfreetype (Since 1.16)
  * @CAIRO_STATUS_WIN32_GDI_ERROR: error occurred in the Windows Graphics Device Interface (Since 1.16)
  * @CAIRO_STATUS_TAG_ERROR: invalid tag name, attributes, or nesting (Since 1.16)
  * @CAIRO_STATUS_LAST_STATUS: this is a special value indicating the number of
- *   status values defined in this enumeration.  When using this value, note
- *   that the version of cairo at run-time may have additional status values
- *   defined than the value of this symbol at compile-time. (Since 1.10)
+ * status values defined in this enumeration.  When using this value, note
+ * that the version of cairo at run-time may have additional status values
+ * defined than the value of this symbol at compile-time. (Since 1.10)
  *
  * #cairo_status_t is used to indicate errors that can occur when
  * using Cairo. In some cases it is returned directly by functions.
@@ -390,24 +390,24 @@ typedef enum _cairo_content {
  * cairo_format_t:
  * @CAIRO_FORMAT_INVALID: no such format exists or is supported.
  * @CAIRO_FORMAT_ARGB32: each pixel is a 32-bit quantity, with
- *   alpha in the upper 8 bits, then red, then green, then blue.
- *   The 32-bit quantities are stored native-endian. Pre-multiplied
- *   alpha is used. (That is, 50% transparent red is 0x80800000,
- *   not 0x80ff0000.) (Since 1.0)
+ * alpha in the upper 8 bits, then red, then green, then blue.
+ * The 32-bit quantities are stored native-endian. Pre-multiplied
+ * alpha is used. (That is, 50% transparent red is 0x80800000,
+ * not 0x80ff0000.) (Since 1.0)
  * @CAIRO_FORMAT_RGB24: each pixel is a 32-bit quantity, with
- *   the upper 8 bits unused. Red, Green, and Blue are stored
- *   in the remaining 24 bits in that order. (Since 1.0)
+ * the upper 8 bits unused. Red, Green, and Blue are stored
+ * in the remaining 24 bits in that order. (Since 1.0)
  * @CAIRO_FORMAT_A8: each pixel is a 8-bit quantity holding
- *   an alpha value. (Since 1.0)
+ * an alpha value. (Since 1.0)
  * @CAIRO_FORMAT_A1: each pixel is a 1-bit quantity holding
- *   an alpha value. Pixels are packed together into 32-bit
- *   quantities. The ordering of the bits matches the
- *   endianness of the platform. On a big-endian machine, the
- *   first pixel is in the uppermost bit, on a little-endian
- *   machine the first pixel is in the least-significant bit. (Since 1.0)
+ * an alpha value. Pixels are packed together into 32-bit
+ * quantities. The ordering of the bits matches the
+ * endianness of the platform. On a big-endian machine, the
+ * first pixel is in the uppermost bit, on a little-endian
+ * machine the first pixel is in the least-significant bit. (Since 1.0)
  * @CAIRO_FORMAT_RGB16_565: each pixel is a 16-bit quantity
- *   with red in the upper 5 bits, then green in the middle
- *   6 bits, and blue in the lower 5 bits. (Since 1.2)
+ * with red in the upper 5 bits, then green in the middle
+ * 6 bits, and blue in the lower 5 bits. (Since 1.2)
  * @CAIRO_FORMAT_RGB30: like RGB24 but with 10bpc. (Since 1.12)
  *
  * #cairo_format_t is used to identify the memory format of
@@ -645,7 +645,7 @@ cairo_public void cairo_set_tolerance(cairo_t * cr, double tolerance);
 /**
  * cairo_antialias_t:
  * @CAIRO_ANTIALIAS_DEFAULT: Use the default antialiasing for
- *   the subsystem and target device, since 1.0
+ * the subsystem and target device, since 1.0
  * @CAIRO_ANTIALIAS_NONE: Use a bilevel alpha mask, since 1.0
  * @CAIRO_ANTIALIAS_GRAY: Perform single-color antialiasing (using
  *  shades of gray for black text on a white background, for example), since 1.0
@@ -1003,19 +1003,19 @@ typedef enum _cairo_text_cluster_flags {
 /**
  * cairo_text_extents_t:
  * @x_bearing: the horizontal distance from the origin to the
- *   leftmost part of the glyphs as drawn. Positive if the
- *   glyphs lie entirely to the right of the origin.
+ * leftmost part of the glyphs as drawn. Positive if the
+ * glyphs lie entirely to the right of the origin.
  * @y_bearing: the vertical distance from the origin to the
- *   topmost part of the glyphs as drawn. Positive only if the
- *   glyphs lie completely below the origin; will usually be
- *   negative.
+ * topmost part of the glyphs as drawn. Positive only if the
+ * glyphs lie completely below the origin; will usually be
+ * negative.
  * @width: width of the glyphs as drawn
  * @height: height of the glyphs as drawn
  * @x_advance:distance to advance in the X direction
  * after drawing these glyphs
  * @y_advance: distance to advance in the Y direction
- *   after drawing these glyphs. Will typically be zero except
- *   for vertical text layout as found in East-Asian languages.
+ * after drawing these glyphs. Will typically be zero except
+ * for vertical text layout as found in East-Asian languages.
  *
  * The #cairo_text_extents_t structure stores the extents of a single
  * glyph or a string of glyphs in user-space coordinates. Because text
@@ -1122,15 +1122,15 @@ typedef enum _cairo_font_weight {
 /**
  * cairo_subpixel_order_t:
  * @CAIRO_SUBPIXEL_ORDER_DEFAULT: Use the default subpixel order for
- *   for the target device, since 1.0
+ * for the target device, since 1.0
  * @CAIRO_SUBPIXEL_ORDER_RGB: Subpixel elements are arranged horizontally
- *   with red at the left, since 1.0
+ * with red at the left, since 1.0
  * @CAIRO_SUBPIXEL_ORDER_BGR:  Subpixel elements are arranged horizontally
- *   with blue at the left, since 1.0
+ * with blue at the left, since 1.0
  * @CAIRO_SUBPIXEL_ORDER_VRGB: Subpixel elements are arranged vertically
- *   with red at the top, since 1.0
+ * with red at the top, since 1.0
  * @CAIRO_SUBPIXEL_ORDER_VBGR: Subpixel elements are arranged vertically
- *   with blue at the top, since 1.0
+ * with blue at the top, since 1.0
  *
  * The subpixel order specifies the order of color elements within
  * each pixel on the display device when rendering with an
@@ -1149,14 +1149,14 @@ typedef enum _cairo_subpixel_order {
 /**
  * cairo_hint_style_t:
  * @CAIRO_HINT_STYLE_DEFAULT: Use the default hint style for
- *   font backend and target device, since 1.0
+ * font backend and target device, since 1.0
  * @CAIRO_HINT_STYLE_NONE: Do not hint outlines, since 1.0
  * @CAIRO_HINT_STYLE_SLIGHT: Hint outlines slightly to improve
- *   contrast while retaining good fidelity to the original
- *   shapes, since 1.0
+ * contrast while retaining good fidelity to the original
+ * shapes, since 1.0
  * @CAIRO_HINT_STYLE_MEDIUM: Hint outlines with medium strength
- *   giving a compromise between fidelity to the original shapes
- *   and contrast, since 1.0
+ * giving a compromise between fidelity to the original shapes
+ * and contrast, since 1.0
  * @CAIRO_HINT_STYLE_FULL: Hint outlines to maximize contrast, since 1.0
  *
  * Specifies the type of hinting to do on font outlines. Hinting
@@ -1647,19 +1647,19 @@ typedef enum _cairo_path_data_type {
  * data = &amp;path->data[i];
  * switch (data->header.type) {
  * case CAIRO_PATH_MOVE_TO:
- *   do_move_to_things (data[1].point.x, data[1].point.y);
- *   break;
+ * do_move_to_things (data[1].point.x, data[1].point.y);
+ * break;
  * case CAIRO_PATH_LINE_TO:
- *   do_line_to_things (data[1].point.x, data[1].point.y);
- *   break;
+ * do_line_to_things (data[1].point.x, data[1].point.y);
+ * break;
  * case CAIRO_PATH_CURVE_TO:
- *   do_curve_to_things (data[1].point.x, data[1].point.y,
- *                data[2].point.x, data[2].point.y,
- *                data[3].point.x, data[3].point.y);
- *   break;
+ * do_curve_to_things (data[1].point.x, data[1].point.y,
+ *              data[2].point.x, data[2].point.y,
+ *              data[3].point.x, data[3].point.y);
+ * break;
  * case CAIRO_PATH_CLOSE_PATH:
- *   do_close_path_things ();
- *   break;
+ * do_close_path_things ();
+ * break;
  * }
  * }
  * cairo_path_destroy (path);
@@ -1854,7 +1854,7 @@ cairo_public cairo_status_t FASTCALL cairo_surface_status(const cairo_surface_t 
  * @CAIRO_SURFACE_TYPE_TEE: The surface is of type 'tee' (a multiplexing surface), since 1.10
  * @CAIRO_SURFACE_TYPE_XML: The surface is of type XML (for debugging), since 1.10
  * @CAIRO_SURFACE_TYPE_SUBSURFACE: The surface is a subsurface created with
- *   cairo_surface_create_for_rectangle(), since 1.10
+ * cairo_surface_create_for_rectangle(), since 1.10
  * @CAIRO_SURFACE_TYPE_COGL: This surface is of type Cogl, since 1.12
  *
  * #cairo_surface_type_t is used to describe the type of a given
@@ -2157,13 +2157,13 @@ cairo_public void cairo_pattern_get_matrix(const cairo_pattern_t * pattern, cair
 /**
  * cairo_extend_t:
  * @CAIRO_EXTEND_NONE: pixels outside of the source pattern
- *   are fully transparent (Since 1.0)
+ * are fully transparent (Since 1.0)
  * @CAIRO_EXTEND_REPEAT: the pattern is tiled by repeating (Since 1.0)
  * @CAIRO_EXTEND_REFLECT: the pattern is tiled by reflecting
- *   at the edges (Since 1.0; but only implemented for surface patterns since 1.6)
+ * at the edges (Since 1.0; but only implemented for surface patterns since 1.6)
  * @CAIRO_EXTEND_PAD: pixels outside of the pattern copy
- *   the closest pixel from the source (Since 1.2; but only
- *   implemented for surface patterns since 1.6)
+ * the closest pixel from the source (Since 1.2; but only
+ * implemented for surface patterns since 1.6)
  *
  * #cairo_extend_t is used to describe how pattern color/alpha will be
  * determined for areas "outside" the pattern's natural area, (for
@@ -2292,7 +2292,7 @@ cairo_public cairo_bool_t cairo_region_equal(const cairo_region_t * a, const cai
 cairo_public cairo_status_t cairo_region_status(const cairo_region_t * region);
 cairo_public void cairo_region_get_extents(const cairo_region_t * region, cairo_rectangle_int_t * extents);
 cairo_public int cairo_region_num_rectangles(const cairo_region_t * region);
-cairo_public void cairo_region_get_rectangle(const cairo_region_t * region, int nth, cairo_rectangle_int_t * rectangle);
+cairo_public void FASTCALL cairo_region_get_rectangle(const cairo_region_t * region, int nth, cairo_rectangle_int_t * rectangle);
 cairo_public cairo_bool_t cairo_region_is_empty(const cairo_region_t * region);
 cairo_public cairo_region_overlap_t cairo_region_contains_rectangle(const cairo_region_t * region, const cairo_rectangle_int_t * rectangle);
 cairo_public cairo_bool_t cairo_region_contains_point(const cairo_region_t * region, int x, int y);

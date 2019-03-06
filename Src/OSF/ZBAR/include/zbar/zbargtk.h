@@ -116,7 +116,7 @@ struct _ZBarGtkClass {
      * ZBarGtk::decoded-text:
      * @widget: the object that received the signal
      * @text: the decoded data prefixed by the string name of the
-     *   symbol type (separated by a colon)
+     * symbol type (separated by a colon)
      *
      * emitted when a barcode is decoded from an image.
      * the symbol type name is prefixed to the data, separated by a
@@ -161,7 +161,7 @@ const char *zbar_gtk_get_video_device(ZBarGtk *zbar);
 /** open a new video device.
  *
  * @video_device: the platform specific name of the device to open.
- *   use NULL to close a currently opened device.
+ * use NULL to close a currently opened device.
  *
  * @note since opening a device may take some time, this call will
  * return immediately and the device will be opened asynchronously

@@ -7,19 +7,19 @@
  * with or without modification, are permitted provided
  * that the following conditions are met:
  *
- *   Redistributions of source code must retain the above
- *   copyright notice, this list of conditions and the
- *   following disclaimer.
+ * Redistributions of source code must retain the above
+ * copyright notice, this list of conditions and the
+ * following disclaimer.
  *
- *   Redistributions in binary form must reproduce the above
- *   copyright notice, this list of conditions and the following
- *   disclaimer in the documentation and/or other materials
- *   provided with the distribution.
+ * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials
+ * provided with the distribution.
  *
- *   Neither the name of the copyright holder nor the names
- *   of any other contributors may be used to endorse or
- *   promote products derived from this software without
- *   specific prior written permission.
+ * Neither the name of the copyright holder nor the names
+ * of any other contributors may be used to endorse or
+ * promote products derived from this software without
+ * specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
  * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
@@ -271,7 +271,7 @@ static int sftp_packet_read(LIBSSH2_SFTP * sftp)
 			    if(sftp->partial_len > LIBSSH2_SFTP_PACKET_MAXLEN)
 				    return _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED, "SFTP packet too large");
 			    _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Data begin - Packet Length: %lu", sftp->partial_len);
-			    packet = (uchar*)LIBSSH2_ALLOC(session, sftp->partial_len);
+			    packet = (uchar *)LIBSSH2_ALLOC(session, sftp->partial_len);
 			    if(!packet)
 				    return _libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate SFTP packet");
 			    sftp->partial_size_len = 0;
@@ -838,7 +838,7 @@ static LIBSSH2_SFTP_HANDLE * sftp_open(LIBSSH2_SFTP * sftp, const char * filenam
 
 		/* surprise! this starts out with nothing sent */
 		sftp->open_packet_sent = 0;
-		s = sftp->open_packet = (uchar*)LIBSSH2_ALLOC(session, sftp->open_packet_len);
+		s = sftp->open_packet = (uchar *)LIBSSH2_ALLOC(session, sftp->open_packet_len);
 		if(!sftp->open_packet) {
 			_libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for FXP_OPEN or FXP_OPENDIR packet");
 			return NULL;
@@ -1417,7 +1417,7 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE * handle, char * buffer,
 			size_t filename_len;
 			size_t longentry_len;
 
-			s = (uchar*)handle->u.dir.next_name;
+			s = (uchar *)handle->u.dir.next_name;
 			real_filename_len = _libssh2_ntohu32(s);
 
 			s += 4;
@@ -1542,8 +1542,8 @@ LIBSSH2_API int libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE * hnd, char * buffer
  * Concept:
  *
  * - Detect how much of the given buffer that was already sent in a previous
- *   call by inspecting the linked list of outgoing chunks. Make sure to skip
- *   passed the data that has already been taken care of.
+ * call by inspecting the linked list of outgoing chunks. Make sure to skip
+ * passed the data that has already been taken care of.
  *
  * - Split all (new) outgoing data in chunks no larger than N.
  *
@@ -1552,12 +1552,12 @@ LIBSSH2_API int libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE * hnd, char * buffer
  * - Add all created outgoing packets to the linked list.
  *
  * - Walk through the list and send the chunks that haven't been sent,
- *   as many as possible until EAGAIN. Some of the chunks may have been put
- *   in the list in a previous invoke.
+ * as many as possible until EAGAIN. Some of the chunks may have been put
+ * in the list in a previous invoke.
  *
  * - For all the chunks in the list that have been completely sent off, check
- *   for ACKs. If a chunk has been ACKed, it is removed from the linked
- *   list and the "acked" counter gets increased with that data amount.
+ * for ACKs. If a chunk has been ACKed, it is removed from the linked
+ * list and the "acked" counter gets increased with that data amount.
  *
  * - Return TOTAL bytes acked so far.
  *
@@ -1565,8 +1565,8 @@ LIBSSH2_API int libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE * hnd, char * buffer
  * -  be careful: we must not return a higher number than what was given!
  *
  * TODO:
- *   Introduce an option that disables this sort of "speculative" ahead writing
- *   as there's a risk that it will do harm to some app.
+ * Introduce an option that disables this sort of "speculative" ahead writing
+ * as there's a risk that it will do harm to some app.
  */
 
 static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE * handle, const char * buffer,

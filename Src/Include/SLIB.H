@@ -6271,7 +6271,7 @@ public:
 	{
 		freeAll();
 	}
-	T *    FASTCALL at(uint pos) const
+	T *  FASTCALL at(uint pos) const
 	{
 		return static_cast<T *>(SCollection::at(pos));
 	}
@@ -9146,7 +9146,7 @@ public:
 //         [ ]  Match any one character inside the brackets
 //         [^ ] Match any character NOT inside the brackets
 //         -    Match any character in range on either side of dash
-//         *    Match preceding pattern zero or more times
+//         *  Match preceding pattern zero or more times
 //         +    Match preceding pattern one or more times
 //         ?    Match preceding pattern zero or once only
 //         ()   Save a matched expression and use it in a further match.
@@ -11523,7 +11523,7 @@ public:
 	//
 	int    SLAPI WriteTab(const char * pTabName, STab * pTab);
 private:
-	int    SLAPI Helper_WriteTab(const char * pTabName, STab * pTab, SFile & rFile);
+	int    SLAPI Helper_WriteTab(const char * pTabName, const STab * pTab, SFile & rFile);
 
 	enum {
 		fUpdateMode = 0x0001

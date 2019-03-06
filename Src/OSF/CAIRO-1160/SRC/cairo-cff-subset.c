@@ -1234,11 +1234,11 @@ static cairo_status_t cairo_cff_font_set_ros_strings(cairo_cff_font_t * font)
 	const char * registry = "Adobe";
 	const char * ordering = "Identity";
 	int sid1 = NUM_STD_STRINGS + _cairo_array_num_elements(&font->strings_subset_index);
-	cairo_status_t status = cff_index_append_copy(&font->strings_subset_index, (uchar*)registry, strlen(registry));
+	cairo_status_t status = cff_index_append_copy(&font->strings_subset_index, (uchar *)registry, strlen(registry));
 	if(unlikely(status))
 		return status;
 	sid2 = NUM_STD_STRINGS + _cairo_array_num_elements(&font->strings_subset_index);
-	status = cff_index_append_copy(&font->strings_subset_index, (uchar*)ordering, strlen(ordering));
+	status = cff_index_append_copy(&font->strings_subset_index, (uchar *)ordering, strlen(ordering));
 	if(unlikely(status))
 		return status;
 	p = encode_integer(buf, sid1);
@@ -1791,7 +1791,7 @@ static cairo_status_t cairo_cff_font_add_euro_charset_string(cairo_cff_font_t * 
 		if(ch == 128) {
 			font->euro_sid = NUM_STD_STRINGS + _cairo_array_num_elements(&font->strings_subset_index);
 			status = cff_index_append_copy(&font->strings_subset_index,
-				(uchar*)euro, strlen(euro));
+				(uchar *)euro, strlen(euro));
 			return status;
 		}
 	}
@@ -1867,7 +1867,7 @@ static cairo_status_t cairo_cff_font_write_name(cairo_cff_font_t * font)
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
 	cairo_array_t index;
 	cff_index_init(&index);
-	status = cff_index_append_copy(&index, (uchar*)font->ps_name, strlen(font->ps_name));
+	status = cff_index_append_copy(&index, (uchar *)font->ps_name, strlen(font->ps_name));
 	if(unlikely(status))
 		goto FAIL;
 
@@ -2426,7 +2426,7 @@ static cairo_int_status_t cairo_cff_font_create_set_widths(cairo_cff_font_t * fo
 	size = sizeof(tt_hhea_t);
 	status = font->backend->load_truetype_table(font->scaled_font_subset->scaled_font,
 		TT_TAG_hhea, 0,
-		(uchar*)&hhea, &size);
+		(uchar *)&hhea, &size);
 	if(unlikely(status))
 		return status;
 	num_hmetrics = be16_to_cpu(hhea.num_hmetrics);
@@ -2439,7 +2439,7 @@ static cairo_int_status_t cairo_cff_font_create_set_widths(cairo_cff_font_t * fo
 			status = font->backend->load_truetype_table(font->scaled_font_subset->scaled_font,
 				TT_TAG_hmtx,
 				glyph_index * long_entry_size,
-				(uchar*)&short_entry,
+				(uchar *)&short_entry,
 				&short_entry_size);
 			if(unlikely(status))
 				return status;
@@ -2448,7 +2448,7 @@ static cairo_int_status_t cairo_cff_font_create_set_widths(cairo_cff_font_t * fo
 			status = font->backend->load_truetype_table(font->scaled_font_subset->scaled_font,
 				TT_TAG_hmtx,
 				(num_hmetrics - 1) * long_entry_size,
-				(uchar*)&short_entry,
+				(uchar *)&short_entry,
 				&short_entry_size);
 			if(unlikely(status))
 				return status;
@@ -2496,14 +2496,14 @@ static cairo_int_status_t _cairo_cff_font_load_opentype_cff(cairo_cff_font_t * f
 	size = sizeof(tt_head_t);
 	status = backend->load_truetype_table(font->scaled_font_subset->scaled_font,
 		TT_TAG_head, 0,
-		(uchar*)&head, &size);
+		(uchar *)&head, &size);
 	if(unlikely(status))
 		return status;
 
 	size = sizeof(tt_hhea_t);
 	status = backend->load_truetype_table(font->scaled_font_subset->scaled_font,
 		TT_TAG_hhea, 0,
-		(uchar*)&hhea, &size);
+		(uchar *)&hhea, &size);
 	if(unlikely(status))
 		return status;
 
@@ -3000,7 +3000,7 @@ static cairo_int_status_t cairo_cff_font_fallback_generate(cairo_cff_font_t * fo
 	    font->scaled_font_subset->subset_id);
 	sid = NUM_STD_STRINGS + _cairo_array_num_elements(&font->strings_subset_index);
 	status = cff_index_append_copy(&font->strings_subset_index,
-		(uchar*)buf,
+		(uchar *)buf,
 		strlen((char *)buf));
 	if(unlikely(status))
 		return status;

@@ -47,9 +47,9 @@
  * to emulate the PDF operators.
  *
  * This has a number of advantages:
- *   1. A large chunk of code is shared between the PDF and PS backends.
+ * 1. A large chunk of code is shared between the PDF and PS backends.
  * See cairo-pdf-operators.
- *   2. Using gs to do PS -> PDF and PDF -> PS will always work well.
+ * 2. Using gs to do PS -> PDF and PDF -> PS will always work well.
  */
 #include "cairoint.h"
 #pragma hdrstop
@@ -68,7 +68,7 @@
 #include "cairo-paginated-private.h"
 #include "cairo-recording-surface-private.h"
 //#include "cairo-surface-clipper-private.h"
-#include "cairo-surface-snapshot-inline.h"
+//#include "cairo-surface-snapshot-inline.h"
 #include "cairo-surface-subsurface-private.h"
 //#include "cairo-output-stream-private.h"
 #include "cairo-type3-glyph-surface-private.h"
@@ -1129,9 +1129,9 @@ cairo_surface_t * cairo_ps_surface_create(const char * filename,
 /**
  * cairo_ps_surface_create_for_stream:
  * @write_func: a #cairo_write_func_t to accept the output data, may be %NULL
- *   to indicate a no-op @write_func. With a no-op @write_func,
- *   the surface may be queried or used as a source without
- *   generating any temporary files.
+ * to indicate a no-op @write_func. With a no-op @write_func,
+ * the surface may be queried or used as a source without
+ * generating any temporary files.
  * @closure: the closure argument for @write_func
  * @width_in_points: width of the surface, in points (1 point == 1/72.0 inch)
  * @height_in_points: height of the surface, in points (1 point == 1/72.0 inch)
@@ -2252,7 +2252,7 @@ static cairo_status_t _cairo_ps_surface_emit_base85_string(cairo_ps_surface_t * 
 		    /* XXX: Should fix cairo-lzw to provide a stream-based interface
 		 * instead. */
 		    data_compressed_size = length;
-		    data_compressed = _cairo_lzw_compress((uchar*)data, &data_compressed_size);
+		    data_compressed = _cairo_lzw_compress((uchar *)data, &data_compressed_size);
 		    if(unlikely(data_compressed == NULL)) {
 			    status = _cairo_output_stream_destroy(string_array_stream);
 			    status = _cairo_output_stream_destroy(base85_stream);

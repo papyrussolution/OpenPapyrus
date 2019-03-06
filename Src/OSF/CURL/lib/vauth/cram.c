@@ -37,7 +37,7 @@
  *
  * chlg64  [in]     - The base64 encoded challenge message.
  * outptr  [in/out] - The address where a pointer to newly allocated memory
- *                    holding the result will be stored upon completion.
+ *                  holding the result will be stored upon completion.
  * outlen  [out]    - The length of the output message.
  *
  * Returns CURLE_OK on success.
@@ -66,7 +66,7 @@ CURLcode Curl_auth_decode_cram_md5_message(const char * chlg64, char ** outptr, 
  * userp   [in]     - The user name.
  * passdwp [in]     - The user's password.
  * outptr  [in/out] - The address where a pointer to newly allocated memory
- *                    holding the result will be stored upon completion.
+ *                  holding the result will be stored upon completion.
  * outlen  [out]    - The length of the output message.
  *
  * Returns CURLE_OK on success.

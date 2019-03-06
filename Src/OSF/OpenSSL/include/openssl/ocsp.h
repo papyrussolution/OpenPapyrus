@@ -16,15 +16,15 @@
  * independently of OCSP. E.g. see RFC5280
  */
 /*-
- *   CRLReason ::= ENUMERATED {
- *        unspecified             (0),
- *        keyCompromise           (1),
- *        cACompromise            (2),
- *        affiliationChanged      (3),
- *        superseded              (4),
- *        cessationOfOperation    (5),
- *        certificateHold         (6),
- *        removeFromCRL           (8) }
+ * CRLReason ::= ENUMERATED {
+ *      unspecified             (0),
+ *      keyCompromise           (1),
+ *      cACompromise            (2),
+ *      affiliationChanged      (3),
+ *      superseded              (4),
+ *      cessationOfOperation    (5),
+ *      certificateHold         (6),
+ *      removeFromCRL           (8) }
  */
 #define OCSP_REVOKED_STATUS_NOSTATUS               -1
 #define OCSP_REVOKED_STATUS_UNSPECIFIED             0

@@ -342,7 +342,8 @@ int FASTCALL PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, int printing
 	}
 	else if(pPack->OpTypeID == PPOPT_CORRECTION) {
 		PPFilt pf(pPack);
-		ok = PPAlddPrint(REPORT_INVOICECORR, &pf, &env);
+		const  int is_exp_correction = BIN(pPack->P_LinkPack && pPack->P_LinkPack->OpTypeID == PPOPT_GOODSEXPEND); // @v10.3.8
+		ok = PPAlddPrint(is_exp_correction ? REPORT_INVOICECORR_EXP : REPORT_INVOICECORR, &pf, &env);
 	}
 	else if(pPack->OpTypeID == PPOPT_INVENTORY) {
 		PPViewInventory iv;

@@ -25,8 +25,8 @@
  * the first or last real pixel row.
  *
  * An excellent reference for image resampling is
- *   Digital Image Warping, George Wolberg, 1990.
- *   Pub. by IEEE Computer Society Press, Los Alamitos, CA. ISBN 0-8186-8944-7.
+ * Digital Image Warping, George Wolberg, 1990.
+ * Pub. by IEEE Computer Society Press, Los Alamitos, CA. ISBN 0-8186-8944-7.
  *
  * The downsampling algorithm used here is a simple average of the source
  * pixels covered by the output pixel.  The hi-falutin sampling literature

@@ -213,13 +213,13 @@ static int rand_add(const void * buf, int num, double add)
 		 * insecure keys.
 		 */
 
-		if(!MD_Update(m, (uchar*)&(md_c[0]), sizeof(md_c)))
+		if(!MD_Update(m, (uchar *)&(md_c[0]), sizeof(md_c)))
 			goto err;
 		if(!MD_Final(m, local_md))
 			goto err;
 		md_c[1]++;
 
-		buf = (const char*)buf + j;
+		buf = (const char *)buf + j;
 
 		for(k = 0; k < j; k++) {
 			/*
@@ -437,15 +437,15 @@ static int rand_bytes(uchar * buf, int num, int pseudo)
 			goto err;
 #ifndef GETPID_IS_MEANINGLESS
 		if(curr_pid) {  /* just in the first iteration to save time */
-			if(!MD_Update(m, (uchar*)&curr_pid, sizeof curr_pid))
+			if(!MD_Update(m, (uchar *)&curr_pid, sizeof curr_pid))
 				goto err;
 			curr_pid = 0;
 		}
 #endif
 		if(curr_time) { /* just in the first iteration to save time */
-			if(!MD_Update(m, (uchar*)&curr_time, sizeof curr_time))
+			if(!MD_Update(m, (uchar *)&curr_time, sizeof curr_time))
 				goto err;
-			if(!MD_Update(m, (uchar*)&tv, sizeof tv))
+			if(!MD_Update(m, (uchar *)&tv, sizeof tv))
 				goto err;
 			curr_time = 0;
 			if(!rand_hw_seed(m))
@@ -453,7 +453,7 @@ static int rand_bytes(uchar * buf, int num, int pseudo)
 		}
 		if(!MD_Update(m, local_md, MD_DIGEST_LENGTH))
 			goto err;
-		if(!MD_Update(m, (uchar*)&(md_c[0]), sizeof(md_c)))
+		if(!MD_Update(m, (uchar *)&(md_c[0]), sizeof(md_c)))
 			goto err;
 
 		k = (st_idx + MD_DIGEST_LENGTH / 2) - st_num;
@@ -479,7 +479,7 @@ static int rand_bytes(uchar * buf, int num, int pseudo)
 	}
 
 	if(!MD_Init(m)
-	    || !MD_Update(m, (uchar*)&(md_c[0]), sizeof(md_c))
+	    || !MD_Update(m, (uchar *)&(md_c[0]), sizeof(md_c))
 	    || !MD_Update(m, local_md, MD_DIGEST_LENGTH))
 		goto err;
 	CRYPTO_THREAD_write_lock(rand_lock);
@@ -614,7 +614,7 @@ static int rand_hw_seed(EVP_MD_CTX * ctx)
 		rnd = OPENSSL_ia32_rdrand();
 		if(rnd == 0)
 			return 1;
-		if(!MD_Update(ctx, (uchar*)&rnd, sizeof(size_t)))
+		if(!MD_Update(ctx, (uchar *)&rnd, sizeof(size_t)))
 			return 0;
 	}
 	return 1;

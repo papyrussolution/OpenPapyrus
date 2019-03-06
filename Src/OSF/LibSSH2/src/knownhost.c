@@ -6,19 +6,19 @@
  * with or without modification, are permitted provided
  * that the following conditions are met:
  *
- *   Redistributions of source code must retain the above
- *   copyright notice, this list of conditions and the
- *   following disclaimer.
+ * Redistributions of source code must retain the above
+ * copyright notice, this list of conditions and the
+ * following disclaimer.
  *
- *   Redistributions in binary form must reproduce the above
- *   copyright notice, this list of conditions and the following
- *   disclaimer in the documentation and/or other materials
- *   provided with the distribution.
+ * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials
+ * provided with the distribution.
  *
- *   Neither the name of the copyright holder nor the names
- *   of any other contributors may be used to endorse or
- *   promote products derived from this software without
- *   specific prior written permission.
+ * Neither the name of the copyright holder nor the names
+ * of any other contributors may be used to endorse or
+ * promote products derived from this software without
+ * specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
  * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
@@ -363,9 +363,9 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS * hosts,
 						    // the name hash length must be the sha1 size or we can't match it 
 						    break;
 					    }
-					    libssh2_hmac_sha1_init(&ctx, (uchar*)node->salt,
+					    libssh2_hmac_sha1_init(&ctx, (uchar *)node->salt,
 					    node->salt_len);
-					    libssh2_hmac_update(ctx, (uchar*)host,
+					    libssh2_hmac_update(ctx, (uchar *)host,
 					    strlen(host));
 					    libssh2_hmac_final(ctx, hash);
 					    libssh2_hmac_cleanup(&ctx);

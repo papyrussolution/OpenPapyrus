@@ -644,7 +644,7 @@ typedef int (*UHTTGETGOODSREFLIST_PROC)(PPSoapClientSession & rSess, const char 
 typedef TSCollection <UhttGoodsPacket> * (*UHTTGETGOODSBYCODE_PROC)(PPSoapClientSession & rSess, const char * pToken, const char * pCode);
 typedef TSCollection <UhttGoodsPacket> * (*UHTTGETGOODSBYNAME_PROC)(PPSoapClientSession & rSess, const char * pToken, const char * pName);
 typedef UhttGoodsPacket * (*UHTTGETGOODSBYID_PROC)(PPSoapClientSession & rSess, const char * pToken, int id);
-typedef SString *    (*UHTTGETGOODSARCODE_PROC)(PPSoapClientSession & rSess, const char * pToken, const char * pGoodsCode, const char * pPersonINN);
+typedef SString *  (*UHTTGETGOODSARCODE_PROC)(PPSoapClientSession & rSess, const char * pToken, const char * pGoodsCode, const char * pPersonINN);
 typedef UhttStatus * (*UHTTCREATEGOODS_PROC)(PPSoapClientSession & rSess, const char * pToken, const UhttGoodsPacket & rPack);
 typedef UhttStatus * (*UHTTSETIMAGEBYID_PROC)(PPSoapClientSession & rSess, const char * pToken, UhttDocumentPacket & rPack);
 typedef TSCollection <UhttSpecSeriesPacket> * (*UHTTGETSPECSERIESBYPERIOD_PROC)(PPSoapClientSession & rSess, const char * pToken, const char * pPeriod);

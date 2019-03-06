@@ -24,7 +24,7 @@ void RC2_ofb64_encrypt(const uchar * in, uchar * out, long length, RC2_KEY * sch
 	register char * dp;
 	ulong ti[2];
 	int save = 0;
-	uchar * iv = (uchar*)ivec;
+	uchar * iv = (uchar *)ivec;
 	c2l(iv, v0);
 	c2l(iv, v1);
 	ti[0] = v0;
@@ -48,7 +48,7 @@ void RC2_ofb64_encrypt(const uchar * in, uchar * out, long length, RC2_KEY * sch
 	if(save) {
 		v0 = ti[0];
 		v1 = ti[1];
-		iv = (uchar*)ivec;
+		iv = (uchar *)ivec;
 		l2c(v0, iv);
 		l2c(v1, iv);
 	}

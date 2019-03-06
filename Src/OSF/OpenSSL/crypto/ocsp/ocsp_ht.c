@@ -66,7 +66,7 @@ OCSP_REQ_CTX * OCSP_REQ_CTX_new(BIO * io, int maxline)
 		rctx->iobuflen = maxline;
 	else
 		rctx->iobuflen = OCSP_MAX_LINE_LEN;
-	rctx->iobuf = (uchar*)OPENSSL_malloc(rctx->iobuflen);
+	rctx->iobuf = (uchar *)OPENSSL_malloc(rctx->iobuflen);
 	if(rctx->iobuf == NULL || rctx->mem == NULL) {
 		OCSP_REQ_CTX_free(rctx);
 		return NULL;

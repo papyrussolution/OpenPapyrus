@@ -179,8 +179,8 @@ struct HWCryptoHook_CallerContextValue {
  * The MPI structure in HWCryptoHook is pretty compatible with OpenSSL
  * BIGNUM's, so lets define a couple of conversion macros
  */
-#define BN2MPI(mp, bn) {mp.size = bn->top * sizeof(BN_ULONG); mp.buf = (uchar*)bn->d; }
-#define MPI2BN(bn, mp) {mp.size = bn->dmax * sizeof(BN_ULONG); mp.buf = (uchar*)bn->d; }
+#define BN2MPI(mp, bn) {mp.size = bn->top * sizeof(BN_ULONG); mp.buf = (uchar *)bn->d; }
+#define MPI2BN(bn, mp) {mp.size = bn->dmax * sizeof(BN_ULONG); mp.buf = (uchar *)bn->d; }
 
 static BIO * logstream = NULL;
 static int disable_mutex_callbacks = 0;
@@ -588,7 +588,7 @@ static int hwcrhk_ctrl(ENGINE * e, int cmd, long i, void * p, void (* f)(void))
 			    HWCRHKerr(HWCRHK_F_HWCRHK_CTRL, ERR_R_PASSED_NULL_PARAMETER);
 			    return 0;
 		    }
-		    return set_HWCRHK_LIBNAME((const char*)p);
+		    return set_HWCRHK_LIBNAME((const char *)p);
 		case ENGINE_CTRL_SET_LOGSTREAM:
 	    {
 		    BIO * bio = (BIO*)p;

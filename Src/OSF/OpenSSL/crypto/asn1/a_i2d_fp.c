@@ -21,7 +21,7 @@ int ASN1_i2d_fp(i2d_of_void * i2d, FILE * out, void * x)
 		return 0;
 	}
 	BIO_set_fp(b, out, BIO_NOCLOSE);
-	ret = ASN1_i2d_bio(i2d, b, (uchar*)x);
+	ret = ASN1_i2d_bio(i2d, b, (uchar *)x);
 	BIO_free(b);
 	return ret;
 }
@@ -40,7 +40,7 @@ int ASN1_i2d_bio(i2d_of_void * i2d, BIO * out, uchar * x)
 		return 0;
 	}
 
-	p = (uchar*)b;
+	p = (uchar *)b;
 	i2d(x, &p);
 
 	for(;; ) {

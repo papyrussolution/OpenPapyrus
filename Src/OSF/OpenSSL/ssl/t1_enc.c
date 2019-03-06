@@ -346,7 +346,7 @@ int tls1_setup_key_block(SSL * s)
 	num = EVP_CIPHER_key_length(c) + mac_secret_size + EVP_CIPHER_iv_length(c);
 	num *= 2;
 	ssl3_cleanup_key_block(s);
-	if((p = (uchar*)OPENSSL_malloc(num)) == NULL) {
+	if((p = (uchar *)OPENSSL_malloc(num)) == NULL) {
 		SSLerr(SSL_F_TLS1_SETUP_KEY_BLOCK, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
@@ -489,11 +489,11 @@ int tls1_export_keying_material(SSL * s, uchar * out, size_t olen, const char * 
 		vallen += 2 + contextlen;
 	}
 
-	val = (uchar*)OPENSSL_malloc(vallen);
+	val = (uchar *)OPENSSL_malloc(vallen);
 	if(!val)
 		goto err2;
 	currentvalpos = 0;
-	memcpy(val + currentvalpos, (uchar*)label, llen);
+	memcpy(val + currentvalpos, (uchar *)label, llen);
 	currentvalpos += llen;
 	memcpy(val + currentvalpos, s->s3->client_random, SSL3_RANDOM_SIZE);
 	currentvalpos += SSL3_RANDOM_SIZE;

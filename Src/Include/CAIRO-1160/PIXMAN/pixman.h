@@ -413,9 +413,9 @@ pixman_bool_t           pixman_region_inverse(pixman_region16_t * new_reg, pixma
 pixman_bool_t           pixman_region_contains_point(pixman_region16_t * region, int x, int y, pixman_box16_t * box);
 pixman_region_overlap_t pixman_region_contains_rectangle(pixman_region16_t * region, pixman_box16_t * prect);
 pixman_bool_t           pixman_region_not_empty(pixman_region16_t * region);
-pixman_box16_t *   pixman_region_extents(pixman_region16_t * region);
+pixman_box16_t * pixman_region_extents(pixman_region16_t * region);
 int                     pixman_region_n_rects(pixman_region16_t * region);
-pixman_box16_t *   pixman_region_rectangles(pixman_region16_t * region, int * n_rects);
+pixman_box16_t * pixman_region_rectangles(pixman_region16_t * region, int * n_rects);
 pixman_bool_t           pixman_region_equal(pixman_region16_t * region1, pixman_region16_t * region2);
 pixman_bool_t           pixman_region_selfcheck(pixman_region16_t * region);
 void     pixman_region_reset(pixman_region16_t * region, pixman_box16_t * box);
@@ -469,9 +469,9 @@ pixman_bool_t           pixman_region32_inverse(pixman_region32_t * new_reg, pix
 pixman_bool_t           pixman_region32_contains_point(pixman_region32_t * region, int x, int y, pixman_box32_t * box);
 pixman_region_overlap_t pixman_region32_contains_rectangle(pixman_region32_t * region, pixman_box32_t * prect);
 pixman_bool_t           pixman_region32_not_empty(pixman_region32_t * region);
-pixman_box32_t *   pixman_region32_extents(pixman_region32_t * region);
+pixman_box32_t * pixman_region32_extents(pixman_region32_t * region);
 int                     pixman_region32_n_rects(pixman_region32_t * region);
-pixman_box32_t *   pixman_region32_rectangles(pixman_region32_t * region, int * n_rects);
+pixman_box32_t * pixman_region32_rectangles(pixman_region32_t * region, int * n_rects);
 pixman_bool_t           pixman_region32_equal(pixman_region32_t * region1, pixman_region32_t * region2);
 pixman_bool_t           pixman_region32_selfcheck(pixman_region32_t * region);
 void     pixman_region32_reset(pixman_region32_t * region, pixman_box32_t * box);
@@ -679,7 +679,7 @@ pixman_image_t * pixman_image_create_bits_no_clear(pixman_format_code_t format, 
 pixman_image_t * FASTCALL pixman_image_ref(pixman_image_t * image);
 pixman_bool_t   FASTCALL pixman_image_unref(pixman_image_t * image);
 void            pixman_image_set_destroy_function(pixman_image_t * image, pixman_image_destroy_func_t function, void * data);
-void *          pixman_image_get_destroy_data(pixman_image_t * image);
+void *        pixman_image_get_destroy_data(pixman_image_t * image);
 
 /* Set properties */
 pixman_bool_t   pixman_image_set_clip_region(pixman_image_t * image, pixman_region16_t * region);
@@ -903,9 +903,9 @@ void           pixman_rasterize_edges(pixman_image_t * image, pixman_edge_t * l,
 void           pixman_add_traps(pixman_image_t * image, int16_t x_off, int16_t y_off, int ntrap, const pixman_trap_t * traps);
 void           pixman_add_trapezoids(pixman_image_t * image, int16_t x_off, int y_off, int ntraps, const pixman_trapezoid_t * traps);
 void           pixman_rasterize_trapezoid(pixman_image_t * image, const pixman_trapezoid_t * trap, int x_off, int y_off);
-void          pixman_composite_trapezoids(pixman_op_t op, pixman_image_t *            src, pixman_image_t *            dst, pixman_format_code_t mask_format,
+void          pixman_composite_trapezoids(pixman_op_t op, pixman_image_t *          src, pixman_image_t *          dst, pixman_format_code_t mask_format,
     int x_src, int y_src, int x_dst, int y_dst, int n_traps, const pixman_trapezoid_t *  traps);
-void          pixman_composite_triangles(pixman_op_t op, pixman_image_t *             src, pixman_image_t *             dst, pixman_format_code_t mask_format,
+void          pixman_composite_triangles(pixman_op_t op, pixman_image_t *           src, pixman_image_t *           dst, pixman_format_code_t mask_format,
     int x_src, int y_src, int x_dst, int y_dst, int n_tris, const pixman_triangle_t * tris);
 void          pixman_add_triangles(pixman_image_t * image, int32_t x_off, int32_t y_off, int n_tris, const pixman_triangle_t * tris);
 

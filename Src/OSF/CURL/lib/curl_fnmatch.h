@@ -1,11 +1,11 @@
 #ifndef HEADER_CURL_FNMATCH_H
 #define HEADER_CURL_FNMATCH_H
 /***************************************************************************
- *                                  _   _ ____  _
+ *                                _   _ ____  _
  *  Project                     ___| | | |  _ \| |
- *                             / __| | | | |_) | |
- *                            | (__| |_| |  _ <| |___
- *                             \___|\___/|_| \_\_____|
+ *                           / __| | | | |_) | |
+ *                          | (__| |_| |  _ <| |___
+ *                           \___|\___/|_| \_\_____|
  *
  * Copyright (C) 1998 - 2009, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
@@ -37,7 +37,7 @@
  * [a-zA-Z0-9] enumeration support
  *
  * keywords: alnum, digit, xdigit, alpha, print, blank, lower, graph, space
- *           and upper (use as "[[:alnum:]]")
+ *         and upper (use as "[[:alnum:]]")
  */
 int Curl_fnmatch(void *ptr, const char *pattern, const char *string);
 

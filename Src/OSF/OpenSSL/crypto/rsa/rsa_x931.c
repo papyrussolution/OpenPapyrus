@@ -21,7 +21,7 @@ int RSA_padding_add_X931(uchar * to, int tlen, const uchar * from, int flen)
 		RSAerr(RSA_F_RSA_PADDING_ADD_X931, RSA_R_DATA_TOO_LARGE_FOR_KEY_SIZE);
 		return -1;
 	}
-	p = (uchar*)to;
+	p = (uchar *)to;
 	/* If no padding start and end nibbles are in one byte */
 	if(j == 0)
 		*p++ = 0x6A;

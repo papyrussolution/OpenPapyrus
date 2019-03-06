@@ -83,7 +83,7 @@ BIGNUM * BN_mod_sqrt(BIGNUM * in, const BIGNUM * a, const BIGNUM * p, BN_CTX * c
 		 * modulo  (|p|-1)/2,  and square roots can be computed
 		 * directly by modular exponentiation.
 		 * We have
-		 *     2 * (|p|+1)/4 == 1   (mod (|p|-1)/2),
+		 *   2 * (|p|+1)/4 == 1   (mod (|p|-1)/2),
 		 * so we can use exponent  (|p|+1)/4,  i.e.  (|p|-3)/4 + 1.
 		 */
 		if(!BN_rshift(q, p, 2))
@@ -105,20 +105,20 @@ BIGNUM * BN_mod_sqrt(BIGNUM * in, const BIGNUM * a, const BIGNUM * p, BN_CTX * c
 		 * Legendre(2,p) = (-1)^((p^2-1)/8)  for any odd prime.
 		 * So if  a  really is a square, then  2*a  is a non-square.
 		 * Thus for
-		 *      b := (2*a)^((|p|-5)/8),
-		 *      i := (2*a)*b^2
+		 *    b := (2*a)^((|p|-5)/8),
+		 *    i := (2*a)*b^2
 		 * we have
-		 *     i^2 = (2*a)^((1 + (|p|-5)/4)*2)
-		 *         = (2*a)^((p-1)/2)
-		 *         = -1;
+		 *   i^2 = (2*a)^((1 + (|p|-5)/4)*2)
+		 *       = (2*a)^((p-1)/2)
+		 *       = -1;
 		 * so if we set
-		 *      x := a*b*(i-1),
+		 *    x := a*b*(i-1),
 		 * then
-		 *     x^2 = a^2 * b^2 * (i^2 - 2*i + 1)
-		 *         = a^2 * b^2 * (-2*i)
-		 *         = a*(-i)*(2*a*b^2)
-		 *         = a*(-i)*i
-		 *         = a.
+		 *   x^2 = a^2 * b^2 * (i^2 - 2*i + 1)
+		 *       = a^2 * b^2 * (-2*i)
+		 *       = a*(-i)*(2*a*b^2)
+		 *       = a*(-i)*i
+		 *       = a.
 		 *
 		 * (This is due to A.O.L. Atkin,
 		 * <URL: http://listserv.nodak.edu/scripts/wa.exe?A2=ind9211&L=nmbrthry&O=T&P=562>,
@@ -228,17 +228,17 @@ BIGNUM * BN_mod_sqrt(BIGNUM * in, const BIGNUM * a, const BIGNUM * p, BN_CTX * c
 	 * Now we know that (if  p  is indeed prime) there is an integer
 	 * k,  0 <= k < 2^e,  such that
 	 *
-	 *      a^q * y^k == 1   (mod p).
+	 *    a^q * y^k == 1   (mod p).
 	 *
 	 * As  a^q  is a square and  y  is not,  k  must be even.
 	 * q+1  is even, too, so there is an element
 	 *
-	 *     X := a^((q+1)/2) * y^(k/2),
+	 *   X := a^((q+1)/2) * y^(k/2),
 	 *
 	 * and it satisfies
 	 *
-	 *     X^2 = a^q * a     * y^k
-	 *         = a,
+	 *   X^2 = a^q * a     * y^k
+	 *       = a,
 	 *
 	 * so it is the square root that we are looking for.
 	 */
@@ -288,8 +288,8 @@ BIGNUM * BN_mod_sqrt(BIGNUM * in, const BIGNUM * a, const BIGNUM * p, BN_CTX * c
 		 * don't keep in a variable),  and  x  is  a^((q+1)/2) * y^(k/2).
 		 *
 		 * We have  a*b = x^2,
-		 *    y^2^(e-1) = -1,
-		 *    b^2^(e-1) = 1.
+		 *  y^2^(e-1) = -1,
+		 *  b^2^(e-1) = 1.
 		 */
 
 		if(BN_is_one(b)) {

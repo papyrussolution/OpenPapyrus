@@ -30,8 +30,8 @@
  * The Initial Developer of the Original Code is Red Hat, Inc.
  *
  * Contributor(s):
- *      Kristian Høgsberg <krh@redhat.com>
- *      Behdad Esfahbod <behdad@behdad.org>
+ *    Kristian Høgsberg <krh@redhat.com>
+ *    Behdad Esfahbod <behdad@behdad.org>
  */
 
 #ifndef CAIRO_USER_FONT_PRIVATE_H

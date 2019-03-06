@@ -14,9 +14,9 @@
 
 /*-
  * returns
- *      1: correct signature
- *      0: incorrect signature
- *     -1: error
+ *    1: correct signature
+ *    0: incorrect signature
+ *   -1: error
  */
 int ECDSA_do_verify(const uchar * dgst, int dgst_len, const ECDSA_SIG * sig, EC_KEY * eckey)
 {
@@ -28,9 +28,9 @@ int ECDSA_do_verify(const uchar * dgst, int dgst_len, const ECDSA_SIG * sig, EC_
 
 /*-
  * returns
- *      1: correct signature
- *      0: incorrect signature
- *     -1: error
+ *    1: correct signature
+ *    0: incorrect signature
+ *   -1: error
  */
 int ECDSA_verify(int type, const uchar * dgst, int dgst_len,
     const uchar * sigbuf, int sig_len, EC_KEY * eckey)

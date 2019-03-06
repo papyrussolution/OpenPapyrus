@@ -151,10 +151,10 @@ static void * ngx_http_addition_create_conf(ngx_conf_t * cf)
 	/*
 	 * set by ngx_pcalloc():
 	 *
-	 *     conf->before_body = { 0, NULL };
-	 *     conf->after_body = { 0, NULL };
-	 *     conf->types = { NULL };
-	 *     conf->types_keys = NULL;
+	 *   conf->before_body = { 0, NULL };
+	 *   conf->after_body = { 0, NULL };
+	 *   conf->types = { NULL };
+	 *   conf->types_keys = NULL;
 	 */
 	return conf;
 }

@@ -6,19 +6,19 @@
  * with or without modification, are permitted provided
  * that the following conditions are met:
  *
- *   Redistributions of source code must retain the above
- *   copyright notice, this list of conditions and the
- *   following disclaimer.
+ * Redistributions of source code must retain the above
+ * copyright notice, this list of conditions and the
+ * following disclaimer.
  *
- *   Redistributions in binary form must reproduce the above
- *   copyright notice, this list of conditions and the following
- *   disclaimer in the documentation and/or other materials
- *   provided with the distribution.
+ * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials
+ * provided with the distribution.
  *
- *   Neither the name of the copyright holder nor the names
- *   of any other contributors may be used to endorse or
- *   promote products derived from this software without
- *   specific prior written permission.
+ * Neither the name of the copyright holder nor the names
+ * of any other contributors may be used to endorse or
+ * promote products derived from this software without
+ * specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
  * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
@@ -325,11 +325,11 @@ int _libssh2_wincng_hash_init(_libssh2_wincng_hash_ctx * ctx,
 	uchar * pbHashObject;
 	ulong dwHashObject, dwHash, cbData;
 	int ret;
-	ret = BCryptGetProperty(hAlg, BCRYPT_HASH_LENGTH, (uchar*)&dwHash, sizeof(dwHash), &cbData, 0);
+	ret = BCryptGetProperty(hAlg, BCRYPT_HASH_LENGTH, (uchar *)&dwHash, sizeof(dwHash), &cbData, 0);
 	if((!BCRYPT_SUCCESS(ret)) || dwHash != hashlen) {
 		return -1;
 	}
-	ret = BCryptGetProperty(hAlg, BCRYPT_OBJECT_LENGTH, (uchar*)&dwHashObject, sizeof(dwHashObject), &cbData, 0);
+	ret = BCryptGetProperty(hAlg, BCRYPT_OBJECT_LENGTH, (uchar *)&dwHashObject, sizeof(dwHashObject), &cbData, 0);
 	if(!BCRYPT_SUCCESS(ret)) {
 		return -1;
 	}
@@ -351,7 +351,7 @@ int _libssh2_wincng_hash_init(_libssh2_wincng_hash_ctx * ctx,
 
 int _libssh2_wincng_hash_update(_libssh2_wincng_hash_ctx * ctx, const uchar * data, ulong datalen)
 {
-	int ret = BCryptHashData(ctx->hHash, (uchar*)data, datalen, 0);
+	int ret = BCryptHashData(ctx->hHash, (uchar *)data, datalen, 0);
 	return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
@@ -607,7 +607,7 @@ static int _libssh2_wincng_bn_ltob(uchar * pbInput,
 		offset++;
 		cbOutput += offset;
 	}
-	pbOutput = (uchar*)SAlloc::M(cbOutput);
+	pbOutput = (uchar *)SAlloc::M(cbOutput);
 	if(!pbOutput) {
 		return -1;
 	}
@@ -874,7 +874,7 @@ int _libssh2_wincng_rsa_new_private(libssh2_rsa_ctx ** rsa, LIBSSH2_SESSION * se
 	ulong cbEncoded;
 	int ret;
 	(void)session;
-	ret = _libssh2_wincng_load_private(session, filename, (const char*)passphrase, &pbEncoded, &cbEncoded, 1, 0);
+	ret = _libssh2_wincng_load_private(session, filename, (const char *)passphrase, &pbEncoded, &cbEncoded, 1, 0);
 	if(ret) {
 		return -1;
 	}
@@ -895,7 +895,7 @@ int _libssh2_wincng_rsa_new_private_frommemory(libssh2_rsa_ctx ** rsa, LIBSSH2_S
 	ulong cbEncoded;
 	int ret;
 	(void)session;
-	ret = _libssh2_wincng_load_private_memory(session, filedata, filedata_len, (const char*)passphrase, &pbEncoded, &cbEncoded, 1, 0);
+	ret = _libssh2_wincng_load_private_memory(session, filedata, filedata_len, (const char *)passphrase, &pbEncoded, &cbEncoded, 1, 0);
 	if(ret) {
 		return -1;
 	}
@@ -1096,7 +1096,7 @@ int _libssh2_wincng_dsa_new_private(libssh2_dsa_ctx ** dsa,
 	int ret;
 
 	ret = _libssh2_wincng_load_private(session, filename,
-	    (const char*)passphrase,
+	    (const char *)passphrase,
 	    &pbEncoded, &cbEncoded, 0, 1);
 	if(ret) {
 		return -1;
@@ -1127,7 +1127,7 @@ int _libssh2_wincng_dsa_new_private_frommemory(libssh2_dsa_ctx ** dsa,
 	int ret;
 
 	ret = _libssh2_wincng_load_private_memory(session, filedata, filedata_len,
-	    (const char*)passphrase,
+	    (const char *)passphrase,
 	    &pbEncoded, &cbEncoded, 0, 1);
 	if(ret) {
 		return -1;
@@ -1413,7 +1413,7 @@ int _libssh2_wincng_cipher_init(_libssh2_cipher_ctx * ctx,
 	(void)encrypt;
 
 	ret = BCryptGetProperty(*type.phAlg, BCRYPT_OBJECT_LENGTH,
-	    (uchar*)&dwKeyObject,
+	    (uchar *)&dwKeyObject,
 	    sizeof(dwKeyObject),
 	    &cbData, 0);
 	if(!BCRYPT_SUCCESS(ret)) {
@@ -1421,7 +1421,7 @@ int _libssh2_wincng_cipher_init(_libssh2_cipher_ctx * ctx,
 	}
 
 	ret = BCryptGetProperty(*type.phAlg, BCRYPT_BLOCK_LENGTH,
-	    (uchar*)&dwBlockLength,
+	    (uchar *)&dwBlockLength,
 	    sizeof(dwBlockLength),
 	    &cbData, 0);
 	if(!BCRYPT_SUCCESS(ret)) {

@@ -1381,7 +1381,7 @@ namespace NArchive {
 				if(!_inBuffer.ReadByte(b))
 					throw CUnexpectedEndException();
 				if(b == 0) {
-					s.SetFrom((const char*)(const Byte*)_tempBuf, (uint)i);
+					s.SetFrom((const char *)(const Byte*)_tempBuf, (uint)i);
 					return;
 				}
 				if(_tempBuf.Size() == i)

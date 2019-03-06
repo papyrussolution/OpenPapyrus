@@ -429,7 +429,7 @@ ngx_int_t ngx_parse_addr(ngx_pool_t * pool, ngx_addr_t * addr, u_char * text, si
 
 	/*
 	 * prevent MSVC8 warning:
-	 *    potentially uninitialized local variable 'inaddr6' used
+	 *  potentially uninitialized local variable 'inaddr6' used
 	 */
 	memzero(&inaddr6, sizeof(struct in6_addr));
 #endif

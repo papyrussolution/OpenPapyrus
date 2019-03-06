@@ -39,7 +39,7 @@ void * ASN1_d2i_bio(void *(*xnew)(void), d2i_of_void * d2i, BIO * in, void ** x)
 	int len = asn1_d2i_read_bio(in, &b);
 	if(len < 0)
 		goto err;
-	p = (uchar*)b->data;
+	p = (uchar *)b->data;
 	ret = d2i(x, &p, len);
 err:
 	BUF_MEM_free(b);
@@ -120,7 +120,7 @@ static int asn1_d2i_read_bio(BIO * in, BUF_MEM ** pb)
 			}
 		}
 		/* else data already loaded */
-		p = (uchar*)&(b->data[off]);
+		p = (uchar *)&(b->data[off]);
 		q = p;
 		inf = ASN1_get_object(&q, &slen, &tag, &xclass, (long)(len - off));
 		if(inf & 0x80) {

@@ -867,12 +867,12 @@ static void * ngx_core_module_create_conf(ngx_cycle_t * cycle)
 		/*
 		 * set by ngx_pcalloc()
 		 *
-		 *     ccf->pid = NULL;
-		 *     ccf->oldpid = NULL;
-		 *     ccf->priority = 0;
-		 *     ccf->cpu_affinity_auto = 0;
-		 *     ccf->cpu_affinity_n = 0;
-		 *     ccf->cpu_affinity = NULL;
+		 *   ccf->pid = NULL;
+		 *   ccf->oldpid = NULL;
+		 *   ccf->priority = 0;
+		 *   ccf->cpu_affinity_auto = 0;
+		 *   ccf->cpu_affinity_n = 0;
+		 *   ccf->cpu_affinity = NULL;
 		 */
 		ccf->daemon = NGX_CONF_UNSET;
 		ccf->master = NGX_CONF_UNSET;
@@ -991,7 +991,7 @@ static const char * ngx_set_user(ngx_conf_t * cf, const ngx_command_t * cmd, voi
 			ngx_str_t * value = cf->args->elts;
 			ccf->username = (char *)value[1].data;
 			ngx_set_errno(0);
-			pwd = getpwnam((const char*)value[1].data);
+			pwd = getpwnam((const char *)value[1].data);
 			if(pwd == NULL) {
 				ngx_conf_log_error(NGX_LOG_EMERG, cf, ngx_errno, "getpwnam(\"%s\") failed", value[1].data);
 				return NGX_CONF_ERROR;
