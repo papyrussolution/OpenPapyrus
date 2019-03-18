@@ -44,15 +44,15 @@ struct xmlHashEntry {
 	xmlChar * name2;
 	xmlChar * name3;
 	void * payload;
-	int valid;
+	int    valid;
 };
 /*
  * The entire hash table
  */
 struct xmlHashTable {
 	xmlHashEntry * table;
-	int size;
-	int nbElems;
+	int    size;
+	int    nbElems;
 	xmlDict * dict;
 #ifdef HASH_RANDOMIZATION
 	int random_seed;
@@ -72,19 +72,19 @@ static ulong FASTCALL xmlHashComputeKey(xmlHashTable * table, const xmlChar * na
 	if(name) {
 		value += 30 * (*name);
 		while((ch = *name++) != 0) {
-			value = value ^ ((value << 5) + (value >> 3) + (ulong)ch);
+			value = value ^ ((value << 5) + (value >> 3) + static_cast<ulong>(ch));
 		}
 	}
 	value = value ^ ((value << 5) + (value >> 3));
 	if(name2) {
 		while((ch = *name2++) != 0) {
-			value = value ^ ((value << 5) + (value >> 3) + (ulong)ch);
+			value = value ^ ((value << 5) + (value >> 3) + static_cast<ulong>(ch));
 		}
 	}
 	value = value ^ ((value << 5) + (value >> 3));
 	if(name3) {
 		while((ch = *name3++) != 0) {
-			value = value ^ ((value << 5) + (value >> 3) + (ulong)ch);
+			value = value ^ ((value << 5) + (value >> 3) + static_cast<ulong>(ch));
 		}
 	}
 	return (value % table->size);
@@ -104,37 +104,37 @@ static ulong xmlHashComputeQKey(xmlHashTable * table, const xmlChar * prefix, co
 		value += 30 * (*name);
 	if(prefix != NULL) {
 		while((ch = *prefix++) != 0) {
-			value = value ^ ((value << 5) + (value >> 3) + (ulong)ch);
+			value = value ^ ((value << 5) + (value >> 3) + static_cast<ulong>(ch));
 		}
 		value = value ^ ((value << 5) + (value >> 3) + (ulong)':');
 	}
 	if(name) {
 		while((ch = *name++) != 0) {
-			value = value ^ ((value << 5) + (value >> 3) + (ulong)ch);
+			value = value ^ ((value << 5) + (value >> 3) + static_cast<ulong>(ch));
 		}
 	}
 	value = value ^ ((value << 5) + (value >> 3));
 	if(prefix2 != NULL) {
 		while((ch = *prefix2++) != 0) {
-			value = value ^ ((value << 5) + (value >> 3) + (ulong)ch);
+			value = value ^ ((value << 5) + (value >> 3) + static_cast<ulong>(ch));
 		}
 		value = value ^ ((value << 5) + (value >> 3) + (ulong)':');
 	}
 	if(name2 != NULL) {
 		while((ch = *name2++) != 0) {
-			value = value ^ ((value << 5) + (value >> 3) + (ulong)ch);
+			value = value ^ ((value << 5) + (value >> 3) + static_cast<ulong>(ch));
 		}
 	}
 	value = value ^ ((value << 5) + (value >> 3));
 	if(prefix3 != NULL) {
 		while((ch = *prefix3++) != 0) {
-			value = value ^ ((value << 5) + (value >> 3) + (ulong)ch);
+			value = value ^ ((value << 5) + (value >> 3) + static_cast<ulong>(ch));
 		}
 		value = value ^ ((value << 5) + (value >> 3) + (ulong)':');
 	}
 	if(name3) {
 		while((ch = *name3++) != 0) {
-			value = value ^ ((value << 5) + (value >> 3) + (ulong)ch);
+			value = value ^ ((value << 5) + (value >> 3) + static_cast<ulong>(ch));
 		}
 	}
 	return (value % table->size);
@@ -307,7 +307,6 @@ void FASTCALL xmlHashFree(xmlHashTable * pTable, xmlHashDeallocator f)
 		SAlloc::F(pTable);
 	}
 }
-
 /**
  * xmlHashAddEntry:
  * @table: the hash table
@@ -450,7 +449,7 @@ int FASTCALL xmlHashAddEntry3(xmlHashTable * table, const xmlChar * name, const 
 	ulong key, len = 0;
 	xmlHashEntry * entry;
 	xmlHashEntry * insert;
-	if((table == NULL) || (name == NULL))
+	if(!table || !name)
 		return -1;
 	/*
 	 * If using a dict internalize if needed
@@ -503,14 +502,14 @@ int FASTCALL xmlHashAddEntry3(xmlHashTable * table, const xmlChar * name, const 
 		entry = &(table->table[key]);
 	}
 	else {
-		entry = (xmlHashEntry *)SAlloc::M(sizeof(xmlHashEntry));
+		entry = static_cast<xmlHashEntry *>(SAlloc::M(sizeof(xmlHashEntry)));
 		if(entry == NULL)
 			return -1;
 	}
 	if(table->dict) {
-		entry->name = (xmlChar *)name;
-		entry->name2 = (xmlChar *)name2;
-		entry->name3 = (xmlChar *)name3;
+		entry->name  = const_cast<xmlChar *>(name); // @badcast
+		entry->name2 = const_cast<xmlChar *>(name2); // @badcast
+		entry->name3 = const_cast<xmlChar *>(name3); // @badcast
 	}
 	else {
 		entry->name = sstrdup(name);
@@ -615,14 +614,14 @@ int xmlHashUpdateEntry3(xmlHashTable * table, const xmlChar * name, const xmlCha
 		entry =  &(table->table[key]);
 	}
 	else {
-		entry = (xmlHashEntry *)SAlloc::M(sizeof(xmlHashEntry));
+		entry = static_cast<xmlHashEntry *>(SAlloc::M(sizeof(xmlHashEntry)));
 		if(entry == NULL)
 			return -1;
 	}
 	if(table->dict != NULL) {
-		entry->name = (xmlChar *)name;
-		entry->name2 = (xmlChar *)name2;
-		entry->name3 = (xmlChar *)name3;
+		entry->name  = const_cast<xmlChar *>(name); // @badcast
+		entry->name2 = const_cast<xmlChar *>(name2); // @badcast
+		entry->name3 = const_cast<xmlChar *>(name3); // @badcast
 	}
 	else {
 		entry->name = sstrdup(name);
@@ -693,7 +692,7 @@ void * xmlHashQLookup3(xmlHashTable * table, const xmlChar * prefix, const xmlCh
 		if(table->table[key].valid) {
 			for(xmlHashEntry * entry = &(table->table[key]); entry; entry = entry->next) {
 				if(xmlStrQEqual(prefix, name, entry->name) && xmlStrQEqual(prefix2, name2, entry->name2) && xmlStrQEqual(prefix3, name3, entry->name3))
-					return(entry->payload);
+					return (entry->payload);
 			}
 		}
 	}
@@ -708,7 +707,7 @@ typedef struct {
 static void stubHashScannerFull(void * payload, void * data, const xmlChar * name,
     const xmlChar * name2 ATTRIBUTE_UNUSED, const xmlChar * name3 ATTRIBUTE_UNUSED)
 {
-	stubData * stubdata = (stubData*)data;
+	stubData * stubdata = static_cast<stubData *>(data);
 	stubdata->hashscanner(payload, stubdata->data, (xmlChar *)name);
 }
 /**
@@ -820,7 +819,7 @@ void xmlHashScanFull3(xmlHashTable * table, const xmlChar * name, const xmlChar 
  *
  * Returns the new table or NULL in case of error.
  */
-xmlHashTable * xmlHashCopy(xmlHashTable * table, xmlHashCopier f)
+xmlHashTable * xmlHashCopy(const xmlHashTable * table, xmlHashCopier f)
 {
 	xmlHashTable * ret = (table && f) ? xmlHashCreate(table->size) : 0;
 	if(ret) {

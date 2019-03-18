@@ -565,7 +565,7 @@ bool TY_(_cfgGetBool) (TidyDocImpl* doc, TidyOptionId optId)
 	ulong val = TY_(_cfgGet)(doc, optId);
 	const TidyOptionImpl * opt = &option_defs[ optId ];
 	assert(opt && opt->type == TidyBoolean);
-	return val ? true : false;
+	return LOGIC(val);
 }
 
 TidyTriState    TY_(_cfgGetAutoBool) (TidyDocImpl* doc, TidyOptionId optId)
@@ -1583,17 +1583,10 @@ static int  SaveConfigToStream(TidyDocImpl* doc, StreamOut* out)
 		else if(option->pickList)
 			rc = WriteOptionPick(option, val->v, out);
 		else {
-			switch(option->type)
-			{
-				case TidyString:
-				    rc = WriteOptionString(option, val->p, out);
-				    break;
-				case TidyInteger:
-				    rc = WriteOptionInt(option, val->v, out);
-				    break;
-				case TidyBoolean:
-				    rc = WriteOptionBool(option, val->v ? true : false, out);
-				    break;
+			switch(option->type) {
+				case TidyString: rc = WriteOptionString(option, val->p, out); break;
+				case TidyInteger: rc = WriteOptionInt(option, val->v, out); break;
+				case TidyBoolean: rc = WriteOptionBool(option, LOGIC(val->v), out); break;
 			}
 		}
 	}

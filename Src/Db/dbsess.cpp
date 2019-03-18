@@ -238,13 +238,13 @@ int SLAPI SRowId::baseto(void * s, const void * b) const
 
 void SLAPI SRowId::minval(void * pData) const
 {
-	DBRowId * p_row_id = (DBRowId *)pData;
+	DBRowId * p_row_id = static_cast<DBRowId *>(pData);
 	CALLPTRMEMB(p_row_id, SetZero());
 }
 
 void SLAPI SRowId::maxval(void * pData) const
 {
-	DBRowId * p_row_id = (DBRowId *)pData;
+	DBRowId * p_row_id = static_cast<DBRowId *>(pData);
 	CALLPTRMEMB(p_row_id, SetMaxVal());
 }
 
@@ -258,7 +258,7 @@ public:
 
 int SLAPI SLobType::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx)
 {
-	return ((SLob *)pData)->Serialize(dir, S, pInd, rBuf);
+	return static_cast<SLob *>(pData)->Serialize(dir, S, pInd, rBuf);
 }
 //
 //

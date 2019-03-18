@@ -477,9 +477,9 @@ int SLAPI PPObjCSession::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * 
 		{
 			int    s = 1;
 			if(dir > 0)
-				setDTS((ObjRights*)pData);
+				setDTS(static_cast<ObjRights *>(pData));
 			else if(dir < 0)
-				getDTS((ObjRights*)pData);
+				getDTS(static_cast<ObjRights *>(pData));
 			else
 				s = TDialog::TransmitData(dir, pData);
 			return s;
@@ -489,7 +489,6 @@ int SLAPI PPObjCSession::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * 
 			if(pData) {
 				ushort comm_rt = pData->Flags;
 				setCtrlData(CTL_RTCSESS_FLAGS,   &comm_rt);
-
 				AddClusterAssoc(CTL_RTCSESS_SFLAGS,  0, CSESSRT_OPEN);
 				AddClusterAssoc(CTL_RTCSESS_SFLAGS,  1, CSESSRT_CLOSE);
 				AddClusterAssoc(CTL_RTCSESS_SFLAGS,  2, CSESSRT_ADDCHECK);
@@ -499,7 +498,6 @@ int SLAPI PPObjCSession::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * 
 				AddClusterAssoc(CTL_RTCSESS_SFLAGS,  6, CSESSRT_SYSINFO);
 				AddClusterAssoc(CTL_RTCSESS_SFLAGS,  7, CSESSRT_CORRECT);
 				SetClusterData(CTL_RTCSESS_SFLAGS, pData->Flags);
-
 				AddClusterAssoc(CTL_RTCSESS_SFLAGS2,  0, CSESSOPRT_RETCHECK);
 				AddClusterAssoc(CTL_RTCSESS_SFLAGS2,  1, CSESSOPRT_BANKING);
 				AddClusterAssoc(CTL_RTCSESS_SFLAGS2,  2, CSESSOPRT_ESCCLINE);
@@ -515,7 +513,6 @@ int SLAPI PPObjCSession::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * 
 				AddClusterAssoc(CTL_RTCSESS_SFLAGS2, 12, CSESSOPRT_CHGPRINTEDCHK);
 				AddClusterAssoc(CTL_RTCSESS_SFLAGS2, 13, CSESSOPRT_RESTORESUSPWOA);
 				SetClusterData(CTL_RTCSESS_SFLAGS2, pData->OprFlags);
-
 				AddClusterAssoc(CTL_RTCSESS_SFLAGS3,  0, CSESSOPRT_CHGCCAGENT);
 				AddClusterAssoc(CTL_RTCSESS_SFLAGS3,  1, CSESSOPRT_ESCCLINEBORD);
 				SetClusterData(CTL_RTCSESS_SFLAGS3, pData->OprFlags);
@@ -526,7 +523,7 @@ int SLAPI PPObjCSession::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * 
 		{
 			if(pData) {
 				ushort comm_rt = getCtrlUInt16(CTL_RTCSESS_FLAGS);
-				ushort v = (ushort)GetClusterData(CTL_RTCSESS_SFLAGS);
+				ushort v = static_cast<ushort>(GetClusterData(CTL_RTCSESS_SFLAGS));
 				pData->Flags = ((comm_rt & 0x00ff) | v);
 				GetClusterData(CTL_RTCSESS_SFLAGS2, &pData->OprFlags);
 				GetClusterData(CTL_RTCSESS_SFLAGS3, &pData->OprFlags);
@@ -846,7 +843,6 @@ int SLAPI CSessTransmitPacket::ProcessRefs(PPObjIDArray * ary, int replace, ObjT
 	Bs.SetRdOffs(0);
 	THROW_SL(SessObj.P_Tbl->SerializeRecord(-1, &Rec, Bs, &pCtx->SCtx));
 	THROW_SL(pCtx->SCtx.Serialize(-1, ChecksCount, Bs));
-
 	THROW(PPObject::ProcessObjRefInArray(PPOBJ_CSESSION, &Rec.SuperSessID, ary, replace));
 	THROW(PPObject::ProcessObjRefInArray(PPOBJ_CASHNODE, &Rec.CashNodeID,  ary, replace));
 	if(replace) {
@@ -946,7 +942,7 @@ int SLAPI PPObjCSession::Read(PPObjPack * p, PPID id, void * stream, ObjTransmCo
 		THROW(p_pack->LoadSession(id, pCtx) > 0);
 	}
 	else {
-		THROW(p_pack->GetFromStream((FILE *)stream, pCtx));
+		THROW(p_pack->GetFromStream(static_cast<FILE *>(stream), pCtx));
 	}
 	p->Data = p_pack;
 	CATCHZOK
@@ -956,14 +952,14 @@ int SLAPI PPObjCSession::Read(PPObjPack * p, PPID id, void * stream, ObjTransmCo
 int SLAPI PPObjCSession::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
-	CSessTransmitPacket * p_pack = p ? (CSessTransmitPacket *)p->Data : 0;
+	CSessTransmitPacket * p_pack = p ? static_cast<CSessTransmitPacket *>(p->Data) : 0;
 	if(p_pack)
 		if(stream == 0) {
 			if(!p_pack->Restore(pID, pCtx))
 				ok = -1;
 		}
 		else {
-			THROW(p_pack->PutToStream((FILE *)stream));
+			THROW(p_pack->PutToStream(static_cast<FILE *>(stream)));
 		}
 	CATCHZOK
 	return ok;
@@ -973,7 +969,7 @@ IMPL_DESTROY_OBJ_PACK(PPObjCSession, CSessTransmitPacket);
 
 int SLAPI PPObjCSession::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
-	return (p && p->Data) ? ((CSessTransmitPacket *)p->Data)->ProcessRefs(ary, replace, pCtx) : -1;
+	return (p && p->Data) ? static_cast<CSessTransmitPacket *>(p->Data)->ProcessRefs(ary, replace, pCtx) : -1;
 }
 //
 //  @VADIM Регламентация операционных прав кассира с помощью клавиатуры с ключом
@@ -1521,7 +1517,7 @@ int CTableOrder::MakeCCheckPacket(const Packet * pPack, CCheckPacket * pCcPack)
 	return ok;
 }
 
-int CTableOrder::Create(Param * pParam)
+int CTableOrder::Create(const Param * pParam)
 {
 	int    ok = -1;
 	PPCashMachine * p_cm = 0;
@@ -1533,13 +1529,13 @@ int CTableOrder::Create(Param * pParam)
 		dtm.Set(NZOR(pParam->StartTime.d, getcurdate_()), pParam->StartTime.t);
 		ord.Init(pParam->PosNodeID, dtm, pParam->InitDuration);
 		if(pParam->TableNo > 0)
-			ord.TableNo = (int16)pParam->TableNo;
+			ord.TableNo = static_cast<int16>(pParam->TableNo);
 		else if(pParam->PosNodeID && P_CnObj->GetSync(pParam->PosNodeID, &acn_pack) > 0) {
 			if(acn_pack.TableSelWhatman.NotEmpty() && fileExists(acn_pack.TableSelWhatman)) {
 				TWhatmanObject::SelectObjRetBlock sel_blk;
 				if(PPWhatmanWindow::Launch(acn_pack.TableSelWhatman, 0, &sel_blk) > 0) {
 					if(sel_blk.Val1 == PPOBJ_CAFETABLE && sel_blk.Val2 > 0)
-						ord.TableNo = (int16)sel_blk.Val2;
+						ord.TableNo = static_cast<int16>(sel_blk.Val2);
 				}
 			}
 		}

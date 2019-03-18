@@ -33,7 +33,7 @@ void ngx_sha1_update(ngx_sha1_t * ctx, const void * data, size_t size)
 			return;
 		}
 		memcpy(&ctx->buffer[used], data, free);
-		data = (u_char*)data + free;
+		data = (u_char *)data + free;
 		size -= free;
 		(void)ngx_sha1_body(ctx, ctx->buffer, 64);
 	}

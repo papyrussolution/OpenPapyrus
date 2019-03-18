@@ -320,7 +320,7 @@ static int SLAPI BarcodeList(BarcodeArray * pCodes, int * pSelection)
 			StringSet ss(SLBColumnDelim);
 			BarcodeTbl::Rec * p_rec = 0;
 			if(P_BCodesList && P_BCodesList->getCount()) {
-				for(uint i = 0; P_BCodesList->enumItems(&i, (void**)&p_rec);) {
+				for(uint i = 0; P_BCodesList->enumItems(&i, (void **)&p_rec);) {
 					ss.clear();
 					ss.add(buf.Z().Cat(p_rec->Code));
 					GetGoodsName(p_rec->GoodsID, buf);
@@ -2560,7 +2560,7 @@ int SLAPI PPObjGoods::BelongToMatrix(PPID goodsID, PPID locID)
 int SLAPI PPObjGoods::GetQuotList(PPID goodsID, PPID locID, PPQuotArray & rList)
 	{ return P_Tbl->GetQuotList(goodsID, locID, rList); }
 
-int SLAPI PPObjGoods::PutQuotList(PPID goodsID, PPQuotArray * pList, int use_ta)
+int SLAPI PPObjGoods::PutQuotList(PPID goodsID, const PPQuotArray * pList, int use_ta)
 {
 	int    ok = 1;
 	if(pList)

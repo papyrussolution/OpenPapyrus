@@ -260,9 +260,9 @@ static BN_ULONG * bn_expand_internal(const BIGNUM * b, int words)
 		return NULL;
 	}
 	if(BN_get_flags(b, BN_FLG_SECURE))
-		a = A = (uint*)OPENSSL_secure_zalloc(words * sizeof(*a));
+		a = A = (uint *)OPENSSL_secure_zalloc(words * sizeof(*a));
 	else
-		a = A = (uint*)OPENSSL_zalloc(words * sizeof(*a));
+		a = A = (uint *)OPENSSL_zalloc(words * sizeof(*a));
 	if(A == NULL) {
 		BNerr(BN_F_BN_EXPAND_INTERNAL, ERR_R_MALLOC_FAILURE);
 		return NULL;
@@ -627,7 +627,7 @@ int FASTCALL BN_cmp(const BIGNUM * a, const BIGNUM * b)
 	BN_ULONG t1, t2;
 	if((a == NULL) || (b == NULL)) {
 		if(a != NULL)
-			return (-1);
+			return -1;
 		else if(b != NULL)
 			return 1;
 		else
@@ -637,7 +637,7 @@ int FASTCALL BN_cmp(const BIGNUM * a, const BIGNUM * b)
 	bn_check_top(b);
 	if(a->neg != b->neg) {
 		if(a->neg)
-			return (-1);
+			return -1;
 		else
 			return 1;
 	}

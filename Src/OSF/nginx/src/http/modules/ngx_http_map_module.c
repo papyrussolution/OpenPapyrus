@@ -146,7 +146,7 @@ static const char * ngx_http_map_block(ngx_conf_t * cf, const ngx_command_t * cm
 	if(map == NULL) {
 		return NGX_CONF_ERROR;
 	}
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	memzero(&ccv, sizeof(ngx_http_compile_complex_value_t));
 	ccv.cf = cf;
 	ccv.value = &value[1];
@@ -278,7 +278,7 @@ static const char * ngx_http_map(ngx_conf_t * cf, const ngx_command_t * dummy, v
 	ngx_http_variable_value_t  * var, ** vp;
 	ngx_http_compile_complex_value_t ccv;
 	ngx_http_map_conf_ctx_t * ctx = (ngx_http_map_conf_ctx_t *)cf->ctx;
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(cf->args->nelts == 1 && ngx_strcmp(value[0].data, "hostnames") == 0) {
 		ctx->hostnames = 1;
 		return NGX_CONF_OK;
@@ -368,7 +368,7 @@ static const char * ngx_http_map(ngx_conf_t * cf, const ngx_command_t * dummy, v
 		*cvp = cv;
 
 		var->len = 0;
-		var->data = (u_char*)cvp;
+		var->data = (u_char *)cvp;
 		var->valid = 0;
 	}
 	else {

@@ -800,7 +800,7 @@ static enum TIFFReadDirEntryErr TIFFReadDirEntryDataAndRealloc(TIFF* tif, uint64
 	tmsize_t already_read = 0;
 	assert(!isMapped(tif) );
 	if(!SeekOK(tif, offset))
-		return(TIFFReadDirEntryErrIo);
+		return (TIFFReadDirEntryErrIo);
 
 	/* On 64 bit processes, read first a maximum of 1 MB, then 10 MB, etc */
 	/* so as to avoid allocating too much memory in case the file is too */
@@ -818,7 +818,7 @@ static enum TIFFReadDirEntryErr TIFFReadDirEntryDataAndRealloc(TIFF* tif, uint64
 			threshold *= THRESHOLD_MULTIPLIER;
 		}
 #endif
-		new_dest = (uint8 *)SAlloc::R(*pdest, already_read + to_read);
+		new_dest = static_cast<uint8 *>(SAlloc::R(*pdest, already_read + to_read));
 		if(new_dest == NULL) {
 			TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "Failed to allocate memory for %s (%ld elements of %ld bytes each)", "TIFFReadDirEntryArray",
 			    (long)1, (long)(already_read + to_read));
@@ -962,7 +962,7 @@ static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryByteArray(TIFF* tif, TI
 				return TIFFReadDirEntryErrOk;
 			}
 	}
-	data = (uint8 *)SAlloc::M(count);
+	data = static_cast<uint8 *>(SAlloc::M(count));
 	if(data==0) {
 		SAlloc::F(origdata);
 		return TIFFReadDirEntryErrAlloc;
@@ -988,7 +988,7 @@ static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryByteArray(TIFF* tif, TI
 				uint8* mb = data;
 				for(uint32 n = 0; n < count; n++) {
 					if(tif->tif_flags&TIFF_SWAB)
-						TIFFSwabShort((uint16 *)ma);
+						TIFFSwabShort(reinterpret_cast<uint16 *>(ma));
 					err = TIFFReadDirEntryCheckRangeByteSshort(*ma);
 					if(err != TIFFReadDirEntryErrOk)
 						break;
@@ -1132,7 +1132,7 @@ static enum TIFFReadDirEntryErr TIFFReadDirEntrySbyteArray(TIFF* tif, TIFFDirEnt
 				int8 * mb = data;
 				for(uint32 n = 0; n < count; n++) {
 					if(tif->tif_flags&TIFF_SWAB)
-						TIFFSwabShort((uint16 *)ma);
+						TIFFSwabShort(reinterpret_cast<uint16 *>(ma));
 					err = TIFFReadDirEntryCheckRangeSbyteSshort(*ma);
 					if(err != TIFFReadDirEntryErrOk)
 						break;
@@ -1252,7 +1252,7 @@ static enum TIFFReadDirEntryErr TIFFReadDirEntryShortArray(TIFF* tif, TIFFDirEnt
 				return TIFFReadDirEntryErrOk;
 			}
 	}
-	data = (uint16 *)SAlloc::M(count*2);
+	data = static_cast<uint16 *>(SAlloc::M(count*2));
 	if(data==0) {
 		SAlloc::F(origdata);
 		return TIFFReadDirEntryErrAlloc;
@@ -1581,7 +1581,7 @@ static enum TIFFReadDirEntryErr TIFFReadDirEntryLongArray(TIFF* tif, TIFFDirEntr
 		    uint32 * mb = data;
 		    for(uint32 n = 0; n < count; n++) {
 			    if(tif->tif_flags&TIFF_SWAB)
-				    TIFFSwabShort((uint16 *)ma);
+				    TIFFSwabShort(reinterpret_cast<uint16 *>(ma));
 			    err = TIFFReadDirEntryCheckRangeLongSshort(*ma);
 			    if(err != TIFFReadDirEntryErrOk)
 				    break;
@@ -1713,7 +1713,7 @@ static enum TIFFReadDirEntryErr TIFFReadDirEntrySlongArray(TIFF* tif, TIFFDirEnt
 		    int32* mb = data;
 		    for(uint32 n = 0; n < count; n++) {
 			    if(tif->tif_flags&TIFF_SWAB)
-				    TIFFSwabShort((uint16 *)ma);
+				    TIFFSwabShort(reinterpret_cast<uint16 *>(ma));
 			    *mb++ = (int32)(*ma++);
 		    }
 	    }
@@ -1846,7 +1846,7 @@ static enum TIFFReadDirEntryErr TIFFReadDirEntryLong8ArrayWithLimit(TIFF* tif, T
 		    uint64* mb = data;
 		    for(uint32 n = 0; n < count; n++) {
 			    if(tif->tif_flags&TIFF_SWAB)
-				    TIFFSwabShort((uint16 *)ma);
+				    TIFFSwabShort(reinterpret_cast<uint16 *>(ma));
 			    err = TIFFReadDirEntryCheckRangeLong8Sshort(*ma);
 			    if(err != TIFFReadDirEntryErrOk)
 				    break;
@@ -1980,7 +1980,7 @@ static enum TIFFReadDirEntryErr TIFFReadDirEntrySlong8Array(TIFF* tif, TIFFDirEn
 		    int64 * mb = data;
 		    for(uint32 n = 0; n < count; n++) {
 			    if(tif->tif_flags&TIFF_SWAB)
-				    TIFFSwabShort((uint16 *)ma);
+				    TIFFSwabShort(reinterpret_cast<uint16 *>(ma));
 			    *mb++ = (int64)(*ma++);
 		    }
 	    }
@@ -2088,7 +2088,7 @@ static enum TIFFReadDirEntryErr TIFFReadDirEntryFloatArray(TIFF* tif, TIFFDirEnt
 		    float* mb = data;
 		    for(uint32 n = 0; n < count; n++) {
 			    if(tif->tif_flags&TIFF_SWAB)
-				    TIFFSwabShort((uint16 *)ma);
+				    TIFFSwabShort(reinterpret_cast<uint16 *>(ma));
 			    *mb++ = (float)(*ma++);
 		    }
 	    }
@@ -2286,7 +2286,7 @@ static enum TIFFReadDirEntryErr TIFFReadDirEntryDoubleArray(TIFF* tif, TIFFDirEn
 				double* mb = data;
 				for(uint32 n = 0; n < count; n++) {
 					if(tif->tif_flags&TIFF_SWAB)
-						TIFFSwabShort((uint16 *)ma);
+						TIFFSwabShort(reinterpret_cast<uint16 *>(ma));
 					*mb++ = static_cast<double>(*ma++);
 				}
 			}
@@ -2692,15 +2692,15 @@ static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryData(TIFF* tif, uint64 
 	assert(size>0);
 	if(!isMapped(tif)) {
 		if(!SeekOK(tif, offset))
-			return(TIFFReadDirEntryErrIo);
+			return (TIFFReadDirEntryErrIo);
 		if(!ReadOK(tif, dest, size))
-			return(TIFFReadDirEntryErrIo);
+			return (TIFFReadDirEntryErrIo);
 	}
 	else {
 		size_t ma = (size_t)offset;
 		size_t mb = ma+size;
 		if(((uint64)ma!=offset) || (mb < ma) || (mb - ma != (size_t)size) || (mb < (size_t)size) || (mb > (size_t)tif->tif_size))
-			return(TIFFReadDirEntryErrIo);
+			return (TIFFReadDirEntryErrIo);
 		memcpy(dest, tif->tif_base+ma, size);
 	}
 	return TIFFReadDirEntryErrOk;
@@ -3374,7 +3374,7 @@ static TIFFDirEntry* TIFFReadDirectoryFindEntry(TIFF* tif, TIFFDirEntry* dir, ui
 	(void)tif;
 	for(m = dir, n = 0; n<dircount; m++, n++) {
 		if(m->tdir_tag==tagid)
-			return(m);
+			return (m);
 	}
 	return 0;
 }
@@ -3819,11 +3819,11 @@ static uint16 TIFFFetchDirectory(TIFF* tif, uint64 diroff, TIFFDirEntry** pdir, 
 	mb = dir;
 	for(n = 0; n<dircount16; n++) {
 		if(tif->tif_flags&TIFF_SWAB)
-			TIFFSwabShort((uint16 *)ma);
+			TIFFSwabShort(reinterpret_cast<uint16 *>(ma));
 		mb->tdir_tag = *(uint16 *)ma;
 		ma += sizeof(uint16);
 		if(tif->tif_flags&TIFF_SWAB)
-			TIFFSwabShort((uint16 *)ma);
+			TIFFSwabShort(reinterpret_cast<uint16 *>(ma));
 		mb->tdir_type = *(uint16 *)ma;
 		ma += sizeof(uint16);
 		if(!(tif->tif_flags&TIFF_BIGTIFF)) {
@@ -3895,7 +3895,7 @@ static int TIFFFetchNormalTag(TIFF* tif, TIFFDirEntry* dp, int recover)
 						if((uint32)dp->tdir_count+1!=dp->tdir_count+1)
 							o = NULL;
 						else
-							o = (uint8 *)SAlloc::M((uint32)dp->tdir_count+1);
+							o = static_cast<uint8 *>(SAlloc::M((uint32)dp->tdir_count+1));
 						if(!o) {
 							SAlloc::F(data);
 							return 0;
@@ -4505,7 +4505,7 @@ static int TIFFFetchSubjectDistance(TIFF* tif, TIFFDirEntry* dir)
 			n = -1.0;
 		else
 			n = (double)m.i[0]/(double)m.i[1];
-		return(TIFFSetField(tif, dir->tdir_tag, n));
+		return (TIFFSetField(tif, dir->tdir_tag, n));
 	}
 	else {
 		TIFFReadDirEntryOutputErr(tif, err, module, "SubjectDistance", TRUE);
@@ -4592,7 +4592,6 @@ static void ChopUpSingleUncompressedStrip(TIFF* tif)
 	 */
 	td->td_stripsperimage = td->td_nstrips = nstrips;
 	TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, rowsperstrip);
-
 	SAlloc::F(td->td_stripbytecount);
 	SAlloc::F(td->td_stripoffset);
 	td->td_stripbytecount = newcounts;
@@ -4600,7 +4599,7 @@ static void ChopUpSingleUncompressedStrip(TIFF* tif)
 	td->td_stripbytecountsorted = 1;
 }
 
-int _TIFFFillStriles(TIFF * tif)
+int FASTCALL _TIFFFillStriles(TIFF * tif)
 {
 	return _TIFFFillStrilesInternal(tif, 1);
 }

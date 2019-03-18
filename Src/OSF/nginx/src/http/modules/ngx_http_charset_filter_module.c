@@ -799,7 +799,7 @@ static const char * ngx_http_charset_map_block(ngx_conf_t * cf, const ngx_comman
 	ngx_http_charset_t * charset;
 	ngx_http_charset_tables_t  * table;
 	ngx_http_charset_conf_ctx_t ctx;
-	ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	ngx_int_t src = ngx_http_add_charset(&mcf->charsets, &value[1]);
 	ngx_int_t dst;
 	if(src == NGX_ERROR) {
@@ -826,7 +826,7 @@ static const char * ngx_http_charset_map_block(ngx_conf_t * cf, const ngx_comman
 	}
 	table->src = src;
 	table->dst = dst;
-	if(sstreqi_ascii(value[2].data, (u_char*)"utf-8")) {
+	if(sstreqi_ascii(value[2].data, (u_char *)"utf-8")) {
 		table->src2dst = (u_char *)ngx_pcalloc(cf->pool, 256 * NGX_UTF_LEN);
 		if(table->src2dst == NULL) {
 			return NGX_CONF_ERROR;
@@ -878,7 +878,7 @@ static const char * ngx_http_charset_map_block(ngx_conf_t * cf, const ngx_comman
 	pvcf = *cf;
 	cf->ctx = &ctx;
 	cf->handler = ngx_http_charset_map;
-	cf->handler_conf = (char *)conf;
+	cf->handler_conf = static_cast<char *>(conf);
 	rv = ngx_conf_parse(cf, NULL);
 	*cf = pvcf;
 	if(ctx.characters) {
@@ -905,7 +905,7 @@ static const char * ngx_http_charset_map(ngx_conf_t * cf, const ngx_command_t * 
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid parameters number");
 		return NGX_CONF_ERROR;
 	}
-	value = (ngx_str_t *)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	src = ngx_hextoi(value[0].data, value[0].len);
 	if(src == NGX_ERROR || src > 255) {
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid value \"%V\"", &value[0]);
@@ -958,14 +958,14 @@ static const char * ngx_http_charset_map(ngx_conf_t * cf, const ngx_command_t * 
 
 static const char * ngx_http_set_charset_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
-	char * p = (char *)conf;
+	char * p = static_cast<char *>(conf);
 	ngx_http_charset_main_conf_t * mcf;
 	ngx_int_t * cp = (ngx_int_t*)(p + cmd->offset);
 	if(*cp != NGX_CONF_UNSET) {
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+		ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 		if(cmd->offset == offsetof(ngx_http_charset_loc_conf_t, charset) && ngx_strcmp(value[1].data, "off") == 0) {
 			*cp = NGX_HTTP_CHARSET_OFF;
 		}
@@ -1010,7 +1010,7 @@ static ngx_int_t ngx_http_add_charset(ngx_array_t * charsets, ngx_str_t * name)
 	c->tables = NULL;
 	c->name = *name;
 	c->length = 0;
-	if(sstreqi_ascii(name->data, (u_char*)"utf-8")) {
+	if(sstreqi_ascii(name->data, (u_char *)"utf-8")) {
 		c->utf8 = 1;
 	}
 	else {

@@ -805,21 +805,21 @@ static void * xmlFileOpen_real(const char * filename)
 		fd = stdin;
 		return (void *)fd;
 	}
-	if(!xmlStrncasecmp(BAD_CAST filename, BAD_CAST "file://localhost/", 17)) {
+	if(!xmlStrncasecmp(BAD_CAST filename, reinterpret_cast<const xmlChar *>("file://localhost/"), 17)) {
 #if defined (_WIN32) || defined (__DJGPP__) && !defined(__CYGWIN__)
 		path = &filename[17];
 #else
 		path = &filename[16];
 #endif
 	}
-	else if(!xmlStrncasecmp(BAD_CAST filename, BAD_CAST "file:///", 8)) {
+	else if(!xmlStrncasecmp(BAD_CAST filename, reinterpret_cast<const xmlChar *>("file:///"), 8)) {
 #if defined (_WIN32) || defined (__DJGPP__) && !defined(__CYGWIN__)
 		path = &filename[8];
 #else
 		path = &filename[7];
 #endif
 	}
-	else if(!xmlStrncasecmp(BAD_CAST filename, BAD_CAST "file:/", 6)) {
+	else if(!xmlStrncasecmp(BAD_CAST filename, reinterpret_cast<const xmlChar *>("file:/"), 6)) {
 		/* lots of generators seems to lazy to read RFC 1738 */
 #if defined (_WIN32) || defined (__DJGPP__) && !defined(__CYGWIN__)
 		path = &filename[6];
@@ -879,13 +879,13 @@ static void * xmlFileOpenW(const char * filename)
 		fd = stdout;
 		return (void *)fd;
 	}
-	if(!xmlStrncasecmp(BAD_CAST filename, BAD_CAST "file://localhost/", 17))
+	if(!xmlStrncasecmp(BAD_CAST filename, reinterpret_cast<const xmlChar *>("file://localhost/"), 17))
 #if defined (_WIN32) || defined (__DJGPP__) && !defined(__CYGWIN__)
 		path = &filename[17];
 #else
 		path = &filename[16];
 #endif
-	else if(!xmlStrncasecmp(BAD_CAST filename, BAD_CAST "file:///", 8)) {
+	else if(!xmlStrncasecmp(BAD_CAST filename, reinterpret_cast<const xmlChar *>("file:///"), 8)) {
 #if defined (_WIN32) || defined (__DJGPP__) && !defined(__CYGWIN__)
 		path = &filename[8];
 #else
@@ -922,7 +922,7 @@ int xmlFileRead(void * context, char * buffer, int len)
 {
 	int ret = -1;
 	if(context && buffer) {
-		ret = fread(&buffer[0], 1,  len, (FILE*)context);
+		ret = fread(&buffer[0], 1,  len, (FILE *)context);
 		if(ret < 0)
 			xmlIOErr(0, "fread()");
 	}
@@ -942,15 +942,17 @@ int xmlFileRead(void * context, char * buffer, int len)
  */
 static int xmlFileWrite(void * context, const char * buffer, int len)
 {
-	int items;
-	if((context == NULL) || (buffer == NULL))
+	if(!context || !buffer)
 		return -1;
-	items = fwrite(&buffer[0], len, 1, (FILE*)context);
-	if(!items && ferror((FILE*)context)) {
-		xmlIOErr(0, "fwrite()");
-		return -1;
+	else {
+		const int items = fwrite(&buffer[0], len, 1, static_cast<FILE *>(context));
+		if(!items && ferror(static_cast<FILE *>(context))) {
+			xmlIOErr(0, "fwrite()");
+			return -1;
+		}
+		else
+			return (items * len);
 	}
-	return (items * len);
 }
 
 #endif /* LIBXML_OUTPUT_ENABLED */
@@ -967,7 +969,7 @@ int xmlFileClose(void * context)
 {
 	int ret = -1;
 	if(context) {
-		FILE * fil = (FILE*)context;
+		FILE * fil = (FILE *)context;
 		if((fil == stdout) || (fil == stderr)) {
 			ret = fflush(fil);
 			if(ret < 0)
@@ -977,7 +979,7 @@ int xmlFileClose(void * context)
 		else if(fil == stdin)
 			ret = 0;
 		else {
-			ret = (fclose((FILE*)context) == EOF) ? -1 : 0;
+			ret = (fclose((FILE *)context) == EOF) ? -1 : 0;
 			if(ret < 0)
 				xmlIOErr(0, "fclose()");
 		}
@@ -995,7 +997,7 @@ static int xmlFileFlush(void * context)
 {
 	int ret = -1;
 	if(context) {
-		ret = (fflush((FILE*)context) == EOF) ? -1 : 0;
+		ret = (fflush((FILE *)context) == EOF) ? -1 : 0;
 		if(ret < 0)
 			xmlIOErr(0, "fflush()");
 	}
@@ -1015,7 +1017,7 @@ static int xmlFileFlush(void * context)
  */
 static int xmlBufferWrite(void * context, const char * buffer, int len)
 {
-	int ret = xmlBufferAdd((xmlBuffer *)context, (const xmlChar*)buffer, len);
+	int ret = xmlBufferAdd((xmlBuffer *)context, (const xmlChar *)buffer, len);
 	return (ret == 0) ? len : -1;
 }
 
@@ -1060,13 +1062,13 @@ static void * xmlGzfileOpen_real(const char * filename)
 		}
 		return (void *)fd;
 	}
-	if(!xmlStrncasecmp(BAD_CAST filename, BAD_CAST "file://localhost/", 17))
+	if(!xmlStrncasecmp(BAD_CAST filename, reinterpret_cast<const xmlChar *>("file://localhost/"), 17))
 #if defined (_WIN32) || defined (__DJGPP__) && !defined(__CYGWIN__)
 		path = &filename[17];
 #else
 		path = &filename[16];
 #endif
-	else if(!xmlStrncasecmp(BAD_CAST filename, BAD_CAST "file:///", 8)) {
+	else if(!xmlStrncasecmp(BAD_CAST filename, reinterpret_cast<const xmlChar *>("file:///"), 8)) {
 #if defined (_WIN32) || defined (__DJGPP__) && !defined(__CYGWIN__)
 		path = &filename[8];
 #else
@@ -1132,13 +1134,13 @@ static void * xmlGzfileOpenW(const char * filename, int compression)
 		}
 		return (void *)fd;
 	}
-	if(!xmlStrncasecmp(BAD_CAST filename, BAD_CAST "file://localhost/", 17))
+	if(!xmlStrncasecmp(BAD_CAST filename, reinterpret_cast<const xmlChar *>("file://localhost/"), 17))
 #if defined (_WIN32) || defined (__DJGPP__) && !defined(__CYGWIN__)
 		path = &filename[17];
 #else
 		path = &filename[16];
 #endif
-	else if(!xmlStrncasecmp(BAD_CAST filename, BAD_CAST "file:///", 8)) {
+	else if(!xmlStrncasecmp(BAD_CAST filename, reinterpret_cast<const xmlChar *>("file:///"), 8)) {
 #if defined (_WIN32) || defined (__DJGPP__) && !defined(__CYGWIN__)
 		path = &filename[8];
 #else
@@ -1251,13 +1253,13 @@ static void * xmlXzfileOpen_real(const char * filename)
 		fd = __libxml2_xzdopen(dup(fileno(stdin)), "rb");
 		return (void *)fd;
 	}
-	if(!xmlStrncasecmp(BAD_CAST filename, BAD_CAST "file://localhost/", 17)) {
+	if(!xmlStrncasecmp(BAD_CAST filename, reinterpret_cast<const xmlChar *>("file://localhost/"), 17)) {
 		path = &filename[16];
 	}
-	else if(!xmlStrncasecmp(BAD_CAST filename, BAD_CAST "file:///", 8)) {
+	else if(!xmlStrncasecmp(BAD_CAST filename, reinterpret_cast<const xmlChar *>("file:///"), 8)) {
 		path = &filename[7];
 	}
-	else if(!xmlStrncasecmp(BAD_CAST filename, BAD_CAST "file:/", 6)) {
+	else if(!xmlStrncasecmp(BAD_CAST filename, reinterpret_cast<const xmlChar *>("file:/"), 6)) {
 		path = &filename[5]; // lots of generators seems to lazy to read RFC 1738
 	}
 	else
@@ -1443,9 +1445,9 @@ static void * xmlCreateZMemBuff(int compression)
 					xmlChar msg[500];
 					xmlFreeZMemBuff(buff);
 					buff = NULL;
-					xmlStrPrintf(msg, 500, (const xmlChar*)"xmlCreateZMemBuff:  %s %d\n",
+					xmlStrPrintf(msg, 500, (const xmlChar *)"xmlCreateZMemBuff:  %s %d\n",
 						"Error initializing compression context.  ZLIB error:", z_err);
-					xmlIOErr(XML_IO_WRITE, (const char *)msg);
+					xmlIOErr(XML_IO_WRITE, reinterpret_cast<const char *>(msg));
 					buff = 0;
 				}
 				else {
@@ -1501,9 +1503,9 @@ static int xmlZMemBuffExtend(xmlZMemBuffPtr buff, size_t ext_amt)
 	}
 	else {
 		xmlChar msg[500];
-		xmlStrPrintf(msg, 500, (const xmlChar*)"xmlZMemBuffExtend:  %s %lu bytes.\n",
+		xmlStrPrintf(msg, 500, (const xmlChar *)"xmlZMemBuffExtend:  %s %lu bytes.\n",
 		    "Allocation failure extending output buffer to", new_size);
-		xmlIOErr(XML_IO_WRITE, (const char *)msg);
+		xmlIOErr(XML_IO_WRITE, reinterpret_cast<const char *>(msg));
 	}
 	return ( rc );
 }
@@ -1541,8 +1543,8 @@ static int xmlZMemBuffAppend(xmlZMemBuffPtr buff, const char * src, int len)
 		z_err = deflate(&buff->zctrl, Z_NO_FLUSH);
 		if(z_err != Z_OK) {
 			xmlChar msg[500];
-			xmlStrPrintf(msg, 500, (const xmlChar*)"xmlZMemBuffAppend:  %s %d %s - %d", "Compression error while appending", len, "bytes to buffer.  ZLIB error", z_err);
-			xmlIOErr(XML_IO_WRITE, (const char *)msg);
+			xmlStrPrintf(msg, 500, (const xmlChar *)"xmlZMemBuffAppend:  %s %d %s - %d", "Compression error while appending", len, "bytes to buffer.  ZLIB error", z_err);
+			xmlIOErr(XML_IO_WRITE, reinterpret_cast<const char *>(msg));
 			return ( -1 );
 		}
 	}
@@ -1585,7 +1587,7 @@ static int xmlZMemBuffGetContent(xmlZMemBuffPtr buff, char ** data_ref)
 		/*  Need to append the gzip data trailer  */
 
 		if(buff->zctrl.avail_out < ( 2 * sizeof( unsigned long ) ) ) {
-			if(xmlZMemBuffExtend(buff, (2 * sizeof(unsigned long))) == -1)
+			if(xmlZMemBuffExtend(buff, (2 * sizeof(ulong))) == -1)
 				return ( -1 );
 		}
 
@@ -1603,8 +1605,8 @@ static int xmlZMemBuffGetContent(xmlZMemBuffPtr buff, char ** data_ref)
 
 	else {
 		xmlChar msg[500];
-		xmlStrPrintf(msg, 500, (const xmlChar*)"xmlZMemBuffGetContent:  %s - %d\n", "Error flushing zlib buffers.  Error code", z_err);
-		xmlIOErr(XML_IO_WRITE, (const char *)msg);
+		xmlStrPrintf(msg, 500, (const xmlChar *)"xmlZMemBuffGetContent:  %s - %d\n", "Error flushing zlib buffers.  Error code", z_err);
+		xmlIOErr(XML_IO_WRITE, reinterpret_cast<const char *>(msg));
 	}
 	return ( zlgth );
 }
@@ -1651,7 +1653,7 @@ static void xmlFreeHTTPWriteCtxt(xmlIOHTTPWriteCtxtPtr ctxt)
  */
 int xmlIOHTTPMatch(const char * filename)
 {
-	return (xmlStrncasecmp(BAD_CAST filename, BAD_CAST "http://", 7) == 0) ? 1 : 0;
+	return (xmlStrncasecmp(BAD_CAST filename, reinterpret_cast<const xmlChar *>("http://"), 7) == 0) ? 1 : 0;
 }
 
 /**
@@ -1782,9 +1784,9 @@ static int xmlIOHTTPWrite(void * context, const char * buffer, int len)
 		len = xmlOutputBufferWrite((xmlOutputBuffer *)ctxt->doc_buff, len, buffer);
 		if(len < 0) {
 			xmlChar msg[500];
-			xmlStrPrintf(msg, 500, (const xmlChar*)"xmlIOHTTPWrite:  %s\n%s '%s'.\n",
+			xmlStrPrintf(msg, 500, (const xmlChar *)"xmlIOHTTPWrite:  %s\n%s '%s'.\n",
 			    "Error appending to internal buffer.", "Error sending document to URI", ctxt->uri);
-			xmlIOErr(XML_IO_WRITE, (const char *)msg);
+			xmlIOErr(XML_IO_WRITE, reinterpret_cast<const char *>(msg));
 		}
 	}
 	return len;
@@ -1847,9 +1849,9 @@ static int xmlIOHTTPCloseWrite(void * context, const char * http_mthd)
 
 	if(http_content == NULL) {
 		xmlChar msg[500];
-		xmlStrPrintf(msg, 500, (const xmlChar*)"xmlIOHTTPCloseWrite:  %s '%s' %s '%s'.\n",
+		xmlStrPrintf(msg, 500, (const xmlChar *)"xmlIOHTTPCloseWrite:  %s '%s' %s '%s'.\n",
 		    "Error retrieving content.\nUnable to", http_mthd, "data to URI", ctxt->uri);
-		xmlIOErr(XML_IO_WRITE, (const char *)msg);
+		xmlIOErr(XML_IO_WRITE, reinterpret_cast<const char *>(msg));
 	}
 
 	else {
@@ -1896,11 +1898,11 @@ static int xmlIOHTTPCloseWrite(void * context, const char * http_mthd)
 			else {
 				xmlChar msg[500];
 				xmlStrPrintf(msg, 500,
-				    (const xmlChar*)"xmlIOHTTPCloseWrite: HTTP '%s' of %d %s\n'%s' %s %d\n",
+				    (const xmlChar *)"xmlIOHTTPCloseWrite: HTTP '%s' of %d %s\n'%s' %s %d\n",
 				    http_mthd, content_lgth,
 				    "bytes to URI", ctxt->uri,
 				    "failed.  HTTP return code:", http_rtn);
-				xmlIOErr(XML_IO_WRITE, (const char *)msg);
+				xmlIOErr(XML_IO_WRITE, reinterpret_cast<const char *>(msg));
 			}
 			xmlNanoHTTPClose(http_ctxt);
 			SAlloc::F(content_type);
@@ -1957,7 +1959,7 @@ static int xmlIOHTTPClosePost(void * ctxt)
  */
 int xmlIOFTPMatch(const char * filename)
 {
-	return (xmlStrncasecmp(BAD_CAST filename, BAD_CAST "ftp://", 6) == 0) ? 1 : 0;
+	return (xmlStrncasecmp(BAD_CAST filename, reinterpret_cast<const xmlChar *>("ftp://"), 6) == 0) ? 1 : 0;
 }
 
 /**
@@ -2188,7 +2190,7 @@ xmlParserInputBuffer * xmlAllocParserInputBuffer(xmlCharEncoding enc)
  */
 xmlOutputBuffer * xmlAllocOutputBuffer(xmlCharEncodingHandler * encoder)
 {
-	xmlOutputBuffer * ret = (xmlOutputBuffer *)SAlloc::M(sizeof(xmlOutputBuffer));
+	xmlOutputBuffer * ret = static_cast<xmlOutputBuffer *>(SAlloc::M(sizeof(xmlOutputBuffer)));
 	if(!ret) {
 		xmlIOErrMemory("creating output buffer");
 	}
@@ -2227,7 +2229,7 @@ xmlOutputBuffer * xmlAllocOutputBuffer(xmlCharEncodingHandler * encoder)
  */
 xmlOutputBuffer * xmlAllocOutputBufferInternal(xmlCharEncodingHandler * encoder)
 {
-	xmlOutputBuffer * ret = (xmlOutputBuffer *)SAlloc::M(sizeof(xmlOutputBuffer));
+	xmlOutputBuffer * ret = static_cast<xmlOutputBuffer *>(SAlloc::M(sizeof(xmlOutputBuffer)));
 	if(!ret) {
 		xmlIOErrMemory("creating output buffer");
 		return 0;
@@ -2437,13 +2439,13 @@ xmlOutputBuffer * __xmlOutputBufferCreateFilename(const char * URI, xmlCharEncod
 	puri = xmlParseURI(URI);
 	if(puri) {
 #ifdef HAVE_ZLIB_H
-		if(puri->scheme && (!sstreq(BAD_CAST puri->scheme, BAD_CAST "file")))
+		if(puri->scheme && (!sstreq(BAD_CAST puri->scheme, reinterpret_cast<const xmlChar *>("file"))))
 			is_file_uri = 0;
 #endif
 		/*
 		 * try to limit the damages of the URI unescaping code.
 		 */
-		if(!puri->scheme || (sstreq(BAD_CAST puri->scheme, BAD_CAST "file")))
+		if(!puri->scheme || (sstreq(BAD_CAST puri->scheme, reinterpret_cast<const xmlChar *>("file"))))
 			unescaped = xmlURIUnescapeString(URI, 0, 0);
 		xmlFreeURI(puri);
 	}
@@ -2692,7 +2694,7 @@ xmlParserInputBuffer * xmlParserInputBufferCreateMem(const char * mem, int size,
 			ret->context = (void *)mem;
 			ret->readcallback = (xmlInputReadCallback)xmlNop;
 			ret->closecallback = NULL;
-			int errcode = xmlBufAdd(ret->buffer, (const xmlChar*)mem, size);
+			int errcode = xmlBufAdd(ret->buffer, (const xmlChar *)mem, size);
 			if(errcode)
 				ZFREE(ret);
 		}
@@ -2885,7 +2887,7 @@ int xmlParserInputBufferPush(xmlParserInputBuffer * in, int len, const char * bu
 		if(in->raw == NULL) {
 			in->raw = xmlBufCreate();
 		}
-		ret = xmlBufAdd(in->raw, (const xmlChar*)buf, len);
+		ret = xmlBufAdd(in->raw, (const xmlChar *)buf, len);
 		if(ret != 0)
 			return -1;
 		/*
@@ -2909,7 +2911,7 @@ int xmlParserInputBufferPush(xmlParserInputBuffer * in, int len, const char * bu
 #ifdef DEBUG_INPUT
 	xmlGenericError(0, "I/O: pushed %d chars, buffer %d/%d\n", nbchars, xmlBufUse(in->buffer), xmlBufLength(in->buffer));
 #endif
-	return(nbchars);
+	return (nbchars);
 }
 
 /**
@@ -2989,7 +2991,7 @@ int xmlParserInputBufferGrow(xmlParserInputBuffer * in, int len)
 		 * Store the data in the incoming raw buffer
 		 */
 		SETIFZ(in->raw, xmlBufCreate());
-		res = xmlBufAdd(in->raw, (const xmlChar*)buffer, len);
+		res = xmlBufAdd(in->raw, (const xmlChar *)buffer, len);
 		if(res != 0)
 			return -1;
 
@@ -3012,7 +3014,7 @@ int xmlParserInputBufferGrow(xmlParserInputBuffer * in, int len)
 #ifdef DEBUG_INPUT
 	xmlGenericError(0, "I/O: read %d chars, buffer %d\n", nbchars, xmlBufUse(in->buffer));
 #endif
-	return(nbchars);
+	return (nbchars);
 }
 
 /**
@@ -3078,7 +3080,7 @@ int FASTCALL xmlOutputBufferWrite(xmlOutputBuffer * out, int len, const char * b
 			// Store the data in the incoming raw buffer
 			// 
 			SETIFZ(out->conv, xmlBufCreate());
-			ret = xmlBufAdd(out->buffer, (const xmlChar*)buf, chunk);
+			ret = xmlBufAdd(out->buffer, (const xmlChar *)buf, chunk);
 			if(ret != 0)
 				return -1;
 			if((xmlBufUse(out->buffer) < MINLEN) && (chunk == len))
@@ -3095,7 +3097,7 @@ int FASTCALL xmlOutputBufferWrite(xmlOutputBuffer * out, int len, const char * b
 			nbchars = xmlBufUse(out->conv);
 		}
 		else {
-			ret = xmlBufAdd(out->buffer, (const xmlChar*)buf, chunk);
+			ret = xmlBufAdd(out->buffer, (const xmlChar *)buf, chunk);
 			if(ret != 0)
 				return -1;
 			nbchars = xmlBufUse(out->buffer);
@@ -3131,7 +3133,7 @@ done:
 #ifdef DEBUG_INPUT
 	xmlGenericError(0, "I/O: wrote %d chars\n", written);
 #endif
-	return(written);
+	return (written);
 }
 /**
  * xmlEscapeContent:
@@ -3315,7 +3317,7 @@ done:
 #ifdef DEBUG_INPUT
 	xmlGenericError(0, "I/O: wrote %d chars\n", written);
 #endif
-	return(written);
+	return (written);
 }
 /**
  * @out:  a buffered parser output
@@ -3482,7 +3484,7 @@ xmlParserInput * xmlCheckHTTPInput(xmlParserCtxt * ctxt, xmlParserInput * ret)
 		}
 		else {
 			mime = xmlNanoHTTPMimeType(ret->buf->context);
-			if((xmlStrstr(BAD_CAST mime, BAD_CAST "/xml")) || (xmlStrstr(BAD_CAST mime, BAD_CAST "+xml"))) {
+			if((xmlStrstr(BAD_CAST mime, reinterpret_cast<const xmlChar *>("/xml"))) || (xmlStrstr(BAD_CAST mime, reinterpret_cast<const xmlChar *>("+xml")))) {
 				encoding = xmlNanoHTTPEncoding(ret->buf->context);
 				if(encoding) {
 					xmlCharEncodingHandler * handler = xmlFindCharEncodingHandler(encoding);
@@ -3497,7 +3499,7 @@ xmlParserInput * xmlCheckHTTPInput(xmlParserCtxt * ctxt, xmlParserInput * ret)
 				}
 #if 0
 			}
-			else if(xmlStrstr(BAD_CAST mime, BAD_CAST "html")) {
+			else if(xmlStrstr(BAD_CAST mime, reinterpret_cast<const xmlChar *>("html"))) {
 #endif
 			}
 			redir = xmlNanoHTTPRedir(ret->buf->context);
@@ -3518,13 +3520,13 @@ static int xmlNoNetExists(const char * URL)
 	const char * path;
 	if(URL == NULL)
 		return 0;
-	if(!xmlStrncasecmp(BAD_CAST URL, BAD_CAST "file://localhost/", 17))
+	if(!xmlStrncasecmp(BAD_CAST URL, reinterpret_cast<const xmlChar *>("file://localhost/"), 17))
 #if defined (_WIN32) || defined (__DJGPP__) && !defined(__CYGWIN__)
 		path = &URL[17];
 #else
 		path = &URL[16];
 #endif
-	else if(!xmlStrncasecmp(BAD_CAST URL, BAD_CAST "file:///", 8)) {
+	else if(!xmlStrncasecmp(BAD_CAST URL, reinterpret_cast<const xmlChar *>("file:///"), 8)) {
 #if defined (_WIN32) || defined (__DJGPP__) && !defined(__CYGWIN__)
 		path = &URL[8];
 #else
@@ -3563,16 +3565,16 @@ static xmlChar * xmlResolveResourceFromCatalog(const char * URL, const char * ID
 		 * Do a local lookup
 		 */
 		if(ctxt && ctxt->catalogs && oneof2(pref, XML_CATA_ALLOW_ALL, XML_CATA_ALLOW_DOCUMENT)) {
-			resource = xmlCatalogLocalResolve(ctxt->catalogs, (const xmlChar*)ID, (const xmlChar*)URL);
+			resource = xmlCatalogLocalResolve(ctxt->catalogs, (const xmlChar *)ID, (const xmlChar *)URL);
 		}
 		/*
 		 * Try a global lookup
 		 */
 		if(!resource && oneof2(pref, XML_CATA_ALLOW_ALL, XML_CATA_ALLOW_GLOBAL)) {
-			resource = xmlCatalogResolve((const xmlChar*)ID, (const xmlChar*)URL);
+			resource = xmlCatalogResolve((const xmlChar *)ID, (const xmlChar *)URL);
 		}
 		if(!resource && URL)
-			resource = sstrdup((const xmlChar*)URL);
+			resource = sstrdup((const xmlChar *)URL);
 		/*
 		 * @todo do an URI lookup on the reference
 		 */
@@ -3677,7 +3679,7 @@ xmlParserInput * xmlLoadExternalEntity(const char * URL, const char * ID, xmlPar
 {
 	if(URL && !xmlNoNetExists(URL)) {
 		xmlParserInput * ret = 0;
-		char * canonicFilename = (char *)xmlCanonicPath((const xmlChar*)URL);
+		char * canonicFilename = (char *)xmlCanonicPath((const xmlChar *)URL);
 		if(canonicFilename == NULL) {
 			xmlIOErrMemory("building canonical path\n");
 		}
@@ -3713,7 +3715,7 @@ xmlParserInput * xmlNoNetExternalEntityLoader(const char * URL, const char * ID,
 #endif
 	SETIFZ(resource, (xmlChar *)URL);
 	if(resource) {
-		if((!xmlStrncasecmp(BAD_CAST resource, BAD_CAST "ftp://", 6)) || (!xmlStrncasecmp(BAD_CAST resource, BAD_CAST "http://", 7))) {
+		if((!xmlStrncasecmp(BAD_CAST resource, reinterpret_cast<const xmlChar *>("ftp://"), 6)) || (!xmlStrncasecmp(BAD_CAST resource, reinterpret_cast<const xmlChar *>("http://"), 7))) {
 			xmlIOErr(XML_IO_NETWORK_ATTEMPT, (const char *)resource);
 			if(resource != (xmlChar *)URL)
 				SAlloc::F(resource);

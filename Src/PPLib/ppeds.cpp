@@ -5,7 +5,7 @@
 #pragma hdrstop
 
 #define MY_ENCODING_TYPE		(PKCS_7_ASN_ENCODING | X509_ASN_ENCODING)
-#define CERTIFICATE_STORE_NAME	"My"
+#define CERTIFICATE_STORE_NAME	_T("My")
 #define MY_PROV_TYPE			75 // Тип провайдера PROV_GOST_2001_DH
 #define MAX_NAME_LEN			256
 #define SIZE_TO_READ			1024
@@ -944,9 +944,9 @@ int PPEds::GetSignerNameByNumber(const char * pSignFileName, int signNumber, SSt
 		// Найдем сертификат подписчика
 		THROW_PP(p_cert = CertGetSubjectCertificateFromStore(h_cert_store, MY_ENCODING_TYPE, pb_signer_cert_info), PPERR_EDS_GETCERT);
 		// Получим имя подписчика
-		char signer_name[256];
+		TCHAR  signer_name[256];
 		THROW_PP(CertGetNameString(p_cert, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, NULL, signer_name, MAX_NAME_LEN) > 1, PPERR_EDS_GETSIGNERNAMEFAILED); // @unicodeproblem
-		rSignerName.Cat(signer_name);
+		rSignerName.Cat(SUcSwitch(signer_name));
 //	}
 
 	CATCHZOK;
@@ -988,10 +988,8 @@ int PPEds::GetCertIndexBySignerName(const char * pSignFileName, const char * pSi
 
 	// Откроем сообщение для раскодирования
     THROW_PP(h_msg = CryptMsgOpenToDecode(MY_ENCODING_TYPE, 0, 0, NULL, NULL, NULL), PPERR_EDS_MSGOPENFAILED);
-
     // Добавляем данные о подписях в h_msg
     THROW_PP(CryptMsgUpdate(h_msg, pb_indata, cb_indata, TRUE), PPERR_EDS_MSGUPDATEFAILED);
-
 	THROW(GetSignsCount(pSignFileName, signers_count));
 	while(!exit && (index != signers_count)) {
 		// Получим размер запрашиваемой инфы о сертификате
@@ -999,29 +997,22 @@ int PPEds::GetCertIndexBySignerName(const char * pSignFileName, const char * pSi
 		// Выделяем память
 		THROW_MEM(pb_cert = new BYTE[cb_cert]);
 		memzero(pb_cert, cb_cert);
-
 		// Получаем инфу о сертификате
 		THROW_PP(CryptMsgGetParam(h_msg, CMSG_CERT_PARAM, index, pb_cert, &cb_cert), PPERR_EDS_GETCERTINFOFAILED);
-
 		// Найдем сертификат подписчика
 		THROW_PP(p_cert = CertCreateCertificateContext(MY_ENCODING_TYPE, pb_cert, cb_cert), PPERR_EDS_GETCERT);
 		// Получим имя подписчика
-		char signer_name[256];
-		THROW_PP(CertGetNameString(p_cert, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, NULL,
-			signer_name, MAX_NAME_LEN) > 1, PPERR_EDS_GETSIGNERNAMEFAILED); // @unicodeproblem
-		if(strcmp(signer_name, pSignerName) == 0)
+		TCHAR  signer_name[256];
+		THROW_PP(CertGetNameString(p_cert, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, NULL, signer_name, MAX_NAME_LEN) > 1, PPERR_EDS_GETSIGNERNAMEFAILED); // @unicodeproblem
+		if(sstreq(SUcSwitch(signer_name), pSignerName))
 			exit = 1;
 		else
 			index++;
 	}
 	rCertIndex = index;
-
 	CATCHZOK;
-
-	if(pb_indata)
-		ZDELETE(pb_indata);
-	if(pb_cert)
-		ZDELETE(pb_cert);
+	ZDELETE(pb_indata);
+	ZDELETE(pb_cert);
 	if(h_msg)
         CryptMsgClose(h_msg);
 	if(p_cert) {
@@ -1149,10 +1140,10 @@ int PPEds::GetCountersignerNameBySignerNumber(const char * pSignFileName, int si
 			// Получим сертификат заверителя
 			THROW_PP((p_cert = CertGetSubjectCertificateFromStore(store, MY_ENCODING_TYPE, &cert_info)), PPERR_EDS_GETCERT);
 			// Получим имя заверителя
-			char countersigner_name[256];
+			TCHAR countersigner_name[256];
 			THROW_PP(CertGetNameString(p_cert, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, NULL,
 					countersigner_name, MAX_NAME_LEN) > 1, PPERR_EDS_GETSIGNERNAMEFAILED); // @unicodeproblem
-			rCounterSignerName.Cat(countersigner_name);
+			rCounterSignerName.Cat(SUcSwitch(countersigner_name));
 		}
 	}
 
@@ -1180,18 +1171,18 @@ int PPEds::GetSignerNamesInStore(StrAssocArray & rStrArray)
 	long   i = 1;
 	HCERTSTORE store = 0;
 	PCCERT_CONTEXT p_cert = 0;
-	char   signer_name[MAX_NAME_LEN];
+	TCHAR  signer_name[MAX_NAME_LEN];
 	SString name;
 	THROW_PP(store = CertOpenSystemStore(0, CERTIFICATE_STORE_NAME), PPERR_EDS_OPENCERTSTORE); // @unicodeproblem
 	while((p_cert = CertEnumCertificatesInStore(store, p_cert)) != 0) {
 		THROW_PP(CertGetNameString(p_cert, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, NULL, signer_name, MAX_NAME_LEN), PPERR_EDS_GETSIGNERNAMEFAILED); // @unicodeproblem
-		name.Z().Cat(signer_name);
+		name.Z().Cat(SUcSwitch(signer_name));
 		rStrArray.Add(i - 1, name, 1);
 		i++;
 	}
 	if(i == 0) {
 		SString msg;
-		msg.Z().Cat("No certificates was found in store ").Cat(CERTIFICATE_STORE_NAME);
+		msg.Z().Cat("No certificates was found in store ").Cat(SUcSwitch(CERTIFICATE_STORE_NAME));
 		PPOutputMessage(msg, mfYes | mfLargeBox);
 	}
 	CATCHZOK;
@@ -1505,7 +1496,7 @@ int PPEds::ObjIdfrDerEncode(const char * strToEncode, SString & rEncodedStr)
 				memzero(cc, 32);
 				itoa(binval, cc, 2);
 				sub_count = sstrlen(cc) / 8;
-				if(sub_count * 8 < (size_t)sstrlen(cc))
+				if(sub_count * 8 < sstrlen(cc))
 					sub_count++;
 				if(sub_count > count)
 					count = sub_count;
@@ -2098,16 +2089,16 @@ int PPEds::GetSignFilesForDoc(const char * pFileName, StrAssocArray & rFilesLis)
 	spath.Merge(path);
 	WIN32_FIND_DATA found_file;
 	HANDLE hd;
-	if((hd = FindFirstFile(path, &found_file)) == INVALID_HANDLE_VALUE) { // @unicodeproblem
+	if((hd = FindFirstFile(SUcSwitch(path), &found_file)) == INVALID_HANDLE_VALUE) { // @unicodeproblem
 		r = GetLastError();
 		if((r != ERROR_FILE_NOT_FOUND) && (r != ERROR_NO_MORE_FILES)) // Отсутствие файлов не считаем за ошибку
 			ok = 0;
 	}
 	else
-		rFilesLis.Add(i++, found_file.cFileName); // @unicodeproblem
+		rFilesLis.Add(i++, SUcSwitch(found_file.cFileName)); // @unicodeproblem
 	if(ok == 1) {
 		while(FindNextFile(hd, &found_file)) { // @unicodeproblem // Выходим из цикла, когда функция возвратит ERROR_FILE_NOT_FOUND
-			rFilesLis.Add(i++, found_file.cFileName); // @unicodeproblem
+			rFilesLis.Add(i++, SUcSwitch(found_file.cFileName)); // @unicodeproblem
 		}
 		if(r == -1)
 			r = GetLastError();

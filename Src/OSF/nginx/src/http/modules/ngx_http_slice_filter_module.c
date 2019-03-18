@@ -310,7 +310,7 @@ static ngx_int_t ngx_http_slice_range_variable(ngx_http_request_t * r, ngx_http_
 
 		ngx_http_set_ctx(r, ctx, ngx_http_slice_filter_module);
 
-		p = (u_char*)ngx_pnalloc(r->pool, sizeof("bytes=-") - 1 + 2 * NGX_OFF_T_LEN);
+		p = (u_char *)ngx_pnalloc(r->pool, sizeof("bytes=-") - 1 + 2 * NGX_OFF_T_LEN);
 		if(!p) {
 			return NGX_ERROR;
 		}
@@ -346,7 +346,7 @@ static nginx_off_t ngx_http_slice_get_start(ngx_http_request_t * r)
 
 	if(h == NULL
 	    || h->value.len < 7
-	    || ngx_strncasecmp(h->value.data, (u_char*)"bytes=", 6) != 0) {
+	    || ngx_strncasecmp(h->value.data, (u_char *)"bytes=", 6) != 0) {
 		return 0;
 	}
 

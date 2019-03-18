@@ -37,13 +37,13 @@ SLAPI PPObjRegister::~PPObjRegister()
 	TLP_CLOSE(P_Tbl);
 }
 
-int    SLAPI PPObjRegister::Search(PPID id, void * b) { return P_Tbl->Search(id, (RegisterTbl::Rec *)b); }
+int    SLAPI PPObjRegister::Search(PPID id, void * b) { return P_Tbl->Search(id, static_cast<RegisterTbl::Rec *>(b)); }
 const  char * SLAPI PPObjRegister::GetNamePtr() { return P_Tbl->data.Num; }
 int    SLAPI PPObjRegister::DeleteObj(PPID id) { return P_Tbl->Remove(id, 0); }
 
 StrAssocArray * SLAPI PPObjRegister::MakeStrAssocList(void * extraPtr /* (RegisterFilt*) */)
 {
-	const RegisterFilt * p_filt = (const RegisterFilt *)extraPtr;
+	const RegisterFilt * p_filt = static_cast<const RegisterFilt *>(extraPtr);
 	StrAssocArray * p_list = new StrAssocArray;
 	THROW_MEM(p_list);
 	if(p_filt) {
@@ -366,7 +366,7 @@ int SLAPI PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const Regist
 				}
 			}
 			disableCtrl(CTLSEL_REG_ORGAN, !Data.RegTypeID);
-			SetupPPObjCombo(this, CTLSEL_REG_ORGAN, PPOBJ_PERSON, Data.RegOrgID, OLW_CANINSERT, (void *)RegOrgKind);
+			SetupPPObjCombo(this, CTLSEL_REG_ORGAN, PPOBJ_PERSON, Data.RegOrgID, OLW_CANINSERT, reinterpret_cast<void *>(RegOrgKind));
 			return ok;
 		}
 		RegisterTbl::Rec Data;
@@ -468,7 +468,7 @@ int SLAPI PPObjRegister::Edit(PPID * pID, PPID objType, PPID objID, PPID regType
 
 int SLAPI PPObjRegister::Edit(PPID * pID, void * extraPtr /*personID*/)
 {
-	const PPID extra_person_id = (PPID)extraPtr;
+	const PPID extra_person_id = reinterpret_cast<PPID>(extraPtr);
 	return Edit(pID, PPOBJ_PERSON, extra_person_id, 0);
 }
 

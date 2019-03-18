@@ -1183,9 +1183,9 @@ X509 * SSL_get_peer_certificate(const SSL * s)
 	else
 		r = s->session->peer;
 	if(r == NULL)
-		return (r);
+		return r;
 	X509_up_ref(r);
-	return (r);
+	return r;
 }
 
 STACK_OF(X509) *SSL_get_peer_cert_chain(const SSL *s)
@@ -1195,7 +1195,7 @@ STACK_OF(X509) *SSL_get_peer_cert_chain(const SSL *s)
 	 * If we are a client, cert_chain includes the peer's own certificate; if
 	 * we are a server, it does not.
 	 */
-	return (r);
+	return r;
 }
 
 /*
@@ -1407,7 +1407,7 @@ int SSL_write(SSL * s, const void * buf, int num)
 	if(s->shutdown & SSL_SENT_SHUTDOWN) {
 		s->rwstate = SSL_NOTHING;
 		SSLerr(SSL_F_SSL_WRITE, SSL_R_PROTOCOL_IS_SHUTDOWN);
-		return (-1);
+		return -1;
 	}
 
 	if((s->mode & SSL_MODE_ASYNC) && ASYNC_get_current_job() == NULL) {
@@ -2084,11 +2084,11 @@ static unsigned long ssl_session_hash(const SSL_SESSION * a)
 		session_id = tmp_storage;
 	}
 
-	l = (unsigned long)
-	    ((unsigned long)session_id[0]) |
-	    ((unsigned long)session_id[1] << 8L) |
-	    ((unsigned long)session_id[2] << 16L) |
-	    ((unsigned long)session_id[3] << 24L);
+	l = (ulong)
+	    ((ulong)session_id[0]) |
+	    ((ulong)session_id[1] << 8L) |
+	    ((ulong)session_id[2] << 16L) |
+	    ((ulong)session_id[3] << 24L);
 	return (l);
 }
 
@@ -2609,7 +2609,7 @@ void ssl_update_cache(SSL * s, int mode)
 		if((((mode & SSL_SESS_CACHE_CLIENT)
 				    ? s->session_ctx->stats.sess_connect_good
 				    : s->session_ctx->stats.sess_accept_good) & 0xff) == 0xff) {
-			SSL_CTX_flush_sessions(s->session_ctx, (unsigned long)time(NULL));
+			SSL_CTX_flush_sessions(s->session_ctx, (ulong)time(NULL));
 		}
 	}
 }

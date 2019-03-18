@@ -239,7 +239,7 @@ static /*inline**/ int FASTCALL recycle_syms(zbar_image_scanner_t * iscn, zbar_s
 		ZFREE(sym->P_Data_);
 		sym->datalen = sym->data_alloc = 0;
 	}
-	return(sym);
+	return (sym);
 }
 
 static /*inline*/ zbar_symbol_t * FASTCALL cache_lookup(zbar_image_scanner_t * iscn, zbar_symbol_t * sym)
@@ -259,7 +259,7 @@ static /*inline*/ zbar_symbol_t * FASTCALL cache_lookup(zbar_image_scanner_t * i
 		else
 			entry = &(*entry)->next;
 	}
-	return(*entry);
+	return (*entry);
 }
 
 static /*inline*/ void FASTCALL cache_sym(zbar_image_scanner_t * iscn, zbar_symbol_t * sym)
@@ -512,7 +512,7 @@ int zbar_image_scanner_set_config(zbar_image_scanner_t * iscn, zbar_symbol_type_
 			return 0;
 	}
 	if(cfg < ZBAR_CFG_UNCERTAINTY)
-		return(zbar_decoder_set_config(iscn->dcode, sym, cfg, val));
+		return (zbar_decoder_set_config(iscn->dcode, sym, cfg, val));
 	else if(cfg < ZBAR_CFG_POSITION) {
 		if(cfg > ZBAR_CFG_UNCERTAINTY)
 			return 1;
@@ -562,7 +562,7 @@ void zbar_image_scanner_enable_cache(zbar_image_scanner_t * iscn, int enable)
 
 const zbar_symbol_set_t * zbar_image_scanner_get_results(const zbar_image_scanner_t * iscn)
 {
-	return(iscn->syms);
+	return (iscn->syms);
 }
 
 static /*inline*/ void FASTCALL quiet_border(zbar_image_scanner_t * iscn)
@@ -797,7 +797,7 @@ int zbar_scan_image(zbar_image_scanner_t * iscn, zbar_image_t * img)
 	if(syms->nsyms && iscn->handler)
 		iscn->handler(img, iscn->userdata);
 	svg_close();
-	return(syms->nsyms);
+	return (syms->nsyms);
 }
 
 #ifdef DEBUG_SVG

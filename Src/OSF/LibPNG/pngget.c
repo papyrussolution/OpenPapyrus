@@ -346,7 +346,7 @@ uint32 PNGAPI png_get_pHYs_dpi(png_const_structrp png_ptr, png_const_inforp info
 uint8 PNGAPI png_get_channels(png_const_structrp png_ptr, png_const_inforp info_ptr)
 {
 	if(png_ptr && info_ptr)
-		return(info_ptr->channels);
+		return (info_ptr->channels);
 
 	return 0;
 }
@@ -355,7 +355,7 @@ uint8 PNGAPI png_get_channels(png_const_structrp png_ptr, png_const_inforp info_
 png_const_bytep PNGAPI png_get_signature(png_const_structrp png_ptr, png_const_inforp info_ptr)
 {
 	if(png_ptr && info_ptr)
-		return(info_ptr->signature);
+		return (info_ptr->signature);
 
 	return NULL;
 }
@@ -675,7 +675,7 @@ uint32 PNGAPI png_get_sCAL_fixed(png_const_structrp png_ptr, png_const_inforp in
 		*height = png_fixed(png_ptr, atof(info_ptr->scal_s_height), "sCAL height");
 		return (PNG_INFO_sCAL);
 	}
-	return(0);
+	return 0;
 }
 
 #    endif /* FLOATING_ARITHMETIC */
@@ -689,7 +689,7 @@ uint32 PNGAPI png_get_sCAL(png_const_structrp png_ptr, png_const_inforp info_ptr
 		*height = atof(info_ptr->scal_s_height);
 		return (PNG_INFO_sCAL);
 	}
-	return(0);
+	return 0;
 }
 
 #  endif /* FLOATING POINT */
@@ -701,7 +701,7 @@ uint32 PNGAPI png_get_sCAL_s(png_const_structrp png_ptr, png_const_inforp info_p
 		*height = info_ptr->scal_s_height;
 		return (PNG_INFO_sCAL);
 	}
-	return(0);
+	return 0;
 }
 
 #endif /* sCAL */
@@ -759,13 +759,13 @@ uint32 PNGAPI png_get_sBIT(png_const_structrp png_ptr, png_inforp info_ptr, png_
 int PNGAPI png_get_text(png_const_structrp png_ptr, png_inforp info_ptr, png_textp * text_ptr, int * num_text)
 {
 	if(png_ptr && info_ptr && info_ptr->num_text > 0) {
-		png_debug1(1, "in 0x%lx retrieval function", (unsigned long)png_ptr->chunk_name);
+		png_debug1(1, "in 0x%lx retrieval function", (ulong)png_ptr->chunk_name);
 		ASSIGN_PTR(text_ptr, info_ptr->text);
 		ASSIGN_PTR(num_text, info_ptr->num_text);
 		return info_ptr->num_text;
 	}
 	ASSIGN_PTR(num_text, 0);
-	return(0);
+	return 0;
 }
 
 #endif

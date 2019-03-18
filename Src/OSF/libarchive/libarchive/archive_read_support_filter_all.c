@@ -82,5 +82,5 @@ archive_read_support_filter_all(struct archive *a)
 	 * verify the level of support. */
 	/* Clear any warning messages set by the above functions. */
 	archive_clear_error(a);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }

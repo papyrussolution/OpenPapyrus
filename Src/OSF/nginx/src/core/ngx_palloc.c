@@ -10,8 +10,8 @@ ngx_pool_t * FASTCALL ngx_create_pool(size_t size, ngx_log_t * log)
 {
 	ngx_pool_t * p = (ngx_pool_t *)ngx_memalign(NGX_POOL_ALIGNMENT, size, log);
 	if(p) {
-		p->d.last = (u_char*)p + sizeof(ngx_pool_t);
-		p->d.end = (u_char*)p + size;
+		p->d.last = (u_char *)p + sizeof(ngx_pool_t);
+		p->d.end = (u_char *)p + size;
 		p->d.next = NULL;
 		p->d.failed = 0;
 		size = size - sizeof(ngx_pool_t);
@@ -70,7 +70,7 @@ void FASTCALL ngx_reset_pool(ngx_pool_t * pool)
 		}
 	}
 	for(ngx_pool_t * p = pool; p; p = p->d.next) {
-		p->d.last = (u_char*)p + sizeof(ngx_pool_t);
+		p->d.last = (u_char *)p + sizeof(ngx_pool_t);
 		p->d.failed = 0;
 	}
 	pool->current = pool;
@@ -80,7 +80,7 @@ void FASTCALL ngx_reset_pool(ngx_pool_t * pool)
 
 static void * FASTCALL ngx_palloc_block(ngx_pool_t * pool, size_t size)
 {
-	size_t psize = (size_t)(pool->d.end - (u_char*)pool);
+	size_t psize = (size_t)(pool->d.end - (u_char *)pool);
 	u_char * m = (u_char *)ngx_memalign(NGX_POOL_ALIGNMENT, psize, pool->log);
 	if(m) {
 		ngx_pool_t * p_new = (ngx_pool_t*)m;

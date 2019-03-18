@@ -55,7 +55,7 @@ int DbLoginBlock::GetAttr(int attr, SString & rVal) const
 	rVal.Z();
 	if(Items.Search(attr, &offs, 0)) {
 		const void * p_val_buf = (P_Buf+offs+sizeof(uint32));
-		uint32 len = *(uint32 *)(P_Buf+offs);
+		uint32 len = *reinterpret_cast<const uint32 *>(P_Buf+offs);
 		char   temp_buf[ATTR_PW_LEN*2];
 		if(attr == attrPassword) {
 			assert(len == ATTR_PW_LEN);
@@ -65,11 +65,11 @@ int DbLoginBlock::GetAttr(int attr, SString & rVal) const
 		}
 		else if(attr == attrDbUuid) {
 			assert(len == sizeof(S_GUID));
-			S_GUID * p_uuid = (S_GUID *)p_val_buf;
+			const S_GUID * p_uuid = static_cast<const S_GUID *>(p_val_buf);
 			THROW(p_uuid->ToStr(S_GUID::fmtIDL, rVal));
 		}
 		else
-			rVal = (const char *)p_val_buf;
+			rVal = static_cast<const char *>(p_val_buf);
 		ok = 1;
 	}
 	CATCHZOK
@@ -149,7 +149,7 @@ int DbLoginBlockArray::Add(long id, const DbLoginBlock * pBlk, int replaceDup)
 		if(at(i)->GetAttr(DbLoginBlock::attrDbSymb, symb) > 0) {
 			if(temp_buf.CmpNC(symb) == 0) {
 				if(replaceDup)
-					to_remove_list.addUnique((long)i);
+					to_remove_list.addUnique(static_cast<long>(i));
 				else
 					ok = 2;
 			}
@@ -157,7 +157,7 @@ int DbLoginBlockArray::Add(long id, const DbLoginBlock * pBlk, int replaceDup)
 		if(at(i)->GetAttr(DbLoginBlock::attrID, symb) > 0) {
 			if(id == symb.ToLong())
 				if(replaceDup)
-					to_remove_list.addUnique((long)i);
+					to_remove_list.addUnique(static_cast<long>(i));
 				else
 					ok = 3;
 		}
@@ -192,7 +192,7 @@ int DbLoginBlockArray::GetByID(long id, DbLoginBlock * pBlk) const
 	SString symb;
 	CALLPTRMEMB(pBlk, Clear());
 	//
-	if(id > 0 && id <= (long)getCount()) {
+	if(id > 0 && id <= static_cast<long>(getCount())) {
 		const DbLoginBlock * p_blk = at(id-1);
 		ASSIGN_PTR(pBlk, *p_blk);
 		ok = (int)id;
@@ -257,7 +257,7 @@ int DbLoginBlockArray::GetAttr(long id, int attr, SString & rVal) const
 	int    ok = 0;
 	rVal.Z();
 	//
-	if(id > 0 && id <= (long)getCount()) {
+	if(id > 0 && id <= static_cast<long>(getCount())) {
 		const DbLoginBlock * p_blk = at(id-1);
 		ok = p_blk->GetAttr(attr, rVal);
 	}
@@ -276,7 +276,7 @@ int DbLoginBlockArray::GetAttr(long id, int attr, SString & rVal) const
 
 long DbLoginBlockArray::SetSelection(long id)
 {
-	if(id >= 0 && id <= (long)getCount())
+	if(id >= 0 && id <= static_cast<long>(getCount()))
 		SelId = id;
 	return SelId;
 }

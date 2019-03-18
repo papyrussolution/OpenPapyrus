@@ -689,9 +689,9 @@ namespace NArchive {
 			outArchive.Create(outStream);
 			outArchive.Pos = 0;
 			CMyComPtr<IOutStream> outSeekStream;
-			outStream->QueryInterface(IID_IOutStream, (void**)&outSeekStream);
+			outStream->QueryInterface(IID_IOutStream, (void **)&outSeekStream);
 			CMyComPtr<IArchiveUpdateCallbackFile> opCallback;
-			updateCallback->QueryInterface(IID_IArchiveUpdateCallbackFile, (void**)&opCallback);
+			updateCallback->QueryInterface(IID_IArchiveUpdateCallbackFile, (void **)&opCallback);
 			uint64 complexity = 0;
 			uint i;
 			for(i = 0; i < updateItems.Size(); i++) {
@@ -751,7 +751,7 @@ namespace NArchive {
 					item.SparseBlocks.Clear();
 					item.PackSize = ui.Size;
 					item.Size = ui.Size;
-					if(ui.Size == (uint64)(int64)-1)
+					if(ui.Size == static_cast<uint64>(-1LL))
 						return E_INVALIDARG;
 					CMyComPtr<ISequentialInStream> fileInStream;
 					bool needWrite = true;
@@ -767,7 +767,7 @@ namespace NArchive {
 							RINOK(res);
 							if(fileInStream) {
 								CMyComPtr<IStreamGetProps> getProps;
-								fileInStream->QueryInterface(IID_IStreamGetProps, (void**)&getProps);
+								fileInStream->QueryInterface(IID_IStreamGetProps, (void **)&getProps);
 								if(getProps) {
 									FILETIME mTime;
 									uint64 size2;
@@ -997,7 +997,7 @@ namespace NArchive {
 				CMyComPtr<IArchiveOpenVolumeCallback> openVolumeCallback;
 				if(!callback)
 					return S_FALSE;
-				callback->QueryInterface(IID_IArchiveOpenVolumeCallback, (void**)&openVolumeCallback);
+				callback->QueryInterface(IID_IArchiveOpenVolumeCallback, (void **)&openVolumeCallback);
 				if(!openVolumeCallback)
 					return S_FALSE;
 				NCOM::CPropVariant prop;

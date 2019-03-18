@@ -431,7 +431,7 @@ const  LMatrix2D & SDrawFigure::GetTransform() const { return Tf; }
 
 SPaintToolBox * SDrawFigure::GetToolBox() const
 {
-	return (Flags & fDraw) ? ((SDraw *)this)->P_Tb : (P_Parent ? P_Parent->GetToolBox() : 0); // @recursion
+	return (Flags & fDraw) ? static_cast<const SDraw *>(this)->P_Tb : (P_Parent ? P_Parent->GetToolBox() : 0); // @recursion
 }
 
 int FASTCALL SDrawFigure::Copy(const SDrawFigure & rS)
@@ -1283,17 +1283,17 @@ int SImageBuffer::PixF::SetUniform(const void * pUniformBuf, void * pDest, uint 
 								const uint dq = width / 8;
 								const uint dr = width % 8;
 								for(uint i = 0; i < dq; ++i) {
-									*p++ = (uint8)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
-									*p++ = (uint8)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
-									*p++ = (uint8)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
-									*p++ = (uint8)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
-									*p++ = (uint8)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
-									*p++ = (uint8)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
-									*p++ = (uint8)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
-									*p++ = (uint8)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
+									*p++ = static_cast<uint8>(SImageBuffer::PixF::UniformToGrayscale(*p_ufb++));
+									*p++ = static_cast<uint8>(SImageBuffer::PixF::UniformToGrayscale(*p_ufb++));
+									*p++ = static_cast<uint8>(SImageBuffer::PixF::UniformToGrayscale(*p_ufb++));
+									*p++ = static_cast<uint8>(SImageBuffer::PixF::UniformToGrayscale(*p_ufb++));
+									*p++ = static_cast<uint8>(SImageBuffer::PixF::UniformToGrayscale(*p_ufb++));
+									*p++ = static_cast<uint8>(SImageBuffer::PixF::UniformToGrayscale(*p_ufb++));
+									*p++ = static_cast<uint8>(SImageBuffer::PixF::UniformToGrayscale(*p_ufb++));
+									*p++ = static_cast<uint8>(SImageBuffer::PixF::UniformToGrayscale(*p_ufb++));
 								}
 								for(uint i = 0; i < dr; ++i) {
-									*p++ = (uint8)SImageBuffer::PixF::UniformToGrayscale(*p_ufb++);
+									*p++ = static_cast<uint8>(SImageBuffer::PixF::UniformToGrayscale(*p_ufb++));
 								}
 							}
 							ok = 1;

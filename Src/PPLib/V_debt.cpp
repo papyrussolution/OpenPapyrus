@@ -2220,13 +2220,13 @@ int SLAPI PPViewDebtTrnovr::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 	BrwHdr hdr;
 	if(pHdr) {
 		if(P_Ct) {
-			int32 * p = (int32 *)pHdr;
+			const int32 * p = static_cast<const int32 *>(pHdr);
 			hdr.CurID = p[2];
 			hdr.TabID = 0;
 			hdr.ArID = p[1];
 		}
 		else
-			hdr = *(BrwHdr *)pHdr;
+			hdr = *static_cast<const BrwHdr *>(pHdr);
 	}
 	else
 		MEMSZERO(hdr);
@@ -2508,7 +2508,7 @@ int SLAPI PPViewDebtTrnovr::Print(const void *)
 	return 1;
 }
 
-int SLAPI ViewDebtTrnovr(const DebtTrnovrFilt * pFilt, int sellOrSuppl) { return PPView::Execute(PPVIEW_DEBTTRNOVR, pFilt, 1, (void *)sellOrSuppl); }
+int SLAPI ViewDebtTrnovr(const DebtTrnovrFilt * pFilt, int sellOrSuppl) { return PPView::Execute(PPVIEW_DEBTTRNOVR, pFilt, 1, reinterpret_cast<void *>(sellOrSuppl)); }
 //
 // Implementation of PPALDD_DebtTrnovr
 //
@@ -2548,7 +2548,7 @@ int PPALDD_DebtTrnovr::InitData(PPFilt & rFilt, long rsrv)
 	H.fDeliveryAddr  = BIN(p_filt->Flags & DebtTrnovrFilt::fDeliveryAddr);
 	H.fCalcTotalDebt = BIN(p_filt->Flags & DebtTrnovrFilt::fCalcTotalDebt);
 	H.SellOrSuppl    = 0; // p_filt->SellOrSuppl; // @obsolete
-	H.CycleKind      = (int16)p_filt->CycleKind;
+	H.CycleKind      = static_cast<int16>(p_filt->CycleKind);
 	H.FltCycle       = p_filt->Cf.Cycle;
 	H.FltNumCycles   = p_filt->Cf.NumCycles;
 	PPGetSubStr(PPTXT_DEBTTO_CYCLEKINDTITLE, p_filt->CycleKind, H.CtTitle, sizeof(H.CtTitle));
@@ -2557,11 +2557,11 @@ int PPALDD_DebtTrnovr::InitData(PPFilt & rFilt, long rsrv)
 
 int PPALDD_DebtTrnovr::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 {
-	PPViewDebtTrnovr * p_v = (PPViewDebtTrnovr*)(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr);
+	PPViewDebtTrnovr * p_v = static_cast<PPViewDebtTrnovr *>(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr);
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;
-	return BIN(p_v->InitIteration((PPViewDebtTrnovr::IterOrder)SortIdx));
+	return BIN(p_v->InitIteration(static_cast<PPViewDebtTrnovr::IterOrder>(SortIdx)));
 }
 
 int PPALDD_DebtTrnovr::NextIteration(PPIterID iterId)
@@ -4778,11 +4778,11 @@ int PPALDD_DebtorStat::InitData(PPFilt & rFilt, long rsrv)
 
 int PPALDD_DebtorStat::InitIteration(long iterId, int sortId, long rsrv)
 {
-	PPViewDebtorStat * p_v = (PPViewDebtorStat *)(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr);
+	PPViewDebtorStat * p_v = static_cast<PPViewDebtorStat *>(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr);
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;
-	return BIN(p_v->InitIteration((PPViewDebtTrnovr::IterOrder)SortIdx));
+	return BIN(p_v->InitIteration(static_cast<PPViewDebtTrnovr::IterOrder>(SortIdx)));
 }
 
 int PPALDD_DebtorStat::NextIteration(long iterId)

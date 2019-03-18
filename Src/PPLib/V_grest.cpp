@@ -898,14 +898,15 @@ double SLAPI PPViewGoodsRest::GetDeficit(PPID goodsID)
 	return deficit;
 }
 
-double SLAPI PPViewGoodsRest::GetDraftRcptByLocList(PPID goodsID, PPIDArray * pLocList, int addToExclList /*=1*/)
+double SLAPI PPViewGoodsRest::GetDraftRcptByLocList(PPID goodsID, const PPIDArray * pLocList, int addToExclList /*=1*/)
 {
 	double rest = 0.0;
-	if(!pLocList || pLocList->getCount() == 0)
+	const  uint _c = SVectorBase::GetCount(pLocList);
+	if(!_c)
 		rest += GetDraftReceipt(goodsID, 0, addToExclList);
 	else
-		for(uint i = 0; i < pLocList->getCount(); i++)
-			rest += GetDraftReceipt(goodsID, pLocList->at(i), addToExclList);
+		for(uint i = 0; i < _c; i++)
+			rest += GetDraftReceipt(goodsID, pLocList->get(i), addToExclList);
 	return rest;
 }
 
@@ -947,14 +948,15 @@ double SLAPI PPViewGoodsRest::GetDraftReceipt(PPID goodsID, PPID locID, int addT
 	return rest;
 }
 
-double SLAPI PPViewGoodsRest::GetUncompleteSessQttyByLocList(PPID goodsID, PPIDArray * pLocList, int addToExclList /*=1*/)
+double SLAPI PPViewGoodsRest::GetUncompleteSessQttyByLocList(PPID goodsID, const PPIDArray * pLocList, int addToExclList /*=1*/)
 {
 	double rest = 0.0;
-	if(!pLocList || pLocList->getCount() == 0)
+	const  uint _c = SVectorBase::GetCount(pLocList);
+	if(!_c)
 		rest += GetUncompleteSessQtty(goodsID, 0, addToExclList);
 	else
-		for(uint i = 0; i < pLocList->getCount(); i++)
-			rest += GetUncompleteSessQtty(goodsID, pLocList->at(i), addToExclList);
+		for(uint i = 0; i < _c; i++)
+			rest += GetUncompleteSessQtty(goodsID, pLocList->get(i), addToExclList);
 	return rest;
 }
 
@@ -1256,7 +1258,7 @@ int SLAPI PPViewGoodsRest::FlashCacheItems(uint count)
 			lru_array.freeAll();
 			lru_pos_array.sort(PTR_CMPFUNC(int));
 			for(int rev_i = lru_pos_array.getCount() - 1; rev_i >= 0; rev_i--)
-				CacheBuf.atFree(*(uint*)lru_pos_array.at(rev_i));
+				CacheBuf.atFree(*(uint *)lru_pos_array.at(rev_i));
 			PROFILE_END
 		}
 		else {
@@ -4332,7 +4334,7 @@ int PPALDD_GoodsRest::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;
-	p_v->InitIteration((PPViewGoodsRest::IterOrder)SortIdx);
+	p_v->InitIteration(static_cast<PPViewGoodsRest::IterOrder>(SortIdx));
 	return 1;
 }
 

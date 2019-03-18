@@ -129,11 +129,9 @@ void async_start_func(void)
 		/* Run the job */
 		job = ctx->currjob;
 		job->ret = job->func(job->funcargs);
-
 		/* Stop the job */
 		job->status = ASYNC_JOB_STOPPING;
-		if(!async_fibre_swapcontext(&job->fibrectx,
-			    &ctx->dispatcher, 1)) {
+		if(!async_fibre_swapcontext(&job->fibrectx, &ctx->dispatcher, 1)) {
 			/*
 			 * Should not happen. Getting here will close the thread...can't do
 			 * much about it

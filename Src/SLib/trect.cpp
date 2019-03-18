@@ -616,7 +616,7 @@ int FASTCALL FShape::Get(CircleArc & rS) const
 	}
 	else if(Get((Circle &)rS)) {
 		rS.Start = 0.0f;
-		rS.End = (float)SMathConst::Pi2;
+		rS.End = SMathConst::Pi2_f;
 	}
 	else
 		ok = 0;
@@ -636,7 +636,7 @@ int FASTCALL FShape::Get(EllipseArc & rS) const
 	}
 	else if(Get((Ellipse &)rS)) {
 		rS.Start = 0.0f;
-		rS.End = (float)SMathConst::Pi2;
+		rS.End = SMathConst::Pi2_f;
 	}
 	else
 		ok = 0;
@@ -747,25 +747,10 @@ TRect::operator RECT() const
 	return r;
 }
 
-float TRect::CenterX() const
-{
-	return (b.x + a.x) / 2.0f;
-}
-
-float TRect::CenterY() const
-{
-	return (b.y + a.y) / 2.0f;
-}
-
-int TRect::width() const
-{
-	return (b.x - a.x);
-}
-
-int TRect::height() const
-{
-	return (b.y - a.y);
-}
+float TRect::CenterX() const { return (b.x + a.x) / 2.0f; }
+float TRect::CenterY() const { return (b.y + a.y) / 2.0f; }
+int   TRect::width() const { return (b.x - a.x); }
+int   TRect::height() const { return (b.y - a.y); }
 
 TRect & TRect::set(int x1, int y1, int x2, int y2)
 {
@@ -994,16 +979,6 @@ FPoint & FASTCALL FPoint::operator = (float f)
 	return *this;
 }
 
-int SLAPI FPoint::IsZero() const
-{
-	return (X != 0.0f && Y != 0.0f);
-}
-
-int SLAPI FPoint::IsPositive() const
-{
-	return (X > 0.0f && Y > 0.0f);
-}
-
 FPoint SLAPI FPoint::Set(float xy)
 {
 	X = Y = xy;
@@ -1023,10 +998,6 @@ FPoint SLAPI FPoint::SetZero()
 	return *this;
 }
 
-
-int FASTCALL FPoint::Write(SBuffer & rBuf) const { return rBuf.Write(this, sizeof(*this)); }
-int FASTCALL FPoint::Read(SBuffer & rBuf) { return rBuf.Read(this, sizeof(*this)); }
-
 FPoint SLAPI FPoint::Scale(float factor)
 {
 	X *= factor;
@@ -1034,6 +1005,10 @@ FPoint SLAPI FPoint::Scale(float factor)
 	return *this;
 }
 
+int    SLAPI FPoint::IsZero() const { return (X != 0.0f && Y != 0.0f); }
+int    SLAPI FPoint::IsPositive() const { return (X > 0.0f && Y > 0.0f); }
+int    FASTCALL FPoint::Write(SBuffer & rBuf) const { return rBuf.Write(this, sizeof(*this)); }
+int    FASTCALL FPoint::Read(SBuffer & rBuf) { return rBuf.Read(this, sizeof(*this)); }
 FPoint SLAPI FPoint::Neg()   const { return FPoint(-X, -Y); }
 float  SLAPI FPoint::Ratio() const { return (Y / X); }
 float  SLAPI FPoint::Add()   const { return X + Y; }
@@ -1356,7 +1331,7 @@ int FASTCALL SColorBase::FromStr(const char * pStr)
 {
 	int    ok = 0;
 	SStrScan scan(pStr);
-	*(uint32 *)this = 0;
+	*reinterpret_cast<uint32 *>(this) = 0;
 	Alpha = 0xff;
 	scan.Skip();
 	size_t len = sstrlen(scan);
@@ -1391,21 +1366,21 @@ int FASTCALL SColorBase::FromStr(const char * pStr)
 			c = nmb_buf.ToReal();
 			if(scan.Skip().IncrChr('%'))
 				c *= 2.55;
-			R = (uint8)c;
+			R = static_cast<uint8>(c);
 			//
 			scan.Skip().IncrChr(',');
 			if(scan.Skip().GetNumber(nmb_buf)) {
 				c = nmb_buf.ToReal();
 				if(scan.Skip().IncrChr('%'))
 					c *= 2.55;
-				G = (uint8)c;
+				G = static_cast<uint8>(c);
 				//
 				scan.Skip().IncrChr(',');
 				if(scan.Skip().GetNumber(nmb_buf)) {
 					c = nmb_buf.ToReal();
 					if(scan.Skip().IncrChr('%'))
 						c *= 2.55;
-					B = (uint8)c;
+					B = static_cast<uint8>(c);
 					//
 					scan.Skip().IncrChr(')');
 					ok = fmtRGB;
@@ -1486,9 +1461,9 @@ SColorBase SColorBase::SetEmpty()
 
 SColorBase SColorBase::Set(uint r, uint g, uint b)
 {
-	R = (uint8)r;
-	G = (uint8)g;
-	B = (uint8)b;
+	R = static_cast<uint8>(r);
+	G = static_cast<uint8>(g);
+	B = static_cast<uint8>(b);
 	Alpha = 0xff;
 	return *this;
 }
@@ -1504,9 +1479,9 @@ SColorBase FASTCALL SColorBase::Set(uint v)
 
 SColorBase SColorBase::PremultiplyAlpha()
 {
-	uint32 c = *(uint32 *)this;
+	uint32 c = *reinterpret_cast<const uint32 *>(this);
 	PREMULTIPLY_ALPHA_ARGB32(c);
-	*(uint32 *)this = c;
+	*reinterpret_cast<uint32 *>(this) = c;
 	return *this;
 }
 
@@ -1520,7 +1495,7 @@ SColor::SColor()
 
 SColor::SColor(const SColorBase & rS)
 {
-    *(SColorBase *)this = rS;
+    *static_cast<SColorBase *>(this) = rS;
 }
 
 SColor::SColor(float whitePart)
@@ -1531,17 +1506,17 @@ SColor::SColor(float whitePart)
 
 SColor::SColor(uint r, uint g, uint b, uint alpha)
 {
-	R = (uint8)r;
-	G = (uint8)g;
-	B = (uint8)b;
+	R = static_cast<uint8>(r);
+	G = static_cast<uint8>(g);
+	B = static_cast<uint8>(b);
 	Alpha = (uint8)alpha;
 }
 
 SColor::SColor(uint r, uint g, uint b)
 {
-	R = (uint8)r;
-	G = (uint8)g;
-	B = (uint8)b;
+	R = static_cast<uint8>(r);
+	G = static_cast<uint8>(g);
+	B = static_cast<uint8>(b);
 	Alpha = 0xff;
 }
 
@@ -1563,7 +1538,7 @@ SColor::SColor(COLORREF c)
 
 SColor & FASTCALL SColor::operator = (const SColorBase & rS)
 {
-	*(SColorBase *)this = rS;
+	*static_cast<SColorBase *>(this) = rS;
 	return *this;
 }
 

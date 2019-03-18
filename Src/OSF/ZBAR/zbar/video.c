@@ -77,7 +77,7 @@ zbar_image_t * video_dq_image(zbar_video_t * vdo)
 	}
 	if(video_unlock(vdo))
 		return NULL; // FIXME reclaim image 
-	return(img);
+	return (img);
 }
 
 static void _zbar_video_recycle_image(zbar_image_t * img)
@@ -196,7 +196,7 @@ int zbar_video_open(zbar_video_t * vdo, const char * dev)
 	}
 	rc = _zbar_video_open(vdo, dev);
 	SAlloc::F(ldev);
-	return(rc);
+	return (rc);
 }
 
 int zbar_video_get_fd(const zbar_video_t * vdo)
@@ -240,17 +240,17 @@ int zbar_video_request_iomode(zbar_video_t * vdo, int iomode)
 
 int zbar_video_get_width(const zbar_video_t * vdo)
 {
-	return(vdo->width);
+	return (vdo->width);
 }
 
 int zbar_video_get_height(const zbar_video_t * vdo)
 {
-	return(vdo->height);
+	return (vdo->height);
 }
 
 uint32 zbar_video_get_format(const zbar_video_t * vdo)
 {
-	return(vdo->format);
+	return (vdo->format);
 }
 
 static inline int video_init_images(zbar_video_t * vdo)
@@ -333,7 +333,7 @@ int zbar_video_enable(zbar_video_t * vdo, int enable)
 		for(i = 0; i < vdo->num_images; i++)
 			if(vdo->nq(vdo, vdo->images[i]) || ((i + 1 < vdo->num_images) && video_lock(vdo)))
 				return -1;
-		return(vdo->start(vdo));
+		return (vdo->start(vdo));
 	}
 	else {
 		int i;
@@ -342,7 +342,7 @@ int zbar_video_enable(zbar_video_t * vdo, int enable)
 		vdo->nq_image = vdo->dq_image = NULL;
 		if(video_unlock(vdo))
 			return -1;
-		return(vdo->stop(vdo));
+		return (vdo->stop(vdo));
 	}
 }
 
@@ -389,6 +389,6 @@ zbar_image_t * zbar_video_next_image(zbar_video_t * vdo)
 			img->cleanup = _zbar_video_recycle_image;
 		_zbar_image_refcnt(img, 1);
 	}
-	return(img);
+	return (img);
 }
 

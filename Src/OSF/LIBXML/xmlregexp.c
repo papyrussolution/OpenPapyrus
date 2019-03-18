@@ -518,7 +518,7 @@ static xmlRegexpPtr xmlRegEpxFromParse(xmlRegParserCtxt * ctxt)
 					continue;
 				atomno = stringRemap[trans->atom->no];
 				if(trans->atom->data && (transdata == NULL)) {
-					transdata = (void**)SAlloc::M(nbstates * nbatoms * sizeof(void *));
+					transdata = (void **)SAlloc::M(nbstates * nbatoms * sizeof(void *));
 					if(transdata)
 						memzero(transdata, nbstates * nbatoms * sizeof(void *));
 					else {
@@ -1114,7 +1114,7 @@ static int FASTCALL xmlRegGetCounter(xmlRegParserCtxt * ctxt)
 	}
 	ctxt->counters[ctxt->nbCounters].min = -1;
 	ctxt->counters[ctxt->nbCounters].max = -1;
-	return(ctxt->nbCounters++);
+	return (ctxt->nbCounters++);
 }
 
 static int FASTCALL xmlRegAtomPush(xmlRegParserCtxt * ctxt, xmlRegAtom * atom)
@@ -2367,7 +2367,7 @@ static int xmlFAComputesDeterminism(xmlRegParserCtxt * ctxt)
 	xmlRegPrintCtxt(stdout, ctxt);
 #endif
 	if(ctxt->determinist != -1)
-		return(ctxt->determinist);
+		return (ctxt->determinist);
 	if(ctxt->flags & AM_AUTOMATA_RNG)
 		deep = 0;
 	/*
@@ -2563,7 +2563,7 @@ static int FASTCALL xmlRegCheckCharacterRange(xmlRegAtomType type, int codepoint
 		case XML_REGEXP_BLOCK_NAME: ret = xmlUCSIsBlock(codepoint, (const char *)blockName); break;
 	}
 	if(neg)
-		return(!ret);
+		return (!ret);
 	return ret;
 }
 
@@ -2601,7 +2601,7 @@ static int xmlRegCheckCharacter(xmlRegAtom * atom, int codepoint)
 					    accept = 1;  /* might still be excluded */
 			    }
 		    }
-		    return(accept);
+		    return (accept);
 	    }
 		case XML_REGEXP_STRING:
 		    printf("TODO: XML_REGEXP_STRING\n");
@@ -2654,7 +2654,7 @@ static int xmlRegCheckCharacter(xmlRegAtom * atom, int codepoint)
 		case XML_REGEXP_OTHER_PRIVATE:
 		case XML_REGEXP_OTHER_NA:
 		case XML_REGEXP_BLOCK_NAME:
-		    ret = xmlRegCheckCharacterRange(atom->type, codepoint, 0, 0, 0, (const xmlChar*)atom->valuep);
+		    ret = xmlRegCheckCharacterRange(atom->type, codepoint, 0, 0, 0, (const xmlChar *)atom->valuep);
 		    if(atom->neg)
 			    ret = !ret;
 		    break;
@@ -3056,7 +3056,7 @@ error:
 			return -1;
 		return 0;
 	}
-	return(exec->status);
+	return (exec->status);
 }
 
 /************************************************************************
@@ -3130,7 +3130,7 @@ xmlRegExecCtxtPtr xmlRegNewExecCtxt(xmlRegexpPtr comp, xmlRegExecCallbacks callb
 	exec->errStateNo = -1;
 	exec->errString = NULL;
 	exec->nbPush = 0;
-	return(exec);
+	return (exec);
 }
 
 /**
@@ -3339,9 +3339,9 @@ static int xmlRegExecPushStringInternal(xmlRegExecCtxtPtr exec, const xmlChar * 
 	if(exec->comp == NULL)
 		return -1;
 	if(exec->status != 0)
-		return(exec->status);
+		return (exec->status);
 	if(exec->comp->compact)
-		return(xmlRegCompactPushString(exec, exec->comp, value, data));
+		return (xmlRegCompactPushString(exec, exec->comp, value, data));
 	if(!value) {
 		if(exec->state->type == XML_REGEXP_FINAL_STATE)
 			return 1;
@@ -3629,14 +3629,14 @@ progress:
 		continue;
 	}
 	if(exec->status == 0) {
-		return(exec->state->type == XML_REGEXP_FINAL_STATE);
+		return (exec->state->type == XML_REGEXP_FINAL_STATE);
 	}
 #ifdef DEBUG_ERR
 	if(exec->status < 0) {
 		testerr(exec);
 	}
 #endif
-	return(exec->status);
+	return (exec->status);
 }
 
 /**
@@ -3872,7 +3872,7 @@ static int xmlRegExecGetValues(xmlRegExecCtxtPtr exec, int err, int * nbval, int
  */
 int xmlRegExecNextValues(xmlRegExecCtxtPtr exec, int * nbval, int * nbneg,
     xmlChar ** values, int * terminal) {
-	return(xmlRegExecGetValues(exec, 0, nbval, nbneg, values, terminal));
+	return (xmlRegExecGetValues(exec, 0, nbval, nbneg, values, terminal));
 }
 
 /**
@@ -3904,7 +3904,7 @@ int xmlRegExecErrInfo(xmlRegExecCtxtPtr exec, const xmlChar ** string, int * nbv
 		else
 			*string = NULL;
 	}
-	return(xmlRegExecGetValues(exec, 1, nbval, nbneg, values, terminal));
+	return (xmlRegExecGetValues(exec, 1, nbval, nbneg, values, terminal));
 }
 
 #ifdef DEBUG_ERR
@@ -3929,7 +3929,7 @@ static int xmlRegExecPushChar(xmlRegExecCtxtPtr exec, int UCS) {
 	if(exec == NULL)
 		return -1;
 	if(exec->status != 0)
-		return(exec->status);
+		return (exec->status);
 
 	while((exec->status == 0) &&
 	    ((exec->inputString[exec->index] != 0) ||
@@ -5037,7 +5037,7 @@ int xmlRegexpIsDeterminist(xmlRegexpPtr comp)
 	if(comp == NULL)
 		return -1;
 	if(comp->determinist != -1)
-		return(comp->determinist);
+		return (comp->determinist);
 	am = xmlNewAutomata();
 	if(am->states) {
 		for(int i = 0; i < am->nbStates; i++)
@@ -5160,7 +5160,7 @@ void xmlAutomataSetFlags(xmlAutomataPtr am, int flags) {
 xmlAutomataStatePtr xmlAutomataGetInitState(xmlAutomataPtr am) {
 	if(am == NULL)
 		return 0;
-	return(am->start);
+	return (am->start);
 }
 
 /**
@@ -5210,7 +5210,7 @@ xmlAutomataStatePtr xmlAutomataNewTransition(xmlAutomataPtr am, xmlAutomataState
 		return 0;
 	}
 	if(to == NULL)
-		return(am->state);
+		return (am->state);
 	return to;
 }
 
@@ -5263,7 +5263,7 @@ xmlAutomataStatePtr xmlAutomataNewTransition2(xmlAutomataPtr am, xmlAutomataStat
 		return 0;
 	}
 	if(to == NULL)
-		return(am->state);
+		return (am->state);
 	return to;
 }
 
@@ -5324,7 +5324,7 @@ xmlAutomataStatePtr xmlAutomataNewNegTrans(xmlAutomataPtr am, xmlAutomataStatePt
 	}
 	am->negs++;
 	if(to == NULL)
-		return(am->state);
+		return (am->state);
 	return to;
 }
 
@@ -5906,7 +5906,7 @@ static ushort xmlExpHashNameComputeKey(const xmlChar * name)
 	if(name) {
 		value += 30 * (*name);
 		while((ch = *name++) != 0) {
-			value = (ushort)(value ^ ((value << 5) + (value >> 3) + (unsigned long)ch));
+			value = (ushort)(value ^ ((value << 5) + (value >> 3) + static_cast<ulong>(ch)));
 		}
 	}
 	return (value);
@@ -5989,7 +5989,7 @@ static xmlExpNodePtr xmlExpHashGetEntry(xmlExpCtxtPtr ctxt, xmlExpNodeType type,
 		/* a{1} -> a */
 		if(min == max) {
 			if(min == 1) {
-				return(left);
+				return (left);
 			}
 			else if(min == 0) {
 				xmlExpFree(ctxt, left);
@@ -5998,7 +5998,7 @@ static xmlExpNodePtr xmlExpHashGetEntry(xmlExpCtxtPtr ctxt, xmlExpNodeType type,
 		}
 		if(min < 0) {
 			xmlExpFree(ctxt, left);
-			return(forbiddenExp);
+			return (forbiddenExp);
 		}
 		if(max == -1)
 			kbase = min + 79;
@@ -6010,18 +6010,18 @@ static xmlExpNodePtr xmlExpHashGetEntry(xmlExpCtxtPtr ctxt, xmlExpNodeType type,
 		/* Forbid reduction rules */
 		if(left->type == XML_EXP_FORBID) {
 			xmlExpFree(ctxt, left);
-			return(right);
+			return (right);
 		}
 		if(right->type == XML_EXP_FORBID) {
 			xmlExpFree(ctxt, right);
-			return(left);
+			return (left);
 		}
 
 		/* OR reduction rule 1 */
 		/* a | a reduced to a */
 		if(left == right) {
 			left->ref--;
-			return(left);
+			return (left);
 		}
 		/* OR canonicalization rule 1 */
 		/* linearize (a | b) | c into a | (b | c) */
@@ -6035,7 +6035,7 @@ static xmlExpNodePtr xmlExpHashGetEntry(xmlExpCtxtPtr ctxt, xmlExpNodeType type,
 		if(right->type == XML_EXP_OR) {
 			if((left == right->exp_left) || (left == right->exp_right)) {
 				xmlExpFree(ctxt, left);
-				return(right);
+				return (right);
 			}
 		}
 		/* OR canonicalization rule 2 */
@@ -6090,17 +6090,17 @@ static xmlExpNodePtr xmlExpHashGetEntry(xmlExpCtxtPtr ctxt, xmlExpNodeType type,
 	else if(type == XML_EXP_SEQ) {
 		if(left->type == XML_EXP_FORBID) { // Forbid reduction rules
 			xmlExpFree(ctxt, right);
-			return(left);
+			return (left);
 		}
 		else if(right->type == XML_EXP_FORBID) {
 			xmlExpFree(ctxt, left);
-			return(right);
+			return (right);
 		}
 		else if(right->type == XML_EXP_EMPTY) { // Empty reduction rules
-			return(left);
+			return (left);
 		}
 		else if(left->type == XML_EXP_EMPTY) {
-			return(right);
+			return (right);
 		}
 		else
 			kbase = xmlExpHashComputeKey(type, left, right);
@@ -6114,21 +6114,21 @@ static xmlExpNodePtr xmlExpHashGetEntry(xmlExpCtxtPtr ctxt, xmlExpNodeType type,
 				if(type == XML_EXP_ATOM) {
 					if(name == insert->exp_str) {
 						insert->ref++;
-						return(insert);
+						return (insert);
 					}
 				}
 				else if(type == XML_EXP_COUNT) {
 					if((insert->exp_min == min) && (insert->exp_max == max) && (insert->exp_left == left)) {
 						insert->ref++;
 						left->ref--;
-						return(insert);
+						return (insert);
 					}
 				}
 				else if((insert->exp_left == left) && (insert->exp_right == right)) {
 					insert->ref++;
 					left->ref--;
 					right->ref--;
-					return(insert);
+					return (insert);
 				}
 			}
 		}
@@ -6179,7 +6179,7 @@ static xmlExpNodePtr xmlExpHashGetEntry(xmlExpCtxtPtr ctxt, xmlExpNodeType type,
 		entry->next = ctxt->table[key];
 	ctxt->table[key] = entry;
 	ctxt->nbElems++;
-	return(entry);
+	return (entry);
 }
 /**
  * xmlExpFree:
@@ -6247,7 +6247,7 @@ xmlExpNodePtr xmlExpNewAtom(xmlExpCtxtPtr ctxt, const xmlChar * name, int len)
 	name = xmlDictLookup(ctxt->dict, name, len);
 	if(!name)
 		return 0;
-	return(xmlExpHashGetEntry(ctxt, XML_EXP_ATOM, NULL, NULL, name, 0, 0));
+	return (xmlExpHashGetEntry(ctxt, XML_EXP_ATOM, NULL, NULL, name, 0, 0));
 }
 /**
  * xmlExpNewOr:
@@ -6271,7 +6271,7 @@ xmlExpNodePtr xmlExpNewOr(xmlExpCtxtPtr ctxt, xmlExpNodePtr left, xmlExpNodePtr 
 		xmlExpFree(ctxt, right);
 		return 0;
 	}
-	return(xmlExpHashGetEntry(ctxt, XML_EXP_OR, left, right, NULL, 0, 0));
+	return (xmlExpHashGetEntry(ctxt, XML_EXP_OR, left, right, NULL, 0, 0));
 }
 /**
  * xmlExpNewSeq:
@@ -6295,7 +6295,7 @@ xmlExpNodePtr xmlExpNewSeq(xmlExpCtxtPtr ctxt, xmlExpNodePtr left, xmlExpNodePtr
 		xmlExpFree(ctxt, right);
 		return 0;
 	}
-	return(xmlExpHashGetEntry(ctxt, XML_EXP_SEQ, left, right, NULL, 0, 0));
+	return (xmlExpHashGetEntry(ctxt, XML_EXP_SEQ, left, right, NULL, 0, 0));
 }
 
 /**
@@ -6356,7 +6356,7 @@ tail:
 		    nb + tmp);
 		    if(tmp2 < 0)
 			    return tmp2;
-		    return(tmp + tmp2);
+		    return (tmp + tmp2);
 	}
 	return -1;
 }
@@ -6377,7 +6377,7 @@ int xmlExpGetLanguage(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, const xmlChar** lan
 {
 	if(!ctxt || (exp == NULL) || (langList == NULL) || (len <= 0))
 		return -1;
-	return(xmlExpGetLanguageInt(ctxt, exp, langList, len, 0));
+	return (xmlExpGetLanguageInt(ctxt, exp, langList, len, 0));
 }
 
 static int xmlExpGetStartInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, const xmlChar** list, int len, int nb)
@@ -6420,7 +6420,7 @@ tail:
 		    nb + tmp);
 		    if(tmp2 < 0)
 			    return tmp2;
-		    return(tmp + tmp2);
+		    return (tmp + tmp2);
 	}
 	return -1;
 }
@@ -6465,9 +6465,9 @@ static xmlExpNodePtr xmlExpStringDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp
 
 	switch(exp->type) {
 		case XML_EXP_EMPTY:
-		    return(forbiddenExp);
+		    return (forbiddenExp);
 		case XML_EXP_FORBID:
-		    return(forbiddenExp);
+		    return (forbiddenExp);
 		case XML_EXP_ATOM:
 		    if(exp->exp_str == str) {
 #ifdef DEBUG_DERIV
@@ -6531,7 +6531,7 @@ static xmlExpNodePtr xmlExpStringDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp
 		    int min, max;
 		    xmlExpNodePtr tmp;
 		    if(exp->exp_max == 0)
-			    return(forbiddenExp);
+			    return (forbiddenExp);
 		    ret = xmlExpStringDeriveInt(ctxt, exp->exp_left, str);
 		    if(!ret)
 			    return 0;
@@ -6591,9 +6591,9 @@ xmlExpNodePtr xmlExpStringDerive(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, const xm
 	 */
 	input = xmlDictExists(ctxt->dict, str, len);
 	if(!input) {
-		return(forbiddenExp);
+		return (forbiddenExp);
 	}
-	return(xmlExpStringDeriveInt(ctxt, exp, input));
+	return (xmlExpStringDeriveInt(ctxt, exp, input));
 }
 
 static int xmlExpCheckCard(xmlExpNodePtr exp, xmlExpNodePtr sub)
@@ -6666,7 +6666,7 @@ static int xmlExpDivide(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, xmlExpNodePtr sub
 #ifdef DEBUG_DERIV
 			printf("Divide succeeded %d\n", i);
 #endif
-			return(i);
+			return (i);
 		}
 		xmlExpFree(ctxt, tmp);
 		xmlExpFree(ctxt, tmp2);
@@ -6701,7 +6701,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 #ifdef DEBUG_DERIV
 		printf("Equal(exp, sub) and finite -> Empty\n");
 #endif
-		return(emptyExp);
+		return (emptyExp);
 	}
 	/*
 	 * decompose sub sequence first
@@ -6711,7 +6711,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 		printf("Empty(sub) -> Empty\n");
 #endif
 		exp->ref++;
-		return(exp);
+		return (exp);
 	}
 	if(sub->type == XML_EXP_SEQ) {
 #ifdef DEBUG_DERIV
@@ -6740,27 +6740,27 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 			xmlExpFree(ctxt, tmp);
 			return ret;
 		}
-		return(xmlExpHashGetEntry(ctxt, XML_EXP_OR, tmp, ret, NULL, 0, 0));
+		return (xmlExpHashGetEntry(ctxt, XML_EXP_OR, tmp, ret, NULL, 0, 0));
 	}
 	if(!xmlExpCheckCard(exp, sub)) {
 #ifdef DEBUG_DERIV
 		printf("CheckCard(exp, sub) failed -> Forbid\n");
 #endif
-		return(forbiddenExp);
+		return (forbiddenExp);
 	}
 	switch(exp->type) {
 		case XML_EXP_EMPTY:
 		    if(sub == emptyExp)
-			    return(emptyExp);
+			    return (emptyExp);
 #ifdef DEBUG_DERIV
 		    printf("Empty(exp) -> Forbid\n");
 #endif
-		    return(forbiddenExp);
+		    return (forbiddenExp);
 		case XML_EXP_FORBID:
 #ifdef DEBUG_DERIV
 		    printf("Forbid(exp) -> Forbid\n");
 #endif
-		    return(forbiddenExp);
+		    return (forbiddenExp);
 		case XML_EXP_ATOM:
 		    if(sub->type == XML_EXP_ATOM) {
 			    /* @todo handle wildcards */
@@ -6768,12 +6768,12 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 #ifdef DEBUG_DERIV
 				    printf("Atom match -> Empty\n");
 #endif
-				    return(emptyExp);
+				    return (emptyExp);
 			    }
 #ifdef DEBUG_DERIV
 			    printf("Atom mismatch -> Forbid\n");
 #endif
-			    return(forbiddenExp);
+			    return (forbiddenExp);
 		    }
 		    if((sub->type == XML_EXP_COUNT) &&
 		    (sub->exp_max == 1) &&
@@ -6783,17 +6783,17 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 #ifdef DEBUG_DERIV
 				    printf("Atom match -> Empty\n");
 #endif
-				    return(emptyExp);
+				    return (emptyExp);
 			    }
 #ifdef DEBUG_DERIV
 			    printf("Atom mismatch -> Forbid\n");
 #endif
-			    return(forbiddenExp);
+			    return (forbiddenExp);
 		    }
 #ifdef DEBUG_DERIV
 		    printf("Compex exp vs Atom -> Forbid\n");
 #endif
-		    return(forbiddenExp);
+		    return (forbiddenExp);
 		case XML_EXP_SEQ:
 		    /* try to get the sequence consumed only if possible */
 		    if(xmlExpCheckCard(exp->exp_left, sub)) {
@@ -6814,7 +6814,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 				     * e.g.: (a | b)+,(a | c) and 'a+,a'
 				     */
 				    exp->exp_right->ref++;
-				    return(xmlExpHashGetEntry(ctxt, XML_EXP_SEQ, ret,
+				    return (xmlExpHashGetEntry(ctxt, XML_EXP_SEQ, ret,
 					    exp->exp_right, NULL, 0, 0));
 			    }
 #ifdef DEBUG_DERIV
@@ -6878,7 +6878,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 			    xmlExpFree(ctxt, ret);
 			    return 0;
 		    }
-		    return(xmlExpHashGetEntry(ctxt, XML_EXP_OR, ret, tmp, NULL, 0, 0));
+		    return (xmlExpHashGetEntry(ctxt, XML_EXP_OR, ret, tmp, NULL, 0, 0));
 		case XML_EXP_COUNT: {
 		    int min, max;
 
@@ -6900,7 +6900,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 #ifdef DEBUG_DERIV
 					    printf("Count, Count not multiple => forbidden\n");
 #endif
-					    return(forbiddenExp);
+					    return (forbiddenExp);
 				    }
 				    if(sub->exp_max == -1) {
 					    max = -1;
@@ -6915,7 +6915,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 						    printf("Count, Count finite can't subsume infinite\n");
 #endif
 						    xmlExpFree(ctxt, tmp);
-						    return(forbiddenExp);
+						    return (forbiddenExp);
 					    }
 				    }
 				    else {
@@ -6938,7 +6938,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 							    printf("loops max mult mismatch => forbidden\n");
 #endif
 							    xmlExpFree(ctxt, tmp);
-							    return(forbiddenExp);
+							    return (forbiddenExp);
 						    }
 						    if(sub->exp_max * mult > exp->exp_min)
 							    min = 0;
@@ -6957,7 +6957,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 				    printf("Count, Count remain not nillable => forbidden\n");
 #endif
 				    xmlExpFree(ctxt, tmp);
-				    return(forbiddenExp);
+				    return (forbiddenExp);
 			    }
 			    else if(sub->exp_max == -1) {
 				    if(exp->exp_max == -1) {
@@ -6981,7 +6981,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 					    printf("loops min mismatch 1 => forbidden ???\n");
 #endif
 					    xmlExpFree(ctxt, tmp);
-					    return(forbiddenExp);
+					    return (forbiddenExp);
 				    }
 				    else {
 					    max = -1;
@@ -7008,7 +7008,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 						    printf("loops max mismatch => forbidden\n");
 #endif
 						    xmlExpFree(ctxt, tmp);
-						    return(forbiddenExp);
+						    return (forbiddenExp);
 					    }
 					    if(sub->exp_max > exp->exp_min)
 						    min = 0;
@@ -7035,7 +7035,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 #ifdef DEBUG_DERIV
 			    printf("loop mismatch => forbidden\n");
 #endif
-			    return(forbiddenExp);
+			    return (forbiddenExp);
 		    }
 		    if(exp->exp_min > 0)
 			    min = exp->exp_min - 1;
@@ -7063,7 +7063,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 #endif
 	if(IS_NILLABLE(sub)) {
 		if(!(IS_NILLABLE(exp)))
-			return(forbiddenExp);
+			return (forbiddenExp);
 		else
 			ret = emptyExp;
 	}
@@ -7117,7 +7117,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 		if((tmp3 == NULL) || (tmp3 == forbiddenExp)) {
 			xmlExpFree(ctxt, ret);
 			SAlloc::F((xmlChar**)tab);
-			return(tmp3);
+			return (tmp3);
 		}
 
 		if(!ret)
@@ -7159,15 +7159,15 @@ xmlExpNodePtr xmlExpExpDerive(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, xmlExpNodeP
 #ifdef DEBUG_DERIV
 		printf("Sub nillable and not exp : can't subsume\n");
 #endif
-		return(forbiddenExp);
+		return (forbiddenExp);
 	}
 	if(xmlExpCheckCard(exp, sub) == 0) {
 #ifdef DEBUG_DERIV
 		printf("sub generate longuer sequances than exp : can't subsume\n");
 #endif
-		return(forbiddenExp);
+		return (forbiddenExp);
 	}
-	return(xmlExpExpDeriveInt(ctxt, exp, sub));
+	return (xmlExpExpDeriveInt(ctxt, exp, sub));
 }
 
 /**

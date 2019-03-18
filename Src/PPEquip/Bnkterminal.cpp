@@ -80,7 +80,6 @@ int PPBnkTerminal::SetConfig(uint logNum)
 int PPBnkTerminal::Pay(double amount, SString & rSlip)
 {
 	rSlip.Z();
-	int    ok = 1;
 	SString msg;
 	Arr_In.Z();
 	Arr_Out.Z();
@@ -88,7 +87,7 @@ int PPBnkTerminal::Pay(double amount, SString & rSlip)
 	BnkTermArrAdd(Arr_In, DVCPARAM_AMOUNT, (int)amount);
 	PPWait(1);
 	PPWaitMsg(PPLoadTextS(PPTXT_BNKTRM_PAYMENT, msg));
-	ok = ExecOper(DVCCMD_PAY, Arr_In, Arr_Out);
+	int    ok = ExecOper(DVCCMD_PAY, Arr_In, Arr_Out);
 	if(ok) {
 		Arr_Out.GetText(0, rSlip);
 	}

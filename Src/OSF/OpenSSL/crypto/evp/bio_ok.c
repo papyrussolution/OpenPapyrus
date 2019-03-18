@@ -356,7 +356,7 @@ static long ok_ctrl(BIO * b, int cmd, long num, void * ptr)
 
 		    ctx->finished = 1;
 		    ctx->buf_off = ctx->buf_len = 0;
-		    ctx->cont = (int)ret;
+		    ctx->cont = static_cast<int>(ret);
 
 		    /* Finally flush the underlying BIO */
 		    ret = BIO_ctrl(next, cmd, num, ptr);

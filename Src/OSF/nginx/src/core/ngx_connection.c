@@ -221,7 +221,7 @@ ngx_int_t ngx_set_inherited_sockets(ngx_cycle_t * cycle)
 		if(ls[i].accept_filter == NULL) {
 			return NGX_ERROR;
 		}
-		(void)ngx_cpystrn((u_char*)ls[i].accept_filter, (u_char*)af.af_name, 16);
+		(void)ngx_cpystrn((u_char *)ls[i].accept_filter, (u_char *)af.af_name, 16);
 #endif
 #if (NGX_HAVE_DEFERRED_ACCEPT && defined TCP_DEFER_ACCEPT)
 		timeout = 0;
@@ -502,7 +502,7 @@ void ngx_configure_listening_sockets(ngx_cycle_t * cycle)
 		}
 		if(ls[i].add_deferred) {
 			memzero(&af, sizeof(struct accept_filter_arg));
-			(void)ngx_cpystrn((u_char*)af.af_name, (u_char*)ls[i].accept_filter, 16);
+			(void)ngx_cpystrn((u_char *)af.af_name, (u_char *)ls[i].accept_filter, 16);
 			if(setsockopt(ls[i].fd, SOL_SOCKET, SO_ACCEPTFILTER, &af, sizeof(struct accept_filter_arg)) == -1) {
 				ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_socket_errno, "setsockopt(SO_ACCEPTFILTER, \"%s\") for %V failed, ignored", ls[i].accept_filter, &ls[i].addr_text);
 				continue;

@@ -301,7 +301,7 @@ static ngx_int_t ngx_stream_variable_binary_remote_addr(ngx_stream_session_t * s
 		    v->valid = 1;
 		    v->no_cacheable = 0;
 		    v->not_found = 0;
-		    v->data = (u_char*)&sin->sin_addr;
+		    v->data = (u_char *)&sin->sin_addr;
 		    break;
 	}
 	return NGX_OK;
@@ -477,7 +477,7 @@ static ngx_int_t ngx_stream_variable_nginx_version(ngx_stream_session_t * s, ngx
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
-	v->data = (u_char*)NGINX_VERSION;
+	v->data = (u_char *)NGINX_VERSION;
 	return NGX_OK;
 }
 
@@ -560,7 +560,7 @@ static ngx_int_t ngx_stream_variable_protocol(ngx_stream_session_t * s,
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
-	v->data = (u_char*)(s->connection->type == SOCK_DGRAM ? "UDP" : "TCP");
+	v->data = (u_char *)(s->connection->type == SOCK_DGRAM ? "UDP" : "TCP");
 
 	return NGX_OK;
 }

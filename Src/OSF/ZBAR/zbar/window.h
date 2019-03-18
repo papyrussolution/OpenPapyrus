@@ -95,18 +95,18 @@ static inline int _zbar_window_add_format(zbar_window_t * w, uint32 fmt)
 	int i;
 	for(i = 0; w->formats && w->formats[i]; i++)
 		if(w->formats[i] == fmt)
-			return(i);
+			return (i);
 	w->formats = (uint32 *)SAlloc::R(w->formats, (i + 2) * sizeof(uint32));
 	w->formats[i] = fmt;
 	w->formats[i + 1] = 0;
-	return(i);
+	return (i);
 }
 
 static inline point_t window_scale_pt(zbar_window_t * w, point_t p)
 {
 	p.x = ((long)p.x * w->scale_num + w->scale_den - 1) / w->scale_den;
 	p.y = ((long)p.y * w->scale_num + w->scale_den - 1) / w->scale_den;
-	return(p);
+	return (p);
 }
 
 /* PAL interface */

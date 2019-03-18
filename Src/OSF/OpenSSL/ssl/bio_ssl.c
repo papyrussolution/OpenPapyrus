@@ -112,7 +112,7 @@ static int ssl_read(BIO * b, char * out, int outl)
 		    if((sb->renegotiate_timeout > 0) && (!r)) {
 			    unsigned long tm;
 
-			    tm = (unsigned long)time(NULL);
+			    tm = (ulong)time(NULL);
 			    if(tm > sb->last_time + sb->renegotiate_timeout) {
 				    sb->last_time = tm;
 				    sb->num_renegotiates++;
@@ -185,7 +185,7 @@ static int ssl_write(BIO * b, const char * out, int outl)
 		    if((bs->renegotiate_timeout > 0) && (!r)) {
 			    unsigned long tm;
 
-			    tm = (unsigned long)time(NULL);
+			    tm = (ulong)time(NULL);
 			    if(tm > bs->last_time + bs->renegotiate_timeout) {
 				    bs->last_time = tm;
 				    bs->num_renegotiates++;
@@ -263,13 +263,13 @@ static long ssl_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    ret = bs->renegotiate_timeout;
 		    if(num < 60)
 			    num = 5;
-		    bs->renegotiate_timeout = (unsigned long)num;
-		    bs->last_time = (unsigned long)time(NULL);
+		    bs->renegotiate_timeout = (ulong)num;
+		    bs->last_time = (ulong)time(NULL);
 		    break;
 		case BIO_C_SET_SSL_RENEGOTIATE_BYTES:
 		    ret = bs->renegotiate_count;
 		    if((long)num >= 512)
-			    bs->renegotiate_count = (unsigned long)num;
+			    bs->renegotiate_count = (ulong)num;
 		    break;
 		case BIO_C_GET_SSL_NUM_RENEGOTIATES:
 		    ret = bs->num_renegotiates;

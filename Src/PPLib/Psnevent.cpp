@@ -491,7 +491,7 @@ int SLAPI PPObjPersonEvent::GetPacket(PPID id, PPPsnEventPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjPersonEvent::TC_SetCalendar(PPID psnID, const PPPsnOpKind * pPok, PPPsnEventPacket * pPack, const PoClause_ * pClause)
+int SLAPI PPObjPersonEvent::TC_SetCalendar(PPID psnID, const PPPsnOpKind * pPok, const PPPsnEventPacket * pPack, const PoClause_ * pClause)
 {
 	int    ok = -1, r2;
 	if(pClause->DirObj) {
@@ -995,7 +995,7 @@ int SLAPI PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKi
 							SString note_buf, freq_buf, dur_buf;
 							PPGetFilePath(PPPATH_DD, pClause->CmdText, freq_buf);
 							if(fileExists(freq_buf)) {
-								if(::PlaySound(freq_buf, 0, SND_FILENAME|SND_ASYNC)) // @unicodeproblem
+								if(::PlaySound(SUcSwitch(freq_buf), 0, SND_FILENAME|SND_ASYNC)) // @unicodeproblem
 									default_beep = 0;
 							}
 							else {
@@ -1522,7 +1522,7 @@ int PsnEventDialog::editItem(long pos, long id)
 	int    ok = -1;
 	const  ObjTagItem * p_item = Pack.TagL.GetItemByPos(static_cast<uint>(pos));
    	if(p_item && p_item->TagID == id)
-		if(EditObjTagItem(Pack.TagL.ObjType, Pack.TagL.ObjID, (ObjTagItem *)p_item, 0) > 0)
+		if(EditObjTagItem(Pack.TagL.ObjType, Pack.TagL.ObjID, const_cast<ObjTagItem *>(p_item), 0) > 0) // @badcast
 			ok = 1;
 	return ok;
 }
@@ -1645,12 +1645,11 @@ int PsnEventDialog::setupPair()
 	return ok;
 }
 
-int PsnEventDialog::setDTS(PPPsnEventPacket * p)
+int PsnEventDialog::setDTS(const PPPsnEventPacket * p)
 {
 	int    ok = 1;
 	int    disable_taglist = 0, disable_post = 0;
 	PPObjPsnOpKind pok_obj;
-
 	THROW_INVARG(p);
 	THROW_PP(p->Rec.OpID, PPERR_UNDEFPEOP);
 	THROW(pok_obj.GetPacket(p->Rec.OpID, &PokPack) > 0);
@@ -1821,7 +1820,7 @@ int SLAPI PPObjPersonEvent::Browse(void * extraPtr /*prmrPersonID*/)
 
 int SLAPI PPObjPersonEvent::Edit(PPID * pID, void * extraPtr /*prmrID*/)
 {
-	const  PPID extra_prmr_id = (PPID)extraPtr;
+	const  PPID extra_prmr_id = reinterpret_cast<PPID>(extraPtr);
 	int    ok = cmCancel, valid_data = 0;
 	PPID   op = 0;
 	PsnEventDialog::Param param;

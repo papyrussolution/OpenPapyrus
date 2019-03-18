@@ -262,9 +262,9 @@ int InventoryOptionsDialog::setDTS(const PPInventoryOpEx * pData)
 {
 	ushort v;
 	RVALUEPTR(Data, pData);
-	SetupPPObjCombo(this, CTLSEL_OPKINVE_WRDNOP, PPOBJ_OPRKIND, Data.WrDnOp, 0, (void *)PPOPT_GOODSEXPEND);
+	SetupPPObjCombo(this, CTLSEL_OPKINVE_WRDNOP, PPOBJ_OPRKIND, Data.WrDnOp, 0, reinterpret_cast<void *>(PPOPT_GOODSEXPEND));
 	setupAccSheet(CTLSEL_OPKINVE_WRDNOP, CTLSEL_OPKINVE_WRDNOBJ, Data.WrDnObj);
-	SetupPPObjCombo(this, CTLSEL_OPKINVE_WRUPOP, PPOBJ_OPRKIND, Data.WrUpOp, 0, (void *)PPOPT_GOODSRECEIPT);
+	SetupPPObjCombo(this, CTLSEL_OPKINVE_WRUPOP, PPOBJ_OPRKIND, Data.WrUpOp, 0, reinterpret_cast<void *>(PPOPT_GOODSRECEIPT));
 	setupAccSheet(CTLSEL_OPKINVE_WRUPOP, CTLSEL_OPKINVE_WRUPOBJ, Data.WrUpObj);
 	//setCtrlData(CTL_OPKINVE_NOMINAL,    &(v = Data.Nominal));
 	//setCtrlData(CTL_OPKINVE_DEFREST,    &(v = Data.DefaultRest));

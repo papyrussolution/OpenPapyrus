@@ -171,7 +171,7 @@ xmlTextWriter * xmlNewTextWriter(xmlOutputBuffer * out)
 		return NULL;
 	}
 	ret->out = out;
-	ret->ichar = sstrdup(BAD_CAST " ");
+	ret->ichar = sstrdup(reinterpret_cast<const xmlChar *>(" "));
 	ret->qchar = '"';
 	if(!ret->ichar) {
 		xmlListDelete(ret->nodes);
@@ -880,7 +880,7 @@ int xmlTextWriterStartElementNS(xmlTextWriter * writer, const xmlChar * prefix, 
 	buf = NULL;
 	if(prefix != 0) {
 		buf = sstrdup(prefix);
-		buf = xmlStrcat(buf, BAD_CAST ":");
+		buf = xmlStrcat(buf, reinterpret_cast<const xmlChar *>(":"));
 	}
 	buf = xmlStrcat(buf, name);
 	count = xmlTextWriterStartElement(writer, buf);
@@ -894,9 +894,9 @@ int xmlTextWriterStartElementNS(xmlTextWriter * writer, const xmlChar * prefix, 
 			xmlWriterErrMsg(writer, XML_ERR_NO_MEMORY, _p_func_name, "out of memory!");
 			return -1;
 		}
-		buf = sstrdup(BAD_CAST "xmlns");
+		buf = sstrdup(reinterpret_cast<const xmlChar *>("xmlns"));
 		if(prefix != 0) {
-			buf = xmlStrcat(buf, BAD_CAST ":");
+			buf = xmlStrcat(buf, reinterpret_cast<const xmlChar *>(":"));
 			buf = xmlStrcat(buf, prefix);
 		}
 		p->prefix = buf;
@@ -1509,9 +1509,9 @@ int xmlTextWriterStartAttributeNS(xmlTextWriter * writer, const xmlChar * prefix
 	// Handle namespace first in case of error 
 	if(namespaceURI) {
 		xmlTextWriterNsStackEntry nsentry, * curns;
-		buf = sstrdup(BAD_CAST "xmlns");
+		buf = sstrdup(reinterpret_cast<const xmlChar *>("xmlns"));
 		if(prefix != 0) {
-			buf = xmlStrcat(buf, BAD_CAST ":");
+			buf = xmlStrcat(buf, reinterpret_cast<const xmlChar *>(":"));
 			buf = xmlStrcat(buf, prefix);
 		}
 		nsentry.prefix = buf;
@@ -1546,7 +1546,7 @@ int xmlTextWriterStartAttributeNS(xmlTextWriter * writer, const xmlChar * prefix
 	buf = NULL;
 	if(prefix != 0) {
 		buf = sstrdup(prefix);
-		buf = xmlStrcat(buf, BAD_CAST ":");
+		buf = xmlStrcat(buf, reinterpret_cast<const xmlChar *>(":"));
 	}
 	buf = xmlStrcat(buf, name);
 	sum = 0;
@@ -1918,7 +1918,7 @@ int xmlTextWriterStartPI(xmlTextWriter * writer, const xmlChar * target)
 	xmlTextWriterStackEntry * p;
 	if(!writer || !target || *target == '\0')
 		return -1;
-	if(sstreqi_ascii(target, (const xmlChar*)"xml")) {
+	if(sstreqi_ascii(target, (const xmlChar *)"xml")) {
 		xmlWriterErrMsg(writer, XML_ERR_INTERNAL_ERROR, _p_func_name, "target name [Xx][Mm][Ll] is reserved for xml standardization!");
 		return -1;
 	}
@@ -3591,8 +3591,8 @@ static void xmlTextWriterStartDocumentCallback(void * ctx)
 		}
 	}
 	if(ctxt->myDoc && (ctxt->myDoc->URL == NULL) && ctxt->input && (ctxt->input->filename != NULL)) {
-		ctxt->myDoc->URL = xmlCanonicPath((const xmlChar*)ctxt->input->filename);
-		SETIFZ(ctxt->myDoc->URL, sstrdup((const xmlChar*)ctxt->input->filename));
+		ctxt->myDoc->URL = xmlCanonicPath((const xmlChar *)ctxt->input->filename);
+		SETIFZ(ctxt->myDoc->URL, sstrdup((const xmlChar *)ctxt->input->filename));
 	}
 }
 /**

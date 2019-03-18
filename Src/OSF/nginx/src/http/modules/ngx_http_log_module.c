@@ -234,7 +234,7 @@ static ngx_int_t ngx_http_log_handler(ngx_http_request_t * r)
 			}
 		}
 alloc_line:
-		line = (u_char*)ngx_pnalloc(r->pool, len);
+		line = (u_char *)ngx_pnalloc(r->pool, len);
 		if(line == NULL) {
 			return NGX_ERROR;
 		}
@@ -532,7 +532,7 @@ static u_char * ngx_http_log_copy_short(ngx_http_request_t * r, u_char * buf, ng
 
 static u_char * ngx_http_log_copy_long(ngx_http_request_t * r, u_char * buf, ngx_http_log_op_t * op)
 {
-	return ngx_cpymem(buf, (u_char*)op->data, op->len);
+	return ngx_cpymem(buf, (u_char *)op->data, op->len);
 }
 
 static u_char * ngx_http_log_pipe(ngx_http_request_t * r, u_char * buf, ngx_http_log_op_t * op)
@@ -644,7 +644,7 @@ static u_char * ngx_http_log_variable(ngx_http_request_t * r, u_char * buf, ngx_
 		return ngx_cpymem(buf, value->data, value->len);
 	}
 	else {
-		return (u_char*)ngx_http_log_escape(buf, value->data, value->len);
+		return (u_char *)ngx_http_log_escape(buf, value->data, value->len);
 	}
 }
 
@@ -717,7 +717,7 @@ static u_char * ngx_http_log_json_variable(ngx_http_request_t * r, u_char * buf,
 	else if(value->escape == 0)
 		return ngx_cpymem(buf, value->data, value->len);
 	else
-		return (u_char*)ngx_escape_json(buf, value->data, value->len);
+		return (u_char *)ngx_escape_json(buf, value->data, value->len);
 }
 
 static void * ngx_http_log_create_main_conf(ngx_conf_t * cf)
@@ -811,7 +811,7 @@ static const char * ngx_http_log_set_log(ngx_conf_t * cf, const ngx_command_t * 
 	ngx_http_log_main_conf_t   * lmcf;
 	ngx_http_script_compile_t sc;
 	ngx_http_compile_complex_value_t ccv;
-	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(ngx_strcmp(value[1].data, "off") == 0) {
 		llcf->off = 1;
 		if(cf->args->nelts == 2) {
@@ -979,7 +979,7 @@ process_formats:
 		if(buffer == NULL) {
 			return NGX_CONF_ERROR;
 		}
-		buffer->start = (u_char*)ngx_pnalloc(cf->pool, size);
+		buffer->start = (u_char *)ngx_pnalloc(cf->pool, size);
 		if(buffer->start == NULL) {
 			return NGX_CONF_ERROR;
 		}
@@ -1007,7 +1007,7 @@ static const char * ngx_http_log_set_format(ngx_conf_t * cf, const ngx_command_t
 {
 	ngx_http_log_main_conf_t * lmcf = (ngx_http_log_main_conf_t *)conf;
 	ngx_uint_t i;
-	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	ngx_http_log_fmt_t * fmt = (ngx_http_log_fmt_t *)lmcf->formats.elts;
 	for(i = 0; i < lmcf->formats.nelts; i++) {
 		if(fmt[i].name.len == value[1].len && ngx_strcmp(fmt[i].name.data, value[1].data) == 0) {
@@ -1041,7 +1041,7 @@ static char * ngx_http_log_compile_format(ngx_conf_t * cf, ngx_array_t * flushes
 	ngx_http_log_op_t * op;
 	ngx_http_log_var_t  * v;
 	ngx_uint_t json = 0;
-	ngx_str_t * value = (ngx_str_t*)args->elts;
+	ngx_str_t * value = (ngx_str_t *)args->elts;
 	if(s < args->nelts && ngx_strncmp(value[s].data, "escape=", 7) == 0) {
 		data = value[s].data + 7;
 		if(ngx_strcmp(data, "json") == 0) {
@@ -1136,7 +1136,7 @@ found:
 				}
 				else {
 					op->run = ngx_http_log_copy_long;
-					p = (u_char*)ngx_pnalloc(cf->pool, len);
+					p = (u_char *)ngx_pnalloc(cf->pool, len);
 					if(!p) {
 						return NGX_CONF_ERROR;
 					}
@@ -1162,7 +1162,7 @@ static const char * ngx_http_log_open_file_cache(ngx_conf_t * cf, const ngx_comm
 	if(llcf->open_file_cache != NGX_CONF_UNSET_PTR) {
 		return "is duplicate";
 	}
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	max = 0;
 	inactive = 10;
 	valid = 60;
@@ -1237,7 +1237,7 @@ static ngx_int_t ngx_http_log_init(ngx_conf_t * cf)
 		if(ngx_array_init(&a, cf->pool, 1, sizeof(ngx_str_t)) != NGX_OK) {
 			return NGX_ERROR;
 		}
-		value = (ngx_str_t*)ngx_array_push(&a);
+		value = (ngx_str_t *)ngx_array_push(&a);
 		if(value == NULL) {
 			return NGX_ERROR;
 		}

@@ -617,7 +617,7 @@ static int SLAPI RequestImportGoodsParam(ImportGoodsParam * pData)
 	TDialog * dlg = new TDialog(DLG_IMPGOODS);
 	if(CheckDialogPtrErr(&dlg)) {
 		SetupPPObjCombo(dlg, CTLSEL_IMPGOODS_GRP, PPOBJ_GOODSGROUP, pData->DefParentID, OLW_CANINSERT);
-		SetupPPObjCombo(dlg, CTLSEL_IMPGOODS_OP,  PPOBJ_OPRKIND,    pData->RcptOpID, 0, (void *)PPOPT_GOODSRECEIPT);
+		SetupPPObjCombo(dlg, CTLSEL_IMPGOODS_OP,  PPOBJ_OPRKIND,    pData->RcptOpID, 0, reinterpret_cast<void *>(PPOPT_GOODSRECEIPT));
 		SetupArCombo(dlg, CTLSEL_IMPGOODS_SUPPL, pData->SupplID, 0, GetSupplAccSheet(), sacfDisableIfZeroSheet);
 		SetupPPObjCombo(dlg, CTLSEL_IMPGOODS_UNIT,   PPOBJ_UNIT, pData->DefUnitID, 0);
 		SetupPPObjCombo(dlg, CTLSEL_IMPGOODS_PHUNIT, PPOBJ_UNIT, pData->PhUnitID,  0);
@@ -3000,7 +3000,7 @@ int PersonImpExpDialog::setDTS(const PPPersonImpExpParam * pData)
 	ImpExpParamDialog::setDTS(&Data);
 	{
 		SetupPPObjCombo(this, CTLSEL_IMPEXPPSN_KIND, PPOBJ_PRSNKIND,     Data.DefKindID, 0);
-		SetupPPObjCombo(this, CTLSEL_IMPEXPPSN_CAT,  PPOBJ_PRSNCATEGORY, Data.DefCategoryID, OLW_CANINSERT); // @v7.6.2
+		SetupPPObjCombo(this, CTLSEL_IMPEXPPSN_CAT,  PPOBJ_PRSNCATEGORY, Data.DefCategoryID, OLW_CANINSERT);
 		SetupPPObjCombo(this, CTLSEL_IMPEXPPSN_SREG, PPOBJ_REGISTERTYPE, Data.SrchRegTypeID, 0);
 		SetupPPObjCombo(this, CTLSEL_IMPEXPPSN_CITY, PPOBJ_WORLD, Data.DefCityID, 0, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
 		AddClusterAssoc(CTL_IMPEXPPSN_FLAGS, 0, PPPersonImpExpParam::f2GIS);
@@ -5952,8 +5952,8 @@ IMPL_CMPCFUNC(STRINT64, p1, p2)
 IMPL_CMPCFUNC(STRUTF8NOCASE, p1, p2)
 {
 	int   si = -1;
-	const size_t len1 = sstrlen((const char *)p1);
-	const size_t len2 = sstrlen((const char *)p2);
+	const size_t len1 = sstrlen(static_cast<const char *>(p1));
+	const size_t len2 = sstrlen(static_cast<const char *>(p2));
 	if(len1 == len2) {
 		//
 		// Простые случая без перевода строк в unicode
@@ -5964,16 +5964,16 @@ IMPL_CMPCFUNC(STRUTF8NOCASE, p1, p2)
 			si = 0;
 	}
 	if(si != 0) {
-		const int a1 = sisascii((const char *)p1, len1);
-		const int a2 = sisascii((const char *)p2, len2);
+		const int a1 = sisascii(static_cast<const char *>(p1), len1);
+		const int a2 = sisascii(static_cast<const char *>(p2), len2);
 		if(a1 && a2) {
-			si = strcmp((const char *)p1, (const char *)p2);
+			si = strcmp(static_cast<const char *>(p1), static_cast<const char *>(p2));
 		}
 		else {
 			SStringU s1;
 			SStringU s2;
-			s1.CopyFromUtf8((const char *)p1, len1);
-			s2.CopyFromUtf8((const char *)p2, len2);
+			s1.CopyFromUtf8(static_cast<const char *>(p1), len1);
+			s2.CopyFromUtf8(static_cast<const char *>(p2), len2);
 			//s1.ToLower();
 			//s2.ToLower();
 			si = s1.Cmp(s2);

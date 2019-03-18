@@ -3319,7 +3319,7 @@ struct DBE : public DBItem {
 	void   destroy();
 	int    FASTCALL getTblHandle(int item);
 	int    FASTCALL evaluate(int option, DBConst *);
-	int    FASTCALL push(DBE::T *);
+	int    FASTCALL push(const DBE::T *);
 	int    FASTCALL push(DBItem &);
 	int    FASTCALL push(DBFunc);
 	int    pop();
@@ -3924,11 +3924,11 @@ DBUpdateSet & FASTCALL set(DBField f, DBItem & val);
 //
 // Descr: Спцификация callback-функции, используемой -Cb вариантами функций deleteFrom и upfateFor.
 //
-typedef int (*UpdateDbTable_CbProc)(DBTable * pTbl, const void * pRecBefore, const void * pRecAfter, long extraParam);
+typedef int (*UpdateDbTable_CbProc)(DBTable * pTbl, const void * pRecBefore, const void * pRecAfter, void * extraPtr);
 
 int FASTCALL deleteFrom(DBTable * pTbl, int useTA, DBQ & query);
 int FASTCALL updateFor(DBTable * pTbl, int useTA, DBQ & query, DBUpdateSet & rSet);
-int updateForCb(DBTable * pTbl, int useTA, DBQ & query, DBUpdateSet & rSet, UpdateDbTable_CbProc cbProc, long extraParam);
+int updateForCb(DBTable * pTbl, int useTA, DBQ & query, DBUpdateSet & rSet, UpdateDbTable_CbProc cbProc, void * extraPtr);
 //
 // Descr: Класс для работы с базами данных BerkeyDB
 //

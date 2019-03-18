@@ -1109,7 +1109,7 @@ int SLAPI PPObjPerson::DeleteObj(PPID id)
 
 ListBoxDef * SLAPI PPObjPerson::_Selector2(ListBoxDef * pDef, void * extraPtr)
 {
-	const PPID kind_id = (PPID)extraPtr;
+	const PPID kind_id = reinterpret_cast<PPID>(extraPtr);
 	struct LbxDataPerson {
 		long   KindID;
 	} lbx_extra;
@@ -2391,11 +2391,11 @@ int ReplPrsnDialog::setDTS(PPID srcID, PPID srcKindID)
 			kind_id = psn.Kinds.at(0);
 	}
 	SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND1, PPOBJ_PRSNKIND, kind_id, 0);
-	SetupPPObjCombo(this, CTLSEL_REPLPRSN_PRSN1, PPOBJ_PERSON, psn_id, 0, (void *)kind_id);
+	SetupPPObjCombo(this, CTLSEL_REPLPRSN_PRSN1, PPOBJ_PERSON, psn_id, 0, reinterpret_cast<void *>(kind_id));
 	if(Addr) {
 		PsnObj.SetupDlvrLocCombo(this, CTLSEL_REPLPRSN_ADDR1, psn_id, addr_id);
 		SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND2, PPOBJ_PRSNKIND, kind_id, 0);
-		SetupPPObjCombo(this, CTLSEL_REPLPRSN_PRSN2, PPOBJ_PERSON, psn_id, 0, (void *)kind_id);
+		SetupPPObjCombo(this, CTLSEL_REPLPRSN_PRSN2, PPOBJ_PERSON, psn_id, 0, reinterpret_cast<void *>(kind_id));
 		PsnObj.SetupDlvrLocCombo(this, CTLSEL_REPLPRSN_ADDR2, psn_id, 0);
 	}
 	return 1;
@@ -2425,8 +2425,8 @@ int ReplPrsnDialog::Swap()
 	PPID   dest_psn_id  = getCtrlLong(CTLSEL_REPLPRSN_PRSN2);
 	SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND1, PPOBJ_PRSNKIND, dest_kind_id, 0);
 	SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND2, PPOBJ_PRSNKIND, src_kind_id,  0);
-	SetupPPObjCombo(this, CTLSEL_REPLPRSN_PRSN1, PPOBJ_PERSON, dest_psn_id, 0, (void *)dest_kind_id);
-	SetupPPObjCombo(this, CTLSEL_REPLPRSN_PRSN2, PPOBJ_PERSON, src_psn_id,  0, (void *)src_kind_id);
+	SetupPPObjCombo(this, CTLSEL_REPLPRSN_PRSN1, PPOBJ_PERSON, dest_psn_id, 0, reinterpret_cast<void *>(dest_kind_id));
+	SetupPPObjCombo(this, CTLSEL_REPLPRSN_PRSN2, PPOBJ_PERSON, src_psn_id,  0, reinterpret_cast<void *>(src_kind_id));
 	if(Addr) {
 		PPID   src_addr_id   = getCtrlLong(CTLSEL_REPLPRSN_ADDR1);
 		PPID   dest_addr_id  = getCtrlLong(CTLSEL_REPLPRSN_ADDR2);
@@ -2571,7 +2571,7 @@ int SLAPI PPObjPerson::GetStaffAmtList(PPID id, StaffAmtList * pList)
 	return PPRef->GetPropArray(Obj, id, SLPPRP_AMTLIST, pList);
 }
 
-int SLAPI PPObjPerson::PutStaffAmtList(PPID id, StaffAmtList * pList)
+int SLAPI PPObjPerson::PutStaffAmtList(PPID id, const StaffAmtList * pList)
 {
 	return PPRef->PutPropArray(Obj, id, SLPPRP_AMTLIST, pList, 0);
 }
@@ -4110,7 +4110,7 @@ int ShortPersonDialog::SetupSCardSeries(int fromCtrl, int dontSeekCard)
 				}
 				// } @v9.8.9
 				// } @v9.8.6
-				SetupPPObjCombo(this, CTLSEL_PERSON_SCAG, PPOBJ_GOODS, auto_goods_id, 0, (void *)goods_grp_id);
+				SetupPPObjCombo(this, CTLSEL_PERSON_SCAG, PPOBJ_GOODS, auto_goods_id, 0, reinterpret_cast<void *>(goods_grp_id));
 			}
 			else
 				setCtrlLong(CTLSEL_PERSON_SCAG, 0);
@@ -4403,7 +4403,7 @@ int SLAPI PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 int SLAPI PPObjPerson::Edit(PPID * pID, void * extraPtr)
 {
 	EditBlock eb;
-	InitEditBlock((PPID)extraPtr, eb);
+	InitEditBlock(reinterpret_cast<PPID>(extraPtr), eb);
 	return Edit_(pID, eb);
 }
 
@@ -4881,8 +4881,7 @@ int MainOrg2Dialog::setDTS()
 	//
 	// Set Address
 	//
-	SetupPPObjCombo(this, CTLSEL_MAINORG2_CITY, PPOBJ_WORLD, P_Pack->Loc.CityID, OLW_CANINSERT,
-		PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
+	SetupPPObjCombo(this, CTLSEL_MAINORG2_CITY, PPOBJ_WORLD, P_Pack->Loc.CityID, OLW_CANINSERT, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
 	LocationCore::GetExField(&P_Pack->Loc, LOCEXSTR_SHORTADDR, temp_buf);
 	setCtrlString(CTL_MAINORG2_ADDRESS, temp_buf);
 	//
@@ -4936,15 +4935,15 @@ int MainOrg2Dialog::setDTS()
 	getPsnRegs(corr, bic, inn, bnk_id, sizeof(corr), sizeof(bic), sizeof(inn));
 	P_Pack->GetRegNumber(PPREGT_TPID, temp_buf);
 	setCtrlString(CTL_MAINORG2_INN, temp_buf);
-	SetupPPObjCombo(this, CTLSEL_MAINORG2_BANK, PPOBJ_PERSON, bnk_id, OLW_CANINSERT, (void *)PPPRK_BANK);
+	SetupPPObjCombo(this, CTLSEL_MAINORG2_BANK, PPOBJ_PERSON, bnk_id, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_BANK));
 	setCtrlData(CTL_MAINORG2_ACC, buf);
 	setCtrlData(CTL_MAINORG2_CORRACC, corr);
 	setCtrlData(CTL_MAINORG2_BIC, bic);
 	//
 	// Set Director and Accountant
 	//
-	SetupPPObjCombo(this, CTLSEL_MAINORG2_DIRECTOR, PPOBJ_PERSON, cfg.MainOrgDirector_, OLW_CANINSERT, (void *)PPPRK_EMPL);
-	SetupPPObjCombo(this, CTLSEL_MAINORG2_ACCTNT, PPOBJ_PERSON, cfg.MainOrgAccountant_, OLW_CANINSERT, (void *)PPPRK_EMPL);
+	SetupPPObjCombo(this, CTLSEL_MAINORG2_DIRECTOR, PPOBJ_PERSON, cfg.MainOrgDirector_, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_EMPL));
+	SetupPPObjCombo(this, CTLSEL_MAINORG2_ACCTNT, PPOBJ_PERSON, cfg.MainOrgAccountant_, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_EMPL));
 	//
 	// Set Memo
 	//
@@ -5271,8 +5270,7 @@ int  MainOrg2Dialog::getPsnRegs(char *corrAcc, char *bicAcc, char *innAcc, long 
 
 int SLAPI PPObjPerson::ExtEdit(PPID * pID, void * extraPtr)
 {
-	PPID extra_kind_id = (PPID)extraPtr;
-
+	PPID extra_kind_id = reinterpret_cast<PPID>(extraPtr);
 	int    ok = 1, valid_data = 0, r = cmCancel, is_new = (*pID == 0);
 	MainOrg2Dialog * mainorg2_dlg = 0;
 	PPPersonPacket info;
@@ -5332,7 +5330,7 @@ int SLAPI SelectPerson(SelPersonIdent * pData)
 		{
 			Data = *pData;
 			SetupPPObjCombo(this, CTLSEL_SELPERSON_KIND, PPOBJ_PRSNKIND, Data.KindID, 0);
-			SetupPPObjCombo(this, CTLSEL_SELPERSON_PRSN, PPOBJ_PERSON, Data.PersonID, OLW_CANINSERT, (void *)Data.KindID);
+			SetupPPObjCombo(this, CTLSEL_SELPERSON_PRSN, PPOBJ_PERSON, Data.PersonID, OLW_CANINSERT, reinterpret_cast<void *>(Data.KindID));
 			return 1;
 		}
 		int    getDTS(SelPersonIdent * pData)
@@ -6033,7 +6031,7 @@ int FASTCALL SetupPersonCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PP
 		}
 		else
 			p_grp->SetPersonKind(personKindID);
-		ok = SetupPPObjCombo(dlg, ctlID, PPOBJ_PERSON, id, flags, (void *)personKindID);
+		ok = SetupPPObjCombo(dlg, ctlID, PPOBJ_PERSON, id, flags, reinterpret_cast<void *>(personKindID));
 		if(ok) {
 			int min_symb = personKindID ? 2 : 4;
 			dlg->SetupWordSelector(ctlID, new PersonSelExtra(0, personKindID), id, min_symb, WordSel_ExtraBlock::fAlwaysSearchBySubStr); // @v10.1.6 WordSel_ExtraBlock::fAlwaysSearchBySubStr

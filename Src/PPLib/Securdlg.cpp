@@ -50,8 +50,8 @@ public:
 			memzero(Password, sizeof(Password));
 			memcpy(Password, p_secur->Password, sizeof(p_secur->Password));
 			SetupPPObjCombo(this, CTLSEL_USR_GRP,    PPOBJ_USRGRP, p_secur->ParentID, OLW_CANINSERT);
-			SetupPPObjCombo(this, CTLSEL_USR_PERSON, PPOBJ_PERSON, p_secur->PersonID, OLW_CANINSERT, (void *)PPPRK_EMPL);
-			SetupPPObjCombo(this, CTLSEL_USR_UER,    PPOBJ_USREXCLRIGHTS, p_secur->UerID, 0, 0); // @v8.6.0
+			SetupPPObjCombo(this, CTLSEL_USR_PERSON, PPOBJ_PERSON, p_secur->PersonID, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_EMPL));
+			SetupPPObjCombo(this, CTLSEL_USR_UER,    PPOBJ_USREXCLRIGHTS, p_secur->UerID, 0, 0);
 			enableCommand(cmCfgConfig, (p_secur->Flags & USRF_INHCFG) ? ((v |= 1), 0) : 1);
 			enableCommand(cmCfgRights, (p_secur->Flags & USRF_INHRIGHTS) ? ((v |= 2), 0) : 1);
 			setCtrlData(CTL_USR_FLAGS, &v);
@@ -245,8 +245,8 @@ int SLAPI EditSecurDialog(PPID objType, PPID * pID, void * extraPtr)
 	PPSecurPacket sample_spack;
 	PPObjSecur::ExtraParam param;
 	if(extraPtr) {
-		if(((PPObjSecur::ExtraParam *)extraPtr)->IsConsistent())
-			param = *(PPObjSecur::ExtraParam *)extraPtr;
+		if(static_cast<const PPObjSecur::ExtraParam *>(extraPtr)->IsConsistent())
+			param = *static_cast<const PPObjSecur::ExtraParam *>(extraPtr);
 	}
 	PPID   obj = objType;
 	if(_id) {
@@ -426,7 +426,7 @@ int CfgOptionsDialog::setDTS(const PPConfig * pCfg)
 		Cfg = *pCfg;
 		setCtrlData(CTL_CFGOPTIONS_ACCESS, &Cfg.AccessLevel);
 		setCtrlData(CTL_CFGOPTIONS_MENU,   &Cfg.Menu);
-		SetupPPObjCombo(this, CTLSEL_CONFIG_MAINORG, PPOBJ_PERSON, Cfg.MainOrg, 0, (void *)PPPRK_MAIN);
+		SetupPPObjCombo(this, CTLSEL_CONFIG_MAINORG, PPOBJ_PERSON, Cfg.MainOrg, 0, reinterpret_cast<void *>(PPPRK_MAIN));
 		SetupPPObjCombo(this, CTLSEL_CFGOPTIONS_SHEET, PPOBJ_ACCSHEET, Cfg.LocAccSheetID, 0);
 		SetupPPObjCombo(this, CTLSEL_CFGOPTIONS_LOC, PPOBJ_LOCATION, Cfg.Location, 0);
 		SetupPPObjCombo(this, CTLSEL_CFGOPTIONS_DBDIV, PPOBJ_DBDIV, Cfg.DBDiv, 0);

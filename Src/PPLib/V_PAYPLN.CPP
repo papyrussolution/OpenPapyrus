@@ -642,7 +642,7 @@ int SLAPI PPViewPaymPlan::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	int    ok = -1;
 	LDATE dt = ZERODATE;
 	PPID  obj_id = 0L;
-	const  BrwHdr * p_hdr = (const BrwHdr *)pHdr;
+	const  BrwHdr * p_hdr = static_cast<const BrwHdr *>(pHdr);
 	BillFilt flt;
 	GetEditIds(p_hdr, &dt, &obj_id, (pBrw) ? pBrw->GetCurColumn() : 0);
 	flt.List.InitEmpty();
@@ -659,7 +659,7 @@ int SLAPI PPViewPaymPlan::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 	if(ok == -2) {
 		BrwHdr hdr;
 		if(pHdr)
-			hdr = *(BrwHdr *)pHdr;
+			hdr = *static_cast<const BrwHdr *>(pHdr);
 		else
 			MEMSZERO(hdr);
 		GetEditIds(&hdr, &hdr.Dt, &hdr.ObjID, (pBrw) ? pBrw->GetCurColumn() : 0);

@@ -617,7 +617,7 @@ int UriComposeQueryMallocEx(char * *dest, const UriQueryList*queryList, int spac
 	}
 	charsRequired++;
 	/* Allocate space */
-	queryString =(char *)SAlloc::M(charsRequired*sizeof(char));
+	queryString =static_cast<char *>(SAlloc::M(charsRequired*sizeof(char)));
 	if(queryString == NULL) {
 		return SLERR_NOMEM;
 	}
@@ -648,9 +648,9 @@ int UriComposeQueryEngine(char * dest, const UriQueryList*queryList,
 		const char * const key = queryList->key;
 		const char * const value = queryList->value;
 		const int worstCase =(normalizeBreaks == TRUE ? 6 : 3);
-		const int keyLen = (int)sstrlen(key);
+		const int keyLen = sstrleni(key);
 		const int keyRequiredChars = worstCase*keyLen;
-		const int valueLen = (int)sstrlen(value);
+		const int valueLen = sstrleni(value);
 		const int valueRequiredChars = worstCase*valueLen;
 		if(dest == NULL) {
 			if(firstItem == TRUE) {
@@ -852,10 +852,10 @@ int UriAppendQueryItem(UriQueryList ** ppPrevNext, int * pItemCount, const char 
 	}*/
 	THROW(ppPrevNext && pItemCount && pKeyFirst && pKeyAfter && (pKeyFirst <= pKeyAfter) && (pValueFirst <= pValueAfter) && ((pKeyFirst != pKeyAfter) || pValueFirst || pValueAfter));
 	// Append new empty item 
-	THROW(*ppPrevNext = (UriQueryList *)SAlloc::M(1*sizeof(UriQueryList)));
+	THROW(*ppPrevNext = static_cast<UriQueryList *>(SAlloc::M(1*sizeof(UriQueryList))));
 	(*ppPrevNext)->next = NULL;
 	// Fill key 
-	THROW(p_key = (char *)SAlloc::M((key_len+1)*sizeof(char)));
+	THROW(p_key = static_cast<char *>(SAlloc::M((key_len+1)*sizeof(char))));
 	p_key[key_len] = _UT('\0');
 	if(key_len > 0) {
 		memcpy(p_key, pKeyFirst, key_len*sizeof(char));
@@ -864,7 +864,7 @@ int UriAppendQueryItem(UriQueryList ** ppPrevNext, int * pItemCount, const char 
 	(*ppPrevNext)->key = p_key;
 	// Fill value 
 	if(pValueFirst) {
-		THROW(p_value = (char *)SAlloc::M((value_len+1)*sizeof(char)));
+		THROW(p_value = static_cast<char *>(SAlloc::M((value_len+1)*sizeof(char))));
 		p_value[value_len] = _UT('\0');
 		if(value_len > 0) {
 			memcpy(p_value, pValueFirst, value_len*sizeof(char));
@@ -1059,7 +1059,7 @@ static int FASTCALL UriCompareRange(const UriTextRange * a, const UriTextRange *
 {
 	// NOTE: Both NULL means equal! 
 	if(!a || !b)
-		return (!a && !b) ? TRUE : FALSE;
+		return BIN(!a && !b);
 	else {
 		const  int a_len = a->Len();
 		if(a_len > b->Len())
@@ -1075,7 +1075,7 @@ int UriEqualsUri(const UriUri * a, const UriUri * b)
 {
 	
 	if(!a || !b) { // NOTE: Both NULL means equal! 
-		return (!a && !b) ? TRUE : FALSE;
+		return BIN(!a && !b);
 	}
 	else if(UriCompareRange(&(a->Scheme), &(b->Scheme))) { // scheme 
 		return FALSE;
@@ -1599,7 +1599,7 @@ static int FASTCALL UriLowercaseMalloc(const char ** ppFirst, const char ** afte
 			ok = 0;
 		}
 		else if(lenInChars > 0) {
-			buffer =(char *)SAlloc::M(lenInChars * sizeof(char));
+			buffer = static_cast<char *>(SAlloc::M(lenInChars * sizeof(char)));
 			if(!buffer) {
 				ok = 0;
 			}
@@ -1735,14 +1735,14 @@ static int FASTCALL UriFixPercentEncodingMalloc(const char ** ppFirst, const cha
 	}
 	else {
 		// Old text length 
-		int lenInChars = (int)(*ppAfterLast-*ppFirst);
+		int lenInChars = static_cast<int>(*ppAfterLast-*ppFirst);
 		if(lenInChars == 0)
 			return TRUE;
 		else if(lenInChars < 0)
 			return FALSE;
 		else {
 			// New buffer 
-			char * p_buffer = (char *)SAlloc::M(lenInChars * sizeof(char));
+			char * p_buffer = static_cast<char *>(SAlloc::M(lenInChars * sizeof(char)));
 			if(!p_buffer)
 				return FALSE;
 			else {
@@ -1758,10 +1758,10 @@ static int FASTCALL UriFixPercentEncodingMalloc(const char ** ppFirst, const cha
 static int FASTCALL UriMakeRangeOwner(uint * doneMask, uint maskTest, UriTextRange * range)
 {
 	if(((*doneMask&maskTest) == 0) && range->P_First && range->P_AfterLast) {
-		const int len_in_chars =(int)range->Len();
+		const int len_in_chars = static_cast<int>(range->Len());
 		if(len_in_chars > 0) {
 			const int lenInBytes = len_in_chars * sizeof(char);
-			char * p_dup = (char *)SAlloc::M(lenInBytes);
+			char * p_dup = static_cast<char *>(SAlloc::M(lenInBytes));
 			if(p_dup == NULL) 
 				return FALSE; // Raises SAlloc::M error 
 			else {

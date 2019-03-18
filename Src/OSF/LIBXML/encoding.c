@@ -705,7 +705,7 @@ static int UTF8ToUTF16(uchar* outb, int * outlen, const uchar* in, int * inlen)
 #ifdef DEBUG_ENCODING
 			xmlGenericError(0, "Added FFFE Byte Order Mark\n");
 #endif
-			return(2);
+			return (2);
 		}
 		*outlen = 0;
 		*inlen = 0;
@@ -961,25 +961,25 @@ xmlCharEncoding xmlDetectCharEncoding(const uchar* in, int len)
 	else {
 		if(len >= 4) {
 			if((in[0] == 0x00) && (in[1] == 0x00) && (in[2] == 0x00) && (in[3] == 0x3C))
-				return(XML_CHAR_ENCODING_UCS4BE);
+				return (XML_CHAR_ENCODING_UCS4BE);
 			else if((in[0] == 0x3C) && (in[1] == 0x00) && (in[2] == 0x00) && (in[3] == 0x00))
-				return(XML_CHAR_ENCODING_UCS4LE);
+				return (XML_CHAR_ENCODING_UCS4LE);
 			else if((in[0] == 0x00) && (in[1] == 0x00) && (in[2] == 0x3C) && (in[3] == 0x00))
-				return(XML_CHAR_ENCODING_UCS4_2143);
+				return (XML_CHAR_ENCODING_UCS4_2143);
 			else if((in[0] == 0x00) && (in[1] == 0x3C) && (in[2] == 0x00) && (in[3] == 0x00))
-				return(XML_CHAR_ENCODING_UCS4_3412);
+				return (XML_CHAR_ENCODING_UCS4_3412);
 			else if((in[0] == 0x4C) && (in[1] == 0x6F) && (in[2] == 0xA7) && (in[3] == 0x94))
-				return(XML_CHAR_ENCODING_EBCDIC);
+				return (XML_CHAR_ENCODING_EBCDIC);
 			else if((in[0] == 0x3C) && (in[1] == 0x3F) && (in[2] == 0x78) && (in[3] == 0x6D))
-				return(XML_CHAR_ENCODING_UTF8);
+				return (XML_CHAR_ENCODING_UTF8);
 			//
 			// Although not part of the recommendation, we also
 			// attempt an "auto-recognition" of UTF-16LE and UTF-16BE encodings.
 			//
 			else if((in[0] == 0x3C) && (in[1] == 0x00) && (in[2] == 0x3F) && (in[3] == 0x00))
-				return(XML_CHAR_ENCODING_UTF16LE);
+				return (XML_CHAR_ENCODING_UTF16LE);
 			else if((in[0] == 0x00) && (in[1] == 0x3C) && (in[2] == 0x00) && (in[3] == 0x3F))
-				return(XML_CHAR_ENCODING_UTF16BE);
+				return (XML_CHAR_ENCODING_UTF16BE);
 		}
 		if(len >= 3) {
 			//
@@ -1134,7 +1134,7 @@ xmlCharEncoding xmlParseCharEncoding(const char* name)
 	char upper[500];
 	int i;
 	if(!name)
-		return(XML_CHAR_ENCODING_NONE);
+		return (XML_CHAR_ENCODING_NONE);
 	/*
 	 * Do the alias resolution
 	 */
@@ -1148,48 +1148,48 @@ xmlCharEncoding xmlParseCharEncoding(const char* name)
 	}
 	upper[i] = 0;
 
-	if(sstreq(upper, "")) return(XML_CHAR_ENCODING_NONE);
-	if(sstreq(upper, "UTF-8")) return(XML_CHAR_ENCODING_UTF8);
-	if(sstreq(upper, "UTF8")) return(XML_CHAR_ENCODING_UTF8);
+	if(sstreq(upper, "")) return (XML_CHAR_ENCODING_NONE);
+	if(sstreq(upper, "UTF-8")) return (XML_CHAR_ENCODING_UTF8);
+	if(sstreq(upper, "UTF8")) return (XML_CHAR_ENCODING_UTF8);
 	/*
 	 * NOTE: if we were able to parse this, the endianness of UTF16 is already found and in use
 	 */
-	if(sstreq(upper, "UTF-16")) return(XML_CHAR_ENCODING_UTF16LE);
-	if(sstreq(upper, "UTF16")) return(XML_CHAR_ENCODING_UTF16LE);
-	if(sstreq(upper, "ISO-10646-UCS-2")) return(XML_CHAR_ENCODING_UCS2);
-	if(sstreq(upper, "UCS-2")) return(XML_CHAR_ENCODING_UCS2);
-	if(sstreq(upper, "UCS2")) return(XML_CHAR_ENCODING_UCS2);
+	if(sstreq(upper, "UTF-16")) return (XML_CHAR_ENCODING_UTF16LE);
+	if(sstreq(upper, "UTF16")) return (XML_CHAR_ENCODING_UTF16LE);
+	if(sstreq(upper, "ISO-10646-UCS-2")) return (XML_CHAR_ENCODING_UCS2);
+	if(sstreq(upper, "UCS-2")) return (XML_CHAR_ENCODING_UCS2);
+	if(sstreq(upper, "UCS2")) return (XML_CHAR_ENCODING_UCS2);
 	/*
 	 * NOTE: if we were able to parse this, the endianness of UCS4 is already found and in use
 	 */
-	if(sstreq(upper, "ISO-10646-UCS-4")) return(XML_CHAR_ENCODING_UCS4LE);
-	if(sstreq(upper, "UCS-4")) return(XML_CHAR_ENCODING_UCS4LE);
-	if(sstreq(upper, "UCS4")) return(XML_CHAR_ENCODING_UCS4LE);
+	if(sstreq(upper, "ISO-10646-UCS-4")) return (XML_CHAR_ENCODING_UCS4LE);
+	if(sstreq(upper, "UCS-4")) return (XML_CHAR_ENCODING_UCS4LE);
+	if(sstreq(upper, "UCS4")) return (XML_CHAR_ENCODING_UCS4LE);
 
-	if(sstreq(upper,  "ISO-8859-1")) return(XML_CHAR_ENCODING_8859_1);
-	if(sstreq(upper,  "ISO-LATIN-1")) return(XML_CHAR_ENCODING_8859_1);
-	if(sstreq(upper,  "ISO LATIN 1")) return(XML_CHAR_ENCODING_8859_1);
+	if(sstreq(upper,  "ISO-8859-1")) return (XML_CHAR_ENCODING_8859_1);
+	if(sstreq(upper,  "ISO-LATIN-1")) return (XML_CHAR_ENCODING_8859_1);
+	if(sstreq(upper,  "ISO LATIN 1")) return (XML_CHAR_ENCODING_8859_1);
 
-	if(sstreq(upper,  "ISO-8859-2")) return(XML_CHAR_ENCODING_8859_2);
-	if(sstreq(upper,  "ISO-LATIN-2")) return(XML_CHAR_ENCODING_8859_2);
-	if(sstreq(upper,  "ISO LATIN 2")) return(XML_CHAR_ENCODING_8859_2);
+	if(sstreq(upper,  "ISO-8859-2")) return (XML_CHAR_ENCODING_8859_2);
+	if(sstreq(upper,  "ISO-LATIN-2")) return (XML_CHAR_ENCODING_8859_2);
+	if(sstreq(upper,  "ISO LATIN 2")) return (XML_CHAR_ENCODING_8859_2);
 
-	if(sstreq(upper,  "ISO-8859-3")) return(XML_CHAR_ENCODING_8859_3);
-	if(sstreq(upper,  "ISO-8859-4")) return(XML_CHAR_ENCODING_8859_4);
-	if(sstreq(upper,  "ISO-8859-5")) return(XML_CHAR_ENCODING_8859_5);
-	if(sstreq(upper,  "ISO-8859-6")) return(XML_CHAR_ENCODING_8859_6);
-	if(sstreq(upper,  "ISO-8859-7")) return(XML_CHAR_ENCODING_8859_7);
-	if(sstreq(upper,  "ISO-8859-8")) return(XML_CHAR_ENCODING_8859_8);
-	if(sstreq(upper,  "ISO-8859-9")) return(XML_CHAR_ENCODING_8859_9);
+	if(sstreq(upper,  "ISO-8859-3")) return (XML_CHAR_ENCODING_8859_3);
+	if(sstreq(upper,  "ISO-8859-4")) return (XML_CHAR_ENCODING_8859_4);
+	if(sstreq(upper,  "ISO-8859-5")) return (XML_CHAR_ENCODING_8859_5);
+	if(sstreq(upper,  "ISO-8859-6")) return (XML_CHAR_ENCODING_8859_6);
+	if(sstreq(upper,  "ISO-8859-7")) return (XML_CHAR_ENCODING_8859_7);
+	if(sstreq(upper,  "ISO-8859-8")) return (XML_CHAR_ENCODING_8859_8);
+	if(sstreq(upper,  "ISO-8859-9")) return (XML_CHAR_ENCODING_8859_9);
 
-	if(sstreq(upper, "ISO-2022-JP")) return(XML_CHAR_ENCODING_2022_JP);
-	if(sstreq(upper, "SHIFT_JIS")) return(XML_CHAR_ENCODING_SHIFT_JIS);
-	if(sstreq(upper, "EUC-JP")) return(XML_CHAR_ENCODING_EUC_JP);
+	if(sstreq(upper, "ISO-2022-JP")) return (XML_CHAR_ENCODING_2022_JP);
+	if(sstreq(upper, "SHIFT_JIS")) return (XML_CHAR_ENCODING_SHIFT_JIS);
+	if(sstreq(upper, "EUC-JP")) return (XML_CHAR_ENCODING_EUC_JP);
 
 #ifdef DEBUG_ENCODING
 	xmlGenericError(0, "Unknown encoding %s\n", name);
 #endif
-	return(XML_CHAR_ENCODING_ERROR);
+	return (XML_CHAR_ENCODING_ERROR);
 }
 /**
  * xmlGetCharEncodingName:
@@ -1206,27 +1206,27 @@ const char* xmlGetCharEncodingName(xmlCharEncoding enc)
 	switch(enc) {
 		case XML_CHAR_ENCODING_ERROR: return 0;
 		case XML_CHAR_ENCODING_NONE: return 0;
-		case XML_CHAR_ENCODING_UTF8: return("UTF-8");
-		case XML_CHAR_ENCODING_UTF16LE: return("UTF-16");
-		case XML_CHAR_ENCODING_UTF16BE: return("UTF-16");
-		case XML_CHAR_ENCODING_EBCDIC: return("EBCDIC");
-		case XML_CHAR_ENCODING_UCS4LE: return("ISO-10646-UCS-4");
-		case XML_CHAR_ENCODING_UCS4BE: return("ISO-10646-UCS-4");
-		case XML_CHAR_ENCODING_UCS4_2143: return("ISO-10646-UCS-4");
-		case XML_CHAR_ENCODING_UCS4_3412: return("ISO-10646-UCS-4");
-		case XML_CHAR_ENCODING_UCS2: return("ISO-10646-UCS-2");
-		case XML_CHAR_ENCODING_8859_1: return("ISO-8859-1");
-		case XML_CHAR_ENCODING_8859_2: return("ISO-8859-2");
-		case XML_CHAR_ENCODING_8859_3: return("ISO-8859-3");
-		case XML_CHAR_ENCODING_8859_4: return("ISO-8859-4");
-		case XML_CHAR_ENCODING_8859_5: return("ISO-8859-5");
-		case XML_CHAR_ENCODING_8859_6: return("ISO-8859-6");
-		case XML_CHAR_ENCODING_8859_7: return("ISO-8859-7");
-		case XML_CHAR_ENCODING_8859_8: return("ISO-8859-8");
-		case XML_CHAR_ENCODING_8859_9: return("ISO-8859-9");
-		case XML_CHAR_ENCODING_2022_JP: return("ISO-2022-JP");
-		case XML_CHAR_ENCODING_SHIFT_JIS: return("Shift-JIS");
-		case XML_CHAR_ENCODING_EUC_JP: return("EUC-JP");
+		case XML_CHAR_ENCODING_UTF8: return ("UTF-8");
+		case XML_CHAR_ENCODING_UTF16LE: return ("UTF-16");
+		case XML_CHAR_ENCODING_UTF16BE: return ("UTF-16");
+		case XML_CHAR_ENCODING_EBCDIC: return ("EBCDIC");
+		case XML_CHAR_ENCODING_UCS4LE: return ("ISO-10646-UCS-4");
+		case XML_CHAR_ENCODING_UCS4BE: return ("ISO-10646-UCS-4");
+		case XML_CHAR_ENCODING_UCS4_2143: return ("ISO-10646-UCS-4");
+		case XML_CHAR_ENCODING_UCS4_3412: return ("ISO-10646-UCS-4");
+		case XML_CHAR_ENCODING_UCS2: return ("ISO-10646-UCS-2");
+		case XML_CHAR_ENCODING_8859_1: return ("ISO-8859-1");
+		case XML_CHAR_ENCODING_8859_2: return ("ISO-8859-2");
+		case XML_CHAR_ENCODING_8859_3: return ("ISO-8859-3");
+		case XML_CHAR_ENCODING_8859_4: return ("ISO-8859-4");
+		case XML_CHAR_ENCODING_8859_5: return ("ISO-8859-5");
+		case XML_CHAR_ENCODING_8859_6: return ("ISO-8859-6");
+		case XML_CHAR_ENCODING_8859_7: return ("ISO-8859-7");
+		case XML_CHAR_ENCODING_8859_8: return ("ISO-8859-8");
+		case XML_CHAR_ENCODING_8859_9: return ("ISO-8859-9");
+		case XML_CHAR_ENCODING_2022_JP: return ("ISO-2022-JP");
+		case XML_CHAR_ENCODING_SHIFT_JIS: return ("Shift-JIS");
+		case XML_CHAR_ENCODING_EUC_JP: return ("EUC-JP");
 		case XML_CHAR_ENCODING_ASCII: return 0;
 	}
 	return 0;
@@ -2231,7 +2231,7 @@ retry:
 		    break;
 		case -2: {
 		    int len = in->use;
-		    const xmlChar * utf = (const xmlChar*)in->content;
+		    const xmlChar * utf = (const xmlChar *)in->content;
 		    int cur = xmlGetUTF8Char(utf, &len);
 		    if((charref_len != 0) && (written < charref_len)) {
 			    //
@@ -2427,7 +2427,7 @@ static int UTF8ToISO8859x(uchar* out, int * outlen, const uchar* in, int * inlen
 				// trailing byte not in input buffer
 				*outlen = out - outstart;
 				*inlen = processed - instart;
-				return(-3);
+				return (-3);
 			}
 			c = *in++;
 			if((c & 0xC0) != 0x80) {

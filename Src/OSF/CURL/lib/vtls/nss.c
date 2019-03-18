@@ -1135,7 +1135,7 @@ static CURLcode nss_init_core(struct Curl_easy * data, const char * cert_dir)
 	NSSInitParameters initparams;
 	if(nss_context != NULL)
 		return CURLE_OK;
-	memzero((void *)&initparams, sizeof(initparams));
+	memzero(/*(void *)*/&initparams, sizeof(initparams));
 	initparams.length = sizeof(initparams);
 	if(cert_dir) {
 		char * certpath = aprintf("sql:%s", cert_dir);

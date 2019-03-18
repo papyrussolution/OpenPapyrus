@@ -1128,7 +1128,7 @@ void SGeo::SinCosPair::Set_SinCosDX(double x)
 	//double s = sin(r);
 	//double c = cos(r);
 	SGeo::SinCosPair sc_(r);
-	switch((unsigned)q & 3U) {
+	switch((uint)q & 3U) {
 		case 0U: 
 			S = sc_.S;
 			C = sc_.C;

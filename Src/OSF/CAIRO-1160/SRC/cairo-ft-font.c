@@ -932,13 +932,11 @@ static void _fill_xrender_bitmap(FT_Bitmap * target,
 		case FT_PIXEL_MODE_MONO:
 		    if(subpixel) {
 			    /* convert mono to ARGB32 values */
-
 			    for(h = height; h > 0; h--, srcLine += src_pitch, dstLine += pitch) {
 				    int x;
-
 				    for(x = 0; x < width; x++) {
 					    if(srcLine[(x >> 3)] & (0x80 >> (x & 7)))
-						    ((uint*)dstLine)[x] = 0xffffffffU;
+						    ((uint *)dstLine)[x] = 0xffffffffU;
 				    }
 			    }
 			    target->pixel_mode = FT_PIXEL_MODE_LCD;
@@ -958,28 +956,21 @@ static void _fill_xrender_bitmap(FT_Bitmap * target,
 		    }
 		    else {
 			    /* copy mono to mono */
-
 			    int bytes = (width + 7) >> 3;
-
 			    for(h = height; h > 0; h--, srcLine += src_pitch, dstLine += pitch)
 				    memcpy(dstLine, srcLine, bytes);
 		    }
 		    break;
-
 		case FT_PIXEL_MODE_GRAY:
 		    if(subpixel) {
 			    /* convert gray to ARGB32 values */
-
 			    for(h = height; h > 0; h--, srcLine += src_pitch, dstLine += pitch) {
 				    int x;
-				    uint * dst = (uint*)dstLine;
-
+				    uint * dst = (uint *)dstLine;
 				    for(x = 0; x < width; x++) {
 					    uint pix = srcLine[x];
-
 					    pix |= (pix << 8);
 					    pix |= (pix << 16);
-
 					    dst[x] = pix;
 				    }
 			    }
@@ -987,12 +978,10 @@ static void _fill_xrender_bitmap(FT_Bitmap * target,
 		    }
 		    else {
 			    /* copy gray into gray */
-
 			    for(h = height; h > 0; h--, srcLine += src_pitch, dstLine += pitch)
 				    memcpy(dstLine, srcLine, width);
 		    }
 		    break;
-
 		case FT_PIXEL_MODE_LCD:
 		    if(!bgr) {
 			    /* convert horizontal RGB into ARGB32 */
@@ -1000,7 +989,7 @@ static void _fill_xrender_bitmap(FT_Bitmap * target,
 			    for(h = height; h > 0; h--, srcLine += src_pitch, dstLine += pitch) {
 				    int x;
 				    uchar * src = srcLine;
-				    uint * dst = (uint*)dstLine;
+				    uint * dst = (uint *)dstLine;
 
 				    for(x = 0; x < width; x++, src += 3) {
 					    uint pix;
@@ -1020,7 +1009,7 @@ static void _fill_xrender_bitmap(FT_Bitmap * target,
 			    for(h = height; h > 0; h--, srcLine += src_pitch, dstLine += pitch) {
 				    int x;
 				    uchar * src = srcLine;
-				    uint * dst = (uint*)dstLine;
+				    uint * dst = (uint *)dstLine;
 
 				    for(x = 0; x < width; x++, src += 3) {
 					    uint pix;
@@ -1042,7 +1031,7 @@ static void _fill_xrender_bitmap(FT_Bitmap * target,
 			    for(h = height; h > 0; h--, srcLine += 3 * src_pitch, dstLine += pitch) {
 				    int x;
 				    uchar* src = srcLine;
-				    uint*  dst = (uint*)dstLine;
+				    uint*  dst = (uint *)dstLine;
 
 				    for(x = 0; x < width; x++, src += 1) {
 					    uint pix;
@@ -1058,7 +1047,7 @@ static void _fill_xrender_bitmap(FT_Bitmap * target,
 			    for(h = height; h > 0; h--, srcLine += 3*src_pitch, dstLine += pitch) {
 				    int x;
 				    uchar * src = srcLine;
-				    uint * dst = (uint*)dstLine;
+				    uint * dst = (uint *)dstLine;
 
 				    for(x = 0; x < width; x++, src += 1) {
 					    uint pix;

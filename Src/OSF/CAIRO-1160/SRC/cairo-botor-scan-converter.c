@@ -590,19 +590,15 @@ static cairo_bool_t intersect_lines(const edge_t * a, const edge_t * b,
 			qr.rem = _cairo_int64_negate(qr.rem);
 		qr.rem = _cairo_int64_mul(qr.rem, _cairo_int32_to_int64(2));
 		if(_cairo_int64_ge(qr.rem, den_det)) {
-			qr.quo = _cairo_int64_add(qr.quo,
-				_cairo_int32_to_int64(_cairo_int64_negative(qr.quo) ? -1 : 1));
+			qr.quo = _cairo_int64_add(qr.quo, _cairo_int32_to_int64(_cairo_int64_negative(qr.quo) ? -1 : 1));
 		}
 		else
 			intersection->x.exactness = _cairo_bo_intersect_ordinate::INEXACT;
 	}
 #endif
 	intersection->x.ordinate = _cairo_int64_to_int32(qr.quo);
-
 	/* y = det (a_det, dy1, b_det, dy2) / den_det */
-	qr = _cairo_int_96by64_32x64_divrem(det64x32_128(a_det, dy1,
-		b_det, dy2),
-		den_det);
+	qr = _cairo_int_96by64_32x64_divrem(det64x32_128(a_det, dy1, b_det, dy2), den_det);
 	if(_cairo_int64_eq(qr.rem, den_det))
 		return FALSE;
 #if 0
@@ -611,13 +607,11 @@ static cairo_bool_t intersect_lines(const edge_t * a, const edge_t * b,
 	intersection->y.exactness = _cairo_bo_intersect_ordinate::EXACT;
 	if(!_cairo_int64_is_zero(qr.rem)) {
 		/* compute ceiling away from zero */
-		qr.quo = _cairo_int64_add(qr.quo,
-			_cairo_int32_to_int64(_cairo_int64_negative(qr.quo) ? -1 : 1));
+		qr.quo = _cairo_int64_add(qr.quo, _cairo_int32_to_int64(_cairo_int64_negative(qr.quo) ? -1 : 1));
 		intersection->y.exactness = _cairo_bo_intersect_ordinate::INEXACT;
 	}
 #endif
 	intersection->y.ordinate = _cairo_int64_to_int32(qr.quo);
-
 	return TRUE;
 }
 

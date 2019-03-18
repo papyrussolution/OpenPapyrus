@@ -46,7 +46,7 @@ static const char * ngx_http_upstream_zone(ngx_conf_t * cf, const ngx_command_t 
 	ssize_t size;
 	ngx_http_upstream_srv_conf_t * uscf = (ngx_http_upstream_srv_conf_t *)ngx_http_conf_get_module_srv_conf(cf, ngx_http_upstream_module);
 	ngx_http_upstream_main_conf_t  * umcf = (ngx_http_upstream_main_conf_t *)ngx_http_conf_get_module_main_conf(cf, ngx_http_upstream_module);
-	ngx_str_t  * value = (ngx_str_t*)cf->args->elts;
+	ngx_str_t  * value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(!value[1].len) {
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid zone name \"%V\"", &value[1]);
 		return NGX_CONF_ERROR;
@@ -96,7 +96,7 @@ static ngx_int_t ngx_http_upstream_init_zone(ngx_shm_zone_t * shm_zone, void * d
 		return NGX_OK;
 	}
 	len = sizeof(" in upstream zone \"\"") + shm_zone->shm.name.len;
-	shpool->log_ctx = (u_char*)ngx_slab_alloc(shpool, len);
+	shpool->log_ctx = (u_char *)ngx_slab_alloc(shpool, len);
 	if(shpool->log_ctx == NULL) {
 		return NGX_ERROR;
 	}

@@ -20,7 +20,7 @@ int X509_NAME_get_text_by_OBJ(X509_NAME * name, const ASN1_OBJECT * obj, char * 
 	const ASN1_STRING * data;
 	int i = X509_NAME_get_index_by_OBJ(name, obj, -1);
 	if(i < 0)
-		return (-1);
+		return -1;
 	data = X509_NAME_ENTRY_get_data(X509_NAME_get_entry(name, i));
 	i = (data->length > (len - 1)) ? (len - 1) : data->length;
 	if(!buf)
@@ -49,7 +49,7 @@ int X509_NAME_get_index_by_OBJ(X509_NAME * name, const ASN1_OBJECT * obj, int la
 	X509_NAME_ENTRY * ne;
 	STACK_OF(X509_NAME_ENTRY) *sk;
 	if(!name)
-		return (-1);
+		return -1;
 	if(lastpos < 0)
 		lastpos = -1;
 	sk = name->entries;
@@ -59,7 +59,7 @@ int X509_NAME_get_index_by_OBJ(X509_NAME * name, const ASN1_OBJECT * obj, int la
 		if(OBJ_cmp(ne->object, obj) == 0)
 			return (lastpos);
 	}
-	return (-1);
+	return -1;
 }
 
 X509_NAME_ENTRY * X509_NAME_get_entry(const X509_NAME * name, int loc)

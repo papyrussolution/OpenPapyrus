@@ -85,7 +85,7 @@ void PrcTechCtrlGroup::onPrcSelection(TDialog * pDlg, int onIdleStatus)
 				PPObjTech::SetupCombo(pDlg, CtlselTech, Data.TechID, 0, Data.PrcID, SelGoodsID);
 			}
 			else
-				SetupPPObjCombo(pDlg, CtlselTech, PPOBJ_TECH, Data.TechID, OLW_SETUPSINGLE, (void *)Data.PrcID);
+				SetupPPObjCombo(pDlg, CtlselTech, PPOBJ_TECH, Data.TechID, OLW_SETUPSINGLE, reinterpret_cast<void *>(Data.PrcID));
 			setupGoodsName(pDlg);
 			if(prc_rec.WrOffOpID != prev_prc_rec.WrOffOpID)
 				setupArticle(pDlg, &prc_rec);
@@ -113,7 +113,7 @@ void PrcTechCtrlGroup::selTechByGoods(TDialog * pDlg)
 					if(SelGoodsID)
 						PPObjTech::SetupCombo(pDlg, CtlselTech, /*Data.TechID*/0, 0, Data.PrcID, SelGoodsID);
 					else
-						SetupPPObjCombo(pDlg, CtlselTech, PPOBJ_TECH, Data.TechID, 0, (void *)Data.PrcID);
+						SetupPPObjCombo(pDlg, CtlselTech, PPOBJ_TECH, Data.TechID, 0, reinterpret_cast<void *>(Data.PrcID));
 					setupGoodsName(pDlg);
 					TView::messageCommand(pDlg, cmCBSelected, pDlg->getCtrlView(CtlselTech));
 				}
@@ -144,7 +144,7 @@ void PrcTechCtrlGroup::setupGoodsName(TDialog * pDlg)
 	SString goods_name;
 	if(TecObj.Search(Data.TechID, &tec_rec) > 0)
 		if(GetGoodsNameR(tec_rec.GoodsID, goods_name) <= 0) {
-			SetupPPObjCombo(pDlg, CtlselTech, PPOBJ_TECH, Data.TechID, 0, (void *)Data.PrcID);
+			SetupPPObjCombo(pDlg, CtlselTech, PPOBJ_TECH, Data.TechID, 0, reinterpret_cast<void *>(Data.PrcID));
 			SelGoodsID = 0;
 		}
 	pDlg->setStaticText(CtlStGoods, goods_name);
@@ -203,7 +203,7 @@ int PrcTechCtrlGroup::setData(TDialog * pDlg, void * pData)
 			olw |= OLW_CANSELUPLEVEL;
 		if(Flags & fEnablePrcInsert)
 			olw |= OLW_CANINSERT;
-		SetupPPObjCombo(pDlg, CtlselPrc, PPOBJ_PROCESSOR, Data.PrcID, olw, (void *)Data.PrcParentID);
+		SetupPPObjCombo(pDlg, CtlselPrc, PPOBJ_PROCESSOR, Data.PrcID, olw, reinterpret_cast<void *>(Data.PrcParentID));
 	}
 	pDlg->disableCtrl(CtlselTech, IdleStatus);
 	if(IdleStatus)
@@ -213,7 +213,7 @@ int PrcTechCtrlGroup::setData(TDialog * pDlg, void * pData)
 	long   prc_ext_param = Data.PrcParentID;
 	int    r = prc_obj.GetRecWithInheritance(Data.PrcID, &prc_rec);
 	if(r > 0) {
-		SetupPPObjCombo(pDlg, CtlselTech, PPOBJ_TECH, Data.TechID, OLW_SETUPSINGLE, (void *)Data.PrcID);
+		SetupPPObjCombo(pDlg, CtlselTech, PPOBJ_TECH, Data.TechID, OLW_SETUPSINGLE, reinterpret_cast<void *>(Data.PrcID));
 		setupGoodsName(pDlg);
 		setupArticle(pDlg, &prc_rec);
 	}

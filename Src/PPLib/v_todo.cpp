@@ -1081,7 +1081,7 @@ void PrjTaskFiltDialog::SetupCtrls()
 	setCtrlData(CTLSEL_TODOFILT_CTPAR, &Data.TabParam);
 	disableCtrl(CTLSEL_TODOFILT_CTPAR, Data.TabType == PrjTaskFilt::crstNone);
 	if(Data.Kind == TODOKIND_TEMPLATE)
-		SetupPPObjCombo(this, CTLSEL_TODOFILT_TEMPLATE, PPOBJ_PRJTASK, 0, 0, (void *)TODOKIND_TEMPLATE);
+		SetupPPObjCombo(this, CTLSEL_TODOFILT_TEMPLATE, PPOBJ_PRJTASK, 0, 0, reinterpret_cast<void *>(TODOKIND_TEMPLATE));
 	disableCtrls(Data.Kind == TODOKIND_TEMPLATE, CTL_TODOFILT_TEMPLATE, CTLSEL_TODOFILT_TEMPLATE, 0L);
 	disableCtrl(CTLSEL_TODOFILT_SUBST, !oneof2(Data.TabType, PrjTaskFilt::crstClientDate, PrjTaskFilt::crstEmployerDate));
 	if(Data.TabType != PrjTaskFilt::crstClientDate && Data.TabType != PrjTaskFilt::crstEmployerDate)
@@ -1105,7 +1105,7 @@ int PrjTaskFiltDialog::setDTS(const PrjTaskFilt * pData)
 	SetPeriodInput(this, CTL_TODOFILT_ESTFINISH, &Data.EstFinishPeriod);
 	SetPeriodInput(this, CTL_TODOFILT_FINISH,  &Data.FinishPeriod);
 
-	SetupPPObjCombo(this,  CTLSEL_TODOFILT_TEMPLATE, PPOBJ_PRJTASK, Data.TemplateID, 0, (void *)TODOKIND_TEMPLATE);
+	SetupPPObjCombo(this,  CTLSEL_TODOFILT_TEMPLATE, PPOBJ_PRJTASK, Data.TemplateID, 0, reinterpret_cast<void *>(TODOKIND_TEMPLATE));
 	SetupPersonCombo(this, CTLSEL_TODOFILT_CREATOR,  Data.CreatorID, 0, (PPID)PPPRK_EMPL, 0);
 	SetupPersonCombo(this, CTLSEL_TODOFILT_EMPLOYER, Data.EmployerID, 0, (PPID)PPPRK_EMPL, 0);
 	SetupPersonCombo(this, CTLSEL_TODOFILT_CLIENT,   Data.ClientID, 0, (PPID)PPPRK_CLIENT, 0);
@@ -1737,7 +1737,7 @@ int SLAPI PPViewPrjTask::ChangeTasks(PPIDArray * pAry)
 int SLAPI PPViewPrjTask::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	PPIDArray id_list;
-	PPID   id = (pHdr) ? *(PPID *)pHdr : 0;
+	PPID   id = (pHdr) ? *static_cast<const PPID *>(pHdr) : 0;
 	PPID   temp_id;
 	int    ok = 0;
 	/*

@@ -39,7 +39,7 @@ void qr_finder_reset(qr_finder_t * qrf)
  */
 qr_finder_line * _zbar_decoder_get_qr_finder_line(zbar_decoder_t * dcode)
 {
-	return(&dcode->qrf.line);
+	return (&dcode->qrf.line);
 }
 
 zbar_symbol_type_t _zbar_find_qr(zbar_decoder_t * dcode)
@@ -95,7 +95,7 @@ zbar_symbol_type_t _zbar_find_qr(zbar_decoder_t * dcode)
 
 	dcode->direction = 0;
 	dcode->buflen = 0;
-	return(ZBAR_QRCODE);
+	return (ZBAR_QRCODE);
 
 invalid:
 	dbprintf(2, " [invalid]\n");

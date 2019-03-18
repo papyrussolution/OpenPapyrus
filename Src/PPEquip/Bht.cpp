@@ -2956,7 +2956,7 @@ int SLAPI PPObjBHT::PrepareLocData(const char * pPath, PPID bhtTypeID)
 }
 // } AHTOXA
 
-int SLAPI PPObjBHT::PrepareBillRowCellData(PPBhtTerminalPacket * pPack, PPID billID)
+int SLAPI PPObjBHT::PrepareBillRowCellData(const PPBhtTerminalPacket * pPack, PPID billID)
 {
 	int    ok = -1, num_flds = 0;
 	SString fname, path, serial;
@@ -3223,7 +3223,7 @@ struct BHT_BillOpEntry {
     DateRange DuePeriod;
 };
 
-int SLAPI PPObjBHT::PrepareBillData2(PPBhtTerminalPacket * pPack, PPIDArray * pGoodsList, int uniteGoods /*=1*/)
+int SLAPI PPObjBHT::PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArray * pGoodsList, int uniteGoods /*=1*/)
 {
 	int    ok = -1, num_flds = 0;
 	uint   i;
@@ -3387,7 +3387,7 @@ int SLAPI PPObjBHT::PrepareBillData2(PPBhtTerminalPacket * pPack, PPIDArray * pG
 	return ok;
 }
 
-int SLAPI PPObjBHT::PrepareLocCellData(PPBhtTerminalPacket * pPack)
+int SLAPI PPObjBHT::PrepareLocCellData(const PPBhtTerminalPacket * pPack)
 {
 	int    ok = -1;
 	SString path;
@@ -3664,7 +3664,7 @@ int SLAPI PPObjBHT::PrepareGoodsData(PPID bhtID, const char * pPath, const char 
 			uint   i;
 			BarcodeTbl::Rec * p_barcode = 0;
 			THROW(goods_obj.ReadBarcodes(_goods_id, barcode_list));
-			for(i = 0; barcode_list.enumItems(&i, (void**)&p_barcode);) {
+			for(i = 0; barcode_list.enumItems(&i, (void **)&p_barcode);) {
 				if(p_barcode->Code[0]) {
 					PPID   goods_id = _goods_id;
 					temp_buf = p_barcode->Code;
@@ -5258,7 +5258,7 @@ int SLAPI PPObjBHT::AcceptBillsToGBasket(const char * pHName, const char * pLNam
 					uint   row_pos = 0;
 					if(brows_list.lsearch(&bill_id, &row_pos, CMPF_LONG) > 0) {
 						BillRowEntry * p_brow = 0;
-						for(;brows_list.enumItems(&row_pos, (void**)&p_brow) > 0 && p_brow->BillID == bill_id;) {
+						for(;brows_list.enumItems(&row_pos, (void **)&p_brow) > 0 && p_brow->BillID == bill_id;) {
 							uint   pos = 0;
 							ILTI   item;
 							item.GoodsID  = p_brow->GoodsID;
@@ -5670,6 +5670,8 @@ int SLAPI PPObjBHT::ReceiveData()
 				else if(bht_type == PPObjBHT::btSyntech) {
 					THROW(r = cp.ReceiveFile(path, timeout));
 				}
+				else
+					r = 0;
 				if(r > 0) {
 					files.insert(newStr(path));
 					timeout = 2000L;

@@ -434,7 +434,7 @@ int SLAPI PPViewLinkedBill::MakeList()
 		// } @v10.3.6 
 		/* @v10.3.6 
 		Entry * p_entry;
-		for(uint i = 0; List.enumItems(&i, (void**)&p_entry);)
+		for(uint i = 0; List.enumItems(&i, (void **)&p_entry);)
 			p_entry->Rest = (debt -= p_entry->Payment);
 		*/
 	}
@@ -1372,7 +1372,7 @@ int SLAPI PPObjBill::ReckoningPaym(PPID billID, const ReckonParam & rParam, int 
 		const double nominal = bill_rec.Amount;
 		PPReckonOpEx reckon_data;
 		THROW(P_OpObj->GetReckonExData(bill_rec.OpID, &reckon_data));
-		const bool reckon_neg_only = (reckon_data.Flags & ROXF_RECKONNEGONLY) ? true : false;
+		const bool reckon_neg_only = LOGIC(reckon_data.Flags & ROXF_RECKONNEGONLY);
 		if((nominal > 0.0 && !reckon_neg_only) || (nominal < 0.0 && reckon_neg_only)) {
 			double effective_paym_amt = 0.0;
 			{

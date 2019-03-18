@@ -149,7 +149,7 @@ static void vert(struct ZintSymbol * symbol, int column, int height, int top)
 	}
 }
 
-static void spigot(struct ZintSymbol * symbol, int row_no)
+static void FASTCALL spigot(struct ZintSymbol * symbol, int row_no)
 {
 	for(int i = symbol->width - 1; i > 0; i--) {
 		if(module_is_set(symbol, row_no, i - 1)) {
@@ -158,7 +158,7 @@ static void spigot(struct ZintSymbol * symbol, int row_no)
 	}
 }
 
-static int isedi(uchar input)
+static int FASTCALL isedi(uchar input)
 {
 	int result = 0;
 	if(input == 13) {
@@ -203,7 +203,7 @@ static int dq4bi(const uchar source[], int sourcelen, int position)
 	return 0;
 }
 
-static int c1_look_ahead_test(const uchar source[], int sourcelen, int position, int current_mode, int gs1)
+static int FASTCALL c1_look_ahead_test(const uchar source[], int sourcelen, int position, int current_mode, int gs1)
 {
 	float ascii_count, c40_count, text_count, edi_count, byte_count;
 	char reduced_char;
@@ -1122,7 +1122,7 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 	return tp;
 }
 
-void block_copy(struct ZintSymbol * symbol, char grid[][120], int start_row, int start_col,
+static void FASTCALL block_copy(struct ZintSymbol * symbol, char grid[][120], int start_row, int start_col,
     int height, int width, int row_offset, int col_offset)
 {
 	for(int i = start_row; i < (start_row + height); i++) {

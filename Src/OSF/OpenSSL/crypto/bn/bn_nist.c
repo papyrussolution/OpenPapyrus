@@ -362,7 +362,7 @@ int BN_nist_mod_192(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 #if defined(NIST_INT64)
 	{
 		NIST_INT64 acc; /* accumulator */
-		uint * rp = (uint*)r_d;
+		uint * rp = (uint *)r_d;
 		const uint * bp = (const uint*)buf.ui;
 
 		acc = rp[0];
@@ -512,7 +512,7 @@ int BN_nist_mod_224(BIGNUM * r, const BIGNUM * a, const BIGNUM * field, BN_CTX *
 #if defined(NIST_INT64) && BN_BITS2!=64
 	{
 		NIST_INT64 acc; /* accumulator */
-		uint * rp = (uint*)r_d;
+		uint * rp = (uint *)r_d;
 		const uint * bp = (const uint*)buf.ui;
 
 		acc = rp[0];
@@ -674,7 +674,7 @@ int BN_nist_mod_256(BIGNUM * r, const BIGNUM * a, const BIGNUM * field, BN_CTX *
 #if defined(NIST_INT64)
 	{
 		NIST_INT64 acc; /* accumulator */
-		uint * rp = (uint*)r_d;
+		uint * rp = (uint *)r_d;
 		const uint * bp = (const uint*)buf.ui;
 		acc = rp[0];
 		acc += bp[8 - 8];
@@ -923,7 +923,7 @@ int BN_nist_mod_384(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 #if defined(NIST_INT64)
 	{
 		NIST_INT64 acc; /* accumulator */
-		uint * rp = (uint*)r_d;
+		uint * rp = (uint *)r_d;
 		const uint * bp = (const uint*)buf.ui;
 
 		acc = rp[0];

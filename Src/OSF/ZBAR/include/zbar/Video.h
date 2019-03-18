@@ -63,7 +63,7 @@ public:
     /// cast to C video object.
     operator zbar_video_t* () const
     {
-        return(_video);
+        return (_video);
     }
 
     /// open and probe a video device.
@@ -101,21 +101,21 @@ public:
     /// see zbar_video_get_fd()
     int get_fd ()
     {
-        return(zbar_video_get_fd(_video));
+        return (zbar_video_get_fd(_video));
     }
 
     /// retrieve current output image width.
     /// see zbar_video_get_width()
     int get_width ()
     {
-        return(zbar_video_get_width(_video));
+        return (zbar_video_get_width(_video));
     }
 
     /// retrieve current output image height.
     /// see zbar_video_get_height()
     int get_height ()
     {
-        return(zbar_video_get_height(_video));
+        return (zbar_video_get_height(_video));
     }
 
     /// start/stop video capture.
@@ -133,7 +133,7 @@ public:
         zbar_image_t *img = zbar_video_next_image(_video);
         if(!img)
             throw_exception(_video);
-        return(Image(img));
+        return (Image(img));
     }
 
     /// request a preferred size for the video image from the device.

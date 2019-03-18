@@ -1832,7 +1832,7 @@ int SLAPI PPObjWorkbook::Helper_MakeStrAssocList(PPID parentID, StrAssocArray * 
 
 StrAssocArray * SLAPI PPObjWorkbook::MakeStrAssocList(void * extraPtr)
 {
-	PPID   parent_id = (PPID)extraPtr;
+	PPID   parent_id = reinterpret_cast<PPID>(extraPtr);
 	PPIDArray hang_parent_list;
 	UintHashTable recur_trace;
 	StrAssocArray * p_list = new StrAssocArray;

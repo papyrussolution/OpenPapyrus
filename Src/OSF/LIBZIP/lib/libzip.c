@@ -558,7 +558,7 @@ ZIP_EXTERN int zip_delete(zip_t * za, uint64 idx)
 	if((name = _zip_get_name(za, idx, 0, &za->error)) == NULL) {
 		return -1;
 	}
-	if(!_zip_hash_delete(za->names, (const uint8*)name, &za->error)) {
+	if(!_zip_hash_delete(za->names, (const uint8 *)name, &za->error)) {
 		return -1;
 	}
 	// allow duplicate file names, because the file will
@@ -1013,7 +1013,7 @@ zip_source_t * _zip_source_window_new(zip_source_t * src, uint64 start, uint64 l
 		zip_error_set(error, SLERR_ZIP_INVAL, 0);
 		return NULL;
 	}
-	if((ctx = (struct ZipSourceWindow*)SAlloc::M(sizeof(*ctx))) == NULL) {
+	if((ctx = static_cast<struct ZipSourceWindow *>(SAlloc::M(sizeof(*ctx)))) == NULL) {
 		zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 		return NULL;
 	}
@@ -1022,7 +1022,7 @@ zip_source_t * _zip_source_window_new(zip_source_t * src, uint64 start, uint64 l
 	zip_stat_init(&ctx->stat);
 	zip_error_init(&ctx->error);
 	ctx->supports = (zip_source_supports(src) & ZIP_SOURCE_SUPPORTS_SEEKABLE) | (zip_source_make_command_bitmap(ZIP_SOURCE_SUPPORTS, ZIP_SOURCE_TELL, -1));
-	ctx->needs_seek = (ctx->supports & ZIP_SOURCE_MAKE_COMMAND_BITMASK(ZIP_SOURCE_SEEK)) ? true : false;
+	ctx->needs_seek = LOGIC(ctx->supports & ZIP_SOURCE_MAKE_COMMAND_BITMASK(ZIP_SOURCE_SEEK));
 	if(st) {
 		if(_zip_stat_merge(&ctx->stat, st, error) < 0) {
 			SAlloc::F(ctx);
@@ -1107,7 +1107,7 @@ zip_source_t * zip_source_pkware(zip_t * za, zip_source_t * src, uint16 em, int 
 		ctx->key[0] = KEY0;
 		ctx->key[1] = KEY1;
 		ctx->key[2] = KEY2;
-		decrypt(ctx, NULL, (const uint8*)password, strlen(password), 1);
+		decrypt(ctx, NULL, (const uint8 *)password, strlen(password), 1);
 		if((s2 = zip_source_layered(za, src, pkware_decrypt, ctx)) == NULL)
 			SAlloc::F(ctx);
 	}
@@ -1710,7 +1710,7 @@ static int64 read_data(void * state, void * data, uint64 len, zip_source_cmd_t c
 		    if(len > ZIP_INT64_MAX)
 			    return zip_error_set(&ctx->error, SLERR_ZIP_INVAL, 0);
 			else
-				return buffer_write(ctx->out, (const uint8*)data, len, &ctx->error);
+				return buffer_write(ctx->out, (const uint8 *)data, len, &ctx->error);
 		default:
 		    return zip_error_set(&ctx->error, SLERR_ZIP_OPNOTSUPP, 0);
 	}
@@ -2128,7 +2128,7 @@ ZIP_EXTERN int zip_set_archive_comment(zip_t * za, const char * comment, uint16 
 	if(len > 0 && comment == NULL)
 		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	if(len > 0) {
-		if((cstr = _zip_string_new((const uint8*)comment, len, ZIP_FL_ENC_GUESS, &za->error)) == NULL)
+		if((cstr = _zip_string_new((const uint8 *)comment, len, ZIP_FL_ENC_GUESS, &za->error)) == NULL)
 			return -1;
 		if(_zip_guess_encoding(cstr, ZIP_ENCODING_UNKNOWN) == ZIP_ENCODING_CP437) {
 			_zip_string_free(cstr);
@@ -2244,7 +2244,7 @@ int _zip_set_name(zip_t * za, uint64 idx, const char * name, zip_flags_t flags)
 		return zip_error_set(&za->error, SLERR_ZIP_RDONLY, 0);
 	if(name && name[0] != '\0') {
 		/* @todo check for string too long */
-		if((str = _zip_string_new((const uint8*)name, (uint16)strlen(name), flags, &za->error)) == NULL)
+		if((str = _zip_string_new((const uint8 *)name, (uint16)strlen(name), flags, &za->error)) == NULL)
 			return -1;
 		if((flags & ZIP_FL_ENCODING_ALL) == ZIP_FL_ENC_GUESS &&
 		    _zip_guess_encoding(str, ZIP_ENCODING_UNKNOWN) == ZIP_ENCODING_UTF8_GUESSED)
@@ -2263,7 +2263,7 @@ int _zip_set_name(zip_t * za, uint64 idx, const char * name, zip_flags_t flags)
 		return 0;
 	}
 	e = za->entry+idx;
-	same_as_orig = (e->orig && _zip_string_equal(e->orig->filename, str)) ? true : false;
+	same_as_orig = LOGIC(e->orig && _zip_string_equal(e->orig->filename, str));
 	if(!same_as_orig && e->changes == NULL) {
 		if((e->changes = _zip_dirent_clone(e->orig)) == NULL) {
 			zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
@@ -2479,7 +2479,7 @@ int64 _zip_name_locate(zip_t * za, const char * fname, zip_flags_t flags, zip_er
 		return zip_error_set(error, SLERR_ZIP_NOENT, 0);
 	}
 	else {
-		return _zip_hash_lookup(za->names, (const uint8*)fname, flags, error);
+		return _zip_hash_lookup(za->names, (const uint8 *)fname, flags, error);
 	}
 }
 //
@@ -2617,12 +2617,12 @@ int _zip_unchange(zip_t * za, uint64 idx, int allow_duplicates)
 			return -1;
 		}
 		if(orig_name) {
-			if(_zip_hash_add(za->names, (const uint8*)orig_name, idx, 0, &za->error) == false) {
+			if(_zip_hash_add(za->names, (const uint8 *)orig_name, idx, 0, &za->error) == false) {
 				return -1;
 			}
 		}
-		if(_zip_hash_delete(za->names, (const uint8*)changed_name, &za->error) == false) {
-			_zip_hash_delete(za->names, (const uint8*)orig_name, 0);
+		if(_zip_hash_delete(za->names, (const uint8 *)changed_name, &za->error) == false) {
+			_zip_hash_delete(za->names, (const uint8 *)orig_name, 0);
 			return -1;
 		}
 	}
@@ -2845,12 +2845,12 @@ void _zip_dirent_init(zip_dirent_t * de)
 
 bool _zip_dirent_needs_zip64(const zip_dirent_t * de, zip_flags_t flags)
 {
-	return (de->uncomp_size >= ZIP_UINT32_MAX || de->comp_size >= ZIP_UINT32_MAX || ((flags & ZIP_FL_CENTRAL) && de->offset >= ZIP_UINT32_MAX)) ? true : false;
+	return LOGIC(de->uncomp_size >= ZIP_UINT32_MAX || de->comp_size >= ZIP_UINT32_MAX || ((flags & ZIP_FL_CENTRAL) && de->offset >= ZIP_UINT32_MAX));
 }
 
 zip_dirent_t * _zip_dirent_new(void)
 {
-	zip_dirent_t * de = (zip_dirent_t*)SAlloc::M(sizeof(*de));
+	zip_dirent_t * de = static_cast<zip_dirent_t *>(SAlloc::M(sizeof(*de)));
 	if(de)
 		_zip_dirent_init(de);
 	return de;
@@ -4423,7 +4423,7 @@ ZIP_EXTERN int zip_file_set_comment(zip_t * za, uint64 idx, const char * comment
 	if(len > 0 && comment == NULL)
 		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	if(len > 0) {
-		if((cstr = _zip_string_new((const uint8*)comment, len, flags, &za->error)) == NULL)
+		if((cstr = _zip_string_new((const uint8 *)comment, len, flags, &za->error)) == NULL)
 			return -1;
 		if((flags & ZIP_FL_ENCODING_ALL) == ZIP_FL_ENC_GUESS &&
 		    _zip_guess_encoding(cstr, ZIP_ENCODING_UNKNOWN) == ZIP_ENCODING_UTF8_GUESSED)

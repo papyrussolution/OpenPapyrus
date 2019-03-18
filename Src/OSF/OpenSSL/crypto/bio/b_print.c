@@ -426,8 +426,8 @@ static int fmtint(char ** sbuffer, char ** buffer, size_t * currlen, size_t * ma
 	if(flags & DP_F_UP)
 		caps = 1;
 	do {
-		convert[place++] = (caps ? "0123456789ABCDEF" : "0123456789abcdef")[uvalue % (unsigned)base];
-		uvalue = (uvalue / (unsigned)base);
+		convert[place++] = (caps ? "0123456789ABCDEF" : "0123456789abcdef")[uvalue % (uint)base];
+		uvalue = (uvalue / (uint)base);
 	} while(uvalue && (place < (int)sizeof(convert)));
 	if(place == sizeof(convert))
 		place--;

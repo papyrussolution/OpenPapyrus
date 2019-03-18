@@ -94,7 +94,7 @@ int SLAPI PPObjBnkAcct::UpdateList(PPID personID, BnkAcctArray * pList, int use_
 		acc[0] = 0;
 		while(Enum(personID, &bank, acc) > 0) {
 			int    found = 0;
-			for(i = 0; !found && pList->enumItems(&i, (void**)&rec);)
+			for(i = 0; !found && pList->enumItems(&i, (void **)&rec);)
 				if(rec->ID == P_Tbl->data.ID)
 					found = 1;
 				/*
@@ -109,7 +109,7 @@ int SLAPI PPObjBnkAcct::UpdateList(PPID personID, BnkAcctArray * pList, int use_
 		//
 		// Изменяем и вставляем исправленные и добавленные записи
 		//
-		for(i = 0; pList->enumItems(&i, (void**)&rec);) {
+		for(i = 0; pList->enumItems(&i, (void **)&rec);) {
 			rec->PersonID = personID;
 			BankAccountTbl::Rec item;
 			if(Search(rec->ID, &item) > 0) {
@@ -366,7 +366,7 @@ private:
 	{
 		SString sub;
 		BankAccountTbl::Rec * p_rec;
-		for(uint i = 0; Data.enumItems(&i, (void**)&p_rec);) {
+		for(uint i = 0; Data.enumItems(&i, (void **)&p_rec);) {
 			StringSet ss(SLBColumnDelim);
 			sub.Z();
 			GetPersonName(p_rec->BankID, sub);

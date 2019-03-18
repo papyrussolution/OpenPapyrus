@@ -46,8 +46,8 @@ struct _CmdID {
 static int _GetIdListByCommand(const PPCommandItem * pItem, long parentID, void * extraPtr)
 {
 	if(pItem) {
-		_CmdID * p_e = (_CmdID *)extraPtr;
-		PPCommand * p_cmd = (pItem->Kind == PPCommandItem::kCommand) ? (PPCommand*)pItem->Dup() : 0;
+		_CmdID * p_e = static_cast<_CmdID *>(extraPtr);
+		PPCommand * p_cmd = (pItem->Kind == PPCommandItem::kCommand) ? static_cast<PPCommand *>(pItem->Dup()) : 0;
 		if(p_cmd && p_cmd->CmdID == p_e->CmdID)
 			p_e->Ary.addUnique(p_cmd->ID);
 		ZDELETE(p_cmd);
@@ -139,7 +139,7 @@ int CmdItemDialog::setDTS(const PPCommand * pData)
 	else
 		enableCommand(cmCmdParam, 0);
 	{
-		FileBrowseCtrlGroup * p_fbg = (FileBrowseCtrlGroup*)getGroup(GRP_FBG);
+		FileBrowseCtrlGroup * p_fbg = static_cast<FileBrowseCtrlGroup *>(getGroup(GRP_FBG));
 		if(p_fbg) {
 			SString spath;
 			if(!Data.Icon.Len() || Data.Icon.ToLong()) {
@@ -1089,11 +1089,11 @@ void readMenuRez(HMENU hm, TVRez * rez, long length)
 			}
 			if(mit.mtOption & MF_POPUP) {
 				HMENU hPopMenu = CreateMenu();
-				AppendMenu(hm, (mit.mtOption | MF_STRING) & ~MF_END, (UINT)hPopMenu, menu_text); // @unicodeproblem
+				AppendMenu(hm, (mit.mtOption | MF_STRING) & ~MF_END, reinterpret_cast<UINT_PTR>(hPopMenu), SUcSwitch(menu_text)); // @unicodeproblem
 				readMenuRez(hPopMenu, rez, length);
 			}
 			else {
-				AppendMenu(hm, (mit.mtOption | MF_STRING) & ~MF_END, mit.mtID, menu_text); // @unicodeproblem
+				AppendMenu(hm, (mit.mtOption | MF_STRING) & ~MF_END, mit.mtID, SUcSwitch(menu_text)); // @unicodeproblem
 				if(mit.mtOption & MF_END)
 					return;
 			}
@@ -1123,7 +1123,7 @@ void SLAPI ReadMenu(HMENU hm, PPID parentID, PPCommandFolder * pMenu, StrAssocAr
 					name.CopyTo(name_buf, sizeof(name_buf));
 					if(p_item->Kind == PPCommandItem::kFolder) {
 						HMENU h_pop_menu = CreateMenu();
-						AppendMenu(hm, MF_POPUP|MF_STRING, (UINT)h_pop_menu, name_buf); // @unicodeproblem
+						AppendMenu(hm, MF_POPUP|MF_STRING, reinterpret_cast<UINT_PTR>(h_pop_menu), SUcSwitch(name_buf)); // @unicodeproblem
 						ReadMenu(h_pop_menu, p_item->ID, pMenu, pItems); // @recursion
 					}
 					else if(p_item->Kind == PPCommandItem::kSeparator)
@@ -1131,7 +1131,7 @@ void SLAPI ReadMenu(HMENU hm, PPID parentID, PPCommandFolder * pMenu, StrAssocAr
 					else {
 						PPCommandDescr descr;
 						descr.LoadResource(static_cast<const PPCommand *>(p_item)->CmdID);
-						AppendMenu(hm, MF_STRING, (UINT)descr.MenuCm, name_buf); // @unicodeproblem
+						AppendMenu(hm, MF_STRING, static_cast<UINT_PTR>(descr.MenuCm), SUcSwitch(name_buf)); // @unicodeproblem
 					}
 				}
 			}

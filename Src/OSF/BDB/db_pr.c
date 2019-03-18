@@ -1422,9 +1422,9 @@ int __db_prfooter(void * handle, int (*callback)__P((void *, const void *)))
  */
 int __db_pr_callback(void * handle, const void * str_arg)
 {
-	char * str = (char *)str_arg;
-	FILE * f = (FILE *)handle;
-	if(fprintf(f, "%s", str) != (int)sstrlen(str))
+	const char * str = static_cast<const char *>(str_arg);
+	FILE * f = static_cast<FILE *>(handle);
+	if(fprintf(f, "%s", str) != sstrleni(str))
 		return EIO;
 	return 0;
 }

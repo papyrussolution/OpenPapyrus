@@ -67,7 +67,7 @@ archive_write_open_fd(struct archive *a, int fd)
 	mine = (struct write_fd_data *)SAlloc::M(sizeof(*mine));
 	if (mine == NULL) {
 		archive_set_error(a, ENOMEM, "No memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	mine->fd = fd;
 #if defined(__CYGWIN__) || defined(_WIN32)
@@ -87,7 +87,7 @@ file_open(struct archive *a, void *client_data)
 
 	if (fstat(mine->fd, &st) != 0) {
 		archive_set_error(a, errno, "Couldn't stat fd %d", mine->fd);
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	/*
@@ -112,7 +112,7 @@ file_open(struct archive *a, void *client_data)
 			archive_write_set_bytes_in_last_block(a, 1);
 	}
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static ssize_t
@@ -128,7 +128,7 @@ file_write(struct archive *a, void *client_data, const void *buff, size_t length
 			if (errno == EINTR)
 				continue;
 			archive_set_error(a, errno, "Write error");
-			return (-1);
+			return -1;
 		}
 		return (bytesWritten);
 	}
@@ -141,5 +141,5 @@ file_close(struct archive *a, void *client_data)
 
 	(void)a; /* UNUSED */
 	SAlloc::F(mine);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }

@@ -29,7 +29,7 @@ int ASN1_TYPE_get_octetstring(const ASN1_TYPE * a, uchar * data, int max_len)
 	const uchar * p;
 	if((a->type != V_ASN1_OCTET_STRING) || (a->value.octet_string == NULL)) {
 		ASN1err(ASN1_F_ASN1_TYPE_GET_OCTETSTRING, ASN1_R_DATA_IS_WRONG);
-		return (-1);
+		return -1;
 	}
 	p = ASN1_STRING_get0_data(a->value.octet_string);
 	ret = ASN1_STRING_length(a->value.octet_string);

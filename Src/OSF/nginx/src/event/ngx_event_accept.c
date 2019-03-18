@@ -39,7 +39,7 @@ void ngx_event_accept(ngx_event_t * ev)
 	if(!(ngx_event_flags & NGX_USE_KQUEUE_EVENT)) {
 		ev->available = ecf->multi_accept;
 	}
-	lc = (ngx_connection_t*)ev->P_Data;
+	lc = (ngx_connection_t *)ev->P_Data;
 	ls = lc->listening;
 	ev->ready = 0;
 	ngx_log_debug2(NGX_LOG_DEBUG_EVENT, ev->log, 0, "accept on %V, ready: %d", &ls->addr_text, ev->available);
@@ -125,7 +125,7 @@ void ngx_event_accept(ngx_event_t * ev)
 			ngx_close_accepted_connection(c);
 			return;
 		}
-		c->sockaddr = (struct sockaddr*)ngx_palloc(c->pool, socklen);
+		c->sockaddr = (struct sockaddr *)ngx_palloc(c->pool, socklen);
 		if(c->sockaddr == NULL) {
 			ngx_close_accepted_connection(c);
 			return;
@@ -203,7 +203,7 @@ void ngx_event_accept(ngx_event_t * ev)
 		(void)ngx_atomic_fetch_add(ngx_stat_handled, 1);
 #endif
 		if(ls->addr_ntop) {
-			c->addr_text.data = (u_char*)ngx_pnalloc(c->pool, ls->addr_text_max_len);
+			c->addr_text.data = (u_char *)ngx_pnalloc(c->pool, ls->addr_text_max_len);
 			if(c->addr_text.data == NULL) {
 				ngx_close_accepted_connection(c);
 				return;

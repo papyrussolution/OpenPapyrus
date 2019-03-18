@@ -2175,6 +2175,7 @@ private:
 #define INVERSEFLAG(v,f)            {if((v)&(f)) {(v)&=~(f);} else {(v)|=(f);}}
 #define CHKXORFLAGS(v,f1,f2)        ((((v)&(f1)) ^ ((v)&(f2))) ? (((v)&(f1))?(f1):(f2)) : 0)
 #define BIN(x)                      ((x)?1:0)
+#define LOGIC(x)                    ((x)?true:false)
 #define BOOLXOR(p1,p2)              (((p1)&&(p2))||(!(p1)&&!(p2)))
 #define DELETEANDASSIGN(p, n)       ((delete (p)), (p) = (n))
 #define ZDELETE(p)                  DELETEANDASSIGN(p, 0)
@@ -2595,8 +2596,8 @@ typedef int32 TYPEID;
 #define S_ARRAY_INT  0x82
 #define S_ARRAY_DBL  0x83
 
-#define MKSTYPE(typ,siz)      ((((uint)(siz))<<16)|(typ))
-#define MKSTYPED(typ,siz,prc) (((prc)<<24)|(((uint)(siz))<<16)|(typ))
+#define MKSTYPE(typ,siz)      (((static_cast<uint>(siz))<<16)|(typ))
+#define MKSTYPED(typ,siz,prc) (((prc)<<24)|((static_cast<uint>(siz))<<16)|(typ))
 #define GETSTYPE(typ)         ( (typ)&0x0000ffff)
 #define GETSSIZE(typ)         (((typ)&0xffff0000)>>16)
 #define GETSSIZED(typ)        (((typ)&0x00ff0000)>>16)
@@ -4292,7 +4293,7 @@ int    getdisk();
 int    fnsplit(const char *, char *, char *, char *, char *);
 void   fnmerge(char *, const char *, const char *, const char *nameP, const char *);
 
-#define STRNSCPY(dest,src) strnzcpy(dest,src,sizeof(dest))
+#define STRNSCPY(dest,src) strnzcpy(dest,src,SIZEOFARRAY(dest))
 //
 // If maxlen == 0, then call strcpy(dest, src)
 // If (src == 0 && dest != 0) then dest[0] = 0;
@@ -4313,6 +4314,9 @@ int    FASTCALL isempty(const wchar_t * pStr); // BIN(pStr || pStr[0])
 size_t FASTCALL sstrlen(const char * pStr);
 size_t FASTCALL sstrlen(const uchar * pStr);
 size_t FASTCALL sstrlen(const wchar_t * pStr);
+FORCEINLINE int FASTCALL sstrleni(const char * pStr) { return static_cast<int>(sstrlen(pStr)); }
+FORCEINLINE int FASTCALL sstrleni(const uchar * pStr) { return static_cast<int>(sstrlen(pStr)); }
+FORCEINLINE int FASTCALL sstrleni(const wchar_t * pStr) { return static_cast<int>(sstrlen(pStr)); }
 char * FASTCALL sstrdup(const char * pStr);
 uchar * FASTCALL sstrdup(const uchar * pStr);
 //
@@ -4382,6 +4386,7 @@ int    SLAPI hostrtocstr(const char * pInBuf, char * pOutBuf, size_t outBufSize)
 //   Результат преобразования.
 //
 uint32 FASTCALL _texttodec32(const char * pT, uint len);
+uint32 FASTCALL _texttodec32(const wchar_t * pT, uint len);
 uint64 FASTCALL _texttodec64(const char * pT, uint len);
 //
 // Descr: Низкоуровневая функция преобразования серии последовательных шестнадцатиричных цифр в число.
@@ -4392,6 +4397,11 @@ uint64 FASTCALL _texttodec64(const char * pT, uint len);
 //   Результат преобразования.
 //
 uint32 FASTCALL _texttohex32(const char * pT, uint len);
+uint32 FASTCALL _texttohex32(const wchar_t * pT, uint len);
+int    FASTCALL satoi(const char * pT);
+int    FASTCALL satoi(const wchar_t * pT);
+int64  FASTCALL satoi64(const char * pT);
+int64  FASTCALL satoi64(const wchar_t * pT);
 int    FASTCALL satof(const char * pBuf, double * pVal);
 // @v9.5.1 (moved as static to sbrodef.cpp) uint   GetTextHeight(char * pBuf, size_t strLen);
 // @v9.5.1 (moved as static to sbrodef.cpp) void   FASTCALL RemoveCtrlNFromStr(char * pBuf, size_t bufLen);
@@ -4416,6 +4426,7 @@ int    SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
 // Descr: Возвращает !0 если символ c является шестнадцатиричным знаком [0-9A-Fa-f]
 //
 int    FASTCALL ishex(char c);
+int    FASTCALL ishexw(wchar_t c);
 //
 // Descr: Возвращает !0 если символ c является десятичным знаком [0-9]
 //
@@ -4427,6 +4438,7 @@ int    FASTCALL isdecw(wchar_t c);
 //   символ функцией ishex(char)).
 //
 uint   FASTCALL hex(char c);
+uint   FASTCALL hexw(wchar_t c);
 //
 // Descr: Преобразует два шестнадцатиричных символа pBuf[0] и pBuf[1] в
 //    бинарный байт.
@@ -4467,6 +4479,15 @@ int    FASTCALL _koi8_to_866(int);
 #endif // } 0 @v9.5.1
 char * FASTCALL SOemToChar(char * pStr);
 char * FASTCALL SCharToOem(char * pStr);
+const wchar_t * FASTCALL SUcSwitchW(const char * pStr);
+const char *    FASTCALL SUcSwitchW(const wchar_t * pStr);
+inline const char *    FASTCALL SUcSwitchA(const char * pStr) { return pStr; }
+inline const wchar_t * FASTCALL SUcSwitchA(const wchar_t * pStr) { return pStr; }
+#ifdef _UNICODE
+	#define SUcSwitch SUcSwitchW
+#else
+	#define SUcSwitch SUcSwitchA
+#endif
 //
 // Formats for date binary representation
 //
@@ -5243,6 +5264,7 @@ public:
 	SLAPI  operator char * ();
 	SLAPI  operator const char * () const;
 	const  uchar * SLAPI ucptr() const;
+	const  char  * SLAPI cptr() const;
 	int    FASTCALL Alloc(size_t sz);
 	//
 	// Descr: Если текущий размер буфера больше или равен sz, то ничего не делает, в противном
@@ -8051,7 +8073,7 @@ public:
 	};
 
 	static int BigEndian();
-
+	static int SGetModuleFileName(void * hModule, SString & rFileName);
 	explicit SSystem(int imm);
 	int    FASTCALL GetCpuInfo();
 	int    CpuId(int feature, uint32 * pA, uint32 * pB, uint32 * pC, uint32 * pD) const;
@@ -9218,7 +9240,7 @@ public:
 	//
 	long   end() const { return static_cast<long>(endp[0] - P_Text); }
 	int    FASTCALL operator == (const CRegExp & r) const;
-	int    FASTCALL operator != (const CRegExp & r) const { return(!(*this == r)); }
+	int    FASTCALL operator != (const CRegExp & r) const { return (!(*this == r)); }
 	int    FASTCALL deep_equal(const CRegExp & r) const; // Same regexp and state?
 	void   set_invalid();
 private:
@@ -11521,7 +11543,7 @@ public:
 	//   Если pTag == 0 и таблица с именем pTabName в файле
 	//   существует, то она удаляется.
 	//
-	int    SLAPI WriteTab(const char * pTabName, STab * pTab);
+	int    SLAPI WriteTab(const char * pTabName, const STab * pTab);
 private:
 	int    SLAPI Helper_WriteTab(const char * pTabName, const STab * pTab, SFile & rFile);
 

@@ -607,9 +607,9 @@ int SLAPI CorrectLotsCloseTags()
 	return ok;
 }
 
-static int test_taxgrp(ReceiptTbl::Rec * pRec, void * extraPtr)
+static int test_taxgrp(const ReceiptTbl::Rec * pRec, void * extraPtr)
 {
-	const PPID parent_tax_grp_id = (PPID)extraPtr;
+	const PPID parent_tax_grp_id = reinterpret_cast<PPID>(extraPtr);
 	return BIN(pRec->InTaxGrpID != parent_tax_grp_id);
 }
 
@@ -632,8 +632,8 @@ int SLAPI Transfer::CorrectLotTaxGrp()
 		PPID   tax_grp_id = Rcpt.data.InTaxGrpID;
 		PPID * p_lot_id;
 		PPIDArray childs;
-		Rcpt.GatherChilds(parent_id, &childs, test_taxgrp, (void *)tax_grp_id);
-		for(uint i = 0; childs.enumItems(&i, (void**)&p_lot_id);) {
+		Rcpt.GatherChilds(parent_id, &childs, test_taxgrp, reinterpret_cast<void *>(tax_grp_id));
+		for(uint i = 0; childs.enumItems(&i, (void **)&p_lot_id);) {
 			LDATE  dt = ZERODATE;
 			long   oprno = 0;
 			THROW_DB(updateFor(&Rcpt, 0, (Rcpt.ID == *p_lot_id), set(Rcpt.InTaxGrpID, dbconst(tax_grp_id))));

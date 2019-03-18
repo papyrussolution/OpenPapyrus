@@ -718,13 +718,11 @@ void ScintillaWin::AddCharUTF16(wchar_t const * wcs, uint wclen)
 sptr_t ScintillaWin::WndPaint(uptr_t wParam)
 {
 	//ElapsedTime et;
-
 	// Redirect assertions to debug output and save current state
 	bool assertsPopup = Platform::ShowAssertionPopUps(false);
 	paintState = painting;
 	PAINTSTRUCT ps;
 	PAINTSTRUCT * pps;
-
 	bool IsOcxCtrl = (wParam != 0); // if wParam != 0, it contains
 	// a PAINSTRUCT* from the OCX
 	// Removed since this interferes with reporting other assertions as it occurs repeatedly
@@ -1718,21 +1716,14 @@ void ScintillaWin::UpdateSystemCaret()
 }
 
 int ScintillaWin::SetScrollInfo(int nBar, LPCSCROLLINFO lpsi, BOOL bRedraw)
-{
-	return ::SetScrollInfo(MainHWND(), nBar, lpsi, bRedraw);
-}
-
+	{ return ::SetScrollInfo(MainHWND(), nBar, lpsi, bRedraw); }
 bool ScintillaWin::GetScrollInfo(int nBar, LPSCROLLINFO lpsi)
-{
-	return ::GetScrollInfo(MainHWND(), nBar, lpsi) ? true : false;
-}
+	{ return LOGIC(::GetScrollInfo(MainHWND(), nBar, lpsi)); }
 
 // Change the scroll position but avoid repaint if changing to same value
 void ScintillaWin::ChangeScrollPos(int barType, int pos)
 {
-	SCROLLINFO sci = {
-		sizeof(sci), 0, 0, 0, 0, 0, 0
-	};
+	SCROLLINFO sci = { sizeof(sci), 0, 0, 0, 0, 0, 0 };
 	sci.fMask = SIF_POS;
 	GetScrollInfo(barType, &sci);
 	if(sci.nPos != pos) {

@@ -71,7 +71,7 @@ int Curl_inet_pton(int af, const char * src, void * dst)
 #endif
 		default:
 		    SET_ERRNO(EAFNOSUPPORT);
-		    return (-1);
+		    return -1;
 	}
 	/* NOTREACHED */
 }

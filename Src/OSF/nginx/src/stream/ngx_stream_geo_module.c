@@ -289,7 +289,7 @@ static const char * ngx_stream_geo_block(ngx_conf_t * cf, const ngx_command_t * 
 #if (NGX_HAVE_INET6)
 	static struct in6_addr zero;
 #endif
-	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	ngx_stream_geo_ctx_t  * geo = (ngx_stream_geo_ctx_t *)ngx_palloc(cf->pool, sizeof(ngx_stream_geo_ctx_t));
 	if(geo == NULL) {
 		return NGX_CONF_ERROR;
@@ -416,7 +416,7 @@ static const char * ngx_stream_geo(ngx_conf_t * cf, const ngx_command_t * dummy,
 	ngx_str_t * value;
 	ngx_stream_geo_conf_ctx_t  * ctx;
 	ctx = (ngx_stream_geo_conf_ctx_t *)cf->ctx;
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(cf->args->nelts == 1) {
 		if(ngx_strcmp(value[0].data, "ranges") == 0) {
 			if(ctx->tree
@@ -1011,7 +1011,7 @@ static char * ngx_stream_geo_include(ngx_conf_t * cf, ngx_stream_geo_conf_ctx_t 
 	char  * rv;
 	ngx_str_t file;
 	file.len = name->len + 4;
-	file.data = (u_char*)ngx_pnalloc(ctx->temp_pool, name->len + 5);
+	file.data = (u_char *)ngx_pnalloc(ctx->temp_pool, name->len + 5);
 	if(file.data == NULL) {
 		return NGX_CONF_ERROR;
 	}
@@ -1096,7 +1096,7 @@ static ngx_int_t ngx_stream_geo_include_binary_base(ngx_conf_t * cf, ngx_stream_
 		ngx_conf_log_error(NGX_LOG_WARN, cf, 0, "stale binary geo range base \"%s\"", name->data);
 		goto failed;
 	}
-	base = (u_char*)ngx_palloc(ctx->pool, size);
+	base = (u_char *)ngx_palloc(ctx->pool, size);
 	if(base == NULL) {
 		goto failed;
 	}
@@ -1118,28 +1118,28 @@ static ngx_int_t ngx_stream_geo_include_binary_base(ngx_conf_t * cf, ngx_stream_
 	vv = (ngx_stream_variable_value_t*)(base + sizeof(ngx_stream_geo_header_t));
 	while(vv->data) {
 		len = ngx_align(sizeof(ngx_stream_variable_value_t) + vv->len, sizeof(void *));
-		ngx_crc32_update(&crc32, (u_char*)vv, len);
+		ngx_crc32_update(&crc32, (u_char *)vv, len);
 		vv->data += (size_t)base;
-		vv = (ngx_stream_variable_value_t*)((u_char*)vv + len);
+		vv = (ngx_stream_variable_value_t*)((u_char *)vv + len);
 	}
-	ngx_crc32_update(&crc32, (u_char*)vv, sizeof(ngx_stream_variable_value_t));
+	ngx_crc32_update(&crc32, (u_char *)vv, sizeof(ngx_stream_variable_value_t));
 	vv++;
 	ranges = (ngx_stream_geo_range_t**)vv;
 	for(i = 0; i < 0x10000; i++) {
-		ngx_crc32_update(&crc32, (u_char*)&ranges[i], sizeof(void *));
+		ngx_crc32_update(&crc32, (u_char *)&ranges[i], sizeof(void *));
 		if(ranges[i]) {
-			ranges[i] = (ngx_stream_geo_range_t*)((u_char*)ranges[i] + (size_t)base);
+			ranges[i] = (ngx_stream_geo_range_t*)((u_char *)ranges[i] + (size_t)base);
 		}
 	}
 	range = (ngx_stream_geo_range_t*)&ranges[0x10000];
-	while((u_char*)range < base + size) {
+	while((u_char *)range < base + size) {
 		while(range->value) {
-			ngx_crc32_update(&crc32, (u_char*)range, sizeof(ngx_stream_geo_range_t));
-			range->value = (ngx_stream_variable_value_t*)((u_char*)range->value + (size_t)base);
+			ngx_crc32_update(&crc32, (u_char *)range, sizeof(ngx_stream_geo_range_t));
+			range->value = (ngx_stream_variable_value_t*)((u_char *)range->value + (size_t)base);
 			range++;
 		}
-		ngx_crc32_update(&crc32, (u_char*)range, sizeof(void *));
-		range = (ngx_stream_geo_range_t*)((u_char*)range + sizeof(void *));
+		ngx_crc32_update(&crc32, (u_char *)range, sizeof(void *));
+		range = (ngx_stream_geo_range_t*)((u_char *)range + sizeof(void *));
 	}
 	ngx_crc32_final(crc32);
 	if(crc32 != header->crc32) {
@@ -1170,7 +1170,7 @@ static void ngx_stream_geo_create_binary_base(ngx_stream_geo_conf_ctx_t * ctx)
 	ngx_file_mapping_t fm;
 	ngx_stream_geo_range_t * range, ** ranges;
 	ngx_stream_geo_variable_value_node_t  * gvvn;
-	fm.name = (u_char*)ngx_pnalloc(ctx->temp_pool, ctx->include_name.len + 5);
+	fm.name = (u_char *)ngx_pnalloc(ctx->temp_pool, ctx->include_name.len + 5);
 	if(fm.name) {
 		ngx_sprintf(fm.name, "%V.bin%Z", &ctx->include_name);
 		fm.size = ctx->data_size;
@@ -1188,7 +1188,7 @@ static void ngx_stream_geo_create_binary_base(ngx_stream_geo_conf_ctx_t * ctx)
 			ngx_stream_geo_range_t * r = ctx->high.low[i];
 			if(r) {
 				range = (ngx_stream_geo_range_t*)p;
-				ranges[i] = (ngx_stream_geo_range_t*)(p - (u_char*)fm.addr);
+				ranges[i] = (ngx_stream_geo_range_t*)(p - (u_char *)fm.addr);
 				do {
 					s.len = r->value->len;
 					s.data = r->value->data;
@@ -1200,12 +1200,12 @@ static void ngx_stream_geo_create_binary_base(ngx_stream_geo_conf_ctx_t * ctx)
 					range++;
 				} while((++r)->value);
 				range->value = NULL;
-				p = (u_char*)range + sizeof(void *);
+				p = (u_char *)range + sizeof(void *);
 			}
 		}
 		{
 			ngx_stream_geo_header_t * header = (ngx_stream_geo_header_t *)fm.addr;
-			header->crc32 = ngx_crc32_long((u_char*)fm.addr + sizeof(ngx_stream_geo_header_t), fm.size - sizeof(ngx_stream_geo_header_t));
+			header->crc32 = ngx_crc32_long((u_char *)fm.addr + sizeof(ngx_stream_geo_header_t), fm.size - sizeof(ngx_stream_geo_header_t));
 		}
 		ngx_close_file_mapping(&fm);
 	}
@@ -1223,7 +1223,7 @@ static u_char * ngx_stream_geo_copy_values(u_char * base, u_char * p, ngx_rbtree
 		vv = (ngx_stream_variable_value_t*)p;
 		*vv = *gvvn->value;
 		p += sizeof(ngx_stream_variable_value_t);
-		vv->data = (u_char*)(p - base);
+		vv->data = (u_char *)(p - base);
 		p = ngx_cpymem(p, gvvn->sn.str.data, gvvn->sn.str.len);
 		p = ngx_align_ptr(p, sizeof(void *));
 		p = ngx_stream_geo_copy_values(base, p, node->left, sentinel);

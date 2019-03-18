@@ -617,7 +617,7 @@ static inline zbar_symbol_type_t match_segment(zbar_decoder_t * dcode, databar_s
 			}
 		}
 		if(!smax[0])
-			return(ZBAR_PARTIAL);
+			return (ZBAR_PARTIAL);
 		else {
 			uint d[4];
 			d[(seg->color << 1) | seg->side] = seg->data;
@@ -628,14 +628,14 @@ static inline zbar_symbol_type_t match_segment(zbar_decoder_t * dcode, databar_s
 			}
 			seg->finder = -1;
 			if(size_buf(dcode, 18))
-				return(ZBAR_PARTIAL);
+				return (ZBAR_PARTIAL);
 			else if(acquire_lock(dcode, ZBAR_DATABAR))
-				return(ZBAR_PARTIAL);
+				return (ZBAR_PARTIAL);
 			else {
 				databar_postprocess(dcode, d);
 				dcode->modifiers = MOD(ZBAR_MOD_GS1);
 				dcode->direction = 1 - 2 * (seg->side ^ seg->color ^ 1);
-				return(ZBAR_DATABAR);
+				return (ZBAR_DATABAR);
 			}
 		}
 	}
@@ -672,7 +672,7 @@ static uint lookup_sequence(databar_segment_t * seg, int fixed, int seq[22])
 	}
 	dbprintf(2, "}");
 	seq[n] = -1;
-	return(fixed < 1);
+	return (fixed < 1);
 }
 
 #define IDX(s) (((s)->finder << 2) | ((s)->color << 1) | ((s)->color ^ (s)->side))
@@ -761,15 +761,15 @@ static inline zbar_symbol_type_t match_segment_exp(zbar_decoder_t * dcode, datab
 		bestsegs[i] = -1;
 	}
 	if(bestsegs[0] < 0)
-		return(ZBAR_PARTIAL);
+		return (ZBAR_PARTIAL);
 	else if(acquire_lock(dcode, ZBAR_DATABAR_EXP))
-		return(ZBAR_PARTIAL);
+		return (ZBAR_PARTIAL);
 	else {
 		for(i = 0; bestsegs[i] >= 0; i++)
 			segs[i] = db->segs[bestsegs[i]].data;
 		if(databar_postprocess_exp(dcode, segs)) {
 			release_lock(dcode, ZBAR_DATABAR_EXP);
-			return(ZBAR_PARTIAL);
+			return (ZBAR_PARTIAL);
 		}
 		else {
 			for(i = 0; bestsegs[i] >= 0; i++) {
@@ -783,7 +783,7 @@ static inline zbar_symbol_type_t match_segment_exp(zbar_decoder_t * dcode, datab
 			// so direction is impossible to determine at this level
 			dcode->direction = (1 - 2 * (seg->side ^ seg->color)) * dir;
 			dcode->modifiers = MOD(ZBAR_MOD_GS1);
-			return(ZBAR_DATABAR_EXP);
+			return (ZBAR_DATABAR_EXP);
 		}
 	}
 }
@@ -803,7 +803,7 @@ static uint calc_check(uint sig0, uint sig1, uint side, uint mod)
 	dbprintf(2, " chk=%d", chk);
 	if(side)
 		chk = (chk * (6561 % mod)) % mod;
-	return(chk);
+	return (chk);
 }
 
 static inline int calc_value4(uint sig, uint n, uint wmax, uint nonarrow)
@@ -879,7 +879,7 @@ static inline int calc_value4(uint sig, uint n, uint wmax, uint nonarrow)
 		return -1;
 	if(!nonarrow)
 		return -1;
-	return(v);
+	return (v);
 }
 
 static zbar_symbol_type_t decode_char(zbar_decoder_t * dcode, databar_segment_t * seg, int off, int dir)
@@ -897,12 +897,12 @@ static zbar_symbol_type_t decode_char(zbar_decoder_t * dcode, databar_segment_t 
 	emin[1] = -n;
 	dbprintf(2, "\n        char[%c%d]: n=%d s=%d w=%d sig=", (dir < 0) ? '>' : '<', off, n, s, seg->width);
 	if(s < 13 || !check_width(seg->width, s, n))
-		return(ZBAR_NONE);
+		return ZBAR_NONE;
 
 	for(i = 4; --i >= 0; ) {
 		int e = decode_e(pair_width(dcode, off), s, n);
 		if(e < 0)
-			return(ZBAR_NONE);
+			return ZBAR_NONE;
 		dbprintf(2, "%d", e);
 		sum = e - sum;
 		off += dir;
@@ -915,7 +915,7 @@ static zbar_symbol_type_t decode_char(zbar_decoder_t * dcode, databar_segment_t 
 
 		e = decode_e(pair_width(dcode, off), s, n);
 		if(e < 0)
-			return(ZBAR_NONE);
+			return ZBAR_NONE;
 		dbprintf(2, "%d", e);
 		sum = e - sum;
 		off += dir;
@@ -943,11 +943,11 @@ static zbar_symbol_type_t decode_char(zbar_decoder_t * dcode, databar_segment_t 
 	dbprintf(2, " sum=%d/%d", sum0, sum1);
 	if(sum0 + sum1 + 8 != n) {
 		dbprintf(2, " [SUM]");
-		return(ZBAR_NONE);
+		return ZBAR_NONE;
 	}
 	if(((sum0 ^ (n >> 1)) | (sum1 ^ (n >> 1) ^ n)) & 1) {
 		dbprintf(2, " [ODD]");
-		return(ZBAR_NONE);
+		return ZBAR_NONE;
 	}
 	i = ((n & 0x3) ^ 1) * 5 + (sum1 >> 1);
 	//zassert(i < sizeof(groups) / sizeof(*groups), -1, "n=%d sum=%d/%d sig=%04x/%04x g=%d", n, sum0, sum1, sig0, sig1, i);
@@ -957,11 +957,11 @@ static zbar_symbol_type_t decode_char(zbar_decoder_t * dcode, databar_segment_t 
 	int vodd = calc_value4(sig0 + 0x1111, sum0 + 4, g->wmax, ~n & 1);
 	dbprintf(2, " v=%d", vodd);
 	if(vodd < 0 || vodd > g->todd)
-		return(ZBAR_NONE);
+		return ZBAR_NONE;
 	int veven = calc_value4(sig1 + 0x1111, sum1 + 4, 9 - g->wmax, n & 1);
 	dbprintf(2, "/%d", veven);
 	if(veven < 0 || veven > g->teven)
-		return(ZBAR_NONE);
+		return ZBAR_NONE;
 	int v = g->sum;
 	if(n & 2)
 		v += vodd + veven * g->todd;
@@ -972,7 +972,7 @@ static zbar_symbol_type_t decode_char(zbar_decoder_t * dcode, databar_segment_t 
 	if(seg->exp) {
 		uint side = seg->color ^ seg->side ^ 1;
 		if(v >= 4096)
-			return(ZBAR_NONE);
+			return ZBAR_NONE;
 		/* skip A1 left */
 		chk = calc_check(sig0, sig1, side, 211);
 		if(seg->finder || seg->color || seg->side) {
@@ -982,7 +982,7 @@ static zbar_symbol_type_t decode_char(zbar_decoder_t * dcode, databar_segment_t 
 			chk = (chk * exp_checksums[i]) % 211;
 		}
 		else if(v >= 4009)
-			return(ZBAR_NONE);
+			return ZBAR_NONE;
 		else
 			chk = 0;
 	}
@@ -1052,13 +1052,13 @@ static int alloc_segment(databar_decoder_t * db)
 				seg->epoch = 0;
 				seg->check = 0;
 			}
-			return(i);
+			return (i);
 		}
 	}
 	//zassert(old >= 0, -1, "\n");
 	assert(old >= 0);
 	db->segs[old].finder = -1;
-	return(old);
+	return (old);
 }
 
 static zbar_symbol_type_t decode_finder(zbar_decoder_t * dcode)
@@ -1073,14 +1073,14 @@ static zbar_symbol_type_t decode_finder(zbar_decoder_t * dcode)
 	if(e0 < e2) {
 		uint e = e2 * 4;
 		if(e < 15 * e0 || e > 34 * e0)
-			return(ZBAR_NONE);
+			return ZBAR_NONE;
 		dir = 0;
 		e3 = pair_width(dcode, 4);
 	}
 	else {
 		uint e = e0 * 4;
 		if(e < 15 * e2 || e > 34 * e2)
-			return(ZBAR_NONE);
+			return ZBAR_NONE;
 		dir = 1;
 		e2 = e0;
 		e3 = pair_width(dcode, 0);
@@ -1090,21 +1090,21 @@ static zbar_symbol_type_t decode_finder(zbar_decoder_t * dcode)
 	s = e1 + e3;
 	dbprintf(2, " e1=%d e3=%d dir=%d s=%d", e1, e3, dir, s);
 	if(s < 12)
-		return(ZBAR_NONE);
+		return ZBAR_NONE;
 	sig = ((decode_e(e3, s, 14) << 8) | (decode_e(e2, s, 14) << 4) | decode_e(e1, s, 14));
 	dbprintf(2, " sig=%04x", sig & 0xfff);
 	if(sig < 0 || ((sig >> 4) & 0xf) < 8 || ((sig >> 4) & 0xf) > 10 || (sig & 0xf) >= 10 ||
 	    ((sig >> 8) & 0xf) >= 10 || (((sig >> 8) + sig) & 0xf) != 10)
-		return(ZBAR_NONE);
+		return ZBAR_NONE;
 	finder = (finder_hash[(sig - (sig >> 5)) & 0x1f] + finder_hash[(sig >> 1) & 0x1f]) & 0x1f;
 	dbprintf(2, " finder=%d", finder);
 	if(finder == 0x1f || !TEST_CFG((finder < 9) ? db->config : db->config_exp, ZBAR_CFG_ENABLE))
-		return(ZBAR_NONE);
+		return ZBAR_NONE;
 	//zassert(finder >= 0, ZBAR_NONE, "dir=%d sig=%04x f=%d\n", dir, sig & 0xfff, finder);
 	assert(finder >= 0);
 	iseg = alloc_segment(db);
 	if(iseg < 0)
-		return(ZBAR_NONE);
+		return ZBAR_NONE;
 	seg = db->segs + iseg;
 	seg->finder = (finder >= 9) ? finder - 9 : finder;
 	seg->exp = (finder >= 9);
@@ -1138,7 +1138,7 @@ zbar_symbol_type_t _zbar_decode_databar(zbar_decoder_t * dcode)
 
 	iseg = db->chars[i];
 	if(iseg < 0)
-		return(sym);
+		return (sym);
 
 	db->chars[i] = -1;
 	seg = db->segs + iseg;
@@ -1173,6 +1173,6 @@ zbar_symbol_type_t _zbar_decode_databar(zbar_decoder_t * dcode)
 		db->epoch++;
 	dbprintf(2, "\n");
 
-	return(sym);
+	return (sym);
 }
 

@@ -249,28 +249,28 @@ HRESULT CreateCoder(DECL_EXTERNAL_CODECS_LOC_VARS CMethodId methodId, bool encod
 				if(encode) {
 					if(codec.EncoderIsAssigned) {
 						if(codec.NumStreams == 1) {
-							HRESULT res = __externalCodecs->GetCodecs->CreateEncoder(i, &IID_ICompressCoder, (void**)&cod.Coder);
+							HRESULT res = __externalCodecs->GetCodecs->CreateEncoder(i, &IID_ICompressCoder, (void **)&cod.Coder);
 							if(res != S_OK && res != E_NOINTERFACE && res != CLASS_E_CLASSNOTAVAILABLE)
 								return res;
 							if(cod.Coder)
 								return res;
-							return __externalCodecs->GetCodecs->CreateEncoder(i, &IID_ICompressFilter, (void**)&filter);
+							return __externalCodecs->GetCodecs->CreateEncoder(i, &IID_ICompressFilter, (void **)&filter);
 						}
 						cod.NumStreams = codec.NumStreams;
-						return __externalCodecs->GetCodecs->CreateEncoder(i, &IID_ICompressCoder2, (void**)&cod.Coder2);
+						return __externalCodecs->GetCodecs->CreateEncoder(i, &IID_ICompressCoder2, (void **)&cod.Coder2);
 					}
 				}
 				else if(codec.DecoderIsAssigned) {
 					if(codec.NumStreams == 1) {
-						HRESULT res = __externalCodecs->GetCodecs->CreateDecoder(i, &IID_ICompressCoder, (void**)&cod.Coder);
+						HRESULT res = __externalCodecs->GetCodecs->CreateDecoder(i, &IID_ICompressCoder, (void **)&cod.Coder);
 						if(res != S_OK && res != E_NOINTERFACE && res != CLASS_E_CLASSNOTAVAILABLE)
 							return res;
 						if(cod.Coder)
 							return res;
-						return __externalCodecs->GetCodecs->CreateDecoder(i, &IID_ICompressFilter, (void**)&filter);
+						return __externalCodecs->GetCodecs->CreateDecoder(i, &IID_ICompressFilter, (void **)&filter);
 					}
 					cod.NumStreams = codec.NumStreams;
-					return __externalCodecs->GetCodecs->CreateDecoder(i, &IID_ICompressCoder2, (void**)&cod.Coder2);
+					return __externalCodecs->GetCodecs->CreateDecoder(i, &IID_ICompressCoder2, (void **)&cod.Coder2);
 				}
 			}
 		}

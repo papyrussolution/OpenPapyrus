@@ -207,7 +207,7 @@ static ngx_int_t ngx_stream_log_handler(ngx_stream_session_t * s)
 			}
 		}
 alloc_line:
-		line = (u_char*)ngx_pnalloc(s->connection->pool, len);
+		line = (u_char *)ngx_pnalloc(s->connection->pool, len);
 		if(line == NULL) {
 			return NGX_ERROR;
 		}
@@ -459,7 +459,7 @@ static u_char * ngx_stream_log_copy_short(ngx_stream_session_t * s, u_char * buf
 static u_char * ngx_stream_log_copy_long(ngx_stream_session_t * s, u_char * buf,
     ngx_stream_log_op_t * op)
 {
-	return ngx_cpymem(buf, (u_char*)op->data, op->len);
+	return ngx_cpymem(buf, (u_char *)op->data, op->len);
 }
 
 static ngx_int_t ngx_stream_log_variable_compile(ngx_conf_t * cf, ngx_stream_log_op_t * op,
@@ -505,7 +505,7 @@ static u_char * ngx_stream_log_variable(ngx_stream_session_t * s, u_char * buf, 
 		return ngx_cpymem(buf, value->data, value->len);
 	}
 	else {
-		return (u_char*)ngx_stream_log_escape(buf, value->data, value->len);
+		return (u_char *)ngx_stream_log_escape(buf, value->data, value->len);
 	}
 }
 
@@ -580,7 +580,7 @@ static u_char * ngx_stream_log_json_variable(ngx_stream_session_t * s, u_char * 
 		return ngx_cpymem(buf, value->data, value->len);
 	}
 	else {
-		return (u_char*)ngx_escape_json(buf, value->data, value->len);
+		return (u_char *)ngx_escape_json(buf, value->data, value->len);
 	}
 }
 
@@ -638,7 +638,7 @@ static const char * ngx_stream_log_set_log(ngx_conf_t * cf, const ngx_command_t 
 	ngx_stream_script_compile_t sc;
 	ngx_stream_log_main_conf_t   * lmcf;
 	ngx_stream_compile_complex_value_t ccv;
-	ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(ngx_strcmp(value[1].data, "off") == 0) {
 		lscf->off = 1;
 		if(cf->args->nelts == 2) {
@@ -806,7 +806,7 @@ process_formats:
 		if(buffer == NULL) {
 			return NGX_CONF_ERROR;
 		}
-		buffer->start = (u_char*)ngx_pnalloc(cf->pool, size);
+		buffer->start = (u_char *)ngx_pnalloc(cf->pool, size);
 		if(buffer->start == NULL) {
 			return NGX_CONF_ERROR;
 		}
@@ -867,7 +867,7 @@ static char * ngx_stream_log_compile_format(ngx_conf_t * cf, ngx_array_t * flush
 	ngx_uint_t bracket;
 	ngx_stream_log_op_t * op;
 	ngx_uint_t json = 0;
-	ngx_str_t * value = (ngx_str_t*)args->elts;
+	ngx_str_t * value = (ngx_str_t *)args->elts;
 	if(s < args->nelts && ngx_strncmp(value[s].data, "escape=", 7) == 0) {
 		data = value[s].data + 7;
 		if(ngx_strcmp(data, "json") == 0) {
@@ -952,7 +952,7 @@ static char * ngx_stream_log_compile_format(ngx_conf_t * cf, ngx_array_t * flush
 				}
 				else {
 					op->run = ngx_stream_log_copy_long;
-					p = (u_char*)ngx_pnalloc(cf->pool, len);
+					p = (u_char *)ngx_pnalloc(cf->pool, len);
 					if(!p) {
 						return NGX_CONF_ERROR;
 					}
@@ -977,7 +977,7 @@ static const char * ngx_stream_log_open_file_cache(ngx_conf_t * cf, const ngx_co
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 		ngx_int_t max = 0;
 		time_t inactive = 10;
 		time_t valid = 60;

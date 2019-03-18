@@ -195,7 +195,7 @@ void Curl_ftp_parselist_data_free(struct ftp_parselist_data ** pl_data)
 	*pl_data = NULL;
 }
 
-CURLcode Curl_ftp_parselist_geterror(struct ftp_parselist_data * pl_data)
+CURLcode Curl_ftp_parselist_geterror(const struct ftp_parselist_data * pl_data)
 {
 	return pl_data->error;
 }

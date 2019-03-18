@@ -810,7 +810,6 @@ static void AddAlign(TidyDocImpl* doc, Node * node, ctmbstr align)
 {
 	uint i;
 	tmbchar buf[128];
-
 	TY_(tmbstrcpy) (buf, "text-align: ");
 	for(i = 12; i < sizeof(buf)/sizeof(buf[0])-1; ++i) {
 		if( (buf[i] = (tmbchar)TY_(ToLower) (*align++)) == '\0')
@@ -2200,7 +2199,7 @@ void TY_(DowngradeTypography) (TidyDocImpl* doc, Node* node)
 			tmbstr p = lexer->lexbuf + node->start;
 
 			for(i = node->start; i < node->end; ++i) {
-				c = (unsigned char)lexer->lexbuf[i];
+				c = (uchar)lexer->lexbuf[i];
 
 				if(c > 0x7F)
 					i += TY_(GetUTF8) (lexer->lexbuf + i, &c);

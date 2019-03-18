@@ -318,11 +318,13 @@ static BOOL WINAPI SSPLogonUser(LPTSTR szDomain, LPTSTR szUser, LPTSTR szPasswor
 
 int SLAPI SCheckSystemCredentials(const char * pDomain, const char * pUserName, const char * pPw)
 {
-	char   domain[128], user[128], pw[128];
-	STRNSCPY(domain, pDomain);
-	STRNSCPY(user, pUserName);
-	STRNSCPY(pw, pPw);
-	return SSPLogonUser(domain, user, pw) ? 1 : 0; // @unicodeproblem
+	TCHAR  domain[128];
+	TCHAR  user[128];
+	TCHAR  pw[128];
+	STRNSCPY(domain, SUcSwitch(pDomain));
+	STRNSCPY(user, SUcSwitch(pUserName));
+	STRNSCPY(pw, SUcSwitch(pPw));
+	return BIN(SSPLogonUser(domain, user, pw)); // @unicodeproblem
 }
 //
 //

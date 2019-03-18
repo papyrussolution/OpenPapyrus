@@ -146,7 +146,7 @@ int SLAPI AdjGdsGrpng::MakeBillIDList(const GCTFilt * pF, const PPIDArray * pOpL
 	int    ok = 1, r = 1;
 	uint   i = 0;
 	PPID * p_op_id, id;
-	for(i = 0; r && pOpList->enumItems(&i, (void**)&p_op_id);) {
+	for(i = 0; r && pOpList->enumItems(&i, (void **)&p_op_id);) {
 		//
 		// Сначала найдем идентификаторы всех документов,
 		// оплаты по которым попадают в заданный период и занесем
@@ -1136,13 +1136,13 @@ int SLAPI GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt * pFilt, const Adj
 			filt.GoodsID = save_filt_goods_id;
 		}
 	}
-	for(i = 0; enumItems(&i, (void**)&p_entry);)
+	for(i = 0; enumItems(&i, (void **)&p_entry);)
 		p_entry->Price -= p_entry->Discount;
 	if(pFilt->Flags & OPG_PROCESSGENOP && IsGenericOp(pFilt->OpID) > 0) {
 		PPObjOprKind op_obj;
 		ObjRestrictArray gen_list;
 		THROW(op_obj.GetGenericList(pFilt->OpID, &gen_list));
-		for(i = 0; enumItems(&i, (void**)&p_entry);) {
+		for(i = 0; enumItems(&i, (void **)&p_entry);) {
 			if(gen_list.SearchItemByID(p_entry->OpID, 0)) {
 				if(gen_list.CheckFlag(p_entry->OpID, GOIF_NEGATIVE)) {
 					if(p_entry->Sign > 0)
@@ -1166,7 +1166,7 @@ void SLAPI GoodsGrpngArray::InitOpNames()
 {
 	GoodsGrpngEntry * p_entry;
 	SString temp_buf;
-	for(uint i = 0; enumItems(&i, (void**)&p_entry);) {
+	for(uint i = 0; enumItems(&i, (void **)&p_entry);) {
 		uint strid = 0;
 		temp_buf.Z();
 		switch(p_entry->OpID) {

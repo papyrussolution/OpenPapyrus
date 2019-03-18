@@ -1870,7 +1870,7 @@ struct __db {
         do {                                                            \
 		(dbt)->flags |= DB_DBT_BULK;                            \
 		pointer = (uint8 *)(dbt)->data+(dbt)->ulen-sizeof(uint32);                    \
-		*(uint32 *)(pointer) = 0;                            \
+		*reinterpret_cast<uint32 *>(pointer) = 0;                            \
 	} while(0)
 
  #define DB_MULTIPLE_RECNO_RESERVE_NEXT(pointer, dbt, recno, writedata, writedlen) \

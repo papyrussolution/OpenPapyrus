@@ -229,7 +229,7 @@ found:
 			ngx_free(test);
 			return NGX_ERROR;
 		}
-		buckets = (ngx_hash_elt_t**)((u_char*)hinit->hash + sizeof(ngx_hash_wildcard_t));
+		buckets = (ngx_hash_elt_t**)((u_char *)hinit->hash + sizeof(ngx_hash_wildcard_t));
 	}
 	else {
 		buckets = (ngx_hash_elt_t **)ngx_pcalloc(hinit->pool, size * sizeof(ngx_hash_elt_t *));
@@ -259,7 +259,7 @@ found:
 			continue;
 		}
 		key = names[n].key_hash % size;
-		elt = (ngx_hash_elt_t*)((u_char*)buckets[key] + test[key]);
+		elt = (ngx_hash_elt_t*)((u_char *)buckets[key] + test[key]);
 		elt->value = names[n].value;
 		elt->len = (u_short)names[n].key.len;
 		ngx_strlow(elt->name, names[n].key.data, names[n].key.len);
@@ -269,7 +269,7 @@ found:
 		if(buckets[i] == NULL) {
 			continue;
 		}
-		elt = (ngx_hash_elt_t*)((u_char*)buckets[i] + test[i]);
+		elt = (ngx_hash_elt_t*)((u_char *)buckets[i] + test[i]);
 		elt->value = NULL;
 	}
 	ngx_free(test);

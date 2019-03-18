@@ -81,7 +81,7 @@ typedef enum {
 // 
 static void LZ4HC_clearTables(LZ4HC_CCtx_internal* hc4)
 {
-	memzero((void *)hc4->hashTable, sizeof(hc4->hashTable));
+	memzero(/*(void *)*/hc4->hashTable, sizeof(hc4->hashTable));
 	memset(hc4->chainTable, 0xFF, sizeof(hc4->chainTable));
 }
 
@@ -149,7 +149,7 @@ static unsigned LZ4HC_countPattern(const uint8* ip, const uint8* const iEnd, uin
 			ip += sizeof(pattern); continue;
 		}
 		ip += LZ4_NbCommonBytes(diff);
-		return (unsigned)(ip - iStart);
+		return (uint)(ip - iStart);
 	}
 	if(LZ4_isLittleEndian()) {
 		reg_t patternByte = pattern;
@@ -165,7 +165,7 @@ static unsigned LZ4HC_countPattern(const uint8* ip, const uint8* const iEnd, uin
 			ip++; bitOffset -= 8;
 		}
 	}
-	return (unsigned)(ip - iStart);
+	return (uint)(ip - iStart);
 }
 // 
 // LZ4HC_reverseCountPattern() :
@@ -180,13 +180,13 @@ static unsigned LZ4HC_reverseCountPattern(const uint8* ip, const uint8* const iL
 		ip -= 4;
 	}
 	{   
-		const uint8 * bytePtr = (const uint8*)(&pattern) + 3;/* works for any endianess */
+		const uint8 * bytePtr = (const uint8 *)(&pattern) + 3;/* works for any endianess */
 	    while(likely(ip>iLow)) {
 		    if(ip[-1] != *bytePtr) break;
 		    ip--; bytePtr--;
 	    }
 	}
-	return (unsigned)(iStart - ip);
+	return (uint)(iStart - ip);
 }
 
 typedef enum { rep_untested, rep_not, rep_confirmed } repeat_state_e;
@@ -461,7 +461,7 @@ LZ4_FORCE_INLINE int LZ4HC_compress_hashChain(LZ4HC_CCtx_internal* const ctx, co
 {
 	const int inputSize = *srcSizePtr;
 	const int patternAnalysis = (maxNbAttempts > 128); /* levels 9+ */
-	const uint8* ip = (const uint8*)source;
+	const uint8* ip = (const uint8 *)source;
 	const uint8* anchor = ip;
 	const uint8* const iend = ip + inputSize;
 	const uint8* const mflimit = iend - MFLIMIT;
@@ -732,7 +732,7 @@ static int LZ4HC_compress_generic_dictCtx(LZ4HC_CCtx_internal* const ctx, const 
 	}
 	else if(position == 0 && *srcSizePtr > 4 KB) {
 		memcpy(ctx, ctx->dictCtx, sizeof(LZ4HC_CCtx_internal));
-		LZ4HC_setExternalDict(ctx, (const uint8*)src);
+		LZ4HC_setExternalDict(ctx, (const uint8 *)src);
 		ctx->compressionLevel = (short)cLevel;
 		return LZ4HC_compress_generic_noDictCtx(ctx, src, dst, srcSizePtr, dstCapacity, cLevel, limit);
 	}
@@ -760,7 +760,7 @@ int LZ4_compress_HC_extStateHC_fastReset(void* state, const char* src, char* dst
 	if(((size_t)(state)&(sizeof(void *)-1)) != 0) return 0; /* Error : state is not aligned for pointers (32 or 64
 	                                                          bits) */
 	LZ4_resetStreamHC_fast((LZ4_streamHC_t*)state, compressionLevel);
-	LZ4HC_init(ctx, (const uint8*)src);
+	LZ4HC_init(ctx, (const uint8 *)src);
 	if(dstCapacity < LZ4_compressBound(srcSize))
 		return LZ4HC_compress_generic(ctx, src, dst, &srcSize, dstCapacity, compressionLevel, limitedOutput);
 	else
@@ -796,7 +796,7 @@ int LZ4_compress_HC_destSize(void* LZ4HC_Data, const char* source, char* dest, i
 {
 	LZ4HC_CCtx_internal* const ctx = &((LZ4_streamHC_t*)LZ4HC_Data)->internal_donotuse;
 	LZ4_resetStreamHC((LZ4_streamHC_t*)LZ4HC_Data, cLevel);
-	LZ4HC_init(ctx, (const uint8*)source);
+	LZ4HC_init(ctx, (const uint8 *)source);
 	return LZ4HC_compress_generic(ctx, source, dest, sourceSizePtr, targetDestSize, cLevel, limitedDestSize);
 }
 
@@ -825,7 +825,7 @@ void LZ4_resetStreamHC(LZ4_streamHC_t* LZ4_streamHCPtr, int compressionLevel)
 {
 	LZ4_STATIC_ASSERT(sizeof(LZ4HC_CCtx_internal) <= sizeof(size_t) * LZ4_STREAMHCSIZE_SIZET); // if compilation fails here, LZ4_STREAMHCSIZE must be increased 
 	//DEBUGLOG(4, "LZ4_resetStreamHC(%p, %d)", LZ4_streamHCPtr, compressionLevel);
-	LZ4_streamHCPtr->internal_donotuse.end = (const uint8*)(ptrdiff_t)-1;
+	LZ4_streamHCPtr->internal_donotuse.end = (const uint8 *)(ptrdiff_t)-1;
 	LZ4_streamHCPtr->internal_donotuse.base = NULL;
 	LZ4_streamHCPtr->internal_donotuse.dictCtx = NULL;
 	LZ4_streamHCPtr->internal_donotuse.favorDecSpeed = 0;
@@ -868,8 +868,8 @@ int LZ4_loadDictHC(LZ4_streamHC_t* LZ4_streamHCPtr, const char* dictionary, int 
 		dictSize = 64 KB;
 	}
 	LZ4_resetStreamHC(LZ4_streamHCPtr, ctxPtr->compressionLevel);
-	LZ4HC_init(ctxPtr, (const uint8*)dictionary);
-	ctxPtr->end = (const uint8*)dictionary + dictSize;
+	LZ4HC_init(ctxPtr, (const uint8 *)dictionary);
+	ctxPtr->end = (const uint8 *)dictionary + dictSize;
 	if(dictSize >= 4) LZ4HC_Insert(ctxPtr, ctxPtr->end-3);
 	return dictSize;
 }
@@ -901,7 +901,7 @@ static int LZ4_compressHC_continue_generic(LZ4_streamHC_t* LZ4_streamHCPtr, cons
 	LZ4HC_CCtx_internal* const ctxPtr = &LZ4_streamHCPtr->internal_donotuse;
 	//DEBUGLOG(4, "LZ4_compressHC_continue_generic(%p, %p, %d)", LZ4_streamHCPtr, src, *srcSizePtr);
 	/* auto-init if forgotten */
-	if(ctxPtr->base == NULL) LZ4HC_init(ctxPtr, (const uint8*)src);
+	if(ctxPtr->base == NULL) LZ4HC_init(ctxPtr, (const uint8 *)src);
 
 	/* Check overflow */
 	if((size_t)(ctxPtr->end - ctxPtr->base) > 2 GB) {
@@ -911,13 +911,13 @@ static int LZ4_compressHC_continue_generic(LZ4_streamHC_t* LZ4_streamHCPtr, cons
 	}
 
 	/* Check if blocks follow each other */
-	if((const uint8*)src != ctxPtr->end) LZ4HC_setExternalDict(ctxPtr, (const uint8*)src);
+	if((const uint8 *)src != ctxPtr->end) LZ4HC_setExternalDict(ctxPtr, (const uint8 *)src);
 
 	/* Check overlapping input/dictionary space */
-	{   const uint8* sourceEnd = (const uint8*)src + *srcSizePtr;
+	{   const uint8* sourceEnd = (const uint8 *)src + *srcSizePtr;
 	    const uint8* const dictBegin = ctxPtr->dictBase + ctxPtr->lowLimit;
 	    const uint8* const dictEnd   = ctxPtr->dictBase + ctxPtr->dictLimit;
-	    if((sourceEnd > dictBegin) && ((const uint8*)src < dictEnd)) {
+	    if((sourceEnd > dictBegin) && ((const uint8 *)src < dictEnd)) {
 		    if(sourceEnd > dictEnd) sourceEnd = dictEnd;
 		    ctxPtr->lowLimit = (uint32)(sourceEnd - ctxPtr->dictBase);
 		    if(ctxPtr->dictLimit - ctxPtr->lowLimit < 4) ctxPtr->lowLimit = ctxPtr->dictLimit;
@@ -952,7 +952,7 @@ int LZ4_saveDictHC(LZ4_streamHC_t* LZ4_streamHCPtr, char* safeBuffer, int dictSi
 	if(dictSize > prefixSize) dictSize = prefixSize;
 	memmove(safeBuffer, streamPtr->end - dictSize, dictSize);
 	{   uint32 const endIndex = (uint32)(streamPtr->end - streamPtr->base);
-	    streamPtr->end = (const uint8*)safeBuffer + dictSize;
+	    streamPtr->end = (const uint8 *)safeBuffer + dictSize;
 	    streamPtr->base = streamPtr->end - endIndex;
 	    streamPtr->dictLimit = endIndex - dictSize;
 	    streamPtr->lowLimit = endIndex - dictSize;
@@ -1016,7 +1016,7 @@ int LZ4_resetStreamStateHC(void* state, char* inputBuffer)
 	if((((size_t)state) & (sizeof(void *)-1)) != 0) return 1; /* Error : pointer is not aligned for pointer (32 or 64
 	                                                            bits) */
 	LZ4_resetStreamHC((LZ4_streamHC_t*)state, ((LZ4_streamHC_t*)state)->internal_donotuse.compressionLevel);
-	LZ4HC_init(ctx, (const uint8*)inputBuffer);
+	LZ4HC_init(ctx, (const uint8 *)inputBuffer);
 	return 0;
 }
 
@@ -1026,7 +1026,7 @@ void * LZ4_createHC(const char* inputBuffer)
 	if(hc4 == NULL) 
 		return NULL; /* not enough memory */
 	LZ4_resetStreamHC(hc4, 0 /* compressionLevel */);
-	LZ4HC_init(&hc4->internal_donotuse, (const uint8*)inputBuffer);
+	LZ4HC_init(&hc4->internal_donotuse, (const uint8 *)inputBuffer);
 	return hc4;
 }
 
@@ -1118,7 +1118,7 @@ static int LZ4HC_compress_optimal(LZ4HC_CCtx_internal* ctx, const char* const so
 #define TRAILING_LITERALS 3
 	LZ4HC_optimal_t opt[LZ4_OPT_NUM + TRAILING_LITERALS]; /* ~64 KB, which is a bit large for stack... */
 
-	const uint8* ip = (const uint8*)source;
+	const uint8* ip = (const uint8 *)source;
 	const uint8* anchor = ip;
 	const uint8* const iend = ip + *srcSizePtr;
 	const uint8* const mflimit = iend - MFLIMIT;

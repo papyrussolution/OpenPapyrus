@@ -1381,7 +1381,7 @@ I glitter_status_t glitter_scan_converter_reset(glitter_scan_converter_t * conve
 #endif
 
 #define INPUT_TO_GRID_general(in, out, grid_scale) do {         \
-		long long tmp__ = (long long)(grid_scale) * (in);   \
+		long long tmp__ = static_cast<long long>(grid_scale) * (in);   \
 		tmp__ += 1 << (GLITTER_INPUT_BITS-1);                       \
 		tmp__ >>= GLITTER_INPUT_BITS;                               \
 		(out) = tmp__;                                              \
@@ -1400,7 +1400,7 @@ inline static void polygon_add_edge(struct polygon * polygon, const cairo_edge_t
 		ybot = polygon->ymax;
 	if(ybot <= ytop)
 		return;
-	e = (struct edge *)pool_alloc(polygon->edge_pool.base, sizeof(struct edge));
+	e = static_cast<struct edge *>(pool_alloc(polygon->edge_pool.base, sizeof(struct edge)));
 	e->ytop = ytop;
 	e->height_left = ybot - ytop;
 	if(edge->line.p2.y > edge->line.p1.y) {

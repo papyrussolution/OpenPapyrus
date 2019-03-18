@@ -71,7 +71,7 @@ public:
 	/// truth testing.
 	bool operator!() const
 	{
-		return(!_syms || !get_size());
+		return (!_syms || !get_size());
 	}
 	/// manipulate reference count.
 	void ref(int delta = 1) const
@@ -82,11 +82,11 @@ public:
 	/// cast to C symbol set.
 	operator const zbar_symbol_set_t*() const
 	{
-		return(_syms);
+		return (_syms);
 	}
 	int get_size() const
 	{
-		return((_syms) ? zbar_symbol_set_get_size(_syms) : 0);
+		return ((_syms) ? zbar_symbol_set_get_size(_syms) : 0);
 	}
 
 	/// create a new ZBarSymbolIterator over decoded results.
@@ -180,7 +180,7 @@ public:
 		/// truth testing.
 		bool operator!() const
 		{
-			return(!_sym || _index < 0);
+			return (!_sym || _index < 0);
 		}
 
 		/// advance iterator to next Point.
@@ -197,7 +197,7 @@ public:
 		{
 			assert(!!*this);
 			if(!*this)
-				return(Point());
+				return (Point());
 			return Point(zbar_symbol_get_loc_x(*_sym, _index), zbar_symbol_get_loc_y(*_sym, _index));
 		}
 
@@ -205,7 +205,7 @@ public:
 		/// Symbol.
 		bool operator==(const PointIterator& iter) const
 		{
-			return(_index == iter._index &&
+			return (_index == iter._index &&
 			    ((_index < 0) || _sym == iter._sym));
 		}
 
@@ -213,7 +213,7 @@ public:
 		/// Symbol.
 		bool operator!=(const PointIterator& iter) const
 		{
-			return(!(*this == iter));
+			return (!(*this == iter));
 		}
 
 private:
@@ -260,7 +260,7 @@ private:
 	/// truth testing.
 	bool operator!() const
 	{
-		return(!_sym);
+		return (!_sym);
 	}
 	void ref(int delta = 1) const
 	{
@@ -271,50 +271,50 @@ private:
 	/// cast to C symbol.
 	operator const zbar_symbol_t*() const
 	{
-		return(_sym);
+		return (_sym);
 	}
 
 	/// test if two Symbol objects refer to the same C symbol.
 	bool operator==(const Symbol& sym) const
 	{
-		return(_sym == sym._sym);
+		return (_sym == sym._sym);
 	}
 
 	/// test if two Symbol objects refer to the same C symbol.
 	bool operator!=(const Symbol& sym) const
 	{
-		return(!(*this == sym));
+		return (!(*this == sym));
 	}
 
 	/// retrieve type of decoded symbol.
 	zbar_symbol_type_t get_type() const
 	{
-		return(_type);
+		return (_type);
 	}
 
 	/// retrieve the string name of the symbol type.
 	const std::string get_type_name() const
 	{
-		return(zbar_get_symbol_name(_type));
+		return (zbar_get_symbol_name(_type));
 	}
 
 	/// retrieve the string name for any addon.
 	/// @deprecated in 0.11
 	const std::string get_addon_name() const
 	{
-		return(zbar_get_addon_name(_type));
+		return (zbar_get_addon_name(_type));
 	}
 
 	/// retrieve data decoded from symbol.
 	const std::string get_data() const
 	{
-		return(_data);
+		return (_data);
 	}
 
 	/// retrieve length of binary data
 	uint get_data_length() const
 	{
-		return((_sym) ? zbar_symbol_get_data_length(_sym) : 0);
+		return ((_sym) ? zbar_symbol_get_data_length(_sym) : 0);
 	}
 
 	/// retrieve inter-frame coherency count.
@@ -322,7 +322,7 @@ private:
 	/// @since 0.5
 	int get_count() const
 	{
-		return((_sym) ? zbar_symbol_get_count(_sym) : -1);
+		return ((_sym) ? zbar_symbol_get_count(_sym) : -1);
 	}
 
 	/// retrieve loosely defined relative quality metric.
@@ -330,52 +330,52 @@ private:
 	/// @since 0.11
 	int get_quality() const
 	{
-		return((_sym) ? zbar_symbol_get_quality(_sym) : 0);
+		return ((_sym) ? zbar_symbol_get_quality(_sym) : 0);
 	}
 
 	SymbolSet get_components() const
 	{
-		return(SymbolSet((_sym) ? zbar_symbol_get_components(_sym) : NULL));
+		return (SymbolSet((_sym) ? zbar_symbol_get_components(_sym) : NULL));
 	}
 
 	/// create a new PointIterator at the start of the location
 	/// polygon.
 	PointIterator point_begin() const
 	{
-		return(PointIterator(this));
+		return (PointIterator(this));
 	}
 	/// return a PointIterator suitable for ending iteration.
 	const PointIterator point_end() const
 	{
-		return(PointIterator());
+		return (PointIterator());
 	}
 	/// see zbar_symbol_get_loc_size().
 	int get_location_size() const
 	{
-		return((_sym) ? zbar_symbol_get_loc_size(_sym) : 0);
+		return ((_sym) ? zbar_symbol_get_loc_size(_sym) : 0);
 	}
 	/// see zbar_symbol_get_loc_x().
 	int get_location_x(uint index) const
 	{
-		return((_sym) ? zbar_symbol_get_loc_x(_sym, index) : -1);
+		return ((_sym) ? zbar_symbol_get_loc_x(_sym, index) : -1);
 	}
 	/// see zbar_symbol_get_loc_y().
 	int get_location_y(uint index) const
 	{
-		return((_sym) ? zbar_symbol_get_loc_y(_sym, index) : -1);
+		return ((_sym) ? zbar_symbol_get_loc_y(_sym, index) : -1);
 	}
 	/// see zbar_symbol_get_orientation().
 	/// @since 0.11
 	int get_orientation() const
 	{
-		return(zbar_symbol_get_orientation(_sym));
+		return (zbar_symbol_get_orientation(_sym));
 	}
 	/// see zbar_symbol_xml().
 	const std::string xml() const
 	{
 		if(!_sym)
-			return("");
-		return(zbar_symbol_xml(_sym, (char**)&_xmlbuf, (uint*)&_xmllen));
+			return ("");
+		return (zbar_symbol_xml(_sym, (char**)&_xmlbuf, (uint *)&_xmllen));
 	}
 protected:
 	/// (re)initialize Symbol from C symbol object.
@@ -433,7 +433,7 @@ public:
 	}
 	bool operator!() const
 	{
-		return(!_syms || !_sym);
+		return (!_syms || !_sym);
 	}
 
 	/// advance iterator to next Symbol.
@@ -449,13 +449,13 @@ public:
 	/// retrieve currently referenced Symbol.
 	const Symbol operator*() const
 	{
-		return(_sym);
+		return (_sym);
 	}
 
 	/// access currently referenced Symbol.
 	const Symbol* operator->() const
 	{
-		return(&_sym);
+		return (&_sym);
 	}
 
 	/// test if two iterators refer to the same Symbol
@@ -463,18 +463,18 @@ public:
 	{
 		// it is enough to test the symbols, as they belong
 		// to only one set (also simplifies invalid case)
-		return(_sym == iter._sym);
+		return (_sym == iter._sym);
 	}
 
 	/// test if two iterators refer to the same Symbol
 	bool operator!=(const ZBarSymbolIterator& iter) const
 	{
-		return(!(*this == iter));
+		return (!(*this == iter));
 	}
 
 	const ZBarSymbolIterator end() const
 	{
-		return(ZBarSymbolIterator());
+		return (ZBarSymbolIterator());
 	}
 
 private:
@@ -484,12 +484,12 @@ private:
 
 inline ZBarSymbolIterator SymbolSet::symbol_begin() const
 {
-	return(ZBarSymbolIterator(*this));
+	return (ZBarSymbolIterator(*this));
 }
 
 inline const ZBarSymbolIterator SymbolSet::symbol_end() const
 {
-	return(ZBarSymbolIterator());
+	return (ZBarSymbolIterator());
 }
 
 /// @relates Symbol
@@ -497,7 +497,7 @@ inline const ZBarSymbolIterator SymbolSet::symbol_end() const
 static inline std::ostream & operator<<(std::ostream& out, const Symbol& sym)
 {
 	out << sym.get_type_name() << ":" << sym.get_data();
-	return(out);
+	return (out);
 }
 
 //}

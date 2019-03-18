@@ -117,7 +117,7 @@ struct archive {
 	size_t		  read_data_requested;
 };
 //
-// Check magic value and state; return(ARCHIVE_FATAL) if it isn't valid. 
+// Check magic value and state; return (ARCHIVE_FATAL) if it isn't valid. 
 //
 int	FASTCALL __archive_check_magic(struct archive *, uint magic, uint state, const char *func);
 #define	archive_check_magic(a, expected_magic, allowed_states, function_name) \

@@ -732,7 +732,7 @@ int SrConceptTbl::Remove(CONCEPTID id)
 	return ok;
 }
 
-int SrConceptTbl::SetPropDeclList(CONCEPTID id, SrCPropDeclList * pPdl)
+int SrConceptTbl::SetPropDeclList(CONCEPTID id, const SrCPropDeclList * pPdl)
 {
 	int    ok = 1;
 	if(pPdl && pPdl->GetCount()) {

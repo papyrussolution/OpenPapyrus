@@ -120,7 +120,7 @@ cairo_clip_t * _cairo_clip_copy(const cairo_clip_t * clip)
 {
 	cairo_clip_t * copy;
 	if(clip == NULL || _cairo_clip_is_all_clipped(clip))
-		return (cairo_clip_t*)clip;
+		return (cairo_clip_t *)clip;
 	copy = _cairo_clip_create();
 	if(clip->path)
 		copy->path = _cairo_clip_path_reference(clip->path);
@@ -145,7 +145,7 @@ cairo_clip_t * _cairo_clip_copy(const cairo_clip_t * clip)
 cairo_clip_t * _cairo_clip_copy_path(const cairo_clip_t * clip)
 {
 	if(clip == NULL || _cairo_clip_is_all_clipped(clip))
-		return (cairo_clip_t*)clip;
+		return (cairo_clip_t *)clip;
 	assert(clip->num_boxes);
 	cairo_clip_t * copy = _cairo_clip_create();
 	copy->extents = clip->extents;
@@ -159,7 +159,7 @@ cairo_clip_t * _cairo_clip_copy_region(const cairo_clip_t * clip)
 	cairo_clip_t * copy;
 	int i;
 	if(clip == NULL || _cairo_clip_is_all_clipped(clip))
-		return (cairo_clip_t*)clip;
+		return (cairo_clip_t *)clip;
 	assert(clip->num_boxes);
 	copy = _cairo_clip_create();
 	copy->extents = clip->extents;
@@ -432,7 +432,7 @@ cairo_clip_t * _cairo_clip_copy_with_translation(const cairo_clip_t * clip, int 
 	cairo_clip_t * copy;
 	int fx, fy, i;
 	if(clip == NULL || _cairo_clip_is_all_clipped(clip))
-		return (cairo_clip_t*)clip;
+		return (cairo_clip_t *)clip;
 	if(tx == 0 && ty == 0)
 		return _cairo_clip_copy(clip);
 	copy = _cairo_clip_create();

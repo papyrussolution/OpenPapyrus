@@ -56,7 +56,7 @@ static inline proc_waiter_t *proc_waiter_queue (zbar_processor_t *proc)
     else
         proc->wait_head = waiter;
     proc->wait_tail = waiter;
-    return(waiter);
+    return (waiter);
 }
 
 static inline proc_waiter_t *proc_waiter_dequeue (zbar_processor_t *proc)
@@ -84,7 +84,7 @@ static inline proc_waiter_t *proc_waiter_dequeue (zbar_processor_t *proc)
         proc->lock_level = 1;
         proc->lock_owner = waiter->requester;
     }
-    return(waiter);
+    return (waiter);
 }
 
 static inline void proc_waiter_release (zbar_processor_t *proc,
@@ -178,7 +178,7 @@ static inline int proc_wait_unthreaded (zbar_processor_t *proc, proc_waiter_t *w
         rc = _zbar_processor_input_wait(proc, NULL, reltime);
     }
     _zbar_mutex_lock(&proc->mutex);
-    return(rc);
+    return (rc);
 }
 
 int _zbar_processor_wait (zbar_processor_t *proc, uint events, zbar_timer_t *timeout)
@@ -213,5 +213,5 @@ int _zbar_processor_wait (zbar_processor_t *proc, uint events, zbar_timer_t *tim
     proc->lock_level = save_level;
     proc_waiter_release(proc, waiter);
     _zbar_mutex_unlock(&proc->mutex);
-    return(rc);
+    return (rc);
 }

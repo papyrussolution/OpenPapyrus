@@ -174,7 +174,7 @@ int SLAPI SCommPort::InitPort(int portNo, int ctsControl, int rtsControl)
 	SString name;
 	GetComDvcSymb(comdvcsCom, portNo+1, 1, name);
 	ClosePort();
-	H_Port = ::CreateFile(name, GENERIC_READ|GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0); // @unicodeproblem
+	H_Port = ::CreateFile(SUcSwitch(name), GENERIC_READ|GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0); // @unicodeproblem
 	SLS.SetAddedMsgString(name);
 	THROW(H_Port != INVALID_HANDLE_VALUE);
 	THROW(GetCommState(H_Port, &dcb));

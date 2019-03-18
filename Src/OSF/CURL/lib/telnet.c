@@ -1530,7 +1530,7 @@ static CURLcode telnet_do(struct connectdata * conn, bool * done)
 	}
 	else {
 		/* really using fread, so infile is a FILE* */
-		pfd[1].fd = fileno((FILE*)data->state.in);
+		pfd[1].fd = fileno((FILE *)data->state.in);
 		pfd[1].events = POLLIN;
 		poll_cnt = 2;
 		interval_ms = 1 * 1000;

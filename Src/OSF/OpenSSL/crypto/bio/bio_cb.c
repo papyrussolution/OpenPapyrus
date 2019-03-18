@@ -76,6 +76,6 @@ long BIO_debug_callback(BIO * bio, int cmd, const char * argp, int argi, long ar
 	else
 		fputs(buf, stderr);
 #endif
-	return (r);
+	return r;
 }
 

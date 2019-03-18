@@ -1182,7 +1182,7 @@ extern "C" {
 //
 //#include <FilterCoder.h>
 #define MY_QUERYINTERFACE_ENTRY_AG(i, sub0, sub) else if(iid == IID_ ## i) \
-	{ if(!sub) RINOK(sub0->QueryInterface(IID_ ## i, (void**)&sub))	*outObject = (void *)(i*)this; }
+	{ if(!sub) RINOK(sub0->QueryInterface(IID_ ## i, (void **)&sub))	*outObject = (void *)(i*)this; }
 
 struct CAlignedMidBuffer {
   #ifdef _WIN32
@@ -3251,7 +3251,7 @@ public:
 	HRESULT LoadDllsFromFolder(const FString &folderPrefix);
 	HRESULT CreateArchiveHandler(const CArcInfoEx &ai, bool outHandler, void ** archive) const
 	{
-		return Libs[ai.LibIndex].CreateObject(&ai.ClassID, outHandler ? &IID_IOutArchive : &IID_IInArchive, (void**)archive);
+		return Libs[ai.LibIndex].CreateObject(&ai.ClassID, outHandler ? &IID_IOutArchive : &IID_IInArchive, (void **)archive);
 	}
   #endif
 #ifdef NEW_FOLDER_INTERFACE
@@ -5111,7 +5111,7 @@ namespace NArchive {
 			bool MultiThreadMixer;
 
 			CUpdateOptions() : Method(NULL), HeaderMethod(NULL), UseFilters(false), MaxFilter(false), AnalysisLevel(-1),
-				NumSolidFiles((uint64)(int64) (-1)), NumSolidBytes((uint64)(int64) (-1)), SolidExtension(false),
+				NumSolidFiles(static_cast<uint64>(-1LL)), NumSolidBytes(static_cast<uint64>(-1LL)), SolidExtension(false),
 				UseTypeSorting(true), RemoveSfxBlock(false), MultiThreadMixer(true)
 			{
 			}

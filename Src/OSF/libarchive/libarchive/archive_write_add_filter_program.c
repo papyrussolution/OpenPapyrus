@@ -123,12 +123,12 @@ int archive_write_add_filter_program(struct archive * _a, const char * cmd)
 	f->write = archive_compressor_program_write;
 	f->close = archive_compressor_program_close;
 	f->free = archive_compressor_program_free;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 memerr:
 	archive_compressor_program_free(f);
 	archive_set_error(_a, ENOMEM,
 	    "Can't allocate memory for filter program");
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }
 
 static int archive_compressor_program_open(struct archive_write_filter * f)
@@ -162,7 +162,7 @@ static int archive_compressor_program_free(struct archive_write_filter * f)
 		SAlloc::F(data);
 		f->data = NULL;
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -192,7 +192,7 @@ int __archive_write_program_free(struct archive_write_program_data * data)
 		SAlloc::F(data->child_buf);
 		SAlloc::F(data);
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 int __archive_write_program_open(struct archive_write_filter * f,
@@ -203,7 +203,7 @@ int __archive_write_program_open(struct archive_write_filter * f,
 
 	ret = __archive_write_open_filter(f->next_filter);
 	if(ret != ARCHIVE_OK)
-		return (ret);
+		return ret;
 
 	if(data->child_buf == NULL) {
 		data->child_buf_len = 65536;
@@ -213,7 +213,7 @@ int __archive_write_program_open(struct archive_write_filter * f,
 		if(data->child_buf == NULL) {
 			archive_set_error(f->archive, ENOMEM,
 			    "Can't allocate compression buffer");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 	}
 
@@ -222,7 +222,7 @@ int __archive_write_program_open(struct archive_write_filter * f,
 	if(child == -1) {
 		archive_set_error(f->archive, EINVAL,
 		    "Can't launch external program: %s", cmd);
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	data->child = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, child);
@@ -233,35 +233,35 @@ int __archive_write_program_open(struct archive_write_filter * f,
 		data->child_stdout = -1;
 		archive_set_error(f->archive, EINVAL,
 		    "Can't launch external program: %s", cmd);
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 #else
 	data->child = child;
 #endif
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static ssize_t child_write(struct archive_write_filter * f, struct archive_write_program_data * data, const char * buf, size_t buf_len)
 {
 	ssize_t ret;
 	if(data->child_stdin == -1)
-		return (-1);
+		return -1;
 	if(buf_len == 0)
-		return (-1);
+		return -1;
 	for(;;) {
 		do {
 			ret = write(data->child_stdin, buf, buf_len);
 		} while(ret == -1 && errno == EINTR);
 		if(ret > 0)
-			return (ret);
+			return ret;
 		if(ret == 0) {
 			close(data->child_stdin);
 			data->child_stdin = -1;
 			fcntl(data->child_stdout, F_SETFL, 0);
-			return (0);
+			return 0;
 		}
 		if(ret == -1 && errno != EAGAIN)
-			return (-1);
+			return -1;
 		if(data->child_stdout == -1) {
 			fcntl(data->child_stdin, F_SETFL, 0);
 			__archive_check_child(data->child_stdin, data->child_stdout);
@@ -282,11 +282,11 @@ static ssize_t child_write(struct archive_write_filter * f, struct archive_write
 			continue;
 		}
 		if(ret == -1)
-			return (-1);
+			return -1;
 		data->child_buf_avail += ret;
 		ret = __archive_write_filter(f->next_filter, data->child_buf, data->child_buf_avail);
 		if(ret != ARCHIVE_OK)
-			return (-1);
+			return -1;
 		data->child_buf_avail = 0;
 	}
 }
@@ -300,18 +300,18 @@ int __archive_write_program_write(struct archive_write_filter * f,
 	ssize_t ret;
 	const char * buf;
 	if(data->child == 0)
-		return (ARCHIVE_OK);
-	buf = (const char*)buff;
+		return ARCHIVE_OK;
+	buf = (const char *)buff;
 	while(length > 0) {
 		ret = child_write(f, data, buf, length);
 		if(ret == -1 || ret == 0) {
 			archive_set_error(f->archive, EIO, "Can't write to program: %s", data->program_name);
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		length -= ret;
 		buf += ret;
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*

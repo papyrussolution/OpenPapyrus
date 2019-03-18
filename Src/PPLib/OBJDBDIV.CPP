@@ -339,7 +339,7 @@ int DBDivDialog::setDTS(const DBDivPack * p)
 	}
 	data.GetExtStrData(DBDIVEXSTR_ACCLIST, temp_buf);
 	setCtrlString(CTL_DBDIV_ACCLIST, temp_buf);
-	SetupPPObjCombo(this, CTLSEL_DBDIV_INTRRCPT, PPOBJ_OPRKIND, data.Rec.IntrRcptOpr, OLW_CANINSERT, (void *)PPOPT_GOODSRECEIPT);
+	SetupPPObjCombo(this, CTLSEL_DBDIV_INTRRCPT, PPOBJ_OPRKIND, data.Rec.IntrRcptOpr, OLW_CANINSERT, reinterpret_cast<void *>(PPOPT_GOODSRECEIPT));
 	AddClusterAssoc(CTL_DBDIV_FLAGS, 0, DBDIVF_DISPATCH);
 	AddClusterAssoc(CTL_DBDIV_FLAGS, 1, DBDIVF_SCARDSONLY);
 	AddClusterAssoc(CTL_DBDIV_FLAGS, 2, DBDIVF_RCVCSESSANDWROFFBILLS);

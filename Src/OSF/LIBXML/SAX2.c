@@ -187,7 +187,7 @@ const xmlChar * xmlSAX2GetPublicId(void * ctx ATTRIBUTE_UNUSED)
 const xmlChar * xmlSAX2GetSystemId(void * ctx)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
-	return (ctx && ctxt->input) ? ((const xmlChar*)ctxt->input->filename) : 0;
+	return (ctx && ctxt->input) ? ((const xmlChar *)ctxt->input->filename) : 0;
 }
 /**
  * xmlSAX2GetLineNumber:
@@ -413,7 +413,7 @@ xmlParserInput * xmlSAX2ResolveEntity(void * ctx, const xmlChar * publicId, cons
 		base = ctxt->input->filename;
 	if(base == NULL)
 		base = ctxt->directory;
-	URI = xmlBuildURI(systemId, (const xmlChar*)base);
+	URI = xmlBuildURI(systemId, (const xmlChar *)base);
 #ifdef DEBUG_SAX
 	xmlGenericError(0, "SAX.xmlSAX2ResolveEntity(%s, %s)\n", publicId, systemId);
 #endif
@@ -545,7 +545,7 @@ void xmlSAX2EntityDecl(void * ctx, const xmlChar * name, int type, const xmlChar
 			if(ctxt->input)
 				base = ctxt->input->filename;
 			SETIFZ(base, ctxt->directory);
-			URI = xmlBuildURI(systemId, (const xmlChar*)base);
+			URI = xmlBuildURI(systemId, (const xmlChar *)base);
 			ent->URI = URI;
 		}
 	}
@@ -559,7 +559,7 @@ void xmlSAX2EntityDecl(void * ctx, const xmlChar * name, int type, const xmlChar
 			if(ctxt->input)
 				base = ctxt->input->filename;
 			SETIFZ(base, ctxt->directory);
-			URI = xmlBuildURI(systemId, (const xmlChar*)base);
+			URI = xmlBuildURI(systemId, (const xmlChar *)base);
 			ent->URI = URI;
 		}
 	}
@@ -589,7 +589,7 @@ void xmlSAX2AttributeDecl(void * ctx, const xmlChar * elem, const xmlChar * full
 #ifdef DEBUG_SAX
 	xmlGenericError(0, "SAX.xmlSAX2AttributeDecl(%s, %s, %d, %d, %s, ...)\n", elem, fullname, type, def, defaultValue);
 #endif
-	if(sstreq(fullname, BAD_CAST "xml:id") && type != XML_ATTRIBUTE_ID) {
+	if(sstreq(fullname, reinterpret_cast<const xmlChar *>("xml:id")) && type != XML_ATTRIBUTE_ID) {
 		/*
 		 * Raise the error but keep the validity flag
 		 */
@@ -717,7 +717,7 @@ void xmlSAX2UnparsedEntityDecl(void * ctx, const xmlChar * name, const xmlChar *
 			xmlChar * URI;
 			const char * base = ctxt->input ? ctxt->input->filename : 0;
 			SETIFZ(base, ctxt->directory);
-			URI = xmlBuildURI(systemId, (const xmlChar*)base);
+			URI = xmlBuildURI(systemId, (const xmlChar *)base);
 			ent->URI = URI;
 		}
 	}
@@ -729,7 +729,7 @@ void xmlSAX2UnparsedEntityDecl(void * ctx, const xmlChar * name, const xmlChar *
 			xmlChar * URI;
 			const char * base = ctxt->input ? ctxt->input->filename : 0;
 			SETIFZ(base, ctxt->directory);
-			URI = xmlBuildURI(systemId, (const xmlChar*)base);
+			URI = xmlBuildURI(systemId, (const xmlChar *)base);
 			ent->URI = URI;
 		}
 	}
@@ -803,7 +803,7 @@ void xmlSAX2StartDocument(void * ctx)
 			}
 		}
 		if(ctxt->myDoc && !ctxt->myDoc->URL && ctxt->input && ctxt->input->filename) {
-			ctxt->myDoc->URL = xmlPathToURI((const xmlChar*)ctxt->input->filename);
+			ctxt->myDoc->URL = xmlPathToURI((const xmlChar *)ctxt->input->filename);
 			if(!ctxt->myDoc->URL)
 				xmlSAX2ErrMemory(ctxt, "xmlSAX2StartDocument");
 		}
@@ -893,7 +893,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 #ifdef LIBXML_HTML_ENABLED
 	if(ctxt->html && !value && htmlIsBooleanAttr(fullname)) {
 		nval = sstrdup(fullname);
-		value = (const xmlChar*)nval;
+		value = (const xmlChar *)nval;
 	}
 	else
 #endif
@@ -1046,7 +1046,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 			ret->children = xmlStringGetNodeList(ctxt->myDoc, value);
 			tmp = ret->children;
 			while(tmp) {
-				tmp->parent = (xmlNode *)ret;
+				tmp->parent = reinterpret_cast<xmlNode *>(ret);
 				if(tmp->next == NULL)
 					ret->last = tmp;
 				tmp = tmp->next;
@@ -1056,7 +1056,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 			ret->children = xmlNewDocText(ctxt->myDoc, value);
 			ret->last = ret->children;
 			if(ret->children)
-				ret->children->parent = (xmlNode *)ret;
+				ret->children->parent = reinterpret_cast<xmlNode *>(ret);
 		}
 	}
 
@@ -1150,7 +1150,7 @@ process_external_subset:
 					xmlChar * fulln;
 					if(attr->prefix) {
 						fulln = sstrdup(attr->prefix);
-						fulln = xmlStrcat(fulln, BAD_CAST ":");
+						fulln = xmlStrcat(fulln, reinterpret_cast<const xmlChar *>(":"));
 						fulln = xmlStrcat(fulln, attr->name);
 					}
 					else {
@@ -1298,7 +1298,7 @@ void xmlSAX2StartElement(void * ctx, const xmlChar * fullname, const xmlChar ** 
 #ifdef DEBUG_SAX_TREE
 		xmlGenericError(0, "Setting %s as root\n", name);
 #endif
-		xmlAddChild((xmlNode *)ctxt->myDoc, (xmlNode *)ret);
+		xmlAddChild((xmlNode *)ctxt->myDoc, ret);
 	}
 	else if(parent == NULL) {
 		parent = ctxt->myDoc->children;
@@ -1306,7 +1306,7 @@ void xmlSAX2StartElement(void * ctx, const xmlChar * fullname, const xmlChar ** 
 	ctxt->nodemem = -1;
 	if(ctxt->linenumbers) {
 		if(ctxt->input) {
-			ret->line = (ctxt->input->line < 65535) ? (short)ctxt->input->line : 65535;
+			ret->line = (ctxt->input->line < 65535) ? static_cast<short>(ctxt->input->line) : 65535;
 		}
 	}
 	/*
@@ -1483,7 +1483,7 @@ static xmlNode * xmlSAX2TextNode(xmlParserCtxt * ctxt, const xmlChar * str, int 
 		ctxt->freeElemsNr--;
 	}
 	else {
-		ret = (xmlNode *)SAlloc::M(sizeof(xmlNode));
+		ret = static_cast<xmlNode *>(SAlloc::M(sizeof(xmlNode)));
 	}
 	if(!ret) {
 		xmlErrMemory(ctxt, "xmlSAX2Characters");
@@ -1530,7 +1530,7 @@ skip:
 	if(ctxt->linenumbers) {
 		if(ctxt->input) {
 			if(ctxt->input->line < 65535)
-				ret->line = (short)ctxt->input->line;
+				ret->line = static_cast<short>(ctxt->input->line);
 			else {
 				ret->line = 65535;
 				if(ctxt->options & XML_PARSE_BIG_LINES)
@@ -1645,7 +1645,7 @@ static void xmlSAX2AttributeNs(xmlParserCtxt * ctxt, const xmlChar * localname, 
 			ret->last = tmp;
 			if(tmp) {
 				tmp->doc = ret->doc;
-				tmp->parent = (xmlNode *)ret;
+				tmp->parent = reinterpret_cast<xmlNode *>(ret);
 			}
 		}
 		else {
@@ -1653,7 +1653,7 @@ static void xmlSAX2AttributeNs(xmlParserCtxt * ctxt, const xmlChar * localname, 
 			tmp = ret->children;
 			while(tmp) {
 				tmp->doc = ret->doc;
-				tmp->parent = (xmlNode *)ret;
+				tmp->parent = reinterpret_cast<xmlNode *>(ret);
 				if(tmp->next == NULL)
 					ret->last = tmp;
 				tmp = tmp->next;
@@ -1666,7 +1666,7 @@ static void xmlSAX2AttributeNs(xmlParserCtxt * ctxt, const xmlChar * localname, 
 		ret->last = tmp;
 		if(tmp) {
 			tmp->doc = ret->doc;
-			tmp->parent = (xmlNode *)ret;
+			tmp->parent = reinterpret_cast<xmlNode *>(ret);
 		}
 	}
 #ifdef LIBXML_VALID_ENABLED
@@ -1852,7 +1852,7 @@ void xmlSAX2StartElementNs(void * ctx, const xmlChar * localname, const xmlChar 
 	}
 	if(ctxt->linenumbers) {
 		if(ctxt->input) {
-			ret->line = (ctxt->input->line < 65535) ? (short)ctxt->input->line : 65535;
+			ret->line = (ctxt->input->line < 65535) ? static_cast<short>(ctxt->input->line) : 65535;
 		}
 	}
 	if(parent == NULL) {
@@ -1917,7 +1917,7 @@ void xmlSAX2StartElementNs(void * ctx, const xmlChar * localname, const xmlChar 
 	 */
 	if(URI && !ret->ns) {
 		ret->ns = xmlSearchNs(ctxt->myDoc, parent, prefix);
-		if(!ret->ns && sstreq(prefix, BAD_CAST "xml")) {
+		if(!ret->ns && sstreq(prefix, reinterpret_cast<const xmlChar *>("xml"))) {
 			ret->ns = xmlSearchNs(ctxt->myDoc, ret, prefix);
 		}
 		if(!ret->ns) {
@@ -2073,7 +2073,6 @@ void xmlSAX2Characters(void * ctx, const xmlChar * ch, int len)
 #ifdef DEBUG_SAX_TREE
 	xmlGenericError(0, "add chars to %s \n", ctxt->node->name);
 #endif
-
 	/*
 	 * Here we needed an accelerator mechanism in case of very large
 	 * elements. Use an attribute in the structure !!!
@@ -2094,8 +2093,8 @@ void xmlSAX2Characters(void * ctx, const xmlChar * ch, int len)
 		}
 	}
 	else {
-		int coalesceText = (lastChild != NULL) && (lastChild->type == XML_TEXT_NODE) && (lastChild->name == xmlStringText);
-		if((coalesceText) && (ctxt->nodemem != 0)) {
+		const int coalesceText = (lastChild != NULL) && (lastChild->type == XML_TEXT_NODE) && (lastChild->name == xmlStringText);
+		if(coalesceText && ctxt->nodemem != 0) {
 			/*
 			 * The whole point of maintaining nodelen and nodemem,
 			 * xmlTextConcat is too costly, i.e. compute length,
@@ -2122,10 +2121,10 @@ void xmlSAX2Characters(void * ctx, const xmlChar * ch, int len)
 				xmlSAX2ErrMemory(ctxt, "xmlSAX2Characters overflow prevented");
 				return;
 			}
-			if(ctxt->nodelen + len >= ctxt->nodemem) {
+			if((ctxt->nodelen + len) >= ctxt->nodemem) {
 				size_t size = ctxt->nodemem + len;
 				size *= 2;
-				xmlChar * newbuf = (xmlChar *)SAlloc::R(lastChild->content, size);
+				xmlChar * newbuf = static_cast<xmlChar *>(SAlloc::R(lastChild->content, size));
 				if(newbuf == NULL) {
 					xmlSAX2ErrMemory(ctxt, "xmlSAX2Characters");
 					return;
@@ -2201,7 +2200,7 @@ void xmlSAX2ProcessingInstruction(void * ctx, const xmlChar * target, const xmlC
 		return;
 	if(ctxt->linenumbers) {
 		if(ctxt->input)
-			ret->line = (ctxt->input->line < 65535) ? (short)ctxt->input->line : 65535;
+			ret->line = (ctxt->input->line < 65535) ? static_cast<short>(ctxt->input->line) : 65535;
 	}
 	if(ctxt->inSubset == 1) {
 		xmlAddChild((xmlNode *)ctxt->myDoc->intSubset, ret);
@@ -2256,7 +2255,7 @@ void xmlSAX2Comment(void * ctx, const xmlChar * value)
 		return;
 	if(ctxt->linenumbers) {
 		if(ctxt->input)
-			ret->line = (ctxt->input->line < 65535) ? (short)ctxt->input->line : 65535;
+			ret->line = (ctxt->input->line < 65535) ? static_cast<short>(ctxt->input->line) : 65535;
 	}
 	if(ctxt->inSubset == 1) {
 		xmlAddChild((xmlNode *)ctxt->myDoc->intSubset, ret);

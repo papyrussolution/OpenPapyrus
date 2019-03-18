@@ -53,7 +53,7 @@ int COMP_compress_block(COMP_CTX * ctx, uchar * out, int olen, uchar * in, int i
 {
 	int ret;
 	if(ctx->meth->compress == NULL) {
-		return (-1);
+		return -1;
 	}
 	ret = ctx->meth->compress(ctx, out, olen, in, ilen);
 	if(ret > 0) {
@@ -69,7 +69,7 @@ int COMP_expand_block(COMP_CTX * ctx, uchar * out, int olen,
 	int ret;
 
 	if(ctx->meth->expand == NULL) {
-		return (-1);
+		return -1;
 	}
 	ret = ctx->meth->expand(ctx, out, olen, in, ilen);
 	if(ret > 0) {

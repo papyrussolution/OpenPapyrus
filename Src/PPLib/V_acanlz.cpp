@@ -686,7 +686,7 @@ int SLAPI PPViewAccAnlz::EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzV
 	if(Filt.Flags & AccAnlzFilt::fExclInnerTrnovr) {
 		if(IsGenAcc) {
 			THROW_MEM(p_acct_list = new SArray(sizeof(Acct)));
-			for(i = 0; ExtGenAccList.enumItems(&i, (void**)&p_item);) {
+			for(i = 0; ExtGenAccList.enumItems(&i, (void **)&p_item);) {
 				aco2 = abs(GetAcoByGenFlags(p_item->Flags));
 				MEMSZERO(acct);
 				if(aco2 == ACO_2) {
@@ -746,7 +746,7 @@ int SLAPI PPViewAccAnlz::EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzV
 			if(IsGenAcc) {
 				if(p_acct_list) {
 					int    to_continue = 0;
-					for(i = 0; ExtGenAccList.enumItems(&i, (void**)&p_item);) {
+					for(i = 0; ExtGenAccList.enumItems(&i, (void **)&p_item);) {
 						aco2 = abs(GetAcoByGenFlags(p_item->Flags));
 						if(P_ATC->AccBelongToOrd(rec.CorrAcc, aco2, (Acct *)p_acct_list->at(i-1), Filt.CurID, 1) > 0) {
 							to_continue = 1;
@@ -1106,7 +1106,7 @@ int SLAPI PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 	}
 	else if(IsGenAcc) {
 		ObjRestrictItem * p_item;
-		for(uint i = 0; ExtGenAccList.enumItems(&i, (void**)&p_item);) {
+		for(uint i = 0; ExtGenAccList.enumItems(&i, (void **)&p_item);) {
 			const int aco = GetAcoByGenFlags(p_item->Flags);
 			if(Filt.SingleArID && abs(aco) == ACO_2) {
 				if(GetAcctRel(p_item->ObjID, Filt.SingleArID, &acr_rec, 1) > 0)

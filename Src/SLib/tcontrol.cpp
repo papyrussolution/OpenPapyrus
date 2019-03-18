@@ -276,7 +276,7 @@ IMPL_HANDLE_EVENT(TButton)
 					break;
 				case cmCommandSetChanged:
 					{
-						bool   is_enabled = (P_Owner ? P_Owner->commandEnabled(command) : commandEnabled(command)) ? true : false;
+						bool   is_enabled = LOGIC(P_Owner ? P_Owner->commandEnabled(command) : commandEnabled(command));
 						if((is_enabled && IsInState(sfDisabled)) || (!is_enabled && !IsInState(sfDisabled))) {
 							setState(sfDisabled, !is_enabled);
 							EnableWindow(getHandle(), !IsInState(sfDisabled));
@@ -483,7 +483,7 @@ int TInputLine::OnPaste()
 			if(h_cb) {
 				LPTSTR p_str = static_cast<LPTSTR>(::GlobalLock(h_cb)); // @unicodeproblem
 				if(p_str) {
-					(symb = p_str).Transf(CTRANSF_OUTER_TO_INNER); // @unicodeproblem
+					(symb = SUcSwitch(p_str)).Transf(CTRANSF_OUTER_TO_INNER); // @unicodeproblem
 					::GlobalUnlock(h_cb);
 				}
 			}
@@ -944,7 +944,7 @@ int ComboBoxInputLine::TransmitData(int dir, void * pData)
 	if(dir == 0)
 		s = TInputLine::TransmitData(dir, pData);
 	else if(dir > 0) {
-		Data = (const char *)pData;
+		Data = static_cast<const char *>(pData);
 		if(maxLen)
 			Data.Trim(maxLen-1);
 	}
@@ -1265,10 +1265,7 @@ void TCluster::setState(uint aState, bool enable)
 		Draw_();
 }
 
-bool TCluster::mark(int item)
-{
-	return ((Kind == RADIOBUTTONS) ? (item == Value) : (Value & (1 << item))) ? true : false;
-}
+bool TCluster::mark(int item) { return LOGIC((Kind == RADIOBUTTONS) ? (item == Value) : (Value & (1 << item))); }
 
 void TCluster::press(ushort item)
 {
@@ -2000,7 +1997,7 @@ int TImageView::TransmitData(int dir, void * pData)
 {
 	int    s = 0;
 	if(dir > 0) {
-		const char * p_path = (const char *)pData;
+		const char * p_path = static_cast<const char *>(pData);
 		{
 			HWND hw = getHandle();
 #ifdef TIMAGEVIEW_USE_FIG
@@ -2074,7 +2071,7 @@ int TToolTip::AddTool(ToolItem & rItem)
 			GetClientRect(rItem.H, &ti.rect);
 		}
 		else {
-			ti.rect = (RECT)rItem.R;
+			ti.rect = static_cast<RECT>(rItem.R);
 		}
 		ti.lParam = rItem.Param;
 		::SendMessage(H, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&ti)); // @unicodeproblem

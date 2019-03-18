@@ -153,7 +153,7 @@ private:
 	int    SLAPI GetBarcode(PPID goodsID, char * pBuf, size_t bufSize, int * pPackCode, int * pIsHoreca, double * pMult);
 	int    SLAPI GetQtty(PPID goodsID, int calcByPhPerU, double * pQtty, double * pPrice);
 	int    SLAPI GetDlvrAddrHorecaCode(PPID * pDlvrAddrID, SString & rCode);
-	int    SLAPI GetConsigLocInfo(BillViewItem * pItem, PPID consigLocGrpID, LDATE * pParentDt, SString & rParentCode);
+	int    SLAPI GetConsigLocInfo(const BillViewItem * pItem, PPID consigLocGrpID, LDATE * pParentDt, SString & rParentCode);
 	int    SLAPI GetInfoFromMemo(const char * pMemo, LDATE * pParentDt, SString & rParentCode, int simple = 0);
 	void   SLAPI GetInfoByLot(PPID lotID, const PPTransferItem * pTi, LDATE * pBillDt, LDATE * pCreateDt, LDATE * pExpiry, SString * pSerial);
 	int    SLAPI IsKegUnit(PPID goodsId);
@@ -2029,7 +2029,7 @@ int SLAPI PPSupplExchange_Baltika::GetInfoFromMemo(const char * pMemo, LDATE * p
 	return ok;
 }
 
-int SLAPI PPSupplExchange_Baltika::GetConsigLocInfo(BillViewItem * pItem, PPID consigLocGrpID, LDATE * pParentDt, SString & rParentCode)
+int SLAPI PPSupplExchange_Baltika::GetConsigLocInfo(const BillViewItem * pItem, PPID consigLocGrpID, LDATE * pParentDt, SString & rParentCode)
 {
 	int    ok = 0;
 	rParentCode.Z();
@@ -2914,7 +2914,7 @@ int SLAPI iSalesPepsi::ReceiveGoods(int forceSettings, int useStorage)
 				}
 			}
 		}
-		DestroyResult((void **)&p_result);
+		DestroyResult(reinterpret_cast<void **>(&p_result));
 	}
 	CATCHZOK
 	return ok;
@@ -3043,7 +3043,7 @@ int SLAPI iSalesPepsi::ReceiveReceipts()
 			}
 		}
 	}
-	DestroyResult((void **)&p_result);
+	DestroyResult(reinterpret_cast<void **>(&p_result));
     CATCHZOK
     return ok;
 }
@@ -3215,7 +3215,7 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 			}
 		}
 	}
-	DestroyResult((void **)&p_result);
+	DestroyResult(reinterpret_cast<void **>(&p_result));
     CATCHZOK
     return ok;
 }
@@ -3268,7 +3268,7 @@ int SLAPI iSalesPepsi::ReceiveUnclosedInvoices(TSCollection <iSalesBillDebt> & r
 			}
 		}
 	}
-	DestroyResult((void **)&p_result);
+	DestroyResult(reinterpret_cast<void **>(&p_result));
 	CATCHZOK
 	return ok;
 }
@@ -3333,7 +3333,7 @@ int SLAPI iSalesPepsi::ReceiveRouts(TSCollection <iSalesRoutePacket> & rResult)
 		}
 	}
 #endif // } 0
-	DestroyResult((void **)&p_result);
+	DestroyResult(reinterpret_cast<void **>(&p_result));
 	CATCHZOK
 	return ok;
 }
@@ -3352,7 +3352,7 @@ int SLAPI iSalesPepsi::SendStatus(const TSCollection <iSalesTransferStatus> & rL
 		p_result = func(sess, UserName, Password, &rList);
 		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 		DS.Log(LogFileName, *p_result, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_NODUPFORJOB);
-		DestroyResult((void **)&p_result);
+		DestroyResult(reinterpret_cast<void **>(&p_result));
     }
     CATCHZOK
 	return ok;
@@ -3447,7 +3447,7 @@ int SLAPI iSalesPepsi::SendDebts()
 			}
 			// } @v9.3.1
 			// @v9.3.1 DS.Log(LogFileName, *p_result, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_NODUPFORJOB);
-			DestroyResult((void **)&p_result);
+			DestroyResult(reinterpret_cast<void **>(&p_result));
 		}
     }
     CATCHZOK
@@ -3597,7 +3597,7 @@ int SLAPI iSalesPepsi::SendPrices()
 			}
 			// } @v9.3.1
 			// } @v9.3.1 DS.Log(LogFileName, *p_result, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_NODUPFORJOB);
-			DestroyResult((void **)&p_result);
+			DestroyResult(reinterpret_cast<void **>(&p_result));
 		}
     }
     CATCHZOK
@@ -3697,7 +3697,7 @@ int SLAPI iSalesPepsi::SendStocks()
 					LogErrors(result_list, &msg_buf);
 			}
 		}
-		DestroyResult((void **)&p_result);
+		DestroyResult(reinterpret_cast<void **>(&p_result));
     }
     CATCHZOK
 	return ok;
@@ -4395,7 +4395,7 @@ int SLAPI iSalesPepsi::SendInvoices()
 					}
 				}
 			}
-			DestroyResult((void **)&p_result);
+			DestroyResult(reinterpret_cast<void **>(&p_result));
 			if(max_fraction_size == 0)
 				break;
 		}
@@ -4761,7 +4761,7 @@ int SLAPI SapEfes::ReceiveOrders()
 		}
 	}
     CATCHZOK
-	DestroyResult((void **)&p_result);
+	DestroyResult(reinterpret_cast<void **>(&p_result));
     return ok;
 }
 
@@ -4819,7 +4819,7 @@ int SLAPI SapEfes::SendSales_ByDlvrLoc()
 		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 		LogResultMsgList(p_result);
 	}
-	DestroyResult((void **)&p_result);
+	DestroyResult(reinterpret_cast<void **>(&p_result));
 	CATCHZOK
 	return ok;
 }
@@ -4870,7 +4870,7 @@ int SLAPI SapEfes::SendSales_ByGoods()
 		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 		LogResultMsgList(p_result);
 	}
-	DestroyResult((void **)&p_result);
+	DestroyResult(reinterpret_cast<void **>(&p_result));
 	CATCHZOK
 	return ok;
 }
@@ -4923,7 +4923,7 @@ int SLAPI SapEfes::SendStocks()
 		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 		LogResultMsgList(p_result);
 	}
-	DestroyResult((void **)&p_result);
+	DestroyResult(reinterpret_cast<void **>(&p_result));
     CATCHZOK
     return ok;
 }
@@ -5142,7 +5142,7 @@ int SLAPI SapEfes::SendInvoices()
 				LogResultMsgList(&p_status->MsgList);
 			}
 		}
-		DestroyResult((void **)&p_result);
+		DestroyResult(reinterpret_cast<void **>(&p_result));
 		p_result = 0;
 	}
 	if(to_cancel_bill_list.getCount()) {
@@ -5171,7 +5171,7 @@ int SLAPI SapEfes::SendInvoices()
 					LogResultMsgList(&p_status->MsgList);
 				}
 			}
-			DestroyResult((void **)&p_result);
+			DestroyResult(reinterpret_cast<void **>(&p_result));
 		}
 	}
     CATCHZOK
@@ -5300,7 +5300,7 @@ int SLAPI SapEfes::Helper_SendDebts(TSCollection <SapEfesDebtReportEntry> & rLis
 			p_result = func(sess, sech, &rList);
 			THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 			LogResultMsgList(p_result);
-			DestroyResult((void **)&p_result);
+			DestroyResult(reinterpret_cast<void **>(&p_result));
 		}
 	}
     CATCHZOK
@@ -5326,7 +5326,7 @@ int SLAPI SapEfes::Helper_SendDebtsDetail(TSCollection <SapEfesDebtDetailReportE
 			p_result = func(sess, sech, &rList);
 			THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 			LogResultMsgList(p_result);
-			DestroyResult((void **)&p_result);
+			DestroyResult(reinterpret_cast<void **>(&p_result));
 		}
 	}
     CATCHZOK
@@ -5662,7 +5662,7 @@ int SLAPI SfaHeineken::ReceiveOrders()
 	p_result = func(sess, query_date, 0/*demo*/);
 	THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 	ParseOrdersPacket(p_result, &reply_info, result_list);
-	DestroyResult((void **)&p_result);
+	DestroyResult(reinterpret_cast<void **>(&p_result));
 	if(result_list.getCount()) {
 		PPAlbatrosConfig acfg;
 		PPAlbatrosCfgMngr::Get(&acfg);
@@ -5833,7 +5833,7 @@ int SLAPI SfaHeineken::ReceiveGoods()
 	p_result = func(sess);
 	THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 	ParseGoodsPacket(p_result, &reply_info, result_list);
-	DestroyResult((void **)&p_result);
+	DestroyResult(reinterpret_cast<void **>(&p_result));
 	CATCHZOK
 	return ok;
 }
@@ -5859,7 +5859,7 @@ int SLAPI SfaHeineken::SendStatus(const TSCollection <SfaHeinekenOrderStatusEntr
 		sess.Setup(SvcUrl, UserName, Password);
 		p_result = func(sess, rList);
 		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
-		DestroyResult((void **)&p_result);
+		DestroyResult(reinterpret_cast<void **>(&p_result));
 		ok = 1;
 	}
 	CATCHZOK
@@ -6239,7 +6239,7 @@ int SLAPI SfaHeineken::SendStocks()
 	if(list.getCount()) {
 		p_result = func(sess, list);
 		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
-		DestroyResult((void **)&p_result);
+		DestroyResult(reinterpret_cast<void **>(&p_result));
 		ok = 1;
 	}
 	CATCHZOK

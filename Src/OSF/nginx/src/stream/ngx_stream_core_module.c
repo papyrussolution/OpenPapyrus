@@ -348,7 +348,7 @@ static const char * ngx_stream_core_server(ngx_conf_t * cf, const ngx_command_t 
 
 	/* the server{}'s srv_conf */
 
-	ctx->srv_conf = (void**)ngx_pcalloc(cf->pool,
+	ctx->srv_conf = (void **)ngx_pcalloc(cf->pool,
 	    sizeof(void *) * ngx_stream_max_module);
 	if(ctx->srv_conf == NULL) {
 		return NGX_CONF_ERROR;
@@ -405,7 +405,7 @@ static const char * ngx_stream_core_listen(ngx_conf_t * cf, const ngx_command_t 
 	ngx_stream_listen_t   * ls, * als;
 	ngx_stream_core_main_conf_t  * cmcf;
 	cscf->listen = 1;
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	memzero(&u, sizeof(ngx_url_t));
 	u.url = value[1];
 	u.listen = 1;
@@ -627,7 +627,7 @@ static const char * ngx_stream_core_resolver(ngx_conf_t * cf, const ngx_command_
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t  * value = (ngx_str_t*)cf->args->elts;
+		ngx_str_t  * value = static_cast<ngx_str_t *>(cf->args->elts);
 		cscf->resolver = ngx_resolver_create(cf, &value[1], cf->args->nelts - 1);
 		if(cscf->resolver == NULL) {
 			return NGX_CONF_ERROR;

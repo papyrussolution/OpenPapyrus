@@ -102,7 +102,7 @@ int archive_write_add_filter_gzip(struct archive * _a)
 	data = (struct private_data *)SAlloc::C(1, sizeof(*data));
 	if(data == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	f->data = data;
 	f->open = &archive_compressor_gzip_open;
@@ -113,13 +113,13 @@ int archive_write_add_filter_gzip(struct archive * _a)
 	f->name = "gzip";
 #ifdef HAVE_ZLIB_H
 	data->compression_level = Z_DEFAULT_COMPRESSION;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 #else
 	data->pdata = __archive_write_program_allocate("gzip");
 	if(data->pdata == NULL) {
 		SAlloc::F(data);
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	data->compression_level = 0;
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
@@ -139,7 +139,7 @@ static int archive_compressor_gzip_free(struct archive_write_filter * f)
 #endif
 	SAlloc::F(data);
 	f->data = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -155,11 +155,11 @@ static int archive_compressor_gzip_options(struct archive_write_filter * f, cons
 		    value[1] != '\0')
 			return (ARCHIVE_WARN);
 		data->compression_level = value[0] - '0';
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 	if(strcmp(key, "timestamp") == 0) {
 		data->timestamp = (value == NULL) ? -1 : 1;
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 
 	/* Note: The "warn" return is just to inform the options
@@ -179,7 +179,7 @@ static int archive_compressor_gzip_open(struct archive_write_filter * f)
 
 	ret = __archive_write_open_filter(f->next_filter);
 	if(ret != ARCHIVE_OK)
-		return (ret);
+		return ret;
 
 	if(data->compressed == NULL) {
 		size_t bs = 65536, bpb;
@@ -196,7 +196,7 @@ static int archive_compressor_gzip_open(struct archive_write_filter * f)
 		data->compressed = (uchar*)SAlloc::M(data->compressed_buffer_size);
 		if(data->compressed == NULL) {
 			archive_set_error(f->archive, ENOMEM, "Can't allocate data for compression buffer");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 	}
 	data->crc = crc32(0L, NULL, 0);
@@ -238,7 +238,7 @@ static int archive_compressor_gzip_open(struct archive_write_filter * f)
 
 	if(ret == Z_OK) {
 		f->data = data;
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 
 	/* Library setup failed: clean up. */
@@ -263,7 +263,7 @@ static int archive_compressor_gzip_open(struct archive_write_filter * f)
 		    break;
 	}
 
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }
 
 /*
@@ -283,9 +283,9 @@ static int archive_compressor_gzip_write(struct archive_write_filter * f, const 
 	SET_NEXT_IN(data, buff);
 	data->stream.avail_in = (uInt)length;
 	if((ret = drive_compressor(f, data, 0)) != ARCHIVE_OK)
-		return (ret);
+		return ret;
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -348,7 +348,7 @@ static int drive_compressor(struct archive_write_filter * f,
 				data->compressed,
 				data->compressed_buffer_size);
 			if(ret != ARCHIVE_OK)
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			data->stream.next_out = data->compressed;
 			data->stream.avail_out =
 			    (uInt)data->compressed_buffer_size;
@@ -356,7 +356,7 @@ static int drive_compressor(struct archive_write_filter * f,
 
 		/* If there's nothing to do, we're done. */
 		if(!finishing && data->stream.avail_in == 0)
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 
 		ret = deflate(&(data->stream),
 			finishing ? Z_FINISH : Z_NO_FLUSH);
@@ -366,20 +366,20 @@ static int drive_compressor(struct archive_write_filter * f,
 			    /* In non-finishing case, check if compressor
 			     * consumed everything */
 			    if(!finishing && data->stream.avail_in == 0)
-				    return (ARCHIVE_OK);
+				    return ARCHIVE_OK;
 			    /* In finishing case, this return always means
 			     * there's more work */
 			    break;
 			case Z_STREAM_END:
 			    /* This return can only occur in finishing case. */
-			    return (ARCHIVE_OK);
+			    return ARCHIVE_OK;
 			default:
 			    /* Any other return value indicates an error. */
 			    archive_set_error(f->archive, ARCHIVE_ERRNO_MISC,
 				"GZip compression failed:"
 				" deflate() call returned status %d",
 				ret);
-			    return (ARCHIVE_FATAL);
+			    return ARCHIVE_FATAL;
 		}
 	}
 }
@@ -410,7 +410,7 @@ static int archive_compressor_gzip_open(struct archive_write_filter * f)
 	f->write = archive_compressor_gzip_write;
 	r = __archive_write_program_open(f, data->pdata, as.s);
 	archive_string_free(&as);
-	return (r);
+	return r;
 }
 
 static int archive_compressor_gzip_write(struct archive_write_filter * f, const void * buff,

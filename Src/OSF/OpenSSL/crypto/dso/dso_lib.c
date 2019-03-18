@@ -196,7 +196,7 @@ long DSO_ctrl(DSO * dso, int cmd, long larg, void * parg)
 {
 	if(dso == NULL) {
 		DSOerr(DSO_F_DSO_CTRL, ERR_R_PASSED_NULL_PARAMETER);
-		return (-1);
+		return -1;
 	}
 	/*
 	 * We should intercept certain generic commands and only pass control to
@@ -216,7 +216,7 @@ long DSO_ctrl(DSO * dso, int cmd, long larg, void * parg)
 	}
 	if((dso->meth == NULL) || (dso->meth->dso_ctrl == NULL)) {
 		DSOerr(DSO_F_DSO_CTRL, DSO_R_UNSUPPORTED);
-		return (-1);
+		return -1;
 	}
 	return (dso->meth->dso_ctrl(dso, cmd, larg, parg));
 }

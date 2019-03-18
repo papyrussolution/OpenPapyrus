@@ -1,5 +1,5 @@
 // EMU_SCS.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2003, 2009, 2011, 2012, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2003, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2019
 // @codepage windows-1251
 // Интерфейс эмулятора синхронного кассового аппарата
 //
@@ -27,16 +27,14 @@ public:
 	SLAPI ~SCS_SYNCSYM();
 	virtual int SLAPI PrintCheck(CCheckPacket *, uint flags);
 	// @v10.0.0 virtual int SLAPI PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN);
-	virtual int SLAPI PrintCheckCopy(CCheckPacket * pPack, const char * pFormatName, uint flags);
+	virtual int SLAPI PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int SLAPI PrintXReport(const CSessInfo *);
 	virtual int SLAPI PrintZReportCopy(const CSessInfo *);
 	virtual int SLAPI CloseSession(PPID sessID);
-
 	virtual int SLAPI GetSummator(double * val);
-	virtual int SLAPI AddSummator(double add);
 	virtual int SLAPI PrintBnkTermReport(const char * pZCheck); // @vmiller
 private:
-	virtual int SLAPI InitChannel();
+	// @v10.3.9 virtual int SLAPI InitChannel();
 	int    SLAPI SendToPrinter(PrnLinesArray * pPrnLines);
 	int    SLAPI OpenBox(); // @vmiller
 
@@ -82,10 +80,7 @@ SLAPI SCS_SYNCSYM::~SCS_SYNCSYM()
 	}
 }
 
-int SLAPI SCS_SYNCSYM::InitChannel()
-{
-	return 1;
-}
+// @v10.3.9 int SLAPI SCS_SYNCSYM::InitChannel() { return 1; }
 
 #define AXIOHM_CMD_SETCHARTBL_BYTE1  0x1B
 #define AXIOHM_CMD_SETCHARTBL_BYTE2  0x52
@@ -112,11 +107,11 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 				DWORD info_size = 0;
 				GetPrinter(printer, 2, NULL, info_size, &info_size);
 				if(info_size) {
-					PRINTER_INFO_2 * p_prn_info = (PRINTER_INFO_2*)SAlloc::M(info_size);
+					PRINTER_INFO_2 * p_prn_info = static_cast<PRINTER_INFO_2 *>(SAlloc::M(info_size));
 					if(p_prn_info) {
 						memzero(p_prn_info, info_size);
 						if(GetPrinter(printer, 2, (LPBYTE)p_prn_info, info_size, &info_size))
-							GetPort(p_prn_info->pPortName, &port_no); // @unicodeproblem
+							GetPort(SUcSwitch(p_prn_info->pPortName), &port_no); // @unicodeproblem
 						SAlloc::F(p_prn_info);
 					}
 				}
@@ -128,7 +123,7 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 				CloseHandle(h_port);
 				h_port = INVALID_HANDLE_VALUE;
 			}
-			h_port = ::CreateFile(name, GENERIC_READ|GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0); // @unicodeproblem
+			h_port = ::CreateFile(SUcSwitch(name), GENERIC_READ|GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0); // @unicodeproblem
 			// Ставим кодовую таблицу CP-866
 			{
 				const char cmd[] = { AXIOHM_CMD_SETCHARTBL_BYTE1, AXIOHM_CMD_SETCHARTBL_BYTE2, AXIOHM_CMD_CODETABL_CP866_ID };
@@ -155,7 +150,7 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 			ok = 1;
 		}
 		else {
-			PrinterDC = CreateDC(_T("WINSPOOL\0"), PrinterPort, 0, 0); // @unicodeproblem
+			PrinterDC = CreateDC(_T("WINSPOOL\0"), SUcSwitch(PrinterPort), 0, 0); // @unicodeproblem
 			if(PrinterDC) {
 				const char * p_font_face = "Courier";
 				DOCINFO di;
@@ -418,7 +413,7 @@ int SLAPI SCS_SYNCSYM::PrintCheckByBill(const PPBillPacket * pPack, double multi
 #endif // } 0 @v10.0.0
 
 // virtual
-int SLAPI SCS_SYNCSYM::PrintCheckCopy(CCheckPacket * pPack, const char * pFormatName, uint flags)
+int SLAPI SCS_SYNCSYM::PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags)
 {
 	int     ok = 1;
 	if(PrinterPort.Len()) {
@@ -546,11 +541,6 @@ int SLAPI SCS_SYNCSYM::GetSummator(double * val)
 	return 1;
 }
 
-int SLAPI SCS_SYNCSYM::AddSummator(double)
-{
-	return 1;
-}
-
 // @vmiller
 int SLAPI SCS_SYNCSYM::OpenBox()
 {
@@ -590,7 +580,7 @@ int SLAPI SCS_SYNCSYM::OpenBox()
 			CloseHandle(h_port);
 			h_port = INVALID_HANDLE_VALUE;
 		}
-		h_port = ::CreateFile(name, GENERIC_READ|GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0); // @unicodeproblem
+		h_port = ::CreateFile(SUcSwitch(name), GENERIC_READ|GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0); // @unicodeproblem
 		SLS.SetAddedMsgString(name);
 		THROW(h_port != INVALID_HANDLE_VALUE);
 		if(drawer_cmd.Len() % 2 != 0)

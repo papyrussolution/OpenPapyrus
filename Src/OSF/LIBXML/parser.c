@@ -174,7 +174,7 @@ uint xmlParserMaxDepth = 256;
 #define SAX2 1
 #define XML_PARSER_BIG_BUFFER_SIZE 300
 #define XML_PARSER_BUFFER_SIZE 100
-#define SAX_COMPAT_MODE BAD_CAST "SAX compatibility mode document"
+#define SAX_COMPAT_MODE reinterpret_cast<const xmlChar *>("SAX compatibility mode document")
 
 /**
  * XML_PARSER_CHUNK_SIZE
@@ -764,8 +764,8 @@ int xmlHasFeature(xmlFeature feature)
 	#else
 		ctxt->sax2 = 1;
 	#endif /* LIBXML_SAX1_ENABLED */
-		pCtxt->str_xml = xmlDictLookup(pCtxt->dict, BAD_CAST "xml", 3);
-		pCtxt->str_xmlns = xmlDictLookup(pCtxt->dict, BAD_CAST "xmlns", 5);
+		pCtxt->str_xml = xmlDictLookup(pCtxt->dict, reinterpret_cast<const xmlChar *>("xml"), 3);
+		pCtxt->str_xmlns = xmlDictLookup(pCtxt->dict, reinterpret_cast<const xmlChar *>("xmlns"), 5);
 		pCtxt->str_xml_ns = xmlDictLookup(pCtxt->dict, XML_XML_NAMESPACE, 36);
 		if(!pCtxt->str_xml || !pCtxt->str_xmlns || !pCtxt->str_xml_ns)
 			xmlErrMemory(pCtxt, 0);
@@ -864,13 +864,13 @@ static const xmlChar * xmlAttrNormalizeSpace2(xmlParserCtxt * ctxt, xmlChar * sr
 			return 0;
 		}
 		xmlAttrNormalizeSpace(ret, ret);
-		*len = (int)sstrlen(ret);
+		*len = sstrleni(ret);
 		return ret;
 	}
 	else if(remove_head) {
 		*len -= remove_head;
 		memmove(src, src + remove_head, 1 + *len);
-		return(src);
+		return (src);
 	}
 	return 0;
 }
@@ -960,7 +960,7 @@ static void xmlAddDefAttrs(xmlParserCtxt * ctxt, const xmlChar * fullname, const
 	value = xmlDictLookup(ctxt->dict, value, len);
 	defaults->values[5 * defaults->nbAttrs + 2] = value;
 	defaults->values[5 * defaults->nbAttrs + 3] = value + len;
-	defaults->values[5 * defaults->nbAttrs + 4] = ctxt->external ? (BAD_CAST "external") : 0;
+	defaults->values[5 * defaults->nbAttrs + 4] = ctxt->external ? (reinterpret_cast<const xmlChar *>("external")) : 0;
 	defaults->nbAttrs++;
 	return;
 mem_error:
@@ -985,7 +985,7 @@ static void xmlAddSpecialAttr(xmlParserCtxt * ctxt, const xmlChar * fullname, co
 	}
 	if(xmlHashLookup2(ctxt->attsSpecial, fullname, fullattr))
 		return;
-	xmlHashAddEntry2(ctxt->attsSpecial, fullname, fullattr, (void *)(long)type);
+	xmlHashAddEntry2(ctxt->attsSpecial, fullname, fullattr, reinterpret_cast<void *>(type));
 	return;
 mem_error:
 	xmlErrMemory(ctxt, 0);
@@ -1096,7 +1096,7 @@ int xmlCheckLanguageID(const xmlChar * lang)
 		cur += 2;
 		while(IsLetterASCII(cur[0]))
 			cur++;
-		return(cur[0] == 0);
+		return (cur[0] == 0);
 	}
 	nxt = cur;
 	while(IsLetterASCII(nxt[0]))
@@ -1192,13 +1192,9 @@ region_m49:
 	}
 	return 0;
 }
-
-/************************************************************************
-*									*
-*		Parser stacks related functions and macros		*
-*									*
-************************************************************************/
-
+//
+// Parser stacks related functions and macros
+//
 static xmlEntity * xmlParseStringEntityRef(xmlParserCtxt * pCtxt, const xmlChar ** ppStr);
 
 #ifdef SAX2
@@ -1229,7 +1225,7 @@ static int nsPush(xmlParserCtxt * ctxt, const xmlChar * prefix, const xmlChar * 
 	if((ctxt->nsMax == 0) || (ctxt->nsTab == NULL)) {
 		ctxt->nsMax = 10;
 		ctxt->nsNr = 0;
-		ctxt->nsTab = (const xmlChar**)SAlloc::M(ctxt->nsMax * sizeof(xmlChar *));
+		ctxt->nsTab = static_cast<const xmlChar **>(SAlloc::M(ctxt->nsMax * sizeof(xmlChar *)));
 		if(ctxt->nsTab == NULL) {
 			xmlErrMemory(ctxt, 0);
 			ctxt->nsMax = 0;
@@ -1239,7 +1235,7 @@ static int nsPush(xmlParserCtxt * ctxt, const xmlChar * prefix, const xmlChar * 
 	else if(ctxt->nsNr >= ctxt->nsMax) {
 		const xmlChar ** tmp;
 		ctxt->nsMax *= 2;
-		tmp = (const xmlChar**)SAlloc::R((char *)ctxt->nsTab, ctxt->nsMax * sizeof(ctxt->nsTab[0]));
+		tmp = static_cast<const xmlChar **>(SAlloc::R((char *)ctxt->nsTab, ctxt->nsMax * sizeof(ctxt->nsTab[0])));
 		if(!tmp) {
 			xmlErrMemory(ctxt, 0);
 			ctxt->nsMax /= 2;
@@ -1445,7 +1441,7 @@ static int nameNsPush(xmlParserCtxt * ctxt, const xmlChar * value, const xmlChar
 			goto mem_error;
 		}
 		ctxt->nameTab = tmp;
-		tmp2 = static_cast<void **>(SAlloc::R((void**)ctxt->pushTab, ctxt->nameMax * 3 * sizeof(ctxt->pushTab[0])));
+		tmp2 = static_cast<void **>(SAlloc::R((void **)ctxt->pushTab, ctxt->nameMax * 3 * sizeof(ctxt->pushTab[0])));
 		if(tmp2 == NULL) {
 			ctxt->nameMax /= 2;
 			goto mem_error;
@@ -1600,13 +1596,13 @@ static int FASTCALL spacePop(xmlParserCtxt * ctxt)
 #define NXT(val) ctxt->input->cur[(val)]
 #define CUR_PTR ctxt->input->cur
 
-#define CMP4(s, c1, c2, c3, c4)	(((uchar *)s)[0] == c1 && ((uchar *)s)[1] == c2 && ((uchar *)s)[2] == c3 && ((uchar *)s)[3] == c4)
-#define CMP5(s, c1, c2, c3, c4, c5) (CMP4(s, c1, c2, c3, c4) && ((uchar *)s)[4] == c5)
-#define CMP6(s, c1, c2, c3, c4, c5, c6)	(CMP5(s, c1, c2, c3, c4, c5) && ((uchar *)s)[5] == c6)
-#define CMP7(s, c1, c2, c3, c4, c5, c6, c7) (CMP6(s, c1, c2, c3, c4, c5, c6) && ((uchar *)s)[6] == c7)
-#define CMP8(s, c1, c2, c3, c4, c5, c6, c7, c8)	(CMP7(s, c1, c2, c3, c4, c5, c6, c7) && ((uchar *)s)[7] == c8)
-#define CMP9(s, c1, c2, c3, c4, c5, c6, c7, c8, c9) (CMP8(s, c1, c2, c3, c4, c5, c6, c7, c8) && ((uchar *)s)[8] == c9)
-#define CMP10(s, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10) (CMP9(s, c1, c2, c3, c4, c5, c6, c7, c8, c9) && ((uchar *)s)[9] == c10)
+#define CMP4(s, c1, c2, c3, c4)	(PTR8C(s)[0] == c1 && PTR8C(s)[1] == c2 && PTR8C(s)[2] == c3 && PTR8C(s)[3] == c4)
+#define CMP5(s, c1, c2, c3, c4, c5) (CMP4(s, c1, c2, c3, c4) && PTR8C(s)[4] == c5)
+#define CMP6(s, c1, c2, c3, c4, c5, c6)	(CMP5(s, c1, c2, c3, c4, c5) && PTR8C(s)[5] == c6)
+#define CMP7(s, c1, c2, c3, c4, c5, c6, c7) (CMP6(s, c1, c2, c3, c4, c5, c6) && PTR8C(s)[6] == c7)
+#define CMP8(s, c1, c2, c3, c4, c5, c6, c7, c8)	(CMP7(s, c1, c2, c3, c4, c5, c6, c7) && PTR8C(s)[7] == c8)
+#define CMP9(s, c1, c2, c3, c4, c5, c6, c7, c8, c9) (CMP8(s, c1, c2, c3, c4, c5, c6, c7, c8) && PTR8C(s)[8] == c9)
+#define CMP10(s, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10) (CMP9(s, c1, c2, c3, c4, c5, c6, c7, c8, c9) && PTR8C(s)[9] == c10)
 
 #define SKIP(val) do {							\
 		ctxt->nbChars += (val), ctxt->input->cur += (val), ctxt->input->col += (val);			\
@@ -1672,7 +1668,7 @@ static void FASTCALL xmlGROW(xmlParserCtxt * ctxt)
 
 #define CUR_CHAR(l) xmlCurrentChar(ctxt, &l)
 #define CUR_SCHAR(s, l) xmlStringCurrentChar(ctxt, s, &l)
-#define COPY_BUF(l, b, i, v) if(l == 1) b[i++] = (xmlChar)v; else i += xmlCopyCharMultiByte(&b[i], v)
+#define COPY_BUF(l, b, i, v) if(l == 1) b[i++] = static_cast<xmlChar>(v); else i += xmlCopyCharMultiByte(&b[i], v)
 
 /**
  * xmlSkipBlankChars:
@@ -1801,8 +1797,7 @@ int xmlParseCharRef(xmlParserCtxt * ctxt)
 	/*
 	 * Using RAW/CUR/NEXT is okay since we are working on ASCII range here
 	 */
-	if((RAW == '&') && (NXT(1) == '#') &&
-	    (NXT(2) == 'x')) {
+	if((RAW == '&') && (NXT(1) == '#') && (NXT(2) == 'x')) {
 		SKIP(3);
 		GROW;
 		while(RAW != ';') { /* loop blocked by count */
@@ -1869,7 +1864,6 @@ int xmlParseCharRef(xmlParserCtxt * ctxt)
 	else {
 		xmlFatalErr(ctxt, XML_ERR_INVALID_CHARREF, 0);
 	}
-
 	/*
 	 * [WFC: Legal Character]
 	 * Characters referred to using character references must match the
@@ -1883,7 +1877,6 @@ int xmlParseCharRef(xmlParserCtxt * ctxt)
 	}
 	return 0;
 }
-
 /**
  * xmlParseStringCharRef:
  * @ctxt:  an XML parser context
@@ -1948,7 +1941,6 @@ static int xmlParseStringCharRef(xmlParserCtxt * ctxt, const xmlChar ** str)
 			}
 			if(val > 0x10FFFF)
 				outofrange = val;
-
 			ptr++;
 			cur = *ptr;
 		}
@@ -2000,7 +1992,7 @@ static xmlParserInput * xmlNewBlanksWrapperInputStream(xmlParserCtxt * ctxt, xml
 		input = xmlNewInputStream(ctxt);
 		if(input) {
 			size_t length = sstrlen(entity->name) + 5;
-			xmlChar * buffer = (xmlChar *)SAlloc::M(length);
+			xmlChar * buffer = static_cast<xmlChar *>(SAlloc::M(length));
 			if(!buffer) {
 				xmlErrMemory(ctxt, 0);
 				SAlloc::F(input);
@@ -2260,7 +2252,7 @@ xmlChar * xmlStringLenDecodeEntities(xmlParserCtxt * ctxt, const xmlChar * str, 
 	 * allocate a translation buffer.
 	 */
 	buffer_size = XML_PARSER_BIG_BUFFER_SIZE;
-	buffer = (xmlChar *)SAlloc::M(buffer_size);
+	buffer = static_cast<xmlChar *>(SAlloc::M(buffer_size));
 	if(!buffer)
 		goto mem_error;
 	/*
@@ -2375,7 +2367,7 @@ xmlChar * xmlStringLenDecodeEntities(xmlParserCtxt * ctxt, const xmlChar * str, 
 			c = 0;
 	}
 	buffer[nbchars] = 0;
-	return(buffer);
+	return (buffer);
 mem_error:
 	xmlErrMemory(ctxt, 0);
 int_error:
@@ -2555,7 +2547,7 @@ xmlChar * xmlSplitQName(xmlParserCtxt * ctxt, const xmlChar * name, xmlChar ** p
 		c = *cur;
 		*prefix = ret;
 		if(c == 0) {
-			return(xmlStrndup(BAD_CAST "", 0));
+			return (xmlStrndup(BAD_CAST "", 0));
 		}
 		len = 0;
 		// Check that the first character is proper to start a new name
@@ -4085,7 +4077,7 @@ xmlChar * xmlParseExternalID(xmlParserCtxt * ctxt, xmlChar ** publicID, int stri
 		if(URI == NULL)
 			xmlFatalErr(ctxt, XML_ERR_URI_REQUIRED, 0);
 	}
-	return(URI);
+	return (URI);
 }
 /**
  * xmlParseCommentComplex:
@@ -4384,7 +4376,7 @@ const xmlChar * xmlParsePITarget(xmlParserCtxt * ctxt)
 		for(i = 0;; i++) {
 			if(xmlW3CPIs[i] == NULL)
 				break;
-			if(sstreq(name, (const xmlChar*)xmlW3CPIs[i]))
+			if(sstreq(name, (const xmlChar *)xmlW3CPIs[i]))
 				return name;
 		}
 		xmlWarningMsg(ctxt, XML_ERR_RESERVED_XML_NAME, "xmlParsePITarget: invalid name prefix 'xml'\n", 0, 0);
@@ -4419,7 +4411,7 @@ static void xmlParseCatalogPI(xmlParserCtxt * ctxt, const xmlChar * catalog)
 	const xmlChar * tmp = catalog;
 	while(IS_BLANK_CH(*tmp))
 		tmp++;
-	if(xmlStrncmp(tmp, BAD_CAST "catalog", 7))
+	if(xmlStrncmp(tmp, reinterpret_cast<const xmlChar *>("catalog"), 7))
 		goto error;
 	tmp += 7;
 	while(IS_BLANK_CH(*tmp)) tmp++;
@@ -4772,7 +4764,7 @@ void xmlParseEntityDecl(xmlParserCtxt * ctxt)
 						}
 						ctxt->myDoc->properties = XML_DOC_INTERNAL;
 					}
-					SETIFZ(ctxt->myDoc->intSubset, xmlNewDtd(ctxt->myDoc, BAD_CAST "fake", NULL, NULL));
+					SETIFZ(ctxt->myDoc->intSubset, xmlNewDtd(ctxt->myDoc, reinterpret_cast<const xmlChar *>("fake"), NULL, NULL));
 					xmlSAX2EntityDecl(ctxt, name, XML_INTERNAL_GENERAL_ENTITY, NULL, NULL, value);
 				}
 			}
@@ -4828,7 +4820,7 @@ void xmlParseEntityDecl(xmlParserCtxt * ctxt)
 							}
 							ctxt->myDoc->properties = XML_DOC_INTERNAL;
 						}
-						SETIFZ(ctxt->myDoc->intSubset, xmlNewDtd(ctxt->myDoc, BAD_CAST "fake", NULL, NULL));
+						SETIFZ(ctxt->myDoc->intSubset, xmlNewDtd(ctxt->myDoc, reinterpret_cast<const xmlChar *>("fake"), NULL, NULL));
 						xmlSAX2EntityDecl(ctxt, name, XML_EXTERNAL_GENERAL_PARSED_ENTITY, literal, URI, 0);
 					}
 				}
@@ -5166,35 +5158,35 @@ int xmlParseAttributeType(xmlParserCtxt * ctxt, xmlEnumeration ** tree)
 	const xmlChar * p__cp = CUR_PTR;
 	if(CMP5(p__cp, 'C', 'D', 'A', 'T', 'A')) {
 		SKIP(5);
-		return(XML_ATTRIBUTE_CDATA);
+		return (XML_ATTRIBUTE_CDATA);
 	}
 	else if(CMP6(p__cp, 'I', 'D', 'R', 'E', 'F', 'S')) {
 		SKIP(6);
-		return(XML_ATTRIBUTE_IDREFS);
+		return (XML_ATTRIBUTE_IDREFS);
 	}
 	else if(CMP5(p__cp, 'I', 'D', 'R', 'E', 'F')) {
 		SKIP(5);
-		return(XML_ATTRIBUTE_IDREF);
+		return (XML_ATTRIBUTE_IDREF);
 	}
 	else if((RAW == 'I') && (NXT(1) == 'D')) {
 		SKIP(2);
-		return(XML_ATTRIBUTE_ID);
+		return (XML_ATTRIBUTE_ID);
 	}
 	else if(CMP6(p__cp, 'E', 'N', 'T', 'I', 'T', 'Y')) {
 		SKIP(6);
-		return(XML_ATTRIBUTE_ENTITY);
+		return (XML_ATTRIBUTE_ENTITY);
 	}
 	else if(CMP8(p__cp, 'E', 'N', 'T', 'I', 'T', 'I', 'E', 'S')) {
 		SKIP(8);
-		return(XML_ATTRIBUTE_ENTITIES);
+		return (XML_ATTRIBUTE_ENTITIES);
 	}
 	else if(CMP8(p__cp, 'N', 'M', 'T', 'O', 'K', 'E', 'N', 'S')) {
 		SKIP(8);
-		return(XML_ATTRIBUTE_NMTOKENS);
+		return (XML_ATTRIBUTE_NMTOKENS);
 	}
 	else if(CMP7(p__cp, 'N', 'M', 'T', 'O', 'K', 'E', 'N')) {
 		SKIP(7);
-		return(XML_ATTRIBUTE_NMTOKEN);
+		return (XML_ATTRIBUTE_NMTOKEN);
 	}
 	else
 		return xmlParseEnumeratedType(ctxt, tree);
@@ -6143,7 +6135,7 @@ void xmlParseExternalSubset(xmlParserCtxt * ctxt, const xmlChar * ExternalID, co
 		}
 	}
 	if(ctxt->myDoc == NULL) {
-		ctxt->myDoc = xmlNewDoc(BAD_CAST "1.0");
+		ctxt->myDoc = xmlNewDoc(reinterpret_cast<const xmlChar *>("1.0"));
 		if(ctxt->myDoc == NULL) {
 			xmlErrMemory(ctxt, "New Doc failed");
 			return;
@@ -6198,7 +6190,7 @@ void xmlParseExternalSubset(xmlParserCtxt * ctxt, const xmlChar * ExternalID, co
 void xmlParseReference(xmlParserCtxt * ctxt)
 {
 	xmlEntity * ent;
-	xmlChar * val;
+	const xmlChar * val;
 	int was_checked;
 	xmlNode * list = NULL;
 	xmlParserErrors ret = XML_ERR_OK;
@@ -6513,7 +6505,7 @@ void xmlParseReference(xmlParserCtxt * ctxt)
 					// node with a possible previous text one which
 					// would make ent->children a dangling pointer
 					// 
-					const xmlChar * nbktext = xmlDictLookupSL(ctxt->dict, BAD_CAST "nbktext");
+					const xmlChar * nbktext = xmlDictLookupSL(ctxt->dict, reinterpret_cast<const xmlChar *>("nbktext"));
 					if(ent->children->type == XML_TEXT_NODE)
 						ent->children->name = nbktext;
 					if((ent->last != ent->children) && (ent->last->type == XML_TEXT_NODE))
@@ -6584,7 +6576,7 @@ xmlEntity * xmlParseEntityRef(xmlParserCtxt * ctxt)
 	if((ctxt->options & XML_PARSE_OLDSAX) == 0) {
 		ent = xmlGetPredefinedEntity(name);
 		if(ent != NULL)
-			return(ent);
+			return (ent);
 	}
 	/*
 	 * Increase the number of entity references parsed
@@ -6685,7 +6677,7 @@ xmlEntity * xmlParseEntityRef(xmlParserCtxt * ctxt)
 	 * to itself, either directly or indirectly.
 	 * Done somewhere else
 	 */
-	return(ent);
+	return (ent);
 }
 
 /**
@@ -7137,7 +7129,7 @@ static xmlEntity * xmlParseStringPEReference(xmlParserCtxt * ctxt, const xmlChar
 	ctxt->hasPErefs = 1;
 	SAlloc::F(name);
 	*str = ptr;
-	return(entity);
+	return (entity);
 }
 
 /**
@@ -7503,7 +7495,7 @@ static void xmlParseEndTag1(xmlParserCtxt * ctxt, int line)
 	// 
 	if(name != (xmlChar *)1) {
 		if(!name)
-			name = BAD_CAST "unparseable";
+			name = reinterpret_cast<const xmlChar *>("unparseable");
 		xmlFatalErrMsgStrIntStr(ctxt, XML_ERR_TAG_NAME_MISMATCH, "Opening and ending tag mismatch: %s line %d and %s\n", ctxt->name, line, name);
 	}
 	// 
@@ -7604,7 +7596,7 @@ static const xmlChar * FASTCALL xmlParseQName(xmlParserCtxt * ctxt, const xmlCha
 			p = xmlDictLookupSL(ctxt->dict, tmp);
 			SAlloc::F(tmp);
 			*prefix = NULL;
-			return(p);
+			return (p);
 		}
 		if(CUR == ':') {
 			xmlChar * tmp;
@@ -8439,7 +8431,7 @@ static void xmlParseEndTag2(xmlParserCtxt * ctxt, const xmlChar * prefix, const 
 	 *
 	 */
 	if(name != (xmlChar *)1) {
-		SETIFZ(name, BAD_CAST "unparseable");
+		SETIFZ(name, reinterpret_cast<const xmlChar *>("unparseable"));
 		if((line == 0) && (ctxt->P_Node != NULL))
 			line = ctxt->P_Node->line;
 		xmlFatalErrMsgStrIntStr(ctxt, XML_ERR_TAG_NAME_MISMATCH, "Opening and ending tag mismatch: %s line %d and %s\n", ctxt->name, line, name);
@@ -8859,7 +8851,7 @@ xmlChar * xmlParseVersionInfo(xmlParserCtxt * ctxt)
 			xmlFatalErr(ctxt, XML_ERR_STRING_NOT_STARTED, 0);
 		}
 	}
-	return(version);
+	return (version);
 }
 /**
  * xmlParseEncName:
@@ -8972,7 +8964,7 @@ const xmlChar * xmlParseEncodingDecl(xmlParserCtxt * ctxt)
 		 * UTF-16 encoding stwich has already taken place at this stage,
 		 * more over the little-endian/big-endian selection is already done
 		 */
-		if(encoding && (sstreqi_ascii(encoding, BAD_CAST "UTF-16") || sstreqi_ascii(encoding, BAD_CAST "UTF16"))) {
+		if(encoding && (sstreqi_ascii(encoding, reinterpret_cast<const xmlChar *>("UTF-16")) || sstreqi_ascii(encoding, reinterpret_cast<const xmlChar *>("UTF16")))) {
 			/*
 			 * If no encoding was passed to the parser, that we are
 			 * using UTF-16 and no decoder is present i.e. the
@@ -8988,7 +8980,7 @@ const xmlChar * xmlParseEncodingDecl(xmlParserCtxt * ctxt)
 		/*
 		 * UTF-8 encoding is handled natively
 		 */
-		else if(encoding && (sstreqi_ascii(encoding, BAD_CAST "UTF-8") || sstreqi_ascii(encoding, BAD_CAST "UTF8"))) {
+		else if(encoding && (sstreqi_ascii(encoding, reinterpret_cast<const xmlChar *>("UTF-8")) || sstreqi_ascii(encoding, reinterpret_cast<const xmlChar *>("UTF8")))) {
 			SAlloc::F((xmlChar *)ctxt->encoding);
 			ctxt->encoding = encoding;
 		}
@@ -8996,7 +8988,7 @@ const xmlChar * xmlParseEncodingDecl(xmlParserCtxt * ctxt)
 			xmlCharEncodingHandler * handler;
 			SAlloc::F((xmlChar *)ctxt->input->encoding);
 			ctxt->input->encoding = encoding;
-			handler = xmlFindCharEncodingHandler((const char *)encoding);
+			handler = xmlFindCharEncodingHandler(reinterpret_cast<const char *>(encoding));
 			if(handler) {
 				xmlSwitchToEncoding(ctxt, handler);
 			}
@@ -9047,7 +9039,7 @@ int xmlParseSDDecl(xmlParserCtxt * ctxt)
 		SKIP_BLANKS;
 		if(RAW != '=') {
 			xmlFatalErr(ctxt, XML_ERR_EQUAL_REQUIRED, 0);
-			return(standalone);
+			return (standalone);
 		}
 		NEXT;
 		SKIP_BLANKS;
@@ -9093,7 +9085,7 @@ int xmlParseSDDecl(xmlParserCtxt * ctxt)
 			xmlFatalErr(ctxt, XML_ERR_STRING_NOT_STARTED, 0);
 		}
 	}
-	return(standalone);
+	return (standalone);
 }
 /**
  * xmlParseXMLDecl:
@@ -9128,7 +9120,7 @@ void xmlParseXMLDecl(xmlParserCtxt * ctxt)
 		xmlFatalErr(ctxt, XML_ERR_VERSION_MISSING, 0);
 	}
 	else {
-		if(!sstreq(version, (const xmlChar*)XML_DEFAULT_VERSION)) {
+		if(!sstreq(version, (const xmlChar *)XML_DEFAULT_VERSION)) {
 			// 
 			// Changed here for XML-1.0 5th edition
 			// 
@@ -9522,7 +9514,7 @@ static int xmlParseLookupSequence(xmlParserCtxt * ctxt, xmlChar first, xmlChar n
 			else
 				xmlGenericError(0, "PP: lookup '%c%c%c' found at %d\n", first, next, third, base);
 #endif
-			return(base - (in->cur - in->base));
+			return (base - (in->cur - in->base));
 		}
 	}
 	ctxt->CheckIndex = base;
@@ -10585,7 +10577,7 @@ int xmlParseChunk(xmlParserCtxt * ctxt, const char * chunk, int size, int termin
 	if(!ctxt)
 		return XML_ERR_INTERNAL_ERROR;
 	if((ctxt->errNo != XML_ERR_OK) && (ctxt->disableSAX == 1))
-		return(ctxt->errNo);
+		return ctxt->errNo;
 	if(ctxt->instate == XML_PARSER_EOF)
 		return -1;
 	if(ctxt->instate == XML_PARSER_START)
@@ -10607,11 +10599,11 @@ xmldecl_done:
 		 */
 		if((ctxt->instate == XML_PARSER_START) && ctxt->input && ctxt->input->buf && ctxt->input->buf->encoder) {
 			uint len = 45;
-			if((xmlStrcasestr(BAD_CAST ctxt->input->buf->encoder->name, BAD_CAST "UTF-16")) ||
-			    (xmlStrcasestr(BAD_CAST ctxt->input->buf->encoder->name, BAD_CAST "UTF16")))
+			if((xmlStrcasestr(BAD_CAST ctxt->input->buf->encoder->name, reinterpret_cast<const xmlChar *>("UTF-16"))) ||
+			    (xmlStrcasestr(BAD_CAST ctxt->input->buf->encoder->name, reinterpret_cast<const xmlChar *>("UTF16"))))
 				len = 90;
-			else if((xmlStrcasestr(BAD_CAST ctxt->input->buf->encoder->name, BAD_CAST "UCS-4")) ||
-			    (xmlStrcasestr(BAD_CAST ctxt->input->buf->encoder->name, BAD_CAST "UCS4")))
+			else if((xmlStrcasestr(BAD_CAST ctxt->input->buf->encoder->name, reinterpret_cast<const xmlChar *>("UCS-4"))) ||
+			    (xmlStrcasestr(BAD_CAST ctxt->input->buf->encoder->name, reinterpret_cast<const xmlChar *>("UCS4"))))
 				len = 180;
 			if(ctxt->input->buf->rawconsumed < len)
 				len -= ctxt->input->buf->rawconsumed;
@@ -10650,7 +10642,7 @@ xmldecl_done:
 				if(nbchars < 0) {
 					/* @todo 2.6.0 */
 					xmlGenericError(0, "xmlParseChunk: encoder error\n");
-					return(XML_ERR_INVALID_ENCODING);
+					return (XML_ERR_INVALID_ENCODING);
 				}
 				xmlBufSetInputBaseCur(in->buffer, ctxt->input, base, current);
 			}
@@ -10673,13 +10665,13 @@ xmldecl_done:
 			xmlParseTryOrFinish(ctxt, terminate);
 	}
 	if(ctxt->instate == XML_PARSER_EOF)
-		return(ctxt->errNo);
+		return ctxt->errNo;
 	if(ctxt->input && (((ctxt->input->end - ctxt->input->cur) > XML_MAX_LOOKUP_LIMIT) || ((ctxt->input->cur - ctxt->input->base) > XML_MAX_LOOKUP_LIMIT)) && !(ctxt->options & XML_PARSE_HUGE)) {
 		xmlFatalErr(ctxt, XML_ERR_INTERNAL_ERROR, "Huge input lookup");
 		ctxt->instate = XML_PARSER_EOF;
 	}
 	if((ctxt->errNo != XML_ERR_OK) && (ctxt->disableSAX == 1))
-		return(ctxt->errNo);
+		return ctxt->errNo;
 	if(remain != 0) {
 		chunk += size;
 		size = remain;
@@ -10753,7 +10745,7 @@ xmlParserCtxt * xmlCreatePushParserCtxt(xmlSAXHandler * sax, void * user_data, c
 	 * plug some encoding conversion routines
 	 */
 	if((chunk != NULL) && (size >= 4))
-		enc = xmlDetectCharEncoding((const xmlChar*)chunk, size);
+		enc = xmlDetectCharEncoding((const xmlChar *)chunk, size);
 
 	buf = xmlAllocParserInputBuffer(enc);
 	if(!buf)
@@ -10765,7 +10757,7 @@ xmlParserCtxt * xmlCreatePushParserCtxt(xmlSAXHandler * sax, void * user_data, c
 		return 0;
 	}
 	ctxt->dictNames = 1;
-	ctxt->pushTab = (void**)SAlloc::M(ctxt->nameMax * 3 * sizeof(xmlChar *));
+	ctxt->pushTab = (void **)SAlloc::M(ctxt->nameMax * 3 * sizeof(xmlChar *));
 	if(ctxt->pushTab == NULL) {
 		xmlErrMemory(ctxt, 0);
 		xmlFreeParserInputBuffer(buf);
@@ -10802,7 +10794,7 @@ xmlParserCtxt * xmlCreatePushParserCtxt(xmlSAXHandler * sax, void * user_data, c
 	if(filename == NULL)
 		inputStream->filename = NULL;
 	else {
-		inputStream->filename = (char *)xmlCanonicPath((const xmlChar*)filename);
+		inputStream->filename = (char *)xmlCanonicPath((const xmlChar *)filename);
 		if(inputStream->filename == NULL) {
 			xmlFreeParserCtxt(ctxt);
 			xmlFreeParserInputBuffer(buf);
@@ -10993,13 +10985,13 @@ xmlDtdPtr xmlIOParseDTD(xmlSAXHandler * sax, xmlParserInputBuffer * input, xmlCh
 	 * let's parse that entity knowing it's an external subset.
 	 */
 	ctxt->inSubset = 2;
-	ctxt->myDoc = xmlNewDoc(BAD_CAST "1.0");
+	ctxt->myDoc = xmlNewDoc(reinterpret_cast<const xmlChar *>("1.0"));
 	if(ctxt->myDoc == NULL) {
 		xmlErrMemory(ctxt, "New Doc failed");
 		return 0;
 	}
 	ctxt->myDoc->properties = XML_DOC_INTERNAL;
-	ctxt->myDoc->extSubset = xmlNewDtd(ctxt->myDoc, BAD_CAST "none", BAD_CAST "none", BAD_CAST "none");
+	ctxt->myDoc->extSubset = xmlNewDtd(ctxt->myDoc, reinterpret_cast<const xmlChar *>("none"), reinterpret_cast<const xmlChar *>("none"), reinterpret_cast<const xmlChar *>("none"));
 	if((enc == XML_CHAR_ENCODING_NONE) && ((ctxt->input->end - ctxt->input->cur) >= 4)) {
 		/*
 		 * Get the 4 first bytes and decode the charset
@@ -11015,7 +11007,7 @@ xmlDtdPtr xmlIOParseDTD(xmlSAXHandler * sax, xmlParserInputBuffer * input, xmlCh
 			xmlSwitchEncoding(ctxt, enc);
 		}
 	}
-	xmlParseExternalSubset(ctxt, BAD_CAST "none", BAD_CAST "none");
+	xmlParseExternalSubset(ctxt, reinterpret_cast<const xmlChar *>("none"), reinterpret_cast<const xmlChar *>("none"));
 	if(ctxt->myDoc) {
 		if(ctxt->wellFormed) {
 			ret = ctxt->myDoc->extSubset;
@@ -11105,7 +11097,7 @@ xmlDtdPtr xmlSAXParseDTD(xmlSAXHandler * sax, const xmlChar * ExternalID, const 
 		xmlSwitchEncoding(ctxt, enc);
 	}
 	if(input->filename == NULL)
-		input->filename = (char *)systemIdCanonic;
+		input->filename = reinterpret_cast<const char *>(systemIdCanonic);
 	else
 		SAlloc::F(systemIdCanonic);
 	input->line = 1;
@@ -11117,7 +11109,7 @@ xmlDtdPtr xmlSAXParseDTD(xmlSAXHandler * sax, const xmlChar * ExternalID, const 
 	 * let's parse that entity knowing it's an external subset.
 	 */
 	ctxt->inSubset = 2;
-	ctxt->myDoc = xmlNewDoc(BAD_CAST "1.0");
+	ctxt->myDoc = xmlNewDoc(reinterpret_cast<const xmlChar *>("1.0"));
 	if(ctxt->myDoc == NULL) {
 		xmlErrMemory(ctxt, "New Doc failed");
 		if(sax) ctxt->sax = NULL;
@@ -11125,7 +11117,7 @@ xmlDtdPtr xmlSAXParseDTD(xmlSAXHandler * sax, const xmlChar * ExternalID, const 
 		return 0;
 	}
 	ctxt->myDoc->properties = XML_DOC_INTERNAL;
-	ctxt->myDoc->extSubset = xmlNewDtd(ctxt->myDoc, BAD_CAST "none", ExternalID, SystemID);
+	ctxt->myDoc->extSubset = xmlNewDtd(ctxt->myDoc, reinterpret_cast<const xmlChar *>("none"), ExternalID, SystemID);
 	xmlParseExternalSubset(ctxt, ExternalID, SystemID);
 	if(ctxt->myDoc) {
 		if(ctxt->wellFormed) {
@@ -11205,7 +11197,7 @@ int xmlParseCtxtExternalEntity(xmlParserCtxt * ctx, const xmlChar * URL, const x
 	if(!ctx) 
 		return -1;
 	if(((ctx->depth > 40) && ((ctx->options & XML_PARSE_HUGE) == 0)) || (ctx->depth > 1024)) {
-		return(XML_ERR_ENTITY_LOOP);
+		return (XML_ERR_ENTITY_LOOP);
 	}
 	if(lst != NULL)
 		*lst = NULL;
@@ -11220,7 +11212,7 @@ int xmlParseCtxtExternalEntity(xmlParserCtxt * ctx, const xmlChar * URL, const x
 	oldsax = ctxt->sax;
 	ctxt->sax = ctx->sax;
 	xmlDetectSAX2(ctxt);
-	newDoc = xmlNewDoc(BAD_CAST "1.0");
+	newDoc = xmlNewDoc(reinterpret_cast<const xmlChar *>("1.0"));
 	if(newDoc == NULL) {
 		xmlFreeParserCtxt(ctxt);
 		return -1;
@@ -11237,7 +11229,7 @@ int xmlParseCtxtExternalEntity(xmlParserCtxt * ctx, const xmlChar * URL, const x
 	if(ctx->myDoc->URL) {
 		newDoc->URL = sstrdup(ctx->myDoc->URL);
 	}
-	newRoot = xmlNewDocNode(newDoc, NULL, BAD_CAST "pseudoroot", 0);
+	newRoot = xmlNewDocNode(newDoc, NULL, reinterpret_cast<const xmlChar *>("pseudoroot"), 0);
 	if(newRoot == NULL) {
 		ctxt->sax = oldsax;
 		xmlFreeParserCtxt(ctxt);
@@ -11312,8 +11304,8 @@ int xmlParseCtxtExternalEntity(xmlParserCtxt * ctx, const xmlChar * URL, const x
 	ctxt->vctxt.P_Node = NULL;
 	xmlDictFree(ctxt->dict);
 	ctxt->dict = ctx->dict;
-	ctxt->str_xml = xmlDictLookup(ctxt->dict, BAD_CAST "xml", 3);
-	ctxt->str_xmlns = xmlDictLookup(ctxt->dict, BAD_CAST "xmlns", 5);
+	ctxt->str_xml = xmlDictLookup(ctxt->dict, reinterpret_cast<const xmlChar *>("xml"), 3);
+	ctxt->str_xmlns = xmlDictLookup(ctxt->dict, reinterpret_cast<const xmlChar *>("xmlns"), 5);
 	ctxt->str_xml_ns = xmlDictLookup(ctxt->dict, XML_XML_NAMESPACE, 36);
 	ctxt->dictNames = ctx->dictNames;
 	ctxt->attsDefault = ctx->attsDefault;
@@ -11387,7 +11379,7 @@ static xmlParserErrors xmlParseExternalEntityPrivate(xmlDoc * doc, xmlParserCtxt
 	xmlChar start[4];
 	xmlCharEncoding enc;
 	if(((depth > 40) && ((oldctxt == NULL) || (oldctxt->options & XML_PARSE_HUGE) == 0)) || (depth > 1024)) {
-		return(XML_ERR_ENTITY_LOOP);
+		return (XML_ERR_ENTITY_LOOP);
 	}
 	ASSIGN_PTR(list, 0);
 	if((URL == NULL) && (ID == NULL))
@@ -11425,7 +11417,7 @@ static xmlParserErrors xmlParseExternalEntityPrivate(xmlDoc * doc, xmlParserCtxt
 			ctxt->userData = user_data;
 	}
 	xmlDetectSAX2(ctxt);
-	newDoc = xmlNewDoc(BAD_CAST "1.0");
+	newDoc = xmlNewDoc(reinterpret_cast<const xmlChar *>("1.0"));
 	if(newDoc == NULL) {
 		ctxt->node_seq.maximum = 0;
 		ctxt->node_seq.length = 0;
@@ -11442,7 +11434,7 @@ static xmlParserErrors xmlParseExternalEntityPrivate(xmlDoc * doc, xmlParserCtxt
 	if(doc->URL != NULL) {
 		newDoc->URL = sstrdup(doc->URL);
 	}
-	newRoot = xmlNewDocNode(newDoc, NULL, BAD_CAST "pseudoroot", 0);
+	newRoot = xmlNewDocNode(newDoc, NULL, reinterpret_cast<const xmlChar *>("pseudoroot"), 0);
 	if(newRoot == NULL) {
 		if(sax)
 			ctxt->sax = oldsax;
@@ -11572,7 +11564,7 @@ static xmlParserErrors xmlParseExternalEntityPrivate(xmlDoc * doc, xmlParserCtxt
  */
 int xmlParseExternalEntity(xmlDoc * doc, xmlSAXHandler * sax, void * user_data, int depth, const xmlChar * URL, const xmlChar * ID, xmlNode ** lst)
 {
-	return(xmlParseExternalEntityPrivate(doc, NULL, sax, user_data, depth, URL, ID, lst));
+	return (xmlParseExternalEntityPrivate(doc, NULL, sax, user_data, depth, URL, ID, lst));
 }
 
 /**
@@ -11637,7 +11629,7 @@ static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxt * oldct
 	int i;
 #endif
 	if(((oldctxt->depth > 40) && ((oldctxt->options & XML_PARSE_HUGE) == 0)) || (oldctxt->depth >  1024)) {
-		return(XML_ERR_ENTITY_LOOP);
+		return (XML_ERR_ENTITY_LOOP);
 	}
 	ASSIGN_PTR(lst, 0);
 	if(string == NULL)
@@ -11649,8 +11641,8 @@ static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxt * oldct
 	ctxt->userData = NZOR(user_data, ctxt);
 	xmlDictFree(ctxt->dict);
 	ctxt->dict = oldctxt->dict;
-	ctxt->str_xml = xmlDictLookup(ctxt->dict, BAD_CAST "xml", 3);
-	ctxt->str_xmlns = xmlDictLookup(ctxt->dict, BAD_CAST "xmlns", 5);
+	ctxt->str_xml = xmlDictLookup(ctxt->dict, reinterpret_cast<const xmlChar *>("xml"), 3);
+	ctxt->str_xmlns = xmlDictLookup(ctxt->dict, reinterpret_cast<const xmlChar *>("xmlns"), 5);
 	ctxt->str_xml_ns = xmlDictLookup(ctxt->dict, XML_XML_NAMESPACE, 36);
 
 #ifdef SAX2
@@ -11666,7 +11658,7 @@ static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxt * oldct
 	ctxt->options = oldctxt->options;
 	ctxt->_private = oldctxt->_private;
 	if(oldctxt->myDoc == NULL) {
-		newDoc = xmlNewDoc(BAD_CAST "1.0");
+		newDoc = xmlNewDoc(reinterpret_cast<const xmlChar *>("1.0"));
 		if(newDoc == NULL) {
 			ctxt->sax = oldsax;
 			ctxt->dict = NULL;
@@ -11683,7 +11675,7 @@ static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxt * oldct
 		content = ctxt->myDoc->children;
 		last = ctxt->myDoc->last;
 	}
-	newRoot = xmlNewDocNode(ctxt->myDoc, NULL, BAD_CAST "pseudoroot", 0);
+	newRoot = xmlNewDocNode(ctxt->myDoc, NULL, reinterpret_cast<const xmlChar *>("pseudoroot"), 0);
 	if(newRoot == NULL) {
 		ctxt->sax = oldsax;
 		ctxt->dict = NULL;
@@ -11841,7 +11833,7 @@ xmlParserErrors xmlParseInNodeContext(xmlNode * P_Node, const char * data, int d
 	else
 		return XML_ERR_INTERNAL_ERROR;
 	if(!ctxt)
-		return(XML_ERR_NO_MEMORY);
+		return (XML_ERR_NO_MEMORY);
 	/*
 	 * Use input doc's dict if present, else assure XML_PARSE_NODICT is set.
 	 * We need a dictionary for xmlDetectSAX2, so if there's no doc dict
@@ -11856,7 +11848,7 @@ xmlParserErrors xmlParseInNodeContext(xmlNode * P_Node, const char * data, int d
 	if(doc->encoding) {
 		xmlCharEncodingHandler * hdlr;
 		SAlloc::F((xmlChar *)ctxt->encoding);
-		ctxt->encoding = sstrdup((const xmlChar*)doc->encoding);
+		ctxt->encoding = sstrdup((const xmlChar *)doc->encoding);
 		hdlr = xmlFindCharEncodingHandler((const char *)doc->encoding);
 		if(hdlr)
 			xmlSwitchToEncoding(ctxt, hdlr);
@@ -12015,7 +12007,7 @@ int xmlParseBalancedChunkMemoryRecover(xmlDoc * doc, xmlSAXHandler * sax, void *
 					if(user_data != NULL)
 						ctxt->userData = user_data;
 				}
-				newDoc = xmlNewDoc(BAD_CAST "1.0");
+				newDoc = xmlNewDoc(reinterpret_cast<const xmlChar *>("1.0"));
 				if(newDoc == NULL) {
 					xmlFreeParserCtxt(ctxt);
 					ret = -1;
@@ -12026,8 +12018,8 @@ int xmlParseBalancedChunkMemoryRecover(xmlDoc * doc, xmlSAXHandler * sax, void *
 						xmlDictFree(ctxt->dict);
 						ctxt->dict = doc->dict;
 						xmlDictReference(ctxt->dict);
-						ctxt->str_xml = xmlDictLookup(ctxt->dict, BAD_CAST "xml", 3);
-						ctxt->str_xmlns = xmlDictLookup(ctxt->dict, BAD_CAST "xmlns", 5);
+						ctxt->str_xml = xmlDictLookup(ctxt->dict, reinterpret_cast<const xmlChar *>("xml"), 3);
+						ctxt->str_xmlns = xmlDictLookup(ctxt->dict, reinterpret_cast<const xmlChar *>("xmlns"), 5);
 						ctxt->str_xml_ns = xmlDictLookup(ctxt->dict, XML_XML_NAMESPACE, 36);
 						ctxt->dictNames = 1;
 					}
@@ -12037,7 +12029,7 @@ int xmlParseBalancedChunkMemoryRecover(xmlDoc * doc, xmlSAXHandler * sax, void *
 						newDoc->intSubset = doc->intSubset;
 						newDoc->extSubset = doc->extSubset;
 					}
-					newRoot = xmlNewDocNode(newDoc, NULL, BAD_CAST "pseudoroot", 0);
+					newRoot = xmlNewDocNode(newDoc, NULL, reinterpret_cast<const xmlChar *>("pseudoroot"), 0);
 					if(newRoot == NULL) {
 						if(sax)
 							ctxt->sax = oldsax;
@@ -12167,7 +12159,7 @@ xmlDoc * xmlSAXParseEntity(xmlSAXHandler * sax, const char * filename)
  */
 xmlDoc * xmlParseEntity(const char * filename)
 {
-	return(xmlSAXParseEntity(NULL, filename));
+	return (xmlSAXParseEntity(NULL, filename));
 }
 #endif /* LIBXML_SAX1_ENABLED */
 
@@ -12442,7 +12434,7 @@ void xmlSetupParserForBuffer(xmlParserCtxt * ctxt, const xmlChar* buffer, const 
 		else {
 			xmlClearParserCtxt(ctxt);
 			if(filename)
-				input->filename = (char *)xmlCanonicPath((const xmlChar*)filename);
+				input->filename = (char *)xmlCanonicPath((const xmlChar *)filename);
 			input->base = buffer;
 			input->cur = buffer;
 			input->end = &buffer[sstrlen(buffer)];
@@ -12893,7 +12885,7 @@ void xmlCleanupParser()
  *
  * Free a string if it is not owned by the "dict" dictionnary in the current scope
  */
-//#define DICT_FREE(str) if((str) && ((!dict) || (xmlDictOwns(dict, (const xmlChar*)(str)) == 0))) SAlloc::F((char *)(str));
+//#define DICT_FREE(str) if((str) && ((!dict) || (xmlDictOwns(dict, (const xmlChar *)(str)) == 0))) SAlloc::F((char *)(str));
 /**
  * xmlCtxtReset:
  * @ctxt: an XML parser context
@@ -12993,7 +12985,7 @@ int xmlCtxtResetPush(xmlParserCtxt * ctxt, const char * chunk, int size, const c
 	if(!ctxt)
 		return 1;
 	if(!encoding && chunk && size >= 4)
-		enc = xmlDetectCharEncoding((const xmlChar*)chunk, size);
+		enc = xmlDetectCharEncoding((const xmlChar *)chunk, size);
 	buf = xmlAllocParserInputBuffer(enc);
 	if(!buf)
 		return 1;
@@ -13016,7 +13008,7 @@ int xmlCtxtResetPush(xmlParserCtxt * ctxt, const char * chunk, int size, const c
 		xmlFreeParserInputBuffer(buf);
 		return 1;
 	}
-	inputStream->filename = filename ? (char *)xmlCanonicPath((const xmlChar*)filename) : 0;
+	inputStream->filename = filename ? (char *)xmlCanonicPath((const xmlChar *)filename) : 0;
 	inputStream->buf = buf;
 	xmlBufResetInput(buf->buffer, inputStream);
 	inputPush(ctxt, inputStream);
@@ -13032,7 +13024,7 @@ int xmlCtxtResetPush(xmlParserCtxt * ctxt, const char * chunk, int size, const c
 	if(encoding) {
 		xmlCharEncodingHandler * hdlr;
 		SAlloc::F((xmlChar *)ctxt->encoding);
-		ctxt->encoding = sstrdup((const xmlChar*)encoding);
+		ctxt->encoding = sstrdup((const xmlChar *)encoding);
 		hdlr = xmlFindCharEncodingHandler(encoding);
 		if(hdlr)
 			xmlSwitchToEncoding(ctxt, hdlr);
@@ -13060,7 +13052,7 @@ static int FASTCALL xmlCtxtUseOptionsInternal(xmlParserCtxt * ctxt, int options,
 		return -1;
 	if(encoding) {
 		SAlloc::F((xmlChar *)ctxt->encoding);
-		ctxt->encoding = sstrdup((const xmlChar*)encoding);
+		ctxt->encoding = sstrdup((const xmlChar *)encoding);
 	}
 	if(options & XML_PARSE_RECOVER) {
 		ctxt->recovery = 1;
@@ -13225,7 +13217,7 @@ static xmlDoc * FASTCALL xmlDoRead(xmlParserCtxt * ctxt, const char * URL, const
 				xmlSwitchToEncoding(ctxt, hdlr);
 		}
 		if(URL && ctxt->input && ctxt->input->filename == 0)
-			ctxt->input->filename = (char *)sstrdup((const xmlChar*)URL);
+			ctxt->input->filename = (char *)sstrdup((const xmlChar *)URL);
 		xmlParseDocument(ctxt);
 		if(ctxt->wellFormed || ctxt->recovery)
 			ret = ctxt->myDoc;

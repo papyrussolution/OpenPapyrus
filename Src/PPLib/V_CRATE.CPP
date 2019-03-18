@@ -245,12 +245,12 @@ int SLAPI PPViewCurRate::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 	if(ok == -2) {
 		CurRateIdent ident;
 		MEMSZERO(ident);
-		struct _H {
+		const struct _H {
 			PPID   RateTypeID;
 			PPID   CurID;
 			PPID   BaseCurID;
 			LDATE  Dt;
-		} * p_h = (_H *)pHdr;
+		} * p_h = static_cast<const _H *>(pHdr);
 		if(p_h) {
 			ident.CurID      = p_h->CurID;
 			ident.BaseCurID  = p_h->BaseCurID;

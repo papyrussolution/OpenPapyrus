@@ -266,7 +266,7 @@ int XmlDbFile::Open(const char * pPath, const Param * pParam, const SdRecord * p
         }
 		const char * p_codepage = IsUtf8() ? "utf-8" : "windows-1251";
 		xmlTextWriterSetIndent(P_Writer, 1);
-		xmlTextWriterSetIndentString(P_Writer, (const xmlChar*)"\t");
+		xmlTextWriterSetIndentString(P_Writer, reinterpret_cast<const xmlChar *>("\t"));
 		xmlTextWriterStartDocument(P_Writer, 0, p_codepage, 0);
 		// @v7.2.6 {
 		{
@@ -602,7 +602,7 @@ int XmlDbFile::WriteField(const char * pFieldName, const char * pFieldValue, int
 		if(IsUtf8())
 			fn_buf.ToUtf8();
 		if(isDtd) {
-			xmlTextWriterWriteDTDElement(P_Writer, fn_buf.ucptr(), (const xmlChar*)"(#PCDATA)");
+			xmlTextWriterWriteDTDElement(P_Writer, fn_buf.ucptr(), (const xmlChar *)"(#PCDATA)");
 			ok = 1;
 		}
 		else if(pFieldValue) {

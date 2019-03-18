@@ -271,7 +271,7 @@ static void ngx_stream_proxy_handler(ngx_stream_session_t * s)
 		return;
 	}
 	if(c->type == SOCK_STREAM) {
-		p = (u_char*)ngx_pnalloc(c->pool, pscf->buffer_size);
+		p = (u_char *)ngx_pnalloc(c->pool, pscf->buffer_size);
 		if(!p) {
 			ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 			return;
@@ -555,7 +555,7 @@ static void ngx_stream_proxy_init_upstream(ngx_stream_session_t * s)
 	}
 	c->log->action = "proxying connection";
 	if(u->upstream_buf.start == NULL) {
-		p = (u_char*)ngx_pnalloc(c->pool, pscf->buffer_size);
+		p = (u_char *)ngx_pnalloc(c->pool, pscf->buffer_size);
 		if(!p) {
 			ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 			return;
@@ -586,7 +586,7 @@ static void ngx_stream_proxy_init_upstream(ngx_stream_session_t * s)
 			ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 			return;
 		}
-		p = (u_char*)ngx_pnalloc(c->pool, NGX_PROXY_PROTOCOL_MAX_HEADER);
+		p = (u_char *)ngx_pnalloc(c->pool, NGX_PROXY_PROTOCOL_MAX_HEADER);
 		if(!p) {
 			ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 			return;
@@ -675,7 +675,7 @@ static const char * ngx_stream_proxy_ssl_password_file(ngx_conf_t * cf, const ng
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+		ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 		pscf->ssl_passwords = ngx_ssl_read_password_file(cf, &value[1]);
 		if(pscf->ssl_passwords == NULL) {
 			return NGX_CONF_ERROR;
@@ -799,7 +799,7 @@ static ngx_int_t ngx_stream_proxy_ssl_name(ngx_stream_session_t * s)
 	 * SSL_set_tlsext_host_name() needs a null-terminated string,
 	 * hence we explicitly null-terminate name here
 	 */
-	p = (u_char*)ngx_pnalloc(s->connection->pool, name.len + 1);
+	p = (u_char *)ngx_pnalloc(s->connection->pool, name.len + 1);
 	if(!p) {
 		return NGX_ERROR;
 	}
@@ -872,7 +872,7 @@ static void ngx_stream_proxy_process_connection(ngx_event_t * ev, ngx_uint_t fro
 {
 	ngx_connection_t * pc;
 	ngx_stream_proxy_srv_conf_t  * pscf;
-	ngx_connection_t * c = (ngx_connection_t*)ev->P_Data;
+	ngx_connection_t * c = (ngx_connection_t *)ev->P_Data;
 	ngx_stream_session_t  * s = (ngx_stream_session_t *)c->data;
 	ngx_stream_upstream_t * u = s->upstream;
 	c = s->connection;
@@ -930,7 +930,7 @@ static void ngx_stream_proxy_process_connection(ngx_event_t * ev, ngx_uint_t fro
 
 static void ngx_stream_proxy_connect_handler(ngx_event_t * ev)
 {
-	ngx_connection_t * c = (ngx_connection_t*)ev->P_Data;
+	ngx_connection_t * c = (ngx_connection_t *)ev->P_Data;
 	ngx_stream_session_t * s = (ngx_stream_session_t *)c->data;
 	if(ev->timedout) {
 		ngx_log_error(NGX_LOG_ERR, c->log, NGX_ETIMEDOUT, "upstream timed out");
@@ -1369,7 +1369,7 @@ static const char * ngx_stream_proxy_pass(ngx_conf_t * cf, const ngx_command_t *
 	else {
 		ngx_stream_core_srv_conf_t * cscf = (ngx_stream_core_srv_conf_t *)ngx_stream_conf_get_module_srv_conf(cf, ngx_stream_core_module);
 		cscf->handler = ngx_stream_proxy_handler;
-		value = (ngx_str_t*)cf->args->elts;
+		value = static_cast<ngx_str_t *>(cf->args->elts);
 		url = &value[1];
 		memzero(&ccv, sizeof(ngx_stream_compile_complex_value_t));
 		ccv.cf = cf;
@@ -1408,7 +1408,7 @@ static const char * ngx_stream_proxy_bind(ngx_conf_t * cf, const ngx_command_t *
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 		if(cf->args->nelts == 2 && sstreq(value[1].data, "off")) {
 			pscf->local = NULL;
 			return NGX_CONF_OK;

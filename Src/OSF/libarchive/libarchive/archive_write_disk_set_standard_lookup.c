@@ -89,11 +89,11 @@ int archive_write_disk_set_standard_lookup(struct archive * a)
 	if(ucache == NULL || gcache == NULL) {
 		SAlloc::F(ucache);
 		SAlloc::F(gcache);
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	archive_write_disk_set_group_lookup(a, gcache, lookup_gid, cleanup);
 	archive_write_disk_set_user_lookup(a, ucache, lookup_uid, cleanup);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int64_t lookup_gid(void * private_data, const char * gname, int64_t gid)

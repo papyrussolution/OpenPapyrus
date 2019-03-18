@@ -249,7 +249,7 @@ void SCI_METHOD LexerRegistry::Lex(Sci_PositionU startPos,
 		if(context.atLineStart) {
 			Sci_Position currPos = static_cast<Sci_Position>(context.currentPos);
 			bool continued = styler[currPos-3] == '\\';
-			highlight = continued ? true : false;
+			highlight = LOGIC(continued);
 		}
 		switch(context.state) {
 			case SCE_REG_COMMENT:

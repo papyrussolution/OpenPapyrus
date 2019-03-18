@@ -477,7 +477,7 @@ CaseConverter caseConvFold; // @global
 CaseConverter caseConvUp; // @global
 CaseConverter caseConvLow; // @global
 
-void UTF8FromUTF32Character(int uch, char * putf)
+void FASTCALL UTF8FromUTF32Character(int uch, char * putf)
 {
 	size_t k = 0;
 	if(uch < 0x80) {

@@ -26,7 +26,7 @@ int X509at_get_attr_by_OBJ(const STACK_OF(X509_ATTRIBUTE) * sk, const ASN1_OBJEC
 	int n;
 	X509_ATTRIBUTE * ex;
 	if(sk == NULL)
-		return (-1);
+		return -1;
 	lastpos++;
 	if(lastpos < 0)
 		lastpos = 0;
@@ -36,7 +36,7 @@ int X509at_get_attr_by_OBJ(const STACK_OF(X509_ATTRIBUTE) * sk, const ASN1_OBJEC
 		if(OBJ_cmp(ex->object, obj) == 0)
 			return (lastpos);
 	}
-	return (-1);
+	return -1;
 }
 
 X509_ATTRIBUTE * X509at_get_attr(const STACK_OF(X509_ATTRIBUTE) * x, int loc)

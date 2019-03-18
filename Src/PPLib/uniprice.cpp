@@ -128,7 +128,7 @@ int SLAPI PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 			GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel);
 			setGroupData(GRP_GOODSFILT, &gf_rec);
 			setCtrlOption(CTL_UNIPRICE_FRAME, ofFramed, 1);
-			SetupPPObjCombo(this, CTLSEL_UNIPRICE_OPRKIND, PPOBJ_OPRKIND,    Data.OpKindID,   0, (void *)PPOPT_GOODSREVAL);
+			SetupPPObjCombo(this, CTLSEL_UNIPRICE_OPRKIND, PPOBJ_OPRKIND,    Data.OpKindID,   0, reinterpret_cast<void *>(PPOPT_GOODSREVAL));
 			SetupPPObjCombo(this, CTLSEL_UNIPRICE_LOC,     PPOBJ_LOCATION,   Data.LocID,      0);
 			SetupPPObjCombo(this, CTLSEL_UNIPRICE_QUOTK,   PPOBJ_QUOTKIND,   Data.QuotKindID, 0);
 			AddClusterAssoc(CTL_UNIPRICE_EXCLGGRPF, 0, PrcssrUnifyPriceFilt::fExcludeGoodsGrp);
@@ -318,7 +318,7 @@ int SLAPI PrcssrUnifyPrice::ProcessGoods(const Goods2Tbl::Rec * pGoodsRec, PPID 
 		else
 			skip = 1;
 		if(!skip && (r = GetNewPrice(&P, pGoodsRec, &new_price)) == cmOK) {
-			for(i = 0; lot_list.enumItems(&i, (void**)&p_lot_rec);) {
+			for(i = 0; lot_list.enumItems(&i, (void **)&p_lot_rec);) {
 				double lot_price = R5(p_lot_rec->Price);
 				if((!last_lot_only || i == lot_list.getCount()) && dbl_cmp(lot_price, new_price) != 0) {
 					MEMSZERO(ti);

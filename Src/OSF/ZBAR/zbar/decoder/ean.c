@@ -102,14 +102,14 @@ void ean_reset(ean_decoder_t * ean)
 uint ean_get_config(ean_decoder_t * ean, zbar_symbol_type_t sym)
 {
 	switch(sym) {
-		case ZBAR_EAN2:   return(ean->ean2_config);
-		case ZBAR_EAN5:   return(ean->ean5_config);
-		case ZBAR_EAN8:   return(ean->ean8_config);
-		case ZBAR_UPCE:   return(ean->upce_config);
-		case ZBAR_ISBN10: return(ean->isbn10_config);
-		case ZBAR_UPCA:   return(ean->upca_config);
-		case ZBAR_EAN13:  return(ean->ean13_config);
-		case ZBAR_ISBN13: return(ean->isbn13_config);
+		case ZBAR_EAN2:   return (ean->ean2_config);
+		case ZBAR_EAN5:   return (ean->ean5_config);
+		case ZBAR_EAN8:   return (ean->ean8_config);
+		case ZBAR_UPCE:   return (ean->upce_config);
+		case ZBAR_ISBN10: return (ean->isbn10_config);
+		case ZBAR_UPCA:   return (ean->upca_config);
+		case ZBAR_EAN13:  return (ean->ean13_config);
+		case ZBAR_ISBN13: return (ean->isbn13_config);
 		default:          return 0;
 	}
 }
@@ -139,7 +139,7 @@ static /*inline*/ int FASTCALL check_width(uint w0, uint w1)
 	uint dw0 = w0;
 	w0 *= 8;
 	w1 *= 8;
-	return(w0 - dw0 <= w1 && w1 <= w0 + dw0);
+	return (w0 - dw0 <= w1 && w1 <= w0 + dw0);
 }
 //
 // evaluate previous N (>= 2) widths as auxiliary pattern,
@@ -168,7 +168,7 @@ static /*inline*/ int8 FASTCALL aux_end(zbar_decoder_t * dcode, uchar fwd)
 		}
 	}
 	dbprintf(2, ") s=%d aux=%x", s, code);
-	return(code);
+	return (code);
 }
 //
 // determine possible auxiliary pattern
@@ -197,7 +197,7 @@ static /*inline*/ int8 FASTCALL aux_start(const zbar_decoder_t * dcode)
 			}
 			else if(E1 == 1) {
 				dbprintf(2, " [valid add-on]");
-				return(STATE_ADDON); /* add-on symbol start */
+				return (STATE_ADDON); /* add-on symbol start */
 			}
 		}
 		dbprintf(2, " [invalid start]");
@@ -222,7 +222,7 @@ static /*inline*/ int8 FASTCALL aux_start(const zbar_decoder_t * dcode)
 static /*inline*/ int8 FASTCALL aux_mid(const zbar_decoder_t * dcode)
 {
 	uint e = get_width(dcode, 4) + get_width(dcode, 5);
-	return(decode_e(e, dcode->ean.s4, 7));
+	return (decode_e(e, dcode->ean.s4, 7));
 }
 //
 // attempt to decode previous 4 widths (2 bars and 2 spaces) as a character 
@@ -261,23 +261,23 @@ static /*inline*/ int8 FASTCALL decode4(const zbar_decoder_t * dcode)
 	dbprintf(2, " char=%02x", digits[(uchar)code]);
 	//zassert(code < 0x14, -1, "code=%02x e1=%x e2=%x s4=%x color=%x\n", code, e1, e2, dcode->ean.s4, get_color(dcode));
 	assert(code < 0x14);
-	return(code);
+	return (code);
 }
 
 static /*inline*/ char FASTCALL ean_part_end2(ean_decoder_t * ean, ean_pass_t * pass)
 {
 	if(!TEST_CFG(ean->ean2_config, ZBAR_CFG_ENABLE))
-		return(ZBAR_NONE);
+		return ZBAR_NONE;
 	// extract parity bits 
 	uchar par = ((pass->raw[1] & 0x10) >> 3 | (pass->raw[2] & 0x10) >> 4);
 	// calculate "checksum" 
 	uchar chk = ~((pass->raw[1] & 0xf) * 10 + (pass->raw[2] & 0xf)) & 0x3;
 	dbprintf(2, " par=%x chk=%x", par, chk);
 	if(par != chk)
-		return(ZBAR_NONE);
+		return ZBAR_NONE;
 	dbprintf(2, "\n");
 	dbprintf(1, "decode2=%x%x\n", pass->raw[1] & 0xf, pass->raw[2] & 0xf);
-	return(ZBAR_EAN2);
+	return (ZBAR_EAN2);
 }
 
 static /*inline*/ zbar_symbol_type_t FASTCALL ean_part_end4(ean_pass_t * pass, uchar fwd)
@@ -287,7 +287,7 @@ static /*inline*/ zbar_symbol_type_t FASTCALL ean_part_end4(ean_pass_t * pass, u
 	dbprintf(2, " par=%x", par);
 	if(par && par != 0xf)
 		/* invalid parity combination */
-		return(ZBAR_NONE);
+		return ZBAR_NONE;
 
 	if(!par == fwd) {
 		/* reverse sampled digits */
@@ -309,7 +309,7 @@ static /*inline*/ zbar_symbol_type_t FASTCALL ean_part_end4(ean_pass_t * pass, u
 static /*inline*/ char FASTCALL ean_part_end5(ean_decoder_t * ean, ean_pass_t * pass)
 {
 	if(!TEST_CFG(ean->ean5_config, ZBAR_CFG_ENABLE))
-		return(ZBAR_NONE);
+		return ZBAR_NONE;
 	/* extract parity bits */
 	uchar par = ((pass->raw[1] & 0x10) | (pass->raw[2] & 0x10) >> 1 | (pass->raw[3] & 0x10) >> 2 | (pass->raw[4] & 0x10) >> 3 | (pass->raw[5] & 0x10) >> 4);
 	/* calculate checksum */
@@ -320,10 +320,10 @@ static /*inline*/ char FASTCALL ean_part_end5(ean_decoder_t * ean, ean_pass_t * 
 	parchk &= 0xf;
 	dbprintf(2, " par=%x(%d) chk=%d", par, parchk, chk);
 	if(parchk != chk)
-		return(ZBAR_NONE);
+		return ZBAR_NONE;
 	dbprintf(2, "\n");
 	dbprintf(1, "decode5=%x%x%x%x%x\n", pass->raw[1] & 0xf, pass->raw[2] & 0xf, pass->raw[3] & 0xf, pass->raw[4] & 0xf, pass->raw[5] & 0xf);
-	return(ZBAR_EAN5);
+	return (ZBAR_EAN5);
 }
 
 static /*inline*/ zbar_symbol_type_t ean_part_end7(ean_decoder_t * ean, ean_pass_t * pass, uchar fwd)
@@ -349,7 +349,7 @@ static /*inline*/ zbar_symbol_type_t ean_part_end7(ean_decoder_t * ean, ean_pass
 	dbprintf(2, " par=%02x(%x)", par, pass->raw[0]);
 	if(pass->raw[0] == 0xf)
 		/* invalid parity combination */
-		return(ZBAR_NONE);
+		return ZBAR_NONE;
 
 	if(!par == fwd) {
 		uchar i;
@@ -402,7 +402,7 @@ static /*inline*/ zbar_symbol_type_t FASTCALL decode_pass(zbar_decoder_t * dcode
 				if(part || idx == 0x21) {
 					dcode->ean.direction = 0;
 					pass->state = -1;
-					return(part);
+					return (part);
 				}
 			}
 			if((idx & 7) == 1) {
@@ -417,7 +417,7 @@ static /*inline*/ zbar_symbol_type_t FASTCALL decode_pass(zbar_decoder_t * dcode
 			if(part)
 				dcode->ean.direction = (pass->state & STATE_REV) != 0;
 			pass->state = -1;
-			return(part);
+			return (part);
 		}
 		else if((idx == 0x18 || idx == 0x19)) {
 			zbar_symbol_type_t part = ZBAR_NONE;
@@ -427,7 +427,7 @@ static /*inline*/ zbar_symbol_type_t FASTCALL decode_pass(zbar_decoder_t * dcode
 			if(part)
 				dcode->ean.direction = (pass->state & STATE_REV) != 0;
 			pass->state = -1;
-			return(part);
+			return (part);
 		}
 	}
 	if(pass->state & STATE_ADDON)
@@ -514,11 +514,11 @@ static /*inline*/ uchar FASTCALL isbn10_calc_checksum(ean_decoder_t * ean)
 	}
 	chk = chk % 11;
 	if(!chk)
-		return('0');
+		return ('0');
 	chk = 11 - chk;
 	if(chk < 10)
-		return(chk + '0');
-	return('X');
+		return (chk + '0');
+	return ('X');
 }
 
 static /*inline*/ void FASTCALL ean_expand_upce(ean_decoder_t * ean, const ean_pass_t * pass)
@@ -714,6 +714,6 @@ zbar_symbol_type_t _zbar_decode_ean(zbar_decoder_t * dcode)
 			dbprintf(2, "\n");
 		}
 	}
-	return(sym);
+	return (sym);
 }
 

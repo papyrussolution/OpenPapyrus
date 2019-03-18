@@ -35,7 +35,7 @@ static int send_fp_chars(void * arg, const void * buf, int len)
 {
 	if(!arg)
 		return 1;
-	if(fwrite(buf, 1, len, (FILE*)arg) != (uint)len)
+	if(fwrite(buf, 1, len, (FILE *)arg) != (uint)len)
 		return 0;
 	return 1;
 }

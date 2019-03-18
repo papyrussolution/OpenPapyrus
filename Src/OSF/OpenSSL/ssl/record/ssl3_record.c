@@ -300,7 +300,7 @@ int ssl3_get_record(SSL * s)
 			SSLerr(SSL_F_SSL3_GET_RECORD, ERR_LIB_EVP);
 			goto f_err;
 		}
-		mac_size = (unsigned)imac_size;
+		mac_size = (uint)imac_size;
 		for(j = 0; j < num_recs; j++) {
 			if(rr[j].length < mac_size) {
 				al = SSL_AD_DECODE_ERROR;

@@ -295,7 +295,7 @@ int FASTCALL SUsbDvcIfcData::Get(void * pHandle, SP_DEVICE_INTERFACE_DATA * pDvc
 	SETFLAG(Flags, fActive,  pDvcIfcData->Flags & SPINT_ACTIVE);
 	SETFLAG(Flags, fDefault, pDvcIfcData->Flags & SPINT_DEFAULT);
 	SETFLAG(Flags, fRemoved, pDvcIfcData->Flags & SPINT_REMOVED);
-	Path = p_dev_ifc_detail->DevicePath; // @unicodeproblem
+	Path = SUcSwitch(p_dev_ifc_detail->DevicePath); // @unicodeproblem
 	CATCHZOK
 	if(allocated_size) {
 		ZFREE(p_dev_ifc_detail);
@@ -320,23 +320,17 @@ int SUsbDvcIfcData::GetPropString(void * pHandle, int prop, SString & rBuf)
 	//dev_info.cbSize = sizeof(dev_info);
 	THROW(P_DvcInfo); // @todo error
 	THROW_S(pHandle != INVALID_HANDLE_VALUE, SLERR_USB);
-	int    ret = SetupDiGetDeviceRegistryProperty(pHandle, (SP_DEVINFO_DATA *)P_DvcInfo, (DWORD)prop, &prop_type, p_data, size, &size);
+	int    ret = SetupDiGetDeviceRegistryProperty(pHandle, static_cast<SP_DEVINFO_DATA *>(P_DvcInfo), (DWORD)prop, &prop_type, p_data, size, &size);
 	if(!ret && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
-		THROW(p_data = (uint8 *)SAlloc::M(size));
+		THROW(p_data = static_cast<uint8 *>(SAlloc::M(size)));
 		allocated_size = size;
 		//MEMSZERO(dev_info);
 		//dev_info.cbSize = sizeof(dev_info);
-		ret = SetupDiGetDeviceRegistryProperty(pHandle, (SP_DEVINFO_DATA *)P_DvcInfo, (DWORD)prop, &prop_type, p_data, size, &size);
+		ret = SetupDiGetDeviceRegistryProperty(pHandle, static_cast<SP_DEVINFO_DATA *>(P_DvcInfo), (DWORD)prop, &prop_type, p_data, size, &size);
 	}
 	THROW(ret);
-	if(prop_type == REG_SZ) {
-		rBuf = (const char *)p_data;
-	}
-	else if(prop_type == REG_MULTI_SZ) {
-		rBuf = (const char *)p_data;
-	}
-	else if(prop_type == REG_EXPAND_SZ) {
-		rBuf = (const char *)p_data;
+	if(oneof3(prop_type, REG_SZ, REG_MULTI_SZ, REG_EXPAND_SZ)) {
+		rBuf = reinterpret_cast<const char *>(p_data);
 	}
 	CATCHZOK
 	if(allocated_size) {
@@ -360,16 +354,14 @@ int SUsbDevice::GetDeviceList(TSCollection <SUsbDevice> & rList)
 	// Дескрпитор класса USB
 	usb_guid.FromStr(USB_GUID);
 	// Получаем дескриптор PnP для класса USB
-	THROW_S_S((pnp_handle = SetupDiGetClassDevs((GUID *)usb_guid.Data, NULL, 0,  DIGCF_PRESENT | DIGCF_DEVICEINTERFACE)) != INVALID_HANDLE_VALUE, SLERR_USB, GetErrorStr());
+	THROW_S_S((pnp_handle = SetupDiGetClassDevs(reinterpret_cast<const GUID *>(usb_guid.Data), NULL, 0,  DIGCF_PRESENT | DIGCF_DEVICEINTERFACE)) != INVALID_HANDLE_VALUE, SLERR_USB, GetErrorStr());
 	// Цикл по всем устройствам в классе
 	while(!end_while) {
 		memzero(&dev_ifc_data, sizeof(SP_DEVICE_INTERFACE_DATA));
 		dev_ifc_data.cbSize = sizeof(SP_DEVICE_INTERFACE_DATA);
-		if(SetupDiEnumDeviceInterfaces(pnp_handle, NULL, (GUID *)usb_guid.Data, cur_dev_index, &dev_ifc_data)) {
+		if(SetupDiEnumDeviceInterfaces(pnp_handle, NULL, reinterpret_cast<const GUID *>(usb_guid.Data), cur_dev_index, &dev_ifc_data)) {
 			dev_descr.Clear();
-
 			THROW(did.Get(pnp_handle, &dev_ifc_data));
-
 			// Имя PnP-устройства
 			dev_descr.Path = did.Path;
 			// Из имени устройства вытащим серийный номер
@@ -385,7 +377,7 @@ int SUsbDevice::GetDeviceList(TSCollection <SUsbDevice> & rList)
 			//
 			// Тип устройства
 			//
-			switch(GetDriveType(did.Path)) { // @unicodeproblem
+			switch(GetDriveType(SUcSwitch(did.Path))) { // @unicodeproblem
 				case DRIVE_UNKNOWN: dev_descr.Type = "DRIVE_UNKNOWN"; break;
 				case DRIVE_NO_ROOT_DIR: dev_descr.Type = "DRIVE_NO_ROOT_DIR"; break;
 				case DRIVE_REMOVABLE: dev_descr.Type = "DRIVE_REMOVABLE"; break;
@@ -425,17 +417,16 @@ int SUsbDevice::GetDeviceList(TSCollection <SUsbDevice> & rList)
 				//
 				DWORD  device_ret = 0;
 				DWORD  device_next = did.DevInst;
-				char   buf[1024];
+				TCHAR  buf[1024];
 				buf[0] = 0;
-
 				while(CM_Get_Child(&device_next, device_next, 0) == 0) {
 					device_ret = device_next;
 					// Получим строку вида:
 					//		HID\VID_05F9&PID_2203\7&3B4F0974&0&0000
-					if(CM_Get_Device_ID(device_ret, buf, sizeof(buf), 0) == CR_SUCCESS) { // @unicodeproblem
+					if(CM_Get_Device_ID(device_ret, buf, SIZEOFARRAY(buf), 0) == CR_SUCCESS) { // @unicodeproblem
 						// Делим ее на pid, vid и серийный номер
 						basic_descr.Clear();
-						ParseSymbPath(buf, basic_descr);
+						ParseSymbPath(SUcSwitch(buf), basic_descr);
 						UsbBasicDescrSt * p_child = new UsbBasicDescrSt(basic_descr);
 						THROW_S(p_child, SLERR_NOMEM);
 						p_child->P_Parent = p_new_dvc;
@@ -553,9 +544,11 @@ int SUsbDevice::Open()
 	SString str;
 	Close();
 	// @unicodeproblem
-	if((Handle = ::CreateFile(Description.Path, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, /*0*/FILE_FLAG_OVERLAPPED, 0)) == INVALID_HANDLE_VALUE) {
+	if((Handle = ::CreateFile(SUcSwitch(Description.Path), GENERIC_READ|GENERIC_WRITE, 
+		FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, /*0*/FILE_FLAG_OVERLAPPED, 0)) == INVALID_HANDLE_VALUE) {
 		// Если устройство только читает // @unicodeproblem
-		THROW_S((Handle = ::CreateFile(Description.Path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, /*0*/FILE_FLAG_OVERLAPPED, 0)) != INVALID_HANDLE_VALUE, SLERR_USB);
+		THROW_S((Handle = ::CreateFile(SUcSwitch(Description.Path), GENERIC_READ, 
+			FILE_SHARE_READ, NULL, OPEN_EXISTING, /*0*/FILE_FLAG_OVERLAPPED, 0)) != INVALID_HANDLE_VALUE, SLERR_USB);
 	}
 	if(!Description.Class.CmpNC(HID_SUBSTR)) {
 		DevClass = clsHid;
@@ -705,10 +698,10 @@ const TSCollection <UsbBasicDescrSt> & SUsbDevice::GetChildren() const
 SString & GetErrorStr()
 {
 	static SString err_msg;
-	char   buf[256];
+	TCHAR  buf[256];
 	ulong  code = GetLastError();
-	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT), buf, sizeof(buf), 0); // @unicodeproblem
-	return (err_msg = buf).ToOem();
+	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT), buf, SIZEOFARRAY(buf), 0); // @unicodeproblem
+	return (err_msg = SUcSwitch(buf)).ToOem();
 }
 
 int SUsbDevice::GetInputReportDataLength()

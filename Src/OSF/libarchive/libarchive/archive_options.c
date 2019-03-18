@@ -44,21 +44,21 @@ int _archive_set_option(struct archive * a, const char * m, const char * o, cons
 	op = (o != NULL && o[0] != '\0') ? o : NULL;
 	vp = (v != NULL && v[0] != '\0') ? v : NULL;
 	if(op == NULL && vp == NULL)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	if(op == NULL) {
 		archive_set_error(a, ARCHIVE_ERRNO_MISC, "Empty option");
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 	r = use_option(a, mp, op, vp);
 	if(r == ARCHIVE_WARN - 1) {
 		archive_set_error(a, ARCHIVE_ERRNO_MISC, "Unknown module name: `%s'", mp);
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 	if(r == ARCHIVE_WARN) {
 		archive_set_error(a, ARCHIVE_ERRNO_MISC, "Undefined option: `%s%s%s%s%s%s'", vp ? "" : "!", mp ? mp : "", mp ? ":" : "", op, vp ? "=" : "", vp ? vp : "");
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
-	return (r);
+	return r;
 }
 
 int _archive_set_either_option(struct archive * a, const char * m, const char * o, const char * v,
@@ -66,15 +66,15 @@ int _archive_set_either_option(struct archive * a, const char * m, const char * 
 {
 	int r1, r2;
 	if(o == NULL && v == NULL)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	if(o == NULL)
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	r1 = use_format_option(a, m, o, v);
 	if(r1 == ARCHIVE_FATAL)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	r2 = use_filter_option(a, m, o, v);
 	if(r2 == ARCHIVE_FATAL)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	if(r2 == ARCHIVE_WARN - 1)
 		return r1;
 	return r1 > r2 ? r1 : r2;
@@ -90,7 +90,7 @@ int _archive_set_options(struct archive * a, const char * options, int magic, co
 		char * data = strdup(options);
 		if(!data) {
 			archive_set_error(a, ENOMEM, "Out of memory adding file to list");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		else {
 			char * s = data;
@@ -110,11 +110,11 @@ int _archive_set_options(struct archive * a, const char * options, int magic, co
 				r = use_option(a, mod, opt, val);
 				if(r == ARCHIVE_FATAL) {
 					SAlloc::F(data);
-					return (ARCHIVE_FATAL);
+					return ARCHIVE_FATAL;
 				}
 				if(r == ARCHIVE_FAILED && mod != NULL) {
 					SAlloc::F(data);
-					return (ARCHIVE_FAILED);
+					return ARCHIVE_FAILED;
 				}
 				if(r == ARCHIVE_WARN - 1) {
 					if(ignore_mod_err)
@@ -122,13 +122,13 @@ int _archive_set_options(struct archive * a, const char * options, int magic, co
 					/* The module name is wrong. */
 					archive_set_error(a, ARCHIVE_ERRNO_MISC, "Unknown module name: `%s'", mod);
 					SAlloc::F(data);
-					return (ARCHIVE_FAILED);
+					return ARCHIVE_FAILED;
 				}
 				if(r == ARCHIVE_WARN) {
 					/* The option name is wrong. No-one used this. */
 					archive_set_error(a, ARCHIVE_ERRNO_MISC, "Undefined option: `%s%s%s'", mod ? mod : "", mod ? ":" : "", opt);
 					SAlloc::F(data);
-					return (ARCHIVE_FAILED);
+					return ARCHIVE_FAILED;
 				}
 				if(r == ARCHIVE_OK)
 					anyok = 1;

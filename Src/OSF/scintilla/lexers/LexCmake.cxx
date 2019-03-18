@@ -17,7 +17,7 @@ using namespace Scintilla;
 
 static bool isCmakeNumber(char ch)
 {
-	return(ch >= '0' && ch <= '9');
+	return (ch >= '0' && ch <= '9');
 }
 
 static bool isCmakeChar(char ch)

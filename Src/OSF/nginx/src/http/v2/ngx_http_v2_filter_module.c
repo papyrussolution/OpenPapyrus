@@ -309,14 +309,14 @@ static ngx_int_t ngx_http_v2_header_filter(ngx_http_request_t * r)
 		*pos++ = ngx_http_v2_inc_indexed(NGX_HTTP_V2_SERVER_INDEX);
 		if(clcf->server_tokens == NGX_HTTP_SERVER_TOKENS_ON) {
 			if(nginx_ver[0] == '\0') {
-				p = ngx_http_v2_write_value(nginx_ver, (u_char*)NGINX_VER, sizeof(NGINX_VER) - 1, tmp);
+				p = ngx_http_v2_write_value(nginx_ver, (u_char *)NGINX_VER, sizeof(NGINX_VER) - 1, tmp);
 				nginx_ver_len = p - nginx_ver;
 			}
 			pos = ngx_cpymem(pos, nginx_ver, nginx_ver_len);
 		}
 		else if(clcf->server_tokens == NGX_HTTP_SERVER_TOKENS_BUILD) {
 			if(nginx_ver_build[0] == '\0') {
-				p = ngx_http_v2_write_value(nginx_ver_build, (u_char*)NGINX_VER_BUILD, sizeof(NGINX_VER_BUILD) - 1, tmp);
+				p = ngx_http_v2_write_value(nginx_ver_build, (u_char *)NGINX_VER_BUILD, sizeof(NGINX_VER_BUILD) - 1, tmp);
 				nginx_ver_build_len = p - nginx_ver_build;
 			}
 			pos = ngx_cpymem(pos, nginx_ver_build, nginx_ver_build_len);

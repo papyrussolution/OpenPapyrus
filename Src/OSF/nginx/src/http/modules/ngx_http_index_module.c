@@ -105,7 +105,7 @@ static ngx_int_t ngx_http_index_handler(ngx_http_request_t * r)
 		}
 		else {
 			memzero(&e, sizeof(ngx_http_script_engine_t));
-			e.ip = (u_char*)index[i].lengths->elts;
+			e.ip = (u_char *)index[i].lengths->elts;
 			e.request = r;
 			e.flushed = 1;
 			/* 1 is for terminating '\0' as in static names */
@@ -130,7 +130,7 @@ static ngx_int_t ngx_http_index_handler(ngx_http_request_t * r)
 			path.len = (name + index[i].name.len - 1) - path.data;
 		}
 		else {
-			e.ip = (u_char*)index[i].values->elts;
+			e.ip = (u_char *)index[i].values->elts;
 			e.pos = name;
 			while(*(uintptr_t*)e.ip) {
 				code = *(ngx_http_script_code_pt*)e.ip;
@@ -189,7 +189,7 @@ static ngx_int_t ngx_http_index_handler(ngx_http_request_t * r)
 			uri.data = path.data + root;
 		}
 		else {
-			uri.data = (u_char*)ngx_pnalloc(r->pool, uri.len);
+			uri.data = (u_char *)ngx_pnalloc(r->pool, uri.len);
 			if(uri.data == NULL) {
 				return NGX_HTTP_INTERNAL_SERVER_ERROR;
 			}
@@ -295,7 +295,7 @@ static char * ngx_http_index_merge_loc_conf(ngx_conf_t * cf, void * parent, void
 			return NGX_CONF_ERROR;
 		}
 		index->name.len = sizeof(NGX_HTTP_DEFAULT_INDEX);
-		index->name.data = (u_char*)NGX_HTTP_DEFAULT_INDEX;
+		index->name.data = (u_char *)NGX_HTTP_DEFAULT_INDEX;
 		index->lengths = NULL;
 		index->values = NULL;
 		conf->max_index_len = sizeof(NGX_HTTP_DEFAULT_INDEX);
@@ -330,7 +330,7 @@ static const char * ngx_http_index_set_index(ngx_conf_t * cf, const ngx_command_
 			return NGX_CONF_ERROR;
 		}
 	}
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	for(i = 1; i < cf->args->nelts; i++) {
 		if(value[i].data[0] == '/' && i != cf->args->nelts - 1) {
 			ngx_conf_log_error(NGX_LOG_WARN, cf, 0, "only the last index in \"index\" directive should be absolute");

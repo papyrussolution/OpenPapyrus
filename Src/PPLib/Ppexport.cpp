@@ -101,7 +101,7 @@ int SLAPI PPDbTableXmlExporter::Run(const char * pOutFileName)
 		SString temp_buf, fld_name;
 		const BNFieldList & r_fl = p_t->GetFields();
 		xmlTextWriterSetIndent(p_writer, 1);
-		xmlTextWriterSetIndentString(p_writer, (const xmlChar*)"\t");
+		xmlTextWriterSetIndentString(p_writer, reinterpret_cast<const xmlChar *>("\t"));
 		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
 		// XMLWriteSpecSymbEntities(writer);
 		{

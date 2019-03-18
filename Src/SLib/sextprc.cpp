@@ -1,5 +1,5 @@
 // SEXTPRC.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -55,12 +55,10 @@ int SLAPI ExecVDos(const ExecVDosParam & rParam)
 {
 	int   ok = 1;
 	int   r = 0;
-
 	SString vdos_path;
 	SString startup_path = rParam.StartUpPath;
 	SString cmd_line;
 	SString temp_buf;
-
 	SString exe_filename;
 	SString autoexec_filename;
 	SString config_filename;
@@ -139,8 +137,8 @@ int SLAPI ExecVDos(const ExecVDosParam & rParam)
 		MEMSZERO(pi);
 		{
 			STempBuffer cmd_line(exe_filename.Len()*2);
-			strnzcpy(cmd_line, exe_filename, cmd_line.GetSize());
-			r = ::CreateProcess(0, cmd_line, 0, 0, FALSE, 0, 0, vdos_path.cptr(), &si, &pi); // @unicodeproblem
+			strnzcpy(cmd_line, SUcSwitch(exe_filename), cmd_line.GetSize());
+			r = ::CreateProcess(0, const_cast<TCHAR *>(cmd_line.cptr()), 0, 0, FALSE, 0, 0, SUcSwitch(vdos_path.cptr()), &si, &pi); // @unicodeproblem
 		}
 		if(!r) {
 			SLS.SetOsError(0);

@@ -13,11 +13,11 @@
 /*
  * The XML predefined entities.
  */
-static xmlEntity xmlEntityLt   = { 0, XML_ENTITY_DECL, BAD_CAST "lt", 0, 0, 0, 0, 0, 0, BAD_CAST "<", BAD_CAST "<", 1, XML_INTERNAL_PREDEFINED_ENTITY, 0, 0, 0, 0, 0, 1 };
-static xmlEntity xmlEntityGt   = { 0, XML_ENTITY_DECL, BAD_CAST "gt", 0, 0, 0, 0, 0, 0, BAD_CAST ">", BAD_CAST ">", 1, XML_INTERNAL_PREDEFINED_ENTITY, 0, 0, 0, 0, 0, 1 };
-static xmlEntity xmlEntityAmp  = { 0, XML_ENTITY_DECL, BAD_CAST "amp", 0, 0, 0, 0, 0, 0, BAD_CAST "&", BAD_CAST "&", 1, XML_INTERNAL_PREDEFINED_ENTITY, 0, 0, 0, 0, 0, 1 };
-static xmlEntity xmlEntityQuot = { 0, XML_ENTITY_DECL, BAD_CAST "quot", 0, 0, 0, 0, 0, 0, BAD_CAST "\"", BAD_CAST "\"", 1, XML_INTERNAL_PREDEFINED_ENTITY, 0, 0, 0, 0, 0, 1 };
-static xmlEntity xmlEntityApos = { 0, XML_ENTITY_DECL, BAD_CAST "apos", 0, 0, 0, 0, 0, 0, BAD_CAST "'", BAD_CAST "'", 1, XML_INTERNAL_PREDEFINED_ENTITY, 0, 0, 0, 0, 0, 1 };
+static xmlEntity xmlEntityLt   = { 0, XML_ENTITY_DECL, reinterpret_cast<const xmlChar *>("lt"), 0, 0, 0, 0, 0, 0, reinterpret_cast<const xmlChar *>("<"), reinterpret_cast<const xmlChar *>("<"), 1, XML_INTERNAL_PREDEFINED_ENTITY, 0, 0, 0, 0, 0, 1 };
+static xmlEntity xmlEntityGt   = { 0, XML_ENTITY_DECL, reinterpret_cast<const xmlChar *>("gt"), 0, 0, 0, 0, 0, 0, reinterpret_cast<const xmlChar *>(">"), reinterpret_cast<const xmlChar *>(">"), 1, XML_INTERNAL_PREDEFINED_ENTITY, 0, 0, 0, 0, 0, 1 };
+static xmlEntity xmlEntityAmp  = { 0, XML_ENTITY_DECL, reinterpret_cast<const xmlChar *>("amp"), 0, 0, 0, 0, 0, 0, reinterpret_cast<const xmlChar *>("&"), reinterpret_cast<const xmlChar *>("&"), 1, XML_INTERNAL_PREDEFINED_ENTITY, 0, 0, 0, 0, 0, 1 };
+static xmlEntity xmlEntityQuot = { 0, XML_ENTITY_DECL, reinterpret_cast<const xmlChar *>("quot"), 0, 0, 0, 0, 0, 0, reinterpret_cast<const xmlChar *>("\""), reinterpret_cast<const xmlChar *>("\""), 1, XML_INTERNAL_PREDEFINED_ENTITY, 0, 0, 0, 0, 0, 1 };
+static xmlEntity xmlEntityApos = { 0, XML_ENTITY_DECL, reinterpret_cast<const xmlChar *>("apos"), 0, 0, 0, 0, 0, 0, reinterpret_cast<const xmlChar *>("'"), reinterpret_cast<const xmlChar *>("'"), 1, XML_INTERNAL_PREDEFINED_ENTITY, 0, 0, 0, 0, 0, 1 };
 /**
  * @extra:  extra informations
  *
@@ -133,12 +133,12 @@ static xmlEntity * xmlAddEntity(xmlDtdPtr dtd, const xmlChar * name, int type,
 			case XML_EXTERNAL_GENERAL_PARSED_ENTITY:
 			case XML_EXTERNAL_GENERAL_UNPARSED_ENTITY:
 				SETIFZ(dtd->entities, xmlHashCreateDict(0, dict));
-				table = (xmlEntitiesTablePtr)dtd->entities;
+				table = (xmlEntitiesTable *)dtd->entities;
 				break;
 			case XML_INTERNAL_PARAMETER_ENTITY:
 			case XML_EXTERNAL_PARAMETER_ENTITY:
 				SETIFZ(dtd->pentities, xmlHashCreateDict(0, dict));
-				table = (xmlEntitiesTablePtr)dtd->pentities;
+				table = (xmlEntitiesTable *)dtd->pentities;
 				break;
 			case XML_INTERNAL_PREDEFINED_ENTITY:
 				return 0;
@@ -214,12 +214,12 @@ xmlEntity * xmlAddDtdEntity(xmlDoc * doc, const xmlChar * name, int type,
 			ret->parent = dtd;
 			ret->doc = dtd->doc;
 			if(!dtd->last) {
-				dtd->children = dtd->last = (xmlNode *)ret;
+				dtd->children = dtd->last = reinterpret_cast<xmlNode *>(ret);
 			}
 			else {
-				dtd->last->next = (xmlNode *)ret;
+				dtd->last->next = reinterpret_cast<xmlNode *>(ret);
 				ret->prev = dtd->last;
-				dtd->last = (xmlNode *)ret;
+				dtd->last = reinterpret_cast<xmlNode *>(ret);
 			}
 		}
 	}
@@ -256,12 +256,12 @@ xmlEntity * xmlAddDocEntity(xmlDoc * doc, const xmlChar * name, int type,
 			ret->parent = dtd;
 			ret->doc = dtd->doc;
 			if(dtd->last == NULL) {
-				dtd->children = dtd->last = (xmlNode *)ret;
+				dtd->children = dtd->last = reinterpret_cast<xmlNode *>(ret);
 			}
 			else {
-				dtd->last->next = (xmlNode *)ret;
+				dtd->last->next = reinterpret_cast<xmlNode *>(ret);
 				ret->prev = dtd->last;
-				dtd->last = (xmlNode *)ret;
+				dtd->last = reinterpret_cast<xmlNode *>(ret);
 			}
 		}
 	}
@@ -330,13 +330,13 @@ xmlEntity * xmlGetParameterEntity(xmlDoc * doc, const xmlChar * name)
 	xmlEntity * ret;
 	if(doc) {
 		if(doc->intSubset && doc->intSubset->pentities) {
-			table = (xmlEntitiesTablePtr)doc->intSubset->pentities;
+			table = (xmlEntitiesTable *)doc->intSubset->pentities;
 			ret = xmlGetEntityFromTable(table, name);
 			if(ret)
 				return ret;
 		}
 		if(doc->extSubset && doc->extSubset->pentities) {
-			table = (xmlEntitiesTablePtr)doc->extSubset->pentities;
+			table = (xmlEntitiesTable *)doc->extSubset->pentities;
 			return xmlGetEntityFromTable(table, name);
 		}
 	}
@@ -356,7 +356,7 @@ xmlEntity * xmlGetParameterEntity(xmlDoc * doc, const xmlChar * name)
 xmlEntity * xmlGetDtdEntity(xmlDoc * doc, const xmlChar * name)
 {
 	if(doc && doc->extSubset && doc->extSubset->entities) {
-		xmlEntitiesTablePtr table = (xmlEntitiesTablePtr)doc->extSubset->entities;
+		xmlEntitiesTablePtr table = (xmlEntitiesTable *)doc->extSubset->entities;
 		return xmlGetEntityFromTable(table, name);
 	}
 	return 0;
@@ -454,7 +454,7 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDoc * doc, const xmlChar * input, 
 			/*
 			 * Special handling of server side include in HTML attributes
 			 */
-			if(html && attr && (cur[1] == '!') && (cur[2] == '-') && (cur[3] == '-') && ((end = xmlStrstr(cur, BAD_CAST "-->")) != NULL)) {
+			if(html && attr && (cur[1] == '!') && (cur[2] == '-') && (cur[3] == '-') && ((end = xmlStrstr(cur, reinterpret_cast<const xmlChar *>("-->"))) != NULL)) {
 				while(cur != end) {
 					*out++ = *cur++;
 					indx = out - buffer;
@@ -529,7 +529,7 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDoc * doc, const xmlChar * input, 
 				if(*cur < 0xC0) {
 					xmlEntitiesErr(XML_CHECK_NOT_UTF8, "xmlEncodeEntities: input not UTF-8");
 					if(doc)
-						doc->encoding = sstrdup(BAD_CAST "ISO-8859-1");
+						doc->encoding = sstrdup(reinterpret_cast<const xmlChar *>("ISO-8859-1"));
 					snprintf(buf, sizeof(buf), "&#%d;", *cur);
 					buf[sizeof(buf) - 1] = 0;
 					ptr = buf;
@@ -565,7 +565,7 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDoc * doc, const xmlChar * input, 
 				if((l == 1) || (!IS_CHAR(val))) {
 					xmlEntitiesErr(XML_ERR_INVALID_CHAR, "xmlEncodeEntities: char out of range\n");
 					if(doc)
-						doc->encoding = sstrdup(BAD_CAST "ISO-8859-1");
+						doc->encoding = sstrdup(reinterpret_cast<const xmlChar *>("ISO-8859-1"));
 					snprintf(buf, sizeof(buf), "&#%d;", *cur);
 					buf[sizeof(buf) - 1] = 0;
 					ptr = buf;
@@ -716,7 +716,7 @@ xmlChar * xmlEncodeSpecialChars(const xmlDoc * doc ATTRIBUTE_UNUSED, const xmlCh
 		cur++;
 	}
 	*out = 0;
-	return(buffer);
+	return (buffer);
 mem_error:
 	xmlEntitiesErrMemory("xmlEncodeSpecialChars: realloc failed");
 	SAlloc::F(buffer);
@@ -733,7 +733,7 @@ mem_error:
  */
 xmlEntitiesTablePtr xmlCreateEntitiesTable() 
 {
-	return (xmlEntitiesTablePtr)xmlHashCreate(0);
+	return (xmlEntitiesTable *)xmlHashCreate(0);
 }
 /**
  * xmlFreeEntityWrapper:
@@ -766,9 +766,9 @@ void xmlFreeEntitiesTable(xmlEntitiesTablePtr table)
  *
  * Returns the new xmlEntitiesPtr or NULL in case of error.
  */
-static xmlEntity * xmlCopyEntity(xmlEntity * ent)
+static xmlEntity * xmlCopyEntity(const xmlEntity * ent)
 {
-	xmlEntity * cur = (xmlEntity *)SAlloc::M(sizeof(xmlEntity));
+	xmlEntity * cur = static_cast<xmlEntity *>(SAlloc::M(sizeof(xmlEntity)));
 	if(!cur) {
 		xmlEntitiesErrMemory("xmlCopyEntity:: malloc failed");
 	}
@@ -794,7 +794,7 @@ static xmlEntity * xmlCopyEntity(xmlEntity * ent)
  *
  * Returns the new xmlEntitiesTablePtr or NULL in case of error.
  */
-xmlEntitiesTablePtr xmlCopyEntitiesTable(xmlEntitiesTablePtr table) 
+xmlEntitiesTablePtr xmlCopyEntitiesTable(const xmlEntitiesTablePtr table) 
 {
 	return xmlHashCopy(table, (xmlHashCopier)xmlCopyEntity);
 }
@@ -823,14 +823,14 @@ static void xmlDumpEntityContent(xmlBuffer * buf, const xmlChar * content)
 				if(*cur == '"') {
 					if(base != cur)
 						xmlBufferAdd(buf, base, cur - base);
-					xmlBufferAdd(buf, BAD_CAST "&quot;", 6);
+					xmlBufferAdd(buf, reinterpret_cast<const xmlChar *>("&quot;"), 6);
 					cur++;
 					base = cur;
 				}
 				else if(*cur == '%') {
 					if(base != cur)
 						xmlBufferAdd(buf, base, cur - base);
-					xmlBufferAdd(buf, BAD_CAST "&#x25;", 6);
+					xmlBufferAdd(buf, reinterpret_cast<const xmlChar *>("&#x25;"), 6);
 					cur++;
 					base = cur;
 				}

@@ -52,10 +52,10 @@ extern "C" {
         (i) = ((((seed_word)(c)[0]) << 24) | (((seed_word)(c)[1]) << 16) | (((seed_word)(c)[2]) << 8) | ((seed_word)(c)[3]))
 
 # define word2char(l, c)  \
-        *((c)+0) = (unsigned char)((l)>>24) & 0xff; \
-        *((c)+1) = (unsigned char)((l)>>16) & 0xff; \
-        *((c)+2) = (unsigned char)((l)>> 8) & 0xff; \
-        *((c)+3) = (unsigned char)((l))     & 0xff
+        *((c)+0) = (uchar)((l)>>24) & 0xff; \
+        *((c)+1) = (uchar)((l)>>16) & 0xff; \
+        *((c)+2) = (uchar)((l)>> 8) & 0xff; \
+        *((c)+3) = (uchar)((l))     & 0xff
 
 # define KEYSCHEDULE_UPDATE0(T0, T1, X1, X2, X3, X4, KC)  \
         (T0) = (X3);                                     \

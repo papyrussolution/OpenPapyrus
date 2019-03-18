@@ -99,7 +99,7 @@ private:
 	int    _moveItem(int srcRowIdx);
 	int    _moveItem2(int srcRowIdx);
 	int    selectOrder();
-	int    addItemByOrder(PPBillPacket * order, int line);
+	int    addItemByOrder(const PPBillPacket * pOrderPack, int line);
 	int    ConvertBasketToBill();
 	int    ConvertBillToBasket();
 	void   GetMinMaxQtty(uint itemPos, RealRange & rRange) const;
@@ -344,7 +344,7 @@ int SLAPI ViewBillDetails(PPBillPacket * pack, long options, PPObjBill * pBObj)
 	return r;
 }
 
-static int test_lot(ReceiptTbl::Rec * pLotRec, void * extraPtr)
+static int test_lot(const ReceiptTbl::Rec * pLotRec, void * extraPtr)
 {
 	const PPID loc_id = reinterpret_cast<const PPID>(extraPtr);
 	return (pLotRec->LocID == loc_id && !pLotRec->Closed);
@@ -1714,7 +1714,7 @@ int BillItemBrowser::_moveItem2(int srcRowIdx)
 	return ok;
 }
 
-int BillItemBrowser::addItemByOrder(PPBillPacket * pOrderPack, int line)
+int BillItemBrowser::addItemByOrder(const PPBillPacket * pOrderPack, int line)
 {
 	int    ok = P_BObj->InsertShipmentItemByOrder(P_Pack, pOrderPack, line, 1);
 	if(ok > 0 && !P_Pack->Rec.SCardID && pOrderPack->Rec.SCardID > 0)

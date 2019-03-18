@@ -261,7 +261,7 @@ ngx_int_t FASTCALL ngx_handle_write_event(ngx_event_t * wev, size_t lowat)
 {
 	ngx_int_t result = NGX_OK;
 	if(lowat) {
-		ngx_connection_t * c = (ngx_connection_t*)wev->P_Data;
+		ngx_connection_t * c = (ngx_connection_t *)wev->P_Data;
 		THROW(ngx_send_lowat(c, lowat) != NGX_ERROR);
 	}
 	//
@@ -475,7 +475,7 @@ static ngx_int_t ngx_event_process_init(ngx_cycle_t * cycle)
 		ngx_timer_resolution = 0;
 	}
 #endif
-	cycle->connections = (ngx_connection_t*)ngx_alloc(sizeof(ngx_connection_t) * cycle->connection_n, cycle->log);
+	cycle->connections = (ngx_connection_t *)ngx_alloc(sizeof(ngx_connection_t) * cycle->connection_n, cycle->log);
 	if(cycle->connections == NULL) {
 		return NGX_ERROR;
 	}
@@ -624,7 +624,7 @@ static const char * ngx_events_block(ngx_conf_t * cf, const ngx_command_t * cmd,
 	void *** ctx;
 	ngx_uint_t i;
 	ngx_conf_t pcf;
-	if(*(void**)conf) {
+	if(*(void **)conf) {
 		return "is duplicate";
 	}
 	else {
@@ -634,11 +634,11 @@ static const char * ngx_events_block(ngx_conf_t * cf, const ngx_command_t * cmd,
 		if(!ctx) {
 			return NGX_CONF_ERROR;
 		}
-		*ctx = (void**)ngx_pcalloc(cf->pool, ngx_event_max_module * sizeof(void *));
+		*ctx = (void **)ngx_pcalloc(cf->pool, ngx_event_max_module * sizeof(void *));
 		if(*ctx == NULL) {
 			return NGX_CONF_ERROR;
 		}
-		*(void**)conf = ctx;
+		*(void **)conf = ctx;
 		for(i = 0; cf->cycle->modules[i]; i++) {
 			if(cf->cycle->modules[i]->type == NGX_EVENT_MODULE) {
 				ngx_event_module_t * m = (ngx_event_module_t*)cf->cycle->modules[i]->ctx;
@@ -681,7 +681,7 @@ static const char * ngx_event_connections(ngx_conf_t * cf, const ngx_command_t *
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 		ecf->connections = ngx_atoi(value[1].data, value[1].len);
 		if(ecf->connections == (ngx_uint_t)NGX_ERROR) {
 			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid number \"%V\"", &value[1]);
@@ -701,7 +701,7 @@ static const char * ngx_event_use(ngx_conf_t * cf, const ngx_command_t * cmd, vo
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+		ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 		ngx_event_conf_t * old_ecf = 0;
 		if(cf->cycle->old_cycle->conf_ctx)
 			old_ecf = (ngx_event_conf_t *)ngx_event_get_conf(cf->cycle->old_cycle->conf_ctx, ngx_event_core_module);
@@ -744,7 +744,7 @@ static const char * ngx_event_debug_connection(ngx_conf_t * cf, const ngx_comman
 #if (NGX_HAVE_INET6)
 	struct sockaddr_in6  * sin6;
 #endif
-	value = (ngx_str_t *)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 #if (NGX_HAVE_UNIX_DOMAIN)
 	if(sstreq(value[1].data, "unix:")) {
 		cidr = ngx_array_push(&ecf->debug_connection);
@@ -812,7 +812,7 @@ static void * ngx_event_core_create_conf(ngx_cycle_t * cycle)
 		ecf->multi_accept = NGX_CONF_UNSET;
 		ecf->accept_mutex = NGX_CONF_UNSET;
 		ecf->accept_mutex_delay = NGX_CONF_UNSET_MSEC;
-		ecf->name = (u_char*)(void *)NGX_CONF_UNSET;
+		ecf->name = (u_char *)(void *)NGX_CONF_UNSET;
 #if (NGX_DEBUG)
 		if(ngx_array_init(&ecf->debug_connection, cycle->pool, 4, sizeof(ngx_cidr_t)) == NGX_ERROR) {
 			return NULL;

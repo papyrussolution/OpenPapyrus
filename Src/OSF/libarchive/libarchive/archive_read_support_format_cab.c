@@ -349,7 +349,7 @@ int archive_read_support_format_cab(struct archive * _a)
 	if(cab == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate CAB data");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	archive_string_init(&cab->ws);
 	archive_wstring_ensure(&cab->ws, 256);
@@ -369,7 +369,7 @@ int archive_read_support_format_cab(struct archive * _a)
 
 	if(r != ARCHIVE_OK)
 		SAlloc::F(cab);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int find_cab_magic(const char * p)
@@ -402,10 +402,10 @@ static int archive_read_format_cab_bid(struct archive_read * a, int best_bid)
 	/* If there's already a better bid than we can ever
 	   make, don't bother testing. */
 	if(best_bid > 64)
-		return (-1);
+		return -1;
 
-	if((p = (const char*)__archive_read_ahead(a, 8, NULL)) == NULL)
-		return (-1);
+	if((p = (const char *)__archive_read_ahead(a, 8, NULL)) == NULL)
+		return -1;
 
 	if(memcmp(p, "MSCF\0\0\0\0", 8) == 0)
 		return (64);
@@ -424,7 +424,7 @@ static int archive_read_format_cab_bid(struct archive_read * a, int best_bid)
 				/* Remaining bytes are less than window. */
 				window >>= 1;
 				if(window < 128)
-					return (0);
+					return 0;
 				continue;
 			}
 			p = h + offset;
@@ -437,7 +437,7 @@ static int archive_read_format_cab_bid(struct archive_read * a, int best_bid)
 			offset = p - h;
 		}
 	}
-	return (0);
+	return 0;
 }
 
 static int archive_read_format_cab_options(struct archive_read * a,
@@ -459,7 +459,7 @@ static int archive_read_format_cab_options(struct archive_read * a,
 			else
 				ret = ARCHIVE_FATAL;
 		}
-		return (ret);
+		return ret;
 	}
 
 	/* Note: The "warn" return is just to inform the options
@@ -484,7 +484,7 @@ static int cab_skip_sfx(struct archive_read * a)
 				archive_set_error(&a->archive,
 				    ARCHIVE_ERRNO_FILE_FORMAT,
 				    "Couldn't find out CAB header");
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			continue;
 		}
@@ -500,7 +500,7 @@ static int cab_skip_sfx(struct archive_read * a)
 			if((next = find_cab_magic(p)) == 0) {
 				skip = p - h;
 				__archive_read_consume(a, skip);
-				return (ARCHIVE_OK);
+				return ARCHIVE_OK;
 			}
 			p += next;
 		}
@@ -513,7 +513,7 @@ static int truncated_error(struct archive_read * a)
 {
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 	    "Truncated CAB header");
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }
 
 static ssize_t cab_strnlen(const uchar * p, size_t maxlen)
@@ -525,7 +525,7 @@ static ssize_t cab_strnlen(const uchar * p, size_t maxlen)
 			break;
 	}
 	if(i > maxlen)
-		return (-1); /* invalid */
+		return -1; /* invalid */
 	return ((ssize_t)i);
 }
 
@@ -540,7 +540,7 @@ static const void * cab_read_ahead_remaining(struct archive_read * a, size_t min
 			return (p);
 		min--;
 	}
-	return (NULL);
+	return NULL;
 }
 
 /* Convert a path separator '\' -> '/' */
@@ -567,8 +567,8 @@ static int cab_convert_path_separator_1(struct archive_string * fn, uchar attr)
 			mb = 0;
 	}
 	if(i == archive_strlen(fn))
-		return (0);
-	return (-1);
+		return 0;
+	return -1;
 }
 
 /*
@@ -634,7 +634,7 @@ static int cab_read_header(struct archive_read * a)
 	    p[CFHEADER_signature+2] != 'C' || p[CFHEADER_signature+3] != 'F') {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 		    "Couldn't find out CAB header");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	hd->total_bytes = archive_le32dec(p + CFHEADER_cbCabinet);
 	hd->files_offset = archive_le32dec(p + CFHEADER_coffFiles);
@@ -753,7 +753,7 @@ static int cab_read_header(struct archive_read * a)
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 		    "Invalid offset of CFFILE %jd < %jd",
 		    (intmax_t)hd->files_offset, (intmax_t)cab->cab_offset);
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	if(skip) {
 		__archive_read_consume(a, skip);
@@ -848,15 +848,15 @@ static int cab_read_header(struct archive_read * a)
 		    "Multivolume cabinet file is unsupported");
 		return (ARCHIVE_WARN);
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 invalid:
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 	    "Invalid CAB header");
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 nomem:
 	archive_set_error(&a->archive, ENOMEM,
 	    "Can't allocate memory for CAB data");
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }
 
 static int archive_read_format_cab_read_header(struct archive_read * a,
@@ -921,7 +921,7 @@ static int archive_read_format_cab_read_header(struct archive_read * a,
 			    archive_string_conversion_from_charset(
 				&(a->archive), "UTF-8", 1);
 			if(cab->sconv_utf8 == NULL)
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 		}
 		sconv = cab->sconv_utf8;
 	}
@@ -949,7 +949,7 @@ static int archive_read_format_cab_read_header(struct archive_read * a,
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't allocate memory for Pathname");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		archive_set_error(&a->archive,
 		    ARCHIVE_ERRNO_FILE_FORMAT,
@@ -1000,7 +1000,7 @@ static int archive_read_format_cab_read_data(struct archive_read * a,
 		    archive_clear_error(&a->archive);
 		    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 			"Cannot restore this file split in multivolume.");
-		    return (ARCHIVE_FAILED);
+		    return ARCHIVE_FAILED;
 		default:
 		    break;
 	}
@@ -1009,10 +1009,10 @@ static int archive_read_format_cab_read_data(struct archive_read * a,
 			if(cab->entry_cfdata == NULL) {
 				r = cab_next_cfdata(a);
 				if(r < 0)
-					return (r);
+					return r;
 			}
 			if(cab_consume_cfdata(a, cab->bytes_skipped) < 0)
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			cab->bytes_skipped = 0;
 		}
 		cab->read_data_invoked = 1;
@@ -1022,7 +1022,7 @@ static int archive_read_format_cab_read_data(struct archive_read * a,
 		r = (int)cab_consume_cfdata(a, cab->entry_unconsumed);
 		cab->entry_unconsumed = 0;
 		if(r < 0)
-			return (r);
+			return r;
 	}
 	if(cab->end_of_archive || cab->end_of_entry) {
 		if(!cab->end_of_entry_cleanup) {
@@ -1129,7 +1129,7 @@ static int cab_checksum_finish(struct archive_read * a)
 
 	/* Do not need to compute a sum. */
 	if(cfdata->sum == 0)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	/*
 	 * Calculate the sum of remaining CFDATA.
@@ -1152,9 +1152,9 @@ static int cab_checksum_finish(struct archive_read * a)
 		    cab->entry_cffolder->cfdata_index -1,
 		    cfdata->sum, cfdata->sum_calculated,
 		    cfdata->compressed_size);
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -1167,7 +1167,7 @@ static int cab_next_cfdata(struct archive_read * a)
 
 	/* There are remaining bytes in current CFDATA, use it first. */
 	if(cfdata != NULL && cfdata->uncompressed_bytes_remaining > 0)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	if(cfdata == NULL) {
 		int64_t skip;
@@ -1196,11 +1196,11 @@ static int cab_next_cfdata(struct archive_read * a)
 			    folder_index,
 			    (intmax_t)cab->entry_cffolder->cfdata_offset_in_cab,
 			    (intmax_t)cab->cab_offset);
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		if(skip > 0) {
 			if(__archive_read_consume(a, skip) < 0)
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			cab->cab_offset =
 			    cab->entry_cffolder->cfdata_offset_in_cab;
 		}
@@ -1276,7 +1276,7 @@ static int cab_next_cfdata(struct archive_read * a)
 			if(cfdata->memimage == NULL) {
 				archive_set_error(&a->archive, ENOMEM,
 				    "Can't allocate memory for CAB data");
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			cfdata->memimage_size = l;
 		}
@@ -1299,11 +1299,11 @@ static int cab_next_cfdata(struct archive_read * a)
 		cab->entry_cfdata = cfdata;
 		memzero(cfdata, sizeof(*cfdata));
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 invalid:
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 	    "Invalid CFDATA");
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }
 
 /*
@@ -1317,7 +1317,7 @@ static const void * cab_read_ahead_cfdata(struct archive_read * a, ssize_t * ava
 	err = cab_next_cfdata(a);
 	if(err < ARCHIVE_OK) {
 		*avail = err;
-		return (NULL);
+		return NULL;
 	}
 
 	switch(cab->entry_cffolder->comptype) {
@@ -1332,7 +1332,7 @@ static const void * cab_read_ahead_cfdata(struct archive_read * a, ssize_t * ava
 			"Unsupported CAB compression : %s",
 			cab->entry_cffolder->compname);
 		    *avail = ARCHIVE_FAILED;
-		    return (NULL);
+		    return NULL;
 	}
 }
 
@@ -1356,7 +1356,7 @@ static const void * cab_read_ahead_cfdata_none(struct archive_read * a, ssize_t 
 	d = __archive_read_ahead(a, 1, avail);
 	if(*avail <= 0) {
 		*avail = truncated_error(a);
-		return (NULL);
+		return NULL;
 	}
 	if(*avail > cfdata->uncompressed_bytes_remaining)
 		*avail = cfdata->uncompressed_bytes_remaining;
@@ -1389,7 +1389,7 @@ static const void * cab_read_ahead_cfdata_deflate(struct archive_read * a, ssize
 			archive_set_error(&a->archive, ENOMEM,
 			    "No memory for CAB reader");
 			*avail = ARCHIVE_FATAL;
-			return (NULL);
+			return NULL;
 		}
 	}
 
@@ -1416,7 +1416,7 @@ static const void * cab_read_ahead_cfdata_deflate(struct archive_read * a, ssize
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 			    "Can't initialize deflate decompression.");
 			*avail = ARCHIVE_FATAL;
-			return (NULL);
+			return NULL;
 		}
 		/* Stream structure has been set up. */
 		cab->stream_valid = 1;
@@ -1444,7 +1444,7 @@ static const void * cab_read_ahead_cfdata_deflate(struct archive_read * a, ssize
 		d = __archive_read_ahead(a, 1, &bytes_avail);
 		if(bytes_avail <= 0) {
 			*avail = truncated_error(a);
-			return (NULL);
+			return NULL;
 		}
 		if(bytes_avail > cfdata->compressed_bytes_remaining)
 			bytes_avail = cfdata->compressed_bytes_remaining;
@@ -1477,7 +1477,7 @@ static const void * cab_read_ahead_cfdata_deflate(struct archive_read * a, ssize
 				if(cab_minimum_consume_cfdata(
 					    a, cfdata->unconsumed) < 0) {
 					*avail = ARCHIVE_FATAL;
-					return (NULL);
+					return NULL;
 				}
 				mszip -= (int)bytes_avail;
 				continue;
@@ -1507,7 +1507,7 @@ static const void * cab_read_ahead_cfdata_deflate(struct archive_read * a, ssize
 		cfdata->sum_ptr = d;
 		if(cab_minimum_consume_cfdata(a, cfdata->unconsumed) < 0) {
 			*avail = ARCHIVE_FATAL;
-			return (NULL);
+			return NULL;
 		}
 	}
 	uavail = (uint16_t)cab->stream.total_out;
@@ -1517,7 +1517,7 @@ static const void * cab_read_ahead_cfdata_deflate(struct archive_read * a, ssize
 		    "Invalid uncompressed size (%d < %d)",
 		    uavail, cfdata->uncompressed_size);
 		*avail = ARCHIVE_FATAL;
-		return (NULL);
+		return NULL;
 	}
 
 	/*
@@ -1534,13 +1534,13 @@ static const void * cab_read_ahead_cfdata_deflate(struct archive_read * a, ssize
 			&bytes_avail);
 		if(bytes_avail <= 0) {
 			*avail = truncated_error(a);
-			return (NULL);
+			return NULL;
 		}
 		cfdata->unconsumed = cfdata->compressed_bytes_remaining;
 		cfdata->sum_ptr = d;
 		if(cab_minimum_consume_cfdata(a, cfdata->unconsumed) < 0) {
 			*avail = ARCHIVE_FATAL;
-			return (NULL);
+			return NULL;
 		}
 	}
 
@@ -1579,12 +1579,12 @@ zlibfailed:
 		    break;
 	}
 	*avail = ARCHIVE_FATAL;
-	return (NULL);
+	return NULL;
 nomszip:
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 	    "CFDATA incorrect(no MSZIP signature)");
 	*avail = ARCHIVE_FATAL;
-	return (NULL);
+	return NULL;
 }
 
 #else /* HAVE_ZLIB_H */
@@ -1594,7 +1594,7 @@ static const void * cab_read_ahead_cfdata_deflate(struct archive_read * a, ssize
 	*avail = ARCHIVE_FATAL;
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 	    "libarchive compiled without deflate support (no libz)");
-	return (NULL);
+	return NULL;
 }
 
 #endif /* HAVE_ZLIB_H */
@@ -1617,7 +1617,7 @@ static const void * cab_read_ahead_cfdata_lzx(struct archive_read * a, ssize_t *
 			archive_set_error(&a->archive, ENOMEM,
 			    "No memory for CAB reader");
 			*avail = ARCHIVE_FATAL;
-			return (NULL);
+			return NULL;
 		}
 	}
 
@@ -1635,7 +1635,7 @@ static const void * cab_read_ahead_cfdata_lzx(struct archive_read * a, ssize_t *
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 			    "Can't initialize LZX decompression.");
 			*avail = ARCHIVE_FATAL;
-			return (NULL);
+			return NULL;
 		}
 		/* We've initialized decompression for this stream. */
 		cab->entry_cffolder->decompress_init = 1;
@@ -1658,7 +1658,7 @@ static const void * cab_read_ahead_cfdata_lzx(struct archive_read * a, ssize_t *
 			    ARCHIVE_ERRNO_FILE_FORMAT,
 			    "Truncated CAB file data");
 			*avail = ARCHIVE_FATAL;
-			return (NULL);
+			return NULL;
 		}
 		if(bytes_avail > cfdata->compressed_bytes_remaining)
 			bytes_avail = cfdata->compressed_bytes_remaining;
@@ -1676,13 +1676,13 @@ static const void * cab_read_ahead_cfdata_lzx(struct archive_read * a, ssize_t *
 			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 				"LZX decompression failed (%d)", r);
 			    *avail = ARCHIVE_FATAL;
-			    return (NULL);
+			    return NULL;
 		}
 		cfdata->unconsumed = cab->xstrm.total_in;
 		cfdata->sum_ptr = d;
 		if(cab_minimum_consume_cfdata(a, cfdata->unconsumed) < 0) {
 			*avail = ARCHIVE_FATAL;
-			return (NULL);
+			return NULL;
 		}
 	}
 
@@ -1697,13 +1697,13 @@ static const void * cab_read_ahead_cfdata_lzx(struct archive_read * a, ssize_t *
 			&bytes_avail);
 		if(bytes_avail <= 0) {
 			*avail = truncated_error(a);
-			return (NULL);
+			return NULL;
 		}
 		cfdata->unconsumed = cfdata->compressed_bytes_remaining;
 		cfdata->sum_ptr = d;
 		if(cab_minimum_consume_cfdata(a, cfdata->unconsumed) < 0) {
 			*avail = ARCHIVE_FATAL;
-			return (NULL);
+			return NULL;
 		}
 	}
 
@@ -1739,7 +1739,7 @@ static int64_t cab_consume_cfdata(struct archive_read * a, int64_t consumed_byte
 
 	rbytes = cab_minimum_consume_cfdata(a, consumed_bytes);
 	if(rbytes < 0)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 
 	cfdata = cab->entry_cfdata;
 	while(rbytes > 0) {
@@ -1749,7 +1749,7 @@ static int64_t cab_consume_cfdata(struct archive_read * a, int64_t consumed_byte
 			archive_set_error(&a->archive,
 			    ARCHIVE_ERRNO_FILE_FORMAT,
 			    "Invalid CFDATA");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		cbytes = cfdata->uncompressed_bytes_remaining;
 		if(cbytes > rbytes)
@@ -1798,7 +1798,7 @@ static int64_t cab_consume_cfdata(struct archive_read * a, int64_t consumed_byte
 					case iFoldCONTINUED_PREV_AND_NEXT:
 					case iFoldCONTINUED_TO_NEXT:
 					case iFoldCONTINUED_FROM_PREV:
-					    return (ARCHIVE_FATAL);
+					    return ARCHIVE_FATAL;
 					default:
 					    break;
 				}
@@ -1808,11 +1808,11 @@ static int64_t cab_consume_cfdata(struct archive_read * a, int64_t consumed_byte
 		while(cbytes > 0) {
 			(void)cab_read_ahead_cfdata(a, &avail);
 			if(avail <= 0)
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			if(avail > cbytes)
 				avail = (ssize_t)cbytes;
 			if(cab_minimum_consume_cfdata(a, avail) < 0)
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			cbytes -= avail;
 		}
 	}
@@ -1891,7 +1891,7 @@ static int cab_read_data(struct archive_read * a, const void ** buff,
 		*size = 0;
 		*offset = cab->entry_offset;
 		cab->end_of_entry = 1;
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 
 	*buff = cab_read_ahead_cfdata(a, &bytes_avail);
@@ -1904,7 +1904,7 @@ static int cab_read_data(struct archive_read * a, const void ** buff,
 			/* All of CFDATA in a folder has been handled. */
 			archive_set_error(&a->archive,
 			    ARCHIVE_ERRNO_FILE_FORMAT, "Invalid CFDATA");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		else
 			return ((int)bytes_avail);
@@ -1924,7 +1924,7 @@ static int cab_read_data(struct archive_read * a, const void ** buff,
 		if(cab->entry_cfdata->unconsumed > cab->entry_unconsumed)
 			cab->entry_cfdata->unconsumed = cab->entry_unconsumed;
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_read_format_cab_read_data_skip(struct archive_read * a)
@@ -1943,7 +1943,7 @@ static int archive_read_format_cab_read_data_skip(struct archive_read * a)
 		cab->entry_bytes_remaining = 0;
 		/* This entry is finished and done. */
 		cab->end_of_entry_cleanup = cab->end_of_entry = 1;
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 
 	if(cab->entry_unconsumed) {
@@ -1951,17 +1951,17 @@ static int archive_read_format_cab_read_data_skip(struct archive_read * a)
 		r = (int)cab_consume_cfdata(a, cab->entry_unconsumed);
 		cab->entry_unconsumed = 0;
 		if(r < 0)
-			return (r);
+			return r;
 	}
 	else if(cab->entry_cfdata == NULL) {
 		r = cab_next_cfdata(a);
 		if(r < 0)
-			return (r);
+			return r;
 	}
 
 	/* if we've already read to end of data, we're done. */
 	if(cab->end_of_entry_cleanup)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	/*
 	 * If the length is at the beginning, we can skip the
@@ -1969,7 +1969,7 @@ static int archive_read_format_cab_read_data_skip(struct archive_read * a)
 	 */
 	bytes_skipped = cab_consume_cfdata(a, cab->entry_bytes_remaining);
 	if(bytes_skipped < 0)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 
 	/* If the compression type is none(uncompressed), we've already
 	 * consumed data as much as the current entry size. */
@@ -1979,7 +1979,7 @@ static int archive_read_format_cab_read_data_skip(struct archive_read * a)
 
 	/* This entry is finished and done. */
 	cab->end_of_entry_cleanup = cab->end_of_entry = 1;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_read_format_cab_cleanup(struct archive_read * a)
@@ -2007,7 +2007,7 @@ static int archive_read_format_cab_cleanup(struct archive_read * a)
 	SAlloc::F(cab->uncompressed_buffer);
 	SAlloc::F(cab);
 	(a->format->data) = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /* Convert an MSDOS-style date/time into Unix-style time. */
@@ -2051,14 +2051,14 @@ static int lzx_decode_init(struct lzx_stream * strm, int w_bits)
 	if(strm->ds == NULL) {
 		strm->ds = (lzx_dec *)SAlloc::C(1, sizeof(*strm->ds));
 		if(strm->ds == NULL)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 	}
 	ds = strm->ds;
 	ds->error = ARCHIVE_FAILED;
 
 	/* Allow bits from 15(32KBi) up to 21(2MBi) */
 	if(w_bits < SLOT_BASE || w_bits > SLOT_MAX)
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 
 	ds->error = ARCHIVE_FATAL;
 
@@ -2073,11 +2073,11 @@ static int lzx_decode_init(struct lzx_stream * strm, int w_bits)
 		SAlloc::F(ds->w_buff);
 		ds->w_buff = (uchar *)SAlloc::M(ds->w_size);
 		if(ds->w_buff == NULL)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		SAlloc::F(ds->pos_tbl);
 		ds->pos_tbl = (lzx_dec::lzx_pos_tbl *)SAlloc::M(sizeof(ds->pos_tbl[0]) * w_slot);
 		if(ds->pos_tbl == NULL)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		lzx_huffman_free(&(ds->mt));
 	}
 
@@ -2109,24 +2109,24 @@ static int lzx_decode_init(struct lzx_stream * strm, int w_bits)
 
 	/* Initialize aligned offset tree. */
 	if(lzx_huffman_init(&(ds->at), 8, 8) != ARCHIVE_OK)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 
 	/* Initialize pre-tree. */
 	if(lzx_huffman_init(&(ds->pt), 20, 10) != ARCHIVE_OK)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 
 	/* Initialize Main tree. */
 	if(lzx_huffman_init(&(ds->mt), 256+(w_slot<<3), 16)
 	    != ARCHIVE_OK)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 
 	/* Initialize Length tree. */
 	if(lzx_huffman_init(&(ds->lt), 249, 16) != ARCHIVE_OK)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 
 	ds->error = 0;
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -2282,7 +2282,7 @@ static int lzx_br_fillup(struct lzx_stream * strm, struct lzx_dec::lzx_br * br)
 				strm->avail_in--;
 				br->have_odd = 1;
 			}
-			return (0);
+			return 0;
 		}
 		br->cache_buffer =
 		    (br->cache_buffer << 16) |
@@ -2368,7 +2368,7 @@ static int lzx_decode(struct lzx_stream * strm, int last)
 		}
 	} while(r == 100);
 	strm->total_in += avail_in - strm->avail_in;
-	return (r);
+	return r;
 }
 
 static int lzx_read_blocks(struct lzx_stream * strm, int last)
@@ -2383,7 +2383,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 				    ds->state = ST_RD_TRANSLATION;
 				    if(last)
 					    goto failed;
-				    return (ARCHIVE_OK);
+				    return ARCHIVE_OK;
 			    }
 			    ds->translation = lzx_br_bits(br, 1);
 			    lzx_br_consume(br, 1);
@@ -2394,7 +2394,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 					    ds->state = ST_RD_TRANSLATION_SIZE;
 					    if(last)
 						    goto failed;
-					    return (ARCHIVE_OK);
+					    return ARCHIVE_OK;
 				    }
 				    ds->translation_size = lzx_br_bits(br, 16);
 				    lzx_br_consume(br, 16);
@@ -2408,7 +2408,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 				    ds->state = ST_RD_BLOCK_TYPE;
 				    if(last)
 					    goto failed;
-				    return (ARCHIVE_OK);
+				    return ARCHIVE_OK;
 			    }
 			    ds->block_type = lzx_br_bits(br, 3);
 			    lzx_br_consume(br, 3);
@@ -2427,7 +2427,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 				    ds->state = ST_RD_BLOCK_SIZE;
 				    if(last)
 					    goto failed;
-				    return (ARCHIVE_OK);
+				    return ARCHIVE_OK;
 			    }
 			    ds->block_size = lzx_br_bits(br, 8);
 			    lzx_br_consume(br, 8);
@@ -2460,7 +2460,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 					    ds->state = ST_RD_ALIGNMENT;
 					    if(last)
 						    goto failed;
-					    return (ARCHIVE_OK);
+					    return ARCHIVE_OK;
 				    }
 			    }
 			    /* Preparation to read repeated offsets R0,R1 and R2. */
@@ -2498,7 +2498,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 					    if(strm->avail_in <= 0) {
 						    if(last)
 							    goto failed;
-						    return (ARCHIVE_OK);
+						    return ARCHIVE_OK;
 					    }
 					    ds->rbytes[ds->rbytes_avail++] =
 						*strm->next_in++;
@@ -2535,12 +2535,12 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 
 				    if(strm->avail_out <= 0)
 					    /* Output buffer is empty. */
-					    return (ARCHIVE_OK);
+					    return ARCHIVE_OK;
 				    if(strm->avail_in <= 0) {
 					    /* Input buffer is empty. */
 					    if(last)
 						    goto failed;
-					    return (ARCHIVE_OK);
+					    return ARCHIVE_OK;
 				    }
 				    l = (int)ds->block_bytes_avail;
 				    if(l > ds->w_size - ds->w_pos)
@@ -2569,7 +2569,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 					    ds->state = ST_COPY_UNCOMP2;
 					    if(last)
 						    goto failed;
-					    return (ARCHIVE_OK);
+					    return ARCHIVE_OK;
 				    }
 				    strm->next_in++;
 				    strm->avail_in--;
@@ -2586,7 +2586,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 				    ds->state = ST_RD_ALIGNED_OFFSET;
 				    if(last)
 					    goto failed;
-				    return (ARCHIVE_OK);
+				    return ARCHIVE_OK;
 			    }
 			    memzero(ds->at.freq, sizeof(ds->at.freq));
 			    for(i = 0; i < ds->at.len_size; i++) {
@@ -2608,7 +2608,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 				    ds->state = ST_RD_PRE_MAIN_TREE_256;
 				    if(last)
 					    goto failed;
-				    return (ARCHIVE_OK);
+				    return ARCHIVE_OK;
 			    }
 			    if(!lzx_make_huffman_table(&ds->pt))
 				    goto failed;
@@ -2625,7 +2625,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 				    ds->state = ST_MAIN_TREE_256;
 				    if(last)
 					    goto failed;
-				    return (ARCHIVE_OK);
+				    return ARCHIVE_OK;
 			    }
 			    ds->loop = 0;
 			/* FALL THROUGH */
@@ -2637,7 +2637,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 				    ds->state = ST_RD_PRE_MAIN_TREE_REM;
 				    if(last)
 					    goto failed;
-				    return (ARCHIVE_OK);
+				    return ARCHIVE_OK;
 			    }
 			    if(!lzx_make_huffman_table(&ds->pt))
 				    goto failed;
@@ -2654,7 +2654,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 				    ds->state = ST_MAIN_TREE_REM;
 				    if(last)
 					    goto failed;
-				    return (ARCHIVE_OK);
+				    return ARCHIVE_OK;
 			    }
 			    if(!lzx_make_huffman_table(&ds->mt))
 				    goto failed;
@@ -2668,7 +2668,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 				    ds->state = ST_RD_PRE_LENGTH_TREE;
 				    if(last)
 					    goto failed;
-				    return (ARCHIVE_OK);
+				    return ARCHIVE_OK;
 			    }
 			    if(!lzx_make_huffman_table(&ds->pt))
 				    goto failed;
@@ -2685,7 +2685,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 				    ds->state = ST_LENGTH_TREE;
 				    if(last)
 					    goto failed;
-				    return (ARCHIVE_OK);
+				    return ARCHIVE_OK;
 			    }
 			    if(!lzx_make_huffman_table(&ds->lt))
 				    goto failed;
@@ -2972,7 +2972,7 @@ next_data:
 	ds->state = state;
 	ds->w_pos = w_pos;
 	strm->avail_out = endp - noutp;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int lzx_read_pre_tree(struct lzx_stream * strm)
@@ -2985,7 +2985,7 @@ static int lzx_read_pre_tree(struct lzx_stream * strm)
 	for(i = ds->loop; i < ds->pt.len_size; i++) {
 		if(!lzx_br_read_ahead(strm, br, 4)) {
 			ds->loop = i;
-			return (0);
+			return 0;
 		}
 		ds->pt.bitlen[i] = lzx_br_bits(br, 4);
 		ds->pt.freq[ds->pt.bitlen[i]]++;
@@ -3024,7 +3024,7 @@ static int lzx_read_bitlen(struct lzx_stream * strm, struct lzx_dec::huffman * d
 			    lzx_br_consume(br, ds->pt.bitlen[c]);
 			    same = lzx_br_bits(br, 4) + 4;
 			    if(i + same > end)
-				    return (-1); /* Invalid */
+				    return -1; /* Invalid */
 			    lzx_br_consume(br, 4);
 			    for(j = 0; j < same; j++)
 				    d->bitlen[i++] = 0;
@@ -3035,7 +3035,7 @@ static int lzx_read_bitlen(struct lzx_stream * strm, struct lzx_dec::huffman * d
 			    lzx_br_consume(br, ds->pt.bitlen[c]);
 			    same = lzx_br_bits(br, 5) + 20;
 			    if(i + same > end)
-				    return (-1); /* Invalid */
+				    return -1; /* Invalid */
 			    lzx_br_consume(br, 5);
 			    memzero(d->bitlen + i, same);
 			    i += same;
@@ -3047,14 +3047,14 @@ static int lzx_read_bitlen(struct lzx_stream * strm, struct lzx_dec::huffman * d
 			    lzx_br_consume(br, ds->pt.bitlen[c]);
 			    same = lzx_br_bits(br, 1) + 4;
 			    if(i + same > end)
-				    return (-1);
+				    return -1;
 			    lzx_br_consume(br, 1);
 			    rbits = lzx_br_bits(br, ds->pt.max_bits);
 			    c = lzx_decode_huffman(&(ds->pt), rbits);
 			    lzx_br_consume(br, ds->pt.bitlen[c]);
 			    c = (d->bitlen[i] - c + 17) % 17;
 			    if(c < 0)
-				    return (-1); /* Invalid */
+				    return -1; /* Invalid */
 			    for(j = 0; j < same; j++)
 				    d->bitlen[i++] = c;
 			    d->freq[c] += same;
@@ -3063,7 +3063,7 @@ static int lzx_read_bitlen(struct lzx_stream * strm, struct lzx_dec::huffman * d
 			    lzx_br_consume(br, ds->pt.bitlen[c]);
 			    c = (d->bitlen[i] - c + 17) % 17;
 			    if(c < 0)
-				    return (-1); /* Invalid */
+				    return -1; /* Invalid */
 			    d->freq[c]++;
 			    d->bitlen[i++] = c;
 			    break;
@@ -3072,7 +3072,7 @@ static int lzx_read_bitlen(struct lzx_stream * strm, struct lzx_dec::huffman * d
 	ret = 1;
 getdata:
 	ds->loop = i;
-	return (ret);
+	return ret;
 }
 
 static int lzx_huffman_init(struct lzx_dec::huffman * hf, size_t len_size, int tbl_bits)
@@ -3081,7 +3081,7 @@ static int lzx_huffman_init(struct lzx_dec::huffman * hf, size_t len_size, int t
 		SAlloc::F(hf->bitlen);
 		hf->bitlen = (uchar *)SAlloc::C(len_size,  sizeof(hf->bitlen[0]));
 		if(hf->bitlen == NULL)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		hf->len_size = (int)len_size;
 	}
 	else
@@ -3089,10 +3089,10 @@ static int lzx_huffman_init(struct lzx_dec::huffman * hf, size_t len_size, int t
 	if(hf->tbl == NULL) {
 		hf->tbl = (uint16_t *)SAlloc::M(((size_t)1 << tbl_bits) * sizeof(hf->tbl[0]));
 		if(hf->tbl == NULL)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		hf->tbl_bits = tbl_bits;
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static void lzx_huffman_free(struct lzx_dec::huffman * hf)
@@ -3125,7 +3125,7 @@ static int lzx_make_huffman_table(struct lzx_dec::huffman * hf)
 		}
 	}
 	if((ptn & 0xffff) != 0 || maxbits > hf->tbl_bits)
-		return (0); /* Invalid */
+		return 0; /* Invalid */
 
 	hf->max_bits = maxbits;
 
@@ -3159,12 +3159,12 @@ static int lzx_make_huffman_table(struct lzx_dec::huffman * hf)
 		/* Get a bit pattern */
 		len = bitlen[i];
 		if(len > tbl_size)
-			return (0);
+			return 0;
 		ptn = bitptn[len];
 		cnt = weight[len];
 		/* Calculate next bit pattern */
 		if((bitptn[len] = ptn + cnt) > tbl_size)
-			return (0); /* Invalid */
+			return 0; /* Invalid */
 		/* Update the table */
 		p = &(tbl[ptn]);
 		while(--cnt >= 0)
@@ -3179,5 +3179,5 @@ static inline int lzx_decode_huffman(struct lzx_dec::huffman * hf, unsigned rbit
 	c = hf->tbl[rbits];
 	if(c < hf->len_size)
 		return (c);
-	return (0);
+	return 0;
 }

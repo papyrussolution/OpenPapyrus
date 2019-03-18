@@ -26,23 +26,16 @@ static inline int __ham_insdel_log(DB *dbp, DB_TXN *txnp, DB_LSN *ret_lsnp, uint
     uint32 opcode, db_pgno_t pgno, uint32 ndx, DB_LSN * pagelsn,
     uint32 keytype, const DBT *key, uint32 datatype, const DBT *data)
 {
-	return (__log_put_record((dbp)->env, dbp, txnp, ret_lsnp,
-	    flags, DB___ham_insdel, 0,
-	    sizeof(uint32) + sizeof(uint32) + sizeof(DB_LSN) +
-	    sizeof(uint32) + sizeof(uint32) + sizeof(uint32) +
-	    sizeof(uint32) + sizeof(*pagelsn) + sizeof(uint32) +
-	    LOG_DBT_SIZE(key) + sizeof(uint32) + LOG_DBT_SIZE(data),
-	    __ham_insdel_desc,
-	    opcode, pgno, ndx, pagelsn, keytype, key, datatype,
-	    data));
+	return (__log_put_record((dbp)->env, dbp, txnp, ret_lsnp, flags, DB___ham_insdel, 0,
+	    sizeof(uint32) + sizeof(uint32) + sizeof(DB_LSN) + sizeof(uint32) + sizeof(uint32) + sizeof(uint32) +
+	    sizeof(uint32) + sizeof(*pagelsn) + sizeof(uint32) + LOG_DBT_SIZE(key) + sizeof(uint32) + LOG_DBT_SIZE(data),
+	    __ham_insdel_desc, opcode, pgno, ndx, pagelsn, keytype, key, datatype, data));
 }
 
-static inline int __ham_insdel_read(ENV *env, 
-    DB **dbpp, void *td, void *data, __ham_insdel_args **arg)
+static inline int __ham_insdel_read(ENV *env, DB **dbpp, void *td, void *data, __ham_insdel_args **arg)
 {
 	*arg = NULL;
-	return (__log_read_record(env, 
-	    dbpp, td, data, __ham_insdel_desc, sizeof(__ham_insdel_args), reinterpret_cast<void **>(arg)));
+	return (__log_read_record(env, dbpp, td, data, __ham_insdel_desc, sizeof(__ham_insdel_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___ham_insdel_42	21
 typedef struct ___ham_insdel_42_args {
@@ -85,22 +78,16 @@ __ham_newpage_log(DB *dbp, DB_TXN *txnp, DB_LSN *ret_lsnp, uint32 flags,
     uint32 opcode, db_pgno_t prev_pgno, DB_LSN * prevlsn, db_pgno_t new_pgno,
     DB_LSN * pagelsn, db_pgno_t next_pgno, DB_LSN * nextlsn)
 {
-	return (__log_put_record((dbp)->env, dbp, txnp, ret_lsnp,
-	    flags, DB___ham_newpage, 0,
-	    sizeof(uint32) + sizeof(uint32) + sizeof(DB_LSN) +
-	    sizeof(uint32) + sizeof(uint32) + sizeof(uint32) +
-	    sizeof(*prevlsn) + sizeof(uint32) + sizeof(*pagelsn) +
-	    sizeof(uint32) + sizeof(*nextlsn),
-	    __ham_newpage_desc,
-	    opcode, prev_pgno, prevlsn, new_pgno, pagelsn, next_pgno, nextlsn));
+	return (__log_put_record((dbp)->env, dbp, txnp, ret_lsnp, flags, DB___ham_newpage, 0,
+	    sizeof(uint32) + sizeof(uint32) + sizeof(DB_LSN) + sizeof(uint32) + sizeof(uint32) + sizeof(uint32) +
+	    sizeof(*prevlsn) + sizeof(uint32) + sizeof(*pagelsn) + sizeof(uint32) + sizeof(*nextlsn),
+	    __ham_newpage_desc, opcode, prev_pgno, prevlsn, new_pgno, pagelsn, next_pgno, nextlsn));
 }
 
-static inline int __ham_newpage_read(ENV *env, 
-    DB **dbpp, void *td, void *data, __ham_newpage_args **arg)
+static inline int __ham_newpage_read(ENV *env, DB **dbpp, void *td, void *data, __ham_newpage_args **arg)
 {
 	*arg = NULL;
-	return (__log_read_record(env, 
-	    dbpp, td, data, __ham_newpage_desc, sizeof(__ham_newpage_args), reinterpret_cast<void **>(arg)));
+	return (__log_read_record(env, dbpp, td, data, __ham_newpage_desc, sizeof(__ham_newpage_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___ham_splitdata	24
 typedef struct ___ham_splitdata_args {
@@ -118,20 +105,15 @@ extern __DB_IMPORT DB_LOG_RECSPEC __ham_splitdata_desc[];
 static inline int
 __ham_splitdata_log(DB *dbp, DB_TXN *txnp, DB_LSN *ret_lsnp, uint32 flags, uint32 opcode, db_pgno_t pgno, const DBT *pageimage, DB_LSN * pagelsn)
 {
-	return (__log_put_record((dbp)->env, dbp, txnp, ret_lsnp,
-	    flags, DB___ham_splitdata, 0,
-	    sizeof(uint32) + sizeof(uint32) + sizeof(DB_LSN) +
-	    sizeof(uint32) + sizeof(uint32) + sizeof(uint32) +
-	    LOG_DBT_SIZE(pageimage) + sizeof(*pagelsn),
-	    __ham_splitdata_desc, opcode, pgno, pageimage, pagelsn));
+	return (__log_put_record((dbp)->env, dbp, txnp, ret_lsnp, flags, DB___ham_splitdata, 0,
+	    sizeof(uint32) + sizeof(uint32) + sizeof(DB_LSN) + sizeof(uint32) + sizeof(uint32) + sizeof(uint32) +
+	    LOG_DBT_SIZE(pageimage) + sizeof(*pagelsn), __ham_splitdata_desc, opcode, pgno, pageimage, pagelsn));
 }
 
-static inline int __ham_splitdata_read(ENV *env, 
-    DB **dbpp, void *td, void *data, __ham_splitdata_args **arg)
+static inline int __ham_splitdata_read(ENV *env, DB **dbpp, void *td, void *data, __ham_splitdata_args **arg)
 {
 	*arg = NULL;
-	return (__log_read_record(env, 
-	    dbpp, td, data, __ham_splitdata_desc, sizeof(__ham_splitdata_args), reinterpret_cast<void **>(arg)));
+	return (__log_read_record(env, dbpp, td, data, __ham_splitdata_desc, sizeof(__ham_splitdata_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___ham_replace	25
 typedef struct ___ham_replace_args {
@@ -150,26 +132,19 @@ typedef struct ___ham_replace_args {
 } __ham_replace_args;
 
 extern __DB_IMPORT DB_LOG_RECSPEC __ham_replace_desc[];
-static inline int
-__ham_replace_log(DB *dbp, DB_TXN *txnp, DB_LSN *ret_lsnp, uint32 flags, db_pgno_t pgno, uint32 ndx, DB_LSN * pagelsn, int32 off,
+static inline int __ham_replace_log(DB *dbp, DB_TXN *txnp, DB_LSN *ret_lsnp, uint32 flags, db_pgno_t pgno, uint32 ndx, DB_LSN * pagelsn, int32 off,
     uint32 oldtype, const DBT *olditem, uint32 newtype, const DBT *newitem)
 {
-	return (__log_put_record((dbp)->env, dbp, txnp, ret_lsnp,
-	    flags, DB___ham_replace, 0,
-	    sizeof(uint32) + sizeof(uint32) + sizeof(DB_LSN) +
-	    sizeof(uint32) + sizeof(uint32) + sizeof(uint32) +
-	    sizeof(*pagelsn) + sizeof(uint32) + sizeof(uint32) +
-	    LOG_DBT_SIZE(olditem) + sizeof(uint32) + LOG_DBT_SIZE(newitem),
-	    __ham_replace_desc, pgno, ndx, pagelsn, off, oldtype, olditem, newtype,
-	    newitem));
+	return (__log_put_record((dbp)->env, dbp, txnp, ret_lsnp, flags, DB___ham_replace, 0,
+	    sizeof(uint32) + sizeof(uint32) + sizeof(DB_LSN) + sizeof(uint32) + sizeof(uint32) + sizeof(uint32) +
+	    sizeof(*pagelsn) + sizeof(uint32) + sizeof(uint32) + LOG_DBT_SIZE(olditem) + sizeof(uint32) + LOG_DBT_SIZE(newitem),
+	    __ham_replace_desc, pgno, ndx, pagelsn, off, oldtype, olditem, newtype, newitem));
 }
 
-static inline int __ham_replace_read(ENV *env, 
-    DB **dbpp, void *td, void *data, __ham_replace_args **arg)
+static inline int __ham_replace_read(ENV *env, DB **dbpp, void *td, void *data, __ham_replace_args **arg)
 {
 	*arg = NULL;
-	return (__log_read_record(env, 
-	    dbpp, td, data, __ham_replace_desc, sizeof(__ham_replace_args), reinterpret_cast<void **>(arg)));
+	return (__log_read_record(env, dbpp, td, data, __ham_replace_desc, sizeof(__ham_replace_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___ham_replace_42	25
 typedef struct ___ham_replace_42_args {
@@ -187,12 +162,10 @@ typedef struct ___ham_replace_42_args {
 } __ham_replace_42_args;
 
 extern __DB_IMPORT DB_LOG_RECSPEC __ham_replace_42_desc[];
-static inline int __ham_replace_42_read(ENV *env, 
-    DB **dbpp, void *td, void *data, __ham_replace_42_args **arg)
+static inline int __ham_replace_42_read(ENV *env, DB **dbpp, void *td, void *data, __ham_replace_42_args **arg)
 {
 	*arg = NULL;
-	return (__log_read_record(env, 
-	    dbpp, td, data, __ham_replace_42_desc, sizeof(__ham_replace_42_args), reinterpret_cast<void **>(arg)));
+	return (__log_read_record(env, dbpp, td, data, __ham_replace_42_desc, sizeof(__ham_replace_42_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___ham_copypage	28
 typedef struct ___ham_copypage_args {
@@ -214,21 +187,16 @@ static inline int
 __ham_copypage_log(DB *dbp, DB_TXN *txnp, DB_LSN *ret_lsnp, uint32 flags, db_pgno_t pgno, DB_LSN * pagelsn, db_pgno_t next_pgno, DB_LSN * nextlsn,
     db_pgno_t nnext_pgno, DB_LSN * nnextlsn, const DBT *page)
 {
-	return (__log_put_record((dbp)->env, dbp, txnp, ret_lsnp,
-	    flags, DB___ham_copypage, 0,
-	    sizeof(uint32) + sizeof(uint32) + sizeof(DB_LSN) +
-	    sizeof(uint32) + sizeof(uint32) + sizeof(*pagelsn) +
-	    sizeof(uint32) + sizeof(*nextlsn) + sizeof(uint32) +
-	    sizeof(*nnextlsn) + LOG_DBT_SIZE(page),
+	return (__log_put_record((dbp)->env, dbp, txnp, ret_lsnp, flags, DB___ham_copypage, 0,
+	    sizeof(uint32) + sizeof(uint32) + sizeof(DB_LSN) + sizeof(uint32) + sizeof(uint32) + sizeof(*pagelsn) +
+	    sizeof(uint32) + sizeof(*nextlsn) + sizeof(uint32) + sizeof(*nnextlsn) + LOG_DBT_SIZE(page),
 	    __ham_copypage_desc, pgno, pagelsn, next_pgno, nextlsn, nnext_pgno, nnextlsn, page));
 }
 
-static inline int __ham_copypage_read(ENV *env, 
-    DB **dbpp, void *td, void *data, __ham_copypage_args **arg)
+static inline int __ham_copypage_read(ENV *env, DB **dbpp, void *td, void *data, __ham_copypage_args **arg)
 {
 	*arg = NULL;
-	return (__log_read_record(env, 
-	    dbpp, td, data, __ham_copypage_desc, sizeof(__ham_copypage_args), reinterpret_cast<void **>(arg)));
+	return (__log_read_record(env, dbpp, td, data, __ham_copypage_desc, sizeof(__ham_copypage_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___ham_metagroup_42	29
 typedef struct ___ham_metagroup_42_args {
@@ -247,12 +215,10 @@ typedef struct ___ham_metagroup_42_args {
 } __ham_metagroup_42_args;
 
 extern __DB_IMPORT DB_LOG_RECSPEC __ham_metagroup_42_desc[];
-static inline int __ham_metagroup_42_read(ENV *env, 
-    DB **dbpp, void *td, void *data, __ham_metagroup_42_args **arg)
+static inline int __ham_metagroup_42_read(ENV *env, DB **dbpp, void *td, void *data, __ham_metagroup_42_args **arg)
 {
 	*arg = NULL;
-	return (__log_read_record(env, 
-	    dbpp, td, data, __ham_metagroup_42_desc, sizeof(__ham_metagroup_42_args), reinterpret_cast<void **>(arg)));
+	return (__log_read_record(env, dbpp, td, data, __ham_metagroup_42_desc, sizeof(__ham_metagroup_42_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___ham_metagroup	29
 typedef struct ___ham_metagroup_args {
@@ -291,8 +257,7 @@ static inline int __ham_metagroup_read(ENV *env,
     DB **dbpp, void *td, void *data, __ham_metagroup_args **arg)
 {
 	*arg = NULL;
-	return (__log_read_record(env, 
-	    dbpp, td, data, __ham_metagroup_desc, sizeof(__ham_metagroup_args), reinterpret_cast<void **>(arg)));
+	return (__log_read_record(env, dbpp, td, data, __ham_metagroup_desc, sizeof(__ham_metagroup_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___ham_groupalloc_42	32
 typedef struct ___ham_groupalloc_42_args {
@@ -311,8 +276,7 @@ extern __DB_IMPORT DB_LOG_RECSPEC __ham_groupalloc_42_desc[];
 static inline int __ham_groupalloc_42_read(ENV *env, DB **dbpp, void *td, void *data, __ham_groupalloc_42_args **arg)
 {
 	*arg = NULL;
-	return (__log_read_record(env, 
-	    dbpp, td, data, __ham_groupalloc_42_desc, sizeof(__ham_groupalloc_42_args), reinterpret_cast<void **>(arg)));
+	return (__log_read_record(env, dbpp, td, data, __ham_groupalloc_42_desc, sizeof(__ham_groupalloc_42_args), reinterpret_cast<void **>(arg)));
 }
 
 #define	DB___ham_groupalloc	32

@@ -241,10 +241,10 @@ static const char * ngx_http_auth_request(ngx_conf_t * cf, const ngx_command_t *
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 		if(sstreq(value[1].data, "off")) {
 			arcf->uri.len = 0;
-			arcf->uri.data = (u_char*)"";
+			arcf->uri.data = (u_char *)"";
 			return NGX_CONF_OK;
 		}
 		arcf->uri = value[1];
@@ -259,7 +259,7 @@ static const char * ngx_http_auth_request_set(ngx_conf_t * cf, const ngx_command
 	ngx_http_variable_t * v;
 	ngx_http_auth_request_variable_t  * av;
 	ngx_http_compile_complex_value_t ccv;
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(value[1].data[0] != '$') {
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid variable name \"%V\"", &value[1]);
 		return NGX_CONF_ERROR;

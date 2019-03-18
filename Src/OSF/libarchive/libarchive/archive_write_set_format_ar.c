@@ -96,7 +96,7 @@ archive_write_set_format_ar_bsd(struct archive *_a)
 		a->archive.archive_format = ARCHIVE_FORMAT_AR_BSD;
 		a->archive.archive_format_name = "ar (BSD)";
 	}
-	return (r);
+	return r;
 }
 
 int
@@ -112,7 +112,7 @@ archive_write_set_format_ar_svr4(struct archive *_a)
 		a->archive.archive_format = ARCHIVE_FORMAT_AR_GNU;
 		a->archive.archive_format_name = "ar (GNU/SVR4)";
 	}
-	return (r);
+	return r;
 }
 
 /*
@@ -130,7 +130,7 @@ archive_write_set_format_ar(struct archive_write *a)
 	ar = (struct ar_w *)SAlloc::C(1, sizeof(*ar));
 	if (ar == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate ar data");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	a->format_data = ar;
 
@@ -140,7 +140,7 @@ archive_write_set_format_ar(struct archive_write *a)
 	a->format_close = archive_write_ar_close;
 	a->format_free = archive_write_ar_free;
 	a->format_finish_entry = archive_write_ar_finish_entry;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int
@@ -251,7 +251,7 @@ archive_write_ar_header(struct archive_write *a, struct archive_entry *entry)
 			if (se == NULL) {
 				archive_set_error(&a->archive, ENOMEM,
 				    "Can't allocate filename buffer");
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 
 			memcpy(se, filename, strlen(filename));
@@ -348,7 +348,7 @@ size:
 
 	ret = __archive_write_output(a, buff, 60);
 	if (ret != ARCHIVE_OK)
-		return (ret);
+		return ret;
 
 	ar->entry_bytes_remaining = size;
 	ar->entry_padding = ar->entry_bytes_remaining % 2;
@@ -356,11 +356,11 @@ size:
 	if (append_fn > 0) {
 		ret = __archive_write_output(a, filename, strlen(filename));
 		if (ret != ARCHIVE_OK)
-			return (ret);
+			return ret;
 		ar->entry_bytes_remaining -= strlen(filename);
 	}
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static ssize_t
@@ -384,7 +384,7 @@ archive_write_ar_data(struct archive_write *a, const void *buff, size_t s)
 		if (ar->strtab == NULL) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't allocate strtab buffer");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		memcpy(ar->strtab, buff, s);
 		ar->strtab[s] = '\0';
@@ -393,7 +393,7 @@ archive_write_ar_data(struct archive_write *a, const void *buff, size_t s)
 
 	ret = __archive_write_output(a, buff, s);
 	if (ret != ARCHIVE_OK)
-		return (ret);
+		return ret;
 
 	ar->entry_bytes_remaining -= s;
 	return (s);
@@ -407,7 +407,7 @@ archive_write_ar_free(struct archive_write *a)
 	ar = (struct ar_w *)a->format_data;
 
 	if (ar == NULL)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	if (ar->has_strtab > 0) {
 		SAlloc::F(ar->strtab);
@@ -416,7 +416,7 @@ archive_write_ar_free(struct archive_write *a)
 
 	SAlloc::F(ar);
 	a->format_data = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int
@@ -433,10 +433,10 @@ archive_write_ar_close(struct archive_write *a)
 	if (!ar->wrote_global_header) {
 		ar->wrote_global_header = 1;
 		ret = __archive_write_output(a, "!<arch>\n", 8);
-		return (ret);
+		return ret;
 	}
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int
@@ -454,7 +454,7 @@ archive_write_ar_finish_entry(struct archive_write *a)
 	}
 
 	if (ar->entry_padding == 0) {
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 
 	if (ar->entry_padding != 1) {
@@ -465,7 +465,7 @@ archive_write_ar_finish_entry(struct archive_write *a)
 	}
 
 	ret = __archive_write_output(a, "\n", 1);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -486,7 +486,7 @@ format_octal(int64_t v, char *p, int s)
 	if (v < 0) {
 		while (len-- > 0)
 			*p++ = '0';
-		return (-1);
+		return -1;
 	}
 
 	p += s;		/* Start at the end and work backwards. */
@@ -500,13 +500,13 @@ format_octal(int64_t v, char *p, int s)
 		p = h + len - s;
 		while (s-- > 0)
 			*p++ = ' ';
-		return (0);
+		return 0;
 	}
 	/* If it overflowed, fill field with max value. */
 	while (len-- > 0)
 		*p++ = '7';
 
-	return (-1);
+	return -1;
 }
 
 /*
@@ -525,7 +525,7 @@ format_decimal(int64_t v, char *p, int s)
 	if (v < 0) {
 		while (len-- > 0)
 			*p++ = '0';
-		return (-1);
+		return -1;
 	}
 
 	p += s;
@@ -539,13 +539,13 @@ format_decimal(int64_t v, char *p, int s)
 		p = h + len - s;
 		while (s-- > 0)
 			*p++ = ' ';
-		return (0);
+		return 0;
 	}
 	/* If it overflowed, fill field with max value. */
 	while (len-- > 0)
 		*p++ = '9';
 
-	return (-1);
+	return -1;
 }
 
 static const char *
@@ -559,7 +559,7 @@ ar_basename(const char *path)
 	 * NULL indicating an error.
 	 */
 	if (*endp == '/')
-		return (NULL);
+		return NULL;
 
 	/* Find the start of the base */
 	startp = endp;

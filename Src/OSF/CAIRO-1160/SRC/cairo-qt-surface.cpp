@@ -1502,10 +1502,7 @@ cairo_surface_t * cairo_qt_surface_create_with_qimage(cairo_format_t format, int
 	if(qs == NULL)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	memzero(qs, sizeof(cairo_qt_surface_t));
-	_cairo_surface_init(&qs->base,
-	    &cairo_qt_surface_backend,
-	    NULL,              /* device */
-	    _cairo_content_from_format(format));
+	_cairo_surface_init(&qs->base, &cairo_qt_surface_backend, NULL/* device */, _cairo_content_from_format(format));
 	_cairo_surface_clipper_init(&qs->clipper, _cairo_qt_surface_clipper_intersect_clip_path);
 	QImage * image = new QImage(width, height, _qimage_format_from_cairo_format(format));
 	qs->image = image;
@@ -1513,18 +1510,9 @@ cairo_surface_t * cairo_qt_surface_create_with_qimage(cairo_format_t format, int
 		qs->p = new QPainter(image);
 		qs->supports_porter_duff = qs->p->paintEngine()->hasFeature(QPaintEngine::PorterDuff);
 	}
-
-	qs->image_equiv = cairo_image_surface_create_for_data(image->bits(),
-		format,
-		width, height,
-		image->bytesPerLine());
-
+	qs->image_equiv = cairo_image_surface_create_for_data(image->bits(), format, width, height, image->bytesPerLine());
 	qs->window = QRect(0, 0, width, height);
-
-	D(fprintf(stderr, "qpainter_surface_create: qimage: [%d %d %d %d] pd:%d\n",
-	    qs->window.x(), qs->window.y(), qs->window.width(), qs->window.height(),
-	    qs->supports_porter_duff));
-
+	D(fprintf(stderr, "qpainter_surface_create: qimage: [%d %d %d %d] pd:%d\n", qs->window.x(), qs->window.y(), qs->window.width(), qs->window.height(), qs->supports_porter_duff));
 	return &qs->base;
 }
 

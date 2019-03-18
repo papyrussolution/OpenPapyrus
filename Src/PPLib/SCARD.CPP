@@ -406,7 +406,7 @@ int SLAPI SCardCore::MakeCodeByTemplate(PPID seriesID, const char * pPattern, SS
 				if(add_check_dig) {
 					char * p_cb = pttrn;
 					if(check_dig_len > 0) {
-						int    pl = (int)sstrlen(pttrn);
+						int    pl = sstrleni(pttrn);
 						if(check_dig_len <= pl)
 							p_cb = pttrn+pl-check_dig_len;
 					}
@@ -680,7 +680,7 @@ int SLAPI SCardCore::AutoFill(const PPSCardSeries * pSerRec, const char * pPatte
 					if(add_check_dig) {
 						char * p_cb = pttrn;
 						if(check_dig_len > 0) {
-							int    pl = (int)sstrlen(pttrn);
+							int    pl = sstrleni(pttrn);
 							if(check_dig_len <= pl)
 								p_cb = pttrn+pl-check_dig_len;
 						}

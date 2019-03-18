@@ -188,7 +188,7 @@ start:
 						goto err;
 					}
 				}
-				else if(d2i((void**)pp, &p, len) == NULL) {
+				else if(d2i((void **)pp, &p, len) == NULL) {
 					PEMerr(PEM_F_PEM_X509_INFO_READ_BIO, ERR_R_ASN1_LIB);
 					goto err;
 				}

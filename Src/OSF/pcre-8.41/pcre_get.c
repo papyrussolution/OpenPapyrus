@@ -303,8 +303,7 @@ static int get_first_set(const pcre32 * code, PCRE_SPTR32 stringname, int * ovec
  */
 
 #if defined COMPILE_PCRE8
-PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre_copy_substring(const char * subject, int * ovector, int stringcount,
-    int stringnumber, char * buffer, int size)
+PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre_copy_substring(const char * subject, int * ovector, int stringcount, int stringnumber, char * buffer, int size)
 #elif defined COMPILE_PCRE16
 PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre16_copy_substring(PCRE_SPTR16 subject, int * ovector, int stringcount,
     int stringnumber, PCRE_UCHAR16 * buffer, int size)

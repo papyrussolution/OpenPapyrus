@@ -851,7 +851,7 @@ int ssl3_write_pending(SSL * s, int type, const uchar * buf, uint len)
 /* XXXX */
 	if((s->rlayer.wpend_tot > (int)len) || ((s->rlayer.wpend_buf != buf) && !(s->mode & SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER)) || (s->rlayer.wpend_type != type)) {
 		SSLerr(SSL_F_SSL3_WRITE_PENDING, SSL_R_BAD_WRITE_RETRY);
-		return (-1);
+		return -1;
 	}
 	for(;; ) {
 		/* Loop until we find a buffer we haven't written out yet */
@@ -929,7 +929,7 @@ int ssl3_read_bytes(SSL * s, int type, int * recvd_type, uchar * buf, int len, i
 	if(!SSL3_BUFFER_is_initialised(rbuf)) {
 		/* Not initialized yet */
 		if(!ssl3_setup_read_buffer(s))
-			return (-1);
+			return -1;
 	}
 	if((type && (type != SSL3_RT_APPLICATION_DATA) && (type != SSL3_RT_HANDSHAKE)) || (peek && (type != SSL3_RT_APPLICATION_DATA))) {
 		SSLerr(SSL_F_SSL3_READ_BYTES, ERR_R_INTERNAL_ERROR);
@@ -964,7 +964,7 @@ int ssl3_read_bytes(SSL * s, int type, int * recvd_type, uchar * buf, int len, i
 			return (i);
 		if(i == 0) {
 			SSLerr(SSL_F_SSL3_READ_BYTES, SSL_R_SSL_HANDSHAKE_FAILURE);
-			return (-1);
+			return -1;
 		}
 	}
 start:
@@ -1173,7 +1173,7 @@ start:
 					return (i);
 				if(i == 0) {
 					SSLerr(SSL_F_SSL3_READ_BYTES, SSL_R_SSL_HANDSHAKE_FAILURE);
-					return (-1);
+					return -1;
 				}
 				if(!(s->mode & SSL_MODE_AUTO_RETRY)) {
 					if(SSL3_BUFFER_get_left(rbuf) == 0) {
@@ -1189,7 +1189,7 @@ start:
 						bio = SSL_get_rbio(s);
 						BIO_clear_retry_flags(bio);
 						BIO_set_retry_read(bio);
-						return (-1);
+						return -1;
 					}
 				}
 			}
@@ -1313,7 +1313,7 @@ start:
 			return (i);
 		if(i == 0) {
 			SSLerr(SSL_F_SSL3_READ_BYTES, SSL_R_SSL_HANDSHAKE_FAILURE);
-			return (-1);
+			return -1;
 		}
 		if(!(s->mode & SSL_MODE_AUTO_RETRY)) {
 			if(SSL3_BUFFER_get_left(rbuf) == 0) {
@@ -1329,7 +1329,7 @@ start:
 				bio = SSL_get_rbio(s);
 				BIO_clear_retry_flags(bio);
 				BIO_set_retry_read(bio);
-				return (-1);
+				return -1;
 			}
 		}
 		goto start;
@@ -1367,7 +1367,7 @@ start:
 		     */
 		    if(ossl_statem_app_data_allowed(s)) {
 			    s->s3->in_read_app_data = 2;
-			    return (-1);
+			    return -1;
 		    }
 		    else {
 			    al = SSL_AD_UNEXPECTED_MESSAGE;
@@ -1378,7 +1378,7 @@ start:
 	/* not reached */
 f_err:
 	ssl3_send_alert(s, SSL3_AL_FATAL, al);
-	return (-1);
+	return -1;
 }
 
 void ssl3_record_sequence_update(uchar * seq)

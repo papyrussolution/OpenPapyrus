@@ -94,7 +94,7 @@ static int open_filename(struct archive * a, int mbs_fn, const void * filename)
 	struct write_file_data * mine = (struct write_file_data *)SAlloc::C(1, sizeof(*mine));
 	if(mine == NULL) {
 		archive_set_error(a, ENOMEM, "No memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	if(mbs_fn)
 		r = archive_mstring_copy_mbs(&mine->filename, (const char *)filename);
@@ -103,13 +103,13 @@ static int open_filename(struct archive * a, int mbs_fn, const void * filename)
 	if(r < 0) {
 		if(errno == ENOMEM) {
 			archive_set_error(a, ENOMEM, "No memory");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		if(mbs_fn)
-			archive_set_error(a, ARCHIVE_ERRNO_MISC, "Can't convert '%s' to WCS", (const char*)filename);
+			archive_set_error(a, ARCHIVE_ERRNO_MISC, "Can't convert '%s' to WCS", (const char *)filename);
 		else
 			archive_set_error(a, ARCHIVE_ERRNO_MISC, "Can't convert '%S' to MBS", (const wchar_t*)filename);
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 	mine->fd = -1;
 	return (archive_write_open(a, mine,
@@ -143,7 +143,7 @@ static int file_open(struct archive * a, void * client_data)
 			archive_set_error(a, errno,
 			    "Can't convert '%s' to WCS", mbs);
 		}
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	fullpath = __la_win_permissive_name_w(wcs);
 	if(fullpath != NULL) {
@@ -161,7 +161,7 @@ static int file_open(struct archive * a, void * client_data)
 			archive_set_error(a, errno,
 			    "Can't convert '%S' to MBS", wcs);
 		}
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	mine->fd = open(mbs, flags, 0666);
 	__archive_ensure_cloexec_flag(mine->fd);
@@ -171,7 +171,7 @@ static int file_open(struct archive * a, void * client_data)
 			archive_set_error(a, errno, "Failed to open '%s'", mbs);
 		else
 			archive_set_error(a, errno, "Failed to open '%S'", wcs);
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	if(fstat(mine->fd, &st) != 0) {
@@ -179,7 +179,7 @@ static int file_open(struct archive * a, void * client_data)
 			archive_set_error(a, errno, "Couldn't stat '%s'", mbs);
 		else
 			archive_set_error(a, errno, "Couldn't stat '%S'", wcs);
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	/*
@@ -203,7 +203,7 @@ static int file_open(struct archive * a, void * client_data)
 	if(S_ISREG(st.st_mode))
 		archive_write_set_skip_file(a, st.st_dev, st.st_ino);
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static ssize_t file_write(struct archive * a, void * client_data, const void * buff,
@@ -219,7 +219,7 @@ static ssize_t file_write(struct archive * a, void * client_data, const void * b
 			if(errno == EINTR)
 				continue;
 			archive_set_error(a, errno, "Write error");
-			return (-1);
+			return -1;
 		}
 		return (bytesWritten);
 	}
@@ -236,5 +236,5 @@ static int file_close(struct archive * a, void * client_data)
 
 	archive_mstring_clean(&mine->filename);
 	SAlloc::F(mine);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }

@@ -306,12 +306,12 @@ static void * td_lfind(const void * key, const void * base, size_t * nmemb, size
 
 const TIFFFieldArray* _TIFFGetFields(void)
 {
-	return(&tiffFieldArray);
+	return (&tiffFieldArray);
 }
 
 const TIFFFieldArray* _TIFFGetExifFields(void)
 {
-	return(&exifFieldArray);
+	return (&exifFieldArray);
 }
 
 void _TIFFSetupFields(TIFF* tif, const TIFFFieldArray* fieldarray)
@@ -396,7 +396,7 @@ void _TIFFPrintFieldInfo(TIFF* tif, FILE* fd)
 	for(uint32 i = 0; i < tif->tif_nfields; i++) {
 		const TIFFField* fip = tif->tif_fields[i];
 		fprintf(fd, "field[%2d] %5lu, %2d, %2d, %d, %2d, %5s, %5s, %s\n", 
-			(int)i, (unsigned long)fip->field_tag, fip->field_readcount, fip->field_writecount, 
+			(int)i, (ulong)fip->field_tag, fip->field_readcount, fip->field_writecount, 
 			fip->field_type, fip->field_bit, fip->field_oktochange ? "TRUE" : "FALSE", 
 			fip->field_passcount ? "TRUE" : "FALSE", fip->field_name);
 	}
@@ -507,7 +507,7 @@ const TIFFField* TIFFFieldWithTag(TIFF* tif, uint32 tag)
 {
 	const TIFFField* fip = TIFFFindField(tif, tag, TIFF_ANY);
 	if(!fip) {
-		TIFFErrorExt(tif->tif_clientdata, "TIFFFieldWithTag", "Internal error, unknown tag 0x%x", (unsigned int)tag);
+		TIFFErrorExt(tif->tif_clientdata, "TIFFFieldWithTag", "Internal error, unknown tag 0x%x", (uint)tag);
 	}
 	return (fip);
 }
@@ -662,7 +662,7 @@ TIFFField* _TIFFCreateAnonField(TIFF * tif, uint32 tag, TIFFDataType field_type)
 * libtiff versions.
 ****************************************************************************/
 
-static TIFFSetGetFieldType _TIFFSetGetType(TIFFDataType type, short count, unsigned char passcount)
+static TIFFSetGetFieldType _TIFFSetGetType(TIFFDataType type, short count, uchar passcount)
 {
 	if(type == TIFF_ASCII && count == TIFF_VARIABLE && passcount == 0)
 		return TIFF_SETGET_ASCII;

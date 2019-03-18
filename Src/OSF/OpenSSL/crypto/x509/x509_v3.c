@@ -30,7 +30,7 @@ int X509v3_get_ext_by_OBJ(const STACK_OF(X509_EXTENSION) * sk, const ASN1_OBJECT
 	int n;
 	X509_EXTENSION * ex;
 	if(sk == NULL)
-		return (-1);
+		return -1;
 	lastpos++;
 	if(lastpos < 0)
 		lastpos = 0;
@@ -40,7 +40,7 @@ int X509v3_get_ext_by_OBJ(const STACK_OF(X509_EXTENSION) * sk, const ASN1_OBJECT
 		if(OBJ_cmp(ex->object, obj) == 0)
 			return (lastpos);
 	}
-	return (-1);
+	return -1;
 }
 
 int X509v3_get_ext_by_critical(const STACK_OF(X509_EXTENSION) * sk, int crit,
@@ -50,7 +50,7 @@ int X509v3_get_ext_by_critical(const STACK_OF(X509_EXTENSION) * sk, int crit,
 	X509_EXTENSION * ex;
 
 	if(sk == NULL)
-		return (-1);
+		return -1;
 	lastpos++;
 	if(lastpos < 0)
 		lastpos = 0;
@@ -60,7 +60,7 @@ int X509v3_get_ext_by_critical(const STACK_OF(X509_EXTENSION) * sk, int crit,
 		if(((ex->critical > 0) && crit) || ((ex->critical <= 0) && !crit))
 			return (lastpos);
 	}
-	return (-1);
+	return -1;
 }
 
 X509_EXTENSION * X509v3_get_ext(const STACK_OF(X509_EXTENSION) * x, int loc)

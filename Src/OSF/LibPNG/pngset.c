@@ -268,7 +268,7 @@ void PNGAPI png_set_pCAL(png_const_structrp png_ptr, png_inforp info_ptr,
 
 	length = strlen(purpose) + 1;
 	png_debug1(3, "allocating purpose for info (%lu bytes)",
-	    (unsigned long)length);
+	    (ulong)length);
 
 	/* @todo validate format of calibration name and unit name */
 
@@ -304,7 +304,7 @@ void PNGAPI png_set_pCAL(png_const_structrp png_ptr, png_inforp info_ptr,
 	info_ptr->pcal_nparams = (uint8)nparams;
 
 	length = strlen(units) + 1;
-	png_debug1(3, "allocating units for info (%lu bytes)", (unsigned long)length);
+	png_debug1(3, "allocating units for info (%lu bytes)", (ulong)length);
 	info_ptr->pcal_units = png_voidcast(char *, png_malloc_warn(png_ptr, length));
 	if(info_ptr->pcal_units == NULL) {
 		png_warning(png_ptr, "Insufficient memory for pCAL units");
@@ -319,7 +319,7 @@ void PNGAPI png_set_pCAL(png_const_structrp png_ptr, png_inforp info_ptr,
 	memzero(info_ptr->pcal_params, (nparams + 1) * (sizeof(char *)));
 	for(i = 0; i < nparams; i++) {
 		length = strlen(params[i]) + 1;
-		png_debug2(3, "allocating parameter %d for info (%lu bytes)", i, (unsigned long)length);
+		png_debug2(3, "allocating parameter %d for info (%lu bytes)", i, (ulong)length);
 		info_ptr->pcal_params[i] = (char *)png_malloc_warn(png_ptr, length);
 		if(info_ptr->pcal_params[i] == NULL) {
 			png_warning(png_ptr, "Insufficient memory for pCAL parameter");
@@ -359,7 +359,7 @@ void PNGAPI png_set_sCAL_s(png_const_structrp png_ptr, png_inforp info_ptr,
 
 	++lengthw;
 
-	png_debug1(3, "allocating unit for info (%u bytes)", (unsigned int)lengthw);
+	png_debug1(3, "allocating unit for info (%u bytes)", (uint)lengthw);
 
 	info_ptr->scal_s_width = png_voidcast(char *,
 	    png_malloc_warn(png_ptr, lengthw));
@@ -374,7 +374,7 @@ void PNGAPI png_set_sCAL_s(png_const_structrp png_ptr, png_inforp info_ptr,
 
 	++lengthh;
 
-	png_debug1(3, "allocating unit for info (%u bytes)", (unsigned int)lengthh);
+	png_debug1(3, "allocating unit for info (%u bytes)", (uint)lengthh);
 
 	info_ptr->scal_s_height = png_voidcast(char *,
 	    png_malloc_warn(png_ptr, lengthh));
@@ -638,9 +638,9 @@ void PNGAPI png_set_text(png_const_structrp png_ptr, png_inforp info_ptr, png_co
 int /* PRIVATE */ png_set_text_2(png_const_structrp png_ptr, png_inforp info_ptr, png_const_textp text_ptr, int num_text)
 {
 	int i;
-	png_debug1(1, "in %lx storage function", png_ptr == NULL ? 0xabadca11U : (unsigned long)png_ptr->chunk_name);
+	png_debug1(1, "in %lx storage function", png_ptr == NULL ? 0xabadca11U : (ulong)png_ptr->chunk_name);
 	if(png_ptr == NULL || info_ptr == NULL || num_text <= 0 || text_ptr == NULL)
-		return(0);
+		return 0;
 
 	/* Make sure we have enough space in the "text" array in info_struct
 	 * to hold all of the incoming text_ptr objects.  This compare can't overflow
@@ -763,7 +763,7 @@ int /* PRIVATE */ png_set_text_2(png_const_structrp png_ptr, png_inforp info_ptr
 		}
 
 		png_debug2(2, "Allocated %lu bytes at %p in png_set_text",
-		    (unsigned long)(uint32)
+		    (ulong)(uint32)
 		    (key_len + lang_len + lang_key_len + text_length + 4),
 		    textp->key);
 
@@ -808,7 +808,7 @@ int /* PRIVATE */ png_set_text_2(png_const_structrp png_ptr, png_inforp info_ptr
 		png_debug1(3, "transferred text chunk %d", info_ptr->num_text);
 	}
 
-	return(0);
+	return 0;
 }
 
 #endif
@@ -1231,7 +1231,7 @@ void PNGAPI png_set_keep_unknown_chunks(png_structrp png_ptr, int keep,
 		};
 
 		chunk_list = chunks_to_ignore;
-		num_chunks = (unsigned int)/*SAFE*/ (sizeof chunks_to_ignore)/5U;
+		num_chunks = (uint)/*SAFE*/ (sizeof chunks_to_ignore)/5U;
 	}
 
 	else { /* num_chunks_in > 0 */

@@ -193,7 +193,7 @@ static ngx_int_t ngx_http_upstream_get_keepalive_peer(ngx_peer_connection_t * pc
 		item = ngx_queue_data(q, ngx_http_upstream_keepalive_cache_t, queue);
 		c = item->connection;
 
-		if(ngx_memn2cmp((u_char*)&item->sockaddr, (u_char*)pc->sockaddr,
+		if(ngx_memn2cmp((u_char *)&item->sockaddr, (u_char *)pc->sockaddr,
 			    item->socklen, pc->socklen)
 		    == 0) {
 			ngx_queue_remove(q);
@@ -310,7 +310,7 @@ static void ngx_http_upstream_keepalive_close_handler(ngx_event_t * ev)
 	char buf[1];
 	ngx_connection_t  * c;
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, ev->log, 0, "keepalive close handler");
-	c = (ngx_connection_t*)ev->P_Data;
+	c = (ngx_connection_t *)ev->P_Data;
 	if(c->close) {
 		goto close;
 	}
@@ -389,7 +389,7 @@ static const char * ngx_http_upstream_keepalive(ngx_conf_t * cf, const ngx_comma
 	}
 	else {
 		// read options 
-		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 		ngx_int_t n = ngx_atoi(value[1].data, value[1].len);
 		if(n == NGX_ERROR || n == 0) {
 			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid value \"%V\" in \"%V\" directive", &value[1], &cmd->Name);

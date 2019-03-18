@@ -80,7 +80,7 @@ int archive_write_add_filter_uuencode(struct archive * _a)
 	if(state == NULL) {
 		archive_set_error(f->archive, ENOMEM,
 		    "Can't allocate data for uuencode filter");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	archive_strcpy(&state->name, "-");
 	state->mode = 0644;
@@ -94,7 +94,7 @@ int archive_write_add_filter_uuencode(struct archive * _a)
 	f->close = archive_filter_uuencode_close;
 	f->free = archive_filter_uuencode_free;
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -109,19 +109,19 @@ static int archive_filter_uuencode_options(struct archive_write_filter * f, cons
 		if(value == NULL) {
 			archive_set_error(f->archive, ARCHIVE_ERRNO_MISC,
 			    "mode option requires octal digits");
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		}
 		state->mode = (int)atol8(value, strlen(value)) & 0777;
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 	else if(strcmp(key, "name") == 0) {
 		if(value == NULL) {
 			archive_set_error(f->archive, ARCHIVE_ERRNO_MISC,
 			    "name option requires a string");
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		}
 		archive_strcpy(&state->name, value);
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 
 	/* Note: The "warn" return is just to inform the options
@@ -141,7 +141,7 @@ static int archive_filter_uuencode_open(struct archive_write_filter * f)
 
 	ret = __archive_write_open_filter(f->next_filter);
 	if(ret != ARCHIVE_OK)
-		return (ret);
+		return ret;
 
 	if(f->archive->magic == ARCHIVE_WRITE_MAGIC) {
 		/* Buffer size should be a multiple number of the of bytes
@@ -157,14 +157,14 @@ static int archive_filter_uuencode_open(struct archive_write_filter * f)
 	if(archive_string_ensure(&state->encoded_buff, bs + 512) == NULL) {
 		archive_set_error(f->archive, ENOMEM,
 		    "Can't allocate data for uuencode buffer");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	archive_string_sprintf(&state->encoded_buff, "begin %o %s\n",
 	    state->mode, state->name.s);
 
 	f->data = state;
-	return (0);
+	return 0;
 }
 
 static void uu_encode(struct archive_string * as, const uchar * p, size_t len)
@@ -212,14 +212,14 @@ static int archive_filter_uuencode_write(struct archive_write_filter * f, const 
 	const uchar * p = (const uchar *)buff;
 	int ret = ARCHIVE_OK;
 	if(length == 0)
-		return (ret);
+		return ret;
 	if(state->hold_len) {
 		while(state->hold_len < LBYTES && length > 0) {
 			state->hold[state->hold_len++] = *p++;
 			length--;
 		}
 		if(state->hold_len < LBYTES)
-			return (ret);
+			return ret;
 		uu_encode(&state->encoded_buff, state->hold, LBYTES);
 		state->hold_len = 0;
 	}
@@ -241,7 +241,7 @@ static int archive_filter_uuencode_write(struct archive_write_filter * f, const 
 		state->encoded_buff.length -= state->bs;
 	}
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -263,7 +263,7 @@ static int archive_filter_uuencode_close(struct archive_write_filter * f)
 	ret2 = __archive_write_close_filter(f->next_filter);
 	if(ret > ret2)
 		ret = ret2;
-	return (ret);
+	return ret;
 }
 
 static int archive_filter_uuencode_free(struct archive_write_filter * f)
@@ -273,7 +273,7 @@ static int archive_filter_uuencode_free(struct archive_write_filter * f)
 	archive_string_free(&state->name);
 	archive_string_free(&state->encoded_buff);
 	SAlloc::F(state);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int64_t atol8(const char * p, size_t char_cnt)

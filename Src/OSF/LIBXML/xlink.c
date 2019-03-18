@@ -23,8 +23,8 @@
 	//#include <zlib.h>
 //#endif
 
-#define XLINK_NAMESPACE (BAD_CAST "http://www.w3.org/1999/xlink/namespace/")
-#define XHTML_NAMESPACE (BAD_CAST "http://www.w3.org/1999/xhtml/")
+#define XLINK_NAMESPACE (reinterpret_cast<const xmlChar *>("http://www.w3.org/1999/xlink/namespace/"))
+#define XHTML_NAMESPACE (reinterpret_cast<const xmlChar *>("http://www.w3.org/1999/xhtml/"))
 
 /****************************************************************
 *								*
@@ -43,7 +43,7 @@ static xlinkNodeDetectFunc xlinkDefaultDetect = NULL;
  */
 xlinkHandlerPtr xlinkGetDefaultHandler() 
 {
-	return(xlinkDefaultHandler);
+	return (xlinkDefaultHandler);
 }
 /**
  * xlinkSetDefaultHandler:
@@ -64,7 +64,7 @@ void xlinkSetDefaultHandler(xlinkHandlerPtr handler)
  */
 xlinkNodeDetectFunc xlinkGetDefaultDetect() 
 {
-	return(xlinkDefaultDetect);
+	return (xlinkDefaultDetect);
 }
 
 /**
@@ -123,13 +123,13 @@ xlinkType xlinkIsLink(xmlDoc * doc, xmlNodePtr P_Node)
 	/*
 	 * We don't prevent a-priori having XML Linking constructs on XHTML elements
 	 */
-	type = xmlGetNsProp(P_Node, BAD_CAST "type", XLINK_NAMESPACE);
+	type = xmlGetNsProp(P_Node, reinterpret_cast<const xmlChar *>("type"), XLINK_NAMESPACE);
 	if(type) {
-		if(sstreq(type, BAD_CAST "simple")) {
+		if(sstreq(type, reinterpret_cast<const xmlChar *>("simple"))) {
 			ret = XLINK_TYPE_SIMPLE;
 		}
 		else if(sstreq(type, "extended")) {
-			role = xmlGetNsProp(P_Node, BAD_CAST "role", XLINK_NAMESPACE);
+			role = xmlGetNsProp(P_Node, reinterpret_cast<const xmlChar *>("role"), XLINK_NAMESPACE);
 			if(role) {
 				xmlNs * xlink = xmlSearchNs(doc, P_Node, XLINK_NAMESPACE);
 				if(xlink == NULL) {

@@ -111,16 +111,16 @@ const uint8 jpeg_natural_order2[2*2+16] = { // @sobolev int-->uin8
 /*
  * Arithmetic utilities
  */
-GLOBAL(long) FASTCALL jdiv_round_up(long a, long b)
-// Compute a/b rounded up to next integer, ie, ceil(a/b) 
-// Assumes a >= 0, b > 0 
-{
-	return (a + b - 1L) / b;
-}
-
+//
+// Descr: Compute a/b rounded up to next integer, ie, ceil(a/b) 
+// Assumes: a >= 0, b > 0 
+//
+GLOBAL(long) FASTCALL jdiv_round_up(long a, long b) { return (a + b - 1L) / b; }
+//
+// Descr: Compute a rounded up to next multiple of b, ie, ceil(a/b)*b 
+// Assumes: a >= 0, b > 0 
+//
 GLOBAL(long) FASTCALL jround_up(long a, long b)
-/* Compute a rounded up to next multiple of b, ie, ceil(a/b)*b */
-/* Assumes a >= 0, b > 0 */
 {
 	a += b - 1L;
 	return a - (a % b);

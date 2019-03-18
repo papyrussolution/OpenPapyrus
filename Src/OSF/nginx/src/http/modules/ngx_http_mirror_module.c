@@ -105,7 +105,7 @@ static ngx_int_t ngx_http_mirror_handler_internal(ngx_http_request_t * r)
 	ngx_uint_t i;
 	ngx_http_request_t   * sr;
 	ngx_http_mirror_loc_conf_t  * mlcf = (ngx_http_mirror_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_mirror_module);
-	ngx_str_t * name = (ngx_str_t*)mlcf->mirror->elts;
+	ngx_str_t * name = (ngx_str_t *)mlcf->mirror->elts;
 	for(i = 0; i < mlcf->mirror->nelts; i++) {
 		if(ngx_http_subrequest(r, &name[i], &r->args, &sr, NULL, NGX_HTTP_SUBREQUEST_BACKGROUND) != NGX_OK) {
 			return NGX_HTTP_INTERNAL_SERVER_ERROR;
@@ -140,7 +140,7 @@ static const char * ngx_http_mirror(ngx_conf_t * cf, const ngx_command_t * cmd, 
 {
 	ngx_http_mirror_loc_conf_t * mlcf = (ngx_http_mirror_loc_conf_t *)conf;
 	ngx_str_t  * s;
-	ngx_str_t  * value = (ngx_str_t*)cf->args->elts;
+	ngx_str_t  * value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(ngx_strcmp(value[1].data, "off") == 0) {
 		if(mlcf->mirror != NGX_CONF_UNSET_PTR) {
 			return "is duplicate";
@@ -157,7 +157,7 @@ static const char * ngx_http_mirror(ngx_conf_t * cf, const ngx_command_t * cmd, 
 			return NGX_CONF_ERROR;
 		}
 	}
-	s = (ngx_str_t*)ngx_array_push(mlcf->mirror);
+	s = (ngx_str_t *)ngx_array_push(mlcf->mirror);
 	if(s == NULL) {
 		return NGX_CONF_ERROR;
 	}

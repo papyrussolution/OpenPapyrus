@@ -64,14 +64,14 @@ int getopt(int argc, char * const argv[], const char * optstring)
 		if(optind >= argc || *place++ != '-') {
 			/* Argument is absent or is not an option */
 			place = EMSG;
-			return (-1);
+			return -1;
 		}
 		optopt = *place++;
 		if(optopt == '-' && *place == 0) {
 			/* "--" => end of options */
 			++optind;
 			place = EMSG;
-			return (-1);
+			return -1;
 		}
 		if(optopt == 0) {
 			/* Solitary '-', treat as a '-' option

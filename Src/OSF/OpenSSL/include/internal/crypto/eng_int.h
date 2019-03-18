@@ -40,7 +40,7 @@ extern CRYPTO_RWLOCK *global_engine_lock;
 
 #  define engine_ref_debug(e, isfunct, diff) \
         fprintf(stderr, "engine: %08x %s from %d to %d (%s:%d)\n", \
-                (unsigned int)(e), (isfunct ? "funct" : "struct"), \
+                (uint)(e), (isfunct ? "funct" : "struct"), \
                 ((isfunct) ? ((e)->funct_ref - (diff)) : ((e)->struct_ref - (diff))), \
                 ((isfunct) ? (e)->funct_ref : (e)->struct_ref), \
                 (OPENSSL_FILE), (OPENSSL_LINE))

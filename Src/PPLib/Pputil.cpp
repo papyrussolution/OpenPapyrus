@@ -768,7 +768,7 @@ SLAPI PPTblEnumList::PPTblEnumList()
 SLAPI PPTblEnumList::~PPTblEnumList()
 {
 	for(uint i = 0; i < Tab.getCount(); i++)
-		DestroyIterHandler((long)i);
+		DestroyIterHandler(static_cast<long>(i));
 }
 
 int SLAPI PPTblEnumList::RegisterIterHandler(BExtQuery * pQ, long * pHandle)
@@ -2889,7 +2889,7 @@ int SLAPI PPUhttClient::GetLocationByID(int id, UhttLocationPacket & rResult)
 			UhttLocationPacket * p_result = func(sess, Token, id);
 			if(PreprocessResult(p_result, sess)) {
 				rResult = *p_result;
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 		}
@@ -2908,7 +2908,7 @@ int SLAPI PPUhttClient::GetLocationByCode(const char * pCode, UhttLocationPacket
 			UhttLocationPacket * p_result = func(sess, Token, pCode);
 			if(PreprocessResult(p_result, sess)) {
 				rResult = *p_result;
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 		}
@@ -2928,7 +2928,7 @@ int SLAPI PPUhttClient::GetLocationListByPhone(const char * pPhone, TSCollection
 			TSCollection <UhttLocationPacket> * p_result = func(sess, Token, pPhone);
 			if(PreprocessResult(p_result, sess)) {
 				TSCollection_Copy(rResult, *p_result);
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 		}
@@ -2951,7 +2951,7 @@ int SLAPI PPUhttClient::GetBrandByName(const char * pName, TSCollection <UhttBra
 			TSCollection <UhttBrandPacket> * p_result = func(sess, Token, temp_buf);
 			if(PreprocessResult(p_result, sess)) {
 				TSCollection_Copy(rResult, *p_result);
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 		}
@@ -3132,7 +3132,7 @@ int SLAPI PPUhttClient::GetPersonByID(int id, UhttPersonPacket & rResult)
 			UhttPersonPacket * p_result = func(sess, Token, id);
 			if(PreprocessResult(p_result, sess)) {
 				rResult = *p_result;
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 		}
@@ -3155,7 +3155,7 @@ int SLAPI PPUhttClient::GetPersonByName(const char * pName, TSCollection <UhttPe
 			TSCollection <UhttPersonPacket> * p_result = func(sess, Token, temp_buf);
 			if(PreprocessResult(p_result, sess)) {
 				TSCollection_Copy(rResult, *p_result);
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 		}
@@ -3174,7 +3174,7 @@ int SLAPI PPUhttClient::GetGoodsByID(int id, UhttGoodsPacket & rResult)
 			UhttGoodsPacket * p_result = func(sess, Token, id);
 			if(PreprocessResult(p_result, sess)) {
 				rResult = *p_result;
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 		}
@@ -3194,7 +3194,7 @@ int SLAPI PPUhttClient::GetGoodsByCode(const char * pCode, TSCollection <UhttGoo
 			TSCollection <UhttGoodsPacket> * p_result = func(sess, Token, pCode);
 			if(PreprocessResult(p_result, sess)) {
 				TSCollection_Copy(rResult, *p_result);
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 		}
@@ -3217,7 +3217,7 @@ int SLAPI PPUhttClient::GetGoodsByName(const char * pName, TSCollection <UhttGoo
 			TSCollection <UhttGoodsPacket> * p_result = func(sess, Token, temp_buf);
 			if(PreprocessResult(p_result, sess)) {
 				TSCollection_Copy(rResult, *p_result);
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 		}
@@ -3241,7 +3241,7 @@ int SLAPI PPUhttClient::GetGoodsArCode(const char * pBarcode, const char * pPers
 			SString * p_result = func(sess, Token, bcode, inn);
 			if(PreprocessResult(p_result, sess)) {
 				rArCode = *p_result;
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 		}
@@ -3263,7 +3263,7 @@ int SLAPI PPUhttClient::GetGoodsRestList(int uhttGoodsID, TSCollection <UhttGood
 			TSCollection <UhttGoodsRestListItem> * p_result = func(sess, Token, uhttGoodsID);
 			if(PreprocessResult(p_result, sess)) {
 				TSCollection_Copy(rResult, *p_result);
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 		}
@@ -3291,7 +3291,7 @@ int SLAPI PPUhttClient::CreateStandaloneLocation(long * pID, const UhttLocationP
 				else {
 					(LastMsg = p_result->Msg).Transf(CTRANSF_UTF8_TO_INNER);
 				}
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 			}
 		}
 	}
@@ -3319,7 +3319,7 @@ int SLAPI PPUhttClient::CreateGoods(long * pID, const UhttGoodsPacket & rPack)
 				else {
 					(LastMsg = p_result->Msg).Transf(CTRANSF_UTF8_TO_INNER);
 				}
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 			}
 		}
 	}
@@ -3343,7 +3343,7 @@ int SLAPI PPUhttClient::SetObjImage(const char * pObjTypeSymb, PPID uhttObjID, c
 			sess.Setup(UrlBase);
 			UhttStatus * p_result = func(sess, Token, doc_pack);
 			if(PreprocessResult(p_result, sess)) {
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 		}
@@ -3367,7 +3367,7 @@ int SLAPI PPUhttClient::GetSpecSeriesByPeriod(const char * pPeriod, TSCollection
 			TSCollection <UhttSpecSeriesPacket> * p_result = func(sess, Token, temp_buf);
 			if(PreprocessResult(p_result, sess)) {
 				TSCollection_Copy(rResult, *p_result);
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 		}
@@ -3395,7 +3395,7 @@ int SLAPI PPUhttClient::CreateSpecSeries(long * pID, const UhttSpecSeriesPacket 
 				else {
 					(LastMsg = p_result->Msg).Transf(CTRANSF_UTF8_TO_INNER);
 				}
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 			}
 		}
 	}
@@ -3422,7 +3422,7 @@ int SLAPI PPUhttClient::CreateSCard(UhttSCardPacket & rPack)
 				else {
 					(LastMsg = p_result->Msg).Transf(CTRANSF_UTF8_TO_INNER);
 				}
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 			}
 		}
 	}
@@ -3443,7 +3443,7 @@ int SLAPI PPUhttClient::GetSCardByNumber(const char * pNumber, UhttSCardPacket &
 			UhttSCardPacket * p_result = func(sess, Token, temp_buf);
 			if(PreprocessResult(p_result, sess)) {
 				rResult = *p_result;
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 			else
@@ -3487,7 +3487,7 @@ int SLAPI PPUhttClient::GetBill(const UhttBillFilter & rFilt, TSCollection <Uhtt
 			TSCollection <UhttBillPacket> * p_result = func(sess, Token, rFilt);
 			if(PreprocessResult(p_result, sess)) {
 				TSCollection_Copy(rResult, *p_result);
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 		}
@@ -3509,7 +3509,7 @@ int SLAPI PPUhttClient::GetQuot(const UhttQuotFilter & rFilt, TSCollection <Uhtt
 			TSCollection <UhttQuotPacket> * p_result = func(sess, Token, rFilt);
 			if(PreprocessResult(p_result, sess)) {
 				TSCollection_Copy(rResult, *p_result);
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 		}
@@ -3550,7 +3550,7 @@ int SLAPI PPUhttClient::SetQuotList(const TSCollection <UhttQuotPacket> & rList,
 			TSCollection <UhttStatus> * p_result = func(sess, Token, rList);
 			if(PreprocessResult(p_result, sess)) {
 				TSCollection_Copy(rResult, *p_result);
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 			else
@@ -3579,7 +3579,7 @@ int SLAPI PPUhttClient::CreateSCardCheck(const char * pLocSymb, const char * pSC
 				else {
 					(LastMsg = p_result->Msg).Transf(CTRANSF_UTF8_TO_INNER);
 				}
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 			}
 		}
 	}
@@ -3605,7 +3605,7 @@ int SLAPI PPUhttClient::DepositSCardAmount(const char * pNumber, const double am
 				else {
 					PPSetError(PPERR_UHTTSVCFAULT, (LastMsg = p_result->Msg).Transf(CTRANSF_UTF8_TO_INNER));
 				}
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 			}
 		}
 	}
@@ -3631,7 +3631,7 @@ int SLAPI PPUhttClient::WithdrawSCardAmount(const char * pNumber, const double a
 				else {
 					PPSetError(PPERR_UHTTSVCFAULT, (LastMsg = p_result->Msg).Transf(CTRANSF_UTF8_TO_INNER));
 				}
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 			}
 		}
 	}
@@ -3907,7 +3907,7 @@ int SLAPI PPUhttClient::GetVersionList(const char * pKey, TSCollection <UhttDCFi
 			TSCollection <UhttDCFileVersionInfo> * p_result = func(sess, Token, pKey);
 			if(PreprocessResult(p_result, sess)) {
 				TSCollection_Copy(rResult, *p_result);
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				if(pMinVer) {
 					long i = 0, count = rResult.getCount();
 					SString buf;
@@ -3983,7 +3983,7 @@ int SLAPI PPUhttClient::GetWorkbookItemByID(int id, UhttWorkbookItemPacket & rPa
 			UhttWorkbookItemPacket * p_result = func(sess, Token, id);
 			if(PreprocessResult(p_result, sess)) {
 				rPack = *p_result;
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 		}
@@ -4016,7 +4016,7 @@ int SLAPI PPUhttClient::GetWorkbookContentByID_ToFile(int id, const char * pFile
 						THROW_SL(f.Write(tbuf, decoded_size));
 					}
 				}
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				p_result = 0;
 				ok = 1;
 			}
@@ -4024,7 +4024,7 @@ int SLAPI PPUhttClient::GetWorkbookContentByID_ToFile(int id, const char * pFile
 	}
 	CATCH
 		if(p_result)
-			DestroyResult((void **)&p_result);
+			DestroyResult(reinterpret_cast<void **>(&p_result));
 		if(file_name_to_remove.NotEmpty())
 			SFile::Remove(file_name_to_remove);
 		ok = 0;
@@ -4043,7 +4043,7 @@ int SLAPI PPUhttClient::GetWorkbookItemByCode(const char * pCode, UhttWorkbookIt
 			UhttWorkbookItemPacket * p_result = func(sess, Token, pCode);
 			if(PreprocessResult(p_result, sess)) {
 				rPack = *p_result;
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 		}
@@ -4064,7 +4064,7 @@ int SLAPI PPUhttClient::GetWorkbookListByParentCode(const char * pParentCode, TS
 			TSCollection <UhttWorkbookItemPacket> * p_result = func(sess, Token, pParentCode);
 			if(PreprocessResult(p_result, sess)) {
 				TSCollection_Copy(rResult, *p_result);
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 		}
@@ -4092,7 +4092,7 @@ int SLAPI PPUhttClient::CreateWorkbookItem(long * pID, const UhttWorkbookItemPac
 				else {
 					(LastMsg = p_result->Msg).Transf(CTRANSF_UTF8_TO_INNER);
 				}
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 			}
 		}
 	}
@@ -4116,7 +4116,7 @@ int SLAPI PPUhttClient::SetWorkbookContentByID(int id, const char * pFileName)
 			sess.Setup(UrlBase);
 			UhttStatus * p_result = func(sess, Token, doc_pack);
 			if(PreprocessResult(p_result, sess)) {
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 		}
@@ -4135,7 +4135,7 @@ int SLAPI PPUhttClient::GetStyloDeviceByID(int id, UhttStyloDevicePacket & rPack
 			UhttStyloDevicePacket * p_result = func(sess, Token, id);
 			if(PreprocessResult(p_result, sess)) {
 				rPack = *p_result;
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 		}
@@ -4156,7 +4156,7 @@ int SLAPI PPUhttClient::GetStyloDeviceByCode(const char * pCode, UhttStyloDevice
 			UhttStyloDevicePacket * p_result = func(sess, Token, temp_buf);
 			if(PreprocessResult(p_result, sess)) {
 				rPack = *p_result;
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 		}
@@ -4184,7 +4184,7 @@ int SLAPI PPUhttClient::CreateStyloDevice(long * pID, const UhttStyloDevicePacke
 				else {
 					(LastMsg = p_result->Msg).Transf(CTRANSF_UTF8_TO_INNER);
 				}
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 			}
 		}
 	}
@@ -4203,7 +4203,7 @@ int SLAPI PPUhttClient::GetProcessorByID(long id, UhttProcessorPacket & rPack)
 			UhttProcessorPacket * p_result = func(sess, Token, id);
 			if(PreprocessResult(p_result, sess)) {
 				rPack = *p_result;
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 		}
@@ -4224,7 +4224,7 @@ int SLAPI PPUhttClient::GetProcessorByCode(const char * pCode, UhttProcessorPack
 			UhttProcessorPacket * p_result = func(sess, Token, temp_buf);
 			if(PreprocessResult(p_result, sess)) {
 				rPack = *p_result;
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 		}
@@ -4252,7 +4252,7 @@ int SLAPI PPUhttClient::CreateProcessor(long * pID, const UhttProcessorPacket & 
 				else {
 					(LastMsg = p_result->Msg).Transf(CTRANSF_UTF8_TO_INNER);
 				}
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 			}
 		}
 	}
@@ -4271,7 +4271,7 @@ int SLAPI PPUhttClient::GetTSessionByID(long id, UhttTSessionPacket & rPack)
 			UhttTSessionPacket * p_result = func(sess, Token, id);
 			if(PreprocessResult(p_result, sess)) {
 				rPack = *p_result;
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 		}
@@ -4290,7 +4290,7 @@ int SLAPI PPUhttClient::GetTSessionByUUID(const S_GUID & rUuid, UhttTSessionPack
 			UhttTSessionPacket * p_result = func(sess, Token, rUuid);
 			if(PreprocessResult(p_result, sess)) {
 				rPack = *p_result;
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 		}
@@ -4317,7 +4317,7 @@ int SLAPI PPUhttClient::GetTSessionByPrc(long prcID, const LDATETIME & rSince, T
 						*p_pack = *p_result->at(i);
 					}
 				}
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 		}
@@ -4345,7 +4345,7 @@ int SLAPI PPUhttClient::CreateTSession(long * pID, const UhttTSessionPacket & rP
 				else {
 					(LastMsg = p_result->Msg).Transf(CTRANSF_UTF8_TO_INNER);
 				}
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 			}
 		}
 	}
@@ -4394,7 +4394,7 @@ int SLAPI PPUhttClient::SendSms(const TSCollection <UhttSmsPacket> & rList, TSCo
 			TSCollection <UhttStatus> * p_result = func(sess, Token, rList);
 			if(PreprocessResult(p_result, sess)) {
 				TSCollection_Copy(rResult, *p_result);
-				DestroyResult((void **)&p_result);
+				DestroyResult(reinterpret_cast<void **>(&p_result));
 				ok = 1;
 			}
 			else {

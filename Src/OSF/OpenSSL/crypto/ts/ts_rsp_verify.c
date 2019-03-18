@@ -556,7 +556,7 @@ static int ts_check_imprints(X509_ALGOR * algor_a,
 			goto err;
 	}
 
-	ret = len_a == (unsigned)ASN1_STRING_length(b->hashed_msg) &&
+	ret = len_a == (uint)ASN1_STRING_length(b->hashed_msg) &&
 	    memcmp(imprint_a, ASN1_STRING_get0_data(b->hashed_msg), len_a) == 0;
 err:
 	if(!ret)

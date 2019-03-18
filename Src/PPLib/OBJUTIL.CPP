@@ -290,7 +290,7 @@ int FASTCALL PPObject::ReadBlk(void * pBlk, size_t blkSize, void * stream)
 {
 	int    ok = 0;
 	if(stream)
-		ok = (fread(pBlk, blkSize, 1, (FILE*)stream) == 1) ? 1 : PPSetError(PPERR_PPOSREADFAULT);
+		ok = (fread(pBlk, blkSize, 1, static_cast<FILE *>(stream)) == 1) ? 1 : PPSetError(PPERR_PPOSREADFAULT);
 	return ok;
 }
 
@@ -299,7 +299,7 @@ int FASTCALL PPObject::WriteBlk(const void * pBlk, size_t blkSize, void * stream
 {
 	int    ok = 0;
 	if(stream)
-		ok = (fwrite(pBlk, blkSize, 1, (FILE*)stream) == 1) ? 1 : PPSetError(PPERR_PPOSWRITEFAULT);
+		ok = (fwrite(pBlk, blkSize, 1, static_cast<FILE *>(stream)) == 1) ? 1 : PPSetError(PPERR_PPOSWRITEFAULT);
 	return ok;
 }
 
@@ -309,10 +309,10 @@ int FASTCALL PPObject::ReadSBuffer(SBuffer & rBuf, void * stream)
 	int    ok = 1;
 	uint32 sz = 0;
 	THROW(stream);
-	THROW_PP(fread(&sz, sizeof(sz), 1, (FILE*)stream) == 1, PPERR_PPOSREADFAULT);
+	THROW_PP(fread(&sz, sizeof(sz), 1, static_cast<FILE *>(stream)) == 1, PPERR_PPOSREADFAULT);
 	if(sz) {
 		STempBuffer temp_buf(sz);
-		THROW_PP(fread(temp_buf, temp_buf.GetSize(), 1, (FILE*)stream) == 1, PPERR_PPOSREADFAULT);
+		THROW_PP(fread(temp_buf, temp_buf.GetSize(), 1, static_cast<FILE *>(stream)) == 1, PPERR_PPOSREADFAULT);
 		THROW_SL(rBuf.Write(temp_buf, temp_buf.GetSize()));
 	}
 	CATCHZOK
@@ -327,9 +327,9 @@ int FASTCALL PPObject::WriteSBuffer(SBuffer & rBuf, void * stream)
 	{
 		uint32 sz = (uint32)rBuf.GetAvailableSize();
 		STempBuffer temp_buf(sz);
-		THROW_PP(fwrite(&sz, sizeof(sz), 1, (FILE*)stream) == 1, PPERR_PPOSREADFAULT);
+		THROW_PP(fwrite(&sz, sizeof(sz), 1, static_cast<FILE *>(stream)) == 1, PPERR_PPOSREADFAULT);
 		rBuf.Read(temp_buf, temp_buf.GetSize());
-		THROW_PP(fwrite(temp_buf, temp_buf.GetSize(), 1, (FILE*)stream) == 1, PPERR_PPOSREADFAULT);
+		THROW_PP(fwrite(temp_buf, temp_buf.GetSize(), 1, static_cast<FILE *>(stream)) == 1, PPERR_PPOSREADFAULT);
 	}
 	CATCHZOK
 	return ok;
@@ -1012,7 +1012,7 @@ int FASTCALL PPObject::ProcessObjRefInArray(PPID objTypeID, PPID * pObjID, PPObj
 		if(!replace)
 			ok = pArray->Add(objTypeID, *pObjID);
 		else {
-			for(uint p = 0; ok < 0 && pArray->enumItems(&p, (void**)&p_o);) {
+			for(uint p = 0; ok < 0 && pArray->enumItems(&p, (void **)&p_o);) {
 				if(p_o->Obj) {
 					p_o->Obj = 0;
 					*pObjID = p_o->Id;
@@ -1032,7 +1032,7 @@ int FASTCALL PPObject::ProcessObjRefInArray_NoPreprocess(PPID objTypeID, PPID * 
 		if(!replace)
 			ok = pArray->Add_NotPreprocess(objTypeID, *pObjID);
 		else {
-			for(uint p = 0; ok < 0 && pArray->enumItems(&p, (void**)&p_o);) {
+			for(uint p = 0; ok < 0 && pArray->enumItems(&p, (void **)&p_o);) {
 				if(p_o->Obj) {
 					p_o->Obj = 0;
 					*pObjID = p_o->Id;

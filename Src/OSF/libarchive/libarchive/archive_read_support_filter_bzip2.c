@@ -90,7 +90,7 @@ int archive_read_support_filter_bzip2(struct archive * _a)
 	    ARCHIVE_STATE_NEW, "archive_read_support_filter_bzip2");
 
 	if(__archive_read_get_bidder(a, &reader) != ARCHIVE_OK)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 
 	reader->data = NULL;
 	reader->name = "bzip2";
@@ -99,7 +99,7 @@ int archive_read_support_filter_bzip2(struct archive * _a)
 	reader->options = NULL;
 	reader->free = bzip2_reader_free;
 #if defined(HAVE_BZLIB_H) && defined(BZ_CONFIG_ERROR)
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 #else
 	archive_set_error(_a, ARCHIVE_ERRNO_MISC,
 	    "Using external bzip2 program");
@@ -109,7 +109,7 @@ int archive_read_support_filter_bzip2(struct archive * _a)
 
 static int bzip2_reader_free(struct archive_read_filter_bidder * self){
 	(void)self; /* UNUSED */
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -130,17 +130,17 @@ static int bzip2_reader_bid(struct archive_read_filter_bidder * self, struct arc
 	/* Minimal bzip2 archive is 14 bytes. */
 	buffer = (const uchar*)__archive_read_filter_ahead(filter, 14, &avail);
 	if(buffer == NULL)
-		return (0);
+		return 0;
 
 	/* First three bytes must be "BZh" */
 	bits_checked = 0;
 	if(memcmp(buffer, "BZh", 3) != 0)
-		return (0);
+		return 0;
 	bits_checked += 24;
 
 	/* Next follows a compression flag which must be an ASCII digit. */
 	if(buffer[3] < '1' || buffer[3] > '9')
-		return (0);
+		return 0;
 	bits_checked += 5;
 
 	/* After BZh[1-9], there must be either a data block
@@ -151,7 +151,7 @@ static int bzip2_reader_bid(struct archive_read_filter_bidder * self, struct arc
 	else if(memcmp(buffer + 4, "\x17\x72\x45\x38\x50\x90", 6) == 0)
 		bits_checked += 48;
 	else
-		return (0);
+		return 0;
 
 	return (bits_checked);
 }
@@ -173,7 +173,7 @@ static int bzip2_reader_init(struct archive_read_filter * self)
 	 * even if we weren't able to read it. */
 	self->code = ARCHIVE_FILTER_BZIP2;
 	self->name = "bzip2";
-	return (r);
+	return r;
 }
 
 #else
@@ -195,7 +195,7 @@ static int bzip2_reader_init(struct archive_read_filter * self)
 		    "Can't allocate data for bzip2 decompression");
 		SAlloc::F(out_block);
 		SAlloc::F(state);
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	self->data = state;
 	state->out_block_size = out_block_size;
@@ -203,7 +203,7 @@ static int bzip2_reader_init(struct archive_read_filter * self)
 	self->read = bzip2_filter_read;
 	self->skip = NULL; /* not supported */
 	self->close = bzip2_filter_close;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 /*
  * Return the next block of decompressed data.
@@ -219,7 +219,7 @@ static ssize_t bzip2_filter_read(struct archive_read_filter * self, const void *
 
 	if(state->eof) {
 		*p = NULL;
-		return (0);
+		return 0;
 	}
 
 	/* Empty our output buffer. */
@@ -266,7 +266,7 @@ static ssize_t bzip2_filter_read(struct archive_read_filter * self, const void *
 				    "Internal error initializing decompressor%s%s",
 				    detail == NULL ? "" : ": ",
 				    detail);
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			state->valid = 1;
 		}
@@ -274,7 +274,7 @@ static ssize_t bzip2_filter_read(struct archive_read_filter * self, const void *
 		read_buf = (const char *)__archive_read_filter_ahead(self->upstream, 1, &ret);
 		if(read_buf == NULL) {
 			archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "truncated bzip2 input");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		state->stream.next_in = (char*)(uintptr_t)read_buf;
 		state->stream.avail_in = ret;
@@ -295,7 +295,7 @@ static ssize_t bzip2_filter_read(struct archive_read_filter * self, const void *
 					break;
 				    default:
 					archive_set_error(&(self->archive->archive), ARCHIVE_ERRNO_MISC, "Failed to clean up decompressor");
-					return (ARCHIVE_FATAL);
+					return ARCHIVE_FATAL;
 			    }
 			    state->valid = 0;
 			/* FALLTHROUGH */
@@ -310,7 +310,7 @@ static ssize_t bzip2_filter_read(struct archive_read_filter * self, const void *
 			default: /* Return an error. */
 			    archive_set_error(&self->archive->archive,
 				ARCHIVE_ERRNO_MISC, "bzip decompression failed");
-			    return (ARCHIVE_FATAL);
+			    return ARCHIVE_FATAL;
 		}
 	}
 }
@@ -336,7 +336,7 @@ static int bzip2_filter_close(struct archive_read_filter * self)
 
 	SAlloc::F(state->out_block);
 	SAlloc::F(state);
-	return (ret);
+	return ret;
 }
 
 #endif /* HAVE_BZLIB_H && BZ_CONFIG_ERROR */

@@ -394,7 +394,7 @@ static size_t FASTCALL xmlBufGrowInternal(xmlBuf * pBuf, size_t len)
 	if(pBuf->alloc == XML_BUFFER_ALLOC_IMMUTABLE)
         return 0;
 	if(pBuf->use + len < pBuf->size)
-		return(pBuf->size - pBuf->use);
+		return (pBuf->size - pBuf->use);
 
 	/*
 	 * Windows has a BIG problem on realloc timing, so we try to double
@@ -451,7 +451,7 @@ int FASTCALL xmlBufGrow(xmlBuf * buf, int len)
 		if(buf->error != 0)
 			return -1;
 		else 
-			return (int)ret;
+			return static_cast<int>(ret);
 	}
 }
 /**
@@ -997,7 +997,7 @@ int FASTCALL xmlBufWriteQuotedString(xmlBufPtr buf, const xmlChar * string)
 				if(*cur == '"') {
 					if(base != cur)
 						xmlBufAdd(buf, base, cur - base);
-					xmlBufAdd(buf, BAD_CAST "&quot;", 6);
+					xmlBufAdd(buf, reinterpret_cast<const xmlChar *>("&quot;"), 6);
 					cur++;
 					base = cur;
 				}
@@ -1160,7 +1160,7 @@ int FASTCALL xmlBufResetInput(xmlBuf * buf, xmlParserInput * input)
  *
  * Returns the size_t corresponding to the displacement
  */
-size_t FASTCALL xmlBufGetInputBase(xmlBuf * buf, xmlParserInput * input)
+size_t FASTCALL xmlBufGetInputBase(xmlBuf * buf, const xmlParserInput * input)
 {
 	size_t base;
 	if((input == NULL) || (buf == NULL) || (buf->error))
@@ -1175,7 +1175,7 @@ size_t FASTCALL xmlBufGetInputBase(xmlBuf * buf, xmlParserInput * input)
 		xmlBufOverflowError(buf, "Input reference outside of the buffer");
 		base = 0;
 	}
-	return(base);
+	return (base);
 }
 
 /**

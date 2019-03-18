@@ -704,7 +704,7 @@ int SLAPI AccTurnCore::SortGenAccList(ObjRestrictArray * pGenList)
 	uint   i;
 	SArray temp_list(sizeof(_ENTRY));
 	ObjRestrictItem item, * p_item;
-	for(i = 0; pGenList->enumItems(&i, (void**)&p_item);) {
+	for(i = 0; pGenList->enumItems(&i, (void **)&p_item);) {
 		if(abs(GetAcoByGenFlags(p_item->Flags)) == ACO_3) {
 			AcctRelTbl::Rec arel_rec;
 			if(AccRel.Search(p_item->ObjID, &arel_rec) > 0) {
@@ -729,7 +729,7 @@ int SLAPI AccTurnCore::SortGenAccList(ObjRestrictArray * pGenList)
 		}
 	}
 	pGenList->freeAll();
-	for(i = 0; temp_list.enumItems(&i, (void**)&p_entry);) {
+	for(i = 0; temp_list.enumItems(&i, (void **)&p_entry);) {
 		item.ObjID = p_entry->id;
 		item.Flags = p_entry->flags;
 		THROW_SL(pGenList->insert(&item));
@@ -1200,7 +1200,7 @@ int SLAPI AccTurnCore::CalcRest(int aco, PPID accID, const DateRange * pPeriod, 
 int SLAPI AccTurnCore::CalcComplexRestOnGenList(ObjRestrictArray * pGenList, PPID curID, const DateRange * pRange, AmtList * pInRest, AmtList * pOutRest)
 {
 	ObjRestrictItem * p_item;
-	for(uint i = 0; pGenList->enumItems(&i, (void**)&p_item);)
+	for(uint i = 0; pGenList->enumItems(&i, (void **)&p_item);)
 		if(!CalcComplexRest(GetAcoByGenFlags(p_item->Flags), p_item->ObjID, curID, 0, pRange, pInRest, pOutRest))
 			return 0;
 	return 1;
@@ -1611,7 +1611,7 @@ SLAPI RecoverBalanceParam::RecoverBalanceParam() : BalAccID(0), Flags(0)
 	Period.Z();
 }
 
-int SLAPI AccTurnCore::RecalcBalance(RecoverBalanceParam * pParam, PPLogger & rLogger)
+int SLAPI AccTurnCore::RecalcBalance(const RecoverBalanceParam * pParam, PPLogger & rLogger)
 {
 	int    ok = 1;
 	PPID   bal_id = pParam->BalAccID;

@@ -59,7 +59,7 @@ SLAPI WinService::WinService(const WinServiceMngr & rMngr, const char * pService
 	H = 0;
 	Name = pServiceName;
 	if(P_ScMngr->IsValid()) {
-		H = OpenService(*P_ScMngr, pServiceName, desiredAccess); // @unicodeproblem
+		H = ::OpenService(*P_ScMngr, SUcSwitch(pServiceName), desiredAccess); // @unicodeproblem
 		if(!H) {
 			DWORD last_err = GetLastError();
 			if(GetLastError() == ERROR_SERVICE_DOES_NOT_EXIST)
@@ -79,26 +79,29 @@ SLAPI WinService::~WinService()
 
 int SLAPI WinService::IsValid() const
 {
-	return H ? 1 : 0;
+	return BIN(H);
 }
 
-int SLAPI WinService::Create(const char * pDisplayName, const char * pModuleName,
-	const char * pLogin, const char * pPw)
+int SLAPI WinService::Create(const char * pDisplayName, const char * pModuleName, const char * pLogin, const char * pPw)
 {
 	int    ok = 0;
 	if(P_ScMngr->IsValid()) {
 		const char * p_login = (pLogin && *pLogin) ? pLogin : 0;
 		const char * p_pw = (p_login && pPw) ? pPw : 0;
+		/* @v10.3.9 
 		char   path[MAXPATH];
 		if(pModuleName)
 			STRNSCPY(path, pModuleName);
 		else
-			GetModuleFileName(NULL, path, sizeof(path)); // @unicodeproblem
+			::GetModuleFileName(NULL, path, sizeof(path)); // @unicodeproblem
+		*/
+		SString path; // @v10.3.9
+		SSystem::SGetModuleFileName(0, path); // @v10.3.9
 		if(!H) {
-			H = CreateService(*P_ScMngr, Name.cptr(), pDisplayName ? pDisplayName : Name.cptr(),
+			H = ::CreateService(*P_ScMngr, SUcSwitch(Name), SUcSwitch(pDisplayName ? pDisplayName : Name.cptr()),
     	    	SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START, SERVICE_ERROR_NORMAL,
-        		path, NULL, NULL, NULL, p_login, p_pw); // @unicodeproblem
-			ok = H ? 1 : 0;
+        		SUcSwitch(path), NULL, NULL, NULL, SUcSwitch(p_login), SUcSwitch(p_pw)); // @unicodeproblem
+			ok = BIN(H);
 		}
 		else {
 			/*
@@ -117,21 +120,21 @@ int SLAPI WinService::Create(const char * pDisplayName, const char * pModuleName
 			);
 			*/
 			const size_t buf_sz = 4096;
-			QUERY_SERVICE_CONFIG * p_cfg = (QUERY_SERVICE_CONFIG *)SAlloc::M(buf_sz);
+			QUERY_SERVICE_CONFIG * p_cfg = static_cast<QUERY_SERVICE_CONFIG *>(SAlloc::M(buf_sz));
 			QUERY_SERVICE_CONFIG & cfg = *p_cfg;
 			DWORD  bytes_needed = buf_sz;
 			int    to_upd = 0;
-			if(QueryServiceConfig(H, &cfg, buf_sz, &bytes_needed)) {
-				SString _path = cfg.lpBinaryPathName; // @unicodeproblem
+			if(::QueryServiceConfig(H, &cfg, buf_sz, &bytes_needed)) {
+				SString _path = SUcSwitch(cfg.lpBinaryPathName); // @unicodeproblem
 				SString _path2 = path;
 				if(_path.CmpNC(_path2) != 0)
 					to_upd = 1;
-				else if(p_login && stricmp(p_login, cfg.lpServiceStartName) != 0) // @unicodeproblem
+				else if(p_login && stricmp(p_login, SUcSwitch(cfg.lpServiceStartName)) != 0) // @unicodeproblem
 					to_upd = 1;
 				if(to_upd) {
-					if(ChangeServiceConfig(H, cfg.dwServiceType, cfg.dwStartType, cfg.dwErrorControl,
-						path, cfg.lpLoadOrderGroup, 0, cfg.lpDependencies,
-						p_login ? p_login : cfg.lpServiceStartName, p_pw, cfg.lpDisplayName)) // @unicodeproblem
+					if(::ChangeServiceConfig(H, cfg.dwServiceType, cfg.dwStartType, cfg.dwErrorControl,
+						SUcSwitch(path), cfg.lpLoadOrderGroup, 0, cfg.lpDependencies,
+						p_login ? SUcSwitch(p_login) : cfg.lpServiceStartName, SUcSwitch(p_pw), cfg.lpDisplayName)) // @unicodeproblem
 						ok = 1;
 				}
 			}

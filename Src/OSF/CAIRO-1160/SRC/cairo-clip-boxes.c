@@ -372,7 +372,7 @@ static void _add_edge(struct reduce * r, const cairo_point_t * p1, const cairo_p
 
 static cairo_status_t _reduce_line_to(void * closure, const cairo_point_t * point)
 {
-	struct reduce * r = (struct reduce *)closure;
+	struct reduce * r = static_cast<struct reduce *>(closure);
 	_add_edge(r, &r->current_point, point);
 	r->current_point = *point;
 	return CAIRO_STATUS_SUCCESS;
@@ -380,13 +380,13 @@ static cairo_status_t _reduce_line_to(void * closure, const cairo_point_t * poin
 
 static cairo_status_t _reduce_close(void * closure)
 {
-	struct reduce * r = (struct reduce *)closure;
+	struct reduce * r = static_cast<struct reduce *>(closure);
 	return _reduce_line_to(r, &r->last_move_to);
 }
 
 static cairo_status_t _reduce_move_to(void * closure, const cairo_point_t * point)
 {
-	struct reduce * r = (struct reduce *)closure;
+	struct reduce * r = static_cast<struct reduce *>(closure);
 	cairo_status_t status;
 	/* close current subpath */
 	status = _reduce_close(closure);
@@ -401,12 +401,9 @@ static cairo_clip_t * _cairo_clip_reduce_to_boxes(cairo_clip_t * clip)
 	struct reduce r;
 	cairo_clip_path_t * clip_path;
 	cairo_status_t status;
-
-	return clip;
-
+	return clip; // !!!
 	if(clip->path == NULL)
 		return clip;
-
 	r.clip = clip;
 	r.extents.p1.x = r.extents.p1.y = INT_MAX;
 	r.extents.p2.x = r.extents.p2.y = INT_MIN;
@@ -435,7 +432,7 @@ cairo_clip_t * FASTCALL _cairo_clip_reduce_to_rectangle(const cairo_clip_t * cli
 {
 	cairo_clip_t * copy;
 	if(_cairo_clip_is_all_clipped(clip))
-		return (cairo_clip_t*)clip;
+		return (cairo_clip_t *)clip;
 	if(_cairo_clip_contains_rectangle(clip, r))
 		return _cairo_clip_intersect_rectangle(NULL, r);
 	copy = _cairo_clip_copy_intersect_rectangle(clip, r);
@@ -456,12 +453,9 @@ cairo_clip_t * _cairo_clip_from_boxes(const cairo_boxes_t * boxes)
 	cairo_clip_t * clip = _cairo_clip_create();
 	if(clip == NULL)
 		return _cairo_clip_set_all_clipped(clip);
-
 	if(unlikely(!_cairo_boxes_copy_to_clip(boxes, clip)))
 		return clip;
-
 	_cairo_boxes_extents(boxes, &extents);
 	_cairo_box_round_to_rectangle(&extents, &clip->extents);
-
 	return clip;
 }

@@ -1,5 +1,4 @@
 // SHORTWND.CPP
-//
 // Modified by A.Starodub 2013, 2016
 //
 #include <slib.h>
@@ -20,10 +19,10 @@ ShortcutsWindow::~ShortcutsWindow()
 // static
 INT_PTR CALLBACK ShortcutsWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	ShortcutsWindow * p_view = (ShortcutsWindow*)TView::GetWindowUserData(hWnd);
+	ShortcutsWindow * p_view = static_cast<ShortcutsWindow *>(TView::GetWindowUserData(hWnd));
 	switch(message) {
 		case WM_INITDIALOG:
-			TView::SetWindowUserData(hWnd, (void *)lParam);
+			TView::SetWindowUserData(hWnd, reinterpret_cast<void *>(lParam));
 			break;
 		case WM_NOTIFY:
 			{
@@ -34,7 +33,7 @@ INT_PTR CALLBACK ShortcutsWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam
 					TCITEM tci;
 					tci.mask = TCIF_PARAM;
 					if(TabCtrl_GetItem(tab_hwnd, idx, &tci)) {
-						p_view->SelItem((void *)tci.lParam);
+						p_view->SelItem(reinterpret_cast<void *>(tci.lParam));
 						PostMessage(GetParent(hWnd), WM_USER_SHOWTREEWNDITEM, tci.lParam, 0);
 					}
 					break;
@@ -86,7 +85,7 @@ INT_PTR CALLBACK ShortcutsWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam
 
 HWND ShortcutsWindow::Create(HWND parentWnd)
 {
-	Hwnd = APPL->CreateDlg(DLG_SHORTCUTS, parentWnd, ShortcutsWindow::WndProc, (long)this);
+	Hwnd = APPL->CreateDlg(DLG_SHORTCUTS, parentWnd, ShortcutsWindow::WndProc, reinterpret_cast<LPARAM>(this));
 	if(Hwnd) {
 		TView::SetWindowProp(Hwnd, GWL_STYLE, WS_CHILD);
 		SetParent(Hwnd, parentWnd);
@@ -126,10 +125,9 @@ void ShortcutsWindow::AddItem(const char * pTitle, void * ptr)
 		HWND   hwnd_tab = GetDlgItem(Hwnd, CTL_SHORTCUTS_ITEMS);
 		int    idx = TabCtrl_GetItemCount(hwnd_tab);
 		int    prev_sel = TabCtrl_GetCurSel(hwnd_tab);
-		char   temp_title_buf[SHCTSTAB_MAXTEXTLEN * 2];
+		TCHAR  temp_title_buf[SHCTSTAB_MAXTEXTLEN * 2];
 		size_t title_len = sstrlen(pTitle);
-
-		STRNSCPY(temp_title_buf, pTitle);
+		STRNSCPY(temp_title_buf, SUcSwitch(pTitle));
 		if(title_len > SHCTSTAB_MAXTEXTLEN) {
 			temp_title_buf[SHCTSTAB_MAXTEXTLEN] = 0;
 			for(int j = 0; j < 3; j++)
@@ -139,7 +137,7 @@ void ShortcutsWindow::AddItem(const char * pTitle, void * ptr)
 		tci.mask = TCIF_TEXT|TCIF_PARAM;
 		tci.pszText = temp_title_buf; // @unicodeproblem
 		tci.cchTextMax = sizeof(temp_title_buf);
-		tci.lParam = (LPARAM)ptr;
+		tci.lParam = reinterpret_cast<LPARAM>(ptr);
 		TabCtrl_InsertItem(hwnd_tab, idx, &tci); // @unicodeproblem
 		TabCtrl_SetCurSel(hwnd_tab, idx);
 		TabCtrl_HighlightItem(hwnd_tab, prev_sel, 0);
@@ -149,12 +147,12 @@ void ShortcutsWindow::AddItem(const char * pTitle, void * ptr)
 			t_i.cbSize      = sizeof(TOOLINFO);
 			t_i.uFlags      = TTF_SUBCLASS;
 			t_i.hwnd        = hwnd_tab;
-			t_i.uId         = (UINT_PTR)ptr;
+			t_i.uId         = reinterpret_cast<UINT_PTR>(ptr);
 			t_i.rect        = rc_item;
 			t_i.hinst       = TProgram::GetInst();
 			t_i.lpszText    = temp_title_buf; // @unicodeproblem
-			::SendMessage(HwndTT, (UINT)TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
-			::SendMessage(HwndTT, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
+			::SendMessage(HwndTT, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
+			::SendMessage(HwndTT, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
 		}
 		if(Hwnd)
 			ShowWindow(Hwnd, SW_SHOW);
@@ -172,10 +170,10 @@ void ShortcutsWindow::UpdateItem(const char * pTitle, void * ptr)
 		int    _upd = 0;
 		for(i = 0; i < count; i++) {
 			tci.mask = TCIF_PARAM;
-			if(TabCtrl_GetItem(hwnd_tab, i, &tci) && tci.lParam == (LPARAM)ptr) {
+			if(TabCtrl_GetItem(hwnd_tab, i, &tci) && tci.lParam == reinterpret_cast<LPARAM>(ptr)) {
 				size_t title_len = sstrlen(pTitle);
-				char   temp_title_buf[SHCTSTAB_MAXTEXTLEN * 2];
-				STRNSCPY(temp_title_buf, pTitle);
+				TCHAR  temp_title_buf[SHCTSTAB_MAXTEXTLEN * 2];
+				STRNSCPY(temp_title_buf, SUcSwitch(pTitle));
 				if(title_len > SHCTSTAB_MAXTEXTLEN) {
 					temp_title_buf[SHCTSTAB_MAXTEXTLEN] = 0;
 					for(int j = 0; j < 3; j++)
@@ -183,19 +181,19 @@ void ShortcutsWindow::UpdateItem(const char * pTitle, void * ptr)
 				}
 				tci.mask = LVIF_TEXT;
 				tci.pszText = temp_title_buf; // @unicodeproblem
-				tci.cchTextMax = sizeof(temp_title_buf);
+				tci.cchTextMax = SIZEOFARRAY(temp_title_buf);
 				TabCtrl_SetItem(hwnd_tab, i, &tci); // @unicodeproblem
 				if(HwndTT && TabCtrl_GetItemRect(hwnd_tab, i, &rc_item))	{
 					TOOLINFO t_i;
 					t_i.cbSize      = sizeof(TOOLINFO);
 					t_i.uFlags      = TTF_SUBCLASS;
 					t_i.hwnd        = hwnd_tab;
-					t_i.uId         = (UINT_PTR)ptr;
+					t_i.uId         = reinterpret_cast<UINT_PTR>(ptr);
 					t_i.rect        = rc_item;
 					t_i.hinst       = TProgram::GetInst();
 					t_i.lpszText    = temp_title_buf; // @unicodeproblem
-					::SendMessage(HwndTT, (UINT)TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
-					::SendMessage(HwndTT, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
+					::SendMessage(HwndTT, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
+					::SendMessage(HwndTT, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
 				}
 				_upd = 1;
 				break;
@@ -214,7 +212,7 @@ void ShortcutsWindow::UpdateItem(const char * pTitle, void * ptr)
 					t_i.rect        = rc_item;
 					t_i.hinst       = TProgram::GetInst();
 					t_i.lpszText    = 0;
-					::SendMessage(HwndTT, (UINT)TTM_NEWTOOLRECT, 0, (LPARAM)(LPTOOLINFO)&t_i);
+					::SendMessage(HwndTT, (UINT)TTM_NEWTOOLRECT, 0, reinterpret_cast<LPARAM>(&t_i));
 				}
 			}
 		}
@@ -245,7 +243,7 @@ void ShortcutsWindow::DelItem(void * ptr)
 				t_i.rect        = rc_item;
 				t_i.hinst       = TProgram::GetInst();
 				t_i.lpszText    = 0;
-				::SendMessage(HwndTT, (UINT)TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i);
+				::SendMessage(HwndTT, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&t_i));
 				count--;
 				break;
 			}
@@ -266,7 +264,7 @@ void ShortcutsWindow::DelItem(void * ptr)
 					t_i.rect        = rc_item;
 					t_i.hinst       = TProgram::GetInst();
 					t_i.lpszText    = 0;
-					::SendMessage(HwndTT, (UINT)TTM_NEWTOOLRECT, 0, (LPARAM)(LPTOOLINFO)&t_i);
+					::SendMessage(HwndTT, (UINT)TTM_NEWTOOLRECT, 0, reinterpret_cast<LPARAM>(&t_i));
 				}
 			}
 		}
@@ -276,7 +274,7 @@ void ShortcutsWindow::DelItem(void * ptr)
 void ShortcutsWindow::Destroy()
 {
 	if(Hwnd) {
-		TView::SetWindowUserData(Hwnd, (void *)0);
+		TView::SetWindowUserData(Hwnd, 0);
 		if(HwndTT)
 			DestroyWindow(HwndTT);
 		DestroyWindow(Hwnd);

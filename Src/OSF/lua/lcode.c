@@ -24,11 +24,8 @@
 #include "ltable.h"
 #include "lvm.h"
 
-/* Maximum number of registers in a Lua function (must fit in 8 bits) */
-#define MAXREGS         255
-
+#define MAXREGS         255 // Maximum number of registers in a Lua function (must fit in 8 bits) 
 #define hasjumps(e)     ((e)->t != (e)->f)
-
 /*
 ** If expression is a numeric constant, fills 'v' with its value
 ** and returns 1. Otherwise, returns 0.
@@ -53,7 +50,8 @@ static int tonumeral(const expdesc * e, TValue * v)
 ** range of previous instruction instead of emitting a new one. (For
 ** instance, 'local a; local b' will generate a single opcode.)
 */
-void luaK_nil(FuncState * fs, int from, int n) {
+void luaK_nil(FuncState * fs, int from, int n) 
+{
 	Instruction * previous;
 	int l = from + n - 1; /* last register to set nil */
 	if(fs->pc > fs->lasttarget) { /* no jumps to current position? */
@@ -61,8 +59,7 @@ void luaK_nil(FuncState * fs, int from, int n) {
 		if(GET_OPCODE(*previous) == OP_LOADNIL) { /* previous is LOADNIL? */
 			int pfrom = GETARG_A(*previous); /* get previous range */
 			int pl = pfrom + GETARG_B(*previous);
-			if((pfrom <= from && from <= pl + 1) ||
-			    (from <= pfrom && pfrom <= l + 1)) { /* can connect both? */
+			if((pfrom <= from && from <= pl + 1) || (from <= pfrom && pfrom <= l + 1)) { /* can connect both? */
 				if(pfrom < from) from = pfrom; /* from = min(from, pfrom) */
 				if(pl > l) l = pl; /* l = max(l, pl) */
 				SETARG_A(*previous, from);
@@ -90,7 +87,7 @@ static int getjump(FuncState * fs, int pc)
 ** Fix jump instruction at position 'pc' to jump to 'dest'.
 ** (Jump addresses are relative in Lua)
 */
-static void fixjump(FuncState * fs, int pc, int dest) 
+static void FASTCALL fixjump(FuncState * fs, int pc, int dest) 
 {
 	Instruction * jmp = &fs->f->code[pc];
 	int offset = dest - (pc + 1);
@@ -322,54 +319,53 @@ int luaK_codek(FuncState * fs, int reg, int k) {
 		return p;
 	}
 }
-
 /*
 ** Check register-stack level, keeping track of its maximum size
 ** in field 'maxstacksize'
 */
-void luaK_checkstack(FuncState * fs, int n) {
+void luaK_checkstack(FuncState * fs, int n) 
+{
 	int newstack = fs->freereg + n;
 	if(newstack > fs->f->maxstacksize) {
 		if(newstack >= MAXREGS)
-			luaX_syntaxerror(fs->ls,
-			    "function or expression needs too many registers");
+			luaX_syntaxerror(fs->ls, "function or expression needs too many registers");
 		fs->f->maxstacksize = cast_byte(newstack);
 	}
 }
-
 /*
 ** Reserve 'n' registers in register stack
 */
-void luaK_reserveregs(FuncState * fs, int n) {
+void luaK_reserveregs(FuncState * fs, int n) 
+{
 	luaK_checkstack(fs, n);
 	fs->freereg += n;
 }
-
 /*
 ** Free register 'reg', if it is neither a constant index nor
 ** a local variable.
    )
 */
-static void freereg(FuncState * fs, int reg) {
+static void freereg(FuncState * fs, int reg) 
+{
 	if(!ISK(reg) && reg >= fs->nactvar) {
 		fs->freereg--;
 		lua_assert(reg == fs->freereg);
 	}
 }
-
 /*
 ** Free register used by expression 'e' (if any)
 */
-static void freeexp(FuncState * fs, expdesc * e) {
+static void freeexp(FuncState * fs, expdesc * e) 
+{
 	if(e->k == VNONRELOC)
 		freereg(fs, e->u.info);
 }
-
 /*
 ** Free registers used by expressions 'e1' and 'e2' (if any) in proper
 ** order.
 */
-static void freeexps(FuncState * fs, expdesc * e1, expdesc * e2) {
+static void freeexps(FuncState * fs, expdesc * e1, expdesc * e2) 
+{
 	int r1 = (e1->k == VNONRELOC) ? e1->u.info : -1;
 	int r2 = (e2->k == VNONRELOC) ? e2->u.info : -1;
 	if(r1 > r2) {
@@ -381,7 +377,6 @@ static void freeexps(FuncState * fs, expdesc * e1, expdesc * e2) {
 		freereg(fs, r1);
 	}
 }
-
 /*
 ** Add constant 'v' to prototype's list of constants (field 'k').
 ** Use scanner's table to cache position of constants in constant list

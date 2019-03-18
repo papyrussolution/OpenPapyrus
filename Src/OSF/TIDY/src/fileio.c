@@ -77,7 +77,7 @@ void TY_(freeFileSource) (TidyInputSource* inp, bool closeIt)
 
 void TIDY_CALL TY_(filesink_putByte) (void* sinkData, byte bv)
 {
-	FILE* fout = (FILE*)sinkData;
+	FILE* fout = (FILE *)sinkData;
 	fputc(bv, fout);
 }
 

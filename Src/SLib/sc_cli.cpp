@@ -554,11 +554,10 @@ int SCDBObjSell::ReadData()
 
 int SCDBObjSell::Init(const char * pExpPath, const char * pImpPath)
 {
-	int    ok = 1;
 	char   path[MAXPATH], fname[MAXPATH];
 	setLastSlash(STRNSCPY(path, pExpPath));
 	P_Tbl = new DbfTable(strcat(STRNSCPY(fname, path), "sp_sell.dbf"));
-	ok = ReadData();
+	int    ok = ReadData();
 	return ok;
 }
 

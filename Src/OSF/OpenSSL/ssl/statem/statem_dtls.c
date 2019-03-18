@@ -233,7 +233,7 @@ int dtls1_do_write(SSL * s, int type)
 					return -1;
 			}
 			else {
-				return (-1);
+				return -1;
 			}
 		}
 		else {
@@ -324,7 +324,7 @@ again:
 		/*
 		 * This isn't a real handshake message so skip the processing below.
 		 */
-		*len = (unsigned long)tmplen;
+		*len = (ulong)tmplen;
 		return 1;
 	}
 
@@ -359,7 +359,7 @@ again:
 static unsigned long dtls1_max_handshake_message_len(const SSL * s)
 {
 	unsigned long max_len = DTLS1_HM_HEADER_LENGTH + SSL3_RT_MAX_ENCRYPTED_LENGTH;
-	if(max_len < (unsigned long)s->max_cert_list)
+	if(max_len < (ulong)s->max_cert_list)
 		return s->max_cert_list;
 	return max_len;
 }
@@ -535,7 +535,7 @@ static int dtls1_reassemble_fragment(SSL * s, const struct hm_header_st * msg_hd
 	i = s->method->ssl_read_bytes(s, SSL3_RT_HANDSHAKE, NULL,
 	    frag->fragment + msg_hdr->frag_off,
 	    frag_len, 0);
-	if((unsigned long)i != frag_len)
+	if((ulong)i != frag_len)
 		i = -1;
 	if(i <= 0)
 		goto err;
@@ -642,7 +642,7 @@ static int dtls1_process_out_of_seq_message(SSL * s, const struct hm_header_st *
 			 */
 			i = s->method->ssl_read_bytes(s, SSL3_RT_HANDSHAKE, NULL,
 			    frag->fragment, frag_len, 0);
-			if((unsigned long)i != frag_len)
+			if((ulong)i != frag_len)
 				i = -1;
 			if(i <= 0)
 				goto err;

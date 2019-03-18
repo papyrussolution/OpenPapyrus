@@ -1691,7 +1691,7 @@ int SLAPI PPViewGeoTracking::Export()
 		THROW(p_writer = xmlNewTextWriterFilename(path, 0));
 		{
 			//xmlTextWriterSetIndent(writer, 1);
-			//xmlTextWriterSetIndentString(writer, (const xmlChar*)" ");
+			//xmlTextWriterSetIndentString(writer, (const xmlChar *)" ");
 			xmlTextWriterStartDocument(p_writer, 0, "utf-8", "yes");
 			{
 				SString out_buf, temp_buf;

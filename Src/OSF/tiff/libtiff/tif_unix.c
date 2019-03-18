@@ -112,7 +112,7 @@ static uint64 _tiffSeekProc(thandle_t fd, uint64 off, int whence)
 		return (uint64)-1; /* this is really gross */
 	}
 	fdh.h = fd;
-	return((uint64)_TIFF_lseek_f(fdh.fd, off_io, whence));
+	return ((uint64)_TIFF_lseek_f(fdh.fd, off_io, whence));
 }
 
 static int _tiffCloseProc(thandle_t fd)

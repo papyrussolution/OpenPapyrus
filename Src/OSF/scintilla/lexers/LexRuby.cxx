@@ -256,21 +256,18 @@ public:
 	{
 		New();
 	}
-
 	void New()
 	{
 		Count = 0;
 		Up    = '\0';
 		Down  = '\0';
 	}
-
 	void Open(char u)
 	{
 		Count++;
 		Up    = u;
 		Down  = opposite(Up);
 	}
-
 	QuoteCls(const QuoteCls &q)
 	{
 		// copy constructor -- use this for copying in
@@ -278,7 +275,6 @@ public:
 		Up    = q.Up;
 		Down  = q.Down;
 	}
-
 	QuoteCls &operator=(const QuoteCls &q) // assignment constructor
 	{
 		if(this != &q) {
@@ -290,14 +286,8 @@ public:
 	}
 };
 
-static void enterInnerExpression(int  * p_inner_string_types,
-    int  * p_inner_expn_brace_counts,
-    QuoteCls * p_inner_quotes,
-    int  &inner_string_count,
-    int  &state,
-    int  &brace_counts,
-    QuoteCls curr_quote
-    )
+static void enterInnerExpression(int  * p_inner_string_types, int  * p_inner_expn_brace_counts, QuoteCls * p_inner_quotes,
+    int  &inner_string_count, int  &state, int  &brace_counts, QuoteCls curr_quote)
 {
 	p_inner_string_types[inner_string_count] = state;
 	state = SCE_RB_DEFAULT;
@@ -307,14 +297,8 @@ static void enterInnerExpression(int  * p_inner_string_types,
 	++inner_string_count;
 }
 
-static void exitInnerExpression(int * p_inner_string_types,
-    int * p_inner_expn_brace_counts,
-    QuoteCls * p_inner_quotes,
-    int &inner_string_count,
-    int &state,
-    int  &brace_counts,
-    QuoteCls &curr_quote
-    )
+static void exitInnerExpression(int * p_inner_string_types, int * p_inner_expn_brace_counts, QuoteCls * p_inner_quotes,
+    int &inner_string_count, int &state, int  &brace_counts, QuoteCls & curr_quote)
 {
 	--inner_string_count;
 	state = p_inner_string_types[inner_string_count];
@@ -322,8 +306,7 @@ static void exitInnerExpression(int * p_inner_string_types,
 	curr_quote = p_inner_quotes[inner_string_count];
 }
 
-static bool isEmptyLine(Sci_Position pos,
-    Accessor &styler)
+static bool isEmptyLine(Sci_Position pos, Accessor & styler)
 {
 	int spaceFlags = 0;
 	Sci_Position lineCurrent = styler.GetLine(pos);

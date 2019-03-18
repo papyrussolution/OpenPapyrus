@@ -821,20 +821,20 @@ public:
 
 	DB_HEAP_RID * get_DB_HEAP_RID()
 	{
-		return (DB_HEAP_RID *)this;
+		return static_cast<DB_HEAP_RID *>(this);
 	}
 	const DB_HEAP_RID * get_const_DB_HEAP_RID() const
 	{
-		return (const DB_HEAP_RID *)this;
+		return static_cast<const DB_HEAP_RID *>(this);
 	}
 
 	static DbHeapRecordId * get_DbHeapRecordId(DB_HEAP_RID * rid)
 	{
-		return (DbHeapRecordId *)rid;
+		return static_cast<DbHeapRecordId *>(rid);
 	}
 	static const DbHeapRecordId * get_const_DbHeapRecordId(DB_HEAP_RID * rid)
 	{
-		return (const DbHeapRecordId *)rid;
+		return static_cast<const DbHeapRecordId *>(rid);
 	}
 
 	DbHeapRecordId(db_pgno_t pgno, db_indx_t indx);

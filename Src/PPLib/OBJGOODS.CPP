@@ -1528,7 +1528,7 @@ int SLAPI PPObjGoods::Helper_SearchMaxLikeByBarcode(const char * pCode, PPID * p
 	return ok;
 }
 
-int SLAPI PPObjGoods::SearchMaxLike(PPGoodsPacket * pPack, PPID * pID)
+int SLAPI PPObjGoods::SearchMaxLike(const PPGoodsPacket * pPack, PPID * pID)
 {
 	int    ok = -1;
 	if(SearchByName(pPack->Rec.Name, pID) > 0)
@@ -1537,7 +1537,7 @@ int SLAPI PPObjGoods::SearchMaxLike(PPGoodsPacket * pPack, PPID * pID)
 		GetConfig();
 		BarcodeTbl::Rec * p_bc_rec;
 		uint   pref_pos = 0;
-		BarcodeTbl::Rec * p_pref_bc = pPack->Codes.GetPreferredItem(&pref_pos);
+		const BarcodeTbl::Rec * p_pref_bc = pPack->Codes.GetPreferredItem(&pref_pos);
 		if(p_pref_bc && Helper_SearchMaxLikeByBarcode(p_pref_bc->Code, pID) > 0) {
 			ok = 1;
 		}
@@ -1546,7 +1546,7 @@ int SLAPI PPObjGoods::SearchMaxLike(PPGoodsPacket * pPack, PPID * pID)
 				pref_pos++;
 			else
 				pref_pos = 0;
-			for(uint i = 0; ok < 0 && pPack->Codes.enumItems(&i, (void**)&p_bc_rec);) {
+			for(uint i = 0; ok < 0 && pPack->Codes.enumItems(&i, (void **)&p_bc_rec);) {
 				if(i != pref_pos && Helper_SearchMaxLikeByBarcode(p_bc_rec->Code, pID) > 0)
 					ok = 1;
 			}
@@ -2692,7 +2692,7 @@ int SLAPI PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFl
 		if(pFilt->GrpIDList.GetCount()) {
 			PPID * p_grp_id;
 			uint found = 0;
-			for(uint i = 0; !found && pFilt->GrpIDList.Get().enumItems(&i, (void**)&p_grp_id);)
+			for(uint i = 0; !found && pFilt->GrpIDList.Get().enumItems(&i, (void **)&p_grp_id);)
 				if(BelongToGroup(id, *p_grp_id, 0))
 					found = 1;
 			if(!found)
@@ -2753,7 +2753,7 @@ int SLAPI PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFl
 		GoodsFilt grp_filt;
 		if(pFilt->GrpIDList.GetCount()) {
 			PPID * p_grp_id;
-			for(uint i = 0; ok > 0 && pFilt->GrpIDList.Get().enumItems(&i, (void**)&p_grp_id);)
+			for(uint i = 0; ok > 0 && pFilt->GrpIDList.Get().enumItems(&i, (void **)&p_grp_id);)
 				if(CheckFlag(pFilt->GrpID, GF_DYNAMIC) && P_Tbl->GetGroupFilt(pFilt->GrpID, &grp_filt) > 0)
 					if(CheckForFilt(&grp_filt, id, 0) < 0)
 						ok = -1;
@@ -3269,7 +3269,7 @@ int SLAPI PPObjGoods::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
 
 int SLAPI PPObjGoods::Browse(void * extraPtr /*groupID*/)
 {
-	const PPID group_id = (PPID)extraPtr;
+	const PPID group_id = reinterpret_cast<PPID>(extraPtr);
 	if(group_id) {
 		GoodsFilt flt;
 		flt.GrpID = group_id;
@@ -3282,7 +3282,7 @@ int SLAPI PPObjGoods::Browse(void * extraPtr /*groupID*/)
 const PPGoodsConfig & SLAPI PPObjGoods::GetConfig() const
 	{ return *P_Cfg; }
 int SLAPI PPObjGoods::Edit(PPID * pID, void * extraPtr /*group*/)
-	{ return Edit(pID, gpkndGoods, (PPID)extraPtr, 0, 0); }
+	{ return Edit(pID, gpkndGoods, reinterpret_cast<PPID>(extraPtr), 0, 0); }
 
 int SLAPI PPObjGoods::ViewVersion(PPID histID)
 {
@@ -3543,7 +3543,7 @@ int SLAPI PPObjGoods::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repl
 		ProcessObjRefInArray(PPOBJ_PERSON,     &gp->Rec.RspnsPersonID, ary, replace);
 		if(gp->P_Quots) {
 			PPQuot * p_quot;
-			for(i = 0; gp->P_Quots->enumItems(&i, (void**)&p_quot);) {
+			for(i = 0; gp->P_Quots->enumItems(&i, (void **)&p_quot);) {
 				ProcessObjRefInArray(PPOBJ_LOCATION, &p_quot->LocID, ary, replace);
 				ProcessObjRefInArray(PPOBJ_QUOTKIND, &p_quot->Kind,  ary, replace);
 				ProcessObjRefInArray(PPOBJ_CURRENCY, &p_quot->CurID, ary, replace);
@@ -4086,7 +4086,7 @@ int SLAPI GoodsStockExt::ConvertCargoUnits(int fromCargoUnit, int toCargoUnit, P
 		}
 		else if(toCargoUnit == CARGOUNIT_PALLET) {
 			if(GetPalletEntry(palletTypeID, &plt) > 0) {
-				double layer = (double)plt.PacksPerLayer;
+				double layer = static_cast<double>(plt.PacksPerLayer);
 				double pckg_count = (plt.MaxLayers > 0) ? (layer * plt.MaxLayers) : layer;
 				if(pckg_count > 0.0) {
 					if(Package > 0.0)
@@ -4111,7 +4111,7 @@ int SLAPI GoodsStockExt::ConvertCargoUnits(int fromCargoUnit, int toCargoUnit, P
 		}
 		else if(toCargoUnit == CARGOUNIT_PALLET) {
 			if(GetPalletEntry(palletTypeID, &plt) > 0) {
-				double layer = (double)plt.PacksPerLayer;
+				double layer = static_cast<double>(plt.PacksPerLayer);
 				double pckg_count = (plt.MaxLayers > 0) ? (layer * plt.MaxLayers) : layer;
 				if(pckg_count > 0.0) {
 					result = srcVal / pckg_count;
@@ -4123,7 +4123,7 @@ int SLAPI GoodsStockExt::ConvertCargoUnits(int fromCargoUnit, int toCargoUnit, P
 	else if(fromCargoUnit == CARGOUNIT_PALLET) {
 		if(toCargoUnit == CARGOUNIT_ITEM) {
 			if(GetPalletEntry(palletTypeID, &plt) > 0) {
-				double layer = (double)plt.PacksPerLayer;
+				double layer = static_cast<double>(plt.PacksPerLayer);
 				double pckg_count = (plt.MaxLayers > 0) ? (layer * plt.MaxLayers) : layer;
 				if(pckg_count > 0.0) {
 					if(Package > 0.0)
@@ -4136,7 +4136,7 @@ int SLAPI GoodsStockExt::ConvertCargoUnits(int fromCargoUnit, int toCargoUnit, P
 		}
 		else if(toCargoUnit == CARGOUNIT_PCKG) {
 			if(GetPalletEntry(palletTypeID, &plt) > 0) {
-				double layer = (double)plt.PacksPerLayer;
+				double layer = static_cast<double>(plt.PacksPerLayer);
 				double pckg_count = (plt.MaxLayers > 0) ? (layer * plt.MaxLayers) : layer;
 				if(pckg_count > 0.0) {
 					result = srcVal * pckg_count;
@@ -4396,7 +4396,7 @@ int UhttIndexPersons(uint setSz, PPID personKindID, const SString & rOutPath)
 		addr_list.sortAndUndup();
 		addr_list.shuffle();
 		xmlTextWriterSetIndent(p_writer, 1);
-		xmlTextWriterSetIndentString(p_writer, (const xmlChar*)"\t");
+		xmlTextWriterSetIndentString(p_writer, reinterpret_cast<const xmlChar *>("\t"));
 		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
 		xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("PersonAddrIndex").ucptr());
 		uint c = addr_list.getCount();
@@ -4447,7 +4447,7 @@ int UhttIndexGoods(uint setSz, const SString & rOutPath)
 		}
 		id_list.shuffle();
 		xmlTextWriterSetIndent(p_writer, 1);
-		xmlTextWriterSetIndentString(p_writer, (const xmlChar*)"\t");
+		xmlTextWriterSetIndentString(p_writer, reinterpret_cast<const xmlChar *>("\t"));
 		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
 		xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("GoodsIndex").ucptr());
 		uint c = id_list.getCount();
@@ -4510,7 +4510,7 @@ int UhttIndexRandomGoods(uint setSz, const SString & rOutPath)
 			}
 			id_ary.sort();
 			xmlTextWriterSetIndent(p_writer, 1);
-			xmlTextWriterSetIndentString(p_writer, (const xmlChar*)"\t");
+			xmlTextWriterSetIndentString(p_writer, reinterpret_cast<const xmlChar *>("\t"));
 			xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
 			xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("RandomGoodsIndex").ucptr());
 			for(uint i = 0, n = id_ary.getCount(); i < n; i++) {
@@ -4551,7 +4551,7 @@ int UhttIndexChangedGoods(const SString & rOutPath)
 		}
 		id_ary.sort();
 		xmlTextWriterSetIndent(p_writer, 1);
-		xmlTextWriterSetIndentString(p_writer, (const xmlChar*)"\t");
+		xmlTextWriterSetIndentString(p_writer, reinterpret_cast<const xmlChar *>("\t"));
 		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
 		xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("ChangedGoodsIndex").ucptr());
 		for(uint i = 0, n = id_ary.getCount(); i < n; i++) {
@@ -4606,7 +4606,7 @@ int UhttIndexBrands(const SString & rOutPath)
 		id_list.shuffle();
 		id_image_list.shuffle();
 		xmlTextWriterSetIndent(p_writer, 1);
-		xmlTextWriterSetIndentString(p_writer, (const xmlChar*)"\t");
+		xmlTextWriterSetIndentString(p_writer, reinterpret_cast<const xmlChar *>("\t"));
 		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
 		xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("BrandIndexRoot").ucptr());
 		{
@@ -4653,7 +4653,7 @@ int UhttIndexStores(const SString & rOutPath)
 		}
 		id_list.sort();
 		xmlTextWriterSetIndent(p_writer, 1);
-		xmlTextWriterSetIndentString(p_writer, (const xmlChar*)"\t");
+		xmlTextWriterSetIndentString(p_writer, reinterpret_cast<const xmlChar *>("\t"));
 		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
 		xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("StoresIndex").ucptr());
 		for(uint i = 0, n = id_list.getCount(); i < n; i++) {

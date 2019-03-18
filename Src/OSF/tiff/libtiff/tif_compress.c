@@ -40,7 +40,7 @@ static int TIFFNoEncode(TIFF* tif, const char* method)
 	else {
 		TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "Compression scheme %u %s encoding is not implemented", tif->tif_dir.td_compression, method);
 	}
-	return (-1);
+	return -1;
 }
 
 int _TIFFNoRowEncode(TIFF* tif, uint8* pp, tmsize_t cc, uint16 s)

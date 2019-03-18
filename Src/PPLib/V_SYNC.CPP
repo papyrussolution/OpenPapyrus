@@ -147,7 +147,7 @@ int SLAPI PPViewObjSync::EditBaseFilt(PPBaseFilt * pFilt)
 	if(!Filt.IsA(pFilt))
 		return PPErrorZ();
 	else {
-		DIALOG_PROC_BODY(ObjSyncFiltDialog, (ObjSyncFilt *)pFilt);
+		DIALOG_PROC_BODY(ObjSyncFiltDialog, static_cast<ObjSyncFilt *>(pFilt));
 	}
 }
 
@@ -389,13 +389,13 @@ int SLAPI PPViewObjSync::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		struct _ident {
+		const struct _ident {
 			int16 ObjType;
 			PPID  ObjID;
 			int16 CommIdxPfx;
 			PPID  CommID;
 			int16 DBID;
-		} * p_ident = pHdr ? (_ident*)pHdr : 0;
+		} * p_ident = pHdr ? static_cast<const _ident *>(pHdr) : 0;
 		ObjSyncIdent ident;
 		if(p_ident) {
 			ident.fComm = 0;
@@ -727,7 +727,7 @@ int SLAPI PPViewObjSyncCmp::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 			PPID   DestID;
 			PPCommSyncID CommID;
 		};
-		const Hdr * p_hdr = pHdr ? (const Hdr *)pHdr : 0;
+		const Hdr * p_hdr = pHdr ? static_cast<const Hdr *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_EDITOBJ:
 				ok = p_hdr ? EditPPObj(p_hdr->ObjType, p_hdr->DestID) : -1;

@@ -2295,7 +2295,7 @@ HRESULT Bench(DECL_EXTERNAL_CODECS_LOC_VARS IBenchPrintCallback * printCallback,
 	if(!CrcInternalTest())
 		return S_FALSE;
 	uint32 numCPUs = 1;
-	uint64 ramSize = (uint64)(sizeof(size_t)) << 29;
+	uint64 ramSize = static_cast<uint64>(sizeof(size_t)) << 29;
 	NSystem::CProcessAffinity threadsInfo;
 	threadsInfo.InitST();
   #ifndef _7ZIP_ST

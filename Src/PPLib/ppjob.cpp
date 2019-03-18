@@ -2649,7 +2649,7 @@ public:
 	int Add(PPRFIDDevice & rRec);
 	int Run();
 private:
-	int AddToBadList(PPAbstractDevice::ConnectionParam *);
+	int AddToBadList(const PPAbstractDevice::ConnectionParam * pParam);
 	int ProcessBadComList();
 	int IsWait(uint devPos);
 
@@ -2709,7 +2709,7 @@ RFIDDevPrcssr::~RFIDDevPrcssr()
 {
 }
 
-int RFIDDevPrcssr::AddToBadList(PPAbstractDevice::ConnectionParam * pParam)
+int RFIDDevPrcssr::AddToBadList(const PPAbstractDevice::ConnectionParam * pParam)
 {
 	if(pParam) {
 		PPAbstractDevice::ConnectionParam * p_cp = new PPAbstractDevice::ConnectionParam;

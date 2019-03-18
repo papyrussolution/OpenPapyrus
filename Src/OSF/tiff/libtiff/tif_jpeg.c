@@ -66,7 +66,7 @@ int TIFFJPEGIsFullStripRequired_12(TIFF* tif);
 #endif
 /*
    The windows RPCNDR.H file defines boolean, but defines it with the
-   unsigned char size.  You should compile JPEG library using appropriate
+   uchar size.  You should compile JPEG library using appropriate
    definitions in jconfig.h header, but many users compile library in wrong
    way. That causes errors of the following type:
 
@@ -76,10 +76,10 @@ int TIFFJPEGIsFullStripRequired_12(TIFF* tif);
    For such users we wil fix the problem here. See install.doc file from
    the JPEG library distribution for details.
  */
-/* Define "boolean" as unsigned char, not int, per Windows custom. */
+/* Define "boolean" as uchar, not int, per Windows custom. */
 #if defined(__WIN32__) && !defined(__MINGW32__)
 	#ifndef __RPCNDR_H__            /* don't conflict if rpcndr.h already read */
-		typedef unsigned char boolean;
+		typedef uchar boolean;
 	#endif
 	#define HAVE_BOOLEAN            /* prevent jmorecfg.h from redefining it */
 #endif
@@ -1048,31 +1048,20 @@ int TIFFJPEGIsFullStripRequired(TIFF* tif)
 		if(nRequiredMemory > TIFF_LIBJPEG_LARGEST_MEM_ALLOC &&
 		    getenv("LIBTIFF_ALLOW_LARGE_LIBJPEG_MEM_ALLOC") == NULL) {
 			TIFFErrorExt(tif->tif_clientdata, module,
-			    "Reading this strip would require libjpeg to allocate "
-			    "at least %u bytes. "
-			    "This is disabled since above the %u threshold. "
-			    "You may override this restriction by defining the "
-			    "LIBTIFF_ALLOW_LARGE_LIBJPEG_MEM_ALLOC environment variable, "
-			    "or recompile libtiff by defining the "
-			    "TIFF_LIBJPEG_LARGEST_MEM_ALLOC macro to a value greater "
-			    "than %u",
-			    (unsigned)nRequiredMemory,
-			    (unsigned)TIFF_LIBJPEG_LARGEST_MEM_ALLOC,
-			    (unsigned)TIFF_LIBJPEG_LARGEST_MEM_ALLOC);
+			    "Reading this strip would require libjpeg to allocate at least %u bytes. "
+			    "This is disabled since above the %u threshold. You may override this restriction by defining the "
+			    "LIBTIFF_ALLOW_LARGE_LIBJPEG_MEM_ALLOC environment variable, or recompile libtiff by defining the "
+			    "TIFF_LIBJPEG_LARGEST_MEM_ALLOC macro to a value greater than %u",
+			    (uint)nRequiredMemory, (uint)TIFF_LIBJPEG_LARGEST_MEM_ALLOC, (uint)TIFF_LIBJPEG_LARGEST_MEM_ALLOC);
 			return 0;
 		}
 	}
 
 	if(td->td_planarconfig == PLANARCONFIG_CONTIG) {
 		/* Component 0 should have expected sampling factors */
-		if(sp->cinfo.d.comp_info[0].h_samp_factor != sp->h_sampling ||
-		    sp->cinfo.d.comp_info[0].v_samp_factor != sp->v_sampling) {
-			TIFFErrorExt(tif->tif_clientdata, module,
-			    "Improper JPEG sampling factors %d,%d\n"
-			    "Apparently should be %d,%d.",
-			    sp->cinfo.d.comp_info[0].h_samp_factor,
-			    sp->cinfo.d.comp_info[0].v_samp_factor,
-			    sp->h_sampling, sp->v_sampling);
+		if(sp->cinfo.d.comp_info[0].h_samp_factor != sp->h_sampling || sp->cinfo.d.comp_info[0].v_samp_factor != sp->v_sampling) {
+			TIFFErrorExt(tif->tif_clientdata, module, "Improper JPEG sampling factors %d,%d\nApparently should be %d,%d.",
+			    sp->cinfo.d.comp_info[0].h_samp_factor, sp->cinfo.d.comp_info[0].v_samp_factor, sp->h_sampling, sp->v_sampling);
 			return 0;
 		}
 		/* Rest should have sampling factors 1,1 */
@@ -1232,18 +1221,18 @@ static int JPEGDecode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 					int value_pairs = (sp->cinfo.d.output_width * sp->cinfo.d.num_components) / 2;
 					int iPair;
 					for(iPair = 0; iPair < value_pairs; iPair++) {
-						unsigned char * out_ptr = ((unsigned char*)buf) + iPair * 3;
+						uchar * out_ptr = ((uchar *)buf) + iPair * 3;
 						JSAMPLE * in_ptr = line_work_buf + iPair * 2;
-						out_ptr[0] = (unsigned char)((in_ptr[0] & 0xff0) >> 4);
-						out_ptr[1] = (unsigned char)(((in_ptr[0] & 0xf) << 4) | ((in_ptr[1] & 0xf00) >> 8));
-						out_ptr[2] = (unsigned char)(((in_ptr[1] & 0xff) >> 0));
+						out_ptr[0] = (uchar)((in_ptr[0] & 0xff0) >> 4);
+						out_ptr[1] = (uchar)(((in_ptr[0] & 0xf) << 4) | ((in_ptr[1] & 0xf00) >> 8));
+						out_ptr[2] = (uchar)(((in_ptr[1] & 0xff) >> 0));
 					}
 				}
 				else if(sp->cinfo.d.data_precision == 8) {
 					int value_count = (sp->cinfo.d.output_width * sp->cinfo.d.num_components);
 					int iValue;
 					for(iValue = 0; iValue < value_count; iValue++) {
-						((unsigned char*)buf)[iValue] = line_work_buf[iValue] & 0xff;
+						((uchar *)buf)[iValue] = line_work_buf[iValue] & 0xff;
 					}
 				}
 			}
@@ -1296,13 +1285,10 @@ static int JPEGDecode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 		/* Cb,Cr both have sampling factors 1, so this is correct */
 		JDIMENSION clumps_per_line = sp->cinfo.d.comp_info[1].downsampled_width;
 		int samples_per_clump = sp->samplesperclump;
-
 #if defined(JPEG_LIB_MK1_OR_12BIT)
-		unsigned short* tmpbuf = SAlloc::M(sizeof(unsigned short) *
-		    sp->cinfo.d.output_width *
-		    sp->cinfo.d.num_components);
+		ushort* tmpbuf = SAlloc::M(sizeof(ushort) * sp->cinfo.d.output_width * sp->cinfo.d.num_components);
 		if(!tmpbuf) {
-			TIFFErrorExt(tif->tif_clientdata, "JPEGDecodeRaw", "Out of memory");
+			TIFFErrorExtOutOfMemory(tif->tif_clientdata, "JPEGDecodeRaw");
 			return 0;
 		}
 #endif
@@ -1339,8 +1325,7 @@ static int JPEGDecode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 #else
 					JSAMPLE * outptr = (JSAMPLE*)buf + clumpoffset;
 					if(cc < (tmsize_t)(clumpoffset + samples_per_clump*(clumps_per_line-1) + hsamp)) {
-						TIFFErrorExt(tif->tif_clientdata, "JPEGDecodeRaw",
-						    "application buffer not large enough for all data, possible subsampling issue");
+						TIFFErrorExt(tif->tif_clientdata, "JPEGDecodeRaw", "application buffer not large enough for all data, possible subsampling issue");
 						return 0;
 					}
 #endif
@@ -1370,18 +1355,18 @@ static int JPEGDecode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 					int i = 0;
 					int len = sp->cinfo.d.output_width * sp->cinfo.d.num_components;
 					for(i = 0; i<len; i++) {
-						((unsigned char*)buf)[i] = tmpbuf[i] & 0xff;
+						((uchar *)buf)[i] = tmpbuf[i] & 0xff;
 					}
 				}
 				else {     /* 12-bit */
 					int value_pairs = (sp->cinfo.d.output_width * sp->cinfo.d.num_components) / 2;
 					int iPair;
 					for(iPair = 0; iPair < value_pairs; iPair++) {
-						unsigned char * out_ptr = ((unsigned char*)buf) + iPair * 3;
+						uchar * out_ptr = ((uchar *)buf) + iPair * 3;
 						JSAMPLE * in_ptr = (JSAMPLE*)(tmpbuf + iPair * 2);
-						out_ptr[0] = (unsigned char)((in_ptr[0] & 0xff0) >> 4);
-						out_ptr[1] = (unsigned char)(((in_ptr[0] & 0xf) << 4) | ((in_ptr[1] & 0xf00) >> 8));
-						out_ptr[2] = (unsigned char)(((in_ptr[1] & 0xff) >> 0));
+						out_ptr[0] = (uchar)((in_ptr[0] & 0xff0) >> 4);
+						out_ptr[1] = (uchar)(((in_ptr[0] & 0xf) << 4) | ((in_ptr[1] & 0xf00) >> 8));
+						out_ptr[2] = (uchar)(((in_ptr[1] & 0xff) >> 0));
 					}
 				}
 			}
@@ -1773,26 +1758,18 @@ static int JPEGEncode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 		line16_count = (int)((sp->bytesperline * 2) / 3);
 		line16 = (short*)SAlloc::M(sizeof(short) * line16_count);
 		if(!line16) {
-			TIFFErrorExt(tif->tif_clientdata,
-			    "JPEGEncode",
-			    "Failed to allocate memory");
-
+			TIFFErrorExt(tif->tif_clientdata, "JPEGEncode", "Failed to allocate memory");
 			return 0;
 		}
 	}
-
 	while(nrows-- > 0) {
 		if(sp->cinfo.c.data_precision == 12) {
 			int value_pairs = line16_count / 2;
 			int iPair;
-
 			bufptr[0] = (JSAMPROW)line16;
-
 			for(iPair = 0; iPair < value_pairs; iPair++) {
-				unsigned char * in_ptr =
-				    ((unsigned char*)buf) + iPair * 3;
+				uchar * in_ptr = ((uchar *)buf) + iPair * 3;
 				JSAMPLE * out_ptr = (JSAMPLE*)(line16 + iPair * 2);
-
 				out_ptr[0] = (in_ptr[0] << 4) | ((in_ptr[1] & 0xf0) >> 4);
 				out_ptr[1] = ((in_ptr[1] & 0x0f) << 8) | in_ptr[2];
 			}
@@ -2076,7 +2053,7 @@ static void JPEGPrintDir(TIFF* tif, FILE* fd, long flags)
 	(void)flags;
 	if(sp != NULL) {
 		if(TIFFFieldSet(tif, FIELD_JPEGTABLES))
-			fprintf(fd, "  JPEG Tables: (%lu bytes)\n", (unsigned long)sp->jpegtables_length);
+			fprintf(fd, "  JPEG Tables: (%lu bytes)\n", (ulong)sp->jpegtables_length);
 		if(sp->printdir)
 			(*sp->printdir)(tif, fd, flags);
 	}
@@ -2183,7 +2160,7 @@ int TIFFInitJPEG(TIFF* tif, int scheme)
 	/*
 	 * Allocate state block so tag methods have storage to record values.
 	 */
-	tif->tif_data = (uint8 *)SAlloc::M(sizeof(JPEGState));
+	tif->tif_data = static_cast<uint8 *>(SAlloc::M(sizeof(JPEGState)));
 	if(tif->tif_data == NULL) {
 		TIFFErrorExt(tif->tif_clientdata, "TIFFInitJPEG", "No space for JPEG state block");
 		return 0;

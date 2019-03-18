@@ -58,7 +58,7 @@ int SLAPI ACS_ECR930::FlashCheck(CCheckTbl::Rec * chk, SArray * rows)
 	RowEntry * e;
 	uint   i;
 	if(rows->getCount()) {
-		for(i = 0; rows->enumItems(&i, (void**)&e);) {
+		for(i = 0; rows->enumItems(&i, (void **)&e);) {
 			sum += e->qtty * (e->price + e->dscnt);
 			dscnt += e->qtty * e->dscnt;
 		}
@@ -73,7 +73,7 @@ int SLAPI ACS_ECR930::FlashCheck(CCheckTbl::Rec * chk, SArray * rows)
 		dm.t = encodetime(h, m, (int)(chk->Code % 60), 0);
 		THROW(r = AddTempCheck(&id, chk->SessID, 0, chk->CashID, chk->Code, chk->UserID, 0 /* cardID */, dm, sum, dscnt));
 		if(r > 0) {
-			for(i = 0; rows->enumItems(&i, (void**)&e);) {
+			for(i = 0; rows->enumItems(&i, (void **)&e);) {
 				SetupTempCcLineRec(0, id, chk->Code, dm.d, e->div, e->goods);
 				SetTempCcLineValues(0, e->qtty, e->price, e->dscnt);
 				STRNSCPY(P_TmpCclTbl->data.BarCode, e->barcode);

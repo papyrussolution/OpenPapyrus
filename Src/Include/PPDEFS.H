@@ -11030,22 +11030,18 @@
 #define PPERR_NOTGENGOODS         277 // Заданный товар не является обобщенным
 #define PPERR_TOOGENGOODS         278 // Товар уже принадлежит другому обобщению %s
 #define PPERR_SCALEGRPNEEDED      279 // Необходимо задать группу товаров для весов
-//
-// Ошибки загрузки электронных весов
-//
-#define PPERR_SCALE_FOPEN         280 // Ошибка открытия входного файла
-#define PPERR_SCALE_INVPORT       281 // Неверный порт вывода для весов
-#define PPERR_SCALE_NOTREADY      282 // Весы не готовы для обмена данными
-#define PPERR_SCALE_NOSYNC        283 // Весы не отвечают на запрос синхронизации
-#define PPERR_SCALE_NOACK         284 // Весы не подтверждают прием записи товара
-#define PPERR_SCALE_RCV           285 // Ошибка приема данных с весов\n%s
-#define PPERR_SCALE_NOTREGMODE    286 // Весы не готовы для приема данных о товарах
-#define PPERR_SCALE_INVPLUID      287 // Недопустимый идентификатор товара для весов
-#define PPERR_SCALE_SEND          288 // Ошибка передачи данных на весы
-#define PPERR_SCALE_INVIP         289 // Неверный сетевой IP весов
-#define PPERR_SCALE_INITMTDLL     290 // Ошибка инициализации драйвера весов Mettler Toledo %s
-#define PPERR_SCALE_PORTOPENFAULT 291 // Ошибка открытия порта обмена с весами\n%s
-//                                300 //
+// @v10.3.9 #define PPERR_SCALE_FOPEN         280 // Ошибка открытия входного файла
+// @v10.3.9 #define PPERR_SCALE_INVPORT       281 // Неверный порт вывода для весов
+// @v10.3.9 #define PPERR_SCALE_NOTREADY      282 // Весы не готовы для обмена данными
+// @v10.3.9 #define PPERR_SCALE_NOSYNC        283 // Весы не отвечают на запрос синхронизации
+// @v10.3.9 #define PPERR_SCALE_NOACK         284 // Весы не подтверждают прием записи товара
+// @v10.3.9 #define PPERR_SCALE_RCV           285 // Ошибка приема данных с весов\n%s
+// @v10.3.9 #define PPERR_SCALE_NOTREGMODE    286 // Весы не готовы для приема данных о товарах
+// @v10.3.9 #define PPERR_SCALE_INVPLUID      287 // Недопустимый идентификатор товара для весов
+// @v10.3.9 #define PPERR_SCALE_SEND          288 // Ошибка передачи данных на весы
+// @v10.3.9 #define PPERR_SCALE_INVIP         289 // Неверный сетевой IP весов
+// @v10.3.9 #define PPERR_SCALE_INITMTDLL     290 // Ошибка инициализации драйвера весов Mettler Toledo %s
+// @v10.3.9 #define PPERR_SCALE_PORTOPENFAULT 291 // Ошибка открытия порта обмена с весами\n%s
 #define PPERR_REGPKINDNEEDED      301 // Необходимо задать вид регистрирующей организации
 #define PPERR_DIVOWNERNEEDED      302 // Необходимо задать организацию-владельца подразделения //
 #define PPERR_INVLOCTYP           303 // Недопустимое значение типа локации

@@ -59,7 +59,7 @@ zbar_image_t * zbar_image_create()
 	_zbar_refcnt_init();
 	_zbar_image_refcnt(img, 1);
 	img->srcidx = -1;
-	return(img);
+	return (img);
 }
 
 void _zbar_image_free(zbar_image_t * img)
@@ -209,7 +209,7 @@ void zbar_image_set_userdata(zbar_image_t * img, void * userdata)
 
 void * zbar_image_get_userdata(const zbar_image_t * img)
 {
-	return(img->userdata);
+	return (img->userdata);
 }
 
 zbar_image_t * zbar_image_copy(const zbar_image_t * src)
@@ -222,12 +222,12 @@ zbar_image_t * zbar_image_copy(const zbar_image_t * src)
 	assert(dst->P_Data);
 	memcpy((void *)dst->P_Data, src->P_Data, src->datalen);
 	dst->cleanup = zbar_image_free_data;
-	return(dst);
+	return (dst);
 }
 
 const zbar_symbol_set_t * zbar_image_get_symbols(const zbar_image_t * img)
 {
-	return(img->syms);
+	return (img->syms);
 }
 
 void zbar_image_set_symbols(zbar_image_t * img, const zbar_symbol_set_t * syms)
@@ -241,7 +241,7 @@ void zbar_image_set_symbols(zbar_image_t * img, const zbar_symbol_set_t * syms)
 
 const zbar_symbol_t * zbar_image_first_symbol(const zbar_image_t * img)
 {
-	return(img->syms) ? img->syms->head : NULL;
+	return (img->syms) ? img->syms->head : NULL;
 }
 
 typedef struct zimg_hdr_s {
@@ -295,7 +295,7 @@ int zbar_image_write(const zbar_image_t * img, const char * filebase)
 
 error:
 	SAlloc::F(filename);
-	return(rc);
+	return (rc);
 }
 
 #ifdef DEBUG_SVG
@@ -340,7 +340,7 @@ done:
 	SAlloc::F(rows);
 	if(file)
 		fclose(file);
-	return(rc);
+	return (rc);
 }
 
 #endif

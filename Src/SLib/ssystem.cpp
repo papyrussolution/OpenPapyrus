@@ -1,5 +1,5 @@
 // SSYSTEM.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2016, 2017
+// Copyright (c) A.Sobolev 2012, 2013, 2016, 2017, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -8,7 +8,33 @@
 //static
 int SSystem::BigEndian()
 {
-    return BIN((((const int *)"\0\x1\x2\x3\x4\x5\x6\x7")[0] & 255) != 0);
+    return BIN((reinterpret_cast<const int *>("\0\x1\x2\x3\x4\x5\x6\x7")[0] & 255) != 0);
+}
+
+//static 
+int SSystem::SGetModuleFileName(void * hModule, SString & rFileName)
+{
+	rFileName.Z();
+	DWORD size = 0;
+#ifdef _UNICODE
+	wchar_t buf[1024];
+	const size_t buf_size = SIZEOFARRAY(buf);
+	buf[0] = 0;
+	size = ::GetModuleFileNameW(static_cast<HMODULE>(hModule), buf, buf_size);
+	if(size >= buf_size)
+		buf[buf_size-1] = 0;
+	rFileName.CopyUtf8FromUnicode(buf, sstrlen(buf), 1);
+	rFileName.Transf(CTRANSF_UTF8_TO_OUTER);
+#else
+	char   buf[1024];
+	const size_t buf_size = SIZEOFARRAY(buf);
+	buf[0] = 0;
+	size = ::GetModuleFileNameA(static_cast<HMODULE>(hModule), buf, buf_size);
+	if(size >= buf_size)
+		buf[buf_size-1] = 0;
+	rFileName = buf;
+#endif
+	return BIN(size > 0);
 }
 
 SSystem::SSystem(int imm) : Flags(0)
@@ -72,7 +98,7 @@ int FASTCALL SSystem::GetCpuInfo()
 extern "C" /*_Check_return_opt_*/ __int64 __cdecl _lseeki64_nolock(int _FileHandle, __int64 _Offset, int _Origin);
 extern "C" void __cdecl __acrt_lowio_lock_fh(int _FileHandle);
 extern "C" void __cdecl __acrt_lowio_unlock_fh(int _FileHandle);
-extern "C" void __cdecl __acrt_errno_map_os_error(unsigned long);
+extern "C" void __cdecl __acrt_errno_map_os_error(ulong);
 // The number of handles for which file objects have been allocated.  This
 // number is such that for any fh in [0, _nhandle), _pioinfo(fh) is well-formed.
 extern "C" extern int _nhandle;
@@ -89,7 +115,7 @@ extern "C" extern int _nhandle;
 extern "C" int __cdecl _locking(int const fh, int const locking_mode, long const number_of_bytes)
 {
     //_CHECK_FH_CLEAR_OSSERR_RETURN(fh, EBADF, -1);
-    //_VALIDATE_CLEAR_OSSERR_RETURN(fh >= 0 && (unsigned)fh < (unsigned)_nhandle, EBADF, -1);
+    //_VALIDATE_CLEAR_OSSERR_RETURN(fh >= 0 && (uint)fh < (uint)_nhandle, EBADF, -1);
     //_VALIDATE_CLEAR_OSSERR_RETURN(_osfile(fh) & FOPEN, EBADF, -1);
     //_VALIDATE_CLEAR_OSSERR_RETURN(number_of_bytes >= 0, EINVAL, -1);
     __acrt_lowio_lock_fh(fh);

@@ -405,12 +405,12 @@ static int lazy_stat(struct archive_write_disk * a)
 {
 	if(a->pst != NULL) {
 		/* Already have stat() data available. */
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 #ifdef HAVE_FSTAT
 	if(a->fd >= 0 && fstat(a->fd, &a->st) == 0) {
 		a->pst = &a->st;
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 #endif
 	/*
@@ -419,7 +419,7 @@ static int lazy_stat(struct archive_write_disk * a)
 	 */
 	if(lstat(a->name, &a->st) == 0) {
 		a->pst = &a->st;
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 	archive_set_error(&a->archive, errno, "Couldn't stat file");
 	return (ARCHIVE_WARN);
@@ -449,7 +449,7 @@ static int64_t _archive_write_disk_filter_bytes(struct archive * _a, int n)
 	(void)n; /* UNUSED */
 	if(n == -1 || n == 0)
 		return (a->total_bytes_written);
-	return (-1);
+	return -1;
 }
 
 int archive_write_disk_set_options(struct archive * _a, int flags)
@@ -457,7 +457,7 @@ int archive_write_disk_set_options(struct archive * _a, int flags)
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 
 	a->flags = flags;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -484,7 +484,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 	if(a->archive.state & ARCHIVE_STATE_DATA) {
 		r = _archive_write_disk_finish_entry(&a->archive);
 		if(r == ARCHIVE_FATAL)
-			return (r);
+			return r;
 	}
 
 	/* Set up for this particular entry. */
@@ -517,7 +517,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 	 */
 	ret = cleanup_pathname(a);
 	if(ret != ARCHIVE_OK)
-		return (ret);
+		return ret;
 
 	/*
 	 * Query the umask so we get predictable mode settings.
@@ -678,7 +678,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 	if(a->flags & ARCHIVE_EXTRACT_SECURE_SYMLINKS) {
 		ret = check_symlinks(a);
 		if(ret != ARCHIVE_OK)
-			return (ret);
+			return ret;
 	}
 #if defined(HAVE_FCHDIR) && defined(PATH_MAX)
 	/* If path exceeds PATH_MAX, shorten the path. */
@@ -739,7 +739,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 	if(a->deferred & TODO_MODE) {
 		fe = current_fixup(a, archive_entry_pathname(entry));
 		if(fe == NULL)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		fe->fixup |= TODO_MODE_BASE;
 		fe->mode = a->mode;
 	}
@@ -749,7 +749,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 	    || archive_entry_atime_is_set(entry))) {
 		fe = current_fixup(a, archive_entry_pathname(entry));
 		if(fe == NULL)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		fe->mode = a->mode;
 		fe->fixup |= TODO_TIMES;
 		if(archive_entry_atime_is_set(entry)) {
@@ -785,7 +785,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 	if(a->deferred & TODO_ACLS) {
 		fe = current_fixup(a, archive_entry_pathname(entry));
 		if(fe == NULL)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		fe->fixup |= TODO_ACLS;
 		archive_acl_copy(&fe->acl, archive_entry_acl(entry));
 	}
@@ -797,7 +797,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 		if(metadata != NULL && metadata_size > 0) {
 			fe = current_fixup(a, archive_entry_pathname(entry));
 			if(fe == NULL)
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			fe->mac_metadata = SAlloc::M(metadata_size);
 			if(fe->mac_metadata != NULL) {
 				memcpy(fe->mac_metadata, metadata,
@@ -811,7 +811,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 	if(a->deferred & TODO_FFLAGS) {
 		fe = current_fixup(a, archive_entry_pathname(entry));
 		if(fe == NULL)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		fe->fixup |= TODO_FFLAGS;
 		/* TODO: Complete this.. defer fflags from below. */
 	}
@@ -828,7 +828,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 		a->filesize = 0;
 	}
 
-	return (ret);
+	return ret;
 }
 
 int archive_write_disk_set_skip_file(struct archive * _a, la_int64_t d, la_int64_t i)
@@ -839,7 +839,7 @@ int archive_write_disk_set_skip_file(struct archive * _a, la_int64_t d, la_int64
 	a->skip_file_set = 1;
 	a->skip_file_dev = d;
 	a->skip_file_ino = i;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static ssize_t write_data_block(struct archive_write_disk * a, const char * buff, size_t size)
@@ -849,7 +849,7 @@ static ssize_t write_data_block(struct archive_write_disk * a, const char * buff
 	ssize_t block_size = 0, bytes_to_write;
 
 	if(size == 0)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	if(a->filesize == 0 || a->fd < 0) {
 		archive_set_error(&a->archive, 0,
@@ -861,7 +861,7 @@ static ssize_t write_data_block(struct archive_write_disk * a, const char * buff
 #if HAVE_STRUCT_STAT_ST_BLKSIZE
 		int r;
 		if((r = lazy_stat(a)) != ARCHIVE_OK)
-			return (r);
+			return r;
 		block_size = a->pst->st_blksize;
 #else
 		/* XXX TODO XXX Is there a more appropriate choice here ? */
@@ -910,7 +910,7 @@ static ssize_t write_data_block(struct archive_write_disk * a, const char * buff
 			if(lseek(a->fd, a->offset, SEEK_SET) < 0) {
 				archive_set_error(&a->archive, errno,
 				    "Seek failed");
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			a->fd_offset = a->offset;
 		}
@@ -941,7 +941,7 @@ static int hfs_set_compressed_fflag(struct archive_write_disk * a)
 	int r;
 
 	if((r = lazy_stat(a)) != ARCHIVE_OK)
-		return (r);
+		return r;
 
 	a->st.st_flags |= UF_COMPRESSED;
 	if(fchflags(a->fd, a->st.st_flags) != 0) {
@@ -949,7 +949,7 @@ static int hfs_set_compressed_fflag(struct archive_write_disk * a)
 		    "Failed to set UF_COMPRESSED file flag");
 		return (ARCHIVE_WARN);
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -991,7 +991,7 @@ static int hfs_write_decmpfs(struct archive_write_disk * a)
 			    XATTR_SHOWCOMPRESSION);
 		return (ARCHIVE_WARN);
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -1046,7 +1046,7 @@ static int hfs_write_resource_fork(struct archive_write_disk * a, uchar * buff,
 		return (ARCHIVE_WARN);
 	}
 	a->rsrc_xattr_options &= ~XATTR_CREATE;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int hfs_write_compressed_data(struct archive_write_disk * a, size_t bytes_compressed)
@@ -1057,7 +1057,7 @@ static int hfs_write_compressed_data(struct archive_write_disk * a, size_t bytes
 		bytes_compressed, a->compressed_rsrc_position);
 	if(ret == ARCHIVE_OK)
 		a->compressed_rsrc_position += bytes_compressed;
-	return (ret);
+	return ret;
 }
 
 static int hfs_write_resource_fork_header(struct archive_write_disk * a)
@@ -1096,7 +1096,7 @@ static size_t hfs_set_resource_fork_footer(uchar * buff, size_t buff_size)
 		0x00, 0x00
 	};
 	if(buff_size < sizeof(rsrc_footer))
-		return (0);
+		return 0;
 	memcpy(buff, rsrc_footer, sizeof(rsrc_footer));
 	return (sizeof(rsrc_footer));
 }
@@ -1113,12 +1113,12 @@ static int hfs_reset_compressor(struct archive_write_disk * a)
 	if(ret != Z_OK) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 		    "Failed to initialize compressor");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	else
 		a->stream_valid = 1;
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int hfs_decompress(struct archive_write_disk * a)
@@ -1179,7 +1179,7 @@ static int hfs_decompress(struct archive_write_disk * a)
 		    "Failed to remove resource fork");
 		return (ARCHIVE_WARN);
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int hfs_drive_compressor(struct archive_write_disk * a, const char * buff,
@@ -1192,7 +1192,7 @@ static int hfs_drive_compressor(struct archive_write_disk * a, const char * buff
 
 	ret = hfs_reset_compressor(a);
 	if(ret != ARCHIVE_OK)
-		return (ret);
+		return ret;
 
 	if(a->compressed_buffer == NULL) {
 		size_t block_size;
@@ -1203,7 +1203,7 @@ static int hfs_drive_compressor(struct archive_write_disk * a, const char * buff
 		if(a->compressed_buffer == NULL) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't allocate memory for Resource Fork");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		a->compressed_buffer_size = block_size;
 		a->compressed_buffer_remaining = block_size;
@@ -1224,7 +1224,7 @@ static int hfs_drive_compressor(struct archive_write_disk * a, const char * buff
 			default:
 			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 				"Failed to compress data");
-			    return (ARCHIVE_FAILED);
+			    return ARCHIVE_FAILED;
 		}
 	} while(ret == Z_OK);
 	bytes_compressed = a->compressed_buffer_remaining - a->stream.avail_out;
@@ -1262,7 +1262,7 @@ static int hfs_drive_compressor(struct archive_write_disk * a, const char * buff
 		ret = hfs_write_decmpfs(a);
 		if(ret == ARCHIVE_OK)
 			ret = hfs_set_compressed_fflag(a);
-		return (ret);
+		return ret;
 	}
 
 	/* Update block info. */
@@ -1278,7 +1278,7 @@ static int hfs_drive_compressor(struct archive_write_disk * a, const char * buff
 	while(bytes_used >= COMPRESSED_W_SIZE) {
 		ret = hfs_write_compressed_data(a, COMPRESSED_W_SIZE);
 		if(ret != ARCHIVE_OK)
-			return (ret);
+			return ret;
 		bytes_used -= COMPRESSED_W_SIZE;
 		if(bytes_used > COMPRESSED_W_SIZE)
 			memmove(a->compressed_buffer,
@@ -1329,7 +1329,7 @@ static int hfs_drive_compressor(struct archive_write_disk * a, const char * buff
 		if(ret == ARCHIVE_OK)
 			ret = hfs_set_compressed_fflag(a);
 	}
-	return (ret);
+	return ret;
 }
 
 static ssize_t hfs_write_decmpfs_block(struct archive_write_disk * a, const char * buff,
@@ -1350,7 +1350,7 @@ static ssize_t hfs_write_decmpfs_block(struct archive_write_disk * a, const char
 			if(new_block == NULL) {
 				archive_set_error(&a->archive, ENOMEM,
 				    "Can't allocate memory for decmpfs");
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			a->decmpfs_header_p = new_block;
 		}
@@ -1380,7 +1380,7 @@ static ssize_t hfs_write_decmpfs_block(struct archive_write_disk * a, const char
 			if(new_block == NULL) {
 				archive_set_error(&a->archive, ENOMEM,
 				    "Can't allocate memory for ResourceFork");
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			a->resource_fork_allocated_size = new_size;
 			a->resource_fork = new_block;
@@ -1392,7 +1392,7 @@ static ssize_t hfs_write_decmpfs_block(struct archive_write_disk * a, const char
 			if(new_block == NULL) {
 				archive_set_error(&a->archive, ENOMEM,
 				    "Can't allocate memory for decmpfs");
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			a->uncompressed_buffer = new_block;
 		}
@@ -1448,7 +1448,7 @@ static ssize_t hfs_write_decmpfs_block(struct archive_write_disk * a, const char
 		ret = hfs_drive_compressor(a, buffer_to_write,
 			MAX_DECMPFS_BLOCK_SIZE - a->block_remaining_bytes);
 		if(ret < 0)
-			return (ret);
+			return ret;
 		a->block_remaining_bytes = MAX_DECMPFS_BLOCK_SIZE;
 	}
 	/* Ignore redundant bytes. */
@@ -1465,7 +1465,7 @@ static ssize_t hfs_write_data_block(struct archive_write_disk * a, const char * 
 	ssize_t bytes_to_write;
 
 	if(size == 0)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	if(a->filesize == 0 || a->fd < 0) {
 		archive_set_error(&a->archive, 0,
@@ -1485,7 +1485,7 @@ static ssize_t hfs_write_data_block(struct archive_write_disk * a, const char * 
 			/* Can't support backward move. */
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 			    "Seek failed");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		else if(a->offset > a->fd_offset) {
 			int64_t skip = a->offset - a->fd_offset;
@@ -1543,7 +1543,7 @@ static ssize_t _archive_write_disk_data_block(struct archive * _a,
 	else
 		r = write_data_block(a, buff, size);
 	if(r < ARCHIVE_OK)
-		return (r);
+		return r;
 	if((size_t)r < size) {
 		archive_set_error(&a->archive, 0,
 		    "Too much data: Truncating file at %ju bytes",
@@ -1551,7 +1551,7 @@ static ssize_t _archive_write_disk_data_block(struct archive * _a,
 		return (ARCHIVE_WARN);
 	}
 #if ARCHIVE_VERSION_NUMBER < 3999000
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 #else
 	return (size);
 #endif
@@ -1578,7 +1578,7 @@ static int _archive_write_disk_finish_entry(struct archive * _a)
 	    ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA,
 	    "archive_write_finish_entry");
 	if(a->archive.state & ARCHIVE_STATE_HEADER)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	archive_clear_error(&a->archive);
 
 	/* Pad or truncate file to the right size. */
@@ -1612,7 +1612,7 @@ static int _archive_write_disk_finish_entry(struct archive * _a)
 #if HAVE_FTRUNCATE
 		if(ftruncate(a->fd, a->filesize) == -1 && a->filesize == 0) {
 			archive_set_error(&a->archive, errno, "File size could not be restored");
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		}
 #endif
 		/*
@@ -1622,7 +1622,7 @@ static int _archive_write_disk_finish_entry(struct archive * _a)
 		 */
 		a->pst = NULL;
 		if((ret = lazy_stat(a)) != ARCHIVE_OK)
-			return (ret);
+			return ret;
 		/* We can use lseek()/write() to extend the file if
 		 * ftruncate didn't work or isn't available. */
 		if(a->st.st_size < a->filesize) {
@@ -1630,12 +1630,12 @@ static int _archive_write_disk_finish_entry(struct archive * _a)
 			if(lseek(a->fd, a->filesize - 1, SEEK_SET) < 0) {
 				archive_set_error(&a->archive, errno,
 				    "Seek failed");
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			if(write(a->fd, &nul, 1) < 0) {
 				archive_set_error(&a->archive, errno,
 				    "Write to restore size failed");
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			a->pst = NULL;
 		}
@@ -1778,7 +1778,7 @@ finish_metadata:
 		a->entry = NULL;
 	}
 	a->archive.state = ARCHIVE_STATE_HEADER;
-	return (ret);
+	return ret;
 }
 
 int archive_write_disk_set_group_lookup(struct archive * _a,
@@ -1796,7 +1796,7 @@ int archive_write_disk_set_group_lookup(struct archive * _a,
 	a->lookup_gid = lookup_gid;
 	a->cleanup_gid = cleanup_gid;
 	a->lookup_gid_data = private_data;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 int archive_write_disk_set_user_lookup(struct archive * _a,
@@ -1814,7 +1814,7 @@ int archive_write_disk_set_user_lookup(struct archive * _a,
 	a->lookup_uid = lookup_uid;
 	a->cleanup_uid = cleanup_uid;
 	a->lookup_uid_data = private_data;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 int64_t archive_write_disk_gid(struct archive * _a, const char * name, la_int64_t id)
@@ -1845,7 +1845,7 @@ struct archive * archive_write_disk_new(void)                 {
 
 	a = (struct archive_write_disk *)SAlloc::C(1, sizeof(*a));
 	if(a == NULL)
-		return (NULL);
+		return NULL;
 	a->archive.magic = ARCHIVE_WRITE_DISK_MAGIC;
 	/* We're ready to write a header immediately. */
 	a->archive.state = ARCHIVE_STATE_HEADER;
@@ -1858,7 +1858,7 @@ struct archive * archive_write_disk_new(void)                 {
 #endif /* HAVE_GETEUID */
 	if(archive_string_ensure(&a->path_safe, 512) == NULL) {
 		SAlloc::F(a);
-		return (NULL);
+		return NULL;
 	}
 #ifdef HAVE_ZLIB_H
 	a->decmpfs_compression_level = 5;
@@ -1949,7 +1949,7 @@ static int restore_entry(struct archive_write_disk * a)
 			/* We tried, but couldn't get rid of it. */
 			archive_set_error(&a->archive, errno,
 			    "Could not unlink");
-			return(ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		}
 	}
 
@@ -1968,7 +1968,7 @@ static int restore_entry(struct archive_write_disk * a)
 		archive_set_error(&a->archive, en,
 		    "Hard-link target '%s' does not exist.",
 		    archive_entry_hardlink(a->entry));
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 
 	if((en == EISDIR || en == EEXIST)
@@ -1979,7 +1979,7 @@ static int restore_entry(struct archive_write_disk * a)
 			a->todo = 0;
 		}
 		archive_entry_unset_size(a->entry);
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 
 	/*
@@ -1994,7 +1994,7 @@ static int restore_entry(struct archive_write_disk * a)
 		if(rmdir(a->name) != 0) {
 			archive_set_error(&a->archive, errno,
 			    "Can't remove already-existing dir");
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		}
 		a->pst = NULL;
 		/* Try again. */
@@ -2022,7 +2022,7 @@ static int restore_entry(struct archive_write_disk * a)
 		if(r != 0) {
 			archive_set_error(&a->archive, errno,
 			    "Can't stat existing object");
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		}
 
 		/*
@@ -2032,7 +2032,7 @@ static int restore_entry(struct archive_write_disk * a)
 		    &&  !S_ISDIR(a->st.st_mode)) {
 			if(!older(&(a->st), a->entry)) {
 				archive_entry_unset_size(a->entry);
-				return (ARCHIVE_OK);
+				return ARCHIVE_OK;
 			}
 		}
 
@@ -2042,7 +2042,7 @@ static int restore_entry(struct archive_write_disk * a)
 		    a->st.st_ino == (ino_t)a->skip_file_ino) {
 			archive_set_error(&a->archive, 0,
 			    "Refusing to overwrite archive");
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		}
 
 		if(!S_ISDIR(a->st.st_mode)) {
@@ -2052,7 +2052,7 @@ static int restore_entry(struct archive_write_disk * a)
 			if(unlink(a->name) != 0) {
 				archive_set_error(&a->archive, errno,
 				    "Can't unlink already-existing object");
-				return (ARCHIVE_FAILED);
+				return ARCHIVE_FAILED;
 			}
 			a->pst = NULL;
 			/* Try again. */
@@ -2065,7 +2065,7 @@ static int restore_entry(struct archive_write_disk * a)
 			if(rmdir(a->name) != 0) {
 				archive_set_error(&a->archive, errno,
 				    "Can't replace existing directory with non-directory");
-				return (ARCHIVE_FAILED);
+				return ARCHIVE_FAILED;
 			}
 			/* Try again. */
 			en = create_filesystem_object(a);
@@ -2091,11 +2091,11 @@ static int restore_entry(struct archive_write_disk * a)
 		if((&a->archive)->error == NULL)
 			archive_set_error(&a->archive, en, "Can't create '%s'",
 			    a->name);
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 
 	a->pst = NULL; /* Cached stat data no longer valid. */
-	return (ret);
+	return ret;
 }
 
 /*
@@ -2192,7 +2192,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 					r = errno;
 			}
 		}
-		return (r);
+		return r;
 #endif
 	}
 	linkname = archive_entry_symlink(a->entry);
@@ -2294,7 +2294,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 	/* If we managed to set the final mode, we've avoided a chmod(). */
 	if(mode == final_mode)
 		a->todo &= ~TODO_MODE;
-	return (0);
+	return 0;
 }
 
 /*
@@ -2361,7 +2361,7 @@ static int _archive_write_disk_close(struct archive * _a)
 		p = next;
 	}
 	a->fixup_list = NULL;
-	return (ret);
+	return ret;
 }
 
 static int _archive_write_disk_free(struct archive * _a)
@@ -2369,7 +2369,7 @@ static int _archive_write_disk_free(struct archive * _a)
 	struct archive_write_disk * a;
 	int ret;
 	if(_a == NULL)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	archive_check_magic(_a, ARCHIVE_WRITE_DISK_MAGIC,
 	    ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_write_disk_free");
 	a = (struct archive_write_disk *)_a;
@@ -2402,7 +2402,7 @@ static int _archive_write_disk_free(struct archive * _a)
 	}
 #endif
 	SAlloc::F(a);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -2413,7 +2413,7 @@ static struct fixup_entry * sort_dir_list(struct fixup_entry * p)               
 	struct fixup_entry * a, * b, * t;
 
 	if(p == NULL)
-		return (NULL);
+		return NULL;
 	/* A one-item list is already sorted. */
 	if(p->next == NULL)
 		return (p);
@@ -2483,7 +2483,7 @@ static struct fixup_entry * new_fixup(struct archive_write_disk * a, const char 
 	if(fe == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate memory for a fixup");
-		return (NULL);
+		return NULL;
 	}
 	fe->next = a->fixup_list;
 	a->fixup_list = fe;
@@ -2531,7 +2531,7 @@ static int check_symlinks_fsobj(char * path, int * a_eno, struct archive_string 
 	(void)error_number; /* UNUSED */
 	(void)error_string; /* UNUSED */
 	(void)flags; /* UNUSED */
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 #else
 	int res = ARCHIVE_OK;
 	char * tail;
@@ -2544,7 +2544,7 @@ static int check_symlinks_fsobj(char * path, int * a_eno, struct archive_string 
 
 	/* Nothing to do here if name is empty */
 	if(path[0] == '\0')
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	/*
 	 * Guard against symlink tricks.  Reject any archive entry whose
@@ -2564,7 +2564,7 @@ static int check_symlinks_fsobj(char * path, int * a_eno, struct archive_string 
 	restore_pwd = open(".", O_RDONLY | O_BINARY | O_CLOEXEC);
 	__archive_ensure_cloexec_flag(restore_pwd);
 	if(restore_pwd < 0)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	head = path;
 	tail = path;
 	last = 0;
@@ -2866,7 +2866,7 @@ static int cleanup_pathname_fsobj(char * path, int * a_eno, struct archive_strin
 	if(*src == '\0') {
 		fsobj_error(a_eno, a_estr, ARCHIVE_ERRNO_MISC,
 		    "Invalid empty ", "pathname");
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 
 #if defined(__CYGWIN__)
@@ -2877,7 +2877,7 @@ static int cleanup_pathname_fsobj(char * path, int * a_eno, struct archive_strin
 		if(flags & ARCHIVE_EXTRACT_SECURE_NOABSOLUTEPATHS) {
 			fsobj_error(a_eno, a_estr, ARCHIVE_ERRNO_MISC,
 			    "Path is ", "absolute");
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		}
 
 		separator = *src++;
@@ -2912,7 +2912,7 @@ static int cleanup_pathname_fsobj(char * path, int * a_eno, struct archive_strin
 						fsobj_error(a_eno, a_estr,
 						    ARCHIVE_ERRNO_MISC,
 						    "Path contains ", "'..'");
-						return (ARCHIVE_FAILED);
+						return ARCHIVE_FAILED;
 					}
 				}
 				/*
@@ -2954,7 +2954,7 @@ static int cleanup_pathname_fsobj(char * path, int * a_eno, struct archive_strin
 	}
 	/* Terminate the result. */
 	*dest = '\0';
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int cleanup_pathname(struct archive_write_disk * a)
@@ -2985,11 +2985,11 @@ static int create_parent_dir(struct archive_write_disk * a, char * path)
 	/* Remove tail element to obtain parent name. */
 	slash = strrchr(path, '/');
 	if(slash == NULL)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	*slash = '\0';
 	r = create_dir(a, path);
 	*slash = '/';
-	return (r);
+	return r;
 }
 
 /*
@@ -3022,9 +3022,9 @@ static int create_dir(struct archive_write_disk * a, char * path)
 			*slash = '\0';
 			r = create_dir(a, path);
 			*slash = '/';
-			return (r);
+			return r;
 		}
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 
 	/*
@@ -3034,32 +3034,32 @@ static int create_dir(struct archive_write_disk * a, char * path)
 	 */
 	if(stat(path, &st) == 0) {
 		if(S_ISDIR(st.st_mode))
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 		if((a->flags & ARCHIVE_EXTRACT_NO_OVERWRITE)) {
 			archive_set_error(&a->archive, EEXIST,
 			    "Can't create directory '%s'", path);
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		}
 		if(unlink(path) != 0) {
 			archive_set_error(&a->archive, errno,
 			    "Can't create directory '%s': "
 			    "Conflicting file cannot be removed",
 			    path);
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		}
 	}
 	else if(errno != ENOENT && errno != ENOTDIR) {
 		/* Stat failed? */
 		archive_set_error(&a->archive, errno,
 		    "Can't test directory '%s'", path);
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 	else if(slash != NULL) {
 		*slash = '\0';
 		r = create_dir(a, path);
 		*slash = '/';
 		if(r != ARCHIVE_OK)
-			return (r);
+			return r;
 	}
 
 	/*
@@ -3079,11 +3079,11 @@ static int create_dir(struct archive_write_disk * a, char * path)
 		if(mode != mode_final) {
 			le = new_fixup(a, path);
 			if(le == NULL)
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			le->fixup |= TODO_MODE_BASE;
 			le->mode = mode_final;
 		}
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 
 	/*
@@ -3093,11 +3093,11 @@ static int create_dir(struct archive_write_disk * a, char * path)
 	 * added.
 	 */
 	if(stat(path, &st) == 0 && S_ISDIR(st.st_mode))
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	archive_set_error(&a->archive, errno, "Failed to create dir '%s'",
 	    path);
-	return (ARCHIVE_FAILED);
+	return ARCHIVE_FAILED;
 }
 
 /*
@@ -3129,7 +3129,7 @@ static int set_ownership(struct archive_write_disk * a)
 	if(a->fd >= 0 && fchown(a->fd, a->uid, a->gid) == 0) {
 		/* We've set owner and know uid/gid are correct. */
 		a->todo &= ~(TODO_OWNER | TODO_SGID_CHECK | TODO_SUID_CHECK);
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 #endif
 
@@ -3139,13 +3139,13 @@ static int set_ownership(struct archive_write_disk * a)
 	if(lchown(a->name, a->uid, a->gid) == 0) {
 		/* We've set owner and know uid/gid are correct. */
 		a->todo &= ~(TODO_OWNER | TODO_SGID_CHECK | TODO_SUID_CHECK);
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 #elif HAVE_CHOWN
 	if(!S_ISLNK(a->mode) && chown(a->name, a->uid, a->gid) == 0) {
 		/* We've set owner and know uid/gid are correct. */
 		a->todo &= ~(TODO_OWNER | TODO_SGID_CHECK | TODO_SUID_CHECK);
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 #endif
 
@@ -3204,7 +3204,7 @@ static int set_time(int fd, int mode, const char * name,
 	return (lutimes(name, times));
 #else
 	if(S_ISLNK(mode))
-		return (0);
+		return 0;
 	return (utimes(name, times));
 #endif
 
@@ -3221,7 +3221,7 @@ static int set_time(int fd, int mode, const char * name,
 	times.actime = atime;
 	times.modtime = mtime;
 	if(S_ISLNK(mode))
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	return (utime(name, &times));
 
 #else
@@ -3282,7 +3282,7 @@ static int set_times(struct archive_write_disk * a,
 	    set_time_tru64(fd, mode, name,
 	    atime, atime_nanos, mtime,
 	    mtime_nanos, cctime, ctime_nanos) == 0) {
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 #else /* Tru64 */
 	(void)cctime; /* UNUSED */
@@ -3315,7 +3315,7 @@ static int set_times(struct archive_write_disk * a,
 		    "Can't restore time");
 		return (ARCHIVE_WARN);
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int set_times_from_entry(struct archive_write_disk * a)
@@ -3333,7 +3333,7 @@ static int set_times_from_entry(struct archive_write_disk * a)
 	    && !archive_entry_birthtime_is_set(a->entry)
 #endif
 	    && !archive_entry_mtime_is_set(a->entry))
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	if(archive_entry_atime_is_set(a->entry)) {
 		atime = archive_entry_atime(a->entry);
@@ -3372,7 +3372,7 @@ static int set_mode(struct archive_write_disk * a, int mode)
 		 * the enclosing dir or based on ACLs.
 		 */
 		if((r = lazy_stat(a)) != ARCHIVE_OK)
-			return (r);
+			return r;
 		if(a->pst->st_gid != a->gid) {
 			mode &= ~S_ISGID;
 			if(a->flags & ARCHIVE_EXTRACT_OWNER) {
@@ -3474,7 +3474,7 @@ static int set_mode(struct archive_write_disk * a, int mode)
 			r = ARCHIVE_WARN;
 		}
 	}
-	return (r);
+	return r;
 }
 
 static int set_fflags(struct archive_write_disk * a)
@@ -3538,7 +3538,7 @@ static int set_fflags(struct archive_write_disk * a)
 		if((critical_flags != 0)  &&  (set & critical_flags)) {
 			le = current_fixup(a, a->name);
 			if(le == NULL)
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			le->fixup |= TODO_FFLAGS;
 			le->fflags_set = set;
 			/* Store the mode if it's not already there. */
@@ -3549,10 +3549,10 @@ static int set_fflags(struct archive_write_disk * a)
 			r = set_fflags_platform(a, a->fd,
 				a->name, mode, set, clear);
 			if(r != ARCHIVE_OK)
-				return (r);
+				return r;
 		}
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int clear_nochange_fflags(struct archive_write_disk * a)
@@ -3596,7 +3596,7 @@ static int set_fflags_platform(struct archive_write_disk * a, int fd, const char
 
 	(void)mode; /* UNUSED */
 	if(set == 0  && clear == 0)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	/*
 	 * XXX Is the stat here really necessary?  Or can I just use
@@ -3605,14 +3605,14 @@ static int set_fflags_platform(struct archive_write_disk * a, int fd, const char
 	 * file that already has flags on it. XXX
 	 */
 	if((r = lazy_stat(a)) != ARCHIVE_OK)
-		return (r);
+		return r;
 
 	a->st.st_flags &= ~clear;
 	a->st.st_flags |= set;
 #ifdef HAVE_FCHFLAGS
 	/* If platform has fchflags() and we were given an fd, use it. */
 	if(fd >= 0 && fchflags(fd, a->st.st_flags) == 0)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 #endif
 	/*
 	 * If we can't use the fd to set the flags, we'll use the
@@ -3621,7 +3621,7 @@ static int set_fflags_platform(struct archive_write_disk * a, int fd, const char
 	 */
 #ifdef HAVE_LCHFLAGS
 	if(lchflags(name, a->st.st_flags) == 0)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 #elif defined(HAVE_CHFLAGS)
 	if(S_ISLNK(a->st.st_mode)) {
 		archive_set_error(&a->archive, errno,
@@ -3629,7 +3629,7 @@ static int set_fflags_platform(struct archive_write_disk * a, int fd, const char
 		return (ARCHIVE_WARN);
 	}
 	if(chflags(name, a->st.st_flags) == 0)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 #endif
 	archive_set_error(&a->archive, errno,
 	    "Failed to set file flags");
@@ -3652,10 +3652,10 @@ static int set_fflags_platform(struct archive_write_disk * a, int fd, const char
 	int sf_mask = 0;
 
 	if(set == 0 && clear == 0)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	/* Only regular files and dirs can have flags. */
 	if(!S_ISREG(mode) && !S_ISDIR(mode))
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	/* If we weren't given an fd, open it ourselves. */
 	if(myfd < 0) {
@@ -3663,7 +3663,7 @@ static int set_fflags_platform(struct archive_write_disk * a, int fd, const char
 		__archive_ensure_cloexec_flag(myfd);
 	}
 	if(myfd < 0)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	/*
 	 * Linux has no define for the flags that are only settable by
@@ -3735,7 +3735,7 @@ fail:
 cleanup:
 	if(fd < 0)
 		close(myfd);
-	return (ret);
+	return ret;
 }
 
 #else
@@ -3753,7 +3753,7 @@ static int set_fflags_platform(struct archive_write_disk * a, int fd, const char
 	(void)mode; /* UNUSED */
 	(void)set; /* UNUSED */
 	(void)clear; /* UNUSED */
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 #endif /* __linux */
@@ -3767,14 +3767,14 @@ static int set_mac_metadata(struct archive_write_disk * a, const char * pathname
 	(void)pathname; /* UNUSED */
 	(void)metadata; /* UNUSED */
 	(void)metadata_size; /* UNUSED */
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int fixup_appledouble(struct archive_write_disk * a, const char * pathname)
 {
 	(void)a; /* UNUSED */
 	(void)pathname; /* UNUSED */
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 #else
@@ -3852,7 +3852,7 @@ static int copy_xattrs(struct archive_write_disk * a, int tmpfd, int dffd)
 exit_xattr:
 	SAlloc::F(xattr_names);
 	SAlloc::F(xattr_val);
-	return (ret);
+	return ret;
 }
 
 #endif
@@ -3869,7 +3869,7 @@ static int copy_acls(struct archive_write_disk * a, int tmpfd, int dffd)
 	if(acl == NULL) {
 		if(errno == ENOENT)
 			/* There are not any ACLs. */
-			return (ret);
+			return ret;
 		archive_set_error(&a->archive, errno,
 		    "Failed to get metadata(acl)");
 		ret = ARCHIVE_WARN;
@@ -3888,7 +3888,7 @@ exit_acl:
 		acl_free(acl);
 	if(dfacl)
 		acl_free(dfacl);
-	return (ret);
+	return ret;
 #endif
 }
 
@@ -3904,7 +3904,7 @@ static int create_tempdatafork(struct archive_write_disk * a, const char * pathn
 		archive_set_error(&a->archive, errno,
 		    "Failed to mkstemp");
 		archive_string_free(&tmpdatafork);
-		return (-1);
+		return -1;
 	}
 	if(copyfile(pathname, tmpdatafork.s, 0,
 	    COPYFILE_UNPACK | COPYFILE_NOFOLLOW
@@ -3961,7 +3961,7 @@ static int copy_metadata(struct archive_write_disk * a, const char * metadata,
 			ret = ARCHIVE_WARN;
 		}
 	}
-	return (ret);
+	return ret;
 }
 
 static int set_mac_metadata(struct archive_write_disk * a, const char * pathname,
@@ -4008,7 +4008,7 @@ static int set_mac_metadata(struct archive_write_disk * a, const char * pathname
 	}
 	unlink(tmp.s);
 	archive_string_free(&tmp);
-	return (ret);
+	return ret;
 }
 
 static int fixup_appledouble(struct archive_write_disk * a, const char * pathname)
@@ -4079,7 +4079,7 @@ static int fixup_appledouble(struct archive_write_disk * a, const char * pathnam
 	}
 skip_appledouble:
 	archive_string_free(&datafork);
-	return (ret);
+	return ret;
 }
 
 #endif
@@ -4174,7 +4174,7 @@ static int set_xattrs(struct archive_write_disk * a)
 	}
 
 	archive_string_free(&errlist);
-	return (ret);
+	return ret;
 }
 
 #elif ARCHIVE_XATTR_FREEBSD
@@ -4249,7 +4249,7 @@ static int set_xattrs(struct archive_write_disk * a)
 	}
 
 	archive_string_free(&errlist);
-	return (ret);
+	return ret;
 }
 
 #else
@@ -4269,7 +4269,7 @@ static int set_xattrs(struct archive_write_disk * a)
 		return (ARCHIVE_WARN);
 	}
 	/* Warning was already emitted; suppress further warnings. */
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 #endif
@@ -4285,7 +4285,7 @@ static int older(struct stat * st, struct archive_entry * entry)
 		return (1);
 	/* Definitely younger. */
 	if(to_int64_time(st->st_mtime) > to_int64_time(archive_entry_mtime(entry)))
-		return (0);
+		return 0;
 	/* If this platform supports fractional seconds, try those. */
 #if HAVE_STRUCT_STAT_ST_MTIMESPEC_TV_NSEC
 	/* Definitely older. */
@@ -4311,7 +4311,7 @@ static int older(struct stat * st, struct archive_entry * entry)
 	/* This system doesn't have high-res timestamps. */
 #endif
 	/* Same age or newer, so not older. */
-	return (0);
+	return 0;
 }
 
 #ifndef ARCHIVE_ACL_SUPPORT
@@ -4323,7 +4323,7 @@ int archive_write_disk_set_acls(struct archive * a, int fd, const char * name,
 	(void)name; /* UNUSED */
 	(void)abstract_acl; /* UNUSED */
 	(void)mode; /* UNUSED */
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 #endif

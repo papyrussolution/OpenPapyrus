@@ -167,7 +167,7 @@ static int archive_string_append_unicode(struct archive_string *, const void *, 
 static struct archive_string * FASTCALL archive_string_append(struct archive_string * as, const char * p, size_t s) 
 {
 	if(archive_string_ensure(as, as->length + s + 1) == NULL)
-		return (NULL);
+		return NULL;
 	if(s)
 		memmove(as->s + as->length, p, s);
 	as->length += s;
@@ -178,7 +178,7 @@ static struct archive_string * FASTCALL archive_string_append(struct archive_str
 static struct archive_wstring * FASTCALL archive_wstring_append(struct archive_wstring * as, const wchar_t * p, size_t s) 
 {
 	if(archive_wstring_ensure(as, as->length + s + 1) == NULL)
-		return (NULL);
+		return NULL;
 	if(s)
 		wmemmove(as->s + as->length, p, s);
 	as->length += s;
@@ -257,7 +257,7 @@ struct archive_string * FASTCALL archive_string_ensure(struct archive_string * a
 			/* On failure, wipe the string and return NULL. */
 			archive_string_free(as);
 			errno = ENOMEM;/* Make sure errno has ENOMEM. */
-			return (NULL);
+			return NULL;
 		}
 	}
 	/*
@@ -273,7 +273,7 @@ struct archive_string * FASTCALL archive_string_ensure(struct archive_string * a
 		/* On failure, wipe the string and return NULL. */
 		archive_string_free(as);
 		errno = ENOMEM;/* Make sure errno has ENOMEM. */
-		return (NULL);
+		return NULL;
 	}
 	as->s = p;
 	as->buffer_length = new_length;
@@ -286,14 +286,12 @@ struct archive_string * FASTCALL archive_string_ensure(struct archive_string * a
  * always called with pretty short arguments, so
  * such an optimization might not help).
  */
-struct archive_string * archive_strncat(struct archive_string * as, const void * _p, size_t n) 
+struct archive_string * FASTCALL archive_strncat(struct archive_string * as, const void * _p, size_t n) 
 {
-	size_t s;
-	const char * pp;
+	size_t s = 0;
 	const char * p = (const char *)_p;
 	/* Like strlen(p), except won't examine positions beyond p[n]. */
-	s = 0;
-	pp = p;
+	const char * pp = p;
 	while(s < n && *pp) {
 		pp++;
 		s++;
@@ -303,13 +301,11 @@ struct archive_string * archive_strncat(struct archive_string * as, const void *
 	return (as);
 }
 
-struct archive_wstring * archive_wstrncat(struct archive_wstring * as, const wchar_t * p, size_t n) 
+struct archive_wstring * FASTCALL archive_wstrncat(struct archive_wstring * as, const wchar_t * p, size_t n) 
 {
-	size_t s;
-	const wchar_t * pp;
+	size_t s = 0;
 	/* Like strlen(p), except won't examine positions beyond p[n]. */
-	s = 0;
-	pp = p;
+	const wchar_t * pp = p;
 	while(s < n && *pp) {
 		pp++;
 		s++;
@@ -319,7 +315,8 @@ struct archive_wstring * archive_wstrncat(struct archive_wstring * as, const wch
 	return (as);
 }
 
-struct archive_string * archive_strcat(struct archive_string * as, const void * p) {
+struct archive_string * FASTCALL archive_strcat(struct archive_string * as, const void * p) 
+{
 	/* strcat is just strncat without an effective limit.
 	 * Assert that we'll never get called with a source
 	 * string over 16MB.
@@ -329,18 +326,21 @@ struct archive_string * archive_strcat(struct archive_string * as, const void * 
 	return archive_strncat(as, p, 0x1000000);
 }
 
-struct archive_wstring * archive_wstrcat(struct archive_wstring * as, const wchar_t * p) {
+struct archive_wstring * archive_wstrcat(struct archive_wstring * as, const wchar_t * p) 
+{
 	/* Ditto. */
 	return archive_wstrncat(as, p, 0x1000000);
 }
 
-struct archive_string * archive_strappend_char(struct archive_string * as, char c) {
+struct archive_string * FASTCALL archive_strappend_char(struct archive_string * as, char c) 
+{
 	if((as = archive_string_append(as, &c, 1)) == NULL)
 		__archive_errx(1, "Out of memory");
 	return (as);
 }
 
-struct archive_wstring * archive_wstrappend_wchar(struct archive_wstring * as, wchar_t c) {
+struct archive_wstring * archive_wstrappend_wchar(struct archive_wstring * as, wchar_t c) 
+{
 	if((as = archive_wstring_append(as, &c, 1)) == NULL)
 		__archive_errx(1, "Out of memory");
 	return (as);
@@ -359,7 +359,8 @@ struct archive_wstring * archive_wstrappend_wchar(struct archive_wstring * as, w
  * which some platform nl_langinfo(CODESET) returns, so we should
  * use locale_charset() instead of nl_langinfo(CODESET) for GNU libiconv.
  */
-static const char * default_iconv_charset(const char * charset) {
+static const char * default_iconv_charset(const char * charset) 
+{
 	if(charset != NULL && charset[0] != '\0')
 		return charset;
 #if HAVE_LOCALE_CHARSET && !defined(__APPLE__)
@@ -378,34 +379,27 @@ static const char * default_iconv_charset(const char * charset) {
  * Convert MBS to WCS.
  * Note: returns -1 if conversion fails.
  */
-int archive_wstring_append_from_mbs(struct archive_wstring * dest,
-    const char * p, size_t len)
+int archive_wstring_append_from_mbs(struct archive_wstring * dest, const char * p, size_t len)
 {
 	return archive_wstring_append_from_mbs_in_codepage(dest, p, len, NULL);
 }
 
-static int archive_wstring_append_from_mbs_in_codepage(struct archive_wstring * dest,
-    const char * s, size_t length, struct archive_string_conv * sc)
+static int archive_wstring_append_from_mbs_in_codepage(struct archive_wstring * dest, const char * s, size_t length, struct archive_string_conv * sc)
 {
 	int count, ret = 0;
 	UINT from_cp;
-
 	if(sc != NULL)
 		from_cp = sc->from_cp;
 	else
 		from_cp = get_current_codepage();
-
 	if(from_cp == CP_C_LOCALE) {
 		/*
 		 * "C" locale special process.
 		 */
 		wchar_t * ws;
 		const uchar * mp;
-
-		if(NULL == archive_wstring_ensure(dest,
-		    dest->length + length + 1))
-			return (-1);
-
+		if(NULL == archive_wstring_ensure(dest, dest->length + length + 1))
+			return -1;
 		ws = dest->s + dest->length;
 		mp = (const uchar*)s;
 		count = 0;
@@ -414,20 +408,17 @@ static int archive_wstring_append_from_mbs_in_codepage(struct archive_wstring * 
 			count++;
 		}
 	}
-	else if(sc != NULL &&
-	    (sc->flag & (SCONV_NORMALIZATION_C | SCONV_NORMALIZATION_D))) {
+	else if(sc != NULL && (sc->flag & (SCONV_NORMALIZATION_C | SCONV_NORMALIZATION_D))) {
 		/*
 		 * Normalize UTF-8 and UTF-16BE and convert it directly
 		 * to UTF-16 as wchar_t.
 		 */
 		struct archive_string u16;
 		int saved_flag = sc->flag;/* save current flag. */
-
 		if(is_big_endian())
 			sc->flag |= SCONV_TO_UTF16BE;
 		else
 			sc->flag |= SCONV_TO_UTF16LE;
-
 		if(sc->flag & SCONV_FROM_UTF16) {
 			/*
 			 *  UTF-16BE/LE NFD ===> UTF-16 NFC
@@ -453,7 +444,7 @@ static int archive_wstring_append_from_mbs_in_codepage(struct archive_wstring * 
 		dest->length = u16.length >> 1;
 		dest->buffer_length = u16.buffer_length;
 		sc->flag = saved_flag;/* restore the saved flag. */
-		return (ret);
+		return ret;
 	}
 	else if(sc != NULL && (sc->flag & SCONV_FROM_UTF16)) {
 		count = (int)utf16nbytes(s, length);
@@ -461,7 +452,7 @@ static int archive_wstring_append_from_mbs_in_codepage(struct archive_wstring * 
 		/* Allocate memory for WCS. */
 		if(NULL == archive_wstring_ensure(dest,
 		    dest->length + count + 1))
-			return (-1);
+			return -1;
 		wmemcpy(dest->s + dest->length, (const wchar_t*)s, count);
 		if((sc->flag & SCONV_FROM_UTF16BE) && !is_big_endian()) {
 			uint16_t * u16 = (uint16_t*)(dest->s + dest->length);
@@ -483,7 +474,6 @@ static int archive_wstring_append_from_mbs_in_codepage(struct archive_wstring * 
 	else {
 		DWORD mbflag;
 		size_t buffsize;
-
 		if(sc == NULL)
 			mbflag = 0;
 		else if(sc->flag & SCONV_FROM_CHARSET) {
@@ -494,12 +484,11 @@ static int archive_wstring_append_from_mbs_in_codepage(struct archive_wstring * 
 		}
 		else
 			mbflag = MB_PRECOMPOSED;
-
 		buffsize = dest->length + length + 1;
 		do {
 			/* Allocate memory for WCS. */
 			if(NULL == archive_wstring_ensure(dest, buffsize))
-				return (-1);
+				return -1;
 			/* Convert MBS to WCS. */
 			count = MultiByteToWideChar(from_cp,
 				mbflag, s, (int)length, dest->s + dest->length,
@@ -517,7 +506,7 @@ static int archive_wstring_append_from_mbs_in_codepage(struct archive_wstring * 
 	}
 	dest->length += count;
 	dest->s[dest->length] = L'\0';
-	return (ret);
+	return ret;
 }
 
 #else
@@ -544,7 +533,7 @@ int archive_wstring_append_from_mbs(struct archive_wstring * dest,
 	memzero(&shift_state, sizeof(shift_state));
 #endif
 	if(NULL == archive_wstring_ensure(dest, dest->length + wcs_length + 1))
-		return (-1);
+		return -1;
 	wcs = dest->s + dest->length;
 	/*
 	 * We cannot use mbsrtowcs/mbstowcs here because those may convert
@@ -558,7 +547,7 @@ int archive_wstring_append_from_mbs(struct archive_wstring * dest,
 			wcs_length = mbs_length;
 			if(NULL == archive_wstring_ensure(dest,
 			    dest->length + wcs_length + 1))
-				return (-1);
+				return -1;
 			wcs = dest->s + dest->length;
 		}
 #if HAVE_MBRTOWC
@@ -629,7 +618,7 @@ static int archive_string_append_from_wcs_in_codepage(struct archive_string * as
 
 		if(NULL == archive_string_ensure(as,
 		    as->length + wslen +1))
-			return (-1);
+			return -1;
 		p = as->s + as->length;
 		count = 0;
 		defchar_used = 0;
@@ -649,7 +638,7 @@ static int archive_string_append_from_wcs_in_codepage(struct archive_string * as
 
 		if(NULL ==
 		    archive_string_ensure(as, as->length + len * 2 + 2))
-			return (-1);
+			return -1;
 		u16 = (uint16_t*)(as->s + as->length);
 		count = 0;
 		defchar_used = 0;
@@ -673,7 +662,7 @@ static int archive_string_append_from_wcs_in_codepage(struct archive_string * as
 		/* Make sure the MBS buffer has plenty to set. */
 		if(NULL ==
 		    archive_string_ensure(as, as->length + len * 2 + 1))
-			return (-1);
+			return -1;
 		do {
 			defchar_used = 0;
 			if(to_cp == CP_UTF8 || sc == NULL)
@@ -687,7 +676,7 @@ static int archive_string_append_from_wcs_in_codepage(struct archive_string * as
 				/* Expand the MBS buffer and retry. */
 				if(NULL == archive_string_ensure(as,
 				    as->buffer_length + len))
-					return (-1);
+					return -1;
 				continue;
 			}
 			if(count == 0)
@@ -732,7 +721,7 @@ int archive_string_append_from_wcs(struct archive_string * as,
 	 * as->s is still NULL.
 	 */
 	if(archive_string_ensure(as, as->length + len + 1) == NULL)
-		return (-1);
+		return -1;
 
 	p = as->s + as->length;
 	end = as->s + as->buffer_length - MB_CUR_MAX -1;
@@ -743,7 +732,7 @@ int archive_string_append_from_wcs(struct archive_string * as,
 			/* Re-allocate buffer for MBS. */
 			if(archive_string_ensure(as,
 			    as->length + len * 2 + 1) == NULL)
-				return (-1);
+				return -1;
 			p = as->s + as->length;
 			end = as->s + as->buffer_length - MB_CUR_MAX -1;
 		}
@@ -787,7 +776,7 @@ int archive_string_append_from_wcs(struct archive_string * as,
 	(void)w;/* UNUSED */
 	(void)len;/* UNUSED */
 	errno = ENOSYS;
-	return (-1);
+	return -1;
 }
 
 #endif /* HAVE_WCTOMB || HAVE_WCRTOMB */
@@ -802,7 +791,7 @@ static struct archive_string_conv * find_sconv_object(struct archive * a, const 
 	struct archive_string_conv * sc;
 
 	if(a == NULL)
-		return (NULL);
+		return NULL;
 
 	for(sc = a->sconv; sc != NULL; sc = sc->next) {
 		if(strcmp(sc->from_charset, fc) == 0 &&
@@ -1056,18 +1045,18 @@ static struct archive_string_conv * create_sconv_object(const char * fc, const c
 {
 	struct archive_string_conv * sc = (struct archive_string_conv *)SAlloc::C(1, sizeof(*sc));
 	if(sc == NULL)
-		return (NULL);
+		return NULL;
 	sc->next = NULL;
 	sc->from_charset = strdup(fc);
 	if(sc->from_charset == NULL) {
 		SAlloc::F(sc);
-		return (NULL);
+		return NULL;
 	}
 	sc->to_charset = strdup(tc);
 	if(sc->to_charset == NULL) {
 		SAlloc::F(sc->from_charset);
 		SAlloc::F(sc);
-		return (NULL);
+		return NULL;
 	}
 	archive_string_init(&sc->utftmp);
 
@@ -1259,7 +1248,7 @@ static unsigned my_atoi(const char * p)
 		if(*p >= '0' && *p <= '9')
 			cp = cp * 10 + (*p - '0');
 		else
-			return (-1);
+			return -1;
 		p++;
 	}
 	return (cp);
@@ -1538,18 +1527,18 @@ static unsigned get_current_oemcp(void)
 
 static unsigned get_current_codepage(void)
 {
-	return (-1);/* Unknown */
+	return -1;/* Unknown */
 }
 
 static unsigned make_codepage_from_charset(const char * charset)
 {
 	(void)charset; /* UNUSED */
-	return (-1);/* Unknown */
+	return -1;/* Unknown */
 }
 
 static unsigned get_current_oemcp(void)
 {
-	return (-1);/* Unknown */
+	return -1;/* Unknown */
 }
 
 #endif /* defined(_WIN32) && !defined(__CYGWIN__) */
@@ -1579,7 +1568,7 @@ static struct archive_string_conv * get_sconv_object(struct archive * a, const c
 			archive_set_error(a, ENOMEM,
 			    "Could not allocate memory for "
 			    "a string conversion object");
-		return (NULL);
+		return NULL;
 	}
 
 	/*
@@ -1600,7 +1589,7 @@ static struct archive_string_conv * get_sconv_object(struct archive * a, const c
 		}
 		/* Failed; free a sconv object. */
 		free_sconv_object(sc);
-		return (NULL);
+		return NULL;
 	}
 
 	/*
@@ -1674,7 +1663,7 @@ struct archive_string_conv * archive_string_default_conversion_for_read(struct a
 	if(cur_charset != NULL &&
 	    (a->current_codepage == CP_C_LOCALE ||
 	    a->current_codepage == a->current_oemcp))
-		return (NULL); /* no conversion. */
+		return NULL; /* no conversion. */
 
 	_snprintf(oemcp, sizeof(oemcp)-1, "CP%d", a->current_oemcp);
 	/* Make sure a null termination must be set. */
@@ -1693,7 +1682,7 @@ struct archive_string_conv * archive_string_default_conversion_for_write(struct 
 	if(cur_charset != NULL &&
 	    (a->current_codepage == CP_C_LOCALE ||
 	    a->current_codepage == a->current_oemcp))
-		return (NULL); /* no conversion. */
+		return NULL; /* no conversion. */
 
 	_snprintf(oemcp, sizeof(oemcp)-1, "CP%d", a->current_oemcp);
 	/* Make sure a null termination must be set. */
@@ -1705,12 +1694,12 @@ struct archive_string_conv * archive_string_default_conversion_for_write(struct 
 #else
 struct archive_string_conv * archive_string_default_conversion_for_read(struct archive * a) {
 	(void)a; /* UNUSED */
-	return (NULL);
+	return NULL;
 }
 
 struct archive_string_conv * archive_string_default_conversion_for_write(struct archive * a) {
 	(void)a; /* UNUSED */
-	return (NULL);
+	return NULL;
 }
 
 #endif
@@ -1817,8 +1806,8 @@ static size_t mbsnbytes(const void * _p, size_t n)
 	const char * p, * pp;
 
 	if(_p == NULL)
-		return (0);
-	p = (const char*)_p;
+		return 0;
+	p = (const char *)_p;
 
 	/* Like strlen(p), except won't examine positions beyond p[n]. */
 	s = 0;
@@ -1836,8 +1825,8 @@ static size_t utf16nbytes(const void * _p, size_t n)
 	const char * p, * pp;
 
 	if(_p == NULL)
-		return (0);
-	p = (const char*)_p;
+		return 0;
+	p = (const char *)_p;
 
 	/* Like strlen(p), except won't examine positions beyond p[n]. */
 	s = 0;
@@ -1878,11 +1867,11 @@ int archive_strncat_l(struct archive_string * as, const void * _p, size_t n,
 		if(sc != NULL && (sc->flag & SCONV_TO_UTF16))
 			tn = 2;
 		if(archive_string_ensure(as, as->length + tn) == NULL)
-			return (-1);
+			return -1;
 		as->s[as->length] = 0;
 		if(tn == 2)
 			as->s[as->length+1] = 0;
-		return (0);
+		return 0;
 	}
 
 	/*
@@ -1890,8 +1879,8 @@ int archive_strncat_l(struct archive_string * as, const void * _p, size_t n,
 	 */
 	if(sc == NULL) {
 		if(archive_string_append(as, (const char *)_p, length) == NULL)
-			return (-1); /* No memory */
-		return (0);
+			return -1; /* No memory */
+		return 0;
 	}
 	s = _p;
 	i = 0;
@@ -1909,7 +1898,7 @@ int archive_strncat_l(struct archive_string * as, const void * _p, size_t n,
 	r2 = sc->converter[i](as, s, length, sc);
 	if(r > r2)
 		r = r2;
-	return (r);
+	return r;
 }
 
 #if HAVE_ICONV
@@ -1938,7 +1927,7 @@ static int iconv_strncat_in_locale(struct archive_string * as, const void * _p,
 		from_size = 1;
 
 	if(archive_string_ensure(as, as->length + length*2+to_size) == NULL)
-		return (-1);
+		return -1;
 
 	cd = sc->cd;
 	itp = (char*)(uintptr_t)_p;
@@ -1970,7 +1959,7 @@ static int iconv_strncat_in_locale(struct archive_string * as, const void * _p,
 					    (remaining * to_size) + rbytes;
 					if(NULL ==
 					    archive_string_ensure(as, bs))
-						return (-1);
+						return -1;
 					outp = as->s + as->length;
 					avail = as->buffer_length
 					    - as->length - to_size;
@@ -1999,7 +1988,7 @@ static int iconv_strncat_in_locale(struct archive_string * as, const void * _p,
 			as->length = outp - as->s;
 			bs = as->buffer_length + remaining * 2;
 			if(NULL == archive_string_ensure(as, bs))
-				return (-1);
+				return -1;
 			outp = as->s + as->length;
 			avail = as->buffer_length - as->length - to_size;
 		}
@@ -2022,7 +2011,7 @@ static int iconv_strncat_in_locale(struct archive_string * as, const void * _p,
 static int strncat_in_codepage(struct archive_string * as,
     const void * _p, size_t length, struct archive_string_conv * sc)
 {
-	const char * s = (const char*)_p;
+	const char * s = (const char *)_p;
 	struct archive_wstring aws;
 	size_t l;
 	int r, saved_flag;
@@ -2036,7 +2025,7 @@ static int strncat_in_codepage(struct archive_string * as,
 		archive_wstring_free(&aws);
 		if(errno != ENOMEM)
 			archive_string_append(as, s, length);
-		return (-1);
+		return -1;
 	}
 
 	l = as->length;
@@ -2045,7 +2034,7 @@ static int strncat_in_codepage(struct archive_string * as,
 	if(r != 0 && errno != ENOMEM && l == as->length)
 		archive_string_append(as, s, length);
 	archive_wstring_free(&aws);
-	return (r);
+	return r;
 }
 
 /*
@@ -2053,7 +2042,7 @@ static int strncat_in_codepage(struct archive_string * as,
  */
 static int invalid_mbs(const void * _p, size_t n, struct archive_string_conv * sc)
 {
-	const char * p = (const char*)_p;
+	const char * p = (const char *)_p;
 	unsigned codepage;
 	DWORD mbflag = MB_ERR_INVALID_CHARS;
 
@@ -2063,13 +2052,13 @@ static int invalid_mbs(const void * _p, size_t n, struct archive_string_conv * s
 		codepage = sc->from_cp;
 
 	if(codepage == CP_C_LOCALE)
-		return (0);
+		return 0;
 	if(codepage != CP_UTF8)
 		mbflag |= MB_PRECOMPOSED;
 
 	if(MultiByteToWideChar(codepage, mbflag, p, (int)n, NULL, 0) == 0)
-		return (-1); /* Invalid */
-	return (0); /* Okay */
+		return -1; /* Invalid */
+	return 0; /* Okay */
 }
 
 #else
@@ -2079,7 +2068,7 @@ static int invalid_mbs(const void * _p, size_t n, struct archive_string_conv * s
  */
 static int invalid_mbs(const void * _p, size_t n, struct archive_string_conv * sc)
 {
-	const char * p = (const char*)_p;
+	const char * p = (const char *)_p;
 	size_t r;
 #if HAVE_MBRTOWC
 	mbstate_t shift_state;
@@ -2096,14 +2085,14 @@ static int invalid_mbs(const void * _p, size_t n, struct archive_string_conv * s
 		r = mbtowc(&wc, p, n);
 #endif
 		if(r == (size_t)-1 || r == (size_t)-2)
-			return (-1); /* Invalid. */
+			return -1; /* Invalid. */
 		if(r == 0)
 			break;
 		p += r;
 		n -= r;
 	}
 	(void)sc; /* UNUSED */
-	return (0); /* All Okey. */
+	return 0; /* All Okey. */
 }
 
 #endif /* defined(_WIN32) && !defined(__CYGWIN__) */
@@ -2127,7 +2116,7 @@ static int best_effort_strncat_in_locale(struct archive_string * as, const void 
 	 */
 	if(sc->same) {
 		if(archive_string_append(as, (const char *)_p, length) == NULL)
-			return (-1); /* No memory */
+			return -1; /* No memory */
 		return (invalid_mbs(_p, length, sc));
 	}
 	/*
@@ -2203,13 +2192,13 @@ static int _utf8_to_unicode(uint32_t * pwc, const char * s, size_t n)
 
 	/* Sanity check. */
 	if(n == 0)
-		return (0);
+		return 0;
 	/*
 	 * Decode 1-4 bytes depending on the value of the first byte.
 	 */
 	ch = (uchar)*s;
 	if(ch == 0)
-		return (0); /* Standard:  return 0 for end-of-string. */
+		return 0; /* Standard:  return 0 for end-of-string. */
 	cnt = utf8_count[ch];
 
 	/* Invalid sequence or there are not plenty bytes. */
@@ -2383,25 +2372,25 @@ static size_t unicode_to_utf8(char * p, size_t remaining, uint32_t uc)
 	/* Translate code point to UTF8 */
 	if(uc <= 0x7f) {
 		if(remaining == 0)
-			return (0);
+			return 0;
 		*p++ = (char)uc;
 	}
 	else if(uc <= 0x7ff) {
 		if(remaining < 2)
-			return (0);
+			return 0;
 		*p++ = 0xc0 | ((uc >> 6) & 0x1f);
 		*p++ = 0x80 | (uc & 0x3f);
 	}
 	else if(uc <= 0xffff) {
 		if(remaining < 3)
-			return (0);
+			return 0;
 		*p++ = 0xe0 | ((uc >> 12) & 0x0f);
 		*p++ = 0x80 | ((uc >> 6) & 0x3f);
 		*p++ = 0x80 | (uc & 0x3f);
 	}
 	else {
 		if(remaining < 4)
-			return (0);
+			return 0;
 		*p++ = 0xf0 | ((uc >> 18) & 0x07);
 		*p++ = 0x80 | ((uc >> 12) & 0x3f);
 		*p++ = 0x80 | ((uc >> 6) & 0x3f);
@@ -2426,11 +2415,11 @@ static int utf16_to_unicode(uint32_t * pwc, const char * s, size_t n, int be)
 	unsigned uc;
 
 	if(n == 0)
-		return (0);
+		return 0;
 	if(n == 1) {
 		/* set the Replacement Character instead. */
 		*pwc = UNICODE_R_CHAR;
-		return (-1);
+		return -1;
 	}
 
 	if(be)
@@ -2488,7 +2477,7 @@ static size_t unicode_to_utf16be(char * p, size_t remaining, uint32_t uc)
 		/* We have a code point that won't fit into a
 		* wchar_t; convert it to a surrogate pair. */
 		if(remaining < 4)
-			return (0);
+			return 0;
 		uc -= 0x10000;
 		archive_be16enc(utf16, ((uc >> 10) & 0x3ff) + 0xD800);
 		archive_be16enc(utf16+2, (uc & 0x3ff) + 0xDC00);
@@ -2496,7 +2485,7 @@ static size_t unicode_to_utf16be(char * p, size_t remaining, uint32_t uc)
 	}
 	else {
 		if(remaining < 2)
-			return (0);
+			return 0;
 		archive_be16enc(utf16, uc);
 		return (2);
 	}
@@ -2510,7 +2499,7 @@ static size_t unicode_to_utf16le(char * p, size_t remaining, uint32_t uc)
 		/* We have a code point that won't fit into a
 		* wchar_t; convert it to a surrogate pair. */
 		if(remaining < 4)
-			return (0);
+			return 0;
 		uc -= 0x10000;
 		archive_le16enc(utf16, ((uc >> 10) & 0x3ff) + 0xD800);
 		archive_le16enc(utf16+2, (uc & 0x3ff) + 0xDC00);
@@ -2518,7 +2507,7 @@ static size_t unicode_to_utf16le(char * p, size_t remaining, uint32_t uc)
 	}
 	else {
 		if(remaining < 2)
-			return (0);
+			return 0;
 		archive_le16enc(utf16, uc);
 		return (2);
 	}
@@ -2538,9 +2527,9 @@ static int strncat_from_utf8_to_utf8(struct archive_string * as, const void * _p
 	(void)sc; /* UNUSED */
 
 	if(archive_string_ensure(as, as->length + len + 1) == NULL)
-		return (-1);
+		return -1;
 
-	s = (const char*)_p;
+	s = (const char *)_p;
 	p = as->s + as->length;
 	endp = as->s + as->buffer_length -1;
 	do {
@@ -2560,7 +2549,7 @@ static int strncat_from_utf8_to_utf8(struct archive_string * as, const void * _p
 				as->length = p - as->s;
 				if(archive_string_ensure(as,
 				    as->buffer_length + len + 1) == NULL)
-					return (-1);
+					return -1;
 				p = as->s + as->length;
 				endp = as->s + as->buffer_length -1;
 			}
@@ -2587,7 +2576,7 @@ static int strncat_from_utf8_to_utf8(struct archive_string * as, const void * _p
 				as->length = p - as->s;
 				if(archive_string_ensure(as,
 				    as->buffer_length + len + 1) == NULL)
-					return (-1);
+					return -1;
 				p = as->s + as->length;
 				endp = as->s + as->buffer_length -1;
 			}
@@ -2598,7 +2587,7 @@ static int strncat_from_utf8_to_utf8(struct archive_string * as, const void * _p
 	} while(n > 0);
 	as->length = p - as->s;
 	as->s[as->length] = '\0';
-	return (ret);
+	return ret;
 }
 
 static int archive_string_append_unicode(struct archive_string * as, const void * _p,
@@ -2657,9 +2646,9 @@ static int archive_string_append_unicode(struct archive_string * as, const void 
 	}
 
 	if(archive_string_ensure(as, as->length + len * tm + ts) == NULL)
-		return (-1);
+		return -1;
 
-	s = (const char*)_p;
+	s = (const char *)_p;
 	p = as->s + as->length;
 	endp = as->s + as->buffer_length - ts;
 	while((n = parse(&uc, s, len)) != 0) {
@@ -2676,7 +2665,7 @@ static int archive_string_append_unicode(struct archive_string * as, const void 
 			as->length = p - as->s;
 			if(archive_string_ensure(as,
 			    as->buffer_length + len * tm + ts) == NULL)
-				return (-1);
+				return -1;
 			p = as->s + as->length;
 			endp = as->s + as->buffer_length - ts;
 		}
@@ -2686,7 +2675,7 @@ static int archive_string_append_unicode(struct archive_string * as, const void 
 	as->s[as->length] = '\0';
 	if(ts == 2)
 		as->s[as->length+1] = '\0';
-	return (ret);
+	return ret;
 }
 
 /*
@@ -2722,7 +2711,7 @@ static uint32_t get_nfc(uint32_t uc, uint32_t uc2)
 		else
 			return (u_composition_table[m].nfc);
 	}
-	return (0);
+	return 0;
 }
 
 #define FDC_MAX 10      /* The maximum number of Following Decomposable
@@ -2748,7 +2737,7 @@ static uint32_t get_nfc(uint32_t uc, uint32_t uc2)
 #define EXPAND_BUFFER() do {                    \
 		as->length = p - as->s;                 \
 		if(archive_string_ensure(as, as->buffer_length + len * tm + ts) == NULL) \
-			return (-1);                    \
+			return -1;                    \
 		p = as->s + as->length;                 \
 		endp = as->s + as->buffer_length - ts;  \
 } while(0)
@@ -2823,7 +2812,7 @@ static uint32_t get_nfc(uint32_t uc, uint32_t uc2)
 static int archive_string_normalize_C(struct archive_string * as, const void * _p,
     size_t len, struct archive_string_conv * sc)
 {
-	const char * s = (const char*)_p;
+	const char * s = (const char *)_p;
 	char * p, * endp;
 	uint32_t uc, uc2;
 	size_t w;
@@ -2886,7 +2875,7 @@ static int archive_string_normalize_C(struct archive_string * as, const void * _
 	}
 
 	if(archive_string_ensure(as, as->length + len * tm + ts) == NULL)
-		return (-1);
+		return -1;
 
 	p = as->s + as->length;
 	endp = as->s + as->buffer_length - ts;
@@ -3089,7 +3078,7 @@ static int archive_string_normalize_C(struct archive_string * as, const void * _
 	as->s[as->length] = '\0';
 	if(ts == 2)
 		as->s[as->length+1] = '\0';
-	return (ret);
+	return ret;
 }
 
 static int get_nfd(uint32_t * cp1, uint32_t * cp2, uint32_t uc)
@@ -3102,7 +3091,7 @@ static int get_nfd(uint32_t * cp1, uint32_t * cp2, uint32_t uc)
 	if((uc >= 0x2000 && uc <= 0x2FFF) ||
 	    (uc >= 0xF900 && uc <= 0xFAFF) ||
 	    (uc >= 0x2F800 && uc <= 0x2FAFF))
-		return (0);
+		return 0;
 	/*
 	 * Those code points are not converted to NFD on Mac OS.
 	 * I do not know the reason because it is undocumented.
@@ -3112,7 +3101,7 @@ static int get_nfd(uint32_t * cp1, uint32_t * cp2, uint32_t uc)
 	 *   110AB  ==> 110A5 110BA
 	 */
 	if(uc == 0x1109A || uc == 0x1109C || uc == 0x110AB)
-		return (0);
+		return 0;
 
 	t = 0;
 	b = sizeof(u_decomposition_table)/sizeof(u_decomposition_table[0]) -1;
@@ -3128,7 +3117,7 @@ static int get_nfd(uint32_t * cp1, uint32_t * cp2, uint32_t uc)
 			return (1);
 		}
 	}
-	return (0);
+	return 0;
 }
 
 #define REPLACE_UC_WITH(cp) do {                \
@@ -3142,7 +3131,7 @@ static int get_nfd(uint32_t * cp1, uint32_t * cp2, uint32_t uc)
 static int archive_string_normalize_D(struct archive_string * as, const void * _p,
     size_t len, struct archive_string_conv * sc)
 {
-	const char * s = (const char*)_p;
+	const char * s = (const char *)_p;
 	char * p, * endp;
 	uint32_t uc, uc2;
 	size_t w;
@@ -3205,7 +3194,7 @@ static int archive_string_normalize_D(struct archive_string * as, const void * _
 	}
 
 	if(archive_string_ensure(as, as->length + len * tm + ts) == NULL)
-		return (-1);
+		return -1;
 
 	p = as->s + as->length;
 	endp = as->s + as->buffer_length - ts;
@@ -3312,7 +3301,7 @@ check_first_code:
 	as->s[as->length] = '\0';
 	if(ts == 2)
 		as->s[as->length+1] = '\0';
-	return (ret);
+	return ret;
 }
 
 /*
@@ -3350,9 +3339,9 @@ static int strncat_from_utf8_libarchive2(struct archive_string * as, const void 
 	 * as->s is still NULL.
 	 */
 	if(archive_string_ensure(as, as->length + len + 1) == NULL)
-		return (-1);
+		return -1;
 
-	s = (const char*)_p;
+	s = (const char *)_p;
 	p = as->s + as->length;
 	end = as->s + as->buffer_length - MB_CUR_MAX -1;
 	while((n = _utf8_to_unicode(&unicode, s, len)) != 0) {
@@ -3363,7 +3352,7 @@ static int strncat_from_utf8_libarchive2(struct archive_string * as, const void 
 			/* Re-allocate buffer for MBS. */
 			if(archive_string_ensure(as,
 			    as->length + len * 2 + 1) == NULL)
-				return (-1);
+				return -1;
 			p = as->s + as->length;
 			end = as->s + as->buffer_length - MB_CUR_MAX -1;
 		}
@@ -3378,7 +3367,6 @@ static int strncat_from_utf8_libarchive2(struct archive_string * as, const void 
 		}
 		else
 			wc = (wchar_t)unicode;
-
 		s += n;
 		len -= n;
 		/*
@@ -3390,12 +3378,12 @@ static int strncat_from_utf8_libarchive2(struct archive_string * as, const void 
 		n = (int)wctomb(p, wc);
 #endif
 		if(n == -1)
-			return (-1);
+			return -1;
 		p += n;
 	}
 	as->length = p - as->s;
 	as->s[as->length] = '\0';
-	return (0);
+	return 0;
 }
 
 /*
@@ -3410,8 +3398,7 @@ static int strncat_from_utf8_libarchive2(struct archive_string * as, const void 
  * Convert a UTF-16BE/LE string to current locale and copy the result.
  * Return -1 if conversion fails.
  */
-static int win_strncat_from_utf16(struct archive_string * as, const void * _p, size_t bytes,
-    struct archive_string_conv * sc, int be)
+static int win_strncat_from_utf16(struct archive_string * as, const void * _p, size_t bytes, struct archive_string_conv * sc, int be)
 {
 	struct archive_string tmp;
 	const char * u16;
@@ -3420,19 +3407,16 @@ static int win_strncat_from_utf16(struct archive_string * as, const void * _p, s
 	char * mbs;
 	size_t mbs_size, b;
 	int ret = 0;
-
 	bytes &= ~1;
 	if(archive_string_ensure(as, as->length + bytes +1) == NULL)
-		return (-1);
-
+		return -1;
 	mbs = as->s + as->length;
 	mbs_size = as->buffer_length - as->length -1;
-
 	if(sc->to_cp == CP_C_LOCALE) {
 		/*
 		 * "C" locale special process.
 		 */
-		u16 = (const char*)_p;
+		u16 = (const char *)_p;
 		ll = 0;
 		for(b = 0; b < bytes; b += 2) {
 			uint16_t val;
@@ -3450,7 +3434,7 @@ static int win_strncat_from_utf16(struct archive_string * as, const void * _p, s
 		}
 		as->length += ll;
 		as->s[as->length] = '\0';
-		return (ret);
+		return ret;
 	}
 	archive_string_init(&tmp);
 	if(be) {
@@ -3459,7 +3443,7 @@ static int win_strncat_from_utf16(struct archive_string * as, const void * _p, s
 		}
 		else {
 			if(archive_string_ensure(&tmp, bytes+2) == NULL)
-				return (-1);
+				return -1;
 			memcpy(tmp.s, _p, bytes);
 			for(b = 0; b < bytes; b += 2) {
 				uint16_t val = archive_be16dec(tmp.s+b);
@@ -3474,7 +3458,7 @@ static int win_strncat_from_utf16(struct archive_string * as, const void * _p, s
 		}
 		else {
 			if(archive_string_ensure(&tmp, bytes+2) == NULL)
-				return (-1);
+				return -1;
 			memcpy(tmp.s, _p, bytes);
 			for(b = 0; b < bytes; b += 2) {
 				uint16_t val = archive_le16dec(tmp.s+b);
@@ -3498,7 +3482,7 @@ static int win_strncat_from_utf16(struct archive_string * as, const void * _p, s
 		ll = WideCharToMultiByte(sc->to_cp, 0,
 			(LPCWSTR)u16, (int)bytes, NULL, 0, NULL, NULL);
 		if(archive_string_ensure(as, ll +1) == NULL)
-			return (-1);
+			return -1;
 		mbs = as->s + as->length;
 		mbs_size = as->buffer_length - as->length -1;
 	} while(1);
@@ -3507,7 +3491,7 @@ static int win_strncat_from_utf16(struct archive_string * as, const void * _p, s
 	as->s[as->length] = '\0';
 	if(ll == 0 || defchar)
 		ret = -1;
-	return (ret);
+	return ret;
 }
 
 static int win_strncat_from_utf16be(struct archive_string * as, const void * _p,
@@ -3536,13 +3520,13 @@ static int is_big_endian(void)
 static int win_strncat_to_utf16(struct archive_string * as16, const void * _p,
     size_t length, struct archive_string_conv * sc, int bigendian)
 {
-	const char * s = (const char*)_p;
+	const char * s = (const char *)_p;
 	char * u16;
 	size_t count, avail;
 
 	if(archive_string_ensure(as16,
 	    as16->length + (length + 1) * 2) == NULL)
-		return (-1);
+		return -1;
 
 	u16 = as16->s + as16->length;
 	avail = as16->buffer_length - 2;
@@ -3563,22 +3547,19 @@ static int win_strncat_to_utf16(struct archive_string * as16, const void * _p,
 		as16->length += count << 1;
 		as16->s[as16->length] = 0;
 		as16->s[as16->length+1] = 0;
-		return (0);
+		return 0;
 	}
 	do {
-		count = MultiByteToWideChar(sc->from_cp,
-			MB_PRECOMPOSED, s, (int)length, (LPWSTR)u16, (int)avail>>1);
+		count = MultiByteToWideChar(sc->from_cp, MB_PRECOMPOSED, s, (int)length, (LPWSTR)u16, (int)avail>>1);
 		/* Exit loop if we succeeded */
 		if(count != 0 ||
 		    GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
 			break;
 		}
 		/* Expand buffer and try again */
-		count = MultiByteToWideChar(sc->from_cp,
-			MB_PRECOMPOSED, s, (int)length, NULL, 0);
-		if(archive_string_ensure(as16, (count +1) * 2)
-		    == NULL)
-			return (-1);
+		count = MultiByteToWideChar(sc->from_cp, MB_PRECOMPOSED, s, (int)length, NULL, 0);
+		if(archive_string_ensure(as16, (count +1) * 2) == NULL)
+			return -1;
 		u16 = as16->s + as16->length;
 		avail = as16->buffer_length - 2;
 	} while(1);
@@ -3586,7 +3567,7 @@ static int win_strncat_to_utf16(struct archive_string * as16, const void * _p,
 	as16->s[as16->length] = 0;
 	as16->s[as16->length+1] = 0;
 	if(count == 0)
-		return (-1);
+		return -1;
 
 	if(is_big_endian()) {
 		if(!bigendian) {
@@ -3608,7 +3589,7 @@ static int win_strncat_to_utf16(struct archive_string * as16, const void * _p,
 			}
 		}
 	}
-	return (0);
+	return 0;
 }
 
 static int win_strncat_to_utf16be(struct archive_string * as16, const void * _p,
@@ -3639,7 +3620,7 @@ static int win_strncat_to_utf16le(struct archive_string * as16, const void * _p,
 static int best_effort_strncat_from_utf16(struct archive_string * as, const void * _p,
     size_t bytes, struct archive_string_conv * sc, int be)
 {
-	const char * utf16 = (const char*)_p;
+	const char * utf16 = (const char *)_p;
 	char * mbs;
 	uint32_t uc;
 	int n, ret;
@@ -3652,7 +3633,7 @@ static int best_effort_strncat_from_utf16(struct archive_string * as, const void
 	 */
 	ret = 0;
 	if(archive_string_ensure(as, as->length + bytes +1) == NULL)
-		return (-1);
+		return -1;
 	mbs = as->s + as->length;
 
 	while((n = utf16_to_unicode(&uc, utf16, bytes, be)) != 0) {
@@ -3673,7 +3654,7 @@ static int best_effort_strncat_from_utf16(struct archive_string * as, const void
 	}
 	as->length = mbs - as->s;
 	as->s[as->length] = '\0';
-	return (ret);
+	return ret;
 }
 
 static int best_effort_strncat_from_utf16be(struct archive_string * as, const void * _p,
@@ -3695,7 +3676,7 @@ static int best_effort_strncat_from_utf16le(struct archive_string * as, const vo
 static int best_effort_strncat_to_utf16(struct archive_string * as16, const void * _p,
     size_t length, struct archive_string_conv * sc, int bigendian)
 {
-	const char * s = (const char*)_p;
+	const char * s = (const char *)_p;
 	char * utf16;
 	size_t remaining;
 	int ret;
@@ -3711,7 +3692,7 @@ static int best_effort_strncat_to_utf16(struct archive_string * as16, const void
 
 	if(archive_string_ensure(as16,
 	    as16->length + (length + 1) * 2) == NULL)
-		return (-1);
+		return -1;
 
 	utf16 = as16->s + as16->length;
 	while(remaining--) {
@@ -3730,7 +3711,7 @@ static int best_effort_strncat_to_utf16(struct archive_string * as16, const void
 	as16->length = utf16 - as16->s;
 	as16->s[as16->length] = 0;
 	as16->s[as16->length+1] = 0;
-	return (ret);
+	return ret;
 }
 
 static int best_effort_strncat_to_utf16be(struct archive_string * as16, const void * _p,
@@ -3774,14 +3755,14 @@ int archive_mstring_get_utf8(struct archive * a, struct archive_mstring * aes,
 	/* If we already have a UTF8 form, return that immediately. */
 	if(aes->aes_set & AES_SET_UTF8) {
 		*p = aes->aes_utf8.s;
-		return (0);
+		return 0;
 	}
 
 	*p = NULL;
 	if(aes->aes_set & AES_SET_MBS) {
 		sc = archive_string_conversion_to_charset(a, "UTF-8", 1);
 		if(sc == NULL)
-			return (-1); /* Couldn't allocate memory for sc. */
+			return -1; /* Couldn't allocate memory for sc. */
 		r = archive_strncpy_l(&(aes->aes_utf8), aes->aes_mbs.s,
 			aes->aes_mbs.length, sc);
 		if(a == NULL)
@@ -3789,12 +3770,12 @@ int archive_mstring_get_utf8(struct archive * a, struct archive_mstring * aes,
 		if(r == 0) {
 			aes->aes_set |= AES_SET_UTF8;
 			*p = aes->aes_utf8.s;
-			return (0);/* success. */
+			return 0;/* success. */
 		}
 		else
-			return (-1); /* failure. */
+			return -1; /* failure. */
 	}
-	return (0);/* success. */
+	return 0;/* success. */
 }
 
 int archive_mstring_get_mbs(struct archive * a, struct archive_mstring * aes, const char ** p)
@@ -3804,7 +3785,7 @@ int archive_mstring_get_mbs(struct archive * a, struct archive_mstring * aes, co
 	/* If we already have an MBS form, return that immediately. */
 	if(aes->aes_set & AES_SET_MBS) {
 		*p = aes->aes_mbs.s;
-		return (ret);
+		return ret;
 	}
 	*p = NULL;
 	/* If there's a WCS form, try converting with the native locale. */
@@ -3814,7 +3795,7 @@ int archive_mstring_get_mbs(struct archive * a, struct archive_mstring * aes, co
 		*p = aes->aes_mbs.s;
 		if(r == 0) {
 			aes->aes_set |= AES_SET_MBS;
-			return (ret);
+			return ret;
 		}
 		else
 			ret = -1;
@@ -3824,7 +3805,7 @@ int archive_mstring_get_mbs(struct archive * a, struct archive_mstring * aes, co
 	 * Only a UTF-8 form cannot avail because its conversion already
 	 * failed at archive_mstring_update_utf8().
 	 */
-	return (ret);
+	return ret;
 }
 
 int archive_mstring_get_wcs(struct archive * a, struct archive_mstring * aes, const wchar_t ** wp)
@@ -3834,7 +3815,7 @@ int archive_mstring_get_wcs(struct archive * a, struct archive_mstring * aes, co
 	/* Return WCS form if we already have it. */
 	if(aes->aes_set & AES_SET_WCS) {
 		*wp = aes->aes_wcs.s;
-		return (ret);
+		return ret;
 	}
 	*wp = NULL;
 	/* Try converting MBS to WCS using native locale. */
@@ -3848,7 +3829,7 @@ int archive_mstring_get_wcs(struct archive * a, struct archive_mstring * aes, co
 		else
 			ret = -1; /* failure. */
 	}
-	return (ret);
+	return ret;
 }
 
 int archive_mstring_get_mbs_l(struct archive_mstring * aes, const char ** p, size_t * length, struct archive_string_conv * sc)
@@ -3869,10 +3850,10 @@ int archive_mstring_get_mbs_l(struct archive_mstring * aes, const char ** p, siz
 			*p = aes->aes_mbs_in_locale.s;
 			if(length != NULL)
 				*length = aes->aes_mbs_in_locale.length;
-			return (0);
+			return 0;
 		}
 		else if(errno == ENOMEM)
-			return (-1);
+			return -1;
 		else
 			ret = -1;
 	}
@@ -3889,7 +3870,7 @@ int archive_mstring_get_mbs_l(struct archive_mstring * aes, const char ** p, siz
 		if(r == 0)
 			aes->aes_set |= AES_SET_MBS;
 		else if(errno == ENOMEM)
-			return (-1);
+			return -1;
 		else
 			ret = -1;
 	}
@@ -3901,7 +3882,7 @@ int archive_mstring_get_mbs_l(struct archive_mstring * aes, const char ** p, siz
 			*p = aes->aes_mbs.s;
 			if(length != NULL)
 				*length = aes->aes_mbs.length;
-			return (0);
+			return 0;
 		}
 		ret = archive_strncpy_l(&(aes->aes_mbs_in_locale), aes->aes_mbs.s, aes->aes_mbs.length, sc);
 		*p = aes->aes_mbs_in_locale.s;
@@ -3913,14 +3894,14 @@ int archive_mstring_get_mbs_l(struct archive_mstring * aes, const char ** p, siz
 		if(length != NULL)
 			*length = 0;
 	}
-	return (ret);
+	return ret;
 }
 
 int archive_mstring_copy_mbs(struct archive_mstring * aes, const char * mbs)
 {
 	if(mbs == NULL) {
 		aes->aes_set = 0;
-		return (0);
+		return 0;
 	}
 	return (archive_mstring_copy_mbs_len(aes, mbs, strlen(mbs)));
 }
@@ -3929,13 +3910,13 @@ int archive_mstring_copy_mbs_len(struct archive_mstring * aes, const char * mbs,
 {
 	if(mbs == NULL) {
 		aes->aes_set = 0;
-		return (0);
+		return 0;
 	}
 	aes->aes_set = AES_SET_MBS; /* Only MBS form is set now. */
 	archive_strncpy(&(aes->aes_mbs), mbs, len);
 	archive_string_empty(&(aes->aes_utf8));
 	archive_wstring_empty(&(aes->aes_wcs));
-	return (0);
+	return 0;
 }
 
 int archive_mstring_copy_wcs(struct archive_mstring * aes, const wchar_t * wcs)
@@ -3965,7 +3946,7 @@ int archive_mstring_copy_wcs_len(struct archive_mstring * aes, const wchar_t * w
 	archive_string_empty(&(aes->aes_mbs));
 	archive_string_empty(&(aes->aes_utf8));
 	archive_wstrncpy(&(aes->aes_wcs), wcs, len);
-	return (0);
+	return 0;
 }
 
 int archive_mstring_copy_mbs_len_l(struct archive_mstring * aes, const char * mbs, size_t len, struct archive_string_conv * sc)
@@ -3973,7 +3954,7 @@ int archive_mstring_copy_mbs_len_l(struct archive_mstring * aes, const char * mb
 	int r;
 	if(mbs == NULL) {
 		aes->aes_set = 0;
-		return (0);
+		return 0;
 	}
 	archive_string_empty(&(aes->aes_mbs));
 	archive_wstring_empty(&(aes->aes_wcs));
@@ -4012,7 +3993,7 @@ int archive_mstring_copy_mbs_len_l(struct archive_mstring * aes, const char * mb
 		sc->cd = cd;
 		if(r != 0) {
 			aes->aes_set = 0;
-			return (r);
+			return r;
 		}
 		aes->aes_set = AES_SET_UTF8;
 		/*
@@ -4044,7 +4025,7 @@ int archive_mstring_copy_mbs_len_l(struct archive_mstring * aes, const char * mb
 	else
 		aes->aes_set = 0;
 #endif
-	return (r);
+	return r;
 }
 
 /*
@@ -4063,7 +4044,7 @@ int archive_mstring_update_utf8(struct archive * a, struct archive_mstring * aes
 	int r;
 	if(utf8 == NULL) {
 		aes->aes_set = 0;
-		return (0); /* Succeeded in clearing everything. */
+		return 0; /* Succeeded in clearing everything. */
 	}
 
 	/* Save the UTF8 string. */
@@ -4078,20 +4059,20 @@ int archive_mstring_update_utf8(struct archive * a, struct archive_mstring * aes
 	/* Try converting UTF-8 to MBS, return false on failure. */
 	sc = archive_string_conversion_from_charset(a, "UTF-8", 1);
 	if(sc == NULL)
-		return (-1); /* Couldn't allocate memory for sc. */
+		return -1; /* Couldn't allocate memory for sc. */
 	r = archive_strcpy_l(&(aes->aes_mbs), utf8, sc);
 	if(a == NULL)
 		free_sconv_object(sc);
 	if(r != 0)
-		return (-1);
+		return -1;
 	aes->aes_set = AES_SET_UTF8 | AES_SET_MBS; /* Both UTF8 and MBS set. */
 
 	/* Try converting MBS to WCS, return false on failure. */
 	if(archive_wstring_append_from_mbs(&(aes->aes_wcs), aes->aes_mbs.s,
 	    aes->aes_mbs.length))
-		return (-1);
+		return -1;
 	aes->aes_set = AES_SET_UTF8 | AES_SET_WCS | AES_SET_MBS;
 
 	/* All conversions succeeded. */
-	return (0);
+	return 0;
 }

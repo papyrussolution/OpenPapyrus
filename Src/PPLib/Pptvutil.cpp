@@ -508,7 +508,7 @@ int SLAPI ViewStatus()
 	GetLocationName(LConfig.Location, sbuf);
 	dlg->setCtrlString(CTL_STATUS_LOC, sbuf);
 	GetMainOrgID(&main_org_id);
-	SetupPPObjCombo(dlg, CTLSEL_STATUS_MAINORG, PPOBJ_PERSON, main_org_id, 0, (void *)PPPRK_MAIN);
+	SetupPPObjCombo(dlg, CTLSEL_STATUS_MAINORG, PPOBJ_PERSON, main_org_id, 0, reinterpret_cast<void *>(PPPRK_MAIN));
 	dlg->setCtrlData(CTL_STATUS_DATE, &oper_dt);
 	GetObjectName(PPOBJ_DBDIV, LConfig.DBDiv, sbuf, 0);
 	dlg->setCtrlString(CTL_STATUS_DBDIV, sbuf);
@@ -733,7 +733,7 @@ int FASTCALL CheckDialogPtr(void * ppDlg/*, int genErrMsg*/)
 	int    ok = 1;
 	TDialog ** dlg = (TDialog**)ppDlg;
 	if(ValidView(*dlg) == 0) {
-		*(void**)ppDlg = 0;
+		*(void **)ppDlg = 0;
 		ok = PPSetError(PPERR_DLGLOADFAULT);
 		/*
 		if(genErrMsg)
@@ -1119,7 +1119,7 @@ int Lst2LstObjDialog::setupRightTList()
 	SmartListBox      * p_r_lbx = GetRightList();
 	StrAssocArray * p_list = new StrAssocArray;
 	THROW_MEM(p_list);
-	for(i = 0; Data.P_List->enumItems(&i, (void**)&p_id);) {
+	for(i = 0; Data.P_List->enumItems(&i, (void **)&p_id);) {
 		const  long id = *p_id;
 		long   parent_id = 0;
 		p_l_def->GetParent(id, &parent_id);
@@ -1163,7 +1163,7 @@ int Lst2LstObjDialog::setupRightList()
 			SString name_buf;
 			const long pos = p_lb->def ? p_lb->def->_curItem() : 0L;
 			THROW_MEM(p_ary = new TaggedStringArray);
-			for(uint i = 0; Data.P_List->enumItems(&i, (void**)&p_id);) {
+			for(uint i = 0; Data.P_List->enumItems(&i, (void **)&p_id);) {
 				/* @v9.2.1
 				P_Object->GetName(*p_id, &name_buf);
 				if(name_buf.Empty())
@@ -2013,25 +2013,26 @@ int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 	// @v10.2.1 const char * WrSubKey_Dialog = "Software\\Papyrus\\Dialog";
 	int    ok = -1;
 	OPENFILENAME sofn;
-	char   file_name[1024];
+	TCHAR  file_name[1024];
 	SString temp_buf;
+	SString result_file_name;
 	SString reg_key_buf;
 	reg_key_buf.Cat("FileBrowseLastPath").CatChar('(').Cat(pDlg->GetId()).CatDiv(',', 2).Cat(InputCtlId).CatChar(')');
 	RecentItemsStorage ris(reg_key_buf, 20, PTR_CMPFUNC(FilePathUtf8)); // @v10.2.1
 	StringSet ss_ris; // @v10.2.1
 	file_name[0] = 0;
-	pDlg->getCtrlData(InputCtlId, file_name);
-	SOemToChar(file_name);
-	if(!file_name[0] || !fileExists(file_name))
-		InitFile.CopyTo(file_name, sizeof(file_name));
-
+	pDlg->getCtrlString(InputCtlId, temp_buf);
+	temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+	if(temp_buf.Empty() || !fileExists(temp_buf))
+		temp_buf = InitFile;
+	STRNSCPY(file_name, SUcSwitch(temp_buf));
 	memzero(&sofn, sizeof(sofn));
 	sofn.lStructSize = sizeof(sofn);
 	sofn.hwndOwner   = pDlg->H();
-	sofn.lpstrFilter = Patterns.getBuf(); // @unicodeproblem
+	sofn.lpstrFilter = SUcSwitch(Patterns.getBuf()); // @unicodeproblem
 	sofn.lpstrFile   = file_name; // @unicodeproblem
-	sofn.nMaxFile    = sizeof(file_name);
-	sofn.lpstrTitle  = Title; // @unicodeproblem
+	sofn.nMaxFile    = SIZEOFARRAY(file_name);
+	sofn.lpstrTitle  = SUcSwitch(Title); // @unicodeproblem
 	sofn.Flags       = (OFN_EXPLORER|OFN_HIDEREADONLY|OFN_LONGNAMES|OFN_NOCHANGEDIR);
 	if(!(Flags & fbcgfAllowNExists))
 		sofn.Flags |= OFN_FILEMUSTEXIST;
@@ -2057,11 +2058,12 @@ int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 			// } @v10.2.1
 		}
 		if(!InitDir.NotEmptyS())
-			setInitPath(file_name);
+			setInitPath(SUcSwitch(file_name));
 	}
-	sofn.lpstrInitialDir = InitDir; // @unicodeproblem
-	if((ok = ::GetOpenFileName((LPOPENFILENAME)&sofn)) != 0) { // @unicodeproblem
-		SPathStruc ps(file_name);
+	sofn.lpstrInitialDir = SUcSwitch(InitDir); // @unicodeproblem
+	if((ok = ::GetOpenFileName(/*(LPOPENFILENAME)*/&sofn)) != 0) { // @unicodeproblem
+		result_file_name = SUcSwitch(file_name);
+		SPathStruc ps(result_file_name);
 		ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, InitDir);
 		if(Flags & fbcgfSaveLastPath) {
 			/* @v10.2.1
@@ -2076,18 +2078,18 @@ int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 		if(Flags & fbcgfPath) {
 			if(sofn.nFileExtension != 0)
 				file_name[sofn.nFileOffset] = 0;
-			rmvLastSlash(file_name);
+			result_file_name.RmvLastSlash();
 		}
 		if(InputCtlId) {
-			SCharToOem(file_name);
-			pDlg->setCtrlData(InputCtlId, file_name);
+			result_file_name.Transf(CTRANSF_OUTER_TO_INNER);
+			pDlg->setCtrlString(InputCtlId, result_file_name);
 			TView::messageBroadcast(pDlg, cmCommitInput, pDlg->getCtrlView(InputCtlId));
-			SOemToChar(file_name);
+			result_file_name.Transf(CTRANSF_INNER_TO_OUTER);
 		}
 	}
 	else
-		memzero(file_name, sizeof(file_name));
-	STRNSCPY(Data.FilePath, file_name);
+		result_file_name.Z();
+	STRNSCPY(Data.FilePath, result_file_name);
 	return ok;
 }
 
@@ -2135,27 +2137,28 @@ int SLAPI PPOpenFile(SString & rPath, const char * pPatterns, long flags, HWND o
 {
 	int    ok = -1;
 	OPENFILENAME sofn;
-	char     file_name[MAXPATH];
+	TCHAR  file_name[MAXPATH];
 	SString  title_buf;
 	SString  dir, fname;
 	SplitPath(rPath, dir, fname);
-	fname.CopyTo(file_name, sizeof(file_name));
+	STRNSCPY(file_name, SUcSwitch(fname));
 	memzero(&sofn, sizeof(sofn));
 	sofn.lStructSize = sizeof(sofn);
 	sofn.hwndOwner   = NZOR(owner, GetForegroundWindow());
-	sofn.lpstrFilter = pPatterns; // @unicodeproblem
+	sofn.lpstrFilter = SUcSwitch(pPatterns); // @unicodeproblem
 	sofn.lpstrFile   = file_name; // @unicodeproblem
-	sofn.nMaxFile    = sizeof(file_name);
+	sofn.nMaxFile    = SIZEOFARRAY(file_name);
 	PPLoadString("fileopen", title_buf);
 	title_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v9.0.12
-	sofn.lpstrTitle  = title_buf; // @unicodeproblem
+	sofn.lpstrTitle  = SUcSwitch(title_buf); // @unicodeproblem
 	sofn.Flags = (OFN_EXPLORER|OFN_HIDEREADONLY|OFN_LONGNAMES|OFN_NOCHANGEDIR);
 	if(!(flags & ofilfNExist))
 		sofn.Flags |= OFN_FILEMUSTEXIST;
-	sofn.lpstrInitialDir = dir; // @unicodeproblem
-	if((ok = GetOpenFileName((LPOPENFILENAME)&sofn)) == 0) // @unicodeproblem
-		memzero(file_name, sizeof(file_name));
-	rPath = file_name;
+	sofn.lpstrInitialDir = SUcSwitch(dir); // @unicodeproblem
+	ok = GetOpenFileName(&sofn); // @unicodeproblem
+	if(!ok) 
+		PTR32(file_name)[0] = 0;
+	rPath = SUcSwitch(file_name);
 	return ok;
 }
 
@@ -2163,9 +2166,10 @@ int SLAPI PPOpenDir(SString & rPath, const char * pTitle, HWND owner /*=0*/)
 {
 	int    ok = -1;
 	OPENFILENAME sofn;
-	char   file_name[1024];
+	TCHAR  file_name[1024];
 	StringSet patterns;
 	SString   title;
+	SString result_file_name;
 	(title = pTitle).Transf(CTRANSF_INNER_TO_OUTER);
 	{
 		SString temp_buf, name, patt;
@@ -2176,23 +2180,26 @@ int SLAPI PPOpenDir(SString & rPath, const char * pTitle, HWND owner /*=0*/)
 		patterns.add(name);
 		patterns.add(patt);
 		file_name[0] = 0;
-		patt.CopyTo(file_name, sizeof(file_name));
+		//patt.CopyTo(file_name, SIZEOFARRAY(file_name));
+		STRNSCPY(file_name, SUcSwitch(patt));
 	}
-	memzero(&sofn, sizeof(sofn));
+	MEMSZERO(sofn);
 	sofn.lStructSize = sizeof(sofn);
 	sofn.hwndOwner   = GetForegroundWindow();
-	sofn.lpstrFilter = patterns.getBuf(); // @unicodeproblem
+	sofn.lpstrFilter = SUcSwitch(patterns.getBuf()); // @unicodeproblem
 	sofn.lpstrFile   = file_name; // @unicodeproblem
-	sofn.nMaxFile    = sizeof(file_name);
-	sofn.lpstrTitle  = title.cptr(); // @unicodeproblem
+	sofn.nMaxFile    = SIZEOFARRAY(file_name);
+	sofn.lpstrTitle  = SUcSwitch(title); // @unicodeproblem
 	sofn.Flags       = (OFN_EXPLORER|OFN_HIDEREADONLY|OFN_LONGNAMES|OFN_NOCHANGEDIR|OFN_NOVALIDATE|OFN_FILEMUSTEXIST);
-	sofn.lpstrInitialDir = rPath; // @unicodeproblem
-	if((ok = GetOpenFileName((LPOPENFILENAME)&sofn)) != 0) { // @unicodeproblem
+	sofn.lpstrInitialDir = SUcSwitch(rPath); // @unicodeproblem
+	ok = GetOpenFileName(/*(LPOPENFILENAME)*/&sofn); // @unicodeproblem
+	if(ok != 0) {
 		if(sofn.nFileExtension != 0)
 			file_name[sofn.nFileOffset] = 0;
-		rmvLastSlash(file_name);
+		result_file_name = SUcSwitch(file_name);
+		result_file_name.RmvLastSlash();
 	}
-	rPath = file_name;
+	rPath = result_file_name;
 	return ok;
 }
 
@@ -3673,7 +3680,7 @@ int PersonCtrlGroup::setData(TDialog * pDlg, void * pData)
 			psn_combo_flags |= OLW_LOADDEFONOPEN;
 		Data = *(Rec *)pData;
 		PPID   person_id = (Data.Flags & Data.fAnonym) ? 0 :  Data.PersonID;
-		SetupPPObjCombo(pDlg, Ctlsel, PPOBJ_PERSON, person_id, psn_combo_flags, (void *)Data.PsnKindID);
+		SetupPPObjCombo(pDlg, Ctlsel, PPOBJ_PERSON, person_id, psn_combo_flags, reinterpret_cast<void *>(Data.PsnKindID));
 		SetupAnonym(pDlg, Data.Flags & Data.fAnonym);
 		if(CtlSCardCode) {
 			pDlg->SetupWordSelector(CtlSCardCode, new SCardSelExtra(0), Data.SCardID, 4, 0); // Выбор карты без комбобокса
@@ -3971,7 +3978,7 @@ int PersonListCtrlGroup::Setup(TDialog * pDlg, PPID psnKindID, int force /*=0*/)
 		PPID   new_psn_kind_id = pDlg->getCtrlLong(CtlselPsnKind);
 		SETIFZ(new_psn_kind_id, Data.PsnKindID);
 		if(new_psn_kind_id != Data.PsnKindID || force) {
-			SetupPPObjCombo(pDlg, Ctlsel, PPOBJ_PERSON, Data.List.getSingle(), 0, (void *)(Data.PsnKindID = new_psn_kind_id));
+			SetupPPObjCombo(pDlg, Ctlsel, PPOBJ_PERSON, Data.List.getSingle(), 0, reinterpret_cast<void *>(Data.PsnKindID = new_psn_kind_id));
 		}
 		pDlg->enableCommand(CmPsnList, BIN(Data.PsnKindID));
 
@@ -4588,11 +4595,11 @@ int PersonOpCtrlGroup::ReplySelection(TDialog * pDlg)
 			}
 		}
 		if(CtlselPsn1) {
-			SetupPPObjCombo(pDlg, CtlselPsn1, PPOBJ_PERSON, Data.PrmrID, OLW_LOADDEFONOPEN, (void *)(disable_psn1 ? 0 : prev_psn1k));
+			SetupPPObjCombo(pDlg, CtlselPsn1, PPOBJ_PERSON, Data.PrmrID, OLW_LOADDEFONOPEN, reinterpret_cast<void *>(disable_psn1 ? 0 : prev_psn1k));
 			pDlg->disableCtrl(CtlselPsn1, disable_psn1);
 		}
 		if(CtlselPsn2) {
-			SetupPPObjCombo(pDlg, CtlselPsn2, PPOBJ_PERSON, Data.ScndID, OLW_LOADDEFONOPEN, (void *)(disable_psn2 ? 0 : prev_psn2k));
+			SetupPPObjCombo(pDlg, CtlselPsn2, PPOBJ_PERSON, Data.ScndID, OLW_LOADDEFONOPEN, reinterpret_cast<void *>(disable_psn2 ? 0 : prev_psn2k));
 			pDlg->disableCtrl(CtlselPsn2, disable_psn2);
 		}
 		ok = 1;
@@ -4906,7 +4913,7 @@ int RemoveAllDialog::setDTS(const RemoveAllParam * pData)
 		v = 1;
 	setCtrlData(CTL_REMOVEALL_WHAT, &v);
 	if(resourceID == DLG_GOODSRMVALL)
-		SetupPPObjCombo(this, CTLSEL_REMOVEALL_GRP, PPOBJ_GOODSGROUP, Data.DestGrpID, 0, (void *)GGRTYP_SEL_NORMAL);
+		SetupPPObjCombo(this, CTLSEL_REMOVEALL_GRP, PPOBJ_GOODSGROUP, Data.DestGrpID, 0, reinterpret_cast<void *>(GGRTYP_SEL_NORMAL));
 	else
 		SetupPPObjCombo(this, CTLSEL_REMOVEALL_GRP, PPOBJ_SCARDSERIES, Data.DestGrpID, 0);
 	disableCtrl(CTLSEL_REMOVEALL_GRP, Data.Action != RemoveAllParam::aMoveToGroup);
@@ -5028,7 +5035,7 @@ int ResolveGoodsDialog::setupList()
 	int    ok = -1;
 	SString buf, word;
 	ResolveGoodsItem * p_item = 0;
-	for(uint i = 0; Data.enumItems(&i, (void**)&p_item) > 0;) {
+	for(uint i = 0; Data.enumItems(&i, (void **)&p_item) > 0;) {
 		if(!p_item->ResolvedGoodsID || Flags & RESOLVEGF_SHOWRESOLVED) {
 			int    barcode_added = 0, wo_name = 0, id_added = 0;
 			buf = 0;
@@ -5088,7 +5095,7 @@ int ResolveGoodsDialog::getDTS(ResolveGoodsItemList * pData)
 	int    ok = 1;
 	if(Flags & RESOLVEGF_RESOLVEALLGOODS) {
 		ResolveGoodsItem * p_item = 0;
-		for(uint i = 0; ok && Data.enumItems(&i, (void**)&p_item) > 0;)
+		for(uint i = 0; ok && Data.enumItems(&i, (void **)&p_item) > 0;)
 			ok = p_item->ResolvedGoodsID ? 1 : PPSetError(PPERR_EXISTUNRESOLVDEDGOODS);
 	}
 	return (ok > 0) ? (pData->copy(Data), 1) : ok;
@@ -5576,8 +5583,7 @@ TimePickerDialog::TimePickerDialog() : TDialog(DLG_TMPICKR)
 		MEMSZERO(log_font);
 		log_font.lfCharSet = DEFAULT_CHARSET;
 		PPGetSubStr(PPTXT_FONTFACE, PPFONT_TIMESNEWROMAN, temp_buf);
-		STRNSCPY(log_font.lfFaceName, temp_buf); // @unicodeproblem
-
+		STRNSCPY(log_font.lfFaceName, SUcSwitch(temp_buf)); // @unicodeproblem
 		log_font.lfHeight = def_font_size;
 		Ptb.SetFont(fontHours, ::CreateFontIndirect(&log_font)); // @unicodeproblem
 		log_font.lfWeight = FW_BOLD;
@@ -6174,7 +6180,8 @@ int SLAPI EmailToBlock::Edit(long flags)
 		{
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
-			SetupPPObjCombo(this, CTLSEL_MAILTO_ACCNT, PPOBJ_INTERNETACCOUNT, Data.MailAccID, OLW_CANEDIT|OLW_CANINSERT, (void *)PPObjInternetAccount::filtfMail);
+			SetupPPObjCombo(this, CTLSEL_MAILTO_ACCNT, PPOBJ_INTERNETACCOUNT, Data.MailAccID, OLW_CANEDIT|OLW_CANINSERT, 
+				reinterpret_cast<void *>(PPObjInternetAccount::filtfMail));
 			setCtrlString(CTL_MAILTO_SUBJ, Data.Subj);
 			{
 				EmailCtrlGroup::Rec grp_rec(&Data.AddrList);
@@ -6219,7 +6226,7 @@ SendMailDialog::Rec & FASTCALL SendMailDialog::Rec::operator = (const SendMailDi
 	Text = rSrc.Text;
 	AddrList = rSrc.AddrList;
 	char * p_item = 0;
-	for(uint i = 0; rSrc.FilesList.enumItems(&i, (void**)&p_item);)
+	for(uint i = 0; rSrc.FilesList.enumItems(&i, (void **)&p_item);)
 		FilesList.insert(newStr(p_item));
 	return *this;
 }
@@ -6235,7 +6242,7 @@ int SendMailDialog::setupList()
 	int    ok = 1;
 	SString temp_buf;
 	char * p_path = 0;
-	for(uint i = 0; ok && Data.FilesList.enumItems(&i, (void**)&p_path);) {
+	for(uint i = 0; ok && Data.FilesList.enumItems(&i, (void **)&p_path);) {
 		(temp_buf = p_path).ToOem();
 		if(!addStringToList(i, temp_buf))
 			ok = PPErrorZ();
@@ -6297,7 +6304,8 @@ int SendMailDialog::delItem(long pos, long id)
 int SendMailDialog::setDTS(const Rec * pData)
 {
 	RVALUEPTR(Data, pData);
-	SetupPPObjCombo(this, CTLSEL_SENDMAIL_ACCNT, PPOBJ_INTERNETACCOUNT, Data.MailAccID, OLW_CANEDIT|OLW_CANINSERT, (void *)PPObjInternetAccount::filtfMail);
+	SetupPPObjCombo(this, CTLSEL_SENDMAIL_ACCNT, PPOBJ_INTERNETACCOUNT, Data.MailAccID, OLW_CANEDIT|OLW_CANINSERT, 
+		reinterpret_cast<void *>(PPObjInternetAccount::filtfMail));
 	setCtrlString(CTL_SENDMAIL_SUBJ, Data.Subj);
 	setCtrlString(CTL_SENDMAIL_TEXT, Data.Text);
 	{
@@ -6355,7 +6363,7 @@ int PPCallHelp(void * hWnd, uint cmd, uint ctx)
 			PPGetFilePath(PPPATH_BIN, p_file_name, path);
 			if(fileExists(path)) {
 				SPathStruc ps(path);
-				if(ps.Flags & SPathStruc::fUNC || ((ps.Flags & SPathStruc::fDrv) && GetDriveType(ps.Drv.SetLastSlash()) == DRIVE_REMOTE)) { // @unicodeproblem
+				if(ps.Flags & SPathStruc::fUNC || ((ps.Flags & SPathStruc::fDrv) && GetDriveType(SUcSwitch(ps.Drv.SetLastSlash())) == DRIVE_REMOTE)) { // @unicodeproblem
 					//
 					// В связи с проблемой загрузки help'а с сетевого каталога коприруем файла в
 					// локальный каталог. При этом, чтобы избежать лишних копирований, проверяем, нет ли
@@ -6382,7 +6390,7 @@ int PPCallHelp(void * hWnd, uint cmd, uint ctx)
 							path = local_path;
 					}
 				}
-				ok = BIN(HtmlHelp(static_cast<HWND>(hWnd), path, cmd, ctx)); // @unicodeproblem
+				ok = BIN(HtmlHelp(static_cast<HWND>(hWnd), SUcSwitch(path), cmd, ctx)); // @unicodeproblem
 			}
 		}
 		else

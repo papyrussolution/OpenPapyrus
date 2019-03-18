@@ -82,9 +82,9 @@ found_meta:
 				while(attr) {
 					if(attr->children && (attr->children->type == XML_TEXT_NODE) && (attr->children->next == NULL)) {
 						value = attr->children->content;
-						if(sstreqi_ascii(attr->name, BAD_CAST "http-equiv") && sstreqi_ascii(value, BAD_CAST "Content-Type"))
+						if(sstreqi_ascii(attr->name, reinterpret_cast<const xmlChar *>("http-equiv")) && sstreqi_ascii(value, reinterpret_cast<const xmlChar *>("Content-Type")))
 							http = 1;
-						else if(value && sstreqi_ascii(attr->name, BAD_CAST "content"))
+						else if(value && sstreqi_ascii(attr->name, reinterpret_cast<const xmlChar *>("content")))
 							content = value;
 						if(http && content)
 							goto found_content;
@@ -97,16 +97,16 @@ found_meta:
 	}
 	return NULL;
 found_content:
-	encoding = xmlStrstr(content, BAD_CAST "charset=");
-	SETIFZ(encoding, xmlStrstr(content, BAD_CAST "Charset="));
-	SETIFZ(encoding, xmlStrstr(content, BAD_CAST "CHARSET="));
+	encoding = xmlStrstr(content, reinterpret_cast<const xmlChar *>("charset="));
+	SETIFZ(encoding, xmlStrstr(content, reinterpret_cast<const xmlChar *>("Charset=")));
+	SETIFZ(encoding, xmlStrstr(content, reinterpret_cast<const xmlChar *>("CHARSET=")));
 	if(encoding) {
 		encoding += 8;
 	}
 	else {
-		encoding = xmlStrstr(content, BAD_CAST "charset =");
-		SETIFZ(encoding, xmlStrstr(content, BAD_CAST "Charset ="));
-		SETIFZ(encoding, xmlStrstr(content, BAD_CAST "CHARSET ="));
+		encoding = xmlStrstr(content, reinterpret_cast<const xmlChar *>("charset ="));
+		SETIFZ(encoding, xmlStrstr(content, reinterpret_cast<const xmlChar *>("Charset =")));
+		SETIFZ(encoding, xmlStrstr(content, reinterpret_cast<const xmlChar *>("CHARSET =")));
 		if(encoding)
 			encoding += 9;
 	}
@@ -114,7 +114,7 @@ found_content:
 		while(oneof2(*encoding, ' ', '\t')) 
 			encoding++;
 	}
-	return(encoding);
+	return (encoding);
 }
 /**
  * htmlSetMetaEncoding:
@@ -136,7 +136,7 @@ int htmlSetMetaEncoding(htmlDocPtr doc, const xmlChar * encoding)
 	if(!doc)
 		return -1;
 	// html isn't a real encoding it's just libxml2 way to get entities 
-	if(sstreqi_ascii(encoding, BAD_CAST "html"))
+	if(sstreqi_ascii(encoding, reinterpret_cast<const xmlChar *>("html")))
 		return -1;
 	if(encoding) {
 		snprintf(newcontent, sizeof(newcontent), "text/html; charset=%s", (char *)encoding);
@@ -148,11 +148,11 @@ int htmlSetMetaEncoding(htmlDocPtr doc, const xmlChar * encoding)
 	 */
 	while(cur) {
 		if((cur->type == XML_ELEMENT_NODE) && cur->name) {
-			if(sstreqi_ascii(cur->name, BAD_CAST "html"))
+			if(sstreqi_ascii(cur->name, reinterpret_cast<const xmlChar *>("html")))
 				break;
-			if(sstreqi_ascii(cur->name, BAD_CAST "head"))
+			if(sstreqi_ascii(cur->name, reinterpret_cast<const xmlChar *>("head")))
 				goto found_head;
-			if(sstreqi_ascii(cur->name, BAD_CAST "meta"))
+			if(sstreqi_ascii(cur->name, reinterpret_cast<const xmlChar *>("meta")))
 				goto found_meta;
 		}
 		cur = cur->next;
@@ -165,9 +165,9 @@ int htmlSetMetaEncoding(htmlDocPtr doc, const xmlChar * encoding)
 	 */
 	while(cur) {
 		if((cur->type == XML_ELEMENT_NODE) && cur->name) {
-			if(sstreqi_ascii(cur->name, BAD_CAST "head"))
+			if(sstreqi_ascii(cur->name, reinterpret_cast<const xmlChar *>("head")))
 				break;
-			if(sstreqi_ascii(cur->name, BAD_CAST "meta")) {
+			if(sstreqi_ascii(cur->name, reinterpret_cast<const xmlChar *>("meta"))) {
 				head = cur->parent;
 				goto found_meta;
 			}
@@ -188,7 +188,7 @@ found_meta:
 	 */
 	while(cur) {
 		if((cur->type == XML_ELEMENT_NODE) && cur->name) {
-			if(sstreqi_ascii(cur->name, BAD_CAST "meta")) {
+			if(sstreqi_ascii(cur->name, reinterpret_cast<const xmlChar *>("meta"))) {
 				xmlAttr * attr = cur->properties;
 				int http = 0;
 				const xmlChar * value;
@@ -196,10 +196,10 @@ found_meta:
 				while(attr) {
 					if(attr->children && (attr->children->type == XML_TEXT_NODE) && !attr->children->next) {
 						value = attr->children->content;
-						if(sstreqi_ascii(attr->name, BAD_CAST "http-equiv") && sstreqi_ascii(value, BAD_CAST "Content-Type"))
+						if(sstreqi_ascii(attr->name, reinterpret_cast<const xmlChar *>("http-equiv")) && sstreqi_ascii(value, reinterpret_cast<const xmlChar *>("Content-Type")))
 							http = 1;
 						else {
-							if(value && sstreqi_ascii(attr->name, BAD_CAST "content"))
+							if(value && sstreqi_ascii(attr->name, reinterpret_cast<const xmlChar *>("content")))
 								content = value;
 						}
 						if(http && content)
@@ -221,13 +221,13 @@ create:
 			/*
 			 * Create a new Meta element with the right attributes
 			 */
-			meta = xmlNewDocNode(doc, NULL, BAD_CAST "meta", 0);
+			meta = xmlNewDocNode(doc, NULL, reinterpret_cast<const xmlChar *>("meta"), 0);
 			if(head->children == NULL)
 				xmlAddChild(head, meta);
 			else
 				xmlAddPrevSibling(head->children, meta);
-			xmlNewProp(meta, BAD_CAST "http-equiv", BAD_CAST "Content-Type");
-			xmlNewProp(meta, BAD_CAST "content", BAD_CAST newcontent);
+			xmlNewProp(meta, reinterpret_cast<const xmlChar *>("http-equiv"), reinterpret_cast<const xmlChar *>("Content-Type"));
+			xmlNewProp(meta, reinterpret_cast<const xmlChar *>("content"), BAD_CAST newcontent);
 		}
 	}
 	else {
@@ -238,7 +238,7 @@ create:
 		}
 		/* change the document only if there is a real encoding change */
 		else if(xmlStrcasestr(content, encoding) == NULL) {
-			xmlSetProp(meta, BAD_CAST "content", BAD_CAST newcontent);
+			xmlSetProp(meta, reinterpret_cast<const xmlChar *>("content"), BAD_CAST newcontent);
 		}
 	}
 	return 0;
@@ -264,7 +264,7 @@ static const char* htmlBooleanAttrs[] =
 int htmlIsBooleanAttr(const xmlChar * name)
 {
 	for(int i = 0; htmlBooleanAttrs[i]; i++) {
-		if(sstreqi_ascii((const xmlChar*)htmlBooleanAttrs[i], name))
+		if(sstreqi_ascii((const xmlChar *)htmlBooleanAttrs[i], name))
 			return 1;
 	}
 	return 0;
@@ -326,7 +326,7 @@ static size_t htmlBufNodeDumpFormat(xmlBufPtr buf, xmlDoc * doc, xmlNodePtr cur,
 {
 	int ret = -1;
 	if(cur && buf) {
-		xmlOutputBuffer * outbuf = (xmlOutputBuffer *)SAlloc::M(sizeof(xmlOutputBuffer));
+		xmlOutputBuffer * outbuf = static_cast<xmlOutputBuffer *>(SAlloc::M(sizeof(xmlOutputBuffer)));
 		if(!outbuf)
 			htmlSaveErrMemory("allocating HTML output buffer");
 		else {
@@ -368,7 +368,7 @@ int htmlNodeDump(xmlBuffer * buf, xmlDoc * doc, xmlNode * cur)
 		return -1;
 	ret = htmlBufNodeDumpFormat(buffer, doc, cur, 1);
 	xmlBufBackToBuffer(buffer);
-	return (ret > INT_MAX) ? -1 : (int)ret;
+	return (ret > INT_MAX) ? -1 : static_cast<int>(ret);
 }
 /**
  * htmlNodeDumpFileFormat:
@@ -522,7 +522,7 @@ static void htmlDtdDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, const char * 
 	}
 	else {
 		xmlOutputBufferWriteString(buf, "<!DOCTYPE ");
-		xmlOutputBufferWriteString(buf, (const char *)cur->name);
+		xmlOutputBufferWriteString(buf, reinterpret_cast<const char *>(cur->name));
 		if(cur->ExternalID) {
 			xmlOutputBufferWriteString(buf, " PUBLIC ");
 			xmlBufWriteQuotedString(buf->buffer, cur->ExternalID);
@@ -562,16 +562,16 @@ static void htmlAttrDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlAttr * cu
 	}
 	xmlOutputBufferWriteString(buf, " ");
 	if(cur->ns && (cur->ns->prefix != NULL)) {
-		xmlOutputBufferWriteString(buf, (const char *)cur->ns->prefix);
+		xmlOutputBufferWriteString(buf, reinterpret_cast<const char *>(cur->ns->prefix));
 		xmlOutputBufferWriteString(buf, ":");
 	}
-	xmlOutputBufferWriteString(buf, (const char *)cur->name);
+	xmlOutputBufferWriteString(buf, reinterpret_cast<const char *>(cur->name));
 	if(cur->children && (!htmlIsBooleanAttr(cur->name))) {
 		value = xmlNodeListGetString(doc, cur->children, 0);
 		if(value) {
 			xmlOutputBufferWriteString(buf, "=");
-			if(!cur->ns && cur->parent && !cur->parent->ns && (sstreqi_ascii(cur->name, BAD_CAST "href") || sstreqi_ascii(cur->name, BAD_CAST "action") ||
-				sstreqi_ascii(cur->name, BAD_CAST "src") || (sstreqi_ascii(cur->name, BAD_CAST "name") && sstreqi_ascii(cur->parent->name, BAD_CAST "a")))) {
+			if(!cur->ns && cur->parent && !cur->parent->ns && (sstreqi_ascii(cur->name, reinterpret_cast<const xmlChar *>("href")) || sstreqi_ascii(cur->name, reinterpret_cast<const xmlChar *>("action")) ||
+				sstreqi_ascii(cur->name, reinterpret_cast<const xmlChar *>("src")) || (sstreqi_ascii(cur->name, reinterpret_cast<const xmlChar *>("name")) && sstreqi_ascii(cur->parent->name, reinterpret_cast<const xmlChar *>("a"))))) {
 				xmlChar * tmp = value;
 				/* xmlURIEscapeStr() escapes '"' so it can be safely used. */
 				xmlBufCCat(buf->buffer, "\"");
@@ -582,14 +582,14 @@ static void htmlAttrDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlAttr * cu
 					xmlChar * escaped;
 					xmlChar endChar;
 					xmlChar * end = NULL;
-					xmlChar * start = (xmlChar *)xmlStrstr(tmp, BAD_CAST "<!--");
+					xmlChar * start = (xmlChar *)xmlStrstr(tmp, reinterpret_cast<const xmlChar *>("<!--"));
 					if(start) {
-						end = (xmlChar *)xmlStrstr(tmp, BAD_CAST "-->");
+						end = (xmlChar *)xmlStrstr(tmp, reinterpret_cast<const xmlChar *>("-->"));
 						if(end)
 							*start = '\0';
 					}
 					/* Escape the whole string, or until start (set to '\0'). */
-					escaped = xmlURIEscapeStr(tmp, BAD_CAST "@/:=?;#%&,+");
+					escaped = xmlURIEscapeStr(tmp, reinterpret_cast<const xmlChar *>("@/:=?;#%&,+"));
 					if(escaped) {
 						xmlBufCat(buf->buffer, escaped);
 						SAlloc::F(escaped);
@@ -673,8 +673,8 @@ void htmlNodeDumpFormatOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNodePtr cu
 			htmlAttrDumpOutput(buf, doc, (xmlAttr *)cur, encoding);
 		else if(cur->type == HTML_TEXT_NODE) {
 			if(cur->content) {
-				if((cur->name == (const xmlChar*)xmlStringText || cur->name != (const xmlChar*)xmlStringTextNoenc) &&
-					(!cur->parent || (!sstreqi_ascii(cur->parent->name, BAD_CAST "script") && !sstreqi_ascii(cur->parent->name, BAD_CAST "style")))) {
+				if((cur->name == (const xmlChar *)xmlStringText || cur->name != (const xmlChar *)xmlStringTextNoenc) &&
+					(!cur->parent || (!sstreqi_ascii(cur->parent->name, reinterpret_cast<const xmlChar *>("script")) && !sstreqi_ascii(cur->parent->name, reinterpret_cast<const xmlChar *>("style"))))) {
 					xmlChar * buffer = xmlEncodeEntitiesReentrant(doc, cur->content);
 					if(buffer) {
 						xmlOutputBufferWriteString(buf, (const char *)buffer);
@@ -682,44 +682,44 @@ void htmlNodeDumpFormatOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNodePtr cu
 					}
 				}
 				else {
-					xmlOutputBufferWriteString(buf, (const char *)cur->content);
+					xmlOutputBufferWriteString(buf, reinterpret_cast<const char *>(cur->content));
 				}
 			}
 		}
 		else if(cur->type == HTML_COMMENT_NODE) {
 			if(cur->content) {
 				xmlOutputBufferWriteString(buf, "<!--");
-				xmlOutputBufferWriteString(buf, (const char *)cur->content);
+				xmlOutputBufferWriteString(buf, reinterpret_cast<const char *>(cur->content));
 				xmlOutputBufferWriteString(buf, "-->");
 			}
 		}
 		else if(cur->type == HTML_PI_NODE) {
 			if(cur->name) {
 				xmlOutputBufferWriteString(buf, "<?");
-				xmlOutputBufferWriteString(buf, (const char *)cur->name);
+				xmlOutputBufferWriteString(buf, reinterpret_cast<const char *>(cur->name));
 				if(cur->content) {
 					xmlOutputBufferWriteString(buf, " ");
-					xmlOutputBufferWriteString(buf, (const char *)cur->content);
+					xmlOutputBufferWriteString(buf, reinterpret_cast<const char *>(cur->content));
 				}
 				xmlOutputBufferWriteString(buf, ">");
 			}
 		}
 		else if(cur->type == HTML_ENTITY_REF_NODE) {
 			xmlOutputBufferWriteString(buf, "&");
-			xmlOutputBufferWriteString(buf, (const char *)cur->name);
+			xmlOutputBufferWriteString(buf, reinterpret_cast<const char *>(cur->name));
 			xmlOutputBufferWriteString(buf, ";");
 		}
 		else if(cur->type == HTML_PRESERVE_NODE) {
-			xmlOutputBufferWriteString(buf, (const char *)cur->content);
+			xmlOutputBufferWriteString(buf, reinterpret_cast<const char *>(cur->content));
 		}
 		else {
 			const htmlElemDesc * info = cur->ns ? 0 : htmlTagLookup(cur->name); // Get specific HTML info for that node.
 			xmlOutputBufferWriteString(buf, "<");
 			if(cur->ns && cur->ns->prefix) {
-				xmlOutputBufferWriteString(buf, (const char *)cur->ns->prefix);
+				xmlOutputBufferWriteString(buf, reinterpret_cast<const char *>(cur->ns->prefix));
 				xmlOutputBufferWriteString(buf, ":");
 			}
-			xmlOutputBufferWriteString(buf, (const char *)cur->name);
+			xmlOutputBufferWriteString(buf, reinterpret_cast<const char *>(cur->name));
 			xmlNsListDumpOutput(buf, cur->nsDef);
 			htmlAttrListDumpOutput(buf, doc, cur->properties, encoding);
 			if(info && info->empty) {
@@ -736,10 +736,10 @@ void htmlNodeDumpFormatOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNodePtr cu
 				else {
 					xmlOutputBufferWriteString(buf, "></");
 					if(cur->ns && cur->ns->prefix) {
-						xmlOutputBufferWriteString(buf, (const char *)cur->ns->prefix);
+						xmlOutputBufferWriteString(buf, reinterpret_cast<const char *>(cur->ns->prefix));
 						xmlOutputBufferWriteString(buf, ":");
 					}
-					xmlOutputBufferWriteString(buf, (const char *)cur->name);
+					xmlOutputBufferWriteString(buf, reinterpret_cast<const char *>(cur->name));
 					xmlOutputBufferWriteString(buf, ">");
 				}
 				if(format && cur->next && info && !info->isinline) {
@@ -751,7 +751,7 @@ void htmlNodeDumpFormatOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNodePtr cu
 				xmlOutputBufferWriteString(buf, ">");
 				if((cur->type != XML_ELEMENT_NODE) && cur->content) {
 					// Uses the OutputBuffer property to automatically convert invalids to charrefs
-					xmlOutputBufferWriteString(buf, (const char *)cur->content);
+					xmlOutputBufferWriteString(buf, reinterpret_cast<const char *>(cur->content));
 				}
 				if(cur->children) {
 					if(format && info && !info->isinline && !oneof2(cur->children->type, HTML_TEXT_NODE, HTML_ENTITY_REF_NODE) && 
@@ -764,10 +764,10 @@ void htmlNodeDumpFormatOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNodePtr cu
 				}
 				xmlOutputBufferWriteString(buf, "</");
 				if(cur->ns && cur->ns->prefix) {
-					xmlOutputBufferWriteString(buf, (const char *)cur->ns->prefix);
+					xmlOutputBufferWriteString(buf, reinterpret_cast<const char *>(cur->ns->prefix));
 					xmlOutputBufferWriteString(buf, ":");
 				}
-				xmlOutputBufferWriteString(buf, (const char *)cur->name);
+				xmlOutputBufferWriteString(buf, reinterpret_cast<const char *>(cur->name));
 				xmlOutputBufferWriteString(buf, ">");
 				if(format && info && !info->isinline && cur->next) {
 					if(!oneof2(cur->next->type, HTML_TEXT_NODE, HTML_ENTITY_REF_NODE) && cur->parent && cur->parent->name && (cur->parent->name[0] != 'p')) /* p, pre, param */
@@ -954,10 +954,10 @@ int htmlSaveFileFormat(const char * filename, xmlDoc * cur, const char * encodin
 			if(handler == NULL)
 				htmlSaveErr(XML_SAVE_UNKNOWN_ENCODING, NULL, encoding);
 		}
-		htmlSetMetaEncoding(cur, (const xmlChar*)encoding);
+		htmlSetMetaEncoding(cur, (const xmlChar *)encoding);
 	}
 	else {
-		htmlSetMetaEncoding(cur, (const xmlChar*)"UTF-8");
+		htmlSetMetaEncoding(cur, (const xmlChar *)"UTF-8");
 	}
 	/*
 	 * Fallback to HTML or ASCII when the encoding is unspecified
@@ -986,7 +986,7 @@ int htmlSaveFileFormat(const char * filename, xmlDoc * cur, const char * encodin
  */
 int htmlSaveFileEnc(const char * filename, xmlDoc * cur, const char * encoding) 
 {
-	return(htmlSaveFileFormat(filename, cur, encoding, 1));
+	return (htmlSaveFileFormat(filename, cur, encoding, 1));
 }
 
 #endif /* LIBXML_OUTPUT_ENABLED */

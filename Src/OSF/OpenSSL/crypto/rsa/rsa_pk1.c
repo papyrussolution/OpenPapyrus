@@ -52,7 +52,7 @@ int RSA_padding_check_PKCS1_type_1(uchar * to, int tlen, const uchar * from, int
 	}
 	if((num != (flen + 1)) || (*(p++) != 0x01)) {
 		RSAerr(RSA_F_RSA_PADDING_CHECK_PKCS1_TYPE_1, RSA_R_BLOCK_TYPE_IS_NOT_01);
-		return (-1);
+		return -1;
 	}
 	/* scan over padding data */
 	j = flen - 1;           /* one for type. */
@@ -64,24 +64,24 @@ int RSA_padding_check_PKCS1_type_1(uchar * to, int tlen, const uchar * from, int
 			}
 			else {
 				RSAerr(RSA_F_RSA_PADDING_CHECK_PKCS1_TYPE_1, RSA_R_BAD_FIXED_HEADER_DECRYPT);
-				return (-1);
+				return -1;
 			}
 		}
 		p++;
 	}
 	if(i == j) {
 		RSAerr(RSA_F_RSA_PADDING_CHECK_PKCS1_TYPE_1, RSA_R_NULL_BEFORE_BLOCK_MISSING);
-		return (-1);
+		return -1;
 	}
 	if(i < 8) {
 		RSAerr(RSA_F_RSA_PADDING_CHECK_PKCS1_TYPE_1, RSA_R_BAD_PAD_BYTE_COUNT);
-		return (-1);
+		return -1;
 	}
 	i++;                    /* Skip over the '\0' */
 	j -= i;
 	if(j > tlen) {
 		RSAerr(RSA_F_RSA_PADDING_CHECK_PKCS1_TYPE_1, RSA_R_DATA_TOO_LARGE);
-		return (-1);
+		return -1;
 	}
 	memcpy(to, p, (uint)j);
 

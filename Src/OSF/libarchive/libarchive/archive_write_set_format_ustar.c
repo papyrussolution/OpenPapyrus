@@ -179,14 +179,14 @@ int archive_write_set_format_ustar(struct archive * _a)
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 		    "Internal: template_header wrong size: %zu should be 512",
 		    sizeof(template_header));
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	ustar = (struct ustar *)SAlloc::C(1, sizeof(*ustar));
 	if(ustar == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate ustar data");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	a->format_data = ustar;
 	a->format_name = "ustar";
@@ -198,7 +198,7 @@ int archive_write_set_format_ustar(struct archive * _a)
 	a->format_finish_entry = archive_write_ustar_finish_entry;
 	a->archive.archive_format = ARCHIVE_FORMAT_TAR_USTAR;
 	a->archive.archive_format_name = "POSIX ustar";
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_write_ustar_options(struct archive_write * a, const char * key,
@@ -220,7 +220,7 @@ static int archive_write_ustar_options(struct archive_write * a, const char * ke
 			else
 				ret = ARCHIVE_FATAL;
 		}
-		return (ret);
+		return ret;
 	}
 
 	/* Note: The "warn" return is just to inform the options
@@ -255,7 +255,7 @@ static int archive_write_ustar_header(struct archive_write * a, struct archive_e
 	if(archive_entry_pathname(entry) == NULL) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 		    "Can't record entry in tar file without pathname");
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 
 	/* Only regular files (not hardlinks) have data. */
@@ -272,20 +272,15 @@ static int archive_write_ustar_header(struct archive_write * a, struct archive_e
 		 * the client sees the change.
 		 */
 #if defined(_WIN32) && !defined(__CYGWIN__)
-		const wchar_t * wp;
-
-		wp = archive_entry_pathname_w(entry);
+		const wchar_t * wp = archive_entry_pathname_w(entry);
 		if(wp != NULL && wp[wcslen(wp) -1] != L'/') {
 			struct archive_wstring ws;
-
 			archive_string_init(&ws);
 			path_length = wcslen(wp);
-			if(archive_wstring_ensure(&ws,
-			    path_length + 2) == NULL) {
-				archive_set_error(&a->archive, ENOMEM,
-				    "Can't allocate ustar data");
+			if(archive_wstring_ensure(&ws, path_length + 2) == NULL) {
+				archive_set_error(&a->archive, ENOMEM, "Can't allocate ustar data");
 				archive_wstring_free(&ws);
-				return(ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			/* Should we keep '\' ? */
 			if(wp[path_length -1] == L'\\')
@@ -314,7 +309,7 @@ static int archive_write_ustar_header(struct archive_write * a, struct archive_e
 				archive_set_error(&a->archive, ENOMEM,
 				    "Can't allocate ustar data");
 				archive_string_free(&as);
-				return(ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 #if defined(_WIN32) && !defined(__CYGWIN__)
 			/* NOTE: This might break the pathname
@@ -339,7 +334,7 @@ static int archive_write_ustar_header(struct archive_write * a, struct archive_e
 	if(entry_main == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate ustar data");
-		return(ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	if(entry != entry_main)
 		entry = entry_main;
@@ -352,7 +347,7 @@ static int archive_write_ustar_header(struct archive_write * a, struct archive_e
 	if(ret < ARCHIVE_WARN) {
 		if(entry_main)
 			archive_entry_free(entry_main);
-		return (ret);
+		return ret;
 	}
 	ret2 = __archive_write_output(a, buff, 512);
 	if(ret2 < ARCHIVE_WARN) {
@@ -367,7 +362,7 @@ static int archive_write_ustar_header(struct archive_write * a, struct archive_e
 	ustar->entry_padding = 0x1ff & (-(int64_t)ustar->entry_bytes_remaining);
 	if(entry_main)
 		archive_entry_free(entry_main);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -409,7 +404,7 @@ int __archive_write_format_header_ustar(struct archive_write * a, char h[512],
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't allocate memory for Pathname");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 		    "Can't translate pathname '%s' to %s",
@@ -463,7 +458,7 @@ int __archive_write_format_header_ustar(struct archive_write * a, char h[512],
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't allocate memory for Linkname");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		archive_set_error(&a->archive,
 		    ARCHIVE_ERRNO_FILE_FORMAT,
@@ -479,7 +474,7 @@ int __archive_write_format_header_ustar(struct archive_write * a, char h[512],
 			if(errno == ENOMEM) {
 				archive_set_error(&a->archive, ENOMEM,
 				    "Can't allocate memory for Linkname");
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			archive_set_error(&a->archive,
 			    ARCHIVE_ERRNO_FILE_FORMAT,
@@ -503,7 +498,7 @@ int __archive_write_format_header_ustar(struct archive_write * a, char h[512],
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't allocate memory for Uname");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		archive_set_error(&a->archive,
 		    ARCHIVE_ERRNO_FILE_FORMAT,
@@ -526,7 +521,7 @@ int __archive_write_format_header_ustar(struct archive_write * a, char h[512],
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't allocate memory for Gname");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		archive_set_error(&a->archive,
 		    ARCHIVE_ERRNO_FILE_FORMAT,
@@ -616,7 +611,7 @@ int __archive_write_format_header_ustar(struct archive_write * a, char h[512],
 			    archive_set_error(&a->archive,
 				ARCHIVE_ERRNO_FILE_FORMAT,
 				"tar format cannot archive socket");
-			    return (ARCHIVE_FAILED);
+			    return ARCHIVE_FAILED;
 			default:
 			    archive_set_error(&a->archive,
 				ARCHIVE_ERRNO_FILE_FORMAT,
@@ -632,7 +627,7 @@ int __archive_write_format_header_ustar(struct archive_write * a, char h[512],
 	h[USTAR_checksum_offset + 6] = '\0'; /* Can't be pre-set in the template. */
 	/* h[USTAR_checksum_offset + 7] = ' '; */ /* This is pre-set in the template. */
 	format_octal(checksum, h + USTAR_checksum_offset, 6);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -678,7 +673,7 @@ static int format_256(int64_t v, char * p, int s)
 		v >>= 8;
 	}
 	*p |= 0x80; /* Set the base-256 marker bit. */
-	return (0);
+	return 0;
 }
 
 /*
@@ -694,7 +689,7 @@ static int format_octal(int64_t v, char * p, int s)
 	if(v < 0) {
 		while(len-- > 0)
 			*p++ = '0';
-		return (-1);
+		return -1;
 	}
 
 	p += s;         /* Start at the end and work backwards. */
@@ -704,13 +699,13 @@ static int format_octal(int64_t v, char * p, int s)
 	}
 
 	if(v == 0)
-		return (0);
+		return 0;
 
 	/* If it overflowed, fill field with max value. */
 	while(len-- > 0)
 		*p++ = '7';
 
-	return (-1);
+	return -1;
 }
 
 static int archive_write_ustar_close(struct archive_write * a)
@@ -725,7 +720,7 @@ static int archive_write_ustar_free(struct archive_write * a)
 	ustar = (struct ustar *)a->format_data;
 	SAlloc::F(ustar);
 	a->format_data = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_write_ustar_finish_entry(struct archive_write * a)
@@ -737,7 +732,7 @@ static int archive_write_ustar_finish_entry(struct archive_write * a)
 	ret = __archive_write_nulls(a,
 		(size_t)(ustar->entry_bytes_remaining + ustar->entry_padding));
 	ustar->entry_bytes_remaining = ustar->entry_padding = 0;
-	return (ret);
+	return ret;
 }
 
 static ssize_t archive_write_ustar_data(struct archive_write * a, const void * buff, size_t s)
@@ -751,6 +746,6 @@ static ssize_t archive_write_ustar_data(struct archive_write * a, const void * b
 	ret = __archive_write_output(a, buff, s);
 	ustar->entry_bytes_remaining -= s;
 	if(ret != ARCHIVE_OK)
-		return (ret);
+		return ret;
 	return (s);
 }

@@ -42,8 +42,8 @@ __RCSID("$NetBSD: strcasecmp.c,v 1.16 2003/08/07 16:43:49 agc Exp $");
 
 int strcasecmp(const char * s1, const char * s2)
 {
-	const unsigned char * us1 = (const unsigned char*)s1,
-	*us2 = (const unsigned char*)s2;
+	const uchar * us1 = (const uchar*)s1,
+	*us2 = (const uchar*)s2;
 	while(tolower((int)*us1) == tolower((int)*us2++))
 		if(*us1++ == '\0')
 			return 0;

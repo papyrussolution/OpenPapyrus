@@ -404,7 +404,7 @@ namespace NCompress {
 					fileSize_for_Conv = (uint32)inSize;
 			}
 			CMyComPtr<ICompressGetSubStreamSize> getSubStreamSize;
-			inStreams[0]->QueryInterface(IID_ICompressGetSubStreamSize, (void**)&getSubStreamSize);
+			inStreams[0]->QueryInterface(IID_ICompressGetSubStreamSize, (void **)&getSubStreamSize);
 			CBcj2Enc enc;
 			enc.src = _bufs[BCJ2_NUM_STREAMS];
 			enc.srcLim = enc.src;

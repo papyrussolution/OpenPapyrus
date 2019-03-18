@@ -98,12 +98,10 @@ typedef struct ___fop_write_42_args {
 } __fop_write_42_args;
 
 extern __DB_IMPORT DB_LOG_RECSPEC __fop_write_42_desc[];
-static inline int __fop_write_42_read(ENV *env, 
-    void *data, __fop_write_42_args **arg)
+static inline int __fop_write_42_read(ENV *env, void *data, __fop_write_42_args **arg)
 {
 	*arg = NULL;
-	return (__log_read_record(env, 
-	    NULL, NULL, data, __fop_write_42_desc, sizeof(__fop_write_42_args), reinterpret_cast<void **>(arg)));
+	return (__log_read_record(env, NULL, NULL, data, __fop_write_42_desc, sizeof(__fop_write_42_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___fop_write	145
 typedef struct ___fop_write_args {
@@ -121,27 +119,19 @@ typedef struct ___fop_write_args {
 } __fop_write_args;
 
 extern __DB_IMPORT DB_LOG_RECSPEC __fop_write_desc[];
-static inline int
-__fop_write_log(ENV *env, DB_TXN *txnp, DB_LSN *ret_lsnp, uint32 flags,
-    const DBT *name, const DBT *dirname, uint32 appname, uint32 pgsize, db_pgno_t pageno,
-    uint32 offset, const DBT *page, uint32 flag)
+static inline int __fop_write_log(ENV *env, DB_TXN *txnp, DB_LSN *ret_lsnp, uint32 flags,
+    const DBT *name, const DBT *dirname, uint32 appname, uint32 pgsize, db_pgno_t pageno, uint32 offset, const DBT *page, uint32 flag)
 {
-	return (__log_put_record(env, NULL, txnp, ret_lsnp,
-	    flags, DB___fop_write, 0,
-	    sizeof(uint32) + sizeof(uint32) + sizeof(DB_LSN) +
-	    LOG_DBT_SIZE(name) + LOG_DBT_SIZE(dirname) + sizeof(uint32) +
-	    sizeof(uint32) + sizeof(uint32) + sizeof(uint32) +
-	    LOG_DBT_SIZE(page) + sizeof(uint32),
-	    __fop_write_desc,
-	    name, dirname, appname, pgsize, pageno, offset, page, flag));
+	return (__log_put_record(env, NULL, txnp, ret_lsnp, flags, DB___fop_write, 0,
+	    sizeof(uint32) + sizeof(uint32) + sizeof(DB_LSN) + LOG_DBT_SIZE(name) + LOG_DBT_SIZE(dirname) + sizeof(uint32) +
+	    sizeof(uint32) + sizeof(uint32) + sizeof(uint32) + LOG_DBT_SIZE(page) + sizeof(uint32),
+	    __fop_write_desc, name, dirname, appname, pgsize, pageno, offset, page, flag));
 }
 
-static inline int __fop_write_read(ENV *env, 
-    void *data, __fop_write_args **arg)
+static inline int __fop_write_read(ENV *env, void *data, __fop_write_args **arg)
 {
 	*arg = NULL;
-	return (__log_read_record(env, 
-	    NULL, NULL, data, __fop_write_desc, sizeof(__fop_write_args), reinterpret_cast<void **>(arg)));
+	return (__log_read_record(env, NULL, NULL, data, __fop_write_desc, sizeof(__fop_write_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___fop_rename_42	146
 #define	DB___fop_rename_noundo_46	150
@@ -156,20 +146,16 @@ typedef struct ___fop_rename_42_args {
 } __fop_rename_42_args;
 
 extern __DB_IMPORT DB_LOG_RECSPEC __fop_rename_42_desc[];
-static inline int __fop_rename_42_read(ENV *env, 
-    void *data, __fop_rename_42_args **arg)
+static inline int __fop_rename_42_read(ENV *env, void *data, __fop_rename_42_args **arg)
 {
 	*arg = NULL;
-	return (__log_read_record(env, 
-	    NULL, NULL, data, __fop_rename_42_desc, sizeof(__fop_rename_42_args), reinterpret_cast<void **>(arg)));
+	return (__log_read_record(env, NULL, NULL, data, __fop_rename_42_desc, sizeof(__fop_rename_42_args), reinterpret_cast<void **>(arg)));
 }
 extern __DB_IMPORT DB_LOG_RECSPEC __fop_rename_noundo_46_desc[];
-static inline int __fop_rename_noundo_46_read(ENV *env, 
-    void *data, __fop_rename_42_args **arg)
+static inline int __fop_rename_noundo_46_read(ENV *env, void *data, __fop_rename_42_args **arg)
 {
 	*arg = NULL;
-	return (__log_read_record(env, 
-	    NULL, NULL, data, __fop_rename_noundo_46_desc, sizeof(__fop_rename_42_args), reinterpret_cast<void **>(arg)));
+	return (__log_read_record(env, NULL, NULL, data, __fop_rename_noundo_46_desc, sizeof(__fop_rename_42_args), reinterpret_cast<void **>(arg)));
 }
 #define	DB___fop_rename	146
 #define	DB___fop_rename_noundo	150
@@ -198,8 +184,7 @@ __fop_rename_log(ENV *env, DB_TXN *txnp, DB_LSN *ret_lsnp, uint32 flags,
 	    oldname, newname, dirname, fileid, appname));
 }
 
-static inline int __fop_rename_read(ENV *env, 
-    void *data, __fop_rename_args **arg)
+static inline int __fop_rename_read(ENV *env, void *data, __fop_rename_args **arg)
 {
 	*arg = NULL;
 	return (__log_read_record(env, 

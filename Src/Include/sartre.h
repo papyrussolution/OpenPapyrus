@@ -569,7 +569,7 @@ public:
 	int    Add(SrConcept & rRec);
 	int    Update(SrConcept & rRec);
 	int    Remove(CONCEPTID id);
-	int    SetPropDeclList(CONCEPTID id, SrCPropDeclList * pPdl);
+	int    SetPropDeclList(CONCEPTID id, const SrCPropDeclList * pPdl);
 	int    SearchByID(CONCEPTID id, SrConcept * pRec);
 	int    SearchBySymb(LEXID symbId, SrConcept * pRec);
 

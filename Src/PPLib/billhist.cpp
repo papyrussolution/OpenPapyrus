@@ -209,7 +209,7 @@ void SLAPI PPHistBillPacket::destroy()
 	RemoveRows(0);
 }
 
-int SLAPI PPHistBillPacket::Init(PPBillPacket * pPack)
+int SLAPI PPHistBillPacket::Init(const PPBillPacket * pPack)
 {
 	int    ok = 1;
 	if(pPack) {
@@ -296,7 +296,7 @@ PPHistBillPacket & FASTCALL PPHistBillPacket::operator = (const PPHistBillPacket
 
 int SLAPI PPHistBillPacket::EnumItems(uint * pI, HistTrfrTbl::Rec** ppItem) const
 {
-	return Items.enumItems(pI, (void**)ppItem);
+	return Items.enumItems(pI, (void **)ppItem);
 }
 
 uint SLAPI PPHistBillPacket::GetCount() const

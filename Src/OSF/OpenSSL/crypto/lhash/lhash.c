@@ -292,7 +292,7 @@ ulong OPENSSL_LH_strhash(const char * c)
 /*-
     uchar b[16];
     MD5(c,strlen(c),b);
-    return(b[0]|(b[1]<<8)|(b[2]<<16)|(b[3]<<24));
+    return (b[0]|(b[1]<<8)|(b[2]<<16)|(b[3]<<24));
  */
 
 	n = 0x100;

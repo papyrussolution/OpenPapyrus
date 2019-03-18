@@ -38,7 +38,7 @@ static int SLAPI ReadSArrayFromFile(SArray * pAry, FILE * pStream)
 	THROW_V(fread(&c, sizeof(c), 1, pStream) == 1, SLERR_READFAULT);
 	for(i = 0; i < c; i++) {
 		SLibError = SLERR_READFAULT;
-		THROW_V(fread(p_buf, item_size, 1, (FILE*)pStream) == 1, SLERR_READFAULT);
+		THROW_V(fread(p_buf, item_size, 1, (FILE *)pStream) == 1, SLERR_READFAULT);
 		THROW_V(pAry->insert(p_buf), SLERR_READFAULT);
 	}
 	CATCH

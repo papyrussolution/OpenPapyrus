@@ -180,7 +180,7 @@ archive_write_set_format_gnutar(struct archive *_a)
 	if (gnutar == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate gnutar data");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	a->format_data = gnutar;
 	a->format_name = "gnutar";
@@ -192,7 +192,7 @@ archive_write_set_format_gnutar(struct archive *_a)
 	a->format_finish_entry = archive_write_gnutar_finish_entry;
 	a->archive.archive_format = ARCHIVE_FORMAT_TAR_GNUTAR;
 	a->archive.archive_format_name = "GNU tar";
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int
@@ -215,7 +215,7 @@ archive_write_gnutar_options(struct archive_write *a, const char *key,
 			else
 				ret = ARCHIVE_FATAL;
 		}
-		return (ret);
+		return ret;
 	}
 
 	/* Note: The "warn" return is just to inform the options
@@ -238,7 +238,7 @@ archive_write_gnutar_free(struct archive_write *a)
 	gnutar = (struct gnutar *)a->format_data;
 	SAlloc::F(gnutar);
 	a->format_data = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int
@@ -251,7 +251,7 @@ archive_write_gnutar_finish_entry(struct archive_write *a)
 	ret = __archive_write_nulls(a, (size_t)
 	    (gnutar->entry_bytes_remaining + gnutar->entry_padding));
 	gnutar->entry_bytes_remaining = gnutar->entry_padding = 0;
-	return (ret);
+	return ret;
 }
 
 static ssize_t
@@ -266,7 +266,7 @@ archive_write_gnutar_data(struct archive_write *a, const void *buff, size_t s)
 	ret = __archive_write_output(a, buff, s);
 	gnutar->entry_bytes_remaining -= s;
 	if (ret != ARCHIVE_OK)
-		return (ret);
+		return ret;
 	return (s);
 }
 
@@ -322,7 +322,7 @@ archive_write_gnutar_header(struct archive_write *a,
 				archive_set_error(&a->archive, ENOMEM,
 				    "Can't allocate ustar data");
 				archive_wstring_free(&ws);
-				return(ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			/* Should we keep '\' ? */
 			if (wp[path_length -1] == L'\\')
@@ -350,7 +350,7 @@ archive_write_gnutar_header(struct archive_write *a,
 				archive_set_error(&a->archive, ENOMEM,
 				    "Can't allocate ustar data");
 				archive_string_free(&as);
-				return(ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 #if defined(_WIN32) && !defined(__CYGWIN__)
 			/* NOTE: This might break the pathname
@@ -375,7 +375,7 @@ archive_write_gnutar_header(struct archive_write *a,
 	if (entry_main == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate ustar data");
-		return(ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	if (entry != entry_main)
 		entry = entry_main;
@@ -568,7 +568,7 @@ archive_write_gnutar_header(struct archive_write *a,
 exit_write_header:
 	if (entry_main)
 		archive_entry_free(entry_main);
-	return (ret);
+	return ret;
 }
 
 static int
@@ -704,7 +704,7 @@ archive_format_gnutar_header(struct archive_write *a, char h[512],
 	h[GNUTAR_checksum_offset + 6] = '\0'; /* Can't be pre-set in the template. */
 	/* h[GNUTAR_checksum_offset + 7] = ' '; */ /* This is pre-set in the template. */
 	format_octal(checksum, h + GNUTAR_checksum_offset, 6);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -732,7 +732,7 @@ format_256(int64_t v, char *p, int s)
 		v >>= 8;
 	}
 	*p |= 0x80; /* Set the base-256 marker bit. */
-	return (0);
+	return 0;
 }
 
 /*
@@ -754,11 +754,11 @@ format_octal(int64_t v, char *p, int s)
 	}
 
 	if (v == 0)
-		return (0);
+		return 0;
 
 	/* If it overflowed, fill field with max value. */
 	while (len-- > 0)
 		*p++ = '7';
 
-	return (-1);
+	return -1;
 }

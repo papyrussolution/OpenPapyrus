@@ -257,7 +257,7 @@ void * xmlReallocLoc(void * ptr, size_t size, const char * file, int line)
 	size_t oldsize;
 #endif
 	if(ptr == NULL)
-		return(xmlMallocLoc(size, file, line));
+		return (xmlMallocLoc(size, file, line));
 	if(!xmlMemInitialized) xmlInitMemory();
 	TEST_POINT
 
@@ -307,7 +307,7 @@ void * xmlReallocLoc(void * ptr, size_t size, const char * file, int line)
 #ifdef DEBUG_MEMORY
 	xmlGenericError(0, "Realloced(%d to %d) Ok\n", oldsize, size);
 #endif
-	return(HDR_2_CLIENT(p));
+	return (HDR_2_CLIENT(p));
 error:
 	return 0;
 }
@@ -375,7 +375,7 @@ void xmlMemFree(void * ptr)
 #endif
 	return;
 error:
-	xmlGenericError(0, "xmlMemFree(%lX) error\n", (unsigned long)ptr);
+	xmlGenericError(0, "xmlMemFree(%lX) error\n", (ulong)ptr);
 	xmlMallocBreakpoint();
 	return;
 }
@@ -424,7 +424,7 @@ char * xmlMemStrdupLoc(const char * str, const char * file, int line)
 		xmlGenericError(0, "%p : Strdup() Ok\n", xmlMemTraceBlockAt);
 		xmlMallocBreakpoint();
 	}
-	return(s);
+	return (s);
 error:
 	return 0;
 }
@@ -450,7 +450,7 @@ char * xmlMemoryStrdup(const char * str)
  */
 int xmlMemUsed() 
 {
-	return(debugMemSize);
+	return (debugMemSize);
 }
 /**
  * xmlMemBlocks:
@@ -494,7 +494,7 @@ static void xmlMemContentShow(FILE * fp, MEMHDR * p)
 			MEMHDR * q;
 			void * cur;
 			for(j = 0; (j < len -3) && (j < 40); j += 4) {
-				cur = *((void**)&buf[j]);
+				cur = *((void **)&buf[j]);
 				q = CLIENT_2_HDR(cur);
 				p = memlist;
 				k = 0;
@@ -564,7 +564,7 @@ void xmlMemDisplayLast(FILE * fp, long nbBytes)
 	p = memlist;
 	while((p) && (nbBytes > 0)) {
 		fprintf(fp, "%-5u  %6lu %6lu ", idx++, p->mh_number,
-		    (unsigned long)p->mh_size);
+		    (ulong)p->mh_size);
 		switch(p->mh_type) {
 			case STRDUP_TYPE: fprintf(fp, "strdup()  in "); break;
 			case MALLOC_TYPE: fprintf(fp, "malloc()  in "); break;
@@ -589,7 +589,7 @@ void xmlMemDisplayLast(FILE * fp, long nbBytes)
 			fprintf(fp, " skip");
 
 		fprintf(fp, "\n");
-		nbBytes -= (unsigned long)p->mh_size;
+		nbBytes -= (ulong)p->mh_size;
 		p = p->mh_next;
 	}
 	xmlMutexUnlock(xmlMemMutex);
@@ -640,7 +640,7 @@ void xmlMemDisplay(FILE * fp)
 	p = memlist;
 	while(p) {
 		fprintf(fp, "%-5u  %6lu %6lu ", idx++, p->mh_number,
-		    (unsigned long)p->mh_size);
+		    (ulong)p->mh_size);
 		switch(p->mh_type) {
 			case STRDUP_TYPE: fprintf(fp, "strdup()  in "); break;
 			case MALLOC_TYPE: fprintf(fp, "malloc()  in "); break;
@@ -745,7 +745,7 @@ void xmlMemShow(FILE * fp, int nr ATTRIBUTE_UNUSED)
 		fprintf(fp, "NUMBER   SIZE  TYPE   WHERE\n");
 		p = memlist;
 		while((p) && nr > 0) {
-			fprintf(fp, "%6lu %6lu ", p->mh_number, (unsigned long)p->mh_size);
+			fprintf(fp, "%6lu %6lu ", p->mh_number, (ulong)p->mh_size);
 			switch(p->mh_type) {
 				case STRDUP_TYPE: fprintf(fp, "strdup()  in "); break;
 				case MALLOC_TYPE: fprintf(fp, "malloc()  in "); break;

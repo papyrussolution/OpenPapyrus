@@ -162,11 +162,11 @@ static ngx_int_t ngx_http_sub_header_filter(ngx_http_request_t * pReq)
 			}
 			ngx_http_sub_init_tables(ctx->tables, (ngx_http_sub_match_t*)ctx->matches->elts, ctx->matches->nelts);
 		}
-		ctx->saved.data = (u_char*)ngx_pnalloc(pReq->pool, ctx->tables->max_match_len - 1);
+		ctx->saved.data = (u_char *)ngx_pnalloc(pReq->pool, ctx->tables->max_match_len - 1);
 		if(ctx->saved.data == NULL) {
 			return NGX_ERROR;
 		}
-		ctx->looked.data = (u_char*)ngx_pnalloc(pReq->pool, ctx->tables->max_match_len - 1);
+		ctx->looked.data = (u_char *)ngx_pnalloc(pReq->pool, ctx->tables->max_match_len - 1);
 		if(ctx->looked.data == NULL) {
 			return NGX_ERROR;
 		}
@@ -248,7 +248,7 @@ static ngx_int_t ngx_http_sub_body_filter(ngx_http_request_t * r, ngx_chain_t * 
 				}
 				b = cl->buf;
 				memzero(b, sizeof(ngx_buf_t));
-				b->pos = (u_char*)ngx_pnalloc(r->pool, ctx->saved.len);
+				b->pos = (u_char *)ngx_pnalloc(r->pool, ctx->saved.len);
 				if(b->pos == NULL) {
 					return NGX_ERROR;
 				}
@@ -291,7 +291,7 @@ static ngx_int_t ngx_http_sub_body_filter(ngx_http_request_t * r, ngx_chain_t * 
 			memzero(b, sizeof(ngx_buf_t));
 			slcf = (ngx_http_sub_loc_conf_t*)ngx_http_get_module_loc_conf(r, ngx_http_sub_filter_module);
 			if(ctx->sub == NULL) {
-				ctx->sub = (ngx_str_t*)ngx_pcalloc(r->pool, sizeof(ngx_str_t) * ctx->matches->nelts);
+				ctx->sub = (ngx_str_t *)ngx_pcalloc(r->pool, sizeof(ngx_str_t) * ctx->matches->nelts);
 				if(ctx->sub == NULL) {
 					return NGX_ERROR;
 				}
@@ -539,7 +539,7 @@ static const char * ngx_http_sub_filter(ngx_conf_t * cf, const ngx_command_t * c
 	ngx_http_sub_loc_conf_t * slcf = (ngx_http_sub_loc_conf_t *)conf;
 	ngx_http_sub_pair_t * pair;
 	ngx_http_compile_complex_value_t ccv;
-	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(value[1].len == 0) {
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "empty search pattern");
 		return NGX_CONF_ERROR;

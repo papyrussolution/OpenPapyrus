@@ -81,7 +81,7 @@ int _zbar_error_spew(const void * container, int verbosity)
 	const errinfo_t * err = (const errinfo_t *)container;
 	assert(err->magic == ERRINFO_MAGIC);
 	fprintf(stderr, "%s", _zbar_error_string(err, verbosity));
-	return(-err->sev);
+	return (-err->sev);
 }
 
 zbar_error_t _zbar_get_error_code(const void * container)
@@ -98,12 +98,10 @@ zbar_error_t _zbar_get_error_code(const void * container)
 const char * _zbar_error_string(const void * container, int verbosity)
 {
 	static const char basefmt[] = "%s: zbar %s in %s():\n    %s: ";
-	errinfo_t * err = (errinfo_t*)container;
+	errinfo_t * err = (errinfo_t *)container;
 	const char * sev, * mod, * func, * type;
 	int len;
-
 	assert(err->magic == ERRINFO_MAGIC);
-
 	if(err->sev >= SEV_FATAL && err->sev <= SEV_NOTE)
 		sev = sev_str[err->sev + 2];
 	else
@@ -121,28 +119,27 @@ const char * _zbar_error_string(const void * container, int verbosity)
 	err->buf = (char *)SAlloc::R(err->buf, len);
 	len = sprintf(err->buf, basefmt, sev, mod, func, type);
 	if(len <= 0)
-		return("<unknown>");
+		return ("<unknown>");
 
 	if(err->detail) {
 		int newlen = len + strlen(err->detail) + 1;
 		if(strstr(err->detail, "%s")) {
 			if(!err->arg_str)
 				err->arg_str = _strdup("<?>");
-			err->buf = (char *)SAlloc::R(err->buf, newlen + strlen(err->arg_str));
+			err->buf = static_cast<char *>(SAlloc::R(err->buf, newlen + strlen(err->arg_str)));
 			len += sprintf(err->buf + len, err->detail, err->arg_str);
 		}
 		else if(strstr(err->detail, "%d") || strstr(err->detail, "%x")) {
-			err->buf = (char *)SAlloc::R(err->buf, newlen + 32);
+			err->buf = static_cast<char *>(SAlloc::R(err->buf, newlen + 32));
 			len += sprintf(err->buf + len, err->detail, err->arg_int);
 		}
 		else {
-			err->buf = (char *)SAlloc::R(err->buf, newlen);
+			err->buf = static_cast<char *>(SAlloc::R(err->buf, newlen));
 			len += sprintf(err->buf + len, "%s", err->detail);
 		}
 		if(len <= 0)
-			return("<unknown>");
+			return ("<unknown>");
 	}
-
 #ifdef HAVE_ERRNO_H
 	if(err->type == ZBAR_ERR_SYSTEM) {
 		static const char sysfmt[] = ": %s (%d)\n";
@@ -155,9 +152,9 @@ const char * _zbar_error_string(const void * container, int verbosity)
 	else if(err->type == ZBAR_ERR_WINAPI) {
 		char * syserr = NULL;
 		if(FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_IGNORE_INSERTS, 
-			NULL, err->errnum, 0, (LPTSTR)&syserr, 1, NULL) && syserr) {
+			NULL, err->errnum, 0, reinterpret_cast<LPTSTR>(&syserr), 1, NULL) && syserr) {
 			char sysfmt[] = ": %s (%d)\n";
-			err->buf = (char *)SAlloc::R(err->buf, len + strlen(sysfmt) + strlen(syserr));
+			err->buf = static_cast<char *>(SAlloc::R(err->buf, len + strlen(sysfmt) + strlen(syserr)));
 			len += sprintf(err->buf + len, sysfmt, syserr, err->errnum);
 			LocalFree(syserr);
 		}
@@ -167,7 +164,7 @@ const char * _zbar_error_string(const void * container, int verbosity)
 		err->buf = (char *)SAlloc::R(err->buf, len + 2);
 		len += sprintf(err->buf + len, "\n");
 	}
-	return(err->buf);
+	return (err->buf);
 }
 //
 //
@@ -183,11 +180,10 @@ void cdecl zprintf(int level, const char * pFormat, ...)
 
 int err_copy(void * dst_c, void * src_c)
 {
-	errinfo_t * dst = (errinfo_t *)dst_c;
-	errinfo_t * src = (errinfo_t *)src_c;
+	errinfo_t * dst = static_cast<errinfo_t *>(dst_c);
+	errinfo_t * src = static_cast<errinfo_t *>(src_c);
 	assert(dst->magic == ERRINFO_MAGIC);
 	assert(src->magic == ERRINFO_MAGIC);
-
 	dst->errnum = src->errnum;
 	dst->sev = src->sev;
 	dst->type = src->type;
@@ -201,7 +197,7 @@ int err_copy(void * dst_c, void * src_c)
 
 int err_capture(const void * container, errsev_t sev, zbar_error_t type, const char * func, const char * detail)
 {
-	errinfo_t * err = (errinfo_t*)container;
+	errinfo_t * err = static_cast<errinfo_t *>(const_cast<void *>(container)); // @badcast
 	assert(err->magic == ERRINFO_MAGIC);
 #ifdef HAVE_ERRNO_H
 	if(type == ZBAR_ERR_SYSTEM)
@@ -222,7 +218,7 @@ int err_capture(const void * container, errsev_t sev, zbar_error_t type, const c
 
 int err_capture_str(const void * container, errsev_t sev, zbar_error_t type, const char * func, const char * detail, const char * arg)
 {
-	errinfo_t * err = (errinfo_t*)container;
+	errinfo_t * err = (errinfo_t *)container;
 	assert(err->magic == ERRINFO_MAGIC);
 	SAlloc::F(err->arg_str);
 	err->arg_str = _strdup(arg);
@@ -231,7 +227,7 @@ int err_capture_str(const void * container, errsev_t sev, zbar_error_t type, con
 
 int err_capture_int(const void * container, errsev_t sev, zbar_error_t type, const char * func, const char * detail, int arg)
 {
-	errinfo_t * err = (errinfo_t*)container;
+	errinfo_t * err = (errinfo_t *)container;
 	assert(err->magic == ERRINFO_MAGIC);
 	err->arg_int = arg;
 	return err_capture(container, sev, type, func, detail);
@@ -239,7 +235,7 @@ int err_capture_int(const void * container, errsev_t sev, zbar_error_t type, con
 
 int err_capture_num(const void * container, errsev_t sev, zbar_error_t type, const char * func, const char * detail, int num)
 {
-	errinfo_t * err = (errinfo_t*)container;
+	errinfo_t * err = (errinfo_t *)container;
 	assert(err->magic == ERRINFO_MAGIC);
 	err->errnum = num;
 	return err_capture(container, sev, type, func, detail);

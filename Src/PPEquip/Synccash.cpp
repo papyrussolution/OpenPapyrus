@@ -100,10 +100,9 @@ public:
 	virtual int SLAPI PrintCheck(CCheckPacket *, uint flags);
 	virtual int SLAPI PrintFiscalCorrection(const PPCashMachine::FiscalCorrection * pFc);
 	// @v10.0.0 virtual int SLAPI PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN);
-	virtual int SLAPI PrintCheckCopy(CCheckPacket * pPack, const char * pFormatName, uint flags);
-	virtual int SLAPI PrintSlipDoc(CCheckPacket * pPack, const char * pFormatName, uint flags);
+	virtual int SLAPI PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
+	virtual int SLAPI PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int SLAPI GetSummator(double * val);
-	virtual int SLAPI AddSummator(double add) { return 1; }
 	virtual int SLAPI CloseSession(PPID sessID);
 	virtual int SLAPI PrintXReport(const CSessInfo *);
 	virtual int SLAPI PrintZReportCopy(const CSessInfo *);
@@ -118,13 +117,13 @@ public:
 	StrAssocArray Arr_In;
 	StrAssocArray Arr_Out;
 private:
-	virtual int SLAPI InitChannel() { return 1; }
+	// @v10.3.9 virtual int SLAPI InitChannel() { return 1; }
 	int    SLAPI Connect(int forceKeepAlive = 0);
 	int    SLAPI AnnulateCheck();
 	int    SLAPI CheckForCash(double sum);
 	//int  SLAPI CheckForEKLZOrFMOverflow() { return 1; }
 	int    SLAPI PrintReport(int withCleaning);
-	int	   SLAPI PrintDiscountInfo(CCheckPacket * pPack, uint flags);
+	int	   SLAPI PrintDiscountInfo(const CCheckPacket * pPack, uint flags);
 	int    SLAPI GetCheckInfo(const PPBillPacket * pPack, Sync_BillTaxArray * pAry, long * pFlags, SString & rName);
 	int    SLAPI AllowPrintOper();
 	void   SLAPI SetErrorMessage();
@@ -790,7 +789,7 @@ int SLAPI SCS_SYNCCASH::GetSummator(double * val)
 	return ok;
 }
 
-int	SLAPI SCS_SYNCCASH::PrintDiscountInfo(CCheckPacket * pPack, uint flags)
+int	SLAPI SCS_SYNCCASH::PrintDiscountInfo(const CCheckPacket * pPack, uint flags)
 {
 	int    ok = 1;
 	SString input;
@@ -934,7 +933,7 @@ int SLAPI SCS_SYNCCASH::CheckForSessionOver()
 	return ok;
 }
 
-int SLAPI SCS_SYNCCASH::PrintCheckCopy(CCheckPacket * pPack, const char * pFormatName, uint flags)
+int SLAPI SCS_SYNCCASH::PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags)
 {
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
@@ -1123,7 +1122,7 @@ int SLAPI SCS_SYNCCASH::GetCheckInfo(const PPBillPacket * pPack, Sync_BillTaxArr
 	return ok;
 }
 
-int SLAPI SCS_SYNCCASH::PrintSlipDoc(CCheckPacket * pPack, const char * pFormatName, uint flags)
+int SLAPI SCS_SYNCCASH::PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatName, uint flags)
 {
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR_AFTER_PRINT;

@@ -132,7 +132,7 @@ int ELinkListDialog::setupList()
 	PPELinkKind elkr;
 	PPELink * elr;
 	SString sub;
-	for(uint i = 0; Data.enumItems(&i, (void**)&elr);) {
+	for(uint i = 0; Data.enumItems(&i, (void **)&elr);) {
 		StringSet ss(SLBColumnDelim);
 		if(elkobj.Fetch(elr->KindID, &elkr) > 0)
 			ss.add(elkr.Name);

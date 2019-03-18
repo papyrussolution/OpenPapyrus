@@ -84,10 +84,10 @@ void DES_encrypt1(DES_LONG * data, DES_key_schedule * ks, int enc)
 
 void DES_encrypt2(DES_LONG * data, DES_key_schedule * ks, int enc)
 {
-	register DES_LONG t, u;
-	register DES_LONG * s;
-	register DES_LONG r = data[0];
-	register DES_LONG l = data[1];
+	DES_LONG t, u;
+	DES_LONG * s;
+	DES_LONG r = data[0];
+	DES_LONG l = data[1];
 	/*
 	 * Things have been modified so that the initial rotate is done outside
 	 * the loop.  This required the DES_SPtrans values in sp.h to be rotated
@@ -148,8 +148,8 @@ void DES_encrypt2(DES_LONG * data, DES_key_schedule * ks, int enc)
 
 void DES_encrypt3(DES_LONG * data, DES_key_schedule * ks1, DES_key_schedule * ks2, DES_key_schedule * ks3)
 {
-	register DES_LONG l = data[0];
-	register DES_LONG r = data[1];
+	DES_LONG l = data[0];
+	DES_LONG r = data[1];
 	IP(l, r);
 	data[0] = l;
 	data[1] = r;
@@ -165,8 +165,8 @@ void DES_encrypt3(DES_LONG * data, DES_key_schedule * ks1, DES_key_schedule * ks
 
 void DES_decrypt3(DES_LONG * data, DES_key_schedule * ks1, DES_key_schedule * ks2, DES_key_schedule * ks3)
 {
-	register DES_LONG l = data[0];
-	register DES_LONG r = data[1];
+	DES_LONG l = data[0];
+	DES_LONG r = data[1];
 	IP(l, r);
 	data[0] = l;
 	data[1] = r;

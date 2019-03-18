@@ -43,7 +43,7 @@ int i2a_ASN1_INTEGER(BIO * bp, const ASN1_INTEGER * a)
 	}
 	return (n);
 err:
-	return (-1);
+	return -1;
 }
 
 int a2i_ASN1_INTEGER(BIO * bp, ASN1_INTEGER * bs, char * buf, int size)

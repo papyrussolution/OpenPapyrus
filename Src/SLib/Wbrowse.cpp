@@ -221,7 +221,8 @@ int TBaseBrowserWindow::Insert()
 		if(hw_frame) {
 			RECT   rc_frame;
 			::GetClientRect(hw_frame, &rc_frame);
-			HW = ::CreateWindowEx(0, ClsName, buf, style, 0, 0, rc_frame.right-16, rc_frame.bottom, hw_frame, 0, TProgram::GetInst(), this); // @unicodeproblem
+			HW = ::CreateWindowEx(0, SUcSwitch(ClsName), SUcSwitch(buf), style, 0, 0, 
+				rc_frame.right-16, rc_frame.bottom, hw_frame, 0, TProgram::GetInst(), this); // @unicodeproblem
 			APPL->SizeMainWnd(HW); // @v9.7.5
 			::ShowWindow(HW, SW_SHOW);
 			if(ResourceID == 0) {
@@ -229,7 +230,7 @@ int TBaseBrowserWindow::Insert()
 				while(hw && (hw == APPL->H_CloseWnd || hw == HW))
 					hw = GetNextWindow(hw, GW_HWNDNEXT);
 				if(hw) {
-					TBaseBrowserWindow * p_brw = (TBaseBrowserWindow *)TView::GetWindowUserData(hw);
+					TBaseBrowserWindow * p_brw = static_cast<TBaseBrowserWindow *>(TView::GetWindowUserData(hw));
 					if(p_brw) {
 						if(ClsName == STimeChunkBrowser::WndClsName)
 							ResourceID = p_brw->GetResID() + TBaseBrowserWindow::IdBiasTimeChunkBrowser;
@@ -305,10 +306,11 @@ IMPL_HANDLE_EVENT(TBaseBrowserWindow)
 		}
 		const DWORD  style = WS_POPUP|WS_CAPTION|WS_HSCROLL|WS_VSCROLL|WS_SYSMENU|WS_THICKFRAME|WS_VISIBLE|WS_CLIPSIBLINGS;
 		if(!H() && APPL->H_MainWnd) {
+			const TCHAR * p_title = SUcSwitch(buf);
 			if(IsMDIClientWindow(APPL->H_MainWnd)) {
 				MDICREATESTRUCT child;
 				child.szClass = BrowserWindow::WndClsName;
-				child.szTitle = buf; // @unicodeproblem
+				child.szTitle = p_title; // @unicodeproblem
 				child.hOwner = TProgram::GetInst();
 				child.x  = CW_USEDEFAULT;	// rect->Left;
 				child.y  = CW_USEDEFAULT;	// rect->top;
@@ -319,7 +321,7 @@ IMPL_HANDLE_EVENT(TBaseBrowserWindow)
 				HW = reinterpret_cast<HWND>(LOWORD(SendMessage(APPL->H_MainWnd, WM_MDICREATE, 0, reinterpret_cast<LPARAM>(&child)))); // @unicodeproblem
 			}
 			else {
-				HW = CreateWindow(ClsName, buf, style, r.left, r.top, r.right, r.bottom, (APPL->H_TopOfStack), NULL, TProgram::GetInst(), this); // @unicodeproblem
+				HW = CreateWindow(SUcSwitch(ClsName), p_title, style, r.left, r.top, r.right, r.bottom, (APPL->H_TopOfStack), NULL, TProgram::GetInst(), this); // @unicodeproblem
 			}
 			// @v10.3.1 {
 			if(HW) {
@@ -412,7 +414,7 @@ int ImpLoadToolbar(TVRez & rez, ToolbarList * pList)
 	pList->setBitmap(rez.getUINT());
 	SString temp_buf;
 	while(rez.getUINT() != TV_END) {
-		fseek(rez.getStream(), -((long)sizeof(uint16)), SEEK_CUR);
+		fseek(rez.getStream(), -static_cast<long>(sizeof(uint16)), SEEK_CUR);
 		ToolbarItem item;
 		MEMSZERO(item);
 		item.Cmd = rez.getUINT();
@@ -428,7 +430,7 @@ int ImpLoadToolbar(TVRez & rez, ToolbarList * pList)
             // } @v9.0.11
 		}
 		else
-			item.KeyCode = (ushort)item.Cmd;
+			item.KeyCode = static_cast<ushort>(item.Cmd);
 		pList->addItem(&item);
 	}
 	return 1;
@@ -554,9 +556,9 @@ int BrowserWindow::LoadResource(uint rezID, void * pData, int dataKind, uint uOp
 			uint   help_ctx = rez.getUINT();
 			BrowserDef * p_def;
 			if(dataKind == 1)
-				p_def = new AryBrowserDef((SArray *)pData, 0, hight, options);
+				p_def = new AryBrowserDef(static_cast<SArray *>(pData), 0, hight, options);
 			else
-				p_def = new DBQBrowserDef(*(DBQuery *)pData, hight, options);
+				p_def = new DBQBrowserDef(*static_cast<DBQuery *>(pData), hight, options);
 			THROW(p_def);
 			for(int __done = 0; !__done;) {
 				const uint tag = rez.getUINT();
@@ -1455,11 +1457,11 @@ int BrowserWindow::DrawTextUnderCursor(HDC hdc, char * pBuf, RECT * pTextRect, i
 void BrowserWindow::DrawMultiLinesText(HDC hdc, char * pBuf, RECT * pTextRect, int fmt)
 {
 	if(pTextRect && pBuf) {
-		char   buf[256];
+		SString temp_buf;
 		RECT   rect = *pTextRect;
 		StringSet ss('\n', pBuf);
-		for(uint i = 0; ss.get(&i, buf, sizeof(buf)); rect.top += YCell, rect.bottom += YCell)
-			::DrawText(hdc, buf, (int)sstrlen(buf), &rect, fmt); // @unicodeproblem 
+		for(uint i = 0; ss.get(&i, temp_buf); rect.top += YCell, rect.bottom += YCell)
+			::DrawText(hdc, SUcSwitch(temp_buf), static_cast<int>(temp_buf.Len()), &rect, fmt); // @unicodeproblem 
 	}
 }
 
@@ -1600,7 +1602,7 @@ void BrowserWindow::Paint()
 		uint   count = P_Def->getCount();
 		uint   gidx;
 		int    lt, rt, fmt;
-		char   buf[512];
+		TCHAR  buf[512];
 		SString temp_buf;
 		::BeginPaint(H(), &ps);
 		if(ps.fErase) {
@@ -1617,8 +1619,9 @@ void BrowserWindow::Paint()
 		r.bottom = hdr_width - 1;
 		if(P_Header && SIntersectRect(ps.rcPaint, r)) {
 			static_cast<const TStaticText *>(P_Header)->getText(temp_buf);
-			temp_buf.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(buf, sizeof(buf));
-			::DrawText(ps.hdc, buf, (int)sstrlen(buf), &r, DT_LEFT); // @unicodeproblem
+			temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+			STRNSCPY(buf, SUcSwitch(temp_buf));
+			::DrawText(ps.hdc, buf, sstrleni(buf), &r, DT_LEFT); // @unicodeproblem
 		}
 		r.top     = r.left = 0;
 		r.bottom  = ChrSz.y * CapOffs - 3;
@@ -1645,7 +1648,7 @@ void BrowserWindow::Paint()
 				r.right -= 3;
 				r.bottom--;
 				(temp_buf = c.text).Transf(CTRANSF_INNER_TO_OUTER);
-				::DrawText(ps.hdc, temp_buf, (int)temp_buf.Len(), &r, GetCapAlign(c.Options)); // @unicodeproblem
+				::DrawText(ps.hdc, SUcSwitch(temp_buf), (int)temp_buf.Len(), &r, GetCapAlign(c.Options)); // @unicodeproblem
 				cn = (++i == Freeze) ? Left : (cn + 1);
 			}
 			if(r.right < CliSz.x) {
@@ -1672,7 +1675,7 @@ void BrowserWindow::Paint()
 					r.right--;
 					r.bottom--;
 					(temp_buf = p_grp->P_Text).Transf(CTRANSF_INNER_TO_OUTER);
-					::DrawText(ps.hdc, temp_buf, static_cast<int>(temp_buf.Len()), &r, fmt); // @unicodeproblem
+					::DrawText(ps.hdc, SUcSwitch(temp_buf), static_cast<int>(temp_buf.Len()), &r, fmt); // @unicodeproblem
 				}
 			}
 			SetBkColor(ps.hdc, oldColor);
@@ -1775,11 +1778,11 @@ void BrowserWindow::Paint()
 				else
 					r.top += YCell;
 			}
-			int    topold = (!r_h_count && sel_col_count) ? r.top : r.top - YCell;
+			const  int  topold = (!r_h_count && sel_col_count) ? r.top : r.top - YCell;
 			long   prev_left = r.left;
 			ItemRect(Left, 0, &r, FALSE);
-			HPEN   black_pen = CreatePen(PS_SOLID, 1, GetColorRef(SClrBlack));
-			HPEN   dot_line_pen = CreatePen(PS_SOLID, 3, GetColorRef(SClrBlack));
+			HPEN   black_pen = ::CreatePen(PS_SOLID, 1, GetColorRef(SClrBlack));
+			HPEN   dot_line_pen = ::CreatePen(PS_SOLID, 3, GetColorRef(SClrBlack));
 			r.bottom = topold;
 			r.top   += hdr_width - 2;
 			i = 0;
@@ -1789,8 +1792,8 @@ void BrowserWindow::Paint()
 				long dot_line_delta = 6;
 				r.left = CellRight(P_Def->at(cn));
 				if(sel_col_count) {
-					int selected      = BIN(SelectedColumns.bsearch(static_cast<long>(cn), 0) > 0);
-					int next_selected = BIN(SelectedColumns.bsearch(static_cast<long>(cn) + 1, 0) > 0);
+					const int selected      = BIN(SelectedColumns.bsearch(static_cast<long>(cn), 0) > 0);
+					const int next_selected = BIN(SelectedColumns.bsearch(static_cast<long>(cn) + 1, 0) > 0);
 					dot_line = ((!next_selected && selected) || (next_selected && !selected));
 					if(selected) {
 						SelectObject(ps.hdc, dot_line_pen);
@@ -2302,7 +2305,7 @@ int BrowserWindow::CalcRowsHeight(long topItem, long bottomItem)
 			if(bottomItem) {
 				uint top = 0;
 				RowHeightInfo * p_item = 0;
-				for(row = 0; P_RowsHeightAry->enumItems(&row, (void**)&p_item) > 0;) {
+				for(row = 0; P_RowsHeightAry->enumItems(&row, (void **)&p_item) > 0;) {
 					p_item->Top = top;
 					top += YCell * p_item->HeightMult;
 				}

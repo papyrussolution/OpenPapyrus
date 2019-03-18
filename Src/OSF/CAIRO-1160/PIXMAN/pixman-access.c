@@ -272,7 +272,7 @@ static force_inline uint32_t convert_pixel_from_a8r8g8b8(const pixman_image_t * 
 	}
 }
 
-static force_inline uint32_t fetch_and_convert_pixel(bits_image_t * image, const uint8_t * bits, int offset, pixman_format_code_t format)
+static force_inline uint32_t fetch_and_convert_pixel(const bits_image_t * image, const uint8_t * bits, int offset, pixman_format_code_t format)
 {
 	uint32_t pixel;
 	switch(PIXMAN_FORMAT_BPP(format)) {
@@ -493,17 +493,11 @@ static void fetch_scanline_rgbf_float(bits_image_t * image,
 	}
 }
 
-static void fetch_scanline_rgbaf_float(bits_image_t * image,
-    int x,
-    int y,
-    int width,
-    uint32_t * b,
-    const uint32_t * mask)
+static void fetch_scanline_rgbaf_float(bits_image_t * image, int x, int y, int width, uint32_t * b, const uint32_t * mask)
 {
-	const float * bits = (float *)image->bits + y * image->rowstride;
+	const float * bits = reinterpret_cast<const float *>(image->bits) + y * image->rowstride;
 	const float * pixel = bits + x * 4;
-	argb_t * buffer = (argb_t*)b;
-
+	argb_t * buffer = reinterpret_cast<argb_t *>(b);
 	for(; width--; buffer++) {
 		buffer->r = *pixel++;
 		buffer->g = *pixel++;

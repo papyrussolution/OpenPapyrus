@@ -849,7 +849,7 @@ public:
 		SetupArCombo(this, CTLSEL_BILLFLT_OBJ2, (object2_sheet_id) ? Data.Object2 : 0L, OLW_LOADDEFONOPEN, object2_sheet_id, sacfDisableIfZeroSheet);
 		SetupPPObjCombo(this,  CTLSEL_BILLFLT_OBJCITY, PPOBJ_WORLD, Data.ObjCityID, OLW_LOADDEFONOPEN,
 			PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
-		SetupPPObjCombo(this, CTLSEL_BILLFLT_FRGHTAGNT, PPOBJ_PERSON, Data.FreightAgentID, OLW_LOADDEFONOPEN, (void *)PPPRK_VESSELSAGENT); // @v8.1.12
+		SetupPPObjCombo(this, CTLSEL_BILLFLT_FRGHTAGNT, PPOBJ_PERSON, Data.FreightAgentID, OLW_LOADDEFONOPEN, reinterpret_cast<void *>(PPPRK_VESSELSAGENT));
 		disableCtrl(CTL_BILLFLT_RESTDATE, (Data.Flags & GoodsOpAnalyzeFilt::fCalcRest) ? 0 : 1);
 		setCtrlData(CTL_BILLFLT_RESTDATE, &Data.RestCalcDate);
 		int enbl = (Data.OpGrpID != GoodsOpAnalyzeFilt::ogInOutAnalyze &&(!(Data.Flags & GoodsOpAnalyzeFilt::fIntrReval)) &&
@@ -1786,7 +1786,7 @@ public:
 	int    InitGoodsGrpList(GoodsOpAnalyzeFilt * pFilt);
 	int    CalcBelongToABCGrp(const GoodsOpAnalyzeViewItem *, short * pABCGrp, int finish = 0);
 	int    EnumItems(short * pABCGrp, TempGoodsOprTbl::Rec * pRec);
-	int    IncTotalItem(uint groupBy, GoodsOpAnalyzeViewItem * pItem);
+	int    IncTotalItem(uint groupBy, const GoodsOpAnalyzeViewItem * pItem);
 private:
 	long   GetGoodsGrpPos(PPID goodsID);
 	ABCGroupingRecsStorage * ABCGrpStorageList::GetStorage(PPID goodsID);
@@ -1881,7 +1881,7 @@ long ABCGrpStorageList::GetGoodsGrpPos(PPID goodsID)
 	return pos;
 }
 
-int ABCGrpStorageList::IncTotalItem(uint groupBy, GoodsOpAnalyzeViewItem * pItem)
+int ABCGrpStorageList::IncTotalItem(uint groupBy, const GoodsOpAnalyzeViewItem * pItem)
 {
 	int    ok = -1;
 	if(pItem) {
@@ -2280,7 +2280,7 @@ int SLAPI PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 				}
 			}
 			else { // } @v10.2.2
-				for(i = 0; op_list.enumItems(&i, (void**)&p_op_id);) {
+				for(i = 0; op_list.enumItems(&i, (void **)&p_op_id);) {
 					BillTbl::Rec bill_rec;
 					int    is_paym = 0;
 					double part    = 1.0;
@@ -3203,13 +3203,13 @@ int SLAPI PPViewGoodsOpAnalyze::ChangeOrder(BrowserWindow * pW)
 		if(ExecView(dlg) == cmOK) {
 			long   ord = 0;
 			dlg->GetClusterData(CTL_GOPANLZORD_ORDER, &ord);
-			if(ord != (long)CurrentViewOrder) {
+			if(ord != static_cast<long>(CurrentViewOrder)) {
 				uint brw_id = 0;
 				SString sub_title;
-				CurrentViewOrder = (PPViewGoodsOpAnalyze::IterOrder)ord;
+				CurrentViewOrder = static_cast<PPViewGoodsOpAnalyze::IterOrder>(ord);
 				DBQuery * p_q = CreateBrowserQuery(&brw_id, &sub_title);
 				if(p_q) {
-					DBQBrowserDef * p_def = (DBQBrowserDef*)pW->view->getDef();
+					DBQBrowserDef * p_def = static_cast<DBQBrowserDef *>(pW->view->getDef());
 					p_def->setQuery(*p_q);
 					pW->setSubTitle(sub_title);
 					pW->refresh();
@@ -3964,7 +3964,7 @@ int SLAPI PPViewGoodsOpAnalyze::ABCGrpToAltGrp(short abcGroup)
 		PPID   grp_id = 0;
 		p_dlg = new TDialog(DLG_GRPSEL);
 		THROW(CheckDialogPtr(&p_dlg));
-		SetupPPObjCombo(p_dlg, CTLSEL_GRPSEL_GROUP, PPOBJ_GOODSGROUP, 0, OLW_CANINSERT|OLW_LOADDEFONOPEN, (void *)GGRTYP_SEL_ALT);
+		SetupPPObjCombo(p_dlg, CTLSEL_GRPSEL_GROUP, PPOBJ_GOODSGROUP, 0, OLW_CANINSERT|OLW_LOADDEFONOPEN, reinterpret_cast<void *>(GGRTYP_SEL_ALT));
 		while(!valid_data && ExecView(p_dlg) == cmOK) {
 			grp_id = p_dlg->getCtrlLong(CTLSEL_GRPSEL_GROUP);
 			if(!GObj.IsAltGroup(grp_id)) {
@@ -3998,7 +3998,7 @@ int SLAPI PPViewGoodsOpAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, P
 	BrwHdr hdr;
 	MEMSZERO(hdr);
 	if(pHdr)
-		hdr = *(BrwHdr*)pHdr;
+		hdr = *static_cast<const BrwHdr *>(pHdr);
 	ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
 		GetEditIds(pHdr, &hdr.LocID, &hdr.GoodsID, (pBrw) ? pBrw->GetCurColumn() : 0);
@@ -4150,7 +4150,7 @@ int SLAPI PPViewGoodsOpAnalyze::Print(const void *)
 				if(ExecView(dlg) == cmOK) {
 					long temp_long = 0;
 					dlg->GetClusterData(CTL_GOPANLZPRN_ORDER, &temp_long);
-					CurrentViewOrder = (IterOrder)temp_long;
+					CurrentViewOrder = static_cast<IterOrder>(temp_long);
 					ord = CurrentViewOrder;
 					v = dlg->getCtrlUInt16(CTL_GOPANLZPRN_SPC);
 					if(GetOpType(Filt.OpID) != PPOPT_GOODSREVAL) {
@@ -4259,7 +4259,7 @@ int PPALDD_GoodsOpAnlz::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;
-	p_v->InitIteration((PPViewGoodsOpAnalyze::IterOrder)SortIdx);
+	p_v->InitIteration(static_cast<PPViewGoodsOpAnalyze::IterOrder>(SortIdx));
 	return 1;
 }
 
@@ -4354,7 +4354,7 @@ int PPALDD_GoodsOpAnlzCmp::InitIteration(PPIterID iterId, int sortId, long /*rsr
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;
-	p_v->InitIteration((PPViewGoodsOpAnalyze::IterOrder)SortIdx);
+	p_v->InitIteration(static_cast<PPViewGoodsOpAnalyze::IterOrder>(SortIdx));
 	return 1;
 }
 

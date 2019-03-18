@@ -249,7 +249,7 @@ int SLAPI PPBizScTemplPacket::CalcValues(long colId, long rowId, BizScoreCore * 
 		if(GetCellListInclEmpty(colId, row.Id, &cell_list) > 0 && cell_list.getCount()) {
 			DL2_Resolver resolver;
 			PPBizScTemplCell * p_cell = 0;
-			for(uint c = 0; cell_list.enumItems(&c, (void**)&p_cell) > 0;) {
+			for(uint c = 0; cell_list.enumItems(&c, (void **)&p_cell) > 0;) {
 				PPID score_id = 0L;
 				SString str_val, formula;
 				PPBizScTemplCol col;
@@ -1110,7 +1110,7 @@ DBQuery * SLAPI PPViewBizScTempl::CreateBrowserQuery(uint * pBrwId, SString * pS
 int SLAPI PPViewBizScTempl::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
-	PPID  id = (pHdr) ? *(long*)pHdr : 0;
+	PPID  id = (pHdr) ? *static_cast<const long *>(pHdr) : 0;
 	if(ok == -2) {
 		switch(ppvCmd) {
 			case PPVCMD_ADDITEM:
@@ -1244,7 +1244,7 @@ int SLAPI PPViewBizScValByTempl::FetchData()
 	int    ok = 1;
 	PPBizScTemplRow * p_row = 0;
 	Data.freeAll();
-	for(uint r = 0; Pack.Rows.enumItems(&r, (void**)&p_row) > 0;) {
+	for(uint r = 0; Pack.Rows.enumItems(&r, (void **)&p_row) > 0;) {
 		RealArray val_list;
 		if(Pack.CalcValues(0, p_row->Id, &BizScTbl, val_list) > 0) {
 			uint val_count = val_list.getCount();
@@ -1307,7 +1307,7 @@ void SLAPI PPViewBizScValByTempl::PreprocessBrowser(PPViewBrowser * pBrw)
 		SString name;
 		PPBizScTemplCol * p_col = 0;
 		pBrw->SetDefUserProc(PPViewBizScValByTempl::GetDataForBrowser, this);
-		for(uint i = 0; Pack.Cols.enumItems(&i, (void**)&p_col) > 0;) {
+		for(uint i = 0; Pack.Cols.enumItems(&i, (void **)&p_col) > 0;) {
 			if(!(p_col->Flags & PPBizScTemplCol::fInvisible)) {
 				if(sstrlen(p_col->Name))
 					name = p_col->Name;
@@ -1337,7 +1337,7 @@ SArray * SLAPI PPViewBizScValByTempl::CreateBrowserArray(uint * pBrwId, SString 
 int SLAPI PPViewBizScValByTempl::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
- 	PPID   id = (pHdr) ? *(long*)pHdr : 0;
+ 	PPID   id = (pHdr) ? *static_cast<const long *>(pHdr) : 0;
 	if(ok == -2) {
 		switch(ppvCmd) {
 			case PPVCMD_VIEWTEMPLATE:

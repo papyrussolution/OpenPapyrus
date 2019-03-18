@@ -71,10 +71,7 @@ WordList::~WordList()
 	Clear();
 }
 
-WordList::operator bool() const
-{
-	return len ? true : false;
-}
+WordList::operator bool() const { return LOGIC(len); }
 
 bool FASTCALL WordList::operator != (const WordList &other) const
 {
@@ -87,10 +84,7 @@ bool FASTCALL WordList::operator != (const WordList &other) const
 	return false;
 }
 
-int WordList::Length() const
-{
-	return len;
-}
+int WordList::Length() const { return len; }
 
 void WordList::Clear()
 {

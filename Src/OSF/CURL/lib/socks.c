@@ -148,10 +148,10 @@ CURLcode Curl_SOCKS4(const char * proxy_name, const char * hostname, int remote_
 			Curl_printable_address(hp, buf, sizeof(buf));
 			if(hp->ai_family == AF_INET) {
 				struct sockaddr_in * saddr_in = (struct sockaddr_in*)(void *)hp->ai_addr;
-				socksreq[4] = ((uchar *)&saddr_in->sin_addr.s_addr)[0];
-				socksreq[5] = ((uchar *)&saddr_in->sin_addr.s_addr)[1];
-				socksreq[6] = ((uchar *)&saddr_in->sin_addr.s_addr)[2];
-				socksreq[7] = ((uchar *)&saddr_in->sin_addr.s_addr)[3];
+				socksreq[4] = PTR8C(&saddr_in->sin_addr.s_addr)[0];
+				socksreq[5] = PTR8C(&saddr_in->sin_addr.s_addr)[1];
+				socksreq[6] = PTR8C(&saddr_in->sin_addr.s_addr)[2];
+				socksreq[7] = PTR8C(&saddr_in->sin_addr.s_addr)[3];
 				infof(data, "SOCKS4 connect to IPv4 %s (locally resolved)\n", buf);
 			}
 			else {
@@ -187,7 +187,7 @@ CURLcode Curl_SOCKS4(const char * proxy_name, const char * hostname, int remote_
 		ssize_t actualread;
 		ssize_t written;
 		ssize_t hostnamelen = 0;
-		int packetsize = 9 + (int)sstrlen((char *)socksreq + 8); /* size including NUL */
+		int packetsize = 9 + sstrleni((char *)socksreq + 8); /* size including NUL */
 		/* If SOCKS4a, set special invalid IP address 0.0.0.x */
 		if(protocol4a) {
 			socksreq[4] = 0;
@@ -518,7 +518,7 @@ CURLcode Curl_SOCKS5(const char * proxy_name, const char * proxy_password, const
 				socksreq[len++] = 1; /* ATYP: IPv4 = 1 */
 				saddr_in = (struct sockaddr_in*)(void *)hp->ai_addr;
 				for(i = 0; i < 4; i++) {
-					socksreq[len++] = ((uchar *)&saddr_in->sin_addr.s_addr)[i];
+					socksreq[len++] = PTR8C(&saddr_in->sin_addr.s_addr)[i];
 				}
 				infof(data, "SOCKS5 connect to IPv4 %s (locally resolved)\n", buf);
 			}
@@ -528,7 +528,7 @@ CURLcode Curl_SOCKS5(const char * proxy_name, const char * proxy_password, const
 				socksreq[len++] = 4; /* ATYP: IPv6 = 4 */
 				saddr_in6 = (struct sockaddr_in6*)(void *)hp->ai_addr;
 				for(i = 0; i < 16; i++) {
-					socksreq[len++] = ((uchar *)&saddr_in6->sin6_addr.s6_addr)[i];
+					socksreq[len++] = PTR8C(&saddr_in6->sin6_addr.s6_addr)[i];
 				}
 				infof(data, "SOCKS5 connect to IPv6 %s (locally resolved)\n", buf);
 			}

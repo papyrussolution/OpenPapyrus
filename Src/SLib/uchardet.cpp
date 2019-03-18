@@ -324,7 +324,7 @@ public:
 	void   Reset();
 	float  GetConfidence() const
 	{
-		return (float)0.99;
+		return 0.99f;
 	}
 protected:
 	//void   GetDistribution(uint32 aCharLen, const char* aStr);
@@ -353,7 +353,7 @@ public:
 	virtual nsProbingState GetState() const;
 	virtual float GetConfidence() const 
 	{
-		return (float)0.0;
+		return 0.0f;
 	}
 	void SetModelProbers(nsCharSetProber * logicalPrb, nsCharSetProber * visualPrb)
 	{
@@ -2862,8 +2862,8 @@ float nsSBCSGroupProber::GetConfidence() const
 {
 	float bestConf = 0.0;
 	switch(mState) {
-		case eFoundIt: return (float)0.99; //sure yes
-		case eNotMe: return (float)0.01; //sure no
+		case eFoundIt: return 0.99f; //sure yes
+		case eNotMe: return 0.01f; //sure no
 		default:
 			{
 				for(uint32 i = 0; i < NUM_OF_SBCS_PROBERS; i++) {
@@ -3366,7 +3366,7 @@ float nsCharSetProber::JapaneseContextAnalysis::GetConfidence() const
 //
 bool nsCharSetProber::FilterWithoutEnglishLetters(const char* aBuf, uint32 aLen, char** newBuf, uint32& newLen)
 {
-	char * newptr = (char *)SAlloc::M(aLen);
+	char * newptr = static_cast<char *>(SAlloc::M(aLen));
 	*newBuf = newptr;
 	if(!newptr)
 		return false;
@@ -3395,7 +3395,7 @@ bool nsCharSetProber::FilterWithoutEnglishLetters(const char* aBuf, uint32 aLen,
 		if(meetMSB && curPtr > prevPtr)
 			while(prevPtr < curPtr) 
 				*newptr++ = *prevPtr++;
-		newLen = (uint32)(newptr - *newBuf);
+		newLen = static_cast<uint32>(newptr - *newBuf);
 		return true;
 	}
 }
@@ -3406,7 +3406,7 @@ bool nsCharSetProber::FilterWithEnglishLetters(const char* aBuf, uint32 aLen, ch
 	//do filtering to reduce load to probers
 	char * prevPtr, * curPtr;
 	bool isInTag = false;
-	char * newptr = (char *)SAlloc::M(aLen);
+	char * newptr = static_cast<char *>(SAlloc::M(aLen));
 	*newBuf = newptr;
 	if(!newptr)
 		return false;
@@ -4235,7 +4235,7 @@ float nsSingleByteCharSetProber::GetConfidence() const
 	if(mTotalSeqs > 0)
 		if(mTotalSeqs > mSeqCounters[NEGATIVE_CAT]*10)
 			return ((float)(mTotalSeqs - mSeqCounters[NEGATIVE_CAT]*10))/mTotalSeqs * mFreqChar / mTotalChar;
-	return (float)0.01;
+	return 0.01f;
 #else  //POSITIVE_APPROACH
 	float r;
 
@@ -4255,11 +4255,11 @@ float nsSingleByteCharSetProber::GetConfidence() const
 		 */
 		r = r * (mTotalChar - mCtrlChar) / mTotalChar;
 		r = r*mFreqChar/mTotalChar;
-		if(r >= (float)1.00)
-			r = (float)0.99;
+		if(r >= 1.0f)
+			r = 0.99f;
 		return r;
 	}
-	return (float)0.01;
+	return 0.01f;
 #endif
 }
 
@@ -4324,14 +4324,14 @@ nsProbingState nsUTF8Prober::HandleData(const char* aBuf, uint32 aLen)
 
 float nsUTF8Prober::GetConfidence() const
 {
-	float unlike = (float)0.99;
+	float unlike = 0.99f;
 	if(mNumOfMBChar < 6) {
 		for(uint32 i = 0; i < mNumOfMBChar; i++)
 			unlike *= ONE_CHAR_PROB;
-		return (float)1.0 - unlike;
+		return 1.0f - unlike;
 	}
 	else
-		return (float)0.99;
+		return 0.99f;
 }
 //
 //
@@ -4440,8 +4440,8 @@ float nsMBCSGroupProber::GetConfidence() const
 {
 	float bestConf = 0.0;
 	switch(mState) {
-		case eFoundIt: return (float)0.99;
-		case eNotMe:   return (float)0.01;
+		case eFoundIt: return 0.99f;
+		case eNotMe:   return 0.01f;
 		default:
 			{
 				for(uint32 i = 0; i < NUM_OF_PROBERS; i++) {

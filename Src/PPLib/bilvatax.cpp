@@ -96,7 +96,7 @@ void SLAPI BVATAccmArray::Scale_(double part, int useRounding)
 {
 	BVATAccm * p_item;
 	if(part != 1.0 /* @v6.7.12 && part != 0.0*/) {
-		for(uint i = 0; enumItems(&i, (void**)&p_item);) {
+		for(uint i = 0; enumItems(&i, (void **)&p_item);) {
 			p_item->Cost    = p_item->Cost    * part;
 			p_item->Price   = p_item->Price   * part;
 			p_item->CVATSum = p_item->CVATSum * part;
@@ -128,7 +128,7 @@ int SLAPI BVATAccmArray::CalcBill(const PPBillPacket * pPack)
 		double amt = pPack->GetBaseAmount();
 		int    num_vat_rates = 0;
 		int    is_there_stax = 0;
-		for(i = 0; pPack->Amounts.enumItems(&i, (void**)&p_ae);) {
+		for(i = 0; pPack->Amounts.enumItems(&i, (void **)&p_ae);) {
 			if(p_ae->Amt != 0.0 && amtt_obj.Fetch(p_ae->AmtTypeID, &amtt_rec) > 0)
 				if(amtt_rec.IsTax(GTAX_VAT))
 					num_vat_rates++;
@@ -138,7 +138,7 @@ int SLAPI BVATAccmArray::CalcBill(const PPBillPacket * pPack)
 				}
 		}
 		if(num_vat_rates) {
-			for(i = 0; pPack->Amounts.enumItems(&i, (void**)&p_ae);) {
+			for(i = 0; pPack->Amounts.enumItems(&i, (void **)&p_ae);) {
 				if(p_ae->Amt != 0.0 && amtt_obj.Fetch(p_ae->AmtTypeID, &amtt_rec) > 0) {
 					if(amtt_rec.IsTax(GTAX_VAT)) {
 						BVATAccm item;

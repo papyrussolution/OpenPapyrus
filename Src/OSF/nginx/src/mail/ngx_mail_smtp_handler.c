@@ -106,7 +106,7 @@ static void ngx_mail_smtp_resolve_addr_handler(ngx_resolver_ctx_t * ctx)
 
 static void ngx_mail_smtp_resolve_name(ngx_event_t * rev)
 {
-	ngx_connection_t   * c = (ngx_connection_t*)rev->P_Data;
+	ngx_connection_t   * c = (ngx_connection_t *)rev->P_Data;
 	ngx_mail_session_t * s = (ngx_mail_session_t*)c->data;
 	ngx_mail_core_srv_conf_t * cscf = (ngx_mail_core_srv_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_core_module);
 	ngx_resolver_ctx_t * ctx = ngx_resolve_start(cscf->resolver, NULL);
@@ -225,7 +225,7 @@ static void ngx_mail_smtp_invalid_pipelining(ngx_event_t * rev)
 
 void ngx_mail_smtp_init_protocol(ngx_event_t * rev)
 {
-	ngx_connection_t * c = (ngx_connection_t*)rev->P_Data;
+	ngx_connection_t * c = (ngx_connection_t *)rev->P_Data;
 	c->log->action = "in auth state";
 	if(rev->timedout) {
 		ngx_log_error(NGX_LOG_INFO, c->log, NGX_ETIMEDOUT, "client timed out");
@@ -266,7 +266,7 @@ static ngx_int_t ngx_mail_smtp_create_buffer(ngx_mail_session_t * s, ngx_connect
 void ngx_mail_smtp_auth_state(ngx_event_t * rev)
 {
 	ngx_int_t rc;
-	ngx_connection_t  * c = (ngx_connection_t*)rev->P_Data;
+	ngx_connection_t  * c = (ngx_connection_t *)rev->P_Data;
 	ngx_mail_session_t  * s = (ngx_mail_session_t*)c->data;
 	ngx_log_debug0(NGX_LOG_DEBUG_MAIL, c->log, 0, "smtp auth state");
 	if(rev->timedout) {
@@ -376,9 +376,9 @@ static ngx_int_t ngx_mail_smtp_helo(ngx_mail_session_t * s, ngx_connection_t * c
 	}
 	else {
 		ngx_mail_smtp_srv_conf_t  * sscf;
-		ngx_str_t * arg = (ngx_str_t*)s->args.elts;
+		ngx_str_t * arg = static_cast<ngx_str_t *>(s->args.elts);
 		s->smtp_helo.len = arg[0].len;
-		s->smtp_helo.data = (u_char*)ngx_pnalloc(c->pool, arg[0].len);
+		s->smtp_helo.data = (u_char *)ngx_pnalloc(c->pool, arg[0].len);
 		if(s->smtp_helo.data == NULL) {
 			return NGX_ERROR;
 		}
@@ -484,12 +484,12 @@ static ngx_int_t ngx_mail_smtp_mail(ngx_mail_session_t * s, ngx_connection_t * c
 		ngx_str_set(&s->out, smtp_invalid_argument);
 		return NGX_OK;
 	}
-	arg = (ngx_str_t*)s->args.elts;
+	arg = static_cast<ngx_str_t *>(s->args.elts);
 	arg += s->args.nelts - 1;
 	cmd.len = arg->data + arg->len - s->cmd.data;
 	cmd.data = s->cmd.data;
 	s->smtp_from.len = cmd.len;
-	s->smtp_from.data = (u_char*)ngx_pnalloc(c->pool, cmd.len);
+	s->smtp_from.data = (u_char *)ngx_pnalloc(c->pool, cmd.len);
 	if(s->smtp_from.data == NULL) {
 		return NGX_ERROR;
 	}
@@ -511,12 +511,12 @@ static ngx_int_t ngx_mail_smtp_rcpt(ngx_mail_session_t * s, ngx_connection_t * c
 	}
 	else {
 		ngx_str_t cmd;
-		ngx_str_t * arg = (ngx_str_t*)s->args.elts;
+		ngx_str_t * arg = static_cast<ngx_str_t *>(s->args.elts);
 		arg += s->args.nelts - 1;
 		cmd.len = arg->data + arg->len - s->cmd.data;
 		cmd.data = s->cmd.data;
 		s->smtp_to.len = cmd.len;
-		s->smtp_to.data = (u_char*)ngx_pnalloc(c->pool, cmd.len);
+		s->smtp_to.data = (u_char *)ngx_pnalloc(c->pool, cmd.len);
 		if(s->smtp_to.data == NULL) {
 			return NGX_ERROR;
 		}
@@ -540,9 +540,8 @@ static ngx_int_t ngx_mail_smtp_rset(ngx_mail_session_t * s, ngx_connection_t * c
 static ngx_int_t ngx_mail_smtp_starttls(ngx_mail_session_t * s, ngx_connection_t * c)
 {
 #if (NGX_MAIL_SSL)
-	ngx_mail_ssl_conf_t  * sslcf;
 	if(c->ssl == NULL) {
-		sslcf = (ngx_mail_ssl_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_ssl_module);
+		ngx_mail_ssl_conf_t * sslcf = (ngx_mail_ssl_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_ssl_module);
 		if(sslcf->starttls) {
 			/*
 			 * RFC3207 requires us to discard any knowledge

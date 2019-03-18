@@ -136,7 +136,7 @@ static inline int8 decode_lo(int sig)
 	assert(idx <= 0x50);
 	c = characters[idx];
 	dbprintf(2, " %02x(%x(%02x)/%x(%02x)) => %02x", idx, base, lo_base[base], offset, lo_offset[offset], (uchar)c);
-	return(c);
+	return (c);
 }
 
 static inline int8 decode_hi(int sig)
@@ -167,19 +167,19 @@ static inline int8 decode_hi(int sig)
 		idx += 0xe;
 	c = characters[0x51 + idx];
 	dbprintf(2, " %02x => %02x", idx, c);
-	return(c);
+	return (c);
 }
 
 static inline uchar calc_check(uchar c)
 {
 	if(!(c & 0x80))
-		return(0x18);
+		return (0x18);
 	c &= 0x7f;
 	if(c < 0x3d)
-		return((c < 0x30 && c != 0x17) ? 0x10 : 0x20);
+		return ((c < 0x30 && c != 0x17) ? 0x10 : 0x20);
 	if(c < 0x50)
-		return((c == 0x4d) ? 0x20 : 0x10);
-	return((c < 0x67) ? 0x20 : 0x10);
+		return ((c == 0x4d) ? 0x20 : 0x10);
+	return ((c < 0x67) ? 0x20 : 0x10);
 }
 
 static inline int8 decode6(zbar_decoder_t * dcode)
@@ -220,7 +220,7 @@ static inline int8 decode6(zbar_decoder_t * dcode)
 	if((chk - 7) > (int)bars || (int)bars > (chk + 7))
 		return -1;
 
-	return(c & 0x7f);
+	return (c & 0x7f);
 }
 
 static inline uchar validate_checksum(zbar_decoder_t * dcode)
@@ -256,7 +256,7 @@ static inline uchar validate_checksum(zbar_decoder_t * dcode)
 	err = (sum != check);
 	if(err)
 		dbprintf(1, " [checksum error]\n");
-	return(err);
+	return (err);
 }
 
 /* expand and decode character set C */
@@ -296,7 +296,7 @@ static inline uint postprocess_c(zbar_decoder_t * dcode, uint start, uint end, u
 		assert(code <= 9);
 		dcode->buf[j + 1] = '0' + code;
 	}
-	return(delta);
+	return (delta);
 }
 
 /* resolve scan direction and convert to ASCII */
@@ -493,7 +493,7 @@ zbar_symbol_type_t _zbar_decode_code128(zbar_decoder_t * dcode)
 		dcode128->character = -1;
 		if(!sym)
 			release_lock(dcode, ZBAR_CODE128);
-		return(sym);
+		return (sym);
 	}
 	dbprintf(2, "\n");
 	return ZBAR_NONE;

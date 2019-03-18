@@ -125,7 +125,7 @@ int SLAPI ComDispInterface::_GetProperty(long propertyID, VARIANTARG * pVarArg, 
 	VARIANTARG var_arg;
 	VARTYPE    vt;
 	DISPPARAMS null_params = {NULL, NULL, 0, 0};
-	DISPPARAMS params = { P_ParamsAry ? (VARIANTARG *)P_ParamsAry->dataPtr() : NULL, NULL, SVectorBase::GetCount(P_ParamsAry), 0 };
+	DISPPARAMS params = { P_ParamsAry ? static_cast<VARIANTARG *>(P_ParamsAry->dataPtr()) : NULL, NULL, SVectorBase::GetCount(P_ParamsAry), 0 };
 	THROW_S(P_Disp, SLERR_INVPARAM);
 	THROW(p_die = GetDispIDEntry(propertyID));
 	VariantInit(&var_arg);
@@ -158,7 +158,7 @@ int SLAPI ComDispInterface::GetProperty(long propertyID, bool * pBuf)
 	VariantInit(&var_arg);
 	var_arg.vt = VT_BOOL;
 	if((ok = _GetProperty(propertyID, &var_arg)) > 0) {
-		ASSIGN_PTR(pBuf, (var_arg.boolVal ? true : false));
+		ASSIGN_PTR(pBuf, LOGIC(var_arg.boolVal));
 	}
 	else
 		ASSIGN_PTR(pBuf, 0);
@@ -222,7 +222,7 @@ int SLAPI ComDispInterface::GetProperty(long propertyID, char * pBuf, size_t buf
 		PTR32(wstr)[0] = 0; // @v10.3.0 @fix
 		THROW_S(var_arg.bstrVal = SysAllocString(wstr), SLERR_NOMEM);
 		if((ok = _GetProperty(propertyID, &var_arg)) > 0) {
-			WideCharToMultiByte(1251, 0, var_arg.bstrVal, -1, pBuf, (int)bufLen, NULL, NULL);
+			WideCharToMultiByte(1251, 0, var_arg.bstrVal, -1, pBuf, static_cast<int>(bufLen), NULL, NULL);
 		}
 		else
 			memzero(pBuf, bufLen);
@@ -251,7 +251,7 @@ int SLAPI ComDispInterface::SetPropertyByParams(long propertyID)
 	int    ok = 1;
 	const  DispIDEntry * p_die = 0;
 	VARIANTARG var_arg;
-	DISPPARAMS params = { P_ParamsAry ? (VARIANTARG *)P_ParamsAry->dataPtr() : NULL, NULL, SVectorBase::GetCount(P_ParamsAry), 0 };
+	DISPPARAMS params = { P_ParamsAry ? static_cast<VARIANTARG *>(P_ParamsAry->dataPtr()) : NULL, NULL, SVectorBase::GetCount(P_ParamsAry), 0 };
 	VariantInit(&var_arg);
 	THROW_S(P_Disp, SLERR_INVPARAM);
 	THROW(p_die = GetDispIDEntry(propertyID));
@@ -367,12 +367,11 @@ int SLAPI ComDispInterface::SetProperty(long propertyID, LDATE dtVal, int writeO
 
 int SLAPI ComDispInterface::SetProperty(long propertyID, bool bVal, int writeOnly /*=0*/)
 {
-	int   ok = 1;
 	VARIANTARG   var_arg;
 	VariantInit(&var_arg);
 	var_arg.vt     = VT_BOOL;
 	var_arg.boolVal = bVal;
-	ok = writeOnly ? _SetPropertyW(propertyID, &var_arg) : _SetProperty(propertyID, &var_arg);
+	int    ok = writeOnly ? _SetPropertyW(propertyID, &var_arg) : _SetProperty(propertyID, &var_arg);
 	VariantClear(&var_arg);
 	return ok;
 }
@@ -421,36 +420,33 @@ int SLAPI ComDispInterface::_SetParam(VARIANTARG * pVarArg)
 
 int SLAPI ComDispInterface::SetParam(int iVal)
 {
-	int   ok = 1;
 	VARIANTARG   var_arg;
 	VariantInit(&var_arg);
 	var_arg.vt     = VT_INT;
 	var_arg.intVal = iVal;
-	ok = _SetParam(&var_arg);
+	int    ok = _SetParam(&var_arg);
 	VariantClear(&var_arg);
 	return ok;
 }
 
 int SLAPI ComDispInterface::SetParam(long lVal)
 {
-	int   ok = 1;
 	VARIANTARG   var_arg;
 	VariantInit(&var_arg);
 	var_arg.vt   = VT_I4;
 	var_arg.lVal = lVal;
-	ok = _SetParam(&var_arg);
+	int    ok = _SetParam(&var_arg);
 	VariantClear(&var_arg);
 	return ok;
 }
 
 int SLAPI ComDispInterface::SetParam(double dVal)
 {
-	int   ok = 1;
 	VARIANTARG   var_arg;
 	VariantInit(&var_arg);
 	var_arg.vt     = VT_R8;
 	var_arg.dblVal = dVal;
-	ok = _SetParam(&var_arg);
+	int    ok = _SetParam(&var_arg);
 	VariantClear(&var_arg);
 	return ok;
 }
@@ -474,7 +470,6 @@ int SLAPI ComDispInterface::SetParam(const char * pStrVal, int codepage/*=1251*/
 
 int SLAPI ComDispInterface::SetParam(ComDispInterface * pParam)
 {
-	int   ok = 1;
 	VARIANTARG   var_arg;
 	VariantInit(&var_arg);
 	if(pParam) {
@@ -485,7 +480,7 @@ int SLAPI ComDispInterface::SetParam(ComDispInterface * pParam)
 		var_arg.vt = VT_ERROR;
 		var_arg.scode = DISP_E_PARAMNOTFOUND;
 	}
-	ok = _SetParam(&var_arg);
+	int    ok = _SetParam(&var_arg);
 	VariantClear(&var_arg);
 	return ok;
 }
@@ -637,7 +632,7 @@ int SLAPI ComExcelShapes::PutPicture(const char * pPath, RECT * pRect)
 	THROW(SetParam(pRect->top));
 	THROW(SetParam(pRect->right));
 	THROW(SetParam(pRect->bottom));
-	THROW(CallMethod(AddPicture, (ComDispInterface*)p_shape) > 0);
+	THROW(CallMethod(AddPicture, static_cast<ComDispInterface *>(p_shape)) > 0);
 	CATCHZOK
 	ZDELETE(p_shape);
 	return ok;
@@ -859,7 +854,7 @@ ComExcelRange * ComExcelWorksheet::Cell(long row, long col)
 	ComExcelRange * p_range = new ComExcelRange;
 	THROW(SetParam(row) > 0);
 	THROW(SetParam(col) > 0);
-	THROW(GetProperty(Cells, (ComDispInterface *)p_range) > 0);
+	THROW(GetProperty(Cells, static_cast<ComDispInterface *>(p_range)) > 0);
 	CATCH
 		ZDELETE(p_range);
 	ENDCATCH
@@ -894,7 +889,7 @@ ComExcelRange * SLAPI ComExcelWorksheet::GetRange(long luRow, long luCol, long r
 	THROW(GetExcelCellCoordA1(rbRow, rbCol, c2));
 	THROW(SetParam(c1) > 0);
 	THROW(SetParam(c2) > 0);
-	THROW(GetProperty(Range, (ComDispInterface *)p_range) > 0);
+	THROW(GetProperty(Range, static_cast<ComDispInterface *>(p_range)) > 0);
 	CATCH
 		ZDELETE(p_range);
 	ENDCATCH
@@ -1043,7 +1038,7 @@ int SLAPI ComExcelWorksheet::GetCellFormat(long row, long col, SString & rFormat
 ComExcelShapes * SLAPI ComExcelWorksheet::GetShapes()
 {
 	ComExcelShapes * p_shapes = new ComExcelShapes;
-	if(GetProperty(Shapes, (ComDispInterface*)p_shapes) <= 0)
+	if(GetProperty(Shapes, static_cast<ComDispInterface *>(p_shapes)) <= 0)
 		ZDELETE(p_shapes);
 	return p_shapes;
 }
@@ -1078,7 +1073,7 @@ ComExcelWorksheet * SLAPI ComExcelWorksheets::_Add(long before, long after, cons
 
 	THROW(SetParam(p_before_sheet) > 0);
 	THROW(SetParam(p_after_sheet) > 0);
-	THROW(CallMethod(Add, (ComDispInterface*)p_sheet) > 0);
+	THROW(CallMethod(Add, static_cast<ComDispInterface *>(p_sheet)) > 0);
 	THROW(p_sheet->SetName(pName) > 0);
 	CATCH
 		ZDELETE(p_sheet);
@@ -1132,7 +1127,7 @@ ComExcelWorksheet * ComExcelWorksheets::Get(long pos)
 	ComExcelWorksheet * p_sheet = new ComExcelWorksheet;
 	THROW(checkirange(pos, 1, GetCount()));
 	THROW(SetParam(pos) > 0);
-	THROW(GetProperty(Item, (ComDispInterface*)p_sheet) > 0);
+	THROW(GetProperty(Item, static_cast<ComDispInterface *>(p_sheet)) > 0);
 	CATCH
 		ZDELETE(p_sheet);
 	ENDCATCH
@@ -1183,7 +1178,7 @@ int SLAPI ComExcelWorkbook::Init(IDispatch * pIDisp)
 ComExcelWorksheets * ComExcelWorkbook::Get()
 {
 	ComExcelWorksheets * p_sheets = new ComExcelWorksheets;
-	if(GetProperty(WorkSheets, (ComDispInterface*)p_sheets) <= 0)
+	if(GetProperty(WorkSheets, static_cast<ComDispInterface *>(p_sheets)) <= 0)
 		ZDELETE(p_sheets);
 	return p_sheets;
 }
@@ -1211,7 +1206,7 @@ int SLAPI ComExcelWorkbook::_Activate()
 ComExcelWorksheet * ComExcelWorkbook::_ActiveSheet()
 {
 	ComExcelWorksheet * p_sheet = new ComExcelWorksheet;
-	if(GetProperty(ActiveSheet, (ComDispInterface*)p_sheet) <= 0)
+	if(GetProperty(ActiveSheet, static_cast<ComDispInterface *>(p_sheet)) <= 0)
 		ZDELETE(p_sheet);
 	return p_sheet;
 }
@@ -1259,7 +1254,7 @@ int SLAPI ComExcelWorkbooks::Init(IDispatch * pIDisp)
 ComExcelWorkbook * SLAPI ComExcelWorkbooks::_Add()
 {
 	ComExcelWorkbook * p_wkbook = new ComExcelWorkbook;
-	if(CallMethod(Add, (ComDispInterface*)p_wkbook) <= 0)
+	if(CallMethod(Add, static_cast<ComDispInterface *>(p_wkbook)) <= 0)
 		ZDELETE(p_wkbook);
 	return p_wkbook;
 }
@@ -1281,7 +1276,7 @@ ComExcelWorkbook * SLAPI ComExcelWorkbooks::Get(long pos)
 	ComExcelWorkbook * p_wkbook = new ComExcelWorkbook;
 	THROW(checkirange(pos, 1, GetCount()));
 	THROW(SetParam(pos) > 0);
-	THROW(CallMethod(Item, (ComDispInterface*)p_wkbook) > 0);
+	THROW(CallMethod(Item, static_cast<ComDispInterface *>(p_wkbook)) > 0);
 	CATCH
 		ZDELETE(p_wkbook);
 	ENDCATCH
@@ -1299,7 +1294,7 @@ ComExcelWorkbook * SLAPI ComExcelWorkbooks::_Open(const char * pFileName)
 {
 	ComExcelWorkbook * p_wkbook = new ComExcelWorkbook;
 	THROW(SetParam(pFileName));
-	THROW(CallMethod(Open, (ComDispInterface*)p_wkbook) > 0);
+	THROW(CallMethod(Open, static_cast<ComDispInterface *>(p_wkbook)) > 0);
 	CATCH
 		ZDELETE(p_wkbook);
 	ENDCATCH
@@ -1359,7 +1354,7 @@ int SLAPI ComExcelApp::Init()
 ComExcelWorkbooks * SLAPI ComExcelApp::Get()
 {
 	ComExcelWorkbooks * p_wkbooks = new ComExcelWorkbooks;
-	if(GetProperty(Workbooks, (ComDispInterface *)p_wkbooks) <= 0)
+	if(GetProperty(Workbooks, static_cast<ComDispInterface *>(p_wkbooks)) <= 0)
 		ZDELETE(p_wkbooks);
 	return p_wkbooks;
 }

@@ -46,7 +46,7 @@ void FASTCALL _cairo_composite_rectangles_fini(cairo_composite_rectangles_t * ex
 	_cairo_clip_destroy(extents->clip);
 }
 
-static void _cairo_composite_reduce_pattern(const cairo_pattern_t * src, cairo_pattern_union_t * dst)
+static void FASTCALL _cairo_composite_reduce_pattern(const cairo_pattern_t * src, cairo_pattern_union_t * dst)
 {
 	int tx, ty;
 	_cairo_pattern_init_static_copy(&dst->base, src);
@@ -227,13 +227,8 @@ cairo_int_status_t _cairo_composite_rectangles_init_for_mask(cairo_composite_rec
 	return _cairo_composite_rectangles_intersect(extents, clip);
 }
 
-cairo_int_status_t _cairo_composite_rectangles_init_for_stroke(cairo_composite_rectangles_t * extents,
-    cairo_surface_t * surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_path_fixed_t * path,
-    const cairo_stroke_style_t * style,
-    const cairo_matrix_t * ctm,
+cairo_int_status_t _cairo_composite_rectangles_init_for_stroke(cairo_composite_rectangles_t * extents, cairo_surface_t * surface,
+    cairo_operator_t op, const cairo_pattern_t * source, const cairo_path_fixed_t * path, const cairo_stroke_style_t * style, const cairo_matrix_t * ctm,
     const cairo_clip_t * clip)
 {
 	if(!_cairo_composite_rectangles_init(extents, surface, op, source, clip)) {
@@ -243,12 +238,8 @@ cairo_int_status_t _cairo_composite_rectangles_init_for_stroke(cairo_composite_r
 	return _cairo_composite_rectangles_intersect(extents, clip);
 }
 
-cairo_int_status_t _cairo_composite_rectangles_init_for_fill(cairo_composite_rectangles_t * extents,
-    cairo_surface_t * surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_path_fixed_t * path,
-    const cairo_clip_t * clip)
+cairo_int_status_t _cairo_composite_rectangles_init_for_fill(cairo_composite_rectangles_t * extents, cairo_surface_t * surface,
+    cairo_operator_t op, const cairo_pattern_t * source, const cairo_path_fixed_t * path, const cairo_clip_t * clip)
 {
 	if(!_cairo_composite_rectangles_init(extents,
 	    surface, op, source, clip)) {
@@ -258,36 +249,25 @@ cairo_int_status_t _cairo_composite_rectangles_init_for_fill(cairo_composite_rec
 	return _cairo_composite_rectangles_intersect(extents, clip);
 }
 
-cairo_int_status_t _cairo_composite_rectangles_init_for_polygon(cairo_composite_rectangles_t * extents,
-    cairo_surface_t * surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_polygon_t * polygon,
-    const cairo_clip_t * clip)
+cairo_int_status_t _cairo_composite_rectangles_init_for_polygon(cairo_composite_rectangles_t * extents, cairo_surface_t * surface,
+    cairo_operator_t op, const cairo_pattern_t * source, const cairo_polygon_t * polygon, const cairo_clip_t * clip)
 {
 	if(!_cairo_composite_rectangles_init(extents,
 	    surface, op, source, clip)) {
 		return CAIRO_INT_STATUS_NOTHING_TO_DO;
 	}
-
 	_cairo_box_round_to_rectangle(&polygon->extents, &extents->mask);
 	return _cairo_composite_rectangles_intersect(extents, clip);
 }
 
-cairo_int_status_t _cairo_composite_rectangles_init_for_boxes(cairo_composite_rectangles_t * extents,
-    cairo_surface_t * surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_boxes_t * boxes,
-    const cairo_clip_t * clip)
+cairo_int_status_t _cairo_composite_rectangles_init_for_boxes(cairo_composite_rectangles_t * extents, cairo_surface_t * surface,
+    cairo_operator_t op, const cairo_pattern_t * source, const cairo_boxes_t * boxes, const cairo_clip_t * clip)
 {
 	cairo_box_t box;
-
 	if(!_cairo_composite_rectangles_init(extents,
 	    surface, op, source, clip)) {
 		return CAIRO_INT_STATUS_NOTHING_TO_DO;
 	}
-
 	_cairo_boxes_extents(boxes, &box);
 	_cairo_box_round_to_rectangle(&box, &extents->mask);
 	return _cairo_composite_rectangles_intersect(extents, clip);
@@ -316,7 +296,7 @@ cairo_int_status_t _cairo_composite_rectangles_init_for_glyphs(cairo_composite_r
 	return _cairo_composite_rectangles_intersect(extents, clip);
 }
 
-cairo_bool_t _cairo_composite_rectangles_can_reduce_clip(cairo_composite_rectangles_t * composite, const cairo_clip_t * clip)
+cairo_bool_t FASTCALL _cairo_composite_rectangles_can_reduce_clip(cairo_composite_rectangles_t * composite, const cairo_clip_t * clip)
 {
 	cairo_rectangle_int_t extents;
 	cairo_box_t box;

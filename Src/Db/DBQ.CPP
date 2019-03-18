@@ -46,7 +46,7 @@ TYPEID SLAPI DBItem::stype() const
 				DBConst len;
 				len.init(0L);
 				const_cast<DBE *>(static_cast<const DBE *>(this))->evaluate(CALC_SIZE, &len); // @badcast
-				st = MKSTYPE(S_ZSTRING, (int)len.lval);
+				st = MKSTYPE(S_ZSTRING, static_cast<int>(len.lval));
 			}
 			else
 				st = bt2st(bt);
@@ -219,12 +219,12 @@ int FASTCALL DBConst::copy(const DBConst & src)
 
 int FASTCALL DBConst::convert(TYPEID type, void * d) const
 {
-	return stcast(bt2st(Tag), type, ((Tag == sp) ? (void *)sptr : (void *)&lval), d, 0L);
+	return stcast(bt2st(Tag), type, ((Tag == sp) ? static_cast<const void *>(sptr) : static_cast<const void *>(&lval)), d, 0L);
 }
 
 char * FASTCALL DBConst::tostring(long fmt, char * pBuf) const
 {
-	return sttostr(bt2st(Tag), ((Tag == sp) ? (void *)sptr : (void *)&lval), fmt, pBuf);
+	return sttostr(bt2st(Tag), ((Tag == sp) ? static_cast<const void *>(sptr) : static_cast<const void *>(&lval)), fmt, pBuf);
 }
 
 int FASTCALL DBConst::fromfld(DBField f)
@@ -307,7 +307,7 @@ int FASTCALL DBE::evaluate(int option, DBConst * r)
 	return call(option, r);
 }
 
-int FASTCALL DBE::push(DBE::T * t)
+int FASTCALL DBE::push(const DBE::T * t)
 {
 	P_Terms = static_cast<DBE::T *>(SAlloc::R(P_Terms, sizeof(DBE::T) * (Count+1)));
 	if(P_Terms == 0) {
@@ -315,7 +315,7 @@ int FASTCALL DBE::push(DBE::T * t)
 		return 0;
 	}
 	else {
-		memcpy(P_Terms+Count, t, sizeof(DBE::T));
+		memcpy(P_Terms+Count, t, sizeof(*t));
 		Count++;
 		return 1;
 	}
@@ -956,8 +956,8 @@ int SLAPI DBTree::chooseKey(int n, int tblID, int seg, KR * dest, uint * pTrace)
 				return 0;
 			if(pTrace) {
 				uint tc = (Count+1) * sizeof(int);
-				p_ltrace = (uint *)SAlloc::M(tc);
-				p_rtrace = (uint *)SAlloc::M(tc);
+				p_ltrace = static_cast<uint *>(SAlloc::M(tc));
+				p_rtrace = static_cast<uint *>(SAlloc::M(tc));
 				if(p_ltrace == 0 || p_rtrace == 0) {
 					l.destroy();
 					r.destroy();

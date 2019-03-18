@@ -113,7 +113,7 @@ int archive_write_set_format_cpio(struct archive * _a)
 	cpio = (struct cpio *)SAlloc::C(1, sizeof(*cpio));
 	if(cpio == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate cpio data");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	a->format_data = cpio;
 	a->format_name = "cpio";
@@ -125,7 +125,7 @@ int archive_write_set_format_cpio(struct archive * _a)
 	a->format_free = archive_write_cpio_free;
 	a->archive.archive_format = ARCHIVE_FORMAT_CPIO_POSIX;
 	a->archive.archive_format_name = "POSIX cpio";
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_write_cpio_options(struct archive_write * a, const char * key,
@@ -147,7 +147,7 @@ static int archive_write_cpio_options(struct archive_write * a, const char * key
 			else
 				ret = ARCHIVE_FATAL;
 		}
-		return (ret);
+		return ret;
 	}
 
 	/* Note: The "warn" return is just to inform the options
@@ -183,7 +183,7 @@ static int synthesize_ino_value(struct cpio * cpio, struct archive_entry * entry
 	 * why we start our synthetic index numbers with one below.)
 	 */
 	if(ino == 0)
-		return (0);
+		return 0;
 
 	/* Don't store a mapping if we don't need to. */
 	if(archive_entry_nlink(entry) < 2) {
@@ -203,7 +203,7 @@ static int synthesize_ino_value(struct cpio * cpio, struct archive_entry * entry
 		size_t newsize = cpio->ino_list_size < 512 ? 512 : cpio->ino_list_size * 2;
 		void * newlist = SAlloc::R(cpio->ino_list, sizeof(cpio->ino_list[0]) * newsize);
 		if(newlist == NULL)
-			return (-1);
+			return -1;
 		cpio->ino_list_size = newsize;
 		cpio->ino_list = (cpio::InoEntry *)newlist;
 	}
@@ -238,23 +238,23 @@ static int archive_write_cpio_header(struct archive_write * a, struct archive_en
 
 	if(archive_entry_filetype(entry) == 0) {
 		archive_set_error(&a->archive, -1, "Filetype required");
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 
 	if(archive_entry_pathname_l(entry, &path, &len, get_sconv(a)) != 0
 	    && errno == ENOMEM) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate memory for Pathname");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	if(len == 0 || path == NULL || path[0] == '\0') {
 		archive_set_error(&a->archive, -1, "Pathname required");
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 
 	if(!archive_entry_size_is_set(entry) || archive_entry_size(entry) < 0) {
 		archive_set_error(&a->archive, -1, "Size required");
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 	return write_header(a, entry);
 }
@@ -281,7 +281,7 @@ static int write_header(struct archive_write * a, struct archive_entry * entry)
 	if(entry_main == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate ustar data");
-		return(ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	if(entry != entry_main)
 		entry = entry_main;
@@ -410,7 +410,7 @@ static ssize_t archive_write_cpio_data(struct archive_write * a, const void * bu
 	if(ret >= 0)
 		return (s);
 	else
-		return (ret);
+		return ret;
 }
 /*
  * Format a number into the specified field.
@@ -427,7 +427,7 @@ static int format_octal(int64_t v, void * p, int digits)
 		format_octal_recursive(max, (char*)p, digits);
 		ret = -1;
 	}
-	return (ret);
+	return ret;
 }
 
 static int64_t format_octal_recursive(int64_t v, char * p, int s)
@@ -458,7 +458,7 @@ static int archive_write_cpio_free(struct archive_write * a)
 	SAlloc::F(cpio->ino_list);
 	SAlloc::F(cpio);
 	a->format_data = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_write_cpio_finish_entry(struct archive_write * a)

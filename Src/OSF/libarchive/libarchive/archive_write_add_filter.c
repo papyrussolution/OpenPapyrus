@@ -69,5 +69,5 @@ archive_write_add_filter(struct archive *a, int code)
 	}
 
 	archive_set_error(a, EINVAL, "No such filter");
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }

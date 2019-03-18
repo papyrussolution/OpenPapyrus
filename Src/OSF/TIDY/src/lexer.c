@@ -54,7 +54,7 @@ static Node * ParseDocTypeDecl(TidyDocImpl* doc);
 static void AddAttrToList(AttVal** list, AttVal* av);
 
 /* used to classify characters for lexical purposes */
-#define MAP(c) ((unsigned)c < 128 ? lexmap[(unsigned)c] : 0)
+#define MAP(c) ((uint)c < 128 ? lexmap[(uint)c] : 0)
 static uint lexmap[128];
 
 #define IsValidXMLAttrName(name) TY_(IsValidXMLID) (name)
@@ -753,7 +753,7 @@ static void AddStringToLexer(Lexer * lexer, ctmbstr str)
 	**  converting them to unsigned integer values.  We must cast our char to
 	**  unsigned char before assigning it to prevent this from happening.
 	*/
-	while(0 != (c = (unsigned char)*str++ ))
+	while(0 != (c = (uchar)*str++ ))
 		TY_(AddCharToLexer) (lexer, c);
 }
 
@@ -3322,16 +3322,13 @@ void TY_(InsertAttributeAtStart) (Node *node, AttVal *av)
 static AttVal* ParseAttrs(TidyDocImpl* doc, bool * isempty)
 {
 	Lexer* lexer = doc->lexer;
-	AttVal * av, * list;
+	AttVal * av;
 	tmbstr value;
 	int delim;
 	Node * asp, * php;
-
-	list = NULL;
-
+	AttVal * list = NULL;
 	while(!EndOfInput(doc) ) {
 		tmbstr attribute = ParseAttribute(doc, isempty, &asp, &php);
-
 		if(attribute == NULL) {
 			/* check if attributes are created by ASP markup */
 			if(asp) {
@@ -3340,7 +3337,6 @@ static AttVal* ParseAttrs(TidyDocImpl* doc, bool * isempty)
 				AddAttrToList(&list, av);
 				continue;
 			}
-
 			/* check if attributes are created by PHP markup */
 			if(php) {
 				av = TY_(NewAttribute) (doc);
@@ -3348,14 +3344,10 @@ static AttVal* ParseAttrs(TidyDocImpl* doc, bool * isempty)
 				AddAttrToList(&list, av);
 				continue;
 			}
-
 			break;
 		}
-
 		value = ParseValue(doc, attribute, false, isempty, &delim);
-
-		if(attribute && (IsValidAttrName(attribute) ||
-			    (cfgBool(doc, TidyXmlTags) && IsValidXMLAttrName(attribute)))) {
+		if(attribute && (IsValidAttrName(attribute) || (cfgBool(doc, TidyXmlTags) && IsValidXMLAttrName(attribute)))) {
 			av = TY_(NewAttribute) (doc);
 			av->delim = delim;
 			av->attribute = attribute;

@@ -45,7 +45,7 @@ typedef struct tiff TIFF;
  * to pass tag types and values uses the types defined in
  * tiff.h directly.
  *
- * NB: ttag_t is unsigned int and not unsigned short because
+ * NB: ttag_t is unsigned int and not ushort because
  *   ANSI C requires that the type before the ellipsis be a
  *   promoted type (i.e. one of int, unsigned int, pointer,
  *   or double) and because we defined pseudo-tags that are
@@ -130,7 +130,7 @@ typedef void* tdata_t;          /* image data ref */
 
 /* Structure for holding information about a display device. */
 
-typedef unsigned char TIFFRGBValue;               /* 8-bit samples */
+typedef uchar TIFFRGBValue;               /* 8-bit samples */
 
 typedef struct {
 	float d_mat[3][3];                        /* XYZ -> luminance matrix */
@@ -182,8 +182,8 @@ typedef struct _TIFFRGBAImage TIFFRGBAImage;
  * different format or, for example, unpack the data
  * and draw the unpacked raster on the display.
  */
-typedef void (*tileContigRoutine)(TIFFRGBAImage*, uint32*, uint32, uint32, uint32, uint32, int32, int32, unsigned char*);
-typedef void (*tileSeparateRoutine)(TIFFRGBAImage*, uint32*, uint32, uint32, uint32, uint32, int32, int32, unsigned char*, unsigned char*, unsigned char*, unsigned char*);
+typedef void (*tileContigRoutine)(const TIFFRGBAImage*, uint32*, uint32, uint32, uint32, uint32, int32, int32, uchar*);
+typedef void (*tileSeparateRoutine)(TIFFRGBAImage*, uint32*, uint32, uint32, uint32, uint32, int32, int32, uchar*, uchar*, uchar*, uchar*);
 /*
  * RGBA-reader state.
  */
@@ -360,7 +360,7 @@ extern thandle_t TIFFClientdata(TIFF*);
 extern thandle_t TIFFSetClientdata(TIFF*, thandle_t);
 extern int TIFFGetMode(TIFF*);
 extern int TIFFSetMode(TIFF*, int);
-extern int TIFFIsTiled(TIFF*);
+extern int FASTCALL TIFFIsTiled(const TIFF*);
 extern int TIFFIsByteSwapped(TIFF*);
 extern int TIFFIsUpSampled(TIFF*);
 extern int TIFFIsMSB2LSB(TIFF*);
@@ -372,7 +372,7 @@ extern TIFFCloseProc TIFFGetCloseProc(TIFF*);
 extern TIFFSizeProc TIFFGetSizeProc(TIFF*);
 extern TIFFMapFileProc TIFFGetMapFileProc(TIFF*);
 extern TIFFUnmapFileProc TIFFGetUnmapFileProc(TIFF*);
-extern uint32 TIFFCurrentRow(TIFF*);
+extern uint32 TIFFCurrentRow(const TIFF*);
 extern uint16 TIFFCurrentDirectory(TIFF*);
 extern uint16 TIFFNumberOfDirectories(TIFF*);
 extern uint64 TIFFCurrentDirOffset(TIFF*);
@@ -381,7 +381,7 @@ extern uint32 TIFFCurrentTile(TIFF* tif);
 extern int TIFFReadBufferSetup(TIFF* tif, void* bp, tmsize_t size);
 extern int TIFFWriteBufferSetup(TIFF* tif, void* bp, tmsize_t size);  
 extern int TIFFSetupStrips(TIFF *);
-extern int TIFFWriteCheck(TIFF*, int, const char *);
+extern int FASTCALL TIFFWriteCheck(TIFF*, int, const char *);
 extern void TIFFFreeDirectory(TIFF*);
 extern int TIFFCreateDirectory(TIFF*);
 extern int TIFFCreateCustomDirectory(TIFF*,const TIFFFieldArray*);
@@ -430,6 +430,7 @@ extern const char * TIFFFileName(TIFF*);
 extern const char * TIFFSetFileName(TIFF*, const char *);
 extern void TIFFError(const char*, const char*, ...) __attribute__((__format__ (__printf__,2,3)));
 extern void TIFFErrorExt(thandle_t, const char*, const char*, ...) __attribute__((__format__ (__printf__,3,4)));
+extern void FASTCALL TIFFErrorExtOutOfMemory(thandle_t, const char*);
 extern void TIFFWarning(const char*, const char*, ...) __attribute__((__format__ (__printf__,2,3)));
 extern void TIFFWarningExt(thandle_t, const char*, const char*, ...) __attribute__((__format__ (__printf__,3,4)));
 extern TIFFErrorHandler TIFFSetErrorHandler(TIFFErrorHandler);
@@ -466,7 +467,7 @@ extern void FASTCALL TIFFSwabArrayOfLong8(uint64* lp, tmsize_t n);
 extern void TIFFSwabArrayOfFloat(float* fp, tmsize_t n);
 extern void TIFFSwabArrayOfDouble(double* dp, tmsize_t n);
 extern void FASTCALL TIFFReverseBits(uint8* cp, tmsize_t n);
-extern const unsigned char * TIFFGetBitRevTable(int);
+extern const uchar * TIFFGetBitRevTable(int);
 
 #ifdef LOGLUV_PUBLIC
 #define U_NEU		0.210526316
@@ -510,9 +511,9 @@ typedef	struct {
 	short	field_readcount;	/* read count/TIFF_VARIABLE/TIFF_SPP */
 	short	field_writecount;	/* write count/TIFF_VARIABLE */
 	TIFFDataType field_type;	/* type of associated data */
-        unsigned short field_bit;	/* bit in fieldsset bit vector */
-	unsigned char field_oktochange;	/* if true, can change while writing */
-	unsigned char field_passcount;	/* if true, pass dir count on set */
+        ushort field_bit;	/* bit in fieldsset bit vector */
+	uchar field_oktochange;	/* if true, can change while writing */
+	uchar field_passcount;	/* if true, pass dir count on set */
 	char	*field_name;		/* ASCII name */
 } TIFFFieldInfo;
 

@@ -87,34 +87,34 @@
 
 #undef PKCS1_CHECK
 
-#define c2l(c, l) (l = ((unsigned long)(*((c)++))), l |= (((unsigned long)(*((c)++)))<< 8), \
-	    l |= (((unsigned long)(*((c)++)))<<16), l |= (((unsigned long)(*((c)++)))<<24))
+#define c2l(c, l) (l = ((ulong)(*((c)++))), l |= (((ulong)(*((c)++)))<< 8), \
+	    l |= (((ulong)(*((c)++)))<<16), l |= (((ulong)(*((c)++)))<<24))
 
 /* NOTE - c is not incremented as per c2l */
 #define c2ln(c, l1, l2, n) { \
 		c += n;	\
 		l1 = l2 = 0; \
 		switch(n) { \
-			case 8: l2 = ((unsigned long)(*(--(c))))<<24; \
-			case 7: l2 |= ((unsigned long)(*(--(c))))<<16; \
-			case 6: l2 |= ((unsigned long)(*(--(c))))<< 8; \
-			case 5: l2 |= ((unsigned long)(*(--(c))));     \
-			case 4: l1 = ((unsigned long)(*(--(c))))<<24; \
-			case 3: l1 |= ((unsigned long)(*(--(c))))<<16; \
-			case 2: l1 |= ((unsigned long)(*(--(c))))<< 8; \
-			case 1: l1 |= ((unsigned long)(*(--(c))));     \
+			case 8: l2 = ((ulong)(*(--(c))))<<24; \
+			case 7: l2 |= ((ulong)(*(--(c))))<<16; \
+			case 6: l2 |= ((ulong)(*(--(c))))<< 8; \
+			case 5: l2 |= ((ulong)(*(--(c))));     \
+			case 4: l1 = ((ulong)(*(--(c))))<<24; \
+			case 3: l1 |= ((ulong)(*(--(c))))<<16; \
+			case 2: l1 |= ((ulong)(*(--(c))))<< 8; \
+			case 1: l1 |= ((ulong)(*(--(c))));     \
 		} \
 }
 
-#define l2c(l, c)        (*((c)++) = (unsigned char)(((l)    )&0xff), \
-	    *((c)++) = (unsigned char)(((l)>> 8)&0xff),	\
-	    *((c)++) = (unsigned char)(((l)>>16)&0xff),	\
-	    *((c)++) = (unsigned char)(((l)>>24)&0xff))
+#define l2c(l, c)        (*((c)++) = (uchar)(((l)    )&0xff), \
+	    *((c)++) = (uchar)(((l)>> 8)&0xff),	\
+	    *((c)++) = (uchar)(((l)>>16)&0xff),	\
+	    *((c)++) = (uchar)(((l)>>24)&0xff))
 
-#define n2l(c, l)        (l = ((unsigned long)(*((c)++)))<<24,	\
-	    l |= ((unsigned long)(*((c)++)))<<16, \
-	    l |= ((unsigned long)(*((c)++)))<< 8, \
-	    l |= ((unsigned long)(*((c)++))))
+#define n2l(c, l)        (l = ((ulong)(*((c)++)))<<24,	\
+	    l |= ((ulong)(*((c)++)))<<16, \
+	    l |= ((ulong)(*((c)++)))<< 8, \
+	    l |= ((ulong)(*((c)++))))
 
 #define n2l8(c, l)       (l = ((uint64_t)(*((c)++)))<<56, \
 	    l |= ((uint64_t)(*((c)++)))<<48, \
@@ -125,49 +125,49 @@
 	    l |= ((uint64_t)(*((c)++)))<< 8, \
 	    l |= ((uint64_t)(*((c)++))))
 
-#define l2n(l, c)        (*((c)++) = (unsigned char)(((l)>>24)&0xff), \
-	    *((c)++) = (unsigned char)(((l)>>16)&0xff),	\
-	    *((c)++) = (unsigned char)(((l)>> 8)&0xff),	\
-	    *((c)++) = (unsigned char)(((l)    )&0xff))
+#define l2n(l, c)        (*((c)++) = (uchar)(((l)>>24)&0xff), \
+	    *((c)++) = (uchar)(((l)>>16)&0xff),	\
+	    *((c)++) = (uchar)(((l)>> 8)&0xff),	\
+	    *((c)++) = (uchar)(((l)    )&0xff))
 
-#define l2n6(l, c)       (*((c)++) = (unsigned char)(((l)>>40)&0xff), \
-	    *((c)++) = (unsigned char)(((l)>>32)&0xff),	\
-	    *((c)++) = (unsigned char)(((l)>>24)&0xff),	\
-	    *((c)++) = (unsigned char)(((l)>>16)&0xff),	\
-	    *((c)++) = (unsigned char)(((l)>> 8)&0xff),	\
-	    *((c)++) = (unsigned char)(((l)    )&0xff))
+#define l2n6(l, c)       (*((c)++) = (uchar)(((l)>>40)&0xff), \
+	    *((c)++) = (uchar)(((l)>>32)&0xff),	\
+	    *((c)++) = (uchar)(((l)>>24)&0xff),	\
+	    *((c)++) = (uchar)(((l)>>16)&0xff),	\
+	    *((c)++) = (uchar)(((l)>> 8)&0xff),	\
+	    *((c)++) = (uchar)(((l)    )&0xff))
 
-#define l2n8(l, c)       (*((c)++) = (unsigned char)(((l)>>56)&0xff), \
-	    *((c)++) = (unsigned char)(((l)>>48)&0xff),	\
-	    *((c)++) = (unsigned char)(((l)>>40)&0xff),	\
-	    *((c)++) = (unsigned char)(((l)>>32)&0xff),	\
-	    *((c)++) = (unsigned char)(((l)>>24)&0xff),	\
-	    *((c)++) = (unsigned char)(((l)>>16)&0xff),	\
-	    *((c)++) = (unsigned char)(((l)>> 8)&0xff),	\
-	    *((c)++) = (unsigned char)(((l)    )&0xff))
+#define l2n8(l, c)       (*((c)++) = (uchar)(((l)>>56)&0xff), \
+	    *((c)++) = (uchar)(((l)>>48)&0xff),	\
+	    *((c)++) = (uchar)(((l)>>40)&0xff),	\
+	    *((c)++) = (uchar)(((l)>>32)&0xff),	\
+	    *((c)++) = (uchar)(((l)>>24)&0xff),	\
+	    *((c)++) = (uchar)(((l)>>16)&0xff),	\
+	    *((c)++) = (uchar)(((l)>> 8)&0xff),	\
+	    *((c)++) = (uchar)(((l)    )&0xff))
 
 /* NOTE - c is not incremented as per l2c */
 #define l2cn(l1, l2, c, n) { \
 		c += n;	\
 		switch(n) { \
-			case 8: *(--(c)) = (unsigned char)(((l2)>>24)&0xff); \
-			case 7: *(--(c)) = (unsigned char)(((l2)>>16)&0xff); \
-			case 6: *(--(c)) = (unsigned char)(((l2)>> 8)&0xff); \
-			case 5: *(--(c)) = (unsigned char)(((l2)    )&0xff); \
-			case 4: *(--(c)) = (unsigned char)(((l1)>>24)&0xff); \
-			case 3: *(--(c)) = (unsigned char)(((l1)>>16)&0xff); \
-			case 2: *(--(c)) = (unsigned char)(((l1)>> 8)&0xff); \
-			case 1: *(--(c)) = (unsigned char)(((l1)    )&0xff); \
+			case 8: *(--(c)) = (uchar)(((l2)>>24)&0xff); \
+			case 7: *(--(c)) = (uchar)(((l2)>>16)&0xff); \
+			case 6: *(--(c)) = (uchar)(((l2)>> 8)&0xff); \
+			case 5: *(--(c)) = (uchar)(((l2)    )&0xff); \
+			case 4: *(--(c)) = (uchar)(((l1)>>24)&0xff); \
+			case 3: *(--(c)) = (uchar)(((l1)>>16)&0xff); \
+			case 2: *(--(c)) = (uchar)(((l1)>> 8)&0xff); \
+			case 1: *(--(c)) = (uchar)(((l1)    )&0xff); \
 		} \
 }
 
-#define n2s(c, s)        ((s = (((unsigned int)((c)[0]))<< 8)|(((unsigned int)((c)[1]))    )), (c) += 2)
-#define s2n(s, c)        (((c)[0] = (unsigned char)(((s)>> 8)&0xff), (c)[1] = (unsigned char)(((s)    )&0xff)), (c) += 2)
-#define n2l3(c, l)       ((l = (((unsigned long)((c)[0]))<<16)|(((unsigned long)((c)[1]))<< 8)|(((unsigned long)((c)[2]))    )), (c) += 3)
+#define n2s(c, s)        ((s = (((uint)((c)[0]))<< 8)|(((uint)((c)[1]))    )), (c) += 2)
+#define s2n(s, c)        (((c)[0] = (uchar)(((s)>> 8)&0xff), (c)[1] = (uchar)(((s)    )&0xff)), (c) += 2)
+#define n2l3(c, l)       ((l = (((ulong)((c)[0]))<<16)|(((ulong)((c)[1]))<< 8)|(((ulong)((c)[2]))    )), (c) += 3)
 
-#define l2n3(l, c)       (((c)[0] = (unsigned char)(((l)>>16)&0xff), \
-		    (c)[1] = (unsigned char)(((l)>> 8)&0xff), \
-		    (c)[2] = (unsigned char)(((l)    )&0xff)), (c) += 3)
+#define l2n3(l, c)       (((c)[0] = (uchar)(((l)>>16)&0xff), \
+		    (c)[1] = (uchar)(((l)>> 8)&0xff), \
+		    (c)[2] = (uchar)(((l)    )&0xff)), (c) += 3)
 
 /*
  * DTLS version numbers are strange because they're inverted. Except for
@@ -1423,7 +1423,7 @@ typedef struct ssl3_enc_method {
 } SSL3_ENC_METHOD;
 
 #define SSL_HM_HEADER_LENGTH(s) s->method->ssl3_enc->hhlen
-#define ssl_handshake_start(s) (((unsigned char*)s->init_buf->data) + s->method->ssl3_enc->hhlen)
+#define ssl_handshake_start(s) (((uchar *)s->init_buf->data) + s->method->ssl3_enc->hhlen)
 #define ssl_set_handshake_header(s, htype, len) s->method->ssl3_enc->set_handshake_header(s, htype, len)
 #define ssl_do_write(s)  s->method->ssl3_enc->do_write(s)
 

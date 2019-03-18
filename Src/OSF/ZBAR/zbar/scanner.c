@@ -69,7 +69,7 @@ zbar_scanner_t * zbar_scanner_create(zbar_decoder_t * dcode)
 	scn->decoder = dcode;
 	scn->y1_min_thresh = ZBAR_SCANNER_THRESH_MIN;
 	zbar_scanner_reset(scn);
-	return(scn);
+	return (scn);
 }
 
 void zbar_scanner_destroy(zbar_scanner_t * scn)
@@ -83,12 +83,12 @@ zbar_symbol_type_t zbar_scanner_reset(zbar_scanner_t * scn)
 	scn->y1_thresh = scn->y1_min_thresh;
 	if(scn->decoder)
 		zbar_decoder_reset(scn->decoder);
-	return(ZBAR_NONE);
+	return ZBAR_NONE;
 }
 
 uint zbar_scanner_get_width(const zbar_scanner_t * scn)
 {
-	return(scn->width);
+	return (scn->width);
 }
 
 uint zbar_scanner_get_edge(const zbar_scanner_t * scn, uint offset, int prec)
@@ -96,16 +96,16 @@ uint zbar_scanner_get_edge(const zbar_scanner_t * scn, uint offset, int prec)
 	uint edge = scn->last_edge - offset - (1 << ZBAR_FIXED) - ROUND;
 	prec = ZBAR_FIXED - prec;
 	if(prec > 0)
-		return(edge >> prec);
+		return (edge >> prec);
 	else if(!prec)
-		return(edge);
+		return (edge);
 	else
-		return(edge << -prec);
+		return (edge << -prec);
 }
 
 zbar_color_t zbar_scanner_get_color(const zbar_scanner_t * scn)
 {
-	return((scn->y1_sign <= 0) ? ZBAR_SPACE : ZBAR_BAR);
+	return ((scn->y1_sign <= 0) ? ZBAR_SPACE : ZBAR_BAR);
 }
 
 static uint FASTCALL calc_thresh(zbar_scanner_t * scn)
@@ -127,7 +127,7 @@ static uint FASTCALL calc_thresh(zbar_scanner_t * scn)
 		if(thresh > t) {
 			thresh -= t;
 			if(thresh > scn->y1_min_thresh)
-				return(thresh);
+				return (thresh);
 		}
 		scn->y1_thresh = scn->y1_min_thresh;
 		return scn->y1_min_thresh;

@@ -178,20 +178,13 @@
 #define FIELD_OJPEG_JPEGRESTARTINTERVAL (FIELD_CODEC+6)
 
 static const TIFFField ojpegFields[] = {
-	{TIFFTAG_JPEGIFOFFSET, 1, 1, TIFF_LONG8, 0, TIFF_SETGET_UINT64, TIFF_SETGET_UNDEFINED, FIELD_OJPEG_JPEGINTERCHANGEFORMAT, TRUE,
-	 FALSE, "JpegInterchangeFormat", NULL},
-	{TIFFTAG_JPEGIFBYTECOUNT, 1, 1, TIFF_LONG8, 0, TIFF_SETGET_UINT64, TIFF_SETGET_UNDEFINED, FIELD_OJPEG_JPEGINTERCHANGEFORMATLENGTH,
-	 TRUE, FALSE, "JpegInterchangeFormatLength", NULL},
-	{TIFFTAG_JPEGQTABLES, TIFF_VARIABLE2, TIFF_VARIABLE2, TIFF_LONG8, 0, TIFF_SETGET_C32_UINT64, TIFF_SETGET_UNDEFINED,
-	 FIELD_OJPEG_JPEGQTABLES, FALSE, TRUE, "JpegQTables", NULL},
-	{TIFFTAG_JPEGDCTABLES, TIFF_VARIABLE2, TIFF_VARIABLE2, TIFF_LONG8, 0, TIFF_SETGET_C32_UINT64, TIFF_SETGET_UNDEFINED,
-	 FIELD_OJPEG_JPEGDCTABLES, FALSE, TRUE, "JpegDcTables", NULL},
-	{TIFFTAG_JPEGACTABLES, TIFF_VARIABLE2, TIFF_VARIABLE2, TIFF_LONG8, 0, TIFF_SETGET_C32_UINT64, TIFF_SETGET_UNDEFINED,
-	 FIELD_OJPEG_JPEGACTABLES, FALSE, TRUE, "JpegAcTables", NULL},
-	{TIFFTAG_JPEGPROC, 1, 1, TIFF_SHORT, 0, TIFF_SETGET_UINT16, TIFF_SETGET_UNDEFINED, FIELD_OJPEG_JPEGPROC, FALSE, FALSE, "JpegProc",
-	 NULL},
-	{TIFFTAG_JPEGRESTARTINTERVAL, 1, 1, TIFF_SHORT, 0, TIFF_SETGET_UINT16, TIFF_SETGET_UNDEFINED, FIELD_OJPEG_JPEGRESTARTINTERVAL,
-	 FALSE, FALSE, "JpegRestartInterval", NULL},
+	{TIFFTAG_JPEGIFOFFSET, 1, 1, TIFF_LONG8, 0, TIFF_SETGET_UINT64, TIFF_SETGET_UNDEFINED, FIELD_OJPEG_JPEGINTERCHANGEFORMAT, TRUE, FALSE, "JpegInterchangeFormat", NULL},
+	{TIFFTAG_JPEGIFBYTECOUNT, 1, 1, TIFF_LONG8, 0, TIFF_SETGET_UINT64, TIFF_SETGET_UNDEFINED, FIELD_OJPEG_JPEGINTERCHANGEFORMATLENGTH, TRUE, FALSE, "JpegInterchangeFormatLength", NULL},
+	{TIFFTAG_JPEGQTABLES, TIFF_VARIABLE2, TIFF_VARIABLE2, TIFF_LONG8, 0, TIFF_SETGET_C32_UINT64, TIFF_SETGET_UNDEFINED, FIELD_OJPEG_JPEGQTABLES, FALSE, TRUE, "JpegQTables", NULL},
+	{TIFFTAG_JPEGDCTABLES, TIFF_VARIABLE2, TIFF_VARIABLE2, TIFF_LONG8, 0, TIFF_SETGET_C32_UINT64, TIFF_SETGET_UNDEFINED, FIELD_OJPEG_JPEGDCTABLES, FALSE, TRUE, "JpegDcTables", NULL},
+	{TIFFTAG_JPEGACTABLES, TIFF_VARIABLE2, TIFF_VARIABLE2, TIFF_LONG8, 0, TIFF_SETGET_C32_UINT64, TIFF_SETGET_UNDEFINED, FIELD_OJPEG_JPEGACTABLES, FALSE, TRUE, "JpegAcTables", NULL},
+	{TIFFTAG_JPEGPROC, 1, 1, TIFF_SHORT, 0, TIFF_SETGET_UINT16, TIFF_SETGET_UNDEFINED, FIELD_OJPEG_JPEGPROC, FALSE, FALSE, "JpegProc", NULL},
+	{TIFFTAG_JPEGRESTARTINTERVAL, 1, 1, TIFF_SHORT, 0, TIFF_SETGET_UINT16, TIFF_SETGET_UNDEFINED, FIELD_OJPEG_JPEGRESTARTINTERVAL, FALSE, FALSE, "JpegRestartInterval", NULL},
 };
 
 #ifndef LIBJPEG_ENCAP_EXTERNAL
@@ -213,10 +206,10 @@ static const TIFFField ojpegFields[] = {
 # define XMD_H 1
 #endif
 
-/* Define "boolean" as unsigned char, not int, per Windows custom. */
+/* Define "boolean" as uchar, not int, per Windows custom. */
 #if defined(__WIN32__) && !defined(__MINGW32__)
 # ifndef __RPCNDR_H__            /* don't conflict if rpcndr.h already read */
-typedef unsigned char boolean;
+typedef uchar boolean;
 # endif
 # define HAVE_BOOLEAN            /* prevent jmorecfg.h from redefining it */
 #endif
@@ -630,9 +623,9 @@ static void OJPEGPrintDir(TIFF* tif, FILE* fd, long flags)
 		fprintf(fd, "\n");
 	}
 	if(TIFFFieldSet(tif, FIELD_OJPEG_JPEGPROC))
-		fprintf(fd, "  JpegProc: %u\n", (unsigned int)sp->jpeg_proc);
+		fprintf(fd, "  JpegProc: %u\n", (uint)sp->jpeg_proc);
 	if(TIFFFieldSet(tif, FIELD_OJPEG_JPEGRESTARTINTERVAL))
-		fprintf(fd, "  JpegRestartInterval: %u\n", (unsigned int)sp->restart_interval);
+		fprintf(fd, "  JpegRestartInterval: %u\n", (uint)sp->restart_interval);
 	if(sp->printdir)
 		(*sp->printdir)(tif, fd, flags);
 }
@@ -746,7 +739,7 @@ static int OJPEGPreDecodeSkipScanlines(TIFF* tif)
 	if(!sp->skip_buffer) {
 		sp->skip_buffer = SAlloc::M(sp->bytes_per_line);
 		if(!sp->skip_buffer) {
-			TIFFErrorExt(tif->tif_clientdata, module, "Out of memory");
+			TIFFErrorExtOutOfMemory(tif->tif_clientdata, module);
 			return 0;
 		}
 	}
@@ -1041,10 +1034,7 @@ static int OJPEGReadHeaderInfo(TIFF* tif)
 	}
 	else {
 		if(tif->tif_dir.td_samplesperpixel!=3) {
-			TIFFErrorExt(tif->tif_clientdata,
-			    module,
-			    "SamplesPerPixel %d not supported for this compression scheme",
-			    sp->samples_per_pixel);
+			TIFFErrorExt(tif->tif_clientdata, module, "SamplesPerPixel %d not supported for this compression scheme", sp->samples_per_pixel);
 			return 0;
 		}
 		sp->samples_per_pixel = 3;
@@ -1165,7 +1155,7 @@ static int OJPEGWriteHeaderInfo(TIFF* tif)
 			sp->subsampling_convert_ycbcrbuflen = sp->subsampling_convert_ybuflen+2*sp->subsampling_convert_cbuflen;
 			sp->subsampling_convert_ycbcrbuf = SAlloc::M(sp->subsampling_convert_ycbcrbuflen);
 			if(sp->subsampling_convert_ycbcrbuf==0) {
-				TIFFErrorExt(tif->tif_clientdata, module, "Out of memory");
+				TIFFErrorExtOutOfMemory(tif->tif_clientdata, module);
 				return 0;
 			}
 			sp->subsampling_convert_ybuf = sp->subsampling_convert_ycbcrbuf;
@@ -1174,7 +1164,7 @@ static int OJPEGWriteHeaderInfo(TIFF* tif)
 			sp->subsampling_convert_ycbcrimagelen = 3+sp->subsampling_convert_ylines+2*sp->subsampling_convert_clines;
 			sp->subsampling_convert_ycbcrimage = SAlloc::M(sp->subsampling_convert_ycbcrimagelen*sizeof(uint8 *));
 			if(sp->subsampling_convert_ycbcrimage==0) {
-				TIFFErrorExt(tif->tif_clientdata, module, "Out of memory");
+				TIFFErrorExtOutOfMemory(tif->tif_clientdata, module);
 				return 0;
 			}
 			m = sp->subsampling_convert_ycbcrimage;
@@ -1386,7 +1376,7 @@ static int OJPEGReadHeaderInfoSecStreamDqt(TIFF* tif)
 			na = sizeof(uint32)+69;
 			nb = SAlloc::M(na);
 			if(nb==0) {
-				TIFFErrorExt(tif->tif_clientdata, module, "Out of memory");
+				TIFFErrorExtOutOfMemory(tif->tif_clientdata, module);
 				return 0;
 			}
 			*(uint32 *)nb = na;
@@ -1438,7 +1428,7 @@ static int OJPEGReadHeaderInfoSecStreamDht(TIFF* tif)
 		na = sizeof(uint32)+2+m;
 		nb = SAlloc::M(na);
 		if(nb==0) {
-			TIFFErrorExt(tif->tif_clientdata, module, "Out of memory");
+			TIFFErrorExtOutOfMemory(tif->tif_clientdata, module);
 			return 0;
 		}
 		*(uint32 *)nb = na;
@@ -1589,17 +1579,13 @@ static int OJPEGReadHeaderInfoSecStreamSof(TIFF* tif, uint8 marker_id)
 			if(sp->subsampling_force_desubsampling_inside_decompression==0) {
 				if(q==0) {
 					if(o!=((sp->subsampling_hor<<4)|sp->subsampling_ver)) {
-						TIFFErrorExt(tif->tif_clientdata,
-						    module,
-						    "JPEG compressed data indicates unexpected subsampling values");
+						TIFFErrorExt(tif->tif_clientdata, module, "JPEG compressed data indicates unexpected subsampling values");
 						return 0;
 					}
 				}
 				else {
 					if(o!=17) {
-						TIFFErrorExt(tif->tif_clientdata,
-						    module,
-						    "JPEG compressed data indicates unexpected subsampling values");
+						TIFFErrorExt(tif->tif_clientdata, module, "JPEG compressed data indicates unexpected subsampling values");
 						return 0;
 					}
 				}
@@ -1684,7 +1670,7 @@ static int OJPEGReadHeaderInfoSecTablesQTable(TIFF* tif)
 			oa = sizeof(uint32)+69;
 			ob = SAlloc::M(oa);
 			if(ob==0) {
-				TIFFErrorExt(tif->tif_clientdata, module, "Out of memory");
+				TIFFErrorExtOutOfMemory(tif->tif_clientdata, module);
 				return 0;
 			}
 			*(uint32 *)ob = oa;
@@ -1744,7 +1730,7 @@ static int OJPEGReadHeaderInfoSecTablesDcTable(TIFF* tif)
 			ra = sizeof(uint32)+21+q;
 			rb = SAlloc::M(ra);
 			if(rb==0) {
-				TIFFErrorExt(tif->tif_clientdata, module, "Out of memory");
+				TIFFErrorExtOutOfMemory(tif->tif_clientdata, module);
 				return 0;
 			}
 			*(uint32 *)rb = ra;
@@ -1805,7 +1791,7 @@ static int OJPEGReadHeaderInfoSecTablesAcTable(TIFF* tif)
 			ra = sizeof(uint32)+21+q;
 			rb = SAlloc::M(ra);
 			if(rb==0) {
-				TIFFErrorExt(tif->tif_clientdata, module, "Out of memory");
+				TIFFErrorExtOutOfMemory(tif->tif_clientdata, module);
 				return 0;
 			}
 			*(uint32 *)rb = ra;

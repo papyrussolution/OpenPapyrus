@@ -426,7 +426,7 @@ int DGifGetImageDesc(GifFileType * GifFile)
 		return GIF_ERROR;
 	}
 	BitsPerPixel = (Buf[0] & 0x07) + 1;
-	GifFile->Image.Interlace = (Buf[0] & 0x40) ? true : false;
+	GifFile->Image.Interlace = LOGIC(Buf[0] & 0x40);
 	/* Setup the colormap */
 	if(GifFile->Image.ColorMap) {
 		GifFreeMapObject(GifFile->Image.ColorMap);
@@ -487,7 +487,7 @@ int DGifGetImageDesc(GifFileType * GifFile)
 // If image is defective, we might loop here forever, so we limit the loops to
 // the maximum possible if image O.k. - LZ_MAX_CODE times.
 // 
-static int DGifGetPrefixChar(GifPrefixType * Prefix, int Code, int ClearCode)
+static int DGifGetPrefixChar(const GifPrefixType * Prefix, int Code, int ClearCode)
 {
 	int i = 0;
 	while(Code > ClearCode && i++ <= LZ_MAX_CODE) {
@@ -996,11 +996,11 @@ int DGifSlurp(GifFileType * pGifFile)
 	pGifFile->ExtensionBlockCount = 0;
 	do {
 		if(DGifGetRecordType(pGifFile, &RecordType) == GIF_ERROR)
-			return (GIF_ERROR);
+			return GIF_ERROR;
 		switch(RecordType) {
 			case IMAGE_DESC_RECORD_TYPE:
 			    if(DGifGetImageDesc(pGifFile) == GIF_ERROR)
-				    return (GIF_ERROR);
+				    return GIF_ERROR;
 			    p_sp = &pGifFile->SavedImages[pGifFile->ImageCount - 1];
 			    // Allocate memory for the image 
 			    if(p_sp->ImageDesc.Width < 0 && p_sp->ImageDesc.Height < 0 && p_sp->ImageDesc.Width > (INT_MAX / p_sp->ImageDesc.Height)) {
@@ -1032,7 +1032,7 @@ int DGifSlurp(GifFileType * pGifFile)
 			    }
 			    else {
 				    if(DGifGetLine(pGifFile, p_sp->RasterBits, image_size)==GIF_ERROR)
-					    return (GIF_ERROR);
+					    return GIF_ERROR;
 			    }
 			    if(pGifFile->ExtensionBlocks) {
 				    p_sp->ExtensionBlocks = pGifFile->ExtensionBlocks;
@@ -1043,17 +1043,17 @@ int DGifSlurp(GifFileType * pGifFile)
 			    break;
 			case EXTENSION_RECORD_TYPE:
 			    if(DGifGetExtension(pGifFile, &ExtFunction, &p_ext_data) == GIF_ERROR)
-				    return (GIF_ERROR);
+				    return GIF_ERROR;
 			    // Create an extension block with our data 
 			    if(GifAddExtensionBlock(&pGifFile->ExtensionBlockCount, &pGifFile->ExtensionBlocks, ExtFunction, p_ext_data[0], &p_ext_data[1]) == GIF_ERROR)
-				    return (GIF_ERROR);
+				    return GIF_ERROR;
 			    while(p_ext_data) {
 				    if(DGifGetExtensionNext(pGifFile, &p_ext_data) == GIF_ERROR)
-					    return (GIF_ERROR);
+					    return GIF_ERROR;
 				    /* Continue the extension block */
 				    if(p_ext_data)
 					    if(GifAddExtensionBlock(&pGifFile->ExtensionBlockCount, &pGifFile->ExtensionBlocks, CONTINUE_EXT_FUNC_CODE, p_ext_data[0], &p_ext_data[1]) == GIF_ERROR)
-						    return (GIF_ERROR);
+						    return GIF_ERROR;
 			    }
 			    break;
 			case TERMINATE_RECORD_TYPE:
@@ -1062,7 +1062,7 @@ int DGifSlurp(GifFileType * pGifFile)
 			    break;
 		}
 	} while(RecordType != TERMINATE_RECORD_TYPE);
-	return (GIF_OK);
+	return GIF_OK;
 }
 //
 // All writes to the GIF should go through this.
@@ -1082,7 +1082,7 @@ static int EGifBufferedOutput(GifFileType * GifFile, GifByteType * Buf, int c)
 {
 	if(c == FLUSH_OUTPUT) {
 		// Flush everything out
-		if(Buf[0] != 0 && InternalWrite(GifFile, Buf, Buf[0] + 1) != (unsigned)(Buf[0] + 1)) {
+		if(Buf[0] != 0 && InternalWrite(GifFile, Buf, Buf[0] + 1) != (uint)(Buf[0] + 1)) {
 			GifFile->Error = E_GIF_ERR_WRITE_FAILED;
 			return GIF_ERROR;
 		}
@@ -1096,7 +1096,7 @@ static int EGifBufferedOutput(GifFileType * GifFile, GifByteType * Buf, int c)
 	else {
 		if(Buf[0] == 255) {
 			/* Dump out this buffer - it is full: */
-			if(InternalWrite(GifFile, Buf, Buf[0] + 1) != (unsigned)(Buf[0] + 1)) {
+			if(InternalWrite(GifFile, Buf, Buf[0] + 1) != (uint)(Buf[0] + 1)) {
 				GifFile->Error = E_GIF_ERR_WRITE_FAILED;
 				return GIF_ERROR;
 			}
@@ -1564,7 +1564,7 @@ int EGifPutLine(GifFileType * GifFile, GifPixelType * Line, int LineLen)
 	}
 	if(!LineLen)
 		LineLen = GifFile->Image.Width;
-	if(Private->PixelCount < (unsigned)LineLen) {
+	if(Private->PixelCount < (uint)LineLen) {
 		GifFile->Error = E_GIF_ERR_DATA_TOO_BIG;
 		return GIF_ERROR;
 	}
@@ -1758,11 +1758,10 @@ int EGifGCBToSavedExtension(const GraphicsControlBlock * GCB, GifFileType * GifF
 		}
 	}
 	Len = EGifGCBToExtension(GCB, (GifByteType*)buf);
-	if(GifAddExtensionBlock(&GifFile->SavedImages[ImageIndex].ExtensionBlockCount,
-		    &GifFile->SavedImages[ImageIndex].ExtensionBlocks, GRAPHICS_EXT_FUNC_CODE,
-		    Len, (uint8 *)buf) == GIF_ERROR)
-		return (GIF_ERROR);
-	return (GIF_OK);
+	if(GifAddExtensionBlock(&GifFile->SavedImages[ImageIndex].ExtensionBlockCount, 
+		&GifFile->SavedImages[ImageIndex].ExtensionBlocks, GRAPHICS_EXT_FUNC_CODE, Len, (uint8 *)buf) == GIF_ERROR)
+		return GIF_ERROR;
+	return GIF_OK;
 }
 
 /******************************************************************************
@@ -1801,7 +1800,7 @@ int EGifPutCodeNext(GifFileType * GifFile, const GifByteType * CodeBlock)
 	GifByteType Buf;
 	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	if(CodeBlock) {
-		if(InternalWrite(GifFile, CodeBlock, CodeBlock[0] + 1) != (unsigned)(CodeBlock[0] + 1)) {
+		if(InternalWrite(GifFile, CodeBlock, CodeBlock[0] + 1) != (uint)(CodeBlock[0] + 1)) {
 			GifFile->Error = E_GIF_ERR_WRITE_FAILED;
 			return GIF_ERROR;
 		}
@@ -1876,15 +1875,15 @@ static int EGifWriteExtensions(GifFileType * GifFileOut, ExtensionBlock * Extens
 			ExtensionBlock * ep = &ExtensionBlocks[j];
 			if(ep->Function != CONTINUE_EXT_FUNC_CODE)
 				if(EGifPutExtensionLeader(GifFileOut, ep->Function) == GIF_ERROR)
-					return (GIF_ERROR);
+					return GIF_ERROR;
 			if(EGifPutExtensionBlock(GifFileOut, ep->ByteCount, ep->Bytes) == GIF_ERROR)
-				return (GIF_ERROR);
+				return GIF_ERROR;
 			if(j == ExtensionBlockCount - 1 || (ep+1)->Function != CONTINUE_EXT_FUNC_CODE)
 				if(EGifPutExtensionTrailer(GifFileOut) == GIF_ERROR)
-					return (GIF_ERROR);
+					return GIF_ERROR;
 		}
 	}
-	return (GIF_OK);
+	return GIF_OK;
 }
 
 int EGifSpew(GifFileType * GifFileOut)
@@ -1892,7 +1891,7 @@ int EGifSpew(GifFileType * GifFileOut)
 	int i, j;
 	if(EGifPutScreenDesc(GifFileOut, GifFileOut->SWidth, GifFileOut->SHeight,
 	    GifFileOut->SColorResolution, GifFileOut->SBackGroundColor, GifFileOut->SColorMap) == GIF_ERROR) {
-		return (GIF_ERROR);
+		return GIF_ERROR;
 	}
 	for(i = 0; i < GifFileOut->ImageCount; i++) {
 		GifSavedImage * sp = &GifFileOut->SavedImages[i];
@@ -1902,10 +1901,10 @@ int EGifSpew(GifFileType * GifFileOut)
 		if(sp->RasterBits == NULL)
 			continue;
 		if(EGifWriteExtensions(GifFileOut, sp->ExtensionBlocks, sp->ExtensionBlockCount) == GIF_ERROR)
-			return (GIF_ERROR);
+			return GIF_ERROR;
 		if(EGifPutImageDesc(GifFileOut, sp->ImageDesc.Left, sp->ImageDesc.Top,
 			SavedWidth, SavedHeight, sp->ImageDesc.Interlace, sp->ImageDesc.ColorMap) == GIF_ERROR)
-			return (GIF_ERROR);
+			return GIF_ERROR;
 		if(sp->ImageDesc.Interlace) {
 			/*
 			 * The way an interlaced image should be written - offsets and jumps...
@@ -1917,21 +1916,21 @@ int EGifSpew(GifFileType * GifFileOut)
 			for(k = 0; k < 4; k++)
 				for(j = InterlacedOffset[k]; j < SavedHeight; j += InterlacedJumps[k]) {
 					if(EGifPutLine(GifFileOut, sp->RasterBits + j * SavedWidth, SavedWidth) == GIF_ERROR)
-						return (GIF_ERROR);
+						return GIF_ERROR;
 				}
 		}
 		else {
 			for(j = 0; j < SavedHeight; j++) {
 				if(EGifPutLine(GifFileOut, sp->RasterBits + j * SavedWidth, SavedWidth) == GIF_ERROR)
-					return (GIF_ERROR);
+					return GIF_ERROR;
 			}
 		}
 	}
 	if(EGifWriteExtensions(GifFileOut, GifFileOut->ExtensionBlocks, GifFileOut->ExtensionBlockCount) == GIF_ERROR)
-		return (GIF_ERROR);
+		return GIF_ERROR;
 	if(EGifCloseFile(GifFileOut) == GIF_ERROR)
-		return (GIF_ERROR);
-	return (GIF_OK);
+		return GIF_ERROR;
+	return GIF_OK;
 }
 // 
 // Ascii 8 by 8 regular font - only first 128 characters are supported.
@@ -2395,16 +2394,16 @@ int GifAddExtensionBlock(int * pExtensionBlockCount, ExtensionBlock ** ppExtensi
 	else
 		*ppExtensionBlocks = static_cast<ExtensionBlock *>(SAlloc::R(*ppExtensionBlocks, sizeof(ExtensionBlock) * (*pExtensionBlockCount + 1)));
 	if(*ppExtensionBlocks == NULL)
-		return (GIF_ERROR);
+		return GIF_ERROR;
 	ep = &(*ppExtensionBlocks)[(*pExtensionBlockCount)++];
 	ep->Function = Function;
 	ep->ByteCount = Len;
 	ep->Bytes = static_cast<GifByteType *>(SAlloc::M(ep->ByteCount));
 	if(ep->Bytes == NULL)
-		return (GIF_ERROR);
+		return GIF_ERROR;
 	if(ExtData)
 		memcpy(ep->Bytes, ExtData, Len);
-	return (GIF_OK);
+	return GIF_OK;
 }
 
 void GifFreeExtensions(int * ExtensionBlockCount, ExtensionBlock ** ExtensionBlocks)

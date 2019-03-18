@@ -119,7 +119,7 @@ int archive_write_set_format_pax_restricted(struct archive * _a)
 	r = archive_write_set_format_pax(&a->archive);
 	a->archive.archive_format = ARCHIVE_FORMAT_TAR_PAX_RESTRICTED;
 	a->archive.archive_format_name = "restricted POSIX pax interchange";
-	return (r);
+	return r;
 }
 
 /*
@@ -140,7 +140,7 @@ int archive_write_set_format_pax(struct archive * _a)
 	if(pax == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate pax data");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	pax->flags = WRITE_LIBARCHIVE_XATTR | WRITE_SCHILY_XATTR;
 
@@ -154,7 +154,7 @@ int archive_write_set_format_pax(struct archive * _a)
 	a->format_finish_entry = archive_write_pax_finish_entry;
 	a->archive.archive_format = ARCHIVE_FORMAT_TAR_PAX_INTERCHANGE;
 	a->archive.archive_format_name = "POSIX pax interchange";
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_write_pax_options(struct archive_write * a, const char * key,
@@ -198,7 +198,7 @@ static int archive_write_pax_options(struct archive_write * a, const char * key,
 		else
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 			    "pax: invalid charset name");
-		return (ret);
+		return ret;
 	}
 
 	/* Note: The "warn" return is just to inform the options
@@ -339,7 +339,7 @@ static void archive_write_pax_header_xattr(struct pax * pax, const char * encode
 	char * encoded_value;
 
 	if(pax->flags & WRITE_LIBARCHIVE_XATTR) {
-		encoded_value = base64_encode((const char*)value, value_len);
+		encoded_value = base64_encode((const char *)value, value_len);
 
 		if(encoded_name != NULL && encoded_value != NULL) {
 			archive_string_init(&s);
@@ -383,14 +383,14 @@ static int archive_write_pax_header_xattrs(struct archive_write * a,
 			else if(errno == ENOMEM) {
 				archive_set_error(&a->archive, ENOMEM,
 				    "Can't allocate memory for Linkname");
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 		}
 
 		archive_write_pax_header_xattr(pax, encoded_name,
 		    value, size);
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int get_entry_hardlink(struct archive_write * a, struct archive_entry * entry,
@@ -403,11 +403,11 @@ static int get_entry_hardlink(struct archive_write * a, struct archive_entry * e
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't allocate memory for Linkname");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		return (ARCHIVE_WARN);
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int get_entry_pathname(struct archive_write * a, struct archive_entry * entry,
@@ -420,11 +420,11 @@ static int get_entry_pathname(struct archive_write * a, struct archive_entry * e
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't allocate memory for Pathname");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		return (ARCHIVE_WARN);
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int get_entry_uname(struct archive_write * a, struct archive_entry * entry,
@@ -437,11 +437,11 @@ static int get_entry_uname(struct archive_write * a, struct archive_entry * entr
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't allocate memory for Uname");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		return (ARCHIVE_WARN);
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int get_entry_gname(struct archive_write * a, struct archive_entry * entry,
@@ -454,11 +454,11 @@ static int get_entry_gname(struct archive_write * a, struct archive_entry * entr
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't allocate memory for Gname");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		return (ARCHIVE_WARN);
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int get_entry_symlink(struct archive_write * a, struct archive_entry * entry,
@@ -471,11 +471,11 @@ static int get_entry_symlink(struct archive_write * a, struct archive_entry * en
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't allocate memory for Linkname");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		return (ARCHIVE_WARN);
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /* Add ACL to pax header */
@@ -495,19 +495,19 @@ static int add_pax_acl(struct archive_write * a,
 	else if((flags & ARCHIVE_ENTRY_ACL_TYPE_DEFAULT) != 0)
 		attr = "SCHILY.acl.default";
 	else
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 
 	p = archive_entry_acl_to_text_l(entry, NULL, flags, pax->sconv_utf8);
 	if(p == NULL) {
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM, "%s %s",
 			    "Can't allocate memory for ", attr);
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		archive_set_error(&a->archive,
 		    ARCHIVE_ERRNO_FILE_FORMAT, "%s %s %s",
 		    "Can't translate ", attr, " to UTF-8");
-		return(ARCHIVE_WARN);
+		return (ARCHIVE_WARN);
 	}
 
 	if(*p != '\0') {
@@ -515,7 +515,7 @@ static int add_pax_acl(struct archive_write * a,
 		    attr, p);
 	}
 	SAlloc::F(p);
-	return(ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -561,7 +561,7 @@ static int archive_write_pax_header(struct archive_write * a,
 	if(archive_entry_pathname(entry_original) == NULL) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 		    "Can't record entry in tar file without pathname");
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 
 	/*
@@ -578,7 +578,7 @@ static int archive_write_pax_header(struct archive_write * a,
 				&(a->archive), "UTF-8", 1);
 			if(pax->sconv_utf8 == NULL)
 				/* Couldn't allocate memory */
-				return (ARCHIVE_FAILED);
+				return ARCHIVE_FAILED;
 		}
 		sconv = pax->sconv_utf8;
 	}
@@ -586,12 +586,12 @@ static int archive_write_pax_header(struct archive_write * a,
 	r = get_entry_hardlink(a, entry_original, &hardlink,
 		&hardlink_length, sconv);
 	if(r == ARCHIVE_FATAL)
-		return (r);
+		return r;
 	else if(r != ARCHIVE_OK) {
 		r = get_entry_hardlink(a, entry_original, &hardlink,
 			&hardlink_length, NULL);
 		if(r == ARCHIVE_FATAL)
-			return (r);
+			return r;
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 		    "Can't translate linkname '%s' to %s", hardlink,
 		    archive_string_conversion_charset_name(sconv));
@@ -628,7 +628,7 @@ static int archive_write_pax_header(struct archive_write * a,
 					    archive_set_error(&a->archive, ENOMEM,
 						"Can't allocate pax data");
 					    archive_wstring_free(&ws);
-					    return(ARCHIVE_FATAL);
+					    return ARCHIVE_FATAL;
 				    }
 				    /* Should we keep '\' ? */
 				    if(wp[path_length -1] == L'\\')
@@ -658,7 +658,7 @@ static int archive_write_pax_header(struct archive_write * a,
 					    archive_set_error(&a->archive, ENOMEM,
 						"Can't allocate pax data");
 					    archive_string_free(&as);
-					    return(ARCHIVE_FATAL);
+					    return ARCHIVE_FATAL;
 				    }
 #if defined(_WIN32) && !defined(__CYGWIN__)
 				    /* NOTE: This might break the pathname
@@ -681,14 +681,14 @@ static int archive_write_pax_header(struct archive_write * a,
 			    archive_set_error(&a->archive,
 				ARCHIVE_ERRNO_FILE_FORMAT,
 				"tar format cannot archive socket");
-			    return (ARCHIVE_FAILED);
+			    return ARCHIVE_FAILED;
 			default:
 			    archive_set_error(&a->archive,
 				ARCHIVE_ERRNO_FILE_FORMAT,
 				"tar format cannot archive this (type=0%lo)",
 				(unsigned long)
 				archive_entry_filetype(entry_original));
-			    return (ARCHIVE_FAILED);
+			    return ARCHIVE_FAILED;
 		}
 	}
 
@@ -720,7 +720,7 @@ static int archive_write_pax_header(struct archive_write * a,
 			/* XXX error message */
 			archive_entry_free(extra);
 			SAlloc::F(name);
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		}
 		strcpy(name, oname);
 		/* Find last '/'; strip trailing '/' characters */
@@ -761,18 +761,18 @@ static int archive_write_pax_header(struct archive_write * a,
 		r = archive_write_pax_header(a, extra);
 		archive_entry_free(extra);
 		if(r < ARCHIVE_WARN)
-			return (r);
+			return r;
 		if(r < ret)
 			ret = r;
 		r = (int)archive_write_pax_data(a, mac_metadata,
 			mac_metadata_size);
 		if(r < ARCHIVE_WARN)
-			return (r);
+			return r;
 		if(r < ret)
 			ret = r;
 		r = archive_write_pax_finish_entry(a);
 		if(r < ARCHIVE_WARN)
-			return (r);
+			return r;
 		if(r < ret)
 			ret = r;
 	}
@@ -790,7 +790,7 @@ static int archive_write_pax_header(struct archive_write * a,
 	if(entry_main == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate pax data");
-		return(ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	archive_string_empty(&(pax->pax_header)); /* Blank our work area. */
 	archive_string_empty(&(pax->sparse_map));
@@ -825,12 +825,12 @@ static int archive_write_pax_header(struct archive_write * a,
 	 */
 	r = get_entry_pathname(a, entry_main, &path, &path_length, sconv);
 	if(r == ARCHIVE_FATAL)
-		return (r);
+		return r;
 	else if(r != ARCHIVE_OK) {
 		r = get_entry_pathname(a, entry_main, &path,
 			&path_length, NULL);
 		if(r == ARCHIVE_FATAL)
-			return (r);
+			return r;
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 		    "Can't translate pathname '%s' to %s", path,
 		    archive_string_conversion_charset_name(sconv));
@@ -839,11 +839,11 @@ static int archive_write_pax_header(struct archive_write * a,
 	}
 	r = get_entry_uname(a, entry_main, &uname, &uname_length, sconv);
 	if(r == ARCHIVE_FATAL)
-		return (r);
+		return r;
 	else if(r != ARCHIVE_OK) {
 		r = get_entry_uname(a, entry_main, &uname, &uname_length, NULL);
 		if(r == ARCHIVE_FATAL)
-			return (r);
+			return r;
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 		    "Can't translate uname '%s' to %s", uname,
 		    archive_string_conversion_charset_name(sconv));
@@ -852,11 +852,11 @@ static int archive_write_pax_header(struct archive_write * a,
 	}
 	r = get_entry_gname(a, entry_main, &gname, &gname_length, sconv);
 	if(r == ARCHIVE_FATAL)
-		return (r);
+		return r;
 	else if(r != ARCHIVE_OK) {
 		r = get_entry_gname(a, entry_main, &gname, &gname_length, NULL);
 		if(r == ARCHIVE_FATAL)
-			return (r);
+			return r;
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 		    "Can't translate gname '%s' to %s", gname,
 		    archive_string_conversion_charset_name(sconv));
@@ -869,12 +869,12 @@ static int archive_write_pax_header(struct archive_write * a,
 		r = get_entry_symlink(a, entry_main, &linkpath,
 			&linkpath_length, sconv);
 		if(r == ARCHIVE_FATAL)
-			return (r);
+			return r;
 		else if(r != ARCHIVE_OK) {
 			r = get_entry_symlink(a, entry_main, &linkpath,
 				&linkpath_length, NULL);
 			if(r == ARCHIVE_FATAL)
-				return (r);
+				return r;
 			archive_set_error(&a->archive,
 			    ARCHIVE_ERRNO_FILE_FORMAT,
 			    "Can't translate linkname '%s' to %s", linkpath,
@@ -891,20 +891,20 @@ static int archive_write_pax_header(struct archive_write * a,
 			r = get_entry_hardlink(a, entry_main, &hardlink,
 				&hardlink_length, NULL);
 			if(r == ARCHIVE_FATAL)
-				return (r);
+				return r;
 			linkpath = hardlink;
 			linkpath_length = hardlink_length;
 		}
 		r = get_entry_pathname(a, entry_main, &path,
 			&path_length, NULL);
 		if(r == ARCHIVE_FATAL)
-			return (r);
+			return r;
 		r = get_entry_uname(a, entry_main, &uname, &uname_length, NULL);
 		if(r == ARCHIVE_FATAL)
-			return (r);
+			return r;
 		r = get_entry_gname(a, entry_main, &gname, &gname_length, NULL);
 		if(r == ARCHIVE_FATAL)
-			return (r);
+			return r;
 	}
 
 	/* Store the header encoding first, to be nice to readers. */
@@ -1158,7 +1158,7 @@ static int archive_write_pax_header(struct archive_write * a,
 				ARCHIVE_ENTRY_ACL_STYLE_SEPARATOR_COMMA |
 				ARCHIVE_ENTRY_ACL_STYLE_COMPACT);
 			if(ret == ARCHIVE_FATAL)
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 		}
 		if(acl_types & ARCHIVE_ENTRY_ACL_TYPE_ACCESS) {
 			ret = add_pax_acl(a, entry_original, pax,
@@ -1166,7 +1166,7 @@ static int archive_write_pax_header(struct archive_write * a,
 				ARCHIVE_ENTRY_ACL_STYLE_EXTRA_ID |
 				ARCHIVE_ENTRY_ACL_STYLE_SEPARATOR_COMMA);
 			if(ret == ARCHIVE_FATAL)
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 		}
 		if(acl_types & ARCHIVE_ENTRY_ACL_TYPE_DEFAULT) {
 			ret = add_pax_acl(a, entry_original, pax,
@@ -1174,7 +1174,7 @@ static int archive_write_pax_header(struct archive_write * a,
 				ARCHIVE_ENTRY_ACL_STYLE_EXTRA_ID |
 				ARCHIVE_ENTRY_ACL_STYLE_SEPARATOR_COMMA);
 			if(ret == ARCHIVE_FATAL)
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 		}
 
 		/* We use GNU-tar-compatible sparse attributes. */
@@ -1222,7 +1222,7 @@ static int archive_write_pax_header(struct archive_write * a,
 					    "Can't allocate memory");
 					archive_entry_free(entry_main);
 					archive_string_free(&entry_name);
-					return (ARCHIVE_FATAL);
+					return ARCHIVE_FATAL;
 				}
 			}
 		}
@@ -1232,7 +1232,7 @@ static int archive_write_pax_header(struct archive_write * a,
 		    == ARCHIVE_FATAL) {
 			archive_entry_free(entry_main);
 			archive_string_free(&entry_name);
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 	}
 
@@ -1303,7 +1303,7 @@ static int archive_write_pax_header(struct archive_write * a,
 	 */
 	if(__archive_write_format_header_ustar(a, ustarbuff, entry_main, -1, 0,
 	    NULL) == ARCHIVE_FATAL)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 
 	/* If we built any extended attributes, write that entry first. */
 	if(archive_strlen(&(pax->pax_header)) > 0) {
@@ -1372,7 +1372,7 @@ static int archive_write_pax_header(struct archive_write * a,
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 			    "archive_write_pax_header: "
 			    "'x' header failed?!  This can't happen.\n");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		else if(r < ret)
 			ret = r;
@@ -1381,7 +1381,7 @@ static int archive_write_pax_header(struct archive_write * a,
 			sparse_list_clear(pax);
 			pax->entry_bytes_remaining = 0;
 			pax->entry_padding = 0;
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 
 		pax->entry_bytes_remaining = archive_strlen(&(pax->pax_header));
@@ -1392,13 +1392,13 @@ static int archive_write_pax_header(struct archive_write * a,
 			archive_strlen(&(pax->pax_header)));
 		if(r != ARCHIVE_OK) {
 			/* If a write fails, we're pretty much toast. */
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		/* Pad out the end of the entry. */
 		r = __archive_write_nulls(a, (size_t)pax->entry_padding);
 		if(r != ARCHIVE_OK) {
 			/* If a write fails, we're pretty much toast. */
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		pax->entry_bytes_remaining = pax->entry_padding = 0;
 	}
@@ -1406,7 +1406,7 @@ static int archive_write_pax_header(struct archive_write * a,
 	/* Write the header for main entry. */
 	r = __archive_write_output(a, ustarbuff, 512);
 	if(r != ARCHIVE_OK)
-		return (r);
+		return r;
 
 	/*
 	 * Inform the client of the on-disk size we're using, so
@@ -1424,7 +1424,7 @@ static int archive_write_pax_header(struct archive_write * a,
 	archive_entry_free(entry_main);
 	archive_string_free(&entry_name);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1697,7 +1697,7 @@ static int archive_write_pax_free(struct archive_write * a)
 
 	pax = (struct pax *)a->format_data;
 	if(pax == NULL)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	archive_string_free(&pax->pax_header);
 	archive_string_free(&pax->sparse_map);
@@ -1705,7 +1705,7 @@ static int archive_write_pax_free(struct archive_write * a)
 	sparse_list_clear(pax);
 	SAlloc::F(pax);
 	a->format_data = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_write_pax_finish_entry(struct archive_write * a)
@@ -1728,7 +1728,7 @@ static int archive_write_pax_finish_entry(struct archive_write * a)
 	}
 	ret = __archive_write_nulls(a, (size_t)(remaining + pax->entry_padding));
 	pax->entry_bytes_remaining = pax->entry_padding = 0;
-	return (ret);
+	return ret;
 }
 
 static ssize_t archive_write_pax_data(struct archive_write * a, const void * buff, size_t s)
@@ -1748,10 +1748,10 @@ static ssize_t archive_write_pax_data(struct archive_write * a, const void * buf
 		ret = __archive_write_output(a, pax->sparse_map.s,
 			archive_strlen(&(pax->sparse_map)));
 		if(ret != ARCHIVE_OK)
-			return (ret);
+			return ret;
 		ret = __archive_write_nulls(a, pax->sparse_map_padding);
 		if(ret != ARCHIVE_OK)
-			return (ret);
+			return ret;
 		archive_string_empty(&(pax->sparse_map));
 	}
 
@@ -1767,7 +1767,7 @@ static ssize_t archive_write_pax_data(struct archive_write * a, const void * buf
 		}
 
 		if(pax->sparse_list == NULL)
-			return (total);
+			return total;
 
 		p = ((const uchar*)buff) + total;
 		ws = s - total;
@@ -1786,9 +1786,9 @@ static ssize_t archive_write_pax_data(struct archive_write * a, const void * buf
 		pax->sparse_list->remaining -= ws;
 		total += ws;
 		if(ret != ARCHIVE_OK)
-			return (ret);
+			return ret;
 	}
-	return (total);
+	return total;
 }
 
 static int has_non_ASCII(const char * _p)
@@ -1822,7 +1822,7 @@ static char * url_encode(const char * in)
 
 	out = (char*)SAlloc::M(out_len + 1);
 	if(out == NULL)
-		return (NULL);
+		return NULL;
 
 	for(s = in, d = out; *s != '\0'; s++) {
 		/* encode any non-printable ASCII character or '%' or '=' */
@@ -1860,7 +1860,7 @@ static char * base64_encode(const char * s, size_t len)
 	/* 3 bytes becomes 4 chars, but round up and allow for trailing NUL */
 	out = (char*)SAlloc::M((len * 4 + 2) / 3 + 1);
 	if(out == NULL)
-		return (NULL);
+		return NULL;
 	d = out;
 
 	/* Convert each group of 3 bytes into 4 characters. */
@@ -1913,7 +1913,7 @@ static int _sparse_list_add_block(struct pax * pax, int64_t offset, int64_t leng
 
 	sb = (struct sparse_block *)SAlloc::M(sizeof(*sb));
 	if(sb == NULL)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	sb->next = NULL;
 	sb->is_hole = is_hole;
 	sb->offset = offset;
@@ -1924,7 +1924,7 @@ static int _sparse_list_add_block(struct pax * pax, int64_t offset, int64_t leng
 		pax->sparse_tail->next = sb;
 		pax->sparse_tail = sb;
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int sparse_list_add(struct pax * pax, int64_t offset, int64_t length)
@@ -1943,7 +1943,7 @@ static int sparse_list_add(struct pax * pax, int64_t offset, int64_t length)
 		r = _sparse_list_add_block(pax, last_offset,
 			offset - last_offset, 1);
 		if(r != ARCHIVE_OK)
-			return (r);
+			return r;
 	}
 	/* Add data block. */
 	return (_sparse_list_add_block(pax, offset, length, 0));

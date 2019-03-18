@@ -331,14 +331,11 @@ int BankingOrderDialog::setupPerson(int payerOrRcvr, PPID personID, PPID * pBnkA
 	PPID   bacc_id = DEREFPTRORZ(pBnkAcctID);
 	PsnObj.GetSingleBnkAcct(personID, 0, &bacc_id, 0);
 	setCtrlData(person_ctl, &personID);
-	// @v9.0.4 SetupPPObjCombo(this, bacc_ctl, PPOBJ_BACCT, bacc_id, OLW_CANINSERT, (void *)personID);
-	// @v9.0.4 {
 	{
 		BnkAccFilt.Oid.Set(PPOBJ_PERSON, personID);
 		BnkAccFilt.RegTypeID = PPREGT_BANKACCOUNT;
 		SetupPPObjCombo(this, bacc_ctl, PPOBJ_REGISTER, bacc_id, OLW_CANINSERT, &BnkAccFilt);
 	}
-	// } @v9.0.4
 	setupBnkAcc(payerOrRcvr, bacc_id);
 	ASSIGN_PTR(pBnkAcctID, bacc_id);
 	return ok;

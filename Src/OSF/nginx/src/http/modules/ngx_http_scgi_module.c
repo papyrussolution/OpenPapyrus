@@ -1267,7 +1267,7 @@ next:
 		}
 		copy->code = ngx_http_script_copy_code;
 		copy->len = src[i].key.len + 1;
-		p = (u_char*)copy + sizeof(ngx_http_script_copy_code_t);
+		p = (u_char *)copy + sizeof(ngx_http_script_copy_code_t);
 		(void)ngx_cpystrn(p, src[i].key.data, src[i].key.len + 1);
 		memzero(&sc, sizeof(ngx_http_script_compile_t));
 		sc.cf = cf;
@@ -1318,7 +1318,7 @@ static const char * ngx_http_scgi_pass(ngx_conf_t * cf, const ngx_command_t * cm
 	else {
 		ngx_http_core_loc_conf_t * clcf = (ngx_http_core_loc_conf_t *)ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module);
 		clcf->F_HttpHandler = ngx_http_scgi_handler;
-		value = (ngx_str_t *)cf->args->elts;
+		value = static_cast<ngx_str_t *>(cf->args->elts);
 		url = &value[1];
 		n = ngx_http_script_variables_count(url);
 		if(n) {
@@ -1357,7 +1357,7 @@ static const char * ngx_http_scgi_store(ngx_conf_t * cf, const ngx_command_t * c
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+		ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 		if(sstreq(value[1].data, "off")) {
 			scf->upstream.store = 0;
 		}
@@ -1395,7 +1395,7 @@ static const char * ngx_http_scgi_cache(ngx_conf_t * cf, const ngx_command_t * c
 	ngx_http_scgi_loc_conf_t * scf = (ngx_http_scgi_loc_conf_t *)conf;
 	ngx_http_complex_value_t cv;
 	ngx_http_compile_complex_value_t ccv;
-	ngx_str_t  * value = (ngx_str_t *)cf->args->elts;
+	ngx_str_t  * value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(scf->upstream.cache != NGX_CONF_UNSET) {
 		return "is duplicate";
 	}
@@ -1437,7 +1437,7 @@ static const char * ngx_http_scgi_cache_key(ngx_conf_t * cf, const ngx_command_t
 {
 	ngx_http_scgi_loc_conf_t * scf = (ngx_http_scgi_loc_conf_t *)conf;
 	ngx_http_compile_complex_value_t ccv;
-	ngx_str_t  * value = (ngx_str_t *)cf->args->elts;
+	ngx_str_t  * value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(scf->cache_key.value.data) {
 		return "is duplicate";
 	}

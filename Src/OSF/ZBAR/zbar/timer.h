@@ -47,7 +47,7 @@ static inline int _zbar_timer_now ()
 {
     struct timespec now;
     clock_gettime(CLOCK_REALTIME, &now);
-    return(now.tv_sec * 1000 + now.tv_nsec / 1000000);
+    return (now.tv_sec * 1000 + now.tv_nsec / 1000000);
 }
 
 static inline zbar_timer_t *_zbar_timer_init (zbar_timer_t *timer,
@@ -60,7 +60,7 @@ static inline zbar_timer_t *_zbar_timer_init (zbar_timer_t *timer,
     timer->tv_nsec += (delay % 1000) * 1000000;
     timer->tv_sec += (delay / 1000) + (timer->tv_nsec / 1000000000);
     timer->tv_nsec %= 1000000000;
-    return(timer);
+    return (timer);
 }
 
 static inline int _zbar_timer_check (zbar_timer_t *timer)
@@ -73,7 +73,7 @@ static inline int _zbar_timer_check (zbar_timer_t *timer)
     clock_gettime(CLOCK_REALTIME, &now);
     delay = ((timer->tv_sec - now.tv_sec) * 1000 +
              (timer->tv_nsec - now.tv_nsec) / 1000000);
-    return((delay >= 0) ? delay : 0);
+    return ((delay >= 0) ? delay : 0);
 }
 
 
@@ -85,7 +85,7 @@ typedef DWORD zbar_timer_t;
 
 static inline int _zbar_timer_now ()
 {
-    return(timeGetTime());
+    return (timeGetTime());
 }
 
 static inline zbar_timer_t *_zbar_timer_init (zbar_timer_t *timer,
@@ -95,17 +95,17 @@ static inline zbar_timer_t *_zbar_timer_init (zbar_timer_t *timer,
         return NULL;
 
     *timer = timeGetTime() + delay;
-    return(timer);
+    return (timer);
 }
 
 static inline int _zbar_timer_check (zbar_timer_t *timer)
 {
     int delay;
     if(!timer)
-        return(INFINITE);
+        return (INFINITE);
 
     delay = *timer - timeGetTime();
-    return((delay >= 0) ? delay : 0);
+    return ((delay >= 0) ? delay : 0);
 }
 
 
@@ -117,7 +117,7 @@ static inline int _zbar_timer_now ()
 {
     struct timeval now;
     gettimeofday(&now, 0);
-    return(now.tv_sec * 1000 + now.tv_usec / 1000);
+    return (now.tv_sec * 1000 + now.tv_usec / 1000);
 }
 
 static inline zbar_timer_t *_zbar_timer_init (zbar_timer_t *timer,
@@ -130,7 +130,7 @@ static inline zbar_timer_t *_zbar_timer_init (zbar_timer_t *timer,
     timer->tv_usec += (delay % 1000) * 1000;
     timer->tv_sec += (delay / 1000) + (timer->tv_usec / 1000000);
     timer->tv_usec %= 1000000;
-    return(timer);
+    return (timer);
 }
 
 static inline int _zbar_timer_check (zbar_timer_t *timer)
@@ -140,7 +140,7 @@ static inline int _zbar_timer_check (zbar_timer_t *timer)
         return -1;
 
     gettimeofday(&now, 0);
-    return((timer->tv_sec - now.tv_sec) * 1000 +
+    return ((timer->tv_sec - now.tv_sec) * 1000 +
            (timer->tv_usec - now.tv_usec) / 1000);
 }
 

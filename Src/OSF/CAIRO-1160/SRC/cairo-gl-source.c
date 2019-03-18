@@ -52,35 +52,20 @@ static const cairo_surface_backend_t cairo_gl_source_backend = {
 	NULL, /* read-only wrapper */
 };
 
-cairo_surface_t * _cairo_gl_pattern_to_source(cairo_surface_t * dst,
-    const cairo_pattern_t * pattern,
-    cairo_bool_t is_mask,
-    const cairo_rectangle_int_t * extents,
-    const cairo_rectangle_int_t * sample,
-    int * src_x, int * src_y)
+cairo_surface_t * _cairo_gl_pattern_to_source(cairo_surface_t * dst, const cairo_pattern_t * pattern,
+    cairo_bool_t is_mask, const cairo_rectangle_int_t * extents, const cairo_rectangle_int_t * sample, int * src_x, int * src_y)
 {
 	cairo_gl_source_t * source;
 	cairo_int_status_t status;
-
 	TRACE((stderr, "%s\n", __FUNCTION__));
 	if(pattern == NULL)
 		return _cairo_gl_white_source();
-
 	source = _cairo_malloc(sizeof(*source));
 	if(unlikely(source == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
-
-	_cairo_surface_init(&source->base,
-	    &cairo_gl_source_backend,
-	    NULL,              /* device */
-	    CAIRO_CONTENT_COLOR_ALPHA,
-	    FALSE);              /* is_vector */
-
+	_cairo_surface_init(&source->base, &cairo_gl_source_backend, NULL/* device */, CAIRO_CONTENT_COLOR_ALPHA, FALSE/* is_vector */);
 	*src_x = *src_y = 0;
-	status = _cairo_gl_operand_init(&source->operand, pattern,
-		(cairo_gl_surface_t*)dst,
-		sample, extents,
-		FALSE);
+	status = _cairo_gl_operand_init(&source->operand, pattern, (cairo_gl_surface_t*)dst, sample, extents, FALSE);
 	if(unlikely(status)) {
 		cairo_surface_destroy(&source->base);
 		return _cairo_surface_create_in_error(status);
@@ -93,11 +78,7 @@ cairo_surface_t * _cairo_gl_white_source(void)
 	cairo_gl_source_t * source = _cairo_malloc(sizeof(*source));
 	if(unlikely(source == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
-	_cairo_surface_init(&source->base,
-	    &cairo_gl_source_backend,
-	    NULL,              /* device */
-	    CAIRO_CONTENT_COLOR_ALPHA,
-	    FALSE);              /* is_vector */
+	_cairo_surface_init(&source->base, &cairo_gl_source_backend, NULL/* device */, CAIRO_CONTENT_COLOR_ALPHA, FALSE/* is_vector */);
 	_cairo_gl_solid_operand_init(&source->operand, CAIRO_COLOR_WHITE);
 	return &source->base;
 }

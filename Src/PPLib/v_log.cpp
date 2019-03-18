@@ -82,7 +82,7 @@ int LogsDialog::setupList()
 int LogsDialog::editItem(long pos, long id)
 {
 	int    ok = -1;
-	if(pos >= 0 && (uint)pos < LogsAry.getCount()) {
+	if(pos >= 0 && pos < static_cast<long>(LogsAry.getCount())) {
 		SString path;
 		PPGetPath(PPPATH_LOG, path);
 		path.SetLastSlash().Cat(LogsAry.at(pos).FileName);
@@ -90,7 +90,7 @@ int LogsDialog::editItem(long pos, long id)
 		SLibError = SLERR_FILENOTFOUND;
 		THROW_PP_S(fileExists(path), PPERR_SLIB, path);
 		SFile::WaitForWriteSharingRelease(path, 2000);
-		ok = (int)::ShellExecute(0, _T("open"), path, NULL, NULL, SW_SHOWNORMAL); // @unicodeproblem
+		ok = (int)::ShellExecute(0, _T("open"), SUcSwitch(path), NULL, NULL, SW_SHOWNORMAL); // @unicodeproblem
 	}
 	CATCHZOKPPERR
 	return ok;

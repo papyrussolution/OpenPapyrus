@@ -763,7 +763,7 @@ int StaffDialog::setDTS(const PPStaffPacket * pData)
 	setCtrlData(CTL_STAFF_RANK,   &Data.Rec.Rank);
 	setCtrlData(CTL_STAFF_COUNT,  &Data.Rec.VacancyCount);
 	SetupStringCombo(this, CTLSEL_STAFF_FIX, PPTXT_FIXSTAFFLIST, Data.Rec.FixedStaff);
-	SetupPPObjCombo(this, CTLSEL_STAFF_CHARGE, PPOBJ_SALCHARGE, Data.Rec.ChargeGrpID, OLW_CANINSERT, (void *)-1000);
+	SetupPPObjCombo(this, CTLSEL_STAFF_CHARGE, PPOBJ_SALCHARGE, Data.Rec.ChargeGrpID, OLW_CANINSERT, reinterpret_cast<void *>(-1000));
 	return 1;
 }
 
@@ -866,8 +866,8 @@ int SLAPI PPObjStaffList::Edit(PPID * pID, void * extraPtr)
 	else {
 		pack.Init();
 		if(extraPtr) {
-			pack.Rec.OrgID      = ((Filt *)extraPtr)->OrgID;
-			pack.Rec.DivisionID = ((Filt *)extraPtr)->DivID;
+			pack.Rec.OrgID      = static_cast<const Filt *>(extraPtr)->OrgID;
+			pack.Rec.DivisionID = static_cast<const Filt *>(extraPtr)->DivID;
 		}
 		pack.Rec.Rank         = 100;
 		pack.Rec.VacancyCount = 1;
@@ -992,8 +992,8 @@ int PersonPostDialog::setDTS(const PPPsnPostPacket * pData, long flags)
 	disableCtrls(BIN(Flags & PPObjStaffList::epdfFixedPost), CTLSEL_PERSONPOST_ORG, CTLSEL_PERSONPOST_DIV, CTLSEL_PERSONPOST_POST, 0);
 	setCtrlReadOnly(CTL_PERSONPOST_ID, !BIN(Flags & PPObjStaffList::epdfRecover));
 	setCtrlLong(CTL_PERSONPOST_ID, Data.Rec.ID);
-	SetupPPObjCombo(this, CTLSEL_PERSONPOST_PERSON, PPOBJ_PERSON, Data.Rec.PersonID, OLW_CANINSERT, (void *)PPPRK_EMPL);
-	SetupPPObjCombo(this, CTLSEL_PERSONPOST_CHARGE, PPOBJ_SALCHARGE, Data.Rec.ChargeGrpID, OLW_CANINSERT, (void *)-1000);
+	SetupPPObjCombo(this, CTLSEL_PERSONPOST_PERSON, PPOBJ_PERSON, Data.Rec.PersonID, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_EMPL));
+	SetupPPObjCombo(this, CTLSEL_PERSONPOST_CHARGE, PPOBJ_SALCHARGE, Data.Rec.ChargeGrpID, OLW_CANINSERT, reinterpret_cast<void *>(-1000));
 	disableCtrl(CTLSEL_PERSONPOST_PERSON, Data.Rec.ID && !(Flags & PPObjStaffList::epdfRecover));
 	setCtrlData(CTL_PERSONPOST_DATE, &Data.Rec.Dt);
 	setCtrlData(CTL_PERSONPOST_FINISH, &Data.Rec.Finish);
@@ -1048,7 +1048,7 @@ StrAssocArray * SLAPI PPObjStaffList::MakeStrAssocList(void * extraPtr)
 {
 	Filt filt;
 	if(extraPtr)
-		filt = *(Filt *)extraPtr;
+		filt = *static_cast<const Filt *>(extraPtr);
 	else {
 		GetMainEmployerID(&filt.OrgID);
 		filt.DivID = 0;
@@ -1098,7 +1098,7 @@ int SLAPI PPObjStaffList::MakePostStrAssocList(PPID orgID, PPID divID, PPID staf
 
 int SLAPI PPObjStaffList::Browse(void * extraPtr /*lFilt*/)
 {
-	Filt * p_obj_filt = (Filt *)extraPtr;
+	const Filt * p_obj_filt = static_cast<const Filt *>(extraPtr);
 	StaffListFilt * p_filt = 0;
 	StaffListFilt filt;
 	if(p_obj_filt) {
@@ -1223,8 +1223,8 @@ int SLAPI PPObjStaffList::EditFixedStaffPost(PPID orgID)
 	THROW(GetFixedPostOnDate(orgID, PPFIXSTF_ACCOUNTANT, ZERODATE, &acc));
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_FIXSTAFF))));
 	dlg->setStaticText(CTL_FIXSTAFF_ORGNAME, org_rec.Name);
-	SetupPPObjCombo(dlg, CTLSEL_FIXSTAFF_DIRECTOR, PPOBJ_PERSON, dir.PersonID, OLW_CANINSERT, (void *)PPPRK_EMPL);
-	SetupPPObjCombo(dlg, CTLSEL_FIXSTAFF_ACCTNT, PPOBJ_PERSON, acc.PersonID, OLW_CANINSERT, (void *)PPPRK_EMPL);
+	SetupPPObjCombo(dlg, CTLSEL_FIXSTAFF_DIRECTOR, PPOBJ_PERSON, dir.PersonID, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_EMPL));
+	SetupPPObjCombo(dlg, CTLSEL_FIXSTAFF_ACCTNT, PPOBJ_PERSON, acc.PersonID, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_EMPL));
 	if(ExecView(dlg) == cmOK) {
 		PPID   new_dir_id = dlg->getCtrlLong(CTLSEL_FIXSTAFF_DIRECTOR);
 		PPID   new_acc_id = dlg->getCtrlLong(CTLSEL_FIXSTAFF_ACCTNT);

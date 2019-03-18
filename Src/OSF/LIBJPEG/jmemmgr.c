@@ -299,7 +299,7 @@ METHODDEF(void *) alloc_small(j_common_ptr cinfo, int pool_id, size_t sizeofobje
 	data_ptr += hdr_ptr->hdr.bytes_used; /* point to place for object */
 	hdr_ptr->hdr.bytes_used += sizeofobject;
 	hdr_ptr->hdr.bytes_left -= sizeofobject;
-	return (void *)data_ptr;
+	return /*(void *)*/data_ptr;
 }
 /*
  * Allocation of "large" objects.

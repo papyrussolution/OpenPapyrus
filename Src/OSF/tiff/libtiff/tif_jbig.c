@@ -52,7 +52,7 @@ static int JBIGDecode(TIFF* tif, uint8* buffer, tmsize_t size, uint16 s)
 {
 	struct jbg_dec_state decoder;
 	int decodeStatus = 0;
-	unsigned char* pImage = NULL;
+	uchar* pImage = NULL;
 	(void) size, (void) s;
 
 	if (isFillOrder(tif, tif->tif_dir.td_fillorder))
@@ -75,7 +75,7 @@ static int JBIGDecode(TIFF* tif, uint8* buffer, tmsize_t size, uint16 s)
 	 * BIE header jbg_dec_in should succeed.
 	 */
 #endif /* HAVE_JBG_NEWLEN */
-	decodeStatus = jbg_dec_in(&decoder, (unsigned char*)tif->tif_rawdata, (size_t)tif->tif_rawdatasize, NULL);
+	decodeStatus = jbg_dec_in(&decoder, (uchar *)tif->tif_rawdata, (size_t)tif->tif_rawdatasize, NULL);
 	if (JBG_EOK != decodeStatus)
 	{
 		/*
@@ -111,7 +111,7 @@ static int JBIGSetupEncode(TIFF* tif)
 	return 1;
 }
 
-static int JBIGCopyEncodedData(TIFF* tif, unsigned char* pp, size_t cc, uint16 s)
+static int JBIGCopyEncodedData(TIFF* tif, uchar* pp, size_t cc, uint16 s)
 {
 	(void) s;
 	while (cc > 0)
@@ -132,14 +132,14 @@ static int JBIGCopyEncodedData(TIFF* tif, unsigned char* pp, size_t cc, uint16 s
 		if (tif->tif_rawcc >= tif->tif_rawdatasize &&
 		    !TIFFFlushData1(tif))
 		{
-			return (-1);
+			return -1;
 		}
 	}
 
 	return 1;
 }
 
-static void JBIGOutputBie(unsigned char* buffer, size_t len, void* userData)
+static void JBIGOutputBie(uchar* buffer, size_t len, void* userData)
 {
 	TIFF* tif = (TIFF*)userData;
 

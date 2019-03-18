@@ -85,7 +85,7 @@ cairo_region_t * FASTCALL _cairo_clip_get_region(const cairo_clip_t * clip)
 	if(clip == NULL)
 		return NULL;
 	if(clip->region == NULL)
-		_cairo_clip_extract_region((cairo_clip_t*)clip);
+		_cairo_clip_extract_region((cairo_clip_t *)clip);
 	return clip->region;
 }
 
@@ -101,6 +101,6 @@ cairo_bool_t FASTCALL _cairo_clip_is_region(const cairo_clip_t * clip)
 	if(clip->num_boxes == 0)
 		return TRUE;
 	if(clip->region == NULL)
-		_cairo_clip_extract_region((cairo_clip_t*)clip);
+		_cairo_clip_extract_region((cairo_clip_t *)clip);
 	return clip->is_region;
 }

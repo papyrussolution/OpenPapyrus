@@ -89,7 +89,7 @@ static const char * ngx_http_block(ngx_conf_t * cf, const ngx_command_t * cmd, v
 	/* count the number of the http modules and set up their indices */
 	ngx_http_max_module = ngx_count_modules(cf->cycle, NGX_HTTP_MODULE);
 	/* the http main_conf context, it is the same in the all http contexts */
-	ctx->main_conf = (void **)ngx_pcalloc(cf->pool, sizeof(void *) * ngx_http_max_module);
+	ctx->main_conf = static_cast<void **>(ngx_pcalloc(cf->pool, sizeof(void *) * ngx_http_max_module));
 	if(ctx->main_conf == NULL) {
 		return NGX_CONF_ERROR;
 	}
@@ -97,7 +97,7 @@ static const char * ngx_http_block(ngx_conf_t * cf, const ngx_command_t * cmd, v
 	 * the http null srv_conf context, it is used to merge
 	 * the server{}s' srv_conf's
 	 */
-	ctx->srv_conf = (void **)ngx_pcalloc(cf->pool, sizeof(void *) * ngx_http_max_module);
+	ctx->srv_conf = static_cast<void **>(ngx_pcalloc(cf->pool, sizeof(void *) * ngx_http_max_module));
 	if(ctx->srv_conf == NULL) {
 		return NGX_CONF_ERROR;
 	}
@@ -105,7 +105,7 @@ static const char * ngx_http_block(ngx_conf_t * cf, const ngx_command_t * cmd, v
 	 * the http null loc_conf context, it is used to merge
 	 * the server{}s' loc_conf's
 	 */
-	ctx->loc_conf = (void **)ngx_pcalloc(cf->pool, sizeof(void *) * ngx_http_max_module);
+	ctx->loc_conf = static_cast<void **>(ngx_pcalloc(cf->pool, sizeof(void *) * ngx_http_max_module));
 	if(ctx->loc_conf == NULL) {
 		return NGX_CONF_ERROR;
 	}
@@ -1205,7 +1205,7 @@ static ngx_int_t ngx_http_add_addrs6(ngx_conf_t * cf, ngx_http_port_t * hport, n
 
 const char * ngx_http_types_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
-	char  * p = (char *)conf;
+	char  * p = static_cast<char *>(conf);
 	ngx_str_t * value;
 	ngx_uint_t i, n, hash;
 	ngx_hash_key_t * type;
@@ -1227,7 +1227,7 @@ const char * ngx_http_types_slot(ngx_conf_t * cf, const ngx_command_t * cmd, voi
 				type->value = (void *)4;
 			}
 		}
-		value = (ngx_str_t*)cf->args->elts;
+		value = static_cast<ngx_str_t *>(cf->args->elts);
 		for(i = 1; i < cf->args->nelts; i++) {
 			if(value[i].len == 1 && value[i].data[0] == '*') {
 				*types = (ngx_array_t*)-1;

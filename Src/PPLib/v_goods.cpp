@@ -1665,7 +1665,7 @@ void SLAPI PPViewGoods::MakeTempRec(const Goods2Tbl::Rec * pGoodsRec, TempOrderT
 	if(pOrdRec) {
 		const size_t max_prefix_len = 48;
 		Goods2Tbl::Rec temp_rec;
-		IterOrder ord = (IterOrder)Filt.InitOrder;
+		IterOrder ord = static_cast<IterOrder>(Filt.InitOrder);
 		SString buf, temp_buf;
 		memzero(pOrdRec, sizeof(*pOrdRec));
 		pOrdRec->ID = pGoodsRec->ID;
@@ -1807,7 +1807,7 @@ int SLAPI PPViewGoods::Init_(const PPBaseFilt * pFilt)
 	Filt.Setup();
 	if(Filt.P_SjF)
 		Filt.P_SjF->Period.Actualize(ZERODATE);
-	THROW(CreateTempTable((IterOrder)Filt.InitOrder, &P_TempTbl));
+	THROW(CreateTempTable(static_cast<IterOrder>(Filt.InitOrder), &P_TempTbl));
 	CATCH
 		ZDELETE(P_TempTbl);
 		ok = 0;
@@ -1818,17 +1818,14 @@ int SLAPI PPViewGoods::Init_(const PPBaseFilt * pFilt)
 int SLAPI PPViewGoods::InitIteration(int aOrder)
 {
 	int    ok  = 1;
-
 	Counter.Init();
 	ZDELETE(P_Iter);
 	BExtQuery::ZDelete(&P_IterQuery);
-
 	BrcIdx = 0;
 	BarcodeAry.freeAll();
 	MEMSZERO(IterCurItem);
-
 	ZDELETE(P_TempTbl);
-	CreateTempTable((PPViewGoods::IterOrder)aOrder, &P_TempTbl);
+	CreateTempTable(static_cast<PPViewGoods::IterOrder>(aOrder), &P_TempTbl);
 	if(P_TempTbl) {
 		TempOrderTbl::Key1 k1;
 		PPInitIterCounter(Counter, P_TempTbl);
@@ -2151,7 +2148,7 @@ int SLAPI PPViewGoods::RemoveAll()
 				if(Data.Action == GoodsMoveParam::aMoveToGroup) {
 					disable_grp_combo = 0;
 					PPLoadString("goodsgroup", combo_label_buf);
-					SetupPPObjCombo(this, CTLSEL_REMOVEALL_GRP, PPOBJ_GOODSGROUP, Data.DestGrpID, 0, (void *)GGRTYP_SEL_NORMAL);
+					SetupPPObjCombo(this, CTLSEL_REMOVEALL_GRP, PPOBJ_GOODSGROUP, Data.DestGrpID, 0, reinterpret_cast<void *>(GGRTYP_SEL_NORMAL));
 				}
 				// @v9.5.0 {
 				else if(Data.Action == GoodsMoveParam::aChgTaxGroup) {
@@ -2629,7 +2626,7 @@ int SLAPI PPViewGoods::AddGoodsFromBasket()
 				PPWait(1);
 				PPTransaction tra(1);
 				THROW(tra);
-				for(uint i = 0; pack.Lots.enumItems(&i, (void**)&p_item) > 0;) {
+				for(uint i = 0; pack.Lots.enumItems(&i, (void **)&p_item) > 0;) {
 					THROW(GObj.AssignGoodsToAltGrp(p_item->GoodsID, Filt.GrpID, 0, 0));
 					PPWaitPercent(i-1, count);
 				}
@@ -2651,7 +2648,7 @@ int SLAPI PPViewGoods::AddGoodsFromBasket()
 				PPWait(1);
 				PPTransaction tra(1);
 				THROW(tra);
-				for(uint i = 0; pack.Lots.enumItems(&i, (void**)&p_item) > 0;) {
+				for(uint i = 0; pack.Lots.enumItems(&i, (void **)&p_item) > 0;) {
 					THROW(GObj.AssignGoodsToGen(p_item->GoodsID, Filt.GrpID, 0, 0));
 					PPWaitPercent(i-1, count);
 				}
@@ -2812,7 +2809,7 @@ void SLAPI PPViewGoods::ViewGenMembers(PPID id)
 
 int PPViewGoods::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
-	ViewGenMembers(pHdr ? *(PPID *)pHdr : 0);
+	ViewGenMembers(pHdr ? *static_cast<const PPID *>(pHdr) : 0);
 	return -1;
 }
 
@@ -3093,7 +3090,7 @@ int SLAPI PPViewGoods::ReplaceNames()
 				v = 0;
 			setCtrlData(CTL_SR_WHAT, &v);
 			SetupPPObjCombo(this, CTLSEL_SRGOODS_BRAND, PPOBJ_BRAND, Data.BrandID, OLW_CANINSERT);
-			SetupPPObjCombo(this, CTLSEL_SRGOODS_GRP, PPOBJ_GOODSGROUP, Data.GoodsGrpID, OLW_CANINSERT, (void *)GGRTYP_SEL_NORMAL);
+			SetupPPObjCombo(this, CTLSEL_SRGOODS_GRP, PPOBJ_GOODSGROUP, Data.GoodsGrpID, OLW_CANINSERT, reinterpret_cast<void *>(GGRTYP_SEL_NORMAL));
 			SetupPersonCombo(this, CTLSEL_SRGOODS_MANUF, Data.ManufID, OLW_CANINSERT, PPPRK_MANUF, 1);
 			AddClusterAssoc(CTL_SRGOODS_SPCFLAGS, 0, PPGoodsReplaceNameParam::fRestoreLastHistoryName);
 			SetClusterData(CTL_SRGOODS_SPCFLAGS, Data.Flags);
@@ -3748,7 +3745,7 @@ int SLAPI PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 		switch(ppvCmd) {
 			case PPVCMD_INPUTCHAR:
 				{
-					char c = *(const char *)pHdr;
+					char c = *static_cast<const char *>(pHdr);
 					if(isdec(c)) {
 						int    r = 0;
 						Goods2Tbl::Rec goods_rec;
@@ -4079,7 +4076,7 @@ int PPALDD_GoodsBasket::InitData(PPFilt & rFilt, long rsrv)
 	H.ItemsCount = p_packet->Lots.getCount();
 	ILTI * p_item = 0;
 	double sum_price = 0.0;
-	for(uint i = 0; p_packet->Lots.enumItems(&i, (void**)&p_item);)
+	for(uint i = 0; p_packet->Lots.enumItems(&i, (void **)&p_item);)
 		sum_price += (p_item->Price * p_item->Quantity);
 	H.EstPrice = sum_price;
 	H.FltSupplID = p_packet->Head.SupplID;

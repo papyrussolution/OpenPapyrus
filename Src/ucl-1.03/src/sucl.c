@@ -86,7 +86,7 @@ UCL_PUBLIC(ucl_uintptr_t) __ucl_ptr_linear(const ucl_voidp ptr)
     return p;
 }
 
-UCL_PUBLIC(unsigned) __ucl_align_gap(const ucl_voidp ptr, ucl_uint size)
+UCL_PUBLIC(unsigned int) __ucl_align_gap(const ucl_voidp ptr, ucl_uint size)
 {
     ucl_uintptr_t p, s, n;
     assert(size > 0);
@@ -98,9 +98,9 @@ UCL_PUBLIC(unsigned) __ucl_align_gap(const ucl_voidp ptr, ucl_uint size)
 #else
     n = (((p + s) / size) * size) - p;
 #endif
-    assert((long)n >= 0);
+    assert(static_cast<long>(n) >= 0);
     assert(n <= s);
-    return (unsigned)n;
+    return (unsigned int)(n);
 }
 //
 // UCL_UTIL.C
@@ -283,7 +283,7 @@ static ucl_bool ptr_check(void)
 	/* check that the pointer constructs work as expected */
 	if(r == 1) {
 		unsigned k = 1;
-		const unsigned n = (unsigned)sizeof(ucl_uint32);
+		const unsigned n = (unsigned int)sizeof(ucl_uint32);
 		ucl_bytep p0;
 		ucl_bytep p1;
 

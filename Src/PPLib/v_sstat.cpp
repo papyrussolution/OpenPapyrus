@@ -1180,7 +1180,7 @@ void SLAPI PPViewSStat::PreprocessBrowser(PPViewBrowser * pBrw)
 int SLAPI PPViewSStat::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	PPID   goods_id = pHdr ? (P_Ct ? ((PPID *)pHdr)[1] : ((PPID *)pHdr)[0]) : 0;
+	PPID   goods_id = pHdr ? (P_Ct ? static_cast<const PPID *>(pHdr)[1] : static_cast<const PPID *>(pHdr)[0]) : 0;
 	if(goods_id) {
 		PredictSalesFilt ps_filt;
 		ps_filt.Period = Filt.Period;
@@ -1254,7 +1254,7 @@ int SLAPI PPViewSStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 			case PPVCMD_EDITVAL:
 				ok = -1;
 				{
-					PPID ct_id = (pHdr && P_Ct) ? *(PPID *)pHdr : 0;
+					PPID ct_id = (pHdr && P_Ct) ? *static_cast<const PPID *>(pHdr) : 0;
 					if(EditOrder(ct_id, goods_id) > 0)
 						ok = 1;
 				}

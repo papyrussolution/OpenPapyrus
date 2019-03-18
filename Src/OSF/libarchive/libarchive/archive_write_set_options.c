@@ -106,10 +106,10 @@ archive_set_filter_option(struct archive *_a, const char *m, const char *o,
 		r = filter->options(filter, o, v);
 
 		if (r == ARCHIVE_FATAL)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 
 		if (m != NULL)
-			return (r);
+			return r;
 
 		if (r == ARCHIVE_OK)
 			rv = ARCHIVE_OK;

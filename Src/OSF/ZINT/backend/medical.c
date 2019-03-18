@@ -43,7 +43,7 @@ static const char * CodaTable[20] = {
 	"21212111", "11212121", "11221211", "12121121", "11121221", "11122211"
 };
 
-int pharma_one(struct ZintSymbol * symbol, uchar source[], int length)
+int pharma_one(struct ZintSymbol * symbol, const uchar source[], int length)
 {
 	/* "Pharmacode can represent only a single integer from 3 to 131070. Unlike other
 	   commonly used one-dimensional barcode schemes, pharmacode does not store the data in a
@@ -69,14 +69,11 @@ int pharma_one(struct ZintSymbol * symbol, uchar source[], int length)
 		sstrcpy(symbol->errtxt, "Invalid characters in data (C51)");
 		return error_number;
 	}
-
-	tester = atoi((char *)source);
-
+	tester = atoi(reinterpret_cast<const char *>(source));
 	if((tester < 3) || (tester > 131070)) {
 		sstrcpy(symbol->errtxt, "Data out of range (C52)");
 		return ZINT_ERROR_INVALID_DATA;
 	}
-
 	do {
 		if(!(tester & 1)) {
 			strcat(inter, "W");
@@ -87,7 +84,6 @@ int pharma_one(struct ZintSymbol * symbol, uchar source[], int length)
 			tester = (tester - 1) / 2;
 		}
 	} while(tester != 0);
-
 	h = strlen(inter) - 1;
 	*dest = '\0';
 	for(counter = h; counter >= 0; counter--) {

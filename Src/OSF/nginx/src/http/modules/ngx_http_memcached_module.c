@@ -171,7 +171,7 @@ static ngx_int_t ngx_http_memcached_create_request(ngx_http_request_t * pReq)
 			b->last = ngx_copy(b->last, vv->data, vv->len);
 		}
 		else {
-			b->last = (u_char*)ngx_escape_uri(b->last, vv->data, vv->len, NGX_ESCAPE_MEMCACHED);
+			b->last = (u_char *)ngx_escape_uri(b->last, vv->data, vv->len, NGX_ESCAPE_MEMCACHED);
 		}
 		ctx->key.len = b->last - ctx->key.data;
 		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, pReq->connection->log, 0, "http memcached request: \"%V\"", &ctx->key);
@@ -441,7 +441,7 @@ static const char * ngx_http_memcached_pass(ngx_conf_t * cf, const ngx_command_t
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 		memzero(&u, sizeof(ngx_url_t));
 		u.url = value[1];
 		u.no_resolve = 1;

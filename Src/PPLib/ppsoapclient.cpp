@@ -37,7 +37,7 @@ int FASTCALL PPSoapDestroyResultPtr(void * p)
 	int    ok = 0;
 	uint   c = PPSoapResultPtrBase::ResultPtrList.getCount();
 	if(c) do {
-		PPSoapResultPtrBase * p_item = (PPSoapResultPtrBase *)PPSoapResultPtrBase::ResultPtrList.at(--c);
+		PPSoapResultPtrBase * p_item = static_cast<PPSoapResultPtrBase *>(PPSoapResultPtrBase::ResultPtrList.at(--c));
 		if(p_item && *p_item == p) {
 			p_item->Destroy();
 			PPSoapResultPtrBase::ResultPtrList.atFree(c);

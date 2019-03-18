@@ -37,7 +37,7 @@ int SLAPI PPPerson::AddRelation(PPID personID, PPID relTypeID, uint * pPos)
 		return PPSetError(PPERR_DUPPERSONREL);
 }
 
-int SLAPI PPPerson::AddRelations(PPIDArray * pPersonList, PPID relTypeID, uint * pPos)
+int SLAPI PPPerson::AddRelations(const PPIDArray * pPersonList, PPID relTypeID, uint * pPos)
 {
 	int    ok = 1;
 	if(pPersonList) {
@@ -395,7 +395,7 @@ int PersonRelTypeDialog::setupList()
 	int    ok = 1;
 	PPID * p_reg_type_id = 0;
 	SString name_buf;
-	for(uint i = 0; ok && Data.InhRegTypeList.enumItems(&i, (void**)&p_reg_type_id);) {
+	for(uint i = 0; ok && Data.InhRegTypeList.enumItems(&i, (void **)&p_reg_type_id);) {
 		GetRegisterTypeName(*p_reg_type_id, name_buf);
 		if(!addStringToList(*p_reg_type_id, name_buf))
 			ok = 0;
@@ -1437,12 +1437,12 @@ int SLAPI PersonCore::PutELinks(PPID id, PPELinkArray * ary, int use_ta)
 		THROW(tra);
 		if(ary && ary->getCount()) {
 			sz = PROPRECFIXSIZE;
-			for(i = 0; ary->enumItems(&i, (void**)&entry);)
+			for(i = 0; ary->enumItems(&i, (void **)&entry);)
 				if(entry->KindID && *strip(entry->Addr))
 					sz += (sizeof(entry->KindID) + sstrlen(entry->Addr) + 1);
 			THROW_MEM(b = (PropertyTbl::Rec*)SAlloc::C(1, sz));
 			b->Val2 = (int32)(sz - PROPRECFIXSIZE);
-			for(p = (char *)(PTR8(b)+PROPRECFIXSIZE), i = 0; ary->enumItems(&i, (void**)&entry);)
+			for(p = (char *)(PTR8(b)+PROPRECFIXSIZE), i = 0; ary->enumItems(&i, (void **)&entry);)
 				if(entry->KindID && entry->Addr[0]) {
 					size_t s = (sizeof(entry->KindID) + sstrlen(entry->Addr) + 1);
 					memmove(p, entry, s);

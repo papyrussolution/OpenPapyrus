@@ -1533,14 +1533,14 @@ int SLAPI PPViewInventory::ConvertBillToBasket()
 	return ok;
 }
 
-int SLAPI PPViewInventory::ConvertBasket(PPBasketPacket * pPack, int sgoption, int priceByLastLot, int use_ta)
+int SLAPI PPViewInventory::ConvertBasket(const PPBasketPacket * pPack, int sgoption, int priceByLastLot, int use_ta)
 {
 	int    ok = 1;
 	const  PPID   bill_id = Filt.GetSingleBillID();
 	if(bill_id) {
 		SString temp_buf;
 		uint   i;
-		ILTI * p_item = 0;
+		//ILTI * p_item = 0;
 		InventoryTbl::Rec inv_rec;
 		PPWait(1);
 		IterCounter cntr;
@@ -1560,12 +1560,14 @@ int SLAPI PPViewInventory::ConvertBasket(PPBasketPacket * pPack, int sgoption, i
 				PPObjBill::InvBlock blk(ib_flags);
 				PPObjBill::InvItem inv_item;
 				THROW(P_BObj->InitInventoryBlock(bill_id, blk));
-				for(i = 0; pPack->Lots.enumItems(&i, (void**)&p_item);) {
-					inv_item.Init(p_item->GoodsID, 0);
-					inv_item.Qtty = p_item->Quantity;
-					inv_item.Cost = p_item->Price;
-					inv_item.Price = p_item->Price;
-					inv_item.UnitPerPack = p_item->UnitPerPack;
+				//for(i = 0; pPack->Lots.enumItems(&i, (void **)&p_item);) {
+				for(i = 0; i < pPack->Lots.getCount(); i++) {
+					const ILTI & r_item = pPack->Lots.at(i);
+					inv_item.Init(r_item.GoodsID, 0);
+					inv_item.Qtty = r_item.Quantity;
+					inv_item.Cost = r_item.Price;
+					inv_item.Price = r_item.Price;
+					inv_item.UnitPerPack = r_item.UnitPerPack;
 					THROW(P_BObj->AcceptInventoryItem(blk, &inv_item, 0));
 					PPWaitPercent(cntr.Increment());
 				}
@@ -1747,7 +1749,7 @@ int SLAPI PPViewInventory::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 {
 	BrwHdr hdr;
 	if(pHdr)
-		hdr = *(BrwHdr *)pHdr;
+		hdr = *static_cast<const BrwHdr *>(pHdr);
 	else
 		MEMSZERO(hdr);
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
@@ -1756,7 +1758,7 @@ int SLAPI PPViewInventory::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 			case PPVCMD_INPUTCHAR:
 				ok = -1;
 				if(pHdr)
-					ok = SelectByBarcode(*(const char *)pHdr, pBrw);
+					ok = SelectByBarcode(*static_cast<const char *>(pHdr), pBrw);
 				break;
 			case PPVCMD_SELECTBYCODE:
 				ok = SelectByBarcode(0, pBrw);
@@ -1892,7 +1894,7 @@ int SLAPI PPViewInventory::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
     int    ok = -1;
 	if(Filt.HasSubst()) {
-		const PPID subst_id = pHdr ? *(long *)pHdr : 0;
+		const PPID subst_id = pHdr ? *static_cast<const long *>(pHdr) : 0;
 		if(subst_id) {
 			InventoryFilt detail_filt;
 			detail_filt = Filt;

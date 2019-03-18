@@ -174,24 +174,19 @@ static force_inline pixman_fixed_48_16_t fixed_112_16_to_fixed_48_16(int64_t hi,
  * and PAD repeats correctly) and the return value is FALSE to indicate that
  * such clamping has happened.
  */
-PIXMAN_EXPORT pixman_bool_t pixman_transform_point_31_16(const pixman_transform_t * t,
-    const pixman_vector_48_16_t * v,
-    pixman_vector_48_16_t * result)
+PIXMAN_EXPORT pixman_bool_t pixman_transform_point_31_16(const pixman_transform_t * t, const pixman_vector_48_16_t * v, pixman_vector_48_16_t * result)
 {
 	pixman_bool_t clampflag = FALSE;
 	int i;
 	int64_t tmp[3][2], divint;
 	uint16_t divfrac;
-
-	/* input vector values must have no more than 31 bits (including sign)
-	 * in the integer part */
+	// input vector values must have no more than 31 bits (including sign) in the integer part
 	assert(v->v[0] <   ((pixman_fixed_48_16_t)1 << (30 + 16)));
 	assert(v->v[0] >= -((pixman_fixed_48_16_t)1 << (30 + 16)));
 	assert(v->v[1] <   ((pixman_fixed_48_16_t)1 << (30 + 16)));
 	assert(v->v[1] >= -((pixman_fixed_48_16_t)1 << (30 + 16)));
 	assert(v->v[2] <   ((pixman_fixed_48_16_t)1 << (30 + 16)));
 	assert(v->v[2] >= -((pixman_fixed_48_16_t)1 << (30 + 16)));
-
 	for(i = 0; i < 3; i++) {
 		tmp[i][0] = (int64_t)t->matrix[i][0] * (v->v[0] >> 16);
 		tmp[i][1] = (int64_t)t->matrix[i][0] * (v->v[0] & 0xFFFF);
@@ -200,14 +195,12 @@ PIXMAN_EXPORT pixman_bool_t pixman_transform_point_31_16(const pixman_transform_
 		tmp[i][0] += (int64_t)t->matrix[i][2] * (v->v[2] >> 16);
 		tmp[i][1] += (int64_t)t->matrix[i][2] * (v->v[2] & 0xFFFF);
 	}
-
 	/*
 	 * separate 64-bit integer and 16-bit fractional parts for the divisor,
 	 * which is also scaled by 65536 after fixed point multiplication.
 	 */
 	divint  = tmp[2][0] + (tmp[2][1] >> 16);
 	divfrac = tmp[2][1] & 0xFFFF;
-
 	if(divint == pixman_fixed_1 && divfrac == 0) {
 		/*
 		 * this is a simple affine transformation
@@ -222,15 +215,12 @@ PIXMAN_EXPORT pixman_bool_t pixman_transform_point_31_16(const pixman_transform_
 		 * results to maximum positive or minimum negative)
 		 */
 		clampflag = TRUE;
-
 		result->v[0] = tmp[0][0] + ((tmp[0][1] + 0x8000) >> 16);
 		result->v[1] = tmp[1][0] + ((tmp[1][1] + 0x8000) >> 16);
-
 		if(result->v[0] > 0)
 			result->v[0] = INT64_MAX;
 		else if(result->v[0] < 0)
 			result->v[0] = INT64_MIN;
-
 		if(result->v[1] > 0)
 			result->v[1] = INT64_MAX;
 		else if(result->v[1] < 0)
@@ -243,16 +233,13 @@ PIXMAN_EXPORT pixman_bool_t pixman_transform_point_31_16(const pixman_transform_
 		int32_t hi32divbits = divint >> 32;
 		if(hi32divbits < 0)
 			hi32divbits = ~hi32divbits;
-
 		if(hi32divbits == 0) {
 			/* the divisor is small, we can actually keep all the bits */
 			int64_t hi, rhi, lo, rlo;
 			int64_t div = (divint << 16) + divfrac;
-
 			fixed_64_16_to_int128(tmp[0][0], tmp[0][1], &hi, &lo, 32);
 			rlo = rounded_sdiv_128_by_49(hi, lo, div, &rhi);
 			result->v[0] = fixed_112_16_to_fixed_48_16(rhi, rlo, &clampflag);
-
 			fixed_64_16_to_int128(tmp[1][0], tmp[1][1], &hi, &lo, 32);
 			rlo = rounded_sdiv_128_by_49(hi, lo, div, &rhi);
 			result->v[1] = fixed_112_16_to_fixed_48_16(rhi, rlo, &clampflag);
@@ -262,11 +249,9 @@ PIXMAN_EXPORT pixman_bool_t pixman_transform_point_31_16(const pixman_transform_
 			int64_t hi, rhi, lo, rlo, div;
 			int shift = 32 - count_leading_zeros(hi32divbits);
 			fixed_64_16_to_int128(divint, divfrac, &hi, &div, 16 - shift);
-
 			fixed_64_16_to_int128(tmp[0][0], tmp[0][1], &hi, &lo, 32 - shift);
 			rlo = rounded_sdiv_128_by_49(hi, lo, div, &rhi);
 			result->v[0] = fixed_112_16_to_fixed_48_16(rhi, rlo, &clampflag);
-
 			fixed_64_16_to_int128(tmp[1][0], tmp[1][1], &hi, &lo, 32 - shift);
 			rlo = rounded_sdiv_128_by_49(hi, lo, div, &rhi);
 			result->v[1] = fixed_112_16_to_fixed_48_16(rhi, rlo, &clampflag);
@@ -276,31 +261,24 @@ PIXMAN_EXPORT pixman_bool_t pixman_transform_point_31_16(const pixman_transform_
 	return !clampflag;
 }
 
-PIXMAN_EXPORT void pixman_transform_point_31_16_affine(const pixman_transform_t * t,
-    const pixman_vector_48_16_t * v,
-    pixman_vector_48_16_t * result)
+PIXMAN_EXPORT void pixman_transform_point_31_16_affine(const pixman_transform_t * t, const pixman_vector_48_16_t * v, pixman_vector_48_16_t * result)
 {
 	int64_t hi0, lo0, hi1, lo1;
-
-	/* input vector values must have no more than 31 bits (including sign)
-	 * in the integer part */
+	// input vector values must have no more than 31 bits (including sign) in the integer part 
 	assert(v->v[0] <   ((pixman_fixed_48_16_t)1 << (30 + 16)));
 	assert(v->v[0] >= -((pixman_fixed_48_16_t)1 << (30 + 16)));
 	assert(v->v[1] <   ((pixman_fixed_48_16_t)1 << (30 + 16)));
 	assert(v->v[1] >= -((pixman_fixed_48_16_t)1 << (30 + 16)));
-
 	hi0  = (int64_t)t->matrix[0][0] * (v->v[0] >> 16);
 	lo0  = (int64_t)t->matrix[0][0] * (v->v[0] & 0xFFFF);
 	hi0 += (int64_t)t->matrix[0][1] * (v->v[1] >> 16);
 	lo0 += (int64_t)t->matrix[0][1] * (v->v[1] & 0xFFFF);
 	hi0 += (int64_t)t->matrix[0][2];
-
 	hi1  = (int64_t)t->matrix[1][0] * (v->v[0] >> 16);
 	lo1  = (int64_t)t->matrix[1][0] * (v->v[0] & 0xFFFF);
 	hi1 += (int64_t)t->matrix[1][1] * (v->v[1] >> 16);
 	lo1 += (int64_t)t->matrix[1][1] * (v->v[1] & 0xFFFF);
 	hi1 += (int64_t)t->matrix[1][2];
-
 	result->v[0] = hi0 + ((lo0 + 0x8000) >> 16);
 	result->v[1] = hi1 + ((lo1 + 0x8000) >> 16);
 	result->v[2] = pixman_fixed_1;

@@ -438,7 +438,7 @@ ngx_module_t ngx_http_core_module = {
 	NGX_MODULE_V1_PADDING
 };
 
-ngx_str_t ngx_http_core_get_method = { 3, (u_char*)"GET" };
+ngx_str_t ngx_http_core_get_method = { 3, (u_char *)"GET" };
 
 void ngx_http_handler(ngx_http_request_t * r)
 {
@@ -1116,7 +1116,7 @@ u_char * ngx_http_map_uri_to_path(ngx_http_request_t * r, ngx_str_t * path, size
 		if(ngx_http_script_run(r, path, clcf->root_lengths->elts, reserved, clcf->root_values->elts) == NULL) {
 			return NULL;
 		}
-		if(ngx_get_full_name(r->pool, (ngx_str_t*)&ngx_cycle->prefix, path) != NGX_OK) {
+		if(ngx_get_full_name(r->pool, (ngx_str_t *)&ngx_cycle->prefix, path) != NGX_OK) {
 			return NULL;
 		}
 		*root_length = path->len - reserved;
@@ -1141,12 +1141,12 @@ ngx_int_t ngx_http_auth_basic_user(ngx_http_request_t * pReq)
 		return NGX_DECLINED;
 	}
 	if(pReq->headers_in.authorization == NULL) {
-		pReq->headers_in.user.data = (u_char*)"";
+		pReq->headers_in.user.data = (u_char *)"";
 		return NGX_DECLINED;
 	}
 	encoded = pReq->headers_in.authorization->value;
-	if(encoded.len < sizeof("Basic ") - 1 || ngx_strncasecmp(encoded.data, (u_char*)"Basic ", sizeof("Basic ") - 1) != 0) {
-		pReq->headers_in.user.data = (u_char*)"";
+	if(encoded.len < sizeof("Basic ") - 1 || ngx_strncasecmp(encoded.data, (u_char *)"Basic ", sizeof("Basic ") - 1) != 0) {
+		pReq->headers_in.user.data = (u_char *)"";
 		return NGX_DECLINED;
 	}
 	encoded.len -= sizeof("Basic ") - 1;
@@ -1156,7 +1156,7 @@ ngx_int_t ngx_http_auth_basic_user(ngx_http_request_t * pReq)
 		encoded.data++;
 	}
 	if(encoded.len == 0) {
-		pReq->headers_in.user.data = (u_char*)"";
+		pReq->headers_in.user.data = (u_char *)"";
 		return NGX_DECLINED;
 	}
 	auth.len = ngx_base64_decoded_length(encoded.len);
@@ -1165,7 +1165,7 @@ ngx_int_t ngx_http_auth_basic_user(ngx_http_request_t * pReq)
 		return NGX_ERROR;
 	}
 	if(ngx_decode_base64(&auth, &encoded) != NGX_OK) {
-		pReq->headers_in.user.data = (u_char*)"";
+		pReq->headers_in.user.data = (u_char *)"";
 		return NGX_DECLINED;
 	}
 	auth.data[auth.len] = '\0';
@@ -1175,7 +1175,7 @@ ngx_int_t ngx_http_auth_basic_user(ngx_http_request_t * pReq)
 		}
 	}
 	if(len == 0 || len == auth.len) {
-		pReq->headers_in.user.data = (u_char*)"";
+		pReq->headers_in.user.data = (u_char *)"";
 		return NGX_DECLINED;
 	}
 	pReq->headers_in.user.len = len;
@@ -1708,10 +1708,10 @@ static const char * ngx_http_core_server(ngx_conf_t * cf, const ngx_command_t * 
 	http_ctx = (ngx_http_conf_ctx_t *)cf->ctx;
 	ctx->main_conf = http_ctx->main_conf;
 	// the server{}'s srv_conf 
-	ctx->srv_conf = (void **)ngx_pcalloc(cf->pool, sizeof(void *) * ngx_http_max_module);
+	ctx->srv_conf = static_cast<void **>(ngx_pcalloc(cf->pool, sizeof(void *) * ngx_http_max_module));
 	THROW(ctx->srv_conf);
 	// the server{}'s loc_conf 
-	ctx->loc_conf = (void **)ngx_pcalloc(cf->pool, sizeof(void *) * ngx_http_max_module);
+	ctx->loc_conf = static_cast<void **>(ngx_pcalloc(cf->pool, sizeof(void *) * ngx_http_max_module));
 	THROW(ctx->loc_conf);
 	for(i = 0; cf->cycle->modules[i]; i++) {
 		if(cf->cycle->modules[i]->type == NGX_HTTP_MODULE) {
@@ -1790,7 +1790,7 @@ static const char * ngx_http_core_location(ngx_conf_t * cf, const ngx_command_t 
 	pctx = (ngx_http_conf_ctx_t *)cf->ctx;
 	ctx->main_conf = pctx->main_conf;
 	ctx->srv_conf = pctx->srv_conf;
-	ctx->loc_conf = (void **)ngx_pcalloc(cf->pool, sizeof(void *) * ngx_http_max_module);
+	ctx->loc_conf = static_cast<void **>(ngx_pcalloc(cf->pool, sizeof(void *) * ngx_http_max_module));
 	if(ctx->loc_conf == NULL) {
 		return NGX_CONF_ERROR;
 	}
@@ -1807,7 +1807,7 @@ static const char * ngx_http_core_location(ngx_conf_t * cf, const ngx_command_t 
 	}
 	clcf = (ngx_http_core_loc_conf_t *)ctx->loc_conf[ngx_http_core_module.ctx_index];
 	clcf->loc_conf = ctx->loc_conf;
-	value = (ngx_str_t *)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(cf->args->nelts == 3) {
 		len = value[1].len;
 		mod = value[1].data;
@@ -1950,7 +1950,7 @@ static const char * ngx_http_core_types(ngx_conf_t * cf, const ngx_command_t * c
 	}
 	save = *cf;
 	cf->handler = ngx_http_core_type;
-	cf->handler_conf = (char *)conf;
+	cf->handler_conf = static_cast<char *>(conf);
 	rv = ngx_conf_parse(cf, NULL);
 	*cf = save;
 	return rv;
@@ -1962,7 +1962,7 @@ static const char * ngx_http_core_type(ngx_conf_t * cf, const ngx_command_t * du
 	ngx_str_t * content_type, * old;
 	ngx_uint_t i, n, hash;
 	ngx_hash_key_t  * type;
-	ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(sstreq(value[0].data, "include")) {
 		if(cf->args->nelts != 2) {
 			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid number of arguments in \"include\" directive");
@@ -2394,7 +2394,7 @@ static const char * ngx_http_core_listen(ngx_conf_t * cf, const ngx_command_t * 
 	ngx_uint_t n;
 	ngx_http_listen_opt_t lsopt;
 	cscf->listen = 1;
-	value = (ngx_str_t *)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	memzero(&u, sizeof(ngx_url_t));
 	u.url = value[1];
 	u.listen = 1;
@@ -2651,7 +2651,7 @@ static const char * ngx_http_core_server_name(ngx_conf_t * cf, const ngx_command
 	u_char ch;
 	ngx_uint_t i;
 	ngx_http_server_name_t  * sn;
-	ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	for(i = 1; i < cf->args->nelts; i++) {
 		ch = value[i].data[0];
 		if((ch == '*' && (value[i].len < 3 || value[i].data[1] != '.')) || (ch == '.' && value[i].len < 2)) {
@@ -2669,7 +2669,7 @@ static const char * ngx_http_core_server_name(ngx_conf_t * cf, const ngx_command
 		sn->regex = NULL;
 #endif
 		sn->server = cscf;
-		if(sstreqi_ascii(value[i].data, (u_char*)"$hostname")) {
+		if(sstreqi_ascii(value[i].data, (u_char *)"$hostname")) {
 			sn->name = cf->cycle->hostname;
 		}
 		else {
@@ -2735,7 +2735,7 @@ static const char * ngx_http_core_root(ngx_conf_t * cf, const ngx_command_t * cm
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "the \"alias\" directive cannot be used inside the named location");
 		return NGX_CONF_ERROR;
 	}
-	value = (ngx_str_t *)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(ngx_strstr(value[1].data, "$document_root") || ngx_strstr(value[1].data, "${document_root}")) {
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "the $document_root variable cannot be used in the \"%V\" directive", &cmd->Name);
 		return NGX_CONF_ERROR;
@@ -2778,20 +2778,20 @@ static const char * ngx_http_core_root(ngx_conf_t * cf, const ngx_command_t * cm
 }
 
 static ngx_http_method_name_t ngx_methods_names[] = {
-	{ (u_char*)"GET",       (uint32_t) ~NGX_HTTP_GET },
-	{ (u_char*)"HEAD",      (uint32_t) ~NGX_HTTP_HEAD },
-	{ (u_char*)"POST",      (uint32_t) ~NGX_HTTP_POST },
-	{ (u_char*)"PUT",       (uint32_t) ~NGX_HTTP_PUT },
-	{ (u_char*)"DELETE",    (uint32_t) ~NGX_HTTP_DELETE },
-	{ (u_char*)"MKCOL",     (uint32_t) ~NGX_HTTP_MKCOL },
-	{ (u_char*)"COPY",      (uint32_t) ~NGX_HTTP_COPY },
-	{ (u_char*)"MOVE",      (uint32_t) ~NGX_HTTP_MOVE },
-	{ (u_char*)"OPTIONS",   (uint32_t) ~NGX_HTTP_OPTIONS },
-	{ (u_char*)"PROPFIND",  (uint32_t) ~NGX_HTTP_PROPFIND },
-	{ (u_char*)"PROPPATCH", (uint32_t) ~NGX_HTTP_PROPPATCH },
-	{ (u_char*)"LOCK",      (uint32_t) ~NGX_HTTP_LOCK },
-	{ (u_char*)"UNLOCK",    (uint32_t) ~NGX_HTTP_UNLOCK },
-	{ (u_char*)"PATCH",     (uint32_t) ~NGX_HTTP_PATCH },
+	{ (u_char *)"GET",       (uint32_t) ~NGX_HTTP_GET },
+	{ (u_char *)"HEAD",      (uint32_t) ~NGX_HTTP_HEAD },
+	{ (u_char *)"POST",      (uint32_t) ~NGX_HTTP_POST },
+	{ (u_char *)"PUT",       (uint32_t) ~NGX_HTTP_PUT },
+	{ (u_char *)"DELETE",    (uint32_t) ~NGX_HTTP_DELETE },
+	{ (u_char *)"MKCOL",     (uint32_t) ~NGX_HTTP_MKCOL },
+	{ (u_char *)"COPY",      (uint32_t) ~NGX_HTTP_COPY },
+	{ (u_char *)"MOVE",      (uint32_t) ~NGX_HTTP_MOVE },
+	{ (u_char *)"OPTIONS",   (uint32_t) ~NGX_HTTP_OPTIONS },
+	{ (u_char *)"PROPFIND",  (uint32_t) ~NGX_HTTP_PROPFIND },
+	{ (u_char *)"PROPPATCH", (uint32_t) ~NGX_HTTP_PROPPATCH },
+	{ (u_char *)"LOCK",      (uint32_t) ~NGX_HTTP_LOCK },
+	{ (u_char *)"UNLOCK",    (uint32_t) ~NGX_HTTP_UNLOCK },
+	{ (u_char *)"PATCH",     (uint32_t) ~NGX_HTTP_PATCH },
 	{ NULL, 0 }
 };
 
@@ -2811,7 +2811,7 @@ static const char * ngx_http_core_limit_except(ngx_conf_t * cf, const ngx_comman
 		return "is duplicate";
 	}
 	pclcf->limit_except = 0xffffffff;
-	value = (ngx_str_t *)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	for(i = 1; i < cf->args->nelts; i++) {
 		for(name = ngx_methods_names; name->name; name++) {
 			if(sstreqi_ascii(value[i].data, name->name)) {
@@ -2834,7 +2834,7 @@ next:
 	pctx = (ngx_http_conf_ctx_t *)cf->ctx;
 	ctx->main_conf = pctx->main_conf;
 	ctx->srv_conf = pctx->srv_conf;
-	ctx->loc_conf = (void **)ngx_pcalloc(cf->pool, sizeof(void *) * ngx_http_max_module);
+	ctx->loc_conf = static_cast<void **>(ngx_pcalloc(cf->pool, sizeof(void *) * ngx_http_max_module));
 	if(ctx->loc_conf == NULL) {
 		return NGX_CONF_ERROR;
 	}
@@ -2878,7 +2878,7 @@ static const char * ngx_http_core_set_aio(ngx_conf_t * cf, const ngx_command_t *
 	clcf->thread_pool = NULL;
 	clcf->thread_pool_value = NULL;
 #endif
-	value = (ngx_str_t *)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(sstreq(value[1].data, "off")) {
 		clcf->aio = NGX_HTTP_AIO_OFF;
 		return NGX_CONF_OK;
@@ -2950,7 +2950,7 @@ static const char * ngx_http_core_directio(ngx_conf_t * cf, const ngx_command_t 
 		return "is duplicate";
 	}
 	else {
-		value = (ngx_str_t *)cf->args->elts;
+		value = static_cast<ngx_str_t *>(cf->args->elts);
 		if(sstreq(value[1].data, "off")) {
 			clcf->directio = NGX_OPEN_FILE_DIRECTIO_OFF;
 			return NGX_CONF_OK;
@@ -2979,7 +2979,7 @@ static const char * ngx_http_core_error_page(ngx_conf_t * cf, const ngx_command_
 			return NGX_CONF_ERROR;
 		}
 	}
-	value = (ngx_str_t *)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	i = cf->args->nelts - 2;
 	if(value[i].data[0] == '=') {
 		if(i == 1) {
@@ -3012,7 +3012,7 @@ static const char * ngx_http_core_error_page(ngx_conf_t * cf, const ngx_command_
 	}
 	ngx_str_null(&args);
 	if(cv.lengths == NULL && uri.len && uri.data[0] == '/') {
-		p = (u_char*)ngx_strchr(uri.data, '?');
+		p = (u_char *)ngx_strchr(uri.data, '?');
 		if(p) {
 			cv.value.len = p - uri.data;
 			cv.value.data = uri.data;
@@ -3059,7 +3059,7 @@ static const char * ngx_http_core_open_file_cache(ngx_conf_t * cf, const ngx_com
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+		ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 		ngx_int_t max = 0;
 		time_t inactive = 60;
 		for(i = 1; i < cf->args->nelts; i++) {
@@ -3147,7 +3147,7 @@ static const char * ngx_http_core_resolver(ngx_conf_t * cf, const ngx_command_t 
 	if(clcf->resolver)
 		return "is duplicate";
 	else {
-		ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+		ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 		clcf->resolver = ngx_resolver_create(cf, &value[1], cf->args->nelts - 1);
 		return clcf->resolver ? NGX_CONF_OK : NGX_CONF_ERROR;
 	}
@@ -3170,7 +3170,7 @@ static const char * ngx_http_gzip_disable(ngx_conf_t * cf, const ngx_command_t *
 			return NGX_CONF_ERROR;
 		}
 	}
-	value = (ngx_str_t *)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	memzero(&rc, sizeof(ngx_regex_compile_t));
 	rc.pool = cf->pool;
 	rc.err.len = NGX_MAX_CONF_ERRSTR;

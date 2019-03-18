@@ -1281,7 +1281,7 @@ private:
 	int    SLAPI ResolveCrit_PosNode(int subcriterion, const SString & rArg, PPID * pID);
 	int    SLAPI ResolveCrit_ArByPerson(int subcriterion, const SString & rArg, PPID accSheetID, PPID * pID);
 	int    SLAPI GetCheckList(long tblId, TSArray <Sdr_CPosCheck> * pList);
-	int    SLAPI OpenSession(PPID cnId, S_GUID_Base * pUuid);
+	int    SLAPI OpenSession(PPID cnId, const S_GUID_Base * pUuid);
 
 	struct CashNodeBlock {
 		PPID   ID;
@@ -1594,7 +1594,7 @@ int SLAPI CPosNodeBlock::GetCheckList(long tblId, TSArray <Sdr_CPosCheck> * pLis
 	return ok;
 }
 
-int SLAPI CPosNodeBlock::OpenSession(PPID cnId, S_GUID_Base * pUuid)
+int SLAPI CPosNodeBlock::OpenSession(PPID cnId, const S_GUID_Base * pUuid)
 {
 	int    ok = 1;
 	LDATE  cur_dt = getcurdate_();
@@ -4162,13 +4162,12 @@ int SLAPI CheckVersion()
 		uint   info_size = 0;
 		SString path;
 		DWORD set_to_zero = 0;
-
 		DS.GetPath(PPPATH_BIN, path);
 		path.SetLastSlash().Cat(p_ppw_fname);
-		info_size = GetFileVersionInfoSize(path, &set_to_zero); // @unicodeproblem
+		info_size = GetFileVersionInfoSize(SUcSwitch(path), &set_to_zero); // @unicodeproblem
 		if(info_size) {
 			char * p_buf = new char[info_size];
-			if(GetFileVersionInfo(path, 0, info_size, p_buf)) { // @unicodeproblem
+			if(GetFileVersionInfo(SUcSwitch(path), 0, info_size, p_buf)) { // @unicodeproblem
 				uint   value_size = 0;
 				char * p_ver_buf = 0;
 				if(VerQueryValue(p_buf, _T("\\"), (LPVOID *)&p_ver_buf, &value_size)) { // @unicodeproblem

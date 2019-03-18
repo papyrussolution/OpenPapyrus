@@ -56,7 +56,7 @@ public:
     /// cast to C image_scanner object
     operator zbar_image_scanner_t* () const
     {
-        return(_scanner);
+        return (_scanner);
     }
 
     /// setup result handler callback.
@@ -72,7 +72,7 @@ public:
                     zbar_config_t config,
                     int value)
     {
-        return(zbar_image_scanner_set_config(_scanner, symbology,
+        return (zbar_image_scanner_set_config(_scanner, symbology,
                                               config, value));
     }
 
@@ -81,7 +81,7 @@ public:
     /// @since 0.4
     int set_config (std::string cfgstr)
     {
-        return(zbar_image_scanner_parse_config(_scanner, cfgstr.c_str()));
+        return (zbar_image_scanner_parse_config(_scanner, cfgstr.c_str()));
     }
 
     /// enable or disable the inter-image result cache.
@@ -103,14 +103,14 @@ public:
     /// @see zbar_image_scanner_get_results()
     /// @since 0.10
     const SymbolSet get_results () const {
-        return(SymbolSet(zbar_image_scanner_get_results(_scanner)));
+        return (SymbolSet(zbar_image_scanner_get_results(_scanner)));
     }
 
     /// scan for symbols in provided image.
     /// see zbar_scan_image()
     int scan (Image& image)
     {
-        return(zbar_scan_image(_scanner, image));
+        return (zbar_scan_image(_scanner, image));
     }
 
     /// scan for symbols in provided image.

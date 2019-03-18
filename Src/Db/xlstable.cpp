@@ -434,7 +434,7 @@ int ExcelDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 				_commfmt(fld.OuterFormat, field_buf);
 				row = (is_vert) ? 1 + i + P.HdrLinesCount : cur_rec - 1;
 				col = (is_vert) ? cur_rec - 1 : 1 + i + P.ColumnsCount;
-				THROW(P_Sheet->SetValue(row, col, (const char *)field_buf.Transf(CTRANSF_INNER_TO_OUTER).Strip()) > 0);
+				THROW(P_Sheet->SetValue(row, col, field_buf.Transf(CTRANSF_INNER_TO_OUTER).Strip().cptr()) > 0);
 				THROW(P_Sheet->SetBold(row, col, 1));
 				if(WidthList.getCount() < (uint)(col - P.ColumnsCount))
 					WidthList.add(field_buf.Len());
@@ -450,7 +450,7 @@ int ExcelDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 		{
 			const  TYPEID st = fld.T.GetDbFieldType();
 			int    base_type = stbase(st);
-			const  void * p_fld_data = ((const uint8 *)pDataBuf)+fld.InnerOffs;
+			const  void * p_fld_data = PTR8C(pDataBuf)+fld.InnerOffs;
 			if(base_type == BTS_REAL) {
 				double real_val = 0;
 				sttobase(st, p_fld_data, &real_val);
@@ -458,7 +458,7 @@ int ExcelDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 			}
 			else {
 				THROW(GetFieldDataFromBuf(fld, field_buf.Z(), pDataBuf));
-				THROW(P_Sheet->SetValue(row, col, (const char *)field_buf.Strip()) > 0);
+				THROW(P_Sheet->SetValue(row, col, field_buf.Strip().cptr()) > 0);
 			}
 		}
 		if(WidthList.getCount() < (uint)(col - P.ColumnsCount))

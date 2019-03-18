@@ -830,7 +830,7 @@ int FASTCALL PPCheckInPersonMngr::ItemToStorage(const PPCheckInPersonItem & rIte
 	assert(sizeof(PPCheckInPersonItem_Strg) == sizeof(ObjAssocTbl::Rec));
 	int    ok = 1;
 	MEMSZERO(rRec);
-	PPCheckInPersonItem_Strg & r_rec = *(PPCheckInPersonItem_Strg *)&rRec;
+	PPCheckInPersonItem_Strg & r_rec = *reinterpret_cast<PPCheckInPersonItem_Strg *>(&rRec);
 	#define FLD(f) r_rec.f = rItem.f
 	FLD(ID);
 	FLD(PrmrID);
@@ -860,7 +860,7 @@ int FASTCALL PPCheckInPersonMngr::StorageToItem(const ObjAssocTbl::Rec & rRec, P
 	assert(sizeof(PPCheckInPersonItem_Strg) == sizeof(ObjAssocTbl::Rec));
 	int    ok = 1;
 	rItem.Clear();
-	const PPCheckInPersonItem_Strg & r_rec = *(const PPCheckInPersonItem_Strg *)&rRec;
+	const PPCheckInPersonItem_Strg & r_rec = *reinterpret_cast<const PPCheckInPersonItem_Strg *>(&rRec);
 	#define FLD(f) rItem.f = r_rec.f
 	FLD(ID);
 	FLD(PrmrID);
@@ -891,7 +891,7 @@ public:
 	{
 		RVALUEPTR(Cfg, pCfg);
 		addGroup(GRP_CHKINP_PERSON, new PersonCtrlGroup(CTLSEL_CHKINP_PERSON, CTL_CHKINP_SCARD, 0, PersonCtrlGroup::fCanInsert/*|PersonCtrlGroup::fLoadDefOnOpen*/));
-		PersonCtrlGroup * p_grp = (PersonCtrlGroup *)getGroup(GRP_CHKINP_PERSON);
+		PersonCtrlGroup * p_grp = static_cast<PersonCtrlGroup *>(getGroup(GRP_CHKINP_PERSON));
 		CALLPTRMEMB(p_grp, SetAnonymCtrlId(CTL_CHKINP_ANONYM));
 		SetupCalDate(CTLCAL_CHKINP_REGDT, CTL_CHKINP_REGDT);
 		SetupCalDate(CTLCAL_CHKINP_CIDT, CTL_CHKINP_CIDT);

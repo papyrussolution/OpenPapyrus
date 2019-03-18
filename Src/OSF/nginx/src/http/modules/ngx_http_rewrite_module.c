@@ -198,7 +198,7 @@ static const char * ngx_http_rewrite(ngx_conf_t * cf, const ngx_command_t * cmd,
 		return NGX_CONF_ERROR;
 	}
 	memzero(regex, sizeof(ngx_http_script_regex_code_t));
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	memzero(&rc, sizeof(ngx_regex_compile_t));
 	rc.pattern = value[1];
 	rc.err.len = NGX_MAX_CONF_ERRSTR;
@@ -283,7 +283,7 @@ static const char * ngx_http_rewrite(ngx_conf_t * cf, const ngx_command_t * cmd,
 		}
 		*code = NULL;
 	}
-	regex->next = (u_char*)lcf->codes->elts + lcf->codes->nelts - (u_char*)regex;
+	regex->next = (u_char *)lcf->codes->elts + lcf->codes->nelts - (u_char *)regex;
 	return NGX_CONF_OK;
 }
 
@@ -298,7 +298,7 @@ static const char * ngx_http_rewrite_return(ngx_conf_t * cf, const ngx_command_t
 	if(ret == NULL) {
 		return NGX_CONF_ERROR;
 	}
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	memzero(ret, sizeof(ngx_http_script_return_code_t));
 	ret->code = ngx_http_script_return_code;
 	p = value[1].data;
@@ -365,7 +365,7 @@ static const char * ngx_http_rewrite_if(ngx_conf_t * cf, const ngx_command_t * c
 	pctx = (ngx_http_conf_ctx_t *)cf->ctx;
 	ctx->main_conf = pctx->main_conf;
 	ctx->srv_conf = pctx->srv_conf;
-	ctx->loc_conf = (void **)ngx_pcalloc(cf->pool, sizeof(void *) * ngx_http_max_module);
+	ctx->loc_conf = static_cast<void **>(ngx_pcalloc(cf->pool, sizeof(void *) * ngx_http_max_module));
 	if(ctx->loc_conf == NULL) {
 		return NGX_CONF_ERROR;
 	}
@@ -418,9 +418,9 @@ static const char * ngx_http_rewrite_if(ngx_conf_t * cf, const ngx_command_t * c
 		return rv;
 	}
 	if(elts != lcf->codes->elts) {
-		if_code = (ngx_http_script_if_code_t*)((u_char*)if_code + ((u_char*)lcf->codes->elts - elts));
+		if_code = (ngx_http_script_if_code_t*)((u_char *)if_code + ((u_char *)lcf->codes->elts - elts));
 	}
-	if_code->next = (u_char*)lcf->codes->elts + lcf->codes->nelts - (u_char*)if_code;
+	if_code->next = (u_char *)lcf->codes->elts + lcf->codes->nelts - (u_char *)if_code;
 	/* the code array belong to parent block */
 	nlcf->codes = NULL;
 	return NGX_CONF_OK;
@@ -436,7 +436,7 @@ static char * ngx_http_rewrite_if_condition(ngx_conf_t * cf, ngx_http_rewrite_lo
 	ngx_http_script_file_code_t * fop;
 	ngx_http_script_regex_code_t  * regex;
 	u_char errstr[NGX_MAX_CONF_ERRSTR];
-	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	ngx_uint_t last = cf->args->nelts - 1;
 	if(value[1].len < 1 || value[1].data[0] != '(') {
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid condition \"%V\"", &value[1]);
@@ -609,7 +609,7 @@ static const char * ngx_http_rewrite_set(ngx_conf_t * cf, const ngx_command_t * 
 	ngx_http_variable_t * v;
 	ngx_http_script_var_code_t   * vcode;
 	ngx_http_script_var_handler_code_t  * vhcode;
-	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(value[1].data[0] != '$') {
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid variable name \"%V\"", &value[1]);
 		return NGX_CONF_ERROR;

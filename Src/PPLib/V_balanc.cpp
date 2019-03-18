@@ -68,7 +68,7 @@ int SLAPI PPViewBalance::Init_(const PPBaseFilt * pBaseFilt)
 		}
 		aca.sort(PTR_CMPCFUNC(Balance_AccItem_AcSb));
 		//
-		for(i = 0; aca.enumItems(&i, (void**)&p_aci);) {
+		for(i = 0; aca.enumItems(&i, (void **)&p_aci);) {
 			uint   brf = 0;
 			if(Filt.Flags & BALFORM_ACO1GROUPING)
 				brf |= BALRESTF_ACO1GROUPING;
@@ -385,7 +385,7 @@ int SLAPI PPViewBalance::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 	if(ok == -2) {
 		if(ppvCmd == PPVCMD_VIEWACCOUNT) {
 			ok = -1;
-			const BalanceViewItem * p_item = (const BalanceViewItem *)pHdr;
+			const BalanceViewItem * p_item = static_cast<const BalanceViewItem *>(pHdr);
 			if(p_item && p_item->AccID) {
 				PPObjAccount acc_obj;
 				PPID acc_id = p_item->AccID;
@@ -400,7 +400,7 @@ int SLAPI PPViewBalance::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 int SLAPI PPViewBalance::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = 1;
-	const BalanceViewItem * p_item = (const BalanceViewItem *)pHdr;
+	const BalanceViewItem * p_item = static_cast<const BalanceViewItem *>(pHdr);
 	if(p_item) {
 		if(p_item->AccID) {
 			int    is_aco1_grp = BIN(Filt.Flags & BALFORM_ACO1GROUPING);

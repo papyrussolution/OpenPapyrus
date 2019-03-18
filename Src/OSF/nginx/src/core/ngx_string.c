@@ -501,7 +501,7 @@ const u_char * FASTCALL ngx_strnstr(const u_char * s1, const char * s2, size_t l
 {
 	u_char c1, c2;
 	size_t n;
-	c2 = *(u_char*)s2++;
+	c2 = *(u_char *)s2++;
 	n = ngx_strlen(s2);
 	do {
 		do {
@@ -516,7 +516,7 @@ const u_char * FASTCALL ngx_strnstr(const u_char * s1, const char * s2, size_t l
 		if(n > len) {
 			return NULL;
 		}
-	} while(ngx_strncmp(s1, (u_char*)s2, n) != 0);
+	} while(ngx_strncmp(s1, (u_char *)s2, n) != 0);
 	return --s1;
 }
 /*
@@ -527,7 +527,7 @@ const u_char * FASTCALL ngx_strnstr(const u_char * s1, const char * s2, size_t l
 u_char * FASTCALL ngx_strstrn(u_char * s1, char * s2, size_t n)
 {
 	u_char c1, c2;
-	c2 = *(u_char*)s2++;
+	c2 = *(u_char *)s2++;
 	do {
 		do {
 			c1 = *s1++;
@@ -535,7 +535,7 @@ u_char * FASTCALL ngx_strstrn(u_char * s1, char * s2, size_t n)
 				return NULL;
 			}
 		} while(c1 != c2);
-	} while(ngx_strncmp(s1, (u_char*)s2, n) != 0);
+	} while(ngx_strncmp(s1, (u_char *)s2, n) != 0);
 	return --s1;
 }
 
@@ -552,7 +552,7 @@ const u_char * FASTCALL ngx_strcasestrn(const u_char * s1, const char * s2, size
 			}
 			c1 = (c1 >= 'A' && c1 <= 'Z') ? (c1 | 0x20) : c1;
 		} while(c1 != c2);
-	} while(ngx_strncasecmp(s1, (u_char*)s2, n) != 0);
+	} while(ngx_strncasecmp(s1, (u_char *)s2, n) != 0);
 	return --s1;
 }
 /*
@@ -1437,10 +1437,10 @@ void ngx_sort(void * base, size_t n, size_t size, ngx_int_t (* cmp)(const void *
 {
 	u_char * p = (u_char *)ngx_alloc(size, ngx_cycle->log);
 	if(p) {
-		for(u_char * p1 = (u_char*)base + size; p1 < (u_char*)base + n * size; p1 += size) {
+		for(u_char * p1 = (u_char *)base + size; p1 < (u_char *)base + n * size; p1 += size) {
 			u_char * p2;
 			memcpy(p, p1, size);
-			for(p2 = p1; p2 > (u_char*)base && cmp(p2 - size, p) > 0; p2 -= size) {
+			for(p2 = p1; p2 > (u_char *)base && cmp(p2 - size, p) > 0; p2 -= size) {
 				memcpy(p2, p2 - size, size);
 			}
 			memcpy(p2, p, size);

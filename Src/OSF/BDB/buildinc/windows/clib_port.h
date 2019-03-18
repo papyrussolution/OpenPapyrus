@@ -38,7 +38,7 @@
 #ifndef	LONG_MIN			/* minimum (signed) long value */
 	#define	LONG_MIN	(-LONG_MAX-1)
 #endif
-#ifndef	ULONG_MAX			/* maximum (unsigned) long value */
+#ifndef	ULONG_MAX			/* maximum (uint) long value */
 	#if SIZEOF_LONG == 4
 	#define	ULONG_MAX	4294967295U
 	#endif

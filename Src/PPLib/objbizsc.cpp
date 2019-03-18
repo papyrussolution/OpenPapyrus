@@ -578,7 +578,7 @@ private:
 
 int SLAPI PPObjBizScore::Edit(PPID * pID, void * extraPtr /*userID*/)
 {
-	const  PPID extra_user_id = (PPID)extraPtr;
+	const  PPID extra_user_id = reinterpret_cast<PPID>(extraPtr);
 	int    ok = cmCancel;
 	PPBizScorePacket pack;
 	THROW(CheckRights(PPR_READ));
@@ -1773,7 +1773,8 @@ int SLAPI PrcssrBizScore::EditParam(Param * pParam)
 			dlg->AddClusterAssoc(CTL_BIZSCPRC_FLAGS, 0, Param::fExportXml);
 			dlg->AddClusterAssoc(CTL_BIZSCPRC_FLAGS, 1, Param::fSendToFTP);
 			dlg->SetClusterData(CTL_BIZSCPRC_FLAGS, data.Flags);
-			SetupPPObjCombo(dlg, CTLSEL_BIZSCPRC_FTPACC, PPOBJ_INTERNETACCOUNT, data.FtpAcctID, 0, (void *)PPObjInternetAccount::filtfFtp/*INETACCT_ONLYFTP*/);
+			SetupPPObjCombo(dlg, CTLSEL_BIZSCPRC_FTPACC, PPOBJ_INTERNETACCOUNT, data.FtpAcctID, 0, 
+				reinterpret_cast<void *>(PPObjInternetAccount::filtfFtp)/*INETACCT_ONLYFTP*/);
 			while(ok < 0 && ExecView(dlg) == cmOK) {
 				if(!GetPeriodInput(dlg, CTL_BIZSCPRC_PERIOD, &data.Period))
 					PPErrorByDialog(dlg, CTL_BIZSCPRC_PERIOD);

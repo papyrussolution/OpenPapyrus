@@ -233,12 +233,12 @@ static int open_dev_crypto(void)
 
 	if(fd == -1) {
 		if((fd = open("/dev/crypto", O_RDWR, 0)) == -1)
-			return (-1);
+			return -1;
 		/* close on exec */
 		if(fcntl(fd, F_SETFD, 1) == -1) {
 			close(fd);
 			fd = -1;
-			return (-1);
+			return -1;
 		}
 	}
 	return (fd);
@@ -249,15 +249,15 @@ static int get_dev_crypto(void)
 	int fd, retfd;
 
 	if((fd = open_dev_crypto()) == -1)
-		return (-1);
+		return -1;
 # ifndef CRIOGET_NOT_NEEDED
 	if(ioctl(fd, CRIOGET, &retfd) == -1)
-		return (-1);
+		return -1;
 
 	/* close on exec */
 	if(fcntl(retfd, F_SETFD, 1) == -1) {
 		close(retfd);
-		return (-1);
+		return -1;
 	}
 # else
 	retfd = fd;
@@ -1209,10 +1209,10 @@ static int crparam2bn(struct crparam * crp, BIGNUM * a)
 	bytes = (crp->crp_nbits + 7) / 8;
 
 	if(bytes == 0)
-		return (-1);
+		return -1;
 
 	if((pd = OPENSSL_malloc(bytes)) == NULL)
-		return (-1);
+		return -1;
 
 	for(i = 0; i < bytes; i++)
 		pd[i] = crp->crp_p[bytes - i - 1];
@@ -1329,7 +1329,7 @@ static int cryptodev_rsa_nocrt_mod_exp(BIGNUM * r0, const BIGNUM * I, RSA * rsa,
 	RSA_get0_key(rsa, &n, NULL, &d);
 	r = cryptodev_bn_mod_exp(r0, I, d, n, ctx, 0);
 	BN_CTX_free(ctx);
-	return (r);
+	return r;
 }
 
 static int cryptodev_rsa_mod_exp(BIGNUM * r0, const BIGNUM * I, RSA * rsa, BN_CTX * ctx)

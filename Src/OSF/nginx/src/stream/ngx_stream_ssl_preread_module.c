@@ -295,7 +295,7 @@ static ngx_int_t ngx_stream_ssl_preread_parse_record(ngx_stream_ssl_preread_ctx_
 			    state = sw_sni_host;
 			    size = (p[1] << 8) + p[2];
 
-			    ctx->host.data = (u_char*)ngx_pnalloc(ctx->pool, size);
+			    ctx->host.data = (u_char *)ngx_pnalloc(ctx->pool, size);
 			    if(ctx->host.data == NULL) {
 				    return NGX_ERROR;
 			    }

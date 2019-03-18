@@ -396,7 +396,7 @@ static void ngx_http_limit_req_expire(ngx_http_limit_req_ctx_t * ctx, ngx_uint_t
 			}
 		}
 		ngx_queue_remove(q);
-		node = (ngx_rbtree_node_t*)((u_char*)lr - offsetof(ngx_rbtree_node_t, color));
+		node = (ngx_rbtree_node_t*)((u_char *)lr - offsetof(ngx_rbtree_node_t, color));
 		ngx_rbtree_delete(&ctx->sh->rbtree, node);
 		ngx_slab_free_locked(ctx->shpool, node);
 	}
@@ -430,7 +430,7 @@ static ngx_int_t ngx_http_limit_req_init_zone(ngx_shm_zone_t * shm_zone, void * 
 	ngx_rbtree_init(&ctx->sh->rbtree, &ctx->sh->sentinel, ngx_http_limit_req_rbtree_insert_value);
 	ngx_queue_init(&ctx->sh->queue);
 	len = sizeof(" in limit_req zone \"\"") + shm_zone->shm.name.len;
-	ctx->shpool->log_ctx = (u_char*)ngx_slab_alloc(ctx->shpool, len);
+	ctx->shpool->log_ctx = (u_char *)ngx_slab_alloc(ctx->shpool, len);
 	if(ctx->shpool->log_ctx == NULL) {
 		return NGX_ERROR;
 	}
@@ -478,7 +478,7 @@ static const char * ngx_http_limit_req_zone(ngx_conf_t * cf, const ngx_command_t
 	ngx_uint_t i;
 	ngx_shm_zone_t * shm_zone;
 	ngx_http_compile_complex_value_t ccv;
-	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	ngx_http_limit_req_ctx_t * ctx = (ngx_http_limit_req_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_limit_req_ctx_t));
 	if(!ctx) {
 		return NGX_CONF_ERROR;
@@ -497,7 +497,7 @@ static const char * ngx_http_limit_req_zone(ngx_conf_t * cf, const ngx_command_t
 	for(i = 2; i < cf->args->nelts; i++) {
 		if(ngx_strncmp(value[i].data, "zone=", 5) == 0) {
 			name.data = value[i].data + 5;
-			p = (u_char*)ngx_strchr(name.data, ':');
+			p = (u_char *)ngx_strchr(name.data, ':');
 			if(!p) {
 				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid zone size \"%V\"", &value[i]);
 				return NGX_CONF_ERROR;
@@ -562,7 +562,7 @@ static const char * ngx_http_limit_req(ngx_conf_t * cf, const ngx_command_t * cm
 	ngx_str_t s;
 	ngx_uint_t i;
 	ngx_http_limit_req_limit_t  * limit, * limits;
-	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	ngx_shm_zone_t * shm_zone = NULL;
 	ngx_int_t burst = 0;
 	ngx_uint_t nodelay = 0;

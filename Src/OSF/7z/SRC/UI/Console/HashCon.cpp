@@ -189,7 +189,7 @@ void CHashCallbackConsole::PrintResultLine(uint64 fileSize, const CObjectVector<
 		s[0] = 0;
 		if(showHash)
 			AddHashHexToString(s, h.Digests[digestIndex], h.DigestSize);
-		SetSpacesAndNul(s + sstrlen(s), (int)GetColumnWidth(h.DigestSize) - (int)sstrlen(s));
+		SetSpacesAndNul(s + sstrlen(s), (int)GetColumnWidth(h.DigestSize) - sstrleni(s));
 		if(i != 0)
 			_s.Add_Space();
 		_s += s;
@@ -201,7 +201,7 @@ void CHashCallbackConsole::PrintResultLine(uint64 fileSize, const CObjectVector<
 		if(showHash) {
 			p = s + kSizeField_Len;
 			ConvertUInt64ToString(fileSize, p);
-			int numSpaces = kSizeField_Len - (int)sstrlen(p);
+			int numSpaces = kSizeField_Len - sstrleni(p);
 			if(numSpaces > 0) {
 				p -= (uint)numSpaces;
 				for(uint i = 0; i < (uint)numSpaces; i++)

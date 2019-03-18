@@ -497,7 +497,7 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 						gctf.GoodsGrpID = 0;
 						gga.Reset();
 						THROW(gga.ProcessGoodsGrouping(&gctf, &agg));
-						for(i = 0; gga.enumItems(&i, (void**)&p_gge);) {
+						for(i = 0; gga.enumItems(&i, (void **)&p_gge);) {
 							PPID   op_id = 0;
 							int    income_calc_method = (Filt.Flags & GoodsTaxAnalyzeFilt::fByPayment) ? INCM_BYPAYMENT : INCM_BYSHIPMENT;
 							if(!Filt.OpID) {
@@ -585,10 +585,10 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 									is_exp = (IsGenericOp(Filt.OpID) > 0) ? BIN(p_gge->Sign < 0) : BIN(Filt.OpID || (p_gge->Sign < 0));
 									income = p_gge->Income((Filt.Flags & GoodsTaxAnalyzeFilt::fByPayment) ? INCM_BYPAYMENT : INCM_BYSHIPMENT);
 								}
-								double trnovr_p = is_exp ? p_gge->Price : -p_gge->Price;
-								double trnovr_c = is_exp ? p_gge->Cost  : -p_gge->Cost;
-								double discount = is_exp ? p_gge->Discount : -p_gge->Discount;
-								PPID   lot_tax_grp_id = p_gge->LotTaxGrpID;
+								const double trnovr_p = is_exp ? p_gge->Price : -p_gge->Price;
+								const double trnovr_c = is_exp ? p_gge->Cost  : -p_gge->Cost;
+								const double discount = is_exp ? p_gge->Discount : -p_gge->Discount;
+								const PPID   lot_tax_grp_id = p_gge->LotTaxGrpID;
 								long   excl_flags = 0L;
 								rec.Qtty        += (is_exp ? p_gge->Quantity : -p_gge->Quantity);
 								rec.PhQtty      += (is_exp ? p_gge->Volume   : -p_gge->Volume);
@@ -598,8 +598,8 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 								if(R6(rec.Qtty) != 0.0) {
 									BVATAccm in_item, out_item;
 									if(PPObjGoodsTax::FetchByID(p_gge->GoodsTaxGrpID, &gtx) > 0) {
-										long   amt_flags = (p_gge->Flags & GGEF_PRICEWOTAXES) ? GTAXVF_AFTERTAXES : GTAXVF_BEFORETAXES;
-										int    re = BIN(p_gge->Flags & GGEF_TOGGLESTAX);
+										const  long amt_flags = (p_gge->Flags & GGEF_PRICEWOTAXES) ? GTAXVF_AFTERTAXES : GTAXVF_BEFORETAXES;
+										const  int  re = BIN(p_gge->Flags & GGEF_TOGGLESTAX);
 										if(p_gge->Flags & GGEF_LOCVATFREE) {
 											excl_flags |= GTAXVF_VAT;
 											out_item.IsVatFree = 1;
@@ -904,7 +904,7 @@ int SLAPI PPViewGoodsTaxAnalyze::Detail(const void * pHdr, PPViewBrowser *)
 		LDATE  Dt;
 	};
 	int    ok = -1;
-	BrwHdr * p_hdr = (BrwHdr *)pHdr;
+	const  BrwHdr * p_hdr = static_cast<const BrwHdr *>(pHdr);
 	PPID   id = p_hdr ? p_hdr->GoodsID : 0;
 	LDATE  dt = p_hdr ? p_hdr->Dt : ZERODATE;
 	if(id) {
@@ -1006,7 +1006,7 @@ int SLAPI PPViewGoodsTaxAnalyze::ViewTotal()
 					StringSet ss(SLBColumnDelim);
 					THROW(SetupStrListBox(this, CTL_GTANLZTOTAL_INOUTVL));
 					THROW(p_list = static_cast<SmartListBox *>(getCtrlView(CTL_GTANLZTOTAL_INOUTVL)));
-					for(uint i = 0; p_inout_vatlist->enumItems(&i, (void**)&p_item) > 0;) {
+					for(uint i = 0; p_inout_vatlist->enumItems(&i, (void **)&p_item) > 0;) {
 						ss.clear();
 						ss.add(sub.Z().Cat(p_item->PRate, MKSFMTD(0, 1, 0)).CatChar('%'));
 						if(p_item->IsVatFree || p_item->PRate == 0.0) {
@@ -1140,7 +1140,7 @@ int PPALDD_GoodsTaxAnlz::InitIteration(PPIterID iterId, int sortId, long /*rsrv*
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;
-	p_v->InitIteration((PPViewGoodsTaxAnalyze::IterOrder)SortIdx);
+	p_v->InitIteration(static_cast<PPViewGoodsTaxAnalyze::IterOrder>(SortIdx));
 	return 1;
 }
 

@@ -89,7 +89,7 @@ static const char * ngx_conf_split_clients_block(ngx_conf_t * cf, const ngx_comm
 	if(!ctx) {
 		return NGX_CONF_ERROR;
 	}
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	memzero(&ccv, sizeof(ngx_stream_compile_complex_value_t));
 	ccv.cf = cf;
 	ccv.value = &value[1];
@@ -116,7 +116,7 @@ static const char * ngx_conf_split_clients_block(ngx_conf_t * cf, const ngx_comm
 	save = *cf;
 	cf->ctx = ctx;
 	cf->handler = ngx_stream_split_clients;
-	cf->handler_conf = (char *)conf;
+	cf->handler_conf = static_cast<char *>(conf);
 	rv = ngx_conf_parse(cf, NULL);
 	*cf = save;
 	if(rv != NGX_CONF_OK) {
@@ -143,7 +143,7 @@ static const char * ngx_stream_split_clients(ngx_conf_t * cf, const ngx_command_
 {
 	ngx_int_t n;
 	ngx_stream_split_clients_ctx_t * ctx = (ngx_stream_split_clients_ctx_t *)cf->ctx;
-	const ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+	const ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	ngx_stream_split_clients_part_t  * part = (ngx_stream_split_clients_part_t *)ngx_array_push(&ctx->parts);
 	if(part == NULL) {
 		return NGX_CONF_ERROR;

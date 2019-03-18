@@ -113,7 +113,7 @@ void ngx_stream_init_connection(ngx_connection_t * c)
 	c->log->data = s;
 	c->log->action = "initializing session";
 	c->log_error = NGX_ERROR_INFO;
-	s->ctx = (void**)ngx_pcalloc(c->pool, sizeof(void *) * ngx_stream_max_module);
+	s->ctx = (void **)ngx_pcalloc(c->pool, sizeof(void *) * ngx_stream_max_module);
 	if(s->ctx == NULL) {
 		ngx_stream_close_connection(c);
 		return;
@@ -152,7 +152,7 @@ static void ngx_stream_proxy_protocol_handler(ngx_event_t * rev)
 	u_char  * p, buf[NGX_PROXY_PROTOCOL_MAX_HEADER];
 	size_t size;
 	ngx_stream_core_srv_conf_t  * cscf;
-	ngx_connection_t  * c = (ngx_connection_t*)rev->P_Data;
+	ngx_connection_t  * c = (ngx_connection_t *)rev->P_Data;
 	ngx_stream_session_t * s = (ngx_stream_session_t*)c->data;
 	ngx_log_debug0(NGX_LOG_DEBUG_STREAM, c->log, 0, "stream PROXY protocol handler");
 	if(rev->timedout) {
@@ -201,7 +201,7 @@ static void ngx_stream_proxy_protocol_handler(ngx_event_t * rev)
 
 void ngx_stream_session_handler(ngx_event_t * rev)
 {
-	ngx_connection_t * c = (ngx_connection_t*)rev->P_Data;
+	ngx_connection_t * c = (ngx_connection_t *)rev->P_Data;
 	ngx_stream_session_t  * s = (ngx_stream_session_t*)c->data;
 	ngx_stream_core_run_phases(s);
 }

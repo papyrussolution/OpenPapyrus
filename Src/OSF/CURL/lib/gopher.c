@@ -72,16 +72,14 @@ static CURLcode gopher_do(struct connectdata * conn, bool * done)
 	/* Create selector. Degenerate cases: / and /1 => convert to "" */
 	if(sstrlen(path) <= 2) {
 		sel = (char *)"";
-		len = (int)sstrlen(sel);
+		len = sstrleni(sel);
 	}
 	else {
 		char * newp;
 		size_t j, i;
-
 		/* Otherwise, drop / and the first character (i.e., item type) ... */
 		newp = path;
 		newp += 2;
-
 		/* ... then turn ? into TAB for search servers, Veronica, etc. ... */
 		j = sstrlen(newp);
 		for(i = 0; i<j; i++)

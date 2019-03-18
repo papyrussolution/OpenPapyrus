@@ -18,9 +18,9 @@
 #define w0(i) (W[i] = data[i])
 #define w1(i) (WW(i) = rotlFixed(WW((i)-3) ^ WW((i)-8) ^ WW((i)-14) ^ WW((i)-16), 1))
 #define f1(x, y, z)  (z^(x&(y^z)))
-#define f2(x, y, z)  (x^y^z)
+#define f2(x, y, z)  ((x)^(y)^(z))
 #define f3(x, y, z)  ((x&y)|(z&(x|y)))
-#define f4(x, y, z)  (x^y^z)
+#define f4(x, y, z)  ((x)^(y)^(z))
 #define RK(a, b, c, d, e, fx, w, k)  e += fx(b, c, d) + w + k + rotlFixed(a, 5); b = rotlFixed(b, 30);
 #define R0(a, b, c, d, e, i)  RK(a, b, c, d, e, f1, w0(i), 0x5A827999)
 #define R1(a, b, c, d, e, i)  RK(a, b, c, d, e, f1, w1(i), 0x5A827999)
@@ -55,23 +55,18 @@ void Sha1_Init(CSha1 * p)
 	p->count = 0;
 }
 
-void Sha1_GetBlockDigest(CSha1 * p, const uint32 * data, uint32 * destDigest)
+void Sha1_GetBlockDigest(const CSha1 * p, const uint32 * data, uint32 * destDigest)
 {
-	uint32 a, b, c, d, e;
 	uint32 W[kNumW];
-
-	a = p->state[0];
-	b = p->state[1];
-	c = p->state[2];
-	d = p->state[3];
-	e = p->state[4];
-
+	uint32 a = p->state[0];
+	uint32 b = p->state[1];
+	uint32 c = p->state[2];
+	uint32 d = p->state[3];
+	uint32 e = p->state[4];
 	RX_15 RX_1_4(R0, R1, 15);
-
 	RX_20(R2, 20);
 	RX_20(R3, 40);
 	RX_20(R4, 60);
-
 	destDigest[0] = p->state[0] + a;
 	destDigest[1] = p->state[1] + b;
 	destDigest[2] = p->state[2] + c;
@@ -81,13 +76,12 @@ void Sha1_GetBlockDigest(CSha1 * p, const uint32 * data, uint32 * destDigest)
 
 static void Sha1_UpdateBlock_Rar(CSha1 * p, uint32 * data, int returnRes)
 {
-	uint32 a, b, c, d, e;
 	uint32 W[kNumW];
-	a = p->state[0];
-	b = p->state[1];
-	c = p->state[2];
-	d = p->state[3];
-	e = p->state[4];
+	uint32 a = p->state[0];
+	uint32 b = p->state[1];
+	uint32 c = p->state[2];
+	uint32 d = p->state[3];
+	uint32 e = p->state[4];
 	RX_15 RX_1_4(R0, R1, 15);
 	RX_20(R2, 20);
 	RX_20(R3, 40);

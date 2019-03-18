@@ -300,45 +300,34 @@ struct box_48_16 {
 	pixman_fixed_48_16_t y2;
 };
 
-static pixman_bool_t compute_transformed_extents(pixman_transform_t * transform,
-    const pixman_box32_t * extents,
-    box_48_16_t * transformed)
+static pixman_bool_t FASTCALL compute_transformed_extents(pixman_transform_t * transform, const pixman_box32_t * extents, box_48_16_t * transformed)
 {
 	pixman_fixed_48_16_t tx1, ty1, tx2, ty2;
 	pixman_fixed_t x1, y1, x2, y2;
 	int i;
-
 	x1 = pixman_int_to_fixed(extents->x1) + pixman_fixed_1 / 2;
 	y1 = pixman_int_to_fixed(extents->y1) + pixman_fixed_1 / 2;
 	x2 = pixman_int_to_fixed(extents->x2) - pixman_fixed_1 / 2;
 	y2 = pixman_int_to_fixed(extents->y2) - pixman_fixed_1 / 2;
-
 	if(!transform) {
 		transformed->x1 = x1;
 		transformed->y1 = y1;
 		transformed->x2 = x2;
 		transformed->y2 = y2;
-
 		return TRUE;
 	}
-
 	tx1 = ty1 = INT64_MAX;
 	tx2 = ty2 = INT64_MIN;
-
 	for(i = 0; i < 4; ++i) {
 		pixman_fixed_48_16_t tx, ty;
 		pixman_vector_t v;
-
 		v.vector[0] = (i & 0x01) ? x1 : x2;
 		v.vector[1] = (i & 0x02) ? y1 : y2;
 		v.vector[2] = pixman_fixed_1;
-
 		if(!pixman_transform_point(transform, &v))
 			return FALSE;
-
 		tx = (pixman_fixed_48_16_t)v.vector[0];
 		ty = (pixman_fixed_48_16_t)v.vector[1];
-
 		if(tx < tx1)
 			tx1 = tx;
 		if(ty < ty1)
@@ -348,12 +337,10 @@ static pixman_bool_t compute_transformed_extents(pixman_transform_t * transform,
 		if(ty > ty2)
 			ty2 = ty;
 	}
-
 	transformed->x1 = tx1;
 	transformed->y1 = ty1;
 	transformed->x2 = tx2;
 	transformed->y2 = ty2;
-
 	return TRUE;
 }
 
@@ -361,9 +348,7 @@ static pixman_bool_t compute_transformed_extents(pixman_transform_t * transform,
 #define ABS(f)      (((f) < 0) ?  (-(f)) : (f))
 #define IS_16_16(f) (((f) >= pixman_min_fixed_48_16 && ((f) <= pixman_max_fixed_48_16)))
 
-static pixman_bool_t analyze_extent(pixman_image_t * image,
-    const pixman_box32_t * extents,
-    uint32_t * flags)
+static pixman_bool_t FASTCALL analyze_extent(pixman_image_t * image, const pixman_box32_t * extents, uint32_t * flags)
 {
 	pixman_transform_t * transform;
 	pixman_fixed_t x_off, y_off;
@@ -371,22 +356,16 @@ static pixman_bool_t analyze_extent(pixman_image_t * image,
 	pixman_fixed_t * params;
 	box_48_16_t transformed;
 	pixman_box32_t exp_extents;
-
 	if(!image)
 		return TRUE;
-
 	/* Some compositing functions walk one step
 	 * outside the destination rectangle, so we
 	 * check here that the expanded-by-one source
 	 * extents in destination space fits in 16 bits
 	 */
-	if(!IS_16BIT(extents->x1 - 1)             ||
-	    !IS_16BIT(extents->y1 - 1)             ||
-	    !IS_16BIT(extents->x2 + 1)             ||
-	    !IS_16BIT(extents->y2 + 1)) {
+	if(!IS_16BIT(extents->x1 - 1) || !IS_16BIT(extents->y1 - 1) || !IS_16BIT(extents->x2 + 1) || !IS_16BIT(extents->y2 + 1)) {
 		return FALSE;
 	}
-
 	transform = image->common.transform;
 	if(image->common.type == BITS) {
 		/* During repeat mode calculations we might convert the
@@ -395,7 +374,6 @@ static pixman_bool_t analyze_extent(pixman_image_t * image,
 		 */
 		if(image->bits.width >= 0x7fff || image->bits.height >= 0x7fff)
 			return FALSE;
-
 		if((image->common.flags & FAST_PATH_ID_TRANSFORM) == FAST_PATH_ID_TRANSFORM &&
 		    extents->x1 >= 0 &&
 		    extents->y1 >= 0 &&
@@ -404,9 +382,7 @@ static pixman_bool_t analyze_extent(pixman_image_t * image,
 			*flags |= FAST_PATH_SAMPLES_COVER_CLIP_NEAREST;
 			return TRUE;
 		}
-
-		switch(image->common.filter)
-		{
+		switch(image->common.filter) {
 			case PIXMAN_FILTER_CONVOLUTION:
 			    params = image->common.filter_params;
 			    x_off = -pixman_fixed_e - ((params[0] - pixman_fixed_1) >> 1);
@@ -414,7 +390,6 @@ static pixman_bool_t analyze_extent(pixman_image_t * image,
 			    width = params[0];
 			    height = params[1];
 			    break;
-
 			case PIXMAN_FILTER_SEPARABLE_CONVOLUTION:
 			    params = image->common.filter_params;
 			    x_off = -pixman_fixed_e - ((params[0] - pixman_fixed_1) >> 1);
@@ -422,7 +397,6 @@ static pixman_bool_t analyze_extent(pixman_image_t * image,
 			    width = params[0];
 			    height = params[1];
 			    break;
-
 			case PIXMAN_FILTER_GOOD:
 			case PIXMAN_FILTER_BEST:
 			case PIXMAN_FILTER_BILINEAR:
@@ -450,10 +424,8 @@ static pixman_bool_t analyze_extent(pixman_image_t * image,
 		width = 0;
 		height = 0;
 	}
-
 	if(!compute_transformed_extents(transform, extents, &transformed))
 		return FALSE;
-
 	if(image->common.type == BITS) {
 		if(pixman_fixed_to_int(transformed.x1 - pixman_fixed_e) >= 0                &&
 		    pixman_fixed_to_int(transformed.y1 - pixman_fixed_e) >= 0                &&
@@ -479,17 +451,14 @@ static pixman_bool_t analyze_extent(pixman_image_t * image,
 	exp_extents.y1 -= 1;
 	exp_extents.x2 += 1;
 	exp_extents.y2 += 1;
-
 	if(!compute_transformed_extents(transform, &exp_extents, &transformed))
 		return FALSE;
-
 	if(!IS_16_16(transformed.x1 + x_off - 8 * pixman_fixed_e) ||
 	    !IS_16_16(transformed.y1 + y_off - 8 * pixman_fixed_e) ||
 	    !IS_16_16(transformed.x2 + x_off + 8 * pixman_fixed_e + width) ||
 	    !IS_16_16(transformed.y2 + y_off + 8 * pixman_fixed_e + height)) {
 		return FALSE;
 	}
-
 	return TRUE;
 }
 
@@ -512,7 +481,7 @@ static pixman_bool_t analyze_extent(pixman_image_t * image,
 #if defined (USE_SSE2) && defined(__GNUC__) && !defined(__x86_64__) && !defined(__amd64__)
 __attribute__((__force_align_arg_pointer__))
 #endif
-PIXMAN_EXPORT void pixman_image_composite32(pixman_op_t op, pixman_image_t * src, pixman_image_t * mask, pixman_image_t * dest,
+PIXMAN_EXPORT void FASTCALL pixman_image_composite32(pixman_op_t op, pixman_image_t * src, pixman_image_t * mask, pixman_image_t * dest,
     int32_t src_x, int32_t src_y, int32_t mask_x, int32_t mask_y, int32_t dest_x, int32_t dest_y, int32_t width, int32_t height)
 {
 	pixman_format_code_t src_format, mask_format, dest_format;
@@ -537,10 +506,8 @@ PIXMAN_EXPORT void pixman_image_composite32(pixman_op_t op, pixman_image_t * src
 		mask_format = PIXMAN_null;
 		info.mask_flags = FAST_PATH_IS_OPAQUE | FAST_PATH_NO_ALPHA_MAP;
 	}
-
 	dest_format = dest->common.extended_format_code;
 	info.dest_flags = dest->common.flags;
-
 	/* Check for pixbufs */
 	if((mask_format == PIXMAN_a8r8g8b8 || mask_format == PIXMAN_a8b8g8r8) &&
 	    (src->type == BITS && src->bits.bits == mask->bits.bits)           &&
@@ -552,33 +519,23 @@ PIXMAN_EXPORT void pixman_image_composite32(pixman_op_t op, pixman_image_t * src
 		else if(src_format == PIXMAN_x8r8g8b8)
 			src_format = mask_format = PIXMAN_rpixbuf;
 	}
-
 	pixman_region32_init(&region);
-
-	if(!_pixman_compute_composite_region32(
-		    &region, src, mask, dest,
-		    src_x, src_y, mask_x, mask_y, dest_x, dest_y, width, height)) {
+	if(!_pixman_compute_composite_region32(&region, src, mask, dest, src_x, src_y, mask_x, mask_y, dest_x, dest_y, width, height)) {
 		goto out;
 	}
-
 	extents = *pixman_region32_extents(&region);
-
 	extents.x1 -= dest_x - src_x;
 	extents.y1 -= dest_y - src_y;
 	extents.x2 -= dest_x - src_x;
 	extents.y2 -= dest_y - src_y;
-
 	if(!analyze_extent(src, &extents, &info.src_flags))
 		goto out;
-
 	extents.x1 -= src_x - mask_x;
 	extents.y1 -= src_y - mask_y;
 	extents.x2 -= src_x - mask_x;
 	extents.y2 -= src_y - mask_y;
-
 	if(!analyze_extent(mask, &extents, &info.mask_flags))
 		goto out;
-
 	/* If the clip is within the source samples, and the samples are
 	 * opaque, then the source is effectively opaque.
 	 */
@@ -589,13 +546,10 @@ PIXMAN_EXPORT void pixman_image_composite32(pixman_op_t op, pixman_image_t * src
 	FAST_PATH_BILINEAR_FILTER |                    \
 	FAST_PATH_SAMPLES_COVER_CLIP_BILINEAR)
 
-	if((info.src_flags & NEAREST_OPAQUE) == NEAREST_OPAQUE ||
-	    (info.src_flags & BILINEAR_OPAQUE) == BILINEAR_OPAQUE) {
+	if((info.src_flags & NEAREST_OPAQUE) == NEAREST_OPAQUE || (info.src_flags & BILINEAR_OPAQUE) == BILINEAR_OPAQUE) {
 		info.src_flags |= FAST_PATH_IS_OPAQUE;
 	}
-
-	if((info.mask_flags & NEAREST_OPAQUE) == NEAREST_OPAQUE ||
-	    (info.mask_flags & BILINEAR_OPAQUE) == BILINEAR_OPAQUE) {
+	if((info.mask_flags & NEAREST_OPAQUE) == NEAREST_OPAQUE || (info.mask_flags & BILINEAR_OPAQUE) == BILINEAR_OPAQUE) {
 		info.mask_flags |= FAST_PATH_IS_OPAQUE;
 	}
 	/*
@@ -604,20 +558,12 @@ PIXMAN_EXPORT void pixman_image_composite32(pixman_op_t op, pixman_image_t * src
 	 * mathematically equivalent to the source.
 	 */
 	info.op = optimize_operator(op, info.src_flags, info.mask_flags, info.dest_flags);
-
-	_pixman_implementation_lookup_composite(
-		get_implementation(), info.op,
-		src_format, info.src_flags,
-		mask_format, info.mask_flags,
-		dest_format, info.dest_flags,
-		&imp, &func);
-
+	_pixman_implementation_lookup_composite(get_implementation(), info.op, src_format, info.src_flags,
+		mask_format, info.mask_flags, dest_format, info.dest_flags, &imp, &func);
 	info.src_image = src;
 	info.mask_image = mask;
 	info.dest_image = dest;
-
 	pbox = pixman_region32_rectangles(&region, &n);
-
 	while(n--) {
 		info.src_x = pbox->x1 + src_x - dest_x;
 		info.src_y = pbox->y1 + src_y - dest_y;
@@ -627,86 +573,42 @@ PIXMAN_EXPORT void pixman_image_composite32(pixman_op_t op, pixman_image_t * src
 		info.dest_y = pbox->y1;
 		info.width = pbox->x2 - pbox->x1;
 		info.height = pbox->y2 - pbox->y1;
-
 		func(imp, &info);
-
 		pbox++;
 	}
-
 out:
 	pixman_region32_fini(&region);
 }
 
-PIXMAN_EXPORT void pixman_image_composite(pixman_op_t op,
-    pixman_image_t * src,
-    pixman_image_t * mask,
-    pixman_image_t * dest,
-    int16_t src_x,
-    int16_t src_y,
-    int16_t mask_x,
-    int16_t mask_y,
-    int16_t dest_x,
-    int16_t dest_y,
-    uint16_t width,
-    uint16_t height)
+PIXMAN_EXPORT void pixman_image_composite(pixman_op_t op, pixman_image_t * src, pixman_image_t * mask, pixman_image_t * dest,
+    int16_t src_x, int16_t src_y, int16_t mask_x, int16_t mask_y, int16_t dest_x, int16_t dest_y, uint16_t width, uint16_t height)
 {
-	pixman_image_composite32(op, src, mask, dest, src_x, src_y,
-	    mask_x, mask_y, dest_x, dest_y, width, height);
+	pixman_image_composite32(op, src, mask, dest, src_x, src_y, mask_x, mask_y, dest_x, dest_y, width, height);
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_blt(uint32_t * src_bits,
-    uint32_t * dst_bits,
-    int src_stride,
-    int dst_stride,
-    int src_bpp,
-    int dst_bpp,
-    int src_x,
-    int src_y,
-    int dest_x,
-    int dest_y,
-    int width,
-    int height)
+PIXMAN_EXPORT pixman_bool_t pixman_blt(uint32_t * src_bits, uint32_t * dst_bits, int src_stride, int dst_stride,
+    int src_bpp, int dst_bpp, int src_x, int src_y, int dest_x, int dest_y, int width, int height)
 {
-	return _pixman_implementation_blt(get_implementation(),
-		   src_bits, dst_bits, src_stride, dst_stride,
-		   src_bpp, dst_bpp,
-		   src_x, src_y,
-		   dest_x, dest_y,
-		   width, height);
+	return _pixman_implementation_blt(get_implementation(), src_bits, dst_bits, src_stride, dst_stride,
+		src_bpp, dst_bpp, src_x, src_y, dest_x, dest_y, width, height);
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_fill(uint32_t * bits,
-    int stride,
-    int bpp,
-    int x,
-    int y,
-    int width,
-    int height,
-    uint32_t filler)
+PIXMAN_EXPORT pixman_bool_t pixman_fill(uint32_t * bits, int stride, int bpp, int x, int y, int width, int height, uint32_t filler)
 {
-	return _pixman_implementation_fill(
-		get_implementation(), bits, stride, bpp, x, y, width, height, filler);
+	return _pixman_implementation_fill(get_implementation(), bits, stride, bpp, x, y, width, height, filler);
 }
 
 static uint32_t color_to_uint32(const pixman_color_t * color)
 {
-	return
-		(color->alpha >> 8 << 24) |
-		(color->red >> 8 << 16) |
-		(color->green & 0xff00) |
-		(color->blue >> 8);
+	return (color->alpha >> 8 << 24) | (color->red >> 8 << 16) | (color->green & 0xff00) | (color->blue >> 8);
 }
 
-static pixman_bool_t color_to_pixel(const pixman_color_t * color,
-    uint32_t * pixel,
-    pixman_format_code_t format)
+static pixman_bool_t color_to_pixel(const pixman_color_t * color, uint32_t * pixel, pixman_format_code_t format)
 {
 	uint32_t c = color_to_uint32(color);
-
 	if(PIXMAN_FORMAT_TYPE(format) == PIXMAN_TYPE_RGBA_FLOAT) {
 		return FALSE;
 	}
-
 	if(!(format == PIXMAN_a8r8g8b8     ||
 	    format == PIXMAN_x8r8g8b8     ||
 	    format == PIXMAN_a8b8g8r8     ||
@@ -826,27 +728,18 @@ PIXMAN_EXPORT pixman_bool_t pixman_image_fill_boxes(pixman_op_t op, pixman_image
 				    rect->x1, rect->y1, rect->x2 - rect->x1, rect->y2 - rect->y1,
 				    pixel);
 			}
-
 			pixman_region32_fini(&fill_region);
 			return TRUE;
 		}
 	}
-
 	solid = pixman_image_create_solid_fill(color);
 	if(!solid)
 		return FALSE;
-
 	for(i = 0; i < n_boxes; ++i) {
 		const pixman_box32_t * box = &(boxes[i]);
-
-		pixman_image_composite32(op, solid, NULL, dest,
-		    0, 0, 0, 0,
-		    box->x1, box->y1,
-		    box->x2 - box->x1, box->y2 - box->y1);
+		pixman_image_composite32(op, solid, NULL, dest, 0, 0, 0, 0, box->x1, box->y1, box->x2 - box->x1, box->y2 - box->y1);
 	}
-
 	pixman_image_unref(solid);
-
 	return TRUE;
 }
 

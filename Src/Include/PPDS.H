@@ -115,7 +115,7 @@ private:
 		long   Lin;
 	};
 	int    SLAPI GetTerm(int * pTerm = 0);
-	PPDeclStruc * SLAPI GetData(long typeID, void * extraPtr, PPDeclStruc * pOuter, int dontAccept);
+	PPDeclStruc * SLAPI GetData(long typeID, void * extraPtr, const PPDeclStruc * pOuter, int dontAccept);
 	int    SLAPI GetChar(int skipWS = 0);
 	int    SLAPI UngetChar();
 	int    SLAPI GetWord();

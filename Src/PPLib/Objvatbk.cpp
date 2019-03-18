@@ -1724,7 +1724,7 @@ int SLAPI PPViewVatBook::_SetVATParams(VATBookTbl::Rec * pRec, const BVATAccmArr
 	BVATAccmArray temp_vata;
 	temp_vata.copy(*pVatA);
 	temp_vata.Scale_(scale, 0);
-	for(uint i = 0; temp_vata.enumItems(&i, (void**)&p_vati);) {
+	for(uint i = 0; temp_vata.enumItems(&i, (void **)&p_vati);) {
 		double a = selling ? p_vati->Price : p_vati->Cost;
 		double s = selling ? p_vati->PVATSum : p_vati->CVATSum;
 		amount += a;
@@ -1980,7 +1980,7 @@ int SLAPI PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmo
 			bill_code = reckon_pack.Ext.InvoiceCode[0] ? reckon_pack.Ext.InvoiceCode : BillCore::GetCode(reckon_pack.Rec.Code);
 			mult = paym_pack.GetBaseAmount() / reckon_pack.GetBaseAmount();
 			reckon_pack.Rec.Amount = BR2(paym_pack.Rec.Amount);
-			for(i = 0; reckon_pack.Amounts.enumItems(&i, (void**)&p_ae);)
+			for(i = 0; reckon_pack.Amounts.enumItems(&i, (void **)&p_ae);)
 				if(p_ae->Amt != 0.0)
 					p_ae->Amt = BR2(p_ae->Amt * mult);
 			THROW(r2 = reckon_pack.SetupVirtualTItems());
@@ -2007,7 +2007,7 @@ int SLAPI PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmo
 				int    is_there_stax = 0;
 				uint   i;
 				LongArray to_rmv_pos_list;
-				for(i = 0; pack.Amounts.enumItems(&i, (void**)&p_ae);) {
+				for(i = 0; pack.Amounts.enumItems(&i, (void **)&p_ae);) {
 					if(p_ae->Amt != 0.0 && amtt_obj.Fetch(p_ae->AmtTypeID, &amtt_rec) > 0) {
 						if(amtt_rec.IsTax(GTAX_VAT))
 							to_rmv_pos_list.addUnique(i-1);
@@ -2832,7 +2832,7 @@ int SLAPI PPViewVatBook::Export()
 		THROW(p_writer = xmlNewTextWriterFilename(path, 0));
 		{
 			xmlTextWriterSetIndent(p_writer, 1);
-			xmlTextWriterSetIndentString(p_writer, (const xmlChar*)"\t");
+			xmlTextWriterSetIndentString(p_writer, reinterpret_cast<const xmlChar *>("\t"));
 			xmlTextWriterStartDocument(p_writer, 0, "windows-1251", 0);
 			//
 			{

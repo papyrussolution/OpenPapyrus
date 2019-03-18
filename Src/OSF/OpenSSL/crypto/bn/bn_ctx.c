@@ -237,7 +237,7 @@ static int FASTCALL BN_STACK_push(BN_STACK * st, uint idx)
 	if(st->depth == st->size) {
 		/* Need to expand */
 		uint newsize = st->size ? (st->size * 3 / 2) : BN_CTX_START_FRAMES;
-		uint * newitems = (uint*)OPENSSL_malloc(sizeof(*newitems) * newsize);
+		uint * newitems = (uint *)OPENSSL_malloc(sizeof(*newitems) * newsize);
 		if(newitems == NULL)
 			return 0;
 		if(st->depth)

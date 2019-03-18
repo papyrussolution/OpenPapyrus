@@ -1169,7 +1169,7 @@ HRESULT CArc::PrepareToOpen(const COpenOptions &op, unsigned formatIndex, CMyCom
 		    !op.codecs->Libs[ai.LibIndex].SetCodecs :
 		    !op.codecs->Libs.IsEmpty()) {
 			CMyComPtr<ISetCompressCodecsInfo> setCompressCodecsInfo;
-			archive.QueryInterface(IID_ISetCompressCodecsInfo, (void**)&setCompressCodecsInfo);
+			archive.QueryInterface(IID_ISetCompressCodecsInfo, (void **)&setCompressCodecsInfo);
 			if(setCompressCodecsInfo) {
 				RINOK(setCompressCodecsInfo->SetCompressCodecsInfo(op.codecs));
 			}
@@ -1185,7 +1185,7 @@ HRESULT CArc::PrepareToOpen(const COpenOptions &op, unsigned formatIndex, CMyCom
 		/* we notify parsers that extract executables, that they don't need
 		   to open archive, if there is tail after executable (for SFX cases) */
 		CMyComPtr <IArchiveAllowTail> allowTail;
-		archive.QueryInterface(IID_IArchiveAllowTail, (void**)&allowTail);
+		archive.QueryInterface(IID_IArchiveAllowTail, (void **)&allowTail);
 		CALLPTRMEMB(allowTail, AllowTail(BoolToInt(true)));
 	}
 	if(op.props) {
@@ -1644,7 +1644,7 @@ HRESULT CArc::OpenStream2(const COpenOptions &op)
 			}
 			else {
 				CMyComPtr<IArchiveOpenSeq> openSeq;
-				archive.QueryInterface(IID_IArchiveOpenSeq, (void**)&openSeq);
+				archive.QueryInterface(IID_IArchiveOpenSeq, (void **)&openSeq);
 				if(!openSeq)
 					return E_NOTIMPL;
 				result = openSeq->OpenSeq(op.seqStream);
@@ -2429,8 +2429,8 @@ HRESULT CArc::OpenStream(const COpenOptions &op)
 	if(Archive) {
 		GetRawProps.Release();
 		GetRootProps.Release();
-		Archive->QueryInterface(IID_IArchiveGetRawProps, (void**)&GetRawProps);
-		Archive->QueryInterface(IID_IArchiveGetRootProps, (void**)&GetRootProps);
+		Archive->QueryInterface(IID_IArchiveGetRawProps, (void **)&GetRawProps);
+		Archive->QueryInterface(IID_IArchiveGetRootProps, (void **)&GetRootProps);
 		RINOK(Archive_GetArcBoolProp(Archive, kpidIsTree, IsTree));
 		RINOK(Archive_GetArcBoolProp(Archive, kpidIsDeleted, Ask_Deleted));
 		RINOK(Archive_GetArcBoolProp(Archive, kpidIsAltStream, Ask_AltStream));
@@ -2564,7 +2564,7 @@ void CArchiveLink::KeepModeForNextOpen()
 	for(uint i = Arcs.Size(); i != 0; ) {
 		i--;
 		CMyComPtr<IArchiveKeepModeForNextOpen> keep;
-		Arcs[i].Archive->QueryInterface(IID_IArchiveKeepModeForNextOpen, (void**)&keep);
+		Arcs[i].Archive->QueryInterface(IID_IArchiveKeepModeForNextOpen, (void **)&keep);
 		CALLPTRMEMB(keep, KeepModeForNextOpen());
 	}
 }
@@ -2692,7 +2692,7 @@ HRESULT CArchiveLink::Open(COpenOptions &op)
 				break;
 		}
 		CMyComPtr<IInArchiveGetStream> getStream;
-		if(arc.Archive->QueryInterface(IID_IInArchiveGetStream, (void**)&getStream) != S_OK || !getStream)
+		if(arc.Archive->QueryInterface(IID_IInArchiveGetStream, (void **)&getStream) != S_OK || !getStream)
 			break;
 		CMyComPtr<ISequentialInStream> subSeqStream;
 		if(getStream->GetStream(mainSubfile, &subSeqStream) != S_OK || !subSeqStream)
@@ -2706,7 +2706,7 @@ HRESULT CArchiveLink::Open(COpenOptions &op)
 		RINOK(Archive_GetItemBoolProp(arc.Archive, mainSubfile, kpidZerosTailIsAllowed, zerosTailIsAllowed));
 		if(op.callback) {
 			CMyComPtr<IArchiveOpenSetSubArchiveName> setSubArchiveName;
-			op.callback->QueryInterface(IID_IArchiveOpenSetSubArchiveName, (void**)&setSubArchiveName);
+			op.callback->QueryInterface(IID_IArchiveOpenSetSubArchiveName, (void **)&setSubArchiveName);
 			CALLPTRMEMB(setSubArchiveName, SetSubArchiveName(arc2.Path));
 		}
 		arc2.SubfileIndex = mainSubfile;

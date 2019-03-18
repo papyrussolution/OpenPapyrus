@@ -2375,14 +2375,9 @@ PNG_EXPORT(216, uint32, png_get_io_chunk_type,
  * column version.  The mask has the appropriate bit set for each column in
  * the tile.
  */
-#define PNG_PASS_MASK(pass,off) ( \
-   ((0x110145AF>>(((7-(off))-(pass))<<2)) & 0xF) | \
-   ((0x01145AF0>>(((7-(off))-(pass))<<2)) & 0xF0))
-
-#define PNG_ROW_IN_INTERLACE_PASS(y, pass) \
-   ((PNG_PASS_MASK(pass,0) >> ((y)&7)) & 1)
-#define PNG_COL_IN_INTERLACE_PASS(x, pass) \
-   ((PNG_PASS_MASK(pass,1) >> ((x)&7)) & 1)
+#define PNG_PASS_MASK(pass,off)            (((0x110145AF>>(((7-(off))-(pass))<<2)) & 0xF) | ((0x01145AF0>>(((7-(off))-(pass))<<2)) & 0xF0))
+#define PNG_ROW_IN_INTERLACE_PASS(y, pass) ((PNG_PASS_MASK(pass,0) >> ((y)&7)) & 1)
+#define PNG_COL_IN_INTERLACE_PASS(x, pass) ((PNG_PASS_MASK(pass,1) >> ((x)&7)) & 1)
 
 #ifdef PNG_READ_COMPOSITE_NODIV_SUPPORTED
 /* With these routines we avoid an integer divide, which will be slower on
@@ -2400,10 +2395,7 @@ PNG_EXPORT(216, uint32, png_get_io_chunk_type,
  /* fg and bg should be in `gamma 1.0' space; alpha is the opacity */
 
 #define png_composite(composite, fg, alpha, bg)         \
-     { png_uint_16 temp = (png_uint_16)((png_uint_16)(fg) \
-           * (png_uint_16)(alpha)                         \
-           + (png_uint_16)(bg)*(png_uint_16)(255          \
-           - (png_uint_16)(alpha)) + 128);                \
+     { png_uint_16 temp = (png_uint_16)((png_uint_16)(fg) * (png_uint_16)(alpha) + (png_uint_16)(bg)*(png_uint_16)(255 - (png_uint_16)(alpha)) + 128); \
        (composite) = (uint8)(((temp + (temp >> 8)) >> 8) & 0xff); }
 
 #define png_composite_16(composite, fg, alpha, bg)       \
@@ -2424,57 +2416,40 @@ PNG_EXPORT(216, uint32, png_get_io_chunk_type,
          (uint32)(bg)*(uint32)(65535 - (uint32)(alpha)) +     \
          32767) / 65535))
 #endif /* READ_COMPOSITE_NODIV */
-
 #ifdef PNG_READ_INT_FUNCTIONS_SUPPORTED
-PNG_EXPORT(201, uint32, png_get_uint_32, (png_const_bytep buf));
-PNG_EXPORT(202, png_uint_16, png_get_uint_16, (png_const_bytep buf));
-PNG_EXPORT(203, png_int_32, png_get_int_32, (png_const_bytep buf));
+	PNG_EXPORT(201, uint32, png_get_uint_32, (png_const_bytep buf));
+	PNG_EXPORT(202, png_uint_16, png_get_uint_16, (png_const_bytep buf));
+	PNG_EXPORT(203, png_int_32, png_get_int_32, (png_const_bytep buf));
 #endif
-
-PNG_EXPORT(204, uint32, png_get_uint_31, (png_const_structrp png_ptr,
-    png_const_bytep buf));
+PNG_EXPORT(204, uint32, png_get_uint_31, (png_const_structrp png_ptr, png_const_bytep buf));
 /* No png_get_int_16 -- may be added if there's a real need for it. */
-
 /* Place a 32-bit number into a buffer in PNG byte order (big-endian). */
 #ifdef PNG_WRITE_INT_FUNCTIONS_SUPPORTED
-PNG_EXPORT(205, void, png_save_uint_32, (png_bytep buf, uint32 i));
+	PNG_EXPORT(205, void, png_save_uint_32, (png_bytep buf, uint32 i));
 #endif
 #ifdef PNG_SAVE_INT_32_SUPPORTED
-PNG_EXPORT(206, void, png_save_int_32, (png_bytep buf, png_int_32 i));
+	PNG_EXPORT(206, void, png_save_int_32, (png_bytep buf, png_int_32 i));
 #endif
-
 /* Place a 16-bit number into a buffer in PNG byte order.
  * The parameter is declared unsigned int, not png_uint_16,
  * just to avoid potential problems on pre-ANSI C compilers.
  */
 #ifdef PNG_WRITE_INT_FUNCTIONS_SUPPORTED
-PNG_EXPORT(207, void, png_save_uint_16, (png_bytep buf, unsigned int i));
-/* No png_save_int_16 -- may be added if there's a real need for it. */
+	PNG_EXPORT(207, void, png_save_uint_16, (png_bytep buf, unsigned int i));
+	/* No png_save_int_16 -- may be added if there's a real need for it. */
 #endif
-
 #ifdef PNG_USE_READ_MACROS
 /* Inline macros to do direct reads of bytes from the input buffer.
  * The png_get_int_32() routine assumes we are using two's complement
  * format for negative values, which is almost certainly true.
  */
-#define PNG_get_uint_32(buf) \
-     (((uint32)(*(buf)) << 24) + \
-      ((uint32)(*((buf) + 1)) << 16) + \
-      ((uint32)(*((buf) + 2)) << 8) + \
-      ((uint32)(*((buf) + 3))))
+#define PNG_get_uint_32(buf) (((uint32)(*(buf)) << 24) + ((uint32)(*((buf) + 1)) << 16) + ((uint32)(*((buf) + 2)) << 8) + ((uint32)(*((buf) + 3))))
 
    /* From libpng-1.4.0 until 1.4.4, the png_get_uint_16 macro (but not the
     * function) incorrectly returned a value of type uint32.
     */
-#define PNG_get_uint_16(buf) \
-     ((png_uint_16) \
-      (((unsigned int)(*(buf)) << 8) + \
-       ((unsigned int)(*((buf) + 1)))))
-
-#define PNG_get_int_32(buf) \
-     ((png_int_32)((*(buf) & 0x80) \
-      ? -((png_int_32)(((png_get_uint_32(buf)^0xffffffffU)+1U)&0x7fffffffU)) \
-      : (png_int_32)png_get_uint_32(buf)))
+#define PNG_get_uint_16(buf) ((png_uint_16)(((uint)(*(buf)) << 8) + ((uint)(*((buf) + 1)))))
+#define PNG_get_int_32(buf) ((png_int_32)((*(buf) & 0x80) ? -((png_int_32)(((png_get_uint_32(buf)^0xffffffffU)+1U)&0x7fffffffU)) : (png_int_32)png_get_uint_32(buf)))
 
    /* If PNG_PREFIX is defined the same thing as below happens in pnglibconf.h,
     * but defining a macro name prefixed with PNG_PREFIX.
@@ -2548,14 +2523,11 @@ PNG_EXPORT(243, int, png_get_palette_max, (png_const_structp png_ptr,
  * when it is being read or defines the in-memory format of an image that you
  * need to write:
  */
-#if defined(PNG_SIMPLIFIED_READ_SUPPORTED) || \
-    defined(PNG_SIMPLIFIED_WRITE_SUPPORTED)
-
+#if defined(PNG_SIMPLIFIED_READ_SUPPORTED) || defined(PNG_SIMPLIFIED_WRITE_SUPPORTED)
 #define PNG_IMAGE_VERSION 1
 
 typedef struct png_control *png_controlp;
-typedef struct
-{
+typedef struct {
    png_controlp opaque;    /* Initialize to NULL, free with png_image_free */
    uint32  version;   /* Set to PNG_IMAGE_VERSION */
    uint32  width;     /* Image width in pixels (columns) */
@@ -2588,7 +2560,6 @@ typedef struct
 #define PNG_IMAGE_FAILED(png_cntrl) ((((png_cntrl).warning_or_error)&0x03)>1)
 
    uint32  warning_or_error;
-
    char         message[64];
 } png_image, *png_imagep;
 
@@ -2860,24 +2831,14 @@ typedef struct
  * the png_controlp field 'opaque' to NULL (or, safer, memset the whole thing.)
  */
 #ifdef PNG_STDIO_SUPPORTED
-PNG_EXPORT(234, int, png_image_begin_read_from_file, (png_imagep image,
-   const char *file_name));
-   /* The named file is opened for read and the image header is filled in
-    * from the PNG header in the file.
-    */
-
-PNG_EXPORT(235, int, png_image_begin_read_from_stdio, (png_imagep image,
-   FILE* file));
+PNG_EXPORT(234, int, png_image_begin_read_from_file, (png_imagep image, const char *file_name));
+   /* The named file is opened for read and the image header is filled in from the PNG header in the file. */
+PNG_EXPORT(235, int, png_image_begin_read_from_stdio, (png_imagep image, FILE* file));
    /* The PNG header is read from the stdio FILE object. */
 #endif /* STDIO */
-
-PNG_EXPORT(236, int, png_image_begin_read_from_memory, (png_imagep image,
-   const void * memory, size_t size));
+PNG_EXPORT(236, int, png_image_begin_read_from_memory, (png_imagep image, const void * memory, size_t size));
    /* The PNG header is read from the given memory buffer. */
-
-PNG_EXPORT(237, int, png_image_finish_read, (png_imagep image,
-   png_const_colorp background, void *buffer, png_int_32 row_stride,
-   void *colormap));
+PNG_EXPORT(237, int, png_image_finish_read, (png_imagep image, png_const_colorp background, void *buffer, png_int_32 row_stride, void *colormap));
    /* Finish reading the image into the supplied buffer and clean up the
     * png_image structure.
     *
@@ -2909,7 +2870,6 @@ PNG_EXPORT(237, int, png_image_finish_read, (png_imagep image,
     * image->colormap_entries will be updated to the actual number of entries
     * written to the colormap; this may be less than the original value.
     */
-
 PNG_EXPORT(238, void, png_image_free, (png_imagep image));
    /* Free any data allocated by libpng in image->opaque, setting the pointer to
     * NULL.  May be called at any time after the structure is initialized.
@@ -2934,15 +2894,10 @@ PNG_EXPORT(238, void, png_image_free, (png_imagep image));
  * colormap_entries: set to the number of entries in the color-map (0 to 256)
  */
 #ifdef PNG_SIMPLIFIED_WRITE_STDIO_SUPPORTED
-PNG_EXPORT(239, int, png_image_write_to_file, (png_imagep image,
-   const char *file, int convert_to_8bit, const void *buffer,
-   png_int_32 row_stride, const void *colormap));
+PNG_EXPORT(239, int, png_image_write_to_file, (png_imagep image, const char *file, int convert_to_8bit, const void *buffer, png_int_32 row_stride, const void *colormap));
    /* Write the image to the named file. */
-
-PNG_EXPORT(240, int, png_image_write_to_stdio, (png_imagep image, FILE *file,
-   int convert_to_8_bit, const void *buffer, png_int_32 row_stride,
-   const void *colormap));
-   /* Write the image to the given (FILE*). */
+PNG_EXPORT(240, int, png_image_write_to_stdio, (png_imagep image, FILE *file, int convert_to_8_bit, const void *buffer, png_int_32 row_stride, const void *colormap));
+   /* Write the image to the given (FILE *). */
 #endif /* SIMPLIFIED_WRITE_STDIO */
 
 /* With all write APIs if image is in one of the linear formats with 16-bit
@@ -3103,8 +3058,7 @@ PNG_EXPORT(245, int, png_image_write_to_memory, (png_imagep image, void *memory,
 #define PNG_OPTION_OFF     2
 #define PNG_OPTION_ON      3
 
-PNG_EXPORT(244, int, png_set_option, (png_structrp png_ptr, int option,
-   int onoff));
+PNG_EXPORT(244, int, png_set_option, (png_structrp png_ptr, int option, int onoff));
 #endif /* SET_OPTION */
 
 /*******************************************************************************

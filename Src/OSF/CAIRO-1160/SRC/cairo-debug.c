@@ -166,9 +166,7 @@ void _cairo_image_surface_write_to_ppm(cairo_image_surface_t * isurf, const char
 			}
 		}
 	}
-
 	fclose(fp);
-
 	fprintf(stderr, "Wrote %s\n", fn);
 }
 
@@ -176,26 +174,26 @@ void _cairo_image_surface_write_to_ppm(cairo_image_surface_t * isurf, const char
 
 static cairo_status_t _print_move_to(void * closure, const cairo_point_t * point)
 {
-	fprintf((FILE *)closure, " %f %f m", _cairo_fixed_to_double(point->x), _cairo_fixed_to_double(point->y));
+	fprintf(static_cast<FILE *>(closure), " %f %f m", _cairo_fixed_to_double(point->x), _cairo_fixed_to_double(point->y));
 	return CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_status_t _print_line_to(void * closure, const cairo_point_t * point)
 {
-	fprintf((FILE *)closure, " %f %f l", _cairo_fixed_to_double(point->x), _cairo_fixed_to_double(point->y));
+	fprintf(static_cast<FILE *>(closure), " %f %f l", _cairo_fixed_to_double(point->x), _cairo_fixed_to_double(point->y));
 	return CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_status_t _print_curve_to(void * closure, const cairo_point_t * p1, const cairo_point_t * p2, const cairo_point_t * p3)
 {
-	fprintf((FILE *)closure, " %f %f %f %f %f %f c", _cairo_fixed_to_double(p1->x), _cairo_fixed_to_double(p1->y),
+	fprintf(static_cast<FILE *>(closure), " %f %f %f %f %f %f c", _cairo_fixed_to_double(p1->x), _cairo_fixed_to_double(p1->y),
 	    _cairo_fixed_to_double(p2->x), _cairo_fixed_to_double(p2->y), _cairo_fixed_to_double(p3->x), _cairo_fixed_to_double(p3->y));
 	return CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_status_t _print_close(void * closure)
 {
-	fprintf((FILE *)closure, " h");
+	fprintf(static_cast<FILE *>(closure), " h");
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -216,16 +214,13 @@ void _cairo_debug_print_path(FILE * stream, const cairo_path_fixed_t * path)
 void _cairo_debug_print_polygon(FILE * stream, cairo_polygon_t * polygon)
 {
 	int n;
-
-	fprintf(stream,
-	    "polygon: extents=(%f, %f), (%f, %f)\n",
+	fprintf(stream, "polygon: extents=(%f, %f), (%f, %f)\n",
 	    _cairo_fixed_to_double(polygon->extents.p1.x),
 	    _cairo_fixed_to_double(polygon->extents.p1.y),
 	    _cairo_fixed_to_double(polygon->extents.p2.x),
 	    _cairo_fixed_to_double(polygon->extents.p2.y));
 	if(polygon->num_limits) {
-		fprintf(stream,
-		    "       : limit=(%f, %f), (%f, %f) x %d\n",
+		fprintf(stream, "       : limit=(%f, %f), (%f, %f) x %d\n",
 		    _cairo_fixed_to_double(polygon->limit.p1.x),
 		    _cairo_fixed_to_double(polygon->limit.p1.y),
 		    _cairo_fixed_to_double(polygon->limit.p2.x),
@@ -235,9 +230,7 @@ void _cairo_debug_print_polygon(FILE * stream, cairo_polygon_t * polygon)
 
 	for(n = 0; n < polygon->num_edges; n++) {
 		cairo_edge_t * edge = &polygon->edges[n];
-
-		fprintf(stream,
-		    "  [%d] = [(%f, %f), (%f, %f)], top=%f, bottom=%f, dir=%d\n",
+		fprintf(stream, "  [%d] = [(%f, %f), (%f, %f)], top=%f, bottom=%f, dir=%d\n",
 		    n,
 		    _cairo_fixed_to_double(edge->line.p1.x),
 		    _cairo_fixed_to_double(edge->line.p1.y),
@@ -251,15 +244,10 @@ void _cairo_debug_print_polygon(FILE * stream, cairo_polygon_t * polygon)
 
 void _cairo_debug_print_matrix(FILE * file, const cairo_matrix_t * matrix)
 {
-	fprintf(file, "[%g %g %g %g %g %g]\n",
-	    matrix->xx, matrix->yx,
-	    matrix->xy, matrix->yy,
-	    matrix->x0, matrix->y0);
+	fprintf(file, "[%g %g %g %g %g %g]\n", matrix->xx, matrix->yx, matrix->xy, matrix->yy, matrix->x0, matrix->y0);
 }
 
 void _cairo_debug_print_rect(FILE * file, const cairo_rectangle_int_t * rect)
 {
-	fprintf(file, "x: %d y: %d width: %d height: %d\n",
-	    rect->x, rect->y,
-	    rect->width, rect->height);
+	fprintf(file, "x: %d y: %d width: %d height: %d\n", rect->x, rect->y, rect->width, rect->height);
 }

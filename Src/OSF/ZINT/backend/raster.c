@@ -431,10 +431,10 @@ extern int bmp_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf);
 extern int pcx_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf);
 extern int gif_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf);
 
-static void buffer_plot(struct ZintSymbol * symbol, char * pixelbuf)
+static void buffer_plot(struct ZintSymbol * symbol, const char * pixelbuf)
 {
 	// Place pixelbuffer into symbol 
-	symbol->bitmap = (char *)SAlloc::M(symbol->bitmap_width * symbol->bitmap_height * 3);
+	symbol->bitmap = static_cast<char *>(SAlloc::M(symbol->bitmap_width * symbol->bitmap_height * 3));
 	/*
 	int fgred = (16 * hex(symbol->fgcolour[0])) + hex(symbol->fgcolour[1]);
 	int fggrn = (16 * hex(symbol->fgcolour[2])) + hex(symbol->fgcolour[3]);

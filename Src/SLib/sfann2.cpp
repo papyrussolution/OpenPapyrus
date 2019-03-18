@@ -138,7 +138,7 @@ static void fann_seed_rand_2();
 FANN_EXTERNAL Fann2 * FANN_API fann_create_standard_2(uint num_layers, ...)
 {
 	Fann2 * ann = 0;
-	uint * layers = (uint*)SAlloc::C(num_layers, sizeof(uint));
+	uint * layers = static_cast<uint *>(SAlloc::C(num_layers, sizeof(uint)));
 	if(layers == NULL) {
 		fann_error_2(NULL, FANN_E_CANT_ALLOCATE_MEM);
 	}
@@ -178,7 +178,7 @@ FANN_EXTERNAL Fann2 * FANN_API fann_create_sparse_2(float connection_rate, uint 
 	int i;
 	int status;
 	int arg;
-	uint * layers = (uint*)SAlloc::C(num_layers, sizeof(uint));
+	uint * layers = static_cast<uint *>(SAlloc::C(num_layers, sizeof(uint)));
 	if(layers == NULL) {
 		fann_error_2(NULL, FANN_E_CANT_ALLOCATE_MEM);
 		return NULL;
@@ -238,7 +238,7 @@ static Fann2 * fann_allocate_structure(uint num_layers)
 	ann->num_MSE = 0;
 	ann->MSE_value = 0;
 	ann->num_bit_fail = 0;
-	ann->bit_fail_limit = (float)0.35;
+	ann->bit_fail_limit = 0.35f;
 	ann->network_type = FANN_NETTYPE_LAYER;
 	ann->train_error_function = FANN_ERRORFUNC_TANH;
 	ann->train_stop_function = FANN_STOPFUNC_MSE;
@@ -263,8 +263,8 @@ static Fann2 * fann_allocate_structure(uint num_layers)
 	ann->cascade_output_stagnation_epochs = 12;
 	ann->cascade_candidate_stagnation_epochs = 12;
 	ann->cascade_num_candidate_groups = 2;
-	ann->cascade_weight_multiplier = (float)0.4;
-	ann->cascade_candidate_limit = (float)1000.0;
+	ann->cascade_weight_multiplier = 0.4f;
+	ann->cascade_candidate_limit = 1000.0f;
 	ann->cascade_max_out_epochs = 150;
 	ann->cascade_max_cand_epochs = 150;
 	ann->cascade_min_out_epochs = 50;
@@ -444,7 +444,7 @@ FANN_EXTERNAL Fann2 * FANN_API fann_create_sparse_array(float connection_rate, u
 		// Then this is the minimum amount of neurons 
 		min_connections = MAX(num_neurons_in, num_neurons_out); // not calculating bias 
 		max_connections = num_neurons_in * num_neurons_out; // not calculating bias 
-		num_connections = MAX(min_connections, (uint)(0.5 + (connection_rate * max_connections))) + num_neurons_out;
+		num_connections = MAX(min_connections, (uint)(0.5f + (connection_rate * max_connections))) + num_neurons_out;
 		connections_per_neuron = num_connections / num_neurons_out;
 		allocated_connections = 0;
 		// Now split out the connections on the different neurons 
@@ -589,7 +589,7 @@ FANN_EXTERNAL Fann2 * FANN_API fann_create_shortcut_2(uint num_layers, ...)
 	int status;
 	int arg;
 	va_list layer_sizes;
-	uint * layers = (uint*)SAlloc::C(num_layers, sizeof(uint));
+	uint * layers = static_cast<uint *>(SAlloc::C(num_layers, sizeof(uint)));
 	if(layers == NULL)
 		fann_error_2(NULL, FANN_E_CANT_ALLOCATE_MEM);
 	else {
@@ -4349,7 +4349,7 @@ FANN_EXTERNAL struct fann_train_data * FANN_API fann_merge_train_data(struct fan
 {
 	uint i;
 	float * data_input, * data_output;
-	struct fann_train_data * dest = (struct fann_train_data *)SAlloc::M(sizeof(struct fann_train_data));
+	struct fann_train_data * dest = static_cast<struct fann_train_data *>(SAlloc::M(sizeof(struct fann_train_data)));
 	if(dest == NULL) {
 		fann_error_2(reinterpret_cast<struct fann_error *>(data1), FANN_E_CANT_ALLOCATE_MEM);
 		return NULL;
@@ -4406,7 +4406,7 @@ FANN_EXTERNAL struct fann_train_data * FANN_API fann_duplicate_train_data(struct
 {
 	uint i;
 	float * data_input, * data_output;
-	struct fann_train_data * dest = (struct fann_train_data *)SAlloc::M(sizeof(struct fann_train_data));
+	struct fann_train_data * dest = static_cast<struct fann_train_data *>(SAlloc::M(sizeof(struct fann_train_data)));
 	if(dest == NULL) {
 		fann_error_2(reinterpret_cast<struct fann_error *>(data), FANN_E_CANT_ALLOCATE_MEM);
 		return NULL;
@@ -4456,7 +4456,7 @@ FANN_EXTERNAL struct fann_train_data * FANN_API fann_subset_train_data(struct fa
 {
 	uint i;
 	float * data_input, * data_output;
-	struct fann_train_data * dest = (struct fann_train_data *)SAlloc::M(sizeof(struct fann_train_data));
+	struct fann_train_data * dest = static_cast<struct fann_train_data *>(SAlloc::M(sizeof(struct fann_train_data)));
 	if(dest == NULL) {
 		fann_error_2(reinterpret_cast<struct fann_error *>(data), FANN_E_CANT_ALLOCATE_MEM);
 		return NULL;
@@ -4515,7 +4515,7 @@ FANN_EXTERNAL struct fann_train_data * FANN_API fann_create_train(uint num_data,
 {
 	float * data_input, * data_output;
 	uint i;
-	struct fann_train_data * data = (struct fann_train_data *)SAlloc::M(sizeof(struct fann_train_data));
+	struct fann_train_data * data = static_cast<struct fann_train_data *>(SAlloc::M(sizeof(struct fann_train_data)));
 	if(data == NULL) {
 		fann_error_2(NULL, FANN_E_CANT_ALLOCATE_MEM);
 		return NULL;

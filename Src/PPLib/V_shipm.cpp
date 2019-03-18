@@ -135,7 +135,7 @@ int SLAPI PPViewShipmAnalyze::EditBaseFilt(PPBaseFilt * pFilt)
 		}
 		ShipmAnalyzeFilt Data;
 	};
-	DIALOG_PROC_BODY(ShipmAnalyzeFiltDialog, (ShipmAnalyzeFilt*)pFilt);
+	DIALOG_PROC_BODY(ShipmAnalyzeFiltDialog, static_cast<ShipmAnalyzeFilt *>(pFilt));
 }
 
 
@@ -437,7 +437,7 @@ int SLAPI PPViewShipmAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, PPV
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		const BrwHdr * p_hdr = (const BrwHdr *)pHdr;
+		const BrwHdr * p_hdr = static_cast<const BrwHdr *>(pHdr);
 		switch(ppvCmd) {
 			case PPVCMD_EDITGOODS:
 				ok = -1;

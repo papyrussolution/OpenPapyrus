@@ -1694,7 +1694,7 @@ TIDY_EXPORT int TIDY_CALL tidyRunDiagnostics(TidyDoc tdoc);
 
 /** Save to named file */
 TIDY_EXPORT int TIDY_CALL tidySaveFile(TidyDoc tdoc, ctmbstr filename);
-/** Save to standard output (FILE*) */
+/** Save to standard output (FILE *) */
 TIDY_EXPORT int TIDY_CALL tidySaveStdout(TidyDoc tdoc);
 /** Save to given TidyBuffer object */
 TIDY_EXPORT int TIDY_CALL tidySaveBuffer(TidyDoc tdoc, TidyBuffer* buf);

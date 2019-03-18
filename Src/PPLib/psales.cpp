@@ -1,5 +1,5 @@
 // PSALES.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -846,8 +846,7 @@ int SLAPI PredictSalesCore::SetTblUpdateDt(LDATE dt)
 	return ok;
 }
 
-int SLAPI PredictSalesCore::Helper_Enumerate(PPID goodsID, PPID locID,
-	const DateRange * pPeriod, int maxItems, EnumPredictSalesProc proc, long extraData)
+int SLAPI PredictSalesCore::Helper_Enumerate(PPID goodsID, PPID locID, const DateRange * pPeriod, int maxItems, EnumPredictSalesProc proc, void * extraPtr)
 {
 	int16  loc_idx = 0;
 	int16  low = 0, upp = MAXSHORT;
@@ -879,7 +878,7 @@ int SLAPI PredictSalesCore::Helper_Enumerate(PPID goodsID, PPID locID,
 		ExpandDate(data.Dt, &item.Dt);
 		item.Qtty = data.Quantity;
 		item.Amount = data.Amount;
-		int    r = proc(&item, extraData);
+		int    r = proc(&item, extraPtr);
 		if(r <= 0)
 			return r;
 		c++;
@@ -889,11 +888,10 @@ int SLAPI PredictSalesCore::Helper_Enumerate(PPID goodsID, PPID locID,
 	return 1;
 }
 
-int SLAPI PredictSalesCore::Enumerate(PPID goodsID, const ObjIdListFilt & rLocList,
-	const DateRange * pPeriod, int maxItems, EnumPredictSalesProc proc, long extraData)
+int SLAPI PredictSalesCore::Enumerate(PPID goodsID, const ObjIdListFilt & rLocList, const DateRange * pPeriod, int maxItems, EnumPredictSalesProc proc, void * extraPtr)
 {
 	if(rLocList.GetCount() == 1) {
-		return Helper_Enumerate(goodsID, rLocList.Get().get(0), pPeriod, maxItems, proc, extraData);
+		return Helper_Enumerate(goodsID, rLocList.Get().get(0), pPeriod, maxItems, proc, extraPtr);
 	}
 	else {
 		PPIDArray loc_list;
@@ -906,7 +904,7 @@ int SLAPI PredictSalesCore::Enumerate(PPID goodsID, const ObjIdListFilt & rLocLi
 				for(uint i = 0; i < LocTab.getCount(); i++) {
 					const PPID loc_id = LocTab.at(i).LocID;
 					if(loc_id >= 0) {
-						const int r = Helper_Enumerate(goodsID, loc_id, pPeriod, maxItems, proc, extraData);
+						const int r = Helper_Enumerate(goodsID, loc_id, pPeriod, maxItems, proc, extraPtr);
 						if(r <= 0)
 							return r;
 					}
@@ -915,7 +913,7 @@ int SLAPI PredictSalesCore::Enumerate(PPID goodsID, const ObjIdListFilt & rLocLi
 			else {
 				for(uint i = 0; i < loc_list.getCount(); i++) {
 					if(loc_list.at(i) > 0) {
-						const int r = Helper_Enumerate(goodsID, loc_list.at(i), pPeriod, maxItems, proc, extraData);
+						const int r = Helper_Enumerate(goodsID, loc_list.at(i), pPeriod, maxItems, proc, extraPtr);
 						if(r <= 0)
 							return r;
 					}
@@ -926,21 +924,20 @@ int SLAPI PredictSalesCore::Enumerate(PPID goodsID, const ObjIdListFilt & rLocLi
 	return 1;
 }
 
-static int FASTCALL EnumProc_GetStat(PredictSalesItem * pItem, long extraData)
+static int FASTCALL EnumProc_GetStat(PredictSalesItem * pItem, void * extraPtr)
 {
-	((PredictSalesStat *)extraData)->Step(pItem);
+	static_cast<PredictSalesStat *>(extraPtr)->Step(pItem);
 	return 1;
 }
 
-int SLAPI PredictSalesCore::CalcStat(PPID goodsID, const ObjIdListFilt & rLocList,
-	const DateRange * pPeriod, int maxItems, PredictSalesStat * pStat)
+int SLAPI PredictSalesCore::CalcStat(PPID goodsID, const ObjIdListFilt & rLocList, const DateRange * pPeriod, int maxItems, PredictSalesStat * pStat)
 {
 	int    lsslin = BIN(pStat->Flags & PSSF_USELSSLIN);
 	pStat->Init();
 	SETFLAG(pStat->Flags, PSSF_USELSSLIN, lsslin);
 	pStat->LocID = rLocList.GetSingle();
 	pStat->GoodsID = goodsID;
-	int    ok = Enumerate(goodsID, rLocList, pPeriod, maxItems, EnumProc_GetStat, (long)pStat);
+	int    ok = Enumerate(goodsID, rLocList, pPeriod, maxItems, EnumProc_GetStat, pStat);
 	if(ok > 0)
 		pStat->Finish();
 	return ok;
@@ -981,22 +978,20 @@ int SLAPI PsiArray::ShrinkByCycleList(const PPCycleArray * pCycleList, PsiArray 
 	return 1;
 }
 
-static int FASTCALL EnumProc_GetStatByGrp(PredictSalesItem * pItem, long extraData)
+static int FASTCALL EnumProc_GetStatByGrp(PredictSalesItem * pItem, void * extraPtr)
 {
-	return extraData ? ((PsiArray *)extraData)->Add(pItem) : -1;
+	return extraPtr ? static_cast<PsiArray *>(extraPtr)->Add(pItem) : -1;
 }
 
-int SLAPI PredictSalesCore::GetSeries(const PPIDArray & rGoodsIDList, const ObjIdListFilt & rLocList,
-	const DateRange * pPeriod, PsiArray * pList)
+int SLAPI PredictSalesCore::GetSeries(const PPIDArray & rGoodsIDList, const ObjIdListFilt & rLocList, const DateRange * pPeriod, PsiArray * pList)
 {
 	if(pList)
 		for(uint i = 0; i < rGoodsIDList.getCount(); i++)
-			Enumerate(rGoodsIDList.get(i), rLocList, pPeriod, 0, EnumProc_GetStatByGrp, (long)pList);
+			Enumerate(rGoodsIDList.get(i), rLocList, pPeriod, 0, EnumProc_GetStatByGrp, pList);
 	return 1;
 }
 
-int SLAPI PredictSalesCore::CalcStat(const PPIDArray & rGoodsIdList, ObjIdListFilt locList,
-	const DateRange * pPeriod, PredictSalesStat * pStat)
+int SLAPI PredictSalesCore::CalcStat(const PPIDArray & rGoodsIdList, ObjIdListFilt locList, const DateRange * pPeriod, PredictSalesStat * pStat)
 {
 	int    ok = 1;
 	pStat->Init();

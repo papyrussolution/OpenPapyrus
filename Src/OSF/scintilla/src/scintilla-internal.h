@@ -873,7 +873,7 @@ public:
 		dfTabIndents         = 0x0008,
 		dfBackspaceUnindents = 0x0010
 	};
-	bool   IsDocFlag(uint f) const { return (DocFlags & f) ? true : false; }
+	bool   IsDocFlag(uint f) const { return LOGIC(DocFlags & f); }
 	void   SetDocFlag(uint f, int set) { SETFLAG(DocFlags, f, set); }
 private:
 	// 
@@ -1748,7 +1748,7 @@ public:
 
 	PositionCacheEntry();
 	~PositionCacheEntry();
-	void Set(uint styleNumber_, const char * s_, uint len_, XYPOSITION * positions_, uint clock_);
+	void Set(uint styleNumber_, const char * s_, uint len_, const XYPOSITION * positions_, uint clock_);
 	void Clear();
 	bool Retrieve(uint styleNumber_, const char * s_, uint len_, XYPOSITION * positions_) const;
 	bool NewerThan(const PositionCacheEntry &other) const;

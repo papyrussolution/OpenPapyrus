@@ -70,12 +70,12 @@ static inline void _zbar_thread_init (zbar_thread_t *thr)
 
 static inline zbar_thread_id_t _zbar_thread_self ()
 {
-    return(GetCurrentThreadId());
+    return (GetCurrentThreadId());
 }
 
 static inline int _zbar_thread_is_self (zbar_thread_id_t tid)
 {
-    return(tid == GetCurrentThreadId());
+    return (tid == GetCurrentThreadId());
 }
 
 
@@ -92,12 +92,12 @@ static inline void _zbar_thread_init (zbar_thread_t *thr)
 
 static inline zbar_thread_id_t _zbar_thread_self (void)
 {
-    return(pthread_self());
+    return (pthread_self());
 }
 
 static inline int _zbar_thread_is_self (zbar_thread_id_t tid)
 {
-    return(pthread_equal(tid, pthread_self()));
+    return (pthread_equal(tid, pthread_self()));
 }
 
 

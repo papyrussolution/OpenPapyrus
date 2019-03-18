@@ -2132,7 +2132,7 @@ next:
 		}
 		copy->code = ngx_http_script_copy_code;
 		copy->len = src[i].key.len;
-		p = (u_char*)copy + sizeof(ngx_http_script_copy_code_t);
+		p = (u_char *)copy + sizeof(ngx_http_script_copy_code_t);
 		memcpy(p, src[i].key.data, src[i].key.len);
 		memzero(&sc, sizeof(ngx_http_script_compile_t));
 		sc.cf = cf;
@@ -2276,7 +2276,7 @@ static const char * ngx_http_fastcgi_pass(ngx_conf_t * cf, const ngx_command_t *
 		if(clcf->name.data[clcf->name.len - 1] == '/') {
 			clcf->auto_redirect = 1;
 		}
-		value = (ngx_str_t *)cf->args->elts;
+		value = static_cast<ngx_str_t *>(cf->args->elts);
 		url = &value[1];
 		n = ngx_http_script_variables_count(url);
 		if(n) {
@@ -2310,7 +2310,7 @@ static const char * ngx_http_fastcgi_split_path_info(ngx_conf_t * cf, const ngx_
 	ngx_http_fastcgi_loc_conf_t * flcf = (ngx_http_fastcgi_loc_conf_t *)conf;
 	ngx_regex_compile_t rc;
 	u_char errstr[NGX_MAX_CONF_ERRSTR];
-	ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	flcf->split_name = value[1];
 	memzero(&rc, sizeof(ngx_regex_compile_t));
 	rc.pattern = value[1];
@@ -2341,7 +2341,7 @@ static const char * ngx_http_fastcgi_store(ngx_conf_t * cf, const ngx_command_t 
 	if(flcf->upstream.store != NGX_CONF_UNSET) {
 		return "is duplicate";
 	}
-	value = (ngx_str_t *)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(ngx_strcmp(value[1].data, "off") == 0) {
 		flcf->upstream.store = 0;
 		return NGX_CONF_OK;
@@ -2378,7 +2378,7 @@ static const char * ngx_http_fastcgi_cache(ngx_conf_t * cf, const ngx_command_t 
 	ngx_http_fastcgi_loc_conf_t * flcf = (ngx_http_fastcgi_loc_conf_t *)conf;
 	ngx_http_complex_value_t cv;
 	ngx_http_compile_complex_value_t ccv;
-	ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(flcf->upstream.cache != NGX_CONF_UNSET) {
 		return "is duplicate";
 	}
@@ -2416,7 +2416,7 @@ static const char * ngx_http_fastcgi_cache_key(ngx_conf_t * cf, const ngx_comman
 {
 	ngx_http_fastcgi_loc_conf_t * flcf = (ngx_http_fastcgi_loc_conf_t *)conf;
 	ngx_http_compile_complex_value_t ccv;
-	ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(flcf->cache_key.value.data) {
 		return "is duplicate";
 	}

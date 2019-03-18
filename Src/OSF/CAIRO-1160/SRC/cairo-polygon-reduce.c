@@ -591,18 +591,11 @@ static cairo_bool_t intersect_lines(cairo_bo_edge_t * a,
 		if(_cairo_int64_le(den_det, R))
 			return FALSE;
 	}
-
 	/* We now know that the two lines should intersect within range. */
-
-	a_det = det32_64(a->edge.line.p1.x, a->edge.line.p1.y,
-		a->edge.line.p2.x, a->edge.line.p2.y);
-	b_det = det32_64(b->edge.line.p1.x, b->edge.line.p1.y,
-		b->edge.line.p2.x, b->edge.line.p2.y);
-
+	a_det = det32_64(a->edge.line.p1.x, a->edge.line.p1.y, a->edge.line.p2.x, a->edge.line.p2.y);
+	b_det = det32_64(b->edge.line.p1.x, b->edge.line.p1.y, b->edge.line.p2.x, b->edge.line.p2.y);
 	/* x = det (a_det, dx1, b_det, dx2) / den_det */
-	qr = _cairo_int_96by64_32x64_divrem(det64x32_128(a_det, dx1,
-		b_det, dx2),
-		den_det);
+	qr = _cairo_int_96by64_32x64_divrem(det64x32_128(a_det, dx1, b_det, dx2), den_det);
 	if(_cairo_int64_eq(qr.rem, den_det))
 		return FALSE;
 #if 0
@@ -614,8 +607,7 @@ static cairo_bool_t intersect_lines(cairo_bo_edge_t * a,
 			qr.rem = _cairo_int64_negate(qr.rem);
 		qr.rem = _cairo_int64_mul(qr.rem, _cairo_int32_to_int64(2));
 		if(_cairo_int64_ge(qr.rem, den_det)) {
-			qr.quo = _cairo_int64_add(qr.quo,
-				_cairo_int32_to_int64(_cairo_int64_negative(qr.quo) ? -1 : 1));
+			qr.quo = _cairo_int64_add(qr.quo, _cairo_int32_to_int64(_cairo_int64_negative(qr.quo) ? -1 : 1));
 		}
 		else
 			intersection->x.exactness = cairo_bo_intersect_ordinate_t::INEXACT;
@@ -624,9 +616,7 @@ static cairo_bool_t intersect_lines(cairo_bo_edge_t * a,
 	intersection->x.ordinate = _cairo_int64_to_int32(qr.quo);
 
 	/* y = det (a_det, dy1, b_det, dy2) / den_det */
-	qr = _cairo_int_96by64_32x64_divrem(det64x32_128(a_det, dy1,
-		b_det, dy2),
-		den_det);
+	qr = _cairo_int_96by64_32x64_divrem(det64x32_128(a_det, dy1, b_det, dy2), den_det);
 	if(_cairo_int64_eq(qr.rem, den_det))
 		return FALSE;
 #if 0
@@ -679,31 +669,22 @@ static int _cairo_bo_intersect_ordinate_32_compare(cairo_bo_intersect_ordinate_t
  * given edge and before the stop event for the edge. See the comments
  * in the implementation for more details.
  */
-static cairo_bool_t _cairo_bo_edge_contains_intersect_point(cairo_bo_edge_t * edge,
-    cairo_bo_intersect_point_t * point)
+static cairo_bool_t _cairo_bo_edge_contains_intersect_point(cairo_bo_edge_t * edge, const cairo_bo_intersect_point_t * point)
 {
-	int cmp_top, cmp_bottom;
-
 	/* XXX: When running the actual algorithm, we don't actually need to
 	 * compare against edge->top at all here, since any intersection above
 	 * top is eliminated early via a slope comparison. We're leaving these
 	 * here for now only for the sake of the quadratic-time intersection
 	 * finder which needs them.
 	 */
-
-	cmp_top = _cairo_bo_intersect_ordinate_32_compare(point->y,
-		edge->edge.top);
-	cmp_bottom = _cairo_bo_intersect_ordinate_32_compare(point->y,
-		edge->edge.bottom);
-
+	int cmp_top = _cairo_bo_intersect_ordinate_32_compare(point->y, edge->edge.top);
+	int cmp_bottom = _cairo_bo_intersect_ordinate_32_compare(point->y, edge->edge.bottom);
 	if(cmp_top < 0 || cmp_bottom > 0) {
 		return FALSE;
 	}
-
 	if(cmp_top > 0 && cmp_bottom < 0) {
 		return TRUE;
 	}
-
 	/* At this stage, the point lies on the same y value as either
 	 * edge->top or edge->bottom, so we have to examine the x value in
 	 * order to properly determine containment. */

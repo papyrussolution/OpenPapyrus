@@ -81,7 +81,7 @@ void SLAPI DBQBrowserDef::setViewHight(int h)
 
 void SLAPI DBQBrowserDef::getScrollData(long * pScrollDelta, long * pScrollPos)
 {
-	*pScrollDelta = (long)query->P_Frame->sdelta;
+	*pScrollDelta = static_cast<long>(query->P_Frame->sdelta);
 	//*pScrollPos = (long)query->P_Frame->spos;
 	*pScrollPos = 500L;
 }
@@ -125,6 +125,6 @@ int SLAPI DBQBrowserDef::refresh()
 int    SLAPI DBQBrowserDef::valid() { return !query->error; }
 int    FASTCALL DBQBrowserDef::go(long p) { return step(p-curItem); }
 long   SLAPI DBQBrowserDef::getRecsCount() { return query->P_Frame->srange+1; }
-void * FASTCALL DBQBrowserDef::getRow(long r) { return query->getRecord((uint)r); }
+void * FASTCALL DBQBrowserDef::getRow(long r) { return query->getRecord(static_cast<uint>(r)); }
 int    FASTCALL DBQBrowserDef::getData(void *) { return 1; }
 int    FASTCALL DBQBrowserDef::setData(void *) { return 1; }

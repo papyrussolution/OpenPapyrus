@@ -159,14 +159,14 @@ static int internal_find(OPENSSL_STACK * st, const void * data, int ret_val_opti
 		for(i = 0; i < st->num; i++)
 			if(st->data[i] == data)
 				return (i);
-		return (-1);
+		return -1;
 	}
 	OPENSSL_sk_sort(st);
 	if(data == NULL)
-		return (-1);
+		return -1;
 	r = OBJ_bsearch_ex_(&data, st->data, st->num, sizeof(void *), st->comp, ret_val_options);
 	if(r == NULL)
-		return (-1);
+		return -1;
 	return (int)((const char**)r - st->data);
 }
 
@@ -213,7 +213,7 @@ void * FASTCALL OPENSSL_sk_pop(OPENSSL_STACK * st)
 void FASTCALL OPENSSL_sk_zero(OPENSSL_STACK * st)
 {
 	if(st && st->num > 0) {
-		memzero((void *)st->data, sizeof(*st->data) * st->num); // @badcast
+		memzero(/*(void *)*/st->data, sizeof(*st->data) * st->num); // @badcast
 		st->num = 0;
 	}
 }

@@ -497,7 +497,7 @@ TRIO_STRING_PUBLIC unsigned long trio_hash(const char * string, int type)
 		case TRIO_HASH_PLAIN:
 		    while( (ch = *string++) != NIL) {
 			    value *= 31;
-			    value += (unsigned long)ch;
+			    value += static_cast<ulong>(ch);
 		    }
 		    break;
 		default:
@@ -1177,7 +1177,7 @@ TRIO_STRING_PUBLIC void trio_string_terminate(trio_string_t * self)
    @param other Dynamic string to copy from.
    @return Boolean value indicating success or failure.
  */
-TRIO_STRING_PUBLIC int trio_string_append(trio_string_t * self, trio_string_t * other)
+TRIO_STRING_PUBLIC int trio_string_append(trio_string_t * self, const trio_string_t * other)
 {
 	size_t length;
 	assert(self);
@@ -1294,7 +1294,7 @@ TRIO_STRING_PUBLIC int trio_xstring_copy(trio_string_t * self, const char * othe
 /*
  * trio_string_duplicate
  */
-TRIO_STRING_PUBLIC trio_string_t * trio_string_duplicate(trio_string_t * other)
+TRIO_STRING_PUBLIC trio_string_t * trio_string_duplicate(const trio_string_t * other)
 {
 	trio_string_t * self;
 	assert(other);

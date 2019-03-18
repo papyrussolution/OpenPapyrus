@@ -338,7 +338,7 @@ void _cairo_surface_attach_snapshot(cairo_surface_t * surface, cairo_surface_t *
 	assert(_cairo_surface_has_snapshot(surface, snapshot->backend) == snapshot);
 }
 
-cairo_surface_t * _cairo_surface_has_snapshot(cairo_surface_t * surface, const cairo_surface_backend_t * backend)
+cairo_surface_t * FASTCALL _cairo_surface_has_snapshot(cairo_surface_t * surface, const cairo_surface_backend_t * backend)
 {
 	cairo_surface_t * snapshot;
 	cairo_list_foreach_entry(snapshot, cairo_surface_t, &surface->snapshots, snapshot)

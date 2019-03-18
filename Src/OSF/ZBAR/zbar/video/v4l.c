@@ -44,7 +44,7 @@ int _zbar_video_open(zbar_video_t * vdo, const char * dev)
 {
 	vdo->fd = _open(dev, O_RDWR);
 	if(vdo->fd < 0)
-		return(err_capture_str(vdo, SEV_ERROR, ZBAR_ERR_SYSTEM, __func__, "opening video device '%s'", dev));
+		return (err_capture_str(vdo, SEV_ERROR, ZBAR_ERR_SYSTEM, __func__, "opening video device '%s'", dev));
 	zprintf(1, "opened camera device %s (fd=%d)\n", dev, vdo->fd);
 	int rc = -1;
 #ifdef HAVE_LINUX_VIDEODEV2_H
@@ -59,6 +59,6 @@ int _zbar_video_open(zbar_video_t * vdo, const char * dev)
 		_close(vdo->fd);
 		vdo->fd = -1;
 	}
-	return(rc);
+	return (rc);
 }
 

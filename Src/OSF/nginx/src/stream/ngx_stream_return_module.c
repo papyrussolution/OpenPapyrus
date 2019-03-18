@@ -140,7 +140,7 @@ static const char * ngx_stream_return(ngx_conf_t * cf, const ngx_command_t * cmd
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+		ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 		memzero(&ccv, sizeof(ngx_stream_compile_complex_value_t));
 		ccv.cf = cf;
 		ccv.value = &value[1];

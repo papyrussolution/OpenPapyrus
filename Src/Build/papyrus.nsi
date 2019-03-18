@@ -1,5 +1,5 @@
 ; PAPYRUS.NSI
-; Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018
+; Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019
 ; Скрипт создания инсталляции системы Papyrus
 ;
 ;
@@ -332,6 +332,7 @@ Section "Файлы приложения" SEC01
 	File "${SRC_ROOT}\Src\PPEquip\ppdrv.ini" ; @v7.2.6
 	File "${SRC_REDIST}\dll\w3dbav80.dll"
 	File "${SRC_REDIST}\dll\gdiplus.dll"
+	File "${SRC_REDIST}\dll\fptr10.dll" ; @v10.3.9 драйвер торгового оборудования АТОЛ
 	;
 	; OpenSSL
 	;

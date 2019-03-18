@@ -254,9 +254,9 @@ int SLAPI DbfRecord::put(int fld, double data)
 		return 0;
 }
 
-int SLAPI DbfRecord::put(int fld, float data) { return put(fld, (double)data); }
-int SLAPI DbfRecord::put(int fld, long data) { return put(fld, (double)data); }
-int SLAPI DbfRecord::put(int fld, int data) { return put(fld, (double)data); }
+int SLAPI DbfRecord::put(int fld, float data) { return put(fld, static_cast<double>(data)); }
+int SLAPI DbfRecord::put(int fld, long data) { return put(fld, static_cast<double>(data)); }
+int SLAPI DbfRecord::put(int fld, int data) { return put(fld, static_cast<double>(data)); }
 
 int SLAPI DbfRecord::put(int fld, const DBFDate * data)
 {
@@ -264,7 +264,7 @@ int SLAPI DbfRecord::put(int fld, const DBFDate * data)
 	//sprintf(tmp, "%04d%02d%02d", data->year, data->month, data->day);
 	//return put(fld, tmp);
 	SString temp_buf;
-	return put(fld, temp_buf.CatLongZ((long)data->year, 4).CatLongZ((long)data->month, 2).CatLongZ((long)data->day, 2));
+	return put(fld, temp_buf.CatLongZ(data->year, 4).CatLongZ(data->month, 2).CatLongZ(data->day, 2));
 }
 
 int SLAPI DbfRecord::put(int fld, LDATE dt)
@@ -391,7 +391,7 @@ int SLAPI DbfRecord::get(int fldN, LDATE & data) const
 {
 	DBFDate d;
 	if(get(fldN, &d)) {
-		encodedate((int)d.day, (int)d.month, (int)d.year, &data);
+		encodedate(d.day, d.month, d.year, &data);
 		return 1;
 	}
 	return 0;
@@ -620,8 +620,8 @@ int SLAPI DbfTable::create(int aNumFlds, const DBFCreateFld * pFldDescr, SCodepa
 		const size_t dbc_path_size = (Head.Info == 0x30) ? 263 : 0;
 		decodedate(&d, &m, &y, &cur_dt);
 		Head.Year   = y % 100;
-		Head.Month  = (int8)m;
-		Head.Day    = (int8)d;
+		Head.Month  = static_cast<uint8>(m);
+		Head.Day    = static_cast<uint8>(d);
 		Head.LdID   = CpToLdId(cp);
 		Head.NumRecs = 0L;
 		Head.HeadSize = (uint16)(sizeof(DBFH) + aNumFlds * sizeof(DBFF) + 1 + dbc_path_size);

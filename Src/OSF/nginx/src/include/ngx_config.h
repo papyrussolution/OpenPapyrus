@@ -85,7 +85,7 @@ typedef intptr_t        ngx_flag_t;
 	#define NGX_MAX_INT_T_VALUE  9223372036854775807
 #endif
 #ifndef NGX_ALIGNMENT
-	#define NGX_ALIGNMENT   sizeof(unsigned long)    /* platform word */
+	#define NGX_ALIGNMENT   sizeof(ulong)    /* platform word */
 #endif
 #define ngx_align(d, a)     (((d) + (a - 1)) & ~(a - 1))
 #define ngx_align_ptr(p, a) (u_char *)(((uintptr_t) (p) + ((uintptr_t) a - 1)) & ~((uintptr_t) a - 1))
@@ -100,7 +100,7 @@ typedef intptr_t        ngx_flag_t;
 	#define ngx_inline      inline
 #endif
 #ifndef INADDR_NONE  /* Solaris */
-	#define INADDR_NONE  ((unsigned int) -1)
+	#define INADDR_NONE  ((uint) -1)
 #endif
 #ifdef MAXHOSTNAMELEN
 	#define NGX_MAXHOSTNAMELEN  MAXHOSTNAMELEN

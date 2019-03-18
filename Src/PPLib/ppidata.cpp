@@ -1,5 +1,5 @@
 // PPYIDATA.CPP
-// Copyright (c) A.Starodub 2003, 2005, 2006, 2007, 2008, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2003, 2005, 2006, 2007, 2008, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -22,18 +22,19 @@ static void SLAPI SetInetError(HMODULE handle)
 	const  int os_err_code = GetLastError();
 	const  int err_code = PPErrCode;
 	if(oneof2(err_code, PPERR_RCVFROMINET, PPERR_INETCONN) && handle != 0) {
-		char   buf[256];
+		TCHAR  buf[256];
 		SString msg_buf;
-		memzero(buf, sizeof(buf));
 		uint32 iec = 0;
 		uint32 buf_len = sizeof(buf);
+		PTR32(buf)[0] = 0;
 		if(os_err_code == ERROR_INTERNET_EXTENDED_ERROR) {
 			InternetGetLastResponseInfo(&iec, buf, &buf_len); // @unicodeproblem
 		}
 		else {
-			FormatMessage(FORMAT_MESSAGE_FROM_HMODULE|FORMAT_MESSAGE_IGNORE_INSERTS, handle, os_err_code, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buf, buf_len, 0); // @unicodeproblem
+			FormatMessage(FORMAT_MESSAGE_FROM_HMODULE|FORMAT_MESSAGE_IGNORE_INSERTS, handle, os_err_code, 
+				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buf, buf_len, 0); // @unicodeproblem
 		}
-		PPSetAddedMsgString((msg_buf = buf).Chomp().ToOem());
+		PPSetAddedMsgString((msg_buf = SUcSwitch(buf)).Chomp().ToOem());
 	}
 }
 
@@ -58,16 +59,19 @@ SLAPI PpyInetDataPrcssr::~PpyInetDataPrcssr()
 int SLAPI PpyInetDataPrcssr::Init()
 {
 	int    ok = 1;
-	char   proxy[64];
+	//char   proxy[64];
 	ulong  access_type = 0;
-	memzero(proxy, sizeof(proxy));
+	//memzero(proxy, sizeof(proxy));
+	SString proxi;
 	Uninit();
 	THROW(GetCfg(&IConnCfg));
-	sprintf(proxy, "%s:%s", IConnCfg.ProxyHost, IConnCfg.ProxyPort);
+	//sprintf(proxy, "%s:%s", IConnCfg.ProxyHost, IConnCfg.ProxyPort);
+	proxi.Cat(IConnCfg.ProxyHost).CatChar(':').Cat(IConnCfg.ProxyPort);
 	access_type = (IConnCfg.AccessType == PPINETCONN_DIRECT) ? INTERNET_OPEN_TYPE_DIRECT :
 		((IConnCfg.AccessType == PPINETCONN_PROXY) ? INTERNET_OPEN_TYPE_PROXY : INTERNET_OPEN_TYPE_PRECONFIG);
 	THROW_PP(WinInetDLLHandle = ::LoadLibrary(_T("wininet.dll")), 0);
-	THROW_PP((InetSession = InternetOpen(IConnCfg.Agent, access_type, ((access_type == INTERNET_OPEN_TYPE_PROXY) ? proxy : 0), 0, 0)) != NULL, PPERR_RCVFROMINET); // @unicodeproblem
+	THROW_PP((InetSession = InternetOpen(SUcSwitch(IConnCfg.Agent), access_type, 
+		((access_type == INTERNET_OPEN_TYPE_PROXY) ? SUcSwitch(proxi) : 0), 0, 0)) != NULL, PPERR_RCVFROMINET); // @unicodeproblem
 	THROW_PP(InternetSetOption(InetSession, INTERNET_OPTION_CONNECT_RETRIES, &IConnCfg.MaxTries, sizeof(IConnCfg.MaxTries)), PPERR_RCVFROMINET);
 	CATCH
 		SetInetError();
@@ -314,7 +318,7 @@ int WinInetFTP::Init(PPInetConnConfig * pCfg)
 	else
 		access_type = INTERNET_OPEN_TYPE_PRECONFIG;
 	THROW_PP(WinInetDLLHandle = ::LoadLibrary(_T("wininet.dll")), 0);
-	THROW_PP((InetSession = InternetOpen(IConnCfg.Agent, access_type, p_proxy_name, 0, 0)) != NULL, PPERR_RCVFROMINET); // @unicodeproblem
+	THROW_PP((InetSession = InternetOpen(SUcSwitch(IConnCfg.Agent), access_type, SUcSwitch(p_proxy_name), 0, 0)) != NULL, PPERR_RCVFROMINET); // @unicodeproblem
 	THROW_PP(InternetSetOption(InetSession, INTERNET_OPTION_CONNECT_RETRIES, &IConnCfg.MaxTries, sizeof(IConnCfg.MaxTries)), PPERR_RCVFROMINET);
 	THROW_PP(InternetSetOption(InetSession, INTERNET_OPTION_CONNECT_TIMEOUT, &conn_timeout, sizeof(conn_timeout)), PPERR_RCVFROMINET);
 	THROW_PP(InternetSetOption(InetSession, INTERNET_OPTION_RECEIVE_TIMEOUT, &sendrcv_timeout, sizeof(sendrcv_timeout)), PPERR_RCVFROMINET);
@@ -403,7 +407,8 @@ int WinInetFTP::Connect(PPInternetAccount * pAccount)
 		}
 		SETIFZ(port, INTERNET_DEFAULT_FTP_PORT);
 	}
-	THROW_PP(Connection = InternetConnect(InetSession, host, port, user, pwd, INTERNET_SERVICE_FTP, conn_flags, 0), PPERR_INETCONN); // @unicodeproblem
+	THROW_PP(Connection = InternetConnect(InetSession, SUcSwitch(host), port, 
+		SUcSwitch(user), SUcSwitch(pwd), INTERNET_SERVICE_FTP, conn_flags, 0), PPERR_INETCONN); // @unicodeproblem
 	CATCH
 		SetInetError((HMODULE)WinInetDLLHandle);
 		ok = 0;
@@ -449,7 +454,7 @@ int WinInetFTP::CheckSizeAfterCopy(const char * pLocalPath, const char * pFTPPat
 	}
 	MEMSZERO(ff_info);
 	MEMSZERO(lf_info);
-	THROW_PP(ftp_dir = FtpFindFirstFile(Connection, file_name, &ff_info, 0, 0), PPERR_FTPSRVREPLYERR); // @unicodeproblem
+	THROW_PP(ftp_dir = FtpFindFirstFile(Connection, SUcSwitch(file_name), &ff_info, 0, 0), PPERR_FTPSRVREPLYERR); // @unicodeproblem
 	THROW_PP_S(GetFileStat(pLocalPath, &lf_info) > 0, PPERR_NOSRCFILE, pLocalPath);
 	THROW_PP_S(lf_info.Size == ff_info.nFileSizeLow, PPERR_FTPSIZEINVALID, file_name);
 	CATCH
@@ -600,7 +605,7 @@ int WinInetFTP::SafeDeleteWOCD(const char * pPath, PPLogger * pLogger)
 			{
 				sp.Split(pPath);
 				sp.Merge(SPathStruc::fNam|SPathStruc::fExt, file_name);
-				if(!FtpDeleteFile(Connection, file_name)) { // @unicodeproblem
+				if(!FtpDeleteFile(Connection, SUcSwitch(file_name))) { // @unicodeproblem
 					PPSetError(PPERR_FTPSRVREPLYERR); 
 					r = ReadResponse();
 				}
@@ -666,7 +671,7 @@ int WinInetFTP::TransferFile(const char * pLocalPath, const char * pFTPPath, int
 	}
 	MEMSZERO(lf_info);
 	MEMSZERO(ff_info);
-	THROW_PP((ftp_dir = FtpFindFirstFile(Connection, file_name, &ff_info, 0, 0)) || send, PPERR_FTPSRVREPLYERR); // @unicodeproblem
+	THROW_PP((ftp_dir = FtpFindFirstFile(Connection, SUcSwitch(file_name), &ff_info, 0, 0)) || send, PPERR_FTPSRVREPLYERR); // @unicodeproblem
 	PPSetAddedMsgString(pLocalPath);
 	THROW_PP((lfile_exists = (GetFileStat(pLocalPath, &lf_info) > 0)) || !send, PPERR_NOSRCFILE);
 	if(ftp_dir && lfile_exists) {
@@ -697,7 +702,7 @@ int WinInetFTP::TransferFile(const char * pLocalPath, const char * pFTPPath, int
 		DWORD  len = 0, c_len = 0;
 		DWORD  t_len = (DWORD)(send ? lf_info.Size : /*(ff_info.nFileSizeHigh * (MAXDWORD + 1)) + */ff_info.nFileSizeLow); // @64
 		PPSetAddedMsgString(file_name);
-		THROW_PP(file_conn = FtpOpenFile(Connection, file_name, send ? GENERIC_WRITE : GENERIC_READ, FTP_TRANSFER_TYPE_BINARY, 0), PPERR_FTPSRVREPLYERR); // @unicodeproblem
+		THROW_PP(file_conn = FtpOpenFile(Connection, SUcSwitch(file_name), send ? GENERIC_WRITE : GENERIC_READ, FTP_TRANSFER_TYPE_BINARY, 0), PPERR_FTPSRVREPLYERR); // @unicodeproblem
 		THROW_PP((p_file = fopen(pLocalPath, send ? "rb" : "wb")) != NULL, PPERR_SLIB);
 		PPLoadText(send ? PPTXT_PUTFILETOFTP : PPTXT_GETFILEFROMFTP, temp_buf.Z());
 		msg_buf.Printf(temp_buf, file_name.cptr());
@@ -748,7 +753,7 @@ int WinInetFTP::TransferFile(const char * pLocalPath, const char * pFTPPath, int
 
 int WinInetFTP::ReadResponse()
 {
-	char   buf[256];
+	TCHAR  buf[256];
 	DWORD  errcode = 0, buflen = sizeof(buf), last_err = GetLastError();
 	memzero(buf, sizeof(buf));
 	if(last_err == 0 || GetLastError() == ERROR_INTERNET_EXTENDED_ERROR)
@@ -756,11 +761,11 @@ int WinInetFTP::ReadResponse()
 	if(buf[0] != '\0') {
 		if(buflen > 2)
 			buf[buflen - 2] = '\0';
-		PPSetAddedMsgString(buf);
+		PPSetAddedMsgString(SUcSwitch(buf));
 	}
 	else {
 		PPSetError(PPERR_RCVFROMINET);
-		SetInetError((HMODULE)WinInetDLLHandle);
+		SetInetError(static_cast<HMODULE>(WinInetDLLHandle));
 	}
 	return 0;
 }
@@ -784,7 +789,7 @@ int WinInetFTP::Delete(const char * pPath)
 			THROW(CD(ps.Dir));
         ps.Merge(SPathStruc::fNam|SPathStruc::fExt, file_name);
 	}
-	THROW_PP(FtpDeleteFile(Connection, file_name), PPERR_FTPSRVREPLYERR); // @unicodeproblem
+	THROW_PP(FtpDeleteFile(Connection, SUcSwitch(file_name)), PPERR_FTPSRVREPLYERR); // @unicodeproblem
 	CATCH
 		ok = ReadResponse();
 	ENDCATCH
@@ -812,7 +817,7 @@ int WinInetFTP::Exists(const char * pPath)
 	}
 	if(ok) {
 		WIN32_FIND_DATA ff_info;
-		HINTERNET hf = FtpFindFirstFile(Connection, file_name, &ff_info, 0, 0); // @unicodeproblem
+		HINTERNET hf = FtpFindFirstFile(Connection, SUcSwitch(file_name), &ff_info, 0, 0); // @unicodeproblem
 		if(hf)
 			InternetCloseHandle(hf);
 		else
@@ -843,14 +848,14 @@ int WinInetFTP::GetFileList(const char * pDir, StrAssocArray * pFileList, const 
 	if(ok) {
 		const char * p_mask = isempty(pMask) ? "*.*" : pMask;
 		WIN32_FIND_DATA ff_info;
-		HINTERNET hf = FtpFindFirstFile(Connection, p_mask, &ff_info, 0, 0); // @unicodeproblem
+		HINTERNET hf = FtpFindFirstFile(Connection, SUcSwitch(p_mask), &ff_info, 0, 0); // @unicodeproblem
 		if(hf) { 
 			long id = 1;
 			if(pFileList && !(ff_info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-				pFileList->Add(id++, ff_info.cFileName); // @unicodeproblem
+				pFileList->Add(id++, SUcSwitch(ff_info.cFileName)); // @unicodeproblem
 			while(InternetFindNextFile(hf, &ff_info) > 0)
 				if(pFileList && !(ff_info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-					pFileList->Add(id++, ff_info.cFileName); // @unicodeproblem
+					pFileList->Add(id++, SUcSwitch(ff_info.cFileName)); // @unicodeproblem
 		}
 		else {
 			const uint last_err = GetLastError();
@@ -890,7 +895,7 @@ int WinInetFTP::CD(const char * pDir, int isFullPath /*=1*/)
 			}
 		}
 		if(sdir.NotEmptyS()) {
-			THROW_PP(FtpSetCurrentDirectory(Connection, sdir.cptr()), PPERR_FTPSRVREPLYERR); // @unicodeproblem
+			THROW_PP(FtpSetCurrentDirectory(Connection, SUcSwitch(sdir)), PPERR_FTPSRVREPLYERR); // @unicodeproblem
 		}
 	}
 	else {
@@ -899,10 +904,10 @@ int WinInetFTP::CD(const char * pDir, int isFullPath /*=1*/)
 #ifndef NDEBUG // {
 	{
 		SString test_current_dir;
-		char   _cd[256];
-		DWORD  _cd_buf_len = sizeof(_cd);
+		TCHAR  _cd[256];
+		DWORD  _cd_buf_len = SIZEOFARRAY(_cd);
 		FtpGetCurrentDirectory(Connection, _cd, &_cd_buf_len); // @unicodeproblem
-		test_current_dir = _cd;
+		test_current_dir = SUcSwitch(_cd);
 	}
 #endif // }
 	CATCH
@@ -914,7 +919,7 @@ int WinInetFTP::CD(const char * pDir, int isFullPath /*=1*/)
 int WinInetFTP::CreateDir(const char * pDir)
 {
 	int    ok = 1;
-	THROW_PP(FtpCreateDirectory(Connection, pDir), PPERR_FTPSRVREPLYERR); // @unicodeproblem
+	THROW_PP(FtpCreateDirectory(Connection, SUcSwitch(pDir)), PPERR_FTPSRVREPLYERR); // @unicodeproblem
 	CATCH
 		ok = ReadResponse();
 	ENDCATCH

@@ -18,7 +18,7 @@ void ngx_cdecl ngx_event_log(ngx_err_t err, const char * fmt, ...)
 	const char   * msgarg[9];
 	static u_char netmsg[] = "%SystemRoot%\\System32\\netmsg.dll";
 	u_char * last = text + NGX_MAX_ERROR_STR;
-	u_char * p = text + GetModuleFileName(NULL, (char *)text, NGX_MAX_ERROR_STR - 50);
+	u_char * p = text + GetModuleFileName(NULL, reinterpret_cast<char *>(text), NGX_MAX_ERROR_STR - 50);
 	*p++ = ':';
 	ngx_linefeed(p);
 	va_start(args, fmt);
@@ -44,7 +44,7 @@ void ngx_cdecl ngx_event_log(ngx_err_t err, const char * fmt, ...)
 		return;
 	}
 	types = EVENTLOG_ERROR_TYPE;
-	if(RegSetValueEx(key, "TypesSupported", 0, REG_DWORD, (u_char*)&types, sizeof(long)) != 0) {
+	if(RegSetValueEx(key, "TypesSupported", 0, REG_DWORD, (u_char *)&types, sizeof(long)) != 0) {
 		return;
 	}
 	RegCloseKey(key);

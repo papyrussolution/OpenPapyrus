@@ -413,12 +413,9 @@ PIXMAN_EXPORT pixman_image_t * pixman_image_create_radial_gradient(const pixman_
 
 	/* computed exactly, then cast to double -> every bit of the double
 	   representation is correct (53 bits) */
-	radial->a = dot(radial->delta.x, radial->delta.y, -radial->delta.radius,
-		radial->delta.x, radial->delta.y, radial->delta.radius);
+	radial->a = static_cast<double>(dot(radial->delta.x, radial->delta.y, -radial->delta.radius, radial->delta.x, radial->delta.y, radial->delta.radius));
 	if(radial->a != 0)
 		radial->inva = 1. * pixman_fixed_1 / radial->a;
-
 	radial->mindr = -1. * pixman_fixed_1 * radial->c1.radius;
-
 	return image;
 }

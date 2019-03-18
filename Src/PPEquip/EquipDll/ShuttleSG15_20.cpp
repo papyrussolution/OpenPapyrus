@@ -669,11 +669,11 @@ int PriceChecker::GetRequest(SString & rRequest)
 	SBuffer buf(BUF_SIZE);
 	size_t recv_bytes = 0;
 	rRequest.Z();
-	memzero((void *)buf.GetBuf(), BUF_SIZE);
+	// @v10.3.8 memzero(/*(void *)*/buf.GetBuf(), BUF_SIZE);
 	buf.Z();
-	while((Socket.RecvBuf(buf, BUF_SIZE, &recv_bytes) && (recv_bytes != 0))) {
-		rRequest.Cat((const char *)buf.GetBuf());
-		memzero((void *)buf.GetBuf(), BUF_SIZE);
+	while(Socket.RecvBuf(buf, BUF_SIZE, &recv_bytes) && recv_bytes != 0) {
+		rRequest.CatN(static_cast<const char *>(buf.GetBuf()), buf.GetAvailableSize()); // @v10.3.8 Cat()-->CatN(.., buf.GetAvailableSize())
+		// @v10.3.8 memzero(/*(void *)*/buf.GetBuf(), BUF_SIZE);
 		buf.Z();
 		recv_bytes = 0;
 		ok = 1;

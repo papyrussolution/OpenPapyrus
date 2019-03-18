@@ -736,7 +736,7 @@ int SLAPI PPObjLocation::Validate(LocationTbl::Rec * pRec, int /*chkRefs*/)
 	return ok;
 }
 
-int PPObjLocation::AddListItem(StrAssocArray * pList, LocationTbl::Rec * pLocRec, long zeroParentId, PPIDArray * pRecurTrace)
+int PPObjLocation::AddListItem(StrAssocArray * pList, const LocationTbl::Rec * pLocRec, long zeroParentId, PPIDArray * pRecurTrace)
 {
 	int    ok = 1, r;
 	PPIDArray local_recur_trace;
@@ -1236,7 +1236,7 @@ public:
 	{
 		SString fmt_buf, par_name, title_;
 		if(extraPtr) {
-			const LocationFilt * p_filt = (const LocationFilt *)extraPtr;
+			const LocationFilt * p_filt = static_cast<const LocationFilt *>(extraPtr);
 			if(p_filt->LocType == LOCTYP_WAREPLACE) {
 				enableCommand(cmWareplaceList, 0);
 				PPLoadText(PPTXT_TITLE_WAREPLACEVIEW, fmt_buf);
@@ -1798,8 +1798,8 @@ int LocationDialog::setDTS(const PPLocationPacket * pData)
 	setCtrlData(CTL_LOCATION_NAME, Data.Name);
 	setCtrlData(CTL_LOCATION_CODE, Data.Code);
 	setCtrlData(CTL_LOCATION_ID, &Data.ID);
-	SetupPPObjCombo(this, CTLSEL_LOCATION_OWNER, PPOBJ_PERSON, Data.OwnerID, OLW_LOADDEFONOPEN, (void *)PPPRK_EMPLOYER);
-	SetupPPObjCombo(this, CTLSEL_LOCATION_RSPNS, PPOBJ_PERSON, Data.RspnsPersonID, OLW_LOADDEFONOPEN, (void *)PPPRK_EMPL);
+	SetupPPObjCombo(this, CTLSEL_LOCATION_OWNER, PPOBJ_PERSON, Data.OwnerID, OLW_LOADDEFONOPEN, reinterpret_cast<void *>(PPPRK_EMPLOYER));
+	SetupPPObjCombo(this, CTLSEL_LOCATION_RSPNS, PPOBJ_PERSON, Data.RspnsPersonID, OLW_LOADDEFONOPEN, reinterpret_cast<void *>(PPPRK_EMPL));
 	SetupPPObjCombo(this, CTLSEL_LOCATION_CITY,  PPOBJ_WORLD, Data.CityID, OLW_LOADDEFONOPEN|OLW_CANINSERT|OLW_CANSELUPLEVEL,
 		PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
 	LocationCore::GetExField(&Data, LOCEXSTR_ZIP, temp_buf);
@@ -2408,7 +2408,7 @@ int SLAPI PPObjLocation::Edit(PPID * pID, void * extraPtr)
 		LocationTbl::Rec cur_rec;
 		MEMSZERO(cur_rec);
 		if(extraPtr) {
-			LocationFilt flt = *(LocationFilt*)extraPtr;
+			LocationFilt flt = *static_cast<const LocationFilt *>(extraPtr);
 			loc_typ = NZOR(flt.LocType, LOCTYP_WAREHOUSE);
 			pack.Type = (int16)loc_typ;
 			pack.OwnerID  = flt.Owner;
@@ -2714,7 +2714,7 @@ DivisionCtrlGroup::DivisionCtrlGroup(uint _ctlsel_org, uint _ctlsel_div, uint _c
 
 int DivisionCtrlGroup::setData(TDialog * dlg, void * data)
 {
-	Data = *(Rec *)data;
+	Data = *static_cast<Rec *>(data);
 	if(Data.OrgID == 0 && Data.DivID) {
 		PPObjLocation loc_obj;
 		LocationTbl::Rec loc_rec;
@@ -2723,7 +2723,7 @@ int DivisionCtrlGroup::setData(TDialog * dlg, void * data)
 	DivF.LocType = LOCTYP_DIVISION;
 	DivF.Owner   = Data.OrgID;
 	DivF.Parent  = 0;
-	SetupPPObjCombo(dlg, CtlselOrg, PPOBJ_PERSON,   Data.OrgID, OLW_CANINSERT, (void *)PPPRK_EMPLOYER);
+	SetupPPObjCombo(dlg, CtlselOrg, PPOBJ_PERSON,   Data.OrgID, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_EMPLOYER));
 	SetupPPObjCombo(dlg, CtlselDiv, PPOBJ_LOCATION, Data.DivID, OLW_CANINSERT, &DivF);
 	if(CtlselStaff)
 		SetupStaffListCombo(dlg, CtlselStaff, Data.StaffID, OLW_CANINSERT, Data.OrgID, Data.DivID);
@@ -2786,7 +2786,7 @@ public:
 	DivisionView() : PPListDialog(DLG_DIVVIEW, CTL_DIVVIEW_LIST), CurOrgID(0)
 	{
 		GetMainEmployerID(&CurOrgID);
-		SetupPPObjCombo(this, CTLSEL_DIVVIEW_ORG, PPOBJ_PERSON, CurOrgID, OLW_CANINSERT, (void *)PPPRK_EMPLOYER);
+		SetupPPObjCombo(this, CTLSEL_DIVVIEW_ORG, PPOBJ_PERSON, CurOrgID, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_EMPLOYER));
 		updateList(-1);
 	}
 private:

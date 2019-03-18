@@ -551,27 +551,27 @@ void FASTCALL _decodedate(int * day, int * mon, int * year, const void * pBuf, i
 	SDosDate d;
 #endif
 	switch(format)  {
-		case DF_BTRIEVE: ((const LDATE *)pBuf)->decode(day, mon, year); break;
+		case DF_BTRIEVE: static_cast<const LDATE *>(pBuf)->decode(day, mon, year); break;
 #ifndef _WIN32_WCE
 		case DF_DOS:
-			*day  = ((SDosDate *)pBuf)->da_day;
-			*mon  = ((SDosDate *)pBuf)->da_mon;
-			*year = ((SDosDate *)pBuf)->da_year;
+			*day  = static_cast<const SDosDate *>(pBuf)->da_day;
+			*mon  = static_cast<const SDosDate *>(pBuf)->da_mon;
+			*year = static_cast<const SDosDate *>(pBuf)->da_year;
 			break;
 #endif
 		case DF_FAT:
-			*year = (*(uint *)pBuf >> 9) + 1980;
-			*mon  = (*(uint *)pBuf >> 5) & 0x000f;
-			*day  = (*(uint *)pBuf) & 0x001f;
+			*year = (PTR32C(pBuf)[0] >> 9) + 1980;
+			*mon  = (PTR32C(pBuf)[0] >> 5) & 0x000f;
+			*day  = PTR32C(pBuf)[0] & 0x001f;
 			break;
 		case DF_XBASE:
-			((char *)memcpy(tmp, pBuf, 8))[8] = '\0';
+			PTR8(memcpy(tmp, pBuf, 8))[8] = '\0';
 			sscanf(tmp, "%4d%2d%2d", year, mon, day);
 			break;
 		// @v10.2.8 case DF_PARADOX: formatNotSupported("Paradox"); break;
 		case DF_CLARION:
 #ifdef USE_DF_CLARION
-			CLALongToDate(*(long *)pBuf, &d);
+			CLALongToDate(*static_cast<const long *>(pBuf), &d);
 			*day  = d.da_day;
 			*mon  = d.da_mon;
 			*year = d.da_year;

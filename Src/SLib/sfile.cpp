@@ -1065,7 +1065,7 @@ int SLAPI SFile::SetTime(int fh, LDATETIME * pCreation, LDATETIME * pLastAccess,
 int SLAPI SFile::GetTime(const char * pFileName, LDATETIME * pCreation, LDATETIME * pLastAccess, LDATETIME * pLastModif)
 {
 	int    ok = 1;
-	HANDLE handle = ::CreateFile(pFileName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, 0, OPEN_EXISTING, 0, 0); // @unicodeproblem
+	HANDLE handle = ::CreateFile(SUcSwitch(pFileName), FILE_READ_ATTRIBUTES, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, 0, OPEN_EXISTING, 0, 0); // @unicodeproblem
 	if(handle != INVALID_HANDLE_VALUE) {
 		ok = SFile::GetTime((int)handle, pCreation, pLastAccess, pLastModif);
 		::CloseHandle(handle);
@@ -1116,7 +1116,7 @@ int SLAPI SFile::GetTime(int fh, LDATETIME * creation, LDATETIME * lastAccess, L
 int SLAPI SFile::IsOpenedForWrite(const char * pFileName)
 {
 	int    ok = 0;
-	HANDLE handle = ::CreateFile(pFileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, 0); // @unicodeproblem
+	HANDLE handle = ::CreateFile(SUcSwitch(pFileName), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, 0); // @unicodeproblem
 	// Если ошибка, то файл открыт
 	if(handle == INVALID_HANDLE_VALUE) {
 		if(GetLastError() == ERROR_SHARING_VIOLATION) {
@@ -1213,15 +1213,11 @@ SLAPI SFile::~SFile()
 	Close();
 }
 
-SLAPI SFile::operator FILE * ()
-{
-	return (T == tStdFile) ? F : 0;
-}
-
-SLAPI SFile::operator SBuffer * ()
-{
-	return (T == tSBuffer) ? P_Sb : 0;
-}
+SLAPI SFile::operator FILE * () { return (T == tStdFile) ? F : 0; }
+SLAPI SFile::operator SBuffer * () { return (T == tSBuffer) ? P_Sb : 0; }
+int   SLAPI SFile::FileNo() const { return (T == tStdFile && F) ? fileno(F) : IH; }
+const SString & SLAPI SFile::GetName() const { return Name; }
+long  SLAPI SFile::GetMode() const { return Mode; }
 
 int SLAPI SFile::GetBuffer(SBaseBuffer & rBuf) const
 {
@@ -1232,21 +1228,6 @@ int SLAPI SFile::GetBuffer(SBaseBuffer & rBuf) const
 	}
 	else
 		return 0;
-}
-
-int SLAPI SFile::FileNo() const
-{
-	return (T == tStdFile && F) ? fileno(F) : IH;
-}
-
-const SString & SLAPI SFile::GetName() const
-{
-	return Name;
-}
-
-long SLAPI SFile::GetMode() const
-{
-	return Mode;
 }
 
 int SLAPI SFile::IsValid() const
@@ -1432,7 +1413,7 @@ long SLAPI SFile::Tell()
 	assert(InvariantC(0));
 	long   t = 0;
 	if(T == tSBuffer) {
-		t = (long)P_Sb->GetRdOffs();
+		t = static_cast<long>(P_Sb->GetRdOffs());
 	}
 	else {
 		if(F)
@@ -1440,7 +1421,7 @@ long SLAPI SFile::Tell()
 		else if(IH >= 0) {
 			t = tell(IH);
 			if(t >= 0) {
-				const long bo = (long)BufR.GetWrOffs();
+				const long bo = static_cast<long>(BufR.GetWrOffs());
 				assert(bo <= t);
 				if(bo <= t)
 					t -= bo;
@@ -1458,7 +1439,7 @@ int64 SLAPI SFile::Tell64()
 	//return (T == tFile) ? ((IH >= 0) ? _telli64(IH) : 0) : (int64)Tell();
 	int64 t = 0;
 	if(T == tSBuffer) {
-		t = (int64)P_Sb->GetRdOffs();
+		t = static_cast<int64>(P_Sb->GetRdOffs());
 	}
 	else {
 		if(F)
@@ -1467,9 +1448,9 @@ int64 SLAPI SFile::Tell64()
 			t = _telli64(IH);
 			if(t >= 0) {
 				const size_t bo = BufR.GetWrOffs();
-				assert((int64)bo <= t);
+				assert(static_cast<int64>(bo) <= t);
 				if(bo <= t)
-					t -= (int64)bo;
+					t -= static_cast<int64>(bo);
 			}
 		}
 		else
@@ -1684,7 +1665,7 @@ int FASTCALL SFile::ReadLine(SString & rBuf)
 				if(act_size) {
 					if(rd_buf[act_size-1] == '\n' || (rd_buf[act_size-1] == '\xA' && rBuf.Last() == '\xD'))
                         _done = 1;
-					rBuf.CatN((const char *)rd_buf, act_size);
+					rBuf.CatN(reinterpret_cast<const char *>(rd_buf), act_size);
 				}
             } while(rr > 0 && !_done);
             THROW_S_S(rBuf.Len(), SLERR_READFAULT, Name);
@@ -1903,11 +1884,11 @@ int SLAPI SFile::CalcCRC(long offs, uint32 * pCrc)
 		Seek64(offs, SEEK_SET);
 		for(int64 i = 0; i < num_blk; i++) {
 			THROW(Read(temp_buf, temp_buf.GetSize()));
-			crc = c.Calc(crc, (const char *)temp_buf, temp_buf.GetSize());
+			crc = c.Calc(crc, temp_buf.cptr(), temp_buf.GetSize());
 		}
 		if(rest > 0) {
 			THROW(Read(temp_buf, rest));
-			crc = c.Calc(crc, (const char *)temp_buf, rest);
+			crc = c.Calc(crc, temp_buf.cptr(), rest);
 		}
 	}
 	else
@@ -2235,7 +2216,7 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 								if(sign_buf.ucptr()[0] == 0xEF && sign_buf.ucptr()[1] == 0xBB && sign_buf.ucptr()[2] == 0xBF) // BOM UTF8 
 									j += 3;
 								while(r < 0 && j < actual_size) {
-									const char c = ((const char *)sign_buf)[j];
+									const char c = sign_buf.cptr()[j];
 									if(oneof4(c, ' ', '\t', '\x0D', '\x0A')) {
                                         j++;
 									}

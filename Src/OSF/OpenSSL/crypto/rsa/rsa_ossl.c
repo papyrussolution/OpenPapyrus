@@ -124,7 +124,7 @@ err:
 	BN_CTX_end(ctx);
 	BN_CTX_free(ctx);
 	OPENSSL_clear_free(buf, num);
-	return (r);
+	return r;
 }
 
 static BN_BLINDING * rsa_get_blinding(RSA * rsa, int * local, BN_CTX * ctx)
@@ -326,7 +326,7 @@ err:
 	BN_CTX_end(ctx);
 	BN_CTX_free(ctx);
 	OPENSSL_clear_free(buf, num);
-	return (r);
+	return r;
 }
 
 static int rsa_ossl_private_decrypt(int flen, const uchar * from, uchar * to, RSA * rsa, int padding)
@@ -450,7 +450,7 @@ err:
 	BN_CTX_end(ctx);
 	BN_CTX_free(ctx);
 	OPENSSL_clear_free(buf, num);
-	return (r);
+	return r;
 }
 
 /* signature verification */
@@ -548,7 +548,7 @@ err:
 	BN_CTX_end(ctx);
 	BN_CTX_free(ctx);
 	OPENSSL_clear_free(buf, num);
-	return (r);
+	return r;
 }
 
 static int rsa_ossl_mod_exp(BIGNUM * r0, const BIGNUM * I, RSA * rsa, BN_CTX * ctx)

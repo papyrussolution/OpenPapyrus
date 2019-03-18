@@ -1599,7 +1599,7 @@ DBQuery * SLAPI PPViewGtaJournal::CreateBrowserQuery(uint * pBrwId, SString * pS
 			dbe_objname.init();
 			dbe_objname.push(t->ObjType);
 			dbe_objname.push(t->ObjID);
-			dbe_objname.push(dbconst((const void *)this));
+			dbe_objname.push(dbconst(this));
 			dbe_objname.push((DBFunc)DynFuncObjNameFromList);
 		}
 		q = & select(

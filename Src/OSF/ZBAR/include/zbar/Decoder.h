@@ -94,20 +94,20 @@ public:
 	/// see zbar_decoder_get_color()
 	zbar_color_t get_color() const
 	{
-		return(zbar_decoder_get_color(_decoder));
+		return (zbar_decoder_get_color(_decoder));
 	}
 	/// retrieve last decoded symbol type.
 	/// see zbar_decoder_get_type()
 	zbar_symbol_type_t get_type() const
 	{
-		return(zbar_decoder_get_type(_decoder));
+		return (zbar_decoder_get_type(_decoder));
 	}
 
 	/// retrieve string name of last decoded symbol type.
 	/// see zbar_get_symbol_name()
 	const char * get_symbol_name() const
 	{
-		return(zbar_get_symbol_name(zbar_decoder_get_type(_decoder)));
+		return (zbar_get_symbol_name(zbar_decoder_get_type(_decoder)));
 	}
 
 	/// retrieve string name for last decode addon.
@@ -115,21 +115,21 @@ public:
 	/// @deprecated in 0.11
 	const char * get_addon_name() const
 	{
-		return(zbar_get_addon_name(zbar_decoder_get_type(_decoder)));
+		return (zbar_get_addon_name(zbar_decoder_get_type(_decoder)));
 	}
 
 	/// retrieve last decoded data in ASCII format as a char array.
 	/// see zbar_decoder_get_data()
 	const char * get_data_chars() const
 	{
-		return(zbar_decoder_get_data(_decoder));
+		return (zbar_decoder_get_data(_decoder));
 	}
 
 	/// retrieve last decoded data as a std::string.
 	/// see zbar_decoder_get_data()
 	const std::string get_data_string() const
 	{
-		return(std::string(zbar_decoder_get_data(_decoder),
+		return (std::string(zbar_decoder_get_data(_decoder),
 			    zbar_decoder_get_data_length(_decoder)));
 	}
 
@@ -137,14 +137,14 @@ public:
 	/// see zbar_decoder_get_data()
 	const std::string get_data() const
 	{
-		return(get_data_string());
+		return (get_data_string());
 	}
 
 	/// retrieve length of decoded binary data.
 	/// see zbar_decoder_get_data_length()
 	int get_data_length() const
 	{
-		return(zbar_decoder_get_data_length(_decoder));
+		return (zbar_decoder_get_data_length(_decoder));
 	}
 
 	/// retrieve last decode direction.
@@ -152,7 +152,7 @@ public:
 	/// @since 0.11
 	int get_direction() const
 	{
-		return(zbar_decoder_get_direction(_decoder));
+		return (zbar_decoder_get_direction(_decoder));
 	}
 
 	/// setup callback to handle result data.
@@ -170,7 +170,7 @@ public:
 	    zbar_config_t config,
 	    int value)
 	{
-		return(zbar_decoder_set_config(_decoder, symbology, config, value));
+		return (zbar_decoder_set_config(_decoder, symbology, config, value));
 	}
 
 	/// set config parsed from configuration string.
@@ -178,7 +178,7 @@ public:
 	/// @since 0.4
 	int set_config(std::string cfgstr)
 	{
-		return(zbar_decoder_parse_config(_decoder, cfgstr.c_str()));
+		return (zbar_decoder_parse_config(_decoder, cfgstr.c_str()));
 	}
 
 private:

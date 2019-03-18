@@ -663,7 +663,7 @@ static void BobJencHash_Little2(const void * key, size_t length, uint32 * pc, ui
 		}
 	}
 	else {                    /* need to read the key one byte at a time */
-		const uint8 * k = (const uint8*)key;
+		const uint8 * k = static_cast<const uint8 *>(key);
 		/*--------------- all but the last block: affect some 32 bits of (a,b,c) */
 		while(length > 12) {
 			a += k[0];
@@ -756,7 +756,7 @@ static uint32 BobJencHash_Big(const void * key, size_t length, uint32 initval)
 		}
 	}
 	else {                    /* need to read the key one byte at a time */
-		const uint8 * k = (const uint8*)key;
+		const uint8 * k = static_cast<const uint8 *>(key);
 		/*--------------- all but the last block: affect some 32 bits of (a,b,c) */
 		while(length > 12) {
 			a += ((uint32)k[0])<<24;

@@ -66,7 +66,7 @@ int ASN1_sign(i2d_of_void * i2d, X509_ALGOR * algor1, X509_ALGOR * algor2,
 	p = buf_in;
 
 	i2d(data, &p);
-	if(!EVP_SignInit_ex(ctx, type, NULL) || !EVP_SignUpdate(ctx, (uchar *)buf_in, inl) || !EVP_SignFinal(ctx, (uchar *)buf_out, (uint*)&outl, pkey)) {
+	if(!EVP_SignInit_ex(ctx, type, NULL) || !EVP_SignUpdate(ctx, (uchar *)buf_in, inl) || !EVP_SignFinal(ctx, (uchar *)buf_out, (uint *)&outl, pkey)) {
 		outl = 0;
 		ASN1err(ASN1_F_ASN1_SIGN, ERR_R_EVP_LIB);
 		goto err;

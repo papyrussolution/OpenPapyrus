@@ -535,7 +535,7 @@ namespace NArchive {
 			COM_TRY_BEGIN
 			NWindows::NCOM::CPropVariant prop;
 			switch(propID) {
-				case kpidExtension: prop = kExtensions[(unsigned)_db.Type]; break;
+				case kpidExtension: prop = kExtensions[(uint)_db.Type]; break;
 				case kpidPhySize: prop = _db.PhySize; break;
 				case kpidClusterSize: prop = (uint32)1 << _db.SectorSizeBits; break;
 				case kpidSectorSize: prop = (uint32)1 << _db.MiniSectorSizeBits; break;
@@ -671,7 +671,7 @@ namespace NArchive {
 			uint64 numClusters64 = (item.Size + clusterSize - 1) >> bsLog;
 			if(numClusters64 >= ((uint32)1 << 31))
 				return E_NOTIMPL;
-			streamSpec->Vector.ClearAndReserve((unsigned)numClusters64);
+			streamSpec->Vector.ClearAndReserve((uint)numClusters64);
 			uint32 sid = item.Sid;
 			uint64 size = item.Size;
 			if(size != 0) {

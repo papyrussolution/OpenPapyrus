@@ -555,22 +555,13 @@ static double general_cubic(double x, double r, double B, double C)
 {
 	double ax;
 	if(r < 1.0)
-		return
-			general_cubic(x * 2 - .5, r * 2, B, C) +
-			general_cubic(x * 2 + .5, r * 2, B, C);
-
+		return general_cubic(x * 2 - .5, r * 2, B, C) + general_cubic(x * 2 + .5, r * 2, B, C);
 	ax = fabs(x / r);
-
 	if(ax < 1) {
-		return (((12 - 9 * B - 6 * C) * ax +
-		       (-18 + 12 * B + 6 * C)) * ax * ax +
-		       (6 - 2 * B)) / 6;
+		return (((12 - 9 * B - 6 * C) * ax + (-18 + 12 * B + 6 * C)) * ax * ax + (6 - 2 * B)) / 6;
 	}
 	else if(ax < 2) {
-		return ((((-B - 6 * C) * ax +
-		       (6 * B + 30 * C)) * ax +
-		       (-12 * B - 48 * C)) * ax +
-		       (8 * B + 24 * C)) / 6;
+		return ((((-B - 6 * C) * ax + (6 * B + 30 * C)) * ax + (-12 * B - 48 * C)) * ax + (8 * B + 24 * C)) / 6;
 	}
 	else {
 		return 0.0;
@@ -1398,16 +1389,11 @@ const cairo_surface_backend_t _cairo_image_source_backend = {
 	NULL, /* read-only wrapper */
 };
 
-cairo_surface_t * _cairo_image_source_create_for_pattern(cairo_surface_t * dst,
-    const cairo_pattern_t * pattern,
-    cairo_bool_t is_mask,
-    const cairo_rectangle_int_t * extents,
-    const cairo_rectangle_int_t * sample,
-    int * src_x, int * src_y)
+cairo_surface_t * _cairo_image_source_create_for_pattern(cairo_surface_t * dst, const cairo_pattern_t * pattern, cairo_bool_t is_mask,
+    const cairo_rectangle_int_t * extents, const cairo_rectangle_int_t * sample, int * src_x, int * src_y)
 {
-	cairo_image_source_t * source;
 	TRACE((stderr, "%s\n", __FUNCTION__));
-	source = (cairo_image_source_t *)_cairo_malloc(sizeof(cairo_image_source_t));
+	cairo_image_source_t * source = (cairo_image_source_t *)_cairo_malloc(sizeof(cairo_image_source_t));
 	if(unlikely(source == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	source->pixman_image = _pixman_image_for_pattern((cairo_image_surface_t*)dst, pattern, is_mask, extents, sample, src_x, src_y);
@@ -1415,11 +1401,7 @@ cairo_surface_t * _cairo_image_source_create_for_pattern(cairo_surface_t * dst,
 		SAlloc::F(source);
 		return _cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);
 	}
-	_cairo_surface_init(&source->base,
-	    &_cairo_image_source_backend,
-	    NULL,              /* device */
-	    CAIRO_CONTENT_COLOR_ALPHA,
-	    FALSE);              /* is_vector */
+	_cairo_surface_init(&source->base, &_cairo_image_source_backend, NULL/* device */, CAIRO_CONTENT_COLOR_ALPHA, FALSE/* is_vector */);
 	source->is_opaque_solid = (pattern == NULL || _cairo_pattern_is_opaque_solid(pattern));
 	return &source->base;
 }

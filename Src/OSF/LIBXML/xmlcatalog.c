@@ -175,7 +175,7 @@ static void usershell() {
 				printf("public requires 1 arguments\n");
 			}
 			else {
-				ans = xmlCatalogResolvePublic((const xmlChar*)argv[0]);
+				ans = xmlCatalogResolvePublic((const xmlChar *)argv[0]);
 				if(ans == NULL) {
 					printf("No entry for PUBLIC %s\n", argv[0]);
 				}
@@ -190,7 +190,7 @@ static void usershell() {
 				printf("system requires 1 arguments\n");
 			}
 			else {
-				ans = xmlCatalogResolveSystem((const xmlChar*)argv[0]);
+				ans = xmlCatalogResolveSystem((const xmlChar *)argv[0]);
 				if(ans == NULL) {
 					printf("No entry for SYSTEM %s\n", argv[0]);
 				}
@@ -413,7 +413,7 @@ int main(int argc, char ** argv)
 		filename = argv[i];
 		ret = xmlLoadCatalog(argv[i]);
 		if((ret < 0) && (create)) {
-			xmlCatalogAdd(BAD_CAST "catalog", BAD_CAST argv[i], 0);
+			xmlCatalogAdd(reinterpret_cast<const xmlChar *>("catalog"), BAD_CAST argv[i], 0);
 		}
 		break;
 	}
@@ -436,11 +436,11 @@ int main(int argc, char ** argv)
 				if((!strcmp(argv[i], "-add")) || (!strcmp(argv[i], "--add"))) {
 					if(catal == NULL)
 						catal = xmlNewCatalog(1);
-					xmlACatalogAdd(catal, BAD_CAST "CATALOG", BAD_CAST argv[i + 2], 0);
+					xmlACatalogAdd(catal, reinterpret_cast<const xmlChar *>("CATALOG"), BAD_CAST argv[i + 2], 0);
 					if(!no_super_update) {
 						super = xmlLoadSGMLSuperCatalog(XML_SGML_DEFAULT_CATALOG);
 						SETIFZ(super, xmlNewCatalog(1));
-						xmlACatalogAdd(super, BAD_CAST "CATALOG", BAD_CAST argv[i + 1], 0);
+						xmlACatalogAdd(super, reinterpret_cast<const xmlChar *>("CATALOG"), BAD_CAST argv[i + 1], 0);
 					}
 				}
 				else {
@@ -534,7 +534,7 @@ int main(int argc, char ** argv)
 			xmlChar * ans;
 			xmlURIPtr uri = xmlParseURI(argv[i]);
 			if(!uri) {
-				ans = xmlCatalogResolvePublic((const xmlChar*)argv[i]);
+				ans = xmlCatalogResolvePublic((const xmlChar *)argv[i]);
 				if(ans == NULL) {
 					printf("No entry for PUBLIC %s\n", argv[i]);
 					exit_value = 4;
@@ -546,10 +546,10 @@ int main(int argc, char ** argv)
 			}
 			else {
 				xmlFreeURI(uri);
-				ans = xmlCatalogResolveSystem((const xmlChar*)argv[i]);
+				ans = xmlCatalogResolveSystem((const xmlChar *)argv[i]);
 				if(ans == NULL) {
 					printf("No entry for SYSTEM %s\n", argv[i]);
-					ans = xmlCatalogResolveURI((const xmlChar*)argv[i]);
+					ans = xmlCatalogResolveURI((const xmlChar *)argv[i]);
 					if(ans == NULL) {
 						printf("No entry for URI %s\n", argv[i]);
 						exit_value = 4;
@@ -587,7 +587,7 @@ int main(int argc, char ** argv)
 	 */
 	xmlCleanupParser();
 	xmlMemoryDump();
-	return(exit_value);
+	return (exit_value);
 }
 
 #else

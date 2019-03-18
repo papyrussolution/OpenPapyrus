@@ -839,7 +839,7 @@ int SLAPI PPViewArticle::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 				}
 				break;
 			case PPVCMD_INPUTCHAR:
-				if(((const char *)pHdr)[0] == kbCtrlX)
+				if(static_cast<const char *>(pHdr)[0] == kbCtrlX)
 					CtrlX++;
 				else
 					CtrlX = 0;
@@ -850,8 +850,8 @@ int SLAPI PPViewArticle::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 				break;
 		}
 	}
-	else if(ok > 0 && pHdr && *(PPID *)pHdr) {
-		UpdateTempTable(*(PPID *)pHdr);
+	else if(ok > 0 && pHdr && *static_cast<const PPID *>(pHdr)) {
+		UpdateTempTable(*static_cast<const PPID *>(pHdr));
 	}
 	return ok;
 }

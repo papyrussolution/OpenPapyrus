@@ -62,7 +62,7 @@ int SLAPI PPObjDraftWrOff::PutPacket(PPID * pID, PPDraftWrOffPacket * pPack, int
 			PPIDArray list, * p_list = 0;
 			if(pPack && pPack->P_List) {
 				PPDraftWrOffEntry * p_entry;
-				for(uint i = 0; pPack->P_List->enumItems(&i, (void**)&p_entry);)
+				for(uint i = 0; pPack->P_List->enumItems(&i, (void **)&p_entry);)
 					THROW(list.add(p_entry->OpID) && list.add(p_entry->LocID) &&
 						list.add(p_entry->Reserve[0]) && list.add(p_entry->Reserve[1]) &&
 						list.add(p_entry->Flags));
@@ -195,7 +195,7 @@ int DraftWrOffDialog::setupList()
 	SString sub;
 	if(Data.P_List) {
 		StringSet ss(SLBColumnDelim);
-		for(uint i = 0; Data.P_List->enumItems(&i, (void**)&p_item);) {
+		for(uint i = 0; Data.P_List->enumItems(&i, (void **)&p_item);) {
 			ss.clear();
 			GetOpName(p_item->OpID, sub);
 			ss.add(sub);
@@ -518,7 +518,7 @@ int SLAPI PrcssrWrOffDraft::GetWrOffBillList(const PPDraftWrOffPacket * pPack, P
 {
 	int    ok = 1;
 	PPDraftWrOffEntry * p_item;
-	for(uint i = 0; pPack->P_List->enumItems(&i, (void**)&p_item);) {
+	for(uint i = 0; pPack->P_List->enumItems(&i, (void **)&p_item);) {
 		THROW(GetWrOffBillList(p_item, pDfctList, pList));
 	}
 	CATCHZOK
@@ -631,7 +631,7 @@ int SLAPI PrcssrWrOffDraft::WriteOffMrp(const PPDraftWrOffPacket * pPack, PUGL *
 			ok = 1;
 			SString fmt_buf, msg_buf, bill_name;
 			PPDraftWrOffEntry * p_item;
-			for(uint i = 0; pPack->P_List->enumItems(&i, (void**)&p_item);) {
+			for(uint i = 0; pPack->P_List->enumItems(&i, (void **)&p_item);) {
 				PPIDArray bill_list;
 				if(GetWrOffBillList(p_item, 0, &bill_list) > 0) {
 					PPDraftOpEx dox;

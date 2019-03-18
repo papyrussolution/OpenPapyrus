@@ -406,36 +406,24 @@ static const cairo_surface_backend_t cairo_tee_surface_backend = {
 cairo_surface_t * cairo_tee_surface_create(cairo_surface_t * master)
 {
 	cairo_tee_surface_t * surface;
-
 	if(unlikely(master->status))
 		return _cairo_surface_create_in_error(master->status);
-
 	surface = _cairo_malloc(sizeof(cairo_tee_surface_t));
 	if(unlikely(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
-
-	_cairo_surface_init(&surface->base,
-	    &cairo_tee_surface_backend,
-	    master->device,
-	    master->content,
-	    TRUE);              /* is_vector */
-
+	_cairo_surface_init(&surface->base, &cairo_tee_surface_backend, master->device, master->content, TRUE/* is_vector */);
 	_cairo_surface_wrapper_init(&surface->master, master);
-
 	_cairo_array_init(&surface->slaves, sizeof(cairo_surface_wrapper_t));
-
 	return &surface->base;
 }
 
 slim_hidden_def(cairo_tee_surface_create);
 
-void cairo_tee_surface_add(cairo_surface_t * abstract_surface,
-    cairo_surface_t * target)
+void cairo_tee_surface_add(cairo_surface_t * abstract_surface, cairo_surface_t * target)
 {
 	cairo_tee_surface_t * surface;
 	cairo_surface_wrapper_t slave;
 	cairo_status_t status;
-
 	if(unlikely(abstract_surface->status))
 		return;
 	if(unlikely(abstract_surface->finished)) {

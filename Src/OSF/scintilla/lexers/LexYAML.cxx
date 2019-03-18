@@ -209,7 +209,7 @@ static void ColouriseYAMLDoc(Sci_PositionU startPos, Sci_Position length, int, W
 static bool IsCommentLine(Sci_Position line, Accessor &styler)
 {
 	Sci_Position pos = styler.LineStart(line);
-	return (styler[pos] == '#') ? true : false;
+	return LOGIC(styler[pos] == '#');
 }
 
 static void FoldYAMLDoc(Sci_PositionU startPos, Sci_Position length, int /*initStyle - unused*/, WordList *[], Accessor &styler)

@@ -542,7 +542,7 @@ int ngx_http_ssl_servername(ngx_ssl_conn_t * ssl_conn, int * ad, void * arg)
 	if(host.len == 0) {
 		return SSL_TLSEXT_ERR_NOACK;
 	}
-	host.data = (u_char*)servername;
+	host.data = (u_char *)servername;
 	if(ngx_http_validate_host(&host, c->pool, 1) != NGX_OK) {
 		return SSL_TLSEXT_ERR_NOACK;
 	}
@@ -1175,12 +1175,12 @@ ngx_int_t ngx_http_process_request_header(ngx_http_request_t * r)
 	}
 
 	if(r->headers_in.transfer_encoding) {
-		if(r->headers_in.transfer_encoding->value.len == 7 && ngx_strncasecmp(r->headers_in.transfer_encoding->value.data, (u_char*)"chunked", 7) == 0) {
+		if(r->headers_in.transfer_encoding->value.len == 7 && ngx_strncasecmp(r->headers_in.transfer_encoding->value.data, (u_char *)"chunked", 7) == 0) {
 			r->headers_in.content_length = NULL;
 			r->headers_in.content_length_n = -1;
 			r->headers_in.chunked = 1;
 		}
-		else if(r->headers_in.transfer_encoding->value.len != 8 || ngx_strncasecmp(r->headers_in.transfer_encoding->value.data, (u_char*)"identity", 8) != 0) {
+		else if(r->headers_in.transfer_encoding->value.len != 8 || ngx_strncasecmp(r->headers_in.transfer_encoding->value.data, (u_char *)"identity", 8) != 0) {
 			ngx_log_error(NGX_LOG_INFO, r->connection->log, 0, "client sent unknown \"Transfer-Encoding\": \"%V\"", &r->headers_in.transfer_encoding->value);
 			ngx_http_finalize_request(r, NGX_HTTP_NOT_IMPLEMENTED);
 			return NGX_ERROR;

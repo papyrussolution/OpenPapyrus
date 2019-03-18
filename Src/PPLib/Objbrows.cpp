@@ -569,7 +569,7 @@ int ObjRestrictListDialog::setupList()
 		ObjRestrictItem * p_item;
 		SString sub;
 		StringSet ss(SLBColumnDelim);
-		for(uint i = 0; P_ORList->enumItems(&i, (void**)&p_item);) {
+		for(uint i = 0; P_ORList->enumItems(&i, (void **)&p_item);) {
 			ss.clear();
 			getObjName(p_item->ObjID, p_item->Flags, sub);
 			ss.add(sub);

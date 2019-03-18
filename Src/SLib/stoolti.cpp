@@ -36,9 +36,9 @@ void STooltip::Destroy()
 
 int STooltip::Add(const char * pText, const RECT * pRect, long id)
 {
-	char   tooltip[256];
+	TCHAR  tooltip[256];
 	memzero(tooltip, sizeof(tooltip));
-	strnzcpy(tooltip, pText, sstrlen(pText) + 1);
+	strnzcpy(tooltip, SUcSwitch(pText), SIZEOFARRAY(tooltip));
 	TOOLINFO ti;
 	ti.cbSize      = sizeof(TOOLINFO);
 	ti.uFlags      = TTF_SUBCLASS;
@@ -50,7 +50,7 @@ int STooltip::Add(const char * pText, const RECT * pRect, long id)
 	ti.rect.right  = pRect->right;
 	ti.hinst       = TProgram::GetInst();
 	ti.lpszText    = tooltip; // @unicodeproblem
-	return BIN(::SendMessage(HwndTT, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti)); // @unicodeproblem
+	return BIN(::SendMessage(HwndTT, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&ti))); // @unicodeproblem
 }
 
 int STooltip::Remove(long id)
@@ -206,7 +206,7 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 	Cmd     = cmd;
 	Extra   = extra;
 	SMessageWindow::DestroyByParent(hwnd_parent);
-	HWnd = APPL->CreateDlg(1013/*DLG_TOOLTIP*/, hwnd_parent, SMessageWindow::Proc, (LPARAM)this);
+	HWnd = APPL->CreateDlg(1013/*DLG_TOOLTIP*/, hwnd_parent, SMessageWindow::Proc, reinterpret_cast<LPARAM>(this));
 	::GetCursorPos(&PrevMouseCoord);
 	if(HWnd) {
 		HWND   h_ctl = GetDlgItem(HWnd, 1201/*CTL_TOOLTIP_TEXT*/);
@@ -364,7 +364,7 @@ int SMessageWindow::Move()
 					SIZE size;
 					if(buf.Len() == 0)
 						buf.Space();
-					GetTextExtentPoint32(hdc, buf, buf.Len(), &size); // @unicodeproblem
+					GetTextExtentPoint32(hdc, SUcSwitch(buf), buf.Len(), &size); // @unicodeproblem
 					w = MAX(w, size.cx);
 					if(w > max_w) {
 						SplitBuf(hdc, buf, max_w, 10); // максимум 10 строчек для 1-ой подстроки
@@ -454,7 +454,7 @@ int SMessageWindow::DoCommand(TPoint p)
 // static
 BOOL CALLBACK SMessageWindow::Proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	SMessageWindow * p_win = (SMessageWindow *)TView::GetWindowUserData(hWnd);
+	SMessageWindow * p_win = static_cast<SMessageWindow *>(TView::GetWindowUserData(hWnd));
 	switch(message) {
 		case WM_INITDIALOG:
 			SetWindowLong(hWnd, GWLP_USERDATA, lParam);
@@ -463,7 +463,7 @@ BOOL CALLBACK SMessageWindow::Proc(HWND hWnd, UINT message, WPARAM wParam, LPARA
 		case WM_DESTROY:
 			KillTimer(hWnd, MSGWND_CLOSETIMER);
 			// @v9.1.11 SetWindowLong(hWnd, GWLP_USERDATA, 0L);
-			TView::SetWindowProp(hWnd, GWLP_USERDATA, (void *)0); // @v9.1.11
+			TView::SetWindowProp(hWnd, GWLP_USERDATA, static_cast<void *>(0)); // @v9.1.11
 			ZDELETE(p_win);
 			break;
 		case WM_LBUTTONDBLCLK:

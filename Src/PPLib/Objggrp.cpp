@@ -231,7 +231,7 @@ static int SLAPI EditGoodsGroupRecoverParam(GoodsGroupRecoverParam * pData)
 			AddClusterAssoc(CTL_RCVRGGRP_EGA, 2, GoodsGroupRecoverParam::egaMoveToFolder);
 			AddClusterAssoc(CTL_RCVRGGRP_EGA, 3, GoodsGroupRecoverParam::egaRemove);
 			SetClusterData(CTL_RCVRGGRP_FLAGS, Data.Ega);
-			SetupPPObjCombo(this, CTLSEL_RCVRGGRP_EGAFOLD, PPOBJ_GOODSGROUP, Data.EgaFolderID, 0, (void *)GGRTYP_SEL_FOLDER);
+			SetupPPObjCombo(this, CTLSEL_RCVRGGRP_EGAFOLD, PPOBJ_GOODSGROUP, Data.EgaFolderID, 0, reinterpret_cast<void *>(GGRTYP_SEL_FOLDER));
 			disableCtrl(CTLSEL_RCVRGGRP_EGAFOLD, Data.Ega != GoodsGroupRecoverParam::egaMoveToFolder);
 			return ok;
 		}
@@ -1506,8 +1506,8 @@ public:
 		setCtrlData(CTL_TRANSPORT_TRAILCODE, Data.TrailerCode);
 		setCtrlReal(CTL_TRANSPORT_CAPACITY, fdiv1000i(Data.Capacity));
 		SetupPPObjCombo(this, CTLSEL_TRANSPORT_MODEL, PPOBJ_TRANSPMODEL, Data.TrModelID, OLW_CANINSERT);
-		SetupPPObjCombo(this, CTLSEL_TRANSPORT_OWNER, PPOBJ_PERSON, Data.OwnerID, OLW_CANINSERT, (void *)owner_kind_id);
-		SetupPPObjCombo(this, CTLSEL_TRANSPORT_CAPTAIN, PPOBJ_PERSON, Data.CaptainID, OLW_CANINSERT, (void *)captain_kind_id);
+		SetupPPObjCombo(this, CTLSEL_TRANSPORT_OWNER, PPOBJ_PERSON, Data.OwnerID, OLW_CANINSERT, reinterpret_cast<void *>(owner_kind_id));
+		SetupPPObjCombo(this, CTLSEL_TRANSPORT_CAPTAIN, PPOBJ_PERSON, Data.CaptainID, OLW_CANINSERT, reinterpret_cast<void *>(captain_kind_id));
 		SetupPPObjCombo(this, CTLSEL_TRANSPORT_CNTRY, PPOBJ_COUNTRY, Data.CountryID, OLW_CANINSERT);
 		// @v10.2.0 {
 		if(Data.TrType == PPTRTYP_CAR) {
@@ -2079,7 +2079,7 @@ int SLAPI PPObjBrand::Edit(PPID * pID, void * extraPtr)
 		pack.LinkFiles.At(0, rec.Path);
 		dlg->setGroupData(GRP_IBG, &rec);
 	}
-	SetupPPObjCombo(dlg, CTLSEL_GOODS_MANUF, PPOBJ_PERSON, pack.Rec.OwnerID, OLW_CANINSERT, (void *)PPPRK_MANUF);
+	SetupPPObjCombo(dlg, CTLSEL_GOODS_MANUF, PPOBJ_PERSON, pack.Rec.OwnerID, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_MANUF));
 	while(!valid_data && ExecView(dlg) == cmOK) {
 		dlg->getCtrlData(CTL_GOODS_NAME,  pack.Rec.Name);
 		dlg->getCtrlData(CTLSEL_GOODS_MANUF, &pack.Rec.OwnerID);

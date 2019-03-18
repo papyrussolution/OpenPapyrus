@@ -88,7 +88,7 @@ void FASTCALL MatchFinder_MoveBlock(CMatchFinder * p)
 	p->buffer = p->bufferBase + p->keepSizeBefore;
 }
 
-int FASTCALL MatchFinder_NeedMove(CMatchFinder * p)
+int FASTCALL MatchFinder_NeedMove(const CMatchFinder * p)
 {
 	if(p->directInput)
 		return 0;
@@ -272,7 +272,7 @@ void MatchFinder_Init(CMatchFinder * p) // @fptr
 	MatchFinder_Init_2(p, True); 
 }
 
-static uint32 FASTCALL MatchFinder_GetSubValue(CMatchFinder * p) 
+static uint32 FASTCALL MatchFinder_GetSubValue(const CMatchFinder * p) 
 { 
 	return (p->pos - p->historySize - 1) & kNormalizeMask; 
 }
@@ -875,7 +875,7 @@ void Hc3Zip_MatchFinder_Skip(CMatchFinder * p, uint32 num)
 	} while(--num != 0);
 }
 
-void MatchFinder_CreateVTable(CMatchFinder * p, IMatchFinder * vTable)
+void MatchFinder_CreateVTable(const CMatchFinder * p, IMatchFinder * vTable)
 {
 	vTable->Init = (Mf_Init_Func)MatchFinder_Init;
 	vTable->GetNumAvailableBytes = (Mf_GetNumAvailableBytes_Func)MatchFinder_GetNumAvailableBytes;

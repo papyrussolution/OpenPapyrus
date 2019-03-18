@@ -35,7 +35,7 @@
 
 #define SETPIXEL(op, v) {			\
 		switch(npixels++ & 3) {		       \
-			case 0: op[0]  = (unsigned char)((v) << 6); break;     \
+			case 0: op[0]  = (uchar)((v) << 6); break;     \
 			case 1: op[0] |= (v) << 4; break;	\
 			case 2: op[0] |= (v) << 2; break;	\
 			case 3: *op++ |= (v);      op_offset++; break;	\
@@ -49,7 +49,7 @@
 static int NeXTDecode(TIFF* tif, uint8* buf, tmsize_t occ, uint16 s)
 {
 	static const char module[] = "NeXTDecode";
-	unsigned char * bp, * op;
+	uchar * bp, * op;
 	tmsize_t cc;
 	uint8* row;
 	tmsize_t scanline, n;
@@ -59,9 +59,9 @@ static int NeXTDecode(TIFF* tif, uint8* buf, tmsize_t occ, uint16 s)
 	 * white (we assume a PhotometricInterpretation
 	 * of ``min-is-black'').
 	 */
-	for(op = (unsigned char*)buf, cc = occ; cc-- > 0; )
+	for(op = (uchar *)buf, cc = occ; cc-- > 0; )
 		*op++ = 0xff;
-	bp = (unsigned char*)tif->tif_rawcp;
+	bp = (uchar *)tif->tif_rawcp;
 	cc = tif->tif_rawcc;
 	scanline = tif->tif_scanlinesize;
 	if(occ % scanline) {
@@ -139,7 +139,7 @@ static int NeXTDecode(TIFF* tif, uint8* buf, tmsize_t occ, uint16 s)
 		    }
 		}
 	}
-	tif->tif_rawcp = (uint8 *)bp;
+	tif->tif_rawcp = reinterpret_cast<uint8 *>(bp);
 	tif->tif_rawcc = cc;
 	return 1;
 bad:

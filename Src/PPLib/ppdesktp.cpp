@@ -688,9 +688,9 @@ int PPDesktop::Destroy(int dontAssignToDb)
 
 int PPDesktop::AddTooltip(long id, TPoint coord, const char * pText)
 {
-	char   tooltip[512]; // @v9.0.11 [256]-->[512]
+	TCHAR  tooltip[512]; // @v9.0.11 [256]-->[512]
 	memzero(tooltip, sizeof(tooltip));
-	STRNSCPY(tooltip, pText);
+	STRNSCPY(tooltip, SUcSwitch(pText));
 	TOOLINFO t_i;
 	t_i.cbSize      = sizeof(TOOLINFO);
 	t_i.uFlags      = TTF_SUBCLASS;
@@ -699,10 +699,10 @@ int PPDesktop::AddTooltip(long id, TPoint coord, const char * pText)
 	TRect ir;
 	CalcIconRect(coord, ir);
 	t_i.rect = ir;
-	t_i.hinst       = TProgram::GetInst();
-	t_i.lpszText    = tooltip; // @unicodeproblem
-	SendMessage(HwndTT, (UINT)TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
-	SendMessage(HwndTT, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
+	t_i.hinst    = TProgram::GetInst();
+	t_i.lpszText = tooltip; // @unicodeproblem
+	::SendMessage(HwndTT, static_cast<UINT>(TTM_DELTOOL), 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
+	::SendMessage(HwndTT, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
 	return 1;
 }
 
@@ -728,7 +728,7 @@ int PPDesktop::DrawText(TCanvas & rC, TPoint coord, COLORREF color, const char *
 		SplitBuf(rC, text, IconSize * 2 - 4, text_h);
 		StringSet ss('\n', text);
 		for(uint i = 0; ss.get(&i, text) > 0; text_rect.top += tm.tmHeight, text_rect.bottom += tm.tmHeight)
-			::DrawText(rC, text, text.Len(), &text_rect, DT_CENTER); // @unicodeproblem
+			::DrawText(rC, SUcSwitch(text), text.Len(), &text_rect, DT_CENTER); // @unicodeproblem
 		rC.PopObject();
 	}
 	ZDeleteWinGdiObject(&curs_over_txt_font);
@@ -772,13 +772,13 @@ int PPDesktop::DrawIcon(TCanvas & rC, long id, TPoint coord, const SString & rTe
 		if(rIcon.ToLong())
 			h_icon = LoadIcon(TProgram::GetInst(), MAKEINTRESOURCE(rIcon.ToLong()));
 		else
-			h_icon = (HICON)::LoadImage(0, rIcon.cptr(), IMAGE_ICON, IconSize, IconSize, LR_LOADFROMFILE); // @unicodeproblem
+			h_icon = static_cast<HICON>(::LoadImage(0, SUcSwitch(rIcon), IMAGE_ICON, IconSize, IconSize, LR_LOADFROMFILE)); // @unicodeproblem
 		SETIFZ(h_icon, LoadIcon(TProgram::GetInst(), MAKEINTRESOURCE(ICON_DEFAULT)));
 		if(h_icon) {
 			SString text;
 			(text = rText).Transf(CTRANSF_INNER_TO_OUTER);
-			DrawIconEx(rC, cr.left + coord.x + IconSize / 2, cr.top + coord.y + 2, h_icon, 0, 0, 0, 0, DI_DEFAULTSIZE|DI_IMAGE|DI_MASK);
-			DrawText(rC, coord, (COLORREF)text_color, text);
+			::DrawIconEx(rC, cr.left + coord.x + IconSize / 2, cr.top + coord.y + 2, h_icon, 0, 0, 0, 0, DI_DEFAULTSIZE|DI_IMAGE|DI_MASK);
+			PPDesktop::DrawText(rC, coord, static_cast<COLORREF>(text_color), text);
 			AddTooltip(id, coord, text);
 			DestroyIcon(h_icon);
 		}
@@ -1120,7 +1120,8 @@ ushort PPDesktop::Execute()
 	r.bottom = r.bottom - r.top - 2;
 	DWORD style = WS_CHILD | WS_CLIPSIBLINGS | WS_TABSTOP;
 	SString title = P_ActiveDesktop->Name;
-	HW = CreateWindowEx(0, PPDesktop::WndClsName, (const char *)title.Transf(CTRANSF_INNER_TO_OUTER), style, 0, 0, r.right - r.left - 18, r.bottom, h_frame, 0, TProgram::GetInst(), this); // @unicodeproblem
+	HW = CreateWindowEx(0, SUcSwitch(PPDesktop::WndClsName), SUcSwitch(title.Transf(CTRANSF_INNER_TO_OUTER)), 
+		style, 0, 0, r.right - r.left - 18, r.bottom, h_frame, 0, TProgram::GetInst(), this); // @unicodeproblem
 	ShowWindow(H(), SW_SHOW);
 	UpdateWindow(H());
 	HwndTT = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP,
@@ -1215,7 +1216,7 @@ void PPDesktop::WMHCreate(LPCREATESTRUCT)
 			MEMSZERO(log_font);
 			log_font.lfCharSet = DEFAULT_CHARSET;
 			PPGetSubStr(PPTXT_FONTFACE, PPFONT_ARIAL, temp_buf);
-			STRNSCPY(log_font.lfFaceName, temp_buf); // @unicodeproblem
+			STRNSCPY(log_font.lfFaceName, SUcSwitch(temp_buf)); // @unicodeproblem
 			log_font.lfHeight = 14;
 			log_font.lfQuality = CLEARTYPE_QUALITY;
 			Ptb.SetFont(fontText, ::CreateFontIndirect(&log_font)); // @unicodeproblem
@@ -1230,7 +1231,7 @@ void PPDesktop::WMHCreate(LPCREATESTRUCT)
 		}
 		Ptb.SetBrush(brushBkg, SPaintObj::bsSolid, Ptb.GetColor(colorBkg), 0);
 	}
-	TView::SetWindowUserData(H(), (PPDesktop *)this);
+	TView::SetWindowUserData(H(), static_cast<PPDesktop *>(this));
 	SetCursor(LoadCursor(NULL, IDC_ARROW));
 	SetFocus(H());
 	SendMessage(H(), WM_NCACTIVATE, TRUE, 0L);
@@ -1413,7 +1414,7 @@ int PPDesktop::WaitCommand()
 			buf.Write(addendum);
 			use_buf = 1;
 		}
-		THROW(cmd_descr.DoCommandSimple(cmd.CmdID, 0, 0, (long)(use_buf ? &buf : 0)));
+		THROW(cmd_descr.DoCommandSimple(cmd.CmdID, 0, 0, (use_buf ? &buf : 0)));
 	}
 	CATCHZOKPPERR
 	delete p_dlg;
@@ -2123,11 +2124,11 @@ int PPDesktop::RegWindowClass(HINSTANCE hInst)
 	WNDCLASSEX wc;
 	MEMSZERO(wc);
 	wc.cbSize = sizeof(wc);
-	wc.lpszClassName = PPDesktop::WndClsName; // @unicodeproblem
+	wc.lpszClassName = SUcSwitch(PPDesktop::WndClsName); // @unicodeproblem
 	wc.hInstance     = hInst;
 	wc.lpfnWndProc   = PPDesktop::DesktopWndProc;
 	wc.hIcon         = LoadIcon(hInst, MAKEINTRESOURCE(102));
-	wc.hbrBackground = (HBRUSH)GetStockObject(LTGRAY_BRUSH);
+	wc.hbrBackground = static_cast<HBRUSH>(GetStockObject(LTGRAY_BRUSH));
 	wc.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
 	return ::RegisterClassEx(&wc); // @unicodeproblem
 }

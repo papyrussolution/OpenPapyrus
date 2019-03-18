@@ -245,8 +245,7 @@ extern DBTCL_GLOBAL __dbtcl_global;
  * returned by DB.
  */
 #define	MAKE_STAT_STRLIST(s,s1) do {					\
-	result = _SetListElem(interp, res, (s), (uint32)sstrlen(s),	\
-	    (s1), (uint32)sstrlen(s1));				\
+	result = _SetListElem(interp, res, (s), (uint32)sstrlen(s),	(s1), (uint32)sstrlen(s1)); \
 	if(result != TCL_OK)						\
 		goto error;						\
 } while (0)
@@ -260,10 +259,10 @@ extern DBTCL_GLOBAL __dbtcl_global;
 #define	MAKE_SITE_LIST(e, h, p, s, pr) do {				\
 	myobjc = 5;							\
 	myobjv[0] = Tcl_NewIntObj(e);					\
-	myobjv[1] = Tcl_NewStringObj((h), (int)sstrlen(h));		\
+	myobjv[1] = Tcl_NewStringObj((h), sstrleni(h));		\
 	myobjv[2] = Tcl_NewIntObj((int)p);				\
-	myobjv[3] = Tcl_NewStringObj((s), (int)sstrlen(s));		\
-	myobjv[4] = Tcl_NewStringObj((pr), (int)sstrlen(pr));		\
+	myobjv[3] = Tcl_NewStringObj((s), sstrleni(s));		\
+	myobjv[4] = Tcl_NewStringObj((pr), sstrleni(pr));		\
 	thislist = Tcl_NewListObj(myobjc, myobjv);			\
 	result = Tcl_ListObjAppendElement(interp, res, thislist);	\
 	if(result != TCL_OK)						\

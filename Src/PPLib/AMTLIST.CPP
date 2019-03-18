@@ -46,7 +46,7 @@ int FASTCALL AmtList::HasVatSum(const TaxAmountIDs * pTai) const
 	int    yes = 0;
 	if(pTai) {
 		AmtEntry * p_ae;
-		for(uint i = 0; !yes && enumItems(&i, (void**)&p_ae);)
+		for(uint i = 0; !yes && enumItems(&i, (void **)&p_ae);)
 			if(p_ae->AmtTypeID && p_ae->Amt != 0.0 &&
 				oneof3(p_ae->AmtTypeID, pTai->VatAmtID[0], pTai->VatAmtID[1], pTai->VatAmtID[2]))
 				yes = 1;

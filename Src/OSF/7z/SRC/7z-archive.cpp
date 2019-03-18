@@ -528,7 +528,7 @@ namespace NArchive {
 			if(!callback)
 				return S_FALSE;
 			CMyComPtr<IArchiveOpenVolumeCallback> volumeCallback;
-			callback->QueryInterface(IID_IArchiveOpenVolumeCallback, (void**)&volumeCallback);
+			callback->QueryInterface(IID_IArchiveOpenVolumeCallback, (void **)&volumeCallback);
 			if(!volumeCallback)
 				return S_FALSE;
 			UString name;

@@ -3349,7 +3349,7 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 		    return 1;
 
 		case SSL_CTRL_GET_TLSEXT_STATUS_REQ_CB_ARG:
-		    *(void**)parg = ctx->tlsext_status_arg;
+		    *(void **)parg = ctx->tlsext_status_arg;
 		    break;
 
 		case SSL_CTRL_GET_TLSEXT_STATUS_REQ_CB:
@@ -3757,7 +3757,7 @@ int ssl3_shutdown(SSL * s)
 		 * written, s->s3->alert_dispatch will be true
 		 */
 		if(s->s3->alert_dispatch)
-			return (-1);  /* return WANT_WRITE */
+			return -1;  /* return WANT_WRITE */
 	}
 	else if(s->s3->alert_dispatch) {
 		/* resend it if not sent */
@@ -3777,7 +3777,7 @@ int ssl3_shutdown(SSL * s)
 		 */
 		s->method->ssl_read_bytes(s, 0, NULL, NULL, 0, 0);
 		if(!(s->shutdown & SSL_RECEIVED_SHUTDOWN)) {
-			return (-1); /* return WANT_READ */
+			return -1; /* return WANT_READ */
 		}
 	}
 
@@ -3906,7 +3906,7 @@ int ssl_fill_hello_random(SSL * s, int server, uchar * result, int len)
 	else
 		send_time = (s->mode & SSL_MODE_SEND_CLIENTHELLO_TIME) != 0;
 	if(send_time) {
-		unsigned long Time = (unsigned long)time(NULL);
+		unsigned long Time = (ulong)time(NULL);
 		uchar * p = result;
 		l2n(Time, p);
 		return RAND_bytes(p, len - 4);

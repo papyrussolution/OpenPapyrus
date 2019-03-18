@@ -261,7 +261,8 @@ static void callhook(lua_State * L, CallInfo * ci) {
 	ci->u.l.savedpc--; /* correct 'pc' */
 }
 
-static StkId adjust_varargs(lua_State * L, Proto * p, int actual) {
+static StkId adjust_varargs(lua_State * L, Proto * p, int actual) 
+{
 	int i;
 	int nfixargs = p->numparams;
 	StkId base, fixed;
@@ -670,12 +671,12 @@ LUA_API int lua_yieldk(lua_State * L, int nresults, lua_KContext ctx, lua_KFunct
 	return 0; /* return to 'luaD_hook' */
 }
 
-int luaD_pcall(lua_State * L, Pfunc func, void * u,
-    ptrdiff_t old_top, ptrdiff_t ef) {
+int luaD_pcall(lua_State * L, Pfunc func, void * u, ptrdiff_t old_top, ptrdiff_t ef) 
+{
 	int status;
 	CallInfo * old_ci = L->ci;
 	lu_byte old_allowhooks = L->allowhook;
-	unsigned short old_nny = L->nny;
+	ushort old_nny = L->nny;
 	ptrdiff_t old_errfunc = L->errfunc;
 	L->errfunc = ef;
 	status = luaD_rawrunprotected(L, func, u);
@@ -703,15 +704,16 @@ struct SParser {  /* data to 'f_parser' */
 	const char * name;
 };
 
-static void checkmode(lua_State * L, const char * mode, const char * x) {
+static void checkmode(lua_State * L, const char * mode, const char * x) 
+{
 	if(mode && strchr(mode, x[0]) == NULL) {
-		luaO_pushfstring(L,
-		    "attempt to load a %s chunk (mode is '%s')", x, mode);
+		luaO_pushfstring(L, "attempt to load a %s chunk (mode is '%s')", x, mode);
 		luaD_throw(L, LUA_ERRSYNTAX);
 	}
 }
 
-static void f_parser(lua_State * L, void * ud) {
+static void f_parser(lua_State * L, void * ud) 
+{
 	LClosure * cl;
 	struct SParser * p = cast(struct SParser *, ud);
 	int c = zgetc(p->z); /* read first character */
@@ -727,8 +729,8 @@ static void f_parser(lua_State * L, void * ud) {
 	luaF_initupvals(L, cl);
 }
 
-int luaD_protectedparser(lua_State * L, ZIO * z, const char * name,
-    const char * mode) {
+int luaD_protectedparser(lua_State * L, ZIO * z, const char * name, const char * mode) 
+{
 	struct SParser p;
 	int status;
 	L->nny++; /* cannot yield during parsing */

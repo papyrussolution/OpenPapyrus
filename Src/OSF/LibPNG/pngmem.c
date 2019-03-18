@@ -116,8 +116,8 @@ PNG_ALLOCATED void * /* PRIVATE */ png_realloc_array(png_const_structrp png_ptr,
 		if(new_array != NULL) {
 			// Because png_malloc_array worked the size calculations below cannot overflow.
 			if(old_elements > 0)
-				memcpy(new_array, old_array, element_size*(unsigned)old_elements);
-			memzero((char *)new_array + element_size*(unsigned)old_elements, element_size*(unsigned)add_elements);
+				memcpy(new_array, old_array, element_size*(uint)old_elements);
+			memzero((char *)new_array + element_size*(uint)old_elements, element_size*(uint)add_elements);
 			return new_array;
 		}
 	}

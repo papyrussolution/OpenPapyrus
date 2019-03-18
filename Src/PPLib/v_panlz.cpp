@@ -491,8 +491,8 @@ int SLAPI PPViewPriceAnlz::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 		PPID   SupplID;
 	};
 	uint   tab_idx = (pBrw) ? pBrw->GetCurColumn() : 0;
-	PPID   g_id = (pHdr) ? ((_E *)pHdr)->GoodsID : 0;
-	PPID   suppl_id = (pHdr) ? ((_E *)pHdr)->SupplID : 0;
+	PPID   g_id = (pHdr) ? static_cast<const _E *>(pHdr)->GoodsID : 0;
+	PPID   suppl_id = (pHdr) ? static_cast<const _E *>(pHdr)->SupplID : 0;
 	PPID   loc_id = 0;
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 

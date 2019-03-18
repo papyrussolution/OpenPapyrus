@@ -63,10 +63,10 @@ int IconvGetChar(byte firstByte, StreamIn * in, uint * bytesRead)
 			int c;
 
 			/* create codepoint from UTF-32LE octets */
-			c = (unsigned char)outbuf[0];
-			c += (unsigned char)outbuf[1] << 8;
-			c += (unsigned char)outbuf[2] << 16;
-			c += (unsigned char)outbuf[3] << 32;
+			c = (uchar)outbuf[0];
+			c += (uchar)outbuf[1] << 8;
+			c += (uchar)outbuf[2] << 16;
+			c += (uchar)outbuf[3] << 32;
 
 			/* set number of read bytes */
 			*bytesRead = inbufsize;

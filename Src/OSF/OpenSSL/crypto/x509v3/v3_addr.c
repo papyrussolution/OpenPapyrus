@@ -187,7 +187,7 @@ static int i2r_IPAddrBlocks(const X509V3_EXT_METHOD * method, void * ext, BIO * 
 				case 65: BIO_puts(out, " (VPLS)"); break;
 				case 66: BIO_puts(out, " (BGP MDT)"); break;
 				case 128: BIO_puts(out, " (MPLS-labeled VPN)"); break;
-				default: BIO_printf(out, " (Unknown SAFI %u)", (unsigned)f->addressFamily->data[2]); break;
+				default: BIO_printf(out, " (Unknown SAFI %u)", (uint)f->addressFamily->data[2]); break;
 			}
 		}
 		switch(f->ipAddressChoice->type) {

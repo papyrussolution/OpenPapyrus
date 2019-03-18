@@ -2574,7 +2574,7 @@ namespace NArchive {
 		CMyComPtr<ICompressProgressInfo> progress = lps;
 		lps->Init(updateCallback, true);
 		CMyComPtr<IArchiveUpdateCallbackFile> opCallback;
-		updateCallback->QueryInterface(IID_IArchiveUpdateCallbackFile, (void**)&opCallback);
+		updateCallback->QueryInterface(IID_IArchiveUpdateCallbackFile, (void **)&opCallback);
 		if(opCallback) {
 			RINOK(opCallback->ReportOperation(NEventIndexType::kInArcIndex, 0, NUpdateNotifyOp::kReplicate))
 		}

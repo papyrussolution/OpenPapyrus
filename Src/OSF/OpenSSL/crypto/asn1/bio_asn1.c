@@ -289,7 +289,7 @@ static long asn1_bio_ctrl(BIO * b, int cmd, long arg1, void * arg2)
 		    break;
 
 		case BIO_C_GET_EX_ARG:
-		    *(void**)arg2 = ctx->ex_arg;
+		    *(void **)arg2 = ctx->ex_arg;
 		    break;
 		case BIO_CTRL_FLUSH:
 		    if(!next)

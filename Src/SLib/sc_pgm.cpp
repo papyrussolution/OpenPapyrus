@@ -1,5 +1,5 @@
 // SC_PGM.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2015, 2016, 2018
+// Copyright (c) A.Starodub 2009, 2010, 2015, 2016, 2018, 2019
 // Part of StyloConduit project
 // // Ёкспорт файлов дл€ обновлени€ программы
 //
@@ -54,17 +54,16 @@ int SCDBObjProgram::GetHostProgramVer(uint32 * pVer)
 	uint   info_size = 0;
 	SString path;
 	DWORD set_to_zero = 0;
-
 	P_Ctx->P_Pte->GetInstallPath(path);
 	path.SetLastSlash().Cat(P_PalmProgramFileName);
-	info_size = GetFileVersionInfoSize(path, &set_to_zero); // @unicodeproblem
+	info_size = GetFileVersionInfoSize(SUcSwitch(path), &set_to_zero); // @unicodeproblem
 	if(info_size) {
 		char * p_buf = new char[info_size];
-		if(GetFileVersionInfo(path, 0, info_size, p_buf)) { // @unicodeproblem
+		if(GetFileVersionInfo(SUcSwitch(path), 0, info_size, p_buf)) { // @unicodeproblem
 			uint   value_size = 0;
 			char * p_ver_buf = 0;
 			if(VerQueryValue(p_buf, _T("\\"), (LPVOID *)&p_ver_buf, &value_size)) {
-				VS_FIXEDFILEINFO * p_file_info = (VS_FIXEDFILEINFO *)p_ver_buf;
+				const VS_FIXEDFILEINFO * p_file_info = reinterpret_cast<const VS_FIXEDFILEINFO *>(p_ver_buf);
 				ver = HIWORD(p_file_info->dwProductVersionMS) << 16;
 				ver = ver | (LOWORD(p_file_info->dwProductVersionMS) << 8);
 				ver = ver | HIWORD(p_file_info->dwProductVersionLS);

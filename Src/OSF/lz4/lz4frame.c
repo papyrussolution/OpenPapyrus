@@ -124,7 +124,7 @@ You can contact the author at :
 //
 static uint32 LZ4F_readLE32 (const void* src)
 {
-    const uint8* const srcPtr = (const uint8*)src;
+    const uint8* const srcPtr = (const uint8 *)src;
     uint32 value32 = srcPtr[0];
     value32 += (srcPtr[1]<<8);
     value32 += (srcPtr[2]<<16);
@@ -143,7 +143,7 @@ static void LZ4F_writeLE32 (void* dst, uint32 value32)
 
 static uint64 LZ4F_readLE64 (const void* src)
 {
-    const uint8* const srcPtr = (const uint8*)src;
+    const uint8* const srcPtr = (const uint8 *)src;
     uint64 value64 = srcPtr[0];
     value64 += ((uint64)srcPtr[1]<<8);
     value64 += ((uint64)srcPtr[2]<<16);
@@ -295,7 +295,7 @@ static size_t LZ4F_compressBound_internal(size_t srcSize, const LZ4F_preferences
         size_t const maxBuffered = blockSize - 1;
         size_t const bufferedSize = MIN(alreadyBuffered, maxBuffered);
         size_t const maxSrcSize = srcSize + bufferedSize;
-        unsigned const nbFullBlocks = (unsigned)(maxSrcSize / blockSize);
+        unsigned const nbFullBlocks = (uint)(maxSrcSize / blockSize);
         size_t const partialBlockSize = maxSrcSize & (blockSize-1);
         size_t const lastBlockSize = flush ? partialBlockSize : 0;
         unsigned const nbBlocks = nbFullBlocks + (lastBlockSize>0);
@@ -737,7 +737,7 @@ size_t LZ4F_compressUpdate(LZ4F_cctx* cctxPtr, void* dstBuffer, size_t dstCapaci
 {
     LZ4F_compressOptions_t cOptionsNull;
     size_t const blockSize = cctxPtr->maxBlockSize;
-    const uint8* srcPtr = (const uint8*)srcBuffer;
+    const uint8* srcPtr = (const uint8 *)srcBuffer;
     const uint8* const srcEnd = srcPtr + srcSize;
     uint8* const dstStart = (uint8 *)dstBuffer;
     uint8* dstPtr = dstStart;
@@ -998,7 +998,7 @@ static size_t LZ4F_headerSize(const void* src, size_t srcSize)
         return err0r(LZ4F_ERROR_frameType_unknown);
     /* Frame Header Size */
     {   
-		uint8 const FLG = ((const uint8*)src)[4];
+		uint8 const FLG = ((const uint8 *)src)[4];
         uint32 const contentSizeFlag = (FLG>>3) & _1BIT;
         uint32 const dictIDFlag = FLG & _1BIT;
         return minFHSize + (contentSizeFlag*8) + (dictIDFlag*4);
@@ -1016,7 +1016,7 @@ static size_t LZ4F_decodeHeader(LZ4F_dctx* dctx, const void* src, size_t srcSize
 {
     unsigned blockMode, blockChecksumFlag, contentSizeFlag, contentChecksumFlag, dictIDFlag, blockSizeID;
     size_t frameHeaderSize;
-    const uint8* srcPtr = (const uint8*)src;
+    const uint8* srcPtr = (const uint8 *)src;
     /* need to decode header to get frameInfo */
     if(srcSize < minFHSize) 
 		return err0r(LZ4F_ERROR_frameHeader_incomplete);   /* minimal frame header size */
@@ -1157,13 +1157,13 @@ LZ4F_errorCode_t LZ4F_getFrameInfo(LZ4F_dctx* dctx, LZ4F_frameInfo_t* frameInfoP
 static void LZ4F_updateDict(LZ4F_dctx* dctx, const uint8* dstPtr, size_t dstSize, const uint8* dstBufferStart, unsigned withinTmp)
 {
     if(dctx->dictSize==0)
-        dctx->dict = (const uint8*)dstPtr;   /* priority to dictionary continuity */
+        dctx->dict = (const uint8 *)dstPtr;   /* priority to dictionary continuity */
     if(dctx->dict + dctx->dictSize == dstPtr) {  /* dictionary continuity, directly within dstBuffer */
         dctx->dictSize += dstSize;
         return;
     }
     if(dstPtr - dstBufferStart + dstSize >= 64 KB) {  /* history in dstBuffer becomes large enough to become dictionary */
-        dctx->dict = (const uint8*)dstBufferStart;
+        dctx->dict = (const uint8 *)dstBufferStart;
         dctx->dictSize = dstPtr - dstBufferStart + dstSize;
         return;
     }
@@ -1229,7 +1229,7 @@ size_t LZ4F_decompress(LZ4F_dctx* dctx, void* dstBuffer, size_t* dstSizePtr,
 	const void* srcBuffer, size_t* srcSizePtr, const LZ4F_decompressOptions_t* decompressOptionsPtr)
 {
     LZ4F_decompressOptions_t optionsNull;
-    const uint8* const srcStart = (const uint8*)srcBuffer;
+    const uint8* const srcStart = (const uint8 *)srcBuffer;
     const uint8* const srcEnd = srcStart + *srcSizePtr;
     const uint8* srcPtr = srcStart;
     uint8* const dstStart = (uint8 *)dstBuffer;
@@ -1641,11 +1641,11 @@ size_t LZ4F_decompress(LZ4F_dctx* dctx, void* dstBuffer, size_t* dstSizePtr,
     }   /* while (doAnotherStage) */
 
     /* preserve history within tmp whenever necessary */
-    LZ4F_STATIC_ASSERT((unsigned)dstage_init == 2);
+    LZ4F_STATIC_ASSERT((uint)dstage_init == 2);
     if( (dctx->frameInfo.blockMode==LZ4F_blockLinked)  /* next block will use up to 64KB from previous ones */
       && (dctx->dict != dctx->tmpOutBuffer)             /* dictionary is not already within tmp */
       && (!decompressOptionsPtr->stableDst)             /* cannot rely on dst data to remain there for next call */
-      && ((unsigned)(dctx->dStage)-2 < (unsigned)(dstage_getSuffix)-2) )  /* valid stages : [init ... getSuffix[ */
+      && ((uint)(dctx->dStage)-2 < (uint)(dstage_getSuffix)-2) )  /* valid stages : [init ... getSuffix[ */
     {
         if(dctx->dStage == dstage_flushOut) {
             size_t const preserveSize = dctx->tmpOut - dctx->tmpOutBuffer;
@@ -1684,7 +1684,7 @@ size_t LZ4F_decompress_usingDict(LZ4F_dctx* dctx, void* dstBuffer, size_t* dstSi
 	const void* srcBuffer, size_t* srcSizePtr, const void* dict, size_t dictSize, const LZ4F_decompressOptions_t* decompressOptionsPtr)
 {
     if(dctx->dStage <= dstage_init) {
-        dctx->dict = (const uint8*)dict;
+        dctx->dict = (const uint8 *)dict;
         dctx->dictSize = dictSize;
     }
     return LZ4F_decompress(dctx, dstBuffer, dstSizePtr, srcBuffer, srcSizePtr, decompressOptionsPtr);

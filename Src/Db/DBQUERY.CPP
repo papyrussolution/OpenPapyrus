@@ -391,7 +391,7 @@ DBQuery & FASTCALL selectbycell(int count, const DBDataCell * pList)
 
 DBQuery & SLAPIV select(DBField first_arg, ...)
 {
-	va_list list = (va_list)&first_arg;
+	va_list list = reinterpret_cast<va_list>(&first_arg);
 	DBQuery & q = *new DBQuery;
 	if(&q != 0) {
 		int  id;
@@ -420,7 +420,7 @@ DBQuery & SLAPIV select(DBField first_arg, ...)
 				;//CHECK(Invalid_DBItem);
 			}
 			fld.type = reinterpret_cast<const DBItem *>(list)->stype();
-			list = ((char *)list) + delta;
+			list = reinterpret_cast<va_list>(PTR8(list) + delta);
 			i++;
 		}
 		q.fldCount = i;
@@ -441,7 +441,7 @@ DBQuery & SLAPIV DBQuery::from(DBTable * first_arg, ...)
 {
 	uint   i = 0;
 	DBTable * p_tbl;
-	va_list  list = (va_list)&first_arg;
+	va_list  list = reinterpret_cast<va_list>(&first_arg);
 	while((p_tbl = va_arg(list, DBTable*)) != 0) {
 		tbls = static_cast<Tbl *>(SAlloc::R(tbls, sizeof(Tbl) * (i+1)));
 		if(tbls) {
@@ -503,8 +503,7 @@ int SLAPI DBQuery::addOrderField(const DBField & rFld)
 
 DBQuery & SLAPIV DBQuery::orderBy(DBField first_arg, ...)
 {
-	va_list  list;
-	list = (va_list)&first_arg;
+	va_list  list = reinterpret_cast<va_list>(&first_arg);
 	ordCount = 0;
 	DBField f;
 	while((f = va_arg(list, DBField)).Id != 0) {
@@ -1298,7 +1297,7 @@ DBUpdateSet & FASTCALL DBUpdateSet::set(DBField f, DBItem & val)
 	return *this;
 }
 
-int updateForCb(DBTable * pTbl, int useTA, DBQ & query, DBUpdateSet & rSet, UpdateDbTable_CbProc cbProc, long extraParam)
+int updateForCb(DBTable * pTbl, int useTA, DBQ & query, DBUpdateSet & rSet, UpdateDbTable_CbProc cbProc, void * extraPtr)
 {
 	int    ok = 1, ta = 0;
 	DBQuery * q = 0;
@@ -1334,7 +1333,7 @@ int updateForCb(DBTable * pTbl, int useTA, DBQ & query, DBUpdateSet & rSet, Upda
 			//
 			THROW(pTbl->updateRecNCC());
 			if(cbProc)
-				cbProc(pTbl, rec_before_buf, pTbl->getDataBufConst(), extraParam);
+				cbProc(pTbl, rec_before_buf, pTbl->getDataBufConst(), extraPtr);
 		}
 		THROW(!q->error);
 		if(ta) {

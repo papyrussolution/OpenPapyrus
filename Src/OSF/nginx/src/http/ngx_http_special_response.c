@@ -473,7 +473,7 @@ static ngx_int_t ngx_http_send_refresh(ngx_http_request_t * pReq)
 		p = ngx_cpymem(p, location, len);
 	}
 	else {
-		p = (u_char*)ngx_escape_uri(p, location, len, NGX_ESCAPE_REFRESH);
+		p = (u_char *)ngx_escape_uri(p, location, len, NGX_ESCAPE_REFRESH);
 	}
 	b->last = ngx_cpymem(p, ngx_http_msie_refresh_tail, sizeof(ngx_http_msie_refresh_tail) - 1);
 	b->last_buf = (pReq == pReq->main) ? 1 : 0;

@@ -6,6 +6,7 @@
 #include <pp.h>
 #pragma hdrstop
 //#include <comdisp.h>
+#include <atol-dto\libfptr10.h>
 //
 //
 //
@@ -52,35 +53,538 @@ public:
 	SLAPI  SCS_ATOLDRV(PPID n, char * name, char * port);
 	SLAPI ~SCS_ATOLDRV();
 	virtual int SLAPI PrintCheck(CCheckPacket *, uint flags);
-	virtual int SLAPI PrintCheckCopy(CCheckPacket * pPack, const char * pFormatName, uint flags);
-	virtual int SLAPI PrintXReport(const CSessInfo *);
+	virtual int SLAPI PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
+	virtual int SLAPI PrintXReport(const CSessInfo *)
+	{
+		return PrintReport(0);
+	}
+	virtual int SLAPI CloseSession(PPID sessID)
+	{
+		return PrintReport(1);
+	}
 	virtual int SLAPI PrintZReportCopy(const CSessInfo *);
 	virtual int SLAPI PrintIncasso(double sum, int isIncome);
-	virtual int SLAPI OpenBox();
-	virtual int SLAPI CloseSession(PPID sessID);
-	virtual int SLAPI GetSummator(double * val);
-	virtual int SLAPI AddSummator(double add);
+	virtual int SLAPI OpenBox()
+	{
+		int     ok = -1;
+		ResCode = RESCODE_NO_ERROR;
+		ErrCode = SYNCPRN_ERROR;
+		StateBlock stb;
+		THROW(Connect(&stb));
+		if(!(stb.Flags & stb.fDrawerOpened)) {
+			if(P_Fptr10) {
+				P_Fptr10->OpenDrawerProc(P_Fptr10->Handler);
+			}
+			else if(P_Disp) {
+				//THROW(Exec(GetStatus));
+				//THROW(GetProp(DrawerOpened, &is_drawer_open));
+				//if(!is_drawer_open) {
+				THROW(ExecOper(OpenDrawer));
+				ok = 1;
+			}
+		}
+		CATCH
+			if(Flags & sfCancelled) {
+				Flags &= ~sfCancelled;
+				if(ErrCode != SYNCPRN_ERROR_AFTER_PRINT) {
+					ErrCode = (Flags & sfOpenCheck) ? SYNCPRN_CANCEL_WHILE_PRINT : SYNCPRN_CANCEL;
+					ok = 0;
+				}
+			}
+			else {
+				SetErrorMessage();
+				//Exec(Beep);
+				DoBeep();
+				if(Flags & sfOpenCheck)
+					ErrCode = SYNCPRN_ERROR_WHILE_PRINT;
+				ok = 0;
+			}
+		ENDCATCH
+		return ok;
+	}
+	virtual int SLAPI GetSummator(double * pVal)
+	{
+		int    ok = 1;
+		//double cash_amt = 0.0;
+		//ResCode = RESCODE_NO_ERROR;
+		StateBlock stb;
+		THROW(Connect(&stb));
+		//THROW(ExecOper(GetSumm));
+		//THROW(GetProp(Summ, &cash_amt));
+		CATCH
+			ok = (SetErrorMessage(), 0);
+		ENDCATCH
+		ASSIGN_PTR(pVal, stb.Summator);
+		return ok;
+	}
 	virtual int SLAPI EditParam(void *);
-	virtual int SLAPI CheckForSessionOver();
+	virtual int SLAPI CheckForSessionOver()
+	{
+		int    ok = -1;
+		long   err_code = 0L;
+		StateBlock stb;
+		THROW(Connect(&stb));
+		if(P_Fptr10) {
+			if(stb.ShiftState == LIBFPTR_SS_EXPIRED)
+				ok = 1;
+		}
+		else if(P_Disp) {
+			SetProp(Mode, MODE_REGISTER);
+			Exec(SetMode);
+			// Exec(NewDocument);
+			if(ResCode == RESCODE_OPEN_SESS_LONG)
+				ok = 1;
+		}
+		CATCHZOK
+		if(P_Disp)
+			Exec(ResetMode);
+		return ok;
+	}
 	virtual int SLAPI PrintBnkTermReport(const char * pZCheck);
 private:
-	virtual int SLAPI InitChannel();
-	int  SLAPI Connect();
-	int  SLAPI CheckForCash(double sum);
-	int  SLAPI Annulate(long mode);
+	struct StateBlock {
+		StateBlock() : OperatorId(0), LogicalNumber(0), ShiftState(0), ShiftNumber(0), Model(0), Mode(0),
+			SubMode(0), DocNumber(0), ReceiptNumber(0), ReceiptType(0), ReceiptSum(0.0), Summator(0.0), LineLen(0), LineLenPix(0),
+			Flags(0), Dtm(ZERODATETIME)
+		{
+		}
+		uint   OperatorId;
+		uint   LogicalNumber;
+		uint   ShiftState;
+		uint   ShiftNumber;
+		uint   Model;
+		uint   Mode;
+		uint   SubMode;
+		uint   DocNumber;
+		uint   ReceiptNumber;
+		uint   ReceiptType;
+		double ReceiptSum;
+		double Summator; // Сумма выручки в кассе
+		uint   LineLen;
+		uint   LineLenPix;
+		enum {
+			fFiscalDevice = 0x0001,
+			fFiscalFN     = 0x0002,
+			fFNPresent    = 0x0004,
+			fDrawerOpened = 0x0008,
+			fPaperPresent = 0x0010,
+			fCoverOpened  = 0x0020,
+			fPrnConnLost  = 0x0040,
+			fPrnError     = 0x0080,
+			fCutError     = 0x0100,
+			fPrnOverheat  = 0x0200,
+			fDvcBlocked   = 0x0400
+		};
+		uint   Flags;
+		LDATETIME Dtm;
+		SString Serial;
+		SString ModelName;
+		SString UnitVersion;
+	};
+	class AtolFptr10 {
+	public:
+		enum {
+			stInitialized = 0x0001
+		};
+		AtolFptr10() : State(0), Handler(0), 
+			CreateHandleProc(0), DestroyHandleProc(0), GetSettingsProc(0), GetErrorCodeProc(0), GetErrorDescrProc(0),
+			OpenProc(0), CloseProc(0), IsOpenedProc(0), SetParamBoolProc(0), SetParamIntProc(0), SetParamDoubleProc(0), 
+			SetParamStrProc(0), SetParamDatetimeProc(0), SetParamByteArrayProc(0), PrintTextProc(0), PaymentProc(0), CutProc(0), BeepProc(0),
+			QueryDataProc(0), GetParamIntProc(0), GetParamDoubleProc(0), GetParamBoolProc(0), GetParamStrProc(0), GetParamDateTimeProc(0),
+			GetParamByteArrayProc(0), GetSingleSettingProc(0), SetSingleSettingProc(0), ApplySingleSettingsProc(0), OpenDrawerProc(0),
+			OperatorLoginProc(0), OpenReceiptProc(0), CancelReceiptProc(0), RegistrationProc(0), CloseReceiptProc(0), PrintBarcodeProc(0),
+			ReportProc(0), CheckDocumentClosedProc(0)
+		{
+			SString dll_path;
+			PPGetFilePath(PPPATH_BIN, "fptr10.dll", dll_path);
+			THROW_SL(fileExists(dll_path));
+			THROW_SL(Lib.Load(dll_path));
+			THROW_SL(CreateHandleProc  = reinterpret_cast<int (* cdecl)(void **)>(Lib.GetProcAddr("libfptr_create")));
+			THROW_SL(DestroyHandleProc = reinterpret_cast<int (* cdecl)(void **)>(Lib.GetProcAddr("libfptr_destroy")));
+			THROW_SL(GetSettingsProc   = reinterpret_cast<int (* cdecl)(void *, wchar_t *, int)>(Lib.GetProcAddr("libfptr_get_settings")));
+			THROW_SL(PrintTextProc           = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_print_text")));
+			THROW_SL(PaymentProc             = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_payment")));
+			THROW_SL(CutProc                 = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_cut")));
+			THROW_SL(BeepProc                = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_beep")));
+			THROW_SL(OpenDrawerProc          = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_open_drawer")));
+			THROW_SL(QueryDataProc           = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_query_data")));
+			THROW_SL(OperatorLoginProc       = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_operator_login")));
+			THROW_SL(OpenReceiptProc         = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_open_receipt")));
+			THROW_SL(CancelReceiptProc       = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_cancel_receipt")));
+			THROW_SL(RegistrationProc        = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_registration")));
+			THROW_SL(CloseReceiptProc        = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_close_receipt")));
+			THROW_SL(ApplySingleSettingsProc = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_apply_single_settings")));
+			THROW_SL(OpenProc                = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_open")));
+			THROW_SL(CloseProc               = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_close")));
+			THROW_SL(IsOpenedProc            = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_is_opened")));
+			THROW_SL(PrintBarcodeProc        = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_print_barcode")));
+			THROW_SL(ReportProc              = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_report")));
+			THROW_SL(CheckDocumentClosedProc = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_check_document_closed")));
+			THROW_SL(GetErrorCodeProc        = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_error_code")));
+			THROW_SL(GetSingleSettingProc    = reinterpret_cast<int (* cdecl)(void *, const wchar_t *, wchar_t *, int)>(Lib.GetProcAddr("libfptr_get_single_setting")));
+			THROW_SL(SetSingleSettingProc    = reinterpret_cast<int (* cdecl)(void *, const wchar_t *, const wchar_t *)>(Lib.GetProcAddr("libfptr_set_single_setting")));
+			THROW_SL(GetErrorDescrProc     = reinterpret_cast<int (* cdecl)(void *, wchar_t *, int)>(Lib.GetProcAddr("libfptr_error_description")));
+			THROW_SL(SetParamBoolProc      = reinterpret_cast<int (* cdecl)(void *, int, int)>(Lib.GetProcAddr("libfptr_set_param_bool")));
+			THROW_SL(SetParamIntProc       = reinterpret_cast<int (* cdecl)(void *, int, uint)>(Lib.GetProcAddr("libfptr_set_param_int")));
+			THROW_SL(SetParamDoubleProc    = reinterpret_cast<int (* cdecl)(void *, int, double)>(Lib.GetProcAddr("libfptr_set_param_double")));
+			THROW_SL(SetParamStrProc       = reinterpret_cast<int (* cdecl)(void *, int, const wchar_t *)>(Lib.GetProcAddr("libfptr_set_param_str")));
+			THROW_SL(SetParamDatetimeProc  = reinterpret_cast<int (* cdecl)(void *, int, int, int, int, int, int, int)>(Lib.GetProcAddr("libfptr_set_param_datetime")));
+			THROW_SL(SetParamByteArrayProc = reinterpret_cast<int (* cdecl)(void *, int, const uchar *, int)>(Lib.GetProcAddr("libfptr_set_param_bytearray")));
+			THROW_SL(GetParamBoolProc      = reinterpret_cast<int (* cdecl)(void *, int)>(Lib.GetProcAddr("libfptr_get_param_bool")));
+			THROW_SL(GetParamIntProc       = reinterpret_cast<uint (* cdecl)(void *, int)>(Lib.GetProcAddr("libfptr_get_param_int")));
+			THROW_SL(GetParamDoubleProc    = reinterpret_cast<double (* cdecl)(void *, int)>(Lib.GetProcAddr("libfptr_get_param_double")));
+			THROW_SL(GetParamStrProc       = reinterpret_cast<int (* cdecl)(void *, int, wchar_t *, int)>(Lib.GetProcAddr("libfptr_get_param_str")));
+			THROW_SL(GetParamDateTimeProc  = reinterpret_cast<void (* cdecl)(void *, int, int*, int*, int*, int*, int*, int*)>(Lib.GetProcAddr("libfptr_get_param_datetime")));
+			THROW_SL(GetParamByteArrayProc = reinterpret_cast<int (* cdecl)(void *, int, uchar *, int)>(Lib.GetProcAddr("libfptr_get_param_bytearray")));
+			THROW(CreateHandleProc(&Handler) == 0 && Handler);
+			{
+				SString work_path;
+				SStringU temp_buf_u;
+				PPGetPath(PPPATH_BIN, work_path);
+				//work_path.SetLastSlash().Cat("ATOL");
+				temp_buf_u.CopyFromMb_OUTER(work_path, work_path.Len());
+				SetSingleSettingProc(Handler, LIBFPTR_SETTING_LIBRARY_PATH, temp_buf_u);
+				ApplySingleSettingsProc(Handler);
+			}
+			State |= stInitialized;
+			CATCH
+			ENDCATCH
+		}
+		~AtolFptr10()
+		{
+			if(DestroyHandleProc && Handler) {
+				DestroyHandleProc(&Handler);
+			}
+		}
+		int    IsValid() const { return BIN(State & stInitialized); }
+
+		void * Handler;
+		int (* cdecl CreateHandleProc)(void **);
+		int (* cdecl DestroyHandleProc)(void **);
+		int (* cdecl GetSettingsProc)(void *, wchar_t *, int);
+		int (* cdecl GetSingleSettingProc)(void *, const wchar_t *, wchar_t *, int);
+		int (* cdecl SetSingleSettingProc)(void *, const wchar_t *, const wchar_t *);
+		int (* cdecl ApplySingleSettingsProc)(void *);
+		int (* cdecl GetErrorCodeProc)(void *);
+		int (* cdecl GetErrorDescrProc)(void *, wchar_t *, int);
+		int (* cdecl OpenProc)(void *);  // "libfptr_open")
+		int (* cdecl CloseProc)(void *); // "libfptr_close"
+		int (* cdecl IsOpenedProc)(void *); // "libfptr_is_opened"
+		int (* cdecl SetParamBoolProc)(void *, int paramId, int value);
+		int (* cdecl SetParamIntProc)(void *, int paramId, uint value);
+		int (* cdecl SetParamDoubleProc)(void *, int paramId, double value);
+		int (* cdecl SetParamStrProc)(void *, int paramId, const wchar_t * pValue);
+		int (* cdecl SetParamDatetimeProc)(void *, int paramId, int yr, int mon, int day, int hr, int mn, int sc);
+		int (* cdecl SetParamByteArrayProc)(void *, int paramId, const uchar * pValue, int size);
+		int (* cdecl PrintTextProc)(void *);
+		int (* cdecl PaymentProc)(void *);
+		int (* cdecl CutProc)(void *);
+		int (* cdecl BeepProc)(void *);
+		int (* cdecl OpenDrawerProc)(void *);
+		int (* cdecl QueryDataProc)(void *);
+		int (* cdecl GetParamBoolProc)(void *, int);
+		uint   (* cdecl GetParamIntProc)(void *, int);
+		int    (* cdecl GetParamStrProc)(void *, int, wchar_t * pValue, int size);
+		double (* cdecl GetParamDoubleProc)(void *, int);
+		void   (* cdecl GetParamDateTimeProc)(void *, int, int * pYr, int * pMon, int * pDay, int * pHr, int * pMn, int * pSc);
+		int    (* cdecl GetParamByteArrayProc)(void *, int, uchar * pValue, int size);
+		int    (* cdecl OperatorLoginProc)(void *);
+		int    (* cdecl OpenReceiptProc)(void *);
+		int    (* cdecl CancelReceiptProc)(void *);
+		int    (* cdecl CloseReceiptProc)(void *);
+		int    (* cdecl RegistrationProc)(void *);
+		int    (* cdecl PrintBarcodeProc)(void *);
+		int    (* cdecl ReportProc)(void *);
+		int    (* cdecl CheckDocumentClosedProc)(void *);
+
+		SString AccessPassword;
+		SString UserPassword;
+	private:
+		long   State;
+		SDynLibrary Lib;
+	};
+	// @v10.3.9 virtual int SLAPI InitChannel();
+	int  SLAPI ReadSettingsBulk(SString & rJsonBuf); // handler
+	int  SLAPI WriteSettingsBukl(const SString & rJsonBuf); // handler
+	int  SLAPI Connect(StateBlock * pStB)
+	{
+		int    ok = 1;
+		bool   enabled = false;
+		SString temp_buf;
+		SString param_buf;
+		PPIniFile ini_file;
+		THROW_PP(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_SHTRIHFRPASSWORD, param_buf) > 0, PPERR_SHTRIHFRADMPASSW);
+		param_buf.Divide(',', CashierPassword, temp_buf);
+		AdmPassword = CashierPassword;
+		if(P_Fptr10) {
+			void * h = P_Fptr10->Handler;
+			SStringU temp_buf_u;
+			//libfptr_set_single_setting(LIBFPTR_SETTING_MODEL, std::to_wstring(LIBFPTR_MODEL_ATOL_AUTO).c_str());
+			//libfptr_set_single_setting(LIBFPTR_SETTING_PORT, std::to_wstring(LIBFPTR_PORT_COM).c_str());
+			//libfptr_set_single_setting(LIBFPTR_SETTING_COM_FILE, L"COM5");
+			//libfptr_set_single_setting(LIBFPTR_SETTING_BAUDRATE, LIBFPTR_PORT_BR_115200);
+			//libfptr_apply_single_settings(fptr);
+			temp_buf.Z().Cat(LIBFPTR_MODEL_ATOL_AUTO);
+			temp_buf_u.CopyFromMb_OUTER(temp_buf, temp_buf.Len());
+			P_Fptr10->SetSingleSettingProc(h, LIBFPTR_SETTING_MODEL, temp_buf_u);
+			temp_buf.Z().Cat(LIBFPTR_PORT_COM);
+			temp_buf_u.CopyFromMb_OUTER(temp_buf, temp_buf.Len());
+			P_Fptr10->SetSingleSettingProc(h, LIBFPTR_SETTING_PORT, temp_buf_u);
+			temp_buf.Z().Cat(Port);
+			temp_buf_u.CopyFromMb_OUTER(temp_buf, temp_buf.Len());
+			P_Fptr10->SetSingleSettingProc(h, LIBFPTR_SETTING_COM_FILE, temp_buf_u);
+			P_Fptr10->ApplySingleSettingsProc(h);
+			THROW(P_Fptr10->OpenProc(h) == 0);
+			ok = 1;
+		}
+		else if(P_Disp) {
+			GetProp(DeviceEnabled, &enabled);
+			if(enabled == false) {
+				THROW(SetProp(CurrentDeviceNumber, atol(Port)) > 0);
+				THROW(SetProp(DeviceEnabled, true) > 0);
+				THROW(SetProp(Password, CashierPassword));
+				THROW(Annulate(MODE_REGISTER));
+			}
+		}
+		if(pStB)
+			GetState(*pStB);
+		CATCH
+			SetErrorMessage();
+			ok = 0;
+		ENDCATCH
+		return ok;
+	}
+	int  SLAPI GetState(StateBlock & rBlk)
+	{
+		int    ok = 0;
+		rBlk.Flags = 0;
+		if(P_Fptr10) {
+			//libfptr_set_param_int(fptr, LIBFPTR_PARAM_DATA_TYPE, LIBFPTR_DT_STATUS);
+			//libfptr_query_data(fptr);
+			void * h = P_Fptr10->Handler;
+			P_Fptr10->SetParamIntProc(h, LIBFPTR_PARAM_DATA_TYPE, LIBFPTR_DT_STATUS);
+			P_Fptr10->QueryDataProc(h);
+			rBlk.OperatorId = P_Fptr10->GetParamIntProc(h, LIBFPTR_PARAM_OPERATOR_ID);
+			rBlk.LogicalNumber = P_Fptr10->GetParamIntProc(h, LIBFPTR_PARAM_LOGICAL_NUMBER);
+			rBlk.DocNumber = P_Fptr10->GetParamIntProc(h, LIBFPTR_PARAM_DOCUMENT_NUMBER);
+			rBlk.ReceiptNumber = P_Fptr10->GetParamIntProc(h, LIBFPTR_PARAM_RECEIPT_NUMBER);
+			rBlk.ReceiptType = P_Fptr10->GetParamIntProc(h, LIBFPTR_PARAM_RECEIPT_TYPE);
+			rBlk.ReceiptSum = P_Fptr10->GetParamDoubleProc(h, LIBFPTR_PARAM_RECEIPT_SUM);
+			rBlk.ShiftState = P_Fptr10->GetParamIntProc(h, LIBFPTR_PARAM_SHIFT_STATE);
+			rBlk.ShiftNumber = P_Fptr10->GetParamIntProc(h, LIBFPTR_PARAM_SHIFT_NUMBER);
+			rBlk.LineLen = P_Fptr10->GetParamIntProc(h, LIBFPTR_PARAM_RECEIPT_LINE_LENGTH);
+			CheckStrLen = rBlk.LineLen;
+			rBlk.LineLenPix = P_Fptr10->GetParamIntProc(h, LIBFPTR_PARAM_RECEIPT_LINE_LENGTH_PIX);
+			rBlk.Model = P_Fptr10->GetParamIntProc(h, LIBFPTR_PARAM_MODEL);
+			rBlk.Mode = P_Fptr10->GetParamIntProc(h, LIBFPTR_PARAM_MODE);
+			rBlk.SubMode = P_Fptr10->GetParamIntProc(h, LIBFPTR_PARAM_SUBMODE);
+			if(P_Fptr10->GetParamIntProc(h, LIBFPTR_PARAM_FISCAL))
+				rBlk.Flags |= rBlk.fFiscalDevice;
+			if(P_Fptr10->GetParamIntProc(h, LIBFPTR_PARAM_FN_FISCAL))
+				rBlk.Flags |= rBlk.fFiscalFN;
+			if(P_Fptr10->GetParamIntProc(h, LIBFPTR_PARAM_FN_PRESENT))
+				rBlk.Flags |= rBlk.fFNPresent;
+			if(P_Fptr10->GetParamIntProc(h, LIBFPTR_PARAM_CASHDRAWER_OPENED))
+				rBlk.Flags |= rBlk.fDrawerOpened;
+			if(P_Fptr10->GetParamIntProc(h, LIBFPTR_PARAM_RECEIPT_PAPER_PRESENT))
+				rBlk.Flags |= rBlk.fPaperPresent;
+			//if(P_Fptr10->GetParamIntProc(h, LIBFPTR_PARAM_PAPER_NEAR_END)) ;
+			if(P_Fptr10->GetParamIntProc(h, LIBFPTR_PARAM_COVER_OPENED))
+				rBlk.Flags |= rBlk.fCoverOpened;
+			if(P_Fptr10->GetParamIntProc(h, LIBFPTR_PARAM_PRINTER_CONNECTION_LOST))
+				rBlk.Flags |= rBlk.fPrnConnLost;
+			if(P_Fptr10->GetParamIntProc(h, LIBFPTR_PARAM_PRINTER_ERROR))
+				rBlk.Flags |= rBlk.fPrnError;
+			if(P_Fptr10->GetParamIntProc(h, LIBFPTR_PARAM_CUT_ERROR))
+				rBlk.Flags |= rBlk.fCutError;
+			if(P_Fptr10->GetParamIntProc(h, LIBFPTR_PARAM_PRINTER_OVERHEAT))
+				rBlk.Flags |= rBlk.fPrnOverheat;
+			if(P_Fptr10->GetParamIntProc(h, LIBFPTR_PARAM_BLOCKED))
+				rBlk.Flags |= rBlk.fDvcBlocked;
+			//
+			//libfptr_set_param_int(fptr, LIBFPTR_PARAM_DATA_TYPE, LIBFPTR_DT_REVENUE);
+			//libfptr_query_data(fptr);
+			//double revenue = libfptr_get_param_double(fptr, LIBFPTR_PARAM_SUM);
+			P_Fptr10->SetParamIntProc(h, LIBFPTR_PARAM_DATA_TYPE, LIBFPTR_DT_REVENUE);
+			P_Fptr10->QueryDataProc(h);
+			rBlk.Summator = P_Fptr10->GetParamDoubleProc(h, LIBFPTR_PARAM_SUM);
+			ok = 1;
+		}
+		else if(P_Disp) {
+			int    int_val = 0;
+			long   lng_val = 0;
+			double real_val = 0.0;
+			THROW(Exec(GetStatus));
+			THROW(GetProp(DrawerOpened, &int_val));
+			if(int_val)
+				rBlk.Flags |= rBlk.fDrawerOpened;
+			THROW(GetProp(CharLineLength, &lng_val));
+			rBlk.LineLen = lng_val;
+			CheckStrLen = lng_val;
+			THROW(GetProp(CheckNumber, &int_val));
+			rBlk.ReceiptNumber = static_cast<uint>(int_val);
+			THROW(ExecOper(GetSumm));
+			THROW(GetProp(Summ, &real_val));
+			rBlk.Summator = real_val;
+		}
+		CATCHZOK
+		return ok;
+	}
+	enum {
+		ptfWrap         = 0x0001,
+		ptfDoubleWidth  = 0x0002,
+		ptfDoubleHeight = 0x0004
+	};
+	int  SLAPI PrintText(const char * pText, long flags, int alignment/*ALIGN_XXX*/)
+	{
+		int    ok = 0;
+		if(P_Fptr10) {
+			void * fph = P_Fptr10->Handler;
+			THROW(AllowPrintOper_Fptr10());
+			SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+			r_temp_buf_u.CopyFromMb_OUTER(pText, sstrlen(pText));
+			P_Fptr10->SetParamStrProc(fph, LIBFPTR_PARAM_TEXT, r_temp_buf_u);
+			if(alignment) {
+				if(alignment == ALIGN_LEFT) 
+					P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_ALIGNMENT, LIBFPTR_ALIGNMENT_LEFT);
+				else if(alignment == ALIGN_RIGHT)
+					P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_ALIGNMENT, LIBFPTR_ALIGNMENT_RIGHT);
+				else if(alignment == ALIGN_CENTER)
+					P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_ALIGNMENT, LIBFPTR_ALIGNMENT_CENTER);
+			}
+			if(flags & ptfWrap)
+				P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_TEXT_WRAP, LIBFPTR_TW_WORDS);
+			if(flags & ptfDoubleWidth)
+				P_Fptr10->SetParamBoolProc(fph, LIBFPTR_PARAM_FONT_DOUBLE_WIDTH, 1);
+			if(flags & ptfDoubleHeight)
+				P_Fptr10->SetParamBoolProc(fph, LIBFPTR_PARAM_FONT_DOUBLE_HEIGHT, 1);
+			THROW(P_Fptr10->PrintTextProc(fph) == 0);
+			ok = 1;
+		}
+		else if(P_Disp) {
+			SetProp(Caption, pText);
+			if(flags & ptfWrap)
+				SetProp(TextWrap, 1L);
+			THROW(ExecOper(PrintString));
+			ok = 1;
+		}
+		CATCHZOK
+		return ok;
+	}
+	int    SLAPI RegisterPayment(double amount, int paymType)
+	{
+		int    ok = 0;
+		if(P_Fptr10) {
+			void * fph = P_Fptr10->Handler;
+			P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_PAYMENT_TYPE, paymType);
+			P_Fptr10->SetParamDoubleProc(fph, LIBFPTR_PARAM_PAYMENT_SUM, amount);
+			THROW(P_Fptr10->PaymentProc(fph) == 0);
+			ok = 1;
+		}
+		else if(P_Disp) {
+			const int atol_paytype_cash = 0;
+			const int atol_paytype_bank = (SCn.DrvVerMajor > 8 || (SCn.DrvVerMajor == 8 && SCn.DrvVerMinor >= 15)) ? 1 : 3;
+			int local_paym_type = 0;
+			if(paymType == LIBFPTR_PT_CASH)
+				local_paym_type = atol_paytype_cash;
+			else if(paymType == LIBFPTR_PT_ELECTRONICALLY)
+				local_paym_type = atol_paytype_bank;
+			else
+				local_paym_type = atol_paytype_cash; // @default
+			THROW(SetProp(Summ, amount));
+			THROW(SetProp(TypeClose, paymType));
+			THROW(ExecOper(Payment));
+			ok = 1;
+		}
+		CATCHZOK
+		return ok;
+	}
+	int    SLAPI CutPaper(int partial)
+	{
+		int    ok = 0;
+		if(P_Fptr10) {
+			P_Fptr10->SetParamIntProc(P_Fptr10->Handler, LIBFPTR_PARAM_CUT_TYPE, partial ? LIBFPTR_CT_PART : LIBFPTR_CT_FULL);
+			P_Fptr10->CutProc(P_Fptr10->Handler);
+			ok = 1;
+		}
+		else if(P_Disp) {
+			ExecOper(FullCut);
+			ok = 1;
+		}
+		return ok;
+	}
+	int    SLAPI DoBeep()
+	{
+		int    ok = 0;
+		if(P_Fptr10) {
+			P_Fptr10->BeepProc(P_Fptr10->Handler);
+			ok = 1;
+		}
+		else if(P_Disp) {
+			Exec(Beep);
+			ok = 1;
+		}
+		return ok;
+	}
+	int  SLAPI CheckForCash(double sum)
+	{
+		double cash_sum = 0.0;
+		return GetSummator(&cash_sum) ? ((cash_sum < sum) ? -1 : 1) : 0;
+	}
+	int  SLAPI Annulate(long mode)
+	{
+		int    ok = 1;
+		if(P_Fptr10) {
+			P_Fptr10->CancelReceiptProc(P_Fptr10->Handler);
+		}
+		else if(P_Disp) {
+			long   check_state = 0L;
+			THROW(GetProp(CheckState, &check_state));
+			if(check_state != 0) {
+				if(mode)
+					THROW(SetProp(Mode, mode));
+				THROW(ExecOper(SetMode));
+				THROW(ExecOper(CancelCheck) > 0);
+				if(mode)
+					THROW(ExecOper(ResetMode));
+				//THROW(ExecOper(FullCut));
+				CutPaper(0);
+			}
+		}
+		CATCHZOK
+		return ok;
+	}
 	void SLAPI WriteLogFile(PPID id);
-	void SLAPI CutLongTail(char * pBuf);
-	void SLAPI CutLongTail(SString & rBuf);
+	/*void SLAPI CutLongTail(char * pBuf) const
+	{
+		if(static_cast<long>(sstrlen(pBuf)) > CheckStrLen) {
+			char * p = 0;
+			pBuf[CheckStrLen+1] = 0;
+			if((p = strrchr(pBuf, ' ')) != 0)
+				*p = 0;
+			else
+				pBuf[CheckStrLen] = 0;
+		}
+	}*/
+	void SLAPI CutLongTail(SString & rBuf) const
+	{
+		//char   buf[256];
+		//rBuf.CopyTo(buf, sizeof(buf));
+		//CutLongTail(buf);
+		//rBuf = buf;
+		rBuf.Trim(CheckStrLen).TrimRightChr(' ');
+	}
 	int  SLAPI AllowPrintOper(uint id);
-	int  SLAPI PrintDiscountInfo(CCheckPacket * pPack, uint flags);
+	int  SLAPI AllowPrintOper_Fptr10();
+	int  SLAPI PrintDiscountInfo(const CCheckPacket * pPack, uint flags);
 	int  SLAPI PrintReport(int withCleaning);
 	//int  SLAPI GetCheckInfo(PPBillPacket * pPack, BillTaxArray * pAry, long * pFlags, SString &rName);
 	ComDispInterface * SLAPI InitDisp();
 	int  SLAPI SetErrorMessage();
-	int  SLAPI SetProp(uint propID, bool         propValue);
-	int  SLAPI SetProp(uint propID, int          propValue);
-	int  SLAPI SetProp(uint propID, long         propValue);
-	int  SLAPI SetProp(uint propID, double       propValue);
+	int  SLAPI SetProp(uint propID, bool propValue);
+	int  SLAPI SetProp(uint propID, int  propValue);
+	int  SLAPI SetProp(uint propID, long propValue);
+	int  SLAPI SetProp(uint propID, double propValue);
 	int  SLAPI SetProp(uint propID, const char * pPropValue);
 	int  SLAPI GetProp(uint propID, bool  * pPropValue);
 	int  SLAPI GetProp(uint propID, int   * pPropValue);
@@ -155,7 +659,9 @@ private:
 		PrintPurpose,       // @v9.1.8
 		BarcodeControlCode, // @v9.1.8
 		TaxTypeNumber,      // @v10.0.03 1..5
-		OperatorName        // @v10.2.5 Имя кассира 
+		OperatorName,       // @v10.2.5 Имя кассира 
+		//set_Mode, // @v10.3.9
+		//get_Mode  // @v10.3.9
 	};
 
 	enum AtolDrvFlags {
@@ -168,8 +674,8 @@ private:
 	};
 
 	static ComDispInterface * P_Disp;
+	static AtolFptr10 * P_Fptr10;
 	static int RefToIntrf;
-
 	long   ResCode;
 	long   ErrCode;
 	long   CheckStrLen;
@@ -179,6 +685,7 @@ private:
 };
 
 ComDispInterface * SCS_ATOLDRV::P_Disp = 0; // @global
+SCS_ATOLDRV::AtolFptr10 * SCS_ATOLDRV::P_Fptr10 = 0; // @global
 int  SCS_ATOLDRV::RefToIntrf = 0;          // @global
 
 class CM_ATOLDRV : public PPCashMachine {
@@ -200,16 +707,92 @@ REGISTER_CMT(ATOLDRV,1,0);
 
 SLAPI SCS_ATOLDRV::SCS_ATOLDRV(PPID n, char * name, char * port) : PPSyncCashSession(n, name, port), Flags(0), ResCode(RESCODE_NO_ERROR)
 {
-	RefToIntrf++;
-	SETIFZ(P_Disp, InitDisp());
+	if(!P_Fptr10) {
+		P_Fptr10 = new AtolFptr10();
+		if(P_Fptr10 && P_Fptr10->IsValid()) {
+			SString settings_buf;
+			SString temp_buf;
+			ReadSettingsBulk(settings_buf);
+			{
+				json_t * p_json_doc = 0;
+				if(json_parse_document(&p_json_doc, settings_buf.cptr()) == JSON_OK) {
+					json_t * p_next = 0;
+					for(json_t * p_cur = p_json_doc; p_cur; p_cur = p_next) {
+						p_next = p_cur->P_Next;
+						switch(p_cur->Type) {
+							case json_t::tARRAY:
+								p_next = p_cur->P_Child;
+								break;
+							case json_t::tOBJECT:
+								p_next = p_cur->P_Child;
+								break;
+							case json_t::tSTRING:
+								if(p_cur->P_Child) {
+									if(sstreqi_ascii(p_cur->Text, "AccessPassword")) {
+										P_Fptr10->AccessPassword = (temp_buf = p_cur->P_Child->Text).Unescape();
+									}
+									else if(sstreqi_ascii(p_cur->Text, "UserPassword")) {
+										P_Fptr10->UserPassword = (temp_buf = p_cur->P_Child->Text).Unescape();
+									}
+								}
+								break;
+						}
+					}
+				}
+				json_free_value(&p_json_doc);
+				p_json_doc = 0;
+			}
+		}
+		else {
+			ZDELETE(P_Fptr10);
+		}
+	}
+	if(P_Fptr10) {
+	}
+	else {
+		RefToIntrf++;
+		SETIFZ(P_Disp, InitDisp());
+	}
 	if(SCn.Flags & CASHF_NOTUSECHECKCUTTER)
 		Flags |= sfNotUseCutter;
 }
 
 SLAPI SCS_ATOLDRV::~SCS_ATOLDRV()
 {
-	if(--RefToIntrf == 0)
-		ZDELETE(P_Disp);
+	if(RefToIntrf > 0) {
+		RefToIntrf--;
+		if(RefToIntrf == 0)
+			ZDELETE(P_Disp);
+	}
+}
+
+int SLAPI SCS_ATOLDRV::ReadSettingsBulk(SString & rJsonBuf)
+{
+	int    ok = 0;
+	rJsonBuf.Z();
+	if(P_Fptr10 && P_Fptr10->IsValid()) {
+		STempBuffer temp_buf(SKILOBYTE(4));
+		THROW_SL(temp_buf.IsValid());
+		wchar_t * p_buf = reinterpret_cast<wchar_t *>(static_cast<char *>(temp_buf));
+		int result_len = P_Fptr10->GetSettingsProc(P_Fptr10->Handler, p_buf, static_cast<int>(temp_buf.GetSize()));
+		if(result_len > 0) {
+			rJsonBuf.CopyUtf8FromUnicode(p_buf, sstrlen(p_buf), 1);
+			ok = 1;
+		}
+		else {
+			// @error
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI SCS_ATOLDRV::WriteSettingsBukl(const SString & rJsonBuf)
+{
+	int    ok = 0;
+	if(P_Fptr10 && P_Fptr10->IsValid()) {
+	}
+	return ok;
 }
 
 ComDispInterface * SLAPI SCS_ATOLDRV::InitDisp()
@@ -217,75 +800,86 @@ ComDispInterface * SLAPI SCS_ATOLDRV::InitDisp()
 	int    r = 0;
 	ComDispInterface * p_disp = 0;
 	THROW_MEM(p_disp = new ComDispInterface);
-	THROW(p_disp->Init("AddIn.FprnM45"));
-	THROW(ASSIGN_ID_BY_NAME(p_disp, ShowProperties) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, OpenCheck) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, CloseCheck) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, CancelCheck) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, SetMode) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, ResetMode) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, PrintString) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, PrintHeader) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, Registration) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, Return) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, NewDocument) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, FullCut) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, GetSumm) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, Beep) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, Payment) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, GetCurrentMode) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, GetStatus) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, CashIncome) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, CashOutcome) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, OpenDrawer) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, Report) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, BeginDocument) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, EndDocument) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, SlipDocCharLineLength) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, SlipDocTopMargin) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, SlipDocLeftMargin) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, SlipDocOrientation) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, PrintBarcode) > 0); // @v9.1.4
-	// Параметры
-	THROW(ASSIGN_ID_BY_NAME(p_disp, Mode) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, AdvancedMode) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, CheckNumber) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, Caption) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, Quantity) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, Price) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, Department) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, Name) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, Caption) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, CharLineLength) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, TextWrap) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, CheckType) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, TestMode) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, CheckPaperPresent) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, ControlPaperPresent) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, CheckNumber) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, ResultCode) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, ResultDescription) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, CurrentDeviceNumber) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, Password) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, DeviceEnabled) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, Summ) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, CheckState) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, TypeClose) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, OutOfPaper) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, ECRError) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, DrawerOpened) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, ReportType) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_disp, Barcode) > 0); // @v9.1.4
-	THROW(ASSIGN_ID_BY_NAME(p_disp, BarcodeType) > 0); // @v9.1.4
-	THROW(ASSIGN_ID_BY_NAME(p_disp, Height) > 0); // @v9.1.4
-	THROW(ASSIGN_ID_BY_NAME(p_disp, PrintBarcodeText) > 0); // @v9.1.4
-	THROW(ASSIGN_ID_BY_NAME(p_disp, AutoSize) > 0);  // @v9.1.8
-	THROW(ASSIGN_ID_BY_NAME(p_disp, Alignment) > 0); // @v9.1.8
-	THROW(ASSIGN_ID_BY_NAME(p_disp, Scale) > 0);     // @v9.1.8
-	THROW(ASSIGN_ID_BY_NAME(p_disp, PrintPurpose) > 0);       // @v9.1.8
-	THROW(ASSIGN_ID_BY_NAME(p_disp, BarcodeControlCode) > 0); // @v9.1.8
-	THROW(ASSIGN_ID_BY_NAME(p_disp, TaxTypeNumber) > 0);          // @v10.0.03 1..5
-	THROW(ASSIGN_ID_BY_NAME(p_disp, OperatorName) > 0); // @v10.2.5
+	static const char * drv_name_list[] = { "AddIn.FprnM45", "AddIn.Fptr10" /*, "Addin.DrvFR3", "Addin.DrvFR", "Addin.DrvFR1C17", "Addin.DrvFR1C"*/ };
+	int   init_drv_result = 0;
+	for(uint i = 0; !init_drv_result && i < SIZEOFARRAY(drv_name_list); i++) {
+		if(p_disp->Init(drv_name_list[i])) {
+			init_drv_result = i+1;
+		}
+	}
+	//THROW(p_disp->Init("AddIn.FprnM45"));
+	if(init_drv_result) {
+		THROW(ASSIGN_ID_BY_NAME(p_disp, ShowProperties) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, OpenCheck) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, CloseCheck) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, CancelCheck) > 0);
+		//THROW(ASSIGN_ID_BY_NAME(p_disp, set_Mode) > 0);
+		//THROW(ASSIGN_ID_BY_NAME(p_disp, get_Mode) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, SetMode) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, ResetMode) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, PrintString) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, PrintHeader) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, Registration) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, Return) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, NewDocument) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, FullCut) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, GetSumm) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, Beep) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, Payment) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, GetCurrentMode) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, GetStatus) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, CashIncome) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, CashOutcome) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, OpenDrawer) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, Report) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, BeginDocument) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, EndDocument) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, SlipDocCharLineLength) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, SlipDocTopMargin) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, SlipDocLeftMargin) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, SlipDocOrientation) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, PrintBarcode) > 0); // @v9.1.4
+		// Параметры
+		THROW(ASSIGN_ID_BY_NAME(p_disp, Mode) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, AdvancedMode) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, CheckNumber) > 0);
+		//THROW(ASSIGN_ID_BY_NAME(p_disp, CheckNumber) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, Caption) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, Quantity) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, Price) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, Department) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, Name) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, Caption) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, CharLineLength) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, TextWrap) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, CheckType) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, TestMode) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, CheckPaperPresent) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, ControlPaperPresent) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, ResultCode) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, ResultDescription) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, CurrentDeviceNumber) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, Password) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, DeviceEnabled) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, Summ) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, CheckState) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, TypeClose) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, OutOfPaper) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, ECRError) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, DrawerOpened) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, ReportType) > 0);
+		THROW(ASSIGN_ID_BY_NAME(p_disp, Barcode) > 0); // @v9.1.4
+		THROW(ASSIGN_ID_BY_NAME(p_disp, BarcodeType) > 0); // @v9.1.4
+		THROW(ASSIGN_ID_BY_NAME(p_disp, Height) > 0); // @v9.1.4
+		THROW(ASSIGN_ID_BY_NAME(p_disp, PrintBarcodeText) > 0); // @v9.1.4
+		THROW(ASSIGN_ID_BY_NAME(p_disp, AutoSize) > 0);  // @v9.1.8
+		THROW(ASSIGN_ID_BY_NAME(p_disp, Alignment) > 0); // @v9.1.8
+		THROW(ASSIGN_ID_BY_NAME(p_disp, Scale) > 0);     // @v9.1.8
+		THROW(ASSIGN_ID_BY_NAME(p_disp, PrintPurpose) > 0);       // @v9.1.8
+		THROW(ASSIGN_ID_BY_NAME(p_disp, BarcodeControlCode) > 0); // @v9.1.8
+		THROW(ASSIGN_ID_BY_NAME(p_disp, TaxTypeNumber) > 0);          // @v10.0.03 1..5
+		THROW(ASSIGN_ID_BY_NAME(p_disp, OperatorName) > 0); // @v10.2.5
+	}
 	CATCH
 		ZDELETE(p_disp);
 	ENDCATCH
@@ -312,43 +906,52 @@ int SLAPI SCS_ATOLDRV::EditParam(void * pDevNum)
 int SLAPI SCS_ATOLDRV::SetErrorMessage()
 {
 	int    ok = -1;
-	char   err_buf[MAXPATH];
-	memzero(err_buf, sizeof(err_buf));
-	THROW_INVARG(P_Disp)
-	THROW(P_Disp->GetProperty(ResultCode, &ResCode) > 0);
-	if(ResCode != RESCODE_NO_ERROR) {
-		THROW(P_Disp->GetProperty(ResultDescription, err_buf, sizeof(err_buf) - 1) > 0);
-		SCharToOem(err_buf);
-		PPSetError(PPERR_ATOL_DRV);
-		PPSetAddedMsgString(err_buf);
-		ok = 1;
+	THROW_INVARG(P_Fptr10 || P_Disp);
+	if(P_Fptr10) {
+		int    err_code = P_Fptr10->GetErrorCodeProc(P_Fptr10->Handler);
+		if(err_code != LIBFPTR_OK) {
+			SString err_buf;
+			STempBuffer temp_buf(SKILOBYTE(2));
+			err_buf.Z().Cat(err_code);
+			THROW_SL(temp_buf.IsValid());
+			wchar_t * p_buf = reinterpret_cast<wchar_t *>(static_cast<char *>(temp_buf));
+			int result_len = P_Fptr10->GetErrorDescrProc(P_Fptr10->Handler, p_buf, static_cast<int>(temp_buf.GetSize()));
+			if(result_len > 0) {
+				err_buf.CopyUtf8FromUnicode(p_buf, sstrlen(p_buf), 1);
+				err_buf.Transf(CTRANSF_UTF8_TO_INNER);
+			}
+			PPSetError(PPERR_ATOL_DRV, err_buf);
+			ok = 1;
+		}
+	}
+	else if(P_Disp) {
+		char   err_buf[MAXPATH];
+		memzero(err_buf, sizeof(err_buf));
+		THROW(P_Disp->GetProperty(ResultCode, &ResCode) > 0);
+		if(ResCode != RESCODE_NO_ERROR) {
+			THROW(P_Disp->GetProperty(ResultDescription, err_buf, sizeof(err_buf) - 1) > 0);
+			SCharToOem(err_buf);
+			PPSetError(PPERR_ATOL_DRV);
+			PPSetAddedMsgString(err_buf);
+			ok = 1;
+		}
 	}
 	CATCHZOK
 	return ok;
 }
 
-int SLAPI SCS_ATOLDRV::InitChannel()
-	{ return -1; }
-int SLAPI SCS_ATOLDRV::SetProp(uint propID, bool propValue)
-	{ return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1); }
-int SLAPI SCS_ATOLDRV::SetProp(uint propID, int propValue)
-	{ return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1); }
-int SLAPI SCS_ATOLDRV::SetProp(uint propID, long propValue)
-	{ return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1); }
-int SLAPI SCS_ATOLDRV::SetProp(uint propID, double propValue)
-	{ return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1); }
-int SLAPI SCS_ATOLDRV::SetProp(uint propID, const char * pPropValue)
-	{ return BIN(P_Disp && P_Disp->SetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1); }
-int SLAPI SCS_ATOLDRV::GetProp(uint propID, bool  * pPropValue)
-	{ return BIN(P_Disp && P_Disp->GetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1); }
-int SLAPI SCS_ATOLDRV::GetProp(uint propID, int * pPropValue)
-	{ return BIN(P_Disp && P_Disp->GetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1); }
-int SLAPI SCS_ATOLDRV::GetProp(uint propID, long * pPropValue)
-	{ return BIN(P_Disp && P_Disp->GetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1); }
-int SLAPI SCS_ATOLDRV::GetProp(uint propID, double * pPropValue)
-	{ return BIN(P_Disp && P_Disp->GetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1); }
+// @v10.3.9 int SLAPI SCS_ATOLDRV::InitChannel() { return -1; }
+int SLAPI SCS_ATOLDRV::SetProp(uint propID, bool propValue) { return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1); }
+int SLAPI SCS_ATOLDRV::SetProp(uint propID, int propValue) { return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1); }
+int SLAPI SCS_ATOLDRV::SetProp(uint propID, long propValue) { return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1); }
+int SLAPI SCS_ATOLDRV::SetProp(uint propID, double propValue) { return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1); }
+int SLAPI SCS_ATOLDRV::SetProp(uint propID, const char * pPropValue) { return BIN(P_Disp && P_Disp->SetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1); }
+int SLAPI SCS_ATOLDRV::GetProp(uint propID, bool  * pPropValue) { return BIN(P_Disp && P_Disp->GetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1); }
+int SLAPI SCS_ATOLDRV::GetProp(uint propID, int * pPropValue) { return BIN(P_Disp && P_Disp->GetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1); }
+int SLAPI SCS_ATOLDRV::GetProp(uint propID, long * pPropValue) { return BIN(P_Disp && P_Disp->GetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1); }
+int SLAPI SCS_ATOLDRV::GetProp(uint propID, double * pPropValue) { return BIN(P_Disp && P_Disp->GetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1); }
 
-int	SLAPI SCS_ATOLDRV::PrintDiscountInfo(CCheckPacket * pPack, uint flags)
+int	SLAPI SCS_ATOLDRV::PrintDiscountInfo(const CCheckPacket * pPack, uint flags)
 {
 	int    ok = 1;
 	double amt = R2(fabs(MONEYTOLDBL(pPack->Rec.Amount)));
@@ -359,27 +962,31 @@ int	SLAPI SCS_ATOLDRV::PrintDiscountInfo(CCheckPacket * pPack, uint flags)
 		double  pcnt = round(dscnt * 100.0 / (amt + dscnt), 1);
 		SString prn_str, temp_str;
 		SCardCore scc;
-		THROW(SetProp(Caption, prn_str.Z().CatCharN('-', CheckStrLen)));
-		THROW(ExecOper(PrintString));
+		//THROW(SetProp(Caption, prn_str.Z().CatCharN('-', CheckStrLen)));
+		//THROW(ExecOper(PrintString));
+		THROW(PrintText(prn_str.Z().CatCharN('-', CheckStrLen), 0, 0));
 		temp_str.Z().Cat(amt + dscnt, SFMT_MONEY);
 		// @v10.0.10 prn_str = "СУММА БЕЗ СКИДКИ"; // @cstr #0
 		PPLoadText(PPTXT_CCFMT_AMTWODISCOUNT, prn_str); // @v10.0.10 
 		prn_str.Transf(CTRANSF_INNER_TO_OUTER); // @v10.0.10 
 		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_str.Len()).Cat(temp_str);
-		THROW(SetProp(Caption, prn_str));
-		THROW(ExecOper(PrintString));
+		//THROW(SetProp(Caption, prn_str));
+		//THROW(ExecOper(PrintString));
+		THROW(PrintText(prn_str, 0, 0));
 		if(scc.Search(pPack->Rec.SCardID, 0) > 0) {
 			PPLoadText(PPTXT_CCFMT_CARD, prn_str); // @v10.0.10 
 			prn_str.Transf(CTRANSF_INNER_TO_OUTER); // @v10.0.10 
-			THROW(SetProp(Caption, (prn_str/*= "КАРТА"*/).Space().Cat(scc.data.Code)));
-			THROW(ExecOper(PrintString));
+			//THROW(SetProp(Caption, (prn_str/*= "КАРТА"*/).Space().Cat(scc.data.Code)));
+			//THROW(ExecOper(PrintString));
+			THROW(PrintText((prn_str/*= "КАРТА"*/).Space().Cat(scc.data.Code), 0, 0));
 			if(scc.data.PersonID && GetPersonName(scc.data.PersonID, temp_str) > 0) {
 				PPLoadText(PPTXT_CCFMT_CARDOWNER, prn_str); // @v10.0.10 
 				prn_str.Transf(CTRANSF_INNER_TO_OUTER); // @v10.0.10 
 				(prn_str/*= "ВЛАДЕЛЕЦ"*/).Space().Cat(temp_str.Transf(CTRANSF_INNER_TO_OUTER));
 				CutLongTail(prn_str);
-				THROW(SetProp(Caption, prn_str));
-				THROW(ExecOper(PrintString));
+				//THROW(SetProp(Caption, prn_str));
+				//THROW(ExecOper(PrintString));
+				THROW(PrintText(prn_str, 0, 0));
 			}
 		}
 		temp_str.Z().Cat(dscnt, SFMT_MONEY);
@@ -387,31 +994,12 @@ int	SLAPI SCS_ATOLDRV::PrintDiscountInfo(CCheckPacket * pPack, uint flags)
 		prn_str.Transf(CTRANSF_INNER_TO_OUTER); // @v10.0.10 
 		(prn_str/*= "СКИДКА"*/).Space().Cat(pcnt, MKSFMTD(0, (flags & PRNCHK_ROUNDINT) ? 0 : 1, NMBF_NOTRAILZ)).CatChar('%');
 		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_str.Len()).Cat(temp_str);
-		THROW(SetProp(Caption, prn_str));
-		THROW(ExecOper(PrintString));
+		//THROW(SetProp(Caption, prn_str));
+		//THROW(ExecOper(PrintString));
+		THROW(PrintText(prn_str, 0, 0));
 	}
 	CATCHZOK
 	return ok;
-}
-
-void SLAPI SCS_ATOLDRV::CutLongTail(char * pBuf)
-{
-	if(static_cast<long>(sstrlen(pBuf)) > CheckStrLen) {
-		char * p = 0;
-		pBuf[CheckStrLen+1] = 0;
-		if((p = strrchr(pBuf, ' ')) != 0)
-			*p = 0;
-		else
-			pBuf[CheckStrLen] = 0;
-	}
-}
-
-void SLAPI SCS_ATOLDRV::CutLongTail(SString & rBuf)
-{
-	char   buf[256];
-	rBuf.CopyTo(buf, sizeof(buf));
-	CutLongTail(buf);
-	rBuf = buf;
 }
 
 void SLAPI SCS_ATOLDRV::WriteLogFile(PPID id)
@@ -437,18 +1025,29 @@ void SLAPI SCS_ATOLDRV::WriteLogFile(PPID id)
 static int FASTCALL IsModeOffPrint(int mode)
 	{ return BIN(oneof4(mode, MODE_REGISTER, MODE_XREPORT, MODE_ZREPORT, MODE_EKLZ_REPORT)); }
 
-int SLAPI SCS_ATOLDRV::CheckForSessionOver()
+int SLAPI SCS_ATOLDRV::AllowPrintOper_Fptr10()
 {
-	int    ok = -1;
-	long   err_code = 0L;
-	THROW(Connect());
-	SetProp(Mode, MODE_REGISTER);
-	Exec(SetMode);
-	// Exec(NewDocument);
-	if(ResCode == RESCODE_OPEN_SESS_LONG)
-		ok = 1;
-	CATCHZOK
-	Exec(ResetMode);
+	int    ok = 1;
+	if(P_Fptr10) {
+		do {
+			StateBlock stb;
+			GetState(stb);
+			if(!(stb.Flags & stb.fPaperPresent)) {
+				if(PPMessage(mfConf|mfYesNo, PPCFM_SETPAPERTOPRINT) == cmYes)
+					ok = -1;
+				else
+					ok = 0;
+			}
+			else if(stb.Flags & stb.fCoverOpened) {
+				if(PPMessage(mfConf|mfYesNo, PPCFM_CLOSEPRNCOVERTOPRINT) == cmYes)
+					ok = -1;
+				else
+					ok = 0;
+			}
+			else
+				ok = 1;
+		} while(ok < 0);
+	}
 	return ok;
 }
 
@@ -500,10 +1099,11 @@ int SLAPI SCS_ATOLDRV::AllowPrintOper(uint id)
 			}
 			else
 				WriteLogFile(id);
-			Exec(Beep);
+			//Exec(Beep);
+			DoBeep();
 			wait_prn_err = 1;
 			r = PPError();
-			if((!send_msg && r != cmOK) || (send_msg && Exec(Beep) && PPMessage(mfConf|mfYesNo, PPCFM_SETPAPERTOPRINT) != cmYes)) {
+			if((!send_msg && r != cmOK) || (send_msg && /*Exec(Beep) &&*/ PPMessage(mfConf|mfYesNo, PPCFM_SETPAPERTOPRINT) != cmYes)) {
 				Flags |= sfCancelled;
 				ok = 0;
 			}
@@ -527,9 +1127,10 @@ int SLAPI SCS_ATOLDRV::AllowPrintOper(uint id)
 			WriteLogFile(id);
 			SString  err_msg(DS.GetConstTLA().AddedMsgString), added_msg;
 			if(PPLoadText(PPTXT_APPEAL_CTO, added_msg))
-				err_msg.CR().Cat("\003").Cat(added_msg);
+				err_msg.CR().CatChar('\003').Cat(added_msg);
 			PPSetAddedMsgString(err_msg);
-			Exec(Beep);
+			//Exec(Beep);
+			DoBeep();
 			PPError();
 			ok = -1;
 		}
@@ -540,7 +1141,8 @@ int SLAPI SCS_ATOLDRV::AllowPrintOper(uint id)
 	//
 	if(!wait_prn_err || last_res_code == RESCODE_PAYM_LESS_SUM) {
 		WriteLogFile(id);
-		Exec(Beep);
+		//Exec(Beep);
+		DoBeep();
 		PPError();
 		Flags |= sfCancelled;
 		ok = 0;
@@ -576,52 +1178,17 @@ int SLAPI SCS_ATOLDRV::ExecOper(uint id)
 	return ok;
 }
 
-int SLAPI SCS_ATOLDRV::Annulate(long mode)
-{
-	int    ok = 1;
-	long   check_state = 0L;
-	THROW(GetProp(CheckState, &check_state));
-	if(check_state != 0) {
-		if(mode)
-			THROW(SetProp(Mode, mode));
-		THROW(ExecOper(SetMode));
-		THROW(ExecOper(CancelCheck) > 0);
-		if(mode)
-			THROW(ExecOper(ResetMode));
-		THROW(ExecOper(FullCut));
-	}
-	CATCHZOK
-	return ok;
-}
-
-int SLAPI SCS_ATOLDRV::Connect()
-{
-	int    ok = 1;
-	bool   enabled = false;
-	SString buf, buf1;
-	PPIniFile ini_file;
-	THROW_PP(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_SHTRIHFRPASSWORD, buf) > 0, PPERR_SHTRIHFRADMPASSW);
-	buf.Divide(',', CashierPassword, buf1);
-	AdmPassword = CashierPassword;
-	GetProp(DeviceEnabled, &enabled);
-	if(enabled == false) {
-		THROW(SetProp(CurrentDeviceNumber, atol(Port)) > 0);
-		THROW(SetProp(DeviceEnabled, true) > 0);
-		THROW(SetProp(Password, CashierPassword));
-		THROW(Annulate(MODE_REGISTER));
-	}
-	CATCHZOK
-	return ok;
-}
-
 int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 {
 	int    ok = 1, is_format = 0;
 	bool   enabled = true;
-	SString buf, temp_buf;
+	SString temp_buf;
+	SStringU temp_buf_u;
+	SString buf;
 	SString debug_log_buf;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR;
+	void * fph = P_Fptr10 ? P_Fptr10->Handler : 0;
 	THROW_INVARG(pPack);
 	debug_log_buf.CatEq("CCID", pPack->Rec.ID).CatDiv(';', 2).CatEq("CCCode", pPack->Rec.Code);
 	if(pPack->GetCount() == 0)
@@ -633,8 +1200,12 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 		double running_total = 0.0;
 		double fiscal = 0.0;
 		double nonfiscal = 0.0;
+		SString operator_name;
+		SString goods_name;
 		const  int is_vat_free = BIN(CnObj.IsVatFree(NodeID) > 0); // @v10.0.03
-		THROW(Connect());
+		StateBlock stb;
+		THROW(Connect(&stb));
+		THROW(AllowPrintOper_Fptr10());
 		pPack->HasNonFiscalAmount(&fiscal, &nonfiscal);
 		fiscal = fabs(fiscal);
 		nonfiscal = fabs(nonfiscal);
@@ -646,7 +1217,6 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 			THROW(is_cash = CheckForCash(amt));
 			THROW_PP(is_cash > 0, PPERR_SYNCCASH_NO_CASH);
 		}
-		THROW(SetProp(Mode, MODE_REGISTER));
 		// @v10.2.5 {
 		//
 		// Имя кассира
@@ -654,128 +1224,170 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 		if(PPObjPerson::GetCurUserPerson(0, &temp_buf) < 0) {
 			PPObjSecur sec_obj(PPOBJ_USR, 0);
 			PPSecur sec_rec;
-			if(sec_obj.Fetch(LConfig.User, &sec_rec) > 0) {
-				(temp_buf = sec_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
-				THROW(SetProp(OperatorName, temp_buf));
-			}
+			if(sec_obj.Fetch(LConfig.User, &sec_rec) > 0)
+				(operator_name = sec_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
 		}
-		// } @v10.2.5 
-		THROW(ExecOper(NewDocument));
-		THROW(GetProp(CharLineLength, &CheckStrLen));
+		if(P_Disp) {
+			THROW(SetProp(OperatorName, operator_name));
+			// } @v10.2.5 
+			THROW(SetProp(Mode, MODE_REGISTER));
+			THROW(ExecOper(NewDocument));
+			//THROW(GetProp(CharLineLength, &CheckStrLen));
+		}
 		{
-			int chk_no = 0;
-			THROW(GetProp(CheckNumber, &chk_no));
-			pPack->Rec.Code = chk_no;
+			//int chk_no = 0;
+			//THROW(GetProp(CheckNumber, &chk_no));
+			//pPack->Rec.Code = chk_no;
+			pPack->Rec.Code = static_cast<long>(stb.ReceiptNumber);
 		}
 		if(P_SlipFmt) {
 			int    prn_total_sale = 1;
 			int    r = 0;
-			SString line_buf, format_name = (flags & PRNCHK_RETURN) ? "CCheckRet" : "CCheck";
+			SString line_buf;
+			// @v10.3.9 const SString format_name = (flags & PRNCHK_RETURN) ? "CCheckRet" : "CCheck";
+			const SString format_name = "CCheck"; // @v10.3.9 
 			SlipLineParam sl_param;
 			THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 			if(r > 0) {
 				is_format = 1;
-				if(sdc_param.PageWidth > (uint)CheckStrLen)
+				if(sdc_param.PageWidth > static_cast<uint>(CheckStrLen))
 					WriteLogFile_PageWidthOver(format_name);
-				THROW(SetProp(CheckType, (flags & PRNCHK_RETURN) ? 2L : 1L));
-				THROW(ExecOper(OpenCheck));
+				if(P_Fptr10) {
+					temp_buf_u.Z().CopyFromMb_OUTER(operator_name, operator_name.Len());
+					P_Fptr10->SetParamStrProc(fph, 1021, temp_buf_u);
+					//temp_buf_u.Z().CopyFromMb_OUTER(CashierPassword, CashierPassword.Len());
+					temp_buf_u.Z().CopyFromMb_OUTER(P_Fptr10->UserPassword, P_Fptr10->UserPassword.Len());
+					P_Fptr10->SetParamStrProc(fph, 1203, temp_buf_u);
+					THROW(P_Fptr10->OperatorLoginProc(fph) == 0);
+					P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_RECEIPT_TYPE, (flags & PRNCHK_RETURN) ? LIBFPTR_RT_SELL_RETURN : LIBFPTR_RT_SELL);
+					THROW(P_Fptr10->OpenReceiptProc(fph) == 0);
+				}
+				else if(P_Disp) {
+					THROW(SetProp(CheckType, (flags & PRNCHK_RETURN) ? 2L : 1L));
+					THROW(ExecOper(OpenCheck));
+				}
 				Flags |= sfOpenCheck;
 				debug_log_buf.Space().CatChar('{');
 				for(P_SlipFmt->InitIteration(pPack); P_SlipFmt->NextIteration(line_buf, &sl_param) > 0;) {
 					if(sl_param.Flags & SlipLineParam::fRegFiscal) {
-						const double _q = sl_param.Qtty;
-						const double _p = fabs(sl_param.Price);
-						running_total += (_q * _p);
+						const  double _q = sl_param.Qtty;
+						const  double _p = fabs(sl_param.Price);
+						int    tax_type_number = 1;
+						goods_name.Z();
 						{
-							(temp_buf = sl_param.Text).Strip();
-							if(!temp_buf.NotEmptyS())
-								temp_buf = "WARE";
+							(goods_name = sl_param.Text).Strip();
+							if(!goods_name.NotEmptyS())
+								goods_name = "WARE";
 							else
-								temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
-							temp_buf.Trim(CheckStrLen);
-							THROW(SetProp(Name, temp_buf)); // Наименование товара
+								goods_name.Transf(CTRANSF_INNER_TO_OUTER);
+							goods_name.Trim(CheckStrLen);
 						}
-						{
-							const double pq = R3(_q);
-							const double pp = R2(_p);
-							debug_log_buf.CatChar('[').CatEq("QTY", pq).Space().CatEq("PRICE", pp, MKSFMTD(0, 10, 0)).CatChar(']');
+						running_total += (_q * _p);
+						const double pq = R3(_q);
+						const double pp = R2(_p);
+						debug_log_buf.CatChar('[').CatEq("QTY", pq).Space().CatEq("PRICE", pp, MKSFMTD(0, 10, 0)).CatChar(']');
+						if(P_Fptr10) {
+							temp_buf_u.CopyFromMb_OUTER(goods_name, goods_name.Len());
+							P_Fptr10->SetParamStrProc(fph, LIBFPTR_PARAM_COMMODITY_NAME, temp_buf_u);
+							P_Fptr10->SetParamDoubleProc(fph, LIBFPTR_PARAM_PRICE, pp);
+							P_Fptr10->SetParamDoubleProc(fph, LIBFPTR_PARAM_QUANTITY, pq);
+							if(is_vat_free)
+								tax_type_number = LIBFPTR_TAX_NO;
+							else {
+								const double vatrate = fabs(sl_param.VatRate);
+								if(vatrate == 18.0)
+									tax_type_number = LIBFPTR_TAX_VAT18;
+								else if(vatrate == 20.0) // @v10.2.10 (|| vatrate == 20.0)
+									tax_type_number = LIBFPTR_TAX_VAT20;
+								else if(vatrate == 10.0)
+									tax_type_number = LIBFPTR_TAX_VAT10;
+								else if(vatrate == 0.0)
+									tax_type_number = LIBFPTR_TAX_VAT0;
+								else
+									tax_type_number = LIBFPTR_TAX_VAT20; // @default
+							}
+							P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_TAX_TYPE, tax_type_number);
+							P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_DEPARTMENT, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 : sl_param.DivID);
+							THROW(P_Fptr10->RegistrationProc(fph) == 0);
+						}
+						else if(P_Disp) {
+							THROW(SetProp(Name, goods_name)); // Наименование товара
 							THROW(SetProp(Quantity, pq));
 							THROW(SetProp(Price, pp));
-						}
-						// @v10.0.03 {
-						// @v10.0.10 {
-						int    tax_type_number = 1;
-						if(SCn.DrvVerMinor == 30) { 
-							// 1 - 0%
-							// 2 - 10%
-							// 3 - 18%
-							// 4 - 18/118 ?
-							// 5 - 10/110
-							// 6 - без НДС
-							if(is_vat_free)
-								tax_type_number = 6;
-							else {
-								const double vatrate = fabs(sl_param.VatRate);
-								if(vatrate == 18.0 || vatrate == 20.0) // @v10.2.10 (|| vatrate == 20.0)
-									tax_type_number = 3;
-								else if(vatrate == 10.0)
-									tax_type_number = 2;
-								else if(vatrate == 0.0)
-									tax_type_number = 1;
-								else
-									tax_type_number = 3; // @default
+							// @v10.0.03 {
+							// @v10.0.10 {
+							if(SCn.DrvVerMinor == 30) { 
+								// 1 - 0%
+								// 2 - 10%
+								// 3 - 18%
+								// 4 - 18/118 ?
+								// 5 - 10/110
+								// 6 - без НДС
+								if(is_vat_free)
+									tax_type_number = 6;
+								else {
+									const double vatrate = fabs(sl_param.VatRate);
+									if(vatrate == 18.0 || vatrate == 20.0) // @v10.2.10 (|| vatrate == 20.0)
+										tax_type_number = 3;
+									else if(vatrate == 10.0)
+										tax_type_number = 2;
+									else if(vatrate == 0.0)
+										tax_type_number = 1;
+									else
+										tax_type_number = 3; // @default
+								}
 							}
-						}
-						else if((SCn.DrvVerMinor % 2) == 0) { 
-							//
-							// 1 - 18
-							// 2 - 10
-							// 3 - 0
-							// 4 - без НДС
-							//
-							if(is_vat_free)
-								tax_type_number = 4;
-							else {
-								const double vatrate = fabs(sl_param.VatRate);
-								if(vatrate == 18.0 || vatrate == 20.0) // @v10.2.10 (|| vatrate == 20.0)
-									tax_type_number = 1;
-								else if(vatrate == 10.0)
-									tax_type_number = 2;
-								else if(vatrate == 0.0)
-									tax_type_number = 3;
-								else
-									tax_type_number = 1; // @default
+							else if((SCn.DrvVerMinor % 2) == 0) { 
+								//
+								// 1 - 18
+								// 2 - 10
+								// 3 - 0
+								// 4 - без НДС
+								//
+								if(is_vat_free)
+									tax_type_number = 4;
+								else {
+									const double vatrate = fabs(sl_param.VatRate);
+									if(vatrate == 18.0 || vatrate == 20.0) // @v10.2.10 (|| vatrate == 20.0)
+										tax_type_number = 1;
+									else if(vatrate == 10.0)
+										tax_type_number = 2;
+									else if(vatrate == 0.0)
+										tax_type_number = 3;
+									else
+										tax_type_number = 1; // @default
+								}
 							}
-						}
-						else 
-						// } @v10.0.10
-						{
-							//
-							// 1 - 18
-							// 2 - 10
-							// 3 - 18/118
-							// 4 - 10/110
-							// 5 - 0
-							// 6 - без НДС
-							//
-							if(is_vat_free)
-								tax_type_number = 6;
-							else {
-								const double vatrate = fabs(sl_param.VatRate);
-								if(vatrate == 18.0 || vatrate == 20.0) // @v10.2.10 (|| vatrate == 20.0)
-									tax_type_number = 1;
-								else if(vatrate == 10.0)
-									tax_type_number = 2;
-								else if(vatrate == 0.0)
-									tax_type_number = 5;
-								else
-									tax_type_number = 1; // @default
+							else 
+							// } @v10.0.10
+							{
+								//
+								// 1 - 18
+								// 2 - 10
+								// 3 - 18/118
+								// 4 - 10/110
+								// 5 - 0
+								// 6 - без НДС
+								//
+								if(is_vat_free)
+									tax_type_number = 6;
+								else {
+									const double vatrate = fabs(sl_param.VatRate);
+									if(vatrate == 18.0 || vatrate == 20.0) // @v10.2.10 (|| vatrate == 20.0)
+										tax_type_number = 1;
+									else if(vatrate == 10.0)
+										tax_type_number = 2;
+									else if(vatrate == 0.0)
+										tax_type_number = 5;
+									else
+										tax_type_number = 1; // @default
+								}
 							}
+							THROW(SetProp(TaxTypeNumber, tax_type_number));
+							// } @v10.0.03 
+							THROW(SetProp(Department, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 :  (int32)sl_param.DivID));
+							THROW(ExecOper((flags & PRNCHK_RETURN) ? Return : Registration));
 						}
-						THROW(SetProp(TaxTypeNumber, tax_type_number));
-						// } @v10.0.03 
-						THROW(SetProp(Department, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 :  (int32)sl_param.DivID));
-						THROW(ExecOper((flags & PRNCHK_RETURN) ? Return : Registration));
 						Flags |= sfOpenCheck;
 						prn_total_sale = 0;
 					}
@@ -785,8 +1397,33 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 					}
 					else if(sl_param.Kind == sl_param.lkSignBarcode) {
 						if(line_buf.NotEmptyS()) {
-							{
-								int    atol_bctype = 0;
+							int    atol_bctype = 0;
+							const  int barcode_height = (sl_param.BarcodeHt > 0) ? sl_param.BarcodeHt : 50;
+							const  int barcode_scale = 300;
+							if(P_Fptr10) {
+								switch(sl_param.BarcodeStd) {
+									case BARCSTD_CODE39: atol_bctype = LIBFPTR_BT_CODE_39; break;
+									case BARCSTD_UPCA: atol_bctype = LIBFPTR_BT_UPC_A; break;
+									case BARCSTD_UPCE: atol_bctype = LIBFPTR_BT_UPC_E; break;
+									case BARCSTD_EAN13: atol_bctype = LIBFPTR_BT_EAN_13; break;
+									case BARCSTD_EAN8: atol_bctype = LIBFPTR_BT_EAN_8; break;
+									case BARCSTD_ANSI: atol_bctype = LIBFPTR_BT_CODABAR; break;
+									case BARCSTD_CODE93: atol_bctype = LIBFPTR_BT_CODE_93; break;
+									case BARCSTD_CODE128: atol_bctype = LIBFPTR_BT_CODE_128; break;
+									case BARCSTD_PDF417: atol_bctype = LIBFPTR_BT_PDF417; break;
+									case BARCSTD_QR: atol_bctype = LIBFPTR_BT_QR; break;
+									default: atol_bctype = LIBFPTR_BT_QR; break; // QR by default
+								}
+								temp_buf_u.Z().CopyFromMb_OUTER(line_buf, line_buf.Len());
+								P_Fptr10->SetParamStrProc(fph, LIBFPTR_PARAM_BARCODE, temp_buf_u);
+								P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_BARCODE_TYPE, atol_bctype);
+								P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_HEIGHT, barcode_height);
+								P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_SCALE, barcode_scale);
+								P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_ALIGNMENT, LIBFPTR_ALIGNMENT_CENTER);
+								P_Fptr10->SetParamBoolProc(fph, LIBFPTR_PARAM_BARCODE_PRINT_TEXT, BIN(sl_param.Flags & (sl_param.fBcTextBelow|sl_param.fBcTextAbove)));
+								P_Fptr10->PrintBarcodeProc(fph);
+							}
+							else if(P_Disp) {
 								switch(sl_param.BarcodeStd) {
 									case BARCSTD_CODE39: atol_bctype = 1; break;
 									case BARCSTD_UPCA: atol_bctype = 0; break;
@@ -801,60 +1438,66 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 									default: atol_bctype = 84; break; // QR by default
 								}
 								THROW(SetProp(BarcodeType, atol_bctype));
+								THROW(SetProp(Barcode, line_buf));
+								THROW(SetProp(Height, barcode_height));
+								if(sl_param.Flags & sl_param.fBcTextBelow) {
+									THROW(SetProp(PrintBarcodeText, 2));
+								}
+								else if(sl_param.Flags & sl_param.fBcTextAbove) {
+									THROW(SetProp(PrintBarcodeText, 1));
+								}
+								else {
+									THROW(SetProp(PrintBarcodeText, 0));
+								}
+								THROW(SetProp(AutoSize, true)); // @v9.1.8
+								THROW(SetProp(Alignment, 1)); // @v9.1.8
+								THROW(SetProp(Scale, barcode_scale)); // @v9.1.8
+								THROW(SetProp(PrintPurpose, 1));       // @v9.1.8
+								THROW(SetProp(BarcodeControlCode, false)); // @v9.1.8
+								THROW(ExecOper(PrintBarcode));
 							}
-							THROW(SetProp(Barcode, line_buf));
-							if(sl_param.BarcodeHt > 0) {
-								THROW(SetProp(Height, sl_param.BarcodeHt));
-							}
-							else {
-								THROW(SetProp(Height, 50));
-							}
-							if(sl_param.Flags & sl_param.fBcTextBelow) {
-								THROW(SetProp(PrintBarcodeText, 2));
-							}
-							else if(sl_param.Flags & sl_param.fBcTextAbove) {
-								THROW(SetProp(PrintBarcodeText, 1));
-							}
-							else {
-								THROW(SetProp(PrintBarcodeText, 0));
-							}
-							THROW(SetProp(AutoSize, true)); // @v9.1.8
-							THROW(SetProp(Alignment, (int)1)); // @v9.1.8
-							THROW(SetProp(Scale, (int)300)); // @v9.1.8
-							THROW(SetProp(PrintPurpose, (int)1));       // @v9.1.8
-							THROW(SetProp(BarcodeControlCode, false)); // @v9.1.8
-							THROW(ExecOper(PrintBarcode));
 						}
 					}
 					// } @v9.1.4
 					else {
-						THROW(SetProp(TextWrap, 1L));
-						THROW(SetProp(Caption, line_buf.Trim(CheckStrLen)));
-						THROW(ExecOper(PrintString));
+						//THROW(SetProp(TextWrap, 1L));
+						//THROW(SetProp(Caption, line_buf.Trim(CheckStrLen)));
+						//THROW(ExecOper(PrintString));
+						THROW(PrintText(line_buf.Trim(CheckStrLen), ptfWrap, 0));
 					}
 				}
 				if(prn_total_sale) {
 					if(!pPack->GetCount()) {
-						{
-							const double pq = 1.0;
-							const double pp = fabs(amt);
-							debug_log_buf.CatChar('[').CatEq("QTY", pq).Space().CatEq("PRICE", pp, MKSFMTD(0, 10, 0)).CatChar(']');
+						const double pq = 1.0;
+						const double pp = fabs(amt);
+						debug_log_buf.CatChar('[').CatEq("QTY", pq).Space().CatEq("PRICE", pp, MKSFMTD(0, 10, 0)).CatChar(']');
+						if(P_Fptr10) {
+							P_Fptr10->SetParamDoubleProc(fph, LIBFPTR_PARAM_PRICE, pp);
+							P_Fptr10->SetParamDoubleProc(fph, LIBFPTR_PARAM_QUANTITY, pq);
+							THROW(P_Fptr10->RegistrationProc(fph) == 0);
+						}
+						else if(P_Disp) {
 							THROW(SetProp(Quantity, pq));
 							THROW(SetProp(Price, pp));
+							THROW(ExecOper((flags & PRNCHK_RETURN) ? Return : Registration));
 						}
-						THROW(ExecOper((flags & PRNCHK_RETURN) ? Return : Registration));
 						Flags |= sfOpenCheck;
 						running_total += amt;
 					}
 					else if(fiscal) {
-						{
-							const double pq = 1.0;
-							const double pp = fabs(fiscal);
-							debug_log_buf.CatChar('[').CatEq("QTY", pq).Space().CatEq("PRICE", pp, MKSFMTD(0, 10, 0)).CatChar(']');
+						const double pq = 1.0;
+						const double pp = fabs(fiscal);
+						debug_log_buf.CatChar('[').CatEq("QTY", pq).Space().CatEq("PRICE", pp, MKSFMTD(0, 10, 0)).CatChar(']');
+						if(P_Fptr10) {
+							P_Fptr10->SetParamDoubleProc(fph, LIBFPTR_PARAM_PRICE, pp);
+							P_Fptr10->SetParamDoubleProc(fph, LIBFPTR_PARAM_QUANTITY, pq);
+							THROW(P_Fptr10->RegistrationProc(fph) == 0);
+						}
+						else if(P_Disp) {
 							THROW(SetProp(Quantity, pq));
 							THROW(SetProp(Price, pp));
+							THROW(ExecOper((flags & PRNCHK_RETURN) ? Return : Registration));
 						}
-						THROW(ExecOper((flags & PRNCHK_RETURN) ? Return : Registration));
 						Flags |= sfOpenCheck;
 						running_total += fiscal;
 					}
@@ -875,18 +1518,31 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 				int  division = (ccl.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? ccl.DivID - CHECK_LINE_IS_PRINTED_BIAS : ccl.DivID;
 				GetGoodsName(ccl.GoodsID, buf);
 				buf.Strip().Transf(CTRANSF_INNER_TO_OUTER).Trim(CheckStrLen);
-				THROW(SetProp(Name, buf));                                     // Наименование товара
-				THROW(SetProp(Price, R2(intmnytodbl(ccl.Price) - ccl.Dscnt))); // Цена
-				THROW(SetProp(Quantity, R3(fabs(ccl.Quantity))));              // Количество
-				THROW(SetProp(Department, (division > 16 || division < 0) ? 0 : division));
-				THROW(ExecOper((flags & PRNCHK_RETURN) ? Return : Registration));
+				const double pq = R3(fabs(ccl.Quantity));
+				const double pp = R2(intmnytodbl(ccl.Price) - ccl.Dscnt);
+				if(P_Fptr10) {
+					temp_buf_u.CopyFromMb_OUTER(buf, buf.Len());
+					P_Fptr10->SetParamStrProc(fph, LIBFPTR_PARAM_COMMODITY_NAME, temp_buf_u);
+					P_Fptr10->SetParamDoubleProc(fph, LIBFPTR_PARAM_PRICE, pp);
+					P_Fptr10->SetParamDoubleProc(fph, LIBFPTR_PARAM_QUANTITY, pq);
+					P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_DEPARTMENT, (division > 16 || division < 0) ? 0 : division);
+					THROW(P_Fptr10->RegistrationProc(fph) == 0);
+				}
+				else if(P_Disp) {
+					THROW(SetProp(Name, buf));    // Наименование товара
+					THROW(SetProp(Price, pp));    // Цена
+					THROW(SetProp(Quantity, pq)); // Количество
+					THROW(SetProp(Department, (division > 16 || division < 0) ? 0 : division));
+					THROW(ExecOper((flags & PRNCHK_RETURN) ? Return : Registration));
+				}
 				Flags |= sfOpenCheck;
 			}
 			// Информация о скидке
 			THROW(PrintDiscountInfo(pPack, flags));
 			buf.Z().CatCharN('-', CheckStrLen);
-			THROW(SetProp(Caption, buf.Trim(CheckStrLen)));
-			THROW(ExecOper(PrintString));
+			//THROW(SetProp(Caption, buf.Trim(CheckStrLen)));
+			//THROW(ExecOper(PrintString));
+			THROW(PrintText(buf.Trim(CheckStrLen), 0, 0));
 		}
 		debug_log_buf.Space().CatEq("SUM", sum, MKSFMTD(0, 10, 0)).Space().CatEq("RUNNINGTOTAL", running_total, MKSFMTD(0, 10, 0));
 		if(!feqeps(running_total, sum, 1E-5)) // @v10.3.1 (running_total > sum)-->feqeps(running_total, sum, 1E-5)
@@ -907,21 +1563,23 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 			{
 				//#define PAYTYPE_CASH           0L
 				//#define PAYTYPE_BANKING        3L
-				const int atol_paytype_cash = 0;
-				const int atol_paytype_bank = (SCn.DrvVerMajor > 8 || (SCn.DrvVerMajor == 8 && SCn.DrvVerMinor >= 15)) ? 1 : 3;
+				//const int atol_paytype_cash = 0;
+				//const int atol_paytype_bank = (SCn.DrvVerMajor > 8 || (SCn.DrvVerMajor == 8 && SCn.DrvVerMinor >= 15)) ? 1 : 3;
 				if(nonfiscal > 0.0) {
 					if(fiscal > 0.0) {
 						const double _paym_cash = R2(fiscal - _paym_bnk);
 						debug_log_buf.Space().CatEq("PAYMBANK", _paym_bnk, MKSFMTD(0, 10, 0)).Space().CatEq("PAYMCASH", _paym_cash, MKSFMTD(0, 10, 0));
 						if(_paym_cash > 0.0) {
-							THROW(SetProp(Summ, R2(_paym_cash)));
-							THROW(SetProp(TypeClose, atol_paytype_cash));
-							THROW(ExecOper(Payment));
+							//THROW(SetProp(Summ, R2(_paym_cash)));
+							//THROW(SetProp(TypeClose, atol_paytype_cash));
+							//THROW(ExecOper(Payment));
+							THROW(RegisterPayment(R2(_paym_cash), LIBFPTR_PT_CASH));
 						}
 						if(_paym_bnk > 0.0) {
-							THROW(SetProp(Summ, R2(_paym_bnk)));
-							THROW(SetProp(TypeClose, atol_paytype_bank));
-							THROW(ExecOper(Payment));
+							//THROW(SetProp(Summ, R2(_paym_bnk)));
+							//THROW(SetProp(TypeClose, atol_paytype_bank));
+							//THROW(ExecOper(Payment));
+							THROW(RegisterPayment(R2(_paym_bnk), LIBFPTR_PT_ELECTRONICALLY));
 						}
 					}
 				}
@@ -933,24 +1591,34 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 					const double _paym_cash = R2(sum - _paym_bnk);
 					debug_log_buf.Space().CatEq("PAYMBANK", _paym_bnk, MKSFMTD(0, 10, 0)).Space().CatEq("PAYMCASH", _paym_cash, MKSFMTD(0, 10, 0));
 					if(_paym_cash > 0.0) {
-						THROW(SetProp(Summ, _paym_cash));
-						THROW(SetProp(TypeClose, atol_paytype_cash));
-						THROW(ExecOper(Payment));
+						//THROW(SetProp(Summ, _paym_cash));
+						//THROW(SetProp(TypeClose, atol_paytype_cash));
+						//THROW(ExecOper(Payment));
+						THROW(RegisterPayment(_paym_cash, LIBFPTR_PT_CASH));
 					}
 					if(_paym_bnk > 0.0) {
-						THROW(SetProp(Summ, _paym_bnk));
-						THROW(SetProp(TypeClose, atol_paytype_bank));
-						THROW(ExecOper(Payment));
+						//THROW(SetProp(Summ, _paym_bnk));
+						//THROW(SetProp(TypeClose, atol_paytype_bank));
+						//THROW(ExecOper(Payment));
+						THROW(RegisterPayment(_paym_bnk, LIBFPTR_PT_ELECTRONICALLY));
 					}
 				}
 			}
 		}
-		THROW(ExecOper(CloseCheck));
-		THROW(Exec(ResetMode));
+		if(P_Fptr10) {
+			THROW(AllowPrintOper_Fptr10());
+			THROW(P_Fptr10->CloseReceiptProc(fph) == 0);
+		}
+		else if(P_Disp) {
+			THROW(ExecOper(CloseCheck));
+			THROW(Exec(ResetMode));
+		}
 		Flags &= ~sfOpenCheck;
 		ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
-		if(!(Flags & sfNotUseCutter))
-			THROW(ExecOper(FullCut));
+		if(!(Flags & sfNotUseCutter)) {
+			//THROW(ExecOper(FullCut));
+			CutPaper(0);
+		}
 		ErrCode = SYNCPRN_NO_ERROR;
 	}
 	CATCH
@@ -966,15 +1634,22 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 		}
 		else {
 			SetErrorMessage();
-			Exec(Beep);
+			//Exec(Beep);
+			DoBeep();
 			if(Flags & sfOpenCheck)
 				ErrCode = SYNCPRN_ERROR_WHILE_PRINT;
 			PPLogMessage(PPFILNAM_SHTRIH_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
 			ok = 0;
 		}
-		if(Flags & sfOpenCheck)
-			ExecOper(CancelCheck);
-		Exec(ResetMode);
+		if(P_Fptr10) {
+			if(Flags & sfOpenCheck)
+				P_Fptr10->CancelReceiptProc(fph);
+		}
+		else if(P_Disp) {
+			if(Flags & sfOpenCheck)
+				ExecOper(CancelCheck);
+			Exec(ResetMode);
+		}
 	ENDCATCH
 	if(CConfig.Flags & CCFLG_DEBUG && debug_log_buf.NotEmptyS()) {
 		PPLogMessage(PPFILNAM_DEBUG_LOG, debug_log_buf, LOGMSGF_USER|LOGMSGF_TIME);
@@ -983,31 +1658,38 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 }
 
 // virtual
-int SLAPI SCS_ATOLDRV::PrintCheckCopy(CCheckPacket * pPack, const char * pFormatName, uint flags)
+int SLAPI SCS_ATOLDRV::PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags)
 {
 	int     ok = 1;
-	{
-		SlipDocCommonParam sdc_param;
-		THROW_INVARG(pPack);
-		THROW(Connect());
+	SlipDocCommonParam sdc_param;
+	StateBlock stb;
+	THROW_INVARG(pPack);
+	THROW(Connect(&stb));
+	if(P_Disp) {
 		THROW(SetProp(Mode, MODE_REGISTER));
-		// THROW(ExecOper(NewDocument));
-		THROW(GetProp(CharLineLength, &CheckStrLen));
-		if(P_SlipFmt) {
-			int   r = 0;
-			SString  line_buf, format_name = (pFormatName && pFormatName[0]) ? pFormatName : ((flags & PRNCHK_RETURN) ? "CCheckRetCopy" : "CCheckCopy");
-			SlipLineParam sl_param;
-			THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
-			if(r > 0) {
-				SString buf;
-				for(P_SlipFmt->InitIteration(pPack); P_SlipFmt->NextIteration(line_buf, &sl_param) > 0;) {
-					THROW(SetProp(TextWrap, 1L));
-					THROW(SetProp(Caption, line_buf.Trim(CheckStrLen)));
-					THROW(ExecOper(PrintString));
-				}
+	}
+	// THROW(ExecOper(NewDocument));
+	//THROW(GetProp(CharLineLength, &CheckStrLen));
+	if(P_SlipFmt) {
+		int   r = 0;
+		SString  line_buf;
+		const SString format_name = (pFormatName && pFormatName[0]) ? pFormatName : ((flags & PRNCHK_RETURN) ? "CCheckRetCopy" : "CCheckCopy");
+		SlipLineParam sl_param;
+		THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
+		if(r > 0) {
+			SString buf;
+			for(P_SlipFmt->InitIteration(pPack); P_SlipFmt->NextIteration(line_buf, &sl_param) > 0;) {
+				//THROW(SetProp(TextWrap, 1L));
+				//THROW(SetProp(Caption, line_buf.Trim(CheckStrLen)));
+				//THROW(ExecOper(PrintString));
+				THROW(PrintText(line_buf.Trim(CheckStrLen), ptfWrap, 0));
+			}
+			if(P_Disp) {
 				THROW(ExecOper(PrintHeader));
-				if(!(Flags & sfNotUseCutter))
-					THROW(ExecOper(FullCut));
+			}
+			if(!(Flags & sfNotUseCutter)) {
+				//THROW(ExecOper(FullCut));
+				CutPaper(0);
 			}
 		}
 	}
@@ -1019,7 +1701,9 @@ int SLAPI SCS_ATOLDRV::PrintCheckCopy(CCheckPacket * pPack, const char * pFormat
 		}
 		else {
 			SetErrorMessage();
-			ok = (Exec(Beep), 0);
+			//Exec(Beep);
+			DoBeep();
+			ok = 0;
 		}
 		ok = 0;
 	ENDCATCH
@@ -1030,28 +1714,63 @@ int SLAPI SCS_ATOLDRV::PrintReport(int withCleaning)
 {
 	int     ok = 1, mode = 0;
 	SString cshr_pssw;
+	SString operator_name;
+	SString temp_buf;
+	SStringU temp_buf_u;
 	ResCode = RESCODE_NO_ERROR;
-	THROW(Connect());
+	StateBlock stb;
+	THROW(Connect(&stb));
+	THROW(AllowPrintOper_Fptr10());
 	// Закрыть сессию можно только под паролем администратора
 	cshr_pssw = CashierPassword;
 	CashierPassword = AdmPassword;
+	if(PPObjPerson::GetCurUserPerson(0, &temp_buf) < 0) {
+		PPObjSecur sec_obj(PPOBJ_USR, 0);
+		PPSecur sec_rec;
+		if(sec_obj.Fetch(LConfig.User, &sec_rec) > 0)
+			(operator_name = sec_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
+	}
 	//
 	Flags |= sfOpenCheck;
-	THROW(SetProp(Mode, (withCleaning) ? MODE_ZREPORT : MODE_XREPORT));
-	THROW(Exec(SetMode));
-	THROW(SetProp(ReportType, (withCleaning) ? REPORT_TYPE_Z : REPORT_TYPE_X));
-	THROW(ExecOper(Report));
-	if(!(Flags & sfNotUseCutter))
-		THROW(ExecOper(FullCut));
-	CATCH
-		if(Flags & sfCancelled) {
-			Flags &= ~sfCancelled;
-			ok = 0;
+	if(P_Fptr10) {
+		void * fph = P_Fptr10->Handler;
+		//libfptr_set_param_str(fptr, 1021, L"Кассир Иванов И.");
+		//libfptr_set_param_str(fptr, 1203, L"123456789047");
+		//libfptr_operator_login(fptr);
+		//libfptr_set_param_int(fptr, LIBFPTR_PARAM_REPORT_TYPE, LIBFPTR_RT_CLOSE_SHIFT);
+		//libfptr_report(fptr);
+		//libfptr_check_document_closed();
+		{
+			temp_buf_u.Z().CopyFromMb_OUTER(operator_name, operator_name.Len());
+			P_Fptr10->SetParamStrProc(fph, 1021, temp_buf_u);
+			//temp_buf_u.Z().CopyFromMb_OUTER(CashierPassword, CashierPassword.Len());
+			temp_buf_u.Z().CopyFromMb_OUTER(P_Fptr10->UserPassword, P_Fptr10->UserPassword.Len());
+			P_Fptr10->SetParamStrProc(fph, 1203, temp_buf_u);
+			THROW(P_Fptr10->OperatorLoginProc(fph) == 0);
 		}
+		P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_REPORT_TYPE, (withCleaning) ? LIBFPTR_RT_CLOSE_SHIFT : LIBFPTR_RT_X);
+		THROW(P_Fptr10->ReportProc(fph) == 0);
+		P_Fptr10->CheckDocumentClosedProc(fph);
+	}
+	else if(P_Disp) {
+		THROW(SetProp(Mode, (withCleaning) ? MODE_ZREPORT : MODE_XREPORT));
+		THROW(Exec(SetMode));
+		THROW(SetProp(ReportType, (withCleaning) ? REPORT_TYPE_Z : REPORT_TYPE_X));
+		THROW(ExecOper(Report));
+	}
+	if(!(Flags & sfNotUseCutter)) {
+		//THROW(ExecOper(FullCut));
+		CutPaper(0);
+	}
+	CATCH
+		if(Flags & sfCancelled)
+			Flags &= ~sfCancelled;
 		else {
 			SetErrorMessage();
-			ok = (Exec(Beep), 0);
+			DoBeep();
+			//Exec(Beep);
 		}
+		ok = 0;
 	ENDCATCH
 	if(Flags & sfOpenCheck) {
 		Flags &= ~sfOpenCheck;
@@ -1060,21 +1779,20 @@ int SLAPI SCS_ATOLDRV::PrintReport(int withCleaning)
 	return ok;
 }
 
-int SLAPI SCS_ATOLDRV::PrintXReport(const CSessInfo *)
-{
-	return PrintReport(0);
-}
-
 int SLAPI SCS_ATOLDRV::PrintZReportCopy(const CSessInfo * pInfo)
 {
 	int  ok = -1;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
+	StateBlock stb;
 	THROW_INVARG(pInfo);
-	THROW(Connect());
+	THROW(Connect(&stb));
+	THROW(AllowPrintOper_Fptr10());
 	// @v10.3.4 @fix (лишний вызов) THROW(Connect());
-	THROW(SetProp(Mode, MODE_REGISTER));
-	THROW(GetProp(CharLineLength, &CheckStrLen));
+	if(P_Disp) {
+		THROW(SetProp(Mode, MODE_REGISTER));
+		//THROW(GetProp(CharLineLength, &CheckStrLen));
+	}
 	if(P_SlipFmt) {
 		int   r = 0;
 		SString  line_buf, format_name = "ZReportCopy";
@@ -1085,14 +1803,19 @@ int SLAPI SCS_ATOLDRV::PrintZReportCopy(const CSessInfo * pInfo)
 			if(sdc_param.PageWidth > (uint)CheckStrLen)
 				WriteLogFile_PageWidthOver(format_name);
 			for(P_SlipFmt->InitIteration(pInfo); P_SlipFmt->NextIteration(line_buf, &sl_param) > 0;) {
-				THROW(SetProp(TextWrap, 1L));
-				THROW(SetProp(Caption, line_buf.Trim(CheckStrLen)));
-				THROW(ExecOper(PrintString));
+				//THROW(SetProp(TextWrap, 1L));
+				//THROW(SetProp(Caption, line_buf.Trim(CheckStrLen)));
+				//THROW(ExecOper(PrintString));
+				THROW(PrintText(line_buf.Trim(CheckStrLen), ptfWrap, 0));
 			}
-			THROW(ExecOper(PrintHeader));
+			if(P_Disp) {
+				THROW(ExecOper(PrintHeader));
+			}
 			// THROW(Exec(EndDocument)); // Закончить и напечатать документ
-			if(!(Flags & sfNotUseCutter))
-				THROW(ExecOper(FullCut));
+			if(!(Flags & sfNotUseCutter)) {
+				//THROW(ExecOper(FullCut));
+				CutPaper(0);
+			}
 		}
 	}
 	ErrCode = SYNCPRN_NO_ERROR;
@@ -1103,68 +1826,8 @@ int SLAPI SCS_ATOLDRV::PrintZReportCopy(const CSessInfo * pInfo)
 		}
 		else {
 			SetErrorMessage();
-			ok = (Exec(Beep), 0);
-		}
-	ENDCATCH
-	return ok;
-}
-
-int SLAPI SCS_ATOLDRV::CloseSession(PPID sessID)
-{
-	return PrintReport(1);
-}
-
-int SLAPI SCS_ATOLDRV::GetSummator(double * val)
-{
-	int    ok = 1;
-	double cash_amt = 0.0;
-	ResCode = RESCODE_NO_ERROR;
-	THROW(Connect());
-	THROW(ExecOper(GetSumm));
-	THROW(GetProp(Summ, &cash_amt));
-	CATCH
-		ok = (SetErrorMessage(), 0);
-	ENDCATCH
-	ASSIGN_PTR(val, cash_amt);
-	return ok;
-}
-
-int SLAPI SCS_ATOLDRV::AddSummator(double)
-{
-	return 1;
-}
-
-int SLAPI SCS_ATOLDRV::CheckForCash(double sum)
-{
-	double cash_sum = 0.0;
-	return GetSummator(&cash_sum) ? ((cash_sum < sum) ? -1 : 1) : 0;
-}
-
-int SLAPI SCS_ATOLDRV::OpenBox()
-{
-	int     ok = -1, is_drawer_open = 0;
-	ResCode = RESCODE_NO_ERROR;
-	ErrCode = SYNCPRN_ERROR;
-	THROW(Connect());
-	THROW(Exec(GetStatus));
-	THROW(GetProp(DrawerOpened, &is_drawer_open));
-	if(!is_drawer_open) {
-		THROW(ExecOper(OpenDrawer));
-		ok = 1;
-	}
-	CATCH
-		if(Flags & sfCancelled) {
-			Flags &= ~sfCancelled;
-			if(ErrCode != SYNCPRN_ERROR_AFTER_PRINT) {
-				ErrCode = (Flags & sfOpenCheck) ? SYNCPRN_CANCEL_WHILE_PRINT : SYNCPRN_CANCEL;
-				ok = 0;
-			}
-		}
-		else {
-			SetErrorMessage();
-			Exec(Beep);
-			if(Flags & sfOpenCheck)
-				ErrCode = SYNCPRN_ERROR_WHILE_PRINT;
+			//Exec(Beep);
+			DoBeep();
 			ok = 0;
 		}
 	ENDCATCH
@@ -1174,22 +1837,28 @@ int SLAPI SCS_ATOLDRV::OpenBox()
 int SLAPI SCS_ATOLDRV::PrintIncasso(double sum, int isIncome)
 {
 	int    ok = 1;
+	StateBlock stb;
 	ResCode = RESCODE_NO_ERROR;
 	if(!isIncome) {
 		int is_cash = 0;
 		THROW(is_cash = CheckForCash(sum));
 		THROW_PP(is_cash > 0, PPERR_SYNCCASH_NO_CASH);
 	}
-	THROW(Connect());
-	THROW(SetProp(Mode, MODE_REGISTER));
-	THROW(ExecOper(SetMode));
-	Flags |= sfOpenCheck;
-	THROW(SetProp(Summ, sum));
-	THROW(ExecOper((isIncome) ? CashIncome : CashOutcome));
-	if(!(Flags & sfNotUseCutter)) {
-		THROW(ExecOper(FullCut));
+	THROW(Connect(&stb));
+	THROW(AllowPrintOper_Fptr10());
+	if(P_Fptr10) {
 	}
-	THROW(Exec(ResetMode));
+	else if(P_Disp) {
+		THROW(SetProp(Mode, MODE_REGISTER));
+		THROW(ExecOper(SetMode));
+		Flags |= sfOpenCheck;
+		THROW(SetProp(Summ, sum));
+		THROW(ExecOper((isIncome) ? CashIncome : CashOutcome));
+	}
+	if(!(Flags & sfNotUseCutter)) {
+		//THROW(ExecOper(FullCut));
+		CutPaper(0);
+	}
 	CATCH
 		if(Flags & sfCancelled) {
 			Flags &= ~sfCancelled;
@@ -1197,10 +1866,14 @@ int SLAPI SCS_ATOLDRV::PrintIncasso(double sum, int isIncome)
 		}
 		else {
 			SetErrorMessage();
-			ok = (Exec(Beep), 0);
+			//Exec(Beep);
+			DoBeep();
+			ok = 0;
 		}
-		Exec(ResetMode);
 	ENDCATCH
+	if(P_Disp) {
+		THROW(Exec(ResetMode));
+	}
 	Flags &= ~sfOpenCheck;
 	return ok;
 }
@@ -1211,6 +1884,7 @@ int SLAPI SCS_ATOLDRV::PrintBnkTermReport(const char * pZCheck)
 	int    ok = 1;
 	size_t zc_len = sstrlen(pZCheck);
 	if(zc_len) {
+		StateBlock stb;
 		SEOLFormat eolf = SDetermineEOLFormat(pZCheck, zc_len);
 		const char * p_delim = 0;
 		if(eolf == eolWindows)
@@ -1224,18 +1898,24 @@ int SLAPI SCS_ATOLDRV::PrintBnkTermReport(const char * pZCheck)
 		SString str;
 		StringSet str_set(p_delim);
 		str_set.setBuf(pZCheck, zc_len+1);
-		THROW(Connect());
-		SetProp(Mode, MODE_REGISTER);
+		THROW(Connect(&stb));
+		THROW(AllowPrintOper_Fptr10());
+		if(P_Disp) {
+			SetProp(Mode, MODE_REGISTER);
+		}
 		{
 			for(uint pos = 0; str_set.get(&pos, str) > 0;) {
 				str.Chomp();
-				THROW(SetProp(TextWrap, 1L));
-				THROW(SetProp(Caption, str));
-				THROW(ExecOper(PrintString));
+				//THROW(SetProp(TextWrap, 1L));
+				//THROW(SetProp(Caption, str));
+				//THROW(ExecOper(PrintString));
+				THROW(PrintText(str, ptfWrap, 0));
 			}
 			//THROW(ExecOper(PrintHeader));
-			if(!(Flags & sfNotUseCutter))
-				THROW(ExecOper(FullCut));
+			if(!(Flags & sfNotUseCutter)) {
+				//THROW(ExecOper(FullCut));
+				CutPaper(0);
+			}
 		}
 	}
 	CATCH

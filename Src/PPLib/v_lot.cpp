@@ -524,7 +524,7 @@ int SLAPI PPViewLot::MovLotOps(PPID srcLotID)
 //
 //
 //
-int FASTCALL PPViewLot::AddDerivedLotToTotal(ReceiptTbl::Rec * pRec)
+int FASTCALL PPViewLot::AddDerivedLotToTotal(const ReceiptTbl::Rec * pRec)
 {
 	const double rest = pRec->Rest;
 	Total.DCount++;
@@ -536,9 +536,9 @@ int FASTCALL PPViewLot::AddDerivedLotToTotal(ReceiptTbl::Rec * pRec)
 }
 
 //static
-int PPViewLot::CalcChildLots(ReceiptTbl::Rec * pLotRec, void * extraPtr)
+int PPViewLot::CalcChildLots(const ReceiptTbl::Rec * pLotRec, void * extraPtr)
 {
-	PPViewLot * p_lv = (PPViewLot *)extraPtr;
+	PPViewLot * p_lv = static_cast<PPViewLot *>(extraPtr);
 	return (p_lv && pLotRec->LocID != p_lv->Total.LocID) ? p_lv->AddDerivedLotToTotal(pLotRec) : 0;
 }
 
@@ -2644,11 +2644,11 @@ int PPALDD_Lots::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_Lots::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 {
 	//INIT_PPVIEW_ALDD_ITER(Lot);
-	PPViewLot * p_v = (PPViewLot *)(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr);
+	PPViewLot * p_v = static_cast<PPViewLot *>(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr);
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;
-	return BIN(p_v->InitIteration((PPViewLot::IterOrder)SortIdx));
+	return BIN(p_v->InitIteration(static_cast<PPViewLot::IterOrder>(SortIdx)));
 }
 
 int PPALDD_Lots::NextIteration(PPIterID iterId)
@@ -3103,7 +3103,7 @@ int SLAPI PPViewLotExtCode::GetRec(const void * pHdr, LotExtCodeTbl::Rec & rRec)
 	if(pHdr) {
 		LotExtCodeTbl::Key0 k0;
 		MEMSZERO(k0);
-		k0.LotID = *(long *)pHdr;
+		k0.LotID = *static_cast<const long *>(pHdr);
 		STRNSCPY(k0.Code, (const char *)(PTR8C(pHdr)+sizeof(long)));
 		if(Tbl.search(0, &k0, spEq)) {
 			Tbl.copyBufTo(&rRec);
@@ -3216,7 +3216,7 @@ int SLAPI PPViewLotExtCode::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 				break;
 			case PPVCMD_INPUTCHAR:
 				if(pHdr) {
-					char c = *(const char *)pHdr;
+					char c = *static_cast<const char *>(pHdr);
 					const char uc = toupper(c);
 					if(isdec(c) || (uc >= 'A' && uc <= 'Z')) {
 						LotExtCodeTbl::Rec rec;

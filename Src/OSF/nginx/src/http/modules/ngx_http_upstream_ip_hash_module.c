@@ -87,14 +87,14 @@ static ngx_int_t ngx_http_upstream_init_ip_hash_peer(ngx_http_request_t * r,
 	switch(r->connection->sockaddr->sa_family) {
 		case AF_INET:
 		    sin = (struct sockaddr_in*)r->connection->sockaddr;
-		    iphp->addr = (u_char*)&sin->sin_addr.s_addr;
+		    iphp->addr = (u_char *)&sin->sin_addr.s_addr;
 		    iphp->addrlen = 3;
 		    break;
 
 #if (NGX_HAVE_INET6)
 		case AF_INET6:
 		    sin6 = (struct sockaddr_in6*)r->connection->sockaddr;
-		    iphp->addr = (u_char*)&sin6->sin6_addr.s6_addr;
+		    iphp->addr = (u_char *)&sin6->sin6_addr.s6_addr;
 		    iphp->addrlen = 16;
 		    break;
 #endif

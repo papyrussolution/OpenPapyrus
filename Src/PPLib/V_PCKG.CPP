@@ -111,7 +111,7 @@ void SelPckgDialog::updateList()
 {
 	if(P_PckgList) {
 		PckgViewListEntry * p_entry;
-		for(uint i = 0; P_PckgList->enumItems(&i, (void**)&p_entry);) {
+		for(uint i = 0; P_PckgList->enumItems(&i, (void **)&p_entry);) {
 			StringSet ss(SLBColumnDelim);
 			ss.add(p_entry->Code, 0);
 			if(!P_List->addItem(p_entry->ID, ss.getBuf())) {

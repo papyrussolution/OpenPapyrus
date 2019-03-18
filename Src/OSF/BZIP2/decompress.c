@@ -47,7 +47,7 @@ static void makeMaps_d(DState* s)
 		    }						\
 		    if(s->strm->avail_in == 0) \
 				RETURN(BZ_OK);  \
-		    s->bsBuff = (s->bsBuff << 8) | ((uint32)(*((uchar*)(s->strm->next_in))));	\
+		    s->bsBuff = (s->bsBuff << 8) | (static_cast<uint32>(*reinterpret_cast<const uchar *>(s->strm->next_in)));	\
 		    s->bsLive += 8;				\
 		    s->strm->next_in++;				\
 		    s->strm->avail_in--;			\
@@ -192,8 +192,8 @@ int32 BZ2_decompress(DState * s)
 			RETURN(BZ_DATA_ERROR_MAGIC);
 		s->blockSize100k -= BZ_HDR_0;
 		if(s->smallDecompress) {
-			s->ll16 = (uint16 *)BZALLOC(s->blockSize100k * 100000 * sizeof(uint16));
-			s->ll4  = (uchar *)BZALLOC(((1 + s->blockSize100k * 100000) >> 1) * sizeof(uchar));
+			s->ll16 = static_cast<uint16 *>(BZALLOC(s->blockSize100k * 100000 * sizeof(uint16)));
+			s->ll4  = static_cast<uchar *>(BZALLOC(((1 + s->blockSize100k * 100000) >> 1) * sizeof(uchar)));
 			if(s->ll16 == NULL || s->ll4 == NULL) 
 				RETURN(BZ_MEM_ERROR);
 		}
@@ -516,7 +516,7 @@ int32 BZ2_decompress(DState * s)
 				s->cftabCopy[i] = s->cftab[i];
 			/*-- compute the T vector --*/
 			for(i = 0; i < nblock; i++) {
-				uc = (uchar)(s->ll16[i]);
+				uc = static_cast<uchar>(s->ll16[i]);
 				SET_LL(i, s->cftabCopy[uc]);
 				s->cftabCopy[uc]++;
 			}

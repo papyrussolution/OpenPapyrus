@@ -523,7 +523,8 @@ int SLAPI PPViewReport::SendMail(long id)
 				Data.Dtm.Z();
 			}
 			SString buf;
-			SetupPPObjCombo(this, CTLSEL_RPTMAIL_ACCNT, PPOBJ_INTERNETACCOUNT, Data.AccountID, 0, (void *)PPObjInternetAccount::filtfMail/*INETACCT_ONLYMAIL*/);
+			SetupPPObjCombo(this, CTLSEL_RPTMAIL_ACCNT, PPOBJ_INTERNETACCOUNT, Data.AccountID, 0, 
+				reinterpret_cast<void *>(PPObjInternetAccount::filtfMail)/*INETACCT_ONLYMAIL*/);
 			setCtrlString(CTL_RPTMAIL_SUPPMAIL,  Data.SupportMail);
 			setCtrlString(CTL_RPTMAIL_ORG,       Data.MainOrg);
 			setCtrlString(CTL_RPTMAIL_LIC,       Data.Licence);
@@ -687,12 +688,9 @@ int SLAPI PPViewReport::CallCR(long id)
 	if(id && P_TempTbl && P_TempTbl->search(0, &id, spEq) > 0) {
 		char   crr_path[MAXPATH];
 		DWORD  path_size = MAXPATH;
-		char   crr_name[30];
-		DWORD  crr_name_size = sizeof(crr_name);
 		TempReportTbl::Rec & r_rec = P_TempTbl->data;
 
 		memzero(crr_path, sizeof(crr_path));
-		memzero(crr_name, sizeof(crr_name));
 		// Для CRR 7.0
 		if(RegOpenKeyEx(HKEY_LOCAL_MACHINE,	_T("SOFTWARE\\Seagate Software\\Crystal Reports"), 0, KEY_QUERY_VALUE, &crr_key) == ERROR_SUCCESS &&
 			RegQueryValueEx(crr_key, _T("Path"), NULL, NULL, (LPBYTE)crr_path, &path_size) == ERROR_SUCCESS)
@@ -704,6 +702,9 @@ int SLAPI PPViewReport::CallCR(long id)
 		// Если ничего не помогло - общий альтернативный способ
 		else {
 			ok = 0;
+			TCHAR   crr_name[64];
+			DWORD   crr_name_size = SIZEOFARRAY(crr_name);
+			PTR32(crr_name)[0] = 0;
 			if(RegOpenKeyEx(HKEY_CLASSES_ROOT,	_T(".rpt"), 0, KEY_QUERY_VALUE, &crr_key) == ERROR_SUCCESS &&
 				RegQueryValueEx(crr_key, NULL, NULL, NULL, (LPBYTE)crr_name, &(crr_name_size = sizeof(crr_name))) == ERROR_SUCCESS) { // имя кристала для *.btr
 				strcat(crr_name, "\\shell\\Open\\command");
@@ -1065,7 +1066,7 @@ int SLAPI PPViewReport::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 		uint pos = 0;
 		BrwHdr hdr;
 		if(pHdr)
-			hdr = *(PPViewReport::BrwHdr *)pHdr;
+			hdr = *static_cast<const PPViewReport::BrwHdr *>(pHdr);
 		else
 			MEMSZERO(hdr);
 		switch(ppvCmd) {

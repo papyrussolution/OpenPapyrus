@@ -305,7 +305,7 @@ static void expand(TidyPrintImpl* pprint, uint len)
 	while(len >= buflen)
 		buflen *= 2;
 
-	ip = (uint*)TidyRealloc(pprint->allocator, pprint->linebuf, buflen*sizeof(uint));
+	ip = (uint *)TidyRealloc(pprint->allocator, pprint->linebuf, buflen*sizeof(uint));
 	if(ip) {
 		TidyClearMemory(ip+pprint->lbufsize,
 		    (buflen-pprint->lbufsize)*sizeof(uint));
@@ -1102,7 +1102,7 @@ static void PPrintAttribute(TidyDocImpl* doc, uint indent,
 
 	/* Attribute name */
 	while(*name) {
-		c = (unsigned char)*name;
+		c = (uchar)*name;
 
 		if(c > 0x7F)
 			name += TY_(GetUTF8) (name, &c);
@@ -1244,7 +1244,7 @@ static void PPrintTag(TidyDocImpl* doc,
 
 	if(s) {
 		while(*s) {
-			c = (unsigned char)*s;
+			c = (uchar)*s;
 
 			if(c > 0x7F)
 				s += TY_(GetUTF8) (s, &c);
@@ -1315,7 +1315,7 @@ static void PPrintEndTag(TidyDocImpl* doc, uint ARG_UNUSED(mode),
 
 	if(s) {
 		while(*s) {
-			c = (unsigned char)*s;
+			c = (uchar)*s;
 
 			if(c > 0x7F)
 				s += TY_(GetUTF8) (s, &c);
@@ -1423,7 +1423,7 @@ static void PPrintPI(TidyDocImpl* doc, uint indent, Node * node)
 	s = node->element;
 
 	while(s && *s) {
-		c = (unsigned char)*s;
+		c = (uchar)*s;
 		if(c > 0x7F)
 			s += TY_(GetUTF8) (s, &c);
 		AddChar(pprint, c);

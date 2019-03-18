@@ -244,7 +244,7 @@ ngx_atomic_uint_t ngx_next_temp_number(ngx_uint_t collision)
 
 const char * ngx_conf_set_path_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
-	char  * p = (char *)conf;
+	char  * p = static_cast<char *>(conf);
 	ssize_t level;
 	ngx_str_t * value;
 	ngx_uint_t i, n;
@@ -257,7 +257,7 @@ const char * ngx_conf_set_path_slot(ngx_conf_t * cf, const ngx_command_t * cmd, 
 		if(path == NULL) {
 			return NGX_CONF_ERROR;
 		}
-		value = (ngx_str_t *)cf->args->elts;
+		value = static_cast<ngx_str_t *>(cf->args->elts);
 		path->name = value[1];
 		if(path->name.data[path->name.len - 1] == '/') {
 			path->name.len--;
@@ -316,7 +316,7 @@ char * ngx_conf_merge_path_value(ngx_conf_t * cf, ngx_path_t ** path, ngx_path_t
 
 const char * ngx_conf_set_access_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
-	char  * confp = (char *)conf;
+	char  * confp = static_cast<char *>(conf);
 	u_char * p;
 	ngx_uint_t i, right, shift, user;
 	ngx_uint_t * access = (ngx_uint_t*)(confp + cmd->offset);
@@ -324,7 +324,7 @@ const char * ngx_conf_set_access_slot(ngx_conf_t * cf, const ngx_command_t * cmd
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+		ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 		*access = 0;
 		user = 0600;
 		for(i = 1; i < cf->args->nelts; i++) {

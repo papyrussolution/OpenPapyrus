@@ -114,7 +114,7 @@ namespace NArchive {
 						if(item.Section == 0)
 							prop = "Copy";
 						else if(item.Section < m_Database.Sections.Size())
-							prop = m_Database.Sections[(unsigned)item.Section].GetMethodName();
+							prop = m_Database.Sections[(uint)item.Section].GetMethodName();
 					break;
 				}
 				case kpidBlock:
@@ -454,7 +454,7 @@ namespace NArchive {
 						currentTotalSize += item.Size;
 					}
 					else if(sectionIndex < m_Database.Sections.Size()) {
-						const CSectionInfo &section = m_Database.Sections[(unsigned)sectionIndex];
+						const CSectionInfo &section = m_Database.Sections[(uint)sectionIndex];
 						if(section.IsLzx()) {
 							const CLzxInfo &lzxInfo = section.Methods[0].LzxInfo;
 							uint64 folderIndex = m_Database.GetFolder(index);
@@ -525,7 +525,7 @@ namespace NArchive {
 						continue;
 					}
 					else {
-						const CSectionInfo & section = m_Database.Sections[(unsigned)sectionIndex];
+						const CSectionInfo & section = m_Database.Sections[(uint)sectionIndex];
 						if(!section.IsLzx()) {
 							CMyComPtr<ISequentialOutStream> realOutStream;
 							RINOK(extractCallback->GetStream(index, &realOutStream, askMode));
@@ -597,7 +597,7 @@ namespace NArchive {
 										uint64 bCur = startBlock + b;
 										if(bCur >= rt.ResetOffsets.Size())
 											return E_FAIL;
-										uint64 offset = rt.ResetOffsets[(unsigned)bCur];
+										uint64 offset = rt.ResetOffsets[(uint)bCur];
 										uint64 compressedSize;
 										rt.GetCompressedSizeOfBlock(bCur, compressedSize);
 										// chm writes full blocks. So we don't need to use reduced size for last block
@@ -854,7 +854,7 @@ namespace NArchive {
 			uint64 nameLen = ReadEncInt();
 			if(nameLen == 0 || nameLen > (1 << 13))
 				return S_FALSE;
-			ReadString((unsigned)nameLen, item.Name);
+			ReadString((uint)nameLen, item.Name);
 			item.Section = ReadEncInt();
 			item.Offset = ReadEncInt();
 			item.Size = ReadEncInt();
@@ -1154,7 +1154,7 @@ namespace NArchive {
 							if(nameLen == 0)
 								return S_FALSE;
 							UString name;
-							ReadUString((unsigned)nameLen, name);
+							ReadUString((uint)nameLen, name);
 							AString s;
 							ConvertUnicodeToUTF8(name, s);
 							Byte b = ReadByte();

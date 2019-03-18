@@ -191,13 +191,9 @@ slim_hidden_def(cairo_matrix_translate);
  *
  * Since: 1.0
  **/
-void cairo_matrix_init_scale(cairo_matrix_t * matrix,
-    double sx, double sy)
+void FASTCALL cairo_matrix_init_scale(cairo_matrix_t * matrix, double sx, double sy)
 {
-	cairo_matrix_init(matrix,
-	    sx,  0,
-	    0, sy,
-	    0, 0);
+	cairo_matrix_init(matrix, sx,  0, 0, sy, 0, 0);
 }
 
 slim_hidden_def(cairo_matrix_init_scale);

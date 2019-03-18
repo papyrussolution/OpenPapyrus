@@ -78,16 +78,10 @@ static cairo_bool_t _cairo_gl_shader_cache_equal_desktop(const void * key_a, con
 {
 	const cairo_shader_cache_entry_t * a = key_a;
 	const cairo_shader_cache_entry_t * b = key_b;
-	cairo_bool_t both_have_npot_repeat =
-	    a->ctx->has_npot_repeat && b->ctx->has_npot_repeat;
-
-	return (a->vertex == b->vertex &&
-	       a->src  == b->src  &&
-	       a->mask == b->mask &&
-	       a->dest == b->dest &&
-	       a->use_coverage == b->use_coverage &&
-	       a->in   == b->in &&
-	       (both_have_npot_repeat || a->src_extend == b->src_extend) &&
+	cairo_bool_t both_have_npot_repeat = a->ctx->has_npot_repeat && b->ctx->has_npot_repeat;
+	return (a->vertex == b->vertex && a->src  == b->src  && a->mask == b->mask &&
+	       a->dest == b->dest && a->use_coverage == b->use_coverage &&
+	       a->in   == b->in && (both_have_npot_repeat || a->src_extend == b->src_extend) &&
 	       (both_have_npot_repeat || a->mask_extend == b->mask_extend));
 }
 
@@ -100,17 +94,10 @@ static cairo_bool_t _cairo_gl_shader_cache_equal_gles2(const void * key_a, const
 {
 	const cairo_shader_cache_entry_t * a = key_a;
 	const cairo_shader_cache_entry_t * b = key_b;
-	cairo_bool_t both_have_npot_repeat =
-	    a->ctx->has_npot_repeat && b->ctx->has_npot_repeat;
-
-	return (a->vertex == b->vertex &&
-	       a->src  == b->src  &&
-	       a->mask == b->mask &&
-	       a->dest == b->dest &&
-	       a->use_coverage == b->use_coverage &&
-	       a->in   == b->in   &&
-	       a->src_gl_filter == b->src_gl_filter &&
-	       a->src_border_fade == b->src_border_fade &&
+	cairo_bool_t both_have_npot_repeat = a->ctx->has_npot_repeat && b->ctx->has_npot_repeat;
+	return (a->vertex == b->vertex && a->src  == b->src  && a->mask == b->mask && a->dest == b->dest &&
+	       a->use_coverage == b->use_coverage && a->in   == b->in   &&
+	       a->src_gl_filter == b->src_gl_filter && a->src_border_fade == b->src_border_fade &&
 	       (both_have_npot_repeat || a->src_extend == b->src_extend) &&
 	       a->mask_gl_filter == b->mask_gl_filter &&
 	       a->mask_border_fade == b->mask_border_fade &&

@@ -367,7 +367,7 @@ XMLPUBFUN int XMLCALL xmlXPathCmpNodes(xmlNode * node1, xmlNode * node2);
 // 
 XMLPUBFUN int XMLCALL xmlXPathCastNumberToBoolean(double val);
 XMLPUBFUN int XMLCALL xmlXPathCastStringToBoolean(const xmlChar * val);
-XMLPUBFUN int XMLCALL xmlXPathCastNodeSetToBoolean(xmlNodeSetPtr ns);
+XMLPUBFUN int XMLCALL xmlXPathCastNodeSetToBoolean(const xmlNodeSetPtr ns);
 XMLPUBFUN int XMLCALL xmlXPathCastToBoolean	(xmlXPathObject * val);
 XMLPUBFUN double XMLCALL xmlXPathCastBooleanToNumber(int val);
 XMLPUBFUN double XMLCALL xmlXPathCastStringToNumber(const xmlChar * val);

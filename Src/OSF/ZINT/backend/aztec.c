@@ -1346,8 +1346,8 @@ int aztec(struct ZintSymbol * symbol, uchar source[], int length)
 #ifndef _MSC_VER
 	uint data_part[data_blocks + 3], ecc_part[ecc_blocks + 3];
 #else
-	data_part = (uint*)_alloca((data_blocks + 3) * sizeof(uint));
-	ecc_part = (uint*)_alloca((ecc_blocks + 3) * sizeof(uint));
+	data_part = (uint *)_alloca((data_blocks + 3) * sizeof(uint));
+	ecc_part = (uint *)_alloca((ecc_blocks + 3) * sizeof(uint));
 #endif
 	// Copy across data into separate integers 
 	memzero(data_part, (data_blocks + 2) * sizeof(int));

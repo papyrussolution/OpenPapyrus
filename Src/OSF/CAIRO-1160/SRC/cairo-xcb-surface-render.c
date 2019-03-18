@@ -44,7 +44,7 @@
 #include "cairo-surface-offset-private.h"
 //#include "cairo-surface-snapshot-inline.h"
 #include "cairo-surface-subsurface-private.h"
-#include "cairo-traps-private.h"
+//#include "cairo-traps-private.h"
 //#include "cairo-recording-surface-inline.h"
 #include "cairo-paginated-private.h"
 #include "cairo-pattern-inline.h"
@@ -101,41 +101,27 @@ static const struct xcb_render_transform_t identity_transform = {
 		0, 0, 1 << 16,
 };
 
-static cairo_xcb_picture_t * _cairo_xcb_picture_create(cairo_xcb_screen_t * screen,
-    pixman_format_code_t pixman_format,
-    xcb_render_pictformat_t xrender_format,
-    int width, int height)
+static cairo_xcb_picture_t * _cairo_xcb_picture_create(cairo_xcb_screen_t * screen, pixman_format_code_t pixman_format,
+    xcb_render_pictformat_t xrender_format, int width, int height)
 {
-	cairo_xcb_picture_t * surface;
-
-	surface = _cairo_malloc(sizeof(cairo_xcb_picture_t));
+	cairo_xcb_picture_t * surface = _cairo_malloc(sizeof(cairo_xcb_picture_t));
 	if(unlikely(surface == NULL))
-		return (cairo_xcb_picture_t*)
-		       _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
-
-	_cairo_surface_init(&surface->base,
-	    &_cairo_xcb_picture_backend,
-	    &screen->connection->device,
-	    _cairo_content_from_pixman_format(pixman_format),
-	    FALSE);              /* is_vector */
-
+		return (cairo_xcb_picture_t*)_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
+	_cairo_surface_init(&surface->base, &_cairo_xcb_picture_backend, &screen->connection->device, 
+		_cairo_content_from_pixman_format(pixman_format), FALSE/* is_vector */);
 	cairo_list_add(&surface->link, &screen->pictures);
-
 	surface->screen = screen;
 	surface->picture = _cairo_xcb_connection_get_xid(screen->connection);
 	surface->pixman_format = pixman_format;
 	surface->xrender_format = xrender_format;
-
 	surface->x0 = surface->y0 = 0;
 	surface->x = surface->y = 0;
 	surface->width = width;
 	surface->height = height;
-
 	surface->transform = identity_transform;
 	surface->extend = CAIRO_EXTEND_NONE;
 	surface->filter = CAIRO_FILTER_NEAREST;
 	surface->has_component_alpha = FALSE;
-
 	return surface;
 }
 
@@ -995,31 +981,20 @@ static cairo_xcb_picture_t * _copy_to_picture(cairo_xcb_surface_t * source)
 	return picture;
 }
 
-static void _cairo_xcb_surface_setup_surface_picture(cairo_xcb_picture_t * picture,
-    const cairo_surface_pattern_t * pattern,
-    const cairo_rectangle_int_t * extents)
+static void _cairo_xcb_surface_setup_surface_picture(cairo_xcb_picture_t * picture, const cairo_surface_pattern_t * pattern, const cairo_rectangle_int_t * extents)
 {
 	cairo_filter_t filter;
-
 	filter = pattern->base.filter;
-	if(filter != CAIRO_FILTER_NEAREST &&
-	    _cairo_matrix_is_pixel_exact(&pattern->base.matrix)) {
+	if(filter != CAIRO_FILTER_NEAREST && _cairo_matrix_is_pixel_exact(&pattern->base.matrix)) {
 		filter = CAIRO_FILTER_NEAREST;
 	}
 	_cairo_xcb_picture_set_filter(picture, filter);
-
-	_cairo_xcb_picture_set_matrix(picture,
-	    &pattern->base.matrix, filter,
-	    extents->x + extents->width/2.,
-	    extents->y + extents->height/2.);
-
+	_cairo_xcb_picture_set_matrix(picture, &pattern->base.matrix, filter, extents->x + extents->width/2., extents->y + extents->height/2.);
 	_cairo_xcb_picture_set_extend(picture, pattern->base.extend);
 	_cairo_xcb_picture_set_component_alpha(picture, pattern->base.has_component_alpha);
 }
 
-static cairo_xcb_picture_t * record_to_picture(cairo_surface_t * target,
-    const cairo_surface_pattern_t * pattern,
-    const cairo_rectangle_int_t * extents)
+static cairo_xcb_picture_t * record_to_picture(cairo_surface_t * target, const cairo_surface_pattern_t * pattern, const cairo_rectangle_int_t * extents)
 {
 	cairo_surface_pattern_t tmp_pattern;
 	cairo_xcb_picture_t * picture;

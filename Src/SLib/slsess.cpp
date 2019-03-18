@@ -319,7 +319,7 @@ static void InitTest()
 	assert(sizeof(bool) == 1);
 	assert(sizeof(char) == 1);
 	assert(sizeof(int) == 4);
-	assert(sizeof(unsigned int) == 4);
+	assert(sizeof(uint) == 4);
 	assert(sizeof(short) >= 2); // @v10.2.3
 	assert(sizeof(long)  >= 4); // @v10.2.3
 	assert(sizeof(int) >= sizeof(short)); // @v10.2.3
@@ -415,9 +415,10 @@ void SLAPI SlSession::Init(const char * pAppName, HINSTANCE hInst)
 	}
 	*/
 	H_Inst = NZOR(hInst, GetModuleHandle(0));
-	char   exe_path[MAXPATH];
-	GetModuleFileName(H_Inst, exe_path, sizeof(exe_path)); // @unicodeproblem
-	ExePath = exe_path;
+	// @v10.3.9 char   exe_path[MAXPATH];
+	// @v10.3.9 GetModuleFileName(H_Inst, exe_path, sizeof(exe_path)); // @unicodeproblem
+	// @v10.3.9 ExePath = exe_path;
+	SSystem::SGetModuleFileName(H_Inst, ExePath); // @v10.3.9
 	AppName = pAppName;
 	if(AppName.NotEmpty()) {
 		SString n;

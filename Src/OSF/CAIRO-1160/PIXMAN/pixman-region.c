@@ -1803,20 +1803,15 @@ static pixman_bool_t pixman_region_subtract_o(region_type_t * region,
  *
  *-----------------------------------------------------------------------
  */
-PIXMAN_EXPORT pixman_bool_t PREFIX(_subtract) (region_type_t *reg_d,
-    region_type_t *reg_m,
-    region_type_t *reg_s)
+PIXMAN_EXPORT pixman_bool_t PREFIX(_subtract) (region_type_t *reg_d, region_type_t *reg_m, region_type_t *reg_s)
 {
 	GOOD(reg_m);
 	GOOD(reg_s);
 	GOOD(reg_d);
-
 	/* check for trivial rejects */
-	if(PIXREGION_NIL(reg_m) || PIXREGION_NIL(reg_s) ||
-	    !EXTENTCHECK(&reg_m->extents, &reg_s->extents)) {
+	if(PIXREGION_NIL(reg_m) || PIXREGION_NIL(reg_s) || !EXTENTCHECK(&reg_m->extents, &reg_s->extents)) {
 		if(PIXREGION_NAR(reg_s))
 			return pixman_break(reg_d);
-
 		return PREFIX(_copy) (reg_d, reg_m);
 	}
 	else if(reg_m == reg_s) {
@@ -1824,16 +1819,13 @@ PIXMAN_EXPORT pixman_bool_t PREFIX(_subtract) (region_type_t *reg_d,
 		reg_d->extents.x2 = reg_d->extents.x1;
 		reg_d->extents.y2 = reg_d->extents.y1;
 		reg_d->data = pixman_region_empty_data;
-
 		return TRUE;
 	}
-
 	/* Add those rectangles in region 1 that aren't in region 2,
 	   do yucky subtraction for overlaps, and
 	   just throw away rectangles in region 2 that aren't in region 1 */
 	if(!pixman_op(reg_d, reg_m, reg_s, pixman_region_subtract_o, TRUE, FALSE))
 		return FALSE;
-
 	/*
 	 * Can't alter reg_d's extents before we call pixman_op because
 	 * it might be one of the source regions and pixman_op depends
@@ -1887,7 +1879,6 @@ PIXMAN_EXPORT pixman_bool_t PREFIX(_inverse) (region_type_t *new_reg/* Destinati
 	inv_reg.data = (region_data_type_t*)NULL;
 	if(!pixman_op(new_reg, &inv_reg, reg1, pixman_region_subtract_o, TRUE, FALSE))
 		return FALSE;
-
 	/*
 	 * Can't alter new_reg's extents before we call pixman_op because
 	 * it might be one of the source regions and pixman_op depends
@@ -1906,30 +1897,24 @@ PIXMAN_EXPORT pixman_bool_t PREFIX(_inverse) (region_type_t *new_reg/* Destinati
 static box_type_t * find_box_for_y(box_type_t * begin, box_type_t * end, int y)
 {
 	box_type_t * mid;
-
 	if(end == begin)
 		return end;
-
 	if(end - begin == 1) {
 		if(begin->y2 > y)
 			return begin;
 		else
 			return end;
 	}
-
 	mid = begin + (end - begin) / 2;
 	if(mid->y2 > y) {
-		/* If no box is found in [begin, mid], the function
-		 * will return @mid, which is then known to be the
-		 * correct answer.
-		 */
+		// If no box is found in [begin, mid], the function
+		// will return @mid, which is then known to be the correct answer.
 		return find_box_for_y(begin, mid, y);
 	}
 	else{
 		return find_box_for_y(mid, end, y);
 	}
 }
-
 /*
  *   rect_in(region, rect)
  *   This routine takes a pointer to a region and a pointer to a box
@@ -1946,23 +1931,18 @@ static box_type_t * find_box_for_y(box_type_t * begin, box_type_t * end, int y)
  *   partially in the region) or is outside the region (we reached a band
  *   that doesn't overlap the box at all and part_in is false)
  */
-PIXMAN_EXPORT pixman_region_overlap_t PREFIX(_contains_rectangle) (region_type_t *  region,
-    box_type_t *     prect)
+PIXMAN_EXPORT pixman_region_overlap_t PREFIX(_contains_rectangle) (region_type_t * region, box_type_t * prect)
 {
 	box_type_t *     pbox;
 	box_type_t *     pbox_end;
 	int part_in, part_out;
 	int numRects;
 	int x, y;
-
 	GOOD(region);
-
 	numRects = PIXREGION_NUMRECTS(region);
-
 	/* useful optimization */
 	if(!numRects || !EXTENTCHECK(&region->extents, prect))
 		return(PIXMAN_REGION_OUT);
-
 	if(numRects == 1) {
 		/* We know that it must be PIXMAN_REGION_IN or PIXMAN_REGION_PART */
 		if(SUBSUMES(&region->extents, prect))
@@ -1970,14 +1950,11 @@ PIXMAN_EXPORT pixman_region_overlap_t PREFIX(_contains_rectangle) (region_type_t
 		else
 			return(PIXMAN_REGION_PART);
 	}
-
 	part_out = FALSE;
 	part_in = FALSE;
-
 	/* (x,y) starts at upper left of rect, moving to the right and down */
 	x = prect->x1;
 	y = prect->y1;
-
 	/* can stop when both part_out and part_in are TRUE, or we reach prect->y2 */
 	for(pbox = PIXREGION_BOXPTR(region), pbox_end = pbox + numRects;
 	    pbox != pbox_end;
@@ -1987,29 +1964,24 @@ PIXMAN_EXPORT pixman_region_overlap_t PREFIX(_contains_rectangle) (region_type_t
 			if((pbox = find_box_for_y(pbox, pbox_end, y)) == pbox_end)
 				break;
 		}
-
 		if(pbox->y1 > y) {
 			part_out = TRUE; /* missed part of rectangle above */
 			if(part_in || (pbox->y1 >= prect->y2))
 				break;
 			y = pbox->y1; /* x guaranteed to be == prect->x1 */
 		}
-
 		if(pbox->x2 <= x)
 			continue; /* not far enough over yet */
-
 		if(pbox->x1 > x) {
 			part_out = TRUE; /* missed part of rectangle to left */
 			if(part_in)
 				break;
 		}
-
 		if(pbox->x1 < prect->x2) {
 			part_in = TRUE; /* definitely overlap */
 			if(part_out)
 				break;
 		}
-
 		if(pbox->x2 >= prect->x2) {
 			y = pbox->y2; /* finished with this band */
 			if(y >= prect->y2)
@@ -2049,13 +2021,11 @@ PIXMAN_EXPORT void PREFIX(_translate) (region_type_t *region, int x, int y)
 	overflow_int_t x1, x2, y1, y2;
 	int nbox;
 	box_type_t * pbox;
-
 	GOOD(region);
-	region->extents.x1 = x1 = region->extents.x1 + x;
-	region->extents.y1 = y1 = region->extents.y1 + y;
-	region->extents.x2 = x2 = region->extents.x2 + x;
-	region->extents.y2 = y2 = region->extents.y2 + y;
-
+	region->extents.x1 = static_cast<int32_t>(x1 = (region->extents.x1 + x));
+	region->extents.y1 = static_cast<int32_t>(y1 = (region->extents.y1 + y));
+	region->extents.x2 = static_cast<int32_t>(x2 = (region->extents.x2 + x));
+	region->extents.y2 = static_cast<int32_t>(y2 = (region->extents.y2 + y));
 	if(((x1 - PIXMAN_REGION_MIN) | (y1 - PIXMAN_REGION_MIN) | (PIXMAN_REGION_MAX - x2) | (PIXMAN_REGION_MAX - y2)) >= 0) {
 		if(region->data && (nbox = region->data->numRects)) {
 			for(pbox = PIXREGION_BOXPTR(region); nbox--; pbox++) {
@@ -2067,7 +2037,6 @@ PIXMAN_EXPORT void PREFIX(_translate) (region_type_t *region, int x, int y)
 		}
 		return;
 	}
-
 	if(((x2 - PIXMAN_REGION_MIN) | (y2 - PIXMAN_REGION_MIN) | (PIXMAN_REGION_MAX - x1) | (PIXMAN_REGION_MAX - y1)) <= 0) {
 		region->extents.x2 = region->extents.x1;
 		region->extents.y2 = region->extents.y1;
@@ -2086,15 +2055,14 @@ PIXMAN_EXPORT void PREFIX(_translate) (region_type_t *region, int x, int y)
 	if(region->data && (nbox = region->data->numRects)) {
 		box_type_t * pbox_out;
 		for(pbox_out = pbox = PIXREGION_BOXPTR(region); nbox--; pbox++) {
-			pbox_out->x1 = x1 = pbox->x1 + x;
-			pbox_out->y1 = y1 = pbox->y1 + y;
-			pbox_out->x2 = x2 = pbox->x2 + x;
-			pbox_out->y2 = y2 = pbox->y2 + y;
+			pbox_out->x1 = static_cast<int32_t>(x1 = pbox->x1 + x);
+			pbox_out->y1 = static_cast<int32_t>(y1 = pbox->y1 + y);
+			pbox_out->x2 = static_cast<int32_t>(x2 = pbox->x2 + x);
+			pbox_out->y2 = static_cast<int32_t>(y2 = pbox->y2 + y);
 			if(((x2 - PIXMAN_REGION_MIN) | (y2 - PIXMAN_REGION_MIN) | (PIXMAN_REGION_MAX - x1) | (PIXMAN_REGION_MAX - y1)) <= 0) {
 				region->data->numRects--;
 				continue;
 			}
-
 			if(x1 < PIXMAN_REGION_MIN)
 				pbox_out->x1 = PIXMAN_REGION_MIN;
 			else if(x2 > PIXMAN_REGION_MAX)

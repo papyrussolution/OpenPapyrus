@@ -375,13 +375,13 @@ int SmartListBox::getID(long itemN, long * pID)
 void SmartListBox::Helper_InsertColumn(uint pos)
 {
 	if(pos < Columns.getCount()) {
-		ColumnDescr & slbc = *(ColumnDescr *)Columns.at(pos);
+		ColumnDescr & slbc = *static_cast<ColumnDescr *>(Columns.at(pos));
 		SString title_buf;
 		LVCOLUMN lv;
 		lv.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
 		lv.cx = 6 * slbc.Width;
 		StrPool.getnz(slbc.TitlePos, title_buf);
-		lv.pszText = (char *)title_buf.cptr(); // @badcast // @unicodeproblem
+		lv.pszText = const_cast<char *>(title_buf.cptr()); // @badcast // @unicodeproblem
 		if(slbc.Format & ALIGN_LEFT)
 			lv.fmt = LVCFMT_LEFT;
 		else if(slbc.Format & ALIGN_RIGHT)
@@ -428,7 +428,7 @@ void SmartListBox::CreateScrollBar(int create)
 		sc_lu.x = rc_list.right;
 		sc_lu.y = rc_list.top;
 		::MapWindowPoints(NULL, Parent, &sc_lu, 1);
-		h_wnd = ::CreateWindow(_T("SCROLLBAR"), "", WS_CHILD|SBS_LEFTALIGN|SBS_VERT, sc_lu.x, sc_lu.y, sc_width, sc_height, Parent, 
+		h_wnd = ::CreateWindow(_T("SCROLLBAR"), _T(""), WS_CHILD|SBS_LEFTALIGN|SBS_VERT, sc_lu.x, sc_lu.y, sc_width, sc_height, Parent, 
 			reinterpret_cast<HMENU>(MAKE_BUTTON_ID(Id, 1)), TProgram::GetInst(), 0); // @unicodeproblem
 		::ShowWindow(h_wnd, SW_SHOWNORMAL);
 	}
@@ -539,7 +539,7 @@ int SmartListBox::SetupTreeWnd(HTREEITEM hParent, long grpParentID)
 				p_def->top();
 				SelectTreeItem();
 				LongArray child_list;
-				for(uint i = 1; p_def->Assoc.enumItems(&i, (void**)&p_assoc_item) > 0;) {
+				for(uint i = 1; p_def->Assoc.enumItems(&i, (void **)&p_assoc_item) > 0;) {
 					child_list.clear();
 					p_def->GetListByParent(p_assoc_item->Key, child_list);
 					for(uint k = 0; k < child_list.getCount(); k++) {
@@ -674,10 +674,10 @@ int SmartListBox::SetupTreeWnd2(uint32 parentP)
 							SetupTreeWnd2(t_iter.GetCurrentPos()); // @recursion
 					}
 					else {
-						char temp_buf[256];
+						TCHAR temp_buf[256];
 						FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(),
-							MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), temp_buf, sizeof(temp_buf), 0);
-						(err_msg = temp_buf).Chomp();
+							MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), temp_buf, SIZEOFARRAY(temp_buf), 0);
+						(err_msg = SUcSwitch(temp_buf)).Chomp();
 					}
 					ok = 1;
 				}
@@ -1159,7 +1159,7 @@ void FASTCALL SmartListBox::focusItem(long item)
 	}
 }
 
-int SmartListBox::search(void * pPattern, CompFunc fcmp, int srchMode)
+int SmartListBox::search(const void * pPattern, CompFunc fcmp, int srchMode)
 {
 	if(def && def->search(pPattern, fcmp, srchMode)) {
 		if(!(State & stTreeList)) {
@@ -1240,11 +1240,11 @@ BOOL CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
 					HWND   h_parent = 0;
 					SString cls_name;
 					TView::SGetWindowClassName(p_slb->H_Wnd, cls_name);
-					if(cls_name.Cmp(BrowserWindow::WndClsName, 0) == 0) { // @unicodeproblem
+					if(cls_name.Cmp(SUcSwitch(BrowserWindow::WndClsName), 0) == 0) { // @unicodeproblem
 						h_parent = p_slb->H_Wnd;
 						is_browser = 1;
 					}
-					else if(cls_name.Cmp(TInputLine::WndClsName, 0) == 0) // @unicodeproblem
+					else if(cls_name.Cmp(SUcSwitch(TInputLine::WndClsName), 0) == 0) // @unicodeproblem
 						h_parent = p_slb->H_Wnd;
 					else
 						h_parent = (p_slb->LinkToList) ? p_slb->H_Wnd : GetWindow(hwndDlg, GW_OWNER);

@@ -93,7 +93,7 @@ void StaffCalFiltDialog::OnObjectSelection()
 	int    disbl = 0, dsbl_kind = 1;
 	if(obj_type == PPOBJ_PERSON) {
 		PPID   pk = NZOR(getCtrlLong(CTLSEL_STAFFCALFLT_PK), PPPRK_EMPL);
-		SetupPPObjCombo(this, CTLSEL_STAFFCALFLT_OBJ, PPOBJ_PERSON, single_obj_id, 0, (void *)pk);
+		SetupPPObjCombo(this, CTLSEL_STAFFCALFLT_OBJ, PPOBJ_PERSON, single_obj_id, 0, reinterpret_cast<void *>(pk));
 		dsbl_kind = 0;
 	}
 	else if(obj_type == PPOBJ_STAFFLIST2)
@@ -156,13 +156,13 @@ int SLAPI PPViewStaffCal::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	if(!Filt.IsA(pFilt))
 		return 0;
-	DIALOG_PROC_BODY(StaffCalFiltDialog, (StaffCalFilt *)pFilt);
+	DIALOG_PROC_BODY(StaffCalFiltDialog, static_cast<StaffCalFilt *>(pFilt));
 }
 
 IMPL_CMPFUNC(StaffCalendarKey0, i1, i2)
 {
-	StaffCalendarTbl::Key0 * p_i1 = (StaffCalendarTbl::Key0*)i1;
-	StaffCalendarTbl::Key0 * p_i2 = (StaffCalendarTbl::Key0*)i2;
+	const StaffCalendarTbl::Key0 * p_i1 = static_cast<const StaffCalendarTbl::Key0 *>(i1);
+	const StaffCalendarTbl::Key0 * p_i2 = static_cast<const StaffCalendarTbl::Key0 *>(i2);
 	if(p_i1->CalID < p_i2->CalID)
 		return -1;
 	else if(p_i1->CalID > p_i2->CalID)
@@ -607,7 +607,7 @@ int SLAPI PPViewStaffCal::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 		switch(ppvCmd) {
 			case PPVCMD_EDIT:
 				{
-					BrwHdr * p_hdr = pHdr ? (BrwHdr *)pHdr : 0;
+					const BrwHdr * p_hdr = pHdr ? static_cast<const BrwHdr *>(pHdr) : 0;
 					if(p_hdr)
 						ok = EditEntry(p_hdr->CalID, p_hdr->ObjID, p_hdr->StartDtm, p_hdr->TmEnd);
 				}

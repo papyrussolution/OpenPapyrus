@@ -311,7 +311,7 @@ static int EditDutySchedItem(const PPDutySched * pHead, PPDutySchedEntry * pData
 		PPObjDateTimeRep dtr_obj;
 		//PPDateTimeRep dtr_rec;
 		if(pHead->ObjType)
-			SetupPPObjCombo(dlg, CTLSEL_DUTYSCHEDITEM_OBJ, pHead->ObjType, pData->ObjID, 0, (void *)pHead->ObjGroup);
+			SetupPPObjCombo(dlg, CTLSEL_DUTYSCHEDITEM_OBJ, pHead->ObjType, pData->ObjID, 0, reinterpret_cast<void *>(pHead->ObjGroup));
 		SetupPPObjCombo(dlg, CTLSEL_DUTYSCHEDITEM_REP, PPOBJ_DATETIMEREP, pData->DtrID, 0);
 		while(ok <= 0 && ExecView(dlg) == cmOK) {
 			uint sel = 0;
@@ -466,7 +466,7 @@ int DutySchedDialog::setupList()
 	int    ok = 1;
 	PPDutySchedEntry * p_item = 0;
 	SString sub;
-	for(uint i = 0; ok && Data.List.enumItems(&i, (void**)&p_item);) {
+	for(uint i = 0; ok && Data.List.enumItems(&i, (void **)&p_item);) {
 		StringSet ss(SLBColumnDelim);
 		GetObjectName(Data.Rec.ObjType, p_item->ObjID, sub);
 		ss.add(sub, 0);

@@ -100,12 +100,12 @@ static ngx_int_t ngx_http_referer_variable(ngx_http_request_t * r, ngx_http_vari
 	ref = r->headers_in.referer->value.data;
 	if(len >= sizeof("http://i.ru") - 1) {
 		last = ref + len;
-		if(ngx_strncasecmp(ref, (u_char*)"http://", 7) == 0) {
+		if(ngx_strncasecmp(ref, (u_char *)"http://", 7) == 0) {
 			ref += 7;
 			len -= 7;
 			goto valid_scheme;
 		}
-		else if(ngx_strncasecmp(ref, (u_char*)"https://", 8) == 0) {
+		else if(ngx_strncasecmp(ref, (u_char *)"https://", 8) == 0) {
 			ref += 8;
 			len -= 8;
 			goto valid_scheme;
@@ -130,7 +130,7 @@ valid_scheme:
 		buf[i] = ngx_tolower(*p);
 		key = ngx_hash(key, buf[i++]);
 	}
-	uri = (ngx_str_t*)ngx_hash_find_combined(&rlcf->hash, key, buf, p - ref);
+	uri = (ngx_str_t *)ngx_hash_find_combined(&rlcf->hash, key, buf, p - ref);
 	if(uri) {
 		goto uri;
 	}
@@ -332,7 +332,7 @@ static const char * ngx_http_valid_referers(ngx_conf_t * cf, const ngx_command_t
 			return NGX_CONF_ERROR;
 		}
 	}
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	for(i = 1; i < cf->args->nelts; i++) {
 		if(value[i].len == 0) {
 			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid referer \"%V\"", &value[i]);
@@ -357,7 +357,7 @@ static const char * ngx_http_valid_referers(ngx_conf_t * cf, const ngx_command_t
 			continue;
 		}
 		ngx_str_null(&uri);
-		p = (u_char*)ngx_strchr(value[i].data, '/');
+		p = (u_char *)ngx_strchr(value[i].data, '/');
 		if(p) {
 			uri.len = (value[i].data + value[i].len) - p;
 			uri.data = p;
@@ -375,10 +375,10 @@ static ngx_int_t ngx_http_add_referer(ngx_conf_t * cf, ngx_hash_keys_arrays_t * 
 	ngx_int_t rc;
 	ngx_str_t * u;
 	if(uri == NULL || uri->len == 0) {
-		u = (ngx_str_t*)NGX_HTTP_REFERER_NO_URI_PART;
+		u = (ngx_str_t *)NGX_HTTP_REFERER_NO_URI_PART;
 	}
 	else {
-		u = (ngx_str_t*)ngx_palloc(cf->pool, sizeof(ngx_str_t));
+		u = (ngx_str_t *)ngx_palloc(cf->pool, sizeof(ngx_str_t));
 		if(u == NULL) {
 			return NGX_ERROR;
 		}

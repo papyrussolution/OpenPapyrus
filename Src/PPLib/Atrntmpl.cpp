@@ -891,7 +891,7 @@ int SLAPI PPAccTurnTempl::ParseSubstString(const char * str, int * lp, int * _sk
 	return ok;
 }
 
-int SLAPI PPAccTurnTempl::SetupSubst(char * pPrimStr, char * pForeignStr)
+int SLAPI PPAccTurnTempl::SetupSubst(const char * pPrimStr, const char * pForeignStr)
 {
 	int    ok = 1;
 	int    div, lp = 0;

@@ -2198,7 +2198,7 @@ SOAP_FMAC1 unsigned char * SOAP_FMAC2 soap_gethex(struct soap *, int *);
 	SOAP_FMAC1 int /*SOAP_FMAC2*/ FASTCALL soap_reference(struct soap *, const void * p, int t);
 	SOAP_FMAC1 int SOAP_FMAC2 soap_array_reference(struct soap *, const void * p, const struct soap_array * a, int n, int t);
 	SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_embedded_id(struct soap *, int id, const void * p, int t);
-	SOAP_FMAC1 int SOAP_FMAC2 soap_is_embedded(struct soap *, struct soap_plist *);
+	SOAP_FMAC1 int SOAP_FMAC2 soap_is_embedded(struct soap *, const struct soap_plist *);
 	SOAP_FMAC1 int SOAP_FMAC2 soap_is_single(const struct soap *, const struct soap_plist *);
 	SOAP_FMAC1 void SOAP_FMAC2 soap_set_embedded(const struct soap * pSoap, struct soap_plist *);
 #endif
@@ -2217,7 +2217,7 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/ FASTCALL soap_begin_recv(struct soap *);
 SOAP_FMAC1 int /*SOAP_FMAC2*/ FASTCALL soap_end_recv(struct soap *);
 SOAP_FMAC1 void * /*SOAP_FMAC2*/ FASTCALL soap_malloc(struct soap *, size_t);
 SOAP_FMAC1 void SOAP_FMAC2 soap_dealloc(struct soap *, void *);
-SOAP_FMAC1 struct soap_clist * SOAP_FMAC2 soap_link(struct soap *, void *, int, int, int (* fdelete)(struct soap_clist *));
+SOAP_FMAC1 struct soap_clist * /*SOAP_FMAC2*/FASTCALL soap_link(struct soap *, void *, int, int, int (* fdelete)(struct soap_clist *));
 SOAP_FMAC1 int SOAP_FMAC2 soap_unlink(struct soap *, const void *);
 SOAP_FMAC1 void SOAP_FMAC2 soap_free_temp(struct soap *);
 SOAP_FMAC1 void SOAP_FMAC2 soap_del(struct soap *);

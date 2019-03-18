@@ -23,7 +23,7 @@ int ssl3_do_write(SSL * s, int type)
 {
 	int ret = ssl3_write_bytes(s, type, &s->init_buf->data[s->init_off], s->init_num);
 	if(ret < 0)
-		return (-1);
+		return -1;
 	if(type == SSL3_RT_HANDSHAKE)
 		/*
 		 * should not be done for 'Hello Request's, but in that case we'll ignore the result anyway
@@ -165,7 +165,7 @@ MSG_PROCESS_RETURN tls_process_finished(SSL * s, PACKET * pkt)
 	}
 	s->s3->change_cipher_spec = 0;
 	i = s->s3->tmp.peer_finish_md_len;
-	if((unsigned long)i != PACKET_remaining(pkt)) {
+	if((ulong)i != PACKET_remaining(pkt)) {
 		al = SSL_AD_DECODE_ERROR;
 		SSLerr(SSL_F_TLS_PROCESS_FINISHED, SSL_R_BAD_DIGEST_LENGTH);
 		goto f_err;
@@ -373,7 +373,7 @@ int tls_get_message_body(SSL * s, unsigned long * len)
 	int i;
 	if(s->s3->tmp.message_type == SSL3_MT_CHANGE_CIPHER_SPEC) {
 		/* We've already read everything in */
-		*len = (unsigned long)s->init_num;
+		*len = (ulong)s->init_num;
 		return 1;
 	}
 	p = (uchar *)s->init_msg;
@@ -426,7 +426,7 @@ int tls_get_message_body(SSL * s, unsigned long * len)
 		*len = 0;
 		return 0;
 	}
-	*len = (unsigned long)s->init_num;
+	*len = (ulong)s->init_num;
 	return 1;
 }
 

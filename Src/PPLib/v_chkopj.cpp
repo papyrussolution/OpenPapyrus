@@ -316,7 +316,7 @@ int SLAPI PPViewCheckOpJrnl::ProcessCommand(uint ppvCmd, const void * pHdr, PPVi
 	if(ok == -2) {
 		BrwHdr hdr;
 		if(pHdr)
-			hdr = *(PPViewCheckOpJrnl::BrwHdr *)pHdr;
+			hdr = *static_cast<const PPViewCheckOpJrnl::BrwHdr *>(pHdr);
 		else
 			MEMSZERO(hdr);
 		switch(ppvCmd) {

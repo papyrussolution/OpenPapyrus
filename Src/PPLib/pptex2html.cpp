@@ -1,5 +1,5 @@
 // PPTEX2HTML.CPP
-// Copyright (c) A.Sobolev 2014, 2015, 2016, 2018
+// Copyright (c) A.Sobolev 2014, 2015, 2016, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -56,7 +56,7 @@ private:
 			tCommand      = 2,
 			tContinuation = 3
 		};
-		TextBlock(int type);
+		explicit TextBlock(int type);
 		~TextBlock();
 		const char * GetInnerLabel() const;
 		const char * GetInnerText() const;
@@ -187,7 +187,7 @@ PPTex2HtmlPrcssr::TextBlock::~TextBlock()
 		{
 			uint c = ptr_list.getCount();
 			if(c) do {
-				TextBlock * p = (TextBlock *)ptr_list.at(--c);
+				TextBlock * p = static_cast<TextBlock *>(ptr_list.at(--c));
 				p->P_Next = 0;
 				delete p;
 			} while(c);
@@ -208,15 +208,13 @@ const char * PPTex2HtmlPrcssr::TextBlock::GetInnerLabel() const
 
 const char * PPTex2HtmlPrcssr::TextBlock::GetInnerText() const
 {
-	return P_ArgBrc ? (const char *)P_ArgBrc->Text : 0;
+	return P_ArgBrc ? P_ArgBrc->Text.cptr() : 0;
 }
 //
 //
 //
-PPTex2HtmlPrcssr::StateBlock::OutPart::OutPart()
+PPTex2HtmlPrcssr::StateBlock::OutPart::OutPart() : ChapterNo(0), WbID(0)
 {
-	ChapterNo = 0;
-	WbID = 0;
 }
 
 PPTex2HtmlPrcssr::StateBlock::PictItem::PictItem()
@@ -224,11 +222,8 @@ PPTex2HtmlPrcssr::StateBlock::PictItem::PictItem()
 	WbID = 0;
 }
 
-PPTex2HtmlPrcssr::StateBlock::StateBlock()
+PPTex2HtmlPrcssr::StateBlock::StateBlock() : ChapterNo(0), LineNo(0), InputSize(0)
 {
-	ChapterNo = 0;
-	LineNo = 0;
-	InputSize = 0;
 	InputBuffer.Init();
 }
 
@@ -275,10 +270,8 @@ uint PPTex2HtmlPrcssr::StateBlock::IsEol() const
 //
 //
 //
-PPTex2HtmlPrcssr::PPTex2HtmlPrcssr()
+PPTex2HtmlPrcssr::PPTex2HtmlPrcssr() : LastSymbId(0), P_Head(0)
 {
-	LastSymbId = 0;
-	P_Head = 0;
 }
 
 PPTex2HtmlPrcssr::~PPTex2HtmlPrcssr()
@@ -1668,16 +1661,12 @@ public:
 		getCtrlString(CTL_TEX2HTM_INPICPATH, temp_buf); Data.PutExtStrData(Data.exsInputPictPath, temp_buf);
 		getCtrlString(CTL_TEX2HTM_OUTPATH, temp_buf);   Data.PutExtStrData(Data.exsOutputFileName, temp_buf);
 		getCtrlString(CTL_TEX2HTM_PICPATH, temp_buf);   Data.PutExtStrData(Data.exsOutputPictPath, temp_buf);
-
 		getCtrlString(CTL_TEX2HTM_WBREFTMPL, temp_buf);    Data.PutExtStrData(Data.exsWbLinkTemplate, temp_buf);
 		getCtrlString(CTL_TEX2HTM_WBPICREFTMPL, temp_buf); Data.PutExtStrData(Data.exsWbPicLinkTemplate, temp_buf);
 		getCtrlString(CTL_TEX2HTM_ANCHORPFX, temp_buf);    Data.PutExtStrData(Data.exsAnchorPrefix, temp_buf);
-
 		GetClusterData(CTL_TEX2HTM_FLAGS, &Data.Flags);
-
 		getCtrlData(CTLSEL_TEX2HTM_PARWB, &Data.ParentWbID);
 		getCtrlData(CTLSEL_TEX2HTM_PARPICWB, &Data.ParentPicWbID);
-
 		ASSIGN_PTR(pData, Data);
 		return ok;
 	}
@@ -1730,7 +1719,7 @@ public:
 	SLAPI  CMD_HDL_CLS(CONVERTLATEXTOHTML)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
@@ -1752,7 +1741,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -2513,7 +2502,7 @@ public:
 	SLAPI  CMD_HDL_CLS(CONVERTVERSIONTOHTML)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
@@ -2534,7 +2523,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {

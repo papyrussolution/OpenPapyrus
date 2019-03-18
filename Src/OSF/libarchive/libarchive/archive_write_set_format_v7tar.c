@@ -159,14 +159,14 @@ archive_write_set_format_v7tar(struct archive *_a)
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 		    "Internal: template_header wrong size: %zu should be 512",
 		    sizeof(template_header));
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	v7tar = (struct v7tar *)SAlloc::C(1, sizeof(*v7tar));
 	if (v7tar == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate v7tar data");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	a->format_data = v7tar;
 	a->format_name = "tar (non-POSIX)";
@@ -178,7 +178,7 @@ archive_write_set_format_v7tar(struct archive *_a)
 	a->format_finish_entry = archive_write_v7tar_finish_entry;
 	a->archive.archive_format = ARCHIVE_FORMAT_TAR;
 	a->archive.archive_format_name = "tar (non-POSIX)";
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int
@@ -201,7 +201,7 @@ archive_write_v7tar_options(struct archive_write *a, const char *key,
 			else
 				ret = ARCHIVE_FATAL;
 		}
-		return (ret);
+		return ret;
 	}
 
 	/* Note: The "warn" return is just to inform the options
@@ -237,7 +237,7 @@ archive_write_v7tar_header(struct archive_write *a, struct archive_entry *entry)
 	if (archive_entry_pathname(entry) == NULL) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 		    "Can't record entry in tar file without pathname");
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 
 	/* Only regular files (not hardlinks) have data. */
@@ -267,7 +267,7 @@ archive_write_v7tar_header(struct archive_write *a, struct archive_entry *entry)
 				archive_set_error(&a->archive, ENOMEM,
 				    "Can't allocate v7tar data");
 				archive_wstring_free(&ws);
-				return(ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			/* Should we keep '\' ? */
 			if (wp[path_length -1] == L'\\')
@@ -295,7 +295,7 @@ archive_write_v7tar_header(struct archive_write *a, struct archive_entry *entry)
 				archive_set_error(&a->archive, ENOMEM,
 				    "Can't allocate v7tar data");
 				archive_string_free(&as);
-				return(ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 #if defined(_WIN32) && !defined(__CYGWIN__)
 			/* NOTE: This might break the pathname
@@ -320,7 +320,7 @@ archive_write_v7tar_header(struct archive_write *a, struct archive_entry *entry)
 	if (entry_main == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate v7tar data");
-		return(ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	if (entry != entry_main)
 		entry = entry_main;
@@ -333,7 +333,7 @@ archive_write_v7tar_header(struct archive_write *a, struct archive_entry *entry)
 	if (ret < ARCHIVE_WARN) {
 		if (entry_main)
 			archive_entry_free(entry_main);
-		return (ret);
+		return ret;
 	}
 	ret2 = __archive_write_output(a, buff, 512);
 	if (ret2 < ARCHIVE_WARN) {
@@ -348,7 +348,7 @@ archive_write_v7tar_header(struct archive_write *a, struct archive_entry *entry)
 	v7tar->entry_padding = 0x1ff & (-(int64_t)v7tar->entry_bytes_remaining);
 	if (entry_main)
 		archive_entry_free(entry_main);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -390,7 +390,7 @@ format_header_v7tar(struct archive_write *a, char h[512],
 		if (errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't allocate memory for Pathname");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 		    "Can't translate pathname '%s' to %s",
@@ -413,7 +413,7 @@ format_header_v7tar(struct archive_write *a, char h[512],
 		if (errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't allocate memory for Linkname");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		archive_set_error(&a->archive,
 		    ARCHIVE_ERRNO_FILE_FORMAT,
@@ -429,7 +429,7 @@ format_header_v7tar(struct archive_write *a, char h[512],
 			if (errno == ENOMEM) {
 				archive_set_error(&a->archive, ENOMEM,
 				    "Can't allocate memory for Linkname");
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			archive_set_error(&a->archive,
 			    ARCHIVE_ERRNO_FILE_FORMAT,
@@ -499,22 +499,22 @@ format_header_v7tar(struct archive_write *a, char h[512],
 			archive_set_error(&a->archive,
 			    ARCHIVE_ERRNO_FILE_FORMAT,
 			    "tar format cannot archive character device");
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		case AE_IFBLK:
 			archive_set_error(&a->archive,
 			    ARCHIVE_ERRNO_FILE_FORMAT,
 			    "tar format cannot archive block device");
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		case AE_IFIFO:
 			archive_set_error(&a->archive,
 			    ARCHIVE_ERRNO_FILE_FORMAT,
 			    "tar format cannot archive fifo");
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		case AE_IFSOCK:
 			archive_set_error(&a->archive,
 			    ARCHIVE_ERRNO_FILE_FORMAT,
 			    "tar format cannot archive socket");
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		default:
 			archive_set_error(&a->archive,
 			    ARCHIVE_ERRNO_FILE_FORMAT,
@@ -530,7 +530,7 @@ format_header_v7tar(struct archive_write *a, char h[512],
 	format_octal(checksum, h + V7TAR_checksum_offset, 6);
 	/* Can't be pre-set in the template. */
 	h[V7TAR_checksum_offset + 6] = '\0';
-	return (ret);
+	return ret;
 }
 
 /*
@@ -578,7 +578,7 @@ format_256(int64_t v, char *p, int s)
 		v >>= 8;
 	}
 	*p |= 0x80; /* Set the base-256 marker bit. */
-	return (0);
+	return 0;
 }
 
 /*
@@ -595,7 +595,7 @@ format_octal(int64_t v, char *p, int s)
 	if (v < 0) {
 		while (len-- > 0)
 			*p++ = '0';
-		return (-1);
+		return -1;
 	}
 
 	p += s;		/* Start at the end and work backwards. */
@@ -605,13 +605,13 @@ format_octal(int64_t v, char *p, int s)
 	}
 
 	if (v == 0)
-		return (0);
+		return 0;
 
 	/* If it overflowed, fill field with max value. */
 	while (len-- > 0)
 		*p++ = '7';
 
-	return (-1);
+	return -1;
 }
 
 static int
@@ -628,7 +628,7 @@ archive_write_v7tar_free(struct archive_write *a)
 	v7tar = (struct v7tar *)a->format_data;
 	SAlloc::F(v7tar);
 	a->format_data = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int
@@ -641,7 +641,7 @@ archive_write_v7tar_finish_entry(struct archive_write *a)
 	ret = __archive_write_nulls(a,
 	    (size_t)(v7tar->entry_bytes_remaining + v7tar->entry_padding));
 	v7tar->entry_bytes_remaining = v7tar->entry_padding = 0;
-	return (ret);
+	return ret;
 }
 
 static ssize_t
@@ -656,6 +656,6 @@ archive_write_v7tar_data(struct archive_write *a, const void *buff, size_t s)
 	ret = __archive_write_output(a, buff, s);
 	v7tar->entry_bytes_remaining -= s;
 	if (ret != ARCHIVE_OK)
-		return (ret);
+		return ret;
 	return (s);
 }

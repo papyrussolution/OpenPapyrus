@@ -123,9 +123,9 @@ struct ngx_variable_value_t {
 	u_char * data;
 };
 
-#define ngx_string(str)     { sizeof(str) - 1, (u_char*)str }
+#define ngx_string(str)     { sizeof(str) - 1, (u_char *)str }
 #define ngx_null_string     { 0, NULL }
-#define ngx_str_set(str, text) (str)->len = sizeof(text) - 1; (str)->data = (u_char*)text
+#define ngx_str_set(str, text) (str)->len = sizeof(text) - 1; (str)->data = (u_char *)text
 #define ngx_str_null(str)   (str)->len = 0; (str)->data = NULL
 #define ngx_tolower(c)      (u_char)((c >= 'A' && c <= 'Z') ? (c | 0x20) : c)
 #define ngx_toupper(c)      (u_char)((c >= 'a' && c <= 'z') ? (c & ~0x20) : c)
@@ -160,7 +160,7 @@ static ngx_inline u_char * ngx_strlchr(u_char * p, u_char * last, u_char c)
 
 #if (NGX_MEMCPY_LIMIT)
 	void * ngx_memcpy_Removed(void * dst, const void * src, size_t n);
-	#define ngx_cpymem(dst, src, n)   (((u_char*)memcpy(dst, src, n)) + (n))
+	#define ngx_cpymem(dst, src, n)   (((u_char *)memcpy(dst, src, n)) + (n))
 #else
 // 
 // gcc3, msvc, and icc7 compile memcpy() to the inline "rep movs".
@@ -168,7 +168,7 @@ static ngx_inline u_char * ngx_strlchr(u_char * p, u_char * last, u_char c)
 // icc8 compile memcpy(d, s, 4) to the inline "mov"es or XMM moves.
 // 
 #define ngx_memcpy_Removed(dst, src, n)   (void)memcpy(dst, src, n)
-#define ngx_cpymem(dst, src, n)   (((u_char*)memcpy(dst, src, n)) + (n))
+#define ngx_cpymem(dst, src, n)   (((u_char *)memcpy(dst, src, n)) + (n))
 #endif
 
 #if ( __INTEL_COMPILER >= 800 )
@@ -194,7 +194,7 @@ static ngx_inline u_char * ngx_strlchr(u_char * p, u_char * last, u_char c)
 #endif
 
 #define ngx_memmove_Removed(dst, src, n)   (void)memmove(dst, src, n)
-#define ngx_movemem(dst, src, n)   (((u_char*)memmove(dst, src, n)) + (n))
+#define ngx_movemem(dst, src, n)   (((u_char *)memmove(dst, src, n)) + (n))
 // msvc and icc7 compile memcmp() to the inline loop 
 #define ngx_memcmp_Removed(s1, s2, n)  memcmp((const char *)s1, (const char *)s2, n)
 
@@ -692,7 +692,7 @@ struct ngx_queue_t {
 	(h)->prev = (n)->prev;							  \
 	(h)->prev->next = h;
 
-#define ngx_queue_data(q, type, link)   (type*)((u_char*)q - offsetof(type, link))
+#define ngx_queue_data(q, type, link)   (type*)((u_char *)q - offsetof(type, link))
 
 ngx_queue_t * ngx_queue_middle(ngx_queue_t * queue);
 void ngx_queue_sort(ngx_queue_t *queue, ngx_int_t (*cmp)(const ngx_queue_t *, const ngx_queue_t *));
@@ -1896,7 +1896,7 @@ char * ngx_conf_check_num_bounds(ngx_conf_t * cf, void * post, void * data);
 #define ngx_conf_merge_sec_value(conf, prev, _default)  if(conf == NGX_CONF_UNSET) { conf = (prev == NGX_CONF_UNSET) ? _default : prev; }
 #define ngx_conf_merge_size_value(conf, prev, _default) if(conf == NGX_CONF_UNSET_SIZE) { conf = (prev == NGX_CONF_UNSET_SIZE) ? _default : prev; }
 #define ngx_conf_merge_off_value(conf, prev, _default)  if(conf == NGX_CONF_UNSET) { conf = (prev == NGX_CONF_UNSET) ? _default : prev; }
-#define ngx_conf_merge_str_value(conf, prev, _default)  if(!conf.data) { if(prev.data) { conf.len = prev.len; conf.data = prev.data; } else { conf.len = (sizeof(_default)-1); conf.data = (u_char*)_default; }}
+#define ngx_conf_merge_str_value(conf, prev, _default)  if(!conf.data) { if(prev.data) { conf.len = prev.len; conf.data = prev.data; } else { conf.len = (sizeof(_default)-1); conf.data = (u_char *)_default; }}
 
 #define ngx_conf_merge_bufs_value(conf, prev, default_num, default_size)     \
 	if(conf.num == 0) {							\
@@ -2427,7 +2427,7 @@ typedef u_char *(*ngx_http_log_handler_pt)(ngx_http_request_t * r, ngx_http_requ
 //
 typedef ngx_variable_value_t ngx_http_variable_value_t;
 
-#define ngx_http_variable(v)     { sizeof(v) - 1, 1, 0, 0, 0, (u_char*)v }
+#define ngx_http_variable(v)     { sizeof(v) - 1, 1, 0, 0, 0, (u_char *)v }
 
 typedef struct ngx_http_variable_s ngx_http_variable_t;
 typedef void (*ngx_http_set_variable_pt)(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
@@ -3529,7 +3529,7 @@ ngx_int_t FASTCALL ngx_handle_write_event(ngx_event_t * wev, size_t lowat);
 
 ngx_int_t ngx_send_lowat(ngx_connection_t * c, size_t lowat);
 /* used in ngx_log_debugX() */
-#define ngx_event_ident(p)  ((ngx_connection_t*)(p))->fd
+#define ngx_event_ident(p)  ((ngx_connection_t *)(p))->fd
 //
 //#include <ngx_event_timer.h>
 //
@@ -4240,7 +4240,7 @@ typedef struct ngx_stream_session_s ngx_stream_session_t;
 //
 typedef ngx_variable_value_t ngx_stream_variable_value_t;
 
-#define ngx_stream_variable(v)     { sizeof(v) - 1, 1, 0, 0, 0, (u_char*)v }
+#define ngx_stream_variable(v)     { sizeof(v) - 1, 1, 0, 0, 0, (u_char *)v }
 
 typedef struct ngx_stream_variable_s ngx_stream_variable_t;
 

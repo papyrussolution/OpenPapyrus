@@ -390,15 +390,17 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, lon
 		const double q_pre = fabs(rTi.QuotPrice);
 		qtty = fabs(rTi.Quantity_);
 		const double q_diff = (qtty - q_pre);
+		const double cq = R2(rTi.Cost * qtty - rTi.RevalCost * q_pre);
+		const double pq = R2(rTi.Price * qtty - rTi.Discount * q_pre);
 		if(q_diff != 0.0) {
-			const double cq = R2(rTi.Cost * qtty - rTi.RevalCost * q_pre);
-			const double pq = R2(rTi.Price * qtty - rTi.Discount * q_pre);
-			amount = ((tiamt != TIAMT_PRICE) ? cq : pq) / q_diff; // Для корректировки НДС всегда в ценах поступления
+			qtty = q_diff; // @v10.3.9 
+			// amount = ((tiamt != TIAMT_PRICE) ? cq : pq) / q_diff; // Для корректировки НДС всегда в ценах поступления
 		}
 		else {
-			amount = 0.0;
+			// @v10.3.9 amount = 0.0;
 		}
-		qtty = q_diff;
+		amount = ((tiamt != TIAMT_PRICE) ? cq : pq) / qtty; // @v10.3.9 
+		// @v10.3.9 qtty = q_diff;
 	}
 	// @v10.3.3 {
 	else if(rTi.IsCorrectionExp()) {
@@ -585,18 +587,18 @@ int SLAPI PPObjGoodsTax::SearchIdentical(const PPGoodsTax * pPattern, PPID * pID
 	return ok;
 }
 
-int SLAPI PPObjGoodsTax::GetDefaultName(PPGoodsTax * rec, char * buf, size_t buflen)
+int SLAPI PPObjGoodsTax::GetDefaultName(const PPGoodsTax * pRec, char * buf, size_t buflen)
 {
 	SString text;
-	if(R6(rec->VAT) != 0)
-		text.CatChar('V').Cat(rec->VAT, MKSFMTD(0, 2, NMBF_NOTRAILZ));
-	if(R6(rec->Excise) != 0) {
-		text.CatDivIfNotEmpty(' ', 0).CatChar('A').Cat(rec->Excise, MKSFMTD(0, 2, NMBF_NOTRAILZ));
-		if(rec->Flags & GTAXF_ABSEXCISE)
+	if(R6(pRec->VAT) != 0)
+		text.CatChar('V').Cat(pRec->VAT, MKSFMTD(0, 2, NMBF_NOTRAILZ));
+	if(R6(pRec->Excise) != 0) {
+		text.CatDivIfNotEmpty(' ', 0).CatChar('A').Cat(pRec->Excise, MKSFMTD(0, 2, NMBF_NOTRAILZ));
+		if(pRec->Flags & GTAXF_ABSEXCISE)
 			text.CatChar('$');
 	}
-	if(R6(rec->SalesTax) != 0)
-		text.CatDivIfNotEmpty(' ', 0).CatChar('S').Cat(rec->SalesTax, MKSFMTD(0, 2, NMBF_NOTRAILZ));
+	if(R6(pRec->SalesTax) != 0)
+		text.CatDivIfNotEmpty(' ', 0).CatChar('S').Cat(pRec->SalesTax, MKSFMTD(0, 2, NMBF_NOTRAILZ));
 	if(text.Empty())
 		text.CatCharN('0', 3);
 	strnzcpy(buf, text, buflen);
@@ -1062,7 +1064,7 @@ int SLAPI GTaxCache::SearchEntry(PPID id, LDATE dt, PPID opID, PPGoodsTaxEntry *
 	int    ok = 0;
 	const  PPID _id = (id & 0x00ffffffL);
 	PPGoodsTaxEntry * p_item;
-	for(uint i = 0; !ok && P_Ary->enumItems(&i, (void**)&p_item);)
+	for(uint i = 0; !ok && P_Ary->enumItems(&i, (void **)&p_item);)
 		if(p_item->OpID == opID && (p_item->TaxGrpID & 0x00ffffffL) == _id && p_item->Period.CheckDate(dt)) {
 			ASSIGN_PTR(pEntry, *p_item);
 			ok = 1;

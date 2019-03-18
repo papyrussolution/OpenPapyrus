@@ -139,7 +139,7 @@ static ngx_int_t ngx_http_random_index_handler(ngx_http_request_t * r)
 			/* 1 byte for '/' and 1 byte for terminating '\0' */
 			if(path.len + 1 + len + 1 > allocated) {
 				allocated = path.len + 1 + len + 1 + NGX_HTTP_RANDOM_INDEX_PREALLOCATE;
-				filename = (u_char*)ngx_pnalloc(r->pool, allocated);
+				filename = (u_char *)ngx_pnalloc(r->pool, allocated);
 				if(filename == NULL) {
 					return ngx_http_random_index_error(r, &dir, &path);
 				}
@@ -163,14 +163,14 @@ static ngx_int_t ngx_http_random_index_handler(ngx_http_request_t * r)
 			continue;
 		}
 
-		name = (ngx_str_t*)ngx_array_push(&names);
+		name = (ngx_str_t *)ngx_array_push(&names);
 		if(!name) {
 			return ngx_http_random_index_error(r, &dir, &path);
 		}
 
 		name->len = len;
 
-		name->data = (u_char*)ngx_pnalloc(r->pool, len);
+		name->data = (u_char *)ngx_pnalloc(r->pool, len);
 		if(name->data == NULL) {
 			return ngx_http_random_index_error(r, &dir, &path);
 		}
@@ -184,10 +184,10 @@ static ngx_int_t ngx_http_random_index_handler(ngx_http_request_t * r)
 	if(n == 0) {
 		return NGX_DECLINED;
 	}
-	name = (ngx_str_t*)names.elts;
+	name = (ngx_str_t *)names.elts;
 	n = (ngx_uint_t)(((uint64_t)ngx_random() * n) / 0x80000000);
 	uri.len = r->uri.len + name[n].len;
-	uri.data = (u_char*)ngx_pnalloc(r->pool, uri.len);
+	uri.data = (u_char *)ngx_pnalloc(r->pool, uri.len);
 	if(uri.data == NULL) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}

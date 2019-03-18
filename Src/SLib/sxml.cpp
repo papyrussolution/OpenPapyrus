@@ -95,7 +95,7 @@ int SLAPI XMLWriteSpecSymbEntities(void * pWriter)
 			if(SpcSymbTab[i].Amp)
 				subst.CatChar('#').Cat(0x26).Semicol();
 			subst.CatChar('#').Cat(SpcSymbTab[i].chr).Semicol();
-			xmlTextWriterWriteDTDEntity((xmlTextWriter *)pWriter, 0, (const xmlChar*)SpcSymbTab[i].str, 0, 0, 0, subst.ucptr());
+			xmlTextWriterWriteDTDEntity((xmlTextWriter *)pWriter, 0, (const xmlChar *)SpcSymbTab[i].str, 0, 0, 0, subst.ucptr());
 		}
 	}
 	else
@@ -169,7 +169,7 @@ SXml::WNode::WNode(xmlTextWriter * pWriter, const char * pName, const SString & 
 SXml::WNode::WNode(xmlTextWriter * pWriter, const char * pName, const char * pValue)
 {
 	if(Construct(pWriter, pName))
-		xmlTextWriterWriteString(Lx, (const xmlChar*)pValue);
+		xmlTextWriterWriteString(Lx, (const xmlChar *)pValue);
 }
 
 SXml::WNode::~WNode()
@@ -182,8 +182,8 @@ int SXml::WNode::PutAttrib(const char * pName, const char * pValue)
 {
 	int    ok = 1;
 	if(Lx && State & stStarted) {
-		xmlTextWriterStartAttribute(Lx, (const xmlChar*)pName);
-		xmlTextWriterWriteString(Lx, (const xmlChar*)pValue);
+		xmlTextWriterStartAttribute(Lx, (const xmlChar *)pName);
+		xmlTextWriterWriteString(Lx, (const xmlChar *)pValue);
 		xmlTextWriterEndAttribute(Lx);
 	}
 	else
@@ -198,8 +198,8 @@ int SXml::WNode::PutAttribSkipEmpty(const char * pName, const char * pValue)
 		SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.12
 		r_temp_buf = pValue;
 		if(r_temp_buf.NotEmptyS()) {
-			xmlTextWriterStartAttribute(Lx, (const xmlChar*)pName);
-			xmlTextWriterWriteString(Lx, (const xmlChar*)pValue);
+			xmlTextWriterStartAttribute(Lx, (const xmlChar *)pName);
+			xmlTextWriterWriteString(Lx, (const xmlChar *)pValue);
 			xmlTextWriterEndAttribute(Lx);
 		}
 	}
@@ -694,19 +694,12 @@ int XmlWriter::PutDtdDocType(const char * pName)
 
 int XmlWriter::PutDtdEntity(const char * pName, const char * pVal)
 {
-	return (
-		PutLine("<!ENTITY ", 0) &&
-		PutLine(pName) &&
-		PutLine(" ") &&
-		PutLine(pVal) &&
-		PutLine(">", 1));
+	return (PutLine("<!ENTITY ", 0) && PutLine(pName) && PutLine(" ") && PutLine(pVal) && PutLine(">", 1));
 }
 
 int XmlWriter::PutDtdElementHdr(const char * pName)
 {
-	return (
-		PutLine("<!ELEMENT ") &&
-		PutLine(pName));
+	return (PutLine("<!ELEMENT ") && PutLine(pName));
 }
 
 int XmlWriter::PutDtdList(const XmlList * pList)

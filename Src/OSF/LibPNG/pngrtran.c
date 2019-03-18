@@ -1992,7 +1992,7 @@ static void png_do_unshift(png_row_infop row_info, png_bytep row,
 
 			    while(bp < bp_end) {
 				    int b = (*bp >> 1) & 0x55;
-				    *bp++ = (uint8)b;
+				    *bp++ = static_cast<uint8>(b);
 			    }
 			    break;
 		    }
@@ -2010,7 +2010,7 @@ static void png_do_unshift(png_row_infop row_info, png_bytep row,
 
 			    while(bp < bp_end) {
 				    int b = (*bp >> gray_shift) & mask;
-				    *bp++ = (uint8)b;
+				    *bp++ = static_cast<uint8>(b);
 			    }
 			    break;
 		    }
@@ -2026,7 +2026,7 @@ static void png_do_unshift(png_row_infop row_info, png_bytep row,
 				    int b = *bp >> shift[channel];
 				    if(++channel >= channels)
 					    channel = 0;
-				    *bp++ = (uint8)b;
+				    *bp++ = static_cast<uint8>(b);
 			    }
 			    break;
 		    }
@@ -2760,7 +2760,6 @@ static int png_do_rgb_to_gray(png_structrp png_ptr, png_row_infop row_info, png_
 					gray16  = (png_uint_16)((rc*red + gc*green + bc*blue + 16384) >> 15);
 					*(dp++) = (uint8)((gray16 >> 8) & 0xff);
 					*(dp++) = (uint8)(gray16 & 0xff);
-
 					if(have_alpha != 0) {
 						*(dp++) = *(sp++);
 						*(dp++) = *(sp++);
@@ -2768,12 +2767,9 @@ static int png_do_rgb_to_gray(png_structrp png_ptr, png_row_infop row_info, png_
 				}
 			}
 		}
-
 		row_info->channels = (uint8)(row_info->channels - 2);
-		row_info->color_type = (uint8)(row_info->color_type &
-		    ~PNG_COLOR_MASK_COLOR);
-		row_info->pixel_depth = (uint8)(row_info->channels *
-		    row_info->bit_depth);
+		row_info->color_type = (uint8)(row_info->color_type & ~PNG_COLOR_MASK_COLOR);
+		row_info->pixel_depth = (uint8)(row_info->channels * row_info->bit_depth);
 		row_info->rowbytes = PNG_ROWBYTES(row_info->pixel_depth, row_width);
 	}
 	return rgb_error;
@@ -2781,8 +2777,7 @@ static int png_do_rgb_to_gray(png_structrp png_ptr, png_row_infop row_info, png_
 
 #endif
 
-#if defined(PNG_READ_BACKGROUND_SUPPORTED) || \
-	defined(PNG_READ_ALPHA_MODE_SUPPORTED)
+#if defined(PNG_READ_BACKGROUND_SUPPORTED) || defined(PNG_READ_ALPHA_MODE_SUPPORTED)
 /* Replace any alpha or transparency with the supplied background color.
  * "background" is already in the screen gamma, while "background_1" is
  * at a gamma of 1.0.  Paletted files have already been taken care of.
@@ -2815,18 +2810,15 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 					sp = row;
 					shift = 7;
 					for(i = 0; i < row_width; i++) {
-						if((png_uint_16)((*sp >> shift) & 0x01)
-							    == png_ptr->trans_color.gray) {
-							unsigned int tmp = *sp & (0x7f7f >> (7 - shift));
+						if((png_uint_16)((*sp >> shift) & 0x01) == png_ptr->trans_color.gray) {
+							uint tmp = *sp & (0x7f7f >> (7 - shift));
 							tmp |= png_ptr->background.gray << shift;
 							*sp = (uint8)(tmp & 0xff);
 						}
-
 						if(shift == 0) {
 							shift = 7;
 							sp++;
 						}
-
 						else
 							shift--;
 					}
@@ -2841,30 +2833,25 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 						shift = 6;
 						for(i = 0; i < row_width; i++) {
 							if((png_uint_16)((*sp >> shift) & 0x03) == png_ptr->trans_color.gray) {
-								unsigned int tmp = *sp & (0x3f3f >> (6 - shift));
+								uint tmp = *sp & (0x3f3f >> (6 - shift));
 								tmp |= png_ptr->background.gray << shift;
 								*sp = (uint8)(tmp & 0xff);
 							}
-
 							else {
-								unsigned int p = (*sp >> shift) & 0x03;
-								unsigned int g = (gamma_table [p | (p << 2) |
-										    (p << 4) | (p << 6)] >> 6) & 0x03;
-								unsigned int tmp = *sp & (0x3f3f >> (6 - shift));
+								uint p = (*sp >> shift) & 0x03;
+								uint g = (gamma_table [p | (p << 2) | (p << 4) | (p << 6)] >> 6) & 0x03;
+								uint tmp = *sp & (0x3f3f >> (6 - shift));
 								tmp |= g << shift;
 								*sp = (uint8)(tmp & 0xff);
 							}
-
 							if(shift == 0) {
 								shift = 6;
 								sp++;
 							}
-
 							else
 								shift -= 2;
 						}
 					}
-
 					else
 #endif
 					{
@@ -2872,7 +2859,7 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 						shift = 6;
 						for(i = 0; i < row_width; i++) {
 							if((png_uint_16)((*sp >> shift) & 0x03) == png_ptr->trans_color.gray) {
-								unsigned int tmp = *sp & (0x3f3f >> (6 - shift));
+								uint tmp = *sp & (0x3f3f >> (6 - shift));
 								tmp |= png_ptr->background.gray << shift;
 								*sp = (uint8)(tmp & 0xff);
 							}
@@ -2894,22 +2881,18 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 						sp = row;
 						shift = 4;
 						for(i = 0; i < row_width; i++) {
-							if((png_uint_16)((*sp >> shift) & 0x0f)
-								    == png_ptr->trans_color.gray) {
-								unsigned int tmp = *sp & (0x0f0f >> (4 - shift));
+							if((png_uint_16)((*sp >> shift) & 0x0f) == png_ptr->trans_color.gray) {
+								uint tmp = *sp & (0x0f0f >> (4 - shift));
 								tmp |= png_ptr->background.gray << shift;
 								*sp = (uint8)(tmp & 0xff);
 							}
-
 							else {
-								unsigned int p = (*sp >> shift) & 0x0f;
-								unsigned int g = (gamma_table[p | (p << 4)] >> 4) &
-									    0x0f;
-								unsigned int tmp = *sp & (0x0f0f >> (4 - shift));
+								uint p = (*sp >> shift) & 0x0f;
+								uint g = (gamma_table[p | (p << 4)] >> 4) & 0x0f;
+								uint tmp = *sp & (0x0f0f >> (4 - shift));
 								tmp |= g << shift;
 								*sp = (uint8)(tmp & 0xff);
 							}
-
 							if(shift == 0) {
 								shift = 4;
 								sp++;
@@ -2926,9 +2909,8 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 						sp = row;
 						shift = 4;
 						for(i = 0; i < row_width; i++) {
-							if((png_uint_16)((*sp >> shift) & 0x0f)
-								    == png_ptr->trans_color.gray) {
-								unsigned int tmp = *sp & (0x0f0f >> (4 - shift));
+							if((png_uint_16)((*sp >> shift) & 0x0f) == png_ptr->trans_color.gray) {
+								uint tmp = *sp & (0x0f0f >> (4 - shift));
 								tmp |= png_ptr->background.gray << shift;
 								*sp = (uint8)(tmp & 0xff);
 							}
@@ -2953,7 +2935,6 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 						for(i = 0; i < row_width; i++, sp++) {
 							if(*sp == png_ptr->trans_color.gray)
 								*sp = (uint8)png_ptr->background.gray;
-
 							else
 								*sp = gamma_table[*sp];
 						}
@@ -2976,16 +2957,11 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 					if(gamma_16 != NULL) {
 						sp = row;
 						for(i = 0; i < row_width; i++, sp += 2) {
-							png_uint_16 v;
-
-							v = (png_uint_16)(((*sp) << 8) + *(sp + 1));
-
+							png_uint_16 v = (png_uint_16)(((*sp) << 8) + *(sp + 1));
 							if(v == png_ptr->trans_color.gray) {
 								/* Background is already in screen gamma */
-								*sp = (uint8)((png_ptr->background.gray >> 8)
-									    & 0xff);
-								*(sp + 1) = (uint8)(png_ptr->background.gray
-									    & 0xff);
+								*sp = (uint8)((png_ptr->background.gray >> 8) & 0xff);
+								*(sp + 1) = (uint8)(png_ptr->background.gray & 0xff);
 							}
 
 							else {
@@ -3000,15 +2976,10 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 					{
 						sp = row;
 						for(i = 0; i < row_width; i++, sp += 2) {
-							png_uint_16 v;
-
-							v = (png_uint_16)(((*sp) << 8) + *(sp + 1));
-
+							png_uint_16 v = (png_uint_16)(((*sp) << 8) + *(sp + 1));
 							if(v == png_ptr->trans_color.gray) {
-								*sp = (uint8)((png_ptr->background.gray >> 8)
-									    & 0xff);
-								*(sp + 1) = (uint8)(png_ptr->background.gray
-									    & 0xff);
+								*sp = (uint8)((png_ptr->background.gray >> 8) & 0xff);
+								*(sp + 1) = (uint8)(png_ptr->background.gray & 0xff);
 							}
 						}
 					}
@@ -3064,25 +3035,15 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 					    sp = row;
 					    for(i = 0; i < row_width; i++, sp += 6) {
 						    png_uint_16 r = (png_uint_16)(((*sp) << 8) + *(sp + 1));
-
-						    png_uint_16 g = (png_uint_16)(((*(sp + 2)) << 8)
-							    + *(sp + 3));
-
-						    png_uint_16 b = (png_uint_16)(((*(sp + 4)) << 8)
-							    + *(sp + 5));
-
-						    if(r == png_ptr->trans_color.red &&
-							    g == png_ptr->trans_color.green &&
-							    b == png_ptr->trans_color.blue) {
+						    png_uint_16 g = (png_uint_16)(((*(sp + 2)) << 8) + *(sp + 3));
+						    png_uint_16 b = (png_uint_16)(((*(sp + 4)) << 8) + *(sp + 5));
+						    if(r == png_ptr->trans_color.red && g == png_ptr->trans_color.green && b == png_ptr->trans_color.blue) {
 							    /* Background is already in screen gamma */
 							    *sp = (uint8)((png_ptr->background.red >> 8) & 0xff);
 							    *(sp + 1) = (uint8)(png_ptr->background.red & 0xff);
-							    *(sp + 2) = (uint8)((png_ptr->background.green >> 8)
-								    & 0xff);
-							    *(sp + 3) = (uint8)(png_ptr->background.green
-								    & 0xff);
-							    *(sp + 4) = (uint8)((png_ptr->background.blue >> 8)
-								    & 0xff);
+							    *(sp + 2) = (uint8)((png_ptr->background.green >> 8) & 0xff);
+							    *(sp + 3) = (uint8)(png_ptr->background.green & 0xff);
+							    *(sp + 4) = (uint8)((png_ptr->background.blue >> 8) & 0xff);
 							    *(sp + 5) = (uint8)(png_ptr->background.blue & 0xff);
 						    }
 
@@ -3090,11 +3051,9 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 							    png_uint_16 v = gamma_16[*(sp + 1) >> gamma_shift][*sp];
 							    *sp = (uint8)((v >> 8) & 0xff);
 							    *(sp + 1) = (uint8)(v & 0xff);
-
 							    v = gamma_16[*(sp + 3) >> gamma_shift][*(sp + 2)];
 							    *(sp + 2) = (uint8)((v >> 8) & 0xff);
 							    *(sp + 3) = (uint8)(v & 0xff);
-
 							    v = gamma_16[*(sp + 5) >> gamma_shift][*(sp + 4)];
 							    *(sp + 4) = (uint8)((v >> 8) & 0xff);
 							    *(sp + 5) = (uint8)(v & 0xff);
@@ -3108,24 +3067,14 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 					    sp = row;
 					    for(i = 0; i < row_width; i++, sp += 6) {
 						    png_uint_16 r = (png_uint_16)(((*sp) << 8) + *(sp + 1));
-
-						    png_uint_16 g = (png_uint_16)(((*(sp + 2)) << 8)
-							    + *(sp + 3));
-
-						    png_uint_16 b = (png_uint_16)(((*(sp + 4)) << 8)
-							    + *(sp + 5));
-
-						    if(r == png_ptr->trans_color.red &&
-							    g == png_ptr->trans_color.green &&
-							    b == png_ptr->trans_color.blue) {
+						    png_uint_16 g = (png_uint_16)(((*(sp + 2)) << 8) + *(sp + 3));
+						    png_uint_16 b = (png_uint_16)(((*(sp + 4)) << 8) + *(sp + 5));
+						    if(r == png_ptr->trans_color.red && g == png_ptr->trans_color.green && b == png_ptr->trans_color.blue) {
 							    *sp = (uint8)((png_ptr->background.red >> 8) & 0xff);
 							    *(sp + 1) = (uint8)(png_ptr->background.red & 0xff);
-							    *(sp + 2) = (uint8)((png_ptr->background.green >> 8)
-								    & 0xff);
-							    *(sp + 3) = (uint8)(png_ptr->background.green
-								    & 0xff);
-							    *(sp + 4) = (uint8)((png_ptr->background.blue >> 8)
-								    & 0xff);
+							    *(sp + 2) = (uint8)((png_ptr->background.green >> 8) & 0xff);
+							    *(sp + 3) = (uint8)(png_ptr->background.green & 0xff);
+							    *(sp + 4) = (uint8)((png_ptr->background.blue >> 8) & 0xff);
 							    *(sp + 5) = (uint8)(png_ptr->background.blue & 0xff);
 						    }
 					    }
@@ -3133,7 +3082,6 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 			    }
 			    break;
 		    }
-
 			case PNG_COLOR_TYPE_GRAY_ALPHA:
 		    {
 			    if(row_info->bit_depth == 8) {
@@ -3164,10 +3112,8 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 					    sp = row;
 					    for(i = 0; i < row_width; i++, sp += 2) {
 						    uint8 a = *(sp + 1);
-
 						    if(a == 0)
 							    *sp = (uint8)png_ptr->background.gray;
-
 						    else if(a < 0xff)
 							    png_composite(*sp, *sp, a, png_ptr->background.gray);
 					    }
@@ -3178,34 +3124,25 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 				    if(gamma_16 != NULL && gamma_16_from_1 != NULL && gamma_16_to_1 != NULL) {
 					    sp = row;
 					    for(i = 0; i < row_width; i++, sp += 4) {
-						    png_uint_16 a = (png_uint_16)(((*(sp + 2)) << 8)
-							    + *(sp + 3));
-
+						    png_uint_16 a = (png_uint_16)(((*(sp + 2)) << 8) + *(sp + 3));
 						    if(a == (png_uint_16)0xffff) {
-							    png_uint_16 v;
-
-							    v = gamma_16[*(sp + 1) >> gamma_shift][*sp];
+							    png_uint_16 v = gamma_16[*(sp + 1) >> gamma_shift][*sp];
 							    *sp = (uint8)((v >> 8) & 0xff);
 							    *(sp + 1) = (uint8)(v & 0xff);
 						    }
-
 						    else if(a == 0) {
 							    /* Background is already in screen gamma */
-							    *sp = (uint8)((png_ptr->background.gray >> 8)
-								    & 0xff);
+							    *sp = (uint8)((png_ptr->background.gray >> 8) & 0xff);
 							    *(sp + 1) = (uint8)(png_ptr->background.gray & 0xff);
 						    }
-
 						    else {
 							    png_uint_16 g, v, w;
-
 							    g = gamma_16_to_1[*(sp + 1) >> gamma_shift][*sp];
 							    png_composite_16(v, g, a, png_ptr->background_1.gray);
 							    if(optimize != 0)
 								    w = v;
 							    else
-								    w = gamma_16_from_1[(v & 0xff) >>
-									    gamma_shift][v >> 8];
+								    w = gamma_16_from_1[(v & 0xff) >> gamma_shift][v >> 8];
 							    *sp = (uint8)((w >> 8) & 0xff);
 							    *(sp + 1) = (uint8)(w & 0xff);
 						    }
@@ -3216,18 +3153,13 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 				    {
 					    sp = row;
 					    for(i = 0; i < row_width; i++, sp += 4) {
-						    png_uint_16 a = (png_uint_16)(((*(sp + 2)) << 8)
-							    + *(sp + 3));
-
+						    png_uint_16 a = (png_uint_16)(((*(sp + 2)) << 8) + *(sp + 3));
 						    if(a == 0) {
-							    *sp = (uint8)((png_ptr->background.gray >> 8)
-								    & 0xff);
+							    *sp = (uint8)((png_ptr->background.gray >> 8) & 0xff);
 							    *(sp + 1) = (uint8)(png_ptr->background.gray & 0xff);
 						    }
-
 						    else if(a < 0xffff) {
 							    png_uint_16 g, v;
-
 							    g = (png_uint_16)(((*sp) << 8) + *(sp + 1));
 							    png_composite_16(v, g, a, png_ptr->background.gray);
 							    *sp = (uint8)((v >> 8) & 0xff);
@@ -3238,7 +3170,6 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 			    }
 			    break;
 		    }
-
 			case PNG_COLOR_TYPE_RGB_ALPHA:
 		    {
 			    if(row_info->bit_depth == 8) {
@@ -3286,21 +3217,15 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 					    sp = row;
 					    for(i = 0; i < row_width; i++, sp += 4) {
 						    uint8 a = *(sp + 3);
-
 						    if(a == 0) {
 							    *sp = (uint8)png_ptr->background.red;
 							    *(sp + 1) = (uint8)png_ptr->background.green;
 							    *(sp + 2) = (uint8)png_ptr->background.blue;
 						    }
-
 						    else if(a < 0xff) {
 							    png_composite(*sp, *sp, a, png_ptr->background.red);
-
-							    png_composite(*(sp + 1), *(sp + 1), a,
-								    png_ptr->background.green);
-
-							    png_composite(*(sp + 2), *(sp + 2), a,
-								    png_ptr->background.blue);
+							    png_composite(*(sp + 1), *(sp + 1), a, png_ptr->background.green);
+							    png_composite(*(sp + 2), *(sp + 2), a, png_ptr->background.blue);
 						    }
 					    }
 				    }
@@ -3310,64 +3235,45 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 				    if(gamma_16 != NULL && gamma_16_from_1 != NULL && gamma_16_to_1 != NULL) {
 					    sp = row;
 					    for(i = 0; i < row_width; i++, sp += 8) {
-						    png_uint_16 a = (png_uint_16)(((png_uint_16)(*(sp + 6))
-								    << 8) + (png_uint_16)(*(sp + 7)));
-
+						    png_uint_16 a = (png_uint_16)(((png_uint_16)(*(sp + 6)) << 8) + (png_uint_16)(*(sp + 7)));
 						    if(a == (png_uint_16)0xffff) {
-							    png_uint_16 v;
-
-							    v = gamma_16[*(sp + 1) >> gamma_shift][*sp];
+							    png_uint_16 v = gamma_16[*(sp + 1) >> gamma_shift][*sp];
 							    *sp = (uint8)((v >> 8) & 0xff);
 							    *(sp + 1) = (uint8)(v & 0xff);
-
 							    v = gamma_16[*(sp + 3) >> gamma_shift][*(sp + 2)];
 							    *(sp + 2) = (uint8)((v >> 8) & 0xff);
 							    *(sp + 3) = (uint8)(v & 0xff);
-
 							    v = gamma_16[*(sp + 5) >> gamma_shift][*(sp + 4)];
 							    *(sp + 4) = (uint8)((v >> 8) & 0xff);
 							    *(sp + 5) = (uint8)(v & 0xff);
 						    }
-
 						    else if(a == 0) {
 							    /* Background is already in screen gamma */
 							    *sp = (uint8)((png_ptr->background.red >> 8) & 0xff);
 							    *(sp + 1) = (uint8)(png_ptr->background.red & 0xff);
-							    *(sp + 2) = (uint8)((png_ptr->background.green >> 8)
-								    & 0xff);
-							    *(sp + 3) = (uint8)(png_ptr->background.green
-								    & 0xff);
-							    *(sp + 4) = (uint8)((png_ptr->background.blue >> 8)
-								    & 0xff);
+							    *(sp + 2) = (uint8)((png_ptr->background.green >> 8) & 0xff);
+							    *(sp + 3) = (uint8)(png_ptr->background.green & 0xff);
+							    *(sp + 4) = (uint8)((png_ptr->background.blue >> 8) & 0xff);
 							    *(sp + 5) = (uint8)(png_ptr->background.blue & 0xff);
 						    }
-
 						    else {
 							    png_uint_16 v, w;
-
 							    v = gamma_16_to_1[*(sp + 1) >> gamma_shift][*sp];
 							    png_composite_16(w, v, a, png_ptr->background_1.red);
 							    if(optimize == 0)
-								    w = gamma_16_from_1[((w & 0xff) >> gamma_shift)][w >>
-									    8];
+								    w = gamma_16_from_1[((w & 0xff) >> gamma_shift)][w >> 8];
 							    *sp = (uint8)((w >> 8) & 0xff);
 							    *(sp + 1) = (uint8)(w & 0xff);
-
 							    v = gamma_16_to_1[*(sp + 3) >> gamma_shift][*(sp + 2)];
 							    png_composite_16(w, v, a, png_ptr->background_1.green);
 							    if(optimize == 0)
-								    w = gamma_16_from_1[((w & 0xff) >> gamma_shift)][w >>
-									    8];
-
+								    w = gamma_16_from_1[((w & 0xff) >> gamma_shift)][w >> 8];
 							    *(sp + 2) = (uint8)((w >> 8) & 0xff);
 							    *(sp + 3) = (uint8)(w & 0xff);
-
 							    v = gamma_16_to_1[*(sp + 5) >> gamma_shift][*(sp + 4)];
 							    png_composite_16(w, v, a, png_ptr->background_1.blue);
 							    if(optimize == 0)
-								    w = gamma_16_from_1[((w & 0xff) >> gamma_shift)][w >>
-									    8];
-
+								    w = gamma_16_from_1[((w & 0xff) >> gamma_shift)][w >> 8];
 							    *(sp + 4) = (uint8)((w >> 8) & 0xff);
 							    *(sp + 5) = (uint8)(w & 0xff);
 						    }
@@ -3379,38 +3285,26 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 				    {
 					    sp = row;
 					    for(i = 0; i < row_width; i++, sp += 8) {
-						    png_uint_16 a = (png_uint_16)(((png_uint_16)(*(sp + 6))
-								    << 8) + (png_uint_16)(*(sp + 7)));
-
+						    png_uint_16 a = (png_uint_16)(((png_uint_16)(*(sp + 6)) << 8) + (png_uint_16)(*(sp + 7)));
 						    if(a == 0) {
 							    *sp = (uint8)((png_ptr->background.red >> 8) & 0xff);
 							    *(sp + 1) = (uint8)(png_ptr->background.red & 0xff);
-							    *(sp + 2) = (uint8)((png_ptr->background.green >> 8)
-								    & 0xff);
-							    *(sp + 3) = (uint8)(png_ptr->background.green
-								    & 0xff);
-							    *(sp + 4) = (uint8)((png_ptr->background.blue >> 8)
-								    & 0xff);
+							    *(sp + 2) = (uint8)((png_ptr->background.green >> 8) & 0xff);
+							    *(sp + 3) = (uint8)(png_ptr->background.green & 0xff);
+							    *(sp + 4) = (uint8)((png_ptr->background.blue >> 8) & 0xff);
 							    *(sp + 5) = (uint8)(png_ptr->background.blue & 0xff);
 						    }
-
 						    else if(a < 0xffff) {
 							    png_uint_16 v;
-
 							    png_uint_16 r = (png_uint_16)(((*sp) << 8) + *(sp + 1));
-							    png_uint_16 g = (png_uint_16)(((*(sp + 2)) << 8)
-								    + *(sp + 3));
-							    png_uint_16 b = (png_uint_16)(((*(sp + 4)) << 8)
-								    + *(sp + 5));
-
+							    png_uint_16 g = (png_uint_16)(((*(sp + 2)) << 8) + *(sp + 3));
+							    png_uint_16 b = (png_uint_16)(((*(sp + 4)) << 8) + *(sp + 5));
 							    png_composite_16(v, r, a, png_ptr->background.red);
 							    *sp = (uint8)((v >> 8) & 0xff);
 							    *(sp + 1) = (uint8)(v & 0xff);
-
 							    png_composite_16(v, g, a, png_ptr->background.green);
 							    *(sp + 2) = (uint8)((v >> 8) & 0xff);
 							    *(sp + 3) = (uint8)(v & 0xff);
-
 							    png_composite_16(v, b, a, png_ptr->background.blue);
 							    *(sp + 4) = (uint8)((v >> 8) & 0xff);
 							    *(sp + 5) = (uint8)(v & 0xff);
@@ -3797,7 +3691,7 @@ static void png_do_expand(png_row_infop row_info, png_bytep row, png_const_color
 	png_debug(1, "in png_do_expand");
 	{
 		if(row_info->color_type == PNG_COLOR_TYPE_GRAY) {
-			unsigned int gray = trans_color != NULL ? trans_color->gray : 0;
+			uint gray = trans_color != NULL ? trans_color->gray : 0;
 			if(row_info->bit_depth < 8) {
 				switch(row_info->bit_depth) {
 					case 1:
@@ -3889,8 +3783,8 @@ static void png_do_expand(png_row_infop row_info, png_bytep row, png_const_color
 					}
 				}
 				else if(row_info->bit_depth == 16) {
-					unsigned int gray_high = (gray >> 8) & 0xff;
-					unsigned int gray_low = gray & 0xff;
+					uint gray_high = (gray >> 8) & 0xff;
+					uint gray_low = gray & 0xff;
 					sp = row + row_info->rowbytes - 1;
 					dp = row + (row_info->rowbytes << 1) - 1;
 					for(i = 0; i < row_width; i++) {

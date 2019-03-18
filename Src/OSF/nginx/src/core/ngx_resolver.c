@@ -44,7 +44,7 @@ struct ngx_resolver_an_t {
 	u_char len_lo;
 };
 
-#define ngx_resolver_node(n) (ngx_resolver_node_t*)((u_char*)(n) - offsetof(ngx_resolver_node_t, node))
+#define ngx_resolver_node(n) (ngx_resolver_node_t*)((u_char *)(n) - offsetof(ngx_resolver_node_t, node))
 
 static ngx_int_t ngx_udp_connect(ngx_resolver_connection_t * rec);
 static ngx_int_t ngx_tcp_connect(ngx_resolver_connection_t * rec);
@@ -271,7 +271,7 @@ ngx_resolver_ctx_t * ngx_resolve_start(ngx_resolver_t * r, ngx_resolver_ctx_t * 
 			temp->state = NGX_OK;
 			temp->naddrs = 1;
 			temp->addrs = &temp->addr;
-			temp->addr.sockaddr = (struct sockaddr*)&temp->sin;
+			temp->addr.sockaddr = (struct sockaddr *)&temp->sin;
 			temp->addr.socklen = sizeof(struct sockaddr_in);
 			memzero(&temp->sin, sizeof(struct sockaddr_in));
 			temp->sin.sin_family = AF_INET;
@@ -467,7 +467,7 @@ static ngx_int_t ngx_resolve_name_locked(ngx_resolver_t * r, ngx_resolver_ctx_t 
 					ctx->naddrs = naddrs;
 					if(addrs == NULL) {
 						ctx->addrs = &ctx->addr;
-						ctx->addr.sockaddr = (struct sockaddr*)&ctx->sin;
+						ctx->addr.sockaddr = (struct sockaddr *)&ctx->sin;
 						ctx->addr.socklen = sizeof(struct sockaddr_in);
 						memzero(&ctx->sin, sizeof(struct sockaddr_in));
 						ctx->sin.sin_family = AF_INET;
@@ -1861,7 +1861,7 @@ found:
 
 			if(addrs == NULL) {
 				ctx->addrs = &ctx->addr;
-				ctx->addr.sockaddr = (struct sockaddr*)&ctx->sin;
+				ctx->addr.sockaddr = (struct sockaddr *)&ctx->sin;
 				ctx->addr.socklen = sizeof(struct sockaddr_in);
 				memzero(&ctx->sin, sizeof(struct sockaddr_in));
 				ctx->sin.sin_family = AF_INET;
@@ -2468,7 +2468,7 @@ static void ngx_resolver_process_ptr(ngx_resolver_t * r, u_char * buf, size_t n,
 		addr += octet << mask;
 		i += len;
 	}
-	if(sstreqi_ascii(&buf[i], (u_char*)"\7in-addr\4arpa")) {
+	if(sstreqi_ascii(&buf[i], (u_char *)"\7in-addr\4arpa")) {
 		i += sizeof("\7in-addr\4arpa");
 		/* lock addr mutex */
 		rn = ngx_resolver_lookup_addr(r, addr);
@@ -2497,7 +2497,7 @@ invalid_in_addr_arpa:
 		}
 		addr6.s6_addr[octet] += (u_char)(digit * 16);
 	}
-	if(sstreqi_ascii(&buf[i], (u_char*)"\3ip6\4arpa")) {
+	if(sstreqi_ascii(&buf[i], (u_char *)"\3ip6\4arpa")) {
 		i += sizeof("\3ip6\4arpa");
 		/* lock addr mutex */
 		hash = ngx_crc32_short(addr6.s6_addr, 16);
@@ -3215,7 +3215,7 @@ static ngx_resolver_addr_t * ngx_resolver_export(ngx_resolver_t * r, ngx_resolve
 			sin = &sockaddr[d].sockaddr_in;
 			sin->sin_family = AF_INET;
 			sin->sin_addr.s_addr = addr[j++];
-			dst[d].sockaddr = (struct sockaddr*)sin;
+			dst[d].sockaddr = (struct sockaddr *)sin;
 			dst[d++].socklen = sizeof(struct sockaddr_in);
 			if(d == n) {
 				d = 0;
@@ -3233,7 +3233,7 @@ static ngx_resolver_addr_t * ngx_resolver_export(ngx_resolver_t * r, ngx_resolve
 			sin6 = &sockaddr[d].sockaddr_in6;
 			sin6->sin6_family = AF_INET6;
 			memcpy(sin6->sin6_addr.s6_addr, addr6[j++].s6_addr, 16);
-			dst[d].sockaddr = (struct sockaddr*)sin6;
+			dst[d].sockaddr = (struct sockaddr *)sin6;
 			dst[d++].socklen = sizeof(struct sockaddr_in6);
 			if(d == n) {
 				d = 0;

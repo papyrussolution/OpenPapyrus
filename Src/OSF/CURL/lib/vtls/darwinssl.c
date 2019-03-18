@@ -1412,9 +1412,7 @@ static CURLcode darwinssl_connect_step1(struct connectdata * conn,
 	if(SSLSetSessionOption != NULL) {
 #endif /* CURL_BUILD_MAC */
 		bool break_on_auth = !conn->ssl_config.verifypeer || ssl_cafile;
-		err = SSLSetSessionOption(connssl->ssl_ctx,
-		    kSSLSessionOptionBreakOnServerAuth,
-		    break_on_auth);
+		err = SSLSetSessionOption(connssl->ssl_ctx, kSSLSessionOptionBreakOnServerAuth, break_on_auth);
 		if(err != noErr) {
 			failf(data, "SSL: SSLSetSessionOption() failed: OSStatus %d", err);
 			return CURLE_SSL_CONNECT_ERROR;
@@ -1422,8 +1420,7 @@ static CURLcode darwinssl_connect_step1(struct connectdata * conn,
 	}
 	else {
 #if CURL_SUPPORT_MAC_10_8
-		err = SSLSetEnableCertVerify(connssl->ssl_ctx,
-		    conn->ssl_config.verifypeer ? true : false);
+		err = SSLSetEnableCertVerify(connssl->ssl_ctx, conn->ssl_config.verifypeer ? true : false);
 		if(err != noErr) {
 			failf(data, "SSL: SSLSetEnableCertVerify() failed: OSStatus %d", err);
 			return CURLE_SSL_CONNECT_ERROR;
@@ -1431,8 +1428,7 @@ static CURLcode darwinssl_connect_step1(struct connectdata * conn,
 #endif /* CURL_SUPPORT_MAC_10_8 */
 	}
 #else
-	err = SSLSetEnableCertVerify(connssl->ssl_ctx,
-	    conn->ssl_config.verifypeer ? true : false);
+	err = SSLSetEnableCertVerify(connssl->ssl_ctx, conn->ssl_config.verifypeer ? true : false);
 	if(err != noErr) {
 		failf(data, "SSL: SSLSetEnableCertVerify() failed: OSStatus %d", err);
 		return CURLE_SSL_CONNECT_ERROR;
@@ -1441,13 +1437,11 @@ static CURLcode darwinssl_connect_step1(struct connectdata * conn,
 
 	if(ssl_cafile && verifypeer) {
 		bool is_cert_file = is_file(ssl_cafile);
-
 		if(!is_cert_file) {
 			failf(data, "SSL: can't load CA certificate file %s", ssl_cafile);
 			return CURLE_SSL_CACERT_BADFILE;
 		}
 	}
-
 	/* Configure hostname check. SNI is used if available.
 	* Both hostname check and SNI require SSLSetPeerDomainName().
 	* Also: the verifyhost setting influences SNI usage */
@@ -1475,17 +1469,14 @@ static CURLcode darwinssl_connect_step1(struct connectdata * conn,
 	(void)SSLGetNumberSupportedCiphers(connssl->ssl_ctx, &all_ciphers_count);
 	all_ciphers = SAlloc::M(all_ciphers_count*sizeof(SSLCipherSuite));
 	allowed_ciphers = SAlloc::M(all_ciphers_count*sizeof(SSLCipherSuite));
-	if(all_ciphers && allowed_ciphers &&
-	    SSLGetSupportedCiphers(connssl->ssl_ctx, all_ciphers,
-		    &all_ciphers_count) == noErr) {
+	if(all_ciphers && allowed_ciphers && SSLGetSupportedCiphers(connssl->ssl_ctx, all_ciphers, &all_ciphers_count) == noErr) {
 		for(i = 0UL; i < all_ciphers_count; i++) {
 #if CURL_BUILD_MAC
 			/* There's a known bug in early versions of Mountain Lion where ST's ECC
 			   ciphers (cipher suite 0xC001 through 0xC032) simply do not work.
 			   Work around the problem here by disabling those ciphers if we are
 			   running in an affected version of OS X. */
-			if(darwinver_maj == 12 && darwinver_min <= 3 &&
-			    all_ciphers[i] >= 0xC001 && all_ciphers[i] <= 0xC032) {
+			if(darwinver_maj == 12 && darwinver_min <= 3 && all_ciphers[i] >= 0xC001 && all_ciphers[i] <= 0xC032) {
 				continue;
 			}
 #endif /* CURL_BUILD_MAC */
@@ -1592,7 +1583,7 @@ static CURLcode darwinssl_connect_step1(struct connectdata * conn,
 		size_t ssl_sessionid_len;
 
 		Curl_ssl_sessionid_lock(conn);
-		if(!Curl_ssl_getsessionid(conn, (void**)&ssl_sessionid,
+		if(!Curl_ssl_getsessionid(conn, (void **)&ssl_sessionid,
 			    &ssl_sessionid_len, sockindex)) {
 			/* we got a session id, use it! */
 			err = SSLSetPeerID(connssl->ssl_ctx, ssl_sessionid, ssl_sessionid_len);
@@ -1735,43 +1726,25 @@ static int read_cert(const char * file, uchar ** out, size_t * outlen)
 		len += n;
 	}
 	data[len] = '\0';
-
 	*out = data;
 	*outlen = len;
-
 	return 0;
 }
 
 static int sslerr_to_curlerr(struct Curl_easy * data, int err)
 {
 	switch(err) {
-		case errSSLXCertChainInvalid:
-		    failf(data, "SSL certificate problem: Invalid certificate chain");
-		    return CURLE_SSL_CACERT;
-		case errSSLUnknownRootCert:
-		    failf(data, "SSL certificate problem: Untrusted root certificate");
-		    return CURLE_SSL_CACERT;
-		case errSSLNoRootCert:
-		    failf(data, "SSL certificate problem: No root certificate");
-		    return CURLE_SSL_CACERT;
-		case errSSLCertExpired:
-		    failf(data, "SSL certificate problem: Certificate chain had an expired certificate");
-		    return CURLE_SSL_CACERT;
-		case errSSLBadCert:
-		    failf(data, "SSL certificate problem: Couldn't understand the server certificate format");
-		    return CURLE_SSL_CONNECT_ERROR;
-		case errSSLHostNameMismatch:
-		    failf(data, "SSL certificate peer hostname mismatch");
-		    return CURLE_PEER_FAILED_VERIFICATION;
-		default:
-		    failf(data, "SSL unexpected certificate error %d", err);
-		    return CURLE_SSL_CACERT;
+		case errSSLXCertChainInvalid: failf(data, "SSL certificate problem: Invalid certificate chain"); return CURLE_SSL_CACERT;
+		case errSSLUnknownRootCert: failf(data, "SSL certificate problem: Untrusted root certificate"); return CURLE_SSL_CACERT;
+		case errSSLNoRootCert: failf(data, "SSL certificate problem: No root certificate"); return CURLE_SSL_CACERT;
+		case errSSLCertExpired: failf(data, "SSL certificate problem: Certificate chain had an expired certificate"); return CURLE_SSL_CACERT;
+		case errSSLBadCert: failf(data, "SSL certificate problem: Couldn't understand the server certificate format"); return CURLE_SSL_CONNECT_ERROR;
+		case errSSLHostNameMismatch: failf(data, "SSL certificate peer hostname mismatch"); return CURLE_PEER_FAILED_VERIFICATION;
+		default: failf(data, "SSL unexpected certificate error %d", err); return CURLE_SSL_CACERT;
 	}
 }
 
-static int append_cert_to_array(struct Curl_easy * data,
-    uchar * buf, size_t buflen,
-    CFMutableArrayRef array)
+static int append_cert_to_array(struct Curl_easy * data, uchar * buf, size_t buflen, CFMutableArrayRef array)
 {
 	CFDataRef certdata = CFDataCreate(kCFAllocatorDefault, buf, buflen);
 	if(!certdata) {

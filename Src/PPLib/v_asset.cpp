@@ -609,7 +609,7 @@ int PPALDD_AssetView::InitData(PPFilt & rFilt, long rsrv)
 
 int PPALDD_AssetView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 {
-	INIT_PPVIEW_ALDD_ITER_ORD(Asset, (PPViewAsset::IterOrder)sortId);
+	INIT_PPVIEW_ALDD_ITER_ORD(Asset, static_cast<PPViewAsset::IterOrder>(sortId));
 }
 
 int PPALDD_AssetView::NextIteration(PPIterID iterId)

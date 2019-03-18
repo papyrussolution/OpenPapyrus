@@ -252,8 +252,7 @@ extern const TIFFFieldArray* _TIFFGetFields(void);
 extern const TIFFFieldArray* _TIFFGetExifFields(void);
 extern void _TIFFSetupFields(TIFF* tif, const TIFFFieldArray* infoarray);
 extern void _TIFFPrintFieldInfo(TIFF*, FILE*);
-
-extern int _TIFFFillStriles(TIFF*);        
+extern int FASTCALL _TIFFFillStriles(TIFF*);        
 
 typedef enum {
 	tfiatImage,

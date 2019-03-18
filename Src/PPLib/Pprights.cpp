@@ -16,10 +16,10 @@ ObjRights * SLAPI ObjRights::Create(PPID objType, size_t totalSize)
 {
 	const size_t hdr_size = sizeof(ObjRights);
 	const size_t total_size = (totalSize < hdr_size) ? hdr_size : totalSize;
-	ObjRights * ptr = (ObjRights *)::new uint8[total_size];
+	ObjRights * ptr = reinterpret_cast<ObjRights *>(::new uint8[total_size]);
 	if(ptr) {
 		ptr->ObjType = objType;
-		ptr->Size = (uint16)total_size;
+		ptr->Size = static_cast<uint16>(total_size);
 		ptr->Flags = PPRights::GetDefaultFlags();
 		ptr->OprFlags = PPRights::GetDefaultOprFlags();
 	}
@@ -31,7 +31,7 @@ ObjRights * SLAPI ObjRights::Create(PPID objType, size_t totalSize)
 void FASTCALL ObjRights::Destroy(ObjRights * pObj)
 {
     if(pObj)
-		::delete (uint8 *)pObj;
+		::delete [] reinterpret_cast<uint8 *>(pObj);
 }
 //
 //
@@ -494,7 +494,7 @@ int RtCfgListDialog::setupList()
 {
 	ObjRestrictItem * p_item;
 	SString sub;
-	for(uint i = 0; Data.enumItems(&i, (void**)&p_item);) {
+	for(uint i = 0; Data.enumItems(&i, (void **)&p_item);) {
 		if(p_item->Flags) {
 			long rtfld = p_item->Flags;
 			StringSet ss(SLBColumnDelim);
@@ -1258,7 +1258,7 @@ private:
 	void   disableChild(int disable);
 	int    loadChild(uint editWhat);
 	int    setupGrpUsrList();
-	int    updateChildsRights(PPSecurPacket * pParent);
+	int    updateChildsRights(const PPSecurPacket * pParent);
 	int    loadPtr(void ** ppPtr, uint pos, int load);
 	int    loadData(PPID grpUserID, int load);
 	PPID   getCurrID();
@@ -1349,16 +1349,16 @@ PPID FastEditRightsDlg::getCurrID()
 
 IMPL_CMPFUNC(PPSecurPacket, i1, i2)
 {
-	const PPSecurPacket * p1 = (const PPSecurPacket*)i1;
-	const PPSecurPacket * p2 = (const PPSecurPacket*)i2;
+	const PPSecurPacket * p1 = static_cast<const PPSecurPacket *>(i1);
+	const PPSecurPacket * p2 = static_cast<const PPSecurPacket *>(i2);
 	return (p1->Secur.ID > p2->Secur.ID) ? 1 : ((p1->Secur.ID < p2->Secur.ID) ? -1 : 0);
 }
 
-int FastEditRightsDlg::updateChildsRights(PPSecurPacket * pParent)
+int FastEditRightsDlg::updateChildsRights(const PPSecurPacket * pParent)
 {
-	if(pParent->Secur.Tag == PPOBJ_USRGRP && pParent) {
+	if(pParent && pParent->Secur.Tag == PPOBJ_USRGRP) {
 		PPSecurPacket * p_pack = 0;
-		for(uint i = 0; Data.enumItems(&i, (void**)&p_pack) > 0;) {
+		for(uint i = 0; Data.enumItems(&i, (void **)&p_pack) > 0;) {
 			if(p_pack->Secur.ParentID == pParent->Secur.ID && p_pack->Secur.Tag == PPOBJ_USR
 				&& (p_pack->Secur.Flags & USRF_INHRIGHTS || EditWhat == cConfig
 				&& (p_pack->Secur.Flags & USRF_INHCFG))) {
@@ -1421,16 +1421,16 @@ int FastEditRightsDlg::loadPtr(void ** ppPtr, uint pos, int load)
 		case cAccessPeriod:
 			if(load == 1) {
 				*ppPtr = new PPAccessRestriction;
-				p_item->Rights.GetAccessRestriction(*(PPAccessRestriction*)*ppPtr);
+				p_item->Rights.GetAccessRestriction(*static_cast<PPAccessRestriction *>(*ppPtr));
 			}
 			else if(load == 2) {
-				delete (PPAccessRestriction*)*ppPtr;
+				delete static_cast<PPAccessRestriction *>(*ppPtr);
 				*ppPtr = 0;
 			}
 			else if(*ppPtr) {
-				((PPAccessRestriction*)*ppPtr)->SetSaveMode(1);
-				p_item->Rights.SetAccessRestriction((PPAccessRestriction*)*ppPtr);
-				((PPAccessRestriction*)*ppPtr)->SetSaveMode(0);
+				static_cast<PPAccessRestriction *>(*ppPtr)->SetSaveMode(1);
+				p_item->Rights.SetAccessRestriction(static_cast<PPAccessRestriction *>(*ppPtr));
+				static_cast<PPAccessRestriction *>(*ppPtr)->SetSaveMode(0);
 			}
 			break;
 		case cAccessibleOpr:
@@ -1439,7 +1439,7 @@ int FastEditRightsDlg::loadPtr(void ** ppPtr, uint pos, int load)
 				*ppPtr = p_item->Rights.P_OpList;
 			}
 			else if(!load && (*ppPtr))	{
-				p_item->Rights.P_OpList = (ObjRestrictArray*)*ppPtr;
+				p_item->Rights.P_OpList = static_cast<ObjRestrictArray *>(*ppPtr);
 				if(p_item->Rights.P_OpList->getCount() <= 0) {
 					ZDELETE(p_item->Rights.P_OpList);
 					*ppPtr = 0;
@@ -1452,7 +1452,7 @@ int FastEditRightsDlg::loadPtr(void ** ppPtr, uint pos, int load)
 				*ppPtr = p_item->Rights.P_LocList;
 			}
 			else if(!load && (*ppPtr)) {
-				p_item->Rights.P_LocList = (ObjRestrictArray*)*ppPtr;
+				p_item->Rights.P_LocList = static_cast<ObjRestrictArray *>(*ppPtr);
 				if(p_item->Rights.P_LocList->getCount() <= 0) {
 					ZDELETE(p_item->Rights.P_LocList);
 					*ppPtr = 0;
@@ -1465,7 +1465,7 @@ int FastEditRightsDlg::loadPtr(void ** ppPtr, uint pos, int load)
 				*ppPtr = p_item->Rights.P_AccList;
 			}
 			else if(!load && (*ppPtr)) {
-				p_item->Rights.P_AccList = (ObjRestrictArray*)*ppPtr;
+				p_item->Rights.P_AccList = static_cast<ObjRestrictArray *>(*ppPtr);
 				if(p_item->Rights.P_AccList->getCount() <= 0) {
 					ZDELETE(p_item->Rights.P_AccList);
 					*ppPtr = 0;
@@ -1476,18 +1476,18 @@ int FastEditRightsDlg::loadPtr(void ** ppPtr, uint pos, int load)
 			if(load == 1)
 				*ppPtr = &p_item->Config;
 			else if(!load && (*ppPtr))
-				p_item->Config = *(PPConfig*)*ppPtr;
+				p_item->Config = *static_cast<const PPConfig *>(*ppPtr);
 			break;
 		default:
 			if(load == 1)
 				*ppPtr = p_item->Rights.GetObjRights(EditWhat - OBJTYPE_OFFSET, 1);
 			else if(load == 2) {
-				ObjRights * p_r = (ObjRights*)*ppPtr;
+				ObjRights * p_r = static_cast<ObjRights *>(*ppPtr);
 				ObjRights::Destroy(p_r);
 				*ppPtr = 0;
 			}
 			else if(!load && (*ppPtr)) {
-				ObjRights * p_r = (ObjRights*)*ppPtr;
+				ObjRights * p_r = static_cast<ObjRights *>(*ppPtr);
 				p_r->OprFlags &= ~(PPORF_DEFAULT /* @v8.3.3 | PPORF_INHERITED*/);
 				p_item->Rights.SetObjRights(EditWhat - OBJTYPE_OFFSET, p_r, 1);
 			}
@@ -1517,8 +1517,7 @@ int FastEditRightsDlg::loadData(PPID grpUserID, int load)
 			}
 			else {
 				const PPSecurPacket * p_sp = Data.at(pos);
-				int    disable = (EditWhat == cConfig) ?
-					BIN(p_sp->Secur.Flags & USRF_INHCFG) : BIN(p_sp->Secur.Flags & USRF_INHRIGHTS);
+				int    disable = (EditWhat == cConfig) ? BIN(p_sp->Secur.Flags & USRF_INHCFG) : BIN(p_sp->Secur.Flags & USRF_INHRIGHTS);
 				PPObject * p_obj = GetPPObject(EditWhat - OBJTYPE_OFFSET, 0);
 				if(P_ChildDlg)
 					P_ChildDlg->TransmitData(+1, ptr);
@@ -1544,7 +1543,7 @@ int FastEditRightsDlg::setupGrpUsrList()
 	PPSecurPacket * p_pack = 0;
 	SmartListBox * p_lbx = 0;
 	THROW_MEM(p_list = new StrAssocArray);
-	for(i = 0; Data.enumItems(&i, (void**)&p_pack) > 0; ) {
+	for(i = 0; Data.enumItems(&i, (void **)&p_pack) > 0; ) {
 		temp_buf = p_pack->Secur.Name;
 		if(p_pack->Secur.Tag == PPOBJ_USR) {
 			inh_buf = 0;
@@ -1689,7 +1688,7 @@ int SaveGrpUsrRights(SecurCollection * pRights)
 		PPSecurPacket * p_pack = 0;
 		PPTransaction tra(1);
 		THROW(tra);
-		for(uint i = 0; pRights->enumItems(&i, (void**)&p_pack) > 0;) {
+		for(uint i = 0; pRights->enumItems(&i, (void **)&p_pack) > 0;) {
 			p_pack->Secur.ID = (p_pack->Secur.Tag == PPOBJ_USR) ? (p_pack->Secur.ID - USERID_OFFSET) : p_pack->Secur.ID;
 			THROW(p_ref->EditSecur(p_pack->Secur.Tag, p_pack->Secur.ID, p_pack, 0, 0));
 		}

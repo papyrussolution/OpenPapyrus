@@ -150,7 +150,7 @@ static ngx_int_t ngx_http_secure_link_variable(ngx_http_request_t * r,
 	if(memcmp(hash_buf, md5_buf, 16) != 0) {
 		goto not_found;
 	}
-	v->data = (u_char*)((expires && expires < ngx_time()) ? "0" : "1");
+	v->data = (u_char *)((expires && expires < ngx_time()) ? "0" : "1");
 	v->len = 1;
 	v->valid = 1;
 	v->no_cacheable = 0;

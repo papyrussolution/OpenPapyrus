@@ -87,7 +87,7 @@ int archive_write_add_filter_bzip2(struct archive * _a)
 	data = (struct private_data *)SAlloc::C(1, sizeof(*data));
 	if(data == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	data->compression_level = 9; /* default */
 
@@ -99,13 +99,13 @@ int archive_write_add_filter_bzip2(struct archive * _a)
 	f->code = ARCHIVE_FILTER_BZIP2;
 	f->name = "bzip2";
 #if defined(HAVE_BZLIB_H) && defined(BZ_CONFIG_ERROR)
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 #else
 	data->pdata = __archive_write_program_allocate("bzip2");
 	if(data->pdata == NULL) {
 		SAlloc::F(data);
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	data->compression_level = 0;
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
@@ -132,7 +132,7 @@ static int archive_compressor_bzip2_options(struct archive_write_filter * f,
 		 * range of levels as gzip. */
 		if(data->compression_level < 1)
 			data->compression_level = 1;
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 
 	/* Note: The "warn" return is just to inform the options
@@ -159,17 +159,13 @@ static int drive_compressor(struct archive_write_filter *,
 static int archive_compressor_bzip2_open(struct archive_write_filter * f)
 {
 	struct private_data * data = (struct private_data *)f->data;
-	int ret;
-
-	ret = __archive_write_open_filter(f->next_filter);
+	int ret = __archive_write_open_filter(f->next_filter);
 	if(ret != 0)
-		return (ret);
-
+		return ret;
 	if(data->compressed == NULL) {
 		size_t bs = 65536, bpb;
 		if(f->archive->magic == ARCHIVE_WRITE_MAGIC) {
-			/* Buffer size should be a multiple number of the of bytes
-			 * per block for performance. */
+			// Buffer size should be a multiple number of the of bytes per block for performance. 
 			bpb = archive_write_get_bytes_per_block(f->archive);
 			if(bpb > bs)
 				bs = bpb;
@@ -179,9 +175,8 @@ static int archive_compressor_bzip2_open(struct archive_write_filter * f)
 		data->compressed_buffer_size = bs;
 		data->compressed = (char*)SAlloc::M(data->compressed_buffer_size);
 		if(data->compressed == NULL) {
-			archive_set_error(f->archive, ENOMEM,
-			    "Can't allocate data for compression buffer");
-			return (ARCHIVE_FATAL);
+			archive_set_error(f->archive, ENOMEM, "Can't allocate data for compression buffer");
+			return ARCHIVE_FATAL;
 		}
 	}
 	memzero(&data->stream, sizeof(data->stream));
@@ -192,7 +187,7 @@ static int archive_compressor_bzip2_open(struct archive_write_filter * f)
 	ret = BZ2_bzCompressInit(&(data->stream), data->compression_level, 0, 30);
 	if(ret == BZ_OK) {
 		f->data = data;
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 	/* Library setup failed: clean up. */
 	archive_set_error(f->archive, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library");
@@ -215,7 +210,7 @@ static int archive_compressor_bzip2_open(struct archive_write_filter * f)
 		    break;
 	}
 
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }
 
 /*
@@ -235,8 +230,8 @@ static int archive_compressor_bzip2_write(struct archive_write_filter * f,
 	SET_NEXT_IN(data, buff);
 	data->stream.avail_in = length;
 	if(drive_compressor(f, data, 0))
-		return (ARCHIVE_FATAL);
-	return (ARCHIVE_OK);
+		return ARCHIVE_FATAL;
+	return ARCHIVE_OK;
 }
 
 /*
@@ -275,7 +270,7 @@ static int archive_compressor_bzip2_free(struct archive_write_filter * f)
 	SAlloc::F(data->compressed);
 	SAlloc::F(data);
 	f->data = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -297,7 +292,7 @@ static int drive_compressor(struct archive_write_filter * f,
 				data->compressed_buffer_size);
 			if(ret != ARCHIVE_OK) {
 				/* TODO: Handle this write failure */
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			data->stream.next_out = data->compressed;
 			data->stream.avail_out = data->compressed_buffer_size;
@@ -305,7 +300,7 @@ static int drive_compressor(struct archive_write_filter * f,
 
 		/* If there's nothing to do, we're done. */
 		if(!finishing && data->stream.avail_in == 0)
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 
 		ret = BZ2_bzCompress(&(data->stream),
 			finishing ? BZ_FINISH : BZ_RUN);
@@ -315,13 +310,13 @@ static int drive_compressor(struct archive_write_filter * f,
 			    /* In non-finishing case, did compressor
 			     * consume everything? */
 			    if(!finishing && data->stream.avail_in == 0)
-				    return (ARCHIVE_OK);
+				    return ARCHIVE_OK;
 			    break;
 			case BZ_FINISH_OK: /* Finishing: There's more work to do */
 			    break;
 			case BZ_STREAM_END: /* Finishing: all done */
 			    /* Only occurs in finishing case */
-			    return (ARCHIVE_OK);
+			    return ARCHIVE_OK;
 			default:
 			    /* Any other return value indicates an error */
 			    archive_set_error(f->archive,
@@ -329,7 +324,7 @@ static int drive_compressor(struct archive_write_filter * f,
 				"Bzip2 compression failed;"
 				" BZ2_bzCompress() returned %d",
 				ret);
-			    return (ARCHIVE_FATAL);
+			    return ARCHIVE_FATAL;
 		}
 	}
 }
@@ -354,7 +349,7 @@ static int archive_compressor_bzip2_open(struct archive_write_filter * f)
 
 	r = __archive_write_program_open(f, data->pdata, as.s);
 	archive_string_free(&as);
-	return (r);
+	return r;
 }
 
 static int archive_compressor_bzip2_write(struct archive_write_filter * f, const void * buff,
@@ -378,7 +373,7 @@ static int archive_compressor_bzip2_free(struct archive_write_filter * f)
 
 	__archive_write_program_free(data->pdata);
 	SAlloc::F(data);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 #endif /* HAVE_BZLIB_H && BZ_CONFIG_ERROR */

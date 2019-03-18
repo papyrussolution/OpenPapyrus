@@ -38,7 +38,7 @@ int strcasecmp(const char * s1, const char * s2);
 	#define HAVE_GETOPT 1
 #endif
 #if 0
-	unsigned long strtoul(const char * nptr, char ** endptr, int base);
+	ulong strtoul(const char * nptr, char ** endptr, int base);
 #endif
 #if 0
 	void * lfind(const void * key, const void * base, size_t * nmemb, size_t size, int (* compar)(const void *, const void *));

@@ -19,15 +19,9 @@ struct CrcModel { // cm_t
 		fRefIn  = 0x0001,
 		fRefOut = 0x0002
 	};
-	CrcModel(uint width, uint poly, uint flags, uint xorot, uint init)
+	CrcModel(uint width, uint poly, uint flags, uint xorot, uint init) : cm_init(init), cm_reg(cm_init), Width(width), Poly(poly),
+		cm_xorot(xorot), cm_refin(LOGIC(flags & fRefIn)), cm_refot(LOGIC(flags & fRefOut))
 	{
-		cm_init = init;
-		cm_reg = cm_init;
-		Width = width;
-		Poly = poly;
-		cm_xorot = xorot;
-		cm_refin = (flags & fRefIn) ? true : false;
-		cm_refot = (flags & fRefOut) ? true : false;
 		// Reflect initial value
 		if(cm_refin)
 			cm_reg = reflect(cm_reg, Width);

@@ -63,7 +63,7 @@ class Processor {
     /// cast to C processor object.
     operator zbar_processor_t* ()
     {
-        return(_processor);
+        return (_processor);
     }
 
     /// opens a video input device and/or prepares to display output.
@@ -89,7 +89,7 @@ class Processor {
                     zbar_config_t config,
                     int value)
     {
-        return(zbar_processor_set_config(_processor, symbology,
+        return (zbar_processor_set_config(_processor, symbology,
                                           config, value));
     }
 
@@ -98,7 +98,7 @@ class Processor {
     /// @since 0.4
     int set_config (std::string cfgstr)
     {
-        return(zbar_processor_parse_config(_processor, cfgstr.c_str()));
+        return (zbar_processor_parse_config(_processor, cfgstr.c_str()));
     }
 
     /// retrieve the current state of the ouput window.
@@ -108,7 +108,7 @@ class Processor {
         int rc = zbar_processor_is_visible(_processor);
         if(rc < 0)
             throw_exception(_processor);
-        return(rc != 0);
+        return (rc != 0);
     }
 
     /// show or hide the display window owned by the library.
@@ -131,7 +131,7 @@ class Processor {
     /// @see zbar_processor_get_results()
     /// @since 0.10
     const SymbolSet get_results () const {
-        return(SymbolSet(zbar_processor_get_results(_processor)));
+        return (SymbolSet(zbar_processor_get_results(_processor)));
     }
 
     /// wait for input to the display window from the user.
@@ -141,7 +141,7 @@ class Processor {
         int rc = zbar_processor_user_wait(_processor, timeout);
         if(rc < 0)
             throw_exception(_processor);
-        return(rc);
+        return (rc);
     }
 
     /// process from the video stream until a result is available.

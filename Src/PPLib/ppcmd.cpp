@@ -22,6 +22,9 @@ void SLAPI PPCommandDescr::Init()
 	MenuCm = 0;
 	IconId = 0;
 	ToolbarId = 0;
+	ViewId = 0; // @v10.3.8 @fix
+	FiltId = 0; // @v10.3.8 @fix
+	FiltExtId = 0; // @v10.3.8 @fix
 	memzero(&Reserve, sizeof(Reserve));
 	Symb.Z();
 	Text.Z();
@@ -135,12 +138,12 @@ PPCommandHandler * SLAPI PPCommandDescr::CreateInstance(long cmdDescrID)
 	THROW(LoadResource(cmdDescrID));
 	PPSetAddedMsgString(Text);
 	GetFactoryFuncName(ffn);
-	FN_CMD_FACTORY f = (FN_CMD_FACTORY)GetProcAddress(SLS.GetHInst(), ffn);
+	FN_CMD_FACTORY f = reinterpret_cast<FN_CMD_FACTORY>(GetProcAddress(SLS.GetHInst(), ffn));
 	if(!f && MenuCm) {
 		SString def_factory_name;
 		def_factory_name = P_FactoryPrfx;
 		def_factory_name.Cat("DEFAULT").ToUpper();
-		f = (FN_CMD_FACTORY)GetProcAddress(SLS.GetHInst(), def_factory_name);
+		f = reinterpret_cast<FN_CMD_FACTORY>(GetProcAddress(SLS.GetHInst(), def_factory_name));
 	}
 	THROW(f);
 	THROW(p_h = f(this));
@@ -151,7 +154,7 @@ PPCommandHandler * SLAPI PPCommandDescr::CreateInstance(long cmdDescrID)
 	return p_h;
 }
 
-int SLAPI PPCommandDescr::DoCommand(PPCommand * pCmd, long extra)
+int SLAPI PPCommandDescr::DoCommand(PPCommand * pCmd, void * extraPtr)
 {
 	int    ok = -1;
 	PPCommandHandler * p_h = 0;
@@ -164,11 +167,11 @@ int SLAPI PPCommandDescr::DoCommand(PPCommand * pCmd, long extra)
 			int    r = 1;
 			if(pCmd->Flags & PPCommandItem::fAllowEditFilt) {
 				temp_param = pCmd->Param;
-				r = p_h->EditParam(&temp_param, pCmd->ID, extra);
+				r = p_h->EditParam(&temp_param, pCmd->ID, extraPtr);
 				p_param = &temp_param;
 			}
 			if(r > 0)
-				ok = p_h->Run(p_param, pCmd->ID, extra);
+				ok = p_h->Run(p_param, pCmd->ID, extraPtr);
 		}
 		else
 			ok = 0;
@@ -178,7 +181,7 @@ int SLAPI PPCommandDescr::DoCommand(PPCommand * pCmd, long extra)
 	return ok;
 }
 
-int SLAPI PPCommandDescr::DoCommandSimple(PPID cmdDescrID, int allowEditParam, const char * pTextFilt, long extra)
+int SLAPI PPCommandDescr::DoCommandSimple(PPID cmdDescrID, int allowEditParam, const char * pTextFilt, void * extraPtr)
 {
 	int    ok = -1;
 	SBuffer * p_filt_buf = 0;
@@ -188,27 +191,27 @@ int SLAPI PPCommandDescr::DoCommandSimple(PPID cmdDescrID, int allowEditParam, c
 	if(pTextFilt) {
 		SString temp_buf;
 		temp_buf.Cat(PPBaseFilt::P_TextSignature).Space().Cat(pTextFilt);
-		THROW_SL(filt_buf.Write((const char *)temp_buf, temp_buf.Len()+1));
+		THROW_SL(filt_buf.Write(temp_buf.cptr(), temp_buf.Len()+1));
 		p_filt_buf = &filt_buf;
 	}
 	{
 		int    r = 1;
 		if(allowEditParam) {
 			SETIFZ(p_filt_buf, &filt_buf);
-			r = p_h->EditParam(p_filt_buf, cmdDescrID, extra);
+			r = p_h->EditParam(p_filt_buf, cmdDescrID, extraPtr);
 		}
 		if(r > 0)
-			ok = p_h->Run(p_filt_buf, 0, extra);
+			ok = p_h->Run(p_filt_buf, 0, extraPtr);
 	}
 	CATCHZOK
 	delete p_h;
 	return ok;
 }
 
-int SLAPI PPCommandDescr::EditCommandParam(PPID cmdDescrID, long cmdID, SBuffer * pParam, long extra)
+int SLAPI PPCommandDescr::EditCommandParam(PPID cmdDescrID, long cmdID, SBuffer * pParam, void * extraPtr)
 {
 	PPCommandHandler * p_h = CreateInstance(cmdDescrID);
-	return p_h ? p_h->EditParam(pParam, cmdID, extra) : 0;
+	return p_h ? p_h->EditParam(pParam, cmdID, extraPtr) : 0;
 }
 //
 //
@@ -376,7 +379,7 @@ SLAPI PPCommandFolder::PPCommandFolder() : PPCommandItem(kFolder)
 static int _GetIdList(const PPCommandItem * pItem, long parentID, void * extraPtr)
 {
 	if(pItem)
-		((PPIDArray *)extraPtr)->addUnique(pItem->ID);
+		static_cast<PPIDArray *>(extraPtr)->addUnique(pItem->ID);
 	return 1;
 }
 
@@ -453,19 +456,19 @@ int SLAPI PPCommandFolder::Read(SBuffer & rBuf, long extraParam)
 		rBuf.SetRdOffs(offs);
 		if(item.Kind == PPCommandItem::kCommand) {
 			ptr = /*(char *)*/new PPCommand;
-			((PPCommand*)ptr)->Read(rBuf, extraParam);
+			static_cast<PPCommand *>(ptr)->Read(rBuf, extraParam);
 		}
 		else if(item.Kind == PPCommandItem::kFolder) {
 			ptr = /*(char *)*/new PPCommandFolder;
-			((PPCommandFolder*)ptr)->Read(rBuf, extraParam);
+			static_cast<PPCommandFolder *>(ptr)->Read(rBuf, extraParam);
 		}
 		else if(item.Kind == PPCommandItem::kGroup) {
 			ptr = /*(char *)*/new PPCommandGroup;
-			((PPCommandGroup*)ptr)->Read(rBuf, extraParam);
+			static_cast<PPCommandGroup *>(ptr)->Read(rBuf, extraParam);
 		}
 		else if(item.Kind == PPCommandItem::kSeparator) {
 			ptr = /*(char *)*/new PPCommandItem;
-			((PPCommandItem*)ptr)->Read(rBuf, extraParam);
+			static_cast<PPCommandItem *>(ptr)->Read(rBuf, extraParam);
 		}
 		THROW_SL(List.insert(/*(PPCommandItem*)*/ptr));
 	}
@@ -500,13 +503,13 @@ int SLAPI PPCommandFolder::Update(uint pos, const PPCommandItem * pItem)
 {
 	int    ok = 1;
 	const  uint c = GetCount();
-	const  PPCommandGroup * p_new_grp = (pItem->Kind == PPCommandItem::kGroup) ? (PPCommandGroup *)pItem : 0;
+	const  PPCommandGroup * p_new_grp = (pItem->Kind == PPCommandItem::kGroup) ? static_cast<const PPCommandGroup *>(pItem) : 0;
 	THROW(pos < c);
 	for(uint i = 0; i < c; i++) {
 		if(i != pos) {
 			const PPCommandItem * p = List.at(i);
 			if(p && p->Kind == pItem->Kind) {
-				const PPCommandGroup * p_grp = (p->Kind == PPCommandItem::kGroup) ? (PPCommandGroup *)p : 0;
+				const PPCommandGroup * p_grp = (p->Kind == PPCommandItem::kGroup) ? static_cast<const PPCommandGroup *>(p) : 0;
 				if(p_new_grp && p_grp) {
 					THROW_PP_S(pItem->Name.CmpNC(p->Name) != 0 || !p_new_grp->IsDbSymbEq(*p_grp), PPERR_DUPCMDNAME, pItem->Name);
 				}
@@ -531,11 +534,11 @@ int SLAPI PPCommandFolder::Add(int pos, const PPCommandItem * pItem)
 	int    ok = 1;
 	THROW_INVARG(pItem);
 	const  uint c = GetCount();
-	const  PPCommandGroup * p_new_grp = (pItem->Kind == PPCommandItem::kGroup) ? (PPCommandGroup *)pItem : 0;
+	const  PPCommandGroup * p_new_grp = (pItem->Kind == PPCommandItem::kGroup) ? static_cast<const PPCommandGroup *>(pItem) : 0;
 	for(uint i = 0; i < c; i++) {
 		const PPCommandItem * p = List.at(i);
 		if(p && p->Kind == pItem->Kind) {
-			const PPCommandGroup * p_grp = (p->Kind == PPCommandItem::kGroup) ? (PPCommandGroup *)p : 0;
+			const PPCommandGroup * p_grp = (p->Kind == PPCommandItem::kGroup) ? static_cast<const PPCommandGroup *>(p) : 0;
 			if(p_new_grp && p_grp) {
 				THROW_PP_S(pItem->Name.CmpNC(p->Name) != 0 || !p_new_grp->IsDbSymbEq(*p_grp), PPERR_DUPCMDNAME, pItem->Name);
 			}
@@ -598,7 +601,7 @@ int SLAPI PPCommandFolder::GetMenuList(const PPCommandGroup * pGrp, StrAssocArra
 	CurDict->GetDbSymb(db_symb);
 	for(uint i = 0; p_item = p_grp->Next(&i);) {
 		if(isDesktop)
-			p_desk = (p_item->Kind == PPCommandItem::kGroup) ? (PPCommandGroup*)p_item->Dup() : 0;
+			p_desk = (p_item->Kind == PPCommandItem::kGroup) ? static_cast<PPCommandGroup *>(p_item->Dup()) : 0;
 		if((!isDesktop && p_item->Kind == PPCommandItem::kFolder) || (p_desk && p_desk->IsDbSymbEq(db_symb)))
 			pAry->Add(p_item->ID, p_item->Name);
 		ZDELETE(p_desk);
@@ -618,8 +621,8 @@ int _GetIdParentList(const PPCommandItem * pItem, long parentID, void * extraPtr
 {
 	int    ok = 0;
 	if(pItem) {
-		int    only_folders = ((_ParentList *)extraPtr)->OnlyFolders;
-		StrAssocArray * p_list = ((_ParentList *)extraPtr)->P_List;
+		int    only_folders = static_cast<_ParentList *>(extraPtr)->OnlyFolders;
+		StrAssocArray * p_list = static_cast<_ParentList *>(extraPtr)->P_List;
 		if(p_list) {
 			if(!only_folders || pItem->Kind == PPCommandItem::kFolder) {
 				// @v9.2.8 {
@@ -664,7 +667,7 @@ const PPCommandItem * SLAPI PPCommandFolder::SearchByName(const char * pName, co
 	while(pos < List.getCount()) {
 		const PPCommandItem * p_item = List.at(pos++);
 		if(p_item->Name.CmpNC(pName) == 0) {
-			if(!pDbSymb || (p_item->Kind == PPCommandItem::kGroup && ((const PPCommandGroup*)p_item)->IsDbSymbEq(pDbSymb))) {
+			if(!pDbSymb || (p_item->Kind == PPCommandItem::kGroup && static_cast<const PPCommandGroup *>(p_item)->IsDbSymbEq(pDbSymb))) {
 				ASSIGN_PTR(pPos, pos);
 				p_ret_item = p_item;
 				break;
@@ -723,7 +726,7 @@ const PPCommandItem * SLAPI PPCommandFolder::SearchByCoord(TPoint coord, const P
 	const PPCommandItem * p_item = 0;
 	for(uint i = 0; p_item = Next(&i);) {
 		if(p_item->Kind == PPCommandItem::kCommand) {
-			TPoint lu = ((PPCommand*)p_item)->P;
+			TPoint lu = static_cast<const PPCommand *>(p_item)->P;
 			TRect sqr_coord(lu, lu + (_isz * 2));
 			if(sqr_coord.contains(coord)) {
 				ASSIGN_PTR(pPos, i - 1);
@@ -764,16 +767,16 @@ const PPCommandItem * SLAPI PPCommandFolder::SearchFirst(uint * pPos)
 	MEMSZERO(c);
 	for(uint i = 0; p_item = Next(&i);) {
 		if(p_item->Kind == PPCommandItem::kCommand) {
-			const long x = ((PPCommand*)p_item)->P.x;
-			const long y = ((PPCommand*)p_item)->P.y;
+			const long x = static_cast<const PPCommand *>(p_item)->P.x;
+			const long y = static_cast<const PPCommand *>(p_item)->P.y;
 			if((c.y == 0 || y < c.y) || (c.x == 0 || y == c.y && x <= c.x)) {
 				c.x = x;
 				c.y = y;
-				pos = (long)(i - 1);
+				pos = static_cast<long>(i - 1);
 			}
 		}
 	}
-	ASSIGN_PTR(pPos, (uint)pos);
+	ASSIGN_PTR(pPos, static_cast<uint>(pos));
 	return (pos >= 0) ? Get(static_cast<uint>(pos)) : 0;
 }
 
@@ -789,8 +792,8 @@ const PPCommandItem * SLAPI PPCommandFolder::SearchNextByCoord(POINT coord, cons
 	c.y = coord.y + _isz;
 	for(uint i = 0; p_item = Next(&i);) {
 		if(p_item->Kind == PPCommandItem::kCommand) {
-			long   x = ((PPCommand*)p_item)->P.x;
-			long   y = ((PPCommand*)p_item)->P.y;
+			long   x = static_cast<const PPCommand *>(p_item)->P.x;
+			long   y = static_cast<const PPCommand *>(p_item)->P.y;
 			if(next == nextUp && y < coord.y || next == nextDown && y > coord.y ||
 				next == nextLeft && x < coord.x || next == nextRight && x > coord.x) {
 				x += _isz;
@@ -798,12 +801,12 @@ const PPCommandItem * SLAPI PPCommandFolder::SearchNextByCoord(POINT coord, cons
 				double d = sqrt((double)(x - c.x)*(x - c.x) + (y - c.y)*(y - c.y));
 				if(d != 0 && d < distance) {
 					distance = d;
-					pos = (uint)(i - 1);
+					pos = static_cast<uint>(i - 1);
 				}
 			}
 		}
 	}
-	ASSIGN_PTR(pPos, (uint)pos);
+	ASSIGN_PTR(pPos, static_cast<uint>(pos));
 	return (pos >= 0) ? Get(static_cast<uint>(pos)) : 0;
 }
 
@@ -822,7 +825,7 @@ int SLAPI PPCommandFolder::GetIntersectIDs(const TRect & rR, const PPDesktop & r
 			ri.bottom = ri.top  + _isz * 2;
 			ri.right  = ri.left + _isz * 2;
 			*/
-			rD.CalcIconRect(((PPCommand*)p_item)->P, ir);
+			rD.CalcIconRect(static_cast<const PPCommand *>(p_item)->P, ir);
 			//if(SIntersectRect(ir, rect)) {
 			if(rR.Intersect(ir, 0)) {
 				CALLPTRMEMB(pAry, add(p_item->ID));
@@ -855,7 +858,7 @@ int SLAPI PPCommandFolder::GetIconRect(long id, const PPDesktop & rD, TRect * pR
 	TRect  ir;
 	const  PPCommandItem * p_item = SearchByID(id, 0);
 	if(p_item && p_item->Kind == PPCommandItem::kCommand) {
-        rD.CalcIconRect(((const PPCommand*)p_item)->P, ir);
+        rD.CalcIconRect(static_cast<const PPCommand *>(p_item)->P, ir);
 		ok = 1;
 	}
 	ASSIGN_PTR(pRect, ir);
@@ -1009,7 +1012,7 @@ PPCommandGroup * FASTCALL PPCommandGroup::GetDesktop(long id)
 {
 	uint   pos = 0;
 	const PPCommandItem * p_item = SearchByID(id, &pos);
-	return (p_item && p_item->Kind == PPCommandItem::kGroup) ? (PPCommandGroup*)List.at(pos) : 0;
+	return (p_item && p_item->Kind == PPCommandItem::kGroup) ? static_cast<PPCommandGroup *>(List.at(pos)) : 0;
 }
 
 PPCommandGroup & FASTCALL PPCommandGroup::operator = (const PPCommandGroup & rSrc)
@@ -1148,12 +1151,12 @@ SLAPI PPCommandHandler::~PPCommandHandler()
 {
 }
 
-int SLAPI PPCommandHandler::EditParam(SBuffer * pParam, long, long)
+int SLAPI PPCommandHandler::EditParam(SBuffer * pParam, long, void * extraPtr)
 {
 	return -1;
 }
 
-int SLAPI PPCommandHandler::Run(SBuffer * pParam, long, long)
+int SLAPI PPCommandHandler::Run(SBuffer * pParam, long, void * extraPtr)
 {
 	return -1;
 }
@@ -1213,33 +1216,33 @@ public:
 	SLAPI  CMD_HDL_CLS(DEFAULT)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long cmdID, long extra)
+	virtual int SLAPI EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
 		if(D.ViewId) {
 			if(D.ViewId == PPVIEW_BILL) {
-				BillFilt::FiltExtraParam p(1, (BrowseBillsType)D.FiltExtId);
+				BillFilt::FiltExtraParam p(1, static_cast<BrowseBillsType>(D.FiltExtId));
 				ok = EditPPViewFilt(D.ViewId, pParam, &p);
 			}
 			else
-				ok = EditPPViewFilt(D.ViewId, pParam, (void *)D.FiltExtId);
+				ok = EditPPViewFilt(D.ViewId, pParam, reinterpret_cast<void *>(D.FiltExtId));
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long cmdID, long extra)
+	virtual int SLAPI Run(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
 		if(D.ViewId) {
 			if(D.ViewId == PPVIEW_BILL) {
-				BillFilt::FiltExtraParam p(1, (BrowseBillsType)D.FiltExtId);
+				BillFilt::FiltExtraParam p(1, static_cast<BrowseBillsType>(D.FiltExtId));
 				THROW(PPCheckDatabaseChain());
 				ok = RunPPViewCmd(D.ViewId, pParam, D.MenuCm, cmdID, &p);
 			}
 			else
-				ok = RunPPViewCmd(D.ViewId, pParam, D.MenuCm, cmdID, (void *)D.FiltExtId);
+				ok = RunPPViewCmd(D.ViewId, pParam, D.MenuCm, cmdID, reinterpret_cast<void *>(D.FiltExtId));
 		}
 		else if(D.MenuCm && APPL) {
-			static_cast<PPApp *>(APPL)->processCommand((uint)D.MenuCm);
+			static_cast<PPApp *>(APPL)->processCommand(static_cast<uint>(D.MenuCm));
 			ok = 1;
 		}
 		CATCHZOK
@@ -1256,11 +1259,11 @@ public:
 	SLAPI  CMD_HDL_CLS(ADDPERSON)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		return -1;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
@@ -1317,7 +1320,7 @@ IMPLEMENT_CMD_HDL_FACTORY(ADDPERSON);
 //
 //
 //
-int ReadPrjTaskRec(PrjTaskTbl::Rec * pRec, SBuffer & rBuf, long)
+static int ReadPrjTaskRec(PrjTaskTbl::Rec * pRec, SBuffer & rBuf, long)
 {
 	int    ok = 1;
 	SString code, descr, memo;
@@ -1359,7 +1362,7 @@ int ReadPrjTaskRec(PrjTaskTbl::Rec * pRec, SBuffer & rBuf, long)
 	return ok;
 }
 
-int WritePrjTaskRec(PrjTaskTbl::Rec * pRec, SBuffer & rBuf, long)
+static int WritePrjTaskRec(const PrjTaskTbl::Rec * pRec, SBuffer & rBuf, long)
 {
 	int    ok = 1;
 	SString code, descr, memo;
@@ -1406,7 +1409,7 @@ public:
 	SLAPI  CMD_HDL_CLS(ADDTASK)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
@@ -1431,7 +1434,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long cmdID, long extra)
+	virtual int SLAPI Run(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
 		if((D.MenuCm || cmdID)&& APPL) {
@@ -1441,7 +1444,7 @@ public:
 			THROW(TodoObj.CheckRightsModByID(&id));
 			static_cast<PPApp *>(APPL)->LastCmd = (cmdID) ? (cmdID + ICON_COMMAND_BIAS) : D.MenuCm;
 			param = *pParam;
-			if(EditParam(&param, cmdID, extra) > 0) {
+			if(EditParam(&param, cmdID, extraPtr) > 0) {
 				PrjTaskTbl::Rec rec;
 				MEMSZERO(rec);
 				THROW(ReadPrjTaskRec(&rec, param, 0));
@@ -1465,7 +1468,7 @@ public:
 	SLAPI  CMD_HDL_CLS(ADDPERSONEVENT)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1, valid_data = 0;
 		size_t sav_offs = 0;
@@ -1484,7 +1487,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, long);
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr);
 private:
 	int    SLAPI RunBySymb(SBuffer * pSymb);
 	PPObjPersonEvent PsnEvObj;
@@ -1799,14 +1802,14 @@ int SLAPI CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 	return ok;
 }
 
-int SLAPI CMD_HDL_CLS(ADDPERSONEVENT)::Run(SBuffer * pParam, long cmdID, long extra)
+int SLAPI CMD_HDL_CLS(ADDPERSONEVENT)::Run(SBuffer * pParam, long cmdID, void * extraPtr)
 {
 	int    ok = -1;
 	int    interactive_level = 2;
 	PsnEventDialog * p_dlg = 0;
 	if((D.MenuCm || cmdID) && APPL) {
-		if(extra)
-			ok = RunBySymb((SBuffer*)extra);
+		if(extraPtr)
+			ok = RunBySymb(static_cast<SBuffer *>(extraPtr));
 		else {
 			PPID   op_id = 0;
 			PPObjPsnOpKind pop_obj;
@@ -1973,7 +1976,7 @@ public:
 	SLAPI  CMD_HDL_CLS(CASHNODEPANEL)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long cmdID, long extra)
+	virtual int SLAPI EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1, valid_data = 0;
 		size_t sav_offs = 0;
@@ -2005,7 +2008,7 @@ public:
 		ZDELETE(p_filt);
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long cmdID, long extra)
+	virtual int SLAPI Run(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
 		if((D.MenuCm || cmdID) && APPL) {
@@ -2026,9 +2029,9 @@ IMPLEMENT_CMD_HDL_FACTORY(CASHNODEPANEL);
 class AddBillFiltDlg : public TDialog {
 public:
 	struct Param {
-		PPID   Bbt;
-		PPID   OpID;
-		PPID   LocID;
+		Param() : Bbt(0), OpID(0), LocID(0)
+		{
+		}
 		int    SLAPI Read(SBuffer & rBuf, long)
 		{
 			int    ok = 1;
@@ -2047,6 +2050,9 @@ public:
 			CATCHZOK
 			return ok;
 		}
+		PPID   Bbt;
+		PPID   OpID;
+		PPID   LocID;
 	};
 
 	static int OpTypeListByBbt(PPID bbt, PPIDArray * pOpTypeList);
@@ -2139,7 +2145,7 @@ public:
 	SLAPI  CMD_HDL_CLS(ADDBILL)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long cmdID, long extra)
+	virtual int SLAPI EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1, valid_data = 0;
 		size_t sav_offs = 0;
@@ -2147,7 +2153,6 @@ public:
 		AddBillFiltDlg * p_dlg = 0;
 
 		THROW_INVARG(pParam);
-		MEMSZERO(filt);
 		THROW(CheckDialogPtr(&(p_dlg = new AddBillFiltDlg)));
 		sav_offs = pParam->GetRdOffs();
 		filt.Read(*pParam, 0);
@@ -2170,7 +2175,7 @@ public:
 		delete p_dlg;
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long cmdID, long extra)
+	virtual int SLAPI Run(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
 		if(APPL) {
@@ -2181,7 +2186,7 @@ public:
 				static_cast<PPApp *>(APPL)->LastCmd = (cmdID) ? (cmdID + ICON_COMMAND_BIAS) : D.MenuCm;
 				RVALUEPTR(param, pParam);
 				if(!param.GetAvailableSize()) {
-					if(EditParam(&param, cmdID, extra) > 0) {
+					if(EditParam(&param, cmdID, extraPtr) > 0) {
 						filt.Read(param, 0);
 						r = 1;
 					}
@@ -2206,7 +2211,7 @@ public:
 							r = p_bobj->AddGenAccturn(&id, filt.OpID, 0);
 						else {
 							BillFilt bill_filt;
-							bill_filt.SetupBrowseBillsType((BrowseBillsType)filt.Bbt);
+							bill_filt.SetupBrowseBillsType(static_cast<BrowseBillsType>(filt.Bbt));
 							bill_filt.OpID = filt.OpID;
 							bill_filt.LocList.Add(filt.LocID);
 							r = p_bobj->AddGoodsBillByFilt(&id, &bill_filt, filt.OpID);
@@ -2257,14 +2262,14 @@ public:
 	SLAPI  CMD_HDL_CLS(SEARCHDLVRADDR)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long cmdID, long extra)
+	virtual int SLAPI EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		return -1;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long cmdID, long extra)
+	virtual int SLAPI Run(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
-		PPApp * p_app = (PPApp *)APPL;
+		PPApp * p_app = static_cast<PPApp *>(APPL);
 		if(p_app) {
 			if(D.MenuCm || cmdID) {
 				p_app->LastCmd = (cmdID) ? (cmdID + ICON_COMMAND_BIAS) : D.MenuCm;
@@ -2282,14 +2287,9 @@ class TSessCreateFilt { // @persistent
 public:
 	static const char * P_PrivSign;
 
-	TSessCreateFilt()
+	TSessCreateFilt() : PrivateVer(2), GrpID(0), PrcID(0), Status(0), Reserve(0)
 	{
 		memcpy(PrivateSignature, P_PrivSign, sizeof(PrivateSignature));
-		PrivateVer = 2;
-		GrpID = 0;
-		PrcID = 0;
-		Status = 0;
-		Reserve = 0;
 		memzero(Reserve2, sizeof(Reserve2));
 	}
 	int    SLAPI Write(SBuffer & rBuf, long) const
@@ -2354,7 +2354,7 @@ public:
 	SLAPI  CMD_HDL_CLS(CREATETECHSESS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long cmdID, long extra)
+	virtual int SLAPI EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
@@ -2366,14 +2366,14 @@ public:
 		THROW(CheckDialogPtr(&p_dlg));
 		FileBrowseCtrlGroup::Setup(p_dlg, CTLBRW_CRTTSESSFLT_WTM, CTL_CRTTSESSFLT_WTM, GRP_CRTTSESSFLT_WTM, 0, PPTXT_FILPAT_WTM,
 			FileBrowseCtrlGroup::fbcgfFile);
-		SetupPPObjCombo(p_dlg, CTLSEL_CRTTSESSFLT_GRP, PPOBJ_PROCESSOR, filt.GrpID, OLW_CANINSERT|OLW_CANSELUPLEVEL, (void *)PRCEXDF_GROUP);
+		SetupPPObjCombo(p_dlg, CTLSEL_CRTTSESSFLT_GRP, PPOBJ_PROCESSOR, filt.GrpID, OLW_CANINSERT|OLW_CANSELUPLEVEL, reinterpret_cast<void *>(PRCEXDF_GROUP));
 		SetupPPObjCombo(p_dlg, CTLSEL_CRTTSESSFLT_PRC, PPOBJ_PROCESSOR, filt.PrcID, OLW_CANINSERT);
 		p_dlg->AddClusterAssoc(CTL_CRTTSESSFLT_STATUS,    0, TSESST_PLANNED);
 		p_dlg->AddClusterAssocDef(CTL_CRTTSESSFLT_STATUS, 1, TSESST_PENDING);
 		p_dlg->AddClusterAssoc(CTL_CRTTSESSFLT_STATUS,    2, TSESST_INPROCESS);
 		p_dlg->SetClusterData(CTL_CRTTSESSFLT_STATUS, filt.Status);
 		if(!filt.WtmFileName.NotEmptyS()) {
-			FileBrowseCtrlGroup * p_fbg = (FileBrowseCtrlGroup*)p_dlg->getGroup(GRP_CRTTSESSFLT_WTM);
+			FileBrowseCtrlGroup * p_fbg = static_cast<FileBrowseCtrlGroup *>(p_dlg->getGroup(GRP_CRTTSESSFLT_WTM));
 			if(p_fbg) {
 				SString path;
 				PPGetPath(PPPATH_WTM, path);
@@ -2403,10 +2403,10 @@ public:
 		delete p_dlg;
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long cmdID, long extra)
+	virtual int SLAPI Run(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
-		PPApp * p_app = (PPApp *)APPL;
+		PPApp * p_app = static_cast<PPApp *>(APPL);
 		if(p_app) {
 			if(D.MenuCm || cmdID) {
 				int    r = 1;
@@ -2416,7 +2416,7 @@ public:
 				THROW_INVARG(pParam);
 				param = *pParam;
 				if(!param.GetAvailableSize()) {
-					if(EditParam(&param, cmdID, extra) > 0) {
+					if(EditParam(&param, cmdID, extraPtr) > 0) {
 						filt.Read(param, 0);
 						r = 1;
 					}
@@ -2476,7 +2476,7 @@ public:
 	SLAPI  CMD_HDL_CLS(CTBLORDCREATE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long cmdID, long extra)
+	virtual int SLAPI EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
@@ -2499,10 +2499,10 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long cmdID, long extra)
+	virtual int SLAPI Run(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
-		PPApp * p_app = (PPApp *)APPL;
+		PPApp * p_app = static_cast<PPApp *>(APPL);
 		if(p_app) {
 			if(D.MenuCm || cmdID) {
 				int    r = 1;
@@ -2537,7 +2537,7 @@ public:
 	SLAPI  CMD_HDL_CLS(UPDATEQUOTS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long cmdID, long extra)
+	virtual int SLAPI EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
@@ -2562,10 +2562,10 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long cmdID, long extra)
+	virtual int SLAPI Run(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
-		PPApp * p_app = (PPApp *)APPL;
+		PPApp * p_app = static_cast<PPApp *>(APPL);
 		if(p_app) {
 			if(D.MenuCm || cmdID) {
 				int  r = 1;
@@ -2575,7 +2575,7 @@ public:
 				THROW_INVARG(pParam);
 				param = *pParam;
 				if(!param.GetAvailableSize()) {
-					if(EditParam(&param, cmdID, extra) > 0) {
+					if(EditParam(&param, cmdID, extraPtr) > 0) {
 						filt.Read(param, 0);
 						r = 1;
 					}
@@ -2602,7 +2602,7 @@ public:
 	SLAPI  CMD_HDL_CLS(TRANSMITMODIFICATIONS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long cmdID, long extra)
+	virtual int SLAPI EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
@@ -2625,7 +2625,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long cmdID, long extra)
+	virtual int SLAPI Run(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
 		if(APPL) {
@@ -2637,7 +2637,7 @@ public:
 				THROW_INVARG(pParam);
 				param = *pParam;
 				if(!param.GetAvailableSize()) {
-					if(EditParam(&param, cmdID, extra) > 0) {
+					if(EditParam(&param, cmdID, extraPtr) > 0) {
 						trnsm_param.Read(param, 0);
 						r = 1;
 					}
@@ -2669,7 +2669,7 @@ public:
 	SLAPI  CMD_HDL_CLS(RECEIVEPACKETS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1, r;
 		ObjReceiveParam param;
@@ -2685,7 +2685,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		ObjReceiveParam param;
@@ -2707,11 +2707,11 @@ public:
 	SLAPI  CMD_HDL_CLS(SEARCHBILLBYCTX)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		return -1;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
@@ -2808,7 +2808,7 @@ public:
 	SLAPI  CMD_HDL_CLS(WRITEOFFDRAFTS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		PrcssrWrOffDraftFilt filt; // PPBaseFilt
@@ -2823,7 +2823,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		PrcssrWrOffDraftFilt filt, * p_filt = 0;
@@ -2853,7 +2853,7 @@ public:
 	SLAPI  CMD_HDL_CLS(INFOKIOSK)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		InfoKioskPaneFilt filt;
@@ -2868,7 +2868,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		InfoKioskPaneFilt filt, * p_filt = 0;
@@ -2893,7 +2893,7 @@ public:
 	SLAPI  CMD_HDL_CLS(UNIFYGOODSPRICE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -2909,7 +2909,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -2940,7 +2940,7 @@ public:
 	SLAPI  CMD_HDL_CLS(TESTPREDICTSALESTBL)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1, r = 0;
 		PrcssrPrediction::Param param;
@@ -2957,7 +2957,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		PrcssrPrediction::Param param;
@@ -2982,9 +2982,9 @@ public:
 	SLAPI  CMD_HDL_CLS(EXPORTGOODSRESTUHTT)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
-		int    ok = -1, r = 1;
+		int    ok = -1;
 		uint   val = 0;
 		PPViewGoodsRest gr_view;
 		GoodsRestFilt filt;
@@ -2995,7 +2995,7 @@ public:
 		else {
 			filt.Read(*pParam, 0);
 		}
-		if(r > 0 && gr_view.EditBaseFilt(&filt) > 0) {
+		if(gr_view.EditBaseFilt(&filt) > 0) {
 			if(filt.Write(pParam->Z(), 0))
 				ok = 1;
 		}
@@ -3003,7 +3003,7 @@ public:
 			pParam->SetRdOffs(sav_offs);
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam->GetAvailableSize() != 0) {
@@ -3028,7 +3028,7 @@ public:
 	SLAPI  CMD_HDL_CLS(IMPORTBILLS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1, r = 1;
 		uint   val = 0;
@@ -3050,7 +3050,7 @@ public:
 		CATCHZOKPPERR
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam->GetAvailableSize()) {
@@ -3081,7 +3081,7 @@ public:
 	SLAPI  CMD_HDL_CLS(IMPORTGOODS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1, r = 1;
 		uint   val = 0;
@@ -3103,7 +3103,7 @@ public:
 		CATCHZOKPPERR
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam->GetAvailableSize()) {
@@ -3134,7 +3134,7 @@ public:
 	SLAPI  CMD_HDL_CLS(PROCESSOBJTEXT)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -3150,7 +3150,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -3178,7 +3178,7 @@ public:
 	SLAPI  CMD_HDL_CLS(PERSONEVENTBYREADER)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
@@ -3197,7 +3197,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -3222,7 +3222,7 @@ public:
 	SLAPI  CMD_HDL_CLS(TSESSAUTOSMS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1, r = 1;
 		uint   val = 0;
@@ -3245,7 +3245,7 @@ public:
 		CATCHZOKPPERR
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam->GetAvailableSize()) {
@@ -3271,7 +3271,7 @@ public:
 	SLAPI  CMD_HDL_CLS(CREATEDRAFTBYSUPPLORDER)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t preserve_offs = 0;
@@ -3279,7 +3279,7 @@ public:
 		if(pParam) {
 			PPViewSStat view;
 			preserve_offs = pParam->GetRdOffs();
-			THROW_MEM(p_filt = (SStatFilt*)view.CreateFilt((void *)1));
+			THROW_MEM(p_filt = static_cast<SStatFilt *>(view.CreateFilt(reinterpret_cast<void *>(1))));
 			if(pParam->GetAvailableSize() != 0)
 				p_filt->Read(*pParam, 0);
 			if(view.EditBaseFilt(p_filt) > 0) {
@@ -3296,7 +3296,7 @@ public:
 		ZDELETE(p_filt);
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -3319,7 +3319,7 @@ public:
 	SLAPI  CMD_HDL_CLS(SENDBILLS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t preserve_offs = 0;
@@ -3343,7 +3343,7 @@ public:
 		ZDELETE(p_filt);
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam && pParam->GetAvailableSize()) {
@@ -3369,7 +3369,7 @@ public:
 	SLAPI  CMD_HDL_CLS(EXPORTDBTBLTRANSFER)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		PPDbTableXmlExportParam_TrfrBill filt;
@@ -3392,7 +3392,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		PPDbTableXmlExportParam_TrfrBill filt;
@@ -3417,7 +3417,7 @@ public:
 	SLAPI  CMD_HDL_CLS(EXPORTDBTBLBILL)(const PPCommandDescr * pDescr) : CMD_HDL_CLS(EXPORTDBTBLTRANSFER)(pDescr)
 	{
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		PPDbTableXmlExportParam_TrfrBill filt;
@@ -3442,7 +3442,7 @@ public:
 	SLAPI  CMD_HDL_CLS(IMPORTFIAS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		FiasImporter::Param filt;
@@ -3465,7 +3465,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		FiasImporter::Param filt;
@@ -3490,7 +3490,7 @@ public:
 	SLAPI  CMD_HDL_CLS(SUPPLINTERCHANGE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -3506,7 +3506,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -3534,7 +3534,7 @@ public:
 	SLAPI  CMD_HDL_CLS(PROCESSOSM)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -3550,7 +3550,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		PrcssrOsmFilt filt;
@@ -3574,7 +3574,7 @@ public:
 	SLAPI  CMD_HDL_CLS(PROCESSSARTRE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -3590,7 +3590,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		PrcssrSartreFilt filt;
@@ -3614,7 +3614,7 @@ public:
 	SLAPI  CMD_HDL_CLS(BILLAUTOCREATE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -3630,7 +3630,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		PPBillAutoCreateParam filt;
@@ -3661,7 +3661,7 @@ public:
 	SLAPI  CMD_HDL_CLS(TIMESERIESSA)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -3677,7 +3677,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		PrcssrTsStrategyAnalyzeFilt filt;

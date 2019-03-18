@@ -465,7 +465,7 @@ int FASTCALL xmlCurrentChar(xmlParserCtxt * ctxt, int * len)
 		return 0;
 	if((*ctxt->input->cur >= 0x20) && (*ctxt->input->cur <= 0x7F)) {
 		*len = 1;
-		return((int)*ctxt->input->cur);
+		return static_cast<int>(*ctxt->input->cur);
 	}
 	if(ctxt->charset == XML_CHAR_ENCODING_UTF8) {
 		/*
@@ -554,9 +554,9 @@ int FASTCALL xmlCurrentChar(xmlParserCtxt * ctxt, int * len)
 					ctxt->nbChars++;
 					ctxt->input->cur++;
 				}
-				return(0xA);
+				return (0xA);
 			}
-			return((int)*ctxt->input->cur);
+			return static_cast<int>(*ctxt->input->cur);
 		}
 	}
 	/*
@@ -570,9 +570,9 @@ int FASTCALL xmlCurrentChar(xmlParserCtxt * ctxt, int * len)
 			ctxt->nbChars++;
 			ctxt->input->cur++;
 		}
-		return(0xA);
+		return (0xA);
 	}
-	return((int)*ctxt->input->cur);
+	return static_cast<int>(*ctxt->input->cur);
 encoding_error:
 	/*
 	 * An encoding problem may arise from a truncated input buffer
@@ -599,7 +599,7 @@ encoding_error:
 	}
 	ctxt->charset = XML_CHAR_ENCODING_8859_1;
 	*len = 1;
-	return((int)*ctxt->input->cur);
+	return static_cast<int>(*ctxt->input->cur);
 }
 /**
  * xmlStringCurrentChar:
@@ -745,7 +745,7 @@ int FASTCALL xmlCopyCharMultiByte(xmlChar * out, int val)
 			*out++ = ((val >> bits) & 0x3F) | 0x80;
 		return (out - savedout);
 	}
-	*out = (xmlChar)val;
+	*out = static_cast<xmlChar>(val);
 	return 1;
 }
 /**
@@ -766,17 +766,13 @@ int FASTCALL xmlCopyChar(int len ATTRIBUTE_UNUSED, xmlChar * out, int val)
 	else if(val >= 0x80)
 		return xmlCopyCharMultiByte(out, val);
 	else {
-		*out = (xmlChar)val;
+		*out = static_cast<xmlChar>(val);
 		return 1;
 	}
 }
-
-/************************************************************************
-*									*
-*		Commodity functions to switch encodings			*
-*									*
-************************************************************************/
-
+//
+// Commodity functions to switch encodings
+//
 static int xmlSwitchToEncodingInt(xmlParserCtxt * ctxt, xmlCharEncodingHandler * handler, int len);
 static int xmlSwitchInputEncodingInt(xmlParserCtxt * ctxt, xmlParserInput * input, xmlCharEncodingHandler * handler, int len);
 /**
@@ -870,22 +866,22 @@ int xmlSwitchEncoding(xmlParserCtxt * ctxt, xmlCharEncoding enc)
 			case XML_CHAR_ENCODING_UTF16BE:
 			    break;
 			case XML_CHAR_ENCODING_UCS4LE:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", BAD_CAST "USC4 little endian", 0);
+			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", reinterpret_cast<const xmlChar *>("USC4 little endian"), 0);
 			    break;
 			case XML_CHAR_ENCODING_UCS4BE:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", BAD_CAST "USC4 big endian", 0);
+			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", reinterpret_cast<const xmlChar *>("USC4 big endian"), 0);
 			    break;
 			case XML_CHAR_ENCODING_EBCDIC:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", BAD_CAST "EBCDIC", 0);
+			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", reinterpret_cast<const xmlChar *>("EBCDIC"), 0);
 			    break;
 			case XML_CHAR_ENCODING_UCS4_2143:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", BAD_CAST "UCS4 2143", 0);
+			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", reinterpret_cast<const xmlChar *>("UCS4 2143"), 0);
 			    break;
 			case XML_CHAR_ENCODING_UCS4_3412:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", BAD_CAST "UCS4 3412", 0);
+			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", reinterpret_cast<const xmlChar *>("UCS4 3412"), 0);
 			    break;
 			case XML_CHAR_ENCODING_UCS2:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", BAD_CAST "UCS2", 0);
+			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", reinterpret_cast<const xmlChar *>("UCS2"), 0);
 			    break;
 			case XML_CHAR_ENCODING_8859_1:
 			case XML_CHAR_ENCODING_8859_2:
@@ -908,13 +904,13 @@ int xmlSwitchEncoding(xmlParserCtxt * ctxt, xmlCharEncoding enc)
 			    ctxt->charset = enc;
 			    return 0;
 			case XML_CHAR_ENCODING_2022_JP:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", BAD_CAST "ISO-2022-JP", 0);
+			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", reinterpret_cast<const xmlChar *>("ISO-2022-JP"), 0);
 			    break;
 			case XML_CHAR_ENCODING_SHIFT_JIS:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", BAD_CAST "Shift_JIS", 0);
+			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", reinterpret_cast<const xmlChar *>("Shift_JIS"), 0);
 			    break;
 			case XML_CHAR_ENCODING_EUC_JP:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", BAD_CAST "EUC-JP", 0);
+			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", reinterpret_cast<const xmlChar *>("EUC-JP"), 0);
 			    break;
 			default:
 			    break;
@@ -959,9 +955,9 @@ static int xmlSwitchInputEncodingInt(xmlParserCtxt * ctxt, xmlParserInput * inpu
 			/*
 			 * "UTF-16" can be used for both LE and BE
 			   if ((!xmlStrncmp(BAD_CAST input->buf->encoder->name,
-			   BAD_CAST "UTF-16", 6)) &&
+			   reinterpret_cast<const xmlChar *>("UTF-16"), 6)) &&
 			   (!xmlStrncmp(BAD_CAST handler->name,
-			   BAD_CAST "UTF-16", 6))) {
+			   reinterpret_cast<const xmlChar *>("UTF-16"), 6))) {
 			   return 0;
 			   }
 			 */
@@ -1285,7 +1281,7 @@ xmlParserInput * xmlNewInputFromFile(xmlParserCtxt * ctxt, const char * filename
 					xmlChar * URI = inputStream->filename ? sstrdup((xmlChar *)inputStream->filename) : sstrdup((xmlChar *)filename);
 					char * directory = xmlParserGetDirectory((const char *)URI);
 					SAlloc::F((char *)inputStream->filename);
-					inputStream->filename = (char *)xmlCanonicPath((const xmlChar*)URI);
+					inputStream->filename = (char *)xmlCanonicPath((const xmlChar *)URI);
 					SAlloc::F((char *)URI);
 					inputStream->directory = directory;
 					xmlBufResetInput(inputStream->buf->buffer, inputStream);
@@ -1647,7 +1643,7 @@ void xmlClearNodeInfoSeq(xmlParserNodeInfoSeqPtr seq)
 ulong xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeq * seq, const xmlNode * P_Node)
 {
 	if(!seq || !P_Node)
-		return ((unsigned long)-1);
+		return ((ulong)-1);
 	else {
 		// Do a binary search for the key 
 		ulong lower = 1;

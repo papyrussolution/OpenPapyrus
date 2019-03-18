@@ -248,7 +248,7 @@ static CURLcode connect_prep(struct connectdata * conn, int sockindex)
 		size_t ssl_idsize;
 		/* In axTLS, handshaking happens inside ssl_client_new. */
 		Curl_ssl_sessionid_lock(conn);
-		if(!Curl_ssl_getsessionid(conn, (void**)&ssl_sessionid, &ssl_idsize, sockindex)) {
+		if(!Curl_ssl_getsessionid(conn, (void **)&ssl_sessionid, &ssl_idsize, sockindex)) {
 			/* we got a session id, use it! */
 			infof(data, "SSL re-using session ID\n");
 			ssl = ssl_client_new(ssl_ctx, conn->sock[sockindex], ssl_sessionid, (uint8_t)ssl_idsize, 0);

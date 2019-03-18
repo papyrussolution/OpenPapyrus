@@ -364,10 +364,10 @@ static int get_socket_nonblocking(int sockfd)
 	size_t size = sizeof( int );
 	int callstat = getsockopt(sockfd, SOL_SOCKET, SO_STATE, (char *)&sockstat, &size);
 	if(callstat == -1)
-		return(0);
+		return 0;
 	if((sockstat&SS_NBIO))
 		return 1;
-	return(0);
+	return 0;
 
 #undef GETBLOCK
 #define GETBLOCK 6

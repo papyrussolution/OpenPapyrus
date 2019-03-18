@@ -414,9 +414,9 @@ extern "C" {
 #endif
 #ifndef OPENSSL_EXIT
 	#if defined(MONOLITH) && !defined(OPENSSL_C)
-		#define OPENSSL_EXIT(n) return(n)
+		#define OPENSSL_EXIT(n) return (n)
 	#else
-		#define OPENSSL_EXIT(n) do { EXIT(n); return(n); } while(0)
+		#define OPENSSL_EXIT(n) do { EXIT(n); return (n); } while(0)
 	#endif
 #endif
 #if defined(OPENSSL_SYS_WINDOWS)

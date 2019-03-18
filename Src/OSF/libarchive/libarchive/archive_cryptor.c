@@ -50,7 +50,7 @@ static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8_t * salt,
     size_t salt_len, unsigned rounds, uint8_t * derived_key,
     size_t derived_key_len)
 {
-	CCKeyDerivationPBKDF(kCCPBKDF2, (const char*)pw,
+	CCKeyDerivationPBKDF(kCCPBKDF2, (const char *)pw,
 	    pw_len, salt, salt_len, kCCPRFHmacAlgSHA1, rounds,
 	    derived_key, derived_key_len);
 	return 0;

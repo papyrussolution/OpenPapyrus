@@ -361,7 +361,7 @@ int SLAPI PPObjGoodsBasket::PutPacket(PPID * pID, PPBasketPacket * pData, int us
 				}
 				else {
 					ILTI * pi;
-					for(i = 0; pData->Lots.enumItems(&i, (void**)&pi);) {
+					for(i = 0; pData->Lots.enumItems(&i, (void **)&pi);) {
 						PPGoodsBasketItem gbi;
 						MEMSZERO(gbi);
 						gbi.ItemGoodsID = pi->GoodsID;
@@ -529,7 +529,7 @@ int SLAPI PPObjGoodsBasket::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, in
 	if(p && p->Data) {
 		PPBasketPacket * p_pack= (PPBasketPacket*)p->Data;
 		ILTI * p_item = 0;
-		for(uint i = 0; p_pack->Lots.enumItems(&i, (void**)&p_item);)
+		for(uint i = 0; p_pack->Lots.enumItems(&i, (void **)&p_item);)
 			if(!ProcessObjRefInArray(PPOBJ_GOODS, &p_item->GoodsID, ary, replace))
 				return 0;
 		return 1;
@@ -1269,7 +1269,7 @@ public:
 		MEMSZERO(Item);
 		SetupCalDate(CTLCAL_GBITEM_EXPIRY, CTL_GBITEM_EXPIRY);
 	}
-	int    setDTS(ILTI * pItem);
+	int    setDTS(const ILTI * pItem);
 	int    getDTS(ILTI * pData);
 	int    getLotInfo(PPID goodsID, ReceiptTbl::Rec * pRec)
 	{
@@ -1298,7 +1298,7 @@ private:
 	PPID   DefLocID; // —клад, используемый дл€ нахождени€ последнего лота
 };
 
-int GBItemDialog::setDTS(ILTI * pItem)
+int GBItemDialog::setDTS(const ILTI * pItem)
 {
 	Item = *pItem;
 	int    ok = 1;
@@ -1381,7 +1381,7 @@ int GBItemDialog::setupAmount(double * pAmount, int recalcQttyPack /*=1*/)
 	double cur_sum = 0.0, sum_price = 0.0, sum_brutto = 0.0, sum_volume = 0.0;
 	GoodsStockExt gse;
 	ILTI * p_item = 0;
-	for(uint i = 0; R_Cart.Pack.Lots.enumItems(&i, (void**)&p_item);) {
+	for(uint i = 0; R_Cart.Pack.Lots.enumItems(&i, (void **)&p_item);) {
 		cur_sum = p_item->Price * p_item->Quantity;
 		sum_price += cur_sum;
 		if(GObj.GetStockExt(p_item->GoodsID, &gse, 1) > 0) {
@@ -1695,7 +1695,7 @@ int GBDialog::setupList()
 	StringSet ss(SLBColumnDelim);
 	PPObjGoods goods_obj;
 	Goods2Tbl::Rec goods_rec;
-	for(uint i = 0; R_Data.Pack.Lots.enumItems(&i, (void**)&p_item);) {
+	for(uint i = 0; R_Data.Pack.Lots.enumItems(&i, (void **)&p_item);) {
 		GoodsStockExt gse;
 		goods_obj.Fetch(p_item->GoodsID, &goods_rec);
 		ss.clear();
@@ -1803,7 +1803,7 @@ int GBDialog::addFromBasket()
 		ILTI * p_item;
 		PPObjGoods goods_obj;
 		PPWait(1);
-		for(uint i = 0; bc.Pack.Lots.enumItems(&i, (void**)&p_item);) {
+		for(uint i = 0; bc.Pack.Lots.enumItems(&i, (void **)&p_item);) {
 			uint   pos = 0;
 			if(R_Data.Pack.SearchGoodsID(p_item->GoodsID, &pos))
 				R_Data.Pack.Lots.at(pos).Quantity += p_item->Quantity;
@@ -1849,7 +1849,7 @@ int GBDialog::DoDiscount()
 		if(ok > 0) {
 			PPWait(1);
 			ILTI * p_item = 0;
-			for(uint i = 0; R_Data.Pack.Lots.enumItems(&i, (void**)&p_item) > 0;) {
+			for(uint i = 0; R_Data.Pack.Lots.enumItems(&i, (void **)&p_item) > 0;) {
 				double price = p_item->Price - (pctdis ? (p_item->Price * fdiv100r(discount)) : discount);
 				if(price > 0.0)
 					p_item->Price = price;
@@ -2231,7 +2231,7 @@ int SLAPI PPObjBill::ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket 
 				r = (fabs(ilti.Rest) > 0.0) ? ProcessUnsuffisientGoods(ilti.GoodsID, pugpNoBalance) : -1;
 			if(r == PCUG_ASGOODSAS || r == -1) {
 				int * p_i;
-				for(uint j = 0; one_goods_rows.enumItems(&j, (void**)&p_i);) {
+				for(uint j = 0; one_goods_rows.enumItems(&j, (void **)&p_i);) {
 					PPTransferItem & r_ti = pPack->TI((uint)*p_i);
 					if(op_type_id == PPOPT_GOODSRECEIPT && r_ti.Flags & PPTFR_RECEIPT) {
 						r_ti.QCert = lot_rec.QCertID;

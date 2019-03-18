@@ -967,7 +967,7 @@ int SCDBObject::ExportIndex(PROGRESSFN pFn, const char * pDbName, SVector * pAry
 		THROW(stbl_idx.Open(pDbName, SyncTable::oCreate));
 		THROW(stbl_idx.PurgeAll());
 		if(!P_Ctx->PalmCfg.CompressData()) {
-			for(i = 0; pAry->enumItems(&i, (void**)&p_buf) > 0;) {
+			for(i = 0; pAry->enumItems(&i, (void **)&p_buf) > 0;) {
 				DWORD uniq_id = *p_buf;//SyncHostToHHDWord(*(uint32 *)p_buf);
 				THROW(stbl_idx.AddRec(0, &uniq_id, sizeof(uniq_id)));
 				THROW(stbl_idx.Reopen(-1, i));

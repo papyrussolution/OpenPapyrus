@@ -157,17 +157,15 @@ struct logLuvState {
 	int user_datafmt;                       /* user data format */
 	int encode_meth;                        /* encoding method */
 	int pixel_size;                         /* bytes per pixel */
-
-	uint8*                  tbuf;           /* translation buffer */
+	uint8 * tbuf;           /* translation buffer */
 	tmsize_t tbuflen;                       /* buffer length */
 	void (* tfunc)(LogLuvState*, uint8*, tmsize_t);
-
 	TIFFVSetMethod vgetparent;              /* super-class method */
 	TIFFVSetMethod vsetparent;              /* super-class method */
 };
 
-#define DecoderState(tif)       ((LogLuvState*)(tif)->tif_data)
-#define EncoderState(tif)       ((LogLuvState*)(tif)->tif_data)
+#define DecoderState(tif)       (reinterpret_cast<LogLuvState *>((tif)->tif_data))
+#define EncoderState(tif)       (reinterpret_cast<LogLuvState *>((tif)->tif_data))
 
 #define SGILOGDATAFMT_UNKNOWN -1
 
@@ -183,30 +181,25 @@ static int LogL16Decode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 	int shft;
 	tmsize_t i;
 	tmsize_t npixels;
-	unsigned char* bp;
+	uchar* bp;
 	int16* tp;
 	int16 b;
 	tmsize_t cc;
 	int rc;
-
 	assert(s == 0);
 	assert(sp != NULL);
-
 	npixels = occ / sp->pixel_size;
-
 	if(sp->user_datafmt == SGILOGDATAFMT_16BIT)
-		tp = (int16 *)op;
+		tp = reinterpret_cast<int16 *>(op);
 	else {
 		if(sp->tbuflen < npixels) {
-			TIFFErrorExt(tif->tif_clientdata, module,
-			    "Translation buffer too short");
+			TIFFErrorExt(tif->tif_clientdata, module, "Translation buffer too short");
 			return 0;
 		}
-		tp = (int16 *)sp->tbuf;
+		tp = reinterpret_cast<int16 *>(sp->tbuf);
 	}
-	memzero((void *)tp, npixels*sizeof(tp[0]));
-
-	bp = (unsigned char*)tif->tif_rawcp;
+	memzero(/*(void *)*/tp, npixels*sizeof(tp[0]));
+	bp = (uchar *)tif->tif_rawcp;
 	cc = tif->tif_rawcc;
 	/* get each byte string */
 	for(shft = 2*8; (shft -= 8) >= 0; ) {
@@ -228,23 +221,17 @@ static int LogL16Decode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 		}
 		if(i != npixels) {
 #if defined(__WIN32__) && (defined(_MSC_VER) || defined(__MINGW32__))
-			TIFFErrorExt(tif->tif_clientdata, module,
-			    "Not enough data at row %lu (short %I64d pixels)",
-			    (unsigned long)tif->tif_row,
-			    (unsigned __int64)(npixels - i));
+			TIFFErrorExt(tif->tif_clientdata, module, "Not enough data at row %lu (short %I64d pixels)", (ulong)tif->tif_row, static_cast<uint64>(npixels - i));
 #else
-			TIFFErrorExt(tif->tif_clientdata, module,
-			    "Not enough data at row %lu (short %llu pixels)",
-			    (unsigned long)tif->tif_row,
-			    (unsigned long long)(npixels - i));
+			TIFFErrorExt(tif->tif_clientdata, module, "Not enough data at row %lu (short %llu pixels)", (ulong)tif->tif_row, static_cast<uint64>(npixels - i));
 #endif
-			tif->tif_rawcp = (uint8 *)bp;
+			tif->tif_rawcp = reinterpret_cast<uint8 *>(bp);
 			tif->tif_rawcc = cc;
 			return 0;
 		}
 	}
 	(*sp->tfunc)(sp, op, npixels);
-	tif->tif_rawcp = (uint8 *)bp;
+	tif->tif_rawcp = reinterpret_cast<uint8 *>(bp);
 	tif->tif_rawcc = cc;
 	return 1;
 }
@@ -259,45 +246,35 @@ static int LogLuvDecode24(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 	tmsize_t cc;
 	tmsize_t i;
 	tmsize_t npixels;
-	unsigned char* bp;
+	uchar* bp;
 	uint32* tp;
-
 	assert(s == 0);
 	assert(sp != NULL);
-
 	npixels = occ / sp->pixel_size;
-
 	if(sp->user_datafmt == SGILOGDATAFMT_RAW)
-		tp = (uint32 *)op;
+		tp = reinterpret_cast<uint32 *>(op);
 	else {
 		if(sp->tbuflen < npixels) {
-			TIFFErrorExt(tif->tif_clientdata, module,
-			    "Translation buffer too short");
+			TIFFErrorExt(tif->tif_clientdata, module, "Translation buffer too short");
 			return 0;
 		}
-		tp = (uint32 *)sp->tbuf;
+		tp = reinterpret_cast<uint32 *>(sp->tbuf);
 	}
 	/* copy to array of uint32 */
-	bp = (unsigned char*)tif->tif_rawcp;
+	bp = (uchar *)tif->tif_rawcp;
 	cc = tif->tif_rawcc;
 	for(i = 0; i < npixels && cc >= 3; i++) {
 		tp[i] = bp[0] << 16 | bp[1] << 8 | bp[2];
 		bp += 3;
 		cc -= 3;
 	}
-	tif->tif_rawcp = (uint8 *)bp;
+	tif->tif_rawcp = reinterpret_cast<uint8 *>(bp);
 	tif->tif_rawcc = cc;
 	if(i != npixels) {
 #if defined(__WIN32__) && (defined(_MSC_VER) || defined(__MINGW32__))
-		TIFFErrorExt(tif->tif_clientdata, module,
-		    "Not enough data at row %lu (short %I64d pixels)",
-		    (unsigned long)tif->tif_row,
-		    (unsigned __int64)(npixels - i));
+		TIFFErrorExt(tif->tif_clientdata, module, "Not enough data at row %lu (short %I64d pixels)", (ulong)tif->tif_row, static_cast<uint64>(npixels - i));
 #else
-		TIFFErrorExt(tif->tif_clientdata, module,
-		    "Not enough data at row %lu (short %llu pixels)",
-		    (unsigned long)tif->tif_row,
-		    (unsigned long long)(npixels - i));
+		TIFFErrorExt(tif->tif_clientdata, module, "Not enough data at row %lu (short %llu pixels)", (ulong)tif->tif_row, static_cast<uint64>(npixels - i));
 #endif
 		return 0;
 	}
@@ -315,31 +292,26 @@ static int LogLuvDecode32(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 	int shft;
 	tmsize_t i;
 	tmsize_t npixels;
-	unsigned char* bp;
+	uchar* bp;
 	uint32* tp;
 	uint32 b;
 	tmsize_t cc;
 	int rc;
-
 	assert(s == 0);
 	sp = DecoderState(tif);
 	assert(sp != NULL);
-
 	npixels = occ / sp->pixel_size;
-
 	if(sp->user_datafmt == SGILOGDATAFMT_RAW)
 		tp = (uint32 *)op;
 	else {
 		if(sp->tbuflen < npixels) {
-			TIFFErrorExt(tif->tif_clientdata, module,
-			    "Translation buffer too short");
+			TIFFErrorExt(tif->tif_clientdata, module, "Translation buffer too short");
 			return 0;
 		}
-		tp = (uint32 *)sp->tbuf;
+		tp = reinterpret_cast<uint32 *>(sp->tbuf);
 	}
-	memzero((void *)tp, npixels*sizeof(tp[0]));
-
-	bp = (unsigned char*)tif->tif_rawcp;
+	memzero(/*(void *)*/tp, npixels*sizeof(tp[0]));
+	bp = (uchar *)tif->tif_rawcp;
 	cc = tif->tif_rawcc;
 	/* get each byte string */
 	for(shft = 4*8; (shft -= 8) >= 0; ) {
@@ -361,23 +333,17 @@ static int LogLuvDecode32(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 		}
 		if(i != npixels) {
 #if defined(__WIN32__) && (defined(_MSC_VER) || defined(__MINGW32__))
-			TIFFErrorExt(tif->tif_clientdata, module,
-			    "Not enough data at row %lu (short %I64d pixels)",
-			    (unsigned long)tif->tif_row,
-			    (unsigned __int64)(npixels - i));
+			TIFFErrorExt(tif->tif_clientdata, module, "Not enough data at row %lu (short %I64d pixels)", (ulong)tif->tif_row, static_cast<uint64>(npixels - i));
 #else
-			TIFFErrorExt(tif->tif_clientdata, module,
-			    "Not enough data at row %lu (short %llu pixels)",
-			    (unsigned long)tif->tif_row,
-			    (unsigned long long)(npixels - i));
+			TIFFErrorExt(tif->tif_clientdata, module, "Not enough data at row %lu (short %llu pixels)", (ulong)tif->tif_row, static_cast<uint64>(npixels - i));
 #endif
-			tif->tif_rawcp = (uint8 *)bp;
+			tif->tif_rawcp = reinterpret_cast<uint8 *>(bp);
 			tif->tif_rawcc = cc;
 			return 0;
 		}
 	}
 	(*sp->tfunc)(sp, op, npixels);
-	tif->tif_rawcp = (uint8 *)bp;
+	tif->tif_rawcp = reinterpret_cast<uint8 *>(bp);
 	tif->tif_rawcc = cc;
 	return 1;
 }
@@ -390,10 +356,8 @@ static int LogLuvDecode32(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 static int LogLuvDecodeStrip(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 {
 	tmsize_t rowlen = TIFFScanlineSize(tif);
-
 	if(rowlen == 0)
 		return 0;
-
 	assert(cc%rowlen == 0);
 	while(cc && (*tif->tif_decoderow)(tif, bp, rowlen, s)) {
 		bp += rowlen;
@@ -410,10 +374,8 @@ static int LogLuvDecodeStrip(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 static int LogLuvDecodeTile(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 {
 	tmsize_t rowlen = TIFFTileRowSize(tif);
-
 	if(rowlen == 0)
 		return 0;
-
 	assert(cc%rowlen == 0);
 	while(cc && (*tif->tif_decoderow)(tif, bp, rowlen, s)) {
 		bp += rowlen;
@@ -439,18 +401,15 @@ static int LogL16Encode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 	tmsize_t occ;
 	int rc = 0, mask;
 	tmsize_t beg;
-
 	assert(s == 0);
 	assert(sp != NULL);
 	npixels = cc / sp->pixel_size;
-
 	if(sp->user_datafmt == SGILOGDATAFMT_16BIT)
 		tp = (int16 *)bp;
 	else {
-		tp = (int16 *)sp->tbuf;
+		tp = reinterpret_cast<int16 *>(sp->tbuf);
 		if(sp->tbuflen < npixels) {
-			TIFFErrorExt(tif->tif_clientdata, module,
-			    "Translation buffer too short");
+			TIFFErrorExt(tif->tif_clientdata, module, "Translation buffer too short");
 			return 0;
 		}
 		(*sp->tfunc)(sp, bp, npixels);
@@ -472,8 +431,7 @@ static int LogL16Encode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 			for(beg = i; beg < npixels; beg += rc) {
 				b = (int16)(tp[beg] & mask);
 				rc = 1;
-				while(rc < 127+2 && beg+rc < npixels &&
-				    (tp[beg+rc] & mask) == b)
+				while(rc < 127+2 && beg+rc < npixels && (tp[beg+rc] & mask) == b)
 					rc++;
 				if(rc >= MINRUN)
 					break;          /* long enough */
@@ -540,10 +498,9 @@ static int LogLuvEncode24(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 	if(sp->user_datafmt == SGILOGDATAFMT_RAW)
 		tp = (uint32 *)bp;
 	else {
-		tp = (uint32 *)sp->tbuf;
+		tp = reinterpret_cast<uint32 *>(sp->tbuf);
 		if(sp->tbuflen < npixels) {
-			TIFFErrorExt(tif->tif_clientdata, module,
-			    "Translation buffer too short");
+			TIFFErrorExt(tif->tif_clientdata, module, "Translation buffer too short");
 			return 0;
 		}
 		(*sp->tfunc)(sp, bp, npixels);
@@ -588,19 +545,15 @@ static int LogLuvEncode32(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 	tmsize_t occ;
 	int rc = 0, mask;
 	tmsize_t beg;
-
 	assert(s == 0);
 	assert(sp != NULL);
-
 	npixels = cc / sp->pixel_size;
-
 	if(sp->user_datafmt == SGILOGDATAFMT_RAW)
 		tp = (uint32 *)bp;
 	else {
-		tp = (uint32 *)sp->tbuf;
+		tp = reinterpret_cast<uint32 *>(sp->tbuf);
 		if(sp->tbuflen < npixels) {
-			TIFFErrorExt(tif->tif_clientdata, module,
-			    "Translation buffer too short");
+			TIFFErrorExt(tif->tif_clientdata, module, "Translation buffer too short");
 			return 0;
 		}
 		(*sp->tfunc)(sp, bp, npixels);
@@ -677,10 +630,8 @@ static int LogLuvEncode32(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 static int LogLuvEncodeStrip(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 {
 	tmsize_t rowlen = TIFFScanlineSize(tif);
-
 	if(rowlen == 0)
 		return 0;
-
 	assert(cc%rowlen == 0);
 	while(cc && (*tif->tif_encoderow)(tif, bp, rowlen, s) == 1) {
 		bp += rowlen;
@@ -696,10 +647,8 @@ static int LogLuvEncodeStrip(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 static int LogLuvEncodeTile(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 {
 	tmsize_t rowlen = TIFFTileRowSize(tif);
-
 	if(rowlen == 0)
 		return 0;
-
 	assert(cc%rowlen == 0);
 	while(cc && (*tif->tif_encoderow)(tif, bp, rowlen, s) == 1) {
 		bp += rowlen;
@@ -730,10 +679,7 @@ static int LogLuvEncodeTile(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 #define log2(x)         ((1./M_LN2)*log(x))
 #undef exp2  /* Conflict with C'99 function */
 #define exp2(x)         exp(M_LN2*(x))
-
-#define itrunc(x, m)     ((m)==SGILOGENCODE_NODITHER ? \
-	    (int)(x) : \
-	    (int)((x) + rand()*(1./RAND_MAX) - .5))
+#define itrunc(x, m)     ((m)==SGILOGENCODE_NODITHER ? static_cast<int>(x) : static_cast<int>((x) + rand()*(1.0/RAND_MAX) - 0.5))
 
 #if !LOGLUV_PUBLIC
 static
@@ -742,7 +688,6 @@ double LogL16toY(int p16)              /* compute luminance from 16-bit LogL */
 {
 	int Le = p16 & 0x7fff;
 	double Y;
-
 	if(!Le)
 		return (0.);
 	Y = exp(M_LN2/256.*(Le+.5) - M_LN2*64.);
@@ -767,17 +712,16 @@ int LogL16fromY(double Y, int em)   /* get 16-bit LogL from Y */
 
 static void L16toY(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	int16* l16 = (int16 *)sp->tbuf;
+	int16* l16 = reinterpret_cast<int16 *>(sp->tbuf);
 	float* yp = reinterpret_cast<float *>(op);
 	while(n-- > 0)
 		*yp++ = (float)LogL16toY(*l16++);
 }
 
-static void L16toGry(LogLuvState* sp, uint8* op, tmsize_t n)
+static void L16toGry(LogLuvState* sp, uint8 * op, tmsize_t n)
 {
-	int16* l16 = (int16 *)sp->tbuf;
-	uint8* gp = (uint8 *)op;
-
+	int16 * l16 = reinterpret_cast<int16 *>(sp->tbuf);
+	uint8 * gp = op;
 	while(n-- > 0) {
 		double Y = LogL16toY(*l16++);
 		*gp++ = (uint8)((Y <= 0.) ? 0 : (Y >= 1.) ? 255 : (int)(256.*sqrt(Y)));
@@ -786,7 +730,7 @@ static void L16toGry(LogLuvState* sp, uint8* op, tmsize_t n)
 
 static void L16fromY(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	int16* l16 = (int16 *)sp->tbuf;
+	int16* l16 = reinterpret_cast<int16 *>(sp->tbuf);
 	float* yp = reinterpret_cast<float *>(op);
 	while(n-- > 0)
 		*l16++ = (int16)(LogL16fromY(*yp++, sp->encode_meth));
@@ -918,7 +862,7 @@ int uv_decode(double * up, double * vp, int c)        /* decode (u',v') index */
 	register int ui, vi;
 
 	if(c < 0 || c >= UV_NDIVS)
-		return (-1);
+		return -1;
 	lower = 0;                              /* binary search */
 	upper = UV_NVS;
 	while(upper - lower > 1) {
@@ -995,7 +939,7 @@ uint32 LogLuv24fromXYZ(float XYZ[3], int em)
 
 static void Luv24toXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	uint32* luv = (uint32 *)sp->tbuf;
+	uint32* luv = reinterpret_cast<uint32 *>(sp->tbuf);
 	float* xyz = reinterpret_cast<float *>(op);
 	while(n-- > 0) {
 		LogLuv24toXYZ(*luv, xyz);
@@ -1006,8 +950,8 @@ static void Luv24toXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
 
 static void Luv24toLuv48(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	uint32* luv = (uint32 *)sp->tbuf;
-	int16* luv3 = (int16 *)op;
+	uint32* luv = reinterpret_cast<uint32 *>(sp->tbuf);
+	int16* luv3 = reinterpret_cast<int16 *>(op);
 	while(n-- > 0) {
 		double u, v;
 		*luv3++ = (int16)((*luv >> 12 & 0xffd) + 13314);
@@ -1023,8 +967,8 @@ static void Luv24toLuv48(LogLuvState* sp, uint8* op, tmsize_t n)
 
 static void Luv24toRGB(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	uint32* luv = (uint32 *)sp->tbuf;
-	uint8* rgb = (uint8 *)op;
+	uint32 * luv = reinterpret_cast<uint32 *>(sp->tbuf);
+	uint8 * rgb = op;
 	while(n-- > 0) {
 		float xyz[3];
 		LogLuv24toXYZ(*luv++, xyz);
@@ -1035,7 +979,7 @@ static void Luv24toRGB(LogLuvState* sp, uint8* op, tmsize_t n)
 
 static void Luv24fromXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	uint32* luv = (uint32 *)sp->tbuf;
+	uint32* luv = reinterpret_cast<uint32 *>(sp->tbuf);
 	float* xyz = reinterpret_cast<float *>(op);
 	while(n-- > 0) {
 		*luv++ = LogLuv24fromXYZ(xyz, sp->encode_meth);
@@ -1045,8 +989,8 @@ static void Luv24fromXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
 
 static void Luv24fromLuv48(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	uint32* luv = (uint32 *)sp->tbuf;
-	int16* luv3 = (int16 *)op;
+	uint32* luv = reinterpret_cast<uint32 *>(sp->tbuf);
+	int16* luv3 = reinterpret_cast<int16 *>(op);
 	while(n-- > 0) {
 		int Le, Ce;
 		if(luv3[0] <= 0)
@@ -1097,7 +1041,7 @@ uint32 LogLuv32fromXYZ(float XYZ[3], int em)
 	unsigned int Le, ue, ve;
 	double u, v, s;
 	/* encode luminance */
-	Le = (unsigned int)LogL16fromY(XYZ[1], em);
+	Le = (uint)LogL16fromY(XYZ[1], em);
 	/* encode color */
 	s = XYZ[0] + 15.*XYZ[1] + 3.*XYZ[2];
 	if(!Le || s <= 0.) {
@@ -1120,7 +1064,7 @@ uint32 LogLuv32fromXYZ(float XYZ[3], int em)
 
 static void Luv32toXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	uint32* luv = (uint32 *)sp->tbuf;
+	uint32* luv = reinterpret_cast<uint32 *>(sp->tbuf);
 	float* xyz = reinterpret_cast<float *>(op);
 	while(n-- > 0) {
 		LogLuv32toXYZ(*luv++, xyz);
@@ -1130,8 +1074,8 @@ static void Luv32toXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
 
 static void Luv32toLuv48(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	uint32* luv = (uint32 *)sp->tbuf;
-	int16* luv3 = (int16 *)op;
+	uint32* luv = reinterpret_cast<uint32 *>(sp->tbuf);
+	int16* luv3 = reinterpret_cast<int16 *>(op);
 	while(n-- > 0) {
 		double u, v;
 		*luv3++ = (int16)(*luv >> 16);
@@ -1145,8 +1089,8 @@ static void Luv32toLuv48(LogLuvState* sp, uint8* op, tmsize_t n)
 
 static void Luv32toRGB(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	uint32* luv = (uint32 *)sp->tbuf;
-	uint8* rgb = (uint8 *)op;
+	uint32 * luv = reinterpret_cast<uint32 *>(sp->tbuf);
+	uint8  * rgb = op;
 	while(n-- > 0) {
 		float xyz[3];
 		LogLuv32toXYZ(*luv++, xyz);
@@ -1157,7 +1101,7 @@ static void Luv32toRGB(LogLuvState* sp, uint8* op, tmsize_t n)
 
 static void Luv32fromXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	uint32* luv = (uint32 *)sp->tbuf;
+	uint32* luv = reinterpret_cast<uint32 *>(sp->tbuf);
 	float* xyz = reinterpret_cast<float *>(op);
 	while(n-- > 0) {
 		*luv++ = LogLuv32fromXYZ(xyz, sp->encode_meth);
@@ -1167,8 +1111,8 @@ static void Luv32fromXYZ(LogLuvState* sp, uint8* op, tmsize_t n)
 
 static void Luv32fromLuv48(LogLuvState* sp, uint8* op, tmsize_t n)
 {
-	uint32* luv = (uint32 *)sp->tbuf;
-	int16* luv3 = (int16 *)op;
+	uint32* luv = reinterpret_cast<uint32 *>(sp->tbuf);
+	int16* luv3 = reinterpret_cast<int16 *>(op);
 	if(sp->encode_meth == SGILOGENCODE_NODITHER) {
 		while(n-- > 0) {
 			*luv++ = (uint32)luv3[0] << 16 | (luv3[1]*(uint32)(UVSCALE+.5) >> 7 & 0xff00) | (luv3[2]*(uint32)(UVSCALE+.5) >> 15 & 0xff);
@@ -1241,7 +1185,7 @@ static int LogL16InitState(TIFF* tif)
 		sp->tbuflen = multiply_ms(td->td_imagewidth, td->td_rowsperstrip);
 	else
 		sp->tbuflen = multiply_ms(td->td_imagewidth, td->td_imagelength);
-	if(multiply_ms(sp->tbuflen, sizeof(int16)) == 0 || (sp->tbuf = (uint8 *)SAlloc::M(sp->tbuflen * sizeof(int16))) == NULL) {
+	if(multiply_ms(sp->tbuflen, sizeof(int16)) == 0 || (sp->tbuf = static_cast<uint8 *>(SAlloc::M(sp->tbuflen * sizeof(int16)))) == NULL) {
 		TIFFErrorExt(tif->tif_clientdata, module, "No space for SGILog translation buffer");
 		return 0;
 	}
@@ -1315,7 +1259,7 @@ static int LogLuvInitState(TIFF* tif)
 		sp->tbuflen = multiply_ms(td->td_imagewidth, td->td_rowsperstrip);
 	else
 		sp->tbuflen = multiply_ms(td->td_imagewidth, td->td_imagelength);
-	if(multiply_ms(sp->tbuflen, sizeof(uint32)) == 0 || (sp->tbuf = (uint8 *)SAlloc::M(sp->tbuflen * sizeof(uint32))) == NULL) {
+	if(multiply_ms(sp->tbuflen, sizeof(uint32)) == 0 || (sp->tbuf = static_cast<uint8 *>(SAlloc::M(sp->tbuflen * sizeof(uint32)))) == NULL) {
 		TIFFErrorExt(tif->tif_clientdata, module, "No space for SGILog translation buffer");
 		return 0;
 	}
@@ -1531,11 +1475,11 @@ int TIFFInitSGILog(TIFF* tif, int scheme)
 	/*
 	 * Allocate state block so tag methods have storage to record values.
 	 */
-	tif->tif_data = (uint8 *)SAlloc::M(sizeof(LogLuvState));
+	tif->tif_data = static_cast<uint8 *>(SAlloc::M(sizeof(LogLuvState)));
 	if(tif->tif_data == NULL)
 		goto bad;
 	sp = (LogLuvState*)tif->tif_data;
-	memzero((void *)sp, sizeof(*sp));
+	memzero(/*(void *)*/sp, sizeof(*sp));
 	sp->user_datafmt = SGILOGDATAFMT_UNKNOWN;
 	sp->encode_meth = (scheme == COMPRESSION_SGILOG24) ? SGILOGENCODE_RANDITHER : SGILOGENCODE_NODITHER;
 	sp->tfunc = _logLuvNop;

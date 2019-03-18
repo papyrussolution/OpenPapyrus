@@ -1062,7 +1062,7 @@ private:
 	int    addItemExt(long * pPos, long * pID);
 	int    addItemBySample();
 	int    editItemDialog(int pos, PPGoodsStrucItem *);
-	int    checkDupGoods(int pos, PPGoodsStrucItem *);
+	int    checkDupGoods(int pos, const PPGoodsStrucItem *);
 	void   selNamedGS();
 	int    enableEditRecurStruc();
 
@@ -1318,7 +1318,7 @@ int GSDialog::setupList()
 	long   qtty_fmt = MKSFMTD(0, 3, NMBF_NOZERO);
 	long   money_fmt = MKSFMTD(0, 2, NMBF_NOZERO);
 	uint   i = 0;
-	while(Data.Items.enumItems(&i, (void**)&p_item)) {
+	while(Data.Items.enumItems(&i, (void **)&p_item)) {
 		double price = 0.0, sum = 0.0;
 		Goods2Tbl::Rec goods_rec;
 		StringSet ss(SLBColumnDelim);
@@ -1606,10 +1606,10 @@ static int SLAPI EditGoodsStrucItem(const PPGoodsStruc * pStruc, PPGoodsStrucIte
 	return ok;
 }
 
-int GSDialog::checkDupGoods(int pos, PPGoodsStrucItem * pItem)
+int GSDialog::checkDupGoods(int pos, const PPGoodsStrucItem * pItem)
 {
 	int    ok = 1;
-	for(int i = 0; ok && i < (int)Data.Items.getCount(); i++)
+	for(int i = 0; ok && i < static_cast<int>(Data.Items.getCount()); i++)
 		if(i != pos && pItem->GoodsID == Data.Items.at(i).GoodsID)
 			ok = PPSetError(PPERR_DUPGSTRUCITEM);
 	return ok;
@@ -1685,7 +1685,7 @@ int GSDialog::addItemBySample()
 			int    ok = 1;
 			GoodsCtrlGroup::Rec rec(Data.GoodsGrpID, Data.GoodsID);
 			setGroupData(GRP_GOODS, &rec);
-			SetupPPObjCombo(this, CTLSEL_GSCOPY_GSTRUC, PPOBJ_GOODSSTRUC, Data.GStrucID, 0, (void *)Data.GoodsID);
+			SetupPPObjCombo(this, CTLSEL_GSCOPY_GSTRUC, PPOBJ_GOODSSTRUC, Data.GStrucID, 0, reinterpret_cast<void *>(Data.GoodsID));
 			return ok;
 		}
 		int    getDTS(GoodsStrucCopyParam * pData)
@@ -1712,7 +1712,7 @@ int GSDialog::addItemBySample()
 				getCtrlData(CTLSEL_GSCOPY_GOODS, &Data.GoodsID);
 				if(Data.GoodsID != prev_goods_id) {
 					Data.GStrucID = 0;
-					SetupPPObjCombo(this, CTLSEL_GSCOPY_GSTRUC, PPOBJ_GOODSSTRUC, Data.GStrucID, 0, (void *)Data.GoodsID);
+					SetupPPObjCombo(this, CTLSEL_GSCOPY_GSTRUC, PPOBJ_GOODSSTRUC, Data.GStrucID, 0, reinterpret_cast<void *>(Data.GoodsID));
 				}
 				clearEvent(event);
 			}
@@ -1880,7 +1880,7 @@ void GSExtDialog::selNamedGS()
 int GSExtDialog::setupList()
 {
 	PPGoodsStruc * p_item = 0;
-	for(uint i = 0; Data.Childs.enumItems(&i, (void**)&p_item);) {
+	for(uint i = 0; Data.Childs.enumItems(&i, (void **)&p_item);) {
 		char   sub[128];
 		StringSet ss(SLBColumnDelim);
 		ss.add(STRNSCPY(sub, p_item->Rec.Name), 0);
@@ -1941,7 +1941,7 @@ int GSExtDialog::editItem(long pos, long)
 //
 static int SLAPI GSListFilt(void * pRec, void * extraPtr)
 {
-	PPGoodsStrucHeader * p_rec = (PPGoodsStrucHeader*)pRec;
+	const PPGoodsStrucHeader * p_rec = static_cast<const PPGoodsStrucHeader *>(pRec);
 	return BIN(p_rec->Flags & GSF_NAMED);
 }
 
@@ -1953,7 +1953,7 @@ SLAPI PPObjGoodsStruc::PPObjGoodsStruc(void * extraPtr) : PPObjReference(PPOBJ_G
 
 StrAssocArray * SLAPI PPObjGoodsStruc::MakeStrAssocList(void * extraPtr /*goodsID*/)
 {
-	const   PPID goods_id = (PPID)extraPtr;
+	const   PPID goods_id = reinterpret_cast<PPID>(extraPtr);
 	StrAssocArray * p_list = new StrAssocArray;
 	PPIDArray id_list;
 	if(goods_id) {
@@ -2159,7 +2159,7 @@ int SLAPI PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 			_GSItem gsi;
 			PPGoodsStrucItem * pi;
 			SString ext_buf;
-			for(uint i = 0; pData->Items.enumItems(&i, (void**)&pi);) {
+			for(uint i = 0; pData->Items.enumItems(&i, (void **)&pi);) {
 				PPID   assc_id = 0;
 				MEMSZERO(gsi);
 				gsi.Tag  = PPASS_GOODSSTRUC;
@@ -2260,7 +2260,7 @@ int SLAPI PPObjGoodsStruc::Edit(PPID * pID, void * extraPtr /*goodsID*/)
 	if(*pID) {
 		THROW(Get(*pID, &data));
 	}
-	data.GoodsID = (PPID)extraPtr;
+	data.GoodsID = reinterpret_cast<PPID>(extraPtr);
 	// @v10.0.0 {
 	if(!data.GoodsID && data.Rec.ID) {
 		PPObjGoods goods_obj;
@@ -2369,7 +2369,7 @@ int SLAPI PPObjGoodsStruc::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int
 		uint   i;
 		PPGoodsStruc * p_gs = (PPGoodsStruc*)p->Data;
 		PPGoodsStrucItem * p_gsi;
-		for(i = 0; p_gs->Items.enumItems(&i, (void**)&p_gsi);)
+		for(i = 0; p_gs->Items.enumItems(&i, (void **)&p_gsi);)
 			THROW(ProcessObjRefInArray(PPOBJ_GOODS, &p_gsi->GoodsID, ary, replace));
 		for(i = 0; i < p_gs->Childs.getCount(); i++)
 			THROW(ProcessObjRefInArray(PPOBJ_GOODSSTRUC, &p_gs->Childs.at(i)->Rec.ID, ary, replace));
@@ -2503,7 +2503,7 @@ int FASTCALL GStrucIterator::NextIteration(GStrucRecurItem * pItem)
 {
 	int    ok = -1;
 	GStrucRecurItem * p_item = 0;
-	if(Items.enumItems(&Idx, (void**)&p_item) > 0) {
+	if(Items.enumItems(&Idx, (void **)&p_item) > 0) {
 		ASSIGN_PTR(pItem, *p_item);
 		ok = 1;
 	}
@@ -2581,7 +2581,7 @@ int SLAPI PPObjGoodsStruc::CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStruc
 			PPGoodsStrucItem * p_item = 0;
 			PPGoodsStruc gstruc;
 			THROW_SL(pStructIDs->add(pStruc->Rec.ID));
-			for(uint i = 0; !recur && pStruc->Items.enumItems(&i, (void**)&p_item) > 0;) { // @v10.1.7 !recur
+			for(uint i = 0; !recur && pStruc->Items.enumItems(&i, (void **)&p_item) > 0;) { // @v10.1.7 !recur
 				int    s = 0;
 				int    g = 0;
 				double price = 0.0;

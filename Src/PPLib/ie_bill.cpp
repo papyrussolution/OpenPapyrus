@@ -654,7 +654,8 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 				AddClusterAssoc(CTL_IEBILLSEL_FLAGS, 2, PPBillImpExpBaseProcessBlock::fEgaisVer3); // @v9.9.9
 				SetClusterData(CTL_IEBILLSEL_FLAGS, P_Data->Flags);
 				DisableClusterItem(CTL_IEBILLSEL_FLAGS, 2, !(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp)); // @v9.9.9
-				SetupPPObjCombo(this, CTLSEL_IEBILLSEL_MAILACC, PPOBJ_INTERNETACCOUNT, P_Data->Tp.InetAccID, 0, (void *)PPObjInternetAccount::filtfMail/*INETACCT_ONLYMAIL*/);
+				SetupPPObjCombo(this, CTLSEL_IEBILLSEL_MAILACC, PPOBJ_INTERNETACCOUNT, P_Data->Tp.InetAccID, 0, 
+					reinterpret_cast<void *>(PPObjInternetAccount::filtfMail)/*INETACCT_ONLYMAIL*/);
 				{
 					EmailCtrlGroup::Rec grp_rec(&P_Data->Tp.AddrList);
 					setGroupData(ctlgroupEmailList, &grp_rec);
@@ -4707,7 +4708,7 @@ int SLAPI Generator_DocNalogRu::StartDoc(const char * pFileName)
 	P_X = 0;
 	THROW(P_X = xmlNewTextWriterFilename(pFileName, 0));
 	xmlTextWriterSetIndent(P_X, 1);
-	xmlTextWriterSetIndentString(P_X, (const xmlChar*)"\t");
+	xmlTextWriterSetIndentString(P_X, reinterpret_cast<const xmlChar *>("\t"));
 	THROW_SL(P_Doc = new SXml::WDoc(P_X, cp1251));
 	CATCHZOK
 	return ok;

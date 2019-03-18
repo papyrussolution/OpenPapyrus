@@ -431,7 +431,7 @@ int _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx ** rsa, LIBSSH2_SESSION 
 	pem_read_bio_func read_rsa = (pem_read_bio_func) &PEM_read_bio_RSAPrivateKey;
 	(void)session;
 	_libssh2_init_if_needed();
-	return read_private_key_from_memory((void**)rsa, read_rsa, filedata, filedata_len, passphrase);
+	return read_private_key_from_memory((void **)rsa, read_rsa, filedata, filedata_len, passphrase);
 }
 
 int _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa, LIBSSH2_SESSION * session, const char * filename, const uchar * passphrase)
@@ -439,7 +439,7 @@ int _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa, LIBSSH2_SESSION * session, 
 	pem_read_bio_func read_rsa = (pem_read_bio_func) &PEM_read_bio_RSAPrivateKey;
 	(void)session;
 	_libssh2_init_if_needed();
-	return read_private_key_from_file((void**)rsa, read_rsa, filename, passphrase);
+	return read_private_key_from_file((void **)rsa, read_rsa, filename, passphrase);
 }
 
 #if LIBSSH2_DSA
@@ -448,7 +448,7 @@ int _libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx ** dsa, LIBSSH2_SESSION 
 	pem_read_bio_func read_dsa = (pem_read_bio_func) &PEM_read_bio_DSAPrivateKey;
 	(void)session;
 	_libssh2_init_if_needed();
-	return read_private_key_from_memory((void**)dsa, read_dsa, filedata, filedata_len, passphrase);
+	return read_private_key_from_memory((void **)dsa, read_dsa, filedata, filedata_len, passphrase);
 }
 
 int _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa, LIBSSH2_SESSION * session, const char * filename, const uchar * passphrase)
@@ -456,7 +456,7 @@ int _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa, LIBSSH2_SESSION * session, 
 	pem_read_bio_func read_dsa = (pem_read_bio_func) &PEM_read_bio_DSAPrivateKey;
 	(void)session;
 	_libssh2_init_if_needed();
-	return read_private_key_from_file((void**)dsa, read_dsa, filename, passphrase);
+	return read_private_key_from_file((void **)dsa, read_dsa, filename, passphrase);
 }
 
 #endif /* LIBSSH_DSA */

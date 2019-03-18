@@ -2515,7 +2515,7 @@ private:
 	uint   Id;
 };
 
-typedef int (*DialogPreProcFunc)(TDialog *, long extraParam);
+typedef int (* DialogPreProcFunc)(TDialog *, void * extraPtr);
 
 // @v9.1.1 int IsLargeDlg(); // @v5.8.6 VADIM
 //
@@ -2594,7 +2594,7 @@ public:
 	int     __cdecl SetCtrlsFont(const char * pFontName, int height, ...);
 	int     SetCtrlToolTip(uint ctrlID, const char * pToolTipText);
 	SLAPI  TDialog(const TRect & bounds, const char * pTitle);
-	SLAPI  TDialog(uint resID, DialogPreProcFunc, long extraParam);
+	SLAPI  TDialog(uint resID, DialogPreProcFunc, void * extraPtr);
 	explicit SLAPI TDialog(uint resID);
 
 	enum ConstructorOption {
@@ -2725,7 +2725,7 @@ protected:
 	void * P_PrevData;
 private:
 	static int  FASTCALL PassMsgToCtrl(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	void   SLAPI Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, long extraParam, ConstructorOption co); // @<<TDialog::TDialog
+	void   SLAPI Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, void * extraPtr, ConstructorOption co); // @<<TDialog::TDialog
 	void    SLAPI RemoveUnusedControls();
 	TView * FASTCALL CtrlIdToView(long id) const;
 	uint   GrpCount;
@@ -3295,7 +3295,7 @@ public:
 	SmartListBox(const TRect & rRect, ListBoxDef * pDef, int isTree = 0);
 	~SmartListBox();
 	void   FASTCALL setDef(ListBoxDef *);
-	int    search(void * pattern, CompFunc fcmp, int srchMode);
+	int    search(const void * pattern, CompFunc fcmp, int srchMode);
 	int    FASTCALL getCurID(long * pId);
 	int    FASTCALL getCurData(void * pData);
 	int    FASTCALL getCurString(SString & rBuf);

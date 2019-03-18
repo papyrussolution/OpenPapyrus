@@ -965,7 +965,7 @@ int SCardFiltDialog::setDTS(const SCardFilt * pData)
 	const double min_dis = R2(fdiv100r(Data.PDisR.low));
 	const double max_dis = R2(fdiv100r(Data.PDisR.upp));
 	SetupPPObjCombo(this, CTLSEL_SCARDFLT_SERIES, PPOBJ_SCARDSERIES, Data.SeriesID, 0);
-	SetupPPObjCombo(this, CTLSEL_SCARDFLT_EMPLOYER, PPOBJ_PERSON, Data.EmployerID, OLW_CANINSERT, (void *)PPPRK_EMPLOYER);
+	SetupPPObjCombo(this, CTLSEL_SCARDFLT_EMPLOYER, PPOBJ_PERSON, Data.EmployerID, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_EMPLOYER));
 	SetupPerson(Data.SeriesID);
 	SetPeriodInput(this, CTL_SCARDFLT_ISSUE,  &Data.IssuePeriod);
 	SetPeriodInput(this, CTL_SCARDFLT_EXPIRY, &Data.ExpiryPeriod);
@@ -1619,7 +1619,7 @@ int SLAPI PPViewSCard::OnExecBrowser(PPViewBrowser * pBrw)
 
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
-	PPViewSCard * p_view = (PPViewSCard *)extraPtr;
+	PPViewSCard * p_view = static_cast<PPViewSCard *>(extraPtr);
 	return p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle) : -1;
 }
 
@@ -1627,7 +1627,7 @@ int SLAPI PPViewSCard::CellStyleFunc_(const void * pData, long col, int paintAct
 {
 	int    ok = -1;
 	if(pData && pCellStyle && col >= 0) {
-		const PPID sc_id = *(const PPID *)pData;
+		const PPID sc_id = *static_cast<const PPID *>(pData);
 		SCardTbl::Rec sc_rec;
 		if(col == 0) { // card number
 			if(SCObj.Fetch(sc_id, &sc_rec) > 0) {
@@ -2064,7 +2064,7 @@ IMPL_HANDLE_EVENT(SCardSelPrcssrDialog)
 	clearEvent(event);
 }
 
-int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger * pLog)
+int SLAPI PPViewSCard::ProcessSelection(const SCardSelPrcssrParam * pParam, PPLogger * pLog)
 {
 	int    ok = -1, valid_data = 0;
 	SCardSelPrcssrDialog * dlg = 0;
@@ -2352,7 +2352,7 @@ int SLAPI PPViewSCard::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 	BrwHdr hdr;
 	PPIDArray id_list;
 	if(pHdr)
-		hdr = *(BrwHdr*)pHdr;
+		hdr = *static_cast<const BrwHdr *>(pHdr);
 	else
 		MEMSZERO(hdr);
 	if(ppvCmd == PPVCMD_ADDITEM) {
@@ -3033,7 +3033,7 @@ int SLAPI PPViewSCardOp::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 	const  struct Hdr {
 		PPID   SCardID;
 		LDATETIME Dtm;
-	} * p_hdr = (const Hdr *)pHdr;
+	} * p_hdr = static_cast<const Hdr *>(pHdr);
 	ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
 		switch(ppvCmd) {

@@ -884,16 +884,16 @@ int SLAPI PPObjArticle::EditDialog(ArticleDlgData * pData)
 		dlg_id = DLG_ARTICLE;
 	THROW(CheckDialogPtr(&(dlg = new ArticleDialog(dlg_id, pData))));
 	dlg->enableCommand(cmOK, CheckRights(PPR_MOD));
-	dlg->setCtrlLong(CTL_ARTICLE_ID, pData->Rec.ID); // @v7.1.12
+	dlg->setCtrlLong(CTL_ARTICLE_ID, pData->Rec.ID);
 	dlg->setCtrlData(CTL_ARTICLE_SHEETNAME, acs_rec.Name);
-	dlg->setCtrlReadOnly(CTL_ARTICLE_SHEETNAME, 1); // @v8.5.3 disableCtrl-->setCtrlReadOnly
+	dlg->setCtrlReadOnly(CTL_ARTICLE_SHEETNAME, 1);
 	if(sel_linkobj) {
 		long   sel_extra = 0;
 		if(acs_rec.Assoc == PPOBJ_LOCATION)
 			sel_extra = 0;
 		else
 			sel_extra = acs_rec.ObjGroup;
-		SetupPPObjCombo(dlg, CTLSEL_ARTICLE_LINKOBJ, acs_rec.Assoc, pData->Rec.ObjID, OLW_CANINSERT, (void *)sel_extra);
+		SetupPPObjCombo(dlg, CTLSEL_ARTICLE_LINKOBJ, acs_rec.Assoc, pData->Rec.ObjID, OLW_CANINSERT, reinterpret_cast<void *>(sel_extra));
 	}
 	while(!valid_data && (cm = ExecView(dlg)) == cmOK) {
 		dlg->getCtrlData(CTL_ARTICLE_NUMBER, &pData->Rec.Article);
@@ -938,9 +938,8 @@ int SLAPI PPObjArticle::EditDialog(ArticleDlgData * pData)
 
 int SLAPI PPObjArticle::Edit(PPID * pID, void * extraPtr /*sheetID*/)
 {
-	// @v9.2.4 const  PPID extra_acs_id = (PPID)extraPtr;
-	const ArticleFilt * p_filt = (const ArticleFilt *)extraPtr; // @v9.2.4
-	const  PPID extra_acs_id = NZOR(CurrFilt.AccSheetID, (p_filt ? p_filt->AccSheetID : 0)); // @v9.2.4
+	const ArticleFilt * p_filt = static_cast<const ArticleFilt *>(extraPtr);
+	const  PPID extra_acs_id = NZOR(CurrFilt.AccSheetID, (p_filt ? p_filt->AccSheetID : 0));
 	int    ok = 1, r;
 	ArticleDlgData pack;
 	if(*pID == 0) {
@@ -1525,7 +1524,7 @@ int SLAPI PPObjArticle::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			if(oneof2(_obj, PPOBJ_PERSON, PPOBJ_LOCATION)) {
 				int    r;
 				PPID   acs_id = 0;
-				while((r = SearchAssocObjRef(_obj, _id, &acs_id, 0, 0)) > 0 && (r = _UpdateName((const char *)extraPtr)) != 0)
+				while((r = SearchAssocObjRef(_obj, _id, &acs_id, 0, 0)) > 0 && (r = _UpdateName(static_cast<const char *>(extraPtr))) != 0)
 					;
 				ok = r ? DBRPL_OK : DBRPL_ERROR;
 			}

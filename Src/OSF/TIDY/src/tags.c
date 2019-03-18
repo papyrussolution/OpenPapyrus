@@ -526,20 +526,11 @@ void TY_(FreeDeclaredTags) (TidyDocImpl* doc, UserTagType tagType)
 		bool deleteIt = true;
 		next = curr->next;
 		switch(tagType) {
-			case tagtype_empty:
-				deleteIt = (curr->model & CM_EMPTY) ? true : false;
-			    break;
-			case tagtype_inline:
-			    deleteIt = (curr->model & CM_INLINE) ? true : false;
-			    break;
-			case tagtype_block:
-			    deleteIt = ((curr->model & CM_BLOCK) && curr->parser == TY_(ParseBlock)) ? true : false;
-			    break;
-			case tagtype_pre:
-			    deleteIt = ((curr->model & CM_BLOCK) && curr->parser == TY_(ParsePre)) ? true : false;
-			    break;
-			case tagtype_null:
-			    break;
+			case tagtype_empty: deleteIt = LOGIC(curr->model & CM_EMPTY); break;
+			case tagtype_inline: deleteIt = LOGIC(curr->model & CM_INLINE); break;
+			case tagtype_block: deleteIt = LOGIC((curr->model & CM_BLOCK) && curr->parser == TY_(ParseBlock)); break;
+			case tagtype_pre: deleteIt = LOGIC((curr->model & CM_BLOCK) && curr->parser == TY_(ParsePre)); break;
+			case tagtype_null: break;
 		}
 		if(deleteIt) {
 #if ELEMENT_HASH_LOOKUP
@@ -559,7 +550,6 @@ void TY_(FreeDeclaredTags) (TidyDocImpl* doc, UserTagType tagType)
 void TY_(FreeTags) (TidyDocImpl* doc)
 {
 	TidyTagImpl* tags = &doc->tags;
-
 #if ELEMENT_HASH_LOOKUP
 	tagsEmptyHash(doc, tags);
 #endif
@@ -585,11 +575,11 @@ void TY_(CheckAttributes) (TidyDocImpl* doc, Node *node)
 
 void CheckIMG(TidyDocImpl* doc, Node * node)
 {
-	bool HasAlt = (TY_(AttrGetById)(node, TidyAttr_ALT)) ? true : false;
-	bool HasSrc = (TY_(AttrGetById)(node, TidyAttr_SRC)) ? true : false;
-	bool HasUseMap = (TY_(AttrGetById)(node, TidyAttr_USEMAP)) ? true : false;
-	bool HasIsMap = (TY_(AttrGetById)(node, TidyAttr_ISMAP)) ? true : false;
-	bool HasDataFld = (TY_(AttrGetById)(node, TidyAttr_DATAFLD)) ? true : false;
+	bool HasAlt = LOGIC(TY_(AttrGetById)(node, TidyAttr_ALT));
+	bool HasSrc = LOGIC(TY_(AttrGetById)(node, TidyAttr_SRC));
+	bool HasUseMap = LOGIC(TY_(AttrGetById)(node, TidyAttr_USEMAP));
+	bool HasIsMap = LOGIC(TY_(AttrGetById)(node, TidyAttr_ISMAP));
+	bool HasDataFld = LOGIC(TY_(AttrGetById)(node, TidyAttr_DATAFLD));
 	TY_(CheckAttributes)(doc, node);
 	if(!HasAlt) {
 		if(cfg(doc, TidyAccessibilityCheckLevel) == 0) {
@@ -610,14 +600,10 @@ void CheckIMG(TidyDocImpl* doc, Node * node)
 void CheckCaption(TidyDocImpl* doc, Node * node)
 {
 	AttVal * attval;
-
 	TY_(CheckAttributes) (doc, node);
-
 	attval = TY_(AttrGetById) (node, TidyAttr_ALIGN);
-
 	if(!AttrHasValue(attval))
 		return;
-
 	if(AttrValueIs(attval, "left") || AttrValueIs(attval, "right"))
 		TY_(ConstrainVersion) (doc, VERS_HTML40_LOOSE);
 	else if(AttrValueIs(attval, "top") || AttrValueIs(attval, "bottom"))

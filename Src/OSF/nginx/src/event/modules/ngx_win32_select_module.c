@@ -106,7 +106,7 @@ static void ngx_select_done(ngx_cycle_t * cycle)
 
 static ngx_int_t ngx_select_add_event(ngx_event_t * ev, ngx_int_t event, ngx_uint_t flags)
 {
-	ngx_connection_t * c = (ngx_connection_t*)ev->P_Data;
+	ngx_connection_t * c = (ngx_connection_t *)ev->P_Data;
 	ngx_log_debug2(NGX_LOG_DEBUG_EVENT, ev->log, 0, "select add event fd:%d ev:%i", c->fd, event);
 	if(ev->index != NGX_INVALID_INDEX)
 		ngx_log_error(NGX_LOG_ALERT, ev->log, 0, "select event fd:%d ev:%i is already set", c->fd, event);
@@ -137,7 +137,7 @@ static ngx_int_t ngx_select_add_event(ngx_event_t * ev, ngx_int_t event, ngx_uin
 
 static ngx_int_t ngx_select_del_event(ngx_event_t * ev, ngx_int_t event, ngx_uint_t flags)
 {
-	ngx_connection_t * c = (ngx_connection_t*)ev->P_Data;
+	ngx_connection_t * c = (ngx_connection_t *)ev->P_Data;
 	ev->active = 0;
 	if(ev->index != NGX_INVALID_INDEX) {
 		ngx_log_debug2(NGX_LOG_DEBUG_EVENT, ev->log, 0, "select del event fd:%d ev:%i", c->fd, event);
@@ -246,7 +246,7 @@ static ngx_int_t ngx_select_process_events(ngx_cycle_t * cycle, ngx_msec_t timer
 			int    nready = 0;
 			for(i = 0; i < _ModulBlk.nevents; i++) {
 				ngx_event_t * ev = _ModulBlk.event_index[i];
-				ngx_connection_t * c = (ngx_connection_t*)ev->P_Data;
+				ngx_connection_t * c = (ngx_connection_t *)ev->P_Data;
 				found = 0;
 				if(ev->write) {
 					if(FD_ISSET(c->fd, &_ModulBlk.work_write_fd_set)) {

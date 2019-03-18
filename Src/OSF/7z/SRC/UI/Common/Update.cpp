@@ -1458,7 +1458,7 @@ static HRESULT Compress(const CUpdateOptions &options, bool isUpdatingItself, CC
     #ifdef EXTERNAL_CODECS
 		{
 			CMyComPtr<ISetCompressCodecsInfo> setCompressCodecsInfo;
-			outArchive.QueryInterface(IID_ISetCompressCodecsInfo, (void**)&setCompressCodecsInfo);
+			outArchive.QueryInterface(IID_ISetCompressCodecsInfo, (void **)&setCompressCodecsInfo);
 			if(setCompressCodecsInfo) {
 				RINOK(setCompressCodecsInfo->SetCompressCodecsInfo(codecs));
 			}
@@ -1988,7 +1988,7 @@ HRESULT UpdateArchive(CCodecs * codecs, const CObjectVector<COpenType> &types, c
 	if(options.StdInMode) {
 		CDirItem di;
 		di.Name = options.StdInFileName;
-		di.Size = (uint64)(int64)-1;
+		di.Size = static_cast<uint64>(-1LL);
 		di.Attrib = 0;
 		NTime::GetCurUtcFileTime(di.MTime);
 		di.CTime = di.ATime = di.MTime;

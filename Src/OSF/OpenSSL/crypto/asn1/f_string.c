@@ -38,7 +38,7 @@ int i2a_ASN1_STRING(BIO * bp, const ASN1_STRING * a, int type)
 	}
 	return (n);
 err:
-	return (-1);
+	return -1;
 }
 
 int a2i_ASN1_STRING(BIO * bp, ASN1_STRING * bs, char * buf, int size)

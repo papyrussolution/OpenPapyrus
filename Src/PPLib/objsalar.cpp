@@ -1063,7 +1063,7 @@ StrAssocArray * SLAPI PPObjStaffCal::MakeStrAssocList(void * extraPtr)
 {
 	StaffCalFilt filt;
 	if(extraPtr)
-		filt = *(StaffCalFilt *)extraPtr;
+		filt = *static_cast<const StaffCalFilt *>(extraPtr);
 	StrAssocArray * p_list = new StrAssocArray;
 	if(p_list) {
 		PPStaffCal rec, parent_rec;
@@ -1523,7 +1523,7 @@ int SLAPI PPObjStaffCal::Edit(PPID * pID, void * extraPtr)
 	int    ok = 1, r = cmCancel, valid_data = 0, is_new = 0;
 	StaffCalFilt filt;
 	if(extraPtr)
-		filt = *(StaffCalFilt *)extraPtr;
+		filt = *static_cast<const StaffCalFilt *>(extraPtr);
 	PPStaffCalPacket pack;
 	StaffCalDialog * p_dlg = 0;
 	THROW(CheckDialogPtr(&(p_dlg = new StaffCalDialog)));
@@ -2269,7 +2269,7 @@ int SLAPI PPObjStaffCal::Browse(void * extraPtr)
 			if(event.isCmd(cmTransmitCharry)) {
 				PPIDArray id_list;
 				PPStaffCal rec;
-				for(PPID id = 0; ((PPObjReference *)P_Obj)->EnumItems(&id, &rec) > 0;) {
+				for(PPID id = 0; static_cast<PPObjReference *>(P_Obj)->EnumItems(&id, &rec) > 0;) {
 					if(rec.LinkCalID == 0)
 						id_list.add(rec.ID);
 				}
@@ -2283,7 +2283,7 @@ int SLAPI PPObjStaffCal::Browse(void * extraPtr)
 	if(CheckRights(PPR_READ)) {
 		StaffCalFilt filt;
 		if(extraPtr)
-			filt = *(StaffCalFilt *)extraPtr;
+			filt = *static_cast<const StaffCalFilt *>(extraPtr);
 		TDialog * dlg = new StaffCalView(this, &filt);
 		if(CheckDialogPtrErr(&dlg)) {
 			SString temp_buf, obj_name;

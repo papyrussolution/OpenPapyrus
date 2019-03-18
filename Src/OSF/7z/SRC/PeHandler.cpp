@@ -967,7 +967,7 @@ namespace NArchive {
 	}
 
 	static const uint32 kFileSizeMax = (uint32)1 << 31;
-	static const unsigned kNumResItemsMax = (unsigned)1 << 23;
+	static const unsigned kNumResItemsMax = (uint)1 << 23;
 	static const unsigned kNumStringLangsMax = 256;
 
 	// BITMAPINFOHEADER
@@ -1579,7 +1579,7 @@ namespace NArchive {
 								int sLen = Get_Utf16Str_Len_InBytes(p + pos, endPos3 - pos);
 								if(sLen < 0)
 									return false;
-								AddParamString(f, p + pos, (unsigned)sLen);
+								AddParamString(f, p + pos, (uint)sLen);
 								CopyToUString(p + pos, value);
 								pos += sLen + 2;
 							}
@@ -1863,7 +1863,7 @@ namespace NArchive {
 			}
 			/* last ".its" section in hxs file has incorrect sect.PSize.
 			   So we reduce it to real sect.VSize */
-			if(sect.VSize == 24 && sect.PSize == 512 && i == (unsigned)_header.NumSections - 1)
+			if(sect.VSize == 24 && sect.PSize == 512 && i == (uint)_header.NumSections - 1)
 				sect.PSize = sect.VSize;
 		}
 

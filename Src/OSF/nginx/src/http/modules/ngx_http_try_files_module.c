@@ -87,12 +87,10 @@ static ngx_int_t ngx_http_try_files_handler(ngx_http_request_t * r)
 	for(;; ) {
 		if(tf->lengths) {
 			memzero(&e, sizeof(ngx_http_script_engine_t));
-			e.ip = (u_char*)tf->lengths->elts;
+			e.ip = (u_char *)tf->lengths->elts;
 			e.request = r;
-
 			/* 1 is for terminating '\0' as in static names */
 			len = 1;
-
 			while(*(uintptr_t*)e.ip) {
 				lcode = *(ngx_http_script_len_code_pt*)e.ip;
 				len += lcode(&e);
@@ -101,7 +99,6 @@ static ngx_int_t ngx_http_try_files_handler(ngx_http_request_t * r)
 		else {
 			len = tf->name.len;
 		}
-
 		if(!alias) {
 			reserve = len > r->uri.len ? len - r->uri.len : 0;
 		}
@@ -111,30 +108,23 @@ static ngx_int_t ngx_http_try_files_handler(ngx_http_request_t * r)
 		else {
 			reserve = len > r->uri.len - alias ? len - (r->uri.len - alias) : 0;
 		}
-
 		if(reserve > allocated || !allocated) {
 			/* 16 bytes are preallocation */
 			allocated = reserve + 16;
-
 			if(ngx_http_map_uri_to_path(r, &path, &root, allocated) == NULL) {
 				return NGX_HTTP_INTERNAL_SERVER_ERROR;
 			}
-
 			name = path.data + root;
 		}
-
 		if(tf->values == NULL) {
 			/* tf->name.len includes the terminating '\0' */
-
 			memcpy(name, tf->name.data, tf->name.len);
-
 			path.len = (name + tf->name.len - 1) - path.data;
 		}
 		else {
-			e.ip = (u_char*)tf->values->elts;
+			e.ip = (u_char *)tf->values->elts;
 			e.pos = name;
 			e.flushed = 1;
-
 			while(*(uintptr_t*)e.ip) {
 				code = *(ngx_http_script_code_pt*)e.ip;
 				code((ngx_http_script_engine_t*)&e);
@@ -202,7 +192,7 @@ static ngx_int_t ngx_http_try_files_handler(ngx_http_request_t * r)
 		else {
 			name = r->uri.data;
 			r->uri.len = alias + path.len;
-			r->uri.data = (u_char*)ngx_pnalloc(r->pool, r->uri.len);
+			r->uri.data = (u_char *)ngx_pnalloc(r->pool, r->uri.len);
 			if(r->uri.data == NULL) {
 				r->uri.len = 0;
 				return NGX_HTTP_INTERNAL_SERVER_ERROR;
@@ -233,7 +223,7 @@ static const char * ngx_http_try_files(ngx_conf_t * cf, const ngx_command_t * cm
 		return NGX_CONF_ERROR;
 	}
 	tlcf->try_files = tf;
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	for(i = 0; i < cf->args->nelts - 1; i++) {
 		tf[i].name = value[i + 1];
 		if(tf[i].name.len > 0 && tf[i].name.data[tf[i].name.len - 1] == '/' && i + 2 < cf->args->nelts) {
@@ -287,10 +277,8 @@ static void * ngx_http_try_files_create_loc_conf(ngx_conf_t * cf)
 
 static ngx_int_t ngx_http_try_files_init(ngx_conf_t * cf)
 {
-	ngx_http_handler_pt * h;
-	ngx_http_core_main_conf_t  * cmcf;
-	cmcf = (ngx_http_core_main_conf_t*)ngx_http_conf_get_module_main_conf(cf, ngx_http_core_module);
-	h = (ngx_http_handler_pt*)ngx_array_push(&cmcf->phases[NGX_HTTP_PRECONTENT_PHASE].handlers);
+	ngx_http_core_main_conf_t  * cmcf = (ngx_http_core_main_conf_t*)ngx_http_conf_get_module_main_conf(cf, ngx_http_core_module);
+	ngx_http_handler_pt * h = (ngx_http_handler_pt*)ngx_array_push(&cmcf->phases[NGX_HTTP_PRECONTENT_PHASE].handlers);
 	if(h == NULL) {
 		return NGX_ERROR;
 	}

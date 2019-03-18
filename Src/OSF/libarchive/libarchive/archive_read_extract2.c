@@ -52,7 +52,7 @@ struct archive_read_extract * __archive_read_get_extract(struct archive_read * a
 		a->extract = (struct archive_read_extract *)SAlloc::C(1, sizeof(*a->extract));
 		if(a->extract == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "Can't extract");
-			return (NULL);
+			return NULL;
 		}
 		a->cleanup_archive_extract = archive_read_extract_cleanup;
 	}
@@ -69,7 +69,7 @@ static int archive_read_extract_cleanup(struct archive_read * a)
 	}
 	SAlloc::F(a->extract);
 	a->extract = NULL;
-	return (ret);
+	return ret;
 }
 
 int archive_read_extract2(struct archive * _a, struct archive_entry * entry, struct archive * ad)
@@ -97,7 +97,7 @@ int archive_read_extract2(struct archive * _a, struct archive_entry * entry, str
 	/* Use the worst error return. */
 	if(r2 < r)
 		r = r2;
-	return (r);
+	return r;
 }
 
 void archive_read_extract_set_progress_callback(struct archive * _a, void (*progress_func)(void *), void * user_data)
@@ -118,20 +118,20 @@ static int copy_data(struct archive * ar, struct archive * aw)
 	int r;
 	struct archive_read_extract * extract = __archive_read_get_extract((struct archive_read *)ar);
 	if(extract == NULL)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	for(;;) {
 		r = archive_read_data_block(ar, &buff, &size, &offset);
 		if(r == ARCHIVE_EOF)
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 		if(r != ARCHIVE_OK)
-			return (r);
+			return r;
 		r = (int)archive_write_data_block(aw, buff, size, offset);
 		if(r < ARCHIVE_WARN)
 			r = ARCHIVE_WARN;
 		if(r < ARCHIVE_OK) {
 			archive_set_error(ar, archive_errno(aw),
 			    "%s", archive_error_string(aw));
-			return (r);
+			return r;
 		}
 		if(extract->extract_progress)
 			(extract->extract_progress)

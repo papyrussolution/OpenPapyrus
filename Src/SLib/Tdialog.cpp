@@ -457,7 +457,7 @@ int SLAPI TDialog::GetSymbolBody(const char * pSymb, SString & rBodyBuf)
 	return ok;
 }
 
-void SLAPI TDialog::Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, long extraParam, ConstructorOption co)
+void SLAPI TDialog::Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, void * extraPtr, ConstructorOption co)
 {
 	SubSign = TV_SUBSIGN_DIALOG;
 	P_PrevData = 0;
@@ -479,7 +479,7 @@ void SLAPI TDialog::Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc,
 			DlgFlags |= fExport;
 		TDialog::LoadDialog(P_SlRez, resID, this, (co == coExport) ? ldfDL600_Cvt : 0);
 		if(dlgPreFunc)
-			dlgPreFunc(this, extraParam);
+			dlgPreFunc(this, extraPtr);
 		//
 		// @v4.2.5
 		// Операция по сохранению текущего окна необходима из-за того, что при создании
@@ -496,8 +496,8 @@ void SLAPI TDialog::Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc,
 
 SLAPI TDialog::TDialog(const TRect & bounds, const char *aTitle) : TWindow(bounds, aTitle, wnNoNumber)
 	{ Helper_Constructor(0, 0, 0, coNothing); }
-SLAPI TDialog::TDialog(uint resID, DialogPreProcFunc dlgPreFunc, long extraParam) : TWindow(TRect(), 0, wnNoNumber)
-	{ Helper_Constructor(resID, dlgPreFunc, extraParam, coNothing); }
+SLAPI TDialog::TDialog(uint resID, DialogPreProcFunc dlgPreFunc, void * extraPtr) : TWindow(TRect(), 0, wnNoNumber)
+	{ Helper_Constructor(resID, dlgPreFunc, extraPtr, coNothing); }
 SLAPI TDialog::TDialog(uint resID) : TWindow(TRect(), 0, wnNoNumber)
 	{ Helper_Constructor(resID, 0, 0, coNothing); }
 SLAPI TDialog::TDialog(uint resID, ConstructorOption co) : TWindow(TRect(), 0, wnNoNumber)
@@ -845,7 +845,7 @@ int TDialog::SetClusterItemText(uint ctlID, int itemNo /* 0.. */, const char * p
 int TDialog::SetDefaultButton(uint ctlID, int setDefault)
 {
 	TButton * p_ctl = (TButton *)getCtrlView(ctlID);
-	return p_ctl ? p_ctl->makeDefault((setDefault ? true : false), 1) : 0;
+	return p_ctl ? p_ctl->makeDefault(LOGIC(setDefault), 1) : 0;
 }
 
 int TDialog::SetCtrlBitmap(uint ctlID, uint bmID)
@@ -965,7 +965,7 @@ int TDialog::SetCtrlToolTip(uint ctrlID, const char * pToolTipText)
 		ti.uFlags = TTF_SUBCLASS | TTF_IDISHWND;
 		ti.hwnd   = ctrl_wnd;
 		ti.hinst  = TProgram::GetInst();
-		ti.uId    = (UINT_PTR)ctrl_wnd;
+		ti.uId    = reinterpret_cast<UINT_PTR>(ctrl_wnd);
 		ti.lpszText    = (LPSTR)pToolTipText; // @unicodeproblem
 		ti.rect.left   = ctrl_rect.left;
 		ti.rect.top    = ctrl_rect.top;

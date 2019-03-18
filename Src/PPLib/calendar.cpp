@@ -63,17 +63,16 @@ class TDateCalendar : public TCalendar {
 public:
 	static INT_PTR CALLBACK CalendarDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-	TDateCalendar(TDialog * pDlg, uint pDateCtlID)
+	TDateCalendar(TDialog * pDlg, uint pDateCtlID) : TCalendar(), RetCmd(0)
 	{
 		LDATE d;
-		PeriodSelect = 0;
+		//PeriodSelect = 0;
 		P_Dlg = pDlg;
 		parent_hWnd = P_Dlg ? P_Dlg->H() : 0;
 		DateCtlID = pDateCtlID;
 		IsLarge = BIN(P_Dlg && P_Dlg->CheckFlag(TDialog::fLarge));
 		Top  = IsLarge ? 144 : 80;
 		Left = 10;
-		RetCmd = 0;
 		if(DateCtlID == -1 || !P_Dlg || !P_Dlg->getCtrlData(DateCtlID, &D)) {
 			D = getcurdate_();
 			Validate();
@@ -124,7 +123,6 @@ private:
 	int    IsYearMarker(int x, int y) const;
 	int    IsYearBar(int x, int y) const;
 	int    IsMonthBar(int x, int y) const;
-
 	int    SelectYear(HWND hWnd, int n /* 1..NumYearInBar */);
 	int    ScrollYear(HWND hWnd, int dir);
 	int    SelectMonth(HWND hWnd, int x, int y);
@@ -136,7 +134,7 @@ private:
 
 class TCalendarP : public TCalendar {
 public:
-	TCalendarP(LDATE d1, LDATE d2)
+	TCalendarP(LDATE d1, LDATE d2) : TCalendar()
 	{
 		PeriodSelect = 1;
 		D  = checkdate(d1) ? d1 : getcurdate_();
@@ -147,7 +145,7 @@ public:
 	}
 	~TCalendarP()
 	{
-		DestroyWindow(c_hWnd);
+		::DestroyWindow(c_hWnd);
 	}
 	void   ShowCalendar(HWND hwParent);
 	void   CloseCalendar()
@@ -299,7 +297,7 @@ INT_PTR CALLBACK TDateCalendar::CalendarDlgProc(HWND hWnd, UINT message, WPARAM 
 	RECT r;
 	switch(message) {
 		case WM_INITDIALOG:
-			dc = (TDateCalendar *)lParam;
+			dc = reinterpret_cast<TDateCalendar *>(lParam);
 			TView::SetWindowUserData(hWnd, dc);
 			if(dc && dc->P_Dlg && dc->DateCtlID) {
 				HWND   h_ctl = GetDlgItem(dc->P_Dlg->H(), dc->DateCtlID);
@@ -318,12 +316,12 @@ INT_PTR CALLBACK TDateCalendar::CalendarDlgProc(HWND hWnd, UINT message, WPARAM 
 			TView::PreprocessWindowCtrlText(hWnd); // @v9.1.1
 			break;
 		case WM_CREATE:
-			dc = (TDateCalendar *)TView::GetWindowUserData(hWnd);
+			dc = static_cast<TDateCalendar *>(TView::GetWindowUserData(hWnd));
 			dc->y_firstyear = dc->D.year() - 2;
 			break;
 		case WM_SHOWWINDOW:
 			if(wParam) {
-				dc = (TDateCalendar *)TView::GetWindowUserData(hWnd);
+				dc = static_cast<TDateCalendar *>(TView::GetWindowUserData(hWnd));
 				int  left = dc->IsLarge ? 14 : 8;
 				int  top  = dc->IsLarge ? 14 : 10;
 				int  from_right  = dc->IsLarge ? 28 : 16;
@@ -339,7 +337,7 @@ INT_PTR CALLBACK TDateCalendar::CalendarDlgProc(HWND hWnd, UINT message, WPARAM 
 					wc.lpfnWndProc = static_cast<WNDPROC>(CalendarWndProc);
 					wc.style = CS_DBLCLKS;
 					wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-					wc.hbrBackground = (HBRUSH)GetStockObject(LTGRAY_BRUSH);
+					wc.hbrBackground = static_cast<HBRUSH>(GetStockObject(LTGRAY_BRUSH));
 					::RegisterClassEx(&wc); // @unicodeproblem
 				}
 				::GetClientRect(hWnd, &r);
@@ -350,7 +348,7 @@ INT_PTR CALLBACK TDateCalendar::CalendarDlgProc(HWND hWnd, UINT message, WPARAM 
 			}
 			break;
 		case WM_COMMAND:
-			dc = (TDateCalendar *)TView::GetWindowUserData(hWnd);
+			dc = static_cast<TDateCalendar *>(TView::GetWindowUserData(hWnd));
 			switch(LOWORD(wParam)) {
 				case IDCANCEL:
 					KillTimer(dc->c_hWnd, 1);
@@ -412,9 +410,9 @@ void TDateCalendar::PaintMonthRect(TCanvas & rCanv, TPoint p, uint j, COLORREF c
 void TDateCalendar::DrawDayOfWeekHeader(HDC hdc)
 {
 	HPEN   pen    = CreatePen(PS_SOLID, 1, RGB(170, 170, 170));
-	HPEN   oldpen = (HPEN)SelectObject(hdc, pen);
+	HPEN   oldpen = static_cast<HPEN>(SelectObject(hdc, pen));
 	HBRUSH br     = CreateSolidBrush(RGB(170, 170, 170));
-	HBRUSH oldbr  = (HBRUSH)SelectObject(hdc, br);
+	HBRUSH oldbr  = static_cast<HBRUSH>(SelectObject(hdc, br));
 	Rectangle(hdc, Left, Top, Left + (y_br - y_bl), Top + (C_CELLH * y_th / 13 - 2));
 	SelectObject(hdc, oldpen);
 	SelectObject(hdc, oldbr);
@@ -435,7 +433,7 @@ void TDateCalendar::DrawMonthGrid(HDC hdc)
 				canv.SetTextColor(0);
 				TPoint p, txt_sz;
 				p.Set(Left + j * c_cell_w, Top  + i * c_cell_h);
-				int    tmpd = atoi(C[i][j]); // @unicodeproblem
+				int    tmpd = satoi(C[i][j]); // @unicodeproblem
 				int    is_year = BIN(D1.year() >= 1970 || D2.year() < 2500);
 				LDATE  dd1 = D1; // encodedate(Day1, Month1, Year1);
 				LDATE  dd2 = D2; // encodedate(Day2, Month2, Year2);
@@ -454,10 +452,10 @@ void TDateCalendar::DrawMonthGrid(HDC hdc)
 							canv.SetTextColor(C_TEXT2COL);
 					}
 				}
-				txt_sz = canv.GetTextSize(C[i][j]); // @unicodeproblem
+				txt_sz = canv.GetTextSize(SUcSwitch(C[i][j])); // @unicodeproblem
 				p.x += (c_cell_w - txt_sz.x) / 2;
 				p.y += (c_cell_h - txt_sz.y) / 2;
-				canv.TextOut(p, C[i][j]); // @unicodeproblem
+				canv.TextOut(p, SUcSwitch(C[i][j])); // @unicodeproblem
 			}
 }
 
@@ -544,8 +542,8 @@ void TDateCalendar::OnPaint(HWND hWnd)
 			SetTextColor(hdc, RGB(255, 255, 255));
 		}
 		s.Z().Cat(i);
-		::GetTextExtentPoint32(hdc, s, s.Len(), &ts); // @unicodeproblem
-		::TextOut(hdc, Left + (y_br - y_bl - y_w) / 2 + (i - y_firstyear - 2) * y_w + (y_w - ts.cx) / 2, y_t, s, s.Len()); // @unicodeproblem
+		::GetTextExtentPoint32(hdc, SUcSwitch(s), s.Len(), &ts); // @unicodeproblem
+		::TextOut(hdc, Left + (y_br - y_bl - y_w) / 2 + (i - y_firstyear - 2) * y_w + (y_w - ts.cx) / 2, y_t, SUcSwitch(s), s.Len()); // @unicodeproblem
 	}
 	SelectObject(hdc, oldpen);
 	ZDeleteWinGdiObject(&pen);
@@ -620,7 +618,7 @@ void TDateCalendar::OnPaint(HWND hWnd)
 	//
 	for(i = 1; i <= 12; i++) {
 		SGetMonthText(i, MONF_SHORT, temp_buf.Z());
-		::GetTextExtentPoint32(hdc, temp_buf, 3, &ts); // @unicodeproblem
+		::GetTextExtentPoint32(hdc, SUcSwitch(temp_buf), 3, &ts); // @unicodeproblem
 		x = Left + (((i <= 6) ? i : i - 6) - 1) * m_cell_w;
 		(dd1 = D1).setday(1);
 		(dd2 = D2).setday(1);
@@ -629,7 +627,7 @@ void TDateCalendar::OnPaint(HWND hWnd)
 			SetTextColor(hdc, (i == D.month()) ? C_TEXTSMCCOL : C_TEXTSMCOL);
 		else
 			SetTextColor(hdc, (i == D.month()) ? M_SELCOL : M_DEFCOL);
-		::TextOut(hdc, x + (m_cell_w - ts.cx) / 2, Top - ((i <= 6) ? m_diff_y : m_diff_y - m_cell_h - 2), temp_buf, 3); // @unicodeproblem
+		::TextOut(hdc, x + (m_cell_w - ts.cx) / 2, Top - ((i <= 6) ? m_diff_y : m_diff_y - m_cell_h - 2), SUcSwitch(temp_buf), 3); // @unicodeproblem
 	}
 	SelectObject(hdc, hf1);
 	ZDeleteWinGdiObject(&hf);
@@ -888,7 +886,7 @@ int TDateCalendar::SelectDay(HWND hWnd, int x, int y)
 		setDTS(plusdate(temp_date, j-c_maxlast));
 	}
 	else if(((i && i < (c_maxrow-1)) || (!i && j >= c_minfirst) || (i == (c_maxrow-1) && j <= c_maxlast)) &&
-		(!PeriodSelect || (atoi(C[i+1][j]) + hashd(D) != D2.day() + hashd(D2)))) { // @unicodeproblem
+		(!PeriodSelect || (satoi(C[i+1][j]) + hashd(D) != D2.day() + hashd(D2)))) { // @unicodeproblem
 		//
 		// Move the selection
 		//
@@ -916,7 +914,7 @@ int TDateCalendar::SelectDay(HWND hWnd, int x, int y)
 		::TextOut(hdc, x + (c_cell_w - ts.cx) / 2, y + (c_cell_h - ts.cy) / 2, C[c_i][c_j], 2); // @unicodeproblem
 		c_i = i + 1;
 		c_j = j;
-		D.setday(atoi(C[c_i][c_j])); // @unicodeproblem
+		D.setday(satoi(C[c_i][c_j])); // @unicodeproblem
 		if(PeriodSelect == 1) {
 			if(D1.day()) {
 				if(D2.year() != D.year() || D2.month() != D.month()) {
@@ -933,7 +931,7 @@ int TDateCalendar::SelectDay(HWND hWnd, int x, int y)
 				//
 				for(int ii = 1; ii <= c_maxrow; ii++) {
 					for(int jj = 0; jj <= 6; jj++) {
-						int    cur_entry = atoi(C[ii][jj]); // @unicodeproblem
+						int    cur_entry = satoi(C[ii][jj]); // @unicodeproblem
 						int    eq_ym = BIN(D2.month() == D1.month() && D2.year() == D1.year());
 						long   nd1 = D1.day() + hashd(D1);
 						long   nd2 = D2.day() + hashd(D2);
@@ -1009,7 +1007,7 @@ int  TDateCalendar::SelectWeek(HWND hWnd, int x, int y)
 	const int c_cell_h = C_CELLH * y_th / 13;
 	const int j = (x - Left) / c_cell_w;
 	const int i = (y - Top)  / c_cell_h - 1;
-	if(((i && i < (c_maxrow - 1)) || (!i && j >= c_minfirst) || (i == (c_maxrow-1) && j <= c_maxlast)) && (atoi(C[i+1][j]) + hashd(D) != D2.day() + hashd(D2))) { // @unicodeproblem
+	if(((i && i < (c_maxrow - 1)) || (!i && j >= c_minfirst) || (i == (c_maxrow-1) && j <= c_maxlast)) && (satoi(C[i+1][j]) + hashd(D) != D2.day() + hashd(D2))) { // @unicodeproblem
 		// Move the selection
 		HDC    hdc = GetDC(hWnd);
 		HFONT  hf = CreateFont(IsLarge ? 24 : 8, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
@@ -1035,7 +1033,7 @@ int  TDateCalendar::SelectWeek(HWND hWnd, int x, int y)
 		::TextOut(hdc, x + (c_cell_w - ts.cx) / 2, y + (c_cell_h - ts.cy) / 2, C[c_i][c_j], 2); // @unicodeproblem
 		c_i = i + 1;
 		c_j = j;
-		D.setday(atoi(C[c_i][c_j])); // @unicodeproblem
+		D.setday(satoi(C[c_i][c_j])); // @unicodeproblem
 		const int draw_months = BIN(D2.year() != D.year() || D2.month() != D.month());
 		{
 			const LDATE  beg_dt = encodedate(1, 1, 1);
@@ -1080,7 +1078,7 @@ int  TDateCalendar::SelectWeek(HWND hWnd, int x, int y)
 			//
 			for(int ii = 1; ii <= c_maxrow; ii++) {
 				for(int jj = 0; jj <= 6; jj++) {
-					int    cur_entry = atoi(C[ii][jj]); // @unicodeproblem
+					int    cur_entry = satoi(C[ii][jj]); // @unicodeproblem
 					int    is_bound = BIN((ii == c_maxrow && jj > c_maxlast) || (ii == 1 && jj < c_minfirst));
 					const  int xx = Left + jj * c_cell_w;
 					const  int yy = Top + ii * c_cell_h;

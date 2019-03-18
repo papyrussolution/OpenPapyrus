@@ -159,7 +159,7 @@ int GoodsMovFiltDialog::getDTS(GoodsMovFilt * pData)
 // virtual
 int SLAPI PPViewGoodsMov::EditBaseFilt(PPBaseFilt * pFilt)
 {
-	DIALOG_PROC_BODY(GoodsMovFiltDialog, (GoodsMovFilt*)pFilt);
+	DIALOG_PROC_BODY(GoodsMovFiltDialog, static_cast<GoodsMovFilt *>(pFilt));
 }
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempGoodsMov);
@@ -177,7 +177,7 @@ int SLAPI PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
 	TempGoodsMovTbl::Rec rec;
 	PPOprKind op_rec;
 	GoodsFilt gf;
-	GoodsIterator  iter((GoodsFilt*)0, 0);
+	GoodsIterator  iter(static_cast<GoodsFilt *>(0), 0);
 	Goods2Tbl::Rec gr;
 	PPObjGoods gobj;
 	TempGoodsMovTbl * p_tbl = CreateTempFile();
@@ -211,7 +211,7 @@ int SLAPI PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
 				temp_filt.GoodsID = gr.ID;
 				ary.clear();
 				THROW(ary.ProcessGoodsGrouping(&temp_filt, &agg));
-				for(i = 0; ary.enumItems(&i, (void**)&p_entry);) {
+				for(i = 0; ary.enumItems(&i, (void **)&p_entry);) {
 					int no_upd_lot_op = 0;
 					if(!accs_cost)
 						p_entry->Cost = 0;
@@ -755,7 +755,7 @@ int PPALDD_GoodsMov::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;
-	return p_v->InitIteration((PPViewGoodsMov::IterOrder)SortIdx) ? 1 : 0;
+	return p_v->InitIteration(static_cast<PPViewGoodsMov::IterOrder>(SortIdx)) ? 1 : 0;
 }
 
 int PPALDD_GoodsMov::NextIteration(PPIterID iterId)

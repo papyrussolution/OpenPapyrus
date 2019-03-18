@@ -1,5 +1,5 @@
 // PPDSP.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2005, 2007, 2009, 2010, 2011, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2001, 2002, 2005, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2019
 //
 #pragma hdrstop
 #ifdef PPDSC
@@ -8,11 +8,8 @@
 #include <pp.h>
 #include <ppds.h>
 
-SLAPI PPDeclStrucProcessor::PPDeclStrucProcessor()
+SLAPI PPDeclStrucProcessor::PPDeclStrucProcessor() : P_NameTab(0), InStream(0), P_FileName(0)
 {
-	P_NameTab = 0;
-	InStream = 0;
-	P_FileName = 0;
 }
 
 SLAPI PPDeclStrucProcessor::~PPDeclStrucProcessor()
@@ -182,14 +179,13 @@ int SLAPI PPDeclStrucProcessor::GetValue(SString & rBuf)
 
 #ifndef PPDSC // {
 
-PPDeclStruc * SLAPI PPDeclStrucProcessor::GetData(long typeID, void * extraPtr, PPDeclStruc * pOuter, int dontAccept)
+PPDeclStruc * SLAPI PPDeclStrucProcessor::GetData(long typeID, void * extraPtr, const PPDeclStruc * pOuter, int dontAccept)
 {
 	uint   j;
 	PPDeclStruc * p_decl = 0, * p_inner_decl = 0;
 	PPDeclStrucItem item;
 	SString value;
 	int    term;
-
 	THROW(p_decl = PPDeclStruc::CreateInstance(typeID, extraPtr, pOuter, &Logger));
 	THROW(p_decl->InitData(PPDeclStruc::idoAlloc, 0, 0));
 	while(GetTerm(&term) != ppdsRightBrace && term != 0) {
@@ -375,7 +371,7 @@ int SLAPI PPDeclStrucProcessor::GetNewTypeID(long * pTypeID)
 	long   max_id = FIRST_DECLSTRUC_ID-1;
 	NameTabItem * p_item;
 	if(P_NameTab)
-		for(uint i = 0; P_NameTab->enumItems(&i, (void**)&p_item);)
+		for(uint i = 0; P_NameTab->enumItems(&i, (void **)&p_item);)
 			if(p_item->ID > max_id)
 				max_id = p_item->ID;
 	ASSIGN_PTR(pTypeID, max_id+1);
@@ -387,7 +383,7 @@ int SLAPI PPDeclStrucProcessor::GetTypeByName(const char * pName, long * pTypeID
 	NameTabItem * p_item;
 	PPSetAddedMsgString(pName);
 	if(P_NameTab)
-		for(uint i = 0; P_NameTab->enumItems(&i, (void**)&p_item);)
+		for(uint i = 0; P_NameTab->enumItems(&i, (void **)&p_item);)
 			if(sstreqi_ascii(p_item->Name, pName)) {
 				ASSIGN_PTR(pTypeID, p_item->ID);
 				PPSetError(PPERR_DS_TYPENAMEEXISTS);
@@ -401,7 +397,7 @@ int SLAPI PPDeclStrucProcessor::GetNameByType(long typeID, char * pBuf, size_t b
 {
 	NameTabItem * p_item;
 	if(P_NameTab)
-		for(uint i = 0; P_NameTab->enumItems(&i, (void**)&p_item);)
+		for(uint i = 0; P_NameTab->enumItems(&i, (void **)&p_item);)
 			if(p_item->ID == typeID) {
 				strnzcpy(pBuf, p_item->Name, bufLen);
 				return 1;

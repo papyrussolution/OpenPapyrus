@@ -266,7 +266,7 @@ int __heap_create_region(DBC * dbc, db_pgno_t pgno)
 	}
 	else
 		LSN_NOT_LOGGED(LSN(&meta->dbmeta));
-	memzero((void *)region, dbp->pgsize);
+	memzero(/*(void *)*/region, dbp->pgsize);
 	P_INIT(region, dbp->pgsize, pgno, PGNO_INVALID, PGNO_INVALID, 0, P_IHEAP);
 	LSN(region) = LSN(&meta->dbmeta);
 	/*

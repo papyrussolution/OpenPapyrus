@@ -312,9 +312,9 @@ SLAPI ClientBankImportDef::ClientBankImportDef()
 SLAPI ClientBankImportDef::~ClientBankImportDef()
 	{ delete (Helper_ClientBank2 *)P_Helper; }
 PPImpExpParam & SLAPI ClientBankImportDef::GetParam() const
-	{ return ((Helper_ClientBank2 *)P_Helper)->GetParam(); }
+	{ return static_cast<Helper_ClientBank2 *>(P_Helper)->GetParam(); }
 int SLAPI ClientBankImportDef::ReadDefinition(const char * pIniSection)
-	{ return ((Helper_ClientBank2 *)P_Helper)->ReadDefinition(pIniSection); }
+	{ return static_cast<Helper_ClientBank2 *>(P_Helper)->ReadDefinition(pIniSection); }
 
 // AHTOXA {
 static int GetOurInfo(BankStmntItem * pItem)
@@ -344,7 +344,7 @@ static int GetOurInfo(BankStmntItem * pItem)
 }
 // } AHTOXA
 
-static void LogError(PPLogger & rLogger, long err, BankStmntItem * pItem)
+static void LogError(PPLogger & rLogger, long err, const BankStmntItem * pItem)
 {
 	SString msg_buf, log_buf;
 	pItem->MakeDescrText(msg_buf).Quot('(', ')');
@@ -428,7 +428,7 @@ int ResolveAssocCollisionDialog::getDTS(SArray *pA)
 	return ok;
 }
 
-static int ResolveAssocCollision(SArray *pA, BankStmntItem * pItem)
+static int ResolveAssocCollision(SArray *pA, const BankStmntItem * pItem)
 {
 	int    ok = 1;
 	SString msg_buf, buf;
@@ -780,21 +780,21 @@ SLAPI ClientBankExportDef::ClientBankExportDef(const DateRange * pPeriod)
 SLAPI ClientBankExportDef::~ClientBankExportDef()
 	{ delete (Helper_ClientBank2 *)P_Helper; }
 PPImpExpParam & SLAPI ClientBankExportDef::GetParam() const
-	{ return ((Helper_ClientBank2 *)P_Helper)->GetParam(); }
+	{ return static_cast<Helper_ClientBank2 *>(P_Helper)->GetParam(); }
 int SLAPI ClientBankExportDef::ReadDefinition(const char * pIniSection)
-	{ return ((Helper_ClientBank2 *)P_Helper)->ReadDefinition(pIniSection); }
+	{ return static_cast<Helper_ClientBank2 *>(P_Helper)->ReadDefinition(pIniSection); }
 int SLAPI ClientBankExportDef::CreateOutputFile()
-	{ return ((Helper_ClientBank2 *)P_Helper)->CreateOutputFile(); }
+	{ return static_cast<Helper_ClientBank2 *>(P_Helper)->CreateOutputFile(); }
 int SLAPI ClientBankExportDef::CloseOutputFile()
 	{ return 1; }
 int SLAPI ClientBankExportDef::PutRecord(const PPBillPacket * pPack, PPID debtBillID, PPLogger * pLogger)
-	{ return ((Helper_ClientBank2 *)P_Helper)->PutRecord(pPack, debtBillID, pLogger); }
+	{ return static_cast<Helper_ClientBank2 *>(P_Helper)->PutRecord(pPack, debtBillID, pLogger); }
 int SLAPI ClientBankExportDef::PutHeader()
-	{ return ((Helper_ClientBank2 *)P_Helper)->PutHeader(); }
+	{ return static_cast<Helper_ClientBank2 *>(P_Helper)->PutHeader(); }
 int SLAPI ClientBankExportDef::PutEnd()
-	{ return ((Helper_ClientBank2 *)P_Helper)->PutEnd(); }
+	{ return static_cast<Helper_ClientBank2 *>(P_Helper)->PutEnd(); }
 int SLAPI ClientBankExportDef::GetStat(long * pAcceptedCount, long * pRejectedCount, double * pAmount)
-	{ return ((Helper_ClientBank2 *)P_Helper)->GetStat(pAcceptedCount, pRejectedCount, pAmount); }
+	{ return static_cast<const Helper_ClientBank2 *>(P_Helper)->GetStat(pAcceptedCount, pRejectedCount, pAmount); }
 
 //static
 SString & Helper_ClientBank2::MakeVatText(const PPBillPacket * pPack, SString & rBuf)

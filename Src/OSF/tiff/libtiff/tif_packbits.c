@@ -34,17 +34,16 @@
 static int PackBitsPreEncode(TIFF* tif, uint16 s)
 {
 	(void)s;
-
-	tif->tif_data = (uint8 *)SAlloc::M(sizeof(tmsize_t));
+	tif->tif_data = static_cast<uint8 *>(SAlloc::M(sizeof(tmsize_t)));
 	if(tif->tif_data == NULL)
 		return 0;
 	/*
 	 * Calculate the scanline/tile-width size in bytes.
 	 */
 	if(isTiled(tif))
-		*(tmsize_t*)tif->tif_data = TIFFTileRowSize(tif);
+		*reinterpret_cast<tmsize_t *>(tif->tif_data) = TIFFTileRowSize(tif);
 	else
-		*(tmsize_t*)tif->tif_data = TIFFScanlineSize(tif);
+		*reinterpret_cast<tmsize_t *>(tif->tif_data) = TIFFScanlineSize(tif);
 	return 1;
 }
 
@@ -60,7 +59,7 @@ static int PackBitsPostEncode(TIFF* tif)
  */
 static int PackBitsEncode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 {
-	unsigned char* bp = (unsigned char*)buf;
+	uchar* bp = (uchar *)buf;
 	uint8* op;
 	uint8* ep;
 	uint8* lastliteral;
@@ -113,17 +112,17 @@ again:
 				    state = RUN;
 				    if(n > 128) {
 					    *op++ = (uint8) -127;
-					    *op++ = (uint8)b;
+					    *op++ = static_cast<uint8>(b);
 					    n -= 128;
 					    goto again;
 				    }
 				    *op++ = (uint8)(-(n-1));
-				    *op++ = (uint8)b;
+				    *op++ = static_cast<uint8>(b);
 			    }
 			    else {
 				    lastliteral = op;
 				    *op++ = 0;
-				    *op++ = (uint8)b;
+				    *op++ = static_cast<uint8>(b);
 				    state = LITERAL;
 			    }
 			    break;
@@ -132,34 +131,34 @@ again:
 				    state = LITERAL_RUN;
 				    if(n > 128) {
 					    *op++ = (uint8) -127;
-					    *op++ = (uint8)b;
+					    *op++ = static_cast<uint8>(b);
 					    n -= 128;
 					    goto again;
 				    }
 				    *op++ = (uint8)(-(n-1));    /* encode run */
-				    *op++ = (uint8)b;
+				    *op++ = static_cast<uint8>(b);
 			    }
 			    else {                      /* extend literal */
 				    if(++(*lastliteral) == 127)
 					    state = BASE;
-				    *op++ = (uint8)b;
+				    *op++ = static_cast<uint8>(b);
 			    }
 			    break;
 			case RUN:       /* last object was run */
 			    if(n > 1) {
 				    if(n > 128) {
 					    *op++ = (uint8) -127;
-					    *op++ = (uint8)b;
+					    *op++ = static_cast<uint8>(b);
 					    n -= 128;
 					    goto again;
 				    }
 				    *op++ = (uint8)(-(n-1));
-				    *op++ = (uint8)b;
+				    *op++ = static_cast<uint8>(b);
 			    }
 			    else {
 				    lastliteral = op;
 				    *op++ = 0;
-				    *op++ = (uint8)b;
+				    *op++ = static_cast<uint8>(b);
 				    state = LITERAL;
 			    }
 			    break;
@@ -195,16 +194,13 @@ again:
  */
 static int PackBitsEncodeChunk(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 {
-	tmsize_t rowsize = *(tmsize_t*)tif->tif_data;
-
+	tmsize_t rowsize = *reinterpret_cast<const tmsize_t *>(tif->tif_data);
 	while(cc > 0) {
 		tmsize_t chunk = rowsize;
-
 		if(cc < chunk)
 			chunk = cc;
-
 		if(PackBitsEncode(tif, bp, chunk, s) < 0)
-			return (-1);
+			return -1;
 		bp += chunk;
 		cc -= chunk;
 	}
@@ -238,7 +234,7 @@ static int PackBitsDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 			if(occ < (tmsize_t)n) {
 				TIFFWarningExt(tif->tif_clientdata, module,
 				    "Discarding %lu bytes to avoid buffer overrun",
-				    (unsigned long)((tmsize_t)n - occ));
+				    (ulong)((tmsize_t)n - occ));
 				n = (long)occ;
 			}
 			if(cc == 0) {
@@ -250,18 +246,15 @@ static int PackBitsDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 			b = *bp++;
 			cc--;
 			while(n-- > 0)
-				*op++ = (uint8)b;
+				*op++ = static_cast<uint8>(b);
 		}
 		else {                  /* copy next n+1 bytes literally */
 			if(occ < (tmsize_t)(n + 1)) {
-				TIFFWarningExt(tif->tif_clientdata, module,
-				    "Discarding %lu bytes to avoid buffer overrun",
-				    (unsigned long)((tmsize_t)n - occ + 1));
+				TIFFWarningExt(tif->tif_clientdata, module, "Discarding %lu bytes to avoid buffer overrun", (ulong)((tmsize_t)n - occ + 1));
 				n = (long)occ - 1;
 			}
 			if(cc < (tmsize_t)(n+1)) {
-				TIFFWarningExt(tif->tif_clientdata, module,
-				    "Terminating PackBitsDecode due to lack of data.");
+				TIFFWarningExt(tif->tif_clientdata, module, "Terminating PackBitsDecode due to lack of data.");
 				break;
 			}
 			memcpy(op, bp, ++n);
@@ -269,12 +262,10 @@ static int PackBitsDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 			bp += n; cc -= n;
 		}
 	}
-	tif->tif_rawcp = (uint8 *)bp;
+	tif->tif_rawcp = reinterpret_cast<uint8 *>(bp);
 	tif->tif_rawcc = cc;
 	if(occ > 0) {
-		TIFFErrorExt(tif->tif_clientdata, module,
-		    "Not enough data for scanline %lu",
-		    (unsigned long)tif->tif_row);
+		TIFFErrorExt(tif->tif_clientdata, module, "Not enough data for scanline %lu", (ulong)tif->tif_row);
 		return 0;
 	}
 	return 1;

@@ -451,7 +451,7 @@ int SLAPI PPViewPredictSales::ConvertHdr(const void * pHdr, BrwHdr * pOut) const
 	if(pOut) {
 		pOut->GoodsID = Filt.GoodsID;
 		pOut->LocID = Filt.LocList.GetSingle();
-		pOut->Dt = pHdr ? *(LDATE *)pHdr : ZERODATE;
+		pOut->Dt = pHdr ? *static_cast<const LDATE *>(pHdr) : ZERODATE;
 	}
 	return BIN(pHdr);
 }

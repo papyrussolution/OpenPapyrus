@@ -285,12 +285,12 @@ HRESULT __stdcall SCoClass::QueryInterface(REFIID rIID, void ** ppObject)
 	SString b;
 	TRACE_FUNC_S(guid.ToStr(S_GUID::fmtIDL, b));
 #endif
-	return (((TabEntry *)this)->ThisPtr)->ImpQueryInterface(rIID, ppObject);
+	return (reinterpret_cast<TabEntry *>(this)->ThisPtr)->ImpQueryInterface(rIID, ppObject);
 }
 
-uint32 __stdcall SCoClass::AddRef() { return (((TabEntry *)this)->ThisPtr)->ImpAddRef(); }
-uint32 __stdcall SCoClass::Release() { return (((TabEntry *)this)->ThisPtr)->ImpRelease(); }
-HRESULT __stdcall SCoClass::InterfaceSupportsErrorInfo(REFIID rIID) { return (((TabEntry *)this)->ThisPtr)->ImpInterfaceSupportsErrorInfo(rIID); }
+uint32 __stdcall SCoClass::AddRef() { return (reinterpret_cast<TabEntry *>(this)->ThisPtr)->ImpAddRef(); }
+uint32 __stdcall SCoClass::Release() { return (reinterpret_cast<TabEntry *>(this)->ThisPtr)->ImpRelease(); }
+HRESULT __stdcall SCoClass::InterfaceSupportsErrorInfo(REFIID rIID) { return (reinterpret_cast<TabEntry *>(this)->ThisPtr)->ImpInterfaceSupportsErrorInfo(rIID); }
 //
 //
 //
@@ -327,7 +327,7 @@ SLAPI SCoFactory::SCoFactory(REFCLSID rClsID) : SCoClass(scccFactory, &VT_SCoFac
 HRESULT __stdcall SCoFactory::CreateInstance(IUnknown * pOuter, const IID & rIID, void ** ppV)
 {
 	TRACE_FUNC();
-	SCoFactory * __tp = (SCoFactory *)((TabEntry *)this)->ThisPtr;
+	SCoFactory * __tp = static_cast<SCoFactory *>(reinterpret_cast<TabEntry *>(this)->ThisPtr);
 	IUnknown * p_com = 0;
 	HRESULT ok = CLASS_E_CLASSNOTAVAILABLE;
 	if(pOuter)

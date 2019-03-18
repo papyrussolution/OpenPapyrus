@@ -1064,9 +1064,9 @@ void SLAPI DlRtm::FillDTDBuf(const DlScope * pScope, xmlTextWriter * pWriter, co
 	FillXmlBuf(pScope, pWriter, &ss_dtd, SCodepageIdent(cpANSI));
 	SString buf, huge_buf = ss_dtd.getBuf();
 	huge_buf.Quot('(', ')');
-	xmlTextWriterWriteDTDElement(pWriter, (const xmlChar*)pElemName, huge_buf.ucptr());
+	xmlTextWriterWriteDTDElement(pWriter, (const xmlChar *)pElemName, huge_buf.ucptr());
 	for(uint p = 0; ss_dtd.get(&p, buf) > 0;)
-		xmlTextWriterWriteDTDElement(pWriter, buf.ucptr(), (const xmlChar*)"(#PCDATA)");
+		xmlTextWriterWriteDTDElement(pWriter, buf.ucptr(), (const xmlChar *)"(#PCDATA)");
 }
 
 int SLAPI DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
@@ -1088,7 +1088,7 @@ int SLAPI DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 		uint   i;
 		DlScope * p_child = 0;
 		xmlTextWriterSetIndent(p_writer, 0);
-		//xmlTextWriterSetIndentString(writer, (const xmlChar*)"\t");
+		//xmlTextWriterSetIndentString(writer, reinterpret_cast<const xmlChar *>("\t"));
 		if(!(rParam.Flags & ExportParam::fDontWriteXmlDTD)) {
 			{
 				left = 0;
@@ -1213,7 +1213,7 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 		uint   i;
 		DlScope * p_child = 0;
 		xmlTextWriterSetIndent(p_writer, 1);
-		xmlTextWriterSetIndentString(p_writer, (const xmlChar*)"\t");
+		xmlTextWriterSetIndentString(p_writer, reinterpret_cast<const xmlChar *>("\t"));
 		// @v9.4.6 xmlTextWriterStartDocument(writer, 0, "windows-1251", 0);
 		if(rParam.Cp == cpUndef)
 			rParam.Cp = cp1251;

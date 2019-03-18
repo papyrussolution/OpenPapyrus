@@ -499,7 +499,7 @@ int	SLAPI PrcssrBuild::Run()
 
 					PPLoadText(PPTXT_BUILD_SOLUTION, fmt_buf);
 					logger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
-					int    r = ::CreateProcess(0, cmd_line, 0, 0, FALSE, 0, 0, p_prc_cur_dir, &si, &pi); // @unicodeproblem
+					int    r = ::CreateProcess(0, static_cast<char *>(cmd_line), 0, 0, FALSE, 0, 0, SUcSwitch(p_prc_cur_dir), &si, &pi); // @unicodeproblem
 					if(!r) {
 						SLS.SetOsError(0);
 						CALLEXCEPT_PP(PPERR_SLIB);
@@ -615,7 +615,7 @@ int	SLAPI PrcssrBuild::Run()
 				PPLoadText(PPTXT_BUILD_DISTRIB, fmt_buf);
 				logger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
 
-				int    r = ::CreateProcess(0, cmd_line, 0, 0, FALSE, 0, 0, build_path, &si, &pi); // @unicodeproblem
+				int    r = ::CreateProcess(0, cmd_line, 0, 0, FALSE, 0, 0, SUcSwitch(build_path), &si, &pi); // @unicodeproblem
 				if(!r) {
 					SLS.SetOsError(0);
 					CALLEXCEPT_PP(PPERR_SLIB);
@@ -741,7 +741,7 @@ int SLAPI PrcssrBuild::BuildLocalDl600(const char * pPath)
 		{
 			STempBuffer cmd_line_buf(cmd_line.Len()*2);
 			strnzcpy(cmd_line_buf, cmd_line, cmd_line_buf.GetSize());
-			cpr = ::CreateProcess(0, cmd_line_buf, 0, 0, FALSE, 0, 0, cur_dir, &si, &pi); // @unicodeproblem
+			cpr = ::CreateProcess(0, cmd_line_buf, 0, 0, FALSE, 0, 0, SUcSwitch(cur_dir), &si, &pi); // @unicodeproblem
 			if(!cpr) {
 				SLS.SetOsError(0);
 				CALLEXCEPT_PP(PPERR_SLIB);

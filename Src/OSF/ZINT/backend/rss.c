@@ -2011,7 +2011,7 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 }
 
 /* GS1 DataBar Expanded */
-int rssexpanded(struct ZintSymbol * symbol, uchar source[], int src_len)
+int rssexpanded(struct ZintSymbol * symbol, const uchar source[], int src_len)
 {
 	int i, j, k, p, data_chars, vs[21], group[21], v_odd[21], v_even[21];
 	char substring[21][14], latch;

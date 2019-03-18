@@ -533,7 +533,7 @@ public:
 		setup();
 	}
 	void   setup();
-	void   correct();
+	// @v10.3.9 void   correct();
 private:
 	DECL_HANDLE_EVENT;
 	PPCashMachine * machine;
@@ -571,7 +571,7 @@ void CashStatDialog::setup()
 	setCtrlReadOnly(CTL_CASHDISP_RETAMT, 1);
 }
 
-void CashStatDialog::correct()
+/* @v10.3.9 void CashStatDialog::correct()
 {
 	double add = stat.BegSum + stat.Income - stat.Cash;
 	TDialog * dlg = new TDialog(DLG_CASHCORR);
@@ -591,15 +591,15 @@ void CashStatDialog::correct()
 		PPError();
 	ENDCATCH
 	delete dlg;
-}
+}*/
 
 IMPL_HANDLE_EVENT(CashStatDialog)
 {
 	TDialog::handleEvent(event);
-	if(event.isKeyDown(kbF7) && stat.Cash >= 0) {
+	/* @v10.3.9 if(event.isKeyDown(kbF7) && stat.Cash >= 0) {
 		correct();
 		clearEvent(event);
-	}
+	}*/
 }
 
 int SLAPI PPCashMachine::SyncViewSessionStat(long options)
@@ -795,8 +795,6 @@ int SLAPI PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long
 
 int SLAPI PPCashMachine::SyncGetSummator(double * pSum)
 	{ return (GetSyncIntrf() && P_SyncIntrf->GetSummator(pSum)); }
-int SLAPI PPCashMachine::SyncAddSummator(double add)
-	{ return (GetSyncIntrf() && P_SyncIntrf->AddSummator(add)); }
 
 int SLAPI PPCashMachine::SyncSetPrintErrCode(int retCode, int updateNode)
 {
@@ -867,9 +865,10 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 		PPSlipFormatter * p_formatter = P_SyncIntrf->GetSlipFormatter();
 		if(p_formatter) {
 			SlipDocCommonParam sdc_param;
-			int      prn_total_sale = 1, r = 0;
-			SString  line_buf, serial, format_name = "CCheck";
-			SString  out_buf;
+			int    prn_total_sale = 1, r = 0;
+			SString line_buf, serial;
+			SString format_name = "CCheck";
+			SString out_buf;
 			SlipLineParam sl_param;
 			double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));
 			double sum = fabs(pPack->_Cash) + 0.001;

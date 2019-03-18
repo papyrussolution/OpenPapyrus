@@ -86,7 +86,7 @@ int archive_read_support_filter_uu(struct archive * _a)
 	    ARCHIVE_STATE_NEW, "archive_read_support_filter_uu");
 
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 
 	bidder->data = NULL;
 	bidder->name = "uu";
@@ -94,7 +94,7 @@ int archive_read_support_filter_uu(struct archive * _a)
 	bidder->init = uudecode_bidder_init;
 	bidder->options = NULL;
 	bidder->free = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static const uchar ascii[256] = {
@@ -183,7 +183,7 @@ static ssize_t get_line(const uchar * b, ssize_t avail, ssize_t * nlsize)
 			case 0: /* Non-ascii character or control character. */
 			    if(nlsize != NULL)
 				    *nlsize = 0;
-			    return (-1);
+			    return -1;
 			case '\r':
 			    if(avail-len > 1 && b[1] == '\n') {
 				    if(nlsize != NULL)
@@ -238,7 +238,7 @@ static ssize_t bid_get_line(struct archive_read_filter * filter,
 		*b = (const uchar*)__archive_read_filter_ahead(filter, nbytes_req, avail);
 		if(*b == NULL) {
 			if(*ravail >= *avail)
-				return (0);
+				return 0;
 			/* Reading bytes reaches the end of a stream. */
 			*b = (const uchar*)__archive_read_filter_ahead(filter, *avail, avail);
 			quit = 1;
@@ -271,7 +271,7 @@ static int uudecode_bidder_bid(struct archive_read_filter_bidder * self,
 
 	b = (const uchar*)__archive_read_filter_ahead(filter, 1, &avail);
 	if(b == NULL)
-		return (0);
+		return 0;
 
 	firstline = 20;
 	ravail = avail;
@@ -279,7 +279,7 @@ static int uudecode_bidder_bid(struct archive_read_filter_bidder * self,
 	for(;;) {
 		len = bid_get_line(filter, &b, &avail, &ravail, &nl, &nbytes_read);
 		if(len < 0 || nl == 0)
-			return (0); /* No match found. */
+			return 0; /* No match found. */
 		if(len - nl >= 11 && memcmp(b, "begin ", 6) == 0)
 			l = 6;
 		else if(len -nl >= 18 && memcmp(b, "begin-base64 ", 13) == 0)
@@ -300,29 +300,29 @@ static int uudecode_bidder_bid(struct archive_read_filter_bidder * self,
 
 		/* Do not read more than UUENCODE_BID_MAX_READ bytes */
 		if(nbytes_read >= UUENCODE_BID_MAX_READ)
-			return (0);
+			return 0;
 	}
 	if(!avail)
-		return (0);
+		return 0;
 	len = bid_get_line(filter, &b, &avail, &ravail, &nl, &nbytes_read);
 	if(len < 0 || nl == 0)
-		return (0); /* There are non-ascii characters. */
+		return 0; /* There are non-ascii characters. */
 	avail -= len;
 
 	if(l == 6) {
 		/* "begin " */
 		if(!uuchar[*b])
-			return (0);
+			return 0;
 		/* Get a length of decoded bytes. */
 		l = UUDECODE(*b++); len--;
 		if(l > 45)
 			/* Normally, maximum length is 45(character 'M'). */
-			return (0);
+			return 0;
 		if(l > len - nl)
-			return (0); /* Line too short. */
+			return 0; /* Line too short. */
 		while(l) {
 			if(!uuchar[*b++])
-				return (0);
+				return 0;
 			--len;
 			--l;
 		}
@@ -340,7 +340,7 @@ static int uudecode_bidder_bid(struct archive_read_filter_bidder * self,
 		/* "begin-base64 " */
 		while(len-nl > 0) {
 			if(!base64[*b++])
-				return (0);
+				return 0;
 			--len;
 		}
 		b += nl;
@@ -353,7 +353,7 @@ static int uudecode_bidder_bid(struct archive_read_filter_bidder * self,
 			return (firstline+30);
 	}
 
-	return (0);
+	return 0;
 }
 
 static int uudecode_bidder_init(struct archive_read_filter * self)
@@ -377,7 +377,7 @@ static int uudecode_bidder_init(struct archive_read_filter * self)
 		SAlloc::F(uudecode);
 		SAlloc::F(out_buff);
 		SAlloc::F(in_buff);
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	self->data = uudecode;
 	uudecode->in_buff = (uchar *)in_buff;
@@ -385,7 +385,7 @@ static int uudecode_bidder_init(struct archive_read_filter * self)
 	uudecode->in_allocated = IN_BUFF_SIZE;
 	uudecode->out_buff = (uchar *)out_buff;
 	uudecode->state = ST_FIND_HEAD;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int ensure_in_buff_size(struct archive_read_filter * self, struct uudecode * uudecode, size_t size)
@@ -411,7 +411,7 @@ static int ensure_in_buff_size(struct archive_read_filter * self, struct uudecod
 			archive_set_error(&self->archive->archive,
 			    ENOMEM,
 			    "Can't allocate data for uudecode");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		/* Move the remaining data in in_buff into the new buffer. */
 		if(uudecode->in_cnt)
@@ -421,7 +421,7 @@ static int ensure_in_buff_size(struct archive_read_filter * self, struct uudecod
 		uudecode->in_buff = ptr;
 		uudecode->in_allocated = newsize;
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static ssize_t uudecode_filter_read(struct archive_read_filter * self, const void ** buff)
@@ -439,7 +439,7 @@ static ssize_t uudecode_filter_read(struct archive_read_filter * self, const voi
 read_more:
 	d = (const uchar*)__archive_read_filter_ahead(self->upstream, 1, &avail_in);
 	if(d == NULL && avail_in < 0)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	/* Quiet a code analyzer; make sure avail_in must be zero
 	 * when d is NULL. */
 	if(d == NULL)
@@ -459,7 +459,7 @@ read_more:
 		 */
 		if(ensure_in_buff_size(self, uudecode,
 		    avail_in + uudecode->in_cnt) != ARCHIVE_OK)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		memcpy(uudecode->in_buff + uudecode->in_cnt,
 		    d, avail_in);
 		d = uudecode->in_buff;
@@ -482,7 +482,7 @@ read_more:
 			archive_set_error(&self->archive->archive,
 			    ARCHIVE_ERRNO_MISC,
 			    "Insufficient compressed data");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		llen = len;
 		if((nl == 0) && (uudecode->state != ST_UUEND)) {
@@ -491,7 +491,7 @@ read_more:
 				archive_set_error(&self->archive->archive,
 				    ARCHIVE_ERRNO_FILE_FORMAT,
 				    "Missing format data");
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			/*
 			 * Save remaining data which does not contain
@@ -499,7 +499,7 @@ read_more:
 			 */
 			if(ensure_in_buff_size(self, uudecode, len)
 			    != ARCHIVE_OK)
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			if(uudecode->in_buff != b)
 				memmove(uudecode->in_buff, b, len);
 			uudecode->in_cnt = (int)len;
@@ -521,7 +521,7 @@ read_more:
 				    archive_set_error(&self->archive->archive,
 					ARCHIVE_ERRNO_FILE_FORMAT,
 					"Invalid format data");
-				    return (ARCHIVE_FATAL);
+				    return ARCHIVE_FATAL;
 			    }
 			    if(len - nl >= 11 && memcmp(b, "begin ", 6) == 0)
 				    l = 6;
@@ -547,7 +547,7 @@ read_more:
 				    archive_set_error(&self->archive->archive,
 					ARCHIVE_ERRNO_MISC,
 					"Insufficient compressed data");
-				    return (ARCHIVE_FATAL);
+				    return ARCHIVE_FATAL;
 			    }
 			    /* Get length of undecoded bytes of current line. */
 			    l = UUDECODE(*b++);
@@ -556,7 +556,7 @@ read_more:
 				    archive_set_error(&self->archive->archive,
 					ARCHIVE_ERRNO_MISC,
 					"Insufficient compressed data");
-				    return (ARCHIVE_FATAL);
+				    return ARCHIVE_FATAL;
 			    }
 			    if(l == 0) {
 				    uudecode->state = ST_UUEND;
@@ -592,7 +592,7 @@ read_more:
 				    archive_set_error(&self->archive->archive,
 					ARCHIVE_ERRNO_MISC,
 					"Insufficient compressed data");
-				    return (ARCHIVE_FATAL);
+				    return ARCHIVE_FATAL;
 			    }
 			    break;
 			case ST_UUEND:
@@ -602,7 +602,7 @@ read_more:
 				    archive_set_error(&self->archive->archive,
 					ARCHIVE_ERRNO_MISC,
 					"Insufficient compressed data");
-				    return (ARCHIVE_FATAL);
+				    return ARCHIVE_FATAL;
 			    }
 			    break;
 			case ST_READ_BASE64:
@@ -648,7 +648,7 @@ read_more:
 				    archive_set_error(&self->archive->archive,
 					ARCHIVE_ERRNO_MISC,
 					"Insufficient compressed data");
-				    return (ARCHIVE_FATAL);
+				    return ARCHIVE_FATAL;
 			    }
 			    break;
 		}
@@ -660,7 +660,7 @@ finish:
 
 	*buff = uudecode->out_buff;
 	uudecode->total += total;
-	return (total);
+	return total;
 }
 
 static int uudecode_filter_close(struct archive_read_filter * self)
@@ -672,5 +672,5 @@ static int uudecode_filter_close(struct archive_read_filter * self)
 	SAlloc::F(uudecode->out_buff);
 	SAlloc::F(uudecode);
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }

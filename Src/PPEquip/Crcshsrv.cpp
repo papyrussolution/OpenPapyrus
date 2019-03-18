@@ -118,7 +118,7 @@ public:
 	SLAPI ~ACS_CRCSHSRV()
 	{
 		for(size_t i = 0; i < SIZEOFARRAY(P_IEParam); i++)
-			delete(P_IEParam[i]);
+			delete P_IEParam[i];
 		delete P_SCardPaymTbl;
 	}
 	virtual int  SLAPI ExportData(int updOnly);
@@ -738,7 +738,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 					// p_writer->PutElement("end-date", end_dtm);
 					// p_writer->EndElement();
 					p_writer->PutElement("count", bc.Qtty);
-					p_writer->PutElement("default-code", (strcmp(bc.Code, prev_gds_info.PrefBarCode) == 0) ? true : false);
+					p_writer->PutElement("default-code", LOGIC(strcmp(bc.Code, prev_gds_info.PrefBarCode) == 0));
 					p_writer->EndElement(); // </bar-code>
 				}
 			}
@@ -946,10 +946,10 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	for(i = 0; i < max_dis_count; i++) {
 		const char * p_subj_type = "GOOD", * p_type = "MAX_DISCOUNT_PERCENT";
 		SString restr_id;
-		_MaxDisEntry * p_entry = (_MaxDisEntry*)max_dis_list.at(i);
+		_MaxDisEntry * p_entry = static_cast<_MaxDisEntry *>(max_dis_list.at(i));
 		(restr_id = p_subj_type).CatChar('-').Cat(p_entry->Barcode).CatChar('-').Cat(p_type);
 		p_writer->StartElement("max-discount-restriction");
-	 	p_writer->AddAttrib("id", (const char *)restr_id);
+	 	p_writer->AddAttrib("id", restr_id.cptr());
 		p_writer->AddAttrib("subject-type", p_subj_type);
 		p_writer->AddAttrib("subject-code", p_entry->Barcode);
 		p_writer->AddAttrib("type", p_type);
@@ -958,7 +958,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		p_writer->PutElement("till-date", end_dtm);
 		p_writer->PutElement("since-time", beg_dtm.t);
 		p_writer->PutElement("till-time", end_dtm.t);
-		p_writer->PutElement("deleted", (p_entry->Deleted) ? true : false);
+		p_writer->PutElement("deleted", LOGIC(p_entry->Deleted));
 		p_writer->PutElement("days-of-week", "MO TU WE TH FR SA SU");
 		p_writer->EndElement(); // </max-discount-restriction>
 		PPWaitPercent(i + 1, max_dis_count, iter_msg);
@@ -1130,7 +1130,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 								p_writer->AddAttrib("deleted", false);
 								p_writer->AddAttrib("guid", ser_ident);
 								p_writer->AddAttrib("name", ser_name);
-								p_writer->AddAttrib("personalized", (info.Rec.PersonID != 0) ? true : false);
+								p_writer->AddAttrib("personalized", LOGIC(info.Rec.PersonID != 0));
 								// p_writer->AddAttrib("workPeriodStart", info.Rec.UsageTmStart.d);
 								// p_writer->AddAttrib("workPeriodEnd", info.Rec.UsageTmEnd.d);
 								p_writer->StartElement("internal-card");
@@ -1489,7 +1489,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 			for(i = 1; i <= level; i++) {
 				grpe.GrpID[i] = parent;
 				if(parent && grp_list.lsearch(&parent, &(pos = 0), CMPF_LONG))
-					parent = ((_GroupEntry *)grp_list.at(pos))->GrpID[1];
+					parent = static_cast<const _GroupEntry *>(grp_list.at(pos))->GrpID[1];
 				else {
 					parent = 0;
 					level  = i - 1;
@@ -1498,7 +1498,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 			}
 			if(parent)
 				for(i = 0; i < grp_list.getCount(); i++) {
-					_GroupEntry * p_grpe = (_GroupEntry *)grp_list.at(i);
+					_GroupEntry * p_grpe = static_cast<_GroupEntry *>(grp_list.at(i));
 					for(k = 1; k <= 4; k++)
 						if(p_grpe->GrpID[k] == parent && p_grpe->GrpID[k - 1] == grpe.GrpID[4]) {
 							p_grpe->Level = k - 1;
@@ -1529,7 +1529,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 		// } @v9.1.8
 		for(i = 0; i < grp_list.getCount(); i++) {
 			uint  pos;
-			_GroupEntry  grpe = *(_GroupEntry *)grp_list.at(i);
+			_GroupEntry  grpe = *static_cast<const _GroupEntry *>(grp_list.at(i));
 			DbfRecord dbfrGG(p_out_tbl_group);
 			dbfrGG.empty();
 			dbfrGG.put(1, grpe.GrpName);
@@ -1619,7 +1619,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 			else {
 				// Группа товаров 1-5 {
 				if(cn_data.Flags & CASHF_EXPGOODSGROUPS && gi.ParentID && grp_list.lsearch(&gi.ParentID, &(i = 0), CMPF_LONG)) {
-					_GroupEntry  grpe = *(_GroupEntry *)grp_list.at(i);
+					_GroupEntry  grpe = *static_cast<const _GroupEntry *>(grp_list.at(i));
 					for(k = 0; k <= grpe.Level; k++)
 						dbfrG.put(5 + k, grpe.GrpID[grpe.Level - k]);
 					for(; k <= grpe.Level; k++)
@@ -1838,7 +1838,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 		{
 			DbfRecord dbfrSGG(p_tbl);
 			_SalesGrpEntry * p_sgitem = 0;
-			for(uint i = 0; sales_grp_list.enumItems(&i, (void**)&p_sgitem) > 0;) {
+			for(uint i = 0; sales_grp_list.enumItems(&i, (void **)&p_sgitem) > 0;) {
 				dbfrSGG.empty();
 				dbfrSGG.put(1, p_sgitem->GrpName);
 				dbfrSGG.put(2, p_sgitem->Code);
@@ -2051,7 +2051,7 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 				for(i = 1; i <= level; i++) {
 					grpe.GrpID[i] = parent;
 					if(parent && grp_list.lsearch(&parent, &(pos = 0), CMPF_LONG))
-						parent = ((_GroupEntry *)grp_list.at(pos))->GrpID[1];
+						parent = static_cast<const _GroupEntry *>(grp_list.at(pos))->GrpID[1];
 					else {
 						parent = 0;
 						level  = i - 1;
@@ -2060,7 +2060,7 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 				}
 				if(parent)
 					for(i = 0; i < grp_list.getCount(); i++) {
-						_GroupEntry * p_grpe = (_GroupEntry *)grp_list.at(i);
+						_GroupEntry * p_grpe = static_cast<_GroupEntry *>(grp_list.at(i));
 						for(k = 1; k <= 4; k++)
 							if(p_grpe->GrpID[k] == parent && p_grpe->GrpID[k - 1] == grpe.GrpID[4]) {
 								p_grpe->Level = k - 1;
@@ -2077,7 +2077,7 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 			}
 			for(i = 0; i < grp_list.getCount(); i++) {
 				uint  pos;
-				_GroupEntry  grpe = *(_GroupEntry *)grp_list.at(i);
+				_GroupEntry  grpe = *static_cast<const _GroupEntry *>(grp_list.at(i));
 				DbfRecord dbfrGG(p_out_tbl_group);
 				dbfrGG.empty();
 				dbfrGG.put(1, grpe.GrpName);
@@ -2143,7 +2143,7 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 				dbfrG.put(4,  (int)1);            // Разрешение к продаже
 				// Группа товаров 1-5 {
 				if(cn_data.Flags & CASHF_EXPGOODSGROUPS && gi.ParentID && grp_list.lsearch(&gi.ParentID, &(i = 0), CMPF_LONG)) {
-					_GroupEntry  grpe = *(_GroupEntry *)grp_list.at(i);
+					_GroupEntry  grpe = *static_cast<const _GroupEntry *>(grp_list.at(i));
 					for(k = 0; k <= grpe.Level; k++)
 						dbfrG.put(5 + k, grpe.GrpID[grpe.Level - k]);
 					for(; k <= grpe.Level; k++)
@@ -2310,7 +2310,7 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 			if(sales_grp_list.getCount()) {
 				_SalesGrpEntry * p_sgitem = 0;
 				DbfRecord dbfrSGG(p_out_tbl_sggrp);
-				for(uint i = 0; sales_grp_list.enumItems(&i, (void**)&p_sgitem) > 0;) {
+				for(uint i = 0; sales_grp_list.enumItems(&i, (void **)&p_sgitem) > 0;) {
 					dbfrSGG.empty();
 					dbfrSGG.put(1, p_sgitem->GrpName);
 					dbfrSGG.put(2, p_sgitem->Code);
@@ -2968,7 +2968,7 @@ SLAPI XmlReader::XmlReader(const char * pPath, PPIDArray * pLogNumList, int subV
 		P_Reader = xmlReaderForFile(pPath, NULL, XML_PARSE_NOENT);
 	if(P_Reader) {
 		int r = 0;
-		xmlTextReaderPreservePattern(P_Reader, (const xmlChar*)(const char *)p_chr_tag, 0);
+		xmlTextReaderPreservePattern(P_Reader, (const xmlChar *)(const char *)p_chr_tag, 0);
 		r = xmlTextReaderRead(P_Reader);
 		while(r == 1)
 			r = xmlTextReaderRead(P_Reader);
@@ -4039,7 +4039,7 @@ SLAPI XmlZRepReader::XmlZRepReader(const char * pPath)
 	if(P_Reader) {
 		const char * p_chr_tag = "zreport";
 		int    r = 0;
-		xmlTextReaderPreservePattern(P_Reader, (const xmlChar*)p_chr_tag, 0);
+		xmlTextReaderPreservePattern(P_Reader, (const xmlChar *)p_chr_tag, 0);
 		r = xmlTextReaderRead(P_Reader);
 		while(r == 1)
 			r = xmlTextReaderRead(P_Reader);

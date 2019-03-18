@@ -1435,7 +1435,7 @@ static SString & __Debug_TraceLotSync(const ILBillPacket & rIPack, const PPBillP
 	LongArray pos_list;
 	rBuf.Z().CatChar('{').Cat(rIPack.Rec.ID).CatChar('/');
 	rBuf.Cat(pPack ? pPack->Rec.ID : (long)-1);
-	for(uint i = 0; rIPack.Lots.enumItems(&i, (void**)&p_ilti);) {
+	for(uint i = 0; rIPack.Lots.enumItems(&i, (void **)&p_ilti);) {
 		pos_list.clear();
 		if(pPack) {
 			for(uint j = 0; j < pPack->GetTCount(); j++) {
@@ -1544,7 +1544,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 			THROW(p_bobj->FillTurnList(&rPack));
 		}
 		else {
-			for(i = 0; Turns.enumItems(&i, (void**)&p_at);) {
+			for(i = 0; Turns.enumItems(&i, (void **)&p_at);) {
 				rPack.CreateAccTurn(&at);
 				at.DbtID = p_at->DbtID;
 				at.CrdID = p_at->CrdID;
@@ -1633,7 +1633,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 				}
 			} while(i);
 		}
-		for(i = 0; Lots.enumItems(&i, (void**)&p_ilti);) {
+		for(i = 0; Lots.enumItems(&i, (void **)&p_ilti);) {
 			uint   j;
 			rows.clear();
 			// @v9.8.11 ClbL.GetNumber(i-1, &org_clb_number);
@@ -1791,7 +1791,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 		}
 		if(Rec.Flags & BILLF_FIXEDAMOUNTS) {
 			AmtEntry * p_ae = 0;
-			for(i = 0; Amounts.enumItems(&i, (void**)&p_ae);)
+			for(i = 0; Amounts.enumItems(&i, (void **)&p_ae);)
 				if(p_ae->AmtTypeID != PPAMT_PAYMENT)
 					rPack.Amounts.Put(p_ae, 1, 1);
 		}
@@ -1914,7 +1914,7 @@ int SLAPI BillTransmDeficit::_CompleteGoodsRest(PPID locID, PPID goodsID, SArray
 	lot_period.Set(ZERODATE, /*Period.low*/p_lc->P.low);
 	THROW(BillObj->trfr->GetAvailableGoodsRest(goodsID, locID, lot_period, 0.0, &rest));
 	{
-		for(uint i = startPos; pRecList->enumItems(&i, (void**)&p_rec);) {
+		for(uint i = startPos; pRecList->enumItems(&i, (void **)&p_rec);) {
 			if(p_rec->SupplID == 0) {
 				p_rec->Rest = rest;
 				if(p_rec->Rest >= p_rec->Req)
@@ -1933,7 +1933,7 @@ int SLAPI BillTransmDeficit::_CompleteGoodsRest(PPID locID, PPID goodsID, SArray
 	}
 	{
 		const int32 has_deficit = zero_deficit ? 0 : 1;
-		for(uint i = startPos; pRecList->enumItems(&i, (void**)&p_rec);)
+		for(uint i = startPos; pRecList->enumItems(&i, (void **)&p_rec);)
 			p_rec->HasDeficit = has_deficit;
 	}
 	CATCHZOK
@@ -1970,7 +1970,7 @@ int SLAPI BillTransmDeficit::CompleteGoodsRest()
 		if(prev_rec_inited && start_pos < rec_list.getCount())
 			THROW(_CompleteGoodsRest(prev_rec.Location, prev_rec.GoodsID, &rec_list, start_pos, suppl_qtty));
 	}
-	for(uint i = 0; rec_list.enumItems(&i, (void**)&p_rec);) {
+	for(uint i = 0; rec_list.enumItems(&i, (void **)&p_rec);) {
 		THROW(Search(p_rec->Location, p_rec->GoodsID, p_rec->SupplID, 0) > 0);
 		THROW_DB(Tbl->updateRecBuf(p_rec));
 	}
@@ -2384,7 +2384,7 @@ void SLAPI PPObjBill::RegisterTransmitProblems(PPBillPacket * pPack, ILBillPacke
 		pCtx->OutReceivingMsg(msg_buf);
 		PPID   ilb_id = pIlBp->Rec.ID;
 		if(!pCtx->P_Btd->LookedBills.lsearch(ilb_id)) {
-			for(i = 0; pIlBp->Lots.enumItems(&i, (void**)&p_ilti);) {
+			for(i = 0; pIlBp->Lots.enumItems(&i, (void **)&p_ilti);) {
 				ILTI   ilti = *p_ilti;
 				// @v9.8.11 pIlBp->ClbL.GetNumber(i-1, &clb_number);
 				pIlBp->LTagL.GetNumber(PPTAG_LOT_CLB, i-1, clb_number); // @v9.8.11
@@ -2898,7 +2898,7 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 				ILTI * p_ilti;
 				PPTransaction tra(-1); // @v7.9.11 use_ta 1-->-1 (автоматическое определение необходимости транзакции по состоянию DbSession)
 				THROW(tra);
-				for(uint i = 0; p_pack->Lots.enumItems(&i, (void**)&p_ilti);) {
+				for(uint i = 0; p_pack->Lots.enumItems(&i, (void **)&p_ilti);) {
 					PPCommSyncID commid;
 					PPObjID objid;
 					if(p_ilti->LotSyncID) {
@@ -2980,13 +2980,13 @@ int SLAPI PPObjBill::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repla
 		THROW(ProcessObjRefInArray(PPOBJ_SCARD,    &p_pack->Rec.SCardID,     ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_PERSON,   &p_pack->Rec.MainOrgID,   ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_BILLSTATUS, &p_pack->Rec.StatusID,  ary, replace));
-		for(i = 0; p_pack->Turns.enumItems(&i, (void**)&at);) {
+		for(i = 0; p_pack->Turns.enumItems(&i, (void **)&at);) {
 			THROW(ProcessObjRefInArray(PPOBJ_ACCOUNT2, &at->DbtID.ac, ary, replace));
 			THROW(ProcessObjRefInArray(PPOBJ_ARTICLE, &at->DbtID.ar, ary, replace));
 			THROW(ProcessObjRefInArray(PPOBJ_ACCOUNT2, &at->CrdID.ac, ary, replace));
 			THROW(ProcessObjRefInArray(PPOBJ_ARTICLE, &at->CrdID.ar, ary, replace));
 		}
-		for(i = 0; p_pack->Lots.enumItems(&i, (void**)&ilti);) {
+		for(i = 0; p_pack->Lots.enumItems(&i, (void **)&ilti);) {
 			goods_id = labs(ilti->GoodsID);
 			THROW(ProcessObjRefInArray(PPOBJ_GOODS,   &goods_id,    ary, replace));
 			if(replace)
@@ -3037,7 +3037,7 @@ int SLAPI PPObjBill::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repla
 				}
 			}
 		}
-		for(i = 0; p_pack->Amounts.enumItems(&i, (void**)&p_ae);)
+		for(i = 0; p_pack->Amounts.enumItems(&i, (void **)&p_ae);)
 			THROW(ProcessObjRefInArray(PPOBJ_AMOUNTTYPE, &p_ae->AmtTypeID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_ARTICLE, &p_pack->Ext.AgentID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_ARTICLE, &p_pack->Ext.PayerID, ary, replace));

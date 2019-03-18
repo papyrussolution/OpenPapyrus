@@ -488,11 +488,10 @@ int FASTCALL SBuffer::Read(SString & rBuf)
 	uint16 sz = 0;
 	char * p_temp_buf = 0;
 	char   shrt_buf[512];
-
 	rBuf.Z();
 	THROW(ReadV(&sz, sizeof(sz)));
 	if(sz > sizeof(shrt_buf)) {
-		THROW(p_temp_buf = (char *)SAlloc::M(sz));
+		THROW(p_temp_buf = static_cast<char *>(SAlloc::M(sz)));
 	}
 	else
 		p_temp_buf = shrt_buf;
@@ -680,7 +679,7 @@ int FASTCALL STempBuffer::Alloc(size_t sz)
 		Size = 0;
 	}
 	else if(Size != sz) {
-		char * p = (char *)SAlloc::R(P_Buf, sz);
+		char * p = static_cast<char *>(SAlloc::R(P_Buf, sz));
 		if(p) {
 			P_Buf = p;
 			Size = sz;
@@ -714,7 +713,8 @@ int SLAPI STempBuffer::IsValid() const
 size_t SLAPI STempBuffer::GetSize() const { return Size; }
 SLAPI  STempBuffer::operator char * () { return P_Buf; }
 SLAPI  STempBuffer::operator const char * () const { return P_Buf; }
-const  uchar * SLAPI STempBuffer::ucptr() const { return (const uchar *)P_Buf; }
+const  uchar * SLAPI STempBuffer::ucptr() const { return reinterpret_cast<const uchar *>(P_Buf); }
+const  char * SLAPI STempBuffer::cptr() const { return P_Buf; }
 //
 //
 //

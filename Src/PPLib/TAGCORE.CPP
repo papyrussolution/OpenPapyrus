@@ -959,7 +959,7 @@ int SLAPI ObjTagList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSC
 //
 int SLAPI ObjTagList::Write__(SBuffer & rBuf) const
 {
-	long   c = (long)getCount();
+	const long c = static_cast<long>(getCount());
 	rBuf.Write(c);
 	for(uint i = 0; i < getCount(); i++)
 		GetItemByPos(i)->Write__(rBuf);
@@ -985,7 +985,7 @@ int SLAPI ObjTagList::ProcessObjRefs(PPObjIDArray * ary, int replace)
 {
 	int    ok = 1;
 	for(uint i = 0; i < getCount(); i++) {
-		ObjTagItem * p_item = (ObjTagItem *)at(i);
+		ObjTagItem * p_item = static_cast<ObjTagItem *>(at(i));
 		THROW(PPObject::ProcessObjRefInArray(PPOBJ_TAG, &p_item->TagID, ary, replace));
 		if(IS_DYN_OBJTYPE(p_item->TagEnumID)) {
 			THROW(PPObject::ProcessObjRefInArray(PPOBJ_DYNAMICOBJS, &p_item->TagEnumID, ary, replace));

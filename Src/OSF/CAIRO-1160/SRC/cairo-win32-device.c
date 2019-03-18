@@ -129,7 +129,7 @@ cairo_device_t * _cairo_win32_device_get(void)
 	device->compositor = _cairo_win32_gdi_compositor_get();
 	device->msimg32_dll = NULL;
 	device->alpha_blend = (cairo_win32_alpha_blend_func_t)_cairo_win32_device_get_alpha_blend(device);
-	if(_cairo_atomic_ptr_cmpxchg((void**)&__cairo_win32_device, NULL, device))
+	if(_cairo_atomic_ptr_cmpxchg((void **)&__cairo_win32_device, NULL, device))
 		return cairo_device_reference(&device->base);
 	_cairo_win32_device_destroy(device);
 	return cairo_device_reference(__cairo_win32_device);

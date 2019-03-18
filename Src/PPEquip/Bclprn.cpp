@@ -1640,7 +1640,7 @@ int SLAPI BarcodeLabelPrinter::PrintLabelByBill2(const PPBillPacket * pPack, uin
 }
 
 // static
-int SLAPI BarcodeLabelPrinter::PrintLabelByBill__(PPBillPacket * pPack, uint pos)
+int SLAPI BarcodeLabelPrinter::PrintLabelByBill__(const PPBillPacket * pPack, uint pos)
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -1811,12 +1811,12 @@ int SLAPI BarcodeLabelPrinter::PrintLabel(const char * pPort, const CommPortPara
 	if(comdvcs) {
 		SString name;
 		GetComDvcSymb(comdvcs, c, 1, name);
-		hdl = ::CreateFile(name, GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0); // @unicodeproblem
+		hdl = ::CreateFile(SUcSwitch(name), GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0); // @unicodeproblem
 		PPSetAddedMsgString(name);
 		SLS.SetAddedMsgString(name);
 	}
 	else {
-		hdl = ::CreateFile(pPort, GENERIC_WRITE, 0, 0, CREATE_ALWAYS, 0, 0); // @unicodeproblem
+		hdl = ::CreateFile(SUcSwitch(pPort), GENERIC_WRITE, 0, 0, CREATE_ALWAYS, 0, 0); // @unicodeproblem
 		PPSetAddedMsgString(pPort);
 		SLS.SetAddedMsgString(pPort);
 	}
@@ -2320,7 +2320,7 @@ int SLAPI EltronLabelPrinter::PutDataEntryPrefix(char letter, const BarcodeLabel
 int SLAPI EltronLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 {
 	size_t buf_size = 256;
-	char * p_temp_str = (char *)SAlloc::C(buf_size, 1);
+	char * p_temp_str = static_cast<char *>(SAlloc::C(buf_size, 1));
 	if(!p_temp_str)
 		return PPSetErrorNoMem();
 	if(pEntry->Type == BarcodeLabelEntry::etText) {
@@ -2329,7 +2329,7 @@ int SLAPI EltronLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 		for(size_t i = 0; i < len; i++) {
 			if(p >= buf_size-1) {
 				buf_size += 32;
-				p_temp_str = (char *)SAlloc::R(p_temp_str, buf_size);
+				p_temp_str = static_cast<char *>(SAlloc::R(p_temp_str, buf_size));
 				if(!p_temp_str)
 					return PPSetErrorNoMem();
 			}

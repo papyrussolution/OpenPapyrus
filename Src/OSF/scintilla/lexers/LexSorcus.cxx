@@ -18,22 +18,11 @@ using namespace Scintilla;
 
 //each character a..z and A..Z + '_' can be part of a keyword
 //additionally numbers that follow 'M' can be contained in a keyword
-static bool FASTCALL IsSWordStart(const int ch, const int prev_ch)
-{
-	return (isalpha(ch) || (ch == '_') || ((isdec(ch)) && (prev_ch == 'M'))) ? true : false;
-}
-
+static bool FASTCALL IsSWordStart(const int ch, const int prev_ch) { return LOGIC(isalpha(ch) || (ch == '_') || ((isdec(ch)) && (prev_ch == 'M'))); }
 //only digits that are not preceded by 'M' count as a number
-static bool FASTCALL IsSorcusNumber(const int ch, const int prev_ch)
-{
-	return ((isdec(ch)) && (prev_ch != 'M')) ? true : false;
-}
-
+static bool FASTCALL IsSorcusNumber(const int ch, const int prev_ch) { return LOGIC((isdec(ch)) && (prev_ch != 'M')); }
 //only = is a valid operator
-static bool FASTCALL IsSorcusOperator(const int ch)
-{
-	return (ch == '=') ? true : false;
-}
+static bool FASTCALL IsSorcusOperator(const int ch) { return LOGIC(ch == '='); }
 
 static void ColouriseSorcusDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler)
 {
@@ -43,15 +32,12 @@ static void ColouriseSorcusDoc(Sci_PositionU startPos, Sci_Position length, int 
 	// Do not leak onto next line
 	if(initStyle == SCE_SORCUS_STRINGEOL)
 		initStyle = SCE_SORCUS_DEFAULT;
-
 	StyleContext sc(startPos, length, initStyle, styler);
-
 	for(; sc.More(); sc.Forward()) {
 		// Prevent SCE_SORCUS_STRINGEOL from leaking back to previous line
 		if(sc.atLineStart && (sc.state == SCE_SORCUS_STRING)) {
 			sc.SetState(SCE_SORCUS_STRING);
 		}
-
 		// Determine if the current state should terminate.
 		if(sc.state == SCE_SORCUS_OPERATOR) {
 			if(!IsSorcusOperator(sc.ch)) {
@@ -66,9 +52,7 @@ static void ColouriseSorcusDoc(Sci_PositionU startPos, Sci_Position length, int 
 		else if(sc.state == SCE_SORCUS_IDENTIFIER) {
 			if(!IsSWordStart(sc.ch, sc.chPrev)) {
 				char s[100];
-
 				sc.GetCurrent(s, sizeof(s));
-
 				if(Command.InList(s)) {
 					sc.ChangeState(SCE_SORCUS_COMMAND);
 				}
@@ -78,7 +62,6 @@ static void ColouriseSorcusDoc(Sci_PositionU startPos, Sci_Position length, int 
 				else if(Constant.InList(s)) {
 					sc.ChangeState(SCE_SORCUS_CONSTANT);
 				}
-
 				sc.SetState(SCE_SORCUS_DEFAULT);
 			}
 		}
@@ -96,7 +79,6 @@ static void ColouriseSorcusDoc(Sci_PositionU startPos, Sci_Position length, int 
 				sc.ForwardSetState(SCE_SORCUS_DEFAULT);
 			}
 		}
-
 		// Determine if a new state should be entered.
 		if(sc.state == SCE_SORCUS_DEFAULT) {
 			if((sc.ch == ';') || (sc.ch == '\'')) {

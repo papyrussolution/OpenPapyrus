@@ -441,7 +441,7 @@ public:
 	{
 	}
 	int    SLAPI Init(PPViewPriceList * pView);
-	int    SLAPI Init(PPViewPriceList * pView, PPPriceListImpExpParam * pParam);
+	int    SLAPI Init(PPViewPriceList * pView, const PPPriceListImpExpParam * pParam);
 	int    SLAPI Run();
 private:
 	PPPriceListImpExpParam Param;
@@ -462,7 +462,7 @@ int PPPriceListImporter::Init(PPViewPriceList * pView)
 	return ok;
 }
 
-int PPPriceListImporter::Init(PPViewPriceList * pView, PPPriceListImpExpParam * pParam)
+int PPPriceListImporter::Init(PPViewPriceList * pView, const PPPriceListImpExpParam * pParam)
 {
 	int    ok = -1;
 	THROW(Init(pView));
@@ -638,7 +638,7 @@ int SLAPI PPViewPriceList::InitRPB(RecalcParamBlock * pRPB,
 	return 1;
 }
 
-int SLAPI PPViewPriceList::UpdatePriceList(LDATE date, Sdr_PriceListArray * pList, int useTa)
+int SLAPI PPViewPriceList::UpdatePriceList(LDATE date, const Sdr_PriceListArray * pList, int useTa)
 {
 	int    ok = 1;
 	PriceListTbl::Rec plist_rec;
@@ -672,7 +672,7 @@ int SLAPI PPViewPriceList::UpdatePriceList(LDATE date, Sdr_PriceListArray * pLis
 			while(Tbl.EnumLines(&pl_ident, &pl_iter) > 0)
 				THROW(Tbl.RemoveLine(&pl_iter, 0));
 			for(uint i = 0; i < pList->getCount(); i++) {
-				Sdr_PriceList & r_pl_rec = pList->at(i);
+				const Sdr_PriceList & r_pl_rec = pList->at(i);
 				THROW(GObj.Fetch(r_pl_rec.GoodsID, &gr) > 0);
 				THROW(::GetCurGoodsPrice(gr.ID, plist_rec.LocID, GPRET_MOSTRECENT, &price, &lot_rec));
 				price = r_pl_rec.Price;
@@ -1236,11 +1236,11 @@ int SLAPI PPViewPriceList::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		PriceLineIdent ident;
 		if(pHdr) {
-			struct _H {
+			const struct _H {
 				PPID   GoodsID;
 				PPID   QuotKindID;
 				short  LineNo;
-			} * h = (_H *)pHdr;
+			} * h = static_cast<const _H *>(pHdr);
 			ident.PListID    = Filt.PListID;
 			ident.GoodsID    = h->GoodsID;
 			ident.QuotKindID = h->QuotKindID;
@@ -2508,7 +2508,7 @@ int SLAPI PPViewPriceList::SendPListInXmlFormat()
 		g_id_ary.addUnique(item.GoodsGrpID);
 		PPWaitPercent(GetCounter(), msg_buf);
 	}
-	for(i = 0; g_id_ary.enumItems(&i, (void**)&p_item);) {
+	for(i = 0; g_id_ary.enumItems(&i, (void **)&p_item);) {
 		XmlWriteTag(p_xml_file, "Group", 1, 1);
 		XmlWriteData(p_xml_file, "ID", *p_item, 0);
 		XMLReplaceSpecSymb(GetGoodsName(*p_item, temp_buf).Transf(CTRANSF_INNER_TO_OUTER), 0);

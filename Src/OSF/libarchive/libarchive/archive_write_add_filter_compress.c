@@ -137,7 +137,7 @@ int archive_write_add_filter_compress(struct archive * _a)
 	f->open = &archive_compressor_compress_open;
 	f->code = ARCHIVE_FILTER_COMPRESS;
 	f->name = "compress";
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -154,13 +154,13 @@ static int archive_compressor_compress_open(struct archive_write_filter * f)
 
 	ret = __archive_write_open_filter(f->next_filter);
 	if(ret != ARCHIVE_OK)
-		return (ret);
+		return ret;
 
 	state = (struct private_data *)SAlloc::C(1, sizeof(*state));
 	if(state == NULL) {
 		archive_set_error(f->archive, ENOMEM,
 		    "Can't allocate data for compression");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	if(f->archive->magic == ARCHIVE_WRITE_MAGIC) {
@@ -179,7 +179,7 @@ static int archive_compressor_compress_open(struct archive_write_filter * f)
 		archive_set_error(f->archive, ENOMEM,
 		    "Can't allocate data for compression buffer");
 		SAlloc::F(state);
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	f->write = archive_compressor_compress_write;
@@ -203,7 +203,7 @@ static int archive_compressor_compress_open(struct archive_write_filter * f)
 	state->compressed[2] = 0x90; /* Block mode, 16bit max */
 	state->compressed_offset = 3;
 	f->data = state;
-	return (0);
+	return 0;
 }
 
 /*-
@@ -305,7 +305,7 @@ static int output_code(struct archive_write_filter * f, int ocode)
 		}
 	}
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int output_flush(struct archive_write_filter * f)
@@ -319,7 +319,7 @@ static int output_flush(struct archive_write_filter * f)
 		if(ret != ARCHIVE_OK)
 			return ret;
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -398,7 +398,7 @@ nomatch:
 				return ret;
 		}
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 /*
  * Finish the compression...
@@ -423,11 +423,11 @@ cleanup:
 		ret = ret2;
 	SAlloc::F(state->compressed);
 	SAlloc::F(state);
-	return (ret);
+	return ret;
 }
 
 static int archive_compressor_compress_free(struct archive_write_filter * f)
 {
 	(void)f; /* UNUSED */
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }

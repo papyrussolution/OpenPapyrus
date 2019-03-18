@@ -369,33 +369,20 @@ static void _cairo_gl_surface_embedded_operand_init(cairo_gl_surface_t * surface
 	attributes->filter = CAIRO_FILTER_NEAREST;
 }
 
-void _cairo_gl_surface_init(cairo_device_t * device,
-    cairo_gl_surface_t * surface,
-    cairo_content_t content,
-    int width, int height)
+void _cairo_gl_surface_init(cairo_device_t * device, cairo_gl_surface_t * surface, cairo_content_t content, int width, int height)
 {
 	assert(width > 0 && height > 0);
-
-	_cairo_surface_init(&surface->base,
-	    &_cairo_gl_surface_backend,
-	    device,
-	    content,
-	    FALSE);              /* is_vector */
-
+	_cairo_surface_init(&surface->base, &_cairo_gl_surface_backend, device, content, FALSE/* is_vector */);
 	surface->width = width;
 	surface->height = height;
 	surface->needs_update = FALSE;
 	surface->content_in_texture = FALSE;
-
 	_cairo_gl_surface_embedded_operand_init(surface);
 }
 
-static cairo_bool_t _cairo_gl_surface_size_valid_for_context(cairo_gl_context_t * ctx,
-    int width, int height)
+static cairo_bool_t _cairo_gl_surface_size_valid_for_context(cairo_gl_context_t * ctx, int width, int height)
 {
-	return width > 0 && height > 0 &&
-	       width <= ctx->max_framebuffer_size &&
-	       height <= ctx->max_framebuffer_size;
+	return width > 0 && height > 0 && width <= ctx->max_framebuffer_size && height <= ctx->max_framebuffer_size;
 }
 
 static cairo_bool_t _cairo_gl_surface_size_valid(cairo_gl_surface_t * surface, int width, int height)

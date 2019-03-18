@@ -102,7 +102,7 @@ static ngx_int_t ngx_stream_realip_set_addr(ngx_stream_session_t * s, ngx_addr_t
 	if(len == 0) {
 		return NGX_ERROR;
 	}
-	p = (u_char*)ngx_pnalloc(c->pool, len);
+	p = (u_char *)ngx_pnalloc(c->pool, len);
 	if(!p) {
 		return NGX_ERROR;
 	}
@@ -129,7 +129,7 @@ static const char * ngx_stream_realip_from(ngx_conf_t * cf, const ngx_command_t 
 #if (NGX_HAVE_INET6)
 	struct sockaddr_in6  * sin6;
 #endif
-	ngx_str_t  * value = (ngx_str_t*)cf->args->elts;
+	ngx_str_t  * value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(rscf->from == NULL) {
 		rscf->from = ngx_array_create(cf->pool, 2, sizeof(ngx_cidr_t));
 		if(rscf->from == NULL) {
@@ -261,7 +261,7 @@ static ngx_int_t ngx_stream_realip_remote_port_variable(ngx_stream_session_t * s
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
-	v->data = (u_char*)ngx_pnalloc(s->connection->pool, sizeof("65535") - 1);
+	v->data = (u_char *)ngx_pnalloc(s->connection->pool, sizeof("65535") - 1);
 	if(v->data == NULL) {
 		return NGX_ERROR;
 	}

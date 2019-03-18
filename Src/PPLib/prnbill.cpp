@@ -5,7 +5,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-int SLAPI PrintBillImages(PPBillPacket * pPack, int prnFlags);
+int SLAPI PrintBillImages(const PPBillPacket * pPack, int prnFlags);
 
 const char * BillMultiplePrintCfg              = "BillMultiplePrintCfg";
 const char * BillMultiplePrintDivByCopies      = "BillMultiplePrintDivByCopies";
@@ -630,7 +630,7 @@ static int SLAPI IsPriceChanged(const PPTransferItem * pTi, long procFlags)
 	return price_chng;
 }
 
-int SLAPI PrintBillImages(PPBillPacket * pPack, int prnFlags)
+int SLAPI PrintBillImages(const PPBillPacket * pPack, int prnFlags)
 {
 	int    ok = 1;
 	SString path;

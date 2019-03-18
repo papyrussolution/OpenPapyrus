@@ -251,21 +251,16 @@ slim_hidden_def(cairo_font_options_merge);
  *
  * Since: 1.0
  **/
-cairo_bool_t cairo_font_options_equal(const cairo_font_options_t * options,
-    const cairo_font_options_t * other)
+cairo_bool_t cairo_font_options_equal(const cairo_font_options_t * options, const cairo_font_options_t * other)
 {
 	if(cairo_font_options_status((cairo_font_options_t*)options))
 		return FALSE;
 	if(cairo_font_options_status((cairo_font_options_t*)other))
 		return FALSE;
-
 	if(options == other)
 		return TRUE;
-
-	return (options->antialias == other->antialias &&
-	       options->subpixel_order == other->subpixel_order &&
-	       options->lcd_filter == other->lcd_filter &&
-	       options->hint_style == other->hint_style &&
+	return (options->antialias == other->antialias && options->subpixel_order == other->subpixel_order &&
+	       options->lcd_filter == other->lcd_filter && options->hint_style == other->hint_style &&
 	       options->hint_metrics == other->hint_metrics &&
 	       options->round_glyph_positions == other->round_glyph_positions &&
 	       ((options->variations == NULL && other->variations == NULL) ||

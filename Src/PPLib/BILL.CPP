@@ -772,7 +772,7 @@ int SLAPI BillCore::Edit(PPID * pID, PPBill * pInfo, int use_ta)
 			}
 			{
 				BExtInsert bei(&AmtT);
-				for(i = 0; pInfo->Amounts.enumItems(&i, (void**)&p_ae);) {
+				for(i = 0; pInfo->Amounts.enumItems(&i, (void **)&p_ae);) {
 					BillAmountTbl::Rec amt_rec;
 					MEMSZERO(amt_rec);
 					amt_rec.BillID    = *pID;
@@ -1045,7 +1045,7 @@ int SLAPI BillCore::EnumByObj(PPID obj, DateIter * diter, void * b)
 int SLAPI BillCore::EnumByOpr(PPID opr, DateIter * diter, void * b)
 	{ return _Enum(2, opr, diter, b); }
 
-int SLAPI BillCore::InitEnumByOp(PPID opID, DateRange * pPeriod, int flags, long * pHandle)
+int SLAPI BillCore::InitEnumByOp(PPID opID, const DateRange * pPeriod, int flags, long * pHandle)
 {
 	int    idx = 2;
 	BExtQuery * q = new BExtQuery(this, idx);
@@ -1559,7 +1559,7 @@ int SLAPI BillCore::CalcPoolAmounts(PPID poolType, PPID poolOwnerID, AmtList * p
 int SLAPI BillCore::GetBillListByExt(PPID agentID, PPID payerID, PPIDArray & rList)
 {
 	int    ok = -1;
-	rList.clear(); // @v8.1.0
+	rList.clear();
 	if(payerID || agentID) {
 		PropertyTbl::Key0 k;
 		PropertyTbl * p_tbl = &PPRef->Prop;
@@ -1575,7 +1575,7 @@ int SLAPI BillCore::GetBillListByExt(PPID agentID, PPID payerID, PPIDArray & rLi
 		k.ObjID   = 0;
 		k.Prop    = 0;
 		for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
-			const BillCore::Extra_Strg * p_ext = (BillCore::Extra_Strg*)&p_tbl->data;
+			const BillCore::Extra_Strg * p_ext = reinterpret_cast<const BillCore::Extra_Strg *>(&p_tbl->data);
 			if((!payerID || p_ext->PayerID == payerID) && (!agentID || p_ext->AgentID == agentID)) {
 				rList.add(p_tbl->data.ObjID);
 				ok = 1;
@@ -1586,7 +1586,7 @@ int SLAPI BillCore::GetBillListByExt(PPID agentID, PPID payerID, PPIDArray & rLi
 	return ok;
 }
 
-int SLAPI BillCore::GetAdvanceBillList(PPID objID, PPID exclBillID, DateRange * pPeriod, double * pAdvRest, PPIDArray * pList)
+int SLAPI BillCore::GetAdvanceBillList(PPID objID, PPID exclBillID, const DateRange * pPeriod, double * pAdvRest, PPIDArray * pList)
 {
 	int    ok = 1;
 	double rest = 0.0;

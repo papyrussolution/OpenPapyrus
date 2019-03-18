@@ -139,7 +139,7 @@ static const char * ngx_mail_core_server(ngx_conf_t * cf, const ngx_command_t * 
 
 	/* the server{}'s srv_conf */
 
-	ctx->srv_conf = (void**)ngx_pcalloc(cf->pool, sizeof(void *) * ngx_mail_max_module);
+	ctx->srv_conf = (void **)ngx_pcalloc(cf->pool, sizeof(void *) * ngx_mail_max_module);
 	if(ctx->srv_conf == NULL) {
 		return NGX_CONF_ERROR;
 	}
@@ -194,7 +194,7 @@ static const char * ngx_mail_core_listen(ngx_conf_t * cf, const ngx_command_t * 
 	ngx_mail_module_t   * module;
 	ngx_mail_core_main_conf_t  * cmcf;
 	cscf->listen = 1;
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	memzero(&u, sizeof(ngx_url_t));
 	u.url = value[1];
 	u.listen = 1;
@@ -207,7 +207,7 @@ static const char * ngx_mail_core_listen(ngx_conf_t * cf, const ngx_command_t * 
 	cmcf = (ngx_mail_core_main_conf_t *)ngx_mail_conf_get_module_main_conf(cf, ngx_mail_core_module);
 	ls = (ngx_mail_listen_t *)cmcf->listen.elts;
 	for(i = 0; i < cmcf->listen.nelts; i++) {
-		if(ngx_cmp_sockaddr(&ls[i].sockaddr.sockaddr, ls[i].socklen, (struct sockaddr*)&u.sockaddr, u.socklen, 1) != NGX_OK) {
+		if(ngx_cmp_sockaddr(&ls[i].sockaddr.sockaddr, ls[i].socklen, (struct sockaddr *)&u.sockaddr, u.socklen, 1) != NGX_OK) {
 			continue;
 		}
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "duplicate \"%V\" address and port pair", &u.url);
@@ -445,7 +445,7 @@ static const char * ngx_mail_core_protocol(ngx_conf_t * cf, const ngx_command_t 
 	ngx_str_t   * value;
 	ngx_uint_t m;
 	ngx_mail_module_t  * module;
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	for(m = 0; cf->cycle->modules[m]; m++) {
 		if(cf->cycle->modules[m]->type != NGX_MAIL_MODULE) {
 			continue;
@@ -469,7 +469,7 @@ static const char * ngx_mail_core_error_log(ngx_conf_t * cf, const ngx_command_t
 static const char * ngx_mail_core_resolver(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_mail_core_srv_conf_t  * cscf = (ngx_mail_core_srv_conf_t*)conf;
-	ngx_str_t  * value = (ngx_str_t*)cf->args->elts;
+	ngx_str_t  * value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(cscf->resolver != NGX_CONF_UNSET_PTR) {
 		return "is duplicate";
 	}
@@ -490,9 +490,9 @@ const char * ngx_mail_capabilities(ngx_conf_t * cf, const ngx_command_t * cmd, v
 	ngx_str_t  * c;
 	ngx_uint_t i;
 	ngx_array_t * a = (ngx_array_t*)(p + cmd->offset);
-	ngx_str_t  * value = (ngx_str_t*)cf->args->elts;
+	ngx_str_t  * value = static_cast<ngx_str_t *>(cf->args->elts);
 	for(i = 1; i < cf->args->nelts; i++) {
-		c = (ngx_str_t*)ngx_array_push(a);
+		c = (ngx_str_t *)ngx_array_push(a);
 		if(c == NULL) {
 			return NGX_CONF_ERROR;
 		}

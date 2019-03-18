@@ -229,7 +229,7 @@ int STimeChunkBrowser::RegWindowClass(HINSTANCE hInst)
 	WNDCLASSEX wc;
 	MEMSZERO(wc);
 	wc.cbSize        = sizeof(wc);
-	wc.lpszClassName = STimeChunkBrowser::WndClsName; // @unicodeproblem
+	wc.lpszClassName = SUcSwitch(STimeChunkBrowser::WndClsName); // @unicodeproblem
 	wc.hInstance     = hInst;
 	wc.lpfnWndProc   = STimeChunkBrowser::WndProc;
 	wc.style         = CS_HREDRAW|CS_VREDRAW|CS_OWNDC|CS_DBLCLKS;

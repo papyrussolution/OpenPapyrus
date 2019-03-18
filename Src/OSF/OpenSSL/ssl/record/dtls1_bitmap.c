@@ -29,7 +29,7 @@ static int satsub64be(const uchar * v1, const uchar * v2)
 	else if(ret < -128)
 		return -128;
 	else
-		return (int)ret;
+		return static_cast<int>(ret);
 }
 
 int dtls1_record_replay_check(SSL * s, DTLS1_BITMAP * bitmap)

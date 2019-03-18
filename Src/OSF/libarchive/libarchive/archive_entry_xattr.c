@@ -123,7 +123,7 @@ int archive_entry_xattr_next(struct archive_entry * entry, const char ** name, c
 
 		entry->xattr_p = entry->xattr_p->next;
 
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 	else {
 		*name = NULL;

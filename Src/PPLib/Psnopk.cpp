@@ -554,7 +554,7 @@ SLAPI PPObjPsnOpKind::PPObjPsnOpKind(void * extraPtr) : PPObjReference(PPOBJ_PER
 {
 	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 	if(extraPtr)
-		CurrFilt = *(PsnOpKindFilt*)extraPtr;
+		CurrFilt = *static_cast<const PsnOpKindFilt *>(extraPtr);
 }
 
 long SLAPI PPObjPsnOpKind::GetLevel(PPID id)

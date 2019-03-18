@@ -121,7 +121,7 @@ static char * ngx_mail_imap_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 
 	if(conf->capabilities.nelts == 0) {
 		for(d = ngx_mail_imap_default_capabilities; d->len; d++) {
-			c = (ngx_str_t*)ngx_array_push(&conf->capabilities);
+			c = (ngx_str_t *)ngx_array_push(&conf->capabilities);
 			if(c == NULL) {
 				return NGX_CONF_ERROR;
 			}
@@ -132,7 +132,7 @@ static char * ngx_mail_imap_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 
 	size = sizeof("* CAPABILITY" CRLF) - 1;
 
-	c = (ngx_str_t*)conf->capabilities.elts;
+	c = (ngx_str_t *)conf->capabilities.elts;
 	for(i = 0; i < conf->capabilities.nelts; i++) {
 		size += 1 + c[i].len;
 	}
@@ -145,7 +145,7 @@ static char * ngx_mail_imap_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 		}
 	}
 
-	p = (u_char*)ngx_pnalloc(cf->pool, size);
+	p = (u_char *)ngx_pnalloc(cf->pool, size);
 	if(!p) {
 		return NGX_CONF_ERROR;
 	}
@@ -176,7 +176,7 @@ static char * ngx_mail_imap_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 
 	size += sizeof(" STARTTLS") - 1;
 
-	p = (u_char*)ngx_pnalloc(cf->pool, size);
+	p = (u_char *)ngx_pnalloc(cf->pool, size);
 	if(!p) {
 		return NGX_CONF_ERROR;
 	}
@@ -192,7 +192,7 @@ static char * ngx_mail_imap_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 	size = (auth - conf->capability.data) + sizeof(CRLF) - 1
 	    + sizeof(" STARTTLS LOGINDISABLED") - 1;
 
-	p = (u_char*)ngx_pnalloc(cf->pool, size);
+	p = (u_char *)ngx_pnalloc(cf->pool, size);
 	if(!p) {
 		return NGX_CONF_ERROR;
 	}

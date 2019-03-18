@@ -216,7 +216,7 @@ static ngx_int_t ngx_http_autoindex_handler(ngx_http_request_t * r)
 			/* 1 byte for '/' and 1 byte for terminating '\0' */
 			if(path.len + 1 + len + 1 > allocated) {
 				allocated = path.len + 1 + len + 1 + NGX_HTTP_AUTOINDEX_PREALLOCATE;
-				filename = (u_char*)ngx_pnalloc(pool, allocated);
+				filename = (u_char *)ngx_pnalloc(pool, allocated);
 				if(filename == NULL) {
 					return ngx_http_autoindex_error(r, &dir, &path);
 				}
@@ -244,7 +244,7 @@ static ngx_int_t ngx_http_autoindex_handler(ngx_http_request_t * r)
 			return ngx_http_autoindex_error(r, &dir, &path);
 		}
 		entry->name.len = len;
-		entry->name.data = (u_char*)ngx_pnalloc(pool, len + 1);
+		entry->name.data = (u_char *)ngx_pnalloc(pool, len + 1);
 		if(entry->name.data == NULL) {
 			return ngx_http_autoindex_error(r, &dir, &path);
 		}
@@ -298,7 +298,7 @@ static ngx_buf_t * ngx_http_autoindex_html(ngx_http_request_t * r, ngx_array_t *
 	static u_char header[] = "</title></head>" CRLF "<body bgcolor=\"white\">" CRLF "<h1>Index of ";
 	static u_char tail[] = "</body>" CRLF "</html>" CRLF;
 	static char  * months[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
-	if(r->headers_out.charset.len == 5 && ngx_strncasecmp(r->headers_out.charset.data, (u_char*)"utf-8", 5) == 0) {
+	if(r->headers_out.charset.len == 5 && ngx_strncasecmp(r->headers_out.charset.data, (u_char *)"utf-8", 5) == 0) {
 		utf8 = 1;
 	}
 	else {
@@ -341,9 +341,9 @@ static ngx_buf_t * ngx_http_autoindex_html(ngx_http_request_t * r, ngx_array_t *
 	}
 	b->last = ngx_cpymem(b->last, title, sizeof(title) - 1);
 	if(escape_html) {
-		b->last = (u_char*)ngx_escape_html(b->last, r->uri.data, r->uri.len);
+		b->last = (u_char *)ngx_escape_html(b->last, r->uri.data, r->uri.len);
 		b->last = ngx_cpymem(b->last, header, sizeof(header) - 1);
-		b->last = (u_char*)ngx_escape_html(b->last, r->uri.data, r->uri.len);
+		b->last = (u_char *)ngx_escape_html(b->last, r->uri.data, r->uri.len);
 	}
 	else {
 		b->last = ngx_cpymem(b->last, r->uri.data, r->uri.len);
@@ -379,7 +379,7 @@ static ngx_buf_t * ngx_http_autoindex_html(ngx_http_request_t * r, ngx_array_t *
 			last = b->last;
 			b->last = ngx_utf8_cpystrn(b->last, entry[i].name.data, char_len, entry[i].name.len + 1);
 			if(entry[i].escape_html) {
-				b->last = (u_char*)ngx_escape_html(last, entry[i].name.data, b->last - last);
+				b->last = (u_char *)ngx_escape_html(last, entry[i].name.data, b->last - last);
 			}
 			last = b->last;
 		}
@@ -391,7 +391,7 @@ static ngx_buf_t * ngx_http_autoindex_html(ngx_http_request_t * r, ngx_array_t *
 				else {
 					char_len = len;
 				}
-				b->last = (u_char*)ngx_escape_html(b->last, entry[i].name.data, char_len);
+				b->last = (u_char *)ngx_escape_html(b->last, entry[i].name.data, char_len);
 				last = b->last;
 			}
 			else {
@@ -504,7 +504,7 @@ static ngx_buf_t * ngx_http_autoindex_json(ngx_http_request_t * r, ngx_array_t *
 	for(i = 0; i < entries->nelts; i++) {
 		b->last = ngx_cpymem(b->last, CRLF "{ \"name\":\"", sizeof(CRLF "{ \"name\":\"") - 1);
 		if(entry[i].escape) {
-			b->last = (u_char*)ngx_escape_json(b->last, entry[i].name.data, entry[i].name.len);
+			b->last = (u_char *)ngx_escape_json(b->last, entry[i].name.data, entry[i].name.len);
 		}
 		else {
 			b->last = ngx_cpymem(b->last, entry[i].name.data, entry[i].name.len);
@@ -544,7 +544,7 @@ static ngx_int_t ngx_http_autoindex_jsonp_callback(ngx_http_request_t * r, ngx_s
 {
 	u_char * p, c, ch;
 	ngx_uint_t i;
-	if(ngx_http_arg(r, (u_char*)"callback", 8, callback) != NGX_OK) {
+	if(ngx_http_arg(r, (u_char *)"callback", 8, callback) != NGX_OK) {
 		callback->len = 0;
 		return NGX_OK;
 	}
@@ -614,7 +614,7 @@ static ngx_buf_t * ngx_http_autoindex_xml(ngx_http_request_t * r, ngx_array_t * 
 		}
 		*b->last++ = '"'; *b->last++ = '>';
 		if(entry[i].escape) {
-			b->last = (u_char*)ngx_escape_html(b->last, entry[i].name.data, entry[i].name.len);
+			b->last = (u_char *)ngx_escape_html(b->last, entry[i].name.data, entry[i].name.len);
 		}
 		else {
 			b->last = ngx_cpymem(b->last, entry[i].name.data, entry[i].name.len);

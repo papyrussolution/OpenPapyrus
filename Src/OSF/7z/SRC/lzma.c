@@ -41,7 +41,7 @@ void FASTCALL LzmaEncProps_Init(CLzmaEncProps * p)
 {
 	p->level = 5;
 	p->dictSize = p->mc = 0;
-	p->reduceSize = (uint64)(int64)-1;
+	p->reduceSize = static_cast<uint64>(-1LL);
 	p->lc = p->lp = p->pb = p->algo = p->fb = p->btMode = p->numHashBytes = p->numThreads = -1;
 	p->writeEndMark = 0;
 }
@@ -687,7 +687,7 @@ static void FASTCALL LenEnc_Encode(CLenEnc * p, CRangeEnc * rc, uint32 symbol, u
 	}
 }
 
-static void LenEnc_SetPrices(CLenEnc * p, uint32 posState, uint32 numSymbols, uint32 * prices, const uint32 * ProbPrices)
+static void LenEnc_SetPrices(const CLenEnc * p, uint32 posState, uint32 numSymbols, uint32 * prices, const uint32 * ProbPrices)
 {
 	uint32 a0 = GET_PRICE_0a(p->choice);
 	uint32 a1 = GET_PRICE_1a(p->choice);
@@ -779,12 +779,12 @@ static uint32 FASTCALL ReadMatchDistances(CLzmaEnc * p, uint32 * numDistancePair
 #define MakeAsShortRep(p) (p)->backPrev = 0; (p)->prev1IsChar = False;
 #define IsShortRep(p) ((p)->backPrev == 0)
 
-static uint32 FASTCALL GetRepLen1Price(CLzmaEnc * p, uint32 state, uint32 posState)
+static uint32 FASTCALL GetRepLen1Price(const CLzmaEnc * p, uint32 state, uint32 posState)
 {
 	return GET_PRICE_0(p->isRepG0[state]) + GET_PRICE_0(p->isRep0Long[state][posState]);
 }
 
-static uint32 FASTCALL GetPureRepPrice(CLzmaEnc * p, uint32 repIndex, uint32 state, uint32 posState)
+static uint32 FASTCALL GetPureRepPrice(const CLzmaEnc * p, uint32 repIndex, uint32 state, uint32 posState)
 {
 	uint32 price;
 	if(repIndex == 0) {
@@ -3068,7 +3068,7 @@ void Lzma2EncProps_Normalize(CLzma2EncProps * p)
 		SETMAX(blockSize, dictSize);
 		p->blockSize = (size_t)blockSize;
 	}
-	if(t2 > 1 && p->lzmaProps.reduceSize != (uint64)(int64)-1) {
+	if(t2 > 1 && p->lzmaProps.reduceSize != (uint64)(-1LL)) {
 		uint64 temp = p->lzmaProps.reduceSize + p->blockSize - 1;
 		if(temp > p->lzmaProps.reduceSize) {
 			uint64 numBlocks = temp / p->blockSize;

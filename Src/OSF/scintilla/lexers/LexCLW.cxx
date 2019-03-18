@@ -18,17 +18,17 @@ using namespace Scintilla;
 // Is an end of line character
 /*inline*/ bool FASTCALL IsEOL(const int ch)
 {
-	return(ch == '\n');
+	return (ch == '\n');
 }
 
 // Convert character to uppercase
 static char FASTCALL CharacterUpper(char chChar)
 {
 	if(chChar < 'a' || chChar > 'z') {
-		return(chChar);
+		return (chChar);
 	}
 	else {
-		return(static_cast<char>(chChar - 'a' + 'A'));
+		return (static_cast<char>(chChar - 'a' + 'A'));
 	}
 }
 
@@ -44,19 +44,19 @@ static void FASTCALL StringUpper(char * szString)
 // Is a label start character
 /*inline*/ bool FASTCALL IsALabelStart(const int iChar)
 {
-	return(isalpha(iChar) || iChar == '_');
+	return (isalpha(iChar) || iChar == '_');
 }
 
 // Is a label character
 /*inline*/ bool FASTCALL IsALabelCharacter(const int iChar)
 {
-	return(isalnum(iChar) || iChar == '_' || iChar == ':');
+	return (isalnum(iChar) || iChar == '_' || iChar == ':');
 }
 
 // Is the character is a ! and the the next character is not a !
 /*inline*/ bool FASTCALL IsACommentStart(const int iChar)
 {
-	return(iChar == '!');
+	return (iChar == '!');
 }
 
 // Is the character a Clarion hex character (ABCDEF)
@@ -65,16 +65,16 @@ static void FASTCALL StringUpper(char * szString)
 	// Case insensitive.
 	if(!bCaseSensitive) {
 		if(strchr("ABCDEFabcdef", iChar) != NULL) {
-			return(true);
+			return (true);
 		}
 	}
 	// Case sensitive
 	else {
 		if(strchr("ABCDEF", iChar) != NULL) {
-			return(true);
+			return (true);
 		}
 	}
-	return(false);
+	return (false);
 }
 
 // Is the character a Clarion base character (B=Binary, O=Octal, H=Hex)
@@ -84,17 +84,17 @@ static void FASTCALL StringUpper(char * szString)
 	if(!bCaseSensitive) {
 		// If character is a numeric base character
 		if(strchr("BOHboh", iChar) != NULL) {
-			return(true);
+			return (true);
 		}
 	}
 	// Case sensitive
 	else {
 		// If character is a numeric base character
 		if(strchr("BOH", iChar) != NULL) {
-			return(true);
+			return (true);
 		}
 	}
-	return(false);
+	return (false);
 }
 
 // Set the correct numeric constant state
@@ -120,11 +120,11 @@ static void FASTCALL StringUpper(char * szString)
 	}
 	// If points found (can be more than one for improper formatted number
 	if(iPoints > 0) {
-		return(true);
+		return (true);
 	}
 	// Else no points found
 	else {
-		return(false);
+		return (false);
 	}
 }
 
@@ -150,12 +150,12 @@ static void FASTCALL StringUpper(char * szString)
 	// If no word was found
 	if(iIndex == 0) {
 		// Return failure
-		return(false);
+		return (false);
 	}
 	// Else word was found
 	else {
 		// Return success
-		return(true);
+		return (true);
 	}
 }
 
@@ -564,7 +564,7 @@ static int ClassifyClarionFoldPoint(int iLevel, const char* szString)
 			iLevel--;
 		}
 	}
-	return(iLevel);
+	return (iLevel);
 }
 
 // Clarion Language Folding Procedure

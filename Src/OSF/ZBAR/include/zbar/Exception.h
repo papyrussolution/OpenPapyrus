@@ -51,8 +51,8 @@ public:
     virtual const char* what () const throw()
     {
         if(!_obj)
-            return("zbar library unspecified generic error");
-        return(_zbar_error_string(_obj, 0));
+            return ("zbar library unspecified generic error");
+        return (_zbar_error_string(_obj, 0));
     }
 
 private:
@@ -147,7 +147,7 @@ class FormatError : public Exception {
     virtual const char* what () const throw()
     {
         // FIXME what format?
-        return("unsupported format");
+        return ("unsupported format");
     }
 };
 

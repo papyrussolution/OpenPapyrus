@@ -60,7 +60,7 @@ int SPrinting::Init(const char * pPort)
 		}
 	}
 	if(port.NotEmpty()) {
-		PrinterDc = CreateDC(_T("WINSPOOL\0"), port, 0, 0); // @unicodeproblem
+		PrinterDc = CreateDC(_T("WINSPOOL\0"), SUcSwitch(port), 0, 0); // @unicodeproblem
 		if(!PrinterDc)
 			ok = SLS.SetError(SLERR_WINDOWS);
 	}

@@ -1,5 +1,5 @@
 // PPSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -2200,9 +2200,10 @@ int SLAPI PPSession::GetMachineID(MACAddr * pMachineID, int forceUpdate)
 			fwrite(&machine_id, sizeof(machine_id), 1, f);
 			SFile::ZClose(&f);
 			{
-				DWORD fattr = GetFileAttributes(fname); // @unicodeproblem
+				const TCHAR * p_ucfn = SUcSwitch(fname);
+				DWORD fattr = GetFileAttributes(p_ucfn); // @unicodeproblem
 				if(fattr != 0xffffffff)
-					::SetFileAttributes(fname, fattr | FILE_ATTRIBUTE_HIDDEN); // @unicodeproblem
+					::SetFileAttributes(p_ucfn, fattr | FILE_ATTRIBUTE_HIDDEN); // @unicodeproblem
 			}
 		}
 	}
@@ -2500,14 +2501,15 @@ int SLAPI PPSession::FetchAlbatrosConfig(PPAlbatrosConfig * pCfg)
 int SLAPI PPSession::CheckSystemAccount(DbLoginBlock * pDlb, PPSecur * pSecur)
 {
 	int    ok = -1;
-	char   domain_user[64];
+	TCHAR  domain_user[64];
 	DWORD  duser_len = sizeof(domain_user);
 	memzero(domain_user, sizeof(domain_user));
 	THROW(OpenDictionary2(pDlb, odfDontInitSync)); // @v9.4.9 odfDontInitSync
 	if(::GetUserName(domain_user, &duser_len)) { // @unicodeproblem
 		PPID   user_id = 0;
 		Reference ref;
-		if(ref.SearchName(PPOBJ_USR, &user_id, domain_user) > 0) {
+		SString user_name_buf = SUcSwitch(domain_user);
+		if(ref.SearchName(PPOBJ_USR, &user_id, user_name_buf) > 0) {
 			char   pw[32];
 			SString domain;
 			memzero(pw, sizeof(pw));
@@ -2515,7 +2517,7 @@ int SLAPI PPSession::CheckSystemAccount(DbLoginBlock * pDlb, PPSecur * pSecur)
 			ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_DOMAINNAME, domain);
 			const PPSecur & r_secur = *(PPSecur*)&ref.data;
 			Reference::GetPassword(&r_secur, pw, sizeof(pw));
-			if(SCheckSystemCredentials(domain, domain_user, pw)) {
+			if(SCheckSystemCredentials(domain, user_name_buf, pw)) {
 				ASSIGN_PTR(pSecur, r_secur);
 				ok = 1;
 			}
@@ -3458,11 +3460,11 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 			}
 			r_tla.SetupPhoneServiceEventResponder(); // @v9.8.12
 			{
-				char   domain_user[128];
+				TCHAR  domain_user[128];
 				DWORD  duser_len = sizeof(domain_user);
 				memzero(domain_user, sizeof(domain_user));
 				if(!::GetUserName(domain_user, &duser_len)) // @unicodeproblem
-					STRNSCPY(domain_user, "!undefined");
+					STRNSCPY(domain_user, _T("!undefined"));
 				PPLoadText(PPTXT_LOGININFO, temp_buf.Z());
 				msg_buf.Printf(temp_buf, domain_user);
 				PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER|LOGMSGF_COMP);
@@ -3768,7 +3770,7 @@ int SLAPI PPSession::Logout()
 		GetPath(PPPATH_TEMP, pn);
 		pn.SetLastSlash().CatLongZ(r_tla.PrnDirId, 8);
 		PPRemoveFilesByExt(pn, "*", 0, 0);
-		::RemoveDirectory(pn); // @unicodeproblem
+		::RemoveDirectory(SUcSwitch(pn)); // @unicodeproblem
 		//
 		if(CCfg().Flags & CCFLG_DEBUG)
 			CMng.LogCacheStat();
@@ -3827,21 +3829,21 @@ void SLAPI PPSession::SetOperDate(LDATE date)
 
 int SLAPI PPSession::SetDemoMode(int s)
 {
-	int    c = BIN(GetTLA().Lc.State & CFGST_DEMOMODE);
+	const int c = BIN(GetTLA().Lc.State & CFGST_DEMOMODE);
 	SETFLAG(GetTLA().Lc.State, CFGST_DEMOMODE, s);
 	return c;
 }
 
 long SLAPI PPSession::SetLCfgFlags(long f)
 {
-	long   c = GetTLA().Lc.Flags;
+	const long c = GetTLA().Lc.Flags;
 	GetTLA().Lc.Flags = f;
 	return c;
 }
 
 short SLAPI PPSession::SetRealizeOrder(short s)
 {
-	short  c = GetTLA().Lc.RealizeOrder;
+	const short c = GetTLA().Lc.RealizeOrder;
 	GetTLA().Lc.RealizeOrder = s;
 	return c;
 }
@@ -4703,7 +4705,7 @@ int FASTCALL PPAdviseEventQueue::RegisterClient(const Client * pCli)
 	if(pCli && pCli->IsConsistent()) {
 		uint _pos = 0;
 		for(uint i = 0; !_pos && i < CliList.getCount(); i++) {
-			const Client * p_cli = (const Client *)CliList.at(i);
+			const Client * p_cli = static_cast<const Client *>(CliList.at(i));
 			if(p_cli == pCli) {
 				_pos = i+1;
 			}

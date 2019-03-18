@@ -58,7 +58,7 @@
  * Return value: A pointer to the newly allocated memory, or %NULL in
  * case of malloc() failure or size is 0.
  **/
-#define _cairo_malloc(size) ((size) > 0 ? SAlloc::M((unsigned)(size)) : NULL)
+#define _cairo_malloc(size) ((size) > 0 ? SAlloc::M((uint)(size)) : NULL)
 /**
  * _cairo_malloc_ab:
  * @a: number of elements to allocate
@@ -76,7 +76,7 @@
  * case of malloc() failure or overflow.
  **/
 
-#define _cairo_malloc_ab(a, size) ((size) && (unsigned)(a) >= INT32_MAX / (unsigned)(size) ? NULL : _cairo_malloc((unsigned)(a) * (unsigned)(size)))
+#define _cairo_malloc_ab(a, size) ((size) && (uint)(a) >= INT32_MAX / (uint)(size) ? NULL : _cairo_malloc((uint)(a) * (uint)(size)))
 
 /**
  * _cairo_realloc_ab:
@@ -95,7 +95,7 @@
  * case of realloc() failure or overflow (whereupon the original block
  * of memory * is left untouched).
  **/
-#define _cairo_realloc_ab(ptr, a, size) ((size) && (unsigned)(a) >= INT32_MAX / (unsigned)(size) ? NULL : SAlloc::R(ptr, (unsigned)(a) * (unsigned)(size)))
+#define _cairo_realloc_ab(ptr, a, size) ((size) && (uint)(a) >= INT32_MAX / (uint)(size) ? NULL : SAlloc::R(ptr, (uint)(a) * (uint)(size)))
 /**
  * _cairo_malloc_abc:
  * @a: first factor of number of elements to allocate
@@ -113,11 +113,7 @@
  * case of malloc() failure or overflow.
  **/
 
-#define _cairo_malloc_abc(a, b, size) \
-  ((b) && (unsigned) (a) >= INT32_MAX / (unsigned) (b) ? NULL : \
-   (size) && (unsigned) ((a)*(b)) >= INT32_MAX / (unsigned) (size) ? NULL : \
-   _cairo_malloc((unsigned) (a) * (unsigned) (b) * (unsigned) (size)))
-
+#define _cairo_malloc_abc(a, b, size) ((b) && (uint)(a) >= INT32_MAX / (uint)(b) ? NULL : (size) && (uint)((a)*(b)) >= INT32_MAX / (uint)(size) ? NULL : _cairo_malloc((uint)(a) * (uint)(b) * (uint)(size)))
 /**
  * _cairo_malloc_ab_plus_c:
  * @a: number of elements to allocate
@@ -131,10 +127,6 @@
  * Return value: A pointer to the newly allocated memory, or %NULL in
  * case of malloc() failure or overflow.
  **/
-
-#define _cairo_malloc_ab_plus_c(a, size, c) \
-  ((size) && (unsigned) (a) >= INT32_MAX / (unsigned) (size) ? NULL : \
-   (unsigned) (c) >= INT32_MAX - (unsigned) (a) * (unsigned) (size) ? NULL : \
-   _cairo_malloc((unsigned) (a) * (unsigned) (size) + (unsigned) (c)))
+#define _cairo_malloc_ab_plus_c(a, size, c) ((size) && (uint)(a) >= INT32_MAX / (uint)(size) ? NULL : (uint)(c) >= INT32_MAX - (uint)(a) * (uint)(size) ? NULL : _cairo_malloc((uint)(a) * (uint)(size) + (uint)(c)))
 
 #endif /* CAIRO_MALLOC_PRIVATE_H */

@@ -35,35 +35,27 @@
  *	Carl D. Worth <cworth@cworth.org>
  *	Chris Wilson <chris@chris-wilson.co.uk>
  */
-
 #ifndef CAIRO_STROKE_DASH_PRIVATE_H
 #define CAIRO_STROKE_DASH_PRIVATE_H
 
-#include "cairoint.h"
+//#include "cairoint.h"
 
 CAIRO_BEGIN_DECLS
 
 typedef struct _cairo_stroker_dash {
-    cairo_bool_t dashed;
-    uint dash_index;
-    cairo_bool_t dash_on;
-    cairo_bool_t dash_starts_on;
-    double dash_remain;
-
-    double dash_offset;
-    const double *dashes;
-    uint num_dashes;
+	cairo_bool_t dashed;
+	uint dash_index;
+	cairo_bool_t dash_on;
+	cairo_bool_t dash_starts_on;
+	double dash_remain;
+	double dash_offset;
+	const double * dashes;
+	uint num_dashes;
 } cairo_stroker_dash_t;
 
-cairo_private void
-_cairo_stroker_dash_init (cairo_stroker_dash_t *dash,
-			  const cairo_stroke_style_t *style);
-
-cairo_private void
-_cairo_stroker_dash_start (cairo_stroker_dash_t *dash);
-
-cairo_private void
-_cairo_stroker_dash_step (cairo_stroker_dash_t *dash, double step);
+cairo_private void _cairo_stroker_dash_init(cairo_stroker_dash_t * dash, const cairo_stroke_style_t * style);
+cairo_private void _cairo_stroker_dash_start(cairo_stroker_dash_t * dash);
+cairo_private void _cairo_stroker_dash_step(cairo_stroker_dash_t * dash, double step);
 
 CAIRO_END_DECLS
 

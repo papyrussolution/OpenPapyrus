@@ -253,7 +253,7 @@ SSL_SESSION * d2i_SSL_SESSION(SSL_SESSION ** a, const uchar ** pp,
 	}
 
 	p = as->cipher->data;
-	id = 0x03000000L | ((unsigned long)p[0] << 8L) | (unsigned long)p[1];
+	id = 0x03000000L | ((ulong)p[0] << 8L) | (ulong)p[1];
 
 	ret->cipher = NULL;
 	ret->cipher_id = id;
@@ -271,7 +271,7 @@ SSL_SESSION * d2i_SSL_SESSION(SSL_SESSION ** a, const uchar ** pp,
 	if(as->time != 0)
 		ret->time = as->time;
 	else
-		ret->time = (unsigned long)time(NULL);
+		ret->time = (ulong)time(NULL);
 
 	if(as->timeout != 0)
 		ret->timeout = as->timeout;

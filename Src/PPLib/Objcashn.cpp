@@ -444,9 +444,8 @@ int SLAPI PPObjCashNode::Lock(PPID id)
 // static
 int SLAPI PPObjCashNode::Unlock(PPID id)
 {
-	int    ok = 1;
 	SString  added_msg_str = DS.GetTLA().AddedMsgString;
-	ok = DS.GetSync().ReleaseMutex(PPOBJ_CASHNODE, id);
+	int    ok = DS.GetSync().ReleaseMutex(PPOBJ_CASHNODE, id);
 	PPSetAddedMsgString(added_msg_str);
 	return ok;
 }
@@ -456,7 +455,7 @@ int SLAPI PPObjCashNode::Unlock(PPID id)
 StrAssocArray * SLAPI PPObjCashNode::MakeStrAssocList(void * extraPtr)
 {
 	SelFilt f;
-	if(!RVALUEPTR(f, (SelFilt *)extraPtr))
+	if(!RVALUEPTR(f, static_cast<const SelFilt *>(extraPtr)))
 		MEMSZERO(f);
 	StrAssocArray * p_ary = new StrAssocArray;
 	THROW_MEM(p_ary);
@@ -1161,7 +1160,7 @@ int DivGrpAsscListDialog::editItem(int pos, PPGenCashNode::DivGrpAssc * pItem)
 			dlg->getCtrlData(CTLSEL_DIVGRPASSCITM_GRP, &temp_item.GrpID);
 			dlg->getCtrlData(CTL_DIVGRPASSCITM_DIV, &temp_item.DivN);
 			PPGenCashNode::DivGrpAssc * p_item;
-			for(uint i = 0; all_ok && P_Data->enumItems(&i, (void**)&p_item);)
+			for(uint i = 0; all_ok && P_Data->enumItems(&i, (void **)&p_item);)
 				if(p_item->GrpID == temp_item.GrpID && (i-1) != (uint)pos)
 					all_ok = PPErrorByDialog(dlg, CTLSEL_DIVGRPASSCITM_GRP, PPERR_DUPGOODSGROUP);
 			if(all_ok) {
@@ -1181,7 +1180,7 @@ int DivGrpAsscListDialog::setupList()
 	int    ok = 1;
 	PPGenCashNode::DivGrpAssc * p_item;
 	PPObjGoodsGroup gg_obj;
-	for(uint i = 0; ok && P_Data->enumItems(&i, (void**)&p_item);) {
+	for(uint i = 0; ok && P_Data->enumItems(&i, (void **)&p_item);) {
 		Goods2Tbl::Rec gg_rec;
 		char   sub[64];
 		if(p_item->GrpID == 0) {
@@ -1743,7 +1742,7 @@ int SyncCashNodeCfgDialog::setDTS(const PPSyncCashNode * pData)
 	//disableCtrl(CTL_CASHN_OVRFLW, 1);
 	setCtrlData(CTL_CASHN_SLEEPTIMEOUT, &Data.SleepTimeout);
 	if(!Data.TableSelWhatman.NotEmptyS()) {
-		FileBrowseCtrlGroup * p_fbg = (FileBrowseCtrlGroup*)getGroup(GRP_TBLDGMPATH);
+		FileBrowseCtrlGroup * p_fbg = static_cast<FileBrowseCtrlGroup *>(getGroup(GRP_TBLDGMPATH));
 		if(p_fbg) {
 			SString path;
 			PPGetPath(PPPATH_WTM, path);
@@ -2691,8 +2690,9 @@ int EquipConfigDialog::EditExtParams()
 		{
 			int    ok = 1;
 			Data = *pData;
-			SetupPPObjCombo(this, CTLSEL_EQCFG_FTPACCT, PPOBJ_INTERNETACCOUNT, Data.FtpAcctID, 0, (void *)PPObjInternetAccount::filtfFtp/*INETACCT_ONLYFTP*/);
-			SetupPPObjCombo(this, CTLSEL_EQCFG_SALESGRP, PPOBJ_GOODSGROUP, Data.SalesGoodsGrp, OLW_CANSELUPLEVEL, (void *)GGRTYP_SEL_ALT);
+			SetupPPObjCombo(this, CTLSEL_EQCFG_FTPACCT, PPOBJ_INTERNETACCOUNT, Data.FtpAcctID, 0, 
+				reinterpret_cast<void *>(PPObjInternetAccount::filtfFtp)/*INETACCT_ONLYFTP*/);
+			SetupPPObjCombo(this, CTLSEL_EQCFG_SALESGRP, PPOBJ_GOODSGROUP, Data.SalesGoodsGrp, OLW_CANSELUPLEVEL, reinterpret_cast<void *>(GGRTYP_SEL_ALT));
 			setCtrlData(CTL_EQCFG_AGENTCODELEN, &Data.AgentCodeLen);
 			setCtrlData(CTL_EQCFG_AGENTPREFIX,  &Data.AgentPrefix);
 			setCtrlData(CTL_EQCFG_SUSPCPFX, Data.SuspCcPrefix);
@@ -3052,12 +3052,12 @@ int TouchScreenDlg::SelGdsFont()
 	font.hwndOwner = H();
 	font.Flags = CF_FORCEFONTEXIST|CF_SCREENFONTS|CF_INITTOLOGFONTSTRUCT|CF_NOVERTFONTS|CF_NOSCRIPTSEL;
 	log_font.lfCharSet = RUSSIAN_CHARSET;
-	STRNSCPY(log_font.lfFaceName, Data.Rec.GdsListFontName); // @unicodeproblem
+	STRNSCPY(log_font.lfFaceName, SUcSwitch(Data.Rec.GdsListFontName)); // @unicodeproblem
 	log_font.lfHeight = Data.Rec.GdsListFontHight;
 	font.lpLogFont   = &log_font;
 	font.lStructSize = sizeof(font);
 	if(::ChooseFont(&font)) { // @unicodeproblem
-		STRNSCPY(Data.Rec.GdsListFontName, font.lpLogFont->lfFaceName); // @unicodeproblem
+		STRNSCPY(Data.Rec.GdsListFontName, SUcSwitch(font.lpLogFont->lfFaceName)); // @unicodeproblem
 		Data.Rec.GdsListFontHight = font.lpLogFont->lfHeight;
 	}
 	else if(CommDlgExtendedError() != 0)
@@ -3091,7 +3091,7 @@ int TouchScreenDlg::setDTS(const PPTouchScreenPacket * pData)
 	setCtrlData(CTL_TCHSCR_NAME, Data.Rec.Name);
 	setCtrlData(CTL_TCHSCR_ID,  &Data.Rec.ID);
 	SetupStringCombo(this, CTLSEL_TCHSCR_TYPE, PPTXT_TOUCHSCREEN, Data.Rec.TouchScreenType);
-	SetupPPObjCombo(this, CTLSEL_TCHSCR_GDSGRP, PPOBJ_GOODSGROUP, Data.Rec.AltGdsGrpID, OLW_CANINSERT, (void *)GGRTYP_SEL_ALT);
+	SetupPPObjCombo(this, CTLSEL_TCHSCR_GDSGRP, PPOBJ_GOODSGROUP, Data.Rec.AltGdsGrpID, OLW_CANINSERT, reinterpret_cast<void *>(GGRTYP_SEL_ALT));
 	setCtrlData(CTL_TCHSCR_GOODSLISTGAP, &Data.Rec.GdsListEntryGap);
 	AddClusterAssoc(CTL_TCHSCR_FLAGS, 0, TSF_PRINTSLIPDOC);
 	AddClusterAssoc(CTL_TCHSCR_FLAGS, 1, TSF_TXTSTYLEBTN);
@@ -3147,7 +3147,7 @@ int SLAPI PPObjLocPrinter::GetPacket(PPID id, PPLocPrinter * pPack)
 	return ok;
 }
 
-int SLAPI PPObjLocPrinter::PutPacket(PPID * pID, PPLocPrinter * pPack, int use_ta)
+int SLAPI PPObjLocPrinter::PutPacket(PPID * pID, const PPLocPrinter * pPack, int use_ta)
 {
 	int    ok = 1;
 	{

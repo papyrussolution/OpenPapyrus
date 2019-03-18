@@ -19,7 +19,7 @@ void SLAPI PPBudgetPacket::Init()
 	ScenList.freeAll();
 }
 
-int SLAPI PPBudgetPacket::PutItems(BudgetItemsList * pList)
+int SLAPI PPBudgetPacket::PutItems(const BudgetItemsList * pList)
 {
 	Items.freeAll();
 	if(pList)
@@ -29,11 +29,10 @@ int SLAPI PPBudgetPacket::PutItems(BudgetItemsList * pList)
 
 int SLAPI PPBudgetPacket::EnumItems(uint * pIdx, BudgetItemTbl::Rec * pRec)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(pIdx && *pIdx < Items.getCount()) {
 		ASSIGN_PTR(pRec, Items.at(*pIdx));
-		if(pIdx)
-			(*pIdx)++;
+		(*pIdx)++;
 		ok = 1;
 	}
 	return ok;
@@ -651,8 +650,8 @@ int BudgetItemDialog::setDTS(const BudgetItemTbl::Rec * pData)
 	uint   sel = CTL_BUDGITEM_DT;
 	if(!RVALUEPTR(Data, pData))
 		MEMSZERO(Data);
-	SetupPPObjCombo(this, CTLSEL_BUDGITEM_BUDGET, PPOBJ_BUDGET,   Data.BudgetID, OLW_CANSELUPLEVEL, (void *)SEL_ALL_BUDGETS);
-	SetupPPObjCombo(this, CTLSEL_BUDGITEM_ACCT,   PPOBJ_ACCOUNT2, Data.Acc, OLW_CANSELUPLEVEL|OLW_CANINSERT, (void *)ACY_SEL_BUDGET);
+	SetupPPObjCombo(this, CTLSEL_BUDGITEM_BUDGET, PPOBJ_BUDGET,   Data.BudgetID, OLW_CANSELUPLEVEL, reinterpret_cast<void *>(SEL_ALL_BUDGETS));
+	SetupPPObjCombo(this, CTLSEL_BUDGITEM_ACCT,   PPOBJ_ACCOUNT2, Data.Acc, OLW_CANSELUPLEVEL|OLW_CANINSERT, reinterpret_cast<void *>(ACY_SEL_BUDGET));
 	setCtrlData(CTL_BUDGITEM_DT, &Data.Dt);
 	AddClusterAssocDef(CTL_BUDGITEM_KIND, 0, 0);
 	AddClusterAssoc(CTL_BUDGITEM_KIND, 1, 1);
@@ -814,8 +813,8 @@ int BudgetItemsDialog::setDTS(const BudgetItemsList * pData)
 		if(rec.ID)
 			pos = i;
 	}
-	SetupPPObjCombo(this, CTLSEL_BUDGITEM_BUDGET, PPOBJ_BUDGET,   rec.BudgetID, OLW_CANSELUPLEVEL, (void *)SEL_ALL_BUDGETS);
-	SetupPPObjCombo(this, CTLSEL_BUDGITEM_ACCT,   PPOBJ_ACCOUNT2, rec.Acc, OLW_CANSELUPLEVEL|OLW_CANINSERT, (void *)ACY_SEL_BUDGET);
+	SetupPPObjCombo(this, CTLSEL_BUDGITEM_BUDGET, PPOBJ_BUDGET,   rec.BudgetID, OLW_CANSELUPLEVEL, reinterpret_cast<void *>(SEL_ALL_BUDGETS));
+	SetupPPObjCombo(this, CTLSEL_BUDGITEM_ACCT,   PPOBJ_ACCOUNT2, rec.Acc, OLW_CANSELUPLEVEL|OLW_CANINSERT, reinterpret_cast<void *>(ACY_SEL_BUDGET));
 	AddClusterAssocDef(CTL_BUDGITEM_KIND, 0, 0);
 	AddClusterAssoc(CTL_BUDGITEM_KIND, 1, 1);
 	SetClusterData(CTL_BUDGITEM_KIND, rec.Kind);
@@ -1121,7 +1120,7 @@ int BudgetFiltDialog::setDTS(const BudgetFilt * pData)
 {
 	if(!RVALUEPTR(Data, pData))
 		Data.Init(1, 0);
-	SetupPPObjCombo(this, CTLSEL_BUDGFLT_BUDGET, PPOBJ_BUDGET,  Data.BudgetID, 0, (void *)SEL_ALL_BUDGETS);
+	SetupPPObjCombo(this, CTLSEL_BUDGFLT_BUDGET, PPOBJ_BUDGET,  Data.BudgetID, 0, reinterpret_cast<void *>(SEL_ALL_BUDGETS));
 	SetPeriodInput(this, CTL_BUDGFLT_PERIOD, &Data.Period);
 	return 1;
 }
@@ -1633,7 +1632,7 @@ int SLAPI PPViewBudget::Print(const void * pHdr)
 {
 	int    ok = 1;
 	uint rpt_id = rpt_id = REPORT_BUDGET;
-	PPID budg_id = (Filt.Kind == BudgetFilt::kBudget) ? (pHdr ? *(long*)pHdr : 0) : Filt.BudgetID;
+	PPID budg_id = (Filt.Kind == BudgetFilt::kBudget) ? (pHdr ? *static_cast<const long *>(pHdr) : 0) : Filt.BudgetID;
 	PPBudgetPacket pack;
 	if(budg_id && ObjBudg.GetPacket(budg_id, &pack) > 0) {
 		PView  pv(&pack);
@@ -1703,7 +1702,7 @@ int SLAPI PPViewBudget::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 	long cur_col = (pBrw) ? pBrw->GetCurColumn() : 0;
 	PPID id = 0;
 	PPIDArray idlist;
-	PPID ct_id = (pHdr) ? *((long*)pHdr) : 0;
+	PPID ct_id = (pHdr) ? *static_cast<const long *>(pHdr) : 0;
 	if(ok == -2) {
 		Hdr hdr;
 		if(ppvCmd != PPVCMD_MOUSEHOVER) {

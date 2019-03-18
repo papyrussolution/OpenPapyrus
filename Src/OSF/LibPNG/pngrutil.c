@@ -103,8 +103,8 @@ png_uint_16 (PNGAPI
 	 * than 16 bits either.)
 	 */
 	unsigned int val =
-	    ((unsigned int)(*buf) << 8) +
-	    ((unsigned int)(*(buf + 1)));
+	    ((uint)(*buf) << 8) +
+	    ((uint)(*(buf + 1)));
 
 	return (png_uint_16)val;
 }
@@ -155,7 +155,7 @@ uint32 /* PRIVATE */ png_read_chunk_header(png_structrp png_ptr)
 	length = png_get_uint_31(png_ptr, buf);
 	/* Put the chunk name into png_ptr->chunk_name. */
 	png_ptr->chunk_name = PNG_CHUNK_FROM_STRING(buf+4);
-	png_debug2(0, "Reading %lx chunk, length = %lu", (unsigned long)png_ptr->chunk_name, (unsigned long)length);
+	png_debug2(0, "Reading %lx chunk, length = %lu", (ulong)png_ptr->chunk_name, (ulong)length);
 
 	/* Reset the crc and run it over the chunk name. */
 	png_reset_crc(png_ptr);
@@ -809,7 +809,7 @@ void /* PRIVATE */ png_handle_IHDR(png_structrp png_ptr, png_inforp info_ptr, ui
 	png_ptr->rowbytes = PNG_ROWBYTES(png_ptr->pixel_depth, png_ptr->width);
 	png_debug1(3, "bit_depth = %d", png_ptr->bit_depth);
 	png_debug1(3, "channels = %d", png_ptr->channels);
-	png_debug1(3, "rowbytes = %lu", (unsigned long)png_ptr->rowbytes);
+	png_debug1(3, "rowbytes = %lu", (ulong)png_ptr->rowbytes);
 	png_set_IHDR(png_ptr, info_ptr, width, height, bit_depth,
 	    color_type, interlace_type, compression_type, filter_type);
 }
@@ -1606,8 +1606,8 @@ void /* PRIVATE */ png_handle_tRNS(png_structrp png_ptr, png_inforp info_ptr, ui
 			return;
 		}
 
-		if(length > (unsigned int)png_ptr->num_palette ||
-		    length > (unsigned int)PNG_MAX_PALETTE_LENGTH ||
+		if(length > (uint)png_ptr->num_palette ||
+		    length > (uint)PNG_MAX_PALETTE_LENGTH ||
 		    length == 0) {
 			png_crc_finish(png_ptr, length);
 			png_chunk_benign_error(png_ptr, "invalid");
@@ -1731,8 +1731,8 @@ void /* PRIVATE */ png_handle_hIST(png_structrp png_ptr, png_inforp info_ptr, ui
 
 	num = length / 2;
 
-	if(num != (unsigned int)png_ptr->num_palette ||
-	    num > (unsigned int)PNG_MAX_PALETTE_LENGTH) {
+	if(num != (uint)png_ptr->num_palette ||
+	    num > (uint)PNG_MAX_PALETTE_LENGTH) {
 		png_crc_finish(png_ptr, length);
 		png_chunk_benign_error(png_ptr, "invalid");
 		return;
@@ -2856,7 +2856,7 @@ void /* PRIVATE */ png_combine_row(png_const_structrp png_ptr, png_bytep pDp, in
 				bytes_to_copy = (1<<((6-pass)>>1)) * pixel_depth;
 				/* But don't allow this number to exceed the actual row width. */
 				if(bytes_to_copy > row_width)
-					bytes_to_copy = (unsigned int)/*SAFE*/ row_width;
+					bytes_to_copy = (uint)/*SAFE*/ row_width;
 			}
 			else /* normal row; Adam7 only ever gives us one pixel to copy. */
 				bytes_to_copy = pixel_depth;
@@ -2998,7 +2998,7 @@ void /* PRIVATE */ png_combine_row(png_const_structrp png_ptr, png_bytep pDp, in
 					    pDp += bytes_to_jump;
 					    row_width -= bytes_to_jump;
 					    if(bytes_to_copy > row_width)
-						    bytes_to_copy = (unsigned int)/*SAFE*/ row_width;
+						    bytes_to_copy = (uint)/*SAFE*/ row_width;
 				    }
 			}
 
@@ -3802,8 +3802,8 @@ void /* PRIVATE */ png_read_start_row(png_structrp png_ptr)
 	png_debug1(3, "height = %u,", png_ptr->height);
 	png_debug1(3, "iwidth = %u,", png_ptr->iwidth);
 	png_debug1(3, "num_rows = %u,", png_ptr->num_rows);
-	png_debug1(3, "rowbytes = %lu,", (unsigned long)png_ptr->rowbytes);
-	png_debug1(3, "irowbytes = %lu", (unsigned long)PNG_ROWBYTES(png_ptr->pixel_depth, png_ptr->iwidth) + 1);
+	png_debug1(3, "rowbytes = %lu,", (ulong)png_ptr->rowbytes);
+	png_debug1(3, "irowbytes = %lu", (ulong)PNG_ROWBYTES(png_ptr->pixel_depth, png_ptr->iwidth) + 1);
 	/* The sequential reader needs a buffer for IDAT, but the progressive reader
 	 * does not, so free the read buffer now regardless; the sequential reader
 	 * reallocates it on demand.

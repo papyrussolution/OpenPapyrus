@@ -1210,7 +1210,7 @@ bool TY_(IsValidXMLID) (ctmbstr id)
 		return false;
 
 	while(*s) {
-		c = (unsigned char)*s;
+		c = (uchar)*s;
 
 		if(c > 0x7F)
 			s += TY_(GetUTF8) (s, &c);
@@ -1233,7 +1233,7 @@ static bool IsValidNMTOKEN(ctmbstr name)
 		return false;
 
 	while(*s) {
-		c = (unsigned char)*s;
+		c = (uchar)*s;
 
 		if(c > 0x7F)
 			s += TY_(GetUTF8) (s, &c);
@@ -1544,7 +1544,7 @@ void CheckColor(TidyDocImpl* doc, Node * node, AttVal * attval)
 
 	/* if it is not a valid color code, it is a color name */
 	if(!valid)
-		valid = GetColorCode(given) ? true : false;
+		valid = LOGIC(GetColorCode(given));
 	if(valid && given[0] == '#')
 		attval->value = TY_(tmbstrtoupper) (attval->value);
 	else if(valid)

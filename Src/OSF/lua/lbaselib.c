@@ -48,15 +48,15 @@ static const char * b_str2int(const char * s, int base, lua_Integer * pn) {
 		s++; neg = 1;
 	}                           /* handle signal */
 	else if(*s == '+') s++;
-	if(!isalnum((unsigned char)*s)) /* no digit? */
+	if(!isalnum((uchar)*s)) /* no digit? */
 		return NULL;
 	do {
-		int digit = (isdigit((unsigned char)*s)) ? *s - '0'
-		    : (toupper((unsigned char)*s) - 'A') + 10;
+		int digit = (isdigit((uchar)*s)) ? *s - '0'
+		    : (toupper((uchar)*s) - 'A') + 10;
 		if(digit >= base) return NULL; /* invalid numeral */
 		n = n * base + digit;
 		s++;
-	} while(isalnum((unsigned char)*s));
+	} while(isalnum((uchar)*s));
 	s += strspn(s, SPACECHARS); /* skip trailing spaces */
 	*pn = (lua_Integer)((neg) ? (0u - n) : n);
 	return s;

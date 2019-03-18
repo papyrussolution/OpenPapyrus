@@ -34,8 +34,8 @@
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabShort)
 void FASTCALL TIFFSwabShort(uint16* wp)
 {
-	unsigned char* cp = (unsigned char*)wp;
-	unsigned char t;
+	uchar* cp = (uchar *)wp;
+	uchar t;
 	assert(sizeof(uint16)==2);
 	t = cp[1]; cp[1] = cp[0]; cp[0] = t;
 }
@@ -44,8 +44,8 @@ void FASTCALL TIFFSwabShort(uint16* wp)
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabLong)
 void FASTCALL TIFFSwabLong(uint32 * lp)
 {
-	unsigned char * cp = (unsigned char*)lp;
-	unsigned char t;
+	uchar * cp = (uchar *)lp;
+	uchar t;
 	assert(sizeof(uint32)==4);
 	t = cp[3]; 
 	cp[3] = cp[0]; 
@@ -60,8 +60,8 @@ void FASTCALL TIFFSwabLong(uint32 * lp)
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabLong8)
 void FASTCALL TIFFSwabLong8(uint64* lp)
 {
-	unsigned char* cp = (unsigned char*)lp;
-	unsigned char t;
+	uchar* cp = (uchar *)lp;
+	uchar t;
 	assert(sizeof(uint64)==8);
 	t = cp[7]; cp[7] = cp[0]; cp[0] = t;
 	t = cp[6]; cp[6] = cp[1]; cp[1] = t;
@@ -73,12 +73,12 @@ void FASTCALL TIFFSwabLong8(uint64* lp)
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfShort)
 void FASTCALL TIFFSwabArrayOfShort(register uint16* wp, tmsize_t n)
 {
-	unsigned char* cp;
-	unsigned char t;
+	uchar* cp;
+	uchar t;
 	assert(sizeof(uint16)==2);
 	/* XXX unroll loop some */
 	while(n-- > 0) {
-		cp = (unsigned char*)wp;
+		cp = (uchar *)wp;
 		t = cp[1]; cp[1] = cp[0]; cp[0] = t;
 		wp++;
 	}
@@ -89,11 +89,11 @@ void FASTCALL TIFFSwabArrayOfShort(register uint16* wp, tmsize_t n)
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfTriples)
 void TIFFSwabArrayOfTriples(register uint8* tp, tmsize_t n)
 {
-	unsigned char* cp;
-	unsigned char t;
+	uchar* cp;
+	uchar t;
 	/* XXX unroll loop some */
 	while(n-- > 0) {
-		cp = (unsigned char*)tp;
+		cp = (uchar *)tp;
 		t = cp[2]; cp[2] = cp[0]; cp[0] = t;
 		tp += 3;
 	}
@@ -104,12 +104,12 @@ void TIFFSwabArrayOfTriples(register uint8* tp, tmsize_t n)
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfLong)
 void FASTCALL TIFFSwabArrayOfLong(register uint32* lp, tmsize_t n)
 {
-	unsigned char * cp;
-	unsigned char t;
+	uchar * cp;
+	uchar t;
 	assert(sizeof(uint32)==4);
 	/* XXX unroll loop some */
 	while(n-- > 0) {
-		cp = (unsigned char*)lp;
+		cp = (uchar *)lp;
 		t = cp[3]; cp[3] = cp[0]; cp[0] = t;
 		t = cp[2]; cp[2] = cp[1]; cp[1] = t;
 		lp++;
@@ -121,12 +121,12 @@ void FASTCALL TIFFSwabArrayOfLong(register uint32* lp, tmsize_t n)
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfLong8)
 void FASTCALL TIFFSwabArrayOfLong8(register uint64* lp, tmsize_t n)
 {
-	unsigned char * cp;
-	unsigned char t;
+	uchar * cp;
+	uchar t;
 	assert(sizeof(uint64)==8);
 	/* XXX unroll loop some */
 	while(n-- > 0) {
-		cp = (unsigned char*)lp;
+		cp = (uchar *)lp;
 		t = cp[7]; cp[7] = cp[0]; cp[0] = t;
 		t = cp[6]; cp[6] = cp[1]; cp[1] = t;
 		t = cp[5]; cp[5] = cp[2]; cp[2] = t;
@@ -140,8 +140,8 @@ void FASTCALL TIFFSwabArrayOfLong8(register uint64* lp, tmsize_t n)
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabFloat)
 void TIFFSwabFloat(float* fp)
 {
-	unsigned char* cp = (unsigned char*)fp;
-	unsigned char t;
+	uchar* cp = (uchar *)fp;
+	uchar t;
 	assert(sizeof(float)==4);
 	t = cp[3]; cp[3] = cp[0]; cp[0] = t;
 	t = cp[2]; cp[2] = cp[1]; cp[1] = t;
@@ -152,12 +152,12 @@ void TIFFSwabFloat(float* fp)
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfFloat)
 void TIFFSwabArrayOfFloat(register float* fp, tmsize_t n)
 {
-	unsigned char * cp;
-	unsigned char t;
+	uchar * cp;
+	uchar t;
 	assert(sizeof(float)==4);
 	/* XXX unroll loop some */
 	while(n-- > 0) {
-		cp = (unsigned char*)fp;
+		cp = (uchar *)fp;
 		t = cp[3]; cp[3] = cp[0]; cp[0] = t;
 		t = cp[2]; cp[2] = cp[1]; cp[1] = t;
 		fp++;
@@ -169,8 +169,8 @@ void TIFFSwabArrayOfFloat(register float* fp, tmsize_t n)
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabDouble)
 void TIFFSwabDouble(double * dp)
 {
-	unsigned char* cp = (unsigned char*)dp;
-	unsigned char t;
+	uchar* cp = (uchar *)dp;
+	uchar t;
 	assert(sizeof(double)==8);
 	t = cp[7]; cp[7] = cp[0]; cp[0] = t;
 	t = cp[6]; cp[6] = cp[1]; cp[1] = t;
@@ -183,12 +183,12 @@ void TIFFSwabDouble(double * dp)
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfDouble)
 void TIFFSwabArrayOfDouble(double* dp, tmsize_t n)
 {
-	unsigned char * cp;
-	unsigned char t;
+	uchar * cp;
+	uchar t;
 	assert(sizeof(double)==8);
 	/* XXX unroll loop some */
 	while(n-- > 0) {
-		cp = (unsigned char*)dp;
+		cp = (uchar *)dp;
 		t = cp[7]; cp[7] = cp[0]; cp[0] = t;
 		t = cp[6]; cp[6] = cp[1]; cp[1] = t;
 		t = cp[5]; cp[5] = cp[2]; cp[2] = t;
@@ -277,7 +277,7 @@ static const uchar TIFFNoBitRevTable[256] = {
 	0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff,
 };
 
-const unsigned char * TIFFGetBitRevTable(int reversed)
+const uchar * TIFFGetBitRevTable(int reversed)
 {
 	return (reversed ? TIFFBitRevTable : TIFFNoBitRevTable);
 }

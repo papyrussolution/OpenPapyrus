@@ -270,7 +270,7 @@ static void ngx_mail_init_session(ngx_connection_t * c)
 
 ngx_int_t ngx_mail_salt(ngx_mail_session_t * s, ngx_connection_t * c, ngx_mail_core_srv_conf_t * cscf)
 {
-	s->salt.data = (u_char*)ngx_pnalloc(c->pool, sizeof(" <18446744073709551616.@>" CRLF) - 1 + NGX_TIME_T_LEN + cscf->server_name.len);
+	s->salt.data = (u_char *)ngx_pnalloc(c->pool, sizeof(" <18446744073709551616.@>" CRLF) - 1 + NGX_TIME_T_LEN + cscf->server_name.len);
 	if(s->salt.data == NULL) {
 		return NGX_ERROR;
 	}
@@ -297,9 +297,9 @@ ngx_int_t ngx_mail_starttls_only(ngx_mail_session_t * s, ngx_connection_t * c)
 
 ngx_int_t ngx_mail_auth_plain(ngx_mail_session_t * s, ngx_connection_t * c, ngx_uint_t n)
 {
-	u_char   * p, * last;
-	ngx_str_t  * arg, plain;
-	arg = (ngx_str_t*)s->args.elts;
+	u_char * p, * last;
+	ngx_str_t plain;
+	ngx_str_t * arg = static_cast<ngx_str_t *>(s->args.elts);
 #if (NGX_DEBUG_MAIL_PASSWD)
 	ngx_log_debug1(NGX_LOG_DEBUG_MAIL, c->log, 0, "mail auth plain: \"%V\"", &arg[n]);
 #endif
@@ -311,48 +311,34 @@ ngx_int_t ngx_mail_auth_plain(ngx_mail_session_t * s, ngx_connection_t * c, ngx_
 		ngx_log_error(NGX_LOG_INFO, c->log, 0, "client sent invalid base64 encoding in AUTH PLAIN command");
 		return NGX_MAIL_PARSE_INVALID_COMMAND;
 	}
-
 	p = plain.data;
 	last = p + plain.len;
-
 	while(p < last && *p++) { /* void */
 	}
-
 	if(p == last) {
-		ngx_log_error(NGX_LOG_INFO, c->log, 0,
-		    "client sent invalid login in AUTH PLAIN command");
+		ngx_log_error(NGX_LOG_INFO, c->log, 0, "client sent invalid login in AUTH PLAIN command");
 		return NGX_MAIL_PARSE_INVALID_COMMAND;
 	}
-
 	s->login.data = p;
-
 	while(p < last && *p) {
 		p++;
 	}
-
 	if(p == last) {
-		ngx_log_error(NGX_LOG_INFO, c->log, 0,
-		    "client sent invalid password in AUTH PLAIN command");
+		ngx_log_error(NGX_LOG_INFO, c->log, 0, "client sent invalid password in AUTH PLAIN command");
 		return NGX_MAIL_PARSE_INVALID_COMMAND;
 	}
-
 	s->login.len = p++ - s->login.data;
-
 	s->passwd.len = last - p;
 	s->passwd.data = p;
-
 #if (NGX_DEBUG_MAIL_PASSWD)
-	ngx_log_debug2(NGX_LOG_DEBUG_MAIL, c->log, 0,
-	    "mail auth plain: \"%V\" \"%V\"", &s->login, &s->passwd);
+	ngx_log_debug2(NGX_LOG_DEBUG_MAIL, c->log, 0, "mail auth plain: \"%V\" \"%V\"", &s->login, &s->passwd);
 #endif
-
 	return NGX_DONE;
 }
 
 ngx_int_t ngx_mail_auth_login_username(ngx_mail_session_t * s, ngx_connection_t * c, ngx_uint_t n)
 {
-	ngx_str_t  * arg;
-	arg = (ngx_str_t*)s->args.elts;
+	ngx_str_t * arg = static_cast<ngx_str_t *>(s->args.elts);
 	ngx_log_debug1(NGX_LOG_DEBUG_MAIL, c->log, 0, "mail auth login username: \"%V\"", &arg[n]);
 	s->login.data = (u_char *)ngx_pnalloc(c->pool, ngx_base64_decoded_length(arg[n].len));
 	if(s->login.data == NULL) {
@@ -368,12 +354,11 @@ ngx_int_t ngx_mail_auth_login_username(ngx_mail_session_t * s, ngx_connection_t 
 
 ngx_int_t ngx_mail_auth_login_password(ngx_mail_session_t * s, ngx_connection_t * c)
 {
-	ngx_str_t  * arg;
-	arg = (ngx_str_t*)s->args.elts;
+	ngx_str_t * arg = static_cast<ngx_str_t *>(s->args.elts);
 #if (NGX_DEBUG_MAIL_PASSWD)
 	ngx_log_debug1(NGX_LOG_DEBUG_MAIL, c->log, 0, "mail auth login password: \"%V\"", &arg[0]);
 #endif
-	s->passwd.data = (u_char *)ngx_pnalloc(c->pool, ngx_base64_decoded_length(arg[0].len));
+	s->passwd.data = static_cast<u_char *>(ngx_pnalloc(c->pool, ngx_base64_decoded_length(arg[0].len)));
 	if(s->passwd.data == NULL) {
 		return NGX_ERROR;
 	}
@@ -388,38 +373,29 @@ ngx_int_t ngx_mail_auth_login_password(ngx_mail_session_t * s, ngx_connection_t 
 	return NGX_DONE;
 }
 
-ngx_int_t ngx_mail_auth_cram_md5_salt(ngx_mail_session_t * s, ngx_connection_t * c,
-    char * prefix, size_t len)
+ngx_int_t ngx_mail_auth_cram_md5_salt(ngx_mail_session_t * s, ngx_connection_t * c, char * prefix, size_t len)
 {
-	u_char * p;
 	ngx_str_t salt;
 	ngx_uint_t n;
-
-	p = (u_char *)ngx_pnalloc(c->pool, len + ngx_base64_encoded_length(s->salt.len) + 2);
+	u_char * p = static_cast<u_char *>(ngx_pnalloc(c->pool, len + ngx_base64_encoded_length(s->salt.len) + 2));
 	if(!p) {
 		return NGX_ERROR;
 	}
-
 	salt.data = ngx_cpymem(p, prefix, len);
 	s->salt.len -= 2;
-
 	ngx_encode_base64(&salt, &s->salt);
-
 	s->salt.len += 2;
 	n = len + salt.len;
 	p[n++] = __CR; p[n++] = LF;
-
 	s->out.len = n;
 	s->out.data = p;
-
 	return NGX_OK;
 }
 
 ngx_int_t ngx_mail_auth_cram_md5(ngx_mail_session_t * s, ngx_connection_t * c)
 {
 	u_char   * p, * last;
-	ngx_str_t  * arg;
-	arg = (ngx_str_t*)s->args.elts;
+	ngx_str_t * arg = static_cast<ngx_str_t *>(s->args.elts);
 	ngx_log_debug1(NGX_LOG_DEBUG_MAIL, c->log, 0, "mail auth cram-md5: \"%V\"", &arg[0]);
 	s->login.data = (u_char *)ngx_pnalloc(c->pool, ngx_base64_decoded_length(arg[0].len));
 	if(s->login.data == NULL) {
@@ -439,10 +415,8 @@ ngx_int_t ngx_mail_auth_cram_md5(ngx_mail_session_t * s, ngx_connection_t * c)
 			break;
 		}
 	}
-
 	if(s->passwd.len != 32) {
-		ngx_log_error(NGX_LOG_INFO, c->log, 0,
-		    "client sent invalid CRAM-MD5 hash in AUTH CRAM-MD5 command");
+		ngx_log_error(NGX_LOG_INFO, c->log, 0, "client sent invalid CRAM-MD5 hash in AUTH CRAM-MD5 command");
 		return NGX_MAIL_PARSE_INVALID_COMMAND;
 	}
 	ngx_log_debug2(NGX_LOG_DEBUG_MAIL, c->log, 0, "mail auth cram-md5: \"%V\" \"%V\"", &s->login, &s->passwd);
@@ -452,8 +426,8 @@ ngx_int_t ngx_mail_auth_cram_md5(ngx_mail_session_t * s, ngx_connection_t * c)
 
 ngx_int_t ngx_mail_auth_external(ngx_mail_session_t * s, ngx_connection_t * c, ngx_uint_t n)
 {
-	ngx_str_t  * arg, external;
-	arg = (ngx_str_t*)s->args.elts;
+	ngx_str_t external;
+	ngx_str_t * arg = static_cast<ngx_str_t *>(s->args.elts);
 	ngx_log_debug1(NGX_LOG_DEBUG_MAIL, c->log, 0, "mail auth external: \"%V\"", &arg[n]);
 	external.data = (u_char *)ngx_pnalloc(c->pool, ngx_base64_decoded_length(arg[n].len));
 	if(external.data == NULL) {

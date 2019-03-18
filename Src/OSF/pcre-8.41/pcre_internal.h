@@ -336,7 +336,7 @@ typedef unsigned char pcre_uint8;
 			static void * pcre_memmove(void * d, const void * s, size_t n)
 			{
 				size_t i;
-				unsigned char * dest = (unsigned char*)d;
+				unsigned char * dest = (uchar *)d;
 				const unsigned char * src = (const unsigned char*)s;
 				if(dest > src) {
 				dest += n;
@@ -873,10 +873,10 @@ typedef int BOOL;
 		   a positive value. */
 		#define CHAR_LF                     '\n'
 		#define CHAR_NL                     CHAR_LF
-		#define CHAR_NEL                    ((unsigned char)'\x85')
+		#define CHAR_NEL                    ((uchar)'\x85')
 		#define CHAR_ESC                    '\033'
 		#define CHAR_DEL                    '\177'
-		#define CHAR_NBSP                   ((unsigned char)'\xa0')
+		#define CHAR_NBSP                   ((uchar)'\xa0')
 		#define STR_LF                      "\n"
 		#define STR_NL                      STR_LF
 		#define STR_NEL                     "\x85"
@@ -1148,7 +1148,7 @@ typedef int BOOL;
 	#define CHAR_CR                     '\015'
 	#define CHAR_LF                     '\012'
 	#define CHAR_NL                     CHAR_LF
-	#define CHAR_NEL                    ((unsigned char)'\x85')
+	#define CHAR_NEL                    ((uchar)'\x85')
 	#define CHAR_BS                     '\010'
 	#define CHAR_BEL                    '\007'
 	#define CHAR_ESC                    '\033'
@@ -1250,7 +1250,7 @@ typedef int BOOL;
 	#define CHAR_VERTICAL_LINE          '\174'
 	#define CHAR_RIGHT_CURLY_BRACKET    '\175'
 	#define CHAR_TILDE                  '\176'
-	#define CHAR_NBSP                   ((unsigned char)'\xa0')
+	#define CHAR_NBSP                   ((uchar)'\xa0')
 
 	#define STR_HT                      "\011"
 	#define STR_VT                      "\013"

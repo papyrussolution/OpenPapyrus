@@ -633,7 +633,7 @@ void FASTCALL IdeaRandMem(void * buf, size_t len)
 	uint8  key[16];
 	uint8  seed[8];
 	time_t tm;
-	srand((unsigned)time(&tm));
+	srand((uint)time(&tm));
 	for(i = 0; i < sizeof(key); i++)
 		key[i] = rand() % 253;
 	for(i = 0; i < sizeof(seed); i++)

@@ -132,7 +132,7 @@ void ZBarcode_Delete(struct ZintSymbol * symbol)
 extern int get_best_eci(uchar source[], int length); /* Calculate suitable ECI mode */
 extern int utf_to_eci(int eci, const uchar source[], uchar dest[], int * length); /* Convert Unicode to other encodings */
 
-extern int eanx(struct ZintSymbol * symbol, uchar source[], int length); /* EAN system barcodes */
+extern int eanx(struct ZintSymbol * symbol, const uchar source[], int length); /* EAN system barcodes */
 extern int c39(struct ZintSymbol * symbol, uchar source[], const size_t length); /* Code 3 from 9 (or Code 39) */
 extern int pharmazentral(struct ZintSymbol * symbol, uchar source[], int length); /* Pharmazentral Nummer (PZN) */
 extern int ec39(struct ZintSymbol * symbol, const uchar source[], int length); /* Extended Code 3 from 9 (or Code 39+) */
@@ -142,18 +142,18 @@ extern int industrial_two_of_five(struct ZintSymbol * symbol, const uchar source
 extern int iata_two_of_five(struct ZintSymbol * symbol, const uchar source[], int length); /* Code 2 of 5 IATA */
 extern int interleaved_two_of_five(struct ZintSymbol * symbol, const uchar source[], size_t length); /* Code 2 of 5 Interleaved */
 extern int logic_two_of_five(struct ZintSymbol * symbol, const uchar source[], int length); /* Code 2 of 5 Data Logic */
-extern int itf14(struct ZintSymbol * symbol, uchar source[], int length); /* ITF-14 */
-extern int dpleit(struct ZintSymbol * symbol, uchar source[], int length); /* Deutsche Post Leitcode */
-extern int dpident(struct ZintSymbol * symbol, uchar source[], int length); /* Deutsche Post Identcode */
+extern int itf14(struct ZintSymbol * symbol, const uchar source[], int length); /* ITF-14 */
+extern int dpleit(struct ZintSymbol * symbol, const uchar source[], int length); /* Deutsche Post Leitcode */
+extern int dpident(struct ZintSymbol * symbol, const uchar source[], int length); /* Deutsche Post Identcode */
 extern int c93(struct ZintSymbol * symbol, const uchar source[], int length); /* Code 93 - a re-working of Code 39+, generates 2 check digits */
 extern int code_128(struct ZintSymbol * symbol, const uchar source[], int length); /* Code 128 and NVE-18 */
-extern int ean_128(struct ZintSymbol * symbol, uchar source[], const size_t length); /* EAN-128 (GS1-128) */
+extern int ean_128(struct ZintSymbol * symbol, const uchar source[], const size_t length); /* EAN-128 (GS1-128) */
 extern int code_11(struct ZintSymbol * symbol, const uchar source[], int length); /* Code 11 */
 extern int msi_handle(struct ZintSymbol * symbol, uchar source[], int length); /* MSI Plessey */
 extern int telepen(struct ZintSymbol * symbol, uchar source[], int length); /* Telepen ASCII */
 extern int telepen_num(struct ZintSymbol * symbol, uchar source[], int length); /* Telepen Numeric */
 extern int plessey(struct ZintSymbol * symbol, const uchar source[], int length); /* Plessey Code */
-extern int pharma_one(struct ZintSymbol * symbol, uchar source[], int length); /* Pharmacode One Track */
+extern int pharma_one(struct ZintSymbol * symbol, const uchar source[], int length); /* Pharmacode One Track */
 extern int flattermarken(struct ZintSymbol * symbol, uchar source[], int length); /* Flattermarken */
 extern int fim(struct ZintSymbol * symbol, const uchar source[], int length); /* Facing Identification Mark */
 extern int pharma_two(struct ZintSymbol * symbol, uchar source[], int length); /* Pharmacode Two Track */
@@ -170,7 +170,7 @@ extern int micro_pdf417(struct ZintSymbol * symbol, uchar chaine[], int length);
 extern int maxicode(struct ZintSymbol * symbol, uchar source[], int length); /* Maxicode */
 extern int rss14(struct ZintSymbol * symbol, uchar source[], int length); /* RSS-14 */
 extern int rsslimited(struct ZintSymbol * symbol, uchar source[], int length); /* RSS Limited */
-extern int rssexpanded(struct ZintSymbol * symbol, uchar source[], int length); /* RSS Expanded */
+extern int rssexpanded(struct ZintSymbol * symbol, const uchar source[], int length); /* RSS Expanded */
 extern int composite(struct ZintSymbol * symbol, uchar source[], int length); /* Composite Symbology */
 extern int kix_code(struct ZintSymbol * symbol, uchar source[], int length); /* TNT KIX Code */
 extern int aztec(struct ZintSymbol * symbol, uchar source[], int length); /* Aztec Code */
@@ -687,7 +687,7 @@ int ZBarcode_Encode(struct ZintSymbol * symbol, const uchar * source, int length
 #endif
 	error_number = 0;
 	if(length == 0) {
-		length = (int)sstrlen(source);
+		length = sstrleni(source);
 	}
 	if(length == 0) {
 		sstrcpy(symbol->errtxt, "No input data (B05)");

@@ -641,17 +641,14 @@ static inline uint32_t _pseudocolor_from_rgb888_dither(cairo_xlib_visual_info_t 
 	}
 }
 
-static inline uint32_t _pseudocolor_to_rgb888(cairo_xlib_visual_info_t * visual_info,
-    uint32_t pixel)
+static inline uint32_t _pseudocolor_to_rgb888(cairo_xlib_visual_info_t * visual_info, uint32_t pixel)
 {
 	uint32_t r, g, b;
 	pixel &= 0xff;
 	r = visual_info->colors[pixel].r;
 	g = visual_info->colors[pixel].g;
 	b = visual_info->colors[pixel].b;
-	return (r << 16) |
-	       (g <<  8) |
-	       (b      );
+	return (r << 16) | (g <<  8) | (b      );
 }
 
 /* should range from -128 to 127 */

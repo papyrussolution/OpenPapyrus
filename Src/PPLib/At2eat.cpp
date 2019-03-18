@@ -1,10 +1,10 @@
 // AT2EAT.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2006, 2007, 2016, 2017
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2006, 2007, 2016, 2017, 2019
 //
 #include <pp.h>
 #pragma hdrstop
 
-int SLAPI PPObjBill::ConvertGenAccturnToExtAccBill(PPID srcID, PPID * pDestID, CvtAt2Ab_Param * pParam, int use_ta)
+int SLAPI PPObjBill::ConvertGenAccturnToExtAccBill(PPID srcID, PPID * pDestID, const CvtAt2Ab_Param * pParam, int use_ta)
 {
 	int    ok = 1;
 	double amt;

@@ -848,7 +848,7 @@ int SLAPI PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 		if(!(Filt.Flags & TrfrAnlzFilt::fDontInitSubstNames)) {
 			PPTransaction tra(ppDbDependTransaction, use_ta);
 			THROW(tra);
-			THROW(CreateOrderTable((IterOrder)Filt.InitOrd));
+			THROW(CreateOrderTable(static_cast<IterOrder>(Filt.InitOrd)));
 			THROW(tra.Commit());
 		}
 	}
@@ -946,7 +946,7 @@ int SLAPI PPViewTrfrAnlz::CalcInRest(PPID goodsID, double * pRest)
 	Filt.LocList.CopyTo(&gp.LocList);
 	gp.GoodsID    = goodsID;
 	gp.SupplID    = Filt.SupplID;
-	gp.Date       = plusdate(Filt.Period.low, -1);
+	gp.Date       = checkdate(Filt.Period.low) ? plusdate(Filt.Period.low, -1) : encodedate(1, 1, 1996); // @v10.3.9 @fix
 	if(P_BObj->trfr->GetRest(&gp)) {
 		ASSIGN_PTR(pRest, gp.Total.Rest);
 	}
@@ -3455,7 +3455,7 @@ int SLAPI PPViewTrfrAnlz::ViewTotal()
 	return -1;
 }
 
-int SLAPI PPViewTrfrAnlz::SetAlcRepParam(AlcReportParam * pParam)
+int SLAPI PPViewTrfrAnlz::SetAlcRepParam(const AlcReportParam * pParam)
 {
 	if(!RVALUEPTR(AlcRepParam, pParam))
 		MEMSZERO(AlcRepParam);

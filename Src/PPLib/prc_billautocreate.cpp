@@ -419,8 +419,8 @@ int SLAPI PrcssrBillAutoCreate::EditParam(PPBillAutoCreateParam * pParam)
             AddClusterAssoc(CTL_PRCBAUTOC_WHAT, 3, PPBillAutoCreateParam::aDraftByCcRule);
             SetClusterData(CTL_PRCBAUTOC_WHAT, Data.A);
             SetupOprKindCombo(this, CTLSEL_PRCBAUTOC_OP, Data.OpID, 0, 0, 0);
-			SetupPPObjCombo(this, CTLSEL_PRCBAUTOC_RULEGRP, PPOBJ_DFCREATERULE, Data.RuleGrpID, 0, (void *)PPDFCRRULE_ONLYGROUPS);
-			SetupPPObjCombo(this, CTLSEL_PRCBAUTOC_RULE, PPOBJ_DFCREATERULE, Data.RuleID, 0, (void *)PPDFCRRULE_ONLYRULES);
+			SetupPPObjCombo(this, CTLSEL_PRCBAUTOC_RULEGRP, PPOBJ_DFCREATERULE, Data.RuleGrpID, 0, reinterpret_cast<void *>(PPDFCRRULE_ONLYGROUPS));
+			SetupPPObjCombo(this, CTLSEL_PRCBAUTOC_RULE, PPOBJ_DFCREATERULE, Data.RuleID, 0, reinterpret_cast<void *>(PPDFCRRULE_ONLYRULES));
             return ok;
 		}
 		int    getDTS(PPBillAutoCreateParam * pData)

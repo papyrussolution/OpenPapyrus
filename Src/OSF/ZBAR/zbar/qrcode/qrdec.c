@@ -74,7 +74,7 @@ qr_reader * _zbar_qr_create(void)
 {
 	qr_reader * reader = (qr_reader*)SAlloc::C(1, sizeof(*reader));
 	qr_reader_init(reader);
-	return(reader);
+	return (reader);
 }
 
 /*Frees a client reader handle.*/
@@ -644,8 +644,7 @@ struct qr_hom {
 	int res;
 };
 
-static void qr_hom_init(qr_hom * _hom, int _x0, int _y0,
-    int _x1, int _y1, int _x2, int _y2, int _x3, int _y3, int _res)
+static void qr_hom_init(qr_hom * _hom, int _x0, int _y0, int _x1, int _y1, int _x2, int _y2, int _x3, int _y3, int _res)
 {
 	int    s2;
 	int    r2;
@@ -699,9 +698,10 @@ static void qr_hom_init(qr_hom * _hom, int _x0, int _y0,
 	_hom->inv22 = QR_FIXMUL(_hom->fwd[0][0], _hom->fwd[1][1], -QR_EXTMUL(_hom->fwd[0][1], _hom->fwd[1][0], r2), s2);
 	_hom->res = _res;
 }
-
-/*Map from the image (at subpel resolution) into the square domain.
-   Returns a negative value if the point went to infinity.*/
+// 
+// Map from the image (at subpel resolution) into the square domain.
+// Returns a negative value if the point went to infinity.
+// 
 static int qr_hom_unproject(qr_point _q, const qr_hom * _hom, int _x, int _y)
 {
 	int x;
@@ -755,10 +755,8 @@ static void qr_hom_fproject(qr_point _p, const qr_hom * _hom, int _x, int _y, in
    Currently only used directly by debug code.*/
 static void qr_hom_project(qr_point _p, const qr_hom * _hom, int _u, int _v)
 {
-	qr_hom_fproject(_p, _hom,
-	    _hom->fwd[0][0]*_u+_hom->fwd[0][1]*_v,
-	    _hom->fwd[1][0]*_u+_hom->fwd[1][1]*_v,
-	    _hom->fwd[2][0]*_u+_hom->fwd[2][1]*_v+_hom->fwd22);
+	qr_hom_fproject(_p, _hom, _hom->fwd[0][0]*_u+_hom->fwd[0][1]*_v,
+	    _hom->fwd[1][0]*_u+_hom->fwd[1][1]*_v, _hom->fwd[2][0]*_u+_hom->fwd[2][1]*_v+_hom->fwd22);
 }
 
 #endif
@@ -1230,10 +1228,10 @@ static int qr_aff_line_step(const qr_aff * _aff, qr_line _l, int _v, int _du, in
 	*_dv = dv;
 	return 0;
 }
-
-/*Computes the Hamming distance between two bit patterns (the number of bits
-   that differ).
-   May stop counting after _maxdiff differences.*/
+// 
+// Computes the Hamming distance between two bit patterns (the number of bits that differ).
+// May stop counting after _maxdiff differences.
+// 
 static int qr_hamming_dist(uint _y1, uint _y2, int _maxdiff)
 {
 	int ret;
@@ -1242,11 +1240,10 @@ static int qr_hamming_dist(uint _y1, uint _y2, int _maxdiff)
 		y &= (y-1);
 	return ret;
 }
-
-/*Retrieve a bit (guaranteed to be 0 or 1) from the image, given coordinates in
-   subpel resolution which have not been bounds checked.*/
-static int qr_img_get_bit(const uchar * _img, int _width, int _height,
-    int _x, int _y)
+// 
+// Retrieve a bit (guaranteed to be 0 or 1) from the image, given coordinates in subpel resolution which have not been bounds checked.
+// 
+static int qr_img_get_bit(const uchar * _img, int _width, int _height, int _x, int _y)
 {
 	_x >>= QR_FINDER_SUBPREC;
 	_y >>= QR_FINDER_SUBPREC;
@@ -2532,7 +2529,7 @@ static void qr_sampling_grid_init(qr_sampling_grid * _grid, int _version,
 	    (nalign-1)*(nalign-1)*sizeof(*_grid->cells[0]));
 	for(i = 1; i<_grid->ncells; i++) _grid->cells[i] = _grid->cells[i-1]+_grid->ncells;
 	/*Initialize the function pattern mask.*/
-	_grid->fpmask = (uint*)SAlloc::C(dim, ((dim + QR_INT_BITS - 1) >> QR_INT_LOGBITS) * sizeof(*_grid->fpmask));
+	_grid->fpmask = (uint *)SAlloc::C(dim, ((dim + QR_INT_BITS - 1) >> QR_INT_LOGBITS) * sizeof(*_grid->fpmask));
 	/*Mask out the finder patterns (and separators and format info bits).*/
 	qr_sampling_grid_fp_mask_rect(_grid, dim, 0, 0, 9, 9);
 	qr_sampling_grid_fp_mask_rect(_grid, dim, 0, dim-8, 9, 8);
@@ -3498,7 +3495,7 @@ static int qr_code_decode(qr_code_data * _qrdata, const rs_gf256 * _gf,
 	qr_sampling_grid_dump(&grid, _version, _img, _width, _height);
 #endif
 	dim = 17+(_version<<2);
-	data_bits = (uint*)SAlloc::M(dim*((dim+QR_INT_BITS-1)>>QR_INT_LOGBITS)*sizeof(*data_bits));
+	data_bits = (uint *)SAlloc::M(dim*((dim+QR_INT_BITS-1)>>QR_INT_LOGBITS)*sizeof(*data_bits));
 	qr_sampling_grid_sample(&grid, data_bits, dim, _fmt_info, _img, _width, _height);
 	/*Group those bits into Reed-Solomon codewords.*/
 	ecc_level = (_fmt_info>>3)^1;

@@ -2238,7 +2238,7 @@ cairo_public cairo_status_t cairo_mesh_pattern_get_control_point(cairo_pattern_t
 cairo_public void FASTCALL cairo_matrix_init(cairo_matrix_t * matrix, double xx, double yx, double xy, double yy, double x0, double y0);
 cairo_public void FASTCALL cairo_matrix_init_identity(cairo_matrix_t * matrix);
 cairo_public void FASTCALL cairo_matrix_init_translate(cairo_matrix_t * matrix, double tx, double ty);
-cairo_public void cairo_matrix_init_scale(cairo_matrix_t * matrix, double sx, double sy);
+cairo_public void FASTCALL cairo_matrix_init_scale(cairo_matrix_t * matrix, double sx, double sy);
 cairo_public void FASTCALL cairo_matrix_init_rotate(cairo_matrix_t * matrix, double radians);
 cairo_public void FASTCALL cairo_matrix_translate(cairo_matrix_t * matrix, double tx, double ty);
 cairo_public void cairo_matrix_scale(cairo_matrix_t * matrix, double sx, double sy);

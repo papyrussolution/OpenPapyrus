@@ -71,7 +71,7 @@ static const char * ngx_stream_block(ngx_conf_t * cf, const ngx_command_t * cmd,
 	/* count the number of the stream modules and set up their indices */
 	ngx_stream_max_module = ngx_count_modules(cf->cycle, NGX_STREAM_MODULE);
 	/* the stream main_conf context, it's the same in the all stream contexts */
-	ctx->main_conf = (void**)ngx_pcalloc(cf->pool, sizeof(void *) * ngx_stream_max_module);
+	ctx->main_conf = (void **)ngx_pcalloc(cf->pool, sizeof(void *) * ngx_stream_max_module);
 	if(ctx->main_conf == NULL) {
 		return NGX_CONF_ERROR;
 	}
@@ -79,7 +79,7 @@ static const char * ngx_stream_block(ngx_conf_t * cf, const ngx_command_t * cmd,
 	 * the stream null srv_conf context, it is used to merge
 	 * the server{}s' srv_conf's
 	 */
-	ctx->srv_conf = (void**)ngx_pcalloc(cf->pool, sizeof(void *) * ngx_stream_max_module);
+	ctx->srv_conf = (void **)ngx_pcalloc(cf->pool, sizeof(void *) * ngx_stream_max_module);
 	if(ctx->srv_conf == NULL) {
 		return NGX_CONF_ERROR;
 	}
@@ -403,7 +403,7 @@ static ngx_int_t ngx_stream_add_addrs(ngx_conf_t * cf, ngx_stream_port_t * stpor
 #endif
 		addrs[i].conf.proxy_protocol = addr[i].opt.proxy_protocol;
 		len = ngx_sock_ntop(&addr[i].opt.sockaddr.sockaddr, addr[i].opt.socklen, buf, NGX_SOCKADDR_STRLEN, 1);
-		p = (u_char*)ngx_pnalloc(cf->pool, len);
+		p = (u_char *)ngx_pnalloc(cf->pool, len);
 		if(!p) {
 			return NGX_ERROR;
 		}

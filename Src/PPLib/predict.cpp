@@ -1335,17 +1335,17 @@ int SLAPI PrcssrPrediction::FlashStat(PredictSalesStat * pList, uint count, Pred
 				assert(T.StT.data.Loc == loc_idx);
 				assert(T.StT.data.GoodsID == p_pss->GoodsID);
 				T.ShrinkDate(p_pss->LastDate, &T.StT.data.LastDate);
-				T.StT.data.Count     = (short)p_pss->Count;
-				T.StT.data.QttySum   = (float)p_pss->QttySum;
-				T.StT.data.QttySqSum = (float)p_pss->QttySqSum;
-				T.StT.data.AmtSum    = (float)p_pss->AmtSum;
-				T.StT.data.AmtSqSum  = (float)p_pss->AmtSqSum;
+				T.StT.data.Count     = static_cast<short>(p_pss->Count);
+				T.StT.data.QttySum   = static_cast<float>(p_pss->QttySum);
+				T.StT.data.QttySqSum = static_cast<float>(p_pss->QttySqSum);
+				T.StT.data.AmtSum    = static_cast<float>(p_pss->AmtSum);
+				T.StT.data.AmtSqSum  = static_cast<float>(p_pss->AmtSqSum);
 				if(pErr) {
-					SETMAX(pErr->Count,     labs((long)T.StT.data.Count      - p_pss->Count));
-					SETMAX(pErr->QttySum,   fabs((double)T.StT.data.QttySum  - p_pss->QttySum));
-					SETMAX(pErr->QttySqSum, fabs((double)T.StT.data.QttySum  - p_pss->QttySum));
-					SETMAX(pErr->AmtSum,    fabs((double)T.StT.data.AmtSum   - p_pss->AmtSum));
-					SETMAX(pErr->AmtSqSum,  fabs((double)T.StT.data.AmtSqSum - p_pss->AmtSqSum));
+					SETMAX(pErr->Count,     labs(static_cast<long>(T.StT.data.Count)      - p_pss->Count));
+					SETMAX(pErr->QttySum,   fabs(static_cast<double>(T.StT.data.QttySum)  - p_pss->QttySum));
+					SETMAX(pErr->QttySqSum, fabs(static_cast<double>(T.StT.data.QttySum)  - p_pss->QttySum));
+					SETMAX(pErr->AmtSum,    fabs(static_cast<double>(T.StT.data.AmtSum)   - p_pss->AmtSum));
+					SETMAX(pErr->AmtSqSum,  fabs(static_cast<double>(T.StT.data.AmtSqSum) - p_pss->AmtSqSum));
 				}
 				THROW_DB(T.StT.updateRec());
 			}
@@ -1355,17 +1355,17 @@ int SLAPI PrcssrPrediction::FlashStat(PredictSalesStat * pList, uint count, Pred
 				new_rec.Loc = loc_idx;
 				T.ShrinkDate(p_pss->LastDate, &new_rec.LastDate);
 				new_rec.GoodsID   = p_pss->GoodsID;
-				new_rec.Count     = (short)p_pss->Count;
-				new_rec.QttySum   = (float)p_pss->QttySum;
-				new_rec.QttySqSum = (float)p_pss->QttySqSum;
-				new_rec.AmtSum    = (float)p_pss->AmtSum;
-				new_rec.AmtSqSum  = (float)p_pss->AmtSqSum;
+				new_rec.Count     = static_cast<short>(p_pss->Count);
+				new_rec.QttySum   = static_cast<float>(p_pss->QttySum);
+				new_rec.QttySqSum = static_cast<float>(p_pss->QttySqSum);
+				new_rec.AmtSum    = static_cast<float>(p_pss->AmtSum);
+				new_rec.AmtSqSum  = static_cast<float>(p_pss->AmtSqSum);
 				if(pErr) {
-					SETMAX(pErr->Count,     labs((long)new_rec.Count      - p_pss->Count));
-					SETMAX(pErr->QttySum,   fabs((double)new_rec.QttySum  - p_pss->QttySum));
-					SETMAX(pErr->QttySqSum, fabs((double)new_rec.QttySum  - p_pss->QttySum));
-					SETMAX(pErr->AmtSum,    fabs((double)new_rec.AmtSum   - p_pss->AmtSum));
-					SETMAX(pErr->AmtSqSum,  fabs((double)new_rec.AmtSqSum - p_pss->AmtSqSum));
+					SETMAX(pErr->Count,     labs(static_cast<long>(new_rec.Count)      - p_pss->Count));
+					SETMAX(pErr->QttySum,   fabs(static_cast<double>(new_rec.QttySum)  - p_pss->QttySum));
+					SETMAX(pErr->QttySqSum, fabs(static_cast<double>(new_rec.QttySum)  - p_pss->QttySum));
+					SETMAX(pErr->AmtSum,    fabs(static_cast<double>(new_rec.AmtSum)   - p_pss->AmtSum));
+					SETMAX(pErr->AmtSqSum,  fabs(static_cast<double>(new_rec.AmtSqSum) - p_pss->AmtSqSum));
 				}
 				THROW_DB(T.StT.insertRecBuf(&new_rec));
 			}

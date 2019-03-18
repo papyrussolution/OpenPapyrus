@@ -166,7 +166,7 @@ static const int num_format_defs =
 static int intsort(const void * a,
     const void * b)
 {
-	return(*(uint32 *)a - *(uint32 *)b);
+	return (*(uint32 *)a - *(uint32 *)b);
 }
 
 #endif
@@ -252,7 +252,7 @@ static inline ulong uvp_size(const zbar_image_t * img,
 {
 	if(fmt->group == ZBAR_FMT_GRAY)
 		return 0;
-	return((img->width >> fmt->p.yuv.xsub2) *
+	return ((img->width >> fmt->p.yuv.xsub2) *
 	    (img->height >> fmt->p.yuv.ysub2));
 }
 
@@ -270,7 +270,7 @@ static inline uint32 convert_read_rgb(const uint8 * srcp, int bpp)
 		p = *((uint16 *)(srcp));
 	else
 		p = *srcp;
-	return(p);
+	return (p);
 }
 
 static inline void convert_write_rgb(uint8 * dstp, uint32 p, int bpp)
@@ -462,7 +462,7 @@ static void convert_yuv_unpack(zbar_image_t * dst,
 	dsty = (uint8 *)dst->P_Data;
 	flags = srcfmt->p.yuv.packorder ^ dstfmt->p.yuv.packorder;
 	flags &= 2;
-	srcp = (const uint8 *)src->P_Data;
+	srcp = static_cast<const uint8 *>(src->P_Data);
 	if(flags)
 		srcp++;
 	srcl = src->width + (src->width >> srcfmt->p.yuv.xsub2);
@@ -517,7 +517,7 @@ static void convert_uv_resample(zbar_image_t * dst, const zbar_format_def_t * ds
 		return;
 	dstp = (uint8 *)dst->P_Data;
 	flags = (srcfmt->p.yuv.packorder ^ dstfmt->p.yuv.packorder) & 1;
-	srcp = (const uint8 *)src->P_Data;
+	srcp = static_cast<const uint8 *>(src->P_Data);
 	srcl = src->width + (src->width >> srcfmt->p.yuv.xsub2);
 	for(y = 0; y < dst->height; y++) {
 		if(y >= src->height)
@@ -618,7 +618,7 @@ static void convert_rgb_to_yuvp(zbar_image_t * dst, const zbar_format_def_t * ds
 		memset((uint8 *)dst->P_Data + dstn, 0x80, dstm2);
 	dsty = (uint8 *)dst->P_Data;
 	assert(src->datalen >= (src->width * src->height * srcfmt->p.rgb.bpp));
-	srcp = (const uint8 *)src->P_Data;
+	srcp = static_cast<const uint8 *>(src->P_Data);
 	rbits = RGB_SIZE(srcfmt->p.rgb.red);
 	rbit0 = RGB_OFFSET(srcfmt->p.rgb.red);
 	gbits = RGB_SIZE(srcfmt->p.rgb.green);
@@ -669,7 +669,7 @@ static void convert_yuv_to_rgb(zbar_image_t * dst, const zbar_format_def_t * dst
 	dbbits = RGB_SIZE(dstfmt->p.rgb.blue);
 	dbbit0 = RGB_OFFSET(dstfmt->p.rgb.blue);
 	assert(src->datalen >= (src->width * src->height + uvp_size(src, srcfmt) * 2));
-	srcp = (const uint8 *)src->P_Data;
+	srcp = static_cast<const uint8 *>(src->P_Data);
 	if(srcfmt->p.yuv.packorder & 2)
 		srcp++;
 	assert(srcfmt->p.yuv.xsub2 == 1);
@@ -721,7 +721,7 @@ static void convert_rgb_to_yuv(zbar_image_t * dst,
 	dstp = (uint8 *)dst->P_Data;
 	flags = dstfmt->p.yuv.packorder & 2;
 	assert(src->datalen >= (src->width * src->height * srcfmt->p.rgb.bpp));
-	srcp = (const uint8 *)src->P_Data;
+	srcp = static_cast<const uint8 *>(src->P_Data);
 	rbits = RGB_SIZE(srcfmt->p.rgb.red);
 	rbit0 = RGB_OFFSET(srcfmt->p.rgb.red);
 	gbits = RGB_SIZE(srcfmt->p.rgb.green);
@@ -771,7 +771,6 @@ static void convert_rgb_resample(zbar_image_t * dst,
 	const uint8 * srcp;
 	uint srcl, x, y;
 	uint32 p = 0;
-
 	dst->datalen = dstn * dstfmt->p.rgb.bpp;
 	dst->P_Data = SAlloc::M(dst->datalen);
 	if(!dst->P_Data) 
@@ -784,7 +783,7 @@ static void convert_rgb_resample(zbar_image_t * dst,
 	dbbits = RGB_SIZE(dstfmt->p.rgb.blue);
 	dbbit0 = RGB_OFFSET(dstfmt->p.rgb.blue);
 	assert(src->datalen >= (src->width * src->height * srcfmt->p.rgb.bpp));
-	srcp = (const uint8 *)src->P_Data;
+	srcp = static_cast<const uint8 *>(src->P_Data);
 	srbits = RGB_SIZE(srcfmt->p.rgb.red);
 	srbit0 = RGB_OFFSET(srcfmt->p.rgb.red);
 	sgbits = RGB_SIZE(srcfmt->p.rgb.green);
@@ -815,15 +814,8 @@ static void convert_rgb_resample(zbar_image_t * dst,
 }
 
 #ifdef HAVE_LIBJPEG
-void _zbar_convert_jpeg_to_y(zbar_image_t * dst,
-    const zbar_format_def_t * dstfmt,
-    const zbar_image_t * src,
-    const zbar_format_def_t * srcfmt);
-
-static void convert_jpeg(zbar_image_t * dst,
-    const zbar_format_def_t * dstfmt,
-    const zbar_image_t * src,
-    const zbar_format_def_t * srcfmt);
+void _zbar_convert_jpeg_to_y(zbar_image_t * dst, const zbar_format_def_t * dstfmt, const zbar_image_t * src, const zbar_format_def_t * srcfmt);
+static void convert_jpeg(zbar_image_t * dst, const zbar_format_def_t * dstfmt, const zbar_image_t * src, const zbar_format_def_t * srcfmt);
 #endif
 
 /* group conversion matrix */
@@ -896,7 +888,7 @@ const zbar_format_def_t * _zbar_format_lookup(uint32 fmt)
 	while(i < num_format_defs) {
 		def = &format_defs[i];
 		if(fmt == def->format)
-			return(def);
+			return (def);
 		i = i * 2 + 1;
 		if(fmt > def->format)
 			i++;
@@ -946,7 +938,7 @@ zbar_image_t * zbar_image_convert_resize(const zbar_image_t * src, ulong fmt, ui
 	zbar_image_set_crop(dst, src->crop_x, src->crop_y, src->crop_w, src->crop_h);
 	if(src->Format == fmt && src->width == width && src->height == height) {
 		convert_copy(dst, NULL, src, 0);
-		return(dst);
+		return (dst);
 	}
 	srcfmt = _zbar_format_lookup(src->Format);
 	dstfmt = _zbar_format_lookup(dst->Format);
@@ -954,7 +946,7 @@ zbar_image_t * zbar_image_convert_resize(const zbar_image_t * src, ulong fmt, ui
 		return NULL; // FIXME free dst 
 	if(srcfmt->group == dstfmt->group && srcfmt->p.cmp == dstfmt->p.cmp && src->width == width && src->height == height) {
 		convert_copy(dst, NULL, src, 0);
-		return(dst);
+		return (dst);
 	}
 	func = conversions[srcfmt->group][dstfmt->group].func;
 	dst->cleanup = zbar_image_free_data;
@@ -1016,7 +1008,7 @@ int _zbar_best_format(uint32 src, uint32 * dst, const uint32 * dsts)
 	}
 	if(_zbar_verbosity >= 8)
 		fprintf(stderr, "\n");
-	return(min_cost);
+	return (min_cost);
 }
 
 int zbar_negotiate_format(zbar_video_t * vdo, zbar_window_t * win)
@@ -1070,6 +1062,6 @@ int zbar_negotiate_format(zbar_video_t * vdo, zbar_window_t * win)
 	if(!vdo)
 		return 0;
 	zprintf(2, "setting best format %.4s(%08" PRIx32 ") (%d)\n", (char *)&min_fmt, min_fmt, min_cost);
-	return(zbar_video_init(vdo, min_fmt));
+	return (zbar_video_init(vdo, min_fmt));
 }
 

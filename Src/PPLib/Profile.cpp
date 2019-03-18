@@ -195,7 +195,7 @@ int SLAPI Profile::Output(uint fileId, const char * pDescription)
 		temp_buf.Printf("Start profile at clock %ld: %s", (long)(StartClock / 10000) , pDescription);
 		PPLogMessage(fileId, temp_buf, /*LOGMSGF_USER|*/LOGMSGF_TIME|LOGMSGF_DIRECTOUTP); // @v9.2.0 LOGMSGF_DIRECTOUTP
 		ProfileEntry * p_pe = 0;
-		for(uint i = 0; enumItems(&i, (void**)&p_pe);) {
+		for(uint i = 0; enumItems(&i, (void **)&p_pe);) {
 			double msh = p_pe->Hits ? (((double)p_pe->NSecs100) / ((double)p_pe->Hits * 10000.0)) : 0; // приведение к миллисекундам
 			double msh_full = p_pe->Hits ? (((double)p_pe->Mks) / ((double)p_pe->Hits * 1000.0)) : 0; // приведение к миллисекундам
 			uint32 stub = 0;

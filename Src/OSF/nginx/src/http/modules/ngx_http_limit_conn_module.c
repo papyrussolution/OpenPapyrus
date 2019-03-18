@@ -288,7 +288,7 @@ static ngx_int_t ngx_http_limit_conn_init_zone(ngx_shm_zone_t * shm_zone, void *
 	}
 	ngx_rbtree_init(ctx->rbtree, sentinel, ngx_http_limit_conn_rbtree_insert_value);
 	len = sizeof(" in limit_conn_zone \"\"") + shm_zone->shm.name.len;
-	shpool->log_ctx = (u_char*)ngx_slab_alloc(shpool, len);
+	shpool->log_ctx = (u_char *)ngx_slab_alloc(shpool, len);
 	if(shpool->log_ctx == NULL) {
 		return NGX_ERROR;
 	}
@@ -331,7 +331,7 @@ static const char * ngx_http_limit_conn_zone(ngx_conf_t * cf, const ngx_command_
 	ngx_uint_t i;
 	ngx_shm_zone_t * shm_zone;
 	ngx_http_compile_complex_value_t ccv;
-	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	ngx_http_limit_conn_ctx_t  * ctx = (ngx_http_limit_conn_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_limit_conn_ctx_t));
 	if(!ctx) {
 		return NGX_CONF_ERROR;
@@ -348,7 +348,7 @@ static const char * ngx_http_limit_conn_zone(ngx_conf_t * cf, const ngx_command_
 	for(i = 2; i < cf->args->nelts; i++) {
 		if(ngx_strncmp(value[i].data, "zone=", 5) == 0) {
 			name.data = value[i].data + 5;
-			p = (u_char*)ngx_strchr(name.data, ':');
+			p = (u_char *)ngx_strchr(name.data, ':');
 			if(!p) {
 				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid zone size \"%V\"", &value[i]);
 				return NGX_CONF_ERROR;
@@ -397,7 +397,7 @@ static const char * ngx_http_limit_conn(ngx_conf_t * cf, const ngx_command_t * c
 	ngx_str_t  * value;
 	ngx_int_t n;
 	ngx_uint_t i;
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	shm_zone = ngx_shared_memory_add(cf, &value[1], 0, &ngx_http_limit_conn_module);
 	if(shm_zone == NULL) {
 		return NGX_CONF_ERROR;

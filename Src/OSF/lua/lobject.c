@@ -443,7 +443,8 @@ top2str:                    /* convert the top element to a string */
 	return svalue(L->top - 1);
 }
 
-const char * luaO_pushfstring(lua_State * L, const char * fmt, ...) {
+const char * luaO_pushfstring(lua_State * L, const char * fmt, ...) 
+{
 	const char * msg;
 	va_list argp;
 	va_start(argp, fmt);

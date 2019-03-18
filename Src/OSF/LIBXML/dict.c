@@ -518,7 +518,7 @@ xmlDict * xmlDictCreateSub(xmlDict * sub)
 		dict->subdict = sub;
 		xmlDictReference(dict->subdict);
 	}
-	return(dict);
+	return (dict);
 }
 /**
  * xmlDictReference:
@@ -1013,7 +1013,7 @@ int FASTCALL xmlDictOwns(xmlDict * dict, const xmlChar * str)
 
 void FASTCALL XmlDestroyStringWithDict(xmlDict * pDict, xmlChar * pStr)
 {
-	//#define DICT_FREE(p_dict__, str) if((str) && ((!p_dict__) || (xmlDictOwns(p_dict__, (const xmlChar*)(str)) == 0))) SAlloc::F((char *)(str));
+	//#define DICT_FREE(p_dict__, str) if((str) && ((!p_dict__) || (xmlDictOwns(p_dict__, (const xmlChar *)(str)) == 0))) SAlloc::F((char *)(str));
 	if(pStr && (!pDict || !xmlDictOwns(pDict, pStr)))
 		SAlloc::F(pStr);
 }

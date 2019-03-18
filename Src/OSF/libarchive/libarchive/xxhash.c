@@ -167,11 +167,9 @@ static inline U32 A32(const void * x)
 #elif GCC_VERSION >= 403
 #  define XXH_swap32 __builtin_bswap32
 #else
-static inline U32 XXH_swap32(U32 x) {
-	return ((x << 24) & 0xff000000 ) |
-	       ((x <<  8) & 0x00ff0000 ) |
-	       ((x >>  8) & 0x0000ff00 ) |
-	       ((x >> 24) & 0x000000ff );
+static inline U32 XXH_swap32(U32 x) 
+{
+	return ((x << 24) & 0xff000000 ) | ((x <<  8) & 0x00ff0000 ) | ((x >>  8) & 0x0000ff00 ) | ((x >> 24) & 0x000000ff );
 }
 
 #endif
@@ -192,7 +190,7 @@ typedef enum { XXH_bigEndian = 0, XXH_littleEndian = 1 } XXH_endianess;
 #ifndef XXH_CPU_LITTLE_ENDIAN   /* It is possible to define XXH_CPU_LITTLE_ENDIAN externally, for example using a
                                    compiler switch */
 static const int one = 1;
-#   define XXH_CPU_LITTLE_ENDIAN   (*(const char*)(&one))
+#   define XXH_CPU_LITTLE_ENDIAN   (*(const char *)(&one))
 #endif
 
 /***************************************

@@ -58,7 +58,7 @@ uint32 __ham_func2(DB * dbp, const void * key, uint32 len)
 	uint8 c;
 	if(dbp != NULL)
 		COMPQUIET(dbp, 0);
-	k = (const uint8 *)key;
+	k = static_cast<const uint8 *>(key);
 	e = k+len;
 	for(h = 0; k != e; ) {
 		c = *k++;
@@ -89,7 +89,7 @@ uint32 __ham_func3(DB * dbp, const void * key, uint32 len)
 		return 0;
 #define HASHC   n = *k+++65599*n
 	n = 0;
-	k = (const uint8 *)key;
+	k = static_cast<const uint8 *>(key);
 	loop = (len+8-1)>>3;
 	switch(len&(8-1)) {
 	    case 0:
@@ -129,7 +129,7 @@ uint32 __ham_func4(DB * dbp, const void * key, uint32 len)
 #define HASH4b  h = (h<<5)+h+*k++;
 #define HASH4   HASH4b
 	h = 0;
-	k = (const uint8 *)key;
+	k = static_cast<const uint8 *>(key);
 	loop = (len+8-1)>>3;
 	switch(len&(8-1)) {
 	    case 0:
@@ -173,7 +173,7 @@ uint32 __ham_func5(DB * dbp, const void * key, uint32 len)
 	uint32 h;
 	if(dbp != NULL)
 		COMPQUIET(dbp, 0);
-	k = (const uint8 *)key;
+	k = static_cast<const uint8 *>(key);
 	e = k+len;
 	for(h = 0; k < e; ++k) {
 		h *= 16777619;

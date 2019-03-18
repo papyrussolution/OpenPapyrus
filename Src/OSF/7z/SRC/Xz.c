@@ -1299,12 +1299,12 @@ SRes XzUnpacker_Code(CXzUnpacker * p, Byte * dest, SizeT * destLen, const Byte *
 	 */
 }
 
-Bool XzUnpacker_IsStreamWasFinished(CXzUnpacker * p)
+Bool FASTCALL XzUnpacker_IsStreamWasFinished(const CXzUnpacker * p)
 {
 	return (p->state == XZ_STATE_STREAM_PADDING) && (((uint32)p->padSize & 3) == 0);
 }
 
-uint64 XzUnpacker_GetExtraSize(CXzUnpacker * p)
+uint64 FASTCALL XzUnpacker_GetExtraSize(const CXzUnpacker * p)
 {
 	uint64 num = 0;
 	if(p->state == XZ_STATE_STREAM_PADDING)

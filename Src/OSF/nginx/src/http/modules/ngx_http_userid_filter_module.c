@@ -223,7 +223,7 @@ static ngx_http_userid_ctx_t * ngx_http_userid_get_uid(ngx_http_request_t * r, n
 	 *   instead of the correct base64 trail "=="
 	 */
 	src.len = 22;
-	dst.data = (u_char*)ctx->uid_got;
+	dst.data = (u_char *)ctx->uid_got;
 	if(ngx_decode_base64(&dst, &src) == NGX_ERROR) {
 		cookies = (ngx_table_elt_t **)r->headers_in.cookies.elts;
 		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "client sent invalid userid cookie \"%V\"", &cookies[n]->value);
@@ -260,7 +260,7 @@ static ngx_int_t ngx_http_userid_set_uid(ngx_http_request_t * r, ngx_http_userid
 	*p++ = '=';
 	if(ctx->uid_got[3] == 0 || ctx->reset) {
 		src.len = 16;
-		src.data = (u_char*)ctx->uid_set;
+		src.data = (u_char *)ctx->uid_set;
 		dst.data = p;
 		ngx_encode_base64(&dst, &src);
 		p += dst.len;
@@ -365,7 +365,7 @@ static ngx_int_t ngx_http_userid_create_uid(ngx_http_request_t * r, ngx_http_use
 #if (NGX_HAVE_INET6)
 				case AF_INET6:
 				    sin6 = (struct sockaddr_in6*)c->local_sockaddr;
-				    p = (u_char*)&ctx->uid_set[0];
+				    p = (u_char *)&ctx->uid_set[0];
 				    *p++ = sin6->sin6_addr.s6_addr[12];
 				    *p++ = sin6->sin6_addr.s6_addr[13];
 				    *p++ = sin6->sin6_addr.s6_addr[14];
@@ -543,7 +543,7 @@ static const char * ngx_http_userid_expires(ngx_conf_t * cf, const ngx_command_t
 	if(ucf->expires != NGX_CONF_UNSET) {
 		return "is duplicate";
 	}
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(ngx_strcmp(value[1].data, "max") == 0) {
 		ucf->expires = NGX_HTTP_USERID_MAX_EXPIRES;
 		return NGX_CONF_OK;
@@ -578,7 +578,7 @@ static const char * ngx_http_userid_mark(ngx_conf_t * cf, const ngx_command_t * 
 	if(ucf->mark != (u_char)'\xFF') {
 		return "is duplicate";
 	}
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(ngx_strcmp(value[1].data, "off") == 0) {
 		ucf->mark = '\0';
 		return NGX_CONF_OK;

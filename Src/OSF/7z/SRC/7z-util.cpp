@@ -456,7 +456,7 @@ char * RawLeGuidToString_Braced(const Byte * g, char * s) throw()
 // StringToInt.cpp
 static const uint32 k_uint32_max = 0xFFFFFFFF;
 static const uint64 k_uint64_max = UINT64_CONST(0xFFFFFFFFFFFFFFFF);
-// static const uint64 k_UInt64_max = (uint64)(int64)-1;
+// static const uint64 k_UInt64_max = static_cast<uint64>(-1LL);
 
 #define CONVERT_STRING_TO_UINT_FUNC(uintType, charType, charTypeUnsigned) \
 	uintType ConvertStringTo ## uintType(const charType *s, const charType **end) throw() {	\
@@ -864,7 +864,7 @@ HRESULT SetProperties(IUnknown * unknown, const CObjectVector<CProperty> & prope
 {
 	if(!properties.IsEmpty()) {
 		CMyComPtr <ISetProperties> setProperties;
-		unknown->QueryInterface(IID_ISetProperties, (void**)&setProperties);
+		unknown->QueryInterface(IID_ISetProperties, (void **)&setProperties);
 		if(setProperties) {
 			UStringVector realNames;
 			CPropVariant * values = new CPropVariant[properties.Size()];

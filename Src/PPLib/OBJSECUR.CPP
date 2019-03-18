@@ -93,8 +93,8 @@ int PPObjSecur::ExtraParam::IsConsistent() const { return BIN(Signature == SECUR
 
 static int SLAPI UsrListFilt(void * rec, void * extraPtr/*grp*/)
 {
-	const PPID parent_id = (PPID)extraPtr;
-	return (!parent_id || (rec && (((PPSecur*)rec)->ParentID == parent_id)));
+	const PPID parent_id = reinterpret_cast<PPID>(extraPtr);
+	return (!parent_id || (rec && static_cast<const PPSecur *>(rec)->ParentID == parent_id));
 }
 
 SLAPI PPObjSecur::PPObjSecur(PPID aObj, void * extraPtr) : PPObjReference(aObj, extraPtr)
@@ -108,7 +108,7 @@ int SLAPI PPObjSecur::AssignImages(ListBoxDef * pDef)
 {
 	if(pDef && pDef->valid() && (ImplementFlags & implTreeSelector)) {
 		LongArray list;
-		StdTreeListBoxDef * p_def = (StdTreeListBoxDef*)pDef;
+		StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(pDef);
 		p_def->ClearImageAssocList();
 		if(p_def->getIdList(list) > 0) {
 			PPSecur rec;
@@ -134,8 +134,8 @@ int SLAPI PPObjSecur::AssignImages(ListBoxDef * pDef)
 // virtual
 ListBoxDef * SLAPI PPObjSecur::Selector(void * extraPtr)
 {
-	if(extraPtr && ((ExtraParam *)extraPtr)->IsConsistent())
-		SelectorP = *(ExtraParam *)extraPtr;
+	if(extraPtr && static_cast<const ExtraParam *>(extraPtr)->IsConsistent())
+		SelectorP = *static_cast<const ExtraParam *>(extraPtr);
 	ListBoxDef * p_def = PPObject::Selector(&SelectorP);
 	AssignImages(p_def);
 	return p_def;
@@ -153,8 +153,8 @@ int SLAPI PPObjSecur::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
 StrAssocArray * SLAPI PPObjSecur::MakeStrAssocList(void * extraPtr)
 {
 	ExtraParam param;
-	if(extraPtr && ((ExtraParam *)extraPtr)->IsConsistent())
-		param = *(ExtraParam *)extraPtr;
+	if(extraPtr && static_cast<const ExtraParam *>(extraPtr)->IsConsistent())
+		param = *static_cast<const ExtraParam *>(extraPtr);
 	StrAssocArray * p_list = new StrAssocArray();
 	THROW_MEM(p_list);
 	{
@@ -570,8 +570,8 @@ void * SLAPI PPObjSecur::CreateObjListWin(uint flags, void * extraPtr)
 	public:
 		PPObjSecurListWindow(PPObject * pObj, uint flags, void * extraPtr) : PPObjListWindow(pObj, flags, extraPtr)
 		{
-			if(extraPtr && ((PPObjSecur::ExtraParam *)extraPtr)->IsConsistent()) {
-				Param = *(PPObjSecur::ExtraParam *)extraPtr;
+			if(extraPtr && static_cast<const PPObjSecur::ExtraParam *>(extraPtr)->IsConsistent()) {
+				Param = *static_cast<const PPObjSecur::ExtraParam *>(extraPtr);
 			}
 			else
 				Param.Flags |= PPObjSecur::ExtraParam::fShowAll;

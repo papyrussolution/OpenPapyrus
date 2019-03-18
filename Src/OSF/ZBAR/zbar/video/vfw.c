@@ -150,7 +150,7 @@ static int vfw_nq(zbar_video_t * vdo, zbar_image_t * img)
 {
 	img->P_Data = NULL;
 	img->datalen = 0;
-	return(video_nq_image(vdo, img));
+	return (video_nq_image(vdo, img));
 }
 
 static zbar_image_t * vfw_dq(zbar_video_t * vdo)
@@ -172,7 +172,7 @@ static zbar_image_t * vfw_dq(zbar_video_t * vdo)
 		vdo->state->image = NULL;
 
 	video_unlock(vdo);
-	return(img);
+	return (img);
 }
 
 static int vfw_start(zbar_video_t * vdo)
@@ -322,7 +322,7 @@ static int vfw_probe_format(zbar_video_t * vdo,
 	}
 
 	if(!capGetVideoFormat(vdo->state->hwnd, bih, vdo->state->bi_size))
-		return(0 /*FIXME error...*/);
+		return (0 /*FIXME error...*/);
 
 	zprintf(6, "\tactual: " BIH_FMT "\n", BIH_FIELDS(bih));
 
@@ -408,7 +408,7 @@ int _zbar_video_open(zbar_video_t * vdo, const char * dev)
 	assert(state->hwnd);
 	if(!capDriverConnect(state->hwnd, devid)) {
 		_zbar_thread_stop(&state->thread, 0);
-		return(err_capture_str(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "failed to connect to camera '%s'", dev));
+		return (err_capture_str(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "failed to connect to camera '%s'", dev));
 	}
 	zprintf(1, "opened camera: %.60s (%d) (thr=%04lx)\n", name, devid, _zbar_thread_self());
 	if(vfw_probe(vdo)) {

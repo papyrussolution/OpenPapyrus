@@ -382,7 +382,7 @@ int SLAPI PPBackup::GetLastScenCopy(PPBackupScen * pScen, BCopyData * bcdata)
 	GetCopySet(&bcset);
 	bcset.Sort(BCopySet::ordByDateDesc);
 	uint i = 0;
-	if(bcset.enumItems(&i, (void**)&p_pbcd)) {
+	if(bcset.enumItems(&i, (void **)&p_pbcd)) {
 		*bcdata = *p_pbcd;
 		return 1;
 	}
@@ -1661,7 +1661,7 @@ void BackupDialog::setupCopyList()
 			text = "<New copy>";
 			p_list->addItem(0, text);
 		}
-		for(uint i = 0; bcset.enumItems(&i, (void**)&bcdata);) {
+		for(uint i = 0; bcset.enumItems(&i, (void **)&bcdata);) {
 			text = 0;
 			text.Cat(bcdata->Dtm, MKSFMT(12, ALIGN_LEFT | DATF_DMY), MKSFMT(12, ALIGN_LEFT | TIMF_HMS));
 			text.Cat(bcdata->Set);
@@ -1754,7 +1754,7 @@ int SLAPI UseCopyContinouos(PPDbEntrySet2 * pDbes)
 			}
 			else {
 				(disk = ps.Drv).CatChar(':').CatChar('\\');
-				r = BIN(dbentry_id && GetDriveType(disk) == DRIVE_FIXED); // @unicodeproblem
+				r = BIN(dbentry_id && GetDriveType(SUcSwitch(disk)) == DRIVE_FIXED); // @unicodeproblem
 			}
 		}
 	}
@@ -1894,7 +1894,7 @@ int SLAPI DoServerBackup(SString & rDBSymb, PPBackupScen * pScen)
 		{
 			BCopyData * p_bcd = 0;
 			for(i = 0; count > (uint)pScen->numCopies; count--)
-				if(bcset.enumItems(&i, (void**)&p_bcd) > 0)
+				if(bcset.enumItems(&i, (void **)&p_bcd) > 0)
 					THROW_PP(p_bu->RemoveCopy(p_bcd, CallbackBuLog, 0), PPERR_DBLIB);
 			ok = 1;
 		}
@@ -1952,7 +1952,7 @@ static int SLAPI _DoAutoBackup(PPBackup * pBu, PPBackupScen * pScen, int useCopy
 	{
 		BCopyData * p_bcd = 0;
 		for(j = 0; i > (uint)pScen->numCopies; i--)
-			if(bcset.enumItems(&j, (void**)&p_bcd) > 0)
+			if(bcset.enumItems(&j, (void **)&p_bcd) > 0)
 				THROW_PP(pBu->RemoveCopy(p_bcd, CallbackBuLog, 0), PPERR_DBLIB);
 	}
 	CATCH
@@ -2215,7 +2215,7 @@ static int SLAPI _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 				{
 					PPRecoverInfo * p_item = 0;
 					SString sub;
-					for(uint i = 0; P_Data->enumItems(&i, (void**)&p_item);) {
+					for(uint i = 0; P_Data->enumItems(&i, (void **)&p_item);) {
 						StringSet ss(SLBColumnDelim);
 						ss.add(p_item->TableName);
 						ss.add(sub.Z().Cat(p_item->ActNumRecs));
@@ -2695,7 +2695,7 @@ int DBMaintainDlg::getDTS(DBMaintainParam * pParam)
 
 int SLAPI DBMaintainDialog(DBMaintainParam * pParam) { DIALOG_PROC_BODY(DBMaintainDlg, pParam); }
 
-int SLAPI DoDBMaintain(DBMaintainParam * pParam)
+int SLAPI DoDBMaintain(const DBMaintainParam * pParam)
 {
 	int    ok = -1, do_maintain = 1;
 	PPLogger logger;
@@ -2736,7 +2736,6 @@ int SLAPI DoDBMaintain(DBMaintainParam * pParam)
 			THROW(mrp_obj.DoMaintain(plusdate(getcurdate_(), -param.MRPDays)));
 			logger.LogSubString(PPTXT_DBMAINTAINLOG, DBMAINTAINLOG_ENDMRP);
 		}
-		// @v8.5.12 {
 		if(param.Tables & DBMaintainParam::tblTempAltGGrp) {
 			PPObjGoodsGroup gg_obj;
 			GoodsGroupRecoverParam ggr_param;
@@ -2745,7 +2744,6 @@ int SLAPI DoDBMaintain(DBMaintainParam * pParam)
 			THROW(gg_obj.Recover(&ggr_param, &logger));
 			logger.LogSubString(PPTXT_DBMAINTAINLOG, DBMAINTAINLOG_ENDRMVTEMPALTGGRP);
 		}
-		// } @v8.5.12
 		// @v9.0.3 {
 		if(param.Tables & DBMaintainParam::tblMoveObsolete) {
 			// @todo

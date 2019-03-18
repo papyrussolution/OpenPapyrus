@@ -583,7 +583,7 @@ namespace NArchive {
 		#define IS_NS_SPEC_CHAR(c) ((c) >= NS_CODE_SKIP)
 		#define IS_PARK_SPEC_CHAR(c) ((c) >= PARK_CODE_SKIP && (c) <= PARK_CODE_LANG)
 
-		#define DECODE_NUMBER_FROM_2_CHARS(c0, c1) (((c0) & 0x7F) | (((unsigned)((c1) & 0x7F)) << 7))
+		#define DECODE_NUMBER_FROM_2_CHARS(c0, c1) (((c0) & 0x7F) | (((uint)((c1) & 0x7F)) << 7))
 		#define CONVERT_NUMBER_NS_3_UNICODE(n) n = ((n & 0x7F) | (((n >> 8) & 0x7F) << 7))
 		#define CONVERT_NUMBER_PARK(n) n &= 0x7FFF
 
@@ -2154,7 +2154,7 @@ namespace NArchive {
 				uint32 id = GetCmd(Get32(p));
 				if(id >= kNumCmds)
 					continue;
-				if(BadCmd >= 0 && id >= (unsigned)BadCmd)
+				if(BadCmd >= 0 && id >= (uint)BadCmd)
 					continue;
 				uint i;
 				if(id == EW_GETLABELADDR || id == EW_GETFUNCTIONADDR) {
@@ -2698,7 +2698,7 @@ namespace NArchive {
 					AddErrorLF("Sections error");
 				}
 				else if(bhSections.Num != 0) {
-					Sections.Alloc((unsigned)bhSections.Num);
+					Sections.Alloc((uint)bhSections.Num);
 					const Byte * p = _data + bhSections.Offset;
 					for(uint32 i = 0; i < bhSections.Num; i++, p += SectionSize) {
 						CSection &section = Sections[i];
@@ -4312,15 +4312,13 @@ namespace NArchive {
 		HRESULT CInArchive::SortItems()
 		{
 			{
-				Items.Sort(CompareItems, (void *)this);
+				Items.Sort(CompareItems, this);
 				uint i;
-
 				for(i = 0; i + 1 < Items.Size(); i++) {
 					const CItem &i1 = Items[i];
 					const CItem &i2 = Items[i + 1];
 					if(i1.Pos != i2.Pos)
 						continue;
-
 					if(IsUnicode) {
 						if(i1.NameU != i2.NameU) continue;
 						if(i1.Prefix != i2.Prefix) {
@@ -5106,7 +5104,7 @@ namespace NArchive {
 			Byte buf[kStep];
 			uint64 pos = StartOffset;
 			size_t bufSize = 0;
-			uint64 pePos = (uint64)(int64)-1;
+			uint64 pePos = (uint64)-1LL;
 
 			for(;; ) {
 				bufSize = kStep;
@@ -5129,7 +5127,7 @@ namespace NArchive {
 				}
 			}
 
-			if(pePos == (uint64)(int64)-1) {
+			if(pePos == (uint64)-1LL) {
 				uint64 posCur = StartOffset;
 				for(;; ) {
 					if(posCur < kStep)
@@ -5159,7 +5157,7 @@ namespace NArchive {
 			StartOffset = pos;
 			uint32 peSize = 0;
 
-			if(pePos != (uint64)(int64)-1) {
+			if(pePos != (uint64)-1LL) {
 				uint64 peSize64 = (pos - pePos);
 				if(peSize64 < (1 << 20)) {
 					peSize = (uint32)peSize64;
@@ -5518,7 +5516,7 @@ namespace NArchive {
 				s += kBcjMethod;
 				s.Add_Space();
 			}
-			s += ((unsigned)method < ARRAY_SIZE(kMethods)) ? kMethods[(unsigned)method] : kUnknownMethod;
+			s += ((uint)method < ARRAY_SIZE(kMethods)) ? kMethods[(uint)method] : kUnknownMethod;
 			if(method == NMethodType::kLZMA) {
 				s += ':';
 				s += GetStringForSizeValue(dict);
@@ -5847,10 +5845,10 @@ namespace NArchive {
 			CByteBuffer tempBuf2;
 			// tempPos is pos in uncompressed stream of previous item for solid archive, that
 			// was written to tempBuf  
-			uint64 tempPos = (uint64)(int64)-1;
+			uint64 tempPos = (uint64)-1LL;
 			// prevPos is pos in uncompressed stream of previous item for solid archive.
 			// It's used for test mode (where we don't need to test same file second time 
-			uint64 prevPos =  (uint64)(int64)-1;
+			uint64 prevPos =  (uint64)-1LL;
 			// if there is error in solid archive, we show error for all subsequent files
 			bool solidDataError = false;
 

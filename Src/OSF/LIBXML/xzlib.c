@@ -226,7 +226,7 @@ static int xz_avail(xz_statep state)
 	if(state->err != LZMA_OK)
 		return -1;
 	if(state->eof == 0) {
-		/* avail_in is size_t, which is not necessary sizeof(unsigned) */
+		/* avail_in is size_t, which is not necessary sizeof(uint) */
 		unsigned tmp = strm->avail_in;
 
 		if(xz_load(state, state->in, state->size, &tmp) == -1) {
@@ -334,12 +334,12 @@ static int gz_next4(xz_statep state, unsigned long * ret)
 	z_streamp strm = &(state->zstrm);
 
 	val = NEXTZ();
-	val += (unsigned)NEXTZ() << 8;
-	val += (unsigned long)NEXTZ() << 16;
+	val += (uint)NEXTZ() << 8;
+	val += (ulong)NEXTZ() << 16;
 	ch = NEXTZ();
 	if(ch == -1)
 		return -1;
-	val += (unsigned long)ch << 24;
+	val += static_cast<ulong>(ch) << 24;
 	*ret = val;
 	return 0;
 }
@@ -442,8 +442,8 @@ static int xz_head(xz_statep state)
 			NEXT(); /* extra flags */
 			NEXT(); /* operating system */
 			if(flags & 4) { /* extra field */
-				len = (unsigned)NEXT();
-				len += (unsigned)NEXT() << 8;
+				len = (uint)NEXT();
+				len += (uint)NEXT() << 8;
 				while(len--)
 					if(NEXT() < 0)
 						break;
@@ -619,7 +619,7 @@ static int xz_skip(xz_statep state, uint64_t len)
 	while(len) {
 		/* skip over whatever is in output buffer */
 		if(state->have) {
-			const unsigned n = ((uint64_t)state->have > len) ? (unsigned)len : state->have;
+			const unsigned n = ((uint64_t)state->have > len) ? (uint)len : state->have;
 			state->have -= n;
 			state->next += n;
 			state->pos += n;

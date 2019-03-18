@@ -156,7 +156,7 @@ int SLAPI PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 					agg.EndGoodsGroupingProcess();
 				}
 				ary.InitOpNames();
-				for(uint i = 0; ary.enumItems(&i, (void**)&p_entry);) {
+				for(uint i = 0; ary.enumItems(&i, (void **)&p_entry);) {
 					int    skip = 0;
 					if(Filt.Flags & OpGroupingFilt::fSkipNUpdLotRestOps && CheckOpFlags(p_entry->OpID, OPKF_NOUPDLOTREST, 0))
 						skip = 1;
@@ -430,13 +430,13 @@ int SLAPI PPViewOpGrouping::AddStatItem(PPID opID, int sign, double val, uint si
 	return ok;
 }
 
-double SLAPI PPViewOpGrouping::GetStatItem(int stat, PPID opID, int sign, uint si, TSCollection <OpGroupingStatEntry> * pList)
+double SLAPI PPViewOpGrouping::GetStatItem(int stat, PPID opID, int sign, uint si, const TSCollection <OpGroupingStatEntry> * pList)
 {
 	int    ok = 1;
 	assert(si < siNumItems);
 	SETIFZ(stat, Filt.CycleStat);
 	for(uint i = 0; i < pList[si].getCount(); i++) {
-		OpGroupingStatEntry * p_entry = pList[si].at(i);
+		const OpGroupingStatEntry * p_entry = pList[si].at(i);
 		if(p_entry->OpID == opID && p_entry->Sign == sign) {
 			if(stat == CYCLESTAT_AVERAGE) {
 				const long c = p_entry->S.GetCount();
@@ -1303,7 +1303,7 @@ int PPALDD_OpGrouping::NextIteration(PPIterID iterId)
 				else
 					p_v->InitBillList(I.OpID);
 			}
-			p_v->EnumBillList((uint*)&I.RecNo, &item);
+			p_v->EnumBillList((uint *)&I.RecNo, &item);
 			I.BillID       = item.LotTaxGrpID;
 			I.GoodsID      = item.GoodsTaxGrpID;
 			I.BillDt       = item.Dt;

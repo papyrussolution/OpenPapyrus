@@ -94,14 +94,14 @@ static int added_obj_cmp(const ADDED_OBJ * ca, const ADDED_OBJ * cb)
 				return (memcmp(a->data, b->data, (size_t)a->length));
 			case ADDED_SNAME:
 				if(a->sn == NULL)
-					return (-1);
+					return -1;
 				else if(b->sn == NULL)
 					return 1;
 				else
 					return (strcmp(a->sn, b->sn));
 			case ADDED_LNAME:
 				if(a->ln == NULL)
-					return (-1);
+					return -1;
 				else if(b->ln == NULL)
 					return 1;
 				else
@@ -649,7 +649,7 @@ int OBJ_create_objects(BIO * in)
 			return (num);
 		num++;
 	}
-	/* return(num); */
+	/* return (num); */
 }
 
 int OBJ_create(const char * oid, const char * sn, const char * ln)

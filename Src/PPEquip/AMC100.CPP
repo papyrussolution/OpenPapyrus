@@ -1,5 +1,5 @@
 // AMC100.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2011, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2011, 2013, 2015, 2016, 2019
 // @codepage windows-1251
 // Интерфейс (синхронный) с ККМ АМС-100Ф
 //
@@ -15,10 +15,9 @@ public:
 	SLAPI ~SCS_AMC100();
 	virtual int SLAPI PrintCheck(CCheckPacket *, uint flags);
 	virtual int SLAPI GetSummator(double * val);
-	virtual int SLAPI AddSummator(double add);
 	virtual int SLAPI EnableCashKeyb(int);
 private:
-	virtual int SLAPI InitChannel();
+	// @v10.3.9 virtual int SLAPI InitChannel();
 	int SLAPI PutLine(char * b, FILE *);
 	int SLAPI MakeHeader(char * fn, CCheckPacket *, uint flags);
 	int SLAPI MakeFooter(char * fn, CCheckPacket *, uint flags);
@@ -55,10 +54,7 @@ SLAPI SCS_AMC100::~SCS_AMC100()
 {
 }
 
-int SLAPI SCS_AMC100::InitChannel()
-{
-	return 1;
-}
+// @v10.3.9 int SLAPI SCS_AMC100::InitChannel() { return 1; }
 
 int SLAPI SCS_AMC100::PutLine(char * b, FILE * f)
 {
@@ -231,11 +227,6 @@ int SLAPI SCS_AMC100::GetSummator(double * val)
 	return 1;
 }
 
-int SLAPI SCS_AMC100::AddSummator(double)
-{
-	return 1;
-}
-
 int SLAPI SCS_AMC100::ExecKLD(int param, int forceRedraw)
 {
 	char   exc[MAXPATH], l[2];
@@ -269,10 +260,9 @@ public:
 	SLAPI ~SCS_AMC200();
 	virtual int SLAPI PrintCheck(CCheckPacket *, uint flags);
 	virtual int SLAPI GetSummator(double * val);
-	virtual int SLAPI AddSummator(double add);
 	virtual int SLAPI EnableCashKeyb(int);
 private:
-	virtual int SLAPI InitChannel();
+	// @v10.3.9 virtual int SLAPI InitChannel();
 	int SLAPI PutLine(char * b, FILE *);
 	int SLAPI MakeHeader(char * fn, CCheckPacket *, uint flags);
 	int SLAPI MakeFooter(char * fn, CCheckPacket *, uint flags);
@@ -308,10 +298,7 @@ SLAPI SCS_AMC200::~SCS_AMC200()
 {
 }
 
-int SLAPI SCS_AMC200::InitChannel()
-{
-	return 1;
-}
+// @v10.3.9 int SLAPI SCS_AMC200::InitChannel() { return 1; }
 
 int SLAPI SCS_AMC200::PutLine(char * b, FILE * f)
 {
@@ -462,11 +449,6 @@ int SLAPI SCS_AMC200::PrintCheck(CCheckPacket * pack, uint flags)
 int SLAPI SCS_AMC200::GetSummator(double * val)
 {
 	*val = -1;
-	return 1;
-}
-
-int SLAPI SCS_AMC200::AddSummator(double)
-{
 	return 1;
 }
 

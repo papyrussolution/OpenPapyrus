@@ -36,7 +36,7 @@ typedef unsigned char lu_byte; // chars used as small naturals (so that 'char' i
 ** this is for hashing only; there is no problem if the integer
 ** cannot hold the whole pointer value
 */
-#define point2uint(p)   ((unsigned int)((size_t)(p) & UINT_MAX))
+#define point2uint(p)   ((uint)((size_t)(p) & UINT_MAX))
 //
 // type to ensure maximum alignment 
 //

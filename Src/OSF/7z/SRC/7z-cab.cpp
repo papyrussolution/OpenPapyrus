@@ -659,7 +659,7 @@ namespace NArchive {
 			Close();
 			CInArchive archive;
 			CMyComPtr<IArchiveOpenVolumeCallback> openVolumeCallback;
-			callback->QueryInterface(IID_IArchiveOpenVolumeCallback, (void**)&openVolumeCallback);
+			callback->QueryInterface(IID_IArchiveOpenVolumeCallback, (void **)&openVolumeCallback);
 			CMyComPtr<IInStream> nextStream = inStream;
 			bool prevChecked = false;
 			UString startVolName;

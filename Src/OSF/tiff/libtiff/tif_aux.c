@@ -75,13 +75,12 @@ static int TIFFDefaultTransferFunction(TIFFDirectory* td)
 {
 	uint16 ** tf = td->td_transferfunction;
 	tmsize_t i, n, nbytes;
-
 	tf[0] = tf[1] = tf[2] = 0;
 	if(td->td_bitspersample >= sizeof(tmsize_t) * 8 - 2)
 		return 0;
 	n = ((tmsize_t)1)<<td->td_bitspersample;
 	nbytes = n * sizeof(uint16);
-	tf[0] = (uint16 *)SAlloc::M(nbytes);
+	tf[0] = static_cast<uint16 *>(SAlloc::M(nbytes));
 	if(tf[0] == NULL)
 		return 0;
 	tf[0][0] = 0;
@@ -90,11 +89,11 @@ static int TIFFDefaultTransferFunction(TIFFDirectory* td)
 		tf[0][i] = (uint16)floor(65535.*pow(t, 2.2) + .5);
 	}
 	if(td->td_samplesperpixel - td->td_extrasamples > 1) {
-		tf[1] = (uint16 *)SAlloc::M(nbytes);
+		tf[1] = static_cast<uint16 *>(SAlloc::M(nbytes));
 		if(tf[1] == NULL)
 			goto bad;
 		memcpy(tf[1], tf[0], nbytes);
-		tf[2] = (uint16 *)SAlloc::M(nbytes);
+		tf[2] = static_cast<uint16 *>(SAlloc::M(nbytes));
 		if(tf[2] == NULL)
 			goto bad;
 		memcpy(tf[2], tf[0], nbytes);
@@ -120,8 +119,7 @@ static int TIFFDefaultRefBlackWhite(TIFFDirectory* td)
 		 * tag set. Fix the broken images, which lacks that tag.
 		 */
 		td->td_refblackwhite[0] = 0.0F;
-		td->td_refblackwhite[1] = td->td_refblackwhite[3] =
-		    td->td_refblackwhite[5] = 255.0F;
+		td->td_refblackwhite[1] = td->td_refblackwhite[3] = td->td_refblackwhite[5] = 255.0F;
 		td->td_refblackwhite[2] = td->td_refblackwhite[4] = 128.0F;
 	}
 	else {
@@ -130,8 +128,7 @@ static int TIFFDefaultRefBlackWhite(TIFFDirectory* td)
 		 */
 		for(i = 0; i < 3; i++) {
 			td->td_refblackwhite[2*i+0] = 0;
-			td->td_refblackwhite[2*i+1] =
-			    (float)((1L<<td->td_bitspersample)-1L);
+			td->td_refblackwhite[2*i+1] = static_cast<float>((1L<<td->td_bitspersample)-1L);
 		}
 	}
 	return 1;

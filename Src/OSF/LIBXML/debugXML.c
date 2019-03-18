@@ -106,7 +106,7 @@ static int xmlNsCheckScope(xmlNode * pNode, xmlNs * ns)
 		if(oldNs == ns)
 			return 1;
 	}
-	return(-3);
+	return (-3);
 }
 
 static void xmlCtxtDumpSpaces(xmlDebugCtxt * ctxt)
@@ -273,7 +273,7 @@ static void xmlCtxtGenericNodeCheck(xmlDebugCtxt * ctxt, xmlNode * P_Node)
 	}
 	if(!oneof7(P_Node->type, XML_ELEMENT_NODE, XML_ATTRIBUTE_NODE, XML_ELEMENT_DECL, XML_ATTRIBUTE_DECL, XML_DTD_NODE, XML_HTML_DOCUMENT_NODE, XML_DOCUMENT_NODE)) {
 		if(P_Node->content)
-			xmlCtxtCheckString(ctxt, (const xmlChar*)P_Node->content);
+			xmlCtxtCheckString(ctxt, (const xmlChar *)P_Node->content);
 	}
 	switch(P_Node->type) {
 		case XML_ELEMENT_NODE:
@@ -284,7 +284,7 @@ static void xmlCtxtGenericNodeCheck(xmlDebugCtxt * ctxt, xmlNode * P_Node)
 		    if((P_Node->name == xmlStringText) || (P_Node->name == xmlStringTextNoenc))
 			    break;
 		    // some case of entity substitution can lead to this 
-		    if(ctxt->dict && (P_Node->name == xmlDictLookup(ctxt->dict, BAD_CAST "nbktext", 7)))
+		    if(ctxt->dict && (P_Node->name == xmlDictLookup(ctxt->dict, reinterpret_cast<const xmlChar *>("nbktext"), 7)))
 			    break;
 		    xmlDebugErr3(ctxt, XML_CHECK_WRONG_NAME, "Text node has wrong name '%s'", (const char *)P_Node->name);
 		    break;
@@ -709,7 +709,7 @@ static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNode * P_Node)
 			case XML_TEXT_NODE:
 				if(!ctxt->check) {
 					xmlCtxtDumpSpaces(ctxt);
-					if(P_Node->name == (const xmlChar*)xmlStringTextNoenc)
+					if(P_Node->name == (const xmlChar *)xmlStringTextNoenc)
 						temp_buf = "TEXT no enc";
 					else
 						temp_buf = "TEXT";
@@ -1019,7 +1019,7 @@ static void xmlCtxtDumpEntities(xmlDebugCtxt * ctxt, xmlDoc * doc)
 	if(doc) {
 		xmlCtxtDumpDocHead(ctxt, doc);
 		if(doc->intSubset && doc->intSubset->entities) {
-			xmlEntitiesTablePtr table = (xmlEntitiesTablePtr)doc->intSubset->entities;
+			xmlEntitiesTablePtr table = (xmlEntitiesTable *)doc->intSubset->entities;
 			if(!ctxt->check)
 				fprintf(ctxt->output, "Entities in internal subset\n");
 			xmlHashScan(table, (xmlHashScanner)xmlCtxtDumpEntityCallback, ctxt);
@@ -1027,7 +1027,7 @@ static void xmlCtxtDumpEntities(xmlDebugCtxt * ctxt, xmlDoc * doc)
 		else
 			fprintf(ctxt->output, "No entities in internal subset\n");
 		if(doc->extSubset && doc->extSubset->entities) {
-			xmlEntitiesTablePtr table = (xmlEntitiesTablePtr)doc->extSubset->entities;
+			xmlEntitiesTablePtr table = (xmlEntitiesTable *)doc->extSubset->entities;
 			if(!ctxt->check)
 				fprintf(ctxt->output, "Entities in external subset\n");
 			xmlHashScan(table, (xmlHashScanner)xmlCtxtDumpEntityCallback, ctxt);
@@ -1618,16 +1618,16 @@ int xmlShellList(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNode * P_
  *
  * Returns 0
  */
-int xmlShellBase(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNode * P_Node, xmlNode * node2 ATTRIBUTE_UNUSED)
+int xmlShellBase(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNode * pNode, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
 	xmlChar * base;
 	if(!ctxt)
 		return 0;
-	if(!P_Node) {
+	if(!pNode) {
 		fprintf(ctxt->output, "NULL\n");
 		return 0;
 	}
-	base = xmlNodeGetBase(P_Node->doc, P_Node);
+	base = xmlNodeGetBase(pNode->doc, pNode);
 	if(base == NULL) {
 		fprintf(ctxt->output, " No base found !!!\n");
 	}
@@ -1729,7 +1729,7 @@ static int xmlShellRegisterRootNamespaces(xmlShellCtxtPtr ctxt, char * arg ATTRI
 	ns = root->nsDef;
 	while(ns != NULL) {
 		if(ns->prefix == NULL)
-			xmlXPathRegisterNs(ctxt->pctxt, BAD_CAST "defaultns", ns->href);
+			xmlXPathRegisterNs(ctxt->pctxt, reinterpret_cast<const xmlChar *>("defaultns"), ns->href);
 		else
 			xmlXPathRegisterNs(ctxt->pctxt, ns->prefix, ns->href);
 		ns = ns->next;
@@ -2267,12 +2267,12 @@ int xmlShellDu(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNode * tree
  *
  * Returns 0 or -1 in case of error
  */
-int xmlShellPwd(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * buffer, xmlNode * P_Node, xmlNode * node2 ATTRIBUTE_UNUSED)
+int xmlShellPwd(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * buffer, xmlNode * pNode, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
 	xmlChar * path;
-	if(!P_Node || (buffer == NULL))
+	if(!pNode || (buffer == NULL))
 		return -1;
-	path = xmlGetNodePath(P_Node);
+	path = xmlGetNodePath(pNode);
 	if(path == NULL)
 		return -1;
 	/*

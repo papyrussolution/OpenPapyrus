@@ -39,7 +39,7 @@
 			while(delta++)
 				rc = InterlockedDecrement(cnt);
 		assert(rc >= 0);
-		return(rc);
+		return (rc);
 	}
 #elif defined(TARGET_OS_MAC)
 	#include <libkern/OSAtomic.h>
@@ -48,7 +48,7 @@
 	{
 		int rc = OSAtomicAdd32Barrier(delta, cnt);
 		assert(rc >= 0);
-		return(rc);
+		return (rc);
 	}
 #elif defined(HAVE_LIBPTHREAD)
 	#include <pthread.h>
@@ -60,7 +60,7 @@
 		int rc = (*cnt += delta);
 		pthread_mutex_unlock(&_zbar_reflock);
 		assert(rc >= 0);
-		return(rc);
+		return (rc);
 	}
 #else
 	typedef int refcnt_t;
@@ -68,7 +68,7 @@
 	{
 		int rc = (*cnt += delta);
 		assert(rc >= 0);
-		return(rc);
+		return (rc);
 	}
 #endif
 
@@ -314,12 +314,12 @@ void cdecl dbprintf(int level, const char * pFormat, ...);
 	#define zassert__(condition, retval, format, ...) do {                   \
         if(!(condition)) {                                              \
             fprintf(stderr, "WARNING: %s:%d: %s: Assertion \"%s\" failed.\n\t" format, __FILE__, __LINE__, __func__, #condition , ##__VA_ARGS__);                                     \
-            return(retval);                                             \
+            return (retval);                                             \
         }                                                               \
     } while(0)
 	*/
 #else
-	// #define zassert__(condition, retval, format, ...) do { if(!(condition)) return(retval); } while(0)
+	// #define zassert__(condition, retval, format, ...) do { if(!(condition)) return (retval); } while(0)
 #endif
 
 enum errsev_t {
@@ -463,9 +463,9 @@ static inline int _zbar_mutex_init(zbar_mutex_t * lock)
 	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
 	int rc = pthread_mutex_init(lock, &attr);
 	pthread_mutexattr_destroy(&attr);
-	return(rc);
+	return (rc);
 #else
-	return(pthread_mutex_init(lock, NULL));
+	return (pthread_mutex_init(lock, NULL));
 #endif
 }
 
@@ -482,7 +482,7 @@ static inline int _zbar_mutex_lock(zbar_mutex_t * lock)
 #endif
 	/* FIXME save system code */
 	/*rc = err_capture(proc, SEV_ERROR, ZBAR_ERR_LOCKING, __func__, "unable to lock processor");*/
-	return(rc);
+	return (rc);
 }
 
 static inline int _zbar_mutex_unlock(zbar_mutex_t * lock)
@@ -492,7 +492,7 @@ static inline int _zbar_mutex_unlock(zbar_mutex_t * lock)
 	assert(!rc);
 #endif
 	/* FIXME save system code */
-	return(rc);
+	return (rc);
 }
 
 #else
@@ -583,7 +583,7 @@ static inline ulong zbar_fourcc_parse(const char * format)
 		for(int i = 0; i < 4 && format[i]; i++)
 			fourcc |= ((ulong)format[i]) << (i * 8);
 	}
-	return(fourcc);
+	return (fourcc);
 }
 
 /** @internal type unsafe error API (don't use) */
@@ -1215,7 +1215,7 @@ static inline int zbar_processor_parse_config(zbar_processor_t * processor, cons
 	zbar_symbol_type_t sym;
 	zbar_config_t cfg;
 	int val;
-	return(zbar_parse_config(config_string, &sym, &cfg, &val) || zbar_processor_set_config(processor, sym, cfg, val));
+	return (zbar_parse_config(config_string, &sym, &cfg, &val) || zbar_processor_set_config(processor, sym, cfg, val));
 }
 
 /** retrieve the current state of the ouput window.
@@ -1274,19 +1274,19 @@ extern int zbar_process_image(zbar_processor_t * processor, zbar_image_t * image
  */
 static inline int zbar_processor_error_spew(const zbar_processor_t * processor, int verbosity)
 {
-	return(_zbar_error_spew(processor, verbosity));
+	return (_zbar_error_spew(processor, verbosity));
 }
 
 /** retrieve the detail string for the last processor error. */
 static inline const char* zbar_processor_error_string(const zbar_processor_t * processor, int verbosity)
 {
-	return(_zbar_error_string(processor, verbosity));
+	return (_zbar_error_string(processor, verbosity));
 }
 
 /** retrieve the type code for the last processor error. */
 static inline zbar_error_t zbar_processor_get_error_code(const zbar_processor_t * processor)
 {
-	return(_zbar_get_error_code(processor));
+	return (_zbar_get_error_code(processor));
 }
 
 /*@}*/
@@ -1392,20 +1392,20 @@ extern zbar_image_t * zbar_video_next_image(zbar_video_t * video);
 static inline int zbar_video_error_spew(const zbar_video_t * video,
     int verbosity)
 {
-	return(_zbar_error_spew(video, verbosity));
+	return (_zbar_error_spew(video, verbosity));
 }
 
 /** retrieve the detail string for the last video error. */
 static inline const char * zbar_video_error_string(const zbar_video_t * video,
     int verbosity)
 {
-	return(_zbar_error_string(video, verbosity));
+	return (_zbar_error_string(video, verbosity));
 }
 
 /** retrieve the type code for the last video error. */
 static inline zbar_error_t zbar_video_get_error_code(const zbar_video_t * video)
 {
-	return(_zbar_get_error_code(video));
+	return (_zbar_get_error_code(video));
 }
 
 /*@}*/
@@ -1473,20 +1473,20 @@ extern int zbar_window_resize(zbar_window_t * window, uint width, uint height);
  */
 static inline int zbar_window_error_spew(const zbar_window_t * window, int verbosity)
 {
-	return(_zbar_error_spew(window, verbosity));
+	return (_zbar_error_spew(window, verbosity));
 }
 
 /** retrieve the detail string for the last window error. */
 static inline const char* zbar_window_error_string(const zbar_window_t * window,
     int verbosity)
 {
-	return(_zbar_error_string(window, verbosity));
+	return (_zbar_error_string(window, verbosity));
 }
 
 /** retrieve the type code for the last window error. */
 static inline zbar_error_t zbar_window_get_error_code(const zbar_window_t * window)
 {
-	return(_zbar_get_error_code(window));
+	return (_zbar_get_error_code(window));
 }
 
 /** select a compatible format between video input and output window.
@@ -1553,7 +1553,7 @@ static inline int zbar_image_scanner_parse_config(zbar_image_scanner_t * scanner
 	zbar_symbol_type_t sym;
 	zbar_config_t cfg;
 	int val;
-	return(zbar_parse_config(config_string, &sym, &cfg, &val) ||
+	return (zbar_parse_config(config_string, &sym, &cfg, &val) ||
 	    zbar_image_scanner_set_config(scanner, sym, cfg, val));
 }
 
@@ -1970,7 +1970,7 @@ static inline int zbar_decoder_parse_config(zbar_decoder_t * decoder,
 	zbar_symbol_type_t sym;
 	zbar_config_t cfg;
 	int val;
-	return(zbar_parse_config(config_string, &sym, &cfg, &val) ||
+	return (zbar_parse_config(config_string, &sym, &cfg, &val) ||
 	    zbar_decoder_set_config(decoder, sym, cfg, val));
 }
 
@@ -2114,7 +2114,7 @@ extern zbar_symbol_type_t zbar_scan_y(zbar_scanner_t * scanner, int y);
 /** process next sample from RGB (or BGR) triple. */
 static inline zbar_symbol_type_t zbar_scan_rgb24(zbar_scanner_t * scanner, uchar * rgb)
 {
-	return(zbar_scan_y(scanner, rgb[0] + rgb[1] + rgb[2]));
+	return (zbar_scan_y(scanner, rgb[0] + rgb[1] + rgb[2]));
 }
 
 /** retrieve last scanned width. */

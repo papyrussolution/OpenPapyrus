@@ -961,7 +961,7 @@ static int SLAPI ConvertInBill(ILBillPacket * pPack, ObjTransmContext * pCtx)
 					PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf.Printf(fmt_buf, id_buf.Cat(loc_id).cptr()), LOGMSGF_TIME|LOGMSGF_USER);
 				}
 				//
-				for(uint p = 0; pPack->Lots.enumItems(&p, (void**)&p_ilti);) {
+				for(uint p = 0; pPack->Lots.enumItems(&p, (void **)&p_ilti);) {
 					p_ilti->Quantity = fabs(p_ilti->Quantity);
 					p_ilti->Rest     = fabs(p_ilti->Rest);
 					p_ilti->Flags   |= (PPTFR_RECEIPT|PPTFR_FORCESUPPL);
@@ -1617,7 +1617,7 @@ int SLAPI PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & 
 				THROW(ppobj->Read(&pack, oi_f.Id, (FILE *)p_fpi->F, &Ctx));
 				SETFLAG(pack.Flags, PPObjPack::fDispatcher, DestDbDivPack.Rec.Flags & DBDIVF_DISPATCH);
 				THROW(ppobj->ProcessObjRefs(&pack, &temp, 0, &Ctx));
-				for(uint i = 0; temp.enumItems(&i, (void**)&p_entry);) {
+				for(uint i = 0; temp.enumItems(&i, (void **)&p_entry);) {
 					if(p_entry->Obj && p_entry->Id && *p_entry != dont_process_pair /*&& !temp.Is_NotPreprocess_Pos(i-1)*/) { // @v8.0.9 && !temp.Is_NotPreprocess_Pos(i-1)
 						if(!temp.Is_NotPreprocess_Pos(i-1) && P_Queue->SearchObject_(p_entry->Obj, p_entry->Id, rItem.DBID, &idx_rec) > 0) {
 							RestoreObjItem inner_item;
@@ -2129,7 +2129,7 @@ int SLAPI PPObjectTransmit::MakeTransmitFileName(SString & rFileName, S_GUID * p
 }
 
 // static
-int SLAPI PPObjectTransmit::TransmitModificationsByDBDivList(ObjTransmitParam * pParam)
+int SLAPI PPObjectTransmit::TransmitModificationsByDBDivList(const ObjTransmitParam * pParam)
 {
 	MemLeakTracer mlt;
 	int    ok = 1;
@@ -2964,7 +2964,7 @@ int FASTCALL ObjTransmDialogExt(uint dlgID, int viewId, ObjTransmitParam * pPara
 int SLAPI PPObjectTransmit::StartReceivingPacket(const char * pFileName, const void * pHdr)
 {
 	int    ok = 1;
-	const  PPObjectTransmit::Header * p_hdr = (PPObjectTransmit::Header *)pHdr;
+	const  PPObjectTransmit::Header * p_hdr = static_cast<const PPObjectTransmit::Header *>(pHdr);
 	SString buf, msg_buf, temp_buf;
 	PPLoadText(PPTXT_STARTRCVPACKET, buf);
 	RecoverTransmission = 0;
@@ -3130,7 +3130,7 @@ int SLAPI PPObjectTransmit::ReceivePackets(const ObjReceiveParam * pParam)
 			}
 		} while(next_pass);
 		if(param.Flags & ObjReceiveParam::fClearInpAfter) {
-			for(uint i = 0; flist.enumItems(&i, (void**)&p_fname);)
+			for(uint i = 0; flist.enumItems(&i, (void **)&p_fname);)
 				SFile::Remove(p_fname);
 		}
 		if(param.Flags & ObjReceiveParam::fCommitQueue) {

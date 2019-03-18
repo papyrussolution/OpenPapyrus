@@ -93,7 +93,7 @@ int MailSession::doConnect(u_long ip, int port)
 	remote.sin_family = AF_INET;
 	remote.sin_port   = htons(port);
 	remote.sin_addr.s_addr = ip;
-	if(connect(clisock, (struct sockaddr*)&remote, sizeof(remote)) == SOCKET_ERROR) {
+	if(connect(clisock, (struct sockaddr *)&remote, sizeof(remote)) == SOCKET_ERROR) {
 		int    len;
 		fd_set rset, wset;
 		struct timeval tval;

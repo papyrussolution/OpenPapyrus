@@ -737,7 +737,7 @@ int SLAPI GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotR
 			   }
 			}
 		}
-		for(i = 0, merge = -1; merge == -1 && enumItems(&i, (void**)&p_val);) {
+		for(i = 0, merge = -1; merge == -1 && enumItems(&i, (void **)&p_val);) {
 			if(CanMerge(p_val, &add))
 				merge = i-1;
 		}
@@ -823,7 +823,7 @@ void SLAPI GoodsRestParam::DivRestPrices()
 		Total.Cost  *= Total.Rest;
 		Total.Price *= Total.Rest;
 		GoodsRestVal * p_val;
-		for(uint i = 0; enumItems(&i, (void**)&p_val);) {
+		for(uint i = 0; enumItems(&i, (void **)&p_val);) {
 			p_val->Cost  *= p_val->Rest;
 			p_val->Price *= p_val->Rest;
 		}

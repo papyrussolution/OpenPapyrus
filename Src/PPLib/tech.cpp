@@ -723,7 +723,8 @@ IMPL_HANDLE_EVENT(TechDialog)
 		if(Data.Rec.GoodsID) {
 			PPObjGoods goods_obj;
 			if(goods_obj.EditGoodsStruc(Data.Rec.GoodsID) > 0)
-				SetupPPObjCombo(this, CTLSEL_TECH_GSTRUC, PPOBJ_GOODSSTRUC, Data.Rec.GStrucID, OLW_SETUPSINGLE, (void *)Data.Rec.GoodsID);
+				SetupPPObjCombo(this, CTLSEL_TECH_GSTRUC, PPOBJ_GOODSSTRUC, Data.Rec.GStrucID, OLW_SETUPSINGLE, 
+					reinterpret_cast<void *>(Data.Rec.GoodsID));
 		}
 	}
 	else if(event.isCbSelected(CTLSEL_TECH_GOODS)) {
@@ -732,7 +733,7 @@ IMPL_HANDLE_EVENT(TechDialog)
 		if(Data.Rec.GoodsID != prev_goods_id) {
 			Data.Rec.GStrucID = 0;
 			SetupPPObjCombo(this, CTLSEL_TECH_GSTRUC, PPOBJ_GOODSSTRUC, Data.Rec.GStrucID,
-				OLW_SETUPSINGLE, (void *)(Data.Rec.GoodsID ? Data.Rec.GoodsID : -1));
+				OLW_SETUPSINGLE, reinterpret_cast<void *>(Data.Rec.GoodsID ? Data.Rec.GoodsID : -1));
 		}
 	}
 	else if(event.isCbSelected(CTLSEL_TECH_PRC))
@@ -792,7 +793,7 @@ int TechDialog::setDTS(const PPTechPacket * pData)
 	}
 	PrcCtrlGroup::Rec prc_grp_rec(Data.Rec.PrcID);
 	setGroupData(GRP_PRC, &prc_grp_rec);
-	SetupPPObjCombo(this, CTLSEL_TECH_GSTRUC, PPOBJ_GOODSSTRUC, Data.Rec.GStrucID, OLW_CANINSERT, (void *)NZOR(Data.Rec.GoodsID, -1));
+	SetupPPObjCombo(this, CTLSEL_TECH_GSTRUC, PPOBJ_GOODSSTRUC, Data.Rec.GStrucID, OLW_CANINSERT, reinterpret_cast<void *>NZOR(Data.Rec.GoodsID, -1));
 	SetupPPObjCombo(this, CTLSEL_TECH_PARENT, PPOBJ_TECH, Data.Rec.ParentID, OLW_CANSELUPLEVEL);
 	setCtrlLong(CTL_TECH_ORDERN, Data.Rec.OrderN);
 	AddClusterAssoc(CTL_TECH_SIGN,  0, -1);

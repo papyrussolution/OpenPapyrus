@@ -117,7 +117,7 @@ static char * ngx_mail_pop3_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 
 	if(conf->capabilities.nelts == 0) {
 		for(d = ngx_mail_pop3_default_capabilities; d->len; d++) {
-			c = (ngx_str_t*)ngx_array_push(&conf->capabilities);
+			c = (ngx_str_t *)ngx_array_push(&conf->capabilities);
 			if(c == NULL) {
 				return NGX_CONF_ERROR;
 			}
@@ -127,10 +127,10 @@ static char * ngx_mail_pop3_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 	}
 	size = sizeof("+OK Capability list follows" CRLF) - 1 + sizeof("." CRLF) - 1;
 	stls_only_size = size + sizeof("STLS" CRLF) - 1;
-	c = (ngx_str_t*)conf->capabilities.elts;
+	c = (ngx_str_t *)conf->capabilities.elts;
 	for(i = 0; i < conf->capabilities.nelts; i++) {
 		size += c[i].len + sizeof(CRLF) - 1;
-		if(sstreqi_ascii(c[i].data, (u_char*)"USER")) {
+		if(sstreqi_ascii(c[i].data, (u_char *)"USER")) {
 			continue;
 		}
 		stls_only_size += c[i].len + sizeof(CRLF) - 1;
@@ -144,7 +144,7 @@ static char * ngx_mail_pop3_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 			size += 1 + ngx_mail_pop3_auth_methods_names[i].len;
 		}
 	}
-	p = (u_char*)ngx_pnalloc(cf->pool, size);
+	p = (u_char *)ngx_pnalloc(cf->pool, size);
 	if(!p) {
 		return NGX_CONF_ERROR;
 	}
@@ -182,7 +182,7 @@ static char * ngx_mail_pop3_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 
 	size += sizeof("STLS" CRLF) - 1;
 
-	p = (u_char*)ngx_pnalloc(cf->pool, size);
+	p = (u_char *)ngx_pnalloc(cf->pool, size);
 	if(!p) {
 		return NGX_CONF_ERROR;
 	}
@@ -212,7 +212,7 @@ static char * ngx_mail_pop3_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 		}
 	}
 
-	p = (u_char*)ngx_pnalloc(cf->pool, size);
+	p = (u_char *)ngx_pnalloc(cf->pool, size);
 	if(!p) {
 		return NGX_CONF_ERROR;
 	}
@@ -237,7 +237,7 @@ static char * ngx_mail_pop3_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 		}
 	}
 	*p++ = '.'; *p++ = __CR; *p = LF;
-	p = (u_char*)ngx_pnalloc(cf->pool, stls_only_size);
+	p = (u_char *)ngx_pnalloc(cf->pool, stls_only_size);
 	if(!p) {
 		return NGX_CONF_ERROR;
 	}
@@ -245,7 +245,7 @@ static char * ngx_mail_pop3_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 	conf->starttls_only_capability.data = p;
 	p = ngx_cpymem(p, "+OK Capability list follows" CRLF, sizeof("+OK Capability list follows" CRLF) - 1);
 	for(i = 0; i < conf->capabilities.nelts; i++) {
-		if(sstreqi_ascii(c[i].data, (u_char*)"USER")) {
+		if(sstreqi_ascii(c[i].data, (u_char *)"USER")) {
 			continue;
 		}
 		p = ngx_cpymem(p, c[i].data, c[i].len);

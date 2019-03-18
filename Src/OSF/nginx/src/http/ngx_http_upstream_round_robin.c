@@ -259,13 +259,13 @@ ngx_int_t ngx_http_upstream_create_round_robin_peer(ngx_http_request_t * r, ngx_
 		peerp = &peers->peer;
 		for(i = 0; i < ur->naddrs; i++) {
 			socklen = ur->addrs[i].socklen;
-			sockaddr = (struct sockaddr*)ngx_palloc(r->pool, socklen);
+			sockaddr = (struct sockaddr *)ngx_palloc(r->pool, socklen);
 			if(sockaddr == NULL) {
 				return NGX_ERROR;
 			}
 			memcpy(sockaddr, ur->addrs[i].sockaddr, socklen);
 			ngx_inet_set_port(sockaddr, ur->port);
-			p = (u_char*)ngx_pnalloc(r->pool, NGX_SOCKADDR_STRLEN);
+			p = (u_char *)ngx_pnalloc(r->pool, NGX_SOCKADDR_STRLEN);
 			if(!p) {
 				return NGX_ERROR;
 			}

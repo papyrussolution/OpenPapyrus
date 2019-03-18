@@ -262,7 +262,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 			zip->requested_compression = COMPRESSION_STORE;
 			ret = ARCHIVE_OK;
 		}
-		return (ret);
+		return ret;
 	}
 	else if(strcmp(key, "compression-level") == 0) {
 		if(val == NULL || !(val[0] >= '0' && val[0] <= '9') || val[1] != '\0') {
@@ -331,7 +331,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 			    "%s: unknown encryption '%s'",
 			    a->format_name, val);
 		}
-		return (ret);
+		return ret;
 	}
 	else if(strcmp(key, "experimental") == 0) {
 		if(val == NULL || val[0] == 0) {
@@ -340,7 +340,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 		else {
 			zip->flags |= ZIP_FLAG_EXPERIMENT_xl;
 		}
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 	else if(strcmp(key, "fakecrc32") == 0) {
 		/*
@@ -353,7 +353,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 		else {
 			zip->crc32func = fake_crc32;
 		}
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 	else if(strcmp(key, "hdrcharset")  == 0) {
 		/*
@@ -372,7 +372,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 			else
 				ret = ARCHIVE_FATAL;
 		}
-		return (ret);
+		return ret;
 	}
 	else if(strcmp(key, "zip64") == 0) {
 		/*
@@ -389,7 +389,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 			zip->flags &= ~ZIP_FLAG_FORCE_ZIP64;
 			zip->flags |= ZIP_FLAG_AVOID_ZIP64;
 		}
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 
 	/* Note: The "warn" return is just to inform the options
@@ -417,7 +417,7 @@ int archive_write_zip_set_compression_deflate(struct archive * _a)
 		ret = ARCHIVE_FAILED;
 #endif
 	}
-	return (ret);
+	return ret;
 }
 
 int archive_write_zip_set_compression_store(struct archive * _a)
@@ -434,7 +434,7 @@ int archive_write_zip_set_compression_store(struct archive * _a)
 		zip->requested_compression = COMPRESSION_STORE;
 		ret = ARCHIVE_OK;
 	}
-	return (ret);
+	return ret;
 }
 
 int archive_write_set_format_zip(struct archive * _a)
@@ -453,7 +453,7 @@ int archive_write_set_format_zip(struct archive * _a)
 	if(zip == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate zip data");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	/* "Unspecified" lets us choose the appropriate compression. */
@@ -469,7 +469,7 @@ int archive_write_set_format_zip(struct archive * _a)
 	if(zip->buf == NULL) {
 		SAlloc::F(zip);
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate compression buffer");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	a->format_data = zip;
 	a->format_name = "zip";
@@ -481,7 +481,7 @@ int archive_write_set_format_zip(struct archive * _a)
 	a->format_free = archive_write_zip_free;
 	a->archive.archive_format = ARCHIVE_FORMAT_ZIP;
 	a->archive.archive_format_name = "ZIP";
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int is_all_ascii(const char * p)
@@ -489,7 +489,7 @@ static int is_all_ascii(const char * p)
 	const uchar * pp = (const uchar*)p;
 	while(*pp) {
 		if(*pp++ > 127)
-			return (0);
+			return 0;
 	}
 	return (1);
 }
@@ -583,7 +583,7 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 	if(zip->entry == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate zip header data");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	if(sconv != NULL) {
@@ -592,7 +592,7 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 		if(archive_entry_pathname_l(entry, &p, &len, sconv) != 0) {
 			if(errno == ENOMEM) {
 				archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Pathname");
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 			    "Can't translate Pathname '%s' to %s", archive_entry_pathname(entry), archive_string_conversion_charset_name(sconv));
@@ -612,7 +612,7 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 					archive_set_error(&a->archive, ENOMEM,
 					    "Can't allocate memory "
 					    " for Symlink");
-					return (ARCHIVE_FATAL);
+					return ARCHIVE_FATAL;
 				}
 				/* No error if we can't convert. */
 			}
@@ -935,24 +935,24 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 
 	ret = __archive_write_output(a, local_header, 30);
 	if(ret != ARCHIVE_OK)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	zip->written_bytes += 30;
 
 	ret = write_path(zip->entry, a);
 	if(ret <= ARCHIVE_OK)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	zip->written_bytes += ret;
 
 	ret = __archive_write_output(a, local_extra, e - local_extra);
 	if(ret != ARCHIVE_OK)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	zip->written_bytes += e - local_extra;
 
 	/* For symlinks, write the body now. */
 	if(slink != NULL) {
 		ret = __archive_write_output(a, slink, slink_size);
 		if(ret != ARCHIVE_OK)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		zip->entry_compressed_written += slink_size;
 		zip->entry_uncompressed_written += slink_size;
 		zip->written_bytes += slink_size;
@@ -969,7 +969,7 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 		    Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY) != Z_OK) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't init deflate compressor");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 	}
 #endif
@@ -993,7 +993,7 @@ static ssize_t archive_write_zip_data(struct archive_write * a, const void * buf
 			    if(!zip->tctx_valid) {
 				    ret = init_traditional_pkware_encryption(a);
 				    if(ret != ARCHIVE_OK)
-					    return (ret);
+					    return ret;
 				    zip->tctx_valid = 1;
 			    }
 			    break;
@@ -1002,7 +1002,7 @@ static ssize_t archive_write_zip_data(struct archive_write * a, const void * buf
 			    if(!zip->cctx_valid) {
 				    ret = init_winzip_aes_encryption(a);
 				    if(ret != ARCHIVE_OK)
-					    return (ret);
+					    return ret;
 				    zip->cctx_valid = zip->hctx_valid = 1;
 			    }
 			    break;
@@ -1034,14 +1034,14 @@ static ssize_t archive_write_zip_data(struct archive_write * a, const void * buf
 						    archive_set_error(&a->archive,
 							ARCHIVE_ERRNO_MISC,
 							"Failed to encrypt file");
-						    return (ARCHIVE_FAILED);
+						    return ARCHIVE_FAILED;
 					    }
 					    archive_hmac_sha1_update(&zip->hctx,
 						zip->buf, l);
 				    }
 				    ret = __archive_write_output(a, zip->buf, l);
 				    if(ret != ARCHIVE_OK)
-					    return (ret);
+					    return ret;
 				    zip->entry_compressed_written += l;
 				    zip->written_bytes += l;
 				    rb += l;
@@ -1050,7 +1050,7 @@ static ssize_t archive_write_zip_data(struct archive_write * a, const void * buf
 		    else {
 			    ret = __archive_write_output(a, buff, s);
 			    if(ret != ARCHIVE_OK)
-				    return (ret);
+				    return ret;
 			    zip->written_bytes += s;
 			    zip->entry_compressed_written += s;
 		    }
@@ -1062,7 +1062,7 @@ static ssize_t archive_write_zip_data(struct archive_write * a, const void * buf
 		    do {
 			    ret = deflate(&zip->stream, Z_NO_FLUSH);
 			    if(ret == Z_STREAM_ERROR)
-				    return (ARCHIVE_FATAL);
+				    return ARCHIVE_FATAL;
 			    if(zip->stream.avail_out == 0) {
 				    if(zip->tctx_valid) {
 					    trad_enc_encrypt_update(&zip->tctx,
@@ -1079,7 +1079,7 @@ static ssize_t archive_write_zip_data(struct archive_write * a, const void * buf
 						    archive_set_error(&a->archive,
 							ARCHIVE_ERRNO_MISC,
 							"Failed to encrypt file");
-						    return (ARCHIVE_FAILED);
+						    return ARCHIVE_FAILED;
 					    }
 					    archive_hmac_sha1_update(&zip->hctx,
 						zip->buf, zip->len_buf);
@@ -1087,7 +1087,7 @@ static ssize_t archive_write_zip_data(struct archive_write * a, const void * buf
 				    ret = __archive_write_output(a, zip->buf,
 					    zip->len_buf);
 				    if(ret != ARCHIVE_OK)
-					    return (ret);
+					    return ret;
 				    zip->entry_compressed_written += zip->len_buf;
 				    zip->written_bytes += zip->len_buf;
 				    zip->stream.next_out = zip->buf;
@@ -1122,7 +1122,7 @@ static int archive_write_zip_finish_entry(struct archive_write * a)
 
 			ret = deflate(&zip->stream, Z_FINISH);
 			if(ret == Z_STREAM_ERROR)
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			remainder = zip->len_buf - zip->stream.avail_out;
 			if(zip->tctx_valid) {
 				trad_enc_encrypt_update(&zip->tctx,
@@ -1137,14 +1137,14 @@ static int archive_write_zip_finish_entry(struct archive_write * a)
 					archive_set_error(&a->archive,
 					    ARCHIVE_ERRNO_MISC,
 					    "Failed to encrypt file");
-					return (ARCHIVE_FAILED);
+					return ARCHIVE_FAILED;
 				}
 				archive_hmac_sha1_update(&zip->hctx,
 				    zip->buf, remainder);
 			}
 			ret = __archive_write_output(a, zip->buf, remainder);
 			if(ret != ARCHIVE_OK)
-				return (ret);
+				return ret;
 			zip->entry_compressed_written += remainder;
 			zip->written_bytes += remainder;
 			zip->stream.next_out = zip->buf;
@@ -1162,7 +1162,7 @@ static int archive_write_zip_finish_entry(struct archive_write * a)
 		archive_hmac_sha1_final(&zip->hctx, hmac, &hmac_len);
 		ret = __archive_write_output(a, hmac, AUTH_CODE_SIZE);
 		if(ret != ARCHIVE_OK)
-			return (ret);
+			return ret;
 		zip->entry_compressed_written += AUTH_CODE_SIZE;
 		zip->written_bytes += AUTH_CODE_SIZE;
 	}
@@ -1192,7 +1192,7 @@ static int archive_write_zip_finish_entry(struct archive_write * a)
 			zip->written_bytes += 16;
 		}
 		if(ret != ARCHIVE_OK)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 	}
 
 	/* Append Zip64 extra data to central directory information. */
@@ -1220,7 +1220,7 @@ static int archive_write_zip_finish_entry(struct archive_write * a)
 		if(zd == NULL) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't allocate zip data");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		memcpy(zd, zip64, z - zip64);
 		/* Zip64 means version needs to be set to at least 4.5 */
@@ -1245,7 +1245,7 @@ static int archive_write_zip_finish_entry(struct archive_write * a)
 	    (uint32_t)zipmin(zip->entry_offset,
 	    ZIP_4GB_MAX));
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_write_zip_close(struct archive_write * a)
@@ -1258,10 +1258,9 @@ static int archive_write_zip_close(struct archive_write * a)
 	offset_start = zip->written_bytes;
 	segment = zip->central_directory;
 	while(segment != NULL) {
-		ret = __archive_write_output(a,
-			segment->buff, segment->p - segment->buff);
+		ret = __archive_write_output(a, segment->buff, segment->p - segment->buff);
 		if(ret != ARCHIVE_OK)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		zip->written_bytes += segment->p - segment->buff;
 		segment = segment->next;
 	}
@@ -1282,7 +1281,7 @@ static int archive_write_zip_close(struct archive_write * a)
 		archive_le64enc(buff + 48, offset_start);
 		ret = __archive_write_output(a, buff, 56);
 		if(ret != ARCHIVE_OK)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		zip->written_bytes += 56;
 
 		/* Zip64 end-of-cd locator record. */
@@ -1293,7 +1292,7 @@ static int archive_write_zip_close(struct archive_write * a)
 		archive_le32enc(buff + 16, 1);
 		ret = __archive_write_output(a, buff, 20);
 		if(ret != ARCHIVE_OK)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		zip->written_bytes += 20;
 	}
 
@@ -1306,9 +1305,9 @@ static int archive_write_zip_close(struct archive_write * a)
 	archive_le32enc(buff + 16, (uint32_t)zipmin(ZIP_4GB_MAX, offset_start));
 	ret = __archive_write_output(a, buff, 22);
 	if(ret != ARCHIVE_OK)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	zip->written_bytes += 22;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_write_zip_free(struct archive_write * a)
@@ -1332,7 +1331,7 @@ static int archive_write_zip_free(struct archive_write * a)
 
 	SAlloc::F(zip);
 	a->format_data = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /* Convert into MSDOS-style date/time. */
@@ -1374,7 +1373,7 @@ static size_t path_length(struct archive_entry * entry)
 	path = archive_entry_pathname(entry);
 
 	if(path == NULL)
-		return (0);
+		return 0;
 	if(type == AE_IFDIR &&
 	    (path[0] == '\0' || path[strlen(path) - 1] != '/')) {
 		return strlen(path) + 1;
@@ -1396,18 +1395,18 @@ static int write_path(struct archive_entry * entry, struct archive_write * archi
 	written_bytes = 0;
 
 	if(path == NULL)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 
 	ret = __archive_write_output(archive, path, strlen(path));
 	if(ret != ARCHIVE_OK)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	written_bytes += strlen(path);
 
 	/* Folders are recognized by a trailing slash. */
 	if((type == AE_IFDIR) & (path[strlen(path) - 1] != '/')) {
 		ret = __archive_write_output(archive, "/", 1);
 		if(ret != ARCHIVE_OK)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		written_bytes += 1;
 	}
 
@@ -1497,7 +1496,7 @@ static int is_traditional_pkware_encryption_supported(void)
 {
 	uint8_t key[TRAD_HEADER_SIZE];
 	if(archive_random(key, sizeof(key)-1) != ARCHIVE_OK)
-		return (0);
+		return 0;
 	return (1);
 }
 
@@ -1529,10 +1528,10 @@ static int init_traditional_pkware_encryption(struct archive_write * a)
 	/* Write encrypted keys in the top of the file content. */
 	ret = __archive_write_output(a, key_encrypted, TRAD_HEADER_SIZE);
 	if(ret != ARCHIVE_OK)
-		return (ret);
+		return ret;
 	zip->written_bytes += TRAD_HEADER_SIZE;
 	zip->entry_compressed_written += TRAD_HEADER_SIZE;
-	return (ret);
+	return ret;
 }
 
 static int init_winzip_aes_encryption(struct archive_write * a)
@@ -1548,7 +1547,7 @@ static int init_winzip_aes_encryption(struct archive_write * a)
 	if(passphrase == NULL) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 		    "Encryption needs passphrase");
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 	if(zip->entry_encryption == ENCRYPTION_WINZIP_AES128) {
 		salt_len = 8;
@@ -1562,7 +1561,7 @@ static int init_winzip_aes_encryption(struct archive_write * a)
 	if(archive_random(salt, salt_len) != ARCHIVE_OK) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 		    "Can't generate random number for encryption");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	archive_pbkdf2_sha1(passphrase, strlen(passphrase),
 	    salt, salt_len, 1000, derived_key, key_len * 2 + 2);
@@ -1571,7 +1570,7 @@ static int init_winzip_aes_encryption(struct archive_write * a)
 	if(ret != 0) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 		    "Decryption is unsupported due to lack of crypto library");
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 	ret = archive_hmac_sha1_init(&zip->hctx, derived_key + key_len,
 		key_len);
@@ -1579,7 +1578,7 @@ static int init_winzip_aes_encryption(struct archive_write * a)
 		archive_encrypto_aes_ctr_release(&zip->cctx);
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 		    "Failed to initialize HMAC-SHA1");
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 
 	/* Set a password verification value after the 'salt'. */
@@ -1589,11 +1588,11 @@ static int init_winzip_aes_encryption(struct archive_write * a)
 	/* Write encrypted keys in the top of the file content. */
 	ret = __archive_write_output(a, salt, salt_len + 2);
 	if(ret != ARCHIVE_OK)
-		return (ret);
+		return ret;
 	zip->written_bytes += salt_len + 2;
 	zip->entry_compressed_written += salt_len + 2;
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int is_winzip_aes_encryption_supported(int encryption)
@@ -1615,20 +1614,20 @@ static int is_winzip_aes_encryption_supported(int encryption)
 		key_len = 32;
 	}
 	if(archive_random(salt, salt_len) != ARCHIVE_OK)
-		return (0);
+		return 0;
 	ret = archive_pbkdf2_sha1("p", 1, salt, salt_len, 1000,
 		derived_key, key_len * 2 + 2);
 	if(ret != 0)
-		return (0);
+		return 0;
 
 	ret = archive_encrypto_aes_ctr_init(&cctx, derived_key, key_len);
 	if(ret != 0)
-		return (0);
+		return 0;
 	ret = archive_hmac_sha1_init(&hctx, derived_key + key_len,
 		key_len);
 	archive_encrypto_aes_ctr_release(&cctx);
 	if(ret != 0)
-		return (0);
+		return 0;
 	archive_hmac_sha1_cleanup(&hctx);
 	return (1);
 }

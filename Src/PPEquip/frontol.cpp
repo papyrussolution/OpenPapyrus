@@ -407,7 +407,7 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 						f_str.Cat(info.Rec.ID).Semicol();   // #2 Card ID
 						f_str.Cat(info.Rec.Code).Semicol(); // #3 Code
 						f_str.Cat(info.Rec.Code).Semicol(); // #4 Текст для чека
-						const long len = (long)sstrlen(info.Rec.Code);
+						const long len = sstrleni(info.Rec.Code);
 						f_str.Cat(len).Semicol();           // #5 Начало диапазона длин сертификатов
 						f_str.Cat(len).Semicol();           // #6 Конец диапазона длин сертификатов
 						f_str.Cat(info.Rec.Code).Semicol(); // #7 Начало диапазона префиксов

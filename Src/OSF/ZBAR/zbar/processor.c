@@ -29,14 +29,14 @@
 static inline int proc_enter(zbar_processor_t * proc)
 {
 	_zbar_mutex_lock(&proc->mutex);
-	return(_zbar_processor_lock(proc));
+	return (_zbar_processor_lock(proc));
 }
 
 static inline int proc_leave(zbar_processor_t * proc)
 {
 	int rc = _zbar_processor_unlock(proc, 0);
 	_zbar_mutex_unlock(&proc->mutex);
-	return(rc);
+	return (rc);
 }
 
 static inline int proc_open(zbar_processor_t * proc)
@@ -47,7 +47,7 @@ static inline int proc_open(zbar_processor_t * proc)
 		width = zbar_video_get_width(proc->video);
 		height = zbar_video_get_height(proc->video);
 	}
-	return(_zbar_processor_open(proc, "zbar barcode reader", width, height));
+	return (_zbar_processor_open(proc, "zbar barcode reader", width, height));
 }
 
 /* API lock is already held */
@@ -127,7 +127,7 @@ int _zbar_process_image(zbar_processor_t * proc, zbar_image_t * img)
 	}
 	if(force_fmt && img)
 		zbar_image_destroy(img);
-	return(rc);
+	return (rc);
 error:
 	return err_capture(proc, SEV_ERROR, ZBAR_ERR_UNSUPPORTED, __func__, "unknown image format");
 }
@@ -165,7 +165,7 @@ int _zbar_processor_handle_input(zbar_processor_t * proc, int input)
 		event |= EVENT_OUTPUT;
 	_zbar_processor_notify(proc, event);
 	_zbar_mutex_unlock(&proc->mutex);
-	return(input);
+	return (input);
 }
 
 #ifdef ZTHREAD
@@ -367,7 +367,7 @@ int zbar_processor_init(zbar_processor_t * proc, const char * dev, int enable_di
 done:
 	_zbar_mutex_lock(&proc->mutex);
 	proc_leave(proc);
-	return(rc);
+	return (rc);
 }
 
 zbar_image_data_handler_t* zbar_processor_set_data_handler(zbar_processor_t * proc, zbar_image_data_handler_t * handler, const void * userdata)
@@ -394,7 +394,7 @@ void * zbar_processor_get_userdata(const zbar_processor_t * proc)
 	_zbar_mutex_lock(&ncproc->mutex);
 	void * userdata = (void *)ncproc->userdata;
 	_zbar_mutex_unlock(&ncproc->mutex);
-	return(userdata);
+	return (userdata);
 }
 
 int zbar_processor_set_config(zbar_processor_t * proc, zbar_symbol_type_t sym, zbar_config_t cfg, int val)
@@ -402,7 +402,7 @@ int zbar_processor_set_config(zbar_processor_t * proc, zbar_symbol_type_t sym, z
 	proc_enter(proc);
 	int rc = zbar_image_scanner_set_config(proc->scanner, sym, cfg, val);
 	proc_leave(proc);
-	return(rc);
+	return (rc);
 }
 
 int zbar_processor_request_size(zbar_processor_t * proc, uint width, uint height)
@@ -444,7 +444,7 @@ int zbar_processor_is_visible(zbar_processor_t * proc)
 	proc_enter(proc);
 	int visible = proc->window && proc->visible;
 	proc_leave(proc);
-	return(visible);
+	return (visible);
 }
 
 int zbar_processor_set_visible(zbar_processor_t * proc, int visible)
@@ -464,7 +464,7 @@ int zbar_processor_set_visible(zbar_processor_t * proc, int visible)
 		rc = err_capture(proc, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "processor display window not initialized");
 	_zbar_mutex_lock(&proc->mutex);
 	proc_leave(proc);
-	return(rc);
+	return (rc);
 }
 
 const zbar_symbol_set_t* zbar_processor_get_results(const zbar_processor_t * proc)
@@ -475,7 +475,7 @@ const zbar_symbol_set_t* zbar_processor_get_results(const zbar_processor_t * pro
 	if(syms)
 		zbar_symbol_set_ref(syms, 1);
 	proc_leave(ncproc);
-	return(syms);
+	return (syms);
 }
 
 int zbar_processor_user_wait(zbar_processor_t * proc, int timeout)
@@ -493,7 +493,7 @@ int zbar_processor_user_wait(zbar_processor_t * proc, int timeout)
 		rc = proc->input;
 	_zbar_mutex_lock(&proc->mutex);
 	proc_leave(proc);
-	return(rc);
+	return (rc);
 }
 
 int zbar_processor_set_active(zbar_processor_t * proc, int active)
@@ -527,7 +527,7 @@ int zbar_processor_set_active(zbar_processor_t * proc, int active)
 
 done:
 	proc_leave(proc);
-	return(rc);
+	return (rc);
 }
 
 int zbar_process_one(zbar_processor_t * proc, int timeout)
@@ -552,7 +552,7 @@ int zbar_process_one(zbar_processor_t * proc, int timeout)
 done:
 	_zbar_mutex_lock(&proc->mutex);
 	proc_leave(proc);
-	return(rc);
+	return (rc);
 }
 
 int zbar_process_image(zbar_processor_t * proc, zbar_image_t * img)
@@ -570,5 +570,5 @@ int zbar_process_image(zbar_processor_t * proc, zbar_image_t * img)
 	}
 	_zbar_mutex_lock(&proc->mutex);
 	proc_leave(proc);
-	return(rc);
+	return (rc);
 }

@@ -77,9 +77,9 @@ pcre32_maketables(void)
 	unsigned char * yield, * p;
 	int i;
 #ifndef DFTABLES
-	yield = (unsigned char*)(PUBL(malloc))(tables_length);
+	yield = (uchar *)(PUBL(malloc))(tables_length);
 #else
-	yield = (unsigned char*)malloc(tables_length);
+	yield = (uchar *)malloc(tables_length);
 #endif
 	if(yield == NULL) 
 		return NULL;

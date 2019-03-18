@@ -85,7 +85,7 @@ static inline int add_poll (zbar_processor_t *proc, int fd, poll_handler_t *hand
         state->thr_polling.fds = polling->fds;
         state->thr_polling.handlers = polling->handlers;
     }
-    return(i);
+    return (i);
 }
 
 static inline int remove_poll (zbar_processor_t *proc, int fd)
@@ -117,7 +117,7 @@ static inline int remove_poll (zbar_processor_t *proc, int fd)
         state->thr_polling.fds = polling->fds;
         state->thr_polling.handlers = polling->handlers;
     }
-    return(i);
+    return (i);
 }
 #endif
 

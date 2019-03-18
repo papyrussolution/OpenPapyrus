@@ -57,7 +57,7 @@ SLAPI TSessionViewItem::TSessionViewItem()
 
 TSessionViewItem & SLAPI TSessionViewItem::Init()
 {
-	memzero((TSessionTbl::Rec *)this, sizeof(TSessionTbl::Rec));
+	memzero(static_cast<TSessionTbl::Rec *>(this), sizeof(TSessionTbl::Rec));
 	CipItem.Clear();
 	WrOffBillID = 0;
 	return *this;
@@ -941,7 +941,7 @@ int SLAPI PPViewTSession::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 					PPInputStringDialogParam isd_param;
 					SString code;
 					if(pHdr)
-						code.CatChar(*(const char *)pHdr);
+						code.CatChar(*static_cast<const char *>(pHdr));
 					PPLoadText(PPTXT_ADDSESSBYPRC, isd_param.Title);
 					isd_param.Flags |= PPInputStringDialogParam::fDisableSelection;
 					if(InputStringDialog(&isd_param, code) > 0) {
@@ -1758,7 +1758,7 @@ int SLAPI PPViewTSessLine::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 	if(ok == -2) {
 		switch(ppvCmd) {
 			case PPVCMD_INPUTCHAR:
-				ok = (AddItemByCode((const char *)pHdr) > 0) ? 1 : -1;
+				ok = (AddItemByCode(static_cast<const char *>(pHdr)) > 0) ? 1 : -1;
 				break;
 			case PPVCMD_ADDITEM:
 				if(Filt.TSesList.GetSingle())

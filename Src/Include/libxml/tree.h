@@ -107,8 +107,8 @@ XMLPUBFUN size_t /*XMLCALL*/FASTCALL xmlBufShrink(xmlBuf * buf, size_t len);
  *
  * This is the namespace for the special xml: prefix predefined in the XML Namespace specification.
  */
-#define XML_XML_NAMESPACE (const xmlChar*)"http://www.w3.org/XML/1998/namespace"
-#define XML_XML_ID (const xmlChar*)"xml:id" // This is the name for the special xml:id attribute
+#define XML_XML_NAMESPACE (const xmlChar *)"http://www.w3.org/XML/1998/namespace"
+#define XML_XML_ID (const xmlChar *)"xml:id" // This is the name for the special xml:id attribute
 /*
  * The different element types carried by an XML tree.
  *
@@ -411,9 +411,9 @@ struct xmlNode {
 	xmlNode * prev; /* previous sibling link  */
 	xmlDoc  * doc;  /* the containing document */
 	// End of common part 
-	xmlNs   * ns;   /* pointer to the associated namespace */
-	xmlChar * content; /* the content */
-	xmlAttr * properties; /* properties list */
+	xmlNs   * ns;      // pointer to the associated namespace 
+	xmlChar * content; // the content 
+	xmlAttr * properties; // properties list 
 	xmlNs * nsDef; /* namespace definitions on this node */
 	void  * psvi; /* for type/PSVI informations */
 	ushort line;    /* line number */
@@ -578,7 +578,7 @@ XMLPUBFUN xmlDoc * XMLCALL xmlNewDoc(const xmlChar * version);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeDoc(xmlDoc * pDoc);
 XMLPUBFUN xmlAttr * /*XMLCALL*/FASTCALL xmlNewDocProp(xmlDoc * doc, const xmlChar * name, const xmlChar * value);
 #if defined(LIBXML_TREE_ENABLED) || defined(LIBXML_HTML_ENABLED) || defined(LIBXML_SCHEMAS_ENABLED)
-XMLPUBFUN xmlAttr * XMLCALL xmlNewProp(xmlNode * P_Node, const xmlChar * name, const xmlChar * value);
+	XMLPUBFUN xmlAttr * XMLCALL xmlNewProp(xmlNode * P_Node, const xmlChar * name, const xmlChar * value);
 #endif
 XMLPUBFUN xmlAttr * XMLCALL xmlNewNsProp(xmlNode * P_Node, xmlNs * ns, const xmlChar * name, const xmlChar * value);
 XMLPUBFUN xmlAttr * XMLCALL xmlNewNsPropEatName(xmlNode * P_Node, xmlNs * ns, xmlChar * name, const xmlChar * value);

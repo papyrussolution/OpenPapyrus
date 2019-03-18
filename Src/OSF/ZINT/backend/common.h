@@ -65,19 +65,19 @@ extern "C" {
     extern char FASTCALL itoc(const int source);
     extern void to_upper(uchar source[]);
     extern int  FASTCALL is_sane(const char test_string[], const uchar source[], const size_t length);
-    extern void lookup(const char set_string[], const char *table[], const char data, char dest[]);
-    extern int posn(const char set_string[], const char data);
+    extern void FASTCALL lookup(const char set_string[], const char *table[], const char data, char dest[]);
+    extern int  FASTCALL posn(const char set_string[], const char data);
     extern void FASTCALL expand(struct ZintSymbol *symbol, const char data[]);
-    extern int is_stackable(const int symbology);
-    extern int is_extendable(const int symbology);
-    extern int roundup(const float input);
-    extern int module_is_set(const struct ZintSymbol *symbol, const int y_coord, const int x_coord);
+    extern int  FASTCALL is_stackable(const int symbology);
+    extern int  FASTCALL is_extendable(const int symbology);
+    extern int  roundup(const float input);
+    extern int  module_is_set(const struct ZintSymbol *symbol, const int y_coord, const int x_coord);
     extern void FASTCALL set_module(struct ZintSymbol *symbol, const int y_coord, const int x_coord);
     extern void FASTCALL unset_module(struct ZintSymbol *symbol, const int y_coord, const int x_coord);
-    extern int istwodigits(const uchar source[], const int position);
+    extern int  istwodigits(const uchar source[], const int position);
     extern double froundup(const double input);
-    extern int parunmodd(const uchar llyth);
-    extern int utf8toutf16(struct ZintSymbol *symbol, const uchar source[], int vals[], int *length);
+    extern int  parunmodd(const uchar llyth);
+    extern int  utf8toutf16(struct ZintSymbol *symbol, const uchar source[], int vals[], int *length);
     extern void set_minimum_height(struct ZintSymbol *symbol, int min_height);
 	//
 	// Simple Reed-Solomon encoder

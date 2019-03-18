@@ -18,7 +18,7 @@ static ngx_int_t ngx_stream_script_add_full_name_code(ngx_stream_script_compile_
 static size_t ngx_stream_script_full_name_len_code(ngx_stream_script_engine_t * e);
 static void ngx_stream_script_full_name_code(ngx_stream_script_engine_t * e);
 
-#define ngx_stream_script_exit  (u_char*)&ngx_stream_script_exit_code
+#define ngx_stream_script_exit  (u_char *)&ngx_stream_script_exit_code
 
 static uintptr_t ngx_stream_script_exit_code = (uintptr_t)NULL;
 
@@ -146,7 +146,7 @@ ngx_int_t ngx_stream_compile_complex_value(ngx_stream_compile_complex_value_t * 
 
 const char * ngx_stream_set_complex_value_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
-	char  * p = (char *)conf;
+	char  * p = static_cast<char *>(conf);
 	ngx_str_t * value;
 	ngx_stream_compile_complex_value_t ccv;
 	ngx_stream_complex_value_t ** cv = (ngx_stream_complex_value_t**)(p + cmd->offset);
@@ -158,7 +158,7 @@ const char * ngx_stream_set_complex_value_slot(ngx_conf_t * cf, const ngx_comman
 		if(*cv == NULL) {
 			return NGX_CONF_ERROR;
 		}
-		value = (ngx_str_t*)cf->args->elts;
+		value = static_cast<ngx_str_t *>(cf->args->elts);
 		memzero(&ccv, sizeof(ngx_stream_compile_complex_value_t));
 		ccv.cf = cf;
 		ccv.value = &value[1];
@@ -345,7 +345,7 @@ static ngx_int_t ngx_stream_script_done(ngx_stream_script_compile_t * sc)
 	if(sc->zero) {
 		ngx_str_t zero;
 		zero.len = 1;
-		zero.data = (u_char*)"\0";
+		zero.data = (u_char *)"\0";
 		if(ngx_stream_script_add_copy_code(sc, &zero, 0) != NGX_OK) {
 			return NGX_ERROR;
 		}
@@ -380,7 +380,7 @@ void * ngx_stream_script_add_code(ngx_array_t * codes, size_t size, void * code)
 		if(code) {
 			if(elts != codes->elts) {
 				u_char ** p = (u_char **)code;
-				*p += (u_char*)codes->elts - elts;
+				*p += (u_char *)codes->elts - elts;
 			}
 		}
 	}
@@ -408,7 +408,7 @@ static ngx_int_t ngx_stream_script_add_copy_code(ngx_stream_script_compile_t * s
 	}
 	code->code = ngx_stream_script_copy_code;
 	code->len = len;
-	p = ngx_cpymem((u_char*)code + sizeof(ngx_stream_script_copy_code_t), value->data, value->len);
+	p = ngx_cpymem((u_char *)code + sizeof(ngx_stream_script_copy_code_t), value->data, value->len);
 	if(zero) {
 		*p = '\0';
 		sc->zero = 0;
@@ -593,7 +593,7 @@ static void ngx_stream_script_full_name_code(ngx_stream_script_engine_t * e)
 	ngx_stream_script_full_name_code_t  * code = (ngx_stream_script_full_name_code_t*)e->ip;
 	value.data = e->buf.data;
 	value.len = e->pos - e->buf.data;
-	prefix = code->conf_prefix ? (ngx_str_t*)&ngx_cycle->conf_prefix : (ngx_str_t*)&ngx_cycle->prefix;
+	prefix = code->conf_prefix ? (ngx_str_t *)&ngx_cycle->conf_prefix : (ngx_str_t *)&ngx_cycle->prefix;
 	if(ngx_get_full_name(e->session->connection->pool, prefix, &value) != NGX_OK) {
 		e->ip = ngx_stream_script_exit;
 		return;

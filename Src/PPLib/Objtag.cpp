@@ -2555,7 +2555,7 @@ int TagValListDialog::editItem(long pos, long id)
 	int    ok = -1;
 	const  ObjTagItem * p_item = Data.GetItemByPos(static_cast<uint>(pos));
    	if(p_item && p_item->TagID == id)
-		if(EditObjTagItem(Data.ObjType, Data.ObjID, (ObjTagItem *)p_item, P_AllowedTags) > 0)
+		if(EditObjTagItem(Data.ObjType, Data.ObjID, const_cast<ObjTagItem *>(p_item), P_AllowedTags) > 0) // @badcast
 			ok = 1;
 	return ok;
 }

@@ -559,22 +559,13 @@ PIXMAN_EXPORT void pixman_composite_glyphs(pixman_op_t op,
     const pixman_glyph_t * glyphs)
 {
 	pixman_image_t * mask;
-
 	if(!(mask = pixman_image_create_bits(mask_format, width, height, NULL, -1)))
 		return;
-
 	if(PIXMAN_FORMAT_A(mask_format) != 0 &&
 	    PIXMAN_FORMAT_RGB(mask_format) != 0) {
 		pixman_image_set_component_alpha(mask, TRUE);
 	}
-
 	add_glyphs(cache, mask, -mask_x, -mask_y, n_glyphs, glyphs);
-
-	pixman_image_composite32(op, src, mask, dest,
-	    src_x, src_y,
-	    0, 0,
-	    dest_x, dest_y,
-	    width, height);
-
+	pixman_image_composite32(op, src, mask, dest, src_x, src_y, 0, 0, dest_x, dest_y, width, height);
 	pixman_image_unref(mask);
 }

@@ -1693,11 +1693,11 @@ int SLAPI PPRights::AdjustCSessPeriod(DateRange & rPeriod, int checkOnly) const
 int SLAPI PPRights::IsOpRights() const { return BIN(P_OpList && P_OpList->getCount()); }
 int SLAPI PPRights::IsLocRights() const { return BIN(P_LocList && P_LocList->getCount()); }
 
-int SLAPI PPRights::MaskOpRightsByOps(PPIDArray * pOpList, PPIDArray * pResultOpList) const
+int SLAPI PPRights::MaskOpRightsByOps(const PPIDArray * pOpList, PPIDArray * pResultOpList) const
 {
 	if(IsOpRights()) {
 		ObjRestrictItem * p_item;
-		for(uint i = 0; P_OpList->enumItems(&i, (void**)&p_item);) {
+		for(uint i = 0; P_OpList->enumItems(&i, (void **)&p_item);) {
 			if(!pOpList || pOpList->lsearch(p_item->ObjID))
 				if(!pResultOpList->add(p_item->ObjID))
 					return 0;
@@ -1714,11 +1714,11 @@ int SLAPI PPRights::MaskOpRightsByOps(PPIDArray * pOpList, PPIDArray * pResultOp
 	return -1;
 }
 
-int SLAPI PPRights::MaskOpRightsByTypes(PPIDArray * pOpTypeList, PPIDArray * pResultOpList) const
+int SLAPI PPRights::MaskOpRightsByTypes(const PPIDArray * pOpTypeList, PPIDArray * pResultOpList) const
 {
 	if(IsOpRights()) {
 		ObjRestrictItem * p_item;
-		for(uint i = 0; P_OpList->enumItems(&i, (void**)&p_item);) {
+		for(uint i = 0; P_OpList->enumItems(&i, (void **)&p_item);) {
 			PPID op_type_id = GetOpType(p_item->ObjID);
 			if(pOpTypeList->lsearch(op_type_id))
 				if(!pResultOpList->add(p_item->ObjID))
@@ -1747,7 +1747,7 @@ int SLAPI PPRights::ExtentOpRights()
 		ObjRestrictArray temp_list;
 		ObjRestrictItem * p_item;
 		PPIDArray gen_op_list;
-		for(uint i = 0; P_OpList->enumItems(&i, (void**)&p_item);) {
+		for(uint i = 0; P_OpList->enumItems(&i, (void **)&p_item);) {
 			if(IsGenericOp(p_item->ObjID) > 0) {
 				gen_op_list.clear();
 				GetGenericOpList(p_item->ObjID, &gen_op_list);
@@ -2736,7 +2736,7 @@ int SLAPI UnxTextRefCore::InitEnum(PPID objType, int prop, long * pHandle)
 	BExtQuery * q = new BExtQuery(this, 0);
 	q->select(this->ObjType, this->ObjID, this->Prop, this->Lang, this->Size, 0);
 	if(prop)
-		q->where(this->ObjType == objType && this->Prop == (long)prop);
+		q->where(this->ObjType == objType && this->Prop == static_cast<long>(prop));
 	else
 		q->where(this->ObjType == objType);
 	UnxTextRefTbl::Key0 k0;

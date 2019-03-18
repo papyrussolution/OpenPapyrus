@@ -52,7 +52,7 @@
 //#include "cairo-list-inline.h"
 //#include "cairo-pattern-private.h"
 #include "cairo-pixman-private.h"
-#include "cairo-traps-private.h"
+//#include "cairo-traps-private.h"
 #include "cairo-tristrip-private.h"
 
 static cairo_int_status_t check_composite(const cairo_composite_rectangles_t * extents)
@@ -1390,7 +1390,7 @@ static cairo_status_t _emit_glyphs_chunk(cairo_xlib_display_t * display,
 	/* Reuse the input glyph array for output char generation */
 	char * char8 = (char *)glyphs;
 	unsigned short * char16 = (unsigned short*)glyphs;
-	uint * char32 = (uint*)glyphs;
+	uint * char32 = (uint *)glyphs;
 
 	int i;
 	int nelt; /* Element index */

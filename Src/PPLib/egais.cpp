@@ -2513,22 +2513,41 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 														n_pos.PutInner(SXml::nst("wa", "RealQuantity"), temp_buf.Z().Cat(real_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
 														// @v10.3.6 {
 														if(doc_type == PPEDIOP_EGAIS_WAYBILLACT_V3) {
-															uint mark_count = 0;
-															if(p_lti && p_link_bp->XcL.Get(lti_pos+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount()) {
-																SXml::WNode w_m(_doc, SXml::nst("wa", "MarkInfo"));
-																for(uint boxidx = 0; boxidx < ext_codes_set.GetCount(); boxidx++) {
-																	if(ext_codes_set.GetByIdx(boxidx, msentry) && !(msentry.Flags & PPLotExtCodeContainer::fBox)) {
-																		w_m.PutInner(SXml::nst("ce", "amc"), EncText(msentry.Num));
-																		mark_count++;
+															const int do_send_with_waybillact_accepted_marks = 0;
+															if(do_send_with_waybillact_accepted_marks) {
+																uint mark_count = 0;
+																if(p_lti && p_link_bp->XcL.Get(lti_pos+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount()) {
+																	SXml::WNode w_m(_doc, SXml::nst("wa", "MarkInfo"));
+																	for(uint boxidx = 0; boxidx < ext_codes_set.GetCount(); boxidx++) {
+																		if(ext_codes_set.GetByIdx(boxidx, msentry) && !(msentry.Flags & PPLotExtCodeContainer::fBox)) {
+																			w_m.PutInner(SXml::nst("ce", "amc"), EncText(msentry.Num));
+																			mark_count++;
+																		}
+																	}
+																	if(mark_count != static_cast<uint>(real_qtty)) {
+																		//PPTXT_EGAIS_NEQMARKINACTROW         "Количество марок в строке документа списания не соответствует принятому количеству товара: %s"
+																		(temp_buf = bill_text).CatDiv('-', 1).Cat(p_lti->RByBill).Space().
+																			Cat(mark_count).CatChar('/').Cat(fabs(p_lti->Quantity_), MKSFMTD(0, 3, NMBF_NOTRAILZ));
+																		LogTextWithAddendum(PPTXT_EGAIS_NEQMARKINACTROW, temp_buf);
 																	}
 																}
-																if(mark_count != static_cast<uint>(real_qtty)) {
-																	//PPTXT_EGAIS_NEQMARKINACTROW         "Количество марок в строке документа списания не соответствует принятому количеству товара: %s"
-																	(temp_buf = bill_text).CatDiv('-', 1).Cat(p_lti->RByBill).Space().
-																		Cat(mark_count).CatChar('/').Cat(fabs(p_lti->Quantity_), MKSFMTD(0, 3, NMBF_NOTRAILZ));
-																	LogTextWithAddendum(PPTXT_EGAIS_NEQMARKINACTROW, temp_buf);
+															}
+															// @v10.3.9 {
+															else if(p_lti) {
+																PPLotExtCodeContainer::MarkSet link_ext_codes_set;
+																p_link_bp->XcL.Get(lti_pos+1, 0, link_ext_codes_set);
+																if(p_bp->XcL.Get(bi+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount()) {
+																	SXml::WNode w_m(_doc, SXml::nst("wa", "MarkInfo"));
+																	for(uint boxidx = 0; boxidx < ext_codes_set.GetCount(); boxidx++) {
+																		if(ext_codes_set.GetByIdx(boxidx, msentry) && !(msentry.Flags & PPLotExtCodeContainer::fBox)) {
+																			if(!link_ext_codes_set.SearchCode(msentry.Num, 0)) {
+																				w_m.PutInner(SXml::nst("ce", "amc"), EncText(msentry.Num));
+																			}
+																		}
+																	}
 																}
 															}
+															// } @v10.3.9 
 														}
 														// } @v10.3.6
 													}
@@ -4153,6 +4172,14 @@ struct EgaisWayBillRowTags { // @flat
 	PPID    ManufID;
 };
 
+struct ExtCodeSetEntry {
+	ExtCodeSetEntry() : RByBill(0)
+	{
+	}
+	int    RByBill;
+	PPLotExtCodeContainer::MarkSet Set;
+};
+
 int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateRange * pPeriod, Packet * pPack, PrcssrAlcReport::RefCollection * pRefC)
 {
 	//
@@ -4190,6 +4217,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
     MEMSZERO(bhdr);
 	TSVector <EgaisWayBillRowTags> row_tags; // @v9.8.4 TSArray-->TSVector
 	const PPID manuf_tag_id = Cfg.LotManufTagList.getCount() ? Cfg.LotManufTagList.get(0) : 0;
+	TSCollection <ExtCodeSetEntry> ext_code_set_list;
 	if(pPack)
 		pPack->Flags |= Packet::fFaultObj; // @v9.2.8 Иницилизируем флаг. Когда убедимся, что документ OK, флаг снимим.
     for(xmlNode * p_n = pFirstNode; ok > 0 && p_n; p_n = p_n->next) {
@@ -4376,13 +4404,13 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 			else {
 				SString serial;
 				SString box_number;
-				PPLotExtCodeContainer::MarkSet ext_codes_set;
+				//PPLotExtCodeContainer::MarkSet ext_codes_set;
 				int    surrogate_line_ident = RowIdentDivider;
 				SString org_line_ident;
 				for(xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
 					PPTransferItem ti;
 					serial.Z();
-					ext_codes_set.Clear();
+					//ext_codes_set.Clear();
 					if(p_bp) {
 						THROW(ti.Init(&p_bp->Rec, 0, 0));
 					}
@@ -4392,6 +4420,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 						int    local_unpacket_tag = 0;
 						double _src_qtty = 0.0;
 						double _src_cost = 0.0;
+						ExtCodeSetEntry * p_ecs_entry = 0;
 						org_line_ident.Z();
 						for(xmlNode * p_pos = p_c->children; p_pos; p_pos = p_pos->next) {
 							if(SXml::GetContentByName(p_pos, "Identity", temp_buf)) {
@@ -4465,6 +4494,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 									if(SXml::GetContentByName(p_inf, "F2RegId", temp_buf)) // @v9.9.5 (egais ver 3)
 										alc_ext.InformB = temp_buf.Strip().Transf(CTRANSF_UTF8_TO_INNER);
 									else if(SXml::IsName(p_inf, "MarkInfo")) {
+										THROW_MEM(SETIFZ(p_ecs_entry, ext_code_set_list.CreateNewItem()));
 										for(xmlNode * p_boxpos = p_inf->children; p_boxpos; p_boxpos = p_boxpos->next) {
 											if(SXml::IsName(p_boxpos, "boxpos")) {
 												box_number.Z();
@@ -4472,12 +4502,12 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 												for(xmlNode * p_box = p_boxpos->children; p_box; p_box = p_box->next) {
 													if(SXml::GetContentByName(p_box, "boxnumber", temp_buf)) {
 														if(temp_buf.NotEmpty())
-															box_id = ext_codes_set.AddBox(0, temp_buf, 0);
+															box_id = p_ecs_entry->Set.AddBox(0, temp_buf, 0);
 													}
 													else if(SXml::IsName(p_box, "amclist")) {
 														for(xmlNode * p_amc = p_box->children; p_amc; p_amc = p_amc->next) {
 															if(SXml::GetContentByName(p_amc, "amc", temp_buf) > 0)
-																ext_codes_set.AddNum(box_id, temp_buf, 0);
+																p_ecs_entry->Set.AddNum(box_id, temp_buf, 0);
 														}
 													}
 												}
@@ -4529,10 +4559,15 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 							uint   new_pos = p_bp->GetTCount();
 							THROW(p_bp->LoadTItem(&ti, 0, 0/*serial*/));
 							// @v9.9.5 {
-							if(ext_codes_set.GetCount()) {
+							/* @v10.3.9 if(ext_codes_set.GetCount()) {
 								p_bp->XcL.Set_2(new_pos+1, &ext_codes_set);
-							}
+							}*/
 							// } @v9.9.5
+							// @v10.3.9 {
+							if(p_ecs_entry) {
+								p_ecs_entry->RByBill = ti.RByBill;
+							}
+							// } @v10.3.9 
 							{
 								EgaisWayBillRowTags rt;
 								MEMSZERO(rt);
@@ -4558,6 +4593,16 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 		SString bill_text;
 		PPObjBill::MakeCodeString(&p_bp->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
 		p_bp->SortTI(); // Обязательно отсортировать строки по RByBill (могут прийти в перепутанном порядке)
+		// @v10.3.9 {
+		if(ext_code_set_list.getCount()) {
+			for(uint ecsidx = 0; ecsidx < ext_code_set_list.getCount(); ecsidx++) {
+				const ExtCodeSetEntry * p_ecs_entry = ext_code_set_list.at(ecsidx);
+				uint tipos = 0;
+				if(p_ecs_entry && p_ecs_entry->Set.GetCount() && p_bp->SearchTI(p_ecs_entry->RByBill, &tipos))
+					p_bp->XcL.Set_2(tipos+1, &p_ecs_entry->Set);
+			}
+		}
+		// } @v10.3.9 
 		{
 			//
 			// Проверка на наличие дубликатов в номерах строк документа

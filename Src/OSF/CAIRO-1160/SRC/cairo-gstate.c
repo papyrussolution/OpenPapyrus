@@ -42,12 +42,12 @@
 //#include "cairo-list-inline.h"
 //#include "cairo-gstate-private.h"
 //#include "cairo-pattern-private.h"
-#include "cairo-traps-private.h"
+//#include "cairo-traps-private.h"
 
 static cairo_status_t _cairo_gstate_init_copy(cairo_gstate_t * gstate, cairo_gstate_t * other);
 static cairo_status_t _cairo_gstate_ensure_font_face(cairo_gstate_t * gstate);
 static cairo_status_t _cairo_gstate_ensure_scaled_font(cairo_gstate_t * gstate);
-static void _cairo_gstate_unset_scaled_font(cairo_gstate_t * gstate);
+static void FASTCALL _cairo_gstate_unset_scaled_font(cairo_gstate_t * gstate);
 
 static void _cairo_gstate_transform_glyphs_to_backend(cairo_gstate_t * gstate,
     const cairo_glyph_t * glyphs,
@@ -65,50 +65,32 @@ static void _cairo_gstate_update_device_transform(cairo_observer_t * observer, v
 	gstate->is_identity = (_cairo_matrix_is_identity(&gstate->ctm) && _cairo_matrix_is_identity(&gstate->target->device_transform));
 }
 
-cairo_status_t _cairo_gstate_init(cairo_gstate_t * gstate,
-    cairo_surface_t * target)
+cairo_status_t _cairo_gstate_init(cairo_gstate_t * gstate, cairo_surface_t * target)
 {
 	VG(VALGRIND_MAKE_MEM_UNDEFINED(gstate, sizeof(cairo_gstate_t)));
-
 	gstate->next = NULL;
-
 	gstate->op = CAIRO_GSTATE_OPERATOR_DEFAULT;
 	gstate->opacity = 1.;
-
 	gstate->tolerance = CAIRO_GSTATE_TOLERANCE_DEFAULT;
 	gstate->antialias = CAIRO_ANTIALIAS_DEFAULT;
-
 	_cairo_stroke_style_init(&gstate->stroke_style);
-
 	gstate->fill_rule = CAIRO_GSTATE_FILL_RULE_DEFAULT;
-
 	gstate->font_face = NULL;
 	gstate->scaled_font = NULL;
 	gstate->previous_scaled_font = NULL;
-
-	cairo_matrix_init_scale(&gstate->font_matrix,
-	    CAIRO_GSTATE_DEFAULT_FONT_SIZE,
-	    CAIRO_GSTATE_DEFAULT_FONT_SIZE);
-
+	cairo_matrix_init_scale(&gstate->font_matrix, CAIRO_GSTATE_DEFAULT_FONT_SIZE, CAIRO_GSTATE_DEFAULT_FONT_SIZE);
 	_cairo_font_options_init_default(&gstate->font_options);
-
 	gstate->clip = NULL;
-
 	gstate->target = cairo_surface_reference(target);
 	gstate->parent_target = NULL;
 	gstate->original_target = cairo_surface_reference(target);
-
 	gstate->device_transform_observer.callback = _cairo_gstate_update_device_transform;
-	cairo_list_add(&gstate->device_transform_observer.link,
-	    &gstate->target->device_transform_observers);
-
+	cairo_list_add(&gstate->device_transform_observer.link, &gstate->target->device_transform_observers);
 	gstate->is_identity = _cairo_matrix_is_identity(&gstate->target->device_transform);
 	cairo_matrix_init_identity(&gstate->ctm);
 	gstate->ctm_inverse = gstate->ctm;
 	gstate->source_ctm_inverse = gstate->ctm;
-
 	gstate->source = (cairo_pattern_t*)&_cairo_pattern_black.base;
-
 	/* Now that the gstate is fully initialized and ready for the eventual
 	 * _cairo_gstate_fini(), we can check for errors (and not worry about
 	 * the resource deallocation). */
@@ -550,74 +532,55 @@ void _cairo_gstate_get_matrix(cairo_gstate_t * gstate, cairo_matrix_t * matrix)
 cairo_status_t _cairo_gstate_translate(cairo_gstate_t * gstate, double tx, double ty)
 {
 	cairo_matrix_t tmp;
-
 	if(!ISFINITE(tx) || !ISFINITE(ty))
 		return _cairo_error(CAIRO_STATUS_INVALID_MATRIX);
-
 	_cairo_gstate_unset_scaled_font(gstate);
-
 	cairo_matrix_init_translate(&tmp, tx, ty);
 	cairo_matrix_multiply(&gstate->ctm, &tmp, &gstate->ctm);
 	gstate->is_identity = FALSE;
-
 	/* paranoid check against gradual numerical instability */
 	if(!_cairo_matrix_is_invertible(&gstate->ctm))
 		return _cairo_error(CAIRO_STATUS_INVALID_MATRIX);
-
 	cairo_matrix_init_translate(&tmp, -tx, -ty);
 	cairo_matrix_multiply(&gstate->ctm_inverse, &gstate->ctm_inverse, &tmp);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
 cairo_status_t _cairo_gstate_scale(cairo_gstate_t * gstate, double sx, double sy)
 {
 	cairo_matrix_t tmp;
-
 	if(sx * sy == 0.) /* either sx or sy is 0, or det == 0 due to underflow */
 		return _cairo_error(CAIRO_STATUS_INVALID_MATRIX);
 	if(!ISFINITE(sx) || !ISFINITE(sy))
 		return _cairo_error(CAIRO_STATUS_INVALID_MATRIX);
-
 	_cairo_gstate_unset_scaled_font(gstate);
-
 	cairo_matrix_init_scale(&tmp, sx, sy);
 	cairo_matrix_multiply(&gstate->ctm, &tmp, &gstate->ctm);
 	gstate->is_identity = FALSE;
-
 	/* paranoid check against gradual numerical instability */
 	if(!_cairo_matrix_is_invertible(&gstate->ctm))
 		return _cairo_error(CAIRO_STATUS_INVALID_MATRIX);
-
 	cairo_matrix_init_scale(&tmp, 1/sx, 1/sy);
 	cairo_matrix_multiply(&gstate->ctm_inverse, &gstate->ctm_inverse, &tmp);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
 cairo_status_t _cairo_gstate_rotate(cairo_gstate_t * gstate, double angle)
 {
 	cairo_matrix_t tmp;
-
 	if(angle == 0.)
 		return CAIRO_STATUS_SUCCESS;
-
 	if(!ISFINITE(angle))
 		return _cairo_error(CAIRO_STATUS_INVALID_MATRIX);
-
 	_cairo_gstate_unset_scaled_font(gstate);
-
 	cairo_matrix_init_rotate(&tmp, angle);
 	cairo_matrix_multiply(&gstate->ctm, &tmp, &gstate->ctm);
 	gstate->is_identity = FALSE;
-
 	/* paranoid check against gradual numerical instability */
 	if(!_cairo_matrix_is_invertible(&gstate->ctm))
 		return _cairo_error(CAIRO_STATUS_INVALID_MATRIX);
-
 	cairo_matrix_init_rotate(&tmp, -angle);
 	cairo_matrix_multiply(&gstate->ctm_inverse, &gstate->ctm_inverse, &tmp);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -650,7 +613,6 @@ cairo_status_t _cairo_gstate_set_matrix(cairo_gstate_t * gstate, const cairo_mat
 		return CAIRO_STATUS_SUCCESS;
 	if(!_cairo_matrix_is_invertible(matrix))
 		return _cairo_error(CAIRO_STATUS_INVALID_MATRIX);
-
 	if(_cairo_matrix_is_identity(matrix)) {
 		_cairo_gstate_identity_matrix(gstate);
 		return CAIRO_STATUS_SUCCESS;
@@ -661,7 +623,6 @@ cairo_status_t _cairo_gstate_set_matrix(cairo_gstate_t * gstate, const cairo_mat
 	status = cairo_matrix_invert(&gstate->ctm_inverse);
 	assert(status == CAIRO_STATUS_SUCCESS);
 	gstate->is_identity = FALSE;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -676,24 +637,13 @@ void _cairo_gstate_identity_matrix(cairo_gstate_t * gstate)
 }
 
 void _cairo_gstate_user_to_device(cairo_gstate_t * gstate, double * x, double * y)
-{
-	cairo_matrix_transform_point(&gstate->ctm, x, y);
-}
-
+	{ cairo_matrix_transform_point(&gstate->ctm, x, y); }
 void _cairo_gstate_user_to_device_distance(cairo_gstate_t * gstate, double * dx, double * dy)
-{
-	cairo_matrix_transform_distance(&gstate->ctm, dx, dy);
-}
-
+	{ cairo_matrix_transform_distance(&gstate->ctm, dx, dy); }
 void _cairo_gstate_device_to_user(cairo_gstate_t * gstate, double * x, double * y)
-{
-	cairo_matrix_transform_point(&gstate->ctm_inverse, x, y);
-}
-
+	{ cairo_matrix_transform_point(&gstate->ctm_inverse, x, y); }
 void _cairo_gstate_device_to_user_distance(cairo_gstate_t * gstate, double * dx, double * dy)
-{
-	cairo_matrix_transform_distance(&gstate->ctm_inverse, dx, dy);
-}
+	{ cairo_matrix_transform_distance(&gstate->ctm_inverse, dx, dy); }
 
 void _do_cairo_gstate_user_to_backend(cairo_gstate_t * gstate, double * x, double * y)
 {
@@ -1345,8 +1295,7 @@ cairo_status_t _cairo_gstate_tag_begin(cairo_gstate_t * gstate,
 		   gstate->clip);
 }
 
-cairo_status_t _cairo_gstate_tag_end(cairo_gstate_t * gstate,
-    const char * tag_name)
+cairo_status_t _cairo_gstate_tag_end(cairo_gstate_t * gstate, const char * tag_name)
 {
 	return _cairo_surface_tag(gstate->target,
 		   FALSE,             /* begin */
@@ -1359,89 +1308,65 @@ cairo_status_t _cairo_gstate_tag_end(cairo_gstate_t * gstate,
 		   NULL);             /* clip */
 }
 
-static void _cairo_gstate_unset_scaled_font(cairo_gstate_t * gstate)
+static void FASTCALL _cairo_gstate_unset_scaled_font(cairo_gstate_t * gstate)
 {
 	if(gstate->scaled_font == NULL)
 		return;
-
 	if(gstate->previous_scaled_font != NULL)
 		cairo_scaled_font_destroy(gstate->previous_scaled_font);
-
 	gstate->previous_scaled_font = gstate->scaled_font;
 	gstate->scaled_font = NULL;
 }
 
-cairo_status_t _cairo_gstate_set_font_size(cairo_gstate_t * gstate,
-    double size)
+cairo_status_t _cairo_gstate_set_font_size(cairo_gstate_t * gstate, double size)
 {
 	_cairo_gstate_unset_scaled_font(gstate);
-
 	cairo_matrix_init_scale(&gstate->font_matrix, size, size);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-cairo_status_t _cairo_gstate_set_font_matrix(cairo_gstate_t * gstate,
-    const cairo_matrix_t * matrix)
+cairo_status_t _cairo_gstate_set_font_matrix(cairo_gstate_t * gstate, const cairo_matrix_t * matrix)
 {
 	if(memcmp(matrix, &gstate->font_matrix, sizeof(cairo_matrix_t)) == 0)
 		return CAIRO_STATUS_SUCCESS;
-
 	_cairo_gstate_unset_scaled_font(gstate);
-
 	gstate->font_matrix = *matrix;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-void _cairo_gstate_get_font_matrix(cairo_gstate_t * gstate,
-    cairo_matrix_t * matrix)
+void _cairo_gstate_get_font_matrix(cairo_gstate_t * gstate, cairo_matrix_t * matrix)
 {
 	*matrix = gstate->font_matrix;
 }
 
-void _cairo_gstate_set_font_options(cairo_gstate_t * gstate,
-    const cairo_font_options_t * options)
+void _cairo_gstate_set_font_options(cairo_gstate_t * gstate, const cairo_font_options_t * options)
 {
 	if(memcmp(options, &gstate->font_options, sizeof(cairo_font_options_t)) == 0)
 		return;
-
 	_cairo_gstate_unset_scaled_font(gstate);
-
 	_cairo_font_options_init_copy(&gstate->font_options, options);
 }
 
-void _cairo_gstate_get_font_options(cairo_gstate_t * gstate,
-    cairo_font_options_t * options)
+void _cairo_gstate_get_font_options(cairo_gstate_t * gstate, cairo_font_options_t * options)
 {
 	*options = gstate->font_options;
 }
 
-cairo_status_t _cairo_gstate_get_font_face(cairo_gstate_t * gstate,
-    cairo_font_face_t ** font_face)
+cairo_status_t _cairo_gstate_get_font_face(cairo_gstate_t * gstate, cairo_font_face_t ** font_face)
 {
-	cairo_status_t status;
-
-	status = _cairo_gstate_ensure_font_face(gstate);
+	cairo_status_t status = _cairo_gstate_ensure_font_face(gstate);
 	if(unlikely(status))
 		return status;
-
 	*font_face = gstate->font_face;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-cairo_status_t _cairo_gstate_get_scaled_font(cairo_gstate_t * gstate,
-    cairo_scaled_font_t ** scaled_font)
+cairo_status_t _cairo_gstate_get_scaled_font(cairo_gstate_t * gstate, cairo_scaled_font_t ** scaled_font)
 {
-	cairo_status_t status;
-
-	status = _cairo_gstate_ensure_scaled_font(gstate);
+	cairo_status_t status = _cairo_gstate_ensure_scaled_font(gstate);
 	if(unlikely(status))
 		return status;
-
 	*scaled_font = gstate->scaled_font;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -1521,22 +1446,15 @@ cairo_status_t _cairo_gstate_get_scaled_font(cairo_gstate_t * gstate,
  * (for font responses such as metrics or glyph vectors).
  *
  */
-
 static cairo_status_t _cairo_gstate_ensure_font_face(cairo_gstate_t * gstate)
 {
 	cairo_font_face_t * font_face;
-
 	if(gstate->font_face != NULL)
 		return gstate->font_face->status;
-
-	font_face = cairo_toy_font_face_create(CAIRO_FONT_FAMILY_DEFAULT,
-		CAIRO_FONT_SLANT_DEFAULT,
-		CAIRO_FONT_WEIGHT_DEFAULT);
+	font_face = cairo_toy_font_face_create(CAIRO_FONT_FAMILY_DEFAULT, CAIRO_FONT_SLANT_DEFAULT, CAIRO_FONT_WEIGHT_DEFAULT);
 	if(font_face->status)
 		return font_face->status;
-
 	gstate->font_face = font_face;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 

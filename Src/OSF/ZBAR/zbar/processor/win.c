@@ -31,7 +31,7 @@
 int _zbar_event_init(zbar_event_t * event)
 {
 	*event = CreateEvent(NULL, 0, 0, 0);
-	return((*event) ? 0 : -1);
+	return ((*event) ? 0 : -1);
 }
 
 void _zbar_event_destroy(zbar_event_t * event)
@@ -65,7 +65,7 @@ int _zbar_event_wait(zbar_event_t * event, zbar_mutex_t * lock, zbar_timer_t * t
 int _zbar_thread_start(zbar_thread_t * thr, zbar_thread_proc_t proc, void * arg, zbar_mutex_t * lock)
 {
 	if(thr->started || thr->running)
-		return(-1 /*FIXME*/);
+		return (-1 /*FIXME*/);
 	thr->started = 1;
 	_zbar_event_init(&thr->notify);
 	_zbar_event_init(&thr->activity);
@@ -79,7 +79,7 @@ int _zbar_thread_start(zbar_thread_t * thr, zbar_thread_proc_t proc, void * arg,
 		thr->started = 0;
 		_zbar_event_destroy(&thr->notify);
 		_zbar_event_destroy(&thr->activity);
-		return(-1 /*FIXME*/);
+		return (-1 /*FIXME*/);
 	}
 	return 0;
 }
@@ -110,7 +110,7 @@ static LRESULT CALLBACK win_handle_event(HWND hwnd, UINT message, WPARAM wparam,
 		zbar_window_attach(proc->window, proc->display, proc->xwin);
 	}
 	else if(!proc)
-		return(DefWindowProc(hwnd, message, wparam, lparam));
+		return (DefWindowProc(hwnd, message, wparam, lparam));
 	switch(message) {
 		case WM_SIZE: {
 		    RECT r;
@@ -162,7 +162,7 @@ static LRESULT CALLBACK win_handle_event(HWND hwnd, UINT message, WPARAM wparam,
 		    return 0;
 	    }
 	}
-	return(DefWindowProc(hwnd, message, wparam, lparam));
+	return (DefWindowProc(hwnd, message, wparam, lparam));
 }
 
 static int win_handle_events(zbar_processor_t * proc)
@@ -262,14 +262,14 @@ int _zbar_processor_set_size(zbar_processor_t * proc, uint width, uint height)
 	RECT r = { 0, 0, (LONG)width, (LONG)height };
 	AdjustWindowRectEx(&r, GetWindowLong((HWND)proc->display, GWL_STYLE), 0, GetWindowLong((HWND)proc->display, GWL_EXSTYLE));
 	if(!SetWindowPos((HWND)proc->display, NULL, 0, 0, r.right - r.left, r.bottom - r.top, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOZORDER | SWP_NOREPOSITION))
-		return(-1 /*FIXME*/);
+		return (-1 /*FIXME*/);
 	return 0;
 }
 
 int _zbar_processor_invalidate(zbar_processor_t * proc)
 {
 	if(!InvalidateRect((HWND)proc->display, NULL, 0))
-		return(-1 /*FIXME*/);
+		return (-1 /*FIXME*/);
 	return 0;
 }
 

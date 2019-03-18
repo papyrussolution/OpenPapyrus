@@ -216,7 +216,7 @@ static const char * ngx_http_access_rule(ngx_conf_t * cf, const ngx_command_t * 
 #endif
 	ngx_uint_t all = 0;
 	memzero(&cidr, sizeof(ngx_cidr_t));
-	value = (ngx_str_t *)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(value[1].len == 3 && sstreq(value[1].data, "all")) {
 		all = 1;
 #if (NGX_HAVE_UNIX_DOMAIN)

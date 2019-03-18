@@ -119,7 +119,7 @@ static void _cairo_xcb_shm_process_pending(cairo_xcb_connection_t * connection, 
 			case PENDING_POLL:
 			    if(!xcb_poll_for_reply(connection->xcb_connection,
 				info->sync.sequence,
-				(void**)&reply, NULL))
+				(void **)&reply, NULL))
 				    /* We cannot be sure the server finished with this image yet, so
 				 * try again later. All other shm info are guaranteed to have a
 				 * larger sequence number and thus don't have to be checked. */

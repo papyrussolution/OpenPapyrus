@@ -1276,7 +1276,7 @@ StrAssocArray * SLAPI PPObjWorld::MakeStrAssocList(void * extraPtr)
 	return p_list;
 }
 
-int SLAPI PPObjWorld::SearchMaxLike(PPWorldPacket * pPack, long flags, PPID * pID)
+int SLAPI PPObjWorld::SearchMaxLike(const PPWorldPacket * pPack, long flags, PPID * pID)
 {
 	int    ok = -1;
 	PPIDArray excl_list;

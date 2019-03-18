@@ -40,7 +40,7 @@ uint32 TIFFComputeStrip(TIFF* tif, uint32 row, uint16 sample)
 	uint32 strip = row / td->td_rowsperstrip;
 	if(td->td_planarconfig == PLANARCONFIG_SEPARATE) {
 		if(sample >= td->td_samplesperpixel) {
-			TIFFErrorExt(tif->tif_clientdata, module, "%lu: Sample out of range, max %lu", (unsigned long)sample, (unsigned long)td->td_samplesperpixel);
+			TIFFErrorExt(tif->tif_clientdata, module, "%lu: Sample out of range, max %lu", (ulong)sample, (ulong)td->td_samplesperpixel);
 			return 0;
 		}
 		strip += (uint32)sample*td->td_stripsperimage;
@@ -98,10 +98,10 @@ uint64 TIFFVStripSize64(TIFF* tif, uint32 nrows)
 		samplingblocks_ver = TIFFhowmany_32(nrows, ycbcrsubsampling[1]);
 		samplingrow_samples = _TIFFMultiply64(tif, samplingblocks_hor, samplingblock_samples, module);
 		samplingrow_size = TIFFhowmany8_64(_TIFFMultiply64(tif, samplingrow_samples, td->td_bitspersample, module));
-		return(_TIFFMultiply64(tif, samplingrow_size, samplingblocks_ver, module));
+		return (_TIFFMultiply64(tif, samplingrow_size, samplingblocks_ver, module));
 	}
 	else
-		return(_TIFFMultiply64(tif, nrows, TIFFScanlineSize64(tif), module));
+		return (_TIFFMultiply64(tif, nrows, TIFFScanlineSize64(tif), module));
 }
 
 tmsize_t TIFFVStripSize(TIFF* tif, uint32 nrows)
@@ -125,10 +125,10 @@ uint64 TIFFRawStripSize64(TIFF* tif, uint32 strip)
 	uint64 bytecount = td->td_stripbytecount[strip];
 	if(bytecount == 0) {
 #if defined(__WIN32__) && (defined(_MSC_VER) || defined(__MINGW32__))
-		TIFFErrorExt(tif->tif_clientdata, module, "%I64u: Invalid strip byte count, strip %lu", (unsigned __int64)bytecount, (unsigned long)strip);
+		TIFFErrorExt(tif->tif_clientdata, module, "%I64u: Invalid strip byte count, strip %lu", (uint64)bytecount, (ulong)strip);
 #else
 		TIFFErrorExt(tif->tif_clientdata, module, "%llu: Invalid strip byte count, strip %lu",
-		    (unsigned long long)bytecount, (unsigned long)strip);
+		    (uint64)bytecount, (ulong)strip);
 #endif
 		bytecount = (uint64) -1;
 	}
@@ -140,7 +140,7 @@ tmsize_t TIFFRawStripSize(TIFF* tif, uint32 strip)
 	static const char module[] = "TIFFRawStripSize";
 	tmsize_t n;
 	uint64 m = TIFFRawStripSize64(tif, strip);
-	if(m==(uint64)(-1))
+	if(m == static_cast<uint64>(-1LL))
 		n = (tmsize_t)(-1);
 	else{
 		n = (tmsize_t)m;
@@ -264,7 +264,7 @@ uint64 TIFFScanlineSize64(TIFF* tif)
 		TIFFErrorExt(tif->tif_clientdata, module, "Computed scanline size is zero");
 		return 0;
 	}
-	return(scanline_size);
+	return (scanline_size);
 }
 
 tmsize_t TIFFScanlineSize(TIFF* tif)

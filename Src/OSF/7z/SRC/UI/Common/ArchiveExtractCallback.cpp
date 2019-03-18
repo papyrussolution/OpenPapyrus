@@ -78,7 +78,7 @@ static const char * const kCantSetFileLen = "Can not set length for output file"
 	static HRESULT Archive_Get_HardLinkNode(IInArchive * archive, uint32 index, CHardLinkNode &h, bool &defined)
 	{
 		h.INode = 0;
-		h.StreamId = (uint64)(int64)-1;
+		h.StreamId = static_cast<uint64>(-1LL);
 		defined = false;
 		{
 			NCOM::CPropVariant prop;

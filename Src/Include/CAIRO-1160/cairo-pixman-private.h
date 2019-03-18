@@ -39,13 +39,12 @@
 #define CAIRO_PIXMAN_PRIVATE_H
 
 #include "cairo-pixman-private.h" /* keep make check happy */
-
 #include <pixman.h>
 
 #if PIXMAN_VERSION < PIXMAN_VERSION_ENCODE(0,22,0)
-#define pixman_image_composite32 pixman_image_composite
-#define pixman_image_get_component_alpha(i) 0
-#define pixman_image_set_component_alpha(i, x) do { } while (0)
+	#define pixman_image_composite32 pixman_image_composite
+	#define pixman_image_get_component_alpha(i) 0
+	#define pixman_image_set_component_alpha(i, x) do { } while (0)
 #endif
 
 #endif

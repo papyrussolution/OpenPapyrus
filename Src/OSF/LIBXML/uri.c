@@ -96,7 +96,7 @@ static void FASTCALL xmlCleanURI(xmlURI * uri);
  *
  * path          = [ abs_path | opaque_part ]
  */
-#define STRNDUP(s, n) (char *)xmlStrndup((const xmlChar*)(s), (n))
+#define STRNDUP(s, n) (char *)xmlStrndup((const xmlChar *)(s), (n))
 // 
 // RFC 3986 parser
 // 
@@ -155,7 +155,7 @@ static int xmlParse3986Scheme(xmlURIPtr uri, const char ** str)
 		return -1;
 	cur = *str;
 	if(!ISA_ALPHA(cur))
-		return(2);
+		return (2);
 	cur++;
 	while(ISA_ALPHA(cur) || ISA_DIGIT(cur) || oneof3(*cur, '+', '-', '.'))
 		cur++;
@@ -833,7 +833,7 @@ xmlURIPtr xmlParseURI(const char * str)
  */
 int xmlParseURIReference(xmlURIPtr uri, const char * str)
 {
-	return(xmlParse3986URIReference(uri, str));
+	return (xmlParse3986URIReference(uri, str));
 }
 
 /**
@@ -1483,7 +1483,7 @@ xmlChar * FASTCALL xmlURIEscapeStr(const xmlChar * str, const xmlChar * list)
 		xmlURIErrMemory("escaping URI value\n");
 		return 0;
 	}
-	in = (const xmlChar*)str;
+	in = (const xmlChar *)str;
 	out = 0;
 	while(*in != 0) {
 		if(len - out <= 3) {
@@ -1570,55 +1570,55 @@ xmlChar * FASTCALL xmlURIEscape(const xmlChar * str)
 		return NULL;
 	ret = NULL;
 	if(uri->scheme) {
-		segment = xmlURIEscapeStr(BAD_CAST uri->scheme, BAD_CAST "+-.");
+		segment = xmlURIEscapeStr(BAD_CAST uri->scheme, reinterpret_cast<const xmlChar *>("+-."));
 		NULLCHK(segment)
 		ret = xmlStrcat(ret, segment);
-		ret = xmlStrcat(ret, BAD_CAST ":");
+		ret = xmlStrcat(ret, reinterpret_cast<const xmlChar *>(":"));
 		SAlloc::F(segment);
 	}
 	if(uri->authority) {
-		segment = xmlURIEscapeStr(BAD_CAST uri->authority, BAD_CAST "/?;:@");
+		segment = xmlURIEscapeStr(BAD_CAST uri->authority, reinterpret_cast<const xmlChar *>("/?;:@"));
 		NULLCHK(segment)
-		ret = xmlStrcat(ret, BAD_CAST "//");
+		ret = xmlStrcat(ret, reinterpret_cast<const xmlChar *>("//"));
 		ret = xmlStrcat(ret, segment);
 		SAlloc::F(segment);
 	}
 	if(uri->user) {
-		segment = xmlURIEscapeStr(BAD_CAST uri->user, BAD_CAST ";:&=+$,");
+		segment = xmlURIEscapeStr(BAD_CAST uri->user, reinterpret_cast<const xmlChar *>(";:&=+$,"));
 		NULLCHK(segment)
-		ret = xmlStrcat(ret, BAD_CAST "//");
+		ret = xmlStrcat(ret, reinterpret_cast<const xmlChar *>("//"));
 		ret = xmlStrcat(ret, segment);
-		ret = xmlStrcat(ret, BAD_CAST "@");
+		ret = xmlStrcat(ret, reinterpret_cast<const xmlChar *>("@"));
 		SAlloc::F(segment);
 	}
 	if(uri->server) {
-		segment = xmlURIEscapeStr(BAD_CAST uri->server, BAD_CAST "/?;:@");
+		segment = xmlURIEscapeStr(BAD_CAST uri->server, reinterpret_cast<const xmlChar *>("/?;:@"));
 		NULLCHK(segment)
 		if(uri->user == NULL)
-			ret = xmlStrcat(ret, BAD_CAST "//");
+			ret = xmlStrcat(ret, reinterpret_cast<const xmlChar *>("//"));
 		ret = xmlStrcat(ret, segment);
 		SAlloc::F(segment);
 	}
 	if(uri->port) {
 		xmlChar port[10];
 		snprintf((char *)port, 10, "%d", uri->port);
-		ret = xmlStrcat(ret, BAD_CAST ":");
+		ret = xmlStrcat(ret, reinterpret_cast<const xmlChar *>(":"));
 		ret = xmlStrcat(ret, port);
 	}
 	if(uri->path) {
-		segment = xmlURIEscapeStr(BAD_CAST uri->path, BAD_CAST ":@&=+$,/?;");
+		segment = xmlURIEscapeStr(BAD_CAST uri->path, reinterpret_cast<const xmlChar *>(":@&=+$,/?;"));
 		NULLCHK(segment)
 		ret = xmlStrcat(ret, segment);
 		SAlloc::F(segment);
 	}
 	if(uri->query_raw) {
-		ret = xmlStrcat(ret, BAD_CAST "?");
+		ret = xmlStrcat(ret, reinterpret_cast<const xmlChar *>("?"));
 		ret = xmlStrcat(ret, BAD_CAST uri->query_raw);
 	}
 	else if(uri->query) {
-		segment = xmlURIEscapeStr(BAD_CAST uri->query, BAD_CAST ";/?:@&=+,$");
+		segment = xmlURIEscapeStr(BAD_CAST uri->query, reinterpret_cast<const xmlChar *>(";/?:@&=+,$"));
 		NULLCHK(segment)
-		ret = xmlStrcat(ret, BAD_CAST "?");
+		ret = xmlStrcat(ret, reinterpret_cast<const xmlChar *>("?"));
 		ret = xmlStrcat(ret, segment);
 		SAlloc::F(segment);
 	}
@@ -1629,9 +1629,9 @@ xmlChar * FASTCALL xmlURIEscape(const xmlChar * str)
 		SAlloc::F(segment);
 	}
 	if(uri->fragment) {
-		segment = xmlURIEscapeStr(BAD_CAST uri->fragment, BAD_CAST "#");
+		segment = xmlURIEscapeStr(BAD_CAST uri->fragment, reinterpret_cast<const xmlChar *>("#"));
 		NULLCHK(segment)
-		ret = xmlStrcat(ret, BAD_CAST "#");
+		ret = xmlStrcat(ret, reinterpret_cast<const xmlChar *>("#"));
 		ret = xmlStrcat(ret, segment);
 		SAlloc::F(segment);
 	}
@@ -1974,7 +1974,7 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 			if(*uptr == '/')
 				uptr++;
 			/* exception characters from xmlSaveUri */
-			val = xmlURIEscapeStr(uptr, BAD_CAST "/;&=+$,");
+			val = xmlURIEscapeStr(uptr, reinterpret_cast<const xmlChar *>("/;&=+$,"));
 		}
 		goto done;
 	}
@@ -2036,7 +2036,7 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 	}
 	if(nbslash == 0) {
 		if(uptr) // exception characters from xmlSaveUri 
-			val = xmlURIEscapeStr(uptr, BAD_CAST "/;&=+$,");
+			val = xmlURIEscapeStr(uptr, reinterpret_cast<const xmlChar *>("/;&=+$,"));
 		goto done;
 	}
 	/*
@@ -2077,7 +2077,7 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 	/* escape the freshly-built path */
 	vptr = val;
 	/* exception characters from xmlSaveUri */
-	val = xmlURIEscapeStr(vptr, BAD_CAST "/;&=+$,");
+	val = xmlURIEscapeStr(vptr, reinterpret_cast<const xmlChar *>("/;&=+$,"));
 	SAlloc::F(vptr);
 done:
 	/*
@@ -2127,7 +2127,7 @@ xmlChar * xmlCanonicPath(const xmlChar * path)
 	 * to URIs anyway.
 	 */
 	if(path[0] == '\\' && path[1] == '\\' && path[2] == '?' && path[3] == '\\')
-		return sstrdup((const xmlChar*)path);
+		return sstrdup((const xmlChar *)path);
 #endif
 	// sanitize filename starting with // so it can be used as URI 
 	if((path[0] == '/') && (path[1] == '/') && (path[2] != '/'))
@@ -2137,7 +2137,7 @@ xmlChar * xmlCanonicPath(const xmlChar * path)
 		return sstrdup(path);
 	}
 	/* Check if this is an "absolute uri" */
-	absuri = xmlStrstr(path, BAD_CAST "://");
+	absuri = xmlStrstr(path, reinterpret_cast<const xmlChar *>("://"));
 	if(absuri) {
 		int j;
 		uchar c;
@@ -2158,7 +2158,7 @@ xmlChar * xmlCanonicPath(const xmlChar * path)
 				goto path_processing;
 		}
 		// Escape all except the characters specified in the supplied path 
-		escURI = xmlURIEscapeStr(path, BAD_CAST ":/?_.#&;=");
+		escURI = xmlURIEscapeStr(path, reinterpret_cast<const xmlChar *>(":/?_.#&;="));
 		if(escURI != NULL) {
 			uri = xmlParseURI((const char *)escURI); // Try parsing the escaped path 
 			if(uri) { // If successful, return the escaped string 
@@ -2204,14 +2204,14 @@ path_processing:
 		p++;
 	}
 	if(uri->scheme == NULL) {
-		ret = sstrdup((const xmlChar*)uri->path);
+		ret = sstrdup((const xmlChar *)uri->path);
 	}
 	else {
 		ret = xmlSaveUri(uri);
 	}
 	xmlFreeURI(uri);
 #else
-	ret = sstrdup((const xmlChar*)path);
+	ret = sstrdup((const xmlChar *)path);
 #endif
 	return ret;
 }

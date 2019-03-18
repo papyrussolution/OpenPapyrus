@@ -678,7 +678,7 @@ int code_128(struct ZintSymbol * symbol, const uchar source[], int length)
 }
 
 /* Handle EAN-128 (Now known as GS1-128) */
-int ean_128(struct ZintSymbol * symbol, uchar source[], const size_t length)
+int ean_128(struct ZintSymbol * symbol, const uchar source[], const size_t length)
 {
 	int    values[170], total_sum;
 	uint   read;

@@ -628,7 +628,7 @@ int __ListArchiveContent(const char * pFileName)
 				uint64 id;
 				HRESULT res = codecs->GetCodec_Id(j, id);
 				if(res != S_OK)
-					id = (uint64)(int64)-1;
+					id = static_cast<uint64>(-1LL);
 				PrintHexId(so, id);
 				so << ' ' << codecs->GetCodec_Name(j) << endl;
 			}
@@ -656,7 +656,7 @@ int __ListArchiveContent(const char * pFileName)
 	}
 	else if(options.Command.CommandType == NCommandType::kBenchmark) {
 		CStdOutStream & so = (g_StdStream ? *g_StdStream : g_StdOut);
-		hresultMain = BenchCon(EXTERNAL_CODECS_VARS_L options.Properties, options.NumIterations, (FILE*)so);
+		hresultMain = BenchCon(EXTERNAL_CODECS_VARS_L options.Properties, options.NumIterations, (FILE *)so);
 		if(hresultMain == S_FALSE) {
 			if(g_ErrStream)
 				*g_ErrStream << "\nDecoding ERROR\n";

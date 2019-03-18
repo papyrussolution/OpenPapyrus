@@ -166,7 +166,7 @@ int dtls1_buffer_record(SSL * s, record_pqueue * queue, uchar * priority)
 		OPENSSL_free(rdata->rbuf.buf);
 		OPENSSL_free(rdata);
 		pitem_free(item);
-		return (-1);
+		return -1;
 	}
 
 	/* insert should not fail, since duplicates are dropped */
@@ -175,7 +175,7 @@ int dtls1_buffer_record(SSL * s, record_pqueue * queue, uchar * priority)
 		OPENSSL_free(rdata->rbuf.buf);
 		OPENSSL_free(rdata);
 		pitem_free(item);
-		return (-1);
+		return -1;
 	}
 
 	return 1;
@@ -321,7 +321,7 @@ int dtls1_read_bytes(SSL * s, int type, int * recvd_type, uchar * buf, int len, 
 	if(!SSL3_BUFFER_is_initialised(&s->rlayer.rbuf)) {
 		/* Not initialized yet */
 		if(!ssl3_setup_buffers(s))
-			return (-1);
+			return -1;
 	}
 	if((type && (type != SSL3_RT_APPLICATION_DATA) && (type != SSL3_RT_HANDSHAKE)) || (peek && (type != SSL3_RT_APPLICATION_DATA))) {
 		SSLerr(SSL_F_DTLS1_READ_BYTES, ERR_R_INTERNAL_ERROR);
@@ -355,7 +355,7 @@ int dtls1_read_bytes(SSL * s, int type, int * recvd_type, uchar * buf, int len, 
 			return (i);
 		if(i == 0) {
 			SSLerr(SSL_F_DTLS1_READ_BYTES, SSL_R_SSL_HANDSHAKE_FAILURE);
-			return (-1);
+			return -1;
 		}
 	}
 start:
@@ -550,7 +550,7 @@ start:
 			s->rwstate = SSL_READING;
 			BIO_clear_retry_flags(SSL_get_rbio(s));
 			BIO_set_retry_read(SSL_get_rbio(s));
-			return (-1);
+			return -1;
 		}
 #endif
 		/* else it's a CCS message, or application data or wrong */
@@ -566,7 +566,7 @@ start:
 				s->rwstate = SSL_READING;
 				BIO_clear_retry_flags(bio);
 				BIO_set_retry_read(bio);
-				return (-1);
+				return -1;
 			}
 
 			/* Not certain if this is the right error handling */
@@ -646,7 +646,7 @@ start:
 					return (i);
 				if(i == 0) {
 					SSLerr(SSL_F_DTLS1_READ_BYTES, SSL_R_SSL_HANDSHAKE_FAILURE);
-					return (-1);
+					return -1;
 				}
 
 				if(!(s->mode & SSL_MODE_AUTO_RETRY)) {
@@ -663,7 +663,7 @@ start:
 						bio = SSL_get_rbio(s);
 						BIO_clear_retry_flags(bio);
 						BIO_set_retry_read(bio);
-						return (-1);
+						return -1;
 					}
 				}
 			}
@@ -823,7 +823,7 @@ start:
 			return (i);
 		if(i == 0) {
 			SSLerr(SSL_F_DTLS1_READ_BYTES, SSL_R_SSL_HANDSHAKE_FAILURE);
-			return (-1);
+			return -1;
 		}
 
 		if(!(s->mode & SSL_MODE_AUTO_RETRY)) {
@@ -840,7 +840,7 @@ start:
 				bio = SSL_get_rbio(s);
 				BIO_clear_retry_flags(bio);
 				BIO_set_retry_read(bio);
-				return (-1);
+				return -1;
 			}
 		}
 		goto start;
@@ -879,7 +879,7 @@ start:
 		    (s->s3->total_renegotiations != 0) &&
 		    ossl_statem_app_data_allowed(s)) {
 			    s->s3->in_read_app_data = 2;
-			    return (-1);
+			    return -1;
 		    }
 		    else {
 			    al = SSL_AD_UNEXPECTED_MESSAGE;
@@ -891,7 +891,7 @@ start:
 
 f_err:
 	ssl3_send_alert(s, SSL3_AL_FATAL, al);
-	return (-1);
+	return -1;
 }
 
 /*
@@ -1132,7 +1132,7 @@ DTLS1_BITMAP * dtls1_get_bitmap(SSL * s, SSL3_RECORD * rr,
 	 * have already processed all of the unprocessed records from the last
 	 * epoch
 	 */
-	else if(rr->epoch == (unsigned long)(s->rlayer.d->r_epoch + 1) &&
+	else if(rr->epoch == (ulong)(s->rlayer.d->r_epoch + 1) &&
 	    s->rlayer.d->unprocessed_rcds.epoch != s->rlayer.d->r_epoch &&
 	    (rr->type == SSL3_RT_HANDSHAKE || rr->type == SSL3_RT_ALERT)) {
 		*is_next_epoch = 1;

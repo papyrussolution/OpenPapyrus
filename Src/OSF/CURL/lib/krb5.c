@@ -158,7 +158,7 @@ static int krb5_auth(void * app_data, struct connectdata * conn)
 	    (struct sockaddr_in**)&conn->ip_addr->ai_addr;
 
 	if(getsockname(conn->sock[FIRSTSOCKET],
-		    (struct sockaddr*)&conn->local_addr, &l) < 0)
+		    (struct sockaddr *)&conn->local_addr, &l) < 0)
 		perror("getsockname()");
 
 	chan.initiator_addrtype = GSS_C_AF_INET;

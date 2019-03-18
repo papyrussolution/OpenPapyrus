@@ -251,14 +251,14 @@ static uint32 FASTCALL XXH32_avalanche(uint32 h32)
 	h32 ^= h32 >> 13;
 	h32 *= PRIME32_3;
 	h32 ^= h32 >> 16;
-	return(h32);
+	return (h32);
 }
 
 #define XXH_get32bits(p) XXH_readLE32_align(p, endian, align)
 
 static uint32 XXH32_finalize(uint32 h32, const void* ptr, size_t len, XXH_endianess endian, XXH_alignment align)
 {
-	const uint8 * p = (const uint8*)ptr;
+	const uint8 * p = (const uint8 *)ptr;
 #define PROCESS1 h32 += (*p++) * PRIME32_5; h32 = XXH_rotl32(h32, 11) * PRIME32_1;
 #define PROCESS4 h32 += XXH_get32bits(p) * PRIME32_3; p += 4; h32  = XXH_rotl32(h32, 17) * PRIME32_4;
 	switch(len&15) { // or switch(bEnd - p) 
@@ -306,13 +306,13 @@ static uint32 XXH32_finalize(uint32 h32, const void* ptr, size_t len, XXH_endian
 
 FORCE_INLINE uint32 XXH32_endian_align(const void* input, size_t len, uint32 seed, XXH_endianess endian, XXH_alignment align)
 {
-	const uint8* p = (const uint8*)input;
+	const uint8* p = (const uint8 *)input;
 	const uint8* bEnd = p + len;
 	uint32 h32;
 #if defined(XXH_ACCEPT_NULL_INPUT_POINTER) && (XXH_ACCEPT_NULL_INPUT_POINTER>=1)
 	if(p==NULL) {
 		len = 0;
-		bEnd = p = (const uint8*)(size_t)16;
+		bEnd = p = (const uint8 *)(size_t)16;
 	}
 #endif
 	if(len>=16) {
@@ -401,13 +401,13 @@ FORCE_INLINE XXH_errorcode XXH32_update_endian(XXH32_state_t* state, const void*
 		return XXH_ERROR;
 #endif
 	{   
-		const uint8* p = (const uint8*)input;
+		const uint8* p = (const uint8 *)input;
 	    const uint8* const bEnd = p + len;
-	    state->total_len_32 += (unsigned)len;
+	    state->total_len_32 += (uint)len;
 	    state->large_len |= (len>=16) | (state->total_len_32>=16);
 	    if(state->memsize + len < 16) { /* fill in tmp buffer */
 		    XXH_memcpy((uint8 *)(state->mem32) + state->memsize, input, len);
-		    state->memsize += (unsigned)len;
+		    state->memsize += (uint)len;
 		    return XXH_OK;
 	    }
 	    if(state->memsize) { /* some data left from previous update */
@@ -441,7 +441,7 @@ FORCE_INLINE XXH_errorcode XXH32_update_endian(XXH32_state_t* state, const void*
 	    }
 	    if(p < bEnd) {
 		    XXH_memcpy(state->mem32, p, (size_t)(bEnd-p));
-		    state->memsize = (unsigned)(bEnd-p);
+		    state->memsize = (uint)(bEnd-p);
 	    }
 	}
 	return XXH_OK;
@@ -599,7 +599,7 @@ static uint64 XXH64_avalanche(uint64 h64)
 
 static uint64 XXH64_finalize(uint64 h64, const void* ptr, size_t len, XXH_endianess endian, XXH_alignment align)
 {
-	const uint8 * p = (const uint8 *)ptr;
+	const uint8 * p = static_cast<const uint8 *>(ptr);
 #define PROCESS1_64            \
 	h64 ^= (*p++) * PRIME64_5; \
 	h64 = XXH_rotl64(h64, 11) * PRIME64_1;
@@ -697,13 +697,13 @@ static uint64 XXH64_finalize(uint64 h64, const void* ptr, size_t len, XXH_endian
 
 FORCE_INLINE uint64 XXH64_endian_align(const void* input, size_t len, uint64 seed, XXH_endianess endian, XXH_alignment align)
 {
-	const uint8 * p = (const uint8*)input;
+	const uint8 * p = (const uint8 *)input;
 	const uint8 * bEnd = p + len;
 	uint64 h64;
 #if defined(XXH_ACCEPT_NULL_INPUT_POINTER) && (XXH_ACCEPT_NULL_INPUT_POINTER>=1)
 	if(p==NULL) {
 		len = 0;
-		bEnd = p = (const uint8*)(size_t)32;
+		bEnd = p = (const uint8 *)(size_t)32;
 	}
 #endif
 	if(len>=32) {
@@ -791,7 +791,7 @@ FORCE_INLINE XXH_errorcode XXH64_update_endian(XXH64_state_t* state, const void*
 		return XXH_ERROR;
 #endif
 
-	{   const uint8 * p = (const uint8*)input;
+	{   const uint8 * p = (const uint8 *)input;
 	    const uint8 * const bEnd = p + len;
 	    state->total_len += len;
 	    if(state->memsize + len < 32) { /* fill in tmp buffer */
@@ -828,7 +828,7 @@ FORCE_INLINE XXH_errorcode XXH64_update_endian(XXH64_state_t* state, const void*
 	    }
 	    if(p < bEnd) {
 		    XXH_memcpy(state->mem64, p, (size_t)(bEnd-p));
-		    state->memsize = (unsigned)(bEnd-p);
+		    state->memsize = (uint)(bEnd-p);
 	    }
 	}
 	return XXH_OK;

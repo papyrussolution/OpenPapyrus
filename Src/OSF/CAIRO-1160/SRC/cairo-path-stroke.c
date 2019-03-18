@@ -43,8 +43,8 @@
 //#include "cairo-error-private.h"
 //#include "cairo-path-fixed-private.h"
 //#include "cairo-slope-private.h"
-#include "cairo-stroke-dash-private.h"
-#include "cairo-traps-private.h"
+//#include "cairo-stroke-dash-private.h"
+//#include "cairo-traps-private.h"
 
 typedef struct cairo_stroker {
 	cairo_stroke_style_t style;

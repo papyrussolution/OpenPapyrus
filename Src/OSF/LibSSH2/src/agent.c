@@ -142,7 +142,7 @@ static int agent_connect_unix(LIBSSH2_AGENT * agent)
 	s_un.sun_family = AF_UNIX;
 	strncpy(s_un.sun_path, path, sizeof s_un.sun_path);
 	s_un.sun_path[sizeof(s_un.sun_path)-1] = 0; /* make sure there's a trailing zero */
-	if(connect(agent->fd, (struct sockaddr*)(&s_un), sizeof s_un) != 0) {
+	if(connect(agent->fd, (struct sockaddr *)(&s_un), sizeof s_un) != 0) {
 		close(agent->fd);
 		return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL, "failed connecting with agent");
 	}
@@ -256,7 +256,7 @@ static int agent_transact_pageant(LIBSSH2_AGENT * agent, agent_transaction_ctx_t
 	hwnd = FindWindow("Pageant", "Pageant");
 	if(!hwnd)
 		return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL, "found no pageant");
-	sprintf(mapname, "PageantRequest%08x", (unsigned)GetCurrentThreadId());
+	sprintf(mapname, "PageantRequest%08x", (uint)GetCurrentThreadId());
 	filemap = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, PAGEANT_MAX_MSGLEN, mapname);
 	if(filemap == NULL || filemap == INVALID_HANDLE_VALUE)
 		return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL, "failed setting up pageant filemap");

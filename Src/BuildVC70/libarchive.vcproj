@@ -43,7 +43,7 @@
 				WarnAsError="FALSE"
 				DebugInformationFormat="3"
 				CompileAs="2"
-				DisableSpecificWarnings="4514;4061"/>
+				DisableSpecificWarnings="4514;4061;4505"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -110,7 +110,7 @@
 				WarningLevel="3"
 				WarnAsError="FALSE"
 				CompileAs="2"
-				DisableSpecificWarnings="4514;4061"/>
+				DisableSpecificWarnings="4514;4061;4505"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool

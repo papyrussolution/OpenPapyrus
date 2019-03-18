@@ -20,11 +20,11 @@ ngx_array_t * ngx_array_create(ngx_pool_t * p, ngx_uint_t n, size_t size)
 void ngx_array_destroy(ngx_array_t * a)
 {
 	ngx_pool_t  * p = a->pool;
-	if((u_char*)a->elts + a->size * a->nalloc == p->d.last) {
+	if((u_char *)a->elts + a->size * a->nalloc == p->d.last) {
 		p->d.last -= a->size * a->nalloc;
 	}
-	if((u_char*)a + sizeof(ngx_array_t) == p->d.last) {
-		p->d.last = (u_char*)a;
+	if((u_char *)a + sizeof(ngx_array_t) == p->d.last) {
+		p->d.last = (u_char *)a;
 	}
 }
 
@@ -49,7 +49,7 @@ void * FASTCALL ngx_array_push(ngx_array_t * a)
 		// the array is full 
 		size_t size = a->size * a->nalloc;
 		ngx_pool_t * p = a->pool;
-		if((u_char*)a->elts + size == p->d.last && p->d.last + a->size <= p->d.end) {
+		if((u_char *)a->elts + size == p->d.last && p->d.last + a->size <= p->d.end) {
 			// 
 			// the array allocation is the last in the pool
 			// and there is space for new allocation
@@ -68,7 +68,7 @@ void * FASTCALL ngx_array_push(ngx_array_t * a)
 			a->nalloc *= 2;
 		}
 	}
-	elt = (u_char*)a->elts + a->size * a->nelts;
+	elt = (u_char *)a->elts + a->size * a->nelts;
 	a->nelts++;
 	return elt;
 }
@@ -82,7 +82,7 @@ void * FASTCALL ngx_array_push_n(ngx_array_t * a, ngx_uint_t n)
 	if(a->nelts + n > a->nalloc) {
 		/* the array is full */
 		p = a->pool;
-		if((u_char*)a->elts + a->size * a->nalloc == p->d.last && p->d.last + size <= p->d.end) {
+		if((u_char *)a->elts + a->size * a->nalloc == p->d.last && p->d.last + size <= p->d.end) {
 			/*
 			 * the array allocation is the last in the pool
 			 * and there is space for new allocation
@@ -102,7 +102,7 @@ void * FASTCALL ngx_array_push_n(ngx_array_t * a, ngx_uint_t n)
 			a->nalloc = nalloc;
 		}
 	}
-	elt = (u_char*)a->elts + a->size * a->nelts;
+	elt = (u_char *)a->elts + a->size * a->nelts;
 	a->nelts += n;
 	return elt;
 }

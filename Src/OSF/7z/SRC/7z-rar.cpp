@@ -107,7 +107,7 @@ namespace NCompress {
 				num -= cur;
 			}
 			m_InBitStream.MovePos(startPos);
-			return((num >> (12 - startPos)) + posTab[startPos]);
+			return ((num >> (12 - startPos)) + posTab[startPos]);
 		}
 
 		static const Byte kShortLen1 [] = {1, 3, 4, 4, 5, 6, 7, 8, 8, 4, 4, 5, 6, 6 };
@@ -1730,7 +1730,7 @@ namespace NCompress {
 				_outStream = outStream;
 
 				// CCoderReleaser coderReleaser(this);
-				_unpackSize = outSize ? *outSize : (uint64)(int64)-1;
+				_unpackSize = outSize ? *outSize : static_cast<uint64>(-1LL);
 				return CodeReal(progress);
 			}
 			catch(const CInBufferException &e)  { return e.ErrorCode; }
@@ -4499,8 +4499,8 @@ namespace NArchive {
 				uint64 totalBytes = 0;
 				uint64 curBytes = 0;
 				if(openCallback) {
-					openCallback->QueryInterface(IID_IArchiveOpenVolumeCallback, (void**)&openVolumeCallback);
-					openCallback->QueryInterface(IID_ICryptoGetTextPassword, (void**)&getTextPassword);
+					openCallback->QueryInterface(IID_IArchiveOpenVolumeCallback, (void **)&openVolumeCallback);
+					openCallback->QueryInterface(IID_ICryptoGetTextPassword, (void **)&getTextPassword);
 				}
 				bool nextVol_is_Required = false;
 				CInArchive archive;
@@ -4851,7 +4851,7 @@ namespace NArchive {
 				const CRefItem &refItem = _refItems[index];
 				const CItem &item = _items[refItem.ItemIndex];
 				const CItem &lastItem = _items[refItem.ItemIndex + refItem.NumItems - 1];
-				uint64 outSize = (uint64)(int64)-1;
+				uint64 outSize = static_cast<uint64>(-1LL);
 				currentUnPackSize = 0;
 				if(lastItem.Is_Size_Defined()) {
 					outSize = lastItem.Size;
@@ -4924,7 +4924,7 @@ namespace NArchive {
 					}
 					// RINOK(filterStreamSpec->Filter.QueryInterface(IID_ICryptoSetPassword, &cryptoSetPassword));
 					if(!getTextPassword)
-						extractCallback->QueryInterface(IID_ICryptoGetTextPassword, (void**)&getTextPassword);
+						extractCallback->QueryInterface(IID_ICryptoGetTextPassword, (void **)&getTextPassword);
 					if(!getTextPassword) {
 						outStream.Release();
 						RINOK(extractCallback->SetOperationResult(NExtractArc::NOperationResult::kUnsupportedMethod));
@@ -5030,7 +5030,7 @@ namespace NArchive {
 				HRESULT result = commonCoder->Code(inStream, outStream, &packSize, &outSize, progress);
 				if(item.IsEncrypted())
 					filterStreamSpec->ReleaseInStream();
-				if(outSize == (uint64)(int64)-1)
+				if(outSize == static_cast<uint64>(-1LL))
 					currentUnPackSize = outStreamSpec->GetSize();
 				int opRes = (volsInStreamSpec->CrcIsOK && outStreamSpec->GetCRC() == lastItem.FileCRC) ?
 					NExtractArc::NOperationResult::kOK : NExtractArc::NOperationResult::kCRCError;
@@ -6673,7 +6673,7 @@ namespace NArchive {
 					sorted.Add(i);
 			}
 			if(!sorted.IsEmpty()) {
-				sorted.Sort(CompareItemsPaths_Sort, (void *)this);
+				sorted.Sort(CompareItemsPaths_Sort, this);
 				AString link;
 				for(i = 0; i < _refs.Size(); i++) {
 					CRefItem &ref = _refs[i];
@@ -6709,8 +6709,8 @@ namespace NArchive {
 			uint64 totalBytes = 0;
 			uint64 curBytes = 0;
 			if(openCallback) {
-				openCallback->QueryInterface(IID_IArchiveOpenVolumeCallback, (void**)&openVolumeCallback);
-				openCallback->QueryInterface(IID_ICryptoGetTextPassword, (void**)&getTextPassword);
+				openCallback->QueryInterface(IID_IArchiveOpenVolumeCallback, (void **)&openVolumeCallback);
+				openCallback->QueryInterface(IID_ICryptoGetTextPassword, (void **)&getTextPassword);
 			}
 			CTempBuf tempBuf;
 			CUnpacker unpacker;
@@ -7335,7 +7335,7 @@ namespace NArchive {
 							uint64 packSize = curPackSize;
 							if(item->IsEncrypted())
 								if(!unpacker.getTextPassword)
-									extractCallback->QueryInterface(IID_ICryptoGetTextPassword, (void**)&unpacker.getTextPassword);
+									extractCallback->QueryInterface(IID_ICryptoGetTextPassword, (void **)&unpacker.getTextPassword);
 							bool wrongPassword;
 							HRESULT result = unpacker.Create(EXTERNAL_CODECS_VARS *item, isSolid, wrongPassword);
 							if(wrongPassword) {

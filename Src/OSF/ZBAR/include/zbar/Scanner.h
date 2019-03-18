@@ -77,7 +77,7 @@ public:
 	zbar_symbol_type_t new_scan()
 	{
 		_type = zbar_scanner_new_scan(_scanner);
-		return(_type);
+		return (_type);
 	}
 
 	/// flush scanner pipeline.
@@ -85,7 +85,7 @@ public:
 	zbar_symbol_type_t flush()
 	{
 		_type = zbar_scanner_flush(_scanner);
-		return(_type);
+		return (_type);
 	}
 
 	/// process next sample intensity value.
@@ -93,7 +93,7 @@ public:
 	zbar_symbol_type_t scan_y(int y)
 	{
 		_type = zbar_scan_y(_scanner, y);
-		return(_type);
+		return (_type);
 	}
 
 	/// process next sample intensity value.
@@ -109,7 +109,7 @@ public:
 	zbar_symbol_type_t scan_rgb24(uchar * rgb)
 	{
 		_type = zbar_scan_rgb24(_scanner, rgb);
-		return(_type);
+		return (_type);
 	}
 
 	/// process next sample from RGB (or BGR) triple.
@@ -124,32 +124,32 @@ public:
 	/// see zbar_scanner_get_width()
 	uint get_width() const
 	{
-		return(zbar_scanner_get_width(_scanner));
+		return (zbar_scanner_get_width(_scanner));
 	}
 
 	/// retrieve last scanned color.
 	/// see zbar_scanner_get_color()
 	zbar_color_t get_color() const
 	{
-		return(zbar_scanner_get_color(_scanner));
+		return (zbar_scanner_get_color(_scanner));
 	}
 
 	/// retrieve last scan result.
 	zbar_symbol_type_t get_type() const
 	{
-		return(_type);
+		return (_type);
 	}
 
 	/// cast to C scanner
 	operator zbar_scanner_t*() const
 	{
-		return(_scanner);
+		return (_scanner);
 	}
 
 	/// retrieve C scanner
 	const zbar_scanner_t * get_c_scanner() const
 	{
-		return(_scanner);
+		return (_scanner);
 	}
 
 private:

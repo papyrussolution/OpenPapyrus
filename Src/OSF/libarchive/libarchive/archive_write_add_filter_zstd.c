@@ -83,7 +83,7 @@ int archive_write_add_filter_zstd(struct archive * _a)
 	data = (struct private_data *)SAlloc::C(1, sizeof(*data));
 	if(data == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	f->data = data;
 	f->open = &archive_compressor_zstd_open;
@@ -99,16 +99,16 @@ int archive_write_add_filter_zstd(struct archive * _a)
 		SAlloc::F(data);
 		archive_set_error(&a->archive, ENOMEM,
 		    "Failed to allocate zstd compressor object");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 #else
 	data->pdata = __archive_write_program_allocate("zstd");
 	if(data->pdata == NULL) {
 		SAlloc::F(data);
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 	    "Using external zstd program");
@@ -127,7 +127,7 @@ static int archive_compressor_zstd_free(struct archive_write_filter * f)
 #endif
 	SAlloc::F(data);
 	f->data = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -149,7 +149,7 @@ static int archive_compressor_zstd_options(struct archive_write_filter * f, cons
 			return (ARCHIVE_WARN);
 		}
 		data->compression_level = level;
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 
 	/* Note: The "warn" return is just to inform the options
@@ -169,7 +169,7 @@ static int archive_compressor_zstd_open(struct archive_write_filter * f)
 
 	ret = __archive_write_open_filter(f->next_filter);
 	if(ret != ARCHIVE_OK)
-		return (ret);
+		return ret;
 
 	if(data->out.dst == NULL) {
 		size_t bs = ZSTD_CStreamOutSize(), bpb;
@@ -189,7 +189,7 @@ static int archive_compressor_zstd_open(struct archive_write_filter * f)
 		if(data->out.dst == NULL) {
 			archive_set_error(f->archive, ENOMEM,
 			    "Can't allocate data for compression buffer");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 	}
 
@@ -199,10 +199,10 @@ static int archive_compressor_zstd_open(struct archive_write_filter * f)
 	    data->compression_level))) {
 		archive_set_error(f->archive, ARCHIVE_ERRNO_MISC,
 		    "Internal error initializing zstd compressor object");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -218,9 +218,9 @@ static int archive_compressor_zstd_write(struct archive_write_filter * f, const 
 	data->total_in += length;
 
 	if((ret = drive_compressor(f, data, 0, buff, length)) != ARCHIVE_OK)
-		return (ret);
+		return ret;
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -256,13 +256,13 @@ static int drive_compressor(struct archive_write_filter * f,
 			const int ret = __archive_write_filter(f->next_filter,
 				data->out.dst, data->out.size);
 			if(ret != ARCHIVE_OK)
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			data->out.pos = 0;
 		}
 
 		/* If there's nothing to do, we're done. */
 		if(!finishing && in.pos == in.size)
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 
 		{
 			const size_t zstdret = !finishing ?
@@ -274,14 +274,14 @@ static int drive_compressor(struct archive_write_filter * f,
 				    ARCHIVE_ERRNO_MISC,
 				    "Zstd compression failed: %s",
 				    ZSTD_getErrorName(zstdret));
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 
 			/* If we're finishing, 0 means nothing left to flush */
 			if(finishing && zstdret == 0) {
 				const int ret = __archive_write_filter(f->next_filter,
 					data->out.dst, data->out.pos);
-				return (ret);
+				return ret;
 			}
 		}
 	}
@@ -301,7 +301,7 @@ static int archive_compressor_zstd_open(struct archive_write_filter * f)
 	f->write = archive_compressor_zstd_write;
 	r = __archive_write_program_open(f, data->pdata, as.s);
 	archive_string_free(&as);
-	return (r);
+	return r;
 }
 
 static int archive_compressor_zstd_write(struct archive_write_filter * f, const void * buff,

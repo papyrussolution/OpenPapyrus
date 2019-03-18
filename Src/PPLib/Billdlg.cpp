@@ -1241,11 +1241,11 @@ int SLAPI PPLinkFilesArray::RemoveByAry(const PPLinkFilesArray * pAry)
 int SLAPI PPLinkFilesArray::Edit(uint pos)
 {
 	int    ok = -1;
-	if(pos >= 0 && (uint)pos < getCount()) {
+	if(pos < getCount()) {
 		int r = 1;
 		SString path;
 		GetFilePath(pos, path);
-		::ShellExecute(0, _T("open"), path, NULL, NULL, SW_SHOWNORMAL); // @unicodeproblem
+		::ShellExecute(0, _T("open"), SUcSwitch(path), NULL, NULL, SW_SHOWNORMAL); // @unicodeproblem
 		ok = 1;
 	}
 	return ok;
@@ -1373,7 +1373,7 @@ int SLAPI PPLinkFilesArray::WriteToProp(PPID billID, int useTa)
 			memcpy(p, &_e, sizeof(_e));
 			p += sizeof(_e);
 			for(uint i = 0; i < getCount(); p += at(i)->Size(), i++)
-				at(i)->CopyTo((void**)&p);
+				at(i)->CopyTo((void **)&p);
 			THROW(ok = p_ref->PutProp(PPOBJ_BILL, billID, BILLPRP_LINKFILES, p_buf, sz));
 		}
 		else {
@@ -1436,7 +1436,7 @@ IMPL_HANDLE_EVENT(LinkFilesDialog)
 		clearEvent(event);
 	}
 	else if(link_cmd) {
-		FileBrowseCtrlGroup * p_fgb = (FileBrowseCtrlGroup*)getGroup(GRP_FBG);
+		FileBrowseCtrlGroup * p_fgb = static_cast<FileBrowseCtrlGroup *>(getGroup(GRP_FBG));
 		if(p_fgb) {
 			FileBrowseCtrlGroup::Rec rec;
 			p_fgb->getData(this, &rec);
@@ -2545,7 +2545,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 		setCtrlReal(CTL_BILL_AMOUNT, P_Pack->GetAmount());
 	v = BIN(P_Pack->Rec.Flags & BILLF_TOTALDISCOUNT);
 	Flags &= ~fPctDis;
-	for(i = 0; P_Pack->Amounts.enumItems(&i, (void**)&ae);) {
+	for(i = 0; P_Pack->Amounts.enumItems(&i, (void **)&ae);) {
 		ctl = 0;
 		switch(ae->AmtTypeID) {
 			case PPAMT_BUYING:  ctl = CTL_BILL_COST;  break;

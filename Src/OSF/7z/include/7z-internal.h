@@ -502,7 +502,7 @@ void SecToRead_CreateVTable(CSecToRead * p);
 struct ICompressProgress {
 	SRes (* Progress)(const ICompressProgress * p, uint64 inSize, uint64 outSize);
 	/* Returns: result. (result != SZ_OK) means break.
-	   Value (uint64)(int64)-1 for size means unknown value. */
+	   Value static_cast<uint64>(-1LL) for size means unknown value. */
 };
 
 #define ICompressProgress_Progress(p, inSize, outSize) (p)->Progress(p, inSize, outSize)
@@ -922,7 +922,7 @@ public:
   #ifdef _WIN32
 	HRESULT CoCreateInstance(REFCLSID rclsid, REFIID iid, LPUNKNOWN pUnkOuter = NULL, DWORD dwClsContext = CLSCTX_ALL)
 	{
-		return ::CoCreateInstance(rclsid, pUnkOuter, dwClsContext, iid, (void**)&_p);
+		return ::CoCreateInstance(rclsid, pUnkOuter, dwClsContext, iid, (void **)&_p);
 	}
   #endif
 	/*
@@ -932,13 +932,13 @@ public:
 	   HRESULT hr = CLSIDFromProgID(szProgID, &clsid);
 	   ATLASSERT(_p == NULL);
 	   if(SUCCEEDED(hr))
-	    hr = ::CoCreateInstance(clsid, pUnkOuter, dwClsContext, __uuidof(T), (void**)&_p);
+	    hr = ::CoCreateInstance(clsid, pUnkOuter, dwClsContext, __uuidof(T), (void **)&_p);
 	   return hr;
 	   }
 	 */
 	template <class Q> HRESULT QueryInterface(REFGUID iid, Q** pp) const throw()
 	{
-		return _p->QueryInterface(iid, (void**)pp);
+		return _p->QueryInterface(iid, (void **)pp);
 	}
 private:
 	T * _p;
@@ -1887,7 +1887,7 @@ class AString {
 	FORBID_STRING_OPS_AString(int)
 	FORBID_STRING_OPS_AString(uint)
 	FORBID_STRING_OPS_AString(long)
-	FORBID_STRING_OPS_AString(unsigned long)
+	FORBID_STRING_OPS_AString(ulong)
 public:
 	explicit AString();
 	explicit AString(char c);
@@ -2036,7 +2036,7 @@ class UString {
 	FORBID_STRING_OPS_UString(int)
 	FORBID_STRING_OPS_UString(uint)
 	FORBID_STRING_OPS_UString(long)
-	FORBID_STRING_OPS_UString(unsigned long)
+	FORBID_STRING_OPS_UString(ulong)
 	FORBID_STRING_OPS_2(UString, char)
 public:
 	UString();
@@ -4191,7 +4191,7 @@ namespace NWindows {
 				}
 				NTSTATUS EnumerateAccountsWithUserRight(PLSA_UNICODE_STRING userRights, PLSA_ENUMERATION_INFORMATION * enumerationBuffer, PULONG countReturned)
 				{
-					return LsaEnumerateAccountsWithUserRight(_handle, userRights, (void**)enumerationBuffer, countReturned);
+					return LsaEnumerateAccountsWithUserRight(_handle, userRights, (void **)enumerationBuffer, countReturned);
 				}
 				NTSTATUS EnumerateAccountRights(PSID sid, PLSA_UNICODE_STRING* userRights, PULONG countOfRights)
 				{
@@ -4482,7 +4482,7 @@ EXTERN_C_BEGIN
 	#define Inline_MatchFinder_GetNumAvailableBytes(p) ((p)->streamPos - (p)->pos)
 	#define Inline_MatchFinder_IsFinishedOK(p) ((p)->streamEndWasReached && (p)->streamPos == (p)->pos && (!(p)->directInput || (p)->directInputRem == 0))
 
-	int FASTCALL MatchFinder_NeedMove(CMatchFinder * p);
+	int FASTCALL MatchFinder_NeedMove(const CMatchFinder * p);
 	Byte * MatchFinder_GetPointerToCurrentPos(CMatchFinder * p);
 	void FASTCALL MatchFinder_MoveBlock(CMatchFinder * p);
 	void FASTCALL MatchFinder_ReadIfRequired(CMatchFinder * p);
@@ -4516,7 +4516,7 @@ EXTERN_C_BEGIN
 		Mf_Skip_Func Skip;
 	} IMatchFinder;
 
-	void MatchFinder_CreateVTable(CMatchFinder * p, IMatchFinder * vTable);
+	void MatchFinder_CreateVTable(const CMatchFinder * p, IMatchFinder * vTable);
 	void FASTCALL MatchFinder_Init_2(CMatchFinder * p, int readData);
 	void MatchFinder_Init(CMatchFinder * p); // @fptr
 	uint32 Bt3Zip_MatchFinder_GetMatches(CMatchFinder * p, uint32 * distances);
@@ -6033,7 +6033,7 @@ EXTERN_C_BEGIN
 	} CSha1;
 
 	void Sha1_Init(CSha1 * p);
-	void Sha1_GetBlockDigest(CSha1 * p, const uint32 * data, uint32 * destDigest);
+	void Sha1_GetBlockDigest(const CSha1 * p, const uint32 * data, uint32 * destDigest);
 	void Sha1_Update(CSha1 * p, const Byte * data, size_t size);
 	void Sha1_Final(CSha1 * p, Byte * digest);
 	void Sha1_Update_Rar(CSha1 * p, Byte * data, size_t size /* , int rar350Mode */);
@@ -6657,7 +6657,7 @@ EXTERN_C_BEGIN
 	// (static) void FASTCALL Xz_Construct(CXzStream * p);
 	// (static) void FASTCALL Xz_Free(CXzStream * p, ISzAllocPtr alloc);
 
-	#define XZ_SIZE_OVERFLOW ((uint64)(int64)-1)
+	#define XZ_SIZE_OVERFLOW (static_cast<uint64>(-1LL))
 
 	// (static) uint64 FASTCALL Xz_GetUnpackSize(const CXzStream * p);
 	// (static) uint64 FASTCALL Xz_GetPackSize(const CXzStream * p);
@@ -6780,7 +6780,7 @@ EXTERN_C_BEGIN
 		function to get real size of xz stream.
 	 */
 	SRes XzUnpacker_Code(CXzUnpacker * p, Byte * dest, SizeT * destLen, const Byte * src, SizeT * srcLen, ECoderFinishMode finishMode, ECoderStatus * status);
-	Bool XzUnpacker_IsStreamWasFinished(CXzUnpacker * p);
+	Bool FASTCALL XzUnpacker_IsStreamWasFinished(const CXzUnpacker * p);
 	/*
 	   Call XzUnpacker_GetExtraSize after XzUnpacker_Code function to detect real size of
 	   xz stream in two cases:
@@ -6788,7 +6788,7 @@ EXTERN_C_BEGIN
 	   res == SZ_OK && status == CODER_STATUS_NEEDS_MORE_INPUT
 	   res == SZ_ERROR_NO_ARCHIVE
 	 */
-	uint64 XzUnpacker_GetExtraSize(CXzUnpacker * p);
+	uint64 FASTCALL XzUnpacker_GetExtraSize(const CXzUnpacker * p);
 EXTERN_C_END
 //
 //#include <XzCrc64.h>
@@ -7769,7 +7769,7 @@ namespace NArchive {
 			UString UnicodeName;
 			Byte Salt[8];
 
-			bool Is_Size_Defined() const { return Size != (uint64)(int64)-1; }
+			bool Is_Size_Defined() const { return Size != static_cast<uint64>(-1LL); }
 			bool IsEncrypted()   const { return (Flags & NHeader::NFile::kEncrypted) != 0; }
 			bool IsSolid()       const { return (Flags & NHeader::NFile::kSolid) != 0; }
 			bool IsCommented()   const { return (Flags & NHeader::NFile::kComment) != 0; }

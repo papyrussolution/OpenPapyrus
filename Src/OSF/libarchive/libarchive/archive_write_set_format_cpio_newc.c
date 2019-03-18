@@ -108,18 +108,14 @@ int archive_write_set_format_cpio_newc(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct cpio * cpio;
-
-	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_write_set_format_cpio_newc");
-
+	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_cpio_newc");
 	/* If someone else was already registered, unregister them. */
 	if(a->format_free != NULL)
 		(a->format_free)(a);
-
 	cpio = (struct cpio *)SAlloc::C(1, sizeof(*cpio));
 	if(cpio == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate cpio data");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	a->format_data = cpio;
 	a->format_name = "cpio";
@@ -131,7 +127,7 @@ int archive_write_set_format_cpio_newc(struct archive * _a)
 	a->format_free = archive_write_newc_free;
 	a->archive.archive_format = ARCHIVE_FORMAT_CPIO_SVR4_NOCRC;
 	a->archive.archive_format_name = "SVR4 cpio nocrc";
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_write_newc_options(struct archive_write * a, const char * key,
@@ -153,7 +149,7 @@ static int archive_write_newc_options(struct archive_write * a, const char * key
 			else
 				ret = ARCHIVE_FATAL;
 		}
-		return (ret);
+		return ret;
 	}
 
 	/* Note: The "warn" return is just to inform the options
@@ -162,17 +158,14 @@ static int archive_write_newc_options(struct archive_write * a, const char * key
 	return (ARCHIVE_WARN);
 }
 
-static struct archive_string_conv * get_sconv(struct archive_write * a)                                     {
-	struct cpio * cpio;
+static struct archive_string_conv * get_sconv(struct archive_write * a)                                     
+{
 	struct archive_string_conv * sconv;
-
-	cpio = (struct cpio *)a->format_data;
+	struct cpio * cpio = (struct cpio *)a->format_data;
 	sconv = cpio->opt_sconv;
 	if(sconv == NULL) {
 		if(!cpio->init_default_conversion) {
-			cpio->sconv_default =
-			    archive_string_default_conversion_for_write(
-				&(a->archive));
+			cpio->sconv_default = archive_string_default_conversion_for_write(&(a->archive));
 			cpio->init_default_conversion = 1;
 		}
 		sconv = cpio->sconv_default;
@@ -186,19 +179,19 @@ static int archive_write_newc_header(struct archive_write * a, struct archive_en
 	size_t len;
 	if(archive_entry_filetype(entry) == 0) {
 		archive_set_error(&a->archive, -1, "Filetype required");
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 	if(archive_entry_pathname_l(entry, &path, &len, get_sconv(a)) != 0 && errno == ENOMEM) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Pathname");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	if(len == 0 || path == NULL || path[0] == '\0') {
 		archive_set_error(&a->archive, -1, "Pathname required");
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 	if(archive_entry_hardlink(entry) == NULL && (!archive_entry_size_is_set(entry) || archive_entry_size(entry) < 0)) {
 		archive_set_error(&a->archive, -1, "Size required");
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 	return write_header(a, entry);
 }
@@ -206,7 +199,6 @@ static int archive_write_newc_header(struct archive_write * a, struct archive_en
 static int write_header(struct archive_write * a, struct archive_entry * entry)
 {
 	int64_t ino;
-	struct cpio * cpio;
 	const char * p, * path;
 	int pathlength, ret, ret_final;
 	char h[c_header_size];
@@ -214,7 +206,7 @@ static int write_header(struct archive_write * a, struct archive_entry * entry)
 	struct archive_entry * entry_main;
 	size_t len;
 	int pad;
-	cpio = (struct cpio *)a->format_data;
+	struct cpio * cpio = (struct cpio *)a->format_data;
 	ret_final = ARCHIVE_OK;
 	sconv = get_sconv(a);
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -223,7 +215,7 @@ static int write_header(struct archive_write * a, struct archive_entry * entry)
 	entry_main = __la_win_entry_in_posix_pathseparator(entry);
 	if(entry_main == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate ustar data");
-		return(ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	if(entry != entry_main)
 		entry = entry_main;
@@ -351,21 +343,17 @@ exit_write_header:
 
 static ssize_t archive_write_newc_data(struct archive_write * a, const void * buff, size_t s)
 {
-	struct cpio * cpio;
 	int ret;
-
-	cpio = (struct cpio *)a->format_data;
+	struct cpio * cpio = (struct cpio *)a->format_data;
 	if(s > cpio->entry_bytes_remaining)
 		s = (size_t)cpio->entry_bytes_remaining;
-
 	ret = __archive_write_output(a, buff, s);
 	cpio->entry_bytes_remaining -= s;
 	if(ret >= 0)
 		return (s);
 	else
-		return (ret);
+		return ret;
 }
-
 /*
  * Format a number into the specified field.
  */
@@ -383,7 +371,7 @@ static int format_hex(int64_t v, void * p, int digits)
 		format_hex_recursive(max, (char*)p, digits);
 		ret = -1;
 	}
-	return (ret);
+	return ret;
 }
 
 static int64_t format_hex_recursive(int64_t v, char * p, int s)
@@ -399,7 +387,6 @@ static int archive_write_newc_close(struct archive_write * a)
 {
 	int er;
 	struct archive_entry * trailer;
-
 	trailer = archive_entry_new();
 	archive_entry_set_nlink(trailer, 1);
 	archive_entry_set_size(trailer, 0);
@@ -412,19 +399,14 @@ static int archive_write_newc_close(struct archive_write * a)
 
 static int archive_write_newc_free(struct archive_write * a)
 {
-	struct cpio * cpio;
-
-	cpio = (struct cpio *)a->format_data;
+	struct cpio * cpio = (struct cpio *)a->format_data;
 	SAlloc::F(cpio);
 	a->format_data = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_write_newc_finish_entry(struct archive_write * a)
 {
-	struct cpio * cpio;
-
-	cpio = (struct cpio *)a->format_data;
-	return (__archive_write_nulls(a,
-	       (size_t)cpio->entry_bytes_remaining + cpio->padding));
+	struct cpio * cpio = (struct cpio *)a->format_data;
+	return (__archive_write_nulls(a, (size_t)cpio->entry_bytes_remaining + cpio->padding));
 }

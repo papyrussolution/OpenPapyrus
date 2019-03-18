@@ -366,10 +366,10 @@ const xmlChar * xmlStrcasestr(const xmlChar * str, const xmlChar * val)
 		return 0;
 	n = sstrlen(val);
 	if(n == 0) 
-		return(str);
+		return (str);
 	while(*str != 0) { /* non input consuming */
 		if(casemap[*str] == casemap[*val])
-			if(!xmlStrncasecmp(str, val, n)) return(str);
+			if(!xmlStrncasecmp(str, val, n)) return (str);
 		str++;
 	}
 	return 0;
@@ -419,7 +419,7 @@ xmlChar * xmlStrsub(const xmlChar * str, int start, int len)
 		str++;
 		len++;
 	}
-	return(len);
+	return (len);
 }*/
 
 /**
@@ -535,7 +535,7 @@ int XMLCDECL xmlStrPrintf(xmlChar * buf, int len, const xmlChar * msg, ...)
 		return -1;
 	}
 	va_start(args, msg);
-	ret = vsnprintf((char *)buf, len, (const char *)msg, args);
+	ret = vsnprintf((char *)buf, len, reinterpret_cast<const char *>(msg), args);
 	va_end(args);
 	buf[len-1] = 0; /* be safe ! */
 	return ret;
@@ -558,7 +558,7 @@ int xmlStrVPrintf(xmlChar * buf, int len, const xmlChar * msg, va_list ap)
 	if(!buf || (msg == NULL)) {
 		return -1;
 	}
-	ret = vsnprintf((char *)buf, len, (const char *)msg, ap);
+	ret = vsnprintf((char *)buf, len, reinterpret_cast<const char *>(msg), ap);
 	buf[len-1] = 0; /* be safe ! */
 	return ret;
 }
@@ -725,7 +725,7 @@ int xmlGetUTF8Char(const uchar * utf, int * len)
 		/* 1-byte code */
 		*len = 1;
 	}
-	return(c);
+	return (c);
 error:
 	if(len != NULL)
 		*len = 0;
@@ -868,7 +868,7 @@ const xmlChar * xmlUTF8Strpos(const xmlChar * utf, int pos)
 					return 0;
 		}
 	}
-	return((xmlChar *)utf);
+	return ((xmlChar *)utf);
 }
 /**
  * xmlUTF8Strloc:
@@ -889,7 +889,7 @@ int xmlUTF8Strloc(const xmlChar * utf, const xmlChar * utfchar)
 	size = xmlUTF8Strsize(utfchar, 1);
 	for(i = 0; (ch = *utf) != 0; i++) {
 		if(xmlStrncmp(utf, utfchar, size)==0)
-			return(i);
+			return (i);
 		utf++;
 		if(ch & 0x80) {
 			/* if not simple ascii, verify proper format */
@@ -939,7 +939,7 @@ xmlChar * xmlUTF8Strsub(const xmlChar * utf, int start, int len)
 					return 0;
 		}
 	}
-	return(xmlUTF8Strndup(utf, len));
+	return (xmlUTF8Strndup(utf, len));
 }
 
 #define bottom_xmlstring

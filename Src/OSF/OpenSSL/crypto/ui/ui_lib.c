@@ -452,9 +452,7 @@ int UI_process(UI * ui)
 
 	for(i = 0; i < sk_UI_STRING_num(ui->strings); i++) {
 		if(ui->meth->ui_read_string != NULL) {
-			switch(ui->meth->ui_read_string(ui,
-				    sk_UI_STRING_value(ui->strings,
-					    i))) {
+			switch(ui->meth->ui_read_string(ui, sk_UI_STRING_value(ui->strings, i))) {
 				case -1: /* Interrupt/Cancel/something... */
 				    ok = -2;
 				    goto err;
@@ -469,8 +467,7 @@ int UI_process(UI * ui)
 		}
 	}
 err:
-	if(ui->meth->ui_close_session != NULL
-	    && ui->meth->ui_close_session(ui) <= 0) {
+	if(ui->meth->ui_close_session != NULL && ui->meth->ui_close_session(ui) <= 0) {
 		if(state == NULL)
 			state = "closing session";
 		ok = -1;

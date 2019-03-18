@@ -1269,7 +1269,6 @@ int ProcessorDialog::EditExt()
 
 			AddClusterAssoc(CTL_PRCEXT_PLUSONE, 0, Data.Ext.tfPlusOneDay);
 			SetClusterData(CTL_PRCEXT_PLUSONE, Data.Ext.TimeFlags);
-			// @v8.2.9 {
 			AddClusterAssocDef(CTL_PRCEXT_INITSTATUS, 0, 0);
 			AddClusterAssoc(CTL_PRCEXT_INITSTATUS, 1, TSESST_PLANNED);
 			AddClusterAssoc(CTL_PRCEXT_INITSTATUS, 2, TSESST_PENDING);
@@ -1277,20 +1276,15 @@ int ProcessorDialog::EditExt()
 			AddClusterAssoc(CTL_PRCEXT_INITSTATUS, 4, TSESST_CLOSED);
 			AddClusterAssoc(CTL_PRCEXT_INITSTATUS, 5, TSESST_CANCELED);
 			SetClusterData(CTL_PRCEXT_INITSTATUS, Data.Ext.InitSessStatus);
-			// } @v8.2.9
-			SetupPPObjCombo(this, CTLSEL_PRCEXT_GUA, PPOBJ_GLOBALUSERACC, Data.Ext.GetOwnerGuaID(), 0, 0); // @v8.7.5
-			// @v8.8.0 {
+			SetupPPObjCombo(this, CTLSEL_PRCEXT_GUA, PPOBJ_GLOBALUSERACC, Data.Ext.GetOwnerGuaID(), 0, 0);
 			{
 				long   cipcto_min = labs(Data.Ext.GetCipCancelTimeout()) / 60;
 				setCtrlLong(CTL_PRCEXT_CIPCTO, cipcto_min);
 			}
-			// } @v8.8.0
-			// @v8.8.1 {
 			{
 				long   ciplto_min = labs(Data.Ext.GetCipLockTimeout()) / 60;
 				setCtrlLong(CTL_PRCEXT_CIPLTO, ciplto_min);
 			}
-			// } @v8.8.1
 			updateList(-1);
 			return ok;
 		}
@@ -1419,7 +1413,7 @@ int ProcessorDialog::setupParent()
 				SString obj_title;
 				GetObjectTitle(grp_rec.LinkObjType, obj_title);
 				setLabelText(CTL_PRC_LINKOBJ, obj_title);
-				SetupPPObjCombo(this, CTLSEL_PRC_LINKOBJ, grp_rec.LinkObjType, Data.Rec.LinkObjID, OLW_CANINSERT, (void *)link_extra);
+				SetupPPObjCombo(this, CTLSEL_PRC_LINKOBJ, grp_rec.LinkObjType, Data.Rec.LinkObjID, OLW_CANINSERT, reinterpret_cast<void *>(link_extra));
 			}
 			else
 				setLabelText(CTL_PRC_LINKOBJ, 0);
@@ -1528,9 +1522,9 @@ int ProcessorDialog::setDTS(const PPProcessorPacket * pData)
 	disableCtrl(CTL_PRC_ID, 1);
 	setCtrlData(CTL_PRC_NAME, Data.Rec.Name);
 	setCtrlData(CTL_PRC_SYMB, Data.Rec.Code);
-	SetupPPObjCombo(this, CTLSEL_PRC_PARENT, PPOBJ_PROCESSOR, Data.Rec.ParentID, OLW_CANINSERT|OLW_CANSELUPLEVEL, (void *)PRCEXDF_GROUP);
+	SetupPPObjCombo(this, CTLSEL_PRC_PARENT, PPOBJ_PROCESSOR, Data.Rec.ParentID, OLW_CANINSERT|OLW_CANSELUPLEVEL, reinterpret_cast<void *>(PRCEXDF_GROUP));
 	SetupPPObjCombo(this, CTLSEL_PRC_LOC, PPOBJ_LOCATION, Data.Rec.LocID, 0);
-	SetupPPObjCombo(this, CTLSEL_PRC_RESTGGRP, PPOBJ_GOODSGROUP, Data.Rec.RestAltGrpID, OLW_CANINSERT, (void *)GGRTYP_SEL_ALT);
+	SetupPPObjCombo(this, CTLSEL_PRC_RESTGGRP, PPOBJ_GOODSGROUP, Data.Rec.RestAltGrpID, OLW_CANINSERT, reinterpret_cast<void *>(GGRTYP_SEL_ALT));
 	setupParent();
 	if(Data.Rec.Kind == PPPRCK_PROCESSOR) {
 		SetupPPObjCombo(this, CTLSEL_PRC_PRINTER, PPOBJ_BCODEPRINTER, Data.Rec.PrinterID, OLW_CANINSERT, 0);
@@ -1659,7 +1653,7 @@ int ProcessorDialog::getDTS(PPProcessorPacket * pData)
 
 int SLAPI PPObjProcessor::Edit(PPID * pID, void * extraPtr /*parentID*/)
 {
-	const  PPID extra_parent_id = (PPID)extraPtr;
+	const  PPID extra_parent_id = reinterpret_cast<PPID>(extraPtr);
 	int    ok = cmCancel, valid_data = 0;
 	uint   dlg_id = 0;
 	ProcessorDialog * dlg = 0;
@@ -1760,7 +1754,7 @@ int PPObjProcessor::AddListItem(StrAssocArray * pList, ProcessorTbl::Rec * pRec,
 
 StrAssocArray * SLAPI PPObjProcessor::MakeStrAssocList(void * extraPtr /*parentID*/)
 {
-	const PPID outer_parent_id = (PPID)extraPtr;
+	const PPID outer_parent_id = reinterpret_cast<PPID>(extraPtr);
 	union {
 		ProcessorTbl::Key1 k1;
 		ProcessorTbl::Key2 k2;
@@ -1943,7 +1937,8 @@ int SLAPI PPViewProcessor::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			dlg->AddClusterAssoc(CTL_PRCFILT_KIND, 0, PPPRCK_GROUP);
 			dlg->AddClusterAssoc(CTL_PRCFILT_KIND, 1, PPPRCK_PROCESSOR);
 			dlg->SetClusterData(CTL_PRCFILT_KIND, p_filt->Kind);
-			SetupPPObjCombo(dlg, CTLSEL_PRCFILT_PARENT, PPOBJ_PROCESSOR, p_filt->ParentID, OLW_CANINSERT|OLW_CANSELUPLEVEL, (void *)PRCEXDF_GROUP);
+			SetupPPObjCombo(dlg, CTLSEL_PRCFILT_PARENT, PPOBJ_PROCESSOR, p_filt->ParentID, OLW_CANINSERT|OLW_CANSELUPLEVEL, 
+				reinterpret_cast<void *>(PRCEXDF_GROUP));
 			SetupPPObjCombo(dlg, CTLSEL_PRCFILT_LOC, PPOBJ_LOCATION, p_filt->LocID, 0);
 			while(ok < 0 && ExecView(dlg) == cmOK) {
 				dlg->GetClusterData(CTL_PRCFILT_KIND, &p_filt->Kind);

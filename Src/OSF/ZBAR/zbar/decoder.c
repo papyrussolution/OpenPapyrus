@@ -82,7 +82,7 @@ zbar_decoder_t * zbar_decoder_create()
 	dcode->qrf.config = 1 << ZBAR_CFG_ENABLE;
 #endif
 	zbar_decoder_reset(dcode);
-	return(dcode);
+	return (dcode);
 }
 
 void zbar_decoder_destroy(zbar_decoder_t * dcode)
@@ -169,17 +169,17 @@ zbar_color_t zbar_decoder_get_color(const zbar_decoder_t * dcode)
 
 const char * zbar_decoder_get_data(const zbar_decoder_t * dcode)
 {
-	return((char *)dcode->buf);
+	return ((char *)dcode->buf);
 }
 
 uint zbar_decoder_get_data_length(const zbar_decoder_t * dcode)
 {
-	return(dcode->buflen);
+	return (dcode->buflen);
 }
 
 int zbar_decoder_get_direction(const zbar_decoder_t * dcode)
 {
-	return(dcode->direction);
+	return (dcode->direction);
 }
 
 zbar_decoder_handler_t zbar_decoder_set_handler(zbar_decoder_t * dcode, zbar_decoder_handler_t handler)
@@ -196,17 +196,17 @@ void zbar_decoder_set_userdata(zbar_decoder_t * dcode, void * userdata)
 
 void * zbar_decoder_get_userdata(const zbar_decoder_t * dcode)
 {
-	return(dcode->userdata);
+	return (dcode->userdata);
 }
 
 zbar_symbol_type_t FASTCALL zbar_decoder_get_type(const zbar_decoder_t * dcode)
 {
-	return(dcode->type);
+	return (dcode->type);
 }
 
 uint zbar_decoder_get_modifiers(const zbar_decoder_t * dcode)
 {
-	return(dcode->modifiers);
+	return (dcode->modifiers);
 }
 
 zbar_symbol_type_t zbar_decode_width(zbar_decoder_t * dcode, uint w)
@@ -263,7 +263,7 @@ zbar_symbol_type_t zbar_decode_width(zbar_decoder_t * dcode, uint w)
 		if(dcode->handler)
 			dcode->handler(dcode);
 	}
-	return(sym);
+	return (sym);
 }
 
 static inline const uint* decoder_get_configp(const zbar_decoder_t * dcode, zbar_symbol_type_t sym)
@@ -308,7 +308,7 @@ static inline const uint* decoder_get_configp(const zbar_decoder_t * dcode, zbar
 		default:
 		    config = NULL;
 	}
-	return(config);
+	return (config);
 }
 
 uint zbar_decoder_get_configs(const zbar_decoder_t * dcode, zbar_symbol_type_t sym)
@@ -388,9 +388,9 @@ int zbar_decoder_set_config(zbar_decoder_t * dcode, zbar_symbol_type_t sym, zbar
 	}
 
 	if(cfg >= 0 && cfg < ZBAR_CFG_NUM)
-		return(decoder_set_config_bool(dcode, sym, cfg, val));
+		return (decoder_set_config_bool(dcode, sym, cfg, val));
 	else if(cfg >= ZBAR_CFG_MIN_LEN && cfg <= ZBAR_CFG_MAX_LEN)
-		return(decoder_set_config_int(dcode, sym, cfg, val));
+		return (decoder_set_config_int(dcode, sym, cfg, val));
 	else
 		return 1;
 }
@@ -443,7 +443,7 @@ uint calc_s(const zbar_decoder_t * dcode, uchar offset, uchar n)
 	uint s = 0;
 	while(n--)
 		s += get_width(dcode, offset++);
-	return(s);
+	return (s);
 }
 // 
 // fixed character width decode assist
@@ -459,7 +459,7 @@ int FASTCALL decode_e(uint e, uint s, uint n)
 {
 	// result is encoded number of units - 2 (for use as zero based index) or -1 if invalid
 	uchar E = ((e * n * 2 + 1) / s - 3) / 2;
-	return((E >= n - 3) ? -1 : E);
+	return ((E >= n - 3) ? -1 : E);
 }
 // 
 // sort three like-colored elements and return ordering
@@ -471,18 +471,18 @@ uint FASTCALL decode_sort3(zbar_decoder_t * dcode, int i0)
 	const uint w4 = get_width(dcode, i0 + 4);
 	if(w0 < w2) {
 		if(w2 < w4)
-			return((i0 << 8) | ((i0 + 2) << 4) | (i0 + 4));
+			return ((i0 << 8) | ((i0 + 2) << 4) | (i0 + 4));
 		else if(w0 < w4)
-			return((i0 << 8) | ((i0 + 4) << 4) | (i0 + 2));
+			return ((i0 << 8) | ((i0 + 4) << 4) | (i0 + 2));
 		else
-			return(((i0 + 4) << 8) | (i0 << 4) | (i0 + 2));
+			return (((i0 + 4) << 8) | (i0 << 4) | (i0 + 2));
 	}
 	else if(w4 < w2)
-		return(((i0 + 4) << 8) | ((i0 + 2) << 4) | i0);
+		return (((i0 + 4) << 8) | ((i0 + 2) << 4) | i0);
 	else if(w0 < w4)
-		return(((i0 + 2) << 8) | (i0 << 4) | (i0 + 4));
+		return (((i0 + 2) << 8) | (i0 << 4) | (i0 + 4));
 	else
-		return(((i0 + 2) << 8) | ((i0 + 4) << 4) | i0);
+		return (((i0 + 2) << 8) | ((i0 + 4) << 4) | i0);
 }
 //
 // sort N like-colored elements and return ordering

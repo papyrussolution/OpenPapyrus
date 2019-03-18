@@ -41,7 +41,7 @@
 			while(delta++)
 				rc = InterlockedDecrement(cnt);
 		assert(rc >= 0);
-		return(rc);
+		return (rc);
 	}
 
 #elif defined(TARGET_OS_MAC)
@@ -53,7 +53,7 @@
 	{
 		int rc = OSAtomicAdd32Barrier(delta, cnt);
 		assert(rc >= 0);
-		return(rc);
+		return (rc);
 	}
 
 #elif defined(HAVE_LIBPTHREAD)
@@ -69,7 +69,7 @@
 		int rc = (*cnt += delta);
 		pthread_mutex_unlock(&_zbar_reflock);
 		assert(rc >= 0);
-		return(rc);
+		return (rc);
 	}
 
 #else
@@ -80,7 +80,7 @@
 	{
 		int rc = (*cnt += delta);
 		assert(rc >= 0);
-		return(rc);
+		return (rc);
 	}
 
 #endif

@@ -179,7 +179,7 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 	/* check for an existing re-usable credential handle */
 	if(SSL_SET_OPTION(primary.sessionid)) {
 		Curl_ssl_sessionid_lock(conn);
-		if(!Curl_ssl_getsessionid(conn, (void**)&old_cred, NULL, sockindex)) {
+		if(!Curl_ssl_getsessionid(conn, (void **)&old_cred, NULL, sockindex)) {
 			connssl->cred = old_cred;
 			infof(data, "schannel: re-using existing credential handle\n");
 			/* increment the reference counter of the credential/session handle */
@@ -295,12 +295,12 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 
 		/* The first four bytes will be an uint indicating number
 		   of bytes of data in the rest of the the buffer. */
-		extension_len = (uint*)(&alpn_buffer[cur]);
+		extension_len = (uint *)(&alpn_buffer[cur]);
 		cur += sizeof(uint);
 
 		/* The next four bytes are an indicator that this buffer will contain
 		   ALPN data, as opposed to NPN, for example. */
-		*(uint*)&alpn_buffer[cur] =
+		*(uint *)&alpn_buffer[cur] =
 		    SecApplicationProtocolNegotiationExt_ALPN;
 		cur += sizeof(uint);
 
@@ -733,7 +733,7 @@ static CURLcode schannel_connect_step3(struct connectdata * conn, int sockindex)
 		struct curl_schannel_cred * old_cred = NULL;
 
 		Curl_ssl_sessionid_lock(conn);
-		incache = !(Curl_ssl_getsessionid(conn, (void**)&old_cred, NULL,
+		incache = !(Curl_ssl_getsessionid(conn, (void **)&old_cred, NULL,
 			    sockindex));
 		if(incache) {
 			if(old_cred != connssl->cred) {

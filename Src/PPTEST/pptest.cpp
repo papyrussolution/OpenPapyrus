@@ -43,7 +43,7 @@ int TestABC::fooC(int a, int b) const { return a+b; }
 int TestABC::operator -- () { return --M; }
 TestABC::operator double () { return (double)M; }
 TestABC::operator long () { return (long)M; }
-TestABC::operator TestQ() { TestQ d; d.v = (unsigned long)M; return d; }
+TestABC::operator TestQ() { TestQ d; d.v = (ulong)M; return d; }
 int operator + (TestABC & rAbc, int a) { return rAbc.M + a; }
 int operator - (TestABC & rAbc, int a) { return rAbc.M + a; }
 int operator * (TestABC & rAbc, int a) { return rAbc.M * a; }

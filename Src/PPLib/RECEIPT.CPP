@@ -689,7 +689,7 @@ int SLAPI ReceiptCore::EnumRefs(PPID prevLotID, LDATE * pDt, long * pOprNo, void
 	return ok;
 }
 
-int SLAPI ReceiptCore::GatherChilds(PPID parent, PPIDArray * pList, int (*test)(ReceiptTbl::Rec *, void *), void * extraPtr)
+int SLAPI ReceiptCore::GatherChilds(PPID parent, PPIDArray * pList, int (*test)(const ReceiptTbl::Rec *, void *), void * extraPtr)
 {
 	int    r;
 	PPID   id;

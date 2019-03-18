@@ -257,7 +257,7 @@ int SLAPI PPViewLogsMonitor::ProcessCommand(uint ppvCmd, const void *pHdr, PPVie
 	if(ok == -2) {
 		BrwHdr hdr;
 		if(pHdr)
-			hdr = *(PPViewLogsMonitor::BrwHdr *)pHdr;
+			hdr = *static_cast<const PPViewLogsMonitor::BrwHdr *>(pHdr);
 		else
 			MEMSZERO(hdr);
 	}

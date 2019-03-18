@@ -7,7 +7,7 @@
 //
 // @ModuleDef(PPViewQuot)
 //
-#define QUOT_BUF_SIZE    sizeof(((TempQuotTbl::Rec*)0)->Quot1)
+#define QUOT_BUF_SIZE    sizeof(static_cast<const TempQuotTbl::Rec *>(0)->Quot1)
 
 IMPLEMENT_PPFILT_FACTORY(Quot); SLAPI QuotFilt::QuotFilt() : PPBaseFilt(PPFILT_QUOT, 0, 5) 
 	// @v6.2.6 ver 0-->1; @v6.4.2 ver 1-->2; @v7.3.5 2-->3 // @v10.1.2 3-->4 // @v10.1.3 4-->5
@@ -313,7 +313,7 @@ void QuotFiltDialog::SetupCtrls()
 			Data.Flags |= QuotFilt::fCrosstab;
 		}
 	}
-	SetupPPObjCombo(this, CTLSEL_QUOTFLT_QK, PPOBJ_QUOTKIND, Data.QuotKindID, 0, (void *)combo_ext);
+	SetupPPObjCombo(this, CTLSEL_QUOTFLT_QK, PPOBJ_QUOTKIND, Data.QuotKindID, 0, reinterpret_cast<void *>(combo_ext));
 	disableCtrl(CTLSEL_QUOTFLT_QK, disable_qk);
 	DisableClusterItem(CTL_QUOTFLT_FLAGS, 0, !getCtrlLong(CTLSEL_QUOTFLT_QK));
 	if(Data.Flags & QuotFilt::fOnlyAbsence)
@@ -693,14 +693,14 @@ int SLAPI PPViewQuot::Init_(const PPBaseFilt * pFilt)
 				THROW_DB(bei.flash());
 			}
 			if(!(Filt.Flags & QuotFilt::fCrosstab)) {
-				THROW(CreateOrderTable((IterOrder)Filt.InitOrder, &P_TempOrd));
+				THROW(CreateOrderTable(static_cast<IterOrder>(Filt.InitOrder), &P_TempOrd));
 			}
 			THROW(tra.Commit());
 		}
 		else {
 			THROW(Helper_CreateTmpTblEntries(&Filt, 0, 1));
 			if(!(Filt.Flags & QuotFilt::fCrosstab)) {
-				THROW(CreateOrderTable((IterOrder)Filt.InitOrder, &P_TempOrd));
+				THROW(CreateOrderTable(static_cast<IterOrder>(Filt.InitOrder), &P_TempOrd));
 			}
 		}
 		THROW(CreateCrosstab(1));
@@ -1307,7 +1307,7 @@ int SLAPI PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotI
 								THROW_DB(ir);
 								if(P_TempOrd) {
 									rec.ID__ = id__;
-									MakeOrderEntry((IterOrder)Filt.InitOrder, rec, ord_rec);
+									MakeOrderEntry(static_cast<IterOrder>(Filt.InitOrder), rec, ord_rec);
 									THROW_DB(P_TempOrd->insertRecBuf(&ord_rec));
 								}
 							}
@@ -1351,7 +1351,7 @@ int SLAPI PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotI
 					THROW_DB(P_TempTbl->insertRecBuf(&rec, 0, &id__));
 					if(P_TempOrd) {
 						rec.ID__ = id__;
-						MakeOrderEntry((IterOrder)Filt.InitOrder, rec, ord_rec);
+						MakeOrderEntry(static_cast<IterOrder>(Filt.InitOrder), rec, ord_rec);
 						THROW_DB(P_TempOrd->insertRecBuf(&ord_rec));
 					}
 				}
@@ -1521,12 +1521,12 @@ int SLAPI PPViewQuot::OnExecBrowser(PPViewBrowser * pBrw)
 int PPViewQuot::CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
-	PPViewQuot * p_view = (PPViewQuot *)extraPtr;
+	PPViewQuot * p_view = static_cast<PPViewQuot *>(extraPtr);
 	const QuotFilt * p_filt = (const QuotFilt*)p_view->GetBaseFilt();
 	PPViewQuot::BrwHdr hdr;
 	if(p_view && p_filt && pStyle && paintAction == BrowserWindow::paintNormal) {
 		if(p_filt->IsSeries() && p_view->P_Qc2) {
-			BrwHdrSer * p_hs = (BrwHdrSer *)pData;
+			const BrwHdrSer * p_hs = static_cast<const BrwHdrSer *>(pData);
 			if(col == 2 && p_hs->ValF & PPQuot::fActual) {
 				pStyle->Flags = BrowserWindow::CellStyle::fCorner;
 				pStyle->Color = GetColorRef(SClrCyan);
@@ -1691,8 +1691,8 @@ int SLAPI PPViewQuot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 		switch(ppvCmd) {
 			case PPVCMD_INPUTCHAR:
 				ok = -1;
-				if(Filt.QkCls != PPQuot::clsMtxRestr && pHdr && isdec(*(const char *)pHdr)) {
-					int    init_char = *(const char *)pHdr;
+				if(Filt.QkCls != PPQuot::clsMtxRestr && pHdr && isdec(*static_cast<const char *>(pHdr))) {
+					int    init_char = *static_cast<const char *>(pHdr);
 					int    r = 0;
 					Goods2Tbl::Rec goods_rec;
 					double qtty = 0.0;
@@ -1752,7 +1752,7 @@ int SLAPI PPViewQuot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 								double Value;
 								long   Flags;
 							};
-							const __HdrSeries * p_hs = (const __HdrSeries *)pHdr;
+							const __HdrSeries * p_hs = static_cast<const __HdrSeries *>(pHdr);
 							quot.Kind = Filt.QuotKindID;
 							quot.GoodsID = Filt.GoodsID;
 							quot.LocID = Filt.LocID;

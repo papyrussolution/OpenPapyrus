@@ -747,7 +747,7 @@ static ngx_int_t ngx_http_gzip_ratio_variable(ngx_http_request_t * r, ngx_http_v
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
-	v->data = (u_char*)ngx_pnalloc(r->pool, NGX_INT32_LEN + 3);
+	v->data = (u_char *)ngx_pnalloc(r->pool, NGX_INT32_LEN + 3);
 	if(v->data == NULL) {
 		return NGX_ERROR;
 	}

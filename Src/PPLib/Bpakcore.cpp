@@ -1009,6 +1009,23 @@ int SLAPI PPLotExtCodeContainer::MarkSet::GetByBoxID(long boxId, StringSet & rSs
 	CATCHZOK
 	return ok;
 }
+
+int SLAPI PPLotExtCodeContainer::MarkSet::SearchCode(const char * pNum, uint * pIdx) const
+{
+	int    ok = 0;
+	uint   idx = 0;
+	SString temp_buf;
+	for(uint i = 0; !ok && i < L.getCount(); i++) {
+		const InnerEntry & r_entry = L.at(i);
+		GetS(r_entry.NumP, temp_buf);
+		if(temp_buf == pNum) {
+			idx = i;
+			ok = 1;
+		}
+	}
+	ASSIGN_PTR(pIdx, idx);
+	return ok;
+}
 //
 //
 //
@@ -3000,7 +3017,7 @@ static IMPL_CMPCFUNC(PPTransferItem_RByBill, p1, p2)
 void SLAPI PPBillPacket::SortTI()
 	{ Lots.sort(PTR_CMPCFUNC(PPTransferItem_RByBill)); }
 int FASTCALL PPBillPacket::EnumTItems(uint * pI, PPTransferItem ** ppTI) const
-	{ return Lots.enumItems(pI, (void**)ppTI); }
+	{ return Lots.enumItems(pI, (void **)ppTI); }
 uint SLAPI PPBillPacket::GetTCount() const
 	{ return Lots.getCount(); }
 int SLAPI PPBillPacket::GetTPointer() const
@@ -4137,13 +4154,13 @@ int SLAPI PPBillPacket::AdjustLotQtty(PPID lotID, const PPTransferItem * pItem, 
 	return 1;
 }
 
-int SLAPI PPBillPacket::RestByLot(PPID lotID, PPTransferItem * pItem, int pos, double * pRest) const
+int SLAPI PPBillPacket::RestByLot(PPID lotID, const PPTransferItem * pTi, int pos, double * pRest) const
 {
 	int    ok = 1;
 	double rest = 0.0;
 	if(lotID)
 		if(P_BObj->trfr->GetRest(lotID, Rec.Dt, &rest))
-			AdjustLotQtty(lotID, pItem, pos, &rest);
+			AdjustLotQtty(lotID, pTi, pos, &rest);
 		else
 			ok = 0;
 	ASSIGN_PTR(pRest, R6(rest));
@@ -4178,7 +4195,7 @@ int SLAPI PPBillPacket::RestByOrderLot(PPID lotID, const PPTransferItem * pItem,
 		if(P_BObj->trfr->GetRest(lotID, Rec.Dt, &rest)) {
 			if(P_ShLots && Rec.Flags & (BILLF_GEXPEND | BILLF_GRECEIPT)) {
 				PPIDArray exclude;
-				for(uint i = 0; P_ShLots->enumItems(&i, (void**)&p_ti);) {
+				for(uint i = 0; P_ShLots->enumItems(&i, (void **)&p_ti);) {
 					if(p_ti->OrdLotID && !exclude.lsearch(p_ti->OrdLotID)) { // @ordlotid
 						P_BObj->trfr->SubtractBillQtty(p_ti->OrdLotID, lotID, &rest); // @ordlotid
 						exclude.add(p_ti->OrdLotID); // @ordlotid
@@ -4244,7 +4261,7 @@ int SLAPI PPBillPacket::CalcShadowQuantity(PPID lotID, double * pQtty) const
 			ok = 0;
 		else {
 			PPTransferItem * p_ti;
-			for(i = 0; q < rest && Lots.enumItems(&i, (void**)&p_ti);)
+			for(i = 0; q < rest && Lots.enumItems(&i, (void **)&p_ti);)
 				if(p_ti->Flags & PPTFR_ONORDER && p_ti->OrdLotID == lotID) // @ordlotid
 					if((q += fabs(p_ti->Quantity_)) >= rest)
 						q = rest;
@@ -4284,7 +4301,7 @@ int SLAPI PPBillPacket::CalcModifCost()
 	uint   i, out_count = 0;
 	double sum_cost = 0.0, sum_price = 0.0;
 	PPTransferItem * p_ti;
-	for(i = 0; Lots.enumItems(&i, (void**)&p_ti);) {
+	for(i = 0; Lots.enumItems(&i, (void **)&p_ti);) {
 		if(p_ti->IsRecomplete()) {
 			if(!(p_ti->Flags & PPTFR_FIXMODIFCOST)) {
 				out_count++;
@@ -4649,7 +4666,7 @@ int SLAPI TiIter::OrderRows_Mem(const PPBillPacket * pPack, Order o)
 						GetArticleName(suppl_id, grp_name);
 					else if(o == ordByLocation) {
 						PPID   loc_id = 0;
-						if(p_gto_assc->Get(goods_rec.ID, &loc_id) > 0)
+						if(p_gto_assc && p_gto_assc->Get(goods_rec.ID, &loc_id) > 0)
 							GetLocationName(loc_id, grp_name);
 					}
 					else if(o == ordByPLU) {
@@ -4669,28 +4686,31 @@ int SLAPI TiIter::OrderRows_Mem(const PPBillPacket * pPack, Order o)
 						}
 					}
 					else if(o == ordByQCert) {
-						ReceiptTbl::Rec lot_rec;
-						PPIDArray qcert_list;
-						QualityCertTbl::Rec qcert_rec;
-						for(DateIter di; BillObj->trfr->Rcpt.EnumByGoods(goods_rec.ID, &di, &lot_rec) > 0;)
-							if(lot_rec.QCertID && p_qcert_obj->Search(lot_rec.QCertID, &qcert_rec) > 0) {
-								if(!qcert_rec.Passive && !qcert_list.lsearch(qcert_rec.ID)) {
-									ord_list.Add(++uniq_counter, temp_buf.Z().Cat(qcert_rec.Code).Cat(goods_name), 1);
-									ext.Uc = uniq_counter;
-									ext.Pos = i-1;
-									ext.Extra = qcert_rec.ID;
-									ext.DispPos = -1;
-									ext_list.insert(&ext);
-									qcert_list.addUnique(qcert_rec.ID);
-									to_add_entry = 0;
+						if(p_qcert_obj) {
+							ReceiptTbl::Rec lot_rec;
+							PPIDArray qcert_list;
+							QualityCertTbl::Rec qcert_rec;
+							for(DateIter di; BillObj->trfr->Rcpt.EnumByGoods(goods_rec.ID, &di, &lot_rec) > 0;) {
+								if(lot_rec.QCertID && p_qcert_obj->Search(lot_rec.QCertID, &qcert_rec) > 0) {
+									if(!qcert_rec.Passive && !qcert_list.lsearch(qcert_rec.ID)) {
+										ord_list.Add(++uniq_counter, temp_buf.Z().Cat(qcert_rec.Code).Cat(goods_name), 1);
+										ext.Uc = uniq_counter;
+										ext.Pos = i-1;
+										ext.Extra = qcert_rec.ID;
+										ext.DispPos = -1;
+										ext_list.insert(&ext);
+										qcert_list.addUnique(qcert_rec.ID);
+										to_add_entry = 0;
+									}
 								}
 							}
+						}
 					}
 					else if(o == ordByStorePlaceGrpGoods) {
 						PPID   loc_id = 0;
 						PPIDArray loc_list;
 						LocationTbl::Rec wp_rec;
-						if(p_gto_assc->GetListByGoods(goods_rec.ID, loc_list) > 0) {
+						if(p_loc_obj && p_gto_assc && p_gto_assc->GetListByGoods(goods_rec.ID, loc_list) > 0) {
 							for(uint j = 0; to_add_entry && j < loc_list.getCount(); j++) {
 								const PPID _loc_id = loc_list.get(j);
 								PPID  _wh_id = 0;
@@ -4785,7 +4805,7 @@ int SLAPI TiIter::Init(const PPBillPacket * pPack, long flags, long filtGrpID, O
 			for(uint pos = 0; !oprno && pPack->SearchGoods(goods_id, &pos); pos++) {
 				is_present = 1;
 				const PPTransferItem & r_ti = pPack->ConstTI(pos);
-				if(oprno == 0 && r_ti.RByBill && p_bobj->trfr->SearchByBill(r_ti.BillID, 0, r_ti.RByBill, &rec) > 0)
+				if(r_ti.RByBill && p_bobj->trfr->SearchByBill(r_ti.BillID, 0, r_ti.RByBill, &rec) > 0)
 					oprno = rec.OprNo;
 			}
 			p_bobj->GetGoodsSaldo(goods_id, pPack->Rec.Object, dlvr_loc_id, pPack->Rec.Dt, oprno, &saldo, 0);
@@ -4930,7 +4950,7 @@ int SLAPI PPBillPacket::EnumTItemsExt(TiIter * pI, PPTransferItem * pTI, TiItemE
 		if(p_i->UseIndex) {
 			TiIter::IndexItem * p_p = 0;
 			PPObjGoods g_obj;
-			while(p_i->Index.enumItems(&p_i->I, (void**)&p_p)) {
+			while(p_i->Index.enumItems(&p_i->I, (void **)&p_p)) {
 				const  int _idx = p_p->TiPos;
 				uint   temp_idx = _idx;
 				int    rf = 0; // 2 - tare saldo

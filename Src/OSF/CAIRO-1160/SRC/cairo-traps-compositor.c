@@ -56,7 +56,7 @@
 #include "cairo-surface-observer-private.h"
 //#include "cairo-region-private.h"
 //#include "cairo-spans-private.h"
-#include "cairo-traps-private.h"
+//#include "cairo-traps-private.h"
 #include "cairo-tristrip-private.h"
 
 typedef cairo_int_status_t (* draw_func_t) (const cairo_traps_compositor_t * compositor,

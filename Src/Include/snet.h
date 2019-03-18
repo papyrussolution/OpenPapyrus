@@ -189,7 +189,7 @@ private:
 	long   State;
 };
 
-int SLAPI GetFirstHostByMACAddr(MACAddr * pItem, InetAddr * pAddr);
+int SLAPI GetFirstHostByMACAddr(const MACAddr * pItem, InetAddr * pAddr);
 //
 //
 //

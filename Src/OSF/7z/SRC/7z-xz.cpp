@@ -897,7 +897,7 @@ namespace NArchive {
 		if(indexInArchive != 0)
 			return E_INVALIDARG;
 		CMyComPtr<IArchiveUpdateCallbackFile> opCallback;
-		updateCallback->QueryInterface(IID_IArchiveUpdateCallbackFile, (void**)&opCallback);
+		updateCallback->QueryInterface(IID_IArchiveUpdateCallbackFile, (void **)&opCallback);
 		if(opCallback) {
 			RINOK(opCallback->ReportOperation(NEventIndexType::kInArcIndex, 0, NUpdateNotifyOp::kReplicate))
 		}

@@ -72,7 +72,7 @@
 #define TIFF_SSIZE_FORMAT "%d" /* Signed size type formatter */
 #define TIFF_UINT32_FORMAT "%u" /* Unsigned 32-bit type formatter */
 #define TIFF_UINT64_FORMAT "%llu" /* Unsigned 64-bit type formatter */
-#define TIFF_UINT8_T unsigned char /* Unsigned 8-bit type */
+#define TIFF_UINT8_T uchar /* Unsigned 8-bit type */
 #undef TIME_WITH_SYS_TIME /* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
 #define TM_IN_SYS_TIME 1 /* Define to 1 if your <sys/time.h> declares `struct tm'. */
 #define USE_WIN32_FILEIO 1 /* define to use win32 IO system */

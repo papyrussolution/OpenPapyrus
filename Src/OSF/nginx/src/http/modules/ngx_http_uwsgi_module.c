@@ -511,10 +511,10 @@ static ngx_int_t ngx_http_uwsgi_eval(ngx_http_request_t * r, ngx_http_uwsgi_loc_
 	if(ngx_http_script_run(r, &url.url, uwcf->uwsgi_lengths->elts, 0, uwcf->uwsgi_values->elts) == NULL) {
 		return NGX_ERROR;
 	}
-	if(url.url.len > 8 && ngx_strncasecmp(url.url.data, (u_char*)"uwsgi://", 8) == 0) {
+	if(url.url.len > 8 && ngx_strncasecmp(url.url.data, (u_char *)"uwsgi://", 8) == 0) {
 		add = 8;
 	}
-	else if(url.url.len > 9 && ngx_strncasecmp(url.url.data, (u_char*)"suwsgi://", 9) == 0) {
+	else if(url.url.len > 9 && ngx_strncasecmp(url.url.data, (u_char *)"suwsgi://", 9) == 0) {
 #if (NGX_HTTP_SSL)
 		add = 9;
 		r->upstream->ssl = 1;
@@ -1436,7 +1436,7 @@ next:
 		}
 		copy->code = ngx_http_script_copy_code;
 		copy->len = src[i].key.len;
-		p = (u_char*)copy + sizeof(ngx_http_script_copy_code_t);
+		p = (u_char *)copy + sizeof(ngx_http_script_copy_code_t);
 		memcpy(p, src[i].key.data, src[i].key.len);
 		memzero(&sc, sizeof(ngx_http_script_compile_t));
 		sc.cf = cf;
@@ -1488,7 +1488,7 @@ static const char * ngx_http_uwsgi_pass(ngx_conf_t * cf, const ngx_command_t * c
 	else {
 		ngx_http_core_loc_conf_t * clcf = (ngx_http_core_loc_conf_t *)ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module);
 		clcf->F_HttpHandler = ngx_http_uwsgi_handler;
-		value = (ngx_str_t *)cf->args->elts;
+		value = static_cast<ngx_str_t *>(cf->args->elts);
 		url = &value[1];
 		n = ngx_http_script_variables_count(url);
 		if(n) {
@@ -1508,10 +1508,10 @@ static const char * ngx_http_uwsgi_pass(ngx_conf_t * cf, const ngx_command_t * c
 	#endif
 			return NGX_CONF_OK;
 		}
-		if(ngx_strncasecmp(url->data, (u_char*)"uwsgi://", 8) == 0) {
+		if(ngx_strncasecmp(url->data, (u_char *)"uwsgi://", 8) == 0) {
 			add = 8;
 		}
-		else if(ngx_strncasecmp(url->data, (u_char*)"suwsgi://", 9) == 0) {
+		else if(ngx_strncasecmp(url->data, (u_char *)"suwsgi://", 9) == 0) {
 	#if (NGX_HTTP_SSL)
 			add = 9;
 			uwcf->ssl = 1;
@@ -1546,7 +1546,7 @@ static const char * ngx_http_uwsgi_store(ngx_conf_t * cf, const ngx_command_t * 
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+		ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 		if(ngx_strcmp(value[1].data, "off") == 0) {
 			uwcf->upstream.store = 0;
 			return NGX_CONF_OK;
@@ -1584,7 +1584,7 @@ static const char * ngx_http_uwsgi_cache(ngx_conf_t * cf, const ngx_command_t * 
 	ngx_http_uwsgi_loc_conf_t * uwcf = (ngx_http_uwsgi_loc_conf_t *)conf;
 	ngx_http_complex_value_t cv;
 	ngx_http_compile_complex_value_t ccv;
-	ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(uwcf->upstream.cache != NGX_CONF_UNSET) {
 		return "is duplicate";
 	}
@@ -1627,7 +1627,7 @@ static const char * ngx_http_uwsgi_cache_key(ngx_conf_t * cf, const ngx_command_
 {
 	ngx_http_uwsgi_loc_conf_t * uwcf = (ngx_http_uwsgi_loc_conf_t *)conf;
 	ngx_http_compile_complex_value_t ccv;
-	ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(uwcf->cache_key.value.data) {
 		return "is duplicate";
 	}
@@ -1654,7 +1654,7 @@ static const char * ngx_http_uwsgi_ssl_password_file(ngx_conf_t * cf, const ngx_
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+		ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 		uwcf->ssl_passwords = ngx_ssl_read_password_file(cf, &value[1]);
 		if(uwcf->ssl_passwords == NULL) {
 			return NGX_CONF_ERROR;

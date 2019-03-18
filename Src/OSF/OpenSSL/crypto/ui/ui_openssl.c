@@ -344,7 +344,6 @@ error:
 		fprintf(tty_out, "\n");
 	if(ps >= 2 && !echo && !echo_console(ui))
 		ok = 0;
-
 	if(ps >= 1)
 		popsig();
 #else

@@ -1211,7 +1211,7 @@ static int ssl_print_handshake(BIO * bio, SSL * ssl, const uchar * msg, size_t m
 		default:
 		    BIO_indent(bio, indent + 2, 80);
 		    BIO_puts(bio, "Unsupported, hex dump follows:\n");
-		    BIO_dump_indent(bio, (const char *)msg, msglen, indent + 4);
+		    BIO_dump_indent(bio, reinterpret_cast<const char *>(msg), msglen, indent + 4);
 	}
 	return 1;
 }

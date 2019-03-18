@@ -134,12 +134,12 @@ static ossl_inline uchar constant_time_eq_8(uint a,
 
 static ossl_inline uint constant_time_eq_int(int a, int b)
 {
-    return constant_time_eq((unsigned)(a), (unsigned)(b));
+    return constant_time_eq((uint)(a), (uint)(b));
 }
 
 static ossl_inline uchar constant_time_eq_int_8(int a, int b)
 {
-    return constant_time_eq_8((unsigned)(a), (unsigned)(b));
+    return constant_time_eq_8((uint)(a), (uint)(b));
 }
 
 static ossl_inline uint constant_time_select(uint mask,
@@ -159,7 +159,7 @@ static ossl_inline uchar constant_time_select_8(uchar mask,
 static ossl_inline int constant_time_select_int(uint mask, int a,
                                                 int b)
 {
-    return (int)(constant_time_select(mask, (unsigned)(a), (unsigned)(b)));
+    return (int)(constant_time_select(mask, (uint)(a), (uint)(b)));
 }
 
 #ifdef __cplusplus

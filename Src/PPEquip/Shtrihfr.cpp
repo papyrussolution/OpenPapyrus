@@ -1,5 +1,5 @@
 // SHTRIHFR.CPP
-// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 // Èíòåðôåéñ (ñèíõðîííûé) ñ ÊÊÌ Øòðèõ-ÔÐ
 //
@@ -30,7 +30,7 @@ public:
 	int    SLAPI Search(long VAT, long salesTax, uint * p = 0);
 	int    SLAPI Insert(const BillTaxEntry * pEntry, uint * p = 0);
 	int    SLAPI Add(BillTaxEntry * pEntry);
-	BillTaxEntry & SLAPI  at(uint p);
+	BillTaxEntry & FASTCALL at(uint p);
 };
 
 IMPL_CMPFUNC(BillTaxEnKey, i1, i2) 
@@ -49,7 +49,7 @@ int SLAPI BillTaxArray::Insert(const BillTaxEntry * pEntry, uint * p)
 	return ordInsert(pEntry, p, PTR_CMPFUNC(BillTaxEnKey)) ? 1 : PPSetErrorSLib();
 }
 
-BillTaxEntry & SLAPI BillTaxArray::at(uint p)
+BillTaxEntry & FASTCALL BillTaxArray::at(uint p)
 {
 	return *static_cast<BillTaxEntry *>(SVector::at(p));
 }
@@ -214,10 +214,9 @@ public:
 	SLAPI ~SCS_SHTRIHFRF();
 	virtual int SLAPI PrintCheck(CCheckPacket *, uint flags);
 	// @v10.0.0 virtual int SLAPI PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN);
-	virtual int SLAPI PrintCheckCopy(CCheckPacket * pPack, const char * pFormatName, uint flags);
-	virtual int SLAPI PrintSlipDoc(CCheckPacket * pPack, const char * pFormatName, uint flags);
+	virtual int SLAPI PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
+	virtual int SLAPI PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int SLAPI GetSummator(double * val);
-	virtual int SLAPI AddSummator(double add);
 	virtual int SLAPI CloseSession(PPID sessID);
 	virtual int SLAPI PrintXReport(const CSessInfo *);
 	virtual int SLAPI PrintZReportCopy(const CSessInfo *);
@@ -227,7 +226,7 @@ public:
 	virtual int SLAPI CheckForSessionOver();
 	virtual int SLAPI PrintBnkTermReport(const char * pZCheck);
 private:
-	virtual int SLAPI InitChannel();
+	// @v10.3.9 virtual int SLAPI InitChannel();
 	FR_INTRF  * SLAPI InitDriver();
 	int  SLAPI ConnectFR();
 	int  SLAPI SetupTables();
@@ -235,7 +234,7 @@ private:
 	int  SLAPI CheckForCash(double sum);
 	int  SLAPI CheckForEKLZOrFMOverflow();
 	int  SLAPI PrintReport(int withCleaning);
-	int	 SLAPI PrintDiscountInfo(CCheckPacket * pPack, uint flags);
+	int	 SLAPI PrintDiscountInfo(const CCheckPacket * pPack, uint flags);
 	int  SLAPI GetCheckInfo(const PPBillPacket * pPack, BillTaxArray * pAry, long * pFlags, SString &rName);
 	int  SLAPI InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry, int * pPrintTaxAction);
 	int  SLAPI SetFR(PPID id, int    iVal);
@@ -530,7 +529,7 @@ void SLAPI SCS_SHTRIHFRF::SetCheckLine(char pattern, char * pBuf)
 
 // "ÑÓÌÌÀ ÁÅÇ ÑÊÈÄÊÈ;ÊÀÐÒÀ;ÂËÀÄÅËÅÖ;ÑÊÈÄÊÀ;×åê íå íàïå÷àòàí;ÍÀËÎÃ Ñ ÏÐÎÄÀÆ;ÑÓÌÌÀ ÏÎ ÑÒÀÂÊÅ ÍÄÑ;ÍÑÏ;ÏÎËÓ×ÀÒÅËÜ;ÊÎÏÈß ×ÅÊÀ;ÂÎÇÂÐÀÒ ÏÐÎÄÀÆÈ;ÏÐÎÄÀÆÀ;ÈÒÎÃ;ÁÅÇÍÀËÈ×ÍÀß ÎÏËÀÒÀ"
 
-int	SLAPI SCS_SHTRIHFRF::PrintDiscountInfo(CCheckPacket * pPack, uint flags)
+int	SLAPI SCS_SHTRIHFRF::PrintDiscountInfo(const CCheckPacket * pPack, uint flags)
 {
 	int    ok = 1;
 	double amt = R2(fabs(MONEYTOLDBL(pPack->Rec.Amount)));
@@ -711,7 +710,8 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 		}
 		if(P_SlipFmt) {
 			int      prn_total_sale = 1, r = 0;
-			SString  line_buf, format_name = "CCheck";
+			SString  line_buf;
+			const SString format_name = "CCheck";
 			SlipLineParam sl_param;
 			THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 			if(r > 0) {
@@ -1210,7 +1210,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckByBill(const PPBillPacket * pPack, double mul
 }
 #endif // } 0 @v10.0.0
 
-int SLAPI SCS_SHTRIHFRF::PrintSlipDoc(CCheckPacket * pPack, const char * pFormatName, uint flags)
+int SLAPI SCS_SHTRIHFRF::PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatName, uint flags)
 {
 	int    ok = -1;
 	SString  temp_buf;
@@ -1290,7 +1290,7 @@ int SLAPI SCS_SHTRIHFRF::PrintSlipDoc(CCheckPacket * pPack, const char * pFormat
 	return ok;
 }
 
-int SLAPI SCS_SHTRIHFRF::PrintCheckCopy(CCheckPacket * pPack, const char * pFormatName, uint flags)
+int SLAPI SCS_SHTRIHFRF::PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags)
 {
 	int     ok = 1, is_format = 0;
 	SlipDocCommonParam  sdc_param;
@@ -1529,15 +1529,7 @@ int SLAPI SCS_SHTRIHFRF::GetSummator(double * val)
 	return ok;
 }
 
-int SLAPI SCS_SHTRIHFRF::AddSummator(double)
-{
-	return 1;
-}
-
-int SLAPI SCS_SHTRIHFRF::InitChannel()
-{
-	return 1;
-}
+// @v10.3.9 int SLAPI SCS_SHTRIHFRF::InitChannel() { return 1; }
 
 FR_INTRF * SLAPI SCS_SHTRIHFRF::InitDriver()
 {

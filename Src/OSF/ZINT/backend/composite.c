@@ -96,11 +96,11 @@ static const int8 aRAPTable[68] = { // @sobolev int-->int8
 //#define UINT ushort
 
 extern int general_rules(const char field[], char type[]);
-extern int eanx(struct ZintSymbol * symbol, uchar source[], int length);
-extern int ean_128(struct ZintSymbol * symbol, uchar source[], const size_t length);
+extern int eanx(struct ZintSymbol * symbol, const uchar source[], int length);
+extern int ean_128(struct ZintSymbol * symbol, const uchar source[], const size_t length);
 extern int rss14(struct ZintSymbol * symbol, uchar source[], int length);
 extern int rsslimited(struct ZintSymbol * symbol, uchar source[], int length);
-extern int rssexpanded(struct ZintSymbol * symbol, uchar source[], int length);
+extern int rssexpanded(struct ZintSymbol * symbol, const uchar source[], int length);
 
 static ushort pwr928[69][7]; // @global
 
@@ -1768,7 +1768,7 @@ int composite(struct ZintSymbol * symbol, uchar source[], int length)
 	}
 	if(symbol->Std == BARCODE_EAN128_CC) {
 		/* Do a test run of encoding the linear component to establish its width */
-		linear_width = linear_dummy_run((uchar *)symbol->primary, pri_len);
+		linear_width = linear_dummy_run(reinterpret_cast<uchar *>(symbol->primary), pri_len);
 		if(linear_width == 0) {
 			sstrcpy(symbol->errtxt, "Invalid data (D48)");
 			return ZINT_ERROR_INVALID_DATA;
@@ -1848,16 +1848,16 @@ int composite(struct ZintSymbol * symbol, uchar source[], int length)
 		linear->option_1 = cc_mode; /* GS1-128 needs to know which type of 2D component is used */
 	}
 	switch(symbol->Std) {
-		case BARCODE_EANX_CC: error_number = eanx(linear, (uchar *)symbol->primary, pri_len); break;
-		case BARCODE_EAN128_CC: error_number = ean_128(linear, (uchar *)symbol->primary, pri_len); break;
-		case BARCODE_RSS14_CC: error_number = rss14(linear, (uchar *)symbol->primary, pri_len); break;
-		case BARCODE_RSS_LTD_CC: error_number = rsslimited(linear, (uchar *)symbol->primary, pri_len); break;
-		case BARCODE_RSS_EXP_CC: error_number = rssexpanded(linear, (uchar *)symbol->primary, pri_len); break;
-		case BARCODE_UPCA_CC: error_number = eanx(linear, (uchar *)symbol->primary, pri_len); break;
-		case BARCODE_UPCE_CC: error_number = eanx(linear, (uchar *)symbol->primary, pri_len); break;
-		case BARCODE_RSS14STACK_CC: error_number = rss14(linear, (uchar *)symbol->primary, pri_len); break;
-		case BARCODE_RSS14_OMNI_CC: error_number = rss14(linear, (uchar *)symbol->primary, pri_len); break;
-		case BARCODE_RSS_EXPSTACK_CC: error_number = rssexpanded(linear, (uchar *)symbol->primary, pri_len); break;
+		case BARCODE_EANX_CC: error_number = eanx(linear, reinterpret_cast<const uchar *>(symbol->primary), pri_len); break;
+		case BARCODE_EAN128_CC: error_number = ean_128(linear, reinterpret_cast<const uchar *>(symbol->primary), pri_len); break;
+		case BARCODE_RSS14_CC: error_number = rss14(linear, reinterpret_cast<uchar *>(symbol->primary), pri_len); break;
+		case BARCODE_RSS_LTD_CC: error_number = rsslimited(linear, reinterpret_cast<uchar *>(symbol->primary), pri_len); break;
+		case BARCODE_RSS_EXP_CC: error_number = rssexpanded(linear, reinterpret_cast<const uchar *>(symbol->primary), pri_len); break;
+		case BARCODE_UPCA_CC: error_number = eanx(linear, reinterpret_cast<uchar *>(symbol->primary), pri_len); break;
+		case BARCODE_UPCE_CC: error_number = eanx(linear, reinterpret_cast<uchar *>(symbol->primary), pri_len); break;
+		case BARCODE_RSS14STACK_CC: error_number = rss14(linear, reinterpret_cast<uchar *>(symbol->primary), pri_len); break;
+		case BARCODE_RSS14_OMNI_CC: error_number = rss14(linear, reinterpret_cast<uchar *>(symbol->primary), pri_len); break;
+		case BARCODE_RSS_EXPSTACK_CC: error_number = rssexpanded(linear, reinterpret_cast<const uchar *>(symbol->primary), pri_len); break;
 	}
 	if(error_number != 0) {
 		sstrcpy(symbol->errtxt, linear->errtxt);

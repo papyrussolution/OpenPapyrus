@@ -1005,8 +1005,8 @@ int SLAPI PPBaseFilt::Copy(const PPBaseFilt * pS, int)
 			*p_list = *p_src_list;
 		}
 		else if(p_b->Type == Branch::tBaseFiltPtr) {
-			PPBaseFilt ** pp_filt = (PPBaseFilt**)(((const uint8 *)this) + p_b->Offs);
-			const PPBaseFilt * p_src_filt = *(const PPBaseFilt **)(PTR8C(pS) + p_b->Offs);
+			PPBaseFilt ** pp_filt = reinterpret_cast<PPBaseFilt **>(PTR8(this) + p_b->Offs);
+			const PPBaseFilt * p_src_filt = *reinterpret_cast<PPBaseFilt * const *>(PTR8C(pS) + p_b->Offs);
 			THROW(CopyBaseFiltPtr(p_b->ExtraId, p_src_filt, pp_filt));
 		}
 	}
@@ -1060,8 +1060,8 @@ int SLAPI PPBaseFilt::IsEqual(const PPBaseFilt * pS, int) const
 							ok = 0;
 					}
 					else if(p_b->Type == Branch::tBaseFiltPtr) {
-						const PPBaseFilt * p_filt = *(const PPBaseFilt**)(PTR8C(this) + p_b->Offs);
-						const PPBaseFilt * p_src_filt = *(const PPBaseFilt **)(PTR8C(pS) + p_b->Offs);
+						const PPBaseFilt * p_filt = *reinterpret_cast<const PPBaseFilt * const *>(PTR8C(this) + p_b->Offs);
+						const PPBaseFilt * p_src_filt = *reinterpret_cast<const PPBaseFilt * const *>(PTR8C(pS) + p_b->Offs);
 						if(p_filt && p_src_filt) {
 							if(!p_filt->IsEqual(p_src_filt, 0))
 								ok = 0;
@@ -2022,7 +2022,7 @@ int PPViewBrowser::Export()
 	ZDELETE(p_sheet);
 	ZDELETE(p_app);
 	if(ok > 0)
-		::ShellExecute(0, _T("open"), path, NULL, NULL, SW_SHOWNORMAL); // @unicodeproblem
+		::ShellExecute(0, _T("open"), SUcSwitch(path), NULL, NULL, SW_SHOWNORMAL); // @unicodeproblem
 	return ok;
 }
 
@@ -2181,6 +2181,8 @@ int PPViewBrowser::SetupToolbarStringCombo(uint strId, PPID id)
 
 IMPL_HANDLE_EVENT(PPViewBrowser)
 {
+	if(!this || !this->IsConsistent()) // @v10.3.9
+		return;
 	int    c, r;
 	int    skip_inherited_processing = 0;
 	if(TVKEYDOWN) {
@@ -2230,7 +2232,7 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 		*/
 		BrowserWindow::handleEvent(event);
 	}
-	if(!P_View || !P_View->IsConsistent())
+	if(!P_View || !P_View->IsConsistent() || (!this || !this->IsConsistent()))
 		return;
 	if(TVBROADCAST) {
 		if(TVCMD == cmIdle) {
@@ -2481,6 +2483,6 @@ int PPTimeChunkBrowser::ExportToExcel()
 	ZDELETE(p_sheet);
 	ZDELETE(p_app);
 	if(ok > 0 && fileExists(path))
-		::ShellExecute(0, _T("open"), path, NULL, NULL, SW_SHOWNORMAL); // @unicodeproblem
+		::ShellExecute(0, _T("open"), SUcSwitch(path), NULL, NULL, SW_SHOWNORMAL); // @unicodeproblem
 	return ok;
 }

@@ -164,7 +164,7 @@ ngx_cycle_t * ngx_init_cycle(ngx_cycle_t * old_cycle, const NgxStartUpOptions & 
 		ngx_destroy_pool(p_pool);
 		return NULL;
 	}
-	ngx_strlow(cycle->hostname.data, (u_char*)hostname, cycle->hostname.len);
+	ngx_strlow(cycle->hostname.data, (u_char *)hostname, cycle->hostname.len);
 	{
 		if(ngx_cycle_modules(cycle) != NGX_OK) {
 			ngx_destroy_pool(p_pool);

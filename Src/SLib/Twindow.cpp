@@ -44,7 +44,7 @@ int TMenuPopup::Add(const char * pText, int cmd)
 		}
 		UINT flags = MF_STRING|MF_ENABLED;
 		SETFLAG(flags, MF_SEPARATOR, BIN(cmd == TV_MENUSEPARATOR));
-		ok = BIN(::AppendMenu((HMENU)H, flags, (cmd == TV_MENUSEPARATOR) ? 0 : cmd, pText)); // @unicodeproblem
+		ok = BIN(::AppendMenu(static_cast<HMENU>(H), flags, (cmd == TV_MENUSEPARATOR) ? 0 : cmd, SUcSwitch(pText))); // @unicodeproblem
 		if(ok)
 			Count++;
 		State &= ~MPST_PREVSEPARATOR;
@@ -198,7 +198,7 @@ uint ToolbarList::getVisibleItemsCount() const
 int ToolbarList::enumItems(uint * pIdx, ToolbarItem * pItem)
 {
 	ToolbarItem * p_item;
-	if(SVector::enumItems(pIdx, (void**)&p_item) > 0) {
+	if(SVector::enumItems(pIdx, (void **)&p_item) > 0) {
 		ASSIGN_PTR(pItem, *p_item);
 		return 1;
 	}
@@ -293,9 +293,9 @@ void TWindow::close()
 		delete this;
 }
 
-static bool searchItem(TView * v, void *ptr)
+static bool searchItem(TView * v, void * ptr)
 {
-	return v->TestId(*(ushort *)ptr) ? true : false;
+	return LOGIC(v->TestId(*static_cast<const ushort *>(ptr)));
 }
 
 TView * FASTCALL TWindow::getCtrlView(ushort ctlID)
@@ -360,7 +360,7 @@ void FASTCALL TWindow::setCtrlReadOnly(ushort ctlID, int enable)
 {
 	TView * v = getCtrlView(ctlID);
 	if(v) {
-		v->setState(sfReadOnly, enable ? true : false);
+		v->setState(sfReadOnly, LOGIC(enable));
 		if(enable && (P_Current->IsInState(sfDisabled|sfReadOnly) || P_Current == v))
 			selectNext();
 	}
@@ -382,7 +382,7 @@ void FASTCALL TWindow::disableCtrl(ushort ctlID, int enable)
 {
 	TView * v = getCtrlView(ctlID);
 	if(v) {
-		v->setState(sfDisabled, enable ? true : false);
+		v->setState(sfDisabled, LOGIC(enable));
 		if(enable && P_Current && (P_Current->IsInState(sfDisabled) || P_Current == v)) // ((P_Current->state & sfDisabled))
 			selectNext();
 		if(P_Lmp) {
@@ -531,14 +531,14 @@ int FASTCALL TWindow::setCtrlString(uint ctlID, const SString & s)
 	size_t temp_len = sizeof(temp_buf);
 	char * p_temp = temp_buf;
 	int    is_temp_allocated = 0;
-	TView * p_v = (TView *)getCtrlView(ctlID);
+	TView * p_v = static_cast<TView *>(getCtrlView(ctlID));
 	if(p_v) {
 		const uint ctrl_subsign = p_v->GetSubSign();
 		if(ctrl_subsign == TV_SUBSIGN_INPUTLINE) {
 			const size_t max_len = static_cast<TInputLine *>(p_v)->getMaxLen();
 			if(max_len > temp_len && s.Len() >= temp_len) {
 				temp_len = max_len+32;
-				p_temp = (char *)SAlloc::M(temp_len);
+				p_temp = static_cast<char *>(SAlloc::M(temp_len));
 				if(p_temp) {
 					is_temp_allocated = 1;
 					temp_len = max_len+32;
@@ -576,7 +576,7 @@ int FASTCALL TWindow::getCtrlString(uint ctlID, SString & s)
 	if(p_il && p_il->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
 		const size_t max_len = p_il->getMaxLen();
 		if(max_len > sizeof(temp_buf)) {
-			p_temp = (char *)SAlloc::M(max_len+32);
+			p_temp = static_cast<char *>(SAlloc::M(max_len+32));
 			if(p_temp)
 				is_temp_allocated = 1;
 		}
@@ -633,7 +633,7 @@ void SLAPI TWindow::showCtrl(ushort ctlID, int s)
 {
 	TView * v = getCtrlView(ctlID);
 	if(v)
-		v->setState(sfVisible, s ? true : false);
+		v->setState(sfVisible, LOGIC(s));
 	else {
 		HWND   w_ctl = GetDlgItem(HW, ctlID);
 		if(w_ctl)
@@ -1184,7 +1184,8 @@ int TWindowBase::RegWindowClass(int iconId)
 		return -1;
 }
 
-TWindowBase::TWindowBase(LPCTSTR pWndClsName, int capability) : ClsName(pWndClsName), TWindow(TRect(), 0, 0), WbState(0), WbCapability(capability), H_DrawBuf(0)
+TWindowBase::TWindowBase(LPCTSTR pWndClsName, int capability) : ClsName(SUcSwitch(pWndClsName)), 
+	TWindow(TRect(), 0, 0), WbState(0), WbCapability(capability), H_DrawBuf(0)
 {
 }
 
@@ -1192,7 +1193,7 @@ TWindowBase::~TWindowBase()
 {
 	ZDeleteWinGdiObject(&H_DrawBuf);
 	if(::IsWindow(HW)) {
-		TWindowBase * p_this_view_from_wnd = (TWindowBase *)TView::GetWindowUserData(HW);
+		TWindowBase * p_this_view_from_wnd = static_cast<TWindowBase *>(TView::GetWindowUserData(HW));
 		if(p_this_view_from_wnd) {
 			Sf |= sfOnDestroy;
 			::DestroyWindow(HW);
@@ -1248,14 +1249,14 @@ int TWindowBase::Create(void * hParentWnd, long createOptions)
 	}
 	if(createOptions & coChild) {
 		style = WS_CHILD|WS_TABSTOP;
-		HW = CreateWindowEx(WS_EX_CLIENTEDGE, P_SLibWindowBaseClsName, title_buf, style, 0, 0, cx, cy, hw_parent, 0, h_inst, this); // @unicodeproblem
+		HW = CreateWindowEx(WS_EX_CLIENTEDGE, P_SLibWindowBaseClsName, SUcSwitch(title_buf), style, 0, 0, cx, cy, hw_parent, 0, h_inst, this); // @unicodeproblem
 	}
 	else { // coPopup
 		style = WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_VISIBLE;
 		if(createOptions & coMDI) {
 			MDICREATESTRUCT child;
 			child.szClass = P_SLibWindowBaseClsName; // @unicodeproblem
-			child.szTitle = title_buf; // @unicodeproblem
+			child.szTitle = SUcSwitch(title_buf); // @unicodeproblem
 			child.hOwner = h_inst;
 			child.x  = CW_USEDEFAULT;
 			child.y  = CW_USEDEFAULT;
@@ -1266,7 +1267,7 @@ int TWindowBase::Create(void * hParentWnd, long createOptions)
 			HW = reinterpret_cast<HWND>(LOWORD(SendMessage(hw_parent, WM_MDICREATE, 0, reinterpret_cast<LPARAM>(&child)))); // @unicodeproblem
 		}
 		else {
-			HW = CreateWindowEx(0, P_SLibWindowBaseClsName, title_buf, style, x, y, cx, cy, hw_parent, 0, h_inst, this); // @unicodeproblem
+			HW = CreateWindowEx(0, P_SLibWindowBaseClsName, SUcSwitch(title_buf), style, x, y, cx, cy, hw_parent, 0, h_inst, this); // @unicodeproblem
 		}
 	}
 	return BIN(HW);
@@ -1319,16 +1320,16 @@ IMPL_HANDLE_EVENT(TWindowBase)
 		TWindow::handleEvent(event);
 		if(TVINFOPTR) {
 			if(event.isCmd(cmInit)) {
-				CreateBlock * p_blk = (CreateBlock *)TVINFOPTR;
+				//CreateBlock * p_blk = static_cast<CreateBlock *>(TVINFOPTR);
 				Layout.SetContainerBounds(getClientRect());
 			}
 			else if(event.isCmd(cmSetBounds)) {
-				const TRect * p_rc = (const TRect *)TVINFOPTR;
+				const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
 				::SetWindowPos(H(), 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOREDRAW);
 				clearEvent(event);
 			}
 			else if(event.isCmd(cmSize)) {
-				SizeEvent * p_se = (SizeEvent *)TVINFOPTR;
+				//SizeEvent * p_se = static_cast<SizeEvent *>(TVINFOPTR);
 				Layout.SetContainerBounds(getClientRect());
 				invalidateAll(1);
 				::UpdateWindow(H());
@@ -1436,24 +1437,24 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 			{
 				CreateBlock cr_blk;
 				MEMSZERO(cr_blk);
-				p_init_data = (LPCREATESTRUCT)lParam;
+				p_init_data = reinterpret_cast<LPCREATESTRUCT>(lParam);
 				if(IsMDIClientWindow(p_init_data->hwndParent)) {
-					MDICREATESTRUCT * p_mdi_init_data = (LPMDICREATESTRUCT)(p_init_data->lpCreateParams);
-					p_view = (TWindowBase *)(p_mdi_init_data)->lParam;
+					MDICREATESTRUCT * p_mdi_init_data = static_cast<LPMDICREATESTRUCT>(p_init_data->lpCreateParams);
+					p_view = reinterpret_cast<TWindowBase *>(p_mdi_init_data->lParam);
 					p_view->WbState |= wbsMDI;
 					cr_blk.Coord.setwidthrel(p_mdi_init_data->x, p_mdi_init_data->cx);
 					cr_blk.Coord.setheightrel(p_mdi_init_data->y, p_mdi_init_data->cy);
-					cr_blk.Param = (void *)p_mdi_init_data->lParam;
+					cr_blk.Param = reinterpret_cast<void *>(p_mdi_init_data->lParam);
 					cr_blk.H_Process = p_mdi_init_data->hOwner;
 					cr_blk.Style = p_mdi_init_data->style;
 					cr_blk.ExStyle = 0;
 					cr_blk.H_Parent = 0;
 					cr_blk.H_Menu = 0;
-					cr_blk.P_WndCls = p_mdi_init_data->szClass; // @unicodeproblem
-					cr_blk.P_Title = p_mdi_init_data->szTitle; // @unicodeproblem
+					cr_blk.P_WndCls = SUcSwitch(p_mdi_init_data->szClass); // @unicodeproblem
+					cr_blk.P_Title = SUcSwitch(p_mdi_init_data->szTitle); // @unicodeproblem
 				}
 				else {
-					p_view = (TWindowBase *)p_init_data->lpCreateParams;
+					p_view = static_cast<TWindowBase *>(p_init_data->lpCreateParams);
 					p_view->WbState &= ~wbsMDI;
 					cr_blk.Coord.setwidthrel(p_init_data->x, p_init_data->cx);
 					cr_blk.Coord.setheightrel(p_init_data->y, p_init_data->cy);
@@ -1463,8 +1464,8 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 					cr_blk.ExStyle = p_init_data->dwExStyle;
 					cr_blk.H_Parent = p_init_data->hwndParent;
 					cr_blk.H_Menu = p_init_data->hMenu;
-					cr_blk.P_WndCls = p_init_data->lpszClass; // @unicodeproblem
-					cr_blk.P_Title = p_init_data->lpszName; // @unicodeproblem
+					cr_blk.P_WndCls = SUcSwitch(p_init_data->lpszClass); // @unicodeproblem
+					cr_blk.P_Title = SUcSwitch(p_init_data->lpszName); // @unicodeproblem
 				}
 				if(p_view) {
 					p_view->HW = hWnd;

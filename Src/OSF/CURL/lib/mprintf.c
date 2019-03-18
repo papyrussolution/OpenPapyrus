@@ -102,7 +102,7 @@ static const char upper_digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 #define OUTCHAR(x) \
 	do { \
-		if(stream((uchar)(x), (FILE*)data) != -1) \
+		if(stream((uchar)(x), (FILE *)data) != -1) \
 			done++;	\
 		else \
 			return done;  /* return immediately on failure */ \

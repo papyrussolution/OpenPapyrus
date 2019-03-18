@@ -321,10 +321,10 @@ static void xmlFreePatParserContext(xmlPatParserContextPtr ctxt)
  *
  * Returns -1 in case of failure, 0 otherwise.
  */
-static int xmlPatternAdd(xmlPatParserContextPtr ctxt ATTRIBUTE_UNUSED, xmlPattern * comp, xmlPatOp op, xmlChar * value, xmlChar * value2)
+static int FASTCALL xmlPatternAdd(xmlPatParserContextPtr ctxt ATTRIBUTE_UNUSED, xmlPattern * comp, xmlPatOp op, const xmlChar * value, const xmlChar * value2)
 {
 	if(comp->nbStep >= comp->maxStep) {
-		xmlStepOp * temp = (xmlStepOp *)SAlloc::R(comp->steps, comp->maxStep * 2 * sizeof(xmlStepOp));
+		xmlStepOp * temp = static_cast<xmlStepOp *>(SAlloc::R(comp->steps, comp->maxStep * 2 * sizeof(xmlStepOp)));
 		if(temp == NULL) {
 			ERROR(ctxt, NULL, NULL, "xmlPatternAdd: realloc failed\n");
 			return -1;
@@ -389,7 +389,7 @@ static int xmlReversePattern(xmlPattern * comp)
 		comp->nbStep--;
 	}
 	if(comp->nbStep >= comp->maxStep) {
-		xmlStepOpPtr temp = (xmlStepOpPtr)SAlloc::R(comp->steps, comp->maxStep * 2 * sizeof(xmlStepOp));
+		xmlStepOpPtr temp = static_cast<xmlStepOpPtr>(SAlloc::R(comp->steps, comp->maxStep * 2 * sizeof(xmlStepOp)));
 		if(temp == NULL) {
 			ERROR(ctxt, NULL, NULL, "xmlReversePattern: realloc failed\n");
 			return -1;
@@ -400,8 +400,8 @@ static int xmlReversePattern(xmlPattern * comp)
 	i = 0;
 	j = comp->nbStep - 1;
 	while(j > i) {
-		register xmlPatOp op;
-		register const xmlChar * tmp = comp->steps[i].value;
+		xmlPatOp op;
+		const xmlChar * tmp = comp->steps[i].value;
 		comp->steps[i].value = comp->steps[j].value;
 		comp->steps[j].value = tmp;
 		tmp = comp->steps[i].value2;
@@ -418,22 +418,18 @@ static int xmlReversePattern(xmlPattern * comp)
 	comp->steps[comp->nbStep++].op = XML_OP_END;
 	return 0;
 }
-
-/************************************************************************
-*									*
-*		The interpreter for the precompiled patterns		*
-*									*
-************************************************************************/
-
+//
+// The interpreter for the precompiled patterns
+//
 static int xmlPatPushState(xmlStepStates * states, int step, xmlNode * P_Node)
 {
 	if((states->states == NULL) || (states->maxstates <= 0)) {
 		states->maxstates = 4;
 		states->nbstates = 0;
-		states->states = (xmlStepState *)SAlloc::M(4 * sizeof(xmlStepState));
+		states->states = static_cast<xmlStepState *>(SAlloc::M(4 * sizeof(xmlStepState)));
 	}
 	else if(states->maxstates <= states->nbstates) {
-		xmlStepState * tmp = (xmlStepState *)SAlloc::R(states->states, 2 * states->maxstates * sizeof(xmlStepState));
+		xmlStepState * tmp = static_cast<xmlStepState *>(SAlloc::R(states->states, 2 * states->maxstates * sizeof(xmlStepState)));
 		if(!tmp)
 			return -1;
 		states->states = tmp;
@@ -446,7 +442,6 @@ static int xmlPatPushState(xmlStepStates * states, int step, xmlNode * P_Node)
 #endif
 	return 0;
 }
-
 /**
  * xmlPatMatch:
  * @comp: the precompiled pattern
@@ -772,7 +767,7 @@ static xmlChar * xmlPatScanName(xmlPatParserContextPtr ctxt)
 		cur += len;
 		val = xmlStringCurrentChar(NULL, cur, &len);
 	}
-	ret = (ctxt->dict) ? (xmlChar *)xmlDictLookup(ctxt->dict, q, cur - q) : xmlStrndup(q, cur - q);
+	ret = (ctxt->dict) ? (xmlChar *)(xmlDictLookup(ctxt->dict, q, cur - q)) : xmlStrndup(q, cur - q);
 	CUR_PTR = cur;
 	return ret;
 }
@@ -829,7 +824,6 @@ static xmlChar * xmlPatScanQName(xmlPatParserContextPtr ctxt, xmlChar ** prefix)
 }
 
 #endif
-
 /**
  * xmlCompileAttributeTest:
  * @ctxt:  the compilation context
@@ -1018,7 +1012,7 @@ static void xmlCompileStepPattern(xmlPatParserContextPtr ctxt)
 		}
 		else {
 			NEXT;
-			if(sstreq(name, (const xmlChar*)"child")) {
+			if(sstreq(name, (const xmlChar *)"child")) {
 				XML_PAT_FREE_STRING(ctxt, name);
 				name = xmlPatScanName(ctxt);
 				if(!name) {
@@ -1083,7 +1077,7 @@ static void xmlCompileStepPattern(xmlPatParserContextPtr ctxt)
 					PUSH(XML_OP_CHILD, name, 0);
 				return;
 			}
-			else if(sstreq(name, (const xmlChar*)"attribute")) {
+			else if(sstreq(name, (const xmlChar *)"attribute")) {
 				XML_PAT_FREE_STRING(ctxt, name)
 				name = NULL;
 				if(XML_STREAM_XS_IDC_SEL(ctxt->comp)) {
@@ -1674,7 +1668,7 @@ static int xmlStreamCtxtAddState(xmlStreamCtxtPtr comp, int idx, int level)
 		if(comp->states[2 * i] < 0) {
 			comp->states[2 * i] = idx;
 			comp->states[2 * i + 1] = level;
-			return(i);
+			return (i);
 		}
 	}
 	if(comp->nbState >= comp->maxState) {

@@ -125,7 +125,7 @@ static int xmlXPtrGetIndex(xmlNode * cur)
 			i++;
 		}
 	}
-	return(i);
+	return (i);
 }
 /**
  * xmlXPtrGetNthChild:
@@ -1283,7 +1283,7 @@ static xmlNode * xmlXPtrBuildRangeNodeList(xmlXPathObjectPtr range)
 		return 0;
 	end = (xmlNode *)range->user2;
 	if(end == NULL)
-		return(xmlCopyNode(start, 1));
+		return (xmlCopyNode(start, 1));
 	if(end->type == XML_NAMESPACE_DECL)
 		return 0;
 	cur = start;
@@ -1317,7 +1317,7 @@ static xmlNode * xmlXPtrBuildRangeNodeList(xmlXPathObjectPtr range)
 					xmlAddNextSibling(last, tmp);
 				else
 					xmlAddChild(parent, tmp);
-				return(list);
+				return (list);
 			}
 			else {
 				tmp = xmlCopyNode(cur, 0);
@@ -1428,7 +1428,7 @@ static xmlNode * xmlXPtrBuildRangeNodeList(xmlXPathObjectPtr range)
 		}
 		cur = xmlXPtrAdvanceNode(cur, 0);
 	}
-	return(list);
+	return (list);
 }
 
 /**
@@ -1510,13 +1510,13 @@ xmlNode * xmlXPtrBuildNodeList(xmlXPathObject * obj)
 		    break;
 	    }
 		case XPATH_RANGE:
-		    return(xmlXPtrBuildRangeNodeList(obj));
+		    return (xmlXPtrBuildRangeNodeList(obj));
 		case XPATH_POINT:
 		    return xmlCopyNode((xmlNode *)obj->user, 0);
 		default:
 		    break;
 	}
-	return(list);
+	return (list);
 }
 
 /************************************************************************
@@ -1824,7 +1824,7 @@ static xmlXPathObjectPtr xmlXPtrCoveringRange(xmlXPathParserContextPtr ctxt, xml
 					    case XML_HTML_DOCUMENT_NODE: {
 						int indx = xmlXPtrGetIndex(P_Node);
 						P_Node = P_Node->parent;
-						return(xmlXPtrNewRange(P_Node, indx - 1, P_Node, indx + 1));
+						return (xmlXPtrNewRange(P_Node, indx - 1, P_Node, indx + 1));
 					}
 					    default:
 						return 0;

@@ -507,12 +507,12 @@ static ngx_int_t ngx_http_proxy_eval(ngx_http_request_t * r, ngx_http_proxy_ctx_
 	if(ngx_http_script_run(r, &proxy, plcf->proxy_lengths->elts, 0, plcf->proxy_values->elts) == NULL) {
 		return NGX_ERROR;
 	}
-	if(proxy.len > 7 && ngx_strncasecmp(proxy.data, (u_char*)"http://", 7) == 0) {
+	if(proxy.len > 7 && ngx_strncasecmp(proxy.data, (u_char *)"http://", 7) == 0) {
 		add = 7;
 		port = 80;
 #if (NGX_HTTP_SSL)
 	}
-	else if(proxy.len > 8 && ngx_strncasecmp(proxy.data, (u_char*)"https://", 8) == 0) {
+	else if(proxy.len > 8 && ngx_strncasecmp(proxy.data, (u_char *)"https://", 8) == 0) {
 		add = 8;
 		port = 443;
 		r->upstream->ssl = 1;
@@ -702,7 +702,7 @@ static ngx_int_t ngx_http_proxy_create_request(ngx_http_request_t * r)
 	ctx = (ngx_http_proxy_ctx_t *)ngx_http_get_module_ctx(r, ngx_http_proxy_module);
 
 	if(method.len == 4
-	    && ngx_strncasecmp(method.data, (u_char*)"HEAD", 4) == 0) {
+	    && ngx_strncasecmp(method.data, (u_char *)"HEAD", 4) == 0) {
 		ctx->head = 1;
 	}
 
@@ -1079,7 +1079,7 @@ static ngx_int_t ngx_http_proxy_body_output_filter(void * data, ngx_chain_t * in
 		b->temporary = 0;
 		b->memory = 1;
 		b->last_buf = 1;
-		b->pos = (u_char*)CRLF "0" CRLF CRLF;
+		b->pos = (u_char *)CRLF "0" CRLF CRLF;
 		b->last = b->pos + 7;
 
 		cl->buf->last_buf = 0;
@@ -1101,7 +1101,7 @@ static ngx_int_t ngx_http_proxy_body_output_filter(void * data, ngx_chain_t * in
 		b->tag = (ngx_buf_tag_t)&ngx_http_proxy_body_output_filter;
 		b->temporary = 0;
 		b->memory = 1;
-		b->pos = (u_char*)CRLF;
+		b->pos = (u_char *)CRLF;
 		b->last = b->pos + 2;
 
 		*ll = tl;
@@ -1264,7 +1264,7 @@ static ngx_int_t ngx_http_proxy_process_header(ngx_http_request_t * r)
 
 				ngx_str_set(&h->key, "Server");
 				ngx_str_null(&h->value);
-				h->lowcase_key = (u_char*)"server";
+				h->lowcase_key = (u_char *)"server";
 			}
 
 			if(r->upstream->headers_in.date == NULL) {
@@ -1277,7 +1277,7 @@ static ngx_int_t ngx_http_proxy_process_header(ngx_http_request_t * r)
 
 				ngx_str_set(&h->key, "Date");
 				ngx_str_null(&h->value);
-				h->lowcase_key = (u_char*)"date";
+				h->lowcase_key = (u_char *)"date";
 			}
 
 			/* clear content length if response is chunked */
@@ -1710,7 +1710,7 @@ static ngx_int_t ngx_http_proxy_internal_chunked_variable(ngx_http_request_t * r
 		v->valid = 1;
 		v->no_cacheable = 0;
 		v->not_found = 0;
-		v->data = (u_char*)"chunked";
+		v->data = (u_char *)"chunked";
 		v->len = sizeof("chunked") - 1;
 	}
 	return NGX_OK;
@@ -1780,7 +1780,7 @@ static ngx_int_t ngx_http_proxy_rewrite_cookie_value(ngx_http_request_t * r, ngx
 	ngx_int_t rc;
 	ngx_uint_t i;
 	size_t prefix = value - h->value.data;
-	u_char  * p = (u_char*)ngx_strchr(value, ';');
+	u_char  * p = (u_char *)ngx_strchr(value, ';');
 	size_t len = p ? (size_t)(p - value) : (h->value.len - prefix);
 	ngx_http_proxy_rewrite_t  * pr = (ngx_http_proxy_rewrite_t *)rewrites->elts;
 	for(i = 0; i < rewrites->nelts; i++) {
@@ -2357,7 +2357,7 @@ next:
 		}
 		copy->code = ngx_http_script_copy_code;
 		copy->len = src[i].key.len;
-		p = (u_char*)copy + sizeof(ngx_http_script_copy_code_t);
+		p = (u_char *)copy + sizeof(ngx_http_script_copy_code_t);
 		memcpy(p, src[i].key.data, src[i].key.len);
 		memzero(&sc, sizeof(ngx_http_script_compile_t));
 		sc.cf = cf;
@@ -2412,7 +2412,7 @@ static const char * ngx_http_proxy_pass(ngx_conf_t * cf, const ngx_command_t * c
 		if(clcf->name.data[clcf->name.len - 1] == '/') {
 			clcf->auto_redirect = 1;
 		}
-		value = (ngx_str_t *)cf->args->elts;
+		value = static_cast<ngx_str_t *>(cf->args->elts);
 		url = &value[1];
 		n = ngx_http_script_variables_count(url);
 		if(n) {
@@ -2432,11 +2432,11 @@ static const char * ngx_http_proxy_pass(ngx_conf_t * cf, const ngx_command_t * c
 	#endif
 			return NGX_CONF_OK;
 		}
-		if(ngx_strncasecmp(url->data, (u_char*)"http://", 7) == 0) {
+		if(ngx_strncasecmp(url->data, (u_char *)"http://", 7) == 0) {
 			add = 7;
 			port = 80;
 		}
-		else if(ngx_strncasecmp(url->data, (u_char*)"https://", 8) == 0) {
+		else if(ngx_strncasecmp(url->data, (u_char *)"https://", 8) == 0) {
 	#if (NGX_HTTP_SSL)
 			plcf->ssl = 1;
 			add = 8;
@@ -2493,7 +2493,7 @@ static const char * ngx_http_proxy_redirect(ngx_conf_t * cf, const ngx_command_t
 		return NGX_CONF_OK;
 	}
 	plcf->redirect = 1;
-	value = (ngx_str_t *)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(cf->args->nelts == 2) {
 		if(ngx_strcmp(value[1].data, "off") == 0) {
 			plcf->redirect = 0;
@@ -2595,7 +2595,7 @@ static const char * ngx_http_proxy_cookie_domain(ngx_conf_t * cf, const ngx_comm
 	if(plcf->cookie_domains == NULL) {
 		return NGX_CONF_OK;
 	}
-	value = (ngx_str_t *)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(cf->args->nelts == 2) {
 		if(ngx_strcmp(value[1].data, "off") == 0) {
 			plcf->cookie_domains = NULL;
@@ -2658,7 +2658,7 @@ static const char * ngx_http_proxy_cookie_path(ngx_conf_t * cf, const ngx_comman
 	if(plcf->cookie_paths == NULL) {
 		return NGX_CONF_OK;
 	}
-	value = (ngx_str_t *)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(cf->args->nelts == 2) {
 		if(ngx_strcmp(value[1].data, "off") == 0) {
 			plcf->cookie_paths = NULL;
@@ -2745,7 +2745,7 @@ static const char * ngx_http_proxy_store(ngx_conf_t * cf, const ngx_command_t * 
 	if(plcf->upstream.store != NGX_CONF_UNSET) {
 		return "is duplicate";
 	}
-	value = (ngx_str_t *)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(ngx_strcmp(value[1].data, "off") == 0) {
 		plcf->upstream.store = 0;
 		return NGX_CONF_OK;
@@ -2782,7 +2782,7 @@ static const char * ngx_http_proxy_cache(ngx_conf_t * cf, const ngx_command_t * 
 	ngx_http_proxy_loc_conf_t * plcf = (ngx_http_proxy_loc_conf_t *)conf;
 	ngx_http_complex_value_t cv;
 	ngx_http_compile_complex_value_t ccv;
-	ngx_str_t  * value = (ngx_str_t *)cf->args->elts;
+	ngx_str_t  * value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(plcf->upstream.cache != NGX_CONF_UNSET) {
 		return "is duplicate";
 	}
@@ -2819,7 +2819,7 @@ static const char * ngx_http_proxy_cache(ngx_conf_t * cf, const ngx_command_t * 
 static const char * ngx_http_proxy_cache_key(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_proxy_loc_conf_t * plcf = (ngx_http_proxy_loc_conf_t *)conf;
-	ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(plcf->cache_key.value.data) {
 		return "is duplicate";
 	}
@@ -2847,7 +2847,7 @@ static const char * ngx_http_proxy_ssl_password_file(ngx_conf_t * cf, const ngx_
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+		ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 		plcf->ssl_passwords = ngx_ssl_read_password_file(cf, &value[1]);
 		if(plcf->ssl_passwords == NULL) {
 			return NGX_CONF_ERROR;

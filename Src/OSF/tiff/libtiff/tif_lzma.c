@@ -133,40 +133,30 @@ static int LZMADecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 {
 	static const char module[] = "LZMADecode";
 	LZMAState* sp = DecoderState(tif);
-
 	(void)s;
 	assert(sp != NULL);
 	assert(sp->state == LSTATE_INIT_DECODE);
-
 	sp->stream.next_in = tif->tif_rawcp;
 	sp->stream.avail_in = (size_t)tif->tif_rawcc;
-
 	sp->stream.next_out = op;
 	sp->stream.avail_out = (size_t)occ;
 	if((tmsize_t)sp->stream.avail_out != occ) {
-		TIFFErrorExt(tif->tif_clientdata, module,
-		    "Liblzma cannot deal with buffers this size");
+		TIFFErrorExt(tif->tif_clientdata, module, "Liblzma cannot deal with buffers this size");
 		return 0;
 	}
-
 	do {
 		/*
-		 * Save the current stream state to properly recover from the
-		 * decoding errors later.
+		 * Save the current stream state to properly recover from the decoding errors later.
 		 */
 		const uint8_t * next_in = sp->stream.next_in;
 		size_t avail_in = sp->stream.avail_in;
-
 		lzma_ret ret = lzma_code(&sp->stream, LZMA_RUN);
 		if(ret == LZMA_STREAM_END)
 			break;
 		if(ret == LZMA_MEMLIMIT_ERROR) {
-			lzma_ret r = lzma_stream_decoder(&sp->stream,
-			    lzma_memusage(&sp->stream), 0);
+			lzma_ret r = lzma_stream_decoder(&sp->stream, lzma_memusage(&sp->stream), 0);
 			if(r != LZMA_OK) {
-				TIFFErrorExt(tif->tif_clientdata, module,
-				    "Error initializing the stream decoder, %s",
-				    LZMAStrerror(r));
+				TIFFErrorExt(tif->tif_clientdata, module, "Error initializing the stream decoder, %s", LZMAStrerror(r));
 				break;
 			}
 			sp->stream.next_in = next_in;
@@ -174,22 +164,16 @@ static int LZMADecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 			continue;
 		}
 		if(ret != LZMA_OK) {
-			TIFFErrorExt(tif->tif_clientdata, module,
-			    "Decoding error at scanline %lu, %s",
-			    (unsigned long)tif->tif_row, LZMAStrerror(ret));
+			TIFFErrorExt(tif->tif_clientdata, module, "Decoding error at scanline %lu, %s", (ulong)tif->tif_row, LZMAStrerror(ret));
 			break;
 		}
 	} while(sp->stream.avail_out > 0);
 	if(sp->stream.avail_out != 0) {
-		TIFFErrorExt(tif->tif_clientdata, module,
-		    "Not enough data at scanline %lu (short %lu bytes)",
-		    (unsigned long)tif->tif_row, (unsigned long)sp->stream.avail_out);
+		TIFFErrorExt(tif->tif_clientdata, module, "Not enough data at scanline %lu (short %lu bytes)", (ulong)tif->tif_row, (ulong)sp->stream.avail_out);
 		return 0;
 	}
-
 	tif->tif_rawcp = (uint8 *)sp->stream.next_in;  /* cast away const */
 	tif->tif_rawcc = sp->stream.avail_in;
-
 	return 1;
 }
 
@@ -214,17 +198,14 @@ static int LZMAPreEncode(TIFF* tif, uint16 s)
 {
 	static const char module[] = "LZMAPreEncode";
 	LZMAState * sp = EncoderState(tif);
-
 	(void)s;
 	assert(sp != NULL);
 	if(sp->state != LSTATE_INIT_ENCODE)
 		tif->tif_setupencode(tif);
-
 	sp->stream.next_out = tif->tif_rawdata;
 	sp->stream.avail_out = (size_t)tif->tif_rawdatasize;
 	if((tmsize_t)sp->stream.avail_out != tif->tif_rawdatasize) {
-		TIFFErrorExt(tif->tif_clientdata, module,
-		    "Liblzma cannot deal with buffers this size");
+		TIFFErrorExt(tif->tif_clientdata, module, "Liblzma cannot deal with buffers this size");
 		return 0;
 	}
 	return (lzma_stream_encoder(&sp->stream, sp->filters, sp->check) == LZMA_OK);
@@ -237,24 +218,19 @@ static int LZMAEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 {
 	static const char module[] = "LZMAEncode";
 	LZMAState * sp = EncoderState(tif);
-
 	assert(sp != NULL);
 	assert(sp->state == LSTATE_INIT_ENCODE);
-
 	(void)s;
 	sp->stream.next_in = bp;
 	sp->stream.avail_in = (size_t)cc;
 	if((tmsize_t)sp->stream.avail_in != cc) {
-		TIFFErrorExt(tif->tif_clientdata, module,
-		    "Liblzma cannot deal with buffers this size");
+		TIFFErrorExt(tif->tif_clientdata, module, "Liblzma cannot deal with buffers this size");
 		return 0;
 	}
 	do {
 		lzma_ret ret = lzma_code(&sp->stream, LZMA_RUN);
 		if(ret != LZMA_OK) {
-			TIFFErrorExt(tif->tif_clientdata, module,
-			    "Encoding error at scanline %lu, %s",
-			    (unsigned long)tif->tif_row, LZMAStrerror(ret));
+			TIFFErrorExt(tif->tif_clientdata, module, "Encoding error at scanline %lu, %s", (ulong)tif->tif_row, LZMAStrerror(ret));
 			return 0;
 		}
 		if(sp->stream.avail_out == 0) {
@@ -295,8 +271,7 @@ static int LZMAPostEncode(TIFF* tif)
 			    }
 			    break;
 			default:
-			    TIFFErrorExt(tif->tif_clientdata, module, "Liblzma error: %s",
-			    LZMAStrerror(ret));
+			    TIFFErrorExt(tif->tif_clientdata, module, "Liblzma error: %s", LZMAStrerror(ret));
 			    return 0;
 		}
 	} while(ret != LZMA_STREAM_END);
@@ -332,9 +307,7 @@ static int LZMAVSetField(TIFF* tif, uint32 tag, va_list ap)
 			    sp->filters,
 			    sp->check);
 			    if(ret != LZMA_OK) {
-				    TIFFErrorExt(tif->tif_clientdata, module,
-				    "Liblzma error: %s",
-				    LZMAStrerror(ret));
+				    TIFFErrorExt(tif->tif_clientdata, module, "Liblzma error: %s", LZMAStrerror(ret));
 			    }
 		    }
 		    return 1;
@@ -367,22 +340,18 @@ int TIFFInitLZMA(TIFF* tif, int scheme)
 	static const char module[] = "TIFFInitLZMA";
 	LZMAState* sp;
 	lzma_stream tmp_stream = LZMA_STREAM_INIT;
-
 	assert(scheme == COMPRESSION_LZMA);
-
 	/*
 	 * Merge codec-specific tag information.
 	 */
 	if(!_TIFFMergeFields(tif, lzmaFields, TIFFArrayCount(lzmaFields))) {
-		TIFFErrorExt(tif->tif_clientdata, module,
-		    "Merging LZMA2 codec-specific tags failed");
+		TIFFErrorExt(tif->tif_clientdata, module, "Merging LZMA2 codec-specific tags failed");
 		return 0;
 	}
-
 	/*
 	 * Allocate state block so tag methods have storage to record values.
 	 */
-	tif->tif_data = (uint8 *)SAlloc::M(sizeof(LZMAState));
+	tif->tif_data = static_cast<uint8 *>(SAlloc::M(sizeof(LZMAState)));
 	if(tif->tif_data == NULL)
 		goto bad;
 	sp = LState(tif);

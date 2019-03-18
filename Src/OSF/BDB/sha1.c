@@ -232,7 +232,7 @@ void __db_SHA1Final(unsigned char * digest, SHA1_CTX * context)
 	uint32 i; /* JHB */
 	unsigned char finalcount[8];
 	for(i = 0; i < 8; i++) {
-		finalcount[i] = (unsigned char)((context->count[(i >= 4 ? 0 : 1)]>>((3-(i&3))*8) )&255); /* Endian independent */
+		finalcount[i] = (uchar)((context->count[(i >= 4 ? 0 : 1)]>>((3-(i&3))*8) )&255); /* Endian independent */
 	}
 	__db_SHA1Update(context, (unsigned char *)"\200", 1);
 	while((context->count[0]&504) != 448) {
@@ -240,7 +240,7 @@ void __db_SHA1Final(unsigned char * digest, SHA1_CTX * context)
 	}
 	__db_SHA1Update(context, finalcount, 8); /* Should cause a SHA1Transform() */
 	for(i = 0; i < 20; i++) {
-		digest[i] = (unsigned char)((context->state[i>>2]>>((3-(i&3))*8) )&255);
+		digest[i] = (uchar)((context->state[i>>2]>>((3-(i&3))*8) )&255);
 	}
 	/* Wipe variables */
 	i = 0;  /* JHB */

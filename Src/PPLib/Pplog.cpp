@@ -152,7 +152,7 @@ LogListWindowSCI::LogListWindowSCI(TVMsgLog * pLog) : TWindow(TRect(0, 0, 100, 2
 	r.top    = (parent.bottom / 3) * 2 + parent.top;
 	r.bottom = parent.bottom / 3;
 	SendMessage(APPL->H_LogWnd, WM_SYSCOMMAND, SC_CLOSE, 0);
-	APPL->H_LogWnd = HW = ::CreateWindowEx(WS_EX_TOOLWINDOW, LogListWindowSCI::WndClsName, temp_buf,
+	APPL->H_LogWnd = HW = ::CreateWindowEx(WS_EX_TOOLWINDOW, LogListWindowSCI::WndClsName, SUcSwitch(temp_buf),
 		WS_CHILD|WS_CLIPSIBLINGS|/*WS_VSCROLL|*/WS_CAPTION|WS_SYSMENU|WS_SIZEBOX|LBS_DISABLENOSCROLL|LBS_NOINTEGRALHEIGHT,
 		r.left, r.top, r.right, r.bottom, APPL->H_MainWnd, 0, TProgram::GetInst(), this); // @unicodeproblem
 	TView::SetWindowProp(H(), GWLP_USERDATA, this);
@@ -254,12 +254,11 @@ int LogListWindowSCI::WMHCreate()
 			ToolBarWidth = tbr.bottom - tbr.top;
 		}
 	}
-	HwndSci = CreateWindowEx(WS_EX_CLIENTEDGE, _T("Scintilla"), _T(""), WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_CLIPCHILDREN,
+	HwndSci = ::CreateWindowEx(WS_EX_CLIENTEDGE, _T("Scintilla"), _T(""), WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_CLIPCHILDREN,
 		0, 0/*ToolBarWidth*/, rc.right - rc.left, rc.bottom - rc.top, HW, 0/*(HMENU)GuiID*/, APPL->GetInst(), 0);
 	SScEditorBase::Init(HwndSci, 0/*preserveFileName*/);
-	// @v9.1.12 ::SetWindowLongPtr(HwndSci, GWLP_USERDATA, (LONG_PTR)this);
-	TView::SetWindowUserData(HwndSci, this); // @v9.1.12
-	OrgScintillaWndProc = reinterpret_cast<WNDPROC>(::SetWindowLongPtr(HwndSci, GWLP_WNDPROC, (LONG)ScintillaWindowProc));
+	TView::SetWindowUserData(HwndSci, this);
+	OrgScintillaWndProc = reinterpret_cast<WNDPROC>(::SetWindowLongPtr(HwndSci, GWLP_WNDPROC, reinterpret_cast<LPARAM>(ScintillaWindowProc)));
 	{
 		KeyAccel.clear();
 		{
@@ -270,7 +269,7 @@ int LogListWindowSCI::WMHCreate()
 		{
 			for(uint i = 0; i < OuterKeyAccel.getCount(); i++) {
 				const LAssoc & r_accel_item = OuterKeyAccel.at(i);
-				KeyDownCommand & r_k = *(KeyDownCommand *)&r_accel_item.Key;
+				const KeyDownCommand & r_k = *reinterpret_cast<const KeyDownCommand *>(&r_accel_item.Key);
 				KeyAccel.Set(r_k, r_accel_item.Val);
 			}
 		}
@@ -865,8 +864,8 @@ long SLAPI TVMsgLog::ImplPutMsg(const char * pText, long flags)
 			P_Index->atFree(0);
 		while(!P_Index->insert(&AllCount))
 			P_Index->atFree(0);
-		const long max_horz_range = 256; // @v8.8.8 128-->256
-		const long tlen = (long)sstrlen(pText);
+		const long max_horz_range = 256;
+		const long tlen = sstrleni(pText);
 		if(HorzRange < tlen)
 			HorzRange = (tlen > max_horz_range) ? max_horz_range : tlen;
 		RefreshList();

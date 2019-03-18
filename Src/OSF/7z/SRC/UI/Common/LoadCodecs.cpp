@@ -220,7 +220,7 @@ HRESULT CCodecs::CreateInArchive(unsigned formatIndex, CMyComPtr<IInArchive> &ar
 		COM_TRY_END
 	}
 #ifdef EXTERNAL_CODECS
-	return CreateArchiveHandler(ai, false, (void**)&archive);
+	return CreateArchiveHandler(ai, false, (void **)&archive);
 #endif
 }
 
@@ -238,7 +238,7 @@ HRESULT CCodecs::CreateInArchive(unsigned formatIndex, CMyComPtr<IInArchive> &ar
 			COM_TRY_END
 		}
 #ifdef EXTERNAL_CODECS
-		return CreateArchiveHandler(ai, true, (void**)&archive);
+		return CreateArchiveHandler(ai, true, (void **)&archive);
 #endif
 	}
 
@@ -797,9 +797,9 @@ STDMETHODIMP CCodecs::CreateDecoder(uint32 index, const GUID * iid, void ** code
 	if(ci.DecoderIsAssigned) {
 		const CCodecLib &lib = Libs[ci.LibIndex];
 		if(lib.CreateDecoder)
-			return lib.CreateDecoder(ci.CodecIndex, iid, (void**)coder);
+			return lib.CreateDecoder(ci.CodecIndex, iid, (void **)coder);
 		if(lib.CreateObject)
-			return lib.CreateObject(&ci.Decoder, iid, (void**)coder);
+			return lib.CreateObject(&ci.Decoder, iid, (void **)coder);
 	}
 	return S_OK;
   #else
@@ -818,9 +818,9 @@ STDMETHODIMP CCodecs::CreateEncoder(uint32 index, const GUID * iid, void ** code
 	if(ci.EncoderIsAssigned) {
 		const CCodecLib &lib = Libs[ci.LibIndex];
 		if(lib.CreateEncoder)
-			return lib.CreateEncoder(ci.CodecIndex, iid, (void**)coder);
+			return lib.CreateEncoder(ci.CodecIndex, iid, (void **)coder);
 		if(lib.CreateObject)
-			return lib.CreateObject(&ci.Encoder, iid, (void**)coder);
+			return lib.CreateObject(&ci.Encoder, iid, (void **)coder);
 	}
 	return S_OK;
   #else

@@ -69,7 +69,7 @@ static const char * ngx_mail_block(ngx_conf_t * cf, const ngx_command_t * cmd, v
 	/* count the number of the mail modules and set up their indices */
 	ngx_mail_max_module = ngx_count_modules(cf->cycle, NGX_MAIL_MODULE);
 	/* the mail main_conf context, it is the same in the all mail contexts */
-	ctx->main_conf = (void**)ngx_pcalloc(cf->pool, sizeof(void *) * ngx_mail_max_module);
+	ctx->main_conf = (void **)ngx_pcalloc(cf->pool, sizeof(void *) * ngx_mail_max_module);
 	if(ctx->main_conf == NULL) {
 		return NGX_CONF_ERROR;
 	}
@@ -77,7 +77,7 @@ static const char * ngx_mail_block(ngx_conf_t * cf, const ngx_command_t * cmd, v
 	 * the mail null srv_conf context, it is used to merge
 	 * the server{}s' srv_conf's
 	 */
-	ctx->srv_conf = (void**)ngx_pcalloc(cf->pool, sizeof(void *) * ngx_mail_max_module);
+	ctx->srv_conf = (void **)ngx_pcalloc(cf->pool, sizeof(void *) * ngx_mail_max_module);
 	if(ctx->srv_conf == NULL) {
 		return NGX_CONF_ERROR;
 	}
@@ -295,7 +295,7 @@ static ngx_int_t ngx_mail_add_addrs(ngx_conf_t * cf, ngx_mail_port_t * mport, ng
 		addrs[i].conf.ssl = addr[i].opt.ssl;
 #endif
 		len = ngx_sock_ntop(&addr[i].opt.sockaddr.sockaddr, addr[i].opt.socklen, buf, NGX_SOCKADDR_STRLEN, 1);
-		p = (u_char*)ngx_pnalloc(cf->pool, len);
+		p = (u_char *)ngx_pnalloc(cf->pool, len);
 		if(!p) {
 			return NGX_ERROR;
 		}

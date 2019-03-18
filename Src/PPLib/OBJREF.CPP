@@ -2206,7 +2206,7 @@ public:
 		setCtrlString(CTL_GLOBUSERACC_DBUUID, temp_buf);
 		setCtrlLong(CTL_GLOBUSERACC_LOCALID, Data.Rec.LocalUserID);
 		enableCommand(cmOK, GuaObj.CheckRights(PPR_MOD));
-		SetupPPObjCombo(this, CTLSEL_GLOBUSERACC_PSN, PPOBJ_PERSON, Data.Rec.PersonID, 0, (void *)cfg.PersonKindID);
+		SetupPPObjCombo(this, CTLSEL_GLOBUSERACC_PSN, PPOBJ_PERSON, Data.Rec.PersonID, 0, reinterpret_cast<void *>(cfg.PersonKindID));
 		return 1;
 	}
 	int    getDTS(PPGlobalUserAccPacket * pData)

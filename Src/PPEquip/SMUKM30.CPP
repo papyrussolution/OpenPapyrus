@@ -56,13 +56,13 @@ int SLAPI ACS_SMUKM30::FlashCheck(CCheckTbl::Rec * pChkRec, SArray * pRows)
 	uint i;
 	if(pRows->getCount()) {
 		LDATETIME dm; dm.Set(pChkRec->Dt, pChkRec->Tm);
-		for(i = 0; pRows->enumItems(&i, (void**)&p_entry);) {
+		for(i = 0; pRows->enumItems(&i, (void **)&p_entry);) {
 			sum += p_entry->qtty * (p_entry->price + p_entry->dscnt);
 			dscnt += p_entry->qtty * p_entry->dscnt;
 		}
 		THROW(r = AddTempCheck(&id, pChkRec->SessID, 0, pChkRec->CashID, pChkRec->Code, pChkRec->UserID, 0 /* cardID */, dm, sum, dscnt));
 		if(r > 0) {
-			for(i = 0; pRows->enumItems(&i, (void**)&p_entry);) {
+			for(i = 0; pRows->enumItems(&i, (void **)&p_entry);) {
 				SetupTempCcLineRec(0, id, pChkRec->Code, dm.d, p_entry->div, p_entry->goods);
 				SetTempCcLineValues(0, p_entry->qtty, p_entry->price, p_entry->dscnt);
 				STRNSCPY(P_TmpCclTbl->data.BarCode, p_entry->barcode);

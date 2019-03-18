@@ -59,7 +59,7 @@ extern "C" {
 #endif
 #ifndef HAVE_RAND
 	int rand();
-	void srand(unsigned int);
+	void srand(uint);
 #endif
 #ifndef HAVE_SNPRINTF
 	int snprintf(char *, size_t, const char *, ...);

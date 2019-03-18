@@ -193,7 +193,7 @@ static int Helper_GetFirstHostByMacAddr(int Level, LPNETRESOURCE lpNet, const MA
     LPNETRESOURCE p_res = NULL;
     HANDLE handle = NULL;
 	THROW(WNetOpenEnum(RESOURCE_GLOBALNET, RESOURCETYPE_ANY, 0, lpNet, &handle) == NO_ERROR);
-    THROW(p_res = (LPNETRESOURCE)new char[size]);
+    THROW(p_res = static_cast<LPNETRESOURCE>(SAlloc::M(size)));
     THROW(WNetEnumResource(handle, &count, (LPVOID)p_res, &size) == NO_ERROR); // @todo в данном месте происходит ошибка на 2-ой итерации рекурсии
     WNetCloseEnum(handle);
     handle = NULL;
@@ -213,13 +213,13 @@ static int Helper_GetFirstHostByMacAddr(int Level, LPNETRESOURCE lpNet, const MA
 	CATCHZOK
     if(handle)
 		WNetCloseEnum(handle);
-	delete p_res;
+	SAlloc::F(p_res);
 	return ok;
 }
 //
 // @todo Кэшировать список адресов. Иначе скорость выполнения функции ниже всякой критики.
 //
-int SLAPI GetFirstHostByMACAddr(MACAddr * pMAC, InetAddr * pAddr)
+int SLAPI GetFirstHostByMACAddr(const MACAddr * pMAC, InetAddr * pAddr)
 {
 	return Helper_GetFirstHostByMacAddr(RES_NET, 0, pMAC, pAddr);
 	/*
@@ -241,7 +241,7 @@ int SLAPI GetFirstHostByMACAddr(MACAddr * pMAC, InetAddr * pAddr)
 }
 
 /*
-int SLAPI GetFirstHostByMACAddr(MACAddr * pItem, InetAddr * pAddr)
+int SLAPI GetFirstHostByMACAddr(const MACAddr * pItem, InetAddr * pAddr)
 {
 	int    ok = 0;
 	IP_ADAPTER_INFO * p_info = 0;

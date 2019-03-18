@@ -61,10 +61,10 @@ static char * ngx_syslog_parse_args(ngx_conf_t * cf, ngx_syslog_peer_t * peer)
 	size_t len;
 	ngx_url_t u;
 	ngx_uint_t i;
-	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	u_char * p = value[1].data + sizeof("syslog:") - 1;
 	for(;; ) {
-		comma = (u_char*)ngx_strchr(p, ',');
+		comma = (u_char *)ngx_strchr(p, ',');
 		if(comma) {
 			len = comma - p;
 			*comma = '\0';

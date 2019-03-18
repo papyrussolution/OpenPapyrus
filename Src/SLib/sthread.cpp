@@ -11,7 +11,7 @@
 // Если в течении этого таймаута ожидание на завершилось, то предпринимаются
 // информирующие действия (например, вывод в журнал).
 //
-const long _CheckTimeout = 1 * 60 * 1000; 
+static const long _CheckTimeout = 1 * 60 * 1000; 
 //
 //
 //
@@ -273,10 +273,10 @@ SLAPI Evnt::Evnt(const char * pName, int mode) : SWaitableObject()
 	assert(oneof3(mode, modeCreate, modeCreateAutoReset, modeOpen));
 	assert(!isempty(pName));
 	if(oneof2(mode, modeCreate, modeCreateAutoReset)) {
-		H = CreateEvent(0, (mode == modeCreateAutoReset) ? 0 : 1, 0, pName); // @unicodeproblem
+		H = CreateEvent(0, (mode == modeCreateAutoReset) ? 0 : 1, 0, SUcSwitch(pName)); // @unicodeproblem
 	}
 	else {
-		H = OpenEvent(EVENT_ALL_ACCESS, 0, pName); // @unicodeproblem
+		H = OpenEvent(EVENT_ALL_ACCESS, 0, SUcSwitch(pName)); // @unicodeproblem
 	}
 }
 
@@ -301,12 +301,8 @@ int SLAPI Evnt::Reset()
 SLAPI Sem::Sem(const char * pName, int mode, int initVal)
 {
 	assert(!isempty(pName));
-	if(mode == modeCreate) {
-		H = ::CreateSemaphore(0, initVal, MAXLONG, pName); // @unicodeproblem
-	}
-	else {
-		H = ::OpenSemaphore(EVENT_ALL_ACCESS, 0, pName); // @unicodeproblem
-	}
+	const TCHAR * p_name = SUcSwitch(pName); // @unicodeproblem
+	H = (mode == modeCreate) ? ::CreateSemaphore(0, initVal, MAXLONG, p_name) : ::OpenSemaphore(EVENT_ALL_ACCESS, 0, p_name);
 }
 
 SLAPI Sem::Sem(int initVal) : SWaitableObject(::CreateSemaphore(0, initVal, MAXLONG, 0))
@@ -326,7 +322,7 @@ SLAPI SMutex::SMutex(int initialValue, const char * pName) : SWaitableObject()
 	sa.nLength = sizeof(sa);
 	sa.lpSecurityDescriptor = 0;
 	sa.bInheritHandle = TRUE;
-	H = ::CreateMutex(&sa, initialValue ? TRUE : FALSE, pName); // @unicodeproblem
+	H = ::CreateMutex(&sa, initialValue ? TRUE : FALSE, SUcSwitch(pName)); // @unicodeproblem
 }
 
 int SLAPI SMutex::Release()
@@ -336,7 +332,7 @@ int SLAPI SMutex::Release()
 //
 //
 //
-SLAPI STimer::STimer(const char * pName) : SWaitableObject(CreateWaitableTimer(0, 1, pName)) // @unicodeproblem
+SLAPI STimer::STimer(const char * pName) : SWaitableObject(CreateWaitableTimer(0, 1, SUcSwitch(pName))) // @unicodeproblem
 {
 }
 
@@ -348,12 +344,10 @@ int SLAPI STimer::Set(const LDATETIME & rDtm, long period)
 		SYSTEMTIME st;
 		rDtm.Get(st);
 		FILETIME ft_local, ft_utc;
-
 		SystemTimeToFileTime(&st, &ft_local);
 		LocalFileTimeToFileTime(&ft_local, &ft_utc);
 		due_time.LowPart = ft_utc.dwLowDateTime;
 		due_time.HighPart = ft_utc.dwHighDateTime;
-
 		ok = BIN(SetWaitableTimer(H, &due_time, period, 0, 0, 0));
 	}
 	return ok;
@@ -367,7 +361,7 @@ int SLAPI STimer::Cancel()
 //
 //
 SLAPI DirChangeNotification::DirChangeNotification(const char * pName, int watchSubtree, long filtFlags) : 
-	SWaitableObject(FindFirstChangeNotification(pName, watchSubtree, filtFlags)) // @unicodeproblem
+	SWaitableObject(::FindFirstChangeNotification(SUcSwitch(pName), watchSubtree, filtFlags)) // @unicodeproblem
 {
 }
 

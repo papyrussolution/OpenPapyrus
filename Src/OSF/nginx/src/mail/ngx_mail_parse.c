@@ -111,7 +111,7 @@ ngx_int_t ngx_mail_pop3_parse_command(ngx_mail_session_t * s)
 						// @fallthrough
 				    case __CR:
 				    case LF:
-						arg = (ngx_str_t*)ngx_array_push(&s->args);
+						arg = (ngx_str_t *)ngx_array_push(&s->args);
 						if(!arg) {
 							return NGX_ERROR;
 						}
@@ -143,7 +143,7 @@ ngx_int_t ngx_mail_pop3_parse_command(ngx_mail_session_t * s)
 done:
 	s->buffer->pos = p + 1;
 	if(s->arg_start) {
-		arg = (ngx_str_t*)ngx_array_push(&s->args);
+		arg = (ngx_str_t *)ngx_array_push(&s->args);
 		if(!arg) {
 			return NGX_ERROR;
 		}
@@ -353,7 +353,7 @@ ngx_int_t ngx_mail_imap_parse_command(ngx_mail_session_t * s)
 				    case ' ':
 				    case __CR:
 				    case LF:
-					arg = (ngx_str_t*)ngx_array_push(&s->args);
+					arg = (ngx_str_t *)ngx_array_push(&s->args);
 					if(!arg) {
 						return NGX_ERROR;
 					}
@@ -430,7 +430,7 @@ ngx_int_t ngx_mail_imap_parse_command(ngx_mail_session_t * s)
 			    if(s->literal_len && --s->literal_len) {
 				    break;
 			    }
-			    arg = (ngx_str_t*)ngx_array_push(&s->args);
+			    arg = (ngx_str_t *)ngx_array_push(&s->args);
 			    if(!arg) {
 				    return NGX_ERROR;
 			    }
@@ -473,7 +473,7 @@ ngx_int_t ngx_mail_imap_parse_command(ngx_mail_session_t * s)
 done:
 	s->buffer->pos = p + 1;
 	if(s->arg_start) {
-		arg = (ngx_str_t*)ngx_array_push(&s->args);
+		arg = (ngx_str_t *)ngx_array_push(&s->args);
 		if(!arg) {
 			return NGX_ERROR;
 		}
@@ -617,7 +617,7 @@ ngx_int_t ngx_mail_smtp_parse_command(ngx_mail_session_t * s)
 				    case ' ':
 				    case __CR:
 				    case LF:
-						arg = (ngx_str_t*)ngx_array_push(&s->args);
+						arg = (ngx_str_t *)ngx_array_push(&s->args);
 						if(!arg) {
 							return NGX_ERROR;
 						}
@@ -648,7 +648,7 @@ ngx_int_t ngx_mail_smtp_parse_command(ngx_mail_session_t * s)
 done:
 	s->buffer->pos = p + 1;
 	if(s->arg_start) {
-		arg = (ngx_str_t*)ngx_array_push(&s->args);
+		arg = (ngx_str_t *)ngx_array_push(&s->args);
 		if(!arg) {
 			return NGX_ERROR;
 		}
@@ -684,9 +684,9 @@ ngx_int_t ngx_mail_auth_parse(ngx_mail_session_t * s, ngx_connection_t * c)
 	if(s->args.nelts == 0) {
 		return NGX_MAIL_PARSE_INVALID_COMMAND;
 	}
-	arg = (ngx_str_t*)s->args.elts;
+	arg = static_cast<ngx_str_t *>(s->args.elts);
 	if(arg[0].len == 5) {
-		if(ngx_strncasecmp(arg[0].data, (u_char*)"LOGIN", 5) == 0) {
+		if(ngx_strncasecmp(arg[0].data, (u_char *)"LOGIN", 5) == 0) {
 			if(s->args.nelts == 1) {
 				return NGX_MAIL_AUTH_LOGIN;
 			}
@@ -695,7 +695,7 @@ ngx_int_t ngx_mail_auth_parse(ngx_mail_session_t * s, ngx_connection_t * c)
 			}
 			return NGX_MAIL_PARSE_INVALID_COMMAND;
 		}
-		if(ngx_strncasecmp(arg[0].data, (u_char*)"PLAIN", 5) == 0) {
+		if(ngx_strncasecmp(arg[0].data, (u_char *)"PLAIN", 5) == 0) {
 			if(s->args.nelts == 1) {
 				return NGX_MAIL_AUTH_PLAIN;
 			}
@@ -706,13 +706,13 @@ ngx_int_t ngx_mail_auth_parse(ngx_mail_session_t * s, ngx_connection_t * c)
 		return NGX_MAIL_PARSE_INVALID_COMMAND;
 	}
 	if(arg[0].len == 8) {
-		if(ngx_strncasecmp(arg[0].data, (u_char*)"CRAM-MD5", 8) == 0) {
+		if(ngx_strncasecmp(arg[0].data, (u_char *)"CRAM-MD5", 8) == 0) {
 			if(s->args.nelts != 1) {
 				return NGX_MAIL_PARSE_INVALID_COMMAND;
 			}
 			return NGX_MAIL_AUTH_CRAM_MD5;
 		}
-		if(ngx_strncasecmp(arg[0].data, (u_char*)"EXTERNAL", 8) == 0) {
+		if(ngx_strncasecmp(arg[0].data, (u_char *)"EXTERNAL", 8) == 0) {
 			if(s->args.nelts == 1) {
 				return NGX_MAIL_AUTH_EXTERNAL;
 			}

@@ -403,7 +403,7 @@ int FASTCALL SetupOprKindCombo(TDialog * dlg, uint ctl, PPID id, uint /*olwFlags
 	return ok;
 }
 
-PPID SLAPI SelectOpKind(PPID linkOpID, PPIDArray * pOpList, uint opklFlags)
+PPID SLAPI SelectOpKind(PPID linkOpID, const PPIDArray * pOpList, uint opklFlags)
 {
 	PPID   id = 0;
 	ListWindow * p_lw = 0;
@@ -2700,7 +2700,7 @@ int SLAPI PPObjOprKind::Browse(void * extraPtr)
 // virtual
 int SLAPI PPObjOprKind::Edit(PPID * pID, void * extraPtr /*opTypeID*/)
 {
-	return Edit(pID, (PPID)extraPtr, 0);
+	return Edit(pID, reinterpret_cast<PPID>(extraPtr), 0);
 }
 
 // non-virtual

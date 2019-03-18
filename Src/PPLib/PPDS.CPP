@@ -492,7 +492,7 @@ void SLAPI PPDeclStruc::SetItemAddedMsgString(const char * pName)
 int SLAPI PPDeclStruc::SearchItem(const char * pName, PPDeclStrucItem * pItem)
 {
 	PPDeclStrucItem * p_item;
-	for(uint i = 1; enumItems(&i, (void**)&p_item);) {
+	for(uint i = 1; enumItems(&i, (void **)&p_item);) {
 		if(sstreqi_ascii(p_item->Name, pName)) {
 			ASSIGN_PTR(pItem, *p_item);
 			return (PPErrCode = PPERR_DS_STRUCITEMEXISTS, 1);
@@ -504,7 +504,7 @@ int SLAPI PPDeclStruc::SearchItem(const char * pName, PPDeclStrucItem * pItem)
 int SLAPI PPDeclStruc::EnumItems(uint * pIdx, PPDeclStrucItem * pItem)
 {
 	PPDeclStrucItem * p_item;
-	if(SArray::enumItems(pIdx, (void**)&p_item) > 0) {
+	if(SArray::enumItems(pIdx, (void **)&p_item) > 0) {
 		ASSIGN_PTR(pItem, *p_item);
 		return 1;
 	}

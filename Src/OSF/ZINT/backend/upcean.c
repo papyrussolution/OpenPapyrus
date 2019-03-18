@@ -525,7 +525,7 @@ int isbn(struct ZintSymbol * symbol, uchar source[], const uint src_len, char de
 }
 
 // Add leading zeroes to EAN and UPC strings 
-void ean_leading_zeroes(struct ZintSymbol * symbol, uchar source[], uchar local_source[])
+static void ean_leading_zeroes(struct ZintSymbol * symbol, const uchar source[], uchar local_source[])
 {
 	uchar first_part[20], second_part[20], zfirst_part[20], zsecond_part[20];
 	int with_addon = 0;
@@ -650,7 +650,7 @@ void ean_leading_zeroes(struct ZintSymbol * symbol, uchar source[], uchar local_
 //
 // splits string to parts before and after '+' parts 
 //
-int eanx(struct ZintSymbol * symbol, uchar source[], int src_len)
+int eanx(struct ZintSymbol * symbol, const uchar source[], int src_len)
 {
 	uchar  first_part[20] = {0};
 	uchar  second_part[20] = {0};

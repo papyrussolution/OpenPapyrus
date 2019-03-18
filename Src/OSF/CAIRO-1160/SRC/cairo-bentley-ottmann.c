@@ -41,7 +41,7 @@
 //#include "cairo-error-private.h"
 #include "cairo-freelist-private.h"
 #include "cairo-line-inline.h"
-#include "cairo-traps-private.h"
+//#include "cairo-traps-private.h"
 
 #define DEBUG_PRINT_STATE 0
 #define DEBUG_EVENTS 0
@@ -389,9 +389,7 @@ static inline cairo_int128_t det64x32_128(cairo_int64_t a, int32_t b,
  * Returns %CAIRO_BO_STATUS_INTERSECTION if there is an intersection or
  * %CAIRO_BO_STATUS_PARALLEL if the two lines are exactly parallel.
  */
-static cairo_bool_t intersect_lines(cairo_bo_edge_t * a,
-    cairo_bo_edge_t * b,
-    cairo_bo_intersect_point_t * intersection)
+static cairo_bool_t intersect_lines(cairo_bo_edge_t * a, cairo_bo_edge_t * b, cairo_bo_intersect_point_t * intersection)
 {
 	cairo_int64_t a_det, b_det;
 
@@ -403,16 +401,12 @@ static cairo_bool_t intersect_lines(cairo_bo_edge_t * a,
 	 */
 	int32_t dx1 = a->edge.line.p1.x - a->edge.line.p2.x;
 	int32_t dy1 = a->edge.line.p1.y - a->edge.line.p2.y;
-
 	int32_t dx2 = b->edge.line.p1.x - b->edge.line.p2.x;
 	int32_t dy2 = b->edge.line.p1.y - b->edge.line.p2.y;
-
 	cairo_int64_t den_det;
 	cairo_int64_t R;
 	cairo_quorem64_t qr;
-
 	den_det = det32_64(dx1, dy1, dx2, dy2);
-
 	/* Q: Can we determine that the lines do not intersect (within range)
 	 * much more cheaply than computing the intersection point i.e. by
 	 * avoiding the division?
@@ -432,9 +426,7 @@ static cairo_bool_t intersect_lines(cairo_bo_edge_t * a,
 	 * A similar substitution can be performed for s, yielding:
 	 * s * (ady*bdx - bdy*adx) = ady * (ax - bx) - adx * (ay - by)
 	 */
-	R = det32_64(dx2, dy2,
-		b->edge.line.p1.x - a->edge.line.p1.x,
-		b->edge.line.p1.y - a->edge.line.p1.y);
+	R = det32_64(dx2, dy2, b->edge.line.p1.x - a->edge.line.p1.x, b->edge.line.p1.y - a->edge.line.p1.y);
 	if(_cairo_int64_negative(den_det)) {
 		if(_cairo_int64_ge(den_det, R))
 			return FALSE;
@@ -443,10 +435,7 @@ static cairo_bool_t intersect_lines(cairo_bo_edge_t * a,
 		if(_cairo_int64_le(den_det, R))
 			return FALSE;
 	}
-
-	R = det32_64(dy1, dx1,
-		a->edge.line.p1.y - b->edge.line.p1.y,
-		a->edge.line.p1.x - b->edge.line.p1.x);
+	R = det32_64(dy1, dx1, a->edge.line.p1.y - b->edge.line.p1.y, a->edge.line.p1.x - b->edge.line.p1.x);
 	if(_cairo_int64_negative(den_det)) {
 		if(_cairo_int64_ge(den_det, R))
 			return FALSE;
@@ -455,18 +444,11 @@ static cairo_bool_t intersect_lines(cairo_bo_edge_t * a,
 		if(_cairo_int64_le(den_det, R))
 			return FALSE;
 	}
-
 	/* We now know that the two lines should intersect within range. */
-
-	a_det = det32_64(a->edge.line.p1.x, a->edge.line.p1.y,
-		a->edge.line.p2.x, a->edge.line.p2.y);
-	b_det = det32_64(b->edge.line.p1.x, b->edge.line.p1.y,
-		b->edge.line.p2.x, b->edge.line.p2.y);
-
+	a_det = det32_64(a->edge.line.p1.x, a->edge.line.p1.y, a->edge.line.p2.x, a->edge.line.p2.y);
+	b_det = det32_64(b->edge.line.p1.x, b->edge.line.p1.y, b->edge.line.p2.x, b->edge.line.p2.y);
 	/* x = det (a_det, dx1, b_det, dx2) / den_det */
-	qr = _cairo_int_96by64_32x64_divrem(det64x32_128(a_det, dx1,
-		b_det, dx2),
-		den_det);
+	qr = _cairo_int_96by64_32x64_divrem(det64x32_128(a_det, dx1, b_det, dx2), den_det);
 	if(_cairo_int64_eq(qr.rem, den_det))
 		return FALSE;
 #if 0
@@ -478,19 +460,15 @@ static cairo_bool_t intersect_lines(cairo_bo_edge_t * a,
 			qr.rem = _cairo_int64_negate(qr.rem);
 		qr.rem = _cairo_int64_mul(qr.rem, _cairo_int32_to_int64(2));
 		if(_cairo_int64_ge(qr.rem, den_det)) {
-			qr.quo = _cairo_int64_add(qr.quo,
-				_cairo_int32_to_int64(_cairo_int64_negative(qr.quo) ? -1 : 1));
+			qr.quo = _cairo_int64_add(qr.quo, _cairo_int32_to_int64(_cairo_int64_negative(qr.quo) ? -1 : 1));
 		}
 		else
 			intersection->x.exactness = _cairo_bo_intersect_ordinate::INEXACT;
 	}
 #endif
 	intersection->x.ordinate = _cairo_int64_to_int32(qr.quo);
-
 	/* y = det (a_det, dy1, b_det, dy2) / den_det */
-	qr = _cairo_int_96by64_32x64_divrem(det64x32_128(a_det, dy1,
-		b_det, dy2),
-		den_det);
+	qr = _cairo_int_96by64_32x64_divrem(det64x32_128(a_det, dy1, b_det, dy2), den_det);
 	if(_cairo_int64_eq(qr.rem, den_det))
 		return FALSE;
 #if 0
@@ -1153,7 +1131,7 @@ static cairo_status_t _cairo_bentley_ottmann_tessellate_bo_edges(cairo_bo_event_
 
 	/* convert the fill_rule into a winding mask */
 	if(fill_rule == CAIRO_FILL_RULE_WINDING)
-		fill_rule = (unsigned)-1;
+		fill_rule = (uint)-1;
 	else
 		fill_rule = 1;
 

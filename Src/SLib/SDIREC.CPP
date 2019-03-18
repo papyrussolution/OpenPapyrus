@@ -95,7 +95,7 @@ SDirEntry & FASTCALL SDirEntry::operator = (const _finddatai64_t & rS)
 SDirEntry & FASTCALL SDirEntry::operator = (const WIN32_FIND_DATA & rS)
 {
 	THISZERO();
-	STRNSCPY(FileName, rS.cFileName); // @unicodeproblem
+	STRNSCPY(FileName, SUcSwitch(rS.cFileName)); // @unicodeproblem
 	Attr = rS.dwFileAttributes;
 	{
 		const int64 _mult = (int64)MAXDWORD+1;

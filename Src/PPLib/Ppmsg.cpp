@@ -66,7 +66,7 @@ int SLAPI PPInitStrings(const char * pFileName)
 				else {
 					char err_msg[1024];
 					sprintf(err_msg, "Unable load string resource '%s'", name.cptr());
-					::MessageBox(0, err_msg, _T("Error"), MB_OK|MB_ICONERROR); // @unicodeproblem
+					::MessageBox(0, SUcSwitch(err_msg), _T("Error"), MB_OK|MB_ICONERROR); // @unicodeproblem
 					ZDELETE(_PPStrStore);
 				}
 			}

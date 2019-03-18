@@ -303,7 +303,7 @@ __doublefann_h__ is not defined
 /* FANN_GAUSSIAN_SYMMETRIC */
 /* #define fann_gaussian_symmetric(steepness, sum) ((exp(-sum * steepness * sum * steepness)*2.0)-1.0) */
 #define fann_gaussian_symmetric_real(sum) ((FANN_EXP(-(sum) * (sum))*2.0f)-1.0f)
-#define fann_gaussian_symmetric_derive(steepness, value, sum) (-2.0f * sum * (value+1.0f) * (steepness) * (steepness))
+#define fann_gaussian_symmetric_derive(steepness, value, sum) (-2.0f * (sum) * ((value)+1.0f) * (steepness) * (steepness))
 
 /* FANN_ELLIOT */
 /* #define fann_elliot(steepness, sum) (((sum * steepness) / 2.0f) / (1.0f + fabsf(sum * steepness)) + 0.5f) */

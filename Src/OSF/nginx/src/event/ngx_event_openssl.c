@@ -258,8 +258,8 @@ ngx_int_t ngx_ssl_create(ngx_ssl_t * ssl, ngx_uint_t protocols, void * data)
 
 ngx_int_t ngx_ssl_certificates(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_array_t * certs, ngx_array_t * keys, ngx_array_t * passwords)
 {
-	ngx_str_t * cert = (ngx_str_t*)certs->elts;
-	ngx_str_t * key = (ngx_str_t*)keys->elts;
+	ngx_str_t * cert = (ngx_str_t *)certs->elts;
+	ngx_str_t * key = (ngx_str_t *)keys->elts;
 	for(ngx_uint_t i = 0; i < certs->nelts; i++) {
 		if(ngx_ssl_certificate(cf, ssl, &cert[i], &key[i], passwords) != NGX_OK) {
 			return NGX_ERROR;
@@ -369,7 +369,7 @@ ngx_int_t ngx_ssl_certificate(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_str_t * cert
 		ENGINE * engine;
 		EVP_PKEY  * pkey;
 		p = key->data + sizeof("engine:") - 1;
-		last = (u_char*)ngx_strchr(p, ':');
+		last = (u_char *)ngx_strchr(p, ':');
 		if(last == NULL) {
 			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid syntax in \"%V\"", key);
 			return NGX_ERROR;
@@ -406,7 +406,7 @@ ngx_int_t ngx_ssl_certificate(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_str_t * cert
 	}
 	if(passwords) {
 		tries = passwords->nelts;
-		pwd = (ngx_str_t*)passwords->elts;
+		pwd = (ngx_str_t *)passwords->elts;
 		SSL_CTX_set_default_passwd_cb(ssl->ctx, ngx_ssl_password_callback);
 		SSL_CTX_set_default_passwd_cb_userdata(ssl->ctx, pwd);
 	}
@@ -590,14 +590,14 @@ static void ngx_ssl_info_callback(const ngx_ssl_conn_t * ssl_conn, int where, in
 	BIO * rbio, * wbio;
 	ngx_connection_t  * c;
 	if((where & SSL_CB_HANDSHAKE_START) && SSL_is_server((ngx_ssl_conn_t*)ssl_conn)) {
-		c = (ngx_connection_t*)ngx_ssl_get_connection((ngx_ssl_conn_t*)ssl_conn);
+		c = (ngx_connection_t *)ngx_ssl_get_connection((ngx_ssl_conn_t*)ssl_conn);
 		if(c->ssl->handshaked) {
 			c->ssl->renegotiation = 1;
 			ngx_log_debug0(NGX_LOG_DEBUG_EVENT, c->log, 0, "SSL renegotiation");
 		}
 	}
 	if((where & SSL_CB_ACCEPT_LOOP) == SSL_CB_ACCEPT_LOOP) {
-		c = (ngx_connection_t*)ngx_ssl_get_connection((ngx_ssl_conn_t*)ssl_conn);
+		c = (ngx_connection_t *)ngx_ssl_get_connection((ngx_ssl_conn_t*)ssl_conn);
 		if(!c->ssl->handshake_buffer_set) {
 			/*
 			 * By default OpenSSL uses 4k buffer during a handshake,
@@ -690,14 +690,14 @@ ngx_array_t * ngx_ssl_read_password_file(ngx_conf_t * cf, ngx_str_t * file)
 			}
 
 			if(len) {
-				pwd = (ngx_str_t*)ngx_array_push(passwords);
+				pwd = (ngx_str_t *)ngx_array_push(passwords);
 				if(pwd == NULL) {
 					passwords = NULL;
 					goto cleanup;
 				}
 
 				pwd->len = len;
-				pwd->data = (u_char*)ngx_pnalloc(cf->temp_pool, len);
+				pwd->data = (u_char *)ngx_pnalloc(cf->temp_pool, len);
 				if(pwd->data == NULL) {
 					passwords->nelts--;
 					passwords = NULL;
@@ -717,7 +717,7 @@ ngx_array_t * ngx_ssl_read_password_file(ngx_conf_t * cf, ngx_str_t * file)
 		last = buf + len;
 	} while(n != 0);
 	if(passwords->nelts == 0) {
-		pwd = (ngx_str_t*)ngx_array_push(passwords);
+		pwd = (ngx_str_t *)ngx_array_push(passwords);
 		if(pwd == NULL) {
 			passwords = NULL;
 			goto cleanup;
@@ -736,7 +736,7 @@ static void ngx_ssl_passwords_cleanup(void * data)
 {
 	ngx_array_t * passwords = (ngx_array_t *)data;
 	ngx_uint_t i;
-	ngx_str_t * pwd = (ngx_str_t*)passwords->elts;
+	ngx_str_t * pwd = (ngx_str_t *)passwords->elts;
 	for(i = 0; i < passwords->nelts; i++) {
 		memzero(pwd[i].data, pwd[i].len);
 	}
@@ -990,7 +990,7 @@ ngx_int_t ngx_ssl_handshake(ngx_connection_t * c)
 
 static void ngx_ssl_handshake_handler(ngx_event_t * ev)
 {
-	ngx_connection_t * c = (ngx_connection_t*)ev->P_Data;
+	ngx_connection_t * c = (ngx_connection_t *)ev->P_Data;
 	ngx_log_debug1(NGX_LOG_DEBUG_EVENT, c->log, 0, "SSL handshake handler: %d", ev->write);
 	if(ev->timedout) {
 		c->ssl->handler(c);
@@ -1161,7 +1161,7 @@ static ngx_int_t ngx_ssl_handle_recv(ngx_connection_t * c, int n)
 
 static void ngx_ssl_write_handler(ngx_event_t * wev)
 {
-	ngx_connection_t * c = (ngx_connection_t*)wev->P_Data;
+	ngx_connection_t * c = (ngx_connection_t *)wev->P_Data;
 	c->P_EvRd->F_EvHandler(c->P_EvRd);
 }
 /*
@@ -1210,7 +1210,7 @@ ngx_chain_t * ngx_ssl_send_chain(ngx_connection_t * c, ngx_chain_t * in, nginx_o
 		c->ssl->buf = buf;
 	}
 	if(buf->start == NULL) {
-		buf->start = (u_char*)ngx_palloc(c->pool, c->ssl->buffer_size);
+		buf->start = (u_char *)ngx_palloc(c->pool, c->ssl->buffer_size);
 		if(buf->start == NULL) {
 			return NGX_CHAIN_ERROR;
 		}
@@ -1330,7 +1330,7 @@ ssize_t ngx_ssl_write(ngx_connection_t * c, u_char * data, size_t size)
 
 static void ngx_ssl_read_handler(ngx_event_t * rev)
 {
-	ngx_connection_t * c = (ngx_connection_t*)rev->P_Data;
+	ngx_connection_t * c = (ngx_connection_t *)rev->P_Data;
 	c->P_EvWr->F_EvHandler(c->P_EvWr);
 }
 
@@ -1411,7 +1411,7 @@ ngx_int_t ngx_ssl_shutdown(ngx_connection_t * c)
 
 static void ngx_ssl_shutdown_handler(ngx_event_t * ev)
 {
-	ngx_connection_t * c = (ngx_connection_t*)ev->P_Data;
+	ngx_connection_t * c = (ngx_connection_t *)ev->P_Data;
 	ngx_connection_handler_pt handler = c->ssl->handler;
 	if(ev->timedout) {
 		c->timedout = 1;
@@ -1542,7 +1542,7 @@ void ngx_cdecl ngx_ssl_error(ngx_uint_t level, ngx_log_t * log, ngx_err_t err, c
 	va_start(args, fmt);
 	p = ngx_vslprintf(errstr, last - 1, fmt, args);
 	va_end(args);
-	p = ngx_cpystrn(p, (u_char*)" (SSL:", last - p);
+	p = ngx_cpystrn(p, (u_char *)" (SSL:", last - p);
 	for(;; ) {
 		n = ERR_peek_error_line_data(NULL, NULL, &data, &flags);
 		if(n == 0) {
@@ -1559,7 +1559,7 @@ void ngx_cdecl ngx_ssl_error(ngx_uint_t level, ngx_log_t * log, ngx_err_t err, c
 		}
 		if(p < last && *data && (flags & ERR_TXT_STRING)) {
 			*p++ = ':';
-			p = ngx_cpystrn(p, (u_char*)data, last - p);
+			p = ngx_cpystrn(p, (u_char *)data, last - p);
 		}
 next:
 		(void)ERR_get_error();
@@ -1702,7 +1702,7 @@ ngx_int_t ngx_ssl_session_cache_init(ngx_shm_zone_t * shm_zone, void * data)
 	ngx_rbtree_init(&cache->session_rbtree, &cache->sentinel, ngx_ssl_session_rbtree_insert_value);
 	ngx_queue_init(&cache->expire_queue);
 	len = sizeof(" in SSL session shared cache \"\"") + shm_zone->shm.name.len;
-	shpool->log_ctx = (u_char*)ngx_slab_alloc(shpool, len);
+	shpool->log_ctx = (u_char *)ngx_slab_alloc(shpool, len);
 	if(shpool->log_ctx == NULL) {
 		return NGX_ERROR;
 	}
@@ -1745,7 +1745,7 @@ static int ngx_ssl_new_session(ngx_ssl_conn_t * ssl_conn, ngx_ssl_session_t * se
 	}
 	p = buf;
 	i2d_SSL_SESSION(sess, &p);
-	c = (ngx_connection_t*)ngx_ssl_get_connection(ssl_conn);
+	c = (ngx_connection_t *)ngx_ssl_get_connection(ssl_conn);
 	ssl_ctx = c->ssl->session_ctx;
 	shm_zone = (ngx_shm_zone_t *)SSL_CTX_get_ex_data(ssl_ctx, ngx_ssl_session_cache_index);
 	cache = (ngx_ssl_session_cache_t *)shm_zone->data;
@@ -1753,11 +1753,11 @@ static int ngx_ssl_new_session(ngx_ssl_conn_t * ssl_conn, ngx_ssl_session_t * se
 	ngx_shmtx_lock(&shpool->mutex);
 	/* drop one or two expired sessions */
 	ngx_ssl_expire_sessions(cache, shpool, 1);
-	cached_sess = (u_char*)ngx_slab_alloc_locked(shpool, len);
+	cached_sess = (u_char *)ngx_slab_alloc_locked(shpool, len);
 	if(cached_sess == NULL) {
 		/* drop the oldest non-expired session and try once more */
 		ngx_ssl_expire_sessions(cache, shpool, 0);
-		cached_sess = (u_char*)ngx_slab_alloc_locked(shpool, len);
+		cached_sess = (u_char *)ngx_slab_alloc_locked(shpool, len);
 		if(cached_sess == NULL) {
 			sess_id = NULL;
 			goto failed;
@@ -1773,7 +1773,7 @@ static int ngx_ssl_new_session(ngx_ssl_conn_t * ssl_conn, ngx_ssl_session_t * se
 		}
 	}
 #if OPENSSL_VERSION_NUMBER >= 0x0090800fL
-	session_id = (u_char*)SSL_SESSION_get_id(sess, &session_id_length);
+	session_id = (u_char *)SSL_SESSION_get_id(sess, &session_id_length);
 #else
 	session_id = sess->session_id;
 	session_id_length = sess->session_id_length;
@@ -1781,11 +1781,11 @@ static int ngx_ssl_new_session(ngx_ssl_conn_t * ssl_conn, ngx_ssl_session_t * se
 #if (NGX_PTR_SIZE == 8)
 	id = sess_id->sess_id;
 #else
-	id = (u_char*)ngx_slab_alloc_locked(shpool, session_id_length);
+	id = (u_char *)ngx_slab_alloc_locked(shpool, session_id_length);
 	if(id == NULL) {
 		/* drop the oldest non-expired session and try once more */
 		ngx_ssl_expire_sessions(cache, shpool, 0);
-		id = (u_char*)ngx_slab_alloc_locked(shpool, session_id_length);
+		id = (u_char *)ngx_slab_alloc_locked(shpool, session_id_length);
 		if(id == NULL) {
 			goto failed;
 		}
@@ -1836,9 +1836,9 @@ static ngx_ssl_session_t * ngx_ssl_get_cached_session(ngx_ssl_conn_t * ssl_conn,
 	ngx_ssl_session_cache_t  * cache;
 	u_char buf[NGX_SSL_MAX_SESSION_SIZE];
 	ngx_connection_t  * c;
-	uint32_t hash = ngx_crc32_short((u_char*)(uintptr_t)id, (size_t)len);
+	uint32_t hash = ngx_crc32_short((u_char *)(uintptr_t)id, (size_t)len);
 	*copy = 0;
-	c = (ngx_connection_t*)ngx_ssl_get_connection(ssl_conn);
+	c = (ngx_connection_t *)ngx_ssl_get_connection(ssl_conn);
 	ngx_log_debug2(NGX_LOG_DEBUG_EVENT, c->log, 0, "ssl get session: %08XD:%d", hash, len);
 	shm_zone = (ngx_shm_zone_t *)SSL_CTX_get_ex_data(c->ssl->session_ctx, ngx_ssl_session_cache_index);
 	cache = (ngx_ssl_session_cache_t *)shm_zone->data;
@@ -1858,7 +1858,7 @@ static ngx_ssl_session_t * ngx_ssl_get_cached_session(ngx_ssl_conn_t * ssl_conn,
 		}
 		/* hash == node->key */
 		sess_id = (ngx_ssl_sess_id_t*)node;
-		rc = ngx_memn2cmp((u_char*)(uintptr_t)id, sess_id->id, (size_t)len, (size_t)node->data);
+		rc = ngx_memn2cmp((u_char *)(uintptr_t)id, sess_id->id, (size_t)len, (size_t)node->data);
 		if(rc == 0) {
 			if(sess_id->expire > ngx_time()) {
 				memcpy(buf, sess_id->session, sess_id->len);
@@ -1907,7 +1907,7 @@ static void ngx_ssl_remove_session(SSL_CTX * ssl, ngx_ssl_session_t * sess)
 	}
 	cache = (ngx_ssl_session_cache_t *)shm_zone->data;
 #if OPENSSL_VERSION_NUMBER >= 0x0090800fL
-	id = (u_char*)SSL_SESSION_get_id(sess, &len);
+	id = (u_char *)SSL_SESSION_get_id(sess, &len);
 #else
 	id = sess->session_id;
 	len = sess->session_id_length;
@@ -2019,7 +2019,7 @@ ngx_int_t ngx_ssl_session_ticket_keys(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_arra
 	if(keys == NULL) {
 		return NGX_ERROR;
 	}
-	path = (ngx_str_t*)paths->elts;
+	path = (ngx_str_t *)paths->elts;
 	for(i = 0; i < paths->nelts; i++) {
 		if(ngx_conf_full_name(cf->cycle, &path[i], 1) != NGX_OK) {
 			return NGX_ERROR;
@@ -2097,7 +2097,7 @@ static int ngx_ssl_session_ticket_key_callback(ngx_ssl_conn_t * ssl_conn,
 #if (NGX_DEBUG)
 	u_char buf[32];
 #endif
-	ngx_connection_t * c = (ngx_connection_t*)ngx_ssl_get_connection(ssl_conn);
+	ngx_connection_t * c = (ngx_connection_t *)ngx_ssl_get_connection(ssl_conn);
 	SSL_CTX * ssl_ctx = c->ssl->session_ctx;
 #ifdef OPENSSL_NO_SHA256
 	const EVP_MD * digest = EVP_sha1();
@@ -2315,13 +2315,13 @@ static ngx_int_t ngx_ssl_check_name(ngx_str_t * name, ASN1_STRING * pattern)
 
 ngx_int_t ngx_ssl_get_protocol(ngx_connection_t * c, ngx_pool_t * pool, ngx_str_t * s)
 {
-	s->data = (u_char*)SSL_get_version(c->ssl->connection);
+	s->data = (u_char *)SSL_get_version(c->ssl->connection);
 	return NGX_OK;
 }
 
 ngx_int_t ngx_ssl_get_cipher_name(ngx_connection_t * c, ngx_pool_t * pool, ngx_str_t * s)
 {
-	s->data = (u_char*)SSL_get_cipher_name(c->ssl->connection);
+	s->data = (u_char *)SSL_get_cipher_name(c->ssl->connection);
 	return NGX_OK;
 }
 
@@ -2350,7 +2350,7 @@ ngx_int_t ngx_ssl_get_ciphers(ngx_connection_t * c, ngx_pool_t * pool, ngx_str_t
 		}
 		len += sizeof(":") - 1;
 	}
-	s->data = (u_char*)ngx_pnalloc(pool, len);
+	s->data = (u_char *)ngx_pnalloc(pool, len);
 	if(s->data == NULL) {
 		return NGX_ERROR;
 	}
@@ -2376,7 +2376,7 @@ ngx_int_t ngx_ssl_get_ciphers(ngx_connection_t * c, ngx_pool_t * pool, ngx_str_t
 		return NGX_OK;
 	}
 	s->len = ngx_strlen(buf);
-	s->data = (u_char*)ngx_pnalloc(pool, s->len);
+	s->data = (u_char *)ngx_pnalloc(pool, s->len);
 	if(s->data == NULL) {
 		return NGX_ERROR;
 	}
@@ -2409,7 +2409,7 @@ ngx_int_t ngx_ssl_get_curves(ngx_connection_t * c, ngx_pool_t * pool, ngx_str_t 
 		}
 		len += sizeof(":") - 1;
 	}
-	s->data = (u_char*)ngx_pnalloc(pool, len);
+	s->data = (u_char *)ngx_pnalloc(pool, len);
 	if(s->data == NULL) {
 		return NGX_ERROR;
 	}
@@ -2442,13 +2442,13 @@ ngx_int_t ngx_ssl_get_session_id(ngx_connection_t * c, ngx_pool_t * pool, ngx_st
 		return NGX_OK;
 	}
 #if OPENSSL_VERSION_NUMBER >= 0x0090800fL
-	buf = (u_char*)SSL_SESSION_get_id(sess, &len);
+	buf = (u_char *)SSL_SESSION_get_id(sess, &len);
 #else
 	buf = sess->session_id;
 	len = sess->session_id_length;
 #endif
 	s->len = 2 * len;
-	s->data = (u_char*)ngx_pnalloc(pool, 2 * len);
+	s->data = (u_char *)ngx_pnalloc(pool, 2 * len);
 	if(s->data == NULL) {
 		return NGX_ERROR;
 	}
@@ -2473,7 +2473,7 @@ ngx_int_t ngx_ssl_get_server_name(ngx_connection_t * c, ngx_pool_t * pool, ngx_s
 
 	const char  * servername = SSL_get_servername(c->ssl->connection, TLSEXT_NAMETYPE_host_name);
 	if(servername) {
-		s->data = (u_char*)servername;
+		s->data = (u_char *)servername;
 		s->len = ngx_strlen(servername);
 		return NGX_OK;
 	}
@@ -2504,7 +2504,7 @@ ngx_int_t ngx_ssl_get_raw_certificate(ngx_connection_t * c, ngx_pool_t * pool, n
 	}
 	len = BIO_pending(bio);
 	s->len = len;
-	s->data = (u_char*)ngx_pnalloc(pool, len);
+	s->data = (u_char *)ngx_pnalloc(pool, len);
 	if(s->data == NULL) {
 		goto failed;
 	}
@@ -2538,7 +2538,7 @@ ngx_int_t ngx_ssl_get_certificate(ngx_connection_t * c, ngx_pool_t * pool, ngx_s
 		}
 	}
 	s->len = len;
-	s->data = (u_char*)ngx_pnalloc(pool, len);
+	s->data = (u_char *)ngx_pnalloc(pool, len);
 	if(s->data == NULL) {
 		return NGX_ERROR;
 	}
@@ -2575,7 +2575,7 @@ ngx_int_t ngx_ssl_get_subject_dn(ngx_connection_t * c, ngx_pool_t * pool, ngx_st
 		goto failed;
 	}
 	s->len = BIO_pending(bio);
-	s->data = (u_char*)ngx_pnalloc(pool, s->len);
+	s->data = (u_char *)ngx_pnalloc(pool, s->len);
 	if(s->data == NULL) {
 		goto failed;
 	}
@@ -2612,7 +2612,7 @@ ngx_int_t ngx_ssl_get_issuer_dn(ngx_connection_t * c, ngx_pool_t * pool, ngx_str
 		goto failed;
 	}
 	s->len = BIO_pending(bio);
-	s->data = (u_char*)ngx_pnalloc(pool, s->len);
+	s->data = (u_char *)ngx_pnalloc(pool, s->len);
 	if(s->data == NULL) {
 		goto failed;
 	}
@@ -2646,7 +2646,7 @@ ngx_int_t ngx_ssl_get_subject_dn_legacy(ngx_connection_t * c, ngx_pool_t * pool,
 	for(len = 0; p[len]; len++) { /* void */
 	}
 	s->len = len;
-	s->data = (u_char*)ngx_pnalloc(pool, len);
+	s->data = (u_char *)ngx_pnalloc(pool, len);
 	if(s->data == NULL) {
 		OPENSSL_free(p);
 		X509_free(cert);
@@ -2678,7 +2678,7 @@ ngx_int_t ngx_ssl_get_issuer_dn_legacy(ngx_connection_t * c, ngx_pool_t * pool, 
 	for(len = 0; p[len]; len++) { /* void */
 	}
 	s->len = len;
-	s->data = (u_char*)ngx_pnalloc(pool, len);
+	s->data = (u_char *)ngx_pnalloc(pool, len);
 	if(s->data == NULL) {
 		OPENSSL_free(p);
 		X509_free(cert);
@@ -2708,7 +2708,7 @@ ngx_int_t ngx_ssl_get_serial_number(ngx_connection_t * c, ngx_pool_t * pool, ngx
 	i2a_ASN1_INTEGER(bio, X509_get_serialNumber(cert));
 	len = BIO_pending(bio);
 	s->len = len;
-	s->data = (u_char*)ngx_pnalloc(pool, len);
+	s->data = (u_char *)ngx_pnalloc(pool, len);
 	if(s->data == NULL) {
 		BIO_free(bio);
 		X509_free(cert);
@@ -2735,7 +2735,7 @@ ngx_int_t ngx_ssl_get_fingerprint(ngx_connection_t * c, ngx_pool_t * pool, ngx_s
 		return NGX_ERROR;
 	}
 	s->len = 2 * len;
-	s->data = (u_char*)ngx_pnalloc(pool, 2 * len);
+	s->data = (u_char *)ngx_pnalloc(pool, 2 * len);
 	if(s->data == NULL) {
 		X509_free(cert);
 		return NGX_ERROR;
@@ -2761,7 +2761,7 @@ ngx_int_t ngx_ssl_get_client_verify(ngx_connection_t * c, ngx_pool_t * pool, ngx
 		return NGX_OK;
 	}
 	str = X509_verify_cert_error_string(rc);
-	s->data = (u_char*)ngx_pnalloc(pool, sizeof("FAILED:") - 1 + ngx_strlen(str));
+	s->data = (u_char *)ngx_pnalloc(pool, sizeof("FAILED:") - 1 + ngx_strlen(str));
 	if(s->data == NULL) {
 		return NGX_ERROR;
 	}
@@ -2791,7 +2791,7 @@ ngx_int_t ngx_ssl_get_client_v_start(ngx_connection_t * c, ngx_pool_t * pool, ng
 #endif
 	len = BIO_pending(bio);
 	s->len = len;
-	s->data = (u_char*)ngx_pnalloc(pool, len);
+	s->data = (u_char *)ngx_pnalloc(pool, len);
 	if(s->data == NULL) {
 		BIO_free(bio);
 		X509_free(cert);
@@ -2825,7 +2825,7 @@ ngx_int_t ngx_ssl_get_client_v_end(ngx_connection_t * c, ngx_pool_t * pool, ngx_
 #endif
 	len = BIO_pending(bio);
 	s->len = len;
-	s->data = (u_char*)ngx_pnalloc(pool, len);
+	s->data = (u_char *)ngx_pnalloc(pool, len);
 	if(s->data == NULL) {
 		BIO_free(bio);
 		X509_free(cert);
@@ -2861,7 +2861,7 @@ ngx_int_t ngx_ssl_get_client_v_remain(ngx_connection_t * c, ngx_pool_t * pool, n
 		X509_free(cert);
 		return NGX_OK;
 	}
-	s->data = (u_char*)ngx_pnalloc(pool, NGX_TIME_T_LEN);
+	s->data = (u_char *)ngx_pnalloc(pool, NGX_TIME_T_LEN);
 	if(s->data == NULL) {
 		X509_free(cert);
 		return NGX_ERROR;
@@ -2894,7 +2894,7 @@ static time_t ngx_ssl_parse_time(
 	BIO_write(bio, "Tue ", sizeof("Tue ") - 1);
 	ASN1_TIME_print(bio, asn1time);
 	len = BIO_get_mem_data(bio, &value);
-	time = ngx_parse_http_time((u_char*)value, len);
+	time = ngx_parse_http_time((u_char *)value, len);
 	BIO_free(bio);
 	return time;
 }
@@ -2922,7 +2922,7 @@ static const char * ngx_openssl_engine(ngx_conf_t * cf, const ngx_command_t * cm
 	}
 	else {
 		oscf->engine = 1;
-		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 		ENGINE * engine = ENGINE_by_id((char *)value[1].data);
 		if(engine == NULL) {
 			ngx_ssl_error(NGX_LOG_EMERG, cf->log, 0, "ENGINE_by_id(\"%V\") failed", &value[1]);

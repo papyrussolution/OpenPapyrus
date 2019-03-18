@@ -294,9 +294,9 @@ int TIFFRGBAImageBegin(TIFFRGBAImage* img, TIFF* tif, int stop, char emsg[1024])
 		    }
 		    /* copy the colormaps so we can modify them */
 		    n_color = (1U << img->bitspersample);
-		    img->redcmap = (uint16 *)SAlloc::M(sizeof(uint16)*n_color);
-		    img->greencmap = (uint16 *)SAlloc::M(sizeof(uint16)*n_color);
-		    img->bluecmap = (uint16 *)SAlloc::M(sizeof(uint16)*n_color);
+		    img->redcmap = static_cast<uint16 *>(SAlloc::M(sizeof(uint16)*n_color));
+		    img->greencmap = static_cast<uint16 *>(SAlloc::M(sizeof(uint16)*n_color));
+		    img->bluecmap = static_cast<uint16 *>(SAlloc::M(sizeof(uint16)*n_color));
 		    if(!img->redcmap || !img->greencmap || !img->bluecmap) {
 			    sprintf(emsg, "Out of memory for colormap copy");
 			    goto fail_return;
@@ -453,7 +453,7 @@ int TIFFReadRGBAImage(TIFF* tif, uint32 rwidth, uint32 rheight, uint32* raster, 
 	return TIFFReadRGBAImageOriented(tif, rwidth, rheight, raster, ORIENTATION_BOTLEFT, stop);
 }
 
-static int FASTCALL setorientation(TIFFRGBAImage * img)
+static int FASTCALL setorientation(const TIFFRGBAImage * img)
 {
 	switch(img->orientation) {
 		case ORIENTATION_TOPLEFT:
@@ -513,7 +513,7 @@ static int gtTileContig(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
 	uint32 col, row, y, rowstoread;
 	tmsize_t pos;
 	uint32 tw, th;
-	unsigned char* buf = NULL;
+	uchar* buf = NULL;
 	int32 fromskew, toskew;
 	uint32 nrow;
 	int ret = 1, flip;
@@ -553,7 +553,7 @@ static int gtTileContig(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
 		tocol = 0;
 		col = img->col_offset;
 		while(tocol < w) {
-			if(_TIFFReadTileAndAllocBuffer(tif, (void**)&buf, bufsize, col, row+img->row_offset, 0, 0)==(tmsize_t)(-1) && (!buf || img->stoponerr)) {
+			if(_TIFFReadTileAndAllocBuffer(tif, (void **)&buf, bufsize, col, row+img->row_offset, 0, 0)==(tmsize_t)(-1) && (!buf || img->stoponerr)) {
 				ret = 0;
 				break;
 			}
@@ -593,7 +593,7 @@ static int gtTileContig(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
 			}
 		}
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -609,11 +609,11 @@ static int gtTileSeparate(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h
 	uint32 col, row, y, rowstoread;
 	tmsize_t pos;
 	uint32 tw, th;
-	unsigned char* buf = NULL;
-	unsigned char* p0 = NULL;
-	unsigned char* p1 = NULL;
-	unsigned char* p2 = NULL;
-	unsigned char* pa = NULL;
+	uchar* buf = NULL;
+	uchar* p0 = NULL;
+	uchar* p1 = NULL;
+	uchar* p2 = NULL;
+	uchar* pa = NULL;
 	int32 fromskew, toskew;
 	int alpha = img->alpha;
 	uint32 nrow;
@@ -662,7 +662,7 @@ static int gtTileSeparate(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h
 		col = img->col_offset;
 		while(tocol < w) {
 			if(buf == NULL) {
-				if(_TIFFReadTileAndAllocBuffer(tif, (void**)&buf, bufsize, col, row+img->row_offset, 0, 0)==(tmsize_t)(-1) && (buf == NULL || img->stoponerr)) {
+				if(_TIFFReadTileAndAllocBuffer(tif, (void **)&buf, bufsize, col, row+img->row_offset, 0, 0)==(tmsize_t)(-1) && (buf == NULL || img->stoponerr)) {
 					ret = 0;
 					break;
 				}
@@ -734,7 +734,7 @@ static int gtTileSeparate(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h
 	}
 
 	SAlloc::F(buf);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -749,7 +749,7 @@ static int gtStripContig(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
 	tileContigRoutine put = img->put.contig;
 	uint32 row, y, nrow, nrowsub, rowstoread;
 	tmsize_t pos;
-	unsigned char* buf = NULL;
+	uchar* buf = NULL;
 	uint32 rowsperstrip;
 	uint16 subsamplinghor, subsamplingver;
 	uint32 imagewidth = img->width;
@@ -783,7 +783,7 @@ static int gtStripContig(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
 		nrowsub = nrow;
 		if((nrowsub%subsamplingver)!=0)
 			nrowsub += subsamplingver-nrowsub%subsamplingver;
-		if(_TIFFReadEncodedStripAndAllocBuffer(tif, TIFFComputeStrip(tif, row+img->row_offset, 0), (void**)(&buf), maxstripsize,
+		if(_TIFFReadEncodedStripAndAllocBuffer(tif, TIFFComputeStrip(tif, row+img->row_offset, 0), (void **)(&buf), maxstripsize,
 			    ((row + img->row_offset)%rowsperstrip + nrowsub) * scanline)==(tmsize_t)(-1) && (buf == NULL || img->stoponerr)) {
 			ret = 0;
 			break;
@@ -807,7 +807,7 @@ static int gtStripContig(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
 		}
 	}
 	SAlloc::F(buf);
-	return (ret);
+	return ret;
 }
 /*
  * Get a strip-organized image with
@@ -819,20 +819,19 @@ static int gtStripSeparate(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 
 {
 	TIFF* tif = img->tif;
 	tileSeparateRoutine put = img->put.separate;
-	unsigned char * buf = NULL;
-	unsigned char * p0 = NULL, * p1 = NULL, * p2 = NULL, * pa = NULL;
+	uchar * buf = NULL;
+	uchar * p0 = NULL, * p1 = NULL, * p2 = NULL, * pa = NULL;
 	uint32 row, y, nrow, rowstoread;
 	tmsize_t pos;
 	tmsize_t scanline;
 	uint32 rowsperstrip, offset_row;
 	uint32 imagewidth = img->width;
-	tmsize_t bufsize;
 	int32 fromskew, toskew;
 	int alpha = img->alpha;
 	int ret = 1, flip;
 	uint16 colorchannels;
 	tmsize_t stripsize = TIFFStripSize(tif);
-	bufsize = TIFFSafeMultiply(tmsize_t, alpha ? 4 : 3, stripsize);
+	tmsize_t bufsize = TIFFSafeMultiply(tmsize_t, alpha ? 4 : 3, stripsize);
 	if(bufsize == 0) {
 		TIFFErrorExt(tif->tif_clientdata, TIFFFileName(tif), "Integer overflow in %s", "gtStripSeparate");
 		return 0;
@@ -860,7 +859,7 @@ static int gtStripSeparate(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 
 		nrow = (row + rowstoread > h ? h - row : rowstoread);
 		offset_row = row + img->row_offset;
 		if(buf == NULL) {
-			if(_TIFFReadEncodedStripAndAllocBuffer(tif, TIFFComputeStrip(tif, offset_row, 0), (void**)&buf, bufsize,
+			if(_TIFFReadEncodedStripAndAllocBuffer(tif, TIFFComputeStrip(tif, offset_row, 0), (void **)&buf, bufsize,
 				    ((row + img->row_offset)%rowsperstrip + nrow) * scanline)==(tmsize_t)(-1) && (buf == NULL || img->stoponerr)) {
 				ret = 0;
 				break;
@@ -916,7 +915,7 @@ static int gtStripSeparate(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 
 		}
 	}
 	SAlloc::F(buf);
-	return (ret);
+	return ret;
 }
 /*
  * The following routines move decoded data returned
@@ -959,7 +958,7 @@ static int gtStripSeparate(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 
 #define PACKW(r, g, b)     ((uint32)W2B(r)|((uint32)W2B(g)<<8)|((uint32)W2B(b)<<16)|A1)
 #define PACKW4(r, g, b, a) ((uint32)W2B(r)|((uint32)W2B(g)<<8)|((uint32)W2B(b)<<16)|((uint32)W2B(a)<<24))
 
-#define DECLAREContigPutFunc(name) static void name(TIFFRGBAImage* img, uint32* cp, uint32 x, uint32 y, uint32 w, uint32 h, int32 fromskew, int32 toskew, unsigned char* pp)
+#define DECLAREContigPutFunc(name) static void name(const TIFFRGBAImage* img, uint32* cp, uint32 x, uint32 y, uint32 w, uint32 h, int32 fromskew, int32 toskew, uchar* pp)
 /*
  * 8-bit palette => colormap/RGB
  */
@@ -1416,7 +1415,7 @@ DECLAREContigPutFunc(putcontig8bitCIELab)
 	fromskew *= 3;
 	for(; h > 0; --h) {
 		for(x = w; x > 0; --x) {
-			TIFFCIELabToXYZ(img->cielab, (unsigned char)pp[0], (signed char)pp[1], (signed char)pp[2], &X, &Y, &Z);
+			TIFFCIELabToXYZ(img->cielab, (uchar)pp[0], (signed char)pp[1], (signed char)pp[2], &X, &Y, &Z);
 			TIFFXYZToRGB(img->cielab, X, Y, Z, &r, &g, &b);
 			*cp++ = PACK(r, g, b);
 			pp += 3;
@@ -1438,7 +1437,7 @@ DECLAREContigPutFunc(putcontig8bitCIELab)
  * for difficult blocks.
  */
 #ifdef notdef
-static void putcontig8bitYCbCrGenericTile(TIFFRGBAImage* img, uint32* cp, uint32 x, uint32 y, uint32 w, uint32 h, int32 fromskew, int32 toskew, unsigned char* pp, int h_group, int v_group)
+static void putcontig8bitYCbCrGenericTile(TIFFRGBAImage* img, uint32* cp, uint32 x, uint32 y, uint32 w, uint32 h, int32 fromskew, int32 toskew, uchar* pp, int h_group, int v_group)
 {
 	uint32* cp1 = cp+w+toskew;
 	uint32* cp2 = cp1+w+toskew;
@@ -1449,7 +1448,7 @@ static void putcontig8bitYCbCrGenericTile(TIFFRGBAImage* img, uint32* cp, uint32
 	(void)y;
 	fromskew = (fromskew * group_size) / h_group;
 	for(yy = 0; yy < h; yy++) {
-		unsigned char * pp_line;
+		uchar * pp_line;
 		int y_line_group = yy / v_group;
 		int y_remainder = yy - y_line_group * v_group;
 		pp_line = pp + v_line_group *
@@ -2372,9 +2371,9 @@ static int BuildMapUaToAa(TIFFRGBAImage* img)
 	uint8* m;
 	uint16 na, nv;
 	assert(img->UaToAa == NULL);
-	img->UaToAa = (uint8 *)SAlloc::M(65536);
+	img->UaToAa = static_cast<uint8 *>(SAlloc::M(65536));
 	if(!img->UaToAa) {
-		TIFFErrorExt(img->tif->tif_clientdata, module, "Out of memory");
+		TIFFErrorExtOutOfMemory(img->tif->tif_clientdata, module);
 		return 0;
 	}
 	m = img->UaToAa;
@@ -2391,9 +2390,9 @@ static int FASTCALL BuildMapBitdepth16To8(TIFFRGBAImage* img)
 	uint8* m;
 	uint32 n;
 	assert(img->Bitdepth16To8 == NULL);
-	img->Bitdepth16To8 = (uint8 *)SAlloc::M(65536);
+	img->Bitdepth16To8 = static_cast<uint8 *>(SAlloc::M(65536));
 	if(!img->Bitdepth16To8) {
-		TIFFErrorExt(img->tif->tif_clientdata, module, "Out of memory");
+		TIFFErrorExtOutOfMemory(img->tif->tif_clientdata, module);
 		return 0;
 	}
 	m = img->Bitdepth16To8;
@@ -2480,7 +2479,7 @@ int TIFFReadRGBATileExt(TIFF* tif, uint32 col, uint32 row, uint32 * raster, int 
 	 */
 	if(!TIFFRGBAImageOK(tif, emsg) || !TIFFRGBAImageBegin(&img, tif, stop_on_error, emsg)) {
 		TIFFErrorExt(tif->tif_clientdata, TIFFFileName(tif), "%s", emsg);
-		return( 0 );
+		return ( 0 );
 	}
 	/*
 	 * The TIFFRGBAImageGet() function doesn't allow us to get off the
@@ -2511,7 +2510,7 @@ int TIFFReadRGBATileExt(TIFF* tif, uint32 col, uint32 row, uint32 * raster, int 
 	 * bottom to top format.
 	 */
 	if(read_xsize == tile_xsize && read_ysize == tile_ysize)
-		return( ok );
+		return ( ok );
 	for(i_row = 0; i_row < read_ysize; i_row++) {
 		memmove(raster + (tile_ysize - i_row - 1) * tile_xsize, raster + (read_ysize - i_row - 1) * read_xsize, read_xsize * sizeof(uint32) );
 		memzero(raster + (tile_ysize - i_row - 1) * tile_xsize+read_xsize, sizeof(uint32) * (tile_xsize - read_xsize) );

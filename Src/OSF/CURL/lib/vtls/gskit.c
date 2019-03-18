@@ -488,9 +488,7 @@ static int inetsocketpair(int sv[2])
 	int cfd; /* Client socket. */
 	int len;
 	struct sockaddr_in addr1;
-
 	struct sockaddr_in addr2;
-
 	/* Create listening socket on a local dynamic port. */
 	lfd = socket(AF_INET, SOCK_STREAM, 0);
 	if(lfd < 0)
@@ -499,14 +497,13 @@ static int inetsocketpair(int sv[2])
 	addr1.sin_family = AF_INET;
 	addr1.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 	addr1.sin_port = 0;
-	if(bind(lfd, (struct sockaddr*)&addr1, sizeof addr1) ||
-	    listen(lfd, 2) < 0) {
+	if(bind(lfd, (struct sockaddr *)&addr1, sizeof addr1) || listen(lfd, 2) < 0) {
 		close(lfd);
 		return -1;
 	}
 	/* Get the allocated port. */
 	len = sizeof addr1;
-	if(getsockname(lfd, (struct sockaddr*)&addr1, &len) < 0) {
+	if(getsockname(lfd, (struct sockaddr *)&addr1, &len) < 0) {
 		close(lfd);
 		return -1;
 	}
@@ -518,14 +515,14 @@ static int inetsocketpair(int sv[2])
 	}
 	/* Request unblocking connection to the listening socket. */
 	curlx_nonblock(cfd, TRUE);
-	if(connect(cfd, (struct sockaddr*)&addr1, sizeof addr1) < 0 && errno != EINPROGRESS) {
+	if(connect(cfd, (struct sockaddr *)&addr1, sizeof addr1) < 0 && errno != EINPROGRESS) {
 		close(lfd);
 		close(cfd);
 		return -1;
 	}
 	/* Get the client dynamic port for intrusion check below. */
 	len = sizeof addr2;
-	if(getsockname(cfd, (struct sockaddr*)&addr2, &len) < 0) {
+	if(getsockname(cfd, (struct sockaddr *)&addr2, &len) < 0) {
 		close(lfd);
 		close(cfd);
 		return -1;
@@ -535,7 +532,7 @@ static int inetsocketpair(int sv[2])
 	curlx_nonblock(lfd, TRUE);
 	for(;; ) {
 		len = sizeof addr1;
-		sfd = accept(lfd, (struct sockaddr*)&addr1, &len);
+		sfd = accept(lfd, (struct sockaddr *)&addr1, &len);
 		if(sfd < 0) {
 			close(lfd);
 			close(cfd);

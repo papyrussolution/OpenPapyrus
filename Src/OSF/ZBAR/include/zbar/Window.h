@@ -64,7 +64,7 @@ public:
     /// cast to C window object.
     operator zbar_window_t* () const
     {
-        return(_window);
+        return (_window);
     }
 
     /// associate reader with an existing platform window.

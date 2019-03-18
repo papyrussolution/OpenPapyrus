@@ -75,7 +75,7 @@ static void png_write_chunk_header(png_structrp png_ptr, uint32 chunk_name,
 
 #if defined(PNG_DEBUG) && (PNG_DEBUG > 0)
 	PNG_CSTRING_FROM_CHUNK(buf, chunk_name);
-	png_debug2(0, "Writing %s chunk, length = %lu", buf, (unsigned long)length);
+	png_debug2(0, "Writing %s chunk, length = %lu", buf, (ulong)length);
 #endif
 
 	if(!png_ptr)
@@ -1546,7 +1546,7 @@ void /* PRIVATE */ png_write_pCAL(png_structrp png_ptr, char * purpose, png_int_
 	for(i = 0; i < nparams; i++) {
 		params_len[i] = strlen(params[i]) + (i == nparams - 1 ? 0 : 1);
 		png_debug2(3, "pCAL parameter %d length = %lu", i,
-		    (unsigned long)params_len[i]);
+		    (ulong)params_len[i]);
 		total_len += params_len[i];
 	}
 
@@ -1590,7 +1590,7 @@ void /* PRIVATE */ png_write_sCAL_s(png_structrp png_ptr, int unit, const char *
 	memcpy(buf + 1, width, wlen + 1); /* Append the '\0' here */
 	memcpy(buf + wlen + 2, height, hlen); /* Do NOT append the '\0' here */
 
-	png_debug1(3, "sCAL total length = %u", (unsigned int)total_len);
+	png_debug1(3, "sCAL total length = %u", (uint)total_len);
 	png_write_complete_chunk(png_ptr, png_sCAL, buf, total_len);
 }
 

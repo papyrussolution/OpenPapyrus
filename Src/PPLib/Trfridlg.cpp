@@ -13,7 +13,7 @@ private:
 	friend int SLAPI EditTransferItem(PPBillPacket *, int itemNo, TIDlgInitData *, const PPTransferItem * pOrder, int sign);
 
 	TrfrItemDialog(uint dlgID, PPID opID);
-	int    setDTS(PPTransferItem *);
+	int    setDTS(const PPTransferItem * pData);
 	int    getDTS(PPTransferItem *, double * pExtraQtty);
 	DECL_HANDLE_EVENT;
 	void   selectLot();
@@ -1215,7 +1215,7 @@ int TrfrItemDialog::setupGoodsList()
 			grp_id = -GoodsGrpID;
 		else if(!Item.GoodsID && !(Item.Flags & (PPTFR_ACK|PPTFR_DRAFT)) && (Item.Flags & (PPTFR_MINUS | PPTFR_REVAL)))
 			grp_id = -GoodsGrpID;
-		ok = SetupPPObjCombo(this, CTLSEL_LOT_GOODS, PPOBJ_GOODS, Item.GoodsID, OLW_LOADDEFONOPEN|OLW_CANINSERT, (void *)grp_id);
+		ok = SetupPPObjCombo(this, CTLSEL_LOT_GOODS, PPOBJ_GOODS, Item.GoodsID, OLW_LOADDEFONOPEN|OLW_CANINSERT, reinterpret_cast<void *>(grp_id));
 	}
 	setupQttyFldPrec();
 	return ok;
@@ -1828,7 +1828,7 @@ int TrfrItemDialog::IsSourceSerialUsed()
 	return yes;
 }
 
-int TrfrItemDialog::setDTS(PPTransferItem * pItem)
+int TrfrItemDialog::setDTS(const PPTransferItem * pItem)
 {
 	int    ok = 1;
 	Goods2Tbl::Rec grp_rec;
@@ -1852,7 +1852,7 @@ int TrfrItemDialog::setDTS(PPTransferItem * pItem)
 		SetComboBoxLinkText(this, CTLSEL_LOT_GOODSGRP, grp_rec.Name);
 	else {
 		PPID   parent_grp = (GoodsGrpID && GObj.Fetch(GoodsGrpID, &grp_rec) > 0) ? grp_rec.ParentID : 0;
-		SetupPPObjCombo(this, CTLSEL_LOT_GOODSGRP, PPOBJ_GOODSGROUP, GoodsGrpID, OLW_LOADDEFONOPEN|OLW_CANINSERT, (void *)parent_grp);
+		SetupPPObjCombo(this, CTLSEL_LOT_GOODSGRP, PPOBJ_GOODSGROUP, GoodsGrpID, OLW_LOADDEFONOPEN|OLW_CANINSERT, reinterpret_cast<void *>(parent_grp));
 	}
 	if(GoodsGrpID)
 		setupGoodsList();

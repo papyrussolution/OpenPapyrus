@@ -88,7 +88,7 @@
 //#include "cairo-recording-surface-inline.h"
 //#include "cairo-surface-snapshot-inline.h"
 //#include "cairo-surface-wrapper-private.h"
-//#include "cairo-traps-private.h"
+////#include "cairo-traps-private.h"
 
 typedef enum {
 	CAIRO_RECORDING_REPLAY,
@@ -357,11 +357,7 @@ cairo_surface_t * cairo_recording_surface_create(cairo_content_t content, const 
 	cairo_recording_surface_t * surface = (cairo_recording_surface_t *)_cairo_malloc(sizeof(cairo_recording_surface_t));
 	if(unlikely(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
-	_cairo_surface_init(&surface->base,
-	    &cairo_recording_surface_backend,
-	    NULL,              /* device */
-	    content,
-	    TRUE);              /* is_vector */
+	_cairo_surface_init(&surface->base, &cairo_recording_surface_backend, NULL/* device */, content, TRUE/* is_vector */);
 	surface->unbounded = TRUE;
 	/* unbounded -> 'infinite' extents */
 	if(extents != NULL) {
@@ -589,39 +585,27 @@ static void _cairo_recording_surface_reset(cairo_recording_surface_t * surface)
 {
 	/* Reset the commands and temporaries */
 	_cairo_recording_surface_finish(surface);
-
 	surface->bbtree.left = surface->bbtree.right = NULL;
 	surface->bbtree.chain = INVALID_CHAIN;
-
 	surface->indices = NULL;
 	surface->num_indices = 0;
-
 	_cairo_array_init(&surface->commands, sizeof(cairo_command_t *));
 }
 
-static cairo_int_status_t _cairo_recording_surface_paint(void * abstract_surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_clip_t * clip)
+static cairo_int_status_t _cairo_recording_surface_paint(void * abstract_surface, cairo_operator_t op, const cairo_pattern_t * source, const cairo_clip_t * clip)
 {
 	cairo_status_t status;
 	cairo_recording_surface_t * surface = (cairo_recording_surface_t *)abstract_surface;
 	cairo_command_paint_t * command;
 	cairo_composite_rectangles_t composite;
-
 	TRACE((stderr, "%s: surface=%d\n", __FUNCTION__, surface->base.unique_id));
-
 	if(op == CAIRO_OPERATOR_CLEAR && clip == NULL) {
 		if(surface->optimize_clears) {
 			_cairo_recording_surface_reset(surface);
 			return CAIRO_STATUS_SUCCESS;
 		}
 	}
-
-	if(clip == NULL && surface->optimize_clears &&
-	    (op == CAIRO_OPERATOR_SOURCE ||
-	    (op == CAIRO_OPERATOR_OVER &&
-	    (surface->base.is_clear || _cairo_pattern_is_opaque_solid(source))))) {
+	if(clip == NULL && surface->optimize_clears && (op == CAIRO_OPERATOR_SOURCE || (op == CAIRO_OPERATOR_OVER && (surface->base.is_clear || _cairo_pattern_is_opaque_solid(source))))) {
 		_cairo_recording_surface_reset(surface);
 	}
 	status = _cairo_composite_rectangles_init_for_paint(&composite, &surface->base, op, source, clip);

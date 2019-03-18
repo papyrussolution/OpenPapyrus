@@ -242,10 +242,10 @@ int CcAmountList::Implement_Set(int type, double amt, int32 addedID, int replace
 	return ok;
 }
 
-int CcAmountList::Set(int type, double amt, int32 addedID)
-	{ return Implement_Set(type, amt, addedID, 1, 0); }
-int CcAmountList::Add(int type, double amt, int32 addedID)
-	{ return Implement_Set(type, amt, addedID, 0, 0); }
+int    CcAmountList::Set(int type, double amt, int32 addedID) { return Implement_Set(type, amt, addedID, 1, 0); }
+int    CcAmountList::Add(int type, double amt, int32 addedID) { return Implement_Set(type, amt, addedID, 0, 0); }
+double CcAmountList::Replace(int type, double amt, int32 addedID, int r1, int r2) { return Implement_Replace(type, amt, addedID, 0, r1, r2); }
+double CcAmountList::ReplaceDontRemove(int type, double amt, int32 addedID, int r1, int r2) { return Implement_Replace(type, amt, addedID, 1, r1, r2); }
 
 double CcAmountList::Implement_Replace(int type, double amt, int32 addedID, int dontRemove, int r1, int r2)
 {
@@ -359,11 +359,6 @@ double CcAmountList::Implement_Replace(int type, double amt, int32 addedID, int 
 	}
 	return result;
 }
-
-double CcAmountList::Replace(int type, double amt, int32 addedID, int r1, int r2)
-	{ return Implement_Replace(type, amt, addedID, 0, r1, r2); }
-double CcAmountList::ReplaceDontRemove(int type, double amt, int32 addedID, int r1, int r2)
-	{ return Implement_Replace(type, amt, addedID, 1, r1, r2); }
 
 int CcAmountList::Normalize()
 {
@@ -752,10 +747,8 @@ int SLAPI CCheckPacket::HasExt() const
 		!!Ext.StartOrdDtm || !!Ext.EndOrdDtm || !!Ext.CreationDtm || Ext.Memo[0] || Ext.AddrID/* @v9.0.4 || Ext.AddPaym || Ext.AddCrdCardID || Ext.AddCrdCardPaym*/);
 }
 
-uint SLAPI CCheckPacket::GetCount() const
-	{ return Items_.getCount(); }
-const CCheckLineTbl::Rec & FASTCALL CCheckPacket::GetLine(uint pos) const
-	{ return Items_.at(pos); }
+uint  SLAPI CCheckPacket::GetCount() const { return Items_.getCount(); }
+const CCheckLineTbl::Rec & FASTCALL CCheckPacket::GetLine(uint pos) const { return Items_.at(pos); }
 
 int SLAPI CCheckPacket::EnumLines(uint * pPos, CCheckLineTbl::Rec * pItem, SString * pSerial) const
 {
@@ -850,9 +843,36 @@ int SLAPI CCheckPacket::SearchLine(int rByCheck, uint * pPos) const
 	return Items_.lsearch(&rbc, pPos, PTR_CMPFUNC(int16), offsetof(CCheckLineTbl::Rec, RByCheck));
 }
 
-int SLAPI CCheckPacket::PackLineTextExt(SString & rResult) const
+static const int ccpack_textext_ident_list[] = { CCheckPacket::extssMemo, CCheckPacket::extssSign, CCheckPacket::extssEgaisUrl };
+
+int SLAPI CCheckPacket::PackTextExt(SString & rResult) const
 {
 	rResult.Z();
+	int    ok = -1;
+	SString temp_buf;
+	for(uint i = 0; i < SIZEOFARRAY(ccpack_textext_ident_list); i++) {
+		const int fld_id = ccpack_textext_ident_list[i];
+		assert(fld_id > 0 && fld_id < 100);
+		if(fld_id > 0 && fld_id < 100) {
+			GetExtStrData(fld_id, temp_buf);
+			if(temp_buf.NotEmptyS()) {
+				PPPutExtStrData(fld_id, rResult, temp_buf);
+				ok = 1;
+			}
+		}
+	}
+	if(Helper_PackLineTextExt(rResult) > 0)
+		ok = 1;
+	return ok;
+}
+
+int SLAPI CCheckPacket::UnpackTextExt(const SString & rBuf)
+{
+	return Helper_UnpackTextExt(rBuf, this, &this->LnTextList);
+}
+
+int SLAPI CCheckPacket::Helper_PackLineTextExt(SString & rResult) const
+{
 	int    ok = -1;
 	SString line_buf;
 	SString temp_buf;
@@ -876,8 +896,46 @@ int SLAPI CCheckPacket::PackLineTextExt(SString & rResult) const
 	return ok;
 }
 
+/* @v10.3.9 int SLAPI CCheckPacket::PackLineTextExt(SString & rResult) const
+{
+	rResult.Z();
+	return Helper_PackLineTextExt(rResult);
+}*/
+
 //static
-int SLAPI CCheckPacket::Helper_UnpackLineTextExt(const SString & rBuf, StrAssocArray & rList)
+int SLAPI CCheckPacket::Helper_UnpackTextExt(const SString & rBuf, PPExtStrContainer * pSc, StrAssocArray * pList)
+{
+	int   ok = -1;
+	CALLPTRMEMB(pSc, SetBuffer(0));
+	CALLPTRMEMB(pList, Z());
+	SString temp_buf;
+	SString line_buf;
+	PPExtStringStorage ess;
+	int    fld_id = 0;
+	for(uint p = 0; ess.Enum(rBuf, &p, &fld_id, temp_buf) > 0;) {
+		if(temp_buf.NotEmptyS()) {
+			if(fld_id > 100) {
+				if(pList) {
+					const int row_no = fld_id / 100;
+					const int fld_no = fld_id % 100;
+					Helper_SetLineTextExt(row_no, fld_no, *pList, temp_buf);
+				}
+				ok = 1;
+			}
+			else if(oneof3(fld_id, CCheckPacket::extssMemo, CCheckPacket::extssSign, CCheckPacket::extssEgaisUrl)) {
+				CALLPTRMEMB(pSc, PutExtStrData(fld_id, temp_buf));
+				ok = 1;
+			}
+			else {
+				; // @error
+			}
+		}
+	}
+	return ok;
+}
+
+//static
+/* @v10.3.9 (replaced with Helper_UnpackTextExt) int SLAPI CCheckPacket::Helper_UnpackLineTextExt(const SString & rBuf, StrAssocArray & rList)
 {
 	int   ok = 1;
 	rList.Z();
@@ -898,7 +956,7 @@ int SLAPI CCheckPacket::Helper_UnpackLineTextExt(const SString & rBuf, StrAssocA
 		}
 	}
 	return ok;
-}
+}*/
 
 // @v9.0.9 {
 
@@ -926,12 +984,13 @@ int SLAPI CCheckPacket::Helper_GetLineTextExt(int pos /* 1.. */, int lnextId, co
 	return ok;
 }
 
-int SLAPI CCheckPacket::UnpackLineTextExt(const SString & rBuf)
-	{ return Helper_UnpackLineTextExt(rBuf, LnTextList); }
-int SLAPI CCheckPacket::SetLineTextExt(int pos /* 1.. */, int lnextId, const char * pText)
-	{ return Helper_SetLineTextExt(pos, lnextId, LnTextList, pText); }
-int SLAPI CCheckPacket::GetLineTextExt(int pos /* 1.. */, int lnextId, SString & rBuf) const
-	{ return Helper_GetLineTextExt(pos, lnextId, LnTextList, rBuf); }
+/* @v10.3.9 int SLAPI CCheckPacket::UnpackLineTextExt(const SString & rBuf) 
+{ 
+	// @v10.3.9 return Helper_UnpackLineTextExt(rBuf, LnTextList); 
+	return Helper_UnpackTextExt(rBuf, 0, &LnTextList); // @v10.3.9 
+}*/
+int SLAPI CCheckPacket::SetLineTextExt(int pos /* 1.. */, int lnextId, const char * pText) { return Helper_SetLineTextExt(pos, lnextId, LnTextList, pText); }
+int SLAPI CCheckPacket::GetLineTextExt(int pos /* 1.. */, int lnextId, SString & rBuf) const { return Helper_GetLineTextExt(pos, lnextId, LnTextList, rBuf); }
 // } @v9.0.9
 
 #if 0 // @v9.0.9 {
@@ -1135,7 +1194,7 @@ void SLAPI CCheckPacket::SetTotalDiscount__(double dis, long flags/*int pctdis, 
 	double max_price = 0.0;
 	double amount = 0.0, qtty, p, d;
 	CCheckLineTbl::Rec * p_item;
-	for(i = 0; Items_.enumItems(&i, (void**)&p_item);) {
+	for(i = 0; Items_.enumItems(&i, (void **)&p_item);) {
 		qtty = fabs(p_item->Quantity);
 		p = intmnytodbl(p_item->Price);
 		amount = R2(amount + p * qtty);
@@ -1166,7 +1225,7 @@ void SLAPI CCheckPacket::SetTotalDiscount__(double dis, long flags/*int pctdis, 
 			p_item->Dscnt = d;
 	}
 	else /* } @v9.8.1 */ {
-		for(i = 0; Items_.enumItems(&i, (void**)&p_item);)
+		for(i = 0; Items_.enumItems(&i, (void **)&p_item);)
 			if(i != last_index) {
 				qtty = fabs(p_item->Quantity);
 				if(qtty > 0.0) {
@@ -1199,8 +1258,8 @@ void SLAPI CCheckPacket::SetTotalDiscount__(double dis, long flags/*int pctdis, 
 
 double FASTCALL CCheckPacket::GetItemAmount(const CCheckLineTbl::Rec & rItem) const
 {
-	double s  = intmnytodbl(rItem.Price) * rItem.Quantity;
-	double ds = rItem.Dscnt * rItem.Quantity;
+	const double s  = intmnytodbl(rItem.Price) * rItem.Quantity;
+	const double ds = rItem.Dscnt * rItem.Quantity;
 	return (s - ds);
 }
 
@@ -1241,7 +1300,7 @@ int SLAPI CCheckPacket::HasNonFiscalAmount(double * pFiscal, double * pNonFiscal
 	double fiscal = 0.0;
 	double nonfiscal = 0.0;
 	if(CcAl.getCount()) {
-		nonfiscal = fabs(CcAl.Get(CCAMTTYP_CRDCARD)); // @v8.0.6 @fix fabs()
+		nonfiscal = fabs(CcAl.Get(CCAMTTYP_CRDCARD));
 		fiscal = amt - nonfiscal;
 		yes = BIN(nonfiscal != 0.0);
 	}
@@ -2020,14 +2079,13 @@ int SLAPI CCheckCore::LoadPacket(PPID id, long flags, CCheckPacket * pPack)
 		MEMSZERO(pPack->Ext);
 		if(!(flags & lpfNoLines))
 			LoadLines(id, 0, pPack);
-		// @v9.0.9 {
 		{
 			SString text_buf;
 			THROW(PPRef->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, id, PPTRPROP_CC_LNEXT), text_buf));
 			text_buf.Transf(CTRANSF_UTF8_TO_INNER);
-			pPack->UnpackLineTextExt(text_buf);
+			// @v10.3.9 pPack->UnpackLineTextExt(text_buf);
+			pPack->UnpackTextExt(text_buf); // @v10.3.9
 		}
-		// } @v9.0.9
 		if(pPack->Rec.Flags & CCHKF_EXT) {
 			int r = SearchByID(P_Ext, 0, id, &pPack->Ext);
 			THROW(r);
@@ -2406,31 +2464,6 @@ int SLAPI CCheckCore::UpdateCheck(CCheckPacket * pPack, int use_ta)
 		THROW(PreprocessPacket(pPack));
 		THROW(Update(id, &pPack->Rec, 0));
 		ufp_factor += 1.0;
-#if 0 // @v9.0.11 {
-		{
-			//
-			// Удаляем старые строки
-			//
-			{
-				CCheckLineTbl::Key0 k0;
-				k0.CheckID  = id;
-				k0.RByCheck = -;
-				if(Lines.searchForUpdate(0, &k0, spGe) && Lines.data.CheckID == id) {
-					do {
-						ufp_factor += 1.0;
-						THROW_DB(Lines.deleteRec()); // @sfu
-					} while(Lines.searchForUpdate(0, &k0, spNext) && Lines.data.CheckID == id);
-				}
-				THROW(PPDbSearchError());
-			}
-			if(P_LnExt) {
-				ufp_factor += 1.0;
-				THROW_DB(deleteFrom(P_LnExt, 0, P_LnExt->CheckID == id));
-			}
-		}
-		THROW(LineByCheck(id, &last_rbc));
-		THROW(pPack->PrepareForWriting(id, last_rbc));
-#endif // } 0 @v9.0.11
 		THROW(PreparePacketForWriting(id, pPack, ufp_factor));
 		{
 			BExtInsert bei(&Lines);
@@ -2463,15 +2496,14 @@ int SLAPI CCheckCore::UpdateCheck(CCheckPacket * pPack, int use_ta)
 			}
 			THROW_DB(bei.flash());
 		}
-		// @v9.0.9 {
 		{
 			SString text_buf;
-			pPack->PackLineTextExt(text_buf);
+			// @v10.3.9 pPack->PackLineTextExt(text_buf);
+			pPack->PackTextExt(text_buf); // @v10.3.9
 			if(text_buf.NotEmptyS()) {
 				THROW(PPRef->UtrC.SetText(TextRefIdent(PPOBJ_CCHECK, id, PPTRPROP_CC_LNEXT), text_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
 			}
 		}
-		// } @v9.0.9
 		{
 			int    r = 0;
 			THROW(r = PutExt(&pPack->Rec, &pPack->Ext, 0));
@@ -2587,7 +2619,8 @@ int SLAPI CCheckCore::TurnCheck(CCheckPacket * pPack, int use_ta)
 		// @v9.0.9 {
 		{
 			SString text_buf;
-			pPack->PackLineTextExt(text_buf);
+			// @v10.3.9 pPack->PackLineTextExt(text_buf);
+			pPack->PackTextExt(text_buf); // @v10.3.9
 			if(text_buf.NotEmptyS()) {
 				THROW(PPRef->UtrC.SetText(TextRefIdent(PPOBJ_CCHECK, id, PPTRPROP_CC_LNEXT), text_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
 			}
@@ -3082,7 +3115,8 @@ int SLAPI CCheckCore::GetListByLineExtss(int lnextss /*CCheckPacket::lnextXXX*/,
 	TextRefEnumItem iter_item;
 	StrAssocArray text_by_row_list;
 	for(SEnum en = r_utrc.Enum(PPOBJ_CCHECK, PPTRPROP_CC_LNEXT); en.Next(&iter_item) > 0;) {
-		CCheckPacket::Helper_UnpackLineTextExt(iter_item.S.Transf(CTRANSF_UTF8_TO_INNER), text_by_row_list);
+		// @v10.3.9 CCheckPacket::Helper_UnpackLineTextExt(iter_item.S.Transf(CTRANSF_UTF8_TO_INNER), text_by_row_list);
+		CCheckPacket::Helper_UnpackTextExt(iter_item.S.Transf(CTRANSF_UTF8_TO_INNER), 0, &text_by_row_list); // @v10.3.9 
 		uint   pos = 0;
 		for(uint i = 0; i < text_by_row_list.getCount(); i++) {
 			StrAssocArray::Item item = text_by_row_list.at_WithoutParent(i);
@@ -3135,23 +3169,13 @@ int SLAPI CCheckCore::CalcActiveExpendByGoods(PPID goodsID, PPID locID, const ch
 							if(isempty(pSerial)) {
 								result += r_line_rec.Quantity;
 							}
-							else {
-								// @v9.1.2 {
-								if(PPRef->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, cc_id, PPTRPROP_CC_LNEXT), text_buf) > 0) {
-									text_buf.Transf(CTRANSF_UTF8_TO_INNER);
-									CCheckPacket::Helper_UnpackLineTextExt(text_buf, ln_text_ext);
-									CCheckPacket::Helper_GetLineTextExt(r_line_rec.RByCheck, CCheckPacket::lnextSerial, ln_text_ext, serial_buf);
-									if(serial_buf == pSerial)
-										result += r_line_rec.Quantity;
-								}
-								// } @v9.1.2
-								/* @v9.1.2
-								CCheckLineExtTbl::Rec ext_rec;
-								if(GetLineExt(r_line_rec.CheckID, r_line_rec.RByCheck, &ext_rec) > 0) {
-									if(strcmp(ext_rec.Serial, pSerial) == 0)
-										result += r_line_rec.Quantity;
-								}
-								*/
+							else if(PPRef->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, cc_id, PPTRPROP_CC_LNEXT), text_buf) > 0) {
+								text_buf.Transf(CTRANSF_UTF8_TO_INNER);
+								// @v10.3.9 CCheckPacket::Helper_UnpackLineTextExt(text_buf, ln_text_ext);
+								CCheckPacket::Helper_UnpackTextExt(text_buf, 0, &ln_text_ext); // @v10.3.9
+								CCheckPacket::Helper_GetLineTextExt(r_line_rec.RByCheck, CCheckPacket::lnextSerial, ln_text_ext, serial_buf);
+								if(serial_buf == pSerial)
+									result += r_line_rec.Quantity;
 							}
 						}
 					}
@@ -3362,7 +3386,8 @@ int SLAPI CCheckCore::GroupingToGoodsLines(PPID sessID, CSessTotal * pTotal, CCh
 					if(cc_id != prev_cc_id) {
 						THROW(p_ref->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, cc_id, PPTRPROP_CC_LNEXT), temp_buf));
 						// (Использовать будем в виде utf8-строк) temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-                        CCheckPacket::Helper_UnpackLineTextExt(temp_buf, cc_ln_text_ext);
+                        // @v10.3.9 CCheckPacket::Helper_UnpackLineTextExt(temp_buf, cc_ln_text_ext);
+						CCheckPacket::Helper_UnpackTextExt(temp_buf, 0, &cc_ln_text_ext); // @v10.3.9 
 					}
 					int16  dt_offs = static_cast<const ChkItem *>(chk_list.at(pos))->DtOffs;
 					PPID   serial_id = 0;
@@ -4930,7 +4955,7 @@ int SLAPI CSessGrouping::RemoveSession(PPID sessID, int grade)
 		THROW(cs_obj.UndoWritingOff(sessID, 0));
 		THROW(GL.RemoveSess(sessID));
 		THROW(CS.GetSubSessList(sessID, &sess_ary));
-		for(i = 0; sess_ary.enumItems(&i, (void**)&p_id) > 0;)
+		for(i = 0; sess_ary.enumItems(&i, (void **)&p_id) > 0;)
 			THROW(CC.SetFlagsBySess(*p_id, CCHKF_NOTUSED, 0, 0));
 		THROW(CC.SetFlagsBySess(sessID, CCHKF_NOTUSED, 0, 0));
 		THROW(CS.SetSessIncompletness(sessID, CSESSINCMPL_CHECKS, 0));
@@ -5092,9 +5117,9 @@ int SLAPI CSessGrouping::GroupingSessList(PPID nodeID, const PPIDArray * pList, 
 				}
 			}
 			temp_list.sort(PTR_CMPFUNC(__SessItem));
-			for(i = 0; temp_list.enumItems(&i, (void**)&p_item);) {
+			for(i = 0; temp_list.enumItems(&i, (void **)&p_item);) {
 				if(!p_item->HasCGLines) {
-					for(j = 0; temp_list.enumItems(&j, (void**)&p_item2);) {
+					for(j = 0; temp_list.enumItems(&j, (void **)&p_item2);) {
 						if(j != i && !p_item2->HasCGLines) {
 							long   diff_date;
 							long   diff_time = diffdatetime(p_item->Dtm, p_item2->Dtm, 2, &diff_date);
@@ -5134,7 +5159,7 @@ int SLAPI CSessGrouping::GroupingSessList(PPID nodeID, const PPIDArray * pList, 
 			for(i = 1; i <= last_super_num; i++) {
 				PPID   super_id = 0;
 				super_member_list.clear();
-				for(j = 0; temp_list.enumItems(&j, (void**)&p_item);) {
+				for(j = 0; temp_list.enumItems(&j, (void **)&p_item);) {
 					if(p_item->SuperGroup == i) {
 						THROW(super_member_list.add(p_item->SessID));
 						super_id = p_item->SuperID;
@@ -5146,7 +5171,7 @@ int SLAPI CSessGrouping::GroupingSessList(PPID nodeID, const PPIDArray * pList, 
 					THROW(super_sess_list.add(super_id));
 				}
 			}
-			for(j = 0; temp_list.enumItems(&j, (void**)&p_item);)
+			for(j = 0; temp_list.enumItems(&j, (void **)&p_item);)
 				if(p_item->SuperGroup == 0) {
 					THROW(super_sess_list.add(p_item->SessID));
 				}

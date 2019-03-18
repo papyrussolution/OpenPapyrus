@@ -89,7 +89,7 @@ static ngx_int_t ngx_stream_upstream_addr_variable(ngx_stream_session_t * s, ngx
 			}
 			len += 2;
 		}
-		p = (u_char*)ngx_pnalloc(s->connection->pool, len);
+		p = (u_char *)ngx_pnalloc(s->connection->pool, len);
 		if(!p) {
 			return NGX_ERROR;
 		}
@@ -124,7 +124,7 @@ static ngx_int_t ngx_stream_upstream_bytes_variable(ngx_stream_session_t * s, ng
 		return NGX_OK;
 	}
 	len = s->upstream_states->nelts * (NGX_OFF_T_LEN + 2);
-	p = (u_char*)ngx_pnalloc(s->connection->pool, len);
+	p = (u_char *)ngx_pnalloc(s->connection->pool, len);
 	if(!p) {
 		return NGX_ERROR;
 	}
@@ -163,7 +163,7 @@ static ngx_int_t ngx_stream_upstream_response_time_variable(ngx_stream_session_t
 		return NGX_OK;
 	}
 	len = s->upstream_states->nelts * (NGX_TIME_T_LEN + 4 + 2);
-	p = (u_char*)ngx_pnalloc(s->connection->pool, len);
+	p = (u_char *)ngx_pnalloc(s->connection->pool, len);
 	if(!p) {
 		return NGX_ERROR;
 	}
@@ -209,7 +209,7 @@ static const char * ngx_stream_upstream(ngx_conf_t * cf, const ngx_command_t * c
 	ngx_stream_conf_ctx_t * ctx, * stream_ctx;
 	ngx_stream_upstream_srv_conf_t  * uscf;
 	memzero(&u, sizeof(ngx_url_t));
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	u.host = value[1];
 	u.no_resolve = 1;
 	u.no_port = 1;
@@ -225,7 +225,7 @@ static const char * ngx_stream_upstream(ngx_conf_t * cf, const ngx_command_t * c
 	stream_ctx = (ngx_stream_conf_ctx_t*)cf->ctx;
 	ctx->main_conf = stream_ctx->main_conf;
 	/* the upstream{}'s srv_conf */
-	ctx->srv_conf = (void**)ngx_pcalloc(cf->pool, sizeof(void *) * ngx_stream_max_module);
+	ctx->srv_conf = (void **)ngx_pcalloc(cf->pool, sizeof(void *) * ngx_stream_max_module);
 	if(ctx->srv_conf == NULL) {
 		return NGX_CONF_ERROR;
 	}
@@ -277,7 +277,7 @@ static const char * ngx_stream_upstream_server(ngx_conf_t * cf, const ngx_comman
 		return NGX_CONF_ERROR;
 	}
 	memzero(us, sizeof(ngx_stream_upstream_server_t));
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	weight = 1;
 	max_conns = 0;
 	max_fails = 1;

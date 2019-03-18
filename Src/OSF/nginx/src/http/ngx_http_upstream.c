@@ -636,7 +636,7 @@ static ngx_int_t ngx_http_upstream_cache_check_range(ngx_http_request_t * r, ngx
 	if(u->conf->cache_max_range_offset == 0) {
 		return NGX_DECLINED;
 	}
-	if(h->value.len < 7 || ngx_strncasecmp(h->value.data, (u_char*)"bytes=", 6) != 0) {
+	if(h->value.len < 7 || ngx_strncasecmp(h->value.data, (u_char *)"bytes=", 6) != 0) {
 		return NGX_OK;
 	}
 	p = h->value.data + 6;
@@ -2839,15 +2839,15 @@ static ngx_int_t ngx_http_upstream_process_cache_control(ngx_http_request_t * r,
 		}
 		start = h->value.data;
 		last = start + h->value.len;
-		if(ngx_strlcasestrn(start, last, (u_char*)"no-cache", 8 - 1) != NULL || ngx_strlcasestrn(start, last, (u_char*)"no-store", 8 - 1) != NULL 
-			|| ngx_strlcasestrn(start, last, (u_char*)"private", 7 - 1) != NULL) {
+		if(ngx_strlcasestrn(start, last, (u_char *)"no-cache", 8 - 1) != NULL || ngx_strlcasestrn(start, last, (u_char *)"no-store", 8 - 1) != NULL 
+			|| ngx_strlcasestrn(start, last, (u_char *)"private", 7 - 1) != NULL) {
 			u->cacheable = 0;
 			return NGX_OK;
 		}
-		p = ngx_strlcasestrn(start, last, (u_char*)"s-maxage=", 9 - 1);
+		p = ngx_strlcasestrn(start, last, (u_char *)"s-maxage=", 9 - 1);
 		offset = 9;
 		if(!p) {
-			p = ngx_strlcasestrn(start, last, (u_char*)"max-age=", 8 - 1);
+			p = ngx_strlcasestrn(start, last, (u_char *)"max-age=", 8 - 1);
 			offset = 8;
 		}
 		if(p) {
@@ -2869,7 +2869,7 @@ static ngx_int_t ngx_http_upstream_process_cache_control(ngx_http_request_t * r,
 			}
 			r->cache->valid_sec = ngx_time() + n;
 		}
-		p = ngx_strlcasestrn(start, last, (u_char*)"stale-while-revalidate=", 23 - 1);
+		p = ngx_strlcasestrn(start, last, (u_char *)"stale-while-revalidate=", 23 - 1);
 		if(p) {
 			n = 0;
 			for(p += 23; p < last; p++) {
@@ -2886,7 +2886,7 @@ static ngx_int_t ngx_http_upstream_process_cache_control(ngx_http_request_t * r,
 			r->cache->updating_sec = n;
 			r->cache->error_sec = n;
 		}
-		p = ngx_strlcasestrn(start, last, (u_char*)"stale-if-error=", 15 - 1);
+		p = ngx_strlcasestrn(start, last, (u_char *)"stale-if-error=", 15 - 1);
 		if(p) {
 			n = 0;
 			for(p += 15; p < last; p++) {
@@ -3027,7 +3027,7 @@ static ngx_int_t ngx_http_upstream_process_charset(ngx_http_request_t * r, ngx_t
 static ngx_int_t ngx_http_upstream_process_connection(ngx_http_request_t * r, ngx_table_elt_t * h, ngx_uint_t offset)
 {
 	r->upstream->headers_in.connection = h;
-	if(ngx_strlcasestrn(h->value.data, h->value.data + h->value.len, (u_char*)"close", 5 - 1) != NULL) {
+	if(ngx_strlcasestrn(h->value.data, h->value.data + h->value.len, (u_char *)"close", 5 - 1) != NULL) {
 		r->upstream->headers_in.connection_close = 1;
 	}
 	return NGX_OK;
@@ -3036,7 +3036,7 @@ static ngx_int_t ngx_http_upstream_process_connection(ngx_http_request_t * r, ng
 static ngx_int_t ngx_http_upstream_process_transfer_encoding(ngx_http_request_t * r, ngx_table_elt_t * h, ngx_uint_t offset)
 {
 	r->upstream->headers_in.transfer_encoding = h;
-	if(ngx_strlcasestrn(h->value.data, h->value.data + h->value.len, (u_char*)"chunked", 7 - 1) != NULL) {
+	if(ngx_strlcasestrn(h->value.data, h->value.data + h->value.len, (u_char *)"chunked", 7 - 1) != NULL) {
 		r->upstream->headers_in.chunked = 1;
 	}
 	return NGX_OK;
@@ -3111,7 +3111,7 @@ static ngx_int_t ngx_http_upstream_copy_content_type(ngx_http_request_t * r, ngx
 			if(*p == '\0') {
 				return NGX_OK;
 			}
-			else if(ngx_strncasecmp(p, (u_char*)"charset=", 8) == 0) {
+			else if(ngx_strncasecmp(p, (u_char *)"charset=", 8) == 0) {
 				p += 8;
 				r->headers_out.content_type_len = last - h->value.data;
 				if(*p == '"') {
@@ -3508,7 +3508,7 @@ static ngx_int_t ngx_http_upstream_header_variable(ngx_http_request_t * r, ngx_h
 		return NGX_OK;
 	}
 	else
-		return ngx_http_variable_unknown_header(v, (ngx_str_t*)data, &r->upstream->headers_in.headers.part, sizeof("upstream_http_") - 1);
+		return ngx_http_variable_unknown_header(v, (ngx_str_t *)data, &r->upstream->headers_in.headers.part, sizeof("upstream_http_") - 1);
 }
 
 static ngx_int_t ngx_http_upstream_cookie_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
@@ -3516,7 +3516,7 @@ static ngx_int_t ngx_http_upstream_cookie_variable(ngx_http_request_t * r, ngx_h
 	if(r->upstream == NULL)
 		v->not_found = 1;
 	else {
-		ngx_str_t * name = (ngx_str_t*)data;
+		ngx_str_t * name = (ngx_str_t *)data;
 		ngx_str_t cookie, s;
 		s.len = name->len - (sizeof("upstream_cookie_") - 1);
 		s.data = name->data + sizeof("upstream_cookie_") - 1;
@@ -3601,7 +3601,7 @@ static const char * ngx_http_upstream(ngx_conf_t * cf, const ngx_command_t * cmd
 	ngx_http_conf_ctx_t * ctx, * http_ctx;
 	ngx_http_upstream_srv_conf_t  * uscf;
 	memzero(&u, sizeof(ngx_url_t));
-	value = (ngx_str_t *)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	u.host = value[1];
 	u.no_resolve = 1;
 	u.no_port = 1;
@@ -3617,14 +3617,14 @@ static const char * ngx_http_upstream(ngx_conf_t * cf, const ngx_command_t * cmd
 	http_ctx = (ngx_http_conf_ctx_t *)cf->ctx;
 	ctx->main_conf = http_ctx->main_conf;
 	/* the upstream{}'s srv_conf */
-	ctx->srv_conf = (void **)ngx_pcalloc(cf->pool, sizeof(void *) * ngx_http_max_module);
+	ctx->srv_conf = static_cast<void **>(ngx_pcalloc(cf->pool, sizeof(void *) * ngx_http_max_module));
 	if(ctx->srv_conf == NULL) {
 		return (char *)NGX_CONF_ERROR;
 	}
 	ctx->srv_conf[ngx_http_upstream_module.ctx_index] = uscf;
 	uscf->srv_conf = ctx->srv_conf;
 	/* the upstream{}'s loc_conf */
-	ctx->loc_conf = (void **)ngx_pcalloc(cf->pool, sizeof(void *) * ngx_http_max_module);
+	ctx->loc_conf = static_cast<void **>(ngx_pcalloc(cf->pool, sizeof(void *) * ngx_http_max_module));
 	if(ctx->loc_conf == NULL) {
 		return (char *)NGX_CONF_ERROR;
 	}
@@ -3681,7 +3681,7 @@ static const char * ngx_http_upstream_server(ngx_conf_t * cf, const ngx_command_
 		return (char *)NGX_CONF_ERROR;
 	}
 	memzero(us, sizeof(ngx_http_upstream_server_t));
-	value = (ngx_str_t *)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	weight = 1;
 	max_conns = 0;
 	max_fails = 1;
@@ -3844,7 +3844,7 @@ ngx_http_upstream_srv_conf_t * ngx_http_upstream_add(ngx_conf_t * cf, ngx_url_t 
 
 const char * ngx_http_upstream_bind_set_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
-	char  * p = (char *)conf;
+	char  * p = static_cast<char *>(conf);
 	ngx_int_t rc;
 	ngx_str_t * value;
 	ngx_http_complex_value_t cv;
@@ -3854,7 +3854,7 @@ const char * ngx_http_upstream_bind_set_slot(ngx_conf_t * cf, const ngx_command_
 	if(*plocal != NGX_CONF_UNSET_PTR) {
 		return "is duplicate";
 	}
-	value = (ngx_str_t *)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(cf->args->nelts == 2 && ngx_strcmp(value[1].data, "off") == 0) {
 		*plocal = NULL;
 		return NGX_CONF_OK;
@@ -3952,7 +3952,7 @@ static ngx_int_t ngx_http_upstream_set_local(ngx_http_request_t * r, ngx_http_up
 
 const char * ngx_http_upstream_param_set_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
-	char  * p = (char *)conf;
+	char  * p = static_cast<char *>(conf);
 	ngx_str_t * value;
 	ngx_http_upstream_param_t * param;
 	ngx_array_t ** a = (ngx_array_t**)(p + cmd->offset);
@@ -3966,7 +3966,7 @@ const char * ngx_http_upstream_param_set_slot(ngx_conf_t * cf, const ngx_command
 	if(param == NULL) {
 		return NGX_CONF_ERROR;
 	}
-	value = (ngx_str_t *)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	param->key = value[1];
 	param->value = value[2];
 	param->skip_empty = 0;

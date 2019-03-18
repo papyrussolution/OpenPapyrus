@@ -87,7 +87,7 @@ int SLAPI PPViewScale::EditBaseFilt(PPBaseFilt * pFilt)
 	THROW(CheckDialogPtr(&p_dlg));
 	SetupStringCombo(p_dlg, CTLSEL_SCALEFLT_TYPE, PPTXT_SCLT, filt.ScaleTypeID);
 	SetupPPObjCombo(p_dlg,  CTLSEL_SCALEFLT_LOC, PPOBJ_LOCATION, filt.LocID, 0);
-	SetupPPObjCombo(p_dlg,  CTLSEL_SCALEFLT_ALTGRP, PPOBJ_GOODSGROUP, filt.AltGoodsGrpID, 0, (void *)GGRTYP_SEL_ALT);
+	SetupPPObjCombo(p_dlg,  CTLSEL_SCALEFLT_ALTGRP, PPOBJ_GOODSGROUP, filt.AltGoodsGrpID, 0, reinterpret_cast<void *>(GGRTYP_SEL_ALT));
 	SetupPPObjCombo(p_dlg,  CTLSEL_SCALEFLT_GROUP,  PPOBJ_SCALE, filt.GroupID, 0, PPObjScale::MakeExtraParam(PPSCLT_SCALEGROUP, 0));
 	p_dlg->AddClusterAssocDef(CTL_SCALEFLT_PROT,  0, ScaleFilt::protAll);
 	p_dlg->AddClusterAssoc(CTL_SCALEFLT_PROT,  1, ScaleFilt::protTcpIp);
@@ -226,10 +226,10 @@ int SLAPI PPViewScale::CheckScaleStatus(PPID scaleID, int statusFromList)
 static int ScaleReadyColorFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
-	PPViewScale * p_brw = (PPViewScale *)extraPtr;
+	PPViewScale * p_brw = static_cast<PPViewScale *>(extraPtr);
 	if(p_brw && pData && pStyle && col == 4) {
-		long scale_id = (pData) ? *(long*)pData : -1;
-		int is_ready = p_brw->CheckScaleStatus(scale_id, 1);
+		const long scale_id = *static_cast<const long *>(pData);
+		const int  is_ready = p_brw->CheckScaleStatus(scale_id, 1);
 		if(is_ready == 0) {
 			pStyle->Color = GetColorRef(SClrRed);
 			pStyle->Flags = BrowserWindow::CellStyle::fCorner;
@@ -287,7 +287,7 @@ int SLAPI PPViewScale::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 {
 	int        ok = (ppvCmd != PPVCMD_ADDITEM) ? PPView::ProcessCommand(ppvCmd, pHdr, pBrw) : -2;
 	PPIDArray  id_list;
-	PPID       id = (pHdr) ? *(PPID *)pHdr : 0;
+	PPID       id = (pHdr) ? *static_cast<const PPID *>(pHdr) : 0;
 	if(ok == -2) {
 		switch(ppvCmd) {
 			case PPVCMD_ADDITEM:

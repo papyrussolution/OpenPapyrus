@@ -579,7 +579,7 @@ static ngx_int_t ngx_http_file_cache_exists(ngx_http_file_cache_t * cache, ngx_h
 		}
 	}
 	cache->sh->count++;
-	memcpy((u_char*)&fcn->node.key, c->key, sizeof(ngx_rbtree_key_t));
+	memcpy((u_char *)&fcn->node.key, c->key, sizeof(ngx_rbtree_key_t));
 	memcpy(fcn->key, &c->key[sizeof(ngx_rbtree_key_t)], NGX_HTTP_CACHE_KEY_LEN - sizeof(ngx_rbtree_key_t));
 	ngx_rbtree_insert(&cache->sh->rbtree, &fcn->node);
 	fcn->uses = 1;
@@ -631,7 +631,7 @@ static ngx_http_file_cache_node_t * ngx_http_file_cache_lookup(ngx_http_file_cac
 	ngx_rbtree_key_t node_key;
 	ngx_rbtree_node_t * node, * sentinel;
 	ngx_http_file_cache_node_t  * fcn;
-	memcpy((u_char*)&node_key, key, sizeof(ngx_rbtree_key_t));
+	memcpy((u_char *)&node_key, key, sizeof(ngx_rbtree_key_t));
 	node = cache->sh->rbtree.root;
 	sentinel = cache->sh->rbtree.sentinel;
 	while(node != sentinel) {
@@ -709,9 +709,9 @@ static void ngx_http_file_cache_vary(ngx_http_request_t * r, u_char * vary, size
 		}
 		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http file cache vary: %V", &name);
 		ngx_md5_update(&md5, name.data, name.len);
-		ngx_md5_update(&md5, (u_char*)":", sizeof(":") - 1);
+		ngx_md5_update(&md5, (u_char *)":", sizeof(":") - 1);
 		ngx_http_file_cache_vary_header(r, &md5, &name);
-		ngx_md5_update(&md5, (u_char*)CRLF, sizeof(CRLF) - 1);
+		ngx_md5_update(&md5, (u_char *)CRLF, sizeof(CRLF) - 1);
 	}
 	ngx_md5_final(hash, &md5);
 }
@@ -725,13 +725,13 @@ static void ngx_http_file_cache_vary_header(ngx_http_request_t * r, ngx_md5_t * 
 	ngx_table_elt_t  * header;
 	ngx_uint_t multiple = 0;
 	ngx_uint_t normalize = 0;
-	if(name->len == sizeof("Accept-Charset") - 1 && ngx_strncasecmp(name->data, (u_char*)"Accept-Charset", sizeof("Accept-Charset") - 1) == 0) {
+	if(name->len == sizeof("Accept-Charset") - 1 && ngx_strncasecmp(name->data, (u_char *)"Accept-Charset", sizeof("Accept-Charset") - 1) == 0) {
 		normalize = 1;
 	}
-	else if(name->len == sizeof("Accept-Encoding") - 1 && ngx_strncasecmp(name->data, (u_char*)"Accept-Encoding", sizeof("Accept-Encoding") - 1) == 0) {
+	else if(name->len == sizeof("Accept-Encoding") - 1 && ngx_strncasecmp(name->data, (u_char *)"Accept-Encoding", sizeof("Accept-Encoding") - 1) == 0) {
 		normalize = 1;
 	}
-	else if(name->len == sizeof("Accept-Language") - 1 && ngx_strncasecmp(name->data, (u_char*)"Accept-Language", sizeof("Accept-Language") - 1) == 0) {
+	else if(name->len == sizeof("Accept-Language") - 1 && ngx_strncasecmp(name->data, (u_char *)"Accept-Language", sizeof("Accept-Language") - 1) == 0) {
 		normalize = 1;
 	}
 	part = &r->headers_in.headers.part;
@@ -756,7 +756,7 @@ static void ngx_http_file_cache_vary_header(ngx_http_request_t * r, ngx_md5_t * 
 		}
 		if(!normalize) {
 			if(multiple) {
-				ngx_md5_update(md5, (u_char*)",", sizeof(",") - 1);
+				ngx_md5_update(md5, (u_char *)",", sizeof(",") - 1);
 			}
 			ngx_md5_update(md5, header[i].value.data, header[i].value.len);
 			multiple = 1;
@@ -778,7 +778,7 @@ static void ngx_http_file_cache_vary_header(ngx_http_request_t * r, ngx_md5_t * 
 				break;
 			}
 			if(multiple) {
-				ngx_md5_update(md5, (u_char*)",", sizeof(",") - 1);
+				ngx_md5_update(md5, (u_char *)",", sizeof(",") - 1);
 			}
 			ngx_md5_update(md5, start, len);
 			multiple = 1;
@@ -967,7 +967,7 @@ void ngx_http_file_cache_update_header(ngx_http_request_t * r)
 		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http file cache \"%s\" changed", file.name.data);
 		goto done;
 	}
-	n = ngx_read_file(&file, (u_char*)&h, sizeof(ngx_http_file_cache_header_t), 0);
+	n = ngx_read_file(&file, (u_char *)&h, sizeof(ngx_http_file_cache_header_t), 0);
 	if(n == NGX_ERROR) {
 		goto done;
 	}
@@ -1011,7 +1011,7 @@ void ngx_http_file_cache_update_header(ngx_http_request_t * r)
 		ngx_http_file_cache_vary(r, c->vary.data, c->vary.len, c->variant);
 		memcpy(h.variant, c->variant, NGX_HTTP_CACHE_KEY_LEN);
 	}
-	(void)ngx_write_file(&file, (u_char*)&h, sizeof(ngx_http_file_cache_header_t), 0);
+	(void)ngx_write_file(&file, (u_char *)&h, sizeof(ngx_http_file_cache_header_t), 0);
 done:
 	if(ngx_close_file(file.fd) == NGX_FILE_ERROR) {
 		ngx_log_error(NGX_LOG_ALERT, r->connection->log, ngx_errno, ngx_close_file_n " \"%s\" failed", file.name.data);
@@ -1148,7 +1148,7 @@ static time_t ngx_http_file_cache_forced_expire(ngx_http_file_cache_t * cache)
 			wait = 0;
 			break;
 		}
-		p = ngx_hex_dump(key, (u_char*)&fcn->node.key, sizeof(ngx_rbtree_key_t));
+		p = ngx_hex_dump(key, (u_char *)&fcn->node.key, sizeof(ngx_rbtree_key_t));
 		len = NGX_HTTP_CACHE_KEY_LEN - sizeof(ngx_rbtree_key_t);
 		(void)ngx_hex_dump(p, fcn->key, len);
 
@@ -1221,7 +1221,7 @@ static time_t ngx_http_file_cache_expire(ngx_http_file_cache_t * cache)
 			wait = 1;
 			break;
 		}
-		p = ngx_hex_dump(key, (u_char*)&fcn->node.key, sizeof(ngx_rbtree_key_t));
+		p = ngx_hex_dump(key, (u_char *)&fcn->node.key, sizeof(ngx_rbtree_key_t));
 		len = NGX_HTTP_CACHE_KEY_LEN - sizeof(ngx_rbtree_key_t);
 		(void)ngx_hex_dump(p, fcn->key, len);
 		/*
@@ -1260,7 +1260,7 @@ static void ngx_http_file_cache_delete(ngx_http_file_cache_t * cache, ngx_queue_
 		cache->sh->size -= fcn->fs_size;
 		path = cache->path;
 		p = name + path->name.len + 1 + path->len;
-		p = ngx_hex_dump(p, (u_char*)&fcn->node.key, sizeof(ngx_rbtree_key_t));
+		p = ngx_hex_dump(p, (u_char *)&fcn->node.key, sizeof(ngx_rbtree_key_t));
 		len = NGX_HTTP_CACHE_KEY_LEN - sizeof(ngx_rbtree_key_t);
 		p = ngx_hex_dump(p, fcn->key, len);
 		*p = '\0';
@@ -1461,7 +1461,7 @@ static ngx_int_t ngx_http_file_cache_add(ngx_http_file_cache_t * cache, ngx_http
 			return NGX_ERROR;
 		}
 		cache->sh->count++;
-		memcpy((u_char*)&fcn->node.key, c->key, sizeof(ngx_rbtree_key_t));
+		memcpy((u_char *)&fcn->node.key, c->key, sizeof(ngx_rbtree_key_t));
 		memcpy(fcn->key, &c->key[sizeof(ngx_rbtree_key_t)], NGX_HTTP_CACHE_KEY_LEN - sizeof(ngx_rbtree_key_t));
 		ngx_rbtree_insert(&cache->sh->rbtree, &fcn->node);
 		fcn->uses = 1;
@@ -1511,7 +1511,7 @@ time_t ngx_http_file_cache_valid(ngx_array_t * cache_valid, ngx_uint_t status)
 
 const char * ngx_http_file_cache_set_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
-	char  * confp = (char *)conf;
+	char  * confp = static_cast<char *>(conf);
 	nginx_off_t max_size;
 	u_char * last, * p;
 	time_t inactive;
@@ -1541,7 +1541,7 @@ const char * ngx_http_file_cache_set_slot(ngx_conf_t * cf, const ngx_command_t *
 	name.len = 0;
 	size = 0;
 	max_size = NGX_MAX_OFF_T_VALUE;
-	value = (ngx_str_t *)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	cache->path->name = value[1];
 	if(cache->path->name.data[cache->path->name.len - 1] == '/') {
 		cache->path->name.len--;
@@ -1588,7 +1588,7 @@ invalid_levels:
 		}
 		else if(ngx_strncmp(value[i].data, "keys_zone=", 10) == 0) {
 			name.data = value[i].data + 10;
-			p = (u_char*)ngx_strchr(name.data, ':');
+			p = (u_char *)ngx_strchr(name.data, ':');
 			if(p) {
 				name.len = p - name.data;
 				p++;
@@ -1717,7 +1717,7 @@ invalid_levels:
 
 const char * ngx_http_file_cache_valid_set_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
-	char  * p = (char *)conf;
+	char  * p = static_cast<char *>(conf);
 	time_t valid;
 	ngx_str_t  * value;
 	ngx_uint_t i, n, status;
@@ -1730,7 +1730,7 @@ const char * ngx_http_file_cache_valid_set_slot(ngx_conf_t * cf, const ngx_comma
 			return NGX_CONF_ERROR;
 		}
 	}
-	value = (ngx_str_t *)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	n = cf->args->nelts - 1;
 	valid = ngx_parse_time(&value[n], 1);
 	if(valid == (time_t)NGX_ERROR) {

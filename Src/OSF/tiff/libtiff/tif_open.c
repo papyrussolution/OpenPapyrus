@@ -390,7 +390,7 @@ TIFF * TIFFClientOpen(const char * name, const char * mode, thandle_t clientdata
 		     */
 		    if(tif->tif_flags & TIFF_MAPPED) {
 			    toff_t n;
-			    if(TIFFMapFileContents(tif, (void**)(&tif->tif_base), &n)) {
+			    if(TIFFMapFileContents(tif, (void **)(&tif->tif_base), &n)) {
 				    tif->tif_size = (tmsize_t)n;
 				    assert((toff_t)tif->tif_size==n);
 			    }
@@ -501,11 +501,11 @@ int TIFFSetMode(TIFF* tif, int mode)
  * Return nonzero if file is organized in
  * tiles; zero if organized as strips.
  */
-int TIFFIsTiled(TIFF* tif) { return (isTiled(tif)); }
+int FASTCALL TIFFIsTiled(const TIFF* tif) { return (isTiled(tif)); }
 /*
  * Return current row being read/written.
  */
-uint32 TIFFCurrentRow(TIFF* tif) { return (tif->tif_row); }
+uint32 TIFFCurrentRow(const TIFF* tif) { return (tif->tif_row); }
 /*
  * Return index of the current directory.
  */

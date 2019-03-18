@@ -158,7 +158,7 @@ int SLAPI Btrieve::GetVersion(int * pMajor, int * pMinor, int * pIsNet)
 		};
 	} buf[2];
 	uint16 bl = sizeof(buf);
-	int    ok = BRet(BTRV(B_VERSION, 0, (char *) & buf, &bl, 0, WBTRVTAIL_ZZ));
+	int    ok = BRet(BTRV(B_VERSION, 0, reinterpret_cast<char *>(&buf), &bl, 0, WBTRVTAIL_ZZ));
 	if(ok) {
 		*pMajor = buf[0].major;
 		*pMinor = buf[0].minor;
@@ -173,7 +173,7 @@ int SLAPI Btrieve::Reset(int station)
 	char   buf[256];
 	int    index;
 	if(station) {
-		*(int16 *)buf = static_cast<uint16>(station);
+		*reinterpret_cast<int16 *>(buf) = static_cast<uint16>(station);
 		index = -1;
 	}
 	else
@@ -709,7 +709,7 @@ int SLAPI DbDict_Btrieve::getIndexList(BTBLID tblID, BNKeyList * pKeyList)
 	do {
 		memcpy(q, &ilq, sizeof(ilq));
 		THROW(xindex.getExtended(&key, spNext) || BTRNFOUND || (BtrError == BE_REJECTLIMIT));
-		count = *(uint16 *)q;
+		count = *reinterpret_cast<const uint16 *>(q);
 		for(i = 0; i < count; i++) {
    	    	const XIndex * d = reinterpret_cast<const XIndex *>(q + sizeof(BExtResultHeader) + i * (sizeof(BExtResultItem) + sizeof(XIndex)) + sizeof(BExtResultItem));
 			k.addSegment(d->XiField, d->XiFlags);

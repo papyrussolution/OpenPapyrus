@@ -176,7 +176,7 @@ int NgxStartUpOptions::ProcessCmdLine(int argc, const char * argv[])
 				    }
 				    else if(argv[++i]) {
 						ConfFile = argv[i];
-					    //ngx_conf_file = (u_char*)argv[i];
+					    //ngx_conf_file = (u_char *)argv[i];
 					    goto next;
 				    }
 					else {
@@ -192,7 +192,7 @@ int NgxStartUpOptions::ProcessCmdLine(int argc, const char * argv[])
 				    }
 				    else if(argv[++i]) {
 						ConfParams = argv[i];
-					    //ngx_conf_params = (u_char*)argv[i];
+					    //ngx_conf_params = (u_char *)argv[i];
 					    goto next;
 				    }
 					else {
@@ -250,7 +250,7 @@ next:
 static ngx_int_t ngx_get_options(int argc, char * const * argv)
 {
 	for(ngx_int_t i = 1; i < argc; i++) {
-		u_char * p = (u_char*)argv[i];
+		u_char * p = (u_char *)argv[i];
 		if(*p++ != '-') {
 			ngx_log_stderr(0, "invalid option: \"%s\"", argv[i]);
 			return NGX_ERROR;
@@ -285,7 +285,7 @@ static ngx_int_t ngx_get_options(int argc, char * const * argv)
 					    goto next;
 				    }
 				    if(argv[++i]) {
-					    ngx_prefix = (u_char*)argv[i];
+					    ngx_prefix = (u_char *)argv[i];
 					    goto next;
 				    }
 				    ngx_log_stderr(0, "option \"-p\" requires directory name");
@@ -296,7 +296,7 @@ static ngx_int_t ngx_get_options(int argc, char * const * argv)
 					    goto next;
 				    }
 				    if(argv[++i]) {
-					    ngx_conf_file = (u_char*)argv[i];
+					    ngx_conf_file = (u_char *)argv[i];
 					    goto next;
 				    }
 				    ngx_log_stderr(0, "option \"-c\" requires file name");
@@ -307,7 +307,7 @@ static ngx_int_t ngx_get_options(int argc, char * const * argv)
 					    goto next;
 				    }
 				    if(argv[++i]) {
-					    ngx_conf_params = (u_char*)argv[i];
+					    ngx_conf_params = (u_char *)argv[i];
 					    goto next;
 				    }
 				    ngx_log_stderr(0, "option \"-g\" requires parameter");
@@ -453,7 +453,7 @@ static ngx_int_t ngx_save_argv(ngx_cycle_t * cycle, int argc, const char * argv[
 		if(ngx_argv[i] == NULL) {
 			return NGX_ERROR;
 		}
-		(void)ngx_cpystrn((u_char*)ngx_argv[i], (u_char*)argv[i], len);
+		(void)ngx_cpystrn((u_char *)ngx_argv[i], (u_char *)argv[i], len);
 	}
 	ngx_argv[i] = NULL;
 #endif
@@ -674,7 +674,7 @@ int NgxStartUp(const NgxStartUpOptions & rO)
 static ngx_int_t ngx_add_inherited_sockets(ngx_cycle_t * cycle)
 {
 	u_char * p, * v;
-	u_char * inherited = (u_char*)getenv(NGINX_VAR);
+	u_char * inherited = (u_char *)getenv(NGINX_VAR);
 	if(inherited == NULL) {
 		return NGX_OK;
 	}
@@ -717,19 +717,19 @@ char ** ngx_set_environment(ngx_cycle_t * cycle, ngx_uint_t * last)
 	if(last == NULL && ccf->environment) {
 		return ccf->environment;
 	}
-	var = (ngx_str_t*)ccf->env.elts;
+	var = (ngx_str_t *)ccf->env.elts;
 	for(i = 0; i < ccf->env.nelts; i++) {
 		if(sstreq(var[i].data, "TZ") || ngx_strncmp(var[i].data, "TZ=", 3) == 0) {
 			goto tz_found;
 		}
 	}
-	var = (ngx_str_t*)ngx_array_push(&ccf->env);
+	var = (ngx_str_t *)ngx_array_push(&ccf->env);
 	if(var == NULL) {
 		return NULL;
 	}
 	var->len = 2;
-	var->data = (u_char*)"TZ";
-	var = (ngx_str_t*)ccf->env.elts;
+	var->data = (u_char *)"TZ";
+	var = (ngx_str_t *)ccf->env.elts;
 tz_found:
 	n = 0;
 	for(i = 0; i < ccf->env.nelts; i++) {
@@ -1015,12 +1015,12 @@ static const char * ngx_set_env(ngx_conf_t * cf, const ngx_command_t * cmd, void
 {
 	ngx_core_conf_t  * ccf = (ngx_core_conf_t *)conf;
 	ngx_uint_t i;
-	ngx_str_t * var = (ngx_str_t*)ngx_array_push(&ccf->env);
+	ngx_str_t * var = (ngx_str_t *)ngx_array_push(&ccf->env);
 	if(var == NULL) {
 		return NGX_CONF_ERROR;
 	}
 	else {
-		const ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		const ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 		*var = value[1];
 		for(i = 0; i < value[1].len; i++) {
 			if(value[1].data[i] == '=') {
@@ -1040,7 +1040,7 @@ static const char * ngx_set_priority(ngx_conf_t * cf, const ngx_command_t * cmd,
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 		if(value[1].data[0] == '-') {
 			n = 1;
 			minus = 1;
@@ -1170,7 +1170,7 @@ static const char * ngx_set_worker_processes(ngx_conf_t * cf, const ngx_command_
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 		if(sstreq(value[1].data, "auto")) {
 			ccf->worker_processes = ngx_ncpu;
 			return NGX_CONF_OK;
@@ -1195,7 +1195,7 @@ static const char * ngx_load_module(ngx_conf_t * cf, const ngx_command_t * cmd, 
 	if(cf->cycle->modules_used) {
 		return "is specified too late";
 	}
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	file = value[1];
 	if(ngx_conf_full_name(cf->cycle, &file, 0) != NGX_OK) {
 		return NGX_CONF_ERROR;

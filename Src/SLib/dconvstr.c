@@ -1829,7 +1829,7 @@ static int FASTCALL pack_ieee754_double(int input_is_nan, int input_sign, uint64
 			}
 			else if(input_binary_exponent >= -1022) {
 				// 6. Handle normalized numbers
-				output_exponent = ((uint64)( input_binary_exponent + 1023 ));
+				output_exponent = ((uint64)(input_binary_exponent + 1023));
 				output_mantissa = (input_binary_mantissa >> 11) & ((1ULL << 52) - 1ULL);
 			}
 			else {
@@ -1849,7 +1849,7 @@ static int FASTCALL pack_ieee754_double(int input_is_nan, int input_sign, uint64
 	// 8. Pack bits up
 	uint64 output_bits = (output_sign << 63) | ((output_exponent & 0x7FFULL) << 52) | (output_mantissa & ((1ULL << 52) - 1ULL));
 	*(uint64 *)output = output_bits;
-	return(!had_overflow_or_underflow_in_exponent );
+	return (!had_overflow_or_underflow_in_exponent );
 }
 // 
 // Descr: Decompress small integer in range 0..9999 to four-digit BCD representation

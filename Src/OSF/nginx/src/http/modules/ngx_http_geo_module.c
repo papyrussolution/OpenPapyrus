@@ -274,7 +274,7 @@ static const char * ngx_http_geo_block(ngx_conf_t * cf, const ngx_command_t * cm
 #if (NGX_HAVE_INET6)
 	static struct in6_addr zero;
 #endif
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	geo = (ngx_http_geo_ctx_t *)ngx_palloc(cf->pool, sizeof(ngx_http_geo_ctx_t));
 	if(geo == NULL) {
 		return NGX_CONF_ERROR;
@@ -323,7 +323,7 @@ static const char * ngx_http_geo_block(ngx_conf_t * cf, const ngx_command_t * cm
 	cf->pool = pool;
 	cf->ctx = &ctx;
 	cf->handler = ngx_http_geo;
-	cf->handler_conf = (char *)conf;
+	cf->handler_conf = static_cast<char *>(conf);
 	rv = ngx_conf_parse(cf, NULL);
 	*cf = save;
 	geo->proxies = ctx.proxies;
@@ -424,7 +424,7 @@ static const char * ngx_http_geo(ngx_conf_t * cf, const ngx_command_t * dummy, v
 	ngx_cidr_t cidr;
 	ngx_http_geo_conf_ctx_t  * ctx;
 	ctx = (ngx_http_geo_conf_ctx_t *)cf->ctx;
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(cf->args->nelts == 1) {
 		if(ngx_strcmp(value[0].data, "ranges") == 0) {
 			if(ctx->tree
@@ -1092,29 +1092,29 @@ static ngx_int_t ngx_http_geo_include_binary_base(ngx_conf_t * cf, ngx_http_geo_
 	vv = (ngx_http_variable_value_t*)(base + sizeof(ngx_http_geo_header_t));
 	while(vv->data) {
 		len = ngx_align(sizeof(ngx_http_variable_value_t) + vv->len, sizeof(void *));
-		ngx_crc32_update(&crc32, (u_char*)vv, len);
+		ngx_crc32_update(&crc32, (u_char *)vv, len);
 		vv->data += (size_t)base;
-		vv = (ngx_http_variable_value_t*)((u_char*)vv + len);
+		vv = (ngx_http_variable_value_t*)((u_char *)vv + len);
 	}
-	ngx_crc32_update(&crc32, (u_char*)vv, sizeof(ngx_http_variable_value_t));
+	ngx_crc32_update(&crc32, (u_char *)vv, sizeof(ngx_http_variable_value_t));
 	vv++;
 	ranges = (ngx_http_geo_range_t**)vv;
 	for(i = 0; i < 0x10000; i++) {
-		ngx_crc32_update(&crc32, (u_char*)&ranges[i], sizeof(void *));
+		ngx_crc32_update(&crc32, (u_char *)&ranges[i], sizeof(void *));
 		if(ranges[i]) {
 			ranges[i] = (ngx_http_geo_range_t*)
-			    ((u_char*)ranges[i] + (size_t)base);
+			    ((u_char *)ranges[i] + (size_t)base);
 		}
 	}
 	range = (ngx_http_geo_range_t*)&ranges[0x10000];
-	while((u_char*)range < base + size) {
+	while((u_char *)range < base + size) {
 		while(range->value) {
-			ngx_crc32_update(&crc32, (u_char*)range, sizeof(ngx_http_geo_range_t));
-			range->value = (ngx_http_variable_value_t*)((u_char*)range->value + (size_t)base);
+			ngx_crc32_update(&crc32, (u_char *)range, sizeof(ngx_http_geo_range_t));
+			range->value = (ngx_http_variable_value_t*)((u_char *)range->value + (size_t)base);
 			range++;
 		}
-		ngx_crc32_update(&crc32, (u_char*)range, sizeof(void *));
-		range = (ngx_http_geo_range_t*)((u_char*)range + sizeof(void *));
+		ngx_crc32_update(&crc32, (u_char *)range, sizeof(void *));
+		range = (ngx_http_geo_range_t*)((u_char *)range + sizeof(void *));
 	}
 	ngx_crc32_final(crc32);
 	if(crc32 != header->crc32) {
@@ -1166,7 +1166,7 @@ static void ngx_http_geo_create_binary_base(ngx_http_geo_conf_ctx_t * ctx)
 		r = ctx->high.low[i];
 		if(r) {
 			range = (ngx_http_geo_range_t*)p;
-			ranges[i] = (ngx_http_geo_range_t*)(p - (u_char*)fm.addr);
+			ranges[i] = (ngx_http_geo_range_t*)(p - (u_char *)fm.addr);
 			do {
 				s.len = r->value->len;
 				s.data = r->value->data;
@@ -1178,11 +1178,11 @@ static void ngx_http_geo_create_binary_base(ngx_http_geo_conf_ctx_t * ctx)
 				range++;
 			} while((++r)->value);
 			range->value = NULL;
-			p = (u_char*)range + sizeof(void *);
+			p = (u_char *)range + sizeof(void *);
 		}
 	}
 	header = (ngx_http_geo_header_t *)fm.addr;
-	header->crc32 = ngx_crc32_long((u_char*)fm.addr + sizeof(ngx_http_geo_header_t), fm.size - sizeof(ngx_http_geo_header_t));
+	header->crc32 = ngx_crc32_long((u_char *)fm.addr + sizeof(ngx_http_geo_header_t), fm.size - sizeof(ngx_http_geo_header_t));
 	ngx_close_file_mapping(&fm);
 }
 
@@ -1198,7 +1198,7 @@ static u_char * ngx_http_geo_copy_values(u_char * base, u_char * p, ngx_rbtree_n
 	vv = (ngx_http_variable_value_t*)p;
 	*vv = *gvvn->value;
 	p += sizeof(ngx_http_variable_value_t);
-	vv->data = (u_char*)(p - base);
+	vv->data = (u_char *)(p - base);
 	p = ngx_cpymem(p, gvvn->sn.str.data, gvvn->sn.str.len);
 	p = ngx_align_ptr(p, sizeof(void *));
 	p = ngx_http_geo_copy_values(base, p, node->left, sentinel);

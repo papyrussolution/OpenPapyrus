@@ -81,7 +81,7 @@ int FASTCALL is_sane(const char test_string[], const uchar source[], const size_
 }
 
 /* Returns the position of data in set_string */
-int posn(const char set_string[], const char data)
+int FASTCALL posn(const char set_string[], const char data)
 {
 	const size_t n = strlen(set_string);
 	for(size_t i = 0; i < n; i++) {
@@ -93,7 +93,7 @@ int posn(const char set_string[], const char data)
 }
 
 /* Replaces huge switch statements for looking up in tables */
-void lookup(const char set_string[], const char * table[], const char data, char dest[])
+void FASTCALL lookup(const char set_string[], const char * table[], const char data, char dest[])
 {
 	const size_t n = strlen(set_string);
 	for(size_t i = 0; i < n; i++) {
@@ -156,7 +156,7 @@ void FASTCALL expand(struct ZintSymbol * symbol, const char data[])
 //
 // Indicates which symbologies can have row binding 
 //
-int is_stackable(const int symbology)
+int FASTCALL is_stackable(const int symbology)
 {
 	int retval = 0;
 	if(symbology < BARCODE_PDF417) {
@@ -180,7 +180,7 @@ int is_stackable(const int symbology)
 //
 // Indicates which symbols can have addon (EAN-2 and EAN-5)
 //
-int is_extendable(const int symbology)
+int FASTCALL is_extendable(const int symbology)
 {
 	return BIN(oneof7(symbology, BARCODE_EANX, BARCODE_UPCA, BARCODE_UPCE, BARCODE_ISBNX, BARCODE_UPCA_CC, BARCODE_UPCE_CC, BARCODE_EANX_CC));
 }

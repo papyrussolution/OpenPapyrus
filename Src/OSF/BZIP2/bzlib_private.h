@@ -389,12 +389,12 @@ typedef struct {
 
 #define SET_LL4(i, n)					       \
 	{ if(((i) & 0x1) == 0)					  \
-		  s->ll4[(i) >> 1] = (s->ll4[(i) >> 1] & 0xf0) | (n); else    \
-		  s->ll4[(i) >> 1] = (s->ll4[(i) >> 1] & 0x0f) | ((n) << 4);  \
+		  s->ll4[(i) >> 1] = static_cast<uchar>((s->ll4[(i) >> 1] & 0xf0) | (n)); else    \
+		  s->ll4[(i) >> 1] = static_cast<uchar>((s->ll4[(i) >> 1] & 0x0f) | ((n) << 4));  \
 	}
 
 #define GET_LL4(i) ((((uint32)(s->ll4[(i) >> 1])) >> (((i) << 2) & 0x4)) & 0xF)
-#define SET_LL(i, n) { s->ll16[i] = (uint16)(n & 0x0000ffff); SET_LL4(i, n >> 16); }
+#define SET_LL(i, n) { s->ll16[i] = static_cast<uint16>(n & 0x0000ffff); SET_LL4(i, n >> 16); }
 #define GET_LL(i) (((uint32)s->ll16[i]) | (GET_LL4(i) << 16))
 
 #define BZ_GET_SMALL(cccc)			      \

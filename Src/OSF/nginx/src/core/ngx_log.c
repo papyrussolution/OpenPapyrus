@@ -202,7 +202,7 @@ u_char * ngx_log_errno(u_char * buf, u_char * last, ngx_err_t err)
 		*buf++ = '.';
 	}
 #if (NGX_WIN32)
-	buf = ngx_slprintf(buf, last, ((unsigned)err < 0x80000000) ? " (%d: " : " (%Xd: ", err);
+	buf = ngx_slprintf(buf, last, ((uint)err < 0x80000000) ? " (%d: " : " (%Xd: ", err);
 #else
 	buf = ngx_slprintf(buf, last, " (%d: ", err);
 #endif
@@ -237,7 +237,7 @@ ngx_log_t * ngx_log_init(const u_char * prefix)
 			}
 			else {
 #ifdef NGX_PREFIX
-				prefix = (u_char*)NGX_PREFIX;
+				prefix = (u_char *)NGX_PREFIX;
 				plen = ngx_strlen(prefix);
 #else
 				plen = 0;
@@ -252,7 +252,7 @@ ngx_log_t * ngx_log_init(const u_char * prefix)
 				if(!ngx_path_separator(*(p - 1))) {
 					*p++ = '/';
 				}
-				ngx_cpystrn(p, (u_char*)NGX_ERROR_LOG_PATH, nlen + 1);
+				ngx_cpystrn(p, (u_char *)NGX_ERROR_LOG_PATH, nlen + 1);
 				p = p_name;
 			}
 		}
@@ -329,7 +329,7 @@ static char * ngx_log_set_levels(ngx_conf_t * cf, ngx_log_t * log)
 		log->Level = NGX_LOG_ERR;
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+		ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 		for(i = 2; i < cf->args->nelts; i++) {
 			found = 0;
 			for(n = 1; n <= NGX_LOG_DEBUG; n++) {
@@ -388,7 +388,7 @@ char * ngx_log_set_log(ngx_conf_t * cf, ngx_log_t ** head)
 			*head = new_log;
 		}
 	}
-	value = (ngx_str_t *)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(ngx_strcmp(value[1].data, "stderr") == 0) {
 		ngx_str_null(&name);
 		cf->cycle->log_use_stderr = 1;

@@ -44,7 +44,7 @@ int SLAPI AverageEventTimePrcssr::Add(long id1, long id2, LDATE dt, LTIME tm)
 
 int SLAPI AverageEventTimePrcssr::Enum(uint * pPos, Item ** pItem)
 {
-	return List.enumItems(pPos, (void**)pItem);
+	return List.enumItems(pPos, (void **)pItem);
 }
 //
 //
@@ -586,8 +586,8 @@ int SLAPI PPViewPersonEvent::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	if(Filt.Sgpe != sgpeNone || Filt.Sgd != sgdNone) {
-		PPID   id  = pHdr ? ((PPID *)pHdr)[0] : 0;
-		PPID   id2 = pHdr ? ((PPID *)pHdr)[1] : 0;
+		PPID   id  = pHdr ? static_cast<const PPID *>(pHdr)[0] : 0;
+		PPID   id2 = pHdr ? static_cast<const PPID *>(pHdr)[1] : 0;
 		int    r = 1;
 		PersonEventFilt filt = Filt;
 		filt.Sgd  = sgdNone;

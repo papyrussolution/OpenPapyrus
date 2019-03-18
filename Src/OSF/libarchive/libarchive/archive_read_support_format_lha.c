@@ -262,7 +262,7 @@ int archive_read_support_format_lha(struct archive * _a)
 	if(lha == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate lha data");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	archive_string_init(&lha->ws);
 
@@ -281,7 +281,7 @@ int archive_read_support_format_lha(struct archive * _a)
 
 	if(r != ARCHIVE_OK)
 		SAlloc::F(lha);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static size_t lha_check_header_format(const void * h)
@@ -311,9 +311,9 @@ static size_t lha_check_header_format(const void * h)
 			    if(p[H_METHOD_OFFSET+3] == 's')
 				    break;
 			    if(p[H_LEVEL_OFFSET] == 0)
-				    return (0);
+				    return 0;
 			    if(p[H_LEVEL_OFFSET] <= 3 && p[H_ATTR_OFFSET] == 0x20)
-				    return (0);
+				    return 0;
 		    }
 		    if(p[H_METHOD_OFFSET+2] == 'z') {
 			    /* LArc extensions: -lzs-,-lz4- and -lz5- */
@@ -322,7 +322,7 @@ static size_t lha_check_header_format(const void * h)
 			    if(p[H_METHOD_OFFSET+3] == 's'
 				|| p[H_METHOD_OFFSET+3] == '4'
 				|| p[H_METHOD_OFFSET+3] == '5')
-				    return (0);
+				    return 0;
 		    }
 		    break;
 		case 'h': next_skip_bytes = 1; break;
@@ -345,10 +345,10 @@ static int archive_read_format_lha_bid(struct archive_read * a, int best_bid)
 	/* If there's already a better bid than we can ever
 	   make, don't bother testing. */
 	if(best_bid > 30)
-		return (-1);
+		return -1;
 
 	if((p = (const char *)__archive_read_ahead(a, H_SIZE, NULL)) == NULL)
-		return (-1);
+		return -1;
 
 	if(lha_check_header_format(p) == 0)
 		return (30);
@@ -364,19 +364,19 @@ static int archive_read_format_lha_bid(struct archive_read * a, int best_bid)
 				/* Remaining bytes are less than window. */
 				window >>= 1;
 				if(window < (H_SIZE + 3))
-					return (0);
+					return 0;
 				continue;
 			}
-			p = (const char*)buff + offset;
-			while(p + H_SIZE < (const char*)buff + bytes_avail) {
+			p = (const char *)buff + offset;
+			while(p + H_SIZE < (const char *)buff + bytes_avail) {
 				if((next = lha_check_header_format(p)) == 0)
 					return (30);
 				p += next;
 			}
-			offset = p - (const char*)buff;
+			offset = p - (const char *)buff;
 		}
 	}
-	return (0);
+	return 0;
 }
 
 static int archive_read_format_lha_options(struct archive_read * a,
@@ -399,7 +399,7 @@ static int archive_read_format_lha_options(struct archive_read * a,
 			else
 				ret = ARCHIVE_FATAL;
 		}
-		return (ret);
+		return ret;
 	}
 
 	/* Note: The "warn" return is just to inform the options
@@ -436,26 +436,26 @@ static int lha_skip_sfx(struct archive_read * a)
 		 */
 		while(p + H_SIZE < q) {
 			if((next = lha_check_header_format(p)) == 0) {
-				skip = p - (const char*)h;
+				skip = p - (const char *)h;
 				__archive_read_consume(a, skip);
-				return (ARCHIVE_OK);
+				return ARCHIVE_OK;
 			}
 			p += next;
 		}
-		skip = p - (const char*)h;
+		skip = p - (const char *)h;
 		__archive_read_consume(a, skip);
 	}
 fatal:
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 	    "Couldn't find out LHa header");
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }
 
 static int truncated_error(struct archive_read * a)
 {
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 	    "Truncated LHa header");
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }
 
 static int archive_read_format_lha_read_header(struct archive_read * a,
@@ -491,7 +491,7 @@ static int archive_read_format_lha_read_header(struct archive_read * a,
 		return (truncated_error(a));
 	}
 
-	signature = (const char*)p;
+	signature = (const char *)p;
 	if(lha->found_first_header == 0 &&
 	    signature[0] == 'M' && signature[1] == 'Z') {
 		/* This is an executable?  Must be self-extracting...   */
@@ -501,7 +501,7 @@ static int archive_read_format_lha_read_header(struct archive_read * a,
 
 		if((p = (const uchar *)__archive_read_ahead(a, sizeof(*p), NULL)) == NULL)
 			return (truncated_error(a));
-		signature = (const char*)p;
+		signature = (const char *)p;
 	}
 	/* signature[0] == 0 means the end of an LHa archive file. */
 	if(signature[0] == 0)
@@ -513,7 +513,7 @@ static int archive_read_format_lha_read_header(struct archive_read * a,
 	if(lha_check_header_format(p) != 0) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 		    "Bad LHa file");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	/* We've found the first header. */
@@ -599,7 +599,7 @@ static int archive_read_format_lha_read_header(struct archive_read * a,
 			    "Unknown symlink-name");
 			archive_string_free(&pathname);
 			archive_string_free(&linkname);
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		}
 	}
 	else {
@@ -622,7 +622,7 @@ static int archive_read_format_lha_read_header(struct archive_read * a,
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't allocate memory for Pathname");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		archive_set_error(&a->archive,
 		    ARCHIVE_ERRNO_FILE_FORMAT,
@@ -638,7 +638,7 @@ static int archive_read_format_lha_read_header(struct archive_read * a,
 			if(errno == ENOMEM) {
 				archive_set_error(&a->archive, ENOMEM,
 				    "Can't allocate memory for Linkname");
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			archive_set_error(&a->archive,
 			    ARCHIVE_ERRNO_FILE_FORMAT,
@@ -695,7 +695,7 @@ static int archive_read_format_lha_read_header(struct archive_read * a,
 		archive_set_error(&a->archive,
 		    ARCHIVE_ERRNO_FILE_FORMAT,
 		    "Invalid LHa entry size");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	lha->entry_offset = 0;
 	lha->entry_crc_calculated = 0;
@@ -790,7 +790,7 @@ static int lha_read_file_header_0(struct archive_read * a, struct lha * lha)
 	if((namelen > 221 || extdsize < 0) && extdsize != -2) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 		    "Invalid LHa header");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	if((p = (const uchar *)__archive_read_ahead(a, lha->header_size, NULL)) == NULL)
 		return (truncated_error(a));
@@ -823,10 +823,10 @@ static int lha_read_file_header_0(struct archive_read * a, struct lha * lha)
 	if(sum_calculated != headersum) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 		    "LHa header sum error");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -923,13 +923,13 @@ static int lha_read_file_header_1(struct archive_read * a, struct lha * lha)
 	if(sum_calculated != headersum) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 		    "LHa header sum error");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	return (err);
 invalid:
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 	    "Invalid LHa header");
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }
 
 /*
@@ -980,7 +980,7 @@ static int lha_read_file_header_2(struct archive_read * a, struct lha * lha)
 	if(lha->header_size < H2_FIXED_SIZE) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 		    "Invalid LHa header size");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	header_crc = lha_crc16(0, p, H2_FIXED_SIZE);
@@ -1004,7 +1004,7 @@ static int lha_read_file_header_2(struct archive_read * a, struct lha * lha)
 	if(header_crc != lha->header_crc) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 		    "LHa header CRC error");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	return (err);
 }
@@ -1071,13 +1071,13 @@ static int lha_read_file_header_3(struct archive_read * a, struct lha * lha)
 	if(header_crc != lha->header_crc) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 		    "LHa header CRC error");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	return (err);
 invalid:
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 	    "Invalid LHa header");
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }
 
 /*
@@ -1140,7 +1140,7 @@ static int lha_read_file_extended_header(struct archive_read * a, struct lha * l
 			if(crc != NULL)
 				*crc = lha_crc16(*crc, h, sizefield_length);
 			__archive_read_consume(a, sizefield_length);
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 		}
 
 		/* Sanity check to the extended header size. */
@@ -1190,7 +1190,7 @@ static int lha_read_file_extended_header(struct archive_read * a, struct lha * l
 			    if(extdheader[0] == '\0')
 				    goto invalid;
 			    archive_strncpy(&lha->filename,
-				(const char*)extdheader, datasize);
+				(const char *)extdheader, datasize);
 			    break;
 			case EXT_DIRECTORY:
 			    if(datasize == 0 || extdheader[0] == '\0')
@@ -1198,7 +1198,7 @@ static int lha_read_file_extended_header(struct archive_read * a, struct lha * l
 				    goto invalid;
 
 			    archive_strncpy(&lha->dirname,
-				(const char*)extdheader, datasize);
+				(const char *)extdheader, datasize);
 			    /*
 			     * Convert directory delimiter from 0xFF
 			     * to '/' for local system.
@@ -1265,7 +1265,7 @@ static int lha_read_file_extended_header(struct archive_read * a, struct lha * l
 					    &(a->archive), charset, 1);
 				    archive_string_free(&cp);
 				    if(lha->sconv == NULL)
-					    return (ARCHIVE_FATAL);
+					    return ARCHIVE_FATAL;
 			    }
 			    break;
 			case EXT_UNIX_MODE:
@@ -1283,12 +1283,12 @@ static int lha_read_file_extended_header(struct archive_read * a, struct lha * l
 			case EXT_UNIX_GNAME:
 			    if(datasize > 0)
 				    archive_strncpy(&lha->gname,
-					(const char*)extdheader, datasize);
+					(const char *)extdheader, datasize);
 			    break;
 			case EXT_UNIX_UNAME:
 			    if(datasize > 0)
 				    archive_strncpy(&lha->uname,
-					(const char*)extdheader, datasize);
+					(const char *)extdheader, datasize);
 			    break;
 			case EXT_UNIX_MTIME:
 			    if(datasize == sizeof(uint32_t))
@@ -1331,7 +1331,7 @@ static int lha_read_file_extended_header(struct archive_read * a, struct lha * l
 invalid:
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 	    "Invalid extended LHa header");
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }
 
 static int lha_end_of_entry(struct archive_read * a)
@@ -1350,7 +1350,7 @@ static int lha_end_of_entry(struct archive_read * a)
 		/* End-of-entry cleanup done. */
 		lha->end_of_entry_cleanup = 1;
 	}
-	return (r);
+	return r;
 }
 
 static int archive_read_format_lha_read_data(struct archive_read * a,
@@ -1376,7 +1376,7 @@ static int archive_read_format_lha_read_data(struct archive_read * a,
 	else
 		/* No compression. */
 		r =  lha_read_data_none(a, buff, size, offset);
-	return (r);
+	return r;
 }
 
 /*
@@ -1396,7 +1396,7 @@ static int lha_read_data_none(struct archive_read * a, const void ** buff,
 		*size = 0;
 		*offset = lha->entry_offset;
 		lha->end_of_entry = 1;
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 	/*
 	 * Note: '1' here is a performance optimization.
@@ -1408,7 +1408,7 @@ static int lha_read_data_none(struct archive_read * a, const void ** buff,
 	if(bytes_avail <= 0) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 		    "Truncated LHa file data");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	if(bytes_avail > lha->entry_bytes_remaining)
 		bytes_avail = (ssize_t)lha->entry_bytes_remaining;
@@ -1421,7 +1421,7 @@ static int lha_read_data_none(struct archive_read * a, const void ** buff,
 	if(lha->entry_bytes_remaining == 0)
 		lha->end_of_entry = 1;
 	lha->entry_unconsumed = bytes_avail;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -1460,7 +1460,7 @@ static int lha_read_data_lzh(struct archive_read * a, const void ** buff,
 			    archive_set_error(&a->archive, ENOMEM,
 				"Couldn't allocate memory "
 				"for lzh decompression");
-			    return (ARCHIVE_FATAL);
+			    return ARCHIVE_FATAL;
 		}
 		/* We've initialized decompression for this stream. */
 		lha->decompress_init = 1;
@@ -1478,7 +1478,7 @@ static int lha_read_data_lzh(struct archive_read * a, const void ** buff,
 	if(bytes_avail <= 0) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 		    "Truncated LHa file body");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	if(bytes_avail > lha->entry_bytes_remaining)
 		bytes_avail = (ssize_t)lha->entry_bytes_remaining;
@@ -1497,7 +1497,7 @@ static int lha_read_data_lzh(struct archive_read * a, const void ** buff,
 		default:
 		    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 			"Bad lzh data");
-		    return (ARCHIVE_FAILED);
+		    return ARCHIVE_FAILED;
 	}
 	lha->entry_unconsumed = lha->strm.total_in;
 	lha->entry_bytes_remaining -= lha->strm.total_in;
@@ -1517,7 +1517,7 @@ static int lha_read_data_lzh(struct archive_read * a, const void ** buff,
 		if(lha->end_of_entry)
 			return (lha_end_of_entry(a));
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -1538,7 +1538,7 @@ static int archive_read_format_lha_read_data_skip(struct archive_read * a)
 
 	/* if we've already read to end of data, we're done. */
 	if(lha->end_of_entry_cleanup)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	/*
 	 * If the length is at the beginning, we can skip the
@@ -1546,11 +1546,11 @@ static int archive_read_format_lha_read_data_skip(struct archive_read * a)
 	 */
 	bytes_skipped = __archive_read_consume(a, lha->entry_bytes_remaining);
 	if(bytes_skipped < 0)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 
 	/* This entry is finished and done. */
 	lha->end_of_entry_cleanup = lha->end_of_entry = 1;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_read_format_lha_cleanup(struct archive_read * a)
@@ -1565,7 +1565,7 @@ static int archive_read_format_lha_cleanup(struct archive_read * a)
 	archive_wstring_free(&(lha->ws));
 	SAlloc::F(lha);
 	(a->format->data) = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -1594,7 +1594,7 @@ static int lha_parse_linkname(struct archive_string * linkname,
 
 		return (1);
 	}
-	return (0);
+	return 0;
 }
 
 /* Convert an MSDOS-style date/time into Unix-style time. */
@@ -1629,7 +1629,7 @@ static time_t lha_win_time(uint64_t wintime, long * ns)
 	else {
 		if(ns != NULL)
 			*ns = 0;
-		return (0);
+		return 0;
 	}
 }
 
@@ -1742,12 +1742,12 @@ static int lzh_decode_init(struct lzh_stream * strm, const char * method)
 	if(strm->ds == NULL) {
 		strm->ds = (lzh_dec *)SAlloc::C(1, sizeof(*strm->ds));
 		if(strm->ds == NULL)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 	}
 	ds = strm->ds;
 	ds->error = ARCHIVE_FAILED;
 	if(method == NULL || method[0] != 'l' || method[1] != 'h')
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	switch(method[2]) {
 		case '5':
 		    w_bits = 13;/* 8KiB for window */
@@ -1759,7 +1759,7 @@ static int lzh_decode_init(struct lzh_stream * strm, const char * method)
 		    w_bits = 16;/* 64KiB for window */
 		    break;
 		default:
-		    return (ARCHIVE_FAILED);/* Not supported. */
+		    return ARCHIVE_FAILED;/* Not supported. */
 	}
 	ds->error = ARCHIVE_FATAL;
 	/* Expand a window size up to 128 KiB for decompressing process
@@ -1769,7 +1769,7 @@ static int lzh_decode_init(struct lzh_stream * strm, const char * method)
 	if(ds->w_buff == NULL) {
 		ds->w_buff = (uchar *)SAlloc::M(ds->w_size);
 		if(ds->w_buff == NULL)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 	}
 	w_size = 1U << w_bits;
 	memset(ds->w_buff + ds->w_size - w_size, 0x20, w_size);
@@ -1784,14 +1784,14 @@ static int lzh_decode_init(struct lzh_stream * strm, const char * method)
 
 	if(lzh_huffman_init(&(ds->lt), LT_BITLEN_SIZE, 16)
 	    != ARCHIVE_OK)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	ds->lt.len_bits = 9;
 	if(lzh_huffman_init(&(ds->pt), PT_BITLEN_SIZE, 16)
 	    != ARCHIVE_OK)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	ds->error = 0;
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -1911,7 +1911,7 @@ static int lzh_br_fillup(struct lzh_stream * strm, struct lzh_dec::lzh_br * br)
 		if(strm->avail_in == 0) {
 			/* There is not enough compressed data to fill up the
 			 * cache buffer. */
-			return (0);
+			return 0;
 		}
 		br->cache_buffer =
 		    (br->cache_buffer << 8) | *strm->next_in++;
@@ -1974,7 +1974,7 @@ static int lzh_decode(struct lzh_stream * strm, int last)
 			r = lzh_decode_blocks(strm, last);
 	} while(r == 100);
 	strm->total_in += avail_in - strm->avail_in;
-	return (r);
+	return r;
 }
 
 static void lzh_emit_window(struct lzh_stream * strm, size_t s)
@@ -2004,7 +2004,7 @@ static int lzh_read_blocks(struct lzh_stream * strm, int last)
 			    if(!lzh_br_read_ahead_0(strm, br, 16)) {
 				    if(!last)
 					    /* We need following data. */
-					    return (ARCHIVE_OK);
+					    return ARCHIVE_OK;
 				    if(lzh_br_has(br, 8)) {
 					    /*
 					     * It seems there are extra bits.
@@ -2017,7 +2017,7 @@ static int lzh_read_blocks(struct lzh_stream * strm, int last)
 				    if(ds->w_pos > 0) {
 					    lzh_emit_window(strm, ds->w_pos);
 					    ds->w_pos = 0;
-					    return (ARCHIVE_OK);
+					    return ARCHIVE_OK;
 				    }
 				    /* End of compressed data; we have completely
 				     * handled all compressed data. */
@@ -2043,7 +2043,7 @@ static int lzh_read_blocks(struct lzh_stream * strm, int last)
 				    if(last)
 					    goto failed; /* Truncated data. */
 				    ds->state = ST_RD_PT_1;
-				    return (ARCHIVE_OK);
+				    return ARCHIVE_OK;
 			    }
 			    ds->pt.len_avail = lzh_br_bits(br, ds->pt.len_bits);
 			    lzh_br_consume(br, ds->pt.len_bits);
@@ -2056,7 +2056,7 @@ static int lzh_read_blocks(struct lzh_stream * strm, int last)
 					    if(last)
 						    goto failed; /* Truncated data.*/
 					    ds->state = ST_RD_PT_2;
-					    return (ARCHIVE_OK);
+					    return ARCHIVE_OK;
 				    }
 				    if(!lzh_make_fake_table(&(ds->pt),
 					lzh_br_bits(br, ds->pt.len_bits)))
@@ -2085,14 +2085,14 @@ static int lzh_read_blocks(struct lzh_stream * strm, int last)
 					    goto failed; /* Invalid data. */
 				    /* Not completed, get following data. */
 				    ds->state = ST_RD_PT_3;
-				    return (ARCHIVE_OK);
+				    return ARCHIVE_OK;
 			    }
 			    /* There are some null in bitlen of the literal. */
 			    if(!lzh_br_read_ahead(strm, br, 2)) {
 				    if(last)
 					    goto failed; /* Truncated data. */
 				    ds->state = ST_RD_PT_3;
-				    return (ARCHIVE_OK);
+				    return ARCHIVE_OK;
 			    }
 			    c = lzh_br_bits(br, 2);
 			    lzh_br_consume(br, 2);
@@ -2109,7 +2109,7 @@ static int lzh_read_blocks(struct lzh_stream * strm, int last)
 					    goto failed; /* Invalid data. */
 				    /* Not completed, get following data. */
 				    ds->state = ST_RD_PT_4;
-				    return (ARCHIVE_OK);
+				    return ARCHIVE_OK;
 			    }
 			    if(!lzh_make_huffman_table(&(ds->pt)))
 				    goto failed; /* Invalid data */
@@ -2123,7 +2123,7 @@ static int lzh_read_blocks(struct lzh_stream * strm, int last)
 				    if(last)
 					    goto failed; /* Truncated data. */
 				    ds->state = ST_RD_LITERAL_1;
-				    return (ARCHIVE_OK);
+				    return ARCHIVE_OK;
 			    }
 			    ds->lt.len_avail = lzh_br_bits(br, ds->lt.len_bits);
 			    lzh_br_consume(br, ds->lt.len_bits);
@@ -2136,7 +2136,7 @@ static int lzh_read_blocks(struct lzh_stream * strm, int last)
 					    if(last)
 						    goto failed; /* Truncated data.*/
 					    ds->state = ST_RD_LITERAL_2;
-					    return (ARCHIVE_OK);
+					    return ARCHIVE_OK;
 				    }
 				    if(!lzh_make_fake_table(&(ds->lt),
 					lzh_br_bits(br, ds->lt.len_bits)))
@@ -2159,7 +2159,7 @@ static int lzh_read_blocks(struct lzh_stream * strm, int last)
 						    goto failed; /* Truncated data.*/
 					    ds->loop = i;
 					    ds->state = ST_RD_LITERAL_3;
-					    return (ARCHIVE_OK);
+					    return ARCHIVE_OK;
 				    }
 				    rbits = lzh_br_bits(br, ds->pt.max_bits);
 				    c = lzh_decode_huffman(&(ds->pt), rbits);
@@ -2187,7 +2187,7 @@ static int lzh_read_blocks(struct lzh_stream * strm, int last)
 							    goto failed;
 						    ds->loop = i;
 						    ds->state = ST_RD_LITERAL_3;
-						    return (ARCHIVE_OK);
+						    return ARCHIVE_OK;
 					    }
 					    lzh_br_consume(br, ds->pt.bitlen[c]);
 					    c = lzh_br_bits(br, n);
@@ -2411,7 +2411,7 @@ next_data:
 	ds->blocks_avail = blocks_avail;
 	ds->state = state;
 	ds->w_pos = w_pos;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int lzh_huffman_init(struct lzh_dec::huffman * hf, size_t len_size, int tbl_bits)
@@ -2420,7 +2420,7 @@ static int lzh_huffman_init(struct lzh_dec::huffman * hf, size_t len_size, int t
 	if(hf->bitlen == NULL) {
 		hf->bitlen = (uchar *)SAlloc::M(len_size * sizeof(hf->bitlen[0]));
 		if(hf->bitlen == NULL)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 	}
 	if(hf->tbl == NULL) {
 		if(tbl_bits < HTBL_BITS)
@@ -2429,17 +2429,17 @@ static int lzh_huffman_init(struct lzh_dec::huffman * hf, size_t len_size, int t
 			bits = HTBL_BITS;
 		hf->tbl = (uint16_t *)SAlloc::M(((size_t)1 << bits) * sizeof(hf->tbl[0]));
 		if(hf->tbl == NULL)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 	}
 	if(hf->tree == NULL && tbl_bits > HTBL_BITS) {
 		hf->tree_avail = 1 << (tbl_bits - HTBL_BITS + 4);
 		hf->tree = (lzh_dec::huffman::htree_t *)SAlloc::M(hf->tree_avail * sizeof(hf->tree[0]));
 		if(hf->tree == NULL)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 	}
 	hf->len_size = (int)len_size;
 	hf->tbl_bits = tbl_bits;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static void lzh_huffman_free(struct lzh_dec::huffman * hf)
@@ -2543,7 +2543,7 @@ static int lzh_read_pt_bitlen(struct lzh_stream * strm, int start, int end)
 			if(c)
 				lzh_br_consume(br, c - 3);
 			else
-				return (-1); /* Invalid data. */
+				return -1; /* Invalid data. */
 		}
 		else
 			lzh_br_consume(br, 3);
@@ -2556,7 +2556,7 @@ static int lzh_read_pt_bitlen(struct lzh_stream * strm, int start, int end)
 static int lzh_make_fake_table(struct lzh_dec::huffman * hf, uint16_t c)
 {
 	if(c >= hf->len_size)
-		return (0);
+		return 0;
 	hf->tbl[0] = c;
 	hf->max_bits = 0;
 	hf->shift_bits = 0;
@@ -2588,7 +2588,7 @@ static int lzh_make_huffman_table(struct lzh_dec::huffman * hf)
 		}
 	}
 	if(ptn != 0x10000 || maxbits > hf->tbl_bits)
-		return (0); /* Invalid */
+		return 0; /* Invalid */
 
 	hf->max_bits = maxbits;
 
@@ -2645,7 +2645,7 @@ static int lzh_make_huffman_table(struct lzh_dec::huffman * hf)
 		if(len <= HTBL_BITS) {
 			/* Calculate next bit pattern */
 			if((bitptn[len] = ptn + cnt) > tbl_size)
-				return (0); /* Invalid */
+				return 0; /* Invalid */
 			/* Update the table */
 			p = &(tbl[ptn]);
 			if(cnt > 7) {
@@ -2699,13 +2699,13 @@ static int lzh_make_huffman_table(struct lzh_dec::huffman * hf)
 			*p = len_avail + hf->tree_used;
 			ht = &(hf->tree[hf->tree_used++]);
 			if(hf->tree_used > hf->tree_avail)
-				return (0); /* Invalid */
+				return 0; /* Invalid */
 			ht->left = 0;
 			ht->right = 0;
 		}
 		else {
 			if(*p < len_avail || *p >= (len_avail + hf->tree_used))
-				return (0); /* Invalid */
+				return 0; /* Invalid */
 			ht = &(hf->tree[*p - len_avail]);
 		}
 		while(--extlen > 0) {
@@ -2714,7 +2714,7 @@ static int lzh_make_huffman_table(struct lzh_dec::huffman * hf)
 					ht->left = len_avail + hf->tree_used;
 					ht = &(hf->tree[hf->tree_used++]);
 					if(hf->tree_used > hf->tree_avail)
-						return (0); /* Invalid */
+						return 0; /* Invalid */
 					ht->left = 0;
 					ht->right = 0;
 				}
@@ -2727,7 +2727,7 @@ static int lzh_make_huffman_table(struct lzh_dec::huffman * hf)
 					ht->right = len_avail + hf->tree_used;
 					ht = &(hf->tree[hf->tree_used++]);
 					if(hf->tree_used > hf->tree_avail)
-						return (0); /* Invalid */
+						return 0; /* Invalid */
 					ht->left = 0;
 					ht->right = 0;
 				}
@@ -2739,12 +2739,12 @@ static int lzh_make_huffman_table(struct lzh_dec::huffman * hf)
 		}
 		if(ptn & bit) {
 			if(ht->left != 0)
-				return (0); /* Invalid */
+				return 0; /* Invalid */
 			ht->left = (uint16_t)i;
 		}
 		else {
 			if(ht->right != 0)
-				return (0); /* Invalid */
+				return 0; /* Invalid */
 			ht->right = (uint16_t)i;
 		}
 	}
@@ -2760,7 +2760,7 @@ static int lzh_decode_huffman_tree(struct lzh_dec::huffman * hf, unsigned rbits,
 	while(c >= hf->len_avail) {
 		c -= hf->len_avail;
 		if(extlen-- <= 0 || c >= hf->tree_used)
-			return (0);
+			return 0;
 		if(rbits & (1U << extlen))
 			c = ht[c].left;
 		else

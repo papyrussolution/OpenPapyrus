@@ -143,7 +143,7 @@ int archive_write_add_filter_lzop(struct archive * _a)
 	data = (struct write_lzop *)SAlloc::C(1, sizeof(*data));
 	if(data == NULL) {
 		archive_set_error(_a, ENOMEM, "Can't allocate memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	f->name = "lzop";
@@ -159,23 +159,23 @@ int archive_write_add_filter_lzop(struct archive * _a)
 		SAlloc::F(data);
 		archive_set_error(_a, ARCHIVE_ERRNO_MISC,
 		    "lzo_init(type check) failed");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	if(lzo_version() < 0x940) {
 		SAlloc::F(data);
 		archive_set_error(_a, ARCHIVE_ERRNO_MISC,
 		    "liblzo library is too old(%s < 0.940)",
 		    lzo_version_string());
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	data->compression_level = 5;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 #else
 	data->pdata = __archive_write_program_allocate("lzop");
 	if(data->pdata == NULL) {
 		SAlloc::F(data);
 		archive_set_error(_a, ENOMEM, "Can't allocate memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	data->compression_level = 0;
 	/* Note: We return "warn" to inform of using an external lzop
@@ -198,7 +198,7 @@ static int archive_write_lzop_free(struct archive_write_filter * f)
 	__archive_write_program_free(data->pdata);
 #endif
 	SAlloc::F(data);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_write_lzop_options(struct archive_write_filter * f, const char * key,
@@ -211,7 +211,7 @@ static int archive_write_lzop_options(struct archive_write_filter * f, const cha
 		    value[1] != '\0')
 			return (ARCHIVE_WARN);
 		data->compression_level = value[0] - '0';
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
@@ -227,7 +227,7 @@ static int archive_write_lzop_open(struct archive_write_filter * f)
 
 	ret = __archive_write_open_filter(f->next_filter);
 	if(ret != ARCHIVE_OK)
-		return (ret);
+		return ret;
 
 	switch(data->compression_level) {
 		case 1:
@@ -255,7 +255,7 @@ static int archive_write_lzop_open(struct archive_write_filter * f)
 		if(data->work_buffer == NULL) {
 			archive_set_error(f->archive, ENOMEM,
 			    "Can't allocate data for compression buffer");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 	}
 	if(data->compressed == NULL) {
@@ -266,7 +266,7 @@ static int archive_write_lzop_open(struct archive_write_filter * f)
 		if(data->compressed == NULL) {
 			archive_set_error(f->archive, ENOMEM,
 			    "Can't allocate data for compression buffer");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 	}
 	if(data->uncompressed == NULL) {
@@ -276,11 +276,11 @@ static int archive_write_lzop_open(struct archive_write_filter * f)
 		if(data->uncompressed == NULL) {
 			archive_set_error(f->archive, ENOMEM,
 			    "Can't allocate data for compression buffer");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		data->uncompressed_avail_bytes = BLOCK_SIZE;
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int make_header(struct archive_write_filter * f)
@@ -352,7 +352,7 @@ static int drive_compressor(struct archive_write_filter * f)
 	if(r != LZO_E_OK) {
 		archive_set_error(f->archive, ARCHIVE_ERRNO_MISC,
 		    "Lzop compression failed: returned status %d", r);
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	/* Store uncompressed size. */
@@ -376,14 +376,14 @@ static int drive_compressor(struct archive_write_filter * f)
 		r = __archive_write_filter(f->next_filter, data->compressed,
 			header_bytes + block_info_bytes);
 		if(r != ARCHIVE_OK)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		r = __archive_write_filter(f->next_filter, data->uncompressed,
 			usize);
 	}
 
 	if(r != ARCHIVE_OK)
-		return (ARCHIVE_FATAL);
-	return (ARCHIVE_OK);
+		return ARCHIVE_FATAL;
+	return ARCHIVE_OK;
 }
 
 static int archive_write_lzop_write(struct archive_write_filter * f,
@@ -400,7 +400,7 @@ static int archive_write_lzop_write(struct archive_write_filter * f,
 			    - data->uncompressed_avail_bytes,
 			    p, length);
 			data->uncompressed_avail_bytes -= length;
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 		}
 
 		memcpy(data->uncompressed + data->uncompressed_buffer_size
@@ -411,11 +411,11 @@ static int archive_write_lzop_write(struct archive_write_filter * f,
 		data->uncompressed_avail_bytes = 0;
 
 		r = drive_compressor(f);
-		if(r != ARCHIVE_OK) return (r);
+		if(r != ARCHIVE_OK) return r;
 		data->uncompressed_avail_bytes = BLOCK_SIZE;
 	} while(length);
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_write_lzop_close(struct archive_write_filter * f)
@@ -428,13 +428,13 @@ static int archive_write_lzop_close(struct archive_write_filter * f)
 		/* Compress and output remaining data. */
 		r = drive_compressor(f);
 		if(r != ARCHIVE_OK)
-			return (r);
+			return r;
 	}
 	/* Write a zero uncompressed size as the end mark of the series of
 	 * compressed block. */
 	r = __archive_write_filter(f->next_filter, &endmark, sizeof(endmark));
 	if(r != ARCHIVE_OK)
-		return (r);
+		return r;
 	return (__archive_write_close_filter(f->next_filter));
 }
 
@@ -456,7 +456,7 @@ static int archive_write_lzop_open(struct archive_write_filter * f)
 
 	r = __archive_write_program_open(f, data->pdata, as.s);
 	archive_string_free(&as);
-	return (r);
+	return r;
 }
 
 static int archive_write_lzop_write(struct archive_write_filter * f,

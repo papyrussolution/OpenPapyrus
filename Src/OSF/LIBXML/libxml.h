@@ -208,7 +208,7 @@ int xmlNop(void);
 	 *
 	 * Returns a copy of the data or NULL in case of error.
 	 */
-	typedef void *(*xmlHashCopier)(void *payload, xmlChar *name);
+	typedef void *(*xmlHashCopier)(const void *payload, xmlChar *name);
 	/**
 	 * xmlHashScanner:
 	 * @payload:  the data in the hash
@@ -262,7 +262,7 @@ int xmlNop(void);
 	// 
 	// Helpers.
 	// 
-	XMLPUBFUN xmlHashTable * XMLCALL xmlHashCopy(xmlHashTable * table, xmlHashCopier f);
+	XMLPUBFUN xmlHashTable * XMLCALL xmlHashCopy(const xmlHashTable * table, xmlHashCopier f);
 	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlHashSize(xmlHashTable * table);
 	XMLPUBFUN void XMLCALL xmlHashScan(xmlHashTable * table, xmlHashScanner f, void *data);
 	XMLPUBFUN void XMLCALL xmlHashScan3(xmlHashTable * table, const xmlChar *name, const xmlChar *name2, const xmlChar *name3, xmlHashScanner f, void *data);
@@ -411,8 +411,8 @@ int xmlNop(void);
 		xmlNode * next;  /* next sibling link  */
 		xmlNode * prev;  /* previous sibling link  */
 		xmlDoc  * doc;  /* the containing document */
-		xmlChar * orig;  /* content without ref substitution */
-		xmlChar * content;  /* content or ndata if unparsed */
+		const xmlChar * orig;  /* content without ref substitution */
+		const xmlChar * content;  /* content or ndata if unparsed */
 		int    length;                     /* the content length */
 		xmlEntityType etype;            /* The entity type */
 		const xmlChar * ExternalID; // External identifier for PUBLIC 
@@ -448,7 +448,7 @@ int xmlNop(void);
 	XMLPUBFUN xmlChar * XMLCALL xmlEncodeSpecialChars(const xmlDoc * doc, const xmlChar * input);
 	XMLPUBFUN xmlEntitiesTablePtr XMLCALL xmlCreateEntitiesTable();
 	#ifdef LIBXML_TREE_ENABLED
-		XMLPUBFUN xmlEntitiesTablePtr XMLCALL xmlCopyEntitiesTable(xmlEntitiesTablePtr table);
+		XMLPUBFUN xmlEntitiesTablePtr XMLCALL xmlCopyEntitiesTable(const xmlEntitiesTablePtr table);
 	#endif /* LIBXML_TREE_ENABLED */
 	XMLPUBFUN void XMLCALL  xmlFreeEntitiesTable(xmlEntitiesTablePtr table);
 	#ifdef LIBXML_OUTPUT_ENABLED
@@ -763,7 +763,7 @@ int xmlNop(void);
 	xmlBuffer * FASTCALL xmlBufBackToBuffer(xmlBuf * buf);
 	int FASTCALL xmlBufMergeBuffer(xmlBuf * buf, xmlBuffer * buffer);
 	int FASTCALL xmlBufResetInput(xmlBuf * buf, xmlParserInput * input);
-	size_t FASTCALL xmlBufGetInputBase(xmlBuf * buf, xmlParserInput * input);
+	size_t FASTCALL xmlBufGetInputBase(xmlBuf * buf, const xmlParserInput * input);
 	int xmlBufSetInputBaseCur(xmlBufPtr buf, xmlParserInput * input, size_t base, size_t cur);
 	//
 	//#include "enc.h"
@@ -777,8 +777,8 @@ int xmlNop(void);
 		//
 		//#include <libxml/catalog.h>
 		//
-		#define XML_CATALOGS_NAMESPACE (const xmlChar*)"urn:oasis:names:tc:entity:xmlns:xml:catalog" // The namespace for the XML Catalogs elements
-		#define XML_CATALOG_PI         (const xmlChar*)"oasis-xml-catalog" // The specific XML Catalog Processing Instuction name.
+		#define XML_CATALOGS_NAMESPACE (const xmlChar *)"urn:oasis:names:tc:entity:xmlns:xml:catalog" // The namespace for the XML Catalogs elements
+		#define XML_CATALOG_PI         (const xmlChar *)"oasis-xml-catalog" // The specific XML Catalog Processing Instuction name.
 		// 
 		// The API is voluntarily limited to general cataloging.
 		// 

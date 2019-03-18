@@ -111,7 +111,7 @@ int archive_read_support_filter_lz4(struct archive * _a)
 	struct archive_read_filter_bidder * reader;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_lz4");
 	if(__archive_read_get_bidder(a, &reader) != ARCHIVE_OK)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	reader->data = NULL;
 	reader->name = "lz4";
 	reader->bid = lz4_reader_bid;
@@ -119,7 +119,7 @@ int archive_read_support_filter_lz4(struct archive * _a)
 	reader->options = NULL;
 	reader->free = lz4_reader_free;
 #if defined(HAVE_LIBLZ4)
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 #else
 	archive_set_error(_a, ARCHIVE_ERRNO_MISC, "Using external lz4 program");
 	return (ARCHIVE_WARN);
@@ -129,7 +129,7 @@ int archive_read_support_filter_lz4(struct archive * _a)
 static int lz4_reader_free(struct archive_read_filter_bidder * self)
 {
 	(void)self; /* UNUSED */
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -149,7 +149,7 @@ static int lz4_reader_bid(struct archive_read_filter_bidder * self, struct archi
 	/* Minimal lz4 archive is 11 bytes. */
 	buffer = (const uchar*)__archive_read_filter_ahead(filter, 11, &avail);
 	if(buffer == NULL)
-		return (0);
+		return 0;
 
 	/* First four bytes must be LZ4 magic numbers. */
 	bits_checked = 0;
@@ -162,18 +162,18 @@ static int lz4_reader_bid(struct archive_read_filter_bidder * self, struct archi
 		flag = buffer[4];
 		/* A version number must be "01". */
 		if(((flag & 0xc0) >> 6) != 1)
-			return (0);
+			return 0;
 		/* A reserved bit must be "0". */
 		if(flag & 2)
-			return (0);
+			return 0;
 		bits_checked += 8;
 		BD = buffer[5];
 		/* A block maximum size should be more than 3. */
 		if(((BD & 0x70) >> 4) < 4)
-			return (0);
+			return 0;
 		/* Reserved bits must be "0". */
 		if(BD & ~0x70)
-			return (0);
+			return 0;
 		bits_checked += 8;
 	}
 	else if(number == LZ4_LEGACY) {
@@ -200,7 +200,7 @@ static int lz4_reader_init(struct archive_read_filter * self)
 	 * even if we weren't able to read it. */
 	self->code = ARCHIVE_FILTER_LZ4;
 	self->name = "lz4";
-	return (r);
+	return r;
 }
 
 #else
@@ -219,7 +219,7 @@ static int lz4_reader_init(struct archive_read_filter * self)
 	if(state == NULL) {
 		archive_set_error(&self->archive->archive, ENOMEM,
 		    "Can't allocate data for lz4 decompression");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	self->data = state;
@@ -228,7 +228,7 @@ static int lz4_reader_init(struct archive_read_filter * self)
 	self->skip = NULL; /* not supported */
 	self->close = lz4_filter_close;
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int lz4_allocate_out_block(struct archive_read_filter * self)
@@ -246,13 +246,13 @@ static int lz4_allocate_out_block(struct archive_read_filter * self)
 		if(out_block == NULL) {
 			archive_set_error(&self->archive->archive, ENOMEM,
 			    "Can't allocate data for lz4 decompression");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		state->out_block = out_block;
 	}
 	if(!state->flags.block_independence)
 		memzero(state->out_block, 64 * 1024);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int lz4_allocate_out_block_for_legacy(struct archive_read_filter * self)
@@ -268,11 +268,11 @@ static int lz4_allocate_out_block_for_legacy(struct archive_read_filter * self)
 		if(out_block == NULL) {
 			archive_set_error(&self->archive->archive, ENOMEM,
 			    "Can't allocate data for lz4 decompression");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		state->out_block = out_block;
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -285,7 +285,7 @@ static ssize_t lz4_filter_read(struct archive_read_filter * self, const void ** 
 
 	if(state->eof) {
 		*p = NULL;
-		return (0);
+		return 0;
 	}
 
 	__archive_read_filter_consume(self->upstream, state->unconsumed);
@@ -299,7 +299,7 @@ static ssize_t lz4_filter_read(struct archive_read_filter * self, const void ** 
 		    /* Reading a lz4 stream already failed. */
 		    archive_set_error(&self->archive->archive,
 			ARCHIVE_ERRNO_MISC, "Invalid sequence.");
-		    return (ARCHIVE_FATAL);
+		    return ARCHIVE_FATAL;
 		case READ_DEFAULT_BLOCK:
 		    ret = lz4_filter_read_default_stream(self, p);
 		    if(ret != 0 || state->stage != SELECT_STREAM)
@@ -313,7 +313,7 @@ static ssize_t lz4_filter_read(struct archive_read_filter * self, const void ** 
 		default:
 		    archive_set_error(&self->archive->archive,
 			ARCHIVE_ERRNO_MISC, "Program error.");
-		    return (ARCHIVE_FATAL);
+		    return ARCHIVE_FATAL;
 		    break;
 	}
 
@@ -326,7 +326,7 @@ static ssize_t lz4_filter_read(struct archive_read_filter * self, const void ** 
 		if(read_buf == NULL) {
 			state->eof = 1;
 			*p = NULL;
-			return (0);
+			return 0;
 		}
 		uint32_t number = archive_le32dec(read_buf);
 		__archive_read_filter_consume(self->upstream, 4);
@@ -342,7 +342,7 @@ static ssize_t lz4_filter_read(struct archive_read_filter * self, const void ** 
 					&self->archive->archive,
 					ARCHIVE_ERRNO_MISC,
 					"Malformed lz4 data");
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			uint32_t skip_bytes = archive_le32dec(read_buf);
 			__archive_read_filter_consume(self->upstream,
@@ -352,12 +352,12 @@ static ssize_t lz4_filter_read(struct archive_read_filter * self, const void ** 
 			/* Ignore following unrecognized data. */
 			state->eof = 1;
 			*p = NULL;
-			return (0);
+			return 0;
 		}
 	}
 	state->eof = 1;
 	*p = NULL;
-	return (0);
+	return 0;
 }
 
 static int lz4_filter_read_descriptor(struct archive_read_filter * self)
@@ -376,7 +376,7 @@ static int lz4_filter_read_descriptor(struct archive_read_filter * self)
 		archive_set_error(&self->archive->archive,
 		    ARCHIVE_ERRNO_MISC,
 		    "truncated lz4 input");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	/*
@@ -431,7 +431,7 @@ static int lz4_filter_read_descriptor(struct archive_read_filter * self)
 			archive_set_error(&self->archive->archive,
 			    ARCHIVE_ERRNO_MISC,
 			    "truncated lz4 input");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 	}
 	/* Check if a descriptor is corrupted */
@@ -445,17 +445,17 @@ static int lz4_filter_read_descriptor(struct archive_read_filter * self)
 
 	/* Make sure we have an enough buffer for uncompressed data. */
 	if(lz4_allocate_out_block(self) != ARCHIVE_OK)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	if(state->flags.stream_checksum)
 		state->xxh32_state = __archive_xxhash.XXH32_init(0);
 
 	state->decoded_size = 0;
 	/* Success */
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 malformed_error:
 	archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC,
 	    "malformed lz4 data");
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }
 
 static ssize_t lz4_filter_read_data_block(struct archive_read_filter * self, const void ** p)
@@ -568,7 +568,7 @@ static ssize_t lz4_filter_read_data_block(struct archive_read_filter * self, con
 	if(uncompressed_size < 0) {
 		archive_set_error(&(self->archive->archive),
 		    ARCHIVE_ERRNO_MISC, "lz4 decompression failed");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	state->unconsumed = 4 + compressed_size + checksum_size;
@@ -579,11 +579,11 @@ static ssize_t lz4_filter_read_data_block(struct archive_read_filter * self, con
 malformed_error:
 	archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC,
 	    "malformed lz4 data");
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 truncated_error:
 	archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC,
 	    "truncated lz4 input");
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }
 
 static ssize_t lz4_filter_read_default_stream(struct archive_read_filter * self, const void ** p)
@@ -597,7 +597,7 @@ static ssize_t lz4_filter_read_default_stream(struct archive_read_filter * self,
 		state->stage = READ_DEFAULT_STREAM;
 		/* First, read a descriptor. */
 		if((ret = lz4_filter_read_descriptor(self)) != ARCHIVE_OK)
-			return (ret);
+			return ret;
 		state->stage = READ_DEFAULT_BLOCK;
 	}
 	/* Decompress a block. */
@@ -616,7 +616,7 @@ static ssize_t lz4_filter_read_default_stream(struct archive_read_filter * self,
 			read_buf = __archive_read_filter_ahead(self->upstream, 4, &bytes_remaining);
 			if(read_buf == NULL) {
 				archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "truncated lz4 input");
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			checksum = archive_le32dec(read_buf);
 			__archive_read_filter_consume(self->upstream, 4);
@@ -627,14 +627,14 @@ static ssize_t lz4_filter_read_default_stream(struct archive_read_filter * self,
 				archive_set_error(&self->archive->archive,
 				    ARCHIVE_ERRNO_MISC,
 				    "lz4 stream cheksum error");
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 		}
 		else if(ret > 0)
 			__archive_xxhash.XXH32_update(state->xxh32_state,
 			    *p, (int)ret);
 	}
-	return (ret);
+	return ret;
 }
 
 static ssize_t lz4_filter_read_legacy_stream(struct archive_read_filter * self, const void ** p)
@@ -657,7 +657,7 @@ static ssize_t lz4_filter_read_legacy_stream(struct archive_read_filter * self, 
 			archive_set_error(&self->archive->archive,
 			    ARCHIVE_ERRNO_MISC,
 			    "truncated lz4 input");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		state->stage = SELECT_STREAM;
 		return 0;
@@ -672,12 +672,12 @@ static ssize_t lz4_filter_read_legacy_stream(struct archive_read_filter * self, 
 	read_buf = __archive_read_filter_ahead(self->upstream, 4 + compressed, NULL);
 	if(read_buf == NULL) {
 		archive_set_error(&(self->archive->archive), ARCHIVE_ERRNO_MISC, "truncated lz4 input");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	ret = LZ4_decompress_safe(read_buf + 4, state->out_block, compressed, (int)state->out_block_size);
 	if(ret < 0) {
 		archive_set_error(&(self->archive->archive), ARCHIVE_ERRNO_MISC, "lz4 decompression failed");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	*p = state->out_block;
 	state->unconsumed = 4 + compressed;
@@ -694,7 +694,7 @@ static int lz4_filter_close(struct archive_read_filter * self)
 	SAlloc::F(state->xxh32_state);
 	SAlloc::F(state->out_block);
 	SAlloc::F(state);
-	return (ret);
+	return ret;
 }
 
 #endif /* HAVE_LIBLZ4 */

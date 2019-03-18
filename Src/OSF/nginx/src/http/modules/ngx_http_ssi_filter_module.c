@@ -1450,17 +1450,17 @@ static ngx_int_t ngx_http_ssi_include(ngx_http_request_t * r, ngx_http_ssi_ctx_t
 			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "\"wait\" cannot be used with file=\"%V\"", file);
 			return NGX_HTTP_SSI_ERROR;
 		}
-		if(wait->len == 2 && ngx_strncasecmp(wait->data, (u_char*)"no", 2) == 0) {
+		if(wait->len == 2 && ngx_strncasecmp(wait->data, (u_char *)"no", 2) == 0) {
 			wait = NULL;
 		}
-		else if(wait->len != 3 || ngx_strncasecmp(wait->data, (u_char*)"yes", 3) != 0) {
+		else if(wait->len != 3 || ngx_strncasecmp(wait->data, (u_char *)"yes", 3) != 0) {
 			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "invalid value \"%V\" in the \"wait\" parameter", wait);
 			return NGX_HTTP_SSI_ERROR;
 		}
 	}
 	if(!uri) {
 		uri = file;
-		wait = (ngx_str_t*)-1;
+		wait = (ngx_str_t *)-1;
 	}
 	rc = ngx_http_ssi_evaluate_string(r, ctx, uri, NGX_HTTP_SSI_ADD_PREFIX);
 	if(rc != NGX_OK) {

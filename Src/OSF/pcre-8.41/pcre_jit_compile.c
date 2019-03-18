@@ -2270,7 +2270,7 @@ static sljit_uw * allocate_read_only_data(compiler_common * common, sljit_uw siz
 		return NULL;
 	}
 
-	*(void**)result = common->read_only_data_head;
+	*(void **)result = common->read_only_data_head;
 	common->read_only_data_head = (void *)result;
 	return result + 1;
 }
@@ -2280,7 +2280,7 @@ static void free_read_only_data(void * current, void * allocator_data)
 	void * next;
 	SLJIT_UNUSED_ARG(allocator_data);
 	while(current) {
-		next = *(void**)current;
+		next = *(void **)current;
 		SLJIT_FREE(current, allocator_data);
 		current = next;
 	}

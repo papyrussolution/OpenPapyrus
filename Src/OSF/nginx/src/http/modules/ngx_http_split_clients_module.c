@@ -88,7 +88,7 @@ static const char * ngx_conf_split_clients_block(ngx_conf_t * cf, const ngx_comm
 	if(!ctx) {
 		return NGX_CONF_ERROR;
 	}
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	memzero(&ccv, sizeof(ngx_http_compile_complex_value_t));
 	ccv.cf = cf;
 	ccv.value = &value[1];
@@ -142,7 +142,7 @@ static const char * ngx_http_split_clients(ngx_conf_t * cf, const ngx_command_t 
 {
 	ngx_int_t n;
 	ngx_http_split_clients_ctx_t * ctx = (ngx_http_split_clients_ctx_t *)cf->ctx;
-	const ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+	const ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	ngx_http_split_clients_part_t  * part = (ngx_http_split_clients_part_t*)ngx_array_push(&ctx->parts);
 	if(part == NULL) {
 		return NGX_CONF_ERROR;

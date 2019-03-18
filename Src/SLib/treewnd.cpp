@@ -40,13 +40,12 @@ TreeWindow::~TreeWindow()
 INT_PTR CALLBACK TreeWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int    r = 1;
-	char   menu_name[256];
-	TreeWindow * p_view = (TreeWindow*)TView::GetWindowUserData(hWnd);
+	TreeWindow * p_view = static_cast<TreeWindow *>(TView::GetWindowUserData(hWnd));
 	switch(message) {
 		case WM_INITDIALOG:
 			{
 				//SetWindowLong(hWnd, GWLP_USERDATA, (long)lParam);
-				TView::SetWindowProp(hWnd, GWLP_USERDATA, (void *)lParam);
+				TView::SetWindowProp(hWnd, GWLP_USERDATA, lParam);
 				HWND   h_tv = GetDlgItem(hWnd, MENU_TREELIST);
 				if(h_tv)
 					TreeView_SetBkColor(h_tv, GetGrayColorRef(0.8f));
@@ -58,10 +57,11 @@ INT_PTR CALLBACK TreeWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 				HWND   h_tv = GetDlgItem(hWnd, MENU_TREELIST);
 				HTREEITEM hI = TreeView_GetSelection(h_tv);
 				TVITEM item;
+				TCHAR  menu_name[256];
 				item.mask = TVIF_HANDLE|TVIF_TEXT|TVIF_CHILDREN|TVIF_PARAM;
 				item.pszText = menu_name; // @unicodeproblem
 				item.hItem = hI;
-				item.cchTextMax = sizeof(menu_name);
+				item.cchTextMax = SIZEOFARRAY(menu_name);
 				TreeView_GetItem(h_tv, &item); // @unicodeproblem
 				if(!item.cChildren)
 					PostMessage(APPL->H_MainWnd, WM_COMMAND, item.lParam, 0);
@@ -142,16 +142,16 @@ void TreeWindow::SetupCmdList(HMENU hMenu, HTREEITEM hP)
 	HWND   h_tv = H_CmdList;
 	if(!hP || hP == TVI_ROOT)
 		TreeView_DeleteAllItems(h_tv);
-	char   menu_name[256];
 	int    cnt = GetMenuItemCount(hMenu);
 	if(hP == TVI_ROOT)
 		cnt--;
 	for(int i = 0; i < cnt; i++) {
+		TCHAR  menu_name[256];
 		MENUITEMINFO mii;
 		mii.cbSize = sizeof(MENUITEMINFO);
 		mii.fMask = MIIM_DATA|MIIM_SUBMENU|MIIM_TYPE|MIIM_STATE|MIIM_ID;
 		mii.dwTypeData = menu_name; // @unicodeproblem
-		mii.cch = sizeof(menu_name);
+		mii.cch = SIZEOFARRAY(menu_name);
 		GetMenuItemInfo(hMenu, i, TRUE, &mii); // @unicodeproblem
 		if(menu_name[0] != 0) {
 			TVINSERTSTRUCT is;
@@ -325,16 +325,16 @@ void TreeWindow::MoveChilds(const RECT & rRect)
 
 void TreeWindow::MenuToList(HMENU hMenu, long parentId, StrAssocArray * pList)
 {
-	char   menu_name[256];
 	int    cnt = GetMenuItemCount(hMenu);
 	if(parentId == 0)
 		cnt--;
 	for(int i = 0; i < cnt; i++) {
+		TCHAR  menu_name[256];
 		MENUITEMINFO mii;
 		mii.cbSize = sizeof(MENUITEMINFO);
 		mii.fMask = MIIM_DATA|MIIM_SUBMENU|MIIM_TYPE|MIIM_STATE|MIIM_ID;
 		mii.dwTypeData = menu_name; // @unicodeproblem
-		mii.cch = sizeof(menu_name);
+		mii.cch = SIZEOFARRAY(menu_name);
 		GetMenuItemInfo(hMenu, i, TRUE, &mii); // @unicodeproblem
 		if(menu_name[0] != 0) {
 			char * chr = strchr(menu_name, '&');
@@ -353,8 +353,8 @@ void TreeWindow::MenuToList(HMENU hMenu, long parentId, StrAssocArray * pList)
 void TreeWindow::AddItemCmdList(const char * pTitle, void * ptr)
 {
 	if(ptr) {
-		char   title_buf[512];
-		STRNSCPY(title_buf, pTitle);
+		TCHAR  title_buf[512];
+		strnzcpy(title_buf, SUcSwitch(pTitle), SIZEOFARRAY(title_buf));
 		const  size_t title_len = sstrlen(title_buf);
 		TVINSERTSTRUCT is;
 		is.hParent         = TVI_ROOT;
@@ -363,7 +363,7 @@ void TreeWindow::AddItemCmdList(const char * pTitle, void * ptr)
 		is.item.lParam     = reinterpret_cast<LPARAM>(ptr);
 		is.item.cChildren  = 0;
 		is.item.pszText    = title_buf; // @unicodeproblem
-		is.item.cchTextMax = sizeof(title_buf);
+		is.item.cchTextMax = SIZEOFARRAY(title_buf);
 		TreeView_InsertItem(H_CmdList, &is); // @unicodeproblem
 	}
 }
@@ -371,8 +371,8 @@ void TreeWindow::AddItemCmdList(const char * pTitle, void * ptr)
 void TreeWindow::UpdateItemCmdList(const char * pTitle, void * ptr)
 {
 	if(ptr) {
-		char   title_buf[512];
-		STRNSCPY(title_buf, pTitle);
+		TCHAR  title_buf[512];
+		strnzcpy(title_buf, SUcSwitch(pTitle), SIZEOFARRAY(title_buf));
 		const  size_t title_len = sstrlen(title_buf);
 		HWND   hw_tree = H_CmdList;
 		for(HTREEITEM h_item = TreeView_GetRoot(hw_tree); h_item; h_item = TreeView_GetNextSibling(hw_tree, h_item)) {
@@ -385,7 +385,7 @@ void TreeWindow::UpdateItemCmdList(const char * pTitle, void * ptr)
 				is.hItem      = h_item;
 				is.mask       = TVIF_TEXT;
 				is.pszText    = title_buf; // @unicodeproblem
-				is.cchTextMax = sizeof(title_buf);
+				is.cchTextMax = SIZEOFARRAY(title_buf);
 				TreeView_SetItem(hw_tree, &is); // @unicodeproblem
 				break;
 			}

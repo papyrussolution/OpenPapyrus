@@ -25,15 +25,15 @@
  * Macros to read and write integers in network-byte order.
  */
 
-#define n2s(c,s)        ((s=(((unsigned int)((c)[0]))<< 8)| \
-                            (((unsigned int)((c)[1]))    )),c+=2)
+#define n2s(c,s)        ((s=(((uint)((c)[0]))<< 8)| \
+                            (((uint)((c)[1]))    )),c+=2)
 
-#define s2n(s,c)        ((c[0]=(unsigned char)(((s)>> 8)&0xff), \
-                          c[1]=(unsigned char)(((s)    )&0xff)),c+=2)
+#define s2n(s,c)        ((c[0]=(uchar)(((s)>> 8)&0xff), \
+                          c[1]=(uchar)(((s)    )&0xff)),c+=2)
 
-#define l2n3(l,c)       ((c[0]=(unsigned char)(((l)>>16)&0xff), \
-                          c[1]=(unsigned char)(((l)>> 8)&0xff), \
-                          c[2]=(unsigned char)(((l)    )&0xff)),c+=3)
+#define l2n3(l,c)       ((c[0]=(uchar)(((l)>>16)&0xff), \
+                          c[1]=(uchar)(((l)>> 8)&0xff), \
+                          c[2]=(uchar)(((l)    )&0xff)),c+=3)
 
 #define n2l8(c,l)       (l =((uint64_t)(*((c)++)))<<56, \
                          l|=((uint64_t)(*((c)++)))<<48, \
@@ -44,14 +44,14 @@
                          l|=((uint64_t)(*((c)++)))<< 8, \
                          l|=((uint64_t)(*((c)++))))
 
-#define l2n8(l,c)       (*((c)++)=(unsigned char)(((l)>>56)&0xff), \
-                         *((c)++)=(unsigned char)(((l)>>48)&0xff), \
-                         *((c)++)=(unsigned char)(((l)>>40)&0xff), \
-                         *((c)++)=(unsigned char)(((l)>>32)&0xff), \
-                         *((c)++)=(unsigned char)(((l)>>24)&0xff), \
-                         *((c)++)=(unsigned char)(((l)>>16)&0xff), \
-                         *((c)++)=(unsigned char)(((l)>> 8)&0xff), \
-                         *((c)++)=(unsigned char)(((l)    )&0xff))
+#define l2n8(l,c)       (*((c)++)=(uchar)(((l)>>56)&0xff), \
+                         *((c)++)=(uchar)(((l)>>48)&0xff), \
+                         *((c)++)=(uchar)(((l)>>40)&0xff), \
+                         *((c)++)=(uchar)(((l)>>32)&0xff), \
+                         *((c)++)=(uchar)(((l)>>24)&0xff), \
+                         *((c)++)=(uchar)(((l)>>16)&0xff), \
+                         *((c)++)=(uchar)(((l)>> 8)&0xff), \
+                         *((c)++)=(uchar)(((l)    )&0xff))
 
 /* Signed Certificate Timestamp */
 struct sct_st {

@@ -966,7 +966,7 @@ void SLAPI PPObjTSession::Helper_SetupDiscount(SVector & rList, int pct, double 
 	double amount = 0.0, qtty, p, d;
 	DscntEntry * p_item;
 	PPIDArray wodis_goods_list;
-	for(i = 0; rList.enumItems(&i, (void**)&p_item);)
+	for(i = 0; rList.enumItems(&i, (void **)&p_item);)
 		if(GObj.CheckFlag(p_item->GoodsID, GF_NODISCOUNT) > 0)
 			wodis_goods_list.addUnique(p_item->GoodsID);
 		else {
@@ -982,7 +982,7 @@ void SLAPI PPObjTSession::Helper_SetupDiscount(SVector & rList, int pct, double 
 	double dscnt = pct ? (discount * fdiv100r(amount)) : discount;
 	double part_dis = 0.0, part_amount = 0.0;
 	int    prec = 2;
-	for(i = 0; rList.enumItems(&i, (void**)&p_item);)
+	for(i = 0; rList.enumItems(&i, (void **)&p_item);)
 		if(i != last_index && !wodis_goods_list.lsearch(p_item->GoodsID)) {
 			qtty = fabs(p_item->Qtty);
 			p = R2(p_item->Price);

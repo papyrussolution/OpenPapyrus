@@ -330,7 +330,7 @@ again:
 			    ctx->finished = 1;
 			    ctx->buf_off = 0;
 			    ret = EVP_CipherFinal_ex(ctx->cipher, (uchar *)ctx->buf, &(ctx->buf_len));
-			    ctx->ok = (int)ret;
+			    ctx->ok = static_cast<int>(ret);
 			    if(ret <= 0)
 				    break;
 

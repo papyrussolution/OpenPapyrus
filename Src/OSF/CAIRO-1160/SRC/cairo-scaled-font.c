@@ -576,57 +576,34 @@ static void _cairo_scaled_font_init_key(cairo_scaled_font_t * scaled_font, cairo
 	scaled_font->ctm.x0 = 0.;
 	scaled_font->ctm.y0 = 0.;
 	_cairo_font_options_init_copy(&scaled_font->options, options);
-
-	scaled_font->hash_entry.hash =
-	    _cairo_scaled_font_compute_hash(scaled_font);
+	scaled_font->hash_entry.hash = _cairo_scaled_font_compute_hash(scaled_font);
 }
 
 static cairo_bool_t _cairo_scaled_font_keys_equal(const void * abstract_key_a, const void * abstract_key_b)
 {
-	const cairo_scaled_font_t * key_a = (const cairo_scaled_font_t *)abstract_key_a;
-	const cairo_scaled_font_t * key_b = (const cairo_scaled_font_t *)abstract_key_b;
-	return key_a->original_font_face == key_b->original_font_face && memcmp((uchar *)(&key_a->font_matrix.xx),
-		   (uchar *)(&key_b->font_matrix.xx),
-		   sizeof(cairo_matrix_t)) == 0 &&
-	       memcmp((uchar *)(&key_a->ctm.xx),
-		   (uchar *)(&key_b->ctm.xx),
-		   sizeof(cairo_matrix_t)) == 0 &&
-	       cairo_font_options_equal(&key_a->options, &key_b->options);
+	const cairo_scaled_font_t * key_a = static_cast<const cairo_scaled_font_t *>(abstract_key_a);
+	const cairo_scaled_font_t * key_b = static_cast<const cairo_scaled_font_t *>(abstract_key_b);
+	return key_a->original_font_face == key_b->original_font_face && memcmp((uchar *)(&key_a->font_matrix.xx), (uchar *)(&key_b->font_matrix.xx),
+		   sizeof(cairo_matrix_t)) == 0 && memcmp((uchar *)(&key_a->ctm.xx),
+		   (uchar *)(&key_b->ctm.xx), sizeof(cairo_matrix_t)) == 0 && cairo_font_options_equal(&key_a->options, &key_b->options);
 }
 
-static cairo_bool_t _cairo_scaled_font_matches(const cairo_scaled_font_t * scaled_font,
-    const cairo_font_face_t * font_face,
-    const cairo_matrix_t * font_matrix,
-    const cairo_matrix_t * ctm,
-    const cairo_font_options_t * options)
+static cairo_bool_t _cairo_scaled_font_matches(const cairo_scaled_font_t * scaled_font, const cairo_font_face_t * font_face,
+    const cairo_matrix_t * font_matrix, const cairo_matrix_t * ctm, const cairo_font_options_t * options)
 {
-	return scaled_font->original_font_face == font_face &&
-	       memcmp((uchar *)(&scaled_font->font_matrix.xx),
-		   (uchar *)(&font_matrix->xx),
-		   sizeof(cairo_matrix_t)) == 0 &&
-	       memcmp((uchar *)(&scaled_font->ctm.xx),
-		   (uchar *)(&ctm->xx),
-		   sizeof(cairo_matrix_t)) == 0 &&
-	       cairo_font_options_equal(&scaled_font->options, options);
+	return scaled_font->original_font_face == font_face && memcmp((uchar *)(&scaled_font->font_matrix.xx), (uchar *)(&font_matrix->xx), sizeof(cairo_matrix_t)) == 0 &&
+		memcmp((uchar *)(&scaled_font->ctm.xx), (uchar *)(&ctm->xx), sizeof(cairo_matrix_t)) == 0 && cairo_font_options_equal(&scaled_font->options, options);
 }
-
 /*
  * Basic #cairo_scaled_font_t object management
  */
 
-cairo_status_t _cairo_scaled_font_init(cairo_scaled_font_t * scaled_font,
-    cairo_font_face_t * font_face,
-    const cairo_matrix_t * font_matrix,
-    const cairo_matrix_t * ctm,
-    const cairo_font_options_t * options,
-    const cairo_scaled_font_backend_t * backend)
+cairo_status_t _cairo_scaled_font_init(cairo_scaled_font_t * scaled_font, cairo_font_face_t * font_face,
+    const cairo_matrix_t * font_matrix, const cairo_matrix_t * ctm, const cairo_font_options_t * options, const cairo_scaled_font_backend_t * backend)
 {
-	cairo_status_t status;
-
-	status = cairo_font_options_status((cairo_font_options_t*)options);
+	cairo_status_t status = cairo_font_options_status((cairo_font_options_t*)options);
 	if(unlikely(status))
 		return status;
-
 	scaled_font->status = CAIRO_STATUS_SUCCESS;
 	scaled_font->placeholder = FALSE;
 	scaled_font->font_face = font_face;
@@ -637,13 +614,8 @@ cairo_status_t _cairo_scaled_font_init(cairo_scaled_font_t * scaled_font,
 	scaled_font->ctm.x0 = 0.;
 	scaled_font->ctm.y0 = 0.;
 	_cairo_font_options_init_copy(&scaled_font->options, options);
-
-	cairo_matrix_multiply(&scaled_font->scale,
-	    &scaled_font->font_matrix,
-	    &scaled_font->ctm);
-
-	scaled_font->max_scale = MAX(fabs(scaled_font->scale.xx) + fabs(scaled_font->scale.xy),
-		fabs(scaled_font->scale.yx) + fabs(scaled_font->scale.yy));
+	cairo_matrix_multiply(&scaled_font->scale, &scaled_font->font_matrix, &scaled_font->ctm);
+	scaled_font->max_scale = MAX(fabs(scaled_font->scale.xx) + fabs(scaled_font->scale.xy), fabs(scaled_font->scale.yx) + fabs(scaled_font->scale.yy));
 	scaled_font->scale_inverse = scaled_font->scale;
 	status = cairo_matrix_invert(&scaled_font->scale_inverse);
 	if(unlikely(status)) {
@@ -657,53 +629,39 @@ cairo_status_t _cairo_scaled_font_init(cairo_scaled_font_t * scaled_font,
 		 * Also, the check for == 0. below may be too harsh...
 		 */
 		if(_cairo_matrix_is_scale_0(&scaled_font->scale)) {
-			cairo_matrix_init(&scaled_font->scale_inverse,
-			    0, 0, 0, 0,
-			    -scaled_font->scale.x0,
-			    -scaled_font->scale.y0);
+			cairo_matrix_init(&scaled_font->scale_inverse, 0, 0, 0, 0, -scaled_font->scale.x0, -scaled_font->scale.y0);
 		}
 		else
 			return status;
 	}
-
 	scaled_font->glyphs = _cairo_hash_table_create(NULL);
 	if(unlikely(scaled_font->glyphs == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	cairo_list_init(&scaled_font->glyph_pages);
 	scaled_font->cache_frozen = FALSE;
 	scaled_font->global_cache_frozen = FALSE;
-
 	scaled_font->holdover = FALSE;
 	scaled_font->finished = FALSE;
-
 	CAIRO_REFERENCE_COUNT_INIT(&scaled_font->ref_count, 1);
-
 	_cairo_user_data_array_init(&scaled_font->user_data);
-
 	cairo_font_face_reference(font_face);
 	scaled_font->original_font_face = NULL;
-
 	CAIRO_MUTEX_INIT(scaled_font->mutex);
-
 	cairo_list_init(&scaled_font->dev_privates);
-
 	scaled_font->backend = backend;
 	cairo_list_init(&scaled_font->link);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-void _cairo_scaled_font_freeze_cache(cairo_scaled_font_t * scaled_font)
+void FASTCALL _cairo_scaled_font_freeze_cache(cairo_scaled_font_t * scaled_font)
 {
 	/* ensure we do not modify an error object */
 	assert(scaled_font->status == CAIRO_STATUS_SUCCESS);
-
 	CAIRO_MUTEX_LOCK(scaled_font->mutex);
 	scaled_font->cache_frozen = TRUE;
 }
 
-void _cairo_scaled_font_thaw_cache(cairo_scaled_font_t * scaled_font)
+void FASTCALL _cairo_scaled_font_thaw_cache(cairo_scaled_font_t * scaled_font)
 {
 	assert(scaled_font->cache_frozen);
 	if(scaled_font->global_cache_frozen) {
@@ -728,46 +686,33 @@ void FASTCALL _cairo_scaled_font_reset_cache(cairo_scaled_font_t * scaled_font)
 		_cairo_hash_table_remove(cairo_scaled_glyph_page_cache.hash_table, (cairo_hash_entry_t*)&page->cache_entry);
 	}
 	CAIRO_MUTEX_UNLOCK(_cairo_scaled_glyph_page_cache_mutex);
-
 	/* Destroy scaled_font's pages while holding its lock only, and not the
 	 * global page cache lock. The destructor can cause us to recurse and
 	 * end up back here for a different scaled_font. */
-
 	while(!cairo_list_is_empty(&scaled_font->glyph_pages)) {
-		page = cairo_list_first_entry(&scaled_font->glyph_pages,
-			cairo_scaled_glyph_page_t,
-			link);
+		page = cairo_list_first_entry(&scaled_font->glyph_pages, cairo_scaled_glyph_page_t, link);
 		_cairo_scaled_glyph_page_destroy(scaled_font, page);
 	}
-
 	CAIRO_MUTEX_UNLOCK(scaled_font->mutex);
 }
 
-cairo_status_t _cairo_scaled_font_set_metrics(cairo_scaled_font_t * scaled_font,
-    cairo_font_extents_t * fs_metrics)
+cairo_status_t _cairo_scaled_font_set_metrics(cairo_scaled_font_t * scaled_font, const cairo_font_extents_t * fs_metrics)
 {
 	cairo_status_t status;
 	double font_scale_x, font_scale_y;
-
 	scaled_font->fs_extents = *fs_metrics;
-
-	status = _cairo_matrix_compute_basis_scale_factors(&scaled_font->font_matrix,
-		&font_scale_x, &font_scale_y,
-		1);
+	status = _cairo_matrix_compute_basis_scale_factors(&scaled_font->font_matrix, &font_scale_x, &font_scale_y, 1);
 	if(unlikely(status))
 		return status;
-
 	/*
 	 * The font responded in unscaled units, scale by the font
 	 * matrix scale factors to get to user space
 	 */
-
 	scaled_font->extents.ascent = fs_metrics->ascent * font_scale_y;
 	scaled_font->extents.descent = fs_metrics->descent * font_scale_y;
 	scaled_font->extents.height = fs_metrics->height * font_scale_y;
 	scaled_font->extents.max_x_advance = fs_metrics->max_x_advance * font_scale_x;
 	scaled_font->extents.max_y_advance = fs_metrics->max_y_advance * font_scale_y;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -2379,7 +2324,7 @@ BAIL:
  * called by the font backend when initializing a glyph with
  * %CAIRO_SCALED_GLYPH_INFO_METRICS.
  **/
-void _cairo_scaled_glyph_set_metrics(cairo_scaled_glyph_t * scaled_glyph, cairo_scaled_font_t * scaled_font, cairo_text_extents_t * fs_metrics)
+void _cairo_scaled_glyph_set_metrics(cairo_scaled_glyph_t * scaled_glyph, cairo_scaled_font_t * scaled_font, const cairo_text_extents_t * fs_metrics)
 {
 	cairo_bool_t first = TRUE;
 	double hm, wm;

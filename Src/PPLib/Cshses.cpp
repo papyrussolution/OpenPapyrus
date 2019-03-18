@@ -55,7 +55,7 @@ int SLAPI PPSyncCashSession::Init(const char * pName, const char * pPort)
 		if(PortType == 0)
 			Handle = open(pPort, O_CREAT|/*O_TRUNC*/O_APPEND|O_TEXT|O_WRONLY, S_IWRITE);
 		else {
-			c = InitChannel();
+			// @v10.3.9 c = InitChannel();
 			return 1;
 		}
 	}
@@ -426,7 +426,7 @@ int SLAPI PPAsyncCashSession::GetLastSess(long cashNumber, LDATETIME dtm, long *
 	PPID   sess_id = DEREFPTRORZ(pSessID);
 	LastSess * p_entry = 0;
 	if(P_LastSessList)
-		for(uint i = 0; P_LastSessList->enumItems(&i, (void**)&p_entry);)
+		for(uint i = 0; P_LastSessList->enumItems(&i, (void **)&p_entry);)
 			if(p_entry->CashNumber == cashNumber)
 				if(!pSessNumber || !(*pSessNumber) || *pSessNumber == p_entry->SessNumber)
 					if(diffdatetime(dtm, p_entry->Dtm, 0, 0) <= 0 && diffdatetime(last_sess_dtm, p_entry->Dtm, 0, 0) > 0) {
@@ -448,7 +448,7 @@ int SLAPI PPAsyncCashSession::SetLastSess(long cashNumber, long sessNumber, PPID
 	if(P_LastSessList == 0) {
 		THROW_MEM(P_LastSessList = new SArray(sizeof(LastSess)));
 	}
-	for(i = 0; P_LastSessList->enumItems(&i, (void**)&p_entry);)
+	for(i = 0; P_LastSessList->enumItems(&i, (void **)&p_entry);)
 		if(p_entry->CashNumber == cashNumber && p_entry->SessNumber == sessNumber) {
 			p_entry->SessID = sessID;
 			p_entry->Dtm = dtm;
@@ -837,7 +837,7 @@ int SLAPI PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray & rS
 		}
 		if(forwardSess && P_LastSessList) {
 			LastSess * p_entry = 0;
-			for(i = 0; P_LastSessList->enumItems(&i, (void**)&p_entry);) {
+			for(i = 0; P_LastSessList->enumItems(&i, (void **)&p_entry);) {
 				CCheckTbl::Key1 k;
 				BExtQuery q(&CC, 1);
 				q.selectAll().where(CC.CashID == p_entry->CashNumber);

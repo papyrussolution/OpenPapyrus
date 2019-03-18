@@ -56,13 +56,13 @@ XMLPUBFUN void /*XMLCALL*/FASTCALL xmlListDelete(xmlList * l);
 //
 XMLPUBFUN void * XMLCALL xmlListSearch(xmlList * pList, void * data);
 XMLPUBFUN void * XMLCALL xmlListReverseSearch(xmlList * l, void * data);
-XMLPUBFUN int XMLCALL xmlListInsert(xmlList * pList, void * data);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlListInsert(xmlList * pList, void * data);
 XMLPUBFUN int XMLCALL xmlListAppend(xmlList * l, void * data);
 XMLPUBFUN int XMLCALL xmlListRemoveFirst(xmlList * l, void * data);
 XMLPUBFUN int XMLCALL xmlListRemoveLast(xmlList * l, void * data);
 XMLPUBFUN int XMLCALL xmlListRemoveAll(xmlList * l, void * data);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlListClear(xmlList * l);
-XMLPUBFUN int /*XMLCALL*/FASTCALL xmlListEmpty(xmlList * l);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlListEmpty(const xmlList * l);
 XMLPUBFUN xmlLink * /*XMLCALL*/FASTCALL xmlListFront(xmlList * l);
 XMLPUBFUN xmlLink * XMLCALL xmlListEnd(xmlList * l);
 XMLPUBFUN int XMLCALL xmlListSize(xmlList * l);

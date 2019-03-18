@@ -592,7 +592,7 @@ int SLAPI ACS_DREAMKAS::GetSessionData(int * pSessCount, int * pIsForwardSess, D
 		THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
 		//
 		{
-			SBuffer * p_ack_buf = (SBuffer *)wr_stream;
+			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 			if(p_ack_buf) {
 				const int avl_size = (int)p_ack_buf->GetAvailableSize();
 				temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);

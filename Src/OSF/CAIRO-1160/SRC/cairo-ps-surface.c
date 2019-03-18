@@ -1628,7 +1628,6 @@ static cairo_int_status_t _cairo_ps_surface_start_page(void * abstract_surface)
 
 	/* Increment before print so page numbers start at 1. */
 	surface->num_pages++;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -1636,27 +1635,19 @@ static cairo_int_status_t _cairo_ps_surface_show_page(void * abstract_surface)
 {
 	cairo_ps_surface_t * surface = (cairo_ps_surface_t *)abstract_surface;
 	cairo_int_status_t status;
-
 	if(surface->clipper.clip != NULL)
 		_cairo_surface_clipper_reset(&surface->clipper);
-
 	status = _cairo_pdf_operators_flush(&surface->pdf_operators);
 	if(unlikely(status))
 		return status;
-
-	_cairo_output_stream_printf(surface->stream,
-	    "Q Q\n"
-	    "showpage\n");
-
+	_cairo_output_stream_printf(surface->stream, "Q Q\nshowpage\n");
 	return CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_bool_t color_is_gray(double red, double green, double blue)
 {
 	const double epsilon = 0.00001;
-
-	return (fabs(red - green) < epsilon &&
-	       fabs(red - blue) < epsilon);
+	return (fabs(red - green) < epsilon && fabs(red - blue) < epsilon);
 }
 
 /**
@@ -1686,55 +1677,43 @@ static cairo_status_t _cairo_ps_surface_acquire_source_surface_from_pattern(cair
 {
 	cairo_status_t status;
 	cairo_box_t bbox;
-
 	*x_offset = 0;
 	*y_offset = 0;
-
 	/* get the operation extents in pattern space */
 	_cairo_box_from_rectangle(&bbox, extents);
 	_cairo_matrix_transform_bounding_box_fixed(&pattern->matrix, &bbox, NULL);
 	_cairo_box_round_to_rectangle(&bbox, src_op_extents);
-
 	if(pattern->type == CAIRO_PATTERN_TYPE_RASTER_SOURCE) {
-		cairo_surface_t * surf;
-
-		surf = _cairo_raster_source_pattern_acquire(pattern, &surface->base, src_op_extents);
+		cairo_surface_t * surf = _cairo_raster_source_pattern_acquire(pattern, &surface->base, src_op_extents);
 		if(!surf)
 			return CAIRO_INT_STATUS_UNSUPPORTED;
-
 		*src_surface_bounded = _cairo_surface_get_extents(surf, src_surface_extents);
 		cairo_surface_get_device_offset(surf, x_offset, y_offset);
 		*source_surface = surf;
 	}
 	else if(pattern->type == CAIRO_PATTERN_TYPE_SURFACE) {
 		cairo_surface_t * surf = NULL;
-
 		*source_surface = ((cairo_surface_pattern_t*)pattern)->surface;
 		surf = *source_surface;
 		*src_surface_bounded = _cairo_surface_get_extents(surf, src_surface_extents);
 		if(surf->type == CAIRO_SURFACE_TYPE_RECORDING) {
 			if(_cairo_surface_is_snapshot(surf))
 				surf = _cairo_surface_snapshot_get_target(surf);
-
 			if(surf->backend->type == CAIRO_SURFACE_TYPE_SUBSURFACE) {
 				cairo_surface_subsurface_t * sub = (cairo_surface_subsurface_t*)surf;
-
 				*src_surface_extents = sub->extents;
 				*src_surface_bounded = TRUE;
 				*x_offset = -sub->extents.x;
 				*y_offset = -sub->extents.y;
 			}
-
 			cairo_surface_destroy(surf);
 		}
 		else if(surf->type != CAIRO_SURFACE_TYPE_IMAGE) {
 			cairo_image_surface_t * image;
 			void * image_extra;
-
 			status = _cairo_surface_acquire_source_image(surf, &image, &image_extra);
 			if(unlikely(status))
 				return status;
-
 			*src_surface_bounded = _cairo_surface_get_extents(&image->base, src_surface_extents);
 			_cairo_surface_release_source_image(surf, image, image_extra);
 		}
@@ -1742,13 +1721,11 @@ static cairo_status_t _cairo_ps_surface_acquire_source_surface_from_pattern(cair
 	else {
 		ASSERT_NOT_REACHED;
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
 static void _cairo_ps_surface_release_source_surface_from_pattern(cairo_ps_surface_t * surface,
-    const cairo_pattern_t * pattern,
-    cairo_surface_t * source_surface)
+    const cairo_pattern_t * pattern, cairo_surface_t * source_surface)
 {
 	if(pattern->type == CAIRO_PATTERN_TYPE_RASTER_SOURCE)
 		_cairo_raster_source_pattern_release(pattern, source_surface);
@@ -1777,12 +1754,10 @@ static cairo_status_t _cairo_ps_surface_create_padded_image_from_image(cairo_ps_
 	cairo_surface_pattern_t pad_pattern;
 	int w, h;
 	cairo_int_status_t status;
-
 	/* get the operation extents in pattern space */
 	_cairo_box_from_rectangle(&box, extents);
 	_cairo_matrix_transform_bounding_box_fixed(source_matrix, &box, NULL);
 	_cairo_box_round_to_rectangle(&box, &rect);
-
 	/* Check if image needs padding to fill extents. */
 	w = source->width;
 	h = source->height;

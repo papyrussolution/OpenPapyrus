@@ -2669,7 +2669,7 @@ static int __txn_init(ENV * env, DB_TXNMGR * mgr)
  *	max_lsn given or the beginning of the last log file.  (The
  *	log system looked through the last log file when it started up.)
  */
-int __txn_findlastckp(ENV * pEnv, DB_LSN * pLsnp, DB_LSN * pMaxLsn)
+int __txn_findlastckp(ENV * pEnv, DB_LSN * pLsnp, const DB_LSN * pMaxLsn)
 {
 	DBT dbt;
 	DB_LOGC * logc;

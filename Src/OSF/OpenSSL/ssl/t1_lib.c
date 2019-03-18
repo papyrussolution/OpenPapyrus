@@ -919,7 +919,7 @@ static int tls1_check_duplicate_extensions(const PACKET * packet)
 	if(num_extensions <= 1)
 		return 1;
 
-	extension_types = (uint*)OPENSSL_malloc(sizeof(uint) * num_extensions);
+	extension_types = (uint *)OPENSSL_malloc(sizeof(uint) * num_extensions);
 	if(extension_types == NULL) {
 		SSLerr(SSL_F_TLS1_CHECK_DUPLICATE_EXTENSIONS, ERR_R_MALLOC_FAILURE);
 		goto done;
@@ -2109,7 +2109,7 @@ static int ssl_scan_clienthello_tlsext(SSL * s, PACKET * pkt, int * al)
 			}
 		}
 		else if(type == TLSEXT_TYPE_status_request) {
-			if(!PACKET_get_1(&extension, (uint*)&s->tlsext_status_type)) {
+			if(!PACKET_get_1(&extension, (uint *)&s->tlsext_status_type)) {
 				return 0;
 			}
 #ifndef OPENSSL_NO_OCSP

@@ -1,5 +1,5 @@
 // GCT.CPP
-// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 // Построение перекрестной отчетности по товарным операциям
 //
@@ -16,13 +16,13 @@ public:
 	GoodsTrnovrBrowser(uint rezID, SArray * a, PPViewGoodsTrnovr *pView, GCTFilt * f, int dataOwner) :
 		BrowserWindow(rezID, a), P_View(pView), IsDataOwner(dataOwner)
 	{
-		const GoodsTrnovrFilt * p_filt = P_View ? ((PPViewGoodsTrnovr *)P_View)->GetFilt() : 0;
+		const GoodsTrnovrFilt * p_filt = P_View ? static_cast<PPViewGoodsTrnovr *>(P_View)->GetFilt() : 0;
 		if(p_filt)
 			PPObjGoodsGroup::SetOwner(p_filt->GoodsGrpID, 0, (long)this);
 	}
 	~GoodsTrnovrBrowser()
 	{
-		const GoodsTrnovrFilt * p_filt = P_View ? ((PPViewGoodsTrnovr *)P_View)->GetFilt() : 0;
+		const GoodsTrnovrFilt * p_filt = P_View ? static_cast<PPViewGoodsTrnovr *>(P_View)->GetFilt() : 0;
 		if(p_filt)
 			PPObjGoodsGroup::RemoveTempAlt(p_filt->GoodsGrpID, (long)this);
 		if(IsDataOwner)
@@ -41,7 +41,7 @@ LDATE GoodsTrnovrBrowser::GetDate()
 	struct _H {
 		char str_dt[12];
 	};
-	_H * h_dt = (_H *) view->getCurItem();
+	const _H * h_dt = static_cast<const _H *>(view->getCurItem());
 	LDATE dt = ZERODATE;
 	if(h_dt)
 		strtodate(h_dt->str_dt, DATF_DMY, &dt);
@@ -211,7 +211,7 @@ int SLAPI PPViewGoodsTrnovr::Init(const GoodsTrnovrFilt * pFilt)
 		gga.Reset();
 		THROW(agg.BeginGoodsGroupingProcess(&f));
 		THROW(gga.ProcessGoodsGrouping(&f, &agg));
-		for(uint i = 0; gga.enumItems(&i, (void**)&e);) {
+		for(uint i = 0; gga.enumItems(&i, (void **)&e);) {
 			if(oneof3(e->OpID, -1, 10000, 0))
 				continue;
 			if(IsIntrExpndOp(e->OpID))
@@ -299,7 +299,7 @@ int FASTCALL PPViewGoodsTrnovr::NextIteration(GoodsTrnovrViewItem * pItem)
 {
 	int    ok = -1;
 	if(P_Items->getCount() && Cntr < (ulong)((long)P_Items->getCount()-1)) {
-		GoodsTrnovrViewItem * goods_trnovr_item = (GoodsTrnovrViewItem * )P_Items->at(Cntr);
+		const GoodsTrnovrViewItem * goods_trnovr_item = static_cast<const GoodsTrnovrViewItem *>(P_Items->at(Cntr));
 		strtodate(goods_trnovr_item->Title, DATF_DMY, &pItem->Dt);
 		pItem->RcptSuppl  = goods_trnovr_item->RcptSuppl;
 		pItem->RcptIntr   = goods_trnovr_item->RcptIntr;
@@ -371,7 +371,7 @@ SArray * SLAPI PPViewGoodsTrnovr::MakeGoodsTurnover()
 		gga.freeAll();
 		THROW(BeginGoodsGroupingProcess(&f, &agg));
 		THROW(gga.ProcessGoodsGrouping(&f, &agg));
-		for(i = 0; gga.enumItems(&i, (void**)&e);) {
+		for(i = 0; gga.enumItems(&i, (void **)&e);) {
 			if(oneof3(e->OpID, -1, 10000, 0))
 				continue;
 			if(IsIntrExpndOp(e->OpID))
@@ -487,7 +487,7 @@ int SLAPI ViewGoodsTurnover(long)
 	PPViewGoodsTrnovr * p_v = new PPViewGoodsTrnovr;
 	BrowserWindow * p_prev_win = modeless ? PPFindLastBrowser() : 0;
 	if(p_prev_win)
-		flt = *(((GoodsTrnovrBrowser *)p_prev_win)->P_View->GetFilt());
+		flt = *static_cast<const GoodsTrnovrBrowser *>(p_prev_win)->P_View->GetFilt();
 	else
 		flt.Period.SetDate(LConfig.OperDate);
 	while(p_v->EditFilt(&flt) > 0) {

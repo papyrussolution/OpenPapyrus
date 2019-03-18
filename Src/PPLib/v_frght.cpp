@@ -145,7 +145,7 @@ int FreightFiltDialog::setDTS(const FreightFilt * pData)
 	SetClusterData(CTL_FRGHTFLT_FLAGS, Data.Flags);
 
 	v = 0;
-	SetupPPObjCombo(this, CTLSEL_FRGHTFLT_CAPTAIN, PPOBJ_PERSON, Data.CaptainID, 0, (void *)PPPRK_CAPTAIN);
+	SetupPPObjCombo(this, CTLSEL_FRGHTFLT_CAPTAIN, PPOBJ_PERSON, Data.CaptainID, 0, reinterpret_cast<void *>(PPPRK_CAPTAIN));
 	disableCtrl(CTL_FRGHTFLT_CARGOPAR, (Data.OpID == 0));
 	SETFLAG(v, 0x01, (Data.Flags & FreightFilt::fUseCargoParam) && Data.OpID);
 	setCtrlData(CTL_FRGHTFLT_CARGOPAR, &v);
@@ -526,7 +526,7 @@ int SLAPI PPViewFreight::GetBillList(ObjIdListFilt * pList)
 	PPWait(1);
 	if(pList) {
 		FreightViewItem item;
-		for(InitIteration((PPViewFreight::IterOrder)Filt.Order); NextIteration(&item) > 0;) {
+		for(InitIteration(static_cast<PPViewFreight::IterOrder>(Filt.Order)); NextIteration(&item) > 0;) {
 			pList->Add(item.BillID);
 			PPWaitPercent(GetCounter());
 		}
@@ -650,8 +650,8 @@ int SLAPI PPViewFreight::UpdateFeatures()
     LDATE  arrival_date = ZERODATE;
     TDialog * dlg = new TDialog(DLG_UPDFREIGHT);
     THROW(CheckDialogPtr(&dlg));
-	SetupPPObjCombo(dlg, CTLSEL_UPDFREIGHT_TR, PPOBJ_TRANSPORT, ship_id, OLW_CANINSERT, (void *)tr_type);
-	SetupPPObjCombo(dlg, CTLSEL_UPDFREIGHT_CAPT, PPOBJ_PERSON, captain_id, OLW_CANINSERT/*|OLW_LOADDEFONOPEN*/, (void *)PPPRK_CAPTAIN); // @v10.0.11
+	SetupPPObjCombo(dlg, CTLSEL_UPDFREIGHT_TR, PPOBJ_TRANSPORT, ship_id, OLW_CANINSERT, reinterpret_cast<void *>(tr_type));
+	SetupPPObjCombo(dlg, CTLSEL_UPDFREIGHT_CAPT, PPOBJ_PERSON, captain_id, OLW_CANINSERT/*|OLW_LOADDEFONOPEN*/, reinterpret_cast<void *>(PPPRK_CAPTAIN)); // @v10.0.11
 	dlg->SetupCalDate(CTLCAL_UPDFREIGHT_ISSDT, CTL_UPDFREIGHT_ISSDT);
 	dlg->SetupCalDate(CTLCAL_UPDFREIGHT_ARRDT, CTL_UPDFREIGHT_ARRDT);
 	dlg->setCtrlData(CTL_UPDFREIGHT_ISSDT, &issue_date);
@@ -820,7 +820,7 @@ int PPALDD_FreightList::InitData(PPFilt & rFilt, long rsrv)
 
 int PPALDD_FreightList::InitIteration(PPIterID iterId, int sortId, long rsrv)
 {
-	INIT_PPVIEW_ALDD_ITER_ORD(Freight, (PPViewFreight::IterOrder)sortId);
+	INIT_PPVIEW_ALDD_ITER_ORD(Freight, static_cast<PPViewFreight::IterOrder>(sortId));
 }
 
 int PPALDD_FreightList::NextIteration(PPIterID iterId)

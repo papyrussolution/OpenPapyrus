@@ -131,7 +131,7 @@ static ngx_int_t ngx_http_range_header_filter(ngx_http_request_t * r)
 	if(clcf->max_ranges == 0) {
 		return ngx_http_next_header_filter(r);
 	}
-	if(r->headers_in.range == NULL || r->headers_in.range->value.len < 7 || ngx_strncasecmp(r->headers_in.range->value.data, (u_char*)"bytes=", 6) != 0) {
+	if(r->headers_in.range == NULL || r->headers_in.range->value.len < 7 || ngx_strncasecmp(r->headers_in.range->value.data, (u_char *)"bytes=", 6) != 0) {
 		goto next_filter;
 	}
 	if(r->headers_in.if_range) {

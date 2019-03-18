@@ -391,7 +391,7 @@ int SLAPI RegisterArray::Merge(const RegisterArray & rS)
 				nfound = 0;
 				if(rt_obj.Fetch(r_rec.RegTypeID, &rt_rec) > 0) {
 					if(rt_rec.Flags & REGTF_UNIQUE) {
-						rmv_pos_list.addUnique((long)i);
+						rmv_pos_list.addUnique(static_cast<long>(i));
 						add_pos_list.add((long)j);
 					}
 					else if(stricmp(r_rec.Serial, r_this_rec.Serial) != 0 || stricmp(r_rec.Num, r_this_rec.Num) != 0) {
@@ -399,7 +399,7 @@ int SLAPI RegisterArray::Merge(const RegisterArray & rS)
 					}
 				}
 				else
-					rmv_pos_list.addUnique((long)i);
+					rmv_pos_list.addUnique(static_cast<long>(i));
 			}
 		}
 		if(nfound)

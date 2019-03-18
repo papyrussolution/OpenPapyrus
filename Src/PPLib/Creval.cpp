@@ -71,11 +71,11 @@ int CRevalDialog::getDTS(CurRevalParam * pData)
 	THROW_PP(r > 0, PPERR_ACCNEEDED);
 	THROW(r = getAcc(sel = CTL_CREVAL_NEGCORRACC, &Data.NegCorrAcc));
 	sel = CTL_CREVAL_CRATELIST;
-	for(i = 0; Data.AccList.enumItems(&i, (void**)&p_acc_id);) {
+	for(i = 0; Data.AccList.enumItems(&i, (void **)&p_acc_id);) {
 		PPIDArray cur_list;
 		if(AccObj.GetCurList(*p_acc_id, 0, &cur_list) > 0) {
 			PPID * p_cur_id = 0;
-	   	    for(uint j = 0; cur_list.enumItems(&j, (void**)&p_cur_id);) {
+	   	    for(uint j = 0; cur_list.enumItems(&j, (void **)&p_cur_id);) {
 		   	    if(*p_cur_id) {
 					const double crate = Data.CRateList.Get(PPAMT_CRATE, *p_cur_id);
 					THROW_PP(crate > 0.0, PPERR_INVCRATE);
@@ -163,7 +163,7 @@ void CRevalDialog::updateCRateList()
 		const int sav_pos = (int)p_list->def->_curItem();
 		StringSet ss(SLBColumnDelim);
 		p_list->freeAll();
-		for(uint i = 0; Data.CRateList.enumItems(&i, (void**)&p_entry);) {
+		for(uint i = 0; Data.CRateList.enumItems(&i, (void **)&p_entry);) {
 			char sub[64];
 			PPCurrency cur_rec;
 			ss.clear();
@@ -186,7 +186,7 @@ int CRevalDialog::setupList()
 {
 	int    ok = 1;
 	PPID * p_acc_id = 0;
-	for(uint i = 0; ok && Data.AccList.enumItems(&i, (void**)&p_acc_id);) {
+	for(uint i = 0; ok && Data.AccList.enumItems(&i, (void **)&p_acc_id);) {
 		PPAccount acc_rec;
 		if(AccObj.Search(*p_acc_id, &acc_rec) > 0) {
 			char   sub[64];
@@ -217,7 +217,7 @@ int CRevalDialog::setupCRateList(PPID accID, int * pIsCurAcc)
 	}
 	else if(AccObj.GetCurList(accID, 0, &cur_list) > 0) {
 		PPID * p_cur_id = 0;
-   	    for(i = 0; cur_list.enumItems(&i, (void**)&p_cur_id);) {
+   	    for(i = 0; cur_list.enumItems(&i, (void **)&p_cur_id);) {
 	   	    if(*p_cur_id) {
 				is_cur_acc = 1;
 				if(Data.CRateList.Search(PPAMT_CRATE, *p_cur_id, 0) <= 0) {

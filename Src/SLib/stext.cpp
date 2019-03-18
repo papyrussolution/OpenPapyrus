@@ -1420,9 +1420,11 @@ int SCodepageIdent::ToStr(int fmt, SString & rBuf) const
 //
 //
 int    FASTCALL ishex(char c) { return BIN((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')); }
+int    FASTCALL ishexw(wchar_t c) { return BIN((c >= L'0' && c <= L'9') || (c >= L'A' && c <= L'F') || (c >= L'a' && c <= L'f')); }
 int    FASTCALL isdec(char c) { return BIN(c >= '0' && c <= '9'); }
 int    FASTCALL isdecw(wchar_t c) { return BIN(c >= L'0' && c <= L'9'); }
 uint   FASTCALL hex(char c) { return (c >= '0' && c <= '9') ? (c-'0') : ((c >= 'A' && c <= 'F') ? (c-'A'+10) : ((c >= 'a' && c <= 'f') ? (c-'a'+10) : 0)); }
+uint   FASTCALL hexw(wchar_t c) { return (c >= L'0' && c <= L'9') ? (c-L'0') : ((c >= L'A' && c <= L'F') ? (c-L'A'+10) : ((c >= L'a' && c <= L'f') ? (c-L'a'+10) : 0)); }
 
 uint8 FASTCALL hextobyte(const char * pBuf)
 {
@@ -2453,7 +2455,7 @@ int SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
 #ifdef _WIN32_WCE // {
 				GetTextExtentPoint32(hdc, &aBuf[src_pos], 1, &size);
 #else
-				GetTextExtentPoint32(hdc, &aBuf[src_pos], 1, &size); // @unicodeproblem
+				GetTextExtentPoint32(hdc, SUcSwitch(&aBuf[src_pos]), 1, &size); // @unicodeproblem
 #endif // } _WIN32_WCE
 				word_size += size.cx;
 				if(word_size <= maxStrSize) {

@@ -185,7 +185,7 @@ static ngx_uint_t ngx_http_browser(ngx_http_request_t * r, ngx_http_browser_conf
 			if(name >= last) {
 				continue;
 			}
-			name = (u_char*)ngx_strstr(name, modern[i].name);
+			name = (u_char *)ngx_strstr(name, modern[i].name);
 			if(!name) {
 				continue;
 			}
@@ -235,7 +235,7 @@ static ngx_uint_t ngx_http_browser(ngx_http_request_t * r, ngx_http_browser_conf
 		}
 	}
 	if(cf->ancient_browsers) {
-		ancient = (ngx_str_t*)cf->ancient_browsers->elts;
+		ancient = (ngx_str_t *)cf->ancient_browsers->elts;
 		for(i = 0; i < cf->ancient_browsers->nelts; i++) {
 			if(len >= ancient[i].len && ngx_strstr(ua, ancient[i].data)) {
 				return NGX_HTTP_ANCIENT_BROWSER;
@@ -418,7 +418,7 @@ static const char * ngx_http_ancient_browser(ngx_conf_t * cf, const ngx_command_
 {
 	ngx_http_browser_conf_t * bcf = (ngx_http_browser_conf_t *)conf;
 	ngx_str_t * browser;
-	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	for(ngx_uint_t i = 1; i < cf->args->nelts; i++) {
 		if(sstreq(value[i].data, "netscape4")) {
 			bcf->netscape4 = 1;
@@ -430,7 +430,7 @@ static const char * ngx_http_ancient_browser(ngx_conf_t * cf, const ngx_command_
 				return NGX_CONF_ERROR;
 			}
 		}
-		browser = (ngx_str_t*)ngx_array_push(bcf->ancient_browsers);
+		browser = (ngx_str_t *)ngx_array_push(bcf->ancient_browsers);
 		if(browser == NULL) {
 			return NGX_CONF_ERROR;
 		}
@@ -447,7 +447,7 @@ static const char * ngx_http_modern_browser_value(ngx_conf_t * cf, const ngx_com
 	if(bcf->modern_browser_value == NULL) {
 		return NGX_CONF_ERROR;
 	}
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	bcf->modern_browser_value->len = value[1].len;
 	bcf->modern_browser_value->valid = 1;
 	bcf->modern_browser_value->no_cacheable = 0;
@@ -464,7 +464,7 @@ static const char * ngx_http_ancient_browser_value(ngx_conf_t * cf, const ngx_co
 	if(bcf->ancient_browser_value == NULL) {
 		return NGX_CONF_ERROR;
 	}
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	bcf->ancient_browser_value->len = value[1].len;
 	bcf->ancient_browser_value->valid = 1;
 	bcf->ancient_browser_value->no_cacheable = 0;

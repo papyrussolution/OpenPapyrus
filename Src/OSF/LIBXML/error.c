@@ -16,7 +16,7 @@ void XMLCDECL xmlGenericErrorDefaultFunc(void * ctx ATTRIBUTE_UNUSED, const char
 		int    prev_size = -1;			      \
 		int    chars;					      \
 		va_list ap;						  \
-		str = (char *)SAlloc::M(150); \
+		str = static_cast<char *>(SAlloc::M(150)); \
 		if(str) {					   \
 			int size = 150;						    \
 			while(size < 64000) {					   \
@@ -30,7 +30,7 @@ void XMLCDECL xmlGenericErrorDefaultFunc(void * ctx ATTRIBUTE_UNUSED, const char
 						prev_size = chars;				\
 				}							\
 				size += ((chars > -1) ? (chars + 1) : 100); \
-				char * larger = (char *)SAlloc::R(str, size); \
+				char * larger = static_cast<char *>(SAlloc::R(str, size)); \
 				if(!larger) \
 					break;	\
 				str = larger; \
@@ -56,7 +56,7 @@ void XMLCDECL xmlGenericErrorDefaultFunc(void * ctx ATTRIBUTE_UNUSED, const char
 	va_list args;
 	SETIFZ(xmlGenericErrorContext, (void *)stderr);
 	va_start(args, msg);
-	vfprintf((FILE*)xmlGenericErrorContext, msg, args);
+	vfprintf((FILE *)xmlGenericErrorContext, msg, args);
 	va_end(args);
 }
 /**
@@ -308,7 +308,7 @@ static void xmlReportError(xmlErrorPtr err, xmlParserCtxt * ctxt, const char * s
 				xmlParserPrintFileContextInternal(cur, channel, data);
 			}
 		}
-		if((domain == XML_FROM_XPATH) && err->str1 && (err->int1 < 100) && (err->int1 < (int)sstrlen(err->str1))) {
+		if((domain == XML_FROM_XPATH) && err->str1 && (err->int1 < 100) && (err->int1 < sstrleni(err->str1))) {
 			xmlChar buf[150];
 			int i;
 			channel(data, "%s\n", err->str1);
@@ -453,11 +453,11 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 		if(prev) {
 			if(prev->type == XML_XINCLUDE_START) {
 				prev->type = XML_ELEMENT_NODE;
-				to->file = (char *)xmlGetProp(prev, BAD_CAST "href");
+				to->file = (char *)xmlGetProp(prev, reinterpret_cast<const xmlChar *>("href"));
 				prev->type = XML_XINCLUDE_START;
 			}
 			else {
-				to->file = (char *)xmlGetProp(prev, BAD_CAST "href");
+				to->file = (char *)xmlGetProp(prev, reinterpret_cast<const xmlChar *>("href"));
 			}
 		}
 		else
@@ -616,7 +616,7 @@ void XMLCDECL xmlParserValidityError(void * ctx, const char * msg, ...)
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlParserInput * input = NULL;
 	char * str;
-	int len = sstrlen((const xmlChar*)msg);
+	int len = sstrlen((const xmlChar *)msg);
 	static int had_info = 0;
 
 	if((len > 1) && (msg[len - 2] != ':')) {
@@ -657,7 +657,7 @@ void XMLCDECL xmlParserValidityWarning(void * ctx, const char * msg, ...)
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlParserInput * input = NULL;
 	char * str;
-	int len = sstrlen((const xmlChar*)msg);
+	int len = sstrlen((const xmlChar *)msg);
 	if(ctxt && (len != 0) && (msg[len-1] != ':')) {
 		input = ctxt->input;
 		if((input->filename == NULL) && (ctxt->inputNr > 1))

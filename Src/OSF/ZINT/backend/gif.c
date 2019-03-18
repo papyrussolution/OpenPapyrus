@@ -116,7 +116,7 @@ static void FlushStringTable(statestruct * pState)
 	}
 }
 
-ushort FindPixelOutlet(statestruct * pState, ushort HeadNode, uchar Byte)
+static ushort FindPixelOutlet(const statestruct * pState, ushort HeadNode, uchar Byte)
 {
 	ushort Outlet = (pState->NodeAxon)[HeadNode];
 	while(Outlet) {
@@ -182,7 +182,7 @@ int gif_lzw(uchar * pOut, int OutLength, uchar * pIn, int InLen)
 	// > Get first data byte
 	if(State.InLen == 0)
 		return 0;
-	PixelValueCur = (uchar)((*(State.pIn)) - '0');
+	PixelValueCur = static_cast<uchar>((*(State.pIn)) - '0');
 	(State.pIn)++;
 	(State.InLen)--;
 	CodeBits = 3;
@@ -194,7 +194,7 @@ int gif_lzw(uchar * pOut, int OutLength, uchar * pIn, int InLen)
 	if(BufferNextByte(&State))
 		return 0;
 	for(Pos = 0; Pos < State.ClearCode; Pos++)
-		State.NodePix[Pos] = (uchar)Pos;
+		State.NodePix[Pos] = static_cast<uchar>(Pos);
 	FlushStringTable(&State);
 	/* Write what the GIF specification calls the "code size". */
 	(State.pOut)[State.OutPosCur] = 2;
@@ -217,7 +217,7 @@ int gif_lzw(uchar * pOut, int OutLength, uchar * pIn, int InLen)
 		//* Check for end of data stream */
 		if(!Res) {
 			/* submit 'eoi' as the last item of the code stream */
-			if(AddCodeToBuffer(&State, (ushort)(State.ClearCode + 1), CodeBits))
+			if(AddCodeToBuffer(&State, static_cast<ushort>(State.ClearCode + 1), CodeBits))
 				return 0;
 			State.fByteCountByteSet = 0;
 			if(State.OutBitsFree < 8) {
@@ -226,7 +226,7 @@ int gif_lzw(uchar * pOut, int OutLength, uchar * pIn, int InLen)
 			}
 			// > Update last bytecount byte;
 			if(State.OutByteCountPos < State.OutPosCur) {
-				(State.pOut)[State.OutByteCountPos] = (uchar)(State.OutPosCur - State.OutByteCountPos - 1);
+				(State.pOut)[State.OutByteCountPos] = static_cast<uchar>(State.OutPosCur - State.OutByteCountPos - 1);
 			}
 			State.OutPosCur++;
 			return State.OutPosCur;
@@ -240,8 +240,8 @@ int gif_lzw(uchar * pOut, int OutLength, uchar * pIn, int InLen)
 			FlushStringTable(&State);
 			if(AddCodeToBuffer(&State, State.ClearCode, CodeBits))
 				return 0;
-			CodeBits = (uchar)(1 + 2);
-			State.FreeCode = (ushort)(State.ClearCode + 2);
+			CodeBits = static_cast<uchar>(1 + 2);
+			State.FreeCode = static_cast<ushort>(State.ClearCode + 2);
 		}
 	}
 }
@@ -259,7 +259,7 @@ int gif_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 #ifndef _MSC_VER
 	char lzwoutbuf[symbol->bitmap_height * symbol->bitmap_width];
 #else
-	lzwoutbuf = (char *)_alloca((symbol->bitmap_height * symbol->bitmap_width) * sizeof(char));
+	lzwoutbuf = static_cast<char *>(_alloca((symbol->bitmap_height * symbol->bitmap_width) * sizeof(char)));
 #endif /* _MSC_VER */
 
 	/* Open output file in binary mode */

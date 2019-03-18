@@ -92,12 +92,12 @@ namespace NCoderMixer2 {
 			if(PackSizePointers.IsEmpty() || !PackSizePointers[0])
 				return S_OK;
 			CMyComPtr<ICompressGetInStreamProcessedSize> getInStreamProcessedSize;
-			Coder.QueryInterface(IID_ICompressGetInStreamProcessedSize, (void**)&getInStreamProcessedSize);
+			Coder.QueryInterface(IID_ICompressGetInStreamProcessedSize, (void **)&getInStreamProcessedSize);
 			// if(!getInStreamProcessedSize) return E_FAIL;
 			if(getInStreamProcessedSize) {
 				uint64 processed;
 				RINOK(getInStreamProcessedSize->GetInStreamProcessedSize(&processed));
-				if(processed != (uint64)(int64)-1) {
+				if(processed != static_cast<uint64>(-1LL)) {
 					const uint64 size = PackSizes[0];
 					if(processed < size && Finish)
 						dataAfterEnd_Error = true;
@@ -110,12 +110,12 @@ namespace NCoderMixer2 {
 		}
 		else if(Coder2) {
 			CMyComPtr<ICompressGetInStreamProcessedSize2> getInStreamProcessedSize2;
-			Coder2.QueryInterface(IID_ICompressGetInStreamProcessedSize2, (void**)&getInStreamProcessedSize2);
+			Coder2.QueryInterface(IID_ICompressGetInStreamProcessedSize2, (void **)&getInStreamProcessedSize2);
 			FOR_VECTOR(i, PackSizePointers) {
 				if(PackSizePointers[i]) {
 					uint64 processed;
 					RINOK(getInStreamProcessedSize2->GetInStreamProcessedSize2(i, &processed));
-					if(processed != (uint64)(int64)-1) {
+					if(processed != static_cast<uint64>(-1LL)) {
 						const uint64 size = PackSizes[i];
 						if(processed < size && Finish)
 							dataAfterEnd_Error = true;
@@ -393,12 +393,12 @@ namespace NCoderMixer2 {
 				IUnknown * unk = (cod.Coder ? (IUnknown*)cod.Coder : (IUnknown*)cod.Coder2);
 				{
 					CMyComPtr<ISequentialInStream> s;
-					unk->QueryInterface(IID_ISequentialInStream, (void**)&s);
+					unk->QueryInterface(IID_ISequentialInStream, (void **)&s);
 					c2.CanRead = (s != NULL);
 				}
 				{
 					CMyComPtr<ISequentialOutStream> s;
-					unk->QueryInterface(IID_ISequentialOutStream, (void**)&s);
+					unk->QueryInterface(IID_ISequentialOutStream, (void **)&s);
 					c2.CanWrite = (s != NULL);
 				}
 			}
@@ -418,7 +418,7 @@ namespace NCoderMixer2 {
 			}
 			const CCoder &coder = _coders[coderIndex];
 			CMyComPtr <ISequentialInStream> seqInStream;
-			coder.QueryInterface(IID_ISequentialInStream, (void**)&seqInStream);
+			coder.QueryInterface(IID_ISequentialInStream, (void **)&seqInStream);
 			if(!seqInStream)
 				return E_NOTIMPL;
 			uint32 numInStreams = EncodeMode ? 1 : coder.NumStreams;
@@ -426,7 +426,7 @@ namespace NCoderMixer2 {
 			bool isSet = false;
 			if(numInStreams == 1) {
 				CMyComPtr <ICompressSetInStream> setStream;
-				coder.QueryInterface(IID_ICompressSetInStream, (void**)&setStream);
+				coder.QueryInterface(IID_ICompressSetInStream, (void **)&setStream);
 				if(setStream) {
 					CMyComPtr<ISequentialInStream> seqInStream2;
 					RINOK(GetInStream(inStreams, /* inSizes, */ startIndex + 0, &seqInStream2));
@@ -436,7 +436,7 @@ namespace NCoderMixer2 {
 			}
 			if(!isSet && numInStreams != 0) {
 				CMyComPtr <ICompressSetInStream2> setStream2;
-				coder.QueryInterface(IID_ICompressSetInStream2, (void**)&setStream2);
+				coder.QueryInterface(IID_ICompressSetInStream2, (void **)&setStream2);
 				if(!setStream2)
 					return E_NOTIMPL;
 				for(uint32 i = 0; i < numInStreams; i++) {
@@ -523,7 +523,7 @@ namespace NCoderMixer2 {
 			   if(!coder.Coder)
 			   return E_NOTIMPL;
 			 */
-			coder.QueryInterface(IID_ISequentialOutStream, (void**)&seqOutStream);
+			coder.QueryInterface(IID_ISequentialOutStream, (void **)&seqOutStream);
 			if(!seqOutStream)
 				return E_NOTIMPL;
 			uint32 numOutStreams = EncodeMode ? coder.NumStreams : 1;
@@ -605,7 +605,7 @@ namespace NCoderMixer2 {
 				_bi.GetCoder_for_Stream(inStreamIndex, coderIndex, coderStreamIndex);
 			CCoder &coder = _coders[coderIndex];
 			CMyComPtr<IOutStreamFinish> finish;
-			coder.QueryInterface(IID_IOutStreamFinish, (void**)&finish);
+			coder.QueryInterface(IID_IOutStreamFinish, (void **)&finish);
 			HRESULT res = S_OK;
 			if(finish) {
 				res = finish->OutStreamFinish();
@@ -695,13 +695,13 @@ namespace NCoderMixer2 {
 				CCoder & coder = _coders[i];
 				if(EncodeMode) {
 					CMyComPtr<ICompressInitEncoder> initEncoder;
-					coder.QueryInterface(IID_ICompressInitEncoder, (void**)&initEncoder);
+					coder.QueryInterface(IID_ICompressInitEncoder, (void **)&initEncoder);
 					if(initEncoder)
 						RINOK(initEncoder->InitEncoder());
 				}
 				else {
 					CMyComPtr<ICompressSetOutStreamSize> setOutStreamSize;
-					coder.QueryInterface(IID_ICompressSetOutStreamSize, (void**)&setOutStreamSize);
+					coder.QueryInterface(IID_ICompressSetOutStreamSize, (void **)&setOutStreamSize);
 					if(setOutStreamSize)
 						RINOK(setOutStreamSize->SetOutStreamSize(EncodeMode ? coder.PackSizePointers[0] : coder.UnpackSizePointer));
 				}
@@ -744,7 +744,7 @@ namespace NCoderMixer2 {
 			FOR_VECTOR(i, _coders) {
 				CCoder &coder = _coders[i];
 				CMyComPtr<ICompressSetOutStreamSize> setOutStreamSize;
-				coder.QueryInterface(IID_ICompressSetOutStreamSize, (void**)&setOutStreamSize);
+				coder.QueryInterface(IID_ICompressSetOutStreamSize, (void **)&setOutStreamSize);
 				if(setOutStreamSize) {
 					RINOK(setOutStreamSize->SetOutStreamSize(coder.UnpackSizePointer));
 				}
@@ -902,8 +902,8 @@ namespace NCoderMixer2 {
 				}
 				_streamBinders[i].CreateStreams(&_coders[inCoderIndex].InStreams[inCoderStreamIndex], &_coders[outCoderIndex].OutStreams[outCoderStreamIndex]);
 				CMyComPtr<ICompressSetBufSize> inSetSize, outSetSize;
-				_coders[inCoderIndex].QueryInterface(IID_ICompressSetBufSize, (void**)&inSetSize);
-				_coders[outCoderIndex].QueryInterface(IID_ICompressSetBufSize, (void**)&outSetSize);
+				_coders[inCoderIndex].QueryInterface(IID_ICompressSetBufSize, (void **)&inSetSize);
+				_coders[outCoderIndex].QueryInterface(IID_ICompressSetBufSize, (void **)&outSetSize);
 				if(inSetSize && outSetSize) {
 					const uint32 kBufSize = 1 << 19;
 					inSetSize->SetInBufSize(inCoderStreamIndex, kBufSize);

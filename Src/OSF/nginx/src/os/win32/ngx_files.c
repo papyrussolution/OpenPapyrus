@@ -333,7 +333,7 @@ ngx_int_t ngx_open_glob(ngx_glob_t * gl)
 		return NGX_ERROR;
 	}
 	memcpy(gl->name.data, gl->pattern, gl->last);
-	ngx_cpystrn(gl->name.data + gl->last, (u_char*)gl->finddata.cFileName, len + 1);
+	ngx_cpystrn(gl->name.data + gl->last, (u_char *)gl->finddata.cFileName, len + 1);
 	gl->ready = 1;
 	return NGX_OK;
 }
@@ -360,7 +360,7 @@ ngx_int_t ngx_read_glob(ngx_glob_t * gl, ngx_str_t * name)
 			return NGX_ERROR;
 		}
 		memcpy(gl->name.data, gl->pattern, gl->last);
-		ngx_cpystrn(gl->name.data + gl->last, (u_char*)gl->finddata.cFileName, len + 1);
+		ngx_cpystrn(gl->name.data + gl->last, (u_char *)gl->finddata.cFileName, len + 1);
 		*name = gl->name;
 		return NGX_OK;
 	}

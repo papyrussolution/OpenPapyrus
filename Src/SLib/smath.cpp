@@ -169,8 +169,8 @@ double FASTCALL smin(double a, double b) { return MIN(a, b); }
 float  FASTCALL smax(float a, float b)   { return MAX(a, b); }
 float  FASTCALL smin(float a, float b)   { return MIN(a, b); }
 double FASTCALL fdiv100r(double v)    { return v / 100.0; }
-double FASTCALL fdiv100i(long v)      { return ((double)v) / 100.0; }
-double FASTCALL fdiv1000i(long v)     { return ((double)v) / 1000.0; }
+double FASTCALL fdiv100i(long v)      { return (static_cast<double>(v)) / 100.0; }
+double FASTCALL fdiv1000i(long v)     { return (static_cast<double>(v)) / 1000.0; }
 double FASTCALL fdivi(long a, long b) { return b ? (static_cast<double>(a) / static_cast<double>(b)) : 0.0; }
 double FASTCALL fdivui(uint a, uint b) { return b ? (static_cast<double>(a) / static_cast<double>(b)) : 0.0; }
 long   FASTCALL fmul100i(double v)   { return R0i(v * 100.0); }

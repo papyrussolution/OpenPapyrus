@@ -30,7 +30,7 @@
 #endif
 
 /* macro to 'unsign' a character */
-#define uchar(c)        ((unsigned char)(c))
+#define uchar(c)        ((uchar)(c))
 
 /*
 ** Some sizes are better limited to fit in 'int', but must also fit in
@@ -1379,7 +1379,7 @@ static lua_Integer unpackint(lua_State * L, const char * str, int islittle, int 
 	int limit = (size  <= SZINT) ? size : SZINT;
 	for(i = limit - 1; i >= 0; i--) {
 		res <<= NB;
-		res |= (lua_Unsigned)(unsigned char)str[islittle ? i : size - 1 - i];
+		res |= (lua_Unsigned)(uchar)str[islittle ? i : size - 1 - i];
 	}
 	if(size < SZINT) { /* real size smaller than lua_Integer? */
 		if(issigned) { /* needs sign extension? */
@@ -1390,7 +1390,7 @@ static lua_Integer unpackint(lua_State * L, const char * str, int islittle, int 
 	else if(size > SZINT) { /* must check unread bytes */
 		int mask = (!issigned || (lua_Integer)res >= 0) ? 0 : MC;
 		for(i = limit; i < size; i++) {
-			if((unsigned char)str[islittle ? i : size - 1 - i] != mask)
+			if((uchar)str[islittle ? i : size - 1 - i] != mask)
 				luaL_error(L, "%d-byte integer does not fit into Lua Integer", size);
 		}
 	}

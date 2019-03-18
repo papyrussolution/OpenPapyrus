@@ -477,7 +477,7 @@ int SLAPI PPObjInternetAccount::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjInternetAccount::Put(PPID * pID, PPInternetAccount * pPack, int use_ta)
+int SLAPI PPObjInternetAccount::Put(PPID * pID, const PPInternetAccount * pPack, int use_ta)
 {
 	int    ok = 1;
 	{

@@ -75,7 +75,7 @@ int archive_read_open_FILE(struct archive * a, FILE * f)
 		archive_set_error(a, ENOMEM, "No memory");
 		SAlloc::F(mine);
 		SAlloc::F(b);
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	mine->block_size = block_size;
 	mine->buffer = b;
@@ -134,9 +134,9 @@ static int64_t file_skip(struct archive * a, void * client_data, int64_t request
 	 * the caller will work around by reading and discarding.
 	 */
 	if(!mine->can_skip)
-		return (0);
+		return 0;
 	if(request == 0)
-		return (0);
+		return 0;
 	/* If request is too big for a long or an off_t, reduce it. */
 	if(sizeof(request) > sizeof(skip)) {
 		int64_t max_skip = (((int64_t)1 << (skip_bits - 1)) - 1) * 2 + 1;
@@ -155,7 +155,7 @@ static int64_t file_skip(struct archive * a, void * client_data, int64_t request
 #endif
 	{
 		mine->can_skip = 0;
-		return (0);
+		return 0;
 	}
 	return (request);
 }
@@ -166,5 +166,5 @@ static int file_close(struct archive * a, void * client_data)
 	(void)a; /* UNUSED */
 	SAlloc::F(mine->buffer);
 	SAlloc::F(mine);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }

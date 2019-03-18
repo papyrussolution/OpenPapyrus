@@ -34,8 +34,8 @@ void qr_wiener_filter(uchar * _img, int _width, int _height)
 	int y;
 	if(_width<=0||_height<=0) 
 		return;
-	m_buf[0] = (uint*)SAlloc::M((_width+4<<3)*sizeof(*m_buf));
-	sn2_buf[0] = (uint*)SAlloc::M((_width+4<<3)*sizeof(*sn2_buf));
+	m_buf[0] = (uint *)SAlloc::M((_width+4<<3)*sizeof(*m_buf));
+	sn2_buf[0] = (uint *)SAlloc::M((_width+4<<3)*sizeof(*sn2_buf));
 	for(y = 1; y<8; y++) {
 		m_buf[y] = m_buf[y-1]+_width+4;
 		sn2_buf[y] = sn2_buf[y-1]+_width+4;
@@ -120,8 +120,8 @@ void qr_wiener_filter(uchar * _img, int _width, int _height)
 	int x;
 	int y;
 	if(_width<=0||_height<=0) return;
-	m_buf[0] = (uint*)SAlloc::M((_width+2<<2)*sizeof(*m_buf));
-	sn2_buf[0] = (uint*)SAlloc::M((_width+2<<2)*sizeof(*sn2_buf));
+	m_buf[0] = (uint *)SAlloc::M((_width+2<<2)*sizeof(*m_buf));
+	sn2_buf[0] = (uint *)SAlloc::M((_width+2<<2)*sizeof(*sn2_buf));
 	for(y = 1; y<4; y++) {
 		m_buf[y] = m_buf[y-1]+_width+2;
 		sn2_buf[y] = sn2_buf[y-1]+_width+2;
@@ -205,8 +205,7 @@ void qr_wiener_filter(uchar * _img, int _width, int _height)
     month=Feb,
     year=2000
    }*/
-static void qr_sauvola_mask(uchar * _mask, uint * _b, int * _nb,
-    const uchar * _img, int _width, int _height)
+static void qr_sauvola_mask(uchar * _mask, uint * _b, int * _nb, const uchar * _img, int _width, int _height)
 {
 	uint b;
 	int nb;
@@ -232,8 +231,8 @@ static void qr_sauvola_mask(uchar * _mask, uint * _b, int * _nb,
 		for(logwindh = 4; logwindh<8&&(1<<logwindh)<(_height+7>>3); logwindh++) ;
 		windw = 1<<logwindw;
 		windh = 1<<logwindh;
-		col_sums = (uint*)SAlloc::M(_width*sizeof(*col_sums));
-		col2_sums = (uint*)SAlloc::M(_width*sizeof(*col2_sums));
+		col_sums = (uint *)SAlloc::M(_width*sizeof(*col_sums));
+		col2_sums = (uint *)SAlloc::M(_width*sizeof(*col2_sums));
 		/*Initialize sums down each column.*/
 		for(x = 0; x<_width; x++) {
 			g = _img[x];
@@ -354,8 +353,8 @@ static void qr_interpolate_background(uchar * _dst,
 		for(logwindh = 4; logwindh<8&&(1<<logwindh)<(_height+15>>4); logwindh++) ;
 		windw = 1<<logwindw;
 		windh = 1<<logwindh;
-		col_sums = (uint*)SAlloc::M(_width*sizeof(*col_sums));
-		ncol_sums = (uint*)SAlloc::M(_width*sizeof(*ncol_sums));
+		col_sums = (uint *)SAlloc::M(_width*sizeof(*col_sums));
+		ncol_sums = (uint *)SAlloc::M(_width*sizeof(*ncol_sums));
 		/*Initialize sums down each column.*/
 		for(x = 0; x<_width; x++) {
 			if(!_mask[x]) {
@@ -550,7 +549,7 @@ uchar * qr_binarize(const uchar * _img, int _width, int _height)
 			;
 		windw = 1<<logwindw;
 		windh = 1<<logwindh;
-		col_sums = (uint*)SAlloc::M(_width*sizeof(*col_sums));
+		col_sums = (uint *)SAlloc::M(_width*sizeof(*col_sums));
 		/*Initialize sums down each column.*/
 		for(x = 0; x<_width; x++) {
 			g = _img[x];
@@ -604,7 +603,7 @@ uchar * qr_binarize(const uchar * _img, int _width, int _height)
 		fclose(fout);
 	}
 #endif
-	return(mask);
+	return (mask);
 }
 
 #endif

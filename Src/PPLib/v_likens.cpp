@@ -187,7 +187,7 @@ int SLAPI PPViewObjLikeness::ProcessCommand(uint ppvCmd, const void * pHdr, PPVi
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	BrwHdr hdr;
 	if(pHdr)
-		hdr = *((BrwHdr*)pHdr);
+		hdr = *static_cast<const BrwHdr *>(pHdr);
 	else
 		MEMSZERO(hdr);
 	if(ok == -2) {

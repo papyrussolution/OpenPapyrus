@@ -199,7 +199,7 @@ namespace NArchive {
 		static HRESULT SetCoderProps2(const CProps &props, const uint64 * dataSizeReduce, IUnknown * coder)
 		{
 			CMyComPtr<ICompressSetCoderProperties> setCoderProperties;
-			coder->QueryInterface(IID_ICompressSetCoderProperties, (void**)&setCoderProperties);
+			coder->QueryInterface(IID_ICompressSetCoderProperties, (void **)&setCoderProperties);
 			return setCoderProperties ? props.SetCoderProps(setCoderProperties, dataSizeReduce) : (props.AreThereNonOptionalProps() ? E_INVALIDARG : S_OK);
 		}
 		void CMtEncMultiProgress::Init(ICompressProgressInfo * progress)
@@ -401,10 +401,10 @@ namespace NArchive {
 			for(i = 0; i < numMethods; i++) {
 				IUnknown * coder = _mixer->GetCoder(i).GetUnknown();
 				CMyComPtr<ICryptoResetInitVector> resetInitVector;
-				coder->QueryInterface(IID_ICryptoResetInitVector, (void**)&resetInitVector);
+				coder->QueryInterface(IID_ICryptoResetInitVector, (void **)&resetInitVector);
 				CALLPTRMEMB(resetInitVector, ResetInitVector());
 				CMyComPtr<ICompressWriteCoderProperties> writeCoderProperties;
-				coder->QueryInterface(IID_ICompressWriteCoderProperties, (void**)&writeCoderProperties);
+				coder->QueryInterface(IID_ICompressWriteCoderProperties, (void **)&writeCoderProperties);
 				CByteBuffer &props = folderItem.Coders[numMethods - 1 - i].Props;
 				if(writeCoderProperties) {
 					CDynBufSeqOutStream * outStreamSpec = new CDynBufSeqOutStream;
@@ -877,7 +877,7 @@ namespace NArchive {
 				IUnknown * decoder = _mixer->GetCoder(i).GetUnknown();
 				{
 					CMyComPtr<ICompressSetDecoderProperties2> setDecoderProperties;
-					decoder->QueryInterface(IID_ICompressSetDecoderProperties2, (void**)&setDecoderProperties);
+					decoder->QueryInterface(IID_ICompressSetDecoderProperties2, (void **)&setDecoderProperties);
 					if(setDecoderProperties) {
 						const CByteBuffer &props = coderInfo.Props;
 						size_t size = props.Size();
@@ -893,7 +893,7 @@ namespace NArchive {
 			#if !defined(_7ZIP_ST) && !defined(_SFX)
 				if(mtMode) {
 					CMyComPtr<ICompressSetCoderMt> setCoderMt;
-					decoder->QueryInterface(IID_ICompressSetCoderMt, (void**)&setCoderMt);
+					decoder->QueryInterface(IID_ICompressSetCoderMt, (void **)&setCoderMt);
 					if(setCoderMt) {
 						RINOK(setCoderMt->SetNumberOfThreads(numThreads));
 					}
@@ -902,7 +902,7 @@ namespace NArchive {
 			#ifndef _NO_CRYPTO
 				{
 					CMyComPtr<ICryptoSetPassword> cryptoSetPassword;
-					decoder->QueryInterface(IID_ICryptoSetPassword, (void**)&cryptoSetPassword);
+					decoder->QueryInterface(IID_ICryptoSetPassword, (void **)&cryptoSetPassword);
 					if(cryptoSetPassword) {
 						isEncrypted = true;
 						if(!getTextPassword)
@@ -929,7 +929,7 @@ namespace NArchive {
 				bool finishMode = false;
 				{
 					CMyComPtr<ICompressSetFinishMode> setFinishMode;
-					decoder->QueryInterface(IID_ICompressSetFinishMode, (void**)&setFinishMode);
+					decoder->QueryInterface(IID_ICompressSetFinishMode, (void **)&setFinishMode);
 					if(setFinishMode) {
 						finishMode = fullUnpack;
 						RINOK(setFinishMode->SetFinishMode(BoolToInt(finishMode)));
@@ -961,7 +961,7 @@ namespace NArchive {
 			CMyComPtr<IUnknown> lockedInStream = lockedInStreamSpec;
 			bool needMtLock = false;
 			if(folderInfo.PackStreams.Size() > 1) {
-				// lockedInStream.Pos = (uint64)(int64)-1;
+				// lockedInStream.Pos = static_cast<uint64>(-1LL);
 				// RINOK(inStream->Seek(0, STREAM_SEEK_CUR, &lockedInStream.Pos));
 				RINOK(inStream->Seek(startPos + packPositions[0], STREAM_SEEK_SET, &lockedInStreamSpec->Pos));
 				lockedInStreamSpec->Stream = inStream;
@@ -5326,10 +5326,10 @@ namespace NArchive {
 				numSolidFiles = 1;
 
 			CMyComPtr<IArchiveUpdateCallbackFile> opCallback;
-			updateCallback->QueryInterface(IID_IArchiveUpdateCallbackFile, (void**)&opCallback);
+			updateCallback->QueryInterface(IID_IArchiveUpdateCallbackFile, (void **)&opCallback);
 
 			CMyComPtr<IArchiveExtractCallbackMessage> extractCallback;
-			updateCallback->QueryInterface(IID_IArchiveExtractCallbackMessage, (void**)&extractCallback);
+			updateCallback->QueryInterface(IID_IArchiveExtractCallbackMessage, (void **)&extractCallback);
 
 			// size_t totalSecureDataSize = (size_t)secureBlocks.GetTotalSizeInBytes();
 
@@ -7195,7 +7195,7 @@ namespace NArchive {
 			headerMethod.MultiThreadMixer = _useMultiThreadMixer;
 		  #endif
 			CMyComPtr<ICryptoGetTextPassword2> getPassword2;
-			updateCallback->QueryInterface(IID_ICryptoGetTextPassword2, (void**)&getPassword2);
+			updateCallback->QueryInterface(IID_ICryptoGetTextPassword2, (void **)&getPassword2);
 			methodMode.PasswordIsDefined = false;
 			methodMode.Password.Empty();
 			if(getPassword2) {
@@ -7256,7 +7256,7 @@ namespace NArchive {
 			COutArchive archive;
 			CArchiveDatabaseOut newDatabase;
 			CMyComPtr<ICryptoGetTextPassword> getPassword;
-			updateCallback->QueryInterface(IID_ICryptoGetTextPassword, (void**)&getPassword);
+			updateCallback->QueryInterface(IID_ICryptoGetTextPassword, (void **)&getPassword);
 
 			/*
 			   if(secureBlocks.Sorted.Size() > 1) {
@@ -7305,10 +7305,8 @@ namespace NArchive {
 			}
 			return S_OK;
 		}
-
-		void COutHandler::InitSolidFiles() { _numSolidFiles = (uint64)(int64)(-1); }
-		void COutHandler::InitSolidSize()  { _numSolidBytes = (uint64)(int64)(-1); }
-
+		void COutHandler::InitSolidFiles() { _numSolidFiles = static_cast<uint64>(-1LL); }
+		void COutHandler::InitSolidSize()  { _numSolidBytes = static_cast<uint64>(-1LL); }
 		void COutHandler::InitSolid()
 		{
 			InitSolidFiles();
@@ -7316,7 +7314,6 @@ namespace NArchive {
 			_solidExtension = false;
 			_numSolidBytesDefined = false;
 		}
-
 		void COutHandler::InitProps()
 		{
 			CMultiMethodProps::Init();

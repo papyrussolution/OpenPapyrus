@@ -888,7 +888,7 @@ int AccountDialog::setDTS(const PPAccountPacket * pAccPack)
 	else
 		disableCtrl(CTLSEL_ACCOUNT_ACCSHEET, 1);
 	if(AccPack.Rec.Type == ACY_BUDGET)
-		SetupPPObjCombo(this, CTLSEL_ACCOUNT_PARENT,  PPOBJ_ACCOUNT2, AccPack.Rec.ParentID, OLW_CANSELUPLEVEL, (void *)ACY_SEL_BUDGET);
+		SetupPPObjCombo(this, CTLSEL_ACCOUNT_PARENT,  PPOBJ_ACCOUNT2, AccPack.Rec.ParentID, OLW_CANSELUPLEVEL, reinterpret_cast<void *>(ACY_SEL_BUDGET));
 	return 1;
 }
 
@@ -1029,7 +1029,7 @@ int SLAPI PPObjAccount::CheckRecursion(PPID id, PPID parentID)
 
 int SLAPI PPObjAccount::Edit(PPID * pID, void * extraPtr /*accType*/)
 {
-	const  int extra_acc_type = (int)extraPtr;
+	const  int extra_acc_type = reinterpret_cast<int>(extraPtr);
 	int    ok = -1, valid_data = 0, is_new = 0;
 	int    acc_type = ACY_BAL;
 	AccountDialog    * p_bal_dlg = 0;

@@ -1,5 +1,5 @@
 // TAB.CPP
-// Copyright (c) Sobolev A. 1995-2000, 2003, 2010, 2013, 2016, 2017, 2018
+// Copyright (c) Sobolev A. 1995-2000, 2003, 2010, 2013, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -427,7 +427,7 @@ int SLAPI STabFile::Helper_WriteTab(const char * pTabName, const STab * pTab, SF
 	return ok;
 }
 
-int SLAPI STabFile::WriteTab(const char * pTabName, STab * pTab)
+int SLAPI STabFile::WriteTab(const char * pTabName, const STab * pTab)
 {
 	int    ok = -1;
 	SFile  temp_file;
@@ -491,9 +491,7 @@ int SLAPI STabFile::WriteTab(const char * pTabName, STab * pTab)
 			SFile::Remove(temp_file_name);
 		}
 	}
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 

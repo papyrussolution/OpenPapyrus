@@ -218,7 +218,7 @@ int SLAPI PPViewLotOp::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		BrwHdr * p_hdr = pHdr ? (BrwHdr *)pHdr : 0;
+		const BrwHdr * p_hdr = pHdr ? static_cast<const BrwHdr *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_EDITBILL:
 				ok = -1;
@@ -373,7 +373,7 @@ int SLAPI PPViewLotOp::MoveOp(const BrwHdr * pHdr)
 int SLAPI PPViewLotOp::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	BrwHdr * p_hdr = pHdr ? (BrwHdr *)pHdr : 0;
+	const  BrwHdr * p_hdr = pHdr ? static_cast<const BrwHdr *>(pHdr) : 0;
 	if(p_hdr)
 		if(Filt.Flags & LotOpFilt::fZeroLotOps) {
 			if(MoveOp(p_hdr) > 0)

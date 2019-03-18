@@ -494,15 +494,15 @@ enum {
  *
  * h  Short
  *  Numbers:
- *    (unsigned) short int
+ *    (uint) short int
  *
  * hh Short short
  *  Numbers:
- *    (unsigned) char
+ *    (uint) char
  *
  * l  Long
  *  Numbers:
- *    (unsigned) long int
+ *    (uint) long int
  *  String:
  *    as the S specifier
  *  Char:
@@ -510,7 +510,7 @@ enum {
  *
  * ll Long Long
  *  Numbers:
- *    (unsigned) long long int
+ *    (uint) long long int
  *
  * L  Long Double
  *  Float
@@ -1572,7 +1572,7 @@ static int TrioParse(int type, const char * format, trio_parameter_t * parameter
 						continue;
 					if((parameters[i].flags & FLAGS_STICKY) && (parameters[i].type == parameters[pos].type)) {
 						/* Do not overwrite current qualifiers */
-						flags |= (parameters[i].flags & (unsigned long)~FLAGS_STICKY);
+						flags |= (parameters[i].flags & (ulong)~FLAGS_STICKY);
 						if(width == NO_WIDTH)
 							width = parameters[i].width;
 						if(precision == NO_PRECISION)
@@ -1846,7 +1846,7 @@ static void TrioWriteNumber(trio_class_t * self, trio_uintmax_t number, trio_fla
 	if(flags & FLAGS_QUAD)
 		number &= (trio_ulonglong_t)-1;
 	else if(flags & FLAGS_LONG)
-		number &= (unsigned long)-1;
+		number &= (ulong)-1;
 	else
 		number &= (uint)-1;
 	/* Build number */
@@ -2756,7 +2756,7 @@ static void TrioOutStreamFile(trio_class_t * self, int output)
 	FILE * file;
 	assert(VALID(self));
 	assert(VALID(self->location));
-	file = (FILE*)self->location;
+	file = (FILE *)self->location;
 	self->processed++;
 	if(fputc(output, file) == EOF) {
 		self->error = TRIO_ERROR_RETURN(TRIO_EOF, 0);
@@ -4627,7 +4627,7 @@ static void TrioInStreamFile(trio_class_t * self, int * intPointer)
 {
 	assert(VALID(self));
 	assert(VALID(self->location));
-	FILE * file = (FILE*)self->location;
+	FILE * file = (FILE *)self->location;
 	assert(VALID(file));
 	self->current = fgetc(file);
 	if(self->current == EOF)

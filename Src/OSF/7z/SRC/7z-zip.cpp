@@ -249,14 +249,14 @@ void * CMemBlockManager::AllocateBlock()
 {
 	void * p = _headFree;
 	if(p)
-		_headFree = *(void**)_headFree;
+		_headFree = *(void **)_headFree;
 	return p;
 }
 
 void CMemBlockManager::FreeBlock(void * p)
 {
 	if(p) {
-		*(void**)p = _headFree;
+		*(void **)p = _headFree;
 		_headFree = p;
 	}
 }
@@ -1784,7 +1784,7 @@ namespace NArchive {
 			CMyComPtr<ISequentialInStream> inCrcStream = inSecCrcStreamSpec;
 			CMyComPtr<IInStream> inStream2;
 			if(!seqMode)
-				inStream->QueryInterface(IID_IInStream, (void**)&inStream2);
+				inStream->QueryInterface(IID_IInStream, (void **)&inStream2);
 			inSecCrcStreamSpec->SetStream(inStream);
 			inSecCrcStreamSpec->Init();
 			uint   numTestMethods = _options.MethodSequence.Size();
@@ -3753,7 +3753,7 @@ namespace NArchive {
 		HRESULT CInArchive::ReadVols()
 		{
 			CMyComPtr <IArchiveOpenVolumeCallback> volCallback;
-			Callback->QueryInterface(IID_IArchiveOpenVolumeCallback, (void**)&volCallback);
+			Callback->QueryInterface(IID_IArchiveOpenVolumeCallback, (void **)&volCallback);
 			if(!volCallback)
 				return S_OK;
 			RINOK(Vols.ParseArcName(volCallback));
@@ -5463,7 +5463,7 @@ namespace NArchive {
 				if(!cryptoSetPassword)
 					return E_FAIL;
 				if(!getTextPassword)
-					extractCallback->QueryInterface(IID_ICryptoGetTextPassword, (void**)&getTextPassword);
+					extractCallback->QueryInterface(IID_ICryptoGetTextPassword, (void **)&getTextPassword);
 				if(getTextPassword) {
 					CMyComBSTR password;
 					RINOK(getTextPassword->CryptoGetTextPassword(&password));
@@ -5540,7 +5540,7 @@ namespace NArchive {
 			ICompressCoder * coder = methodItems[m].Coder;
 			{
 				CMyComPtr<ICompressSetDecoderProperties2> setDecoderProperties;
-				coder->QueryInterface(IID_ICompressSetDecoderProperties2, (void**)&setDecoderProperties);
+				coder->QueryInterface(IID_ICompressSetDecoderProperties2, (void **)&setDecoderProperties);
 				if(setDecoderProperties) {
 					Byte properties = (Byte)item.Flags;
 					RINOK(setDecoderProperties->SetDecoderProperties2(&properties, 1));
@@ -5549,7 +5549,7 @@ namespace NArchive {
 		  #ifndef _7ZIP_ST
 			{
 				CMyComPtr<ICompressSetCoderMt> setCoderMt;
-				coder->QueryInterface(IID_ICompressSetCoderMt, (void**)&setCoderMt);
+				coder->QueryInterface(IID_ICompressSetCoderMt, (void **)&setCoderMt);
 				if(setCoderMt) {
 					RINOK(setCoderMt->SetNumberOfThreads(numThreads));
 				}
@@ -5628,7 +5628,7 @@ namespace NArchive {
 					inStreamNew = inStream;
 				if(result == S_OK) {
 					CMyComPtr<ICompressSetFinishMode> setFinishMode;
-					coder->QueryInterface(IID_ICompressSetFinishMode, (void**)&setFinishMode);
+					coder->QueryInterface(IID_ICompressSetFinishMode, (void **)&setFinishMode);
 					if(setFinishMode) {
 						RINOK(setFinishMode->SetFinishMode(BoolToInt(true)));
 					}
@@ -5639,11 +5639,11 @@ namespace NArchive {
 								useUnpackLimit ? &item.Size : NULL, compressProgress);
 					if(result == S_OK) {
 						CMyComPtr<ICompressGetInStreamProcessedSize> getInStreamProcessedSize;
-						coder->QueryInterface(IID_ICompressGetInStreamProcessedSize, (void**)&getInStreamProcessedSize);
+						coder->QueryInterface(IID_ICompressGetInStreamProcessedSize, (void **)&getInStreamProcessedSize);
 						if(getInStreamProcessedSize && setFinishMode) {
 							uint64 processed;
 							RINOK(getInStreamProcessedSize->GetInStreamProcessedSize(&processed));
-							if(processed != (uint64)(int64)-1) {
+							if(processed != static_cast<uint64>(-1LL)) {
 								if(pkAesMode) {
 									const uint32 padSize = _pkAesDecoderSpec->GetPadSize((uint32)processed);
 									if(processed + padSize > coderPackSize)
@@ -6474,7 +6474,7 @@ namespace NArchive {
 		static void UpdatePropsFromStream(CUpdateItem &item, ISequentialInStream * fileInStream, IArchiveUpdateCallback * updateCallback, uint64 &totalComplexity)
 		{
 			CMyComPtr<IStreamGetProps> getProps;
-			fileInStream->QueryInterface(IID_IStreamGetProps, (void**)&getProps);
+			fileInStream->QueryInterface(IID_IStreamGetProps, (void **)&getProps);
 			if(!getProps)
 				return;
 			FILETIME cTime, aTime, mTime;
@@ -6482,7 +6482,7 @@ namespace NArchive {
 			// uint32 attrib;
 			if(getProps->GetProps(&size, &cTime, &aTime, &mTime, NULL) != S_OK)
 				return;
-			if(size != item.Size && size != (uint64)(int64)-1) {
+			if(size != item.Size && size != static_cast<uint64>(-1LL)) {
 				int64 newComplexity = totalComplexity + ((int64)size - (int64)item.Size);
 				if(newComplexity > 0) {
 					totalComplexity = newComplexity;
@@ -6552,7 +6552,7 @@ namespace NArchive {
 						bool seqMode;
 						{
 							CMyComPtr<IInStream> inStream2;
-							fileInStream->QueryInterface(IID_IInStream, (void**)&inStream2);
+							fileInStream->QueryInterface(IID_IInStream, (void **)&inStream2);
 							seqMode = (inStream2 == NULL);
 						}
 						// seqMode = true; // to test seqMode
@@ -6603,7 +6603,7 @@ namespace NArchive {
 			const CCompressionMethodMode &options, const CByteBuffer * comment, IArchiveUpdateCallback * updateCallback)
 		{
 			CMyComPtr<IArchiveUpdateCallbackFile> opCallback;
-			updateCallback->QueryInterface(IID_IArchiveUpdateCallbackFile, (void**)&opCallback);
+			updateCallback->QueryInterface(IID_IArchiveUpdateCallbackFile, (void **)&opCallback);
 			bool unknownComplexity = false;
 			uint64 complexity = 0;
 			uint64 numFilesToCompress = 0;
@@ -6612,7 +6612,7 @@ namespace NArchive {
 			for(i = 0; i < updateItems.Size(); i++) {
 				const CUpdateItem &ui = updateItems[i];
 				if(ui.NewData) {
-					if(ui.Size == (uint64)(int64)-1)
+					if(ui.Size == static_cast<uint64>(-1LL))
 						unknownComplexity = true;
 					else
 						complexity += ui.Size;
@@ -7146,7 +7146,7 @@ namespace NArchive {
 			CMyComPtr <IOutStream> outStream;
 			{
 				CMyComPtr <IOutStream> outStreamReal;
-				seqOutStream->QueryInterface(IID_IOutStream, (void**)&outStreamReal);
+				seqOutStream->QueryInterface(IID_IOutStream, (void **)&outStreamReal);
 				if(!outStreamReal)
 					return E_NOTIMPL;
 				if(inArchive) {

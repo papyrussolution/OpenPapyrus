@@ -26,11 +26,9 @@ TToolbar::TToolbar(HWND hWnd, DWORD style) : PrevToolProc(0), H_MainWnd(hWnd), H
 		wc.hbrBackground = static_cast<HBRUSH>(GetStockObject(LTGRAY_BRUSH));
 		::RegisterClassEx(&wc); // @unicodeproblem
 	}
-	H_Wnd = ::CreateWindowEx(WS_EX_TOOLWINDOW, _T("TOOLBAR_FOR_PPY"), NULL, WS_CHILD|WS_CLIPSIBLINGS, 0, 0, 0, 0, hWnd, (HMENU)0, TProgram::GetInst(), 0); // @unicodeproblem
-	//SetWindowLong(H_Wnd, GWLP_USERDATA, (long)this);
+	H_Wnd = ::CreateWindowEx(WS_EX_TOOLWINDOW, _T("TOOLBAR_FOR_PPY"), NULL, WS_CHILD|WS_CLIPSIBLINGS, 0, 0, 0, 0, hWnd, 0, TProgram::GetInst(), 0); // @unicodeproblem
 	TView::SetWindowProp(H_Wnd, GWLP_USERDATA, this);
-	H_Toolbar = CreateWindowEx(WS_EX_TOOLWINDOW, TOOLBARCLASSNAME, _T(""), WS_CHILD|TBSTYLE_TOOLTIPS|TBSTYLE_FLAT|CCS_NORESIZE|WS_CLIPSIBLINGS, 0, 0, 0, 0, H_Wnd, (HMENU)0, TProgram::GetInst(), 0);
-	//SetWindowLong(H_Toolbar, GWLP_USERDATA, (long)this);
+	H_Toolbar = CreateWindowEx(WS_EX_TOOLWINDOW, TOOLBARCLASSNAME, _T(""), WS_CHILD|TBSTYLE_TOOLTIPS|TBSTYLE_FLAT|CCS_NORESIZE|WS_CLIPSIBLINGS, 0, 0, 0, 0, H_Wnd, 0, TProgram::GetInst(), 0);
 	TView::SetWindowProp(H_Toolbar, GWLP_USERDATA, this);
 	PrevToolProc = static_cast<WNDPROC>(TView::SetWindowProp(H_Toolbar, GWLP_WNDPROC, ToolbarProc));
 	CurrPos = 0;
@@ -140,8 +138,8 @@ LRESULT TToolbar::OnNotify(WPARAM wParam, LPARAM lParam)
 	NMHDR * phm = reinterpret_cast<NMHDR *>(lParam);
 	if(phm->code == TTN_NEEDTEXT) {
 		uint idx = 0;
-		if(Items.searchKeyCode((ushort)wParam, &idx))
-			STRNSCPY(((TOOLTIPTEXT *)lParam)->szText, Items.getItem(idx).ToolTipText); // @unicodeproblem
+		if(Items.searchKeyCode(static_cast<ushort>(wParam), &idx))
+			STRNSCPY(reinterpret_cast<TOOLTIPTEXT *>(lParam)->szText, SUcSwitch(Items.getItem(idx).ToolTipText)); // @unicodeproblem
 	}
 	// @v9.7.11 (experimental) {
 	/*
@@ -287,28 +285,14 @@ LRESULT CALLBACK TToolbar::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARA
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	LRESULT ok = 0;
 	switch(message) {
-		case WM_COMMAND:
-			ok = pTbWnd->OnCommand(wParam, lParam);
-			break;
-		case WM_SIZE:
-			ok = pTbWnd->OnSize(wParam, lParam);
-			break;
-		case WM_NOTIFY:
-			ok = pTbWnd->OnNotify(wParam, lParam);
-			break;
-		case WM_LBUTTONDOWN:
-			ok = pTbWnd->OnLButtonDown(wParam, lParam);
-			break;
+		case WM_COMMAND: ok = pTbWnd->OnCommand(wParam, lParam); break;
+		case WM_SIZE: ok = pTbWnd->OnSize(wParam, lParam); break;
+		case WM_NOTIFY: ok = pTbWnd->OnNotify(wParam, lParam); break;
+		case WM_LBUTTONDOWN: ok = pTbWnd->OnLButtonDown(wParam, lParam); break;
 		case WM_RBUTTONDOWN:
-		case WM_LBUTTONDBLCLK:
-			ok = pTbWnd->OnLButtonDblclk(wParam, lParam);
-			break;
-		case WM_MOVE:
-			ok = pTbWnd->OnMove(wParam, lParam);
-			break;
-		case WM_MOVING:
-			ok = pTbWnd->OnMoving(wParam, lParam);
-			break;
+		case WM_LBUTTONDBLCLK: ok = pTbWnd->OnLButtonDblclk(wParam, lParam); break;
+		case WM_MOVE: ok = pTbWnd->OnMove(wParam, lParam); break;
+		case WM_MOVING: ok = pTbWnd->OnMoving(wParam, lParam); break;
 		case WM_PAINT:
 			{
 				PAINTSTRUCT ps;
@@ -388,8 +372,8 @@ LRESULT CALLBACK TToolbar::ToolbarProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
 HMENU SetLocalMenu(HMENU * pMenu, HWND hToolbar)
 {
-	HMENU  h_menu = CreateMenu();
-	uint   cnt = (uint)::SendMessage(hToolbar, TB_BUTTONCOUNT, 0, 0);
+	HMENU  h_menu = ::CreateMenu();
+	uint   cnt = static_cast<uint>(::SendMessage(hToolbar, TB_BUTTONCOUNT, 0, 0));
 	for(uint i = 0; i < cnt; i++) {
 		TBBUTTON tb;
 		SendMessage(hToolbar, TB_GETBUTTON, i, reinterpret_cast<LPARAM>(&tb));
@@ -397,7 +381,7 @@ HMENU SetLocalMenu(HMENU * pMenu, HWND hToolbar)
 			if(tb.fsStyle & TBSTYLE_SEP)
 				AppendMenu(h_menu, MF_ENABLED|MF_SEPARATOR, 0, 0);
 			else
-				AppendMenu(h_menu, MF_ENABLED|MF_STRING, tb.idCommand, reinterpret_cast<LPSTR>(tb.dwData)); // @unicodeproblem
+				AppendMenu(h_menu, MF_ENABLED|MF_STRING, tb.idCommand, reinterpret_cast<LPTSTR>(tb.dwData)); // @unicodeproblem
 	}
 	ASSIGN_PTR(pMenu, h_menu);
 	return h_menu;
@@ -691,7 +675,6 @@ TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb) : P_Toolbar(pTb), hI
 		H_List = GetDlgItem(hWnd, CTL_CUSTOMIZETOOLBAR_LIST);
 		RECT   rc;
 		SString str_buf;
-		char   div_text_buf[128];
 		GetClientRect(H_List, &rc);
 		LVCOLUMN lv;
 		lv.mask = LVCF_FMT | LVCF_WIDTH;
@@ -704,14 +687,17 @@ TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb) : P_Toolbar(pTb), hI
 		ListView_SetImageList(H_List, hImages, LVSIL_SMALL);
 		for(uint i = 0; i < cnt; i++) {
 			TBBUTTON tb;
-			char   temp_buf[128];
+			// @v10.3.9 char   temp_buf[128];
+			// @v10.3.9 char   div_text_buf[128];
+			TCHAR  temp_buf[256]; // @v10.3.9
+			TCHAR  div_text_buf[128]; // @v10.3.9
 			int    ret = static_cast<int>(::SendMessage(P_Toolbar->H_Toolbar, TB_GETBUTTON, i, reinterpret_cast<LPARAM>(&tb)));
 			P_Buttons[i] = tb;
 			lvi.iItem = i;
 			if(!(tb.fsStyle & TBSTYLE_SEP)) {
 				uint   idx = 0;
 				P_Toolbar->Items.searchKeyCode(tb.idCommand, &idx);
-				STRNSCPY(temp_buf, P_Toolbar->Items.getItem(idx).ToolTipText);
+				STRNSCPY(temp_buf, SUcSwitch(P_Toolbar->Items.getItem(idx).ToolTipText));
 				char * p = strchr(temp_buf, '\t');
 				if(p)
 					*p = 0;
@@ -724,7 +710,7 @@ TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb) : P_Toolbar(pTb), hI
 				str_buf.Quot('-', '-');
 				str_buf.Quot('-', '-');
 				str_buf.Quot('-', '-');
-				str_buf.CopyTo(div_text_buf, sizeof(div_text_buf));
+				str_buf.CopyTo(div_text_buf, SIZEOFARRAY(div_text_buf));
 				lvi.pszText = div_text_buf; // @unicodeproblem
 			}
 			lvi.lParam = i;
@@ -774,15 +760,16 @@ int TuneToolsDialog::OnUpDownArrow(int up)
 	LVITEM lvi, lvi1;
 	lvi.iItem = ListView_GetNextItem(H_List, -1, LVNI_SELECTED);
 	if(lvi.iItem >= 0 && !(up && lvi.iItem == 0) && !(!up && lvi.iItem == ListView_GetItemCount(H_List)-1)) {
-		char   buf[128], buf1[128];
+		TCHAR  buf[128];
+		TCHAR  buf1[128];
 		lvi.iSubItem = 0;
 		lvi1.iSubItem = 0;
 		lvi.mask = lvi1.mask  = LVIF_TEXT | LVIF_PARAM | LVIF_IMAGE | LVIF_STATE;
 		lvi1.pszText = buf1; // @unicodeproblem
-		lvi1.cchTextMax = sizeof(buf1);
+		lvi1.cchTextMax = SIZEOFARRAY(buf1);
 		lvi.stateMask = lvi1.stateMask = LVIS_SELECTED | LVIS_FOCUSED;
 		lvi.pszText = buf; // @unicodeproblem
-		lvi.cchTextMax = sizeof(buf);
+		lvi.cchTextMax = SIZEOFARRAY(buf);
 		if(up)
 			lvi1.iItem = lvi.iItem-1;
 		else
@@ -995,7 +982,7 @@ int TToolbar::SaveUserSettings(uint typeID)
 				tb_cfg.P_Buttons[i].Style   = tb.fsStyle;
 			}
 			p = new char[tb_cfg.GetSize()];
-			if(tb_cfg.GetBuf((void**)&p, tb_cfg.GetSize()) > 0)
+			if(tb_cfg.GetBuf((void **)&p, tb_cfg.GetSize()) > 0)
 				r = reg_key.PutBinary(param, p, tb_cfg.GetSize());
 		}
 	}

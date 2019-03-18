@@ -155,7 +155,7 @@ static int ZIPDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 		if(state == Z_STREAM_END)
 			break;
 		if(state == Z_DATA_ERROR) {
-			TIFFErrorExt(tif->tif_clientdata, module, "Decoding error at scanline %lu, %s", (unsigned long)tif->tif_row, SAFE_MSG(sp));
+			TIFFErrorExt(tif->tif_clientdata, module, "Decoding error at scanline %lu, %s", (ulong)tif->tif_row, SAFE_MSG(sp));
 			if(inflateSync(&sp->stream) != Z_OK)
 				return 0;
 			continue;
@@ -166,7 +166,7 @@ static int ZIPDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 		}
 	} while(sp->stream.avail_out > 0);
 	if(sp->stream.avail_out != 0) {
-		TIFFErrorExt(tif->tif_clientdata, module, "Not enough data at scanline %lu (short " TIFF_UINT64_FORMAT " bytes)", (unsigned long)tif->tif_row, (TIFF_UINT64_T)sp->stream.avail_out);
+		TIFFErrorExt(tif->tif_clientdata, module, "Not enough data at scanline %lu (short " TIFF_UINT64_FORMAT " bytes)", (ulong)tif->tif_row, (TIFF_UINT64_T)sp->stream.avail_out);
 		return 0;
 	}
 	tif->tif_rawcp = sp->stream.next_in;
@@ -350,7 +350,7 @@ int TIFFInitZIP(TIFF* tif, int scheme)
 	/*
 	 * Allocate state block so tag methods have storage to record values.
 	 */
-	tif->tif_data = (uint8 *)SAlloc::M(sizeof(ZIPState));
+	tif->tif_data = static_cast<uint8 *>(SAlloc::M(sizeof(ZIPState)));
 	if(tif->tif_data == NULL)
 		goto bad;
 	sp = ZState(tif);

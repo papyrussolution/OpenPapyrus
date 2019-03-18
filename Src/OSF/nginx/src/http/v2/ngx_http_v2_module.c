@@ -134,7 +134,7 @@ static ngx_int_t ngx_http_v2_variable(ngx_http_request_t * r, ngx_http_variable_
 			v->valid = 1;
 			v->no_cacheable = 0;
 			v->not_found = 0;
-			v->data = (u_char*)"h2";
+			v->data = (u_char *)"h2";
 
 			return NGX_OK;
 		}
@@ -144,7 +144,7 @@ static ngx_int_t ngx_http_v2_variable(ngx_http_request_t * r, ngx_http_variable_
 		v->valid = 1;
 		v->no_cacheable = 0;
 		v->not_found = 0;
-		v->data = (u_char*)"h2c";
+		v->data = (u_char *)"h2c";
 
 		return NGX_OK;
 	}

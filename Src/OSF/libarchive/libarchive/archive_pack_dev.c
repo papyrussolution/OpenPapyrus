@@ -303,7 +303,7 @@ static const struct format {
 
 static int compare_format(const void * key, const void * element)
 {
-	const char * name = (const char*)key;
+	const char * name = (const char *)key;
 	const struct format * p_format = (struct format *)element;
 	return strcmp(name, p_format->name);
 }
@@ -312,6 +312,6 @@ pack_t * pack_find(const char * name)
 {
 	struct format * p_format = (struct format *)bsearch(name, formats, sizeof(formats)/sizeof(formats[0]), sizeof(formats[0]), compare_format);
 	if(p_format == 0)
-		return (NULL);
+		return NULL;
 	return p_format->pack;
 }

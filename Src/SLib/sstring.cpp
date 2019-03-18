@@ -9,94 +9,18 @@
 //
 //
 //
-class AWStringBuffer_Base : public SBaseBuffer {
-protected:
-	AWStringBuffer_Base(SCodepage cp) : Cp(cp)
-	{
-		SBaseBuffer::Init();
-	}
-	~AWStringBuffer_Base()
-	{
-		SBaseBuffer::Destroy();
-	}
-	SCodepageIdent Cp;
-};
+const char * FASTCALL SUcSwitchW(const wchar_t * pStr)
+{
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	r_temp_buf.CopyUtf8FromUnicode(pStr, sstrlen(pStr), 1);
+	return r_temp_buf.Transf(CTRANSF_UTF8_TO_OUTER);
+}
 
-class AWStringBuffer_W : public AWStringBuffer_Base {
-public:
-	explicit AWStringBuffer_W(size_t sz) : AWStringBuffer_Base(cpUTF16)
-	{
-		SBaseBuffer::Alloc(sz * sizeof(wchar_t));
-	}
-	explicit AWStringBuffer_W(const char * pSrc) : AWStringBuffer_Base(cpUTF16)
-	{
-		const size_t len = sstrlen(pSrc);
-		const size_t sz = ALIGNSIZE(len+1, 4);
-		SBaseBuffer::Alloc(sz * sizeof(wchar_t));
-		if(pSrc) {
-			SStringU & r_temp_u = SLS.AcquireRvlStrU();
-			r_temp_u.CopyFromMb(cpANSI, pSrc, len);
-			memcpy(P_Buf, r_temp_u.ucptr(), (r_temp_u.Len() + 1) * sizeof(wchar_t));
-		}
-		else
-			PTR32(P_Buf)[0] = 0;
-	}
-	explicit AWStringBuffer_W(const wchar_t * pSrc) : AWStringBuffer_Base(cpUTF16)
-	{
-		const size_t len = sstrlen(pSrc);
-		const size_t sz = ALIGNSIZE(len+1, 4);
-		SBaseBuffer::Alloc(sz * sizeof(wchar_t));
-		if(pSrc) {
-			memcpy(P_Buf, pSrc, (len + 1) * sizeof(wchar_t));
-		}
-		else
-			PTR32(P_Buf)[0] = 0;
-	}
-	operator char * ()
-	{
-		// unicode
-		// else
-		// endif
-	}
-};
-
-class AWStringBuffer_A : public AWStringBuffer_Base {
-public:
-	explicit AWStringBuffer_A(size_t sz) : AWStringBuffer_Base(cpANSI)
-	{
-		SBaseBuffer::Alloc(sz * sizeof(char));
-	}
-	explicit AWStringBuffer_A(const char * pSrc) : AWStringBuffer_Base(cpANSI)
-	{
-		const size_t len = sstrlen(pSrc);
-		const size_t sz = ALIGNSIZE(len+1, 4);
-		SBaseBuffer::Alloc(sz * sizeof(char));
-		if(pSrc)
-			memcpy(P_Buf, pSrc, len+1);
-		else
-			PTR32(P_Buf)[0] = 0;
-	}
-	explicit AWStringBuffer_A(const wchar_t * pSrc) : AWStringBuffer_Base(cpANSI)
-	{
-		const size_t len = sstrlen(pSrc);
-		const size_t sz = ALIGNSIZE(len+1, 4);
-		SBaseBuffer::Alloc(sz * sizeof(char));
-		if(pSrc) {
-			SStringU & r_temp_u = SLS.AcquireRvlStrU();
-			SString & r_temp_buf = SLS.AcquireRvlStr();
-			(r_temp_u = pSrc).CopyToMb(Cp, r_temp_buf);
-			r_temp_buf.CopyTo(P_Buf, SBaseBuffer::Size);
-		}
-		else
-			PTR32(P_Buf)[0] = 0;
-	}
-	operator char * ()
-	{
-		// unicode
-		// else
-		// endif
-	}
-};
+const wchar_t * FASTCALL SUcSwitchW(const char * pStr)
+{
+	SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+	return r_temp_buf_u.CopyFromMb_OUTER(pStr, sstrlen(pStr)).ucptr();
+}
 //
 //
 //
@@ -1847,14 +1771,14 @@ SString & SLAPI SString::FromUrl()
 SString & SLAPI SString::ToOem()
 {
 	if(Len())
-		CharToOem(P_Buf, P_Buf); // @unicodeproblem
+		CharToOemA(P_Buf, P_Buf); // @unicodeproblem
 	return *this;
 }
 
 SString & SLAPI SString::ToChar()
 {
 	if(Len())
-		OemToChar(P_Buf, P_Buf); // @unicodeproblem
+		OemToCharA(P_Buf, P_Buf); // @unicodeproblem
 	return *this;
 }
 
@@ -1863,13 +1787,13 @@ SString & FASTCALL SString::Transf(int ctransf)
 	if(Len()) {
 		switch(ctransf) {
 			case CTRANSF_INNER_TO_OUTER:
-				OemToChar(P_Buf, P_Buf); // @unicodeproblem
+				OemToCharA(P_Buf, P_Buf); // @unicodeproblem
 				break;
 			case CTRANSF_OUTER_TO_INNER:
-				CharToOem(P_Buf, P_Buf); // @unicodeproblem
+				CharToOemA(P_Buf, P_Buf); // @unicodeproblem
 				break;
 			case CTRANSF_INNER_TO_UTF8:
-				OemToChar(P_Buf, P_Buf); // @unicodeproblem
+				OemToCharA(P_Buf, P_Buf); // @unicodeproblem
 				return Helper_MbToMb(CP_ACP, CP_UTF8);
 			case CTRANSF_OUTER_TO_UTF8: return Helper_MbToMb(CP_ACP, CP_UTF8);
 			case CTRANSF_UTF8_TO_INNER: return Helper_MbToMb(CP_UTF8, CP_OEMCP);
@@ -2775,6 +2699,25 @@ uint32 FASTCALL _texttodec32(const char * pT, uint len)
 	return result;
 }
 
+uint32 FASTCALL _texttodec32(const wchar_t * pT, uint len)
+{
+	uint32 result;
+	switch(len) {
+		case 0: result = 0; break;
+		case 1: result = pT[0] - L'0'; break;
+		case 2: result = (10 * (pT[0] - L'0')) + (pT[1] - L'0'); break;
+		case 3: result = (100 * (pT[0] - L'0')) + (10 * (pT[1] - L'0')) + (pT[2] - L'0'); break;
+		case 4: result = (1000 * (pT[0] - L'0')) + (100 * (pT[1] - L'0')) + (10 * (pT[2] - L'0')) + (pT[3] - L'0'); break;
+		case 5: result = (10000 * (pT[0] - L'0')) + (1000 * (pT[1] - L'0')) + (100 * (pT[2] - L'0')) + (10 * (pT[3] - L'0')) + (pT[4] - L'0'); break;
+		default:
+			result = 0;
+			for(uint i = 0; i < len; i++)
+				result = (result * 10) + (pT[i] - L'0');
+			break;
+	}
+	return result;
+}
+
 uint64 FASTCALL _texttodec64(const char * pT, uint len)
 {
 	uint64 result;
@@ -2803,17 +2746,23 @@ uint32 FASTCALL _texttohex32(const char * pT, uint len)
 	return result;
 }
 
-long SLAPI SString::ToLong() const
+uint32 FASTCALL _texttohex32(const wchar_t * pT, uint len)
 {
-	// @v9.6.1 return (long)ToULong();
-	// @v9.6.1 Более корректная реализация. И в добавок - значительно быстрее. {
-	long   result = 0;
-	if(L > 1) {
-		const char * _p = P_Buf;
+	uint32 result = 0;
+	for(uint i = 0; i < len; i++) {
+		result = (result * 16) + hexw(pT[i]);
+	}
+	return result;
+}
+
+int FASTCALL satoi(const char * pT)
+{
+	int    result = 0;
+	if(pT && pT[0]) {
+		const  char * _p = pT;
 		size_t src_pos = 0;
 		while(oneof2(_p[src_pos], ' ', '\t'))
 			src_pos++;
-		//
 		int    is_neg = 0;
 		int    is_hex = 0;
 		if(_p[src_pos] == '-') {
@@ -2827,28 +2776,138 @@ long SLAPI SString::ToLong() const
 			is_hex = 1;
 		}
 		if(is_hex) {
-			//if(ishex(_p[src_pos])) { do { result = result * 16 + hex(_p[src_pos]); } while(ishex(_p[++src_pos])); }
 			if(ishex(_p[src_pos])) {
-				uint   len = 0;
+				uint   local_len = 0;
 				do {
-					len++;
-				} while(ishex(_p[src_pos+len]));
-				result = static_cast<long>(_texttohex32(_p+src_pos, len));
+					local_len++;
+				} while(ishex(_p[src_pos+local_len]));
+				result = static_cast<int>(_texttohex32(_p+src_pos, local_len));
 			}
 		}
 		else {
 			if(isdec(_p[src_pos])) {
-				uint   len = 0;
+				uint   local_len = 0;
 				do {
-					len++;
-				} while(isdec(_p[src_pos+len]));
-				result = static_cast<long>(_texttodec32(_p+src_pos, len));
+					local_len++;
+				} while(isdec(_p[src_pos+local_len]));
+				result = static_cast<int>(_texttodec32(_p+src_pos, local_len));
 			}
 		}
 		if(is_neg && result)
 			result = -result;
 	}
 	return result;
+}
+
+int64 FASTCALL satoi64(const char * pT)
+{
+	int64  result = 0;
+	const char * _p = pT;
+	size_t src_pos = 0;
+	while(oneof2(_p[src_pos], ' ', '\t'))
+		src_pos++;
+	int    is_neg = 0;
+	int    is_hex = 0;
+	if(_p[src_pos] == '-') {
+		src_pos++;
+		is_neg = 1;
+	}
+	else if(_p[src_pos] == '+')
+		src_pos++;
+	if(_p[src_pos] == '0' && oneof2(_p[src_pos+1], 'x', 'X')) {
+		src_pos += 2;
+		is_hex = 1;
+	}
+	if(is_hex) {
+		if(ishex(_p[src_pos])) { do { result = result * 16 + hex(_p[src_pos]); } while(ishex(_p[++src_pos])); }
+	}
+	else {
+		if(isdec(_p[src_pos])) { do { result = result * 10 + (_p[src_pos] - '0'); } while(isdec(_p[++src_pos])); }
+	}
+	if(is_neg && result)
+		result = -result;
+	return result;
+}
+
+int FASTCALL satoi(const wchar_t * pT)
+{
+	int    result = 0;
+	if(pT && pT[0]) {
+		const  wchar_t * _p = pT;
+		size_t src_pos = 0;
+		while(oneof2(_p[src_pos], L' ', L'\t'))
+			src_pos++;
+		int    is_neg = 0;
+		int    is_hex = 0;
+		if(_p[src_pos] == L'-') {
+			src_pos++;
+			is_neg = 1;
+		}
+		else if(_p[src_pos] == L'+')
+			src_pos++;
+		if(_p[src_pos] == L'0' && oneof2(_p[src_pos+1], L'x', L'X')) {
+			src_pos += 2;
+			is_hex = 1;
+		}
+		if(is_hex) {
+			if(ishexw(_p[src_pos])) {
+				uint   local_len = 0;
+				do {
+					local_len++;
+				} while(ishexw(_p[src_pos+local_len]));
+				result = static_cast<int>(_texttohex32(_p+src_pos, local_len));
+			}
+		}
+		else {
+			if(isdecw(_p[src_pos])) {
+				uint   local_len = 0;
+				do {
+					local_len++;
+				} while(isdecw(_p[src_pos+local_len]));
+				result = static_cast<int>(_texttodec32(_p+src_pos, local_len));
+			}
+		}
+		if(is_neg && result)
+			result = -result;
+	}
+	return result;
+}
+
+int64 FASTCALL satoi64(const wchar_t * pT)
+{
+	int64  result = 0;
+	const wchar_t * _p = pT;
+	size_t src_pos = 0;
+	while(oneof2(_p[src_pos], L' ', L'\t'))
+		src_pos++;
+	int    is_neg = 0;
+	int    is_hex = 0;
+	if(_p[src_pos] == L'-') {
+		src_pos++;
+		is_neg = 1;
+	}
+	else if(_p[src_pos] == L'+')
+		src_pos++;
+	if(_p[src_pos] == L'0' && oneof2(_p[src_pos+1], L'x', L'X')) {
+		src_pos += 2;
+		is_hex = 1;
+	}
+	if(is_hex) {
+		if(ishexw(_p[src_pos])) { do { result = result * 16 + hexw(_p[src_pos]); } while(ishexw(_p[++src_pos])); }
+	}
+	else {
+		if(isdecw(_p[src_pos])) { do { result = result * 10 + (_p[src_pos] - L'0'); } while(isdecw(_p[++src_pos])); }
+	}
+	if(is_neg && result)
+		result = -result;
+	return result;
+}
+
+long SLAPI SString::ToLong() const
+{
+	// @v9.6.1 return (long)ToULong();
+	// @v9.6.1 Более корректная реализация. И в добавок - значительно быстрее. {
+	return (L > 1) ? satoi(P_Buf) : 0; // @v10.3.9 body is moved to satoi()
 	// } @v9.6.1
 }
 
@@ -2865,35 +2924,7 @@ int64 SLAPI SString::ToInt64() const
 		return 0;
 	*/
 	// @v9.6.1 Более корректная реализация. И в добавок - значительно быстрее. {
-	int64  result = 0;
-	if(L > 1) {
-		const char * _p = P_Buf;
-		size_t src_pos = 0;
-		while(oneof2(_p[src_pos], ' ', '\t'))
-			src_pos++;
-		//
-		int    is_neg = 0;
-		int    is_hex = 0;
-		if(_p[src_pos] == '-') {
-			src_pos++;
-			is_neg = 1;
-		}
-		else if(_p[src_pos] == '+')
-			src_pos++;
-		if(_p[src_pos] == '0' && oneof2(_p[src_pos+1], 'x', 'X')) {
-			src_pos += 2;
-			is_hex = 1;
-		}
-		if(is_hex) {
-			if(ishex(_p[src_pos])) { do { result = result * 16 + hex(_p[src_pos]); } while(ishex(_p[++src_pos])); }
-		}
-		else {
-			if(isdec(_p[src_pos])) { do { result = result * 10 + (_p[src_pos] - '0'); } while(isdec(_p[++src_pos])); }
-		}
-		if(is_neg && result)
-			result = -result;
-	}
-	return result;
+	return (L > 1) ? satoi64(P_Buf) : 0; // @v10.3.9 body is moved to satoi64()
 	// } @v9.6.1
 }
 

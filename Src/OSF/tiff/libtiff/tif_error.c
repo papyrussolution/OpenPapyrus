@@ -75,6 +75,10 @@ void TIFFErrorExt(thandle_t fd, const char* module, const char* fmt, ...)
 	}
 }
 
+void FASTCALL TIFFErrorExtOutOfMemory(thandle_t fd, const char * module)
+{
+	TIFFErrorExt(fd, module, "Out of memory");
+}
 /*
  * Local Variables:
  * mode: c

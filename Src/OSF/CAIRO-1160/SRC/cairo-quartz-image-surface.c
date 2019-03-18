@@ -329,11 +329,7 @@ cairo_surface_t * cairo_quartz_image_surface_create(cairo_surface_t * surface)
 		SAlloc::F(qisurf);
 		return SURFACE_ERROR_NO_MEMORY;
 	}
-	_cairo_surface_init(&qisurf->base,
-	    &cairo_quartz_image_surface_backend,
-	    NULL,              /* device */
-	    _cairo_content_from_format(format),
-	    FALSE);              /* is_vector */
+	_cairo_surface_init(&qisurf->base, &cairo_quartz_image_surface_backend, NULL/* device */, _cairo_content_from_format(format), FALSE/* is_vector */);
 	qisurf->width = width;
 	qisurf->height = height;
 	qisurf->image = image;

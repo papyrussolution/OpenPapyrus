@@ -154,24 +154,14 @@ static cairo_status_t _cairo_gl_gradient_render(const cairo_gl_context_t * ctx,
 
 	if(unlikely(gradient == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	pixman_image_set_filter(gradient, PIXMAN_FILTER_BILINEAR, NULL, 0);
 	pixman_image_set_repeat(gradient, PIXMAN_REPEAT_PAD);
-
-	image = pixman_image_create_bits(gradient_pixman_format, width, 1,
-		bytes, sizeof(uint32_t)*width);
+	image = pixman_image_create_bits(gradient_pixman_format, width, 1, bytes, sizeof(uint32_t)*width);
 	if(unlikely(image == NULL)) {
 		pixman_image_unref(gradient);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
-
-	pixman_image_composite32(PIXMAN_OP_SRC,
-	    gradient, NULL, image,
-	    0, 0,
-	    0, 0,
-	    0, 0,
-	    width, 1);
-
+	pixman_image_composite32(PIXMAN_OP_SRC, gradient, NULL, image, 0, 0, 0, 0, 0, 0, width, 1);
 	pixman_image_unref(gradient);
 	pixman_image_unref(image);
 

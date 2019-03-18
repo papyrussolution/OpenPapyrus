@@ -641,7 +641,7 @@ int SLAPI PPViewDvcLoadingStat::ProcessCommand(uint ppvCmd, const void * pHdr, P
 	if(ok == -2) {
 		BrwHdr hdr;
 		if(pHdr)
-			hdr = *(PPViewDvcLoadingStat::BrwHdr *)pHdr;
+			hdr = *static_cast<const PPViewDvcLoadingStat::BrwHdr *>(pHdr);
 		else
 			MEMSZERO(hdr);
 		if(oneof2(ppvCmd, PPVCMD_EDITGOODS, PPVCMD_VIEWBILLS) || (hdr.DvcType == dvctCashs && ppvCmd == PPVCMD_SCARDS)) {
@@ -771,7 +771,7 @@ int SLAPI PPViewDLSDetail::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 	if(ok == -2) {
 		BrwHdr hdr;
 		if(pHdr)
-			hdr = *(PPViewDLSDetail::BrwHdr *)pHdr;
+			hdr = *static_cast<const PPViewDLSDetail::BrwHdr *>(pHdr);
 		else
 			MEMSZERO(hdr);
 		ok = -1;

@@ -162,16 +162,16 @@ void bio_sock_cleanup_int(void);
 	#define UP_stdout       stdout
 	#define UP_stderr       stderr
 	#define UP_fprintf      fprintf
-	#define UP_fgets(mp_str, mp_sz, mp_stream)       fgets((mp_str), (mp_sz), (FILE*)(mp_stream))
-	#define UP_fread(mp_ptr, mp_sz, mp_n, mp_stream)  fread((mp_ptr), (mp_sz), (mp_n), (FILE*)(mp_stream))
-	#define UP_fwrite(mp_ptr, mp_sz, mp_n, mp_stream) fwrite((mp_ptr), (mp_sz), (mp_n), (FILE*)(mp_stream))
+	#define UP_fgets(mp_str, mp_sz, mp_stream)       fgets((mp_str), (mp_sz), (FILE *)(mp_stream))
+	#define UP_fread(mp_ptr, mp_sz, mp_n, mp_stream)  fread((mp_ptr), (mp_sz), (mp_n), (FILE *)(mp_stream))
+	#define UP_fwrite(mp_ptr, mp_sz, mp_n, mp_stream) fwrite((mp_ptr), (mp_sz), (mp_n), (FILE *)(mp_stream))
 	#undef  UP_fsetmod
 	#define UP_feof         feof
-	#define UP_fclose(mp_stream) fclose((FILE*)(mp_stream))
+	#define UP_fclose(mp_stream) fclose((FILE *)(mp_stream))
 	#define UP_fopen        fopen
-	#define UP_fseek(mp_stream, mp_offs, mp_org)  fseek((FILE*)mp_stream, mp_offs, mp_org)
-	#define UP_ftell(mp_stream)  ftell((FILE*)(mp_stream))
-	#define UP_fflush(mp_stream) fflush((FILE*)(mp_stream))
+	#define UP_fseek(mp_stream, mp_offs, mp_org)  fseek((FILE *)mp_stream, mp_offs, mp_org)
+	#define UP_ftell(mp_stream)  ftell((FILE *)(mp_stream))
+	#define UP_fflush(mp_stream) fflush((FILE *)(mp_stream))
 	#define UP_ferror       ferror
 	#ifdef _WIN32
 		#define UP_fileno       _fileno

@@ -571,7 +571,7 @@ static ngx_int_t ngx_http_dav_copy_dir(ngx_tree_ctx_t * ctx, ngx_str_t * path)
 	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, ctx->log, 0, "http copy dir: \"%s\"", path->data);
 	copy = (ngx_http_dav_copy_ctx_t *)ctx->data;
 	len = copy->path.len + path->len;
-	dir = (u_char*)ngx_alloc(len + 1, ctx->log);
+	dir = (u_char *)ngx_alloc(len + 1, ctx->log);
 	if(dir == NULL) {
 		return NGX_ABORT;
 	}
@@ -593,7 +593,7 @@ static ngx_int_t ngx_http_dav_copy_dir_time(ngx_tree_ctx_t * ctx, ngx_str_t * pa
 	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, ctx->log, 0, "http copy dir time: \"%s\"", path->data);
 	copy = (ngx_http_dav_copy_ctx_t *)ctx->data;
 	len = copy->path.len + path->len;
-	dir = (u_char*)ngx_alloc(len + 1, ctx->log);
+	dir = (u_char *)ngx_alloc(len + 1, ctx->log);
 	if(dir == NULL) {
 		return NGX_ABORT;
 	}
@@ -634,7 +634,7 @@ static ngx_int_t ngx_http_dav_copy_tree_file(ngx_tree_ctx_t * ctx, ngx_str_t * p
 	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, ctx->log, 0, "http copy file: \"%s\"", path->data);
 	copy = (ngx_http_dav_copy_ctx_t *)ctx->data;
 	len = copy->path.len + path->len;
-	file = (u_char*)ngx_alloc(len + 1, ctx->log);
+	file = (u_char *)ngx_alloc(len + 1, ctx->log);
 	if(file == NULL) {
 		return NGX_ABORT;
 	}
@@ -715,7 +715,7 @@ static ngx_int_t ngx_http_dav_location(ngx_http_request_t * r, u_char * path)
 		location = path + clcf->root.len;
 	}
 	else {
-		location = (u_char*)ngx_pnalloc(r->pool, r->uri.len);
+		location = (u_char *)ngx_pnalloc(r->pool, r->uri.len);
 		if(location == NULL) {
 			ngx_http_clear_location(r);
 			return NGX_ERROR;

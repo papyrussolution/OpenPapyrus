@@ -37,17 +37,17 @@
 //#include <ctype.h>
 //#include <stdlib.h>
 /*
- * Convert a string to an unsigned long long integer.
+ * Convert a string to an uint64 integer.
  *
  * Assumes that the upper and lower case
  * alphabets and digits are each contiguous.
  */
-unsigned long long strtoull(const char * nptr, char ** endptr, int base)
+uint64 strtoull(const char * nptr, char ** endptr, int base)
 {
 	const char * s;
-	unsigned long long acc;
+	uint64 acc;
 	char c;
-	unsigned long long cutoff;
+	uint64 cutoff;
 	int neg, any, cutlim;
 	/*
 	 * See strtoq for comments as to the logic used.
@@ -55,7 +55,7 @@ unsigned long long strtoull(const char * nptr, char ** endptr, int base)
 	s = nptr;
 	do {
 		c = *s++;
-	} while(isspace((unsigned char)c));
+	} while(isspace((uchar)c));
 	if(c == '-') {
 		neg = 1;
 		c = *s++;

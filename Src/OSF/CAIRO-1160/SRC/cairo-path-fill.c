@@ -40,7 +40,7 @@
 //#include "cairo-error-private.h"
 //#include "cairo-path-fixed-private.h"
 //#include "cairo-region-private.h"
-#include "cairo-traps-private.h"
+//#include "cairo-traps-private.h"
 
 typedef struct cairo_filler {
 	cairo_polygon_t * polygon;

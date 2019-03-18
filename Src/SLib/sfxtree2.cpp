@@ -442,14 +442,14 @@ int SSuffixTree::EdgeHub::Add(uint item)
 		I[Count++] = item;
 	}
 	else if(Count == SIZEOFARRAY(I)) {
-		uint * _ptr = (uint *)SAlloc::M((Count+1) * sizeof(uint));
+		uint * _ptr = static_cast<uint *>(SAlloc::M((Count+1) * sizeof(uint)));
 		THROW(_ptr);
 		memcpy(_ptr, I, sizeof(I));
 		_ptr[Count++] = item;
 		Ptr = _ptr;
 	}
 	else {
-		uint * _ptr = (uint *)SAlloc::R(Ptr, (Count+1) * sizeof(uint));
+		uint * _ptr = static_cast<uint *>(SAlloc::R(Ptr, (Count+1) * sizeof(uint)));
 		THROW(_ptr);
 		_ptr[Count++] = item;
 		Ptr = _ptr;

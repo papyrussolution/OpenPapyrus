@@ -525,7 +525,7 @@ PositionCacheEntry::PositionCacheEntry() : styleNumber(0), len(0), clock(0), pos
 {
 }
 
-void PositionCacheEntry::Set(uint styleNumber_, const char * s_, uint len_, XYPOSITION * positions_, uint clock_)
+void PositionCacheEntry::Set(uint styleNumber_, const char * s_, uint len_, const XYPOSITION * positions_, uint clock_)
 {
 	Clear();
 	styleNumber = styleNumber_;
@@ -547,7 +547,7 @@ PositionCacheEntry::~PositionCacheEntry()
 
 void PositionCacheEntry::Clear()
 {
-	delete []positions;
+	delete [] positions;
 	positions = 0;
 	styleNumber = 0;
 	len = 0;

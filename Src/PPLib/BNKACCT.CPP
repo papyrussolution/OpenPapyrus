@@ -66,7 +66,7 @@ int SLAPI BankAccountCore::UpdateList_(PPID personID, BnkAcctArray * pList, int 
 		acc[0] = 0;
 		while(Enum_(personID, &bank, acc) > 0) {
 			int    found = 0;
-			for(i = 0; !found && pList->enumItems(&i, (void**)&rec);)
+			for(i = 0; !found && pList->enumItems(&i, (void **)&rec);)
 				if(rec->ID == data.ID)
 					found = 1;
 				/*
@@ -81,7 +81,7 @@ int SLAPI BankAccountCore::UpdateList_(PPID personID, BnkAcctArray * pList, int 
 		//
 		// Изменяем и вставляем исправленные и добавленные записи
 		//
-		for(i = 0; pList->enumItems(&i, (void**)&rec);) {
+		for(i = 0; pList->enumItems(&i, (void **)&rec);) {
 			rec->PersonID = personID;
 			if(Search_(rec->ID) > 0) {
 				if(memcmp(&data, rec, sizeof(data)) != 0)

@@ -63,7 +63,7 @@ cairo_private void FASTCALL _cairo_box_to_doubles(const cairo_box_t * box, doubl
 	*y2 = _cairo_fixed_to_double(box->p2.y);
 }
 
-void _cairo_box_from_rectangle(cairo_box_t * box, const cairo_rectangle_int_t * rect)
+void FASTCALL _cairo_box_from_rectangle(cairo_box_t * box, const cairo_rectangle_int_t * rect)
 {
 	box->p1.x = _cairo_fixed_from_int(rect->x);
 	box->p1.y = _cairo_fixed_from_int(rect->y);

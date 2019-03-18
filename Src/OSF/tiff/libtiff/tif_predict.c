@@ -248,7 +248,7 @@ static int horAcc8(TIFF* tif, uint8* cp0, tmsize_t cc)
 {
 	tmsize_t stride = PredictorState(tif)->stride;
 
-	unsigned char* cp = (unsigned char*)cp0;
+	uchar* cp = (uchar *)cp0;
 	if((cc%stride)!=0) {
 		TIFFErrorExt(tif->tif_clientdata, "horAcc8", "%s", "(cc%stride)!=0");
 		return 0;
@@ -264,9 +264,9 @@ static int horAcc8(TIFF* tif, uint8* cp0, tmsize_t cc)
 			cc -= 3;
 			cp += 3;
 			while(cc>0) {
-				cp[0] = (unsigned char)((cr += cp[0]) & 0xff);
-				cp[1] = (unsigned char)((cg += cp[1]) & 0xff);
-				cp[2] = (unsigned char)((cb += cp[2]) & 0xff);
+				cp[0] = (uchar)((cr += cp[0]) & 0xff);
+				cp[1] = (uchar)((cg += cp[1]) & 0xff);
+				cp[2] = (uchar)((cb += cp[2]) & 0xff);
 				cc -= 3;
 				cp += 3;
 			}
@@ -279,10 +279,10 @@ static int horAcc8(TIFF* tif, uint8* cp0, tmsize_t cc)
 			cc -= 4;
 			cp += 4;
 			while(cc>0) {
-				cp[0] = (unsigned char)((cr += cp[0]) & 0xff);
-				cp[1] = (unsigned char)((cg += cp[1]) & 0xff);
-				cp[2] = (unsigned char)((cb += cp[2]) & 0xff);
-				cp[3] = (unsigned char)((ca += cp[3]) & 0xff);
+				cp[0] = (uchar)((cr += cp[0]) & 0xff);
+				cp[1] = (uchar)((cg += cp[1]) & 0xff);
+				cp[2] = (uchar)((cb += cp[2]) & 0xff);
+				cp[3] = (uchar)((ca += cp[3]) & 0xff);
 				cc -= 4;
 				cp += 4;
 			}
@@ -290,7 +290,7 @@ static int horAcc8(TIFF* tif, uint8* cp0, tmsize_t cc)
 		else {
 			cc -= stride;
 			do {
-				REPEAT4(stride, cp[stride] = (unsigned char)((cp[stride] + *cp) & 0xff); cp++)
+				REPEAT4(stride, cp[stride] = (uchar)((cp[stride] + *cp) & 0xff); cp++)
 				cc -= stride;
 			} while(cc>0);
 		}
@@ -319,7 +319,7 @@ static int horAcc16(TIFF* tif, uint8* cp0, tmsize_t cc)
 	if(wc > stride) {
 		wc -= stride;
 		do {
-			REPEAT4(stride, wp[stride] = (uint16)(((unsigned int)wp[stride] + (unsigned int)wp[0]) & 0xffff); wp++)
+			REPEAT4(stride, wp[stride] = (uint16)(((uint)wp[stride] + (uint)wp[0]) & 0xffff); wp++)
 			wc -= stride;
 		} while(wc > 0);
 	}
@@ -369,11 +369,11 @@ static int fpAcc(TIFF* tif, uint8* cp0, tmsize_t cc)
 		TIFFErrorExt(tif->tif_clientdata, "fpAcc", "%s", "cc%(bps*stride))!=0");
 		return 0;
 	}
-	tmp = (uint8 *)SAlloc::M(cc);
+	tmp = static_cast<uint8 *>(SAlloc::M(cc));
 	if(!tmp)
 		return 0;
 	while(count > stride) {
-		REPEAT4(stride, cp[stride] = (unsigned char)((cp[stride] + cp[0]) & 0xff); cp++)
+		REPEAT4(stride, cp[stride] = (uchar)((cp[stride] + cp[0]) & 0xff); cp++)
 		count -= stride;
 	}
 	memcpy(tmp, cp0, cc);
@@ -443,7 +443,7 @@ static int horDiff8(TIFF* tif, uint8* cp0, tmsize_t cc)
 {
 	TIFFPredictorState* sp = PredictorState(tif);
 	tmsize_t stride = sp->stride;
-	unsigned char* cp = (unsigned char*)cp0;
+	uchar* cp = (uchar *)cp0;
 	if((cc%stride)!=0) {
 		TIFFErrorExt(tif->tif_clientdata, "horDiff8", "%s", "(cc%stride)!=0");
 		return 0;
@@ -459,9 +459,9 @@ static int horDiff8(TIFF* tif, uint8* cp0, tmsize_t cc)
 			unsigned int g2 = cp[1];
 			unsigned int b2 = cp[2];
 			do {
-				r1 = cp[3]; cp[3] = (unsigned char)((r1-r2)&0xff); r2 = r1;
-				g1 = cp[4]; cp[4] = (unsigned char)((g1-g2)&0xff); g2 = g1;
-				b1 = cp[5]; cp[5] = (unsigned char)((b1-b2)&0xff); b2 = b1;
+				r1 = cp[3]; cp[3] = (uchar)((r1-r2)&0xff); r2 = r1;
+				g1 = cp[4]; cp[4] = (uchar)((g1-g2)&0xff); g2 = g1;
+				b1 = cp[5]; cp[5] = (uchar)((b1-b2)&0xff); b2 = b1;
 				cp += 3;
 			} while((cc -= 3) > 0);
 		}
@@ -472,17 +472,17 @@ static int horDiff8(TIFF* tif, uint8* cp0, tmsize_t cc)
 			unsigned int b2 = cp[2];
 			unsigned int a2 = cp[3];
 			do {
-				r1 = cp[4]; cp[4] = (unsigned char)((r1-r2)&0xff); r2 = r1;
-				g1 = cp[5]; cp[5] = (unsigned char)((g1-g2)&0xff); g2 = g1;
-				b1 = cp[6]; cp[6] = (unsigned char)((b1-b2)&0xff); b2 = b1;
-				a1 = cp[7]; cp[7] = (unsigned char)((a1-a2)&0xff); a2 = a1;
+				r1 = cp[4]; cp[4] = (uchar)((r1-r2)&0xff); r2 = r1;
+				g1 = cp[5]; cp[5] = (uchar)((g1-g2)&0xff); g2 = g1;
+				b1 = cp[6]; cp[6] = (uchar)((b1-b2)&0xff); b2 = b1;
+				a1 = cp[7]; cp[7] = (uchar)((a1-a2)&0xff); a2 = a1;
 				cp += 4;
 			} while((cc -= 4) > 0);
 		}
 		else {
 			cp += cc - 1;
 			do {
-				REPEAT4(stride, cp[stride] = (unsigned char)((cp[stride] - cp[0])&0xff); cp--)
+				REPEAT4(stride, cp[stride] = (uchar)((cp[stride] - cp[0])&0xff); cp--)
 			} while((cc -= stride) > 0);
 		}
 	}
@@ -504,7 +504,7 @@ static int horDiff16(TIFF* tif, uint8* cp0, tmsize_t cc)
 		wc -= stride;
 		wp += wc - 1;
 		do {
-			REPEAT4(stride, wp[stride] = (uint16)(((unsigned int)wp[stride] - (unsigned int)wp[0]) & 0xffff); wp--)
+			REPEAT4(stride, wp[stride] = (uint16)(((uint)wp[stride] - (uint)wp[0]) & 0xffff); wp--)
 			wc -= stride;
 		} while(wc > 0);
 	}
@@ -568,7 +568,7 @@ static int fpDiff(TIFF* tif, uint8* cp0, tmsize_t cc)
 		TIFFErrorExt(tif->tif_clientdata, "fpDiff", "%s", "(cc%(bps*stride))!=0");
 		return 0;
 	}
-	tmp = (uint8 *)SAlloc::M(cc);
+	tmp = static_cast<uint8 *>(SAlloc::M(cc));
 	if(!tmp)
 		return 0;
 	memcpy(tmp, cp0, cc);
@@ -586,7 +586,7 @@ static int fpDiff(TIFF* tif, uint8* cp0, tmsize_t cc)
 	cp = (uint8 *)cp0;
 	cp += cc - stride - 1;
 	for(count = cc; count > stride; count -= stride)
-		REPEAT4(stride, cp[stride] = (unsigned char)((cp[stride] - cp[0])&0xff); cp--)
+		REPEAT4(stride, cp[stride] = (uchar)((cp[stride] - cp[0])&0xff); cp--)
 		return 1;
 }
 
@@ -608,7 +608,7 @@ static int PredictorEncodeTile(TIFF* tif, uint8* bp0, tmsize_t cc0, uint16 s)
 	TIFFPredictorState * sp = PredictorState(tif);
 	uint8 * working_copy;
 	tmsize_t cc = cc0, rowsize;
-	unsigned char* bp;
+	uchar* bp;
 	int result_code;
 	assert(sp != NULL);
 	assert(sp->encodepfunc != NULL);
@@ -617,7 +617,7 @@ static int PredictorEncodeTile(TIFF* tif, uint8* bp0, tmsize_t cc0, uint16 s)
 	 * Do predictor manipulation in a working buffer to avoid altering
 	 * the callers buffer. http://trac.osgeo.org/gdal/ticket/1965
 	 */
-	working_copy = (uint8 *)SAlloc::M(cc0);
+	working_copy = static_cast<uint8 *>(SAlloc::M(cc0));
 	if(working_copy == NULL) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Out of memory allocating " TIFF_SSIZE_FORMAT " byte temp buffer.", cc0);
 		return 0;

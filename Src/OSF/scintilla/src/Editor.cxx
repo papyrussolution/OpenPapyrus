@@ -1765,14 +1765,10 @@ void Editor::RefreshPixMaps(Surface * surfaceWindow)
 	marginView.RefreshPixMaps(surfaceWindow, wMain.GetID(), vs);
 	if(/*view.bufferedDraw*/view.EditViewFlags & EditView::fBufferedDraw) {
 		PRectangle rcClient = GetClientRectangle();
-		if(!view.pixmapLine->Initialised()) {
-			view.pixmapLine->InitPixMap(static_cast<int>(rcClient.Width()), vs.lineHeight,
-			    surfaceWindow, wMain.GetID());
-		}
-		if(!marginView.pixmapSelMargin->Initialised()) {
-			marginView.pixmapSelMargin->InitPixMap(vs.fixedColumnWidth,
-			    static_cast<int>(rcClient.Height()), surfaceWindow, wMain.GetID());
-		}
+		if(!view.pixmapLine->Initialised())
+			view.pixmapLine->InitPixMap(static_cast<int>(rcClient.Width()), vs.lineHeight, surfaceWindow, wMain.GetID());
+		if(!marginView.pixmapSelMargin->Initialised())
+			marginView.pixmapSelMargin->InitPixMap(vs.fixedColumnWidth, static_cast<int>(rcClient.Height()), surfaceWindow, wMain.GetID());
 	}
 }
 
@@ -2270,7 +2266,7 @@ void Editor::Clear()
 	// If multiple selections, don't delete EOLS
 	if(Sel.Empty()) {
 		const int main_caret = Sel.MainCaret();
-		bool singleVirtual = (Sel.Count() == 1 && !RangeContainsProtected(main_caret, main_caret + 1) && Sel.RangeMain().Start().VirtualSpace()) ? true : false;
+		bool singleVirtual = LOGIC(Sel.Count() == 1 && !RangeContainsProtected(main_caret, main_caret + 1) && Sel.RangeMain().Start().VirtualSpace());
 		UndoGroup ug(pdoc, (Sel.Count() > 1) || singleVirtual);
 		for(size_t r = 0; r < Sel.Count(); r++) {
 			SelectionRange & r_sr = Sel.Range(r);

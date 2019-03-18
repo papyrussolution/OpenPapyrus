@@ -825,7 +825,7 @@ typedef volatile unsigned char tsl_t;
 /* End of operating system & hardware architecture-specific definitions */
 
 /*
- * Mutex alignment defaults to sizeof(unsigned int).
+ * Mutex alignment defaults to sizeof(uint).
  *
  * !!!
  * Various systems require different alignments for mutexes (the worst we've
@@ -834,7 +834,7 @@ typedef volatile unsigned char tsl_t;
  * alignment locally.
  */
 #ifndef	MUTEX_ALIGN
-	#define	MUTEX_ALIGN	sizeof(unsigned int)
+	#define	MUTEX_ALIGN	sizeof(uint)
 #endif
 /*
  * Mutex destruction defaults to a no-op.

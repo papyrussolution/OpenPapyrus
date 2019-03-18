@@ -789,7 +789,7 @@ static xmlNode * xmlXIncludeCopyRange(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target,
 		return 0;
 	end = (xmlNode *)range->user2;
 	if(end == NULL)
-		return(xmlDocCopyNode(start, target, 1));
+		return (xmlDocCopyNode(start, target, 1));
 	if(end->type == XML_NAMESPACE_DECL)
 		return 0;
 
@@ -854,7 +854,7 @@ static xmlNode * xmlXIncludeCopyRange(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target,
 					xmlAddNextSibling(last, tmp);
 				else
 					xmlAddChild(last, tmp);
-				return(list);
+				return (list);
 			}
 			else { /* ending node not a text node */
 				endLevel = level; /* remember the level of the end node */
@@ -974,7 +974,7 @@ static xmlNode * xmlXIncludeCopyRange(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target,
 		if(endFlag && (level >= endLevel))
 			break;
 	}
-	return(list);
+	return (list);
 }
 
 /**
@@ -1093,7 +1093,7 @@ static xmlNode * xmlXIncludeCopyXPointer(xmlXIncludeCtxtPtr ctxt, xmlDocPtr targ
 		    break;
 	    }
 		case XPATH_RANGE:
-		    return(xmlXIncludeCopyRange(ctxt, target, source, obj));
+		    return (xmlXIncludeCopyRange(ctxt, target, source, obj));
 #endif
 		case XPATH_POINT:
 		    /* points are ignored in XInclude */
@@ -1101,7 +1101,7 @@ static xmlNode * xmlXIncludeCopyXPointer(xmlXIncludeCtxtPtr ctxt, xmlDocPtr targ
 		default:
 		    break;
 	}
-	return(list);
+	return (list);
 }
 
 /************************************************************************
@@ -1501,7 +1501,7 @@ loaded:
 		 * The base is only adjusted if "necessary", i.e. if the xinclude node
 		 * has a base specified, or the URL is relative
 		 */
-		xmlChar * base = xmlGetNsProp(ctxt->incTab[nr]->ref, BAD_CAST "base", XML_XML_NAMESPACE);
+		xmlChar * base = xmlGetNsProp(ctxt->incTab[nr]->ref, reinterpret_cast<const xmlChar *>("base"), XML_XML_NAMESPACE);
 		if(!base) {
 			/*
 			 * No xml:base on the xinclude node, so we check whether the
@@ -1540,7 +1540,7 @@ loaded:
 						}
 						else {
 							// If the element already has an xml:base set, then relativise it if necessary
-							xmlChar * xmlBase = xmlGetNsProp(P_Node, BAD_CAST "base", XML_XML_NAMESPACE);
+							xmlChar * xmlBase = xmlGetNsProp(P_Node, reinterpret_cast<const xmlChar *>("base"), XML_XML_NAMESPACE);
 							if(xmlBase) {
 								xmlChar * relBase = xmlBuildURI(xmlBase, base);
 								if(!relBase) // error 
@@ -1601,7 +1601,7 @@ static int xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 		return -1;
 	}
 	if(uri->fragment) {
-		xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_TEXT_FRAGMENT, "fragment identifier forbidden for text: %s\n", (const xmlChar*)uri->fragment);
+		xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_TEXT_FRAGMENT, "fragment identifier forbidden for text: %s\n", (const xmlChar *)uri->fragment);
 		xmlFreeURI(uri);
 		return -1;
 	}
@@ -1642,7 +1642,7 @@ static int xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 		 *     xmlParserInputBufferCreateFilename should allow any
 		 *     encoding supported by iconv
 		 */
-		enc = xmlParseCharEncoding((const char *)encoding);
+		enc = xmlParseCharEncoding(reinterpret_cast<const char *>(encoding));
 		if(enc == XML_CHAR_ENCODING_ERROR) {
 			xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_UNKNOWN_ENCODING, "encoding %s not supported\n", encoding);
 			SAlloc::F(encoding);
@@ -2222,7 +2222,7 @@ int xmlXIncludeProcessFlags(xmlDoc * doc, int flags)
  */
 int xmlXIncludeProcess(xmlDocPtr doc)
 {
-	return(xmlXIncludeProcessFlags(doc, 0));
+	return (xmlXIncludeProcessFlags(doc, 0));
 }
 
 /**
@@ -2263,7 +2263,7 @@ int xmlXIncludeProcessTreeFlags(xmlNode * tree, int flags)
  */
 int xmlXIncludeProcessTree(xmlNode * tree)
 {
-	return(xmlXIncludeProcessTreeFlags(tree, 0));
+	return (xmlXIncludeProcessTreeFlags(tree, 0));
 }
 /**
  * xmlXIncludeProcessNode:

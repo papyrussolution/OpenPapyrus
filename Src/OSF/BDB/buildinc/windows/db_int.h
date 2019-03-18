@@ -332,20 +332,20 @@ typedef struct __db_msgbuf {
 #define	STAT_FMT(msg, fmt, type, v) do {				\
 	DB_MSGBUF __mb;							\
 	DB_MSGBUF_INIT(&__mb);						\
-	__db_msgadd(env, &__mb, fmt, (type)(v));			\
+	__db_msgadd(env, &__mb, fmt, static_cast<type>(v));			\
 	__db_msgadd(env, &__mb, "\t%s", msg);				\
 	DB_MSGBUF_FLUSH(env, &__mb);					\
 } while (0)
-#define	STAT_HEX(msg, v)     __db_msg(env, "%#lx\t%s", (ulong)(v), msg)
+#define	STAT_HEX(msg, v)     __db_msg(env, "%#lx\t%s", static_cast<ulong>(v), msg)
 #define	STAT_ISSET(msg, p)   __db_msg(env, "%sSet\t%s", (p) == NULL ? "!" : " ", msg)
-#define	STAT_LONG(msg, v)    __db_msg(env, "%ld\t%s", (long)(v), msg)
-#define	STAT_LSN(msg, lsnp)  __db_msg(env, "%lu/%lu\t%s", (ulong)(lsnp)->file, (ulong)(lsnp)->Offset_, msg)
+#define	STAT_LONG(msg, v)    __db_msg(env, "%ld\t%s", static_cast<long>(v), msg)
+#define	STAT_LSN(msg, lsnp)  __db_msg(env, "%lu/%lu\t%s", static_cast<ulong>((lsnp)->file), static_cast<ulong>((lsnp)->Offset_), msg)
 #define	STAT_POINTER(msg, v) __db_msg(env, "%#lx\t%s", P_TO_ULONG(v), msg)
 #define	STAT_STRING(msg, p) do {					\
 	const char *__p = p;	/* p may be a function call. */		\
 	__db_msg(env, "%s\t%s", __p == NULL ? "!Set" : __p, msg);	\
 } while (0)
-#define	STAT_ULONG(msg, v) __db_msg(env, "%lu\t%s", (ulong)(v), msg)
+#define	STAT_ULONG(msg, v) __db_msg(env, "%lu\t%s", static_cast<ulong>(v), msg)
 
 /*
  * The following macros are used to control how error and message strings are
@@ -387,7 +387,7 @@ typedef struct __db_msgbuf {
  * to size_t in most cases.  This macro avoids a lot of casting.  The macro
  * comes in two flavors because we often want to clear the DBT first.
  */
-#define	DB_SET_DBT(dbt, d, s)  do { (dbt).data = (void *)(d); (dbt).size = (uint32)(s); } while (0)
+#define	DB_SET_DBT(dbt, d, s)  do { (dbt).data = (void *)(d); (dbt).size = static_cast<uint32>(s); } while (0)
 #define DB_INIT_DBT(dbt, d, s) do { memzero(&(dbt), sizeof(dbt)); DB_SET_DBT(dbt, d, s); } while (0)
 
 /*******************************************************

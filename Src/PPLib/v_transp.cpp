@@ -123,8 +123,8 @@ int TransportFilterDlg::setDTS(const TransportFilt * pData)
 	setCtrlString(CTL_FLTTRANSP_CODE,      Data.Code);
 	setCtrlString(CTL_FLTTRANSP_TRAILCODE, Data.TrailCode);
 	SetupPPObjCombo(this, CTLSEL_FLTTRANSP_MODEL,   PPOBJ_TRANSPMODEL, Data.ModelID,   OLW_CANINSERT);
-	SetupPPObjCombo(this, CTLSEL_FLTTRANSP_OWNER,   PPOBJ_PERSON,      Data.OwnerID,   OLW_CANINSERT, (void *)owner_kind_id);
-	SetupPPObjCombo(this, CTLSEL_FLTTRANSP_CAPTAIN, PPOBJ_PERSON,      Data.CaptainID, OLW_CANINSERT, (void *)captain_kind_id);
+	SetupPPObjCombo(this, CTLSEL_FLTTRANSP_OWNER,   PPOBJ_PERSON,      Data.OwnerID,   OLW_CANINSERT, reinterpret_cast<void *>(owner_kind_id));
+	SetupPPObjCombo(this, CTLSEL_FLTTRANSP_CAPTAIN, PPOBJ_PERSON,      Data.CaptainID, OLW_CANINSERT, reinterpret_cast<void *>(captain_kind_id));
 	SetupPPObjCombo(this, CTLSEL_FLTTRANSP_CNTRY,   PPOBJ_COUNTRY,     Data.CountryID, OLW_CANINSERT);
 	AddClusterAssoc(CTL_FLTTRANSP_TRTYPE, 0, 0);
 	AddClusterAssoc(CTL_FLTTRANSP_TRTYPE, 1, PPTRTYP_CAR);

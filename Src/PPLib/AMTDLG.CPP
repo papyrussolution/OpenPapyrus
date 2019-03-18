@@ -161,7 +161,7 @@ int AmtListDialog::setupList()
 				AmtEntry entry(RestrictList.at(i));
 				Data.Put(&entry, 0, 0);
 			}
-	for(i = 0; Data.enumItems(&i, (void**)&ae);)
+	for(i = 0; Data.enumItems(&i, (void **)&ae);)
 		if(!HasRestrict || RestrictList.lsearch(ae->AmtTypeID))
 			if(!setupListEntry(i-1, ae))
 				return 0;
@@ -223,7 +223,7 @@ int AmtListDialog::delItem(long pos, long /*id*/)
 		AmtEntry & ae = Data.at(p);
 		if(ae.AmtTypeID == PPAMT_CRATE && ae.CurID) {
 			AmtEntry * p_ae;
-			for(uint i = 0; Data.enumItems(&i, (void**)&p_ae);)
+			for(uint i = 0; Data.enumItems(&i, (void **)&p_ae);)
 				THROW_PP((i-1) == p || p_ae->CurID != ae.CurID, PPERR_CANTRMVCRATE);
 		}
 		else
@@ -270,7 +270,7 @@ int StaffAmtListDialog::setupList()
 	StringSet ss(SLBColumnDelim);
 	uint   i;
 	StaffAmtEntry * p_entry;
-	for(i = 0; Data.enumItems(&i, (void**)&p_entry);) {
+	for(i = 0; Data.enumItems(&i, (void **)&p_entry);) {
 		ss.clear();
 		if(at_obj.Search(p_entry->AmtTypeID, &at_rec) > 0)
 			sub = at_rec.Name;
@@ -505,7 +505,7 @@ void BillTaxesDialog::calcTotal()
 	PPAmountType amtt_rec;
 	getDTS(0);
 	int    tag_stax = 0;
-	for(uint i = 0; Data.enumItems(&i, (void**)&p_ae);) {
+	for(uint i = 0; Data.enumItems(&i, (void **)&p_ae);) {
 		if(p_ae->Amt != 0.0 && AmtObj.Fetch(p_ae->AmtTypeID, &amtt_rec) > 0)
 			if(amtt_rec.IsTax(GTAX_VAT))
 				amt += p_ae->Amt / SalesTaxMult(fdiv100i(amtt_rec.TaxRate));

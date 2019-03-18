@@ -650,7 +650,7 @@ int BIO_nread0(BIO * bio, char ** buf)
 	if(ret > INT_MAX)
 		return INT_MAX;
 	else
-		return (int)ret;
+		return static_cast<int>(ret);
 }
 
 int BIO_nread(BIO * bio, char ** buf, int num)
@@ -677,7 +677,7 @@ int BIO_nwrite0(BIO * bio, char ** buf)
 	if(ret > INT_MAX)
 		return INT_MAX;
 	else
-		return (int)ret;
+		return static_cast<int>(ret);
 }
 
 int BIO_nwrite(BIO * bio, char ** buf, int num)

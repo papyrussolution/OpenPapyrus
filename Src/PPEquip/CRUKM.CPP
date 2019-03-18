@@ -601,7 +601,7 @@ int SLAPI ACS_CRUKM::GetSessionData(int * pSessCount, int * pIsForwardSess, Date
 					}
 					THROW(AddSessEntry(cash_no, sess_no, sess_id, temporary));
 				}
-				for(i = 0; max_sess_list.enumItems(&i, (void**)&p_sess_entry);)
+				for(i = 0; max_sess_list.enumItems(&i, (void **)&p_sess_entry);)
 					if(p_sess_entry->CashNo == cash_no) {
 						if(p_sess_entry->SessNo < sess_no)
 							p_sess_entry->SessNo = sess_no;
@@ -625,7 +625,7 @@ int SLAPI ACS_CRUKM::GetSessionData(int * pSessCount, int * pIsForwardSess, Date
 	for(j = 0; j < 2; j++)
 		if(PP_SalesFileName[j] != 0) {
 			Cr_SaleTbl sales_tbl(PP_SalesFileName[j]);
-			for(i = 0; max_sess_list.enumItems(&i, (void**)&p_sess_entry);)
+			for(i = 0; max_sess_list.enumItems(&i, (void **)&p_sess_entry);)
 				THROW(SearchAbsentSess(p_sess_entry, &sales_tbl, num_forwards));
 		}
 	CATCH

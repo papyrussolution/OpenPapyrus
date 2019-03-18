@@ -79,7 +79,7 @@ int SLAPI PPViewAccturn::Detail(const void * pHdr, PPViewBrowser * pBrw)
 			Acct  CrdAcc;
 		} agbi;
 		if(pHdr)
-			agbi = *(__AGBI*)pHdr;
+			agbi = *static_cast<const __AGBI *>(pHdr);
 		else
 			MEMSZERO(agbi);
 		if(Filt.Cycl.Cycle && CycleList.searchPeriodByDate(agbi.Dt, &temp_flt.Period) <= 0)
@@ -633,7 +633,7 @@ int AccturnFiltDialog::getDTS(AccturnFilt * pFilt)
 // virtual
 int SLAPI PPViewAccturn::EditBaseFilt(PPBaseFilt * pFilt)
 {
-	DIALOG_PROC_BODY(AccturnFiltDialog, (AccturnFilt*)pFilt);
+	DIALOG_PROC_BODY(AccturnFiltDialog, static_cast<AccturnFilt *>(pFilt));
 }
 
 // virtual
@@ -661,7 +661,7 @@ static IMPL_DBE_PROC(dbqf_accturn_checkrelrestriction_iii)
 	long   ok = 1;
 	PPID   dbt_acc_id = params[0].lval;
 	PPID   crd_acc_id = params[1].lval;
-	const  AccturnFilt * p_filt = (const AccturnFilt *)params[2].lval;
+	const  AccturnFilt * p_filt = reinterpret_cast<const AccturnFilt *>(params[2].lval); // @longtoptr
 	PPID   bill_id = params[0].lval;
 	if(p_filt && p_filt->GetSignature() == PPFILT_ACCTURN) {
 		AcctRelTbl::Rec dbt_rec, crd_rec;

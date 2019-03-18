@@ -234,7 +234,7 @@ void * xmlListReverseSearch(xmlList * pList, void * data)
  *
  * Returns 0 in case of success, 1 in case of failure
  */
-int xmlListInsert(xmlList * pList, void * data)
+int FASTCALL xmlListInsert(xmlList * pList, void * data)
 {
 	if(pList == NULL)
 		return 1;
@@ -388,7 +388,7 @@ void FASTCALL xmlListClear(xmlList * pList)
  *
  * Returns 1 if the list is empty, 0 if not empty and -1 in case of error
  */
-int FASTCALL xmlListEmpty(xmlList * l)
+int FASTCALL xmlListEmpty(const xmlList * l)
 {
 	return l ? (l->sentinel->next == l->sentinel) : -1;
 }

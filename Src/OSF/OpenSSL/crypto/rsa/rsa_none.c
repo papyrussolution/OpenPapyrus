@@ -28,7 +28,7 @@ int RSA_padding_check_none(uchar * to, int tlen, const uchar * from, int flen, i
 {
 	if(flen > tlen) {
 		RSAerr(RSA_F_RSA_PADDING_CHECK_NONE, RSA_R_DATA_TOO_LARGE);
-		return (-1);
+		return -1;
 	}
 	memzero(to, tlen - flen);
 	memcpy(to + tlen - flen, from, flen);

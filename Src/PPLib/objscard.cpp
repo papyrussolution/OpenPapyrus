@@ -122,7 +122,7 @@ int SLAPI PPObjSCard::EditConfig()
 			Data = *pData;
 			SetupPPObjCombo(this, CTLSEL_SCARDCFG_PSNKND, PPOBJ_PRSNKIND, Data.PersonKindID, 0, 0);
 			PPID   psn_kind_id = NZOR(Data.PersonKindID, PPPRK_CLIENT);
-			SetupPPObjCombo(this, CTLSEL_SCARDCFG_DEFPSN, PPOBJ_PERSON, Data.DefPersonID, OLW_LOADDEFONOPEN, (void *)psn_kind_id);
+			SetupPPObjCombo(this, CTLSEL_SCARDCFG_DEFPSN, PPOBJ_PERSON, Data.DefPersonID, OLW_LOADDEFONOPEN, reinterpret_cast<void *>(psn_kind_id));
 			GoodsCtrlGroup::Rec rec(0, Data.ChargeGoodsID, 0, 0);
 			addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_SCARDCFG_CHARGEGG, CTLSEL_SCARDCFG_CHARGEG));
 			setGroupData(GRP_GOODS, &rec);
@@ -371,7 +371,7 @@ int SLAPI PPSCardSerRule::CheckTrnovrRng(const RealRange & rR, long pos) const
 {
 	int    ok = (rR.upp > rR.low && rR.low >= 0.0) ? 1 : PPSetError(PPERR_TRNOVRRNG);
 	TrnovrRngDis * p_item = 0;
-	for(uint i = 0; ok == 1 && enumItems(&i, (void**)&p_item) > 0;)
+	for(uint i = 0; ok == 1 && enumItems(&i, (void **)&p_item) > 0;)
 		if(pos < 0 || pos != i - 1) {
 			if(p_item->R.Check(rR.upp) || p_item->R.Check(rR.low) || (rR.low <= p_item->R.low && rR.upp >= p_item->R.upp))
 				ok = PPSetError(PPERR_INTRSTRNOVRRNG);
@@ -578,7 +578,7 @@ int SLAPI PPSCardSerPacket::GetDisByRule(double trnovr, TrnovrRngDis & rEntry) c
 {
 	int    ok = -1;
 	TrnovrRngDis * p_item = 0;
-	for(uint i = 0; ok < 0 && Rule.enumItems(&i, (void**)&p_item) > 0;) {
+	for(uint i = 0; ok < 0 && Rule.enumItems(&i, (void **)&p_item) > 0;) {
 		if(p_item->R.Check(trnovr)) {
 			rEntry = *p_item;
 			ok = 1;
@@ -718,7 +718,7 @@ int SCardRuleDlg::setupList()
 	SString buf;
 	TrnovrRngDis * p_item = 0;
 	StringSet ss(SLBColumnDelim);
-	for(uint i = 0; Data.enumItems(&i, (void**)&p_item) > 0;) {
+	for(uint i = 0; Data.enumItems(&i, (void **)&p_item) > 0;) {
 		ss.clear();
 		buf.Z().Cat(p_item->R.low, MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatCharN('.', 2).
 			Cat(p_item->R.upp, MKSFMTD(0, 2, NMBF_NOTRAILZ)).Space().Cat("руб").ToOem();
@@ -775,7 +775,7 @@ SLAPI PPObjSCardSeries::~PPObjSCardSeries()
 SCardSeriesFilt & SLAPI PPObjSCardSeries::InitFilt(void * extraPtr, SCardSeriesFilt & rFilt) const
 {
 	if(extraPtr) {
-		rFilt = *(SCardSeriesFilt *)extraPtr;
+		rFilt = *static_cast<const SCardSeriesFilt *>(extraPtr);
 	}
 	else {
 		rFilt.ParentID = 0;
@@ -1523,7 +1523,8 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 							PPObjGoods goods_obj;
 							Goods2Tbl::Rec goods_rec;
 							if(goods_obj.Fetch(sc_cfg.ChargeGoodsID, &goods_rec) > 0)
-								SetupPPObjCombo(this, CTLSEL_SCARDSER_BONCGRP, PPOBJ_GOODS, Data.Rec.ChargeGoodsID, OLW_CANINSERT|OLW_LOADDEFONOPEN, (void *)goods_rec.ParentID);
+								SetupPPObjCombo(this, CTLSEL_SCARDSER_BONCGRP, PPOBJ_GOODS, Data.Rec.ChargeGoodsID, 
+									OLW_CANINSERT|OLW_LOADDEFONOPEN, reinterpret_cast<void *>(goods_rec.ParentID));
 						}
 					}
 				}
@@ -3188,7 +3189,7 @@ void SCardDialog::SetupSeries(PPID seriesID, PPID personID)
 		personID = 0;
 	SetupPersonCombo(this, CTLSEL_SCARD_PERSON, personID, OLW_CANINSERT|OLW_LOADDEFONOPEN, psn_kind_id, 0);
 	if(goods_grp_id)
-		SetupPPObjCombo(this, CTLSEL_SCARD_AUTOGOODS, PPOBJ_GOODS, Data.Rec.AutoGoodsID, 0, (void *)goods_grp_id);
+		SetupPPObjCombo(this, CTLSEL_SCARD_AUTOGOODS, PPOBJ_GOODS, Data.Rec.AutoGoodsID, 0, reinterpret_cast<void *>(goods_grp_id));
 	else
 		setCtrlLong(CTLSEL_SCARD_AUTOGOODS, Data.Rec.AutoGoodsID = 0);
 	disableCtrl(CTLSEL_SCARD_AUTOGOODS, !goods_grp_id);
@@ -3555,7 +3556,7 @@ int SLAPI PPObjSCard::Helper_Edit(PPID * pID, const AddParam * pParam)
 
 int SLAPI PPObjSCard::Edit(PPID * pID, void * extraPtr /*serID*/)
 {
-	AddParam param((PPID)extraPtr);
+	AddParam param(reinterpret_cast<PPID>(extraPtr));
 	return Helper_Edit(pID, &param);
 }
 
@@ -3997,7 +3998,7 @@ int SLAPI PPObjSCard::PutTransmitPacket(PPID * pID, SCardTransmitPacket * pPack,
 					pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTCCHECK, org_chk_id, chk_code);
 				}
 			}
-			for(i = 0; pPack->ScOpList.enumItems(&i, (void**)&p_op_rec);)
+			for(i = 0; pPack->ScOpList.enumItems(&i, (void **)&p_op_rec);)
 				if(P_Tbl->SearchOp(*pID, p_op_rec->Dt, p_op_rec->Tm, 0) < 0) {
 					p_op_rec->SCardID = *pID;
 					if(!P_Tbl->PutOpRec(p_op_rec, 0, 0)) {
@@ -4095,10 +4096,9 @@ int SLAPI PPObjSCard::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repl
 
 StrAssocArray * SLAPI PPObjSCard::MakeStrAssocList(void * extraPtr /*cardSerID*/)
 {
-	const  Filt * p_filt = (const Filt *)extraPtr;
-	const  PPID ser_id = (p_filt && p_filt->Signature == FiltSignature) ? p_filt->SeriesID : (PPID)extraPtr;
+	const  Filt * p_filt = static_cast<const Filt *>(extraPtr);
+	const  PPID ser_id = (p_filt && p_filt->Signature == FiltSignature) ? p_filt->SeriesID : reinterpret_cast<PPID>(extraPtr);
 	const  PPID owner_id = (p_filt && p_filt->Signature == FiltSignature) ? p_filt->OwnerID : 0;
-
 	union {;
 		SCardTbl::Key2 k2;
 		SCardTbl::Key3 k3;

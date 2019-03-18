@@ -98,15 +98,15 @@ struct archive_entry_linkresolver * archive_entry_linkresolver_new(void)
 	struct archive_entry_linkresolver * res;
 	/* Check for positive power-of-two */
 	if(links_cache_initial_size == 0 || (links_cache_initial_size & (links_cache_initial_size - 1)) != 0)
-		return (NULL);
+		return NULL;
 	res = (struct archive_entry_linkresolver *)SAlloc::C(1, sizeof(struct archive_entry_linkresolver));
 	if(res == NULL)
-		return (NULL);
+		return NULL;
 	res->number_buckets = links_cache_initial_size;
 	res->buckets = (struct links_entry **)SAlloc::C(res->number_buckets, sizeof(res->buckets[0]));
 	if(res->buckets == NULL) {
 		SAlloc::F(res);
-		return (NULL);
+		return NULL;
 	}
 	return (res);
 }
@@ -295,7 +295,7 @@ static struct links_entry * find_entry(struct archive_entry_linkresolver * res,
 			return (le);
 		}
 	}
-	return (NULL);
+	return NULL;
 }
 
 static struct links_entry * next_entry(struct archive_entry_linkresolver * res, int mode)                             {
@@ -332,7 +332,7 @@ static struct links_entry * next_entry(struct archive_entry_linkresolver * res, 
 			return (le);
 		}
 	}
-	return (NULL);
+	return NULL;
 }
 
 static struct links_entry * insert_entry(struct archive_entry_linkresolver * res, struct archive_entry * entry)
@@ -342,7 +342,7 @@ static struct links_entry * insert_entry(struct archive_entry_linkresolver * res
 	/* Add this entry to the links cache. */
 	le = (struct links_entry *)SAlloc::C(1, sizeof(struct links_entry));
 	if(le == NULL)
-		return (NULL);
+		return NULL;
 	le->canonical = archive_entry_clone(entry);
 
 	/* If the links cache is getting too full, enlarge the hash table. */

@@ -291,7 +291,7 @@ void PNGAPI png_read_row(png_structrp png_ptr, png_bytep row, png_bytep dsp_row)
 	png_row_info row_info;
 	if(!png_ptr)
 		return;
-	png_debug2(1, "in png_read_row (row %lu, pass %d)", (unsigned long)png_ptr->row_number, png_ptr->pass);
+	png_debug2(1, "in png_read_row (row %lu, pass %d)", (ulong)png_ptr->row_number, png_ptr->pass);
 	/* png_read_start_row sets the information (in particular iwidth) for this
 	 * interlace pass.
 	 */

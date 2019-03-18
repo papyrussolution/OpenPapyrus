@@ -64,7 +64,7 @@ void SLAPI ListBoxDef::getScrollData(long * pScrollDelta, long * pScrollPos)
 
 const char * SLAPI ListBoxDef::getText(long item, SString & rBuf)
 {
-	const char * p = (const char *)getRow_(item);
+	const char * p = static_cast<const char *>(getRow_(item));
 	if(p) {
 		uint   h = (Options & lbtAutoID) ? 0 : ((Options & lbtWordID) ? sizeof(int16) : sizeof(int32));
 		char   temp_buf[1024];
@@ -100,7 +100,7 @@ int SLAPI ListBoxDef::getCurString(SString & rBuf)
 
 int SLAPI ListBoxDef::getCurData(void * b)
 {
-	char * p = (char *)getRow_(_curItem());
+	const char * p = static_cast<const char *>(getRow_(_curItem()));
 	if(p) {
 		if(!(Options & lbtAutoID))
 			p += (Options & lbtWordID) ? sizeof(int16) : sizeof(int32);

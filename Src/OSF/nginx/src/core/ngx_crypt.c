@@ -51,7 +51,7 @@ static ngx_int_t ngx_crypt_apr1(ngx_pool_t * pool, u_char * key, u_char * salt, 
 	/* hash key and salt */
 	ngx_md5_init(&md5);
 	ngx_md5_update(&md5, key, keylen);
-	ngx_md5_update(&md5, (u_char*)"$apr1$", sizeof("$apr1$") - 1);
+	ngx_md5_update(&md5, (u_char *)"$apr1$", sizeof("$apr1$") - 1);
 	ngx_md5_update(&md5, salt, saltlen);
 	ngx_md5_init(&ctx1);
 	ngx_md5_update(&ctx1, key, keylen);
@@ -94,7 +94,7 @@ static ngx_int_t ngx_crypt_apr1(ngx_pool_t * pool, u_char * key, u_char * salt, 
 		ngx_md5_final(final, &ctx1);
 	}
 	/* output */
-	*encrypted = (u_char*)ngx_pnalloc(pool, sizeof("$apr1$") - 1 + saltlen + 1 + 22 + 1);
+	*encrypted = (u_char *)ngx_pnalloc(pool, sizeof("$apr1$") - 1 + saltlen + 1 + 22 + 1);
 	if(*encrypted == NULL) {
 		return NGX_ERROR;
 	}
@@ -125,7 +125,7 @@ static ngx_int_t ngx_crypt_plain(ngx_pool_t * pool, u_char * key, u_char * salt,
 {
 	u_char  * p;
 	size_t len = ngx_strlen(key);
-	*encrypted = (u_char*)ngx_pnalloc(pool, sizeof("{PLAIN}") - 1 + len + 1);
+	*encrypted = (u_char *)ngx_pnalloc(pool, sizeof("{PLAIN}") - 1 + len + 1);
 	if(*encrypted == NULL) {
 		return NGX_ERROR;
 	}
@@ -145,7 +145,7 @@ static ngx_int_t ngx_crypt_ssha(ngx_pool_t * pool, u_char * key, u_char * salt, 
 	encoded.data = salt + sizeof("{SSHA}") - 1;
 	encoded.len = ngx_strlen(encoded.data);
 	len = MAX(ngx_base64_decoded_length(encoded.len), 20);
-	decoded.data = (u_char*)ngx_pnalloc(pool, len);
+	decoded.data = (u_char *)ngx_pnalloc(pool, len);
 	if(decoded.data == NULL) {
 		return NGX_ERROR;
 	}
@@ -160,7 +160,7 @@ static ngx_int_t ngx_crypt_ssha(ngx_pool_t * pool, u_char * key, u_char * salt, 
 	ngx_sha1_final(decoded.data, &sha1);
 	/* encode it back to base64 */
 	len = sizeof("{SSHA}") - 1 + ngx_base64_encoded_length(decoded.len) + 1;
-	*encrypted = (u_char*)ngx_pnalloc(pool, len);
+	*encrypted = (u_char *)ngx_pnalloc(pool, len);
 	if(*encrypted == NULL) {
 		return NGX_ERROR;
 	}
@@ -183,7 +183,7 @@ static ngx_int_t ngx_crypt_sha(ngx_pool_t * pool, u_char * key, u_char * salt, u
 	ngx_sha1_update(&sha1, key, ngx_strlen(key));
 	ngx_sha1_final(digest, &sha1);
 	len = sizeof("{SHA}") - 1 + ngx_base64_encoded_length(decoded.len) + 1;
-	*encrypted = (u_char*)ngx_pnalloc(pool, len);
+	*encrypted = (u_char *)ngx_pnalloc(pool, len);
 	if(*encrypted == NULL) {
 		return NGX_ERROR;
 	}

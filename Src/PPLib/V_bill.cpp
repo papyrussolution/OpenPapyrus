@@ -4349,7 +4349,7 @@ int SLAPI PPViewBill::ViewVATaxList()
 	p_list = static_cast<SmartListBox *>(dlg->getCtrlView(CTL_VATAXLST_LIST));
 	MEMSZERO(total);
 	THROW_MEM(p_ary = new StrAssocArray);
-	for(i = 0; dest.enumItems(&i, (void**)&p_item);) {
+	for(i = 0; dest.enumItems(&i, (void **)&p_item);) {
 		StringSet ss(SLBColumnDelim);
 		tmp        = SalesTaxMult(p_item->PRate);
 		s_cost    += p_item->Cost;
@@ -7973,7 +7973,7 @@ int PPALDD_BillList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	IterProlog(iterId, 1);
 	if(sortId >= 0)
 		SortIdx = sortId;
-	p_v->InitIteration((PPViewBill::IterOrder)SortIdx);
+	p_v->InitIteration(static_cast<PPViewBill::IterOrder>(SortIdx));
 	return 1;
 }
 

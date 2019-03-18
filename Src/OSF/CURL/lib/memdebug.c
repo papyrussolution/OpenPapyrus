@@ -318,7 +318,7 @@ curl_socket_t curl_accept(curl_socket_t s, void * saddr, void * saddrlen, int li
 	    (sizeof(curl_socket_t) == sizeof(long)) ?
 	    "FD %s:%d accept() = %ld\n" :
 	    "FD %s:%d accept() = %zd\n";
-	struct sockaddr * addr = (struct sockaddr*)saddr;
+	struct sockaddr * addr = (struct sockaddr *)saddr;
 	curl_socklen_t * addrlen = (curl_socklen_t*)saddrlen;
 	curl_socket_t sockfd = accept(s, addr, addrlen);
 	if(source && (sockfd != CURL_SOCKET_BAD))

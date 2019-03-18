@@ -115,7 +115,7 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a, struct arch
 	(void)a;      /* UNUSED */
 	(void)entry;  /* UNUSED */
 	(void)fd;     /* UNUSED */
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 #endif
@@ -160,7 +160,7 @@ int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry 
 			if(fd >= 0) {
 				if(fstat(fd, &s) != 0) {
 					archive_set_error(&a->archive, errno, "Can't fstat");
-					return (ARCHIVE_FAILED);
+					return ARCHIVE_FAILED;
 				}
 			}
 			else
@@ -169,14 +169,14 @@ int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry 
 			if(!a->follow_symlinks) {
 				if(lstat(path, &s) != 0) {
 					archive_set_error(&a->archive, errno, "Can't lstat %s", path);
-					return (ARCHIVE_FAILED);
+					return ARCHIVE_FAILED;
 				}
 			}
 			else
 #endif
 			if(stat(path, &s) != 0) {
 				archive_set_error(&a->archive, errno, "Can't stat %s", path);
-				return (ARCHIVE_FAILED);
+				return ARCHIVE_FAILED;
 			}
 			st = &s;
 		}
@@ -233,7 +233,7 @@ int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry 
 		char * linkbuffer = (char *)SAlloc::M(linkbuffer_len);
 		if(linkbuffer == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "Couldn't read link data");
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		}
 		if(a->tree != NULL) {
 #ifdef HAVE_READLINKAT
@@ -244,7 +244,7 @@ int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry 
 				archive_set_error(&a->archive, errno,
 				    "Couldn't read link data");
 				SAlloc::F(linkbuffer);
-				return (ARCHIVE_FAILED);
+				return ARCHIVE_FAILED;
 			}
 			lnklen = readlink(path, linkbuffer, linkbuffer_len);
 #endif /* HAVE_READLINKAT */
@@ -255,7 +255,7 @@ int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry 
 			archive_set_error(&a->archive, errno,
 			    "Couldn't read link data");
 			SAlloc::F(linkbuffer);
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		}
 		linkbuffer[lnklen] = 0;
 		archive_entry_set_symlink(entry, linkbuffer);
@@ -283,7 +283,7 @@ int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry 
 	/* If we opened the file earlier in this function, close it. */
 	if(initial_fd != fd)
 		close(fd);
-	return (r);
+	return r;
 }
 
 #if defined(__APPLE__) && defined(HAVE_COPYFILE_H)
@@ -326,7 +326,7 @@ static int setup_mac_metadata(struct archive_read_disk * a,
 		return (ARCHIVE_WARN);
 	}
 	if(have_attrs == 0)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	tempdir = NULL;
 	if(issetugid() == 0)
@@ -383,7 +383,7 @@ cleanup:
 	}
 	archive_string_free(&tempfile);
 	SAlloc::F(buff);
-	return (ret);
+	return ret;
 }
 
 #else
@@ -397,7 +397,7 @@ static int setup_mac_metadata(struct archive_read_disk * a,
 	(void)a; /* UNUSED */
 	(void)entry; /* UNUSED */
 	(void)fd; /* UNUSED */
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 #endif
@@ -457,7 +457,7 @@ static int setup_xattr(struct archive_read_disk * a,
 
 	if(size > 0 && (value = SAlloc::M(size)) == NULL) {
 		archive_set_error(&a->archive, errno, "Out of memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	if(fd >= 0) {
@@ -497,7 +497,7 @@ static int setup_xattr(struct archive_read_disk * a,
 	archive_entry_xattr_add_entry(entry, name, value, size);
 
 	SAlloc::F(value);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int setup_xattrs(struct archive_read_disk * a,
@@ -545,18 +545,18 @@ static int setup_xattrs(struct archive_read_disk * a,
 
 	if(list_size == -1) {
 		if(errno == ENOTSUP || errno == ENOSYS)
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 		archive_set_error(&a->archive, errno,
 		    "Couldn't list extended attributes");
 		return (ARCHIVE_WARN);
 	}
 
 	if(list_size == 0)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	if((list = SAlloc::M(list_size)) == NULL) {
 		archive_set_error(&a->archive, errno, "Out of memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	if(*fd >= 0) {
@@ -614,7 +614,7 @@ static int setup_xattrs(struct archive_read_disk * a,
 	}
 
 	SAlloc::F(list);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 #elif ARCHIVE_XATTR_FREEBSD
@@ -648,7 +648,7 @@ static int setup_xattr(struct archive_read_disk * a, struct archive_entry * entr
 	}
 	if(size > 0 && (value = SAlloc::M(size)) == NULL) {
 		archive_set_error(&a->archive, errno, "Out of memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	if(fd >= 0)
 		size = extattr_get_fd(fd, __namespace, name, value, size);
@@ -663,7 +663,7 @@ static int setup_xattr(struct archive_read_disk * a, struct archive_entry * entr
 	}
 	archive_entry_xattr_add_entry(entry, fullname, value, size);
 	SAlloc::F(value);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int setup_xattrs(struct archive_read_disk * a,
@@ -688,18 +688,18 @@ static int setup_xattrs(struct archive_read_disk * a,
 		list_size = extattr_list_file(path, __namespace, NULL, 0);
 
 	if(list_size == -1 && errno == EOPNOTSUPP)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	if(list_size == -1) {
 		archive_set_error(&a->archive, errno, "Couldn't list extended attributes");
 		return (ARCHIVE_WARN);
 	}
 
 	if(list_size == 0)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	if((list = SAlloc::M(list_size)) == NULL) {
 		archive_set_error(&a->archive, errno, "Out of memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	if(*fd >= 0)
@@ -725,7 +725,7 @@ static int setup_xattrs(struct archive_read_disk * a,
 		p += 1 + len;
 	}
 	SAlloc::F(list);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 #else
@@ -738,7 +738,7 @@ static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * ent
 	(void)a;     /* UNUSED */
 	(void)entry; /* UNUSED */
 	(void)fd;    /* UNUSED */
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 #endif
@@ -769,18 +769,18 @@ static int setup_sparse_fiemap(struct archive_read_disk * a, struct archive_entr
 	int exit_sts = ARCHIVE_OK;
 	const char * path;
 	if(archive_entry_filetype(entry) != AE_IFREG || archive_entry_size(entry) <= 0 || archive_entry_hardlink(entry) != NULL)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	if(*fd < 0) {
 		path = archive_read_disk_entry_setup_path(a, entry, NULL);
 		if(path == NULL)
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		if(a->tree != NULL)
 			*fd = a->open_on_current_dir(a->tree, path, O_RDONLY | O_NONBLOCK | O_CLOEXEC);
 		else
 			*fd = open(path, O_RDONLY | O_NONBLOCK | O_CLOEXEC);
 		if(*fd < 0) {
 			archive_set_error(&a->archive, errno, "Can't open `%s'", path);
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		}
 		__archive_ensure_cloexec_flag(*fd);
 	}
@@ -870,7 +870,7 @@ static int setup_sparse(struct archive_read_disk * a,
 	if(archive_entry_filetype(entry) != AE_IFREG
 	    || archive_entry_size(entry) <= 0
 	    || archive_entry_hardlink(entry) != NULL)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	/* Does filesystem support the reporting of hole ? */
 	if(*fd < 0)
@@ -881,7 +881,7 @@ static int setup_sparse(struct archive_read_disk * a,
 	if(*fd >= 0) {
 #ifdef _PC_MIN_HOLE_SIZE
 		if(fpathconf(*fd, _PC_MIN_HOLE_SIZE) <= 0)
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 #endif
 		initial_off = lseek(*fd, 0, SEEK_CUR);
 		if(initial_off != 0)
@@ -889,16 +889,16 @@ static int setup_sparse(struct archive_read_disk * a,
 	}
 	else {
 		if(path == NULL)
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 #ifdef _PC_MIN_HOLE_SIZE
 		if(pathconf(path, _PC_MIN_HOLE_SIZE) <= 0)
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 #endif
 		*fd = open(path, O_RDONLY | O_NONBLOCK | O_CLOEXEC);
 		if(*fd < 0) {
 			archive_set_error(&a->archive, errno,
 			    "Can't open `%s'", path);
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		}
 		__archive_ensure_cloexec_flag(*fd);
 		initial_off = 0;
@@ -977,7 +977,7 @@ static int setup_sparse(struct archive_read_disk * a,
 	(void)a;     /* UNUSED */
 	(void)entry; /* UNUSED */
 	(void)fd;    /* UNUSED */
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 #endif

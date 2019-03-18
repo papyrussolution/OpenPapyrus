@@ -175,7 +175,7 @@ STDMETHODIMP CBufPtrSeqOutStream::Write(const void * data, uint32 size, uint32 *
 	return (rem != 0 || size == 0) ? S_OK : E_FAIL;
 }
 
-static const uint64 kEmptyTag = (uint64)(int64)-1;
+static const uint64 kEmptyTag = static_cast<uint64>(-1LL);
 
 CCachedInStream::CCachedInStream() : _tags(0), _data(0) 
 {

@@ -941,7 +941,7 @@ MSG_PROCESS_RETURN tls_process_client_hello(SSL * s, PACKET * pkt)
 		 * use version from inside client hello, not from record header (may
 		 * differ: see RFC 2246, Appendix E, second paragraph)
 		 */
-		if(!PACKET_get_net_2(pkt, (uint*)&s->client_version)) {
+		if(!PACKET_get_net_2(pkt, (uint *)&s->client_version)) {
 			al = SSL_AD_DECODE_ERROR;
 			SSLerr(SSL_F_TLS_PROCESS_CLIENT_HELLO, SSL_R_LENGTH_TOO_SHORT);
 			goto f_err;
@@ -1903,7 +1903,7 @@ int tls_construct_server_key_exchange(SSL * s)
 #endif
 			if(EVP_SignInit_ex(md_ctx, md, NULL) <= 0 || EVP_SignUpdate(md_ctx, &(s->s3->client_random[0]), SSL3_RANDOM_SIZE) <= 0 || 
 				EVP_SignUpdate(md_ctx, &(s->s3->server_random[0]), SSL3_RANDOM_SIZE) <= 0 || 
-				EVP_SignUpdate(md_ctx, d, n) <= 0 || EVP_SignFinal(md_ctx, &(p[2]), (uint*)&i, pkey) <= 0) {
+				EVP_SignUpdate(md_ctx, d, n) <= 0 || EVP_SignFinal(md_ctx, &(p[2]), (uint *)&i, pkey) <= 0) {
 				SSLerr(SSL_F_TLS_CONSTRUCT_SERVER_KEY_EXCHANGE, ERR_LIB_EVP);
 				al = SSL_AD_INTERNAL_ERROR;
 				goto f_err;
@@ -2181,10 +2181,10 @@ static int tls_process_cke_rsa(SSL * s, PACKET * pkt, int * al)
 	 */
 	version_good =
 	    constant_time_eq_8(rsa_decrypt[padding_len],
-	    (unsigned)(s->client_version >> 8));
+	    (uint)(s->client_version >> 8));
 	version_good &=
 	    constant_time_eq_8(rsa_decrypt[padding_len + 1],
-	    (unsigned)(s->client_version & 0xff));
+	    (uint)(s->client_version & 0xff));
 
 	/*
 	 * The premaster secret must contain the same version number as the
@@ -2198,10 +2198,10 @@ static int tls_process_cke_rsa(SSL * s, PACKET * pkt, int * al)
 	if(s->options & SSL_OP_TLS_ROLLBACK_BUG) {
 		uchar workaround_good;
 		workaround_good = constant_time_eq_8(rsa_decrypt[padding_len],
-		    (unsigned)(s->version >> 8));
+		    (uint)(s->version >> 8));
 		workaround_good &=
 		    constant_time_eq_8(rsa_decrypt[padding_len + 1],
-		    (unsigned)(s->version & 0xff));
+		    (uint)(s->version & 0xff));
 		version_good |= workaround_good;
 	}
 

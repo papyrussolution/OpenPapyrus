@@ -1446,12 +1446,7 @@ static cairo_surface_t * _vg_surface_create_internal(cairo_vg_context_t * contex
 	surface->context = _vg_context_reference(context);
 	surface->image  = image;
 	surface->format = format;
-	_cairo_surface_init(&surface->base,
-	    &cairo_vg_surface_backend,
-	    NULL,              /* device */
-	    _vg_format_to_content(format),
-	    FALSE);              /* is_vector */
-
+	_cairo_surface_init(&surface->base, &cairo_vg_surface_backend, NULL/* device */, _vg_format_to_content(format), FALSE/* is_vector */);
 	surface->width  = width;
 	surface->height = height;
 	_cairo_surface_clipper_init(&surface->clipper, _vg_surface_clipper_intersect_clip_path);
@@ -1461,10 +1456,7 @@ static cairo_surface_t * _vg_surface_create_internal(cairo_vg_context_t * contex
 	return &surface->base;
 }
 
-cairo_surface_t * cairo_vg_surface_create_for_image(cairo_vg_context_t * context,
-    VGImage image,
-    VGImageFormat format,
-    int width, int height)
+cairo_surface_t * cairo_vg_surface_create_for_image(cairo_vg_context_t * context, VGImage image, VGImageFormat format, int width, int height)
 {
 	cairo_bool_t premult;
 	if(context->status)

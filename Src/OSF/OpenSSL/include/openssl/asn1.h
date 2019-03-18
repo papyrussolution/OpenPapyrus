@@ -256,7 +256,7 @@ typedef struct ASN1_VALUE_st ASN1_VALUE;
 #define CHECKED_I2D_OF(type, i2d) ((i2d_of_void*)(1 ? i2d : ((I2D_OF(type)) 0)))
 #define CHECKED_NEW_OF(type, xnew) ((void *(*)(void))(1 ? xnew : ((type *(*)(void)) 0)))
 #define CHECKED_PTR_OF(type, p)  ((void *)(1 ? p : (type*)0))
-#define CHECKED_PPTR_OF(type, p) ((void**)(1 ? p : (type**)0))
+#define CHECKED_PPTR_OF(type, p) ((void **)(1 ? p : (type**)0))
 
 #define TYPEDEF_D2I_OF(type) typedef type * d2i_of_ ## type (type **, const uchar **, long)
 #define TYPEDEF_I2D_OF(type) typedef int i2d_of_ ## type (type *, uchar **)
@@ -733,8 +733,8 @@ void ASN1_PCTX_set_str_flags(ASN1_PCTX * p, ulong flags);
 
 ASN1_SCTX * ASN1_SCTX_new(int (* scan_cb)(ASN1_SCTX * ctx));
 void ASN1_SCTX_free(ASN1_SCTX * p);
-const ASN1_ITEM * ASN1_SCTX_get_item(ASN1_SCTX * p);
-const ASN1_TEMPLATE * ASN1_SCTX_get_template(ASN1_SCTX * p);
+const ASN1_ITEM * ASN1_SCTX_get_item(const ASN1_SCTX * p);
+const ASN1_TEMPLATE * ASN1_SCTX_get_template(const ASN1_SCTX * p);
 ulong ASN1_SCTX_get_flags(ASN1_SCTX * p);
 void ASN1_SCTX_set_app_data(ASN1_SCTX * p, void * data);
 void * ASN1_SCTX_get_app_data(ASN1_SCTX * p);

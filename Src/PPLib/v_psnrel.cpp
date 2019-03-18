@@ -439,7 +439,7 @@ int SLAPI PPViewPersonRel::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 	if(ok == -2) {
 		BrwHdr brw_hdr;
 		if(pHdr)
-			brw_hdr = *(BrwHdr*)pHdr;
+			brw_hdr = *static_cast<const BrwHdr *>(pHdr);
 		else
 			MEMSZERO(brw_hdr);
 		prmr_id = brw_hdr.PrmrPersonID;

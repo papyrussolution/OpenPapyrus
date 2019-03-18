@@ -567,12 +567,12 @@ int FASTCALL PPQuotArray::SearchQiList(const QuotIdent & rQi, LongArray & rPosLi
 					if(qtty_diff >= 0.0) {
 						if(rQi.Dt) {
 							if(rq.Period.CheckDate(rQi.Dt)) {
-								rPosList.add((long)i);
+								rPosList.add(static_cast<long>(i));
 								ok = 1;
 							}
 						}
 						else {
-							rPosList.add((long)i);
+							rPosList.add(static_cast<long>(i));
 							ok = 1;
 						}
 					}
@@ -735,7 +735,7 @@ int SLAPI PPQuotArray::IsDisabled(const QuotIdent & rIdent, const PPIDArray * pQ
 	if(SearchNearest(rIdent, &pos) > 0) {
 		PPQuot * p_quot = &at(pos);
 		r = (p_quot->Flags & PPQuot::fPctDisabled) ? 1 : 0;
-		for(uint i = 0; !r && enumItems(&i, (void**)&p_quot);) {
+		for(uint i = 0; !r && enumItems(&i, (void **)&p_quot);) {
 			pos = 0;
 			if((p_quot->Flags & PPQuot::fPctDisabled) && rIdent.CurID == p_quot->CurID &&
 				p_quot->Kind == rIdent.QuotKindID && (!pQKList || pQKList->lsearch(p_quot->Kind, &pos))) {
@@ -766,7 +766,7 @@ int SLAPI PPQuotArray::Correct721(PPLogger * pLogger)
 				if(r_q2.ID < r_q.ID)
 					to_remove_list.addUnique((long)j);
 				else
-					to_remove_list.addUnique((long)i);
+					to_remove_list.addUnique(static_cast<long>(i));
 			}
 		}
 	}
@@ -987,7 +987,7 @@ int SLAPI QuotationCore::SetCurrList(const PPQuotArray & rQuotList, const PPQuot
 		else {
 			GetCurrList(rQuotList.GoodsID, 0, 0, templ);
 		}
-		for(i = 0; rQuotList.enumItems(&i, (void**)&p_quot);) {
+		for(i = 0; rQuotList.enumItems(&i, (void **)&p_quot);) {
 			p_quot->Flags &= ~PPQuot::fDbUpd;
 			if((p_quot->Flags & (PPQuot::fPctDisabled|PPQuot::fZero)) || R2(p_quot->Quot) != 0.0) {
 				if(rQuotList.CanUpdateQuot(*p_quot) > 0) {
@@ -1328,10 +1328,10 @@ public:
 		MEMSZERO(LStatData);
 		PPObjGoods goods_obj;
 		MtxQkID = goods_obj.GetConfig().MtxQkID;
-		IgnoreFolderMtx = BIN(goods_obj.GetConfig().Flags & GCF_IGNOREFOLDERMATRIX); // @v8.3.4
+		IgnoreFolderMtx = BIN(goods_obj.GetConfig().Flags & GCF_IGNOREFOLDERMATRIX);
 	}
 	int    SLAPI Implement_GetMatrix(int qpg, void * pProvider, ReadWriteLock & rRwl, PPID locID, PPIDArray * pResult);
-	int    SLAPI Implement_DirtyMatrix(const PPIDArray * pGoodsList, PPIDArray * pMtxLocList, int deferred);
+	int    SLAPI Implement_DirtyMatrix(const PPIDArray * pGoodsList, const PPIDArray * pMtxLocList, int deferred);
 	static int FASTCALL Helper_CallDirtyMatrix(PPIDArray * pMtxGoodsList);
 
 	struct MatrixEntry {
@@ -1449,7 +1449,7 @@ int FASTCALL QuotCacheBase::Helper_CallDirtyMatrix(PPIDArray * pMtxGoodsList)
 	return ok;
 }
 
-int SLAPI QuotCacheBase::Implement_DirtyMatrix(const PPIDArray * pGoodsList, PPIDArray * pMtxLocList, int deferred)
+int SLAPI QuotCacheBase::Implement_DirtyMatrix(const PPIDArray * pGoodsList, const PPIDArray * pMtxLocList, int deferred)
 {
 	const uint _threshould = 100;
 

@@ -221,7 +221,7 @@ int RAND_poll(void)
 				struct timeval t;
 				t.tv_sec = 0;
 				t.tv_usec = usec;
-				if(FD_SETSIZE > 0 && (unsigned)fd >= FD_SETSIZE) {
+				if(FD_SETSIZE > 0 && (uint)fd >= FD_SETSIZE) {
 					/*
 					 * can't use select, so just try to read once anyway
 					 */

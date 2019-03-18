@@ -238,7 +238,7 @@ int TcpSocket::SslBlock::Connect(SOCKET s)
 	int    ok = 1;
 	SSL  * p_ssl_s = 0;
 	THROW(P_Ctx);
-	THROW(p_ssl_s = SSL_new((SSL_CTX *)P_Ctx));
+	THROW(p_ssl_s = SSL_new(static_cast<SSL_CTX *>(P_Ctx)));
 	SSL_set_fd(p_ssl_s, s);
 	THROW(SSL_connect(p_ssl_s) == 1);
 	P_S = p_ssl_s;
@@ -250,13 +250,13 @@ int TcpSocket::SslBlock::Shutdown()
 {
 	int    ok = -1;
 	if(P_S) {
-		SSL_shutdown((SSL *)P_S);
-		SSL_free((SSL *)P_S);
+		SSL_shutdown(static_cast<SSL *>(P_S));
+		SSL_free(static_cast<SSL *>(P_S));
 		P_S = 0;
 		ok = 1;
 	}
 	if(P_Ctx) {
-		SSL_CTX_free((SSL_CTX *)P_Ctx);
+		SSL_CTX_free(static_cast<SSL_CTX *>(P_Ctx));
 		P_Ctx = 0;
 		ok = 1;
 	}
@@ -265,13 +265,13 @@ int TcpSocket::SslBlock::Shutdown()
 
 int TcpSocket::SslBlock::Accept()
 {
-	LastError = P_S ? SSL_accept((SSL *)P_S) : -1;
+	LastError = P_S ? SSL_accept(static_cast<SSL *>(P_S)) : -1;
 	return LastError ? 0 : 1;
 }
 
 int TcpSocket::SslBlock::Select(int mode /* TcpSocket::mXXX */, int timeout, size_t * pAvailableSize) { return BIN(P_S); }
-int TcpSocket::SslBlock::Read(void * pBuf, int bufLen) { return P_S ? SSL_read((SSL *)P_S, pBuf, bufLen) : -1; }
-int TcpSocket::SslBlock::Write(const void * pBuf, int bufLen) { return P_S ? SSL_write((SSL *)P_S, pBuf, bufLen) : -1; }
+int TcpSocket::SslBlock::Read(void * pBuf, int bufLen) { return P_S ? SSL_read(static_cast<SSL *>(P_S), pBuf, bufLen) : -1; }
+int TcpSocket::SslBlock::Write(const void * pBuf, int bufLen) { return P_S ? SSL_write(static_cast<SSL *>(P_S), pBuf, bufLen) : -1; }
 
 SLAPI TcpSocket::TcpSocket(int timeout, int maxConn) : InBuf(DefaultReadFrame), OutBuf(DefaultWriteFrame), Timeout(timeout), MaxConn(maxConn), LastSockErr(0), P_Ssl(0)
 {
@@ -453,9 +453,9 @@ int SLAPI TcpSocket::GetSockName(InetAddr * pAddr, int peer)
 	struct sockaddr_in addr;
 	int    addrlen = sizeof(addr);
 	if(peer)
-		ok = !getpeername(S, (struct sockaddr*)&addr, &addrlen);
+		ok = !getpeername(S, (struct sockaddr *)&addr, &addrlen);
 	else
-		ok = !getsockname(S, (struct sockaddr*)&addr, &addrlen);
+		ok = !getsockname(S, (struct sockaddr *)&addr, &addrlen);
 	if(ok > 0) {
 		uchar  str_addr[16];
 		SString addr_buf;
@@ -3178,7 +3178,7 @@ int ScURL::SetupCbWrite(SFile * pF)
 int ScURL::CbProgress(void * extraPtr, int64 dltotal, int64 dlnow, int64 ultotal, int64 ulnow)
 {
 	int    ret = 0;
-	SDataMoveProgressInfo * p_data = (SDataMoveProgressInfo *)extraPtr;
+	SDataMoveProgressInfo * p_data = static_cast<SDataMoveProgressInfo *>(extraPtr);
 	if(p_data && p_data->Proc) {
 		if(dltotal > ultotal) {
 			p_data->SizeTotal = dltotal;

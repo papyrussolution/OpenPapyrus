@@ -33,11 +33,11 @@ int SLAPI pathToUNC(const char * pPath, SString & rUncPath)
 	char   disk[4] = "X:\\";
 	*disk = *pPath;
 	rUncPath = pPath;
-	if(GetDriveType(disk) == DRIVE_REMOTE) { // @unicodeproblem
+	if(GetDriveType(SUcSwitch(disk)) == DRIVE_REMOTE) { // @unicodeproblem
 		char   namebuf[MAXPATH + sizeof(UNIVERSAL_NAME_INFO)];
 		namebuf[0] = 0;
 		DWORD  len = MAXPATH;
-		DWORD  wstat = WNetGetUniversalName(pPath, UNIVERSAL_NAME_INFO_LEVEL, &namebuf, &len); // @unicodeproblem
+		DWORD  wstat = WNetGetUniversalName(SUcSwitch(pPath), UNIVERSAL_NAME_INFO_LEVEL, &namebuf, &len); // @unicodeproblem
 		if(wstat != NO_ERROR)
 			ok = (SLibError = SLERR_INVPATH, 0);
 		else
@@ -48,7 +48,7 @@ int SLAPI pathToUNC(const char * pPath, SString & rUncPath)
 
 static int Win_IsFileExists(const char * pFileName)
 {
-	HANDLE handle = ::CreateFile(pFileName, 0 /* query access only */,
+	HANDLE handle = ::CreateFile(SUcSwitch(pFileName), 0 /* query access only */,
 		FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE /* share mode */,
 		NULL /*security attributes*/, OPEN_EXISTING /*disposition*/,
 		FILE_FLAG_NO_BUFFERING|FILE_FLAG_SEQUENTIAL_SCAN /* flags & attributes */, NULL /* template file */); // @unicodeproblem
@@ -119,7 +119,7 @@ int SLAPI driveValid(const char * pPath)
 	int    ok = 0;
 	char   dname[4]="X:\\";
 	dname[0] = *pPath;
-	uint t = GetDriveType(dname); // @unicodeproblem
+	uint t = GetDriveType(SUcSwitch(dname)); // @unicodeproblem
 	if(t != DRIVE_UNKNOWN && t != DRIVE_NO_ROOT_DIR)
 		ok = 1;
 	else if(pPath[0] == '\\' && pPath[1] == '\\') {
@@ -129,7 +129,7 @@ int SLAPI driveValid(const char * pPath)
 		if(p) {
 			*p = 0;
 			setLastSlash(buf);
-			ok = GetVolumeInformation(buf, 0, 0, 0, 0, 0, 0, 0); // @unicodeproblem
+			ok = GetVolumeInformation(SUcSwitch(buf), 0, 0, 0, 0, 0, 0, 0); // @unicodeproblem
 		}
 	}
 	return ok;
@@ -144,7 +144,7 @@ int FASTCALL IsDirectory(const char * pStr)
 #ifdef __WIN32__
 		WIN32_FIND_DATA fd;
 		MEMSZERO(fd);
-		HANDLE h = FindFirstFile(pStr, &fd); // @unicodeproblem
+		HANDLE h = FindFirstFile(SUcSwitch(pStr), &fd); // @unicodeproblem
 		if(h != INVALID_HANDLE_VALUE) {
 			if(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 				yes = 1;
@@ -153,7 +153,7 @@ int FASTCALL IsDirectory(const char * pStr)
 		else {
 			SString temp_buf;
 			(temp_buf = pStr).Strip().SetLastSlash().CatChar('*');
-			h = FindFirstFile(temp_buf, &fd); // @unicodeproblem
+			h = FindFirstFile(SUcSwitch(temp_buf), &fd); // @unicodeproblem
 			if(h != INVALID_HANDLE_VALUE) {
 				yes = 1;
 				FindClose(h);
@@ -201,10 +201,10 @@ static char * SLAPI squeeze(char * path)
 static char * SLAPI fexpand(char * rpath)
 {
 #ifdef __WIN32__
-	char * fn = 0;
-	char   buf[MAXPATH];
-	::GetFullPathName(rpath, MAXPATH, buf, &fn); // @unicodeproblem
-	return strcpy(rpath, buf);
+	TCHAR * fn = 0;
+	TCHAR  buf[MAXPATH];
+	::GetFullPathName(SUcSwitch(rpath), MAXPATH, buf, &fn); // @unicodeproblem
+	return strcpy(rpath, SUcSwitch(buf));
 #else
 	char path[MAXPATH];
 	char drive[MAXDRIVE];
@@ -301,7 +301,7 @@ int SLAPI createDir(const char * pPath)
 				if(path[0] == path[1] && path[0] == '\\' && !strchr(path+2, '\\'))
 					is_root = 1;
 				if(!is_root && (path[0] && ::access(path, 0) != 0))
-					if(::CreateDirectory(path, NULL) == 0) { // @unicodeproblem
+					if(::CreateDirectory(SUcSwitch(path), NULL) == 0) { // @unicodeproblem
 						SLS.SetAddedMsgString(path);
 						ok = (SLibError = SLERR_MKDIRFAULT, 0);
 					}
@@ -322,11 +322,22 @@ int SLAPI isWild(const char * f)
 SString & SLAPI makeExecPathFileName(const char * pName, const char * pExt, SString & rPath)
 {
 	HMODULE h_inst = SLS.GetHInst();
-	char   drv[MAXDRIVE], dir[MAXDIR], path[MAXPATH];
+	/* @v10.3.9
+	char   drv[MAXDRIVE], dir[MAXDIR];
+	char   path[MAXPATH];
 	GetModuleFileName(h_inst, path, sizeof(path)); // @unicodeproblem
 	fnsplit(path, drv, dir, 0, 0);
 	fnmerge(path, drv, dir, pName, pExt);
 	rPath = path;
+	*/
+	// @v10.3.9 {
+	SString path;
+	SSystem::SGetModuleFileName(h_inst, path);
+	SPathStruc ps(path);
+	ps.Nam = pName;
+	ps.Ext = pExt;
+	ps.Merge(rPath);
+	// } @v10.3.9 
 	return rPath;
 }
 
@@ -399,7 +410,7 @@ void SLAPI encode_fat_datetime(uint16 * fd, uint16 * ft, LDATETIME * dt)
 int SLAPI copyFileByName(const char * pSrcFileName, const char * pDestFileName)
 {
 #ifdef __WIN32__
-	int    r = ::CopyFile(pSrcFileName, pDestFileName, 0); // @unicodeproblem
+	int    r = ::CopyFile(SUcSwitch(pSrcFileName), SUcSwitch(pDestFileName), 0); // @unicodeproblem
 	if(r == 0)
 		SLS.SetOsError();
 	return r;
@@ -426,7 +437,7 @@ int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SData
 	SString added_msg;
 	FILETIME creation_time, last_access_time, last_modif_time;
 
-	srchdl = ::CreateFile(pSrcFileName, GENERIC_READ, shareMode, 0, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, 0); // @unicodeproblem
+	srchdl = ::CreateFile(SUcSwitch(pSrcFileName), GENERIC_READ, shareMode, 0, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, 0); // @unicodeproblem
 	if(srchdl == INVALID_HANDLE_VALUE) {
 		char   tmp_msg_buf[256];
 		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0, ::GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)tmp_msg_buf, sizeof(tmp_msg_buf), 0);
@@ -439,7 +450,7 @@ int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SData
 	//THROW_V(srchdl != INVALID_HANDLE_VALUE, SLERR_OPENFAULT);
 	GetFileTime(srchdl, &creation_time, &last_access_time, &last_modif_time);
 
-	desthdl = ::CreateFile(pDestFileName, GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0); // @unicodeproblem
+	desthdl = ::CreateFile(SUcSwitch(pDestFileName), GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0); // @unicodeproblem
 	if(desthdl == INVALID_HANDLE_VALUE) {
 		char   tmp_msg_buf[256];
 		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0, ::GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)tmp_msg_buf, sizeof(tmp_msg_buf), 0);
@@ -606,7 +617,7 @@ int RemoveDir(const char * pDir)
 		}
 		if(ok > 0) {
 			(path = pDir).RmvLastSlash();
-			if(::RemoveDirectory(path) != 0) // @unicodeproblem
+			if(::RemoveDirectory(SUcSwitch(path)) != 0) // @unicodeproblem
 				ok = 1;
 			else
 				ok = 0;
@@ -626,7 +637,8 @@ int SFileUtil::GetStat(const char * pFileName, Stat * pStat)
 	MEMSZERO(stat);
 #ifdef __WIN32__
 	LARGE_INTEGER size;
-	HANDLE srchdl = CreateFile(pFileName, FILE_READ_ATTRIBUTES|FILE_READ_EA|STANDARD_RIGHTS_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0); // @unicodeproblem
+	HANDLE srchdl = ::CreateFile(SUcSwitch(pFileName), FILE_READ_ATTRIBUTES|FILE_READ_EA|STANDARD_RIGHTS_READ, 
+		FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0); // @unicodeproblem
 	SLS.SetAddedMsgString(pFileName);
 	THROW_V(srchdl != INVALID_HANDLE_VALUE, SLERR_OPENFAULT);
 	SFile::GetTime((int)srchdl, &stat.CrtTime, &stat.AccsTime, &stat.ModTime);
@@ -648,7 +660,7 @@ int SFileUtil::GetDiskSpace(const char * pPath, int64 * pTotal, int64 * pAvail)
 	SString path;
 	SPathStruc ps(pPath);
 	ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, path);
-	if(GetDiskFreeSpaceEx(path, &avail, &total, &total_free)) { // @unicodeproblem
+	if(GetDiskFreeSpaceEx(SUcSwitch(path), &avail, &total, &total_free)) { // @unicodeproblem
 		ASSIGN_PTR(pTotal, total.QuadPart);
 		ASSIGN_PTR(pAvail, avail.QuadPart);
 	}
@@ -669,7 +681,7 @@ int SFileUtil::GetSysDir(int pathId, SString & rPath)
 	*/
 	rPath = 0;
 	int    ok = 0;
-	char   path[MAXPATH];
+	TCHAR  path[MAXPATH];
 	int    folder = 0;
 	switch(pathId) {
 		case sdSystem: folder = CSIDL_WINDOWS; break;
@@ -682,7 +694,7 @@ int SFileUtil::GetSysDir(int pathId, SString & rPath)
 	}
 	if(folder) {
 		if(SUCCEEDED(SHGetFolderPath(0, folder, 0, SHGFP_TYPE_CURRENT, path))) { // @unicodeproblem
-			rPath = path;
+			rPath = SUcSwitch(path);
 			ok = 1;
 		}
 	}

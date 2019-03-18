@@ -1137,7 +1137,7 @@ int SLAPI PPObjGoods::MakeReplaceStr(const PPGoodsPacket * pPack,
 	return ok;
 }
 
-int SLAPI PPObjGoods::Helper_ReplaceName(PPGoodsPacket * pPack, const PPGoodsReplaceNameParam * pParam, char * pDest, size_t bufLen)
+int SLAPI PPObjGoods::Helper_ReplaceName(const PPGoodsPacket * pPack, const PPGoodsReplaceNameParam * pParam, char * pDest, size_t bufLen)
 {
 	int    ok = -1;
 	int    found = 0;

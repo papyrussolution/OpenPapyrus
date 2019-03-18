@@ -1,5 +1,5 @@
 // PPARRAY.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2018, 2019
 // @Kernel
 //
 #include <pp.h>
@@ -9,12 +9,12 @@
 //
 void SLAPI PPCycleFilt::Init()
 {
-	*(uint32 *)this = 0;
+	*reinterpret_cast<uint32 *>(this) = 0;
 }
 
 int FASTCALL PPCycleFilt::operator == (const PPCycleFilt s) const
 {
-	return (*(const uint32 *)this == *(const uint32 *)&s);
+	return (*reinterpret_cast<const uint32 *>(this) == *reinterpret_cast<const uint32 *>(&s));
 }
 
 int SLAPI PPCycleFilt::operator !() const
@@ -239,7 +239,7 @@ void SLAPI PPCycleArray::formatCycle(LDATE dt, char * pBuf, size_t bufLen) const
 int SLAPI PPCycleArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
-	THROW_SL(pCtx->Serialize(dir, (SArray*)this, rBuf));
+	THROW_SL(pCtx->Serialize(dir, reinterpret_cast<SVector *>(this), rBuf)); // @v10.3.9 @fix (SArray-->SVector)
 	THROW_SL(pCtx->Serialize(dir, Period.low, rBuf));
 	THROW_SL(pCtx->Serialize(dir, Period.upp, rBuf));
 	THROW_SL(pCtx->Serialize(dir, Cycle, rBuf));
@@ -741,7 +741,7 @@ int SLAPI PPObjIDArray::ProcessRef(PPID objType, PPID * pObjID)
 			ok = Add(objType, *pObjID);
 		else {
 			PPObjID * p_o;
-			for(uint p = 0; ok < 0 && enumItems(&p, (void**)&p_o);)
+			for(uint p = 0; ok < 0 && enumItems(&p, (void **)&p_o);)
 				if(p_o->Obj) {
 					p_o->Obj = 0;
 					*pObjID = p_o->Id;

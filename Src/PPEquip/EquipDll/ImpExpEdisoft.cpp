@@ -605,7 +605,7 @@ int ExportCls::OrderHeader()
 	SString str, fmt;
 	THROWERR(P_XmlWriter, IEERR_NULLWRIEXMLPTR);
 	BillSumWithoutVat = 0.0;
-	xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"Document-Order");
+	xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"Document-Order");
 	{
 		SXml::WNode n_hdr(P_XmlWriter, "Order-Header");
 		{
@@ -657,9 +657,9 @@ int ExportCls::RecadvHeader()
 	SString str, fmt;
 	THROWERR(P_XmlWriter, IEERR_NULLWRIEXMLPTR);
 	BillSumWithoutVat = 0.0;
-	xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_DOCRECADV);
-		xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"ReceivingAdvice-Header");
-			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"ReceivingAdviceNumber"); // Номер документа уведомления
+	xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_DOCRECADV);
+		xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"ReceivingAdvice-Header");
+			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"ReceivingAdviceNumber"); // Номер документа уведомления
 			//{
 			//	SString str1;
 			//	str1.Z().Cat(Bill.Code).ToUtf8();
@@ -668,7 +668,7 @@ int ExportCls::RecadvHeader()
 			//}
 				xmlTextWriterWriteString(P_XmlWriter, (str = Bill.Code).ToUtf8().ucptr());
 			xmlTextWriterEndElement(P_XmlWriter); // RECADVNUMBER
-			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"ReceivingAdviceDate"); // Дата создания уведомления
+			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"ReceivingAdviceDate"); // Дата создания уведомления
 				fmt.Z().Cat(Bill.Date.month());
 				if(fmt.Len() == 1)
 					fmt.PadLeft(1, '0');
@@ -679,7 +679,7 @@ int ExportCls::RecadvHeader()
                 str.CatChar('-').Cat(fmt);
 				xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 			xmlTextWriterEndElement(P_XmlWriter); // RECADVDATE
-			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"GoodsReceiptDate"); // Фактическая дата приема товара
+			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"GoodsReceiptDate"); // Фактическая дата приема товара
 				fmt.Z().Cat(Bill.Date.month());
 				if(fmt.Len() == 1)
 					fmt.PadLeft(1, '0');
@@ -690,17 +690,17 @@ int ExportCls::RecadvHeader()
                 str.CatChar('-').Cat(fmt);
 				xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 			xmlTextWriterEndElement(P_XmlWriter); // GOODSRECDATE
-			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_BUYERORDERNUMBER); // Номер заказа
-				xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)Bill.OrderBillNo); // Все равно пустое значение
+			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_BUYERORDERNUMBER); // Номер заказа
+				xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)Bill.OrderBillNo); // Все равно пустое значение
 			xmlTextWriterEndElement(P_XmlWriter); // BUYERORDERNUMBER
-			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"DespatchNumber"); // Номер ТТН
+			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"DespatchNumber"); // Номер ТТН
 				xmlTextWriterWriteString(P_XmlWriter, TTN.Transf(CTRANSF_INNER_TO_UTF8).ucptr());
 			xmlTextWriterEndElement(P_XmlWriter); // DESPATCHNUMBER
-			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"DocumentFunctionCode"); // Код функции документа
-				xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)"9"); // Оригинал
+			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"DocumentFunctionCode"); // Код функции документа
+				xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)"9"); // Оригинал
 			xmlTextWriterEndElement(P_XmlWriter); // DOCFUNCTYPE
-			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_DOCNAMECODE); // Код типа документа
-				xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)"351"); // Уведомление о поставке
+			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_DOCNAMECODE); // Код типа документа
+				xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)"351"); // Уведомление о поставке
 			xmlTextWriterEndElement(P_XmlWriter); // DOCNAMECODE
 		xmlTextWriterEndElement(P_XmlWriter); // DOCORDERHDR
 
@@ -732,9 +732,9 @@ int ExportCls::DocParties()
 					n_sender.PutInner("ILN", sender_gln); // GLN отправителя
 					//// Если GLN агента пусто, то пишем GLN главной организации (оставила по-старому, ибо иначе будут проблемы при получении входящих документов)
 					//if(!isempty(Bill.AgentGLN))
-					//	xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)Bill.AgentGLN);
+					//	xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)Bill.AgentGLN);
 					//else
-					//	xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)Bill.MainGLN);
+					//	xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)Bill.MainGLN);
 				}
 				{
 					SXml::WNode n_rcvr(P_XmlWriter, "Receiver"); // Получатель
@@ -743,57 +743,57 @@ int ExportCls::DocParties()
 			}
 		}
 		if(MessageType == PPEDIOP_ORDER)
-			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_ORDERPARTIES);
+			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_ORDERPARTIES);
 		else if(MessageType == PPEDIOP_RECADV)
-			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"ReceivingAdvice-Parties");
-			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_BUYER); // Покупатель
-				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"ILN"); // GLN покупателя
+			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"ReceivingAdvice-Parties");
+			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_BUYER); // Покупатель
+				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"ILN"); // GLN покупателя
 					FormatLoginToGLN(Header.EdiLogin, login.Z());
 					xmlTextWriterWriteString(P_XmlWriter, login.ucptr());
 					//// Если GLN агента пусто, то пишем GLN главной организации
 					//if(!isempty(Bill.AgentGLN))
-					//	xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)Bill.AgentGLN);
+					//	xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)Bill.AgentGLN);
 					//else
-					//	xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)Bill.MainGLN);
+					//	xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)Bill.MainGLN);
 				xmlTextWriterEndElement(P_XmlWriter); // ILN
-				//xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_NAME); // Название покупателя (опционально)
+				//xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_NAME); // Название покупателя (опционально)
 				//xmlTextWriterEndElement(P_XmlWriter); // NAME
 			xmlTextWriterEndElement(P_XmlWriter); // BUYER
-			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_SELLER); // Продавец
-				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"ILN"); // GLN продавца
-					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)Bill.GLN);
+			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_SELLER); // Продавец
+				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"ILN"); // GLN продавца
+					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)Bill.GLN);
 				xmlTextWriterEndElement(P_XmlWriter); // ILN
-				//xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_NAME); // Название продавца (опционально)
-				//	xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)Bill.ContragName); // Может быть, это поле
+				//xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_NAME); // Название продавца (опционально)
+				//	xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)Bill.ContragName); // Может быть, это поле
 				//xmlTextWriterEndElement(P_XmlWriter); // NAME
 			xmlTextWriterEndElement(P_XmlWriter); // SELLER
-			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"DeliveryPoint"); // Точка доставки
-				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"ILN"); // GLN точки доставки
+			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"DeliveryPoint"); // Точка доставки
+				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"ILN"); // GLN точки доставки
 					if(!isempty(Bill.DlvrAddrCode))
 						str.Z().Cat(Bill.DlvrAddrCode);
 					else
 						str.Z().Cat(Bill.LocCode);
 					xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 				xmlTextWriterEndElement(P_XmlWriter); // ILN
-				//xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_NAME); // Название точки доставки (опционально)
+				//xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_NAME); // Название точки доставки (опционально)
 				//xmlTextWriterEndElement(P_XmlWriter); // NAME
-				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"StreetAndNumber"); // Адрес точки доставки (улица и дом) (опционально)
+				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"StreetAndNumber"); // Адрес точки доставки (улица и дом) (опционально)
 					(str = Bill.DlvrAddr).ToUtf8();
 					xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 				xmlTextWriterEndElement(P_XmlWriter); // ADDRESS
-				//xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_CITYNAME); // Город точки доставки (опционально)
+				//xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_CITYNAME); // Город точки доставки (опционально)
 				//xmlTextWriterEndElement(P_XmlWriter); // CITYNAME
-				//xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"PostalCode"); // Почтовый индекс точки доставки (опционально)
+				//xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"PostalCode"); // Почтовый индекс точки доставки (опционально)
 				//xmlTextWriterEndElement(P_XmlWriter); // POSTALCODE
-				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_COUNTRY); // Страна точки доставки (опционально)
-					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_COUNTRY_RUS); // Россия
+				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_COUNTRY); // Страна точки доставки (опционально)
+					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)ELEMENT_CODE_COUNTRY_RUS); // Россия
 				xmlTextWriterEndElement(P_XmlWriter); // COUNTRY
 			xmlTextWriterEndElement(P_XmlWriter); // DELIVERYPOINT
 		xmlTextWriterEndElement(P_XmlWriter); // ORDERPARTIES/RECADVPARTIES
 		if(MessageType == PPEDIOP_ORDER)
-			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_ORDERLINES);
+			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_ORDERLINES);
 		else if(MessageType == PPEDIOP_RECADV)
-			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"ReceivingAdvice-Lines");
+			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"ReceivingAdvice-Lines");
 
 	CATCH
 		SysLogMessage(SYSLOG_DOCPARTIES);
@@ -824,29 +824,29 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 		THROW(P_ExportCls->RecadvHeader());
 		THROW(P_ExportCls->DocParties());
 	}
-			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"Line");
-				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"Line-Item");
-					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"LineNumber"); // Порядковый номер товара в заказе
+			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"Line");
+				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"Line-Item");
+					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"LineNumber"); // Порядковый номер товара в заказе
 						xmlTextWriterWriteString(P_XmlWriter, str.Z().Cat(Itr.GetCount() + 1).ucptr());
 					xmlTextWriterEndElement(P_XmlWriter); // LINENUMBER
-					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"EAN"); // Штрихкод товара
+					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"EAN"); // Штрихкод товара
 						xmlTextWriterWriteString(P_XmlWriter, str.Z().Cat(pBRow->Barcode).ucptr());
 					xmlTextWriterEndElement(P_XmlWriter); // EAN
 					if(!isempty(pBRow->ArCode)) {
-						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"SupplierItemCode"); // Артикул товара поставщика
+						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"SupplierItemCode"); // Артикул товара поставщика
 							xmlTextWriterWriteString(P_XmlWriter, (str = pBRow->ArCode).Transf(CTRANSF_INNER_TO_UTF8).ucptr());
 						xmlTextWriterEndElement(P_XmlWriter); // SUPPITEMCODE
 					}
-					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_ITEMDISCR); // Описание товара (имя) (опционально)
+					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_ITEMDISCR); // Описание товара (имя) (опционально)
 						{
 							str.Z().Cat(pBRow->GoodsName).ToUtf8(); // Провайдер требует эту кодировку
 							xmlTextWriterWriteString(P_XmlWriter, SXml::WNode::CDATA(str).ucptr()); // Наименование товара
 						}
 					xmlTextWriterEndElement(P_XmlWriter); // ITEMDISCR
 					if(MessageType == PPEDIOP_ORDER)
-						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"OrderedQuantity"); // Количество заказанного товара
+						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"OrderedQuantity"); // Количество заказанного товара
 					else if(MessageType == PPEDIOP_RECADV)
-						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"QuantityReceived"); // Количество пришедшего товара
+						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"QuantityReceived"); // Количество пришедшего товара
 							// В этом документообороте нужно учитывать количество упаковок, ибо есть тут такие единицы измерения
 							//if(pBRow->UnitPerPack) {
 							//	double qtty_pack = pBRow->Quantity / pBRow->UnitPerPack;
@@ -862,12 +862,12 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 						xmlTextWriterEndElement(P_XmlWriter); // ORDEREDQTTY/RECEIVEDQTTY
 					if(pBRow->UnitPerPack) {
 						if(MessageType == PPEDIOP_ORDER)
-							xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"OrderedUnitPacksize"); // Количество в упаковке (заказанное)
+							xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"OrderedUnitPacksize"); // Количество в упаковке (заказанное)
 						else if(MessageType == PPEDIOP_RECADV)
-							xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_UNITPACKSZ); // Количество в упаковке (пришедшее)
+							xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_UNITPACKSZ); // Количество в упаковке (пришедшее)
 							//str.Z().Cat(pBRow->UnitPerPack);
 							//xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
-							xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)"1");
+							xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)"1");
 						xmlTextWriterEndElement(P_XmlWriter); // ORDEREDPACKSZ/UNITPACKSZ
 					}
 
@@ -879,49 +879,49 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 							{
 								(str = pBRow->UnitName).ToUpper1251();
 								if(str.CmpNC(UNIT_NAME_KG) == 0)
-									xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_UNITOFMEASURE_KGM); // Килограммы
+									xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)ELEMENT_CODE_UNITOFMEASURE_KGM); // Килограммы
 								else {
 									// Если товар в упаковках, то пишем упаковки
 									//if(pBRow->UnitPerPack)
-									//	xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_UNITOFMEASURE_DPA); // Упаковки
+									//	xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)ELEMENT_CODE_UNITOFMEASURE_DPA); // Упаковки
 									// Иначе штуки
 									//else
-										xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_UNITOFMEASURE_PCE); // Отдельные элементы
+										xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)ELEMENT_CODE_UNITOFMEASURE_PCE); // Отдельные элементы
 								}
 							}
 						}
-						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"OrderedUnitNetPrice"); // Цена без НДС (заказ)
+						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"OrderedUnitNetPrice"); // Цена без НДС (заказ)
 							//double cost = pBRow->Cost - (pBRow->Cost / (pBRow->VatRate + 100) * 100);
 							double cost = (pBRow->Cost / (pBRow->VatRate + 100) * 100);
 							str.Z().Printf("%.3f", cost); // Число знаков после запятой должно быть не больше 3-х
 							xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 						xmlTextWriterEndElement(P_XmlWriter); // ORDEREDNETPRICE
-						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"OrderedUnitGrossPrice"); // Цена с НДС (заказ)
+						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"OrderedUnitGrossPrice"); // Цена с НДС (заказ)
 							str.Z().Printf("%.3f", pBRow->Cost); // Число знаков после запятой должно быть не больше 3-х
 							xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 						xmlTextWriterEndElement(P_XmlWriter); // ORDEREDGROSSPRICE
-						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"OrderedNetAmount"); // Сумма без НДС
+						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"OrderedNetAmount"); // Сумма без НДС
 							//double amount = (pBRow->Cost - (pBRow->Cost / (pBRow->VatRate + 100) * 100)) * pBRow->Quantity;
 							double amount = ((pBRow->Cost / (pBRow->VatRate + 100) * 100)) * pBRow->Quantity;
 							str.Z().Printf("%.3f", amount); // Число знаков после запятой должно быть не больше 3-х
 							BillSumWithoutVat += str.ToReal();
 							xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 						xmlTextWriterEndElement(P_XmlWriter); // ORDEREDNETAMOUNT
-						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"OrderedGrossAmount"); // Сумма с НДС
+						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"OrderedGrossAmount"); // Сумма с НДС
 							str.Z().Printf("%.3f", pBRow->Cost * pBRow->Quantity); // Число знаков после запятой должно быть не больше 3-х
 							xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 						xmlTextWriterEndElement(P_XmlWriter); // ORDEREDGROSSAMOUNT
-						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_TAXRATE); // Налоговая ставка % (опционально)
+						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_TAXRATE); // Налоговая ставка % (опционально)
 							str.Z().Printf("%.3f", pBRow->VatRate); // Число знаков после запятой должно быть не больше 3-х
 							xmlTextWriterWriteString(P_XmlWriter, str.ucptr()); // Ставка НДС
 						xmlTextWriterEndElement(P_XmlWriter); // TAXRATE
 					}
 					else if(MessageType == PPEDIOP_RECADV) {
-						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_UNITGROSSPRICE); // Цена с НДС (приход)
+						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_UNITGROSSPRICE); // Цена с НДС (приход)
 							str.Z().Printf("%.3f", pBRow->Cost); // Число знаков после запятой должно быть не больше 3-х
 							xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 						xmlTextWriterEndElement(P_XmlWriter); // UNITGROSSPRICE
-						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_UNITNETPRICE); // Цена без НДС (приход)
+						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_UNITNETPRICE); // Цена без НДС (приход)
 							//double price = pBRow->Cost - (pBRow->Cost / (pBRow->VatRate + 100) * 100);
 							double price = (pBRow->Cost / (pBRow->VatRate + 100) * 100);
 							str.Z().Printf("%.3f", price); // Число знаков после запятой должно быть не больше 3-х
@@ -932,30 +932,30 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 							{
 								(str = pBRow->UnitName).Utf8ToChar().ToUpper().Transf(CTRANSF_INNER_TO_OUTER);
 								if(str.CmpNC(UNIT_NAME_KG) == 0)
-									xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_UNITOFMEASURE_KGM); // Килограммы
+									xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)ELEMENT_CODE_UNITOFMEASURE_KGM); // Килограммы
 								else {
 									// Если товар в упаковках, то пишем упаковки
 									//if(pBRow->UnitPerPack)
-									//	xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_UNITOFMEASURE_DPA); // Упаковки
+									//	xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)ELEMENT_CODE_UNITOFMEASURE_DPA); // Упаковки
 									// Иначе штуки
 									//else
-									xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_UNITOFMEASURE_PCE); // Отдельные элементы
+									xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)ELEMENT_CODE_UNITOFMEASURE_PCE); // Отдельные элементы
 								}
 							}
 						}
 
-						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_NETAMOUNT); // Сумма без НДС
+						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_NETAMOUNT); // Сумма без НДС
 							//double amount = (pBRow->Cost - (pBRow->Cost / (pBRow->VatRate + 100) * 100)) * pBRow->Quantity;
 							double amount = ((pBRow->Cost / (pBRow->VatRate + 100) * 100)) * pBRow->Quantity;
 							str.Z().Printf("%.3f", amount); // Число знаков после запятой должно быть не больше 3-х
 							BillSumWithoutVat += str.ToReal();
 							xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 						xmlTextWriterEndElement(P_XmlWriter); // NETAMOUNT
-						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_GROSSAMOUNT); // Сумма с НДС
+						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_GROSSAMOUNT); // Сумма с НДС
 							str.Z().Printf("%.3f", pBRow->Cost * pBRow->Quantity); // Число знаков после запятой должно быть не больше 3-х
 							xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 						xmlTextWriterEndElement(P_XmlWriter); // GROSSAMOUNT
-						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_TAXRATE); // Налоговая ставка % (опционально)
+						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_TAXRATE); // Налоговая ставка % (опционально)
 							str.Z().Printf("%.3f", pBRow->VatRate); // Число знаков после запятой должно быть не больше 3-х
 							xmlTextWriterWriteString(P_XmlWriter, str.ucptr()); // Ставка НДС
 						xmlTextWriterEndElement(P_XmlWriter); // TAXRATE
@@ -964,13 +964,13 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 				// @vmiller {
 				// Добавлена дополнительная информация
 				//if(!isempty(pBRow->LotManuf)) {
-				//	xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"Line-Parties");
-				//		xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"Line-Party");
+				//	xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"Line-Parties");
+				//		xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"Line-Party");
 				//			// Производитель
-				//			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_PARTYTYPE);
-				//				xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_PARTYTYPE_MF); // Тип поля - производитель
+				//			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_PARTYTYPE);
+				//				xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)ELEMENT_CODE_PARTYTYPE_MF); // Тип поля - производитель
 				//			xmlTextWriterEndElement(P_XmlWriter); // PARTYTYPE
-				//			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_NAME);
+				//			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_NAME);
 				//				SString str1;
 				//				str1.Z().Cat(pBRow->LotManuf).ToUtf8();
 				//				str.Z().Cat("<![CDATA[").Cat(str1).Cat("]]>");
@@ -980,16 +980,16 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 				//	xmlTextWriterEndElement(P_XmlWriter); // LINEPARTIES
 				//}
 				if(pBRow->GoodKindCode || !isempty(pBRow->CLB) || !isempty(pBRow->Serial)) {
-					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"Line-Reference");
-						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"Reference-Elements");
+					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"Line-Reference");
+						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"Reference-Elements");
 							// Код вида продукции
 							if(pBRow->GoodKindCode) {
 								SXml::WNode n_ref(P_XmlWriter, "Reference-Element");
 								{
-									xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"Reference-Type");
-										xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_REFTYPE_YA1); // Тип поля - код вида продукции
+									xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"Reference-Type");
+										xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)ELEMENT_CODE_REFTYPE_YA1); // Тип поля - код вида продукции
 									xmlTextWriterEndElement(P_XmlWriter); // REFTYPE
-									xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"Reference-Id");
+									xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"Reference-Id");
 										xmlTextWriterWriteString(P_XmlWriter, str.Z().Cat(pBRow->GoodKindCode).ucptr()); // Код вида продукции
 									xmlTextWriterEndElement(P_XmlWriter); // REFID
 								}
@@ -998,10 +998,10 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 							if(!isempty(pBRow->CLB)) {
 								SXml::WNode n_ref(P_XmlWriter, "Reference-Element");
 								{
-									xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"Reference-Type");
-										xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_REFTYPE_ABT); // Тип поля - ГТД
+									xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"Reference-Type");
+										xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)ELEMENT_CODE_REFTYPE_ABT); // Тип поля - ГТД
 									xmlTextWriterEndElement(P_XmlWriter); // REFTYPE
-									xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"Reference-Id");
+									xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"Reference-Id");
 										xmlTextWriterWriteString(P_XmlWriter, str.Z().Cat(pBRow->CLB).ucptr()); // ГТД
 									xmlTextWriterEndElement(P_XmlWriter); // REFID
 								}
@@ -1010,10 +1010,10 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 							if(!isempty(pBRow->Serial)) {
 								SXml::WNode n_ref(P_XmlWriter, "Reference-Element");
 								{
-									xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"Reference-Type");
-										xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_REFTYPE_SER); // Тип поля - серия
+									xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"Reference-Type");
+										xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)ELEMENT_CODE_REFTYPE_SER); // Тип поля - серия
 									xmlTextWriterEndElement(P_XmlWriter); // REFTYPE
-									xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"Reference-Id");
+									xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"Reference-Id");
 										xmlTextWriterWriteString(P_XmlWriter, str.Z().Cat(pBRow->Serial).ucptr()); // Серия
 									xmlTextWriterEndElement(P_XmlWriter); // REFID
 								}
@@ -1042,23 +1042,23 @@ int ExportCls::EndDoc()
 	THROWERR(P_XmlWriter, IEERR_NULLWRIEXMLPTR);
 		xmlTextWriterEndElement(P_XmlWriter); // ORDERLINES/RECADVPARTIES
 		if(MessageType == PPEDIOP_ORDER)
-			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_ORDERSUMMARY);
+			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_ORDERSUMMARY);
 		else if(MessageType == PPEDIOP_RECADV)
-			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"ReceivingAdvice-Summary");
-			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_TOTALLINES); // Общее количество товарных линий
+			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"ReceivingAdvice-Summary");
+			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_TOTALLINES); // Общее количество товарных линий
 				xmlTextWriterWriteString(P_XmlWriter, str.Z().Cat(Itr.GetCount()).ucptr());
 			xmlTextWriterEndElement(P_XmlWriter); // TOTALLINES
 			if(MessageType == PPEDIOP_ORDER)
-				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"TotalOrderedAmount"); // Общее количество заказанного товара
+				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"TotalOrderedAmount"); // Общее количество заказанного товара
 			else if(MessageType == PPEDIOP_RECADV)
-				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"TotalGoodsReceiptAmount"); // Общее количество принятого товара
+				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"TotalGoodsReceiptAmount"); // Общее количество принятого товара
 			xmlTextWriterWriteString(P_XmlWriter, str.Z().Printf("%.3f", TotalGoodsCount).ucptr()); // Число знаков после запятой должно быть не больше 3-х
 			xmlTextWriterEndElement(P_XmlWriter); // TOTALORDEREDAMT/TOTALGOODSRECAMT
 
-			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_TOTALNETAMOUNT); // Сумма всего заказа без НДС
+			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_TOTALNETAMOUNT); // Сумма всего заказа без НДС
 				xmlTextWriterWriteString(P_XmlWriter, str.Z().Printf("%.3f", BillSumWithoutVat).ucptr()); // Число знаков после запятой должно быть не больше 3-х
 			xmlTextWriterEndElement(P_XmlWriter); // TOTALNETAMOUNT
-			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_TOTALGROSSAMOUNT); // Сумма всего заказа с НДС
+			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_TOTALGROSSAMOUNT); // Сумма всего заказа с НДС
 				str.Z().Printf("%.3f", Bill.Amount); // Число знаков после запятой должно быть не больше 3-х
 				xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 			xmlTextWriterEndElement(P_XmlWriter); // TOTALGROSSAMOUNT
@@ -1245,7 +1245,7 @@ EXPORT int SetExportObj(uint idSess, const char * pObjTypeSymb, void * pObjData,
 	P_ExportCls->CreateFileName(P_ExportCls->ObjId);
 	P_ExportCls->P_XmlWriter = xmlNewTextWriterFilename(P_ExportCls->ExpFileName, 0);
 	THROWERR(P_ExportCls->P_XmlWriter, IEERR_NULLWRIEXMLPTR);
-	xmlTextWriterSetIndentString(P_ExportCls->P_XmlWriter, (const xmlChar*)"\t");
+	xmlTextWriterSetIndentString(P_ExportCls->P_XmlWriter, reinterpret_cast<const xmlChar *>("\t"));
 	// UTF-8 - по требованию провайдера
 	xmlTextWriterStartDocument(P_ExportCls->P_XmlWriter, 0, "UTF-8", 0);
 	P_ExportCls->Bill = *(Sdr_Bill *)pObjData;
@@ -1331,7 +1331,7 @@ EXPORT int EnumExpReceipt(void * pReceipt)
 		}
 		// Считываем результаты отправки документов
 		if(P_ExportCls->ReadReceiptNum < P_ExportCls->ReceiptList.getCount()) {
-			ASSIGN_PTR((Sdr_DllImpExpReceipt *)pReceipt, *P_ExportCls->ReceiptList.at(P_ExportCls->ReadReceiptNum++));
+			*static_cast<Sdr_DllImpExpReceipt *>(pReceipt) = *P_ExportCls->ReceiptList.at(P_ExportCls->ReadReceiptNum++);
 			ok = 1;
 		}
 	}

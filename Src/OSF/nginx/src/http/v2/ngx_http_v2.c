@@ -148,7 +148,7 @@ void ngx_http_v2_init(ngx_event_t * rev)
 	c->log->action = "processing HTTP/2 connection";
 	h2mcf = (ngx_http_v2_main_conf_t *)ngx_http_get_module_main_conf(hc->conf_ctx, ngx_http_v2_module);
 	if(h2mcf->recv_buffer == NULL) {
-		h2mcf->recv_buffer = (u_char*)ngx_palloc(ngx_cycle->pool, h2mcf->recv_buffer_size);
+		h2mcf->recv_buffer = (u_char *)ngx_palloc(ngx_cycle->pool, h2mcf->recv_buffer_size);
 		if(h2mcf->recv_buffer == NULL) {
 			ngx_http_close_connection(c);
 			return;
@@ -941,7 +941,7 @@ static u_char * ngx_http_v2_state_field_len(ngx_http_v2_connection_t * h2c, u_ch
 		return ngx_http_v2_state_field_skip(h2c, pos, end);
 	}
 	alloc = (huff ? len * 8 / 5 : len) + 1;
-	h2c->state.field_start = (u_char*)ngx_pnalloc(h2c->state.pool, alloc);
+	h2c->state.field_start = (u_char *)ngx_pnalloc(h2c->state.pool, alloc);
 	if(h2c->state.field_start == NULL) {
 		return ngx_http_v2_connection_error(h2c, NGX_HTTP_V2_INTERNAL_ERROR);
 	}
@@ -2350,7 +2350,7 @@ static ngx_int_t ngx_http_v2_construct_request_line(ngx_http_request_t * r)
 	}
 	r->request_line.len = r->method_name.len + 1 + r->unparsed_uri.len + sizeof(ending) - 1;
 
-	p = (u_char*)ngx_pnalloc(r->pool, r->request_line.len + 1);
+	p = (u_char *)ngx_pnalloc(r->pool, r->request_line.len + 1);
 	if(!p) {
 		ngx_http_v2_close_stream(r->stream, NGX_HTTP_INTERNAL_SERVER_ERROR);
 		return NGX_ERROR;
@@ -2405,7 +2405,7 @@ static ngx_int_t ngx_http_v2_construct_cookie_header(ngx_http_request_t * r)
 		len += vals[i].len + 2;
 	} while(++i != cookies->nelts);
 	len -= 2;
-	buf = (u_char*)ngx_pnalloc(r->pool, len + 1);
+	buf = (u_char *)ngx_pnalloc(r->pool, len + 1);
 	if(!buf) {
 		ngx_http_v2_close_stream(r->stream, NGX_HTTP_INTERNAL_SERVER_ERROR);
 		return NGX_ERROR;

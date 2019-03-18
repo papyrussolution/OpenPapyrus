@@ -442,7 +442,8 @@ int BDbDatabase::LockDetect()
 	THROW(E);
 	THROW(ProcessError(E->lock_detect(E, 0, DB_LOCK_DEFAULT, &rej_)));
 	rejected += rej_;
-	THROW(ProcessError(E->lock_detect(E, 0, DB_LOCK_EXPIRE, &(rej_ = 0))));
+	rej_ = 0;
+	THROW(ProcessError(E->lock_detect(E, 0, DB_LOCK_EXPIRE, &rej_)));
 	rejected += rej_;
 	ok = (rejected > 0) ? 1 : -1;
 	CATCHZOK
@@ -800,7 +801,7 @@ IMPL_INVARIANT_C(BDbTable::Buffer)
 	S_INVARIANT_PROLOG(pInvP);
 	S_ASSERT_P(!(Flags & fUserMem) || Size <= ULen, pInvP);
 	S_ASSERT_P(!(Flags & fUserMem) || B.GetSize() >= ULen, pInvP);
-	S_ASSERT_P(!(Flags & fUserMem) || P_Data == 0 || (P_Data == (const char *)B && Flags & fUserMem), pInvP);
+	S_ASSERT_P(!(Flags & fUserMem) || P_Data == 0 || (P_Data == B.cptr() && Flags & fUserMem), pInvP);
 	S_INVARIANT_EPILOG(pInvP);
 }
 
@@ -881,7 +882,7 @@ BDbTable::Buffer & FASTCALL BDbTable::Buffer::operator = (const BDbTable::Buffer
 	DOff = rS.DOff;
 	P_AppData = rS.P_AppData;
 	Flags = rS.Flags;
-	P_Data = (rS.P_Data == (const void *)(const char *)rS.B) ? (void *)(const char *)B : rS.P_Data;
+	P_Data = (rS.P_Data == (const void *)rS.B.cptr()) ? const_cast<char *>(B.cptr()) : rS.P_Data;
 	return *this;
 }
 
@@ -891,7 +892,7 @@ BDbTable::Buffer & FASTCALL BDbTable::Buffer::operator = (const SBuffer & rBuf)
 	const size_t src_size = rBuf.GetAvailableSize();
 	if(src_size && Alloc(ALIGNSIZE(src_size, 6))) {
 		rBuf.ReadStatic(B, src_size);
-		Size = (uint32)src_size;
+		Size = static_cast<uint32>(src_size);
 	}
 	return *this;
 }
@@ -905,7 +906,7 @@ BDbTable::Buffer & FASTCALL BDbTable::Buffer::operator = (const char * pStr)
 			memcpy(B, pStr, src_size);
 		else
 			B[0] = 0;
-		Size = (uint32)src_size;
+		Size = static_cast<uint32>(src_size);
 	}
 	return *this;
 }
@@ -919,7 +920,7 @@ BDbTable::Buffer & FASTCALL BDbTable::Buffer::operator = (const wchar_t * pUStr)
 			memcpy(B, pUStr, src_size);
 		else
 			((wchar_t *)((char *)B))[0] = 0;
-		Size = (uint32)src_size;
+		Size = static_cast<uint32>(src_size);
 	}
 	return *this;
 }
@@ -939,7 +940,7 @@ BDbTable::Buffer & FASTCALL BDbTable::Buffer::Set(const void * pData, size_t sz)
 				memcpy(B, pData, src_size);
 			else
 				memzero(B, src_size);
-			Size = (uint32)src_size;
+			Size = static_cast<uint32>(src_size);
 		}
 	}
 	else
@@ -1260,7 +1261,7 @@ BDbTable::~BDbTable()
 }
 
 BDbTable::operator DB * () { return H; }
-BDbTable::operator DB_TXN * () { return P_Db ? (DB_TXN *)*P_Db : (DB_TXN *)0; }
+BDbTable::operator DB_TXN * () { return P_Db ? static_cast<DB_TXN *>(*P_Db) : static_cast<DB_TXN *>(0); }
 int    BDbTable::operator ! () const { return !GetState(stOpened); }
 int    FASTCALL BDbTable::GetState(long stateFlag) const { return BIN(State & stateFlag); }
 int    BDbTable::IsConsistent() const { return (Sign == BDBT_SIGNATURE) ? 1 : DBS.SetError(BE_BDB_INVALID_TABLE, 0); }
@@ -1422,7 +1423,7 @@ static uint32 FASTCALL _GetBDBSearchFlags(int sp)
 int BDbTable::Helper_Search(Buffer & rKey, Buffer & rData, uint32 flags)
 {
 	SProfile::Measure pm;
-	DB_TXN * p_txn = P_Db ? (DB_TXN *)*P_Db : (DB_TXN *)0;
+	DB_TXN * p_txn = P_Db ? static_cast<DB_TXN *>(*P_Db) : static_cast<DB_TXN *>(0);
 	int    r = BDbDatabase::ProcessError(H->get(H, p_txn, rKey, rData, flags), H, 0);
 	if(!r && BtrError == BE_UBUFLEN) {
 		int    r2 = 0;
@@ -1455,7 +1456,7 @@ int BDbTable::Search(int idx, Buffer & rKey, Buffer & rData)
 			THROW_D(p_idx_tbl, BE_INVKEY);
 			{
 				SProfile::Measure pm;
-				DB_TXN * p_txn = P_Db ? (DB_TXN *)*P_Db : (DB_TXN *)0;
+				DB_TXN * p_txn = P_Db ? static_cast<DB_TXN *>(*P_Db) : 0;
 				int r = BDbDatabase::ProcessError(p_idx_tbl->H->pget(p_idx_tbl->H, p_txn, rKey, pkey, rData, flags), p_idx_tbl->H, 0);
 				if(!r && BtrError == BE_UBUFLEN) {
 					int r1 = 0, r2 = 0;
@@ -1477,7 +1478,7 @@ int BDbTable::Search(int idx, Buffer & rKey, Buffer & rData)
 int BDbTable::Helper_Put(Buffer & rKey, Buffer & rData, uint32 flags)
 {
 	SProfile::Measure pm;
-	DB_TXN * p_txn = P_Db ? (DB_TXN *)*P_Db : (DB_TXN *)0;
+	DB_TXN * p_txn = P_Db ? static_cast<DB_TXN *>(*P_Db) : 0;
 	int    ok = BDbDatabase::ProcessError(H->put(H, p_txn, rKey, rData, flags), H, 0);
 	if(ok > 0) {
 		Stat.SzKey.Put(rKey);
@@ -1497,7 +1498,7 @@ int BDbTable::DeleteRec(Buffer & rKey)
 {
 	int    ok = 1;
 	SProfile::Measure pm;
-	DB_TXN * p_txn = P_Db ? (DB_TXN *)*P_Db : (DB_TXN *)0;
+	DB_TXN * p_txn = P_Db ? static_cast<DB_TXN *>(*P_Db) : 0;
 	//int DB->del(DB *db, DB_TXN *txnid, DBT *key, uint32 flags);
 	THROW(BDbDatabase::ProcessError(H->del(H, p_txn, rKey, 0 /*flags*/), H, 0));
 	Stat.CtRmv.Put(pm.Get());
@@ -1509,14 +1510,14 @@ int BDbTable::DeleteRec(Buffer & rKey)
 //
 DB * FASTCALL BDbCursor::GetIntTbl(int idx)
 {
-	DB * p_db = (DB *)R_Tbl;
+	DB * p_db = static_cast<DB *>(R_Tbl);
 	if(idx == 0)
-		p_db = (DB *)R_Tbl;
+		p_db = static_cast<DB *>(R_Tbl);
 	else {
 		TSCollection <BDbTable> & r_idx_list = R_Tbl.GetIdxList();
 		if(idx <= (int)r_idx_list.getCount()) {
 			BDbTable * p_tbl = r_idx_list.at(idx-1);
-			p_db = p_tbl ? *p_tbl : (DB *)0;
+			p_db = p_tbl ? *p_tbl : static_cast<DB *>(0);
 		}
 		else
 			DBS.SetError(BE_INVKEY, 0);
@@ -1527,7 +1528,7 @@ DB * FASTCALL BDbCursor::GetIntTbl(int idx)
 BDbCursor::BDbCursor(BDbTable & rT, int idx) : R_Tbl(rT), C(0), Idx(idx)
 {
 	if(R_Tbl.IsConsistent()) {
-		DB_TXN * p_txn = (DB_TXN *)R_Tbl;
+		DB_TXN * p_txn = static_cast<DB_TXN *>(R_Tbl);
 		DB * p_db = GetIntTbl(idx);
 		if(p_db)
 			if(p_db->cursor(p_db, p_txn, &C, 0 /*flags*/) != 0) {
@@ -1559,11 +1560,11 @@ int BDbCursor::Search(BDbTable::Buffer & rKey, BDbTable::Buffer & rData, int sp)
 	{
 		SProfile::Measure pm;
 		if(Idx == 0) {
-			ok = BDbDatabase::ProcessError(C->get(C, rKey, rData, flags), (DB *)R_Tbl, 0);
+			ok = BDbDatabase::ProcessError(C->get(C, rKey, rData, flags), static_cast<DB *>(R_Tbl), 0);
 			if(!ok && BtrError == BE_UBUFLEN) {
 				int    r2 = rData.Realloc();
 				if(r2 > 0)
-					ok = BDbDatabase::ProcessError(C->get(C, rKey, rData, flags), (DB *)R_Tbl, 0);
+					ok = BDbDatabase::ProcessError(C->get(C, rKey, rData, flags), static_cast<DB *>(R_Tbl), 0);
 			}
 		}
 		else {

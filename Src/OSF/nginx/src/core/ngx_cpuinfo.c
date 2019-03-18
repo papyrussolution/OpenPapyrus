@@ -67,7 +67,7 @@ void ngx_cpuinfo(void)
 	vbuf[3] = 0;
 	vbuf[4] = 0;
 	ngx_cpuid(0, vbuf);
-	vendor = (u_char*)&vbuf[1];
+	vendor = (u_char *)&vbuf[1];
 	if(vbuf[0] == 0) {
 		return;
 	}

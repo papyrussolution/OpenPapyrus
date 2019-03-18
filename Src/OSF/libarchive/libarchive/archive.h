@@ -690,12 +690,10 @@ __LA_DECL int  archive_read_finish(struct archive *) __LA_DEPRECATED;
  *   6) archive_write_free to cleanup the writer and release resources
  */
 __LA_DECL struct archive	*archive_write_new(void);
-__LA_DECL int archive_write_set_bytes_per_block(struct archive *,
-		     int bytes_per_block);
-__LA_DECL int archive_write_get_bytes_per_block(struct archive *);
+__LA_DECL int archive_write_set_bytes_per_block(struct archive *, int bytes_per_block);
+__LA_DECL int FASTCALL archive_write_get_bytes_per_block(struct archive *);
 /* XXX This is badly misnamed; suggestions appreciated. XXX */
-__LA_DECL int archive_write_set_bytes_in_last_block(struct archive *,
-		     int bytes_in_last_block);
+__LA_DECL int archive_write_set_bytes_in_last_block(struct archive *, int bytes_in_last_block);
 __LA_DECL int archive_write_get_bytes_in_last_block(struct archive *);
 
 /* The dev/ino of a file that won't be archived.  This is used

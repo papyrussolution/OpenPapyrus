@@ -347,7 +347,7 @@ static char * ngx_stream_ssl_merge_conf(ngx_conf_t * cf, void * parent, void * c
 	}
 	if(conf->certificate_keys == NULL || conf->certificate_keys->nelts < conf->certificates->nelts) {
 		ngx_log_error(NGX_LOG_EMERG, cf->log, 0, "no \"ssl_certificate_key\" is defined for certificate \"%V\"",
-		    ((ngx_str_t*)conf->certificates->elts) + conf->certificates->nelts - 1);
+		    ((ngx_str_t *)conf->certificates->elts) + conf->certificates->nelts - 1);
 		return NGX_CONF_ERROR;
 	}
 	if(ngx_ssl_create(&conf->ssl, conf->protocols, NULL) != NGX_OK) {
@@ -413,7 +413,7 @@ static const char * ngx_stream_ssl_password_file(ngx_conf_t * cf, const ngx_comm
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t  * value = (ngx_str_t *)cf->args->elts;
+		ngx_str_t  * value = static_cast<ngx_str_t *>(cf->args->elts);
 		scf->passwords = ngx_ssl_read_password_file(cf, &value[1]);
 		if(scf->passwords == NULL) {
 			return NGX_CONF_ERROR;
@@ -429,7 +429,7 @@ static const char * ngx_stream_ssl_session_cache(ngx_conf_t * cf, const ngx_comm
 	ngx_str_t name, size;
 	ngx_int_t n;
 	ngx_uint_t i, j;
-	ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	for(i = 1; i < cf->args->nelts; i++) {
 		if(sstreq(value[i].data, "off")) {
 			scf->builtin_session_cache = NGX_SSL_NO_SCACHE;

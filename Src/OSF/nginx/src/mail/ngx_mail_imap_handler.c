@@ -40,7 +40,7 @@ void ngx_mail_imap_init_protocol(ngx_event_t * rev)
 {
 	ngx_mail_session_t * s;
 	ngx_mail_imap_srv_conf_t  * iscf;
-	ngx_connection_t   * c = (ngx_connection_t*)rev->P_Data;
+	ngx_connection_t   * c = (ngx_connection_t *)rev->P_Data;
 	c->log->action = "in auth state";
 	if(rev->timedout) {
 		ngx_log_error(NGX_LOG_INFO, c->log, NGX_ETIMEDOUT, "client timed out");
@@ -72,7 +72,7 @@ void ngx_mail_imap_auth_state(ngx_event_t * rev)
 	ngx_str_t * arg;
 	ngx_int_t rc;
 	ngx_uint_t tag, i;
-	ngx_connection_t  * c = (ngx_connection_t*)rev->P_Data;
+	ngx_connection_t  * c = (ngx_connection_t *)rev->P_Data;
 	ngx_mail_session_t  * s = (ngx_mail_session_t*)c->data;
 	ngx_log_debug0(NGX_LOG_DEBUG_MAIL, c->log, 0, "imap auth state");
 	if(rev->timedout) {
@@ -97,7 +97,7 @@ void ngx_mail_imap_auth_state(ngx_event_t * rev)
 	if(rc == NGX_OK) {
 		ngx_log_debug1(NGX_LOG_DEBUG_MAIL, c->log, 0, "imap auth command: %i", s->command);
 		if(s->backslash) {
-			arg = (ngx_str_t*)s->args.elts;
+			arg = static_cast<ngx_str_t *>(s->args.elts);
 			for(i = 0; i < s->args.nelts; i++) {
 				dst = arg[i].data;
 				end = dst + arg[i].len;
@@ -181,7 +181,7 @@ void ngx_mail_imap_auth_state(ngx_event_t * rev)
 		}
 		if(s->tagged_line.len < s->tag.len + s->text.len + s->out.len) {
 			s->tagged_line.len = s->tag.len + s->text.len + s->out.len;
-			s->tagged_line.data = (u_char*)ngx_pnalloc(c->pool, s->tagged_line.len);
+			s->tagged_line.data = (u_char *)ngx_pnalloc(c->pool, s->tagged_line.len);
 			if(s->tagged_line.data == NULL) {
 				ngx_mail_close_connection(c);
 				return;
@@ -221,18 +221,18 @@ static ngx_int_t ngx_mail_imap_login(ngx_mail_session_t * s, ngx_connection_t * 
 		return NGX_MAIL_PARSE_INVALID_COMMAND;
 	}
 #endif
-	arg = (ngx_str_t*)s->args.elts;
+	arg = static_cast<ngx_str_t *>(s->args.elts);
 	if(s->args.nelts != 2 || arg[0].len == 0) {
 		return NGX_MAIL_PARSE_INVALID_COMMAND;
 	}
 	s->login.len = arg[0].len;
-	s->login.data = (u_char*)ngx_pnalloc(c->pool, s->login.len);
+	s->login.data = (u_char *)ngx_pnalloc(c->pool, s->login.len);
 	if(s->login.data == NULL) {
 		return NGX_ERROR;
 	}
 	memcpy(s->login.data, arg[0].data, s->login.len);
 	s->passwd.len = arg[1].len;
-	s->passwd.data = (u_char*)ngx_pnalloc(c->pool, s->passwd.len);
+	s->passwd.data = (u_char *)ngx_pnalloc(c->pool, s->passwd.len);
 	if(s->passwd.data == NULL) {
 		return NGX_ERROR;
 	}

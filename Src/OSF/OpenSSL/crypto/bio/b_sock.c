@@ -135,7 +135,7 @@ int BIO_sock_init(void)
 			err = WSAGetLastError();
 			SYSerr(SYS_F_WSASTARTUP, err);
 			BIOerr(BIO_F_BIO_SOCK_INIT, BIO_R_WSASTARTUP);
-			return (-1);
+			return -1;
 		}
 	}
 # endif                         /* OPENSSL_SYS_WINDOWS */
@@ -143,7 +143,7 @@ int BIO_sock_init(void)
 	extern int _watt_do_exit;
 	_watt_do_exit = 0;      /* don't make sock_init() call exit() */
 	if(sock_init())
-		return (-1);
+		return -1;
 # endif
 
 	return 1;

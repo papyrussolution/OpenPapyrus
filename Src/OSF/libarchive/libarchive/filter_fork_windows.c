@@ -171,7 +171,7 @@ fail:
 	archive_string_free(&cmdline);
 	archive_string_free(&fullpath);
 	__archive_cmdline_free(acmd);
-	return (-1);
+	return -1;
 }
 
 void __archive_check_child(int in, int out)

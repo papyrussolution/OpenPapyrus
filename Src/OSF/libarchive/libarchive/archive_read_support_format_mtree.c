@@ -200,7 +200,7 @@ static int archive_read_format_mtree_options(struct archive_read * a,
 		else {
 			mtree->checkfs = 1;
 		}
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 
 	/* Note: The "warn" return is just to inform the options
@@ -251,7 +251,7 @@ int archive_read_support_format_mtree(struct archive * _a)
 	if(mtree == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate mtree data");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	mtree->fd = -1;
 
@@ -262,7 +262,7 @@ int archive_read_support_format_mtree(struct archive * _a)
 
 	if(r != ARCHIVE_OK)
 		SAlloc::F(mtree);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int cleanup(struct archive_read * a)
@@ -288,7 +288,7 @@ static int cleanup(struct archive_read * a)
 	SAlloc::F(mtree->buff);
 	SAlloc::F(mtree);
 	(a->format->data) = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static ssize_t get_line_size(const char * b, ssize_t avail, ssize_t * nlsize)
@@ -301,7 +301,7 @@ static ssize_t get_line_size(const char * b, ssize_t avail, ssize_t * nlsize)
 			case '\0':/* Non-ascii character or control character. */
 			    if(nlsize != NULL)
 				    *nlsize = 0;
-			    return (-1);
+			    return -1;
 			case '\r':
 			    if(avail-len > 1 && b[1] == '\n') {
 				    if(nlsize != NULL)
@@ -360,19 +360,19 @@ static ssize_t next_line(struct archive_read * a,
 		 * it can consume a lot of memory.
 		 */
 		if(len >= MAX_LINE_LEN)
-			return (-1);
+			return -1;
 
 		/* Increase reading bytes if it is not enough to at least
 		 * new two lines. */
 		if(nbytes_req < (size_t)*ravail + 160)
 			nbytes_req <<= 1;
 
-		*b = (const char*)__archive_read_ahead(a, nbytes_req, avail);
+		*b = (const char *)__archive_read_ahead(a, nbytes_req, avail);
 		if(*b == NULL) {
 			if(*ravail >= *avail)
-				return (0);
+				return 0;
 			/* Reading bytes reaches the end of file. */
-			*b = (const char*)__archive_read_ahead(a, *avail, avail);
+			*b = (const char *)__archive_read_ahead(a, *avail, avail);
 			quit = 1;
 		}
 		*ravail = *avail;
@@ -403,17 +403,17 @@ static int bid_keycmp(const char * p, const char * key, ssize_t len)
 			++match_len;
 			continue;
 		}
-		return (0);/* Not match */
+		return 0;/* Not match */
 	}
 	if(*key != '\0')
-		return (0); /* Not match */
+		return 0; /* Not match */
 
 	/* A following character should be specified characters */
 	if(p[0] == '=' || p[0] == ' ' || p[0] == '\t' ||
 	    p[0] == '\n' || p[0] == '\r' ||
 	    (p[0] == '\\' && (p[1] == '\n' || p[1] == '\r')))
 		return (match_len);
-	return (0);/* Not match */
+	return 0;/* Not match */
 }
 
 /*
@@ -471,7 +471,7 @@ static int bid_keyword(const char * p,  ssize_t len)
 		case 's': keys = keys_s; break;
 		case 't': keys = keys_t; break;
 		case 'u': keys = keys_u; break;
-		default: return (0);/* Unknown key */
+		default: return 0;/* Unknown key */
 	}
 
 	for(i = 0; keys[i] != NULL; i++) {
@@ -479,7 +479,7 @@ static int bid_keyword(const char * p,  ssize_t len)
 		if(l > 0)
 			return (l);
 	}
-	return (0);/* Unknown key */
+	return 0;/* Unknown key */
 }
 
 /*
@@ -508,7 +508,7 @@ static int bid_keyword_list(const char * p,  ssize_t len, int unset, int last_is
 		if(p[0] == '\\' && (p[1] == '\n' || p[1] == '\r'))
 			break;
 		if(!blank && !last_is_path)  /* No blank character. */
-			return (-1);
+			return -1;
 		if(last_is_path && len == 0)
 			return (keycnt);
 
@@ -520,7 +520,7 @@ static int bid_keyword_list(const char * p,  ssize_t len, int unset, int last_is
 		/* Test whether there is a correct key in the line. */
 		l = bid_keyword(p, len);
 		if(l == 0)
-			return (-1); /* Unknown keyword was found. */
+			return -1; /* Unknown keyword was found. */
 		p += l;
 		len -= l;
 		keycnt++;
@@ -538,7 +538,7 @@ static int bid_keyword_list(const char * p,  ssize_t len, int unset, int last_is
 			/* A keyword should have a its value unless
 			 * "/unset" operation. */
 			if(!unset && value == 0)
-				return (-1);
+				return -1;
 		}
 	}
 	return (keycnt);
@@ -601,14 +601,14 @@ static int bid_entry(const char * p, ssize_t len, ssize_t nl, int * last_is_path
 		/* The form D accepts only a single line for an entry. */
 		if(pb-2 >= p &&
 		    pb[-1] == '\\' && (pb[-2] == ' ' || pb[-2] == '\t'))
-			return (-1);
+			return -1;
 		if(pb-1 >= p && pb[-1] == '\\')
-			return (-1);
+			return -1;
 
 		slash = 0;
 		while(p <= --pb && *pb != ' ' && *pb != '\t') {
 			if(!safe_char[*(const uchar*)pb])
-				return (-1);
+				return -1;
 			name_len++;
 			/* The pathname should have a slash in this
 			 * format. */
@@ -616,11 +616,11 @@ static int bid_entry(const char * p, ssize_t len, ssize_t nl, int * last_is_path
 				slash = 1;
 		}
 		if(name_len == 0 || slash == 0)
-			return (-1);
+			return -1;
 		/* If '/' is placed at the first in this field, this is not
 		 * a valid filename. */
 		if(pb[1] == '/')
-			return (-1);
+			return -1;
 		ll = len - nl - name_len;
 		pp = p;
 		*last_is_path = 1;
@@ -639,9 +639,9 @@ static int mtree_bid(struct archive_read * a, int best_bid)
 	(void)best_bid; /* UNUSED */
 
 	/* Now let's look at the actual header and see if it matches. */
-	p = (const char*)__archive_read_ahead(a, strlen(signature), NULL);
+	p = (const char *)__archive_read_ahead(a, strlen(signature), NULL);
 	if(p == NULL)
-		return (-1);
+		return -1;
 
 	if(memcmp(p, signature, strlen(signature)) == 0)
 		return (8 * (int)strlen(signature));
@@ -663,9 +663,9 @@ static int detect_form(struct archive_read * a, int * is_form_d)
 
 	if(is_form_d != NULL)
 		*is_form_d = 0;
-	p = (const char*)__archive_read_ahead(a, 1, &avail);
+	p = (const char *)__archive_read_ahead(a, 1, &avail);
 	if(p == NULL)
-		return (-1);
+		return -1;
 	ravail = avail;
 	for(;;) {
 		len = next_line(a, &p, &avail, &ravail, &nl);
@@ -768,7 +768,7 @@ static int detect_form(struct archive_read * a, int * is_form_d)
 		return (32);
 	}
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -787,18 +787,18 @@ static int add_option(struct archive_read * a, struct mtree_option ** global, co
 	struct mtree_option * opt;
 	if((opt = (struct mtree_option *)SAlloc::M(sizeof(*opt))) == NULL) {
 		archive_set_error(&a->archive, errno, "Can't allocate memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	if((opt->value = (char *)SAlloc::M(len + 1)) == NULL) {
 		SAlloc::F(opt);
 		archive_set_error(&a->archive, errno, "Can't allocate memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	memcpy(opt->value, value, len);
 	opt->value[len] = '\0';
 	opt->next = *global;
 	*global = opt;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static void remove_option(struct mtree_option ** global, const char * value, size_t len)
@@ -834,7 +834,7 @@ static int process_global_set(struct archive_read * a,
 	for(;;) {
 		next = line + strspn(line, " \t\r\n");
 		if(*next == '\0')
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 		line = next;
 		next = line + strcspn(line, " \t\r\n");
 		eq = strchr(line, '=');
@@ -846,7 +846,7 @@ static int process_global_set(struct archive_read * a,
 		remove_option(global, line, len);
 		r = add_option(a, global, line, next - line);
 		if(r != ARCHIVE_OK)
-			return (r);
+			return r;
 		line = next;
 	}
 }
@@ -867,7 +867,7 @@ static int process_global_unset(struct archive_read * a,
 	for(;;) {
 		next = line + strspn(line, " \t\r\n");
 		if(*next == '\0')
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 		line = next;
 		len = strcspn(line, " \t\r\n");
 
@@ -894,7 +894,7 @@ static int process_add_entry(struct archive_read * a, struct mtree * mtree,
 	int r, i;
 	if((entry = (struct mtree_entry *)SAlloc::M(sizeof(*entry))) == NULL) {
 		archive_set_error(&a->archive, errno, "Can't allocate memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	entry->next = NULL;
 	entry->options = NULL;
@@ -949,7 +949,7 @@ static int process_add_entry(struct archive_read * a, struct mtree * mtree,
 
 	if((entry->name = (char *)SAlloc::M(name_len + 1)) == NULL) {
 		archive_set_error(&a->archive, errno, "Can't allocate memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	memcpy(entry->name, name, name_len);
@@ -972,15 +972,15 @@ static int process_add_entry(struct archive_read * a, struct mtree * mtree,
 		r = add_option(a, &entry->options, iter->value,
 			strlen(iter->value));
 		if(r != ARCHIVE_OK)
-			return (r);
+			return r;
 	}
 
 	for(;;) {
 		next = line + strspn(line, " \t\r\n");
 		if(*next == '\0')
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 		if(next >= end)
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 		line = next;
 		next = line + strcspn(line, " \t\r\n");
 		eq = strchr(line, '=');
@@ -992,7 +992,7 @@ static int process_add_entry(struct archive_read * a, struct mtree * mtree,
 		remove_option(&entry->options, line, len);
 		r = add_option(a, &entry->options, line, next - line);
 		if(r != ARCHIVE_OK)
-			return (r);
+			return r;
 		line = next;
 	}
 }
@@ -1019,7 +1019,7 @@ static int read_mtree(struct archive_read * a, struct mtree * mtree)
 		if(len == 0) {
 			mtree->this_entry = mtree->entries;
 			free_options(global);
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 		}
 		if(len < 0) {
 			free_options(global);
@@ -1061,7 +1061,7 @@ static int read_mtree(struct archive_read * a, struct mtree * mtree)
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 	    "Can't parse line %ju", counter);
 	free_options(global);
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }
 
 /*
@@ -1089,7 +1089,7 @@ static int read_header(struct archive_read * a, struct archive_entry * entry)
 		    ARCHIVE_FORMAT_MTREE);
 		r = read_mtree(a, mtree);
 		if(r != ARCHIVE_OK)
-			return (r);
+			return r;
 	}
 
 	a->archive.archive_format = mtree->archive_format;
@@ -1117,7 +1117,7 @@ static int read_header(struct archive_read * a, struct archive_entry * entry)
 			r = parse_file(a, entry, mtree, mtree->this_entry,
 				&use_next);
 			if(use_next == 0)
-				return (r);
+				return r;
 		}
 		mtree->this_entry = mtree->this_entry->next;
 	}
@@ -1284,7 +1284,7 @@ static int parse_file(struct archive_read * a, struct archive_entry * entry,
 					    archive_entry_pathname(entry));
 					r = ARCHIVE_WARN;
 				}
-				return (r);
+				return r;
 			}
 		}
 
@@ -1380,7 +1380,7 @@ static int parse_line(struct archive_read * a, struct archive_entry * entry,
 		    "Missing type keyword in mtree specification");
 		return (ARCHIVE_WARN);
 	}
-	return (r);
+	return r;
 }
 
 /*
@@ -1396,13 +1396,13 @@ static char * la_strsep(char ** sp, const char * sep)
 {
 	char * p, * s;
 	if(sp == NULL || *sp == NULL || **sp == '\0')
-		return(NULL);
+		return NULL;
 	s = *sp;
 	p = s + strcspn(s, sep);
 	if(*p != '\0')
 		*p++ = '\0';
 	*sp = p;
-	return(s);
+	return (s);
 }
 
 static int parse_device(dev_t * pdev, struct archive * a, char * val)
@@ -1470,15 +1470,15 @@ static int parse_keyword(struct archive_read * a, struct mtree * mtree,
 	key = opt->value;
 
 	if(*key == '\0')
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	if(strcmp(key, "nochange") == 0) {
 		*parsed_kws |= MTREE_HAS_NOCHANGE;
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 	if(strcmp(key, "optional") == 0) {
 		*parsed_kws |= MTREE_HAS_OPTIONAL;
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 	if(strcmp(key, "ignore") == 0) {
 		/*
@@ -1486,7 +1486,7 @@ static int parse_keyword(struct archive_read * a, struct mtree * mtree,
 		 * recursion will only happen for explicitly listed
 		 * entries.
 		 */
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 
 	val = strchr(key, '=');
@@ -1719,7 +1719,7 @@ static int parse_keyword(struct archive_read * a, struct mtree * mtree,
 			"Unrecognized key %s=%s", key, val);
 		    return (ARCHIVE_WARN);
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int read_data(struct archive_read * a, const void ** buff, size_t * size,
@@ -1742,7 +1742,7 @@ static int read_data(struct archive_read * a, const void ** buff, size_t * size,
 		if(mtree->buff == NULL) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't allocate memory");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 	}
 
@@ -1763,7 +1763,7 @@ static int read_data(struct archive_read * a, const void ** buff, size_t * size,
 	}
 	mtree->offset += bytes_read;
 	*size = bytes_read;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /* Skip does nothing except possibly close the contents file. */
@@ -1776,7 +1776,7 @@ static int skip(struct archive_read * a)
 		close(mtree->fd);
 		mtree->fd = -1;
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -1942,9 +1942,9 @@ static ssize_t readline(struct archive_read * a, struct mtree * mtree, char ** s
 		/* Read some more. */
 		t = __archive_read_ahead(a, 1, &bytes_read);
 		if(t == NULL)
-			return (0);
+			return 0;
 		if(bytes_read < 0)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		nl = memchr(t, '\n', bytes_read);
 		/* If we found '\n', trim the read to end exactly there. */
 		if(nl != NULL) {
@@ -1952,12 +1952,12 @@ static ssize_t readline(struct archive_read * a, struct mtree * mtree, char ** s
 		}
 		if(total_size + bytes_read + 1 > limit) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Line too long");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		if(archive_string_ensure(&mtree->line,
 		    total_size + bytes_read + 1) == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate working buffer");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		/* Append new bytes to string. */
 		memcpy(mtree->line.s + total_size, t, bytes_read);

@@ -124,11 +124,11 @@ wchar_t * __la_win_permissive_name(const char * name)
 	size_t ll = strlen(name);
 	wchar_t * wn = (wchar_t *)SAlloc::M((ll + 1) * sizeof(wchar_t));
 	if(wn == NULL)
-		return (NULL);
+		return NULL;
 	ll = mbstowcs(wn, name, ll);
 	if(ll == (size_t)-1) {
 		SAlloc::F(wn);
-		return (NULL);
+		return NULL;
 	}
 	wn[ll] = L'\0';
 	ws = __la_win_permissive_name_w(wn);
@@ -145,7 +145,7 @@ wchar_t * __la_win_permissive_name_w(const wchar_t * wname)
 	/* Get a full-pathname. */
 	DWORD l = GetFullPathNameW(wname, 0, NULL, NULL);
 	if(l == 0)
-		return (NULL);
+		return NULL;
 	/* NOTE: GetFullPathNameW has a bug that if the length of the file
 	 * name is just 1 then it returns incomplete buffer size. Thus, we
 	 * have to add three to the size to allocate a sufficient buffer
@@ -153,7 +153,7 @@ wchar_t * __la_win_permissive_name_w(const wchar_t * wname)
 	l += 3;
 	wnp = (wchar_t *)SAlloc::M(l * sizeof(wchar_t));
 	if(wnp == NULL)
-		return (NULL);
+		return NULL;
 	len = GetFullPathNameW(wname, l, wnp, NULL);
 	wn = wnp;
 
@@ -198,7 +198,7 @@ wchar_t * __la_win_permissive_name_w(const wchar_t * wname)
 	ws = wsp = (wchar_t *)SAlloc::M(slen * sizeof(wchar_t));
 	if(ws == NULL) {
 		SAlloc::F(wn);
-		return (NULL);
+		return NULL;
 	}
 	/* prepend "\\?\" */
 	wcsncpy(wsp, L"\\\\?\\", 4);
@@ -253,12 +253,12 @@ __int64 __la_lseek(int fd, __int64 offset, int whence)
 
 	if(fd < 0) {
 		errno = EBADF;
-		return (-1);
+		return -1;
 	}
 	handle = (HANDLE)_get_osfhandle(fd);
 	if(GetFileType(handle) != FILE_TYPE_DISK) {
 		errno = EBADF;
-		return (-1);
+		return -1;
 	}
 	distance.QuadPart = offset;
 	if(!SetFilePointerEx_perso(handle, distance, &newpointer, whence)) {
@@ -266,12 +266,12 @@ __int64 __la_lseek(int fd, __int64 offset, int whence)
 
 		lasterr = GetLastError();
 		if(lasterr == ERROR_BROKEN_PIPE)
-			return (0);
+			return 0;
 		if(lasterr == ERROR_ACCESS_DENIED)
 			errno = EBADF;
 		else
 			la_dosmaperr(lasterr);
-		return (-1);
+		return -1;
 	}
 	return (newpointer.QuadPart);
 }
@@ -300,14 +300,14 @@ int __la_open(const char * path, int flags, ...)
 			ws = __la_win_permissive_name(path);
 			if(ws == NULL) {
 				errno = EINVAL;
-				return (-1);
+				return -1;
 			}
 			attr = GetFileAttributesW(ws);
 		}
 		if(attr == (DWORD)-1) {
 			la_dosmaperr(GetLastError());
 			SAlloc::F(ws);
-			return (-1);
+			return -1;
 		}
 		if(attr & FILE_ATTRIBUTE_DIRECTORY) {
 			HANDLE handle;
@@ -327,10 +327,10 @@ int __la_open(const char * path, int flags, ...)
 			SAlloc::F(ws);
 			if(handle == INVALID_HANDLE_VALUE) {
 				la_dosmaperr(GetLastError());
-				return (-1);
+				return -1;
 			}
 			r = _open_osfhandle((intptr_t)handle, _O_RDONLY);
-			return (r);
+			return r;
 		}
 	}
 	if(ws == NULL) {
@@ -350,14 +350,14 @@ int __la_open(const char * path, int flags, ...)
 				errno = EISDIR;
 			else
 				errno = EACCES;
-			return (-1);
+			return -1;
 		}
 		if(r >= 0 || errno != ENOENT)
-			return (r);
+			return r;
 		ws = __la_win_permissive_name(path);
 		if(ws == NULL) {
 			errno = EINVAL;
-			return (-1);
+			return -1;
 		}
 	}
 	r = _wopen(ws, flags, pmode);
@@ -372,7 +372,7 @@ int __la_open(const char * path, int flags, ...)
 			errno = EACCES;
 	}
 	SAlloc::F(ws);
-	return (r);
+	return r;
 }
 
 ssize_t __la_read(int fd, void * buf, size_t nbytes)
@@ -387,12 +387,12 @@ ssize_t __la_read(int fd, void * buf, size_t nbytes)
 #endif
 	if(fd < 0) {
 		errno = EBADF;
-		return (-1);
+		return -1;
 	}
 	/* Do not pass 0 to third parameter of ReadFile(), read bytes.
 	 * This will not return to application side. */
 	if(nbytes == 0)
-		return (0);
+		return 0;
 	handle = (HANDLE)_get_osfhandle(fd);
 	r = ReadFile(handle, buf, (uint32_t)nbytes,
 		&bytes_read, NULL);
@@ -400,15 +400,15 @@ ssize_t __la_read(int fd, void * buf, size_t nbytes)
 		lasterr = GetLastError();
 		if(lasterr == ERROR_NO_DATA) {
 			errno = EAGAIN;
-			return (-1);
+			return -1;
 		}
 		if(lasterr == ERROR_BROKEN_PIPE)
-			return (0);
+			return 0;
 		if(lasterr == ERROR_ACCESS_DENIED)
 			errno = EBADF;
 		else
 			la_dosmaperr(lasterr);
-		return (-1);
+		return -1;
 	}
 	return ((ssize_t)bytes_read);
 }
@@ -455,7 +455,7 @@ static int __hstat(HANDLE handle, struct ustat * st)
 	switch(ftype = GetFileType(handle)) {
 		case FILE_TYPE_UNKNOWN:
 		    errno = EBADF;
-		    return (-1);
+		    return -1;
 		case FILE_TYPE_CHAR:
 		case FILE_TYPE_PIPE:
 		    if(ftype == FILE_TYPE_CHAR) {
@@ -483,19 +483,19 @@ static int __hstat(HANDLE handle, struct ustat * st)
 		    st->st_gid = 0;
 		    st->st_rdev = 0;
 		    st->st_dev = 0;
-		    return (0);
+		    return 0;
 		case FILE_TYPE_DISK:
 		    break;
 		default:
 		    /* This ftype is undocumented type. */
 		    la_dosmaperr(GetLastError());
-		    return (-1);
+		    return -1;
 	}
 
 	ZeroMemory(&info, sizeof(info));
 	if(!GetFileInformationByHandle(handle, &info)) {
 		la_dosmaperr(GetLastError());
-		return (-1);
+		return -1;
 	}
 
 	mode = S_IRUSR | S_IRGRP | S_IROTH;
@@ -537,7 +537,7 @@ static int __hstat(HANDLE handle, struct ustat * st)
 	st->st_uid = 0;
 	st->st_gid = 0;
 	st->st_rdev = 0;
-	return (0);
+	return 0;
 }
 
 static void copy_stat(struct stat * st, struct ustat * us)
@@ -567,7 +567,7 @@ int __la_fstat(int fd, struct stat * st)
 
 	if(fd < 0) {
 		errno = EBADF;
-		return (-1);
+		return -1;
 	}
 	ret = __hstat((HANDLE)_get_osfhandle(fd), &u);
 	if(ret >= 0) {
@@ -577,7 +577,7 @@ int __la_fstat(int fd, struct stat * st)
 			st->st_rdev = fd;
 		}
 	}
-	return (ret);
+	return ret;
 }
 
 /* This can exceed MAX_PATH limitation. */
@@ -588,7 +588,7 @@ int __la_stat(const char * path, struct stat * st)
 	HANDLE handle = la_CreateFile(path, 0, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
 	if(handle == INVALID_HANDLE_VALUE) {
 		la_dosmaperr(GetLastError());
-		return (-1);
+		return -1;
 	}
 	ret = __hstat(handle, &u);
 	CloseHandle(handle);
@@ -606,7 +606,7 @@ int __la_stat(const char * path, struct stat * st)
 				st->st_mode |= S_IXUSR | S_IXGRP | S_IXOTH;
 		}
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -622,12 +622,12 @@ pid_t __la_waitpid(HANDLE child, int * status, int option)
 			CloseHandle(child);
 			la_dosmaperr(GetLastError());
 			*status = 0;
-			return (-1);
+			return -1;
 		}
 	} while(cs == STILL_ACTIVE);
 
 	*status = (int)(cs & 0xff);
-	return (0);
+	return 0;
 }
 
 ssize_t __la_write(int fd, const void * buf, size_t nbytes)
@@ -639,7 +639,7 @@ ssize_t __la_write(int fd, const void * buf, size_t nbytes)
 #endif
 	if(fd < 0) {
 		errno = EBADF;
-		return (-1);
+		return -1;
 	}
 	if(!WriteFile((HANDLE)_get_osfhandle(fd), buf, (uint32_t)nbytes, &bytes_written, NULL)) {
 		DWORD lasterr = GetLastError();
@@ -647,7 +647,7 @@ ssize_t __la_write(int fd, const void * buf, size_t nbytes)
 			errno = EBADF;
 		else
 			la_dosmaperr(lasterr);
-		return (-1);
+		return -1;
 	}
 	return (bytes_written);
 }
@@ -659,18 +659,18 @@ static int replace_pathseparator(struct archive_wstring * ws, const wchar_t * wp
 	wchar_t * w;
 	size_t path_length;
 	if(wp == NULL)
-		return(0);
+		return 0;
 	if(wcschr(wp, L'\\') == NULL)
-		return(0);
+		return 0;
 	path_length = wcslen(wp);
 	if(archive_wstring_ensure(ws, path_length) == NULL)
-		return(-1);
+		return -1;
 	archive_wstrncpy(ws, wp, path_length);
 	for(w = ws->s; *w; w++) {
 		if(*w == L'\\')
 			*w = L'/';
 	}
-	return(1);
+	return (1);
 }
 
 static int fix_pathseparator(struct archive_entry * entry)
@@ -711,7 +711,7 @@ static int fix_pathseparator(struct archive_entry * entry)
 		    ret = ARCHIVE_FAILED;
 	}
 	archive_wstring_free(&ws);
-	return(ret);
+	return ret;
 }
 
 struct archive_entry * __la_win_entry_in_posix_pathseparator(struct archive_entry * entry)                        {
@@ -742,12 +742,12 @@ struct archive_entry * __la_win_entry_in_posix_pathseparator(struct archive_entr
 	/* Copy entry so we can modify it as needed. */
 	entry_main = archive_entry_clone(entry);
 	if(entry_main == NULL)
-		return (NULL);
+		return NULL;
 	/* Replace the Windows path-separator '\' with '/'. */
 	ret = fix_pathseparator(entry_main);
 	if(ret < ARCHIVE_WARN) {
 		archive_entry_free(entry_main);
-		return (NULL);
+		return NULL;
 	}
 	return (entry_main);
 }

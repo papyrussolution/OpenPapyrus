@@ -63,7 +63,7 @@ int SLAPI LPackage::Init()
 int SLAPI LPackage::EnumItems(uint * pI, int * pIdx, PPID * pID) const
 {
 	LPII * p_item;
-	if(enumItems(pI, (void**)&p_item)) {
+	if(enumItems(pI, (void **)&p_item)) {
 		ASSIGN_PTR(pIdx, p_item->Idx);
 		ASSIGN_PTR(pID, p_item->ID);
 		return 1;
@@ -157,7 +157,7 @@ int SLAPI LPackage::RemoveByIdx(int idx)
 int FASTCALL LPackage::ShiftIdx(int idx)
 {
 	LPII * p_item;
-	for(uint i = 0; enumItems(&i, (void**)&p_item);)
+	for(uint i = 0; enumItems(&i, (void **)&p_item);)
 		if(p_item->Idx > idx)
 			p_item->Idx--;
 	return 1;
@@ -191,7 +191,7 @@ int SLAPI LPackageList::Add(const LPackage * pItem)
 int SLAPI LPackageList::ShiftIdx(int16 idx)
 {
 	LPackage * p_pckg;
-	for(uint i = 0; enumItems(&i, (void**)&p_pckg);) {
+	for(uint i = 0; enumItems(&i, (void **)&p_pckg);) {
 		p_pckg->ShiftIdx(idx);
 		if(p_pckg->PckgIdx > idx)
 			p_pckg->PckgIdx--;
@@ -203,7 +203,7 @@ int SLAPI LPackageList::RemoveByIdx(int16 idx)
 {
 	LPackage * p_pckg;
 	if(idx >= 0)
-		for(uint i = 0; enumItems(&i, (void**)&p_pckg);)
+		for(uint i = 0; enumItems(&i, (void **)&p_pckg);)
 			if(p_pckg->PckgIdx == idx) {
 				atFree(i-1);
 				break;
@@ -229,7 +229,7 @@ LPackage * SLAPI LPackageList::GetByIdx(int16 idx)
 
 int SLAPI LPackageList::EnumItems(uint * pI, LPackage ** ppPckg)
 {
-	return enumItems(pI, (void**)ppPckg);
+	return enumItems(pI, (void **)ppPckg);
 }
 
 int SLAPI LPackageList::CheckCodeUnique(PPID pckgTypeID, const char * pCode, int pos)

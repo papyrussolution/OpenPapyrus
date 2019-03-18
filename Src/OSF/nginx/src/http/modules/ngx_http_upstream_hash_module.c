@@ -262,7 +262,7 @@ static ngx_int_t ngx_http_upstream_init_chash(ngx_conf_t * cf, ngx_http_upstream
 		 */
 
 		if(server->len >= 5
-		    && ngx_strncasecmp(server->data, (u_char*)"unix:", 5) == 0) {
+		    && ngx_strncasecmp(server->data, (u_char *)"unix:", 5) == 0) {
 			host = server->data + 5;
 			host_len = server->len - 5;
 			port = NULL;
@@ -295,7 +295,7 @@ done:
 
 		ngx_crc32_init(base_hash);
 		ngx_crc32_update(&base_hash, host, host_len);
-		ngx_crc32_update(&base_hash, (u_char*)"", 1);
+		ngx_crc32_update(&base_hash, (u_char *)"", 1);
 		ngx_crc32_update(&base_hash, port, port_len);
 
 		prev_hash.value = 0;
@@ -540,7 +540,7 @@ static const char * ngx_http_upstream_hash(ngx_conf_t * cf, const ngx_command_t 
 	ngx_str_t  * value;
 	ngx_http_upstream_srv_conf_t * uscf;
 	ngx_http_compile_complex_value_t ccv;
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	memzero(&ccv, sizeof(ngx_http_compile_complex_value_t));
 	ccv.cf = cf;
 	ccv.value = &value[1];

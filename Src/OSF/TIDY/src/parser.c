@@ -52,7 +52,7 @@ bool TY_(CheckNodeIntegrity) (Node *node)
  */
 bool TY_(IsNewNode)(Node *node)
 {
-	return (node && node->tag) ? ((node->tag->model & CM_NEW) ? true : false) : true;
+	return (node && node->tag) ? LOGIC(node->tag->model & CM_NEW) : true;
 }
 
 void TY_(CoerceNode) (TidyDocImpl* doc, Node *node, TidyTagId tid, bool obsolete, bool unexpected)
@@ -1779,12 +1779,11 @@ void TY_(ParseDefList) (TidyDocImpl* doc, Node *list, GetTokenMode mode)
 static bool FindLastLI(Node * list, Node ** lastli)
 {
 	Node * node;
-
 	*lastli = NULL;
 	for(node = list->content; node; node = node->next)
 		if(nodeIsLI(node) && node->type == StartTag)
 			*lastli = node;
-	return *lastli ? true : false;
+	return LOGIC(*lastli);
 }
 
 void TY_(ParseList) (TidyDocImpl* doc, Node *list, GetTokenMode ARG_UNUSED(mode))
@@ -1792,29 +1791,23 @@ void TY_(ParseList) (TidyDocImpl* doc, Node *list, GetTokenMode ARG_UNUSED(mode)
 	Lexer* lexer = doc->lexer;
 	Node * node, * parent, * lastli;
 	bool wasblock;
-
 	if(list->tag->model & CM_EMPTY)
 		return;
-
 	lexer->insert = NULL; /* defer implicit inline start tags */
-
 	while((node = TY_(GetToken) (doc, IgnoreWhitespace)) != NULL) {
 		if(node->tag == list->tag && node->type == EndTag) {
 			TY_(FreeNode) (doc, node);
 			list->closed = true;
 			return;
 		}
-
 		/* deal with comments etc. */
 		if(InsertMisc(list, node))
 			continue;
-
 		if(node->type != TextNode && node->tag == NULL) {
 			TY_(ReportError) (doc, list, node, DISCARDING_UNEXPECTED);
 			TY_(FreeNode) (doc, node);
 			continue;
 		}
-
 		/*
 		   if this is the end tag for an ancestor element
 		   then infer end tag for this element

@@ -651,7 +651,7 @@ int BarcodeListDialog::setupList()
 	if(p_list) {
 		BarcodeTbl::Rec * p_rec;
 		StringSet ss(SLBColumnDelim);
-		for(uint i = 0; Data.enumItems(&i, (void**)&p_rec);) {
+		for(uint i = 0; Data.enumItems(&i, (void **)&p_rec);) {
 			char   sub[128];
 			ss.clear();
 			ss.add(p_rec->Code);
@@ -1042,22 +1042,22 @@ IMPL_HANDLE_EVENT(ClsdGoodsDialog)
 int ClsdGoodsDialog::selectDim(uint ctlID, PPGdsClsDim * pDim)
 {
 	int    ok = -1;
-	int    scale = (int)pDim->Scale;
+	int    scale = static_cast<int>(pDim->Scale);
 	ListWindow * p_lw = 0;
 	double rval = getCtrlReal(ctlID);
-	long   lval = (long)(rval * fpow10i(scale));
+	long   lval = static_cast<long>(rval * fpow10i(scale));
 	p_lw = CreateListWindow(16, lbtDisposeData | lbtDblClkNotify);
 	if(p_lw) {
 		for(uint i = 0; i < pDim->ValList.getCount(); i++) {
 			char   item_buf[64];
 			long   tmp_lval = pDim->ValList.at(i);
-			realfmt(((double)tmp_lval) / fpow10i(scale), MKSFMTD(0, scale, NMBF_NOTRAILZ), item_buf);
+			realfmt(static_cast<double>(tmp_lval) / fpow10i(scale), MKSFMTD(0, scale, NMBF_NOTRAILZ), item_buf);
 			p_lw->listBox()->addItem(tmp_lval, item_buf);
 		}
 		p_lw->listBox()->TransmitData(+1, &lval);
 		if(ExecView(p_lw) == cmOK) {
 			p_lw->listBox()->TransmitData(-1, &lval);
-			setCtrlReal(ctlID, ((double)lval) / fpow10i(scale));
+			setCtrlReal(ctlID, static_cast<double>(lval) / fpow10i(scale));
 			ok = 1;
 		}
 	}
@@ -2469,7 +2469,7 @@ int GoodsCtrlGroup::setData(TDialog * dlg, void * pData)
 	if(Flags & enableInsertGoods)
 		fl |= OLW_CANINSERT;
 	fl |= OLW_WORDSELECTOR; // @v9.4.0
-	SetupPPObjCombo(dlg, CtlselGrp, PPOBJ_GOODSGROUP, p_rec->GrpID, ((Flags & enableSelUpLevel) ? (fl|OLW_CANSELUPLEVEL) : fl), (void *)prev_grp_level);
+	SetupPPObjCombo(dlg, CtlselGrp, PPOBJ_GOODSGROUP, p_rec->GrpID, ((Flags & enableSelUpLevel) ? (fl|OLW_CANSELUPLEVEL) : fl), reinterpret_cast<void *>(prev_grp_level));
 	if(disable_group_selection)
 		dlg->disableCtrl(CtlselGrp, 1);
 	{
@@ -2477,7 +2477,7 @@ int GoodsCtrlGroup::setData(TDialog * dlg, void * pData)
 		fl = OLW_LOADDEFONOPEN;
 		if(Flags & enableInsertGoods)
 			fl |= OLW_CANINSERT;
-		SetupPPObjCombo(dlg, CtlselGoods, PPOBJ_GOODS, p_rec->GoodsID, fl, (void *)ext_id);
+		SetupPPObjCombo(dlg, CtlselGoods, PPOBJ_GOODS, p_rec->GoodsID, fl, reinterpret_cast<void *>(ext_id));
 	}
 	DS.SetLocation(save_loc_id);
 	return 1;
@@ -2524,7 +2524,7 @@ int GoodsCtrlGroup::setFlagExistsOnly(TDialog * dlg, int on)
 		long   fl = OLW_LOADDEFONOPEN;
 		if(Flags & enableInsertGoods)
 			fl |= OLW_CANINSERT;
-		SetupPPObjCombo(dlg, CtlselGoods, PPOBJ_GOODS, goods_id, fl, (void *)grp_id);
+		SetupPPObjCombo(dlg, CtlselGoods, PPOBJ_GOODS, goods_id, fl, reinterpret_cast<void *>(grp_id));
 		return !on;
 	}
 	return on;
@@ -2546,7 +2546,7 @@ void GoodsCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
 			long   fl = OLW_LOADDEFONOPEN;
 			if(Flags & enableInsertGoods)
 				fl |= OLW_CANINSERT;
-			SetupPPObjCombo(dlg, CtlselGoods, PPOBJ_GOODS, 0, fl, (void *)grp);
+			SetupPPObjCombo(dlg, CtlselGoods, PPOBJ_GOODS, 0, fl, reinterpret_cast<void *>(grp));
 			TView::messageCommand(dlg, cmCBSelected, dlg->getCtrlView(CtlselGoods));
 			if(Flags & activateGoodsListOnGroupSelection) {
 				setupCtrls(dlg);
@@ -2573,7 +2573,7 @@ void GoodsCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
 					long   fl = OLW_LOADDEFONOPEN;
 					if(Flags & enableInsertGoods)
 						fl |= OLW_CANINSERT;
-					SetupPPObjCombo(dlg, CtlselGoods, PPOBJ_GOODS, rec.ID, fl, (void *)rec.ParentID);
+					SetupPPObjCombo(dlg, CtlselGoods, PPOBJ_GOODS, rec.ID, fl, reinterpret_cast<void *>(rec.ParentID));
 					TView::messageCommand(dlg, cmCBSelected, dlg->getCtrlView(CtlselGoods));
 				}
 				else if(rec.Kind == PPGDSK_GROUP) {
@@ -2583,7 +2583,7 @@ void GoodsCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
 						long   fl = OLW_LOADDEFONOPEN;
 						if(Flags & enableInsertGoods)
 							fl |= OLW_CANINSERT;
-						SetupPPObjCombo(dlg, CtlselGoods, PPOBJ_GOODS, 0, fl, (void *)rec.ID);
+						SetupPPObjCombo(dlg, CtlselGoods, PPOBJ_GOODS, 0, fl, reinterpret_cast<void *>(rec.ID));
 						TView::messageCommand(dlg, cmCBSelected, dlg->getCtrlView(CtlselGoods));
 					}
 				}
@@ -3592,7 +3592,7 @@ int GoodsFiltDialog::setDTS(GoodsFilt * pFilt)
 	setGroupData(ctlgroupBrand, &brand_grp_rec);
 	setGroupData(ctlgroupBrandOwner, &brandowner_grp_rec);
 	SetupPPObjCombo(this, CTLSEL_GOODSFLT_GRP,     PPOBJ_GOODSGROUP, Data.GrpID,       OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN);
-	SetupPPObjCombo(this, CTLSEL_GOODSFLT_MANUF,   PPOBJ_PERSON,     Data.ManufID,     OLW_LOADDEFONOPEN, (void *)PPPRK_MANUF);
+	SetupPPObjCombo(this, CTLSEL_GOODSFLT_MANUF,   PPOBJ_PERSON,     Data.ManufID,     OLW_LOADDEFONOPEN, reinterpret_cast<void *>(PPPRK_MANUF));
 	SetupPPObjCombo(this, CTLSEL_GOODSFLT_COUNTRY, PPOBJ_COUNTRY,    Data.ManufCountryID, OLW_LOADDEFONOPEN, 0);
 	SetupPPObjCombo(this, CTLSEL_GOODSFLT_UNIT,    PPOBJ_UNIT,       Data.UnitID,      0, 0);
 	SetupPPObjCombo(this, CTLSEL_GOODSFLT_PHUNIT,  PPOBJ_UNIT,       Data.PhUnitID,    0, 0);

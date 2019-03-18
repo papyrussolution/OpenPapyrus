@@ -415,22 +415,17 @@ static void compute_image_info(pixman_image_t * image)
 	 * if all channels are opaque, so we simply turn it off
 	 * unconditionally for those images.
 	 */
-	if(image->common.alpha_map                                         ||
-	    image->common.filter == PIXMAN_FILTER_CONVOLUTION               ||
-	    image->common.filter == PIXMAN_FILTER_SEPARABLE_CONVOLUTION     ||
-	    image->common.component_alpha) {
+	if(image->common.alpha_map || image->common.filter == PIXMAN_FILTER_CONVOLUTION || image->common.filter == PIXMAN_FILTER_SEPARABLE_CONVOLUTION || image->common.component_alpha) {
 		flags &= ~(FAST_PATH_IS_OPAQUE | FAST_PATH_SAMPLES_OPAQUE);
 	}
-
 	image->common.flags = flags;
 	image->common.extended_format_code = code;
 }
 
-void _pixman_image_validate(pixman_image_t * image)
+void FASTCALL _pixman_image_validate(pixman_image_t * image)
 {
 	if(image->common.dirty) {
 		compute_image_info(image);
-
 		/* It is important that property_changed is
 		 * called *after* compute_image_info() because
 		 * property_changed() can make use of the flags

@@ -64,13 +64,13 @@ int archive_write_add_filter_lrzip(struct archive * _a)
 	data = (struct write_lrzip *)SAlloc::C(1, sizeof(*data));
 	if(data == NULL) {
 		archive_set_error(_a, ENOMEM, "Can't allocate memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	data->pdata = __archive_write_program_allocate("lrzip");
 	if(data->pdata == NULL) {
 		SAlloc::F(data);
 		archive_set_error(_a, ENOMEM, "Can't allocate memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	f->name = "lrzip";
@@ -109,14 +109,14 @@ static int archive_write_lrzip_options(struct archive_write_filter * f, const ch
 			data->compression = write_lrzip::zpaq;
 		else
 			return (ARCHIVE_WARN);
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 	else if(strcmp(key, "compression-level") == 0) {
 		if(value == NULL || !(value[0] >= '1' && value[0] <= '9') ||
 		    value[1] != '\0')
 			return (ARCHIVE_WARN);
 		data->compression_level = value[0] - '0';
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
@@ -161,7 +161,7 @@ static int archive_write_lrzip_open(struct archive_write_filter * f)
 
 	r = __archive_write_program_open(f, data->pdata, as.s);
 	archive_string_free(&as);
-	return (r);
+	return r;
 }
 
 static int archive_write_lrzip_write(struct archive_write_filter * f,
@@ -185,5 +185,5 @@ static int archive_write_lrzip_free(struct archive_write_filter * f)
 
 	__archive_write_program_free(data->pdata);
 	SAlloc::F(data);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }

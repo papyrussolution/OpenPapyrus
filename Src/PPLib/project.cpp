@@ -219,7 +219,7 @@ const char * SLAPI PPObjProject::GetNamePtr()
 
 StrAssocArray * SLAPI PPObjProject::MakeStrAssocList(void * extraPtr /*parentPrjID*/)
 {
-	const   PPID parent_prj_id = (PPID)extraPtr;
+	const   PPID parent_prj_id = reinterpret_cast<PPID>(extraPtr);
 	StrAssocArray * p_list = new StrAssocArray;
 	SString name_buf;
 	ProjectTbl::Key2 k2;
@@ -471,7 +471,7 @@ int ProjectDialog::getDTS(ProjectTbl::Rec * pData)
 //
 int SLAPI PPObjProject::Edit(PPID * pID, void * extraPtr /*parentPrjID*/)
 {
-	const  PPID extra_parent_prj_id = (PPID)extraPtr;
+	const  PPID extra_parent_prj_id = reinterpret_cast<PPID>(extraPtr);
 	int    ok = cmCancel, valid_data = 0;
 	uint   dlg_id = 0;
 	ProjectTbl::Rec rec, parent_rec;
@@ -841,7 +841,7 @@ BExtQuery * SLAPI PrjTaskCore::StartupEnumQuery(int idx, int options)
 	return q;
 }
 
-SEnumImp * SLAPI PrjTaskCore::EnumByClient(PPID cliPersonID, DateRange * pPeriod, int options)
+SEnumImp * SLAPI PrjTaskCore::EnumByClient(PPID cliPersonID, const DateRange * pPeriod, int options)
 {
 	long   h = -1;
 	int    idx = 5;
@@ -855,7 +855,7 @@ SEnumImp * SLAPI PrjTaskCore::EnumByClient(PPID cliPersonID, DateRange * pPeriod
 	return EnumList.RegisterIterHandler(q, &h) ? new PPTblEnum <PrjTaskCore>(this, h) : 0;
 }
 
-SEnumImp * SLAPI PrjTaskCore::EnumByEmployer(PPID emplPersonID, DateRange * pPeriod, int options)
+SEnumImp * SLAPI PrjTaskCore::EnumByEmployer(PPID emplPersonID, const DateRange * pPeriod, int options)
 {
 	long   h = -1;
 	int    idx = 4;
@@ -1138,16 +1138,15 @@ SString & SLAPI PPObjPrjTask::GetPriorText(int priorId, SString & rBuf)
 class VCalImportParamDlg : public TDialog {
 public:
 	struct Param {
-		Param()
+		Param() : DefCreatorID(0), DefClientID(0), DefEmployerID(0)
 		{
-			Init();
 		}
 		void Init()
 		{
 			DefCreatorID = 0;
 			DefClientID = 0;
 			DefEmployerID = 0;
-			FilePath = 0;
+			FilePath.Z();
 		}
 		PPID   DefCreatorID;
 		PPID   DefClientID;
@@ -1167,7 +1166,7 @@ private:
 
 int VCalImportParamDlg::setDTS(const Param * pData)
 {
-	FileBrowseCtrlGroup * p_grp = (FileBrowseCtrlGroup*)getGroup(GRP_FILENAME);
+	FileBrowseCtrlGroup * p_grp = static_cast<FileBrowseCtrlGroup *>(getGroup(GRP_FILENAME));
 	if(!RVALUEPTR(Data, pData))
 		Data.Init();
 	SetupPersonCombo(this, CTLSEL_VCALPAR_CREATOR, Data.DefCreatorID,  0, (PPID)PPPRK_EMPL, 0);
@@ -2165,7 +2164,7 @@ private:
 
 	int    GetText(PPID id, const SString & rWord, SString & rBuf, int cat);
 	LostPrjTPersonItem * GetCurItem();
-	int ViewTasks(uint cm, LostPrjTPersonItem * pItem);
+	int ViewTasks(uint cm, const LostPrjTPersonItem * pItem);
 	LostPrjTPersonArray Data;
 
 };
@@ -2271,7 +2270,7 @@ int RestoreLostPrjTPersonDlg::setupList()
 	return ok;
 }
 
-int RestoreLostPrjTPersonDlg::ViewTasks(uint cm, LostPrjTPersonItem * pItem)
+int RestoreLostPrjTPersonDlg::ViewTasks(uint cm, const LostPrjTPersonItem * pItem)
 {
 	int    ok = -1;
 	BExtQuery * p_q = 0;

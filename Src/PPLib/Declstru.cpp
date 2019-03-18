@@ -343,7 +343,7 @@ int SLAPI RcvCharryParam::Edit()
 	return ok;
 }
 
-int SLAPI ReceiveCharryObjects(RcvCharryParam * pParam)
+int SLAPI ReceiveCharryObjects(const RcvCharryParam * pParam)
 {
 	int    ok = -1, r;
 	RcvCharryParam rcp;

@@ -122,7 +122,7 @@ static const char rcsid[] = "@(#)$Id$";
  * kind of endianess. The individual bytes are then used as an index
  * for the IEEE 754 bit-patterns and masks.
  */
-#define TRIO_DOUBLE_INDEX(x) (((uchar *)&internalEndianMagic)[7-(x)])
+#define TRIO_DOUBLE_INDEX(x) (PTR8C(&internalEndianMagic)[7-(x)])
 
 #if (defined(__BORLANDC__) && __BORLANDC__ >= 0x0590)
 static const double internalEndianMagic = 7.949928895127362e-275;
@@ -153,8 +153,7 @@ static const uchar ieee_754_qnan_array[] = { 0x7F, 0xF8, 0x00, 0x00, 0x00, 0x00,
 TRIO_PRIVATE double trio_make_double(const unsigned char * values)
 {
 	TRIO_VOLATILE double result;
-	int i;
-	for(i = 0; i < (int)sizeof(double); i++) {
+	for(int i = 0; i < (int)sizeof(double); i++) {
 		((TRIO_VOLATILE unsigned char*)&result)[TRIO_DOUBLE_INDEX(i)] = values[i];
 	}
 	return result;
@@ -164,14 +163,12 @@ TRIO_PRIVATE double trio_make_double(const unsigned char * values)
  */
 TRIO_PRIVATE int trio_is_special_quantity(double number, int * has_mantissa)
 {
-	uint i;
-	unsigned char current;
+	uchar current;
 	int is_special_quantity = TRIO_TRUE;
 	*has_mantissa = 0;
-	for(i = 0; i < (uint)sizeof(double); i++) {
-		current = ((uchar *)&number)[TRIO_DOUBLE_INDEX(i)];
-		is_special_quantity
-			&= ((current & ieee_754_exponent_mask[i]) == ieee_754_exponent_mask[i]);
+	for(uint i = 0; i < sizeof(double); i++) {
+		current = PTR8C(&number)[TRIO_DOUBLE_INDEX(i)];
+		is_special_quantity &= ((current & ieee_754_exponent_mask[i]) == ieee_754_exponent_mask[i]);
 		*has_mantissa |= (current & ieee_754_mantissa_mask[i]);
 	}
 	return is_special_quantity;
@@ -182,10 +179,9 @@ TRIO_PRIVATE int trio_is_special_quantity(double number, int * has_mantissa)
  */
 TRIO_PRIVATE int trio_is_negative(double number)
 {
-	uint i;
 	int is_negative = TRIO_FALSE;
-	for(i = 0; i < (uint)sizeof(double); i++) {
-		is_negative |= (((uchar *)&number)[TRIO_DOUBLE_INDEX(i)] & ieee_754_sign_mask[i]);
+	for(uint i = 0; i < sizeof(double); i++) {
+		is_negative |= (PTR8C(&number)[TRIO_DOUBLE_INDEX(i)] & ieee_754_sign_mask[i]);
 	}
 	return is_negative;
 }
@@ -203,7 +199,6 @@ TRIO_PUBLIC double trio_nzero()
 	return trio_make_double(ieee_754_negzero_array);
 #else
 	TRIO_VOLATILE double zero = 0.0;
-
 	return -zero;
 #endif
 }

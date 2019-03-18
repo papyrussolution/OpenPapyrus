@@ -32,7 +32,7 @@ static int FindExeByExt(const char * pExt, char * pExe, size_t buflen, const cha
 	DWORD  bufsize = MAXPATH;
 	if(pExe) {
 		buf[0] = 0;
-		if(SHGetValue(HKEY_CLASSES_ROOT, pExt, NULL, &v_type, buf, &bufsize) == ERROR_SUCCESS) { // @unicodeproblem
+		if(SHGetValue(HKEY_CLASSES_ROOT, SUcSwitch(pExt), NULL, &v_type, buf, &bufsize) == ERROR_SUCCESS) { // @unicodeproblem
 			v_type = REG_SZ;
 			bufsize = MAXPATH;
 			if(pAddedSearchString && stricmp(pAddedSearchString, buf)== 0 &&
@@ -1432,9 +1432,9 @@ void ReportError(short printJob)
 	short  text_length;
 	short  error_code = PEGetErrorCode(printJob);
 	PEGetErrorText(printJob, &text_handle, &text_length);
-	char * p_error_text = (char *)SAlloc::M(text_length);
+	char * p_error_text = static_cast<char *>(SAlloc::M(text_length));
 	PEGetHandleString(text_handle, p_error_text, text_length);
-	::MessageBox(0, p_error_text, _T("Print Job Failed"), MB_OK|MB_ICONEXCLAMATION); // @unicodeproblem
+	::MessageBox(0, SUcSwitch(p_error_text), _T("Print Job Failed"), MB_OK|MB_ICONEXCLAMATION); // @unicodeproblem
 	SAlloc::F(p_error_text);
 }
 
@@ -1559,12 +1559,12 @@ static int SLAPI SetupReportLocations(short hJob, const char * pPath, int isPrin
 
 static int SLAPI RemoveCompName(SString & rPrintDevice)
 {
-	char   buf[256];
+	TCHAR  buf[256];
 	SString sbuf;
-	DWORD  buf_size = sizeof(buf);
-	memzero(buf, sizeof(buf));
+	DWORD  buf_size = SIZEOFARRAY(buf);
+	PTR32(buf)[0] = 0;
 	GetComputerNameEx(ComputerNameNetBIOS, buf, &buf_size); // @unicodeproblem
-	(sbuf = "\\\\").Cat(buf).CatChar('\\');
+	(sbuf = "\\\\").Cat(SUcSwitch(buf)).CatChar('\\');
 	if(rPrintDevice.CmpPrefix(sbuf, 1) == 0)
 		rPrintDevice.ShiftLeft(sbuf.Len());
 	else if(rPrintDevice.C(0) == '\\' && rPrintDevice.C(1) == '\\') {
@@ -1588,9 +1588,11 @@ static int SLAPI SetPrinterParam(short hJob, const char * pPrinter, long options
 	int    ok = 1;
 	SString print_device = isempty(pPrinter) ? DS.GetConstTLA().PrintDevice : pPrinter;
 	RemoveCompName(print_device);
-	DEVMODE * p_dm = 0, dm;
+	DEVMODEA * p_dm = 0, dm;
 	if(options & SPRN_USEDUPLEXPRINTING || print_device.NotEmptyS()) {
-		char   device_name[128], port_name[128], drv_name[64];
+		char   device_name[128];
+		char   port_name[128];
+		char   drv_name[64];
 		HANDLE h_drv = 0;
 		HANDLE h_prn = 0;
 		HANDLE h_port = 0;
@@ -1607,7 +1609,7 @@ static int SLAPI SetPrinterParam(short hJob, const char * pPrinter, long options
 		if(print_device.NotEmpty())
 			STRNSCPY(device_name, print_device);
 		if(options & SPRN_USEDUPLEXPRINTING) {
-			DWORD  is_duplex_device = DeviceCapabilities(device_name, port_name, DC_DUPLEX, 0, p_dm); // @unicodeproblem
+			DWORD  is_duplex_device = DeviceCapabilitiesA(device_name, port_name, DC_DUPLEX, 0, p_dm); // @unicodeproblem
 			if(is_duplex_device) {
 				RVALUEPTR(dm, p_dm);
 				dm.dmFields |= DM_DUPLEX;

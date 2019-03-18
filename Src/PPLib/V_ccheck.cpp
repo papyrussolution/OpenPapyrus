@@ -1951,7 +1951,7 @@ int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 								}
 								if(suitable && Filt.QttyR.CheckVal(fabs(qtty))) {
 									if(State & stUseGoodsList) {
-										double  chk_dscnt = MONEYTOLDBL(p_cct->data.Discount) - t_dscnt;
+										const double chk_dscnt = MONEYTOLDBL(p_cct->data.Discount) - t_dscnt;
 										if(chk_dscnt != 0.0)
 											dscnt += fdivnz(chk_dscnt * amt, MONEYTOLDBL(p_cct->data.Amount) + MONEYTOLDBL(p_cct->data.Discount));
 										LDBLTOMONEY(amt - dscnt, p_cct->data.Amount);
@@ -1972,7 +1972,8 @@ int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 								SString text_buf;
 								PPRef->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, _rec.ID, PPTRPROP_CC_LNEXT), text_buf);
 								text_buf.Transf(CTRANSF_UTF8_TO_INNER);
-								CCheckPacket::Helper_UnpackLineTextExt(text_buf, text_by_row_list);
+								// @v10.3.9 CCheckPacket::Helper_UnpackLineTextExt(text_buf, text_by_row_list);
+								CCheckPacket::Helper_UnpackTextExt(text_buf, 0, &text_by_row_list); // @v10.3.9 
 							}
 							// } @v10.2.6
 							while(CcPack.EnumLines(&CurLine, &ln_rec)) {
@@ -2902,8 +2903,8 @@ int SLAPI PPViewCCheck::EditGoods(const void * pHdr, int goodsNo)
 {
 	int    ok = -1;
 	if(pHdr) {
-		TempCCheckGdsCorrTbl::Rec * p_gc_rec = (TempCCheckGdsCorrTbl::Rec *)pHdr;
-		PPID    goods_id   = (goodsNo == 1) ? p_gc_rec->Goods1ID : p_gc_rec->Goods2ID;
+		const  TempCCheckGdsCorrTbl::Rec * p_gc_rec = static_cast<const TempCCheckGdsCorrTbl::Rec *>(pHdr);
+		PPID   goods_id   = (goodsNo == 1) ? p_gc_rec->Goods1ID : p_gc_rec->Goods2ID;
 		SString goods_name = (goodsNo == 1) ? p_gc_rec->GoodsName1 : p_gc_rec->GoodsName2;
 		if(GdsObj.Edit(&goods_id, 0) == cmOK) {
 			Goods2Tbl::Rec  gds_rec;

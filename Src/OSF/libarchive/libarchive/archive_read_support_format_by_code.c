@@ -74,5 +74,5 @@ archive_read_support_format_by_code(struct archive *a, int format_code)
 		return archive_read_support_format_zip(a);
 		break;
 	}
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }

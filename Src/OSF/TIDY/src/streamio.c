@@ -95,7 +95,7 @@ void  TY_(ReleaseStreamOut) (TidyDocImpl *doc,  StreamOut* out)
 {
 	if(out && out != &stderrStreamOut && out != &stdoutStreamOut) {
 		if(out->iotype == FileIO)
-			fclose( (FILE*)out->sink.sinkData);
+			fclose( (FILE *)out->sink.sinkData);
 		TidyDocFree(doc, out);
 	}
 }
@@ -1285,34 +1285,25 @@ static struct _enc2iana {
 
 ctmbstr TY_(GetEncodingNameFromTidyId) (uint id)
 {
-	uint i;
-
-	for(i = 0; enc2iana[i].name; ++i)
+	for(uint i = 0; enc2iana[i].name; ++i)
 		if(enc2iana[i].id == id)
 			return enc2iana[i].name;
-
 	return NULL;
 }
 
 ctmbstr TY_(GetEncodingOptNameFromTidyId) (uint id)
 {
-	uint i;
-
-	for(i = 0; i < sizeof(enc2iana)/sizeof(enc2iana[0]); ++i)
+	for(uint i = 0; i < SIZEOFARRAY(enc2iana); ++i)
 		if(enc2iana[i].id == id)
 			return enc2iana[i].tidyOptName;
-
 	return NULL;
 }
 
 int TY_(GetCharEncodingFromOptName) (ctmbstr charenc)
 {
-	uint i;
-
-	for(i = 0; i < sizeof(enc2iana)/sizeof(enc2iana[0]); ++i)
+	for(uint i = 0; i < SIZEOFARRAY(enc2iana); ++i)
 		if(TY_(tmbstrcasecmp) (charenc, enc2iana[i].tidyOptName) == 0)
 			return enc2iana[i].id;
-
 	return -1;
 }
 

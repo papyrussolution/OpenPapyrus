@@ -60,7 +60,7 @@ public:
 		/// cast this handler to the C handler
 		operator zbar_image_data_handler_t*() const
 		{
-			return(_cb);
+			return (_cb);
 		}
 private:
 		static void _cb(zbar_image_t * zimg, const void * userdata)
@@ -116,20 +116,20 @@ private:
 	/// cast to C image object
 	operator const zbar_image_t*() const
 	{
-		return(_img);
+		return (_img);
 	}
 
 	/// cast to C image object
 	operator zbar_image_t*()
 	{
-		return(_img);
+		return (_img);
 	}
 
 	/// retrieve the image format.
 	/// see zbar_image_get_format()
 	ulong get_format() const
 	{
-		return(zbar_image_get_format(_img));
+		return (zbar_image_get_format(_img));
 	}
 
 	/// specify the fourcc image format code for image sample data.
@@ -153,7 +153,7 @@ private:
 	/// @since 0.6
 	uint get_sequence() const
 	{
-		return(zbar_image_get_sequence(_img));
+		return (zbar_image_get_sequence(_img));
 	}
 
 	/// associate a "sequence" (page/frame) number with this image.
@@ -168,13 +168,13 @@ private:
 	/// see zbar_image_get_width()
 	uint get_width() const
 	{
-		return(zbar_image_get_width(_img));
+		return (zbar_image_get_width(_img));
 	}
 	/// retrieve the height of the image.
 	/// see zbar_image_get_height()
 	uint get_height() const
 	{
-		return(zbar_image_get_height(_img));
+		return (zbar_image_get_height(_img));
 	}
 	/// retrieve both dimensions of the image.
 	/// see zbar_image_get_size()
@@ -205,14 +205,14 @@ private:
 	/// see zbar_image_get_data()
 	const void * get_data() const
 	{
-		return(zbar_image_get_data(_img));
+		return (zbar_image_get_data(_img));
 	}
 	/// return the size of the image sample data.
 	/// see zbar_image_get_data_length()
 	/// @since 0.6
 	ulong get_data_length() const
 	{
-		return(zbar_image_get_data_length(_img));
+		return (zbar_image_get_data_length(_img));
 	}
 	/// specify image sample data.
 	/// see zbar_image_set_data()
@@ -226,7 +226,7 @@ private:
 	{
 		zbar_image_t * img = zbar_image_convert(_img, format);
 		if(img)
-			return(Image(img));
+			return (Image(img));
 		throw FormatError();
 	}
 
@@ -236,7 +236,7 @@ private:
 	Image convert(std::string format) const
 	{
 		ulong fourcc = zbar_fourcc_parse(format.c_str());
-		return(convert(fourcc));
+		return (convert(fourcc));
 	}
 
 	/// image format conversion with crop/pad.
@@ -261,13 +261,13 @@ private:
 	/// create a new ZBarSymbolIterator over decoded results.
 	ZBarSymbolIterator symbol_begin() const
 	{
-		return(ZBarSymbolIterator(get_symbols()));
+		return (ZBarSymbolIterator(get_symbols()));
 	}
 
 	/// return a ZBarSymbolIterator suitable for ending iteration.
 	ZBarSymbolIterator symbol_end() const
 	{
-		return(ZBarSymbolIterator());
+		return (ZBarSymbolIterator());
 	}
 
 protected:

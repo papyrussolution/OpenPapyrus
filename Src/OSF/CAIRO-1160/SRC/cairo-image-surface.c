@@ -89,18 +89,12 @@ static cairo_bool_t FASTCALL _cairo_image_surface_is_size_valid(int width, int h
 cairo_format_t FASTCALL _cairo_format_from_pixman_format(pixman_format_code_t pixman_format)
 {
 	switch(pixman_format) {
-		case PIXMAN_a8r8g8b8:
-		    return CAIRO_FORMAT_ARGB32;
-		case PIXMAN_x2r10g10b10:
-		    return CAIRO_FORMAT_RGB30;
-		case PIXMAN_x8r8g8b8:
-		    return CAIRO_FORMAT_RGB24;
-		case PIXMAN_a8:
-		    return CAIRO_FORMAT_A8;
-		case PIXMAN_a1:
-		    return CAIRO_FORMAT_A1;
-		case PIXMAN_r5g6b5:
-		    return CAIRO_FORMAT_RGB16_565;
+		case PIXMAN_a8r8g8b8: return CAIRO_FORMAT_ARGB32;
+		case PIXMAN_x2r10g10b10: return CAIRO_FORMAT_RGB30;
+		case PIXMAN_x8r8g8b8: return CAIRO_FORMAT_RGB24;
+		case PIXMAN_a8: return CAIRO_FORMAT_A8;
+		case PIXMAN_a1: return CAIRO_FORMAT_A1;
+		case PIXMAN_r5g6b5: return CAIRO_FORMAT_RGB16_565;
 #if PIXMAN_VERSION >= PIXMAN_VERSION_ENCODE(0, 22, 0)
 		case PIXMAN_r8g8b8a8: case PIXMAN_r8g8b8x8:
 #endif
@@ -129,7 +123,6 @@ cairo_format_t FASTCALL _cairo_format_from_pixman_format(pixman_format_code_t pi
 		default:
 		    return CAIRO_FORMAT_INVALID;
 	}
-
 	return CAIRO_FORMAT_INVALID;
 }
 
@@ -275,7 +268,7 @@ pixman_format_code_t FASTCALL _cairo_format_to_pixman_format_code(cairo_format_t
 	return ret;
 }
 
-cairo_surface_t * _cairo_image_surface_create_with_pixman_format(uchar * data, pixman_format_code_t pixman_format, int width, int height, int stride)
+cairo_surface_t * FASTCALL _cairo_image_surface_create_with_pixman_format(uchar * data, pixman_format_code_t pixman_format, int width, int height, int stride)
 {
 	cairo_surface_t * surface;
 	pixman_image_t * pixman_image;
@@ -367,7 +360,7 @@ int FASTCALL cairo_format_stride_for_width(cairo_format_t format, int width)
 		return -1;
 	}
 	int bpp = _cairo_format_bits_per_pixel(format);
-	if((unsigned)(width) >= (INT32_MAX - 7) / (unsigned)(bpp))
+	if((uint)(width) >= (INT32_MAX - 7) / (uint)(bpp))
 		return -1;
 	return CAIRO_STRIDE_FOR_WIDTH_BPP(width, bpp);
 }

@@ -46,7 +46,7 @@
 //#include "cairo-compositor-private.h"
 #include "cairo-gl-private.h"
 #include "cairo-path-private.h"
-#include "cairo-traps-private.h"
+//#include "cairo-traps-private.h"
 
 static cairo_bool_t can_use_msaa_compositor(cairo_gl_surface_t * surface,
     cairo_antialias_t antialias);

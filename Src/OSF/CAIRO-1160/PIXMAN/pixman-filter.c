@@ -97,17 +97,11 @@ static double nice_kernel(double x)
 static double general_cubic(double x, double B, double C)
 {
 	double ax = fabs(x);
-
 	if(ax < 1) {
-		return (((12 - 9 * B - 6 * C) * ax +
-		       (-18 + 12 * B + 6 * C)) * ax * ax +
-		       (6 - 2 * B)) / 6;
+		return (((12 - 9 * B - 6 * C) * ax + (-18 + 12 * B + 6 * C)) * ax * ax + (6 - 2 * B)) / 6;
 	}
 	else if(ax < 2) {
-		return ((((-B - 6 * C) * ax +
-		       (6 * B + 30 * C)) * ax +
-		       (-12 * B - 48 * C)) * ax +
-		       (8 * B + 24 * C)) / 6;
+		return ((((-B - 6 * C) * ax + (6 * B + 30 * C)) * ax + (-12 * B - 48 * C)) * ax + (8 * B + 24 * C)) / 6;
 	}
 	else {
 		return 0;

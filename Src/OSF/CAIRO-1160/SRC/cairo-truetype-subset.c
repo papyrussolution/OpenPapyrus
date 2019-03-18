@@ -280,7 +280,7 @@ static cairo_status_t cairo_truetype_font_allocate_write_buffer(cairo_truetype_f
 	if(font->status)
 		return font->status;
 
-	status = _cairo_array_allocate(&font->output, length, (void**)buffer);
+	status = _cairo_array_allocate(&font->output, length, (void **)buffer);
 	if(unlikely(status))
 		return _cairo_truetype_font_set_error(font, status);
 

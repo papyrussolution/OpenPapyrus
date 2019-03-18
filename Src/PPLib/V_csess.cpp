@@ -1023,7 +1023,7 @@ int DraftCreateRuleDialog::setDTS(const PPDfCreateRulePacket * pData)
 		SetupPPObjCombo(this, CTLSEL_DFRULE_GGRP,  PPOBJ_GOODSGROUP, Data.Rec.GoodsGrpID, OLW_CANSELUPLEVEL);
 		SetupPPObjCombo(this, CTLSEL_DFRULE_CQUOT, PPOBJ_QUOTKIND, Data.Rec.CQuot, 0);
 		SetupPPObjCombo(this, CTLSEL_DFRULE_PQUOT, PPOBJ_QUOTKIND, Data.Rec.PQuot, 0);
-		SetupPPObjCombo(this, CTLSEL_DFRULE_RULEGRP, PPOBJ_DFCREATERULE, Data.Rec.ParentID, 0, (void *)PPDFCRRULE_ONLYGROUPS);
+		SetupPPObjCombo(this, CTLSEL_DFRULE_RULEGRP, PPOBJ_DFCREATERULE, Data.Rec.ParentID, 0, reinterpret_cast<void *>(PPDFCRRULE_ONLYGROUPS));
 
 		SETFLAG(v, 0x01, Data.Rec.Flags & PPDraftCreateRule::fExclGoodsGrp);
 		setCtrlData(CTL_DFRULE_EXCLGGRP, &v);
@@ -1154,7 +1154,7 @@ void SLAPI PPDfCreateRulePacket::GetCashNN(SString * pBuf, int delim) const
 {
 	PPID * p_id = 0;
 	StringSet ss(static_cast<char>(delim), 0);
-	for(uint i = 0; CashNN.enumItems(&i, (void**)&p_id) > 0;) {
+	for(uint i = 0; CashNN.enumItems(&i, (void **)&p_id) > 0;) {
 		char buf[24];
 		ltoa(*p_id, buf, 10);
 		ss.add(buf, 0);
@@ -1499,7 +1499,7 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 			PPID   def_loc_id = 0;
 			if(cn_obj.Search(csess_rec.CashNodeID, &cn_rec) > 0)
 				def_loc_id = cn_rec.LocID;
-			for(uint p = 0; check_line_list.enumItems(&p, (void**)&p_crec) > 0;) {
+			for(uint p = 0; check_line_list.enumItems(&p, (void **)&p_crec) > 0;) {
 				uint   pos = 0;
 				const  double price = intmnytodbl(p_crec->Price) * p_crec->Quantity;
 				const  double discount = p_crec->Dscnt * p_crec->Quantity;
@@ -1566,7 +1566,7 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 				PPObjCSession::MakeCodeString(&csess_rec, csess_buf);
 				memo_buf.Z().CatChar('@').Cat("auto").CatDiv('-', 1).Cat(rule.Rec.Name).CatDiv('-', 1).Cat(csess_buf);
 				memo_buf.CopyTo(b_pack.Rec.Memo, sizeof(b_pack.Rec.Memo));
-				for(uint p = 0; goods.enumItems(&p, (void**)&p_e) > 0;) {
+				for(uint p = 0; goods.enumItems(&p, (void **)&p_e) > 0;) {
 					int    new_doc_by_loc = 0;
 					long   cost_alg  = rule.Rec.CostAlg;
 					long   price_alg = rule.Rec.PriceAlg;
@@ -2697,7 +2697,7 @@ int SLAPI PPViewCSessExc::SetAltGoods(int sign, PPID goodsID)
 		PPID   org_goods_id = rec.OrgGoodsID;
 		THROW(r = GatherGoodsLines(sign, org_goods_id, &cgl_list));
 		if(r > 0) {
-			for(i = 0; alt_goods_id >= 0 && cgl_list.enumItems(&i, (void**)&p_item);)
+			for(i = 0; alt_goods_id >= 0 && cgl_list.enumItems(&i, (void **)&p_item);)
 				if(p_item->AltGoodsID != alt_goods_id)
 					alt_goods_id = alt_goods_id ? -1L : p_item->AltGoodsID;
 			if(alt_goods_id < 0)
@@ -2717,7 +2717,7 @@ int SLAPI PPViewCSessExc::SetAltGoods(int sign, PPID goodsID)
 					if(dlg->getDTS(&alt_goods_id) > 0) {
 						PPTransaction tra(1);
 						THROW(tra);
-						for(i = 0; cgl_list.enumItems(&i, (void**)&p_item);) {
+						for(i = 0; cgl_list.enumItems(&i, (void **)&p_item);) {
 							THROW_DB(updateFor(&Tbl, 0, (Tbl.SessID == p_item->SessID && Tbl.Dt == p_item->Dt &&
 								Tbl.GoodsID == p_item->GoodsID && Tbl.Sign == (long)sign),
 								set(Tbl.AltGoodsID, dbconst(alt_goods_id))));

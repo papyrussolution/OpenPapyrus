@@ -760,7 +760,7 @@ void PNGAPI png_write_row(png_structrp png_ptr, png_const_bytep row)
 	png_debug1(3, "row_info->channels = %d", row_info.channels);
 	png_debug1(3, "row_info->bit_depth = %d", row_info.bit_depth);
 	png_debug1(3, "row_info->pixel_depth = %d", row_info.pixel_depth);
-	png_debug1(3, "row_info->rowbytes = %lu", (unsigned long)row_info.rowbytes);
+	png_debug1(3, "row_info->rowbytes = %lu", (ulong)row_info.rowbytes);
 
 	/* Copy user's row into buffer, leaving room for filter byte. */
 	memcpy(png_ptr->row_buf + 1, row, row_info.rowbytes);
@@ -1995,7 +1995,7 @@ int PNGAPI png_image_write_to_memory(png_imagep image, void * memory,
 int PNGAPI png_image_write_to_stdio(png_imagep image, FILE * file, int convert_to_8bit,
     const void * buffer, png_int_32 row_stride, const void * colormap)
 {
-	/* Write the image to the given (FILE*). */
+	/* Write the image to the given (FILE *). */
 	if(image != NULL && image->version == PNG_IMAGE_VERSION) {
 		if(file != NULL && buffer != NULL) {
 			if(png_image_write_init(image) != 0) {

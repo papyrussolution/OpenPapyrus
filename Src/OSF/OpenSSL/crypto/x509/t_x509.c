@@ -62,7 +62,7 @@ int X509_print_ex(BIO * bp, X509 * x, unsigned long nmflags, unsigned long cflag
 	if(!(cflag & X509_FLAG_NO_VERSION)) {
 		l = X509_get_version(x);
 		if(l >= 0 && l <= 2) {
-			if(BIO_printf(bp, "%8sVersion: %ld (0x%lx)\n", "", l + 1, (unsigned long)l) <= 0)
+			if(BIO_printf(bp, "%8sVersion: %ld (0x%lx)\n", "", l + 1, (ulong)l) <= 0)
 				goto err;
 		}
 		else {
@@ -86,7 +86,7 @@ int X509_print_ex(BIO * bp, X509 * x, unsigned long nmflags, unsigned long cflag
 		if(l != -1) {
 			unsigned long ul;
 			if(bs->type == V_ASN1_NEG_INTEGER) {
-				ul = 0 - (unsigned long)l;
+				ul = 0 - (ulong)l;
 				neg = "-";
 			}
 			else {

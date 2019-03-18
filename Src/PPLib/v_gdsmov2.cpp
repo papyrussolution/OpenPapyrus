@@ -120,7 +120,7 @@ int SLAPI PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 				ary.clear();
 				rec.GoodsID  = gr.ID;
 				THROW(ary.ProcessGoodsGrouping(&temp_filt, &agg));
-				for(i = 0; ary.enumItems(&i, (void**)&p_entry);) {
+				for(i = 0; ary.enumItems(&i, (void **)&p_entry);) {
 					int no_upd_lot_op = 0;
 					if(!accs_cost)
 						p_entry->Cost = 0;

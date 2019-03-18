@@ -1570,7 +1570,7 @@ static cairo_int_status_t cairo_cff_font_get_gid_for_cid(cairo_cff_font_t * font
 		case 0:
 		    p = font->charset + 1;
 		    g = 1;
-		    while(g <= (unsigned)font->num_glyphs && p < font->data_end) {
+		    while(g <= (uint)font->num_glyphs && p < font->data_end) {
 			    c = get_unaligned_be16(p);
 			    if(c == cid) {
 				    *gid = g;
@@ -1585,7 +1585,7 @@ static cairo_int_status_t cairo_cff_font_get_gid_for_cid(cairo_cff_font_t * font
 		case 1:
 		    first_gid = 1;
 		    p = font->charset + 1;
-		    while(first_gid <= (unsigned)font->num_glyphs && p + 2 < font->data_end) {
+		    while(first_gid <= (uint)font->num_glyphs && p + 2 < font->data_end) {
 			    first_cid = get_unaligned_be16(p);
 			    num_left = p[2];
 			    if(cid >= first_cid && cid <= first_cid + num_left) {
@@ -1601,7 +1601,7 @@ static cairo_int_status_t cairo_cff_font_get_gid_for_cid(cairo_cff_font_t * font
 		case 2:
 		    first_gid = 1;
 		    p = font->charset + 1;
-		    while(first_gid <= (unsigned)font->num_glyphs && p + 3 < font->data_end) {
+		    while(first_gid <= (uint)font->num_glyphs && p + 3 < font->data_end) {
 			    first_cid = get_unaligned_be16(p);
 			    num_left = get_unaligned_be16(p+2);
 			    if(cid >= first_cid && cid <= first_cid + num_left) {
@@ -1727,10 +1727,10 @@ static cairo_status_t cairo_cff_font_create_cid_fontdict(cairo_cff_font_t * font
 		font->num_fontdicts = 0;
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
-	font->fd_subset_map = (int *)_cairo_malloc(sizeof(int));
+	font->fd_subset_map = static_cast<int *>(_cairo_malloc(sizeof(int)));
 	if(unlikely(font->fd_subset_map == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-	font->private_dict_offset = (int *)_cairo_malloc(sizeof(int));
+	font->private_dict_offset = static_cast<int *>(_cairo_malloc(sizeof(int)));
 	if(unlikely(font->private_dict_offset == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	font->fd_subset_map[0] = 0;
@@ -1822,7 +1822,7 @@ static cairo_status_t cairo_cff_font_subset_font(cairo_cff_font_t * font)
 			return status;
 	}
 	else {
-		font->private_dict_offset = (int *)_cairo_malloc(sizeof(int));
+		font->private_dict_offset = static_cast<int *>(_cairo_malloc(sizeof(int)));
 		if(unlikely(font->private_dict_offset == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -2162,7 +2162,7 @@ static cairo_status_t cairo_cff_font_write_cid_fontdict(cairo_cff_font_t * font)
 	offset_array = _cairo_array_num_elements(&font->output);
 	status = _cairo_array_allocate(&font->output,
 		(font->num_subset_fontdicts + 1)*offset_size,
-		(void**)&offset_array_ptr);
+		(void **)&offset_array_ptr);
 	if(unlikely(status))
 		return status;
 	offset_base = _cairo_array_num_elements(&font->output) - 1;
@@ -3071,7 +3071,7 @@ static cairo_int_status_t cairo_cff_font_fallback_generate(cairo_cff_font_t * fo
 			return status;
 	}
 	else {
-		font->private_dict_offset = (int *)_cairo_malloc(sizeof(int));
+		font->private_dict_offset = static_cast<int *>(_cairo_malloc(sizeof(int)));
 		if(unlikely(font->private_dict_offset == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}

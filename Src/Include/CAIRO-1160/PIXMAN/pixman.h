@@ -389,14 +389,12 @@ typedef enum {
 /* This function exists only to make it possible to preserve
  * the X ABI - it should go away at first opportunity.
  */
-void pixman_region_set_static_pointers(pixman_box16_t * empty_box,
-    pixman_region16_data_t * empty_data,
-    pixman_region16_data_t * broken_data);
+void pixman_region_set_static_pointers(pixman_box16_t * empty_box, pixman_region16_data_t * empty_data, pixman_region16_data_t * broken_data);
 
 /* creation/destruction */
 void     pixman_region_init(pixman_region16_t * region);
 void     pixman_region_init_rect(pixman_region16_t * region, int x, int y, uint width, uint height);
-pixman_bool_t           pixman_region_init_rects(pixman_region16_t * region, const pixman_box16_t * boxes, int count);
+pixman_bool_t pixman_region_init_rects(pixman_region16_t * region, const pixman_box16_t * boxes, int count);
 void     pixman_region_init_with_extents(pixman_region16_t * region, pixman_box16_t * extents);
 void     pixman_region_init_from_image(pixman_region16_t * region, pixman_image_t * image);
 void     pixman_region_fini(pixman_region16_t * region);
@@ -451,7 +449,7 @@ struct pixman_region32 {
 /* creation/destruction */
 void     pixman_region32_init(pixman_region32_t * region);
 void     pixman_region32_init_rect(pixman_region32_t * region, int x, int y, uint width, uint height);
-pixman_bool_t           pixman_region32_init_rects(pixman_region32_t * region, const pixman_box32_t * boxes, int count);
+pixman_bool_t pixman_region32_init_rects(pixman_region32_t * region, const pixman_box32_t * boxes, int count);
 void     pixman_region32_init_with_extents(pixman_region32_t * region, pixman_box32_t * extents);
 void     pixman_region32_init_from_image(pixman_region32_t * region, pixman_image_t * image);
 void     pixman_region32_fini(pixman_region32_t * region);
@@ -729,42 +727,12 @@ pixman_bool_t   pixman_image_fill_rectangles(pixman_op_t op, pixman_image_t * im
 pixman_bool_t   pixman_image_fill_boxes(pixman_op_t op, pixman_image_t * dest, const pixman_color_t * color, int n_boxes, const pixman_box32_t * boxes);
 
 /* Composite */
-pixman_bool_t pixman_compute_composite_region(pixman_region16_t * region,
-    pixman_image_t * src_image,
-    pixman_image_t * mask_image,
-    pixman_image_t * dest_image,
-    int16_t src_x,
-    int16_t src_y,
-    int16_t mask_x,
-    int16_t mask_y,
-    int16_t dest_x,
-    int16_t dest_y,
-    uint16_t width,
-    uint16_t height);
-void          pixman_image_composite(pixman_op_t op,
-    pixman_image_t * src,
-    pixman_image_t * mask,
-    pixman_image_t * dest,
-    int16_t src_x,
-    int16_t src_y,
-    int16_t mask_x,
-    int16_t mask_y,
-    int16_t dest_x,
-    int16_t dest_y,
-    uint16_t width,
-    uint16_t height);
-void          pixman_image_composite32(pixman_op_t op,
-    pixman_image_t * src,
-    pixman_image_t * mask,
-    pixman_image_t * dest,
-    int32_t src_x,
-    int32_t src_y,
-    int32_t mask_x,
-    int32_t mask_y,
-    int32_t dest_x,
-    int32_t dest_y,
-    int32_t width,
-    int32_t height);
+pixman_bool_t pixman_compute_composite_region(pixman_region16_t * region, pixman_image_t * src_image, pixman_image_t * mask_image, pixman_image_t * dest_image,
+    int16_t src_x, int16_t src_y, int16_t mask_x, int16_t mask_y, int16_t dest_x, int16_t dest_y, uint16_t width, uint16_t height);
+void pixman_image_composite(pixman_op_t op, pixman_image_t * src, pixman_image_t * mask, pixman_image_t * dest,
+    int16_t src_x, int16_t src_y, int16_t mask_x, int16_t mask_y, int16_t dest_x, int16_t dest_y, uint16_t width, uint16_t height);
+void FASTCALL pixman_image_composite32(pixman_op_t op, pixman_image_t * src, pixman_image_t * mask, pixman_image_t * dest,
+    int32_t src_x, int32_t src_y, int32_t mask_x, int32_t mask_y, int32_t dest_x, int32_t dest_y, int32_t width, int32_t height);
 
 /* Executive Summary: This function is a no-op that only exists
  * for historical reasons.

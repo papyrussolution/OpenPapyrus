@@ -123,7 +123,7 @@ static int file_free(BIO * a)
 			if(a->flags & BIO_FLAGS_UPLINK)
 				UP_fclose(a->ptr);
 			else
-				fclose((FILE*)a->ptr);
+				fclose((FILE *)a->ptr);
 			a->ptr = NULL;
 			a->flags = BIO_FLAGS_UPLINK;
 		}
@@ -139,8 +139,8 @@ static int file_read(BIO * b, char * out, int outl)
 		if(b->flags & BIO_FLAGS_UPLINK)
 			ret = UP_fread(out, 1, (int)outl, b->ptr);
 		else
-			ret = fread(out, 1, (int)outl, (FILE*)b->ptr);
-		if(ret == 0 && (b->flags & BIO_FLAGS_UPLINK) ? UP_ferror((FILE*)b->ptr) : ferror((FILE*)b->ptr)) {
+			ret = fread(out, 1, (int)outl, (FILE *)b->ptr);
+		if(ret == 0 && (b->flags & BIO_FLAGS_UPLINK) ? UP_ferror((FILE *)b->ptr) : ferror((FILE *)b->ptr)) {
 			SYSerr(SYS_F_FREAD, get_last_sys_error());
 			BIOerr(BIO_F_FILE_READ, ERR_R_SYS_LIB);
 			ret = -1;
@@ -156,7 +156,7 @@ static int file_write(BIO * b, const char * in, int inl)
 		if(b->flags & BIO_FLAGS_UPLINK)
 			ret = UP_fwrite(in, (int)inl, 1, b->ptr);
 		else
-			ret = fwrite(in, (int)inl, 1, (FILE*)b->ptr);
+			ret = fwrite(in, (int)inl, 1, (FILE *)b->ptr);
 		if(ret)
 			ret = inl;
 		/* ret=fwrite(in,1,(int)inl,(FILE *)b->ptr); */
@@ -222,13 +222,13 @@ static long file_ctrl(BIO * b, int cmd, long num, void * ptr)
 #  endif
 		    {
 #  if defined(OPENSSL_SYS_WINDOWS)
-			    int fd = _fileno((FILE*)ptr);
+			    int fd = _fileno((FILE *)ptr);
 			    if(num & BIO_FP_TEXT)
 				    _setmode(fd, _O_TEXT);
 			    else
 				    _setmode(fd, _O_BINARY);
 #  elif defined(OPENSSL_SYS_MSDOS)
-			    int fd = fileno((FILE*)ptr);
+			    int fd = fileno((FILE *)ptr);
 			    /* Set correct text/binary mode */
 			    if(num & BIO_FP_TEXT)
 				    _setmode(fd, _O_TEXT);
@@ -242,7 +242,7 @@ static long file_ctrl(BIO * b, int cmd, long num, void * ptr)
 					    _setmode(fd, _O_BINARY);
 			    }
 #  elif defined(OPENSSL_SYS_WIN32_CYGWIN)
-			    int fd = fileno((FILE*)ptr);
+			    int fd = fileno((FILE *)ptr);
 			    if(num & BIO_FP_TEXT)
 				    setmode(fd, O_TEXT);
 			    else
@@ -293,7 +293,7 @@ static long file_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    /* the ptr parameter is actually a FILE ** in this case. */
 		    if(ptr) {
 			    fpp = (FILE**)ptr;
-			    *fpp = (FILE*)b->ptr;
+			    *fpp = (FILE *)b->ptr;
 		    }
 		    break;
 		case BIO_CTRL_GET_CLOSE:
@@ -306,7 +306,7 @@ static long file_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    if(b->flags & BIO_FLAGS_UPLINK)
 			    UP_fflush(b->ptr);
 		    else
-			    fflush((FILE*)b->ptr);
+			    fflush((FILE *)b->ptr);
 		    break;
 		case BIO_CTRL_DUP:
 		    ret = 1;
@@ -332,7 +332,7 @@ static int file_gets(BIO * bp, char * buf, int size)
 			goto err;
 	}
 	else {
-		if(!fgets(buf, size, (FILE*)bp->ptr))
+		if(!fgets(buf, size, (FILE *)bp->ptr))
 			goto err;
 	}
 	if(buf[0] != '\0')

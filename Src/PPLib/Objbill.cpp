@@ -613,7 +613,7 @@ int SLAPI PPObjBill::Edit(PPID * pID, void * extraPtr)
 	int    ok = 1;
  	PPID   op_type_id;
 	const  PPID preserve_loc_id = LConfig.Location;
-	const EditParam * p_extra_param = (const EditParam *)extraPtr;
+	const EditParam * p_extra_param = static_cast<const EditParam *>(extraPtr);
 	if(*pID == 0) {
 		AddBlock ab;
 		/* v9.8.11 if(State & BILLST_NOADD)
@@ -6178,7 +6178,7 @@ int SLAPI PPObjBill::FillTurnList(PPBillPacket * pPack)
 	pPack->Turns.freeAll();
 	if(!(pPack->Rec.Flags & BILLF_NOATURN)) {
 		THROW(PPObjOprKind::GetATTemplList(pPack->Rec.OpID, &att_list));
-		for(uint i = 0; att_list.enumItems(&i, (void**)&p_att);) {
+		for(uint i = 0; att_list.enumItems(&i, (void **)&p_att);) {
 			if(!(p_att->Flags & ATTF_PASSIVE)) {
 				if(p_att->Flags & ATTF_BASEPROJECTION) {
 					THROW(p_att->CreateBaseProjectionAccturns(pPack));
@@ -6321,7 +6321,7 @@ int SLAPI PPBillPacket::CreateShadowPacket(PPBillPacket * pShadow)
 	PPID   order = 0;
 	PPTransferItem * p_ti, ti;
 	if(P_ShLots) {
-		for(uint i = 0; P_ShLots->enumItems(&i, (void**)&p_ti);) {
+		for(uint i = 0; P_ShLots->enumItems(&i, (void **)&p_ti);) {
 			if(!pShadow) {
 				p_ti->TFlags &= ~PPTransferItem::tfDirty;
 				order = 1;
@@ -7027,7 +7027,7 @@ int SLAPI PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 		THROW(pPack->LnkFiles.WriteToProp(pPack->Rec.ID, 0));
 		if(!(pPack->Rec.Flags & BILLF_NOATURN) && !(CcFlags & CCFLG_DISABLEACCTURN)) {
 			pPack->ErrCause = PPBillPacket::err_on_accturn;
-			for(i = 0; pPack->Turns.enumItems(&i, (void**)&pat);) {
+			for(i = 0; pPack->Turns.enumItems(&i, (void **)&pat);) {
 				pPack->ErrLine = i-1;
 				pat->BillID = id;
 				THROW(atobj->P_Tbl->Turn(pat, 0));
@@ -7136,7 +7136,7 @@ int SLAPI PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 					pti->LotID = 0;
 		}
 		*/
-		for(i = 0; pPack->Turns.enumItems(&i, (void**)&pat);)
+		for(i = 0; pPack->Turns.enumItems(&i, (void **)&pat);)
 			pat->BillID = 0;
 	ENDCATCH
 	return ok;
@@ -7441,7 +7441,7 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 					int prev_rbb = rbybill;
 					while((r = atobj->P_Tbl->EnumByBill(id, &rbybill, &at)) > 0 && rbybill < BASE_RBB_BIAS) {
 						at.CRate = (at.CurID && at.CurID == LConfig.BaseCurID) ? 1.0 : pPack->Amounts.Get(PPAMT_CRATE, at.CurID);
-						for(i = 0, found = 0; !found && pPack->Turns.enumItems(&i, (void**)&p_at);) {
+						for(i = 0, found = 0; !found && pPack->Turns.enumItems(&i, (void **)&p_at);) {
 							if(at.Date == p_at->Date && at.DbtID == p_at->DbtID && at.CrdID == p_at->CrdID) {
 								DS.RestCheckingStatus(rest_checking);
 								THROW(atobj->P_Tbl->UpdateAmount(at.BillID, at.RByBill, p_at->Amount, at.CRate, 0));
@@ -7474,7 +7474,7 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 				// остатков по счетам и заносим все оставшиеся проводки
 				//
 				DS.RestCheckingStatus(rest_checking);
-				for(i = 0; pPack->Turns.enumItems(&i, (void**)&p_at);) {
+				for(i = 0; pPack->Turns.enumItems(&i, (void **)&p_at);) {
 					pPack->ErrLine = i-1;
 					p_at->BillID   = id;
 					p_at->RByBill  = 0;
@@ -7774,7 +7774,7 @@ int SLAPI PPObjBill::RemovePacket(PPID id, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjBill::Helper_GetPoolMembership(PPID id, PPBillPacket * pPack, long flag, PPID poolType, PPID * pPoolID)
+int SLAPI PPObjBill::Helper_GetPoolMembership(PPID id, const PPBillPacket * pPack, long flag, PPID poolType, PPID * pPoolID)
 {
 	int    ok = -1;
 	PPID   pool_id = 0;

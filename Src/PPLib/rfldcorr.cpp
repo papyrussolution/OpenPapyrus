@@ -862,7 +862,7 @@ int PPImpExpParam::DistributeFile(PPLogger * pLogger)
 	int    ok = -1;
 	if(!Direction /*export*/ && InetAccID) {
 		PPObjInternetAccount ia_obj;
-		PPInternetAccount ia_pack;
+		PPInternetAccount2 ia_pack;
 		if(ia_obj.Get(InetAccID, &ia_pack) > 0 && ia_pack.Flags & PPInternetAccount::fFtpAccount) {
 			if(fileExists(FileName)) {
 				SString ftp_path, naked_file_name;
@@ -872,10 +872,30 @@ int PPImpExpParam::DistributeFile(PPLogger * pLogger)
 					ia_pack.GetExtField(FTPAEXSTR_HOST, ftp_path);
 					ftp_path.SetLastSlash().Cat(naked_file_name);
 				}
+				/* @v10.3.9
 				WinInetFTP ftp;
 				THROW(ftp.Init());
 				THROW(ftp.Connect(&ia_pack));
 				THROW(ftp.SafePut(FileName, ftp_path, 0, 0, pLogger));
+				*/
+				// @v10.3.9 {
+				{
+					SUniformFileTransmParam param;
+					SString accs_name;
+					char   pwd[256];
+					(param.SrcPath = FileName).Transf(CTRANSF_INNER_TO_OUTER);
+					(param.DestPath = ftp_path).Transf(CTRANSF_INNER_TO_OUTER);
+					param.Flags = 0;
+					param.Format = SFileFormat::Unkn;
+
+					ia_pack.GetExtField(FTPAEXSTR_USER, accs_name);
+					ia_pack.GetPassword(pwd, sizeof(pwd), FTPAEXSTR_PASSWORD);
+					param.AccsName.EncodeUrl(accs_name, 0);
+					param.AccsPassword.EncodeUrl(pwd, 0);
+					memzero(pwd, sizeof(pwd));
+					THROW_SL(param.Run(0, 0));
+				}
+				// } @v10.3.9 
 				ok = 1;
 			}
 		}

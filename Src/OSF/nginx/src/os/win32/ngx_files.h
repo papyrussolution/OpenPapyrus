@@ -131,7 +131,7 @@ u_char * ngx_realpath(u_char * path, u_char * resolved);
 #define NGX_HAVE_MAX_PATH           1
 #define NGX_MAX_PATH                MAX_PATH
 
-#define NGX_DIR_MASK                (u_char*)"/*"
+#define NGX_DIR_MASK                (u_char *)"/*"
 #define NGX_DIR_MASK_LEN            2
 
 ngx_int_t ngx_open_dir(ngx_str_t * name, ngx_dir_t * dir);
@@ -151,7 +151,7 @@ ngx_int_t ngx_close_dir(ngx_dir_t * dir);
 
 #define ngx_dir_access(a)           (a)
 
-#define ngx_de_name(dir)            ((u_char*)(dir)->finddata.cFileName)
+#define ngx_de_name(dir)            ((u_char *)(dir)->finddata.cFileName)
 #define ngx_de_namelen(dir)         ngx_strlen((dir)->finddata.cFileName)
 
 ngx_int_t ngx_de_info(u_char * name, ngx_dir_t * dir);

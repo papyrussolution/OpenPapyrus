@@ -112,10 +112,8 @@ struct circle {
 
 struct radial_gradient {
 	gradient_t common;
-
 	circle_t c1;
 	circle_t c2;
-
 	circle_t delta;
 	double a;
 	double inva;
@@ -137,15 +135,12 @@ struct bits_image {
 	uint32_t *  bits;
 	uint32_t *  free_me;
 	int rowstride;                     /* in number of uint32_t's */
-
 	fetch_scanline_t fetch_scanline_32;
 	fetch_pixel_32_t fetch_pixel_32;
 	store_scanline_t store_scanline_32;
-
 	fetch_scanline_t fetch_scanline_float;
 	fetch_pixel_float_t fetch_pixel_float;
 	store_scanline_t store_scanline_float;
-
 	/* Used for indirect access to the bits */
 	pixman_read_memory_func_t read_func;
 	pixman_write_memory_func_t write_func;
@@ -241,7 +236,7 @@ pixman_bool_t _pixman_image_fini(pixman_image_t * image);
 pixman_image_t * _pixman_image_allocate(void);
 pixman_bool_t _pixman_init_gradient(gradient_t * gradient, const pixman_gradient_stop_t * stops, int n_stops);
 void _pixman_image_reset_clip_region(pixman_image_t * image);
-void _pixman_image_validate(pixman_image_t * image);
+void FASTCALL _pixman_image_validate(pixman_image_t * image);
 
 #define PIXMAN_IMAGE_GET_LINE(image, x, y, type, out_stride, line, mul) \
 	do { \

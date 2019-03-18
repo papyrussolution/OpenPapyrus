@@ -172,7 +172,7 @@ static int SLAPI IsRemovableDrive(const char drive)
 	//sprintf(str_drive, "%c%c", drive, ':');
 	//setLastSlash(str_drive);
 	s_drive.CatChar(drive).CatChar(':').SetLastSlash().ToUpper();
-	drive_type = GetDriveType(s_drive); // @unicodeproblem
+	drive_type = GetDriveType(SUcSwitch(s_drive)); // @unicodeproblem
 	if(oneof3(drive_type, DRIVE_REMOVABLE, DRIVE_CDROM, DRIVE_RAMDISK))
 		ok = 1;
 	else if(drive_type == DRIVE_NO_ROOT_DIR)

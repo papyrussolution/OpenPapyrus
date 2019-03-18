@@ -38,7 +38,7 @@ ngx_int_t ngx_shm_alloc(ngx_shm_t * shm)
 {
 	u_char  * name;
 	uint64_t size;
-	static u_char  * base = (u_char*)NGX_SHMEM_BASE;
+	static u_char  * base = (u_char *)NGX_SHMEM_BASE;
 	name = (u_char *)ngx_alloc(shm->name.len + 2 + NGX_INT32_LEN, shm->log);
 	if(!name) {
 		return NGX_ERROR;

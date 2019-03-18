@@ -658,7 +658,7 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 			if(action == 0)
 				ProcessBinding_AllocDescr(count, pStmt, pBind, (t == S_BLOB) ? SQLT_BLOB : SQLT_CLOB, OCI_DTYPE_LOB);
 			else if(action < 0) {
-				OD ocilob = *(OD *)pStmt->GetBindOuterPtr(pBind, count);
+				OD ocilob = *static_cast<const OD *>(pStmt->GetBindOuterPtr(pBind, count));
 				DBLobBlock * p_lob = pStmt->GetBindingLob();
 				size_t lob_sz = 0;
 				uint32 lob_loc = 0;
@@ -666,7 +666,7 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 					p_lob->GetSize(labs(pBind->Pos)-1, &lob_sz);
 					p_lob->GetLocator(labs(pBind->Pos)-1, &lob_loc);
 					SETIFZ(lob_loc, (uint32)OdAlloc(OCI_DTYPE_LOB).H);
-					ProcessError(OCILobAssign(Env, Err, (const OCILobLocator *)lob_loc, (OCILobLocator **)&ocilob.H));
+					ProcessError(OCILobAssign(Env, Err, (const OCILobLocator *)(lob_loc), reinterpret_cast<OCILobLocator **>(&ocilob.H)));
 				}
 				LobWrite(ocilob, pBind->Typ, (SLob *)pBind->P_Data, lob_sz);
 			}
@@ -675,7 +675,7 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 				DBLobBlock * p_lob = pStmt->GetBindingLob();
 				size_t lob_sz = 0;
 				uint32 lob_loc = 0;
-				LobRead(ocilob, pBind->Typ, (SLob *)pBind->P_Data, &lob_sz);
+				LobRead(ocilob, pBind->Typ, static_cast<SLob *>(pBind->P_Data), &lob_sz);
 				if(p_lob) {
 					SETIFZ(lob_loc, (uint32)OdAlloc(OCI_DTYPE_LOB).H);
 					ProcessError(OCILobAssign(Env, Err, ocilob, (OCILobLocator **)&lob_loc));

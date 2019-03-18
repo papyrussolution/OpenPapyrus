@@ -270,7 +270,7 @@ static int math_random(lua_State * L)
 
 static int math_randomseed(lua_State * L) 
 {
-	l_srand((unsigned int)(lua_Integer)luaL_checknumber(L, 1));
+	l_srand((uint)(lua_Integer)luaL_checknumber(L, 1));
 	(void)l_rand(); /* discard first value to avoid undesirable correlations */
 	return 0;
 }

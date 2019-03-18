@@ -480,7 +480,7 @@ int FASTCALL QuotUpdFilt::IsQuotByAdvOptExists(const PPQuotArray * pList) const
 {
 	int    ok = -1;
 	PPQuot * p_q = 0;
-	for(uint i = 0; ok <= 0 && pList->enumItems(&i, (void**)&p_q);)
+	for(uint i = 0; ok <= 0 && pList->enumItems(&i, (void **)&p_q);)
 		if(oneof2(AdvOptQuotKindID, 0, p_q->Kind) && oneof2(AdvOptLocID, 0, p_q->LocID) &&
 			(p_q->Quot == AdvOptQuot && !p_q->IsRelative()))
 			ok = 1;
@@ -746,7 +746,7 @@ static int SLAPI SetupQuotList(const QuotUpdFilt & rFilt, PPID locID, PPID goods
 			break;
 		case QuotUpdFilt::byPctVal: // Установка котировок по относительному изменению (только для существующих)
 			if(rFilt.QuotVal) {
-				for(i = 0; pList->enumItems(&i, (void**)&p_quot);) {
+				for(i = 0; pList->enumItems(&i, (void **)&p_quot);) {
 					for(uint j = 0; j < ar_list.getCount(); j++) {
 						const PPID ar_id = ar_list.get(j);
 						if((!rFilt.QuotKindID || p_quot->Kind == rFilt.QuotKindID) && p_quot->LocID == locID &&

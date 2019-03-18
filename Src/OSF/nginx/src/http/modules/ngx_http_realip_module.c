@@ -175,7 +175,7 @@ static ngx_int_t ngx_http_realip_set_addr(ngx_http_request_t * r, ngx_addr_t * a
 			return NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}
 		else {
-			u_char * p = (u_char*)ngx_pnalloc(c->pool, len);
+			u_char * p = (u_char *)ngx_pnalloc(c->pool, len);
 			if(!p) {
 				return NGX_HTTP_INTERNAL_SERVER_ERROR;
 			}
@@ -218,7 +218,7 @@ static const char * ngx_http_realip_from(ngx_conf_t * cf, const ngx_command_t * 
 #if (NGX_HAVE_INET6)
 	struct sockaddr_in6  * sin6;
 #endif
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(rlcf->from == NULL) {
 		rlcf->from = ngx_array_create(cf->pool, 2, sizeof(ngx_cidr_t));
 		if(rlcf->from == NULL) {
@@ -288,7 +288,7 @@ static const char * ngx_http_realip(ngx_conf_t * cf, const ngx_command_t * cmd, 
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 		if(ngx_strcmp(value[1].data, "X-Real-IP") == 0) {
 			rlcf->type = NGX_HTTP_REALIP_XREALIP;
 			return NGX_CONF_OK;
@@ -411,7 +411,7 @@ static ngx_int_t ngx_http_realip_remote_port_variable(ngx_http_request_t * r, ng
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
-	v->data = (u_char*)ngx_pnalloc(r->pool, sizeof("65535") - 1);
+	v->data = (u_char *)ngx_pnalloc(r->pool, sizeof("65535") - 1);
 	if(v->data == NULL) {
 		return NGX_ERROR;
 	}

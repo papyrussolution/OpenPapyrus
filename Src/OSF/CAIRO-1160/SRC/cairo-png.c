@@ -150,12 +150,9 @@ static void png_simple_output_flush_fn(png_structp png_ptr)
 {
 }
 
-static cairo_status_t write_png(cairo_surface_t * surface,
-    png_rw_ptr write_func,
-    void * closure)
+static cairo_status_t write_png(cairo_surface_t * surface, png_rw_ptr write_func, void * closure)
 {
 	int i;
-	cairo_int_status_t status;
 	cairo_image_surface_t * image;
 	cairo_image_surface_t * volatile clone;
 	void * image_extra;
@@ -165,22 +162,16 @@ static cairo_status_t write_png(cairo_surface_t * surface,
 	png_color_16 white;
 	int png_color_type;
 	int bpc;
-
-	status = _cairo_surface_acquire_source_image(surface,
-		&image,
-		&image_extra);
-
+	cairo_int_status_t status = _cairo_surface_acquire_source_image(surface, &image, &image_extra);
 	if(status == CAIRO_INT_STATUS_UNSUPPORTED)
 		return _cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH);
 	else if(unlikely(status))
 		return status;
-
 	/* PNG complains about "Image width or height is zero in IHDR" */
 	if(image->width == 0 || image->height == 0) {
 		status = _cairo_error(CAIRO_STATUS_WRITE_ERROR);
 		goto BAIL1;
 	}
-
 	/* Handle the various fallback formats (e.g. low bit-depth XServers)
 	 * by coercing them to a simpler format using pixman.
 	 */
@@ -188,36 +179,28 @@ static cairo_status_t write_png(cairo_surface_t * surface,
 	status = clone->base.status;
 	if(unlikely(status))
 		goto BAIL1;
-	rows = (uint8 ** volatile)_cairo_malloc_ab(clone->height, sizeof(uint8 *));
+	rows = static_cast<uint8 ** volatile>(_cairo_malloc_ab(clone->height, sizeof(uint8 *)));
 	if(unlikely(rows == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto BAIL2;
 	}
-
 	for(i = 0; i < clone->height; i++)
 		rows[i] = (uint8 *)clone->data + i * clone->stride;
-
-	png = png_create_write_struct(PNG_LIBPNG_VER_STRING, &status,
-		png_simple_error_callback,
-		png_simple_warning_callback);
+	png = png_create_write_struct(PNG_LIBPNG_VER_STRING, &status, png_simple_error_callback, png_simple_warning_callback);
 	if(unlikely(png == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto BAIL3;
 	}
-
 	info = png_create_info_struct(png);
 	if(unlikely(info == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto BAIL4;
 	}
-
 #ifdef PNG_SETJMP_SUPPORTED
 	if(setjmp(png_jmpbuf(png)))
 		goto BAIL4;
 #endif
-
 	png_set_write_fn(png, closure, write_func, png_simple_output_flush_fn);
-
 	switch(clone->format) {
 		case CAIRO_FORMAT_ARGB32:
 		    bpc = 8;
@@ -480,7 +463,7 @@ static void convert_bytes_to_data(png_structp png, png_row_infop row_info, png_b
 
 static cairo_status_t stdio_read_func(void * closure, uchar * data, uint size)
 {
-	FILE * file = (FILE *)closure;
+	FILE * file = static_cast<FILE *>(closure);
 	while(size) {
 		size_t ret = fread(data, 1, size, file);
 		size -= ret;
@@ -611,24 +594,20 @@ static cairo_surface_t * read_png(struct png_read_closure_t * png_closure)
 		surface = _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_STRIDE));
 		goto BAIL;
 	}
-	data = (uint8 * volatile)_cairo_malloc_ab(png_height, stride);
+	data = static_cast<uint8 * volatile>(_cairo_malloc_ab(png_height, stride));
 	if(unlikely(data == NULL)) {
 		surface = _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 		goto BAIL;
 	}
-
-	row_pointers = (uint8 ** volatile)_cairo_malloc_ab(png_height, sizeof(char *));
+	row_pointers = static_cast<uint8 ** volatile>(_cairo_malloc_ab(png_height, sizeof(char *)));
 	if(unlikely(row_pointers == NULL)) {
 		surface = _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 		goto BAIL;
 	}
-
 	for(i = 0; i < png_height; i++)
 		row_pointers[i] = &data[i * (ptrdiff_t)stride];
-
 	png_read_image(png, row_pointers);
 	png_read_end(png, info);
-
 	if(unlikely(status)) { /* catch any late warnings - probably hit an error already */
 		surface = _cairo_surface_create_in_error(status);
 		goto BAIL;
@@ -646,31 +625,21 @@ static cairo_surface_t * read_png(struct png_read_closure_t * png_closure)
 		surface = _cairo_surface_create_in_error(status);
 		goto BAIL;
 	}
-
-	status = cairo_surface_set_mime_data(surface,
-		CAIRO_MIME_TYPE_PNG,
-		mime_data,
-		mime_data_length,
-		free,
-		mime_data);
+	status = cairo_surface_set_mime_data(surface, CAIRO_MIME_TYPE_PNG, mime_data, mime_data_length, free, mime_data);
 	if(unlikely(status)) {
 		SAlloc::F(mime_data);
 		cairo_surface_destroy(surface);
 		surface = _cairo_surface_create_in_error(status);
 		goto BAIL;
 	}
-
 BAIL:
 	SAlloc::F(row_pointers);
 	SAlloc::F(data);
 	if(png != NULL)
 		png_destroy_read_struct(&png, &info, NULL);
 	if(png_closure->png_data != NULL) {
-		cairo_status_t status_ignored;
-
-		status_ignored = _cairo_output_stream_destroy(png_closure->png_data);
+		cairo_status_t status_ignored = _cairo_output_stream_destroy(png_closure->png_data);
 	}
-
 	return surface;
 }
 

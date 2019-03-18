@@ -1902,8 +1902,8 @@ public:
 	int    SLAPI IsOpRights() const;
 	int    SLAPI IsLocRights() const;
 	int    SLAPI ExtentOpRights();
-	int    SLAPI MaskOpRightsByOps(PPIDArray * pOpList, PPIDArray * pResultOpList) const;
-	int    SLAPI MaskOpRightsByTypes(PPIDArray * pOpTypeList, PPIDArray * pResultOpList) const;
+	int    SLAPI MaskOpRightsByOps(const PPIDArray * pOpList, PPIDArray * pResultOpList) const;
+	int    SLAPI MaskOpRightsByTypes(const PPIDArray * pOpTypeList, PPIDArray * pResultOpList) const;
 	int    SLAPI CheckOpID(PPID, long) const;
 	int    SLAPI CheckLocID(PPID, long) const;
 	int    SLAPI CheckPosNodeID(PPID id, long flags) const;
@@ -4973,7 +4973,7 @@ struct PPAccTurn { // @persistent
 class PPAccTurnTempl { // @persistent @store(PropertyTbl)
 public:
 	static int SLAPI Convert_6407(PropertyTbl::Rec * pRec);
-	int    SLAPI SetupSubst(char * primStr, char * foreignStr);
+	int    SLAPI SetupSubst(const char * primStr, const char * foreignStr);
 	int    SLAPI SubstToStrings(SString & rPrimStr, SString & rForeignStr);
 	int    SLAPI CreateAccturns(PPBillPacket *);
 	int    SLAPI CreateBaseProjectionAccturns(PPBillPacket *);
@@ -8092,7 +8092,7 @@ public:
 	PPPerson & FASTCALL operator = (const PPPerson &);
 	void   SLAPI destroy();
 	int    SLAPI AddRelation(PPID personID, PPID relTypeID, uint * pPos);
-	int    SLAPI AddRelations(PPIDArray * pPersonList, PPID relTypeID, uint * pPos);
+	int    SLAPI AddRelations(const PPIDArray * pPersonList, PPID relTypeID, uint * pPos);
 	int    SLAPI RemoveRelation(PPID personID, PPID relTypeID);
 	//
 	//     Descr: Удаляет отношения с персоналиями из списка pPersonList и типом отношения relTypeID
@@ -9693,6 +9693,7 @@ public:
 		int    SLAPI GetByIdx(uint idx, Entry & rEntry) const;
 		int    SLAPI GetBoxNum(long boxId, SString & rNum) const;
 		int    SLAPI GetByBoxID(long boxId, StringSet & rSs) const;
+		int    SLAPI SearchCode(const char * pNum, uint * pIdx) const;
 	private:
 		struct InnerEntry { // @flat
 			long   BoxID;
@@ -10475,7 +10476,7 @@ public:
 	// Нулевой ид лота обрабатывается нормально. Если rest == 0, то
 	// возвращается 0.
 	//
-	int    SLAPI RestByLot(PPID, PPTransferItem *, int pos, double *) const; // @>>BillObj->trfr->GetRest
+	int    SLAPI RestByLot(PPID, const PPTransferItem * pTi, int pos, double *) const; // @>>BillObj->trfr->GetRest
 	int    SLAPI RestByOrderLot(PPID, const PPTransferItem *, int pos, double *) const;
 	//
 	// Descr: аналогична Transfer::GetBounds, но в контексте пакета.
@@ -11003,7 +11004,7 @@ public:
 	//   0  - ошибка
 	//
 	int    SLAPI GetBillListByExt(PPID agentID, PPID payerID, PPIDArray & rList);
-	int    SLAPI GetAdvanceBillList(PPID objID, PPID exclBillID, DateRange *, double * pAdvRest, PPIDArray *);
+	int    SLAPI GetAdvanceBillList(PPID objID, PPID exclBillID, const DateRange * pPeriod, double * pAdvRest, PPIDArray *);
 	//
 	// Descr: Находит список локаций ассоциированных с документами, относящимися к виду операции opID.
 	// ARG(opID IN): Идентификатор вида операции. Обобщенные операции не разворачиваются.
@@ -11068,7 +11069,7 @@ private:
 	//
 	int    SLAPI IsThereBill(PPID locID, const PPIDArray * pOpList, LDATE dt);
 	int    SLAPI Helper_CalcPayment(PPID id, PPID curID, const PPCycleArray * pSieve, RAssocArray * pList, double * pPaym);
-	int    SLAPI InitEnumByOp(PPID opID, DateRange * pPeriod, int flags, long * pHandle);
+	int    SLAPI InitEnumByOp(PPID opID, const DateRange * pPeriod, int flags, long * pHandle);
 	int    SLAPI NextEnum(long enumHandle, BillTbl::Rec * pRec);
 	int    SLAPI DestroyIter(long enumHandle);
 
@@ -11087,7 +11088,7 @@ public:
 	SLAPI ~PPHistBillPacket();
 	void   SLAPI destroy();
 	PPHistBillPacket & FASTCALL operator = (const PPHistBillPacket & aPack);
-	int    SLAPI Init(PPBillPacket * pPack);
+	int    SLAPI Init(const PPBillPacket * pPack);
 	int    SLAPI ConvertToBillPack(PPBillPacket * pPack);
 	uint   SLAPI GetCount() const;
 	HistTrfrTbl::Rec & FASTCALL Item(uint);
@@ -11274,7 +11275,7 @@ public:
 	//   все лоты, удовлетворяющие test, но их идентификаторы не сохраняет).
 	//   Параметр extra передается функции test.
 	//
-	int    SLAPI GatherChilds(PPID parent, PPIDArray * ary, int (*test)(ReceiptTbl::Rec *, void *), void * extraPtr);
+	int    SLAPI GatherChilds(PPID parent, PPIDArray * ary, int (*test)(const ReceiptTbl::Rec *, void *), void * extraPtr);
 	//
 	// Descr: возвращает текущую цену товара goodsID
 	//   по складу locID. Если остаток товара по складу больше нуля, то
@@ -12754,8 +12755,8 @@ public:
 
 	SLAPI  PrjTaskCore();
 	int    SLAPI Search(PPID id, PrjTaskTbl::Rec * pRec);
-	SEnumImp * SLAPI EnumByClient(PPID cliPersonID, DateRange * pPeriod, int options);
-	SEnumImp * SLAPI EnumByEmployer(PPID emplPersonID, DateRange * pPeriod, int options);
+	SEnumImp * SLAPI EnumByClient(PPID cliPersonID, const DateRange * pPeriod, int options);
+	SEnumImp * SLAPI EnumByEmployer(PPID emplPersonID, const DateRange * pPeriod, int options);
 	int    SLAPI SearchByTime(const LDATETIME &, PPID * pID, PrjTaskTbl::Rec *);
 	int    SLAPI SearchAnyRef(PPID objType, PPID objID, PPID * pID);
 	int    SLAPI ReplaceRefs(PPID objType, PPID replacedID, PPID newID, int use_ta);
@@ -12885,7 +12886,7 @@ private:
 	SVector * P_List; // @v9.9.4 SArray-->SVector
 };
 
-typedef int (FASTCALL * EnumPredictSalesProc)(PredictSalesItem *, long);
+typedef int (FASTCALL * EnumPredictSalesProc)(PredictSalesItem *, void * extraPtr);
 
 class PredictSalesCore : public PredictSalesTbl, public PPHolidays {
 public:
@@ -12945,10 +12946,9 @@ public:
 	//   Реакция функции Enumerate на значение, возвращаемое из proc:
 	//     > 0 - продолжает работу
 	//     <= 0 - завершает работу и возвращает значение, возвращенное процедурой proc
-	// ARG(extraParam IN): Произвольный параметр, передаваемый функцией Enumerate
-	//   callback-процедуре proc.
+	// ARG(extraPtr IN): Произвольный параметр, передаваемый функцией Enumerate callback-процедуре proc.
 	//
-	int    SLAPI Enumerate(PPID goodsID, const ObjIdListFilt & rLocList, const DateRange * pPeriod, int maxItems, EnumPredictSalesProc proc, long extraParam);
+	int    SLAPI Enumerate(PPID goodsID, const ObjIdListFilt & rLocList, const DateRange * pPeriod, int maxItems, EnumPredictSalesProc proc, void * extraPtr);
 	void   FASTCALL GetLocList(PPIDArray & rList) const;
 	//
 	// Descr: Удаляет все записи по складу locID и товару goodsID за период pPeriod.
@@ -13024,7 +13024,7 @@ private:
 	int    SLAPI ExpandHoliday(int16, LDATE *);
 	int    SLAPI SearchStat(PPID goodsID, PPID locID, GoodsStatTbl::Rec * pRec);
 	int    SLAPI SearchStat(PPID goodsID, const ObjIdListFilt & rLocList, GoodsStatTbl::Rec * pRec);
-	int    SLAPI Helper_Enumerate(PPID goodsID, PPID locID, const DateRange * pPeriod, int maxItems, EnumPredictSalesProc proc, long extraData);
+	int    SLAPI Helper_Enumerate(PPID goodsID, PPID locID, const DateRange * pPeriod, int maxItems, EnumPredictSalesProc proc, void * extraPtr);
 
 	TSVector <LocTabEntry> LocTab; // @v9.8.4 TSArray-->TSVector
 	int    IsLocTabUpdated;
@@ -13411,7 +13411,7 @@ public:
 	int    HasRight(long rt);
 	int    Edit(Packet * pPack);
 	int    EditParam(Param * pParam);
-	int    Create(Param *);
+	int    Create(const Param * pParam);
 	int    Update(const Packet * pPack, int use_ta);
 	int    Cancel(PPID ordCheckID);
 	int    Print(const Packet * pPack);
@@ -13634,7 +13634,11 @@ public:
 	//
 	// Descr: Функция, обеспечивающая централизованный механиз распаковки текстовых расширений строк чека.
 	//
-	static int SLAPI Helper_UnpackLineTextExt(const SString & rBuf, StrAssocArray & rList);
+	// @v10.3.9 (replaced with Helper_UnpackTextExt) static int SLAPI Helper_UnpackLineTextExt(const SString & rBuf, StrAssocArray & rList);
+	//
+	// Descr: Функция, обеспечивающая централизованный механиз распаковки текстовых расширений чека и его строк.
+	//
+	static int SLAPI Helper_UnpackTextExt(const SString & rBuf, PPExtStrContainer * pSc, StrAssocArray * pList);
 	static int SLAPI Helper_SetLineTextExt(int pos /* 1.. */, int lnextId, StrAssocArray & rList, const char * pText);
 	static int SLAPI Helper_GetLineTextExt(int pos /* 1.. */, int lnextId, const StrAssocArray & rList, SString & rBuf);
 
@@ -13647,6 +13651,10 @@ public:
 	//
 	int    SLAPI HasExt() const;
 	uint   SLAPI GetCount() const;
+	//
+	// Descr: Упаковывает все строки расширения чека и его строк в общую строку для сохранения в базе данных.
+	//
+	int    SLAPI PackTextExt(SString & rResult) const;
 	const  CCheckLineTbl::Rec & FASTCALL GetLine(uint pos) const;
 	int    SLAPI EnumLines(uint * pPos, CCheckLineTbl::Rec * pItem, SString * pSerial = 0) const;
 	int    SLAPI EnumLines(uint * pPos, CCheckItem * pItem) const;
@@ -13722,8 +13730,10 @@ public:
 	CCheckTbl::Rec Rec;    //
 	SString UhttScHash;    // @transient Код доступа к информации о карте, синхронизированной с Universe-HTT
 private:
-	int    SLAPI PackLineTextExt(SString & rResult) const;
-	int    SLAPI UnpackLineTextExt(const SString & rBuf);
+	int    SLAPI Helper_PackLineTextExt(SString & rResult) const;
+	// @v10.3.9 int    SLAPI PackLineTextExt(SString & rResult) const;
+	// @v10.3.9 int    SLAPI UnpackLineTextExt(const SString & rBuf);
+	int    SLAPI UnpackTextExt(const SString & rBuf);
 	// @v9.0.11 int    SLAPI PrepareForWriting(PPID ccheckID, int16 lastRbc);
 
 	CCheckLineArray Items_; //
@@ -14227,7 +14237,7 @@ DBTable * FASTCALL __PreprocessCreatedDbTable(DBTable * pT);
 static nam##Tbl * SLAPI proc() { nam##Tbl * t = new nam##Tbl(DBTable::CrTempFileNamePtr); \
   if(t && t->IsOpened()) return t; else { delete t; t = 0; return (PPSetErrorDB(), (nam##Tbl *)0); }}*/
 #define PP_CREATE_TEMP_FILE_PROC(proc,nam)                 \
-static nam##Tbl * SLAPI proc() { return (nam##Tbl *)__PreprocessCreatedDbTable(new nam##Tbl(DBTable::CrTempFileNamePtr)); }
+static nam##Tbl * SLAPI proc() { return static_cast<nam##Tbl *>(__PreprocessCreatedDbTable(new nam##Tbl(DBTable::CrTempFileNamePtr))); }
 
 template <class T> inline T * CreateTempFile()
 {
@@ -14301,7 +14311,7 @@ public:
 	virtual SLAPI ~PPView();
 	int    SLAPI IsConsistent() const;
 	//
-	// Descr: Создает экземпляр класса PPBaseFilt. Дополнительный параметр extraParam
+	// Descr: Создает экземпляр класса PPBaseFilt. Дополнительный параметр extraPtr
 	//   позволяет задать специфичную информацию для инициализации фильтра.
 	//   Полученный указатель после использования должен быть разрушен вызывающей функцией
 	//   обращением к "delete p_flt;"
@@ -14502,9 +14512,9 @@ struct PPCommandDescr {
 	int    SLAPI Write(SBuffer &, long) const;
 	int    SLAPI Read(SBuffer &, long);
 	PPCommandHandler * SLAPI CreateInstance(long cmdDescrID);
-	int    SLAPI DoCommand(PPCommand * pCmd, long extra);
-	int    SLAPI DoCommandSimple(PPID cmdDescrID, int allowEditParam, const char * pTextFilt, long extra);
-	int    SLAPI EditCommandParam(PPID cmdDescrID, long cmdID, SBuffer * pParam, long extra);
+	int    SLAPI DoCommand(PPCommand * pCmd, void * extraPtr);
+	int    SLAPI DoCommandSimple(PPID cmdDescrID, int allowEditParam, const char * pTextFilt, void * extraPtr);
+	int    SLAPI EditCommandParam(PPID cmdDescrID, long cmdID, SBuffer * pParam, void * extraPtr);
 
 	long   CmdID;
 	long   Flags;
@@ -14639,8 +14649,8 @@ class PPCommandHandler {
 public:
 	SLAPI   PPCommandHandler(const PPCommandDescr * pDescr);
 	virtual SLAPI ~PPCommandHandler();
-	virtual int SLAPI EditParam(SBuffer * pParam, long iconID, long);
-	virtual int SLAPI Run(SBuffer * pParam, long iconID, long extraParam);
+	virtual int SLAPI EditParam(SBuffer * pParam, long iconID, void * extraPtr);
+	virtual int SLAPI Run(SBuffer * pParam, long iconID, void * extraPtr);
 protected:
 	int    SLAPI CheckParamBuf(const SBuffer *, size_t neededSize) const;
 	PPCommandDescr D;
@@ -15857,7 +15867,8 @@ public:
 		double SLAPI CalcTP(double stakeBase) const;
 		double SLAPI GetWinCountRate() const;
 		enum {
-			bfShort = 0x0001 // Стратегия для short-торговли
+			bfShort      = 0x0001, // Стратегия для short-торговли
+			bfOptRanges4 = 0x0002  // Оптимальные диапазоны OptDeltaRange и OptDelta2Range сформированы для StakeMode=4
 		};
 		enum {
 			clsmodFullMaxDuck = 0,
@@ -15908,7 +15919,8 @@ public:
 			gbsfShort      = 0x0002,
 			gbsfStakeMode1 = 0x0004,
 			gbsfStakeMode2 = 0x0008,
-			gbsfStakeMode3 = 0x0010
+			gbsfStakeMode3 = 0x0010,
+			gbsfStakeMode4 = 0x0020
 		};
 		int    SLAPI GetBestSubset(long flags, uint maxCount, StrategyContainer & rScDest) const;
 		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
@@ -16005,8 +16017,8 @@ public:
 	int    SLAPI FindOptimalFactor(const DateTimeArray & rTmList, const RealArray & rValList, const TrainNnParam & rS, int what,
 		const IntRange & rMdRange, int mdStep, TSVector <FactorToResultRelation> & rSet, FactorToResultRelation & rResult);
 	//static int SLAPI Helper_FindOptimalFactor(const DateTimeArray & rTmList, const RealArray & rValList, const TrainNnParam & rS, double & rResult, uint & rPeakQuant);
-	static const TrendEntry * FASTCALL SearchTrendEntry(const TSCollection <TrendEntry> & rTrendList, uint stride);
-	static int SLAPI MatchStrategy(const TSCollection <TrendEntry> & rTrendList, int lastIdx, const Strategy & rS, double & rResult, double & rTv, double & rTv2);
+	static const TrendEntry * FASTCALL SearchTrendEntry(const TSCollection <PPObjTimeSeries::TrendEntry> & rTrendList, uint stride);
+	static int SLAPI MatchStrategy(const TSCollection <PPObjTimeSeries::TrendEntry> & rTrendList, int lastIdx, const Strategy & rS, double & rResult, double & rTv, double & rTv2);
 private:
 	virtual int SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam);
 	int    SLAPI EditDialog(PPTimeSeries * pEntry);
@@ -18232,7 +18244,6 @@ public:
 
 	int    SLAPI SyncViewSessionStat(long options);
 	int    SLAPI SyncGetSummator(double *);
-	int    SLAPI SyncAddSummator(double);
 	int    SLAPI SyncPrintCheck(CCheckPacket *, int addSummator);
 	// @v10.0.0 int    SLAPI SyncPrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN);
 	int    SLAPI SyncPrintCheckCopy(CCheckPacket * pPack, const char * pFormatName);
@@ -18482,7 +18493,7 @@ public:
 	virtual int  SLAPI Edit(PPID * pID, void * extraPtr);
 	virtual int  SLAPI Browse(void * extraPtr);
 	int    SLAPI GetPacket(PPID id, PPLocPrinter * pPack);
-	int    SLAPI PutPacket(PPID * pID, PPLocPrinter * pPack, int use_ta);
+	int    SLAPI PutPacket(PPID * pID, const PPLocPrinter * pPack, int use_ta);
 	int    SLAPI GetPrinterByLocation(PPID locID, SString & rPrnPort, PPLocPrinter * pRec);
 	//
 	// Descr: Формирует список ассоциация склад-локальный принтер (key - LocID, val - LocPrinterID).
@@ -18871,7 +18882,7 @@ public:
 		chkBalLog     = 0x0001,
 		chkBalCorrect = 0x0002
 	};
-	int    SLAPI RecalcBalance(RecoverBalanceParam *, PPLogger &);
+	int    SLAPI RecalcBalance(const RecoverBalanceParam *, PPLogger &);
 	int    SLAPI RecalcBalance(PPID accID, LDATE startDate, int use_ta);
 	int    SLAPI Repair(long flags, int (*MsgProc)(int msgCode, PPID accID, PPID billID, LDATE dt, long oprno, void * paramPtr), void * paramPtr);
 	int    SLAPI RemoveEmptyAcctRels();
@@ -19047,7 +19058,7 @@ public:
 	virtual SLAPI ~PPSyncCashSession();
 	int    SLAPI Init(const char * pName, const char * pPort);
 	int    SLAPI IsError() const;
-	virtual int SLAPI InitChannel() { return -1; }
+	// @v10.3.9 virtual int SLAPI InitChannel() { return -1; }
 	//
 	// Функции кассового аппарата уровня приложения //
 	//
@@ -19060,13 +19071,12 @@ public:
 
 	virtual int SLAPI PrintFiscalCorrection(const PPCashMachine::FiscalCorrection * pFc) { return -1; }
 	// @v10.0.0 virtual int SLAPI PrintCheckByBill(const PPBillPacket *, double multiplier, int departN) { return -1; }
-	virtual int SLAPI PrintCheckCopy(CCheckPacket * pPack, const char * pFormatName, uint flags) { return -1; }
-	virtual int SLAPI PrintSlipDoc(CCheckPacket * pPack, const char * pFormatName, uint flags) { return -1; }
+	virtual int SLAPI PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags) { return -1; }
+	virtual int SLAPI PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatName, uint flags) { return -1; }
 	virtual int SLAPI PrintXReport(const CSessInfo *) { return -1; }
 	virtual int SLAPI PrintZReportCopy(const CSessInfo *) { return -1; }
 	virtual int SLAPI PrintIncasso(double sum, int isIncome) { return -1; }
 	virtual int SLAPI GetSummator(double * val) { return -1; }
-	virtual int SLAPI AddSummator(double add) { return -1; }
 	virtual int SLAPI EnableCashKeyb(int) { return -1; }
 	virtual int SLAPI CloseSession(PPID sessID) { return -1; }
 	virtual int SLAPI GetPrintErrCode() { return 0; }
@@ -19400,7 +19410,7 @@ public:
 	static int SLAPI PrintGoodsLabel2(RetailGoodsInfo * pRgi, PPID prnID /*= 0*/, int silent /*= 0*/);
 	static int SLAPI PrintLotLabel(PPID lotID);
 		// @>>BarcodeLabelPrinter::PrintGoodsLabel
-	static int SLAPI PrintLabelByBill__(PPBillPacket * pPack, uint pos);
+	static int SLAPI PrintLabelByBill__(const PPBillPacket * pPack, uint pos);
 	static int SLAPI PrintLabelByBill2(const PPBillPacket * pPack, uint pos);
 	static int SLAPI UpLoad(PPID prnID, const char * pLoadName, int silent);
 	static int SLAPI LoadFonts(PPID prnID, int silent);
@@ -20013,8 +20023,7 @@ public:
 			SString Message;
 		};
 		Message();
-		Message(const char * pReply);
-
+		explicit Message(const char * pReply);
 		int    Get(uint * pPos, SString & rTag, SString & rValue) const;
 		int    GetTag(const char * pTag, SString & rValue) const;
 		int    Parse(StrStrAssocArray & rTags) const;
@@ -20176,7 +20185,6 @@ struct PPInternetAccount2 { // @persistent @store(Reference2Tbl+)
 	long   Flags;          //
 	PPID   PersonID;       // ->Person.ID
 	long   Reserve2;       // @reserve
-	//
 	SString ExtStr;        // @anchor
 };
 
@@ -20199,7 +20207,7 @@ public:
 	virtual int SLAPI Edit(PPID * pID, void * extraPtr);
 	virtual int SLAPI Browse(void * extraPtr);
 	int    SLAPI Get(PPID id, PPInternetAccount * pPack);
-	int    SLAPI Put(PPID * pID, PPInternetAccount * pPack, int use_ta);
+	int    SLAPI Put(PPID * pID, const PPInternetAccount * pPack, int use_ta);
 };
 //
 //
@@ -20362,10 +20370,7 @@ struct PPAutoSmsConfig {
 		asmsDaysSun = 0x40
 	};
 	PPAutoSmsConfig();
-	int    SLAPI IsEmpty() const
-	{
-		return TddoPath.Empty() || !AllowedWeekDays || !AllowedStartTm || !AllowedEndTm;
-	}
+	int    SLAPI IsEmpty() const { return TddoPath.Empty() || !AllowedWeekDays || !AllowedStartTm || !AllowedEndTm; }
 	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx); // для запихивания стурктуры в буфер
 
 	uint8  Reserve[32];
@@ -20376,7 +20381,7 @@ struct PPAutoSmsConfig {
 	LTIME  AllowedEndTm;
 };
 //
-// @todo Передалать структуру - она ужасна.
+// @todo Переделать структуру - она ужасна.
 //
 struct PPSmsAccount { // size=sizeof(Reference2Tbl::Rec)
 	enum {
@@ -20435,7 +20440,6 @@ public:
 	static int SLAPI VerifyString(const SString & rStr, int options);
 	static int SLAPI BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr);
 	static int SLAPI BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr, PPID objTypeId, StrAssocArray & rObjIdArr);
-
 	SLAPI  PPObjSmsAccount(void * extraPtr = 0);
 	virtual int SLAPI Edit(PPID * pID, void * extraPtr);
 	virtual int SLAPI Browse(void * extraPtr);
@@ -20449,15 +20453,13 @@ int    FormatPhone(const char * pOldPhone, SString & rNewPhone, SString & rMsg);
 class PPSmsSender {
 public:
 	struct FormatMessageBlock {
-		FormatMessageBlock()
+		FormatMessageBlock() : PersonID(0)
 		{
-			PersonID = 0;
 		}
 		PPID   PersonID;
 	};
 	static int SLAPI FormatMessage(const char * pTemplate, SString & rResult, FormatMessageBlock * pFmBlk);
 	static int SLAPI GetSubstVar(long p, SString & rBuf);
-
 	SLAPI  PPSmsSender();
 	SLAPI ~PPSmsSender();
 };
@@ -20475,18 +20477,17 @@ struct PPSendSmsParam {
 	long   ID;             //
 	int	   SymbolCount;
 	int	   SmsCount;
-	//
 	SString ExtStr;        // @anchor
 };
 
-class PPObjSendSms : public PPObjReference {
+/* @v10.3.8 (unused) class PPObjSendSms : public PPObjReference {
 public:
 	SLAPI  PPObjSendSms(void * extraPtr = 0);
 	//virtual int SLAPI Edit(PPID *, long);
 	//virtual int SLAPI Browse(long extra);
 	int    SLAPI Get(PPID id, PPSendSmsParam *);
 	int    SLAPI Put(PPID * pID, PPSendSmsParam *, int use_ta);
-};
+};*/
 //
 // @v7.6.1 @Muxa {
 //
@@ -20848,7 +20849,7 @@ public:
 	virtual int  SLAPI Edit(PPID * pID, void * extraPtr);
 	//
 	// Descr: Вызывает диалог просмотра списка структур штрихкодов.
-	// ARG(extra IN): 0.
+	// ARG(extraPtr IN): 0.
 	//
 	virtual int SLAPI Browse(void * extraPtr);
 };
@@ -20983,7 +20984,7 @@ public:
 	virtual int  SLAPI Edit(PPID * pID, void * extraPtr);
 	//
 	// Descr: Вызывает диалог просмотра списка типов товаров.
-	// ARG(extra IN): 0.
+	// ARG(extraPtr IN): 0.
 	//
 	virtual int SLAPI Browse(void * extraPtr);
 	//
@@ -21584,7 +21585,7 @@ public:
 	int    SLAPI Search(PPID id, PPGoodsTax * pRec);
 	int    SLAPI AddBySample(PPID *, long sampleID);
 	int    SLAPI GetByScheme(PPID *, double vat, double excise, double stax, long flags, int use_ta);
-	int    SLAPI GetDefaultName(PPGoodsTax *, char * buf, size_t buflen);
+	int    SLAPI GetDefaultName(const PPGoodsTax * pRec, char * buf, size_t buflen);
 	//
 	// Descr: Ищет налоговую группу, аналогичную по схеме налогообложения записи pPattern.
 	//
@@ -21657,7 +21658,7 @@ public:
 	int    SLAPI Put(PPID * pID, const char * pName, const char * pExpr, int use_ta);
 	//
 	// Descr: Вызывает диалог просмотра списка формул.
-	// ARG(extra IN): 0.
+	// ARG(extraPtr IN): 0.
 	//
 	virtual int SLAPI Browse(void * extraPtr);
 	// Private: for conversion use only
@@ -22333,7 +22334,7 @@ public:
 			// то проверить эквивалентность по правилу:
 			// NZOR(ParentID, CountryID) == NZOR(candidate.ParentID, candidate.CountryID))
 	};
-	int    SLAPI SearchMaxLike(PPWorldPacket * pPack, long flags, PPID * pID);
+	int    SLAPI SearchMaxLike(const PPWorldPacket * pPack, long flags, PPID * pID);
 	//
 	// Descr: Определяет, является ли объект id потомком объекта parentID.
 	//   Родство определяется либо по линии ParentID либо CountryID.
@@ -22920,7 +22921,7 @@ private:
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int SLAPI MakeReserved(long flags);
 	virtual const char * SLAPI GetNamePtr();
-	int    AddListItem(StrAssocArray * pList, LocationTbl::Rec * pLocRec, long zeroParentId, PPIDArray * pRecurTrace);
+	int    AddListItem(StrAssocArray * pList, const LocationTbl::Rec * pLocRec, long zeroParentId, PPIDArray * pRecurTrace);
 		// @<<PPObjLocation::MakeList(const LocationFilt, long)
 	int    SLAPI MakeListByType(PPID locType, PPID parentID, long zeroParentId, int flags, StrAssocArray * pList);
 		// @<<PPObjLocation::MakeList(const LocationFilt, long)
@@ -23569,7 +23570,7 @@ public:
 	//
 	int    SLAPI GetSingleBnkAcct(PPID personID, PPID bankID, PPID * pBnkAcctID, /*BankAccountTbl::Rec*/PPBankAccount * pRec);
 	int    SLAPI GetStaffAmtList(PPID id, StaffAmtList * pList);
-	int    SLAPI PutStaffAmtList(PPID id, StaffAmtList * pList);
+	int    SLAPI PutStaffAmtList(PPID id, const StaffAmtList * pList);
 	int    SLAPI SearchFirstByName(const char * pName, const PPIDArray * pKindList, PPID exclID, PersonTbl::Rec * pRec);
 	enum {
 		smlRegisterOnly = 0x0001
@@ -24905,7 +24906,7 @@ private:
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
 	virtual const char * SLAPI GetNamePtr();
 	int    SLAPI TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKind * pPok, const PoClause_ * pClause, int action, int use_ta);
-	int    SLAPI TC_SetCalendar(PPID psnID, const PPPsnOpKind * pPok, PPPsnEventPacket * pPack, const PoClause_ * pClause);
+	int    SLAPI TC_SetCalendar(PPID psnID, const PPPsnOpKind * pPok, const PPPsnEventPacket * pPack, const PoClause_ * pClause);
 	int    SLAPI GetFrwdList(PPID psnID, int isPrmr, LDATE dt, long oprno, SArray *);
 	int    SLAPI GetFrwdList(PPID psnID, LDATE dt, long oprno, SArray *);
 	int    SLAPI Helper_PutPacket(PPID evID, int action, PPPsnEventPacket *, PPPsnOpKindPacket *);
@@ -25248,7 +25249,7 @@ private:
 	//
 	// Рассылка сообщений по email
 	//
-	int    SLAPI SendMail(PPID mailAccId, StrAssocArray * pMailList, PPLogger * pLogger);
+	int    SLAPI SendMail(PPID mailAccId, const StrAssocArray * pMailList, PPLogger * pLogger);
 	int    SLAPI ExportUhtt();
 
 	PPID   DefaultTagID;
@@ -26653,7 +26654,7 @@ public:
 	int    SLAPI GetGoodsByBarcode(const char * pBarcode, PPID arID, Goods2Tbl::Rec * pRec, double * pQtty, SString * pRetCode);
 	int    SLAPI GetParentID(PPID, PPID * pParentID);
 	int    SLAPI SearchByName(const char * pName, PPID * pID, Goods2Tbl::Rec * pRec = 0);
-	int    SLAPI SearchMaxLike(PPGoodsPacket *, PPID *);
+	int    SLAPI SearchMaxLike(const PPGoodsPacket *, PPID *);
 	//
 	// Descr: Ищет товар, имеющий штрихкод pCode. Если штрихкод найден, то по указателям
 	//   pBcRec и pGoodsRec возвращается соответственно запись штрихкода и товара.
@@ -26991,7 +26992,7 @@ public:
 	//   Если pList != 0, то проверяет соответствие pList->GoodsID == goodsID и,
 	//   если это равенство не выполняется возвращает 0 и PPErrCode = PPERR_INVQUOTLIST.
 	//
-	int    SLAPI PutQuotList(PPID goodsID, PPQuotArray * pList, int use_ta);
+	int    SLAPI PutQuotList(PPID goodsID, const PPQuotArray * pList, int use_ta);
 	int    SLAPI ImportOld(int use_ta); // Импорт по устаревшей технологии
 	int    SLAPI Import(const char * pCfgName, int analyze, int use_ta); // Импорт по новой технологии
 	int    SLAPI ImportQuotOld(int use_ta);
@@ -27073,7 +27074,7 @@ private:
 	void   SLAPI InitInstance(SCtrLite sctr, void * extraPtr);
 	void   SLAPI InitConfig();
 	int    SLAPI MakeReplaceStr(const PPGoodsPacket *, const PPGoodsReplaceNameParam *, const char * pFragment, SString &);
-	int    SLAPI Helper_ReplaceName(PPGoodsPacket *, const PPGoodsReplaceNameParam *, char *, size_t);
+	int    SLAPI Helper_ReplaceName(const PPGoodsPacket *, const PPGoodsReplaceNameParam *, char *, size_t);
 	int    SLAPI Helper_WriteConfig(const PPGoodsConfig * pCfg, const SString * pGoodsExTitles, PPOpCounterPacket * pOwnAcCntr, int rebuild, int use_ta);
 	//
 	// Descr: Записывает принятый из другого раздела пакет в БД.
@@ -29376,9 +29377,9 @@ public:
 	int    SLAPI AcceptBillLine(PPID billID, PPObjBHT::BillLineRec * pRec, PPBasketPacket * pGBPack, PPID * pAltGrpID);
 	int    SLAPI AcceptInvent(PPID opID, PPObjBHT::InventRec * pRec, BillTbl::Rec * pInvRec, PPLogger * pLogger);
 	// @v9.4.9 int    SLAPI PrepareBillData(PPBhtTerminalPacket * pPack, int uniteGoods = 1);
-	int    SLAPI PrepareBillData2(PPBhtTerminalPacket * pPack, PPIDArray * pGoodsList, int uniteGoods = 1);
-	int    SLAPI PrepareBillRowCellData(PPBhtTerminalPacket * pPack, PPID billID);
-	int    SLAPI PrepareLocCellData(PPBhtTerminalPacket * pPack);
+	int    SLAPI PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArray * pGoodsList, int uniteGoods = 1);
+	int    SLAPI PrepareBillRowCellData(const PPBhtTerminalPacket * pPack, PPID billID);
+	int    SLAPI PrepareLocCellData(const PPBhtTerminalPacket * pPack);
 	int    SLAPI PrepareConfigData(const PPBhtTerminalPacket * pPack, StyloBhtIIConfig * pCfg);
 private:
 	static int SLAPI AcceptBills(const char * pHName, const char * pLName, PPLogger *);
@@ -30872,7 +30873,7 @@ public:
 	//   В результате конвертации документ srcID удаляется, и создаетс
 	//   документ с ид *pDestID.
 	//
-	int    SLAPI ConvertGenAccturnToExtAccBill(PPID srcID, PPID * pDestID, CvtAt2Ab_Param *, int use_ta);
+	int    SLAPI ConvertGenAccturnToExtAccBill(PPID srcID, PPID * pDestID, const CvtAt2Ab_Param * pParam, int use_ta);
 	int    SLAPI GetShipmByOrder(PPID orderID, const DateRange *, PPIDArray *);
 	int    SLAPI EnumMembersOfPool(PPID poolType, PPID poolOwnerID, PPID * pMemberID, BillTbl::Rec * pRec = 0);
 	int    SLAPI IsMemberOfPool(PPID billID, PPID poolType, PPID * pPullOwnerID);
@@ -31299,7 +31300,7 @@ private:
 	int    SLAPI GetPoolsMembership(PPID id, PPBillPacket *);
 		// @<<PPObjBill::ExtractPacket
 	int    SLAPI SetTagNumberByLot(PPID lotID, PPID tagID, const char * pNumber, int use_ta);
-	int    SLAPI Helper_GetPoolMembership(PPID id, PPBillPacket *, long flag, PPID poolType, PPID * pPoolID);
+	int    SLAPI Helper_GetPoolMembership(PPID id, const PPBillPacket * pPack, long flag, PPID poolType, PPID * pPoolID);
 		// @<<PPObjBill::GetPoolsMembership
 	int    SLAPI Helper_ConvertILTI_Subst(ILTI *, PPBillPacket *, LongArray * pRows, double * pQtty, long flags, const GoodsReplacementArray *, char * pSerial);
 		// @<<PPObjBill::ConvertILTI
@@ -34533,7 +34534,7 @@ private:
 	int    SLAPI ProcessPrc(PPID prcID, BExtInsert * pBei);
 	int    SLAPI Update(const PPIDArray & rPrcList);
 	void   SLAPI RecToViewItem(const TempPrcBusyTbl::Rec * pRec, PrcBusyViewItem * pItem) const;
-	int    SLAPI AddSession(PrcBusyViewItem * pItem);
+	int    SLAPI AddSession(const PrcBusyViewItem * pItem);
 	int    SLAPI ViewTSessLines(PPID);
 	int    SLAPI TimeChunkBrowser();
 	int    SLAPI UpdateTimeBrowser(int destroy);
@@ -34940,7 +34941,7 @@ public:
 	static int SLAPI EditConfig();
 	static int SLAPI IncrementCharryOutCounter();
 	static int SLAPI TransmitModifications(PPID destDBDiv, const ObjTransmitParam *);
-	static int SLAPI TransmitModificationsByDBDivList(ObjTransmitParam *);
+	static int SLAPI TransmitModificationsByDBDivList(const ObjTransmitParam * pParam);
 	static int SLAPI TransmitBills(PPID destDBDiv, const BillTransmitParam * pParam);
 	static int SLAPI TransmitBillsByDBDivList(BillTransmitParam * pParam);
 	static int SLAPI ReceivePackets(const ObjReceiveParam *);
@@ -35133,7 +35134,7 @@ public:
 	PPBudgetPacket & FASTCALL operator = (const PPBudgetPacket &);
 	void   SLAPI Init();
 	int    SLAPI EnumItems(uint * pIdx, BudgetItemTbl::Rec * pRec);
-	int    SLAPI PutItems(BudgetItemsList * pList);
+	int    SLAPI PutItems(const BudgetItemsList * pList);
 	int    SLAPI AddItem(BudgetItemTbl::Rec * pRec);
 	int    SLAPI UpdateItem(uint pos, BudgetItemTbl::Rec * pRec);
 	int    SLAPI DelItem(uint pos, PPID id);
@@ -36016,7 +36017,7 @@ private:
 	int    SLAPI Correct();
 	int    SLAPI ConvertBillToBasket();
 	int    SLAPI ConvertBasketToBill();
-	int    SLAPI ConvertBasket(PPBasketPacket * pPack, int sgoption, int priceByLastLot, int use_ta);
+	int    SLAPI ConvertBasket(const PPBasketPacket * pPack, int sgoption, int priceByLastLot, int use_ta);
 	int    SLAPI MakeTempOrdRec(const InventoryTbl::Rec * pRec, TempDoubleIDTbl::Rec * pOutRec);
 	InventoryFilt Filt;
 	enum {
@@ -36364,7 +36365,7 @@ public:
 
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 private:
-	static int   CalcChildLots(ReceiptTbl::Rec *, void * extraPtr);
+	static int   CalcChildLots(const ReceiptTbl::Rec *, void * extraPtr);
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int   SLAPI ViewTotal();
@@ -36382,7 +36383,7 @@ private:
 	int    SLAPI EditLot(PPID);
 	int    SLAPI Debug();
 	int    SLAPI Init(int noTempTbl);
-	int    FASTCALL AddDerivedLotToTotal(ReceiptTbl::Rec * pRec);
+	int    FASTCALL AddDerivedLotToTotal(const ReceiptTbl::Rec * pRec);
 	int    SLAPI InsertTempRecsByIter(BExtInsert * pBei, long * pCounter, UintHashTable * pHt, int showPercentage = 0);
 	int    SLAPI AcceptViewItem(const ReceiptTbl::Rec & rLotRec, LotViewItem * pItem);
 	int    SLAPI UpdateTempTable(PPID lotID);
@@ -37459,10 +37460,10 @@ private:
 	int    SLAPI GetLastLot_p(PPID goodsID, PPID locID, PPID supplID, LDATE dt, ReceiptTbl::Rec *);
 	int    SLAPI GetLastLot_(PPID goodsID, PPID locID, ReceiptTbl::Rec & rRec);
 	double SLAPI GetDeficit(PPID goodsID);
-	double SLAPI GetDraftRcptByLocList(PPID goodsID, PPIDArray * pLocList, int addToExclList = 1);
+	double SLAPI GetDraftRcptByLocList(PPID goodsID, const PPIDArray * pLocList, int addToExclList = 1);
 	double SLAPI GetDraftReceipt(PPID goodsID, PPID locID, int addToExclList = 1);
 	double SLAPI EnumDraftRcpt(PPID goodsID, uint * pIdx, DraftRcptItem * pItem);
-	double SLAPI GetUncompleteSessQttyByLocList(PPID goodsID, PPIDArray * pLocList, int addToExclList =1);
+	double SLAPI GetUncompleteSessQttyByLocList(PPID goodsID, const PPIDArray * pLocList, int addToExclList =1);
 	double SLAPI GetUncompleteSessQtty(PPID goodsID, PPID locID, int addToExclList =1);
 	double SLAPI EnumUncompleteSessQtty(PPID goodsID, uint * pIdx, DraftRcptItem * pItem);
 	int    SLAPI InitProcessLotBlock(ProcessLotBlock & rBlk, const PPIDArray * pGrpGoodsList);
@@ -38031,7 +38032,7 @@ public:
 	int    SLAPI InitRPB(RecalcParamBlock *, Goods2Tbl::Rec *, int lotPriceWoTaxes, double cost, double price, LDATE);
 	int    SLAPI SetByQuot(RecalcParamBlock *, double price, int isPresent, int use_ta);
 	int    SLAPI GetPriceByQuot(RecalcParamBlock *, PPID, double *);
-	int    SLAPI UpdatePriceList(LDATE date, Sdr_PriceListArray * pList, int useTa);
+	int    SLAPI UpdatePriceList(LDATE date, const Sdr_PriceListArray * pList, int useTa);
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
@@ -39352,7 +39353,7 @@ private:
 	int    SLAPI ViewGraph(const void * pHdr, PPViewBrowser * pBrw);
 	int    SLAPI CreateStatList(LAssocArray * pOpList, TSVector <OpGroupingViewItem> * pItemList, TSCollection <OpGroupingStatEntry> * pStatList); // @v9.8.4 TSArray-->TSVector
 	int    SLAPI AddStatItem(PPID opID, int sign, double val, uint si, TSCollection <OpGroupingStatEntry> * pList);
-	double SLAPI GetStatItem(int stat, PPID opID, int sign, uint si, TSCollection <OpGroupingStatEntry> * pList);
+	double SLAPI GetStatItem(int stat, PPID opID, int sign, uint si, const TSCollection <OpGroupingStatEntry> * pList);
 	int    SLAPI RecalcGdsOpTotal(TempOpGrpngTbl::Rec * pRec);
 	int    SLAPI GetRecSign(const TempOpGrpngTbl::Rec *, int * pSign) const;
 
@@ -40450,10 +40451,8 @@ public:
 	int    SLAPI ViewGraph();
 	int    SLAPI GetBrwHdr(const void * pRow, BrwHdr *) const;
 	int    SLAPI GetTabTitle(long tabID, SString & rBuf) const;
-
-	int    SLAPI SetAlcRepParam(AlcReportParam * pParam);
+	int    SLAPI SetAlcRepParam(const AlcReportParam * pParam);
 	int    SLAPI NextIteration_AlcRep(TrfrAnlzViewItem_AlcRep *);
-
 	int    SLAPI AllocInnerIterItem();
 	const TrfrAnlzViewItem * GetInnerIterItem() const;
 private:
@@ -41030,7 +41029,7 @@ public:
 	int    SLAPI ChangeFlags();
 	int    SLAPI RenameDup(PPIDArray * pIdList);
 	int    SLAPI PreprocessTempRec(const SCardTbl::Rec * pSrcRec, TempSCardTbl::Rec * pDestRec, RAssocArray * pTrnovrList/*, int calcTrnovr*/); // @v7.3.12
-	int    SLAPI ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *);
+	int    SLAPI ProcessSelection(const SCardSelPrcssrParam * pParam, PPLogger *);
 	const  StrAssocArray & GetList() const
 	{
 		return List;
@@ -46973,7 +46972,6 @@ private:
 		uint64 SLAPI GetNcProcessedCount() const;
 		uint64 SLAPI GetNcClusterCount() const;
 		uint64 SLAPI GetNcSize() const;
-
 		uint64 SLAPI GetWsCount() const;
 		uint64 SLAPI GetWsProcessedCount() const;
 		uint64 SLAPI GetWsSize() const;
@@ -47000,25 +46998,21 @@ private:
 	static void Scb_StartElement(void * ptr, const xmlChar * pName, const xmlChar ** ppAttrList);
 	static void Scb_EndElement(void * ptr, const xmlChar * pName);
 	static int  SortCbProc(const SFileSortProgressData * pInfo);
-
 	int    StartDocument();
 	int    EndDocument();
 	int    StartElement(const char * pName, const char ** ppAttrList);
 	int    EndElement(const char * pName);
 	int    SaxParseFile(xmlSAXHandler * sax, const char * pFileName);
 	void   SaxStop();
-
 	int    SLAPI GetPhaseSymb(long phase, SString & rSymb) const;
 	int    SLAPI ReadCommonAttrSet(const char ** ppAttrList, CommonAttrSet & rSet);
 	int    FASTCALL FlashNodeAccum(int force);
-
 	int    LogCoord(const SGeoPosLL_Int & rC);
 	int    LogTag(int osmObjType, const PPOsm::Tag & rTag);
 	int    SLAPI SortFile(const char * pSrcFileName, const char * pSuffix, CompFunc fcmp);
 	int    SLAPI CreateGeoGridTab(const char * pSrcFileName, uint lowDim, uint uppDim, TSCollection <SGeoGridTab> & rGridList);
 	int    SLAPI OutputStat(int detail);
 	int    SLAPI ProcessWaySizes();
-
 	int    SLAPI WriteRoadStone(RoadStone & rRs);
 	int    SLAPI ReadRoadStone(long phase, RoadStone & rRs);
 	//
@@ -47037,7 +47031,6 @@ private:
 	long   Phase;
 	PrcssrOsmFilt P;
 	const SymbHashTable * P_ShT; // Таблица символов, полученная вызовом PPGetStringHash(int)
-
 	xmlParserCtxt * P_SaxCtx;
 	TSStack <int> TokPath;
 	SGeo   G;
@@ -47047,11 +47040,9 @@ private:
 	PPOsm::Node LastNode;
 	PPOsm::Way  LastWay;
 	PPOsm::Relation LastRel;
-	//
 	StatBlock Stat;
 	StatBlock RestoredStat;
 	RoadStone * P_RoadStoneStat;
-
 	LongArray LatAccum;
 	LongArray LonAccum;
 	TSVector <PPOsm::Node> NodeAccum; // @v9.8.4 TSArray-->TSVector
@@ -47061,7 +47052,6 @@ private:
 	SString FmtMsg_SortSplit;
 	SString FmtMsg_SortMerge;
 	LLAssoc LastNodeToWayAssoc; // Последняя ассоциация node-way считанная из P_NodeToWayAssocInF (и не попавшая в предыдущую порцию сохранения)
-
 	SFile * P_LatOutF;
 	SFile * P_LonOutF;
 	SFile * P_NodeToWayAssocOutF;
@@ -47071,10 +47061,8 @@ private:
 	SFile * P_TagRelOutF;
 	SFile * P_SizeOutF; // Файл вывода размерностей (максимальных расстояний внутри Way-ев).
 	SFile * P_NodeToWayAssocInF;
-
 	SFile * P_TestNodeBinF;
 	SFile * P_TestNodeF;
-
 	PPUserFuncProfiler * P_Ufp;
 
 	struct ProcessBlock {
@@ -47089,7 +47077,6 @@ private:
 	ProcessBlock Pb;
 	LongArray TempTagKeyList;
 	LongArray TagKeyList; // Отладочный список ключевых символов тегов.
-	//
 	PPLogger Logger;
 };
 //
@@ -47125,7 +47112,6 @@ public:
 	int    SLAPI EditParam(PPBaseFilt * pBaseFilt);
 	int    SLAPI Init(const PPBaseFilt * pBaseFilt);
 	int    SLAPI Run();
-
 	//int    SLAPI ResolveSyntaxRules(SrSyntaxRuleSet & rSet, SrDatabase & rDb);
 private:
 	int    SLAPI ImportHumanNames(SrDatabase & rDb, const char * pSrcFileName, const char * pLinguaSymb, int properNameType, int specialProcessing);
@@ -49126,7 +49112,7 @@ public:
 	static int SLAPI GetParam(PPID pokID, Param * pParam);
 
 	PsnEventDialog(Param * pParam, PPObjPersonEvent * pPeObj);
-	int    setDTS(PPPsnEventPacket *);
+	int    setDTS(const PPPsnEventPacket *);
 	int    getDTS(PPPsnEventPacket *);
 private:
 	DECL_HANDLE_EVENT;
@@ -49841,7 +49827,7 @@ protected:
 class CheckPaneDialog : public TDialog, public CPosProcessor {
 public:
 	friend int SLAPI CCheckPane(PPID, PPID, const char *, long);
-	static int SetLbxItemHight(TDialog *, long extraParam);
+	static int SetLbxItemHight(TDialog *, void * extraPtr);
 
 	CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * = 0, int isTouchScreen = 0);
 	~CheckPaneDialog();
@@ -51079,7 +51065,7 @@ int    SLAPI EditStaffAmtEntry(long idx, StaffAmtList * pAmtList);
 // те виды операция, для которых вид связанной операции равен linkOprKind
 //
 PPID   SLAPIV SelectOprKind(uint opklFlags /* OPKLF_XXX */, PPID linkOprKind, ...);
-PPID   SLAPI SelectOpKind(PPID linkOpID, PPIDArray * pOpTypesList, uint opklFlags /* OPKLF_XXX */);
+PPID   SLAPI SelectOpKind(PPID linkOpID, const PPIDArray * pOpTypesList, uint opklFlags /* OPKLF_XXX */);
 int    FASTCALL SetupOprKindCombo(TDialog *, uint ctlID, PPID id, uint flags, const PPIDArray *, uint opklFlags);
 int    SLAPI BillPrelude(const PPIDArray * pOpList, uint opklFlags, PPID linkOpID, PPID * pOpID, PPID * pLocID);
 int    FASTCALL SetupLocationCombo(TDialog *, uint, PPID, uint flags, PPID locType, PPID owner);
@@ -51501,7 +51487,7 @@ struct DBMaintainParam {
 };
 
 int    SLAPI DBMaintainDialog(DBMaintainParam *);
-int    SLAPI DoDBMaintain(DBMaintainParam *);
+int    SLAPI DoDBMaintain(const DBMaintainParam * pParam);
 int    SLAPI ReadDBMaintainCfg(DBMaintainParam *);
 int    SLAPI EditDBMaintainCfg();
 int    SLAPI EditBackupParam(SString & rDBSymb, PPBackupScen * pScen);
@@ -51586,7 +51572,7 @@ int    FASTCALL ViewSCardInfo(PPID * pSCardID, PPID posNodeID, int asSelector);
 int    SLAPI ViewSpoilList(SpecSeriesCore * pTbl, const char * pSerial, int useText);
 int    SLAPI SendCharryObject(PPID strucID, const PPIDArray & rObjIdList);
 int    SLAPI SendCharryFiles();
-int    SLAPI ReceiveCharryObjects(RcvCharryParam *);
+int    SLAPI ReceiveCharryObjects(const RcvCharryParam * pParam);
 //
 // Descr: Вызывает функцию обслуживания задач объекта PPObjPrjTask.
 //   Перед вызовом требует подтверждения пользователем

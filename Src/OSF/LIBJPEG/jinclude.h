@@ -60,8 +60,8 @@
 
 #include <string.h>
 // @sobolev #define memzero(target,size)	memset((void *)(target), 0, (size_t)(size))
-#define MEMZERO_Removed(target,size) memzero((void *)(target), (size_t)(size)) // @sobolev
-#define MEMCOPY(dest,src,size)	memcpy((void *)(dest), (const void *)(src), (size_t)(size))
+#define MEMZERO_Removed(target,size) memzero(/*(void *)*/(target), (size_t)(size)) // @sobolev
+#define MEMCOPY(dest,src,size)	memcpy(/*(void *)*/(dest), /*(const void *)*/(src), (size_t)(size))
 
 #endif
 /*
@@ -80,7 +80,7 @@
 // Furthermore, macros are provided for fflush() and ferror() in order
 // to facilitate adaption by applications using an own FILE class.
 // 
-#define JFREAD(file,buf,sizeofbuf)  ((size_t) fread((void *) (buf), (size_t) 1, (size_t) (sizeofbuf), (file)))
-#define JFWRITE(file,buf,sizeofbuf) ((size_t) fwrite((const void *) (buf), (size_t) 1, (size_t) (sizeofbuf), (file)))
+#define JFREAD(file,buf,sizeofbuf)  ((size_t)fread(/*(void *)*/(buf), /*(size_t)*/1U, (size_t)(sizeofbuf), (file)))
+#define JFWRITE(file,buf,sizeofbuf) ((size_t)fwrite(/*(const void *)*/(buf), /*(size_t)*/1U, (size_t)(sizeofbuf), (file)))
 #define JFFLUSH(file) fflush(file) // @v9c
 #define JFERROR(file) ferror(file) // @v9c

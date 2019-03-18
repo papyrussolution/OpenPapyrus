@@ -504,12 +504,10 @@ static int _cairo_bo_sweep_line_compare_edges(cairo_bo_sweep_line_t * sweep_line
 	return b->edge.bottom - a->edge.bottom;
 }
 
-static inline cairo_int64_t det32_64(int32_t a, int32_t b,
-    int32_t c, int32_t d)
+static inline cairo_int64_t det32_64(int32_t a, int32_t b, int32_t c, int32_t d)
 {
 	/* det = a * d - b * c */
-	return _cairo_int64_sub(_cairo_int32x32_64_mul(a, d),
-		   _cairo_int32x32_64_mul(b, c));
+	return _cairo_int64_sub(_cairo_int32x32_64_mul(a, d), _cairo_int32x32_64_mul(b, c));
 }
 
 static inline cairo_int128_t det64x32_128(cairo_int64_t a, int32_t b, cairo_int64_t c, int32_t d)
@@ -544,9 +542,7 @@ static inline cairo_bo_intersect_ordinate_t round_to_nearest(cairo_quorem64_t d,
  * Returns %CAIRO_BO_STATUS_INTERSECTION if there is an intersection or
  * %CAIRO_BO_STATUS_PARALLEL if the two lines are exactly parallel.
  */
-static cairo_bool_t intersect_lines(cairo_bo_edge_t * a,
-    cairo_bo_edge_t * b,
-    cairo_bo_intersect_point_t * intersection)
+static cairo_bool_t intersect_lines(cairo_bo_edge_t * a, cairo_bo_edge_t * b, cairo_bo_intersect_point_t * intersection)
 {
 	cairo_int64_t a_det, b_det;
 
@@ -558,16 +554,12 @@ static cairo_bool_t intersect_lines(cairo_bo_edge_t * a,
 	 */
 	int32_t dx1 = a->edge.line.p1.x - a->edge.line.p2.x;
 	int32_t dy1 = a->edge.line.p1.y - a->edge.line.p2.y;
-
 	int32_t dx2 = b->edge.line.p1.x - b->edge.line.p2.x;
 	int32_t dy2 = b->edge.line.p1.y - b->edge.line.p2.y;
-
 	cairo_int64_t den_det;
 	cairo_int64_t R;
 	cairo_quorem64_t qr;
-
 	den_det = det32_64(dx1, dy1, dx2, dy2);
-
 	/* Q: Can we determine that the lines do not intersect (within range)
 	 * much more cheaply than computing the intersection point i.e. by
 	 * avoiding the division?
@@ -587,55 +579,35 @@ static cairo_bool_t intersect_lines(cairo_bo_edge_t * a,
 	 * A similar substitution can be performed for s, yielding:
 	 * s * (ady*bdx - bdy*adx) = ady * (ax - bx) - adx * (ay - by)
 	 */
-	R = det32_64(dx2, dy2,
-		b->edge.line.p1.x - a->edge.line.p1.x,
-		b->edge.line.p1.y - a->edge.line.p1.y);
+	R = det32_64(dx2, dy2, b->edge.line.p1.x - a->edge.line.p1.x, b->edge.line.p1.y - a->edge.line.p1.y);
 	if(_cairo_int64_le(den_det, R))
 		return FALSE;
-
-	R = det32_64(dy1, dx1,
-		a->edge.line.p1.y - b->edge.line.p1.y,
-		a->edge.line.p1.x - b->edge.line.p1.x);
+	R = det32_64(dy1, dx1, a->edge.line.p1.y - b->edge.line.p1.y, a->edge.line.p1.x - b->edge.line.p1.x);
 	if(_cairo_int64_le(den_det, R))
 		return FALSE;
-
 	/* We now know that the two lines should intersect within range. */
-
-	a_det = det32_64(a->edge.line.p1.x, a->edge.line.p1.y,
-		a->edge.line.p2.x, a->edge.line.p2.y);
-	b_det = det32_64(b->edge.line.p1.x, b->edge.line.p1.y,
-		b->edge.line.p2.x, b->edge.line.p2.y);
-
+	a_det = det32_64(a->edge.line.p1.x, a->edge.line.p1.y, a->edge.line.p2.x, a->edge.line.p2.y);
+	b_det = det32_64(b->edge.line.p1.x, b->edge.line.p1.y, b->edge.line.p2.x, b->edge.line.p2.y);
 	/* x = det (a_det, dx1, b_det, dx2) / den_det */
-	qr = _cairo_int_96by64_32x64_divrem(det64x32_128(a_det, dx1,
-		b_det, dx2),
-		den_det);
+	qr = _cairo_int_96by64_32x64_divrem(det64x32_128(a_det, dx1, b_det, dx2), den_det);
 	if(_cairo_int64_eq(qr.rem, den_det))
 		return FALSE;
-
 	intersection->x = round_to_nearest(qr, den_det);
-
 	/* y = det (a_det, dy1, b_det, dy2) / den_det */
-	qr = _cairo_int_96by64_32x64_divrem(det64x32_128(a_det, dy1,
-		b_det, dy2),
-		den_det);
+	qr = _cairo_int_96by64_32x64_divrem(det64x32_128(a_det, dy1, b_det, dy2), den_det);
 	if(_cairo_int64_eq(qr.rem, den_det))
 		return FALSE;
-
 	intersection->y = round_to_nearest(qr, den_det);
-
 	return TRUE;
 }
 
-static int _cairo_bo_intersect_ordinate_32_compare(cairo_bo_intersect_ordinate_t a,
-    int32_t b)
+static int _cairo_bo_intersect_ordinate_32_compare(cairo_bo_intersect_ordinate_t a, int32_t b)
 {
 	/* First compare the quotient */
 	if(a.ordinate > b)
 		return +1;
 	if(a.ordinate < b)
 		return -1;
-
 	return a.approx; /* == EXCESS ? -1 : a.approx == EXACT ? 0 : 1;*/
 }
 
@@ -656,7 +628,7 @@ static int _cairo_bo_intersect_ordinate_32_compare(cairo_bo_intersect_ordinate_t
  * given edge and before the stop event for the edge. See the comments
  * in the implementation for more details.
  */
-static cairo_bool_t _cairo_bo_edge_contains_intersect_point(cairo_bo_edge_t * edge, cairo_bo_intersect_point_t * point)
+static cairo_bool_t _cairo_bo_edge_contains_intersect_point(cairo_bo_edge_t * edge, const cairo_bo_intersect_point_t * point)
 {
 	return _cairo_bo_intersect_ordinate_32_compare(point->y, edge->edge.bottom) < 0;
 }

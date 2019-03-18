@@ -212,7 +212,7 @@ int interleaved_two_of_five(struct ZintSymbol * symbol, const uchar source[], si
 }
 
 /* Interleaved 2-of-5 (ITF) */
-int itf14(struct ZintSymbol * symbol, uchar source[], int length)
+int itf14(struct ZintSymbol * symbol, const uchar source[], int length)
 {
 	int    i, error_number, zeroes;
 	char   localstr[16];
@@ -231,7 +231,7 @@ int itf14(struct ZintSymbol * symbol, uchar source[], int length)
 	for(i = 0; i < zeroes; i++) {
 		localstr[i] = '0';
 	}
-	sstrcpy(localstr + zeroes, (char *)source);
+	sstrcpy(localstr + zeroes, reinterpret_cast<const char *>(source));
 	/* Calculate the check digit - the same method used for EAN-13 */
 	for(i = 12; i >= 0; i--) {
 		count += hex(localstr[i]);
@@ -247,7 +247,7 @@ int itf14(struct ZintSymbol * symbol, uchar source[], int length)
 }
 
 /* Deutshe Post Leitcode */
-int dpleit(struct ZintSymbol * symbol, uchar source[], int length)
+int dpleit(struct ZintSymbol * symbol, const uchar source[], int length)
 {
 	int    i, error_number;
 	char   localstr[16];
@@ -280,7 +280,7 @@ int dpleit(struct ZintSymbol * symbol, uchar source[], int length)
 }
 
 /* Deutsche Post Identcode */
-int dpident(struct ZintSymbol * symbol, uchar source[], int length)
+int dpident(struct ZintSymbol * symbol, const uchar source[], int length)
 {
 	int    error_number;
 	int    i, zeroes;

@@ -265,17 +265,17 @@ static ngx_int_t ngx_http_set_expires(ngx_http_request_t * r, ngx_http_headers_c
 		cc = ccp[0];
 	}
 	if(expires == NGX_HTTP_EXPIRES_EPOCH) {
-		e->value.data = (u_char*)"Thu, 01 Jan 1970 00:00:01 GMT";
+		e->value.data = (u_char *)"Thu, 01 Jan 1970 00:00:01 GMT";
 		ngx_str_set(&cc->value, "no-cache");
 		return NGX_OK;
 	}
 	if(expires == NGX_HTTP_EXPIRES_MAX) {
-		e->value.data = (u_char*)"Thu, 31 Dec 2037 23:55:55 GMT";
+		e->value.data = (u_char *)"Thu, 31 Dec 2037 23:55:55 GMT";
 		/* 10 years */
 		ngx_str_set(&cc->value, "max-age=315360000");
 		return NGX_OK;
 	}
-	e->value.data = (u_char*)ngx_pnalloc(r->pool, len);
+	e->value.data = (u_char *)ngx_pnalloc(r->pool, len);
 	if(e->value.data == NULL) {
 		return NGX_ERROR;
 	}
@@ -302,7 +302,7 @@ static ngx_int_t ngx_http_set_expires(ngx_http_request_t * r, ngx_http_headers_c
 		ngx_str_set(&cc->value, "no-cache");
 		return NGX_OK;
 	}
-	cc->value.data = (u_char*)ngx_pnalloc(r->pool, sizeof("max-age=") + NGX_TIME_T_LEN + 1);
+	cc->value.data = (u_char *)ngx_pnalloc(r->pool, sizeof("max-age=") + NGX_TIME_T_LEN + 1);
 	if(cc->value.data == NULL) {
 		return NGX_ERROR;
 	}
@@ -515,7 +515,7 @@ static const char * ngx_http_headers_expires(ngx_conf_t * cf, const ngx_command_
 	if(hcf->expires != NGX_HTTP_EXPIRES_UNSET) {
 		return "is duplicate";
 	}
-	value = (ngx_str_t*)cf->args->elts;
+	value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(cf->args->nelts == 2) {
 		hcf->expires = NGX_HTTP_EXPIRES_ACCESS;
 
@@ -557,7 +557,7 @@ static const char * ngx_http_headers_add(ngx_conf_t * cf, const ngx_command_t * 
 	ngx_http_header_val_t    * hv;
 	ngx_http_set_header_t    * set;
 	ngx_http_compile_complex_value_t ccv;
-	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	ngx_array_t ** headers = (ngx_array_t**)((char *)hcf + cmd->offset);
 	if(*headers == NULL) {
 		*headers = ngx_array_create(cf->pool, 1, sizeof(ngx_http_header_val_t));

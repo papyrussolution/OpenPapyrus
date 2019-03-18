@@ -25,7 +25,7 @@ typedef png_libpng_version_1_6_23 Your_png_h_is_not_version_1_6_23;
 #ifdef PNG_READ_SUPPORTED
 void PNGAPI png_set_sig_bytes(png_structrp png_ptr, int num_bytes)
 {
-	unsigned int nb = (unsigned int)num_bytes;
+	unsigned int nb = (uint)num_bytes;
 	png_debug(1, "in png_set_sig_bytes");
 	if(png_ptr) {
 		if(num_bytes < 0)
@@ -50,9 +50,9 @@ int PNGAPI png_sig_cmp(png_const_bytep sig, size_t start, size_t num_to_check)
 	if(num_to_check > 8)
 		num_to_check = 8;
 	else if(num_to_check < 1)
-		return (-1);
+		return -1;
 	if(start > 7)
-		return (-1);
+		return -1;
 	if(start + num_to_check > 8)
 		num_to_check = 8 - start;
 	return ((int)(memcmp(&sig[start], &png_signature[start], num_to_check)));
@@ -579,18 +579,18 @@ int PNGAPI png_convert_to_rfc1123_buffer(char out[29], png_const_timep ptime)
 #define APPEND_NUMBER(format, value) APPEND_STRING(PNG_FORMAT_NUMBER(number_buf, format, (value)))
 #define APPEND(ch) if(pos < 28) out[pos++] = (ch)
 
-		APPEND_NUMBER(PNG_NUMBER_FORMAT_u, (unsigned)ptime->day);
+		APPEND_NUMBER(PNG_NUMBER_FORMAT_u, (uint)ptime->day);
 		APPEND(' ');
 		// @v9.7.10 APPEND_STRING(short_months[(ptime->month - 1)]);
 		APPEND_STRING(STextConst::Get(STextConst::cMon_En_Sh, (ptime->month - 1))); // @v9.7.10 
 		APPEND(' ');
 		APPEND_NUMBER(PNG_NUMBER_FORMAT_u, ptime->year);
 		APPEND(' ');
-		APPEND_NUMBER(PNG_NUMBER_FORMAT_02u, (unsigned)ptime->hour);
+		APPEND_NUMBER(PNG_NUMBER_FORMAT_02u, (uint)ptime->hour);
 		APPEND(':');
-		APPEND_NUMBER(PNG_NUMBER_FORMAT_02u, (unsigned)ptime->minute);
+		APPEND_NUMBER(PNG_NUMBER_FORMAT_02u, (uint)ptime->minute);
 		APPEND(':');
-		APPEND_NUMBER(PNG_NUMBER_FORMAT_02u, (unsigned)ptime->second);
+		APPEND_NUMBER(PNG_NUMBER_FORMAT_02u, (uint)ptime->second);
 		APPEND_STRING(" +0000"); /* This reliably terminates the buffer */
 		PNG_UNUSED(pos)
 
@@ -786,7 +786,7 @@ int PNGAPI png_reset_zstream(png_structrp png_ptr)
 uint32 PNGAPI png_access_version_number(void)
 {
 	/* Version of *.c files used when building libpng */
-	return((uint32)PNG_LIBPNG_VER);
+	return ((uint32)PNG_LIBPNG_VER);
 }
 
 #if defined(PNG_READ_SUPPORTED) || defined(PNG_WRITE_SUPPORTED)
@@ -1667,11 +1667,11 @@ int /* PRIVATE */ png_colorspace_set_sRGB(png_const_structrp png_ptr, png_colors
 	 * be ignored.)
 	 */
 	if(intent < 0 || intent >= PNG_sRGB_INTENT_LAST)
-		return png_icc_profile_error(png_ptr, colorspace, "sRGB", (unsigned)intent, "invalid sRGB rendering intent");
+		return png_icc_profile_error(png_ptr, colorspace, "sRGB", (uint)intent, "invalid sRGB rendering intent");
 
 	if((colorspace->flags & PNG_COLORSPACE_HAVE_INTENT) != 0 &&
 	    colorspace->rendering_intent != intent)
-		return png_icc_profile_error(png_ptr, colorspace, "sRGB", (unsigned)intent, "inconsistent rendering intents");
+		return png_icc_profile_error(png_ptr, colorspace, "sRGB", (uint)intent, "inconsistent rendering intents");
 
 	if((colorspace->flags & PNG_COLORSPACE_FROM_sRGB) != 0) {
 		png_benign_error(png_ptr, "duplicate sRGB information ignored");
@@ -3370,13 +3370,13 @@ uint8 png_gamma_8bit_correct(unsigned int value, png_fixed_point gamma_val)
 		 * assumes responsibility for the undefined behavior, which it knows
 		 * can't happen because of the check above.
 		 *
-		 * Note the argument to this routine is an (unsigned int) because, on
+		 * Note the argument to this routine is an (uint) because, on
 		 * 16-bit platforms, it is assigned a value which might be out of
 		 * range for an (int); that would result in undefined behavior in the
 		 * caller if the *argument* ('value') were to be declared (int).
 		 */
 		double r = floor(255*pow((int)/*SAFE*/ value/255., gamma_val*.00001)+.5);
-		return (uint8)r;
+		return static_cast<uint8>(r);
 #     else
 		png_int_32 lg2 = png_log8bit(value);
 		png_fixed_point res;
@@ -3397,8 +3397,8 @@ png_uint_16 png_gamma_16bit_correct(unsigned int value, png_fixed_point gamma_va
 {
 	if(value > 0 && value < 65535) {
 #     ifdef PNG_FLOATING_ARITHMETIC_SUPPORTED
-		/* The same (unsigned int)->(double) constraints apply here as above,
-		 * however in this case the (unsigned int) to (int) conversion can
+		/* The same (uint)->(double) constraints apply here as above,
+		 * however in this case the (uint) to (int) conversion can
 		 * overflow on an ANSI-C90 compliant system so the cast needs to ensure
 		 * that this is not possible.
 		 */
@@ -3481,7 +3481,7 @@ static void png_build_16bit_table(png_structrp png_ptr, png_uint_16pp * ptable,
 			 * the recovered input sample, it always has 8-16 bits.
 			 *
 			 * We want input * 65535/max, rounded, the arithmetic fits in 32
-			 * bits (unsigned) so long as max <= 32767.
+			 * bits (uint) so long as max <= 32767.
 			 */
 			unsigned int j;
 			for(j = 0; j < 256; j++) {

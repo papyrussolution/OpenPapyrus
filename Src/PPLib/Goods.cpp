@@ -462,7 +462,7 @@ int SLAPI GoodsCore::UpdateBarcodes(PPID goodsID, const BarcodeArray * pCodeList
 		THROW_DB(deleteFrom(&BCTbl, 0, BCTbl.GoodsID == goodsID));
 		if(pCodeList) {
 			BarcodeTbl::Rec * p_rec;
-			for(uint i = 0; pCodeList->enumItems(&i, (void**)&p_rec);) {
+			for(uint i = 0; pCodeList->enumItems(&i, (void **)&p_rec);) {
 		   	    p_rec->GoodsID = goodsID;
 				THROW_DB(BCTbl.insertRecBuf(p_rec));
 	   	    }
@@ -482,7 +482,7 @@ int SLAPI GoodsCore::UpdateArCodes(PPID goodsID, const ArGoodsCodeArray * pCodeL
 		THROW_DB(deleteFrom(&ACodT, 0, ACodT.GoodsID == goodsID));
 		if(pCodeList && Search(goodsID) > 0) {
 			ArGoodsCodeTbl::Rec * p_rec;
-			for(uint i = 0; pCodeList->enumItems(&i, (void**)&p_rec);) {
+			for(uint i = 0; pCodeList->enumItems(&i, (void **)&p_rec);) {
 		   	    p_rec->GoodsID = goodsID;
 				THROW_DB(ACodT.insertRecBuf(p_rec));
 	   	    }
@@ -1192,22 +1192,22 @@ int SLAPI GoodsCore::ReplaceExtDimScale(PPID clsID, int gcDim, long oldScale, lo
 					int    do_update = 0;
 					GeT.copyBufTo(&rec);
 					if(gcDim == PPGdsCls::eX && rec.X) {
-						double val =  ((double)rec.X) / fpow10i((int)oldScale);
+						double val =  static_cast<double>(rec.X) / fpow10i((int)oldScale);
 						rec.X = (long)(val * fpow10i((int)newScale));
 						do_update = 1;
 					}
 					else if(gcDim == PPGdsCls::eY && rec.Y) {
-						double val =  ((double)rec.Y) / fpow10i((int)oldScale);
+						double val =  static_cast<double>(rec.Y) / fpow10i((int)oldScale);
 						rec.Y = (long)(val * fpow10i((int)newScale));
 						do_update = 1;
 					}
 					else if(gcDim == PPGdsCls::eZ && rec.Z) {
-						double val =  ((double)rec.Z) / fpow10i((int)oldScale);
+						double val =  static_cast<double>(rec.Z) / fpow10i((int)oldScale);
 						rec.Z = (long)(val * fpow10i((int)newScale));
 						do_update = 1;
 					}
 					else if(gcDim == PPGdsCls::eW && rec.W) {
-						double val =  ((double)rec.W) / fpow10i((int)oldScale);
+						double val =  static_cast<double>(rec.W) / fpow10i((int)oldScale);
 						rec.W = (long)(val * fpow10i((int)newScale));
 						do_update = 1;
 					}

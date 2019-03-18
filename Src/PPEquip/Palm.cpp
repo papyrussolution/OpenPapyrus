@@ -186,7 +186,7 @@ uint SLAPI PalmBillPacket::GetItemsCount() const
 int SLAPI PalmBillPacket::EnumItems(uint * pIdx, PalmBillItem * pItem) const
 {
 	PalmBillItem * p_item;
-	if(SVector::enumItems(pIdx, (void**)&p_item) > 0) { // @v9.8.9 SArray-->SVector
+	if(SVector::enumItems(pIdx, (void **)&p_item) > 0) { // @v9.8.9 SArray-->SVector
 		ASSIGN_PTR(pItem, *p_item);
 		return 1;
 	}
@@ -613,7 +613,7 @@ int StyloPalmDialog::setDTS(const PPStyloPalmPacket * pData)
 		AddClusterAssocDef(CTL_PALM_DVCTYPE, 1,  2);
 		SetClusterData(CTL_PALM_DVCTYPE, dvc_type);
 	}
-	SetupPPObjCombo(this, CTLSEL_PALM_GROUP, PPOBJ_STYLOPALM, Data.Rec.GroupID, OLW_CANSELUPLEVEL, (void *)PLMF_GENERIC);
+	SetupPPObjCombo(this, CTLSEL_PALM_GROUP, PPOBJ_STYLOPALM, Data.Rec.GroupID, OLW_CANSELUPLEVEL, reinterpret_cast<void *>(PLMF_GENERIC));
 	SetupArCombo(this, CTLSEL_PALM_AGENT, Data.Rec.AgentID, OLW_CANINSERT, agent_accsheet_id, sacfDisableIfZeroSheet);
 	{
 		LocationCtrlGroup::Rec l_rec(&Data.LocList);
@@ -626,7 +626,7 @@ int StyloPalmDialog::setDTS(const PPStyloPalmPacket * pData)
 	}
 	// } @v9.5.5
 	SetupPPObjCombo(this, CTLSEL_PALM_GGRP, PPOBJ_GOODSGROUP, Data.Rec.GoodsGrpID, OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN);
-	SetupPPObjCombo(this, CTLSEL_PALM_FTPACCT, PPOBJ_INTERNETACCOUNT, Data.Rec.FTPAcctID, 0, (void *)PPObjInternetAccount::filtfFtp);
+	SetupPPObjCombo(this, CTLSEL_PALM_FTPACCT, PPOBJ_INTERNETACCOUNT, Data.Rec.FTPAcctID, 0, reinterpret_cast<void *>(PPObjInternetAccount::filtfFtp));
 	PPIDArray op_type_list;
 	op_type_list.addzlist(PPOPT_GOODSORDER, PPOPT_GOODSEXPEND, 0L);
 	SetupOprKindCombo(this, CTLSEL_PALM_OP, Data.Rec.OrderOpID, 0, &op_type_list, 0);
@@ -636,7 +636,7 @@ int StyloPalmDialog::setDTS(const PPStyloPalmPacket * pData)
 		if(SpCfg.InhBillTagID) {
             PPObjectTag tag_rec;
 			if(TagObj.Fetch(SpCfg.InhBillTagID, &tag_rec) > 0 && oneof2(tag_rec.TagDataType, OTTYP_OBJLINK, OTTYP_ENUM)) {
-				SetupPPObjCombo(this, CTLSEL_PALM_INHBTAGVAL, tag_rec.TagEnumID, Data.Rec.InhBillTagVal, OLW_CANINSERT, (void *)tag_rec.LinkObjGrp);
+				SetupPPObjCombo(this, CTLSEL_PALM_INHBTAGVAL, tag_rec.TagEnumID, Data.Rec.InhBillTagVal, OLW_CANINSERT, reinterpret_cast<void *>(tag_rec.LinkObjGrp));
 				disable_inhtagval = 0;
 			}
 		}
@@ -2528,7 +2528,7 @@ SLAPI AndroidXmlWriter::AndroidXmlWriter(const char * pPath, Header * pHdr, cons
 			PPAlbatrosConfig cfg;
 			DS.FetchAlbatrosConfig(&cfg);
 			xmlTextWriterSetIndent(P_Writer, 1);
-			xmlTextWriterSetIndentString(P_Writer, (const xmlChar*)"\t");
+			xmlTextWriterSetIndentString(P_Writer, reinterpret_cast<const xmlChar *>("\t"));
 			xmlTextWriterStartDocument(P_Writer, 0, "utf8", 0);
 			StartElement(isempty(pRoot) ? "StyloPalm" : pRoot);
 			if(pHdr) {
@@ -2997,7 +2997,7 @@ public:
 	AndroidDevs()
 	{
 	}
-	int Add(PPStyloPalmPacket * pPack)
+	int Add(const PPStyloPalmPacket * pPack)
 	{
 		int    ok = -1;
 		if(pPack && pPack->Rec.Flags & PLMF_ANDROID) {
@@ -3151,7 +3151,7 @@ int SLAPI PPObjStyloPalm::XmlCmpDtm(LDATE dt, LTIME tm, const char * pXmlPath)
 		p_reader = xmlReaderForFile(pXmlPath, NULL, XML_PARSE_NOENT);
 	if(p_reader) {
 		int r = 0;
-		xmlTextReaderPreservePattern(p_reader, (const xmlChar*)(const char *)p_tag, 0);
+		xmlTextReaderPreservePattern(p_reader, (const xmlChar *)(const char *)p_tag, 0);
 		r = xmlTextReaderRead(p_reader);
 		/*
 		while(r == 1)

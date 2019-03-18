@@ -90,7 +90,7 @@ static ngx_int_t ngx_http_gunzip_header_filter(ngx_http_request_t * r)
 	// @todo always gunzip - due to configuration or module request 
 	// @todo ignore content encoding? 
 	if(!conf->enable || !r->headers_out.content_encoding || r->headers_out.content_encoding->value.len != 4
-	    || ngx_strncasecmp(r->headers_out.content_encoding->value.data, (u_char*)"gzip", 4) != 0) {
+	    || ngx_strncasecmp(r->headers_out.content_encoding->value.data, (u_char *)"gzip", 4) != 0) {
 		return ngx_http_next_header_filter(r);
 	}
 	r->gzip_vary = 1;

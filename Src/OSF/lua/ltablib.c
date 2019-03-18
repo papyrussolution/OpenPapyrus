@@ -199,7 +199,7 @@ static int unpack(lua_State * L)
 	lua_Integer e = luaL_opt(L, luaL_checkinteger, 3, luaL_len(L, 1));
 	if(i > e) return 0; /* empty range */
 	n = (lua_Unsigned)e - i; /* number of elements minus 1 (avoid overflows) */
-	if(n >= (unsigned int)INT_MAX  || !lua_checkstack(L, (int)(++n)))
+	if(n >= (uint)INT_MAX  || !lua_checkstack(L, (int)(++n)))
 		return luaL_error(L, "too many results to unpack");
 	for(; i < e; i++) { /* push arg[i..e - 1] (to avoid overflows) */
 		lua_geti(L, 1, i);
@@ -232,7 +232,7 @@ typedef unsigned int IdxT;
 //#include <time.h>
 
 /* size of 'e' measured in number of 'unsigned int's */
-#define sof(e)          (sizeof(e) / sizeof(unsigned int))
+#define sof(e)          (sizeof(e) / sizeof(uint))
 
 /*
 ** Use 'time' and 'clock' as sources of "randomness". Because we don't
@@ -246,8 +246,8 @@ static unsigned int l_randomizePivot(void)
 	time_t t = time(NULL);
 	unsigned int buff[sof(c) + sof(t)];
 	unsigned int i, rnd = 0;
-	memcpy(buff, &c, sof(c) * sizeof(unsigned int));
-	memcpy(buff + sof(c), &t, sof(t) * sizeof(unsigned int));
+	memcpy(buff, &c, sof(c) * sizeof(uint));
+	memcpy(buff + sof(c), &t, sof(t) * sizeof(uint));
 	for(i = 0; i < sof(buff); i++)
 		rnd += buff[i];
 	return rnd;

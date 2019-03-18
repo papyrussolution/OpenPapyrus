@@ -102,7 +102,7 @@ ListBoxDef * SLAPI PPObjQCert::Selector(void * extraPtr)
 	DBQuery        * q = 0;
 	QualityCertTbl * t = 0;
 	if(extraPtr) {
-		const PPID goods_id = (PPID)extraPtr;
+		const PPID goods_id = reinterpret_cast<PPID>(extraPtr);
 		struct {
 			PPID   QCertID;
 			char   Code[26];
@@ -215,7 +215,7 @@ int SLAPI ViewQCertDialog(PPID id)
 
 int SLAPI PPObjQCert::Edit(PPID * pID, void * extraPtr /*sampleID*/)
 {
-	const  PPID sample_id = (PPID)extraPtr;
+	const  PPID sample_id = reinterpret_cast<PPID>(extraPtr);
 	int    ok = 1, r = 0;
 	QualityCertTbl::Rec rec;
 	THROW(CheckRightsModByID(pID));

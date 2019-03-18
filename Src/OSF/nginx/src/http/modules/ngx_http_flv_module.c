@@ -123,7 +123,7 @@ static ngx_int_t ngx_http_flv_handler(ngx_http_request_t * r)
 	len = of.size;
 	i = 1;
 	if(r->args.len) {
-		if(ngx_http_arg(r, (u_char*)"start", 5, &value) == NGX_OK) {
+		if(ngx_http_arg(r, (u_char *)"start", 5, &value) == NGX_OK) {
 			start = ngx_atoof(value.data, value.len);
 			if(start == NGX_ERROR || start >= len) {
 				start = 0;

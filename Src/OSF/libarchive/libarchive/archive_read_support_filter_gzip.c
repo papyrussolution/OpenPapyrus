@@ -93,7 +93,7 @@ int archive_read_support_filter_gzip(struct archive * _a)
 	    ARCHIVE_STATE_NEW, "archive_read_support_filter_gzip");
 
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 
 	bidder->data = NULL;
 	bidder->name = "gzip";
@@ -103,7 +103,7 @@ int archive_read_support_filter_gzip(struct archive * _a)
 	bidder->free = NULL; /* No data, so no cleanup necessary. */
 	/* Signal the extent of gzip support with the return value here. */
 #if HAVE_ZLIB_H
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 #else
 	archive_set_error(_a, ARCHIVE_ERRNO_MISC,
 	    "Using external gzip program");
@@ -130,13 +130,13 @@ static ssize_t peek_at_header(struct archive_read_filter * filter, int * pbits)
 	len = 10;
 	p = (const uchar*)__archive_read_filter_ahead(filter, len, &avail);
 	if(p == NULL || avail == 0)
-		return (0);
+		return 0;
 	/* We only support deflation- third byte must be 0x08. */
 	if(memcmp(p, "\x1F\x8B\x08", 3) != 0)
-		return (0);
+		return 0;
 	bits += 24;
 	if((p[3] & 0xE0)!= 0)   /* No reserved flags set. */
-		return (0);
+		return 0;
 	bits += 3;
 	header_flags = p[3];
 	/* Bytes 4-7 are mod time. */
@@ -149,7 +149,7 @@ static ssize_t peek_at_header(struct archive_read_filter * filter, int * pbits)
 	if(header_flags & 4) {
 		p = (const uchar*)__archive_read_filter_ahead(filter, len + 2, &avail);
 		if(p == NULL)
-			return (0);
+			return 0;
 		len += ((int)p[len + 1] << 8) | (int)p[len];
 		len += 2;
 	}
@@ -161,7 +161,7 @@ static ssize_t peek_at_header(struct archive_read_filter * filter, int * pbits)
 			if(avail < len)
 				p = (const uchar*)__archive_read_filter_ahead(filter, len, &avail);
 			if(p == NULL)
-				return (0);
+				return 0;
 		} while(p[len - 1] != 0);
 	}
 
@@ -172,19 +172,19 @@ static ssize_t peek_at_header(struct archive_read_filter * filter, int * pbits)
 			if(avail < len)
 				p = (const uchar*)__archive_read_filter_ahead(filter, len, &avail);
 			if(p == NULL)
-				return (0);
+				return 0;
 		} while(p[len - 1] != 0);
 	}
 	/* Optional header CRC */
 	if((header_flags & 2)) {
 		p = (const uchar*)__archive_read_filter_ahead(filter, len + 2, &avail);
 		if(p == NULL)
-			return (0);
+			return 0;
 #if 0
 		int hcrc = ((int)p[len + 1] << 8) | (int)p[len];
 		int crc = /* XXX TODO: Compute header CRC. */;
 		if(crc != hcrc)
-			return (0);
+			return 0;
 		bits += 16;
 #endif
 		len += 2;
@@ -207,7 +207,7 @@ static int gzip_bidder_bid(struct archive_read_filter_bidder * self,
 
 	if(peek_at_header(filter, &bits_checked))
 		return (bits_checked);
-	return (0);
+	return 0;
 }
 
 #ifndef HAVE_ZLIB_H
@@ -227,7 +227,7 @@ static int gzip_bidder_init(struct archive_read_filter * self)
 	 * even if we weren't able to read it. */
 	self->code = ARCHIVE_FILTER_GZIP;
 	self->name = "gzip";
-	return (r);
+	return r;
 }
 
 #else
@@ -249,7 +249,7 @@ static int gzip_bidder_init(struct archive_read_filter * self)
 		SAlloc::F(out_block);
 		SAlloc::F(state);
 		archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for gzip decompression");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	self->data = state;
 	state->out_block_size = out_block_size;
@@ -258,7 +258,7 @@ static int gzip_bidder_init(struct archive_read_filter * self)
 	self->skip = NULL; /* not supported */
 	self->close = gzip_filter_close;
 	state->in_stream = 0; /* We're not actually within a stream yet. */
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int consume_header(struct archive_read_filter * self)
@@ -288,7 +288,7 @@ static int consume_header(struct archive_read_filter * self)
 	switch(ret) {
 		case Z_OK:
 		    state->in_stream = 1;
-		    return (ARCHIVE_OK);
+		    return ARCHIVE_OK;
 		case Z_STREAM_ERROR:
 		    archive_set_error(&self->archive->archive,
 			ARCHIVE_ERRNO_MISC,
@@ -313,7 +313,7 @@ static int consume_header(struct archive_read_filter * self)
 			" Zlib error %d", ret);
 		    break;
 	}
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }
 
 static int consume_trailer(struct archive_read_filter * self)
@@ -328,20 +328,20 @@ static int consume_trailer(struct archive_read_filter * self)
 		    break;
 		default:
 		    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Failed to clean up gzip decompressor");
-		    return (ARCHIVE_FATAL);
+		    return ARCHIVE_FATAL;
 	}
 
 	/* GZip trailer is a fixed 8 byte structure. */
 	p = (const uchar *)__archive_read_filter_ahead(self->upstream, 8, &avail);
 	if(p == NULL || avail == 0)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 
 	/* XXX TODO: Verify the length and CRC. */
 
 	/* We've verified the trailer, so consume it now. */
 	__archive_read_filter_consume(self->upstream, 8);
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static ssize_t gzip_filter_read(struct archive_read_filter * self, const void ** p)
@@ -368,7 +368,7 @@ static ssize_t gzip_filter_read(struct archive_read_filter * self, const void **
 				break;
 			}
 			if(ret < ARCHIVE_OK)
-				return (ret);
+				return ret;
 		}
 
 		/* Peek at the next available data. */
@@ -380,7 +380,7 @@ static ssize_t gzip_filter_read(struct archive_read_filter * self, const void **
 			archive_set_error(&self->archive->archive,
 			    ARCHIVE_ERRNO_MISC,
 			    "truncated gzip input");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		state->stream.avail_in = (uInt)avail_in;
 
@@ -398,14 +398,14 @@ static ssize_t gzip_filter_read(struct archive_read_filter * self, const void **
 			     * decompression library. */
 			    ret = consume_trailer(self);
 			    if(ret < ARCHIVE_OK)
-				    return (ret);
+				    return ret;
 			    break;
 			default:
 			    /* Return an error. */
 			    archive_set_error(&self->archive->archive,
 				ARCHIVE_ERRNO_MISC,
 				"gzip decompression failed");
-			    return (ARCHIVE_FATAL);
+			    return ARCHIVE_FATAL;
 		}
 	}
 
@@ -444,7 +444,7 @@ static int gzip_filter_close(struct archive_read_filter * self)
 
 	SAlloc::F(state->out_block);
 	SAlloc::F(state);
-	return (ret);
+	return ret;
 }
 
 #endif /* HAVE_ZLIB_H */

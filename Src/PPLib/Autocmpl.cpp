@@ -104,7 +104,7 @@ int FASTCALL PUGL::SetHeader(const BillTbl::Rec * pBillRec)
 int SLAPI PUGL::SearchGoods(PPID goodsID, uint * pPos, PUGI * pItem) const
 {
 	PUGI * p_item;
-	for(uint i = 0; enumItems(&i, (void**)&p_item);)
+	for(uint i = 0; enumItems(&i, (void **)&p_item);)
 		if(p_item->GoodsID == goodsID) {
 			ASSIGN_PTR(pItem, *p_item);
 			ASSIGN_PTR(pPos, i-1);
@@ -128,7 +128,7 @@ int SLAPI PUGL::Add(const PUGI * pItem, LDATE dt)
 {
 	int    ok = -1;
 	PUGI   item, * p_item;
-	for(uint i = 0; ok < 0 && enumItems(&i, (void**)&p_item);) {
+	for(uint i = 0; ok < 0 && enumItems(&i, (void **)&p_item);) {
 		if(p_item->GoodsID == pItem->GoodsID && p_item->LocID == pItem->LocID) {
 			p_item->NeededQty  += fabs(pItem->NeededQty);
 			p_item->DeficitQty += fabs(pItem->DeficitQty);
@@ -184,7 +184,7 @@ int FASTCALL PUGL::Log(PPLogger * pLogger) const
 void FASTCALL PUGL::GetItemsLocList(PPIDArray & rList) const
 {
 	PUGI * p_item;
-	for(uint i = 0; enumItems(&i, (void**)&p_item);)
+	for(uint i = 0; enumItems(&i, (void **)&p_item);)
 		if(p_item->LocID)
 			rList.addUnique(p_item->LocID);
 }
@@ -207,7 +207,7 @@ int SLAPI PUGL::GetSupplSubstList(uint pos /*[1..]*/, TSVector <PUGL::SupplSubst
 int SLAPI PUGL::IsTerminal() const
 {
 	PUGI * p_item;
-	for(uint i = 0; enumItems(&i, (void**)&p_item);)
+	for(uint i = 0; enumItems(&i, (void **)&p_item);)
 		if(!(p_item->Flags & PUGI::fTerminal))
 			return 0;
 	return 1;
@@ -504,7 +504,7 @@ int PuglDialog::setupList()
 	PUGI * p_item = 0;
 	StringSet ss(SLBColumnDelim);
 	SString sub;
-	for(uint i = 0; Data.enumItems(&i, (void**)&p_item);) {
+	for(uint i = 0; Data.enumItems(&i, (void **)&p_item);) {
 		ss.clear();
 		GetGoodsName(p_item->GoodsID, sub);
 		ss.add(sub);
@@ -743,7 +743,7 @@ int SLAPI PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfc
 		//ComplItem S, * ps;
 		ComplItem * ps;
 		THROW(pGS->InitCompleteData(p_ti->GoodsID, need_qty, this, /*&S,*/ ary));
-		for(i = 0; ary.enumItems(&i, (void**)&ps);) {
+		for(i = 0; ary.enumItems(&i, (void **)&ps);) {
 			if(ps->PartQty != 0.0 && ps->NeedQty != 0.0) {
 				ILTI   ilti;
 				long   convert_ilti_flags = CILTIF_OPTMZLOTS|CILTIF_USESUBST;
@@ -1167,7 +1167,7 @@ int PPALDD_PUGL::NextIteration(PPIterID iterId)
 	PUGL * p_list = static_cast<PUGL *>(Extra[0].Ptr);
 	PUGI * p_item = 0;
 	uint   nn = static_cast<uint>(I.nn);
-	if(p_list->enumItems(&nn, (void**)&p_item)) {
+	if(p_list->enumItems(&nn, (void **)&p_item)) {
 		I.nn       = nn;
 		I.GoodsID  = p_item->GoodsID;
 		I.LocID    = p_item->LocID;

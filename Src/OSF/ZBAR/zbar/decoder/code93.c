@@ -56,7 +56,7 @@ static inline int check_width(uint cur, uint prev)
 	else
 		dw = cur - prev;
 	dw *= 4;
-	return(dw > prev);
+	return (dw > prev);
 }
 
 static inline int encode6(zbar_decoder_t * dcode)
@@ -75,7 +75,7 @@ static inline int encode6(zbar_decoder_t * dcode)
 		dbprintf(2, "%d", c);
 	}
 	dbprintf(2, " sig=%03x", sig);
-	return(sig);
+	return (sig);
 }
 
 static inline int validate_sig(int sig)
@@ -107,7 +107,7 @@ static inline int validate_sig(int sig)
 	sig0 -= emin;
 	sig1 += emin;
 	dbprintf(3, "=%03x/%03x", sig1 & 0xfff, sig0 & 0xfff);
-	return((sig0 | sig1) & 0x888);
+	return ((sig0 | sig1) & 0x888);
 }
 
 static inline int decode6(zbar_decoder_t * dcode)
@@ -130,7 +130,7 @@ static inline int decode6(zbar_decoder_t * dcode)
 		assert(g0 >= 0 && g1 >= 0);
 		c = (g0 + g1) & 0x3f;
 		dbprintf(2, " g0=%x g1=%x c=%02x", g0, g1, c);
-		return(c);
+		return (c);
 	}
 }
 
@@ -142,17 +142,17 @@ static inline zbar_symbol_type_t decode_start(zbar_decoder_t * dcode)
 	dbprintf(2, "      code93:");
 	c = encode6(dcode);
 	if(c < 0 || (c != 0x00f && c != 0x0f0))
-		return(ZBAR_NONE);
+		return ZBAR_NONE;
 	dir = (c >> 7);
 	if(dir) {
 		if(decode_e(pair_width(dcode, 0), s, 9))
-			return(ZBAR_NONE);
+			return ZBAR_NONE;
 		qz = get_width(dcode, 8);
 	}
 	qz = get_width(dcode, 7);
 	if(qz && qz < (s * 3) / 4) {
 		dbprintf(2, " [invalid qz %d]", qz);
-		return(ZBAR_NONE);
+		return ZBAR_NONE;
 	}
 
 	/* decoded valid start/stop - initialize state */
@@ -162,7 +162,7 @@ static inline zbar_symbol_type_t decode_start(zbar_decoder_t * dcode)
 	dcode93->width = s;
 
 	dbprintf(2, " dir=%x [valid start]", dir);
-	return(ZBAR_PARTIAL);
+	return (ZBAR_PARTIAL);
 }
 
 static inline zbar_symbol_type_t decode_abort(zbar_decoder_t * dcode, const char * reason)
@@ -173,7 +173,7 @@ static inline zbar_symbol_type_t decode_abort(zbar_decoder_t * dcode, const char
 	dcode93->character = -1;
 	if(reason)
 		dbprintf(1, " [%s]\n", reason);
-	return(ZBAR_NONE);
+	return ZBAR_NONE;
 }
 
 static inline zbar_symbol_type_t check_stop(zbar_decoder_t * dcode)
@@ -183,16 +183,16 @@ static inline zbar_symbol_type_t check_stop(zbar_decoder_t * dcode)
 	const uint s = dcode->s6;
 	const int max_len = CFG(*dcode93, ZBAR_CFG_MAX_LEN);
 	if(n < 2 || (int)n < CFG(*dcode93, ZBAR_CFG_MIN_LEN) || (max_len && (int)n > max_len))
-		return(decode_abort(dcode, "invalid len"));
+		return (decode_abort(dcode, "invalid len"));
 	else {
 		if(dcode93->direction) {
 			uint qz = get_width(dcode, 0);
 			if(qz && qz < (s * 3) / 4)
-				return(decode_abort(dcode, "invalid qz"));
+				return (decode_abort(dcode, "invalid qz"));
 		}
 		else if(decode_e(pair_width(dcode, 0), s, 9))
-			return(decode_abort(dcode, "invalid stop")); // FIXME forward-trailing QZ check 
-		return(ZBAR_CODE93);
+			return (decode_abort(dcode, "invalid stop")); // FIXME forward-trailing QZ check 
+		return (ZBAR_CODE93);
 	}
 }
 
@@ -203,7 +203,7 @@ static inline int plusmod47(int acc, int add)
 	acc += add;
 	if(acc >= CHKMOD)
 		acc -= CHKMOD;
-	return(acc);
+	return (acc);
 }
 
 static inline int validate_checksums(zbar_decoder_t * dcode)
@@ -310,17 +310,17 @@ zbar_symbol_type_t _zbar_decode_code93(zbar_decoder_t * dcode)
 	if(dcode93->character < 0) {
 		zbar_symbol_type_t sym;
 		if(get_color(dcode) != ZBAR_BAR)
-			return(ZBAR_NONE);
+			return ZBAR_NONE;
 		sym = decode_start(dcode);
 		dbprintf(2, "\n");
-		return(sym);
+		return (sym);
 	}
 
 	if( /* process every 6th element of active symbol */
 	    ++dcode93->element != 6 ||
 	    /* decode color based on direction */
 	    get_color(dcode) == dcode93->direction)
-		return(ZBAR_NONE);
+		return ZBAR_NONE;
 
 	dcode93->element = 0;
 
@@ -329,31 +329,31 @@ zbar_symbol_type_t _zbar_decode_code93(zbar_decoder_t * dcode)
 	    dcode93->character, dcode93->element);
 
 	if(check_width(dcode->s6, dcode93->width))
-		return(decode_abort(dcode, "width var"));
+		return (decode_abort(dcode, "width var"));
 
 	c = decode6(dcode);
 	if(c < 0)
-		return(decode_abort(dcode, "aborted"));
+		return (decode_abort(dcode, "aborted"));
 
 	if(c == 0x2f) {
 		if(!check_stop(dcode))
-			return(ZBAR_NONE);
+			return ZBAR_NONE;
 		if(validate_checksums(dcode))
-			return(decode_abort(dcode, "checksum error"));
+			return (decode_abort(dcode, "checksum error"));
 		if(postprocess(dcode))
-			return(decode_abort(dcode, "invalid encoding"));
+			return (decode_abort(dcode, "invalid encoding"));
 		dbprintf(2, " [valid end]\n");
 		dbprintf(3, "    %s\n", _zbar_decoder_buf_dump(dcode->buf, dcode93->character));
 		dcode93->character = -1;
-		return(ZBAR_CODE93);
+		return (ZBAR_CODE93);
 	}
 	if(size_buf(dcode, dcode93->character + 1))
-		return(decode_abort(dcode, "overflow"));
+		return (decode_abort(dcode, "overflow"));
 	dcode93->width = dcode->s6;
 	if(dcode93->character == 1) {
 		/* lock shared resources */
 		if(acquire_lock(dcode, ZBAR_CODE93))
-			return(decode_abort(dcode, NULL));
+			return (decode_abort(dcode, NULL));
 		dcode->buf[0] = dcode93->buf;
 	}
 	if(!dcode93->character)
@@ -362,6 +362,6 @@ zbar_symbol_type_t _zbar_decode_code93(zbar_decoder_t * dcode)
 		dcode->buf[dcode93->character] = c;
 	dcode93->character++;
 	dbprintf(2, "\n");
-	return(ZBAR_NONE);
+	return ZBAR_NONE;
 }
 

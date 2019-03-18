@@ -3099,7 +3099,7 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERS(xmlTextWriter
 int SLAPI EdiProviderImplementation_Kontur::IdentifyOrderRspStatus(const PPBillPacket & rBp, const PPBillPacket * pExtBp)
 {
 	int    status = 1;
-	if(pExtBp != 0 && pExtBp != &rBp) {
+	if(pExtBp && pExtBp != &rBp) {
 		int    all_rejected = 1;
 		const  PPBillPacket & r_org_pack = pExtBp ? *pExtBp : rBp;
 		for(uint i = 0; i < r_org_pack.GetTCount(); i++) {

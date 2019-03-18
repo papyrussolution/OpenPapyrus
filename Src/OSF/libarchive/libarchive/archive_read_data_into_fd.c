@@ -57,9 +57,9 @@ static int pad_to(struct archive * a, int fd, int can_lseek,
 			target_offset - actual_offset, SEEK_CUR);
 		if(actual_offset != target_offset) {
 			archive_set_error(a, errno, "Seek error");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 	while(target_offset > actual_offset) {
 		to_write = nulls_size;
@@ -68,11 +68,11 @@ static int pad_to(struct archive * a, int fd, int can_lseek,
 		bytes_written = write(fd, nulls, to_write);
 		if(bytes_written < 0) {
 			archive_set_error(a, errno, "Write error");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		actual_offset += bytes_written;
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 int archive_read_data_into_fd(struct archive * a, int fd)
@@ -128,6 +128,6 @@ int archive_read_data_into_fd(struct archive * a, int fd)
 cleanup:
 	SAlloc::F(nulls);
 	if(r != ARCHIVE_EOF)
-		return (r);
-	return (ARCHIVE_OK);
+		return r;
+	return ARCHIVE_OK;
 }

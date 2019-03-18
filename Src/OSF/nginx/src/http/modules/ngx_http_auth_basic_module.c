@@ -303,7 +303,7 @@ static const char * ngx_http_auth_basic_user_file(ngx_conf_t * cf, const ngx_com
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 		ngx_http_compile_complex_value_t ccv;
 		memzero(&ccv, sizeof(ngx_http_compile_complex_value_t));
 		ccv.cf = cf;

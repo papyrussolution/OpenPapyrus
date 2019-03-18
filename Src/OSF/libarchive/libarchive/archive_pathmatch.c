@@ -187,7 +187,7 @@ static int pm(const char * p, const char * s, int flags)
 			case '?':
 			    /* ? always succeeds, unless we hit end of 's' */
 			    if(*s == '\0')
-				    return (0);
+				    return 0;
 			    break;
 			case '*':
 			    /* "*" == "**" == "***" ... */
@@ -201,7 +201,7 @@ static int pm(const char * p, const char * s, int flags)
 					    return (1);
 				    ++s;
 			    }
-			    return (0);
+			    return 0;
 			case '[':
 			    /*
 			     * Find the end of the [...] character class,
@@ -216,30 +216,30 @@ static int pm(const char * p, const char * s, int flags)
 			    if(*end == ']') {
 				    /* We found [...], try to match it. */
 				    if(!pm_list(p + 1, end, *s, flags))
-					    return (0);
+					    return 0;
 				    p = end; /* Jump to trailing ']' char. */
 				    break;
 			    }
 			    else
 			    /* No final ']', so just match '['. */
 			    if(*p != *s)
-				    return (0);
+				    return 0;
 			    break;
 			case '\\':
 			    /* Trailing '\\' matches itself. */
 			    if(p[1] == '\0') {
 				    if(*s != '\\')
-					    return (0);
+					    return 0;
 			    }
 			    else {
 				    ++p;
 				    if(*p != *s)
-					    return (0);
+					    return 0;
 			    }
 			    break;
 			case '/':
 			    if(*s != '/' && *s != '\0')
-				    return (0);
+				    return 0;
 			    /* Note: pattern "/\./" won't match "/";
 			     * pm_slashskip() correctly stops at backslash. */
 			    p = pm_slashskip(p);
@@ -260,7 +260,7 @@ static int pm(const char * p, const char * s, int flags)
 			/* FALL THROUGH */
 			default:
 			    if(*p != *s)
-				    return (0);
+				    return 0;
 			    break;
 		}
 		++p;
@@ -293,7 +293,7 @@ static int pm_w(const wchar_t * p, const wchar_t * s, int flags)
 			case L'?':
 			    /* ? always succeeds, unless we hit end of 's' */
 			    if(*s == L'\0')
-				    return (0);
+				    return 0;
 			    break;
 			case L'*':
 			    /* "*" == "**" == "***" ... */
@@ -307,7 +307,7 @@ static int pm_w(const wchar_t * p, const wchar_t * s, int flags)
 					    return (1);
 				    ++s;
 			    }
-			    return (0);
+			    return 0;
 			case L'[':
 			    /*
 			     * Find the end of the [...] character class,
@@ -322,30 +322,30 @@ static int pm_w(const wchar_t * p, const wchar_t * s, int flags)
 			    if(*end == L']') {
 				    /* We found [...], try to match it. */
 				    if(!pm_list_w(p + 1, end, *s, flags))
-					    return (0);
+					    return 0;
 				    p = end; /* Jump to trailing ']' char. */
 				    break;
 			    }
 			    else
 			    /* No final ']', so just match '['. */
 			    if(*p != *s)
-				    return (0);
+				    return 0;
 			    break;
 			case L'\\':
 			    /* Trailing '\\' matches itself. */
 			    if(p[1] == L'\0') {
 				    if(*s != L'\\')
-					    return (0);
+					    return 0;
 			    }
 			    else {
 				    ++p;
 				    if(*p != *s)
-					    return (0);
+					    return 0;
 			    }
 			    break;
 			case L'/':
 			    if(*s != L'/' && *s != L'\0')
-				    return (0);
+				    return 0;
 			    /* Note: pattern "/\./" won't match "/";
 			     * pm_slashskip() correctly stops at backslash. */
 			    p = pm_slashskip_w(p);
@@ -366,7 +366,7 @@ static int pm_w(const wchar_t * p, const wchar_t * s, int flags)
 			/* FALL THROUGH */
 			default:
 			    if(*p != *s)
-				    return (0);
+				    return 0;
 			    break;
 		}
 		++p;
@@ -388,7 +388,7 @@ int __archive_pathmatch(const char * p, const char * s, int flags)
 	}
 
 	if(*p == '/' && *s != '/')
-		return (0);
+		return 0;
 
 	/* Certain patterns anchor implicitly. */
 	if(*p == '*' || *p == '/') {
@@ -407,7 +407,7 @@ int __archive_pathmatch(const char * p, const char * s, int flags)
 			if(pm(p, s, flags))
 				return (1);
 		}
-		return (0);
+		return 0;
 	}
 
 	/* Default: Match from beginning. */
@@ -427,7 +427,7 @@ int __archive_pathmatch_w(const wchar_t * p, const wchar_t * s, int flags)
 	}
 
 	if(*p == L'/' && *s != L'/')
-		return (0);
+		return 0;
 
 	/* Certain patterns anchor implicitly. */
 	if(*p == L'*' || *p == L'/') {
@@ -446,7 +446,7 @@ int __archive_pathmatch_w(const wchar_t * p, const wchar_t * s, int flags)
 			if(pm_w(p, s, flags))
 				return (1);
 		}
-		return (0);
+		return 0;
 	}
 
 	/* Default: Match from beginning. */

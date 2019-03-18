@@ -317,7 +317,7 @@ int FASTCALL PPViewPrcBusy::NextIteration(PrcBusyViewItem * pItem)
 	return -1;
 }
 
-int SLAPI PPViewPrcBusy::AddSession(PrcBusyViewItem * pItem)
+int SLAPI PPViewPrcBusy::AddSession(const PrcBusyViewItem * pItem)
 {
 	int    ok = -1;
 	PPID   id = 0;

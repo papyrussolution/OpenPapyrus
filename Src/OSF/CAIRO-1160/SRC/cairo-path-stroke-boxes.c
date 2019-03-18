@@ -35,8 +35,6 @@
  *	Carl D. Worth <cworth@cworth.org>
  *	Chris Wilson <chris@chris-wilson.co.uk>
  */
-
-#define _DEFAULT_SOURCE /* for hypot() */
 #include "cairoint.h"
 #pragma hdrstop
 //#include "cairo-box-inline.h"
@@ -44,7 +42,8 @@
 //#include "cairo-error-private.h"
 //#include "cairo-path-fixed-private.h"
 //#include "cairo-slope-private.h"
-#include "cairo-stroke-dash-private.h"
+//#include "cairo-stroke-dash-private.h"
+#define _DEFAULT_SOURCE /* for hypot() */
 
 typedef struct _segment_t {
 	cairo_point_t p1, p2;
@@ -378,7 +377,7 @@ static cairo_status_t _cairo_rectilinear_stroker_emit_segments_dashed(cairo_rect
 
 static cairo_status_t _cairo_rectilinear_stroker_move_to(void * closure, const cairo_point_t * point)
 {
-	cairo_rectilinear_stroker_t * stroker = (cairo_rectilinear_stroker_t *)closure;
+	cairo_rectilinear_stroker_t * stroker = static_cast<cairo_rectilinear_stroker_t *>(closure);
 	cairo_status_t status;
 	if(stroker->dash.dashed)
 		status = _cairo_rectilinear_stroker_emit_segments_dashed(stroker);
@@ -395,7 +394,7 @@ static cairo_status_t _cairo_rectilinear_stroker_move_to(void * closure, const c
 
 static cairo_status_t _cairo_rectilinear_stroker_line_to(void * closure, const cairo_point_t * b)
 {
-	cairo_rectilinear_stroker_t * stroker = (cairo_rectilinear_stroker_t *)closure;
+	cairo_rectilinear_stroker_t * stroker = static_cast<cairo_rectilinear_stroker_t *>(closure);
 	cairo_point_t * a = &stroker->current_point;
 	cairo_status_t status;
 	/* We only support horizontal or vertical elements. */
@@ -411,7 +410,7 @@ static cairo_status_t _cairo_rectilinear_stroker_line_to(void * closure, const c
 
 static cairo_status_t _cairo_rectilinear_stroker_line_to_dashed(void * closure, const cairo_point_t * point)
 {
-	cairo_rectilinear_stroker_t * stroker = (cairo_rectilinear_stroker_t *)closure;
+	cairo_rectilinear_stroker_t * stroker = static_cast<cairo_rectilinear_stroker_t *>(closure);
 	const cairo_point_t * a = &stroker->current_point;
 	const cairo_point_t * b = point;
 	cairo_bool_t fully_in_bounds;
@@ -511,7 +510,7 @@ static cairo_status_t _cairo_rectilinear_stroker_line_to_dashed(void * closure, 
 
 static cairo_status_t _cairo_rectilinear_stroker_close_path(void * closure)
 {
-	cairo_rectilinear_stroker_t * stroker = (cairo_rectilinear_stroker_t *)closure;
+	cairo_rectilinear_stroker_t * stroker = static_cast<cairo_rectilinear_stroker_t *>(closure);
 	cairo_status_t status;
 
 	/* We don't draw anything for degenerate paths. */

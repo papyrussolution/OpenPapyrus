@@ -6,12 +6,11 @@
 
 #define RECT_WIDTH	5
 #define RADIUS	    100
-
 #define TOSCALE(x)	  (((x)*RADIUS)/255.0)
 #define SCALETOMAX(x) (((x)*255.0)/RADIUS)
-#define DISTANCE(pt1, pt2) sqrt((double)((pt1.x - pt2.x) * (pt1.x - pt2.x) + (pt1.y - pt2.y) * (pt1.y - pt2.y)))
-#define CALC_LINE_K(pt1, pt2) (pt2.x != pt1.x) ? (double)(pt2.y - pt1.y) / (double)(pt2.x - pt1.x) : 0
-#define CALC_LINE_B(pt, k) (double)pt.y - (double)pt.x * k
+#define DISTANCE(pt1, pt2) sqrt(static_cast<double>((pt1.x - pt2.x) * (pt1.x - pt2.x) + (pt1.y - pt2.y) * (pt1.y - pt2.y)))
+#define CALC_LINE_K(pt1, pt2) (pt2.x != pt1.x) ? static_cast<double>(pt2.y - pt1.y) / static_cast<double>(pt2.x - pt1.x) : 0
+#define CALC_LINE_B(pt, k) static_cast<double>(pt.y) - static_cast<double>(pt.x) * k
 
 struct HSV {
 	COLORREF ToRGB();
@@ -173,14 +172,11 @@ POINT PointOnLine(POINT pt1, POINT pt2, int len, int maxlen)
 class PPColorPickerDialog : public TDialog {
 public:
 	PPColorPickerDialog();
-
 	int setDTS(const long * pColor);
 	int getDTS(long * pColor);
-
 	void  Paint();
 private:
 	DECL_HANDLE_EVENT;
-
 	void  CalcRects();
 	void  SetHSVCtrls(HSV c);
 	void  SetRGBCtrls(COLORREF c);
@@ -189,7 +185,6 @@ private:
 	void  DrawRGB();
 	POINT DrawRGBMarker(HDC hdc, HBRUSH brush, POINT ptMax, int color);
 	RECT NormalizeRect(RECT rect);
-
 	void   GetBrightRect(RECT * pRect, RECT * pModifRect);
 	double GetCircleDistance(POINT pt, POINT * pPt);
 	void   CirclePosByMousePos(POINT pt);
@@ -224,7 +219,7 @@ struct BrightStruc {
 
 static BOOL CALLBACK BrightViewProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	BrightStruc * p_struc = (BrightStruc *)TView::GetWindowUserData(hWnd);
+	BrightStruc * p_struc = static_cast<BrightStruc *>(TView::GetWindowUserData(hWnd));
 	WNDPROC prev_proc = (p_struc) ? p_struc->PrevWindowProc : 0;
 	switch(uMsg) {
 		case WM_DESTROY:
@@ -314,9 +309,9 @@ int PPColorPickerDialog::setDTS(const long * pColor)
 
 int PPColorPickerDialog::getDTS(long * pColor)
 {
-	long r = getCtrlLong(CTL_COLORS_RED);
-	long g = getCtrlLong(CTL_COLORS_GREEN);
-	long b = getCtrlLong(CTL_COLORS_BLUE);
+	const long r = getCtrlLong(CTL_COLORS_RED);
+	const long g = getCtrlLong(CTL_COLORS_GREEN);
+	const long b = getCtrlLong(CTL_COLORS_BLUE);
 	Data = RGB(r, g, b);
 	ASSIGN_PTR(pColor, (long)Data);
 	return 1;
@@ -612,7 +607,10 @@ POINT PPColorPickerDialog::DrawRGBMarker(HDC hdc, HBRUSH brush, POINT ptMax, int
 
 void PPColorPickerDialog::DrawRGB()
 {
-	int    r_len = GetRValue(Data), g_len = GetGValue(Data), b_len = GetBValue(Data), len = 0;
+	int    r_len = GetRValue(Data);
+	int    g_len = GetGValue(Data);
+	int    b_len = GetBValue(Data);
+	int    len = 0;
 	HWND   hwnd = ::GetDlgItem(H(), CTL_COLORS_RGBRECT);
 	HDC    hdc = ::GetDC(hwnd);
 	HPEN   pen = ::CreatePen(PS_SOLID, 1, GetColorRef(SClrWhite));
@@ -620,11 +618,9 @@ void PPColorPickerDialog::DrawRGB()
 	HBRUSH brush = ::CreateSolidBrush(GetColorRef(SClrWhite));
 	POINT pt_r, pt_g, pt_b, pt, pt_rb, pt_rg, pt_gb;
 	RECT rect;
-
 	GetClientRect(hwnd, &rect);
 	InvalidateRect(hwnd, &rect, true);
 	UpdateWindow(hwnd);
-
 	pt_r = DrawRGBMarker(hdc, brush, RMax, r_len);
 	pt_g = DrawRGBMarker(hdc, brush, GMax, g_len);
     pt_b = DrawRGBMarker(hdc, brush, BMax, b_len);
@@ -657,18 +653,16 @@ void PPColorPickerDialog::DrawBrightRect()
 	HDC    hdc = ::GetDC(hwnd);
 	BYTE   palette[768], * p = 0;
 	HSV    hsv = HsvColor;
-
 	r.left   = 2;
 	r.top    = BrightRectTop + BrightMark;
 	r.bottom = r.top + BRIGHT_MARKER_HEIGHT;
 	r.right  = BrightRectWidth - 2;
     FrameRect(hdc, &r, GetSysColorBrush(COLOR_SCROLLBAR));
-
 	d = (BrightRectHeight != 0) ? (255.0 / BrightRectHeight) : 0;
 	p = palette;
 	for(int i = BrightRectHeight; i >= 0 ; i--, p += 3) {
 		COLORREF rgb;
-		hsv.V = (int)((double)i * d);
+		hsv.V = static_cast<int>(i * d);
 		rgb = hsv.ToRGB();
 		p[0] = GetRValue(rgb);
 		p[1] = GetGValue(rgb);
@@ -804,7 +798,7 @@ int ColorCtrlGroup::setData(TDialog * pDlg, void * pData)
 			OwnerDrawCtrls[i].ExtraParam = 22;
 			break;
 		}
-	Data = *(ColorCtrlGroup::Rec*)pData;
+	Data = *static_cast<const ColorCtrlGroup::Rec *>(pData);
 	{
 		SString userdef;
 		PPLoadText(PPTXT_USERDEF, userdef);
@@ -822,7 +816,7 @@ int ColorCtrlGroup::setData(TDialog * pDlg, void * pData)
 int ColorCtrlGroup::getData(TDialog * pDlg, void * pData)
 {
 	pDlg->getCtrlData(CtlSel, &Data.C);
-	ASSIGN_PTR((ColorCtrlGroup::Rec*)pData, Data);
+	ASSIGN_PTR(static_cast<ColorCtrlGroup::Rec *>(pData), Data);
 	return 1;
 }
 
@@ -863,9 +857,9 @@ void ColorCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 			}
 		}
 		else if(TVCMD == cmDrawItem) {
-			TDrawItemData * p_di = (TDrawItemData *)TVINFOPTR;
+			TDrawItemData * p_di = static_cast<TDrawItemData *>(TVINFOPTR);
 			if(p_di && p_di->P_View && p_di->CtlType == ODT_LISTBOX/*ctListBox*/) {
-				ListWindowSmartListBox * p_lbx = (ListWindowSmartListBox *)p_di->P_View;
+				ListWindowSmartListBox * p_lbx = static_cast<ListWindowSmartListBox *>(p_di->P_View);
 				if(p_lbx && p_lbx->combo->TestId(CtlSel)) {
 					HDC      h_dc = p_di->H_DC;
 					HBRUSH   old_brush = 0;
@@ -904,7 +898,7 @@ void ColorCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 						rc.bottom -= 2;
 						FillRect(h_dc, &rc, brush);
 						if(temp_buf.Len())
-							::DrawText(h_dc, temp_buf.cptr(), temp_buf.Len(), &rc, DT_LEFT|DT_VCENTER|DT_SINGLELINE); // @unicodeproblem
+							::DrawText(h_dc, SUcSwitch(temp_buf), temp_buf.Len(), &rc, DT_LEFT|DT_VCENTER|DT_SINGLELINE); // @unicodeproblem
 					}
 					if(old_brush)
 						SelectObject(h_dc, old_brush);

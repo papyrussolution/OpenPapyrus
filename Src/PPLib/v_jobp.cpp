@@ -1,5 +1,5 @@
 // V_JOBP.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2005, 2007, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 // Редактирование списка процессорных задач
@@ -506,16 +506,10 @@ int SLAPI PPViewJob::InitIteration()
 int FASTCALL PPViewJob::NextIteration(JobViewItem * pItem)
 {
 	int    ok = -1;
-	if(pItem) {
-		while(Counter < Counter.GetTotal() && ok < 0) {
-			if(pItem) {
-				ASSIGN_PTR(pItem, List.at(Counter));
-				ok = 1;
-			}
-			else
-				ok = 1;
-			Counter.Increment();
-		}
+	while(Counter < Counter.GetTotal() && ok < 0) {
+		ASSIGN_PTR(pItem, List.at(Counter));
+		ok = 1;
+		Counter.Increment();
 	}
 	return ok;
 }

@@ -272,7 +272,6 @@ cairo_status_t _cairo_pattern_init_copy(cairo_pattern_t * pattern, const cairo_p
 		    else {
 			    VG(VALGRIND_MAKE_MEM_UNDEFINED(pattern, sizeof(cairo_radial_pattern_t)));
 		    }
-
 		    status = _cairo_gradient_pattern_init_copy(dst, src);
 		    if(unlikely(status))
 			    return status;
@@ -280,30 +279,25 @@ cairo_status_t _cairo_pattern_init_copy(cairo_pattern_t * pattern, const cairo_p
 		case CAIRO_PATTERN_TYPE_MESH: {
 		    cairo_mesh_pattern_t * dst = (cairo_mesh_pattern_t*)pattern;
 		    cairo_mesh_pattern_t * src = (cairo_mesh_pattern_t*)other;
-
 		    VG(VALGRIND_MAKE_MEM_UNDEFINED(pattern, sizeof(cairo_mesh_pattern_t)));
-
 		    status = _cairo_mesh_pattern_init_copy(dst, src);
 		    if(unlikely(status))
 			    return status;
 	    } break;
-
 		case CAIRO_PATTERN_TYPE_RASTER_SOURCE: {
 		    status = _cairo_raster_source_pattern_init_copy(pattern, other);
 		    if(unlikely(status))
 			    return status;
 	    } break;
 	}
-
 	/* The reference count and user_data array are unique to the copy. */
 	CAIRO_REFERENCE_COUNT_INIT(&pattern->ref_count, 0);
 	_cairo_user_data_array_init(&pattern->user_data);
 	cairo_list_init(&pattern->observers);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-void _cairo_pattern_init_static_copy(cairo_pattern_t * pattern, const cairo_pattern_t * other)
+void FASTCALL _cairo_pattern_init_static_copy(cairo_pattern_t * pattern, const cairo_pattern_t * other)
 {
 	int size;
 	assert(other->status == CAIRO_STATUS_SUCCESS);
@@ -323,7 +317,7 @@ void _cairo_pattern_init_static_copy(cairo_pattern_t * pattern, const cairo_patt
 	cairo_list_init(&pattern->observers);
 }
 
-cairo_status_t _cairo_pattern_init_snapshot(cairo_pattern_t * pattern, const cairo_pattern_t * other)
+cairo_status_t FASTCALL _cairo_pattern_init_snapshot(cairo_pattern_t * pattern, const cairo_pattern_t * other)
 {
 	// We don't bother doing any fancy copy-on-write implementation
 	// for the pattern's data. It's generally quite tiny.
@@ -343,7 +337,7 @@ cairo_status_t _cairo_pattern_init_snapshot(cairo_pattern_t * pattern, const cai
 	return status;
 }
 
-void _cairo_pattern_fini(cairo_pattern_t * pattern)
+void FASTCALL _cairo_pattern_fini(cairo_pattern_t * pattern)
 {
 	_cairo_user_data_array_fini(&pattern->user_data);
 	switch(pattern->type) {
@@ -1077,7 +1071,7 @@ void cairo_mesh_pattern_begin_patch(cairo_pattern_t * pattern)
 		return;
 	}
 
-	status = _cairo_array_allocate(&mesh->patches, 1, (void**)&current_patch);
+	status = _cairo_array_allocate(&mesh->patches, 1, (void **)&current_patch);
 	if(unlikely(status)) {
 		_cairo_pattern_set_error(pattern, status);
 		return;
@@ -3101,24 +3095,18 @@ cairo_filter_t _cairo_pattern_analyze_filter(const cairo_pattern_t * pattern)
 			 * BILINEAR can also be used if the scale is exactly .5
 			 * and the translation in that direction is an integer.
 			     */
-			    if(pattern->filter == CAIRO_FILTER_GOOD &&
-				use_bilinear(pattern->matrix.xx, pattern->matrix.xy,
-				pattern->matrix.x0) &&
-				use_bilinear(pattern->matrix.yx, pattern->matrix.yy,
-				pattern->matrix.y0))
+			    if(pattern->filter == CAIRO_FILTER_GOOD && use_bilinear(pattern->matrix.xx, pattern->matrix.xy,
+					pattern->matrix.x0) && use_bilinear(pattern->matrix.yx, pattern->matrix.yy, pattern->matrix.y0))
 				    return CAIRO_FILTER_BILINEAR;
 		    }
 		    break;
-
 		case CAIRO_FILTER_NEAREST:
 		case CAIRO_FILTER_GAUSSIAN:
 		default:
 		    break;
 	}
-
 	return pattern->filter;
 }
-
 /**
  * _cairo_hypot:
  * Returns: value similar to hypot(@x,@y)

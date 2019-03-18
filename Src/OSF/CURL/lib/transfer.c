@@ -164,12 +164,10 @@ CURLcode Curl_fillreadbuffer(struct connectdata * conn, int bytes, int * nreadp)
 		if(result)
 			return result;
 #endif /* CURL_DOES_CONVERSIONS */
-
 		if((nread - hexlen) == 0)
 			/* mark this as done once this chunk is transferred */
 			data->req.upload_done = TRUE;
-
-		nread += (int)sstrlen(endofline_native); /* for the added end of line */
+		nread += sstrleni(endofline_native); /* for the added end of line */
 	}
 #ifdef CURL_DOES_CONVERSIONS
 	else if((data->set.prefer_ascii) && (!sending_http_headers)) {

@@ -432,7 +432,7 @@ int archive_read_support_format_xar(struct archive * _a)
 	if(xar == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate xar data");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	r = __archive_read_register_format(a,
 		xar,
@@ -448,7 +448,7 @@ int archive_read_support_format_xar(struct archive * _a)
 		NULL);
 	if(r != ARCHIVE_OK)
 		SAlloc::F(xar);
-	return (r);
+	return r;
 }
 
 static int xar_bid(struct archive_read * a, int best_bid)
@@ -457,25 +457,25 @@ static int xar_bid(struct archive_read * a, int best_bid)
 	(void)best_bid; /* UNUSED */
 	const uchar * b = (const uchar *)__archive_read_ahead(a, HEADER_SIZE, NULL);
 	if(b == NULL)
-		return (-1);
+		return -1;
 	bid = 0;
 	/*
 	 * Verify magic code
 	 */
 	if(archive_be32dec(b) != HEADER_MAGIC)
-		return (0);
+		return 0;
 	bid += 32;
 	/*
 	 * Verify header size
 	 */
 	if(archive_be16dec(b+4) != HEADER_SIZE)
-		return (0);
+		return 0;
 	bid += 16;
 	/*
 	 * Verify header version
 	 */
 	if(archive_be16dec(b+6) != HEADER_VERSION)
-		return (0);
+		return 0;
 	bid += 16;
 	/*
 	 * Verify type of checksum
@@ -487,7 +487,7 @@ static int xar_bid(struct archive_read * a, int best_bid)
 		    bid += 32;
 		    break;
 		default:
-		    return (0);
+		    return 0;
 	}
 
 	return (bid);
@@ -516,21 +516,21 @@ static int read_toc(struct archive_read * a)
 		archive_set_error(&a->archive,
 		    ARCHIVE_ERRNO_FILE_FORMAT,
 		    "Truncated archive header");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	if(archive_be32dec(b) != HEADER_MAGIC) {
 		archive_set_error(&a->archive,
 		    ARCHIVE_ERRNO_FILE_FORMAT,
 		    "Invalid header magic");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	if(archive_be16dec(b+6) != HEADER_VERSION) {
 		archive_set_error(&a->archive,
 		    ARCHIVE_ERRNO_FILE_FORMAT,
 		    "Unsupported header version(%d)",
 		    archive_be16dec(b+6));
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	toc_compressed_size = archive_be64dec(b+8);
 	xar->toc_remaining = toc_compressed_size;
@@ -546,10 +546,10 @@ static int read_toc(struct archive_read * a)
 	/* Initialize reading contents. */
 	r = move_reading_point(a, HEADER_SIZE);
 	if(r != ARCHIVE_OK)
-		return (r);
+		return r;
 	r = rd_contents_init(a, GZIP, toc_chksum_alg, CKSUM_NONE);
 	if(r != ARCHIVE_OK)
-		return (r);
+		return r;
 
 #ifdef HAVE_LIBXML_XMLREADER_H
 	r = xml2_read_toc(a);
@@ -557,14 +557,14 @@ static int read_toc(struct archive_read * a)
 	r = expat_read_toc(a);
 #endif
 	if(r != ARCHIVE_OK)
-		return (r);
+		return r;
 
 	/* Set 'The HEAP' base. */
 	xar->h_base = xar->offset;
 	if(xar->toc_total != toc_uncompressed_size) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 		    "TOC uncompressed size error");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	/*
@@ -573,7 +573,7 @@ static int read_toc(struct archive_read * a)
 	if(toc_chksum_alg != CKSUM_NONE) {
 		r = move_reading_point(a, xar->toc_chksum_offset);
 		if(r != ARCHIVE_OK)
-			return (r);
+			return r;
 		b = (const uchar *)__archive_read_ahead(a, (size_t)xar->toc_chksum_size, &bytes);
 		if(bytes < 0)
 			return ((int)bytes);
@@ -581,14 +581,14 @@ static int read_toc(struct archive_read * a)
 			archive_set_error(&a->archive,
 			    ARCHIVE_ERRNO_FILE_FORMAT,
 			    "Truncated archive file");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		r = checksum_final(a, b,
 			(size_t)xar->toc_chksum_size, NULL, 0);
 		__archive_read_consume(a, xar->toc_chksum_size);
 		xar->offset += xar->toc_chksum_size;
 		if(r != ARCHIVE_OK)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 	}
 
 	/*
@@ -622,7 +622,7 @@ static int read_toc(struct archive_read * a)
 	a->archive.archive_format = ARCHIVE_FORMAT_XAR;
 	a->archive.archive_format_name = "xar";
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int xar_read_header(struct archive_read * a, struct archive_entry * entry)
@@ -641,13 +641,13 @@ static int xar_read_header(struct archive_read * a, struct archive_entry * entry
 			xar->sconv = archive_string_conversion_from_charset(
 				&(a->archive), "UTF-8", 1);
 			if(xar->sconv == NULL)
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 		}
 
 		/* Read TOC. */
 		r = read_toc(a);
 		if(r != ARCHIVE_OK)
-			return (r);
+			return r;
 	}
 
 	for(;;) {
@@ -682,7 +682,7 @@ static int xar_read_header(struct archive_read * a, struct archive_entry * entry
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't allocate memory for Gname");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		archive_set_error(&a->archive,
 		    ARCHIVE_ERRNO_FILE_FORMAT,
@@ -697,7 +697,7 @@ static int xar_read_header(struct archive_read * a, struct archive_entry * entry
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't allocate memory for Uname");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		archive_set_error(&a->archive,
 		    ARCHIVE_ERRNO_FILE_FORMAT,
@@ -711,7 +711,7 @@ static int xar_read_header(struct archive_read * a, struct archive_entry * entry
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't allocate memory for Pathname");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		archive_set_error(&a->archive,
 		    ARCHIVE_ERRNO_FILE_FORMAT,
@@ -726,7 +726,7 @@ static int xar_read_header(struct archive_read * a, struct archive_entry * entry
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't allocate memory for Linkname");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		archive_set_error(&a->archive,
 		    ARCHIVE_ERRNO_FILE_FORMAT,
@@ -795,7 +795,7 @@ static int xar_read_header(struct archive_read * a, struct archive_entry * entry
 	}
 	if(r != ARCHIVE_OK) {
 		file_free(file);
-		return (r);
+		return r;
 	}
 
 	if(xar->entry_remaining > 0)
@@ -806,7 +806,7 @@ static int xar_read_header(struct archive_read * a, struct archive_entry * entry
 		r = ARCHIVE_OK;
 
 	file_free(file);
-	return (r);
+	return r;
 }
 
 static int xar_read_data(struct archive_read * a,
@@ -833,7 +833,7 @@ static int xar_read_data(struct archive_read * a,
 			xar->entry_a_sum.alg, xar->entry_e_sum.alg);
 		if(r != ARCHIVE_OK) {
 			xar->entry_remaining = 0;
-			return (r);
+			return r;
 		}
 		xar->entry_init = 0;
 	}
@@ -864,12 +864,12 @@ static int xar_read_data(struct archive_read * a,
 			goto abort_read_data;
 	}
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 abort_read_data:
 	*buff = NULL;
 	*size = 0;
 	*offset = xar->total;
-	return (r);
+	return r;
 }
 
 static int xar_read_data_skip(struct archive_read * a)
@@ -883,10 +883,10 @@ static int xar_read_data_skip(struct archive_read * a)
 	bytes_skipped = __archive_read_consume(a, xar->entry_remaining +
 		xar->entry_unconsumed);
 	if(bytes_skipped < 0)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	xar->offset += bytes_skipped;
 	xar->entry_unconsumed = 0;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int xar_cleanup(struct archive_read * a)
@@ -920,7 +920,7 @@ static int xar_cleanup(struct archive_read * a)
 	SAlloc::F(xar->outbuff);
 	SAlloc::F(xar);
 	a->format->data = NULL;
-	return (r);
+	return r;
 }
 
 static int move_reading_point(struct archive_read * a, uint64_t offset)
@@ -945,12 +945,12 @@ static int move_reading_point(struct archive_read * a, uint64_t offset)
 				archive_set_error(&(a->archive),
 				    ARCHIVE_ERRNO_MISC,
 				    "Cannot seek.");
-				return (ARCHIVE_FAILED);
+				return ARCHIVE_FAILED;
 			}
 			xar->offset = pos;
 		}
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int rd_contents_init(struct archive_read * a, enum enctype encoding,
@@ -960,10 +960,10 @@ static int rd_contents_init(struct archive_read * a, enum enctype encoding,
 
 	/* Init decompress library. */
 	if((r = decompression_init(a, encoding)) != ARCHIVE_OK)
-		return (r);
+		return r;
 	/* Init checksum library. */
 	checksum_init(a, a_sum_alg, e_sum_alg);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int rd_contents(struct archive_read * a, const void ** buff, size_t * size, size_t * used, uint64_t remaining)
@@ -976,7 +976,7 @@ static int rd_contents(struct archive_read * a, const void ** buff, size_t * siz
 		return ((int)bytes);
 	if(bytes == 0) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Truncated archive file");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	if((uint64_t)bytes > remaining)
 		bytes = (ssize_t)remaining;
@@ -985,14 +985,14 @@ static int rd_contents(struct archive_read * a, const void ** buff, size_t * siz
 	 */
 	*used = bytes;
 	if(decompress(a, buff, size, b, used) != ARCHIVE_OK)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 
 	/*
 	 * Update checksum of a compressed data and a extracted data.
 	 */
 	checksum_update(a, b, *used, *buff, *size);
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -1007,7 +1007,7 @@ static uint64_t atol10(const char * p, size_t char_cnt)
 	int digit;
 
 	if(char_cnt == 0)
-		return (0);
+		return 0;
 
 	l = 0;
 	digit = *p - '0';
@@ -1024,7 +1024,7 @@ static int64_t atol8(const char * p, size_t char_cnt)
 	int digit;
 
 	if(char_cnt == 0)
-		return (0);
+		return 0;
 
 	l = 0;
 	while(char_cnt-- > 0) {
@@ -1053,7 +1053,7 @@ static size_t atohex(uchar * b, size_t bsize, const char * p, size_t psize)
 		else if(p[0] >= '0' && p[0] <= '9')
 			x = (p[0] - '0') << 4;
 		else
-			return (-1);
+			return -1;
 		if(p[1] >= 'a' && p[1] <= 'z')
 			x |= p[1] - 'a' + 0x0a;
 		else if(p[1] >= 'A' && p[1] <= 'Z')
@@ -1061,7 +1061,7 @@ static size_t atohex(uchar * b, size_t bsize, const char * p, size_t psize)
 		else if(p[1] >= '0' && p[1] <= '9')
 			x |= p[1] - '0';
 		else
-			return (-1);
+			return -1;
 
 		*b++ = x;
 		bsize--;
@@ -1169,14 +1169,14 @@ static int heap_add_entry(struct archive_read * a,
 		if(new_size <= heap->allocated) {
 			archive_set_error(&a->archive,
 			    ENOMEM, "Out of memory");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		new_pending_files = (struct xar_file **)
 		    SAlloc::M(new_size * sizeof(new_pending_files[0]));
 		if(new_pending_files == NULL) {
 			archive_set_error(&a->archive,
 			    ENOMEM, "Out of memory");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		memcpy(new_pending_files, heap->files,
 		    heap->allocated * sizeof(new_pending_files[0]));
@@ -1197,7 +1197,7 @@ static int heap_add_entry(struct archive_read * a,
 		parent_id = heap->files[parent]->id;
 		if(file_id >= parent_id) {
 			heap->files[hole] = file;
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 		}
 		/* Move parent into hole <==> move hole up tree. */
 		heap->files[hole] = heap->files[parent];
@@ -1205,7 +1205,7 @@ static int heap_add_entry(struct archive_read * a,
 	}
 	heap->files[0] = file;
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static struct xar_file * heap_get_entry(struct heap_queue * heap)                          {
@@ -1214,7 +1214,7 @@ static struct xar_file * heap_get_entry(struct heap_queue * heap)               
 	struct xar_file * r, * tmp;
 
 	if(heap->used < 1)
-		return (NULL);
+		return NULL;
 
 	/*
 	 * The first file in the list is the earliest; we'll return this.
@@ -1234,7 +1234,7 @@ static struct xar_file * heap_get_entry(struct heap_queue * heap)               
 	for(;;) {
 		b = a + a + 1; /* First child */
 		if(b >= heap->used)
-			return (r);
+			return r;
 		b_id = heap->files[b]->id;
 		c = b + 1; /* Use second child if it is smaller. */
 		if(c < heap->used) {
@@ -1245,7 +1245,7 @@ static struct xar_file * heap_get_entry(struct heap_queue * heap)               
 			}
 		}
 		if(a_id <= b_id)
-			return (r);
+			return r;
 		tmp = heap->files[a];
 		heap->files[a] = heap->files[b];
 		heap->files[b] = tmp;
@@ -1261,13 +1261,13 @@ static int add_link(struct archive_read * a, struct xar * xar, struct xar_file *
 			file->hdnext = hdlink->files;
 			hdlink->cnt++;
 			hdlink->files = file;
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 		}
 	}
 	hdlink = (struct hdlink *)SAlloc::M(sizeof(*hdlink));
 	if(hdlink == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	file->hdnext = NULL;
 	hdlink->id = file->link;
@@ -1275,7 +1275,7 @@ static int add_link(struct archive_read * a, struct xar * xar, struct xar_file *
 	hdlink->files = file;
 	hdlink->next = xar->hdlink_list;
 	xar->hdlink_list = hdlink;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static void _checksum_init(struct chksumwork * sumwrk, int sum_alg)
@@ -1328,7 +1328,7 @@ static int _checksum_final(struct chksumwork * sumwrk, const void * val, size_t 
 			    r = ARCHIVE_FAILED;
 		    break;
 	}
-	return (r);
+	return r;
 }
 
 static void checksum_init(struct archive_read * a, int a_sum_alg, int e_sum_alg)
@@ -1363,7 +1363,7 @@ static int checksum_final(struct archive_read * a, const void * a_sum_val,
 	if(r != ARCHIVE_OK)
 		archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC,
 		    "Sumcheck error");
-	return (r);
+	return r;
 }
 
 static int decompression_init(struct archive_read * a, enum enctype encoding)
@@ -1385,7 +1385,7 @@ static int decompression_init(struct archive_read * a, enum enctype encoding)
 		    if(r != Z_OK) {
 			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 				"Couldn't initialize zlib stream.");
-			    return (ARCHIVE_FATAL);
+			    return ARCHIVE_FATAL;
 		    }
 		    xar->stream_valid = 1;
 		    xar->stream.total_in = 0;
@@ -1419,7 +1419,7 @@ static int decompression_init(struct archive_read * a, enum enctype encoding)
 				"Internal error initializing decompressor: %s",
 				detail == NULL ? "??" : detail);
 			    xar->bzstream_valid = 0;
-			    return (ARCHIVE_FATAL);
+			    return ARCHIVE_FATAL;
 		    }
 		    xar->bzstream_valid = 1;
 		    xar->bzstream.total_in_lo32 = 0;
@@ -1472,7 +1472,7 @@ static int decompression_init(struct archive_read * a, enum enctype encoding)
 					    "lzma library");
 					break;
 			    }
-			    return (ARCHIVE_FATAL);
+			    return ARCHIVE_FATAL;
 		    }
 		    xar->lzstream_valid = 1;
 		    xar->lzstream.total_in = 0;
@@ -1499,9 +1499,9 @@ static int decompression_init(struct archive_read * a, enum enctype encoding)
 		    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 			"%s compression not supported on this platform",
 			detail);
-		    return (ARCHIVE_FAILED);
+		    return ARCHIVE_FAILED;
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int decompress(struct archive_read * a, const void ** buff, size_t * outbytes,
@@ -1521,7 +1521,7 @@ static int decompress(struct archive_read * a, const void ** buff, size_t * outb
 			if(xar->outbuff == NULL) {
 				archive_set_error(&a->archive, ENOMEM,
 				    "Couldn't allocate memory for out buffer");
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 		}
 		outbuff = xar->outbuff;
@@ -1544,7 +1544,7 @@ static int decompress(struct archive_read * a, const void ** buff, size_t * outb
 			    default:
 				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 				    "File decompression failed (%d)", r);
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 		    }
 		    *used = avail_in - xar->stream.avail_in;
 		    *outbytes = avail_out - xar->stream.avail_out;
@@ -1565,7 +1565,7 @@ static int decompress(struct archive_read * a, const void ** buff, size_t * outb
 					    archive_set_error(&(a->archive),
 						ARCHIVE_ERRNO_MISC,
 						"Failed to clean up decompressor");
-					    return (ARCHIVE_FATAL);
+					    return ARCHIVE_FATAL;
 				}
 				xar->bzstream_valid = 0;
 			    /* FALLTHROUGH */
@@ -1575,7 +1575,7 @@ static int decompress(struct archive_read * a, const void ** buff, size_t * outb
 				archive_set_error(&(a->archive),
 				    ARCHIVE_ERRNO_MISC,
 				    "bzip decompression failed");
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 		    }
 		    *used = avail_in - xar->bzstream.avail_in;
 		    *outbytes = avail_out - xar->bzstream.avail_out;
@@ -1602,7 +1602,7 @@ static int decompress(struct archive_read * a, const void ** buff, size_t * outb
 				    "%s decompression failed(%d)",
 				    (xar->entry_encoding == XZ) ? "xz" : "lzma",
 				    r);
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 		    }
 		    *used = avail_in - xar->lzstream.avail_in;
 		    *outbytes = avail_out - xar->lzstream.avail_out;
@@ -1631,7 +1631,7 @@ static int decompress(struct archive_read * a, const void ** buff, size_t * outb
 		    }
 		    break;
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int decompression_cleanup(struct archive_read * a)
@@ -1672,7 +1672,7 @@ static int decompression_cleanup(struct archive_read * a)
 		}
 	}
 #endif
-	return (r);
+	return r;
 }
 
 static void checksum_cleanup(struct archive_read * a) {
@@ -1706,7 +1706,7 @@ static int file_new(struct archive_read * a, struct xar * xar, struct xmlattr_li
 	struct xar_file * file = (struct xar_file *)SAlloc::C(1, sizeof(*file));
 	if(file == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	file->parent = xar->file;
 	file->mode = 0777 | AE_IFREG;
@@ -1720,8 +1720,8 @@ static int file_new(struct archive_read * a, struct xar * xar, struct xmlattr_li
 	}
 	file->nlink = 1;
 	if(heap_add_entry(a, &(xar->file_queue), file) != ARCHIVE_OK)
-		return (ARCHIVE_FATAL);
-	return (ARCHIVE_OK);
+		return ARCHIVE_FATAL;
+	return ARCHIVE_OK;
 }
 
 static void file_free(struct xar_file * file)
@@ -1752,7 +1752,7 @@ static int xattr_new(struct archive_read * a, struct xar * xar, struct xmlattr_l
 	struct xattr * xattr = (struct xattr *)SAlloc::C(1, sizeof(*xattr));
 	if(xattr == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	xar->xattr = xattr;
 	for(attr = list->first; attr != NULL; attr = attr->next) {
@@ -1768,7 +1768,7 @@ static int xattr_new(struct archive_read * a, struct xar * xar, struct xmlattr_l
 	xattr->next = *nx;
 	*nx = xattr;
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static void xattr_free(struct xattr * xattr)
@@ -1826,7 +1826,7 @@ static int unknowntag_start(struct archive_read * a, struct xar * xar, const cha
 	struct unknown_tag * tag = (struct unknown_tag *)SAlloc::M(sizeof(*tag));
 	if(tag == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	tag->next = xar->unknowntags;
 	archive_string_init(&(tag->name));
@@ -1839,7 +1839,7 @@ static int unknowntag_start(struct archive_read * a, struct xar * xar, const cha
 		xar->xmlsts = UNKNOWN;
 	}
 	xar->unknowntags = tag;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static void unknowntag_end(struct xar * xar, const char * name)
@@ -1881,13 +1881,13 @@ static int xml_start(struct archive_read * a, const char * name, struct xmlattr_
 		    if(strcmp(name, "xar") == 0)
 			    xar->xmlsts = XAR;
 		    else if(unknowntag_start(a, xar, name) != ARCHIVE_OK)
-			    return (ARCHIVE_FATAL);
+			    return ARCHIVE_FATAL;
 		    break;
 		case XAR:
 		    if(strcmp(name, "toc") == 0)
 			    xar->xmlsts = TOC;
 		    else if(unknowntag_start(a, xar, name) != ARCHIVE_OK)
-			    return (ARCHIVE_FATAL);
+			    return ARCHIVE_FATAL;
 		    break;
 		case TOC:
 		    if(strcmp(name, "creation-time") == 0)
@@ -1896,11 +1896,11 @@ static int xml_start(struct archive_read * a, const char * name, struct xmlattr_
 			    xar->xmlsts = TOC_CHECKSUM;
 		    else if(strcmp(name, "file") == 0) {
 			    if(file_new(a, xar, list) != ARCHIVE_OK)
-				    return (ARCHIVE_FATAL);
+				    return ARCHIVE_FATAL;
 			    xar->xmlsts = TOC_FILE;
 		    }
 		    else if(unknowntag_start(a, xar, name) != ARCHIVE_OK)
-			    return (ARCHIVE_FATAL);
+			    return ARCHIVE_FATAL;
 		    break;
 		case TOC_CHECKSUM:
 		    if(strcmp(name, "offset") == 0)
@@ -1908,18 +1908,18 @@ static int xml_start(struct archive_read * a, const char * name, struct xmlattr_
 		    else if(strcmp(name, "size") == 0)
 			    xar->xmlsts = TOC_CHECKSUM_SIZE;
 		    else if(unknowntag_start(a, xar, name) != ARCHIVE_OK)
-			    return (ARCHIVE_FATAL);
+			    return ARCHIVE_FATAL;
 		    break;
 		case TOC_FILE:
 		    if(strcmp(name, "file") == 0) {
 			    if(file_new(a, xar, list) != ARCHIVE_OK)
-				    return (ARCHIVE_FATAL);
+				    return ARCHIVE_FATAL;
 		    }
 		    else if(strcmp(name, "data") == 0)
 			    xar->xmlsts = FILE_DATA;
 		    else if(strcmp(name, "ea") == 0) {
 			    if(xattr_new(a, xar, list) != ARCHIVE_OK)
-				    return (ARCHIVE_FATAL);
+				    return ARCHIVE_FATAL;
 			    xar->xmlsts = FILE_EA;
 		    }
 		    else if(strcmp(name, "ctime") == 0)
@@ -1961,7 +1961,7 @@ static int xml_start(struct archive_read * a, const char * name, struct xmlattr_
 						    strlen(attr->value));
 					    if(xar->file->link > 0)
 						    if(add_link(a, xar, xar->file) != ARCHIVE_OK) {
-							    return (ARCHIVE_FATAL);
+							    return ARCHIVE_FATAL;
 						    }
 					    ;
 				    }
@@ -1983,7 +1983,7 @@ static int xml_start(struct archive_read * a, const char * name, struct xmlattr_
 		    else if(strcmp(name, "ext2") == 0)
 			    xar->xmlsts = FILE_EXT2;
 		    else if(unknowntag_start(a, xar, name) != ARCHIVE_OK)
-			    return (ARCHIVE_FATAL);
+			    return ARCHIVE_FATAL;
 		    break;
 		case FILE_DATA:
 		    if(strcmp(name, "length") == 0)
@@ -2007,7 +2007,7 @@ static int xml_start(struct archive_read * a, const char * name, struct xmlattr_
 		    else if(strcmp(name, "content") == 0)
 			    xar->xmlsts = FILE_DATA_CONTENT;
 		    else if(unknowntag_start(a, xar, name) != ARCHIVE_OK)
-			    return (ARCHIVE_FATAL);
+			    return ARCHIVE_FATAL;
 		    break;
 		case FILE_DEVICE:
 		    if(strcmp(name, "major") == 0)
@@ -2015,11 +2015,11 @@ static int xml_start(struct archive_read * a, const char * name, struct xmlattr_
 		    else if(strcmp(name, "minor") == 0)
 			    xar->xmlsts = FILE_DEVICE_MINOR;
 		    else if(unknowntag_start(a, xar, name) != ARCHIVE_OK)
-			    return (ARCHIVE_FATAL);
+			    return ARCHIVE_FATAL;
 		    break;
 		case FILE_DATA_CONTENT:
 		    if(unknowntag_start(a, xar, name) != ARCHIVE_OK)
-			    return (ARCHIVE_FATAL);
+			    return ARCHIVE_FATAL;
 		    break;
 		case FILE_EA:
 		    if(strcmp(name, "length") == 0)
@@ -2041,7 +2041,7 @@ static int xml_start(struct archive_read * a, const char * name, struct xmlattr_
 		    else if(strcmp(name, "fstype") == 0)
 			    xar->xmlsts = FILE_EA_FSTYPE;
 		    else if(unknowntag_start(a, xar, name) != ARCHIVE_OK)
-			    return (ARCHIVE_FATAL);
+			    return ARCHIVE_FATAL;
 		    break;
 		case FILE_ACL:
 		    if(strcmp(name, "appleextended") == 0)
@@ -2051,17 +2051,17 @@ static int xml_start(struct archive_read * a, const char * name, struct xmlattr_
 		    else if(strcmp(name, "access") == 0)
 			    xar->xmlsts = FILE_ACL_ACCESS;
 		    else if(unknowntag_start(a, xar, name) != ARCHIVE_OK)
-			    return (ARCHIVE_FATAL);
+			    return ARCHIVE_FATAL;
 		    break;
 		case FILE_FLAGS:
 		    if(!xml_parse_file_flags(xar, name))
 			    if(unknowntag_start(a, xar, name) != ARCHIVE_OK)
-				    return (ARCHIVE_FATAL);
+				    return ARCHIVE_FATAL;
 		    break;
 		case FILE_EXT2:
 		    if(!xml_parse_file_ext2(xar, name))
 			    if(unknowntag_start(a, xar, name) != ARCHIVE_OK)
-				    return (ARCHIVE_FATAL);
+				    return ARCHIVE_FATAL;
 		    break;
 		case TOC_CREATION_TIME:
 		case TOC_CHECKSUM_OFFSET:
@@ -2130,10 +2130,10 @@ static int xml_start(struct archive_read * a, const char * name, struct xmlattr_
 		case FILE_EXT2_Reserved:
 		case UNKNOWN:
 		    if(unknowntag_start(a, xar, name) != ARCHIVE_OK)
-			    return (ARCHIVE_FATAL);
+			    return ARCHIVE_FATAL;
 		    break;
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static void xml_end(void * userData, const char * name)
@@ -2544,13 +2544,13 @@ static void strappend_base64(struct xar * xar,
 			--l;
 		}
 		if(len+3 >= sizeof(buff)) {
-			archive_strncat(as, (const char*)buff, len);
+			archive_strncat(as, (const char *)buff, len);
 			len = 0;
 			out = buff;
 		}
 	}
 	if(len > 0)
-		archive_strncat(as, (const char*)buff, len);
+		archive_strncat(as, (const char *)buff, len);
 }
 
 static int is_string(const char * known, const char * data, size_t len)
@@ -2843,7 +2843,7 @@ static int xml_parse_file_flags(struct xar * xar, const char * name)
 	}
 
 	if(flag == NULL)
-		return (0);
+		return 0;
 	xar->file->has |= HAS_FFLAGS;
 	if(archive_strlen(&(xar->file->fflags_text)) > 0)
 		archive_strappend_char(&(xar->file->fflags_text), ',');
@@ -2940,7 +2940,7 @@ static int xml_parse_file_ext2(struct xar * xar, const char * name)
 	}
 
 	if(flag == NULL)
-		return (0);
+		return 0;
 	if(archive_strlen(&(xar->file->fflags_text)) > 0)
 		archive_strappend_char(&(xar->file->fflags_text), ',');
 	archive_strcat(&(xar->file->fflags_text), flag);
@@ -2960,29 +2960,29 @@ static int xml2_xmlattr_setup(struct archive_read * a, struct xmlattr_list * lis
 		attr = (struct xmlattr *)SAlloc::M(sizeof *(attr));
 		if(attr == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "Out of memory");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		attr->name = strdup(
-			(const char*)xmlTextReaderConstLocalName(reader));
+			(const char *)xmlTextReaderConstLocalName(reader));
 		if(attr->name == NULL) {
 			SAlloc::F(attr);
 			archive_set_error(&a->archive, ENOMEM, "Out of memory");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		attr->value = strdup(
-			(const char*)xmlTextReaderConstValue(reader));
+			(const char *)xmlTextReaderConstValue(reader));
 		if(attr->value == NULL) {
 			SAlloc::F(attr->name);
 			SAlloc::F(attr);
 			archive_set_error(&a->archive, ENOMEM, "Out of memory");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		attr->next = NULL;
 		*list->last = attr;
 		list->last = &(attr->next);
 		r = xmlTextReaderMoveToNextAttribute(reader);
 	}
-	return (r);
+	return r;
 }
 
 static int xml2_read_cb(void * context, char * buffer, int len)
@@ -2998,12 +2998,12 @@ static int xml2_read_cb(void * context, char * buffer, int len)
 	xar = (struct xar *)(a->format->data);
 
 	if(xar->toc_remaining <= 0)
-		return (0);
+		return 0;
 	d = buffer;
 	outbytes = len;
 	r = rd_contents(a, &d, &outbytes, &used, xar->toc_remaining);
 	if(r != ARCHIVE_OK)
-		return (r);
+		return r;
 	__archive_read_consume(a, used);
 	xar->toc_remaining -= used;
 	xar->offset += used;
@@ -3016,7 +3016,7 @@ static int xml2_read_cb(void * context, char * buffer, int len)
 static int xml2_close_cb(void * context)
 {
 	(void)context; /* UNUSED */
-	return (0);
+	return 0;
 }
 
 static void xml2_error_hdr(void * arg, const char * msg, xmlParserSeverities severity,
@@ -3047,14 +3047,14 @@ static int xml2_read_toc(struct archive_read * a)
 	xmlTextReader * reader = xmlReaderForIO(xml2_read_cb, xml2_close_cb, a, NULL, NULL, 0);
 	if(reader == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Couldn't allocate memory for xml parser");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	xmlTextReaderSetErrorHandler(reader, xml2_error_hdr, a);
 	while((r = xmlTextReaderRead(reader)) == 1) {
 		const char * value;
 		int empty;
 		int type = xmlTextReaderNodeType(reader);
-		const char * name = (const char*)xmlTextReaderConstLocalName(reader);
+		const char * name = (const char *)xmlTextReaderConstLocalName(reader);
 		switch(type) {
 			case XML_READER_TYPE_ELEMENT:
 			    empty = xmlTextReaderIsEmptyElement(reader);
@@ -3063,7 +3063,7 @@ static int xml2_read_toc(struct archive_read * a)
 				    r = xml_start(a, name, &list);
 			    xmlattr_cleanup(&list);
 			    if(r != ARCHIVE_OK)
-				    return (r);
+				    return r;
 			    if(empty)
 				    xml_end(a, name);
 			    break;
@@ -3071,7 +3071,7 @@ static int xml2_read_toc(struct archive_read * a)
 			    xml_end(a, name);
 			    break;
 			case XML_READER_TYPE_TEXT:
-			    value = (const char*)xmlTextReaderConstValue(reader);
+			    value = (const char *)xmlTextReaderConstValue(reader);
 			    xml_data(a, value, strlen(value));
 			    break;
 			case XML_READER_TYPE_SIGNIFICANT_WHITESPACE:
@@ -3098,7 +3098,7 @@ static int expat_xmlattr_setup(struct archive_read * a,
 	list->first = NULL;
 	list->last = &(list->first);
 	if(atts == NULL)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	while(atts[0] != NULL && atts[1] != NULL) {
 		attr = SAlloc::M(sizeof *(attr));
 		name = strdup(atts[0]);
@@ -3108,7 +3108,7 @@ static int expat_xmlattr_setup(struct archive_read * a,
 			SAlloc::F(attr);
 			SAlloc::F(name);
 			SAlloc::F(value);
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		attr->name = name;
 		attr->value = value;
@@ -3117,7 +3117,7 @@ static int expat_xmlattr_setup(struct archive_read * a,
 		list->last = &(attr->next);
 		atts += 2;
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static void expat_start_cb(void * userData, const XML_Char * name, const XML_Char ** atts)
@@ -3129,7 +3129,7 @@ static void expat_start_cb(void * userData, const XML_Char * name, const XML_Cha
 
 	r = expat_xmlattr_setup(a, &list, atts);
 	if(r == ARCHIVE_OK)
-		r = xml_start(a, (const char*)name, &list);
+		r = xml_start(a, (const char *)name, &list);
 	xmlattr_cleanup(&list);
 	ud->state = r;
 }
@@ -3138,7 +3138,7 @@ static void expat_end_cb(void * userData, const XML_Char * name)
 {
 	struct expat_userData * ud = (struct expat_userData *)userData;
 
-	xml_end(ud->archive, (const char*)name);
+	xml_end(ud->archive, (const char *)name);
 }
 
 static void expat_data_cb(void * userData, const XML_Char * s, int len)
@@ -3164,7 +3164,7 @@ static int expat_read_toc(struct archive_read * a)
 	if(parser == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Couldn't allocate memory for xml parser");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	XML_SetUserData(parser, &ud);
 	XML_SetElementHandler(parser, expat_start_cb, expat_end_cb);
@@ -3181,7 +3181,7 @@ static int expat_read_toc(struct archive_read * a)
 		d = NULL;
 		r = rd_contents(a, &d, &outbytes, &used, xar->toc_remaining);
 		if(r != ARCHIVE_OK)
-			return (r);
+			return r;
 		xar->toc_remaining -= used;
 		xar->offset += used;
 		xar->toc_total += outbytes;
@@ -3193,7 +3193,7 @@ static int expat_read_toc(struct archive_read * a)
 			XML_ParserFree(parser);
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 			    "XML Parsing failed");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 	}
 	XML_ParserFree(parser);

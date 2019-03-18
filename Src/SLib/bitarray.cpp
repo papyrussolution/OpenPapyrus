@@ -1,5 +1,5 @@
 // BITARRAY.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2004, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2000, 2001, 2004, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -9,7 +9,7 @@
 SLAPI BitArray::BitArray() : Count(0) 
 {
 	Size = 64;
-	P_Buf = (char *)SAlloc::M(Size);
+	P_Buf = static_cast<char *>(SAlloc::M(Size));
 	resetbitstring(P_Buf, Size);
 }
 
@@ -33,7 +33,7 @@ BitArray & FASTCALL BitArray::operator = (const BitArray & s)
 int FASTCALL BitArray::Copy(const BitArray & s)
 {
 	size_t new_size = s.Size;
-	P_Buf = (char *)SAlloc::R(P_Buf, new_size);
+	P_Buf = static_cast<char *>(SAlloc::R(P_Buf, new_size));
 	if(P_Buf) {
 		Size = new_size;
 		memcpy(P_Buf, s.P_Buf, Size);
@@ -50,7 +50,7 @@ int SLAPI BitArray::Init(const void * pBits, size_t count)
 	if(count && pBits) {
 		size_t new_size = ((count + 31) / 32) * 4;
 		if(Size < new_size) {
-			P_Buf = (char *)SAlloc::R(P_Buf, new_size);
+			P_Buf = static_cast<char *>(SAlloc::R(P_Buf, new_size));
 			Size = new_size;
 			resetbitstring(P_Buf, Size);
 		}

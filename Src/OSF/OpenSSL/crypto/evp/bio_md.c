@@ -71,7 +71,7 @@ static int md_read(BIO * b, char * out, int outl)
 			if(BIO_get_init(b)) {
 				if(ret > 0) {
 					if(EVP_DigestUpdate(ctx, reinterpret_cast<uchar *>(out), (uint)ret) <= 0)
-						return (-1);
+						return -1;
 				}
 			}
 			BIO_clear_retry_flags(b);

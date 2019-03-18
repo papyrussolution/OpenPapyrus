@@ -391,9 +391,9 @@ int SLAPI DBBackup::CheckCopy(BCopyData * pData, const CopyParams & rCP, BackupL
 	}
 	// check total size criteria
 	if(!use_compression) {
-		long double diff = (long double)(rCP.TotalSize - cp.TotalSize) * 100;
+		double diff = (double)(rCP.TotalSize - cp.TotalSize) * 100;
 		diff = (diff < 0) ? -diff : diff;
-		THROW_V(cp.TotalSize && (diff / (long double)cp.TotalSize) <= 30, SDBERR_BU_COPYINVALID);
+		THROW_V(cp.TotalSize && (diff / (double)cp.TotalSize) <= 30, SDBERR_BU_COPYINVALID);
 	}
 	// check files count criteria
 	{
@@ -735,7 +735,7 @@ int SLAPI DBBackup::RemoveCopy(BCopyData * pData, BackupLogFunc fnLog, long init
 	SString src_file_name;
 	THROW_V(P_Db, SDBERR_BU_DICTNOPEN);
 	GetCopyParams(pData, &cp);
-	// @v9.6.4 for(i = 0; ok > 0 && cp.FileList.enumItems(&i, (void**)&p_src_file);) {
+	// @v9.6.4 for(i = 0; ok > 0 && cp.FileList.enumItems(&i, (void **)&p_src_file);) {
 	for(uint ssp = 0; cp.SsFiles.get(&ssp, src_file_name);) {
 		SFile::Remove(src_file_name);
 		if(pData->DestSize != pData->SrcSize) {
@@ -764,7 +764,7 @@ int SLAPI DBBackup::MakeCopyPath(BCopyData * data, SString & rDestPath)
 	if(ok) {
 		ulong  set_sum = 0;
 		for(int n = 0; n < sizeof(data->Set) && data->Set[n] != 0; n++)
-			set_sum += (ulong)data->Set[n];
+			set_sum += static_cast<ulong>(data->Set[n]);
 		set_sum %= 10000L;
 		do {
 			subdir.Z().CatLongZ((long)set_sum, 4).CatLongZ(count++, 4);
@@ -784,7 +784,7 @@ int SLAPI DBBackup::MakeCopyPath(BCopyData * data, SString & rDestPath)
 //static
 int DBBackup::CopyProgressProc(const SDataMoveProgressInfo * scfd)
 {
-	DBBackup * dbb = (DBBackup *)scfd->ExtraPtr;
+	DBBackup * dbb = static_cast<DBBackup *>(scfd->ExtraPtr);
 	return dbb->CBP_CopyProcess(scfd->P_Src, scfd->P_Dest, dbb->TotalCopySize, scfd->SizeTotal, dbb->TotalCopyReady + scfd->SizeDone, scfd->SizeDone);
 }
 

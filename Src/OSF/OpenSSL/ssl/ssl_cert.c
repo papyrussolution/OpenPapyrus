@@ -908,8 +908,7 @@ int ssl_cert_set_cert_store(CERT * c, X509_STORE * store, int chain, int ref)
 	return 1;
 }
 
-static int ssl_security_default_callback(const SSL * s, const SSL_CTX * ctx,
-    int op, int bits, int nid, void * other, void * ex)
+static int ssl_security_default_callback(const SSL * s, const SSL_CTX * ctx, int op, int bits, int nid, void * other, void * ex)
 {
 	int minbits;
 	static const int minbits_table[5] = { 80, 112, 128, 192, 256 };
