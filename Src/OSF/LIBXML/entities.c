@@ -434,7 +434,7 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDoc * doc, const xmlChar * input, 
 	// allocate an translation buffer.
 	// 
 	buffer_size = 1000;
-	buffer = (xmlChar *)SAlloc::M(buffer_size * sizeof(xmlChar));
+	buffer = static_cast<xmlChar *>(SAlloc::M(buffer_size * sizeof(xmlChar)));
 	if(!buffer) {
 		xmlEntitiesErrMemory("xmlEncodeEntities: malloc failed");
 		return 0;
@@ -657,7 +657,7 @@ xmlChar * xmlEncodeSpecialChars(const xmlDoc * doc ATTRIBUTE_UNUSED, const xmlCh
 	 * allocate an translation buffer.
 	 */
 	buffer_size = 1000;
-	buffer = (xmlChar *)SAlloc::M(buffer_size * sizeof(xmlChar));
+	buffer = static_cast<xmlChar *>(SAlloc::M(buffer_size * sizeof(xmlChar)));
 	if(!buffer) {
 		xmlEntitiesErrMemory("xmlEncodeSpecialChars: malloc failed");
 		return 0;

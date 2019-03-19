@@ -2068,13 +2068,9 @@ void xmlElemDump(FILE * f, xmlDoc * doc, xmlNode * cur)
 		}
 	}
 }
-
-/************************************************************************
-*									*
-*		Saving functions front-ends				*
-*									*
-************************************************************************/
-
+//
+// Saving functions front-ends
+//
 /**
  * xmlNodeDumpOutput:
  * @buf:  the XML buffer output
@@ -2103,12 +2099,12 @@ void xmlNodeDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNodePtr cur, int 
 		ctxt.buf = buf;
 		ctxt.level = level;
 		ctxt.format = BIN(format);
-		ctxt.encoding = (const xmlChar *)encoding;
+		ctxt.encoding = reinterpret_cast<const xmlChar *>(encoding);
 		xmlSaveCtxtInit(&ctxt);
 		ctxt.options |= XML_SAVE_AS_XML;
 #ifdef LIBXML_HTML_ENABLED
 		dtd = xmlGetIntSubset(doc);
-		if(dtd != NULL) {
+		if(dtd) {
 			is_xhtml = xmlIsXHTML(dtd->SystemID, dtd->ExternalID);
 			if(is_xhtml < 0)
 				is_xhtml = 0;
@@ -2153,7 +2149,7 @@ void xmlDocDumpFormatMemoryEnc(xmlDocPtr out_doc, xmlChar ** doc_txt_ptr, int * 
 			*  Validate the encoding value, if provided.
 			*  This logic is copied from xmlSaveFileEnc.
 			*/
-			SETIFZ(txt_encoding, (const char *)out_doc->encoding);
+			SETIFZ(txt_encoding, reinterpret_cast<const char *>(out_doc->encoding));
 			if(txt_encoding != NULL) {
 				conv_hdlr = xmlFindCharEncodingHandler(txt_encoding);
 				if(conv_hdlr == NULL) {
@@ -2170,7 +2166,7 @@ void xmlDocDumpFormatMemoryEnc(xmlDocPtr out_doc, xmlChar ** doc_txt_ptr, int * 
 				ctxt.buf = out_buff;
 				ctxt.level = 0;
 				ctxt.format = format ? 1 : 0;
-				ctxt.encoding = (const xmlChar *)txt_encoding;
+				ctxt.encoding = reinterpret_cast<const xmlChar *>(txt_encoding);
 				xmlSaveCtxtInit(&ctxt);
 				ctxt.options |= XML_SAVE_AS_XML;
 				xmlDocContentDumpOutput(&ctxt, out_doc);
@@ -2264,7 +2260,7 @@ int xmlDocFormatDump(FILE * f, xmlDoc * cur, int format)
 #endif
 		return -1;
 	}
-	encoding = (const char *)cur->encoding;
+	encoding = reinterpret_cast<const char *>(cur->encoding);
 	if(encoding) {
 		handler = xmlFindCharEncodingHandler(encoding);
 		if(handler == NULL) {
@@ -2281,7 +2277,7 @@ int xmlDocFormatDump(FILE * f, xmlDoc * cur, int format)
 	ctxt.buf = buf;
 	ctxt.level = 0;
 	ctxt.format = format ? 1 : 0;
-	ctxt.encoding = (const xmlChar *)encoding;
+	ctxt.encoding = reinterpret_cast<const xmlChar *>(encoding);
 	xmlSaveCtxtInit(&ctxt);
 	ctxt.options |= XML_SAVE_AS_XML;
 	xmlDocContentDumpOutput(&ctxt, cur);
@@ -2326,7 +2322,7 @@ int xmlSaveFileTo(xmlOutputBuffer * buf, xmlDoc * cur, const char * encoding)
 			ctxt.buf = buf;
 			ctxt.level = 0;
 			ctxt.format = 0;
-			ctxt.encoding = (const xmlChar *)encoding;
+			ctxt.encoding = reinterpret_cast<const xmlChar *>(encoding);
 			xmlSaveCtxtInit(&ctxt);
 			ctxt.options |= XML_SAVE_AS_XML;
 			xmlDocContentDumpOutput(&ctxt, cur);
@@ -2362,7 +2358,7 @@ int xmlSaveFormatFileTo(xmlOutputBuffer * buf, xmlDoc * cur, const char * encodi
 			ctxt.buf = buf;
 			ctxt.level = 0;
 			ctxt.format = BIN(format);
-			ctxt.encoding = (const xmlChar *)encoding;
+			ctxt.encoding = reinterpret_cast<const xmlChar *>(encoding);
 			xmlSaveCtxtInit(&ctxt);
 			ctxt.options |= XML_SAVE_AS_XML;
 			xmlDocContentDumpOutput(&ctxt, cur);
@@ -2408,7 +2404,7 @@ int xmlSaveFormatFileEnc(const char * filename, xmlDoc * cur, const char * encod
 			ctxt.buf = buf;
 			ctxt.level = 0;
 			ctxt.format = BIN(format);
-			ctxt.encoding = (const xmlChar *)encoding;
+			ctxt.encoding = reinterpret_cast<const xmlChar *>(encoding);
 			xmlSaveCtxtInit(&ctxt);
 			ctxt.options |= XML_SAVE_AS_XML;
 			xmlDocContentDumpOutput(&ctxt, cur);

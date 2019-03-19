@@ -2897,10 +2897,12 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										}
 										// @v10.3.3 {
 										else if(doc_type == PPEDIOP_EGAIS_ACTWRITEOFF_V3) {
-											SXml::WNode n_infab(_doc, SXml::nst("awr", "InformF1F2"));
-											{
-												SXml::WNode w_refb(_doc, SXml::nst("awr", "InformF2"));
-												w_refb.PutInner(SXml::nst("pref", "F2RegId"), EncText(temp_buf));
+											{ // @v10.3.9 (марки следуют за зоной InformF1F2
+												SXml::WNode n_infab(_doc, SXml::nst("awr", "InformF1F2"));
+												{
+													SXml::WNode w_refb(_doc, SXml::nst("awr", "InformF2"));
+													w_refb.PutInner(SXml::nst("pref", "F2RegId"), EncText(temp_buf));
+												}
 											}
 											if(p_bp->XcL.Get(tidx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount()) {
 												// В этом документе марки передаются без информации о боксах

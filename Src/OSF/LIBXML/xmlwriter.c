@@ -3519,7 +3519,7 @@ static xmlChar * xmlTextWriterVSprintf(const char * format, va_list argptr)
 {
 	const char * _p_func_name = "xmlTextWriterVSprintf";
 	int size = BUFSIZ;
-	xmlChar * buf = (xmlChar *)SAlloc::M(size);
+	xmlChar * buf = static_cast<xmlChar *>(SAlloc::M(size));
 	if(!buf) {
 		xmlWriterErrMsg(NULL, XML_ERR_NO_MEMORY, _p_func_name, "out of memory!");
 	}
@@ -3531,7 +3531,7 @@ static xmlChar * xmlTextWriterVSprintf(const char * format, va_list argptr)
 			va_end(locarg);
 			SAlloc::F(buf);
 			size += BUFSIZ;
-			buf = (xmlChar *)SAlloc::M(size);
+			buf = static_cast<xmlChar *>(SAlloc::M(size));
 			if(!buf) {
 				xmlWriterErrMsg(NULL, XML_ERR_NO_MEMORY, _p_func_name, "out of memory!");
 				return NULL;

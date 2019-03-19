@@ -1,5 +1,5 @@
 // MACADDR.CPP
-// Copyright (c) A.Sobolev 2005, 2008, 2010, 2011, 2014, 2016
+// Copyright (c) A.Sobolev 2005, 2008, 2010, 2011, 2014, 2016, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -151,17 +151,17 @@ int GetIPAddrList(int Level, LPNETRESOURCE lpNet, InetAddrArray * pAddrs)
     if(status == NO_ERROR) {
         count = 1000;
         size = sizeof(NETRESOURCE) * count;
-        p_res = (LPNETRESOURCE)new char[size];
+        p_res = static_cast<LPNETRESOURCE>(SAlloc::M(size));
         if(p_res) {
-            status = WNetEnumResource(handle, &count, (LPVOID)p_res, &size);
+            status = WNetEnumResource(handle, &count, p_res, &size);
             if(status == NO_ERROR) {
                 WNetCloseEnum(handle);
                 handle = NULL;
                 for(i = 0; i < count; i++) {
-                    if(Level == RES_HOST && *strip(p_res[i].lpRemoteName)) { // @unicodeproblem
+                    if(Level == RES_HOST && !isempty(p_res[i].lpRemoteName)) { // @unicodeproblem
                         if(p_res[i].dwDisplayType == RESOURCEDISPLAYTYPE_SERVER)
 							if(pAddrs) {
-								char * p = p_res[i].lpRemoteName; // @unicodeproblem
+								const char * p = SUcSwitch(p_res[i].lpRemoteName); // @unicodeproblem
 								InetAddr * p_addr = new InetAddr;
 								p++;
 								p++;
@@ -179,7 +179,7 @@ int GetIPAddrList(int Level, LPNETRESOURCE lpNet, InetAddrArray * pAddrs)
 		ok = -1;
     if(handle)
 		WNetCloseEnum(handle);
-	delete p_res;
+	SAlloc::F(p_res);
 	return ok;
 }
 
@@ -194,14 +194,14 @@ static int Helper_GetFirstHostByMacAddr(int Level, LPNETRESOURCE lpNet, const MA
     HANDLE handle = NULL;
 	THROW(WNetOpenEnum(RESOURCE_GLOBALNET, RESOURCETYPE_ANY, 0, lpNet, &handle) == NO_ERROR);
     THROW(p_res = static_cast<LPNETRESOURCE>(SAlloc::M(size)));
-    THROW(WNetEnumResource(handle, &count, (LPVOID)p_res, &size) == NO_ERROR); // @todo в данном месте происходит ошибка на 2-ой итерации рекурсии
+    THROW(WNetEnumResource(handle, &count, p_res, &size) == NO_ERROR); // @todo в данном месте происходит ошибка на 2-ой итерации рекурсии
     WNetCloseEnum(handle);
     handle = NULL;
     for(i = 0; ok < 0 && i < count; i++) {
-        if(Level == RES_HOST && *strip(p_res[i].lpRemoteName) && p_res[i].dwDisplayType == RESOURCEDISPLAYTYPE_SERVER) { // @unicodeproblem
+        if(Level == RES_HOST && !isempty(p_res[i].lpRemoteName) && p_res[i].dwDisplayType == RESOURCEDISPLAYTYPE_SERVER) { // @unicodeproblem
 			MACAddr ma;
 			InetAddr addr;
-			addr.Set(p_res[i].lpRemoteName+2); // @unicodeproblem
+			addr.Set(SUcSwitch(p_res[i].lpRemoteName+2)); // @unicodeproblem
 			if(GetMacByIP(addr.ToStr(InetAddr::fmtAddr, ip), &ma) > 0 && ma.Cmp(*pMAC) == 0) {
 				ASSIGN_PTR(pAddr, addr);
 				ok = 1;
@@ -294,7 +294,7 @@ int SLAPI GetMACAddrList(MACAddrArray * pList)
 	ProcPool_IpHlpApi::PtLoad();
 	DWORD  err = ProcPool_IpHlpApi::GetAdaptersInfo(0, &size);
 	if(!err || err == ERROR_BUFFER_OVERFLOW) {
-		p_info = (IP_ADAPTER_INFO *)SAlloc::C(size, 1);
+		p_info = static_cast<IP_ADAPTER_INFO *>(SAlloc::C(size, 1));
 		err = ProcPool_IpHlpApi::GetAdaptersInfo(p_info, &size);
 		if(err == 0)
 			for(IP_ADAPTER_INFO * p_iter = p_info; p_iter; p_iter = p_iter->Next) {

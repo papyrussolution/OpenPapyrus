@@ -318,29 +318,27 @@ struct XmlNodeBase { // @construction
 	const xmlChar * name; // Name of the DTD 
 	xmlNode * children;   // the value of the property link 
 	xmlNode * last;       // last child link 
-	xmlDoc  * parent;     // child->parent link 
+	xmlNode * parent;     // child->parent link 
 	xmlNode * next;       // next sibling link 
 	xmlNode * prev;       // previous sibling link 
 	xmlDoc  * doc;        // the containing document
 };
-/**
- * xmlDtd:
- *
- * An XML DTD, as defined by <!DOCTYPE ... There is actually one for
- * the internal subset and for the external subset.
- */
+// 
+// Descr: An XML DTD, as defined by <!DOCTYPE ... There is actually one for
+//   the internal subset and for the external subset.
+// 
 //typedef struct _xmlDtd xmlDtd;
-struct xmlDtd {
-	void * _private; /* application data */
-	xmlElementType type;    /* XML_DTD_NODE, must be second ! */
-	const xmlChar * name;   /* Name of the DTD */
-	xmlNode * children; /* the value of the property link */
-	xmlNode * last; /* last child link */
-	xmlDoc  * parent; /* child->parent link */
-	xmlNode * next; /* next sibling link  */
-	xmlNode * prev; /* previous sibling link  */
-	xmlDoc  * doc;  /* the containing document */
-	/* End of common part */
+struct xmlDtd : public XmlNodeBase {
+	//void * _private;      // application data
+	//xmlElementType type;  // XML_DTD_NODE, must be second !
+	//const xmlChar * name; // Name of the DTD 
+	//xmlNode * children; // the value of the property link
+	//xmlNode * last;   // last child link
+	//xmlDoc  * parent; // child->parent link // @sobolev @note здесь (xmlDoc * parent) в результате наслендования от XmlNodeBase превращается в (xmlNode * parent)
+	//xmlNode * next; // next sibling link 
+	//xmlNode * prev; // previous sibling link 
+	//xmlDoc  * doc;  // the containing document
+	// End of common part 
 	void * notations; /* Hash table for notations if any */
 	void * elements; /* Hash table for elements if any */
 	void * attributes; /* Hash table for attributes if any */
@@ -351,11 +349,9 @@ struct xmlDtd {
 };
 
 typedef xmlDtd * xmlDtdPtr;
-/**
- * xmlAttr:
- *
- * An attribute on an XML node.
- */
+//
+// Descr: An attribute on an XML node.
+// 
 //typedef struct _xmlAttr xmlAttr;
 struct xmlAttr {
 	void * _private; /* application data */
@@ -400,16 +396,16 @@ typedef xmlRef * xmlRefPtr;
 // 
 // Descr: A node in an XML tree.
 // 
-struct xmlNode {
-	void * _private; // application data 
-	xmlElementType type; // type number, must be second ! 
-	const xmlChar * name; // the name of the node, or the entity 
-	xmlNode * children; /* parent->childs link */
-	xmlNode * last; /* last child link */
-	xmlNode * parent; /* child->parent link */
-	xmlNode * next; /* next sibling link  */
-	xmlNode * prev; /* previous sibling link  */
-	xmlDoc  * doc;  /* the containing document */
+struct xmlNode : public XmlNodeBase {
+	//void * _private; // application data 
+	//xmlElementType type; // type number, must be second ! 
+	//const xmlChar * name; // the name of the node, or the entity 
+	//xmlNode * children; // parent->childs link 
+	//xmlNode * last;   // last child link 
+	//xmlNode * parent; // child->parent link 
+	//xmlNode * next; // next sibling link  
+	//xmlNode * prev; // previous sibling link  
+	//xmlDoc  * doc;  // the containing document 
 	// End of common part 
 	xmlNs   * ns;      // pointer to the associated namespace 
 	xmlChar * content; // the content 
@@ -452,17 +448,17 @@ typedef enum {
 // 
 // Descr: An XML document
 // 
-struct xmlDoc {
-	void * _private; /* application data */
-	xmlElementType type;    /* XML_DOCUMENT_NODE, must be second ! */
-	char * name;  /* name/filename/URI of the document */
-	xmlNode * children; /* the document tree */
-	xmlNode * last; /* last child link */
-	xmlNode * parent; /* child->parent link */
-	xmlNode * next; /* next sibling link  */
-	xmlNode * prev; /* previous sibling link  */
-	xmlDoc  * doc;  /* autoreference to itself */
-	/* End of common part */
+struct xmlDoc : public XmlNodeBase {
+	//void * _private;     // application data 
+	//xmlElementType type; // XML_DOCUMENT_NODE, must be second!
+	//char * name;         // name/filename/URI of the document
+	//xmlNode * children;  // the document tree 
+	//xmlNode * last;      // last child link
+	//xmlNode * parent;    // child->parent link
+	//xmlNode * next;      // next sibling link
+	//xmlNode * prev;      // previous sibling link
+	//xmlDoc  * doc;       // autoreference to itself
+	// End of common part 
 	int compression;        /* level of zlib compression */
 	int standalone; // standalone document (no external refs) 1 if standalone="yes", 0 if standalone="no", 
 		// -1 if there is no XML declaration, -2 if there is an XML declaration, but no standalone attribute was specified 

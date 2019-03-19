@@ -21,7 +21,7 @@ SLAPI SCompressor::SCompressor(int type) : Type(type), P_Ctx(0), MaxTempBufSize(
 		if(LZ4F_createCompressionContext(&p_ctx, LZ4F_getVersion())) {
 			P_Ctx = p_ctx;
 		}*/
-		LZ4_stream_t * p_ctx = (LZ4_stream_t *)SAlloc::M(sizeof(LZ4_stream_t));
+		LZ4_stream_t * p_ctx = static_cast<LZ4_stream_t *>(SAlloc::M(sizeof(LZ4_stream_t)));
 		P_Ctx = p_ctx;
 	}
 }

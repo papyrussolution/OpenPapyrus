@@ -366,7 +366,7 @@ double FASTCALL ffactr(uint i)
 	if(p_fact_tab == 0) {
 		ENTER_CRITICAL_SECTION
 			if(p_fact_tab == 0) {
-				p_fact_tab = (double *)SAlloc::C(FACT_TAB_SIZE, sizeof(*p_fact_tab));
+				p_fact_tab = static_cast<double *>(SAlloc::C(FACT_TAB_SIZE, sizeof(*p_fact_tab)));
 				p_fact_tab[0] = p_fact_tab[1] = 1.;
 				double prev = 1.;
 				for(uint k = 2; k < FACT_TAB_SIZE; k++) {

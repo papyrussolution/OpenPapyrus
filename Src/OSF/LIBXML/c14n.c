@@ -1849,7 +1849,7 @@ static xmlChar * xmlC11NNormalizeString(const xmlChar * input, xmlC14NNormalizat
 	 * allocate an translation buffer.
 	 */
 	buffer_size = 1000;
-	buffer = (xmlChar *)SAlloc::M(buffer_size * sizeof(xmlChar));
+	buffer = static_cast<xmlChar *>(SAlloc::M(buffer_size * sizeof(xmlChar)));
 	if(!buffer) {
 		xmlC14NErrMemory("allocating buffer");
 		return 0;

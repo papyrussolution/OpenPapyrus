@@ -141,30 +141,30 @@ int SLAPI SPrinting::GetListOfPrinters(TSVector <PrnInfo> * pInfoList) // @v9.8.
 {
 	int    ok = 0;
 	STempBuffer info_buf(32*1024);
-	char   def_prn_name[256];
-	DWORD  def_prn_name_size = sizeof(def_prn_name);
+	TCHAR  def_prn_name[256];
+	DWORD  def_prn_name_size = SIZEOFARRAY(def_prn_name);
 	DWORD  wr_bytes = 0;
 	DWORD  count = 0;
 	if(pInfoList)
 		pInfoList->freeAll();
 	GetDefaultPrinter(def_prn_name, &def_prn_name_size); // @unicodeproblem
-	BOOL   r = EnumPrinters(PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS, 0, 2, (LPBYTE)(char *)info_buf, info_buf.GetSize(), &wr_bytes, &count);
+	BOOL   r = EnumPrinters(PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS, 0, 2, static_cast<LPBYTE>(info_buf.vptr()), info_buf.GetSize(), &wr_bytes, &count);
 	if(!r && wr_bytes > info_buf.GetSize()) {
 		info_buf.Alloc(wr_bytes);
 		wr_bytes = 0;
 		count = 0;
-		r = EnumPrinters(PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS, 0, 2, (LPBYTE)(char *)info_buf, info_buf.GetSize(), &wr_bytes, &count);
+		r = EnumPrinters(PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS, 0, 2, static_cast<LPBYTE>(info_buf.vptr()), info_buf.GetSize(), &wr_bytes, &count);
 	}
 	if(r) {
 		ok = -1;
-		const PRINTER_INFO_2 * info = (const PRINTER_INFO_2 *)(const char *)info_buf;
+		const PRINTER_INFO_2 * info = static_cast<const PRINTER_INFO_2 *>(info_buf.vcptr());
 		for(uint i = 0; i < count; i++) {
 			if(pInfoList) {
 				PrnInfo item;
 				MEMSZERO(item);
-				STRNSCPY(item.ServerName, info[i].pServerName); // @unicodeproblem
-				STRNSCPY(item.PrinterName, info[i].pPrinterName); // @unicodeproblem
-				STRNSCPY(item.ShareName, info[i].pShareName); // @unicodeproblem
+				STRNSCPY(item.ServerName, SUcSwitch(info[i].pServerName)); // @unicodeproblem
+				STRNSCPY(item.PrinterName, SUcSwitch(info[i].pPrinterName)); // @unicodeproblem
+				STRNSCPY(item.ShareName, SUcSwitch(info[i].pShareName)); // @unicodeproblem
 				SETFLAG(item.Flags, PrnInfo::fLocal, info[i].Attributes & PRINTER_ATTRIBUTE_LOCAL);
 				SETFLAG(item.Flags, PrnInfo::fNetwork, info[i].Attributes & PRINTER_ATTRIBUTE_NETWORK);
 				if(stricmp(item.PrinterName, def_prn_name) == 0)

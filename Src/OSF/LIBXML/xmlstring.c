@@ -35,7 +35,7 @@ xmlChar * xmlStrndup(const xmlChar * cur, /*int*/SSIZE_T len)
 {
 	xmlChar * ret = 0;
 	if(cur && len >= 0) {
-		ret = (xmlChar *)SAlloc::M((len + 1) * sizeof(xmlChar));
+		ret = static_cast<xmlChar *>(SAlloc::M((len + 1) * sizeof(xmlChar)));
 		if(!ret) {
 			xmlErrMemory(NULL, 0);
 		}
@@ -81,7 +81,7 @@ xmlChar * xmlCharStrndup(const char * cur, int len)
 	int i;
 	xmlChar * ret;
 	if(!cur || (len < 0)) return 0;
-	ret = (xmlChar *)SAlloc::M((len + 1) * sizeof(xmlChar));
+	ret = static_cast<xmlChar *>(SAlloc::M((len + 1) * sizeof(xmlChar)));
 	if(!ret) {
 		xmlErrMemory(NULL, 0);
 		return 0;
@@ -445,7 +445,7 @@ xmlChar * xmlStrncat(xmlChar * cur, const xmlChar * add, int len)
 		return xmlStrndup(add, len);
 	else {
 		int size = sstrlen(cur);
-		xmlChar * ret = (xmlChar *)SAlloc::R(cur, (size + len + 1) * sizeof(xmlChar));
+		xmlChar * ret = static_cast<xmlChar *>(SAlloc::R(cur, (size + len + 1) * sizeof(xmlChar)));
 		if(!ret) {
 			xmlErrMemory(NULL, 0);
 			return cur;
@@ -480,7 +480,7 @@ xmlChar * xmlStrncatNew(const xmlChar * str1, const xmlChar * str2, int len)
 	if(!str1)
 		return xmlStrndup(str2, len);
 	size = sstrlen(str1);
-	ret = (xmlChar *)SAlloc::M((size + len + 1) * sizeof(xmlChar));
+	ret = static_cast<xmlChar *>(SAlloc::M((size + len + 1) * sizeof(xmlChar)));
 	if(!ret) {
 		xmlErrMemory(NULL, 0);
 		return xmlStrndup(str1, size);
@@ -828,9 +828,10 @@ xmlChar * xmlUTF8Strndup(const xmlChar * utf, int len)
 {
 	xmlChar * ret;
 	int i;
-	if((utf == NULL) || (len < 0)) return 0;
+	if((utf == NULL) || (len < 0)) 
+		return 0;
 	i = xmlUTF8Strsize(utf, len);
-	ret = (xmlChar *)SAlloc::M((i + 1) * sizeof(xmlChar));
+	ret = static_cast<xmlChar *>(SAlloc::M((i + 1) * sizeof(xmlChar)));
 	if(!ret) {
 		xmlGenericError(0, "malloc of %ld byte failed\n", (len + 1) * (long)sizeof(xmlChar));
 		return 0;

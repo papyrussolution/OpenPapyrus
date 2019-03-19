@@ -1,5 +1,5 @@
 // KR.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 2003, 2004, 2008, 2009, 2010, 2013, 2016, 2017, 2018
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 2003, 2004, 2008, 2009, 2010, 2013, 2016, 2017, 2018, 2019
 // @codepage windows-1251
 //
 #include <slib.h>
@@ -23,7 +23,7 @@ SLAPI KR::KR(int hdlTable, int keyPosition)
 
 int SLAPI KR::init(int hdlTable, int keyPosition)
 {
-	P_h = (H*)SAlloc::M(sizeof(H));
+	P_h = static_cast<H *>(SAlloc::M(sizeof(H)));
 	if(P_h == 0)
 		return 0;
 	else {
@@ -41,7 +41,7 @@ int SLAPI KR::init(int hdlTable, int keyPosition)
 
 int SLAPI KR::trim()
 {
-	P_h = (H*)SAlloc::R(P_h, sizeof(H));
+	P_h = static_cast<H *>(SAlloc::R(P_h, sizeof(H)));
 	if(P_h) {
 		P_h->count = 0;
 		P_h->len  = sizeof(H);
@@ -57,7 +57,7 @@ int SLAPI KR::copy(KR src, int trim_data)
 	destroy();
 	if(src.P_h) {
 		uint sz = trim_data ? sizeof(H) : src.P_h->len;
-		P_b = (char *)SAlloc::M(sz);
+		P_b = static_cast<char *>(SAlloc::M(sz));
 		if(P_b == 0)
 			return 0;
 		memcpy(P_b, src.P_b, sz);
@@ -131,7 +131,7 @@ int SLAPI KR::operator--()
 int FASTCALL KR::add(const void * item)
 {
 	uint   size = itemSize(item);
-	P_b = (char *)SAlloc::R(P_b, P_h->len + size);
+	P_b = static_cast<char *>(SAlloc::R(P_b, P_h->len + size));
 	if(P_b == 0)
 		return 0;
 	if(P_h->current)
@@ -150,7 +150,7 @@ int SLAPI KR::remove()
 	if(P_h->count && P_h->current < P_h->len) {
 		uint   s = itemSize(P_b+P_h->current);
 		memmove(P_b+P_h->current, P_b+P_h->current+s, P_h->len - P_h->current-s);
-		P_b = (char *)SAlloc::R(P_b, P_h->len-s);
+		P_b = static_cast<char *>(SAlloc::R(P_b, P_h->len-s));
 		if(P_b) {
 			P_h->count--;
 			P_h->len -= s;

@@ -2986,7 +2986,7 @@ private:
 		long   Mode;
 		RealRange Filt;
 	};
-	static int TaRVal1_Update_Callback(DBTable * pTbl, const void * pBefore, const void * pAfter, long extraParam);
+	static int TaRVal1_Update_Callback(DBTable * pTbl, const void * pBefore, const void * pAfter, void * extraPtr);
 
 	Param  P;
 	StrAssocArray WordList;
@@ -3186,12 +3186,12 @@ int SLAPI PrcssrTestDb::OutputTa(const char * pFileName)
 }
 
 // static
-int PrcssrTestDb::TaRVal1_Update_Callback(DBTable * pTbl, const void * pBefore, const void * pAfter, long extraParam)
+int PrcssrTestDb::TaRVal1_Update_Callback(DBTable * pTbl, const void * pBefore, const void * pAfter, void * extraPtr)
 {
 	SString msg_buf;
-	TestTa01Tbl::Rec before = *(const TestTa01Tbl::Rec *)pBefore;
-	TestTa01Tbl::Rec after = *(const TestTa01Tbl::Rec *)pAfter;
-	UpdCbParam * p_param = (UpdCbParam *)extraParam;
+	TestTa01Tbl::Rec before = *static_cast<const TestTa01Tbl::Rec *>(pBefore);
+	TestTa01Tbl::Rec after = *static_cast<const TestTa01Tbl::Rec *>(pAfter);
+	UpdCbParam * p_param = static_cast<UpdCbParam *>(extraPtr);
 	p_param->Count++;
 	if(p_param->Mode == UpdCbParam::uIncV1) {
 		if(after.RVal1 != (before.RVal1 + p_param->IncV1)) {
@@ -3251,7 +3251,7 @@ int SLAPI PrcssrTestDb::AnalyzeAndUpdateTa()
 			up.Mode = UpdCbParam::uIncV1;
 			up.Filt.Set(hr.Low, hr.Upp-0.00000001);
 			THROW(updateForCb(P_Ta, 1, (P_Ta->RVal1 >= hr.Low && P_Ta->RVal1 < hr.Upp),
-				set(P_Ta->RVal1, (P_Ta->RVal1 + up.IncV1)), TaRVal1_Update_Callback, (long)&up));
+				set(P_Ta->RVal1, (P_Ta->RVal1 + up.IncV1)), TaRVal1_Update_Callback, &up));
 			if(up.Count != hr.Count) {
 				LogMessage("Error updating TestTa01::RVal1: invalid count of updated records");
 			}
@@ -3268,7 +3268,7 @@ int SLAPI PrcssrTestDb::AnalyzeAndUpdateTa()
 			up.Mode = UpdCbParam::uUpdV2;
 			up.Filt.Set(hr.Low, hr.Upp-0.00000001);
 			THROW(updateForCb(P_Ta, 1, (P_Ta->RVal2 >= hr.Low && P_Ta->RVal2 < hr.Upp),
-				set(P_Ta->RVal2, dbconst(up.NewV2)), TaRVal1_Update_Callback, (long)&up));
+				set(P_Ta->RVal2, dbconst(up.NewV2)), TaRVal1_Update_Callback, &up));
 			if(up.Count != hr.Count) {
 				LogMessage("Error updating TestTa01::RVal2: invalid count of updated records");
 			}

@@ -64,7 +64,7 @@ long SLAPI SearchStrInFile(FILE * fpFile, long lOffset, const char *pszStr, int 
 	lCurrentPos = lOffset;
 	iNoBlocks = (lPosInFile - lOffset) / iBufferSize;
 	// Calculate remaining no of blocks 
-	if((pszBuffer = (char *)SAlloc::C(2 * iBufferSize, sizeof(char))) == 0)
+	if((pszBuffer = static_cast<char *>(SAlloc::C(2 * iBufferSize, sizeof(char)))) == 0)
 		return -2;
 	memzero(pszBuffer, iBufferSize);
 	data_size = fread(pszBuffer, sizeof(char), iBufferSize, fpFile);

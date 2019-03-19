@@ -7,6 +7,8 @@
 #pragma hdrstop
 //#include <comdisp.h>
 #include <atol-dto\libfptr10.h>
+
+//HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\ATOL\Drivers\10.0\KKT
 //
 //
 //
@@ -705,7 +707,8 @@ PPSyncCashSession * SLAPI CM_ATOLDRV::SyncInterface()
 
 REGISTER_CMT(ATOLDRV,1,0);
 
-SLAPI SCS_ATOLDRV::SCS_ATOLDRV(PPID n, char * name, char * port) : PPSyncCashSession(n, name, port), Flags(0), ResCode(RESCODE_NO_ERROR)
+SLAPI SCS_ATOLDRV::SCS_ATOLDRV(PPID n, char * name, char * port) : 
+	PPSyncCashSession(n, name, port), Flags(0), ResCode(RESCODE_NO_ERROR), ErrCode(0), CheckStrLen(0)
 {
 	if(!P_Fptr10) {
 		P_Fptr10 = new AtolFptr10();
@@ -1385,7 +1388,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 							}
 							THROW(SetProp(TaxTypeNumber, tax_type_number));
 							// } @v10.0.03 
-							THROW(SetProp(Department, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 :  (int32)sl_param.DivID));
+							THROW(SetProp(Department, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 : static_cast<int32>(sl_param.DivID)));
 							THROW(ExecOper((flags & PRNCHK_RETURN) ? Return : Registration));
 						}
 						Flags |= sfOpenCheck;
@@ -1628,7 +1631,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 				SString no_print_txt;
 				PPLoadText(PPTXT_CHECK_NOT_PRINTED, no_print_txt);
 				ErrCode = (Flags & sfOpenCheck) ? SYNCPRN_CANCEL_WHILE_PRINT : SYNCPRN_CANCEL;
-				PPLogMessage(PPFILNAM_SHTRIH_LOG, CCheckCore::MakeCodeString(&pPack->Rec, no_print_txt), LOGMSGF_TIME|LOGMSGF_USER);
+				PPLogMessage(PPFILNAM_SHTRIH_LOG, pPack ? CCheckCore::MakeCodeString(&pPack->Rec, no_print_txt) : "", LOGMSGF_TIME|LOGMSGF_USER);
 				ok = 0;
 			}
 		}

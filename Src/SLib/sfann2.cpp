@@ -215,7 +215,7 @@ static Fann2 * fann_allocate_structure(uint num_layers)
 		return NULL;
 	}
 	/* allocate and initialize the main network structure */
-	ann = (Fann2 *)SAlloc::M(sizeof(Fann2));
+	ann = static_cast<Fann2 *>(SAlloc::M(sizeof(Fann2)));
 	if(ann == NULL) {
 		fann_error_2(NULL, FANN_E_CANT_ALLOCATE_MEM);
 		return NULL;
@@ -271,7 +271,7 @@ static Fann2 * fann_allocate_structure(uint num_layers)
 	ann->cascade_min_cand_epochs = 50;
 	ann->cascade_candidate_scores = NULL;
 	ann->cascade_activation_functions_count = 10;
-	ann->cascade_activation_functions = (Fann2::ActivationFunc *)SAlloc::C(ann->cascade_activation_functions_count, sizeof(Fann2::ActivationFunc));
+	ann->cascade_activation_functions = static_cast<Fann2::ActivationFunc *>(SAlloc::C(ann->cascade_activation_functions_count, sizeof(Fann2::ActivationFunc)));
 	if(ann->cascade_activation_functions == NULL) {
 		fann_error_2(NULL, FANN_E_CANT_ALLOCATE_MEM);
 		SAlloc::F(ann);
@@ -325,7 +325,7 @@ static Fann2 * fann_allocate_structure(uint num_layers)
 	ann->multiplier = 256;
 #endif
 	// allocate room for the layers 
-	ann->first_layer = (Fann2::Layer *)SAlloc::C(num_layers, sizeof(Fann2::Layer));
+	ann->first_layer = static_cast<Fann2::Layer *>(SAlloc::C(num_layers, sizeof(Fann2::Layer)));
 	if(ann->first_layer == NULL) {
 		fann_error_2(NULL, FANN_E_CANT_ALLOCATE_MEM);
 		SAlloc::F(ann);
@@ -348,7 +348,7 @@ static void fann_allocate_connections(Fann2 * ann)
 		ann->total_connections_allocated = ann->total_connections;
 		// TODO make special cases for all places where the connections
 		// is used, so that it is not needed for fully connected networks.
-		ann->connections = (Fann2::Neuron **)SAlloc::C(ann->total_connections_allocated, sizeof(Fann2::Neuron *));
+		ann->connections = static_cast<Fann2::Neuron **>(SAlloc::C(ann->total_connections_allocated, sizeof(Fann2::Neuron *)));
 		if(ann->connections == NULL) {
 			fann_error_2(reinterpret_cast<struct fann_error *>(ann), FANN_E_CANT_ALLOCATE_MEM);
 		}
@@ -364,7 +364,7 @@ static void fann_allocate_neurons(Fann2 * ann)
 	uint num_neurons_so_far = 0;
 	uint num_neurons = 0;
 	// all the neurons is allocated in one long array (calloc clears mem) 
-	Fann2::Neuron * neurons = (Fann2::Neuron *)SAlloc::C(ann->total_neurons, sizeof(Fann2::Neuron));
+	Fann2::Neuron * neurons = static_cast<Fann2::Neuron *>(SAlloc::C(ann->total_neurons, sizeof(Fann2::Neuron)));
 	ann->total_neurons_allocated = ann->total_neurons;
 	if(neurons == NULL) {
 		fann_error_2(reinterpret_cast<struct fann_error *>(ann), FANN_E_CANT_ALLOCATE_MEM);
@@ -1000,7 +1000,7 @@ FANN_EXTERNAL Fann2 * FANN_API fann_copy(Fann2* orig)
 	}
 	copy->errno_f = orig->errno_f;
 	if(orig->errstr) {
-		copy->errstr = (char *)SAlloc::M(FANN_ERRSTR_MAX);
+		copy->errstr = static_cast<char *>(SAlloc::M(FANN_ERRSTR_MAX));
 		if(copy->errstr == NULL) {
 			fann_destroy(copy);
 			return NULL;
@@ -1035,7 +1035,7 @@ FANN_EXTERNAL Fann2 * FANN_API fann_copy(Fann2* orig)
 
 	/* copy cascade activation functions */
 	copy->cascade_activation_functions_count = orig->cascade_activation_functions_count;
-	copy->cascade_activation_functions = (Fann2::ActivationFunc *)SAlloc::R(copy->cascade_activation_functions, copy->cascade_activation_functions_count * sizeof(Fann2::ActivationFunc));
+	copy->cascade_activation_functions = static_cast<Fann2::ActivationFunc *>(SAlloc::R(copy->cascade_activation_functions, copy->cascade_activation_functions_count * sizeof(Fann2::ActivationFunc)));
 	if(copy->cascade_activation_functions == NULL) {
 		fann_error_2(reinterpret_cast<struct fann_error *>(orig), FANN_E_CANT_ALLOCATE_MEM);
 		fann_destroy(copy);
@@ -1184,7 +1184,7 @@ FANN_EXTERNAL void FANN_API fann_print_connections(Fann2 * ann)
 	uint i;
 	int value;
 	uint num_neurons = fann_get_total_neurons(ann) - fann_get_num_output(ann);
-	char * neurons = (char *)SAlloc::M(num_neurons + 1);
+	char * neurons = static_cast<char *>(SAlloc::M(num_neurons + 1));
 	if(neurons == NULL) {
 		fann_error_2(NULL, FANN_E_CANT_ALLOCATE_MEM);
 		return;
@@ -1739,10 +1739,10 @@ void fann_error_2(struct fann_error *errdat, const enum fann_errno_enum errno_f,
 	va_end(ap);
 	if(errdat != NULL) {
 		if(errdat->errstr == NULL) {
-			errdat->errstr = (char *)SAlloc::M(strlen(errstr) + 1);
+			errdat->errstr = static_cast<char *>(SAlloc::M(strlen(errstr) + 1));
 		}
 		else if(strlen(errdat->errstr) < strlen(errstr)) {
-			errdat->errstr = (char *)SAlloc::R(errdat->errstr, strlen(errstr) + 1);
+			errdat->errstr = static_cast<char *>(SAlloc::R(errdat->errstr, strlen(errstr) + 1));
 		}
 		/* allocation failed */
 		if(errdat->errstr == NULL) {
@@ -1972,7 +1972,7 @@ int fann_reallocate_connections(Fann2 * ann, uint total_connections)
 #ifdef CASCADE_DEBUG
 	printf("realloc from %d to %d\n", ann->total_connections_allocated, total_connections);
 #endif
-	ann->connections = (Fann2::Neuron **)SAlloc::R(ann->connections, total_connections * sizeof(Fann2::Neuron *));
+	ann->connections = static_cast<Fann2::Neuron **>(SAlloc::R(ann->connections, total_connections * sizeof(Fann2::Neuron *)));
 	if(ann->connections == NULL) {
 		fann_error_2(reinterpret_cast<struct fann_error *>(ann), FANN_E_CANT_ALLOCATE_MEM);
 		return -1;
@@ -2007,7 +2007,7 @@ int fann_reallocate_neurons(Fann2 * ann, uint total_neurons)
 	Fann2::Neuron * neurons;
 	uint num_neurons = 0;
 	uint num_neurons_so_far = 0;
-	neurons = (Fann2::Neuron *)SAlloc::R(ann->first_layer->first_neuron, total_neurons * sizeof(Fann2::Neuron));
+	neurons = static_cast<Fann2::Neuron *>(SAlloc::R(ann->first_layer->first_neuron, total_neurons * sizeof(Fann2::Neuron)));
 	ann->total_neurons_allocated = total_neurons;
 	if(neurons == NULL) {
 		fann_error_2(reinterpret_cast<struct fann_error *>(ann), FANN_E_CANT_ALLOCATE_MEM);
@@ -2380,7 +2380,7 @@ Fann2::Layer * fann_add_layer(Fann2 * ann, Fann2::Layer * layer)
 	int num_layers = (int)(ann->last_layer - ann->first_layer + 1);
 	int i;
 	// allocate the layer 
-	Fann2::Layer * layers = (Fann2::Layer *)SAlloc::R(ann->first_layer, num_layers * sizeof(Fann2::Layer));
+	Fann2::Layer * layers = static_cast<Fann2::Layer *>(SAlloc::R(ann->first_layer, num_layers * sizeof(Fann2::Layer)));
 	if(layers == NULL) {
 		fann_error_2(reinterpret_cast<struct fann_error *>(ann), FANN_E_CANT_ALLOCATE_MEM);
 		return NULL;
@@ -2549,8 +2549,8 @@ FANN_EXTERNAL void FANN_API fann_set_cascade_activation_functions(Fann2 * ann, c
 	if(ann->cascade_activation_functions_count != cascade_activation_functions_count) {
 		ann->cascade_activation_functions_count = cascade_activation_functions_count;
 		// reallocate mem 
-		ann->cascade_activation_functions = (Fann2::ActivationFunc *)SAlloc::R(ann->cascade_activation_functions,
-			ann->cascade_activation_functions_count * sizeof(Fann2::ActivationFunc));
+		ann->cascade_activation_functions = static_cast<Fann2::ActivationFunc *>(SAlloc::R(ann->cascade_activation_functions,
+			ann->cascade_activation_functions_count * sizeof(Fann2::ActivationFunc)));
 		if(ann->cascade_activation_functions == NULL) {
 			fann_error_2((struct fann_error *)ann, FANN_E_CANT_ALLOCATE_MEM);
 			return;
@@ -2873,7 +2873,7 @@ Fann2 * fann_create_from_fd(FILE * conf, const char * configuration_file)
 	Fann2::Layer * layer_it;
 	Fann2 * ann = NULL;
 	char * read_version;
-	read_version = (char *)SAlloc::C(strlen(FANN_CONF_VERSION "\n"), 1);
+	read_version = static_cast<char *>(SAlloc::C(strlen(FANN_CONF_VERSION "\n"), 1));
 	if(read_version == NULL) {
 		fann_error_2(NULL, FANN_E_CANT_ALLOCATE_MEM);
 		return NULL;
@@ -2952,8 +2952,8 @@ Fann2 * fann_create_from_fd(FILE * conf, const char * configuration_file)
 	fann_scanf("%u", "cascade_activation_functions_count", &ann->cascade_activation_functions_count);
 
 	/* reallocate mem */
-	ann->cascade_activation_functions = (Fann2::ActivationFunc *)SAlloc::R(ann->cascade_activation_functions,
-		ann->cascade_activation_functions_count * sizeof(Fann2::ActivationFunc));
+	ann->cascade_activation_functions = static_cast<Fann2::ActivationFunc *>(SAlloc::R(ann->cascade_activation_functions,
+		ann->cascade_activation_functions_count * sizeof(Fann2::ActivationFunc)));
 	if(ann->cascade_activation_functions == NULL) {
 		fann_error_2((struct fann_error *)ann, FANN_E_CANT_ALLOCATE_MEM);
 		fann_destroy(ann);

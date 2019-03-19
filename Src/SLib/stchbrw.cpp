@@ -528,7 +528,7 @@ const STimeChunkBrowser::SRect * FASTCALL STimeChunkBrowser::SRectArray::SearchP
 	return 0;
 }
 
-STimeChunkBrowser::STimeChunkBrowser() : TBaseBrowserWindow(WndClsName), BmpId_ModeGantt(0), BmpId_ModeHourDay(0), P_Tt(0), Flags(0)
+STimeChunkBrowser::STimeChunkBrowser() : TBaseBrowserWindow(SUcSwitch(WndClsName)), BmpId_ModeGantt(0), BmpId_ModeHourDay(0), P_Tt(0), Flags(0)
 {
 	P.Quant = 12 * 60;
 	P.PixQuant = 20;

@@ -2805,7 +2805,7 @@ int SLAPI ApproxStrSrch(const char * pPattern, const char * pBuffer, ApproxStrSr
 	else if(patlen == 0 || buflen == 0)
 		ok = 0;
 	else {
-		size_t maxpos = (size_t)-1;
+		size_t maxpos = static_cast<size_t>(-1);
 		double maxscore = 0.0;
 		ApproxStrComparator search(pPattern, param);
 		for(size_t j = 0; j < buflen; j++) {
@@ -2958,7 +2958,7 @@ SLAPI STextEncodingStat::STextEncodingStat(long options) : P_UcdHandle(0)
 SLAPI STextEncodingStat::~STextEncodingStat()
 {
 	if(P_UcdHandle) {
-		uchardet_delete((uchardet_t)P_UcdHandle);
+		uchardet_delete(static_cast<uchardet_t>(P_UcdHandle));
 		P_UcdHandle = 0;
 	}
 }
@@ -2970,7 +2970,7 @@ STextEncodingStat & SLAPI STextEncodingStat::Init(long options)
 		Flags |= fUseUCharDet;
 	if(Flags & fUseUCharDet) {
 		if(P_UcdHandle) {
-			uchardet_reset((uchardet_t)P_UcdHandle);
+			uchardet_reset(static_cast<uchardet_t>(P_UcdHandle));
 		}
 		else {
 			P_UcdHandle = uchardet_new();
@@ -2978,7 +2978,7 @@ STextEncodingStat & SLAPI STextEncodingStat::Init(long options)
 	}
 	else {
 		if(P_UcdHandle) {
-			uchardet_delete((uchardet_t)P_UcdHandle);
+			uchardet_delete(static_cast<uchardet_t>(P_UcdHandle));
 			P_UcdHandle = 0;
 		}
 	}
@@ -3000,11 +3000,11 @@ int SLAPI STextEncodingStat::Add(const void * pData, size_t size)
 			Flags |= (fAsciiOnly|fLegalUtf8Only);
 		}
 		if(P_UcdHandle) {
-			uchardet_handle_data((uchardet_t)P_UcdHandle, (const char *)pData, size);
+			uchardet_handle_data(static_cast<uchardet_t>(P_UcdHandle), static_cast<const char *>(pData), size);
 		}
 		size_t skip_eolf_pos = 0;
 		size_t next_utf8_pos = 0;
-		const uint8 * p = (const uint8 *)pData;
+		const uint8 * p = static_cast<const uint8 *>(pData);
 		for(size_t i = 0; i < size; i++) {
 			const uint8 c = p[i];
 			ChrFreq[c]++;
@@ -3072,8 +3072,8 @@ int SLAPI STextEncodingStat::Add(const void * pData, size_t size)
 int SLAPI STextEncodingStat::Finish()
 {
 	if(P_UcdHandle) {
-		uchardet_data_end((uchardet_t)P_UcdHandle);
-		const char * p_cp_symb = uchardet_get_charset((uchardet_t)P_UcdHandle);
+		uchardet_data_end(static_cast<uchardet_t>(P_UcdHandle));
+		const char * p_cp_symb = uchardet_get_charset(static_cast<uchardet_t>(P_UcdHandle));
 		if(p_cp_symb) {
 			STRNSCPY(CpName, p_cp_symb);
 			Flags |= fUCarDetWorked;

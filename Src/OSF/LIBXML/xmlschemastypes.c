@@ -2743,7 +2743,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value, 
 			    v = xmlSchemaNewValue(XML_SCHEMAS_BASE64BINARY);
 			    if(!v)
 				    goto error;
-			    base = (xmlChar *)SAlloc::M((i + pad + 1) * sizeof(xmlChar));
+			    base = static_cast<xmlChar *>(SAlloc::M((i + pad + 1) * sizeof(xmlChar)));
 			    if(base == NULL) {
 				    xmlSchemaTypeErrMemory(pNode, "allocating base64 data");
 				    SAlloc::F(v);
@@ -5230,7 +5230,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 			    /* Add room for the decimal point as well. */
 			    if(dec.sign)
 				    bufsize++;
-			    *retValue = (xmlChar *)SAlloc::M(bufsize);
+			    *retValue = static_cast<xmlChar *>(SAlloc::M(bufsize));
 			    if(*retValue == NULL)
 				    return -1;
 			    if(dec.hi != 0) {
@@ -5299,7 +5299,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		case XML_SCHEMAS_GMONTH: {
 		    /* @todo Unclear in XML Schema 1.0 */
 		    /* @todo What to do with the timezone? */
-		    *retValue = (xmlChar *)SAlloc::M(6);
+		    *retValue = static_cast<xmlChar *>(SAlloc::M(6));
 		    if(*retValue == NULL)
 			    return -1;
 		    snprintf((char *)*retValue, 6, "--%02u", val->value.date.mon);
@@ -5308,7 +5308,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		case XML_SCHEMAS_GDAY: {
 		    /* @todo Unclear in XML Schema 1.0 */
 		    /* @todo What to do with the timezone? */
-		    *retValue = (xmlChar *)SAlloc::M(6);
+		    *retValue = static_cast<xmlChar *>(SAlloc::M(6));
 		    if(*retValue == NULL)
 			    return -1;
 		    snprintf((char *)*retValue, 6, "---%02u", val->value.date.day);
@@ -5317,7 +5317,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		case XML_SCHEMAS_GMONTHDAY: {
 		    /* @todo Unclear in XML Schema 1.0 */
 		    /* @todo What to do with the timezone? */
-		    *retValue = (xmlChar *)SAlloc::M(8);
+		    *retValue = static_cast<xmlChar *>(SAlloc::M(8));
 		    if(*retValue == NULL)
 			    return -1;
 		    snprintf((char *)*retValue, 8, "--%02u-%02u", val->value.date.mon, val->value.date.day);

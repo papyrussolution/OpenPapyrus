@@ -554,7 +554,7 @@ int FASTCALL DBFieldList::Alloc(uint n)
 int FASTCALL DBFieldList::Add(const DBField & rSrc)
 {
 	int    ok = 1;
-	P_Flds = (DBField *)SAlloc::R(P_Flds, sizeof(DBField) * (Count + 1));
+	P_Flds = static_cast<DBField *>(SAlloc::R(P_Flds, sizeof(DBField) * (Count + 1)));
 	if(P_Flds)
 		P_Flds[Count++] = rSrc;
 	else {
@@ -880,7 +880,7 @@ void SLAPI DBTree::destroy()
 
 int FASTCALL DBTree::expand(int * pos)
 {
-	P_Items = (T *)SAlloc::R(P_Items, sizeof(T) * (Count + 1));
+	P_Items = static_cast<T *>(SAlloc::R(P_Items, sizeof(T) * (Count + 1)));
 	if(P_Items) {
 		*pos = Count;
 		return TRUE;

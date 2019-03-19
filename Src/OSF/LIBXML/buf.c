@@ -111,7 +111,7 @@ xmlBuf * xmlBufCreate()
 		p_ret->size = xmlDefaultBufferSize;
 		p_ret->compat_size = xmlDefaultBufferSize;
 		p_ret->alloc = xmlBufferAllocScheme;
-		p_ret->content = (xmlChar *)SAlloc::M(p_ret->size * sizeof(xmlChar));
+		p_ret->content = static_cast<xmlChar *>(SAlloc::M(p_ret->size * sizeof(xmlChar)));
 		if(p_ret->content == NULL) {
 			xmlBufMemoryError(p_ret, "creating buffer");
 			ZFREE(p_ret);
@@ -145,7 +145,7 @@ xmlBuf * FASTCALL xmlBufCreateSize(size_t size)
 		ret->size = (size ? size+2 : 0);     /* +1 for ending null */
 		ret->compat_size = (int)ret->size;
 		if(ret->size) {
-			ret->content = (xmlChar *)SAlloc::M(ret->size * sizeof(xmlChar));
+			ret->content = static_cast<xmlChar *>(SAlloc::M(ret->size * sizeof(xmlChar)));
 			if(ret->content == NULL) {
 				xmlBufMemoryError(ret, "creating buffer");
 				SAlloc::F(ret);
@@ -409,7 +409,7 @@ static size_t FASTCALL xmlBufGrowInternal(xmlBuf * pBuf, size_t len)
 #endif
 	if(pBuf->alloc == XML_BUFFER_ALLOC_IO && pBuf->contentIO) {
 		size_t start_buf = pBuf->content - pBuf->contentIO;
-		p_newbuf = (xmlChar *)SAlloc::R(pBuf->contentIO, start_buf + size);
+		p_newbuf = static_cast<xmlChar *>(SAlloc::R(pBuf->contentIO, start_buf + size));
 		if(!p_newbuf) {
 			xmlBufMemoryError(pBuf, "growing buffer");
 			return 0;
@@ -418,7 +418,7 @@ static size_t FASTCALL xmlBufGrowInternal(xmlBuf * pBuf, size_t len)
 		pBuf->content = p_newbuf + start_buf;
 	}
 	else {
-		p_newbuf = (xmlChar *)SAlloc::R(pBuf->content, size);
+		p_newbuf = static_cast<xmlChar *>(SAlloc::R(pBuf->content, size));
 		if(!p_newbuf) {
 			xmlBufMemoryError(pBuf, "growing buffer");
 			return 0;
@@ -722,7 +722,7 @@ int FASTCALL xmlBufResize(xmlBuf * buf, size_t size)
 			buf->size += start_buf;
 		}
 		else {
-			rebuf = (xmlChar *)SAlloc::R(buf->contentIO, start_buf + newSize);
+			rebuf = static_cast<xmlChar *>(SAlloc::R(buf->contentIO, start_buf + newSize));
 			if(rebuf == NULL) {
 				xmlBufMemoryError(buf, "growing buffer");
 				return 0;
@@ -733,10 +733,10 @@ int FASTCALL xmlBufResize(xmlBuf * buf, size_t size)
 	}
 	else {
 		if(buf->content == NULL) {
-			rebuf = (xmlChar *)SAlloc::M(newSize);
+			rebuf = static_cast<xmlChar *>(SAlloc::M(newSize));
 		}
 		else if(buf->size - buf->use < 100) {
-			rebuf = (xmlChar *)SAlloc::R(buf->content, newSize);
+			rebuf = static_cast<xmlChar *>(SAlloc::R(buf->content, newSize));
 		}
 		else {
 			/*
@@ -744,7 +744,7 @@ int FASTCALL xmlBufResize(xmlBuf * buf, size_t size)
 			 * better to make a new allocation and copy only the used range
 			 * and free the old one.
 			 */
-			rebuf = (xmlChar *)SAlloc::M(newSize);
+			rebuf = static_cast<xmlChar *>(SAlloc::M(newSize));
 			if(rebuf) {
 				memcpy(rebuf, buf->content, buf->use);
 				SAlloc::F(buf->content);

@@ -764,7 +764,7 @@ int SLAPI PPObjPsnOpKind::GetPacket(PPID id, PPPsnOpKindPacket * pack)
 	if((r = Search(id, &pack->Rec)) > 0) {
 		size_t extra_sz = 0;
 		if(ref->GetPropActualSize(Obj, id, POKPRP_EXTRA, &extra_sz) > 0) {
-			p_ex = (_POKExtra *)SAlloc::M(extra_sz);
+			p_ex = static_cast<_POKExtra *>(SAlloc::M(extra_sz));
 			THROW(ref->GetProperty(Obj, id, POKPRP_EXTRA, p_ex, extra_sz) > 0);
 			if(extra_sz >= sizeof(_POKExtra)) {
 				pack->PCPrmr.PersonKindID = p_ex->PrmrKindID;
@@ -858,7 +858,7 @@ void * SLAPI PPPsnOpKindPacket::AllocExtraProp(size_t * pSz) const
 			sz += sizeof(uint32); // PCScnd.RestrictScSerList.getCount()
 			sz += sscsl_c * sizeof(uint32);
 		}
-		p_ex = (_POKExtra *)SAlloc::M(sz);
+		p_ex = static_cast<_POKExtra *>(SAlloc::M(sz));
 		THROW_MEM(p_ex);
 		memzero(p_ex, sz);
 		p_ex->PrmrKindID     = PCPrmr.PersonKindID;

@@ -2098,7 +2098,7 @@ int TToolTip::GetTool(uint idx, ToolItem & rItem)
 		STempBuffer text_buf(2048);
 		TOOLINFO ti;
 		MEMSZERO(ti);
-		ti.lpszText = text_buf; // @unicodeproblem
+		ti.lpszText = static_cast<char *>(text_buf); // @unicodeproblem
 		ti.cbSize = sizeof(TOOLINFO);
 		if(::SendMessage(H, TTM_ENUMTOOLS, idx, reinterpret_cast<LPARAM>(&ti))) { // @unicodeproblem
 			rItem.Id = ti.uId;

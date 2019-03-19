@@ -895,7 +895,7 @@ int SLAPI PPObjProcessor::PutExtention(PPID id, PPProcessorPacket::ExtBlock * pE
 		p_strg->CheckInTime = pExt->CheckInTime;
 		p_strg->CheckOutTime = pExt->CheckOutTime;
 		p_strg->TimeFlags = pExt->TimeFlags;
-		p_strg->InitSessStatus = pExt->InitSessStatus; // @v8.2.9
+		p_strg->InitSessStatus = pExt->InitSessStatus;
 		p_strg->ExtStrLen = ext_str_len;
 		if(ext_str_len) {
 			memcpy((p_strg+1), (const char *)stub_extsting, ext_str_len);

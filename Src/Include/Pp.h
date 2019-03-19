@@ -16018,6 +16018,7 @@ public:
 		const IntRange & rMdRange, int mdStep, TSVector <FactorToResultRelation> & rSet, FactorToResultRelation & rResult);
 	//static int SLAPI Helper_FindOptimalFactor(const DateTimeArray & rTmList, const RealArray & rValList, const TrainNnParam & rS, double & rResult, uint & rPeakQuant);
 	static const TrendEntry * FASTCALL SearchTrendEntry(const TSCollection <PPObjTimeSeries::TrendEntry> & rTrendList, uint stride);
+	static int SLAPI MatchStrategy(const PPObjTimeSeries::TrendEntry * pTrendEntry, int lastIdx, const Strategy & rS, double & rResult, double & rTv, double & rTv2);
 	static int SLAPI MatchStrategy(const TSCollection <PPObjTimeSeries::TrendEntry> & rTrendList, int lastIdx, const Strategy & rS, double & rResult, double & rTv, double & rTv2);
 private:
 	virtual int SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam);
@@ -19368,7 +19369,7 @@ public:
 	SLAPI  PPObjBarcodePrinter(void * extraPtr = 0);
 	virtual int  SLAPI Edit(PPID * pID, void * extraPtr);
 	int    SLAPI GetPacket(PPID id, PPBarcodePrinter * pPack);
-	int    SLAPI PutPacket(PPID * pID, PPBarcodePrinter * pPack, int use_ta);
+	int    SLAPI PutPacket(PPID * pID, const PPBarcodePrinter * pPack, int use_ta);
 };
 //
 // Descr: Интерфейс для работы с принтерами штрихкодов

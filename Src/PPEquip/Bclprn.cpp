@@ -35,7 +35,7 @@ int SLAPI PPObjBarcodePrinter::GetPacket(PPID id, PPBarcodePrinter * pPack)
 	return ok;
 }
 
-int SLAPI PPObjBarcodePrinter::PutPacket(PPID * pID, PPBarcodePrinter * pPack, int use_ta)
+int SLAPI PPObjBarcodePrinter::PutPacket(PPID * pID, const PPBarcodePrinter * pPack, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -129,9 +129,9 @@ int SLAPI PPObjBarcodePrinter::Edit(PPID * pID, void * extraPtr)
 		dlg->getCtrlData(CTLSEL_BCPRT_DEVICE, &rec.PrinterType);
 		dlg->GetClusterData(CTL_BCPRT_BAUD,   &rec.Cpp.Cbr);
 		dlg->GetClusterData(CTL_BCPRT_PARITY, &temp_long);
-		rec.Cpp.Parity = (int8)temp_long;
+		rec.Cpp.Parity = static_cast<int8>(temp_long);
 		dlg->GetClusterData(CTL_BCPRT_DATA,   &temp_long);
-		rec.Cpp.ByteSize = (int8)temp_long;
+		rec.Cpp.ByteSize = static_cast<int8>(temp_long);
 		dlg->getCtrlData(CTL_BCPRT_NARROWPT, &rec.BcNarrowPt);
 		dlg->getCtrlData(CTL_BCPRT_WIDEPT,   &rec.BcWidePt);
 		// @v9.2.7 {
@@ -502,7 +502,7 @@ uint SLAPI BarcodeLabel::GetEntryCount() const
 
 const BarcodeLabelEntry * SLAPI BarcodeLabel::GetEntry(uint pos)
 {
-	BarcodeLabelEntry * p_entry = (BarcodeLabelEntry *)at(pos);
+	BarcodeLabelEntry * p_entry = static_cast<BarcodeLabelEntry *>(at(pos));
 	if(p_entry->TextIdx) {
 		uint   pos = p_entry->TextIdx;
 		StrBuf.get(&pos, TextBuf, sizeof(TextBuf));
@@ -510,7 +510,7 @@ const BarcodeLabelEntry * SLAPI BarcodeLabel::GetEntry(uint pos)
 	}
 	else
 		p_entry->Text = 0;
-	return (const BarcodeLabelEntry *)p_entry;
+	return static_cast<const BarcodeLabelEntry *>(p_entry);
 }
 
 int SLAPI BarcodeLabel::AddEntry(BarcodeLabelEntry * pEntry)
@@ -528,7 +528,7 @@ int SLAPI BarcodeLabel::AddEntry(BarcodeLabelEntry * pEntry)
 
 void SLAPI BarcodeLabel::UpdateText(uint entryPos, const SString & rText)
 {
-	BarcodeLabelEntry * p_entry = (BarcodeLabelEntry *)at(entryPos);
+	BarcodeLabelEntry * p_entry = static_cast<BarcodeLabelEntry *>(at(entryPos));
 	if(rText.NotEmpty()) {
 		uint   pos = 0;
 		StrBuf.add(rText, &pos);
@@ -1177,7 +1177,7 @@ BarcodeLabelPrinter * SLAPI BarcodeLabelPrinter::CreateInstance(/*PPID printerTy
 	else if(rPrnPack.PrinterType == PPBCPT_WINDOWS)
 		return new WindowsLabelPrinter(rPrnPack);
 	else
-		return (PPSetError(PPERR_INVBCPTYPE), (BarcodeLabelPrinter*)0);
+		return (PPSetError(PPERR_INVBCPTYPE), /*(BarcodeLabelPrinter*)*/0);
 }
 
 //#define BLPF_PRINTALL   0x0001L // Печать всей выборки
@@ -1287,7 +1287,7 @@ int SLAPI BarcodeLabelPrinter::UpLoad(PPID prnID, const char * pLoadName, int si
 				THROW_SL(fileExists(p_entry->Text));
 				THROW_SL(f.Open(p_entry->Text, SFile::mRead));
 				f.Seek(0, SEEK_END);
-				sz = (uint32)f.Tell();
+				sz = static_cast<uint32>(f.Tell());
 				f.Seek(0, SEEK_SET);
 				THROW_MEM(buf.Alloc(sz));
 				THROW_SL(f.Read(buf, buf.GetSize()));

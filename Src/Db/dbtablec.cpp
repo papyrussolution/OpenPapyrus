@@ -558,7 +558,7 @@ int DBTable::allocOwnBuffer(int size)
 	if(P_DBuf && State & sOwnDataBuf) {
 		ZFREE(P_DBuf);
 	}
-	P_DBuf = (char *)SAlloc::C(rec_size+1, 1);
+	P_DBuf = static_cast<char *>(SAlloc::C(rec_size+1, 1));
 	if(P_DBuf)
 		bufLen = rec_size;
 	else {

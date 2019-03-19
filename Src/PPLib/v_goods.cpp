@@ -830,7 +830,7 @@ int SLAPI GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 	char * p = 0;
 	size_t prop_size = 0;
 	if(PPRef->GetPropActualSize(obj, id, prop, &prop_size) > 0) {
-		THROW_MEM(p_buf = (__GoodsFilt*)SAlloc::C(1, prop_size));
+		THROW_MEM(p_buf = static_cast<__GoodsFilt *>(SAlloc::C(1, prop_size)));
 		THROW(PPRef->GetProperty(obj, id, prop, p_buf, prop_size) > 0);
 		if(p_buf->VerTag <= -11 && p_buf->VerTag > -100) {
 			GrpID       = p_buf->GrpID;

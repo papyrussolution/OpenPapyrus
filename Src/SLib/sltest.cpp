@@ -797,9 +797,8 @@ int STestSuite::Run(const char * pIniFileName)
 			}
 			else { // @v5.7 ANDREW сообщение о том, что функция теста не найдена {
 				LPVOID msg_buff;
-				FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
-				    FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(),
-					MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &msg_buff, 0, 0);
+				FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, 
+					NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&msg_buff, 0, 0);
 				MessageBox(NULL, ffn.CatDiv(':', 2).Cat((LPCTSTR)msg_buff), _T("Error"), MB_OK); // @unicodeproblem
 				LocalFree(msg_buff);
 			} // } @v5.7 ANDREW

@@ -1216,7 +1216,7 @@ SLTEST_R(Tddo)
 	}
 	(temp_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("test.tddo");
 	SFile in_file(temp_buf, SFile::mRead);
-	tddo.SetInputFileName(temp_buf); // @v7.5.10
+	tddo.SetInputFileName(temp_buf);
 	(temp_buf = GetSuiteEntry()->OutPath).SetLastSlash().Cat("test-out.tddo");
 	SFile out_file(temp_buf, SFile::mWrite);
 	THROW_SL(in_file.IsValid());
@@ -1237,7 +1237,7 @@ SLTEST_R(Tddo)
 		}
 		out_buf.WriteByte('\n');
 	}
-	out_file.Write(out_buf, out_buf.GetAvailableSize());
+	out_file.Write(out_buf.constptr(), out_buf.GetAvailableSize());
 	CATCH
 		ok = CurrentStatus = 0;
 	ENDCATCH

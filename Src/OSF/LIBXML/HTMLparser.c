@@ -1577,7 +1577,7 @@ static const htmlEntityDesc html40EntitiesTable[] = {
  */
 #define growBuffer(buffer) {						\
 		buffer ## _size *= 2;						      \
-		xmlChar * tmp = (xmlChar *)SAlloc::R(buffer, buffer ## _size * sizeof(xmlChar)); \
+		xmlChar * tmp = static_cast<xmlChar *>(SAlloc::R(buffer, buffer ## _size * sizeof(xmlChar))); \
 		if(!tmp) {					   \
 			htmlErrMemory(ctxt, "growing buffer\n");			\
 			SAlloc::F(buffer);						\
@@ -2159,7 +2159,7 @@ static xmlChar * FASTCALL htmlParseHTMLAttribute(htmlParserCtxt * ctxt, const xm
 	 * allocate a translation buffer.
 	 */
 	buffer_size = HTML_PARSER_BUFFER_SIZE;
-	buffer = (xmlChar *)SAlloc::M(buffer_size * sizeof(xmlChar));
+	buffer = static_cast<xmlChar *>(SAlloc::M(buffer_size * sizeof(xmlChar)));
 	if(!buffer) {
 		htmlErrMemory(ctxt, "buffer allocation failed\n");
 		return NULL;
@@ -2764,7 +2764,7 @@ static void htmlParsePI(htmlParserCtxt * ctxt)
 				if(len + 5 >= size) {
 					xmlChar * tmp;
 					size *= 2;
-					tmp = (xmlChar *)SAlloc::R(buf, size * sizeof(xmlChar));
+					tmp = static_cast<xmlChar *>(SAlloc::R(buf, size * sizeof(xmlChar)));
 					if(!tmp) {
 						htmlErrMemory(ctxt, 0);
 						SAlloc::F(buf);
@@ -2856,7 +2856,7 @@ static void htmlParseComment(htmlParserCtxt * ctxt)
 			xmlChar * tmp;
 
 			size *= 2;
-			tmp = (xmlChar *)SAlloc::R(buf, size * sizeof(xmlChar));
+			tmp = static_cast<xmlChar *>(SAlloc::R(buf, size * sizeof(xmlChar)));
 			if(!tmp) {
 				SAlloc::F(buf);
 				htmlErrMemory(ctxt, "growing buffer failed\n");
@@ -5411,7 +5411,7 @@ htmlParserCtxt * htmlCreateFileParserCtxt(const char * filename, const char * en
 	if(encoding) {
 		size_t l = sstrlen(encoding);
 		if(l < 1000) {
-			xmlChar * content = (xmlChar *)SAlloc::M(sstrlen(content_line) + l + 1);
+			xmlChar * content = static_cast<xmlChar *>(SAlloc::M(sstrlen(content_line) + l + 1));
 			if(content) {
 				strcpy((char *)content, (char *)content_line);
 				strcat((char *)content, (char *)encoding);

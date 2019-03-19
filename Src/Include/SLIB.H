@@ -61,10 +61,8 @@
 	// @v9.6.4 #define farmalloc malloc
 	// @v9.6.4 #define farrealloc realloc
 	// @v9.6.4 #define farfree free
-
-	#define pow10l(x) pow(10,(x))
-	#define pow10(x)  pow(10,(x))
-
+	// @v10.3.10 #define pow10l(x) pow(10,(x))
+	// @v10.3.10 #define pow10(x)  pow(10,(x))
 	// @v9.6.4 #define delay(n) ::Sleep(n)
 
 	#define MAXDRIVE 3
@@ -4317,7 +4315,7 @@ size_t FASTCALL sstrlen(const wchar_t * pStr);
 FORCEINLINE int FASTCALL sstrleni(const char * pStr) { return static_cast<int>(sstrlen(pStr)); }
 FORCEINLINE int FASTCALL sstrleni(const uchar * pStr) { return static_cast<int>(sstrlen(pStr)); }
 FORCEINLINE int FASTCALL sstrleni(const wchar_t * pStr) { return static_cast<int>(sstrlen(pStr)); }
-char * FASTCALL sstrdup(const char * pStr);
+char  * FASTCALL sstrdup(const char * pStr);
 uchar * FASTCALL sstrdup(const uchar * pStr);
 //
 // Descr: определяет эквивалентность строк pS1 и pS2.
@@ -5265,6 +5263,8 @@ public:
 	SLAPI  operator const char * () const;
 	const  uchar * SLAPI ucptr() const;
 	const  char  * SLAPI cptr() const;
+	const  void  * SLAPI vcptr() const;
+	void * SLAPI vptr();
 	int    FASTCALL Alloc(size_t sz);
 	//
 	// Descr: Если текущий размер буфера больше или равен sz, то ничего не делает, в противном

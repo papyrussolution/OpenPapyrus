@@ -715,6 +715,8 @@ SLAPI  STempBuffer::operator char * () { return P_Buf; }
 SLAPI  STempBuffer::operator const char * () const { return P_Buf; }
 const  uchar * SLAPI STempBuffer::ucptr() const { return reinterpret_cast<const uchar *>(P_Buf); }
 const  char * SLAPI STempBuffer::cptr() const { return P_Buf; }
+const  void * SLAPI STempBuffer::vcptr() const { return P_Buf; }
+void * SLAPI STempBuffer::vptr() { return P_Buf; }
 //
 //
 //
@@ -997,7 +999,7 @@ int SLAPI SSerializeContext::Serialize(const char * pDbtName, BNFieldList * pFld
 			//
 			// Страховка от случая, когда количество полей больше, чем 512
 			//
-			THROW(p_ind_list = (uint8 *)SAlloc::M(ind_len));
+			THROW(p_ind_list = static_cast<uint8 *>(SAlloc::M(ind_len)));
 			own_ind_list = 1;
 		}
 		else
@@ -1053,7 +1055,7 @@ int SLAPI SSerializeContext::Unserialize(const char * pDbtName, const BNFieldLis
 			//
 			// Страховка от случая, когда количество полей больше, чем 512
 			//
-			THROW(p_ind_list = (uint8 *)SAlloc::M(ind_len));
+			THROW(p_ind_list = static_cast<uint8 *>(SAlloc::M(ind_len)));
 			own_ind_list = 1;
 		}
 		else

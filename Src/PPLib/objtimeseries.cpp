@@ -1239,16 +1239,16 @@ void SLAPI PPObjTimeSeries::BestStrategyBlock::SetResult(double localResult, uin
 }
 
 //static 
-int SLAPI PPObjTimeSeries::MatchStrategy(const TSCollection <PPObjTimeSeries::TrendEntry> & rTrendList, int lastIdx, const Strategy & rS, double & rResult, double & rTv, double & rTv2)
+int SLAPI PPObjTimeSeries::MatchStrategy(const PPObjTimeSeries::TrendEntry * pTrendEntry, int lastIdx, const Strategy & rS, double & rResult, double & rTv, double & rTv2)
 {
 	int   ok = 0;
-	const TrendEntry * p_te = SearchTrendEntry(rTrendList, rS.InputFrameSize);
-	const uint tlc = p_te ? p_te->TL.getCount() : 0;
+	const uint tlc = pTrendEntry ? pTrendEntry->TL.getCount() : 0;
 	if(tlc && rS.V.TmSec > 0) { // Если rS.V.TmSec == 0, то результат не был вычислен на этапе подготовки модели, либо не встретилось ни одного случая.
+		assert(rS.InputFrameSize == pTrendEntry->Stride);
 		const uint trend_idx = (lastIdx < 0) ? (tlc-1) : static_cast<uint>(lastIdx);
 		switch(rS.StakeMode) {
 			case 1:
-				rTv = p_te->TL.at(trend_idx);
+				rTv = pTrendEntry->TL.at(trend_idx);
 				if(rS.OptDeltaRange.Check(rTv)) {
 					rResult = rS.V.GetResultPerDay();
 					ok = 1;
@@ -1256,7 +1256,7 @@ int SLAPI PPObjTimeSeries::MatchStrategy(const TSCollection <PPObjTimeSeries::Tr
 				break;
 			case 2:
 				if(tlc >= rS.OptDelta2Stride) {
-					rTv = p_te->TL.StrideDifference(trend_idx, rS.OptDelta2Stride);
+					rTv = pTrendEntry->TL.StrideDifference(trend_idx, rS.OptDelta2Stride);
 					if(rS.OptDelta2Range.Check(rTv)) {
 						rResult = rS.V.GetResultPerDay();
 						ok = 1;
@@ -1266,9 +1266,9 @@ int SLAPI PPObjTimeSeries::MatchStrategy(const TSCollection <PPObjTimeSeries::Tr
 			case 3:
 			case 4:
 				if(tlc >= rS.OptDelta2Stride) {
-					rTv = p_te->TL.at(trend_idx);
+					rTv = pTrendEntry->TL.at(trend_idx);
 					if(rS.OptDeltaRange.Check(rTv)) {
-						rTv2 = p_te->TL.StrideDifference(trend_idx, rS.OptDelta2Stride);
+						rTv2 = pTrendEntry->TL.StrideDifference(trend_idx, rS.OptDelta2Stride);
 						if(rS.OptDelta2Range.Check(rTv2)) {
 							rResult = rS.V.GetResultPerDay();
 							ok = 1;
@@ -1279,6 +1279,12 @@ int SLAPI PPObjTimeSeries::MatchStrategy(const TSCollection <PPObjTimeSeries::Tr
 		}
 	}
 	return ok;
+}
+
+//static 
+int SLAPI PPObjTimeSeries::MatchStrategy(const TSCollection <PPObjTimeSeries::TrendEntry> & rTrendList, int lastIdx, const Strategy & rS, double & rResult, double & rTv, double & rTv2)
+{
+	return MatchStrategy(SearchTrendEntry(rTrendList, rS.InputFrameSize), lastIdx, rS, rResult, rTv, rTv2);
 }
 
 SLAPI  PPObjTimeSeries::FactorToResultRelation::FactorToResultRelation() : FactorQuant(0), PeakAvg(0), Result(0.0)
@@ -1406,6 +1412,7 @@ static void SLAPI TsSimulateStrategyContainer(const DateTimeArray & rTmList, con
 	if(tsc && tsc == rValList.getCount()) {
 		uint max_ifs = 0;
 		uint max_delta2_stride = 0;
+		SCollection trend_to_st_assoc_list(O_COLLECTION & ~aryDataOwner);
 		for(uint tidx = 0; tidx < rTrendList.getCount(); tidx++) {
 			const PPObjTimeSeries::TrendEntry * p_te = rTrendList.at(tidx);
 			assert(p_te);
@@ -1419,7 +1426,12 @@ static void SLAPI TsSimulateStrategyContainer(const DateTimeArray & rTmList, con
 			PPObjTimeSeries::StrategyResultEntry empty_result_entry;
 			if(oneof3(r_s.StakeMode, 2, 3, 4)) // @v10.3.9 (4)
 				SETMAX(max_delta2_stride, r_s.OptDelta2Stride);
+			{
+				const PPObjTimeSeries::TrendEntry * p_te = PPObjTimeSeries::SearchTrendEntry(rTrendList, r_s.InputFrameSize);
+				trend_to_st_assoc_list.insert(p_te);
+			}
 		}
+		assert(trend_to_st_assoc_list.getCount() == rSc.getCount()); // @paranoic 
 		const uint _start_offset = max_ifs+max_delta2_stride;
 		for(uint init_offset = _start_offset, test_no = 0; test_no < 100; (init_offset += 173), (test_no++)) {
 			const LDATETIME start_tm = rTmList.at(init_offset);
@@ -1428,12 +1440,17 @@ static void SLAPI TsSimulateStrategyContainer(const DateTimeArray & rTmList, con
 				PPObjTimeSeries::BestStrategyBlock _best_result;
 				for(uint si = 0; si < rSc.getCount(); si++) {
 					const PPObjTimeSeries::Strategy & r_s = rSc.at(si);
-					{
+					const PPObjTimeSeries::TrendEntry * p_te = static_cast<const PPObjTimeSeries::TrendEntry *>(trend_to_st_assoc_list.at(si)); // @v10.3.10
+					if(p_te) {
 						double cr = 0.0;
 						double _tv = 0.0; // Трендовое значение (вычисление зависит от модели)
 						double _tv2 = 0.0; // Второе трендовое значение (вычисляется для комбинированной модели)
-						if(PPObjTimeSeries::MatchStrategy(rTrendList, static_cast<int>(i), r_s, cr, _tv, _tv2))
+						// @v10.3.10 {
+						if(PPObjTimeSeries::MatchStrategy(p_te, static_cast<int>(i), r_s, cr, _tv, _tv2))
 							_best_result.SetResult(cr, si, _tv, _tv2);
+						// } @v10.3.10 
+						/* @v10.3.10 if(PPObjTimeSeries::MatchStrategy(rTrendList, static_cast<int>(i), r_s, cr, _tv, _tv2))
+							_best_result.SetResult(cr, si, _tv, _tv2);*/
 					}
 				}
 				if(_best_result.MaxResultIdx >= 0) {

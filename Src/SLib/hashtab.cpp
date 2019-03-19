@@ -127,7 +127,7 @@ int HashTableBase::Entry::SetVal(uint key, uint val)
 		Count = 1;
 	}
 	else {
-		P_Ext = (LAssoc *)SAlloc::R(P_Ext, sizeof(LAssoc) * Count);
+		P_Ext = static_cast<LAssoc *>(SAlloc::R(P_Ext, sizeof(LAssoc) * Count));
 		if(P_Ext == 0)
 			ok = 0;
 		else {
@@ -169,7 +169,7 @@ int FASTCALL HashTableBase::Entry::Copy(const SymbHashTable::Entry & rSrc)
 	Val = rSrc.Val;
 	Count = rSrc.Count;
 	if(Count > 1) {
-		P_Ext = (LAssoc *)SAlloc::M(sizeof(LAssoc) * Count-1);
+		P_Ext = static_cast<LAssoc *>(SAlloc::M(sizeof(LAssoc) * Count-1));
 		if(P_Ext == 0) {
 			Count = 1;
 			ok = 0;
@@ -1514,7 +1514,7 @@ struct UT_hash_handle {
 #define HASH_BLOOM_MAKE(tbl)							 \
 	do {										 \
 		(tbl)->bloom_nbits = HASH_BLOOM;					       \
-		(tbl)->bloom_bv = (uint8_t*)SAlloc::M(HASH_BLOOM_BYTELEN);		       \
+		(tbl)->bloom_bv = static_cast<uint8_t *>(SAlloc::M(HASH_BLOOM_BYTELEN));		       \
 		if(!((tbl)->bloom_bv))  { uthash_fatal("out of memory"); }		     \
 		memzero((tbl)->bloom_bv, HASH_BLOOM_BYTELEN);				       \
 		(tbl)->bloom_sig = HASH_BLOOM_SIGNATURE;				       \
@@ -1535,7 +1535,7 @@ struct UT_hash_handle {
 
 #define HASH_MAKE_TABLE(hh, head)						  \
 	do {										 \
-		(head)->hh.tbl = (UT_hash_table*)SAlloc::M(sizeof(UT_hash_table)); \
+		(head)->hh.tbl = static_cast<UT_hash_table *>(SAlloc::M(sizeof(UT_hash_table))); \
 		if(!((head)->hh.tbl))  { uthash_fatal("out of memory"); }		     \
 		memzero((head)->hh.tbl, sizeof(UT_hash_table));			       \
 		(head)->hh.tbl->tail = &((head)->hh);					       \

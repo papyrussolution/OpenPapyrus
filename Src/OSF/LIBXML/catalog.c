@@ -824,14 +824,12 @@ static xmlChar * xmlLoadFileContent(const char * filename)
 #ifdef HAVE_STAT
 	size = info.st_size;
 #else
-	if(fseek(fd, 0, SEEK_END) || (size = ftell(fd)) == EOF || fseek(fd, 0, SEEK_SET)) {     /* File operations
-		                                                                                  denied? ok, just close
-		                                                                                  and return failure */
+	if(fseek(fd, 0, SEEK_END) || (size = ftell(fd)) == EOF || fseek(fd, 0, SEEK_SET)) { // File operations denied? ok, just close and return failure
 		fclose(fd);
 		return 0;
 	}
 #endif
-	content = (xmlChar *)SAlloc::M(size + 10);
+	content = static_cast<xmlChar *>(SAlloc::M(size + 10));
 	if(content == NULL) {
 		xmlCatalogErrMemory("allocating catalog data");
 #ifdef HAVE_STAT
@@ -1882,7 +1880,7 @@ static const xmlChar * xmlParseSGMLCatalogPubid(const xmlChar * cur, xmlChar ** 
 			break;
 		if(len + 1 >= size) {
 			size *= 2;
-			tmp = (xmlChar *)SAlloc::R(buf, size * sizeof(xmlChar));
+			tmp = static_cast<xmlChar *>(SAlloc::R(buf, size * sizeof(xmlChar)));
 			if(!tmp) {
 				xmlCatalogErrMemory("allocating public ID");
 				SAlloc::F(buf);

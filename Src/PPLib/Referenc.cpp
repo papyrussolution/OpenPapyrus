@@ -1233,7 +1233,7 @@ int SLAPI PPRights::ReadRights(PPID securType, PPID securID, int ignoreCheckSum)
 			}
 			if(do_convert) {
 				uint8  temp_buffer[128];
-				_PPRights * p_temp_r = (_PPRights *)SAlloc::M(Size());
+				_PPRights * p_temp_r = static_cast<_PPRights *>(SAlloc::M(Size()));
 				THROW_MEM(p_temp_r);
 				memcpy(p_temp_r, P_Rt, Size());
 				THROW(Resize(sizeof(_PPRights)));
@@ -1458,7 +1458,7 @@ int SLAPI PPRights::Resize(uint sz)
 	else {
 		size_t prev_size = Size();
 		sz = (sz < sizeof(_PPRights)) ? sizeof(_PPRights) : sz;
-		P_Rt = (_PPRights*)SAlloc::R(P_Rt, sz);
+		P_Rt = static_cast<_PPRights *>(SAlloc::R(P_Rt, sz));
 		if(P_Rt) {
 			if(sz > prev_size)
 				memzero(PTR8(P_Rt) + prev_size, sz - prev_size);

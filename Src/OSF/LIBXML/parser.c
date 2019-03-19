@@ -2509,7 +2509,7 @@ xmlChar * xmlSplitQName(xmlParserCtxt * ctxt, const xmlChar * name, xmlChar ** p
 	if(len >= max) {
 		// Okay someone managed to make a huge name, so he's ready to pay for the processing speed.
 		max = len * 2;
-		buffer = (xmlChar *)SAlloc::M(max * sizeof(xmlChar));
+		buffer = static_cast<xmlChar *>(SAlloc::M(max * sizeof(xmlChar)));
 		if(!buffer) {
 			xmlErrMemory(ctxt, 0);
 			return 0;
@@ -2518,7 +2518,7 @@ xmlChar * xmlSplitQName(xmlParserCtxt * ctxt, const xmlChar * name, xmlChar ** p
 		while((c != 0) && (c != ':')) { /* tested bigname.xml */
 			if(len + 10 > max) {
 				max *= 2;
-				xmlChar * tmp = (xmlChar *)SAlloc::R(buffer, max * sizeof(xmlChar));
+				xmlChar * tmp = static_cast<xmlChar *>(SAlloc::R(buffer, max * sizeof(xmlChar)));
 				if(!tmp) {
 					SAlloc::F(buffer);
 					xmlErrMemory(ctxt, 0);
@@ -2569,7 +2569,7 @@ xmlChar * xmlSplitQName(xmlParserCtxt * ctxt, const xmlChar * name, xmlChar ** p
 			 * for the processing speed.
 			 */
 			max = len * 2;
-			buffer = (xmlChar *)SAlloc::M(max * sizeof(xmlChar));
+			buffer = static_cast<xmlChar *>(SAlloc::M(max * sizeof(xmlChar)));
 			if(!buffer) {
 				xmlErrMemory(ctxt, 0);
 				return 0;
@@ -2579,7 +2579,7 @@ xmlChar * xmlSplitQName(xmlParserCtxt * ctxt, const xmlChar * name, xmlChar ** p
 				if(len + 10 > max) {
 					xmlChar * tmp;
 					max *= 2;
-					tmp = (xmlChar *)SAlloc::R(buffer, max * sizeof(xmlChar));
+					tmp = static_cast<xmlChar *>(SAlloc::R(buffer, max * sizeof(xmlChar)));
 					if(!tmp) {
 						xmlErrMemory(ctxt, 0);
 						SAlloc::F(buffer);
@@ -3026,7 +3026,7 @@ static xmlChar * FASTCALL xmlParseStringName(xmlParserCtxt * ctxt, const xmlChar
 			 * for the processing speed.
 			 */
 			int max = len * 2;
-			xmlChar * buffer = (xmlChar *)SAlloc::M(max * sizeof(xmlChar));
+			xmlChar * buffer = static_cast<xmlChar *>(SAlloc::M(max * sizeof(xmlChar)));
 			if(!buffer) {
 				xmlErrMemory(ctxt, 0);
 				return 0;
@@ -3041,7 +3041,7 @@ static xmlChar * FASTCALL xmlParseStringName(xmlParserCtxt * ctxt, const xmlChar
 						return 0;
 					}
 					max *= 2;
-					tmp = (xmlChar *)SAlloc::R(buffer, max * sizeof(xmlChar));
+					tmp = static_cast<xmlChar *>(SAlloc::R(buffer, max * sizeof(xmlChar)));
 					if(!tmp) {
 						xmlErrMemory(ctxt, 0);
 						SAlloc::F(buffer);
@@ -3115,7 +3115,7 @@ xmlChar * xmlParseNmtoken(xmlParserCtxt * ctxt)
 			 * for the processing speed.
 			 */
 			int max = len * 2;
-			xmlChar * buffer = (xmlChar *)SAlloc::M(max * sizeof(xmlChar));
+			xmlChar * buffer = static_cast<xmlChar *>(SAlloc::M(max * sizeof(xmlChar)));
 			if(!buffer) {
 				xmlErrMemory(ctxt, 0);
 				return 0;
@@ -3138,7 +3138,7 @@ xmlChar * xmlParseNmtoken(xmlParserCtxt * ctxt)
 						return 0;
 					}
 					max *= 2;
-					tmp = (xmlChar *)SAlloc::R(buffer, max * sizeof(xmlChar));
+					tmp = static_cast<xmlChar *>(SAlloc::R(buffer, max * sizeof(xmlChar)));
 					if(!tmp) {
 						xmlErrMemory(ctxt, 0);
 						SAlloc::F(buffer);
@@ -3222,7 +3222,7 @@ xmlChar * xmlParseEntityValue(xmlParserCtxt * ctxt, xmlChar ** orig)
 	while(((IS_CHAR(c)) && ((c != stop) || /* checked */ (ctxt->input != input))) && (ctxt->instate != XML_PARSER_EOF)) {
 		if(len + 5 >= size) {
 			size *= 2;
-			xmlChar * tmp = (xmlChar *)SAlloc::R(buf, size * sizeof(xmlChar));
+			xmlChar * tmp = static_cast<xmlChar *>(SAlloc::R(buf, size * sizeof(xmlChar)));
 			if(!tmp) {
 				xmlErrMemory(ctxt, 0);
 				SAlloc::F(buf);
@@ -3335,7 +3335,7 @@ static xmlChar * xmlParseAttValueComplex(xmlParserCtxt * ctxt, int * attlen, int
 	 * allocate a translation buffer.
 	 */
 	buf_size = XML_PARSER_BUFFER_SIZE;
-	buf = (xmlChar *)SAlloc::M(buf_size);
+	buf = static_cast<xmlChar *>(SAlloc::M(buf_size));
 	if(!buf)
 		goto mem_error;
 	/*
@@ -3610,7 +3610,7 @@ xmlChar * xmlParseSystemLiteral(xmlParserCtxt * ctxt)
 				return 0;
 			}
 			size *= 2;
-			tmp = (xmlChar *)SAlloc::R(buf, size * sizeof(xmlChar));
+			tmp = static_cast<xmlChar *>(SAlloc::R(buf, size * sizeof(xmlChar)));
 			if(!tmp) {
 				SAlloc::F(buf);
 				xmlErrMemory(ctxt, 0);
@@ -3695,7 +3695,7 @@ xmlChar * xmlParsePubidLiteral(xmlParserCtxt * ctxt)
 				return 0;
 			}
 			size *= 2;
-			tmp = (xmlChar *)SAlloc::R(buf, size * sizeof(xmlChar));
+			tmp = static_cast<xmlChar *>(SAlloc::R(buf, size * sizeof(xmlChar)));
 			if(!tmp) {
 				xmlErrMemory(ctxt, 0);
 				SAlloc::F(buf);
@@ -4142,7 +4142,7 @@ static void xmlParseCommentComplex(xmlParserCtxt * ctxt, xmlChar * buf, size_t l
 		}
 		if(len + 5 >= size) {
 			size_t new_size = size * 2;
-			xmlChar * new_buf = (xmlChar *)SAlloc::R(buf, new_size);
+			xmlChar * new_buf = static_cast<xmlChar *>(SAlloc::R(buf, new_size));
 			if(new_buf == NULL) {
 				SAlloc::F(buf);
 				xmlErrMemory(ctxt, 0);
@@ -4276,8 +4276,7 @@ get_more:
 				else if(len + nbchar + 1 >= size) {
 					xmlChar * new_buf;
 					size  += len + nbchar + XML_PARSER_BUFFER_SIZE;
-					new_buf = (xmlChar *)SAlloc::R(buf,
-					    size * sizeof(xmlChar));
+					new_buf = static_cast<xmlChar *>(SAlloc::R(buf, size * sizeof(xmlChar)));
 					if(new_buf == NULL) {
 						SAlloc::F(buf);
 						xmlErrMemory(ctxt, 0);
@@ -4509,7 +4508,7 @@ void xmlParsePI(xmlParserCtxt * ctxt)
 			while(IS_CHAR(cur) && /* checked */ ((cur != '?') || (NXT(1) != '>'))) {
 				if(len + 5 >= size) {
 					size_t new_size = size * 2;
-					xmlChar * tmp = (xmlChar *)SAlloc::R(buf, new_size);
+					xmlChar * tmp = static_cast<xmlChar *>(SAlloc::R(buf, new_size));
 					if(!tmp) {
 						xmlErrMemory(ctxt, 0);
 						SAlloc::F(buf);
@@ -8506,7 +8505,7 @@ void xmlParseCDSect(xmlParserCtxt * ctxt)
 				SAlloc::F(buf);
 				return;
 			}
-			tmp = (xmlChar *)SAlloc::R(buf, size * 2 * sizeof(xmlChar));
+			tmp = static_cast<xmlChar *>(SAlloc::R(buf, size * 2 * sizeof(xmlChar)));
 			if(!tmp) {
 				SAlloc::F(buf);
 				xmlErrMemory(ctxt, 0);
@@ -8790,7 +8789,7 @@ xmlChar * xmlParseVersionNum(xmlParserCtxt * ctxt)
 		if(len + 1 >= size) {
 			xmlChar * tmp;
 			size *= 2;
-			tmp = (xmlChar *)SAlloc::R(buf, size * sizeof(xmlChar));
+			tmp = static_cast<xmlChar *>(SAlloc::R(buf, size * sizeof(xmlChar)));
 			if(!tmp) {
 				SAlloc::F(buf);
 				xmlErrMemory(ctxt, 0);
@@ -8883,7 +8882,7 @@ xmlChar * xmlParseEncName(xmlParserCtxt * ctxt)
 			if((len + 1) >= size) {
 				xmlChar * tmp;
 				size *= 2;
-				tmp = (xmlChar *)SAlloc::R(buf, size * sizeof(xmlChar));
+				tmp = static_cast<xmlChar *>(SAlloc::R(buf, size * sizeof(xmlChar)));
 				if(!tmp) {
 					xmlErrMemory(ctxt, 0);
 					SAlloc::F(buf);

@@ -872,7 +872,7 @@ static void xmlXPtrEvalXPtrPart(xmlXPathParserContextPtr ctxt, xmlChar * name)
 	level = 1;
 	len = sstrlen(ctxt->cur);
 	len++;
-	buffer = (xmlChar *)SAlloc::M(len * sizeof(xmlChar));
+	buffer = static_cast<xmlChar *>(SAlloc::M(len * sizeof(xmlChar)));
 	if(!buffer) {
 		xmlXPtrErrMemory("allocating buffer");
 		return;

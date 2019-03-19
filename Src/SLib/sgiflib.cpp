@@ -1010,7 +1010,7 @@ int DGifSlurp(GifFileType * pGifFile)
 			    if(image_size > (SIZE_MAX / sizeof(GifPixelType))) {
 				    return GIF_ERROR;
 			    }
-			    p_sp->RasterBits = (uint8 *)SAlloc::M(image_size * sizeof(GifPixelType));
+			    p_sp->RasterBits = static_cast<uint8 *>(SAlloc::M(image_size * sizeof(GifPixelType)));
 			    if(p_sp->RasterBits == NULL) {
 				    return GIF_ERROR;
 			    }
@@ -2161,7 +2161,7 @@ static int FASTCALL KeyItem(uint32 Item)
 GifHashTableType * _InitHashTable(void)
 {
 	GifHashTableType * HashTable;
-	if((HashTable = (GifHashTableType*)SAlloc::M(sizeof(GifHashTableType))) == NULL)
+	if((HashTable = static_cast<GifHashTableType *>(SAlloc::M(sizeof(GifHashTableType)))) == NULL)
 		return NULL;
 	_ClearHashTable(HashTable);
 	return HashTable;
@@ -2570,7 +2570,7 @@ static int SubdivColorMap(NewColorMapType * pNewColorSubdiv, uint ColorMapSize, 
 
 		/* Sort all elements in that entry along the given axis and split at
 		 * the median.  */
-		SortArray = (QuantizedColorType**)SAlloc::M(sizeof(QuantizedColorType *) * pNewColorSubdiv[Index].NumEntries);
+		SortArray = static_cast<QuantizedColorType **>(SAlloc::M(sizeof(QuantizedColorType *) * pNewColorSubdiv[Index].NumEntries));
 		if(SortArray == NULL)
 			return GIF_ERROR;
 		for(j = 0, QuantizedColor = pNewColorSubdiv[Index].QuantizedColors; j < pNewColorSubdiv[Index].NumEntries && QuantizedColor; j++, QuantizedColor = QuantizedColor->Pnext)
@@ -2630,9 +2630,8 @@ static int SubdivColorMap(NewColorMapType * pNewColorSubdiv, uint ColorMapSize, 
 // Also non of the parameter are allocated by this routine.
 // This function returns GIF_OK if successful, GIF_ERROR otherwise.
 // 
-int GifQuantizeBuffer(uint Width, uint Height,
-    int * pColorMapSize, GifByteType * RedInput, GifByteType * GreenInput, GifByteType * BlueInput,
-    GifByteType * OutputBuffer, SColorRGB * OutputColorMap) 
+int GifQuantizeBuffer(uint Width, uint Height, int * pColorMapSize, GifByteType * RedInput, GifByteType * GreenInput, 
+	GifByteType * BlueInput, GifByteType * OutputBuffer, SColorRGB * OutputColorMap) 
 {
 	uint Index, NumOfEntries;
 	int i, j, MaxRGBError[3];
@@ -2640,7 +2639,7 @@ int GifQuantizeBuffer(uint Width, uint Height,
 	long Red, Green, Blue;
 	NewColorMapType NewColorSubdiv[256];
 	QuantizedColorType * ColorArrayEntries, * QuantizedColor;
-	ColorArrayEntries = (QuantizedColorType*)SAlloc::M(sizeof(QuantizedColorType) * COLOR_ARRAY_SIZE);
+	ColorArrayEntries = static_cast<QuantizedColorType *>(SAlloc::M(sizeof(QuantizedColorType) * COLOR_ARRAY_SIZE));
 	if(ColorArrayEntries == NULL) {
 		return GIF_ERROR;
 	}

@@ -9196,23 +9196,19 @@ static xmlChar * xmlXPathParseNameComplex(xmlXPathParserContextPtr ctxt, int qua
 			if(len > XML_MAX_NAME_LENGTH) {
 				XP_ERRORNULL(XPATH_EXPR_ERROR);
 			}
-			buffer = (xmlChar *)SAlloc::M(max * sizeof(xmlChar));
+			buffer = static_cast<xmlChar *>(SAlloc::M(max * sizeof(xmlChar)));
 			if(!buffer) {
 				XP_ERRORNULL(XPATH_MEMORY_ERROR);
 			}
 			memcpy(buffer, buf, len);
-			while((IS_LETTER(c)) || (IS_DIGIT(c)) || /* test bigname.xml */
-			    (c == '.') || (c == '-') ||
-			    (c == '_') || ((qualified) && (c == ':')) ||
-			    (IS_COMBINING(c)) ||
-			    (IS_EXTENDER(c))) {
+			while((IS_LETTER(c)) || (IS_DIGIT(c)) || /* test bigname.xml */ (c == '.') || (c == '-') || (c == '_') || ((qualified) && (c == ':')) ||
+			    (IS_COMBINING(c)) || (IS_EXTENDER(c))) {
 				if(len + 10 > max) {
 					if(max > XML_MAX_NAME_LENGTH) {
 						XP_ERRORNULL(XPATH_EXPR_ERROR);
 					}
 					max *= 2;
-					buffer = (xmlChar *)SAlloc::R(buffer,
-					    max * sizeof(xmlChar));
+					buffer = static_cast<xmlChar *>(SAlloc::R(buffer, max * sizeof(xmlChar)));
 					if(!buffer) {
 						XP_ERRORNULL(XPATH_MEMORY_ERROR);
 					}

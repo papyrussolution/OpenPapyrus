@@ -184,7 +184,7 @@ xmlChar * FASTCALL xmlBuildQName(const xmlChar * ncname, const xmlChar * prefix,
 			const int lenn = sstrlen(ncname);
 			const int lenp = sstrlen(prefix);
 			if(!memory || len < (lenn + lenp + 2)) {
-				ret = (xmlChar *)SAlloc::M(lenn + lenp + 2);
+				ret = static_cast<xmlChar *>(SAlloc::M(lenn + lenp + 2));
 				if(!ret) {
 					xmlTreeErrMemory("building QName");
 					return 0;
@@ -810,7 +810,7 @@ xmlDtd * xmlCreateIntSubset(xmlDoc * doc, const xmlChar * name, const xmlChar * 
 	/*
 	 * Allocate a new DTD and fill the fields.
 	 */
-	cur = (xmlDtd *)SAlloc::M(sizeof(xmlDtd));
+	cur = static_cast<xmlDtd *>(SAlloc::M(sizeof(xmlDtd)));
 	if(!cur) {
 		xmlTreeErrMemory("building internal subset");
 		return 0;
@@ -838,19 +838,19 @@ xmlDtd * xmlCreateIntSubset(xmlDoc * doc, const xmlChar * name, const xmlChar * 
 		cur->SystemID = sstrdup(SystemID);
 		if(!cur->SystemID) {
 			xmlTreeErrMemory("building internal subset");
-			SAlloc::F((char *)cur->name);
-			SAlloc::F((char *)cur->ExternalID);
+			SAlloc::F(const_cast<xmlChar *>(cur->name)); // @badcast
+			SAlloc::F(const_cast<xmlChar *>(cur->ExternalID)); // @badcast
 			SAlloc::F(cur);
 			return 0;
 		}
 	}
 	if(doc) {
 		doc->intSubset = cur;
-		cur->parent = doc;
+		cur->parent = reinterpret_cast<xmlNode *>(doc);
 		cur->doc = doc;
 		if(doc->children == NULL) {
-			doc->children = (xmlNode *)cur;
-			doc->last = (xmlNode *)cur;
+			doc->children = reinterpret_cast<xmlNode *>(cur);
+			doc->last = reinterpret_cast<xmlNode *>(cur);
 		}
 		else {
 			if(doc->type == XML_HTML_DOCUMENT_NODE) {
@@ -3902,7 +3902,7 @@ xmlDtdPtr xmlCopyDtd(xmlDtdPtr dtd)
  */
 xmlDocPtr xmlCopyDoc(xmlDoc * doc, int recursive)
 {
-	xmlDocPtr ret;
+	xmlDoc * ret;
 	if(!doc) 
 		return 0;
 	ret = xmlNewDoc(doc->version);
@@ -3926,16 +3926,15 @@ xmlDocPtr xmlCopyDoc(xmlDoc * doc, int recursive)
 			return 0;
 		}
 		xmlSetTreeDoc((xmlNode *)ret->intSubset, ret);
-		ret->intSubset->parent = ret;
+		ret->intSubset->parent = reinterpret_cast<xmlNode *>(ret);
 	}
 #endif
 	if(doc->oldNs)
 		ret->oldNs = xmlCopyNamespaceList(doc->oldNs);
 	if(doc->children) {
-		xmlNode * tmp;
 		ret->children = xmlStaticCopyNodeList(doc->children, ret, (xmlNode *)ret);
 		ret->last = NULL;
-		tmp = ret->children;
+		xmlNode * tmp = ret->children;
 		while(tmp) {
 			if(tmp->next == NULL)
 				ret->last = tmp;
@@ -3946,13 +3945,9 @@ xmlDocPtr xmlCopyDoc(xmlDoc * doc, int recursive)
 }
 
 #endif /* LIBXML_TREE_ENABLED */
-
-/************************************************************************
-*									*
-*		Content access functions				*
-*									*
-************************************************************************/
-
+//
+// Content access functions
+//
 /**
  * xmlGetLineNoInternal:
  * @node: valid node
@@ -4029,12 +4024,12 @@ xmlChar * xmlGetNodePath(const xmlNode * P_Node)
 	if(!P_Node || (P_Node->type == XML_NAMESPACE_DECL))
 		return 0;
 	buf_len = 500;
-	buffer = (xmlChar *)SAlloc::M(buf_len * sizeof(xmlChar));
+	buffer = static_cast<xmlChar *>(SAlloc::M(buf_len * sizeof(xmlChar)));
 	if(!buffer) {
 		xmlTreeErrMemory("getting node path");
 		return 0;
 	}
-	buf = (xmlChar *)SAlloc::M(buf_len * sizeof(xmlChar));
+	buf = static_cast<xmlChar *>(SAlloc::M(buf_len * sizeof(xmlChar)));
 	if(!buf) {
 		xmlTreeErrMemory("getting node path");
 		SAlloc::F(buffer);
@@ -4205,7 +4200,7 @@ xmlChar * xmlGetNodePath(const xmlNode * P_Node)
 		 */
 		if(sstrlen(buffer) + sizeof(nametemp) + 20 > buf_len) {
 			buf_len = 2 * buf_len + sstrlen(buffer) + sizeof(nametemp) + 20;
-			temp = (xmlChar *)SAlloc::R(buffer, buf_len);
+			temp = static_cast<xmlChar *>(SAlloc::R(buffer, buf_len));
 			if(temp == NULL) {
 				xmlTreeErrMemory("getting node path");
 				SAlloc::F(buf);
@@ -4213,7 +4208,7 @@ xmlChar * xmlGetNodePath(const xmlNode * P_Node)
 				return 0;
 			}
 			buffer = temp;
-			temp = (xmlChar *)SAlloc::R(buf, buf_len);
+			temp = static_cast<xmlChar *>(SAlloc::R(buf, buf_len));
 			if(temp == NULL) {
 				xmlTreeErrMemory("getting node path");
 				SAlloc::F(buf);
@@ -6157,7 +6152,7 @@ xmlBuffer * xmlBufferCreate()
 		ret->use = 0;
 		ret->size = xmlDefaultBufferSize;
 		ret->alloc = xmlBufferAllocScheme;
-		ret->content = (xmlChar *)SAlloc::M(ret->size * sizeof(xmlChar));
+		ret->content = static_cast<xmlChar *>(SAlloc::M(ret->size * sizeof(xmlChar)));
 		if(ret->content == NULL) {
 			xmlTreeErrMemory("creating buffer");
 			SAlloc::F(ret);
@@ -6189,7 +6184,7 @@ xmlBuffer * xmlBufferCreateSize(size_t size)
 		ret->alloc = xmlBufferAllocScheme;
 		ret->size = (size ? size+2 : 0);     /* +1 for ending null */
 		if(ret->size) {
-			ret->content = (xmlChar *)SAlloc::M(ret->size * sizeof(xmlChar));
+			ret->content = static_cast<xmlChar *>(SAlloc::M(ret->size * sizeof(xmlChar)));
 			if(ret->content == NULL) {
 				xmlTreeErrMemory("creating buffer");
 				SAlloc::F(ret);
@@ -6391,7 +6386,7 @@ int xmlBufferGrow(xmlBuffer * buf, uint len)
 
 	if((buf->alloc == XML_BUFFER_ALLOC_IO) && buf->contentIO) {
 		size_t start_buf = buf->content - buf->contentIO;
-		newbuf = (xmlChar *)SAlloc::R(buf->contentIO, start_buf + size);
+		newbuf = static_cast<xmlChar *>(SAlloc::R(buf->contentIO, start_buf + size));
 		if(newbuf == NULL) {
 			xmlTreeErrMemory("growing buffer");
 			return -1;
@@ -6400,7 +6395,7 @@ int xmlBufferGrow(xmlBuffer * buf, uint len)
 		buf->content = newbuf + start_buf;
 	}
 	else {
-		newbuf = (xmlChar *)SAlloc::R(buf->content, size);
+		newbuf = static_cast<xmlChar *>(SAlloc::R(buf->content, size));
 		if(newbuf == NULL) {
 			xmlTreeErrMemory("growing buffer");
 			return -1;
@@ -6529,7 +6524,7 @@ int xmlBufferResize(xmlBuffer * buf, uint size)
 			buf->size += start_buf;
 		}
 		else {
-			rebuf = (xmlChar *)SAlloc::R(buf->contentIO, start_buf + newSize);
+			rebuf = static_cast<xmlChar *>(SAlloc::R(buf->contentIO, start_buf + newSize));
 			if(rebuf == NULL) {
 				xmlTreeErrMemory("growing buffer");
 				return 0;
@@ -6540,10 +6535,10 @@ int xmlBufferResize(xmlBuffer * buf, uint size)
 	}
 	else {
 		if(buf->content == NULL) {
-			rebuf = (xmlChar *)SAlloc::M(newSize);
+			rebuf = static_cast<xmlChar *>(SAlloc::M(newSize));
 		}
 		else if(buf->size - buf->use < 100) {
-			rebuf = (xmlChar *)SAlloc::R(buf->content, newSize);
+			rebuf = static_cast<xmlChar *>(SAlloc::R(buf->content, newSize));
 		}
 		else {
 			/*
@@ -6551,7 +6546,7 @@ int xmlBufferResize(xmlBuffer * buf, uint size)
 			 * better to make a new allocation and copy only the used range
 			 * and free the old one.
 			 */
-			rebuf = (xmlChar *)SAlloc::M(newSize);
+			rebuf = static_cast<xmlChar *>(SAlloc::M(newSize));
 			if(rebuf) {
 				memcpy(rebuf, buf->content, buf->use);
 				SAlloc::F(buf->content);

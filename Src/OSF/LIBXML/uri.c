@@ -900,7 +900,7 @@ static xmlChar * FASTCALL xmlSaveUriRealloc(xmlChar * ret, int * max)
 	}
 	else {
 		int tmp = *max * 2;
-		xmlChar * temp = (xmlChar *)SAlloc::R(ret, (tmp + 1));
+		xmlChar * temp = static_cast<xmlChar *>(SAlloc::R(ret, (tmp + 1)));
 		if(!temp)
 			xmlURIErrMemory("saving URI\n");
 		else
@@ -925,7 +925,7 @@ xmlChar * xmlSaveUri(xmlURIPtr uri)
 	int max = 80;
 	if(!uri)
 		return 0;
-	ret = (xmlChar *)SAlloc::M((max + 1) * sizeof(xmlChar));
+	ret = static_cast<xmlChar *>(SAlloc::M((max + 1) * sizeof(xmlChar)));
 	if(!ret) {
 		xmlURIErrMemory("saving URI\n");
 		return 0;
@@ -1478,7 +1478,7 @@ xmlChar * FASTCALL xmlURIEscapeStr(const xmlChar * str, const xmlChar * list)
 	if(!(len > 0))
 		return 0;
 	len += 20;
-	ret = (xmlChar *)SAlloc::M(len);
+	ret = static_cast<xmlChar *>(SAlloc::M(len));
 	if(!ret) {
 		xmlURIErrMemory("escaping URI value\n");
 		return 0;
@@ -2044,7 +2044,7 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 	 * length of the remainder of the URI, plus enough space
 	 * for the "../" groups, plus one for the terminator
 	 */
-	val = (xmlChar *)SAlloc::M(len + 3 * nbslash);
+	val = static_cast<xmlChar *>(SAlloc::M(len + 3 * nbslash));
 	if(!val) {
 		xmlURIErrMemory("building relative URI\n");
 		goto done;

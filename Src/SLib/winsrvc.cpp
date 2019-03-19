@@ -1,5 +1,5 @@
 // WINSRVC.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2016, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -29,8 +29,7 @@ private:
 //
 //
 //static
-int SLAPI WinService::Install(const char * pServiceName, const char * pDisplayName,
-	const char * pModuleName, const char * pLogin, const char * pPassword)
+int SLAPI WinService::Install(const char * pServiceName, const char * pDisplayName, const char * pModuleName, const char * pLogin, const char * pPassword)
 {
 	WinServiceMngr sm;
 	WinService s(sm, pServiceName);
@@ -53,11 +52,8 @@ int SLAPI WinService::Start(const char * pServiceName, int stop)
 	return stop ? s.Stop() : s.Start();
 }
 
-SLAPI WinService::WinService(const WinServiceMngr & rMngr, const char * pServiceName, long desiredAccess)
+SLAPI WinService::WinService(const WinServiceMngr & rMngr, const char * pServiceName, long desiredAccess) : P_ScMngr(&rMngr), H(0), Name(pServiceName)
 {
-	P_ScMngr = &rMngr;
-	H = 0;
-	Name = pServiceName;
 	if(P_ScMngr->IsValid()) {
 		H = ::OpenService(*P_ScMngr, SUcSwitch(pServiceName), desiredAccess); // @unicodeproblem
 		if(!H) {
@@ -86,8 +82,9 @@ int SLAPI WinService::Create(const char * pDisplayName, const char * pModuleName
 {
 	int    ok = 0;
 	if(P_ScMngr->IsValid()) {
-		const char * p_login = (pLogin && *pLogin) ? pLogin : 0;
-		const char * p_pw = (p_login && pPw) ? pPw : 0;
+		const TCHAR * p_login = (pLogin && *pLogin) ? SUcSwitch(pLogin) : 0;
+		const TCHAR * p_pw = (p_login && pPw) ? SUcSwitch(pPw) : 0;
+		const TCHAR * p_disp_name = pDisplayName ? SUcSwitch(pDisplayName) : SUcSwitch(Name.cptr());
 		/* @v10.3.9 
 		char   path[MAXPATH];
 		if(pModuleName)
@@ -96,11 +93,15 @@ int SLAPI WinService::Create(const char * pDisplayName, const char * pModuleName
 			::GetModuleFileName(NULL, path, sizeof(path)); // @unicodeproblem
 		*/
 		SString path; // @v10.3.9
-		SSystem::SGetModuleFileName(0, path); // @v10.3.9
+		if(pModuleName) {
+			path = pModuleName;
+		}
+		else
+			SSystem::SGetModuleFileName(0, path); // @v10.3.9
 		if(!H) {
-			H = ::CreateService(*P_ScMngr, SUcSwitch(Name), SUcSwitch(pDisplayName ? pDisplayName : Name.cptr()),
+			H = ::CreateService(*P_ScMngr, SUcSwitch(Name), p_disp_name,
     	    	SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START, SERVICE_ERROR_NORMAL,
-        		SUcSwitch(path), NULL, NULL, NULL, SUcSwitch(p_login), SUcSwitch(p_pw)); // @unicodeproblem
+        		SUcSwitch(path), NULL, NULL, NULL, p_login, p_pw); // @unicodeproblem
 			ok = BIN(H);
 		}
 		else {
@@ -161,8 +162,7 @@ int SLAPI WinService::Delete()
 
 int SLAPI WinService::Start()
 {
-	int    ok = (H && StartService(H, 0, 0)) ? 1 : 0;
-	return ok;
+	return BIN(H && StartService(H, 0, 0));
 }
 
 int SLAPI WinService::Stop()
@@ -170,6 +170,6 @@ int SLAPI WinService::Stop()
 	int    ok = 0;
 	SERVICE_STATUS r;
 	if(H)
-		ok = (ControlService(H, SERVICE_CONTROL_STOP, &r) || GetLastError() == ERROR_SERVICE_NOT_ACTIVE) ? 1 : 0;
+		ok = BIN(ControlService(H, SERVICE_CONTROL_STOP, &r) || GetLastError() == ERROR_SERVICE_NOT_ACTIVE);
 	return ok;
 }

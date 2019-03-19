@@ -3681,7 +3681,7 @@ int xmlRegExecPushString2(xmlRegExecCtxtPtr exec, const xmlChar * value, const x
 			const size_t lenn = sstrlen(value2);
 			const size_t lenp = sstrlen(value);
 			if((lenn + lenp + 2) > sizeof(buf)) {
-				str = (xmlChar *)SAlloc::M(lenn + lenp + 2);
+				str = static_cast<xmlChar *>(SAlloc::M(lenn + lenp + 2));
 				if(!str) {
 					exec->status = -1;
 					return -1;
@@ -5245,7 +5245,7 @@ xmlAutomataStatePtr xmlAutomataNewTransition2(xmlAutomataPtr am, xmlAutomataStat
 	else {
 		int lenn = sstrlen(token2);
 		int lenp = sstrlen(token);
-		xmlChar * str = (xmlChar *)SAlloc::M(lenn + lenp + 2);
+		xmlChar * str = static_cast<xmlChar *>(SAlloc::M(lenn + lenp + 2));
 		if(!str) {
 			xmlRegFreeAtom(atom);
 			return 0;
@@ -5303,7 +5303,7 @@ xmlAutomataStatePtr xmlAutomataNewNegTrans(xmlAutomataPtr am, xmlAutomataStatePt
 	else {
 		int lenn = sstrlen(token2);
 		int lenp = sstrlen(token);
-		xmlChar * str = (xmlChar *)SAlloc::M(lenn + lenp + 2);
+		xmlChar * str = static_cast<xmlChar *>(SAlloc::M(lenn + lenp + 2));
 		if(!str) {
 			xmlRegFreeAtom(atom);
 			return 0;
@@ -5368,7 +5368,7 @@ xmlAutomataStatePtr xmlAutomataNewCountTrans2(xmlAutomataPtr am, xmlAutomataStat
 	else {
 		int lenn = sstrlen(token2);
 		int lenp = sstrlen(token);
-		xmlChar * str = (xmlChar *)SAlloc::M(lenn + lenp + 2);
+		xmlChar * str = static_cast<xmlChar *>(SAlloc::M(lenn + lenp + 2));
 		if(!str) {
 			xmlRegFreeAtom(atom);
 			return 0;
@@ -5514,7 +5514,7 @@ xmlAutomataStatePtr xmlAutomataNewOnceTrans2(xmlAutomataPtr am, xmlAutomataState
 	else {
 		int lenn = sstrlen(token2);
 		int lenp = sstrlen(token);
-		xmlChar * str = (xmlChar *)SAlloc::M(lenn + lenp + 2);
+		xmlChar * str = static_cast<xmlChar *>(SAlloc::M(lenn + lenp + 2));
 		if(!str) {
 			xmlRegFreeAtom(atom);
 			return 0;

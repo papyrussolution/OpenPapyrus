@@ -1,5 +1,5 @@
 // PPREGKEY.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -108,7 +108,7 @@ int SLAPI PPWriteLicData(const char * pFileName, const PPLicData * pData)
 	PPLicData data = *pData;
 	FILE * f = fopen(pFileName, "wb");
 	THROW_PP(f, PPERR_REGFILEWRITEFAULT);
-	THROW_MEM(p_image = (char *)SAlloc::M(file_size));
+	THROW_MEM(p_image = static_cast<char *>(SAlloc::M(file_size)));
 	IdeaRandMem(p_image, file_size);
 	offs = (uint32)labs((*(uint32 *)(p_image + 19)) % 3071L) + 37;
 	GetRegDataSign(sign);
@@ -140,14 +140,13 @@ int SLAPI PPReadLicData(const char * pFileName, PPLicData * pData)
 	uint32 offs = 0;
 	char   sign[16];
 	char * p_image = 0;
-
 	PPLicData data;
 	FILE * f = fopen(pFileName, "rb");
 	THROW_PP(f, PPERR_REGFILEREADFAULT);
 	fseek(f, 0L, SEEK_END);
 	file_size = (size_t)ftell(f);
 	rewind(f);
-	THROW_MEM(p_image = (char *)SAlloc::M(file_size));
+	THROW_MEM(p_image = static_cast<char *>(SAlloc::M(file_size)));
 	THROW_PP(fread(p_image, file_size, 1, f), PPERR_REGFILEREADFAULT);
 	GetRegDataSign(sign);
 	IdeaDecrypt(sign, p_image, file_size);
