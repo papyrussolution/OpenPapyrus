@@ -1480,10 +1480,12 @@ static int SLAPI FindOptimalFactorRange_SecondKind(const RealArray & rTrendList,
 	assert(rResultList.getCount() == rTrendList.getCount());
 	int    ok = -1;
 	const uint ifs = rSre.InputFrameSize;
-	const uint max_stride = 20; // @v10.3.1 4-->6 // 6-->10 // @v10.3.5 10-->20
+	// @v10.3.10 const uint max_stride = 20; // @v10.3.1 4-->6 // 6-->10 // @v10.3.5 10-->20
+	const uint min_stride = ifs / 16; // @v10.3.10 3-->ifs / 16
+	const uint max_stride = ifs / 4;
 	TSVector <StrategyOptEntry> so_list;
 	double max_result = 0.0;
-	for(uint stride = 3; stride <= max_stride; stride++) { // @v10.3.9 (stride = 1)-->(stride = 3)
+	for(uint stride = min_stride; stride <= max_stride; stride++) { // @v10.3.9 (stride = 1)-->(stride = 3)
 		so_list.clear();
 		for(uint i = 0; i <= rSre.LastResultIdx; i++) {
 			if(i >= (/*first_correl_idx*/ifs+stride)) {

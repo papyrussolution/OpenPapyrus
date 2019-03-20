@@ -362,7 +362,7 @@ int SLAPI StdListBoxDef::getIdList(LongArray & rList)
 	if(P_Data) {
 		for(uint i = 0; i < P_Data->getCount(); i++) {
 			const void * p_item = P_Data->at(i);
-			rList.addUnique((Options & lbtWordID) ? (int32)*(const int16 *)p_item : *(const int32 *)p_item);
+			rList.addUnique((Options & lbtWordID) ? static_cast<int32>(*static_cast<const int16 *>(p_item)) : *static_cast<const int32 *>(p_item));
 			ok = 1;
 		}
 	}
@@ -609,7 +609,7 @@ int SLAPI StdTreeListBoxDef::getCurID(long * pId)
 int SLAPI StdTreeListBoxDef::getCurData(void * b)
 {
 	if(P_SaList) {
-		const void * p = (const void *)getRow_(_curItem());
+		const void * p = getRow_(_curItem());
 		if(p)
 			strnzcpy(static_cast<char *>(b), ((const Item *)p)->Txt, 255);
 	}
@@ -675,7 +675,7 @@ void SLAPI StdTreeListBoxDef::getScrollData(long * pScrollDelta, long * pScrollP
 		uint32 pos = 0;
 		long * p_id = (long *)getRow_(_curItem());
 		if(p_id && *p_id && T.Search(p_id, &pos, CMPF_LONG)) {
-			TreeItem * p_item = (TreeItem *)T.GetData(pos);
+			TreeItem * p_item = static_cast<TreeItem *>(T.GetData(pos));
 			if(p_item)
 				ASSIGN_PTR(pScrollPos, (long)p_item->H);
 		}

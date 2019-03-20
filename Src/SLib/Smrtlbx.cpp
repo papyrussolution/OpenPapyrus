@@ -308,9 +308,9 @@ int SmartListBox::SetupColumns(const char * pColsBuf)
 			title_buf.Z();
 			if(ss.get(&pos, citem)) {
 				if(citem.Divide('w', left, right) > 0)
-					width = (uint16)right.ToLong();
+					width = static_cast<uint16>(right.ToLong());
 				else
-					width = (uint16)citem.ToLong();
+					width = static_cast<uint16>(citem.ToLong());
 				if(ss.get(&pos, citem)) {
 					int a = toupper(citem.Strip().C(0));
 					if(a == 'L')      format |= ALIGN_LEFT;
@@ -330,7 +330,7 @@ int SmartListBox::SetupColumns(const char * pColsBuf)
 void SmartListBox::RemoveColumns()
 {
 	State &= ~stInited;
-	for(long i = (long)Columns.getCount(); i >= 0; i--)
+	for(long i = static_cast<long>(Columns.getCount()); i >= 0; i--)
 		RemoveColumn(i);
 }
 
@@ -355,15 +355,15 @@ int SmartListBox::getID(long itemN, long * pID)
 {
 	int    ok = 0;
 	if(def) {
-		char * p = (char *)def->getRow_(itemN);
+		const char * p = static_cast<const char *>(def->getRow_(itemN));
 		if(p) {
 			uint   h = (def->Options & lbtAutoID) ? 0 : ((def->Options & lbtWordID) ? 2 : 4);
 			if(h == 2) {
-				int16  id = *(int16 *)p;
-				ASSIGN_PTR(pID, (long)id);
+				int16  id = *reinterpret_cast<const int16 *>(p);
+				ASSIGN_PTR(pID, static_cast<long>(id));
 			}
 			else {
-				long   id = *(long *)p;
+				long   id = *reinterpret_cast<const long *>(p);
 				ASSIGN_PTR(pID, id);
 			}
 			ok = 1;
@@ -629,7 +629,7 @@ int SmartListBox::SetupTreeWnd2(uint32 parentP)
 	if(def && h_lb) {
 		HTREEITEM h_parent = 0;
 		long   save_pos = 0;
-		StdTreeListBoxDef * p_def = (StdTreeListBoxDef *)def;
+		StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(def);
 		if(parentP == 0) {
 			save_pos = p_def->_curItem();
 			Helper_ClearTreeWnd();
@@ -641,7 +641,7 @@ int SmartListBox::SetupTreeWnd2(uint32 parentP)
 					ImageList_Destroy(HIML);
 				HIML = p_def->CreateImageList(TProgram::GetInst());
 				if(HIML)
-					::SendMessage(static_cast<HWND>(h_lb), (UINT)TVM_SETIMAGELIST, (WPARAM)TVSIL_NORMAL, (LPARAM)HIML);
+					::SendMessage(static_cast<HWND>(h_lb), (UINT)TVM_SETIMAGELIST, static_cast<WPARAM>(TVSIL_NORMAL), reinterpret_cast<LPARAM>(HIML));
 			}
 		}
 		else {
@@ -693,10 +693,10 @@ int SmartListBox::SetupTreeWnd2(uint32 parentP)
 int SmartListBox::GetStringByID(long id, SString & rBuf)
 {
 	rBuf.Z();
-	return def ? ((StdTreeListBoxDef*)def)->GetStringByID(id, rBuf) : 0;
+	return def ? static_cast<StdTreeListBoxDef *>(def)->GetStringByID(id, rBuf) : 0;
 }
 
-int SmartListBox::GetImageIdxByID(long id, long * pIdx) { return def ? ((StdListBoxDef*)def)->GetImageIdxByID(id, pIdx) : 0; }
+int SmartListBox::GetImageIdxByID(long id, long * pIdx) { return def ? static_cast<StdListBoxDef *>(def)->GetImageIdxByID(id, pIdx) : 0; }
 
 int FASTCALL SmartListBox::onVKeyToItem(WPARAM wParam)
 {
@@ -875,6 +875,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 									r_temp_buf.Z().CatChar('#').Cat(lptvdi->item.lParam);
 								// } @debug
 								// @v10.3.10 r_temp_buf.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(lptvdi->item.pszText, 0); // @unicodeproblem
+								r_temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.10 
 								strnzcpy(lptvdi->item.pszText, SUcSwitch(r_temp_buf), lptvdi->item.cchTextMax); // @v10.3.10 
 							}
 							if(lptvdi->item.mask & (TVIF_IMAGE|TVIF_SELECTEDIMAGE)) {
@@ -883,9 +884,9 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 								lptvdi->item.iSelectedImage = -1;
 								GetImageIdxByID(lptvdi->item.lParam, &idx);
 								if(lptvdi->item.mask & TVIF_IMAGE)
-									lptvdi->item.iImage         = (int)idx;
+									lptvdi->item.iImage = static_cast<int>(idx);
 								if(lptvdi->item.mask & TVIF_SELECTEDIMAGE)
-									lptvdi->item.iSelectedImage = (int)idx;
+									lptvdi->item.iSelectedImage = static_cast<int>(idx);
 							}
 						}
 						break;

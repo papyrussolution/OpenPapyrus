@@ -208,7 +208,7 @@ IMPL_HANDLE_EVENT(ListWindow)
 			}
 			else if(TVCMD == cmDrawItem) {
 				HWND parent = GetParent(H());
-				TDialog * p_dlg = (TDialog*)TView::GetWindowUserData(parent);
+				TDialog * p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(parent));
 				TView::messageCommand(p_dlg, cmDrawItem, TVINFOPTR);
 			}
 		}
