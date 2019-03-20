@@ -162,7 +162,7 @@ CURLMcode Curl_pipeline_set_site_blacklist(char ** sites, struct curl_llist * li
 				Curl_llist_destroy(list, 0);
 				return CURLM_OUT_OF_MEMORY;
 			}
-			port = strchr(hostname, ':');
+			port = sstrchr(hostname, ':');
 			if(port) {
 				*port = '\0';
 				port++;

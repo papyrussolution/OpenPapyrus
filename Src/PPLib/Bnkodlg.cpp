@@ -109,13 +109,13 @@ int BnkOrdTaxMarkersDialog::translateCode(int dir, uint strID, char * pCode, lon
 {
 	char   item_buf[64];
 	for(int idx = 0; PPGetSubStr(strID, idx, item_buf, sizeof(item_buf)) > 0; idx++) {
-		char * p = strchr(item_buf, ',');
+		char * p = sstrchr(item_buf, ',');
 		if(p) {
 			char   code[64];
 			code[0] = 0;
 			*p++ = 0;
 			const long id = atol(item_buf);
-			char * q = strchr(p, '-');
+			char * q = sstrchr(p, '-');
 			if(q) {
 				char * c = code;
 				for(char * r = p; r < q;)

@@ -130,12 +130,14 @@ int SLAPI WinService::Create(const char * pDisplayName, const char * pModuleName
 				SString _path2 = path;
 				if(_path.CmpNC(_path2) != 0)
 					to_upd = 1;
-				else if(p_login && stricmp(p_login, SUcSwitch(cfg.lpServiceStartName)) != 0) // @unicodeproblem
-					to_upd = 1;
+				else if(p_login) {
+					if(!sstreq(p_login, cfg.lpServiceStartName)) // @unicodeproblem
+						to_upd = 1;
+				}
 				if(to_upd) {
 					if(::ChangeServiceConfig(H, cfg.dwServiceType, cfg.dwStartType, cfg.dwErrorControl,
 						SUcSwitch(path), cfg.lpLoadOrderGroup, 0, cfg.lpDependencies,
-						p_login ? SUcSwitch(p_login) : cfg.lpServiceStartName, SUcSwitch(p_pw), cfg.lpDisplayName)) // @unicodeproblem
+						p_login ? p_login : cfg.lpServiceStartName, p_pw, cfg.lpDisplayName)) // @unicodeproblem
 						ok = 1;
 				}
 			}

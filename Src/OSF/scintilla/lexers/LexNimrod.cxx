@@ -79,7 +79,6 @@ static Sci_Position scanIdent(Accessor &styler, Sci_Position pos, const WordList
 {
 	char buf[100]; /* copy to lowercase and ignore underscores */
 	Sci_Position i = 0;
-
 	for(;; ) {
 		char ch = styler.SafeGetCharAt(pos, '\0');
 		if(!IsAWordChar(ch)) break;
@@ -102,26 +101,28 @@ static Sci_Position scanIdent(Accessor &styler, Sci_Position pos, const WordList
 
 static Sci_Position scanNumber(Accessor &styler, Sci_Position pos)
 {
-	char ch, ch2;
-	ch = styler.SafeGetCharAt(pos, '\0');
-	ch2 = styler.SafeGetCharAt(pos+1, '\0');
+	char ch = styler.SafeGetCharAt(pos, '\0');
+	char ch2 = styler.SafeGetCharAt(pos+1, '\0');
 	if(ch == '0' && (ch2 == 'b' || ch2 == 'B')) {
 		/* binary number: */
 		pos += 2;
 		for(;; ) {
 			ch = styler.SafeGetCharAt(pos, '\0');
-			if(ch == '_' || (ch >= '0' && ch <= '1')) ++pos;
-			else break;
+			if(ch == '_' || (ch >= '0' && ch <= '1')) 
+				++pos;
+			else 
+				break;
 		}
 	}
-	else if(ch == '0' &&
-	    (ch2 == 'o' || ch2 == 'O' || ch2 == 'c' || ch2 == 'C')) {
+	else if(ch == '0' && (ch2 == 'o' || ch2 == 'O' || ch2 == 'c' || ch2 == 'C')) {
 		/* octal number: */
 		pos += 2;
 		for(;; ) {
 			ch = styler.SafeGetCharAt(pos, '\0');
-			if(ch == '_' || (ch >= '0' && ch <= '7')) ++pos;
-			else break;
+			if(ch == '_' || (ch >= '0' && ch <= '7')) 
+				++pos;
+			else 
+				break;
 		}
 	}
 	else if(ch == '0' && (ch2 == 'x' || ch2 == 'X')) {
@@ -129,10 +130,10 @@ static Sci_Position scanNumber(Accessor &styler, Sci_Position pos)
 		pos += 2;
 		for(;; ) {
 			ch = styler.SafeGetCharAt(pos, '\0');
-			if(ch == '_' || (ch >= '0' && ch <= '9')
-			    || (ch >= 'a' && ch <= 'f')
-			    || (ch >= 'A' && ch <= 'F')) ++pos;
-			else break;
+			if(ch == '_' || (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F')) 
+				++pos;
+			else 
+				break;
 		}
 	}
 	else {
@@ -157,8 +158,10 @@ static Sci_Position scanNumber(Accessor &styler, Sci_Position pos)
 			if(ch == '-' || ch == '+') ++pos;
 			for(;; ) {
 				ch = styler.SafeGetCharAt(pos, '\0');
-				if(ch == '_' || (ch >= '0' && ch <= '9')) ++pos;
-				else break;
+				if(ch == '_' || (ch >= '0' && ch <= '9')) 
+					++pos;
+				else 
+					break;
 			}
 		}
 	}
@@ -167,9 +170,10 @@ static Sci_Position scanNumber(Accessor &styler, Sci_Position pos)
 		pos++;
 		for(;; ) {
 			ch = styler.SafeGetCharAt(pos);
-			if((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'Z')
-			    || (ch >= 'a' && ch <= 'z') || ch == '_') ++pos;
-			else break;
+			if((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || ch == '_') 
+				++pos;
+			else 
+				break;
 		}
 	}
 	styler.ColourTo(pos-1, SCE_P_NUMBER);
@@ -179,17 +183,14 @@ static Sci_Position scanNumber(Accessor &styler, Sci_Position pos)
 /* rewritten from scratch, because I couldn't get rid of the bugs...
    (A character based approach sucks!)
  */
-static void ColouriseNimrodDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList * keywordlists[], Accessor &styler)
+static void ColouriseNimrodDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler)
 {
 	Sci_Position pos = startPos;
 	Sci_Position max = startPos + length;
 	char ch;
 	WordList &keywords = *keywordlists[0];
-
 	styler.StartAt(startPos);
 	styler.StartSegment(startPos);
-
 	switch(initStyle) {
 		/* check where we are: */
 		case SCE_P_TRIPLEDOUBLE:
@@ -206,7 +207,8 @@ static void ColouriseNimrodDoc(Sci_PositionU startPos, Sci_Position length, int 
 			case '\0': return;
 			case '#': {
 			    bool doccomment = (styler.SafeGetCharAt(pos+1) == '#');
-			    while(pos < max && !isNewLine(styler.SafeGetCharAt(pos, LF))) pos++;
+			    while(pos < max && !isNewLine(styler.SafeGetCharAt(pos, LF))) 
+					pos++;
 			    if(doccomment)
 				    styler.ColourTo(pos, SCE_C_COMMENTLINEDOC);
 			    else
@@ -258,7 +260,7 @@ static void ColouriseNimrodDoc(Sci_PositionU startPos, Sci_Position length, int 
 				    }
 				    styler.ColourTo(pos, SCE_P_IDENTIFIER);
 			    }
-			    else if(strchr("()[]{}:=;-\\/&%$!+<>|^?,.*~@", ch)) {
+			    else if(sstrchr("()[]{}:=;-\\/&%$!+<>|^?,.*~@", ch)) {
 				    styler.ColourTo(pos, SCE_P_OPERATOR);
 				    pos++;
 			    }
@@ -291,9 +293,7 @@ static bool IsQuoteLine(Sci_Position line, Accessor &styler)
 	return ((style == SCE_P_TRIPLE) || (style == SCE_P_TRIPLEDOUBLE));
 }
 
-static void FoldNimrodDoc(Sci_PositionU startPos, Sci_Position length,
-    int /*initStyle - unused*/,
-    WordList *[], Accessor &styler)
+static void FoldNimrodDoc(Sci_PositionU startPos, Sci_Position length, int /*initStyle - unused*/, WordList *[], Accessor &styler)
 {
 	const Sci_Position maxPos = startPos + length;
 	const Sci_Position maxLines = styler.GetLine(maxPos - 1); // Requested last line

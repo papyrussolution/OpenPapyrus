@@ -534,7 +534,7 @@ static int GetDvcName(int dvcType, SString *pSs)
 	int    ok = -1;
 	char   dvc_name[64];
 	if(dvcType > 0 && PPGetSubStr(PPTXT_DEVICE_TYPES, dvcType - 1 , dvc_name, sizeof(dvc_name)) > 0) {
-		char * p = strchr(dvc_name, ',');
+		char * p = sstrchr(dvc_name, ',');
 		if(p) {
 			pSs->Cat(++p);
 			ok = 1;

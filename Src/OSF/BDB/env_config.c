@@ -30,7 +30,7 @@ int __env_read_db_config(ENV * env)
 		if(fp) {
 			char   buf[256];
 			for(int lc = 1; fgets(buf, sizeof(buf), fp) != NULL; ++lc) {
-				if((p = strchr(buf, '\n')) == NULL)
+				if((p = sstrchr(buf, '\n')) == NULL)
 					p = buf+sstrlen(buf);
 				if(p > buf && p[-1] == '\r')
 					--p;

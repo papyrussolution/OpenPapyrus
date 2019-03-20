@@ -1,5 +1,5 @@
 // SPRINTER.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2006, 2009, 2010, 2011, 2012, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2006, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -167,7 +167,7 @@ int SLAPI SPrinting::GetListOfPrinters(TSVector <PrnInfo> * pInfoList) // @v9.8.
 				STRNSCPY(item.ShareName, SUcSwitch(info[i].pShareName)); // @unicodeproblem
 				SETFLAG(item.Flags, PrnInfo::fLocal, info[i].Attributes & PRINTER_ATTRIBUTE_LOCAL);
 				SETFLAG(item.Flags, PrnInfo::fNetwork, info[i].Attributes & PRINTER_ATTRIBUTE_NETWORK);
-				if(stricmp(item.PrinterName, def_prn_name) == 0)
+				if(stricmp(item.PrinterName, SUcSwitch(def_prn_name)) == 0)
 					item.Flags |= PrnInfo::fDefault;
 				pInfoList->insert(&item);
 			}

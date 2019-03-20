@@ -1892,7 +1892,7 @@ int FASTCALL SFontDescr::FromStr(const char * pStr)
 	int    ok = 1;
 	Init();
 	if(pStr) {
-		const char * p = strchr(pStr, '(');
+		const char * p = sstrchr(pStr, '(');
 		if(p) {
 			size_t len = (p - pStr);
 			Face.CatN(pStr, len).Strip();

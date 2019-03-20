@@ -147,7 +147,7 @@ static const char * parse_option(char ** s, const char ** m, const char ** o, co
 	const char * mod = NULL;
 	const char * val = "1";
 	char * opt = *s;
-	char * p = strchr(opt, ',');
+	char * p = sstrchr(opt, ',');
 	if(p != NULL) {
 		*p = '\0';
 		end = (p + 1);
@@ -159,13 +159,13 @@ static const char * parse_option(char ** s, const char ** m, const char ** o, co
 		*v = NULL;
 		return end;
 	}
-	p = strchr(opt, ':');
+	p = sstrchr(opt, ':');
 	if(p != NULL) {
 		*p = '\0';
 		mod = opt;
 		opt = ++p;
 	}
-	p = strchr(opt, '=');
+	p = sstrchr(opt, '=');
 	if(p != NULL) {
 		*p = '\0';
 		val = ++p;

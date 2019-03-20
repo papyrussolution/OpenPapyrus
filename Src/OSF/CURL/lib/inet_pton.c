@@ -99,7 +99,7 @@ static int inet_pton4(const char * src, uchar * dst)
 	while((ch = *src++) != '\0') {
 		const char * pch;
 
-		pch = strchr(digits, ch);
+		pch = sstrchr(digits, ch);
 		if(pch) {
 			uint val = *tp * 10 + (uint)(pch - digits);
 
@@ -164,9 +164,9 @@ static int inet_pton6(const char * src, uchar * dst)
 	while((ch = *src++) != '\0') {
 		const char * pch;
 
-		pch = strchr((xdigits = xdigits_l), ch);
+		pch = sstrchr((xdigits = xdigits_l), ch);
 		if(!pch)
-			pch = strchr((xdigits = xdigits_u), ch);
+			pch = sstrchr((xdigits = xdigits_u), ch);
 		if(pch != NULL) {
 			val <<= 4;
 			val |= (pch - xdigits);

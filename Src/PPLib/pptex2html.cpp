@@ -481,7 +481,7 @@ int PPTex2HtmlPrcssr::ReadText(long mode, TextBlock * pText)
 						St.Scan.Incr();
 						p_current_blk->Text.CatTagBrace("br", 0);
 					}
-					if(strchr(p_literal, c_next)) {
+					if(sstrchr(p_literal, c_next)) {
 						St.Scan.Incr();
 						p_current_blk->Text.CatChar(c_next);
 					}

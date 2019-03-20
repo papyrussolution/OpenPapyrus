@@ -1209,7 +1209,7 @@ static char * concat_url(const char * base, const char * relurl)
 		int level = 0;
 		/* First we need to find out if there's a ?-letter in the URL,
 		   and cut it and the right-side of that off */
-		pathsep = strchr(protsep, '?');
+		pathsep = sstrchr(protsep, '?');
 		ASSIGN_PTR(pathsep, 0);
 		/* we have a relative path to append to the last slash if there's one
 		   available, or if the new URL is just a query string (starts with a
@@ -1220,7 +1220,7 @@ static char * concat_url(const char * base, const char * relurl)
 			ASSIGN_PTR(pathsep, 0);
 		}
 		// Check if there's any slash after the host name, and if so, remember that position instead 
-		pathsep = strchr(protsep, '/');
+		pathsep = sstrchr(protsep, '/');
 		protsep = pathsep ? (pathsep+1) : NULL;
 		// now deal with one "./" or any amount of "../" in the newurl and act accordingly 
 		if((useurl[0] == '.') && (useurl[1] == '/'))
@@ -1255,12 +1255,12 @@ static char * concat_url(const char * base, const char * relurl)
 		else {
 			/* cut off the original URL from the first slash, or deal with URLs
 			   without slash */
-			pathsep = strchr(protsep, '/');
+			pathsep = sstrchr(protsep, '/');
 			if(pathsep) {
 				/* When people use badly formatted URLs, such as
 				   "http://www.url.com?dir=/home/daniel" we must not use the first
 				   slash, if there's a ?-letter before it! */
-				char * sep = strchr(protsep, '?');
+				char * sep = sstrchr(protsep, '?');
 				if(sep && (sep < pathsep))
 					pathsep = sep;
 				*pathsep = 0;
@@ -1270,7 +1270,7 @@ static char * concat_url(const char * base, const char * relurl)
 				   formatted URL, such as "http://www.url.com?id=2380" which doesn't
 				   use a slash separator as it is supposed to, we need to check for a
 				   ?-letter as well! */
-				pathsep = strchr(protsep, '?');
+				pathsep = sstrchr(protsep, '?');
 				ASSIGN_PTR(pathsep, 0);
 			}
 		}

@@ -54,7 +54,7 @@ static void ColouriseSMLDoc(Sci_PositionU startPos, Sci_Position length, int ini
 			    }
 			    else if(isdec(sc.ch)) {
 				    state2 = SCE_SML_NUMBER, chBase = 10;
-				    if(sc.Match('0') && strchr("xX", sc.chNext))
+				    if(sc.Match('0') && sstrchr("xX", sc.chNext))
 					    chBase = 16, sc.Forward();
 			    }
 			    else if(sc.Match('\"')&&sc.chPrev!='#')
@@ -64,7 +64,7 @@ static void ColouriseSMLDoc(Sci_PositionU startPos, Sci_Position length, int ini
 				    sc.ch = ' ',
 				    sc.Forward();
 			    }
-			    else if(strchr("!~"
+			    else if(sstrchr("!~"
 				    "=<>@^+-*/"
 				    "()[];,:.#", sc.ch))
 				    state2 = SCE_SML_OPERATOR;
@@ -101,8 +101,8 @@ static void ColouriseSMLDoc(Sci_PositionU startPos, Sci_Position length, int ini
 
 			case SCE_SML_OPERATOR: {
 			    const char* o = 0;
-			    if(issml(sc.ch) || isspace(sc.ch) || (o = strchr(")]};,\'\"`#", sc.ch), o) || !strchr("!$%&*+-./:<=>?@^|~", sc.ch)) {
-				    if(o && strchr(")]};,", sc.ch)) {
+			    if(issml(sc.ch) || isspace(sc.ch) || (o = sstrchr(")]};,\'\"`#", sc.ch), o) || !sstrchr("!$%&*+-./:<=>?@^|~", sc.ch)) {
+				    if(o && sstrchr(")]};,", sc.ch)) {
 					    if((sc.Match(')') && sc.chPrev == '(') || (sc.Match(']') && sc.chPrev == '['))
 						    sc.ChangeState(SCE_SML_KEYWORD);
 					    chColor++;

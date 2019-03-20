@@ -837,7 +837,7 @@ static int process_global_set(struct archive_read * a,
 			return ARCHIVE_OK;
 		line = next;
 		next = line + strcspn(line, " \t\r\n");
-		eq = strchr(line, '=');
+		eq = sstrchr(line, '=');
 		if(eq > next)
 			len = next - line;
 		else
@@ -858,7 +858,7 @@ static int process_global_unset(struct archive_read * a,
 	size_t len;
 
 	line += 6;
-	if(strchr(line, '=') != NULL) {
+	if(sstrchr(line, '=') != NULL) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 		    "/unset shall not contain `='");
 		return ARCHIVE_FATAL;
@@ -983,7 +983,7 @@ static int process_add_entry(struct archive_read * a, struct mtree * mtree,
 			return ARCHIVE_OK;
 		line = next;
 		next = line + strcspn(line, " \t\r\n");
-		eq = strchr(line, '=');
+		eq = sstrchr(line, '=');
 		if(eq == NULL || eq > next)
 			len = next - line;
 		else
@@ -1415,7 +1415,7 @@ static int parse_device(dev_t * pdev, struct archive * a, char * val)
 	dev_t result;
 	const char * error = NULL;
 	memzero(pdev, sizeof(*pdev));
-	if((dev = strchr(val, ',')) != NULL) {
+	if((dev = sstrchr(val, ',')) != NULL) {
 		/*
 		 * Device's major/minor are given in a specified format.
 		 * Decode and pack it accordingly.
@@ -1489,7 +1489,7 @@ static int parse_keyword(struct archive_read * a, struct mtree * mtree,
 		return ARCHIVE_OK;
 	}
 
-	val = strchr(key, '=');
+	val = sstrchr(key, '=');
 	if(val == NULL) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 		    "Malformed attribute \"%s\" (%d)", key, key[0]);

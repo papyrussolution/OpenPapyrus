@@ -41,7 +41,7 @@ int SLAPI pathToUNC(const char * pPath, SString & rUncPath)
 		if(wstat != NO_ERROR)
 			ok = (SLibError = SLERR_INVPATH, 0);
 		else
-			rUncPath = ((UNIVERSAL_NAME_INFO *)&namebuf)->lpUniversalName; // @unicodeproblem
+			rUncPath = SUcSwitch(reinterpret_cast<UNIVERSAL_NAME_INFO *>(&namebuf)->lpUniversalName); // @unicodeproblem
 	}
 	return ok;
 }
@@ -125,7 +125,7 @@ int SLAPI driveValid(const char * pPath)
 	else if(pPath[0] == '\\' && pPath[1] == '\\') {
 		char   buf[MAXPATH], *p;
 		fnsplit(pPath, 0, buf, 0, 0);
-		p = ((p = strchr(buf+2, '\\')) ? strchr(p+1, '\\') : 0);
+		p = ((p = sstrchr(buf+2, '\\')) ? sstrchr(p+1, '\\') : 0);
 		if(p) {
 			*p = 0;
 			setLastSlash(buf);
@@ -231,7 +231,7 @@ static char * SLAPI fexpand(char * rpath)
 		else
 			strcpy(dir, curdir);
 	}
-	while((p = strchr(p, '/')) != 0)
+	while((p = sstrchr(p, '/')) != 0)
 		*p = '\\';
 	fnmerge(path, drive, squeeze(dir), file, ext);
 	return strcpy(rpath, strupr(path));
@@ -254,7 +254,7 @@ int SLAPI validFileName(const char * pFileName)
 	char   path[MAXPATH], dir[MAXDIR], name[MAXFILE], ext[MAXEXT];
 	fnsplit(pFileName, path, dir, name, ext);
 	return ((*dir && !pathValid(strcat(path, dir), 1)) || strpbrk(name, illegalChars) ||
-		strpbrk(ext + 1, illegalChars) || strchr(ext + 1, '.')) ? 0 : 1;
+		strpbrk(ext + 1, illegalChars) || sstrchr(ext + 1, '.')) ? 0 : 1;
 }
 
 SString & FASTCALL MakeTempFileName(const char * pDir, const char * pPrefix, const char * pExt, long * pStart, SString & rBuf)
@@ -298,7 +298,7 @@ int SLAPI createDir(const char * pPath)
 				path.CatChar(*p++);
 			else if(path.NotEmpty()) { // @v8.7.2 if(path.NotEmpty())
 				int    is_root = 0;
-				if(path[0] == path[1] && path[0] == '\\' && !strchr(path+2, '\\'))
+				if(path[0] == path[1] && path[0] == '\\' && !sstrchr(path+2, '\\'))
 					is_root = 1;
 				if(!is_root && (path[0] && ::access(path, 0) != 0))
 					if(::CreateDirectory(SUcSwitch(path), NULL) == 0) { // @unicodeproblem

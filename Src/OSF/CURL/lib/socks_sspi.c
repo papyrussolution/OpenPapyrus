@@ -79,7 +79,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex, struct connectdata * conn)
 	 */
 
 	/* prepare service name */
-	if(strchr(service, '/')) {
+	if(sstrchr(service, '/')) {
 		service_name = _strdup(service);
 		if(!service_name)
 			return CURLE_OUT_OF_MEMORY;

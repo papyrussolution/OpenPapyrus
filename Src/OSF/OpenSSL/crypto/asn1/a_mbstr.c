@@ -67,7 +67,7 @@ static int FASTCALL is_printable(ulong value)
 		return 1;
 	if((ch >= '0') && (ch <= '9'))
 		return 1;
-	if((ch == ' ') || strchr("'()+,-./:=?", ch))
+	if((ch == ' ') || sstrchr("'()+,-./:=?", ch))
 		return 1;
 #else // CHARSET_EBCDIC 
 	if((ch >= os_toascii['a']) && (ch <= os_toascii['z']))
@@ -76,7 +76,7 @@ static int FASTCALL is_printable(ulong value)
 		return 1;
 	if((ch >= os_toascii['0']) && (ch <= os_toascii['9']))
 		return 1;
-	if((ch == os_toascii[' ']) || strchr("'()+,-./:=?", os_toebcdic[ch]))
+	if((ch == os_toascii[' ']) || sstrchr("'()+,-./:=?", os_toebcdic[ch]))
 		return 1;
 #endif // CHARSET_EBCDIC 
 	return 0;

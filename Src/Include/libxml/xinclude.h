@@ -89,7 +89,7 @@ typedef xmlXIncludeCtxt * xmlXIncludeCtxtPtr;
 /*
  * standalone processing
  */
-XMLPUBFUN int XMLCALL xmlXIncludeProcess(xmlDocPtr doc);
+XMLPUBFUN int XMLCALL xmlXIncludeProcess(xmlDoc * doc);
 XMLPUBFUN int XMLCALL xmlXIncludeProcessFlags(xmlDoc * doc, int flags);
 XMLPUBFUN int XMLCALL xmlXIncludeProcessFlagsData(xmlDoc * doc, int flags, void * data);
 XMLPUBFUN int XMLCALL xmlXIncludeProcessTreeFlagsData(xmlNodePtr tree, int flags, void * data);
@@ -98,7 +98,7 @@ XMLPUBFUN int XMLCALL xmlXIncludeProcessTreeFlags(xmlNodePtr tree, int flags);
 /*
  * contextual processing
  */
-XMLPUBFUN xmlXIncludeCtxtPtr XMLCALL xmlXIncludeNewContext(xmlDocPtr doc);
+XMLPUBFUN xmlXIncludeCtxtPtr XMLCALL xmlXIncludeNewContext(xmlDoc * doc);
 XMLPUBFUN int XMLCALL xmlXIncludeSetFlags(xmlXIncludeCtxtPtr ctxt, int flags);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlXIncludeFreeContext(xmlXIncludeCtxtPtr ctxt);
 XMLPUBFUN int XMLCALL xmlXIncludeProcessNode(xmlXIncludeCtxtPtr ctxt, xmlNodePtr tree);

@@ -1026,7 +1026,7 @@ static CURLcode formdata_add_filename(const struct curl_httppost * file,
 		filename = filebasename;
 	}
 
-	if(strchr(filename, '\\') || strchr(filename, '"')) {
+	if(sstrchr(filename, '\\') || sstrchr(filename, '"')) {
 		char * p0, * p1;
 		/* filename need be escaped */
 		filename_escaped = (char *)SAlloc::M(sstrlen(filename)*2+1);

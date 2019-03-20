@@ -47,7 +47,7 @@ void OPENSSL_cpuid_setup(void)
 			vec = OPENSSL_ia32_cpuid(OPENSSL_ia32cap_P);
 
 		OPENSSL_ia32cap_P[2] = 0;
-		if((env = strchr(env, ':'))) {
+		if((env = sstrchr(env, ':'))) {
 			uint vecx;
 			env++;
 			off = (env[0] == '~') ? 1 : 0;

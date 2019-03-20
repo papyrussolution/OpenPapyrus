@@ -39,7 +39,7 @@ typedef xmlXIncludeRef * xmlXIncludeRefPtr;
 struct _xmlXIncludeRef {
 	xmlChar              * URI; /* the fully resolved resource URL */
 	xmlChar         * fragment; /* the fragment in the URI */
-	xmlDocPtr doc;         /* the parsed document */
+	xmlDoc * doc;         /* the parsed document */
 	xmlNode * ref;        /* the node making the reference in the source */
 	xmlNode * inc;        /* the included copy */
 	int xml;               /* xml or txt */
@@ -49,7 +49,7 @@ struct _xmlXIncludeRef {
 };
 
 struct _xmlXIncludeCtxt {
-	xmlDocPtr doc;         /* the source document */
+	xmlDoc * doc;         /* the source document */
 	int incBase;           /* the first include for this document */
 	int incNr;             /* number of includes */
 	int incMax;            /* size of includes tab */
@@ -234,7 +234,7 @@ static xmlXIncludeRefPtr xmlXIncludeNewRef(xmlXIncludeCtxtPtr ctxt, const xmlCha
  *
  * Returns the new set
  */
-xmlXIncludeCtxtPtr xmlXIncludeNewContext(xmlDocPtr doc) 
+xmlXIncludeCtxtPtr xmlXIncludeNewContext(xmlDoc * doc) 
 {
 	xmlXIncludeCtxtPtr ret = 0;
 #ifdef DEBUG_XINCLUDE
@@ -346,9 +346,9 @@ void FASTCALL xmlXIncludeFreeContext(xmlXIncludeCtxtPtr ctxt)
  *
  * parse a document for XInclude
  */
-static xmlDocPtr xmlXIncludeParseFile(xmlXIncludeCtxtPtr ctxt, const char * URL)
+static xmlDoc * xmlXIncludeParseFile(xmlXIncludeCtxtPtr ctxt, const char * URL)
 {
-	xmlDocPtr ret;
+	xmlDoc * ret;
 	xmlParserCtxt * pctxt;
 	xmlParserInput * inputStream;
 	xmlInitParser();
@@ -659,14 +659,10 @@ static void xmlXIncludeAddTxt(xmlXIncludeCtxtPtr ctxt, xmlNode * txt, const xmlU
 	ctxt->txturlTab[ctxt->txtNr] = sstrdup(url);
 	ctxt->txtNr++;
 }
-
-/************************************************************************
-*									*
-*			Node copy with specific semantic		*
-*									*
-************************************************************************/
-
-static xmlNode * xmlXIncludeCopyNodeList(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target, xmlDocPtr source, xmlNode * elem);
+//
+// Node copy with specific semantic
+//
+static xmlNode * xmlXIncludeCopyNodeList(xmlXIncludeCtxtPtr ctxt, xmlDoc * target, xmlDoc * source, xmlNode * elem);
 /**
  * xmlXIncludeCopyNode:
  * @ctxt:  the XInclude context
@@ -677,7 +673,7 @@ static xmlNode * xmlXIncludeCopyNodeList(xmlXIncludeCtxtPtr ctxt, xmlDocPtr targ
  * Make a copy of the node while preserving the XInclude semantic
  * of the Infoset copy
  */
-static xmlNode * xmlXIncludeCopyNode(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target, xmlDocPtr source, xmlNode * elem) 
+static xmlNode * xmlXIncludeCopyNode(xmlXIncludeCtxtPtr ctxt, xmlDoc * target, xmlDoc * source, xmlNode * elem) 
 {
 	xmlNode * result = NULL;
 	if(!ctxt || (target == NULL) || (source == NULL) || (elem == NULL))
@@ -700,7 +696,7 @@ static xmlNode * xmlXIncludeCopyNode(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target, 
  * Make a copy of the node list while preserving the XInclude semantic
  * of the Infoset copy
  */
-static xmlNode * xmlXIncludeCopyNodeList(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target, xmlDocPtr source, xmlNode * elem) 
+static xmlNode * xmlXIncludeCopyNodeList(xmlXIncludeCtxtPtr ctxt, xmlDoc * target, xmlDoc * source, xmlNode * elem) 
 {
 	xmlNode * cur;
 	xmlNode * res;
@@ -765,7 +761,7 @@ xmlNode * xmlXPtrAdvanceNode(xmlNode * cur, int * level); /* in xpointer.c */
  * Returns an xmlNode * list or NULL.
  *       The caller has to free the node tree.
  */
-static xmlNode * xmlXIncludeCopyRange(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target, xmlDocPtr source, xmlXPathObjectPtr range)
+static xmlNode * xmlXIncludeCopyRange(xmlXIncludeCtxtPtr ctxt, xmlDoc * target, xmlDoc * source, xmlXPathObjectPtr range)
 {
 	/* pointers to generated nodes */
 	xmlNode * list = NULL;
@@ -990,7 +986,7 @@ static xmlNode * xmlXIncludeCopyRange(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target,
  * Returns an xmlNode * list or NULL.
  *       the caller has to free the node tree.
  */
-static xmlNode * xmlXIncludeCopyXPointer(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target, xmlDocPtr source, xmlXPathObject * obj) 
+static xmlNode * xmlXIncludeCopyXPointer(xmlXIncludeCtxtPtr ctxt, xmlDoc * target, xmlDoc * source, xmlXPathObject * obj) 
 {
 	xmlNode * list = NULL;
 	xmlNode * last = NULL;
@@ -1205,7 +1201,7 @@ error:
  *
  * Returns 0 if merge succeeded, -1 if some processing failed
  */
-static int xmlXIncludeMergeEntities(xmlXIncludeCtxtPtr ctxt, xmlDoc * doc, xmlDocPtr from) 
+static int xmlXIncludeMergeEntities(xmlXIncludeCtxtPtr ctxt, xmlDoc * doc, xmlDoc * from) 
 {
 	xmlNode * cur;
 	xmlDtdPtr target, source;
@@ -1251,7 +1247,7 @@ static int xmlXIncludeMergeEntities(xmlXIncludeCtxtPtr ctxt, xmlDoc * doc, xmlDo
  */
 static int xmlXIncludeLoadDoc(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int nr) 
 {
-	xmlDocPtr doc;
+	xmlDoc * doc;
 	xmlURIPtr uri;
 	xmlChar * URL;
 	xmlChar * fragment = NULL;
@@ -2220,7 +2216,7 @@ int xmlXIncludeProcessFlags(xmlDoc * doc, int flags)
  * Returns 0 if no substitution were done, -1 if some processing failed
  *  or the number of substitutions done.
  */
-int xmlXIncludeProcess(xmlDocPtr doc)
+int xmlXIncludeProcess(xmlDoc * doc)
 {
 	return (xmlXIncludeProcessFlags(doc, 0));
 }

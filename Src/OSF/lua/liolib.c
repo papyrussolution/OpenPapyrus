@@ -31,7 +31,7 @@
 
 /* Check whether 'mode' matches '[rwa]%+?[L_MODEEXT]*' */
 static int l_checkmode(const char * mode) {
-	return (*mode != '\0' && strchr("rwa", *(mode++)) != NULL &&
+	return (*mode != '\0' && sstrchr("rwa", *(mode++)) != NULL &&
 	       (*mode != '+' || (++mode, 1)) && /* skip if char is '+' */
 	       (strspn(mode, L_MODEEXT) == strlen(mode))); /* check extensions */
 }

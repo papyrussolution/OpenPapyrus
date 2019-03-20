@@ -162,7 +162,7 @@ int main(int argc, char * argv[])
 				rtype = WAKEUP;
 			else
 				return usage();
-			if((p = strchr(optarg, '=')) == NULL)
+			if((p = sstrchr(optarg, '=')) == NULL)
 				return usage();
 			id = (ulong)atoi(p+1);
 			break;

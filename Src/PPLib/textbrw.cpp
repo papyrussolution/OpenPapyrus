@@ -1107,7 +1107,7 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 										Sci_Position _pos = _start_pos;
 										int    c;
 										while((c = p_view->CallFunc(SCI_GETCHARAT, _pos++)) != 0) {
-											if(!strchr(p_wb, (uchar)c)) {
+											if(!sstrchr(p_wb, (uchar)c)) {
 												right.add(c);
 											}
 											else
@@ -1116,7 +1116,7 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 										if(_start_pos > 0) {
 											_pos = _start_pos;
 											while((c = p_view->CallFunc(SCI_GETCHARAT, --_pos)) != 0) {
-												if(!strchr(p_wb, (uchar)c)) {
+												if(!sstrchr(p_wb, (uchar)c)) {
 													left.add(c);
 												}
 												else

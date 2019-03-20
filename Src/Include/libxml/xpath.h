@@ -385,13 +385,13 @@ XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathConvertString(xmlXPathObject * val);
 // 
 // Context handling.
 // 
-XMLPUBFUN xmlXPathContextPtr XMLCALL xmlXPathNewContext(xmlDocPtr doc);
+XMLPUBFUN xmlXPathContextPtr XMLCALL xmlXPathNewContext(xmlDoc * doc);
 XMLPUBFUN void XMLCALL xmlXPathFreeContext(xmlXPathContextPtr ctxt);
 XMLPUBFUN int XMLCALL xmlXPathContextSetCache(xmlXPathContextPtr ctxt, int active, int value, int options);
 // 
 // Evaluation functions.
 // 
-XMLPUBFUN long XMLCALL xmlXPathOrderDocElems(xmlDocPtr doc);
+XMLPUBFUN long XMLCALL xmlXPathOrderDocElems(xmlDoc * doc);
 XMLPUBFUN int XMLCALL xmlXPathSetContextNode(xmlNode * P_Node, xmlXPathContextPtr ctx);
 XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathNodeEval(xmlNode * P_Node, const xmlChar *str, xmlXPathContextPtr ctx);
 XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathEval(const xmlChar *str, xmlXPathContextPtr ctx);

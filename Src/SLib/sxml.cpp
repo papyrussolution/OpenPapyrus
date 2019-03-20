@@ -47,7 +47,7 @@ void FASTCALL XMLReplaceSpecSymb(SString & rBuf, const char * pProcessSymb)
 	}
 	for(size_t i = 0; i < SIZEOFARRAY(SpcSymbTab); i++) {
 		const char rc = SpcSymbTab[i].chr;
-		if((!p_exclude || strchr(p_exclude, rc) == 0) && (!p_include || strchr(p_include, rc) != 0)) {
+		if((!p_exclude || sstrchr(p_exclude, rc) == 0) && (!p_include || sstrchr(p_include, rc) != 0)) {
 			char   pattern[32];
 			char   replacer[32];
 			pattern[0] = rc;

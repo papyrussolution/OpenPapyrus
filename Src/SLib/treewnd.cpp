@@ -52,7 +52,7 @@ INT_PTR CALLBACK TreeWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 			}
  			break;
 		case WM_NOTIFY: {
-			NMHDR * nm = (LPNMHDR)lParam;
+			NMHDR * nm = reinterpret_cast<LPNMHDR>(lParam);
 			if(wParam == MENU_TREELIST && (nm->code == NM_DBLCLK || (nm->code == TVN_KEYDOWN && ((LPNMTVKEYDOWN)nm)->wVKey == 13))) {
 				HWND   h_tv = GetDlgItem(hWnd, MENU_TREELIST);
 				HTREEITEM hI = TreeView_GetSelection(h_tv);
@@ -139,6 +139,7 @@ int SLAPI TreeWindow::TranslateKeyCode(ushort keyCode, uint * pCmd) const
 void TreeWindow::SetupCmdList(HMENU hMenu, HTREEITEM hP)
 {
 	HTREEITEM hti;
+	SString temp_buf;
 	HWND   h_tv = H_CmdList;
 	if(!hP || hP == TVI_ROOT)
 		TreeView_DeleteAllItems(h_tv);
@@ -146,14 +147,14 @@ void TreeWindow::SetupCmdList(HMENU hMenu, HTREEITEM hP)
 	if(hP == TVI_ROOT)
 		cnt--;
 	for(int i = 0; i < cnt; i++) {
-		TCHAR  menu_name[256];
+		TCHAR  menu_name_buf[256];
 		MENUITEMINFO mii;
 		mii.cbSize = sizeof(MENUITEMINFO);
 		mii.fMask = MIIM_DATA|MIIM_SUBMENU|MIIM_TYPE|MIIM_STATE|MIIM_ID;
-		mii.dwTypeData = menu_name; // @unicodeproblem
-		mii.cch = SIZEOFARRAY(menu_name);
+		mii.dwTypeData = menu_name_buf; // @unicodeproblem
+		mii.cch = SIZEOFARRAY(menu_name_buf);
 		GetMenuItemInfo(hMenu, i, TRUE, &mii); // @unicodeproblem
-		if(menu_name[0] != 0) {
+		if(menu_name_buf[0] != 0) {
 			TVINSERTSTRUCT is;
 			is.hParent = hP;
 			is.hInsertAfter = TVI_LAST;
@@ -167,10 +168,14 @@ void TreeWindow::SetupCmdList(HMENU hMenu, HTREEITEM hP)
 				is.item.lParam = mii.wID;
 				is.item.cChildren = 0;
 			}
-			char * chr = strchr(menu_name, '&');
-			if(chr)
-				memmove(chr, chr+1, sstrlen(chr));
-			is.item.pszText = menu_name; // @unicodeproblem
+			{
+				TCHAR * chr = sstrchr(menu_name_buf, '&');
+				if(chr)
+					memmove(chr, chr+1, sstrlen(chr)*sizeof(TCHAR));
+			}
+			//temp_buf = SUcSwitch(menu_name_buf);
+			//temp_buf.ReplaceStr("&", 0, 1);
+			is.item.pszText = menu_name_buf; // @unicodeproblem
 			is.item.cchTextMax = mii.cch;
 	  		if(mii.fType != MFT_SEPARATOR) {
 				hti = TreeView_InsertItem(h_tv, &is); // @unicodeproblem
@@ -325,24 +330,32 @@ void TreeWindow::MoveChilds(const RECT & rRect)
 
 void TreeWindow::MenuToList(HMENU hMenu, long parentId, StrAssocArray * pList)
 {
+	SString temp_buf;
 	int    cnt = GetMenuItemCount(hMenu);
 	if(parentId == 0)
 		cnt--;
 	for(int i = 0; i < cnt; i++) {
-		TCHAR  menu_name[256];
+		TCHAR  menu_name_buf[256];
 		MENUITEMINFO mii;
 		mii.cbSize = sizeof(MENUITEMINFO);
 		mii.fMask = MIIM_DATA|MIIM_SUBMENU|MIIM_TYPE|MIIM_STATE|MIIM_ID;
-		mii.dwTypeData = menu_name; // @unicodeproblem
-		mii.cch = SIZEOFARRAY(menu_name);
+		mii.dwTypeData = menu_name_buf; // @unicodeproblem
+		mii.cch = SIZEOFARRAY(menu_name_buf);
 		GetMenuItemInfo(hMenu, i, TRUE, &mii); // @unicodeproblem
-		if(menu_name[0] != 0) {
-			char * chr = strchr(menu_name, '&');
+		if(menu_name_buf[0] != 0) {
+			/* @v10.3.10
+			char * chr = sstrchr(menu_name, '&');
 			if(chr)
 				memmove(chr, chr+1, sstrlen(chr));
 			SCharToOem(menu_name);
+			*/
+			// @v10.3.10 {
+			temp_buf = SUcSwitch(menu_name_buf);
+			temp_buf.ReplaceStr("&", 0, 1); 
+			temp_buf.Transf(CTRANSF_OUTER_TO_INNER);
+			// } @v10.3.10 
 	  		if(mii.fType != MFT_SEPARATOR) {
-				pList->Add(mii.wID, parentId, menu_name);
+				pList->Add(mii.wID, parentId, temp_buf);
 				if(mii.hSubMenu)
 					MenuToList(mii.hSubMenu, mii.wID, pList); // @recursion
 			}

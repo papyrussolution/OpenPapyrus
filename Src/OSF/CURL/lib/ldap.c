@@ -677,10 +677,10 @@ static bool split_str(char * str, char *** out, size_t * count)
 	char * lasts;
 	size_t i;
 	size_t items = 1;
-	char * s = strchr(str, ',');
+	char * s = sstrchr(str, ',');
 	while(s) {
 		items++;
-		s = strchr(++s, ',');
+		s = sstrchr(++s, ',');
 	}
 	res = (char **)SAlloc::C(items, sizeof(char *));
 	if(!res)
@@ -722,7 +722,7 @@ static int _ldap_url_parse2(const struct connectdata * conn, LDAPURLDesc * ludp)
 	if(!path)
 		return LDAP_NO_MEMORY;
 	/* Parse the DN (Distinguished Name) */
-	q = strchr(p, '?');
+	q = sstrchr(p, '?');
 	if(q)
 		*q++ = '\0';
 	if(*p) {
@@ -753,7 +753,7 @@ static int _ldap_url_parse2(const struct connectdata * conn, LDAPURLDesc * ludp)
 	if(!p)
 		goto quit;
 	/* Parse the attributes. skip "??" */
-	q = strchr(p, '?');
+	q = sstrchr(p, '?');
 	if(q)
 		*q++ = '\0';
 	if(*p) {
@@ -807,7 +807,7 @@ static int _ldap_url_parse2(const struct connectdata * conn, LDAPURLDesc * ludp)
 	if(!p)
 		goto quit;
 	/* Parse the scope. skip "??" */
-	q = strchr(p, '?');
+	q = sstrchr(p, '?');
 	if(q)
 		*q++ = '\0';
 	if(*p) {
@@ -822,7 +822,7 @@ static int _ldap_url_parse2(const struct connectdata * conn, LDAPURLDesc * ludp)
 	if(!p)
 		goto quit;
 	/* Parse the filter */
-	q = strchr(p, '?');
+	q = sstrchr(p, '?');
 	if(q)
 		*q++ = '\0';
 	if(*p) {

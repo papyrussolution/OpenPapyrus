@@ -245,7 +245,7 @@ static SECStatus set_ciphers(struct Curl_easy * data, PRFileDesc * model,
 		while((*cipher) && (ISSPACE(*cipher)))
 			++cipher;
 
-		cipher_list = strchr(cipher, ',');
+		cipher_list = sstrchr(cipher, ',');
 		if(cipher_list) {
 			*cipher_list++ = '\0';
 		}
@@ -338,7 +338,7 @@ static char * dup_nickname(struct Curl_easy * data, const char * str)
 		return _strdup(str);
 
 	/* search the first slash; we require at least one slash in a file name */
-	n = strchr(str, '/');
+	n = sstrchr(str, '/');
 	if(!n) {
 		infof(data, "warning: certificate file name \"%s\" handled as nickname; "
 		    "please use \"./%s\" to force file name\n", str, str);

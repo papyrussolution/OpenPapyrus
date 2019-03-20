@@ -73,7 +73,7 @@ int SLAPI BCopySet::Sort(BCopySet::Order ord)
 //
 const char * BackupInfoFile = "BACKUP.INF";
 
-SLAPI DBBackup::InfoFile::InfoFile(DbProvider * pDb)
+SLAPI DBBackup::InfoFile::InfoFile(DbProvider * pDb) : Stream(0)
 {
 	if(pDb) {
 		SString data_path;
@@ -82,7 +82,6 @@ SLAPI DBBackup::InfoFile::InfoFile(DbProvider * pDb)
 	}
 	else
 		FileName[0] = 0;
-	Stream = 0;
 }
 
 SLAPI DBBackup::InfoFile::~InfoFile()
@@ -127,10 +126,9 @@ int SLAPI DBBackup::InfoFile::OpenStream(int readOnly)
 	return Stream ? 1 : (DBErrCode = SDBERR_FOPENFAULT, 0);
 }
 
-int SLAPI DBBackup::InfoFile::CloseStream()
+void SLAPI DBBackup::InfoFile::CloseStream()
 {
 	SFile::ZClose(&Stream);
-	return 1;
 }
 
 int SLAPI DBBackup::InfoFile::ReadSet(BCopySet * set)
@@ -504,7 +502,7 @@ int SLAPI DBBackup::Backup(BCopyData * pData, BackupLogFunc fnLog, long initPara
 		THROW(MakeCopyPath(pData, cp.Path));
 		cp.TempPath = pData->TempPath;
 		if(pData->BssFactor > 0)
-			SetSpaceSafetyFactor((uint)pData->BssFactor);
+			SetSpaceSafetyFactor(static_cast<uint>(pData->BssFactor));
 		if(use_compression || CheckAvailableDiskSpace(cp.Path, cp.TotalSize)) {
 			SString data_path;
 			pData->SrcSize = cp.TotalSize;

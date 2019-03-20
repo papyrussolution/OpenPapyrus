@@ -123,16 +123,16 @@ static CURLcode dict_do(struct connectdata * conn, bool * done)
 	if(strncasecompare(path, DICT_MATCH, sizeof(DICT_MATCH)-1) ||
 	    strncasecompare(path, DICT_MATCH2, sizeof(DICT_MATCH2)-1) ||
 	    strncasecompare(path, DICT_MATCH3, sizeof(DICT_MATCH3)-1)) {
-		word = strchr(path, ':');
+		word = sstrchr(path, ':');
 		if(word) {
 			word++;
-			database = strchr(word, ':');
+			database = sstrchr(word, ':');
 			if(database) {
 				*database++ = (char)0;
-				strategy = strchr(database, ':');
+				strategy = sstrchr(database, ':');
 				if(strategy) {
 					*strategy++ = (char)0;
-					nthdef = strchr(strategy, ':');
+					nthdef = sstrchr(strategy, ':');
 					if(nthdef) {
 						*nthdef = (char)0;
 					}
@@ -180,13 +180,13 @@ static CURLcode dict_do(struct connectdata * conn, bool * done)
 	else if(strncasecompare(path, DICT_DEFINE, sizeof(DICT_DEFINE)-1) ||
 	    strncasecompare(path, DICT_DEFINE2, sizeof(DICT_DEFINE2)-1) ||
 	    strncasecompare(path, DICT_DEFINE3, sizeof(DICT_DEFINE3)-1)) {
-		word = strchr(path, ':');
+		word = sstrchr(path, ':');
 		if(word) {
 			word++;
-			database = strchr(word, ':');
+			database = sstrchr(word, ':');
 			if(database) {
 				*database++ = (char)0;
-				nthdef = strchr(database, ':');
+				nthdef = sstrchr(database, ':');
 				if(nthdef) {
 					*nthdef = (char)0;
 				}
@@ -224,7 +224,7 @@ static CURLcode dict_do(struct connectdata * conn, bool * done)
 		    -1, 0);     /* no upload */
 	}
 	else {
-		ppath = strchr(path, '/');
+		ppath = sstrchr(path, '/');
 		if(ppath) {
 			int i;
 

@@ -145,7 +145,7 @@ static int vms_load(DSO * dso)
 	else
 		sp1++;          /* The byte after the found character */
 	/* Now, let's see if there's a type, and save the position in sp2 */
-	sp2 = strchr(sp1, '.');
+	sp2 = sstrchr(sp1, '.');
 	/*
 	 * If there is a period and the next character is a semi-colon,
 	 * we need to add an extension
@@ -157,7 +157,7 @@ static int vms_load(DSO * dso)
 	 * number and save the position in sp2
 	 */
 	if(sp2 == NULL) {
-		sp2 = strchr(sp1, ';');
+		sp2 = sstrchr(sp1, ';');
 		ext = ".EXE";
 	}
 	/*

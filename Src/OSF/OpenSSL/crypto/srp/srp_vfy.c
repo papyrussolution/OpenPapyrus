@@ -35,7 +35,7 @@ static int t_fromb64(uchar * a, size_t alen, const char * src)
 		return -1;
 	i = 0;
 	while(i < size) {
-		loc = strchr(b64table, src[i]);
+		loc = sstrchr(b64table, src[i]);
 		if(loc == (char *)0)
 			break;
 		else

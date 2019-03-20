@@ -390,7 +390,7 @@ void WrOffDraftParamDialog::setupName()
 	GetClusterData(CTL_DWOFILT_FLAGS, &Data.Flags);
 	getCtrlString(CTL_DWOFILT_MRPNAME, Data.MrpTabName);
 	Data.MrpTabName.Strip();
-	if((Data.DwoID != prev_dwo_id || !prev_crmrp_flag) && (!Data.MrpTabName[0] || strchr(Data.MrpTabName, '#'))) {
+	if((Data.DwoID != prev_dwo_id || !prev_crmrp_flag) && (!Data.MrpTabName[0] || sstrchr(Data.MrpTabName, '#'))) {
 		PPDraftWrOff dwo_rec;
 		if(SearchObject(PPOBJ_DRAFTWROFF, Data.DwoID, &dwo_rec) > 0) {
 			if(dwo_rec.Flags & DWOF_USEMRPTAB || Data.Flags & PrcssrWrOffDraftFilt::fCreateMrpTab) {

@@ -1418,14 +1418,14 @@ static int read_header(struct archive_read * a, struct archive_entry * entry,
 					return ARCHIVE_FATAL;
 			}
 			fn_sconv = rar->sconv_utf8;
-			while((strp = strchr(filename, '\\')) != NULL)
+			while((strp = sstrchr(filename, '\\')) != NULL)
 				*strp = '/';
 			p += filename_size;
 		}
 	}
 	else{
 		fn_sconv = sconv;
-		while((strp = strchr(filename, '\\')) != NULL)
+		while((strp = sstrchr(filename, '\\')) != NULL)
 			*strp = '/';
 		p += filename_size;
 	}

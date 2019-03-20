@@ -446,7 +446,7 @@ static LIBSSH2_CHANNEL * scp_recv(LIBSSH2_SESSION * session, const char * path, 
 
 				s = session->scpRecv_response + 1;
 
-				p = (uchar *)strchr((char *)s, ' ');
+				p = (uchar *)sstrchr((char *)s, ' ');
 				if(!p || ((p - s) <= 0)) {
 					/* No spaces or space in the wrong spot */
 					_libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
@@ -459,7 +459,7 @@ static LIBSSH2_CHANNEL * scp_recv(LIBSSH2_SESSION * session, const char * path, 
 				/* Make sure we don't get fooled by leftover values */
 				session->scpRecv_mtime = strtol((char *)s, NULL, 10);
 
-				s = (uchar *)strchr((char *)p, ' ');
+				s = (uchar *)sstrchr((char *)p, ' ');
 				if(!s || ((s - p) <= 0)) {
 					/* No spaces or space in the wrong spot */
 					_libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
@@ -469,7 +469,7 @@ static LIBSSH2_CHANNEL * scp_recv(LIBSSH2_SESSION * session, const char * path, 
 
 				/* Ignore mtime.usec */
 				s++;
-				p = (uchar *)strchr((char *)s, ' ');
+				p = (uchar *)sstrchr((char *)s, ' ');
 				if(!p || ((p - s) <= 0)) {
 					/* No spaces or space in the wrong spot */
 					_libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
@@ -603,7 +603,7 @@ static LIBSSH2_CHANNEL * scp_recv(LIBSSH2_SESSION * session, const char * path, 
 
 				s = (char *)session->scpRecv_response + 1;
 
-				p = strchr(s, ' ');
+				p = sstrchr(s, ' ');
 				if(!p || ((p - s) <= 0)) {
 					/* No spaces or space in the wrong spot */
 					_libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
@@ -621,7 +621,7 @@ static LIBSSH2_CHANNEL * scp_recv(LIBSSH2_SESSION * session, const char * path, 
 					goto scp_recv_error;
 				}
 
-				s = strchr(p, ' ');
+				s = sstrchr(p, ' ');
 				if(!s || ((s - p) <= 0)) {
 					/* No spaces or space in the wrong spot */
 					_libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,

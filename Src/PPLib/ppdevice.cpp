@@ -301,7 +301,7 @@ int SLAPI PPAbstractDevice::ParseRegEntry(const char * pLine, SString & rSymbol,
 	int    ok = 0, r = 2;
 	int    drv_impl = 0;
 	SString temp_buf;
-	const char * p_eq = strchr(pLine, '=');
+	const char * p_eq = sstrchr(pLine, '=');
 
 	size_t eq_pos = 0;
 	temp_buf = pLine;

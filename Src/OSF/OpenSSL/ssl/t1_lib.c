@@ -3610,7 +3610,7 @@ static int sig_cb(const char * elem, int len, void * arg)
 		return 0;
 	memcpy(etmp, elem, len);
 	etmp[len] = 0;
-	p = strchr(etmp, '+');
+	p = sstrchr(etmp, '+');
 	if(!p)
 		return 0;
 	*p = 0;

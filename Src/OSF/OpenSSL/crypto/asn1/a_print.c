@@ -34,7 +34,7 @@ int ASN1_PRINTABLE_type(const uchar * s, int len)
 		if(c & 0x80)
 			t61 = 1;
 #else
-		if(!isalnum(c) && (c != ' ') && strchr("'()+,-./:=?", c) == NULL)
+		if(!isalnum(c) && (c != ' ') && sstrchr("'()+,-./:=?", c) == NULL)
 			ia5 = 1;
 		if(os_toascii[c] & 0x80)
 			t61 = 1;

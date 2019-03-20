@@ -167,7 +167,7 @@ int SLAPI PPCalcFuncList::ReadParams(uint16 funcID, const char * pStr, size_t * 
 			while(pStr[p] == ' ' || pStr[p] == '\t' || pStr[p] == '\n')
 				p++;
 			char   param_buf[64];
-			const  char * p_delim = strchr(pStr+p, ',');
+			const  char * p_delim = sstrchr(pStr+p, ',');
 			size_t delim_dist = p_delim ? (size_t)(p_delim - pStr) : (size_t)MAXSHORT;
 			char * p_dest = param_buf;
 			while(pStr[p] != 0 && p != delim_dist && pStr[p] != ')')

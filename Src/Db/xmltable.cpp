@@ -485,8 +485,8 @@ int XmlDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 					const size_t len = fld.Name.Len();
 					for(size_t start = 0; start < len; ) {
 						const char * p_fld_name = (fld.Name + start);
-						p = strchr(p_fld_name, '/');
-						SETIFZ(p, strchr(p_fld_name, '\\'));
+						p = sstrchr(p_fld_name, '/');
+						SETIFZ(p, sstrchr(p_fld_name, '\\'));
 						if(p) {
 							size_t pos = (p - p_fld_name);
 							temp_buf.Z().CatN(p_fld_name, pos-start);

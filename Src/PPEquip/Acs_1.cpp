@@ -91,7 +91,7 @@ BarcodeTbl * SLAPI CS_1::CreateTmpBarToID(int num, int fn, int fldGoodsID, int f
 			dbfr.get(fldBarCode, code);
 			c = strip(code);
 			if(*c && *c != '0') {
-				if((c = strchr(code, '.')) != 0)
+				if((c = sstrchr(code, '.')) != 0)
 					*c = 0;
 				STRNSCPY(p_tbl->data.Code, code);
 				dbfr.get(fldGoodsID, p_tbl->data.GoodsID);

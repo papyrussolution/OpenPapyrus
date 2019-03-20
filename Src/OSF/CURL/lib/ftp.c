@@ -243,7 +243,7 @@ static void FASTCALL freedirs(struct ftp_conn * ftpc)
 // 
 static bool isBadFtpString(const char * string)
 {
-	return ((NULL != strchr(string, '\r')) || (NULL != strchr(string, '\n'))) ? TRUE : FALSE;
+	return ((NULL != sstrchr(string, '\r')) || (NULL != sstrchr(string, '\n'))) ? TRUE : FALSE;
 }
 // 
 // AcceptServerConnect()
@@ -785,7 +785,7 @@ static CURLcode ftp_state_use_port(struct connectdata * conn, /*ftpport*/int fcm
 		if(*string_ftpport == '[') {
 			/* [ipv6]:port(-range) */
 			ip_start = string_ftpport + 1;
-			ip_end = strchr(string_ftpport, ']');
+			ip_end = sstrchr(string_ftpport, ']');
 			if(ip_end)
 				strncpy(addr, ip_start, ip_end - ip_start);
 		}
@@ -796,7 +796,7 @@ static CURLcode ftp_state_use_port(struct connectdata * conn, /*ftpport*/int fcm
 			ip_end = string_ftpport;
 		}
 		else {
-			ip_end = strchr(string_ftpport, ':');
+			ip_end = sstrchr(string_ftpport, ':');
 			if(ip_end) {
 				/* either ipv6 or (ipv4|domain|interface):port(-range) */
 #ifdef ENABLE_IPV6
@@ -818,10 +818,10 @@ static CURLcode ftp_state_use_port(struct connectdata * conn, /*ftpport*/int fcm
 
 		/* parse the port */
 		if(ip_end != NULL) {
-			port_start = strchr(ip_end, ':');
+			port_start = sstrchr(ip_end, ':');
 			if(port_start) {
 				port_min = curlx_ultous(strtoul(port_start+1, NULL, 10));
-				port_sep = strchr(port_start, '-');
+				port_sep = sstrchr(port_start, '-');
 				port_max = port_sep ? curlx_ultous(strtoul(port_sep + 1, NULL, 10)) : port_min;
 			}
 		}
@@ -1194,7 +1194,7 @@ static CURLcode ftp_state_list(struct connectdata * conn)
 	if((data->set.ftp_filemethod == FTPFILE_NOCWD) &&
 	    data->state.path &&
 	    data->state.path[0] &&
-	    strchr(data->state.path, '/')) {
+	    sstrchr(data->state.path, '/')) {
 		lstArg = _strdup(data->state.path);
 		if(!lstArg)
 			return CURLE_OUT_OF_MEMORY;
@@ -1482,7 +1482,7 @@ static CURLcode ftp_state_pasv_resp(struct connectdata * conn, int ftpcode)
 	ZFREE(ftpc->newhost);
 	if((ftpc->count1 == 0) && (ftpcode == 229)) {
 		/* positive EPSV response */
-		char * ptr = strchr(str, '(');
+		char * ptr = sstrchr(str, '(');
 		if(ptr) {
 			uint num;
 			char separator[4];
@@ -3458,7 +3458,7 @@ static CURLcode ftp_parse_url_path(struct connectdata * conn)
 		    }
 		    else {
 			    /* parse the URL path into separate path components */
-			    while((slash_pos = strchr(cur_pos, '/')) != NULL) {
+			    while((slash_pos = sstrchr(cur_pos, '/')) != NULL) {
 				    /* 1 or 0 pointer offset to indicate absolute directory */
 				    ssize_t absolute_dir = ((cur_pos - data->state.path > 0) && (ftpc->dirdepth == 0)) ? 1 : 0;
 				    /* seek out the next path component */

@@ -4315,6 +4315,10 @@ size_t FASTCALL sstrlen(const wchar_t * pStr);
 FORCEINLINE int FASTCALL sstrleni(const char * pStr) { return static_cast<int>(sstrlen(pStr)); }
 FORCEINLINE int FASTCALL sstrleni(const uchar * pStr) { return static_cast<int>(sstrlen(pStr)); }
 FORCEINLINE int FASTCALL sstrleni(const wchar_t * pStr) { return static_cast<int>(sstrlen(pStr)); }
+const char * FASTCALL sstrchr(const char * pStr, char c);
+char       * FASTCALL sstrchr(char * pStr, char c);
+const wchar_t * FASTCALL sstrchr(const wchar_t * pStr, wchar_t c);
+wchar_t       * FASTCALL sstrchr(wchar_t * pStr, wchar_t c);
 char  * FASTCALL sstrdup(const char * pStr);
 uchar * FASTCALL sstrdup(const uchar * pStr);
 //
@@ -4330,6 +4334,7 @@ int    FASTCALL sstreq(const uchar * pS1, const uchar * pS2);
 // Descr: Специальный вариант для libxml - сравнение переменной типа xmlChar * с константой "xxx".
 //
 int    FASTCALL sstreq(const uchar * pS1, const char * pS2);
+int    FASTCALL sstreq(const wchar_t * pS1, const wchar_t * pS2);
 //
 // Descr: определяет эквивалентность строк pS1 и pS2
 //   без учета регистра, но только для ascii-символов.

@@ -106,7 +106,7 @@ CURLcode Curl_output_digest(struct connectdata * conn, bool proxy, const uchar *
 	   http://www.fngtps.com/2006/09/http-authentication
 	 */
 	if(authp->iestyle) {
-		tmp = strchr((char *)uripath, '?');
+		tmp = sstrchr((char *)uripath, '?');
 		if(tmp) {
 			size_t urilen = tmp - (char *)uripath;
 			path = (uchar *)aprintf("%.*s", urilen, uripath);

@@ -459,8 +459,8 @@ Sci_Position SCI_METHOD LexerBaan::WordListSet(int n, const char * wl)
 		wlNew.Set(wl);
 		if(*WordListAbridgedN != wlNew) {
 			WordListAbridgedN->Set(wl);
-			WordListAbridgedN->kwAbridged = strchr(wl, '~') != NULL;
-			WordListAbridgedN->kwHasSection = strchr(wl, ':') != NULL;
+			WordListAbridgedN->kwAbridged = sstrchr(wl, '~') != NULL;
+			WordListAbridgedN->kwHasSection = sstrchr(wl, ':') != NULL;
 
 			firstModification = 0;
 		}

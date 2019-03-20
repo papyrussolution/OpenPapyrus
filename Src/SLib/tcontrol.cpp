@@ -2065,7 +2065,7 @@ int TToolTip::AddTool(ToolItem & rItem)
 		ti.hinst = SLS.GetHInst();
 		ti.uId = _cur_count+1; //++Counter;
 		if(rItem.Text.NotEmpty()) {
-			ti.lpszText = (LPSTR)rItem.Text.cptr(); // @badcast // @unicodeproblem
+			ti.lpszText = const_cast<TCHAR *>(SUcSwitch(rItem.Text)); // @badcast // @unicodeproblem
 		}
 		if(rItem.R.IsEmpty() && rItem.H) {
 			GetClientRect(rItem.H, &ti.rect);
@@ -2085,7 +2085,7 @@ uint TToolTip::GetToolsCount()
 {
 	uint   c = 0;
 	if(H)
-		c = (uint)::SendMessage(H, TTM_GETTOOLCOUNT, 0, 0);
+		c = static_cast<uint>(::SendMessage(H, TTM_GETTOOLCOUNT, 0, 0));
 	return c;
 }
 
@@ -2098,14 +2098,14 @@ int TToolTip::GetTool(uint idx, ToolItem & rItem)
 		STempBuffer text_buf(2048);
 		TOOLINFO ti;
 		MEMSZERO(ti);
-		ti.lpszText = static_cast<char *>(text_buf); // @unicodeproblem
+		ti.lpszText = static_cast<TCHAR *>(text_buf.vptr()); // @unicodeproblem
 		ti.cbSize = sizeof(TOOLINFO);
 		if(::SendMessage(H, TTM_ENUMTOOLS, idx, reinterpret_cast<LPARAM>(&ti))) { // @unicodeproblem
 			rItem.Id = ti.uId;
 			rItem.H = ti.hwnd;
 			rItem.Param = ti.lParam;
 			rItem.R = ti.rect;
-			rItem.Text = text_buf;
+			rItem.Text = SUcSwitch(static_cast<TCHAR *>(text_buf.vptr()));
 			ok = 1;
 		}
 	}

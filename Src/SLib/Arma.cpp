@@ -245,7 +245,7 @@ static int SLAPI GetNextDataEntry(FILE * pInF, DataEntry * pEntry)
 	char buf[128];
 	if(fgets(buf, sizeof(buf), pInF)) {
 		chomp(buf);
-		char * p = strchr(buf, ';');
+		char * p = sstrchr(buf, ';');
 		if(p) {
 			*p = 0;
 			pEntry->Val = atof(p+1);

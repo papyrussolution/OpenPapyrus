@@ -95,12 +95,12 @@ int __db_apprec(ENV * env, DB_THREAD_INFO * ip, DB_LSN * max_lsn, DB_LSN * trunc
 		if((int32)dbenv->tx_timestamp < low) {
 			t1[sizeof(t1)-1] = '\0';
 			strncpy(t1, __os_ctime(&dbenv->tx_timestamp, time_buf), sizeof(t1)-1);
-			if((p = strchr(t1, '\n')) != NULL)
+			if((p = sstrchr(t1, '\n')) != NULL)
 				*p = '\0';
 			t2[sizeof(t2)-1] = '\0';
 			tlow = (__time64_t)low;
 			strncpy(t2, __os_ctime(&tlow, time_buf), sizeof(t2)-1);
-			if((p = strchr(t2, '\n')) != NULL)
+			if((p = sstrchr(t2, '\n')) != NULL)
 				*p = '\0';
 			__db_errx(env, DB_STR_A("1509", "Invalid recovery timestamp %s; earliest time is %s", "%s %s"), t1, t2);
 			ret = EINVAL;

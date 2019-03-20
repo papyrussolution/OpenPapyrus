@@ -138,7 +138,7 @@ void FASTCALL ngx_strlow(u_char * dst, const u_char * src, size_t n);
 #define ngx_strcmp(s1, s2)  strcmp((const char *)s1, (const char *)s2)
 #define ngx_strstr(s1, s2)  strstr((const char *)s1, (const char *)s2)
 #define ngx_strlen(s)       strlen((const char *)s)
-#define ngx_strchr(s1, c)   strchr((const char *)s1, (int)c)
+#define ngx_strchr(s1, c)   sstrchr((const char *)s1, (int)c)
 
 static ngx_inline u_char * ngx_strlchr(u_char * p, u_char * last, u_char c)
 {

@@ -263,7 +263,7 @@ static char * SLAPI extractFormFromVarPart(const char * vp, int n /*[1..]*/, cha
 	const char * p = vp;
 	char  * b = buf;
 	int i = 0;
-	while(i < n && ((c = p), p = strchr(p, '|')) != 0) {
+	while(i < n && ((c = p), p = sstrchr(p, '|')) != 0) {
 		i++;
 		p++;
 	}
@@ -340,7 +340,7 @@ static void SLAPI _extractFormFromVarPart(const char * vp, int n /*[1..]*/, SStr
 	const char * c = vp;
 	const char * p = vp;
 	//char  * b = buf;
-	for(int i = 0; i < n && ((c = p), p = strchr(p, '|')) != 0;) {
+	for(int i = 0; i < n && ((c = p), p = sstrchr(p, '|')) != 0;) {
 		i++;
 		p++;
 	}

@@ -381,7 +381,7 @@ static const char * pushnexttemplate(lua_State * L, const char * path) {
 	const char * l;
 	while(*path == *LUA_PATH_SEP) path++; /* skip separators */
 	if(*path == '\0') return NULL; /* no more templates */
-	l = strchr(path, *LUA_PATH_SEP); /* find next separator */
+	l = sstrchr(path, *LUA_PATH_SEP); /* find next separator */
 	if(l == NULL) l = path + strlen(path);
 	lua_pushlstring(L, path, l - path); /* template */
 	return l;
@@ -463,7 +463,7 @@ static int loadfunc(lua_State * L, const char * filename, const char * modname) 
 	const char * openfunc;
 	const char * mark;
 	modname = luaL_gsub(L, modname, ".", LUA_OFSEP);
-	mark = strchr(modname, *LUA_IGMARK);
+	mark = sstrchr(modname, *LUA_IGMARK);
 	if(mark) {
 		int stat;
 		openfunc = lua_pushlstring(L, modname, mark - modname);
@@ -486,7 +486,7 @@ static int searcher_C(lua_State * L) {
 static int searcher_Croot(lua_State * L) {
 	const char * filename;
 	const char * name = luaL_checkstring(L, 1);
-	const char * p = strchr(name, '.');
+	const char * p = sstrchr(name, '.');
 	int stat;
 	if(p == NULL) return 0; /* is root */
 	lua_pushlstring(L, name, p - name);

@@ -153,29 +153,29 @@ static int db_getinfo(lua_State * L)
 	if(!lua_getinfo(L1, options, &ar))
 		return luaL_argerror(L, arg+2, "invalid option");
 	lua_newtable(L); /* table to collect results */
-	if(strchr(options, 'S')) {
+	if(sstrchr(options, 'S')) {
 		settabss(L, "source", ar.source);
 		settabss(L, "short_src", ar.short_src);
 		settabsi(L, "linedefined", ar.linedefined);
 		settabsi(L, "lastlinedefined", ar.lastlinedefined);
 		settabss(L, "what", ar.what);
 	}
-	if(strchr(options, 'l'))
+	if(sstrchr(options, 'l'))
 		settabsi(L, "currentline", ar.currentline);
-	if(strchr(options, 'u')) {
+	if(sstrchr(options, 'u')) {
 		settabsi(L, "nups", ar.nups);
 		settabsi(L, "nparams", ar.nparams);
 		settabsb(L, "isvararg", ar.isvararg);
 	}
-	if(strchr(options, 'n')) {
+	if(sstrchr(options, 'n')) {
 		settabss(L, "name", ar.name);
 		settabss(L, "namewhat", ar.namewhat);
 	}
-	if(strchr(options, 't'))
+	if(sstrchr(options, 't'))
 		settabsb(L, "istailcall", ar.istailcall);
-	if(strchr(options, 'L'))
+	if(sstrchr(options, 'L'))
 		treatstackoption(L, L1, "activelines");
-	if(strchr(options, 'f'))
+	if(sstrchr(options, 'f'))
 		treatstackoption(L, L1, "func");
 	return 1; /* return table */
 }
@@ -309,9 +309,9 @@ static void hookf(lua_State * L, lua_Debug * ar)
 static int makemask(const char * smask, int count) 
 {
 	int mask = 0;
-	if(strchr(smask, 'c')) mask |= LUA_MASKCALL;
-	if(strchr(smask, 'r')) mask |= LUA_MASKRET;
-	if(strchr(smask, 'l')) mask |= LUA_MASKLINE;
+	if(sstrchr(smask, 'c')) mask |= LUA_MASKCALL;
+	if(sstrchr(smask, 'r')) mask |= LUA_MASKRET;
+	if(sstrchr(smask, 'l')) mask |= LUA_MASKLINE;
 	if(count > 0) mask |= LUA_MASKCOUNT;
 	return mask;
 }

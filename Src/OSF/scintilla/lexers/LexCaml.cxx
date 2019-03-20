@@ -224,7 +224,7 @@ void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length,
 						    baseC = "x";
 					    }
 					    // ... change to specified base AS REQUIRED
-					    if(strchr(baseC, sc.chNext))
+					    if(sstrchr(baseC, sc.chNext))
 						    chBase = baseT[tolower(sc.chNext) - 'a'], sc.Forward();
 				    }
 			    }
@@ -236,7 +236,7 @@ void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length,
 				    state2 = SCE_CAML_STRING;
 			    else if(sc.Match('(', '*'))
 				    state2 = SCE_CAML_COMMENT, sc.Forward(), sc.ch = ' ';  // (*)...
-			    else if(strchr("!?~"                /* Caml "prefix-symbol" */
+			    else if(sstrchr("!?~"                /* Caml "prefix-symbol" */
 				    "=<>@^|&+-*/$%"                     /* Caml "infix-symbol" */
 				    "()[]{};,:.#", sc.ch)       // Caml "bracket" or ;,:.#
 			    // SML "extra" ident chars
@@ -290,13 +290,13 @@ void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length,
 			    // [try to] interpret as [additional] operator char
 			    const char* o = 0;
 			    if(iscaml(sc.ch) || isspace(sc.ch)                  // ident or whitespace
-				    || (o = strchr(")]};,\'\"#", sc.ch), o) // "termination" chars
+				    || (o = sstrchr(")]};,\'\"#", sc.ch), o) // "termination" chars
 				    || (!isSML && sc.Match('`'))                // Caml extra term char
-				    || (!strchr("!$%&*+-./:<=>?@^|~", sc.ch) // "operator" chars
+				    || (!sstrchr("!$%&*+-./:<=>?@^|~", sc.ch) // "operator" chars
 			                    // SML extra ident chars
 					    && !(isSML && (sc.Match('\\') || sc.Match('`'))))) {
 				    // check for INCLUSIVE termination
-				    if(o && strchr(")]};,", sc.ch)) {
+				    if(o && sstrchr(")]};,", sc.ch)) {
 					    if((sc.Match(')') && sc.chPrev == '(')
 						    || (sc.Match(']') && sc.chPrev == '['))
 						    // special-case "()" and "[]" tokens as KEYWORDS

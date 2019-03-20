@@ -199,7 +199,7 @@ CURLcode Curl_proxyCONNECT(struct connectdata * conn,
 
 				/* the hostname may be different */
 				if(hostname != conn->host.name)
-					ipv6_ip = (strchr(hostname, ':') != NULL);
+					ipv6_ip = (sstrchr(hostname, ':') != NULL);
 				hostheader = /* host:port with IPv6 support */
 				    aprintf("%s%s%s:%hu", ipv6_ip ? "[" : "", hostname, ipv6_ip ? "]" : "",
 				    remote_port);

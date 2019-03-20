@@ -171,7 +171,7 @@ static int _ar_read_header(struct archive_read * a, struct archive_entry * entry
 		 */
 		if(strncmp(filename, "#1/", 3) == 0)
 			a->archive.archive_format = ARCHIVE_FORMAT_AR_BSD;
-		else if(strchr(filename, '/') != NULL)
+		else if(sstrchr(filename, '/') != NULL)
 			a->archive.archive_format = ARCHIVE_FORMAT_AR_GNU;
 		else if(strncmp(filename, "__.SYMDEF", 9) == 0)
 			a->archive.archive_format = ARCHIVE_FORMAT_AR_BSD;

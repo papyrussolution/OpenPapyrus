@@ -1119,7 +1119,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				     * the arguments following the command must be separated from the
 				     * command with a space so we can check for it unconditionally
 				     */
-				    cp = strchr(cmd, ' ');
+				    cp = sstrchr(cmd, ' ');
 				    if(cp == NULL) {
 					    failf(data, "Syntax error in SFTP command. Supply parameter(s)!");
 					    state(conn, SSH_SFTP_CLOSE);
@@ -1762,7 +1762,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    break;
 
 			case SSH_SFTP_CREATE_DIRS:
-			    sshc->slash_pos = strchr(sshc->slash_pos, '/');
+			    sshc->slash_pos = sstrchr(sshc->slash_pos, '/');
 			    if(sshc->slash_pos) {
 				    *sshc->slash_pos = 0;
 
@@ -3093,7 +3093,7 @@ static CURLcode get_pathname(const char ** cpp, char ** path)
 	else {
 		/* Read to end of filename */
 		end = strpbrk(cp, WHITESPACE);
-		SETIFZ(end, strchr(cp, '\0'));
+		SETIFZ(end, sstrchr(cp, '\0'));
 		*cpp = end + strspn(end, WHITESPACE);
 		memcpy(*path, cp, end - cp);
 		(*path)[end - cp] = '\0';

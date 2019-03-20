@@ -266,7 +266,7 @@ static const char * l_str2d(const char * s, lua_Number * result) {
 	endptr = l_str2dloc(s, result, mode); /* try to convert */
 	if(endptr == NULL) { /* failed? may be a different locale */
 		char buff[L_MAXLENNUM + 1];
-		const char * pdot = strchr(s, '.');
+		const char * pdot = sstrchr(s, '.');
 		if(strlen(s) > L_MAXLENNUM || pdot == NULL)
 			return NULL; /* string too long or no dot; fail */
 		strcpy(buff, s); /* copy string to buffer */
@@ -379,7 +379,7 @@ static void pushstr(lua_State * L, const char * str, size_t l) {
 const char * luaO_pushvfstring(lua_State * L, const char * fmt, va_list argp) {
 	int n = 0;
 	for(;;) {
-		const char * e = strchr(fmt, '%');
+		const char * e = sstrchr(fmt, '%');
 		if(e == NULL) break;
 		pushstr(L, fmt, e - fmt);
 		switch(*(e+1)) {
@@ -482,7 +482,7 @@ void luaO_chunkid(char * out, const char * source, size_t bufflen) {
 		}
 	}
 	else { /* string; format as [string "source"] */
-		const char * nl = strchr(source, '\n'); /* find first new line (if any) */
+		const char * nl = sstrchr(source, '\n'); /* find first new line (if any) */
 		addstr(out, PRE, LL(PRE)); /* add prefix */
 		bufflen -= LL(PRE RETS POS) + 1; /* save space for prefix+suffix+'\0' */
 		if(l < bufflen && nl == NULL) { /* small one-line source? */

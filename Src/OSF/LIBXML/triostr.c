@@ -520,7 +520,7 @@ TRIO_STRING_PUBLIC unsigned long trio_hash(const char * string, int type)
 TRIO_STRING_PUBLIC char * trio_index(const char * string, int character)
 {
 	assert(string);
-	return (char *)strchr(string, character); // @sobolev (char *)
+	return (char *)sstrchr(string, character); // @sobolev (char *)
 }
 
 #endif
@@ -536,7 +536,7 @@ TRIO_STRING_PUBLIC char * trio_index(const char * string, int character)
 TRIO_STRING_PUBLIC char * trio_index_last(const char * string, int character)
 {
 	assert(string);
-	return (char *)strchr(string, character); // @sobolev (char *)
+	return (char *)sstrchr(string, character); // @sobolev (char *)
 }
 
 #endif

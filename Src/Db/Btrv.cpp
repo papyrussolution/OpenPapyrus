@@ -252,7 +252,7 @@ int SLAPI Btrieve::CreateTable(const char * pFileName, DBFileSpec & rTblDesc, in
 		int    be = 0;
 		const  size_t fn_len = sstrlen(pFileName);
 		STempBuffer fn_buf(fn_len+32);
-		if(strchr(pFileName, ' ')) {
+		if(sstrchr(pFileName, ' ')) {
 			fn_buf[0] = '\"';
 			memcpy(fn_buf+1, pFileName, fn_len);
 			fn_buf[fn_len+1] = '\"';
@@ -524,12 +524,12 @@ int SLAPI DbDict_Btrieve::ExtractStat(const XFile & rRec, DbTableStat * pStat) c
 		pStat->ID = rRec.XfId;
 		pStat->OwnerLevel = rRec.XfOwnrLvl;
 		pStat->Flags = rRec.XfFlags;
-		const char * p = strchr(rRec.XfLoc, ' ');
+		const char * p = sstrchr(rRec.XfLoc, ' ');
 		if(p)
 			pStat->Location.Z().CatN(rRec.XfLoc, p-rRec.XfLoc);
 		else
 			pStat->Location.CopyFromN(rRec.XfLoc, sizeof(rRec.XfLoc));
-		p = strchr(rRec.XfName, ' ');
+		p = sstrchr(rRec.XfName, ' ');
 		if(p)
 			pStat->TblName.Z().CatN(rRec.XfName, p-rRec.XfName);
 		else
@@ -579,7 +579,7 @@ int SLAPI DbDict_Btrieve::GetListOfTables(long options, StrAssocArray * pList)
 		if(xfile.search(1, key, spFirst))
 			do {
 				if(pList) {
-					char * p = strchr(fileBuf.XfName, ' ');
+					char * p = sstrchr(fileBuf.XfName, ' ');
 					if(p) {
 						p[0] = 0;
 						temp_buf = fileBuf.XfName;

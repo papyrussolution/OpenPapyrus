@@ -249,9 +249,9 @@ static CURLcode smb_connect(struct connectdata * conn, bool * done)
 	connkeep(conn, "SMB default");
 
 	/* Parse the username, domain, and password */
-	slash = strchr(conn->user, '/');
+	slash = sstrchr(conn->user, '/');
 	if(!slash)
-		slash = strchr(conn->user, '\\');
+		slash = sstrchr(conn->user, '\\');
 
 	if(slash) {
 		smbc->user = slash + 1;
@@ -865,9 +865,9 @@ static CURLcode smb_parse_url_path(struct connectdata * conn)
 		SAlloc::F(path);
 		return CURLE_OUT_OF_MEMORY;
 	}
-	slash = strchr(req->share, '/');
+	slash = sstrchr(req->share, '/');
 	if(!slash)
-		slash = strchr(req->share, '\\');
+		slash = sstrchr(req->share, '\\');
 	/* The share must be present */
 	if(!slash) {
 		SAlloc::F(path);

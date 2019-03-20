@@ -257,7 +257,7 @@ pixman_bool_t _pixman_disabled(const char * name)
 		do {
 			const char * end;
 			int len;
-			if((end = strchr(env, ' ')))
+			if((end = sstrchr(env, ' ')))
 				len = end - env;
 			else
 				len = strlen(env);

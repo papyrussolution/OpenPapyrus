@@ -484,7 +484,7 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDoc * doc, const xmlChar * input, 
 			// Special handling of &{...} construct from HTML 4, see
 			// http://www.w3.org/TR/html401/appendix/notes.html#h-B.7.1
 			// 
-			if(html && attr && (cur[1] == '{') && (strchr((const char *)cur, '}'))) {
+			if(html && attr && (cur[1] == '{') && (sstrchr((const char *)cur, '}'))) {
 				while(*cur != '}') {
 					*out++ = *cur++;
 					indx = out - buffer;

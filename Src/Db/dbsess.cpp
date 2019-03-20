@@ -212,7 +212,7 @@ int SLAPI SRowId::comp(const void * i1, const void * i2) const
 
 char * SLAPI SRowId::tostr(const void * pData, long, char * pStr) const
 {
-	DBRowId * p_row_id = (DBRowId *)pData;
+	const DBRowId * p_row_id = static_cast<const DBRowId *>(pData);
 	if(p_row_id) {
 		SString temp_buf;
 		p_row_id->ToStr(temp_buf).CopyTo(pStr, 0);
@@ -224,7 +224,7 @@ char * SLAPI SRowId::tostr(const void * pData, long, char * pStr) const
 
 int SLAPI SRowId::fromstr(void * pData, long, const char * pStr) const
 {
-	DBRowId * p_row_id = (DBRowId *)pData;
+	DBRowId * p_row_id = static_cast<DBRowId *>(pData);
 	CALLPTRMEMB(p_row_id, FromStr(pStr));
 	return 1;
 }
@@ -353,14 +353,14 @@ int SLAPI DbSession::InitThread()
 	TlsSetValue(TlsIdx, p_tla);
 	p_tla->Id = LastThread.Incr();
 	memzero(p_tla->ClientID, 16);
-	*((uint16 *)&p_tla->ClientID + 6) = (uint16)0x5050;
-	*((uint16 *)&p_tla->ClientID + 7) = (uint16)p_tla->Id;
+	*(reinterpret_cast<uint16 *>(&p_tla->ClientID) + 6) = static_cast<uint16>(0x5050);
+	*(reinterpret_cast<uint16 *>(&p_tla->ClientID) + 7) = static_cast<uint16>(p_tla->Id);
 	return 1;
 }
 
 void SLAPI DbSession::ReleaseThread()
 {
-	DbThreadLocalArea * p_tla = (DbThreadLocalArea *)TlsGetValue(TlsIdx);
+	DbThreadLocalArea * p_tla = static_cast<DbThreadLocalArea *>(TlsGetValue(TlsIdx));
 	if(p_tla) {
 		delete p_tla;
 		TlsSetValue(TlsIdx, 0);
@@ -371,12 +371,12 @@ void SLAPI DbSession::ReleaseThread()
 //
 DbThreadLocalArea & SLAPI DbSession::GetTLA()
 {
-	return *(DbThreadLocalArea *)SGetTls(TlsIdx);
+	return *static_cast<DbThreadLocalArea *>(SGetTls(TlsIdx));
 }
 
 const DbThreadLocalArea & SLAPI DbSession::GetConstTLA() const
 {
-	return *(DbThreadLocalArea *)SGetTls(TlsIdx);
+	return *static_cast<DbThreadLocalArea *>(SGetTls(TlsIdx));
 }
 
 int FASTCALL DbSession::SetError(int errCode)
@@ -406,7 +406,7 @@ int SLAPI DbSession::GetDbPathID(const char * pPath, long * pID)
 	uint   pos = 0;
 	ENTER_CRITICAL_SECTION
 	if(DbPathList.lsearch(unc_path.cptr(), &pos, PTR_CMPFUNC(PcharNoCase))) {
-		id = (long)(pos + 1);
+		id = static_cast<long>(pos + 1);
 	}
 	else {
 		DbPathList.insert(newStr(unc_path));

@@ -2684,16 +2684,16 @@ long SLAPI DlContext::ParseFormat(const char * pFmtStr, TYPEID tp) const
 		if(atoi(curpos))
 			fs.len = atoi(curpos);
 		if(oneof2(GETSTYPE(tp), S_FLOAT, S_DEC))
-			if(curpos = strchr(curpos, '.'))
+			if(curpos = sstrchr(curpos, '.'))
 				fs.prec = atoi(curpos+1);
-		if(curpos = strchr(pFmtStr, '@')) {
+		if(curpos = sstrchr(pFmtStr, '@')) {
 			switch(toupper(curpos[1])) {
 				case 'U': fs.flags |= STRF_UPPER;    break;
 				case 'L': fs.flags |= STRF_LOWER;    break;
 				case 'P': fs.flags |= STRF_PASSWORD; break;
 			}
 		}
-		if(curpos = strchr(pFmtStr, '#')) {
+		if(curpos = sstrchr(pFmtStr, '#')) {
 			switch(toupper(curpos[1])) {
 				case 'A': fs.flags |= DATF_AMERICAN; break;
 				case 'G': fs.flags |= DATF_GERMAN;   break;
@@ -2714,7 +2714,7 @@ long SLAPI DlContext::ParseFormat(const char * pFmtStr, TYPEID tp) const
 			else
 				SETIFZ(fs.len, 8);
 		}
-		if(curpos = strchr(pFmtStr, '$')) {
+		if(curpos = sstrchr(pFmtStr, '$')) {
 			for(curpos++; *curpos; curpos++)
 				switch(toupper(*curpos)) {
 					case 'C': fs.flags |= NMBF_TRICOMMA;  break;
@@ -2725,7 +2725,7 @@ long SLAPI DlContext::ParseFormat(const char * pFmtStr, TYPEID tp) const
 					case 'N': fs.flags |= NMBF_NOTRAILZ;  break;
 				}
 		}
-		if((curpos = strchr(pFmtStr, '&')) != 0) {
+		if((curpos = sstrchr(pFmtStr, '&')) != 0) {
 			switch(curpos[1]) {
 				case 'F':
 				case 'f': SETIFZ(fs.len, 11); fs.flags |= TIMF_HMS | TIMF_MSEC; break;

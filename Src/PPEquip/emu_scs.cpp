@@ -102,7 +102,7 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 			SString name;
 			HANDLE h_port = INVALID_HANDLE_VALUE;
 			HANDLE printer = INVALID_HANDLE_VALUE;
-			THROW(OpenPrinter((char *)PrinterPort.cptr(), &printer, NULL)); // @unicodeproblem
+			THROW(OpenPrinter(const_cast<TCHAR *>(SUcSwitch(PrinterPort)), &printer, NULL)); // @unicodeproblem
 			if(printer != INVALID_HANDLE_VALUE) {
 				DWORD info_size = 0;
 				GetPrinter(printer, 2, NULL, info_size, &info_size);

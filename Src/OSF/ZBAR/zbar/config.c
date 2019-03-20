@@ -31,7 +31,7 @@ int zbar_parse_config(const char * cfgstr, zbar_symbol_type_t * sym, zbar_config
 	char negate;
 	if(!cfgstr)
 		return 1;
-	dot = strchr(cfgstr, '.');
+	dot = sstrchr(cfgstr, '.');
 	if(dot) {
 		int len = dot - cfgstr;
 		if(!len || (len == 1 && !strncmp(cfgstr, "*", len)))
@@ -95,7 +95,7 @@ int zbar_parse_config(const char * cfgstr, zbar_symbol_type_t * sym, zbar_config
 	else
 		*sym = ZBAR_NONE;
 	len = strlen(cfgstr);
-	eq = strchr(cfgstr, '=');
+	eq = sstrchr(cfgstr, '=');
 	if(eq)
 		len = eq - cfgstr;
 	else

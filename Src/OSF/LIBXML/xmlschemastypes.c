@@ -5048,7 +5048,7 @@ static void xmlSchemaFormatFloat(double number, char buffer[], int buffersize)
 			    fraction_place = DBL_DIG - 1;
 			    snprintf(work, sizeof(work), "%*.*e",
 			    integer_place, fraction_place, number);
-			    after_fraction = strchr(work + DBL_DIG, 'e');
+			    after_fraction = sstrchr(work + DBL_DIG, 'e');
 			    /* Remove fractional trailing zeroes */
 			    ptr = after_fraction;
 			    while(*(--ptr) == '0')

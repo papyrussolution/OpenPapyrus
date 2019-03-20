@@ -399,7 +399,8 @@ int SSqlStmt::BindData(int dir, uint count, const DBFieldList & rFldList, const 
 	assert(count > 0 && count <= 1024);
 	for(uint i = 0; i < fld_count; i++) {
 		const BNField & r_fld = rFldList.GetField(i);
-		BindItem((dir < 0) ? -(int16)(i+1) : +(int16)(i+1), count, r_fld.T, const_cast<uint8 *>(PTR8C(pDataBuf) + offs)); // @badcast
+		const int16 bpos = static_cast<int16>(i+1);
+		BindItem((dir < 0) ? -bpos : +bpos, count, r_fld.T, const_cast<uint8 *>(PTR8C(pDataBuf) + offs)); // @badcast
 		offs += r_fld.size();
 	}
 	THROW(P_Db->Binding(*this, dir));
@@ -415,7 +416,7 @@ int SSqlStmt::BindKey(const BNKeyList & rKeyList, int idxN, const void * pDataBu
 	for(uint i = 0; i < fld_count; i++) {
 		const BNField & r_fld = rKeyList.field(idxN, i);
 		Bind b;
-		b.Pos = -(int16)(i+1);
+		b.Pos = -static_cast<int16>(i+1);
 		b.Typ = r_fld.T;
 		b.P_Data = const_cast<uint8 *>(PTR8C(pDataBuf) + r_fld.Offs); // @badcast
 		uint   lp = 0;
@@ -501,7 +502,7 @@ int SOraDbProvider::CreateStmt(SSqlStmt * pS, const char * pText, long flags)
 	int    ok = 1;
 	OH h = OhAlloc(OCI_HTYPE_STMT);
 	pS->H = h;
-	THROW(ProcessError(OCIStmtPrepare(h, Err, (const OraText *)pText, sstrlen(pText), OCI_NTV_SYNTAX, OCI_DEFAULT)));
+	THROW(ProcessError(OCIStmtPrepare(h, Err, reinterpret_cast<const OraText *>(pText), sstrlen(pText), OCI_NTV_SYNTAX, OCI_DEFAULT)));
 	CATCHZOK
 	return ok;
 }
@@ -581,7 +582,7 @@ int SOraDbProvider::ProcessBinding_AllocDescr(uint count, SSqlStmt * pStmt, SSql
 int SOraDbProvider::ProcessBinding_FreeDescr(uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind)
 {
 	for(uint i = 0; i < count; i++)
-		OdFree(*(OD *)pStmt->GetBindOuterPtr(pBind, i));
+		OdFree(*static_cast<OD *>(pStmt->GetBindOuterPtr(pBind, i)));
 	return 1;
 }
 //
@@ -596,24 +597,16 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 	int    ok = 1;
 	size_t sz = stsize(pBind->Typ);
 	uint16 out_typ = 0;
-	pBind->NtvSize = (uint16)sz;
+	pBind->NtvSize = static_cast<uint16>(sz);
 	if(action == 0)
 		pBind->Dim = count;
 	const int t = GETSTYPE(pBind->Typ);
 	switch(t) {
-		case S_CHAR:
-			ProcessBinding_SimpleType(action, count, pStmt, pBind, SQLT_CHR);
-			break;
+		case S_CHAR: ProcessBinding_SimpleType(action, count, pStmt, pBind, SQLT_CHR); break;
 		case S_INT:
-		case S_AUTOINC:
-			ProcessBinding_SimpleType(action, count, pStmt, pBind, SQLT_INT);
-			break;
-		case S_UINT:
-			ProcessBinding_SimpleType(action, count, pStmt, pBind, SQLT_UIN);
-			break;
-		case S_FLOAT:
-			ProcessBinding_SimpleType(action, count, pStmt, pBind, SQLT_FLT);
-			break;
+		case S_AUTOINC: ProcessBinding_SimpleType(action, count, pStmt, pBind, SQLT_INT); break;
+		case S_UINT: ProcessBinding_SimpleType(action, count, pStmt, pBind, SQLT_UIN); break;
+		case S_FLOAT: ProcessBinding_SimpleType(action, count, pStmt, pBind, SQLT_FLT); break;
 		case S_DATE:
 			if(action == 0) {
 				pBind->NtvTyp = SQLT_ODT;
@@ -621,16 +614,16 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 				pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
 			}
 			else if(action < 0) {
-				OCIDate * p_ocidt = (OCIDate *)pStmt->GetBindOuterPtr(pBind, count);
-				LDATE * p_dt = (LDATE *)pBind->P_Data;
+				OCIDate * p_ocidt = static_cast<OCIDate *>(pStmt->GetBindOuterPtr(pBind, count));
+				LDATE * p_dt = static_cast<LDATE *>(pBind->P_Data);
 				memzero(p_ocidt, sizeof(*p_ocidt));
 				p_ocidt->Y = p_dt->year();
 				p_ocidt->M = p_dt->month();
 				p_ocidt->D = p_dt->day();
 			}
 			else if(action == 1) {
-				OCIDate * p_ocidt = (OCIDate *)pStmt->GetBindOuterPtr(pBind, count);
-				*(LDATE *)pBind->P_Data = encodedate(p_ocidt->D, p_ocidt->M, p_ocidt->Y);
+				const OCIDate * p_ocidt = static_cast<const OCIDate *>(pStmt->GetBindOuterPtr(pBind, count));
+				*static_cast<LDATE *>(pBind->P_Data) = encodedate(p_ocidt->D, p_ocidt->M, p_ocidt->Y);
 			}
 			break;
 		case S_TIME:
@@ -694,19 +687,19 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 				pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
 			}
 			else {
-				const int16 dec_len = (int16)GETSSIZED(pBind->Typ);
-				const int16 dec_prc = (int16)GETSPRECD(pBind->Typ);
+				const int16 dec_len = static_cast<int16>(GETSSIZED(pBind->Typ));
+				const int16 dec_prc = static_cast<int16>(GETSPRECD(pBind->Typ));
 				if(action < 0)
-					*(double *)pStmt->GetBindOuterPtr(pBind, count) = dectobin(static_cast<const char *>(pBind->P_Data), dec_len, dec_prc);
+					*static_cast<double *>(pStmt->GetBindOuterPtr(pBind, count)) = dectobin(static_cast<const char *>(pBind->P_Data), dec_len, dec_prc);
 				else if(action == 1)
-					dectodec(*(double *)pStmt->GetBindOuterPtr(pBind, count), static_cast<char *>(pBind->P_Data), dec_len, dec_prc);
+					dectodec(*static_cast<double *>(pStmt->GetBindOuterPtr(pBind, count)), static_cast<char *>(pBind->P_Data), dec_len, dec_prc);
 			}
 			break;
 		case S_NOTE:
 		case S_ZSTRING:
 			if(action == 0) {
 				pBind->NtvTyp = SQLT_AVC;
-				pBind->NtvSize = (uint16)sz;
+				pBind->NtvSize = static_cast<uint16>(sz);
 				pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
 			}
 			else if(action < 0) {
@@ -759,7 +752,7 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 					PTR8(pBind->P_Data)[0] = 0;
 				}
 				else {
-					CharToOem((char *)pStmt->GetBindOuterPtr(pBind, count), static_cast<char *>(pBind->P_Data)); // @unicodeproblem
+					CharToOemA(static_cast<char *>(pStmt->GetBindOuterPtr(pBind, count)), static_cast<char *>(pBind->P_Data)); // @unicodeproblem
 					trimright(static_cast<char *>(pBind->P_Data));
 				}
 			}
@@ -767,7 +760,7 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 		case S_RAW:
 			if(action == 0) {
 				pBind->NtvTyp = SQLT_BIN;
-				pBind->NtvSize = (uint16)sz;
+				pBind->NtvSize = static_cast<uint16>(sz);
 				pStmt->AllocBindSubst(count, (sz * 2), pBind);
 			}
 			else if(action < 0) {
@@ -839,7 +832,7 @@ int SOraDbProvider::Binding(SSqlStmt & rS, int dir)
 					uint16 * p_ind = r_bind.IndPos ? reinterpret_cast<uint16 *>(rS.BS.P_Buf + r_bind.IndPos) : 0;
 					THROW(ProcessError(OCIBindByPos(h_stmt, &p_bd, Err, -r_bind.Pos, p_data, r_bind.NtvSize, r_bind.NtvTyp,
 						p_ind, 0/*alenp*/, 0/*rcodep*/, 0/*maxarr_len*/, 0/*curelep*/, OCI_DEFAULT)));
-					r_bind.H = (uint32)p_bd;
+					r_bind.H = reinterpret_cast<uint32>(p_bd);
 				}
 				if(row_count > 1) {
 					THROW(ProcessError(OCIBindArrayOfStruct(p_bd, Err, r_bind.ItemSize, sizeof(uint16), 0, 0)));

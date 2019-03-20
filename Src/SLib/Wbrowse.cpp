@@ -180,7 +180,7 @@ BroColumn::BroColumn()
 //
 //
 TBaseBrowserWindow::TBaseBrowserWindow(LPCTSTR pWndClsName) : TWindow(TRect(1, 1, 50, 20), 0, 0),
-	ResourceID(0), ClsName(pWndClsName) /*@unicodeproblem*/, ToolbarID(0), BbState(0) 
+	ResourceID(0), ClsName(SUcSwitch(pWndClsName)) /*@unicodeproblem*/, ToolbarID(0), BbState(0) 
 {
 	//WoScrollbars = false;
 }
@@ -826,7 +826,7 @@ SLAPI BrowserWindow::BrowserWindow(uint _rezID, SArray * pAry, uint broDefOption
 TBaseBrowserWindow::IdentBlock & BrowserWindow::GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk)
 {
 	rBlk.IdBias = IdBiasBrowser;
-	rBlk.ClsName = BrowserWindow::WndClsName; // @unicodeproblem
+	rBlk.ClsName = SUcSwitch(BrowserWindow::WndClsName); // @unicodeproblem
 	rBlk.InstanceIdent.Z().Cat(GetResID());
 	return rBlk;
 }
@@ -1602,7 +1602,10 @@ void BrowserWindow::Paint()
 		uint   count = P_Def->getCount();
 		uint   gidx;
 		int    lt, rt, fmt;
-		TCHAR  buf[512];
+		union {;
+			TCHAR  tbuf[512];
+			char   cbuf[512];
+		};
 		SString temp_buf;
 		::BeginPaint(H(), &ps);
 		if(ps.fErase) {
@@ -1620,8 +1623,8 @@ void BrowserWindow::Paint()
 		if(P_Header && SIntersectRect(ps.rcPaint, r)) {
 			static_cast<const TStaticText *>(P_Header)->getText(temp_buf);
 			temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
-			STRNSCPY(buf, SUcSwitch(temp_buf));
-			::DrawText(ps.hdc, buf, sstrleni(buf), &r, DT_LEFT); // @unicodeproblem
+			STRNSCPY(tbuf, SUcSwitch(temp_buf));
+			::DrawText(ps.hdc, tbuf, sstrleni(tbuf), &r, DT_LEFT); // @unicodeproblem
 		}
 		r.top     = r.left = 0;
 		r.bottom  = ChrSz.y * CapOffs - 3;
@@ -1714,12 +1717,12 @@ void BrowserWindow::Paint()
 					r.bottom += hdr_width;
 					if(SIntersectRect(ps.rcPaint, r)) {
 						uint   height_mult = GetRowHeightMult(row);
-						strip(P_Def->getMultiLinesText(P_Def->_topItem() + row, cn, buf, height_mult));
+						strip(P_Def->getMultiLinesText(P_Def->_topItem() + row, cn, cbuf, height_mult));
 						if(row > 0 && (P_Def->at(cn).Options & BCO_DONTSHOWDUPL)) {
 							char   prev_buf[512];
 							strip(P_Def->getText(P_Def->_topItem() + row - 1, cn, prev_buf));
-							if(sstreq(buf, prev_buf))
-								buf[0] = 0;
+							if(sstreq(cbuf, prev_buf))
+								cbuf[0] = 0;
 						}
 						int    opt = P_Def->at(cn).format;
 						int    align = SFMTALIGN(opt);
@@ -1731,22 +1734,22 @@ void BrowserWindow::Paint()
 							fmt = DT_CENTER;
 						else
 							fmt = DT_LEFT;
-						SOemToChar(buf);
+						SOemToChar(cbuf);
 						fmt |= (DT_NOPREFIX | DT_SINGLELINE);
 						if(is_focused && cn == HScrollPos)
 							SetBkMode(ps.hdc, TRANSPARENT);
 						int    already_draw = 0;
 						if(SIntersectRect(RectCursors.CellCursor, r))
-							already_draw = DrawTextUnderCursor(ps.hdc, buf, &r, fmt, 0);
+							already_draw = DrawTextUnderCursor(ps.hdc, cbuf, &r, fmt, 0);
 						else if(SIntersectRect(RectCursors.LineCursor, r))
-							already_draw = DrawTextUnderCursor(ps.hdc, buf, &r, fmt, 1);
+							already_draw = DrawTextUnderCursor(ps.hdc, cbuf, &r, fmt, 1);
 						if(!already_draw) {
 							ItemRect(cn, row, &paint_rect, TRUE);
 							paint_rect.top    += hdr_width;
 							paint_rect.bottom += hdr_width - 1;
 							paint_rect.right -= 2;
 							PaintCell(ps.hdc, paint_rect, row, cn, BrowserWindow::paintNormal);
-							DrawMultiLinesText(ps.hdc, buf, &r, fmt);
+							DrawMultiLinesText(ps.hdc, cbuf, &r, fmt);
 						}
 					}
 				}
@@ -2321,7 +2324,7 @@ static int IsBrowserWindow(HWND hWnd)
 {
 	SString cls_name;
 	TView::SGetWindowClassName(hWnd, cls_name);
-	return BIN(cls_name == BrowserWindow::WndClsName || cls_name == STimeChunkBrowser::WndClsName ||
+	return BIN(cls_name == SUcSwitch(BrowserWindow::WndClsName) || cls_name == STimeChunkBrowser::WndClsName ||
 		cls_name == /*STextBrowser::WndClsName*/"STextBrowser" || cls_name == CLASSNAME_DESKTOPWINDOW); // @unicodeproblem
 }
 

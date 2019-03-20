@@ -1,5 +1,5 @@
 // SLTEST.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 // Test Suits
 //
@@ -690,7 +690,7 @@ int STestSuite::ReportTestEntry(int title, const Entry * pEntry)
 			line_buf.Semicol().Cat(CaseBuffer);
 		SLS.LogMessage(LogFileName, line_buf);
 		for(uint i = 0; i < pEntry->BmrList.getCount(); i++) {
-			const Benchmark * p_bm = (Benchmark *)pEntry->BmrList.at(i);
+			const Benchmark * p_bm = static_cast<const Benchmark *>(pEntry->BmrList.at(i));
 			ulong inc_mem_blk  = p_bm->HeapAfter.UsedBlockCount - p_bm->HeapBefore.UsedBlockCount;
 			ulong inc_mem_size = p_bm->HeapAfter.UsedSize - p_bm->HeapBefore.UsedSize;
 			line_buf.Z().Cat("BENCHMARK").Semicol();
@@ -720,7 +720,7 @@ const SString & STestSuite::GetTabFileName() const
 
 const STestSuite::Entry * STestSuite::GetCurEntry() const
 {
-	return (CurIdx < ((TSCollection <Entry> *)P_List)->getCount()) ? ((TSCollection <Entry> *)P_List)->at(CurIdx) : 0;
+	return (CurIdx < static_cast<TSCollection <Entry> *>(P_List)->getCount()) ? static_cast<TSCollection <Entry> *>(P_List)->at(CurIdx) : 0;
 }
 
 int STestSuite::Run(const char * pIniFileName)
@@ -735,9 +735,9 @@ int STestSuite::Run(const char * pIniFileName)
 		// не было увеличения этого буфера (иначе будем видеть искажение результатов замера используемой тестами памяти)
 		CaseBuffer.CatCharN(' ', 8192);
 		SString temp_buf(8192);
-		for(CurIdx = 0; CurIdx < ((TSCollection <Entry> *)P_List)->getCount(); CurIdx++) {
+		for(CurIdx = 0; CurIdx < static_cast<TSCollection <Entry> *>(P_List)->getCount(); CurIdx++) {
 			STestCase * p_case = 0;
-			Entry * p_entry = ((TSCollection <Entry> *)P_List)->at(CurIdx);
+			Entry * p_entry = static_cast<TSCollection <Entry> *>(P_List)->at(CurIdx);
 			MEMSZERO(p_entry->HeapBefore);
 			MEMSZERO(p_entry->HeapAfter);
 			p_entry->SuccCount = p_entry->FailCount = 0;
@@ -778,7 +778,7 @@ int STestSuite::Run(const char * pIniFileName)
 					//
 					if(!p_entry->FailCount) {
 						for(uint bm_p = 0, bmr_i = 0; p_entry->BenchmarkList.get(&bm_p, temp_buf); bmr_i++) {
-							Benchmark * p_bm = (Benchmark *)p_entry->BmrList.at(bmr_i);
+							Benchmark * p_bm = static_cast<Benchmark *>(p_entry->BmrList.at(bmr_i));
 							uint  c = p_entry->MaxCount;
 							tmsys_start = getprofilesystime();
 							tm_start = getprofiletime(thr_id);
@@ -799,7 +799,8 @@ int STestSuite::Run(const char * pIniFileName)
 				LPVOID msg_buff;
 				FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, 
 					NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&msg_buff, 0, 0);
-				MessageBox(NULL, ffn.CatDiv(':', 2).Cat((LPCTSTR)msg_buff), _T("Error"), MB_OK); // @unicodeproblem
+				ffn.CatDiv(':', 2).Cat(SUcSwitch(static_cast<LPCTSTR>(msg_buff)));
+				MessageBox(NULL, SUcSwitch(ffn), _T("Error"), MB_OK); // @unicodeproblem
 				LocalFree(msg_buff);
 			} // } @v5.7 ANDREW
 			ReportTestEntry(0, p_entry);

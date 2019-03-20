@@ -266,19 +266,19 @@ static BOOL WINAPI SSPLogonUser(LPTSTR szDomain, LPTSTR szUser, LPTSTR szPasswor
 	// Initialize auth identity structure
 	ZeroMemory(&ai, sizeof(ai));
 #if defined(UNICODE) || defined(_UNICODE)
-	ai.Domain = szDomain; // @unicodeproblem
+	ai.Domain = reinterpret_cast<ushort *>(szDomain); // @unicodeproblem
 	ai.DomainLength = lstrlen(szDomain);
-	ai.User = szUser; // @unicodeproblem
+	ai.User = reinterpret_cast<ushort *>(szUser); // @unicodeproblem
 	ai.UserLength = lstrlen(szUser);
-	ai.Password = szPassword; // @unicodeproblem
+	ai.Password = reinterpret_cast<ushort *>(szPassword); // @unicodeproblem
 	ai.PasswordLength = lstrlen(szPassword);
 	ai.Flags = SEC_WINNT_AUTH_IDENTITY_UNICODE;
 #else
-	ai.Domain = (uchar *)szDomain;
+	ai.Domain = reinterpret_cast<uchar *>(szDomain);
 	ai.DomainLength = lstrlen(szDomain);
-	ai.User = (uchar *)szUser;
+	ai.User = reinterpret_cast<uchar *>(szUser);
 	ai.UserLength = lstrlen(szUser);
-	ai.Password = (uchar *)szPassword;
+	ai.Password = reinterpret_cast<uchar *>(szPassword);
 	ai.PasswordLength = lstrlen(szPassword);
 	ai.Flags = SEC_WINNT_AUTH_IDENTITY_ANSI;
 #endif

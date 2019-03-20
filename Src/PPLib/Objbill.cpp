@@ -8434,7 +8434,7 @@ int SLAPI PPObjBill::ParseText(const char * pText, const char * pTemplate, StrAs
 						}
 					}
 					{
-                        const char * p_text_next = p[next] ? strchr(p_text, p[next]) : 0;
+                        const char * p_text_next = p[next] ? sstrchr(p_text, p[next]) : 0;
                         size_t fld_len = 0;
                         if(p_text_next) {
 							fld_len = (p_text_next - p_text);

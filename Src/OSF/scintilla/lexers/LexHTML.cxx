@@ -1880,7 +1880,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 			    break;
 			case SCE_HPHP_NUMBER:
 			    // recognize bases 8,10 or 16 integers OR floating-point numbers
-			    if(!IsADigit(ch) && !strchr(".xXabcdefABCDEF", ch) && ((ch != '-' && ch != '+') || (chPrev != 'e' && chPrev != 'E'))) {
+			    if(!IsADigit(ch) && !sstrchr(".xXabcdefABCDEF", ch) && ((ch != '-' && ch != '+') || (chPrev != 'e' && chPrev != 'E'))) {
 				    styler.ColourTo(i - 1, SCE_HPHP_NUMBER);
 				    state = IsOperator(ch) ? SCE_HPHP_OPERATOR : SCE_HPHP_DEFAULT;
 			    }

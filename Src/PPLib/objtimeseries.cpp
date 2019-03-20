@@ -3062,7 +3062,3 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 	ENDCATCH
 	return ok;
 }
-
-						
-
-

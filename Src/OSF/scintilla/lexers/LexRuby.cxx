@@ -901,7 +901,7 @@ public:
 				chNext = chNext2;
 				styler.ColourTo(i, SCE_RB_OPERATOR);
 
-				if(!(strchr("\"\'`_-", chNext2) || isSafeAlpha(chNext2))) {
+				if(!(sstrchr("\"\'`_-", chNext2) || isSafeAlpha(chNext2))) {
 					// It's definitely not a here-doc,
 					// based on Ruby's lexer/parser in the
 					// heredoc_identifier routine.
@@ -960,7 +960,7 @@ public:
 					ch = styler.SafeGetCharAt(i);
 					chNext = styler.SafeGetCharAt(i+1);
 				}
-				else if(chNext == '$' && strchr("_~*$?!@/\\;,.=:<>\"&`'+", chNext2)) {
+				else if(chNext == '$' && sstrchr("_~*$?!@/\\;,.=:<>\"&`'+", chNext2)) {
 					// single-character special global variables
 					i += 2;
 					ch = chNext2;
@@ -968,7 +968,7 @@ public:
 					styler.ColourTo(i, SCE_RB_SYMBOL);
 					state = SCE_RB_DEFAULT;
 				}
-				else if(strchr("[*!~+-*/%=<>&^|", chNext)) {
+				else if(sstrchr("[*!~+-*/%=<>&^|", chNext)) {
 					// Do the operator analysis in-line, looking ahead
 					// Based on the table in pickaxe 2nd ed., page 339
 					bool doColoring = true;
@@ -1063,9 +1063,9 @@ public:
 			else if(ch == '%') {
 				styler.ColourTo(i - 1, state);
 				bool have_string = false;
-				if(strchr(q_chars, chNext) && !isSafeWordcharOrHigh(chNext2)) {
+				if(sstrchr(q_chars, chNext) && !isSafeWordcharOrHigh(chNext2)) {
 					Quote.New();
-					const char * hit = strchr(q_chars, chNext);
+					const char * hit = sstrchr(q_chars, chNext);
 					if(hit != NULL) {
 						state = q_states[hit - q_chars];
 						Quote.Open(chNext2);
@@ -1136,7 +1136,7 @@ public:
 					    state, brace_counts, Quote);
 				}
 				else {
-					preferRE = (strchr(")}].", ch) == NULL);
+					preferRE = (sstrchr(")}].", ch) == NULL);
 				}
 				// Stay in default state
 			}
@@ -1159,7 +1159,7 @@ public:
 				// but we don't for now.
 
 				if(ch == '=' && isSafeWordcharOrHigh(chPrev)
-				    && (chNext == '(' || strchr(" \t\n\r", chNext) != NULL)
+				    && (chNext == '(' || sstrchr(" \t\n\r", chNext) != NULL)
 				    && (sstreq(prevWord, "def") || followsDot(styler.GetStartSegment(), styler))) {
 					// <name>= is a name only when being def'd -- Get it the next time
 					// This means that <name>=<name> is always lexed as
@@ -1167,7 +1167,7 @@ public:
 				}
 				else if(ch == ':'
 				    && isSafeWordcharOrHigh(chPrev)
-				    && strchr(" \t\n\r", chNext) != NULL) {
+				    && sstrchr(" \t\n\r", chNext) != NULL) {
 					state = SCE_RB_SYMBOL;
 				}
 				else if((ch == '?' || ch == '!')
@@ -1228,7 +1228,7 @@ public:
 					state = SCE_RB_DEFAULT;
 					preferRE = false;
 				}
-				else if(strchr("\\ntrfvaebs", chNext)) {
+				else if(sstrchr("\\ntrfvaebs", chNext)) {
 					// Terminal escape sequence -- handle it next time
 					// Nothing more to do this time through the loop
 				}
@@ -1431,7 +1431,7 @@ public:
 		}
 		else if(state == SCE_RB_POD) {
 			// PODs end with ^=end\s, -- any whitespace can follow =end
-			if(strchr(" \t\n\r", ch) != NULL
+			if(sstrchr(" \t\n\r", ch) != NULL
 			    && i > 5
 			    && isEOLChar(styler[i - 5])
 			    && isMatch(styler, lengthDoc, i - 4, "=end")) {
@@ -1894,10 +1894,10 @@ static void FoldRbDoc(Sci_PositionU startPos, Sci_Position length, int initStyle
 			}
 		}
 		else if(style == SCE_RB_OPERATOR) {
-			if(strchr("[{(", ch)) {
+			if(sstrchr("[{(", ch)) {
 				levelCurrent++;
 			}
-			else if(strchr(")}]", ch)) {
+			else if(sstrchr(")}]", ch)) {
 				// Don't decrement below 0
 				if(levelCurrent > 0)
 					levelCurrent--;

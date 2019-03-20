@@ -415,14 +415,14 @@ int __archive_write_format_header_ustar(struct archive_write * a, char h[512],
 		memcpy(h + USTAR_name_offset, pp, copy_length);
 	else {
 		/* Store in two pieces, splitting at a '/'. */
-		p = strchr(pp + copy_length - USTAR_name_size - 1, '/');
+		p = sstrchr(pp + copy_length - USTAR_name_size - 1, '/');
 		/*
 		 * Look for the next '/' if we chose the first character
 		 * as the separator.  (ustar format doesn't permit
 		 * an empty prefix.)
 		 */
 		if(p == pp)
-			p = strchr(p + 1, '/');
+			p = sstrchr(p + 1, '/');
 		/* Fail if the name won't fit. */
 		if(!p) {
 			/* No separator. */

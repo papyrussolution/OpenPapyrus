@@ -42,7 +42,7 @@ int __db_mkpath(ENV * env, const char * name)
 	}
 	else
 		for(p = t+1; p[0] != '\0'; ++p)
-			if(strchr(PATH_SEPARATOR, p[0]) != NULL) {
+			if(sstrchr(PATH_SEPARATOR, p[0]) != NULL) {
 				savech = *p;
 				*p = '\0';
 				if(__os_exists(env, t, NULL) && (ret = __os_mkdir(env, t, env->dir_mode)) != 0)

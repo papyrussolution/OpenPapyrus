@@ -408,7 +408,7 @@ int SLAPI StringSet::search(const char * pPattern, CompFunc fcmp, uint * pPos, u
 		uint  len = 0;
 		const char * c = P_Buf + p;
 		if(Delim[0]) {
-			const char * p_end = (fix_delim_len == 1) ? strchr(c, Delim[0]) : strstr(c, Delim);
+			const char * p_end = (fix_delim_len == 1) ? sstrchr(c, Delim[0]) : strstr(c, Delim);
 			if(p_end)
 				len = (uint)(p_end - c);
 			else { // Конец буфера данных (в конце разделителя нет)

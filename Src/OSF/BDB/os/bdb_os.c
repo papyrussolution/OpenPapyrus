@@ -545,7 +545,7 @@ char * __db_rpath(const char * path)
 	const char * last = NULL;
 	if(PATH_SEPARATOR[1] != '\0') {
 		for(; s[0] != '\0'; ++s)
-			if(strchr(PATH_SEPARATOR, s[0]) != NULL)
+			if(sstrchr(PATH_SEPARATOR, s[0]) != NULL)
 				last = s;
 	}
 	else

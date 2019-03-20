@@ -494,12 +494,11 @@ int	SLAPI PrcssrBuild::Run()
 					MEMSZERO(pi);
 					temp_buf.Z().CatQStr(msvs_path).Space().Cat(r_sln_entry.P_Sln).Space().Cat("/rebuild").Space().
 						Cat(r_sln_entry.P_Config).Space().Cat("/out").Space().Cat(build_log_path);
-					STempBuffer cmd_line(temp_buf.Len()*2);
-					strnzcpy(cmd_line, temp_buf, cmd_line.GetSize());
-
+					STempBuffer cmd_line((temp_buf.Len() + 32) * sizeof(TCHAR));
+					strnzcpy(static_cast<TCHAR *>(cmd_line.vptr()), SUcSwitch(temp_buf), cmd_line.GetSize() / sizeof(TCHAR));
 					PPLoadText(PPTXT_BUILD_SOLUTION, fmt_buf);
 					logger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
-					int    r = ::CreateProcess(0, static_cast<char *>(cmd_line), 0, 0, FALSE, 0, 0, SUcSwitch(p_prc_cur_dir), &si, &pi); // @unicodeproblem
+					int    r = ::CreateProcess(0, static_cast<TCHAR *>(cmd_line.vptr()), 0, 0, FALSE, 0, 0, SUcSwitch(p_prc_cur_dir), &si, &pi); // @unicodeproblem
 					if(!r) {
 						SLS.SetOsError(0);
 						CALLEXCEPT_PP(PPERR_SLIB);
@@ -609,13 +608,11 @@ int	SLAPI PrcssrBuild::Run()
 				// } @v9.4.9
 				temp_buf.Cat("/O").Cat(build_log_path).Space().Cat(r_nsis_entry.P_NsisFile);
 
-				STempBuffer cmd_line(temp_buf.Len()*2);
-				strnzcpy(cmd_line, temp_buf, cmd_line.GetSize());
-
+				STempBuffer cmd_line((temp_buf.Len() + 32) * sizeof(TCHAR));
+				strnzcpy(static_cast<TCHAR *>(cmd_line.vptr()), SUcSwitch(temp_buf), cmd_line.GetSize()/sizeof(TCHAR));
 				PPLoadText(PPTXT_BUILD_DISTRIB, fmt_buf);
 				logger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
-
-				int    r = ::CreateProcess(0, cmd_line, 0, 0, FALSE, 0, 0, SUcSwitch(build_path), &si, &pi); // @unicodeproblem
+				int    r = ::CreateProcess(0, static_cast<TCHAR *>(cmd_line.vptr()), 0, 0, FALSE, 0, 0, SUcSwitch(build_path), &si, &pi); // @unicodeproblem
 				if(!r) {
 					SLS.SetOsError(0);
 					CALLEXCEPT_PP(PPERR_SLIB);
@@ -739,9 +736,9 @@ int SLAPI PrcssrBuild::BuildLocalDl600(const char * pPath)
 		PPLoadText(PPTXT_BUILD_LOCALDL600, fmt_buf);
 		logger.Log(msg_buf.Printf(fmt_buf, cmd_line.cptr()));
 		{
-			STempBuffer cmd_line_buf(cmd_line.Len()*2);
-			strnzcpy(cmd_line_buf, cmd_line, cmd_line_buf.GetSize());
-			cpr = ::CreateProcess(0, cmd_line_buf, 0, 0, FALSE, 0, 0, SUcSwitch(cur_dir), &si, &pi); // @unicodeproblem
+			STempBuffer cmd_line_buf((cmd_line.Len() + 32) * sizeof(TCHAR));
+			strnzcpy(static_cast<TCHAR *>(cmd_line_buf.vptr()), SUcSwitch(cmd_line), cmd_line_buf.GetSize()/sizeof(TCHAR));
+			cpr = ::CreateProcess(0, static_cast<TCHAR *>(cmd_line_buf.vptr()), 0, 0, FALSE, 0, 0, SUcSwitch(cur_dir), &si, &pi); // @unicodeproblem
 			if(!cpr) {
 				SLS.SetOsError(0);
 				CALLEXCEPT_PP(PPERR_SLIB);

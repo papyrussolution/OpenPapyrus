@@ -137,7 +137,7 @@ static void ColouriseConfDoc(Sci_PositionU startPos, Sci_Position length, int, W
 				    else if(params.InList(buffer)) {
 					    styler.ColourTo(i-1, SCE_CONF_PARAMETER);
 				    }
-				    else if(strchr(buffer, '/') || strchr(buffer, '.')) {
+				    else if(sstrchr(buffer, '/') || sstrchr(buffer, '.')) {
 					    styler.ColourTo(i-1, SCE_CONF_EXTENSION);
 				    }
 				    else {
@@ -156,7 +156,7 @@ static void ColouriseConfDoc(Sci_PositionU startPos, Sci_Position length, int, W
 				    state = SCE_CONF_DEFAULT;
 				    buffer[bufferCount] = '\0';
 				    // Colourize here...
-				    if(strchr(buffer, '.') ) {
+				    if(sstrchr(buffer, '.') ) {
 					    // it is an IP address...
 					    styler.ColourTo(i-1, SCE_CONF_IP);
 				    }

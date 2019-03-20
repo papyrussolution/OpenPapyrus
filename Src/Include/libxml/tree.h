@@ -616,7 +616,7 @@ XMLPUBFUN xmlNode * XMLCALL xmlCopyNodeList(xmlNode * P_Node);
 #ifdef LIBXML_TREE_ENABLED
 XMLPUBFUN xmlNode * XMLCALL xmlNewTextChild(xmlNode * parent, xmlNs * ns, const xmlChar * name, const xmlChar * content);
 XMLPUBFUN xmlNode * XMLCALL xmlNewDocRawNode(xmlDoc * doc, xmlNs * ns, const xmlChar * name, const xmlChar * content);
-XMLPUBFUN xmlNode * XMLCALL xmlNewDocFragment(xmlDocPtr doc);
+XMLPUBFUN xmlNode * XMLCALL xmlNewDocFragment(xmlDoc * doc);
 #endif /* LIBXML_TREE_ENABLED */
 // 
 // Navigating.
@@ -732,8 +732,8 @@ XMLPUBFUN void /*XMLCALL*/FASTCALL xmlBufferWriteQuotedString(xmlBuffer * buf, c
 // 
 XMLPUBFUN void XMLCALL xmlDocDumpFormatMemory(xmlDoc * cur, xmlChar ** mem, int * size, int format);
 XMLPUBFUN void XMLCALL xmlDocDumpMemory(xmlDoc * cur, xmlChar ** mem, int * size);
-XMLPUBFUN void XMLCALL xmlDocDumpMemoryEnc(xmlDocPtr out_doc, xmlChar ** doc_txt_ptr, int * doc_txt_len, const char * txt_encoding);
-XMLPUBFUN void XMLCALL xmlDocDumpFormatMemoryEnc(xmlDocPtr out_doc, xmlChar ** doc_txt_ptr, int * doc_txt_len, const char * txt_encoding, int format);
+XMLPUBFUN void XMLCALL xmlDocDumpMemoryEnc(xmlDoc * out_doc, xmlChar ** doc_txt_ptr, int * doc_txt_len, const char * txt_encoding);
+XMLPUBFUN void XMLCALL xmlDocDumpFormatMemoryEnc(xmlDoc * out_doc, xmlChar ** doc_txt_ptr, int * doc_txt_len, const char * txt_encoding, int format);
 XMLPUBFUN int XMLCALL xmlDocFormatDump(FILE * f, xmlDoc * cur, int format);
 XMLPUBFUN int XMLCALL xmlDocDump(FILE * f, xmlDoc * cur);
 XMLPUBFUN void XMLCALL xmlElemDump(FILE * f, xmlDoc * doc, xmlNode * cur);
@@ -765,9 +765,9 @@ XMLPUBFUN void XMLCALL xmlSetCompressMode(int mode);
 XMLPUBFUN xmlDOMWrapCtxtPtr XMLCALL xmlDOMWrapNewCtxt();
 XMLPUBFUN void XMLCALL xmlDOMWrapFreeCtxt(xmlDOMWrapCtxtPtr ctxt);
 XMLPUBFUN int XMLCALL xmlDOMWrapReconcileNamespaces(xmlDOMWrapCtxtPtr ctxt, xmlNode * elem, int options);
-XMLPUBFUN int XMLCALL xmlDOMWrapAdoptNode(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xmlNode * P_Node, xmlDocPtr destDoc, xmlNode * destParent, int options);
+XMLPUBFUN int XMLCALL xmlDOMWrapAdoptNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlNode * P_Node, xmlDoc * destDoc, xmlNode * destParent, int options);
 XMLPUBFUN int XMLCALL xmlDOMWrapRemoveNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * doc, xmlNode * P_Node, int options);
-XMLPUBFUN int XMLCALL xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xmlNode * P_Node, xmlNode ** clonedNode, xmlDocPtr destDoc, xmlNode * destParent, int deep, int options);
+XMLPUBFUN int XMLCALL xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlNode * P_Node, xmlNode ** clonedNode, xmlDoc * destDoc, xmlNode * destParent, int deep, int options);
 
 #ifdef LIBXML_TREE_ENABLED
 /*

@@ -468,7 +468,7 @@ static int __absname(ENV * env, char * pref, char * name, char ** newnamep)
 	/* Build the name.  If `name' is an absolute path, ignore any prefix. */
 	if(!isabspath) {
 		memcpy(newname, pref, l_pref);
-		if(strchr(PATH_SEPARATOR, newname[l_pref-1]) == NULL)
+		if(sstrchr(PATH_SEPARATOR, newname[l_pref-1]) == NULL)
 			newname[l_pref++] = PATH_SEPARATOR[0];
 	}
 	memcpy(newname+l_pref, name, l_name+1);

@@ -392,7 +392,7 @@ static void mtree_indent(struct mtree_writer * mtree)
 	x = NULL;
 	while(*r == ' ')
 		r++;
-	while((r = strchr(r, ' ')) != NULL) {
+	while((r = sstrchr(r, ' ')) != NULL) {
 		if(fn) {
 			fn = 0;
 			for(i = 0; i < nd + pd; i++)
@@ -1932,7 +1932,7 @@ static struct mtree_entry * mtree_entry_find_child(struct mtree_entry * parent, 
 static int get_path_component(char * name, size_t n, const char * fn)
 {
 	size_t l;
-	const char * p = strchr(fn, '/');
+	const char * p = sstrchr(fn, '/');
 	if(p == NULL) {
 		if((l = strlen(fn)) == 0)
 			return 0;

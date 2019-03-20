@@ -656,13 +656,13 @@ int FASTCALL CRegExp::regrepeat(const char * p)
 			}
 			break;
 		case ANYOF:
-			while(*scan != '\0' && strchr(opnd, *scan) != NULL) {
+			while(*scan != '\0' && sstrchr(opnd, *scan) != NULL) {
 				count++;
 				scan++;
 			}
 			break;
 		case ANYBUT:
-			while(*scan != '\0' && strchr(opnd, *scan) == NULL) {
+			while(*scan != '\0' && sstrchr(opnd, *scan) == NULL) {
 				count++;
 				scan++;
 			}
@@ -711,12 +711,12 @@ int FASTCALL CRegExp::regmatch(const char * prog)
 				}
 				break;
 			case ANYOF:
-				if(*P_RegInput == '\0' || strchr(OPERAND(scan), *P_RegInput) == NULL)
+				if(*P_RegInput == '\0' || sstrchr(OPERAND(scan), *P_RegInput) == NULL)
 					return 0;
 				P_RegInput++;
 				break;
 			case ANYBUT:
-				if(*P_RegInput == '\0' || strchr(OPERAND(scan), *P_RegInput) != NULL)
+				if(*P_RegInput == '\0' || sstrchr(OPERAND(scan), *P_RegInput) != NULL)
 					return 0;
 				P_RegInput++;
 				break;
@@ -860,7 +860,7 @@ int CRegExp::Find(const char * pText)
 		return (ErrCode = SLERR_RE_BUFCORRUPT, 0);
 	// If there is a "must appear" pText, look for it.
 	if(P_RegMust) {
-		for(s = pText; (s = strchr(s, P_RegMust[0])) != NULL; s++)
+		for(s = pText; (s = sstrchr(s, P_RegMust[0])) != NULL; s++)
 			if(strncmp(s, P_RegMust, RegMLen) == 0)
 				break; // Found it.
 		if(s == NULL) // Not present.
@@ -878,7 +878,7 @@ int CRegExp::Find(const char * pText)
 		//
 		s = pText;
 		if(RegStart != '\0') { // We know what char it must start with.
-			for(; (s = strchr(s, RegStart)) != NULL; s++)
+			for(; (s = sstrchr(s, RegStart)) != NULL; s++)
 				if(regtry(s, startp, endp, P_Program))
 					return 1;
 		}

@@ -413,8 +413,18 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, lon
 			tax_date = link_bill_rec.Dt;
 		// } @v10.3.4 
 		gobj.GTxObj.Fetch(tax_grp_id, tax_date, 0, &gtx);
-		qtty = -rTi.GetEffCorrectionExpQtty();
-		amount = (tiamt == TIAMT_PRICE) ? (rTi.Price - rTi.Discount) : rTi.Cost;
+		// @v10.3.10 {
+		const double q_pre = fabs(rTi.QuotPrice);
+		qtty = fabs(rTi.Quantity_);
+		const double q_diff = (qtty - q_pre);
+		//const double cq = R2(rTi.Cost * qtty - rTi.RevalCost * q_pre);
+		const double pq = R2(rTi.Price * qtty - rTi.RevalCost * q_pre);
+		if(q_diff != 0.0)
+			qtty = q_diff;
+		amount = pq / qtty;
+		// } @v10.3.10 
+		// @v10.3.10 qtty = -rTi.GetEffCorrectionExpQtty();
+		// @v10.3.10 amount = (tiamt == TIAMT_PRICE) ? (rTi.Price - rTi.Discount) : rTi.Cost;
 	}
 	// } @v10.3.3 
 	else {

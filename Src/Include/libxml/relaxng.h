@@ -114,7 +114,7 @@ XMLPUBFUN void XMLCALL xmlRelaxNGCleanupTypes();
  */
 XMLPUBFUN xmlRelaxNGParserCtxtPtr XMLCALL xmlRelaxNGNewParserCtxt(const char * URL);
 XMLPUBFUN xmlRelaxNGParserCtxtPtr XMLCALL xmlRelaxNGNewMemParserCtxt(const char * buffer, int size);
-XMLPUBFUN xmlRelaxNGParserCtxtPtr XMLCALL xmlRelaxNGNewDocParserCtxt(xmlDocPtr doc);
+XMLPUBFUN xmlRelaxNGParserCtxtPtr XMLCALL xmlRelaxNGNewDocParserCtxt(xmlDoc * doc);
 
 XMLPUBFUN int XMLCALL xmlRelaxParserSetFlag(xmlRelaxNGParserCtxtPtr ctxt, int flag);
 

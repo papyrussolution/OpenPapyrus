@@ -6073,7 +6073,7 @@ int EmailListDlg::setupList()
 
 static int SLAPI IsEmailAddr(const char * pPath)
 {
-	return BIN(pPath && strchr(pPath, '@'));
+	return BIN(pPath && sstrchr(pPath, '@'));
 }
 
 int EmailListDlg::addItem(long * pPos, long * pID)

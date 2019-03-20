@@ -106,7 +106,7 @@ static AUTHORITY_INFO_ACCESS * v2i_AUTHORITY_INFO_ACCESS(X509V3_EXT_METHOD
 			X509V3err(X509V3_F_V2I_AUTHORITY_INFO_ACCESS, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}
-		ptmp = strchr(cnf->name, ';');
+		ptmp = sstrchr(cnf->name, ';');
 		if(!ptmp) {
 			X509V3err(X509V3_F_V2I_AUTHORITY_INFO_ACCESS, X509V3_R_INVALID_SYNTAX);
 			goto err;

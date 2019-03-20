@@ -233,7 +233,7 @@
 	#define	strcat		__db_Cstrcat
 #endif
 #ifndef	HAVE_STRCHR
-	#define	strchr		__db_Cstrchr
+	#define	sstrchr		__db_Cstrchr
 #endif
 #ifndef	HAVE_STRDUP
 	#define	strdup		__db_Cstrdup

@@ -827,7 +827,7 @@ ASN1_OCTET_STRING * a2i_IPADDRESS_NC(const char * ipasc)
 	uchar ipout[32];
 	char * iptmp = NULL;
 	int iplen1, iplen2;
-	/*const*/ char * p = (char *)strchr(ipasc, '/'); // @badcast
+	/*const*/ char * p = (char *)sstrchr(ipasc, '/'); // @badcast
 	if(!p)
 		return NULL;
 	iptmp = OPENSSL_strdup(ipasc);
@@ -858,7 +858,7 @@ err:
 int a2i_ipadd(uchar * ipout, const char * ipasc)
 {
 	/* If string contains a ':' assume IPv6 */
-	if(strchr(ipasc, ':')) {
+	if(sstrchr(ipasc, ':')) {
 		return ipv6_from_asc(ipout, ipasc) ? 16 : 0;
 	}
 	else {

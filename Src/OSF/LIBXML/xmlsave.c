@@ -577,7 +577,6 @@ static void xmlNsDumpOutputCtxt(xmlSaveCtxtPtr ctxt, xmlNs * cur)
 {
 	xmlNsDumpOutput(ctxt->buf, cur, ctxt);
 }
-
 /**
  * xmlNsListDumpOutputCtxt
  * @ctxt: the save context
@@ -619,7 +618,7 @@ static void xmlDtdDumpOutput(xmlSaveCtxtPtr ctxt, xmlDtdPtr dtd)
 {
 	xmlOutputBuffer * buf;
 	int format, level;
-	xmlDocPtr doc;
+	xmlDoc * doc;
 	if(dtd == NULL)
 		return;
 	if(!ctxt || (ctxt->buf == NULL))
@@ -745,9 +744,8 @@ static int htmlNodeDumpOutputInternal(xmlSaveCtxtPtr ctxt, xmlNode * cur)
 	const xmlChar * encoding = ctxt->encoding;
 	xmlOutputBuffer * buf = ctxt->buf;
 	int switched_encoding = 0;
-	xmlDocPtr doc;
 	xmlInitParser();
-	doc = cur->doc;
+	xmlDoc * doc = cur->doc;
 	if(doc) {
 		oldenc = doc->encoding;
 		if(ctxt->encoding != NULL) {
@@ -757,12 +755,12 @@ static int htmlNodeDumpOutputInternal(xmlSaveCtxtPtr ctxt, xmlNode * cur)
 			encoding = doc->encoding;
 		}
 	}
-	if((encoding != NULL) && doc)
+	if(encoding && doc)
 		htmlSetMetaEncoding(doc, (const xmlChar *)encoding);
 	if((encoding == NULL) && doc)
 		encoding = htmlGetMetaEncoding(doc);
 	SETIFZ(encoding, reinterpret_cast<const xmlChar *>("HTML"));
-	if((encoding != NULL) && (oldctxtenc == NULL) && (buf->encoder == NULL) && (buf->conv == NULL)) {
+	if(encoding && (oldctxtenc == NULL) && (buf->encoder == NULL) && (buf->conv == NULL)) {
 		if(xmlSaveSwitchEncoding(ctxt, reinterpret_cast<const char *>(encoding)) < 0) {
 			doc->encoding = oldenc;
 			return -1;
@@ -1073,7 +1071,6 @@ static int xmlDocContentDumpOutput(xmlSaveCtxtPtr ctxt, xmlDoc * cur)
 			}
 		}
 	}
-
 	/*
 	 * Restore the state of the saving context at the end of the document
 	 */
@@ -1087,12 +1084,9 @@ static int xmlDocContentDumpOutput(xmlSaveCtxtPtr ctxt, xmlDoc * cur)
 }
 
 #ifdef LIBXML_HTML_ENABLED
-/************************************************************************
-*									*
-*		Functions specific to XHTML serialization		*
-*									*
-************************************************************************/
-
+// 
+// Functions specific to XHTML serialization
+// 
 /**
  * xhtmlIsEmpty:
  * @node:  the node
@@ -2131,7 +2125,7 @@ void xmlNodeDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNodePtr cur, int 
  * Note that @format = 1 provide node indenting only if xmlIndentTreeOutput = 1
  * or xmlKeepBlanksDefault(0) was called
  */
-void xmlDocDumpFormatMemoryEnc(xmlDocPtr out_doc, xmlChar ** doc_txt_ptr, int * doc_txt_len, const char * txt_encoding, int format)
+void xmlDocDumpFormatMemoryEnc(xmlDoc * out_doc, xmlChar ** doc_txt_ptr, int * doc_txt_len, const char * txt_encoding, int format)
 {
 	xmlSaveCtxt ctxt;
 	int dummy = 0;
@@ -2231,7 +2225,7 @@ void xmlDocDumpFormatMemory(xmlDoc * cur, xmlChar** mem, int * size, int format)
  * by the caller.  Note it is up to the caller of this function to free the
  * allocated memory with SAlloc::F().
  */
-void xmlDocDumpMemoryEnc(xmlDocPtr out_doc, xmlChar ** doc_txt_ptr, int * doc_txt_len, const char * txt_encoding)
+void xmlDocDumpMemoryEnc(xmlDoc * out_doc, xmlChar ** doc_txt_ptr, int * doc_txt_len, const char * txt_encoding)
 {
 	xmlDocDumpFormatMemoryEnc(out_doc, doc_txt_ptr, doc_txt_len, txt_encoding, 0);
 }

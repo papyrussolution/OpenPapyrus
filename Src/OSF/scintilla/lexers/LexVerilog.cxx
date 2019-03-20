@@ -299,7 +299,7 @@ Sci_Position SCI_METHOD LexerVerilog::WordListSet(int n, const char * wl)
 				preprocessorDefinitionsStart.clear();
 				for(int nDefinition = 0; nDefinition < ppDefinitions.Length(); nDefinition++) {
 					const char * cpDefinition = ppDefinitions.WordAt(nDefinition);
-					const char * cpEquals = strchr(cpDefinition, '=');
+					const char * cpEquals = sstrchr(cpDefinition, '=');
 					if(cpEquals) {
 						std::string name(cpDefinition, cpEquals - cpDefinition);
 						std::string val(cpEquals+1);

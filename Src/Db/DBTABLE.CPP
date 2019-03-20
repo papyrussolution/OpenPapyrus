@@ -115,7 +115,7 @@ int SLAPI DBTable::Btr_Open(const char * pName, int openMode, char * pPassword)
 	int    ok = 0;
 	uint16 bl = static_cast<uint16>(sstrlen(pPassword));
 	index = openMode;
-	if(strchr(pName, ' '))
+	if(sstrchr(pName, ' '))
 		OpenedFileName.Z().CatQStr(pName);
 	else
 		OpenedFileName = pName;
@@ -183,18 +183,18 @@ int DBTable::Btr_ProcessLobOnReading()
 				do {
 					char   k[MAXKEYLEN];
 					size_t temp_buf_offs = 0;
-					*(RECORDNUMBER *)(char *)temp_buf = pos;
+					*static_cast<RECORDNUMBER *>(temp_buf.vptr()) = pos;
 					temp_buf_offs += sizeof(RECORDNUMBER);
-					*(long *)(static_cast<char *>(temp_buf) + temp_buf_offs) = CHUNK_DIR_RAND;
+					*(long *)(temp_buf.ucptr() + temp_buf_offs) = CHUNK_DIR_RAND;
 					temp_buf_offs += sizeof(long);
-					*(long *)(static_cast<char *>(temp_buf) + temp_buf_offs) = 1; // number of chunks
+					*(long *)(temp_buf.ucptr() + temp_buf_offs) = 1; // number of chunks
 					temp_buf_offs += sizeof(long);
 					// chunk definition
-					*(long *)(static_cast<char *>(temp_buf) + temp_buf_offs) = rec_offs; // chunk offset
+					*(long *)(temp_buf.ucptr() + temp_buf_offs) = rec_offs; // chunk offset
 					temp_buf_offs += sizeof(long);
-					*(long *)(static_cast<char *>(temp_buf) + temp_buf_offs) = chunk_size; // chunk length (buffer size - fixed header)
+					*(long *)(temp_buf.ucptr() + temp_buf_offs) = chunk_size; // chunk length (buffer size - fixed header)
 					temp_buf_offs += sizeof(long);
-					*(long *)(static_cast<char *>(temp_buf) + temp_buf_offs) = 0; // data ptr (ignored for CHUNK_DIR_RAND)
+					*(long *)(temp_buf.ucptr() + temp_buf_offs) = 0; // data ptr (ignored for CHUNK_DIR_RAND)
 					temp_buf_offs += sizeof(long);
 					assert(temp_buf_offs == fixed_header_size);
 					retBufLen = (RECORDSIZE)chunk_size;
@@ -325,7 +325,7 @@ int SLAPI DBTable::step(int sp)
 {
 	static const int cmd[] = {B_STEPFIRST, B_STEPLAST, -1, -1, -1, -1, -1, B_STEPDIRECT, B_STEPPREV};
 	retBufLen = bufLen;
-	int    err = BTRV(cmd[sp], FPB, (char *)P_DBuf, (uint16 *)&retBufLen, 0, WBTRVTAIL_ZZ);
+	int    err = BTRV(cmd[sp], FPB, static_cast<char *>(P_DBuf), (uint16 *)&retBufLen, 0, WBTRVTAIL_ZZ);
 	BtrError = err;
 	if(retBufLen < bufLen)
 		((char *)P_DBuf)[retBufLen] = 0;
@@ -339,7 +339,7 @@ int SLAPI DBTable::getExtended(void * key, int srchMode, int lock)
 	assert(srchMode == spNext || srchMode == spPrev);
 	int    op = ((srchMode == spNext) ? B_GETNEXTEXT : B_GETPREVEXT) + lock;
 	retBufLen = bufLen;
-	int    err = BTRV(op, FPB, (char *)P_DBuf, (uint16 *)&retBufLen, (char *) key, WBTRVTAIL);
+	int    err = BTRV(op, FPB, static_cast<char *>(P_DBuf), (uint16 *)&retBufLen, static_cast<char *>(key), WBTRVTAIL);
 	if(err == BE_FILTERLIMIT)
 		err = BE_EOF;
 	return Ret(err);
@@ -350,7 +350,7 @@ int SLAPI DBTable::stepExtended(int srchMode, int lock)
 	assert(srchMode == spNext || srchMode == spPrev);
 	int    op = ((srchMode == spNext) ? B_STEPNEXTEXT : B_STEPPREVEXT) + lock;
 	retBufLen = bufLen;
-	return Ret(BTRV(op, FPB, (char *)P_DBuf, (uint16 *)&retBufLen, 0, WBTRVTAIL_ZZ));
+	return Ret(BTRV(op, FPB, static_cast<char *>(P_DBuf), (uint16 *)&retBufLen, 0, WBTRVTAIL_ZZ));
 }
 
 int FASTCALL DBTable::Btr_Implement_GetPosition(DBRowId * pPos)
@@ -370,14 +370,14 @@ int DBTable::Btr_Implement_InsertRec(int idx, void * pKeyBuf, const void * pData
 	/*auto*/ int index = (idx < 0) ? DBTable::index : idx;
 	SETIFZ(pKeyBuf, key_buf);
 	retBufLen = bufLen;
-	char * p_data_buf = (char *)P_DBuf;
+	char * p_data_buf = static_cast<char *>(P_DBuf);
 	SBuffer temp_buf;
 	SBuffer lob_buffer;
 	size_t  lob_size = 0; // Размер хвоста переменной длины
 	int     do_use_chunk_op = 0;
 	DBField last_fld;
 	if(HasLob(&last_fld) > 0) {
-		SLob * p_lob_data = (SLob *)last_fld.getValuePtr();
+		SLob * p_lob_data = static_cast<SLob *>(last_fld.getValuePtr());
 		int    glsr = getLobSize(last_fld, &lob_size);
 		assert(glsr);
 		if(p_lob_data->IsPtr()) {
@@ -498,7 +498,7 @@ int DBTable::Btr_Implement_UpdateRec(const void * pDataBuf, int ncc)
 			tail_len++;
 		retBufLen = (RECORDSIZE)(FixRecSize + tail_len);
 	}
-	int result = Ret(BTRV(B_UPDATE, FPB, (char *)p_data_buf, (uint16 *)&retBufLen, key_buf, WBTRVTAIL));
+	int result = Ret(BTRV(B_UPDATE, FPB, p_data_buf, (uint16 *)&retBufLen, key_buf, WBTRVTAIL));
 	if(result) {
 		if(do_use_chunk_op) {
 			size_t rest_size = lob_buffer.GetAvailableSize();
@@ -650,7 +650,7 @@ DBIdxSpec * SLAPI DBTable::getIndexSpec(int idxNo, int * pNumSeg)
 	if(getStat((void **)&p_info, &buf_size)) {
 		if(idxNo < p_info->NumKeys) {
 			int i;
-			DBIdxSpec * p = (DBIdxSpec *)(p_info+1);
+			DBIdxSpec * p = reinterpret_cast<DBIdxSpec *>(p_info+1);
 			for(i = 0; i < idxNo; i++) {
 				while(p->flags & XIF_SEG)
 					p++;
@@ -697,7 +697,7 @@ SLAPI RectChunk::RectChunk(long ofs, long rs, long pDist, long p, long aDist) : 
 
 ChunkHeader & SLAPI operator + (ChunkHeader & h, RandChunkItem & i)
 {
-	ChunkHeader * p_tmp = (ChunkHeader *)catmem(&h, sizeof(ChunkHeader), &i, sizeof(RandChunkItem));
+	ChunkHeader * p_tmp = static_cast<ChunkHeader *>(catmem(&h, sizeof(ChunkHeader), &i, sizeof(RandChunkItem)));
 	delete & h;
 	p_tmp->numChunks++;
 	return *p_tmp;
@@ -705,7 +705,7 @@ ChunkHeader & SLAPI operator + (ChunkHeader & h, RandChunkItem & i)
 
 ChunkHeader & SLAPI operator + (ChunkHeader & h, RectChunk & c)
 {
-	ChunkHeader * p_tmp = (ChunkHeader *)catmem(&h, sizeof(ChunkHeader), &c, sizeof(RectChunk));
+	ChunkHeader * p_tmp = static_cast<ChunkHeader *>(catmem(&h, sizeof(ChunkHeader), &c, sizeof(RectChunk)));
 	delete & h;
 	return *p_tmp;
 }

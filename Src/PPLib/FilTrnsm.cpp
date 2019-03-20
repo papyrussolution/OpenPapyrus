@@ -153,7 +153,7 @@ int SLAPI EditObjReceiveParam(ObjReceiveParam * pParam, int editOptions) { DIALO
 
 static int SLAPI IsEmailAddr(const char * pPath)
 {
-	return BIN(pPath && strchr(pPath, '@'));
+	return BIN(pPath && sstrchr(pPath, '@'));
 }
 
 static int SLAPI IsFtpAddr(const char * pPath)

@@ -74,7 +74,7 @@ static bool FASTCALL IsPrefixedNumberStart(int ch, int chNext)
 
 static bool FASTCALL IsOperator(int ch)
 {
-	return strchr("%^&*()-+={}[]:;<>,/?!.~|\\", ch) != NULL;
+	return sstrchr("%^&*()-+={}[]:;<>,/?!.~|\\", ch) != NULL;
 }
 
 // ---------------------------------------------------------------

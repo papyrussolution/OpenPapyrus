@@ -55,7 +55,7 @@ void PropSetSimple::Set(const char * keyVal)
 	const char * endVal = keyVal;
 	while(*endVal && (*endVal != '\n'))
 		endVal++;
-	const char * eqAt = strchr(keyVal, '=');
+	const char * eqAt = sstrchr(keyVal, '=');
 	if(eqAt) {
 		Set(keyVal, eqAt + 1, static_cast<int>(eqAt-keyVal), static_cast<int>(endVal - eqAt - 1));
 	}
@@ -66,7 +66,7 @@ void PropSetSimple::Set(const char * keyVal)
 
 void PropSetSimple::SetMultiple(const char * s)
 {
-	for(const char * eol = strchr(s, '\n'); eol; eol = strchr(s, '\n')) {
+	for(const char * eol = sstrchr(s, '\n'); eol; eol = sstrchr(s, '\n')) {
 		Set(s);
 		s = eol + 1;
 	}

@@ -870,7 +870,7 @@ int PPImpExpParam::DistributeFile(PPLogger * pLogger)
 					SPathStruc ps(FileName);
 					ps.Merge(SPathStruc::fNam|SPathStruc::fExt, naked_file_name);
 					ia_pack.GetExtField(FTPAEXSTR_HOST, ftp_path);
-					ftp_path.SetLastSlash().Cat(naked_file_name);
+					//@v10.3.10 ftp_path.SetLastSlash().Cat(naked_file_name);
 				}
 				/* @v10.3.9
 				WinInetFTP ftp;
@@ -883,11 +883,12 @@ int PPImpExpParam::DistributeFile(PPLogger * pLogger)
 					SUniformFileTransmParam param;
 					SString accs_name;
 					char   pwd[256];
-					(param.SrcPath = FileName).Transf(CTRANSF_INNER_TO_OUTER);
-					(param.DestPath = ftp_path).Transf(CTRANSF_INNER_TO_OUTER);
+					param.SrcPath = FileName;
+					SPathStruc::NormalizePath(ftp_path, SPathStruc::npfSlash|SPathStruc::npfKeepCase, param.DestPath);
+					// @v10.3.10 param.SrcPath.Transf(CTRANSF_INNER_TO_OUTER);
+					// @v10.3.10 param.DestPath.Transf(CTRANSF_INNER_TO_OUTER);
 					param.Flags = 0;
 					param.Format = SFileFormat::Unkn;
-
 					ia_pack.GetExtField(FTPAEXSTR_USER, accs_name);
 					ia_pack.GetPassword(pwd, sizeof(pwd), FTPAEXSTR_PASSWORD);
 					param.AccsName.EncodeUrl(accs_name, 0);

@@ -155,7 +155,7 @@ static int general_allocate_boolean(UI * ui,
 	}
 	else {
 		for(p = ok_chars; *p != '\0'; p++) {
-			if(strchr(cancel_chars, *p) != NULL) {
+			if(sstrchr(cancel_chars, *p) != NULL) {
 				UIerr(UI_F_GENERAL_ALLOCATE_BOOLEAN,
 				    UI_R_COMMON_OK_AND_CANCEL_CHARACTERS);
 			}
@@ -753,11 +753,11 @@ int UI_set_result(UI * ui, UI_STRING * uis, const char * result)
 		    }
 		    uis->result_buf[0] = '\0';
 		    for(p = result; *p; p++) {
-			    if(strchr(uis->_.boolean_data.ok_chars, *p)) {
+			    if(sstrchr(uis->_.boolean_data.ok_chars, *p)) {
 				    uis->result_buf[0] = uis->_.boolean_data.ok_chars[0];
 				    break;
 			    }
-			    if(strchr(uis->_.boolean_data.cancel_chars, *p)) {
+			    if(sstrchr(uis->_.boolean_data.cancel_chars, *p)) {
 				    uis->result_buf[0] = uis->_.boolean_data.cancel_chars[0];
 				    break;
 			    }

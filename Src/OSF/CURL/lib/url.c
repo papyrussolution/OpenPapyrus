@@ -3472,8 +3472,8 @@ static CURLcode parseurlandfillconn(struct Curl_easy * data, struct connectdata 
 	// @-letter to allow ?-letters in username and password) to handle things
 	// like http://example.com?param= (notice the missing '/').
 	// 
-	at = strchr(conn->host.name, '@');
-	query = at ? strchr(at+1, '?') : strchr(conn->host.name, '?');
+	at = sstrchr(conn->host.name, '@');
+	query = at ? sstrchr(at+1, '?') : sstrchr(conn->host.name, '?');
 	if(query) {
 		// We must insert a slash before the '?'-letter in the URL. If the URL had
 		// a slash after the '?', that is where the path currently begins and the
@@ -3563,7 +3563,7 @@ static CURLcode parseurlandfillconn(struct Curl_easy * data, struct connectdata 
 	if(conn->host.name[0] == '[') {
 		// This looks like an IPv6 address literal.  See if there is an address
 		// scope if there is no location header 
-		char * percent = strchr(conn->host.name, '%');
+		char * percent = sstrchr(conn->host.name, '%');
 		if(percent) {
 			uint identifier_offset = 3;
 			char * endp;
@@ -3587,7 +3587,7 @@ static CURLcode parseurlandfillconn(struct Curl_easy * data, struct connectdata 
 				strncpy(ifname, percent + identifier_offset, IFNAMSIZ + 2);
 				/* Ensure nullbyte termination */
 				ifname[IFNAMSIZ + 1] = '\0';
-				square_bracket = strchr(ifname, ']');
+				square_bracket = sstrchr(ifname, ']');
 				if(square_bracket) {
 					/* Remove ']' */
 					*square_bracket = '\0';
@@ -3615,12 +3615,12 @@ static CURLcode parseurlandfillconn(struct Curl_easy * data, struct connectdata 
 	// Remove the fragment part of the path. Per RFC 2396, this is always the
 	// last part of the URI. We are looking for the first '#' so that we deal
 	// gracefully with non conformant URI such as http://example.com#foo#bar. 
-	fragment = strchr(path, '#');
+	fragment = sstrchr(path, '#');
 	if(fragment) {
 		*fragment = 0;
 		// we know the path part ended with a fragment, so we know the full URL
 		// string does too and we need to cut it off from there so it isn't used over proxy 
-		fragment = strchr(data->change.url, '#');
+		fragment = sstrchr(data->change.url, '#');
 		ASSIGN_PTR(fragment, 0);
 	}
 	/*
@@ -3724,16 +3724,16 @@ static bool check_noproxy(const char * name, const char * no_proxy)
 		}
 		// NO_PROXY was specified and it wasn't just an asterisk
 		no_proxy_len = sstrlen(no_proxy);
-		endptr = strchr(name, ':');
+		endptr = sstrchr(name, ':');
 		namelen = endptr ? (endptr - name) : sstrlen(name);
 		for(tok_start = 0; tok_start < no_proxy_len; tok_start = tok_end + 1) {
-			while(tok_start < no_proxy_len && strchr(separator, no_proxy[tok_start]) != NULL) {
+			while(tok_start < no_proxy_len && sstrchr(separator, no_proxy[tok_start]) != NULL) {
 				/* Look for the beginning of the token. */
 				++tok_start;
 			}
 			if(tok_start == no_proxy_len)
 				break;  /* It was all trailing separator chars, no more tokens. */
-			for(tok_end = tok_start; tok_end < no_proxy_len && strchr(separator, no_proxy[tok_end]) == NULL; ++tok_end)
+			for(tok_end = tok_start; tok_end < no_proxy_len && sstrchr(separator, no_proxy[tok_end]) == NULL; ++tok_end)
 				/* Look for the end of the token. */
 				;
 
@@ -3879,7 +3879,7 @@ static CURLcode parse_proxy(struct Curl_easy * data, struct connectdata * conn, 
 #endif
 	sockstype = oneof4(proxytype, CURLPROXY_SOCKS5_HOSTNAME, CURLPROXY_SOCKS5, CURLPROXY_SOCKS4A, CURLPROXY_SOCKS4);
 	// Is there a username and password given in this proxy url? 
-	atsign = strchr(proxyptr, '@');
+	atsign = sstrchr(proxyptr, '@');
 	if(atsign) {
 		CURLcode result = parse_login_details(proxyptr, atsign - proxyptr, &proxyuser, &proxypasswd, 0);
 		if(result)
@@ -3913,7 +3913,7 @@ static CURLcode parse_proxy(struct Curl_easy * data, struct connectdata * conn, 
 		 */
 	}
 	/* Get port number off proxy.server.com:1080 */
-	prox_portno = strchr(portptr, ':');
+	prox_portno = sstrchr(portptr, ':');
 	if(prox_portno) {
 		char * endp = NULL;
 		*prox_portno = 0x0; /* cut off number from host name */
@@ -3940,7 +3940,7 @@ static CURLcode parse_proxy(struct Curl_easy * data, struct connectdata * conn, 
 		}
 		// without a port number after the host name, some people seem to use
 		// a slash so we strip everything from the first slash 
-		atsign = strchr(proxyptr, '/');
+		atsign = sstrchr(proxyptr, '/');
 		ASSIGN_PTR(atsign, '\0'); // cut off path part from host name
 		if(data->set.proxyport)
 			port = data->set.proxyport; // None given in the proxy string, then get the default one if it is given
@@ -4182,7 +4182,7 @@ static CURLcode parse_url_login(struct Curl_easy * data, struct connectdata * co
 	 *
 	 * We need somewhere to put the embedded details, so do that first.
 	 */
-	char * ptr = strchr(conn->host.name, '@');
+	char * ptr = sstrchr(conn->host.name, '@');
 	char * login = conn->host.name;
 	DEBUGASSERT(!**user);
 	DEBUGASSERT(!**passwd);
@@ -4287,14 +4287,14 @@ static CURLcode parse_login_details(const char * login, const size_t len, char *
 	size_t olen;
 	/* Attempt to find the password separator */
 	if(passwdp) {
-		psep = strchr(login, ':');
+		psep = sstrchr(login, ':');
 		/* Within the constraint of the login string */
 		if(psep >= login + len)
 			psep = NULL;
 	}
 	/* Attempt to find the options separator */
 	if(optionsp) {
-		osep = strchr(login, ';');
+		osep = sstrchr(login, ';');
 		/* Within the constraint of the login string */
 		if(osep >= login + len)
 			osep = NULL;
@@ -4376,7 +4376,7 @@ static CURLcode parse_remote_port(struct Curl_easy * data, struct connectdata * 
 		/* this is a RFC2732-style specified IP-address */
 		conn->bits.ipv6_ip = TRUE;
 		conn->host.name++; /* skip over the starting bracket */
-		portptr = strchr(conn->host.name, ']');
+		portptr = sstrchr(conn->host.name, ']');
 		if(portptr) {
 			*portptr++ = '\0'; /* zero terminate, killing the bracket */
 			if(':' != *portptr)
@@ -4392,7 +4392,7 @@ static CURLcode parse_remote_port(struct Curl_easy * data, struct connectdata * 
 			return CURLE_URL_MALFORMAT;
 		}
 #endif
-		portptr = strchr(conn->host.name, ':');
+		portptr = sstrchr(conn->host.name, ':');
 	}
 	if(data->set.use_port && data->state.allow_port) {
 		/* if set, we use this and ignore the port possibly given in the URL */
@@ -4571,7 +4571,7 @@ static CURLcode parse_connect_to_host_port(struct Curl_easy * data, const char *
 		 */
 	}
 	/* Get port number off server.com:1080 */
-	host_portno = strchr(portptr, ':');
+	host_portno = sstrchr(portptr, ':');
 	if(host_portno) {
 		char * endp = NULL;
 		*host_portno = '\0'; /* cut off number from host name */
@@ -4638,7 +4638,7 @@ static CURLcode parse_connect_to_string(struct Curl_easy * data, struct connectd
 		}
 		else {
 			/* check whether the URL's port matches */
-			const char * ptr_next = strchr(ptr, ':');
+			const char * ptr_next = sstrchr(ptr, ':');
 			if(ptr_next) {
 				char * endp = NULL;
 				long port_to_match = strtol(ptr, &endp, 10);
@@ -4977,7 +4977,7 @@ static CURLcode create_conn(struct Curl_easy * data, struct connectdata ** in_co
 	// If the protocol can't handle url query strings, then cut off the unhandable part
 	// 
 	if((conn->given->flags&PROTOPT_NOURLQUERY)) {
-		char * path_q_sep = strchr(conn->data->state.path, '?');
+		char * path_q_sep = sstrchr(conn->data->state.path, '?');
 		if(path_q_sep) {
 			// according to rfc3986, allow the query (?foo=bar) also on protocols that can't handle it.
 			//

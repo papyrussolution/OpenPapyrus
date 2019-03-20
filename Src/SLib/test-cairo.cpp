@@ -83,7 +83,7 @@ static char * _cairo_test_fixup_name(const char * original)
 {
 	char * name, * s;
 	s = name = xstrdup(original);
-	while((s = strchr(s, '_')) != NULL)
+	while((s = sstrchr(s, '_')) != NULL)
 		*s++ = '-';
 	return name;
 }

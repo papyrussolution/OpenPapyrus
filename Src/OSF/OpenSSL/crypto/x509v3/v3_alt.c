@@ -443,7 +443,7 @@ static int do_othername(GENERAL_NAME * gen, const char * value, X509V3_CTX * ctx
 	char * objtmp = NULL;
 	int objlen;
 	const char * p = 0;
-	if((p = strchr(value, ';')) == NULL)
+	if((p = sstrchr(value, ';')) == NULL)
 		return 0;
 	if((gen->d.otherName = OTHERNAME_new()) == NULL)
 		return 0;

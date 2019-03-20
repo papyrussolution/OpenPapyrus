@@ -290,7 +290,7 @@ archive_write_ar_header(struct archive_write *a, struct archive_entry *entry)
 		 * The name is then written immediately following the
 		 * archive header.
 		 */
-		if (strlen(filename) <= 16 && strchr(filename, ' ') == NULL) {
+		if (strlen(filename) <= 16 && sstrchr(filename, ' ') == NULL) {
 			memcpy(&buff[AR_name_offset], filename, strlen(filename));
 			buff[AR_name_offset + strlen(filename)] = ' ';
 		}

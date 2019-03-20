@@ -113,7 +113,7 @@ char * SLAPI strfmt(const char * str, long fmt, char * buf)
 			buf[0] = 0;
 	}
 	else {
-		char   temp_buf[4096]; // @v8.3.11 [1024]-->[4096]
+		char   temp_buf[4096];
 		int    use_temp_buf = 0;
 		if(flag & COMF_SQL) {
 			if(buf == str) {
@@ -122,10 +122,20 @@ char * SLAPI strfmt(const char * str, long fmt, char * buf)
 			}
 			*buf++ = '\'';
 		}
-		if(flag & STRF_OEM)
-			CharToOem(str, buf); // @unicodeproblem
-		else if(flag & STRF_ANSI)
-			OemToChar(str, buf); // @unicodeproblem
+		if(flag & STRF_OEM) {
+			// @v10.3.10 CharToOem(str, buf); // @unicodeproblem
+			// @v10.3.10 {
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			(r_temp_buf = str).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(buf, 0);
+			// } @v10.3.10 
+		}
+		else if(flag & STRF_ANSI) {
+			// @v10.3.10 OemToChar(str, buf); // @unicodeproblem
+			// @v10.3.10 {
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			(r_temp_buf = str).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(buf, 0);
+			// } @v10.3.10 
+		}
 		else if(buf != str)
 			strcpy(buf, str);
 		if(flag & STRF_UPPER)
@@ -649,7 +659,7 @@ char * SLAPI decfmt(const BCD_T val, int len, int prec, long fmt, char * pBuf)
 		s++, sign = 1;
 	else
 		sign = 0;
-	c = strchr(s, '.');
+	c = sstrchr(s, '.');
 	if(c)
 		strcpy(c, c + 1);
 	return fmtnumber(s, sstrlen(s) - prec, sign, fmt, pBuf);
@@ -873,9 +883,9 @@ int FASTCALL satof(const char * pBuf, double * pVal) // @construction
 int FASTCALL strtodoub(const char * pBuf, double * pVal)
 {
 	char   temp[128]; // @v9.2.1 [64]-->[128]
-	char * p = strchr(clearDelimiters(STRNSCPY(temp, pBuf)), '.');
+	char * p = sstrchr(clearDelimiters(STRNSCPY(temp, pBuf)), '.');
 	if(p == 0)
-		if((p = strchr(temp, ',')) != 0)
+		if((p = sstrchr(temp, ',')) != 0)
 			*p = '.';
 	ASSIGN_PTR(pVal, atof(temp));
 	return 1;

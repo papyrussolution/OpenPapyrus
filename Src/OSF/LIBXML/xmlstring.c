@@ -306,7 +306,7 @@ int xmlStrncasecmp(const xmlChar * str1, const xmlChar * str2, int len)
  * @str:  the xmlChar * array
  * @val:  the xmlChar to search
  *
- * a strchr for xmlChar's
+ * a sstrchr for xmlChar's
  *
  * Returns the xmlChar * for the first occurrence or NULL.
  */

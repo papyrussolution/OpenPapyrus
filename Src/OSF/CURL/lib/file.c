@@ -252,7 +252,7 @@ static CURLcode file_disconnect(struct connectdata * conn, bool dead_connection)
 static CURLcode file_upload(struct connectdata * conn)
 {
 	struct FILEPROTO * file = (struct FILEPROTO *)conn->data->req.protop;
-	const char * dir = strchr(file->path, DIRSEP);
+	const char * dir = sstrchr(file->path, DIRSEP);
 	int fd;
 	int mode;
 	CURLcode result = CURLE_OK;

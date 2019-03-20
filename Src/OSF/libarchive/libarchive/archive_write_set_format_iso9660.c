@@ -5306,7 +5306,7 @@ static void isoent_setup_file_location(struct iso9660 * iso9660, int location)
 static int get_path_component(char * name, size_t n, const char * fn)
 {
 	size_t l;
-	const char * p = strchr(fn, '/');
+	const char * p = sstrchr(fn, '/');
 	if(p == NULL) {
 		if((l = strlen(fn)) == 0)
 			return 0;

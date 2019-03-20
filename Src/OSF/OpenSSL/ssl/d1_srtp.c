@@ -49,7 +49,7 @@ static int FASTCALL ssl_ctx_make_profiles(const char * profiles_string, STACK_OF
 		return 1;
 	}
 	do {
-		col = strchr(ptr, ':');
+		col = sstrchr(ptr, ':');
 		if(!find_profile_by_name(ptr, &p, col ? col - ptr : (int)strlen(ptr))) {
 			if(sk_SRTP_PROTECTION_PROFILE_find(profiles, p) >= 0) {
 				SSLerr(SSL_F_SSL_CTX_MAKE_PROFILES, SSL_R_BAD_SRTP_PROTECTION_PROFILE_LIST);

@@ -1127,14 +1127,14 @@ void TY_(CheckUrl) (TidyDocImpl* doc, Node *node, AttVal *attval)
 			if(cfgBool(doc, TidyFixBackslash) && !isJavascript)
 				p[i] = '/';
 		}
-		else if((c > 0x7e) || (c <= 0x20) || (strchr("<>", c)))
+		else if((c > 0x7e) || (c <= 0x20) || (sstrchr("<>", c)))
 			++escape_count;
 	}
 	if(cfgBool(doc, TidyFixUri) && escape_count) {
 		len = TY_(tmbstrlen) (p) + escape_count * 2 + 1;
 		dest = (tmbstr)TidyDocAlloc(doc, len);
 		for(i = 0; 0 != (c = p[i]); ++i) {
-			if((c > 0x7e) || (c <= 0x20) || (strchr("<>", c)))
+			if((c > 0x7e) || (c <= 0x20) || (sstrchr("<>", c)))
 				pos += sprintf(dest + pos, "%%%02X", (byte)c);
 			else
 				dest[pos++] = c;
@@ -1501,7 +1501,7 @@ static bool IsValidColorCode(ctmbstr color)
 		return false;
 	/* check if valid hex digits and letters */
 	for(i = 0; i < 6; i++)
-		if(!TY_(IsDigit) (color[i]) && !strchr("abcdef", TY_(ToLower) (color[i])))
+		if(!TY_(IsDigit) (color[i]) && !sstrchr("abcdef", TY_(ToLower) (color[i])))
 			return false;
 	return true;
 }

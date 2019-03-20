@@ -432,7 +432,7 @@ static char* xmemmem(const char * hay, const size_t haysize,
 
 	/* trivial checks first
 	 * a 0-sized needle is defined to be found anywhere in haystack
-	 * then run strchr() to find a candidate in HAYSTACK (i.e. a portion
+	 * then run sstrchr() to find a candidate in HAYSTACK (i.e. a portion
 	 * that happens to begin with *NEEDLE) */
 	if(needlesize == 0UL) {
 		return (char *)deconst(hay);

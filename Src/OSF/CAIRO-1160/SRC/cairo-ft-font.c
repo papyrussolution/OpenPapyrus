@@ -2174,7 +2174,7 @@ static void cairo_ft_apply_variations(FT_Face face,
 			double value;
 			while(_cairo_isspace(*p)) p++;
 			start = p;
-			end = strchr(p, ',');
+			end = sstrchr(p, ',');
 			if(end && (end - p < 6))
 				goto skip;
 

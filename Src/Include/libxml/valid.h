@@ -72,7 +72,7 @@ struct xmlValidCtxt {
 	int nodeMax;                  /* Max depth of the parsing stack */
 	xmlNode ** PP_NodeTab; // array of nodes 
 	uint finishDtd;       /* finished validating the Dtd ? */
-	xmlDocPtr doc;                /* the document */
+	xmlDoc * doc;                /* the document */
 	int valid;                    /* temporary validity check result */
 	/* state state used for non-determinist content validation */
 	xmlValidState * vstate;   /* current state */
@@ -214,7 +214,7 @@ XMLPUBFUN xmlList * XMLCALL xmlGetRefs(xmlDoc * pDoc, const xmlChar * pID);
 	XMLPUBFUN int XMLCALL xmlValidateDocumentFinal(xmlValidCtxtPtr ctxt, xmlDoc * doc);
 #endif /* LIBXML_VALID_ENABLED */
 #if defined(LIBXML_VALID_ENABLED) || defined(LIBXML_SCHEMAS_ENABLED)
-	XMLPUBFUN int XMLCALL xmlValidateNotationUse(xmlValidCtxtPtr ctxt, xmlDocPtr doc, const xmlChar * notationName);
+	XMLPUBFUN int XMLCALL xmlValidateNotationUse(xmlValidCtxtPtr ctxt, xmlDoc * doc, const xmlChar * notationName);
 #endif /* LIBXML_VALID_ENABLED or LIBXML_SCHEMAS_ENABLED */
 
 XMLPUBFUN int /*XMLCALL*/FASTCALL xmlIsMixedElement(xmlDoc * doc, const xmlChar * name);

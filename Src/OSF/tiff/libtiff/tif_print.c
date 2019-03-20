@@ -292,7 +292,7 @@ void TIFFPrintDirectory(TIFF* tif, FILE* fd, long flags)
 		fprintf(fd, "  Ink Names: ");
 		i = td->td_samplesperpixel;
 		sep = "";
-		for(cp = td->td_inknames; i > 0 && cp < td->td_inknames + td->td_inknameslen; cp = strchr(cp, '\0')+1, i--) {
+		for(cp = td->td_inknames; i > 0 && cp < td->td_inknames + td->td_inknameslen; cp = sstrchr(cp, '\0')+1, i--) {
 			size_t max_chars = td->td_inknameslen - (cp - td->td_inknames);
 			fputs(sep, fd);
 			_TIFFprintAsciiBounded(fd, cp, max_chars);

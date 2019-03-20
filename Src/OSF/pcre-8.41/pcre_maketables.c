@@ -129,12 +129,12 @@ pcre32_maketables(void)
 		if(isdigit(i)) x += ctype_digit;
 		if(isxdigit(i)) x += ctype_xdigit;
 		if(isalnum(i) || i == '_') x += ctype_word;
-	        /* Note: strchr includes the terminating zero in the characters it considers.
+	        /* Note: sstrchr includes the terminating zero in the characters it considers.
 	           In this instance, that is ok because we want binary zero to be flagged as a
 	           meta-character, which in this sense is any character that terminates a run
 	           of data characters. */
 
-		if(strchr("\\*+?{^.$|()[", i) != 0) x += ctype_meta;
+		if(sstrchr("\\*+?{^.$|()[", i) != 0) x += ctype_meta;
 		*p++ = x;
 	}
 	return yield;

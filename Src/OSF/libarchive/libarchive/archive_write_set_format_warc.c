@@ -347,7 +347,7 @@ static ssize_t _popul_ehdr(struct archive_string * tgt, size_t tsz, warc_essenti
 		static const char _uri[] = "";
 		static const char _fil[] = "file://";
 		const char * u;
-		const char * chk = strchr(hdr.tgturi, ':');
+		const char * chk = sstrchr(hdr.tgturi, ':');
 		if(chk != NULL && chk[1U] == '/' && chk[2U] == '/') {
 			/* yep, it's definitely a URI */
 			u = _uri;

@@ -26,7 +26,7 @@
 	#define _T(e) (e)
 	#define _ftprintf fprintf
 	#define _snprintf snprintf
-	#define _tcschr strchr
+	#define _tcschr sstrchr
 	#define _tcscmp strcmp
 	#define _tcscpy strcpy
 	#define _tcslen sstrlen

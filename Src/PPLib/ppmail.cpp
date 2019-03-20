@@ -43,11 +43,11 @@ int SLAPI PPObjInternetAccount::Browse(void * extraPtr)
 		{
 			ObjViewDialog::handleEvent(event);
 			if(event.isCmd(cmExport)) {
-				int r = 0;
 				PPIDArray mailacct_list;
 				ListToListData data(PPOBJ_INTERNETACCOUNT, 0, &mailacct_list);
 				data.TitleStrID = PPTXT_SELMAILACCTS;
-				if((r = ListToListDialog(&data)) > 0)
+				int    r = ListToListDialog(&data);
+				if(r > 0)
 					ExportEmailAccts(data.P_List);
 				else if(r == 0)
 					PPError();
@@ -297,7 +297,6 @@ static void FASTCALL SetExtIntData(TDialog * dlg, const PPInternetAccount & rDat
 
 static void FASTCALL GetExtIntData(TDialog * dlg, PPInternetAccount * pData, uint ctlID, uint strID)
 {
-	//char   temp_buf[256];
 	SString temp_buf;
 	long   val = 0;
 	dlg->getCtrlData(ctlID, &val);
@@ -792,7 +791,7 @@ int SLAPI PPMailFile::ProcessMsgHeaderLine(const char * pLine)
 	else if(GetField(pLine, PPMAILFLD_CONTENTTYPE, buf) > 0) {
 		if(strnicmp(buf, "multipart", sstrlen("multipart")) == 0) {
 			Msg.Flags |= SMailMessage::fMultipart;
-			const char * p = strchr(buf, ';');
+			const char * p = sstrchr(buf, ';');
 			if(p) {
 				p++;
 				while(*p == ' ')
@@ -1215,7 +1214,7 @@ int SLAPI PPMailPop3::ProcessMsgHeaderLine(const char * pLine, SMailMessage * pM
 	else if(GetField(pLine, PPMAILFLD_CONTENTTYPE, buf) > 0) {
 		if(strnicmp(buf, "multipart", sstrlen("multipart")) == 0) {
 			pMsg->Flags |= SMailMessage::fMultipart;
-			const char * p = strchr(buf, ';');
+			const char * p = sstrchr(buf, ';');
 			if(p && GetField((temp_buf = p+1), PPMAILFLD_BOUNDARY, buf) > 0)
 				pMsg->SetField(SMailMessage::fldBoundary, buf.StripQuotes());
 		}

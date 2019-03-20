@@ -796,7 +796,7 @@ static const char * luaL_findtable(lua_State * L, int idx, const char * fname, i
 	const char * e;
 	if(idx) lua_pushvalue(L, idx);
 	do {
-		e = strchr(fname, '.');
+		e = sstrchr(fname, '.');
 		if(e == NULL) e = fname + strlen(fname);
 		lua_pushlstring(L, fname, e - fname);
 		if(lua_rawget(L, -2) == LUA_TNIL) { /* no such field? */

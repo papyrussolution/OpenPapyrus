@@ -77,7 +77,7 @@ int getopt(int argc, char * const argv[], const char * optstring)
 			/* Solitary '-', treat as a '-' option
 			   if the program (eg su) is looking for it. */
 			place = EMSG;
-			if(strchr(optstring, '-') == NULL)
+			if(sstrchr(optstring, '-') == NULL)
 				return -1;
 			optopt = '-';
 		}
@@ -85,7 +85,7 @@ int getopt(int argc, char * const argv[], const char * optstring)
 	else
 		optopt = *place++;
 	/* See if option letter is one the caller wanted... */
-	if(optopt == ':' || (oli = strchr(optstring, optopt)) == NULL) {
+	if(optopt == ':' || (oli = sstrchr(optstring, optopt)) == NULL) {
 		if(*place == 0)
 			++optind;
 		if(opterr && *optstring != ':')

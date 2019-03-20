@@ -471,8 +471,8 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data, const char
 	size_t hostlen = 0;
 	size_t userlen = 0;
 	size_t domlen = 0;
-	const char * user = strchr(userp, '\\');
-	SETIFZ(user, strchr(userp, '/'));
+	const char * user = sstrchr(userp, '\\');
+	SETIFZ(user, sstrchr(userp, '/'));
 	if(user) {
 		domain = userp;
 		domlen = (user - domain);

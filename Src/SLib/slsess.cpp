@@ -962,7 +962,7 @@ int SLAPI SlSession::CallHelp(void * hWnd, uint cmd, uint ctx)
 int SLAPI SlSession::SubstString(const char * pSrcStr, int ansiCoding, SString & rBuf)
 {
 	int    ok = -1;
-	if(pSrcStr && pSrcStr[0] == '@' && !strchr(pSrcStr, ' ')) {
+	if(pSrcStr && pSrcStr[0] == '@' && !sstrchr(pSrcStr, ' ')) {
 		SString _text = pSrcStr;
 		if(LoadString(_text.ShiftLeft(1), rBuf) > 0) {
 			if(ansiCoding)

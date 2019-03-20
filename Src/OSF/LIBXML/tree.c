@@ -963,7 +963,7 @@ void FASTCALL xmlFreeDtd(xmlDtd * pCur)
  *
  * Returns a new document
  */
-xmlDocPtr xmlNewDoc(const xmlChar * version)
+xmlDoc * xmlNewDoc(const xmlChar * version)
 {
 	SETIFZ(version, (const xmlChar *)"1.0");
 	/*
@@ -1571,7 +1571,7 @@ xmlChar * xmlNodeListGetRawString(const xmlDoc * doc, const xmlNode * list, int 
 static xmlAttr * xmlNewPropInternal(xmlNode * P_Node, xmlNs * ns, const xmlChar * name, const xmlChar * value, int eatname)
 {
 	xmlAttr * cur;
-	xmlDocPtr doc = NULL;
+	xmlDoc * doc = NULL;
 	if(P_Node && P_Node->type != XML_ELEMENT_NODE) {
 		if((eatname == 1) && ((P_Node->doc == NULL) || (!(xmlDictOwns(P_Node->doc->dict, name)))))
 			SAlloc::F((xmlChar *)name);
@@ -2045,7 +2045,7 @@ xmlNode * xmlNewDocRawNode(xmlDoc * doc, xmlNs * ns, const xmlChar * name, const
  * Creation of a new Fragment node.
  * Returns a pointer to the new node object.
  */
-xmlNode * xmlNewDocFragment(xmlDocPtr doc)
+xmlNode * xmlNewDocFragment(xmlDoc * doc)
 {
 	//
 	// Allocate a new DocumentFragment node and fill the fields.
@@ -3900,7 +3900,7 @@ xmlDtdPtr xmlCopyDtd(xmlDtdPtr dtd)
  *
  * Returns: a new #xmlDocPtr, or NULL in case of error.
  */
-xmlDocPtr xmlCopyDoc(xmlDoc * doc, int recursive)
+xmlDoc * xmlCopyDoc(xmlDoc * doc, int recursive)
 {
 	xmlDoc * ret;
 	if(!doc) 
@@ -4463,7 +4463,7 @@ int xmlNodeGetSpacePreserve(const xmlNode * cur)
  */
 void xmlNodeSetName(xmlNode * cur, const xmlChar * name)
 {
-	xmlDocPtr doc;
+	xmlDoc * doc;
 	xmlDict * dict;
 	const xmlChar * freeme = NULL;
 	if(!cur) return;
@@ -4552,7 +4552,7 @@ void xmlNodeSetBase(xmlNode * cur, const xmlChar* uri)
 		case XML_DOCB_DOCUMENT_NODE:
 #endif
 		case XML_HTML_DOCUMENT_NODE: {
-		    xmlDocPtr doc = (xmlDoc *)cur;
+		    xmlDoc * doc = (xmlDoc *)cur;
 		    SAlloc::F((xmlChar *)doc->URL);
 		    if(!uri)
 			    doc->URL = NULL;
@@ -5324,7 +5324,7 @@ xmlNs * FASTCALL xmlSearchNs(xmlDoc * doc, xmlNode * P_Node, const xmlChar * nam
  *
  * Returns 1 if true, 0 if false and -1 in case of error.
  */
-static int xmlNsInScope(xmlDocPtr doc ATTRIBUTE_UNUSED, xmlNode * P_Node, xmlNode * ancestor, const xmlChar * prefix)
+static int xmlNsInScope(xmlDoc * doc ATTRIBUTE_UNUSED, xmlNode * P_Node, xmlNode * ancestor, const xmlChar * prefix)
 {
 	while(P_Node && P_Node != ancestor) {
 		if(oneof3(P_Node->type, XML_ENTITY_REF_NODE, XML_ENTITY_NODE, XML_ENTITY_DECL))
@@ -5704,7 +5704,7 @@ static xmlAttr * FASTCALL xmlGetPropNodeInternal(const xmlNode * P_Node, const x
 	 * the internal or external subset.
 	 */
 	if(P_Node->doc && P_Node->doc->intSubset) {
-		xmlDocPtr doc = P_Node->doc;
+		xmlDoc * doc = P_Node->doc;
 		xmlAttribute * attrDecl = NULL;
 		xmlChar * elemQName, * tmpstr = NULL;
 		/*
@@ -5810,7 +5810,7 @@ static xmlChar * xmlGetPropNodeValueInternal(const xmlAttr * prop)
 xmlAttr * FASTCALL xmlHasProp(const xmlNode * P_Node, const xmlChar * name) 
 {
 	xmlAttr * prop;
-	xmlDocPtr doc;
+	xmlDoc * doc;
 	if(!P_Node || P_Node->type != XML_ELEMENT_NODE || !name)
 		return 0;
 	/*
@@ -7650,7 +7650,7 @@ int xmlDOMWrapReconcileNamespaces(xmlDOMWrapCtxtPtr ctxt ATTRIBUTE_UNUSED, xmlNo
 	int depth = -1, adoptns = 0, parnsdone = 0;
 	xmlNs * ns;
 	xmlNs * prevns;
-	xmlDocPtr doc;
+	xmlDoc * doc;
 	xmlNode * cur;
 	xmlNode * curElem = NULL;
 	xmlNsMap * nsMap = NULL;
@@ -7865,7 +7865,7 @@ exit:
  *
  * Returns 0 if succeeded, -1 otherwise and on API/internal errors.
  */
-static int xmlDOMWrapAdoptBranch(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xmlNode * P_Node, xmlDocPtr destDoc, xmlNode * destParent, int options ATTRIBUTE_UNUSED)
+static int xmlDOMWrapAdoptBranch(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlNode * P_Node, xmlDoc * destDoc, xmlNode * destParent, int options ATTRIBUTE_UNUSED)
 {
 	int ret = 0;
 	xmlNode * cur;
@@ -8175,8 +8175,8 @@ exit:
  *       1 if a node of unsupported (or not yet supported) type was given,
  *       -1 on API/internal errors.
  */
-int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xmlNode * P_Node,
-    xmlNode ** resNode, xmlDocPtr destDoc, xmlNode * destParent, int deep, int options ATTRIBUTE_UNUSED)
+int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlNode * P_Node,
+    xmlNode ** resNode, xmlDoc * destDoc, xmlNode * destParent, int deep, int options ATTRIBUTE_UNUSED)
 {
 	int ret = 0;
 	xmlNode * cur;
@@ -8778,7 +8778,7 @@ internal_error:
  *       2 if a node of not yet supported type was given and
  *       -1 on API/internal errors.
  */
-int xmlDOMWrapAdoptNode(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xmlNode * pNode, xmlDocPtr destDoc, xmlNode * destParent, int options)
+int xmlDOMWrapAdoptNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlNode * pNode, xmlDoc * destDoc, xmlNode * destParent, int options)
 {
 	if(!pNode || (pNode->type == XML_NAMESPACE_DECL) || (destDoc == NULL) || (destParent && (destParent->doc != destDoc)))
 		return -1;

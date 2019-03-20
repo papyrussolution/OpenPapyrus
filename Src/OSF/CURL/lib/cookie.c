@@ -143,7 +143,7 @@ static bool pathmatch(const char * cookie_path, const char * request_uri)
 	uri_path = _strdup(request_uri);
 	if(!uri_path)
 		return FALSE;
-	pos = strchr(uri_path, '?');
+	pos = sstrchr(uri_path, '?');
 	if(pos)
 		*pos = 0x0;
 	/* #-fragments are already cut off! */
@@ -354,7 +354,7 @@ struct Cookie * Curl_cookie_add(struct Curl_easy * data,
 			SAlloc::F(co);
 			return NULL;
 		}
-		semiptr = strchr(lineptr, ';'); /* first, find a semicolon */
+		semiptr = sstrchr(lineptr, ';'); /* first, find a semicolon */
 		while(*lineptr && ISBLANK(*lineptr))
 			lineptr++;
 		ptr = lineptr;
@@ -449,7 +449,7 @@ struct Cookie * Curl_cookie_add(struct Curl_easy * data,
 					{
 						const char * dotp;
 						/* check for more dots */
-						dotp = strchr(whatptr, '.');
+						dotp = sstrchr(whatptr, '.');
 						if(!dotp && !strcasecompare("localhost", whatptr))
 							domain = ":";
 					}
@@ -518,10 +518,10 @@ struct Cookie * Curl_cookie_add(struct Curl_easy * data,
 			ptr = semiptr+1;
 			while(*ptr && ISBLANK(*ptr))
 				ptr++;
-			semiptr = strchr(ptr, ';'); /* now, find the next semicolon */
+			semiptr = sstrchr(ptr, ';'); /* now, find the next semicolon */
 			if(!semiptr && *ptr)
 				// There are no more semicolons, but there's a final name=value pair coming up 
-				semiptr = strchr(ptr, '\0');
+				semiptr = sstrchr(ptr, '\0');
 		} while(semiptr);
 		if(co->maxage) {
 			co->expires = curlx_strtoofft((*co->maxage=='\"') ? &co->maxage[1] : &co->maxage[0], NULL, 10);
@@ -557,7 +557,7 @@ struct Cookie * Curl_cookie_add(struct Curl_easy * data,
 			/* No path was given in the header line, set the default.
 			   Note that the passed-in path to this function MAY have a '?' and
 			   following part that MUST not be stored as part of the path. */
-			const char * queryp = strchr(path, '?'); 
+			const char * queryp = sstrchr(path, '?'); 
 			/* queryp is where the interesting part of the path ends, so now we
 			   want to the find the last */
 			const char * endslash;
@@ -615,9 +615,9 @@ struct Cookie * Curl_cookie_add(struct Curl_easy * data,
 			return NULL;
 		}
 		/* strip off the possible end-of-line characters */
-		ptr = strchr(lineptr, '\r');
+		ptr = sstrchr(lineptr, '\r');
 		ASSIGN_PTR(ptr, 0); // clear it 
-		ptr = strchr(lineptr, '\n');
+		ptr = sstrchr(lineptr, '\n');
 		ASSIGN_PTR(ptr, 0); // clear it 
 		firstptr = strtok_r(lineptr, "\t", &tok_buf); /* tokenize it on the TAB */
 		// Now loop through the fields and init the struct we already have allocated 

@@ -4380,7 +4380,7 @@ int SLAPI PPLocAddrStruc::GetTok(AddrTok & rTok)
 		temp_buf.Z();
 		char c = Scan[0];
 		const char * p_div = ",;()[]{}";
-		if(strchr(p_div, c)) {
+		if(sstrchr(p_div, c)) {
 			temp_buf.CatChar(c);
 			rTok.T = rTok.tDiv;
 			rTok.S = temp_buf;

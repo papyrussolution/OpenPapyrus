@@ -736,7 +736,7 @@ static xmlChar * xmlCatalogUnWrapURN(const xmlChar * urn)
  *
  * Returns the resulting document tree or NULL in case of error
  */
-xmlDocPtr xmlParseCatalogFile(const char * filename) 
+xmlDoc * xmlParseCatalogFile(const char * filename) 
 {
 	xmlDoc * ret;
 	char * directory = NULL;

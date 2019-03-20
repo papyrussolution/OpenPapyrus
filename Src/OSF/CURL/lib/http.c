@@ -178,9 +178,9 @@ char * Curl_copy_header_value(const char * header)
 	while(*start && ISSPACE(*start))
 		start++;
 	// data is in the host encoding so use '\r' and '\n' instead of 0x0d and 0x0a 
-	end = strchr(start, '\r');
-	SETIFZ(end, strchr(start, '\n'));
-	SETIFZ(end, strchr(start, '\0'));
+	end = sstrchr(start, '\r');
+	SETIFZ(end, sstrchr(start, '\n'));
+	SETIFZ(end, sstrchr(start, '\0'));
 	if(!end)
 		return NULL;
 	// skip all trailing space letters 
@@ -1092,14 +1092,14 @@ bool Curl_compareheader(const char * headerline, /* line to check */
 		start++;
 
 	/* find the end of the header line */
-	end = strchr(start, '\r'); /* lines end with CRLF */
+	end = sstrchr(start, '\r'); /* lines end with CRLF */
 	if(!end) {
 		/* in case there's a non-standard compliant line here */
-		end = strchr(start, '\n');
+		end = sstrchr(start, '\n');
 
 		if(!end)
 			/* hm, there's no line ending here, use the zero byte! */
-			end = strchr(start, '\0');
+			end = sstrchr(start, '\0');
 	}
 
 	len = end-start; /* length of the content part of the input line */
@@ -1364,7 +1364,7 @@ CURLcode Curl_add_custom_headers(struct connectdata * conn,
 		headers = h[i];
 
 		while(headers) {
-			ptr = strchr(headers->data, ':');
+			ptr = sstrchr(headers->data, ':');
 			if(ptr) {
 				/* we require a colon for this to be a true header */
 
@@ -1407,7 +1407,7 @@ CURLcode Curl_add_custom_headers(struct connectdata * conn,
 				}
 			}
 			else {
-				ptr = strchr(headers->data, ';');
+				ptr = sstrchr(headers->data, ';');
 				if(ptr) {
 					ptr++; /* pass the semicolon */
 					while(*ptr && ISSPACE(*ptr))
@@ -1698,12 +1698,12 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 				/* since the 'cookiehost' is an allocated memory area that will be
 				   freed later we cannot simply increment the pointer */
 				memmove(cookiehost, cookiehost + 1, sstrlen(cookiehost) - 1);
-				closingbracket = strchr(cookiehost, ']');
+				closingbracket = sstrchr(cookiehost, ']');
 				if(closingbracket)
 					*closingbracket = 0;
 			}
 			else {
-				char * colon = strchr(cookiehost + startsearch, ':');
+				char * colon = sstrchr(cookiehost + startsearch, ':');
 				if(colon)
 					*colon = 0;  /* The host must not include an embedded port number */
 			}
@@ -2421,15 +2421,15 @@ static void print_http_error(struct Curl_easy * data)
 	/* make sure that data->req.p points to the HTTP status line */
 	if(!strncmp(beg, "HTTP", 4)) {
 		/* skip to HTTP status code */
-		beg = strchr(beg, ' ');
+		beg = sstrchr(beg, ' ');
 		if(beg && *++beg) {
 			/* find trailing CR */
 			char end_char = '\r';
-			char * end = strchr(beg, end_char);
+			char * end = sstrchr(beg, end_char);
 			if(!end) {
 				/* try to find LF (workaround for non-compliant HTTP servers) */
 				end_char = '\n';
-				end = strchr(beg, end_char);
+				end = sstrchr(beg, end_char);
 			}
 			if(end) {
 				/* temporarily replace CR or LF by NUL and print the error message */

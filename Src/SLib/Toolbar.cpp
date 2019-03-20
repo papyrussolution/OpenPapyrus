@@ -698,7 +698,7 @@ TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb) : P_Toolbar(pTb), hI
 				uint   idx = 0;
 				P_Toolbar->Items.searchKeyCode(tb.idCommand, &idx);
 				STRNSCPY(temp_buf, SUcSwitch(P_Toolbar->Items.getItem(idx).ToolTipText));
-				char * p = strchr(temp_buf, '\t');
+				TCHAR * p = sstrchr(temp_buf, '\t');
 				if(p)
 					*p = 0;
 				lvi.pszText = temp_buf; // @unicodeproblem
@@ -710,7 +710,8 @@ TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb) : P_Toolbar(pTb), hI
 				str_buf.Quot('-', '-');
 				str_buf.Quot('-', '-');
 				str_buf.Quot('-', '-');
-				str_buf.CopyTo(div_text_buf, SIZEOFARRAY(div_text_buf));
+				// @v10.3.10 str_buf.CopyTo(div_text_buf, SIZEOFARRAY(div_text_buf));
+				STRNSCPY(div_text_buf, SUcSwitch(str_buf)); // @v10.3.10 
 				lvi.pszText = div_text_buf; // @unicodeproblem
 			}
 			lvi.lParam = i;

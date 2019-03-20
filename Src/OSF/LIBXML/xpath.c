@@ -2882,13 +2882,9 @@ static void xmlXPathFormatNumber(double number, char buffer[], int buffersize)
 		    break;
 	}
 }
-
-/************************************************************************
-*									*
-*			Routines to handle NodeSets			*
-*									*
-************************************************************************/
-
+//
+// Routines to handle NodeSets
+//
 /**
  * xmlXPathOrderDocElems:
  * @doc:  an input document
@@ -2902,7 +2898,7 @@ static void xmlXPathFormatNumber(double number, char buffer[], int buffersize)
  * Returns the number of elements found in the document or -1 in case
  *  of error.
  */
-long xmlXPathOrderDocElems(xmlDocPtr doc)
+long xmlXPathOrderDocElems(xmlDoc * doc)
 {
 	long count = 0;
 	xmlNode * cur;
@@ -4912,7 +4908,7 @@ xmlXPathObjectPtr xmlXPathObjectCopy(xmlXPathObject * val)
 		    if(val->nodesetval && val->nodesetval->nodeTab) {
 			    xmlNode * cur;
 				xmlNode * tmp;
-			    xmlDocPtr top;
+			    xmlDoc * top;
 			    ret->boolval = 1;
 			    top =  xmlNewDoc(NULL);
 			    top->name = (char *)sstrdup(val->nodesetval->nodeTab[0]->name);
@@ -5523,7 +5519,7 @@ xmlXPathObjectPtr xmlXPathConvertBoolean(xmlXPathObject * val)
  *
  * Returns the xmlXPathContext just allocated. The caller will need to free it.
  */
-xmlXPathContextPtr xmlXPathNewContext(xmlDocPtr doc)
+xmlXPathContextPtr xmlXPathNewContext(xmlDoc * doc)
 {
 	xmlXPathContextPtr ret = (xmlXPathContextPtr)SAlloc::M(sizeof(xmlXPathContext));
 	if(!ret) {
@@ -10805,7 +10801,7 @@ static int xmlXPathCompOpEvalPredicate(xmlXPathParserContextPtr ctxt,
 		xmlXPathContextPtr xpctxt = ctxt->context;
 		xmlNode * contextNode;
 		xmlNode * oldContextNode;
-		xmlDocPtr oldContextDoc;
+		xmlDoc * oldContextDoc;
 		int i, res, contextPos = 0, newContextSize;
 		xmlXPathStepOpPtr exprOp;
 		xmlXPathObjectPtr contextObj = NULL, exprRes = NULL;
@@ -10968,7 +10964,7 @@ static int xmlXPathCompOpEvalPositionalPredicate(xmlXPathParserContextPtr ctxt,
 		return (contextSize);
 	}
 	else {
-		xmlDocPtr oldContextDoc;
+		xmlDoc * oldContextDoc;
 		int i, pos = 0, newContextSize = 0, contextPos = 0, res;
 		xmlXPathStepOpPtr exprOp;
 		xmlXPathObjectPtr contextObj = NULL, exprRes = NULL;
@@ -11910,10 +11906,9 @@ error:
 		xmlXPathCompExprPtr comp;
 		xmlXPathObjectPtr arg1, arg2;
 		xmlNode * bak;
-		xmlDocPtr bakd;
+		xmlDoc * bakd;
 		int pp;
 		int cs;
-
 		CHECK_ERROR0;
 		comp = ctxt->comp;
 		switch(op->op) {
@@ -12005,7 +12000,7 @@ error:
 		xmlXPathObject * obj;
 		xmlNodeSetPtr oldset;
 		xmlNode * oldnode;
-		xmlDocPtr oldDoc;
+		xmlDoc * oldDoc;
 		int i;
 		CHECK_ERROR0;
 		comp = ctxt->comp;
@@ -12288,7 +12283,7 @@ static int xmlXPathCompOpEval(xmlXPathParserContextPtr ctxt, xmlXPathStepOpPtr o
 	xmlXPathCompExprPtr comp;
 	xmlXPathObjectPtr arg1, arg2;
 	xmlNode * bak;
-	xmlDocPtr bakd;
+	xmlDoc * bakd;
 	int pp;
 	int cs;
 	CHECK_ERROR0;
@@ -12603,7 +12598,7 @@ static int xmlXPathCompOpEval(xmlXPathParserContextPtr ctxt, xmlXPathStepOpPtr o
 			xmlNodeSetPtr newset = NULL;
 			xmlNodeSetPtr oldset;
 			xmlNode * oldnode;
-			xmlDocPtr oldDoc;
+			xmlDoc * oldDoc;
 			int i;
 
 			/*

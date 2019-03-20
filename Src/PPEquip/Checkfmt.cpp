@@ -1403,7 +1403,7 @@ int SLAPI PPSlipFormat::WrapText(const char * pText, uint maxLen, SString & rHea
 			const char * p_wraps = " .,;:()=?!&-";
 			int    is_space = 0;
 			//while(pText[temp_pos] != ' ')
-			while(!strchr(p_wraps, pText[temp_pos])) {
+			while(!sstrchr(p_wraps, pText[temp_pos])) {
 				if(pText[temp_pos] == ' ')
 					is_space = 1;
 				if(temp_pos)

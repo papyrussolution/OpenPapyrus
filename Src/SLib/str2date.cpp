@@ -299,11 +299,11 @@ int FASTCALL strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, lon
 			}
 		}
 		if(!done) {
-			const  char * p_div = strchr(p, ' ');
+			const  char * p_div = sstrchr(p, ' ');
 			dt_buf[0] = 0;
 			tm_buf[0] = 0;
-			SETIFZ(p_div, strchr(p, 'T'));
-			SETIFZ(p_div, strchr(p, 't'));
+			SETIFZ(p_div, sstrchr(p, 'T'));
+			SETIFZ(p_div, sstrchr(p, 't'));
 			if(p_div) {
 				size_t dp = 0;
 				while(p != p_div && (dp+1) < sizeof(dt_buf))

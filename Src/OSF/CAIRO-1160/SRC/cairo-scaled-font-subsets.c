@@ -1154,7 +1154,7 @@ cairo_int_status_t _cairo_escape_ps_name(char ** ps_name)
 
 		while(*src && dst < buf + 127) {
 			uchar c = *src;
-			if(c < 0x21 || c > 0x7e || strchr(reserved, c)) {
+			if(c < 0x21 || c > 0x7e || sstrchr(reserved, c)) {
 				if(dst + 4 > buf + 127)
 					break;
 

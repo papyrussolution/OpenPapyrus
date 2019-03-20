@@ -2020,7 +2020,7 @@ uint FASTCALL UriNormalizeSyntaxMaskRequired(const UriUri * uri)
 	memcpy(&writeableClone, uri, 1*sizeof(UriUri));
 	UriNormalizeSyntaxEngine(&writeableClone, 0, &res);
  #else
-	UriNormalizeSyntaxEngine((UriUri *)uri, 0, &res);
+	UriNormalizeSyntaxEngine(const_cast<UriUri *>(uri), 0, &res); // @badcast
  #endif
 	return res;
 }
@@ -2032,7 +2032,7 @@ int FASTCALL UriNormalizeSyntaxEx(UriUri * uri, uint mask)
 
 int FASTCALL UriNormalizeSyntax(UriUri * uri)
 {
-	return UriNormalizeSyntaxEx(uri,(uint)-1);
+	return UriNormalizeSyntaxEx(uri, static_cast<uint>(-1));
 }
 //
 //
@@ -2071,7 +2071,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 	// [02/19] if defined(scheme) then 
 	if(uri->Scheme.P_First) {
 		// [03/19] append scheme to result; 
-		const int charsToWrite =(int)(uri->Scheme.P_AfterLast-uri->Scheme.P_First);
+		const int charsToWrite = static_cast<int>(uri->Scheme.P_AfterLast-uri->Scheme.P_First);
 		if(dest) {
 			if((written+charsToWrite) <= maxChars) {
 				memcpy(dest+written, uri->Scheme.P_First, charsToWrite*sizeof(char));
@@ -2123,7 +2123,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 		// [08/19] append authority to result; 
 		// UserInfo 
 		if(uri->UserInfo.P_First) {
-			const int charsToWrite =(int)(uri->UserInfo.P_AfterLast-uri->UserInfo.P_First);
+			const int charsToWrite = static_cast<int>(uri->UserInfo.P_AfterLast-uri->UserInfo.P_First);
 			if(dest) {
 				if(written+charsToWrite <= maxChars) {
 					memcpy(dest+written, uri->UserInfo.P_First, charsToWrite*sizeof(char));
@@ -2267,7 +2267,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 		}
 		else if(uri->HostData.ipFuture.P_First) {
 			/* IPvFuture */
-			const int charsToWrite =(int)(uri->HostData.ipFuture.P_AfterLast-uri->HostData.ipFuture.P_First);
+			const int charsToWrite = static_cast<int>(uri->HostData.ipFuture.P_AfterLast-uri->HostData.ipFuture.P_First);
 			if(dest) {
 				if(written+1 <= maxChars) {
 					memcpy(dest+written, _UT("["), 1*sizeof(char));
@@ -2303,7 +2303,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 		}
 		else if(uri->HostText.P_First) {
 			// Regname 
-			const int charsToWrite = (int)uri->HostText.Len();
+			const int charsToWrite = static_cast<int>(uri->HostText.Len());
 			if(dest) {
 				if(written+charsToWrite <= maxChars) {
 					memcpy(dest+written, uri->HostText.P_First, charsToWrite*sizeof(char));
@@ -2410,8 +2410,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 		/* [12/19]		append "?" to result; */
 		if(dest) {
 			if(written+1 <= maxChars) {
-				memcpy(dest+written, _UT("?"),
-					1*sizeof(char));
+				memcpy(dest+written, _UT("?"), 1*sizeof(char));
 				written += 1;
 			}
 			else {
@@ -2425,7 +2424,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 		}
 		/* [13/19]		append query to result; */
 		{
-			const int charsToWrite = (int)(uri->query.P_AfterLast-uri->query.P_First);
+			const int charsToWrite = static_cast<int>(uri->query.P_AfterLast-uri->query.P_First);
 			if(dest) {
 				if(written+charsToWrite <= maxChars) {
 					memcpy(dest+written, uri->query.P_First, charsToWrite*sizeof(char));
@@ -2462,7 +2461,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 		}
 		/* [17/19]		append fragment to result; */
 		{
-			const int charsToWrite = (int)(uri->fragment.P_AfterLast-uri->fragment.P_First);
+			const int charsToWrite = static_cast<int>(uri->fragment.P_AfterLast-uri->fragment.P_First);
 			if(dest) {
 				if(written+charsToWrite <= maxChars) {
 					memcpy(dest+written, uri->fragment.P_First, charsToWrite*sizeof(char));
@@ -2503,32 +2502,37 @@ int UriParseIpFourAddress(uchar * octetOutput, const char * first, const char * 
 	const char * after;
 	UriIp4Parser parser;
 	/* Essential checks */
-	if((octetOutput == NULL) ||(first == NULL) ||(afterLast <= first)) {
+	if(!octetOutput || !first || (afterLast <= first)) {
+		SLS.SetError(SLERR_URI_SYNTAX, first);
 		return SLERR_URI_SYNTAX;
 	}
 	/* Reset parser */
 	parser.stackCount = 0;
 	/* Octet #1 */
 	after = UriParseDecOctet(&parser, first, afterLast);
-	if((after == NULL) ||(after >= afterLast) ||(*after != _UT('.'))) {
+	if(!after || (after >= afterLast) || (*after != _UT('.'))) {
+		SLS.SetError(SLERR_URI_SYNTAX, first);
 		return SLERR_URI_SYNTAX;
 	}
 	uriStackToOctet(&parser, octetOutput);
 	/* Octet #2 */
 	after = UriParseDecOctet(&parser, after+1, afterLast);
-	if((after == NULL) ||(after >= afterLast) ||(*after != _UT('.'))) {
+	if(!after || (after >= afterLast) || (*after != _UT('.'))) {
+		SLS.SetError(SLERR_URI_SYNTAX, first);
 		return SLERR_URI_SYNTAX;
 	}
 	uriStackToOctet(&parser, octetOutput+1);
 	/* Octet #3 */
 	after = UriParseDecOctet(&parser, after+1, afterLast);
-	if((after == NULL) ||(after >= afterLast) ||(*after != _UT('.'))) {
+	if(!after || (after >= afterLast) || (*after != _UT('.'))) {
+		SLS.SetError(SLERR_URI_SYNTAX, first);
 		return SLERR_URI_SYNTAX;
 	}
 	uriStackToOctet(&parser, octetOutput+2);
 	/* Octet #4 */
 	after = UriParseDecOctet(&parser, after+1, afterLast);
 	if(after != afterLast) {
+		SLS.SetError(SLERR_URI_SYNTAX, first);
 		return SLERR_URI_SYNTAX;
 	}
 	uriStackToOctet(&parser, octetOutput+3);
@@ -2745,6 +2749,7 @@ void FASTCALL UriParserState::StopSyntax(const char * pErrorPos)
 {
 	CALLPTRMEMB(P_Uri, Destroy());
 	P_ErrorPos = pErrorPos;
+	SLS.SetAddedMsgString(pErrorPos); // @v10.3.10
 	ErrorCode = SLERR_URI_SYNTAX;
 }
 
@@ -4113,7 +4118,7 @@ int FASTCALL UriParserState::ParseUriEx(const char * pFirst, const char * pAfter
 		// Parse 
 		const char * p_after_uri_reference = ParseUriReference(pFirst, pAfterLast);
 		THROW_S(p_after_uri_reference, ErrorCode);
-		THROW_S(p_after_uri_reference == pAfterLast, SLERR_URI_SYNTAX);
+		THROW_S_S(p_after_uri_reference == pAfterLast, SLERR_URI_SYNTAX, pFirst);
 	}
 	CATCHZOK
 	return ok;

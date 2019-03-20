@@ -1243,7 +1243,7 @@ int SrConceptParser::_ReadLine()
 int FASTCALL SrConceptParser::_IsWordbreakChar(int c)
 {
 	static const char * p_wb = " \t{}[]()<>,.;:!@#%^&*=+`~'?¹/|\\";
-	return (c == 0 || strchr(p_wb, c));
+	return (c == 0 || sstrchr(p_wb, c));
 }
 
 int SrConceptParser::_SkipSpaces(int * pToken, SString & rExtBuf)

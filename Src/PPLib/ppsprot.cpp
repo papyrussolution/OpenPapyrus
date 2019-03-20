@@ -366,7 +366,7 @@ int SLAPI PPJobSrvClient::Connect(const char * pAddr, int port)
 		InetAddr addr;
 		SString addr_buf;
 		if(pAddr) {
-			const char * p = strchr(pAddr, ':');
+			const char * p = sstrchr(pAddr, ':');
 			if(p) {
 				addr_buf.CatN(pAddr, (size_t)(p - pAddr));
 				port = atoi(p+1);

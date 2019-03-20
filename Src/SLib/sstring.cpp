@@ -507,7 +507,7 @@ int SLAPI SStrScan::GetWord(const char * pDiv, SString & rBuf)
 	rBuf.Z();
 	size_t p = Offs;
 	char   c = P_Buf[p];
-	while(c != 0 && !strchr(pDiv, c)) {
+	while(c != 0 && !sstrchr(pDiv, c)) {
 		c = P_Buf[++p];
 	}
 	if(p > Offs) {
@@ -2109,7 +2109,7 @@ SString & SLAPI SString::TrimToDiv(size_t n, const char * pDivList)
 			size_t p = n;
 			if(p)
 				do {
-					if(strchr(pDivList, P_Buf[--p])) {
+					if(sstrchr(pDivList, P_Buf[--p])) {
 						n = p;
 						break;
 					}
@@ -4404,7 +4404,7 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 			scan.IncrLen();
 		}
 		else {
-			p = strchr(scan, ':');
+			p = sstrchr(scan, ':');
 			if(p) {
 				scan.SetLen(p-scan);
 				scan.Get(Drv);
@@ -4433,7 +4433,7 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 			scan.Push();
 			const size_t start = scan.GetOffs();
 			const char * p_last_dot = 0;
-			while((p = strchr(scan, '.')) != 0) {
+			while((p = sstrchr(scan, '.')) != 0) {
 				p_last_dot = p;
 				scan.Incr(p-scan+1);
 			}

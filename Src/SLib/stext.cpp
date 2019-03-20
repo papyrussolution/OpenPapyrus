@@ -1855,14 +1855,14 @@ int FASTCALL _koi8_to_866(int c)
 char * FASTCALL SOemToChar(char * pStr)
 {
 	if(pStr)
-		OemToChar(pStr, pStr); // @unicodeproblem
+		OemToCharA(pStr, pStr); // @unicodeproblem
 	return pStr;
 }
 
 char * FASTCALL SCharToOem(char * pStr)
 {
 	if(pStr)
-		CharToOem(pStr, pStr); // @unicodeproblem
+		CharToOemA(pStr, pStr); // @unicodeproblem
 	return pStr;
 }
 //
@@ -1886,13 +1886,16 @@ char * FASTCALL SCharToOem(char * pStr)
 	}
 	return ok;
 }*/
+static FORCEINLINE size_t FASTCALL implement_sstrlen(const char * pStr) { return (pStr && pStr[0]) ? /*xeos_*/strlen(pStr) : 0; }
+static FORCEINLINE size_t FASTCALL implement_sstrlen(const uchar * pStr) { return (pStr && pStr[0]) ? /*xeos_*/strlen(reinterpret_cast<const char *>(pStr)) : 0; }
+static FORCEINLINE size_t FASTCALL implement_sstrlen(const wchar_t * pStr) { return (pStr && pStr[0]) ? wcslen(pStr) : 0; }
 //
 // Descr: копирует сроку from в буфер to и возвращает указатель на
 //   завершающий нулевой символ строки to.
 //
 char * FASTCALL stpcpy(char *to, const char *from)
 {
-	size_t len = sstrlen(from);
+	size_t len = implement_sstrlen(from);
 	if(len)
 		memcpy(to, from, len+1);
 	return (to+len);
@@ -1903,14 +1906,48 @@ char * FASTCALL stpcpy(char *to, const char *from)
 int    FASTCALL isempty(const char * pStr) { return BIN(pStr == 0 || pStr[0] == 0); }
 int    FASTCALL isempty(const uchar * pStr) { return BIN(pStr == 0 || pStr[0] == 0); }
 int    FASTCALL isempty(const wchar_t * pStr) { return BIN(pStr == 0 || pStr[0] == 0); }
-size_t FASTCALL sstrlen(const char * pStr) { return (pStr && pStr[0]) ? /*xeos_*/strlen(pStr) : 0; }
-size_t FASTCALL sstrlen(const uchar * pStr) { return (pStr && pStr[0]) ? /*xeos_*/strlen(reinterpret_cast<const char *>(pStr)) : 0; }
-size_t FASTCALL sstrlen(const wchar_t * pStr) { return (pStr && pStr[0]) ? wcslen(pStr) : 0; }
+size_t FASTCALL sstrlen(const char * pStr) { return implement_sstrlen(pStr); }
+size_t FASTCALL sstrlen(const uchar * pStr) { return implement_sstrlen(pStr); }
+size_t FASTCALL sstrlen(const wchar_t * pStr) { return implement_sstrlen(pStr); }
+
+const char * FASTCALL sstrchr(const char * pStr, char c)
+{
+	const  size_t len = implement_sstrlen(pStr);
+	const  char * p = len ? static_cast<const char *>(memchr(pStr, static_cast<uchar>(c), len)) : 0;
+	return p;
+}
+
+char * FASTCALL sstrchr(char * pStr, char c)
+{
+	const  size_t len = implement_sstrlen(pStr);
+	char * p = len ? static_cast<char *>(memchr(pStr, static_cast<uchar>(c), len)) : 0;
+	return p;
+}
+
+const wchar_t * FASTCALL sstrchr(const wchar_t * pStr, wchar_t c)
+{
+	const  size_t len = implement_sstrlen(pStr);
+	for(size_t i = 0; i < len; i++) {
+		if(pStr[i] == c)
+			return (pStr+i);
+	}
+	return 0;
+}
+
+wchar_t * FASTCALL sstrchr(wchar_t * pStr, wchar_t c)
+{
+	const  size_t len = implement_sstrlen(pStr);
+	for(size_t i = 0; i < len; i++) {
+		if(pStr[i] == c)
+			return (pStr+i);
+	}
+	return 0;
+}
 
 char * FASTCALL sstrdup(const char * pStr)
 {
 	if(pStr) {
-		size_t len = sstrlen(pStr) + 1;
+		size_t len = implement_sstrlen(pStr) + 1;
 		char * p = static_cast<char *>(SAlloc::M(len));
 		return p ? static_cast<char *>(memcpy(p, pStr, len)) : 0;
 	}
@@ -1921,12 +1958,23 @@ char * FASTCALL sstrdup(const char * pStr)
 uchar * FASTCALL sstrdup(const uchar * pStr)
 {
 	if(pStr) {
-		size_t len = sstrlen(reinterpret_cast<const char *>(pStr)) + 1;
+		size_t len = implement_sstrlen(reinterpret_cast<const char *>(pStr)) + 1;
 		uchar * p = static_cast<uchar *>(SAlloc::M(len));
 		return p ? static_cast<uchar *>(memcpy(p, pStr, len)) : 0;
 	}
 	else
 		return 0;
+}
+
+int FASTCALL sstreq(const wchar_t * pS1, const wchar_t * pS2)
+{
+	if(pS1 != pS2)
+		if(pS1)
+            return (pS2 && pS1[0] == pS2[0]) ? BIN(pS1[0] == 0 || wcscmp(pS1, pS2) == 0) : 0;
+		else
+			return 0;
+	else
+		return 1;
 }
 
 int FASTCALL sstreq(const char * pS1, const char * pS2)
@@ -1978,7 +2026,7 @@ static bool __forceinline chreqi_ascii(int c1, int c2)
 bool FASTCALL sstreqi_ascii(const char * pS1, const char * pS2)
 {
 	if(pS1 != pS2) {
-        const size_t len = sstrlen(pS1);
+        const size_t len = implement_sstrlen(pS1);
         if(len != sstrlen(pS2))
 			return false;
 		else if(len) {
@@ -1993,8 +2041,8 @@ bool FASTCALL sstreqi_ascii(const char * pS1, const char * pS2)
 bool FASTCALL sstreqi_ascii(const uchar * pS1, const uchar * pS2)
 {
 	if(pS1 != pS2) {
-        const size_t len = sstrlen(pS1);
-        if(len != sstrlen(pS2))
+        const size_t len = implement_sstrlen(pS1);
+        if(len != implement_sstrlen(pS2))
 			return false;
 		else if(len) {
             for(size_t i = 0; i < len; i++)
@@ -2008,7 +2056,7 @@ bool FASTCALL sstreqi_ascii(const uchar * pS1, const uchar * pS2)
 bool FASTCALL sstreqi_ascii(const wchar_t * pS1, const wchar_t * pS2)
 {
 	if(pS1 != pS2) {
-        const size_t len = sstrlen(pS1);
+        const size_t len = implement_sstrlen(pS1);
         if(len != sstrlen(pS2))
 			return false;
 		else if(len) {
@@ -2023,8 +2071,8 @@ bool FASTCALL sstreqi_ascii(const wchar_t * pS1, const wchar_t * pS2)
 bool FASTCALL sstreqi_ascii(const wchar_t * pS1, const char * pS2)
 {
 	if(static_cast<const void *>(pS1) != static_cast<const void *>(pS2)) {
-        const size_t len = sstrlen(pS1);
-        if(len != sstrlen(pS2))
+        const size_t len = implement_sstrlen(pS1);
+        if(len != implement_sstrlen(pS2))
 			return false;
 		else if(len) {
             for(size_t i = 0; i < len; i++)
@@ -2041,7 +2089,7 @@ size_t FASTCALL sisascii(const char * pS, size_t len)
 	if(pS && len) {
 		const size_t oct_count = len / 8;
 		size_t p = 0;
-		const int8 * _ = (const int8 *)pS;
+		const int8 * _ = reinterpret_cast<const int8 *>(pS);
 		for(uint i = 0; yes && i < oct_count; i++) {
 			yes = (((_[p] | _[p+1] | _[p+2] | _[p+3] | _[p+4] | _[p+5] | _[p+6] | _[p+7]) & 0x80) == 0);
 			p += 8;
@@ -2057,7 +2105,7 @@ size_t FASTCALL sisascii(const char * pS, size_t len)
 char * FASTCALL newStr(const char * s)
 {
 	if(s) {
-		size_t len = sstrlen(s) + 1;
+		size_t len = implement_sstrlen(s) + 1;
 		char * p = new char[len];
 		return p ? (char *)memcpy(p, s, len) : 0;
 	}
@@ -2137,14 +2185,14 @@ char * FASTCALL trimleft(char * pStr)
 		do {
 			p++;
 		} while(*p == ' ');
-		memmove(pStr, p, sstrlen(p)+1);
+		memmove(pStr, p, implement_sstrlen(p)+1);
 	}
 	return pStr;
 }
 
 char * FASTCALL trimright(char * pStr)
 {
-	size_t len = sstrlen(pStr);
+	size_t len = implement_sstrlen(pStr);
 	if(len) {
 		size_t t = len-1;
 		while(t && pStr[t] == ' ')
@@ -2157,10 +2205,11 @@ char * FASTCALL trimright(char * pStr)
 
 char * FASTCALL strip(char * pStr)
 {
-	if(pStr && *pStr) {
+	const size_t org_len = implement_sstrlen(pStr);
+	if(org_len) {
 		char * p = pStr;
 		char * q = pStr;
-		char * back = pStr+sstrlen(pStr)-1;
+		char * back = pStr + org_len - 1;
 		while(*back == ' ' && back >= p)
 			back--;
 		while(*p == ' ' && p <= back)
@@ -2180,7 +2229,7 @@ char * FASTCALL strip(char * pStr)
 char * FASTCALL chomp(char * s)
 {
 	if(s) {
-		size_t n = sstrlen(s);
+		size_t n = implement_sstrlen(s);
 		if(s[n-1] == '\n') {
 			if(s[n-2] == '\r')
 				s[n-2] = 0;
@@ -2248,14 +2297,14 @@ char * FASTCALL chomp(char * s)
 //
 char * FASTCALL padleft(char * pStr, char pad, size_t n)
 {
-	memmove(pStr+n, pStr, sstrlen(pStr)+1);
+	memmove(pStr+n, pStr, implement_sstrlen(pStr)+1);
 	memset(pStr, pad, n);
 	return pStr;
 }
 
 char * FASTCALL padright(char * pStr, char pad, size_t n)
 {
-	size_t len = sstrlen(pStr);
+	size_t len = implement_sstrlen(pStr);
 	memset(pStr + len, pad, n);
 	pStr[len+n] = 0;
 	return pStr;
@@ -2264,7 +2313,7 @@ char * FASTCALL padright(char * pStr, char pad, size_t n)
 char * SLAPI alignstr(char * pStr, size_t wd, int adj)
 {
 	if(pStr) {
-		size_t len = sstrlen(strip(pStr));
+		size_t len = implement_sstrlen(strip(pStr));
 		if(wd > len) {
 			size_t n = (wd - len);
 			switch(adj) {
@@ -2315,8 +2364,8 @@ int SLAPI searchstr(const char * pStr, const SSrchParam & rParam, size_t * pBeg,
 	if(!isempty(pStr) && !isempty(pat)) {
 		while(1) {
 			if((p = (f & SSPF_NOCASE) ? stristr866(s, pat) : strstr(s, pat)) != 0) {
-				size_t len = sstrlen(pat);
-				pos += (uint)(p - s);
+				size_t len = implement_sstrlen(pat);
+				pos += static_cast<uint>(p - s);
 				if(f & SSPF_WORDS)
 					if(iswordchar(p[len], wch)) {
 						s = &pStr[++pos];
@@ -2343,7 +2392,8 @@ int SLAPI hostrtocstr(const char * pInBuf, char * pOutBuf, size_t outBufSize)
 {
 	int    digit = -1, base = 0;
 	uint   prcsd_symbs = 0;
-	size_t pos = 0, len = 0, in_buf_len = sstrlen(pInBuf);
+	size_t pos = 0, len = 0;
+	size_t in_buf_len = implement_sstrlen(pInBuf);
 	SSrchParam ss_p("\\", 0, 0);
 	strnzcpy(pOutBuf, pInBuf, outBufSize);
 	while(searchstr(pOutBuf, ss_p, &pos, &len) > 0) {
@@ -2413,7 +2463,7 @@ int SLAPI replacestr(char * str, const char * rstr, size_t * pPos, size_t * pLen
 	if(str && pPos && pLen) {
 		size_t p = *pPos;
 		size_t len = *pLen;
-		size_t rl = sstrlen(rstr);
+		size_t rl = implement_sstrlen(rstr);
 		char * s  = str + p;
 		memmove(s + rl, s + len, sstrlen(s+len) + 1);
 		if(rl)
@@ -2470,7 +2520,7 @@ int SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
 					if(dots_pos >= 0) {
 						ret_buf[dots_pos] = '\0';
 						strcat(ret_buf, p_dots);
-						dest_pos = dots_pos + sstrlen(p_dots) - 1;
+						dest_pos = dots_pos + implement_sstrlen(p_dots) - 1;
 					}
 				}
 				else
@@ -2798,8 +2848,8 @@ int SLAPI ApproxStrCmp(const char * pStr1, const char * pStr2, int noCase, doubl
 int SLAPI ApproxStrSrch(const char * pPattern, const char * pBuffer, ApproxStrSrchParam * param)
 {
 	int    ok = 1;
-	size_t buflen = sstrlen(pBuffer);
-	size_t patlen = sstrlen(pPattern);
+	size_t buflen = implement_sstrlen(pBuffer);
+	size_t patlen = implement_sstrlen(pPattern);
 	if(patlen == 0 && buflen == 0)
 		ok = 1;
 	else if(patlen == 0 || buflen == 0)

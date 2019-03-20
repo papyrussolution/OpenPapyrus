@@ -457,7 +457,7 @@ int SLAPI SMailClient::Auth(int authtype, const char * pName, const char * pPass
 					sprintf(param, "%s %s", user, digest);
 					encode64(param, strlen(param), param_64, sizeof(param_64), 0);
 					THROW(SendCmd(SMTPCMD_AUTH, "CRAM-MD5", reply_buf));
-					decode64(strchr(reply_buf, ' '), strlen(strchr(reply_buf, ' ')), time_stamp, 0);
+					decode64(sstrchr(reply_buf, ' '), strlen(sstrchr(reply_buf, ' ')), time_stamp, 0);
 					THROW(SendCmd(SMTPCMD_STRING, (const char *)param_64, reply_buf));
 				}
 				break;
@@ -552,7 +552,7 @@ int SLAPI SMailClient::Pop3_GetStat(long * pCount, long * pSize)
 	THROW(CheckReply(reply_buf));
 	{
 		const char * p = Pop3_SkipReplyStatus(reply_buf);
-		const char * q = strchr(p, ' ');
+		const char * q = sstrchr(p, ' ');
 		if(q) {
 			msgs_count = atol(p);
 			total_size = atol(q+1);

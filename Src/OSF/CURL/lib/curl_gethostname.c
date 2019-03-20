@@ -80,7 +80,7 @@ int Curl_gethostname(char * name, GETHOSTNAME_TYPE_ARG2 namelen)
 	if(err)
 		return err;
 	// Truncate domain, leave only machine name 
-	dot = strchr(name, '.');
+	dot = sstrchr(name, '.');
 	ASSIGN_PTR(dot, '\0');
 	return 0;
 #endif

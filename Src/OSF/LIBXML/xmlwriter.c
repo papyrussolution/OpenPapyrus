@@ -279,7 +279,7 @@ xmlTextWriter * xmlNewTextWriterPushParser(xmlParserCtxt * ctxt, int compression
  *
  * Returns the new xmlTextWriterPtr or NULL in case of error
  */
-xmlTextWriter * xmlNewTextWriterDoc(xmlDocPtr * doc, int compression)
+xmlTextWriter * xmlNewTextWriterDoc(xmlDoc ** doc, int compression)
 {
 	const char * _p_func_name = "xmlNewTextWriterDoc";
 	xmlTextWriter * ret;
@@ -3551,7 +3551,7 @@ static xmlChar * xmlTextWriterVSprintf(const char * format, va_list argptr)
 static void xmlTextWriterStartDocumentCallback(void * ctx)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
-	xmlDocPtr doc;
+	xmlDoc * doc;
 	if(ctxt->html) {
 #ifdef LIBXML_HTML_ENABLED
 		SETIFZ(ctxt->myDoc, htmlNewDocNoDtD(NULL, NULL));

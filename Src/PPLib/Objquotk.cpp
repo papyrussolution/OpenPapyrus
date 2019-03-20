@@ -804,7 +804,7 @@ static int GetDiscount(TDialog * pDlg, uint ctl, PPQuotKind * pRec)
 			pctdisoncost = 1;
 			strcpy(p, p + 1);
 		}
-		else if((p = strchr(buf, '$')) != 0) {
+		else if((p = sstrchr(buf, '$')) != 0) {
 			absdis = 1;
 			strcpy(p, p + 1);
 		}
@@ -871,7 +871,7 @@ int QuotKindDialog::GetTimePeriod(TDialog * pDlg)
 	if(buf[0]) {
 		char * p = 0;
 		LTIME  beg_tm, end_tm;
-		THROW((p = strchr(strip(buf), '.')) != 0 && p[1] == '.');
+		THROW((p = sstrchr(strip(buf), '.')) != 0 && p[1] == '.');
 		*p = 0;
 		strtotime(buf, 0, &beg_tm);
 		THROW(((beg_tm.hour() >= 0 && beg_tm.hour() <= 23) || (beg_tm.hour() == 24 && beg_tm.minut() == 0)) &&

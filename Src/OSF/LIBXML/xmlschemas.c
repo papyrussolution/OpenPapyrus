@@ -286,7 +286,7 @@ struct _xmlSchemaBucket {
 	const xmlChar * schemaLocation;
 	const xmlChar * origTargetNamespace;
 	const xmlChar * targetNamespace;
-	xmlDocPtr doc;
+	xmlDoc * doc;
 	xmlSchemaSchemaRelationPtr relations;
 	int located;
 	int parsed;
@@ -316,7 +316,7 @@ struct xmlSchemaImport {
 	 * targetNamespace of the including schema.
 	 */
 	const xmlChar * targetNamespace;
-	xmlDocPtr doc; /* The schema node-tree. */
+	xmlDoc * doc; /* The schema node-tree. */
 	xmlSchemaSchemaRelationPtr relations; // @relations will hold any included/imported/redefined schemas
 	int located;
 	int parsed;
@@ -486,7 +486,7 @@ struct _xmlSchemaParserCtxt {
 	xmlSchemaPtr schema;    /* The main schema in use */
 	int    counter;
 	const  xmlChar * URL;
-	xmlDocPtr doc;
+	xmlDoc * doc;
 	int    preserve;           /* Whether the doc should be freed  */
 	const  char * buffer;
 	int    size;
@@ -4774,7 +4774,7 @@ static int xmlSchemaPValAttrNodeQNameValue(xmlSchemaParserCtxtPtr ctxt, xmlSchem
 	}
 	else if(ret < 0)
 		return -1;
-	if(!strchr((char *)value, ':')) {
+	if(!sstrchr((char *)value, ':')) {
 		ns = xmlSearchNs(attr->doc, attr->parent, 0);
 		if(ns)
 			*uri = xmlDictLookupSL(ctxt->dict, ns->href);
@@ -8306,7 +8306,7 @@ static xmlSchemaBucketPtr xmlSchemaGetSchemaBucketByTNS(xmlSchemaParserCtxtPtr p
 static int xmlSchemaParseNewDocWithContext(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPtr schema, xmlSchemaBucketPtr bucket)
 {
 	int oldFlags;
-	xmlDocPtr oldDoc;
+	xmlDoc * oldDoc;
 	xmlNode * P_Node;
 	int ret, oldErrs;
 	xmlSchemaBucketPtr oldbucket = pctxt->constructor->bucket;
@@ -8462,12 +8462,12 @@ static const xmlChar * xmlSchemaBuildAbsoluteURI(xmlDict * dict, const xmlChar* 
  */
 
 static int xmlSchemaAddSchemaDoc(xmlSchemaParserCtxtPtr pctxt, int type/* import or include or redefine */,
-    const xmlChar * schemaLocation, xmlDocPtr schemaDoc, const char * schemaBuffer, int schemaBufferLen, xmlNode * invokingNode,
+    const xmlChar * schemaLocation, xmlDoc * schemaDoc, const char * schemaBuffer, int schemaBufferLen, xmlNode * invokingNode,
     const xmlChar * sourceTargetNamespace, const xmlChar * importNamespace, xmlSchemaBucketPtr * bucket)
 {
 	const xmlChar * targetNamespace = NULL;
 	xmlSchemaSchemaRelationPtr relation = NULL;
-	xmlDocPtr doc = NULL;
+	xmlDoc * doc = NULL;
 	int res = 0, err = 0, located = 0, preserveDoc = 0;
 	xmlSchemaBucket * bkt = NULL;
 	ASSIGN_PTR(bucket, NULL);
@@ -10268,7 +10268,7 @@ xmlSchemaParserCtxtPtr xmlSchemaNewMemParserCtxt(const char * buffer, int size)
  *
  * Returns the parser context or NULL in case of error
  */
-xmlSchemaParserCtxtPtr xmlSchemaNewDocParserCtxt(xmlDocPtr doc)
+xmlSchemaParserCtxtPtr xmlSchemaNewDocParserCtxt(xmlDoc * doc)
 {
 	xmlSchemaParserCtxtPtr ret;
 	if(!doc)

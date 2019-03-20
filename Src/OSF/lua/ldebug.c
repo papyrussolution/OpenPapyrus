@@ -303,12 +303,12 @@ LUA_API int lua_getinfo(lua_State * L, const char * what, lua_Debug * ar) {
 	}
 	cl = ttisclosure(func) ? clvalue(func) : NULL;
 	status = auxgetinfo(L, what, ar, cl, ci);
-	if(strchr(what, 'f')) {
+	if(sstrchr(what, 'f')) {
 		setobjs2s(L, L->top, func);
 		api_incr_top(L);
 	}
 	swapextra(L); /* correct before option 'L', which can raise a mem. error */
-	if(strchr(what, 'L'))
+	if(sstrchr(what, 'L'))
 		collectvalidlines(L, cl);
 	lua_unlock(L);
 	return status;

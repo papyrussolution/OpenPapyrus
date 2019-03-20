@@ -185,7 +185,7 @@ static void ColouriseNncrontabDoc(Sci_PositionU startPos, Sci_Position length, i
 				    }
 				    else if(keyword.InList(buffer)) {
 					    styler.ColourTo(i-1, SCE_NNCRONTAB_KEYWORD);
-				    }     // else if(strchr(buffer,'/') || strchr(buffer,'.')) {
+				    }     // else if(sstrchr(buffer,'/') || sstrchr(buffer,'.')) {
 				          //	styler.ColourTo(i-1,SCE_NNCRONTAB_EXTENSION);
 				          // }
 				    else if(modifier.InList(buffer)) {

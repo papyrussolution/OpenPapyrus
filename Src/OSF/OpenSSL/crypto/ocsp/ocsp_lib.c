@@ -114,7 +114,7 @@ int OCSP_parse_url(const char * url, char ** phost, char ** pport, char ** ppath
 	if(!buf)
 		goto mem_err;
 	// Check for initial colon 
-	p = strchr(buf, ':');
+	p = sstrchr(buf, ':');
 	if(!p)
 		goto parse_err;
 	*(p++) = '\0';
@@ -134,7 +134,7 @@ int OCSP_parse_url(const char * url, char ** phost, char ** pport, char ** ppath
 	p += 2;
 	host = p;
 	/* Check for trailing part of path */
-	p = strchr(p, '/');
+	p = sstrchr(p, '/');
 	if(!p)
 		*ppath = OPENSSL_strdup("/");
 	else {
@@ -148,14 +148,14 @@ int OCSP_parse_url(const char * url, char ** phost, char ** pport, char ** ppath
 	if(host[0] == '[') {
 		/* ipv6 literal */
 		host++;
-		p = strchr(host, ']');
+		p = sstrchr(host, ']');
 		if(!p)
 			goto parse_err;
 		*p = '\0';
 		p++;
 	}
 	/* Look for optional ':' for port number */
-	if((p = strchr(p, ':'))) {
+	if((p = sstrchr(p, ':'))) {
 		*p = 0;
 		port = p + 1;
 	}

@@ -26,7 +26,8 @@ static int FindExeByExt(const char * pExt, char * pExe, size_t buflen, const cha
 	// @todo Перестроить функцию с использованием WinRegKey
 	//
 	int    ok = 0;
-	char   buf[MAXPATH], * p_chr = 0;
+	char   buf[MAXPATH];
+	char * p_chr = 0;
 	SString temp_buf;
 	DWORD  v_type = REG_SZ ;
 	DWORD  bufsize = MAXPATH;
@@ -35,12 +36,12 @@ static int FindExeByExt(const char * pExt, char * pExe, size_t buflen, const cha
 		if(SHGetValue(HKEY_CLASSES_ROOT, SUcSwitch(pExt), NULL, &v_type, buf, &bufsize) == ERROR_SUCCESS) { // @unicodeproblem
 			v_type = REG_SZ;
 			bufsize = MAXPATH;
-			if(pAddedSearchString && stricmp(pAddedSearchString, buf)== 0 &&
+			if(pAddedSearchString && stricmp(pAddedSearchString, buf) == 0 &&
 				SHGetValue(HKEY_CLASSES_ROOT, buf, NULL, &v_type, buf, &bufsize) == ERROR_SUCCESS) { // @unicodeproblem
 				v_type = REG_SZ;
 				bufsize = MAXPATH;
 				strip(buf);
-				while((p_chr = strchr(buf, ' ')) != NULL)
+				while((p_chr = sstrchr(buf, ' ')) != NULL)
 					strcpy(p_chr, p_chr + 1);
 			}
 			temp_buf.Z().CatChar('\\').Cat("shell").SetLastSlash().Cat("open").SetLastSlash().Cat("command");
@@ -49,11 +50,11 @@ static int FindExeByExt(const char * pExt, char * pExe, size_t buflen, const cha
 				strip(buf);
 				if(buf[0] == '"') {
 					strcpy(buf, buf + 1);
-					if((p_chr = strchr(buf, '"')) != NULL)
+					if((p_chr = sstrchr(buf, '"')) != NULL)
 						strcpy(p_chr, p_chr + 1);
 				}
-				if((p_chr = strchr(buf, '.')) != NULL)
-					if((p_chr = strchr(p_chr, ' ')) != NULL)
+				if((p_chr = sstrchr(buf, '.')) != NULL)
+					if((p_chr = sstrchr(p_chr, ' ')) != NULL)
 						*p_chr = 0;
 				if(buflen > sstrlen(buf)) {
 					strcpy(pExe, buf);
@@ -1453,7 +1454,7 @@ static int SLAPI SetupGroupSkipping(short hJob)
 	PEGroupOptions grpopt;
 	grpopt.StructSize = sizeof(PEGroupOptions);
 	PEGetGroupOptions(hJob, 0, &grpopt);
-	char * ch = strchr(grpopt.fieldName, '.');
+	char * ch = sstrchr(grpopt.fieldName, '.');
 	if(ch) {
 		*ch = 0;
 		strcat(grpopt.fieldName, "._ID_}");
@@ -1829,7 +1830,7 @@ int SLAPI SReport::printPageHead(int kind, int _newpage)
 		if(f->type == 0) {
 			const char * p, * t;
 			p = t = P_Text+f->offs;
-			while((p = strchr(p, '\n')) != 0)
+			while((p = sstrchr(p, '\n')) != 0)
 				if(P_Prn->pgl == 0 || line < (P_Prn->pgl - PageFtHt)) {
 					p++;
 					line++;
@@ -1924,7 +1925,7 @@ int SLAPI SReport::printDetail()
 		if(f->type == 0) {
 			const char * p, * t;
 			p = t = P_Text+f->offs;
-			while((p = strchr(p, '\n')) != 0)
+			while((p = sstrchr(p, '\n')) != 0)
 				if(P_Prn->pgl == 0 || line < (P_Prn->pgl - PageFtHt)) {
 					p++;
 					line++;
@@ -1960,7 +1961,7 @@ int SLAPI SReport::printTitle(int kind)
 			if(f->type == 0) {
 				const char * p, * t;
 				p = t = P_Text+f->offs;
-				while((p = strchr(p, '\n')) != 0)
+				while((p = sstrchr(p, '\n')) != 0)
 					if(P_Prn->pgl == 0 || line < P_Prn->pgl) {
 						p++;
 						line++;
@@ -2067,7 +2068,7 @@ int SLAPI SaveDataStruct(const char *pDataName, const char *pTempPath, const cha
 		THROW_MEM(p_ssda = new SvdtStrDlgAns);
 		p_ssda->SvDt = 1;
 		strnzcpy(p_ssda->SvDtPath, path, MAXPATH);
-		if((p_chr = strchr(p_chr, '.')) != NULL)
+		if((p_chr = sstrchr(p_chr, '.')) != NULL)
 			p_ssda->EdRep = FindExeByExt(p_chr, cr_path, sizeof(cr_path), "CrystalReports.9.1");
 		else
 			p_ssda->EdRep = 0;
@@ -2414,14 +2415,14 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 						int    is_there_cr = FindExeByExt(".rpt", cr_path, sizeof(cr_path), "CrystalReports.9.1");
 						if(is_there_cr) {
 							(temp_buf = cr_path).Space().Cat(fn);
-							STempBuffer cmd_line(temp_buf.Len() * 2);
-							strnzcpy(cmd_line, temp_buf, cmd_line.GetSize());
+							STempBuffer cmd_line((temp_buf.Len() + 32) * sizeof(TCHAR));
+							strnzcpy(cmd_line, temp_buf, cmd_line.GetSize() / sizeof(TCHAR));
 							STARTUPINFO si;
 							PROCESS_INFORMATION pi;
 							MEMSZERO(si);
 							si.cb = sizeof(si);
 							MEMSZERO(pi);
-							int    r = ::CreateProcess(0, cmd_line, 0, 0, FALSE, 0, 0, 0, &si, &pi); // @unicodeproblem
+							int    r = ::CreateProcess(0, static_cast<TCHAR *>(cmd_line.vptr()), 0, 0, FALSE, 0, 0, 0, &si, &pi); // @unicodeproblem
 							if(!r) {
 								SLS.SetOsError(0);
 								PPSetErrorSLib();

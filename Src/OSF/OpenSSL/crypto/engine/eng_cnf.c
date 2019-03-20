@@ -17,7 +17,7 @@
 
 static const char * FASTCALL skip_dot(const char * name)
 {
-	const char * p = strchr(name, '.');
+	const char * p = sstrchr(name, '.');
 	return p ? (p + 1) : name;
 }
 

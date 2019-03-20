@@ -77,7 +77,7 @@ extern "C" {
 	char *strcat(char *, const char *);
 #endif
 #ifndef HAVE_STRCHR
-	char *strchr(const char *,  int);
+	char *sstrchr(const char *,  int);
 #endif
 #ifndef HAVE_STRDUP
 	char *strdup(const char *);

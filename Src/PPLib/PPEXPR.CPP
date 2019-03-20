@@ -393,7 +393,7 @@ int SLAPI BillContext::Resolve(const char * b, double * pResult)
 	double val = 0.0;
 	char   sel_buf[64];
 	SString form;
-	char * p_delim = const_cast<char *>(strchr(b, '.')); // @badcast
+	char * p_delim = const_cast<char *>(sstrchr(b, '.')); // @badcast
 	*pResult = 0;
 	if(p_delim) {
 		long   sLINK[2], sRCKN[2];
@@ -704,7 +704,7 @@ int SLAPI PPExprParser::GetToken()
 				Next();
 			}
 		}
-		else if(strchr("*)(%/-+=,", Cur)) {
+		else if(sstrchr("*)(%/-+=,", Cur)) {
 			Token = Cur;
 			Next();
 		}

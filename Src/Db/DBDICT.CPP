@@ -242,7 +242,7 @@ SString & SLAPI BDictionary::MakeFileName_(const char * pTblName, SString & rFil
 		char   fpb[256];
 		uint16 bl = 0;
 		SString file_name;
-		if(strchr(pFileName, ' '))
+		if(sstrchr(pFileName, ' '))
 			file_name.Z().CatQStr(pFileName);
 		else
 			file_name = pFileName;

@@ -68,7 +68,7 @@ static int hostmatch(char * hostname, char * pattern)
 	len = sstrlen(pattern);
 	if(pattern[len-1]=='.')
 		pattern[len-1] = 0;
-	pattern_wildcard = strchr(pattern, '*');
+	pattern_wildcard = sstrchr(pattern, '*');
 	if(pattern_wildcard == NULL)
 		return strcasecompare(pattern, hostname) ? CURL_HOST_MATCH : CURL_HOST_NOMATCH;
 	// detect IP address as hostname and fail the match if so 
@@ -80,13 +80,13 @@ static int hostmatch(char * hostname, char * pattern)
 #endif
 	// We require at least 2 dots in pattern to avoid too wide wildcard match
 	wildcard_enabled = 1;
-	pattern_label_end = strchr(pattern, '.');
-	if(pattern_label_end == NULL || strchr(pattern_label_end+1, '.') == NULL || pattern_wildcard > pattern_label_end || strncasecompare(pattern, "xn--", 4)) {
+	pattern_label_end = sstrchr(pattern, '.');
+	if(pattern_label_end == NULL || sstrchr(pattern_label_end+1, '.') == NULL || pattern_wildcard > pattern_label_end || strncasecompare(pattern, "xn--", 4)) {
 		wildcard_enabled = 0;
 	}
 	if(!wildcard_enabled)
 		return strcasecompare(pattern, hostname) ? CURL_HOST_MATCH : CURL_HOST_NOMATCH;
-	hostname_label_end = strchr(hostname, '.');
+	hostname_label_end = sstrchr(hostname, '.');
 	if(hostname_label_end == NULL || !strcasecompare(pattern_label_end, hostname_label_end))
 		return CURL_HOST_NOMATCH;
 	// The wildcard must match at least one character, so the left-most

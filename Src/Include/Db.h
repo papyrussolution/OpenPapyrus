@@ -2475,7 +2475,7 @@ protected:
 private:
 	class InfoFile {
 	public:
-		SLAPI  InfoFile(DbProvider *);
+		explicit SLAPI InfoFile(DbProvider *);
 		SLAPI ~InfoFile();
 		int    SLAPI ReadSet(BCopySet *);
 		int    SLAPI ReadItem(long copyID, BCopyData *);
@@ -2483,7 +2483,7 @@ private:
 		int    SLAPI RemoveRecord(const char * pSet, long id);
 	private:
 		int    SLAPI OpenStream(int readOnly);
-		int    SLAPI CloseStream();
+		void   SLAPI CloseStream();
 		int    SLAPI MakeFileName(const char *, const char *, char *, size_t);
 		int    SLAPI WriteRecord(FILE *, const BCopyData *);
 		int    SLAPI ReadRecord(FILE *, BCopyData *);

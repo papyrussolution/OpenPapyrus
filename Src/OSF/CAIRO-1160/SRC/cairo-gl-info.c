@@ -38,7 +38,7 @@ int _cairo_gl_get_version(void)
 {
 	int major, minor;
 	const char * version = (const char *)glGetString(GL_VERSION);
-	const char * dot = version == NULL ? NULL : strchr(version, '.');
+	const char * dot = version == NULL ? NULL : sstrchr(version, '.');
 	const char * major_start = dot;
 
 	/* Sanity check */

@@ -381,7 +381,7 @@ void SmartListBox::Helper_InsertColumn(uint pos)
 		lv.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
 		lv.cx = 6 * slbc.Width;
 		StrPool.getnz(slbc.TitlePos, title_buf);
-		lv.pszText = const_cast<char *>(title_buf.cptr()); // @badcast // @unicodeproblem
+		lv.pszText = const_cast<TCHAR *>(SUcSwitch(title_buf.cptr())); // @badcast // @unicodeproblem
 		if(slbc.Format & ALIGN_LEFT)
 			lv.fmt = LVCFMT_LEFT;
 		else if(slbc.Format & ALIGN_RIGHT)
@@ -817,7 +817,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				search(0, srchNext);
 			else if(!(State & stOmitSearchByFirstChar)) {
 				char b[2];
-				b[0] = (char)wParam;
+				b[0] = static_cast<char>(wParam);
 				b[1] = 0;
 				SCharToOem(b);
 				uchar ub = b[0];
@@ -829,7 +829,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			// @v10.0.12 {
 			else {
 				char b[2];
-				b[0] = (char)wParam;
+				b[0] = static_cast<char>(wParam);
 				b[1] = 0;
 				SCharToOem(b);
 				uchar ub = b[0];
@@ -846,17 +846,17 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			break;
 		case WM_MOUSEWHEEL:
 			{
-				short delta = (short)HIWORD(wParam);
+				short delta = static_cast<short>(HIWORD(wParam));
 				int   scroll_code = (delta > 0) ? SB_LINEUP : SB_LINEDOWN;
 				for(int i = 0; i < 3; i++)
 					Scroll(scroll_code, 0);
 			}
 			break;
 		case WM_VSCROLL:
-			Scroll(LOWORD(wParam), (int16)HIWORD(wParam));
+			Scroll(LOWORD(wParam), static_cast<int16>(HIWORD(wParam)));
 			break;
 		case WM_NOTIFY:
-			NMHDR * p_nm = (LPNMHDR)lParam;
+			NMHDR * p_nm = reinterpret_cast<LPNMHDR>(lParam);
 			/* @construction
 			if(p_nm->code == LVN_BEGINDRAG) {
 				NMLISTVIEW * p_nmlv = (NMLISTVIEW *)lParam;
@@ -866,15 +866,16 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				switch(p_nm->code) {
 					case TVN_GETDISPINFO:
 						{
-							LPNMTVDISPINFO lptvdi = (LPNMTVDISPINFO)lParam;
+							LPNMTVDISPINFO lptvdi = reinterpret_cast<LPNMTVDISPINFO>(lParam);
 							if(lptvdi->item.mask & TVIF_TEXT) {
 								SString & r_temp_buf = SLS.AcquireRvlStr();
-								GetStringByID(lptvdi->item.lParam, r_temp_buf);
+								GetStringByID(static_cast<long>(lptvdi->item.lParam), r_temp_buf);
 								// @debug {
 								if(!r_temp_buf.NotEmptyS())
 									r_temp_buf.Z().CatChar('#').Cat(lptvdi->item.lParam);
 								// } @debug
-								r_temp_buf.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(lptvdi->item.pszText, 0); // @unicodeproblem
+								// @v10.3.10 r_temp_buf.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(lptvdi->item.pszText, 0); // @unicodeproblem
+								strnzcpy(lptvdi->item.pszText, SUcSwitch(r_temp_buf), lptvdi->item.cchTextMax); // @v10.3.10 
 							}
 							if(lptvdi->item.mask & (TVIF_IMAGE|TVIF_SELECTEDIMAGE)) {
 								long idx = 0;
@@ -890,7 +891,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 						break;
 					case TVN_SELCHANGED:
 						{
-							LPNMTREEVIEW pnmtv = (LPNMTREEVIEW) lParam;
+							LPNMTREEVIEW pnmtv = reinterpret_cast<LPNMTREEVIEW>(lParam);
 							static_cast<StdTreeListBoxDef *>(def)->GoByID(pnmtv->itemNew.lParam);
 							if(def->Options & lbtFocNotify)
 								MessageCommandToOwner(cmLBItemFocused);
@@ -1526,7 +1527,7 @@ void SmartListBox::Implement_Draw()
 					}
 					for(uint k = 0, pos = 0; k < cc; k++) {
 						ss.get(&pos, cell_buf);
-						lvi.pszText  = const_cast<char *>(cell_buf.Strip().cptr()); // @badcast // @unicodeproblem
+						lvi.pszText  = const_cast<TCHAR *>(SUcSwitch(cell_buf.Strip().cptr())); // @badcast // @unicodeproblem
 						lvi.iSubItem = k;
 						if(k) {
 							// lvi.mask &= ~LVIF_IMAGE;

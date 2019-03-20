@@ -133,7 +133,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex,
    */
 
   /* prepare service name */
-  if(strchr(serviceptr, '/')) {
+  if(sstrchr(serviceptr, '/')) {
     service.length = serviceptr_length;
     service.value = SAlloc::M(service.length);
     if(!service.value)

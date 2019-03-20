@@ -172,7 +172,7 @@ int CallTip::PaintContents(Surface * surfaceWindow, bool draw)
 	int maxWidth = 0;
 
 	while(moreChunks) {
-		const char * chunkEnd = strchr(chunkVal, '\n');
+		const char * chunkEnd = sstrchr(chunkVal, '\n');
 		if(chunkEnd == NULL) {
 			chunkEnd = chunkVal + sstrlen(chunkVal);
 			moreChunks = false;
@@ -262,7 +262,7 @@ PRectangle CallTip::CallTipStart(int pos, Point pt, int textHeight, const char *
 	rectDown = PRectangle(0, 0, 0, 0);
 	offsetMain = insetX; // changed to right edge of any arrows
 	int width = PaintContents(surfaceMeasure, false) + insetX;
-	while((newline = strchr(look, '\n')) != NULL) {
+	while((newline = sstrchr(look, '\n')) != NULL) {
 		look = newline + 1;
 		numLines++;
 	}

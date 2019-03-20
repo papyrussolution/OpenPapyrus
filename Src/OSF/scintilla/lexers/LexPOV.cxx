@@ -167,7 +167,7 @@ static void ColourisePovDoc(Sci_PositionU startPos,
 		else if(sc.state == SCE_POV_STRING) {
 			if(sc.ch == '\\') {
 				stringLen++;
-				if(strchr("abfnrtuv0'\"", sc.chNext)) {
+				if(sstrchr("abfnrtuv0'\"", sc.chNext)) {
 					// Compound characters are counted as one.
 					// Note: for Unicode chars \u, we shouldn't count the next 4 digits...
 					sc.Forward();

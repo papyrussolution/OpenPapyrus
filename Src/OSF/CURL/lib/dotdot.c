@@ -77,7 +77,7 @@ char * Curl_dedotdotify(const char * input)
 	 * dotdot-operation and then append it again at the end to the output
 	 * string.
 	 */
-	queryp = strchr(clone, '?');
+	queryp = sstrchr(clone, '?');
 	if(queryp)
 		*queryp = 0;
 

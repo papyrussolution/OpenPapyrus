@@ -236,7 +236,8 @@ int SLAPI PPObjVATBook::WriteCfgList(PPID kind, const VATBCfg * pConfig, int use
 {
 	int    ok = 1;
 	const  uint items_count = pConfig->List.getCount();
-	uint   i, sz = sizeof(PPVATBConfig) + items_count * sizeof(VATBCfg::Item);
+	const  uint sz = sizeof(PPVATBConfig) + items_count * sizeof(VATBCfg::Item);
+	uint   i;
 	PPID   prop = 0;
 	PPID   cfg_id = 0;
 	PPVATBConfig * p_cfg = 0;
@@ -538,8 +539,8 @@ private:
 		if(id)
 			BillObj->Edit(&id, 0);
 	}
-	int    setIncExpData(int incomeTxt);
-	int    getIncExpData(int expend);
+	void   setIncExpData(int incomeTxt);
+	void   getIncExpData(int expend);
 	void   setIncExpCtrls()
 	{
 		const double amt  = MONEYTOLDBL(Data.VAT0);
@@ -600,7 +601,7 @@ int SimpleLedgerDialog::getDTS(VATBookTbl::Rec * pRec)
 		return 0;
 }
 
-int SimpleLedgerDialog::setIncExpData(int expend)
+void SimpleLedgerDialog::setIncExpData(int expend)
 {
 	char   amt[8], amtv[8];
 	SString amt_txt, amtv_txt;
@@ -624,10 +625,9 @@ int SimpleLedgerDialog::setIncExpData(int expend)
 	setStaticText(CTL_SMPLLEDG_INCEXPVTXT, amtv_txt);
 	setCtrlData(CTL_SMPLLEDG_INCEXPAMT,  amt);
 	setCtrlData(CTL_SMPLLEDG_INCEXPVAMT, amtv);
-	return 1;
 }
 
-int SimpleLedgerDialog::getIncExpData(int expend)
+void SimpleLedgerDialog::getIncExpData(int expend)
 {
 	if(!expend) {
 		getCtrlData(CTL_SMPLLEDG_INCEXPAMT,  Data.Amount);
@@ -641,7 +641,6 @@ int SimpleLedgerDialog::getIncExpData(int expend)
 		LDBLTOMONEY(0.0, Data.Amount);
 		LDBLTOMONEY(0.0, Data.Excise);
 	}
-	return 1;
 }
 
 IMPL_HANDLE_EVENT(SimpleLedgerDialog)
@@ -1300,7 +1299,7 @@ int FASTCALL PPViewVatBook::NextIteration(VatBookViewItem * pItem)
 		if(P_ClbList && ClbListIterPos < P_ClbList->getCount()) {
 			STRNSCPY(clb_item, static_cast<const char *>(P_ClbList->at(ClbListIterPos)));
 			ClbListIterPos++;
-			if((p = strchr(clb_item, ';')) != 0) {
+			if((p = sstrchr(clb_item, ';')) != 0) {
 				*p = 0;
 				STRNSCPY(InnerItem.CLB, clb_item);
 				STRNSCPY(InnerItem.ManufCountry, p+1);
@@ -1327,7 +1326,7 @@ int FASTCALL PPViewVatBook::NextIteration(VatBookViewItem * pItem)
 					if(P_ClbList && P_ClbList->getCount()) {
 						STRNSCPY(clb_item, static_cast<const char *>(P_ClbList->at(ClbListIterPos)));
 						ClbListIterPos++;
-						if((p = strchr(clb_item, ';')) != 0) {
+						if((p = sstrchr(clb_item, ';')) != 0) {
 							*p = 0;
 							STRNSCPY(InnerItem.CLB, clb_item);
 							STRNSCPY(InnerItem.ManufCountry, p+1);
@@ -2031,7 +2030,7 @@ int SLAPI PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmo
 		THROW(vata.CalcBill(&pack));
 	}
 	MEMSZERO(rec);
-	rec.LineType_ = (int16)Filt.Kind;
+	rec.LineType_ = static_cast<int16>(Filt.Kind);
 	rec.LineSubType = 0;
 	rec.Dt       = (pPaymRec && pPaymRec->Dt) ? pPaymRec->Dt : pack.Rec.Dt;
 	rec.RcptDt   = pack.Rec.Dt;
@@ -2055,6 +2054,27 @@ int SLAPI PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmo
 	}
 	else
 		rec.InvcDt = pack.Rec.Dt;
+	// @v10.3.10 {
+	if(pack.OpTypeID == PPOPT_CORRECTION) {
+		BillCore::GetCode(STRNSCPY(rec.CBillCode, pack.Rec.Code));
+		rec.CBillDt = pack.Rec.Dt;
+		if(pack.P_LinkPack) {
+			if(pack.P_LinkPack->Ext.InvoiceCode[0])
+				STRNSCPY(rec.Code, pack.P_LinkPack->Ext.InvoiceCode);
+			else
+				BillCore::GetCode(STRNSCPY(rec.Code, pack.P_LinkPack->Rec.Code));
+			if(checkdate(pack.P_LinkPack->Ext.InvoiceDate)) {
+				rec.InvcDt = pack.P_LinkPack->Rec.Dt;
+				if(r_cfg.Flags & VATBCfg::hfD_InvcDate)
+					rec.Dt = pack.P_LinkPack->Ext.InvoiceDate;
+				else if(r_cfg.Flags & VATBCfg::hfD_MaxInvcBill)
+					rec.Dt = MAX(pack.P_LinkPack->Ext.InvoiceDate, pack.P_LinkPack->Rec.Dt);
+			}
+			else
+				rec.InvcDt = pack.P_LinkPack->Rec.Dt;
+		}
+	}
+	// } @v10.3.10 
 	if(pPaymRec) {
 		double paym_rec_amt = BR2(pPaymRec->Amount);
 		double pack_rec_amt = BR2(pack.Rec.Amount);
@@ -2174,7 +2194,7 @@ int SLAPI PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmo
 		const  PPID    link_id = rec.Link;
 		MEMSZERO(k1);
 		k1.Link = link_id;
-		k1.LineType_ = (int16)Filt.Kind;
+		k1.LineType_ = static_cast<int16>(Filt.Kind);
 		{
 			PPTransaction tra(1);
 			THROW(tra);
@@ -2225,7 +2245,7 @@ int SLAPI PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmo
 					}
 				}
 				if(rec_added)
-					AbBillList.Add((uint)link_id);
+					AbBillList.Add(static_cast<uint>(link_id));
 			}
 			THROW(tra.Commit());
 		}

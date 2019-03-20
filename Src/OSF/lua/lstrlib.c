@@ -924,7 +924,7 @@ static void addliteral(lua_State * L, luaL_Buffer * b, int arg) {
 
 static const char * scanformat(lua_State * L, const char * strfrmt, char * form) {
 	const char * p = strfrmt;
-	while(*p != '\0' && strchr(FLAGS, *p) != NULL) p++; /* skip flags */
+	while(*p != '\0' && sstrchr(FLAGS, *p) != NULL) p++; /* skip flags */
 	if((size_t)(p - strfrmt) >= sizeof(FLAGS)/sizeof(char))
 		luaL_error(L, "invalid format (repeated flags)");
 	if(isdigit(uchar(*p))) p++; /* skip width */
@@ -1010,7 +1010,7 @@ static int str_format(lua_State * L) {
 					    luaL_addvalue(&b); /* keep entire string */
 				    else {
 					    luaL_argcheck(L, l == strlen(s), arg, "string contains zeros");
-					    if(!strchr(form, '.') && l >= 100) {
+					    if(!sstrchr(form, '.') && l >= 100) {
 						    /* no precision and string is too long to be formatted */
 						    luaL_addvalue(&b); /* keep entire string */
 					    }

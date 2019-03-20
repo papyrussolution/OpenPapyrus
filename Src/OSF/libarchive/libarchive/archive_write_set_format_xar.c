@@ -1016,7 +1016,7 @@ static int make_fflags_entry(struct archive_write * a, xmlTextWriterPtr writer,
 	do {
 		const char * cp;
 
-		cp = strchr(p, ',');
+		cp = sstrchr(p, ',');
 		if(cp == NULL)
 			cp = p + strlen(p);
 
@@ -2011,7 +2011,7 @@ static int file_gen_utility_names(struct archive_write * a, struct file * file)
 static int get_path_component(char * name, int n, const char * fn)
 {
 	int l;
-	const char * p = strchr(fn, '/');
+	const char * p = sstrchr(fn, '/');
 	if(p == NULL) {
 		if((l = strlen(fn)) == 0)
 			return 0;

@@ -447,7 +447,7 @@ int BIO_parse_hostserv(const char * hostserv, char ** host, char ** service, enu
 	const char * h = NULL; size_t hl = 0;
 	const char * p = NULL; size_t pl = 0;
 	if(*hostserv == '[') {
-		if((p = strchr(hostserv, ']')) == NULL)
+		if((p = sstrchr(hostserv, ']')) == NULL)
 			goto spec_err;
 		h = hostserv + 1;
 		hl = p - h;
@@ -463,7 +463,7 @@ int BIO_parse_hostserv(const char * hostserv, char ** host, char ** service, enu
 	}
 	else {
 		const char * p2 = strrchr(hostserv, ':');
-		p = strchr(hostserv, ':');
+		p = sstrchr(hostserv, ':');
 
 		/*-
 		 * Check for more than one colon.  There are three possible
@@ -493,7 +493,7 @@ int BIO_parse_hostserv(const char * hostserv, char ** host, char ** service, enu
 			pl = strlen(p);
 		}
 	}
-	if(p && strchr(p, ':'))
+	if(p && sstrchr(p, ':'))
 		goto spec_err;
 	if(h && host) {
 		if(hl == 0 || (hl == 1 && h[0] == '*')) {

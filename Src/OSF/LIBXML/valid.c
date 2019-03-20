@@ -3151,7 +3151,7 @@ int xmlValidateNmtokensValue(const xmlChar * value) {
  *
  * returns 1 if valid or 0 otherwise
  */
-int xmlValidateNotationDecl(xmlValidCtxtPtr ctxt ATTRIBUTE_UNUSED, xmlDocPtr doc ATTRIBUTE_UNUSED, xmlNotation * nota ATTRIBUTE_UNUSED) 
+int xmlValidateNotationDecl(xmlValidCtxtPtr ctxt ATTRIBUTE_UNUSED, xmlDoc * doc ATTRIBUTE_UNUSED, xmlNotation * nota ATTRIBUTE_UNUSED) 
 {
 	int ret = 1;
 	return ret;
@@ -5092,7 +5092,7 @@ done:
  *
  * returns 1 if no validation problem was found or 0 otherwise
  */
-int xmlValidatePopElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc ATTRIBUTE_UNUSED, xmlNode * elem ATTRIBUTE_UNUSED, const xmlChar * qname ATTRIBUTE_UNUSED) 
+int xmlValidatePopElement(xmlValidCtxtPtr ctxt, xmlDoc * doc ATTRIBUTE_UNUSED, xmlNode * elem ATTRIBUTE_UNUSED, const xmlChar * qname ATTRIBUTE_UNUSED) 
 {
 	int ret = 1;
 	if(!ctxt)
@@ -5767,7 +5767,7 @@ static void xmlValidateNotationCallback(xmlEntity * cur, xmlValidCtxtPtr ctxt, c
 static void xmlValidateAttributeCallback(xmlAttribute * cur, xmlValidCtxtPtr ctxt, const xmlChar * name ATTRIBUTE_UNUSED) 
 {
 	int ret;
-	xmlDocPtr doc;
+	xmlDoc * doc;
 	xmlElement * elem = NULL;
 	if(cur) {
 		switch(cur->atype) {

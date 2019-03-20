@@ -28,7 +28,7 @@ static int __db_fullpath(ENV*, const char *, const char *, int, int, char **);
 				*p++ = PATH_SEPARATOR[0];                       \
 			memcpy(p, add, len);                                    \
 			p += len;                                               \
-			slash = strchr(PATH_SEPARATOR, p[-1]) == NULL;          \
+			slash = sstrchr(PATH_SEPARATOR, p[-1]) == NULL;          \
 		}                                                               \
 }
 /*

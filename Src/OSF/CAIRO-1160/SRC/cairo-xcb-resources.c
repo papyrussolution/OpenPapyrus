@@ -105,7 +105,7 @@ struct resource_parser {
 
 static cairo_bool_t resource_parse_line(char * name, cairo_xcb_resources_t * resources)
 {
-	char * value = strchr(name, ':');
+	char * value = sstrchr(name, ':');
 	if(value == NULL)
 		return FALSE;
 	*value++ = 0;
@@ -130,7 +130,7 @@ static int resource_parse_lines(struct resource_parser * parser)
 	char * newline;
 	char * line = parser->buffer;
 	while(1) {
-		newline = strchr(line, '\n');
+		newline = sstrchr(line, '\n');
 		if(newline == NULL)
 			break;
 		*newline++ = 0;

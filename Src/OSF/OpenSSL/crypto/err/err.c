@@ -514,7 +514,7 @@ void ERR_error_string_n(ulong e, char * buf, size_t len)
 				int i;
 				char * s = buf;
 				for(i = 0; i < NUM_COLONS; i++) {
-					char * colon = strchr(s, ':');
+					char * colon = sstrchr(s, ':');
 					if(colon == NULL || colon > &buf[len-1] - NUM_COLONS + i) {
 						/*
 						 * set colon no. i at last possible position (buf[len-1]

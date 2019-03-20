@@ -299,7 +299,7 @@ char * curl_pushheader_byname(struct curl_pushheaders * h, const char * header)
 	   the middle of header, it could be matched in middle of the value,
 	   this is because we do prefix match.*/
 	if(!h || !GOOD_EASY_HANDLE(h->data) || !header || !header[0] ||
-	    !strcmp(header, ":") || strchr(header + 1, ':'))
+	    !strcmp(header, ":") || sstrchr(header + 1, ':'))
 		return NULL;
 	else {
 		struct HTTP * stream = h->data->req.protop;

@@ -1401,7 +1401,7 @@ char * SLAPI SDateTime::tostr(const void * v, long f, char * b) const
 int SLAPI SDateTime::fromstr(void * v, long f, const char * b) const
 {
 	int    ret = 0;
-	const  char * s = strchr(b, ' ');
+	const  char * s = sstrchr(b, ' ');
 	LDATETIME * ldt = static_cast<LDATETIME *>(v);
 	if(!s++) // @todo V769 The 's' pointer in the 's ++' expression could be nullptr. In such case, resulting value will be senseless and it should not be used. Bist.cpp 1406
 		ret = SLERR_INVFORMAT;

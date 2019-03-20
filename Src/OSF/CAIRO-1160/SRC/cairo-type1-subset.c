@@ -162,7 +162,7 @@ static void cairo_type1_font_subset_use_glyph(cairo_type1_font_subset_t * font, 
 static cairo_bool_t is_ps_delimiter(int c)
 {
 	static const char delimiters[] = "()[]{}<>/% \t\r\n";
-	return strchr(delimiters, c) != NULL;
+	return sstrchr(delimiters, c) != NULL;
 }
 
 static const char * find_token(const char * buffer, const char * end, const char * token)
@@ -343,7 +343,7 @@ static cairo_status_t cairo_type1_font_subset_get_fontname(cairo_type1_font_subs
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	strncpy(s, start, end - start);
 	s[end - start] = 0;
-	start = strchr(s, '/');
+	start = sstrchr(s, '/');
 	if(!start++ || !start) {
 		SAlloc::F(s);
 		return CAIRO_INT_STATUS_UNSUPPORTED;

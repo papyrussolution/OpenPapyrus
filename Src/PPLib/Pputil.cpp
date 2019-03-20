@@ -1217,7 +1217,7 @@ int SLAPI PPSymbTranslator::Retranslate(long sym, char * s, size_t bufLen) const
 			s[i] = 0;
 			return 1;
 		}
-	} while((p = strchr(p, ';'))++ != 0);
+	} while((p = sstrchr(p, ';'))++ != 0);
 	return PPSetError(PPERR_UNDEFSYMB);
 }
 
@@ -1234,7 +1234,7 @@ int SLAPI PPSymbTranslator::Retranslate(long sym, SString & rBuf) const
 				rBuf.CatChar(*p++);
 			return 1;
 		}
-	} while((p = strchr(p, ';'))++ != 0);
+	} while((p = sstrchr(p, ';'))++ != 0);
 	return PPSetError(PPERR_UNDEFSYMB);
 }
 //
@@ -1764,7 +1764,7 @@ static int SLAPI LoadDbqStringSubst(uint strID, size_t numItems, size_t strSize,
 		char * p = 0;
 		char   temp_buf[32];
 		if(PPGetSubStr(strID, idx, item_buf, sizeof(item_buf)) > 0) {
-			if((p = strchr(item_buf, ',')) != 0) {
+			if((p = sstrchr(item_buf, ',')) != 0) {
 				*p++ = 0;
 				id = atol(item_buf);
 			}

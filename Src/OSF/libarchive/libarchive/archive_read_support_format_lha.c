@@ -1584,7 +1584,7 @@ static int lha_parse_linkname(struct archive_string * linkname,
 	char *  linkptr;
 	size_t symlen;
 
-	linkptr = strchr(pathname->s, '|');
+	linkptr = sstrchr(pathname->s, '|');
 	if(linkptr != NULL) {
 		symlen = strlen(linkptr + 1);
 		archive_strncpy(linkname, linkptr+1, symlen);

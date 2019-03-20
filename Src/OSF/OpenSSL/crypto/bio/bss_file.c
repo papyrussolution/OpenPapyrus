@@ -65,7 +65,7 @@ BIO * BIO_new_file(const char * filename, const char * mode)
 	BIO  * ret;
 	FILE * file = openssl_fopen(filename, mode);
 	int fp_flags = BIO_CLOSE;
-	if(strchr(mode, 'b') == NULL)
+	if(sstrchr(mode, 'b') == NULL)
 		fp_flags |= BIO_FP_TEXT;
 	if(file == NULL) {
 		SYSerr(SYS_F_FOPEN, get_last_sys_error());

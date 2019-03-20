@@ -1536,7 +1536,7 @@ static uchar * kex_agree_instr(uchar * haystack, ulong haystack_len, const uchar
 	s = haystack;
 	/* Search until we run out of comas or we run out of haystack,
 	   whichever comes first */
-	while((s = (uchar *)strchr((char *)s, ',')) && ((haystack_len - (s - haystack)) > needle_len)) {
+	while((s = (uchar *)sstrchr((char *)s, ',')) && ((haystack_len - (s - haystack)) > needle_len)) {
 		s++;
 		/* Needle at X position */
 		if((strncmp((char *)s, (char *)needle, needle_len) == 0) && (((s - haystack) + needle_len) == haystack_len || s[needle_len] == ',')) {
@@ -1569,7 +1569,7 @@ static int kex_agree_hostkey(LIBSSH2_SESSION * session, ulong kex_flags, uchar *
 	if(session->hostkey_prefs) {
 		s = (uchar *)session->hostkey_prefs;
 		while(s && *s) {
-			uchar * p = (uchar *)strchr((char *)s, ',');
+			uchar * p = (uchar *)sstrchr((char *)s, ',');
 			size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
 			if(kex_agree_instr(hostkey, hostkey_len, s, method_len)) {
 				const LIBSSH2_HOSTKEY_METHOD * method = (const LIBSSH2_HOSTKEY_METHOD*)kex_get_method_by_name((char *)s, method_len, (const LIBSSH2_COMMON_METHOD**)hostkeyp);
@@ -1621,7 +1621,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION * session, uchar * kex, ulong k
 	if(session->kex_prefs) {
 		s = (uchar *)session->kex_prefs;
 		while(s && *s) {
-			uchar * q, * p = (uchar *)strchr((char *)s, ',');
+			uchar * q, * p = (uchar *)sstrchr((char *)s, ',');
 			size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
 			if((q = kex_agree_instr(kex, kex_len, s, method_len))) {
 				const LIBSSH2_KEX_METHOD * method = (const LIBSSH2_KEX_METHOD*)kex_get_method_by_name((char *)s, method_len, (const LIBSSH2_COMMON_METHOD**)kexp);
@@ -1680,7 +1680,7 @@ static int kex_agree_crypt(LIBSSH2_SESSION * session, libssh2_endpoint_data * en
 	if(endpoint->crypt_prefs) {
 		s = (uchar *)endpoint->crypt_prefs;
 		while(s && *s) {
-			uchar * p = (uchar *)strchr((char *)s, ',');
+			uchar * p = (uchar *)sstrchr((char *)s, ',');
 			size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
 			if(kex_agree_instr(crypt, crypt_len, s, method_len)) {
 				const LIBSSH2_CRYPT_METHOD * method = (const LIBSSH2_CRYPT_METHOD*)kex_get_method_by_name((char *)s, method_len, (const LIBSSH2_COMMON_METHOD**)cryptp);
@@ -1717,7 +1717,7 @@ static int kex_agree_mac(LIBSSH2_SESSION * session, libssh2_endpoint_data * endp
 	if(endpoint->mac_prefs) {
 		s = (uchar *)endpoint->mac_prefs;
 		while(s && *s) {
-			uchar * p = (uchar *)strchr((char *)s, ',');
+			uchar * p = (uchar *)sstrchr((char *)s, ',');
 			size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
 			if(kex_agree_instr(mac, mac_len, s, method_len)) {
 				const LIBSSH2_MAC_METHOD * method = (const LIBSSH2_MAC_METHOD*)kex_get_method_by_name((char *)s, method_len, (const LIBSSH2_COMMON_METHOD**)macp);
@@ -1754,7 +1754,7 @@ static int kex_agree_comp(LIBSSH2_SESSION * session, libssh2_endpoint_data * end
 	if(endpoint->comp_prefs) {
 		s = (uchar *)endpoint->comp_prefs;
 		while(s && *s) {
-			uchar * p = (uchar *)strchr((char *)s, ',');
+			uchar * p = (uchar *)sstrchr((char *)s, ',');
 			size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
 			if(kex_agree_instr(comp, comp_len, s, method_len)) {
 				const LIBSSH2_COMP_METHOD * method = (const LIBSSH2_COMP_METHOD*)kex_get_method_by_name((char *)s, method_len, (const LIBSSH2_COMMON_METHOD**)compp);
@@ -2064,7 +2064,7 @@ LIBSSH2_API int libssh2_session_method_pref(LIBSSH2_SESSION * session, int metho
 	}
 	memcpy(s, prefs, prefs_len + 1);
 	while(s && *s && mlist) {
-		char * p = strchr(s, ',');
+		char * p = sstrchr(s, ',');
 		int method_len = p ? (p - s) : (int)strlen(s);
 		if(!kex_get_method_by_name(s, method_len, mlist)) {
 			/* Strip out unsupported method */

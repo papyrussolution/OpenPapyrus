@@ -669,7 +669,7 @@ int SLAPI StringStore2::TranslationWanted(const uchar * pOrgText) const
 			}
 			else if(c == '\\' && oneof3(p[1], 'n', 't', 'r'))
 				p++;
-			else if(!strchr((const char *)p_notrasl_chars, c)) {
+			else if(!sstrchr((const char *)p_notrasl_chars, c)) {
 				if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
 					yes = 1;
 				}
