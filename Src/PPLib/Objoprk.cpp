@@ -637,7 +637,7 @@ int SLAPI PPObjOprKind::GetGenericList(PPID id, PPIDArray * pList)
 	return ok;
 }
 
-int SLAPI PPObjOprKind::SetReckonExData(PPID id, PPReckonOpEx * pData, int use_ta)
+int SLAPI PPObjOprKind::SetReckonExData(PPID id, const PPReckonOpEx * pData, int use_ta)
 {
 	int    ok = 1;
 	PPIDArray temp;
@@ -650,9 +650,9 @@ int SLAPI PPObjOprKind::SetReckonExData(PPID id, PPReckonOpEx * pData, int use_t
 		for(i = 0; i < SIZEOFARRAY(pData->Reserve); i++)
 			THROW_SL(temp.add(pData->Reserve[i]));
 		for(i = 0; i < pData->OpList.getCount(); i++)
-			THROW_SL(temp.add(pData->OpList.at(i)));
+			THROW_SL(temp.add(pData->OpList.get(i)));
 	}
-	THROW(ref->PutPropArray(Obj, id, OPKPRP_PAYMOPLIST, (pData ? &temp : static_cast<PPIDArray *>(0)), use_ta));
+	THROW(ref->PutPropArray(Obj, id, OPKPRP_PAYMOPLIST, (pData ? &temp : static_cast<const PPIDArray *>(0)), use_ta));
 	CATCHZOK
 	return ok;
 }
@@ -737,7 +737,7 @@ int SLAPI PPObjOprKind::GetDraftExData(PPID id, PPDraftOpEx * pData)
 	return ok;
 }
 
-int SLAPI PPObjOprKind::SetPoolExData(PPID id, PPBillPoolOpEx * pData, int use_ta)
+int SLAPI PPObjOprKind::SetPoolExData(PPID id, const PPBillPoolOpEx * pData, int use_ta)
 {
 	int    ok = 1;
 	PPIDArray temp;
@@ -747,9 +747,9 @@ int SLAPI PPObjOprKind::SetPoolExData(PPID id, PPBillPoolOpEx * pData, int use_t
 		for(i = 0; i < SIZEOFARRAY(pData->Reserve); i++)
 			THROW(temp.add(pData->Reserve[i]));
 		for(i = 0; i < pData->OpList.getCount(); i++)
-			THROW(temp.add(pData->OpList.at(i)));
+			THROW(temp.add(pData->OpList.get(i)));
 	}
-	THROW(ref->PutPropArray(Obj, id, OPKPRP_BILLPOOL, (pData ? &temp : (PPIDArray*)0), use_ta));
+	THROW(ref->PutPropArray(Obj, id, OPKPRP_BILLPOOL, (pData ? &temp : static_cast<const PPIDArray *>(0)), use_ta));
 	CATCHZOK
 	return ok;
 }

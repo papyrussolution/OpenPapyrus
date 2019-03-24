@@ -566,7 +566,7 @@ int SLAPI PhnSvcChannelStatusPool::GetByChannel(const char * pChannel, PhnSvcCha
 	if(!isempty(pChannel)) {
 		SString temp_buf;
 		for(uint i = 0; ok < 0 && i < getCount(); i++) {
-			const Item_ & r_item = *(const Item_ *)at(i);
+			const Item_ & r_item = *static_cast<const Item_ *>(at(i));
 			GetS(r_item.ChannelPos, temp_buf);
 			if(temp_buf.IsEqiAscii(pChannel)) {
 				Get(i, rStatus);
@@ -586,7 +586,7 @@ int SLAPI PhnSvcChannelStatusPool::GetListWithSameBridge(const char * pBridgeId,
 		PhnSvcChannelStatus entry;
 		for(uint i = 0; i < getCount(); i++) {
 			if((int)i != excludePos) {
-				const Item_ & r_item = *(const Item_ *)at(i);
+				const Item_ & r_item = *static_cast<const Item_ *>(at(i));
 				GetS(r_item.BridgeIdP, temp_buf);
 				if(temp_buf.IsEqiAscii(pBridgeId)) {
 					Get(i, entry);
@@ -636,7 +636,7 @@ int FASTCALL PhnSvcChannelStatusPool::Get(uint idx, PhnSvcChannelStatus & rStatu
 	int    ok = 1;
 	rStatus.Clear();
 	if(idx < getCount()) {
-		const Item_ & r_item = *(const Item_ *)at(idx);
+		const Item_ & r_item = *static_cast<const Item_ *>(at(idx));
 		rStatus.State = r_item.State;
 		rStatus.Flags = r_item.Flags;
 		rStatus.Priority = r_item.Priority;
@@ -670,7 +670,7 @@ int SLAPI PhnSvcChannelStatusPool::SetIdentifiedCallerName(uint idx, const char 
 {
 	int    ok = 1;
 	if(idx < getCount()) {
-		Item_ & r_item = *(Item_ *)at(idx);
+		Item_ & r_item = *static_cast<Item_ *>(at(idx));
 		AddS(pName, &r_item.IdentifiedCallerNameP);
 	}
 	else

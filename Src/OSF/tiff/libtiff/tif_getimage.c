@@ -2052,12 +2052,12 @@ static int setupMap(TIFFRGBAImage* img)
 	return 1;
 }
 
-static int FASTCALL checkcmap(TIFFRGBAImage* img)
+static int FASTCALL checkcmap(const TIFFRGBAImage * img)
 {
-	uint16* r = img->redcmap;
-	uint16* g = img->greencmap;
-	uint16* b = img->bluecmap;
-	long n = 1L<<img->bitspersample;
+	const uint16 * r = img->redcmap;
+	const uint16 * g = img->greencmap;
+	const uint16 * b = img->bluecmap;
+	long n = (1L << img->bitspersample);
 	while(n-- > 0)
 		if(*r++ >= 256 || *g++ >= 256 || *b++ >= 256)
 			return (16);
@@ -2066,12 +2066,12 @@ static int FASTCALL checkcmap(TIFFRGBAImage* img)
 
 static void FASTCALL cvtcmap(TIFFRGBAImage* img)
 {
-	uint16* r = img->redcmap;
-	uint16* g = img->greencmap;
-	uint16* b = img->bluecmap;
+	uint16 * r = img->redcmap;
+	uint16 * g = img->greencmap;
+	uint16 * b = img->bluecmap;
 	long i;
 	for(i = (1L<<img->bitspersample)-1; i >= 0; i--) {
-#define CVT(x)          ((uint16)((x)>>8))
+#define CVT(x)          (static_cast<uint16>((x)>>8))
 		r[i] = CVT(r[i]);
 		g[i] = CVT(g[i]);
 		b[i] = CVT(b[i]);

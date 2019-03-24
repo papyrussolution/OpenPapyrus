@@ -423,18 +423,18 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 			if(p_dlg) {
 				event.what = TEvent::evCommand;
 				event.message.command = cmResize;
-				event.message.infoPtr = (uMsg == WM_SIZING) ? (void *)lParam : 0;
+				event.message.infoPtr = (uMsg == WM_SIZING) ? reinterpret_cast<void *>(lParam) : 0;
 				p_dlg->handleEvent(event);
 				APPL->DrawControl(hwndDlg, uMsg, wParam, lParam);
 			}
 			break;
 		case WM_GETMINMAXINFO:
 			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
-			CALLPTRMEMB(p_dlg, SetDlgTrackingSize((MINMAXINFO *)lParam));
+			CALLPTRMEMB(p_dlg, SetDlgTrackingSize(reinterpret_cast<MINMAXINFO *>(lParam)));
 			return 0;
 		case WM_MEASUREITEM:
 			{
-				MEASUREITEMSTRUCT * p_mis = (MEASUREITEMSTRUCT *)lParam;
+				MEASUREITEMSTRUCT * p_mis = reinterpret_cast<MEASUREITEMSTRUCT *>(lParam);
 				for(int i = 0; i < 32; i++)
 					if(OwnerDrawCtrls[i].CtrlID == wParam) {
 						p_mis->itemHeight = OwnerDrawCtrls[i].ExtraParam;
@@ -453,7 +453,7 @@ BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM
 		case WM_DRAWITEM:
 			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
-				DRAWITEMSTRUCT * p_dis = (DRAWITEMSTRUCT *)lParam;
+				DRAWITEMSTRUCT * p_dis = reinterpret_cast<DRAWITEMSTRUCT *>(lParam);
 				TDrawItemData di;
 				di.CtlType = p_dis->CtlType;
 				di.CtlID   = p_dis->CtlID;

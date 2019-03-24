@@ -1154,7 +1154,7 @@ STDMETHODIMP COutMultiVolStream::Write(const void * data, uint32 size, uint32 * 
 		uint32 curSize = (uint32)MyMin((uint64)size, volSize - altStream.Pos);
 		uint32 realProcessed;
 		RINOK(altStream.Stream->Write(data, curSize, &realProcessed));
-		data = (void *)((Byte*)data + realProcessed);
+		data = (void *)((Byte *)data + realProcessed);
 		size -= realProcessed;
 		altStream.Pos += realProcessed;
 		_offsetPos += realProcessed;
@@ -2132,7 +2132,7 @@ HRESULT UpdateArchive(CCodecs * codecs, const CObjectVector<COpenType> &types, c
 		RINOK(callback->StartArchive(name, isUpdating))
 		CFinishArchiveStat st;
 		RINOK(Compress(options, isUpdating, codecs, command.ActionSet, arc, command.ArchivePath, arcItems,
-			options.DeleteAfterCompressing ? (Byte*)processedItems : NULL, dirItems, parentDirItem_Ptr, tempFiles, errorInfo, callback, st));
+			options.DeleteAfterCompressing ? (Byte *)processedItems : NULL, dirItems, parentDirItem_Ptr, tempFiles, errorInfo, callback, st));
 		RINOK(callback->FinishArchive(st));
 	}
 	if(thereIsInArchive) {

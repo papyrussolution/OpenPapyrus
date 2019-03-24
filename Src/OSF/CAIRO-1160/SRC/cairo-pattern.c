@@ -243,7 +243,7 @@ static cairo_status_t _cairo_mesh_pattern_init_copy(cairo_mesh_pattern_t * patte
 	return _cairo_array_append_multiple(&pattern->patches, _cairo_array_index_const(&other->patches, 0), _cairo_array_num_elements(&other->patches));
 }
 
-cairo_status_t _cairo_pattern_init_copy(cairo_pattern_t * pattern, const cairo_pattern_t * other)
+cairo_status_t FASTCALL _cairo_pattern_init_copy(cairo_pattern_t * pattern, const cairo_pattern_t * other)
 {
 	cairo_status_t status;
 	if(other->status)
@@ -393,22 +393,22 @@ cairo_status_t _cairo_pattern_create_copy(cairo_pattern_t ** pattern_out, const 
 		return other->status;
 	switch(other->type) {
 		case CAIRO_PATTERN_TYPE_SOLID:
-		    pattern = (cairo_pattern_t *)_cairo_malloc(sizeof(cairo_solid_pattern_t));
+		    pattern = static_cast<cairo_pattern_t *>(_cairo_malloc(sizeof(cairo_solid_pattern_t)));
 		    break;
 		case CAIRO_PATTERN_TYPE_SURFACE:
-		    pattern = (cairo_pattern_t *)_cairo_malloc(sizeof(cairo_surface_pattern_t));
+		    pattern = static_cast<cairo_pattern_t *>(_cairo_malloc(sizeof(cairo_surface_pattern_t)));
 		    break;
 		case CAIRO_PATTERN_TYPE_LINEAR:
-		    pattern = (cairo_pattern_t *)_cairo_malloc(sizeof(cairo_linear_pattern_t));
+		    pattern = static_cast<cairo_pattern_t *>(_cairo_malloc(sizeof(cairo_linear_pattern_t)));
 		    break;
 		case CAIRO_PATTERN_TYPE_RADIAL:
-		    pattern = (cairo_pattern_t *)_cairo_malloc(sizeof(cairo_radial_pattern_t));
+		    pattern = static_cast<cairo_pattern_t *>(_cairo_malloc(sizeof(cairo_radial_pattern_t)));
 		    break;
 		case CAIRO_PATTERN_TYPE_MESH:
-		    pattern = (cairo_pattern_t *)_cairo_malloc(sizeof(cairo_mesh_pattern_t));
+		    pattern = static_cast<cairo_pattern_t *>(_cairo_malloc(sizeof(cairo_mesh_pattern_t)));
 		    break;
 		case CAIRO_PATTERN_TYPE_RASTER_SOURCE:
-		    pattern = (cairo_pattern_t *)_cairo_malloc(sizeof(cairo_raster_source_pattern_t));
+		    pattern = static_cast<cairo_pattern_t *>(_cairo_malloc(sizeof(cairo_raster_source_pattern_t)));
 		    break;
 		default:
 		    ASSERT_NOT_REACHED;
@@ -416,7 +416,6 @@ cairo_status_t _cairo_pattern_create_copy(cairo_pattern_t ** pattern_out, const 
 	}
 	if(unlikely(pattern == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	status = _cairo_pattern_init_copy(pattern, other);
 	if(unlikely(status)) {
 		SAlloc::F(pattern);
@@ -590,13 +589,13 @@ cairo_pattern_t * cairo_pattern_create_for_surface(cairo_surface_t * surface)
 	cairo_surface_pattern_t * pattern;
 	if(surface == NULL) {
 		_cairo_error_throw(CAIRO_STATUS_NULL_POINTER);
-		return (cairo_pattern_t*)&_cairo_pattern_nil_null_pointer;
+		return (cairo_pattern_t *)&_cairo_pattern_nil_null_pointer;
 	}
 	if(surface->status)
 		return _cairo_pattern_create_in_error(surface->status);
 	pattern = _freed_pool_get(&freed_pattern_pool[CAIRO_PATTERN_TYPE_SURFACE]);
 	if(unlikely(pattern == NULL)) {
-		pattern = (cairo_surface_pattern_t *)_cairo_malloc(sizeof(cairo_surface_pattern_t));
+		pattern = static_cast<cairo_surface_pattern_t *>(_cairo_malloc(sizeof(cairo_surface_pattern_t)));
 		if(unlikely(pattern == NULL)) {
 			_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 			return (cairo_pattern_t*)&_cairo_pattern_nil.base;
@@ -642,7 +641,7 @@ cairo_pattern_t * cairo_pattern_create_linear(double x0, double y0, double x1, d
 {
 	cairo_linear_pattern_t * pattern = _freed_pool_get(&freed_pattern_pool[CAIRO_PATTERN_TYPE_LINEAR]);
 	if(unlikely(pattern == NULL)) {
-		pattern = (cairo_linear_pattern_t *)_cairo_malloc(sizeof(cairo_linear_pattern_t));
+		pattern = static_cast<cairo_linear_pattern_t *>(_cairo_malloc(sizeof(cairo_linear_pattern_t)));
 		if(unlikely(pattern == NULL)) {
 			_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 			return (cairo_pattern_t*)&_cairo_pattern_nil.base;
@@ -688,7 +687,7 @@ cairo_pattern_t * cairo_pattern_create_radial(double cx0, double cy0, double rad
 {
 	cairo_radial_pattern_t * pattern = _freed_pool_get(&freed_pattern_pool[CAIRO_PATTERN_TYPE_RADIAL]);
 	if(unlikely(pattern == NULL)) {
-		pattern = (cairo_radial_pattern_t *)_cairo_malloc(sizeof(cairo_radial_pattern_t));
+		pattern = static_cast<cairo_radial_pattern_t *>(_cairo_malloc(sizeof(cairo_radial_pattern_t)));
 		if(unlikely(pattern == NULL)) {
 			_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 			return (cairo_pattern_t*)&_cairo_pattern_nil.base;
@@ -859,7 +858,7 @@ cairo_pattern_t * cairo_pattern_create_mesh(void)
 {
 	cairo_mesh_pattern_t * pattern = _freed_pool_get(&freed_pattern_pool[CAIRO_PATTERN_TYPE_MESH]);
 	if(unlikely(pattern == NULL)) {
-		pattern = (cairo_mesh_pattern_t *)_cairo_malloc(sizeof(cairo_mesh_pattern_t));
+		pattern = static_cast<cairo_mesh_pattern_t *>(_cairo_malloc(sizeof(cairo_mesh_pattern_t)));
 		if(unlikely(pattern == NULL)) {
 			_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 			return (cairo_pattern_t*)&_cairo_pattern_nil.base;
@@ -1486,7 +1485,7 @@ static cairo_status_t _cairo_pattern_gradient_grow(cairo_gradient_pattern_t * pa
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	assert(pattern->n_stops <= pattern->stops_size);
 	if(pattern->stops == pattern->stops_embedded) {
-		new_stops = (cairo_gradient_stop_t *)_cairo_malloc_ab(new_size, sizeof(cairo_gradient_stop_t));
+		new_stops = static_cast<cairo_gradient_stop_t *>(_cairo_malloc_ab(new_size, sizeof(cairo_gradient_stop_t)));
 		if(new_stops)
 			memcpy(new_stops, pattern->stops, old_size * sizeof(cairo_gradient_stop_t));
 	}
@@ -3986,11 +3985,11 @@ cairo_path_t * cairo_mesh_pattern_get_path(cairo_pattern_t * pattern, uint patch
 	if(unlikely(patch_num >= patch_count))
 		return _cairo_path_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_INDEX));
 	patch = (const cairo_mesh_patch_t *)_cairo_array_index_const(&mesh->patches, patch_num);
-	path = (cairo_path_t *)_cairo_malloc(sizeof(cairo_path_t));
+	path = static_cast<cairo_path_t *>(_cairo_malloc(sizeof(cairo_path_t)));
 	if(path == NULL)
 		return _cairo_path_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	path->num_data = 18;
-	path->data = (cairo_path_data_t *)_cairo_malloc_ab(path->num_data, sizeof(cairo_path_data_t));
+	path->data = static_cast<cairo_path_data_t *>(_cairo_malloc_ab(path->num_data, sizeof(cairo_path_data_t)));
 	if(path->data == NULL) {
 		SAlloc::F(path);
 		return _cairo_path_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));

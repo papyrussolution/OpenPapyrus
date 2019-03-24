@@ -2433,7 +2433,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_outliteral(struct soap *, const char * tag, char 
 	SOAP_FMAC1 int SOAP_FMAC2 soap_getdime(struct soap *);
 	SOAP_FMAC1 int SOAP_FMAC2 soap_putdimehdr(struct soap *);
 	SOAP_FMAC1 int SOAP_FMAC2 soap_putdime(struct soap *);
-	SOAP_FMAC1 int SOAP_FMAC2 soap_getmimehdr(struct soap *);
+	// @v10.3.11 (static now) SOAP_FMAC1 int SOAP_FMAC2 soap_getmimehdr(struct soap *);
 	SOAP_FMAC1 int SOAP_FMAC2 soap_getmime(struct soap *);
 	SOAP_FMAC1 int SOAP_FMAC2 soap_putmimehdr(struct soap *, struct soap_multipart *);
 	SOAP_FMAC1 int SOAP_FMAC2 soap_putmime(struct soap *);

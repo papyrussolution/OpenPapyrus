@@ -128,7 +128,7 @@ static void __db_prdb(DB * dbp, uint32 flags)
 	switch(dbp->type) {
 	    case DB_BTREE:
 	    case DB_RECNO:
-		bt = (BTREE *)dbp->bt_internal;
+		bt = static_cast<BTREE *>(dbp->bt_internal);
 		__db_msg(env, "bt_meta: %lu bt_root: %lu", (ulong)bt->bt_meta, (ulong)bt->bt_root);
 		__db_msg(env, "bt_minkey: %lu", (ulong)bt->bt_minkey);
 		if(!LF_ISSET(DB_PR_RECOVERYTEST))
@@ -146,7 +146,7 @@ static void __db_prdb(DB * dbp, uint32 flags)
 		}
 		break;
 	    case DB_HASH:
-		h = (HASH *)dbp->h_internal;
+		h = static_cast<HASH *>(dbp->h_internal);
 		__db_msg(env, "meta_pgno: %lu", (ulong)h->meta_pgno);
 		__db_msg(env, "h_ffactor: %lu", (ulong)h->h_ffactor);
 		__db_msg(env, "h_nelem: %lu", (ulong)h->h_nelem);
@@ -371,7 +371,7 @@ static int __db_bmeta(ENV * env, DB * dbp, BTMETA * h, uint32 flags)
 		{ BTM_COMPRESS, "compressed" },
 		{ 0,            NULL }
 	};
-	__db_meta(env, dbp, (DBMETA *)h, fn, flags);
+	__db_meta(env, dbp, reinterpret_cast<DBMETA *>(h), fn, flags);
 	__db_msg(env, "\tminkey: %lu", (ulong)h->minkey);
 	if(F_ISSET(&h->dbmeta, BTM_RECNO))
 		__db_msg(env, "\tre_len: %#lx re_pad: %#lx", (ulong)h->re_len, (ulong)h->re_pad);
@@ -393,7 +393,7 @@ static int __db_hmeta(ENV * env, DB * dbp, HMETA * h, uint32 flags)
 	DB_MSGBUF mb;
 	int i;
 	DB_MSGBUF_INIT(&mb);
-	__db_meta(env, dbp, (DBMETA *)h, fn, flags);
+	__db_meta(env, dbp, reinterpret_cast<DBMETA *>(h), fn, flags);
 	__db_msg(env, "\tmax_bucket: %lu", (ulong)h->max_bucket);
 	__db_msg(env, "\thigh_mask: %#lx", (ulong)h->high_mask);
 	__db_msg(env, "\tlow_mask:  %#lx", (ulong)h->low_mask);
@@ -415,7 +415,7 @@ static int __db_hmeta(ENV * env, DB * dbp, HMETA * h, uint32 flags)
  */
 static int __db_qmeta(ENV * env, DB * dbp, QMETA * h, uint32 flags)
 {
-	__db_meta(env, dbp, (DBMETA *)h, NULL, flags);
+	__db_meta(env, dbp, reinterpret_cast<DBMETA *>(h), NULL, flags);
 	__db_msg(env, "\tfirst_recno: %lu", (ulong)h->first_recno);
 	__db_msg(env, "\tcur_recno: %lu", (ulong)h->cur_recno);
 	__db_msg(env, "\tre_len: %#lx re_pad: %lu", (ulong)h->re_len, (ulong)h->re_pad);
@@ -429,7 +429,7 @@ static int __db_qmeta(ENV * env, DB * dbp, QMETA * h, uint32 flags)
  */
 static int __db_heapmeta(ENV * env, DB * dbp, HEAPMETA * h, uint32 flags)
 {
-	__db_meta(env, dbp, (DBMETA *)h, NULL, flags);
+	__db_meta(env, dbp, reinterpret_cast<DBMETA *>(h), NULL, flags);
 	__db_msg(env, "\tcurregion: %lu", (ulong)h->curregion);
 	__db_msg(env, "\tnregions: %lu", (ulong)h->nregions);
 	__db_msg(env, "\tgbytes: %lu", (ulong)h->gbytes);
@@ -526,7 +526,7 @@ int __db_prpage_int(ENV * env, DB_MSGBUF * mbp, DB * dbp, char * lead, PAGE * h,
 	if(!HEAPTYPE(h))
 		__db_msgadd(env, mbp, " level %lu", (ulong)h->level);
 	/* Record count. */
-	if(TYPE(h) == P_IBTREE || TYPE(h) == P_IRECNO || (dbp && TYPE(h) == P_LRECNO && h->pgno == ((BTREE *)dbp->bt_internal)->bt_root))
+	if(TYPE(h) == P_IBTREE || TYPE(h) == P_IRECNO || (dbp && TYPE(h) == P_LRECNO && h->pgno == static_cast<BTREE *>(dbp->bt_internal)->bt_root))
 		__db_msgadd(env, mbp, " records: %lu", (ulong)RE_NREC(h));
 	DB_MSGBUF_FLUSH(env, mbp);
 

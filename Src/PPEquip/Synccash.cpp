@@ -63,7 +63,8 @@ public:
 	Sync_BillTaxEntry & SLAPI  at(uint p);
 };
 
-IMPL_CMPFUNC(Sync_BillTaxEnKey, i1, i2) { RET_CMPCASCADE2((const Sync_BillTaxEntry*)i1, (const Sync_BillTaxEntry*)i2, VAT, SalesTax); }
+IMPL_CMPFUNC(Sync_BillTaxEnKey, i1, i2) 
+	{ RET_CMPCASCADE2(static_cast<const Sync_BillTaxEntry *>(i1), static_cast<const Sync_BillTaxEntry *>(i2), VAT, SalesTax); }
 
 int SLAPI Sync_BillTaxArray::Search(long VAT, long salesTax, uint * p)
 {

@@ -267,7 +267,7 @@ SString & SLAPI PPObject::GetAcceptMsg(PPID objType, PPID objID, int upd, SStrin
 }
 
 //static
-int SLAPI PPObject::Helper_PutConfig(PPID cfgPropID, PPID cfgObjType, int isNew, void * pData, size_t sz, int use_ta)
+int SLAPI PPObject::Helper_PutConfig(PPID cfgPropID, PPID cfgObjType, int isNew, const void * pData, size_t sz, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -896,14 +896,14 @@ int SLAPI PPObject::EditSpcRightFlags(uint dlgID, uint flCtlID, uint sflCtlID, u
 		{
 			int    s = 1;
 			if(dir > 0)
-				setDTS((ObjRights*)pData);
+				setDTS(static_cast<ObjRights *>(pData));
 			else if(dir < 0)
-				getDTS((ObjRights*)pData);
+				getDTS(static_cast<ObjRights *>(pData));
 			else
 				s = TDialog::TransmitData(dir, pData);
 			return s;
 		}
-		int setDTS(ObjRights * pData)
+		int setDTS(const ObjRights * pData)
 		{
 			ushort comm_rt = 0, spec_rt = 0;
 			if(pData) {

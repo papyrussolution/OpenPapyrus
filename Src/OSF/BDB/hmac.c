@@ -15,7 +15,7 @@
 #define HMAC_OUTPUT_SIZE        20
 #define HMAC_BLOCK_SIZE 64
 
-static void __db_hmac __P((uint8*, uint8*, size_t, uint8 *));
+static void __db_hmac(uint8*, uint8*, size_t, uint8 *);
 /*
  * !!!
  * All of these functions use a ctx structure on the stack.  The __db_SHA1Init
@@ -84,19 +84,19 @@ void __db_chksum(void * hdr, uint8 * data, size_t data_len, uint8 * mac_key, uin
 	if(hdr == NULL)
 		memzero(store, sumlen);
 	else
-		store = ((HDR *)hdr)->chksum;
+		store = static_cast<HDR *>(hdr)->chksum;
 	if(mac_key == NULL) {
 		/* Just a hash, no MAC */
 		hash4 = __ham_func4(NULL, data, (uint32)data_len);
 		if(hdr != NULL)
-			hash4 ^= ((HDR *)hdr)->prev^((HDR *)hdr)->len;
+			hash4 ^= static_cast<const HDR *>(hdr)->prev ^ static_cast<const HDR *>(hdr)->len;
 		memcpy(store, &hash4, sumlen);
 	}
 	else {
 		__db_hmac(mac_key, data, data_len, store);
 		if(hdr != 0) {
-			((int *)store)[0] ^= ((HDR *)hdr)->prev;
-			((int *)store)[1] ^= ((HDR *)hdr)->len;
+			((int *)store)[0] ^= static_cast<const HDR *>(hdr)->prev;
+			((int *)store)[1] ^= static_cast<const HDR *>(hdr)->len;
 		}
 	}
 	return;

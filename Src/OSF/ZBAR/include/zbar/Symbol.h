@@ -375,7 +375,7 @@ private:
 	{
 		if(!_sym)
 			return ("");
-		return (zbar_symbol_xml(_sym, (char**)&_xmlbuf, (uint *)&_xmllen));
+		return (zbar_symbol_xml(_sym, (char **)&_xmlbuf, (uint *)&_xmllen));
 	}
 protected:
 	/// (re)initialize Symbol from C symbol object.

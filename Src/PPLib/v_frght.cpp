@@ -7,11 +7,71 @@
 //
 // @ModuleDef(PPViewFreight)
 //
-IMPLEMENT_PPFILT_FACTORY(Freight); SLAPI FreightFilt::FreightFilt() : PPBaseFilt(PPFILT_FREIGHT, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(Freight); SLAPI FreightFilt::FreightFilt() : PPBaseFilt(PPFILT_FREIGHT, 0, 1), P_TagF(0) // @v10.3.11 ver 0-->1
 {
 	SetFlatChunk(offsetof(FreightFilt, ReserveStart),
 		offsetof(FreightFilt, Reserve)-offsetof(FreightFilt, ReserveStart)+sizeof(Reserve));
+	SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(FreightFilt, P_TagF));
 	Init(1, 0);
+}
+
+FreightFilt & FASTCALL FreightFilt::operator = (const FreightFilt & rS)
+{
+	Copy(&rS, 0);
+	return *this;
+}
+
+int SLAPI FreightFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+{
+	int    ok = -1;
+	if(ver == 0) {
+		class FreightFilt_v0 : public PPBaseFilt {
+		public:
+			SLAPI  FreightFilt_v0() : PPBaseFilt(PPFILT_FREIGHT, 0, 0)
+			{
+				SetFlatChunk(offsetof(FreightFilt, ReserveStart),
+					offsetof(FreightFilt, Reserve)-offsetof(FreightFilt, ReserveStart)+sizeof(Reserve));
+				Init(1, 0);
+			}
+			char   ReserveStart[24]; // @anchor
+			PPID   StorageLocID;     // Место хранения
+			PPID   PortOfLoading;    // Пункт погрузки
+			DateRange BillPeriod;
+			DateRange ShipmPeriod;
+			DateRange ArrvlPeriod;
+			PPID   LocID;
+			PPID   OpID;
+			PPID   ObjectID;
+			PPID   ShipID;
+			PPID   PortID;           // Пункт разгрузки
+			PPID   CaptainID;
+			long   Flags;
+			long   Order;
+			long   Reserve;          // @anchor Заглушка для отмера "плоского" участка фильтра
+		};
+		FreightFilt_v0 fv0;
+		THROW(fv0.Read(rBuf, 0));
+		memzero(ReserveStart, sizeof(ReserveStart));
+		memzero(&Reserve, sizeof(Reserve));
+#define CPYFLD(f) f = fv0.f
+			CPYFLD(StorageLocID);
+			CPYFLD(PortOfLoading);
+			CPYFLD(BillPeriod);
+			CPYFLD(ShipmPeriod);
+			CPYFLD(ArrvlPeriod);
+			CPYFLD(LocID);
+			CPYFLD(OpID);
+			CPYFLD(ObjectID);
+			CPYFLD(ShipID);
+			CPYFLD(PortID);
+			CPYFLD(CaptainID);
+			CPYFLD(Flags);
+			CPYFLD(Order);
+#undef CPYFLD
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
 }
 
 SLAPI PPViewFreight::PPViewFreight() : PPView(0, &Filt, PPVIEW_FREIGHT), P_BObj(BillObj), P_TmpTbl(0)
@@ -45,7 +105,16 @@ private:
 IMPL_HANDLE_EVENT(FreightFiltDialog)
 {
 	TDialog::handleEvent(event);
-	if(event.isCbSelected(CTLSEL_FRGHTFLT_OP)) {
+	if(event.isCmd(cmTags)) { // @v10.3.11
+		SETIFZ(Data.P_TagF, new TagFilt());
+		if(!Data.P_TagF)
+			PPError(PPERR_NOMEM);
+		else if(!EditTagFilt(PPOBJ_BILL, Data.P_TagF))
+			PPError();
+		if(Data.P_TagF->IsEmpty())
+			ZDELETE(Data.P_TagF);
+	}
+	else if(event.isCbSelected(CTLSEL_FRGHTFLT_OP)) {
 		if(getCtrlView(CTLSEL_FRGHTFLT_OBJECT)) {
 			PPID   acc_sheet_id = 0;
 			getCtrlData(CTLSEL_FRGHTFLT_OP, &Data.OpID);
@@ -181,7 +250,7 @@ int SLAPI PPViewFreight::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	if(!Filt.IsA(pFilt))
 		return 0;
-	FreightFilt * p_filt = (FreightFilt *)pFilt;
+	FreightFilt * p_filt = static_cast<FreightFilt *>(pFilt);
 	DIALOG_PROC_BODY(FreightFiltDialog, p_filt);
 }
 
@@ -207,6 +276,12 @@ int SLAPI PPViewFreight::Init_(const PPBaseFilt * pFilt)
 			bill_filt.LocList.Add(Filt.LocID);
 			bill_filt.OpID = Filt.OpID;
 			bill_filt.ObjectID = Filt.ObjectID;
+			// @v10.3.11 {
+			if(Filt.P_TagF) {
+				ZDELETE(bill_filt.P_TagF);
+				bill_filt.P_TagF = new TagFilt(*Filt.P_TagF);
+			}
+			// } @v10.3.11 
 			if(!(Filt.Flags & FreightFilt::fUseCargoParam)) // AHTOXA
 				bill_filt.Flags |= BillFilt::fFreightedOnly;
 			THROW(v_bill.Init_(&bill_filt));
@@ -225,7 +300,7 @@ int SLAPI PPViewFreight::Init_(const PPBaseFilt * pFilt)
 					// достаточно велик.
 					//
 					// Таким образом, если в фильтре указан контрагент либо установлен
-					// период документов до полугода, то применяем переобор "по документам",
+					// период документов до полугода, то применяем перебор "по документам",
 					// в противном случае пытаемся "по фрахтам" (функция GetListByFreightFilt
 					// сама определит возможность такого перебора).
 					//
@@ -246,7 +321,7 @@ int SLAPI PPViewFreight::Init_(const PPBaseFilt * pFilt)
 				THROW(r);
 				if(r > 0) {
 					for(ulong uid = 0; fr_bill_list.Enum(&uid);) {
-						PPID bill_id = (PPID)uid;
+						PPID bill_id = static_cast<PPID>(uid);
 						BillTbl::Rec bill_rec;
 						if(P_BObj->Search(bill_id, &bill_rec) > 0 && v_bill.CheckIDForFilt(bill_id, 0)) {
 							if(FillTempTableRec(&bill_rec, &rec) > 0)

@@ -20,44 +20,90 @@ int  SLAPI SaveDataStruct(const char *pDataName, const char *pTempPath, const ch
 //
 //
 //
+static int FindExeByExt2(const char * pExt, SString & rResult, const char * pAddedSearchString)
+{
+	rResult.Z();
+	int    ok = 0;
+	//TCHAR  tbuf[MAXPATH];
+	//char * p_chr = 0;
+	SString temp_buf;
+	//DWORD  v_type = REG_SZ ;
+	//DWORD  bufsize = SIZEOFARRAY(tbuf);
+	//
+	//tbuf[0] = 0;
+	SString val_buf;
+	WinRegKey reg_key(HKEY_CLASSES_ROOT, pExt, 1);
+	if(reg_key.GetString(0, val_buf) > 0) {
+		if(pAddedSearchString && val_buf.IsEqNC(pAddedSearchString)) {
+			WinRegKey reg_key_app(HKEY_CLASSES_ROOT, val_buf, 1);
+			if(reg_key_app.GetString(0, temp_buf) > 0) {
+				temp_buf.ReplaceStr(" ", 0, 0);
+				val_buf = temp_buf;
+			}
+		}
+		val_buf.SetLastSlash().Cat("shell").SetLastSlash().Cat("open").SetLastSlash().Cat("command");
+		WinRegKey reg_key_exe(HKEY_CLASSES_ROOT, val_buf, 1);
+		if(reg_key_exe.GetString(0, val_buf) > 0) {
+			val_buf.Strip();
+			if(val_buf.C(0) == '"') {
+				val_buf.ShiftLeft();
+				size_t s_pos = 0;
+				if(val_buf.SearchChar('"', &s_pos)) {
+					val_buf.Excise(s_pos, 1);
+				}
+				s_pos = 0;
+				if(val_buf.SearchChar('.', &s_pos)) {
+					size_t space_pos = 0;
+					if(val_buf.SearchCharPos(s_pos+1, ' ', &space_pos))
+						val_buf.Trim(space_pos);
+				}
+				rResult = val_buf;
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
+#if 0 // @v10.3.11 {
 static int FindExeByExt(const char * pExt, char * pExe, size_t buflen, const char * pAddedSearchString)
 {
 	//
 	// @todo Перестроить функцию с использованием WinRegKey
 	//
 	int    ok = 0;
-	char   buf[MAXPATH];
+	TCHAR  tbuf[MAXPATH];
 	char * p_chr = 0;
 	SString temp_buf;
 	DWORD  v_type = REG_SZ ;
-	DWORD  bufsize = MAXPATH;
+	DWORD  bufsize = SIZEOFARRAY(tbuf);
 	if(pExe) {
-		buf[0] = 0;
-		if(SHGetValue(HKEY_CLASSES_ROOT, SUcSwitch(pExt), NULL, &v_type, buf, &bufsize) == ERROR_SUCCESS) { // @unicodeproblem
+		tbuf[0] = 0;
+		if(SHGetValue(HKEY_CLASSES_ROOT, SUcSwitch(pExt), NULL, &v_type, tbuf, &bufsize) == ERROR_SUCCESS) { // @unicodeproblem
 			v_type = REG_SZ;
 			bufsize = MAXPATH;
-			if(pAddedSearchString && stricmp(pAddedSearchString, buf) == 0 &&
-				SHGetValue(HKEY_CLASSES_ROOT, buf, NULL, &v_type, buf, &bufsize) == ERROR_SUCCESS) { // @unicodeproblem
+			if(pAddedSearchString && stricmp(pAddedSearchString, tbuf) == 0 &&
+				SHGetValue(HKEY_CLASSES_ROOT, tbuf, NULL, &v_type, tbuf, &bufsize) == ERROR_SUCCESS) { // @unicodeproblem
 				v_type = REG_SZ;
 				bufsize = MAXPATH;
-				strip(buf);
-				while((p_chr = sstrchr(buf, ' ')) != NULL)
+				strip(tbuf);
+				while((p_chr = sstrchr(tbuf, ' ')) != NULL)
 					strcpy(p_chr, p_chr + 1);
 			}
 			temp_buf.Z().CatChar('\\').Cat("shell").SetLastSlash().Cat("open").SetLastSlash().Cat("command");
-			strcat(buf, temp_buf);
-			if(SHGetValue(HKEY_CLASSES_ROOT, buf, NULL, &v_type, buf, &bufsize) == ERROR_SUCCESS) { // @unicodeproblem
-				strip(buf);
-				if(buf[0] == '"') {
-					strcpy(buf, buf + 1);
-					if((p_chr = sstrchr(buf, '"')) != NULL)
+			strcat(tbuf, temp_buf);
+			if(SHGetValue(HKEY_CLASSES_ROOT, tbuf, NULL, &v_type, tbuf, &bufsize) == ERROR_SUCCESS) { // @unicodeproblem
+				strip(tbuf);
+				if(tbuf[0] == '"') {
+					strcpy(tbuf, tbuf + 1);
+					if((p_chr = sstrchr(tbuf, '"')) != NULL)
 						strcpy(p_chr, p_chr + 1);
 				}
-				if((p_chr = sstrchr(buf, '.')) != NULL)
+				if((p_chr = sstrchr(tbuf, '.')) != NULL)
 					if((p_chr = sstrchr(p_chr, ' ')) != NULL)
 						*p_chr = 0;
-				if(buflen > sstrlen(buf)) {
-					strcpy(pExe, buf);
+				if(buflen > sstrlen(tbuf)) {
+					strcpy(pExe, tbuf);
 					ok = 1;
 				}
 				else
@@ -67,6 +113,7 @@ static int FindExeByExt(const char * pExt, char * pExe, size_t buflen, const cha
 	}
 	return ok;
 }
+#endif // } 0 @v10.3.11
 //
 //
 //
@@ -981,7 +1028,8 @@ public:
 	{
 		int    ok = 1;
 		SString temp_buf;
-		char   cr_path[MAXPATH];
+		//char   cr_path[MAXPATH];
+		SString cr_path_;
 		StrAssocArray list;
 		P_Data = pData;
 		SETIFZ(P_Data->Dest, 1);
@@ -998,7 +1046,7 @@ public:
 		AddClusterAssoc(CTL_PRINT2_ACTION, 4, PrnDlgAns::aPrepareData);
 		AddClusterAssoc(CTL_PRINT2_ACTION, 5, PrnDlgAns::aPrepareDataAndExecCR);
 		SetClusterData(CTL_PRINT2_ACTION, P_Data->Dest);
-		int    is_there_cr = FindExeByExt(".rpt", cr_path, sizeof(cr_path), "CrystalReports.9.1");
+		int    is_there_cr = FindExeByExt2(".rpt", cr_path_, "CrystalReports.9.1");
 		if(!is_there_cr)
 			DisableClusterItem(CTL_PRINT2_ACTION, 5, 1);
 		THROW(P_Data->SetupReportEntries(0));
@@ -2055,7 +2103,8 @@ int SLAPI SaveDataStruct(const char *pDataName, const char *pTempPath, const cha
 {
 	int    ok = -1;
 	SString path, fname;
-	char   cr_path[MAXPATH];
+	//char   cr_path[MAXPATH];
+	SString cr_path_;
 	SvdtStrDlgAns * p_ssda = 0;
 	// @v9.8.9 PPIniFile ini_file;
 	// @v9.8.9 if(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_REPORTDATAPATH, path) > 0 && (CrwError == PE_ERR_ERRORINDATABASEDLL)) {
@@ -2069,7 +2118,7 @@ int SLAPI SaveDataStruct(const char *pDataName, const char *pTempPath, const cha
 		p_ssda->SvDt = 1;
 		strnzcpy(p_ssda->SvDtPath, path, MAXPATH);
 		if((p_chr = sstrchr(p_chr, '.')) != NULL)
-			p_ssda->EdRep = FindExeByExt(p_chr, cr_path, sizeof(cr_path), "CrystalReports.9.1");
+			p_ssda->EdRep = FindExeByExt2(p_chr, cr_path_, "CrystalReports.9.1");
 		else
 			p_ssda->EdRep = 0;
 		strnzcpy(p_ssda->EdRepPath, pRepFileName, MAXPATH);
@@ -2085,7 +2134,7 @@ int SLAPI SaveDataStruct(const char *pDataName, const char *pTempPath, const cha
 				CopyDataStruct(pTempPath, path, PPGetFileName(PPFILNAM_ITER_BTR, fname));
 			}
 			if(p_ssda->EdRep)
-				spawnl(_P_NOWAIT, cr_path, cr_path, p_ssda->EdRepPath, 0);
+				spawnl(_P_NOWAIT, cr_path_, cr_path_, p_ssda->EdRepPath, 0);
 		}
 		ok = 1;
 	}
@@ -2411,10 +2460,11 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 					break;
 				case PrnDlgAns::aPrepareDataAndExecCR:
 					{
-						char   cr_path[MAXPATH];
-						int    is_there_cr = FindExeByExt(".rpt", cr_path, sizeof(cr_path), "CrystalReports.9.1");
+						//char   cr_path[MAXPATH];
+						SString cr_path_;
+						int    is_there_cr = FindExeByExt2(".rpt", cr_path_, "CrystalReports.9.1");
 						if(is_there_cr) {
-							(temp_buf = cr_path).Space().Cat(fn);
+							(temp_buf = cr_path_).Space().Cat(fn);
 							STempBuffer cmd_line((temp_buf.Len() + 32) * sizeof(TCHAR));
 							strnzcpy(cmd_line, temp_buf, cmd_line.GetSize() / sizeof(TCHAR));
 							STARTUPINFO si;

@@ -135,7 +135,7 @@ int SLAPI Btrieve::RemoveContinuous(const char * pFileName /* if fname == 0 then
 	uint16 bl;
 	if(pFileName) {
 		index = 2;
-		bl = (uint16)(sstrlen(pFileName) + 1);
+		bl = static_cast<uint16>(sstrlen(pFileName) + 1);
 	}
 	else {
 		index = 1;

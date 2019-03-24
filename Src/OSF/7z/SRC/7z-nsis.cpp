@@ -5016,7 +5016,7 @@ namespace NArchive {
 			}
 			else {
 				size_t processedSize = FirstHeader.HeaderSize;
-				RINOK(ReadStream(_stream, (Byte*)_data, &processedSize));
+				RINOK(ReadStream(_stream, (Byte *)_data, &processedSize));
 				if(processedSize < FirstHeader.HeaderSize)
 					return S_FALSE;
 			}
@@ -5400,7 +5400,7 @@ namespace NArchive {
 						if(processedSize == 0)
 							return S_FALSE;
 						if(outBuf)
-							memcpy((Byte*)*outBuf + (size_t)offset, Buffer, processedSize);
+							memcpy((Byte *)*outBuf + (size_t)offset, Buffer, processedSize);
 						offset += processedSize;
 						size -= processedSize;
 						StreamPos += processedSize;
@@ -5454,7 +5454,7 @@ namespace NArchive {
 						}
 						outBuf->ChangeSize_KeepData(nextSize, offset);
 					}
-					memcpy((Byte*)*outBuf + (size_t)offset, Buffer, size);
+					memcpy((Byte *)*outBuf + (size_t)offset, Buffer, size);
 				}
 				StreamPos += size;
 				offset += (uint32)size;

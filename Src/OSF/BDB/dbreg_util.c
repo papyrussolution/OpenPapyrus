@@ -509,7 +509,7 @@ skip_open:
 		 * the file system object.
 		 */
 		if(id != TXN_INVALID)
-			ret = __db_txnlist_update(env, (DB_TXNHEAD *)info, id, cstat, NULL, &ret_stat, 1);
+			ret = __db_txnlist_update(env, static_cast<DB_TXNHEAD *>(info), id, cstat, NULL, &ret_stat, 1);
 err:
 		if(cstat == TXN_UNEXPECTED)
 			goto not_right;
@@ -538,7 +538,7 @@ err:
 		 * If it exists neither on disk nor in memory
 		 * record that the open failed in the txnlist.
 		 */
-		if(id != TXN_INVALID && (ret = __db_txnlist_update(env, (DB_TXNHEAD *)info, id, TXN_UNEXPECTED, NULL, &ret_stat, 1)) != 0)
+		if(id != TXN_INVALID && (ret = __db_txnlist_update(env, static_cast<DB_TXNHEAD *>(info), id, TXN_UNEXPECTED, NULL, &ret_stat, 1)) != 0)
 			goto not_right;
 		/*
 		 * If this is file is missing then we may have crashed

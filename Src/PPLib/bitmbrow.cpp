@@ -1941,7 +1941,7 @@ void BillItemBrowser::addItem(int fromOrder, TIDlgInitData * pInitData, int sign
 			}
 			State |= stIsModified;
 			update(pos_bottom);
-			UpdatePriceDevList((long)pos, +1);
+			UpdatePriceDevList(static_cast<long>(pos), +1);
 		}
 	}
 	CATCH
@@ -2436,7 +2436,7 @@ private:
 									f.lfHeight = 12;
 									fd.SetLogFont(&f);
 									//fd.Size = (int16)MulDiv(fd.Size, 72, GetDeviceCaps(canv, LOGPIXELSY));
-									FontId = r_tb.CreateFont(0, fd.Face, fd.Size, fd.Flags);
+									FontId = r_tb.CreateFont_(0, fd.Face, fd.Size, fd.Flags);
 								}
 							}
 							if(FontId) {

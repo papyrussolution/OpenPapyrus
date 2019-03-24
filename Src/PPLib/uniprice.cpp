@@ -547,9 +547,9 @@ int SLAPI UnifyGoodsPrice()
 	PrcssrUnifyPriceFilt param;
 	PrcssrUnifyPrice upb;
 	if(param.Setup(0, LConfig.Location, 0) > 0 && upb.EditParam(&param) > 0) {
-		PPObjGoodsGroup::SetDynamicOwner(param.GoodsGrpID, 0, (long)0);
+		PPObjGoodsGroup::SetDynamicOwner(param.GoodsGrpID, 0, 0L);
 		ok = upb.Process(&param) ? 1 : PPErrorZ();
-		PPObjGoodsGroup::RemoveDynamicAlt(param.GoodsGrpID, (long)0);
+		PPObjGoodsGroup::RemoveDynamicAlt(param.GoodsGrpID, 0L);
 	}
 	return ok;
 }

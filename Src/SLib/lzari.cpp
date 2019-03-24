@@ -587,7 +587,7 @@ int LZAri::DecodeChar()
 {
 	int    ch = 0;
 	ulong  range = High - Low;
-	int    sym = BinarySearchSym((uint16)(((Value - Low + 1) * P_SymCum[0] - 1) / range));
+	int    sym = BinarySearchSym(static_cast<uint16>(((Value - Low + 1) * P_SymCum[0] - 1) / range));
 	High = Low + (range * P_SymCum[sym - 1]) / P_SymCum[0];
 	Low += (range * P_SymCum[sym]) / P_SymCum[0];
 	for(;;) {
@@ -615,7 +615,7 @@ int LZAri::DecodeChar()
 int LZAri::DecodePosition()
 {
 	ulong  range = High - Low;
-	int    position = BinarySearchPos((uint16)(((Value - Low + 1) * P_PositionCum[0] - 1) / range));
+	int    position = BinarySearchPos(static_cast<uint16>(((Value - Low + 1) * P_PositionCum[0] - 1) / range));
 	High = Low + (range * P_PositionCum[position]) / P_PositionCum[0];
 	Low += (range * P_PositionCum[position+1]) / P_PositionCum[0];
 	for(;;) {

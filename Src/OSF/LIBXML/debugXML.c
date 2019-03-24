@@ -1333,14 +1333,14 @@ int xmlLsCountNode(xmlNode * P_Node)
  *
  * Dump to @output the type and name of @node.
  */
-void xmlLsOneNode(FILE * output, xmlNode * P_Node) 
+void xmlLsOneNode(FILE * output, xmlNode * pNode) 
 {
 	if(output)  {
-		if(!P_Node) {
+		if(!pNode) {
 			fprintf(output, "NULL\n");
 			return;
 		}
-		switch(P_Node->type) {
+		switch(pNode->type) {
 			case XML_ELEMENT_NODE: fprintf(output, "-"); break;
 			case XML_ATTRIBUTE_NODE: fprintf(output, "a"); break;
 			case XML_TEXT_NODE: fprintf(output, "t"); break;
@@ -1357,76 +1357,69 @@ void xmlLsOneNode(FILE * output, xmlNode * P_Node)
 			case XML_NAMESPACE_DECL: fprintf(output, "n"); break;
 			default: fprintf(output, "?");
 		}
-		if(P_Node->type != XML_NAMESPACE_DECL) {
-			if(P_Node->properties != NULL)
+		if(pNode->type != XML_NAMESPACE_DECL) {
+			if(pNode->properties)
 				fprintf(output, "a");
 			else
 				fprintf(output, "-");
-			if(P_Node->nsDef != NULL)
+			if(pNode->nsDef)
 				fprintf(output, "n");
 			else
 				fprintf(output, "-");
 		}
-		fprintf(output, " %8d ", xmlLsCountNode(P_Node));
-		switch(P_Node->type) {
+		fprintf(output, " %8d ", xmlLsCountNode(pNode));
+		switch(pNode->type) {
 			case XML_ELEMENT_NODE:
-				if(P_Node->name) {
-					if((P_Node->ns != NULL) && (P_Node->ns->prefix != NULL))
-						fprintf(output, "%s:", P_Node->ns->prefix);
-					fprintf(output, "%s", (const char *)P_Node->name);
+				if(pNode->name) {
+					if(pNode->ns && pNode->ns->prefix)
+						fprintf(output, "%s:", pNode->ns->prefix);
+					fprintf(output, "%s", reinterpret_cast<const char *>(pNode->name));
 				}
 				break;
 			case XML_ATTRIBUTE_NODE:
-				if(P_Node->name)
-					fprintf(output, "%s", (const char *)P_Node->name);
+				if(pNode->name)
+					fprintf(output, "%s", reinterpret_cast<const char *>(pNode->name));
 				break;
 			case XML_TEXT_NODE:
-				if(P_Node->content) {
-					xmlDebugDumpString(output, P_Node->content);
-				}
+				if(pNode->content)
+					xmlDebugDumpString(output, pNode->content);
 				break;
 			case XML_CDATA_SECTION_NODE:
 				break;
 			case XML_ENTITY_REF_NODE:
-				if(P_Node->name)
-					fprintf(output, "%s", (const char *)P_Node->name);
+				if(pNode->name)
+					fprintf(output, "%s", reinterpret_cast<const char *>(pNode->name));
 				break;
 			case XML_ENTITY_NODE:
-				if(P_Node->name)
-					fprintf(output, "%s", (const char *)P_Node->name);
+				if(pNode->name)
+					fprintf(output, "%s", reinterpret_cast<const char *>(pNode->name));
 				break;
 			case XML_PI_NODE:
-				if(P_Node->name)
-					fprintf(output, "%s", (const char *)P_Node->name);
+				if(pNode->name)
+					fprintf(output, "%s", reinterpret_cast<const char *>(pNode->name));
 				break;
-			case XML_COMMENT_NODE:
-				break;
-			case XML_DOCUMENT_NODE:
-				break;
-			case XML_HTML_DOCUMENT_NODE:
-				break;
-			case XML_DOCUMENT_TYPE_NODE:
-				break;
-			case XML_DOCUMENT_FRAG_NODE:
-				break;
-			case XML_NOTATION_NODE:
-				break;
-			case XML_NAMESPACE_DECL: {
-				xmlNs * ns = (xmlNs *)P_Node;
-				if(ns->prefix == NULL)
-					fprintf(output, "default -> %s", (char *)ns->href);
-				else
-					fprintf(output, "%s -> %s", (char *)ns->prefix, (char *)ns->href);
-				break;
-			}
+			case XML_COMMENT_NODE: break;
+			case XML_DOCUMENT_NODE: break;
+			case XML_HTML_DOCUMENT_NODE: break;
+			case XML_DOCUMENT_TYPE_NODE: break;
+			case XML_DOCUMENT_FRAG_NODE: break;
+			case XML_NOTATION_NODE: break;
+			case XML_NAMESPACE_DECL: 
+				{
+					xmlNs * ns = reinterpret_cast<xmlNs *>(pNode);
+					if(ns->prefix == NULL)
+						fprintf(output, "default -> %s", (const char *)ns->href);
+					else
+						fprintf(output, "%s -> %s", (const char *)ns->prefix, (const char *)ns->href);
+					break;
+				}
 			default:
-				if(P_Node->name)
-					fprintf(output, "%s", (const char *)P_Node->name);
+				if(pNode->name)
+					fprintf(output, "%s", reinterpret_cast<const char *>(pNode->name));
 		}
 		fprintf(output, "\n");
 	}
 }
-
 /**
  * xmlBoolToText:
  * @boolval: a bool to turn into text
@@ -1441,12 +1434,9 @@ const char * xmlBoolToText(int boolval)
 }
 
 #ifdef LIBXML_XPATH_ENABLED
-/****************************************************************
-*								*
-*		The XML shell related functions			*
-*								*
-****************************************************************/
-
+//
+// The XML shell related functions
+//
 /*
  * @todo Improvement/cleanups for the XML shell
  *   - allow to shell out an editor on a subpart
@@ -1489,16 +1479,16 @@ void xmlShellPrintXPathError(int errorType, const char * arg)
  *
  * Print node to the output FILE
  */
-static void xmlShellPrintNodeCtxt(xmlShellCtxtPtr ctxt, xmlNode * P_Node)
+static void xmlShellPrintNodeCtxt(xmlShellCtxtPtr ctxt, xmlNode * pNode)
 {
-	if(P_Node) {
+	if(pNode) {
 		FILE * fp = ctxt ? ctxt->output : stdout;
-		if(P_Node->type == XML_DOCUMENT_NODE)
-			xmlDocDump(fp, (xmlDoc *)P_Node);
-		else if(P_Node->type == XML_ATTRIBUTE_NODE)
-			xmlDebugDumpAttrList(fp, (xmlAttr *)P_Node, 0);
+		if(pNode->type == XML_DOCUMENT_NODE)
+			xmlDocDump(fp, reinterpret_cast<xmlDoc *>(pNode));
+		else if(pNode->type == XML_ATTRIBUTE_NODE)
+			xmlDebugDumpAttrList(fp, (xmlAttr *)pNode, 0);
 		else
-			xmlElemDump(fp, P_Node->doc, P_Node);
+			xmlElemDump(fp, pNode->doc, pNode);
 		fprintf(fp, "\n");
 	}
 }

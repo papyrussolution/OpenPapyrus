@@ -700,7 +700,7 @@ namespace NArchive {
 			for(int i = 0; i < 2; i++) {
 				if(b[i] != b[3 - i])
 					IncorrectBigEndian = true;
-				val |= ((uint16)(b[i]) << (8 * i));
+				val |= (static_cast<uint16>(b[i]) << (8 * i));
 			}
 			return (uint16)val;
 		}
@@ -812,7 +812,7 @@ namespace NArchive {
 			r.VolSequenceNumber = ReadUInt16();
 			Byte idLen = ReadByte();
 			r.FileId.Alloc(idLen);
-			ReadBytes((Byte*)r.FileId, idLen);
+			ReadBytes((Byte *)r.FileId, idLen);
 			unsigned padSize = 1 - (idLen & 1);
 
 			// SkipZeros(padSize);
@@ -822,7 +822,7 @@ namespace NArchive {
 				throw CHeaderErrorException();
 			unsigned rem = len - curPos;
 			r.SystemUse.Alloc(rem);
-			ReadBytes((Byte*)r.SystemUse, rem);
+			ReadBytes((Byte *)r.SystemUse, rem);
 		}
 
 		void CInArchive::ReadDirRecord(CDirRecord &r)

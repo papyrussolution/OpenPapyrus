@@ -64,26 +64,16 @@ cairo_int_status_t _cairo_analysis_surface_merge_status(cairo_int_status_t statu
 	assert(!_cairo_int_status_is_error(status_a));
 	assert(!_cairo_int_status_is_error(status_b));
 	/* return the most important status */
-	if(status_a == CAIRO_INT_STATUS_UNSUPPORTED ||
-	    status_b == CAIRO_INT_STATUS_UNSUPPORTED)
+	if(status_a == CAIRO_INT_STATUS_UNSUPPORTED || status_b == CAIRO_INT_STATUS_UNSUPPORTED)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
-	if(status_a == CAIRO_INT_STATUS_IMAGE_FALLBACK ||
-	    status_b == CAIRO_INT_STATUS_IMAGE_FALLBACK)
+	if(status_a == CAIRO_INT_STATUS_IMAGE_FALLBACK || status_b == CAIRO_INT_STATUS_IMAGE_FALLBACK)
 		return CAIRO_INT_STATUS_IMAGE_FALLBACK;
-
-	if(status_a == CAIRO_INT_STATUS_ANALYZE_RECORDING_SURFACE_PATTERN ||
-	    status_b == CAIRO_INT_STATUS_ANALYZE_RECORDING_SURFACE_PATTERN)
+	if(status_a == CAIRO_INT_STATUS_ANALYZE_RECORDING_SURFACE_PATTERN || status_b == CAIRO_INT_STATUS_ANALYZE_RECORDING_SURFACE_PATTERN)
 		return CAIRO_INT_STATUS_ANALYZE_RECORDING_SURFACE_PATTERN;
-
-	if(status_a == CAIRO_INT_STATUS_FLATTEN_TRANSPARENCY ||
-	    status_b == CAIRO_INT_STATUS_FLATTEN_TRANSPARENCY)
+	if(status_a == CAIRO_INT_STATUS_FLATTEN_TRANSPARENCY || status_b == CAIRO_INT_STATUS_FLATTEN_TRANSPARENCY)
 		return CAIRO_INT_STATUS_FLATTEN_TRANSPARENCY;
-
 	/* at this point we have checked all the valid internal codes, so... */
-	assert(status_a == CAIRO_INT_STATUS_SUCCESS &&
-	    status_b == CAIRO_INT_STATUS_SUCCESS);
-
+	assert(status_a == CAIRO_INT_STATUS_SUCCESS && status_b == CAIRO_INT_STATUS_SUCCESS);
 	return CAIRO_INT_STATUS_SUCCESS;
 }
 
@@ -104,7 +94,7 @@ static const cairo_surface_backend_t proxy_backend  = {
 
 static cairo_surface_t * attach_proxy(cairo_surface_t * source, cairo_surface_t * target)
 {
-	struct proxy * proxy = (struct proxy *)_cairo_malloc(sizeof(*proxy));
+	struct proxy * proxy = static_cast<struct proxy *>(_cairo_malloc(sizeof(*proxy)));
 	if(unlikely(proxy == NULL))
 		return _cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);
 	_cairo_surface_init(&proxy->base, &proxy_backend, NULL, target->content, target->is_vector);
@@ -119,13 +109,10 @@ static void detach_proxy(cairo_surface_t * proxy)
 	cairo_surface_destroy(proxy);
 }
 
-static cairo_int_status_t _add_operation(cairo_analysis_surface_t * surface,
-    cairo_rectangle_int_t * rect,
-    cairo_int_status_t backend_status)
+static cairo_int_status_t _add_operation(cairo_analysis_surface_t * surface, cairo_rectangle_int_t * rect, cairo_int_status_t backend_status)
 {
 	cairo_int_status_t status;
 	cairo_box_t bbox;
-
 	if(rect->width == 0 || rect->height == 0) {
 		/* Even though the operation is not visible we must be careful
 		 * to not allow unsupported operations to be replayed to the
@@ -139,9 +126,7 @@ static cairo_int_status_t _add_operation(cairo_analysis_surface_t * surface,
 			return CAIRO_INT_STATUS_IMAGE_FALLBACK;
 		}
 	}
-
 	_cairo_box_from_rectangle(&bbox, rect);
-
 	if(surface->has_ctm) {
 		int tx, ty;
 		if(_cairo_matrix_is_integer_translation(&surface->ctm, &tx, &ty)) {
@@ -725,7 +710,7 @@ cairo_surface_t * _cairo_analysis_surface_create(cairo_surface_t * target)
 	cairo_status_t status = target->status;
 	if(unlikely(status))
 		return _cairo_surface_create_in_error(status);
-	surface = (cairo_analysis_surface_t *)_cairo_malloc(sizeof(cairo_analysis_surface_t));
+	surface = static_cast<cairo_analysis_surface_t *>(_cairo_malloc(sizeof(cairo_analysis_surface_t)));
 	if(unlikely(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
@@ -903,7 +888,7 @@ static const cairo_surface_backend_t cairo_null_surface_backend = {
 
 cairo_surface_t * _cairo_null_surface_create(cairo_content_t content)
 {
-	cairo_surface_t * surface = (cairo_surface_t *)_cairo_malloc(sizeof(cairo_surface_t));
+	cairo_surface_t * surface = static_cast<cairo_surface_t *>(_cairo_malloc(sizeof(cairo_surface_t)));
 	if(unlikely(surface == NULL)) {
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	}

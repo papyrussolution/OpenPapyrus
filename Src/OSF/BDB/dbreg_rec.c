@@ -228,7 +228,7 @@ int __dbreg_register_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op,
 		 */
 		if(do_rem && dbp) {
 			if(argp->id != TXN_INVALID) {
-				if((ret = __db_txnlist_find(env, (DB_TXNHEAD *)info, argp->txnp->txnid, &status)) != DB_NOTFOUND && ret != 0)
+				if((ret = __db_txnlist_find(env, static_cast<DB_TXNHEAD *>(info), argp->txnp->txnid, &status)) != DB_NOTFOUND && ret != 0)
 					goto out;
 				if(ret == DB_NOTFOUND || status != TXN_COMMIT)
 					F_SET(dbp, DB_AM_DISCARD);
@@ -312,7 +312,7 @@ static int __dbreg_open_file(ENV * env, DB_TXN * txn, __dbreg_register_args * ar
 			 * in the txnlist so that we know how to handle the
 			 * subtransaction that created the file system object.
 			 */
-			if(argp && argp->id != TXN_INVALID && (ret = __db_txnlist_update(env, (DB_TXNHEAD *)info, argp->id, TXN_EXPECTED, NULL, &status, 1)) != 0)
+			if(argp && argp->id != TXN_INVALID && (ret = __db_txnlist_update(env, static_cast<DB_TXNHEAD *>(info), argp->id, TXN_EXPECTED, NULL, &status, 1)) != 0)
 				return ret;
 			return 0;
 		}

@@ -113,9 +113,9 @@ int __db_upgrade(DB * dbp, const char * fname, uint32 flags)
 	 */
 	if((ret = __os_read(env, fhp, mbuf, sizeof(mbuf), &n)) != 0)
 		goto err;
-	switch(((DBMETA *)mbuf)->magic) {
+	switch(reinterpret_cast<DBMETA *>(mbuf)->magic) {
 	    case DB_BTREEMAGIC:
-		switch(((DBMETA *)mbuf)->version) {
+		switch(reinterpret_cast<DBMETA *>(mbuf)->version) {
 		    case 6:
 			//
 			// Before V7 not all pages had page types, so we do the single meta-data page by hand.
@@ -142,13 +142,13 @@ int __db_upgrade(DB * dbp, const char * fname, uint32 flags)
 		    case 9:
 			break;
 		    default:
-			__db_errx(env, DB_STR_A("0666", "%s: unsupported btree version: %lu", "%s %lu"), real_name, (ulong)((DBMETA *)mbuf)->version);
+			__db_errx(env, DB_STR_A("0666", "%s: unsupported btree version: %lu", "%s %lu"), real_name, (ulong)reinterpret_cast<DBMETA *>(mbuf)->version);
 			ret = DB_OLD_VERSION;
 			goto err;
 		}
 		break;
 	    case DB_HASHMAGIC:
-		switch(((DBMETA *)mbuf)->version) {
+		switch(reinterpret_cast<DBMETA *>(mbuf)->version) {
 		    case 4:
 		    case 5:
 			/*
@@ -202,7 +202,7 @@ int __db_upgrade(DB * dbp, const char * fname, uint32 flags)
 			 * extraction of the fields will need to use hard coded
 			 * offsets.
 			 */
-			meta = (DBMETA *)mbuf;
+			meta = reinterpret_cast<DBMETA *>(mbuf);
 			/*
 			 * We need the page size to do more.  Extract it from
 			 * the meta-data page.
@@ -253,13 +253,13 @@ int __db_upgrade(DB * dbp, const char * fname, uint32 flags)
 		    case 9:
 			break;
 		    default:
-			__db_errx(env, DB_STR_A("0668", "%s: unsupported hash version: %lu", "%s %lu"), real_name, (ulong)((DBMETA *)mbuf)->version);
+			__db_errx(env, DB_STR_A("0668", "%s: unsupported hash version: %lu", "%s %lu"), real_name, (ulong)reinterpret_cast<DBMETA *>(mbuf)->version);
 			ret = DB_OLD_VERSION;
 			goto err;
 		}
 		break;
 	    case DB_QAMMAGIC:
-		switch(((DBMETA *)mbuf)->version) {
+		switch(reinterpret_cast<DBMETA *>(mbuf)->version) {
 		    case 1:
 			/*
 			 * If we're in a Queue database, the only page that
@@ -281,14 +281,14 @@ int __db_upgrade(DB * dbp, const char * fname, uint32 flags)
 		    case 4:
 			break;
 		    default:
-			__db_errx(env, DB_STR_A("0669", "%s: unsupported queue version: %lu", "%s %lu"), real_name, (ulong)((DBMETA *)mbuf)->version);
+			__db_errx(env, DB_STR_A("0669", "%s: unsupported queue version: %lu", "%s %lu"), real_name, (ulong)reinterpret_cast<DBMETA *>(mbuf)->version);
 			ret = DB_OLD_VERSION;
 			goto err;
 		}
 		break;
 	    default:
-		M_32_SWAP(((DBMETA *)mbuf)->magic);
-		switch(((DBMETA *)mbuf)->magic) {
+		M_32_SWAP(reinterpret_cast<DBMETA *>(mbuf)->magic);
+		switch(reinterpret_cast<DBMETA *>(mbuf)->magic) {
 		    case DB_BTREEMAGIC:
 		    case DB_HASHMAGIC:
 		    case DB_QAMMAGIC:

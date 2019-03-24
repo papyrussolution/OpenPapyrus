@@ -1,5 +1,5 @@
 // PPINICFG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2012, 2013, 2015, 2016, 2017, 2018, 2019
 // @Kernel
 //
 #include <pp.h>
@@ -148,7 +148,7 @@ int SLAPI PPIniFile::Backup(uint maxCopies)
 		if(SCopyFile(file_name, new_name, 0, FILE_SHARE_READ, 0)) {
 			if(maxCopies > 0) {
 				while(fe_list.getCount() > (maxCopies-1)) {
-					(ps.Nam = nam).CatChar('-').CatLongZ(((FE *)fe_list.at(0))->C, 3);
+					(ps.Nam = nam).CatChar('-').CatLongZ(static_cast<const FE *>(fe_list.at(0))->C, 3);
 					ps.Merge(new_name);
 					SFile::Remove(new_name);
 					fe_list.atFree(0);

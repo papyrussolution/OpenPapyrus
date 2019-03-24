@@ -72,7 +72,7 @@ TXT_DB * TXT_DB_read(BIO * in, int num)
 				goto err;
 			offset = 0;
 		}
-		pp = (char**)p;
+		pp = (char **)p;
 		p += add;
 		n = 0;
 		pp[n++] = p;

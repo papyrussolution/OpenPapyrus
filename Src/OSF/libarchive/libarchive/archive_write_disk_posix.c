@@ -1151,7 +1151,7 @@ static int hfs_decompress(struct archive_write_disk * a)
 			uLong dest_len = MAX_DECMPFS_BLOCK_SIZE;
 			int zr;
 
-			zr = uncompress((Bytef*)a->uncompressed_buffer,
+			zr = uncompress((Bytef *)a->uncompressed_buffer,
 				&dest_len, a->compressed_buffer, data_size);
 			if(zr != Z_OK) {
 				archive_set_error(&a->archive,
@@ -1211,7 +1211,7 @@ static int hfs_drive_compressor(struct archive_write_disk * a, const char * buff
 
 	buffer_compressed = a->compressed_buffer +
 	    a->compressed_buffer_size - a->compressed_buffer_remaining;
-	a->stream.next_in = (Bytef*)(uintptr_t)(const void*)buff;
+	a->stream.next_in = (Bytef *)(uintptr_t)(const void*)buff;
 	a->stream.avail_in = size;
 	a->stream.next_out = buffer_compressed;
 	a->stream.avail_out = a->compressed_buffer_remaining;

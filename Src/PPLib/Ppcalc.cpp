@@ -276,19 +276,20 @@ int SLAPI CalcPriceParam::Restore()
 {
 	// VaPercent, RoundPrec, RoundDir, fRoundVat, fVatAboveAddition
 	WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::PrefSettings, 1); // @v9.2.0 readonly 0-->1
-	char   buf[128], temp_buf[64];
-	if(reg_key.GetString(WrParam_CalcPriceParam, buf, sizeof(buf))) {
-		StringSet ss(';', buf);
+	//char   buf[128];
+	SString temp_buf;
+	if(reg_key.GetString(WrParam_CalcPriceParam, temp_buf)) {
+		StringSet ss(';', temp_buf);
 		uint   pos = 0;
-		if(ss.get(&pos, temp_buf, sizeof(temp_buf))) {
+		if(ss.get(&pos, temp_buf)) {
 			VaPercent = round(atof(temp_buf), 4);
-			if(ss.get(&pos, temp_buf, sizeof(temp_buf))) {
+			if(ss.get(&pos, temp_buf)) {
 				RoundPrec = round(atof(temp_buf), 4);
-				if(ss.get(&pos, temp_buf, sizeof(temp_buf))) {
+				if(ss.get(&pos, temp_buf)) {
 					RoundDir = (int16)atol(temp_buf);
-					if(ss.get(&pos, temp_buf, sizeof(temp_buf))) {
+					if(ss.get(&pos, temp_buf)) {
 						SETFLAG(Flags, fRoundVat, atol(temp_buf));
-						if(ss.get(&pos, temp_buf, sizeof(temp_buf)))
+						if(ss.get(&pos, temp_buf))
 							SETFLAG(Flags, fVatAboveAddition, atol(temp_buf));
 						return 1;
 					}

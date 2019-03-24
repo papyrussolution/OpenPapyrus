@@ -36,19 +36,19 @@ void ngx_cdecl ngx_event_log(ngx_err_t err, const char * fmt, ...)
 	 * we do not log errors here since we use
 	 * Event Log only to log our own logs open errors
 	 */
-	if(RegCreateKeyEx(HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\nginx",
+	if(RegCreateKeyEx(HKEY_LOCAL_MACHINE, _T("SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\nginx"),
 		0, NULL, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, NULL, &key, NULL) != 0) {
 		return;
 	}
-	if(RegSetValueEx(key, "EventMessageFile", 0, REG_EXPAND_SZ, netmsg, sizeof(netmsg) - 1) != 0) {
+	if(RegSetValueEx(key, _T("EventMessageFile"), 0, REG_EXPAND_SZ, netmsg, sizeof(netmsg) - 1) != 0) {
 		return;
 	}
 	types = EVENTLOG_ERROR_TYPE;
-	if(RegSetValueEx(key, "TypesSupported", 0, REG_DWORD, (u_char *)&types, sizeof(long)) != 0) {
+	if(RegSetValueEx(key, _T("TypesSupported"), 0, REG_DWORD, (u_char *)&types, sizeof(long)) != 0) {
 		return;
 	}
 	RegCloseKey(key);
-	ev = RegisterEventSource(NULL, "nginx");
+	ev = RegisterEventSource(NULL, _T("nginx"));
 	msgarg[0] = (char *)text;
 	msgarg[1] = NULL;
 	msgarg[2] = NULL;

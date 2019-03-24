@@ -1892,7 +1892,7 @@ int FASTCALL GetCommConfig(PPCommConfig * pCfg)
 	return ok;
 }
 
-int FASTCALL SetCommConfig(PPCommConfig * pCfg, int use_ta)
+int FASTCALL SetCommConfig(const PPCommConfig * pCfg, int use_ta)
 {
 	return PPRef->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_COMMCFG, pCfg, sizeof(*pCfg), use_ta);
 }

@@ -39,7 +39,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-line-inline.h"
+//#include "cairo-line-inline.h"
 //#include "cairo-slope-private.h"
 
 static int line_compare_for_y_against_x(const cairo_line_t * a, int32_t y, int32_t x)
@@ -259,39 +259,29 @@ static int bbox_compare(const cairo_line_t * a,
 		bmin = b->p2.x;
 		bmax = b->p1.x;
 	}
-
 	if(amax < bmin)
 		return -1;
-
 	if(amin > bmax)
 		return +1;
-
 	return 0;
 }
 
-int cairo_lines_compare_at_y(const cairo_line_t * a,
-    const cairo_line_t * b,
-    int y)
+int cairo_lines_compare_at_y(const cairo_line_t * a, const cairo_line_t * b, int y)
 {
 	cairo_slope_t sa, sb;
 	int ret;
-
 	if(cairo_lines_equal(a, b))
 		return 0;
-
 	/* Don't bother solving for abscissa if the edges' bounding boxes
 	 * can be used to order them.
 	 */
 	ret = bbox_compare(a, b);
 	if(ret)
 		return ret;
-
 	ret = lines_compare_x_for_y(a, b, y);
 	if(ret)
 		return ret;
-
 	_cairo_slope_init(&sa, &a->p1, &a->p2);
 	_cairo_slope_init(&sb, &b->p1, &b->p2);
-
 	return _cairo_slope_compare(&sb, &sa);
 }

@@ -72,7 +72,7 @@ int GoodsTaxDialog::getEntry(PPGoodsTaxEntry * pEntry)
 	getCtrlString(CTL_GDSTAX_EXCISE, temp_buf);
 	if(temp_buf.NotEmptyS()) {
 		size_t dollar_pos = 0;
-		if(temp_buf.StrChr('$', &dollar_pos)) {
+		if(temp_buf.SearchChar('$', &dollar_pos)) {
 			temp_buf.Trim(dollar_pos);
 			Entry.Flags |= GTAXF_ABSEXCISE;
 		}

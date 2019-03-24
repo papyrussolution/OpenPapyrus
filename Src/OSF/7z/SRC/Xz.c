@@ -887,7 +887,7 @@ static SRes FASTCALL MixCoder_Code(CMixCoder * p, Byte * dest, SizeT * destLen, 
 	*srcLen = 0;
 	*status = CODER_STATUS_NOT_FINISHED;
 	if(!p->buf) {
-		p->buf = (Byte*)ISzAlloc_Alloc(p->alloc, CODER_BUF_SIZE * (MIXCODER_NUM_FILTERS_MAX - 1));
+		p->buf = (Byte *)ISzAlloc_Alloc(p->alloc, CODER_BUF_SIZE * (MIXCODER_NUM_FILTERS_MAX - 1));
 		if(!p->buf)
 			return SZ_ERROR_MEM;
 	}
@@ -1565,7 +1565,7 @@ SRes Xzs_ReadBackward(CXzs * p, ILookInStream * stream, int64 * startOffset, ICo
 		RINOK(res);
 		if(p->num == p->numAllocated) {
 			size_t newNum = p->num + p->num / 4 + 1;
-			Byte * data = (Byte*)ISzAlloc_Alloc(alloc, newNum * sizeof(CXzStream));
+			Byte * data = (Byte *)ISzAlloc_Alloc(alloc, newNum * sizeof(CXzStream));
 			if(data == 0)
 				return SZ_ERROR_MEM;
 			p->numAllocated = newNum;

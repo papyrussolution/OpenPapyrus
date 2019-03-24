@@ -376,11 +376,11 @@ static int __rep_check_uid(ENV*env, __rep_fileinfo_args * rfp, void * uid)
 
 }
 
-static int __rep_get_fileinfo(ENV*env, const char * file, const char * subdb, __rep_fileinfo_args * rfp, uint8 * uid)
+static int __rep_get_fileinfo(ENV * env, const char * file, const char * subdb, __rep_fileinfo_args * rfp, uint8 * uid)
 {
 	DB * dbp = 0;
 	DBC * dbc = 0;
-	DBMETA * dbmeta;
+	const DBMETA * dbmeta;
 	DB_MPOOLFILE * mpf = 0;
 	DB_THREAD_INFO * ip;
 	PAGE * pagep = 0;
@@ -397,7 +397,7 @@ static int __rep_get_fileinfo(ENV*env, const char * file, const char * subdb, __
 	/*
 	 * We have the meta page.  Set up our information.
 	 */
-	dbmeta = (DBMETA *)pagep;
+	dbmeta = reinterpret_cast<const DBMETA *>(pagep);
 	rfp->pgno = 0;
 	/*
 	 * Queue is a special-case.  We need to set max_pgno to 0 so that

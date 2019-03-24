@@ -56,7 +56,7 @@ static int SLAPI WritePStrToFile(const char * pStr, FILE * pStream)
 	int    ok = 1;
 	uint16 s;
 	if(pStr) {
-		s = (uint16)(sstrlen(pStr)+1);
+		s = static_cast<uint16>(sstrlen(pStr)+1);
 		THROW_V(fwrite(&s, sizeof(s), 1, pStream) == 1, SLERR_WRITEFAULT);
 		THROW_V(fwrite(pStr, s, 1, pStream) == 1, SLERR_WRITEFAULT);
 	}
@@ -1003,7 +1003,7 @@ SLAPI DL2_ObjList::DL2_ObjList() : SCollection()
 }
 
 //virtual
-void FASTCALL DL2_ObjList::freeItem(void * ptr) { delete ((Item *)ptr); }
+void FASTCALL DL2_ObjList::freeItem(void * ptr) { delete static_cast<Item *>(ptr); }
 
 int SLAPI DL2_ObjList::Set(PPID objType, const StringSet * pSs, int32 * pId)
 {
@@ -1012,7 +1012,7 @@ int SLAPI DL2_ObjList::Set(PPID objType, const StringSet * pSs, int32 * pId)
 	if(pSs && pSs->getCount()) {
 		size_t added_len = pSs->getDataLen();
 		for(uint i = 0; i < getCount(); i++) {
-			const  Item * p_item = (Item *)at(i);
+			const  Item * p_item = static_cast<const Item *>(at(i));
 			size_t len = p_item->Ss.getDataLen();
 			if(p_item->ObjType == objType && len == added_len && memcmp(p_item->Ss.getBuf(), pSs->getBuf(), len) == 0) {
 				id = p_item->Id;
@@ -1022,7 +1022,7 @@ int SLAPI DL2_ObjList::Set(PPID objType, const StringSet * pSs, int32 * pId)
 	}
 	else {
 		for(uint i = 0; i < getCount(); i++) {
-			const Item * p_item = (Item *)at(i);
+			const Item * p_item = static_cast<const Item *>(at(i));
 			if(p_item->ObjType == objType && p_item->Ss.getDataLen() == 0) {
 				id = p_item->Id;
 				break;

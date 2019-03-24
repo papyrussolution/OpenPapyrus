@@ -44,7 +44,7 @@ int TStaticText::setText(const char * s)
 		/* @v9.1.5
 		char   temp_buf[1024];
 		size_t p;
-		const char * t = Text.StrChr('~', &p);
+		const char * t = Text.SearchChar('~', &p);
 		if(t && t[1] && t[2] == '~') {
 			memcpy(temp_buf, (const char *)Text, p);
 			temp_buf[p] = '&';
@@ -62,7 +62,7 @@ int TStaticText::setText(const char * s)
 		//
 		SString temp_buf = Text;
 		size_t _p = 0;
-		while(temp_buf.StrChr('~', &_p) && temp_buf.C(_p+1) && temp_buf.C(_p+2) == '~') {
+		while(temp_buf.SearchChar('~', &_p) && temp_buf.C(_p+1) && temp_buf.C(_p+2) == '~') {
 			char new_item[4];
 			new_item[0] = '&';
 			new_item[1] = temp_buf.C(_p+1);
@@ -206,17 +206,17 @@ int TButton::IsDefault() const
 	return BIN(flags & bfDefault);
 }
 
-int TButton::LoadBitmap(uint bmpID)
+int TButton::LoadBitmap_(uint bmpID)
 {
 	BmpID = bmpID;
 	ZDeleteWinGdiObject(&HBmp);
-	HBmp = (BmpID > 32000) ? ::LoadBitmap(0, MAKEINTRESOURCE(BmpID)) : APPL->LoadBitmap(BmpID);
+	HBmp = (BmpID > 32000) ? ::LoadBitmap(0, MAKEINTRESOURCE(BmpID)) : APPL->LoadBitmap_(BmpID);
 	return 1;
 }
 
 int TButton::SetBitmap(uint bmpID)
 {
-	int    ok = LoadBitmap(bmpID);
+	int    ok = LoadBitmap_(bmpID);
 	if(ok)
 		::SendMessage(getHandle(), BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(HBmp));
 	return ok;
@@ -233,8 +233,8 @@ int TButton::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			TView::SetWindowProp(h_wnd, GWLP_USERDATA, this);
 			PrevWindowProc = static_cast<WNDPROC>(TView::SetWindowProp(h_wnd, GWLP_WNDPROC, ButtonDialogProc));
 			if(BmpID > 0 && TView::GetWindowStyle(h_wnd) & BS_BITMAP) {
-				LoadBitmap(BmpID);
-				SendDlgItemMessage(Parent, Id, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(HBmp));
+				LoadBitmap_(BmpID);
+				::SendDlgItemMessage(Parent, Id, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(HBmp));
 			}
 			SetupText(&Title);
 			break;
@@ -319,7 +319,7 @@ int TButton::TransmitData(int dir, void * pData)
 {
 	int    s = 0;
 	if(dir > 0) {
-		Title = (char *)pData;
+		Title = static_cast<const char *>(pData);
 		// @v9.1.5 SendDlgItemMessage(Parent, Id, WM_SETTEXT, 0, (LPARAM)(const char *)Title);
 		TView::SSetWindowText(GetDlgItem(Parent, Id), Title); // @v9.1.5
 	}
@@ -451,7 +451,7 @@ LRESULT CALLBACK TInputLine::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 				di.rcItem.top     = 0;
 				SETFLAG(di.itemState, ODS_FOCUS, focus_hwnd == hWnd);
 				SETFLAG(di.itemState, ODS_DISABLED, !IsWindowEnabled(hWnd));
-				lParam = (long)&di;
+				lParam = reinterpret_cast<LPARAM>(&di);
 				if(APPL->DrawControl(hWnd, uMsg, wParam, reinterpret_cast<LPARAM>(&di)) > 0) {
 					ReleaseDC(hWnd, di.hDC);
 					/* Если в DrawControl используется RoundRect, то этот кусок необходимо включить в код

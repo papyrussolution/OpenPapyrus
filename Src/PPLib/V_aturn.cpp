@@ -178,7 +178,8 @@ struct ACGREC { // @flat
 	double Amount;
 };
 
-IMPL_CMPFUNC(ACGREC, i1, i2) { RET_CMPCASCADE4((const ACGREC *)i1, (const ACGREC *)i2, Dt, DbtAccID, CrdAccID, CurID); }
+IMPL_CMPFUNC(ACGREC, i1, i2) 
+	{ RET_CMPCASCADE4(static_cast<const ACGREC *>(i1), static_cast<const ACGREC *>(i2), Dt, DbtAccID, CrdAccID, CurID); }
 
 int SLAPI PPViewAccturn::CreateGrouping()
 {

@@ -834,12 +834,12 @@ int __db_move_metadata(DBC * dbc, DBMETA ** metap, DB_COMPACT * c_data)
 			ret = __txn_lockevent(dbp->env, dbp->cur_txn, dbp, &dbp->handle_lock, dbp->locker);
 	}
 	if(dbp->type == DB_HASH) {
-		ht = (HASH *)dbp->h_internal;
+		ht = static_cast<HASH *>(dbp->h_internal);
 		ht->meta_pgno = dbp->meta_pgno;
 		ht->revision = ++dbp->mpf->mfp->revision;
 	}
 	else {
-		bt = (BTREE *)dbp->bt_internal;
+		bt = static_cast<BTREE *>(dbp->bt_internal);
 		bt->bt_meta = dbp->meta_pgno;
 		bt->revision = ++dbp->mpf->mfp->revision;
 	}

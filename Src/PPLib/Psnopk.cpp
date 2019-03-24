@@ -713,7 +713,7 @@ int SLAPI PoClause_::PutToPropBuf(STempBuffer & rBuf) const
 	const size_t sz = sizeof(_POKClause) + (es_len ? (es_len+1) : 0);
 	THROW_SL(rBuf.Alloc(sz));
 	memzero(rBuf, rBuf.GetSize());
-	_POKClause * p_sbuf = (_POKClause *)(char *)rBuf;
+	_POKClause * p_sbuf = static_cast<_POKClause *>(rBuf.vptr());
 	p_sbuf->Num = Num;
 	p_sbuf->VerbID = VerbID;
 	p_sbuf->Subj = Subj;
@@ -722,15 +722,15 @@ int SLAPI PoClause_::PutToPropBuf(STempBuffer & rBuf) const
 	p_sbuf->Ver = DS.GetVersion();
 	p_sbuf->Size = sz;
 	if(sz > sizeof(*p_sbuf))
-		ext_string.CopyTo((char *)(p_sbuf+1), sz-sizeof(*p_sbuf));
+		ext_string.CopyTo(reinterpret_cast<char *>(p_sbuf+1), sz-sizeof(*p_sbuf));
 	CATCHZOK
 	return ok;
 }
 
-int SLAPI PoClause_::GetFromPropBuf(STempBuffer & rBuf, long exValSrc)
+int SLAPI PoClause_::GetFromPropBuf(const STempBuffer & rBuf, long exValSrc)
 {
 	int    ok = 1;
-	const _POKClause * p_sbuf = (_POKClause *)(char *)rBuf;
+	const _POKClause * p_sbuf = static_cast<const _POKClause *>(rBuf.vcptr());
 	if(rBuf.GetSize() >= sizeof(*p_sbuf)) {
 		size_t sz = sizeof(*p_sbuf);
 		if(p_sbuf->Ver.IsGt(7, 7, 12)) {
@@ -746,7 +746,7 @@ int SLAPI PoClause_::GetFromPropBuf(STempBuffer & rBuf, long exValSrc)
 		Flags  = p_sbuf->Flags;
 		CmdText = 0;
 		if(sz > sizeof(*p_sbuf)) {
-			SString ext_string = (const char *)(p_sbuf+1);
+			SString ext_string = reinterpret_cast<const char *>(p_sbuf+1);
 			PPGetExtStrData(_POKClause::extstrCmdText, ext_string, CmdText);
 		}
 	}
@@ -808,7 +808,7 @@ int SLAPI PPObjPsnOpKind::GetPacket(PPID id, PPPsnOpKindPacket * pack)
 			pack->AllowedTags.Add(pack->Rec.ExValSrc);
 			pack->Rec.ExValSrc = 0;
 		}
-		for(PPID prop_id = 0; (r = ref->EnumProperties(Obj, id, &prop_id, (char *)prop_buf, prop_buf.GetSize())) > 0;) {
+		for(PPID prop_id = 0; (r = ref->EnumProperties(Obj, id, &prop_id, prop_buf.vptr(), prop_buf.GetSize())) > 0;) {
 			/* @v7.8.9 if(prop_id == POKPRP_EXTRA) {
 				_POKExtra & ex = *(_POKExtra*)(char *)prop_buf;
 				pack->PCPrmr.PersonKindID = ex.PrmrKindID;
@@ -1302,9 +1302,9 @@ int PsnOpDialog::editPsnConstr(int scnd)
 		explicit PsnConstrDialog(int scnd) : TDialog(scnd ? DLG_PSNOPKSC : DLG_PSNOPKPC), Scnd(scnd)
 		{
 		}
-		int    setDTS(PPPsnOpKindPacket::PsnConstr * pc)
+		int    setDTS(const PPPsnOpKindPacket::PsnConstr * pData)
 		{
-			data = *pc;
+			data = *pData;
 			SetupPPObjCombo(this, CTLSEL_PSNOPKPC_KIND, PPOBJ_PRSNKIND, data.PersonKindID, OLW_CANINSERT);
 			SetupPPObjCombo(this, CTLSEL_PSNOPKPC_RTAG, PPOBJ_TAG, data.RestrictTagID, 0);
 			ushort v = data.StatusType;

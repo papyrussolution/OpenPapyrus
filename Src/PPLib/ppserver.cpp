@@ -2988,7 +2988,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 						THROW(buf.IsValid());
 						THROW(message.DecodeMime64(buf, buf.GetSize(), &bin_size));
 						buf[bin_size] = 0;
-						message.Z().Cat((const char *)buf).Transf(CTRANSF_UTF8_TO_INNER);
+						message.Z().Cat(buf.cptr()).Transf(CTRANSF_UTF8_TO_INNER);
 					}
 					THROW(client.SmsInit_(albtr_cfg.Hdr.SmsAccID, from));
 					if(FormatPhone(old_phone, new_phone, err_msg)) {

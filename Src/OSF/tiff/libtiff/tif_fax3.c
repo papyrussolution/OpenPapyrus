@@ -579,7 +579,7 @@ static const int _msbmask[9] = { 0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f,
  */
 static void FASTCALL Fax3PutBits(TIFF * tif, unsigned int bits, unsigned int length)
 {
-	Fax3CodecState* sp = EncoderState(tif);
+	Fax3CodecState * sp = EncoderState(tif);
 	unsigned int bit = sp->bit;
 	int data = sp->data;
 	_PutBits(tif, bits, length);
@@ -610,11 +610,10 @@ static void FASTCALL Fax3PutBits(TIFF * tif, unsigned int bits, unsigned int len
  */
 static void putspan(TIFF* tif, int32 span, const tableentry* tab)
 {
-	Fax3CodecState* sp = EncoderState(tif);
-	unsigned int bit = sp->bit;
-	int data = sp->data;
-	unsigned int code, length;
-
+	Fax3CodecState * sp = EncoderState(tif);
+	uint bit = sp->bit;
+	int  data = sp->data;
+	uint code, length;
 	while(span >= 2624) {
 		const tableentry* te = &tab[63 + (2560>>6)];
 		code = te->code;

@@ -297,6 +297,8 @@ int FASTCALL PPFreight::CheckForFilt(const FreightFilt & rFilt) const
 				}
 				else if(!w_obj.IsChildOf(PortOfLoading, rFilt.PortOfLoading))
 					ok = 0;
+				else if(PPObjTag::CheckForTagFilt(PPOBJ_BILL, ID, rFilt.P_TagF) <= 0) // @v10.3.11
+					ok = 0;
 			}
 		}
 	}
@@ -1471,7 +1473,7 @@ int SLAPI PPLotExtCodeContainer::Serialize(int dir, SBuffer & rBuf, SSerializeCo
 			if(pTbl->search(2, &k2, spGe) && pTbl->data.BillID == billID) do {
 				int    is_found = 0;
 				for(uint i = 0; !is_found && i < getCount(); i++) {
-					InnerItem & r_item = *(InnerItem *)at(i);
+					InnerItem & r_item = *static_cast<InnerItem *>(at(i));
 					// @v10.2.9 if(r_item.RowIdx == pTbl->data.RByBill && r_item.Sign == pTbl->data.Sign) {
 					if(r_item.RowIdx == pTbl->data.RByBill && r_item.Flags == pTbl->data.Flags && r_item.BoxId == pTbl->data.BoxNo) { // @v10.2.9
 						GetS(r_item.CodeP, code_buf);
@@ -1494,7 +1496,7 @@ int SLAPI PPLotExtCodeContainer::Serialize(int dir, SBuffer & rBuf, SSerializeCo
 					BExtInsert bei(pTbl);
 					for(uint i = 0; i < getCount(); i++) {
 						if(!found_idx_list.bsearch(i+1)) {
-							InnerItem & r_item = *(InnerItem *)at(i);
+							InnerItem & r_item = *static_cast<InnerItem *>(at(i));
 							GetS(r_item.CodeP, code_buf);
 							LotExtCodeTbl::Rec rec;
 							MEMSZERO(rec);
@@ -2359,7 +2361,6 @@ void SLAPI PPBillPacket::Helper_Init()
 	SyncStatus = -2;
 	Reserve = 0;
 	LoadMoment = ZERODATETIME;
-	//Lots.setDelta(16); // @v9.5.1
 }
 
 SLAPI PPBillPacket::PPBillPacket() : PPBill()

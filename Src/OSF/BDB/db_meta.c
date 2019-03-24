@@ -57,7 +57,7 @@ static int __db_truncate_freelist(DBC*, DBMETA*, PAGE*, db_pgno_t*, uint32, uint
  */
 static void __db_init_meta(DB * dbp, void * p, db_pgno_t pgno, uint32 pgtype)
 {
-	DBMETA * meta = (DBMETA *)p;
+	DBMETA * meta = static_cast<DBMETA *>(p);
 	DB_LSN save_lsn = meta->Lsn;
 	memzero(meta, sizeof(DBMETA));
 	meta->Lsn = save_lsn;
@@ -532,8 +532,8 @@ void __db_freelist_pos(db_pgno_t pgno, db_pgno_t * list, uint32 nelem, uint32 * 
 
 static int __db_pglistcmp(const void * a, const void * b)
 {
-	db_pglist_t * ap = (db_pglist_t *)a;
-	db_pglist_t * bp = (db_pglist_t *)b;
+	const db_pglist_t * ap = static_cast<const db_pglist_t *>(a);
+	const db_pglist_t * bp = static_cast<const db_pglist_t *>(b);
 	return (ap->pgno > bp->pgno) ? 1 : (ap->pgno < bp->pgno) ? -1 : 0;
 }
 /*

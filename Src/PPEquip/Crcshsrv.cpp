@@ -2824,7 +2824,7 @@ static int SLAPI GetCrCshSrvDateTime(const char * pDttmBuf, long chk, LDATETIME 
 	// Для времени 00:00:00 кассовый сервер возвращает пустую строку,
 	// из-за этого такой случай приходится обрабатывать особо.
 	//
-	if(dttm_buf.StrChr(' ', &pos))
+	if(dttm_buf.SearchChar(' ', &pos))
 		strtotime(dttm_buf.ShiftLeft(pos).Strip(), TIMF_HMS, &tm);
 	else
 		tm = ZEROTIME;

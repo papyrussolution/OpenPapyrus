@@ -469,7 +469,7 @@ void xmlSchematronFree(xmlSchematronPtr schema)
 	if(schema) {
 		if(schema->doc && !(schema->preserve))
 			xmlFreeDoc(schema->doc);
-		SAlloc::F((char**)schema->namespaces);
+		SAlloc::F((char **)schema->namespaces);
 		xmlSchematronFreeRules(schema->rules);
 		xmlSchematronFreePatterns(schema->patterns);
 		xmlDictFree(schema->dict);

@@ -1,5 +1,5 @@
 // SINIFILE.CPP
-// Copyright (c) A.Sobolev 2007, 2010, 2011, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2007, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -41,7 +41,7 @@ SIniSectBuffer * SLAPI SIniFileBuffer::GetSect(const char * pName, uint * pPos)
 {
 	SIniSectBuffer * p_result = 0;
 	for(uint i = 0; !p_result && i < getCount(); i++) {
-		SIniSectBuffer * p_sect_buf = (SIniSectBuffer *)at(i);
+		SIniSectBuffer * p_sect_buf = static_cast<SIniSectBuffer *>(at(i));
 		if(p_sect_buf->Name.CmpNC(pName) == 0) {
 			ASSIGN_PTR(pPos, i);
 			p_result = p_sect_buf;
@@ -239,7 +239,7 @@ int SLAPI SIniSectBuffer::ShiftParam(uint pos, int up) // (up != 0) - вверх, (up
 //
 //
 //
-SLAPI SIniFile::SIniFile(const char * pFileName, int fcreate, int winCoding, int useIniBuf) : P_IniBuf(0), Flags(0)
+SLAPI SIniFile::SIniFile(const char * pFileName, int fcreate, int winCoding, int useIniBuf) : P_IniBuf(0), Flags(0), Cp(cpUndef)
 {
 	Init(pFileName, fcreate, winCoding, useIniBuf);
 }
@@ -304,6 +304,24 @@ long SLAPI SIniFile::SetFlag(long f, int set)
 	return prev;
 }
 
+SString & FASTCALL SIniFile::EncodeText(SString & rBuf) const
+{
+	if(Cp == cp1251)
+		rBuf.Transf(CTRANSF_INNER_TO_OUTER);
+	else if(Cp == cpUTF8)
+		rBuf.Transf(CTRANSF_INNER_TO_UTF8);
+	return rBuf;
+}
+
+SString & FASTCALL SIniFile::DecodeText(SString & rBuf) const
+{
+	if(Cp == cp1251)
+		rBuf.Transf(CTRANSF_OUTER_TO_INNER);
+	else if(Cp == cpUTF8)
+		rBuf.Transf(CTRANSF_UTF8_TO_INNER);
+	return rBuf;
+}
+
 int SLAPI SIniFile::FlashIniBuf()
 {
 	int    ok = 1;
@@ -315,12 +333,13 @@ int SLAPI SIniFile::FlashIniBuf()
 		Flags &= ~fIniBufInited;
 		for(uint i = 0; P_IniBuf->EnumSections(&i, &p_sect) > 0;) {
 			temp_buf.Z().CR().CatBrackStr(p_sect->Name).CR();
-			if(Flags & fWinCoding)
-				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+			/*if(Flags & fWinCoding) temp_buf.Transf(CTRANSF_INNER_TO_OUTER);*/
+			EncodeText(temp_buf);
 			THROW(File.WriteLine(temp_buf));
 			for(uint j = 0; p_sect->EnumParams(&j, &par, &val) > 0;) {
-				if(Flags & fWinCoding)
-					par.Transf(CTRANSF_INNER_TO_OUTER);
+				/*if(Flags & fWinCoding) par.Transf(CTRANSF_INNER_TO_OUTER);*/
+				EncodeText(par);
+				EncodeText(val); // @v10.3.11
 				THROW(File.WriteLine(temp_buf.Z().CatEq(par, val).CR()));
 			}
 		}
@@ -346,8 +365,8 @@ int SLAPI SIniFile::InitIniBuf()
 			GetEntries(sect_buf, &se, 1);
 			for(uint j = 0; se.get(&j, par_buf);) {
 				par_buf.Divide('=', par, val);
-				if(Flags & fWinCoding)
-					val.Transf(CTRANSF_INNER_TO_OUTER);
+				//if(Flags & fWinCoding) val.Transf(CTRANSF_INNER_TO_OUTER);
+				// EncodeText(val);
 				THROW(P_IniBuf->SetParam(sect_buf, par, val, 0));
 			}
 		}
@@ -360,15 +379,49 @@ int SLAPI SIniFile::InitIniBuf()
 
 int SLAPI SIniFile::Open(const char * pFileName)
 {
-	int    ok = File.IsValid() ? 1 : File.Open(pFileName, SFile::mRead);
-	LoadingTime = getcurdatetime_();
+	const  int already_opened = File.IsValid();
+	int    ok = already_opened ? -1 : File.Open(pFileName, SFile::mRead);
+	if(ok) {
+		// @v10.3.11 {
+		if(!already_opened) {
+			LoadingTime = getcurdatetime_();
+			Cp = cpUndef;
+			STextEncodingStat tes(STextEncodingStat::fUseUCharDet);
+			SString line_buf;
+			SString big_line_buf;
+			size_t total_len = 0;
+			while(File.ReadLine(line_buf)) {
+				total_len += line_buf.Len();
+				big_line_buf.Cat(line_buf);
+				if(big_line_buf.Len() >= SKILOBYTE(1)) {
+					tes.Add(big_line_buf.cptr(), big_line_buf.Len());
+					big_line_buf.Z();
+				}
+			}
+			File.Seek(0);
+			if(big_line_buf.Len())
+				tes.Add(big_line_buf.cptr(), big_line_buf.Len());
+			tes.Finish();
+			if(tes.CheckFlag(tes.fLegalUtf8Only))
+				Cp = cpUTF8;
+			else
+				Cp = tes.GetAutodetectedCp();
+			if(Cp == cpUndef) {
+				Cp = (Flags & fWinCoding) ? cp1251 : cp866;
+			}
+		}
+		// } @v10.3.11
+	}
 	return ok;
 }
 
 int SLAPI SIniFile::Create(const char * pFileName)
 {
-	int    ok = File.IsValid() ? 1 : File.Open(pFileName, SFile::mWrite);
-	LoadingTime = getcurdatetime_();
+	int    ok = 1;
+	if(!File.IsValid()) {
+		ok = File.Open(pFileName, SFile::mWrite);
+		LoadingTime = getcurdatetime_();
+	}
 	return ok;
 }
 
@@ -385,8 +438,8 @@ int SLAPI SIniFile::IsSection(const SString & rLineBuf, const char * pPattern, S
 		if(Scan.SearchChar(']')) {
 			Scan.Get(sect_name);
 			if(sect_name.NotEmptyS()) {
-				if(Flags & fWinCoding)
-					sect_name.Transf(CTRANSF_OUTER_TO_INNER);
+				//if(Flags & fWinCoding) sect_name.Transf(CTRANSF_OUTER_TO_INNER);
+				DecodeText(sect_name);
 				ok = (pPattern && sect_name.CmpNC(pPattern) == 0) ? 2 : 1;
 				ASSIGN_PTR(pRet, sect_name);
 			}
@@ -424,8 +477,9 @@ int SLAPI SIniFile::GetSections(StringSet * pSects)
 	}
 	else {
 		SString line_buf, sect_name;
-		THROW(Open(FileName));
-		do_close = 1;
+		const int opnr = Open(FileName);
+		THROW(opnr);
+		do_close = BIN(opnr > 0);
 		for(File.Seek(0); File.ReadLine(line_buf);)
 			if(IsSection(line_buf, 0, &sect_name) > 0)
 				pSects->add(sect_name, 0);
@@ -447,8 +501,8 @@ int SLAPI SIniFile::GetEntries(const char * pSect, StringSet * pEntries, int sto
 			if(p_sect_buf) {
 				for(uint pos = 0; p_sect_buf->EnumParams(&pos, &temp_buf, &val) > 0;) {
 					if(storeAllString) {
-						if(Flags & fWinCoding)
-							val.Transf(CTRANSF_OUTER_TO_INNER);
+						//if(Flags & fWinCoding) val.Transf(CTRANSF_OUTER_TO_INNER);
+						// (В буфере текст уже декодирован) DecodeText(val);
 						temp_buf.Eq().Cat(val);
 					}
 					pEntries->add(temp_buf, 0);
@@ -458,8 +512,9 @@ int SLAPI SIniFile::GetEntries(const char * pSect, StringSet * pEntries, int sto
 	}
 	else {
 		int    this_sect = 0;
-		THROW(Open(FileName));
-		do_close = 1;
+		const  int opnr = Open(FileName);
+		THROW(opnr);
+		do_close = BIN(opnr > 0);
 		for(File.Seek(0); File.ReadLine(line_buf);) {
 			int    r = IsSection(line_buf, pSect, 0);
 			if(r > 0)
@@ -473,8 +528,8 @@ int SLAPI SIniFile::GetEntries(const char * pSect, StringSet * pEntries, int sto
 					else if(line_buf.Divide('=', temp_buf, val) <= 0)
 						temp_buf.Z();
 					if(temp_buf.NotEmptyS()) {
-						if(Flags & fWinCoding)
-							temp_buf.Transf(CTRANSF_OUTER_TO_INNER);
+						//if(Flags & fWinCoding) temp_buf.Transf(CTRANSF_OUTER_TO_INNER);
+						DecodeText(temp_buf);
 						THROW(pEntries->add(temp_buf));
 					}
 				}
@@ -499,12 +554,15 @@ int SLAPI SIniFile::SearchParam(const char * pSect, const char * pParam, SString
 		SString sect = pSect;
 		SString key = pParam;
 		SString line_buf, temp_buf, val;
-		do_close_file = 1;
-		THROW(Open(FileName));
-		if(Flags & fWinCoding) {
+		const int opnr = Open(FileName);
+		THROW(opnr);
+		do_close_file = BIN(opnr > 0);
+		/*if(Flags & fWinCoding) {
 			sect.Transf(CTRANSF_OUTER_TO_INNER);
 			key.Transf(CTRANSF_OUTER_TO_INNER);
-		}
+		}*/
+		DecodeText(sect);
+		DecodeText(key);
 		for(File.Seek(0); ok < 0 && File.ReadLine(line_buf);) {
 			int    r = IsSection(line_buf, sect, 0);
 			if(r > 0)
@@ -515,7 +573,7 @@ int SLAPI SIniFile::SearchParam(const char * pSect, const char * pParam, SString
 				if(*Scan != ';') {
 					line_buf.Divide('=', temp_buf, val);
 					if(temp_buf.Strip().CmpNC(key) == 0) {
-						rVal = val.Strip();
+						rVal = DecodeText(val.Strip());
 						ok = 1; // end of loop
 					}
 				}
@@ -602,13 +660,22 @@ int SLAPI SIniFile::SetParam(const char * pSect, const char * pParam, const char
 		if(pParam == 0)
 			ok = P_IniBuf->RemoveSect(pSect);
 		else if(pVal) {
-			if(Flags & fWinCoding) {
+			/* @v10.3.11 if(Flags & fWinCoding) {
 				SString val = pVal;
 				val.Transf(CTRANSF_INNER_TO_OUTER);
 				ok = P_IniBuf->SetParam(pSect, pParam, val, overwrite);
 			}
 			else
-				ok = P_IniBuf->SetParam(pSect, pParam, pVal, overwrite);
+				ok = P_IniBuf->SetParam(pSect, pParam, pVal, overwrite);*/
+			// @v10.3.11 {
+			//
+			// Буфер держит строки в INNER-кодировке!
+			//
+			//SString & r_temp_buf = SLS.AcquireRvlStr();
+			//r_temp_buf = pVal;
+			//EncodeText(r_temp_buf);
+			ok = P_IniBuf->SetParam(pSect, pParam, pVal, overwrite);
+			// } @v10.3.11 
 		}
 		else
 			ok = P_IniBuf->RemoveParam(pSect, pParam);
@@ -620,12 +687,15 @@ int SLAPI SIniFile::SetParam(const char * pSect, const char * pParam, const char
 		SFile  out_file;
 		SPathStruc ps;
 		int    this_sect = 0, is_sect_founded = 0, param_added = 0;
-		do_close_file = 1;
-		THROW(Open(FileName));
-		if(Flags & fWinCoding) {
+		const  int opnr = Open(FileName);
+		THROW(opnr);
+		do_close_file = BIN(opnr > 0);
+		/*if(Flags & fWinCoding) {
 			sect.Transf(CTRANSF_INNER_TO_OUTER);
 			param.Transf(CTRANSF_INNER_TO_OUTER);
-		}
+		}*/
+		EncodeText(sect);
+		EncodeText(param);
 		ps.Split(FileName);
 		ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, temp_buf);
 		MakeTempFileName(temp_buf, 0, 0, 0, temp_buf);

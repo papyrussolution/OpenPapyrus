@@ -305,7 +305,7 @@ int SLAPI PPAbstractDevice::ParseRegEntry(const char * pLine, SString & rSymbol,
 
 	size_t eq_pos = 0;
 	temp_buf = pLine;
-	if(temp_buf.StrChr('=', &eq_pos)) {
+	if(temp_buf.SearchChar('=', &eq_pos)) {
 		rSymbol = temp_buf.Trim(eq_pos).Strip();
 		r = 1;
 		eq_pos++; // Переступаем за '='
@@ -552,7 +552,7 @@ int PPAbstractDevice::RunCmd(const char * pCmd, StrAssocArray & rOut)
 	{
 		(s_cmd = pCmd).Strip();
 		size_t p = 0;
-		if(s_cmd.StrChr(' ', &p)) {
+		if(s_cmd.SearchChar(' ', &p)) {
 			(input = s_cmd.cptr() + p + 1).Strip();
 			s_cmd.Trim(p);
 		}

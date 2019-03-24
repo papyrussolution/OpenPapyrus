@@ -285,11 +285,8 @@ void SLAPI PpyInetDataPrcssr::SetInetError()
 //
 // WinInetFTP
 //
-WinInetFTP::WinInetFTP()
+WinInetFTP::WinInetFTP() : InetSession(0), Connection(0), WinInetDLLHandle(0)
 {
-	InetSession = 0;
-	Connection = 0;
-	WinInetDLLHandle = 0;
 	UnInit();
 }
 
@@ -298,7 +295,7 @@ WinInetFTP::~WinInetFTP()
 	UnInit();
 }
 
-int WinInetFTP::Init(PPInetConnConfig * pCfg)
+int WinInetFTP::Init(const PPInetConnConfig * pCfg)
 {
 	int    ok = 1;
 	ulong  access_type = 0;

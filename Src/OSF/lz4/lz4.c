@@ -230,7 +230,7 @@ static uint16 FASTCALL LZ4_readLE16(const void* memPtr)
 	}
 	else {
 		const uint8* p = (const uint8 *)memPtr;
-		return (uint16)((uint16)p[0] + (p[1]<<8));
+		return static_cast<uint16>((uint16)p[0] + (p[1]<<8));
 	}
 }
 
@@ -520,7 +520,7 @@ static void LZ4_putPositionOnHash(const uint8* p, uint32 h, void* tableBase, tab
 		case clearedTable: { /* illegal! */ assert(0); return; }
 		case byPtr: { const uint8** hashTable = (const uint8**)tableBase; hashTable[h] = p; return; }
 		case byU32: { uint32* hashTable = (uint32 *)tableBase; hashTable[h] = (uint32)(p-srcBase); return; }
-		case byU16: { uint16* hashTable = (uint16 *)tableBase; hashTable[h] = (uint16)(p-srcBase); return; }
+		case byU16: { uint16* hashTable = (uint16 *)tableBase; hashTable[h] = static_cast<uint16>(p-srcBase); return; }
 	}
 }
 
@@ -815,7 +815,7 @@ _next_match:
 		else {
 			//DEBUGLOG(6, "             with offset=%u  (same segment)", (uint32)(ip - match));
 			assert(ip-match <= MAX_DISTANCE);
-			LZ4_writeLE16(op, (uint16)(ip - match)); 
+			LZ4_writeLE16(op, static_cast<uint16>(ip - match)); 
 			op += 2;
 		}
 		// Encode MatchLength 

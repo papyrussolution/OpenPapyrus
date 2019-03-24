@@ -624,7 +624,7 @@ int SLAPI DbfTable::create(int aNumFlds, const DBFCreateFld * pFldDescr, SCodepa
 		Head.Day    = static_cast<uint8>(d);
 		Head.LdID   = CpToLdId(cp);
 		Head.NumRecs = 0L;
-		Head.HeadSize = (uint16)(sizeof(DBFH) + aNumFlds * sizeof(DBFF) + 1 + dbc_path_size);
+		Head.HeadSize = static_cast<uint16>(sizeof(DBFH) + aNumFlds * sizeof(DBFF) + 1 + dbc_path_size);
 		Head.RecSize  = 1;
 		memzero(P_Flds = new DBFF[aNumFlds], aNumFlds * sizeof(DBFF));
 		unsigned offset = 1;

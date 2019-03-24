@@ -440,7 +440,7 @@ static int __db_get_dup_compare(DB * dbp, int (**funcp)(DB*, const DBT*, const D
 	if(funcp) {
 #ifdef HAVE_COMPRESSION
 		if(DB_IS_COMPRESSED(dbp)) {
-			*funcp = ((BTREE *)dbp->bt_internal)->compress_dup_compare;
+			*funcp = static_cast<BTREE *>(dbp->bt_internal)->compress_dup_compare;
 		}
 		else
 #endif
@@ -462,7 +462,7 @@ static int __db_set_dup_compare(DB * dbp, int (*func)(DB*, const DBT*, const DBT
 #ifdef HAVE_COMPRESSION
 	if(DB_IS_COMPRESSED(dbp)) {
 		dbp->dup_compare = __bam_compress_dupcmp;
-		((BTREE *)dbp->bt_internal)->compress_dup_compare = func;
+		static_cast<BTREE *>(dbp->bt_internal)->compress_dup_compare = func;
 	}
 	else
 #endif

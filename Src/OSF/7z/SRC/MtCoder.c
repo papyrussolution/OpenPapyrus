@@ -20,7 +20,7 @@ void LoopThread_Close(CLoopThread * p)
 
 static THREAD_FUNC_RET_TYPE THREAD_FUNC_CALL_TYPE LoopThreadFunc(void * pp)
 {
-	CLoopThread * p = (CLoopThread*)pp;
+	CLoopThread * p = static_cast<CLoopThread *>(pp);
 	for(;; ) {
 		if(Event_Wait(&p->startEvent) != 0)
 			return SZ_ERROR_THREAD;
@@ -126,16 +126,13 @@ static void CMtThread_CloseEvents(CMtThread * p)
 static void CMtThread_Destruct(CMtThread * p)
 {
 	CMtThread_CloseEvents(p);
-
 	if(Thread_WasCreated(&p->thread.thread)) {
 		LoopThread_StopAndWait(&p->thread);
 		LoopThread_Close(&p->thread);
 	}
-
 	if(p->mtCoder->alloc)
 		ISzAlloc_Free(p->mtCoder->alloc, p->outBuf);
 	p->outBuf = 0;
-
 	if(p->mtCoder->alloc)
 		ISzAlloc_Free(p->mtCoder->alloc, p->inBuf);
 	p->inBuf = 0;
@@ -144,7 +141,7 @@ static void CMtThread_Destruct(CMtThread * p)
 #define MY_BUF_ALLOC(buf, size, newSize) \
 	if(buf == 0 || size != newSize)	\
 	{ ISzAlloc_Free(p->mtCoder->alloc, buf); \
-	  size = newSize; buf = (Byte*)ISzAlloc_Alloc(p->mtCoder->alloc, size);	\
+	  size = newSize; buf = static_cast<Byte *>(ISzAlloc_Alloc(p->mtCoder->alloc, size));	\
 	  if(buf == 0) return SZ_ERROR_MEM; }
 
 static SRes CMtThread_Prepare(CMtThread * p)
@@ -209,7 +206,7 @@ static SRes MtThread_Process(CMtThread * p, Bool * stop)
 
 static THREAD_FUNC_RET_TYPE THREAD_FUNC_CALL_TYPE ThreadFunc(void * pp)
 {
-	CMtThread * p = (CMtThread*)pp;
+	CMtThread * p = static_cast<CMtThread *>(pp);
 	for(;; ) {
 		Bool stop;
 		CMtThread * next = GET_NEXT_THREAD(p);

@@ -231,7 +231,8 @@ void TCalendar::SetupCalendar()
 {
 	//RowCount = 2;
 	int    i, j, count = 1;
-	_TCHAR s[3], t[3];
+	//_TCHAR s[3], t[3];
+	SString temp_buf;
 	for(j = 0; j <= 6; j++)
 		sstrcpy(C[0][j], __Days[j]);
 	for(i = 1; i <= 6; i++) {
@@ -239,19 +240,24 @@ void TCalendar::SetupCalendar()
 			if((i == 1 && FirstMonthDow > j) || count > NDays)
 				sstrcpy(C[i][j], _T("  "));
 			else {
+				temp_buf.Z();
 				if(count == 1)
 					c_minfirst = j;
 				if(count == NDays) {
 					c_maxlast = j;
 					c_maxrow = i;
 				}
-				if(count < 10)
-					sstrcpy(s, _T(" "));
-				else
-					s[0] = 0;
-				strcat(s, _itoa(count, t, 10)); // @unicodeproblem
-				sstrcpy(C[i][j], s);
-				if((int)count == D.day()) {
+				if(count < 10) {
+					//sstrcpy(s, _T(" "));
+					temp_buf.Space();
+				}
+				else {
+					//s[0] = 0;
+				}
+				//strcat(s, _itoa(count, t, 10)); // @unicodeproblem
+				temp_buf.Cat(count);
+				sstrcpy(C[i][j], /*s*/SUcSwitch(temp_buf));
+				if(count == D.day()) {
 					c_j = j;
 					c_i = i;
 				}
@@ -455,7 +461,7 @@ void TDateCalendar::DrawMonthGrid(HDC hdc)
 				txt_sz = canv.GetTextSize(SUcSwitch(C[i][j])); // @unicodeproblem
 				p.x += (c_cell_w - txt_sz.x) / 2;
 				p.y += (c_cell_h - txt_sz.y) / 2;
-				canv.TextOut(p, SUcSwitch(C[i][j])); // @unicodeproblem
+				canv.TextOut_(p, SUcSwitch(C[i][j])); // @unicodeproblem
 			}
 }
 
@@ -1271,12 +1277,12 @@ int TDateCalendar::StepMonth(HWND hWnd, int forward)
 
 LRESULT CALLBACK CalendarWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	TDateCalendar * dc = (TDateCalendar *)TView::GetWindowUserData(hWnd);
+	TDateCalendar * dc = static_cast<TDateCalendar *>(TView::GetWindowUserData(hWnd));
 	switch(message) {
 		case WM_CREATE:
 			{
-				LPCREATESTRUCT p_cr_data = (LPCREATESTRUCT)lParam;
-				dc = (TDateCalendar *)p_cr_data->lpCreateParams;
+				LPCREATESTRUCT p_cr_data = reinterpret_cast<LPCREATESTRUCT>(lParam);
+				dc = static_cast<TDateCalendar *>(p_cr_data->lpCreateParams);
 				TView::SetWindowUserData(hWnd, dc);
 				dc->SelStarted1 = 0;
 				dc->SelStarted2 = 0;
@@ -1494,11 +1500,11 @@ void FASTCALL SetupCalCtrl(int buttCtlID, TDialog * pDlg, uint editCtlID, uint T
 		// } @v9.1.11
 		if(!hbm_daterange || !hbm_calendar) {
 			ENTER_CRITICAL_SECTION
-			SETIFZ(hbm_daterange, APPL->LoadBitmap(IDB_DATERANGE));
-			SETIFZ(hbm_calendar,  APPL->LoadBitmap(IDB_CALENDAR));
+			SETIFZ(hbm_daterange, APPL->LoadBitmap_(IDB_DATERANGE));
+			SETIFZ(hbm_calendar,  APPL->LoadBitmap_(IDB_CALENDAR));
 			LEAVE_CRITICAL_SECTION
 		}
-		::SendMessage(hwnd, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)(oneof3(T, 1, 2, 3) ? hbm_daterange : hbm_calendar));
+		::SendMessage(hwnd, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(oneof3(T, 1, 2, 3) ? hbm_daterange : hbm_calendar));
 	}
 }
 
@@ -1572,7 +1578,7 @@ static INT_PTR CALLBACK PeriodWndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 	TPeriodCalendar * pc = 0;
 	switch(message) {
 		case WM_INITDIALOG:
-			pc = (TPeriodCalendar *)lParam;
+			pc = reinterpret_cast<TPeriodCalendar *>(lParam);
 			TView::SetWindowUserData(hWnd, pc);
 			if(pc && pc->P_Dlg && pc->DateCtlID) {
 				HWND   h_ctl = GetDlgItem(pc->P_Dlg->H(), pc->DateCtlID);

@@ -1367,7 +1367,7 @@ static IMPL_DBE_PROC(dbqf_rpttypename_i)
 			PPLoadString("rptstd", temp_buf);
 		else
 			PPLoadString("rptlocal", temp_buf);
-		temp_buf.ToOem().CopyTo(buf, sizeof(buf));
+		temp_buf.CopyTo(buf, sizeof(buf)); // @v10.3.11 @fix temp_buf.ToOem().-->temp_buf.
 		result->init(buf);
 	}
 }

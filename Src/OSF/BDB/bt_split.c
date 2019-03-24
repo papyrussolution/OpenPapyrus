@@ -656,7 +656,7 @@ int __bam_pinsert(DBC*dbc, EPG * parent, uint32 split, PAGE * lchild, PAGE * rch
 
 	dbp = dbc->dbp;
 	cp = (BTREE_CURSOR *)dbc->internal;
-	t = (BTREE *)dbp->bt_internal;
+	t = static_cast<BTREE *>(dbp->bt_internal);
 	ppage = parent->page;
 	child = parent+1;
 

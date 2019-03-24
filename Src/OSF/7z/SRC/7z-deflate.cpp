@@ -1238,7 +1238,7 @@ namespace NCompress {
 					if(!finishInputStream && size == 0)
 						return S_OK;
 					DEFLATE_TRY_BEGIN
-					m_OutWindowStream.SetMemStream((Byte*)data);
+					m_OutWindowStream.SetMemStream((Byte *)data);
 					res = CodeSpec(size, finishInputStream);
 					DEFLATE_TRY_END(res)
 					{

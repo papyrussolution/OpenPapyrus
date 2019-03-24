@@ -74,11 +74,11 @@ int __db_pgin(DB_ENV * dbenv, db_pgno_t pg, void * pp, DBT * cookie)
 		 * If checksumming is set on the meta-page, we must set
 		 * it in the dbp.
 		 */
-		if(FLD_ISSET(((DBMETA *)pp)->metaflags, DBMETA_CHKSUM))
+		if(FLD_ISSET(reinterpret_cast<const DBMETA *>(pp)->metaflags, DBMETA_CHKSUM))
 			F_SET(dbp, DB_AM_CHKSUM);
 		else
 			F_CLR(dbp, DB_AM_CHKSUM);
-		if(((DBMETA *)pp)->encrypt_alg != 0 || F_ISSET(dbp, DB_AM_ENCRYPT))
+		if(reinterpret_cast<const DBMETA *>(pp)->encrypt_alg != 0 || F_ISSET(dbp, DB_AM_ENCRYPT))
 			is_hmac = 1;
 		/*
 		 * !!!
@@ -86,7 +86,7 @@ int __db_pgin(DB_ENV * dbenv, db_pgno_t pg, void * pp, DBT * cookie)
 		 * be at the same location.  Use BTMETA to get to it
 		 * for any meta type.
 		 */
-		chksum = ((BTMETA *)pp)->chksum;
+		chksum = reinterpret_cast<BTMETA *>(pp)->chksum;
 		sum_len = DBMETASIZE;
 		break;
 	    case P_INVALID:
@@ -299,7 +299,7 @@ int __db_decrypt_pg(ENV * env, DB * dbp, PAGE * pagep)
 		}
 		if(pg_len != 0)
 			ret = db_cipher->decrypt(env, db_cipher->data,
-				iv, ((uint8 *)pagep)+pg_off,
+				iv, (reinterpret_cast<uint8 *>(pagep))+pg_off,
 				pg_len-pg_off);
 	}
 	return ret;
@@ -350,7 +350,7 @@ int __db_encrypt_and_checksum_pg(ENV * env, DB * dbp, PAGE * pagep)
 			break;
 		}
 		if((ret = db_cipher->encrypt(env, db_cipher->data,
-			    iv, ((uint8 *)pagep)+pg_off, pg_len-pg_off)) != 0)
+			    iv, (reinterpret_cast<uint8 *>(pagep))+pg_off, pg_len-pg_off)) != 0)
 			return ret;
 	}
 	if(F_ISSET(dbp, DB_AM_CHKSUM)) {
@@ -373,7 +373,7 @@ int __db_encrypt_and_checksum_pg(ENV * env, DB * dbp, PAGE * pagep)
 			sum_len = dbp->pgsize;
 			break;
 		}
-		__db_chksum(NULL, (uint8 *)pagep, sum_len, key, chksum);
+		__db_chksum(NULL, reinterpret_cast<uint8 *>(pagep), sum_len, key, chksum);
 		if(F_ISSET(dbp, DB_AM_SWAP) && !F_ISSET(dbp, DB_AM_ENCRYPT))
 			P_32_SWAP(chksum);
 	}

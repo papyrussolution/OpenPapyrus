@@ -2014,7 +2014,7 @@ void SLAPI SCS_SHTRIHFRF::WriteLogFile(PPID id)
 		memzero(mode_descr, sizeof(mode_descr));
 		GetFR(ECRModeDescription, mode_descr, sizeof(mode_descr) - 1);
 		SCharToOem(mode_descr);
-		if(err_msg.StrChr('\n', &pos))
+		if(err_msg.SearchChar('\n', &pos))
 			err_msg.Trim(pos);
 		GetFR(ECRAdvancedMode, &adv_mode);
 		msg.Printf(msg_fmt, oper_name.cptr(), err_msg.cptr(), mode_descr, adv_mode);

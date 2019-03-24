@@ -201,7 +201,7 @@ struct __PPDBXchgConfig {  // @persistent @store(PropertyTbl)
 };
 
 // static
-int FASTCALL PPObjectTransmit::WriteConfig(PPDBXchgConfig * pCfg, int use_ta)
+int FASTCALL PPObjectTransmit::WriteConfig(const PPDBXchgConfig * pCfg, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -921,7 +921,7 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 //
 //
 //
-static int SLAPI ConvertInBill(ILBillPacket * pPack, ObjTransmContext * pCtx)
+static int SLAPI ConvertInBill(ILBillPacket * pPack, const ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	const  int intr_op_tag = IsIntrOp(pPack->Rec.OpID);

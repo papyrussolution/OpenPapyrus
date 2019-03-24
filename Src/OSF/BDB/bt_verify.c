@@ -111,18 +111,17 @@ int __bam_vrfy_meta(DB * dbp, VRFY_DBINFO * vdp, BTMETA * meta, db_pgno_t pgno, 
 	if(F_ISSET(&meta->dbmeta, BTM_COMPRESS)) {
 		F_SET(pip, VRFY_HAS_COMPRESS);
 		if(!DB_IS_COMPRESSED(dbp)) {
-			((BTREE *)dbp->bt_internal)->bt_compress = __bam_defcompress;
-			((BTREE *)dbp->bt_internal)->bt_decompress = __bam_defdecompress;
+			static_cast<BTREE *>(dbp->bt_internal)->bt_compress = __bam_defcompress;
+			static_cast<BTREE *>(dbp->bt_internal)->bt_decompress = __bam_defdecompress;
 		}
 		/*
 		 * Copy dup_compare to compress_dup_compare, and use the
 		 * compression duplicate compare.
 		 */
 		if(F_ISSET(pip, VRFY_HAS_DUPSORT)) {
-			if(dbp->dup_compare == NULL)
-				dbp->dup_compare = __bam_defcmp;
-			if(((BTREE *)dbp->bt_internal)->compress_dup_compare == NULL) {
-				((BTREE *)dbp->bt_internal)->compress_dup_compare = dbp->dup_compare;
+			SETIFZ(dbp->dup_compare, __bam_defcmp);
+			if(static_cast<BTREE *>(dbp->bt_internal)->compress_dup_compare == NULL) {
+				static_cast<BTREE *>(dbp->bt_internal)->compress_dup_compare = dbp->dup_compare;
 				dbp->dup_compare = __bam_compress_dupcmp;
 			}
 		}
@@ -752,7 +751,7 @@ int __bam_vrfy_itemorder(DB * dbp, VRFY_DBINFO * vdp, DB_THREAD_INFO * ip, PAGE 
 	else {
 		func = __bam_defcmp;
 		if(dbp->bt_internal) {
-			bt = (BTREE *)dbp->bt_internal;
+			bt = static_cast<BTREE *>(dbp->bt_internal);
 			if(bt->bt_compare)
 				func = bt->bt_compare;
 		}
@@ -1531,7 +1530,7 @@ done:
 		 * use the btree one.  If unset, use the default, of course.
 		 */
 		func = LF_ISSET(DB_ST_DUPSET) ? dbp->dup_compare :
-		       ((BTREE *)dbp->bt_internal)->bt_compare;
+		       static_cast<BTREE *>(dbp->bt_internal)->bt_compare;
 		if(func == NULL)
 			func = __bam_defcmp;
 		if((ret = __bam_vrfy_treeorder(dbp, vdp->thread_info, h, (BINTERNAL *)l, (BINTERNAL *)r, func, flags)) != 0) {

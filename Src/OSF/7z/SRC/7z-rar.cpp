@@ -1709,14 +1709,14 @@ namespace NCompress {
 					return E_INVALIDARG;
 
 				if(!_vmData) {
-					_vmData = (Byte*)::MidAlloc(kVmDataSizeMax + kVmCodeSizeMax);
+					_vmData = (Byte *)::MidAlloc(kVmDataSizeMax + kVmCodeSizeMax);
 					if(!_vmData)
 						return E_OUTOFMEMORY;
 					_vmCode = _vmData + kVmDataSizeMax;
 				}
 
 				if(!_window) {
-					_window = (Byte*)::MidAlloc(kWindowSize);
+					_window = (Byte *)::MidAlloc(kWindowSize);
 					if(!_window)
 						return E_OUTOFMEMORY;
 				}
@@ -1853,7 +1853,7 @@ namespace NCompress {
 
 			bool CVm::Create()
 			{
-				return SETIFZ(Mem, (Byte*)SAlloc::M(kSpaceSize + 4));
+				return SETIFZ(Mem, (Byte *)SAlloc::M(kSpaceSize + 4));
 			}
 
 			CVm::~CVm()
@@ -3565,7 +3565,7 @@ namespace NCompress {
 					}
 					Byte * win;
 					{
-						win = (Byte*)::MidAlloc(newSize);
+						win = (Byte *)::MidAlloc(newSize);
 						if(!win)
 							return E_OUTOFMEMORY;
 						memzero(win, newSize);
@@ -3591,7 +3591,7 @@ namespace NCompress {
 				_winMask = _winSize - 1;
 				_winPos &= _winMask;
 				if(!_inputBuf) {
-					_inputBuf = (Byte*)::MidAlloc(kInputBufSize);
+					_inputBuf = (Byte *)::MidAlloc(kInputBufSize);
 					if(!_inputBuf)
 						return E_OUTOFMEMORY;
 				}
@@ -3749,7 +3749,7 @@ namespace NArchive {
 
 		static bool CheckHeaderCrc(const Byte * header, size_t headerSize)
 		{
-			return Get16(header) == (uint16)(CrcCalc(header + 2, headerSize - 2) & 0xFFFF);
+			return Get16(header) == static_cast<uint16>(CrcCalc(header + 2, headerSize - 2) & 0xFFFF);
 		}
 
 		HRESULT CInArchive::Open(IInStream * stream, const uint64 * searchHeaderSizeLimit)
@@ -3815,7 +3815,7 @@ namespace NArchive {
 				uint32 bufSize = m_DecryptedDataSize;
 				size_t i;
 				for(i = 0; i < size && m_CryptoPos < bufSize; i++)
-					((Byte*)data)[i] = bufData[m_CryptoPos++];
+					((Byte *)data)[i] = bufData[m_CryptoPos++];
 				*resSize = i;
 				return S_OK;
 			}
@@ -4011,9 +4011,9 @@ namespace NArchive {
 			unsigned fileHeaderWithNameSize = 7 + (uint)(p - pStart);
 			item.Position = m_Position;
 			item.MainPartSize = fileHeaderWithNameSize;
-			item.CommentSize = (uint16)(m_BlockHeader.HeadSize - fileHeaderWithNameSize);
+			item.CommentSize = static_cast<uint16>(m_BlockHeader.HeadSize - fileHeaderWithNameSize);
 			if(m_CryptoMode)
-				item.AlignSize = (uint16)((16 - ((m_BlockHeader.HeadSize) & 0xF)) & 0xF);
+				item.AlignSize = static_cast<uint16>((16 - ((m_BlockHeader.HeadSize) & 0xF)) & 0xF);
 			else
 				item.AlignSize = 0;
 			AddToSeekValue(m_BlockHeader.HeadSize);
@@ -4060,8 +4060,8 @@ namespace NArchive {
 					CByteArr buffer(len * 2);
 					for(uint i = 0; i < len; i++) {
 						wchar_t c = password[i];
-						((Byte*)buffer)[i * 2] = (Byte)c;
-						((Byte*)buffer)[i * 2 + 1] = (Byte)(c >> 8);
+						((Byte *)buffer)[i * 2] = (Byte)c;
+						((Byte *)buffer)[i * 2 + 1] = (Byte)(c >> 8);
 					}
 
 					m_RarAESSpec->SetPassword((const Byte*)buffer, len * 2);
@@ -4070,7 +4070,7 @@ namespace NArchive {
 					if(m_DecryptedData.Size() == 0) {
 						const uint32 kAlign = 16;
 						m_DecryptedData.Alloc(kDecryptedBufferSize + kAlign);
-						m_DecryptedDataAligned = (Byte*)((ptrdiff_t)((Byte*)m_DecryptedData + kAlign - 1) & ~(ptrdiff_t)(kAlign - 1));
+						m_DecryptedDataAligned = (Byte *)((ptrdiff_t)((Byte *)m_DecryptedData + kAlign - 1) & ~(ptrdiff_t)(kAlign - 1));
 					}
 					RINOK(m_RarAES->Init());
 					size_t decryptedDataSizeT = kDecryptedBufferSize;
@@ -4084,7 +4084,7 @@ namespace NArchive {
 
 				m_FileHeaderData.AllocAtLeast(7);
 				size_t processed = 7;
-				RINOK(ReadBytesSpec((Byte*)m_FileHeaderData, &processed));
+				RINOK(ReadBytesSpec((Byte *)m_FileHeaderData, &processed));
 				if(processed != 7) {
 					if(processed != 0)
 						error = k_ErrorType_UnexpectedEnd;
@@ -4747,7 +4747,7 @@ namespace NArchive {
 						_crc = CrcUpdate(_crc, data, cur);
 					realProcessedSize += cur;
 					ASSIGN_PTR(processedSize, realProcessedSize);
-					data = (Byte*)data + cur;
+					data = (Byte *)data + cur;
 					size -= cur;
 					_rem -= cur;
 					if(_rem == 0) {
@@ -4943,8 +4943,8 @@ namespace NArchive {
 							CByteArr buffer(len * 2);
 							for(uint k = 0; k < len; k++) {
 								wchar_t c = password[k];
-								((Byte*)buffer)[k * 2] = (Byte)c;
-								((Byte*)buffer)[k * 2 + 1] = (Byte)(c >> 8);
+								((Byte *)buffer)[k * 2] = (Byte)c;
+								((Byte *)buffer)[k * 2 + 1] = (Byte)(c >> 8);
 							}
 							rar3CryptoDecoderSpec->SetPassword((const Byte*)buffer, len * 2);
 						}
@@ -5561,11 +5561,11 @@ namespace NArchive {
 						SAlloc::F(_bufBase);
 						_buf = NULL;
 						_size = 0;
-						_bufBase = (Byte*)SAlloc::M(size + alignMask);
+						_bufBase = (Byte *)SAlloc::M(size + alignMask);
 						if(_bufBase) {
 							_size = size;
 							// _buf = (Byte *)(((uintptr_t)_bufBase + alignMask) & ~(uintptr_t)alignMask);
-							_buf = (Byte*)(((ptrdiff_t)_bufBase + alignMask) & ~(ptrdiff_t)alignMask);
+							_buf = (Byte *)(((ptrdiff_t)_bufBase + alignMask) & ~(ptrdiff_t)alignMask);
 						}
 					}
 				}
@@ -5649,7 +5649,7 @@ namespace NArchive {
 				memcpy(m_CryptoDecoderSpec->_iv, buf, AES_BLOCK_SIZE);
 				RINOK(m_CryptoDecoderSpec->Init());
 				_buf.AllocAtLeast(1 << 12);
-				if(!(Byte*)_buf)
+				if(!(Byte *)_buf)
 					return E_OUTOFMEMORY;
 				memcpy(_buf, buf + AES_BLOCK_SIZE, AES_BLOCK_SIZE);
 				if(m_CryptoDecoderSpec->Filter(_buf, AES_BLOCK_SIZE) != AES_BLOCK_SIZE)
@@ -5676,7 +5676,7 @@ namespace NArchive {
 			if(m_CryptoMode)
 				allocSize = (allocSize + AES_BLOCK_SIZE - 1) & ~(size_t)(AES_BLOCK_SIZE - 1);
 			_buf.AllocAtLeast(allocSize);
-			if(!(Byte*)_buf)
+			if(!(Byte *)_buf)
 				return E_OUTOFMEMORY;
 			memcpy(_buf, buf, filled);
 			size_t rem = allocSize - filled;
@@ -6058,7 +6058,7 @@ namespace NArchive {
 				inStream = volsInStream;
 			ICompressCoder * commonCoder = (method == 0) ? copyCoder : LzCoders[item.IsService() ? 1 : 0];
 			outStreamSpec->SetStream(realOutStream);
-			outStreamSpec->Init(lastItem, (linkFile ? (Byte*)linkFile->Data : NULL));
+			outStreamSpec->Init(lastItem, (linkFile ? (Byte *)linkFile->Data : NULL));
 			NeedClearSolid[item.IsService() ? 1 : 0] = false;
 			HRESULT res = S_OK;
 			if(packSize != 0 || lastItem.Is_UnknownSize() || lastItem.Size != 0) {
@@ -6154,7 +6154,7 @@ namespace NArchive {
 				size_t newSize = _offset + packSize;
 				if(newSize > _buf.Size())
 					_buf.ChangeSize_KeepData(newSize, _offset);
-				Byte * data = (Byte*)_buf + _offset;
+				Byte * data = (Byte *)_buf + _offset;
 				RINOK(ReadStream_FALSE(inStream, data, packSize));
 				_offset += packSize;
 				if(item.IsSplitAfter()) {
@@ -7016,7 +7016,7 @@ namespace NArchive {
 					_hash.Update(data, cur);
 					realProcessedSize += cur;
 					ASSIGN_PTR(processedSize, realProcessedSize);
-					data = (Byte*)data + cur;
+					data = (Byte *)data + cur;
 					size -= cur;
 					_rem -= cur;
 					if(_rem == 0) {

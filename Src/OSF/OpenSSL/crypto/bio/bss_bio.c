@@ -425,19 +425,19 @@ static long bio_ctrl(BIO * bio, int cmd, long num, void * ptr)
 		    break;
 		case BIO_C_NREAD0:
 		    /* prepare for non-copying read */
-		    ret = (long)bio_nread0(bio, (char**)ptr);
+		    ret = (long)bio_nread0(bio, (char **)ptr);
 		    break;
 		case BIO_C_NREAD:
 		    /* non-copying read */
-		    ret = (long)bio_nread(bio, (char**)ptr, (size_t)num);
+		    ret = (long)bio_nread(bio, (char **)ptr, (size_t)num);
 		    break;
 		case BIO_C_NWRITE0:
 		    /* prepare for non-copying write */
-		    ret = (long)bio_nwrite0(bio, (char**)ptr);
+		    ret = (long)bio_nwrite0(bio, (char **)ptr);
 		    break;
 		case BIO_C_NWRITE:
 		    /* non-copying write */
-		    ret = (long)bio_nwrite(bio, (char**)ptr, (size_t)num);
+		    ret = (long)bio_nwrite(bio, (char **)ptr, (size_t)num);
 		    break;
 		/* standard CTRL codes follow */
 		case BIO_CTRL_RESET:

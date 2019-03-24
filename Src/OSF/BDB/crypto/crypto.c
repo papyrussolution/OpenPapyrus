@@ -205,7 +205,7 @@ int __crypto_decrypt_meta(ENV * env, DB * dbp, uint8 * mbuf, int do_metachk)
 		dbp = &dummydb;
 	}
 	ret = 0;
-	meta = (DBMETA *)mbuf;
+	meta = reinterpret_cast<DBMETA *>(mbuf);
 	/*
 	 * !!!
 	 * We used an "unused" field in the meta-data page to flag whether or

@@ -345,7 +345,7 @@ int SymbHashTable::BuildAssoc()
 	uint   pos = 0;
 	Assoc.clear();
 	for(InitIteration(&i); NextIteration(&i, &val, &pos, 0);) {
-		THROW(Assoc.Add((long)val, (long)pos, 0, 0 /*not binary*/));
+		THROW(Assoc.Add((long)val, static_cast<long>(pos), 0, 0 /*not binary*/));
 	}
 	Assoc.Sort();
 	Flags |= fUseAssoc;
@@ -373,7 +373,7 @@ int SymbHashTable::Add(const char * pSymb, uint val, uint * pPos)
 	size_t h = Hash(pSymb);
 	c = P_Tab[h].SetVal(pos, val);
 	if(Flags & fUseAssoc)
-		THROW(Assoc.Add((long)val, (long)pos, 0, ORDER_ASSOC));
+		THROW(Assoc.Add((long)val, static_cast<long>(pos), 0, ORDER_ASSOC));
 	AddCount++;
 	if(c > 1) {
 		CollCount++;
@@ -682,7 +682,6 @@ int LAssocHashTable::NextIteration(Iter * pI, long * pKey, long * pVal) const
 //
 GuidHashTable::GuidHashTable(size_t sz, int useAssoc) : HashTableBase(sz)
 {
-	//Pool.setDelta(1024);
 	SETFLAG(Flags, fUseAssoc, useAssoc);
 }
 
@@ -800,7 +799,7 @@ int GuidHashTable::Add(const S_GUID & rUuid, uint val, uint * pPos)
 	size_t h = Hash(rUuid);
 	c = P_Tab[h].SetVal(pos, val);
 	if(Flags & fUseAssoc)
-		THROW(Assoc.Add((long)val, (long)pos, 0, 1/*binary*/));
+		THROW(Assoc.Add((long)val, static_cast<long>(pos), 0, 1/*binary*/));
 	AddCount++;
 	if(c > 1) {
 		CollCount++;
@@ -969,7 +968,7 @@ int PtrHashTable::Add(void * ptr, uint val, uint * pPos)
 	size_t h = Hash(ptr);
 	c = P_Tab[h].SetVal(pos, val);
 	if(Flags & fUseAssoc)
-		THROW(Assoc.Add((long)val, (long)pos, 0, 1/*binary*/));
+		THROW(Assoc.Add((long)val, static_cast<long>(pos), 0, 1/*binary*/));
 	AddCount++;
 	if(c > 1) {
 		CollCount++;
@@ -1461,7 +1460,7 @@ struct UT_hash_handle {
 #ifdef NO_DECLTYPE
 	#define DECLTYPE_ASSIGN(dst, src)						  \
 		do {										 \
-			char ** _da_dst = (char**)(&(dst));						\
+			char ** _da_dst = (char **)(&(dst));						\
 			*_da_dst = (char *)(src);						       \
 		} while(0)
 #else
@@ -2210,8 +2209,8 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 
 #ifdef NO_DECLTYPE
 #define HASH_ITER(hh, head, el, tmp)						    \
-	for((el) = (head), (*(char**)(&(tmp))) = (char *)((head) ? (head)->hh.next : NULL);	 \
-	    el; (el) = (tmp), (*(char**)(&(tmp))) = (char *)((tmp) ? (tmp)->hh.next : NULL))
+	for((el) = (head), (*(char **)(&(tmp))) = (char *)((head) ? (head)->hh.next : NULL);	 \
+	    el; (el) = (tmp), (*(char **)(&(tmp))) = (char *)((tmp) ? (tmp)->hh.next : NULL))
 #else
 #define HASH_ITER(hh, head, el, tmp)						    \
 	for((el) = (head), (tmp) = DECLTYPE(el) ((head) ? (head)->hh.next : NULL);		   \

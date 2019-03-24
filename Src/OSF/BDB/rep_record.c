@@ -1425,7 +1425,6 @@ err1:
 
 	return ret;
 }
-
 /*
  * __rep_collect_txn
  *	Recursive function that will let us visit every entry in a transaction
@@ -1441,7 +1440,6 @@ static int __rep_collect_txn(ENV*env, DB_LSN * lsnp, LSN_COLLECTION * lc)
 	uint32 rectype;
 	uint nalloc;
 	int ret, t_ret;
-
 	memzero(&data, sizeof(data));
 	F_SET(&data, DB_DBT_REALLOC);
 	if((ret = __log_cursor(env, &logc)) != 0)

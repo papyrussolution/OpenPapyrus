@@ -21,7 +21,7 @@ HRESULT ReadStream(ISequentialInStream * stream, void * data, size_t * processed
 		uint32 processedSizeLoc;
 		HRESULT res = stream->Read(data, curSize, &processedSizeLoc);
 		*processedSize += processedSizeLoc;
-		data = (void *)((Byte*)data + processedSizeLoc);
+		data = (void *)((Byte *)data + processedSizeLoc);
 		size -= processedSizeLoc;
 		RINOK(res);
 		if(processedSizeLoc == 0)
@@ -201,7 +201,7 @@ bool CCachedInStream::Alloc(unsigned blockSizeLog, unsigned numBlocksLog) throw(
 	size_t dataSize = (size_t)1 << sizeLog;
 	if(_data == 0 || dataSize != _dataSize) {
 		MidFree(_data);
-		_data = (Byte*)MidAlloc(dataSize);
+		_data = (Byte *)MidAlloc(dataSize);
 		if(_data == 0)
 			return false;
 		_dataSize = dataSize;
@@ -1075,7 +1075,7 @@ STDMETHODIMP CInFileStream::Read(void * data, uint32 size, uint32 * processedSiz
 			if(File.SizeDefined)
 				readSize = (uint32)MyMin(File.Size - PhyPos, (uint64)kClusterSize);
 			if(!Buf) {
-				Buf = (Byte*)MidAlloc(kClusterSize);
+				Buf = (Byte *)MidAlloc(kClusterSize);
 				if(!Buf)
 					return E_OUTOFMEMORY;
 			}

@@ -276,7 +276,7 @@ int SLAPI PPViewReport::SaveChanges(int remove)
 	*/
 	if(P_RptFile) {
 		P_RptFile->FlashIniBuf();
-		PPGetFilePath(PPPATH_BIN, (uint)PPFILNAM_REPORT_INI, fname);
+		PPGetFilePath(PPPATH_BIN, PPFILNAM_REPORT_INI, fname);
 		SCopyFile(P_RptFile->GetFileName(), fname, 0, 0, 0);
 	}
 	if(remove) {
@@ -306,7 +306,7 @@ int SLAPI PPViewReport::Init_(const PPBaseFilt * pFilt)
 	PPViewBrowser * p_prev_win = static_cast<PPViewBrowser *>(PPFindLastBrowser());
 	THROW(Helper_InitBaseFilt(pFilt));
 	if(p_prev_win && p_prev_win->P_View)
-		((PPViewReport*)p_prev_win->P_View)->SaveChanges(0);
+		static_cast<PPViewReport *>(p_prev_win->P_View)->SaveChanges(0);
 	else
 		SaveChanges(1);
 	PPGetFilePath(PPPATH_BIN, PPFILNAM_STDRPT_INI, fname);
@@ -350,8 +350,8 @@ int SLAPI PPViewReport::Init_(const PPBaseFilt * pFilt)
 
 IMPL_CMPFUNC(REPORTNAME, i1, i2)
 {
-	const ReportViewItem * p_i1 = (const ReportViewItem*)i1;
-	const ReportViewItem * p_i2 = (const ReportViewItem*)i2;
+	const ReportViewItem * p_i1 = static_cast<const ReportViewItem *>(i1);
+	const ReportViewItem * p_i2 = static_cast<const ReportViewItem *>(i2);
 	return stricmp866(p_i1->StdName, p_i2->StdName);
 }
 
@@ -399,13 +399,11 @@ int ReportFiltDlg::setDTS(const ReportFilt * pData)
 	if(StdReportList.SearchByText(Data.StdName, 1, &pos) > 0)
 		_id = StdReportList.Get(pos).Id;
 	SetupStrAssocCombo(this, CTLSEL_REPORTFLT_STDNAME, &StdReportList, _id, 0);
-
 	if(StrucList.SearchByText(Data.StrucName, 1, &pos) > 0)
 		_id = StrucList.Get(pos).Id;
 	else
 		_id = 0;
 	SetupStrAssocCombo(this, CTLSEL_REPORTFLT_STRUC, &StrucList, _id, 0);
-
 	SetPeriodInput(this, CTL_REPORTFLT_PERIOD, &Data.Period);
 	AddClusterAssocDef(CTL_REPORTFLT_TYPE,  0, ReportFilt::rpttAll);
 	AddClusterAssoc(CTL_REPORTFLT_TYPE,  1, ReportFilt::rpttStandart);
@@ -434,7 +432,7 @@ int ReportFiltDlg::getDTS(ReportFilt * pData)
 // virtual
 int SLAPI PPViewReport::EditBaseFilt(PPBaseFilt * pFilt)
 {
-	DIALOG_PROC_BODY_P1ERR(ReportFiltDlg, this, (ReportFilt*)pFilt);
+	DIALOG_PROC_BODY_P1ERR(ReportFiltDlg, this, static_cast<ReportFilt *>(pFilt));
 }
 
 int SLAPI PPViewReport::InitIteration()
@@ -481,7 +479,7 @@ int FASTCALL PPViewReport::NextIteration(ReportViewItem * pItem)
 {
 	int    ok = -1;
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
-		ASSIGN_PTR(pItem, *((ReportViewItem*)&P_TempTbl->data));
+		ASSIGN_PTR(pItem, *static_cast<const ReportViewItem *>(&P_TempTbl->data));
 		Counter.Increment();
 		ok = 1;
 	}
@@ -629,7 +627,7 @@ int SLAPI PPViewReport::CheckForFilt(const ReportViewItem * pItem)
 void SLAPI PPViewReport::MakeTempRec(const ReportViewItem * pItem, TempReportTbl::Rec * pTempRec)
 {
 	if(pItem && pTempRec)
-		*pTempRec = *((TempReportTbl::Rec*)pItem);
+		*pTempRec = *static_cast<const TempReportTbl::Rec *>(pItem);
 }
 
 int SLAPI PPViewReport::GetAltPath(long type, const char * pPath, const char * pStdName, SString & rPath)
@@ -661,7 +659,6 @@ int SLAPI PPViewReport::Verify(long id)
 	if(id && P_TempTbl && P_TempTbl->search(0, &id, spEq) > 0) {
 		TempReportTbl::Rec & r_rec = P_TempTbl->data;
 		SString alt_path, data_name;
-
 		CrwError = PE_ERR_ERRORINDATABASEDLL;
 		THROW(GetAltPath(r_rec.Type, r_rec.Path, r_rec.StdName, alt_path));
 		(data_name = r_rec.StrucName).ReplaceStr("(!)", "\0", 0);
@@ -686,40 +683,67 @@ int SLAPI PPViewReport::CallCR(long id)
 	int    ok = -1;
 	HKEY   crr_key = 0;
 	if(id && P_TempTbl && P_TempTbl->search(0, &id, spEq) > 0) {
-		char   crr_path[MAXPATH];
-		DWORD  path_size = MAXPATH;
-		TempReportTbl::Rec & r_rec = P_TempTbl->data;
-
-		memzero(crr_path, sizeof(crr_path));
-		// Для CRR 7.0
-		if(RegOpenKeyEx(HKEY_LOCAL_MACHINE,	_T("SOFTWARE\\Seagate Software\\Crystal Reports"), 0, KEY_QUERY_VALUE, &crr_key) == ERROR_SUCCESS &&
-			RegQueryValueEx(crr_key, _T("Path"), NULL, NULL, (LPBYTE)crr_path, &path_size) == ERROR_SUCCESS)
-			ok = 1;
-		// Или для  CRR 10
-		else if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Crystal Decisions\\10.0\\Crystal Reports"), 0, KEY_QUERY_VALUE, &crr_key) == ERROR_SUCCESS &&
-			RegQueryValueEx(crr_key, _T("Path"), NULL, NULL, (LPBYTE)crr_path, &(path_size = MAXPATH)) == ERROR_SUCCESS)
-			ok = 1;
-		// Если ничего не помогло - общий альтернативный способ
-		else {
-			ok = 0;
-			TCHAR   crr_name[64];
-			DWORD   crr_name_size = SIZEOFARRAY(crr_name);
-			PTR32(crr_name)[0] = 0;
-			if(RegOpenKeyEx(HKEY_CLASSES_ROOT,	_T(".rpt"), 0, KEY_QUERY_VALUE, &crr_key) == ERROR_SUCCESS &&
-				RegQueryValueEx(crr_key, NULL, NULL, NULL, (LPBYTE)crr_name, &(crr_name_size = sizeof(crr_name))) == ERROR_SUCCESS) { // имя кристала для *.btr
-				strcat(crr_name, "\\shell\\Open\\command");
+		/*
+		{
+			char   crr_path[MAXPATH];
+			DWORD  path_size = MAXPATH;
+			memzero(crr_path, sizeof(crr_path));
+			// Для CRR 7.0
+			if(RegOpenKeyEx(HKEY_LOCAL_MACHINE,	_T("SOFTWARE\\Seagate Software\\Crystal Reports"), 0, KEY_QUERY_VALUE, &crr_key) == ERROR_SUCCESS &&
+				RegQueryValueEx(crr_key, _T("Path"), NULL, NULL, (LPBYTE)crr_path, &path_size) == ERROR_SUCCESS)
 				ok = 1;
+			// Или для  CRR 10
+			else if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Crystal Decisions\\10.0\\Crystal Reports"), 0, KEY_QUERY_VALUE, &crr_key) == ERROR_SUCCESS &&
+				RegQueryValueEx(crr_key, _T("Path"), NULL, NULL, (LPBYTE)crr_path, &(path_size = MAXPATH)) == ERROR_SUCCESS)
+				ok = 1;
+			// Если ничего не помогло - общий альтернативный способ
+			else {
+				ok = 0;
+				TCHAR   crr_name[64];
+				DWORD   crr_name_size = SIZEOFARRAY(crr_name);
+				PTR32(crr_name)[0] = 0;
+				if(RegOpenKeyEx(HKEY_CLASSES_ROOT,	_T(".rpt"), 0, KEY_QUERY_VALUE, &crr_key) == ERROR_SUCCESS &&
+					RegQueryValueEx(crr_key, NULL, NULL, NULL, (LPBYTE)crr_name, &(crr_name_size = sizeof(crr_name))) == ERROR_SUCCESS) { // имя кристала для *.btr
+					strcat(crr_name, "\\shell\\Open\\command");
+					ok = 1;
+				}
+				if(ok && RegOpenKeyEx(HKEY_CLASSES_ROOT, crr_name, 0, KEY_QUERY_VALUE, &crr_key) == ERROR_SUCCESS &&
+					RegQueryValueEx(crr_key, NULL, NULL, NULL, (LPBYTE)crr_path, &(path_size = MAXPATH)) == ERROR_SUCCESS) // @unicodeproblem
+					ok = 1;
 			}
-			if(ok && RegOpenKeyEx(HKEY_CLASSES_ROOT, crr_name, 0, KEY_QUERY_VALUE, &crr_key) == ERROR_SUCCESS &&
-				RegQueryValueEx(crr_key, NULL, NULL, NULL, (LPBYTE)crr_path, &(path_size = MAXPATH)) == ERROR_SUCCESS) // @unicodeproblem
-				ok = 1;
 		}
-		if(ok && fileExists(crr_path)) {
-			SString alt_path;
-			setLastSlash(crr_path);
-			strcat(crr_path, "crw32.exe");
-			THROW(GetAltPath(r_rec.Type, r_rec.Path, r_rec.StdName, alt_path));
-			ok = spawnl(_P_NOWAIT, crr_path, (const char *)alt_path, (const char *)alt_path, 0);
+		*/
+		{
+			SString crr_path;
+			{
+				WinRegKey reg_key(HKEY_LOCAL_MACHINE, "SOFTWARE\\Seagate Software\\Crystal Reports", 1);
+				if(reg_key.GetString("Path", crr_path) > 0)
+					ok = 1;
+			}
+			if(ok < 0) {
+				WinRegKey reg_key(HKEY_LOCAL_MACHINE, "SOFTWARE\\Crystal Decisions\\10.0\\Crystal Reports", 1);
+				if(reg_key.GetString("Path", crr_path) > 0)
+					ok = 1;
+			}
+			if(ok < 0) {
+				SString crr_name;
+				WinRegKey reg_key(HKEY_CLASSES_ROOT, ".rpt", 1);
+				if(reg_key.GetString(0, crr_name) > 0) {
+					crr_name.Cat("\\shell\\Open\\command");
+					WinRegKey reg_key_path(HKEY_CLASSES_ROOT, crr_name, 1);
+					if(reg_key_path.GetString(0, crr_path) > 0) {
+						ok = 1;
+					}
+				}
+			}
+			if(ok > 0 && fileExists(crr_path)) {
+				SString alt_path;
+				const TempReportTbl::Rec & r_rec = P_TempTbl->data;
+				crr_path.SetLastSlash().Cat("crw32.exe");
+				//strcat(crr_path, "crw32.exe");
+				THROW(GetAltPath(r_rec.Type, r_rec.Path, r_rec.StdName, alt_path));
+				ok = spawnl(_P_NOWAIT, crr_path, alt_path.cptr(), alt_path.cptr(), 0);
+			}
 		}
 	}
 	CATCHZOK
@@ -771,8 +795,8 @@ int SLAPI PPViewReport::CreateStdRptList(ReportViewItemArray * pList)
 				item.ID = id + 1;
 				sect.CopyTo(item.StdName, sizeof(item.StdName));
 				data.CopyTo(item.StrucName, sizeof(item.StrucName));
-				strtodate((const char *)dt, DATF_DMY, &item.ModifDt);
-				if(_cp == cp866)
+				strtodate(dt.cptr(), DATF_DMY, &item.ModifDt);
+				if(oneof2(_cp, cp1251, cpANSI)) // @v10.3.11 @fix cp866-->(cp1251, cpANSI)
 					descr.Transf(CTRANSF_OUTER_TO_INNER);
 				descr.CopyTo(item.Descr, sizeof(item.Descr));
 				item.Type = ReportFilt::rpttStandart;
@@ -830,7 +854,9 @@ int SLAPI PPViewReport::SplitLocalRptStr(PPIniFile * pFile, int codepage, const 
 
 int SLAPI PPViewReport::CreateRptList(ReportViewItemArray * pList)
 {
-	int    ok = 1, close_file = 0, codepage = 0;
+	int    ok = 1;
+	int    do_close_file = 0;
+	int    codepage = 0;
 	uint   i  = 0;
 	long   id = 0;
 	PPIniFile * p_file = P_RptFile;
@@ -839,11 +865,10 @@ int SLAPI PPViewReport::CreateRptList(ReportViewItemArray * pList)
 	THROW_INVARG(pList);
 	if(!p_file) {
 		SString filename;
-		PPGetFilePath(PPPATH_BIN, (uint)PPFILNAM_REPORT_INI, filename);
+		PPGetFilePath(PPPATH_BIN, PPFILNAM_REPORT_INI, filename);
 		p_file = new PPIniFile(filename);
-		close_file = 1;
+		do_close_file = 1;
 	}
-
 	THROW(p_file->GetSections(&sections));
 	for(i = 0, id = 0; sections.get(&i, sect.Z()) > 0; id++) {
 		if(sect.CmpNC(SystemSect) == 0) {
@@ -862,7 +887,7 @@ int SLAPI PPViewReport::CreateRptList(ReportViewItemArray * pList)
 		}
 	}
 	CATCHZOK
-	if(close_file)
+	if(do_close_file)
 		ZDELETE(p_file);
 	return ok;
 }
@@ -878,7 +903,7 @@ DBQuery * SLAPI PPViewReport::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 	TempReportTbl * p_tbl = 0;
 	THROW(P_TempTbl);
 	THROW(CheckTblPtr(p_tbl = new TempReportTbl(P_TempTbl->GetName())));
-	PPDbqFuncPool::InitLongFunc(dbe_type,   PPDbqFuncPool::IdReportTypeName, p_tbl->Type);
+	PPDbqFuncPool::InitLongFunc(dbe_type, PPDbqFuncPool::IdReportTypeName, p_tbl->Type);
 	q = & select(p_tbl->ID, 0L);                           // #00
 	q->addField(p_tbl->StdName);                           // #01
 	q->addField(p_tbl->ModifDt);                           // #02
@@ -1001,7 +1026,7 @@ int SLAPI PPViewReport::EditItem(long * pID)
 	ReportViewItem item, prev_item;
 	ReportDlg * p_dlg = 0;
 	if(id && P_TempTbl && P_TempTbl->search(0, &id, spEq) > 0) {
-		item = *((ReportViewItem*)&P_TempTbl->data);
+		item = *static_cast<const ReportViewItem *>(&P_TempTbl->data);
 		prev_item = item;
 	}
 	else {

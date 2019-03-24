@@ -162,11 +162,10 @@ struct __hdr {
  */
 #define	LOG_HDR_SUM(crypto, hdr, sum) do {				\
 	if(crypto) {							\
-		((uint32 *)sum)[0] ^= ((HDR *)hdr)->prev;		\
-		((uint32 *)sum)[1] ^= ((HDR *)hdr)->len;		\
+		reinterpret_cast<uint32 *>(sum)[0] ^= static_cast<const HDR *>(hdr)->prev;		\
+		reinterpret_cast<uint32 *>(sum)[1] ^= static_cast<const HDR *>(hdr)->len;		\
 	} else {							\
-		((uint32 *)sum)[0] ^=				\
-		     ((HDR *)hdr)->prev ^ ((HDR *)hdr)->len;		\
+		reinterpret_cast<uint32 *>(sum)[0] ^= static_cast<const HDR *>(hdr)->prev ^ static_cast<const HDR *>(hdr)->len; \
 	}								\
 } while (0)
 
@@ -179,12 +178,11 @@ struct __hdr {
  * checksum regardless, but we can safely just use the first 4 bytes.
  */
 #define	HDR_NORMAL_SZ	12
-#define	HDR_CRYPTO_SZ	12 + DB_MAC_KEY + DB_IV_BYTES
+#define	HDR_CRYPTO_SZ	(12 + DB_MAC_KEY + DB_IV_BYTES)
 
 struct __log_persist {
 	uint32 magic;		/* DB_LOGMAGIC */
 	uint32 version;		/* DB_LOGVERSION */
-
 	uint32 log_size;		/* Log file size. */
 	uint32 notused;		/* Historically the log file mode. */
 };

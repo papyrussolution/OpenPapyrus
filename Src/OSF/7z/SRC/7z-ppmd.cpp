@@ -98,7 +98,7 @@ namespace NCompress {
 			const uint64 * /* inSize */, const uint64 * /* outSize */, ICompressProgressInfo * progress)
 		{
 			if(!_inBuf) {
-				_inBuf = (Byte*)::MidAlloc(kBufSize);
+				_inBuf = (Byte *)::MidAlloc(kBufSize);
 				if(!_inBuf)
 					return E_OUTOFMEMORY;
 			}
@@ -210,7 +210,7 @@ namespace NCompress {
 					const uint64 * /* inSize */, const uint64 * outSize, ICompressProgressInfo * progress)
 		{
 			if(!_outBuf) {
-				_outBuf = (Byte*)::MidAlloc(kBufSize);
+				_outBuf = (Byte *)::MidAlloc(kBufSize);
 				if(!_outBuf)
 					return E_OUTOFMEMORY;
 			}
@@ -261,7 +261,7 @@ namespace NCompress {
 			STDMETHODIMP CDecoder::Read(void * data, uint32 size, uint32 * processedSize)
 			{
 				const uint64 startPos = _processedSize;
-				HRESULT res = CodeSpec((Byte*)data, size);
+				HRESULT res = CodeSpec((Byte *)data, size);
 				ASSIGN_PTR(processedSize, (uint32)(_processedSize - startPos));
 				return res;
 			}

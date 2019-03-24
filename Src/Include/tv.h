@@ -836,7 +836,7 @@ public:
 	SPaintToolBox();
 	~SPaintToolBox();
 	SPaintToolBox & Init();
-	int    Copy(const SPaintToolBox & rS);
+	int    FASTCALL Copy(const SPaintToolBox & rS);
 	//
 	// Descr: Копирует объект с идентификатором toolIdent из контейнера rS в this.
 	//   Для создаваемого объекта в контейнере this формируется новый идентификатор.
@@ -892,9 +892,6 @@ public:
 	// Descr: Создает WinGdi-перо (HPEN) и сохраняет его с идентификатором ident.
 	//
 	int    SetPen(int ident, int style, int width, COLORREF c);
-	//
-	//
-	//
 	int    SetDefaultPen(int style, int width, SColor c);
 	int32  GetDefaultPen();
 	//
@@ -908,7 +905,7 @@ public:
 	int    CreateColor(int ident, SColor c);
 	int    CreatePen(int ident, int style, float width, SColor c);
 	int    CreateBrush(int ident, int style, SColor c, int32 hatch, int patternId = 0);
-	int    CreateFont(int ident, const char * pFace, int height, int flags);
+	int    CreateFont_(int ident, const char * pFace, int height, int flags);
 	int    CreateGradientLinear(int ident, const FRect &);
 	int    CreateGradientRadial(int ident, const FShape::Circle &);
 	int    AddGradientStop(int ident, float off, SColor c);
@@ -1340,8 +1337,8 @@ public:
 	int    SLAPI FillRect(const TRect & rRect, HBRUSH brush);
 	TPoint FASTCALL GetTextSize(const char * pStr);
 		// @>>BOOL GetTextExtentPoint32(HDC hdc, LPCTSTR lpString, int cbString, LPSIZE lpSize);
-	int    SLAPI TextOut(TPoint p, const char * pText);
-	int    SLAPI DrawText(const TRect & rRect, const char * pText, uint options);
+	int    SLAPI TextOut_(TPoint p, const char * pText);
+	int    SLAPI DrawText_(const TRect & rRect, const char * pText, uint options);
 private:
 	enum {
 		fOuterDC = 0x0001
@@ -2902,7 +2899,7 @@ public:
 	int    makeDefault(int enable, int sendMsg = 0);
 	HBITMAP GetBitmap() const;
 	uint   GetBmpID() const;
-	int    LoadBitmap(uint bmpID);
+	int    LoadBitmap_(uint bmpID);
 	int    SetBitmap(uint bmpID);
 	ushort GetCommand() const;
 	int    IsDefault() const;
@@ -3919,7 +3916,7 @@ public:
 	int    CloseAllBrowsers();
 	HWND   CreateDlg(uint dlgID, HWND hWndParent, DLGPROC lpDialogFunc, LPARAM dwInitParam);
 	INT_PTR DlgBoxParam(uint dlgID, HWND hWndParent, DLGPROC lpDialogFunc, LPARAM dwInitParam);
-	HBITMAP FASTCALL LoadBitmap(uint bmID);
+	HBITMAP FASTCALL LoadBitmap_(uint bmID);
 	HBITMAP FASTCALL FetchBitmap(uint bmID);
 	HBITMAP FASTCALL FetchSystemBitmap(uint bmID);
 	int    AddListToTree(long cmd, const char * pTitle, ListWindow * pLw);

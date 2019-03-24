@@ -1017,7 +1017,7 @@ void SLAPI SCS_ATOLDRV::WriteLogFile(PPID id)
 		GetProp(Mode, &mode);
 		mode_descr.Cat(mode);
 		mode_descr.ToOem();
-		if(err_msg.StrChr('\n', &pos))
+		if(err_msg.SearchChar('\n', &pos))
 			err_msg.Trim(pos);
 		GetProp(AdvancedMode, &adv_mode);
 		msg.Printf(msg_fmt, oper_name.cptr(), err_msg.cptr(), mode_descr.cptr(), adv_mode);

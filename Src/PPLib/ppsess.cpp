@@ -30,7 +30,7 @@ public:
 	virtual int SLAPI GetTableInfo(long tblID, DbTableStat * pStat);
 	virtual int SLAPI GetListOfTables(long options, StrAssocArray * pList);
 private:
-	int    SLAPI ExtractStat(DlContext * pCtx, const DlScope * pScope, DbTableStat * pStat) const;
+	int    SLAPI ExtractStat(const DlContext * pCtx, const DlScope * pScope, DbTableStat * pStat) const;
 };
 //
 // Descr: Процедура создания словаря DbDict_DL600. Используется для установки
@@ -82,7 +82,7 @@ static void FASTCALL SetXtfByDlScope(const DlScope * pScope, DbTableStat * pStat
 		pStat->Flags |= flagToSet;
 }
 
-int SLAPI DbDict_DL600::ExtractStat(DlContext * pCtx, const DlScope * pScope, DbTableStat * pStat) const
+int SLAPI DbDict_DL600::ExtractStat(const DlContext * pCtx, const DlScope * pScope, DbTableStat * pStat) const
 {
 	CtmExprConst c;
 	pStat->Clear();
@@ -1886,7 +1886,7 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 	RegisterSTAcct();
 	PPDbqFuncPool::Register();
 	{
-		PPIniFile ini_file;
+		PPIniFile ini_file(0, 0, 0, 1); // @v10.3.11 useIniBuf=1
 		if(ini_file.GetParam("config", "uilanguage", temp_buf) > 0 && temp_buf.NotEmptyS()) {
 			const int slang = RecognizeLinguaSymb(temp_buf, 0);
 			if(slang > 0)
@@ -4263,7 +4263,7 @@ int FASTCALL PPAdviseList::Enum(uint * pI, PPAdviseBlock * pBlk) const
 	int    ok = 0;
 	uint   i = DEREFPTRORZ(pI);
 	if(i < getCount()) {
-		ASSIGN_PTR(pBlk, *(PPAdviseBlock *)at(i));
+		ASSIGN_PTR(pBlk, *static_cast<const PPAdviseBlock *>(at(i)));
 		++i;
 		ok = 1;
 	}
@@ -4280,7 +4280,7 @@ int PPAdviseList::CreateList(int kind, ThreadID tId, long dbPathID, PPID objType
 		const uint c = getCount();
 		if(c) { // @speedcritical
 			for(uint i = 0; i < c; i++) {
-				const PPAdviseBlock * p_blk = (PPAdviseBlock *)at(i);
+				const PPAdviseBlock * p_blk = static_cast<const PPAdviseBlock *>(at(i));
 				if(p_blk->Kind == kind && (!objType || p_blk->ObjType == objType) &&
 					(!p_blk->TId || p_blk->TId == tId) && (!p_blk->DbPathID || p_blk->DbPathID == dbPathID)) {
 					rList.insert(p_blk);

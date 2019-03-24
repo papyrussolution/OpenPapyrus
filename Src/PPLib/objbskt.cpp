@@ -5,12 +5,12 @@
 #include <pp.h>
 #pragma hdrstop
 
-IMPL_CMPFUNC(ILTI, i1, i2) { return cmp_long(((ILTI *)i1)->BillID, ((ILTI *)i2)->BillID); }
+IMPL_CMPFUNC(ILTI, i1, i2) { return cmp_long(static_cast<const ILTI *>(i1)->BillID, static_cast<const ILTI *>(i2)->BillID); }
 
 IMPL_CMPFUNC(ILTIGGRP, i1, i2)
 {
-	const ILTI * item1 = (const ILTI *) i1;
-	const ILTI * item2 = (const ILTI *) i2;
+	const ILTI * item1 = static_cast<const ILTI *>(i1);
+	const ILTI * item2 = static_cast<const ILTI *>(i2);
 	int    cmp = 0;
 	PPObjGoods goods_obj;
 	Goods2Tbl::Rec rec, grp_rec;
@@ -43,8 +43,8 @@ IMPL_CMPFUNC(ILTIGOODS, i1, i2)
 	PPObjGoods goods_obj;
 	SString name1, name2;
 	Goods2Tbl::Rec rec1, rec2;
-	goods_obj.Fetch(((const ILTI *)i1)->GoodsID, &rec1);
-	goods_obj.Fetch(((const ILTI *)i2)->GoodsID, &rec2);
+	goods_obj.Fetch(static_cast<const ILTI *>(i1)->GoodsID, &rec1);
+	goods_obj.Fetch(static_cast<const ILTI *>(i2)->GoodsID, &rec2);
 	if((cmp = stricmp866(rec1.Name, rec2.Name)) > 0)
 		return 1;
 	else if(cmp < 0)
@@ -419,7 +419,7 @@ int SLAPI PPObjGoodsBasket::PutPacket(PPID * pID, PPBasketPacket * pData, int us
 					gbi = *(PPGoodsBasketItem *)prev_items.at(i);
 					if(items.lsearch(&gbi.ItemGoodsID, &pos, PTR_CMPFUNC(long), offsetof(PPGoodsBasketItem, ItemGoodsID))) {
 						PPGoodsBasketItem * p_list_item = (PPGoodsBasketItem *)items.at(pos);
-						found_pos_list.add((long)pos);
+						found_pos_list.add(static_cast<long>(pos));
 						if(p_list_item->Flags != gbi.Flags || p_list_item->Quantity != gbi.Quantity ||
 							p_list_item->Price != gbi.Price || p_list_item->UnitPerPack != gbi.UnitPerPack ||
 							p_list_item->Expiry != gbi.Expiry) {
@@ -923,11 +923,10 @@ int SLAPI SelBasketParam::RestoreFromReg(const char * pName)
 {
 	int    ok = -1;
 	if(!isempty(pName)) {
-		char   buf[1024];
+		SString temp_buf;
 		WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::PrefBasketSelSettings, 1);
-		if(reg_key.GetString(pName, buf, sizeof(buf))) {
-			SString temp_buf;
-			StringSet ss(';', buf);
+		if(reg_key.GetString(pName, temp_buf)) {
+			StringSet ss(';', temp_buf);
 			uint i = 0;
 			if(ss.get(&i, temp_buf))
 				SelPrice = temp_buf.ToLong();
@@ -1750,7 +1749,7 @@ int GBDialog::addItem(long * pPos, long * pID)
 						PPSetAddedMsgString(msg_buf);
 						if(PPMessage(mfConf|mfYes|mfNo, PPCFM_SUMDUPGOODSINBASKET) == cmYes) {
 							R_Data.Pack.Lots.at(pos).Quantity += item.Quantity;
-							ASSIGN_PTR(pPos, (long)pos);
+							ASSIGN_PTR(pPos, static_cast<long>(pos));
 							ASSIGN_PTR(pID, (long)(pos+1));
 							Flags |= gbdfChanged;
 							local_ok = ok = 1;
@@ -1759,7 +1758,7 @@ int GBDialog::addItem(long * pPos, long * pID)
 					else {
 						item.BillID = ++LastInnerNum;
 						if(R_Data.Pack.AddItem(&item, &pos)) {
-							ASSIGN_PTR(pPos, (long)pos);
+							ASSIGN_PTR(pPos, static_cast<long>(pos));
 							ASSIGN_PTR(pID, (long)(pos+1));
 							Flags |= gbdfChanged;
 							local_ok = ok = 1;

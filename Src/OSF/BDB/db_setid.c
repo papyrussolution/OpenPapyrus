@@ -80,9 +80,9 @@ int __env_fileid_reset(ENV * env, DB_THREAD_INFO * ip, const char * name, int en
 	/* If configured with a password, the databases are encrypted. */
 	if(encrypted && (ret = __db_set_flags(dbp, DB_ENCRYPT)) != 0)
 		goto err;
-	if((ret = __db_meta_setup(env, dbp, real_name, (DBMETA *)mbuf, 0, DB_CHK_META)) != 0)
+	if((ret = __db_meta_setup(env, dbp, real_name, reinterpret_cast<DBMETA *>(mbuf), 0, DB_CHK_META)) != 0)
 		goto err;
-	meta = (DBMETA *)mbuf;
+	meta = reinterpret_cast<DBMETA *>(mbuf);
 	if(FLD_ISSET(meta->metaflags, DBMETA_PART_RANGE|DBMETA_PART_CALLBACK) && (ret = __part_fileid_reset(env, ip, name, meta->nparts, encrypted)) != 0)
 		goto err;
 	subdb = (meta->type == P_BTREEMETA && F_ISSET(meta, BTM_SUBDB));
@@ -137,7 +137,7 @@ int __env_fileid_reset(ENV * env, DB_THREAD_INFO * ip, const char * name, int en
 		DB_NTOHL_SWAP(env, &pgno);
 		if((ret = __memp_fget(mpf, &pgno, ip, NULL, DB_MPOOL_DIRTY, &pagep)) != 0)
 			goto err;
-		memcpy(((DBMETA *)pagep)->uid, fileid, DB_FILE_ID_LEN);
+		memcpy(static_cast<DBMETA *>(pagep)->uid, fileid, DB_FILE_ID_LEN);
 		if((ret = __memp_fput(mpf, ip, pagep, dbcp->priority)) != 0)
 			goto err;
 	}

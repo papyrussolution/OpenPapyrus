@@ -1739,7 +1739,7 @@ public:
 	//
 	int    SLAPI getDirect(int idx, void * pKey, const DBRowId &);
 	int    SLAPI getDirectForUpdate(int idx, void * pKey, const DBRowId &);
-	int    SLAPI getChunk(ChunkHeader * pChunk, int lock = 0); // @unused
+	int    SLAPI getChunk(const ChunkHeader * pChunk, int lock = 0); // @unused
 	int    FASTCALL getPosition(DBRowId * pPos);
 	int    SLAPI findPercentage(void * pKey, int16 * pRelPos); // @unused
 	int    SLAPI getByPercentage(int16 relPos, int keyIndex); // @unused
@@ -2457,7 +2457,7 @@ public:
 	int    SLAPI SetDictionary(DbProvider * pDb);
 	int    SLAPI Backup(BCopyData *, BackupLogFunc, long initParam);
 	int    SLAPI Restore(BCopyData *, BackupLogFunc, long initParam);
-	int    SLAPI RemoveCopy(BCopyData *, BackupLogFunc, long initParam);
+	int    SLAPI RemoveCopy(const BCopyData *, BackupLogFunc, long initParam);
 	int    SLAPI GetCopySet(BCopySet *);
 	int    SLAPI GetCopyData(long copyID, BCopyData *);
 	uint   SLAPI GetSpaceSafetyFactor();
@@ -2509,7 +2509,7 @@ private:
 	int    SLAPI RemoveDatabase(int safe);
 	int    SLAPI RestoreRemovedDB(int restoreFiles);
 	static int   CopyProgressProc(const SDataMoveProgressInfo *);
-	int    SLAPI CheckCopy(BCopyData * pData, const CopyParams & rCP, BackupLogFunc fnLog, long initParam);
+	int    SLAPI CheckCopy(const BCopyData * pData, const CopyParams & rCP, BackupLogFunc fnLog, long initParam);
 	int    SLAPI CopyLinkFiles(const char * pSrcPath, const char * pDestPath, BackupLogFunc fnLog, long initParam);
 
 	int64  TotalCopySize;

@@ -2644,12 +2644,12 @@ static CURLcode servercert(struct connectdata * conn,
 	infof(data, " subject: %s\n", rc ? "[NONE]" : buffer);
 
 	ASN1_TIME_print(mem, X509_get0_notBefore(connssl->server_cert));
-	len = BIO_get_mem_data(mem, (char**)&ptr);
+	len = BIO_get_mem_data(mem, (char **)&ptr);
 	infof(data, " start date: %.*s\n", len, ptr);
 	rc = BIO_reset(mem);
 
 	ASN1_TIME_print(mem, X509_get0_notAfter(connssl->server_cert));
-	len = BIO_get_mem_data(mem, (char**)&ptr);
+	len = BIO_get_mem_data(mem, (char **)&ptr);
 	infof(data, " expire date: %.*s\n", len, ptr);
 	rc = BIO_reset(mem);
 

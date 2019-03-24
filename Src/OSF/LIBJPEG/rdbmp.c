@@ -323,8 +323,8 @@ METHODDEF(void) start_input_bmp(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 			    ERREXIT(cinfo, JERR_BMP_COMPRESSED);
 		    if(biXPelsPerMeter > 0 && biYPelsPerMeter > 0) {
 			    // Set JFIF density parameters from the BMP data 
-			    cinfo->X_density = (uint16)(biXPelsPerMeter/100); /* 100 cm per meter */
-			    cinfo->Y_density = (uint16)(biYPelsPerMeter/100);
+			    cinfo->X_density = static_cast<uint16>(biXPelsPerMeter/100); /* 100 cm per meter */
+			    cinfo->Y_density = static_cast<uint16>(biYPelsPerMeter/100);
 			    cinfo->density_unit = 2; /* dots/cm */
 		    }
 		    break;

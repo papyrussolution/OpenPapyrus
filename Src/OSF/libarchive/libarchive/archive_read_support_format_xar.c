@@ -1532,7 +1532,7 @@ static int decompress(struct archive_read * a, const void ** buff, size_t * outb
 		avail_out = *outbytes;
 	switch(xar->rd_encoding) {
 		case GZIP:
-		    xar->stream.next_in = (Bytef*)(uintptr_t)b;
+		    xar->stream.next_in = (Bytef *)(uintptr_t)b;
 		    xar->stream.avail_in = avail_in;
 		    xar->stream.next_out = (uchar*)outbuff;
 		    xar->stream.avail_out = avail_out;

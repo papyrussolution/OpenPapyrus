@@ -195,7 +195,7 @@ namespace NCompress {
 						const size_t kChunkSize = (size_t)1 << 15;
 						if(curSize > kChunkSize)
 							return E_NOTIMPL;
-						_x86_buf = (Byte*)::MidAlloc(kChunkSize);
+						_x86_buf = (Byte *)::MidAlloc(kChunkSize);
 						if(!_x86_buf)
 							return E_OUTOFMEMORY;
 					}
@@ -509,7 +509,7 @@ namespace NCompress {
 				if(!_win || newWinSize != _winSize) {
 					::MidFree(_win);
 					_winSize = 0;
-					_win = (Byte*)::MidAlloc(newWinSize);
+					_win = (Byte *)::MidAlloc(newWinSize);
 					if(!_win)
 						return E_OUTOFMEMORY;
 				}

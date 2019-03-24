@@ -341,7 +341,7 @@ int BankingOrderDialog::setupPerson(int payerOrRcvr, PPID personID, PPID * pBnkA
 	return ok;
 }
 
-int BankingOrderDialog::setDTS(PPBankingOrder * pData)
+int BankingOrderDialog::setDTS(const PPBankingOrder * pData)
 {
 	int    ok = 1;
 	ushort v = 0;

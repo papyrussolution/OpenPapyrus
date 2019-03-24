@@ -567,15 +567,15 @@ SCDBObjSell::PalmRec * SCDBObjSell::AllocPalmRec(const TSVector <TempRec> * pPoo
 	size_t buf_len = 0;
 	if(pPool->getCount()) {
 		buf_len = sizeof(PalmRec) + pPool->getCount() * sizeof(SalesItem);
-		p_buf = (PalmRec *)SAlloc::C(1, buf_len);
+		p_buf = static_cast<PalmRec *>(SAlloc::C(1, buf_len));
 		if(p_buf) {
 			p_buf->ItemsCount = SyncHostToHHWord(pPool->getCount());
 			p_buf->ClientID = SyncHostToHHDWord(pPool->at(0).ClientID);
 			p_buf->ClientAddrID = SyncHostToHHDWord(pPool->at(0).ClientAddrID);
 			p_buf->GoodsID = SyncHostToHHDWord(pPool->at(0).GoodsID);
 			for(uint i = 0; i < pPool->getCount(); i++) {
-				((SalesItem *)(p_buf+1))[i].Date = SyncHostToHHWord(pPool->at(i).Date);
-				((SalesItem *)(p_buf+1))[i].Qtty = pPool->at(i).Qtty;
+				reinterpret_cast<SalesItem *>(p_buf+1)[i].Date = SyncHostToHHWord(pPool->at(i).Date);
+				reinterpret_cast<SalesItem *>(p_buf+1)[i].Qtty = pPool->at(i).Qtty;
 			}
 		}
 	}

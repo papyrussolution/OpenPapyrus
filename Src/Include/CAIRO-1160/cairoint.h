@@ -1210,6 +1210,8 @@ CAIRO_END_DECLS
 #include "cairo-compositor-private.h"
 #include "cairo-gstate-private.h"
 #include "cairo-box-inline.h"
+#include "cairo-line-private.h"
+#include "cairo-line-inline.h"
 #include "cairo-slope-private.h"
 #include "cairo-time-private.h"
 #include "cairo-surface-observer-private.h"

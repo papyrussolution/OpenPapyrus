@@ -444,7 +444,7 @@ static void RangeEnc_Construct(CRangeEnc * p)
 static int RangeEnc_Alloc(CRangeEnc * p, ISzAllocPtr alloc)
 {
 	if(!p->bufBase) {
-		p->bufBase = (Byte*)ISzAlloc_Alloc(alloc, RC_BUF_SIZE);
+		p->bufBase = (Byte *)ISzAlloc_Alloc(alloc, RC_BUF_SIZE);
 		if(!p->bufBase)
 			return 0;
 		p->bufLim = p->bufBase + RC_BUF_SIZE;
@@ -1783,7 +1783,7 @@ SRes LzmaEnc_PrepareForLzma2(CLzmaEncHandle pp, ISeqInStream * inStream, uint32 
 static void LzmaEnc_SetInputBuf(CLzmaEnc * p, const Byte * src, SizeT srcLen)
 {
 	p->matchFinderBase.directInput = 1;
-	p->matchFinderBase.bufferBase = (Byte*)src;
+	p->matchFinderBase.bufferBase = (Byte *)src;
 	p->matchFinderBase.directInputRem = srcLen;
 }
 
@@ -2847,7 +2847,7 @@ SRes LzmaDec_Allocate(CLzmaDec * p, const Byte * props, unsigned propsSize, ISzA
 
 	if(!p->dic || dicBufSize != p->dicBufSize) {
 		LzmaDec_FreeDict(p, alloc);
-		p->dic = (Byte*)ISzAlloc_Alloc(alloc, dicBufSize);
+		p->dic = (Byte *)ISzAlloc_Alloc(alloc, dicBufSize);
 		if(!p->dic) {
 			LzmaDec_FreeProbs(p, alloc);
 			return SZ_ERROR_MEM;
@@ -3109,7 +3109,7 @@ static SRes Lzma2Enc_EncodeMt1(CLzma2EncInt * p, CLzma2Enc * mainEncoder, ISeqOu
 	uint64 packTotal = 0;
 	SRes res = SZ_OK;
 	if(!mainEncoder->outBuf) {
-		mainEncoder->outBuf = (Byte*)ISzAlloc_Alloc(mainEncoder->alloc, LZMA2_CHUNK_SIZE_COMPRESSED_MAX);
+		mainEncoder->outBuf = (Byte *)ISzAlloc_Alloc(mainEncoder->alloc, LZMA2_CHUNK_SIZE_COMPRESSED_MAX);
 		if(!mainEncoder->outBuf)
 			return SZ_ERROR_MEM;
 	}

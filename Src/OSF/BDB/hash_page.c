@@ -529,7 +529,7 @@ static int __ham_getindex_unsorted(DBC * dbc, PAGE * p, const DBT * key, int * m
 
 	dbp = dbc->dbp;
 	n = NUM_ENT(p);
-	t = (HASH *)dbp->h_internal;
+	t = static_cast<HASH *>(dbp->h_internal);
 	res = 1;
 
 	/* Do a linear search over the page looking for an exact match */
@@ -595,7 +595,7 @@ static int __ham_getindex_sorted(DBC * dbc, PAGE * p, const DBT * key, uint32 ke
 	void * data;
 	DB * dbp = dbc->dbp;
 	DB_ASSERT(dbp->env, p->type == P_HASH );
-	t = (HASH *)dbp->h_internal;
+	t = static_cast<HASH *>(dbp->h_internal);
 	/* Initialize so the return params are correct for empty pages. */
 	res = indx = 0;
 
@@ -718,7 +718,7 @@ int __ham_verify_sorted_page(DBC * dbc, PAGE * p)
 	DB_ASSERT(dbp->env, n%2 == 0 );
 
 	env = dbp->env;
-	t = (HASH *)dbp->h_internal;
+	t = static_cast<HASH *>(dbp->h_internal);
 	/* Disable verification if a custom comparator is supplied */
 	if(t->h_compare != NULL)
 		return 0;

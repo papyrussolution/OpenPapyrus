@@ -550,7 +550,7 @@ static ngx_int_t ngx_http_gzip_filter_deflate(ngx_http_request_t * r, ngx_http_g
 	    ctx->zstream.next_in, ctx->zstream.next_out, ctx->zstream.avail_in, ctx->zstream.avail_out, rc);
 	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "gzip in_buf:%p pos:%p", ctx->in_buf, ctx->in_buf->pos);
 	if(ctx->zstream.next_in) {
-		ctx->in_buf->pos = ctx->zstream.next_in;
+		ctx->in_buf->pos = const_cast<u_char *>(static_cast<const u_char *>(ctx->zstream.next_in)); // @badcast
 		if(ctx->zstream.avail_in == 0) {
 			ctx->zstream.next_in = NULL;
 		}

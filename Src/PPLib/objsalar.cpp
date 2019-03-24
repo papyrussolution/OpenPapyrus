@@ -841,8 +841,10 @@ int SLAPI PPStaffCalPacket::GetTimeChunkList(const DateRange & rPeriod, STimeChu
 	return ok;
 }
 
-IMPL_CMPFUNC(STAFFCALREC, i1, i2) { RET_CMPCASCADE3((const StaffCalendarTbl::Rec*)i1, (const StaffCalendarTbl::Rec*)i2, CalID, DtVal, TmStart); }
-IMPL_CMPFUNC(STAFFCALREC_WO_TM, i1, i2) { RET_CMPCASCADE2((const StaffCalendarTbl::Rec*)i1, (const StaffCalendarTbl::Rec*)i2, CalID, DtVal); }
+IMPL_CMPFUNC(STAFFCALREC, i1, i2) 
+	{ RET_CMPCASCADE3(static_cast<const StaffCalendarTbl::Rec *>(i1), static_cast<const StaffCalendarTbl::Rec *>(i2), CalID, DtVal, TmStart); }
+IMPL_CMPFUNC(STAFFCALREC_WO_TM, i1, i2) 
+	{ RET_CMPCASCADE2(static_cast<const StaffCalendarTbl::Rec *>(i1), static_cast<const StaffCalendarTbl::Rec *>(i2), CalID, DtVal); }
 
 int SLAPI PPStaffCalPacket::SearchContinuousEntry(long dtVal, StaffCalendarTbl::Rec * pRec) const
 {

@@ -10492,6 +10492,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @curratefilt_ratetype                     "Тип курса"
 @dbdivfilt_loclist                        "Список подчиненных складов"
 
+@freightfilt                              "Фильтр по документам отгрузки"
 @freightfilt_arrvlperiod                  "Период доставки"
 @freightfilt_billperiod                   "Период документов"
 @freightfilt_captain                      "Капитан (водитель)"

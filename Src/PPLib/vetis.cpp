@@ -1089,15 +1089,12 @@ struct VetisVetDocument : public VetisDocument {
 	LDATE  WayBillDate;
 	SString WayBillNumber;
 	SString WayBillSeries;
-	//
 	PPID   NativeLotID;   // Ссылка на лот в БД, на который ссылается этот сертификат
 	PPID   NativeBillID;  // Ссылка на документ в БД, на который ссылается этот сертификат
 	int    NativeBillRow; // Ссылка на строку документа NativeBillID, на которую ссылается этот сертификат
-	//
 	int    UnionVetDocument;
 	VetisCertifiedBatch * P_CertifiedBatch;
 	VetisCertifiedConsignment CertifiedConsignment;
-	//
 	VeterinaryAuthentication Authentication;
 	SString PrecedingVetDocuments;
 	TSCollection <ReferencedDocument> ReferencedDocumentList;
@@ -7926,7 +7923,7 @@ int SLAPI PPViewVetisDocument::MatchObject(VetisDocumentTbl::Rec & rRec, int obj
 					PPObjBill::SelectLotParam::fShowQtty|PPObjBill::SelectLotParam::fShowPhQtty|PPObjBill::SelectLotParam::fShowVetisTag;
 				if(bill_id) {
 					PPBillPacket bp;
-					if(p_bobj->ExtractPacket(bill_id, &bp) > 0) {
+					if(p_bobj->ExtractPacketWithFlags(bill_id, &bp, BPLD_LOCK) > 0) { // @v10.3.11 BPLD_LOCK
 						ar_id = bp.Rec.Object;
 						PPObjBill::SelectLotParam slp(0, bp.Rec.LocID, 0, slp_flags);
 						for(uint i = 0; i < bp.GetTCount(); i++) {
@@ -7959,6 +7956,8 @@ int SLAPI PPViewVetisDocument::MatchObject(VetisDocumentTbl::Rec & rRec, int obj
 							}
 						}
 					}
+					else
+						PPError(); // @v10.3.11
 				}
 				else {
 					if(rRec.LinkFromPsnID) {
@@ -8293,9 +8292,9 @@ int SLAPI PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PP
 					}
 				}
 				break;
-			case PPVCMD_UTILIZEDVDOC:
-				ok = ProcessIncoming(id);
-				break;
+			case PPVCMD_UTILIZEDVDOC: ok = ProcessIncoming(id); break;
+			case PPVCMD_SENDOUTGOING: ok = ProcessOutcoming(id); break;
+			case PPVCMD_UPDATEITEMS:  ok = LoadDocuments(); break;
 			case PPVCMD_SETUPOUTGOING:
 				ok = -1;
 				{
@@ -8330,12 +8329,6 @@ int SLAPI PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PP
 						PPError();
 				}
 				break;
-			case PPVCMD_SENDOUTGOING:
-				ok = ProcessOutcoming(id);
-				break;
-			case PPVCMD_UPDATEITEMS:
-				ok = LoadDocuments();
-				break;
 			case PPVCMD_MATCHPERSON:
 				ok = -1;
 				if(id) {
@@ -8356,14 +8349,12 @@ int SLAPI PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PP
 					if(obj_to_match == 0) {
 						uint   v = 0;
 						if(SelectorDialog(DLG_SELVETMATCHOBJ, STDCTL_SELECTOR_WHAT, &v) > 0) {
-							if(v == 0)
-								obj_to_match = otmFrom;
-							else if(v == 1)
-								obj_to_match = otmTo;
-							else if(v == 2)
-								obj_to_match = otmBill;
-							else if(v == 3)
-								obj_to_match = otmLot;
+							switch(v) {
+								case 0: obj_to_match = otmFrom; break;
+								case 1: obj_to_match = otmTo; break;
+								case 2: obj_to_match = otmBill; break;
+								case 3: obj_to_match = otmLot; break;
+							}
 						}
 					}
 					if(obj_to_match) {

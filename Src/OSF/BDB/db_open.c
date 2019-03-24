@@ -471,7 +471,7 @@ swap_retry:
 	    case DB_RENAMEMAGIC:
 		F_SET(dbp, DB_AM_IN_RENAME);
 		/* Copy the file's ID. */
-		memcpy(dbp->fileid, ((DBMETA *)meta)->uid, DB_FILE_ID_LEN);
+		memcpy(dbp->fileid, reinterpret_cast<const DBMETA *>(meta)->uid, DB_FILE_ID_LEN);
 		break;
 	    default:
 		goto bad_format;
@@ -529,11 +529,11 @@ int __db_reopen(DBC * arg_dbc)
 	 * it cannot change.
 	 */
 	if(dbp->type == DB_HASH) {
-		ht = (HASH *)dbp->h_internal;
+		ht = static_cast<HASH *>(dbp->h_internal);
 		oldpgno = ht->meta_pgno;
 	}
 	else {
-		bt = (BTREE *)dbp->bt_internal;
+		bt = static_cast<BTREE *>(dbp->bt_internal);
 		oldpgno = bt->bt_root;
 	}
 	if(STD_LOCKING(dbc) && (ret = __db_lget(dbc, 0, oldpgno, DB_LOCK_READ, 0, &old_lock)) != 0)

@@ -33,7 +33,7 @@ static int LzInWindow_Create(CMatchFinder * p, uint32 keepSizeReserv, ISzAllocPt
 		if(!p->bufferBase || p->blockSize != blockSize) {
 			LzInWindow_Free(p, alloc);
 			p->blockSize = blockSize;
-			p->bufferBase = (Byte*)ISzAlloc_Alloc(alloc, (size_t)blockSize);
+			p->bufferBase = (Byte *)ISzAlloc_Alloc(alloc, (size_t)blockSize);
 		}
 		return (p->bufferBase != NULL);
 	}

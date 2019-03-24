@@ -1099,9 +1099,9 @@ SLAPI GRI::GRI(PPID destID) : SArray(sizeof(GRII)), DestID(destID)
 {
 }
 
-PPID   FASTCALL GRI::GetSrcID(uint i) const { return ((GRII *)at(i))->SrcID; }
-double FASTCALL GRI::GetQtty(uint i) const { return ((GRII *)at(i))->Qtty; }
-double FASTCALL GRI::GetRatio(uint i) const { return ((GRII *)at(i))->Ratio; }
+PPID   FASTCALL GRI::GetSrcID(uint i) const { return static_cast<const GRII *>(at(i))->SrcID; }
+double FASTCALL GRI::GetQtty(uint i) const { return static_cast<const GRII *>(at(i))->Qtty; }
+double FASTCALL GRI::GetRatio(uint i) const { return static_cast<const GRII *>(at(i))->Ratio; }
 
 int SLAPI GRI::GetPosByGoods(PPID goodsID, uint * pPos) const
 {
@@ -1119,7 +1119,7 @@ int SLAPI GRI::Add(PPID srcID, double qtty, double ratio)
 	int    ok = 0;
 	uint   pos = 0;
 	if(lsearch(&srcID, &pos, CMPF_LONG)) {
-		((GRII *)at(pos))->Qtty += qtty;
+		static_cast<GRII *>(at(pos))->Qtty += qtty;
 		ok = 2;
 	}
 	else {
@@ -2126,7 +2126,7 @@ int SLAPI BillTransmDeficit::InitDeficitBill(PPBillPacket * pPack, PPID oprKind,
 		return 0;
 }
 
-int SLAPI BillTransmDeficit::TurnDeficit(PPID locID, LDATE dt, double pctAddition, ObjTransmContext * pCtx)
+int SLAPI BillTransmDeficit::TurnDeficit(PPID locID, LDATE dt, double pctAddition, const ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	int    first_rec = 1;

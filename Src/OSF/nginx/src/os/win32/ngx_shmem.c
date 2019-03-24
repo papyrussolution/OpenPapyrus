@@ -46,11 +46,8 @@ ngx_int_t ngx_shm_alloc(ngx_shm_t * shm)
 	(void)ngx_sprintf(name, "%V_%s%Z", &shm->name, ngx_unique);
 	ngx_set_errno(0);
 	size = shm->size;
-	shm->handle = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE,
-	    (u_long)(size >> 32),
-	    (u_long)(size & 0xffffffff),
-	    (char *)name);
-
+	shm->handle = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, (u_long)(size >> 32), (u_long)(size & 0xffffffff),
+	    SUcSwitch(reinterpret_cast<const char *>(name)));
 	if(shm->handle == NULL) {
 		ngx_log_error(NGX_LOG_ALERT, shm->log, ngx_errno, "CreateFileMapping(%uz, %s) failed", shm->size, name);
 		ngx_free(name);

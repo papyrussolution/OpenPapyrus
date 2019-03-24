@@ -445,7 +445,7 @@ int FASTCALL PPObjPerson::ReadConfig(PPPersonConfig * pCfg)
 	THROW(r = p_ref->GetPropMainConfig(prop_cfg_id, p_cfg, sz));
 	if(r > 0 && p_cfg->GetSize() > sz) {
 		sz = p_cfg->GetSize();
-		p_cfg = (Storage_PPPersonConfig *)SAlloc::R(p_cfg, sz);
+		p_cfg = static_cast<Storage_PPPersonConfig *>(SAlloc::R(p_cfg, sz));
 		THROW_MEM(p_cfg);
 		THROW(r = p_ref->GetPropMainConfig(prop_cfg_id, p_cfg, sz));
 	}
@@ -458,19 +458,20 @@ int FASTCALL PPObjPerson::ReadConfig(PPPersonConfig * pCfg)
 		pCfg->SendSmsSamePersonTimeout = p_cfg->SendSmsSamePersonTimeout;
 		pCfg->SmsProhibitedTr   = p_cfg->SmsProhibitedTr; // @v10.2.3
 		if(p_cfg->StrPosTopFolder)
-			pCfg->TopFolder = ((char *)(p_cfg+1)) + p_cfg->StrPosTopFolder;
+			pCfg->TopFolder = reinterpret_cast<const char *>(p_cfg+1) + p_cfg->StrPosTopFolder;
 		else
 			pCfg->TopFolder = 0;
 		{
-			char * p_buf = 0;
+			//char * p_buf = 0;
 			size_t buf_size = 0;
 			WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 1);
 			if(reg_key.GetRecSize(PersonAddImageFolder, &buf_size) > 0 && buf_size > 0) {
-				p_buf = new char[buf_size + 1];
-				memzero(p_buf, buf_size + 1);
-				reg_key.GetString(PersonAddImageFolder, p_buf, buf_size);
-				pCfg->AddImageFolder.CopyFrom(p_buf);
-				ZDELETE(p_buf);
+				//p_buf = new char[buf_size + 1];
+				//memzero(p_buf, buf_size + 1);
+				SString temp_buf;
+				reg_key.GetString(PersonAddImageFolder, temp_buf);
+				pCfg->AddImageFolder = temp_buf;
+				//ZDELETE(p_buf);
 			}
 		}
 		ok = 1;

@@ -880,7 +880,7 @@ static cairo_status_t _cairo_scaled_font_subsets_foreach_internal(cairo_scaled_f
 		return CAIRO_STATUS_SUCCESS;
 
 	collection.glyphs = (ulong *)_cairo_malloc_ab(collection.glyphs_size, sizeof(ulong));
-	collection.utf8 = (char**)_cairo_malloc_ab(collection.glyphs_size, sizeof(char *));
+	collection.utf8 = (char **)_cairo_malloc_ab(collection.glyphs_size, sizeof(char *));
 	collection.to_latin_char = (int *)_cairo_malloc_ab(collection.glyphs_size, sizeof(int));
 	collection.latin_to_subset_glyph_index = (ulong *)_cairo_malloc_ab(256, sizeof(ulong));
 	if(unlikely(collection.glyphs == NULL || collection.utf8 == NULL || collection.to_latin_char == NULL || collection.latin_to_subset_glyph_index == NULL)) {

@@ -22,7 +22,7 @@ int __heap_addrem_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, vo
 	PAGE * pagep, * regionp;
 	db_pgno_t region_pgno;
 	int cmp_n, cmp_p, modified, oldspace, ret, space;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	pagep = NULL;
 	REC_PRINT(__heap_addrem_print);
 	REC_INTRO(__heap_addrem_read, ip, 1);
@@ -84,7 +84,7 @@ int __heap_pg_alloc_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, 
 	DB_MPOOLFILE * mpf;
 	db_pgno_t pgno;
 	int cmp_n, cmp_p, ret, trunc;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	HEAPMETA * meta = NULL;
 	HEAPPG * pagep = NULL;
 
@@ -216,7 +216,7 @@ int __heap_trunc_meta_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op
 	DB_MPOOLFILE * mpf;
 	HEAPMETA * meta;
 	int cmp_n, cmp_p, ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	PAGE * pagep = NULL;
 	REC_PRINT(__heap_trunc_meta_print);
 	REC_INTRO(__heap_trunc_meta_read, ip, 1);
@@ -267,7 +267,7 @@ int __heap_trunc_page_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op
 	DBC * dbc;
 	DB_MPOOLFILE * mpf;
 	int cmp_p, ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	PAGE * pagep = NULL;
 	REC_PRINT(__heap_trunc_page_print);
 	REC_INTRO(__heap_trunc_page_read, ip, 1);

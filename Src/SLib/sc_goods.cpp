@@ -206,11 +206,11 @@ SCDBObjGoods::PalmRec * SCDBObjGoods::AllocPalmRec(const TSVector <Quot> * pQuot
 SCDBObjGoods::PalmRec156 * SCDBObjGoods::AllocPalmRec156(const TSVector <Quot> * pQuotList, size_t * pBufLen) // @v9.8.4 TSArray-->TSVector
 {
 	const size_t buf_len = sizeof(PalmRec156) + pQuotList->getCount() * sizeof(Quot);
-	PalmRec156 * p_buf = (PalmRec156 *)SAlloc::C(1, buf_len);
+	PalmRec156 * p_buf = static_cast<PalmRec156 *>(SAlloc::C(1, buf_len));
 	if(p_buf) {
 		p_buf->QuotCount = SyncHostToHHWord(pQuotList->getCount());
 		for(uint i = 0; i < pQuotList->getCount(); i++) {
-			((Quot *)(p_buf+1))[i] = pQuotList->at(i);
+			reinterpret_cast<Quot *>(p_buf+1)[i] = pQuotList->at(i);
 		}
 	}
 	ASSIGN_PTR(pBufLen, buf_len);
@@ -224,7 +224,7 @@ SCDBObjGoods::PalmRec500 * SCDBObjGoods::AllocPalmRec500(const TSVector <Quot> *
 	if(p_buf) {
 		p_buf->QuotCount = SyncHostToHHWord(pQuotList->getCount());
 		for(uint i = 0; i < pQuotList->getCount(); i++) {
-			((Quot *)(p_buf+1))[i] = pQuotList->at(i);
+			reinterpret_cast<Quot *>(p_buf+1)[i] = pQuotList->at(i);
 		}
 	}
 	ASSIGN_PTR(pBufLen, buf_len);
@@ -237,7 +237,7 @@ SCDBObjGoods::PalmRec800 * SCDBObjGoods::AllocPalmRec800(const TSVector <Quot> *
 	PalmRec800 * p_buf = (PalmRec800 *)SAlloc::C(1, buf_len);
 	p_buf->QuotCount = SyncHostToHHWord(pQuotList->getCount());
 	for(uint i = 0; i < pQuotList->getCount(); i++) {
-		((Quot *)(p_buf+1))[i] = pQuotList->at(i);
+		reinterpret_cast<Quot *>(p_buf+1)[i] = pQuotList->at(i);
 	}
 	ASSIGN_PTR(pBufLen, buf_len);
 	return p_buf;
@@ -249,7 +249,7 @@ SCDBObjGoods::PalmRec900 * SCDBObjGoods::AllocPalmRec900(const TSVector <Quot> *
 	PalmRec900 * p_buf = (PalmRec900 *)SAlloc::C(1, buf_len);
 	p_buf->QuotCount = SyncHostToHHWord(pQuotList->getCount());
 	for(uint i = 0; i < pQuotList->getCount(); i++) {
-		((Quot *)(p_buf+1))[i] = pQuotList->at(i);
+		reinterpret_cast<Quot *>(p_buf+1)[i] = pQuotList->at(i);
 	}
 	ASSIGN_PTR(pBufLen, buf_len);
 	return p_buf;
@@ -378,17 +378,14 @@ int SCDBObjGoods::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 				int32  brandown_id = 0;
 				int32  min_ord     = 0;
 				int16  mult_ord    = 0;
-
 				size_t buf_len = 0;
 				long   id = 0, temp_long;
 				double temp_dbl;
 				TSVector <Quot> quot_list; // @v9.8.4 TSArray-->TSVector
 				IdxRec idx_rec;
 				MEMSZERO(idx_rec);
-
 				DbfRecord rec(P_GoodsTbl);
 				P_GoodsTbl->getRec(&rec);
-
 				GetQuotList(&rec, fldn_quot, quot_list); // @checkerr
 				// ID
 				rec.get(fldn_id, id);

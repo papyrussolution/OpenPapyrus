@@ -199,7 +199,7 @@ int __bamc_init(DBC * dbc, DBTYPE dbtype)
 int __bamc_refresh(DBC * dbc)
 {
 	DB * dbp = dbc->dbp;
-	BTREE * t = (BTREE *)dbp->bt_internal;
+	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
 	/*
 	 * If our caller set the root page number, it's because the root was
@@ -1531,7 +1531,7 @@ static int __bam_getlte(DBC * dbc, DBT * key, DBT * data)
 		if(ret != 0)
 			goto end;
 		/* Check if we're still on the correct key */
-		if((ret = __bam_cmp(dbc, key, (PAGE *)cp->page, cp->indx, ((BTREE *)dbp->bt_internal)->bt_compare, &exact)) != 0)
+		if((ret = __bam_cmp(dbc, key, (PAGE *)cp->page, cp->indx, static_cast<BTREE *>(dbp->bt_internal)->bt_compare, &exact)) != 0)
 			goto end;
 		exact = (exact == 0);
 	}
@@ -1916,7 +1916,7 @@ done:
 	 * the cursor will point _to_ the last item, not after it, which
 	 * is why we subtract P_INDX below.
 	 */
-	t = (BTREE *)dbp->bt_internal;
+	t = static_cast<BTREE *>(dbp->bt_internal);
 	if(!ret && TYPE(cp->page) == P_LBTREE && oneof2(flags, DB_KEYFIRST, DB_KEYLAST) && !F_ISSET(cp, C_RECNUM) &&
 		(!F_ISSET(dbp, DB_AM_SUBDB) || (LOGGING_ON(dbp->env) && !F_ISSET(dbp, DB_AM_NOT_DURABLE))) &&
 		((NEXT_PGNO(cp->page) == PGNO_INVALID && cp->indx >= NUM_ENT(cp->page)-P_INDX) || (PREV_PGNO(cp->page) == PGNO_INVALID && cp->indx == 0))) {
@@ -2123,7 +2123,7 @@ static int FASTCALL __bamc_search(DBC * dbc, db_pgno_t root_pgno, const DBT * ke
 	COMPQUIET(cmp, 0);
 	DB * dbp = dbc->dbp;
 	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
-	BTREE * t = (BTREE *)dbp->bt_internal;
+	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	int ret = 0;
 	int bulk = (F_ISSET(dbc, DBC_BULK) && cp->pgno != PGNO_INVALID);
 	//

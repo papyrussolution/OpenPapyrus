@@ -26,7 +26,7 @@ int __db_addrem_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void
 	DB_MPOOLFILE * mpf;
 	int cmp_n, cmp_p, modified, ret;
 	uint32 opcode;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	PAGE * pagep = NULL;
 	REC_PRINT(__db_addrem_print);
 	REC_INTRO(__db_addrem_read, ip, 1);
@@ -83,7 +83,7 @@ int __db_addrem_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, v
 	DBC * dbc;
 	DB_MPOOLFILE * mpf;
 	int cmp_n, cmp_p, modified, ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	PAGE * pagep = NULL;
 	REC_PRINT(__db_addrem_print);
 	REC_INTRO(__db_addrem_42_read, ip, 1);
@@ -136,7 +136,7 @@ int __db_big_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * 
 	DB_MPOOLFILE * mpf;
 	int cmp_n, cmp_p, modified, ret;
 	uint32 opcode;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	PAGE * pagep = NULL;
 	REC_PRINT(__db_big_print);
 	REC_INTRO(__db_big_read, ip, 0);
@@ -153,15 +153,13 @@ int __db_big_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * 
 	cmp_p = LOG_COMPARE(&LSN(pagep), &argp->pagelsn);
 	CHECK_LSN(env, op, cmp_p, &LSN(pagep), &argp->pagelsn);
 	CHECK_ABORT(env, op, cmp_n, &LSN(pagep), lsnp);
-	if((cmp_p == 0 && DB_REDO(op) && opcode == DB_ADD_BIG) ||
-	   (cmp_n == 0 && DB_UNDO(op) && opcode == DB_REM_BIG)) {
+	if((cmp_p == 0 && DB_REDO(op) && opcode == DB_ADD_BIG) || (cmp_n == 0 && DB_UNDO(op) && opcode == DB_REM_BIG)) {
 		/* We are either redo-ing an add, or undoing a delete. */
 		REC_DIRTY(mpf, ip, file_dbp->priority, &pagep);
 		P_INIT(pagep, file_dbp->pgsize, argp->pgno, argp->prev_pgno, argp->next_pgno, 0, P_OVERFLOW);
 		OV_LEN(pagep) = argp->dbt.size;
 		OV_REF(pagep) = 1;
-		memcpy((uint8 *)pagep+P_OVERHEAD(file_dbp), argp->dbt.data,
-			argp->dbt.size);
+		memcpy(reinterpret_cast<uint8 *>(pagep)+P_OVERHEAD(file_dbp), argp->dbt.data, argp->dbt.size);
 		PREV_PGNO(pagep) = argp->prev_pgno;
 		modified = 1;
 	}
@@ -177,7 +175,7 @@ int __db_big_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * 
 	else if(cmp_p == 0 && DB_REDO(op) && opcode == DB_APPEND_BIG) {
 		/* We are redoing an append. */
 		REC_DIRTY(mpf, ip, file_dbp->priority, &pagep);
-		memcpy((uint8 *)pagep+P_OVERHEAD(file_dbp)+OV_LEN(pagep), argp->dbt.data, argp->dbt.size);
+		memcpy(reinterpret_cast<uint8 *>(pagep)+P_OVERHEAD(file_dbp)+OV_LEN(pagep), argp->dbt.data, argp->dbt.size);
 		OV_LEN(pagep) += argp->dbt.size;
 		modified = 1;
 	}
@@ -185,7 +183,7 @@ int __db_big_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * 
 		/* We are undoing an append. */
 		REC_DIRTY(mpf, ip, file_dbp->priority, &pagep);
 		OV_LEN(pagep) -= argp->dbt.size;
-		memzero((uint8 *)pagep+P_OVERHEAD(file_dbp)+OV_LEN(pagep), argp->dbt.size);
+		memzero(reinterpret_cast<uint8 *>(pagep)+P_OVERHEAD(file_dbp)+OV_LEN(pagep), argp->dbt.size);
 		modified = 1;
 	}
 	if(modified)
@@ -280,7 +278,7 @@ int __db_big_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void
 	DB_MPOOLFILE * mpf;
 	PAGE * pagep = 0;
 	int ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__db_big_print);
 	REC_INTRO(__db_big_42_read, ip, 0);
 	REC_FGET(mpf, ip, argp->pgno, &pagep, ppage);
@@ -302,7 +300,7 @@ int __db_big_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void
 			argp->next_pgno, 0, P_OVERFLOW);
 		OV_LEN(pagep) = argp->dbt.size;
 		OV_REF(pagep) = 1;
-		memcpy((uint8 *)pagep+P_OVERHEAD(file_dbp), argp->dbt.data, argp->dbt.size);
+		memcpy(reinterpret_cast<uint8 *>(pagep)+P_OVERHEAD(file_dbp), argp->dbt.data, argp->dbt.size);
 		PREV_PGNO(pagep) = argp->prev_pgno;
 		modified = 1;
 	}
@@ -318,7 +316,7 @@ int __db_big_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void
 	else if(cmp_p == 0 && DB_REDO(op) && argp->opcode == DB_APPEND_BIG) {
 		/* We are redoing an append. */
 		REC_DIRTY(mpf, ip, file_dbp->priority, &pagep);
-		memcpy((uint8 *)pagep+P_OVERHEAD(file_dbp)+OV_LEN(pagep), argp->dbt.data, argp->dbt.size);
+		memcpy(reinterpret_cast<uint8 *>(pagep)+P_OVERHEAD(file_dbp)+OV_LEN(pagep), argp->dbt.data, argp->dbt.size);
 		OV_LEN(pagep) += argp->dbt.size;
 		modified = 1;
 	}
@@ -326,7 +324,7 @@ int __db_big_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void
 		/* We are undoing an append. */
 		REC_DIRTY(mpf, ip, file_dbp->priority, &pagep);
 		OV_LEN(pagep) -= argp->dbt.size;
-		memzero((uint8 *)pagep+P_OVERHEAD(file_dbp)+OV_LEN(pagep), argp->dbt.size);
+		memzero(reinterpret_cast<uint8 *>(pagep)+P_OVERHEAD(file_dbp)+OV_LEN(pagep), argp->dbt.size);
 		modified = 1;
 	}
 	if(modified)
@@ -424,7 +422,7 @@ int __db_ovref_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
 	PAGE * pagep;
 	int cmp, ret;
 
-	ip = ((DB_TXNHEAD *)info)->thread_info;
+	ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	pagep = NULL;
 	REC_PRINT(__db_ovref_print);
 	REC_INTRO(__db_ovref_read, ip, 0);
@@ -494,7 +492,7 @@ int __db_noop_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
 	PAGE * pagep;
 	int cmp_n, cmp_p, ret;
 
-	ip = ((DB_TXNHEAD *)info)->thread_info;
+	ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	pagep = NULL;
 	REC_PRINT(__db_noop_print);
 	REC_INTRO(__db_noop_read, ip, 0);
@@ -541,7 +539,7 @@ int __db_pg_alloc_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, vo
 	db_pgno_t pgno;
 	int cmp_n, cmp_p, created, level, ret;
 
-	ip = ((DB_TXNHEAD *)info)->thread_info;
+	ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	meta = NULL;
 	pagep = NULL;
 	created = 0;
@@ -842,7 +840,7 @@ trunc:
 		REC_DIRTY(mpf, ip, file_dbp->priority, &pagep);
 		memcpy(pagep, argp->header.data, argp->header.size);
 		if(data)
-			memcpy((uint8 *)pagep+HOFFSET(pagep), argp->data.data, argp->data.size);
+			memcpy(reinterpret_cast<uint8 *>(pagep)+HOFFSET(pagep), argp->data.data, argp->data.size);
 	}
 	if((ret = __memp_fput(mpf, ip, pagep, file_dbp->priority)) != 0)
 		goto out;
@@ -903,7 +901,7 @@ int __db_pg_free_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 	DBC * dbc;
 	DB_MPOOLFILE * mpf;
 	int ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__db_pg_free_print);
 	REC_INTRO(__db_pg_free_read, ip, 0);
 	if((ret = __db_pg_free_recover_int(env, ip, (__db_pg_freedata_args *)argp, file_dbp, lsnp, mpf, op, 0)) != 0)
@@ -927,7 +925,7 @@ int __db_pg_freedata_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op,
 	DBC * dbc;
 	DB_MPOOLFILE * mpf;
 	int ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__db_pg_freedata_print);
 	REC_INTRO(__db_pg_freedata_read, ip, 0);
 	if((ret = __db_pg_free_recover_int(env, ip, argp, file_dbp, lsnp, mpf, op, 1)) != 0)
@@ -983,7 +981,7 @@ int __db_pg_init_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 	DB_MPOOLFILE * mpf;
 	PAGE * pagep;
 	int cmp_n, cmp_p, ret, type;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__db_pg_init_print);
 	REC_INTRO(__db_pg_init_read, ip, 0);
 	mpf = file_dbp->mpf;
@@ -1023,7 +1021,7 @@ int __db_pg_init_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 		REC_DIRTY(mpf, ip, file_dbp->priority, &pagep);
 		memcpy(pagep, argp->header.data, argp->header.size);
 		if(argp->data.size > 0)
-			memcpy((uint8 *)pagep+HOFFSET(pagep), argp->data.data, argp->data.size);
+			memcpy(reinterpret_cast<uint8 *>(pagep)+HOFFSET(pagep), argp->data.data, argp->data.size);
 	}
 	if((ret = __memp_fput(mpf, ip, pagep, file_dbp->priority)) != 0)
 		goto out;
@@ -1052,10 +1050,10 @@ int __db_pg_trunc_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, vo
 	db_pgno_t last_pgno, * list;
 	uint32 felem, nelem, pos;
 	int ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__db_pg_trunc_print);
 	REC_INTRO(__db_pg_trunc_read, ip, 1);
-	pglist = (db_pglist_t *)argp->list.data;
+	pglist = static_cast<db_pglist_t *>(argp->list.data);
 	nelem = argp->list.size/sizeof(db_pglist_t);
 	if(DB_REDO(op)) {
 		/*
@@ -1213,7 +1211,7 @@ int __db_realloc_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 	db_pgno_t * list;
 	uint32 felem, nelem, pos;
 	int cmp_n, cmp_p, ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__db_realloc_print);
 	REC_INTRO(__db_realloc_read, ip, 1);
 	mpf = file_dbp->mpf;
@@ -1221,7 +1219,7 @@ int __db_realloc_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 	 * First, iterate over all the pages and make sure they are all in
 	 * their prior or new states (according to the op).
 	 */
-	pglist = (db_pglist_t *)argp->list.data;
+	pglist = static_cast<db_pglist_t *>(argp->list.data);
 	nelem = argp->list.size/sizeof(db_pglist_t);
 	for(lp = pglist; lp < &pglist[nelem]; lp++) {
 		if((ret = __memp_fget(mpf, &lp->pgno, ip, NULL, DB_MPOOL_CREATE, &pagep)) != 0)
@@ -1249,7 +1247,7 @@ int __db_realloc_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 	if(DB_REDO(op) && cmp_p == 0) {
 		REC_DIRTY(mpf, ip, dbc->priority, &pagep);
 		if(argp->prev_pgno == PGNO_BASE_MD)
-			((DBMETA *)pagep)->free = argp->next_free;
+			reinterpret_cast<DBMETA *>(pagep)->free = argp->next_free;
 		else
 			NEXT_PGNO(pagep) = argp->next_free;
 		LSN(pagep) = *lsnp;
@@ -1257,7 +1255,7 @@ int __db_realloc_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 	else if(DB_UNDO(op) && cmp_n == 0) {
 		REC_DIRTY(mpf, ip, dbc->priority, &pagep);
 		if(argp->prev_pgno == PGNO_BASE_MD)
-			((DBMETA *)pagep)->free = pglist->pgno;
+			reinterpret_cast<DBMETA *>(pagep)->free = pglist->pgno;
 		else
 			NEXT_PGNO(pagep) = pglist->pgno;
 		LSN(pagep) = argp->page_lsn;
@@ -1310,10 +1308,10 @@ int __db_pg_sort_44_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, 
 	db_pgno_t pgno, * list;
 	uint32 felem, nelem;
 	int ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__db_pg_sort_44_print);
 	REC_INTRO(__db_pg_sort_44_read, ip, 1);
-	pglist = (db_pglist_t *)argp->list.data;
+	pglist = static_cast<db_pglist_t *>(argp->list.data);
 	nelem = argp->list.size/sizeof(db_pglist_t);
 	if(DB_REDO(op)) {
 		pgno = argp->last_pgno;
@@ -1432,7 +1430,7 @@ int __db_pg_alloc_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op,
 	db_pgno_t pgno;
 	int    cmp_n, cmp_p, level, ret;
 	int    created = 0;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__db_pg_alloc_42_print);
 	REC_INTRO(__db_pg_alloc_42_read, ip, 0);
 	/*
@@ -1644,7 +1642,7 @@ check_meta:
 		REC_DIRTY(mpf, ip, file_dbp->priority, &pagep);
 		memcpy(pagep, argp->header.data, argp->header.size);
 		if(data)
-			memcpy((uint8 *)pagep+HOFFSET(pagep), argp->data.data, argp->data.size);
+			memcpy(reinterpret_cast<uint8 *>(pagep)+HOFFSET(pagep), argp->data.data, argp->data.size);
 	}
 	if((ret = __memp_fput(mpf, ip, pagep, file_dbp->priority)) != 0)
 		goto out;
@@ -1672,7 +1670,7 @@ int __db_pg_free_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, 
 	DBC * dbc;
 	DB_MPOOLFILE * mpf;
 	int ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__db_pg_free_42_print);
 	REC_INTRO(__db_pg_free_42_read, ip, 0);
 	ret = __db_pg_free_recover_42_int(env, ip, (__db_pg_freedata_42_args *)argp, file_dbp, lsnp, mpf, op, 0);
@@ -1695,7 +1693,7 @@ int __db_pg_freedata_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops 
 	DBC * dbc;
 	DB_MPOOLFILE * mpf;
 	int ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__db_pg_freedata_42_print);
 	REC_INTRO(__db_pg_freedata_42_read, ip, 0);
 	ret = __db_pg_free_recover_42_int(env, ip, argp, file_dbp, lsnp, mpf, op, 1);
@@ -1719,7 +1717,7 @@ int __db_relink_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, v
 	DB_MPOOLFILE * mpf;
 	PAGE * pagep = 0;
 	int cmp_n, cmp_p, modified, ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__db_relink_42_print);
 	REC_INTRO(__db_relink_42_read, ip, 0);
 	/*
@@ -1839,7 +1837,7 @@ int __db_relink_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void
 	DB_MPOOLFILE * mpf;
 	PAGE * pagep = 0;
 	int cmp_n, cmp_p, ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__db_relink_print);
 	REC_INTRO(__db_relink_read, ip, 0);
 	/*
@@ -1938,7 +1936,7 @@ int __db_merge_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
 	uint32 size;
 	uint8 * bp;
 	int cmp_n, cmp_p, i, ret, t_ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__db_merge_print);
 	REC_INTRO(__db_merge_read, ip, op != DB_TXN_APPLY);
 	/* Allocate our own cursor without DB_RECOVER as we need a locker. */
@@ -1972,12 +1970,12 @@ int __db_merge_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
 		if(TYPE(pagep) == P_OVERFLOW) {
 			OV_REF(pagep) = OV_REF(argp->hdr.data);
 			OV_LEN(pagep) = OV_LEN(argp->hdr.data);
-			bp = (uint8 *)pagep+P_OVERHEAD(file_dbp);
+			bp = reinterpret_cast<uint8 *>(pagep)+P_OVERHEAD(file_dbp);
 			memcpy(bp, argp->data.data, argp->data.size);
 		}
 		else {
 			// Copy the data segment.
-			bp = (uint8 *)pagep+(db_indx_t)(HOFFSET(pagep)-argp->data.size);
+			bp = reinterpret_cast<uint8 *>(pagep)+(db_indx_t)(HOFFSET(pagep)-argp->data.size);
 			memcpy(bp, argp->data.data, argp->data.size);
 			// Copy index table offset past the current entries
 			pinp = P_INP(file_dbp, pagep)+NUM_ENT(pagep);
@@ -2002,7 +2000,7 @@ do_lsn:
 					file_dbp->mpf->mfp->revision++;
 			}
 			else {
-				bt = (BTREE *)file_dbp->bt_internal;
+				bt = static_cast<BTREE *>(file_dbp->bt_internal);
 				if(argp->npgno == bt->bt_meta || argp->npgno == bt->bt_root)
 					file_dbp->mpf->mfp->revision++;
 			}
@@ -2102,11 +2100,11 @@ next:
 		if(TYPE(pagep) == P_OVERFLOW) {
 			OV_REF(pagep) = OV_REF(argp->hdr.data);
 			OV_LEN(pagep) = OV_LEN(argp->hdr.data);
-			bp = (uint8 *)pagep+P_OVERHEAD(file_dbp);
+			bp = reinterpret_cast<uint8 *>(pagep)+P_OVERHEAD(file_dbp);
 			memcpy(bp, argp->data.data, argp->data.size);
 		}
 		else {
-			bp = (uint8 *)pagep+(db_indx_t)(HOFFSET(pagep)-argp->data.size);
+			bp = reinterpret_cast<uint8 *>(pagep)+(db_indx_t)(HOFFSET(pagep)-argp->data.size);
 			memcpy(bp, argp->data.data, argp->data.size);
 			if(argp->pg_copy)
 				memcpy(pagep, argp->hdr.data, argp->hdr.size);
@@ -2130,7 +2128,7 @@ next:
 			 */
 			i = 0;
 			if(file_dbp->type == DB_HASH) {
-				ht = (HASH *)file_dbp->h_internal;
+				ht = static_cast<HASH *>(file_dbp->h_internal);
 				if(argp->pgno == ht->meta_pgno) {
 					ht->meta_pgno = argp->npgno;
 					file_dbp->mpf->mfp->revision++;
@@ -2138,7 +2136,7 @@ next:
 				}
 			}
 			else {
-				bt = (BTREE *)file_dbp->bt_internal;
+				bt = static_cast<BTREE *>(file_dbp->bt_internal);
 				if(argp->pgno == bt->bt_meta) {
 					file_dbp->mpf->mfp->revision++;
 					bt->bt_meta = argp->npgno;
@@ -2189,7 +2187,7 @@ int __db_pgno_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
 	PAGE * pagep, * npagep;
 	db_pgno_t pgno, * pgnop;
 	int cmp_n, cmp_p, ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__db_pgno_print);
 	REC_INTRO(__db_pgno_read, ip, 0);
 	REC_FGET(mpf, ip, argp->pgno, &pagep, done);
@@ -2250,7 +2248,7 @@ out:
 void __db_pglist_swap(uint32 size, void * list)
 {
 	uint32 nelem = size/sizeof(db_pglist_t);
-	db_pglist_t * lp = (db_pglist_t *)list;
+	db_pglist_t * lp = static_cast<db_pglist_t *>(list);
 	while(nelem-- > 0) {
 		P_32_SWAP(&lp->pgno);
 		P_32_SWAP(&lp->lsn.file);
@@ -2265,7 +2263,7 @@ void __db_pglist_swap(uint32 size, void * list)
 void __db_pglist_print(ENV * env, DB_MSGBUF * mbp, DBT * list)
 {
 	uint32 nelem = list->size/sizeof(db_pglist_t);
-	db_pglist_t * lp = (db_pglist_t *)list->data;
+	db_pglist_t * lp = static_cast<db_pglist_t *>(list->data);
 	__db_msgadd(env, mbp, "\t");
 	while(nelem-- > 0) {
 		__db_msgadd(env, mbp, "%lu [%lu][%lu]", (ulong)lp->pgno, (ulong)lp->lsn.file, (ulong)lp->lsn.Offset_);

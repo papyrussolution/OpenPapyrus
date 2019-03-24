@@ -500,7 +500,7 @@ int DesktopAssocCommandDialog::getDTS(PPDesktopAssocCmd * pData)
 	THROW_PP(Data.Code.Len(), PPERR_INVSPECCODE);
 	getCtrlString(CTL_DESKCMDAI_DVCSERIAL, Data.DvcSerial);
 	getCtrlString(CTL_DESKCMDAI_PARAM, Data.CmdParam);
-	// @v7.8.2 THROW_PP(!P_CmdList || (!P_CmdList->GetByCode(Data.Code, &pos, 0) || Pos == (long)pos), PPERR_CMDASSCEXISTS);
+	// @v7.8.2 THROW_PP(!P_CmdList || (!P_CmdList->GetByCode(Data.Code, &pos, 0) || Pos == static_cast<long>(pos)), PPERR_CMDASSCEXISTS);
 	ASSIGN_PTR(pData, Data);
 	CATCH
 		sel = (sel == CTL_DESKCMDAI_CODE && !(Data.Flags & PPDesktopAssocCmd::fSpecCode)) ? CTL_DESKCMDAI_COMMAND : sel;

@@ -503,8 +503,7 @@ static int archive_utility_string_sort_helper(char ** strings, uint n)
 	for(i = 1; i < n; i++) {
 		if(strcmp(strings[i], pivot) < 0) {
 			lesser_count++;
-			tmp = (char**)SAlloc::R(lesser,
-				lesser_count * sizeof(char *));
+			tmp = static_cast<char **>(SAlloc::R(lesser, lesser_count * sizeof(char *)));
 			if(!tmp) {
 				SAlloc::F(greater);
 				SAlloc::F(lesser);
@@ -515,8 +514,7 @@ static int archive_utility_string_sort_helper(char ** strings, uint n)
 		}
 		else{
 			greater_count++;
-			tmp = (char**)SAlloc::R(greater,
-				greater_count * sizeof(char *));
+			tmp = static_cast<char **>(SAlloc::R(greater, greater_count * sizeof(char *)));
 			if(!tmp) {
 				SAlloc::F(greater);
 				SAlloc::F(lesser);

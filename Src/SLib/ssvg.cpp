@@ -377,7 +377,7 @@ int SSvg::ProcessStyleItem(int token, const SString & rVal, StyleBlock & rBlk)
 					temp_buf.ShiftLeftChr('\"');
 					temp_buf.ShiftLeftChr('#');
 					size_t par_pos = 0;
-					if(temp_buf.StrChr(')', &par_pos))
+					if(temp_buf.SearchChar(')', &par_pos))
 						temp_buf.Trim(par_pos);
 					temp_buf.TrimRightChr('\"');
 					if(P_Result) {

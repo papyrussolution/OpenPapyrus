@@ -3291,22 +3291,22 @@ int SLAPI DIGI::SendPLU(const ScalePLU * pScalePLU)
 		// срока  продажи в часах и срока упаковки в днях. Нет полей бонуса и номера места хранения.
 		out_rec[len++] = 0x01;                          // #13 PLU статус 2
 		for(j = 0; j < 3; j++)
-			out_rec[len++] = ((const char *)rub)[j];      // #15
-		out_rec[len++] = ((const char *)kop)[0];          // #16
+			out_rec[len++] = rub.C(j);      // #15
+		out_rec[len++] = kop.C(0);          // #16
 		out_rec[len++] = 0x11; // #17 номер формата этикетки – будет использоваться свободный формат F1
 		out_rec[len++] = 0x05; // #18 формат штрихкода (2 цифры флага, 5 артикула и 5 веса)
 		for(j = 0; j < 7; j++)
-			out_rec[len++] = ((const char *)barcode)[j]; // #25
+			out_rec[len++] = barcode.C(j); // #25
 		for(j = 0; j < 2; j++)
-			out_rec[len++] = ((const char *)grp_no)[j];  // #27
+			out_rec[len++] = grp_no.C(j);  // #27
 		for(j = 0; j < 2; j++)
-			out_rec[len++] = ((const char *)s_expiry)[j]; // #29
+			out_rec[len++] = s_expiry.C(j); // #29
 		for(j = 0; j < goods_name.Len(); j++) {
-			out_rec[len++] = ((const char *)goods_name)[j]; // #29 + goods_name.Len()
+			out_rec[len++] = goods_name.C(j); // #29 + goods_name.Len()
 		}
 		if(ext_text_buf.NotEmpty()) {
 			for(j = 0; j < ext_text_buf.Len(); j++) {
-				out_rec[len++] = ((const char *)ext_text_buf)[j]; // #29 + goods_name.Len() + ext_text_buf.Len()
+				out_rec[len++] = ext_text_buf.C(j); // #29 + goods_name.Len() + ext_text_buf.Len()
 			}
 		}
 		out_rec[len++] = 0x00; // контрольная сумма (должна быть 0x00) // #29 + goods_name.Len() + ext_text_buf.Len() + 1
@@ -3315,7 +3315,7 @@ int SLAPI DIGI::SendPLU(const ScalePLU * pScalePLU)
 		//
 		LongToHexBytesStr((long)(len - 2), 2, data_len); // -2 - размер заголовка записи
 		for(j = 0; j < 2; j++)
-			out_rec[size_offs+j] = ((const char *)data_len)[j]; // #8
+			out_rec[size_offs+j] = data_len.C(j); // #8
 
 		/*
 		const char test[] = {0xF1, 0x25, 0x00, 0x00, 0x00, 0x01, 0x00, 0x3B, 0x54, 0x00, 0x0D, 0x26, 0x01, 0x00, 0x02,
@@ -3327,7 +3327,7 @@ int SLAPI DIGI::SendPLU(const ScalePLU * pScalePLU)
 		THROW_PP(send(SocketHandle, (const char *)out_rec, (int)len, 0) != SOCKET_ERROR, PPERR_SCALE_SEND);
 		memzero(result, sizeof(result));
 		THROW_PP(recv(SocketHandle, result, sizeof(result), 0) != SOCKET_ERROR, PPERR_SCALE_RCV);
-		THROW_PP((uchar)result[0] == 0x06, PPERR_SCALE_NOACK);
+		THROW_PP(result[0] == 0x06, PPERR_SCALE_NOACK);
 		ok = 1;
 	}
 	CATCHZOK

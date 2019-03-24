@@ -116,7 +116,7 @@ namespace NCompress {
 			}
 
 			if(m_Block == 0) {
-				m_Block = (Byte*)::MidAlloc(kBlockSizeMax * 5 + kBlockSizeMax / 10 + (20 << 10));
+				m_Block = (Byte *)::MidAlloc(kBlockSizeMax * 5 + kBlockSizeMax / 10 + (20 << 10));
 				if(m_Block == 0)
 					return false;
 				m_MtfArray = m_Block + kBlockSizeMax;
@@ -1316,7 +1316,7 @@ namespace NCompress {
 						counters[b] += RUN_COUNTER;
 						runPower = 0;
 			#ifdef BZIP2_BYTE_MODE
-						Byte * dest = (Byte*)(&counters[256 + kBlockSizeMax]) + BLOCK_SIZE;
+						Byte * dest = (Byte *)(&counters[256 + kBlockSizeMax]) + BLOCK_SIZE;
 						const Byte * limit = dest + RUN_COUNTER;
 						BLOCK_SIZE += RUN_COUNTER;
 						RUN_COUNTER = 0;
@@ -1351,7 +1351,7 @@ namespace NCompress {
 						CMtfVar next = mtf.Buf[lim];
 						CMtfVar prev = (next >> pos) & 0xFF;
 			#ifdef BZIP2_BYTE_MODE
-						((Byte*)(counters + 256 + kBlockSizeMax))[BLOCK_SIZE++] = (Byte)prev;
+						((Byte *)(counters + 256 + kBlockSizeMax))[BLOCK_SIZE++] = (Byte)prev;
 			#else
 						(counters + 256)[BLOCK_SIZE++] = (uint32)prev;
 			#endif
@@ -1375,7 +1375,7 @@ namespace NCompress {
 				}
 				// we write additional item that will be read in DecodeBlock1 for prefetching
 			#ifdef BZIP2_BYTE_MODE
-				((Byte*)(Counters + 256 + kBlockSizeMax))[BLOCK_SIZE] = 0;
+				((Byte *)(Counters + 256 + kBlockSizeMax))[BLOCK_SIZE] = 0;
 			#else
 				(counters + 256)[BLOCK_SIZE] = 0;
 			#endif
@@ -1876,7 +1876,7 @@ namespace NCompress {
 		bool CDecoder::CreateInputBufer()
 		{
 			if(!_inBuf) {
-				_inBuf = (Byte*)MidAlloc(kInBufSize);
+				_inBuf = (Byte *)MidAlloc(kInBufSize);
 				if(!_inBuf)
 					return false;
 			}
@@ -1942,7 +1942,7 @@ namespace NCompress {
 				if(!CreateInputBufer())
 					return E_OUTOFMEMORY;
 				if(!_outBuf) {
-					_outBuf = (Byte*)MidAlloc(kOutBufSize);
+					_outBuf = (Byte *)MidAlloc(kOutBufSize);
 					if(!_outBuf)
 						return E_OUTOFMEMORY;
 				}
@@ -2200,8 +2200,8 @@ namespace NCompress {
 						_blockFinished = false;
 					}
 					{
-						Byte * ptr = _spec.Decode((Byte*)data, size);
-						const uint32 processed = (uint32)(ptr - (Byte*)data);
+						Byte * ptr = _spec.Decode((Byte *)data, size);
+						const uint32 processed = (uint32)(ptr - (Byte *)data);
 						data = ptr;
 						size -= processed;
 						(*processedSize) += processed;
@@ -2281,8 +2281,8 @@ namespace NCompress {
 						_blockFinished = false;
 					}
 					{
-						Byte * ptr = _spec.Decode((Byte*)data, size);
-						const uint32 processed = (uint32)(ptr - (Byte*)data);
+						Byte * ptr = _spec.Decode((Byte *)data, size);
+						const uint32 processed = (uint32)(ptr - (Byte *)data);
 						data = ptr;
 						size -= processed;
 						(*processedSize) += processed;

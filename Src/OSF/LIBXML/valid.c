@@ -19,12 +19,9 @@ static xmlElement * xmlGetDtdElementDesc2(xmlDtdPtr dtd, const xmlChar * name, i
 #ifdef LIBXML_VALID_ENABLED
 static int xmlValidateAttributeValueInternal(xmlDoc * doc, xmlAttributeType type, const xmlChar * value);
 #endif
-/************************************************************************
-*									*
-*			Error handling routines				*
-*									*
-************************************************************************/
-
+//
+// Error handling routines
+//
 /**
  * xmlVErrMemory:
  * @ctxt:  an XML validation parser context
@@ -51,6 +48,11 @@ static void FASTCALL xmlVErrMemory(xmlValidCtxtPtr ctxt, const char * extra)
 		__xmlRaiseError(0, channel, data, pctxt, NULL, XML_FROM_VALID, XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, extra, 0, 0, 0, 0, "Memory allocation failed : %s\n", extra);
 	else
 		__xmlRaiseError(0, channel, data, pctxt, NULL, XML_FROM_VALID, XML_ERR_NO_MEMORY, XML_ERR_FATAL, 0, 0, 0, 0, 0, 0, 0, "Memory allocation failed\n");
+}
+
+static void FASTCALL xmlVErrMemory_MallocFailed(xmlValidCtxtPtr ctxt)
+{
+	xmlVErrMemory(ctxt, "malloc failed");
 }
 /**
  * xmlErrValid:
@@ -199,19 +201,14 @@ static int vstateVPush(xmlValidCtxtPtr ctxt, xmlElement * elemDecl, xmlNode * P_
 {
 	if((ctxt->vstateMax == 0) || (ctxt->vstateTab == NULL)) {
 		ctxt->vstateMax = 10;
-		ctxt->vstateTab = (xmlValidState*)SAlloc::M(ctxt->vstateMax *
-		    sizeof(ctxt->vstateTab[0]));
+		ctxt->vstateTab = static_cast<xmlValidState *>(SAlloc::M(ctxt->vstateMax * sizeof(ctxt->vstateTab[0])));
 		if(ctxt->vstateTab == NULL) {
-			xmlVErrMemory(ctxt, "malloc failed");
+			xmlVErrMemory_MallocFailed(ctxt);
 			return -1;
 		}
 	}
-
 	if(ctxt->vstateNr >= ctxt->vstateMax) {
-		xmlValidState * tmp;
-
-		tmp = (xmlValidState*)SAlloc::R(ctxt->vstateTab,
-		    2 * ctxt->vstateMax * sizeof(ctxt->vstateTab[0]));
+		xmlValidState * tmp = (xmlValidState*)SAlloc::R(ctxt->vstateTab, 2 * ctxt->vstateMax * sizeof(ctxt->vstateTab[0]));
 		if(!tmp) {
 			xmlVErrMemory(ctxt, "realloc failed");
 			return -1;
@@ -300,7 +297,7 @@ static int vstateVPush(xmlValidCtxtPtr ctxt, xmlElementContent * cont, xmlNode *
 		ctxt->vstateTab = (xmlValidState*)SAlloc::M(
 		    ctxt->vstateMax * sizeof(ctxt->vstateTab[0]));
 		if(ctxt->vstateTab == NULL) {
-			xmlVErrMemory(ctxt, "malloc failed");
+			xmlVErrMemory_MallocFailed(ctxt);
 			return -1;
 		}
 	}
@@ -310,7 +307,7 @@ static int vstateVPush(xmlValidCtxtPtr ctxt, xmlElementContent * cont, xmlNode *
 		tmp = (xmlValidState*)SAlloc::R(ctxt->vstateTab,
 		    2 * ctxt->vstateMax * sizeof(ctxt->vstateTab[0]));
 		if(!tmp) {
-			xmlVErrMemory(ctxt, "malloc failed");
+			xmlVErrMemory_MallocFailed(ctxt);
 			return -1;
 		}
 		ctxt->vstateMax *= 2;
@@ -356,7 +353,7 @@ static int nodeVPush(xmlValidCtxtPtr ctxt, xmlNode * value)
 		    (xmlNodePtr*)SAlloc::M(ctxt->nodeMax *
 		    sizeof(ctxt->PP_NodeTab[0]));
 		if(ctxt->PP_NodeTab == NULL) {
-			xmlVErrMemory(ctxt, "malloc failed");
+			xmlVErrMemory_MallocFailed(ctxt);
 			ctxt->nodeMax = 0;
 			return 0;
 		}
@@ -689,13 +686,9 @@ int xmlValidBuildContentModel(xmlValidCtxtPtr ctxt, xmlElement * elem)
 }
 
 #endif /* LIBXML_REGEXP_ENABLED */
-
-/****************************************************************
-*								*
-*	Util functions for data allocation/deallocation		*
-*								*
-****************************************************************/
-
+//
+// Util functions for data allocation/deallocation
+//
 /**
  * xmlNewValidCtxt:
  *
@@ -705,15 +698,14 @@ int xmlValidBuildContentModel(xmlValidCtxtPtr ctxt, xmlElement * elem)
  */
 xmlValidCtxtPtr xmlNewValidCtxt()
 {
-	xmlValidCtxtPtr ret;
-	if((ret = (xmlValidCtxtPtr)SAlloc::M(sizeof(xmlValidCtxt))) == NULL) {
-		xmlVErrMemory(NULL, "malloc failed");
+	xmlValidCtxtPtr ret = static_cast<xmlValidCtxtPtr>(SAlloc::M(sizeof(xmlValidCtxt)));
+	if(!ret) {
+		xmlVErrMemory_MallocFailed(0);
 		return 0;
 	}
 	memzero(ret, sizeof(xmlValidCtxt));
 	return ret;
 }
-
 /**
  * xmlFreeValidCtxt:
  * @cur:  the validation context to free
@@ -764,9 +756,9 @@ xmlElementContent * xmlNewDocElementContent(xmlDoc * doc, const xmlChar * name, 
 		    xmlErrValid(NULL, XML_ERR_INTERNAL_ERROR, "Internal: ELEMENT content corrupted invalid type\n", 0);
 		    return 0;
 	}
-	ret = (xmlElementContent *)SAlloc::M(sizeof(xmlElementContent));
+	ret = static_cast<xmlElementContent *>(SAlloc::M(sizeof(xmlElementContent)));
 	if(!ret) {
-		xmlVErrMemory(NULL, "malloc failed");
+		xmlVErrMemory_MallocFailed(0);
 		return 0;
 	}
 	memzero(ret, sizeof(xmlElementContent));
@@ -824,9 +816,9 @@ xmlElementContent * xmlCopyDocElementContent(xmlDoc * doc, xmlElementContent * c
 		return 0;
 	if(doc)
 		dict = doc->dict;
-	ret = (xmlElementContent *)SAlloc::M(sizeof(xmlElementContent));
+	ret = static_cast<xmlElementContent *>(SAlloc::M(sizeof(xmlElementContent)));
 	if(!ret) {
-		xmlVErrMemory(NULL, "malloc failed");
+		xmlVErrMemory_MallocFailed(0);
 		return 0;
 	}
 	memzero(ret, sizeof(xmlElementContent));
@@ -844,9 +836,9 @@ xmlElementContent * xmlCopyDocElementContent(xmlDoc * doc, xmlElementContent * c
 		prev = ret;
 		cur = cur->c2;
 		while(cur) {
-			tmp = (xmlElementContent *)SAlloc::M(sizeof(xmlElementContent));
+			tmp = static_cast<xmlElementContent *>(SAlloc::M(sizeof(xmlElementContent)));
 			if(!tmp) {
-				xmlVErrMemory(NULL, "malloc failed");
+				xmlVErrMemory_MallocFailed(0);
 				return ret;
 			}
 			else {
@@ -945,7 +937,7 @@ void xmlFreeElementContent(xmlElementContent * cur)
  *
  * This will dump the content of the element table as an XML DTD definition
  */
-static void xmlDumpElementContent(xmlBuffer * buf, xmlElementContent * content, int glob) 
+static void FASTCALL xmlDumpElementContent(xmlBuffer * buf, xmlElementContent * content, int glob) 
 {
 	if(content) {
 		if(glob) 
@@ -989,17 +981,10 @@ static void xmlDumpElementContent(xmlBuffer * buf, xmlElementContent * content, 
 		if(glob)
 			xmlBufferWriteChar(buf, ")");
 		switch(content->ocur) {
-			case XML_ELEMENT_CONTENT_ONCE:
-				break;
-			case XML_ELEMENT_CONTENT_OPT:
-				xmlBufferWriteChar(buf, "?");
-				break;
-			case XML_ELEMENT_CONTENT_MULT:
-				xmlBufferWriteChar(buf, "*");
-				break;
-			case XML_ELEMENT_CONTENT_PLUS:
-				xmlBufferWriteChar(buf, "+");
-				break;
+			case XML_ELEMENT_CONTENT_ONCE: break;
+			case XML_ELEMENT_CONTENT_OPT: xmlBufferWriteChar(buf, "?"); break;
+			case XML_ELEMENT_CONTENT_MULT: xmlBufferWriteChar(buf, "*"); break;
+			case XML_ELEMENT_CONTENT_PLUS: xmlBufferWriteChar(buf, "+"); break;
 		}
 	}
 }
@@ -1031,7 +1016,7 @@ void xmlSprintfElementContent(char * buf ATTRIBUTE_UNUSED, xmlElementContent * c
 void xmlSnprintfElementContent(char * buf, int size, xmlElementContent * content, int englob) 
 {
 	if(content) {
-		int len = sstrlen(buf);
+		int len = sstrleni(buf);
 		if((size - len) < 50) {
 			if((size - len > 4) && (buf[len-1] != '.'))
 				strcat(buf, " ...");
@@ -1045,14 +1030,14 @@ void xmlSnprintfElementContent(char * buf, int size, xmlElementContent * content
 					break;
 				case XML_ELEMENT_CONTENT_ELEMENT:
 					if(content->prefix) {
-						if((size - len) < (int)(sstrlen(content->prefix) + 10)) {
+						if((size - len) < (sstrleni(content->prefix) + 10)) {
 							strcat(buf, " ...");
 							return;
 						}
 						strcat(buf, (char *)content->prefix);
 						strcat(buf, ":");
 					}
-					if((size - len) < (int)(sstrlen(content->name) + 10)) {
+					if((size - len) < (sstrleni(content->name) + 10)) {
 						strcat(buf, " ...");
 						return;
 					}
@@ -1127,7 +1112,6 @@ static void xmlFreeElement(xmlElement * pElem)
 		SAlloc::F(pElem);
 	}
 }
-
 /**
  * xmlAddElementDecl:
  * @ctxt:  the validation context
@@ -1229,7 +1213,7 @@ xmlElement * xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlCha
 	else {
 		ret = (xmlElement *)SAlloc::M(sizeof(xmlElement));
 		if(!ret) {
-			xmlVErrMemory(ctxt, "malloc failed");
+			xmlVErrMemory_MallocFailed(ctxt);
 			SAlloc::F(uqname);
 			SAlloc::F(ns);
 			return 0;
@@ -1241,7 +1225,7 @@ xmlElement * xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlCha
 		// 
 		ret->name = sstrdup(name);
 		if(ret->name == NULL) {
-			xmlVErrMemory(ctxt, "malloc failed");
+			xmlVErrMemory_MallocFailed(ctxt);
 			SAlloc::F(uqname);
 			SAlloc::F(ns);
 			SAlloc::F(ret);
@@ -1319,7 +1303,7 @@ static xmlElement * xmlCopyElement(const xmlElement * elem)
 {
 	xmlElement * cur = static_cast<xmlElement *>(SAlloc::M(sizeof(xmlElement)));
 	if(!cur) {
-		xmlVErrMemory(NULL, "malloc failed");
+		xmlVErrMemory_MallocFailed(0);
 		return 0;
 	}
 	memzero(cur, sizeof(xmlElement));
@@ -1445,7 +1429,7 @@ xmlEnumeration * xmlCreateEnumeration(const xmlChar * name)
 {
 	xmlEnumeration * ret = static_cast<xmlEnumeration *>(SAlloc::M(sizeof(xmlEnumeration)));
 	if(!ret) {
-		xmlVErrMemory(NULL, "malloc failed");
+		xmlVErrMemory_MallocFailed(0);
 	}
 	else {
 		memzero(ret, sizeof(xmlEnumeration));
@@ -1672,7 +1656,7 @@ xmlAttribute * xmlAddAttributeDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xm
 	}
 	ret = static_cast<xmlAttribute *>(SAlloc::M(sizeof(xmlAttribute)));
 	if(!ret) {
-		xmlVErrMemory(ctxt, "malloc failed");
+		xmlVErrMemory_MallocFailed(ctxt);
 		xmlFreeEnumeration(tree);
 		return 0;
 	}
@@ -1795,7 +1779,7 @@ static xmlAttribute * xmlCopyAttribute(const xmlAttribute * attr)
 {
 	xmlAttribute * cur = static_cast<xmlAttribute *>(SAlloc::M(sizeof(xmlAttribute)));
 	if(!cur) {
-		xmlVErrMemory(NULL, "malloc failed");
+		xmlVErrMemory_MallocFailed(0);
 	}
 	else {
 		memzero(cur, sizeof(xmlAttribute));
@@ -1964,7 +1948,7 @@ xmlNotation * xmlAddNotationDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlC
 	}
 	ret = static_cast<xmlNotation *>(SAlloc::M(sizeof(xmlNotation)));
 	if(!ret) {
-		xmlVErrMemory(ctxt, "malloc failed");
+		xmlVErrMemory_MallocFailed(ctxt);
 		return 0;
 	}
 	memzero(ret, sizeof(xmlNotation));
@@ -2012,7 +1996,7 @@ static xmlNotation * xmlCopyNotation(const xmlNotation * nota)
 {
 	xmlNotation * cur = static_cast<xmlNotation *>(SAlloc::M(sizeof(xmlNotation)));
 	if(!cur) {
-		xmlVErrMemory(NULL, "malloc failed");
+		xmlVErrMemory_MallocFailed(0);
 	}
 	else {
 		cur->name = sstrdup(nota->name);
@@ -2146,7 +2130,7 @@ xmlIDPtr xmlAddID(xmlValidCtxtPtr ctxt, xmlDoc * doc, const xmlChar * value, xml
 		}
 		ret = (xmlIDPtr)SAlloc::M(sizeof(xmlID));
 		if(!ret) {
-			xmlVErrMemory(ctxt, "malloc failed");
+			xmlVErrMemory_MallocFailed(ctxt);
 			return 0;
 		}
 		/*
@@ -2420,7 +2404,7 @@ xmlRefPtr xmlAddRef(xmlValidCtxtPtr ctxt, xmlDoc * doc, const xmlChar * value, x
 		}
 		ret = (xmlRefPtr)SAlloc::M(sizeof(xmlRef));
 		if(!ret) {
-			xmlVErrMemory(ctxt, "malloc failed");
+			xmlVErrMemory_MallocFailed(ctxt);
 			return 0;
 		}
 		/*
@@ -2658,7 +2642,7 @@ static xmlElement * xmlGetDtdElementDesc2(xmlDtdPtr dtd, const xmlChar * name, i
 		if((cur == NULL) && (create)) {
 			cur = (xmlElement *)SAlloc::M(sizeof(xmlElement));
 			if(!cur) {
-				xmlVErrMemory(NULL, "malloc failed");
+				xmlVErrMemory_MallocFailed(0);
 				return 0;
 			}
 			memzero(cur, sizeof(xmlElement));
@@ -4596,7 +4580,7 @@ fail:
 	ctxt->vstateTab = (xmlValidState*)SAlloc::M(
 	    ctxt->vstateMax * sizeof(ctxt->vstateTab[0]));
 	if(ctxt->vstateTab == NULL) {
-		xmlVErrMemory(ctxt, "malloc failed");
+		xmlVErrMemory_MallocFailed(ctxt);
 		return -1;
 	}
 	/*
@@ -4653,7 +4637,7 @@ fail:
 				     */
 				    tmp = static_cast<xmlNode *>(SAlloc::M(sizeof(xmlNode)));
 				    if(!tmp) {
-					    xmlVErrMemory(ctxt, "malloc failed");
+					    xmlVErrMemory_MallocFailed(ctxt);
 					    xmlFreeNodeList(repl);
 					    ret = -1;
 					    goto done;
@@ -5852,20 +5836,20 @@ int xmlValidateDtdFinal(xmlValidCtxtPtr ctxt, xmlDoc * doc)
 	ctxt->valid = 1;
 	dtd = doc->intSubset;
 	if(dtd && dtd->attributes) {
-		table = (xmlAttributeTable *)dtd->attributes;
+		table = static_cast<xmlAttributeTable *>(dtd->attributes);
 		xmlHashScan(table, (xmlHashScanner)xmlValidateAttributeCallback, ctxt);
 	}
 	if(dtd && dtd->entities) {
-		entities = (xmlEntitiesTable *)dtd->entities;
+		entities = static_cast<xmlEntitiesTable *>(dtd->entities);
 		xmlHashScan(entities, (xmlHashScanner)xmlValidateNotationCallback, ctxt);
 	}
 	dtd = doc->extSubset;
 	if(dtd && dtd->attributes) {
-		table = (xmlAttributeTable *)dtd->attributes;
+		table = static_cast<xmlAttributeTable *>(dtd->attributes);
 		xmlHashScan(table, (xmlHashScanner)xmlValidateAttributeCallback, ctxt);
 	}
 	if(dtd && dtd->entities) {
-		entities = (xmlEntitiesTable *)dtd->entities;
+		entities = static_cast<xmlEntitiesTable *>(dtd->entities);
 		xmlHashScan(entities, (xmlHashScanner)xmlValidateNotationCallback, ctxt);
 	}
 	return ctxt->valid;

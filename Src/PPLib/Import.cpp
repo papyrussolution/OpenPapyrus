@@ -3235,7 +3235,7 @@ int SLAPI PrcssrPersonImport::ProcessComplexELinkText(const char * pText, PPPers
 					if(IeParam.Flags & PPPersonImpExpParam::f2GIS) {
 						if(temp_buf.CmpPrefix("http://link.2gis.ru/", 1) == 0) {
 							size_t p_ = 0;
-							if(temp_buf.StrChr('?', &p_)) {
+							if(temp_buf.SearchChar('?', &p_)) {
 								temp_buf.ShiftLeft(p_+1);
 							}
 						}
@@ -4929,7 +4929,7 @@ int FiasImporter::EditParam(Param & rP)
 		{
 			FileBrowseCtrlGroup::Setup(this, CTLBRW_FIASIMP_PATH, CTL_FIASIMP_PATH, 1, 0, 0, FileBrowseCtrlGroup::fbcgfPath);
 		}
-		int    setDTS(FiasImporter::Param * pData)
+		int    setDTS(const FiasImporter::Param * pData)
 		{
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
@@ -5944,8 +5944,8 @@ void PrcssrOsm::Scb_EndElement(void * ptr, const xmlChar * pName)
 
 IMPL_CMPCFUNC(STRINT64, p1, p2)
 {
-	int64 v1 = _atoi64((const char *)p1);
-	int64 v2 = _atoi64((const char *)p2);
+	int64 v1 = _atoi64(static_cast<const char *>(p1));
+	int64 v2 = _atoi64(static_cast<const char *>(p2));
 	return CMPSIGN(v1, v2);
 }
 

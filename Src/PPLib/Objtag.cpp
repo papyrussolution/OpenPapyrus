@@ -323,7 +323,7 @@ void SLAPI PPObjTagPacket::Init()
 	Rule.Z();
 }
 
-PPObjTagPacket & FASTCALL PPObjTagPacket::operator = (PPObjTagPacket & src)
+PPObjTagPacket & FASTCALL PPObjTagPacket::operator = (const PPObjTagPacket & src)
 {
 	memcpy(&Rec, &src.Rec, sizeof(Rec));
 	Rule = src.Rule;
@@ -1017,7 +1017,7 @@ int SLAPI PPObjTag::Edit(PPID * pID, void * extraPtr)
 		explicit ObjTagDialog(uint rezID) : TDialog(rezID)
 		{
 		}
-		int    setDTS(PPObjTagPacket * pData)
+		int    setDTS(const PPObjTagPacket * pData)
 		{
 			SString typ_name_buf;
 			Data = *pData;
@@ -2448,7 +2448,7 @@ public:
 		if(P_Box)
 			CALLPTRMEMB(P_Box->def, SetOption(lbtFocNotify, 1));
 	}
-	int    setDTS(DataBlock * pData)
+	int    setDTS(const DataBlock * pData)
 	{
 		Data = pData->List;
 		if(Data.ObjType) {
@@ -2938,7 +2938,7 @@ int ObjTagCache::Fetch(PPID objID, PPID tagID, ObjTagItem * pItem)
 		StatData.Count.Incr();
 		if(TagTypeList.lsearch(&tagID, &pos, CMPF_LONG)) {
 			assert(pos < MAXSHORT);
-			tp = (uint16)(pos+1);
+			tp = static_cast<uint16>(pos+1);
 		}
 		if(tp && TagTypeList.at(tp-1).UndefList.Has((uint32)objID)) {
 			ok = -1; // Объект находится в списке тех, для кого тег не определен.

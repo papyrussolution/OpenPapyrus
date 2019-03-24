@@ -2900,7 +2900,7 @@ int FASTCALL PPObjBill::ReadConfig(PPBillConfig * pCfg)
 	if(p_ref->GetPropActualSize(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_BILLCFG, &sz) > 0) {
 		STempBuffer temp_buf(0);
 		__PPBillConfig temp;
-		__PPBillConfig * p_temp = 0;
+		const __PPBillConfig * p_temp = 0;
 		MEMSZERO(temp);
 		if(sz <= fix_size) {
 			ok = p_ref->GetPropMainConfig(PPPRP_BILLCFG, &temp, sz);
@@ -2910,10 +2910,10 @@ int FASTCALL PPObjBill::ReadConfig(PPBillConfig * pCfg)
 		}
 		else {
 			THROW_SL(temp_buf.Alloc(sz));
-			ok = p_ref->GetPropMainConfig(PPPRP_BILLCFG, (char *)temp_buf, sz);
+			ok = p_ref->GetPropMainConfig(PPPRP_BILLCFG, temp_buf.vptr(), sz);
 			assert(ok > 0); // Раз нам удалось считать размер буфера, то последующая ошибка чтения - критична
 			THROW(ok > 0);
-			p_temp = (__PPBillConfig *)(const char *)temp_buf;
+			p_temp = static_cast<const __PPBillConfig *>(temp_buf.vcptr());
 		}
 		pCfg->SecurID = p_temp->ID;
 		pCfg->ClCodeRegTypeID = p_temp->ClCodeRegTypeID;
@@ -2942,7 +2942,7 @@ int FASTCALL PPObjBill::ReadConfig(PPBillConfig * pCfg)
 		{
 			if(sz > fix_size) {
 				SBuffer ser_buf;
-				THROW_SL(ser_buf.Write(PTR8(p_temp)+fix_size, sz - fix_size));
+				THROW_SL(ser_buf.Write(PTR8C(p_temp)+fix_size, sz - fix_size));
 				if(!pCfg->TagIndFilt.Read(ser_buf, 0)) {
 					pCfg->TagIndFilt.Init(1, 0);
 					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
@@ -2950,15 +2950,16 @@ int FASTCALL PPObjBill::ReadConfig(PPBillConfig * pCfg)
 			}
 		}
 		{
-			char * p_buf = 0;
+			//char * p_buf = 0;
 			size_t buf_size = 0;
 			WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 1);
 			if(reg_key.GetRecSize(BillAddFilesFolder, &buf_size) > 0 && buf_size > 0) {
-				p_buf = new char[buf_size + 1];
-				memzero(p_buf, buf_size + 1);
-				reg_key.GetString(BillAddFilesFolder, p_buf, buf_size);
-				pCfg->AddFilesFolder.CopyFrom(p_buf);
-				ZDELETEARRAY(p_buf);
+				SString param_buf;
+				//p_buf = new char[buf_size + 1];
+				//memzero(p_buf, buf_size + 1);
+				reg_key.GetString(BillAddFilesFolder, param_buf);
+				pCfg->AddFilesFolder.CopyFrom(param_buf);
+				//ZDELETEARRAY(p_buf);
 			}
 		}
 	}

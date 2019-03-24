@@ -45,11 +45,7 @@ static bool FASTCALL IsABlank(uint ch)
 }
 
 /***************************************/
-static void ColouriseVHDLDoc(Sci_PositionU startPos,
-    Sci_Position length,
-    int initStyle,
-    WordList * keywordlists[],
-    Accessor &styler)
+static void ColouriseVHDLDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler)
 {
 	WordList &Keywords   = *keywordlists[0];
 	WordList &Operators  = *keywordlists[1];
@@ -58,10 +54,8 @@ static void ColouriseVHDLDoc(Sci_PositionU startPos,
 	WordList &Packages   = *keywordlists[4];
 	WordList &Types      = *keywordlists[5];
 	WordList &User       = *keywordlists[6];
-
 	StyleContext sc(startPos, length, initStyle, styler);
 	bool isExtendedId = false; // true when parsing an extended identifier
-
 	for(; sc.More(); sc.Forward()) {
 		// Determine if the current state should terminate.
 		if(sc.state == SCE_VHDL_OPERATOR) {
@@ -215,10 +209,7 @@ static bool IsCommentStyle(char style)
 
 //=============================================================================
 // Folding the code
-static void FoldNoBoxVHDLDoc(Sci_PositionU startPos,
-    Sci_Position length,
-    int,
-    Accessor &styler)
+static void FoldNoBoxVHDLDoc(Sci_PositionU startPos, Sci_Position length, int, Accessor &styler)
 {
 	// Decided it would be smarter to have the lexer have all keywords included. Therefore I
 	// don't check if the style for the keywords that I use to adjust the levels.

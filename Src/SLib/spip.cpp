@@ -197,8 +197,8 @@ SVerT::operator uint32() const
 
 void SLAPI SVerT::Set(uint32 n)
 {
-	V = (uint16)(n >> 16);
-	R = (uint16)(n & 0x0000ffff);
+	V = static_cast<uint16>(n >> 16);
+	R = static_cast<uint16>(n & 0x0000ffff);
 }
 
 int SLAPI SVerT::Get(int * pJ, int * pN, int * pR) const

@@ -1229,7 +1229,7 @@ int SLAPI PersonCore::GetVATFreePersonList(PPIDArray * list)
 	PPID   id = 0;
 	long   _c = 0;
 	BExtQuery q(this, 0, 128);
-	q.select(this->ID, this->Flags, 0L).where(this->Flags > (long)0); // @v8.1.2 where(this->Flags > 0)
+	q.select(this->ID, this->Flags, 0L).where(this->Flags > 0L); // @v8.1.2 where(this->Flags > 0)
 	list->freeAll();
 	for(q.initIteration(0, &id, spGe); ok && q.nextIteration() > 0;) {
 		_c++;

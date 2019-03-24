@@ -728,7 +728,7 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 				if(!de.IsFolder()) {
 					temp_buf = de.FileName;
 					size_t hyphen_pos = 0;
-                    if(temp_buf.StrChr('-', &hyphen_pos)) {
+                    if(temp_buf.SearchChar('-', &hyphen_pos)) {
                         temp_buf.Sub(hyphen_pos+1, temp_buf.Len(), lang_symb = 0);
 						int    slang = RecognizeLinguaSymb(lang_symb, 0);
 						if(slang) {
@@ -1346,7 +1346,7 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 					}
 				}
 			}
-			else if(TempBuf.StrChr('\"', &pos)) {
+			else if(TempBuf.SearchChar('\"', &pos)) {
 				rItem.Kind = StringStore2::ParseItem::kString;
 				TempBuf.Sub(pos+1 /* кавычку пропускаем */, TempBuf.Len(), rItem.Str);
 				//

@@ -640,7 +640,7 @@ namespace NWindows {
 				uint64 realNewPosition;
 				if(!Seek(pos, realNewPosition))
 					return;
-				Byte * buf = (Byte*)MidAlloc(kClusterSize);
+				Byte * buf = (Byte *)MidAlloc(kClusterSize);
 				bool needbackward = true;
 				for(;; ) {
 					uint32 processed = 0;
@@ -663,7 +663,7 @@ namespace NWindows {
 						if(!Seek(pos, realNewPosition))
 							break;
 						if(!buf) {
-							buf = (Byte*)MidAlloc(kClusterSize);
+							buf = (Byte *)MidAlloc(kClusterSize);
 							if(!buf)
 								break;
 						}
@@ -2323,7 +2323,7 @@ namespace NWindows {
 				const uint32 tag = isSymLink ? _my_IO_REPARSE_TAG_SYMLINK : _my_IO_REPARSE_TAG_MOUNT_POINT;
 				Byte * p = dest;
 				Set32(p, tag);
-				Set16(p + 4, (uint16)(size - 8));
+				Set16(p + 4, static_cast<uint16>(size - 8));
 				Set16(p + 6, 0);
 				p += 8;
 				unsigned subOffs = 0;
@@ -3639,7 +3639,7 @@ namespace NWindows {
 		bool DosTimeToFileTime(uint32 dosTime, FILETIME &ft) throw()
 		{
 		  #if defined(_WIN32) && !defined(UNDER_CE)
-			return BOOLToBool(::DosDateTimeToFileTime((uint16)(dosTime >> 16), (uint16)(dosTime & 0xFFFF), &ft));
+			return BOOLToBool(::DosDateTimeToFileTime(static_cast<uint16>(dosTime >> 16), static_cast<uint16>(dosTime & 0xFFFF), &ft));
 		  #else
 			ft.dwLowDateTime = 0;
 			ft.dwHighDateTime = 0;

@@ -2048,7 +2048,7 @@ static int zip_read_data_deflate(struct archive_read * a, const void ** buff, si
 	 * next_in pointer, only reads it).  The result: this ugly
 	 * cast to remove 'const'.
 	 */
-	zip->stream.next_in = (Bytef*)(uintptr_t)(const void*)compressed_buff;
+	zip->stream.next_in = (Bytef *)(uintptr_t)(const void*)compressed_buff;
 	zip->stream.avail_in = (uInt)bytes_avail;
 	zip->stream.total_in = 0;
 	zip->stream.next_out = zip->uncompressed_buffer;
@@ -3559,7 +3559,7 @@ static int zip_read_mac_metadata(struct archive_read * a, struct archive_entry *
 			    if(ret != ARCHIVE_OK)
 				    goto exit_mac_metadata;
 			    zip->stream.next_in =
-				(Bytef*)(uintptr_t)(const void*)p;
+				(Bytef *)(uintptr_t)(const void*)p;
 			    zip->stream.avail_in = (uInt)bytes_avail;
 			    zip->stream.total_in = 0;
 			    zip->stream.next_out = mp;

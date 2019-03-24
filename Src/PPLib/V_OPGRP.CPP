@@ -473,7 +473,8 @@ double SLAPI PPViewOpGrouping::GetStatItem(int stat, PPID opID, int sign, uint s
 	return 0.0;
 }
 
-IMPL_CMPFUNC(OpGroupingViewItem, i1, i2) { RET_CMPCASCADE3((const OpGroupingViewItem *)i1, (const OpGroupingViewItem *)i2, Dt, OpID, Sign); }
+IMPL_CMPFUNC(OpGroupingViewItem, i1, i2) 
+	{ RET_CMPCASCADE3(static_cast<const OpGroupingViewItem *>(i1), static_cast<const OpGroupingViewItem *>(i2), Dt, OpID, Sign); }
 
 int SLAPI PPViewOpGrouping::CreateStatList(LAssocArray * pOpList, TSVector <OpGroupingViewItem> * pItemList, TSCollection <OpGroupingStatEntry> * pStatList) // @v9.8.4 TSArray-->TSVector
 {
@@ -1099,7 +1100,7 @@ int SLAPI PPViewOpGrouping::ViewGraph(const void * pHdr, PPViewBrowser * pBrw)
 		}
 		{
 			PPGetSubStr(PPTXT_CYCLESTATLIST, CYCLESTAT_MIN-1, temp_buf);
-			if(temp_buf.StrChr(',', &(p = 0)))
+			if(temp_buf.SearchChar(',', &(p = 0)))
 				temp_buf.Excise(0, p+1);
 			PPGpPlotItem item(0, temp_buf.Transf(CTRANSF_INNER_TO_OUTER), PPGpPlotItem::sLines);
 			item.Style.SetLine(GetColorRef(SClrGreen), 0.5f);
@@ -1109,7 +1110,7 @@ int SLAPI PPViewOpGrouping::ViewGraph(const void * pHdr, PPViewBrowser * pBrw)
 		}
 		{
 			PPGetSubStr(PPTXT_CYCLESTATLIST, CYCLESTAT_MAX-1, temp_buf);
-			if(temp_buf.StrChr(',', &(p = 0)))
+			if(temp_buf.SearchChar(',', &(p = 0)))
 				temp_buf.Excise(0, p+1);
 			PPGpPlotItem item(0, temp_buf.Transf(CTRANSF_INNER_TO_OUTER), PPGpPlotItem::sLines);
 			item.Style.SetLine(GetColorRef(SClrGreen), 0.5f);
@@ -1119,7 +1120,7 @@ int SLAPI PPViewOpGrouping::ViewGraph(const void * pHdr, PPViewBrowser * pBrw)
 		}
 		{
 			PPGetSubStr(PPTXT_CYCLESTATLIST, CYCLESTAT_AVERAGE-1, temp_buf);
-			if(temp_buf.StrChr(',', &(p = 0)))
+			if(temp_buf.SearchChar(',', &(p = 0)))
 				temp_buf.Excise(0, p+1);
 			PPGpPlotItem item(0, temp_buf.Transf(CTRANSF_INNER_TO_OUTER), PPGpPlotItem::sLines);
 			item.Style.SetLine(GetColorRef(SClrGreen), 0.5f);
@@ -1129,7 +1130,7 @@ int SLAPI PPViewOpGrouping::ViewGraph(const void * pHdr, PPViewBrowser * pBrw)
 		}
 		{
 			PPGetSubStr(PPTXT_CYCLESTATLIST, CYCLESTAT_TREND-1, temp_buf);
-			if(temp_buf.StrChr(',', &(p = 0)))
+			if(temp_buf.SearchChar(',', &(p = 0)))
 				temp_buf.Excise(0, p+1);
 			PPGpPlotItem item(0, temp_buf.Transf(CTRANSF_INNER_TO_OUTER), PPGpPlotItem::sLines);
 			item.Style.SetLine(GetColorRef(SClrRed), 1);

@@ -80,7 +80,7 @@ public:
 	explicit StockOptCfgDialog(uint dlgId) : TDialog(dlgId), DataSrc(1)
 	{
 	}
-	int    setDTS(PPStockOpt::Config * pData)
+	int    setDTS(const PPStockOpt::Config * pData)
 	{
 		int    ok = 1;
 		RVALUEPTR(Data.SoCfg, pData);

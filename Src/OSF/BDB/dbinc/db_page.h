@@ -364,24 +364,20 @@ typedef struct __heaphdrsplt {
 #define HEAPPG_SZ(dbp)    (F_ISSET((dbp), DB_AM_ENCRYPT) ? HEAPPG_SEC : F_ISSET((dbp), DB_AM_CHKSUM) ? HEAPPG_CHKSUM : HEAPPG_NORMAL)
 
 /* Each byte in the bitmap describes 4 pages (2 bits per page.) */
-#define HEAP_REGION_COUNT(size) ((size - HEAPPG_SZ(dbp)) * 4)
+#define HEAP_REGION_COUNT(size) (((size) - HEAPPG_SZ(dbp)) * 4)
 #define HEAP_DEFAULT_REGION_MAX	HEAP_REGION_COUNT(8 * 1024)
-#define	HEAP_REGION_SIZE(dbp)	(((HEAP*) (dbp)->heap_internal)->region_size)
+#define	HEAP_REGION_SIZE(dbp)	(((HEAP*)(dbp)->heap_internal)->region_size)
 
 /* Figure out which region a given page belongs to. */
-#define HEAP_REGION_PGNO(dbp, p) 				\
-	((((p) - 1) / (HEAP_REGION_SIZE(dbp) + 1)) * 		\
-	(HEAP_REGION_SIZE(dbp) + 1) + 1)
+#define HEAP_REGION_PGNO(dbp, p)   ((((p) - 1) / (HEAP_REGION_SIZE(dbp) + 1)) * (HEAP_REGION_SIZE(dbp) + 1) + 1)
 /* Translate a region pgno to region number */
-#define HEAP_REGION_NUM(dbp, pgno)				\
-	((((pgno) - 1) / (HEAP_REGION_SIZE((dbp)) + 1)) + 1)
+#define HEAP_REGION_NUM(dbp, pgno) ((((pgno) - 1) / (HEAP_REGION_SIZE((dbp)) + 1)) + 1)
 /* 
  * Given an internal heap page and page number relative to that page, return the
  * bits from map describing free space on the nth page.  Each byte in the map
  * describes 4 pages. Point at the correct byte and mask the correct 2 bits.
  */
-#define HEAP_SPACE(dbp, pg, n)					\
-	(HEAP_SPACEMAP((dbp), (pg))[(n) / 4] >> (2 * ((n) % 4)) & 3)
+#define HEAP_SPACE(dbp, pg, n) (HEAP_SPACEMAP((dbp), (pg))[(n) / 4] >> (2 * ((n) % 4)) & 3)
       
 #define HEAP_SETSPACE(dbp, pg, n, b) do {				\
 	HEAP_SPACEMAP((dbp), (pg))[(n) / 4] &= ~(3 << (2 * ((n) % 4))); \

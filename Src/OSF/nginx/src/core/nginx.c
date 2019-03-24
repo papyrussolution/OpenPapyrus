@@ -435,15 +435,15 @@ static void ngx_show_version_info(const NgxStartUpOptions & rO)
 static ngx_int_t ngx_save_argv(ngx_cycle_t * cycle, int argc, const char * argv[])
 {
 #if (NGX_FREEBSD)
-	ngx_os_argv = (char**)argv;
+	ngx_os_argv = (char **)argv;
 	ngx_argc = argc;
-	ngx_argv = (char**)argv;
+	ngx_argv = (char **)argv;
 #else
 	size_t len;
 	ngx_int_t i;
-	ngx_os_argv = (char**)argv;
+	ngx_os_argv = (char **)argv;
 	ngx_argc = argc;
-	ngx_argv = (char**)ngx_alloc((argc + 1) * sizeof(char *), cycle->log);
+	ngx_argv = (char **)ngx_alloc((argc + 1) * sizeof(char *), cycle->log);
 	if(ngx_argv == NULL) {
 		return NGX_ERROR;
 	}
@@ -746,7 +746,7 @@ tz_found:
 		}
 	}
 	if(last) {
-		env = (char**)ngx_alloc((*last + n + 1) * sizeof(char *), cycle->log);
+		env = (char **)ngx_alloc((*last + n + 1) * sizeof(char *), cycle->log);
 		if(env == NULL) {
 			return NULL;
 		}
@@ -757,7 +757,7 @@ tz_found:
 		if(cln == NULL) {
 			return NULL;
 		}
-		env = (char**)ngx_alloc((n + 1) * sizeof(char *), cycle->log);
+		env = (char **)ngx_alloc((n + 1) * sizeof(char *), cycle->log);
 		if(env == NULL) {
 			return NULL;
 		}

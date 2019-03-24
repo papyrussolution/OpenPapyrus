@@ -1070,7 +1070,7 @@ int SLAPI GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt * pFilt, const Adj
 				goods_list.atFree(pos);
 		}
 		else // filt.SupplID || filt.SupplAgentID // по поставщику ИЛИ по агенту поставщика
-			goods_list.add((long)0);
+			goods_list.add(0L);
 		for(i = 0; i < goods_list.getCount(); i++) {
 			const PPID goods_id = goods_list.get(i);
 			const PPID save_filt_goods_id = filt.GoodsID;

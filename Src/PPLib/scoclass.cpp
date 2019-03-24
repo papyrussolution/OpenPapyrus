@@ -11,15 +11,15 @@
 //static
 void * FASTCALL SCoClass::GetExtraPtrByInterface(const void * pIfc)
 {
-	return pIfc ? ((const TabEntry *)pIfc)->ThisPtr->ExtraPtr : 0;
+	return pIfc ? static_cast<const TabEntry *>(pIfc)->ThisPtr->ExtraPtr : 0;
 }
 
 // static
 int SLAPI SCoClass::SetExtraPtrByInterface(const void * pIfc, void * extraPtr)
 {
 	int    ok = -1;
-	if(pIfc && ((TabEntry *)pIfc)->ThisPtr->ExtraPtr == 0) {
-		((TabEntry *)pIfc)->ThisPtr->ExtraPtr = extraPtr;
+	if(pIfc && static_cast<const TabEntry *>(pIfc)->ThisPtr->ExtraPtr == 0) {
+		static_cast<const TabEntry *>(pIfc)->ThisPtr->ExtraPtr = extraPtr;
 		ok = 1;
 	}
 	return ok;
@@ -158,7 +158,7 @@ int FASTCALL SCoClass::InitVTable(void * pVt)
 			THROW(P_Scope->GetIfaceBase(i, &iface));
 			const DlScope * p_scope = P_Ctx->GetScope_Const(iface.ID);
 			THROW(p_scope && p_scope->IsKind(DlScope::kInterface));
-			P_Tab[i].P_Tbl = ((uint32 *)P_Vt) + offs;
+			P_Tab[i].P_Tbl = static_cast<uint32 *>(P_Vt) + offs;
 			P_Tab[i].ThisPtr = this;
 			offs += (p_scope->GetFuncCount() + 3); // 3 = count of IUnknown methods
 		}
@@ -166,7 +166,7 @@ int FASTCALL SCoClass::InitVTable(void * pVt)
 			//
 			// ISupportErrorInfo
 			//
-			P_Tab[i].P_Tbl = ((uint32 *)P_Vt) + offs;
+			P_Tab[i].P_Tbl = static_cast<uint32 *>(P_Vt) + offs;
 			P_Tab[i].ThisPtr = this;
 			offs += 1+3; // 1 = count of ISupportErrorInfo methods, 3 = count of IUnknown methods
 			++i;
@@ -175,7 +175,7 @@ int FASTCALL SCoClass::InitVTable(void * pVt)
 	else if(Flags & fFactory) {
 		P_Tab = StTab;
 		TabCount = 1;
-		P_Tab[0].P_Tbl = (uint32 *)P_Vt;
+		P_Tab[0].P_Tbl = static_cast<uint32 *>(P_Vt);
 		P_Tab[0].ThisPtr = this;
 	}
 	CATCH
@@ -206,7 +206,7 @@ HRESULT SCoClass::ImpQueryInterface(REFIID rIID, void ** ppObject)
 		if(Flags & fFactory) {
 			if(IsEqualIID(rIID, IID_IClassFactory)) {
 				ImpAddRef();
-				*ppObject = (void *)&P_Tab[0];
+				*ppObject = &P_Tab[0];
 				ok = S_OK;
 			}
 		}
@@ -217,14 +217,14 @@ HRESULT SCoClass::ImpQueryInterface(REFIID rIID, void ** ppObject)
 				if(IsEqualIID(rIID, IID_IUnknown)) {
 					if(P_Scope->GetIfaceBaseCount() > 0) {
 						ImpAddRef();
-						*ppObject = (void *)&P_Tab[0];
+						*ppObject = &P_Tab[0];
 						ok = S_OK;
 					}
 				}
 				else if(IsEqualIID(rIID, IID_ISupportErrorInfo)) {
 					uint   c = P_Scope->GetIfaceBaseCount();
 					ImpAddRef();
-					*ppObject = (void *)&P_Tab[c];
+					*ppObject = &P_Tab[c];
 					ok = S_OK;
 				}
 				else if(P_Ctx->GetInterface(uuid.Init(rIID), &scope_id, 0)) {
@@ -234,7 +234,7 @@ HRESULT SCoClass::ImpQueryInterface(REFIID rIID, void ** ppObject)
 						DlScope::IfaceBase iface;
 						if(P_Scope->GetIfaceBase(i, &iface) && iface.ID == scope_id) {
 							ImpAddRef();
-							*ppObject = (void *)&P_Tab[i];
+							*ppObject = &P_Tab[i];
 							ok = S_OK;
 							break;
 						}
@@ -248,7 +248,7 @@ HRESULT SCoClass::ImpQueryInterface(REFIID rIID, void ** ppObject)
 
 uint32 SCoClass::ImpAddRef()
 {
-	return (uint32)Ref.Incr();
+	return static_cast<uint32>(Ref.Incr());
 }
 
 uint32 SCoClass::ImpRelease()
@@ -259,7 +259,7 @@ uint32 SCoClass::ImpRelease()
 	(b = (P_Scope ? P_Scope->GetName() : "zero scope")).Space().CatEq("Ref", Ref);
 	TRACE_FUNC_S(b);
 #endif
-	uint32 c = (uint32)Ref.Decr();
+	uint32 c = static_cast<uint32>(Ref.Decr());
 	if(c == 0)
 		delete this;
 	return c;

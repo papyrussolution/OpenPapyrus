@@ -1173,7 +1173,7 @@ int SLAPI ReadBdtTestData(const char * pFileName, const char * pSetSymb, TSColle
 				}
 				else if(line_buf.C(0) == '[') {
 					size_t cpos = 0;
-                    if(line_buf.StrChr(']', &cpos)) {
+                    if(line_buf.SearchChar(']', &cpos)) {
 						line_buf.Sub(1, cpos-1, set_name);
                     }
 				}

@@ -380,7 +380,7 @@ uint8 * FASTCALL _zip_buffer_get(zip_buffer_t * buffer, uint64 length)
 uint16 FASTCALL _zip_buffer_get_16(zip_buffer_t * buffer)
 {
 	uint8 * data = _zip_buffer_get(buffer, 2);
-	return data ? (uint16)(data[0] + (data[1] << 8)) : 0;
+	return data ? static_cast<uint16>(data[0] + (data[1] << 8)) : 0;
 }
 
 uint32 FASTCALL _zip_buffer_get_32(zip_buffer_t * buffer)
@@ -1120,8 +1120,8 @@ static void decrypt(struct trad_pkware * ctx, uint8 * out, const uint8 * in, uin
 		Bytef b = in[i];
 		if(!update_only) {
 			// decrypt next byte 
-			uint16 tmp = (uint16)(ctx->key[2] | 2);
-			tmp = (uint16)(((uint32)tmp * (tmp ^ 1)) >> 8);
+			uint16 tmp = static_cast<uint16>(ctx->key[2] | 2);
+			tmp = static_cast<uint16>(((uint32)tmp * (tmp ^ 1)) >> 8);
 			b ^= (Bytef)tmp;
 		}
 		// store cleartext 
@@ -2759,12 +2759,12 @@ int64 _zip_cdir_write(zip_t * za, const zip_filelist_t * filelist, uint64 surviv
 	}
 	_zip_buffer_put(buffer, EOCD_MAGIC, 4);
 	_zip_buffer_put_32(buffer, 0);
-	_zip_buffer_put_16(buffer, (uint16)(survivors >= ZIP_UINT16_MAX ? ZIP_UINT16_MAX : survivors));
-	_zip_buffer_put_16(buffer, (uint16)(survivors >= ZIP_UINT16_MAX ? ZIP_UINT16_MAX : survivors));
+	_zip_buffer_put_16(buffer, static_cast<uint16>(survivors >= ZIP_UINT16_MAX ? ZIP_UINT16_MAX : survivors));
+	_zip_buffer_put_16(buffer, static_cast<uint16>(survivors >= ZIP_UINT16_MAX ? ZIP_UINT16_MAX : survivors));
 	_zip_buffer_put_32(buffer, size >= ZIP_UINT32_MAX ? ZIP_UINT32_MAX : (uint32)size);
 	_zip_buffer_put_32(buffer, offset >= ZIP_UINT32_MAX ? ZIP_UINT32_MAX : (uint32)offset);
 	comment = za->comment_changed ? za->comment_changes : za->comment_orig;
-	_zip_buffer_put_16(buffer, (uint16)(comment ? comment->length : 0));
+	_zip_buffer_put_16(buffer, static_cast<uint16>(comment ? comment->length : 0));
 	if(!_zip_buffer_ok(buffer)) {
 		zip_error_set(&za->error, SLERR_ZIP_INTERNAL, 0);
 		_zip_buffer_free(buffer);
@@ -3187,7 +3187,7 @@ int _zip_dirent_write(zip_t * za, zip_dirent_t * de, zip_flags_t flags)
 			_zip_ef_free(ef);
 			return -1;
 		}
-		ef64 = _zip_ef_new(ZIP_EF_ZIP64, (uint16)(_zip_buffer_offset(ef_buffer)), ef_zip64, ZIP_EF_BOTH);
+		ef64 = _zip_ef_new(ZIP_EF_ZIP64, static_cast<uint16>(_zip_buffer_offset(ef_buffer)), ef_zip64, ZIP_EF_BOTH);
 		_zip_buffer_free(ef_buffer);
 		ef64->next = ef;
 		ef = ef64;
@@ -3199,9 +3199,9 @@ int _zip_dirent_write(zip_t * za, zip_dirent_t * de, zip_flags_t flags)
 	}
 	_zip_buffer_put(buffer, (flags & ZIP_FL_LOCAL) ? LOCAL_MAGIC : CENTRAL_MAGIC, 4);
 	if((flags & ZIP_FL_LOCAL) == 0) {
-		_zip_buffer_put_16(buffer, (uint16)(is_really_zip64 ? 45 : de->version_madeby));
+		_zip_buffer_put_16(buffer, static_cast<uint16>(is_really_zip64 ? 45 : de->version_madeby));
 	}
-	_zip_buffer_put_16(buffer, (uint16)(is_really_zip64 ? 45 : de->version_needed));
+	_zip_buffer_put_16(buffer, static_cast<uint16>(is_really_zip64 ? 45 : de->version_needed));
 	_zip_buffer_put_16(buffer, de->bitflags&0xfff9); /* clear compression method specific flags */
 	_zip_buffer_put_16(buffer, (uint16)de->comp_method);
 	_zip_u2d_time(de->last_mod, &dostime, &dosdate);
@@ -3323,7 +3323,7 @@ static zip_extra_field_t * _zip_ef_utf8(uint16 id, zip_string_t * str, zip_error
 		_zip_buffer_free(buffer);
 		return NULL;
 	}
-	ef = _zip_ef_new(id, (uint16)(_zip_buffer_offset(buffer)), _zip_buffer_data(buffer), ZIP_EF_BOTH);
+	ef = _zip_ef_new(id, static_cast<uint16>(_zip_buffer_offset(buffer)), _zip_buffer_data(buffer), ZIP_EF_BOTH);
 	_zip_buffer_free(buffer);
 	return ef;
 }
@@ -3354,8 +3354,8 @@ void _zip_u2d_time(time_t intime, uint16 * dtime, uint16 * ddate)
 {
 	struct tm * tm = localtime(&intime);
 	SETMAX(tm->tm_year, 80);
-	*ddate = (uint16)(((tm->tm_year+1900-1980)<<9) + ((tm->tm_mon+1)<<5) + tm->tm_mday);
-	*dtime = (uint16)(((tm->tm_hour)<<11) + ((tm->tm_min)<<5) + ((tm->tm_sec)>>1));
+	*ddate = static_cast<uint16>(((tm->tm_year+1900-1980)<<9) + ((tm->tm_mon+1)<<5) + tm->tm_mday);
+	*dtime = static_cast<uint16>(((tm->tm_hour)<<11) + ((tm->tm_min)<<5) + ((tm->tm_sec)>>1));
 }
 
 int _zip_filerange_crc(zip_source_t * src, uint64 start, uint64 len, uLong * crcp, zip_error_t * error)
@@ -3874,7 +3874,7 @@ static int64 compress_read(zip_source_t * src, ZipDeflate * ctx, void * data, ui
 	}
 	out_offset = 0;
 	out_len = (uInt)MIN(UINT_MAX, len);
-	ctx->zstr.next_out = (Bytef*)data;
+	ctx->zstr.next_out = static_cast<Bytef *>(data);
 	ctx->zstr.avail_out = out_len;
 	end = 0;
 	while(!end) {
@@ -3894,7 +3894,7 @@ static int64 compress_read(zip_source_t * src, ZipDeflate * ctx, void * data, ui
 				    out_offset += out_len;
 				    if(out_offset < len) {
 					    out_len = (uInt)MIN(UINT_MAX, len-out_offset);
-					    ctx->zstr.next_out = (Bytef*)data+out_offset;
+					    ctx->zstr.next_out = (Bytef *)data+out_offset;
 					    ctx->zstr.avail_out = out_len;
 				    }
 				    else {
@@ -3924,7 +3924,7 @@ static int64 compress_read(zip_source_t * src, ZipDeflate * ctx, void * data, ui
 				    else {
 					    if(ctx->zstr.total_in > 0)
 						    ctx->can_store = false; // we overwrote a previously filled ctx->buffer 
-					    ctx->zstr.next_in = (Bytef*)ctx->buffer;
+					    ctx->zstr.next_in = (Bytef *)ctx->buffer;
 					    ctx->zstr.avail_in = (uInt)n;
 				    }
 				    continue;
@@ -3958,7 +3958,7 @@ static int64 decompress_read(zip_source_t * src, ZipDeflate * ctx, void * data, 
 		return 0;
 	out_offset = 0;
 	out_len = (uInt)MIN(UINT_MAX, len);
-	ctx->zstr.next_out = (Bytef*)data;
+	ctx->zstr.next_out = static_cast<Bytef *>(data);
 	ctx->zstr.avail_out = out_len;
 	end = 0;
 	while(!end) {
@@ -3969,7 +3969,7 @@ static int64 decompress_read(zip_source_t * src, ZipDeflate * ctx, void * data, 
 				    out_offset += out_len;
 				    if(out_offset < len) {
 					    out_len = (uInt)MIN(UINT_MAX, len-out_offset);
-					    ctx->zstr.next_out = (Bytef*)data+out_offset;
+					    ctx->zstr.next_out = (Bytef *)data+out_offset;
 					    ctx->zstr.avail_out = out_len;
 				    }
 				    else {
@@ -3998,7 +3998,7 @@ static int64 decompress_read(zip_source_t * src, ZipDeflate * ctx, void * data, 
 					    ctx->eof = 1;
 				    }
 				    else {
-					    ctx->zstr.next_in = (Bytef*)ctx->buffer;
+					    ctx->zstr.next_in = (Bytef *)ctx->buffer;
 					    ctx->zstr.avail_in = (uInt)n;
 				    }
 				    continue;
@@ -4080,7 +4080,7 @@ static int64 deflate_decompress(zip_source_t * src, void * ud, void * data, uint
 		    ctx->zstr.zalloc = Z_NULL;
 		    ctx->zstr.zfree = Z_NULL;
 		    ctx->zstr.opaque = NULL;
-		    ctx->zstr.next_in = (Bytef*)ctx->buffer;
+		    ctx->zstr.next_in = (Bytef *)ctx->buffer;
 		    ctx->zstr.avail_in = (uInt)n;
 		    // negative value to tell zlib that there is no header 
 		    if((ret = inflateInit2(&ctx->zstr, -MAX_WBITS)) != Z_OK)
@@ -4203,7 +4203,7 @@ static uint16 FASTCALL _hash_string(const uint8 * name, uint16 size)
 	if(!name)
 		return 0;
 	while(*name != 0) {
-		value = (uint16)(((value * HASH_MULTIPLIER) + (uint8)*name) % size);
+		value = static_cast<uint16>(((value * HASH_MULTIPLIER) + (uint8)*name) % size);
 		name++;
 	}
 	return value;
@@ -4391,7 +4391,7 @@ ZIP_EXTERN int zip_file_set_external_attributes(zip_t * za, uint64 idx, zip_flag
 			if((e->changes = _zip_dirent_clone(e->orig)) == NULL)
 				return zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 		}
-		e->changes->version_madeby = (uint16)((opsys << 8) | (e->changes->version_madeby & 0xff));
+		e->changes->version_madeby = static_cast<uint16>((opsys << 8) | (e->changes->version_madeby & 0xff));
 		e->changes->ext_attrib = attributes;
 		e->changes->changed |= ZIP_DIRENT_ATTRIBUTES;
 	}
@@ -4402,7 +4402,7 @@ ZIP_EXTERN int zip_file_set_external_attributes(zip_t * za, uint64 idx, zip_flag
 			e->changes = NULL;
 		}
 		else {
-			e->changes->version_madeby = (uint16)((unchanged_opsys << 8) | (e->changes->version_madeby & 0xff));
+			e->changes->version_madeby = static_cast<uint16>((unchanged_opsys << 8) | (e->changes->version_madeby & 0xff));
 			e->changes->ext_attrib = unchanged_attributes;
 		}
 	}
@@ -4896,7 +4896,7 @@ uint16 _zip_ef_size(const zip_extra_field_t * ef, zip_flags_t flags)
 	uint16 size = 0;
 	for(; ef; ef = ef->next) {
 		if(ef->flags & flags & ZIP_EF_BOTH)
-			size = (uint16)(size+4+ef->size);
+			size = static_cast<uint16>(size+4+ef->size);
 	}
 	return size;
 }

@@ -53,12 +53,10 @@ int render_plot_add_string(struct ZintSymbol * symbol, uchar * text, float x, fl
 int render_plot(struct ZintSymbol * symbol, const float width, const float height)
 {
 	struct zint_render * render;
-
 	struct zint_render_line * line, * last_line = NULL;
 	struct zint_render_string * last_string = NULL;
 	struct zint_render_ring * ring, * last_ring = NULL;
 	struct zint_render_hexagon * hexagon, * last_hexagon = NULL;
-
 	int i, r, block_width, latch, this_row;
 	float textpos, textwidth, large_bar_height, preset_height, row_height, row_posn = 0.0;
 	// int error_number = 0;
@@ -74,7 +72,6 @@ int render_plot(struct ZintSymbol * symbol, const float width, const float heigh
 	float symbol_aspect = 1;
 	float x_dimension;
 	int upceanflag = 0;
-
 	// Allocate memory for the rendered version
 	render = symbol->rendered = (struct zint_render*)SAlloc::M(sizeof(struct zint_render));
 	if(!symbol->rendered) 
@@ -83,9 +80,7 @@ int render_plot(struct ZintSymbol * symbol, const float width, const float heigh
 	render->strings = NULL;
 	render->rings = NULL;
 	render->hexagons = NULL;
-
 	locale = setlocale(LC_ALL, "C");
-
 	row_height = 0;
 	textdone = 0;
 	textpos = 0.0;

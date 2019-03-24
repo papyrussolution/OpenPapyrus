@@ -16,7 +16,7 @@
  * real winner's vote may be in the last half.
  */
 #define IS_PHASE1_DONE(rep)     ((rep)->sites >= (rep)->nsites && (rep)->winner != DB_EID_INVALID)
-#define I_HAVE_WON(rep, winner) ((rep)->votes >= (rep)->nvotes && winner == (rep)->eid)
+#define I_HAVE_WON(rep, winner) ((rep)->votes >= (rep)->nvotes && (winner) == (rep)->eid)
 
 static void __rep_cmp_vote __P((ENV*, REP*, int, DB_LSN*, uint32, uint32, uint32, uint32, uint32));
 static int __rep_elect_init __P((ENV*, uint32, uint32, int *, uint32 *));

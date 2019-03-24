@@ -751,15 +751,15 @@ EXTERN_C_BEGIN
 		#define SetUi32(p, v) { *(uint32 *)(p) = (v); }
 		#define SetUi64(p, v) { *(uint64 *)(p) = (v); }
 	#else
-		#define GetUi16(p) ( (uint16)(((const Byte*)(p))[0] | ((uint16)((const Byte*)(p))[1] << 8) ))
+		#define GetUi16(p) ( static_cast<uint16>(((const Byte*)(p))[0] | (static_cast<uint16>((const Byte*)(p))[1] << 8) ))
 		#define GetUi32(p) ( ((const Byte*)(p))[0]        | \
 			((uint32)((const Byte*)(p))[1] <<  8) | ((uint32)((const Byte*)(p))[2] << 16) | ((uint32)((const Byte*)(p))[3] << 24))
 		#define GetUi64(p) (GetUi32(p) | ((uint64)GetUi32(((const Byte*)(p)) + 4) << 32))
-		#define SetUi16(p, v) { Byte * _ppp_ = (Byte*)(p); uint32 _vvv_ = (v); \
+		#define SetUi16(p, v) { Byte * _ppp_ = (Byte *)(p); uint32 _vvv_ = (v); \
 			_ppp_[0] = (Byte)_vvv_;	_ppp_[1] = (Byte)(_vvv_ >> 8); }
-		#define SetUi32(p, v) { Byte * _ppp_ = (Byte*)(p); uint32 _vvv_ = (v); \
+		#define SetUi32(p, v) { Byte * _ppp_ = (Byte *)(p); uint32 _vvv_ = (v); \
 			_ppp_[0] = (Byte)_vvv_;	_ppp_[1] = (Byte)(_vvv_ >> 8); _ppp_[2] = (Byte)(_vvv_ >> 16); _ppp_[3] = (Byte)(_vvv_ >> 24); }
-		#define SetUi64(p, v) { Byte * _ppp2_ = (Byte*)(p); uint64 _vvv2_ = (v); \
+		#define SetUi64(p, v) { Byte * _ppp2_ = (Byte *)(p); uint64 _vvv2_ = (v); \
 			SetUi32(_ppp2_, (uint32)_vvv2_); SetUi32(_ppp2_ + 4, (uint32)(_vvv2_ >> 32)); }
 	#endif
 	#if defined(MY_CPU_LE_UNALIGN) && /* defined(_WIN64) && */ (_MSC_VER >= 1300)
@@ -779,10 +779,10 @@ EXTERN_C_BEGIN
 				((uint32)((const Byte*)(p))[1] << 16) | ((uint32)((const Byte*)(p))[2] <<  8) | \
 				((const Byte*)(p))[3] )
 		#define GetBe64(p) (((uint64)GetBe32(p) << 32) | GetBe32(((const Byte*)(p)) + 4))
-		#define SetBe32(p, v) { Byte * _ppp_ = (Byte*)(p); uint32 _vvv_ = (v); _ppp_[0] = (Byte)(_vvv_ >> 24);	\
+		#define SetBe32(p, v) { Byte * _ppp_ = (Byte *)(p); uint32 _vvv_ = (v); _ppp_[0] = (Byte)(_vvv_ >> 24);	\
 			_ppp_[1] = (Byte)(_vvv_ >> 16);	_ppp_[2] = (Byte)(_vvv_ >> 8); _ppp_[3] = (Byte)_vvv_; }
 	#endif
-	#define GetBe16(p) ( (uint16)(((uint16)((const Byte*)(p))[0] << 8) | ((const Byte*)(p))[1] ))
+	#define GetBe16(p) (static_cast<uint16>(((uint16)((const Byte*)(p))[0] << 8) | ((const Byte*)(p))[1]))
 	#ifdef MY_CPU_X86_OR_AMD64
 		typedef struct {
 			uint32 maxFunc;
@@ -2563,7 +2563,7 @@ public:
 			::MidFree(_data);
 			_size = 0;
 			_data = 0;
-			_data = (Byte*)::MidAlloc(size);
+			_data = (Byte *)::MidAlloc(size);
 			if(_data)
 				_size = size;
 		}
@@ -5330,7 +5330,7 @@ namespace NArchive {
 			{
 				sb.Data.Alloc(k_WzAesExtra_Size);
 				sb.ID = NFileHeader::NExtraID::kWzAES;
-				Byte * p = (Byte*)sb.Data;
+				Byte * p = (Byte *)sb.Data;
 				p[0] = (Byte)VendorVersion;
 				p[1] = (Byte)(VendorVersion >> 8);
 				p[2] = 'A';
@@ -5603,7 +5603,7 @@ namespace NCompress {
 						if(len <= kNumTableBits) {
 							offset -= _poses[len];
 							uint32 num = (uint32)1 << (kNumTableBits - len);
-							uint16 val = (uint16)((sym << kNumPairLenBits) | len);
+							uint16 val = static_cast<uint16>((sym << kNumPairLenBits) | len);
 							uint16 * dest = _lens + (_limits[(size_t)len - 1] >> (kNumBitsMax - kNumTableBits)) + (offset << (kNumTableBits - len));
 							for(uint32 k = 0; k < num; k++)
 								dest[k] = val;
@@ -5646,8 +5646,8 @@ namespace NCompress {
 						_symbols[offset] = (uint16)sym;
 						if(len <= kNumTableBits) {
 							offset -= _poses[len];
-							uint32 num = (uint32)1 << (kNumTableBits - len);
-							uint16 val = (uint16)((sym << kNumPairLenBits) | len);
+							uint32 num = (1U << (kNumTableBits - len));
+							uint16 val = static_cast<uint16>((sym << kNumPairLenBits) | len);
 							uint16 * dest = _lens + (_limits[(size_t)len - 1] >> (kNumBitsMax - kNumTableBits)) + (offset << (kNumTableBits - len));
 							for(uint32 k = 0; k < num; k++)
 								dest[k] = val;
@@ -8021,7 +8021,7 @@ namespace NCompress {
 				static void SetValue(bool byteMode, void * addr, uint32 value)
 				{
 					if(byteMode)
-						*(Byte*)addr = (Byte)value;
+						*(Byte *)addr = (Byte)value;
 					else
 						SetUi32(addr, value);
 				}

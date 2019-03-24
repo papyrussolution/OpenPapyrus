@@ -15,7 +15,7 @@ static int __db_quicksort __P((DB*, DBT*, DBT*, uint32*, uint32*, uint32*, uint3
  */
 int __db_compare_both(DB * db, const DBT * akey, const DBT * adata, const DBT * bkey, const DBT * bdata)
 {
-	BTREE * t = (BTREE *)db->bt_internal;
+	BTREE * t = static_cast<BTREE *>(db->bt_internal);
 	int cmp = t->bt_compare(db, akey, bkey);
 	if(cmp != 0) return cmp;
 	if(!F_ISSET(db, DB_AM_DUPSORT))

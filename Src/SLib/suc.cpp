@@ -121,7 +121,7 @@ int SLAPI SUnicodeTable::PreprocessLine(SString & rLine) const
 {
 	size_t comment_pos = 0;
 	rLine.Chomp();
-	if(rLine.StrChr('#', &comment_pos))
+	if(rLine.SearchChar('#', &comment_pos))
 		rLine.Trim(comment_pos);
 	return rLine.NotEmptyS();
 }

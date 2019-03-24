@@ -270,7 +270,7 @@ int SXml::WNode::Construct(xmlTextWriter * pWriter, const char * pName)
 
 //static
 int FASTCALL SXml::IsName(const xmlNode * pNode, const char * pName)
-	{ return BIN(pNode && sstreqi_ascii((const char *)pNode->name, pName)); }
+	{ return BIN(pNode && sstreqi_ascii(reinterpret_cast<const char *>(pNode->name), pName)); }
 //static
 int FASTCALL SXml::IsContent(const xmlNode * pNode, const char * pText)
 	{ return BIN(pNode && sstreqi_ascii((const char *)pNode->content, pText)); }
@@ -596,7 +596,7 @@ int XmlList::AddItem(const char * pName, XmlEntry::XET type, XmlList * pList)
 
 const XmlEntry * XmlList::GetItem(uint p) const
 {
-	return (p < getCount()) ? (const XmlEntry *)at(p) : 0;
+	return (p < getCount()) ? static_cast<const XmlEntry *>(at(p)) : 0;
 }
 
 class XmlWriter {
@@ -1245,7 +1245,7 @@ int SoapPacketStruc::Get(uint pos, SoapPacketItem & rItem) const
 	int    ok = 1;
 	rItem.Clear();
 	if(pos < getCount())
-		Helper_Get((InnerItem *)at(pos), rItem);
+		Helper_Get(static_cast<InnerItem *>(at(pos)), rItem);
 	else {
 		SString msg_buf;
 		msg_buf.Cat(pos);
@@ -1261,7 +1261,7 @@ int SoapPacketStruc::Get(const char * pName, SoapPacketItem & rItem) const
 	rItem.Clear();
 	if(R_R.GetStringPos(pName, &pos) > 0) {
 		for(uint i = 0; !ok && i < getCount(); i++) {
-			const InnerItem * p_item = (InnerItem *)at(i);
+			const InnerItem * p_item = static_cast<const InnerItem *>(at(i));
 			if(p_item->NameP == pos) {
 				Helper_Get(p_item, rItem);
 				ok = 1;
@@ -1420,7 +1420,7 @@ int SoapPacket::ParseType(SString & rTypeBuf, uint * pArraySize) const
 		if(rTypeBuf.Divide(':', temp_buf, right_buf) > 0)
 			rTypeBuf = right_buf;
 		size_t par_pos = 0;
-		const char * p_par = rTypeBuf.StrChr('[', &par_pos);
+		const char * p_par = rTypeBuf.SearchChar('[', &par_pos);
 		if(p_par) {
 			array_size = (uint)(temp_buf = (rTypeBuf+par_pos+1)).ToLong();
 			rTypeBuf.Trim(par_pos);
@@ -1645,7 +1645,7 @@ int SoapPacketStruc::ResolveRefs(const SoapPacketStruc & rResolveList)
 	R_R.GetString(RefP, struc_ref_buf);
 	R_R.GetString(TypeP, array_type_buf);
 	for(uint i = 0; i < getCount(); i++) {
-		SoapPacketStruc::InnerItem * p_item = (SoapPacketStruc::InnerItem *)at(i);
+		SoapPacketStruc::InnerItem * p_item = static_cast<SoapPacketStruc::InnerItem *>(at(i));
 		if(p_item->Flags & SOAPIF_ARRAY) {
 			assert(p_item->ValueP > 0 && p_item->ValueP < ArrList.getCount());
 			SoapPacketArray * p_array = ArrList.at(p_item->ValueP);

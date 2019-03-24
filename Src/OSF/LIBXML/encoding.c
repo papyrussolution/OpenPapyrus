@@ -150,7 +150,7 @@ static int UTF16LEToUTF8(uchar* out, int * outlen, const uchar* inb, int * inlen
 	uchar* outstart = out;
 	const uchar* processed = inb;
 	uchar* outend = out + *outlen;
-	ushort* in = (ushort*)inb;
+	ushort* in = (ushort *)inb;
 	ushort* inend;
 	uint c, d, inlen;
 	uchar * tmp;
@@ -575,7 +575,7 @@ int UTF8Toisolat1(uchar* out, int * outlen, const uchar* in, int * inlen)
 //
 static int UTF8ToUTF16LE(uchar* outb, int * outlen, const uchar* in, int * inlen)
 {
-	ushort* out = (ushort*)outb;
+	ushort* out = (ushort *)outb;
 	const uchar* processed = in;
 	const uchar * const instart = in;
 	ushort* outstart = out;
@@ -738,7 +738,7 @@ static int UTF16BEToUTF8(uchar* out, int * outlen, const uchar* inb, int * inlen
 	uchar* outstart = out;
 	const uchar* processed = inb;
 	uchar* outend = out + *outlen;
-	ushort* in = (ushort*)inb;
+	ushort* in = (ushort *)inb;
 	ushort* inend;
 	uint c, d, inlen;
 	uchar * tmp;
@@ -834,7 +834,7 @@ static int UTF16BEToUTF8(uchar* out, int * outlen, const uchar* inb, int * inlen
  */
 static int UTF8ToUTF16BE(uchar* outb, int * outlen, const uchar* in, int * inlen)
 {
-	ushort* out = (ushort*)outb;
+	ushort* out = (ushort *)outb;
 	const uchar* processed = in;
 	const uchar * const instart = in;
 	ushort* outstart = out;

@@ -50,7 +50,6 @@ public:
 	static ulong SLAPI IPToULong(const char * pIP);
 	static void  SLAPI ULongToIP(ulong ip, SString & rIP);
 	static int SLAPI GetNameByAddr(const char * pIP, SString & aHost);
-
 	SLAPI  InetAddr();
 	SLAPI  InetAddr(const InetAddr & rS);
 	InetAddr & FASTCALL operator = (const InetAddr & rS);
@@ -67,7 +66,7 @@ public:
 	int    SLAPI Set(ulong addr, int port = 0);
 	int    SLAPI Set(const char * pHostName, int port = 0);
 	int    SLAPI Set(const sockaddr_in *);
-	int    SLAPI SetPort(int port);
+	int    SLAPI SetPort_(int port);
 	sockaddr * SLAPI Get(sockaddr_in *) const;
 	SString & SLAPI ToStr(long flags /* InetAddr::fmtXXX */, SString & rBuf) const;
 	int    SLAPI FromStr(const char *);

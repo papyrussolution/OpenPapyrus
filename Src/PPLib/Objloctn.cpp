@@ -2352,7 +2352,7 @@ int SLAPI PPObjLocation::EditCreateWhLocParam(CreateWhLocParam * pParam)
 		CreateWhLocParamDialog() : TDialog(DLG_SELWZTYP)
 		{
 		}
-		int    setDTS(CreateWhLocParam * pData)
+		int    setDTS(const CreateWhLocParam * pData)
 		{
 			Data = *pData;
 			AddClusterAssocDef(CTL_SELWZTYP_WHAT, 0, LOCTYP_WHZONE);

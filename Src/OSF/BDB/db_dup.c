@@ -35,7 +35,7 @@ int __db_ditem_nolog(DBC * dbc, PAGE * pagep, uint32 indx, uint32 nbytes)
 	 * Pack the remaining key/data items at the end of the page.  Use
 	 * memmove(3), the regions may overlap.
 	 */
-	from = (uint8 *)pagep+HOFFSET(pagep);
+	from = reinterpret_cast<uint8 *>(pagep)+HOFFSET(pagep);
 	DB_ASSERT(dbp->env, inp[indx] >= HOFFSET(pagep));
 	memmove(from+nbytes, from, inp[indx]-HOFFSET(pagep));
 	HOFFSET(pagep) += nbytes;

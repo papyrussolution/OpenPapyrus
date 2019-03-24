@@ -1166,17 +1166,17 @@ uLong ZEXPORT crc32_combine64(uLong crc1, uLong crc2, z_off64_t len2)
 //
 // ZUTIL
 //
-z_const char * const z_errmsg[10] = {
-	(z_const char*)"need dictionary",  /* Z_NEED_DICT       2  */
-	(z_const char*)"stream end",       /* Z_STREAM_END      1  */
-	(z_const char*)"",                 /* Z_OK              0  */
-	(z_const char*)"file error",       /* Z_ERRNO         (-1) */
-	(z_const char*)"stream error",     /* Z_STREAM_ERROR  (-2) */
-	(z_const char*)"data error",       /* Z_DATA_ERROR    (-3) */
-	(z_const char*)"insufficient memory", /* Z_MEM_ERROR     (-4) */
-	(z_const char*)"buffer error",     /* Z_BUF_ERROR     (-5) */
-	(z_const char*)"incompatible version", /* Z_VERSION_ERROR (-6) */
-	(z_const char*)""
+const char * const z_errmsg[10] = {
+	"need dictionary",  /* Z_NEED_DICT       2  */
+	"stream end",       /* Z_STREAM_END      1  */
+	"",                 /* Z_OK              0  */
+	"file error",       /* Z_ERRNO         (-1) */
+	"stream error",     /* Z_STREAM_ERROR  (-2) */
+	"data error",       /* Z_DATA_ERROR    (-3) */
+	"insufficient memory", /* Z_MEM_ERROR     (-4) */
+	"buffer error",     /* Z_BUF_ERROR     (-5) */
+	"incompatible version", /* Z_VERSION_ERROR (-6) */
+	""
 };
 
 const char * ZEXPORT zlibVersion()
@@ -1352,7 +1352,7 @@ const char * ZEXPORT zError(int err)
 				*/
 				if(bsize < 65520L) {
 					buf = farmalloc(bsize);
-					if(*(ushort*)&buf != 0) return buf;
+					if(*(ushort *)&buf != 0) return buf;
 				}
 				else {
 					buf = farmalloc(bsize + 16L);
@@ -1361,8 +1361,8 @@ const char * ZEXPORT zError(int err)
 					return NULL;
 				table[next_ptr].org_ptr = buf;
 				/* Normalize the pointer to seg:0 */
-				*((ushort*)&buf+1) += ((ushort)((uchar *)buf-0) + 15) >> 4;
-				*(ushort*)&buf = 0;
+				*((ushort *)&buf+1) += ((ushort)((uchar *)buf-0) + 15) >> 4;
+				*(ushort *)&buf = 0;
 				table[next_ptr++].new_ptr = buf;
 				return buf;
 			}
@@ -1370,7 +1370,7 @@ const char * ZEXPORT zError(int err)
 			{
 				int n;
 				(void)opaque;
-				if(*(ushort*)&ptr != 0) { /* object < 64K */
+				if(*(ushort *)&ptr != 0) { /* object < 64K */
 					farfree(ptr);
 					return;
 				}
@@ -1457,7 +1457,7 @@ int ZEXPORT uncompress2(Bytef * dest, uLongf * destLen, const Bytef * source, uL
 		left = 1;
 		dest = buf;
 	}
-	stream.next_in = (z_const Bytef*)source;
+	stream.next_in = source;
 	stream.avail_in = 0;
 	stream.zalloc = (alloc_func)0;
 	stream.zfree = (free_func)0;
@@ -1787,7 +1787,7 @@ int ZEXPORT compress2(Bytef * dest, uLongf * destLen, const Bytef * source, uLon
 		return err;
 	stream.next_out = dest;
 	stream.avail_out = 0;
-	stream.next_in = (z_const Bytef*)source;
+	stream.next_in = source;
 	stream.avail_in = 0;
 	do {
 		if(stream.avail_out == 0) {
@@ -2004,7 +2004,7 @@ static size_t FASTCALL gz_write(gz_state * state, voidpc buf, size_t len)
 		if(state->strm.avail_in && gz_comp(state, Z_NO_FLUSH) == -1)
 			return 0;
 		// directly compress user buffer to file 
-		state->strm.next_in = (z_const Bytef*)buf;
+		state->strm.next_in = static_cast<const Bytef *>(buf);
 		do {
 			uint n = (uint)-1;
 			SETMIN(n, len);
@@ -3324,7 +3324,7 @@ const char * ZEXPORT gzerror(gzFile file, int * errnum)
 void ZEXPORT gzclearerr(gzFile file)
 {
 	if(file) { 
-		gz_state * state = (gz_state *)file; // get internal structure and check integrity 
+		gz_state * state = reinterpret_cast<gz_state *>(file); // get internal structure and check integrity 
 		if(state->mode == GZ_READ || state->mode == GZ_WRITE) {
 			// clear error and end-of-file 
 			if(state->mode == GZ_READ) {
@@ -3435,11 +3435,11 @@ int ZEXPORT inflateBackInit_(z_streamp strm, int windowBits, uchar  * window, co
 #else
 		strm->zfree = zcfree;
 #endif
-	state = (struct inflate_state *)ZLIB_ALLOC(strm, 1, sizeof(struct inflate_state));
+	state = static_cast<struct inflate_state *>(ZLIB_ALLOC(strm, 1, sizeof(struct inflate_state)));
 	if(state == Z_NULL) 
 		return Z_MEM_ERROR;
 	Tracev((stderr, "inflate: allocated\n"));
-	strm->state = (struct internal_state *)state;
+	strm->state = reinterpret_cast<struct internal_state *>(state);
 	state->dmax = 32768U;
 	state->wbits = (uInt)windowBits;
 	state->wsize = 1U << windowBits;
@@ -3548,14 +3548,14 @@ static void FASTCALL fixedtables(struct inflate_state * state)
 	do { \
 		PULL();	\
 		have--;	\
-		hold += (ulong)(*next++) << bits; \
+		hold += static_cast<ulong>(*next++) << bits; \
 		bits += 8; \
 	} while(0)
 // 
 // Assure that there are at least n bits in the bit accumulator.  If there is
 // not enough available input to do that, then return from inflateBack() with an error
 // 
-#define NEEDBITS(n) do { while(bits < (uint)(n)) PULLBYTE(); } while(0)
+#define NEEDBITS(n) do { while(bits < static_cast<uint>(n)) PULLBYTE(); } while(0)
 //
 // Return the low n bits of the bit accumulator (n < 16) 
 //
@@ -3614,7 +3614,7 @@ static void FASTCALL fixedtables(struct inflate_state * state)
 int ZEXPORT inflateBack(z_streamp strm, in_func in, void  * in_desc, out_func out, void  * out_desc)
 {
 	struct inflate_state  * state;
-	z_const uchar  * next; /* next input */
+	const uchar * next; /* next input */
 	uchar  * put; /* next output */
 	uint have, left;    /* available input and output */
 	ulong  hold;     /* bit buffer */
@@ -3629,7 +3629,7 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void  * in_desc, out_func ou
 	// Check that the strm exists and that the state was initialized 
 	if(strm == Z_NULL || strm->state == Z_NULL)
 		return Z_STREAM_ERROR;
-	state = (struct inflate_state *)strm->state;
+	state = reinterpret_cast<struct inflate_state *>(strm->state);
 	//
 	// Reset the state 
 	//
@@ -3638,7 +3638,7 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void  * in_desc, out_func ou
 	state->last = 0;
 	state->whave = 0;
 	next = strm->next_in;
-	have = next != Z_NULL ? strm->avail_in : 0;
+	have = (next != Z_NULL) ? strm->avail_in : 0;
 	hold = 0;
 	bits = 0;
 	put = state->window;
@@ -4095,7 +4095,7 @@ static const config configuration_table[10] = {
 // Initialize the hash table (avoiding 64K overflow for 16 bit systems).
 // prev[] will be initialized on the fly.
 // 
-#define CLEAR_HASH(s) s->head[s->hash_size-1] = NIL; memzero((Bytef*)s->head, (uint)(s->hash_size-1)*sizeof(*s->head));
+#define CLEAR_HASH(s) s->head[s->hash_size-1] = NIL; memzero(s->head, static_cast<uint>(s->hash_size-1)*sizeof(*s->head));
 // 
 // Slide the hash table when sliding the window down (could be avoided with 32
 // bit values at the expense of memory usage). We slide even when level == 0 to
@@ -4109,14 +4109,14 @@ static void FASTCALL slide_hash(deflate_state * s)
 	Posf * p = &s->head[n];
 	do {
 		m = *--p;
-		*p = (Pos)(m >= wsize ? m - wsize : NIL);
+		*p = static_cast<Pos>(m >= wsize ? m - wsize : NIL);
 	} while(--n);
 	n = wsize;
 #ifndef FASTEST
 	p = &s->prev[n];
 	do {
 		m = *--p;
-		*p = (Pos)(m >= wsize ? m - wsize : NIL);
+		*p = static_cast<Pos>(m >= wsize ? m - wsize : NIL);
 		// If n is not on any hash chain, prev[n] is garbage but its value will never be used.
 	} while(--n);
 #endif
@@ -4194,12 +4194,12 @@ int ZEXPORT deflateInit2_(z_streamp strm, int level, int method, int windowBits,
 	s->hash_size = 1 << s->hash_bits;
 	s->hash_mask = s->hash_size - 1;
 	s->hash_shift =  ((s->hash_bits+MIN_MATCH-1)/MIN_MATCH);
-	s->window = (Bytef*)ZLIB_ALLOC(strm, s->w_size, 2*sizeof(Byte));
-	s->prev   = (Posf*)ZLIB_ALLOC(strm, s->w_size, sizeof(Pos));
-	s->head   = (Posf*)ZLIB_ALLOC(strm, s->hash_size, sizeof(Pos));
+	s->window = static_cast<Bytef *>(ZLIB_ALLOC(strm, s->w_size, 2*sizeof(Byte)));
+	s->prev   = static_cast<Posf *>(ZLIB_ALLOC(strm, s->w_size, sizeof(Pos)));
+	s->head   = static_cast<Posf *>(ZLIB_ALLOC(strm, s->hash_size, sizeof(Pos)));
 	s->high_water = 0;  /* nothing written to s->window yet */
 	s->lit_bufsize = 1 << (memLevel + 6); /* 16K elements by default */
-	overlay = (ushort*)ZLIB_ALLOC(strm, s->lit_bufsize, sizeof(ushort)+2);
+	overlay = static_cast<ushort *>(ZLIB_ALLOC(strm, s->lit_bufsize, sizeof(ushort)+2));
 	s->pending_buf = (uchar *)overlay;
 	s->pending_buf_size = (ulong)s->lit_bufsize * (sizeof(ushort)+2L);
 	if(s->window == Z_NULL || s->prev == Z_NULL || s->head == Z_NULL ||
@@ -4240,7 +4240,7 @@ int ZEXPORT deflateSetDictionary(z_streamp strm, const Bytef * dictionary, uInt 
 	uInt str, n;
 	int wrap;
 	uint avail;
-	z_const uchar * next;
+	const uchar * next;
 	if(deflateStateCheck(strm) || dictionary == Z_NULL)
 		return Z_STREAM_ERROR;
 	s = strm->state;
@@ -4266,7 +4266,7 @@ int ZEXPORT deflateSetDictionary(z_streamp strm, const Bytef * dictionary, uInt 
 	avail = strm->avail_in;
 	next = strm->next_in;
 	strm->avail_in = dictLength;
-	strm->next_in = (z_const Bytef*)dictionary;
+	strm->next_in = dictionary;
 	fill_window(s);
 	while(s->lookahead >= MIN_MATCH) {
 		str = s->strstart;
@@ -4402,7 +4402,7 @@ int ZEXPORT deflatePrime(z_streamp strm, int bits, int value)
 		return Z_STREAM_ERROR;
 	else {
 		deflate_state * s = strm->state;
-		if((Bytef*)(s->d_buf) < s->pending_out + ((Buf_size + 7) >> 3))
+		if((Bytef *)(s->d_buf) < s->pending_out + ((Buf_size + 7) >> 3))
 			return Z_BUF_ERROR;
 		else {
 			do {
@@ -4899,10 +4899,10 @@ int ZEXPORT deflateCopy(z_streamp dest, z_streamp source)
 	memcpy((void *)ds, (void *)ss, sizeof(deflate_state));
 	ds->strm = dest;
 
-	ds->window = (Bytef*)ZLIB_ALLOC(dest, ds->w_size, 2*sizeof(Byte));
+	ds->window = static_cast<Bytef *>(ZLIB_ALLOC(dest, ds->w_size, 2*sizeof(Byte)));
 	ds->prev   = (Posf*)ZLIB_ALLOC(dest, ds->w_size, sizeof(Pos));
 	ds->head   = (Posf*)ZLIB_ALLOC(dest, ds->hash_size, sizeof(Pos));
-	overlay = (ushort*)ZLIB_ALLOC(dest, ds->lit_bufsize, sizeof(ushort)+2);
+	overlay = (ushort *)ZLIB_ALLOC(dest, ds->lit_bufsize, sizeof(ushort)+2);
 	ds->pending_buf = (uchar *)overlay;
 	if(ds->window == Z_NULL || ds->prev == Z_NULL || ds->head == Z_NULL ||
 	    ds->pending_buf == Z_NULL) {
@@ -4984,8 +4984,8 @@ static uInt FASTCALL longest_match(deflate_state * s, IPos cur_match)
 	// Compare two bytes at a time. Note: this is not always beneficial.
 	// Try with and without -DUNALIGNED_OK to check.
 	Bytef * strend = s->window + s->strstart + MAX_MATCH - 1;
-	ushort scan_start = *(ushort*)scan;
-	ushort scan_end   = *(ushort*)(scan+best_len-1);
+	ushort scan_start = *(ushort *)scan;
+	ushort scan_end   = *(ushort *)(scan+best_len-1);
 #else
 	Bytef * strend = s->window + s->strstart + MAX_MATCH;
 	Byte scan_end1  = scan[best_len-1];
@@ -5017,9 +5017,8 @@ static uInt FASTCALL longest_match(deflate_state * s, IPos cur_match)
 		/* This code assumes sizeof(ushort) == 2. Do not use
 		 * UNALIGNED_OK if your compiler uses a different size.
 		 */
-		if(*(ushort*)(match+best_len-1) != scan_end ||
-		    *(ushort*)match != scan_start) continue;
-
+		if(*(ushort *)(match+best_len-1) != scan_end || *(ushort *)match != scan_start) 
+			continue;
 		/* It is not necessary to compare scan[2] and match[2] since they are
 		 * always equal when the other bytes match, given that the hash keys
 		 * are equal and that HASH_BITS >= 8. Compare 2 bytes at a time at
@@ -5032,8 +5031,8 @@ static uInt FASTCALL longest_match(deflate_state * s, IPos cur_match)
 		Assert(scan[2] == match[2], "scan[2]?");
 		scan++, match++;
 		do {
-		} while(*(ushort*)(scan += 2) == *(ushort*)(match += 2) && *(ushort*)(scan += 2) == *(ushort*)(match += 2) &&
-		    *(ushort*)(scan += 2) == *(ushort*)(match += 2) && *(ushort*)(scan += 2) == *(ushort*)(match += 2) && scan < strend);
+		} while(*(ushort *)(scan += 2) == *(ushort *)(match += 2) && *(ushort *)(scan += 2) == *(ushort *)(match += 2) &&
+		    *(ushort *)(scan += 2) == *(ushort *)(match += 2) && *(ushort *)(scan += 2) == *(ushort *)(match += 2) && scan < strend);
 		/* The funny "do {}" generates better code on most compilers */
 
 		/* Here, scan <= window+strstart+257 */
@@ -5067,7 +5066,7 @@ static uInt FASTCALL longest_match(deflate_state * s, IPos cur_match)
 			if(len >= nice_match) 
 				break;
 #ifdef UNALIGNED_OK
-			scan_end = *(ushort*)(scan+best_len-1);
+			scan_end = *(ushort *)(scan+best_len-1);
 #else
 			scan_end1  = scan[best_len-1];
 			scan_end   = scan[best_len];
@@ -6572,7 +6571,7 @@ void ZLIB_INTERNAL _tr_stored_block(deflate_state * s, charf * buf, ulong stored
 	bi_windup(s);    /* align on byte boundary */
 	put_short(s, (ushort)stored_len);
 	put_short(s, (ushort) ~stored_len);
-	memcpy(s->pending_buf + s->pending, (Bytef*)buf, stored_len);
+	memcpy(s->pending_buf + s->pending, (Bytef *)buf, stored_len);
 	s->pending += stored_len;
 #ifdef ZLIB_DEBUG
 	s->compressed_len = (s->compressed_len + 3 + 7) & (ulong) ~7L;
@@ -6887,8 +6886,8 @@ void ZLIB_INTERNAL inflate_fast(z_streamp strm, uint start)
 	uchar  * from; /* where to copy match from */
 	// copy state to local variables 
 	struct inflate_state * state = (struct inflate_state *)strm->state;
-	z_const uchar  * in = strm->next_in; // local strm->next_in 
-	z_const uchar  * last = in + (strm->avail_in - 5); // have enough input while in < last 
+	const uchar  * in = strm->next_in; // local strm->next_in 
+	const uchar  * last = in + (strm->avail_in - 5); // have enough input while in < last 
 	uchar  * out = strm->next_out; // local strm->next_out 
 	uchar  * beg = out - (start - strm->avail_out); // inflate()'s initial strm->next_out 
 	uchar  * end = out + (strm->avail_out - 257);   // while out < end, enough space available 
@@ -7622,7 +7621,7 @@ static int updatewindow(z_streamp strm, const uchar * end, uint copy)
 int ZEXPORT inflate(z_streamp strm, int flush)
 {
 	struct inflate_state * state;
-	z_const uchar * next; // next input 
+	const uchar * next; // next input 
 	uchar  * put; // next output 
 	uint   have, left; // available input and output 
 	ulong  hold; // bit buffer 

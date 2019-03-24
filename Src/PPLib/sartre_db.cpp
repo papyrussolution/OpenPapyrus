@@ -3018,15 +3018,15 @@ void * SrDatabase::CreateStoreFiasAddrBlock()
 
 void SrDatabase::DestroyStoreFiasAddrBlock(void * pBlk)
 {
-	StoreFiasAddrBlock * p_blk = (StoreFiasAddrBlock *)pBlk;
+	StoreFiasAddrBlock * p_blk = static_cast<StoreFiasAddrBlock *>(pBlk);
 	if(p_blk && p_blk->Signature == StoreFiasAddrBlock::SignatureValue)
 		delete p_blk;
 }
 
 static IMPL_CMPFUNC(Sdr_FiasRawAddrObj_AOGUID_LIVESTATUS, p1, p2)
 {
-	const Sdr_FiasRawAddrObj * p_item1 = (const Sdr_FiasRawAddrObj *)p1;
-	const Sdr_FiasRawAddrObj * p_item2 = (const Sdr_FiasRawAddrObj *)p2;
+	const Sdr_FiasRawAddrObj * p_item1 = static_cast<const Sdr_FiasRawAddrObj *>(p1);
+	const Sdr_FiasRawAddrObj * p_item2 = static_cast<const Sdr_FiasRawAddrObj *>(p2);
 	int   s = memcmp(&p_item1->AOGUID, &p_item2->AOGUID, sizeof(p_item1->AOGUID));
 	SETIFZ(s, CMPSIGN(p_item2->LIVESTATUS, p_item1->LIVESTATUS)); // descending order
 	return s;

@@ -75,7 +75,7 @@ static CURLcode inflate_stream(struct connectdata * conn, struct SingleRequest *
 	int allow_restart = 1;
 	z_stream * z = &k->z;   /* zlib state structure */
 	uInt nread = z->avail_in;
-	Bytef * orig_in = z->next_in;
+	const Bytef * orig_in = z->next_in;
 	int status;             /* zlib status */
 	CURLcode result = CURLE_OK; /* Curl_client_write status */
 	char * decomp;          /* Put the decompressed data here. */
@@ -89,7 +89,7 @@ static CURLcode inflate_stream(struct connectdata * conn, struct SingleRequest *
 	   the client via client_write. */
 	for(;; ) {
 		/* (re)set buffer for decompressed output for every iteration */
-		z->next_out = (Bytef*)decomp;
+		z->next_out = (Bytef *)decomp;
 		z->avail_out = DSIZ;
 		status = inflate(z, Z_SYNC_FLUSH);
 		if(status == Z_OK || status == Z_STREAM_END) {
@@ -151,7 +151,7 @@ CURLcode Curl_unencode_deflate_write(struct connectdata * conn, struct SingleReq
 		k->zlib_init = ZLIB_INIT;
 	}
 	/* Set the compressed input when this function is called */
-	z->next_in = (Bytef*)k->str;
+	z->next_in = (Bytef *)k->str;
 	z->avail_in = (uInt)nread;
 	/* Now uncompress the data */
 	return inflate_stream(conn, k);
@@ -197,7 +197,6 @@ static enum {
 		len -= (extra_len + 2);
 		data += (extra_len + 2);
 	}
-
 	if(flags & ORIG_NAME) {
 		/* Skip over NUL-terminated file name */
 		while(len && *data) {
@@ -206,12 +205,10 @@ static enum {
 		}
 		if(!len || *data)
 			return GZIP_UNDERFLOW;
-
 		/* Skip over the NUL */
 		--len;
 		++data;
 	}
-
 	if(flags & COMMENT) {
 		/* Skip over NUL-terminated comment */
 		while(len && *data) {
@@ -220,18 +217,14 @@ static enum {
 		}
 		if(!len || *data)
 			return GZIP_UNDERFLOW;
-
 		/* Skip over the NUL */
 		--len;
 	}
-
 	if(flags & HEAD_CRC) {
 		if(len < 2)
 			return GZIP_UNDERFLOW;
-
 		len -= 2;
 	}
-
 	*headerlen = totallen - len;
 	return GZIP_OK;
 }
@@ -240,13 +233,11 @@ static enum {
 CURLcode Curl_unencode_gzip_write(struct connectdata * conn, struct SingleRequest * k, ssize_t nread)
 {
 	z_stream * z = &k->z;   /* zlib state structure */
-
 	/* Initialize zlib? */
 	if(k->zlib_init == ZLIB_UNINIT) {
 		memzero(z, sizeof(z_stream));
 		z->zalloc = (alloc_func)zalloc_cb;
 		z->zfree = (free_func)zfree_cb;
-
 		if(strcmp(zlibVersion(), "1.2.0.4") >= 0) {
 			/* zlib ver. >= 1.2.0.4 supports transparent gzip decompressing */
 			if(inflateInit2(z, MAX_WBITS+32) != Z_OK) {
@@ -265,7 +256,7 @@ CURLcode Curl_unencode_gzip_write(struct connectdata * conn, struct SingleReques
 
 	if(k->zlib_init == ZLIB_INIT_GZIP) {
 		/* Let zlib handle the gzip decompression entirely */
-		z->next_in = (Bytef*)k->str;
+		z->next_in = (Bytef *)k->str;
 		z->avail_in = (uInt)nread;
 		/* Now uncompress the data */
 		return inflate_stream(conn, k);
@@ -286,84 +277,73 @@ CURLcode Curl_unencode_gzip_write(struct connectdata * conn, struct SingleReques
 	 * This is only required with zlib versions < 1.2.0.4 as newer versions
 	 * can handle the gzip header themselves.
 	 */
-
 	switch(k->zlib_init) {
 		/* Skip over gzip header? */
 		case ZLIB_INIT:
 	    {
 		    /* Initial call state */
 		    ssize_t hlen;
-
 		    switch(check_gzip_header((uchar *)k->str, nread, &hlen)) {
 			    case GZIP_OK:
-				z->next_in = (Bytef*)k->str + hlen;
+				z->next_in = (Bytef *)k->str + hlen;
 				z->avail_in = (uInt)(nread - hlen);
 				k->zlib_init = ZLIB_GZIP_INFLATING; /* Inflating stream state */
 				break;
-
 			    case GZIP_UNDERFLOW:
-				/* We need more data so we can find the end of the gzip header.  It's
-				 * possible that the memory block we malloc here will never be freed if
-				 * the transfer abruptly aborts after this point.  Since it's unlikely
-				 * that circumstances will be right for this code path to be followed in
-				 * the first place, and it's even more unlikely for a transfer to fail
-				 * immediately afterwards, it should seldom be a problem.
-				 */
-				z->avail_in = (uInt)nread;
-				z->next_in = (Bytef *)SAlloc::M(z->avail_in);
+					/* We need more data so we can find the end of the gzip header.  It's
+					 * possible that the memory block we malloc here will never be freed if
+					 * the transfer abruptly aborts after this point.  Since it's unlikely
+					 * that circumstances will be right for this code path to be followed in
+					 * the first place, and it's even more unlikely for a transfer to fail
+					 * immediately afterwards, it should seldom be a problem.
+					 */
+					z->avail_in = (uInt)nread;
+					z->next_in = static_cast<Bytef *>(SAlloc::M(z->avail_in));
+					if(z->next_in == NULL) {
+						return exit_zlib(z, &k->zlib_init, CURLE_OUT_OF_MEMORY);
+					}
+					memcpy(const_cast<Bytef *>(z->next_in), k->str, z->avail_in);
+					k->zlib_init = ZLIB_GZIP_HEADER; /* Need more gzip header data state */
+					// We don't have any data to inflate yet 
+					return CURLE_OK;
+			    case GZIP_BAD:
+			    default:
+					return exit_zlib(z, &k->zlib_init, process_zlib_error(conn, z));
+		    }
+	    }
+	    break;
+		case ZLIB_GZIP_HEADER:
+			{
+				// Need more gzip header data state 
+				ssize_t hlen;
+				z->avail_in += static_cast<uInt>(nread);
+				z->next_in = static_cast<Bytef *>(Curl_saferealloc(const_cast<Bytef *>(z->next_in), z->avail_in));
 				if(z->next_in == NULL) {
 					return exit_zlib(z, &k->zlib_init, CURLE_OUT_OF_MEMORY);
 				}
-				memcpy(z->next_in, k->str, z->avail_in);
-				k->zlib_init = ZLIB_GZIP_HEADER; /* Need more gzip header data state */
-				/* We don't have any data to inflate yet */
-				return CURLE_OK;
-
-			    case GZIP_BAD:
-			    default:
-				return exit_zlib(z, &k->zlib_init, process_zlib_error(conn, z));
-		    }
-	    }
-	    break;
-
-		case ZLIB_GZIP_HEADER:
-	    {
-		    /* Need more gzip header data state */
-		    ssize_t hlen;
-		    z->avail_in += (uInt)nread;
-		    z->next_in = (Bytef *)Curl_saferealloc(z->next_in, z->avail_in);
-		    if(z->next_in == NULL) {
-			    return exit_zlib(z, &k->zlib_init, CURLE_OUT_OF_MEMORY);
-		    }
-		    /* Append the new block of data to the previous one */
-		    memcpy(z->next_in + z->avail_in - nread, k->str, nread);
-
-		    switch(check_gzip_header(z->next_in, z->avail_in, &hlen)) {
-			    case GZIP_OK:
-				/* This is the zlib stream data */
-				SAlloc::F(z->next_in);
-				/* Don't point into the malloced block since we just freed it */
-				z->next_in = (Bytef*)k->str + hlen + nread - z->avail_in;
-				z->avail_in = (uInt)(z->avail_in - hlen);
-				k->zlib_init = ZLIB_GZIP_INFLATING; /* Inflating stream state */
-				break;
-
-			    case GZIP_UNDERFLOW:
-				/* We still don't have any data to inflate! */
-				return CURLE_OK;
-
-			    case GZIP_BAD:
-			    default:
-				SAlloc::F(z->next_in);
-				return exit_zlib(z, &k->zlib_init, process_zlib_error(conn, z));
-		    }
-	    }
-	    break;
-
+				/* Append the new block of data to the previous one */
+				memcpy(const_cast<Bytef *>(z->next_in) + z->avail_in - nread, k->str, nread);
+				switch(check_gzip_header(z->next_in, z->avail_in, &hlen)) {
+					case GZIP_OK:
+						SAlloc::F(const_cast<Bytef *>(z->next_in)); // This is the zlib stream data 
+						// Don't point into the malloced block since we just freed it 
+						z->next_in = (Bytef *)k->str + hlen + nread - z->avail_in;
+						z->avail_in = (uInt)(z->avail_in - hlen);
+						k->zlib_init = ZLIB_GZIP_INFLATING; /* Inflating stream state */
+						break;
+					case GZIP_UNDERFLOW:
+						return CURLE_OK; // We still don't have any data to inflate! 
+					case GZIP_BAD:
+					default:
+						SAlloc::F(const_cast<Bytef *>(z->next_in));
+						return exit_zlib(z, &k->zlib_init, process_zlib_error(conn, z));
+				}
+			}
+			break;
 		case ZLIB_GZIP_INFLATING:
 		default:
 		    /* Inflating stream state */
-		    z->next_in = (Bytef*)k->str;
+		    z->next_in = (Bytef *)k->str;
 		    z->avail_in = (uInt)nread;
 		    break;
 	}

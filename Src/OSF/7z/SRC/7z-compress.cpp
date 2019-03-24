@@ -24,7 +24,7 @@ namespace NCompress {
 		const uint64 * /* inSize */, const uint64 * outSize, ICompressProgressInfo * progress)
 	{
 		if(!_buf) {
-			_buf = (Byte*)::MidAlloc(kBufSize);
+			_buf = (Byte *)::MidAlloc(kBufSize);
 			if(!_buf)
 				return E_OUTOFMEMORY;
 		}
@@ -321,7 +321,7 @@ namespace NCompress {
 						_bufs[i] = 0;
 					}
 					_bufsCurSizes[i] = 0;
-					Byte * buf = (Byte*)::MidAlloc(newSize);
+					Byte * buf = (Byte *)::MidAlloc(newSize);
 					_bufs[i] = buf;
 					if(!buf)
 						return E_OUTOFMEMORY;
@@ -720,7 +720,7 @@ namespace NCompress {
 				uint64 rem = _outSize - _outSize_Processed;
 				SETMIN(size, (uint32)rem);
 			}
-			dec.dest = (Byte*)data;
+			dec.dest = (Byte *)data;
 			dec.destLim = (const Byte*)data + size;
 			HRESULT res = S_OK;
 			for(;; ) {
@@ -728,11 +728,11 @@ namespace NCompress {
 				if(sres != SZ_OK)
 					return S_FALSE;
 				{
-					uint32 curSize = (uint32)(dec.dest - (Byte*)data);
+					uint32 curSize = (uint32)(dec.dest - (Byte *)data);
 					if(curSize != 0) {
 						totalProcessed += curSize;
 						ASSIGN_PTR(processedSize, totalProcessed);
-						data = (void *)((Byte*)data + curSize);
+						data = (void *)((Byte *)data + curSize);
 						size -= curSize;
 						_outSize_Processed += curSize;
 					}

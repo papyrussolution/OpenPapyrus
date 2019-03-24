@@ -39,7 +39,7 @@ AccTurnDialog::AccTurnDialog(uint rezID, PPObjBill * pBObj) : TDialog(rezID), P_
 	setDTS(0, 0);
 }
 
-int AccTurnDialog::setDTS(PPAccTurn * pData, PPBillPacket * pPack, long templFlags)
+int AccTurnDialog::setDTS(const PPAccTurn * pData, PPBillPacket * pPack, long templFlags)
 {
 	int    ok = 1;
 	PPID   temp_acc_id;
@@ -1365,7 +1365,7 @@ int SLAPI PPLinkFilesArray::WriteToProp(PPID billID, int useTa)
 			_e.ItemsCount = getCount();
 			_e.Size = sizeof(_e);
 			for(uint i = 0; i < (uint)_e.ItemsCount; i++)
-				_e.Size += (int16)at(i)->Size();
+				_e.Size += static_cast<int16>(at(i)->Size());
 			sz = MAX(PROPRECFIXSIZE, _e.Size);
 			THROW_MEM(p_buf = new char[sz]);
 			memzero(p_buf, sz);
@@ -1536,7 +1536,7 @@ int LinkFilesDialog::addItem(long * pPos, long * pID)
 		ext_list.GetText(sel_id, ext);
 		THROW(LinksAry.AddNewByExt(ext, descr, &pos) > 0);
 		if((ok = LinksAry.Edit(pos)) > 0) {
-			ASSIGN_PTR(pPos, (long)pos);
+			ASSIGN_PTR(pPos, static_cast<long>(pos));
 			ASSIGN_PTR(pID, LinksAry.at(pos)->Id);
 		}
 	}
@@ -3574,7 +3574,7 @@ int PaymPlanDialog::addItem(long * pPos, long * pID)
 	if(EditPaymPlanItem(P_Pack, &item) > 0)
 		if(Data.Update(&item, &pos)) {
 			ASSIGN_PTR(pID, (long)item.PayDate);
-			ASSIGN_PTR(pPos, (long)pos);
+			ASSIGN_PTR(pPos, static_cast<long>(pos));
 			ok = 1;
 		}
 		else

@@ -183,7 +183,7 @@ typedef union {
 cairo_private cairo_pattern_t * FASTCALL _cairo_pattern_create_in_error(cairo_status_t status);
 cairo_private cairo_status_t _cairo_pattern_create_copy(cairo_pattern_t ** pattern, const cairo_pattern_t * other);
 cairo_private void FASTCALL _cairo_pattern_init(cairo_pattern_t * pattern, cairo_pattern_type_t type);
-cairo_private cairo_status_t _cairo_pattern_init_copy(cairo_pattern_t * pattern, const cairo_pattern_t * other);
+cairo_private cairo_status_t FASTCALL _cairo_pattern_init_copy(cairo_pattern_t * pattern, const cairo_pattern_t * other);
 cairo_private void FASTCALL _cairo_pattern_init_static_copy(cairo_pattern_t * pattern, const cairo_pattern_t * other);
 cairo_private cairo_status_t FASTCALL _cairo_pattern_init_snapshot(cairo_pattern_t * pattern, const cairo_pattern_t * other);
 cairo_private void FASTCALL _cairo_pattern_init_solid(cairo_solid_pattern_t * pattern, const cairo_color_t * color);

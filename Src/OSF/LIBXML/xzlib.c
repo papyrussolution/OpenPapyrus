@@ -247,16 +247,14 @@ static int xz_avail_zstrm(xz_statep state)
 	state->strm.next_in = state->zstrm.next_in;
 	ret = xz_avail(state);
 	state->zstrm.avail_in = (uInt)state->strm.avail_in;
-	state->zstrm.next_in = (Bytef*)state->strm.next_in;
+	state->zstrm.next_in = static_cast<Bytef *>(state->strm.next_in);
 	return ret;
 }
-
 #endif
 
 static int is_format_xz(xz_statep state)
 {
 	lzma_stream * strm = &(state->strm);
-
 	return strm->avail_in >= 6 && memcmp(state->in, "\3757zXZ", 6) == 0;
 }
 
@@ -515,9 +513,9 @@ static int xz_decomp(xz_statep state)
 #ifdef HAVE_ZLIB_H
 		if(state->how == GZIP) {
 			state->zstrm.avail_in = (uInt)state->strm.avail_in;
-			state->zstrm.next_in = (Bytef*)state->strm.next_in;
+			state->zstrm.next_in = (Bytef *)state->strm.next_in;
 			state->zstrm.avail_out = (uInt)state->strm.avail_out;
-			state->zstrm.next_out = (Bytef*)state->strm.next_out;
+			state->zstrm.next_out = (Bytef *)state->strm.next_out;
 			ret = inflate(&state->zstrm, Z_NO_FLUSH);
 			if(ret == Z_STREAM_ERROR || ret == Z_NEED_DICT) {
 				xz_error(state, Z_STREAM_ERROR,

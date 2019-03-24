@@ -1235,7 +1235,7 @@ void /* PRIVATE */ png_handle_iCCP(png_structrp png_ptr, png_inforp info_ptr, ui
 					Byte local_buffer[PNG_INFLATE_BUF_SIZE];
 					png_alloc_size_t size = (sizeof profile_header);
 
-					png_ptr->zstream.next_in = (Bytef*)keyword + (keyword_length+2);
+					png_ptr->zstream.next_in = (Bytef *)keyword + (keyword_length+2);
 					png_ptr->zstream.avail_in = read_length;
 					(void)png_inflate_read(png_ptr, local_buffer,
 					    (sizeof local_buffer), &length, profile_header, &size,

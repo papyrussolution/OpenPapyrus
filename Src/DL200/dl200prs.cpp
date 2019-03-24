@@ -171,9 +171,7 @@ public:
 			GgList.Set(0);
 			THROW(ResolveGoodsGroupList(rS.GoodsGrpListID, GgList));
 		}
-		CATCH
-			ok = 0;
-		ENDCATCH
+		CATCHZOK
 		return ok;
 	}
 	virtual DL2_CI * Resolve(const DL2_Score & rS)

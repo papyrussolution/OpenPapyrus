@@ -630,14 +630,15 @@ int STimeChunkBrowser::RestoreParameters(STimeChunkBrowser::Param & rParam)
 {
 	int    ok = -1;
 	if(rParam.RegSaveParam.NotEmpty()) {
-		char   val[512];
+		//char   val[512];
+		SString val_buf;
 		StrAssocArray param_list;
 		SString temp_buf, sub_key, left, right;
 		MakeParamKeyList(param_list);
 		(sub_key = "Software").SetLastSlash().Cat(SLS.GetAppName()).SetLastSlash().Cat("STimeChunkBrowser");
 		WinRegKey reg_key(HKEY_CURRENT_USER, sub_key, 1); // @v9.2.0 readonly 0-->1
-		if(reg_key.GetString(rParam.RegSaveParam, val, sizeof(val)) > 0) {
-			SStrScan scan(val);
+		if(reg_key.GetString(rParam.RegSaveParam, val_buf) > 0) {
+			SStrScan scan(val_buf);
 			while(scan.SearchChar(';')) {
 				scan.Get(temp_buf);
 				scan.IncrLen(1 /* character ';' */);
@@ -2459,7 +2460,7 @@ void STimeChunkBrowser::Paint()
 			canv.SetBkColor(Ptb.GetColor((!hinterlace || (i % 2)) ? colorMain : colorInterleave));
 			temp_buf.Z().Cat(encodetime(i, 0, 0, 0), TIMF_HM);
 			TRect tr(x + 5, y + 2, x + a2.Right.b.x - 5, y + a2.PixPerHour - 2);
-			canv.DrawText(tr, temp_buf, DT_LEFT | DT_END_ELLIPSIS);
+			canv.DrawText_(tr, temp_buf, DT_LEFT | DT_END_ELLIPSIS);
 			y += a2.PixPerHour;
 		}
 		//
@@ -2493,7 +2494,7 @@ void STimeChunkBrowser::Paint()
 					GetDayOfWeekText(4, dayofweek(&dt, 1), dow_buf);
 					temp_buf.Z().Cat(dt, DATF_DMY).Space().Cat(dow_buf);
 					TRect tr(x - a2.PixQuant + 2, y + 2, x - 2, y + P.HdrLevelHeight - 2);
-					canv.DrawText(tr, temp_buf, DT_CENTER|DT_END_ELLIPSIS);
+					canv.DrawText_(tr, temp_buf, DT_CENTER|DT_END_ELLIPSIS);
 				}
 			}
 			else
@@ -2543,7 +2544,7 @@ void STimeChunkBrowser::Paint()
 					TRect tr = r_sr;
 					tr.setmarginx(2);
 					tr.setmarginy(1);
-					canv.DrawText(tr, temp_buf, DT_LEFT|DT_END_ELLIPSIS);
+					canv.DrawText_(tr, temp_buf, DT_LEFT|DT_END_ELLIPSIS);
 				}
 			}
 			DrawMoveSpot(canv, move_spot);
@@ -2644,7 +2645,7 @@ void STimeChunkBrowser::Paint()
 								else
 									temp_buf.Z().Cat(dtm.t, (unit % 60) ? TIMF_HMS : TIMF_HM);
 								TRect tr(x+2, y - P.HdrLevelHeight*5/6, left_edge + SecToPix(s+unit), y);
-								canv.DrawText(tr, temp_buf, DT_LEFT|DT_END_ELLIPSIS);
+								canv.DrawText_(tr, temp_buf, DT_LEFT|DT_END_ELLIPSIS);
 							}
 							{
 								HGDIOBJ h_brush = (dtm.d != prev_date /*dtm.t == ZEROTIME || dtm.t == encodetime(24, 0, 0, 0)*/) ?
@@ -2709,7 +2710,7 @@ void STimeChunkBrowser::Paint()
 						GetDayOfWeekText(4, dayofweek(&dt, 1), dow_buf);
 						temp_buf.Z().Cat(dt, DATF_DMY).Space().Cat(dow_buf);
 						TRect tr(x+2, y - P.HdrLevelHeight*5/6, left_edge + SecToPix(s+unit), y);
-						canv.DrawText(tr, temp_buf, DT_LEFT | DT_END_ELLIPSIS);
+						canv.DrawText_(tr, temp_buf, DT_LEFT | DT_END_ELLIPSIS);
 						{
 							canv.SelectObjectAndPush(Ptb.Get(penDaySeparator));
 							canv.LineVert(x, y, a2.Right.b.y);
@@ -2728,7 +2729,7 @@ void STimeChunkBrowser::Paint()
 					else
 						temp_buf.Z().Cat(prev_dtm.t, (unit % 60) ? TIMF_HMS : TIMF_HM);
 					TRect tr(left_edge+2, y - P.HdrLevelHeight*5/6, first_x-2, y);
-					canv.DrawText(tr, temp_buf, DT_LEFT|DT_END_ELLIPSIS);
+					canv.DrawText_(tr, temp_buf, DT_LEFT|DT_END_ELLIPSIS);
 				}
 				//
 				// }
@@ -2771,7 +2772,7 @@ void STimeChunkBrowser::Paint()
 				rect.setwidth(a2.Left);
 				if(P_Data->GetText(STimeChunkGrid::iRow, p_row->Id, temp_buf) > 0) {
 					rect.setheightrel(upp_edge + P.PixRowMargin, row_full_height - P.PixRowMargin);
-					canv.DrawText(rect, temp_buf.Transf(CTRANSF_INNER_TO_OUTER), DT_LEFT|DT_VCENTER|DT_END_ELLIPSIS);
+					canv.DrawText_(rect, temp_buf.Transf(CTRANSF_INNER_TO_OUTER), DT_LEFT|DT_VCENTER|DT_END_ELLIPSIS);
 				}
 				if(St.Rsz.Kind == ResizeState::kRowHeight && p_row->Id == St.Rsz.RowId) {
 					move_rect.setheightrel(upp_edge, row_full_height + St.Rsz.Shift);
@@ -2848,7 +2849,7 @@ void STimeChunkBrowser::Paint()
 					TRect tr = r_sr;
 					tr.setmarginx(2);
 					tr.setmarginy(1);
-					canv.DrawText(tr, temp_buf, DT_LEFT | DT_END_ELLIPSIS);
+					canv.DrawText_(tr, temp_buf, DT_LEFT | DT_END_ELLIPSIS);
 				}
 				if(St.Rsz.ChunkId == r_sr.C.Id) {
 					if(oneof2(St.Rsz.Kind, ResizeState::kChunkRight, ResizeState::kChunkLeft)) {

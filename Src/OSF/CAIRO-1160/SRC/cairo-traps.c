@@ -41,7 +41,7 @@
 //#include "cairo-box-inline.h"
 //#include "cairo-boxes-private.h"
 //#include "cairo-error-private.h"
-#include "cairo-line-private.h"
+//#include "cairo-line-private.h"
 //#include "cairo-region-private.h"
 //#include "cairo-slope-private.h"
 //#include "cairo-traps-private.h"
@@ -49,7 +49,7 @@
 
 /* private functions */
 
-void _cairo_traps_init(cairo_traps_t * traps)
+void FASTCALL _cairo_traps_init(cairo_traps_t * traps)
 {
 	VG(VALGRIND_MAKE_MEM_UNDEFINED(traps, sizeof(cairo_traps_t)));
 	traps->status = CAIRO_STATUS_SUCCESS;
@@ -107,12 +107,12 @@ static cairo_bool_t _cairo_traps_grow(cairo_traps_t * traps)
 		return FALSE;
 	}
 	if(traps->traps == traps->traps_embedded) {
-		new_traps = (cairo_trapezoid_t *)_cairo_malloc_ab(new_size, sizeof(cairo_trapezoid_t));
+		new_traps = static_cast<cairo_trapezoid_t *>(_cairo_malloc_ab(new_size, sizeof(cairo_trapezoid_t)));
 		if(new_traps != NULL)
 			memcpy(new_traps, traps->traps, sizeof(traps->traps_embedded));
 	}
 	else {
-		new_traps = (cairo_trapezoid_t *)_cairo_realloc_ab(traps->traps, new_size, sizeof(cairo_trapezoid_t));
+		new_traps = static_cast<cairo_trapezoid_t *>(_cairo_realloc_ab(traps->traps, new_size, sizeof(cairo_trapezoid_t)));
 	}
 	if(unlikely(new_traps == NULL)) {
 		traps->status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -123,9 +123,8 @@ static cairo_bool_t _cairo_traps_grow(cairo_traps_t * traps)
 	return TRUE;
 }
 
-void _cairo_traps_add_trap(cairo_traps_t * traps, cairo_fixed_t top, cairo_fixed_t bottom, const cairo_line_t * left, const cairo_line_t * right)
+void FASTCALL _cairo_traps_add_trap(cairo_traps_t * traps, cairo_fixed_t top, cairo_fixed_t bottom, const cairo_line_t * left, const cairo_line_t * right)
 {
-	cairo_trapezoid_t * trap;
 	assert(left->p1.y != left->p2.y);
 	assert(right->p1.y != right->p2.y);
 	assert(bottom > top);
@@ -133,14 +132,14 @@ void _cairo_traps_add_trap(cairo_traps_t * traps, cairo_fixed_t top, cairo_fixed
 		if(unlikely(!_cairo_traps_grow(traps)))
 			return;
 	}
-	trap = &traps->traps[traps->num_traps++];
+	cairo_trapezoid_t * trap = &traps->traps[traps->num_traps++];
 	trap->top = top;
 	trap->bottom = bottom;
 	trap->left = *left;
 	trap->right = *right;
 }
 
-static void _cairo_traps_add_clipped_trap(cairo_traps_t * traps, cairo_fixed_t _top, cairo_fixed_t _bottom,
+static void FASTCALL _cairo_traps_add_clipped_trap(cairo_traps_t * traps, cairo_fixed_t _top, cairo_fixed_t _bottom,
     const cairo_line_t * _left, const cairo_line_t * _right)
 {
 	/* Note: With the goofy trapezoid specification, (where an
@@ -199,8 +198,8 @@ static void _cairo_traps_add_clipped_trap(cairo_traps_t * traps, cairo_fixed_t _
 
 static int _compare_point_fixed_by_y(const void * av, const void * bv)
 {
-	const cairo_point_t * a = (const cairo_point_t *)av;
-	const cairo_point_t * b = (const cairo_point_t *)bv;
+	const cairo_point_t * a = static_cast<const cairo_point_t *>(av);
+	const cairo_point_t * b = static_cast<const cairo_point_t *>(bv);
 	int ret = a->y - b->y;
 	if(ret == 0)
 		ret = a->x - b->x;
@@ -342,32 +341,24 @@ void _cairo_traps_tessellate_convex_quad(cairo_traps_t * traps, const cairo_poin
 	}
 }
 
-static void add_tri(cairo_traps_t * traps,
-    int y1, int y2,
-    const cairo_line_t * left,
-    const cairo_line_t * right)
+static void FASTCALL add_tri(cairo_traps_t * traps, int y1, int y2, const cairo_line_t * left, const cairo_line_t * right)
 {
 	if(y2 < y1) {
 		int tmp = y1;
 		y1 = y2;
 		y2 = tmp;
 	}
-
 	if(cairo_lines_compare_at_y(left, right, y1) > 0) {
 		const cairo_line_t * tmp = left;
 		left = right;
 		right = tmp;
 	}
-
 	_cairo_traps_add_clipped_trap(traps, y1, y2, left, right);
 }
 
-void _cairo_traps_tessellate_triangle_with_edges(cairo_traps_t * traps,
-    const cairo_point_t t[3],
-    const cairo_point_t edges[4])
+void _cairo_traps_tessellate_triangle_with_edges(cairo_traps_t * traps, const cairo_point_t t[3], const cairo_point_t edges[4])
 {
 	cairo_line_t lines[3];
-
 	if(edges[0].y <= edges[1].y) {
 		lines[0].p1 = edges[0];
 		lines[0].p2 = edges[1];
@@ -376,7 +367,6 @@ void _cairo_traps_tessellate_triangle_with_edges(cairo_traps_t * traps,
 		lines[0].p1 = edges[1];
 		lines[0].p2 = edges[0];
 	}
-
 	if(edges[2].y <= edges[3].y) {
 		lines[1].p1 = edges[2];
 		lines[1].p2 = edges[3];
@@ -385,12 +375,10 @@ void _cairo_traps_tessellate_triangle_with_edges(cairo_traps_t * traps,
 		lines[1].p1 = edges[3];
 		lines[1].p2 = edges[2];
 	}
-
 	if(t[1].y == t[2].y) {
 		add_tri(traps, t[0].y, t[1].y, &lines[0], &lines[1]);
 		return;
 	}
-
 	if(t[1].y <= t[2].y) {
 		lines[2].p1 = t[1];
 		lines[2].p2 = t[2];
@@ -399,7 +387,6 @@ void _cairo_traps_tessellate_triangle_with_edges(cairo_traps_t * traps,
 		lines[2].p1 = t[2];
 		lines[2].p2 = t[1];
 	}
-
 	if(((t[1].y - t[0].y) < 0) ^ ((t[2].y - t[0].y) < 0)) {
 		add_tri(traps, t[0].y, t[1].y, &lines[0], &lines[2]);
 		add_tri(traps, t[0].y, t[2].y, &lines[1], &lines[2]);

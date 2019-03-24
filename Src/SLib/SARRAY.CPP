@@ -257,15 +257,6 @@ int SLAPI SVectorBase::insertChunk(uint numItemsToInsert, const void * pItems)
 	return ok;
 }
 
-/*int FASTCALL SVectorBase::checkIndex(uint idx) const
-{
-	return
-}
-
-int FASTCALL SVectorBase::checkIndex(long idx) const
-{
-}*/
-
 uint FASTCALL SVectorBase::setPointer(uint p)
 {
 	uint prev = pointer;
@@ -292,7 +283,6 @@ uint   SLAPI SVectorBase::getFlags() const { return VFlags; }
 void   SLAPI SVectorBase::setFlag(uint val, int set) { SETFLAG(VFlags, val, set); }
 uint   SLAPI SVectorBase::incPointer() { return pointer++; }
 void * SLAPI SVectorBase::dataPtr() const { return P_VData; }
-//void   SLAPI SVectorBase::setLimit(uint aLimit) { Limit = aLimit; }
 
 void * FASTCALL SVectorBase::at(uint idx) const
 {
@@ -4070,17 +4060,20 @@ int SLAPI TestSTree()
 		SFile f_sa("test_stree_sa.txt", SFile::mWrite);
 		SFile f_tree("test_stree_tree.txt", SFile::mWrite);
 		for(STree::Iter iter; tree.Enum(iter);) {
-			long id = *static_cast<const long *>(iter.GetData());
-			long parent_id_sa = 0;
-			long parent_id_tree = 0;
-			void * p_parent = tree.GetData(iter.GetParentPos());
-			if(p_parent)
-				parent_id_tree = *static_cast<const long *>(p_parent);
-			sa_list.GetText(id, text_buf);
-			sa_list.GetParent(id, &parent_id_sa);
+			const void * p_data = iter.GetData();
+			if(p_data) {
+				long id = *static_cast<const long *>(p_data);
+				long parent_id_sa = 0;
+				long parent_id_tree = 0;
+				void * p_parent = tree.GetData(iter.GetParentPos());
+				if(p_parent)
+					parent_id_tree = *static_cast<const long *>(p_parent);
+				sa_list.GetText(id, text_buf);
+				sa_list.GetParent(id, &parent_id_sa);
 
-			f_tree.WriteLine(out_buf.Z().Cat(id).CatDiv(';', 2).Cat(parent_id_tree).CatDiv(';', 2).Cat(text_buf).CR());
-			f_sa.WriteLine(out_buf.Z().Cat(id).CatDiv(';', 2).Cat(parent_id_sa).CatDiv(';', 2).Cat(text_buf).CR());
+				f_tree.WriteLine(out_buf.Z().Cat(id).CatDiv(';', 2).Cat(parent_id_tree).CatDiv(';', 2).Cat(text_buf).CR());
+				f_sa.WriteLine(out_buf.Z().Cat(id).CatDiv(';', 2).Cat(parent_id_sa).CatDiv(';', 2).Cat(text_buf).CR());
+			}
 		}
 
 	}
@@ -4193,7 +4186,7 @@ SLTEST_FIXTURE(SArray, TestFixtureSArray)
 				if(*(long *)p_list->at(i) > *(long *)p_list->at(i+1))
 					sorted = 0;
 			}
-			SLTEST_CHECK_EQ(sorted, (long)0);
+			SLTEST_CHECK_EQ(sorted, 0L);
 		}
 		//
 		// Теперь сортируем список p_list методом sort2 и тестируем правильность сортировки
@@ -4319,7 +4312,7 @@ SLTEST_FIXTURE(SVector, TestFixtureSArray)
 				if(*(long *)p_list->at(i) > *(long *)p_list->at(i+1))
 					sorted = 0;
 			}
-			SLTEST_CHECK_EQ(sorted, (long)0);
+			SLTEST_CHECK_EQ(sorted, 0L);
 		}
 		//
 		// Теперь сортируем список p_list методом sort2 и тестируем правильность сортировки

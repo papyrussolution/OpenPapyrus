@@ -890,7 +890,7 @@ static int __bam_merge_records(DBC * dbc, DBC * ndbc, uint32 factor, DB_COMPACT 
 
 	dbp = dbc->dbp;
 	env = dbp->env;
-	t = (BTREE *)dbp->bt_internal;
+	t = static_cast<BTREE *>(dbp->bt_internal);
 	cp = (BTREE_CURSOR *)dbc->internal;
 	ncp = (BTREE_CURSOR *)ndbc->internal;
 	pg = cp->csp->page;
@@ -1765,7 +1765,7 @@ static int __bam_compact_isdone(DBC * dbc, DBT * stop, PAGE * pg, int * isdone)
 	int cmp, ret;
 	*isdone = 0;
 	cp = (BTREE_CURSOR *)dbc->internal;
-	t = (BTREE *)dbc->dbp->bt_internal;
+	t = static_cast<BTREE *>(dbc->dbp->bt_internal);
 	if(dbc->dbtype == DB_RECNO) {
 		if((ret = __ram_getno(dbc, stop, &recno, 0)) != 0)
 			return ret;
@@ -1981,7 +1981,7 @@ int __bam_truncate_ipages(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_COMPAC
 	level = LEAFLEVEL+1;
 	sflag = CS_READ|CS_GETRECNO;
 	LOCK_INIT(meta_lock);
-	bt = (BTREE *)dbp->bt_internal;
+	bt = static_cast<BTREE *>(dbp->bt_internal);
 	meta = NULL;
 	root = NULL;
 new_txn:
@@ -2114,7 +2114,7 @@ again:
 			goto again;
 		}
 		if(PGNO(meta) > c_data->compact_truncate) {
-			dbmeta = (DBMETA *)meta;
+			dbmeta = reinterpret_cast<DBMETA *>(meta);
 			ret = __db_move_metadata(dbc, &dbmeta, c_data);
 			meta = (BTMETA *)dbmeta;
 			if(ret != 0)

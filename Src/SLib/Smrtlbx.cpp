@@ -856,7 +856,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			Scroll(LOWORD(wParam), static_cast<int16>(HIWORD(wParam)));
 			break;
 		case WM_NOTIFY:
-			NMHDR * p_nm = reinterpret_cast<LPNMHDR>(lParam);
+			const NMHDR * p_nm = reinterpret_cast<const NMHDR *>(lParam);
 			/* @construction
 			if(p_nm->code == LVN_BEGINDRAG) {
 				NMLISTVIEW * p_nmlv = (NMLISTVIEW *)lParam;
@@ -1233,7 +1233,7 @@ BOOL CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
 	switch(uMsg) {
 		case WM_INITDIALOG:
 			{
-				TView::SetWindowUserData(hwndDlg, (void *)lParam);
+				TView::SetWindowUserData(hwndDlg, reinterpret_cast<void *>(lParam));
 				UiSearchTextBlock * p_slb = reinterpret_cast<UiSearchTextBlock *>(lParam);
 				int    is_browser = 0;
 				RECT   parent, chld;
@@ -1540,7 +1540,7 @@ void SmartListBox::Implement_Draw()
 					}
 				}
 				else
-					::SendMessage(h_lb, LB_ADDSTRING, 0, (State & stOwnerDraw) ? (LPARAM)item : (LPARAM)buf.cptr());
+					::SendMessage(h_lb, LB_ADDSTRING, 0, (State & stOwnerDraw) ? static_cast<LPARAM>(item) : reinterpret_cast<LPARAM>(SUcSwitch(buf.cptr())));
 			}
 		}
 		ShowWindow(h_lb, SW_NORMAL);
@@ -1550,7 +1550,7 @@ void SmartListBox::Implement_Draw()
 			lvi.mask  = LVIF_STATE;
 			lvi.state = LVIS_FOCUSED | LVIS_SELECTED;
 			lvi.stateMask = LVIS_FOCUSED | LVIS_SELECTED;
-			::SendMessage(h_lb, LVM_SETITEMSTATE, def ? def->_curItem() : 0, (LPARAM)&lvi);
+			::SendMessage(h_lb, LVM_SETITEMSTATE, def ? def->_curItem() : 0, reinterpret_cast<LPARAM>(&lvi));
 			ListView_EnsureVisible(h_lb, def ? def->_curItem() : 0, 0); // AHTOXA
 		}
 		else

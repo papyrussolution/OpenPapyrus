@@ -602,7 +602,7 @@ static int xmlDumpXMLCatalog(FILE * out, xmlCatalogEntryPtr catal)
  *
  * Convert one entry from the catalog
  */
-static void xmlCatalogConvertEntry(xmlCatalogEntryPtr entry, xmlCatalogPtr catal) 
+static void xmlCatalogConvertEntry(xmlCatalogEntryPtr entry, xmlCatalogPtr catal, const xmlChar * pName) 
 {
 	if(!entry || !catal || !catal->sgml || !catal->xml)
 		return;
@@ -620,10 +620,9 @@ static void xmlCatalogConvertEntry(xmlCatalogEntryPtr entry, xmlCatalogPtr catal
 		    xmlHashRemoveEntry(catal->sgml, entry->name, (xmlHashDeallocator)xmlFreeCatalogEntry);
 		    return;
 	}
-	/*
-	 * Conversion successful, remove from the SGML catalog
-	 * and add it to the default XML one
-	 */
+	//
+	// Conversion successful, remove from the SGML catalog and add it to the default XML one
+	//
 	xmlHashRemoveEntry(catal->sgml, entry->name, 0);
 	entry->parent = catal->xml;
 	entry->next = NULL;
@@ -655,13 +654,9 @@ int xmlConvertSGMLCatalog(xmlCatalogPtr catal)
 	xmlHashScan(catal->sgml, (xmlHashScanner)xmlCatalogConvertEntry, &catal);
 	return 0;
 }
-
-/************************************************************************
-*									*
-*			Helper function					*
-*									*
-************************************************************************/
-
+//
+// Helper function
+//
 /**
  * xmlCatalogUnWrapURN:
  * @urn:  an "urn:publicid:" to unwrap

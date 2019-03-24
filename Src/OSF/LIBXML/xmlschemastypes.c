@@ -859,15 +859,10 @@ xmlSchemaTypePtr xmlSchemaGetBuiltInListSimpleTypeItemType(xmlSchemaTypePtr type
 		default: return 0;
 	}
 }
-
-/****************************************************************
-*								*
-*		Convenience macros and functions		*
-*								*
-****************************************************************/
-
-#define IS_TZO_CHAR(c)						\
-	((c == 0) || (c == 'Z') || (c == '+') || (c == '-'))
+//
+// Convenience macros and functions
+//
+#define IS_TZO_CHAR(c)          ((c == 0) || (c == 'Z') || (c == '+') || (c == '-'))
 
 #define VALID_YEAR(yr)          (yr != 0)
 #define VALID_MONTH(mon)        ((mon >= 1) && (mon <= 12))
@@ -877,38 +872,22 @@ xmlSchemaTypePtr xmlSchemaGetBuiltInListSimpleTypeItemType(xmlSchemaTypePtr type
 #define VALID_MIN(min)          ((min >= 0) && (min <= 59))
 #define VALID_SEC(sec)          ((sec >= 0) && (sec < 60))
 #define VALID_TZO(tzo)          ((tzo > -840) && (tzo < 840))
-#define IS_LEAP(y)						\
-	(((y % 4 == 0) && (y % 100 != 0)) || (y % 400 == 0))
+#define IS_LEAP(y)              (((y % 4 == 0) && (y % 100 != 0)) || (y % 400 == 0))
 
 static const uint daysInMonth[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 static const uint daysInMonthLeap[12] = { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
-#define MAX_DAYINMONTH(yr, mon)					 \
-	(IS_LEAP(yr) ? daysInMonthLeap[mon - 1] : daysInMonth[mon - 1])
-
-#define VALID_MDAY(dt)						\
-	(IS_LEAP(dt->year) ?					\
-	    (dt->day <= daysInMonthLeap[dt->mon - 1]) :		\
-	    (dt->day <= daysInMonth[dt->mon - 1]))
-
-#define VALID_DATE(dt)						\
-	(VALID_YEAR(dt->year) && VALID_MONTH(dt->mon) && VALID_MDAY(dt))
-
-#define VALID_TIME(dt)						\
-	(VALID_HOUR(dt->hour) && VALID_MIN(dt->min) &&		\
-	    VALID_SEC(dt->sec) && VALID_TZO(dt->tzo))
-
-#define VALID_DATETIME(dt)					\
-	(VALID_DATE(dt) && VALID_TIME(dt))
-
+#define MAX_DAYINMONTH(yr, mon)      (IS_LEAP(yr) ? daysInMonthLeap[mon - 1] : daysInMonth[mon - 1])
+#define VALID_MDAY(dt)   (IS_LEAP(dt->year) ? (dt->day <= daysInMonthLeap[dt->mon - 1]) : (dt->day <= daysInMonth[dt->mon - 1]))
+#define VALID_DATE(dt)   (VALID_YEAR(dt->year) && VALID_MONTH(dt->mon) && VALID_MDAY(dt))
+#define VALID_TIME(dt)   (VALID_HOUR(dt->hour) && VALID_MIN(dt->min) && VALID_SEC(dt->sec) && VALID_TZO(dt->tzo))
+#define VALID_DATETIME(dt) (VALID_DATE(dt) && VALID_TIME(dt))
 #define SECS_PER_MIN            (60)
 #define SECS_PER_HOUR           (60 * SECS_PER_MIN)
 #define SECS_PER_DAY            (24 * SECS_PER_HOUR)
 
-static const long dayInYearByMonth[12] =
-{ 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
-static const long dayInLeapYearByMonth[12] =
-{ 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335 };
+static const long dayInYearByMonth[12] = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
+static const long dayInLeapYearByMonth[12] = { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335 };
 
 #define DAY_IN_YEAR(day, month, year) ((IS_LEAP(year) ? dayInLeapYearByMonth[month - 1] : dayInYearByMonth[month - 1]) + day)
 

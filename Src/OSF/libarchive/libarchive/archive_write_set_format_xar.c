@@ -2407,7 +2407,7 @@ static int compression_init_encoder_gzip(struct archive * a, struct la_zstream *
 	/* zlib.h is not const-correct, so we need this one bit
 	 * of ugly hackery to convert a const * pointer to
 	 * a non-const pointer. */
-	strm->next_in = (Bytef*)(uintptr_t)(const void*)lastrm->next_in;
+	strm->next_in = (Bytef *)(uintptr_t)(const void*)lastrm->next_in;
 	strm->avail_in = lastrm->avail_in;
 	strm->total_in = (uLong)lastrm->total_in;
 	strm->next_out = lastrm->next_out;
@@ -2436,7 +2436,7 @@ static int compression_code_gzip(struct archive * a,
 	/* zlib.h is not const-correct, so we need this one bit
 	 * of ugly hackery to convert a const * pointer to
 	 * a non-const pointer. */
-	strm->next_in = (Bytef*)(uintptr_t)(const void*)lastrm->next_in;
+	strm->next_in = (Bytef *)(uintptr_t)(const void*)lastrm->next_in;
 	strm->avail_in = lastrm->avail_in;
 	strm->total_in = (uLong)lastrm->total_in;
 	strm->next_out = lastrm->next_out;

@@ -237,7 +237,7 @@ int SLAPI GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, long f
 			url.SetProtocol((mac_rec.Flags & mac_rec.fUseSSL) ? InetUrl::protPOP3S : InetUrl::protPOP3);
 			int    port = mac_rec.GetRcvPort();
 			if(port)
-				url.SetPort(port);
+				url.SetPort_(port);
 			mac_rec.GetExtField(MAEXSTR_RCVNAME, temp_buf);
 			enc_buf.EncodeUrl(temp_buf, 0); // @v9.8.12
 			url.SetComponent(url.cUserName, enc_buf);
@@ -516,7 +516,7 @@ int SLAPI PPSendEmail(const PPInternetAccount & rAcc, SMailMessage & rMsg, MailC
 		url.SetProtocol((rAcc.Flags & rAcc.fUseSSL) ? InetUrl::protSMTPS : InetUrl::protSMTP);
 		int    port = rAcc.GetSendPort();
 		if(port)
-			url.SetPort(port);
+			url.SetPort_(port);
 		rAcc.GetExtField(MAEXSTR_RCVNAME, temp_buf);
 		enc_buf.EncodeUrl(temp_buf, 0); // @v9.8.12
 		url.SetComponent(url.cUserName, enc_buf);
@@ -573,7 +573,7 @@ int SLAPI PutFilesToEmail2(const StringSet * pFileList, PPID mailAccID, const ch
 					url.SetProtocol((mac_rec.Flags & mac_rec.fUseSSL) ? InetUrl::protSMTPS : InetUrl::protSMTP);
 					int    port = mac_rec.GetSendPort();
 					if(port)
-						url.SetPort(port);
+						url.SetPort_(port);
 					mac_rec.GetExtField(MAEXSTR_RCVNAME, temp_buf);
 					enc_buf.EncodeUrl(temp_buf, 0); // @v9.8.12
 					url.SetComponent(url.cUserName, enc_buf);

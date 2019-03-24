@@ -544,7 +544,7 @@ int SLAPI PPViewPriceAnlz::SetContractPrices()
 		if(Filt.LocList.GetCount())
 			locs_ary.copy(Filt.LocList.Get());
 		else
-			locs_ary.add((long)0);
+			locs_ary.add(0L);
 		for(InitIteration(); NextIteration(&item) > 0;) {
 			uint   pos = 0;
 			double cost = 0.0;

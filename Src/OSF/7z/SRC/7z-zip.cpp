@@ -227,7 +227,7 @@ bool CMemBlockManager::AllocateSpace(size_t numBlocks)
 			if(_data == 0)
 				return false;
 			else {
-				Byte * p = (Byte*)_data;
+				Byte * p = (Byte *)_data;
 				for(size_t i = 0; i + 1 < numBlocks; i++, p += _blockSize)
 					*(Byte**)p = (p + _blockSize);
 				*(Byte**)p = 0;
@@ -513,7 +513,7 @@ STDMETHODIMP COutMemStream::Write(const void * data, uint32 size, uint32 * proce
 	ASSIGN_PTR(processedSize, 0);
 	while(size != 0) {
 		if(_curBlockIndex < Blocks.Blocks.Size()) {
-			Byte * p = (Byte*)Blocks.Blocks[_curBlockIndex] + _curBlockPos;
+			Byte * p = (Byte *)Blocks.Blocks[_curBlockIndex] + _curBlockPos;
 			size_t curSize = _memManager->GetBlockSize() - _curBlockPos;
 			SETMIN(curSize, size);
 			memcpy(p, data, curSize);
@@ -615,7 +615,7 @@ namespace NCompress {
 			bool Alloc()
 			{
 				if(!Buf)
-					Buf = (Byte*)::MidAlloc(kBufSize);
+					Buf = (Byte *)::MidAlloc(kBufSize);
 				return (Buf != 0);
 			}
 			Byte * Buf;
@@ -1554,7 +1554,7 @@ namespace NArchive {
 			}
 			if(!FromCentral)
 				return false;
-			uint16 highAttrib = (uint16)((ExternalAttrib >> 16 ) & 0xFFFF);
+			uint16 highAttrib = static_cast<uint16>((ExternalAttrib >> 16 ) & 0xFFFF);
 			switch(hostOS) {
 				case NHostOS::kAMIGA:
 					switch(highAttrib & NAmigaAttrib::kIFMT) {
@@ -1709,7 +1709,7 @@ namespace NArchive {
 		HRESULT CAddCommon::CalcStreamCRC(ISequentialInStream * inStream, uint32 &resultCRC)
 		{
 			if(!_buf) {
-				_buf = (Byte*)MidAlloc(kBufSize);
+				_buf = (Byte *)MidAlloc(kBufSize);
 				if(!_buf)
 					return E_OUTOFMEMORY;
 			}
@@ -2729,7 +2729,7 @@ namespace NArchive {
 			}
 			else {
 				char * p = s.GetBuf(size);
-				SafeRead((Byte*)p, size);
+				SafeRead((Byte *)p, size);
 				uint   i = size;
 				do {
 					if(p[i - 1] != 0)
@@ -4716,9 +4716,9 @@ namespace NArchive {
 			WRITE_32_VAL_SPEC(item.PackSize, isPack64);
 			WRITE_32_VAL_SPEC(item.Size, isUnPack64);
 			Write16((uint16)item.Name.Len());
-			uint16 zip64ExtraSize = (uint16)((isUnPack64 ? 8 : 0) + (isPack64 ? 8 : 0) + (isPosition64 ? 8 : 0));
+			uint16 zip64ExtraSize = static_cast<uint16>((isUnPack64 ? 8 : 0) + (isPack64 ? 8 : 0) + (isPosition64 ? 8 : 0));
 			const uint16 kNtfsExtraSize = 4 + 2 + 2 + (3 * 8);
-			const uint16 centralExtraSize = (uint16)((isZip64 ? 4 + zip64ExtraSize : 0) + (item.NtfsTimeIsDefined ? 4 + kNtfsExtraSize : 0) + item.CentralExtra.GetSize());
+			const uint16 centralExtraSize = static_cast<uint16>((isZip64 ? 4 + zip64ExtraSize : 0) + (item.NtfsTimeIsDefined ? 4 + kNtfsExtraSize : 0) + item.CentralExtra.GetSize());
 			Write16(centralExtraSize); // test it;
 			const uint16 commentSize = (uint16)item.Comment.Size();
 			Write16(commentSize);
@@ -4797,13 +4797,13 @@ namespace NArchive {
 			Write32(NSignature::kEcd);
 			Write16(0); // ThisDiskNumber = 0;
 			Write16(0); // StartCentralDirectoryDiskNumber;
-			Write16((uint16)(items64 ? 0xFFFF : items.Size()));
-			Write16((uint16)(items64 ? 0xFFFF : items.Size()));
+			Write16(static_cast<uint16>(items64 ? 0xFFFF : items.Size()));
+			Write16(static_cast<uint16>(items64 ? 0xFFFF : items.Size()));
 
 			WRITE_32_VAL_SPEC(cdSize, cdSize64);
 			WRITE_32_VAL_SPEC(cdOffset, cdOffset64);
 
-			const uint16 commentSize = (uint16)(comment ? comment->Size() : 0);
+			const uint16 commentSize = static_cast<uint16>(comment ? comment->Size() : 0);
 			Write16((uint16)commentSize);
 			if(commentSize != 0)
 				WriteBytes((const Byte*)*comment, commentSize);
@@ -6989,7 +6989,7 @@ namespace NArchive {
 
 		bool CCacheOutStream::Allocate()
 		{
-			return SETIFZ(_cache, (Byte*)::MidAlloc(kCacheSize));
+			return SETIFZ(_cache, (Byte *)::MidAlloc(kCacheSize));
 		}
 
 		HRESULT CCacheOutStream::Init(IOutStream * stream)

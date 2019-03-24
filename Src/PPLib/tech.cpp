@@ -19,7 +19,7 @@ int SLAPI TGSArray::GetGoodsList(PPIDArray * pList) const
 {
 	if(pList)
 		for(uint i = 0; i < getCount(); i++)
-			if(!pList->addUnique(((Item *)at(i))->GoodsID))
+			if(!pList->addUnique(static_cast<const Item *>(at(i))->GoodsID))
 				return 0;
 	return getCount() ? 1 : -1;
 }
@@ -29,7 +29,7 @@ int SLAPI TGSArray::SearchGoods(PPID goodsID, int * pSign) const
 	int    ok = -1;
 	uint   pos = 0;
 	if(lsearch(&goodsID, &pos, CMPF_LONG)) {
-		ASSIGN_PTR(pSign, ((Item *)at(pos))->Sign);
+		ASSIGN_PTR(pSign, static_cast<const Item *>(at(pos))->Sign);
 		ok = 1;
 	}
 	return ok;
@@ -572,9 +572,9 @@ int SLAPI CalcCapacity::Restore()
 {
 	int    ok = -1;
 	WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::PrefSettings, 1); // @v9.2.0 readonly 0-->1
-	char   buf[128];
-	if(reg_key.GetString(WrParam_CalcCapacity, buf, sizeof(buf)))
-		ok = FromText(buf);
+	SString temp_buf;
+	if(reg_key.GetString(WrParam_CalcCapacity, temp_buf))
+		ok = FromText(temp_buf);
 	return ok;
 }
 
@@ -1902,11 +1902,8 @@ public:
 		int16  IsFormula;     // 1 - задана формула перехода, 1000 - формула перехода не задана
 		int16  _Align;
 	};
-	ToolingSelector(PPID prcID, PPID goodsID, PPID prevGoodsID) : List(sizeof(Entry))
+	ToolingSelector(PPID prcID, PPID goodsID, PPID prevGoodsID) : List(sizeof(Entry)), PrcID(prcID), GoodsID(goodsID), PrevGoodsID(prevGoodsID)
 	{
-		PrcID = prcID;
-		GoodsID = goodsID;
-		PrevGoodsID = prevGoodsID;
 	}
 	int    SLAPI Run(TSVector <TechTbl::Rec> * pList); // @v9.8.4 TSArray-->TSVect
 private:
@@ -1925,8 +1922,8 @@ private:
 
 IMPL_CMPFUNC(ToolingEntry, i1, i2)
 {
-	const ToolingSelector::Entry * p1 = (ToolingSelector::Entry *)i1;
-	const ToolingSelector::Entry * p2 = (ToolingSelector::Entry *)i2;
+	const ToolingSelector::Entry * p1 = static_cast<const ToolingSelector::Entry *>(i1);
+	const ToolingSelector::Entry * p2 = static_cast<const ToolingSelector::Entry *>(i2);
 	if(p1->PrcID == p2->PrcID)
 		if(p1->GoodsID == p2->GoodsID)
 			if(p1->PrevGoodsID == p2->PrevGoodsID)

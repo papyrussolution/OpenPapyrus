@@ -3806,7 +3806,7 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 }
 
 //static
-int SLAPI PPObjTSession::PutWrOffOrder(TSessWrOffOrder * pData, int use_ta)
+int SLAPI PPObjTSession::PutWrOffOrder(const TSessWrOffOrder * pData, int use_ta)
 {
 	return PPRef->PutPropArray(PPOBJ_TSESSION, 0, TSESPRP_WROFFORDER, pData, use_ta);
 }

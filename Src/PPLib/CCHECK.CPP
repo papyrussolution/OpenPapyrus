@@ -4639,7 +4639,7 @@ int SLAPI CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pT
 	return ok;
 }
 
-int SLAPI CSessGrouping::Convert(PPID sessID, PPID locID, void * pData, CSessTotal * pTotal, int use_ta)
+int SLAPI CSessGrouping::Convert(PPID sessID, PPID locID, const void * pData, CSessTotal * pTotal, int use_ta)
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;

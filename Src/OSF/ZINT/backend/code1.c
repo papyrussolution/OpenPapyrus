@@ -1151,7 +1151,6 @@ int code_one(struct ZintSymbol * symbol, const uchar source[], int length)
 		uint data[15], ecc[15];
 		int stream[30];
 		int block_width;
-
 		if(length > 18) {
 			sstrcpy(symbol->errtxt, "Input data too long (E13)");
 			return ZINT_ERROR_TOO_LONG;
@@ -1160,7 +1159,6 @@ int code_one(struct ZintSymbol * symbol, const uchar source[], int length)
 			sstrcpy(symbol->errtxt, "Invalid input data (Version S encodes numeric input only) (E14)");
 			return ZINT_ERROR_INVALID_DATA;
 		}
-
 		sub_version = 3;
 		codewords = 12;
 		block_width = 6; /* Version S-30 */
@@ -1176,7 +1174,7 @@ int code_one(struct ZintSymbol * symbol, const uchar source[], int length)
 			codewords = 4;
 			block_width = 2;
 		}
-		binary_load(elreg, (const char *)source, length);
+		binary_load(elreg, reinterpret_cast<const char *>(source), length);
 		for(i = 0; i < 15; i++) {
 			data[i] = 0;
 			ecc[i] = 0;
@@ -1237,21 +1235,18 @@ int code_one(struct ZintSymbol * symbol, const uchar source[], int length)
 				i += 2;
 			}
 		}
-
 		size = 9;
 		symbol->rows = 8;
 		symbol->width = 10 * sub_version + 1;
 	}
-
 	if(symbol->option_2 == 10) {
 		/* Version T */
 		uint data[40], ecc[25];
 		uint stream[65];
 		int data_length;
 		int data_cw, ecc_cw, block_width;
-		for(i = 0; i < 40; i++) {
-			data[i] = 0;
-		}
+		// @v10.3.11 for(i = 0; i < 40; i++) { data[i] = 0; }
+		memzero(data, sizeof(data)); // @v10.3.11
 		data_length = c1_encode(symbol, source, data, length);
 		if(data_length == 0) {
 			return ZINT_ERROR_TOO_LONG;

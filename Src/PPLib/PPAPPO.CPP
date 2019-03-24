@@ -2112,7 +2112,9 @@ int RegComSvrDialog::getDTS(RegComSvrDialog::Param * pData)
 int PPApp::RegisterComServer()
 {
 	int    ok = -1;
-	SString path, proc_name;
+	SString path;
+	SString proc_name;
+	SString param_buf;
 	RegComSvrDialog::Param param;
 	RegComSvrDialog * p_dlg = new RegComSvrDialog;
 	PPGetFilePath(PPPATH_BIN, "ppwmt.dll", path);
@@ -2127,7 +2129,7 @@ int PPApp::RegisterComServer()
 		THROW_SL(lib.IsValid());
 		typedef HRESULT (STDAPICALLTYPE *procDllRegisterServer)();
 		proc_name = (param.Action == RegComSvrDialog::aDeregister) ? "DllUnregisterServer" : "DllRegisterServer";
-		procDllRegisterServer proc = (procDllRegisterServer)lib.GetProcAddr(proc_name);
+		procDllRegisterServer proc = reinterpret_cast<procDllRegisterServer>(lib.GetProcAddr(proc_name));
 		THROW_SL(proc);
 		hr = proc();
 		THROW(hr == S_OK);
@@ -2138,12 +2140,11 @@ int PPApp::RegisterComServer()
 			SString   src_path, subkey, opt_param;
 			LongArray delreg_list;
 			WinRegKey reg_key;
-
 			PPGetFilePath(PPPATH_DD, p_dl200_name, src_path);
 			(subkey = param.ExcelRegKeyDir).SetLastSlash().Cat("Options").SetLastSlash();
 			opt_param = "OPEN";
 			if(reg_key.Open(HKEY_CURRENT_USER, subkey, 0) > 0) {
-				char buf[MAXPATH];
+				//char buf[MAXPATH];
 				SString subkey2;
 				WinRegValue reg_val;
 				for(uint idx = 0; reg_key.EnumValues(&idx, &subkey2.Z(), &reg_val) > 0;) {
@@ -2151,8 +2152,8 @@ int PPApp::RegisterComServer()
 						long open_idx = 0;
 						SString open_idx_str;
 						open_idx = (open_idx_str = subkey2).ShiftLeft(4).ToLong();
-						memzero(buf, sizeof(buf));
-						if(reg_key.GetString(subkey2, buf, sizeof(buf)) > 0 && src_path.CmpNC(buf) == 0)
+						//memzero(buf, sizeof(buf));
+						if(reg_key.GetString(subkey2, param_buf) > 0 && src_path.CmpNC(param_buf) == 0)
 							delreg_list.add(open_idx);
 						(opt_param = p_open_name).Cat(open_idx + 1);
 					}
@@ -2171,10 +2172,9 @@ int PPApp::RegisterComServer()
 			reg_key.Close();
 			(subkey = param.ExcelRegKeyDir).SetLastSlash().Cat("Add-in Manager");
 			if(reg_key.Open(HKEY_CURRENT_USER, subkey, 0) > 0) {
-				SString param;
 				WinRegValue reg_val;
-				for(uint idx = 0; reg_key.EnumValues(&idx, &param, &reg_val) > 0;) {
-					if(src_path.CmpNC(param) == 0)
+				for(uint idx = 0; reg_key.EnumValues(&idx, &param_buf, &reg_val) > 0;) {
+					if(src_path.CmpNC(param_buf) == 0)
 						delreg_list.add(idx);
 				}
 			}

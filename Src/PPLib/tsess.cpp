@@ -1,27 +1,25 @@
 // TSESS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2019
 //
 #include <pp.h>
 #pragma hdrstop
 //
 //
 //
-int SLAPI PrcBusy::Init(const LDATETIME & start, const LDATETIME & finish, int status, int idle)
+void SLAPI PrcBusy::Init(const LDATETIME & start, const LDATETIME & finish, int status, int idle)
 {
 	STimeChunk::Init(start, finish);
 	TSessID = 0;
 	Status = status;
-	Idle   = idle ? 1 : 0;
-	return 1;
+	Idle   = BIN(idle);
 }
 
-int SLAPI PrcBusy::Init(const LDATETIME & start, long cont, int status, int idle)
+void SLAPI PrcBusy::Init(const LDATETIME & start, long cont, int status, int idle)
 {
 	STimeChunk::Init(start, cont);
 	TSessID = 0;
 	Status = status;
-	Idle = idle ? 1 : 0;
-	return 1;
+	Idle = BIN(idle);
 }
 
 int SLAPI PrcBusy::Intersect(const PrcBusy & test, PrcBusy * pResult) const
@@ -44,9 +42,9 @@ SLAPI PrcBusyArray::PrcBusyArray() : STimeChunkArray(sizeof(PrcBusy))
 int SLAPI PrcBusyArray::IsFreeEntry(const PrcBusy & entry, PPID * pTSessID) const
 {
 	uint   pos = 0;
-	int    ok = STimeChunkArray::IsFreeEntry(*(const STimeChunk *)&entry, &pos);
+	int    ok = STimeChunkArray::IsFreeEntry(*static_cast<const STimeChunk *>(&entry), &pos);
 	if(!ok)
-		ASSIGN_PTR(pTSessID, ((PrcBusy *)at(pos))->TSessID);
+		ASSIGN_PTR(pTSessID, static_cast<const PrcBusy *>(at(pos))->TSessID);
 	return ok;
 }
 
@@ -211,7 +209,6 @@ int SLAPI TSessionCore::SearchByPrcTime(PPID prcID, int kind, const LDATETIME & 
 				copyBufTo(pRec);
 				ok = 1;
 			}
-			// @v7.6.4 {
 			else {
 				//
 				// Если обнаружена сессия, которая закончилась ранее заданного момента, то
@@ -220,7 +217,6 @@ int SLAPI TSessionCore::SearchByPrcTime(PPID prcID, int kind, const LDATETIME & 
 				//
 				break;
 			}
-			// } @v7.6.4
 		}
 		sp = spLt;
 	}
@@ -253,8 +249,7 @@ int SLAPI TSessionCore::Helper_GetChildIDList(PPID superSessID, long flags, PPID
 		}
 		THROW_SL(list.addUnique(&inner_list));
 	}
-	if(pList)
-		pList->addUnique(&list);
+	CALLPTRMEMB(pList, addUnique(&list));
 	CATCHZOK
 	return ok;
 }
@@ -416,14 +411,13 @@ int SLAPI TSessionCore::CalcGoodsTotal(PPID sessID, PPID goodsID, TSessGoodsTota
 	return ok;
 }
 
-int SLAPI TSessionCore::InitPrcEntry(const TSessionTbl::Rec * pRec, PrcBusy * pEntry) const
+void SLAPI TSessionCore::InitPrcEntry(const TSessionTbl::Rec & rRec, PrcBusy & rEntry) const
 {
-	pEntry->Start.Set(pRec->StDt, pRec->StTm);
-	pEntry->Finish.Set(pRec->FinDt, pRec->FinTm);
-	pEntry->TSessID = pRec->ID;
-	pEntry->Status  = pRec->Status;
-	pEntry->Idle    = BIN(pRec->Flags & TSESF_IDLE);
-	return 1;
+	rEntry.Start.Set(rRec.StDt, rRec.StTm);
+	rEntry.Finish.Set(rRec.FinDt, rRec.FinTm);
+	rEntry.TSessID = rRec.ID;
+	rEntry.Status  = rRec.Status;
+	rEntry.Idle    = BIN(rRec.Flags & TSESF_IDLE);
 }
 
 int SLAPI TSessionCore::LoadBusyArray(PPID prcID, PPID exclTSesID, int kind, const STimeChunk * pPeriod, PrcBusyArray * pList)
@@ -460,7 +454,7 @@ int SLAPI TSessionCore::LoadBusyArray(PPID prcID, PPID exclTSesID, int kind, con
 			else if(kind == TSESK_PLAN && !(data.Flags & TSESF_PLAN))
 				continue;
 			PrcBusy entry;
-			THROW(InitPrcEntry(&data, &entry));
+			InitPrcEntry(data, entry);
 			THROW(pList->Add(entry, 0));
 		}
 	pList->Limit(pPeriod);

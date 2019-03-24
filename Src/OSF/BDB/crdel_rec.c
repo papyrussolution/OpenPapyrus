@@ -23,7 +23,7 @@ int __crdel_metasub_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, 
 	DB_MPOOLFILE * mpf;
 	PAGE * pagep;
 	int cmp_p, ret, t_ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	pagep = NULL;
 	REC_PRINT(__crdel_metasub_print);
 	REC_INTRO(__crdel_metasub_read, ip, 0);
@@ -63,7 +63,7 @@ int __crdel_metasub_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, 
 		 * bunch of fields in the dbo as well.
 		 */
 		if(F_ISSET(file_dbp, DB_AM_INMEM) && argp->pgno == PGNO_BASE_MD && (ret = __db_meta_setup(file_dbp->env, file_dbp,
-			    file_dbp->dname, (DBMETA *)pagep, 0, DB_CHK_META)) != 0)
+			    file_dbp->dname, reinterpret_cast<DBMETA *>(pagep), 0, DB_CHK_META)) != 0)
 			goto out;
 	}
 	else if(DB_UNDO(op)) {

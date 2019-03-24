@@ -228,15 +228,15 @@ int SLAPI WinRegKey::GetDWord(const char * pParam, uint32 * pVal)
 	return ok;
 }
 
-int SLAPI WinRegKey::GetString(const char * pParam, char * pBuf, size_t bufLen)
+/*int SLAPI WinRegKey::GetString(const char * pParam, char * pBuf, size_t bufLen)
 {
 	if(Key == 0)
 		return 0;
 	DWORD type = 0;
-	DWORD size = (DWORD)bufLen;
+	DWORD size = static_cast<DWORD>(bufLen);
 	LONG  r = RegQueryValueEx(Key, SUcSwitch(pParam), 0, &type, (LPBYTE)(pBuf), &size); // @unicodeproblem
 	return oneof2(r, ERROR_SUCCESS, ERROR_MORE_DATA) ? 1 : SLS.SetOsError(pParam);
-}
+}*/
 
 int SLAPI WinRegKey::GetString(const char * pParam, SString & rBuf)
 {
@@ -247,15 +247,15 @@ int SLAPI WinRegKey::GetString(const char * pParam, SString & rBuf)
 	else {
 		DWORD type = 0;
 		STempBuffer temp_buf(1024);
-		DWORD size = (DWORD)temp_buf.GetSize();
+		DWORD size = static_cast<DWORD>(temp_buf.GetSize());
 		LONG  r = ERROR_MORE_DATA;
 		while(r == ERROR_MORE_DATA) {
 			temp_buf.Alloc(size);
-			size = (DWORD)temp_buf.GetSize();
-			r = RegQueryValueEx(Key, SUcSwitch(pParam), 0, &type, (LPBYTE)(char *)temp_buf, &size); // @unicodeproblem
+			size = static_cast<DWORD>(temp_buf.GetSize());
+			r = RegQueryValueEx(Key, SUcSwitch(pParam), 0, &type, static_cast<LPBYTE>(temp_buf.vptr()), &size); // @unicodeproblem
 		}
 		if(r == ERROR_SUCCESS)
-			rBuf.CatN(temp_buf, size);
+			rBuf.CatN(SUcSwitch(static_cast<const TCHAR *>(temp_buf.vcptr())), size / sizeof(TCHAR));
 		else
 			ok = SLS.SetOsError(pParam);
 	}
@@ -325,6 +325,7 @@ int SLAPI WinRegKey::PutValue(const char * pParam, const WinRegValue * pVal)
 
 int SLAPI WinRegKey::EnumValues(uint * pIdx, SString * pParam, WinRegValue * pVal)
 {
+	CALLPTRMEMB(pParam, Z()); // @v10.3.11
 	const size_t init_name_len = 256;
 	if(Key == 0)
 		return 0;
@@ -338,7 +339,7 @@ int SLAPI WinRegKey::EnumValues(uint * pIdx, SString * pParam, WinRegValue * pVa
 	LONG   r = RegEnumValue(Key, idx, name, &name_len, 0, &typ, (BYTE *)pVal->P_Buf, &data_len); // @unicodeproblem
 	pVal->Type = typ;
 	if(r == ERROR_SUCCESS) {
-		pParam->CopyFrom(SUcSwitch(name));
+		ASSIGN_PTR(pParam, SUcSwitch(name));
 		pVal->DataSize = data_len;
 		*pIdx = idx+1;
 		return 1;

@@ -192,7 +192,7 @@ int SLAPI VCalendar::ReadProp(TodoProperty * pProp, SString & rVal, SString & rA
 		if(prop == -1) {
 			int    mime64_enc = 0;
 			size_t pos = 0;
-			if(temp_buf.StrChr(':', &pos) > 0 && pos > 0 && temp_buf.C(pos - 1) != '\\') {
+			if(temp_buf.SearchChar(':', &pos) > 0 && pos > 0 && temp_buf.C(pos - 1) != '\\') {
 				temp_buf.Divide(':', temp_buf2, val);
 				PrevTempBuf = temp_buf;
 			}

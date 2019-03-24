@@ -383,7 +383,7 @@ uint32 FASTCALL SGeoGridTab::Finder::GetZIdx32(const SGeoPosLL_Int & rC)
 	uint idx_lat = 0;
 	uint idx_lon = 0;
 	GetIdx(rC, idx_lat, idx_lon);
-	return SZIndex2::Combine((uint16)(idx_lat & 0x0000ffff), (uint16)(idx_lon & 0x0000ffff));
+	return SZIndex2::Combine(static_cast<uint16>(idx_lat & 0x0000ffff), static_cast<uint16>(idx_lon & 0x0000ffff));
 }
 
 uint64 FASTCALL SGeoGridTab::Finder::GetZIdx64(const SGeoPosLL_Int & rC)
@@ -537,7 +537,7 @@ int SLAPI SGeoGridTab::Load(const char * pFileName)
         if(line_buf.NotEmptyS()) {
             if(line_buf.C(0) == '[') {
 				size_t rb_pos = 0;
-                THROW(line_buf.StrChr(']', &rb_pos)); // Ошибка в формате файла geogridtag
+                THROW(line_buf.SearchChar(']', &rb_pos)); // Ошибка в формате файла geogridtag
 				assert(rb_pos > 0);
 				line_buf.Sub(1, rb_pos-1, temp_buf);
 				if(temp_buf.IsEqiAscii("pgcg-header")) {

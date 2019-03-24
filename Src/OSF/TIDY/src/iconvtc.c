@@ -56,7 +56,7 @@ int IconvGetChar(byte firstByte, StreamIn * in, uint * bytesRead)
 		int iconv_errno = 0;
 		int nextByte = EndOfStream;
 
-		result = iconv(cd, (const char**)&inbufptr, &readNow, (char**)&outbufptr, &writeNow);
+		result = iconv(cd, (const char**)&inbufptr, &readNow, (char **)&outbufptr, &writeNow);
 		iconv_errno = errno;
 
 		if(result != (size_t)(-1)) {

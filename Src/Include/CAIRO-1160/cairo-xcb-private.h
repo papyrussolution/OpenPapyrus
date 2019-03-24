@@ -45,7 +45,7 @@
 //#include "cairo-compiler-private.h"
 //#include "cairo-device-private.h"
 //#include "cairo-error-private.h"
-#include "cairo-freelist-private.h"
+//#include "cairo-freelist-private.h"
 #include "cairo-list-private.h"
 #include "cairo-mutex-private.h"
 //#include "cairo-pattern-private.h"

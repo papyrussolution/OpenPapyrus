@@ -34,33 +34,30 @@
 
 /* This fragment implements a comb sort (specifically combsort11) */
 #ifndef _HAVE_CAIRO_COMBSORT_NEWGAP
-#define _HAVE_CAIRO_COMBSORT_NEWGAP
-static inline uint _cairo_combsort_newgap(uint gap)
-{
-	gap = 10 * gap / 13;
-	if(gap == 9 || gap == 10)
-		gap = 11;
-	if(gap < 1)
-		gap = 1;
-	return gap;
-}
-
+	#define _HAVE_CAIRO_COMBSORT_NEWGAP
+	static inline uint _cairo_combsort_newgap(uint gap)
+	{
+		gap = 10 * gap / 13;
+		if(gap == 9 || gap == 10)
+			gap = 11;
+		if(gap < 1)
+			gap = 1;
+		return gap;
+	}
 #endif
 
 #define CAIRO_COMBSORT_DECLARE(NAME, TYPE, CMP) \
 	static void NAME(TYPE *base, uint nmemb) \
 	{ \
 		uint gap = nmemb; \
-		uint i, j; \
 		int swapped; \
 		do { \
 			gap = _cairo_combsort_newgap(gap); \
-			swapped = gap > 1; \
-			for(i = 0; i < nmemb-gap; i++) { \
-				j = i + gap; \
+			swapped = BIN(gap > 1); /* @sobolev (swapped = gap > 1;)-->(swapped = BIN(gap > 1);)*/ \
+			for(uint i = 0; i < nmemb-gap; i++) { \
+				uint j = i + gap; \
 				if(CMP(base[i], base[j]) > 0) { \
-					TYPE tmp; \
-					tmp = base[i]; \
+					TYPE tmp = base[i]; \
 					base[i] = base[j]; \
 					base[j] = tmp; \
 					swapped = 1; \
@@ -73,16 +70,14 @@ static inline uint _cairo_combsort_newgap(uint gap)
 	static void NAME(TYPE *base, uint nmemb, void * data) \
 	{ \
 		uint gap = nmemb; \
-		uint i, j; \
 		int swapped; \
 		do { \
 			gap = _cairo_combsort_newgap(gap); \
-			swapped = gap > 1; \
-			for(i = 0; i < nmemb-gap; i++) { \
-				j = i + gap; \
+			swapped = BIN(gap > 1); /* @sobolev (swapped = gap > 1;)-->(swapped = BIN(gap > 1);)*/ \
+			for(uint i = 0; i < nmemb-gap; i++) { \
+				uint j = i + gap; \
 				if(CMP(base[i], base[j], data) > 0) { \
-					TYPE tmp; \
-					tmp = base[i]; \
+					TYPE tmp = base[i]; \
 					base[i] = base[j]; \
 					base[j] = tmp; \
 					swapped = 1; \

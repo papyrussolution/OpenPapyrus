@@ -384,8 +384,8 @@ int SLAPI StdListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMo
 	uint   pos;
 	if(srchMode & lbSrchByID) {
 		if(Options & lbtAutoID) {
-			pos = (h == sizeof(int16)) ? (uint)*(const int16 *)pPattern : (uint)*(const int32 *)pPattern;
-			r = BIN((long)pos < c);
+			pos = (h == sizeof(int16)) ? (uint)*static_cast<const int16 *>(pPattern) : (uint)*static_cast<const int32 *>(pPattern);
+			r = BIN(static_cast<long>(pos) < c);
 		}
 		else {
 			pos = 0;
@@ -399,7 +399,8 @@ int SLAPI StdListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMo
 		pos = (dir == srchNext) ? (uint)_curItem() + 1 : 0U;
 		SETIFZ(fcmp, substFCMP);
 		r = (srchMode & srchBinary) ?
-			P_Data->bsearch(pPattern, &pos, fcmp, ofs, (void *)Type) : P_Data->lsearch(pPattern, &pos, fcmp, ofs, (void *)Type);
+			P_Data->bsearch(pPattern, &pos, fcmp, ofs, reinterpret_cast<void *>(Type)) : 
+			P_Data->lsearch(pPattern, &pos, fcmp, ofs, reinterpret_cast<void *>(Type));
 	}
 	if(r)
 		go(pos);
@@ -434,7 +435,7 @@ int SLAPI StrAssocListBoxDef::search(const void * pPattern, CompFunc fcmp, int s
 	if(srchMode & lbSrchByID) {
 		if(Options & lbtAutoID) {
 			pos = (uint)*(const int32 *)pPattern;
-			r = BIN((long)pos < c);
+			r = BIN(static_cast<long>(pos) < c);
 		}
 		else {
 			pos = 0;

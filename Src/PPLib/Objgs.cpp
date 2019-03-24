@@ -875,7 +875,7 @@ public:
 	GoodsStrucSelectorDialog(PPObjGoodsStruc & rObj) : TDialog(DLG_GSDATA), R_GsObj(rObj), Data(0)
 	{
 	}
-	int    setDTS(DataBlock * pData)
+	int    setDTS(const DataBlock * pData)
 	{
 		Data = *pData;
 		int    ok = 1;

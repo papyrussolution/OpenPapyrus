@@ -341,7 +341,7 @@ static Sci_Position LineEnd(Sci_Position line, const Accessor & styler)
 	return eol_pos;
 }
 
-static Sci_Position LineStart(Sci_Position line, Accessor &styler)
+static Sci_Position LineStart(Sci_Position line, const Accessor & styler)
 {
 	return styler.LineStart(line);
 }
@@ -361,10 +361,8 @@ static int LineType(Sci_Position line, Accessor &styler)
 {
 	Sci_Position pos = LineStart(line, styler);
 	Sci_Position eol_pos = LineEnd(line, styler);
-
 	int c;
 	char ch = ' ';
-
 	Sci_Position i = pos;
 	while(i < eol_pos) {
 		c = styler.SafeGetCharAt(i);
@@ -431,26 +429,21 @@ static int LineType(Sci_Position line, Accessor &styler)
 	return 4;
 }
 
-static void SafeSetLevel(Sci_Position line, int level, Accessor &styler)
+static void FASTCALL SafeSetLevel(Sci_Position line, int level, Accessor &styler)
 {
 	if(line < 0)
 		return;
-
 	int mask = ((~SC_FOLDLEVELHEADERFLAG) | (~SC_FOLDLEVELWHITEFLAG));
-
 	if( (level & mask) < 0)
 		return;
-
 	if(styler.LevelAt(line) != level)
 		styler.SetLevel(line, level);
 }
 
-static void FoldABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int,
-    WordList *[], Accessor &styler)
+static void FoldABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
 {
 	Sci_Position startLine = styler.GetLine(startPos);
 	Sci_Position endLine   = styler.GetLine(startPos+length-1);
-
 	// bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
 	// We want to deal with all the cases
 	// To know the correct indentlevel, we need to look back to the
@@ -483,14 +476,12 @@ static void FoldABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int,
 	// Now start scanning over the lines.
 	for(Sci_Position line = startLine; line <= endLine; line++) {
 		int lineType = LineType(line, styler);
-
 		// Check for comment line
 		if(lineType == 8) {
 			if(beginComment < 0) {
 				beginComment = line;
 			}
 		}
-
 		// Check for data line
 		if( (lineType == 1) || (lineType == 3) ) {
 			if(beginData < 0) {
@@ -515,7 +506,6 @@ static void FoldABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int,
 			if(beginComment < 0) {
 				beginComment = line;
 			}
-
 			if(beginData < 0) {
 				beginData = beginComment;
 				if(prvKeyLineTp != 5)

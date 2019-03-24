@@ -1288,7 +1288,7 @@ int SLAPI GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSo
 	CATCH
 		if(pSock) {
 			SString buf2;
-			buf.Cat((long)0).CRB();
+			buf.Cat(0L).CRB();
 			THROW(pSock->Send(buf, buf.Len(), 0));
 			PPGetLastErrorMessage(DS.CheckExtFlag(ECF_SYSSERVICE), buf);
 			buf.Transf(CTRANSF_INNER_TO_OUTER);

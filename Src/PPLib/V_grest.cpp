@@ -844,7 +844,6 @@ PPViewGoodsRest::CacheItem::CacheItem()
 
 SLAPI PPViewGoodsRest::Cache::Cache()
 {
-	//setDelta(128);
 }
 
 PPViewGoodsRest::Cache & SLAPI PPViewGoodsRest::Cache::Clear()
@@ -4101,7 +4100,7 @@ int SLAPI PPViewGoodsRest::SetContractPrices()
 		if(LocList.GetCount())
 			locs_ary.copy(LocList.Get());
 		else
-			locs_ary.add((long)0);
+			locs_ary.add(0L);
 		for(InitIteration(); NextIteration(&item) > 0;) {
 			uint   pos = 0;
 			double cost = 0.0;

@@ -983,7 +983,7 @@ public:
 			PPError();
 		SetupCalDate(CTLCAL_CFM_RECKONING_DT, CTL_CFM_RECKONING_DT);
 	}
-	int    setDTS(CfmReckoningParam *);
+	int    setDTS(const CfmReckoningParam * pData);
 	int    getDTS(CfmReckoningParam *);
 private:
 	DECL_HANDLE_EVENT;
@@ -1093,9 +1093,9 @@ void CfmReckoningDialog::setupDate()
 	disableCtrls(v != 3, CTL_CFM_RECKONING_DT, CTLCAL_CFM_RECKONING_DT, 0);
 }
 
-int CfmReckoningDialog::setDTS(CfmReckoningParam * pCRP)
+int CfmReckoningDialog::setDTS(const CfmReckoningParam * pData)
 {
-	Data = *pCRP;
+	Data = *pData;
 	SString obj_name;
 	SString info_buf;
 	SString fmt_buf;

@@ -2542,7 +2542,6 @@ public:
 	int    SLAPI SendStocks();
 	int    SLAPI SendInvoices();
 	int    SLAPI SendDebts();
-
 	int    SLAPI SendStatus(const TSCollection <iSalesTransferStatus> & rList);
 private:
 	int    SLAPI PreprocessResult(const void * pResult, const PPSoapClientSession & rSess);
@@ -4417,7 +4416,6 @@ public:
 	int    SLAPI SendDebts();
 	int    SLAPI SendSales_ByGoods();
 	int    SLAPI SendSales_ByDlvrLoc();
-
 private:
 	int    SLAPI PreprocessResult(const void * pResult, const PPSoapClientSession & rSess);
 	void   FASTCALL DestroyResult(void ** ppResult);

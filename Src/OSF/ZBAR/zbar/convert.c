@@ -686,7 +686,7 @@ static void convert_yuv_to_rgb(zbar_image_t * dst, const zbar_format_def_t * dst
 				else if(y0 >= 235)
 					y0 = 255;
 				else
-					y0 = (uint16)(y0 - 16) * 255 / 219;
+					y0 = static_cast<uint16>(y0 - 16) * 255 / 219;
 
 				p = (((y0 >> drbits) << drbit0) |
 				    ((y0 >> dgbits) << dgbit0) |

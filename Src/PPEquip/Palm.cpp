@@ -31,8 +31,8 @@ int SLAPI PalmBillQueue::Push(PalmBillPacket * pPack)
 
 IMPL_CMPFUNC(PalmBillPacket, i1, i2)
 {
-	const PalmBillPacket * p_i1 = (const PalmBillPacket *)i1;
-	const PalmBillPacket * p_i2 = (const PalmBillPacket *)i2;
+	const PalmBillPacket * p_i1 = static_cast<const PalmBillPacket *>(i1);
+	const PalmBillPacket * p_i2 = static_cast<const PalmBillPacket *>(i2);
 	int    r = COMPARE(p_i1->Hdr.PalmID, p_i2->Hdr.PalmID);
 	return r ? r : COMPARE(p_i1->Hdr.ID, p_i2->Hdr.ID);
 }
@@ -42,7 +42,7 @@ int SLAPI PalmBillQueue::PushUnique(PalmBillPacket * pPack)
 	int ok = -1;
 	uint pos = 0;
 	if(lsearch(pPack, &pos, PTR_CMPFUNC(PalmBillPacket)) > 0) {
-		PalmBillPacket * p_pack = (PalmBillPacket*)at(pos);
+		PalmBillPacket * p_pack = static_cast<PalmBillPacket *>(at(pos));
 		ZDELETE(p_pack);
 		atFree(pos);
 		atInsert(pos, pPack);
@@ -57,7 +57,7 @@ PalmBillPacket * SLAPI PalmBillQueue::Pop()
 {
 	PalmBillPacket * p_pack = 0;
 	if(getCount()) {
-		p_pack = (PalmBillPacket *)at(0);
+		p_pack = static_cast<PalmBillPacket *>(at(0));
 		atFree(0);
 	}
 	return p_pack;
@@ -67,7 +67,7 @@ PalmBillPacket * SLAPI PalmBillQueue::Peek()
 {
 	PalmBillPacket * p_pack = 0;
 	if(getCount())
-		p_pack = (PalmBillPacket *)at(0);
+		p_pack = static_cast<PalmBillPacket *>(at(0));
 	return p_pack;
 }
 
@@ -84,7 +84,7 @@ long SLAPI PalmBillQueue::GetBillIdBias() const
 {
 	long   bias = 0;
 	for(uint i = 0; i < getCount(); i++) {
-		const PalmBillPacket * p_item = (const PalmBillPacket *)at(i);
+		const PalmBillPacket * p_item = static_cast<const PalmBillPacket *>(at(i));
 		if(p_item->Hdr.ID > bias)
 			bias = p_item->Hdr.ID;
 	}
@@ -96,20 +96,20 @@ int SLAPI PalmBillQueue::AddItem(PPID billID, const PalmBillItem * pItem, uint *
 	int    ok = -1;
 	uint   pos = 0;
 	PalmBillPacket * p_pack = 0;
-	if(pPos && *pPos < getCount() && ((PalmBillPacket *)at(*pPos))->Hdr.ID == billID) {
+	if(pPos && *pPos < getCount() && static_cast<const PalmBillPacket *>(at(*pPos))->Hdr.ID == billID) {
 		pos = *pPos;
 		ok = 1;
 	}
 	else {
 		for(uint i = 0; i < getCount(); i++)
-			if(((PalmBillPacket *)at(i))->Hdr.ID == billID) {
+			if(static_cast<const PalmBillPacket *>(at(i))->Hdr.ID == billID) {
 				pos = i;
 				ok = 1;
 				break;
 			}
 	}
 	if(ok > 0) {
-		p_pack = (PalmBillPacket *)at(pos);
+		p_pack = static_cast<PalmBillPacket *>(at(pos));
 		if(p_pack->Hdr.ID == billID) {
 			ok = p_pack->AddItem(pItem);
 			ASSIGN_PTR(pPos, pos);
@@ -482,7 +482,7 @@ static int SLAPI EditGeoTrackingMode(PPGeoTrackingMode * pData)
 		GeoTrackingModeDialog() : TDialog(DLG_GEOTRACKMODE)
 		{
 		}
-		int   setDTS(PPGeoTrackingMode * pData)
+		int   setDTS(const PPGeoTrackingMode * pData)
 		{
             int    ok = 1;
             Data = *pData;
@@ -4207,7 +4207,7 @@ int SLAPI PPObjStyloPalm::EditImpExpData(PalmPaneData * pData)
 }
 
 // static
-int SLAPI PPObjStyloPalm::ImpExp(PalmPaneData * pData)
+int SLAPI PPObjStyloPalm::ImpExp(const PalmPaneData * pData)
 {
 	int    ok = 1;
 	const  PPConfig & r_cfg = LConfig;

@@ -258,7 +258,7 @@ int SLAPI EditCRevalParam(CurRevalParam * pData) { DIALOG_PROC_BODY(CRevalDialog
 
 #define __HDR_DW_COUNT 9
 
-int SLAPI PutCurRevalConfig(CurRevalParam * pData, int use_ta)
+static int SLAPI PutCurRevalConfig(const CurRevalParam * pData, int use_ta)
 {
 	int    ok = 1;
 	PPIDArray temp;
@@ -278,9 +278,9 @@ int SLAPI PutCurRevalConfig(CurRevalParam * pData, int use_ta)
 		for(i = 0; i < 4; i++)
 			THROW_SL(temp.add(0L));
 		for(i = 0; i < pData->AccList.getCount(); i++)
-			THROW_SL(temp.add(pData->AccList.at(i)));
+			THROW_SL(temp.add(pData->AccList.get(i)));
 	}
-	THROW(PPRef->PutPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CURREVALCFG, (pData ? &temp : (PPIDArray*)0), use_ta));
+	THROW(PPRef->PutPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CURREVALCFG, (pData ? &temp : static_cast<const PPIDArray *>(0)), use_ta));
 	CATCHZOK
 	return ok;
 }

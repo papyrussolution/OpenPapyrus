@@ -34,7 +34,7 @@ int __bam_split_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void
 	db_pgno_t pgno, parent_pgno;
 	uint32 opflags, size;
 	int cmp, l_update, p_update, r_update, ret, rootsplit, t_ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__bam_split_print);
 	REC_INTRO(__bam_split_read, ip, 0);
 	opflags = OP_MODE_GET(argp->opflags);
@@ -295,7 +295,7 @@ int __bam_split_48_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, v
 	db_pgno_t pgno, parent_pgno;
 	uint32 ptype, size;
 	int cmp, l_update, p_update, r_update, ret, rootsplit, t_ret;
-	ip = ((DB_TXNHEAD *)info)->thread_info;
+	ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__bam_split_print);
 	_lp = lp = np = pp = _rp = rp = NULL;
 	sp = NULL;
@@ -557,7 +557,7 @@ int __bam_split_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, v
 	db_pgno_t pgno, root_pgno;
 	uint32 ptype;
 	int cmp, l_update, p_update, r_update, rc, ret, rootsplit, t_ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__bam_split_print);
 	REC_INTRO(__bam_split_42_read, ip, 0);
 	/*
@@ -802,7 +802,7 @@ int __bam_rsplit_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 	db_recno_t rcnt;
 	int cmp_n, cmp_p, ret;
 
-	ip = ((DB_TXNHEAD *)info)->thread_info;
+	ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	pagep = NULL;
 	REC_PRINT(__bam_rsplit_print);
 	REC_INTRO(__bam_rsplit_read, ip, 1);
@@ -906,7 +906,7 @@ int __bam_adj_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
 	DBC * dbc;
 	DB_MPOOLFILE * mpf;
 	int cmp_n, cmp_p, ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	PAGE * pagep = NULL;
 	REC_PRINT(__bam_adj_print);
 	REC_INTRO(__bam_adj_read, ip, 1);
@@ -962,7 +962,7 @@ int __bam_cadjust_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, vo
 	DB_MPOOLFILE * mpf;
 	PAGE * pagep;
 	int cmp_n, cmp_p, ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	pagep = NULL;
 	REC_PRINT(__bam_cadjust_print);
 	REC_INTRO(__bam_cadjust_read, ip, 0);
@@ -1039,7 +1039,7 @@ int __bam_cdel_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
 	DB_MPOOLFILE * mpf;
 	uint32 indx;
 	int cmp_n, cmp_p, ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	PAGE * pagep = NULL;
 	REC_PRINT(__bam_cdel_print);
 	REC_INTRO(__bam_cdel_read, ip, 0);
@@ -1103,7 +1103,7 @@ int __bam_repl_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
 	int cmp_n, cmp_p, ret;
 	uint32 len;
 	uint8 * dp, * p;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	PAGE * pagep = NULL;
 	REC_PRINT(__bam_repl_print);
 	REC_INTRO(__bam_repl_read, ip, 1);
@@ -1203,7 +1203,7 @@ int __bam_irep_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
 	DBC * dbc;
 	DB_MPOOLFILE * mpf;
 	int cmp_n, cmp_p, ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	PAGE * pagep = NULL;
 	REC_PRINT(__bam_irep_print);
 	REC_INTRO(__bam_irep_read, ip, 1);
@@ -1262,7 +1262,7 @@ int __bam_root_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
 	DB_MPOOLFILE * mpf;
 	int cmp_n, cmp_p, ret;
 
-	ip = ((DB_TXNHEAD *)info)->thread_info;
+	ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	meta = NULL;
 	REC_PRINT(__bam_root_print);
 	REC_INTRO(__bam_root_read, ip, 0);
@@ -1283,7 +1283,7 @@ int __bam_root_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
 		REC_DIRTY(mpf, ip, file_dbp->priority, &meta);
 		meta->root = argp->root_pgno;
 		meta->dbmeta.Lsn = *lsnp;
-		((BTREE *)file_dbp->bt_internal)->bt_root = meta->root;
+		static_cast<BTREE *>(file_dbp->bt_internal)->bt_root = meta->root;
 	}
 	else if(cmp_n == 0 && DB_UNDO(op)) {
 		// Nothing to undo except lsn
@@ -1317,7 +1317,7 @@ int __bam_curadj_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 	DB_MPOOLFILE * mpf;
 	int ret;
 	COMPQUIET(mpf, 0);
-	ip = ((DB_TXNHEAD *)info)->thread_info;
+	ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__bam_curadj_print);
 	REC_INTRO(__bam_curadj_read, ip, 1);
 	ret = 0;
@@ -1365,7 +1365,7 @@ int __bam_rcuradj_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, vo
 	DB_MPOOLFILE * mpf;
 	int ret, t_ret;
 	COMPQUIET(mpf, 0);
-	ip = ((DB_TXNHEAD *)info)->thread_info;
+	ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	rdbc = NULL;
 	REC_PRINT(__bam_rcuradj_print);
 	REC_INTRO(__bam_rcuradj_read, ip, 1);
@@ -1440,7 +1440,7 @@ int __bam_merge_44_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, v
 	uint32 size;
 	uint8 * bp;
 	int cmp_n, cmp_p, i, ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__bam_merge_44_print);
 	REC_INTRO(__bam_merge_44_read, ip, 1);
 	if((ret = __memp_fget(mpf, &argp->pgno, ip, NULL, 0, &pagep)) != 0) {
@@ -1470,12 +1470,12 @@ int __bam_merge_44_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, v
 		if(TYPE(pagep) == P_OVERFLOW) {
 			OV_REF(pagep) = OV_REF(argp->hdr.data);
 			OV_LEN(pagep) = OV_LEN(argp->hdr.data);
-			bp = (uint8 *)pagep+P_OVERHEAD(file_dbp);
+			bp = reinterpret_cast<uint8 *>(pagep)+P_OVERHEAD(file_dbp);
 			memcpy(bp, argp->data.data, argp->data.size);
 		}
 		else {
 			/* Copy the data segment. */
-			bp = (uint8 *)pagep+(db_indx_t)(HOFFSET(pagep)-argp->data.size);
+			bp = reinterpret_cast<uint8 *>(pagep)+(db_indx_t)(HOFFSET(pagep)-argp->data.size);
 			memcpy(bp, argp->data.data, argp->data.size);
 			/* Copy index table offset past the current entries. */
 			pinp = P_INP(file_dbp, pagep)+NUM_ENT(pagep);
@@ -1554,11 +1554,11 @@ next:
 		if(TYPE(pagep) == P_OVERFLOW) {
 			OV_REF(pagep) = OV_REF(argp->hdr.data);
 			OV_LEN(pagep) = OV_LEN(argp->hdr.data);
-			bp = (uint8 *)pagep+P_OVERHEAD(file_dbp);
+			bp = reinterpret_cast<uint8 *>(pagep)+P_OVERHEAD(file_dbp);
 			memcpy(bp, argp->data.data, argp->data.size);
 		}
 		else {
-			bp = (uint8 *)pagep+(db_indx_t)(HOFFSET(pagep)-argp->data.size);
+			bp = reinterpret_cast<uint8 *>(pagep)+(db_indx_t)(HOFFSET(pagep)-argp->data.size);
 			memcpy(bp, argp->data.data, argp->data.size);
 			/* Copy index table. */
 			pinp = P_INP(file_dbp, pagep)+NUM_ENT(pagep);
@@ -1592,7 +1592,7 @@ int __bam_relink_43_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, 
 	DBC * dbc;
 	DB_MPOOLFILE * mpf;
 	int cmp_n, cmp_p, modified, ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	PAGE * pagep = NULL;
 	REC_PRINT(__bam_relink_43_print);
 	REC_INTRO(__bam_relink_43_read, ip, 0);

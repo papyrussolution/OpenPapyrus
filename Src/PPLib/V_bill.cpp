@@ -2882,14 +2882,15 @@ static int SLAPI SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBu
 		{
 			WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::PrefSettings, 1); // @v9.2.0 readonly 0-->1
 			SString param;
-			char   val_buf[128];
+			//char   val_buf[128];
+			SString temp_buf;
 			PPID   op_id = getCtrlLong(CTLSEL_SELBBSMPL_OP);
 			long   action = 0;
 			GetClusterData(CTL_SELBBSMPL_WHAT, &action);
 			(param = WrParam_StoreFlags).CatChar('-').Cat(op_id).CatChar('-').Cat(action);
 			long   flags = 0;
-			if(reg_key.GetString(param, val_buf, sizeof(val_buf))) {
-				long rf = atoi(val_buf);
+			if(reg_key.GetString(param, temp_buf)) {
+				long rf = atoi(temp_buf);
 				SETFLAGBYSAMPLE(flags, SelAddBySampleParam::fCopyBillCode, rf);
 			}
 			SetClusterData(CTL_SELBBSMPL_SAMECODE, flags);
@@ -4458,9 +4459,9 @@ struct PrvdrDllLink {
 	ImpExpParamDllStruct ParamDll;
 };
 
-int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, SString & rFileName); // @prototype
-int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, SString & rFileName); // @prototype
-int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, SString & rFileName); // @prototype
+int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const SString & rFileName); // @prototype
+int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const SString & rFileName); // @prototype
+int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName); // @prototype
 
 int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBillImpExpParam * pBRowParam)
 {

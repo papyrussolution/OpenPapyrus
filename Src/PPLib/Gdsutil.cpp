@@ -2999,7 +2999,7 @@ int FASTCALL PPBarcode::RecognizeStdName(const char * pText)
 							// Например: ucp-a == upca или pdf 417 == pdf417
 							//
 							size_t cpos = 0;
-							if(text.StrChr('-', &cpos) || text.StrChr(' ', &cpos)) {
+							if(text.SearchChar('-', &cpos) || text.SearchChar(' ', &cpos)) {
 								text.Excise(cpos, 1);
 								do_again = 1;
 							}

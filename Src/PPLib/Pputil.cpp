@@ -20,7 +20,7 @@ int FASTCALL dbl_cmp(double v1, double v2)
 		return 0;
 }
 
-IMPL_CMPFUNC(PPLBItem, i1, i2) { return stricmp866(((char *)i1)+sizeof(long), ((char *)i2)+sizeof(long)); }
+IMPL_CMPFUNC(PPLBItem, i1, i2) { return stricmp866(static_cast<const char *>(i1)+sizeof(long), static_cast<const char *>(i2)+sizeof(long)); }
 
 IMPL_CMPFUNC(PPTLBItem, i1, i2)
 {
@@ -30,7 +30,7 @@ IMPL_CMPFUNC(PPTLBItem, i1, i2)
 		return 1;
 	else if(parent_id1 < parent_id2)
 		return -1;
-	int    cmp = stricmp866(((char *)i1)+sizeof(long)*2, ((char *)i2)+sizeof(long)*2);
+	int    cmp = stricmp866(static_cast<const char *>(i1)+sizeof(long)*2, static_cast<const char *>(i2)+sizeof(long)*2);
 	if(cmp > 0)
 		return 1;
 	else if(cmp < 0)
@@ -53,7 +53,7 @@ SString & SLAPI DateToStr(LDATE dt, SString & rBuf)
 	if(dt) {
 		SString txt_month;
 		SGetMonthText(dt.month(), MONF_CASEGEN, txt_month);
-		rBuf.CatLongZ((long)dt.day(), 2).Space().Cat(txt_month).Space().Cat(dt.year()).Space().Cat("ã.");
+		rBuf.CatLongZ(dt.day(), 2).Space().Cat(txt_month).Space().Cat(dt.year()).Space().Cat("ã.");
 		rBuf.Transf(CTRANSF_OUTER_TO_INNER);
 	}
 	return rBuf;
@@ -3786,8 +3786,8 @@ int SLAPI PPUhttClient::TransferData(int transferID, int chunkNumber, size_t raw
 		if(func) {
 			sess.Setup(UrlBase);
 			temp_buf.EncodeMime64(pBinaryChunkData, (size_t)rawChunkSize);
-			int    result = func(sess, Token, transferID, chunkNumber, (int64)rawChunkSize, (char *)(const char *)temp_buf); // @badcast
-			if(PreprocessResult((void *)result, sess))
+			int    result = func(sess, Token, transferID, chunkNumber, (int64)rawChunkSize, (char *)temp_buf.cptr()); // @badcast
+			if(PreprocessResult(reinterpret_cast<void *>(result), sess))
 				ok = 1;
 		}
 	}
@@ -3804,7 +3804,7 @@ int SLAPI PPUhttClient::FinishTransferData(int transferID)
 		if(func) {
 			sess.Setup(UrlBase);
 			int    result = func(sess, Token, transferID);
-			if(PreprocessResult((void *)result, sess))
+			if(PreprocessResult(reinterpret_cast<void *>(result), sess))
 				ok = 1;
 		}
 	}
@@ -3814,7 +3814,7 @@ int SLAPI PPUhttClient::FinishTransferData(int transferID)
 void FASTCALL PPUhttClient::DestroyResult(void ** ppResult)
 {
 	if(P_DestroyFunc) {
-		((UHTT_DESTROYRESULT)P_DestroyFunc)(*ppResult);
+		static_cast<UHTT_DESTROYRESULT>(P_DestroyFunc)(*ppResult);
 		*ppResult = 0;
 	}
 }
@@ -4466,7 +4466,7 @@ int PPXmlFileDetector::StartElement(const char * pName, const char ** ppAttrList
 		size_t colon_pos = 0;
 		SString & r_temp_buf = SLS.AcquireRvlStr();
 		(r_temp_buf = pName).ToLower();
-		if(r_temp_buf.StrChr(':', &colon_pos))
+		if(r_temp_buf.SearchChar(':', &colon_pos))
 			r_temp_buf.ShiftLeft(colon_pos+1);
 		P_ShT->Search(r_temp_buf, &_ut, 0);
 		tok = _ut;

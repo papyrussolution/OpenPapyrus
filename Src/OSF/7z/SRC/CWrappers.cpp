@@ -138,7 +138,7 @@ bool CByteInBufWrap::Alloc(uint32 size) throw()
 {
 	if(Buf == 0 || size != Size) {
 		Free();
-		Lim = Cur = Buf = (Byte*)::MidAlloc((size_t)size);
+		Lim = Cur = Buf = (Byte *)::MidAlloc((size_t)size);
 		Size = size;
 	}
 	return (Buf != 0);
@@ -197,7 +197,7 @@ bool CByteOutBufWrap::Alloc(size_t size) throw()
 {
 	if(Buf == 0 || size != Size) {
 		Free();
-		Buf = (Byte*)::MidAlloc(size);
+		Buf = (Byte *)::MidAlloc(size);
 		Size = size;
 	}
 	return (Buf != 0);

@@ -204,12 +204,12 @@ namespace NCompress {
 			DecodeRes = SZ_OK;
 			XzUnpacker_Init(&xzu.p);
 			if(!xzu.InBuf) {
-				xzu.InBuf = (Byte*)MidAlloc(kInBufSize);
+				xzu.InBuf = (Byte *)MidAlloc(kInBufSize);
 				if(!xzu.InBuf)
 					return E_OUTOFMEMORY;
 			}
 			if(!xzu.OutBuf) {
-				xzu.OutBuf = (Byte*)MidAlloc(kOutBufSize);
+				xzu.OutBuf = (Byte *)MidAlloc(kOutBufSize);
 				if(!xzu.OutBuf)
 					return E_OUTOFMEMORY;
 			}
@@ -600,7 +600,7 @@ namespace NArchive {
 		}
 		void Alloc(size_t allocSize)
 		{
-			buf = (Byte*)SAlloc::M(allocSize);
+			buf = (Byte *)SAlloc::M(allocSize);
 			if(buf)
 				this->bufSize = allocSize;
 		}

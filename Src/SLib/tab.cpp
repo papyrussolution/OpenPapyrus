@@ -90,7 +90,7 @@ int FASTCALL STab::Row::Add(const char * pStr)
 	uint   pos = 0;
 	if(pStr)
 		Set.add(pStr, &pos);
-	PosList.add((long)pos);
+	PosList.add(static_cast<long>(pos));
 	return ok;
 }
 

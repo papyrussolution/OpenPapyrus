@@ -189,6 +189,10 @@ public:
 			Actual_Regular_Parity(0)
 		{
 		}
+		double SLAPI GetAverageSpread() const
+		{
+			return fdivui(SpreadSum, SpreadCount);
+		}
 		int FASTCALL GetLastValue(double * pValue) const
 		{
 			int    ok = 0;
@@ -704,7 +708,7 @@ int SLAPI TimeSeriesCache::Flash()
 					THROW(tra);
 					if(ts_obj.GetPacket(id, &rec) > 0) {
 						if(p_blk->SpreadCount && p_blk->SpreadSum) {
-							rec.AvgSpread = fdivui(p_blk->SpreadSum, p_blk->SpreadCount);
+							rec.AvgSpread = p_blk->GetAverageSpread();
 						}
 						THROW(ts_obj.PutPacket(&id, &rec, 0));
 						{
@@ -824,15 +828,16 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rB
 			}
 			{
 				double last_value = 0.0;
+				const  double avg_spread = rBlk.GetAverageSpread();
 				rBlk.T_.GetValue(rBlk.T_.GetCount()-1, vec_idx, &last_value);
 				const double external_sl = (external_max_duck_quant > 0 && external_spike_quant > 0.0) ?
-					PPObjTimeSeries::Strategy::CalcSL_withExternalFactors(last_value, is_short, prec, external_max_duck_quant, external_spike_quant) : 0.0;
+					PPObjTimeSeries::Strategy::CalcSL_withExternalFactors(last_value, is_short, prec, external_max_duck_quant, external_spike_quant, avg_spread) : 0.0;
 				const double external_tp = (external_target_quant > 0 && external_spike_quant > 0.0) ? 
-					PPObjTimeSeries::Strategy::CalcTP_withExternalFactors(rStk.PriceOpen, is_short, prec, external_target_quant, external_spike_quant) : 0.0;
+					PPObjTimeSeries::Strategy::CalcTP_withExternalFactors(rStk.PriceOpen, is_short, prec, external_target_quant, external_spike_quant, avg_spread) : 0.0;
 
 				const PPObjTimeSeries::Strategy * p_st = (_best_result.MaxResultIdx >= 0) ? &rBlk.Strategies.at(_best_result.MaxResultIdx) : 0;
-				const double __sl = p_st ? p_st->CalcSL(last_value) : 0.0;
-				const double __tp = p_st ? p_st->CalcTP(last_value) : 0.0;
+				const double __sl = p_st ? p_st->CalcSL(last_value, avg_spread) : 0.0;
+				const double __tp = p_st ? p_st->CalcTP(last_value, avg_spread) : 0.0;
 				//const double eff_sl = (__sl > 0.0 && external_sl > 0.0) ? (is_short ? MIN(__sl, external_sl) : MAX(__sl, external_sl)) : ((__sl > 0.0) ? __sl : external_sl);
 				const double eff_sl = (external_sl > 0.0) ? external_sl : ((__sl > 0.0) ? __sl : rStk.SL);
 				//const double eff_tp = (__tp > 0.0 && external_tp > 0.0) ? (is_short ? MAX(__tp, external_tp) : MIN(__tp, external_tp)) : ((__tp > 0.0) ? __tp : external_tp);
@@ -1115,14 +1120,6 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 						is_there_stake = 1;
 					}
 				}
-				/* @v10.3.9
-				if(!is_there_stake && current_stake_count < Cfg.MaxStakeCount) {
-					PotentialStakeEntry pse(*p_blk);
-					if(FindOptimalStrategyForStake(evaluated_used_margin, pse) > 0)
-						potential_stake_list.insert(&pse);
-				}
-				*/
-				// @v10.3.9 {
 				{
 					PotentialStakeEntry pse(*p_blk);
 					if(FindOptimalStrategyForStake(evaluated_used_margin, pse) > 0) {
@@ -1130,7 +1127,6 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 							potential_stake_list.insert(&pse);
 					}
 				}
-				// } @v10.3.9 
 			}
 		}
 	}
@@ -1153,14 +1149,9 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 				stk_symb = r_pse.R_Blk.T_.GetSymb();
 				const double cost = EvaluateCost(r_pse.R_Blk, LOGIC(r_s.BaseFlags & r_s.bfShort), r_pse.Volume);
 				if(cost > 0.0) {
-					const double sl = r_s.CalcSL(last_value);
-					//
-					// @v10.3.9 В ходе реальной работы выяснилось, что слишком часто линия не долетает до расчетного TP.
-					// По-этому, экспериментально, снижаем реальное значение до равного MaxDuckQuant {
-					//
-					//const double tp = PPObjTimeSeries::Strategy::CalcTP_withExternalFactors(last_value, LOGIC(r_s.BaseFlags & r_s.bfShort), r_s.Prec, r_s.MaxDuckQuant, r_s.SpikeQuant);
-					const double tp = r_s.CalcTP(last_value);
-					// }
+					const double avg_spread = r_pse.R_Blk.GetAverageSpread();
+					const double sl = r_s.CalcSL(last_value, avg_spread);
+					const double tp = r_s.CalcTP(last_value, avg_spread);
 					const long trange_fmt = MKSFMTD(0, 10, NMBF_NOTRAILZ);
 					log_msg.Z().Cat("Stake").CatDiv(':', 2).
 						Cat(stk_symb).CatChar('-').
@@ -1407,16 +1398,16 @@ int SLAPI PPObjTimeSeries::SetExternTimeSeriesProp(const char * pSymb, const cha
 			switch(_ut) {
 				case PPHS_TIMSER_PROP_PRECISION:
 					{
-						long prec = temp_buf.NotEmpty() ? temp_buf.ToLong() : 0;
+						const long prec = temp_buf.NotEmpty() ? temp_buf.ToLong() : 0;
 						if(prec != static_cast<long>(ts_rec.Prec)) {
-							ts_rec.Prec = (int16)prec;
+							ts_rec.Prec = static_cast<int16>(prec);
 							do_update = 1;
 						}
 					}
 					break;
 				case PPHS_TIMSER_PROP_MARGIN_BUY:
 					{
-						double marg = temp_buf.ToReal();
+						const double marg = temp_buf.ToReal();
 						if(marg != static_cast<long>(ts_rec.BuyMarg)) {
 							ts_rec.BuyMarg = marg;
 							do_update = 1;
@@ -1425,7 +1416,7 @@ int SLAPI PPObjTimeSeries::SetExternTimeSeriesProp(const char * pSymb, const cha
 					break;
 				case PPHS_TIMSER_PROP_MARGIN_SELL:
 					{
-						double marg = temp_buf.ToReal();
+						const double marg = temp_buf.ToReal();
 						if(marg != static_cast<long>(ts_rec.SellMarg)) {
 							ts_rec.SellMarg = marg;
 							do_update = 1;
@@ -1448,7 +1439,7 @@ int SLAPI PPObjTimeSeries::SetExternTimeSeriesProp(const char * pSymb, const cha
 					break;
 				case PPHS_TIMSER_PROP_VOLUME_MIN: // "time-series-volume-min"      // минимальный объем сделки
 					{
-						double val = temp_buf.ToReal();
+						const double val = temp_buf.ToReal();
 						if(val > 0.0) {
 							TimeSeriesCache * p_cache = GetDbLocalCachePtr <TimeSeriesCache> (PPOBJ_TIMESERIES);
 							CALLPTRMEMB(p_cache, SetVolumeParams(pSymb, val, 0.0, 0.0));
@@ -1457,7 +1448,7 @@ int SLAPI PPObjTimeSeries::SetExternTimeSeriesProp(const char * pSymb, const cha
 					break;
 				case PPHS_TIMSER_PROP_VOLUME_MAX: // "time-series-volume-max"      // максимальный объем сделки
 					{
-						double val = temp_buf.ToReal();
+						const double val = temp_buf.ToReal();
 						if(val > 0.0) {
 							TimeSeriesCache * p_cache = GetDbLocalCachePtr <TimeSeriesCache> (PPOBJ_TIMESERIES);
 							CALLPTRMEMB(p_cache, SetVolumeParams(pSymb, 0.0, val, 0.0));
@@ -1466,7 +1457,7 @@ int SLAPI PPObjTimeSeries::SetExternTimeSeriesProp(const char * pSymb, const cha
 					break;
 				case PPHS_TIMSER_PROP_VOLUME_STEP: // "time-series-volume-step"     // Минимальный шаг изменения объема для заключения сделки
 					{
-						double val = temp_buf.ToReal();
+						const double val = temp_buf.ToReal();
 						if(val > 0.0) {
 							TimeSeriesCache * p_cache = GetDbLocalCachePtr <TimeSeriesCache> (PPOBJ_TIMESERIES);
 							CALLPTRMEMB(p_cache, SetVolumeParams(pSymb, 0.0, 0.0, val));

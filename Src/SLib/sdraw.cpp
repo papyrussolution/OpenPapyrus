@@ -237,7 +237,7 @@ SDrawFigure * SDrawFigure::CreateFromFile(const char * pFileName, const char * p
 	const int fir = fmt.Identify(pFileName);
 	THROW(fir);
 	if(fmt == SFileFormat::Svg) {
-		SDrawContext dctx((HDC)0);
+		SDrawContext dctx(static_cast<HDC>(0));
 		SDraw * p_draw_fig = new SDraw(pSid, 0);
 		THROW_S(p_draw_fig, SLERR_NOMEM);
 		p_draw_fig->SetupUnitContext(dctx);
@@ -360,7 +360,7 @@ int FASTCALL SDrawFigure::GetViewPort(SViewPort * pVp) const
 		ok = 1;
 	}
 	else if(Size.IsPositive()) {
-		*(FRect *)&vp = Size;
+		*static_cast<FRect *>(&vp) = Size;
 		vp.ParX = SViewPort::parMid;
 		vp.ParY = SViewPort::parMid;
 		ok = 2;
@@ -572,14 +572,14 @@ int SDrawGroup::Remove(const char * pSid, int recur)
 	int    ok = -1;
 	if(!isempty(pSid)) {
 		for(uint i = 0; ok < 0 && i < getCount(); i++) {
-			const SDrawFigure * p_item = at(i);
+			SDrawFigure * p_item = at(i);
 			if(p_item) {
 				if(p_item->GetSid() == pSid) {
 					atFree(i);
 					ok = 1;
 				}
 				else if(recur && p_item->GetKind() == kGroup)
-					ok = ((SDrawGroup *)p_item)->Remove(pSid, recur); // @recursion
+					ok = static_cast<SDrawGroup *>(p_item)->Remove(pSid, recur); // @recursion
 			}
 		}
 	}
@@ -599,7 +599,7 @@ const SDrawFigure * SDrawGroup::Find(const char * pSid, int recur) const
 				p_result = p_item;
 			}
 			else if(recur && p_item->GetKind() == kGroup) {
-				const SDrawFigure * p_inner_item = ((SDrawGroup *)p_item)->Find(pSid, 1); // @recursion
+				const SDrawFigure * p_inner_item = static_cast<const SDrawGroup *>(p_item)->Find(pSid, 1); // @recursion
 				if(p_inner_item)
 					p_result = p_inner_item;
 			}
@@ -2381,7 +2381,7 @@ int SImageBuffer::LoadIco(SFile & rF, uint pageIdx)
 						THROW(rF.ReadV(line_buf, line_size * height));
 						total_rc_size += (line_size * height);
 						for(uint i = 0; i < height; ++i)
-							THROW(AddLines(PTR8((char *)line_buf)+line_size*i, ff, 1, &palette));
+							THROW(AddLines(PTR8C(line_buf.vcptr())+line_size*i, ff, 1, &palette));
 					}
 					break;
 				case 24:
@@ -2394,8 +2394,9 @@ int SImageBuffer::LoadIco(SFile & rF, uint pageIdx)
 						THROW(rF.ReadV(line_buf, line_size * height));
 						total_rc_size += (line_size * height);
 						for(uint i = 0; i < height; ++i)
-							THROW(AddLines(PTR8((char *)line_buf)+line_size*i, ff, 1, 0));
+							THROW(AddLines(PTR8C(line_buf.vcptr())+line_size*i, ff, 1, 0));
 					}
+					break; // @v10.3.11 @fix
 				default:
 					ok = 0;
 			}
@@ -2409,7 +2410,7 @@ int SImageBuffer::LoadIco(SFile & rF, uint pageIdx)
 					const size_t step = i*width;
 					const size_t step_and = i*width_and;
 					for(uint j = 0; j < width; ++j) {
-						int a = (PTR8((char *)line_buf)[step_and + (j>>3)]&(0x80>>(j&0x07))) != 0 ? 0 : 0xFF;
+						int a = (PTR8C(line_buf.vcptr())[step_and + (j>>3)]&(0x80>>(j&0x07))) != 0 ? 0 : 0xFF;
 						if(a == 0)
 							p_data[step+j] &= 0x00ffffff;
 						else

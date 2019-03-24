@@ -98,7 +98,7 @@ struct CBenchBuffer {
 	{
 		::MidFree(Buffer);
 		BufferSize = 0;
-		Buffer = (Byte*)::MidAlloc(size);
+		Buffer = (Byte *)::MidAlloc(size);
 		if(Buffer)
 			BufferSize = size;
 	}
@@ -117,11 +117,11 @@ struct CBenchBuffer {
 		::MidFree(_bufBase);
 		Buffer = NULL;
 		BufferSize = 0;
-		_bufBase = (Byte*)::MidAlloc(size + alignMask);
+		_bufBase = (Byte *)::MidAlloc(size + alignMask);
 
 		if(_bufBase) {
 			// Buffer = (Byte *)(((uintptr_t)_bufBase + alignMask) & ~(uintptr_t)alignMask);
-			Buffer = (Byte*)(((ptrdiff_t)_bufBase + alignMask) & ~(ptrdiff_t)alignMask);
+			Buffer = (Byte *)(((ptrdiff_t)_bufBase + alignMask) & ~(ptrdiff_t)alignMask);
 			BufferSize = size;
 		}
 	}
@@ -233,7 +233,7 @@ STDMETHODIMP CBenchmarkInStream::Read(void * data, uint32 size, uint32 * process
 	SETMIN(size, kMaxBlockSize);
 	SETMIN(size, (uint32)remain);
 	for(uint32 i = 0; i < size; i++)
-		((Byte*)data)[i] = Data[Pos + i];
+		((Byte *)data)[i] = Data[Pos + i];
 	Pos += size;
 	ASSIGN_PTR(processedSize, size);
 	return S_OK;

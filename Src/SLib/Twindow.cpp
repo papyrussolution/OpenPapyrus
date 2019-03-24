@@ -173,7 +173,7 @@ ToolbarList::ToolbarList() : SVector(sizeof(ToolbarItem)), Bitmap(0) {} // @v9.8
 void  ToolbarList::setBitmap(uint b) { Bitmap = b; }
 uint  ToolbarList::getBitmap() const { return Bitmap; }
 uint  ToolbarList::getItemsCount() const { return getCount(); }
-const ToolbarItem & FASTCALL ToolbarList::getItem(uint idx) const { return *(ToolbarItem *)at(idx); }
+const ToolbarItem & FASTCALL ToolbarList::getItem(uint idx) const { return *static_cast<const ToolbarItem *>(at(idx)); }
 void  ToolbarList::clearAll() { freeAll(); }
 int   ToolbarList::addItem(const ToolbarItem * pItem) { return pItem ? insert(pItem) : -1; }
 
@@ -223,7 +223,7 @@ int ToolbarList::moveItem(uint pos, int up)
 	if(pos < getCount()) {
 		if(up) {
 			if(pos > 0) {
-				ToolbarItem item = *(ToolbarItem *)at(pos);
+				ToolbarItem item = *static_cast<const ToolbarItem *>(at(pos));
 				atFree(pos);
 				atInsert(pos-1, &item);
 				ok = 1;
@@ -231,7 +231,7 @@ int ToolbarList::moveItem(uint pos, int up)
 		}
 		else {
 			if(pos < getCount()-1) {
-				ToolbarItem item = *(ToolbarItem *)at(pos);
+				ToolbarItem item = *static_cast<const ToolbarItem *>(at(pos));
 				atFree(pos);
 				atInsert(pos+1, &item);
 				ok = 1;
@@ -1598,7 +1598,7 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 					se.Dir = DIREC_HORZ;
 				else if(message == WM_VSCROLL)
 					se.Dir = DIREC_VERT;
-				se.H_Wnd = (void *)lParam;
+				se.H_Wnd = reinterpret_cast<void *>(lParam);
 				switch(LOWORD(wParam)) {
 					case SB_TOP:       se.Type = ScrollEvent::tTop; break;
 					case SB_BOTTOM:    se.Type = ScrollEvent::tBottom; break;

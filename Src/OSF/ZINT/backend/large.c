@@ -45,8 +45,10 @@ static const short BCD[40] = {
 	0, 0, 0, 1,
 	1, 0, 0, 1
 };
-
-void binary_add(short accumulator[], short input_buffer[])   /* Binary addition */
+//
+// Binary addition 
+//
+void FASTCALL binary_add(short accumulator[], short input_buffer[]) 
 {
 	int    carry = 0;
 	for(int i = 0; i < 112; i++) {
@@ -147,7 +149,7 @@ short islarger(short accum[], short reg[])
 	return larger;
 }
 
-void binary_load(short reg[], const char pData[], const uint srcLen)
+void FASTCALL binary_load(short reg[], const char pData[], const uint srcLen)
 {
 	short  temp[112] = {0};
 	memzero(reg, sizeof(reg[0]) * 112);
@@ -163,5 +165,10 @@ void binary_load(short reg[], const char pData[], const uint srcLen)
 		memzero(temp+4, sizeof(temp) - 4 * sizeof(temp[0]));
 		binary_add(reg, temp);
 	}
+}
+
+void FASTCALL binary_loads(short reg[], const char pData[])
+{
+	binary_load(reg, pData, sstrlen(pData));
 }
 

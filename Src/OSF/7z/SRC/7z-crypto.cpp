@@ -474,7 +474,7 @@ namespace NCrypto {
 				const Byte * buf;
 				for(uint j = 0; j < 4; j++)
 					buf32[j] = 0;
-				g_AesCtr_Code(buf32 + 4, (Byte*)buf32, 1);
+				g_AesCtr_Code(buf32 + 4, (Byte *)buf32, 1);
 				buf = (const Byte*)buf32;
 				pos = 0;
 				do {
@@ -1322,7 +1322,7 @@ namespace NCrypto {
 				return E_NOTIMPL;
 			if(_remSize + kAlign > _buf.Size()) {
 				_buf.Alloc(_remSize + kAlign);
-				_bufAligned = (Byte*)((ptrdiff_t)((Byte*)_buf + kAlign - 1) & ~(ptrdiff_t)(kAlign - 1));
+				_bufAligned = (Byte *)((ptrdiff_t)((Byte *)_buf + kAlign - 1) & ~(ptrdiff_t)(kAlign - 1));
 			}
 			return ReadStream_FALSE(inStream, _bufAligned, _remSize);
 		}

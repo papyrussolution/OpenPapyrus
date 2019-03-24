@@ -1104,8 +1104,8 @@ static inline int __dbc_put_fixed_len(DBC*dbc, DBT * data, DBT * out_data)
 		re_pad = ((QUEUE *)dbp->q_internal)->re_pad;
 	}
 	else {
-		re_len = ((BTREE *)dbp->bt_internal)->re_len;
-		re_pad = ((BTREE *)dbp->bt_internal)->re_pad;
+		re_len = static_cast<BTREE *>(dbp->bt_internal)->re_len;
+		re_pad = static_cast<BTREE *>(dbp->bt_internal)->re_pad;
 	}
 	size = data->size;
 	if(size > re_len) {
@@ -1758,7 +1758,7 @@ static int __dbc_del_oldskey(DB * sdbp, DBC * dbc, DBT * skey, DBT * pkey, DBT *
 		 * set no matter what access method we're in.
 		 */
 		for(i = 0, tskeyp = skey; i < nskey; i++, tskeyp++) {
-			if(((BTREE *)sdbp->bt_internal)->bt_compare(sdbp, toldskeyp, tskeyp) == 0) {
+			if(static_cast<BTREE *>(sdbp->bt_internal)->bt_compare(sdbp, toldskeyp, tskeyp) == 0) {
 				nsame++;
 				F_CLR(tskeyp, DB_DBT_ISSET);
 				break;
@@ -2718,7 +2718,7 @@ int __db_buildpartial(DB * dbp, DBT * oldrec, DBT * partial, DBT * newrec)
 		return ret;
 	newrec->data = buf;
 	/* Nul or pad out the buffer, for any part that isn't specified. */
-	memset(buf, F_ISSET(dbp, DB_AM_FIXEDLEN) ? ((BTREE *)dbp->bt_internal)->re_pad : 0, nbytes);
+	memset(buf, F_ISSET(dbp, DB_AM_FIXEDLEN) ? static_cast<BTREE *>(dbp->bt_internal)->re_pad : 0, nbytes);
 	/* Copy in any leading data from the original record. */
 	memcpy(buf, oldrec->data, partial->doff > oldrec->size ? oldrec->size : partial->doff);
 	/* Copy the data from partial. */
@@ -2778,6 +2778,6 @@ void __db_check_skeyset(DB*sdbp, DBT * skeyp)
 	DBT * last_key = first_key+skeyp->size;
 	for(key1 = first_key; key1 < last_key; key1++)
 		for(key2 = key1+1; key2 < last_key; key2++)
-			DB_ASSERT(env, ((BTREE *)sdbp->bt_internal)->bt_compare(sdbp, key1, key2) != 0);
+			DB_ASSERT(env, static_cast<BTREE *>(sdbp->bt_internal)->bt_compare(sdbp, key1, key2) != 0);
 }
 #endif

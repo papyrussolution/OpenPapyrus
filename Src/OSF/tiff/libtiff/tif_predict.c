@@ -319,7 +319,7 @@ static int horAcc16(TIFF* tif, uint8* cp0, tmsize_t cc)
 	if(wc > stride) {
 		wc -= stride;
 		do {
-			REPEAT4(stride, wp[stride] = (uint16)(((uint)wp[stride] + (uint)wp[0]) & 0xffff); wp++)
+			REPEAT4(stride, wp[stride] = static_cast<uint16>(((uint)wp[stride] + (uint)wp[0]) & 0xffff); wp++)
 			wc -= stride;
 		} while(wc > 0);
 	}
@@ -504,7 +504,7 @@ static int horDiff16(TIFF* tif, uint8* cp0, tmsize_t cc)
 		wc -= stride;
 		wp += wc - 1;
 		do {
-			REPEAT4(stride, wp[stride] = (uint16)(((uint)wp[stride] - (uint)wp[0]) & 0xffff); wp--)
+			REPEAT4(stride, wp[stride] = static_cast<uint16>(((uint)wp[stride] - (uint)wp[0]) & 0xffff); wp--)
 			wc -= stride;
 		} while(wc > 0);
 	}

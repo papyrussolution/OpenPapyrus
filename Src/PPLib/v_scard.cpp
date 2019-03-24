@@ -1268,7 +1268,7 @@ int SLAPI PPViewSCard::RenameDup(PPIDArray * pIdList)
 				MEMSZERO(k1);
 				THROW(SCObj.Search(dupl_scard, &rec) > 0);
 				code = rec.Code;
-				if(code.StrChr('#', &p))
+				if(code.SearchChar('#', &p))
 					code.Trim(p + 1);
 				else {
 					code.CatChar('#');

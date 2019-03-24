@@ -175,7 +175,7 @@ static void horizontalAccumulate12(uint16 * wp, int n, int stride, int16 * op,
 	register float t0, t1, t2, t3;
 
 #define SCALE12 2048.0F
-#define CLAMP12(t) (((t) < 3071) ? (uint16)(t) : 3071)
+#define CLAMP12(t) (((t) < 3071) ? static_cast<uint16>(t) : 3071)
 
 	if(n >= stride) {
 		mask = CODE_MASK;
@@ -304,9 +304,9 @@ static void horizontalAccumulate11(uint16 * wp, int n, int stride, uint16 * op)
 				wp += 3;
 				op += 3;
 				n -= 3;
-				op[0] = (uint16)((cr += wp[0]) & mask);
-				op[1] = (uint16)((cg += wp[1]) & mask);
-				op[2] = (uint16)((cb += wp[2]) & mask);
+				op[0] = static_cast<uint16>((cr += wp[0]) & mask);
+				op[1] = static_cast<uint16>((cg += wp[1]) & mask);
+				op[2] = static_cast<uint16>((cb += wp[2]) & mask);
 			}
 		}
 		else if(stride == 4) {
@@ -318,10 +318,10 @@ static void horizontalAccumulate11(uint16 * wp, int n, int stride, uint16 * op)
 				wp += 4;
 				op += 4;
 				n -= 4;
-				op[0] = (uint16)((cr += wp[0]) & mask);
-				op[1] = (uint16)((cg += wp[1]) & mask);
-				op[2] = (uint16)((cb += wp[2]) & mask);
-				op[3] = (uint16)((ca += wp[3]) & mask);
+				op[0] = static_cast<uint16>((cr += wp[0]) & mask);
+				op[1] = static_cast<uint16>((cg += wp[1]) & mask);
+				op[2] = static_cast<uint16>((cb += wp[2]) & mask);
+				op[3] = static_cast<uint16>((ca += wp[3]) & mask);
 			}
 		}
 		else {
@@ -923,9 +923,9 @@ static void horizontalDifferenceF(float * ip, int n, int stride, uint16 * wp, ui
 				n -= 3;
 				wp += 3;
 				ip += 3;
-				r1 = (int32)CLAMP(ip[0]); wp[0] = (uint16)((r1-r2) & mask); r2 = r1;
-				g1 = (int32)CLAMP(ip[1]); wp[1] = (uint16)((g1-g2) & mask); g2 = g1;
-				b1 = (int32)CLAMP(ip[2]); wp[2] = (uint16)((b1-b2) & mask); b2 = b1;
+				r1 = (int32)CLAMP(ip[0]); wp[0] = static_cast<uint16>((r1-r2) & mask); r2 = r1;
+				g1 = (int32)CLAMP(ip[1]); wp[1] = static_cast<uint16>((g1-g2) & mask); g2 = g1;
+				b1 = (int32)CLAMP(ip[2]); wp[2] = static_cast<uint16>((b1-b2) & mask); b2 = b1;
 			}
 		}
 		else if(stride == 4) {
@@ -938,10 +938,10 @@ static void horizontalDifferenceF(float * ip, int n, int stride, uint16 * wp, ui
 				n -= 4;
 				wp += 4;
 				ip += 4;
-				r1 = (int32)CLAMP(ip[0]); wp[0] = (uint16)((r1-r2) & mask); r2 = r1;
-				g1 = (int32)CLAMP(ip[1]); wp[1] = (uint16)((g1-g2) & mask); g2 = g1;
-				b1 = (int32)CLAMP(ip[2]); wp[2] = (uint16)((b1-b2) & mask); b2 = b1;
-				a1 = (int32)CLAMP(ip[3]); wp[3] = (uint16)((a1-a2) & mask); a2 = a1;
+				r1 = (int32)CLAMP(ip[0]); wp[0] = static_cast<uint16>((r1-r2) & mask); r2 = r1;
+				g1 = (int32)CLAMP(ip[1]); wp[1] = static_cast<uint16>((g1-g2) & mask); g2 = g1;
+				b1 = (int32)CLAMP(ip[2]); wp[2] = static_cast<uint16>((b1-b2) & mask); b2 = b1;
+				a1 = (int32)CLAMP(ip[3]); wp[3] = static_cast<uint16>((a1-a2) & mask); a2 = a1;
 			}
 		}
 		else {
@@ -949,7 +949,7 @@ static void horizontalDifferenceF(float * ip, int n, int stride, uint16 * wp, ui
 			n -= stride;
 			while(n > 0) {
 				REPEAT(stride,
-				    wp[0] = (uint16)(((int32)CLAMP(ip[0])-(int32)CLAMP(ip[-stride])) & mask);
+				    wp[0] = static_cast<uint16>(((int32)CLAMP(ip[0])-(int32)CLAMP(ip[-stride])) & mask);
 				    wp++; ip++)
 				n -= stride;
 			}
@@ -976,9 +976,9 @@ static void horizontalDifference16(ushort * ip, int n, int stride,
 				n -= 3;
 				wp += 3;
 				ip += 3;
-				r1 = CLAMP(ip[0]); wp[0] = (uint16)((r1-r2) & mask); r2 = r1;
-				g1 = CLAMP(ip[1]); wp[1] = (uint16)((g1-g2) & mask); g2 = g1;
-				b1 = CLAMP(ip[2]); wp[2] = (uint16)((b1-b2) & mask); b2 = b1;
+				r1 = CLAMP(ip[0]); wp[0] = static_cast<uint16>((r1-r2) & mask); r2 = r1;
+				g1 = CLAMP(ip[1]); wp[1] = static_cast<uint16>((g1-g2) & mask); g2 = g1;
+				b1 = CLAMP(ip[2]); wp[2] = static_cast<uint16>((b1-b2) & mask); b2 = b1;
 			}
 		}
 		else if(stride == 4) {
@@ -989,10 +989,10 @@ static void horizontalDifference16(ushort * ip, int n, int stride,
 				n -= 4;
 				wp += 4;
 				ip += 4;
-				r1 = CLAMP(ip[0]); wp[0] = (uint16)((r1-r2) & mask); r2 = r1;
-				g1 = CLAMP(ip[1]); wp[1] = (uint16)((g1-g2) & mask); g2 = g1;
-				b1 = CLAMP(ip[2]); wp[2] = (uint16)((b1-b2) & mask); b2 = b1;
-				a1 = CLAMP(ip[3]); wp[3] = (uint16)((a1-a2) & mask); a2 = a1;
+				r1 = CLAMP(ip[0]); wp[0] = static_cast<uint16>((r1-r2) & mask); r2 = r1;
+				g1 = CLAMP(ip[1]); wp[1] = static_cast<uint16>((g1-g2) & mask); g2 = g1;
+				b1 = CLAMP(ip[2]); wp[2] = static_cast<uint16>((b1-b2) & mask); b2 = b1;
+				a1 = CLAMP(ip[3]); wp[3] = static_cast<uint16>((a1-a2) & mask); a2 = a1;
 			}
 		}
 		else {
@@ -1000,7 +1000,7 @@ static void horizontalDifference16(ushort * ip, int n, int stride,
 			n -= stride;
 			while(n > 0) {
 				REPEAT(stride,
-				    wp[0] = (uint16)((CLAMP(ip[0])-CLAMP(ip[-stride])) & mask);
+				    wp[0] = static_cast<uint16>((CLAMP(ip[0])-CLAMP(ip[-stride])) & mask);
 				    wp++; ip++)
 				n -= stride;
 			}
@@ -1024,9 +1024,9 @@ static void horizontalDifference8(uchar * ip, int n, int stride,
 			n -= 3;
 			while(n > 0) {
 				n -= 3;
-				r1 = CLAMP(ip[3]); wp[3] = (uint16)((r1-r2) & mask); r2 = r1;
-				g1 = CLAMP(ip[4]); wp[4] = (uint16)((g1-g2) & mask); g2 = g1;
-				b1 = CLAMP(ip[5]); wp[5] = (uint16)((b1-b2) & mask); b2 = b1;
+				r1 = CLAMP(ip[3]); wp[3] = static_cast<uint16>((r1-r2) & mask); r2 = r1;
+				g1 = CLAMP(ip[4]); wp[4] = static_cast<uint16>((g1-g2) & mask); g2 = g1;
+				b1 = CLAMP(ip[5]); wp[5] = static_cast<uint16>((b1-b2) & mask); b2 = b1;
 				wp += 3;
 				ip += 3;
 			}
@@ -1037,10 +1037,10 @@ static void horizontalDifference8(uchar * ip, int n, int stride,
 			n -= 4;
 			while(n > 0) {
 				n -= 4;
-				r1 = CLAMP(ip[4]); wp[4] = (uint16)((r1-r2) & mask); r2 = r1;
-				g1 = CLAMP(ip[5]); wp[5] = (uint16)((g1-g2) & mask); g2 = g1;
-				b1 = CLAMP(ip[6]); wp[6] = (uint16)((b1-b2) & mask); b2 = b1;
-				a1 = CLAMP(ip[7]); wp[7] = (uint16)((a1-a2) & mask); a2 = a1;
+				r1 = CLAMP(ip[4]); wp[4] = static_cast<uint16>((r1-r2) & mask); r2 = r1;
+				g1 = CLAMP(ip[5]); wp[5] = static_cast<uint16>((g1-g2) & mask); g2 = g1;
+				b1 = CLAMP(ip[6]); wp[6] = static_cast<uint16>((b1-b2) & mask); b2 = b1;
+				a1 = CLAMP(ip[7]); wp[7] = static_cast<uint16>((a1-a2) & mask); a2 = a1;
 				wp += 4;
 				ip += 4;
 			}
@@ -1050,7 +1050,7 @@ static void horizontalDifference8(uchar * ip, int n, int stride,
 			n -= stride;
 			while(n > 0) {
 				REPEAT(stride,
-				    wp[0] = (uint16)((CLAMP(ip[0])-CLAMP(ip[-stride])) & mask);
+				    wp[0] = static_cast<uint16>((CLAMP(ip[0])-CLAMP(ip[-stride])) & mask);
 				    wp++; ip++)
 				n -= stride;
 			}

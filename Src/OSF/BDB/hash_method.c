@@ -22,7 +22,7 @@ int __ham_db_create(DB * dbp)
 {
 	int ret = __os_malloc(dbp->env, sizeof(HASH), &dbp->h_internal);
 	if(ret == 0) {
-		HASH * hashp = (HASH *)dbp->h_internal;
+		HASH * hashp = static_cast<HASH *>(dbp->h_internal);
 		hashp->h_nelem = 0;                     /* Defaults. */
 		hashp->h_ffactor = 0;
 		hashp->h_hash = NULL;
@@ -56,7 +56,7 @@ int __ham_db_close(DB * dbp)
  */
 int __ham_get_h_ffactor(DB * dbp, uint32 * h_ffactorp)
 {
-	HASH * hashp = (HASH *)dbp->h_internal;
+	HASH * hashp = static_cast<HASH *>(dbp->h_internal);
 	*h_ffactorp = hashp->h_ffactor;
 	return 0;
 }
@@ -68,7 +68,7 @@ static int __ham_set_h_ffactor(DB * dbp, uint32 h_ffactor)
 {
 	DB_ILLEGAL_AFTER_OPEN(dbp, "DB->set_h_ffactor");
 	DB_ILLEGAL_METHOD(dbp, DB_OK_HASH);
-	HASH * hashp = (HASH *)dbp->h_internal;
+	HASH * hashp = static_cast<HASH *>(dbp->h_internal);
 	hashp->h_ffactor = h_ffactor;
 	return 0;
 }
@@ -79,7 +79,7 @@ static int __ham_set_h_ffactor(DB * dbp, uint32 h_ffactor)
 static int __ham_get_h_hash(DB * dbp, uint32(**funcp) __P((DB*, const void *, uint32)))
 {
 	DB_ILLEGAL_METHOD(dbp, DB_OK_HASH);
-	HASH * hashp = (HASH *)dbp->h_internal;
+	HASH * hashp = static_cast<HASH *>(dbp->h_internal);
 	ASSIGN_PTR(funcp, hashp->h_hash);
 	return 0;
 }
@@ -91,7 +91,7 @@ static int __ham_set_h_hash(DB * dbp, uint32(*func) __P((DB*, const void *, uint
 {
 	DB_ILLEGAL_AFTER_OPEN(dbp, "DB->set_h_hash");
 	DB_ILLEGAL_METHOD(dbp, DB_OK_HASH);
-	HASH * hashp = (HASH *)dbp->h_internal;
+	HASH * hashp = static_cast<HASH *>(dbp->h_internal);
 	hashp->h_hash = func;
 	return 0;
 }
@@ -102,7 +102,7 @@ static int __ham_set_h_hash(DB * dbp, uint32(*func) __P((DB*, const void *, uint
 static int __ham_get_h_compare(DB * dbp, int (**funcp)(DB*, const DBT*, const DBT *))
 {
 	DB_ILLEGAL_METHOD(dbp, DB_OK_HASH);
-	HASH * t = (HASH *)dbp->h_internal;
+	HASH * t = static_cast<HASH *>(dbp->h_internal);
 	ASSIGN_PTR(funcp, t->h_compare);
 	return 0;
 }
@@ -118,7 +118,7 @@ int __ham_set_h_compare(DB * dbp, int (*func)(DB*, const DBT*, const DBT *))
 	HASH * t;
 	DB_ILLEGAL_AFTER_OPEN(dbp, "DB->set_h_compare");
 	DB_ILLEGAL_METHOD(dbp, DB_OK_HASH);
-	t = (HASH *)dbp->h_internal;
+	t = static_cast<HASH *>(dbp->h_internal);
 	t->h_compare = func;
 	return 0;
 }
@@ -131,7 +131,7 @@ int __ham_get_h_nelem(DB * dbp, uint32 * h_nelemp)
 {
 	HASH * hashp;
 	DB_ILLEGAL_METHOD(dbp, DB_OK_HASH);
-	hashp = (HASH *)dbp->h_internal;
+	hashp = static_cast<HASH *>(dbp->h_internal);
 	*h_nelemp = hashp->h_nelem;
 	return 0;
 }
@@ -144,7 +144,7 @@ static int __ham_set_h_nelem(DB * dbp, uint32 h_nelem)
 	HASH * hashp;
 	DB_ILLEGAL_AFTER_OPEN(dbp, "DB->set_h_nelem");
 	DB_ILLEGAL_METHOD(dbp, DB_OK_HASH);
-	hashp = (HASH *)dbp->h_internal;
+	hashp = static_cast<HASH *>(dbp->h_internal);
 	hashp->h_nelem = h_nelem;
 	return 0;
 }
@@ -155,8 +155,8 @@ static int __ham_set_h_nelem(DB * dbp, uint32 h_nelem)
  */
 void __ham_copy_config(DB * src, DB * dst, uint32 nparts)
 {
-	HASH * s = (HASH *)src->h_internal;
-	HASH * d = (HASH *)dst->h_internal;
+	const HASH * s = static_cast<const HASH *>(src->h_internal);
+	HASH * d = static_cast<HASH *>(dst->h_internal);
 	d->h_ffactor = s->h_ffactor;
 	d->h_nelem = s->h_nelem/nparts;
 	d->h_hash = s->h_hash;

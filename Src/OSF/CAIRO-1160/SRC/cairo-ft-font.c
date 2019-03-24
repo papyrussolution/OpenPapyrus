@@ -2185,7 +2185,7 @@ static void cairo_ft_apply_variations(FT_Face face,
 			if(*p == '=') p++;
 			if(p - start < 5)
 				goto skip;
-			value = _cairo_strtod(p, (char**)&end2);
+			value = _cairo_strtod(p, (char **)&end2);
 			while(end2 && _cairo_isspace(*end2)) 
 				end2++;
 			if(end2 && (*end2 != ',' && *end2 != '\0'))

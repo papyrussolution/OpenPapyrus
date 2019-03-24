@@ -76,7 +76,7 @@ int __bam_iitem(DBC * dbc, DBT * key, DBT * data, uint32 op, uint32 flags)
 	env = dbp->env;
 	mpf = dbp->mpf;
 	cp = (BTREE_CURSOR *)dbc->internal;
-	t = (BTREE *)dbp->bt_internal;
+	t = static_cast<BTREE *>(dbp->bt_internal);
 	h = (PAGE *)cp->page;
 	indx = cp->indx;
 	del = dupadjust = replace = was_deleted = 0;
@@ -445,7 +445,7 @@ static int __bam_build(DBC * dbc, uint32 op, DBT * dbt, PAGE * h, uint32 indx, u
 	int ret;
 	COMPQUIET(bo, 0);
 	dbp = dbc->dbp;
-	t = (BTREE *)dbp->bt_internal;
+	t = static_cast<BTREE *>(dbp->bt_internal);
 	/* We use the record data return memory, it's only a short-term use. */
 	rdata = &dbc->my_rdata;
 	if(rdata->ulen < nbytes) {

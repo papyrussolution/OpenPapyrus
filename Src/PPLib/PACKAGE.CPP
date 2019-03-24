@@ -214,16 +214,16 @@ int SLAPI LPackageList::RemoveByIdx(int16 idx)
 LPackage * SLAPI LPackageList::GetByID(PPID id)
 {
 	for(uint i = 0; i < getCount(); i++)
-		if(((LPackage*)at(i))->ID == id)
-			return (LPackage*)at(i);
+		if(static_cast<const LPackage *>(at(i))->ID == id)
+			return static_cast<LPackage *>(at(i));
 	return 0;
 }
 
 LPackage * SLAPI LPackageList::GetByIdx(int16 idx)
 {
 	for(uint i = 0; i < getCount(); i++)
-		if(((LPackage*)at(i))->PckgIdx == idx)
-			return (LPackage*)at(i);
+		if(static_cast<const LPackage *>(at(i))->PckgIdx == idx)
+			return static_cast<LPackage *>(at(i));
 	return 0;
 }
 

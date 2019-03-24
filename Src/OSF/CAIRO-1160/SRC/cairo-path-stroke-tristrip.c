@@ -983,59 +983,36 @@ static cairo_status_t close_path(void * closure)
 	return CAIRO_STATUS_SUCCESS;
 }
 
-cairo_int_status_t _cairo_path_fixed_stroke_to_tristrip(const cairo_path_fixed_t * path,
-    const cairo_stroke_style_t* style,
-    const cairo_matrix_t * ctm,
-    const cairo_matrix_t * ctm_inverse,
-    double tolerance,
-    cairo_tristrip_t * strip)
+cairo_int_status_t _cairo_path_fixed_stroke_to_tristrip(const cairo_path_fixed_t * path, const cairo_stroke_style_t * style,
+    const cairo_matrix_t * ctm, const cairo_matrix_t * ctm_inverse, double tolerance, cairo_tristrip_t * strip)
 {
 	struct stroker stroker;
 	cairo_int_status_t status;
 	int i;
-
 	if(style->num_dashes)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
 	stroker.style = *style;
 	stroker.ctm = ctm;
 	stroker.ctm_inverse = ctm_inverse;
 	stroker.tolerance = tolerance;
-
-	stroker.ctm_det_positive =
-	    _cairo_matrix_compute_determinant(ctm) >= 0.0;
-
-	status = _cairo_pen_init(&stroker.pen,
-		style->line_width / 2.0,
-		tolerance, ctm);
+	stroker.ctm_det_positive = _cairo_matrix_compute_determinant(ctm) >= 0.0;
+	status = _cairo_pen_init(&stroker.pen, style->line_width / 2.0, tolerance, ctm);
 	if(unlikely(status))
 		return status;
-
 	if(stroker.pen.num_vertices <= 1)
 		return CAIRO_INT_STATUS_NOTHING_TO_DO;
-
 	stroker.has_current_face = FALSE;
 	stroker.has_first_face = FALSE;
 	stroker.has_sub_path = FALSE;
-
 	stroker.has_limits = strip->num_limits > 0;
 	stroker.limit = strip->limits[0];
 	for(i = 1; i < strip->num_limits; i++)
 		_cairo_box_add_box(&stroker.limit, &strip->limits[i]);
-
 	stroker.strip = strip;
-
-	status = _cairo_path_fixed_interpret(path,
-		move_to,
-		line_to,
-		curve_to,
-		close_path,
-		&stroker);
+	status = _cairo_path_fixed_interpret(path, move_to, line_to, curve_to, close_path, &stroker);
 	/* Cap the start and end of the final sub path as needed */
 	if(likely(status == CAIRO_INT_STATUS_SUCCESS))
 		add_caps(&stroker);
-
 	_cairo_pen_fini(&stroker.pen);
-
 	return status;
 }

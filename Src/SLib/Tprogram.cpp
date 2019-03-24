@@ -100,7 +100,7 @@ int TStatusWin::Update()
 			if(color || Items.at(i).TextColor)
 				::SendMessage(hw, SB_SETTEXT, static_cast<WPARAM>(SBT_OWNERDRAW|i), reinterpret_cast<LPARAM>(&Items.at(i)));
 			else
-				::SendMessage(hw, SB_SETTEXT, i, reinterpret_cast<LPARAM>(temp_buf.cptr()));
+				::SendMessage(hw, SB_SETTEXT, i, reinterpret_cast<LPARAM>(SUcSwitch(temp_buf.cptr())));
 		}
 	}
 	::ReleaseDC(hw, hdc);
@@ -249,7 +249,7 @@ int TProgram::DelItemFromMenu(void * ptr)
 							t_i.cbSize      = sizeof(TOOLINFO);
 							t_i.uFlags      = TTF_SUBCLASS;
 							t_i.hwnd        = hwnd_tab;
-							t_i.uId         = (UINT)tci.lParam;
+							t_i.uId         = static_cast<UINT>(tci.lParam);
 							t_i.rect        = rc_item;
 							t_i.hinst       = TProgram::GetInst();
 							t_i.lpszText    = 0;
@@ -324,7 +324,7 @@ int TProgram::UpdateItemInMenu(const char * pTitle, void * ptr)
 							t_i.cbSize      = sizeof(TOOLINFO);
 							t_i.uFlags      = TTF_SUBCLASS;
 							t_i.hwnd        = hwnd_tab;
-							t_i.uId         = (UINT)tci.lParam;
+							t_i.uId         = static_cast<UINT>(tci.lParam);
 							t_i.rect        = rc_item;
 							t_i.hinst       = TProgram::GetInst();
 							t_i.lpszText    = 0;
@@ -408,8 +408,8 @@ HWND TProgram::CreateDlg(uint dlgID, HWND hWndParent, DLGPROC lpDialogFunc, LPAR
 	{ return ::CreateDialogParam(GetInst(), MAKEINTRESOURCE(dlgID), hWndParent, lpDialogFunc, dwInitParam); }
 INT_PTR TProgram::DlgBoxParam(uint dlgID, HWND hWndParent, DLGPROC lpDialogFunc, LPARAM dwInitParam)
 	{ return ::DialogBoxParam(GetInst(), MAKEINTRESOURCE(dlgID), hWndParent, lpDialogFunc, dwInitParam); }
-HBITMAP FASTCALL TProgram::LoadBitmap(uint bmID)
-	{ return (HBITMAP)::LoadImage(GetInst(), MAKEINTRESOURCE(bmID), IMAGE_BITMAP, 0, 0, 0); }
+HBITMAP FASTCALL TProgram::LoadBitmap_(uint bmID)
+	{ return static_cast<HBITMAP>(::LoadImage(GetInst(), MAKEINTRESOURCE(bmID), IMAGE_BITMAP, 0, 0, 0)); }
 HBITMAP FASTCALL TProgram::FetchBitmap(uint bmID)
 	{ return BmH.Get(bmID); }
 HBITMAP FASTCALL TProgram::FetchSystemBitmap(uint bmID)
@@ -761,8 +761,8 @@ LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, L
 	switch(message) {
 		case WM_CREATE:
 			{
-				LPCREATESTRUCT p_create_data = (LPCREATESTRUCT)lParam;
-				p_pgm = (TProgram *)p_create_data->lpCreateParams;
+				LPCREATESTRUCT p_create_data = reinterpret_cast<LPCREATESTRUCT>(lParam);
+				p_pgm = static_cast<TProgram *>(p_create_data->lpCreateParams);
 				TView::SetWindowProp(hWnd, GWLP_USERDATA, p_pgm);
 				p_pgm->H_TopOfStack = hWnd;
 				p_pgm->H_MainWnd = hWnd;
@@ -889,9 +889,9 @@ LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, L
 			break;
 		case WM_DRAWITEM:
 			{
-				DRAWITEMSTRUCT * p_di = (DRAWITEMSTRUCT*)lParam;
+				DRAWITEMSTRUCT * p_di = reinterpret_cast<DRAWITEMSTRUCT *>(lParam);
 				if(p_di) {
-					p_pgm = (TProgram *)TView::GetWindowUserData(hWnd);
+					p_pgm = static_cast<TProgram *>(TView::GetWindowUserData(hWnd));
 					if(p_pgm->DrawControl(p_di->hwndItem, message, wParam, lParam) > 0)
 						return TRUE;
 				}
@@ -1612,7 +1612,7 @@ int DrawButton(HWND hwnd, DRAWITEMSTRUCT * pDi)
 				}
 			}
 			if(bmp_id && !p_btn->GetBitmap())
-				p_btn->LoadBitmap(bmp_id);
+				p_btn->LoadBitmap_(bmp_id);
 			hbmp = p_btn->GetBitmap();
 		}
 		if(draw_text) {
@@ -1738,7 +1738,7 @@ int TProgram::DrawButton2(HWND hwnd, DRAWITEMSTRUCT * pDi)
 				}
 			}
 			if(bmp_id && !p_btn->GetBitmap())
-				p_btn->LoadBitmap(bmp_id);
+				p_btn->LoadBitmap_(bmp_id);
 			hbmp = p_btn->GetBitmap();
 		}
 		if(draw_text) {
@@ -1795,12 +1795,12 @@ int TProgram::DrawButton2(HWND hwnd, DRAWITEMSTRUCT * pDi)
 				StringSet ss('\n', text_buf);
 				rect_text.set(out_r.left, out_r.top, out_r.right, height);
 				for(uint i = 0; ss.get(&i, text_buf) > 0; rect_text.move(0, height)) {
-					canv.DrawText(rect_text, text_buf, text_out_fmt);
+					canv.DrawText_(rect_text, text_buf, text_out_fmt);
 				}
 			}
 			else {
 				rect_text = out_r;
-				canv.DrawText(rect_text, text_buf, text_out_fmt | DT_SINGLELINE);
+				canv.DrawText_(rect_text, text_buf, text_out_fmt | DT_SINGLELINE);
 			}
 			canv.PopObject(); // font
 		}
@@ -2171,7 +2171,7 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 					SFontDescr fd(0, 0, 0);
 					fd.SetLogFont(&f);
 					//fd.Size = (int16)MulDiv(fd.Size, 72, GetDeviceCaps(canv, LOGPIXELSY));
-					temp_font_id = UiToolBox.CreateFont(0, fd.Face, fd.Size, fd.Flags);
+					temp_font_id = UiToolBox.CreateFont_(0, fd.Face, fd.Size, fd.Flags);
 				}
 			}
 			if(temp_font_id) {
@@ -2435,7 +2435,7 @@ int TProgram::DrawControl(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		case WM_PAINT:
 		case WM_NCPAINT:
 			{
-				DRAWITEMSTRUCT * p_di = (DRAWITEMSTRUCT *)lParam;
+				DRAWITEMSTRUCT * p_di = reinterpret_cast<DRAWITEMSTRUCT *>(lParam);
 				if(oneof2(UICfg.WindowViewStyle, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector)) {
 					if(p_di->CtlType == ODT_BUTTON && msg != WM_NCPAINT) {
 						if(UICfg.WindowViewStyle == UserInterfaceSettings::wndVKFancy) {

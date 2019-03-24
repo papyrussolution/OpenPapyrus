@@ -185,7 +185,7 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 						if(p_prn_line->Param.PictPath.NotEmpty()) {
 							RECT coord = p_prn_line->Param.PictCoord;
 							SImage img;
-							img.LoadImage(p_prn_line->Param.PictPath);
+							img.Load(p_prn_line->Param.PictPath);
 							coord.top  = rc.top;
 							SETIFZ(coord.right,  (long)img.GetWidth());
 							SETIFZ(coord.bottom, (long)img.GetHeight());

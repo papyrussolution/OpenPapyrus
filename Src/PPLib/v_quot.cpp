@@ -427,7 +427,7 @@ SString & SLAPI PPViewQuot::GetQuotTblBuf(const TempQuotTbl::Rec * pRec, uint po
 	rBuf.Z();
 	if(pos < MAX_QUOTS_PER_TERM_REC) {
 		size_t offs = offsetof(TempQuotTbl::Rec, QuotP1);
-		uint   p = *(const uint *)(PTR8C(pRec) + offs + pos * sizeof(pRec->QuotP1));
+		uint   p = *reinterpret_cast<const uint *>(PTR8C(pRec) + offs + pos * sizeof(pRec->QuotP1));
 		StrPool.GetS(p, rBuf);
 	}
 	return rBuf;
@@ -437,7 +437,7 @@ void SLAPI PPViewQuot::SetQuotTblBuf(TempQuotTbl::Rec * pRec, uint pos, const SS
 {
 	if(pos < MAX_QUOTS_PER_TERM_REC) {
 		size_t offs = offsetof(TempQuotTbl::Rec, QuotP1);
-		uint   * p_p = (uint *)(PTR8(pRec) + offs + pos * sizeof(pRec->QuotP1));
+		uint   * p_p = reinterpret_cast<uint *>(PTR8(pRec) + offs + pos * sizeof(pRec->QuotP1));
 		StrPool.AddS(rVal, p_p);
 	}
 }
@@ -459,7 +459,7 @@ int SLAPI PPViewQuot::CreateCrosstab(int useTa)
 	private:
 		virtual int SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 		{
-			return (pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V) ? P_V->GetTabTitle(*(const long *)pVal, rBuf) : 0;
+			return (pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V) ? P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf) : 0;
 		}
 		PPViewQuot * P_V;
 	};
@@ -527,7 +527,6 @@ int SLAPI PPViewQuot::Init_(const PPBaseFilt * pFilt)
 	QList_.freeAll();
 	StrPool.ClearS(); // @v9.8.6
 	Gsl.Init(1, 0); // @v10.1.3
-	//QList_.setDelta(1024);
 	ZDELETE(P_TempTbl);
 	ZDELETE(P_TempOrd);
 	{
@@ -909,11 +908,11 @@ int SLAPI VQuotCache::GetRec(uint i, TempQuotTbl::Rec * pRec) const
 IMPL_CMPFUNC(PPQuotItem_GLA, i1, i2)
 {
 	int    si = 0;
-	CMPCASCADE3(si, (PPQuotItem_ *)i1, (PPQuotItem_ *)i2, GoodsID, LocID, ArID);
+	CMPCASCADE3(si, static_cast<const PPQuotItem_ *>(i1), static_cast<const PPQuotItem_ *>(i2), GoodsID, LocID, ArID);
 	if(si == 0) {
 		int32  _pidx1 = 0, _pidx2 = 0;
-		Quotation2Core::PeriodToPeriodIdx(&((PPQuotItem_ *)i1)->Period, &_pidx1);
-		Quotation2Core::PeriodToPeriodIdx(&((PPQuotItem_ *)i2)->Period, &_pidx2);
+		Quotation2Core::PeriodToPeriodIdx(&static_cast<const PPQuotItem_ *>(i1)->Period, &_pidx1);
+		Quotation2Core::PeriodToPeriodIdx(&static_cast<const PPQuotItem_ *>(i2)->Period, &_pidx2);
 		si = CMPSIGN(_pidx1, _pidx2);
 	}
 	return si;

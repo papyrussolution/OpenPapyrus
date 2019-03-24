@@ -73,14 +73,14 @@ int SLAPI PPGenCashNode::SetRoundParam(const RoundParam * pParam)
 			ok = PPSetError(PPERR_INVROUNDPREC);
 		else {
 			if(pParam->DisRoundPrec != 0.0) {
-				DisRoundPrec = (uint16)(pParam->DisRoundPrec * 100.0);
+				DisRoundPrec = static_cast<uint16>(pParam->DisRoundPrec * 100.0);
 				if(pParam->DisRoundDir > 0)
 					Flags |= CASHF_DISROUNDUP;
 				else if(pParam->DisRoundDir < 0)
 					Flags |= CASHF_DISROUNDDOWN;
 			}
 			if(pParam->AmtRoundPrec != 0.0) {
-				AmtRoundPrec = (uint16)(pParam->AmtRoundPrec * 100.0);
+				AmtRoundPrec = static_cast<uint16>(pParam->AmtRoundPrec * 100.0);
 				if(pParam->AmtRoundDir > 0)
 					ExtFlags |= CASHFX_ROUNDAMTUP;
 				else if(pParam->AmtRoundDir < 0)
@@ -1647,7 +1647,7 @@ int SyncCashNodeCfgDialog::editExt()
 					PPErrorByDialog(dlg, CTL_CASHNSEXT_CTBLLIST);
 				}
 				else {
-					Data.BonusMaxPart = (uint16)(dlg->getCtrlReal(CTL_CASHNSEXT_BONUSMAX) * 10.0);
+					Data.BonusMaxPart = static_cast<uint16>(dlg->getCtrlReal(CTL_CASHNSEXT_BONUSMAX) * 10.0);
 					if(Data.BonusMaxPart < 0 || Data.BonusMaxPart > 1000)
 						Data.BonusMaxPart = 0;
 					Data.Scf.DaysPeriod = (uint16)days_period;

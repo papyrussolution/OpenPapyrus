@@ -359,7 +359,7 @@ int __db_apprec(ENV * env, DB_THREAD_INFO * ip, DB_LSN * max_lsn, DB_LSN * trunc
 	pass = DB_STR_P("forward");
 	stop_lsn = last_lsn;
 	if(max_lsn || dbenv->tx_timestamp != 0)
-		stop_lsn = ((DB_TXNHEAD *)txninfo)->maxlsn;
+		stop_lsn = static_cast<DB_TXNHEAD *>(txninfo)->maxlsn;
 	for(ret = __logc_get(logc, &lsn, &data, DB_NEXT); ret == 0; ret = __logc_get(logc, &lsn, &data, DB_NEXT)) {
 		if(dbenv->db_feedback) {
 			progress = 67+(int)(33*(__lsn_diff(&first_lsn, &last_lsn, &lsn, log_size, 1)/nfiles));
@@ -386,7 +386,7 @@ int __db_apprec(ENV * env, DB_THREAD_INFO * ip, DB_LSN * max_lsn, DB_LSN * trunc
 	if(ret != 0)
 		goto err;
 	if(max_lsn == NULL)
-		region->last_txnid = ((DB_TXNHEAD *)txninfo)->maxid;
+		region->last_txnid = static_cast<DB_TXNHEAD *>(txninfo)->maxid;
 done:
 	// We are going to truncate, so we'd best close the cursor. 
 	if(logc) {
@@ -402,18 +402,18 @@ done:
 		goto err;
 	if(dbenv->tx_timestamp != 0) {
 		/* Run recovery up to this timestamp. */
-		region->last_ckp = ((DB_TXNHEAD *)txninfo)->ckplsn;
-		vtrunc_lsn = &((DB_TXNHEAD *)txninfo)->maxlsn;
-		vtrunc_ckp = &((DB_TXNHEAD *)txninfo)->ckplsn;
+		region->last_ckp = static_cast<DB_TXNHEAD *>(txninfo)->ckplsn;
+		vtrunc_lsn = &static_cast<DB_TXNHEAD *>(txninfo)->maxlsn;
+		vtrunc_ckp = &static_cast<DB_TXNHEAD *>(txninfo)->ckplsn;
 	}
 	else if(max_lsn) {
 		// This is a HA client syncing to the master
-		if(!IS_ZERO_LSN(((DB_TXNHEAD *)txninfo)->ckplsn))
-			region->last_ckp = ((DB_TXNHEAD *)txninfo)->ckplsn;
+		if(!IS_ZERO_LSN(static_cast<DB_TXNHEAD *>(txninfo)->ckplsn))
+			region->last_ckp = static_cast<DB_TXNHEAD *>(txninfo)->ckplsn;
 		else if((ret = __txn_findlastckp(env, &region->last_ckp, max_lsn)) != 0)
 			goto err;
 		vtrunc_lsn = max_lsn;
-		vtrunc_ckp = &((DB_TXNHEAD *)txninfo)->ckplsn;
+		vtrunc_ckp = &static_cast<DB_TXNHEAD *>(txninfo)->ckplsn;
 	}
 	else {
 		/*
@@ -513,7 +513,7 @@ done:
 		_time64(&now);
 		__db_msg(env, DB_STR_A("1518", "Recovery complete at %.24s", "%.24s"), __os_ctime(&now, time_buf));
 		__db_msg(env, DB_STR_A("1519", "Maximum transaction ID %lx recovery checkpoint [%lu][%lu]",
-				"%lx %lu %lu"), (ulong)(!txninfo ? TXN_MINIMUM : ((DB_TXNHEAD *)txninfo)->maxid),
+				"%lx %lu %lu"), (ulong)(!txninfo ? TXN_MINIMUM : static_cast<DB_TXNHEAD *>(txninfo)->maxid),
 			(ulong)region->last_ckp.file, (ulong)region->last_ckp.Offset_);
 	}
 	if(0) {

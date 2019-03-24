@@ -306,7 +306,7 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 
 		/* The next two bytes will be an ushort indicating the number
 		   of bytes used to list the preferred protocols. */
-		list_len = (ushort*)(&alpn_buffer[cur]);
+		list_len = (ushort *)(&alpn_buffer[cur]);
 		cur += sizeof(ushort);
 
 		list_start_index = cur;

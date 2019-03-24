@@ -455,7 +455,7 @@ int SLAPI PPDeclStruc::SetHeader(PPID id, const char * pName, long flags)
 		return insert(&item) ? 1 : PPSetErrorSLib();
 	}
 	else {
-		*(PPDeclStrucItem *)at(0) = item;
+		*static_cast<PPDeclStrucItem *>(at(0)) = item;
 	}
 	return 1;
 }
@@ -471,7 +471,7 @@ int SLAPI PPDeclStruc::AddItem(PPDeclStrucItem * pItem)
 int SLAPI PPDeclStruc::GetItem(uint idx, PPDeclStrucItem * pItem)
 {
 	if(idx < getCount()) {
-		ASSIGN_PTR(pItem, *(PPDeclStrucItem *)at(idx));
+		ASSIGN_PTR(pItem, *static_cast<const PPDeclStrucItem *>(at(idx)));
 		return 1;
 	}
 	return 0;

@@ -350,7 +350,7 @@ static void LogMessage(BackupLogFunc fnLog, int recId, const char * pInfo, long 
 		fnLog(recId, pInfo, initParam);
 }
 
-int SLAPI DBBackup::CheckCopy(BCopyData * pData, const CopyParams & rCP, BackupLogFunc fnLog, long initParam)
+int SLAPI DBBackup::CheckCopy(const BCopyData * pData, const CopyParams & rCP, BackupLogFunc fnLog, long initParam)
 {
 	EXCEPTVAR(DBErrCode);
 	int    ok = 1;
@@ -724,7 +724,7 @@ int SLAPI DBBackup::Restore(BCopyData * pData, BackupLogFunc fnLog, long initPar
 	return ok;
 }
 
-int SLAPI DBBackup::RemoveCopy(BCopyData * pData, BackupLogFunc fnLog, long initParam)
+int SLAPI DBBackup::RemoveCopy(const BCopyData * pData, BackupLogFunc fnLog, long initParam)
 {
 	EXCEPTVAR(DBErrCode);
 	int    ok = 1;

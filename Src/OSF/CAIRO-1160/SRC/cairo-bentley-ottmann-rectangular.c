@@ -184,16 +184,10 @@ static inline rectangle_t * rectangle_peek_stop(sweep_line_t * sweep_line)
 	return sweep_line->stop[PQ_FIRST_ENTRY];
 }
 
-CAIRO_COMBSORT_DECLARE(_rectangle_sort,
-    rectangle_t *,
-    rectangle_compare_start)
+CAIRO_COMBSORT_DECLARE(_rectangle_sort, rectangle_t *, rectangle_compare_start)
 
-static void sweep_line_init(sweep_line_t * sweep_line,
-    rectangle_t ** rectangles,
-    int num_rectangles,
-    cairo_fill_rule_t fill_rule,
-    cairo_bool_t do_traps,
-    void * container)
+static void sweep_line_init(sweep_line_t * sweep_line, rectangle_t ** rectangles, int num_rectangles,
+    cairo_fill_rule_t fill_rule, cairo_bool_t do_traps, void * container)
 {
 	rectangles[-2] = NULL;
 	rectangles[-1] = NULL;
@@ -201,11 +195,9 @@ static void sweep_line_init(sweep_line_t * sweep_line,
 	sweep_line->rectangles = rectangles;
 	sweep_line->stop = rectangles - 2;
 	sweep_line->stop_size = 0;
-
 	sweep_line->insert = NULL;
 	sweep_line->insert_x = INT_MAX;
 	sweep_line->cursor = &sweep_line->tail;
-
 	sweep_line->head.dir = 0;
 	sweep_line->head.x = INT32_MIN;
 	sweep_line->head.right = NULL;
@@ -216,10 +208,8 @@ static void sweep_line_init(sweep_line_t * sweep_line,
 	sweep_line->tail.right = NULL;
 	sweep_line->tail.x = INT32_MAX;
 	sweep_line->tail.dir = 0;
-
 	sweep_line->current_y = INT32_MIN;
 	sweep_line->last_y = INT32_MIN;
-
 	sweep_line->fill_rule = fill_rule;
 	sweep_line->container = container;
 	sweep_line->do_traps = do_traps;

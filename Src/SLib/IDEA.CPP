@@ -108,8 +108,8 @@ static uint16 FASTCALL inv(uint16 x)
 	uint16 q, y;
 	if(x <= 1)
 		return x;	/* 0 and 1 are self-inverse */
-	t1 = (uint16)(0x10001L / x);	/* Since x >= 2, this fits into 16 bits */
-	y  = (uint16)(0x10001L % x);
+	t1 = static_cast<uint16>(0x10001L / x);	/* Since x >= 2, this fits into 16 bits */
+	y  = static_cast<uint16>(0x10001L % x);
 	if(y == 1)
 		return low16(1-t1);
 	t0 = 1;

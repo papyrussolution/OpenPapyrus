@@ -848,17 +848,33 @@ void SLAPI SString::Obfuscate()
 	}
 }
 
-const char * SLAPI SString::StrChr(int c, size_t * pPos) const
+const char * SLAPI SString::SearchCharPos(size_t startPos, int c, size_t * pPos) const
 {
 	size_t pos = 0;
 	const  char * p = 0;
-	if(L) {
-		p = static_cast<const char *>(memchr(P_Buf, (uchar)c, Len()));
+	if(L > (startPos+1)) {
+		p = static_cast<const char *>(memchr(P_Buf+startPos, static_cast<uchar>(c), Len()-startPos));
 		if(p)
 			pos = static_cast<size_t>(p - P_Buf);
 	}
 	ASSIGN_PTR(pPos, pos);
 	return p;
+}
+
+const char * SLAPI SString::SearchChar(int c, size_t * pPos) const
+{
+	/* @v10.3.11
+	size_t pos = 0;
+	const  char * p = 0;
+	if(L) {
+		p = static_cast<const char *>(memchr(P_Buf, static_cast<uchar>(c), Len()));
+		if(p)
+			pos = static_cast<size_t>(p - P_Buf);
+	}
+	ASSIGN_PTR(pPos, pos);
+	return p;
+	*/
+	return SearchCharPos(0, c, pPos); // @v10.3.11
 }
 
 int FASTCALL SString::HasChr(int c) const
@@ -1005,7 +1021,7 @@ int SLAPI SString::Divide(int divChr, SString & rLeft, SString & rRight) const
 
 	int    ok = 0;
 	size_t pos = 0;
-	const char * p = StrChr(divChr, &pos);
+	const char * p = SearchChar(divChr, &pos);
 	if(p) {
 		Sub(0, pos, rLeft);
 		Sub(pos+1, UINT_MAX, rRight);
@@ -2190,7 +2206,7 @@ SString & SLAPI SString::StripQuotes()
 	if(C(0) == '\"') {
 		ShiftLeft(1);
 		size_t pos;
-		if(StrChr('\"', &pos))
+		if(SearchChar('\"', &pos))
 			Trim(pos);
 	}
 	return *this;
@@ -3900,7 +3916,7 @@ uint  FASTCALL SUnicode::Utf32ToUtf8(uint32 u32, char * pUtf8Buf)
 	else {
 		if((u16l >= UNI_SUR_HIGH_START/*SURROGATE_LEAD_FIRST*/) && (u16l <= UNI_SUR_LOW_END/*SURROGATE_TRAIL_LAST*/)) {
 			// @todo Я не уверен в правильности этого куска кода - надо тестировать!
-			uint16 u16u = (uint16)(u32 >> 16);
+			uint16 u16u = static_cast<uint16>(u32 >> 16);
 			// Half a surrogate pair
 			uint xch = 0x10000 + ((u16l & 0x3ff) << 10) + (u16u & 0x3ff);
 			pUtf8Buf[k++] = static_cast<char>(0xF0 | (xch >> 18));
@@ -5886,7 +5902,7 @@ static wchar_t FASTCALL u_to_case(wchar_t code, int c)
 {
 	wchar_t r = 0;
 	const   CaseFoldingItem * p_item = 0;
-	int     ch_case = u_get_char_case(code, &p_item);
+	const   int ch_case = u_get_char_case(code, &p_item);
 	if(ch_case == c) {
 		if(p_item)
 			r = p_item->ToCode;
@@ -5922,13 +5938,11 @@ SLAPI STokenizer::Param::Param(long flags, int cp, const char * pDelim) : Delim(
 SLAPI STokenizer::STokenizer() : T(1000000, 0), Tc(0), RP(0), SO(0), P_ResourceIndex(0)
 {
 	SetParam(0);
-	//TokenBuf.setDelta(128);
 }
 
 SLAPI STokenizer::STokenizer(const Param & rParam) : T(1000000, 0), Tc(0), RP(0), SO(0), P_ResourceIndex(0)
 {
 	SetParam(&rParam);
-	//TokenBuf.setDelta(128);
 }
 
 SLAPI STokenizer::~STokenizer()

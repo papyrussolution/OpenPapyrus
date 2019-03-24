@@ -271,7 +271,7 @@ int __db_poff(DBC * dbc, const DBT * dbt, db_pgno_t * pgnop)
 			LSN(lastp) = LSN(pagep);
 		OV_LEN(pagep) = pagespace;
 		OV_REF(pagep) = 1;
-		memcpy((uint8 *)pagep+P_OVERHEAD(dbp), p, pagespace);
+		memcpy(reinterpret_cast<uint8 *>(pagep)+P_OVERHEAD(dbp), p, pagespace);
 		/*
 		 * If this is the first entry, update the user's info and
 		 * initialize the cursor to allow for streaming of subsequent
@@ -370,7 +370,7 @@ int __db_doff(DBC * dbc, db_pgno_t pgno)
 			return ret;
 		}
 		if(DBC_LOGGING(dbc)) {
-			tmp_dbt.data = (uint8 *)pagep+P_OVERHEAD(dbp);
+			tmp_dbt.data = reinterpret_cast<uint8 *>(pagep)+P_OVERHEAD(dbp);
 			tmp_dbt.size = OV_LEN(pagep);
 			ZERO_LSN(null_lsn);
 			if((ret = __db_big_log(dbp, dbc->txn, &LSN(pagep), 0, OP_SET(DB_REM_BIG, pagep), PGNO(pagep),
@@ -439,7 +439,7 @@ int __db_moff(DBC * dbc, const DBT * dbt, db_pgno_t pgno, uint32 tlen, int (*cmp
 		cmp_bytes = OV_LEN(pagep) < key_left ? OV_LEN(pagep) : key_left;
 		tlen -= cmp_bytes;
 		key_left -= cmp_bytes;
-		for(p2 = (uint8 *)pagep+P_OVERHEAD(dbp);
+		for(p2 = reinterpret_cast<uint8 *>(pagep)+P_OVERHEAD(dbp);
 		    cmp_bytes-- > 0; ++p1, ++p2)
 			if(*p1 != *p2) {
 				*cmpp = (long)*p1-(long)*p2;

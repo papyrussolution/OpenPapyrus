@@ -81,7 +81,7 @@ bool CDynBufSeqOutStream::CByteDynBuffer::EnsureCapacity(size_t cap) throw()
 		else
 			delta = 4;
 		cap = MyMax(_capacity + delta, cap);
-		Byte * buf = (Byte*)SAlloc::R(_buf, cap);
+		Byte * buf = (Byte *)SAlloc::R(_buf, cap);
 		if(!buf)
 			return false;
 		_buf = buf;
@@ -93,7 +93,7 @@ bool CDynBufSeqOutStream::CByteDynBuffer::EnsureCapacity(size_t cap) throw()
 Byte * CDynBufSeqOutStream::GetBufPtrForWriting(size_t addSize)
 {
 	addSize += _size;
-	return (addSize < _size || !_buffer.EnsureCapacity(addSize)) ? NULL : ((Byte*)_buffer + _size);
+	return (addSize < _size || !_buffer.EnsureCapacity(addSize)) ? NULL : ((Byte *)_buffer + _size);
 }
 
 void CDynBufSeqOutStream::CopyToBuffer(CByteBuffer &dest) const
@@ -294,8 +294,8 @@ namespace NArchive {
 					CByteBuffer buffer(sizeInBytes);
 					for(uint i = 0; i < _options.Password.Len(); i++) {
 						wchar_t c = _options.Password[i];
-						((Byte*)buffer)[i * 2] = (Byte)c;
-						((Byte*)buffer)[i * 2 + 1] = (Byte)(c >> 8);
+						((Byte *)buffer)[i * 2] = (Byte)c;
+						((Byte *)buffer)[i * 2 + 1] = (Byte)(c >> 8);
 					}
 					RINOK(cryptoSetPassword->CryptoSetPassword((const Byte*)buffer, (uint32)sizeInBytes));
 				}
@@ -919,8 +919,8 @@ namespace NArchive {
 						CByteBuffer buffer(len * 2);
 						for(size_t k = 0; k < len; k++) {
 							wchar_t c = passwordBSTR[k];
-							((Byte*)buffer)[k * 2] = (Byte)c;
-							((Byte*)buffer)[k * 2 + 1] = (Byte)(c >> 8);
+							((Byte *)buffer)[k * 2] = (Byte)c;
+							((Byte *)buffer)[k * 2 + 1] = (Byte)(c >> 8);
 						}
 						RINOK(cryptoSetPassword->CryptoSetPassword((const Byte*)buffer, (uint32)buffer.Size()));
 					}
@@ -1805,7 +1805,7 @@ namespace NArchive {
 					if((mainByte & 0x20) != 0) {
 						CNum propsSize = ReadNum();
 						coder.Props.Alloc((size_t)propsSize);
-						ReadBytes((Byte*)coder.Props, (size_t)propsSize);
+						ReadBytes((Byte *)coder.Props, (size_t)propsSize);
 					}
 					else
 						coder.Props.Free();
@@ -3730,7 +3730,7 @@ namespace NArchive {
 				WriteHeader(db, /* headerOptions, */ headerOffset);
 				if(encodeHeaders) {
 					CByteBuffer buf(_countSize);
-					_outByte2.Init((Byte*)buf, _countSize);
+					_outByte2.Init((Byte *)buf, _countSize);
 					_countMode = false;
 					_writeToStream = false;
 					WriteHeader(db, /* headerOptions, */ headerOffset);
@@ -5164,7 +5164,7 @@ namespace NArchive {
 					_crc = CrcUpdate(_crc, buf, cur);
 					_rem -= cur;
 					if(_needWrite) {
-						data = (Byte*)data + cur;
+						data = (Byte *)data + cur;
 						size -= cur;
 						if(processedSize)
 							*processedSize += cur;

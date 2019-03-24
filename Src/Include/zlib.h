@@ -241,11 +241,11 @@
 		#define const       /* note: need a more gentle solution here */
 	#endif
 #endif
-#if defined(ZLIB_CONST) && !defined(z_const)
+/* @sobolev #if defined(ZLIB_CONST) && !defined(z_const)
 	#define z_const const
 #else
 	#define z_const
-#endif
+#endif*/
 #ifdef Z_SOLO
 	typedef unsigned long z_size_t_ReplacedWith_size_t;
 #else
@@ -556,13 +556,13 @@ typedef void (*free_func)(void * opaque, void * address);
 struct internal_state;
 
 typedef struct z_stream_s {
-	z_const Bytef * next_in; // next input byte 
+	const Bytef * next_in; // next input byte 
 	uInt   avail_in;         // number of bytes available at next_in 
 	uLong  total_in;         // total number of input bytes read so far 
 	Bytef * next_out;        // next output byte will go here
 	uInt   avail_out;        // remaining free space at next_out
 	uLong  total_out;        // total number of bytes output so far 
-	z_const char * msg;      // last error message, NULL if no error 
+	const  char * msg;      // last error message, NULL if no error 
 	struct internal_state * state; // not visible by applications 
 	alloc_func zalloc;       // used to allocate the internal state 
 	free_func  zfree;        // used to free the internal state 
@@ -1481,7 +1481,7 @@ ZEXTERN int ZEXPORT inflateGetHeader(z_streamp strm, gz_headerp head);
    allocated, or Z_VERSION_ERROR if the version of the library does not match
    the version of the header file.
  */
-typedef unsigned (*in_func)(void *, z_const uchar **);
+typedef unsigned (*in_func)(void *, const uchar **);
 typedef int (*out_func)(void *, uchar *, unsigned);
 
 ZEXTERN int ZEXPORT inflateBack(z_streamp strm, in_func in, void * in_desc, out_func out, void * out_desc);
@@ -2242,7 +2242,7 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 	//typedef ush ushf_Removed;
 	//typedef unsigned long ulg_Removed;
 
-	extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
+	extern const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
 	/* (size given to avoid silly warnings with Visual C++) */
 
 	#define ERR_MSG(err) z_errmsg[Z_NEED_DICT-(err)]

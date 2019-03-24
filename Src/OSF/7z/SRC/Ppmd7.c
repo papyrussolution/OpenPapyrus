@@ -16,7 +16,7 @@ static const uint16 kInitBinEsc[] = { 0x3CDD, 0x1F3F, 0x59BF, 0x48F3, 0x64A1, 0x
 #ifdef PPMD_32BIT
 	#define REF(ptr) (ptr)
 #else
-	#define REF(ptr) ((uint32)((Byte*)(ptr) - (p)->Base))
+	#define REF(ptr) ((uint32)((Byte *)(ptr) - (p)->Base))
 #endif
 #define STATS_REF(ptr) ((CPpmd_State_Ref)REF(ptr))
 #define CTX(ref) ((CPpmd7_Context*)Ppmd7_GetContext(p, ref))
@@ -99,7 +99,7 @@ Bool Ppmd7_Alloc(CPpmd7 * p, uint32 size, ISzAllocPtr alloc)
       #else
 		    4 - (size & 3);
       #endif
-		if((p->Base = (Byte*)ISzAlloc_Alloc(alloc, p->AlignOffset + size + size2)) == 0)
+		if((p->Base = (Byte *)ISzAlloc_Alloc(alloc, p->AlignOffset + size + size2)) == 0)
 			return False;
 		p->Size = size;
 	}
@@ -122,10 +122,10 @@ static void * RemoveNode(CPpmd7 * p, unsigned indx)
 static void SplitBlock(CPpmd7 * p, void * ptr, unsigned oldIndx, unsigned newIndx)
 {
 	unsigned i, nu = I2U(oldIndx) - I2U(newIndx);
-	ptr = (Byte*)ptr + U2B(I2U(newIndx));
+	ptr = (Byte *)ptr + U2B(I2U(newIndx));
 	if(I2U(i = U2I(nu)) != nu) {
 		unsigned k = I2U(--i);
-		InsertNode(p, ((Byte*)ptr) + U2B(k), nu - k - 1);
+		InsertNode(p, ((Byte *)ptr) + U2B(k), nu - k - 1);
 	}
 	InsertNode(p, ptr, i);
 }
@@ -257,8 +257,8 @@ static void * ShrinkUnits(CPpmd7 * p, void * oldPtr, unsigned oldNU, unsigned ne
 
 static void SetSuccessor(CPpmd_State * p, CPpmd_Void_Ref v)
 {
-	(p)->SuccessorLow = (uint16)((uint32)(v) & 0xFFFF);
-	(p)->SuccessorHigh = (uint16)(((uint32)(v) >> 16) & 0xFFFF);
+	(p)->SuccessorLow = static_cast<uint16>((uint32)(v) & 0xFFFF);
+	(p)->SuccessorHigh = static_cast<uint16>(((uint32)(v) >> 16) & 0xFFFF);
 }
 
 static void RestartModel(CPpmd7 * p)
@@ -291,7 +291,7 @@ static void RestartModel(CPpmd7 * p)
 	for(i = 0; i < 128; i++)
 		for(k = 0; k < 8; k++) {
 			uint16 * dest = p->BinSumm[i] + k;
-			uint16 val = (uint16)(PPMD_BIN_SCALE - kInitBinEsc[k] / (i + 2));
+			uint16 val = static_cast<uint16>(PPMD_BIN_SCALE - kInitBinEsc[k] / (i + 2));
 			for(m = 0; m < 64; m += 8)
 				dest[m] = val;
 		}
@@ -299,7 +299,7 @@ static void RestartModel(CPpmd7 * p)
 	for(i = 0; i < 25; i++)
 		for(k = 0; k < 16; k++) {
 			CPpmd_See * s = &p->See[i][k];
-			s->Summ = (uint16)((5 * i + 10) << (s->Shift = PPMD_PERIOD_BITS - 4));
+			s->Summ = static_cast<uint16>((5 * i + 10) << (s->Shift = PPMD_PERIOD_BITS - 4));
 			s->Count = 4;
 		}
 }
@@ -469,7 +469,7 @@ static void UpdateModel(CPpmd7 * p)
 					c->Stats = STATS_REF(ptr);
 				}
 			}
-			c->SummFreq = (uint16)(c->SummFreq + (2 * ns1 < ns) + 2 * ((4 * ns1 <= ns) & (c->SummFreq <= 8 * ns1)));
+			c->SummFreq = static_cast<uint16>(c->SummFreq + (2 * ns1 < ns) + 2 * ((4 * ns1 <= ns) & (c->SummFreq <= 8 * ns1)));
 		}
 		else {
 			CPpmd_State * s = (CPpmd_State*)AllocUnits(p, 0);
@@ -483,7 +483,7 @@ static void UpdateModel(CPpmd7 * p)
 				s->Freq <<= 1;
 			else
 				s->Freq = MAX_FREQ - 4;
-			c->SummFreq = (uint16)(s->Freq + p->InitEsc + (ns > 3));
+			c->SummFreq = static_cast<uint16>(s->Freq + p->InitEsc + (ns > 3));
 		}
 		cf = 2 * (uint32)p->FoundState->Freq * (c->SummFreq + 6);
 		sf = (uint32)s0 + c->SummFreq;
@@ -493,14 +493,14 @@ static void UpdateModel(CPpmd7 * p)
 		}
 		else {
 			cf = 4 + (cf >= 9 * sf) + (cf >= 12 * sf) + (cf >= 15 * sf);
-			c->SummFreq = (uint16)(c->SummFreq + cf);
+			c->SummFreq = static_cast<uint16>(c->SummFreq + cf);
 		}
 		{
 			CPpmd_State * s = STATS(c) + ns1;
 			SetSuccessor(s, successor);
 			s->Symbol = p->FoundState->Symbol;
 			s->Freq = (Byte)cf;
-			c->NumStats = (uint16)(ns1 + 1);
+			c->NumStats = static_cast<uint16>(ns1 + 1);
 		}
 	}
 	p->MaxContext = p->MinContext = CTX(fSuccessor);
@@ -543,7 +543,7 @@ static void FASTCALL Rescale(CPpmd7 * p)
 			i++; 
 		} while((--s)->Freq == 0);
 		escFreq += i;
-		p->MinContext->NumStats = (uint16)(p->MinContext->NumStats - i);
+		p->MinContext->NumStats = static_cast<uint16>(p->MinContext->NumStats - i);
 		if(p->MinContext->NumStats == 1) {
 			CPpmd_State tmp = *stats;
 			do {
@@ -559,7 +559,7 @@ static void FASTCALL Rescale(CPpmd7 * p)
 		if(n0 != n1)
 			p->MinContext->Stats = STATS_REF(ShrinkUnits(p, stats, n0, n1));
 	}
-	p->MinContext->SummFreq = (uint16)(sumFreq + escFreq - (escFreq >> 1));
+	p->MinContext->SummFreq = static_cast<uint16>(sumFreq + escFreq - (escFreq >> 1));
 	p->FoundState = STATS(p->MinContext);
 }
 
@@ -572,7 +572,7 @@ CPpmd_See * Ppmd7_MakeEscFreq(CPpmd7 * p, unsigned numMasked, uint32 * escFreq)
 		    2 * (uint)(p->MinContext->SummFreq < 11 * p->MinContext->NumStats) + 4 * (uint)(numMasked > nonMasked) + p->HiBitsFlag;
 		{
 			uint   r = (see->Summ >> see->Shift);
-			see->Summ = (uint16)(see->Summ - r);
+			see->Summ = static_cast<uint16>(see->Summ - r);
 			*escFreq = r + (r == 0);
 		}
 	}
@@ -586,7 +586,7 @@ CPpmd_See * Ppmd7_MakeEscFreq(CPpmd7 * p, unsigned numMasked, uint32 * escFreq)
 static void FASTCALL NextContext(CPpmd7 * p)
 {
 	CTX_PTR c = CTX(SUCCESSOR(p->FoundState));
-	if(p->OrderFall == 0 && (Byte*)c > p->Text)
+	if(p->OrderFall == 0 && (Byte *)c > p->Text)
 		p->MinContext = p->MaxContext = c;
 	else
 		UpdateModel(p);
@@ -783,7 +783,7 @@ void Ppmd7_EncodeSymbol(CPpmd7 * p, CPpmd7z_RangeEnc * rc, int symbol)
 			s++;
 		} while(--i);
 		RangeEnc_Encode(rc, sum, escFreq, sum + escFreq);
-		see->Summ = (uint16)(see->Summ + sum + escFreq);
+		see->Summ = static_cast<uint16>(see->Summ + sum + escFreq);
 	}
 }
 //
@@ -944,7 +944,7 @@ int Ppmd7_DecodeSymbol(CPpmd7 * p, const IPpmd7_RangeDec * rc)
 		if(count >= freqSum)
 			return -2;
 		rc->Decode(rc, hiCnt, freqSum - hiCnt);
-		see->Summ = (uint16)(see->Summ + freqSum);
+		see->Summ = static_cast<uint16>(see->Summ + freqSum);
 		do { MASK(ps[--i]->Symbol) = 0; } while(i != 0);
 	}
 }

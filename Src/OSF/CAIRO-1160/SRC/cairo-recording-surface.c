@@ -1049,7 +1049,7 @@ err:
 static cairo_status_t _cairo_recording_surface_copy__stroke(cairo_recording_surface_t * surface, const cairo_command_t * src)
 {
 	cairo_status_t status;
-	cairo_command_stroke_t * command = (cairo_command_stroke_t *)_cairo_malloc(sizeof(*command));
+	cairo_command_stroke_t * command = static_cast<cairo_command_stroke_t *>(_cairo_malloc(sizeof(*command)));
 	if(unlikely(command == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto err;

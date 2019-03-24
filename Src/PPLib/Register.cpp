@@ -1,5 +1,5 @@
 // REGISTER.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2019
 // @Kernel
 //
 #include <pp.h>
@@ -91,7 +91,8 @@ SLAPI RegisterArray::RegisterArray(const RegisterArray & s) : SVector(s) // @v9.
 {
 }
 
-IMPL_CMPFUNC(RegisterTbl_Rec_TDE, i1, i2) { RET_CMPCASCADE3((const RegisterTbl::Rec *)i1, (const RegisterTbl::Rec *)i2, RegTypeID, Dt, Expiry); }
+IMPL_CMPFUNC(RegisterTbl_Rec_TDE, i1, i2) 
+	{ RET_CMPCASCADE3(static_cast<const RegisterTbl::Rec *>(i1), static_cast<const RegisterTbl::Rec *>(i2), RegTypeID, Dt, Expiry); }
 
 void SLAPI RegisterArray::Sort()
 {
@@ -130,7 +131,7 @@ int FASTCALL RegisterArray::HasEqual(const RegisterTbl::Rec & rRec) const
 
 RegisterTbl::Rec & FASTCALL RegisterArray::at(uint pos) const
 {
-	return *(RegisterTbl::Rec*)SVector::at(pos); // @v9.8.4 SArray-->SVector
+	return *static_cast<RegisterTbl::Rec *>(SVector::at(pos)); // @v9.8.4 SArray-->SVector
 }
 
 int SLAPI RegisterArray::GetRegister(PPID regTyp, uint * pPos, RegisterTbl::Rec * pRec) const
@@ -168,7 +169,7 @@ int SLAPI RegisterArray::SelectRegister(PPID regTyp, LDATE dt, uint * pPos, Regi
 	if(ok == srrNothing) {
         if(candid_list.getCount()) {
 			if(candid_list.getCount() == 1) {
-				optimal_pos = (int)candid_list.at(0).P;
+				optimal_pos = static_cast<int>(candid_list.at(0).P);
 				ok = srrSingle;
 			}
 			else {
@@ -196,7 +197,7 @@ int SLAPI RegisterArray::SelectRegister(PPID regTyp, LDATE dt, uint * pPos, Regi
 					ok = srrMaxExpiryDist;
 				}
 				else {
-					optimal_pos = (int)candid_list.at(0).P;
+					optimal_pos = static_cast<int>(candid_list.at(0).P);
 					ok = srrAmbig;
 				}
 			}
@@ -204,7 +205,7 @@ int SLAPI RegisterArray::SelectRegister(PPID regTyp, LDATE dt, uint * pPos, Regi
 	}
 	if(ok > 0) {
 		assert(optimal_pos >= 0 && optimal_pos < static_cast<int>(getCount()));
-		ASSIGN_PTR(pPos, (uint)(optimal_pos+1));
+		ASSIGN_PTR(pPos, static_cast<uint>(optimal_pos+1));
 		ASSIGN_PTR(pRec, at(optimal_pos));
 	}
 	else {

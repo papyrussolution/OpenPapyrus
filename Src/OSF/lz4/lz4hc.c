@@ -65,7 +65,7 @@
 //#define MAX(a, b)   ( (a) > (b) ? (a) : (b) )
 #define HASH_FUNCTION(i)         (((i) * 2654435761U) >> ((MINMATCH*8)-LZ4HC_HASH_LOG))
 #define DELTANEXTMAXD(p)         chainTable[(p) & LZ4HC_MAXD_MASK]    /* flexible, LZ4HC_MAXD dependent */
-#define DELTANEXTU16(table, pos) table[(uint16)(pos)]   /* faster */
+#define DELTANEXTU16(table, pos) table[static_cast<uint16>(pos)]   /* faster */
 
 static uint32 LZ4HC_hashPtr(const void* ptr) 
 {
@@ -429,7 +429,7 @@ LZ4_FORCE_INLINE int LZ4HC_encodeSequence(const uint8** ip, uint8** op, const ui
 	*op += length;
 	/* Encode Offset */
 	assert( (*ip - match) <= MAX_DISTANCE); // note : consider providing offset as a value, rather than as a pointer difference 
-	LZ4_writeLE16(*op, (uint16)(*ip-match)); 
+	LZ4_writeLE16(*op, static_cast<uint16>(*ip-match)); 
 	*op += 2;
 	/* Encode MatchLength */
 	assert(matchLength >= MINMATCH);

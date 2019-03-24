@@ -4997,7 +4997,7 @@ int SLAPI PrcssrAlcReport::ProcessRegisterRec(RegisterTbl::Rec * pRegRec, PPID p
 		(serial = pRegRec->Serial).Strip();
 		if(serial.Divide('#', left, right) > 0) {
             size_t pos = 0;
-			if(right.Strip().StrChr(' ', &pos))
+			if(right.Strip().SearchChar(' ', &pos))
 				right.Trim(pos).Strip();
 			serial = right;
 		}

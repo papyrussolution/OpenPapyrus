@@ -42,7 +42,7 @@ SLAPI PathItem::PathItem(PPID pathID, short flags, const char * str) : ID(pathID
 {
 	if(!isempty(str)) {
 		const size_t len = sstrlen(str) + 1;
-		Size  = (uint16)(sizeof(PathItem) + len);
+		Size  = static_cast<uint16>(sizeof(PathItem) + len);
 		memcpy(this + 1, str, len);
 	}
 	else

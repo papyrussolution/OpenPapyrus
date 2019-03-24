@@ -53,7 +53,7 @@ static void __bam_init_meta(DB*, BTMETA*, db_pgno_t, DB_LSN *);
 int __bam_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, db_pgno_t base_pgno, uint32 flags)
 {
 	COMPQUIET(name, 0);
-	BTREE * t = (BTREE *)dbp->bt_internal;
+	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	/*
 	 * We don't permit the user to specify a prefix routine if they didn't
 	 * also specify a comparison routine, they can't know enough about our
@@ -174,11 +174,11 @@ int __bam_metachk(DB * dbp, const char * name, BTMETA * btm)
 #ifdef HAVE_COMPRESSION
 	if(F_ISSET(&btm->dbmeta, BTM_COMPRESS)) {
 		F_SET(dbp, DB_AM_COMPRESS);
-		if((BTREE *)dbp->bt_internal && !DB_IS_COMPRESSED(dbp) && (ret = __bam_set_bt_compress(dbp, NULL, NULL)) != 0)
+		if(static_cast<const BTREE *>(dbp->bt_internal) && !DB_IS_COMPRESSED(dbp) && (ret = __bam_set_bt_compress(dbp, NULL, NULL)) != 0)
 			return ret;
 	}
 	else {
-		if((BTREE *)dbp->bt_internal && DB_IS_COMPRESSED(dbp)) {
+		if(static_cast<const BTREE *>(dbp->bt_internal) && DB_IS_COMPRESSED(dbp)) {
 			__db_errx(env, DB_STR_A("1016", "%s: compresssion specified to open method but not set in database", "%s"), name);
 			return EINVAL;
 		}
@@ -218,7 +218,7 @@ int __bam_read_root(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, db_pgno_t base_
 	int ret, t_ret;
 	COMPQUIET(flags, 0);
 	meta = NULL;
-	t = (BTREE *)dbp->bt_internal;
+	t = static_cast<BTREE *>(dbp->bt_internal);
 	LOCK_INIT(metalock);
 	mpf = dbp->mpf;
 	ret = 0;
@@ -289,7 +289,7 @@ static void __bam_init_meta(DB * dbp, BTMETA * meta, db_pgno_t pgno, DB_LSN * ls
 	DB_PARTITION * part;
 #endif
 	ENV * env = dbp->env;
-	BTREE * t = (BTREE *)dbp->bt_internal;
+	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	memzero(meta, sizeof(BTMETA));
 	meta->dbmeta.Lsn = *lsnp;
 	meta->dbmeta.pgno = pgno;

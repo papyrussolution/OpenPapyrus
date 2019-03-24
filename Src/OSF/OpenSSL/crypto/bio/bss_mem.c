@@ -250,7 +250,7 @@ static long mem_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    bm = bbm->readp;
 		    ret = (long)bm->length;
 		    if(ptr) {
-			    pptr = (char**)ptr;
+			    pptr = static_cast<char **>(ptr);
 			    *pptr = (char *)&(bm->data[0]);
 		    }
 		    break;
@@ -265,7 +265,7 @@ static long mem_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    if(ptr) {
 			    mem_buf_sync(b);
 			    bm = bbm->readp;
-			    pptr = (char**)ptr;
+			    pptr = static_cast<char **>(ptr);
 			    *pptr = (char *)bm;
 		    }
 		    break;

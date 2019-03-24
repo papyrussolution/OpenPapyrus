@@ -104,7 +104,7 @@ int SPrinting::PrintImage(const char * pImgPath)
 		//SetMapMode(PrinterDc, MM_LOMETRIC);
 		int w = 0, h = 0;
 		int scale_x = 0, scale_y = 0;
-		img.LoadImage(pImgPath);
+		img.Load(pImgPath);
 		{
 			w = ::GetDeviceCaps(PrinterDc, HORZRES);
 			h = ::GetDeviceCaps(PrinterDc, VERTRES);

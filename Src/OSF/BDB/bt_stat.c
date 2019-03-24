@@ -26,7 +26,7 @@ int __bam_stat(DBC * dbc, void * spp, uint32 flags)
 	DB * dbp = dbc->dbp;
 	ENV * env = dbp->env;
 	BTMETA * meta = NULL;
-	BTREE * t = (BTREE *)dbp->bt_internal;
+	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	DB_BTREE_STAT * sp = NULL;
 	LOCK_INIT(metalock);
 	LOCK_INIT(lock);

@@ -618,8 +618,8 @@ int ActiveUserListDlg::GetDtm(PPID userID, PPID sessID, LDATETIME * pLoginDtm, S
 
 IMPL_CMPFUNC(PPSyncItem, i1, i2)
 {
-	const PPSyncItem * p_i1 = (const PPSyncItem *)i1;
-	const PPSyncItem * p_i2 = (const PPSyncItem *)i2;
+	const PPSyncItem * p_i1 = static_cast<const PPSyncItem *>(i1);
+	const PPSyncItem * p_i2 = static_cast<const PPSyncItem *>(i2);
 	return p_i1->MchnID.Cmp(p_i2->MchnID);
 }
 

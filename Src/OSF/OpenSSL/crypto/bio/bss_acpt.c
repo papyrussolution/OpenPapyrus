@@ -455,19 +455,19 @@ static long acpt_ctrl(BIO * b, int cmd, long num, void * ptr)
 		case BIO_C_GET_ACCEPT:
 		    if(b->init) {
 			    if(num == 0 && ptr != NULL) {
-				    pp = (char**)ptr;
+				    pp = static_cast<char **>(ptr);
 				    *pp = data->cache_accepting_name;
 			    }
 			    else if(num == 1 && ptr != NULL) {
-				    pp = (char**)ptr;
+				    pp = static_cast<char **>(ptr);
 				    *pp = data->cache_accepting_serv;
 			    }
 			    else if(num == 2 && ptr != NULL) {
-				    pp = (char**)ptr;
+				    pp = static_cast<char **>(ptr);
 				    *pp = data->cache_peer_name;
 			    }
 			    else if(num == 3 && ptr != NULL) {
-				    pp = (char**)ptr;
+				    pp = static_cast<char **>(ptr);
 				    *pp = data->cache_peer_serv;
 			    }
 			    else if(num == 4) {

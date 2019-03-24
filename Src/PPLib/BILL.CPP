@@ -381,7 +381,7 @@ int SLAPI BillCore::GetListByFreightFilt(const FreightFilt & rFilt, UintHashTabl
 		MEMSZERO(k0);
 		k0.ObjType = PPOBJ_BILL;
 		for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
-			const PPFreight & r_fr = *(PPFreight *)&p_prop->data;
+			const PPFreight & r_fr = *reinterpret_cast<const PPFreight *>(&p_prop->data);
 			if(r_fr.CheckForFilt(rFilt)) {
 				rList.Add((uint32)r_fr.ID);
 				ok = 1;
@@ -811,7 +811,7 @@ int SLAPI BillCore::Edit(PPID * pID, PPBill * pInfo, int use_ta)
 					if(r_temp_entry.Amt != r_new_entry.Amt) {
 						THROW(UpdateAmount(*pID, &r_new_entry, 0));
 					}
-					pos_list.addUnique((long)pos);
+					pos_list.addUnique(static_cast<long>(pos));
 				}
 				else {
 					THROW_DB(deleteFrom(&AmtT, 0, (AmtT.BillID == *pID &&

@@ -1027,7 +1027,7 @@ char * curl_mvaprintf(const char * format, va_list ap_save)
 
 static int storebuffer(int output, FILE * data)
 {
-	char ** buffer = (char**)data;
+	char ** buffer = (char **)data;
 	uchar outc = (uchar)output;
 	**buffer = outc;
 	(*buffer)++;

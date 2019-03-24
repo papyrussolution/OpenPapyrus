@@ -80,7 +80,7 @@ struct __db_foreign_info {
 	dbc = NULL;							\
 	file_dbp = NULL;						\
 	COMPQUIET(mpf, 0);	/* Not all recovery routines use mpf. */\
-	if((ret = func(env, &file_dbp, (info ? ((DB_TXNHEAD *)info)->td : NULL), dbtp->data, &argp)) != 0) {					\
+	if((ret = func(env, &file_dbp, (info ? static_cast<DB_TXNHEAD *>(info)->td : NULL), dbtp->data, &argp)) != 0) { \
 		if(ret	== DB_DELETED) {				\
 			ret = 0;					\
 			goto done;					\
@@ -183,7 +183,7 @@ struct __db_foreign_info {
 
 #ifdef HAVE_COMPRESSION
 	// Check whether a database is compressed (btree only)
-	#define	DB_IS_COMPRESSED(dbp) (((BTREE *)(dbp)->bt_internal)->bt_compress != NULL)
+	#define	DB_IS_COMPRESSED(dbp) (static_cast<const BTREE *>((dbp)->bt_internal)->bt_compress != NULL)
 #endif
 
 /*
@@ -199,12 +199,12 @@ struct __db_foreign_info {
  * without hash support enabled. Which would result in a null pointer access.
  */
 #ifdef HAVE_HASH
-	#define	DB_RETURNS_A_KEY_HASH(dbp)  ((HASH *)(dbp)->h_internal)->h_compare != NULL
+	#define	DB_RETURNS_A_KEY_HASH(dbp)  static_cast<const HASH *>((dbp)->h_internal)->h_compare != NULL
 #else
 	#define	DB_RETURNS_A_KEY_HASH(dbp)  0
 #endif
 #define	DB_RETURNS_A_KEY(dbp, flags) \
-	(((flags) && (flags) != DB_GET_BOTH && (flags) != DB_GET_BOTH_RANGE && (flags) != DB_SET) || ((BTREE *)(dbp)->bt_internal)->bt_compare != __bam_defcmp || DB_RETURNS_A_KEY_HASH(dbp))
+	(((flags) && (flags) != DB_GET_BOTH && (flags) != DB_GET_BOTH_RANGE && (flags) != DB_SET) || static_cast<const BTREE *>((dbp)->bt_internal)->bt_compare != __bam_defcmp || DB_RETURNS_A_KEY_HASH(dbp))
 
 /*
  * For portability, primary keys that are record numbers are stored in

@@ -1056,7 +1056,7 @@ static int __ham_expand_table(DBC * dbc)
 	if((ret = __ham_dirty_meta(dbc, 0)) != 0)
 		return ret;
 	LOCK_INIT(metalock);
-	mmeta = (DBMETA *)hcp->hdr;
+	mmeta = reinterpret_cast<DBMETA *>(hcp->hdr);
 	mpgno = mmeta->pgno;
 	h = NULL;
 	newalloc = 0;
@@ -1172,7 +1172,7 @@ uint32 __ham_call_hash(DBC*dbc, uint8 * k, uint32 len)
 	uint32 bucket;
 	DB * dbp = dbc->dbp;
 	HASH_CURSOR * hcp = (HASH_CURSOR *)dbc->internal;
-	HASH * hashp = (HASH *)dbp->h_internal;
+	HASH * hashp = static_cast<HASH *>(dbp->h_internal);
 	uint32 n = (uint32)(hashp->h_hash(dbp, k, len));
 	bucket = n&hcp->hdr->high_mask;
 	if(bucket > hcp->hdr->max_bucket)

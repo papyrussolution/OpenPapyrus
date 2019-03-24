@@ -8,7 +8,7 @@
 
 int ngx_file_type(char * file, ngx_file_info_t * sb)
 {
-	sb->dwFileAttributes = GetFileAttributes(file);
+	sb->dwFileAttributes = GetFileAttributes(SUcSwitch(file));
 	return (sb->dwFileAttributes == INVALID_FILE_ATTRIBUTES) ? -1 : 0;
 }
 /*

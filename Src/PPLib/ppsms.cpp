@@ -934,7 +934,7 @@ int SLAPI PPObjSmsAccount::Edit(PPID * pID, void * extraPtr)
 			delete dlg;
 			return ok;
 		}
-		void   SetExtStrData(PPSmsAccPacket * pData, uint ctlID, uint strID)
+		void   SetExtStrData(const PPSmsAccPacket * pData, uint ctlID, uint strID)
 		{
 			SString temp_buf;
 			PPGetExtStrData(strID, pData->ExtStr, temp_buf);

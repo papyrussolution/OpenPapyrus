@@ -693,7 +693,7 @@ int SLAPI PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 			data.RetLimPrd = (int16)getCtrlLong(CTLSEL_CLIAGT_RETLIMPRD);
 			if(data.RetLimPrd) {
 				double retlim = getCtrlReal(CTL_CLIAGT_RETLIM);
-				data.RetLimPart = (retlim > 0.0) ? (uint16)(retlim * 100.0) : 0;
+				data.RetLimPart = (retlim > 0.0) ? static_cast<uint16>(retlim * 100.0) : 0;
 			}
 			else
 				data.RetLimPart = 0;
@@ -1533,7 +1533,7 @@ int SupplAgtDialog::EditOrdParamEntry(PPID arID, PPSupplAgreement::OrderParamEnt
 		SOrdParamEntryDialog(PPID arID) : TDialog(DLG_SORDPE), ArID(arID)
 		{
 		}
-		int  setDTS(PPSupplAgreement::OrderParamEntry * pData)
+		int  setDTS(const PPSupplAgreement::OrderParamEntry * pData)
 		{
 			RVALUEPTR(Data, pData);
 			if(ArID) {

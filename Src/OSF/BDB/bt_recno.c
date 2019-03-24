@@ -88,7 +88,7 @@ int __ram_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, d
 	DBC * dbc;
 	int ret, t_ret;
 	COMPQUIET(name, 0);
-	t = (BTREE *)dbp->bt_internal;
+	t = static_cast<BTREE *>(dbp->bt_internal);
 	/* Start up the tree. */
 	if((ret = __bam_read_root(dbp, ip, txn, base_pgno, flags)) != 0)
 		return ret;
@@ -152,7 +152,7 @@ int __ramc_del(DBC * dbc, uint32 flags)
 	int exact, nc, ret, t_ret;
 	DB * dbp = dbc->dbp;
 	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
-	BTREE * t = (BTREE *)dbp->bt_internal;
+	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	int stack = 0;
 	save_npgno = save_ppgno = PGNO_INVALID;
 	LOCK_INIT(next_lock);
@@ -813,7 +813,7 @@ static int __ram_update(DBC * dbc, db_recno_t recno, int can_create)
 	db_recno_t nrecs;
 	int ret;
 	DB * dbp = dbc->dbp;
-	BTREE * t = (BTREE *)dbp->bt_internal;
+	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	/*
 	 * If we can't create records and we've read the entire backing input
 	 * file, we're done.
@@ -855,7 +855,7 @@ static int __ram_source(DB * dbp)
 	char * source;
 	int ret;
 	ENV * env = dbp->env;
-	BTREE * t = (BTREE *)dbp->bt_internal;
+	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	/* Find the real name, and swap out the one we had before. */
 	if((ret = __db_appname(env, DB_APP_DATA, t->re_source, NULL, &source)) != 0)
 		return ret;
@@ -889,7 +889,7 @@ int __ram_writeback(DB * dbp)
 	db_recno_t keyno;
 	int ret, t_ret;
 	uint8 delim;
-	BTREE * t = (BTREE *)dbp->bt_internal;
+	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	ENV * env = dbp->env;
 	FILE * fp = NULL;
 	uint8 * pad = NULL;
@@ -1019,7 +1019,7 @@ static int __ram_sread(DBC * dbc, db_recno_t top)
 	db_recno_t recno;
 	size_t len;
 	int ch, ret;
-	BTREE * t = (BTREE *)dbc->dbp->bt_internal;
+	BTREE * t = static_cast<BTREE *>(dbc->dbp->bt_internal);
 	DB   * dbp = dbc->dbp;
 	int    was_modified = t->re_modified;
 	if((ret = __bam_nrecs(dbc, &recno)) != 0)

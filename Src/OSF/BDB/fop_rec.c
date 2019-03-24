@@ -59,7 +59,7 @@ int __fop_create_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 	real_name = NULL;
 	REC_PRINT(__fop_create_print);
 	REC_NOOP_INTRO(__fop_create_read);
-	meta = (DBMETA *)mbuf;
+	meta = reinterpret_cast<DBMETA *>(mbuf);
 	if(argp->dirname.size == 0)
 		dirname = NULL;
 	else
@@ -116,7 +116,7 @@ int __fop_create_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, 
 	real_name = NULL;
 	REC_PRINT(__fop_create_print);
 	REC_NOOP_INTRO(__fop_create_read);
-	meta = (DBMETA *)mbuf;
+	meta = reinterpret_cast<DBMETA *>(mbuf);
 	if((ret = __db_appname(env, (APPNAME)argp->appname, (const char *)argp->name.data, NULL, &real_name)) != 0)
 		goto out;
 	if(DB_UNDO(op)) {
@@ -259,14 +259,11 @@ static int __fop_rename_recover_int(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_rec
 	int ret;
 	char * real_new, * real_old, * src;
 	const char * dirname;
-
 	COMPQUIET(info, 0);
-
 	fhp = NULL;
-	meta = (DBMETA *)&mbuf[0];
+	meta = reinterpret_cast<DBMETA *>(&mbuf[0]);
 	ret = 0;
 	real_new = real_old = NULL;
-
 	REC_PRINT(__fop_rename_print);
 	REC_NOOP_INTRO(__fop_rename_read);
 	fileid = (uint8 *)argp->fileid.data;
@@ -366,7 +363,7 @@ static int __fop_rename_42_recover_int(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_
 	char * real_new, * real_old, * src;
 	COMPQUIET(info, 0);
 	fhp = NULL;
-	meta = (DBMETA *)&mbuf[0];
+	meta = reinterpret_cast<DBMETA *>(&mbuf[0]);
 	ret = 0;
 	real_new = real_old = NULL;
 
@@ -449,7 +446,7 @@ int __fop_file_remove_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op
 	int is_real, is_tmp, ret;
 	char * real_name;
 	fhp = NULL;
-	meta = (DBMETA *)&mbuf[0];
+	meta = reinterpret_cast<DBMETA *>(&mbuf[0]);
 	is_real = is_tmp = 0;
 	real_name = NULL;
 	REC_PRINT(__fop_file_remove_print);
@@ -492,7 +489,7 @@ int __fop_file_remove_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op
 	fhp = NULL;
 	if(DB_UNDO(op)) {
 		/* On the backward pass, we leave a note for the child txn. */
-		if((ret = __db_txnlist_update(env, (DB_TXNHEAD *)info, argp->child, cstat, NULL, &ret_stat, 1)) != 0)
+		if((ret = __db_txnlist_update(env, static_cast<DB_TXNHEAD *>(info), argp->child, cstat, NULL, &ret_stat, 1)) != 0)
 			goto out;
 	}
 	else if(DB_REDO(op)) {

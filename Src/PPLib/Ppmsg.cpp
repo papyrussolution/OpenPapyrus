@@ -33,7 +33,7 @@ int SLAPI PPInitStrings(const char * pFileName)
 						if(!de.IsFolder()) {
 							temp_buf = de.FileName;
 							size_t hyphen_pos = 0;
-							if(temp_buf.StrChr('-', &hyphen_pos)) {
+							if(temp_buf.SearchChar('-', &hyphen_pos)) {
 								temp_buf.Sub(hyphen_pos+1, temp_buf.Len(), lang_symb = 0);
 								const int slang = RecognizeLinguaSymb(lang_symb, 0);
 								if(slang > 0) {

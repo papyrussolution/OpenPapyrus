@@ -2375,16 +2375,13 @@ int SLAPI PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLo
 	char   prd_txt[32];
 	TSVector <SCardCore::UpdateRestNotifyEntry> urn_list; // @v9.8.4 TSArray-->TSVector
 	SCardTbl::Key2 k2;
-
-	PPUserFuncProfiler ufp(PPUPRF_SCARDUPDBYRULE); // @v8.1.6
+	PPUserFuncProfiler ufp(PPUPRF_SCARDUPDBYRULE);
 	double ufp_factor = 0.0;
 	double ufp_factor2 = 0.0;
-
 	PPSCardSerPacket pack;
 	PPObjSCardSeries obj_scs;
 	if(obj_scs.GetPacket(seriesID, &pack) > 0) {
 		TSArray <_SCardTrnovrItem> sct_list;
-		//sct_list.setDelta(512);
 		enum {
 			_cfBonusRule    = 0x0001,
 			_cfDiscountRule = 0x0002
@@ -3865,7 +3862,7 @@ int SLAPI SCardTransmitPacket::PutOp(const SCardOpTbl::Rec * pItem)   { return (
 //
 //
 //
-int SLAPI PPObjSCard::GetTransmitPacket(PPID id, const LDATETIME * pMoment, SCardTransmitPacket * pPack, ObjTransmContext * pCtx)
+int SLAPI PPObjSCard::GetTransmitPacket(PPID id, const LDATETIME * pMoment, SCardTransmitPacket * pPack, const ObjTransmContext * pCtx)
 {
 	int    ok = -1;
 	pPack->destroy();

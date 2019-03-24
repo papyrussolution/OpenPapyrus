@@ -1299,9 +1299,9 @@ PPWhatmanWindow::PPWhatmanWindow(int mode) : TWindowBase(_T("SLibWindowBase"), w
 	Tb.CreatePen(penMain, SPaintObj::psSolid, 5, SColor(SClrGreen));
 	Tb.CreateBrush(brBackg, SPaintObj::bsSolid, SColor(SClrWhite), 0);
 	Tb.CreateBrush(brGreen, SPaintObj::bsSolid, SColor(SClrGreen), 0);
-	Tb.CreateFont(fontMain, "Arial Cyr", SDrawContext::CalcScreenFontSizePt(9), SFontDescr::fAntialias);
+	Tb.CreateFont_(fontMain, "Arial Cyr", SDrawContext::CalcScreenFontSizePt(9), SFontDescr::fAntialias);
 	{
-		int    tool_text_font_id = Tb.CreateFont(0, "Arial Narrow", SDrawContext::CalcScreenFontSizePt(8), SFontDescr::fAntialias);
+		int    tool_text_font_id = Tb.CreateFont_(0, "Arial Narrow", SDrawContext::CalcScreenFontSizePt(8), SFontDescr::fAntialias);
 		int    tool_text_pen_id = Tb.CreateColor(0, SColor(SClrBlack));
 		int    tool_text_sel_pen_id = Tb.CreateColor(0, SColor(SClrWhite));
 		int    tool_text_brush_id = 0;

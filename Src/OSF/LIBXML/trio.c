@@ -2808,7 +2808,7 @@ static void TrioOutStreamString(trio_class_t * self, int output)
 	char ** buffer;
 	assert(VALID(self));
 	assert(VALID(self->location));
-	buffer = (char**)self->location;
+	buffer = (char **)self->location;
 	**buffer = (char)output;
 	(*buffer)++;
 	self->processed++;
@@ -2820,7 +2820,7 @@ static void TrioOutStreamStringMax(trio_class_t * self, int output)
 	char ** buffer;
 	assert(VALID(self));
 	assert(VALID(self->location));
-	buffer = (char**)self->location;
+	buffer = (char **)self->location;
 	if(self->processed < self->max) {
 		**buffer = (char)output;
 		(*buffer)++;

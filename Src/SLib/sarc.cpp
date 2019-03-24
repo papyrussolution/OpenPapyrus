@@ -58,7 +58,7 @@ int SLAPI SCompressor::CompressBlock(const void * pSrc, size_t srcSize, SBuffer 
 			STempBuffer temp_buf(cb);
 			int  rs = 0; // result size
 			THROW(temp_buf.IsValid());
-			rs = LZ4_compress_fast_extState(P_Ctx, (const char *)pSrc, (char *)temp_buf, (int)srcSize, temp_buf.GetSize(), 1/*acceleration*/);
+			rs = LZ4_compress_fast_extState(P_Ctx, static_cast<const char *>(pSrc), (char *)temp_buf, (int)srcSize, temp_buf.GetSize(), 1/*acceleration*/);
 			THROW(rs > 0);
 			THROW(rDest.Write(temp_buf, rs));
 			ok = rs;
@@ -73,9 +73,9 @@ int SLAPI SCompressor::CompressBlock(const void * pSrc, size_t srcSize, SBuffer 
 			const size_t src_size_limit = (uInt)-1;
 			size_t current_src_size = srcSize;
 			size_t current_src_offs = 0;
-			stream.zalloc = (alloc_func)0;
-			stream.zfree = (free_func)0;
-			stream.opaque = (void *)0;
+			stream.zalloc = /*(alloc_func)*/0;
+			stream.zfree = /*(free_func)*/0;
+			stream.opaque = /*(void *)*/0;
 			zlib_err = deflateInit(&stream, level);
 			THROW(zlib_err == Z_OK);
 			{
@@ -84,9 +84,9 @@ int SLAPI SCompressor::CompressBlock(const void * pSrc, size_t srcSize, SBuffer 
 				STempBuffer temp_buf(temp_buf_size); // small buf for testing several iterations
 				THROW(temp_buf.IsValid());
 				do {
-					stream.next_out = (Bytef *)(char *)temp_buf;
+					stream.next_out = static_cast<Bytef *>(temp_buf.vptr());
 					stream.avail_out = temp_buf.GetSize();
-					stream.next_in = (z_const Bytef*)(PTR8C(pSrc)+current_src_offs);
+					stream.next_in = (const Bytef *)(PTR8C(pSrc)+current_src_offs);
 					stream.avail_in = current_src_size;
 					const uint prev_total_out = stream.total_out;
 					const uint prev_total_in = stream.total_in;
@@ -130,11 +130,11 @@ int SLAPI SCompressor::DecompressBlock(const void * pSrc, size_t srcSize, SBuffe
 			STempBuffer temp_buf(temp_buf_size);
 			// decompress until deflate stream ends or end of file 
 			stream.avail_in = srcSize;
-			stream.next_in = (z_const Bytef*)pSrc;
+			stream.next_in = static_cast<const Bytef *>(pSrc);
 			// run inflate() on input until output buffer not full 
 			do {
 				stream.avail_out = temp_buf.GetSize();
-				stream.next_out = (Bytef *)(char *)temp_buf;
+				stream.next_out = static_cast<Bytef *>(temp_buf.vptr());
 				zlib_err = inflate(&stream, Z_NO_FLUSH);
 				THROW(zlib_err != Z_STREAM_ERROR); // state not clobbered 
 				switch(zlib_err) {

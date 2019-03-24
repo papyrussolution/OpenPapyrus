@@ -717,7 +717,7 @@ int SLAPI PPObjIDArray::Add_NotPreprocess(PPID objType, PPID objID)
 
 int FASTCALL PPObjIDArray::Is_NotPreprocess_Pos(uint pos) const
 {
-	return DontPreprocPosList.lsearch((long)pos) ? 1 : 0;
+	return DontPreprocPosList.lsearch(static_cast<long>(pos)) ? 1 : 0;
 }
 
 int SLAPI PPObjIDArray::Add(PPID objType, const PPIDArray & rList)
@@ -798,7 +798,7 @@ const void * SurKeyArray::Get(long id, size_t * pDataLen) const
 {
 	uint pos = 0;
 	if(lsearch(&id, &pos, PTR_CMPFUNC(long))) {
-		const SurKey * p_item = (const SurKey *)at(pos);
+		const SurKey * p_item = static_cast<const SurKey *>(at(pos));
 		ASSIGN_PTR(pDataLen, p_item->Val.Size);
 		return p_item->Val.P_Buf;
 	}

@@ -1224,7 +1224,7 @@ char * SLAPI SDate::tostr(const void * v, long f, char * b) const { return datef
 int  SLAPI SDate::fromstr(void * v, long f, const char * b) const { return strtodate(b, f, v); }
 void SLAPI SDate::minval(void * d) const { return encodedate(0, 0, 0, d); }
 void SLAPI SDate::maxval(void * d) const { return encodedate(1, 1, 3000, d); }
-int  SLAPI SDate::comp(const void * i1, const void * i2) const { return CMPSIGN(*(ulong *)i1, *(ulong *)i2); }
+int  SLAPI SDate::comp(const void * i1, const void * i2) const { return CMPSIGN(*static_cast<const ulong *>(i1), *static_cast<const ulong *>(i2)); }
 
 int SLAPI SDate::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx)
 {
@@ -1244,12 +1244,12 @@ int SLAPI SDate::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 				//
 				if(labs(d) <= 0x7f) {
 					*pInd = 2;
-					int8 _v = (int8)d;
+					int8 _v = static_cast<int8>(d);
 					rBuf.Write(&_v, sizeof(_v));
 				}
 				else if(labs(d) <= 0x7fff) {
 					*pInd = 3;
-					int16 _v = (int16)d;
+					int16 _v = static_cast<int16>(d);
 					rBuf.Write(_v);
 				}
 				else {
@@ -1332,7 +1332,7 @@ int SLAPI STime::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 			}
 			else if(v.minut() != 0) {
 				*pInd = 3;
-				uint16 _v = (uint16)((uint)v.hour() << 8) | ((uint)v.minut());
+				uint16 _v = static_cast<uint16>((uint)v.hour() << 8) | ((uint)v.minut());
 				rBuf.Write(_v);
 			}
 			else {

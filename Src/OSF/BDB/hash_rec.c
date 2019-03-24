@@ -63,7 +63,7 @@ int __ham_insdel_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 	PAGE * pagep = 0;
 	db_indx_t dindx;
 	int cmp_n, cmp_p, ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__ham_insdel_print);
 	REC_INTRO(__ham_insdel_read, ip, 1);
 	if((ret = __memp_fget(mpf, &argp->pgno, ip, NULL, 0, &pagep)) != 0) {
@@ -144,7 +144,7 @@ int __ham_insdel_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, 
 	db_indx_t dindx;
 	uint32 dtype, ktype, opcode;
 	int cmp_n, cmp_p, ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__ham_insdel_print);
 	REC_INTRO(__ham_insdel_42_read, ip, 1);
 	if((ret = __memp_fget(mpf, &argp->pgno, ip, NULL, 0, &pagep)) != 0) {
@@ -235,7 +235,7 @@ int __ham_newpage_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, vo
 	PAGE * pagep = 0;
 	int change = 0;
 	int cmp_n, cmp_p, ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__ham_newpage_print);
 	REC_INTRO(__ham_newpage_read, ip, 0);
 	REC_FGET(mpf, ip, argp->new_pgno, &pagep, ppage);
@@ -350,7 +350,7 @@ int __ham_replace_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, vo
 	int cmp_n, cmp_p, is_plus, modified, off, ret;
 	uint8 * hk;
 
-	ip = ((DB_TXNHEAD *)info)->thread_info;
+	ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	pagep = NULL;
 	REC_PRINT(__ham_replace_print);
 	REC_INTRO(__ham_replace_read, ip, 0);
@@ -460,7 +460,7 @@ int __ham_replace_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op,
 	int cmp_n, cmp_p, is_plus, modified, ret;
 	uint8 * hk;
 
-	ip = ((DB_TXNHEAD *)info)->thread_info;
+	ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	pagep = NULL;
 	REC_PRINT(__ham_replace_print);
 	REC_INTRO(__ham_replace_42_read, ip, 0);
@@ -550,7 +550,7 @@ int __ham_splitdata_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, 
 	PAGE * pagep;
 	int cmp_n, cmp_p, ret;
 
-	ip = ((DB_TXNHEAD *)info)->thread_info;
+	ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	pagep = NULL;
 	REC_PRINT(__ham_splitdata_print);
 	REC_INTRO(__ham_splitdata_read, ip, 1);
@@ -644,7 +644,7 @@ int __ham_copypage_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, v
 	PAGE * pagep;
 	int cmp_n, cmp_p, ret;
 
-	ip = ((DB_TXNHEAD *)info)->thread_info;
+	ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	pagep = NULL;
 	REC_PRINT(__ham_copypage_print);
 	REC_INTRO(__ham_copypage_read, ip, 0);
@@ -744,7 +744,7 @@ int __ham_metagroup_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, 
 	PAGE * pagep;
 	db_pgno_t pgno;
 	int cmp_n, cmp_p, groupgrow, ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	int did_alloc = 0;
 	REC_PRINT(__ham_metagroup_print);
 	REC_INTRO(__ham_metagroup_read, ip, 1);
@@ -890,7 +890,7 @@ do_meta:
 		}
 	}
 	else {
-		mmeta = (DBMETA *)hcp->hdr;
+		mmeta = reinterpret_cast<DBMETA *>(hcp->hdr);
 		REC_DIRTY(mpf, ip, dbc->priority, &mmeta);
 	}
 	if(cmp_n == 0 && DB_UNDO(op))
@@ -927,7 +927,7 @@ int __ham_contract_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, v
 	HMETA * meta;
 	int cmp_n, cmp_p, ret;
 
-	ip = ((DB_TXNHEAD *)info)->thread_info;
+	ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__ham_contract_print);
 	REC_INTRO(__ham_contract_read, ip, 1);
 
@@ -985,7 +985,7 @@ int __ham_groupalloc_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op,
 	db_pgno_t pgno;
 	int cmp_n, cmp_p, ret;
 
-	ip = ((DB_TXNHEAD *)info)->thread_info;
+	ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	mmeta = NULL;
 	REC_PRINT(__ham_groupalloc_print);
 	REC_INTRO(__ham_groupalloc_read, ip, 1);
@@ -1135,7 +1135,7 @@ int __ham_changeslot_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op,
 	uint32 bucket;
 	int cmp_n, cmp_p, ret;
 
-	ip = ((DB_TXNHEAD *)info)->thread_info;
+	ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 
 	REC_PRINT(__ham_changeslot_print);
 	REC_INTRO(__ham_changeslot_read, ip, 1);
@@ -1182,7 +1182,7 @@ int __ham_curadj_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 	DBC * dbc;
 	HASH_CURSOR * hcp;
 	int ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__ham_curadj_print);
 	REC_INTRO(__ham_curadj_read, ip, 1);
 	if(op != DB_TXN_ABORT)
@@ -1323,7 +1323,7 @@ int __ham_chgpg_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void
 	DBC * dbc;
 	int ret;
 	uint32 count;
-	ip = ((DB_TXNHEAD *)info)->thread_info;
+	ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__ham_chgpg_print);
 	REC_INTRO(__ham_chgpg_read, ip, 0);
 	if(op != DB_TXN_ABORT)
@@ -1355,7 +1355,7 @@ int __ham_metagroup_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops o
 	uint32 flags;
 	int cmp_n, cmp_p, did_alloc, groupgrow, ret;
 
-	ip = ((DB_TXNHEAD *)info)->thread_info;
+	ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	mmeta = NULL;
 	did_alloc = 0;
 	REC_PRINT(__ham_metagroup_42_print);
@@ -1478,7 +1478,7 @@ do_meta:
 		}
 	}
 	else {
-		mmeta = (DBMETA *)hcp->hdr;
+		mmeta = reinterpret_cast<DBMETA *>(hcp->hdr);
 		REC_DIRTY(mpf, ip, dbc->priority, &mmeta);
 	}
 	if(mmeta->last_pgno < pgno)
@@ -1513,7 +1513,7 @@ int __ham_groupalloc_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops 
 	db_pgno_t pgno;
 	int cmp_p, ret;
 
-	ip = ((DB_TXNHEAD *)info)->thread_info;
+	ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	mmeta = NULL;
 	REC_PRINT(__ham_groupalloc_42_print);
 	REC_INTRO(__ham_groupalloc_42_read, ip, 1);

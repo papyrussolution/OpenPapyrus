@@ -26,7 +26,7 @@ INT_PTR CALLBACK ShortcutsWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam
 			break;
 		case WM_NOTIFY:
 			{
-				NMHDR * nm = (LPNMHDR)lParam;
+				const NMHDR * nm = reinterpret_cast<const NMHDR *>(lParam);
 				if(wParam == CTL_SHORTCUTS_ITEMS && (nm->code == TCN_SELCHANGE)) {
 					HWND tab_hwnd = GetDlgItem(hWnd, CTL_SHORTCUTS_ITEMS);
 					int idx = TabCtrl_GetCurSel(tab_hwnd);
@@ -208,7 +208,7 @@ void ShortcutsWindow::UpdateItem(const char * pTitle, void * ptr)
 					t_i.cbSize      = sizeof(TOOLINFO);
 					t_i.uFlags      = TTF_SUBCLASS;
 					t_i.hwnd        = hwnd_tab;
-					t_i.uId         = (UINT)tci.lParam;
+					t_i.uId         = static_cast<UINT>(tci.lParam);
 					t_i.rect        = rc_item;
 					t_i.hinst       = TProgram::GetInst();
 					t_i.lpszText    = 0;
@@ -260,7 +260,7 @@ void ShortcutsWindow::DelItem(void * ptr)
 					t_i.cbSize      = sizeof(TOOLINFO);
 					t_i.uFlags      = TTF_SUBCLASS;
 					t_i.hwnd        = hwnd_tab;
-					t_i.uId         = (UINT)tci.lParam;
+					t_i.uId         = static_cast<UINT>(tci.lParam);
 					t_i.rect        = rc_item;
 					t_i.hinst       = TProgram::GetInst();
 					t_i.lpszText    = 0;

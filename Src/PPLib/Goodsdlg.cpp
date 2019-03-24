@@ -555,8 +555,8 @@ public:
 	BarcodeListDialog() : PPListDialog(DLG_BARCODELIST, CTL_BARCODELIST_LIST), GoodsID(0), GoodsGrpID(0)
 	{
 	}
-	int    setDTS(BarcodeArray *, PPID goodsID, PPID goodsGrpID);
-	int    getDTS(BarcodeArray *);
+	int    setDTS(const BarcodeArray * pData, PPID goodsID, PPID goodsGrpID);
+	int    getDTS(BarcodeArray * pData);
 private:
 	virtual int  setupList();
 	virtual int  addItem(long * pPos, long * pID);
@@ -569,7 +569,7 @@ private:
 	BarcodeArray Data;
 };
 
-int BarcodeListDialog::setDTS(BarcodeArray * pData, PPID goodsID, PPID goodsGrpID)
+int BarcodeListDialog::setDTS(const BarcodeArray * pData, PPID goodsID, PPID goodsGrpID)
 {
 	GoodsID    = goodsID;
 	GoodsGrpID = goodsGrpID;
@@ -1085,7 +1085,7 @@ int ClsdGoodsDialog::setupGdsClsDim(uint inpID, uint selCmd, uint labelID, uint 
 	setCtrlReal(inpID, x ? (((double)val) / fpow10i((int)pDim->Scale)) : 0);
 	{
 		uint   boffs = PPGdsCls::UseFlagToE(flag);
-		uint16 zero = (uint16)((ModifyOnlyExtRec == 2 && zeroID && (boffs > 0)) ? (ZeroFlags & (1 < (boffs-1))) : 0);
+		uint16 zero = static_cast<uint16>((ModifyOnlyExtRec == 2 && zeroID && (boffs > 0)) ? (ZeroFlags & (1 < (boffs-1))) : 0);
 		setCtrlUInt16(zeroID, zero);
 		setupZeroDim(zeroID, inpID, selCmd);
 	}
@@ -3402,7 +3402,7 @@ public:
 	EditExtParamsDlg() : TDialog(DLG_GFEXTOPT)
 	{
 	}
-	int    setDTS(ClsdGoodsFilt * pData);
+	int    setDTS(const ClsdGoodsFilt * pData);
 	int    getDTS(ClsdGoodsFilt * pData);
 private:
 	DECL_HANDLE_EVENT;
@@ -3446,7 +3446,7 @@ void EditExtParamsDlg::setupGdsClsDim(uint inpID, uint labelID, uint flag, const
 		SetRealRangeInput(this, inpID, rV.low, rV.upp, static_cast<int>(rDim.Scale));
 }
 
-int EditExtParamsDlg::setDTS(ClsdGoodsFilt * pData)
+int EditExtParamsDlg::setDTS(const ClsdGoodsFilt * pData)
 {
 	int    ok = -1;
 	if(pData) {

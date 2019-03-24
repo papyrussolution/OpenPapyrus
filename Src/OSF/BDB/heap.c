@@ -874,12 +874,11 @@ static int __heapc_reloc_partial(DBC * dbc, DBT * key, DBT * data)
 		/* Round down to a multiple of 4. */
 		size = DB_ALIGN(size-sizeof(uint32)+1, sizeof(uint32));
 		DB_ASSERT(dbp->env, size >= sizeof(HEAPSPLITHDR));
-
 		/*
 		 * We try to fill the page, but cannot write more than
 		 * t_data.size bytes, that's all we have in-memory.
 		 */
-		new_hdr.std_hdr.size = (uint16)(size-sizeof(HEAPSPLITHDR));
+		new_hdr.std_hdr.size = static_cast<uint16>(size-sizeof(HEAPSPLITHDR));
 		if(new_hdr.std_hdr.size > data_size)
 			new_hdr.std_hdr.size = data_size;
 		if(new_hdr.std_hdr.size >= left) {
@@ -1079,7 +1078,7 @@ static int __heapc_reloc(DBC * dbc, DBT * key, DBT * data)
 		/* Round down to a multiple of 4. */
 		size = DB_ALIGN(size-sizeof(uint32)+1, sizeof(uint32));
 		DB_ASSERT(dbp->env, size >= sizeof(HEAPSPLITHDR));
-		new_hdr.std_hdr.size = (uint16)(size-sizeof(HEAPSPLITHDR));
+		new_hdr.std_hdr.size = static_cast<uint16>(size-sizeof(HEAPSPLITHDR));
 		if(new_hdr.std_hdr.size >= left) {
 			new_hdr.std_hdr.size = left;
 			new_hdr.std_hdr.flags |= HEAP_RECLAST;
@@ -1794,7 +1793,7 @@ static int __heapc_split(DBC * dbc, DBT * key, DBT * data, int is_first)
 			/* Round down to a multiple of 4. */
 			size = DB_ALIGN(size-sizeof(uint32)+1, sizeof(uint32));
 			DB_ASSERT(dbp->env, size >= sizeof(HEAPSPLITHDR));
-			hdrs.std_hdr.size = (uint16)(size-sizeof(HEAPSPLITHDR));
+			hdrs.std_hdr.size = static_cast<uint16>(size-sizeof(HEAPSPLITHDR));
 		}
 		/*
 		 * t_data.data points at the end of the data left to write.  Now

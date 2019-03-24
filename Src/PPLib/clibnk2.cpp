@@ -639,7 +639,7 @@ int SLAPI ClientBankImportDef::ImportAll()
 					THROW(ar_obj.GetByPersonList(0, &psn_list, &ar_list));
 				}
 				else
-					ar_list.add((long)0);
+					ar_list.add(0L);
 			}
 			for(i = 0; i < ar_list.getCount(); i++) {
 				const PPID ar_id = ar_list.get(i);

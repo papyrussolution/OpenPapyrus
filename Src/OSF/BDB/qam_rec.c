@@ -74,7 +74,7 @@ int __qam_incfirst_recover(ENV*env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 	db_pgno_t metapg;
 	int ret;
 	COMPQUIET(meta, 0);
-	ip = ((DB_TXNHEAD *)info)->thread_info;
+	ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__qam_incfirst_print);
 	REC_INTRO(__qam_incfirst_read, ip, 0);
 	metapg = ((QUEUE *)file_dbp->q_internal)->q_meta;
@@ -104,7 +104,7 @@ int __qam_incfirst_recover(ENV*env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 			REC_DIRTY(mpf, ip, dbc->priority, &meta);
 			meta->first_recno = argp->recno;
 		}
-		trunc_lsn = ((DB_TXNHEAD *)info)->trunc_lsn;
+		trunc_lsn = (static_cast<DB_TXNHEAD *>(info))->trunc_lsn;
 		// if we are truncating, update the LSN 
 		if(!IS_ZERO_LSN(trunc_lsn) && LOG_COMPARE(&LSN(meta), &trunc_lsn) > 0) {
 			REC_DIRTY(mpf, ip, dbc->priority, &meta);
@@ -151,7 +151,7 @@ int __qam_mvptr_recover(ENV*env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
 	QUEUE_CURSOR * cp;
 	db_pgno_t metapg;
 	int cmp_n, cmp_p, exact, ret;
-	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
+	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__qam_mvptr_print);
 	REC_INTRO(__qam_mvptr_read, ip, 0);
 	/* Allocate our own cursor without DB_RECOVER as we need a locker. */
@@ -192,7 +192,7 @@ int __qam_mvptr_recover(ENV*env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
 			LSN(meta) = argp->metalsn;
 		}
 		// If the page lsn is beyond the truncate point, move it back
-		trunc_lsn = ((DB_TXNHEAD *)info)->trunc_lsn;
+		trunc_lsn = (static_cast<DB_TXNHEAD *>(info))->trunc_lsn;
 		if(!IS_ZERO_LSN(trunc_lsn) && LOG_COMPARE(&trunc_lsn, &LSN(meta)) < 0) {
 			REC_DIRTY(mpf, ip, dbc->priority, &meta);
 			LSN(meta) = argp->metalsn;
@@ -263,7 +263,7 @@ int __qam_del_recover(ENV*env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * i
 	COMPQUIET(pagep, 0);
 	meta = NULL;
 	pagep = NULL;
-	ip = ((DB_TXNHEAD *)info)->thread_info;
+	ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__qam_del_print);
 	REC_INTRO(__qam_del_read, ip, 0);
 	/* Allocate our own cursor without DB_RECOVER as we need a locker. */
@@ -360,7 +360,7 @@ int __qam_delext_recover(ENV*env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
 	meta = NULL;
 	pagep = NULL;
 
-	ip = ((DB_TXNHEAD *)info)->thread_info;
+	ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__qam_delext_print);
 	REC_INTRO(__qam_delext_read, ip, 0);
 	/* Allocate our own cursor without DB_RECOVER as we need a locker. */
@@ -457,7 +457,7 @@ int __qam_add_recover(ENV*env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * i
 	db_pgno_t metapg;
 	int cmp_n, ret;
 	COMPQUIET(pagep, 0);
-	ip = ((DB_TXNHEAD *)info)->thread_info;
+	ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
 	REC_PRINT(__qam_add_print);
 	REC_INTRO(__qam_add_read, ip, 1);
 	if((ret = __qam_fget(dbc, &argp->pgno, DB_UNDO(op) ? 0 : DB_MPOOL_CREATE, &pagep)) != 0) {

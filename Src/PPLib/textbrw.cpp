@@ -1693,7 +1693,7 @@ int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 				// @v9.9.9 if(orgCp != cpANSI) {
 					CallFunc(SCI_SETCODEPAGE, SC_CP_UTF8, 0);
 				// @v9.9.9 }
-				CallFunc(SCI_ALLOCATE, (WPARAM)bufsize_req, 0);
+				CallFunc(SCI_ALLOCATE, static_cast<WPARAM>(bufsize_req), 0);
 				THROW(CallFunc(SCI_GETSTATUS, 0, 0) == SC_STATUS_OK);
 				{
 					int    first_block = 1;
@@ -1737,18 +1737,8 @@ int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 								// Ёкспериментальный блок с автоматической идентификацией кодировки.
 								// “ребуютс€ уточнени€.
 								//
-								const char * p_cp_name = tes.GetCpName();
-								if(sstreqi_ascii(p_cp_name, "IBM866")) {
-									Doc.OrgCp = cp866;
-								}
-								else if(p_cp_name && strnicmp(p_cp_name, "windows", 7) == 0) {
-									Doc.OrgCp.FromStr(p_cp_name);
-								}
-								else if(p_cp_name && strnicmp(p_cp_name, "iso", 3) == 0) {
-									Doc.OrgCp.FromStr(p_cp_name);
-								}
-								else 
-									Doc.OrgCp = (orgCp == cpUndef) ? /*cpANSI*/cpUTF8 : orgCp; // @v9.9.9 cpANSI-->cpUTF8
+								SCodepageIdent local_cp = tes.GetAutodetectedCp();
+								Doc.OrgCp = (local_cp == cpUndef) ? ((orgCp == cpUndef) ? cpUTF8 : orgCp) : local_cp;
 								Doc.Cp = cpUTF8;
 							}
 							Doc.Eolf = tes.GetEolFormat();

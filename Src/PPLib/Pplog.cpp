@@ -335,13 +335,13 @@ LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wPara
 	LogListWindowSCI * p_view = 0;
 	switch(message) {
 		case WM_CREATE:
-			p_init_data = (CREATESTRUCT *)lParam;
+			p_init_data = reinterpret_cast<CREATESTRUCT *>(lParam);
 			if(TWindow::IsMDIClientWindow(p_init_data->hwndParent)) {
-				p_view = (LogListWindowSCI *)((LPMDICREATESTRUCT)(p_init_data->lpCreateParams))->lParam;
+				p_view = (LogListWindowSCI *)(static_cast<LPMDICREATESTRUCT>(p_init_data->lpCreateParams))->lParam;
 				//p_view->BbState |= bbsIsMDI;
 			}
 			else {
-				p_view = (LogListWindowSCI *)p_init_data->lpCreateParams;
+				p_view = static_cast<LogListWindowSCI *>(p_init_data->lpCreateParams);
 				//p_view->BbState &= ~bbsIsMDI;
 			}
 			if(p_view) {
@@ -465,7 +465,7 @@ LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wPara
 			break;
 		case WM_NOTIFY:
 			{
-				LPNMHDR lpnmhdr = (LPNMHDR)lParam;
+				LPNMHDR lpnmhdr = reinterpret_cast<LPNMHDR>(lParam);
 				p_view = static_cast<LogListWindowSCI *>(TView::GetWindowUserData(hWnd));
 				if(p_view && lpnmhdr->hwndFrom == p_view->GetSciWnd()) {
 					switch(lpnmhdr->code) {

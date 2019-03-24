@@ -173,7 +173,7 @@ namespace NCompress {
 			NumItems = numItems;
 			ReorderCount = kReorderCountStart;
 			for(uint i = 0; i < numItems; i++) {
-				Freqs[i] = (uint16)(numItems - i);
+				Freqs[i] = static_cast<uint16>(numItems - i);
 				Vals[i] = (Byte)i;
 			}
 			Freqs[numItems] = 0;
@@ -193,7 +193,7 @@ namespace NCompress {
 				if(--ReorderCount == 0) {
 					ReorderCount = kReorderCount;
 					for(i = 0; i < NumItems; i++)
-						Freqs[i] = (uint16)(((Freqs[i] - Freqs[(size_t)i + 1]) + 1) >> 1);
+						Freqs[i] = static_cast<uint16>(((Freqs[i] - Freqs[(size_t)i + 1]) + 1) >> 1);
 					for(i = 0; i < NumItems - 1; i++)
 						for(uint j = i + 1; j < NumItems; j++)
 							if(Freqs[i] < Freqs[j]) {
@@ -206,7 +206,7 @@ namespace NCompress {
 							}
 
 					do
-						Freqs[i] = (uint16)(Freqs[i] + Freqs[(size_t)i + 1]);
+						Freqs[i] = static_cast<uint16>(Freqs[i] + Freqs[(size_t)i + 1]);
 					while(i--);
 				}
 				else {
@@ -214,7 +214,7 @@ namespace NCompress {
 					do {
 						Freqs[i] >>= 1;
 						if(Freqs[i] <= Freqs[(size_t)i + 1])
-							Freqs[i] = (uint16)(Freqs[(size_t)i + 1] + 1);
+							Freqs[i] = static_cast<uint16>(Freqs[(size_t)i + 1] + 1);
 					}
 					while(i--);
 				}
@@ -345,7 +345,7 @@ namespace NArchive {
 			uint32 _pos;
 		};
 
-		bool CCabBlockInStream::Create() { return SETIFZ(_buf, (Byte*)SAlloc::M(kBlockSize)); }
+		bool CCabBlockInStream::Create() { return SETIFZ(_buf, (Byte *)SAlloc::M(kBlockSize)); }
 		
 		CCabBlockInStream::~CCabBlockInStream()
 		{
@@ -921,7 +921,7 @@ namespace NArchive {
 				if(numExtractItems > 1) {
 					if(!TempBuf || item.Size > TempBufSize) {
 						FreeTempBuf();
-						TempBuf = (Byte*)SAlloc::M(item.Size);
+						TempBuf = (Byte *)SAlloc::M(item.Size);
 						TempBufSize = item.Size;
 						if(!TempBuf)
 							return E_OUTOFMEMORY;

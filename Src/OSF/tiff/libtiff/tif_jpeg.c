@@ -844,7 +844,7 @@ static void JPEGFixupTagsSubsamplingSkip(struct JPEGFixupTagsSubsamplingData* da
 	}
 	else {
 		uint16 m;
-		m = (uint16)(skiplength-data->bufferbytesleft);
+		m = static_cast<uint16>(skiplength-data->bufferbytesleft);
 		if(m<=data->filebytesleft) {
 			data->bufferbytesleft = 0;
 			data->fileoffset += m;

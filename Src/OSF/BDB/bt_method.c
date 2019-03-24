@@ -70,18 +70,15 @@ int __bam_db_create(DB * dbp)
 	dbp->set_re_pad = __ram_set_re_pad;
 	dbp->get_re_source = __ram_get_re_source;
 	dbp->set_re_source = __ram_set_re_source;
-
 	return 0;
 }
-/*
- * __bam_db_close --
- *	Btree specific discard of the DB structure.
- *
- * PUBLIC: int __bam_db_close __P((DB *));
- */
+//
+// __bam_db_close --
+// Btree specific discard of the DB structure.
+//
 int __bam_db_close(DB * dbp)
 {
-	BTREE * t = (BTREE *)dbp->bt_internal;
+	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	if(t) {
 		// Recno 
 		// Close any backing source file descriptor. 
@@ -128,7 +125,7 @@ void __bam_map_flags(DB * dbp, uint32 * inflagsp, uint32 * outflagsp)
  */
 int __bam_set_flags(DB * dbp, uint32 * flagsp)
 {
-	BTREE * t = (BTREE *)dbp->bt_internal;
+	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	uint32 flags = *flagsp;
 	if(LF_ISSET(DB_DUP|DB_DUPSORT|DB_RECNUM|DB_REVSPLITOFF))
 		DB_ILLEGAL_AFTER_OPEN(dbp, "DB->set_flags");
@@ -183,7 +180,7 @@ incompat:
 static int __bam_get_bt_compare(DB * dbp, int (**funcp)(DB*, const DBT*, const DBT *))
 {
 	DB_ILLEGAL_METHOD(dbp, DB_OK_BTREE);
-	BTREE * t = (BTREE *)dbp->bt_internal;
+	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	ASSIGN_PTR(funcp, t->bt_compare);
 	return 0;
 }
@@ -198,7 +195,7 @@ int __bam_set_bt_compare(DB * dbp, int (*func)(DB*, const DBT*, const DBT *))
 {
 	DB_ILLEGAL_AFTER_OPEN(dbp, "DB->set_bt_compare");
 	DB_ILLEGAL_METHOD(dbp, DB_OK_BTREE);
-	BTREE * t = (BTREE *)dbp->bt_internal;
+	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	/*
 	 * Can't default the prefix routine if the user supplies a comparison
 	 * routine; shortening the keys can break their comparison algorithm.
@@ -219,7 +216,7 @@ static int __bam_get_bt_compress(DB * dbp,
 #ifdef HAVE_COMPRESSION
 	BTREE * t;
 	DB_ILLEGAL_METHOD(dbp, DB_OK_BTREE);
-	t = (BTREE *)dbp->bt_internal;
+	t = static_cast<BTREE *>(dbp->bt_internal);
 	ASSIGN_PTR(compressp, t->bt_compress);
 	ASSIGN_PTR(decompressp, t->bt_decompress);
 	return 0;
@@ -248,7 +245,7 @@ int __bam_set_bt_compress(DB * dbp,
 	BTREE * t;
 	DB_ILLEGAL_AFTER_OPEN(dbp, "DB->set_bt_compress");
 	DB_ILLEGAL_METHOD(dbp, DB_OK_BTREE);
-	t = (BTREE *)dbp->bt_internal;
+	t = static_cast<BTREE *>(dbp->bt_internal);
 	/* compression is incompatible with DB_RECNUM */
 	if(F_ISSET(dbp, DB_AM_RECNUM)) {
 		__db_errx(dbp->env, DB_STR("1027", "compression cannot be used with DB_RECNUM"));
@@ -295,7 +292,7 @@ int __bam_set_bt_compress(DB * dbp,
 int __bam_get_bt_minkey(DB * dbp, uint32 * bt_minkeyp)
 {
 	DB_ILLEGAL_METHOD(dbp, DB_OK_BTREE);
-	BTREE * t = (BTREE *)dbp->bt_internal;
+	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	*bt_minkeyp = t->bt_minkey;
 	return 0;
 }
@@ -307,7 +304,7 @@ static int __bam_set_bt_minkey(DB * dbp, uint32 bt_minkey)
 {
 	DB_ILLEGAL_AFTER_OPEN(dbp, "DB->set_bt_minkey");
 	DB_ILLEGAL_METHOD(dbp, DB_OK_BTREE);
-	BTREE * t = (BTREE *)dbp->bt_internal;
+	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	if(bt_minkey < 2) {
 		__db_errx(dbp->env, DB_STR("1031", "minimum bt_minkey value is 2"));
 		return EINVAL;
@@ -324,7 +321,7 @@ static int __bam_set_bt_minkey(DB * dbp, uint32 bt_minkey)
 static int __bam_get_bt_prefix(DB * dbp, size_t (**funcp)(DB*, const DBT*, const DBT *))
 {
 	DB_ILLEGAL_METHOD(dbp, DB_OK_BTREE);
-	BTREE * t = (BTREE *)dbp->bt_internal;
+	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	ASSIGN_PTR(funcp, t->bt_prefix);
 	return 0;
 }
@@ -336,7 +333,7 @@ static int __bam_set_bt_prefix(DB * dbp, size_t (*func)(DB*, const DBT*, const D
 {
 	DB_ILLEGAL_AFTER_OPEN(dbp, "DB->set_bt_prefix");
 	DB_ILLEGAL_METHOD(dbp, DB_OK_BTREE);
-	BTREE * t = (BTREE *)dbp->bt_internal;
+	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	t->bt_prefix = func;
 	return 0;
 }
@@ -349,8 +346,8 @@ void __bam_copy_config(DB * src, DB * dst, uint32 nparts)
 {
 	BTREE * s, * d;
 	COMPQUIET(nparts, 0);
-	s = (BTREE *)src->bt_internal;
-	d = (BTREE *)dst->bt_internal;
+	s = static_cast<BTREE *>(src->bt_internal);
+	d = static_cast<BTREE *>(dst->bt_internal);
 	d->bt_compare = s->bt_compare;
 	d->bt_minkey = s->bt_minkey;
 	d->bt_minkey = s->bt_minkey;
@@ -403,7 +400,7 @@ static int __ram_get_re_delim(DB * dbp, int * re_delimp)
 {
 	BTREE * t;
 	DB_ILLEGAL_METHOD(dbp, DB_OK_RECNO);
-	t = (BTREE *)dbp->bt_internal;
+	t = static_cast<BTREE *>(dbp->bt_internal);
 	*re_delimp = t->re_delim;
 	return 0;
 }
@@ -415,7 +412,7 @@ static int __ram_set_re_delim(DB * dbp, int re_delim)
 {
 	DB_ILLEGAL_AFTER_OPEN(dbp, "DB->set_re_delim");
 	DB_ILLEGAL_METHOD(dbp, DB_OK_RECNO);
-	BTREE * t = (BTREE *)dbp->bt_internal;
+	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	t->re_delim = re_delim;
 	F_SET(dbp, DB_AM_DELIMITER);
 	return 0;
@@ -443,7 +440,7 @@ int __ram_get_re_len(DB * dbp, uint32 * re_lenp)
 		*re_lenp = q->re_len;
 	}
 	else {
-		t = (BTREE *)dbp->bt_internal;
+		t = static_cast<BTREE *>(dbp->bt_internal);
 		*re_lenp = t->re_len;
 	}
 	return 0;
@@ -460,7 +457,7 @@ static int __ram_set_re_len(DB * dbp, uint32 re_len)
 #endif
 	DB_ILLEGAL_AFTER_OPEN(dbp, "DB->set_re_len");
 	DB_ILLEGAL_METHOD(dbp, DB_OK_QUEUE|DB_OK_RECNO);
-	t = (BTREE *)dbp->bt_internal;
+	t = static_cast<BTREE *>(dbp->bt_internal);
 	t->re_len = re_len;
 #ifdef HAVE_QUEUE
 	q = (QUEUE *)dbp->q_internal;
@@ -492,7 +489,7 @@ int __ram_get_re_pad(DB * dbp, int * re_padp)
 		*re_padp = q->re_pad;
 	}
 	else {
-		t = (BTREE *)dbp->bt_internal;
+		t = static_cast<BTREE *>(dbp->bt_internal);
 		*re_padp = t->re_pad;
 	}
 	return 0;
@@ -509,7 +506,7 @@ static int __ram_set_re_pad(DB * dbp, int re_pad)
 #endif
 	DB_ILLEGAL_AFTER_OPEN(dbp, "DB->set_re_pad");
 	DB_ILLEGAL_METHOD(dbp, DB_OK_QUEUE|DB_OK_RECNO);
-	t = (BTREE *)dbp->bt_internal;
+	t = static_cast<BTREE *>(dbp->bt_internal);
 	t->re_pad = re_pad;
 #ifdef HAVE_QUEUE
 	q = (QUEUE *)dbp->q_internal;
@@ -525,7 +522,7 @@ static int __ram_set_re_pad(DB * dbp, int re_pad)
 static int __ram_get_re_source(DB * dbp, const char ** re_sourcep)
 {
 	DB_ILLEGAL_METHOD(dbp, DB_OK_RECNO);
-	BTREE * t = (BTREE *)dbp->bt_internal;
+	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	*re_sourcep = t->re_source;
 	return 0;
 }
@@ -537,6 +534,6 @@ static int __ram_set_re_source(DB * dbp, const char * re_source)
 {
 	DB_ILLEGAL_AFTER_OPEN(dbp, "DB->set_re_source");
 	DB_ILLEGAL_METHOD(dbp, DB_OK_RECNO);
-	BTREE * t = (BTREE *)dbp->bt_internal;
+	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	return __os_strdup(dbp->env, re_source, &t->re_source);
 }

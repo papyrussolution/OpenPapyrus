@@ -3738,7 +3738,7 @@ int PersonCtrlGroup::SelectByCode(TDialog * pDlg)
 			if(InputStringDialog(&isd_param, code) > 0) {
 				PPIDArray   psn_list;
 				PPObjPerson psn_obj;
-				if(psn_obj.GetListByRegNumber(reg_type_id, 0, (const char *)code, psn_list) > 0)
+				if(psn_obj.GetListByRegNumber(reg_type_id, 0, code, psn_list) > 0)
 					if(psn_list.getCount()) {
 						pDlg->setCtrlData(Ctlsel, &psn_list.at(0));
 						TView::messageCommand(pDlg, cmCBSelected, p_combo);
@@ -4038,7 +4038,7 @@ int PersonListCtrlGroup::SelectByCode(TDialog * pDlg)
 			if(InputStringDialog(&isd_param, code) > 0) {
 				PPIDArray   psn_list;
 				PPObjPerson psn_obj;
-				if(psn_obj.GetListByRegNumber(reg_type_id, 0, (const char *)code, psn_list) > 0)
+				if(psn_obj.GetListByRegNumber(reg_type_id, 0, code, psn_list) > 0)
 					if(psn_list.getCount()) {
 						pDlg->setCtrlData(Ctlsel, &psn_list.at(0));
 						TView::messageCommand(pDlg, cmCBSelected, p_combo);
@@ -5074,7 +5074,7 @@ int ResolveGoodsDialog::setupList()
 				if(p_item->ResolvedGoodsID)
 					buf.Cat(SLBColumnDelim).Cat(GetGoodsName(p_item->ResolvedGoodsID, resolve_name));
 			}
-			THROW(addStringToList(i, (const char *)buf));
+			THROW(addStringToList(i, buf));
 		}
 	}
 	CATCHZOKPPERR
@@ -5699,7 +5699,7 @@ void TimePickerDialog::DrawHourText(TCanvas * pCanv)
 		pCanv->SetBkColor(Ptb.GetColor(clrClear));
 		pCanv->SetTextColor(GetColorRef(SClrBlack));
 		pCanv->SetBkTranparent();
-		pCanv->TextOut(text_point, temp_buf);
+		pCanv->TextOut_(text_point, temp_buf);
 		pCanv->PopObject();
 	}
 }
@@ -5744,7 +5744,7 @@ void TimePickerDialog::DrawMinutText(TCanvas * pCanv)
 		pCanv->SetBkColor(Ptb.GetColor(clrClear));
 		pCanv->SetTextColor(GetColorRef(SClrBlack));
 		pCanv->SetBkTranparent();
-		pCanv->TextOut(text_point, temp_buf);
+		pCanv->TextOut_(text_point, temp_buf);
 		pCanv->PopObject();
 	}
 }
@@ -5756,12 +5756,12 @@ void TimePickerDialog::Implement_Draw()
 	RECT   rect, btn_rect;
 	SString temp_buf;
 	PAINTSTRUCT ps;
-	::BeginPaint(H(), (LPPAINTSTRUCT)&ps);
+	::BeginPaint(H(), &ps);
 	GetClientRect(H(), &rect);
 	GetWindowRect(GetDlgItem(H(), STDCTL_OKBUTTON), &btn_rect);
 	rect.bottom = btn_rect.top;
 	if(ps.fErase) {
-		FillRect(GetDC(H()), &rect, (HBRUSH)Ptb.Get(brClear));
+		::FillRect(GetDC(H()), &rect, static_cast<HBRUSH>(Ptb.Get(brClear)));
 		ps.fErase = 0;
 	}
 	TCanvas canv(ps.hdc);
@@ -5795,7 +5795,7 @@ void TimePickerDialog::Implement_Draw()
 				canv.SetBkColor(Ptb.GetColor(clrClear));
 				canv.SetTextColor(color);
 				canv.SetBkTranparent();
-				canv.DrawText(text_rect, temp_buf, DT_CENTER|DT_VCENTER|DT_SINGLELINE);
+				canv.DrawText_(text_rect, temp_buf, DT_CENTER|DT_VCENTER|DT_SINGLELINE);
 				canv.PopObject();
 				h_++;
 			}
@@ -5831,13 +5831,13 @@ void TimePickerDialog::Implement_Draw()
 				canv.SetBkColor(Ptb.GetColor(clrClear));
 				canv.SetTextColor(color);
 				canv.SetBkTranparent();
-				canv.DrawText(text_rect, temp_buf, DT_CENTER|DT_VCENTER|DT_SINGLELINE);
+				canv.DrawText_(text_rect, temp_buf, DT_CENTER|DT_VCENTER|DT_SINGLELINE);
 				canv.PopObject();
 				min5 += 5;
 			}
 		}
 	}
-	::EndPaint(H(), (LPPAINTSTRUCT)&ps);
+	::EndPaint(H(), &ps);
 }
 
 int TimePickerDialog::setDTS(LTIME data)
@@ -5902,7 +5902,7 @@ void SLAPI SetupTimePicker(TDialog * pDlg, uint editCtlID, int buttCtlID)
 		TView::SetWindowProp(hwnd, GWLP_WNDPROC, TimeButtonWndEx::WndProc);
 		if(!hbm_clock) {
 			ENTER_CRITICAL_SECTION
-			SETIFZ(hbm_clock, APPL->LoadBitmap(IDB_CLOCK));
+			SETIFZ(hbm_clock, APPL->LoadBitmap_(IDB_CLOCK));
 			LEAVE_CRITICAL_SECTION
 		}
 		::SendMessage(hwnd, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(hbm_clock));
@@ -5914,7 +5914,7 @@ void SLAPI SetupTimePicker(TDialog * pDlg, uint editCtlID, int buttCtlID)
 TimePickerCtrlGroup::TimePickerCtrlGroup(uint ctl, uint ctlSel, TDialog * pDlg) : Ctl(ctl), CtlSel(ctlSel), Cmd(0)
 {
 	if(CtlSel && pDlg) {
-		TButton * p_btn = (TButton*)pDlg->getCtrlView(CtlSel);
+		TButton * p_btn = static_cast<TButton *>(pDlg->getCtrlView(CtlSel));
 		if(p_btn) {
 			Cmd = p_btn->GetCommand();
 			p_btn->SetBitmap(IDB_CLOCK);
@@ -5949,7 +5949,7 @@ int TimePickerCtrlGroup::Edit(TDialog * pDlg)
 // virtual
 int TimePickerCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
-	Data = (pData) ? *(LTIME*)pData : ZEROTIME;
+	Data = (pData) ? *static_cast<const LTIME *>(pData) : ZEROTIME;
 	pDlg->setCtrlData(Ctl, &Data);
 	return 1;
 }
@@ -5960,7 +5960,7 @@ int TimePickerCtrlGroup::getData(TDialog * pDlg, void * pData)
 	int    ok = 0;
 	pDlg->getCtrlData(Ctl, &Data);
 	if(checktime(Data) > 0) {
-		ASSIGN_PTR((LTIME*)pData, Data);
+		ASSIGN_PTR(static_cast<LTIME *>(pData), Data);
 		ok = 1;
 	}
 	return ok;
@@ -5999,7 +5999,7 @@ EmailCtrlGroup::~EmailCtrlGroup()
 
 int EmailCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
-	Rec * p_rec = (Rec*)pData;
+	const Rec * p_rec = static_cast<const Rec *>(pData);
 	RVALUEPTR(Data, p_rec);
 	SetLine(pDlg);
 	return 1;
@@ -6009,7 +6009,7 @@ int EmailCtrlGroup::getData(TDialog * pDlg, void * pData)
 {
 	SString buf, addr_list;
 	CALLPTRMEMB(pDlg, getCtrlString(Ctl, addr_list));
-	Rec * p_rec = (Rec*)pData;
+	Rec * p_rec = static_cast<Rec *>(pData);
 	if(p_rec) {
 		StringSet ss(";");
 		p_rec->AddrList.Z();
@@ -6176,7 +6176,7 @@ int SLAPI EmailToBlock::Edit(long flags)
 		{
 			addGroup(ctlgroupEmailList, new EmailCtrlGroup(CTL_MAILTO_ADDR, cmEMailList));
 		}
-		int    setDTS(EmailToBlock * pData)
+		int    setDTS(const EmailToBlock * pData)
 		{
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
@@ -6257,8 +6257,8 @@ int SendMailDialog::addItem(long * pPos, long * pId)
 	long   pos = -1, id = -1;
 	SString path;
 	if(PPOpenFile(PPTXT_FILPAT_ALL, path, 0, 0) > 0) {
-		if(Data.FilesList.lsearch((const char *)path, 0, PTR_CMPFUNC(PcharNoCase)) <= 0) {
-			Data.FilesList.insert(newStr((const char *)path));
+		if(Data.FilesList.lsearch(path.cptr(), 0, PTR_CMPFUNC(PcharNoCase)) <= 0) {
+			Data.FilesList.insert(newStr(path));
 			id = pos = Data.FilesList.getCount() - 1;
 			ok = 1;
 		}
@@ -6278,11 +6278,11 @@ int SendMailDialog::editItem(long pos, long id)
 		SString path = Data.FilesList.at(pos);
 		if(PPOpenFile(PPTXT_FILPAT_ALL, path,  0, 0) > 0) {
 			uint p = 0;
-			if(Data.FilesList.lsearch((const char *)path, &p, PTR_CMPFUNC(PcharNoCase)) > 0 && p != pos)
+			if(Data.FilesList.lsearch(path.cptr(), &p, PTR_CMPFUNC(PcharNoCase)) > 0 && p != pos)
 				PPError(PPERR_ITEMALREADYEXISTS);
 			else {
 				Data.FilesList.atFree(pos);
-				Data.FilesList.atInsert(pos, newStr((const char *)path));
+				Data.FilesList.atInsert(pos, newStr(path));
 				ok = 1;
 			}
 		}
@@ -7019,7 +7019,7 @@ int SLAPI PPEditTextFile(const char * pFileName)
 							RecentItems.AddFast(++fid, temp_buf);
 							ss.add(temp_buf);
 							ss.add(temp_buf.Z());
-							p_recent_box->addItem(fid, (const char *)ss.getBuf());
+							p_recent_box->addItem(fid, ss.getBuf());
 						}
 					}
 					p_recent_box->Draw_();
@@ -7051,7 +7051,7 @@ int SLAPI PPEditTextFile(const char * pFileName)
 							temp_buf.Cat(dtm, DATF_DMY, TIMF_HMS);
 						}
 						ss.add(temp_buf);
-						p_reserv_box->addItem(fi.ID, (const char *)ss.getBuf());
+						p_reserv_box->addItem(fi.ID, ss.getBuf());
 					}
 				}
 				p_reserv_box->Draw_();

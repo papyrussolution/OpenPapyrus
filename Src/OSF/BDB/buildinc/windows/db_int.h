@@ -197,13 +197,13 @@ typedef SH_TAILQ_HEAD(__hash_head) DB_HASHTAB;
 /*
  * Convert a pointer to an integral value.
  *
- * The (uint16)(uintptr_t) cast avoids warnings: the (uintptr_t) cast
+ * The static_cast<uint16>(uintptr_t) cast avoids warnings: the (uintptr_t) cast
  * converts the value to an integral type, and the (uint16) cast converts
  * it to a small integral type so we don't get complaints when we assign the
  * final result to an integral type smaller than uintptr_t.
  */
 #define	P_TO_UINT32(p)	((uint32)(uintptr_t)(p))
-#define	P_TO_UINT16(p)	((uint16)(uintptr_t)(p))
+#define	P_TO_UINT16(p)	(static_cast<uint16>((uintptr_t)(p)))
 #define	P_TO_ROFF(p)	((roff_t)(uintptr_t)(p))
 // The converse of P_TO_ROFF() above. 
 #define	ROFF_TO_P(roff)	((void *)(uintptr_t)(roff))
@@ -343,10 +343,9 @@ typedef struct __db_msgbuf {
 #define	STAT_POINTER(msg, v) __db_msg(env, "%#lx\t%s", P_TO_ULONG(v), msg)
 #define	STAT_STRING(msg, p) do {					\
 	const char *__p = p;	/* p may be a function call. */		\
-	__db_msg(env, "%s\t%s", __p == NULL ? "!Set" : __p, msg);	\
+	__db_msg(env, "%s\t%s", __p ? __p : "!Set", msg);	\
 } while (0)
 #define	STAT_ULONG(msg, v) __db_msg(env, "%lu\t%s", static_cast<ulong>(v), msg)
-
 /*
  * The following macros are used to control how error and message strings are
  * output by Berkeley DB. There are essentially three different controls

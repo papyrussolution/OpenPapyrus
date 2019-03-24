@@ -1953,7 +1953,7 @@ int FileFormatRegBase::GetMime(int id, SString & rMime) const
 	int    ok = 0;
 	// @v10.0.05 {
 	for(uint pos = 0; !ok && SVector::lsearch(&id, &pos, CMPF_LONG); pos++) {
-		const Entry * p_entry = (const Entry *)at(pos);
+		const Entry * p_entry = static_cast<const Entry *>(at(pos));
 		assert(p_entry->FmtId == id);
 		if(p_entry->MimeType && p_entry->MimeSubtypeIdx) {
 			SFileFormat::GetMimeTypeName(p_entry->MimeType, rMime);
@@ -1967,7 +1967,7 @@ int FileFormatRegBase::GetMime(int id, SString & rMime) const
 	// } @v10.0.05 
 	/* @v10.0.05
 	for(uint i = 0; !ok && i < getCount(); i++) {
-		const Entry * p_entry = (const Entry *)at(i);
+		const Entry * p_entry = static_cast<const Entry *>(at(i));
 		if(p_entry && p_entry->FmtId == id) {
 			if(p_entry->MimeType && p_entry->MimeSubtypeIdx) {
 				SFileFormat::GetMimeTypeName(p_entry->MimeType, rMime);
@@ -1988,7 +1988,7 @@ int FileFormatRegBase::GetExt(int id, SString & rExt) const
 	int    ok = 0;
 	SString temp_buf;
 	for(uint i = 0; !ok && i < getCount(); i++) {
-		const Entry * p_entry = (const Entry *)at(i);
+		const Entry * p_entry = static_cast<const Entry *>(at(i));
 		if(p_entry && p_entry->FmtId == id) {
 			if(p_entry->ExtIdx && GetS(p_entry->ExtIdx, temp_buf)) {
 				// В регистрационной записи может быть несколько расширений, разделенных ';' - берем первое
@@ -2008,7 +2008,7 @@ int FileFormatRegBase::SearchEntryByID(int id, LongArray & rPosList) const
 {
 	int    ok = -1;
 	for(uint i = 0; i < getCount(); i++) {
-		const Entry * p_entry = (const Entry *)at(i);
+		const Entry * p_entry = static_cast<const Entry *>(at(i));
 		if(p_entry && p_entry->FmtId == id) {
 			rPosList.add(i);
 			ok = 1;
@@ -2024,7 +2024,7 @@ int FileFormatRegBase::SearchEntryByExt(const char * pExt, LongArray & rPosList)
 	SString temp_buf;
 	ext.Strip().ShiftLeftChr('.').Strip();
 	for(uint i = 0; i < getCount(); i++) {
-		const Entry * p_entry = (const Entry *)at(i);
+		const Entry * p_entry = static_cast<const Entry *>(at(i));
 		if(p_entry && p_entry->ExtIdx) {
 			if(GetS(p_entry->ExtIdx, temp_buf) && temp_buf == ext) {
 				rPosList.add(i);
@@ -2043,7 +2043,7 @@ int FileFormatRegBase::Get(uint pos, Entry & rEntry, SString & rExt, SString & r
 	rMimeType = 0;
 	rMimeSubtype.Z();
 	if(pos < getCount()) {
-		const Entry * p_entry = (const Entry *)at(pos);
+		const Entry * p_entry = static_cast<const Entry *>(at(pos));
 		if(p_entry) {
 			SString temp_buf;
 			rEntry = *p_entry;
@@ -2810,11 +2810,11 @@ SLTEST_R(SFile)
 	SLTEST_CHECK_NZ(file.Close());
 	//
 	{
-		SLTEST_CHECK_LT(SFile::WaitForWriteSharingRelease(file_name, 10000), (long)0);
+		SLTEST_CHECK_LT(SFile::WaitForWriteSharingRelease(file_name, 10000), 0L);
 		THROW(SLTEST_CHECK_NZ(file.Open(file_name, SFile::mWrite)));
 		SLTEST_CHECK_Z(SFile::WaitForWriteSharingRelease(file_name, 1000));
 		SLTEST_CHECK_NZ(file.Close());
-		SLTEST_CHECK_LT(SFile::WaitForWriteSharingRelease(file_name, 1000), (long)0);
+		SLTEST_CHECK_LT(SFile::WaitForWriteSharingRelease(file_name, 1000), 0L);
 		//
 		// @todo Не проверенным остался случай реального ожидания закрытия файла
 		// поскольку для этого надо создавать отдельный асинхронный поток.

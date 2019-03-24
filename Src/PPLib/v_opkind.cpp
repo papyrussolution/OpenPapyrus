@@ -151,8 +151,8 @@ int SLAPI PPViewOprKind::Transmit(PPID id)
 IMPL_CMPFUNC(OprKindBrwItemName, _i1, _i2)
 {
 	int    r = 0;
-	const OprKindBrwItem * p_item1 = (const OprKindBrwItem *)_i1;
-	const OprKindBrwItem * p_item2 = (const OprKindBrwItem *)_i2;
+	const OprKindBrwItem * p_item1 = static_cast<const OprKindBrwItem *>(_i1);
+	const OprKindBrwItem * p_item2 = static_cast<const OprKindBrwItem *>(_i2);
 	if((r = stricmp866(p_item1->Name, p_item2->Name)) < 0)
 		return -1;
 	else if(r > 0)
@@ -164,8 +164,8 @@ IMPL_CMPFUNC(OprKindBrwItemName, _i1, _i2)
 IMPL_CMPFUNC(OprKindBrwItemNameRank, _i1, _i2)
 {
 	int    r = 0;
-	const OprKindBrwItem * p_item1 = (const OprKindBrwItem *)_i1;
-	const OprKindBrwItem * p_item2 = (const OprKindBrwItem *)_i2;
+	const OprKindBrwItem * p_item1 = static_cast<const OprKindBrwItem *>(_i1);
+	const OprKindBrwItem * p_item2 = static_cast<const OprKindBrwItem *>(_i2);
 	if(p_item1->Rank > p_item2->Rank)
 		return -1;
 	else if(p_item1->Rank < p_item2->Rank)
@@ -181,8 +181,8 @@ IMPL_CMPFUNC(OprKindBrwItemNameRank, _i1, _i2)
 IMPL_CMPFUNC(OprKindBrwItemTypeName, _i1, _i2)
 {
 	int    r = 0;
-	const OprKindBrwItem * p_item1 = (const OprKindBrwItem *)_i1;
-	const OprKindBrwItem * p_item2 = (const OprKindBrwItem *)_i2;
+	const OprKindBrwItem * p_item1 = static_cast<const OprKindBrwItem *>(_i1);
+	const OprKindBrwItem * p_item2 = static_cast<const OprKindBrwItem *>(_i2);
 	if((r = stricmp866(p_item1->OpType, p_item2->OpType)) < 0)
 		return -1;
 	else if(r > 0)
@@ -198,8 +198,8 @@ IMPL_CMPFUNC(OprKindBrwItemTypeName, _i1, _i2)
 IMPL_CMPFUNC(OprKindBrwItemTypeNameRank, _i1, _i2)
 {
 	int    r = 0;
-	const  OprKindBrwItem * p_item1 = (OprKindBrwItem*)_i1;
-	const  OprKindBrwItem * p_item2 = (OprKindBrwItem*)_i2;
+	const  OprKindBrwItem * p_item1 = static_cast<const OprKindBrwItem *>(_i1);
+	const  OprKindBrwItem * p_item2 = static_cast<const OprKindBrwItem *>(_i2);
 	if((r = stricmp866(p_item1->OpType, p_item2->OpType)) < 0)
 		return -1;
 	else if(r > 0)

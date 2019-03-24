@@ -1050,7 +1050,7 @@ static int OJPEGReadHeaderInfo(TIFF* tif)
 			return 0;
 		}
 		sp->restart_interval =
-		    (uint16)(((sp->strile_width+sp->subsampling_hor*8-1)/(sp->subsampling_hor*8))*(sp->strile_length/(sp->subsampling_ver*8)));
+		    static_cast<uint16>(((sp->strile_width+sp->subsampling_hor*8-1)/(sp->subsampling_hor*8))*(sp->strile_length/(sp->subsampling_ver*8)));
 	}
 	if(OJPEGReadHeaderInfoSec(tif)==0)
 		return 0;

@@ -484,7 +484,7 @@ int SLAPI PPObjCSession::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * 
 				s = TDialog::TransmitData(dir, pData);
 			return s;
 		}
-		int setDTS(ObjRights * pData)
+		int setDTS(const ObjRights * pData)
 		{
 			if(pData) {
 				ushort comm_rt = pData->Flags;
@@ -1017,7 +1017,7 @@ int SLAPI EditDueToKeyboardRights()
 		KeybWKeyCfgDlg() : TDialog(DLG_CFGKBDWKEY)
 		{
 		}
-		int    setDTS(_PPKeybordWKeyCfg * pCfg)
+		int    setDTS(const _PPKeybordWKeyCfg * pCfg)
 		{
 			if(!RVALUEPTR(KWKCfg, pCfg))
 				MEMSZERO(KWKCfg);

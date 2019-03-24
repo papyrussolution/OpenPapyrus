@@ -1314,7 +1314,7 @@ int CheckInPersonListDialog::addItem(long * pPos, long * pID)
 				uint   pos = 0;
 				if(Data.AddItem(item, &Cfg, &pos)) {
 					Data.SetMemo(pos, memo_buf);
-					ASSIGN_PTR(pPos, (long)pos);
+					ASSIGN_PTR(pPos, static_cast<long>(pos));
 					ok = 1;
 				}
 				else

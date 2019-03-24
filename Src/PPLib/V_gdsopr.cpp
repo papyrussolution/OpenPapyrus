@@ -84,12 +84,13 @@ struct GoaUniqItem {       // size=36
 	double Price;
 };
 
-IMPL_CMPFUNC(GoaCacheItem, i1, i2) { RET_CMPCASCADE4((const GoaCacheItem *)i1, (const GoaCacheItem *)i2, Sign, GoodsID, ArID, LocID); }
+IMPL_CMPFUNC(GoaCacheItem, i1, i2) 
+	{ RET_CMPCASCADE4(static_cast<const GoaCacheItem *>(i1), static_cast<const GoaCacheItem *>(i2), Sign, GoodsID, ArID, LocID); }
 
 IMPL_CMPFUNC(GoaCacheItem_P, i1, i2)
 {
-	const GoaCacheItem * p1 = (GoaCacheItem *)i1;
-	const GoaCacheItem * p2 = (GoaCacheItem *)i2;
+	const GoaCacheItem * p1 = static_cast<const GoaCacheItem *>(i1);
+	const GoaCacheItem * p2 = static_cast<const GoaCacheItem *>(i2);
 	int    si;
 	CMPCASCADE4(si, p1, p2, Sign, GoodsID, ArID, LocID);
 	if(si == 0) {
@@ -104,8 +105,8 @@ IMPL_CMPFUNC(GoaCacheItem_P, i1, i2)
 
 IMPL_CMPFUNC(GoaCacheItem_CP, i1, i2)
 {
-	const GoaCacheItem * p1 = (GoaCacheItem *)i1;
-	const GoaCacheItem * p2 = (GoaCacheItem *)i2;
+	const GoaCacheItem * p1 = static_cast<const GoaCacheItem *>(i1);
+	const GoaCacheItem * p2 = static_cast<const GoaCacheItem *>(i2);
 	int    si;
 	CMPCASCADE4(si, p1, p2, Sign, GoodsID, ArID, LocID);
 	if(si == 0) {
@@ -125,12 +126,13 @@ IMPL_CMPFUNC(GoaCacheItem_CP, i1, i2)
 	return si;
 }
 
-IMPL_CMPFUNC(GoaUniqItem, i1, i2) { RET_CMPCASCADE4((const GoaUniqItem *)i1, (const GoaUniqItem *)i2, Sign, GoodsID, ArID, LocID); }
+IMPL_CMPFUNC(GoaUniqItem, i1, i2) 
+	{ RET_CMPCASCADE4(static_cast<const GoaUniqItem *>(i1), static_cast<const GoaUniqItem *>(i2), Sign, GoodsID, ArID, LocID); }
 
 IMPL_CMPFUNC(GoaUniqItem_P, i1, i2)
 {
-	const GoaUniqItem * p1 = (GoaUniqItem *)i1;
-	const GoaUniqItem * p2 = (GoaUniqItem *)i2;
+	const GoaUniqItem * p1 = static_cast<const GoaUniqItem *>(i1);
+	const GoaUniqItem * p2 = static_cast<const GoaUniqItem *>(i2);
 	int    si;
 	CMPCASCADE4(si, p1, p2, Sign, GoodsID, ArID, LocID);
 	if(si == 0) {
@@ -145,8 +147,8 @@ IMPL_CMPFUNC(GoaUniqItem_P, i1, i2)
 
 IMPL_CMPFUNC(GoaUniqItem_CP, i1, i2)
 {
-	const GoaUniqItem * p1 = (GoaUniqItem *)i1;
-	const GoaUniqItem * p2 = (GoaUniqItem *)i2;
+	const GoaUniqItem * p1 = static_cast<const GoaUniqItem *>(i1);
+	const GoaUniqItem * p2 = static_cast<const GoaUniqItem *>(i2);
 	int    si;
 	CMPCASCADE4(si, p1, p2, Sign, GoodsID, ArID, LocID);
 	if(si == 0) {
@@ -2447,7 +2449,7 @@ int SLAPI PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 					else if(Filt.LocList.GetCount() == 1)
 						r = gr_view.GetItem(rec.GoodsID, &Filt.LocList, &gr_item);
 					else
-						r = gr_view.GetItem(rec.GoodsID, (long)0, &gr_item);
+						r = gr_view.GetItem(rec.GoodsID, 0L, &gr_item);
 					if(r > 0) {
 						P_TempTbl->data.Rest = gr_item.Rest;
 						P_TempTbl->data.PhRest = gr_item.PhRest;

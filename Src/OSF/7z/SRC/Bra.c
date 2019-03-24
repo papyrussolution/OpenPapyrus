@@ -108,8 +108,8 @@ SizeT ARMT_Convert(Byte * data, SizeT size, uint32 ip, int encoding)
 				v -= cur;
 			}
 			/*
-			   SetUi16(p - 4, (uint16)(((v >> 11) & 0x7FF) | 0xF000));
-			   SetUi16(p - 2, (uint16)(v | 0xF800));
+			   SetUi16(p - 4, static_cast<uint16>(((v >> 11) & 0x7FF) | 0xF000));
+			   SetUi16(p - 2, static_cast<uint16>(v | 0xF800));
 			 */
 			p[-4] = (Byte)(v >> 11);
 			p[-3] = (Byte)(0xF0 | ((v >> 19) & 0x7));

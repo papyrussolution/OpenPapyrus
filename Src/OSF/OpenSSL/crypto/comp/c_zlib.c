@@ -388,7 +388,7 @@ static int bio_zlib_write(BIO * b, const char * in, int inl)
 	zout = &ctx->zout;
 	BIO_clear_retry_flags(b);
 	if(!ctx->obuf) {
-		ctx->obuf = (uchar *)OPENSSL_malloc(ctx->obufsize);
+		ctx->obuf = static_cast<uchar *>(OPENSSL_malloc(ctx->obufsize));
 		/* Need error here */
 		if(ctx->obuf == NULL) {
 			COMPerr(COMP_F_BIO_ZLIB_WRITE, ERR_R_MALLOC_FAILURE);
@@ -400,8 +400,8 @@ static int bio_zlib_write(BIO * b, const char * in, int inl)
 		zout->next_out = ctx->obuf;
 		zout->avail_out = ctx->obufsize;
 	}
-	/* Obtain input data directly from supplied buffer */
-	zout->next_in = (Bytef *)in;
+	// Obtain input data directly from supplied buffer 
+	zout->next_in = reinterpret_cast<const Bytef *>(in);
 	zout->avail_in = inl;
 	for(;; ) {
 		/* If data in output buffer write it first */

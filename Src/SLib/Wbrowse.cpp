@@ -491,16 +491,18 @@ int BrowserWindow::SaveUserSettings(int ifChangedOnly)
 int BrowserWindow::RestoreUserSettings()
 {
 	int    ok = -1;
-	char   spec[1024], param[32];
+	//char   spec[1024];
+	SString spec_buf;
+	char   param[32];
 	WinRegKey reg_key(HKEY_CURRENT_USER, WrSubKey_BrwUserSetting, 1);
 	ltoa(RezID, param, 10);
-	if(reg_key.GetString(param, spec, sizeof(spec))) {
+	if(reg_key.GetString(param, spec_buf)) {
 		// version, num_columns, column1_size, ...
 		char   ver[32];
 		SString temp_buf, org_offs_buf, len_buf;
 		uint   pos = 0;
-		spec[sizeof(spec)-1] = 0;
-		StringSet ss(';', spec);
+		//spec[sizeof(spec)-1] = 0;
+		StringSet ss(';', spec_buf);
 		ss.get(&pos, ver, sizeof(ver));
 		ss.get(&pos, temp_buf);
 		const uint num_cols = (uint)temp_buf.ToLong();
@@ -2389,7 +2391,7 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 	LPCREATESTRUCT initData;
 	switch(msg) {
 		case WM_CREATE:
-			initData = (LPCREATESTRUCT)lParam;
+			initData = reinterpret_cast<LPCREATESTRUCT>(lParam);
 			if(IsMDIClientWindow(initData->hwndParent)) {
 				p_view = reinterpret_cast<BrowserWindow *>(static_cast<LPMDICREATESTRUCT>(initData->lpCreateParams)->lParam);
 				p_view->BbState |= TBaseBrowserWindow::bbsIsMDI;
@@ -2459,7 +2461,7 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 			return 0;
 		case BRO_SETDATA:
 			if(p_view) {
-				p_view->P_Def->setData((LPVOID) lParam);
+				p_view->P_Def->setData(reinterpret_cast<void *>(lParam));
 				RECT r;
 				r.top    = p_view->CapOffs;
 				r.bottom = r.top + p_view->ViewHeight * p_view->YCell;
@@ -2682,7 +2684,7 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 			return 0;
 		case WM_GETMINMAXINFO:
 			if(!IsIconic(hWnd)) {
-				LPMINMAXINFO p_min_max = (LPMINMAXINFO)lParam;
+				LPMINMAXINFO p_min_max = reinterpret_cast<LPMINMAXINFO>(lParam);
 				RECT rc_client;
 				GetClientRect(hWnd, &rc_client);
 				p_min_max->ptMinTrackSize.x = 200;

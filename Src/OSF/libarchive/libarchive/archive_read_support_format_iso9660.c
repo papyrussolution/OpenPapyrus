@@ -1466,7 +1466,7 @@ static int zisofs_read_data(struct archive_read * a, const void ** buff, size_t 
 		uncompressed_size = zisofs->uncompressed_buffer_size;
 	}
 	else {
-		zisofs->stream.next_in = (Bytef*)(uintptr_t)(const void*)p;
+		zisofs->stream.next_in = (Bytef *)(uintptr_t)(const void*)p;
 		if(avail > zisofs->block_avail)
 			zisofs->stream.avail_in = zisofs->block_avail;
 		else

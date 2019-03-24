@@ -478,8 +478,7 @@ static int cc_b(struct ZintSymbol * symbol, const char source[], int cc_width)
 			variant = 24;
 		}
 	}
-
-	/* Now we have the variant we can load the data - from here on the same as MicroPDF417 code */
+	// Now we have the variant we can load the data - from here on the same as MicroPDF417 code 
 	variant--;
 	symbol->option_2 = MicroVariants[variant]; /* columns */
 	symbol->rows = MicroVariants[variant + 34]; /* rows */
@@ -487,14 +486,12 @@ static int cc_b(struct ZintSymbol * symbol, const char source[], int cc_width)
 	longueur = (symbol->option_2 * symbol->rows) - k; /* number of non-EC CWs */
 	i = longueur - mclength; /* amount of padding required */
 	offset = MicroVariants[variant + 102]; /* coefficient offset */
-
 	/* We add the padding */
 	while(i > 0) {
 		chainemc[mclength] = 900;
 		mclength++;
 		i--;
 	}
-
 	/* Reed-Solomon error correction */
 	longueur = mclength;
 	for(loop = 0; loop < 50; loop++) {
@@ -527,15 +524,12 @@ static int cc_b(struct ZintSymbol * symbol, const char source[], int cc_width)
 	CentreRAPStart = RAPTable[variant + 34];
 	RightRAPStart = RAPTable[variant + 68];
 	StartCluster = RAPTable[variant + 102] / 3;
-
 	/* That's all values loaded, get on with the encoding */
-
 	LeftRAP = LeftRAPStart;
 	CentreRAP = CentreRAPStart;
 	RightRAP = RightRAPStart;
 	Cluster = StartCluster;
 	/* Cluster can be 0, 1 or 2 for Cluster(0), Cluster(3) and Cluster(6) */
-
 	for(i = 0; i < symbol->rows; i++) {
 		sstrcpy(codebarre, "");
 		offset = 929 * Cluster;
@@ -573,9 +567,7 @@ static int cc_b(struct ZintSymbol * symbol, const char source[], int cc_width)
 		}
 		strcat(codebarre, RAPLR[RightRAP]);
 		strcat(codebarre, "1"); /* stop */
-
 		/* Now codebarre is a mixture of letters and numbers */
-
 		writer = 0;
 		flip = 1;
 		sstrcpy(pattern, "");

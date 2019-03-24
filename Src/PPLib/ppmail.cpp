@@ -1133,12 +1133,11 @@ int SLAPI PPMailPop3::FinalizeServerUrl(InetUrl & rUrl)
 	SString server_addr;
 	MailAcc.GetExtField(MAEXSTR_RCVSERVER, server_addr);
 	rUrl.Set(server_addr, 0);
-
-	int    protocol = (MailAcc.Flags & MailAcc.fUseSSL) ? InetUrl::protPOP3S : InetUrl::protPOP3;
+	const int protocol = (MailAcc.Flags & MailAcc.fUseSSL) ? InetUrl::protPOP3S : InetUrl::protPOP3;
 	rUrl.SetProtocol(protocol);
 	int    port = MailAcc.GetRcvPort();
 	SETIFZ(port, InetUrl::GetDefProtocolPort(protocol));
-	rUrl.SetPort(port);
+	rUrl.SetPort_(port);
 	return 1;
 }
 
@@ -1149,7 +1148,7 @@ int SLAPI PPMailPop3::SendCmd(long cmd, const char * pAddedInfo, long addedInfo,
 	switch(cmd) {
 		case POP3CMD_RETR:
 			if(addedInfo)
-				mkmailcmd(buf, "RETR", 2, (void *)addedInfo);
+				mkmailcmd(buf, "RETR", 2, reinterpret_cast<void *>(addedInfo));
 			else
 				ok = -1;
 			break;
@@ -1164,7 +1163,7 @@ int SLAPI PPMailPop3::SendCmd(long cmd, const char * pAddedInfo, long addedInfo,
 		THROW_SL(Sess.CheckReply(buf));
 	}
 	else {
-		buf = 0;
+		buf.Z();
 		ok = 0;
 	}
 	CATCHZOK
@@ -1404,7 +1403,7 @@ int SLAPI PPMailSmtp::MakeMessageID(SString & rBuf)
 	rBuf.Z().CatChar('<');
 	SString temp_buf;
 	MailAcc.GetExtField(MAEXSTR_FROMADDRESS, temp_buf);
-	const char * p = temp_buf.StrChr('@', 0);
+	const char * p = temp_buf.SearchChar('@', 0);
 	if(p == 0) {
 		S_GUID uuid;
 		temp_buf.Z();
@@ -1948,7 +1947,7 @@ int SLAPI ExportEmailAccts(const PPIDArray * pMailAcctsList)
 			if(account.SmtpAuthType) {
 				SString auth;
 				PPGetSubStr(PPTXT_SMTPAUTHTYPES, account.SmtpAuthType - 1, auth);
-				STRNSCPY(account_rec.AuthType, auth.StrChr(',', 0) + 1);
+				STRNSCPY(account_rec.AuthType, auth.SearchChar(',', 0) + 1);
 			}
 			smtp.CopyTo(account_rec.SmtpServer, sizeof(account_rec.SmtpServer));
 			account_rec.SmtpPort = (int16)smtp_port.ToLong();

@@ -67,7 +67,7 @@ int __ham_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, d
 	if((ret = __db_cursor(dbp, ip, txn, &dbc, (LF_ISSET(DB_CREATE) && CDB_LOCKING(env) ?  DB_WRITECURSOR : 0)|(F_ISSET(dbp, DB_AM_RECOVER) ? DB_RECOVER : 0))) != 0)
 		return ret;
 	hcp = (HASH_CURSOR *)dbc->internal;
-	hashp = (HASH *)dbp->h_internal;
+	hashp = static_cast<HASH *>(dbp->h_internal);
 	hashp->meta_pgno = base_pgno;
 	hashp->revision = dbp->mpf->mfp->revision;
 	if((ret = __ham_get_meta(dbc)) != 0)
@@ -191,7 +191,7 @@ static db_pgno_t __ham_init_meta(DB * dbp, HMETA * meta, db_pgno_t pgno, DB_LSN 
 	db_pgno_t nbuckets;
 	uint i, l2;
 	ENV * env = dbp->env;
-	HASH * hashp = (HASH *)dbp->h_internal;
+	HASH * hashp = static_cast<HASH *>(dbp->h_internal);
 	if(hashp->h_hash == NULL)
 		hashp->h_hash = DB_HASHVERSION < 5 ? __ham_func4 : __ham_func5;
 	if(hashp->h_nelem != 0 && hashp->h_ffactor != 0) {

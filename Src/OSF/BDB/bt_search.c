@@ -223,7 +223,7 @@ int __bam_search(DBC * dbc, db_pgno_t root_pgno, const DBT * key, uint32 flags, 
 	cp = (BTREE_CURSOR *)dbc->internal;
 	h = NULL;
 	parent_h = NULL;
-	t = (BTREE *)dbp->bt_internal;
+	t = static_cast<BTREE *>(dbp->bt_internal);
 	recno = 0;
 	t_ret = 0;
 

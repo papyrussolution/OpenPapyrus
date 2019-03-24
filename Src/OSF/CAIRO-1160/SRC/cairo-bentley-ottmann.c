@@ -39,8 +39,8 @@
 #pragma hdrstop
 //#include "cairo-combsort-inline.h"
 //#include "cairo-error-private.h"
-#include "cairo-freelist-private.h"
-#include "cairo-line-inline.h"
+//#include "cairo-freelist-private.h"
+//#include "cairo-line-inline.h"
 //#include "cairo-traps-private.h"
 
 #define DEBUG_PRINT_STATE 0
@@ -351,28 +351,19 @@ static int edge_compare_for_y_against_x(const cairo_bo_edge_t * a,
 	return _cairo_int64_cmp(L, R);
 }
 
-static inline int _cairo_bo_sweep_line_compare_edges(const cairo_bo_sweep_line_t * sweep_line,
-    const cairo_bo_edge_t * a,
-    const cairo_bo_edge_t * b)
+static inline int _cairo_bo_sweep_line_compare_edges(const cairo_bo_sweep_line_t * sweep_line, const cairo_bo_edge_t * a, const cairo_bo_edge_t * b)
 {
-	int cmp;
-
-	cmp = cairo_lines_compare_at_y(&a->edge.line,
-		&b->edge.line,
-		sweep_line->current_y);
+	int cmp = cairo_lines_compare_at_y(&a->edge.line, &b->edge.line, sweep_line->current_y);
 	if(cmp)
 		return cmp;
-
-	/* We've got two collinear edges now. */
-	return b->edge.bottom - a->edge.bottom;
+	// We've got two collinear edges now. 
+	return (b->edge.bottom - a->edge.bottom);
 }
 
-static inline cairo_int64_t det32_64(int32_t a, int32_t b,
-    int32_t c, int32_t d)
+static inline cairo_int64_t det32_64(int32_t a, int32_t b, int32_t c, int32_t d)
 {
 	/* det = a * d - b * c */
-	return _cairo_int64_sub(_cairo_int32x32_64_mul(a, d),
-		   _cairo_int32x32_64_mul(b, c));
+	return _cairo_int64_sub(_cairo_int32x32_64_mul(a, d), _cairo_int32x32_64_mul(b, c));
 }
 
 static inline cairo_int128_t det64x32_128(cairo_int64_t a, int32_t b,
@@ -761,25 +752,17 @@ static void _cairo_bo_sweep_line_init(cairo_bo_sweep_line_t * sweep_line)
 	sweep_line->current_edge = NULL;
 }
 
-static void _cairo_bo_sweep_line_insert(cairo_bo_sweep_line_t * sweep_line,
-    cairo_bo_edge_t * edge)
+static void _cairo_bo_sweep_line_insert(cairo_bo_sweep_line_t * sweep_line, cairo_bo_edge_t * edge)
 {
 	if(sweep_line->current_edge != NULL) {
 		cairo_bo_edge_t * prev, * next;
-		int cmp;
-
-		cmp = _cairo_bo_sweep_line_compare_edges(sweep_line,
-			sweep_line->current_edge,
-			edge);
+		int cmp = _cairo_bo_sweep_line_compare_edges(sweep_line, sweep_line->current_edge, edge);
 		if(cmp < 0) {
 			prev = sweep_line->current_edge;
 			next = prev->next;
-			while(next != NULL &&
-			    _cairo_bo_sweep_line_compare_edges(sweep_line,
-			    next, edge) < 0) {
+			while(next != NULL && _cairo_bo_sweep_line_compare_edges(sweep_line, next, edge) < 0) {
 				prev = next, next = prev->next;
 			}
-
 			prev->next = edge;
 			edge->prev = prev;
 			edge->next = next;
@@ -789,12 +772,9 @@ static void _cairo_bo_sweep_line_insert(cairo_bo_sweep_line_t * sweep_line,
 		else if(cmp > 0) {
 			next = sweep_line->current_edge;
 			prev = next->prev;
-			while(prev != NULL &&
-			    _cairo_bo_sweep_line_compare_edges(sweep_line,
-			    prev, edge) > 0) {
+			while(prev != NULL && _cairo_bo_sweep_line_compare_edges(sweep_line, prev, edge) > 0) {
 				next = prev, prev = next->prev;
 			}
-
 			next->prev = edge;
 			edge->next = next;
 			edge->prev = prev;
@@ -927,18 +907,14 @@ static void CAIRO_PRINTF_FORMAT(1, 2)
 event_log(const char * fmt, ...)
 {
 	FILE * file;
-
 	if(getenv("CAIRO_DEBUG_EVENTS") == NULL)
 		return;
-
 	file = fopen("bo-events.txt", "a");
 	if(file != NULL) {
 		va_list ap;
-
 		va_start(ap, fmt);
 		vfprintf(file, fmt, ap);
 		va_end(ap);
-
 		fclose(file);
 	}
 }
@@ -951,16 +927,13 @@ event_log(const char * fmt, ...)
 static inline cairo_bool_t edges_colinear(cairo_bo_edge_t * a, const cairo_bo_edge_t * b)
 {
 	unsigned p;
-
 	if(HAS_COLINEAR(a->colinear, b))
 		return IS_COLINEAR(a->colinear);
-
 	if(HAS_COLINEAR(b->colinear, a)) {
 		p = IS_COLINEAR(b->colinear);
 		a->colinear = MARK_COLINEAR(b, p);
 		return p;
 	}
-
 	p = 0;
 	p |= (a->edge.line.p1.x == b->edge.line.p1.x) << 0;
 	p |= (a->edge.line.p1.y == b->edge.line.p1.y) << 1;
@@ -970,12 +943,10 @@ static inline cairo_bool_t edges_colinear(cairo_bo_edge_t * a, const cairo_bo_ed
 		a->colinear = MARK_COLINEAR(b, 1);
 		return TRUE;
 	}
-
 	if(_slope_compare(a, b)) {
 		a->colinear = MARK_COLINEAR(b, 0);
 		return FALSE;
 	}
-
 	/* The choice of y is not truly arbitrary since we must guarantee that it
 	 * is greater than the start of either line.
 	 */
@@ -984,32 +955,22 @@ static inline cairo_bool_t edges_colinear(cairo_bo_edge_t * a, const cairo_bo_ed
 		p = (((p >> 1) & p) & 5) != 0;
 	}
 	else if(a->edge.line.p1.y < b->edge.line.p1.y) {
-		p = edge_compare_for_y_against_x(b,
-			a->edge.line.p1.y,
-			a->edge.line.p1.x) == 0;
+		p = edge_compare_for_y_against_x(b, a->edge.line.p1.y, a->edge.line.p1.x) == 0;
 	}
 	else {
-		p = edge_compare_for_y_against_x(a,
-			b->edge.line.p1.y,
-			b->edge.line.p1.x) == 0;
+		p = edge_compare_for_y_against_x(a, b->edge.line.p1.y, b->edge.line.p1.x) == 0;
 	}
-
 	a->colinear = MARK_COLINEAR(b, p);
 	return p;
 }
 
 /* Adds the trapezoid, if any, of the left edge to the #cairo_traps_t */
-static void _cairo_bo_edge_end_trap(cairo_bo_edge_t * left,
-    int32_t bot,
-    cairo_traps_t * traps)
+static void _cairo_bo_edge_end_trap(cairo_bo_edge_t * left, int32_t bot, cairo_traps_t * traps)
 {
 	cairo_bo_trap_t * trap = &left->deferred_trap;
-
 	/* Only emit (trivial) non-degenerate trapezoids with positive height. */
 	if(likely(trap->top < bot)) {
-		_cairo_traps_add_trap(traps,
-		    trap->top, bot,
-		    &left->edge.line, &trap->right->edge.line);
+		_cairo_traps_add_trap(traps, trap->top, bot, &left->edge.line, &trap->right->edge.line);
 
 #if DEBUG_PRINT_STATE
 		printf("Deferred trap: left=(%x, %x)-(%x,%x) "

@@ -61,7 +61,7 @@ int FASTCALL checkupper(uint nmb, uint upper)
 	else {
 #ifndef _WIN32_WCE // {
 		SString msg_buf;
-		SLS.SetError(SLERR_BOUNDS, msg_buf.CatChar('[').Cat((long)0).CatCharN('.', 2).Cat(upper).CatChar(']'));
+		SLS.SetError(SLERR_BOUNDS, msg_buf.CatChar('[').Cat(0L).CatCharN('.', 2).Cat(upper).CatChar(']'));
 #endif // } _WIN32_WCE
 		return 0;
 	}

@@ -243,10 +243,10 @@ static int SLAPI PPObjWorkbook_WriteConfig(PPWorkbookConfig * pCfg, PPOpCounterP
 static IMPL_CMPFUNC(WorkbookIdByRank_Name, p1, p2)
 {
 	int    si = 0;
-	PPObjWorkbook * p_obj = (PPObjWorkbook *)pExtraData;
+	PPObjWorkbook * p_obj = static_cast<PPObjWorkbook *>(pExtraData);
 	if(p_obj) {
-		const PPID * p_id1 = (const PPID *)p1;
-		const PPID * p_id2 = (const PPID *)p2;
+		const PPID * p_id1 = static_cast<const PPID *>(p1);
+		const PPID * p_id2 = static_cast<const PPID *>(p2);
 		WorkbookTbl::Rec rec1;
 		WorkbookTbl::Rec rec2;
 		if(p_obj->Fetch(*p_id1, &rec1) > 0 && p_obj->Fetch(*p_id2, &rec2) > 0) {

@@ -1454,7 +1454,7 @@ static const void * cab_read_ahead_cfdata_deflate(struct archive_read * a, ssize
 		 * next_in pointer, only reads it).  The result: this ugly
 		 * cast to remove 'const'.
 		 */
-		cab->stream.next_in = (Bytef*)(uintptr_t)d;
+		cab->stream.next_in = (Bytef *)(uintptr_t)d;
 		cab->stream.avail_in = (uInt)bytes_avail;
 		cab->stream.total_in = 0;
 

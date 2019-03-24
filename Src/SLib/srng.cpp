@@ -1309,7 +1309,7 @@ static void TestRngBin(STestCase * pCase, SRng * pRng, double * sigma)
 		// GetUniformInt не должен выходить за пределы определенных для него границ (BINS)
 		//
 		long count_i =count[i];
-		pCase->SLTEST_CHECK_EQ(count_i, (long)0);
+		pCase->SLTEST_CHECK_EQ(count_i, 0L);
 	}
 }
 

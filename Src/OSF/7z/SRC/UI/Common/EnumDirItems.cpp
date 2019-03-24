@@ -140,7 +140,7 @@ HRESULT CDirItems::AddSecurityItem(const FString &path, int &secureIndex)
 		securInfo |= SACL_SECURITY_INFORMATION;
 	DWORD errorCode = 0;
 	DWORD secureSize;
-	BOOL res = ::GetFileSecurityW(fs2us(path), securInfo, (PSECURITY_DESCRIPTOR)(Byte*)TempSecureBuf, (DWORD)TempSecureBuf.Size(), &secureSize);
+	BOOL res = ::GetFileSecurityW(fs2us(path), securInfo, (PSECURITY_DESCRIPTOR)(Byte *)TempSecureBuf, (DWORD)TempSecureBuf.Size(), &secureSize);
 	if(res) {
 		if(secureSize == 0)
 			return S_OK;
@@ -154,7 +154,7 @@ HRESULT CDirItems::AddSecurityItem(const FString &path, int &secureIndex)
 				errorCode = ERROR_INVALID_FUNCTION;
 			else {
 				TempSecureBuf.Alloc(secureSize);
-				res = ::GetFileSecurityW(fs2us(path), securInfo, (PSECURITY_DESCRIPTOR)(Byte*)TempSecureBuf, (DWORD)TempSecureBuf.Size(), &secureSize);
+				res = ::GetFileSecurityW(fs2us(path), securInfo, (PSECURITY_DESCRIPTOR)(Byte *)TempSecureBuf, (DWORD)TempSecureBuf.Size(), &secureSize);
 				if(res) {
 					if(secureSize != TempSecureBuf.Size())
 						errorCode = ERROR_INVALID_FUNCTION; ;

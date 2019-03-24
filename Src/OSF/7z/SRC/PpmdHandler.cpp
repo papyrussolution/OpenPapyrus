@@ -293,7 +293,7 @@ namespace NArchive {
 				bool Alloc()
 				{
 					if(!Buf)
-						Buf = (Byte*)::MidAlloc(kBufSize);
+						Buf = (Byte *)::MidAlloc(kBufSize);
 					return (Buf != 0);
 				}
 				Byte * Buf;

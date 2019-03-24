@@ -21,10 +21,10 @@
 // 1. The code is 12 bits as our compression algorithm is limited to 12bits 
 // 2. The key is 12 bits Prefix code + 8 bit new char or 20 bits.	    
 // The key is the upper 20 bits.  The code is the lower 12. 
-#define HT_GET_KEY(l)	(l >> 12)
-#define HT_GET_CODE(l)	(l & 0x0FFF)
-#define HT_PUT_KEY(l)	(l << 12)
-#define HT_PUT_CODE(l)	(l & 0x0FFF)
+#define HT_GET_KEY(l)	((l) >> 12)
+#define HT_GET_CODE(l)	((l) & 0x0FFF)
+#define HT_PUT_KEY(l)	((l) << 12)
+#define HT_PUT_CODE(l)	((l) & 0x0FFF)
 
 #define EXTENSION_INTRODUCER      0x21
 #define DESCRIPTOR_INTRODUCER     0x2c
@@ -2291,10 +2291,7 @@ void DumpColorMap(ColorMapObject * Object, FILE * fp)
 		int i, j, Len = Object->ColorCount;
 		for(i = 0; i < Len; i += 4) {
 			for(j = 0; j < 4 && j < Len; j++) {
-				(void)fprintf(fp, "%3d: %02x %02x %02x   ", i + j,
-				    Object->Colors[i + j].Red,
-				    Object->Colors[i + j].Green,
-				    Object->Colors[i + j].Blue);
+				(void)fprintf(fp, "%3d: %02x %02x %02x   ", i + j, Object->Colors[i + j].Red, Object->Colors[i + j].Green, Object->Colors[i + j].Blue);
 			}
 			(void)fprintf(fp, "\n");
 		}

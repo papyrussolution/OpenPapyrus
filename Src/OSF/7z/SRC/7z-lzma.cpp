@@ -124,7 +124,7 @@ namespace NCompress {
 			if(!_inBuf || _inBufSize != _inBufSizeNew) {
 				MidFree(_inBuf);
 				_inBufSize = 0;
-				_inBuf = (Byte*)MidAlloc(_inBufSizeNew);
+				_inBuf = (Byte *)MidAlloc(_inBufSizeNew);
 				if(!_inBuf)
 					return E_OUTOFMEMORY;
 				_inBufSize = _inBufSizeNew;
@@ -251,12 +251,12 @@ namespace NCompress {
 					SizeT inProcessed = _inLim - _inPos;
 					SizeT outProcessed = size;
 					ELzmaStatus status;
-					SRes res = Lzma2Dec_DecodeToBuf(&_state, (Byte*)data, &outProcessed, _inBuf + _inPos, &inProcessed, finishMode, &status);
+					SRes res = Lzma2Dec_DecodeToBuf(&_state, (Byte *)data, &outProcessed, _inBuf + _inPos, &inProcessed, finishMode, &status);
 					_inPos += (uint32)inProcessed;
 					_inProcessed += inProcessed;
 					_outProcessed += outProcessed;
 					size -= (uint32)outProcessed;
-					data = (Byte*)data + outProcessed;
+					data = (Byte *)data + outProcessed;
 					if(processedSize)
 						*processedSize += (uint32)outProcessed;
 					if(res != 0)
@@ -433,7 +433,7 @@ namespace NCompress {
 			if(!_inBuf || _inBufSizeNew != _inBufSize) {
 				SAlloc::F(_inBuf);
 				_inBufSize = 0;
-				_inBuf = (Byte*)SAlloc::M(_inBufSizeNew);
+				_inBuf = (Byte *)SAlloc::M(_inBufSizeNew);
 				if(!_inBuf)
 					return E_OUTOFMEMORY;
 				_inBufSize = _inBufSizeNew;
@@ -607,13 +607,13 @@ namespace NCompress {
 				SizeT inProcessed = _inLim - _inPos;
 				SizeT outProcessed = size;
 				ELzmaStatus status;
-				SRes res = LzmaDec_DecodeToBuf(&_state, (Byte*)data, &outProcessed, _inBuf + _inPos, &inProcessed, finishMode, &status);
+				SRes res = LzmaDec_DecodeToBuf(&_state, (Byte *)data, &outProcessed, _inBuf + _inPos, &inProcessed, finishMode, &status);
 				_lzmaStatus = status;
 				_inPos += (uint32)inProcessed;
 				_inProcessed += inProcessed;
 				_outProcessed += outProcessed;
 				size -= (uint32)outProcessed;
-				data = (Byte*)data + outProcessed;
+				data = (Byte *)data + outProcessed;
 				if(processedSize)
 					*processedSize += (uint32)outProcessed;
 				if(res != 0)
@@ -661,7 +661,7 @@ namespace NCompress {
 				_inPos += cur;
 				_inProcessed += cur;
 				size -= cur;
-				data = (Byte*)data + cur;
+				data = (Byte *)data + cur;
 				if(processedSize)
 					*processedSize += cur;
 			}

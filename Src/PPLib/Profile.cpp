@@ -85,8 +85,8 @@ static const PPUserProfileFuncEntry * FASTCALL _GetUserProfileFuncEntry(int func
 //static
 uint16 FASTCALL PPUserProfileFuncEntry::FromLoggedFuncId(long logFuncId, uint16 * pFuncVer)
 {
-	ASSIGN_PTR(pFuncVer, (uint16)(logFuncId%1000));
-	return (uint16)(logFuncId/1000);
+	ASSIGN_PTR(pFuncVer, static_cast<uint16>(logFuncId%1000));
+	return static_cast<uint16>(logFuncId/1000);
 }
 
 long SLAPI PPUserProfileFuncEntry::GetLoggedFuncId() const

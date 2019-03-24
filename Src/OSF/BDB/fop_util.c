@@ -313,7 +313,7 @@ reopen:
 				goto done;
 			}
 			// Case 4: This is a valid file.
-			SETIFZ(ret, __db_meta_setup(env, dbp, real_name, (DBMETA *)mbuf, flags, DB_CHK_META));
+			SETIFZ(ret, __db_meta_setup(env, dbp, real_name, reinterpret_cast<DBMETA *>(mbuf), flags, DB_CHK_META));
 		}
 		// Case 5: Invalid file. 
 		if(ret != 0)
@@ -811,7 +811,7 @@ retry:
 	if(F_ISSET(dbp, DB_AM_INMEM))
 		ret = __fop_inmem_read_meta(dbp, txn, name, flags);
 	else if((ret = __fop_read_meta(env, name, mbuf, sizeof(mbuf), fhp, 0, NULL)) == 0)
-		ret = __db_meta_setup(env, dbp, name, (DBMETA *)mbuf, flags, DB_CHK_META|DB_CHK_NOLSN);
+		ret = __db_meta_setup(env, dbp, name, reinterpret_cast<DBMETA *>(mbuf), flags, DB_CHK_META|DB_CHK_NOLSN);
 	if(ret != 0)
 		goto err;
 	/*
@@ -1092,12 +1092,12 @@ static int __fop_ondisk_dummy(DB * dbp, DB_TXN * txn, const char * name, uint8 *
 		goto err;
 	if((ret = __fop_create(env, txn, NULL, name, &dbp->dirname, DB_APP_DATA, 0, dflags)) != 0)
 		goto err;
-	if((ret = __os_fileid(env, realname, 1, ((DBMETA *)mbuf)->uid)) != 0)
+	if((ret = __os_fileid(env, realname, 1, reinterpret_cast<DBMETA *>(mbuf)->uid)) != 0)
 		goto err;
-	((DBMETA *)mbuf)->magic = DB_RENAMEMAGIC;
+	reinterpret_cast<DBMETA *>(mbuf)->magic = DB_RENAMEMAGIC;
 	if((ret = __fop_write(env, txn, name, dbp->dirname, DB_APP_DATA, NULL, 0, 0, 0, mbuf, DBMETASIZE, 1, dflags)) != 0)
 		goto err;
-	memcpy(dbp->fileid, ((DBMETA *)mbuf)->uid, DB_FILE_ID_LEN);
+	memcpy(dbp->fileid, reinterpret_cast<DBMETA *>(mbuf)->uid, DB_FILE_ID_LEN);
 err:
 	__os_free(env, realname);
 	return ret;
@@ -1129,7 +1129,7 @@ static int __fop_inmem_dummy(DB * dbp, DB_TXN * txn, const char * name, uint8 * 
 		ret = t_ret;
 	if(ret != 0)
 		goto err;
-	((DBMETA *)mbuf)->magic = DB_RENAMEMAGIC;
+	reinterpret_cast<DBMETA *>(mbuf)->magic = DB_RENAMEMAGIC;
 err:
 	return ret;
 }
@@ -1170,7 +1170,7 @@ retry:
 		if((ret = __os_open(env, realnew, 0, 0, 0, &fhp)) != 0)
 			goto err;
 		if((ret = __fop_read_meta(env, realnew, mbuf, sizeof(mbuf), fhp, 0, NULL)) != 0 ||
-		   (ret = __db_meta_setup(env, tmpdbp, realnew, (DBMETA *)mbuf, 0, DB_CHK_META)) != 0) {
+		   (ret = __db_meta_setup(env, tmpdbp, realnew, reinterpret_cast<DBMETA *>(mbuf), 0, DB_CHK_META)) != 0) {
 			ret = EEXIST;
 			goto err;
 		}

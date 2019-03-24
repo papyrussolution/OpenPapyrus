@@ -116,7 +116,7 @@ int _libssh2_pem_parse(LIBSSH2_SESSION * session, const char * headerbegin, cons
 	if(!b64data) {
 		return -1;
 	}
-	if(libssh2_base64_decode(session, (char**)data, datalen, b64data, b64datalen)) {
+	if(libssh2_base64_decode(session, (char **)data, datalen, b64data, b64datalen)) {
 		ret = -1;
 		goto out;
 	}
@@ -166,7 +166,7 @@ int _libssh2_pem_parse_memory(LIBSSH2_SESSION * session, const char * headerbegi
 	if(!b64data) {
 		return -1;
 	}
-	if(libssh2_base64_decode(session, (char**)data, datalen, b64data, b64datalen)) {
+	if(libssh2_base64_decode(session, (char **)data, datalen, b64data, b64datalen)) {
 		ret = -1;
 		goto out;
 	}

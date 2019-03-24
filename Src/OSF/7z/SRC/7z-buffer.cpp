@@ -27,7 +27,7 @@ bool COutBuffer::Create(uint32 bufSize) throw()
 	else {
 		Free();
 		_bufSize = bufSize;
-		_buf = (Byte*)::MidAlloc(bufSize);
+		_buf = (Byte *)::MidAlloc(bufSize);
 		return (_buf != 0);
 	}
 }
@@ -165,7 +165,7 @@ bool CInBuffer::Create(size_t bufSize) throw()
 	else {
 		Free();
 		_bufSize = bufSize;
-		_bufBase = (Byte*)::MidAlloc(bufSize);
+		_bufBase = (Byte *)::MidAlloc(bufSize);
 		return (_bufBase != 0);
 	}
 }

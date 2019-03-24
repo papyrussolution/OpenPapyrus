@@ -1007,16 +1007,18 @@ int TDialog::SaveUserSettings()
 
 int TDialog::RestoreUserSettings()
 {
-	char   spec[128], param[32];
+	//char   spec[128];
+	SString spec_buf;
+	char   param[32];
 	WinRegKey reg_key(HKEY_CURRENT_USER, WrSubKey_DlgUserSetting, 1);
 	ltoa(resourceID, param, 10);
-	if(reg_key.GetString(param, spec, sizeof(spec))) {
+	if(reg_key.GetString(param, spec_buf)) {
 		// version, left, top
 		char   ver[32], temp_buf[32];
 		uint   pos = 0;
 		uint   num_cols = 0;
-		spec[sizeof(spec)-1] = 0;
-		StringSet ss(',', spec);
+		//spec[sizeof(spec)-1] = 0;
+		StringSet ss(',', spec_buf);
 		ss.get(&pos, ver, sizeof(ver));
 		Settings.Ver = atoi(ver);
 		ss.get(&pos, temp_buf, sizeof(temp_buf));

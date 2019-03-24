@@ -362,7 +362,7 @@ static tmsize_t TIFFReadEncodedStripGetStripSize(TIFF* tif, uint32 strip, uint16
 	stripsperplane = TIFFhowmany_32_maxuint_compat(td->td_imagelength, rowsperstrip);
 	stripinplane = (strip%stripsperplane);
 	if(pplane) 
-		*pplane = (uint16)(strip/stripsperplane);
+		*pplane = static_cast<uint16>(strip/stripsperplane);
 	rows = td->td_imagelength-stripinplane*rowsperstrip;
 	SETMIN(rows, rowsperstrip);
 	stripsize = TIFFVStripSize(tif, rows);
@@ -740,7 +740,7 @@ tmsize_t TIFFReadEncodedTile(TIFF* tif, uint32 tile, void* buf, tmsize_t size)
 		size = tilesize;
 	else if(size > tilesize)
 		size = tilesize;
-	if(TIFFFillTile(tif, tile) && (*tif->tif_decodetile)(tif, (uint8 *)buf, size, (uint16)(tile/td->td_stripsperimage))) {
+	if(TIFFFillTile(tif, tile) && (*tif->tif_decodetile)(tif, (uint8 *)buf, size, static_cast<uint16>(tile/td->td_stripsperimage))) {
 		(*tif->tif_postdecode)(tif, (uint8 *)buf, size);
 		return (size);
 	}
@@ -793,7 +793,7 @@ tmsize_t _TIFFReadEncodedTileAndAllocBuffer(TIFF* tif, uint32 tile, void ** buf,
 		size_to_read = tilesize;
 	else if(size_to_read > tilesize)
 		size_to_read = tilesize;
-	if((*tif->tif_decodetile)(tif, (uint8 *)*buf, size_to_read, (uint16)(tile/td->td_stripsperimage))) {
+	if((*tif->tif_decodetile)(tif, (uint8 *)*buf, size_to_read, static_cast<uint16>(tile/td->td_stripsperimage))) {
 		(*tif->tif_postdecode)(tif, (uint8 *)*buf, size_to_read);
 		return (size_to_read);
 	}
@@ -1080,7 +1080,7 @@ static int TIFFStartStrip(TIFF* tif, uint32 strip)
 		tif->tif_rawcp = tif->tif_rawdata;
 		tif->tif_rawcc = (tif->tif_rawdataloaded > 0) ? tif->tif_rawdataloaded : (tmsize_t)td->td_stripbytecount[strip];
 	}
-	return ((*tif->tif_predecode)(tif, (uint16)(strip / td->td_stripsperimage)));
+	return ((*tif->tif_predecode)(tif, static_cast<uint16>(strip / td->td_stripsperimage)));
 }
 /*
  * Set state to appear as if a
@@ -1120,7 +1120,7 @@ static int TIFFStartTile(TIFF* tif, uint32 tile)
 		tif->tif_rawcp = tif->tif_rawdata;
 		tif->tif_rawcc = (tif->tif_rawdataloaded > 0) ? tif->tif_rawdataloaded : (tmsize_t)td->td_stripbytecount[tile];
 	}
-	return ((*tif->tif_predecode)(tif, (uint16)(tile/td->td_stripsperimage)));
+	return ((*tif->tif_predecode)(tif, static_cast<uint16>(tile/td->td_stripsperimage)));
 }
 
 static int TIFFCheckRead(TIFF* tif, int tiles)

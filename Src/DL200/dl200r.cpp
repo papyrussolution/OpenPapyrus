@@ -14,7 +14,7 @@ int SLAPI DL2_ObjList::Get(int32 id, PPID * pObjType, ObjIdListFilt & rList)
 	rList.Set(0);
 	ASSIGN_PTR(pObjType, 0);
 	for(uint i = 0; ok < 0 && i < getCount(); i++) {
-		const Item * p_item = (Item *)at(i);
+		const Item * p_item = static_cast<const Item *>(at(i));
 		if(p_item->Id == id) {
 			PPIDArray list, rlist;
 			LocationTbl::Rec loc_rec;

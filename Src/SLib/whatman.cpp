@@ -1880,7 +1880,7 @@ int TWhatmanToolArray::Get(uint pos, Item * pItem) const
 	Item item(this);
 	SString temp_buf;
 	THROW_S(pos < getCount(), SLERR_BOUNDS);
-	const Entry & r_entry = *(const Entry *)at(pos);
+	const Entry & r_entry = *static_cast<const Entry *>(at(pos));
 	Pool.getnz(r_entry.TextP, item.Text);
 	Pool.getnz(r_entry.SymbP, item.Symb);
 	Pool.getnz(r_entry.WtmObjSymbP, item.WtmObjSymb);

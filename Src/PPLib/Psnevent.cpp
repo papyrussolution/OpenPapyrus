@@ -378,7 +378,7 @@ int SLAPI PPObjPersonEvent::InitPacket(PPPsnEventPacket * pPack, PPID opID, PPID
 	return ok;
 }
 
-int SLAPI PPObjPersonEvent::InitPacket(PPPsnEventPacket * pPack, AddPersonEventFilt & rFilt, int interactive)
+int SLAPI PPObjPersonEvent::InitPacket(PPPsnEventPacket * pPack, const AddPersonEventFilt & rFilt, int interactive)
 {
 	int    ok = 1;
 	PPID   op_id = 0;
@@ -2233,7 +2233,7 @@ public:
 			long iv = getCtrlLong(CTL_FLTADDPSNEV_RDCYCLE);
 			Data.DvcReadCycle = (uint16)iv;
 			iv = getCtrlLong(CTL_FLTADDPSNEV_RDTIME);
-			Data.DvcReadPeriod = (uint16)(iv / 5);
+			Data.DvcReadPeriod = static_cast<uint16>(iv / 5);
 		}
 		{
 			PersonCtrlGroup::Rec rec;

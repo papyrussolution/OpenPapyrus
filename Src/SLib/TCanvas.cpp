@@ -1606,7 +1606,7 @@ int FASTCALL TCanvas::SetTextColor(COLORREF c)
 	return (old_color == CLR_INVALID) ? 0 : 1;
 }
 
-int SLAPI TCanvas::DrawText(const TRect & rRect, const char * pText, uint options)
+int SLAPI TCanvas::DrawText_(const TRect & rRect, const char * pText, uint options)
 {
 	int    len;
 	char   zero[16];
@@ -1621,7 +1621,7 @@ int SLAPI TCanvas::DrawText(const TRect & rRect, const char * pText, uint option
 	return BIN(::DrawText(H_Dc, SUcSwitch(pText), -1, &rect, options)); // @unicodeproblem
 }
 
-int SLAPI TCanvas::TextOut(TPoint p, const char * pText)
+int SLAPI TCanvas::TextOut_(TPoint p, const char * pText)
 {
 	int    len;
 	char   zero[16];
@@ -2402,7 +2402,7 @@ int STextLayout::Preprocess(SDrawContext & rCtx, SPaintToolBox & rTb)
 					cstyle_id = r_style.StyleIdent;
 			}
 			if(!cstyle_id) {
-				int    font_id = rTb.CreateFont(0, "Arial", SDrawContext::CalcScreenFontSizePt(10), 0);
+				int    font_id = rTb.CreateFont_(0, "Arial", SDrawContext::CalcScreenFontSizePt(10), 0);
 				int    pen_id = rTb.CreateColor(0, SColor(SClrBlack));
 				cstyle_id = rTb.CreateCStyle(0, font_id, pen_id, 0);
 				DefCStyleIdent = cstyle_id;
@@ -3753,7 +3753,7 @@ int SPaintObj::CreateColor(SColor c)
 int SPaintObj::SetBitmap(uint bmpId)
 {
 	int    ok = 1;
-	HBITMAP handle = APPL->LoadBitmap(bmpId);
+	HBITMAP handle = APPL->LoadBitmap_(bmpId);
 	if(handle) {
 		Destroy();
 		T = tBitmap;
@@ -3814,7 +3814,7 @@ SPaintToolBox & SPaintToolBox::Init()
 	return *this;
 }
 
-int SPaintToolBox::Copy(const SPaintToolBox & rS)
+int FASTCALL SPaintToolBox::Copy(const SPaintToolBox & rS)
 {
 	int    ok = 1;
 	DynIdentCount = rS.DynIdentCount;
@@ -4120,7 +4120,7 @@ int SPaintToolBox::CreateBrush(int ident, int style, SColor c, int32 hatch, int 
 	return ident;
 }
 
-int SPaintToolBox::CreateFont(int ident, const char * pFace, int height, int flags)
+int SPaintToolBox::CreateFont_(int ident, const char * pFace, int height, int flags)
 {
 	SPaintObj * p_obj = 0;
 	if(!ident) {

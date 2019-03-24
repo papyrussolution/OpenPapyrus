@@ -57,7 +57,7 @@ int SLAPI DlContext::UnpFormArray::Add(DLSYMBID scopeID, uint fldPos, CtmExpr * 
 	item.P_Expr = pExpr;
 	uint   pos = 0;
 	if(bsearch(&item, &pos, PTR_CMPFUNC(_2long))) {
-		UnpFormItem * p_item = (UnpFormItem *)at(pos);
+		UnpFormItem * p_item = static_cast<UnpFormItem *>(at(pos));
 		if(p_item->P_Expr) {
 			p_item->P_Expr->Destroy();
 			delete p_item->P_Expr;
@@ -75,13 +75,13 @@ CtmExpr * SLAPI DlContext::UnpFormArray::Get(DLSYMBID scopeID, uint fldPos)
 	item.ScopeID = scopeID;
 	item.FldPos = fldPos;
 	uint   pos = 0;
-	return (bsearch(&item, &pos, PTR_CMPFUNC(_2long))) ? ((UnpFormItem *)at(pos))->P_Expr : 0;
+	return (bsearch(&item, &pos, PTR_CMPFUNC(_2long))) ? static_cast<UnpFormItem *>(at(pos))->P_Expr : 0;
 }
 
 //virtual
 void FASTCALL DlContext::UnpFormArray::freeItem(void * pItem)
 {
-	UnpFormItem * p_item = (UnpFormItem *)pItem;
+	UnpFormItem * p_item = static_cast<UnpFormItem *>(pItem);
 	if(p_item && p_item->P_Expr) {
 		p_item->P_Expr->Destroy();
 		delete p_item->P_Expr;

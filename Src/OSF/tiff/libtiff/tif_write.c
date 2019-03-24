@@ -244,7 +244,7 @@ tmsize_t TIFFWriteEncodedStrip(TIFF* tif, uint32 strip, void* data, tmsize_t cc)
 			return ((tmsize_t)-1);
 		return (cc);
 	}
-	sample = (uint16)(strip / td->td_stripsperimage);
+	sample = static_cast<uint16>(strip / td->td_stripsperimage);
 	if(!(*tif->tif_preencode)(tif, sample))
 		return ((tmsize_t)-1);
 	/* swab if needed - note that source buffer will be altered */
@@ -420,7 +420,7 @@ tmsize_t TIFFWriteEncodedTile(TIFF* tif, uint32 tile, void* data, tmsize_t cc)
 			return ((tmsize_t)-1);
 		return (cc);
 	}
-	sample = (uint16)(tile/td->td_stripsperimage);
+	sample = static_cast<uint16>(tile/td->td_stripsperimage);
 	if(!(*tif->tif_preencode)(tif, sample))
 		return static_cast<tmsize_t>(-1);
 	/* swab if needed - note that source buffer will be altered */

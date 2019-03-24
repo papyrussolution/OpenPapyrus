@@ -55,12 +55,14 @@ int PPBillImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResu
 	int    ok = 1;
 	int    use_ps = 0;
 	int    _is_subst = 0;
-	if(FileName.IsEqNC(":buffer:")) {
-		rResult = FileName;
+	SString _file_name = FileName;
+	_file_name.Transf(CTRANSF_INNER_TO_OUTER);
+	if(_file_name.IsEqNC(":buffer:")) {
+		rResult = _file_name;
 	}
 	else {
 		SString temp_buf;
-		SPathStruc ps(FileName);
+		SPathStruc ps(_file_name);
 		SPathStruc ps_temp;
 		if(ps.Drv.Empty() && ps.Dir.Empty()) {
 			PPGetPath(PPPATH_OUT, temp_buf);
@@ -82,11 +84,14 @@ int PPBillImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResu
 		if(extraPtr) {
 			const PPBillPacket * p_pack = static_cast<const PPBillPacket *>(extraPtr);
 			PPObjBill * p_bobj = BillObj;
+			ps.Nam.Transf(CTRANSF_OUTER_TO_INNER); // @v10.3.11 
 			if(p_bobj && p_bobj->SubstText(p_pack, ps.Nam, temp_buf) == 2) {
-				ps.Nam = temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+				// @v10.3.11 temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+				ps.Nam = temp_buf;
 				use_ps = 1;
 				ok = 100;
 			}
+			ps.Nam.Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.11 
 		}
 		char   cntr[128];
 		uint   cn = 0;
@@ -102,10 +107,8 @@ int PPBillImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResu
 				for(int j = cn-1; overflow && j >= 0; j--) {
 					if(cntr[j] < '9') {
 						cntr[j]++;
-						// @v8.6.6 @fix {
-						for(int z = j+1; z < (int)cn; z++)
+						for(int z = j+1; z < static_cast<int>(cn); z++)
 							cntr[z] = '0';
-						// } @v8.6.6 @fix
 						overflow = 0;
 					}
 				}
@@ -129,7 +132,7 @@ int PPBillImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResu
 			if(use_ps)
 				ps.Merge(rResult);
 			else
-				rResult = FileName;
+				rResult = _file_name;
 		}
 	}
 	return ok;
@@ -969,7 +972,7 @@ int UnknownGoodsSubstDialog::setupList()
 			goods_name = p_brow->GoodsName;
 			if(!goods_name.NotEmptyS())
 				(goods_name = p_brow->Barcode).CatChar(' ').Cat(p_brow->Quantity, MKSFMTD(10, 2, 0));
-			THROW(addStringToList(i + 1, (const char *)goods_name));
+			THROW(addStringToList(i + 1, goods_name.cptr()));
 		}
 	}
 	CATCHZOKPPERR
@@ -1445,7 +1448,7 @@ static int ResolveFormula(const char * pFormula, const SdRecord & rInrRec, doubl
 	return ok;
 }
 
-int SLAPI PPBillImporter::ProcessDynField(SdRecord & rDynRec, uint dynFldN, PPImpExpParam & rIep, ObjTagList & rTagList)
+int SLAPI PPBillImporter::ProcessDynField(const SdRecord & rDynRec, uint dynFldN, PPImpExpParam & rIep, ObjTagList & rTagList)
 {
 	int    ok = -1;
 	SdbField dyn_fld;
@@ -1736,7 +1739,7 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 			// @v9.0.2 PPGetWord(PPWORD_GOODS, 0, (word = 0));
 			PPLoadString("ware", word); // @v9.0.2
 			goods_info.Cat(word).Space().Cat(brow_.GoodsName);
-			msg.Printf(temp_buf, (const char *)file_name, (const char *)goods_info);
+			msg.Printf(temp_buf, file_name.cptr(), goods_info.cptr());
 			Logger.Log(msg);
 		}
 		else { //if(mode == 2 || Bills.lsearch(bill_ident, &(p = 0), PTR_CMPFUNC(Pchar)) > 0) { // bsearch->lsearch
@@ -3100,7 +3103,7 @@ int SLAPI PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * p
 					pPack->Rec.LocID = loc_id;
 			}
 			if(!isempty(pBill->OrderBillID)) {
-				PPID   link_bill_id = atol(pBill->OrderBillID);
+				const PPID link_bill_id = atol(pBill->OrderBillID);
 				BillTbl::Rec link_bill_rec;
 				if(P_BObj->Search(link_bill_id, &link_bill_rec) > 0 && GetOpType(link_bill_rec.OpID) == PPOPT_DRAFTRECEIPT)
 					pPack->Rec.LinkBillID = link_bill_id;
@@ -5111,7 +5114,7 @@ int SLAPI Generator_DocNalogRu::GetAgreementParams(PPID arID, SString & rAgtCode
 }
 
 //DP_REZRUISP_1_990_01_05_01_01.xsd
-int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, SString & rFileName)
+int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const SString & rFileName)
 {
 	int    ok = 1;
 	Generator_DocNalogRu g;
@@ -5302,7 +5305,7 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, SString & rFileName
 	return ok;
 }
 
-int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, SString & rFileName)
+int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const SString & rFileName)
 {
 	int    ok = 1;
 	Generator_DocNalogRu g;
@@ -5399,7 +5402,7 @@ int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, SString & rFileName)
 //
 // Универсальный передаточный документ КНД=1115125 scheme=ON_SCHFDOPPR_1_995_01_05_01_02.xsd
 //
-int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, SString & rFileName)
+int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName)
 {
 	int    ok = 1;
 	Generator_DocNalogRu g;

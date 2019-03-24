@@ -778,7 +778,7 @@ namespace NArchive {
 			Byte b0, b1;
 			if(!_inBuffer.ReadByte(b0)) throw CEnexpectedEndException();
 			if(!_inBuffer.ReadByte(b1)) throw CEnexpectedEndException();
-			return (uint16)(((uint16)b1 << 8) | b0);
+			return static_cast<uint16>(((uint16)b1 << 8) | b0);
 		}
 
 		uint32 CInArchive::ReadUInt32()
@@ -817,7 +817,7 @@ namespace NArchive {
 		{
 			s.Empty();
 			if(size != 0) {
-				ReadBytes((Byte*)s.GetBuf(size), size);
+				ReadBytes((Byte *)s.GetBuf(size), size);
 				s.ReleaseBuf_CalcLen(size);
 			}
 		}

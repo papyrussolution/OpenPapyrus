@@ -95,8 +95,9 @@ extern "C" {
 	//
 	// Handles binary manipulation of large numbers
 	//
-	extern void binary_load(short reg[], const char data[], const uint src_len);
-	extern void binary_add(short accumulator[], short input_buffer[]);
+	extern void FASTCALL binary_load(short reg[], const char data[], const uint src_len);
+	extern void FASTCALL binary_loads(short reg[], const char data[]); // @>>binary_load(reg, data, sstrlen(data))
+	extern void FASTCALL binary_add(short accumulator[], short input_buffer[]);
 	extern void binary_subtract(short accumulator[], short input_buffer[]);
 	extern void shiftdown(short buffer[]);
 	extern void shiftup(short buffer[]);

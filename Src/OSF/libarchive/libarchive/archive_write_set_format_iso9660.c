@@ -7289,7 +7289,7 @@ static int zisofs_write_to_temp(struct archive_write * a, const void * buff, siz
 		if(iso9660->zisofs.remaining <= 0)
 			flush = Z_FINISH;
 
-		zstrm->next_in = (Bytef*)(uintptr_t)(const void*)b;
+		zstrm->next_in = (Bytef *)(uintptr_t)(const void*)b;
 		zstrm->avail_in = (uInt)avail;
 
 		/*
@@ -7649,7 +7649,7 @@ static ssize_t zisofs_extract(struct archive_write * a, struct zisofs_extract * 
 		}
 	}
 	else {
-		zisofs->stream.next_in = (Bytef*)(uintptr_t)(const void*)p;
+		zisofs->stream.next_in = (Bytef *)(uintptr_t)(const void*)p;
 		if(avail > zisofs->block_avail)
 			zisofs->stream.avail_in = zisofs->block_avail;
 		else

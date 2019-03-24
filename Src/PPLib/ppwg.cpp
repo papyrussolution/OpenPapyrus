@@ -372,7 +372,7 @@ IMPL_HANDLE_EVENT(DutySchedDialog)
 			uint pos = 0;
 			int r = Data.AddCountPointDate(dt, &pos);
 			if(r)
-				updateCountPointList((long)pos);
+				updateCountPointList(static_cast<long>(pos));
 			else
 				PPError();
 		}

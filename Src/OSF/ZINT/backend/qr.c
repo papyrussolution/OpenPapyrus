@@ -890,13 +890,11 @@ static int evaluate(uchar * eval, int size, int pattern)
 	int result_b = 0;
 	char str[15];
 #endif
-
 #ifndef _MSC_VER
 	char local[size * size];
 #else
-	char* local = (char *)_alloca((size * size) * sizeof(char));
+	char * local = (char *)_alloca((size * size) * sizeof(char));
 #endif
-
 #ifdef ZINTLOG
 	write_log("");
 	sprintf(str, "%d", pattern);
@@ -1309,14 +1307,12 @@ static void add_version_info(uchar * grid, int size, int version)
 //
 static int tribus(int version, int a, int b, int c)
 {
-	int RetVal = c;
-	if(version < 10) {
-		RetVal = a;
-	}
-	if((version >= 10) && (version <= 26)) {
-		RetVal = b;
-	}
-	return RetVal;
+	int result = c;
+	if(version < 10)
+		result = a;
+	if((version >= 10) && (version <= 26))
+		result = b;
+	return result;
 }
 //
 // Implements a custom optimisation algorithm, more efficient than that given in Annex J. 

@@ -670,7 +670,7 @@ int CPosProcessor::ExportCTblList(SString & rBuf)
 				n_item.PutInner("ID", temp_buf.Z().Cat(ctbl_id));
 				PPObjCashNode::GetCafeTableName(ctbl_id, temp_buf.Z());
 				n_item.PutInner("Name", temp_buf);
-				n_item.PutInner("State", (temp_buf = (long)0));
+				n_item.PutInner("State", temp_buf.Z().Cat(0L)); // @v10.3.11 @fix (temp_buf = (long)0)-->temp_buf.Z().Cat(0L)
 				{
 					int    cc_count = 0;
 					int    cc_guest_count = 0;

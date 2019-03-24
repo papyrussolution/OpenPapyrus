@@ -300,7 +300,7 @@ static void sh_add_to_list(char ** list, char * ptr)
 	OPENSSL_assert(temp->next == NULL || WITHIN_ARENA(temp->next));
 	temp->p_next = (SH_LIST**)list;
 	if(temp->next) {
-		OPENSSL_assert((char**)temp->next->p_next == list);
+		OPENSSL_assert((char **)temp->next->p_next == list);
 		temp->next->p_next = &(temp->next);
 	}
 	*list = ptr;

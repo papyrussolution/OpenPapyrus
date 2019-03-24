@@ -169,7 +169,7 @@ static int ZIPDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 		TIFFErrorExt(tif->tif_clientdata, module, "Not enough data at scanline %lu (short " TIFF_UINT64_FORMAT " bytes)", (ulong)tif->tif_row, (TIFF_UINT64_T)sp->stream.avail_out);
 		return 0;
 	}
-	tif->tif_rawcp = sp->stream.next_in;
+	tif->tif_rawcp = const_cast<uint8 *>(PTR8C(sp->stream.next_in));
 	tif->tif_rawcc = sp->stream.avail_in;
 	return 1;
 }

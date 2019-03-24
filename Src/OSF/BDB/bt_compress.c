@@ -286,7 +286,7 @@ int __bam_compress_dupcmp(DB * db, const DBT * a, const DBT * b)
 	dcmp_b.flags = 0;
 	dcmp_b.app_data = 0;
 	/* Call the user's duplicate compare function */
-	return ((BTREE *)db->bt_internal)->compress_dup_compare(db, &dcmp_a, &dcmp_b);
+	return static_cast<BTREE *>(db->bt_internal)->compress_dup_compare(db, &dcmp_a, &dcmp_b);
 }
 /*
  * __bam_defcompress --
@@ -503,7 +503,7 @@ static int __bamc_next_decompress(DBC * dbc)
 	compressed.ulen = compressed.size = (uint32)(cp->compend-cp->compcursor);
 	compressed.app_data = NULL;
 
-	while((ret = ((BTREE *)db->bt_internal)->bt_decompress(db, cp->prevKey, cp->prevData, &compressed, cp->currentKey, cp->currentData)) == DB_BUFFER_SMALL) {
+	while((ret = static_cast<BTREE *>(db->bt_internal)->bt_decompress(db, cp->prevKey, cp->prevData, &compressed, cp->currentKey, cp->currentData)) == DB_BUFFER_SMALL) {
 		if(CMP_RESIZE_DBT(ret, dbc->env, cp->currentKey) != 0)
 			break;
 		if(CMP_RESIZE_DBT(ret, dbc->env, cp->currentData) != 0)
@@ -534,10 +534,10 @@ static int __bamc_compress_store(DBC * dbc, DBT * key, DBT * data, DBT ** prevKe
 		 */
 		dest.flags = DB_DBT_USERMEM;
 		dest.data = (uint8 *)destbuf->data+destbuf->size;
-		dest.ulen = ((BTREE_CURSOR *)dbc->internal)->ovflsize-destbuf->size;
+		dest.ulen = reinterpret_cast<BTREE_CURSOR *>(dbc->internal)->ovflsize-destbuf->size;
 		dest.size = 0;
 		dest.app_data = NULL;
-		ret = ((BTREE *)dbc->dbp->bt_internal)->bt_compress(dbc->dbp, *prevKey, *prevData, key, data, &dest);
+		ret = static_cast<BTREE *>(dbc->dbp->bt_internal)->bt_compress(dbc->dbp, *prevKey, *prevData, key, data, &dest);
 		if(ret == 0)
 			destbuf->size += dest.size;
 	}
@@ -1262,7 +1262,7 @@ static int __bamc_compress_get_prev_dup(DBC * dbc, uint32 flags)
 	int ret = 0;
 	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
 	DB * dbp = dbc->dbp;
-	BTREE * t = (BTREE *)dbp->bt_internal;
+	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	if(cp->currentKey == 0)
 		return EINVAL;
 	// If this is a deleted entry, del_key is already set, otherwise we have to set it now 
@@ -1284,7 +1284,7 @@ static int __bamc_compress_get_prev_nodup(DBC * dbc, uint32 flags)
 	int ret;
 	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
 	DB * dbp = dbc->dbp;
-	BTREE * t = (BTREE *)dbp->bt_internal;
+	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	if(cp->currentKey == 0)
 		return __bamc_compress_get_prev(dbc, flags);
 	//
@@ -1350,7 +1350,7 @@ static int __bamc_compress_get_next_dup(DBC * dbc, DBT * key, uint32 flags)
 	int ret;
 	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
 	DB * dbp = dbc->dbp;
-	BTREE * t = (BTREE *)dbp->bt_internal;
+	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	if(cp->currentKey == 0)
 		return EINVAL;
 	if(F_ISSET(cp, C_COMPRESS_DELETED)) {
@@ -1398,7 +1398,7 @@ static int __bamc_compress_get_next_nodup(DBC * dbc, uint32 flags)
 	int ret;
 	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
 	DB * dbp = dbc->dbp;
-	BTREE * t = (BTREE *)dbp->bt_internal;
+	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	if(cp->currentKey == 0)
 		return __bamc_compress_get_next(dbc, flags);
 	/*
@@ -1590,16 +1590,16 @@ static int __bamc_compress_iget(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 	    case DB_PREV_DUP: ret = __bamc_compress_get_prev_dup(dbc, flags); break;
 	    case DB_PREV_NODUP: ret = __bamc_compress_get_prev_nodup(dbc, flags); break;
 	    case DB_SET:
-			if(((BTREE *)dbc->dbp->bt_internal)->bt_compare == __bam_defcmp)
+			if(static_cast<const BTREE *>(dbc->dbp->bt_internal)->bt_compare == __bam_defcmp)
 				F_SET(key, DB_DBT_ISSET);
 			/* FALL THROUGH */
 	    case DB_SET_RANGE: ret = __bamc_compress_get_set(dbc, key, 0, method, flags); break;
 	    case DB_GET_BOTH:
-			if(!F_ISSET(dbc->dbp, DB_AM_DUPSORT) || ((BTREE *)dbc->dbp->bt_internal)->compress_dup_compare == __bam_defcmp)
+			if(!F_ISSET(dbc->dbp, DB_AM_DUPSORT) || static_cast<const BTREE *>(dbc->dbp->bt_internal)->compress_dup_compare == __bam_defcmp)
 				F_SET(data, DB_DBT_ISSET);
 			/* FALL THROUGH */
 	    case DB_GET_BOTH_RANGE:
-			if(((BTREE *)dbc->dbp->bt_internal)->bt_compare == __bam_defcmp)
+			if(static_cast<const BTREE *>(dbc->dbp->bt_internal)->bt_compare == __bam_defcmp)
 				F_SET(key, DB_DBT_ISSET);
 			ret = __bamc_compress_get_set(dbc, key, data, method, flags);
 			break;
@@ -1706,7 +1706,7 @@ static int __bamc_compress_iput(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 					goto end;
 				data = &pdata;
 			}
-			if(F_ISSET(dbp, DB_AM_DUPSORT) && ((BTREE *)dbp->bt_internal)->compress_dup_compare(dbp, cp->currentData, data) != 0) {
+			if(F_ISSET(dbp, DB_AM_DUPSORT) && static_cast<BTREE *>(dbp->bt_internal)->compress_dup_compare(dbp, cp->currentData, data) != 0) {
 				__db_errx(env, DB_STR("1032", "Existing data sorts differently from put data"));
 				ret = EINVAL;
 				goto end;
@@ -2116,7 +2116,7 @@ int __bam_compress_salvage(DB * dbp, VRFY_DBINFO * vdp, void * handle, int (*cal
 		compressed.data = (void *)compcursor;
 		compressed.ulen = compressed.size = (uint32)(compend-compcursor);
 		/* Decompress the next key/data pair */
-		while((ret = ((BTREE *)dbp->bt_internal)->bt_decompress(dbp, prevKey, prevData, &compressed, currentKey, currentData)) == DB_BUFFER_SMALL) {
+		while((ret = static_cast<BTREE *>(dbp->bt_internal)->bt_decompress(dbp, prevKey, prevData, &compressed, currentKey, currentData)) == DB_BUFFER_SMALL) {
 			if(CMP_RESIZE_DBT(ret, env, currentKey) != 0)
 				break;
 			if(CMP_RESIZE_DBT(ret, env, currentData) != 0)
@@ -2169,7 +2169,7 @@ int __bam_compress_count(DBC * dbc, uint32 * nkeysp, uint32 * ndatap)
 	DBC * dbc_n;
 	BTREE_CURSOR * cp_n;
 	DB * dbp = dbc->dbp;
-	BTREE * t = (BTREE *)dbp->bt_internal;
+	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	/* Duplicate the cursor */
 	if((ret = __dbc_dup(dbc, &dbc_n, 0)) != 0)
 		return ret;

@@ -194,15 +194,12 @@ struct __epg {
  */
 #define BTD_UPDATE      0x0001          /* Update parents. */
 #define BTD_RELINK      0x0002          /* Relink leaf pages. */
-
 /*
  * TRY_LOCK
  *	When holding a stack we have pages latched but not locked so
- * we must avoid an undetectable deadlock by not then blocking on a
- * lock.
+ * we must avoid an undetectable deadlock by not then blocking on a lock.
  */
-#define TRY_LOCK(dbc, pgno, saved_pgno, saved_lock, lock_mode, label) \
-        TRY_LOCK2(dbc, NULL, pgno, saved_pgno, saved_lock, lock_mode, label)
+#define TRY_LOCK(dbc, pgno, saved_pgno, saved_lock, lock_mode, label) TRY_LOCK2(dbc, NULL, pgno, saved_pgno, saved_lock, lock_mode, label)
 /*
  * TRY_LOCK2
  *	This is a special call for __bam_compact_int which uses 2
@@ -352,7 +349,7 @@ struct __cursor {
  * padding, out of sheer paranoia.
  */
 #define B_MINKEY_TO_OVFLSIZE(dbp, minkey, pgsize)                       \
-	((uint16)(((pgsize)-P_OVERHEAD(dbp))/((minkey)*P_INDX)-(BKEYDATA_PSIZE(0)+DB_ALIGN(1, sizeof(int32)))))
+	(static_cast<uint16>(((pgsize)-P_OVERHEAD(dbp))/((minkey)*P_INDX)-(BKEYDATA_PSIZE(0)+DB_ALIGN(1, sizeof(int32)))))
 
 /*
  * The maximum space that a single item can ever take up on one page.
@@ -380,8 +377,8 @@ struct __cursor {
  * sychronize on that.
  */
 #define BAM_GET_ROOT(dbc, root_pgno, page, get_mode, lock_mode, lock, ret) do { \
-		BTREE * __t = (BTREE *)((dbc)->dbp->bt_internal);                \
-		BTREE_CURSOR * __cp = (BTREE_CURSOR *)(dbc)->internal;           \
+		BTREE * __t = static_cast<BTREE *>((dbc)->dbp->bt_internal);                \
+		BTREE_CURSOR * __cp = reinterpret_cast<BTREE_CURSOR *>((dbc)->internal); \
 		db_pgno_t __root;                                               \
 		uint32 __rev = 0;                                            \
 		if((root_pgno) == PGNO_INVALID) {                              \
@@ -392,10 +389,8 @@ struct __cursor {
 				__root = root_pgno = __cp->root;                \
 		} else                                                          \
 			__root = root_pgno;                                     \
-		if(STD_LOCKING(dbc) &&                                         \
-		   ((lock_mode) == DB_LOCK_WRITE || F_ISSET(dbc, DBC_DOWNREV)  \
-		    || dbc->dbtype == DB_RECNO || F_ISSET(__cp, C_RECNUM)) &&   \
-		   (ret = __db_lget(dbc, 0, __root, lock_mode, 0, &(lock))) != 0) \
+		if(STD_LOCKING(dbc) && ((lock_mode) == DB_LOCK_WRITE || F_ISSET(dbc, DBC_DOWNREV) \
+		    || dbc->dbtype == DB_RECNO || F_ISSET(__cp, C_RECNUM)) && (ret = __db_lget(dbc, 0, __root, lock_mode, 0, &(lock))) != 0) \
 			break;                                                  \
 		if((ret = __memp_fget((dbc)->dbp->mpf, &__root, (dbc)->thread_info, dbc->txn, get_mode, &page)) == 0) { \
 			if(__root == root_pgno)                                \
@@ -415,16 +410,19 @@ struct __cursor {
 		if((ret = __db_reopen(dbc)) != 0)                              \
 			break;                                                  \
 } while(1)
+// 
+// Return the root of this tree. If this is an off page duplicate tree
+// then its in the cursor, otherwise we must look in the db handle.
+// 
+#define BAM_ROOT_PGNO(dbc) ((reinterpret_cast<BTREE_CURSOR *>((dbc)->internal)->root == PGNO_INVALID) ? \
+	static_cast<BTREE *>((dbc)->dbp->bt_internal)->bt_root : reinterpret_cast<BTREE_CURSOR *>((dbc)->internal)->root)
 
-/*
- * Return the root of this tree. If this is an off page duplicate tree
- * then its in the cursor, otherwise we must look in the db handle.
- */
-#define BAM_ROOT_PGNO(dbc) (((BTREE_CURSOR *)(dbc)->internal)->root == PGNO_INVALID ? \
-         ((BTREE *)(dbc)->dbp->bt_internal)->bt_root : ((BTREE_CURSOR *)(dbc)->internal)->root)
-/*
- * The in-memory, per-tree btree/recno data structure.
- */
+#define	BAM_ROOT_PGNO_old(dbc) (((BTREE_CURSOR *)(dbc)->internal)->root == PGNO_INVALID ? \
+	((BTREE *)(dbc)->dbp->bt_internal)->bt_root : ((BTREE_CURSOR *)(dbc)->internal)->root)
+
+// 
+// Descr: The in-memory, per-tree btree/recno data structure.
+// 
 struct __btree {                        /* Btree access method. */
 	/*
 	 * These fields may change if this is a subdatabase and

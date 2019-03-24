@@ -34,12 +34,25 @@ ngx_pid_t ngx_spawn_process(ngx_cycle_t * cycle, char * name, ngx_int_t respawn)
 			return NGX_INVALID_PID;
 		}
 	}
-	n = GetModuleFileName(NULL, file, MAX_PATH);
-	if(n == 0) {
-		ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "GetModuleFileName() failed");
-		return NGX_INVALID_PID;
+	{
+		// @sobolev {
+		SString temp_buf;
+		SSystem::SGetModuleFileName(0, temp_buf);
+		STRNSCPY(file, temp_buf);
+		if(temp_buf.Empty()) {
+			ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "GetModuleFileName() failed");
+			return NGX_INVALID_PID;
+		}
+		// } @sobolev 
+		/* @sobolev
+		n = GetModuleFileName(NULL, file, MAX_PATH);
+		if(n == 0) {
+			ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "GetModuleFileName() failed");
+			return NGX_INVALID_PID;
+		}
+		file[n] = '\0';
+		*/
 	}
-	file[n] = '\0';
 	ngx_log_debug1(NGX_LOG_DEBUG_CORE, cycle->log, 0, "GetModuleFileName: \"%s\"", file);
 	ctx.path = file;
 	ctx.name = name;
@@ -65,17 +78,17 @@ ngx_pid_t ngx_spawn_process(ngx_cycle_t * cycle, char * name, ngx_int_t respawn)
 	ngx_log_debug1(NGX_LOG_DEBUG_CORE, cycle->log, 0, "WaitForMultipleObjects: %ul", rc);
 	switch(rc) {
 		case WAIT_OBJECT_0:
-		    ngx_processes[s].term = OpenEvent(EVENT_MODIFY_STATE, 0, (char *)ngx_processes[s].term_event);
+		    ngx_processes[s].term = OpenEvent(EVENT_MODIFY_STATE, 0, SUcSwitch(reinterpret_cast<const char *>(ngx_processes[s].term_event)));
 		    if(ngx_processes[s].term == NULL) {
 			    ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "OpenEvent(\"%s\") failed", ngx_processes[s].term_event);
 			    goto failed;
 		    }
-		    ngx_processes[s].quit = OpenEvent(EVENT_MODIFY_STATE, 0, (char *)ngx_processes[s].quit_event);
+		    ngx_processes[s].quit = OpenEvent(EVENT_MODIFY_STATE, 0, SUcSwitch(reinterpret_cast<const char *>(ngx_processes[s].quit_event)));
 		    if(ngx_processes[s].quit == NULL) {
 			    ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "OpenEvent(\"%s\") failed", ngx_processes[s].quit_event);
 			    goto failed;
 		    }
-		    ngx_processes[s].reopen = OpenEvent(EVENT_MODIFY_STATE, 0, (char *)ngx_processes[s].reopen_event);
+		    ngx_processes[s].reopen = OpenEvent(EVENT_MODIFY_STATE, 0, SUcSwitch(reinterpret_cast<const char *>(ngx_processes[s].reopen_event)));
 		    if(ngx_processes[s].reopen == NULL) {
 			    ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "OpenEvent(\"%s\") failed", ngx_processes[s].reopen_event);
 			    goto failed;

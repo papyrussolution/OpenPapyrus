@@ -17,7 +17,7 @@ int __ham_get_meta(DBC * dbc)
 	int ret, t_ret;
 	DB * dbp = dbc->dbp;
 	DB_MPOOLFILE * mpf = dbp->mpf;
-	HASH * hashp = (HASH *)dbp->h_internal;
+	HASH * hashp = static_cast<HASH *>(dbp->h_internal);
 	HASH_CURSOR * hcp = (HASH_CURSOR *)dbc->internal;
 again:
 	revision = hashp->revision;
@@ -72,8 +72,8 @@ int __ham_dirty_meta(DBC * dbc, uint32 flags)
 	int ret;
 	if(F_ISSET(dbc, DBC_OPD))
 		dbc = dbc->internal->pdbc;
-	hashp = (HASH *)dbc->dbp->h_internal;
-	hcp = (HASH_CURSOR *)dbc->internal;
+	hashp = static_cast<HASH *>(dbc->dbp->h_internal);
+	hcp = reinterpret_cast<HASH_CURSOR *>(dbc->internal);
 	if(hcp->hlock.mode == DB_LOCK_WRITE)
 		return 0;
 	mpf = dbc->dbp->mpf;
@@ -107,6 +107,6 @@ int __ham_return_meta(DBC * dbc, uint32 flags, DBMETA ** metap)
 		return 0;
 	if(LF_ISSET(DB_MPOOL_DIRTY) && (ret = __ham_dirty_meta(dbc, flags)) != 0)
 		return ret;
-	*metap = (DBMETA *)hcp->hdr;
+	*metap = reinterpret_cast<DBMETA *>(hcp->hdr);
 	return 0;
 }

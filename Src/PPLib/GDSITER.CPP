@@ -378,7 +378,6 @@ int SLAPI GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 	else
 		Filt.Init(1, 0);
 	const long mf = (GoodsFilt::fRestrictByMatrix | GoodsFilt::fOutOfMatrix);
-	//temp_list.setDelta(512); // @v9.0.10
 	if(Filt.Flags & mf) {
 		ObjIdListFilt mtx_loc_list;
 		if(Filt.MtxLocID)

@@ -49,7 +49,7 @@ static inline void __part_search(DB * dbp, DB_PARTITION * part, DBT * key, uint3
 	DB_ASSERT(dbp->env, part->nparts != 0);
 	COMPQUIET(cmp, 0);
 	COMPQUIET(indx, 0);
-	func = ((BTREE *)dbp->bt_internal)->bt_compare;
+	func = static_cast<BTREE *>(dbp->bt_internal)->bt_compare;
 	DB_BINARY_SEARCH_FOR(base, limit, part->nparts, O_INDX) {
 		DB_BINARY_SEARCH_INCR(indx, base, limit, O_INDX);
 		cmp = func(dbp, key, &part->keys[indx]);
@@ -446,7 +446,7 @@ static int __partition_setup_keys(DBC * dbc, DB_PARTITION * part, const DBMETA *
 		 * given key go into this partition.  We must use the default
 		 * compare to insert this key, otherwise it might not be first.
 		 */
-		t = (BTREE *)dbc->dbp->bt_internal;
+		t = static_cast<BTREE *>(dbc->dbp->bt_internal);
 		compare = t->bt_compare;
 		t->bt_compare = __bam_defcmp;
 		memzero(&key, sizeof(key));
@@ -487,7 +487,7 @@ again:
 			keys = NULL;
 			compare = NULL;
 			if(have_keys == 1 && (keys = part->keys) != NULL) {
-				t = (BTREE *)dbc->dbp->bt_internal;
+				t = static_cast<BTREE *>(dbc->dbp->bt_internal);
 				compare = t->bt_compare;
 				if((ret = __os_malloc(env, (part->nparts-1)*sizeof(struct key_sort), &ks)) != 0)
 					goto err;

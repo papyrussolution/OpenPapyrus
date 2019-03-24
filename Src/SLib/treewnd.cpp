@@ -44,7 +44,6 @@ INT_PTR CALLBACK TreeWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 	switch(message) {
 		case WM_INITDIALOG:
 			{
-				//SetWindowLong(hWnd, GWLP_USERDATA, (long)lParam);
 				TView::SetWindowProp(hWnd, GWLP_USERDATA, lParam);
 				HWND   h_tv = GetDlgItem(hWnd, MENU_TREELIST);
 				if(h_tv)
@@ -52,7 +51,7 @@ INT_PTR CALLBACK TreeWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 			}
  			break;
 		case WM_NOTIFY: {
-			NMHDR * nm = reinterpret_cast<LPNMHDR>(lParam);
+			NMHDR * nm = reinterpret_cast<NMHDR *>(lParam);
 			if(wParam == MENU_TREELIST && (nm->code == NM_DBLCLK || (nm->code == TVN_KEYDOWN && ((LPNMTVKEYDOWN)nm)->wVKey == 13))) {
 				HWND   h_tv = GetDlgItem(hWnd, MENU_TREELIST);
 				HTREEITEM hI = TreeView_GetSelection(h_tv);

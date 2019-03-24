@@ -574,7 +574,7 @@ int SLAPI SMailClient::Pop3_GetMsgSize(long msgN, long * pSize)
 	Pop3_SkipReplyStatus(reply_buf);
 	{
 		size_t p = 0;
-		if(reply_buf.StrChr(' ', &p)) {
+		if(reply_buf.SearchChar(' ', &p)) {
 			msg_size = atol(reply_buf.cptr()+p);
 		}
 	}

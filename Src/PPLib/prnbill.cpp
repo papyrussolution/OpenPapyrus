@@ -26,7 +26,7 @@ static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPI
 			TDialog::handleEvent(event);
 			if(event.isCmd(cmClusterClk)) {
 				if(event.isCtlEvent(CTL_PRNGBILL_WHAT)) {
-					TCluster * p_clu = (TCluster*)getCtrlView(CTL_PRNGBILL_WHAT);
+					TCluster * p_clu = static_cast<TCluster *>(getCtrlView(CTL_PRNGBILL_WHAT));
 					disableCtrl(CTL_PRNGBILL_ONLYPRCHNG, BIN(OprType != PPOPT_GOODSRECEIPT || !p_clu || !p_clu->mark(7)));
 					clearEvent(event);
 				}
@@ -54,7 +54,7 @@ static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPI
 		DECL_HANDLE_EVENT
 		{
 			TDialog::handleEvent(event);
-			TCluster * p_clu = (TCluster*)getCtrlView(CTL_PRNGBILL_WHAT);
+			TCluster * p_clu = static_cast<TCluster *>(getCtrlView(CTL_PRNGBILL_WHAT));
 			if(event.isCmd(cmClusterClk)) {
 				if(event.isCtlEvent(CTL_PRNGBILL_WHAT)) {
 					uint16 w = getCtrlUInt16(CTL_PRNGBILL_WHAT);
@@ -103,9 +103,13 @@ static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPI
 		}
 		const PPID   OprType;
 	};
-	int    ok = 1, v = 0, div_copies = 0, only_price_chng = 0;
+	int    ok = 1;
+	int    v = 0;
+	int    div_copies = 0;
+	int    only_price_chng = 0;
 	ushort p;
 	uint   res_id;
+	SString temp_buf;
 	TDialog * dlg;
 	if(pAmtTypes == 0) {
 		// @v10.3.0 Теперь используется (с приоритетом) интерфейсная настройка для разрешения/запрета множественной печати
@@ -133,7 +137,7 @@ static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPI
 		dlg = new BillPrintDialog(res_id, oprType);
 	if(!CheckDialogPtr(&dlg))
 		return 0;
-	TCluster * clu = (TCluster*)dlg->getCtrlView(CTL_PRNGBILL_WHAT);
+	TCluster * clu = static_cast<TCluster *>(dlg->getCtrlView(CTL_PRNGBILL_WHAT));
 	//
 	// Порядок пунктов в диалоге:
 	//    0. Накладная //
@@ -181,7 +185,7 @@ static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPI
 	else {
 		v = 1;
 		if(!pAmtTypes) {
-			rSelAry.Add((PPID)v, 1, 0);
+			rSelAry.Add(static_cast<PPID>(v), 1, 0);
 			delete dlg;
 			return ok;
 		}
@@ -189,16 +193,17 @@ static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPI
 	if(pAmtTypes)
 		p = (*pAmtTypes - 1);
 	if(res_id == DLG_PRNGBILLM) {
-		TCluster * p_clu = (TCluster*)dlg->getCtrlView(CTL_PRNGBILL_WHAT);
+		TCluster * p_clu = static_cast<TCluster *>(dlg->getCtrlView(CTL_PRNGBILL_WHAT));
 		LAssocArray rpt_info_list;
 		v = 1;
 		if(p_clu) {
-			char   buf[512];
+			//char   buf[512];
 			SString sbuf;
 			WinRegKey key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 1);
-			memzero(buf, sizeof(buf));
-			key.GetString(BillMultiplePrintCfg, buf, sizeof(buf));
-			StringSet ss(';', buf);
+			//memzero(buf, sizeof(buf));
+			temp_buf.Z();
+			key.GetString(BillMultiplePrintCfg, temp_buf);
+			StringSet ss(';', temp_buf);
 			for(uint p = 0, i = 0; ss.get(&p, (sbuf = 0)) > 0; i++) {
 				uint   p1 = 0;
 				StringSet ss1(',', sbuf);
@@ -215,7 +220,6 @@ static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPI
 			key.GetDWord(BillMultiplePrintOnlyPriceChanged, &val);
 			only_price_chng = val ? 1 : only_price_chng;
 		}
-		// @v8.1.3 CTL_PRNGBILL_SPIN12-->CTL_PRNGBILL_SPIN13
 		for(uint i = 0, spin_ctl = CTL_PRNGBILL_SPIN, copy_ctl = CTL_PRNGBILL_NUMCOPIES; spin_ctl < CTL_PRNGBILL_SPIN13 + 1; spin_ctl++, copy_ctl++, i++) {
 			long   num_copies = 1;
 			long   checked    = 0;
@@ -249,7 +253,6 @@ static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPI
 	dlg->setCtrlData(CTL_PRNGBILL_WHAT,  &v);
 	dlg->setCtrlData(CTL_PRNGBILL_PRICE, &p);
 	{
-		SString temp_buf;
 		dlg->setCtrlString(CTL_PRNGBILL_MAINORG, GetMainOrgName(temp_buf));
 		GetLocationName(LConfig.Location, temp_buf);
 		dlg->setCtrlString(CTL_PRNGBILL_LOC, temp_buf);

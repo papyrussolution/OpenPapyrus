@@ -683,7 +683,7 @@ int BIO_lookup(const char * host, const char * service, enum BIO_lookup_type loo
 		static const char * he_fallback_addresses[] =
 		{ (char *)&he_fallback_address, NULL };
 #endif
-		static const struct hostent he_fallback = { NULL, NULL, AF_INET, sizeof(he_fallback_address), (char**)&he_fallback_addresses };
+		static const struct hostent he_fallback = { NULL, NULL, AF_INET, sizeof(he_fallback_address), (char **)&he_fallback_addresses };
 #if defined(OPENSSL_SYS_VMS) && defined(__DECC)
 # pragma pointer_size restore
 #endif

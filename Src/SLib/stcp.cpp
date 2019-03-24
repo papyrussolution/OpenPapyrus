@@ -127,9 +127,9 @@ int InetAddr::FromStr(const char * pStr)
 	return ok;
 }
 
-int SLAPI InetAddr::SetPort(int port)
+int SLAPI InetAddr::SetPort_(int port)
 {
-	int    preserve_port = Port;
+	const int preserve_port = Port;
 	Port = port;
 	return preserve_port;
 }
@@ -967,7 +967,7 @@ int InetUrl::Parse(const char * pUrl)
 		while(oneof2(_url.C(0), ' ', '\t'))
 			_url.ShiftLeft();
 		size_t qp = 0;
-		if(_url.StrChr('\"', &qp))
+		if(_url.SearchChar('\"', &qp))
 			_url.Trim(qp).Strip();
 	}
 	if(_url.NotEmptyS()) {
@@ -2307,7 +2307,7 @@ int SLAPI SMailMessage::PreprocessEmailAddrString(const SString & rSrc, SString 
 			CALLPTRMEMB(pSs, add(temp_buf));
 			ok = 1;
 		}
-		else if(temp_buf.StrChr('<', &ang_pos)) {
+		else if(temp_buf.SearchChar('<', &ang_pos)) {
 			//
 			// Предполагаем, что имя получателя (name_buf) задано в UTF8
 			//

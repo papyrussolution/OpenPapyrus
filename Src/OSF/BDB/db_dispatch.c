@@ -70,12 +70,11 @@ int __db_dispatch(ENV * env, DB_DISTAB * dtab, DBT * db /* The log record upon w
 	 * pass a DB_TXNHEAD structure.
 	 */
 	if(redo != DB_TXN_LOG_VERIFY)
-		info = (DB_TXNHEAD *)params;
+		info = static_cast<DB_TXNHEAD *>(params);
 	else
-		lvh = (DB_LOG_VRFY_INFO *)params;
+		lvh = static_cast<DB_LOG_VRFY_INFO *>(params);
 	/* If we don't have a dispatch table, it's hard to dispatch. */
 	DB_ASSERT(env, dtab != NULL);
-
 	/*
 	 * If we find a record that is in the user's number space and they
 	 * have specified a recovery routine, let them handle it.  If they
@@ -728,12 +727,10 @@ err:
 }
 
 #ifdef DEBUG
-/*
- * __db_txnlist_print --
- *	Print out the transaction list.
- *
- * PUBLIC: void __db_txnlist_print __P((DB_TXNHEAD *));
- */
+//
+// __db_txnlist_print --
+// Print out the transaction list.
+//
 void __db_txnlist_print(DB_TXNHEAD * hp)
 {
 	DB_TXNLIST * p;

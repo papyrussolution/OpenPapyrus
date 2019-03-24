@@ -2871,7 +2871,7 @@ void FASTCALL RegisterSType(TYPEID, DataType *);
 #define MKSFMT(l,f)           (((static_cast<long>(l))<<16)|(static_cast<long>(f)))
 #define MKSFMTD(l,p,f)        (((static_cast<long>(p))<<28)|((static_cast<long>(l))<<16)|(static_cast<long>(f)))
 #define SFMTFLAG(fmt)         (static_cast<unsigned>((fmt)&SFFLAGMASK))
-#define SFMTLEN(fmt)          ((uint16)(((fmt)&SFLENMASK)>>16))
+#define SFMTLEN(fmt)          (static_cast<uint16>(((fmt)&SFLENMASK)>>16))
 #define SFMTPRC(fmt)          (((fmt)&SFPRCMASK)>>28)
 #define SFMTALIGN(fmt)        ((fmt)&SFALIGNMASK)
 #define SETSFMTLEN(fmt,l)     (fmt)=(((static_cast<long>(l))<<16)|(static_cast<long>((fmt)&~SFLENMASK)))
@@ -3540,7 +3540,8 @@ public:
 	size_t SLAPI Len() const;
 	size_t SLAPI BufSize() const;
 	void   SLAPI Obfuscate();
-	const  char * SLAPI StrChr(int c, size_t * pPos) const;
+	const  char * SLAPI SearchChar(int c, size_t * pPos) const;
+	const  char * SLAPI SearchCharPos(size_t startPos, int c, size_t * pPos) const;
 	//
 	// Descr: Определяет факт наличия в строке this символа c.
 	//
@@ -5888,14 +5889,10 @@ public:
 
 	int    SLAPI operator ! () const { return (count == 0); }
 	uint   SLAPI getCount() const { return count; }
-	//int    FASTCALL checkIndex(uint) const;
-	//int    FASTCALL checkIndex(long) const;
 	int    SLAPI getEnd() const { return static_cast<int>(count-1); }
 	uint   SLAPI getItemSize() const { return isize; }
 	uint   SLAPI getFlags() const;
 	void   SLAPI setFlag(uint val, int set);
-	//void   SLAPI setLimit(uint);
-	//void   SLAPI setDelta(uint);
 	//
 	// Descr: Возвращает значение внутреннего указателя позиции
 	//
@@ -5939,7 +5936,6 @@ public:
 	//
 	void * SLAPI next();
 	int    FASTCALL enumItems(uint * pIdx, void ** ppItem) const;
-	//
 	void   SLAPI atPut(uint, const void *);
 	int    FASTCALL atInsert(uint, const void *);
 	int    FASTCALL insert(const void * pItem);
@@ -6204,14 +6200,6 @@ public:
 	//
 	int    SLAPI Read(SFile & rFile, long);
 #endif // } !_WIN32_WCE
-protected:
-	/* (now inherited from SVectorBase) uint   count;   // Количество элементов, находящихся в массиве
-	uint   pointer; // Указатель на текущий элемент массива (используется в стеках и очередях)
-	uint   isize;   // Размер одного элемента (bytes)
-	uint   Limit;   // Максимальное количество элементов, которое может вместить буфер
-	uint16 flags;
-	uint16 delta;   //
-	uint8 * data;*/
 };
 //
 // @v9.7.11 Все 5 методов элиминированы (фактически, перенесены как static в dl200.cpp поскольку только там и используются).
@@ -8746,11 +8734,11 @@ public:
 	STextEncodingStat & SLAPI Init(long options = 0);
 	int    SLAPI Add(const void * pData, size_t size);
 	int    SLAPI Finish();
-
 	SEOLFormat SLAPI GetEolFormat() const { return Eolf; }
 	SCodepageIdent SLAPI GetCp() const { return Cp; }
 	const char * SLAPI GetCpName() const { return CpName; }
 	int    FASTCALL CheckFlag(long f) const { return BIN(Flags & f); }
+	SCodepageIdent SLAPI GetAutodetectedCp() const;
 private:
 	long   Flags;
 	SCodepageIdent Cp;
@@ -11397,9 +11385,10 @@ template <class T> int TSCollection_Serialize(TSCollection <T> & rC, int dir, SB
 
 class SIniFile {
 public:
-	SLAPI  SIniFile(const char * pFileName, int fcreate = 0, int winCoding = 0, int useIniBuf = 0);
+	explicit SLAPI SIniFile(const char * pFileName, int fcreate = 0, int winCoding = 0, int useIniBuf = 0);
 	SLAPI ~SIniFile();
 	int    SLAPI IsValid() const; // Вызывать после конструктора
+	SCodepageIdent SLAPI GetCp() const { return Cp; }
 	long   SLAPI GetFlags() const;
 	long   SLAPI SetFlag(long f, int set);
 	const  SString & SLAPI GetFileName() const;
@@ -11410,7 +11399,6 @@ public:
 	int    SLAPI GetParam(const char * pSect, const char * pParam, SString & rBuf);
 	int    SLAPI GetIntParam(const char * pSect, const char * param, int *);
 	int    SLAPI GetDataSizeParam(const char * pSect, const char * pParam, int64 * pVal);
-
 	int    SLAPI AppendParam(const char * pSect, const char * pParam, const char * pVal, int overwrite);
 	int    SLAPI AppendIntParam(const char * pSect, const char * pParam, int val, int overwrite = 1);
 	int    SLAPI RemoveParam(const char * pSect, const char * param);
@@ -11428,15 +11416,24 @@ public:
 	int    SLAPI WasModified() const;
 
 	enum {
-		fWinCoding    = 0x0001,
-		fIniBufInited = 0x0002
+		fWinCoding      = 0x0001,
+		fIniBufInited   = 0x0002,
+		fCpAutodetected = 0x0004 // @v10.3.11 Кодовая страница Cp идентифицирована автоматически
 	};
 protected:
 	int    SLAPI Init(const char * pFileName, int fcreate, int winCoding, int useIniBuf);
+	SString & FASTCALL EncodeText(SString & rBuf) const;
+	SString & FASTCALL DecodeText(SString & rBuf) const;
 
 	long   Flags;
 	SString TempBuf; // @allocreuse
 private:
+	//
+	// Returns:
+	//   >0 - файл не был открыт и функция сделала это успешно
+	//   <0 - файл уже был открыт
+	//    0 - ошибка
+	//
 	int    SLAPI Open(const char * pFileName);
 	int    SLAPI Close();
 	int    SLAPI Create(const char * pFileName);
@@ -11453,6 +11450,7 @@ private:
 	//
 	int    SLAPI SetParam(const char * pSect, const char * pParam, const char * pVal, int overwrite);
 
+	SCodepageIdent Cp;
 	SFile  File;
 	SString FileName;
 	SStrScan Scan;
@@ -11752,7 +11750,7 @@ public:
 	int    SLAPI Open(HKEY, const char * pSubKey, int readOnly, int onlyOpen = 0);
 	void   SLAPI Close();
 	int    SLAPI GetDWord(const char * pParam, uint32 * pVal);
-	int    SLAPI GetString(const char * pParam, char * pBuf, size_t bufLen);
+	//int    SLAPI GetString(const char * pParam, char * pBuf, size_t bufLen);
 	int    SLAPI GetString(const char * pParam, SString & rBuf);
 	int    SLAPI GetBinary(const char * pParam, void * pBuf, size_t bufLen);
 	int    SLAPI GetRecSize(const char * pParam, size_t * pRecSize);
@@ -12707,7 +12705,6 @@ public:
 	int    SLAPI CallHelp(void * hWnd, uint cmd, uint ctx);
 	int    SLAPI RegisterTempFileName(const char *);
 	void   SLAPI RemoveTempFiles();
-	//
 	uint   SLAPI CreateGlobalObject(SClassWrapper & rCls);
 	int    SLAPI DestroyGlobalObject(uint idx);
 	void * FASTCALL GetGlobalObject(uint idx);
@@ -12832,7 +12829,7 @@ public:
 	~SImage();
 	int    Init();
 	int    IsValid() const;
-	int    LoadImage(const char * pPicPath);
+	int    Load(const char * pPicPath);
 	int    LoadThumbnailImage(const char * pPicPath, int width, int height);
 	int    Draw(HWND hWnd, const char * pPicPath, RECT *, int clear = 1, int use2Koeff = 0);
 	int    Draw(HWND hWnd, RECT * pRect, int clear = 1, int use2Koeff = 0);
@@ -12893,12 +12890,9 @@ public:
 		float  FontSize;
 	};
 
-	SDrawContext(cairo_t * pCr);
-	SDrawContext(HDC);
-	operator SDrawSystem () const
-	{
-		return S;
-	}
+	explicit SDrawContext(cairo_t * pCr);
+	explicit SDrawContext(HDC);
+	operator SDrawSystem () const { return S; }
 	operator cairo_t * () const;
 	SDrawContext::UC * GetUnitContext() const;
 private:
@@ -13015,7 +13009,6 @@ public:
 
 		static uint32 FASTCALL UniformToGrayscale(uint32 u);
 		static COLORREF FASTCALL UniformToRGB(uint32 u);
-
 		PixF(int s = 0);
 		int    IsValid() const;
 		uint   GetBpp() const;
@@ -13061,7 +13054,6 @@ public:
 	// Note: Пока поддерживает только dsysCairo.
 	//
 	void * CreateSurface(SDrawSystem sys) const;
-
 	int    Load(const char * pFileName);
 	int    Load(int fm, SBuffer & rInBuf);
 	//
@@ -13258,7 +13250,7 @@ private:
 
 class SDrawImage : public SDrawFigure { // @persistent @store(SSerializeContext)
 public:
-	SDrawImage(const char * pSid = 0);
+	explicit SDrawImage(const char * pSid = 0);
 	SDrawImage(SImageBuffer & rBuf, const char * pSid = 0);
 	~SDrawImage();
 	virtual SDrawFigure * Dup() const;
@@ -13278,11 +13270,10 @@ private:
 
 class SDrawGroup : public SDrawFigure, private TSCollection <SDrawFigure> { // @persistent @store(SSerializeContext)
 public:
-	SDrawGroup(const char * pSid = 0);
+	explicit SDrawGroup(const char * pSid = 0);
 	virtual SDrawFigure * Dup() const;
 	virtual int  Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    FASTCALL Copy(const SDrawGroup & rS);
-
 	int    Add(SDrawFigure * pItem);
 	//
 	// Descr: Удаляет элемент группы, имеющий символ pSid. Если параметр recur != 0,
@@ -13304,7 +13295,7 @@ public:
 	friend class SDrawFigure;
 
 	SDraw();
-	SDraw(const char * pSid);
+	explicit SDraw(const char * pSid);
 	SDraw(const char * pSid, SPaintToolBox * pOuterTb);
 	~SDraw();
 	virtual SDrawFigure * Dup() const;
@@ -13332,7 +13323,7 @@ enum SylkFontStyle {
 
 class SylkWriter {
 public:
-	SLAPI  SylkWriter(const char * pFileName = 0);
+	explicit SLAPI SylkWriter(const char * pFileName = 0);
 	SLAPI ~SylkWriter();
 	int    SLAPI Open(const char * pFileName);
 	void   SLAPI Close();

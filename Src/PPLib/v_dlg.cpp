@@ -1,5 +1,5 @@
 // V_DLG.CPP
-// Copyright (c) A.Sobolev 2011, 2016, 2018
+// Copyright (c) A.Sobolev 2011, 2016, 2018, 2019
 //
 #include <pp.h>
 #pragma hdrstop
@@ -60,12 +60,12 @@ int SLAPI PPViewDialog::Init_(const PPBaseFilt * pBaseFilt)
 			{
 				text_buf.Z();
 				if(Ctx.GetConstData(p_scope->GetConst(DlScope::cuifCtrlText), c_buf, sizeof(c_buf)))
-					text_buf = (const char *)c_buf;
+					text_buf = c_buf;
 				text_buf.ToOem().CopyTo(item.Text, sizeof(item.Text));
 				//
 				text_buf.Z();
 				if(Ctx.GetConstData(p_scope->GetConst(DlScope::cuifSymbSeries), c_buf, sizeof(c_buf)))
-					text_buf = (const char *)c_buf;
+					text_buf = c_buf;
 				text_buf.CopyTo(item.Serial, sizeof(item.Serial));
 			}
 			THROW_SL(List.insert(&item));
@@ -227,18 +227,18 @@ int WhatmanObjectUiCtrl::Set(DlContext * pCtx, DlScope * pScope, DlScope * pInne
 		if(fldId != 0 && fldId != UINT_MAX) {
 			THROW_SL(p_scope->GetFieldByID(fldId, 0, &F));
 			if(P_DlCtx->GetConstData(p_scope->GetFldConst(fldId, DlScope::cuifCtrlKind), c_buf, sizeof(c_buf)))
-				SetKind(*(uint32 *)c_buf);
+				SetKind(*reinterpret_cast<const uint32 *>(c_buf));
 			if(P_DlCtx->GetConstData(p_scope->GetFldConst(fldId, DlScope::cuifCtrlText), c_buf, sizeof(c_buf)))
-				UiText = (const char *)c_buf;
+				UiText = c_buf;
 			if(P_DlCtx->GetConstData(p_scope->GetFldConst(fldId, DlScope::cuifCtrlRect), c_buf, sizeof(c_buf)))
-				Rect = *(UiRelRect *)c_buf;
+				Rect = *reinterpret_cast<const UiRelRect *>(c_buf);
 		}
 		else if(fldId == 0) {
 			SetKind(UiItemKind::kDialog);
 			if(P_DlCtx->GetConstData(p_scope->GetConst(DlScope::cuifCtrlText), c_buf, sizeof(c_buf)))
-				UiText = (const char *)c_buf;
+				UiText = c_buf;
 			if(P_DlCtx->GetConstData(p_scope->GetConst(DlScope::cuifCtrlRect), c_buf, sizeof(c_buf)))
-				Rect = *(UiRelRect *)c_buf;
+				Rect = *reinterpret_cast<const UiRelRect *>(c_buf);
 		}
 		{
 			TRect bounds; // UiRelRect
@@ -299,14 +299,14 @@ int WhatmanObjectUiCtrl::CreateTextLayout(SPaintToolBox & rTb, STextLayout & rTl
 			SString font_face;
 			if(P_DlCtx && P_Scope) {
 				if(P_DlCtx->GetConstData(P_Scope->GetConst(DlScope::cuifFont), c_buf, sizeof(c_buf))) {
-					if(((const char *)c_buf)[0])
-						temp_buf = (const char *)c_buf;
+					if(c_buf[0])
+						temp_buf = c_buf;
 				}
 			}
 			temp_buf.SetIfEmpty("MS Sans Serif(8)");
 			SFontDescr fd(0, 0, 0);
 			fd.FromStr(temp_buf);
-			TidFont = rTb.CreateFont(0, fd.Face, fd.Size, fd.Flags);
+			TidFont = rTb.CreateFont_(0, fd.Face, fd.Size, fd.Flags);
 		}
 		if(TidFont) {
 			int    tool_text_pen_id = rTb.CreateColor(0, SColor(SClrBlack));
@@ -415,7 +415,7 @@ int WhatmanObjectUiCtrl::Draw(TCanvas2 & rCanv)
 	}
 	else if(UiKind == UiItemKind::kCheckbox) {
 		SImageBuffer img_buf;
-		HBITMAP h_bmp = (HBITMAP)LoadImage(0, MAKEINTRESOURCE(OBM_CHECKBOXES), IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_SHARED);
+		HBITMAP h_bmp = static_cast<HBITMAP>(::LoadImage(0, MAKEINTRESOURCE(OBM_CHECKBOXES), IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_SHARED));
 		if(img_buf.LoadBmp(0, h_bmp, 1, 13) > 0) {
 			FPoint fp((float)(b.a.x + _cxborder), (float)(b.a.y + _cyborder));
 			LMatrix2D mtx;

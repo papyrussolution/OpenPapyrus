@@ -808,7 +808,7 @@ const ObjTagItem * FASTCALL ObjTagList::GetItem_ForceEmpty(PPID id)
 		else
 			pos = getCount() - 1;
 	}
-	return (const ObjTagItem *)at(pos);
+	return static_cast<const ObjTagItem *>(at(pos));
 }
 
 int SLAPI ObjTagList::PutItem(PPID id, const ObjTagItem * pi)
@@ -819,7 +819,7 @@ int SLAPI ObjTagList::PutItem(PPID id, const ObjTagItem * pi)
 		if(pi == 0)
 			atFree(pos);
 		else {
-			*((ObjTagItem*)at(pos)) = *pi;
+			*static_cast<ObjTagItem *>(at(pos)) = *pi;
 		}
 	}
 	else if(pi) {

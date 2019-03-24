@@ -150,7 +150,7 @@ ngx_int_t ngx_os_init(ngx_log_t * log)
 	if(ngx_close_socket(s) == -1) {
 		ngx_log_error(NGX_LOG_ALERT, log, ngx_socket_errno, ngx_close_socket_n " failed");
 	}
-	if(GetEnvironmentVariable("ngx_unique", ngx_unique, NGX_INT32_LEN + 1) != 0) {
+	if(GetEnvironmentVariable(_T("ngx_unique"), ngx_unique, NGX_INT32_LEN + 1) != 0) {
 		ngx_process = NGX_PROCESS_WORKER;
 	}
 	else {

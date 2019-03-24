@@ -16,7 +16,7 @@ static SString & FASTCALL ConvertMsgString(const char * pMsg, SString & rBuf)
 {
 	rBuf = pMsg;
 	size_t _p = 0;
-	while(rBuf.StrChr('\003', &_p))
+	while(rBuf.SearchChar('\003', &_p))
 		rBuf.Excise(_p, 1);
 	return rBuf.Transf(CTRANSF_INNER_TO_OUTER);
 }
@@ -43,7 +43,7 @@ BOOL CALLBACK MessageBoxDialogFunc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 	int    ret = FALSE;
 	int    i, j;
 	SString temp_buf;
-	MsgBoxDlgFuncParam * p_param = (MsgBoxDlgFuncParam *)lParam;
+	MsgBoxDlgFuncParam * p_param = reinterpret_cast<MsgBoxDlgFuncParam *>(lParam);
 	switch(uMsg) {
 		case WM_INITDIALOG:
 			{

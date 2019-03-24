@@ -57,7 +57,7 @@ int __db_reclaim_callback(DBC * dbc, PAGE * p, void * cookie, int * putp)
 	 * If we abort then the subdb may not be openable to undo
 	 * the free.
 	 */
-	if((dbp->type == DB_BTREE || dbp->type == DB_RECNO) && PGNO(p) == ((BTREE *)dbp->bt_internal)->bt_root)
+	if((dbp->type == DB_BTREE || dbp->type == DB_RECNO) && PGNO(p) == static_cast<BTREE *>(dbp->bt_internal)->bt_root)
 		return 0;
 	if((ret = __db_free(dbc, p, P_TO_UINT32(cookie))) != 0)
 		return ret;
@@ -95,7 +95,7 @@ int __db_truncate_callback(DBC * dbc, PAGE * p, void * cookie, int * putp)
 	    case P_IBTREE:
 	    case P_IRECNO:
 	    case P_INVALID:
-		if(dbp->type != DB_HASH && ((BTREE *)dbp->bt_internal)->bt_root == PGNO(p)) {
+		if(dbp->type != DB_HASH && static_cast<BTREE *>(dbp->bt_internal)->bt_root == PGNO(p)) {
 			type = dbp->type == DB_RECNO ? P_LRECNO : P_LBTREE;
 			goto reinit;
 		}
@@ -118,7 +118,7 @@ int __db_truncate_callback(DBC * dbc, PAGE * p, void * cookie, int * putp)
 			if(!B_DISSET(type))
 				++*countp;
 		}
-		if(((BTREE *)dbp->bt_internal)->bt_root == PGNO(p)) {
+		if(static_cast<BTREE *>(dbp->bt_internal)->bt_root == PGNO(p)) {
 			type = P_LRECNO;
 			goto reinit;
 		}

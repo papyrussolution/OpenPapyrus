@@ -1036,14 +1036,14 @@ int SLAPI StyloBhtIIExchange(const char * pDbSymb, const char * pName, const cha
 	if(DS.Login(pDbSymb, pName, pwd) > 0) {
 		StyloBhtIIExchanger exch(pSo);
 		pwd = 0;
-		buf.Z().Cat((long)1);
-		THROW_SL(pSo->Send((const char *)buf, buf.Len(), 0));
+		buf.Z().Cat(1L);
+		THROW_SL(pSo->Send(buf.cptr(), buf.Len(), 0));
 		THROW(exch.Run());
 	}
 	else {
 		pwd = 0;
-		buf.Z().Cat((long)0);
-		pSo->Send((const char *)buf, buf.Len(), 0);
+		buf.Z().Cat(0L);
+		pSo->Send(buf.cptr(), buf.Len(), 0);
 		THROW(0);
 	}
 	CATCH

@@ -592,13 +592,15 @@ int PPImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResult) 
 	int    use_ps = 0;
 	char   cntr[128];
 	uint   cn = 0;
-	if(FileName.IsEqiAscii(":buffer:")) {
-		rResult = FileName;
+	SString _file_name = FileName;
+	_file_name.Transf(CTRANSF_INNER_TO_OUTER);
+	if(_file_name.IsEqiAscii(":buffer:")) {
+		rResult = _file_name;
 	}
 	else {
 		SString temp_buf;
 		SPathStruc ps_temp;
-		SPathStruc ps(FileName);
+		SPathStruc ps(_file_name);
 		if(ps.Drv.Empty() && ps.Dir.Empty()) {
 			PPGetPath(PPPATH_OUT, temp_buf);
 			ps_temp.Split(temp_buf);
@@ -653,7 +655,7 @@ int PPImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResult) 
 			if(use_ps)
 				ps.Merge(rResult);
 			else
-				rResult = FileName;
+				rResult = _file_name;
 			ok = 1; // Имя файла осталось как есть
 		}
 	}
@@ -1060,13 +1062,10 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 		THROW(tsl_par.Retranslate(iefImpExp, symb_buf));
 		THROW(pFile->AppendParam(pSect, symb_buf, (Direction ? "IMP" : "EXP"), 1));
 	}
-	// @v8.4.6 {
 	if(BaseFlags) {
 		THROW(tsl_par.Retranslate(iefBaseFlags, symb_buf));
 		THROW(pFile->AppendIntParam(pSect, symb_buf, BaseFlags, 1));
 	}
-	// } @v8.4.6
-	// @v8.6.1 {
 	if(InetAccID) {
         PPObjInternetAccount ia_obj;
         PPInternetAccount ia_pack;
@@ -1074,7 +1073,7 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 			temp_buf = ia_pack.Symb;
 			if(temp_buf.NotEmptyS()) {
 				THROW(tsl_par.Retranslate(iefFtpAccSymb, symb_buf));
-				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+				// @v10.3.11 (SIniFile сам это делает) temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 				THROW(pFile->AppendParam(pSect, symb_buf, temp_buf, 1));
 			}
 			else {
@@ -1090,7 +1089,6 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 			THROW(pFile->AppendIntParam(pSect, symb_buf, InetAccID, 1));
         }
 	}
-	// } @v8.6.1
 	{
 		THROW(tsl_par.Retranslate(iefFormat, symb_buf));
 		switch(DataFormat) {
@@ -1228,7 +1226,7 @@ int PPImpExpParam::ParseFormula(int hdr, const SString & rPar, const SString & r
 	int    ok = 1;
 	size_t pos = 0;
 	SdbField outer_fld;
-	const char * p = rPar.StrChr('(', &pos);
+	const char * p = rPar.SearchChar('(', &pos);
 	if(p) {
 		p++;
 		while(*p && *(p + 1) != 0) // Пропускаем последний символ ')'
@@ -1292,7 +1290,7 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 						DataFormat = dfText;
 						if(fld_div.Empty()) {
 							size_t pos = 0;
-							const char * p = val.StrChr('(', &pos);
+							const char * p = val.SearchChar('(', &pos);
 							if(p) {
 								p++;
 								while(*p && *p != ')')
@@ -1408,8 +1406,8 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 						THROW(ParseFormula(0, par, val));
 					}
 					else if(InrRec.GetFieldByName(par, &fld) > 0) {
-						if(pFile->GetFlags() & SIniFile::fWinCoding)
-							val.Transf(CTRANSF_INNER_TO_OUTER);
+						/* @v10.3.11 if(pFile->GetFlags() & SIniFile::fWinCoding)
+							val.Transf(CTRANSF_INNER_TO_OUTER);*/
 						scan.Set(val, 0);
 						outer_fld.Init();
 						outer_fld.ID = fld.ID;
@@ -1425,8 +1423,8 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 						THROW_SL(OtrRec.AddField(&outer_fld.ID, &outer_fld));
 					}
 					else if(HdrInrRec.GetFieldByName(par, &fld) > 0) {
-						if(pFile->GetFlags() & SIniFile::fWinCoding)
-							val.Transf(CTRANSF_INNER_TO_OUTER);
+						/* @v10.3.11 if(pFile->GetFlags() & SIniFile::fWinCoding)
+							val.Transf(CTRANSF_INNER_TO_OUTER);*/
 						scan.Set(val, 0);
 						outer_fld.Init();
 						outer_fld.ID = fld.ID;
@@ -1616,7 +1614,7 @@ PPImpExp::PPImpExp(const PPImpExpParam * pParam, const void * extraPtr) : P_DbfT
 {
 	RVALUEPTR(P, pParam);
 	// @v9.3.10 SaveParam.Init();
-	P.FileName.Transf(CTRANSF_INNER_TO_OUTER);
+	// @v10.3.11 P.FileName.Transf(CTRANSF_INNER_TO_OUTER);
 	PreserveOrgFileName = P.FileName; // @v9.3.10
 	if(P.Direction == 0) {
 		const SString preserve_file_name = P.FileName;
@@ -2273,6 +2271,7 @@ int PPImpExp::ConvertInnerToOuter(int hdr, const void * pInnerBuf, size_t bufLen
 			if(outer_fld.T.Flags & STypEx::fFormula) {
 				THROW(ResolveFormula(outer_fld.Formula, pInnerBuf, bufLen, formula_result));
 				formula_result.Trim(255);
+				formula_result.Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.11
 				stcast(MKSTYPE(S_ZSTRING, formula_result.Len()+1), outer_fld.T.Typ, formula_result.cptr(), p_outer_fld_buf, 0);
 			}
 			else {
@@ -2660,7 +2659,7 @@ int SLAPI ConvertImpExpConfig_IniToBdb()
 		THROW(Helper_ConvertImpExpConfig_IniToBdb(cfg_db, sctx, PPFILNAM_IMPEXP_INI, PPREC_PHONELIST, &logger));
 		THROW(Helper_ConvertImpExpConfig_IniToBdb(cfg_db, sctx, PPFILNAM_IMPEXP_INI, PPREC_SCARD, &logger));
 		THROW(Helper_ConvertImpExpConfig_IniToBdb(cfg_db, sctx, PPFILNAM_IMPEXP_INI, PPREC_LOT,   &logger));
-		THROW(Helper_ConvertImpExpConfig_IniToBdb(cfg_db, sctx, PPFILNAM_IMPEXP_INI, PPREC_WORKBOOK, &logger)); // @v8.1.1
+		THROW(Helper_ConvertImpExpConfig_IniToBdb(cfg_db, sctx, PPFILNAM_IMPEXP_INI, PPREC_WORKBOOK, &logger));
 		// @v9.1.3 THROW(Helper_ConvertImpExpConfig_IniToBdb(cfg_db, sctx, PPFILNAM_IMPEXP_INI, PPREC_CSESSCOMPLEX, &logger)); // @v8.2.7
 		THROW(Helper_ConvertImpExpConfig_IniToBdb(cfg_db, sctx, PPFILNAM_CLIBNK_INI, PPREC_CLIBNKDATA, &logger));
 	}
@@ -2683,7 +2682,6 @@ private:
 	virtual int delItem(long pos, long id);
 	virtual int setupList();
 	DECL_HANDLE_EVENT;
-
 	int    EditParam(const char * pIniSection, long * pCDbID);
 	ImpExpParamDialog * GetParamDlg(uint cfgPos);
 	int    GetParamDlgDTS(ImpExpParamDialog * pDlg, uint cfgPos, PPImpExpParam * pParam);

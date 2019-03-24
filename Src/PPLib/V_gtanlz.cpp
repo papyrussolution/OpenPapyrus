@@ -131,22 +131,19 @@ int GoodsTaxAnalyzeFiltDialog::getDTS(GoodsTaxAnalyzeFilt * pData)
 	SETFLAG(Data.Flags, GoodsTaxAnalyzeFilt::fLabelOnly, getWL());
 	getCtrlData(CTL_GDSGRPRLZ_DIFFTAX, &(v = 0));
 	Data.Flags &= ~(GoodsTaxAnalyzeFilt::fDiffAll|GoodsTaxAnalyzeFilt::fDiffByInVAT|GoodsTaxAnalyzeFilt::fDiffByOutVAT);
-	if(v == 1)
-		Data.Flags |= GoodsTaxAnalyzeFilt::fDiffAll;
-	else if(v == 2)
-		Data.Flags |= GoodsTaxAnalyzeFilt::fDiffByInVAT;
-	else if(v == 3)
-		Data.Flags |= GoodsTaxAnalyzeFilt::fDiffByOutVAT;
-	else if(v == 4)
-		Data.Flags |= (GoodsTaxAnalyzeFilt::fDiffByInVAT|GoodsTaxAnalyzeFilt::fDiffByOutVAT);
+	switch(v) {
+		case 1: Data.Flags |= GoodsTaxAnalyzeFilt::fDiffAll; break;
+		case 2: Data.Flags |= GoodsTaxAnalyzeFilt::fDiffByInVAT; break;
+		case 3: Data.Flags |= GoodsTaxAnalyzeFilt::fDiffByOutVAT; break;
+		case 4: Data.Flags |= (GoodsTaxAnalyzeFilt::fDiffByInVAT|GoodsTaxAnalyzeFilt::fDiffByOutVAT); break;
+	}
 	getCtrlData(CTL_GDSGRPRLZ_CCL, &(v = 0));
 	Data.Flags &= ~(GoodsTaxAnalyzeFilt::fDayly|GoodsTaxAnalyzeFilt::fMonthly|GoodsTaxAnalyzeFilt::fLedgerByLots);
-	if(v == 1)
-		Data.Flags |= GoodsTaxAnalyzeFilt::fDayly;
-	else if(v == 2)
-		Data.Flags |= GoodsTaxAnalyzeFilt::fMonthly;
-	else if(v == 3)
-		Data.Flags |= GoodsTaxAnalyzeFilt::fLedgerByLots;
+	switch(v) {
+		case 1: Data.Flags |= GoodsTaxAnalyzeFilt::fDayly; break;
+		case 2: Data.Flags |= GoodsTaxAnalyzeFilt::fMonthly; break;
+		case 3: Data.Flags |= GoodsTaxAnalyzeFilt::fLedgerByLots; break;
+	}
 	getCtrlData(CTLSEL_GDSGRPRLZ_SUPPL,   &Data.SupplID);
 	getCtrlData(CTLSEL_GDSGRPRLZ_SUPPLAG, &Data.SupplAgentID);
 	getCtrlData(CTLSEL_GDSGRPRLZ_GSUBST, &Data.Sgg);

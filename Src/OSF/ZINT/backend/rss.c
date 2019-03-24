@@ -417,11 +417,11 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 		data_character[i] = 0;
 		data_group[i] = 0;
 	}
-	binary_load(accum, (const char *)source, src_len);
+	binary_load(accum, reinterpret_cast<const char *>(source), src_len);
 	sstrcpy(temp, "10000000000000");
 	if(symbol->option_1 == 2) {
 		/* Add symbol linkage flag */
-		binary_load(y_reg, temp, strlen(temp));
+		binary_loads(y_reg, temp);
 		binary_add(accum, y_reg);
 		for(i = 0; i < 112; i++) {
 			y_reg[i] = 0;
@@ -429,7 +429,7 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 	}
 	/* Calculate left and right pair values */
 	sstrcpy(temp, "4537077");
-	binary_load(x_reg, temp, strlen(temp));
+	binary_loads(x_reg, temp);
 	for(i = 0; i < 24; i++) {
 		shiftup(x_reg);
 	}
@@ -446,7 +446,7 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 	}
 	/* Calculate four data characters */
 	sstrcpy(temp, "1597");
-	binary_load(x_reg, temp, strlen(temp));
+	binary_loads(x_reg, temp);
 	for(i = 0; i < 112; i++) {
 		accum[i] = left_reg[i];
 	}
@@ -474,7 +474,7 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 		mask = mask >> 1;
 	}
 	sstrcpy(temp, "1597");
-	binary_load(x_reg, temp, strlen(temp));
+	binary_loads(x_reg, temp);
 	for(i = 0; i < 112; i++) {
 		accum[i] = right_reg[i];
 	}
@@ -964,7 +964,7 @@ int rsslimited(struct ZintSymbol * symbol, uchar source[], int src_len)
 	if(symbol->option_1 == 2) {
 		/* Add symbol linkage flag */
 		sstrcpy(temp, "2015133531096");
-		binary_load(y_reg, temp, strlen(temp));
+		binary_loads(y_reg, temp);
 		binary_add(accum, y_reg);
 		for(i = 0; i < 112; i++) {
 			y_reg[i] = 0;
@@ -972,7 +972,7 @@ int rsslimited(struct ZintSymbol * symbol, uchar source[], int src_len)
 	}
 	/* Calculate left and right pair values */
 	sstrcpy(temp, "2013571");
-	binary_load(x_reg, temp, strlen(temp));
+	binary_loads(x_reg, temp);
 	for(i = 0; i < 24; i++) {
 		shiftup(x_reg);
 	}
@@ -989,81 +989,81 @@ int rsslimited(struct ZintSymbol * symbol, uchar source[], int src_len)
 	}
 	left_group = 0;
 	sstrcpy(temp, "183063");
-	binary_load(accum, temp, strlen(temp));
+	binary_loads(accum, temp);
 	if(islarger(left_reg, accum)) {
 		left_group = 1;
 	}
 	sstrcpy(temp, "820063");
-	binary_load(accum, temp, strlen(temp));
+	binary_loads(accum, temp);
 	if(islarger(left_reg, accum)) {
 		left_group = 2;
 	}
 	sstrcpy(temp, "1000775");
-	binary_load(accum, temp, strlen(temp));
+	binary_loads(accum, temp);
 	if(islarger(left_reg, accum)) {
 		left_group = 3;
 	}
 	sstrcpy(temp, "1491020");
-	binary_load(accum, temp, strlen(temp));
+	binary_loads(accum, temp);
 	if(islarger(left_reg, accum)) {
 		left_group = 4;
 	}
 	sstrcpy(temp, "1979844");
-	binary_load(accum, temp, strlen(temp));
+	binary_loads(accum, temp);
 	if(islarger(left_reg, accum)) {
 		left_group = 5;
 	}
 	sstrcpy(temp, "1996938");
-	binary_load(accum, temp, strlen(temp));
+	binary_loads(accum, temp);
 	if(islarger(left_reg, accum)) {
 		left_group = 6;
 	}
 	right_group = 0;
 	sstrcpy(temp, "183063");
-	binary_load(accum, temp, strlen(temp));
+	binary_loads(accum, temp);
 	if(islarger(right_reg, accum)) {
 		right_group = 1;
 	}
 	sstrcpy(temp, "820063");
-	binary_load(accum, temp, strlen(temp));
+	binary_loads(accum, temp);
 	if(islarger(right_reg, accum)) {
 		right_group = 2;
 	}
 	sstrcpy(temp, "1000775");
-	binary_load(accum, temp, strlen(temp));
+	binary_loads(accum, temp);
 	if(islarger(right_reg, accum)) {
 		right_group = 3;
 	}
 	sstrcpy(temp, "1491020");
-	binary_load(accum, temp, strlen(temp));
+	binary_loads(accum, temp);
 	if(islarger(right_reg, accum)) {
 		right_group = 4;
 	}
 	sstrcpy(temp, "1979844");
-	binary_load(accum, temp, strlen(temp));
+	binary_loads(accum, temp);
 	if(islarger(right_reg, accum)) {
 		right_group = 5;
 	}
 	sstrcpy(temp, "1996938");
-	binary_load(accum, temp, strlen(temp));
+	binary_loads(accum, temp);
 	if(islarger(right_reg, accum)) {
 		right_group = 6;
 	}
 	switch(left_group) {
-		case 1: sstrcpy(temp, "183064");  binary_load(accum, temp, strlen(temp)); binary_subtract(left_reg, accum); break;
-		case 2: sstrcpy(temp, "820064");  binary_load(accum, temp, strlen(temp)); binary_subtract(left_reg, accum); break;
-		case 3: sstrcpy(temp, "1000776"); binary_load(accum, temp, strlen(temp)); binary_subtract(left_reg, accum); break;
-		case 4: sstrcpy(temp, "1491021"); binary_load(accum, temp, strlen(temp)); binary_subtract(left_reg, accum); break;
-		case 5: sstrcpy(temp, "1979845"); binary_load(accum, temp, strlen(temp)); binary_subtract(left_reg, accum); break;
-		case 6: sstrcpy(temp, "1996939"); binary_load(accum, temp, strlen(temp)); binary_subtract(left_reg, accum); break;
+		case 1: sstrcpy(temp, "183064");  binary_loads(accum, temp); binary_subtract(left_reg, accum); break;
+		case 2: sstrcpy(temp, "820064");  binary_loads(accum, temp); binary_subtract(left_reg, accum); break;
+		case 3: sstrcpy(temp, "1000776"); binary_loads(accum, temp); binary_subtract(left_reg, accum); break;
+		case 4: sstrcpy(temp, "1491021"); binary_loads(accum, temp); binary_subtract(left_reg, accum); break;
+		case 5: sstrcpy(temp, "1979845"); binary_loads(accum, temp); binary_subtract(left_reg, accum); break;
+		case 6: sstrcpy(temp, "1996939"); binary_loads(accum, temp); binary_subtract(left_reg, accum); break;
 	}
 	switch(right_group) {
-		case 1: sstrcpy(temp, "183064");  binary_load(accum, temp, strlen(temp)); binary_subtract(right_reg, accum); break;
-		case 2: sstrcpy(temp, "820064");  binary_load(accum, temp, strlen(temp)); binary_subtract(right_reg, accum); break;
-		case 3: sstrcpy(temp, "1000776"); binary_load(accum, temp, strlen(temp)); binary_subtract(right_reg, accum); break;
-		case 4: sstrcpy(temp, "1491021"); binary_load(accum, temp, strlen(temp)); binary_subtract(right_reg, accum); break;
-		case 5: sstrcpy(temp, "1979845"); binary_load(accum, temp, strlen(temp)); binary_subtract(right_reg, accum); break;
-		case 6: sstrcpy(temp, "1996939"); binary_load(accum, temp, strlen(temp)); binary_subtract(right_reg, accum); break;
+		case 1: sstrcpy(temp, "183064");  binary_loads(accum, temp); binary_subtract(right_reg, accum); break;
+		case 2: sstrcpy(temp, "820064");  binary_loads(accum, temp); binary_subtract(right_reg, accum); break;
+		case 3: sstrcpy(temp, "1000776"); binary_loads(accum, temp); binary_subtract(right_reg, accum); break;
+		case 4: sstrcpy(temp, "1491021"); binary_loads(accum, temp); binary_subtract(right_reg, accum); break;
+		case 5: sstrcpy(temp, "1979845"); binary_loads(accum, temp); binary_subtract(right_reg, accum); break;
+		case 6: sstrcpy(temp, "1996939"); binary_loads(accum, temp); binary_subtract(right_reg, accum); break;
 	}
 	left_character = 0;
 	right_character = 0;

@@ -740,10 +740,10 @@ static uint SLAPI Helper_GeneratePhoneCheckNumber(const char * pOrgPhone, const 
 	PPEAddr::Phone::NormalizeStr(pOrgPhone, 0, line_buf);
     line_buf.Cat(pAddedumCode);
     size_t p = 0;
-    while(line_buf.StrChr(' ', &p)) {
+    while(line_buf.SearchChar(' ', &p)) {
         line_buf.Excise(p, 1);
     }
-    while(line_buf.StrChr('\t', &p)) {
+    while(line_buf.SearchChar('\t', &p)) {
         line_buf.Excise(p, 1);
     }
     {

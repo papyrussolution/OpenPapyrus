@@ -337,7 +337,7 @@ static int __db_vrfy_pagezero(DB * dbp, VRFY_DBINFO * vdp, DB_FH * fhp, uint32 f
 	isbad = ret = swapped = 0;
 	freelist = 0;
 	env = dbp->env;
-	meta = (DBMETA *)mbuf;
+	meta = reinterpret_cast<DBMETA *>(mbuf);
 	dbp->type = DB_UNKNOWN;
 	if((ret = __db_vrfy_getpageinfo(vdp, PGNO_BASE_MD, &pip)) != 0)
 		return ret;
@@ -1387,7 +1387,7 @@ static int __db_vrfy_orderchkonly(DB * dbp, VRFY_DBINFO * vdp, const char * name
 		break;
 	    case P_HASHMETA:
 		hmeta = (HMETA *)h;
-		h_internal = (HASH *)dbp->h_internal;
+		h_internal = static_cast<HASH *>(dbp->h_internal);
 		/*
 		 * Make sure h_charkey is right.
 		 */

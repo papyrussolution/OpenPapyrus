@@ -802,7 +802,7 @@ int SLAPI LotExtCodeCore::RemoveAllByBill(PPID billID, int use_ta)
 	return ok;
 }
 
-int SLAPI LotExtCodeCore::PutContainer(PPID billID, PPLotExtCodeContainer * pC, int use_ta)
+int SLAPI LotExtCodeCore::PutContainer(PPID billID, const PPLotExtCodeContainer * pC, int use_ta)
 {
 	int    ok = -1;
 	LongArray found_idx_list;

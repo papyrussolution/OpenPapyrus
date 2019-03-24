@@ -2390,7 +2390,7 @@ void TrfrItemDialog::setupRest()
 	SString c, temp_buf;
 	if(getStaticText(CTL_LOT_STREST, c) > 0) {
 		size_t p = 0;
-		if(c.StrChr(':', &p))
+		if(c.SearchChar(':', &p))
 			c.Trim(p+1);
 		else
 			c.Z();
@@ -2730,7 +2730,8 @@ void TrfrItemDialog::setupQuotation(int reset, int autoQuot)
 //
 //
 //
-IMPL_CMPFUNC(SelLotBrowser_Entry_dt_oprno, i1, i2) { RET_CMPCASCADE2((const SelLotBrowser::Entry *)i1, (const SelLotBrowser::Entry *)i2, Dt, OprNo); }
+IMPL_CMPFUNC(SelLotBrowser_Entry_dt_oprno, i1, i2) 
+	{ RET_CMPCASCADE2(static_cast<const SelLotBrowser::Entry *>(i1), static_cast<const SelLotBrowser::Entry *>(i2), Dt, OprNo); }
 
 //static
 SArray * SLAPI SelLotBrowser::CreateArray()

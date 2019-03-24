@@ -285,7 +285,7 @@ private:
 };
 
 //static 
-int SLAPI PPObjTimeSeries::EditConfig(PPObjTimeSeries::Config * pCfg)
+int SLAPI PPObjTimeSeries::EditConfig(const PPObjTimeSeries::Config * pCfg)
 {
 	int    ok = -1;
 	PPObjTimeSeries::Config config;
@@ -919,7 +919,7 @@ static double CalcFactorRangeResultSum(const TSVector <StrategyOptEntry> & rList
 	return rList.sumDouble(offsetof(StrategyOptEntry, Result), firstIdx, lastIdx);
 }
 
-static void SLAPI PrepareStrategyOptList(TSVector <StrategyOptEntry> & rList, TSVector <StrategyOptEntry> & rNegList, TSVector <StrategyOptEntry> & rPosList)
+/*static void SLAPI PrepareStrategyOptList(TSVector <StrategyOptEntry> & rList, TSVector <StrategyOptEntry> & rNegList, TSVector <StrategyOptEntry> & rPosList)
 {
 	//rList.sort(PTR_CMPFUNC(double));
 	rNegList.clear();
@@ -934,7 +934,7 @@ static void SLAPI PrepareStrategyOptList(TSVector <StrategyOptEntry> & rList, TS
 	}
 	rNegList.sort(PTR_CMPFUNC(double));
 	rPosList.sort(PTR_CMPFUNC(double));
-}
+}*/
 //
 // useInitialSplitting:
 //   0 - первая итерация, как и последующие, делит список на две равные части
@@ -1513,6 +1513,75 @@ static int SLAPI FindOptimalFactorRange_SecondKind(const RealArray & rTrendList,
 	CATCHZOK
 	return ok;
 }
+
+#if 0 // {
+static int SLAPI FindOptimalFactorRange_SecondKind_2(const RealArray & rTrendList, const RealArray & rResultList, PPObjTimeSeries::StrategyResultEntry & rSre)
+{
+	const uint tlc = rTrendList.getCount();
+	assert(rResultList.getCount() == tlc);
+	int    ok = -1;
+	const uint ifs = rSre.InputFrameSize;
+	// @v10.3.10 const uint max_stride = 20; // @v10.3.1 4-->6 // 6-->10 // @v10.3.5 10-->20
+	const uint min_stride = ifs / 16; // @v10.3.10 3-->ifs / 16
+	const uint max_stride = ifs / 4;
+
+	RealArray lss_rv_x;
+	RealArray lss_rv_y;
+	RealArray trend2_list;
+
+	TSVector <StrategyOptEntry> so_list;
+	double max_result = 0.0;
+	{	
+		for(uint i = 0; i < max_stride; i++) {
+			THROW(lss_rv_x.add((double)(i+1)));
+		}
+	}
+	for(uint stride = min_stride; stride <= max_stride; stride++) { // @v10.3.9 (stride = 1)-->(stride = 3)
+		so_list.clear();
+		trend2_list.clear();
+		uint i;
+		for(uint j = 0; j < tlc; j++) {
+			if(j >= stride) {
+				LssLin lss;
+				lss_rv_y.clear();
+				for(i = 0; i < stride; i++) {
+					THROW(lss_rv_y.add(rTrendList.at(tlc-stride+i)));
+				}
+				lss.Solve(stride, static_cast<const double *>(lss_rv_x.dataPtr()), static_cast<const double *>(lss_rv_y.dataPtr()));
+				//trend = lss.B;
+				//sumsq = lss.SumSq;
+				trend2_list.add(lss.B);
+			}
+			else
+				trend2_list.add(0.0);
+		}
+		for(i = 0; i <= rSre.LastResultIdx; i++) {
+			if(i >= (/*first_correl_idx*/ifs+stride)) {
+				StrategyOptEntry entry(rTrendList.StrideDifference(i, stride), rResultList.at(i));
+				THROW_SL(so_list.insert(&entry));
+			}
+		}
+		RealRange opt_range;
+		uint32 opt_count;
+		double opt_result;
+		so_list.sort(PTR_CMPFUNC(double));
+		//const int initial_splitting = 1;
+		//const int initial_splitting = (rSre.BaseFlags & rSre.bfShort) ? 3 : 2;
+		const int initial_splitting = 0;
+		FindOptimalFactorRange(so_list, initial_splitting, opt_range, opt_count, opt_result);
+		if(max_result < opt_result) {
+			max_result = opt_result;
+			rSre.OptDelta2Result = opt_result;
+			rSre.OptDelta2Count = opt_count;
+			rSre.OptDelta2Range = opt_range;
+			rSre.OptDelta2Stride = stride;
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+#endif // } 0
 
 static void FASTCALL AddEntryToResultList(const PPObjTimeSeries::StrategyResultValueEx & rRvEx, RealArray & rResultList)
 {
@@ -2183,26 +2252,35 @@ double SLAPI PPObjTimeSeries::Strategy::GetWinCountRate() const { return fdivnz(
 double SLAPI PPObjTimeSeries::StrategyResultEntry::GetPeakAverage() const { return fdivnz(SumPeak, (double)StakeCount); }
 double SLAPI PPObjTimeSeries::StrategyResultEntry::GetBottomAverage() const { return fdivnz(SumBottom, (double)StakeCount); }
 
-double SLAPI PPObjTimeSeries::Strategy::CalcSL(double peak) const
+//static 
+double SLAPI PPObjTimeSeries::Strategy::CalcSlTpAdjustment(int prec, double averageSpreadForAdjustment)
+{
+	const double __spread = (prec > 0 && averageSpreadForAdjustment > 0.0) ? (averageSpreadForAdjustment * fpow10i(-prec)) : 0.0;
+	return __spread;
+}
+
+double SLAPI PPObjTimeSeries::Strategy::CalcSL(double peak, double averageSpreadForAdjustment) const
 {
 	const  double mdv = (MaxDuckQuant * SpikeQuant);
+	const  double __spread = CalcSlTpAdjustment(Prec, averageSpreadForAdjustment);
 	if(BaseFlags & bfShort) {
-		return round(peak * (1.0 + mdv), Prec);
+		return round(peak * (1.0 + mdv) + __spread, Prec);
 	}
 	else {
-		return round(peak * (1.0 - mdv), Prec);
+		return round(peak * (1.0 - mdv) - __spread, Prec);
 	}
 }
 
-double SLAPI PPObjTimeSeries::Strategy::CalcTP(double stakeBase) const
+double SLAPI PPObjTimeSeries::Strategy::CalcTP(double stakeBase, double averageSpreadForAdjustment) const
 {
 	if(TargetQuant) {
 		const  double tv = (TargetQuant * SpikeQuant);
+		const  double __spread = CalcSlTpAdjustment(Prec, averageSpreadForAdjustment);
 		if(BaseFlags & bfShort) {
-			return round(stakeBase * (1.0 - tv), Prec);
+			return round(stakeBase * (1.0 - tv) + __spread, Prec);
 		}
 		else {
-			return round(stakeBase * (1.0 + tv), Prec);
+			return round(stakeBase * (1.0 + tv) - __spread, Prec);
 		}
 	}
 	else
@@ -2210,27 +2288,29 @@ double SLAPI PPObjTimeSeries::Strategy::CalcTP(double stakeBase) const
 }
 
 //static 
-double SLAPI PPObjTimeSeries::Strategy::CalcSL_withExternalFactors(double peak, bool isShort, int prec, uint maxDuckQuant, double spikeQuant)
+double SLAPI PPObjTimeSeries::Strategy::CalcSL_withExternalFactors(double peak, bool isShort, int prec, uint maxDuckQuant, double spikeQuant, double averageSpreadForAdjustment)
 {
 	const  double mdv = (maxDuckQuant * spikeQuant);
+	const  double __spread = CalcSlTpAdjustment(prec, averageSpreadForAdjustment);
 	if(isShort) {
-		return round(peak * (1.0 + mdv), prec);
+		return round(peak * (1.0 + mdv) + __spread, prec);
 	}
 	else {
-		return round(peak * (1.0 - mdv), prec);
+		return round(peak * (1.0 - mdv) - __spread, prec);
 	}
 }
 
 //static 
-double SLAPI PPObjTimeSeries::Strategy::CalcTP_withExternalFactors(double stakeBase, bool isShort, int prec, uint targetQuant, double spikeQuant)
+double SLAPI PPObjTimeSeries::Strategy::CalcTP_withExternalFactors(double stakeBase, bool isShort, int prec, uint targetQuant, double spikeQuant, double averageSpreadForAdjustment)
 {
 	if(targetQuant) {
 		const  double tv = (targetQuant * spikeQuant);
+		const  double __spread = CalcSlTpAdjustment(prec, averageSpreadForAdjustment);
 		if(isShort) {
-			return round(stakeBase * (1.0 - tv), prec);
+			return round(stakeBase * (1.0 - tv) + __spread, prec);
 		}
 		else {
-			return round(stakeBase * (1.0 + tv), prec);
+			return round(stakeBase * (1.0 + tv) - __spread, prec);
 		}
 	}
 	else
@@ -2437,20 +2517,29 @@ SString & SLAPI PPObjTimeSeries::StrategyOutput(const PPObjTimeSeries::StrategyR
 			Cat(pSre->V.GetResultPerDay()).Space().
 			Cat(pSre->PeakAvgQuant).CatChar(':').Cat(pSre->PeakMaxQuant).CatChar(':').Cat(pSre->BottomAvgQuant).Space();
 		{
-			rBuf.
-			Cat(pSre->OptDeltaRange, MKSFMTD(0, 12, 0)).
-			Cat(pSre->OptDeltaCount).CatChar('/').Cat(pSre->LastResultIdx-pSre->InputFrameSize+1).Space();
+			if(pSre->StakeMode != 2) {
+				rBuf.Cat(pSre->OptDeltaRange, MKSFMTD(0, 12, 0)).
+				Cat(pSre->OptDeltaCount).CatChar('/').Cat(pSre->LastResultIdx-pSre->InputFrameSize+1);
+			}
+			else
+				rBuf.Cat("---");
+			rBuf.Space();
 			if(pSre->StakeMode == 0)
 				rBuf.Cat(pSre->OptDeltaResult, MKSFMTD(15, 5, 0));
 			else
-				rBuf.Cat("none");
+				rBuf.Cat("---");
 			rBuf.Space();
-			rBuf.Cat(pSre->OptDelta2Range, MKSFMTD(0, 12, 0)).Space().
-			Cat(pSre->OptDelta2Stride).CatChar('/').Cat(pSre->OptDelta2Count).CatChar('/').Cat(pSre->LastResultIdx-pSre->InputFrameSize+1).Space();
+			if(pSre->StakeMode != 1) {
+				rBuf.Cat(pSre->OptDelta2Range, MKSFMTD(0, 12, 0)).Space().
+				Cat(pSre->OptDelta2Stride).CatChar('/').Cat(pSre->OptDelta2Count).CatChar('/').Cat(pSre->LastResultIdx-pSre->InputFrameSize+1);
+			}
+			else
+				rBuf.Cat("---");
+			rBuf.Space();
 			if(pSre->StakeMode == 0)
 				rBuf.Cat(pSre->OptDelta2Result, MKSFMTD(15, 5, 0));
 			else
-				rBuf.Cat("none");
+				rBuf.Cat("---");
 			rBuf.Space();
 		}
 	}
@@ -2605,7 +2694,8 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 					//static const uint input_frame_size_list[] = { 15, 20, 25, 30, 35, 40, 45, 50, 55, 60 }; // @v10.3.9
 					
 					//static const uint input_frame_size_list[] = { 120, 120*4, 120*8, 120*16 };
-					static const uint input_frame_size_list[] = { 120, 120*2, 120*4, 120*6, 120*8 };
+					//static const uint input_frame_size_list[] = { 120, 120*2, 120*4, 120*6, 120*8 };
+					static const uint input_frame_size_list[] = { 120, 280, 440, 600, 760, 920 };
 
 					STimeSeries::Stat st(0);
 					uint   vec_idx = 0;
@@ -2699,19 +2789,8 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 										}
 									}
 									else {
-										/*
-										__max_duck_quant_list[__max_duck_quant_count++] = 12;
+										// 28, 30, 32, 34, 36, 38, 40, 42
 										__max_duck_quant_list[__max_duck_quant_count++] = 21;
-										__max_duck_quant_list[__max_duck_quant_count++] = 30;
-										__max_duck_quant_list[__max_duck_quant_count++] = 39;
-										__max_duck_quant_list[__max_duck_quant_count++] = 48;
-										*/
-										//
-										//__max_duck_quant_list[__max_duck_quant_count++] = 12;
-										//__max_duck_quant_list[__max_duck_quant_count++] = 15;
-										//__max_duck_quant_list[__max_duck_quant_count++] = 18;
-										//__max_duck_quant_list[__max_duck_quant_count++] = 21;
-
 										__max_duck_quant_list[__max_duck_quant_count++] = 24;
 										__max_duck_quant_list[__max_duck_quant_count++] = 27;
 										__max_duck_quant_list[__max_duck_quant_count++] = 30;
@@ -2855,10 +2934,12 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 								//
 								// Многопоточный подбор оптимальной комбинации стратегий
 								//
-								const uint best_subset_dimension = 50; // Количество стратегий извлекаемых из общего множества, полученного выше,
+								const uint best_subset_dimension = 80; // Количество стратегий извлекаемых из общего множества, полученного выше,
 									// для дальнейшего выбора оптимальной комбинации. Эти best_subset_dimension отбираются по тривиальному
 									// критерию - максимальный выигрыш в сутки (Strategy::V::GetResultPerDay()).
 									// Увеличение параметра приведет к замедлению расчетов, уменьшение - к вероятной потере выигрышных стратегий.
+									// @v10.3.10 50-->60
+									// @v10.3.11 50-->80
 								const uint max_phony_iters = 5; // Максимальное количество новых наборов стратегий, не дающих улучшения, после которого надо заканчивать с подбором
 								const uint opt_chunk = 3;       // Количество стратегий в одном наборе, над которым осуществляется полный перебор вариантов. 
 									// Возможно только 2 значения: 3 и 7 (большие величины приведут к очень сильной задержке в вычислениях - комбинаторный взрыв).

@@ -1366,7 +1366,7 @@ private:
 			int    FASTCALL Push(const Stack & rS);
 			const  TddoContentGraph::ExprSet::Item & Get(uint p) const
 			{
-				return *(const TddoContentGraph::ExprSet::Item *)at(p);
+				return *static_cast<const TddoContentGraph::ExprSet::Item *>(at(p));
 			}
 		};
 		class Expression {
@@ -1955,8 +1955,8 @@ SLAPI TddoContentGraph::ExprSet::Stack::Stack()
 int SLAPI TddoContentGraph::ExprSet::Stack::IsSingleOp() const
 {
 	const uint pt = getPointer();
-	if(pt == 1 && ((Item *)at(pt-1))->K == kOp)
-		return ((Item *)at(pt-1))->Op;
+	if(pt == 1 && static_cast<const Item *>(at(pt-1))->K == kOp)
+		return static_cast<const Item *>(at(pt-1))->Op;
 	else
 		return 0;
 }
@@ -1965,7 +1965,7 @@ int FASTCALL TddoContentGraph::ExprSet::Stack::Push(const Stack & rS)
 {
 	int    ok = -1;
 	for(uint i = 0; i < rS.getPointer(); i++) {
-		push(*(TddoContentGraph::ExprSet::Item *)rS.at(i));
+		push(*static_cast<TddoContentGraph::ExprSet::Item *>(rS.at(i)));
 		ok = 1;
 	}
 	return ok;

@@ -1318,7 +1318,7 @@ int PalmTcpExchange::LogTrafficInfo(const char * pDevice)
 		if(is_new)
 			fputs("Device;Date;Time;Received bytes;Sended bytes;Total bytes\n", f);
 		s_dtm.Printf("%0.2d/%0.2d/%0.2d;%0.2d:%0.2d:%0.2d", sys_dtm.wDay, sys_dtm.wMonth, sys_dtm.wYear, sys_dtm.wHour, sys_dtm.wMinute, sys_dtm.wSecond);
-		msg.Printf("%s;%s;%ld;%ld;%ld\n", pDevice, (const char *)s_dtm, rdbytes, wrbytes, total_bytes);
+		msg.Printf("%s;%s;%ld;%ld;%ld\n", pDevice, s_dtm.cptr(), rdbytes, wrbytes, total_bytes);
 		fputs(msg, f);
 		fclose(f);
 	}
@@ -1360,7 +1360,7 @@ int PalmTcpExchange::LogTrafficInfo(const char * pPath, const char * pLogPath, c
 		if(is_new)
 			fputs("Device;Date;Time;Received bytes;Sended bytes;Total bytes\n", f);
 		s_dtm.Printf("%0.2d/%0.2d/%0.2d;%0.2d:%0.2d:%0.2d", sys_dtm.wDay, sys_dtm.wMonth, sys_dtm.wYear, sys_dtm.wHour, sys_dtm.wMinute, sys_dtm.wSecond);
-		msg.Printf("%s;%s;%ld;%ld;%ld\n", pDevice, (const char *)s_dtm, rdbytes, wrbytes, total_bytes);
+		msg.Printf("%s;%s;%ld;%ld;%ld\n", pDevice, s_dtm.cptr(), rdbytes, wrbytes, total_bytes);
 		fputs(msg, f);
 		fclose(f);
 	}

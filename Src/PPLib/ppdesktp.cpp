@@ -623,10 +623,10 @@ int PPDesktop::Init__(long desktopID)
 			MakeTempFileName(path, "TMP", ps.Ext, 0, buf.Z());
 			path = buf;
 			copyFileByName(P_ActiveDesktop->GetLogo(), path);
-			Logotype.LoadImage(path);
+			Logotype.Load(path);
 		}
 		else
-			Logotype.LoadImage(0);
+			Logotype.Load(0);
 		Advise();
 		{
 			//
@@ -661,7 +661,7 @@ int PPDesktop::Destroy(int dontAssignToDb)
 		if(Logotype.IsValid()) {
 			SString logo_fname;
 			Logotype.GetFileName(logo_fname);
-			Logotype.LoadImage(0);
+			Logotype.Load(0);
 			SFile::Remove(logo_fname);
 		}
 	}
@@ -1661,17 +1661,17 @@ IMPL_HANDLE_EVENT(PPDesktop)
 // static
 LRESULT CALLBACK PPDesktop::DesktopWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	PPDesktop * p_desk = (PPDesktop*)TView::GetWindowUserData(hWnd);
+	PPDesktop * p_desk = static_cast<PPDesktop *>(TView::GetWindowUserData(hWnd));
 	LPCREATESTRUCT initData;
 	TEvent e;
 	switch(message) {
 		case WM_CREATE:
-			initData = (LPCREATESTRUCT)lParam;
+			initData = reinterpret_cast<LPCREATESTRUCT>(lParam);
 			p_desk = (PPDesktop *)initData->lpCreateParams;
 			if(p_desk) {
 				APPL->H_Desktop = hWnd;
 				p_desk->HW = hWnd;
-				p_desk->WMHCreate((LPCREATESTRUCT)lParam);
+				p_desk->WMHCreate(reinterpret_cast<LPCREATESTRUCT>(lParam));
 				{
 					SRawInputInitArray riia;
 					riia.Add(1, 6, 0, 0);
@@ -1825,7 +1825,7 @@ LRESULT CALLBACK PPDesktop::DesktopWndProc(HWND hWnd, UINT message, WPARAM wPara
 			return 0;
 		// @vmiller {
 		case WM_INPUT:
-			if(p_desk->ProcessRawInput((void *)lParam) > 0)
+			if(p_desk->ProcessRawInput(reinterpret_cast<void *>(lParam)) > 0)
 				return 0;
 			break;
 		// } @vmiller

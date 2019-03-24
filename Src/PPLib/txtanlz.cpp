@@ -2949,7 +2949,7 @@ int SLAPI PPKeywordListGenerator::RandWordBlock::ReadData(const char * pFileName
 			line_buf.Chomp();
 			uint pos = 0;
 			AddS(line_buf, &pos);
-			Idx.add((long)pos);
+			Idx.add(static_cast<long>(pos));
 		}
 		Idx.shuffle();
     }

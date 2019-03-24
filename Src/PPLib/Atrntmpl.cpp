@@ -1085,7 +1085,7 @@ private:
 void ATurnTmplDialog::swapPrim()
 {
 	char   pt[32], ft[32];
-	TCluster * clu = (TCluster*)getCtrlView(CTL_ATRNTMPL_PRIMARY);
+	TCluster * clu = static_cast<TCluster *>(getCtrlView(CTL_ATRNTMPL_PRIMARY));
 	if(clu) {
 		clu->getText(0, pt, sizeof(pt));
 		clu->getText(1, ft, sizeof(ft));

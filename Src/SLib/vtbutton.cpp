@@ -57,10 +57,10 @@ int TCalcInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam
 			TView::SetWindowUserData(hwnd, &Vbwe);
 			const uint bmp_id = virtButtonBitmapId[VirtButtonId];
 			TView::SetWindowProp(hwnd, GWLP_WNDPROC, virtButtonProc[VirtButtonId]);
-			Vbwe.HBmp = APPL->LoadBitmap(bmp_id);
+			Vbwe.HBmp = APPL->LoadBitmap_(bmp_id);
 			SendDlgItemMessage(Parent, Vbwe.ButtonCtrlId, BM_SETIMAGE, IMAGE_BITMAP, (long)Vbwe.HBmp);
 			{
-				TButton * p_button = (TButton *)Vbwe.P_Dlg->getCtrlView(Vbwe.ButtonCtrlId);
+				TButton * p_button = static_cast<TButton *>(Vbwe.P_Dlg->getCtrlView(Vbwe.ButtonCtrlId));
 				if(p_button && p_button->IsSubSign(TV_SUBSIGN_BUTTON))
 					p_button->SetBitmap(bmp_id);
 			}

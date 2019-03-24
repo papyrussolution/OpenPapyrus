@@ -1577,8 +1577,8 @@ int FASTCALL strnicmp866(const char * s1, const char * s2, size_t maxlen)
 	size_t i = 0;
 	if(maxlen)
 		do {
-			c1 = (uchar)ToUpper866(*s1++);
-			c2 = (uchar)ToUpper866(*s2++);
+			c1 = static_cast<uchar>(ToUpper866(*s1++));
+			c2 = static_cast<uchar>(ToUpper866(*s2++));
 			if(c1 > c2)
 				return 1;
 			else if(c1 < c2)
@@ -1992,7 +1992,7 @@ int FASTCALL sstreq(const uchar * pS1, const uchar * pS2)
 {
 	if(pS1 != pS2)
 		if(pS1)
-            return (pS2 && pS1[0] == pS2[0]) ? BIN(pS1[0] == 0 || strcmp((const char *)pS1, (const char *)pS2) == 0) : 0;
+            return (pS2 && pS1[0] == pS2[0]) ? BIN(pS1[0] == 0 || strcmp(reinterpret_cast<const char *>(pS1), reinterpret_cast<const char *>(pS2)) == 0) : 0;
 		else
 			return 0;
 	else
@@ -3130,6 +3130,19 @@ int SLAPI STextEncodingStat::Finish()
 		}
 	}
 	return 1;
+}
+
+SCodepageIdent SLAPI STextEncodingStat::GetAutodetectedCp() const
+{
+	SCodepageIdent cp = cpUndef;
+	const char * p_cp_name = GetCpName();
+	if(sstreqi_ascii(p_cp_name, "IBM866"))
+		cp = cp866;
+	else if(p_cp_name && strnicmp(p_cp_name, "windows", 7) == 0)
+		cp.FromStr(p_cp_name);
+	else if(p_cp_name && strnicmp(p_cp_name, "iso", 3) == 0)
+		cp.FromStr(p_cp_name);
+	return cp;
 }
 //
 //

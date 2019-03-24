@@ -263,7 +263,7 @@ static int __db_subdb_rename(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const 
 		goto err;
 	if((ret = __memp_fget(mdbp->mpf, &dbp->meta_pgno, ip, txn, 0, &meta)) != 0)
 		goto err;
-	memcpy(dbp->fileid, ((DBMETA *)meta)->uid, DB_FILE_ID_LEN);
+	memcpy(dbp->fileid, reinterpret_cast<const DBMETA *>(meta)->uid, DB_FILE_ID_LEN);
 	if((ret = __fop_lock_handle(env, dbp, mdbp->cur_locker ? mdbp->cur_locker : mdbp->locker, DB_LOCK_WRITE, NULL, NOWAIT_FLAG(txn))) != 0)
 		goto err;
 	ret = __memp_fput(mdbp->mpf, ip, meta, dbp->priority);

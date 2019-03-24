@@ -35,7 +35,7 @@ int __ham_vrfy_meta(DB * dbp, VRFY_DBINFO * vdp, HMETA * m, db_pgno_t pgno, uint
 	int isbad = 0;
 	if((ret = __db_vrfy_getpageinfo(vdp, pgno, &pip)) != 0)
 		return ret;
-	hashp = (HASH *)dbp->h_internal;
+	hashp = static_cast<HASH *>(dbp->h_internal);
 	if(hashp != NULL && hashp->h_hash != NULL)
 		hfunc = hashp->h_hash;
 	else
@@ -404,7 +404,7 @@ static int __ham_vrfy_bucket(DB * dbp, VRFY_DBINFO * vdp, HMETA * m, uint32 buck
 	int isbad = 0;
 	VRFY_PAGEINFO * pip = NULL;
 	DBC * cc = NULL;
-	HASH * hashp = (HASH *)dbp->h_internal;
+	HASH * hashp = static_cast<HASH *>(dbp->h_internal);
 	uint32 (*hfunc)(DB*, const void *, uint32) = (hashp != NULL && hashp->h_hash != NULL) ? hashp->h_hash : __ham_func5;
 	if((ret = __db_vrfy_getpageinfo(vdp, PGNO(m), &mip)) != 0)
 		return ret;

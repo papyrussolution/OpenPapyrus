@@ -122,14 +122,13 @@ static cairo_status_t _create_dc_and_bitmap(cairo_win32_display_surface_t * surf
 		case CAIRO_FORMAT_A1: num_palette = 2; break;
 	}
 	if(num_palette > 2) {
-		bitmap_info = (BITMAPINFO *)_cairo_malloc_ab_plus_c(num_palette, sizeof(RGBQUAD), sizeof(BITMAPINFOHEADER));
+		bitmap_info = static_cast<BITMAPINFO *>(_cairo_malloc_ab_plus_c(num_palette, sizeof(RGBQUAD), sizeof(BITMAPINFOHEADER)));
 		if(!bitmap_info)
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 	else {
-		bitmap_info = (BITMAPINFO*)&bmi_stack;
+		bitmap_info = reinterpret_cast<BITMAPINFO *>(&bmi_stack);
 	}
-
 	bitmap_info->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 	bitmap_info->bmiHeader.biWidth = width == 0 ? 1 : width;
 	bitmap_info->bmiHeader.biHeight = height == 0 ? -1 : -height; /* top-down */
@@ -258,7 +257,7 @@ static cairo_surface_t * _cairo_win32_display_surface_create_for_dc(HDC original
 	cairo_device_t * device;
 	uchar * bits;
 	int rowstride;
-	cairo_win32_display_surface_t * surface = (cairo_win32_display_surface_t *)_cairo_malloc(sizeof(*surface));
+	cairo_win32_display_surface_t * surface = static_cast<cairo_win32_display_surface_t *>(_cairo_malloc(sizeof(*surface)));
 	if(surface == NULL)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	surface->fallback = NULL;
@@ -579,12 +578,12 @@ cairo_status_t _cairo_win32_display_surface_set_clip(const cairo_win32_display_s
 	 */
 	data_size = sizeof(RGNDATAHEADER) + num_rects * sizeof(RECT);
 	if(data_size > sizeof(stack)) {
-		data = (RGNDATA *)_cairo_malloc(data_size);
+		data = static_cast<RGNDATA *>(_cairo_malloc(data_size));
 		if(!data)
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 	else
-		data = (RGNDATA*)stack;
+		data = reinterpret_cast<RGNDATA *>(stack);
 	data->rdh.dwSize = sizeof(RGNDATAHEADER);
 	data->rdh.iType = RDH_RECTANGLES;
 	data->rdh.nCount = num_rects;
@@ -761,7 +760,7 @@ cairo_surface_t * cairo_win32_surface_create_with_format(HDC hdc, cairo_format_t
 		case CAIRO_FORMAT_RGB24:
 		    break;
 	}
-	surface = (cairo_win32_display_surface_t *)_cairo_malloc(sizeof(*surface));
+	surface = static_cast<cairo_win32_display_surface_t *>(_cairo_malloc(sizeof(*surface)));
 	if(surface == NULL)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	status = _cairo_win32_save_initial_clip(hdc, surface);

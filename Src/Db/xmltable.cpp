@@ -100,7 +100,7 @@ int FASTCALL XmlDbFile::State::IsRecNode(const xmlNode * pNode) const
 			yes = y;
 		}
 		else
-			yes = BIN(P.RecTag.CmpNC((const char *)pNode->name) == 0);
+			yes = BIN(P.RecTag.CmpNC(reinterpret_cast<const char *>(pNode->name)) == 0);
 	}
 	return yes;
 }

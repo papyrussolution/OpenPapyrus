@@ -1011,7 +1011,7 @@ int SLAPI RevalArray::Shift()
 		double cost  = LotCost;
 		double price = LotPrice;
 		for(uint i = getCount() - 1; i > 0; i--) {
-			Reval * p_rvl = (Reval*)at(i);
+			Reval * p_rvl = static_cast<Reval *>(at(i));
 			p_rvl->NewCost  = cost;
 			p_rvl->NewPrice = price;
 			cost  = p_rvl->OldCost;
@@ -1029,7 +1029,7 @@ int SLAPI RevalArray::Shift()
 int SLAPI RevalArray::GetPrices(LDATE dt, long oprno, double * pCost, double * pPrice, long * pRevalIdx)
 {
 	for(uint i = 0; i < getCount(); i++) {
-		Reval * p_rvl = (Reval*)at(i);
+		const Reval * p_rvl = static_cast<const Reval *>(at(i));
 		if(p_rvl->Dt > dt || (p_rvl->Dt == dt && p_rvl->OprNo > oprno)) {
 			*pCost  = p_rvl->OldCost;
 			*pPrice = p_rvl->OldPrice;

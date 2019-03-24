@@ -49,7 +49,7 @@ double SImage::GetVRes() { return P_Image ? static_cast<Gdiplus::Image *>(P_Imag
 int SImage::DrawPartUnchanged(HDC hdc, int offsX, int offsY, const RECT * pImgPart)
 {
 	int    ok = 1;
-	Gdiplus::Image * p_image = (Gdiplus::Image *)P_Image;
+	Gdiplus::Image * p_image = static_cast<Gdiplus::Image *>(P_Image);
 	if(p_image && pImgPart) {
 		Gdiplus::Graphics graph(hdc);
 		Gdiplus::REAL w = (Gdiplus::REAL)p_image->GetWidth(), h = (Gdiplus::REAL)p_image->GetHeight();
@@ -109,7 +109,7 @@ int SImage::DrawPart(HDC hdc, const RECT * pCliRect, const RECT * pDestRect, con
 int SImage::Draw(HDC hdc, RECT * pRect, int clear, int use2Koeff)
 {
 	int    ok = 1;
-	Gdiplus::Image * p_image = (Gdiplus::Image *)P_Image;
+	Gdiplus::Image * p_image = static_cast<Gdiplus::Image *>(P_Image);
 	RECT   cl_rect;
 	Gdiplus::RectF  rect;
 	Gdiplus::Color  c(255, 255, 255, 255);
@@ -167,21 +167,21 @@ int SImage::Draw(HWND hWnd, const char * pPicPath, RECT * pRect, int clear, int 
 {
 	int    ok = 0;
 	if(hWnd && pPicPath && fileExists(pPicPath)) {
-		LoadImage(pPicPath);
+		Load(pPicPath);
 		ok = Draw(hWnd, pRect, clear, use2Koeff);
 	}
 	return ok;
 }
 
-int SImage::LoadImage(const char * pPicPath)
+int SImage::Load(const char * pPicPath)
 {
 	int    ok = 0;
-	delete (Image *)P_Image;
+	delete static_cast<Image *>(P_Image);
 	P_Image = 0;
 	FileName = 0;
 	if(pPicPath && fileExists(pPicPath)) {
 		OLECHAR wstr[MAXPATH];
-		MultiByteToWideChar(1251, MB_PRECOMPOSED, (const char *)pPicPath, -1, wstr, SIZEOFARRAY(wstr) - 1);
+		MultiByteToWideChar(1251, MB_PRECOMPOSED, pPicPath, -1, wstr, SIZEOFARRAY(wstr) - 1);
 		P_Image = new Image(wstr);
 		FileName.CopyFrom(pPicPath);
 		ok = 1;
@@ -192,13 +192,13 @@ int SImage::LoadImage(const char * pPicPath)
 int SImage::LoadThumbnailImage(const char * pPicPath, int width, int height)
 {
 	int    ok = 0;
-	delete (Gdiplus::Image *)P_Image;
+	delete static_cast<Gdiplus::Image *>(P_Image);
 	P_Image = 0;
 	FileName = 0;
 	if(pPicPath && fileExists(pPicPath)) {
 		Gdiplus::Image * p_img = 0;
 		OLECHAR wstr[MAXPATH];
-		MultiByteToWideChar(1251, MB_PRECOMPOSED, (const char *)pPicPath, -1, wstr, SIZEOFARRAY(wstr) - 1);
+		MultiByteToWideChar(1251, MB_PRECOMPOSED, pPicPath, -1, wstr, SIZEOFARRAY(wstr) - 1);
 		p_img = new Gdiplus::Image(wstr);
 		P_Image = p_img->GetThumbnailImage(width, height, 0, 0);
 		ZDELETE(p_img);
@@ -216,10 +216,10 @@ SString & SImage::GetFileName(SString & rBuf)
 int SImage::InsertBitmap(HWND hwnd, const char * pPath, COLORREF bkgnd)
 {
 	int    ok = 0;
-	LoadImage(pPath);
+	Load(pPath);
 	if(P_Image) {
 		UINT new_width = 0, new_height = 0;
-		Gdiplus::Image * p_image = (Gdiplus::Image *)P_Image;
+		Gdiplus::Image * p_image = static_cast<Gdiplus::Image *>(P_Image);
 		UINT height   = p_image->GetHeight();
 		UINT width    = p_image->GetWidth();
 		RECT cli_rect;

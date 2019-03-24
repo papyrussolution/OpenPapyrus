@@ -1567,7 +1567,7 @@ static int TIFFWriteDirectoryTagShortLongLong8Array(TIFF* tif, uint32* ndir, TIF
 			return 0;
 		}
 		for(ma = value, mb = 0, q = p; mb<count; ma++, mb++, q++)
-			*q = (uint16)(*ma);
+			*q = static_cast<uint16>(*ma);
 		o = TIFFWriteDirectoryTagCheckedShortArray(tif, ndir, dir, tag, count, p);
 		SAlloc::F(p);
 	}

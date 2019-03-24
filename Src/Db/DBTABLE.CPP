@@ -458,15 +458,14 @@ int DBTable::Btr_Implement_UpdateRec(const void * pDataBuf, int ncc)
 	/*auto*/ int16 index = ncc ? -1 : DBTable::index;
 	char   key_buf[256];
 	retBufLen = bufLen;
-
-	char * p_data_buf = (char *)P_DBuf;
+	char * p_data_buf = static_cast<char *>(P_DBuf);
 	SBuffer temp_buf;
 	SBuffer lob_buffer;
 	size_t  lob_size = 0; // Размер хвоста переменной длины
 	int     do_use_chunk_op = 0;
 	DBField last_fld;
 	if(HasLob(&last_fld) > 0) {
-		SLob * p_lob_data = (SLob *)last_fld.getValuePtr();
+		SLob * p_lob_data = static_cast<SLob *>(last_fld.getValuePtr());
 		int    glsr = getLobSize(last_fld, &lob_size);
 		assert(glsr);
 		if(p_lob_data->IsPtr()) {
@@ -477,7 +476,7 @@ int DBTable::Btr_Implement_UpdateRec(const void * pDataBuf, int ncc)
 				// Если хвост очень большой, то сначала изменим фиксированную
 				// часть, а затем операцией UPDATE CHUNK длинный хвост.
 				//
-				retBufLen = (uint16)FixRecSize;
+				retBufLen = static_cast<uint16>(FixRecSize);
 				do_use_chunk_op = 1;
 			}
 			else {
@@ -489,16 +488,16 @@ int DBTable::Btr_Implement_UpdateRec(const void * pDataBuf, int ncc)
 			}
 		}
 		else {
-			retBufLen = (int16)(FixRecSize + lob_size);
+			retBufLen = static_cast<int16>(FixRecSize + lob_size);
 		}
 	}
 	else if(HasNote(&last_fld) > 0) {
-		size_t tail_len = sstrlen(((char *)P_DBuf) + FixRecSize);
+		size_t tail_len = sstrlen(static_cast<const char *>(P_DBuf) + FixRecSize);
 		if(tail_len > 0)
 			tail_len++;
-		retBufLen = (RECORDSIZE)(FixRecSize + tail_len);
+		retBufLen = static_cast<RECORDSIZE>(FixRecSize + tail_len);
 	}
-	int result = Ret(BTRV(B_UPDATE, FPB, p_data_buf, (uint16 *)&retBufLen, key_buf, WBTRVTAIL));
+	int result = Ret(BTRV(B_UPDATE, FPB, p_data_buf, &retBufLen, key_buf, WBTRVTAIL));
 	if(result) {
 		if(do_use_chunk_op) {
 			size_t rest_size = lob_buffer.GetAvailableSize();
@@ -516,8 +515,8 @@ int DBTable::Btr_Implement_UpdateRec(const void * pDataBuf, int ncc)
 				//
 				temp_buf.Write(lob_buffer.GetBuf(lob_buffer.GetRdOffs()), chunk_size);
 				lob_buffer.SetRdOffs(lob_buffer.GetRdOffs() + chunk_size);
-				retBufLen = (RECORDSIZE)temp_buf.GetAvailableSize();
-                result = Ret(BTRV(B_UPDATECHUNK, FPB, (char *)temp_buf.constptr(), (uint16 *)&retBufLen, key_buf, WBTRVTAIL));
+				retBufLen = static_cast<RECORDSIZE>(temp_buf.GetAvailableSize());
+                result = Ret(BTRV(B_UPDATECHUNK, FPB, (char *)temp_buf.constptr(), &retBufLen, key_buf, WBTRVTAIL));
                 rest_size -= chunk_size;
                 rec_offs += chunk_size;
 			}
@@ -545,7 +544,7 @@ int SLAPI DBTable::unlock(int isAll)
 
 int SLAPI DBTable::Btr_Encrypt(char * pw, int protectMode)
 {
-	uint16 bl = (uint16)sstrlen(pw);
+	uint16 bl = static_cast<uint16>(sstrlen(pw));
 	/*auto*/ int index = protectMode;
 	return Ret(BTRV(B_SETOWNER, FPB, pw, &bl, pw, WBTRVTAIL_Z));
 }
@@ -563,7 +562,7 @@ int SLAPI DBTable::getStat(void ** ppInfo, uint16 * pBufSize)
 	char  ext_name[80];
 	char * p_info = new char[*pBufSize];
 	THROW_V(p_info, BE_NOMEM);
-	BtrError = BTRV(B_STAT, FPB, p_info, (uint16 *)pBufSize, ext_name, WBTRVTAIL_ZZ);
+	BtrError = BTRV(B_STAT, FPB, p_info, pBufSize, ext_name, WBTRVTAIL_ZZ);
 	THROW(!BtrError);
 	THROW_V(*ppInfo = new char[*pBufSize], BE_NOMEM);
 	memcpy(*ppInfo, p_info, *pBufSize);
@@ -585,19 +584,18 @@ int SLAPI DBTable::Btr_GetStat(long reqItems, DbTableStat * pStat)
 	BtrError = BTRV(B_STAT, FPB, temp_buf, &buf_size, ext_name, WBTRVTAIL_ZZ);
 	THROW(!BtrError);
 
-	pStat->Flags = ((DBFileSpec *)(char *)temp_buf)->Flags;
+	pStat->Flags = static_cast<const DBFileSpec *>(temp_buf.vcptr())->Flags;
 	pStat->RetItems |= DbTableStat::iFlags;
-	pStat->NumRecs = ((DBFileSpec *)(char *)temp_buf)->NumRecs;
+	pStat->NumRecs = static_cast<const DBFileSpec *>(temp_buf.vcptr())->NumRecs;
 	pStat->RetItems |= DbTableStat::iNumRecs;
-	pStat->FixRecSize = ((DBFileSpec *)(char *)temp_buf)->RecSize;
+	pStat->FixRecSize = static_cast<const DBFileSpec *>(temp_buf.vcptr())->RecSize;
 	pStat->RetItems |= DbTableStat::iFixRecSize;
-	pStat->IdxCount = ((DBFileSpec *)(char *)temp_buf)->NumKeys;
-	pStat->PageSize = (uint32)((DBFileSpec *)(char *)temp_buf)->PageSize; // @v6.6.10
+	pStat->IdxCount = static_cast<const DBFileSpec *>(temp_buf.vcptr())->NumKeys;
+	pStat->PageSize = static_cast<uint32>(static_cast<const DBFileSpec *>(temp_buf.vcptr())->PageSize);
 	pStat->RetItems |= DbTableStat::iIdxCount;
-
 	{
 		pStat->IdxList.reset();
-		DBIdxSpec * p = (DBIdxSpec *)(temp_buf+sizeof(DBFileSpec));
+		const DBIdxSpec * p = reinterpret_cast<const DBIdxSpec *>(temp_buf.cptr()+sizeof(DBFileSpec));
 		for(uint j = 0; j < pStat->IdxCount; j++) {
 			BNKey key;
 			do {
@@ -710,7 +708,7 @@ ChunkHeader & SLAPI operator + (ChunkHeader & h, RectChunk & c)
 	return *p_tmp;
 }
 
-int SLAPI DBTable::getChunk(ChunkHeader * pChunk, int lock)
+int SLAPI DBTable::getChunk(const ChunkHeader * pChunk, int lock)
 {
 	/*auto*/ int index = 0xfffe; // for substitute in WBTRVTAIL_Z
 	size_t chunkInfoSize = sizeof(ChunkHeader);
@@ -722,7 +720,7 @@ int SLAPI DBTable::getChunk(ChunkHeader * pChunk, int lock)
 	if(chunkInfoSize <= bufLen) {
 		retBufLen = bufLen;
 		memcpy(P_DBuf, pChunk, chunkInfoSize);
-		BtrError = BTRV(B_GETDIRECT + lock, FPB, (char *)P_DBuf, (uint16 *)&retBufLen, 0, WBTRVTAIL_Z);
+		BtrError = BTRV(B_GETDIRECT + lock, FPB, static_cast<char *>(P_DBuf), &retBufLen, 0, WBTRVTAIL_Z);
 	}
 	else
 		BtrError = BE_UBUFLEN;
