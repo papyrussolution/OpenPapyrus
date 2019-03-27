@@ -233,7 +233,7 @@ struct agent_ops agent_ops_unix = {
 
 static int agent_connect_pageant(LIBSSH2_AGENT * agent)
 {
-	HWND hwnd = FindWindow("Pageant", "Pageant");
+	HWND hwnd = FindWindow(_T("Pageant"), _T("Pageant"));
 	if(!hwnd)
 		return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL, "failed connecting agent");
 	else {
@@ -245,7 +245,7 @@ static int agent_connect_pageant(LIBSSH2_AGENT * agent)
 static int agent_transact_pageant(LIBSSH2_AGENT * agent, agent_transaction_ctx_t transctx)
 {
 	HWND hwnd;
-	char mapname[23];
+	char mapname[64]; // @v10.3.11 [23]-->[64]
 	HANDLE filemap;
 	uchar * p;
 	uchar * p2;
@@ -253,11 +253,11 @@ static int agent_transact_pageant(LIBSSH2_AGENT * agent, agent_transaction_ctx_t
 	COPYDATASTRUCT cds;
 	if(!transctx || 4 + transctx->request_len > PAGEANT_MAX_MSGLEN)
 		return _libssh2_error(agent->session, LIBSSH2_ERROR_INVAL, "illegal input");
-	hwnd = FindWindow("Pageant", "Pageant");
+	hwnd = FindWindow(_T("Pageant"), _T("Pageant"));
 	if(!hwnd)
 		return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL, "found no pageant");
 	sprintf(mapname, "PageantRequest%08x", (uint)GetCurrentThreadId());
-	filemap = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, PAGEANT_MAX_MSGLEN, mapname);
+	filemap = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, PAGEANT_MAX_MSGLEN, SUcSwitch(mapname));
 	if(filemap == NULL || filemap == INVALID_HANDLE_VALUE)
 		return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL, "failed setting up pageant filemap");
 	p2 = p = (uchar *)MapViewOfFile(filemap, FILE_MAP_WRITE, 0, 0, 0);

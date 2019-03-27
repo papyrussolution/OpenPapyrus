@@ -826,8 +826,7 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 		{
 			Sdr_Baltika_RestPart head_rec;
 			soap_e.SetClientCode(client_code);
-			THROW(soap_e.Init(file_name, PPREC_BALTIKA_RESTPART, PPREC_BALTIKA_RESTPARTLINE, "CRMWhBalanceParam",
-				"CRMWhBalanceParts", /*&se_filt,*/ "CRMWhBalanceExParts"));
+			THROW(soap_e.Init(file_name, PPREC_BALTIKA_RESTPART, PPREC_BALTIKA_RESTPARTLINE, "CRMWhBalanceParam", "CRMWhBalanceParts", /*&se_filt,*/ "CRMWhBalanceExParts"));
 			// @v9.2.5 head_rec.SkipDelete = skip_delete; // (Filt.Flags & SupplExpFilt::expDelRecentBills) ? 0 : 1;
 			head_rec.SkipDelete = (P.Flags & P.fDeleteRecentBills) ? 0 : 1; // @v9.2.5
 			THROW(soap_e.AppendRecP(&head_rec, sizeof(head_rec), 0, 0, 0/*headRecForNewFile*/));
@@ -1121,7 +1120,6 @@ int SLAPI PPSupplExchange_Baltika::ExportSpoilageRest(PPID locID, uint filesIdx)
 	SoapExporter      soap_e;
 	GoodsRestViewItem item;
 	PPViewGoodsRest   v;
-
 	//se_filt = Filt;
 	//se_filt.MaxFileSizeKB = 0;
 	MEMSZERO(item);
@@ -1244,7 +1242,8 @@ IMPL_CMPFUNC(Sdr_BaltikaBillItemAttrs, i1, i2)
 int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const char * pClientCode, PPLogger & rLogger)
 {
 	int    ok = 1;
-	int    is_first = 1;
+	int    is_first_item = 1;
+	int    is_first_promo = 1;
 	int    from_consig_loc = 0;
 	uint   count = 0;
 	PPID   org_id = 0;
@@ -1258,6 +1257,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 	PPID   tare_ggrpid = 0;
 	PPID   consig_loc_grp = 0L;
 	PPID   order_number_tag_id = 0; // @v9.3.2
+	PPID   promo_tag_id = 0; // @v10.3.11
 	LDATE  consig_parent_dt = ZERODATE;
 	SString path, log_msg;
 	SString consig_parent_code;
@@ -1284,16 +1284,19 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 		CurDict->GetDbUUID(&uuid);
 		uuid.ToStr(S_GUID::fmtIDL, db_uuid_text);
 	}
-	// @v9.3.2 {
+
 	{
-		PPObjectTag ord_no_tag_rec;
+		PPObjectTag tag_rec;
 		PPID   temp_id = 0;
-		if(obj_tag.SearchBySymb("BALTIKA-ORDER-NO", &temp_id, &ord_no_tag_rec) > 0) {
-			if(ord_no_tag_rec.ObjTypeID == PPOBJ_BILL && ord_no_tag_rec.TagDataType == OTTYP_STRING)
-				order_number_tag_id = ord_no_tag_rec.ID;
+		if(obj_tag.SearchBySymb("BALTIKA-ORDER-NO", &temp_id, &tag_rec) > 0) { // @v9.3.2
+			if(tag_rec.ObjTypeID == PPOBJ_BILL && tag_rec.TagDataType == OTTYP_STRING)
+				order_number_tag_id = tag_rec.ID;
+		}
+		if(obj_tag.SearchBySymb("BALTIKA-PROMO-LABEL", &(temp_id = 0), &tag_rec) > 0) { // @v10.3.11
+			if(tag_rec.ObjTypeID == PPOBJ_BILL && tag_rec.TagDataType == OTTYP_STRING)
+				promo_tag_id = tag_rec.ID;
 		}
 	}
-	// } @v9.3.2
 	GetMainOrgID(&org_id);
 	P.GetExtStrData(P.extssEncodeStr, encode_str);
 	{
@@ -1359,6 +1362,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 		PPTransferItem trfr_item;
 		PPBillPacket bpack;
 		TSVector <Sdr_SupplBillLine> items_list; // @v9.8.4 TSArray-->TSVector
+		TSVector <Sdr_BaltikaBillPricePromo> promo_item_list; // @v10.3.11
 		THROW(P_BObj->ExtractPacket(item.ID, &bpack));
 		PPObjBill::MakeCodeString(&bpack.Rec, PPObjBill::mcsAddLocName|PPObjBill::mcsAddOpName|PPObjBill::mcsAddObjName, bill_text);
 		if(bpack.GetOrderList(ord_list) > 0) {
@@ -1475,9 +1479,13 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 			const PPID obj_id = oneof2(item.OpID, Ep.MovInOp, Ep.MovOutOp) ? 0L : bpack.Rec.Object;
 			const PPID loc_id = bpack.Rec.LocID;
 			const PPID loc2_id = PPObjLocation::ObjToWarehouse(bpack.Rec.Object);
+			SString promo_label;
 			RetailPriceExtractor rtl_price_extr(bpack.Rec.LocID, 0, obj_id, ZERODATETIME, RTLPF_GETCURPRICE);
 			RetailPriceExtractor::ExtQuotBlock eqb(Ep.PriceQuotID);
 			RetailPriceExtractor price_by_quot_extr(bpack.Rec.LocID, &eqb, obj_id, ZERODATETIME, RTLPF_PRICEBYQUOT);
+			if(promo_tag_id && bpack.BTagL.GetItemStr(promo_tag_id, temp_buf) > 0) { // temp_buf содержит код скидки (ShareId)
+				promo_label = temp_buf;
+			}
 			for(bpack.InitExtTIter(0/*ETIEF_UNITEBYGOODS*/); bpack.EnumTItemsExt(0, &trfr_item) > 0;) {
 				// если операция имеет тип - модификация товара, то будем рассматривать только приходные строчки
 				int check_modif_op = (GetOpType(item.OpID) == PPOPT_GOODSMODIF) ? BIN(trfr_item.Flags & PPTFR_PLUS) : 1;
@@ -1567,16 +1575,15 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 									double lot_price = 0.0;
 									ReceiptTbl::Rec lot_rec;
 									const QuotIdent qi(bpack.Rec.Dt, bpack.Rec.LocID, Ep.PriceQuotID, 0, obj_id);
-									if(GetCurGoodsPrice(trfr_item.GoodsID, bpack.Rec.LocID, 0, &lot_price, &lot_rec) > 0) {
+									if(GetCurGoodsPrice(trfr_item.GoodsID, bpack.Rec.LocID, 0, &lot_price, &lot_rec) > 0)
 										use_quot = BIN(GObj.GetQuotExt(trfr_item.GoodsID, qi, lot_rec.Cost, lot_price, &_price, 1) > 0);
-									}
 								}
 								if(!use_quot) {
 									SETIFZ(_price, trfr_item.NetPrice());
 									const float pct_dis = (atol(line_rec.AddressRegionType) != 1) ? P.SpcDisPct2 : P.SpcDisPct1;
 									_price -= (_price / 100.0) * pct_dis;
 								}
-								_price  = round(_price, 2);
+								_price  = R2(_price);
 							}
 							GetQtty(trfr_item.GoodsID, IsKegUnit(trfr_item.GoodsID), &qtty_val, &_price);
 							line_rec.Quantity = qtty_val;
@@ -1591,6 +1598,31 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 								items_list.at(idx).Quantity += line_rec.Quantity;
 							else
 								items_list.insert(&line_rec);
+							// @v10.3.11 {
+							if(promo_label.NotEmpty()) {
+								double nominal_price = trfr_item.Price;
+								double temp_qtty_val = fabs(trfr_item.Qtty());
+								GetQtty(trfr_item.GoodsID, IsKegUnit(trfr_item.GoodsID), &temp_qtty_val, &nominal_price);
+								if(nominal_price > line_rec.Price) {
+									Sdr_BaltikaBillPricePromo promo_rec;
+									MEMSZERO(promo_rec);
+									STRNSCPY(promo_rec.CompanyId, line_rec.CompanyId);
+									STRNSCPY(promo_rec.AddressId, line_rec.AddressId);
+									STRNSCPY(promo_rec.WareHouseId, line_rec.WareHouseId);
+									STRNSCPY(promo_rec.DocumentNumber, line_rec.DocumentNumber);
+									STRNSCPY(promo_rec.DocumentTypeId, line_rec.DocumentTypeId);
+									promo_rec.DocumentDate = line_rec.DocumentDate;
+									STRNSCPY(promo_rec.WareId, line_rec.WareId);
+						
+									STRNSCPY(promo_rec.ShareId, promo_label); // ShareId zstring(24) "Код скидки: [Cooler, Contract, Sellin, PricePromo]
+									temp_buf.Z().Cat(bpack.Rec.Dt.year()).CatChar('-').CatLongZ(bpack.Rec.Dt.month(), 2);
+									STRNSCPY(promo_rec.ShareDate, temp_buf); // Год/Месяц Скидки  в формате ГГГГ_ММ  (2018-01)
+									promo_rec.DiscountSum = (nominal_price - line_rec.Price) * temp_qtty_val;
+									promo_rec.DiscountPercent = 100.0 * promo_rec.DiscountSum / (nominal_price * temp_qtty_val);
+									promo_item_list.insert(&promo_rec);
+								}
+							}
+							// } @v10.3.11 
 							if(!oneof2(item.OpID, Ep.MovOutOp, Ep.MovInOp) && client_id && dlvr_addr_id)
 								if(!dlvr_addr_list.lsearch(&dlvr_addr_id, 0, CMPF_LONG, sizeof(long)))
 									dlvr_addr_list.Add(client_id, dlvr_addr_id, 0);
@@ -1657,8 +1689,8 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 				}
 				for(uint i = 0; i < items_list.getCount(); i++) {
 					Sdr_SupplBillLine line_rec = items_list.at(i);
-					THROW(soap_e.AppendRecT(PPREC_SUPPLBILLLINE, &line_rec, sizeof(line_rec), is_first, 1, 0/*pSchemeName*/));
-					is_first = 0;
+					THROW(soap_e.AppendRecT(PPREC_SUPPLBILLLINE, &line_rec, sizeof(line_rec), is_first_item, 1, 0/*pSchemeName*/));
+					is_first_item = 0;
 					log_msg.Z().Cat("code=[").Cat(line_rec.DocumentNumber).Cat("]").Space().Space().Space().Cat("order=[").Cat(line_rec.CRMOrderNumber).Cat("]");
 					rLogger.Log(log_msg);
 					if(add_link_op) {
@@ -1670,9 +1702,16 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 							line_rec.CRMOrderDate = consig_parent_dt;
 							ltoa(baltika_id, line_rec.CompanyId, 10);
 						}
-						THROW(soap_e.AppendRecT(PPREC_SUPPLBILLLINE, &line_rec, sizeof(line_rec), is_first, 1, 0/*pSchemeName*/));
+						THROW(soap_e.AppendRecT(PPREC_SUPPLBILLLINE, &line_rec, sizeof(line_rec), is_first_item, 1, 0/*pSchemeName*/));
 					}
 				}
+				// @v10.3.11 {
+				for(uint promoidx = 0; promoidx < promo_item_list.getCount(); promoidx++) {
+					Sdr_BaltikaBillPricePromo promo_item_rec = promo_item_list.at(promoidx);
+					THROW(soap_e.AppendRecT(PPREC_BALTIKABILLPRICEPROMO, &promo_item_rec, sizeof(promo_item_rec), is_first_promo, 1, 0/*pSchemeName*/));
+					is_first_promo = 0;
+				}
+				// } @v10.3.11 
 			}
 		}
 		PPWaitPercent(v.GetCounter());
@@ -1681,7 +1720,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 		SString addr;
 		if(count && items_attrs_list.getCount()) {
 			soap_e.EndRecBlock();
-			is_first = 1;
+			int is_first = 1;
 			for(uint i = 0; i < items_attrs_list.getCount(); i++) {
 				Sdr_BaltikaBillItemAttrs line_attrs_rec = items_attrs_list.at(i);
 				THROW(soap_e.AppendRecT(PPREC_BALTIKABILLITEMATTRS, &line_attrs_rec, sizeof(line_attrs_rec), is_first, -1, "CRMDespatchParts"));
@@ -2204,7 +2243,7 @@ int SLAPI PPSupplExchange_Baltika::GetDlvrAddrHorecaCode(PPID * pDlvrAddrID, SSt
 int SLAPI PPSupplExchange_Baltika::Send()
 {
 	/*
-	int ok = 1;
+	int    ok = 1;
 	int connected = 0;
 	InetAddr addr;
 	addr.Set(ExchCfg.IP, ExchCfg.Port);
@@ -6592,7 +6631,11 @@ int SLAPI PrcssrSupplInterchange::Run()
 				r_eb.P.Actions |= SupplInterchangeFilt::opImportGoods;
 			const long actions = r_eb.P.Actions;
 			if(actions & SupplInterchangeFilt::opImportGoods) {
-				THROW(cli.ReceiveGoods(rcv_goods_force_settings, 1));
+				// @debug THROW(cli.ReceiveGoods(rcv_goods_force_settings, 1));
+				// @debug {
+				if(!cli.ReceiveGoods(rcv_goods_force_settings, 1))
+					logger.LogLastError();
+				// } @debug
 			}
 			if(actions & SupplInterchangeFilt::opImportRouts) {
 				if(!cli.ReceiveRouts(routs))

@@ -387,7 +387,7 @@ int _zbar_video_open(zbar_video_t * vdo, const char * dev)
 	char name[MAX_NAME], desc[MAX_NAME];
 	int devid;
 	for(devid = 0; devid < MAX_DRIVERS; devid++) {
-		if(!capGetDriverDescription(devid, name, MAX_NAME, desc, MAX_NAME)) {
+		if(!capGetDriverDescriptionA(devid, name, MAX_NAME, desc, MAX_NAME)) { // @v10.3.11 capGetDriverDescription-->capGetDriverDescriptionA
 			/* FIXME TBD error */
 			zprintf(6, "    [%d] not found...\n", devid);
 			continue;

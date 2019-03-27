@@ -160,7 +160,7 @@ void * FASTCALL PPObjWorld::MakeExtraParam(int kind, PPID parentID, PPID country
 		v |= (0x80000000 | countryID);
 	else
 		v |= parentID;
-	return (void *)v;
+	return reinterpret_cast<void *>(v);
 }
 
 //static
@@ -178,7 +178,7 @@ void * FASTCALL PPObjWorld::MakeExtraParam(const PPIDArray & rKindList, PPID par
 		v |= (0x80000000 | countryID);
 	else
 		v |= parentID;
-	return (void *)v;
+	return reinterpret_cast<void *>(v);
 }
 
 //static
@@ -453,7 +453,7 @@ int SLAPI PPObjWorld::Browse(void * extraPtr)
 	if(extraPtr == 0) {
 		PPIDArray kind_list;
 		kind_list.addzlist(WORLDOBJ_CONTINENT, WORLDOBJ_COUNTRY, WORLDOBJ_REGION, WORLDOBJ_CITY, WORLDOBJ_CITYAREA, 0L);
-		extraPtr = (void *)PPObjWorld::MakeExtraParam(kind_list, 0, 0);
+		extraPtr = PPObjWorld::MakeExtraParam(kind_list, 0, 0);
 	}
 	THROW(CheckRights(PPR_READ));
 	ok = CheckExecAndDestroyDialog(new ObjWorldDialog(this, extraPtr), 0, 0);
@@ -1406,7 +1406,7 @@ int SLAPI PPObjWorld::Unite(PPID destID, PPID srcID)
 				ok = PPSetErrorDB();
 		}
 		if(ok > 0)
-			ok = BroadcastObjMessage(DBMSG_OBJREPLACE, Obj, destID, (void *)srcID);
+			ok = BroadcastObjMessage(DBMSG_OBJREPLACE, Obj, destID, reinterpret_cast<void *>(srcID));
 	}
 	return ok;
 }

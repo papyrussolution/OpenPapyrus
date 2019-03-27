@@ -2790,15 +2790,16 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 									}
 									else {
 										// 28, 30, 32, 34, 36, 38, 40, 42
-										__max_duck_quant_list[__max_duck_quant_count++] = 21;
-										__max_duck_quant_list[__max_duck_quant_count++] = 24;
-										__max_duck_quant_list[__max_duck_quant_count++] = 27;
+										//__max_duck_quant_list[__max_duck_quant_count++] = 21;
+										//__max_duck_quant_list[__max_duck_quant_count++] = 24;
+										__max_duck_quant_list[__max_duck_quant_count++] = 28;
 										__max_duck_quant_list[__max_duck_quant_count++] = 30;
-										__max_duck_quant_list[__max_duck_quant_count++] = 33;
+										__max_duck_quant_list[__max_duck_quant_count++] = 32;
+										__max_duck_quant_list[__max_duck_quant_count++] = 34;
 										__max_duck_quant_list[__max_duck_quant_count++] = 36;
-										__max_duck_quant_list[__max_duck_quant_count++] = 39;
+										__max_duck_quant_list[__max_duck_quant_count++] = 38;
+										__max_duck_quant_list[__max_duck_quant_count++] = 40;
 										__max_duck_quant_list[__max_duck_quant_count++] = 42;
-										__max_duck_quant_list[__max_duck_quant_count++] = 45;
 									}
 									for(uint mdidx = 0; mdidx < __max_duck_quant_count; mdidx++) {
 										PPObjTimeSeries::TrainNnParam tnnp(ts_rec, PPObjTimeSeries::TrainNnParam::afAnalyzeFrame);

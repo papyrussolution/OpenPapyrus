@@ -152,8 +152,8 @@ SLAPI PersonPostArray::PersonPostArray() : TSVector <PersonPostTbl::Rec> () // @
 
 static IMPL_CMPFUNC(PersonPost_Closed_Finish_Dt, i1, i2)
 {
-	const PersonPostTbl::Rec * p1 = (const PersonPostTbl::Rec *)i1;
-	const PersonPostTbl::Rec * p2 = (const PersonPostTbl::Rec *)i2;
+	const PersonPostTbl::Rec * p1 = static_cast<const PersonPostTbl::Rec *>(i1);
+	const PersonPostTbl::Rec * p2 = static_cast<const PersonPostTbl::Rec *>(i2);
 	if(p1->Closed && !p2->Closed)
 		return +1;
 	else if(!p1->Closed && p2->Closed)
@@ -1528,7 +1528,7 @@ static void FillStaffRec(const PPStaffEntry * pInner, SPpyO_Staff * pOuter)
 int32 DL6ICLS_PPObjStaff::Search(int32 id, PPYOBJREC rec)
 {
 	int    ok = 0;
-	PPObjStaffList * p_obj = (PPObjStaffList *)ExtraPtr;
+	PPObjStaffList * p_obj = static_cast<PPObjStaffList *>(ExtraPtr);
 	if(p_obj) {
 		PPStaffEntry inner_rec;
 		ok = p_obj->Search(id, &inner_rec);
@@ -1546,7 +1546,7 @@ int32 DL6ICLS_PPObjStaff::SearchByName(SString & text, int32 kind, int32 extraPa
 
 SString & DL6ICLS_PPObjStaff::GetName(int32 id)
 {
-	PPObjStaffList * p_obj = (PPObjStaffList *)ExtraPtr;
+	PPObjStaffList * p_obj = static_cast<PPObjStaffList *>(ExtraPtr);
 	if(p_obj) {
 		PPStaffEntry rec;
 		if(p_obj->Fetch(id, &rec) > 0)
@@ -1579,7 +1579,7 @@ int32 DL6ICLS_PPObjStaff::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 	PPStaffPacket pack;
 	SString temp_buf;
 	SPpyO_Staff * p_outer_rec = (SPpyO_Staff *)pRec;
-	PPObjStaffList * p_obj = (PPObjStaffList *)ExtraPtr;
+	PPObjStaffList * p_obj = static_cast<PPObjStaffList *>(ExtraPtr);
 	THROW(p_obj);
 	THROW_PP_S(p_outer_rec->RecTag == ppoStaff, PPERR_INVSTRUCTAG, "ppoStaff");
 	pack.Rec.OrgID        = p_outer_rec->OrgID;
@@ -1604,7 +1604,7 @@ int32 DL6ICLS_PPObjStaff::Update(int32 id, long flags, PPYOBJREC rec)
 	PPStaffPacket pack;
 	SString temp_buf;
 	SPpyO_Staff * p_outer_rec = (SPpyO_Staff *)rec;
-	PPObjStaffList * p_obj = (PPObjStaffList *)ExtraPtr;
+	PPObjStaffList * p_obj = static_cast<PPObjStaffList *>(ExtraPtr);
 	THROW(p_obj);
 	THROW_PP_S(p_outer_rec->RecTag == ppoStaff, PPERR_INVSTRUCTAG, "ppoStaff");
 	THROW(p_obj->GetPacket(id, &pack) > 0);

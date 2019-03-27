@@ -95,11 +95,11 @@ uint32 TIFFNumberOfTiles(TIFF* tif)
 	uint32 dy = td->td_tilelength;
 	uint32 dz = td->td_tiledepth;
 	uint32 ntiles;
-	if(dx == (uint32)-1)
+	if(dx == static_cast<uint32>(-1))
 		dx = td->td_imagewidth;
-	if(dy == (uint32)-1)
+	if(dy == static_cast<uint32>(-1))
 		dy = td->td_imagelength;
-	if(dz == (uint32)-1)
+	if(dz == static_cast<uint32>(-1))
 		dz = td->td_imagedepth;
 	ntiles = (dx == 0 || dy == 0 || dz == 0) ? 0 :
 	    _TIFFMultiply32(tif, _TIFFMultiply32(tif, TIFFhowmany_32(td->td_imagewidth, dx), TIFFhowmany_32(td->td_imagelength, dy), "TIFFNumberOfTiles"),

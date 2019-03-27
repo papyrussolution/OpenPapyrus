@@ -24,41 +24,43 @@ static int FindExeByExt2(const char * pExt, SString & rResult, const char * pAdd
 {
 	rResult.Z();
 	int    ok = 0;
-	//TCHAR  tbuf[MAXPATH];
-	//char * p_chr = 0;
-	SString temp_buf;
-	//DWORD  v_type = REG_SZ ;
-	//DWORD  bufsize = SIZEOFARRAY(tbuf);
-	//
-	//tbuf[0] = 0;
-	SString val_buf;
-	WinRegKey reg_key(HKEY_CLASSES_ROOT, pExt, 1);
-	if(reg_key.GetString(0, val_buf) > 0) {
-		if(pAddedSearchString && val_buf.IsEqNC(pAddedSearchString)) {
-			WinRegKey reg_key_app(HKEY_CLASSES_ROOT, val_buf, 1);
-			if(reg_key_app.GetString(0, temp_buf) > 0) {
-				temp_buf.ReplaceStr(" ", 0, 0);
-				val_buf = temp_buf;
+	if(pExt) {
+		//TCHAR  tbuf[MAXPATH];
+		//char * p_chr = 0;
+		SString temp_buf;
+		//DWORD  v_type = REG_SZ ;
+		//DWORD  bufsize = SIZEOFARRAY(tbuf);
+		//
+		//tbuf[0] = 0;
+		SString val_buf;
+		WinRegKey reg_key(HKEY_CLASSES_ROOT, pExt, 1);
+		if(reg_key.GetString(0, val_buf) > 0) {
+			if(pAddedSearchString && val_buf.IsEqNC(pAddedSearchString)) {
+				WinRegKey reg_key_app(HKEY_CLASSES_ROOT, val_buf, 1);
+				if(reg_key_app.GetString(0, temp_buf) > 0) {
+					temp_buf.ReplaceStr(" ", 0, 0);
+					val_buf = temp_buf;
+				}
 			}
-		}
-		val_buf.SetLastSlash().Cat("shell").SetLastSlash().Cat("open").SetLastSlash().Cat("command");
-		WinRegKey reg_key_exe(HKEY_CLASSES_ROOT, val_buf, 1);
-		if(reg_key_exe.GetString(0, val_buf) > 0) {
-			val_buf.Strip();
-			if(val_buf.C(0) == '"') {
-				val_buf.ShiftLeft();
-				size_t s_pos = 0;
-				if(val_buf.SearchChar('"', &s_pos)) {
-					val_buf.Excise(s_pos, 1);
+			val_buf.SetLastSlash().Cat("shell").SetLastSlash().Cat("open").SetLastSlash().Cat("command");
+			WinRegKey reg_key_exe(HKEY_CLASSES_ROOT, val_buf, 1);
+			if(reg_key_exe.GetString(0, val_buf) > 0) {
+				val_buf.Strip();
+				if(val_buf.C(0) == '"') {
+					val_buf.ShiftLeft();
+					size_t s_pos = 0;
+					if(val_buf.SearchChar('"', &s_pos)) {
+						val_buf.Excise(s_pos, 1);
+					}
+					s_pos = 0;
+					if(val_buf.SearchChar('.', &s_pos)) {
+						size_t space_pos = 0;
+						if(val_buf.SearchCharPos(s_pos+1, ' ', &space_pos))
+							val_buf.Trim(space_pos);
+					}
+					rResult = val_buf;
+					ok = 1;
 				}
-				s_pos = 0;
-				if(val_buf.SearchChar('.', &s_pos)) {
-					size_t space_pos = 0;
-					if(val_buf.SearchCharPos(s_pos+1, ' ', &space_pos))
-						val_buf.Trim(space_pos);
-				}
-				rResult = val_buf;
-				ok = 1;
 			}
 		}
 	}
@@ -355,7 +357,7 @@ int SLAPI SReport::readResource(TVRez * rez, uint resID)
 		fields[i].lastval = 0;
 	}
 	if((agrCount = rez->getUINT()) != 0) {
-		THROW_MEM(agrs = (Aggr *) SAlloc::R(agrs, sizeof(Aggr) * agrCount));
+		THROW_MEM(agrs = (Aggr *)SAlloc::R(agrs, sizeof(Aggr) * agrCount));
 		for(i = 0; i < agrCount; i++) {
 			Aggr * a = &agrs[i];
 			a->fld   = rez->getUINT();
@@ -533,7 +535,7 @@ int SLAPI LoadExportOptions(const char * pReportName, PEExportOptions * pOptions
 	int    silent = 0;
 	PEExportOptions options;
 	SString fname;
-	PPGetFilePath(PPPATH_BIN, (uint)PPFILNAM_REPORT_INI, fname);
+	PPGetFilePath(PPPATH_BIN, PPFILNAM_REPORT_INI, fname);
 	MEMSZERO(options);
 	options.StructSize = sizeof(options);
 	if(fileExists(fname)) {
@@ -574,19 +576,19 @@ int SLAPI LoadExportOptions(const char * pReportName, PEExportOptions * pOptions
 							case 2: // FormatTypes[2] == UXFCommaSeparatedType
 							case 3: // FormatTypes[3] == UXFTabSeparatedType
 								options.formatOptions = new UXFCommaTabSeparatedOptions;
-								((UXFCommaTabSeparatedOptions*)options.formatOptions)->structSize = UXFCommaTabSeparatedOptionsSize;
+								static_cast<UXFCommaTabSeparatedOptions *>(options.formatOptions)->structSize = UXFCommaTabSeparatedOptionsSize;
 								break;
 							case 4: // FormatTypes[4] == UXFCharSeparatedType
 								options.formatOptions = new UXFCharSeparatedOptions;
-								((UXFCharSeparatedOptions*)options.formatOptions)->structSize = UXFCharSeparatedOptionsSize;
+								static_cast<UXFCharSeparatedOptions *>(options.formatOptions)->structSize = UXFCharSeparatedOptionsSize;
 								break;
 							case 6: // FormatTypes[6] == UXFXls7ExtType
 								options.formatOptions = new UXFXlsOptions;
-								((UXFXlsOptions*)options.formatOptions)->structSize = UXFXlsOptionsSize;
+								static_cast<UXFXlsOptions *>(options.formatOptions)->structSize = UXFXlsOptionsSize;
 								break;
 							case 7: // FormatTypes[7] == UXFPdfType
 								options.formatOptions = new UXFPdfOptions;
-								((UXFPdfOptions*)options.formatOptions)->structSize = UXFPdfOptionsSize;
+								static_cast<UXFPdfOptions *>(options.formatOptions)->structSize = UXFPdfOptionsSize;
 								break;
 							default:
 								options.formatOptions = 0;
@@ -820,15 +822,12 @@ int SLAPI PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 {
 	Entries.freeAll();
 	(ContextSymb = pContextSymb).Strip();
-
 	int    ok = 1;
 	uint   pos = 0;
-	int    win_coding = 0;
+	// @v10.3.11 int    win_coding = 0;
 	int    diffidbyscope = 0;
 	int    force_ddf = 0;
-
 	const uint16 cr_dll_ver = PEGetVersion(PE_GV_DLL);
-
 	SString temp_buf, fname, buf2;
 	SString left; // Временные переменные для деления буферов по символу
 	if(isempty(P_ReportName))
@@ -859,13 +858,13 @@ int SLAPI PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 			p_new_entry->Description_.Transf(CTRANSF_INNER_TO_OUTER);
 			THROW_SL(Entries.insert(p_new_entry));
 		}
-		PPGetFilePath(PPPATH_BIN, (uint)PPFILNAM_STDRPT_INI, fname);
+		PPGetFilePath(PPPATH_BIN, PPFILNAM_STDRPT_INI, fname);
 		if(fileExists(fname)) {
 			StringSet std_ss;
 			SString section_name;
 			PPIniFile std_ini_file(fname);
 			THROW(std_ini_file.IsValid());
-			win_coding = std_ini_file.IsWinCoding();
+			// @v10.3.11 win_coding = std_ini_file.IsWinCoding();
 			{
 				if(ContextSymb.NotEmpty()) {
 					(section_name = P_ReportName).Strip().CatChar(':').Cat(ContextSymb);
@@ -882,14 +881,16 @@ int SLAPI PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 					case ReportDescrEntry::tData:
 						std_ini_file.GetParam(section_name, param_buf, Entries.at(0)->DataName_);
 						Entries.at(0)->DataName_.Strip();
-						if(!win_coding)
-							Entries.at(0)->DataName_.Transf(CTRANSF_INNER_TO_OUTER);
+						//if(!win_coding)
+						Entries.at(0)->DataName_.Transf(CTRANSF_INNER_TO_OUTER);
+						//
 						break;
 					case ReportDescrEntry::tDescr:
 						std_ini_file.GetParam(section_name, param_buf, Entries.at(0)->Description_);
 						Entries.at(0)->Description_.Strip();
-						if(!win_coding)
-							Entries.at(0)->Description_.Transf(CTRANSF_INNER_TO_OUTER);
+						//if(!win_coding)
+						Entries.at(0)->Description_.Transf(CTRANSF_INNER_TO_OUTER);
+						//
 						break;
 					case ReportDescrEntry::tDiffIdByScope:
 						{
@@ -909,8 +910,9 @@ int SLAPI PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 							THROW_MEM(p_new_entry);
 							p_new_entry->SetReportFileName(fname);
 							std_ini_file.GetParam(section_name, param_buf, temp_buf);
-							if(!win_coding)
-								temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+							//if(!win_coding)
+							temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+							//
 							StringSet tok_list(';', temp_buf);
 							uint   tok_p = 0;
 							if(tok_list.get(&tok_p, left)) {
@@ -930,7 +932,7 @@ int SLAPI PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 				}
 			}
 		}
-		PPGetFilePath(PPPATH_BIN, (uint)PPFILNAM_REPORT_INI, fname);
+		PPGetFilePath(PPPATH_BIN, PPFILNAM_REPORT_INI, fname);
 		if(fileExists(fname)) {
 			SString format_p, dest_p, silent_p;
 			PPIniFile::GetParamSymb(PPINIPARAM_REPORT_FORMAT, format_p);
@@ -940,7 +942,7 @@ int SLAPI PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 			SString section_name;
 			PPIniFile ini_file(fname);
 			THROW(ini_file.IsValid());
-			win_coding = ini_file.IsWinCoding();
+			// @v10.3.11 win_coding = ini_file.IsWinCoding();
 			{
 				if(ContextSymb.NotEmpty()) {
 					(section_name = P_ReportName).Strip().CatChar(':').Cat(ContextSymb);
@@ -979,8 +981,9 @@ int SLAPI PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 							p_new_entry->SetReportFileName(fname);
 							ini_file.GetParam(section_name, param_buf, temp_buf);
 							temp_buf.Strip();
-							if(!win_coding)
-								temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+							// @v10.3.11 if(!win_coding)
+							temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+							//
 							int    is_equal = 0;
 							StringSet tok_list(';', temp_buf);
 							uint   tok_p = 0;
@@ -1085,7 +1088,7 @@ public:
 				}
 			}
 			if(def_prn_id > 1)
-				PrnList.swap(0, (uint)(def_prn_id-1));
+				PrnList.swap(0, static_cast<uint>(def_prn_id-1));
 			//
 			for(uint j = 0; j < PrnList.getCount(); j++) {
 				temp_buf.Z().Cat(PrnList.at(j).PrinterName).ToOem();
@@ -1136,7 +1139,7 @@ private:
 	}
 	void   SetupReportEntry()
 	{
-		uint   id = (uint)getCtrlLong(CTLSEL_PRINT2_REPORT);
+		uint   id = static_cast<uint>(getCtrlLong(CTLSEL_PRINT2_REPORT));
 		int    enable_email = 0;
 		SString data_name, path;
 		GetClusterData(CTL_PRINT2_ACTION, &P_Data->Dest);
@@ -2113,14 +2116,10 @@ int SLAPI SaveDataStruct(const char *pDataName, const char *pTempPath, const cha
 	if(path.NotEmptyS() && CrwError == PE_ERR_ERRORINDATABASEDLL) {
 	// } @v9.8.9
 		path.SetLastSlash().Cat(pDataName);
-		char * p_chr = (char *)pRepFileName;
 		THROW_MEM(p_ssda = new SvdtStrDlgAns);
 		p_ssda->SvDt = 1;
 		strnzcpy(p_ssda->SvDtPath, path, MAXPATH);
-		if((p_chr = sstrchr(p_chr, '.')) != NULL)
-			p_ssda->EdRep = FindExeByExt2(p_chr, cr_path_, "CrystalReports.9.1");
-		else
-			p_ssda->EdRep = 0;
+		p_ssda->EdRep = FindExeByExt2(sstrchr(pRepFileName, '.'), cr_path_, "CrystalReports.9.1");
 		strnzcpy(p_ssda->EdRepPath, pRepFileName, MAXPATH);
 		if(GetSvdtStrOpt(p_ssda) > 0) {
 			if(p_ssda->SvDt) {
@@ -2182,7 +2181,7 @@ int SLAPI EditDefaultPrinterCfg()
 
 int SLAPI VerifyCrpt(const char * pRptPath, const char * pDataPath)
 {
-	int ok = -1;
+	int    ok = -1;
 #if 0 // {
 	if(pRptPath && pDataPath && sstrlen(pRptPath) && sstrlen(pDataPath)) {
 		short  h_job = PEOpenPrintJob(pRptPath);
@@ -2247,13 +2246,14 @@ int SLAPI MakeCRptDataFiles(int verifyAll /*=0*/)
 				SStrCollection ss_col;
 				SString data_path;
 				if(rpt_name.CmpNC("ALL") == 0) {
-					PPGetFilePath(PPPATH_BIN, (uint)PPFILNAM_STDRPT_INI, fname);
+					PPGetFilePath(PPPATH_BIN, PPFILNAM_STDRPT_INI, fname);
 					PPIniFile std_ini_file(fname);
 					THROW_SL(std_ini_file.IsValid());
 					THROW_SL(std_ini_file.GetSections(&ss));
 				}
-				else
+				else {
 					THROW_SL(ss.add(rpt_name));
+				}
 				ss_col.freeAll();
 				for(pos = 0; ss.get(&pos, rpt_name);) {
 					PrnDlgAns report_descr_data(rpt_name);

@@ -121,7 +121,7 @@ typedef xmlHashTable xmlRefTable;
 typedef xmlRefTable * xmlRefTablePtr;
 
 /* Notation */
-XMLPUBFUN xmlNotation * XMLCALL xmlAddNotationDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlChar * name, const xmlChar * PublicID, const xmlChar * SystemID);
+XMLPUBFUN xmlNotation * XMLCALL xmlAddNotationDecl(xmlValidCtxtPtr ctxt, xmlDtd * dtd, const xmlChar * name, const xmlChar * PublicID, const xmlChar * SystemID);
 #ifdef LIBXML_TREE_ENABLED
 	XMLPUBFUN xmlNotationTablePtr XMLCALL xmlCopyNotationTable(xmlNotationTablePtr table);
 #endif /* LIBXML_TREE_ENABLED */
@@ -148,7 +148,7 @@ XMLPUBFUN void XMLCALL xmlSnprintfElementContent(char * buf, int size, xmlElemen
 /* DEPRECATED */
 
 /* Element */
-XMLPUBFUN xmlElement * XMLCALL xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlChar * name, xmlElementTypeVal type, xmlElementContent * content);
+XMLPUBFUN xmlElement * XMLCALL xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtd * dtd, const xmlChar * name, xmlElementTypeVal type, xmlElementContent * content);
 #ifdef LIBXML_TREE_ENABLED
 	XMLPUBFUN xmlElementTablePtr XMLCALL xmlCopyElementTable(xmlElementTablePtr table);
 #endif /* LIBXML_TREE_ENABLED */
@@ -166,7 +166,7 @@ XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeEnumeration(xmlEnumeration * cur);
 #endif /* LIBXML_TREE_ENABLED */
 
 /* Attribute */
-XMLPUBFUN xmlAttribute * XMLCALL xmlAddAttributeDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlChar * elem,
+XMLPUBFUN xmlAttribute * XMLCALL xmlAddAttributeDecl(xmlValidCtxtPtr ctxt, xmlDtd * dtd, const xmlChar * elem,
     const xmlChar * name, const xmlChar * ns, xmlAttributeType type, xmlAttributeDefault def, const xmlChar * defaultValue, xmlEnumeration * tree);
 #ifdef LIBXML_TREE_ENABLED
 	XMLPUBFUN xmlAttributeTablePtr XMLCALL xmlCopyAttributeTable(xmlAttributeTablePtr table);
@@ -204,7 +204,7 @@ XMLPUBFUN xmlList * XMLCALL xmlGetRefs(xmlDoc * pDoc, const xmlChar * pID);
 	XMLPUBFUN int XMLCALL xmlValidateAttributeDecl(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlAttribute * attr);
 	XMLPUBFUN int XMLCALL xmlValidateAttributeValue(xmlAttributeType type, const xmlChar * value);
 	XMLPUBFUN int XMLCALL xmlValidateNotationDecl(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNotation * nota);
-	XMLPUBFUN int XMLCALL xmlValidateDtd(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlDtdPtr dtd);
+	XMLPUBFUN int XMLCALL xmlValidateDtd(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlDtd * dtd);
 	XMLPUBFUN int XMLCALL xmlValidateDtdFinal(xmlValidCtxtPtr ctxt, xmlDoc * doc);
 	XMLPUBFUN int XMLCALL xmlValidateDocument(xmlValidCtxtPtr ctxt, xmlDoc * doc);
 	XMLPUBFUN int XMLCALL xmlValidateElement(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem);
@@ -218,10 +218,10 @@ XMLPUBFUN xmlList * XMLCALL xmlGetRefs(xmlDoc * pDoc, const xmlChar * pID);
 #endif /* LIBXML_VALID_ENABLED or LIBXML_SCHEMAS_ENABLED */
 
 XMLPUBFUN int /*XMLCALL*/FASTCALL xmlIsMixedElement(xmlDoc * doc, const xmlChar * name);
-XMLPUBFUN xmlAttribute * XMLCALL xmlGetDtdAttrDesc(xmlDtdPtr dtd, const xmlChar * elem, const xmlChar * name);
-XMLPUBFUN xmlAttribute * XMLCALL xmlGetDtdQAttrDesc(xmlDtdPtr dtd, const xmlChar * elem, const xmlChar * name, const xmlChar * prefix);
-XMLPUBFUN xmlNotation * XMLCALL xmlGetDtdNotationDesc(xmlDtdPtr dtd, const xmlChar * name);
-XMLPUBFUN xmlElement * XMLCALL xmlGetDtdQElementDesc(xmlDtdPtr dtd, const xmlChar * name, const xmlChar * prefix);
+XMLPUBFUN xmlAttribute * XMLCALL xmlGetDtdAttrDesc(xmlDtd * dtd, const xmlChar * elem, const xmlChar * name);
+XMLPUBFUN xmlAttribute * XMLCALL xmlGetDtdQAttrDesc(xmlDtd * dtd, const xmlChar * elem, const xmlChar * name, const xmlChar * prefix);
+XMLPUBFUN xmlNotation * XMLCALL xmlGetDtdNotationDesc(xmlDtd * dtd, const xmlChar * name);
+XMLPUBFUN xmlElement * XMLCALL xmlGetDtdQElementDesc(xmlDtd * dtd, const xmlChar * name, const xmlChar * prefix);
 XMLPUBFUN xmlElement * /*XMLCALL*/FASTCALL xmlGetDtdElementDesc(xmlDtd * dtd, const xmlChar * name);
 #ifdef LIBXML_VALID_ENABLED
 	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlValidGetPotentialChildren(xmlElementContent * ctree, const xmlChar ** names, int * len, int max);

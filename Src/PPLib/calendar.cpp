@@ -698,7 +698,7 @@ int TDateCalendar::SelectYear(HWND hWnd, int n /* 1..NumYearInBar */)
 
 int TDateCalendar::ScrollYear(HWND hWnd, int dir)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(dir < 0) {
 		if(y_firstyear > 1970) {
 			y_firstyear--;

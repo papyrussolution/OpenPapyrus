@@ -208,8 +208,8 @@ protected:
 #define NUM 251 /* Numbers 0-9. */
 
 #define SB_ENOUGH_REL_THRESHOLD  1024
-#define POSITIVE_SHORTCUT_THRESHOLD  (float)0.95
-#define NEGATIVE_SHORTCUT_THRESHOLD  (float)0.05
+#define POSITIVE_SHORTCUT_THRESHOLD  0.95f
+#define NEGATIVE_SHORTCUT_THRESHOLD  0.05f
 #define SYMBOL_CAT_ORDER  250
 
 #define NUMBER_OF_SEQ_CAT 4
@@ -2701,24 +2701,24 @@ static const uint8 VietnameseLangModel[] =
 	2, 0, 2, 1, 1, 0, 1, 2, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 2, 0, 0, 1, 1, 2, 0, 2,
 };
 
-static const SequenceModel Windows_1252DanishModel = { Windows_1252_Danish_CharToOrderMap, DanishLangModel, 30, (float)0.9968082796759031, true, "WINDOWS-1252" };
-static const SequenceModel Iso_8859_6ArabicModel = { Iso_8859_6_CharToOrderMap, ArabicLangModel, 64, (float)0.9696025116913417, false, "ISO-8859-6" };
-static const SequenceModel Windows_1256ArabicModel = { Windows_1256_CharToOrderMap, ArabicLangModel, 64, (float)0.9696025116913417, false, "WINDOWS-1256" };
-static const SequenceModel Latin5BulgarianModel = { Latin5_BulgarianCharToOrderMap, BulgarianLangModel, 64, (float)0.969392, false, "ISO-8859-5" };
-static const SequenceModel Win1251BulgarianModel = { win1251BulgarianCharToOrderMap, BulgarianLangModel, 64, (float)0.969392, false, "WINDOWS-1251" };
-static const SequenceModel Iso_8859_1GermanModel = { Iso_8859_1_German_CharToOrderMap, GermanLangModel, 31, (float)0.9934041448127945, true, "ISO-8859-1" };
-static const SequenceModel Windows_1253GreekModel = { Windows_1253_CharToOrderMap, GreekLangModel, 46, (float)0.958419074626211, false, "WINDOWS-1253" };
-static const SequenceModel Iso_8859_7GreekModel = { Iso_8859_7_CharToOrderMap, GreekLangModel, 46, (float)0.958419074626211, false, "ISO-8859-7" };
-static const SequenceModel Win1255Model = { win1255_CharToOrderMap, HebrewLangModel, 64, (float)0.984004, false, "WINDOWS-1255" };
-static const SequenceModel Iso_8859_2HungarianModel = { Iso_8859_2_CharToOrderMap, HungarianLangModel, 32, (float)0.9748272224933486, false, "ISO-8859-2" };
-static const SequenceModel Windows_1250HungarianModel = { Windows_1250_CharToOrderMap, HungarianLangModel, 32, (float)0.9748272224933486, false, "WINDOWS-1250" };
-static const SequenceModel Koi8rRussianModel       = { KOI8R_CharToOrderMap,       RussianLangModel, 64, (float)0.976601, false, "KOI8-R" };
-static const SequenceModel Win1251RussianModel     = { win1251_CharToOrderMap,     RussianLangModel, 64, (float)0.976601, false, "WINDOWS-1251" };
-static const SequenceModel Latin5RussianModel      = { latin5_CharToOrderMap,      RussianLangModel, 64, (float)0.976601, false, "ISO-8859-5" };
-static const SequenceModel MacCyrillicRussianModel = { macCyrillic_CharToOrderMap, RussianLangModel, 64, (float)0.976601, false, "MAC-CYRILLIC" };
-static const SequenceModel Ibm866RussianModel      = { IBM866_CharToOrderMap,      RussianLangModel, 64, (float)0.976601, false, "IBM866" };
-static const SequenceModel Ibm855RussianModel      = { IBM855_CharToOrderMap,      RussianLangModel, 64, (float)0.976601, false, "IBM855" };
-static const SequenceModel Iso_8859_15DanishModel = { Iso_8859_15_Danish_CharToOrderMap, DanishLangModel, 30, (float)0.9968082796759031, true, "ISO-8859-15" };
+static const SequenceModel Windows_1252DanishModel = { Windows_1252_Danish_CharToOrderMap, DanishLangModel, 30, 0.9968082796759031f, true, "WINDOWS-1252" };
+static const SequenceModel Iso_8859_6ArabicModel = { Iso_8859_6_CharToOrderMap, ArabicLangModel, 64, 0.9696025116913417f, false, "ISO-8859-6" };
+static const SequenceModel Windows_1256ArabicModel = { Windows_1256_CharToOrderMap, ArabicLangModel, 64, 0.9696025116913417f, false, "WINDOWS-1256" };
+static const SequenceModel Latin5BulgarianModel = { Latin5_BulgarianCharToOrderMap, BulgarianLangModel, 64, 0.969392f, false, "ISO-8859-5" };
+static const SequenceModel Win1251BulgarianModel = { win1251BulgarianCharToOrderMap, BulgarianLangModel, 64, 0.969392f, false, "WINDOWS-1251" };
+static const SequenceModel Iso_8859_1GermanModel = { Iso_8859_1_German_CharToOrderMap, GermanLangModel, 31, 0.9934041448127945f, true, "ISO-8859-1" };
+static const SequenceModel Windows_1253GreekModel = { Windows_1253_CharToOrderMap, GreekLangModel, 46, 0.958419074626211f, false, "WINDOWS-1253" };
+static const SequenceModel Iso_8859_7GreekModel = { Iso_8859_7_CharToOrderMap, GreekLangModel, 46, 0.958419074626211f, false, "ISO-8859-7" };
+static const SequenceModel Win1255Model = { win1255_CharToOrderMap, HebrewLangModel, 64, 0.984004f, false, "WINDOWS-1255" };
+static const SequenceModel Iso_8859_2HungarianModel = { Iso_8859_2_CharToOrderMap, HungarianLangModel, 32, 0.9748272224933486f, false, "ISO-8859-2" };
+static const SequenceModel Windows_1250HungarianModel = { Windows_1250_CharToOrderMap, HungarianLangModel, 32, 0.9748272224933486f, false, "WINDOWS-1250" };
+static const SequenceModel Koi8rRussianModel       = { KOI8R_CharToOrderMap,       RussianLangModel, 64, 0.976601f, false, "KOI8-R" };
+static const SequenceModel Win1251RussianModel     = { win1251_CharToOrderMap,     RussianLangModel, 64, 0.976601f, false, "WINDOWS-1251" };
+static const SequenceModel Latin5RussianModel      = { latin5_CharToOrderMap,      RussianLangModel, 64, 0.976601f, false, "ISO-8859-5" };
+static const SequenceModel MacCyrillicRussianModel = { macCyrillic_CharToOrderMap, RussianLangModel, 64, 0.976601f, false, "MAC-CYRILLIC" };
+static const SequenceModel Ibm866RussianModel      = { IBM866_CharToOrderMap,      RussianLangModel, 64, 0.976601f, false, "IBM866" };
+static const SequenceModel Ibm855RussianModel      = { IBM855_CharToOrderMap,      RussianLangModel, 64, 0.976601f, false, "IBM855" };
+static const SequenceModel Iso_8859_15DanishModel = { Iso_8859_15_Danish_CharToOrderMap, DanishLangModel, 30, 0.9968082796759031f, true, "ISO-8859-15" };
 static const SequenceModel Iso_8859_1DanishModel = { Iso_8859_1_Danish_CharToOrderMap, DanishLangModel, 30, (float)0.9968082796759031, true, "ISO-8859-1" };
 static const SequenceModel Iso_8859_1FrenchModel = { Iso_8859_1_French_CharToOrderMap, FrenchLangModel, 38, (float)0.997057879992383, true, "ISO-8859-1" };
 static const SequenceModel Iso_8859_15FrenchModel = { Iso_8859_15_French_CharToOrderMap, FrenchLangModel, 38, (float)0.997057879992383, true, "ISO-8859-15" };
@@ -3359,7 +3359,7 @@ void nsCharSetProber::JapaneseContextAnalysis::Reset(bool aIsPreferredLanguage)
 float nsCharSetProber::JapaneseContextAnalysis::GetConfidence() const
 {
 	//This is just one way to calculate confidence. It works well for me.
-	return (mTotalRel > mDataThreshold) ? (((float)(mTotalRel - mRelSample[0]))/mTotalRel) : (float)DONT_KNOW;
+	return (mTotalRel > mDataThreshold) ? (((float)(mTotalRel - mRelSample[0]))/mTotalRel) : DONT_KNOW;
 }
 //
 // This filter applies to all scripts which do not use English characters
@@ -3431,7 +3431,7 @@ bool nsCharSetProber::FilterWithEnglishLetters(const char* aBuf, uint32 aLen, ch
 	if(!isInTag)
 		while(prevPtr < curPtr)
 			*newptr++ = *prevPtr++;
-	newLen = (uint32)(newptr - *newBuf);
+	newLen = static_cast<uint32>(newptr - *newBuf);
 	return true;
 }
 //

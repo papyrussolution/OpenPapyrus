@@ -340,8 +340,8 @@ switch(activation_function) { \
 	case Fann2::FANN_SIGMOID_STEPWISE: \
 		result = (float)fann_stepwise(((float)-2.64665246009826660156e+00), ((float)-1.47221946716308593750e+00), ((float)-5.49306154251098632812e-01), ((float)5.49306154251098632812e-01), ((float)1.47221934795379638672e+00), ((float)2.64665293693542480469e+00), ((float) 4.99999988824129104614e-03), ((float) 5.00000007450580596924e-02), ((float) 2.50000000000000000000e-01), ((float)7.50000000000000000000e-01), ((float)9.49999988079071044922e-01), ((float)9.95000004768371582031e-01), 0, 1, value); \
         break; \
-	case Fann2::FANN_THRESHOLD: result = (float)((value < 0) ? 0 : 1); break; \
-	case Fann2::FANN_THRESHOLD_SYMMETRIC: result = (float)((value < 0) ? -1 : 1); break; \
+	case Fann2::FANN_THRESHOLD: result = ((value < 0) ? 0.0f : 1.0f); break; \
+	case Fann2::FANN_THRESHOLD_SYMMETRIC: result = ((value < 0) ? -1.0f : 1.0f); break; \
 	case Fann2::FANN_GAUSSIAN: result = (float)fann_gaussian_real(value); break; \
 	case Fann2::FANN_GAUSSIAN_SYMMETRIC: result = (float)fann_gaussian_symmetric_real(value); break; \
 	case Fann2::FANN_ELLIOT: result = (float)fann_elliot_real(value); break; \

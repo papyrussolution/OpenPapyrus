@@ -91,7 +91,7 @@ int SCDBObjOrder::Init(const char * pExpPath, const char * pImpPath)
 
 int SCDBObjOrder::PutHdrRec(void * pRec)
 {
-	int ok = 1;
+	int    ok = 1;
 	long   id = 0, shifted_id = 0;
 	uint32 ver = P_Ctx->PalmCfg.Ver;
 	LDATE dt = ZERODATE;
@@ -179,7 +179,7 @@ int SCDBObjOrder::ImportHdr(PROGRESSFN pFn)
 
 int SCDBObjOrder::PutLineRec(void * pRec)
 {
-	int ok = 1;
+	int    ok = 1;
 	char   log_buf[256];
 	uint32 ver = P_Ctx->PalmCfg.Ver;
 	long   ord_id = 0, ord_shifted_id = 0;
@@ -406,7 +406,7 @@ int SCDBObjCliInv::ImportHdr(PROGRESSFN pFn)
 
 int SCDBObjCliInv::PutLineRec(void * pRec)
 {
-	int ok = 1;
+	int    ok = 1;
 	char   log_buf[256];
 	long   ord_id = 0, ord_shifted_id = 0;
 	OrdLine * p_rec = (OrdLine*)pRec;

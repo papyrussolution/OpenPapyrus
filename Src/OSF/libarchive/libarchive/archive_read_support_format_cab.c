@@ -1384,7 +1384,7 @@ static const void * cab_read_ahead_cfdata_deflate(struct archive_read * a, ssize
 	if(cab->uncompressed_buffer == NULL) {
 		cab->uncompressed_buffer_size = 0x8000;
 		cab->uncompressed_buffer
-			= (uchar*)SAlloc::M(cab->uncompressed_buffer_size);
+			= (uchar *)SAlloc::M(cab->uncompressed_buffer_size);
 		if(cab->uncompressed_buffer == NULL) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "No memory for CAB reader");
@@ -1612,7 +1612,7 @@ static const void * cab_read_ahead_cfdata_lzx(struct archive_read * a, ssize_t *
 	if(cab->uncompressed_buffer == NULL) {
 		cab->uncompressed_buffer_size = 0x8000;
 		cab->uncompressed_buffer
-			= (uchar*)SAlloc::M(cab->uncompressed_buffer_size);
+			= (uchar *)SAlloc::M(cab->uncompressed_buffer_size);
 		if(cab->uncompressed_buffer == NULL) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "No memory for CAB reader");
@@ -2159,7 +2159,7 @@ static void lzx_translation(struct lzx_stream * strm, void * p, size_t size, uin
 	b = (uchar *)p;
 	end = b + size - 10;
 	while(b < end && (b = (uchar *)memchr(b, 0xE8, end - b)) != NULL) {
-		size_t i = b - (uchar*)p;
+		size_t i = b - (uchar *)p;
 		int32_t cp, displacement, value;
 
 		cp = (int32_t)(offset + (uint32_t)i);

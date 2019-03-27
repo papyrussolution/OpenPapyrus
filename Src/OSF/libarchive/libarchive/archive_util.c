@@ -441,7 +441,7 @@ int __archive_mktemp(const char * tmpdir)
 		p = tp;
 		archive_random(p, ep - p);
 		while(p < ep) {
-			int d = *((uchar*)p) % sizeof(num);
+			int d = *((uchar *)p) % sizeof(num);
 			*p++ = num[d];
 		}
 		fd = open(temp_name.s, O_CREAT | O_EXCL | O_RDWR | O_CLOEXEC,

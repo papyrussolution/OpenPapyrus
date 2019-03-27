@@ -664,7 +664,7 @@ private:
 		TDialog * p_dlg = new TDialog(DLG_RTACCLI);
 		if(CheckDialogPtrErr(&p_dlg)) {
 			int    others_acc = (pItem->ObjID == 0 && isNew == 0) ? 1 : 0;
-			p_acc_list = AcctObj.MakeStrAssocList((void *)ACY_SEL_BAL);
+			p_acc_list = AcctObj.MakeStrAssocList(reinterpret_cast<void *>(ACY_SEL_BAL));
 			p_dlg->AddClusterAssoc(CTL_RTACCLI_FLAGS, 0, PPR_READ);
 			p_dlg->AddClusterAssoc(CTL_RTACCLI_FLAGS, 1, 0);
 			p_dlg->SetClusterData(CTL_RTACCLI_FLAGS, pItem->Flags);

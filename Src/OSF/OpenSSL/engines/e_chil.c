@@ -1132,7 +1132,7 @@ static int hwcrhk_get_pass(const char * prompt_info,
 
 static int hwcrhk_insert_card(const char * prompt_info, const char * wrong_info, HWCryptoHook_PassphraseContext * ppctx, HWCryptoHook_CallerContext * cactx)
 {
-	int ok = -1;
+	int    ok = -1;
 	UI * ui;
 	void * callback_data = NULL;
 	UI_METHOD * ui_method = NULL;

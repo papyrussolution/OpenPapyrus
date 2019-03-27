@@ -78,7 +78,7 @@ int archive_read_support_format_xar(struct archive * _a)
 /* #define DEBUG_PRINT_TOC 1 */
 #if DEBUG_PRINT_TOC
 #define PRINT_TOC(d, outbytes)  do {                            \
-		uchar * x = (uchar*)(uintptr_t)d;       \
+		uchar * x = (uchar *)(uintptr_t)d;       \
 		uchar c = x[outbytes-1];                        \
 		x[outbytes - 1] = 0;                                    \
 		fprintf(stderr, "%s", x);                               \
@@ -1534,7 +1534,7 @@ static int decompress(struct archive_read * a, const void ** buff, size_t * outb
 		case GZIP:
 		    xar->stream.next_in = (Bytef *)(uintptr_t)b;
 		    xar->stream.avail_in = avail_in;
-		    xar->stream.next_out = (uchar*)outbuff;
+		    xar->stream.next_out = (uchar *)outbuff;
 		    xar->stream.avail_out = avail_out;
 		    r = inflate(&(xar->stream), 0);
 		    switch(r) {
@@ -1586,7 +1586,7 @@ static int decompress(struct archive_read * a, const void ** buff, size_t * outb
 		case XZ:
 		    xar->lzstream.next_in = b;
 		    xar->lzstream.avail_in = avail_in;
-		    xar->lzstream.next_out = (uchar*)outbuff;
+		    xar->lzstream.next_out = (uchar *)outbuff;
 		    xar->lzstream.avail_out = avail_out;
 		    r = lzma_code(&(xar->lzstream), LZMA_RUN);
 		    switch(r) {

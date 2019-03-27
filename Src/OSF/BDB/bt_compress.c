@@ -1227,13 +1227,13 @@ static int __bamc_compress_get_prev(DBC * dbc, uint32 flags)
 		if(cp->currentKey == NULL) {
 			// No current key, so fetch the last key 
 			flags |= DB_LAST;
-			tofind = (uint32)-1;
+			tofind = static_cast<uint32>(-1);
 		}
 		else if(cp->prevcursor == 0) {
 			// The current key is at the begining of the
 			// compressed block, so get the last key from the previous block
 			flags |= DB_PREV;
-			tofind = (uint32)-1;
+			tofind = static_cast<uint32>(-1);
 		}
 		else {
 			// We have to search for the previous key in the current block

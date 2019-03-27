@@ -60,7 +60,7 @@ int SLAPI PPInetAccountManager::GetMailAccounts(MailClientType mct, PPID * pActi
 
 int SLAPI PPInetAccountManager::GetOutlookAccounts(PPID * pActiveID, PPInetAccntArray * pAccounts)
 {
-	int ok = 1;
+	int    ok = 1;
 	const char * p_param_name        = "Account Name";
 	const char * p_param_addr        = "Email";
 	const char * p_param_smtp        = "SMTP Server";
@@ -124,7 +124,7 @@ int SLAPI PPInetAccountManager::GetOutlookAccounts(PPID * pActiveID, PPInetAccnt
 
 int SLAPI PPInetAccountManager::GetOutlookExpressAccounts(PPID * pActiveID, PPInetAccntArray * pAccounts)
 {
-	int ok = 1;
+	int    ok = 1;
 	const char * p_root_key          = "SOFTWARE\\Microsoft\\Internet Account Manager\\Accounts";
 	const char * p_acctmngr_key      = "SOFTWARE\\Microsoft\\Internet Account Manager";
 	const char * p_param_name        = "Account Name";
@@ -184,7 +184,7 @@ int SLAPI PPInetAccountManager::GetOutlookExpressAccounts(PPID * pActiveID, PPIn
 
 int SLAPI PPInetAccountManager::GetBatAccounts(PPID * pActiveAcctID, PPInetAccntArray * pAccounts)
 {
-	int ok = 1;
+	int    ok = 1;
 	THROW_INVARG(pAccounts);
 	pAccounts->freeAll();
 	CATCHZOK
@@ -205,7 +205,7 @@ int SLAPI PPInetAccountManager::Cat(const PPInetAccntArray * pSrc, PPInetAccntAr
 
 int SLAPI PPInetAccountManager::GetDefaultMailClient(MailClientType * pMCT)
 {
-	int ok = 1;
+	int    ok = 1;
 	const char * p_outlook       = "Microsoft Outlook";
 	const char * p_outlooke      = "Outlook Express";
 	const char * p_bat           = "The Bat";
@@ -895,7 +895,7 @@ int SLAPI PPViewReport::CreateRptList(ReportViewItemArray * pList)
 // virtual
 DBQuery * SLAPI PPViewReport::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
-	int ok = 1;
+	int    ok = 1;
 	uint brw_id = BROWSER_REPORT;
 	DBE dbe_type;
 	DBQ * dbq = 0;

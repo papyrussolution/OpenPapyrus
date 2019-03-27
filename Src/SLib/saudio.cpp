@@ -1,5 +1,5 @@
 // SAUDIO.CPP
-// Copyright (c) A.Sobolev 2018
+// Copyright (c) A.Sobolev 2018, 2019
 //
 #include <slib.h>
 #include <tv.h>
@@ -16,7 +16,7 @@ int SLAPI SGetAudioVolume(int decibels, double * pVolume)
 	float current_volume = 0.0f;
 	CoInitialize(NULL);
 	IMMDeviceEnumerator * p_device_enumerator = NULL;
-	HRESULT hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_INPROC_SERVER, __uuidof(IMMDeviceEnumerator), (void **)&p_device_enumerator);
+	HRESULT hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_INPROC_SERVER, __uuidof(IMMDeviceEnumerator), reinterpret_cast<void **>(&p_device_enumerator));
 	if(SUCCEEDED(hr) && p_device_enumerator) {
 		IMMDevice * p_default_device = 0;
 		hr = p_device_enumerator->GetDefaultAudioEndpoint(eRender, eConsole, &p_default_device);
@@ -24,7 +24,7 @@ int SLAPI SGetAudioVolume(int decibels, double * pVolume)
 		p_device_enumerator = NULL;
 		if(SUCCEEDED(hr) && p_default_device) {
 			IAudioEndpointVolume * p_endpoint_volume = NULL;
-			hr = p_default_device->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_INPROC_SERVER, NULL, (void **)&p_endpoint_volume);
+			hr = p_default_device->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_INPROC_SERVER, NULL, reinterpret_cast<void **>(&p_endpoint_volume));
 			p_default_device->Release();
 			p_default_device = NULL; 
 			if(SUCCEEDED(hr) && p_endpoint_volume) {
@@ -53,7 +53,7 @@ int SLAPI SSetAudioVolume(int decibels, double volume)
 	int    ok = 1;
 	CoInitialize(NULL);
 	IMMDeviceEnumerator * p_device_enumerator = NULL;
-	HRESULT hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_INPROC_SERVER, __uuidof(IMMDeviceEnumerator), (LPVOID *)&p_device_enumerator);
+	HRESULT hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_INPROC_SERVER, __uuidof(IMMDeviceEnumerator), reinterpret_cast<void **>(&p_device_enumerator));
 	if(SUCCEEDED(hr) && p_device_enumerator) {
 		IMMDevice * p_default_device = 0;
 		hr = p_device_enumerator->GetDefaultAudioEndpoint(eRender, eConsole, &p_default_device);
@@ -61,14 +61,14 @@ int SLAPI SSetAudioVolume(int decibels, double volume)
 		p_device_enumerator = NULL;
 		if(SUCCEEDED(hr) && p_default_device) {
 			IAudioEndpointVolume * p_endpoint_volume = NULL;
-			hr = p_default_device->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_INPROC_SERVER, NULL, (LPVOID *)&p_endpoint_volume);
+			hr = p_default_device->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_INPROC_SERVER, NULL, reinterpret_cast<void **>(&p_endpoint_volume));
 			p_default_device->Release();
 			p_default_device = NULL; 
 			if(SUCCEEDED(hr) && p_endpoint_volume) {
 				if(decibels)
-					hr = p_endpoint_volume->SetMasterVolumeLevel((float)volume, NULL);
+					hr = p_endpoint_volume->SetMasterVolumeLevel(static_cast<float>(volume), NULL);
 				else
-					hr = p_endpoint_volume->SetMasterVolumeLevelScalar((float)volume, NULL); // newVolume [0.0-1.0]
+					hr = p_endpoint_volume->SetMasterVolumeLevelScalar(static_cast<float>(volume), NULL); // newVolume [0.0-1.0]
 				p_endpoint_volume->Release();
 			}
 		}

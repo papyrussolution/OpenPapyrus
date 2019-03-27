@@ -676,7 +676,7 @@ struct InnerExtraDbfCreateFlds {
 
 int InnerExtraDbfCreateFlds::Add(SDbfCreateFld * pFld)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(pFld) {
 		SString temp_buf;
 		SDbfCreateFld * p_fld = new SDbfCreateFld;
@@ -1088,7 +1088,7 @@ int32 DL6ICLS_PPDbfTable::AppendRec(ISDbfRecord* pRec)
 
 int32 DL6ICLS_PPDbfTable::UpdateRec(ISDbfRecord* pRec)
 {
-	int ok = -1;
+	int    ok = -1;
 	DbfTable * p_tbl = static_cast<DbfTable *>(ExtraPtr);
 	if(p_tbl) {
 		DbfRecord * p_rec = static_cast<DbfRecord *>(SCoClass::GetExtraPtrByInterface(pRec));
@@ -2154,7 +2154,7 @@ DL6_IC_DESTRUCTOR(PPDL200Resolver) { delete ((DL2_Resolver *)ExtraPtr); }
 int32  DL6ICLS_PPDL200Resolver::SetPeriod(SDateRange * pPeriod)
 {
 	DateRange prd;
-	DL2_Resolver * p_prcssr = (DL2_Resolver *)ExtraPtr;
+	DL2_Resolver * p_prcssr = static_cast<DL2_Resolver *>(ExtraPtr);
 	if(pPeriod)
 		prd = OleDateRangeToDateRange(*pPeriod);
 	return (p_prcssr) ? p_prcssr->SetPeriod(prd) : RaiseAppError();
@@ -2162,14 +2162,14 @@ int32  DL6ICLS_PPDL200Resolver::SetPeriod(SDateRange * pPeriod)
 
 double DL6ICLS_PPDL200Resolver::Resolve(SString & rExpression)
 {
-	DL2_Resolver * p_prcssr = (DL2_Resolver *)ExtraPtr;
+	DL2_Resolver * p_prcssr = static_cast<DL2_Resolver *>(ExtraPtr);
 	return (p_prcssr) ? p_prcssr->Resolve(rExpression) : RaiseAppError();
 }
 
 SString & DL6ICLS_PPDL200Resolver::ResolveName(SString & rMetaVar)
 {
 	RetStrBuf.Z();
-	DL2_Resolver * p_prcssr = (DL2_Resolver *)ExtraPtr;
+	DL2_Resolver * p_prcssr = static_cast<DL2_Resolver *>(ExtraPtr);
 	if(SetAppError(BIN(p_prcssr)))
 		p_prcssr->ResolveName(rMetaVar, RetStrBuf);
 	return RetStrBuf;
@@ -2209,7 +2209,7 @@ int32 DL6ICLS_PPAmountList::Add(PpyAmountEntry * pEntry)
 
 int32 DL6ICLS_PPAmountList::RemoveByPos(int32 pos)
 {
-	int ok = -1;
+	int    ok = -1;
 	AmtList * p_list = static_cast<AmtList *>(ExtraPtr);
 	if(p_list && pos < (long)p_list->getCount()) {
 		p_list->atFree(pos);
@@ -2277,7 +2277,7 @@ DL6_IC_CONSTRUCTION_EXTRA(PPObjTag, DL6ICLS_PPObjTag_VTab, PPObjTag);
 int32 DL6ICLS_PPObjTag::Search(int32 id, PPYOBJREC rec)
 {
 	int    ok = 0;
-	PPObjTag * p_obj = (PPObjTag *)ExtraPtr;
+	PPObjTag * p_obj = static_cast<PPObjTag *>(ExtraPtr);
 	if(p_obj) {
 		PPObjectTag tag_rec;
 		MEMSZERO(tag_rec);
@@ -2291,7 +2291,7 @@ int32 DL6ICLS_PPObjTag::Search(int32 id, PPYOBJREC rec)
 int32 DL6ICLS_PPObjTag::SearchByName(SString & text, int32 kind, int32 extraParam, PPYOBJREC rec)
 {
 	int    ok = 0;
-	PPObjTag * p_obj = (PPObjTag *)ExtraPtr;
+	PPObjTag * p_obj = static_cast<PPObjTag *>(ExtraPtr);
 	if(p_obj) {
 		PPObjectTag tag_rec;
 		PPID   id = 0;
@@ -2316,14 +2316,14 @@ int32 DL6ICLS_PPObjTag::SearchByName(SString & text, int32 kind, int32 extraPara
 SString & DL6ICLS_PPObjTag::GetName(int32 id)
 {
 	char   name_buf[64];
-	PPObjTag * p_obj = (PPObjTag *)ExtraPtr;
+	PPObjTag * p_obj = static_cast<PPObjTag *>(ExtraPtr);
 	int    ok = p_obj->GetName(id, name_buf, sizeof(name_buf));
 	return (RetStrBuf = name_buf);
 }
 
 IStrAssocList* DL6ICLS_PPObjTag::GetSelector(int32 extraParam)
 {
-	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, (PPObject *)ExtraPtr, reinterpret_cast<void *>(extraParam)));
+	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, static_cast<PPObject *>(ExtraPtr), reinterpret_cast<void *>(extraParam)));
 	SetAppError(BIN(p));
 	return p;
 }
@@ -2389,7 +2389,7 @@ SString & DL6ICLS_PPObjUnit::GetName(int32 id)
 
 IStrAssocList * DL6ICLS_PPObjUnit::GetSelector(int32 extraParam)
 {
-	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, (PPObject *)ExtraPtr, reinterpret_cast<void *>(extraParam)));
+	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, static_cast<PPObject *>(ExtraPtr), reinterpret_cast<void *>(extraParam)));
 	SetAppError(BIN(p));
 	return p;
 }
@@ -2480,7 +2480,7 @@ SString & DL6ICLS_PPObjOprKind::GetName(int32 id)
 
 IStrAssocList * DL6ICLS_PPObjOprKind::GetSelector(int32 extraParam)
 {
-	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, (PPObject *)ExtraPtr, reinterpret_cast<void *>(extraParam)));
+	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, static_cast<PPObject *>(ExtraPtr), reinterpret_cast<void *>(extraParam)));
 	SetAppError(BIN(p));
 	return p;
 }
@@ -2552,7 +2552,7 @@ static void FASTCALL FillAccSheetRec(const PPAccSheet * pInner, SPpyO_AccSheet *
 int32 DL6ICLS_PPObjAccSheet::Search(int32 id, PPYOBJREC rec)
 {
 	int    ok = 0;
-	PPObjAccSheet * p_obj = (PPObjAccSheet *)ExtraPtr;
+	PPObjAccSheet * p_obj = static_cast<PPObjAccSheet *>(ExtraPtr);
 	if(p_obj) {
 		PPAccSheet acs_rec;
 		ok = p_obj->Fetch(id, &acs_rec);
@@ -2565,7 +2565,7 @@ int32 DL6ICLS_PPObjAccSheet::Search(int32 id, PPYOBJREC rec)
 int32 DL6ICLS_PPObjAccSheet::SearchByName(SString & text, int32 kind, int32 extraParam, PPYOBJREC rec)
 {
 	int    ok = 0;
-	PPObjAccSheet * p_obj = (PPObjAccSheet *)ExtraPtr;
+	PPObjAccSheet * p_obj = static_cast<PPObjAccSheet *>(ExtraPtr);
 	if(p_obj) {
 		PPAccSheet acs_rec;
 		PPID   id = 0;
@@ -2578,7 +2578,7 @@ int32 DL6ICLS_PPObjAccSheet::SearchByName(SString & text, int32 kind, int32 extr
 
 SString & DL6ICLS_PPObjAccSheet::GetName(int32 id)
 {
-	PPObjAccSheet * p_obj = (PPObjAccSheet *)ExtraPtr;
+	PPObjAccSheet * p_obj = static_cast<PPObjAccSheet *>(ExtraPtr);
 	if(p_obj) {
 		PPAccSheet acs_rec;
 		if(p_obj->Fetch(id, &acs_rec) > 0)
@@ -2595,7 +2595,7 @@ SString & DL6ICLS_PPObjAccSheet::GetName(int32 id)
 
 IStrAssocList * DL6ICLS_PPObjAccSheet::GetSelector(int32 extraParam)
 {
-	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, (PPObject *)ExtraPtr, reinterpret_cast<void *>(extraParam)));
+	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, static_cast<PPObject *>(ExtraPtr), reinterpret_cast<void *>(extraParam)));
 	SetAppError(BIN(p));
 	return p;
 }
@@ -2834,7 +2834,7 @@ static void FASTCALL FillCashNodeRec(const PPCashNode * pInner, SPpyO_CashNode *
 int32 DL6ICLS_PPObjCashNode::Search(int32 id, PPYOBJREC rec)
 {
 	int    ok = 0;
-	PPObjCashNode * p_obj = (PPObjCashNode *)ExtraPtr;
+	PPObjCashNode * p_obj = static_cast<PPObjCashNode *>(ExtraPtr);
 	if(p_obj) {
 		PPCashNode cn_rec;
 		MEMSZERO(cn_rec);
@@ -2848,7 +2848,7 @@ int32 DL6ICLS_PPObjCashNode::Search(int32 id, PPYOBJREC rec)
 int32 DL6ICLS_PPObjCashNode::SearchByName(SString & text, int32 kind, int32 extraParam, PPYOBJREC rec)
 {
 	int    ok = 0;
-	PPObjCashNode * p_obj = (PPObjCashNode *)ExtraPtr;
+	PPObjCashNode * p_obj = static_cast<PPObjCashNode *>(ExtraPtr);
 	if(p_obj) {
 		PPCashNode cn_rec;
 		PPID   id = 0;
@@ -2863,14 +2863,14 @@ int32 DL6ICLS_PPObjCashNode::SearchByName(SString & text, int32 kind, int32 extr
 SString & DL6ICLS_PPObjCashNode::GetName(int32 id)
 {
 	char   name_buf[64];
-	PPObjCashNode * p_obj = (PPObjCashNode *)ExtraPtr;
+	PPObjCashNode * p_obj = static_cast<PPObjCashNode *>(ExtraPtr);
 	int    ok = p_obj->GetName(id, name_buf, sizeof(name_buf));
 	return (RetStrBuf = name_buf);
 }
 
 IStrAssocList * DL6ICLS_PPObjCashNode::GetSelector(int32 extraParam)
 {
-	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, (PPObject *)ExtraPtr, reinterpret_cast<void *>(extraParam)));
+	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, static_cast<PPObject *>(ExtraPtr), reinterpret_cast<void *>(extraParam)));
 	SetAppError(BIN(p));
 	return p;
 }
@@ -2916,7 +2916,7 @@ static void FASTCALL FillQuotKindRec(const PPQuotKind * pInner, SPpyO_QuotKind *
 int32 DL6ICLS_PPObjQuotKind::Search(int32 id, PPYOBJREC rec)
 {
 	int    ok = 0;
-	PPObjQuotKind * p_obj = (PPObjQuotKind *)ExtraPtr;
+	PPObjQuotKind * p_obj = static_cast<PPObjQuotKind *>(ExtraPtr);
 	if(p_obj) {
 		PPQuotKind qk_rec;
 		MEMSZERO(qk_rec);
@@ -2930,7 +2930,7 @@ int32 DL6ICLS_PPObjQuotKind::Search(int32 id, PPYOBJREC rec)
 int32 DL6ICLS_PPObjQuotKind::SearchByName(SString & text, int32 kind, int32 extraParam, PPYOBJREC rec)
 {
 	int    ok = 0;
-	PPObjQuotKind * p_obj = (PPObjQuotKind *)ExtraPtr;
+	PPObjQuotKind * p_obj = static_cast<PPObjQuotKind *>(ExtraPtr);
 	if(p_obj) {
 		PPQuotKind qk_rec;
 		PPID   id = 0;
@@ -2958,14 +2958,14 @@ int32 DL6ICLS_PPObjQuotKind::SearchByName(SString & text, int32 kind, int32 extr
 SString & DL6ICLS_PPObjQuotKind::GetName(int32 id)
 {
 	char   name_buf[64];
-	PPObjQuotKind * p_obj = (PPObjQuotKind *)ExtraPtr;
+	PPObjQuotKind * p_obj = static_cast<PPObjQuotKind *>(ExtraPtr);
 	int    ok = p_obj->GetName(id, name_buf, sizeof(name_buf));
 	return (RetStrBuf = name_buf);
 }
 
 IStrAssocList * DL6ICLS_PPObjQuotKind::GetSelector(int32 extraParam)
 {
-	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, (PPObject *)ExtraPtr, reinterpret_cast<void *>(extraParam)));
+	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, static_cast<PPObject *>(ExtraPtr), reinterpret_cast<void *>(extraParam)));
 	SetAppError(BIN(p));
 	return p;
 }
@@ -3042,7 +3042,7 @@ SString & DL6ICLS_PPObjGoodsTax::GetName(int32 id)
 
 IStrAssocList * DL6ICLS_PPObjGoodsTax::GetSelector(int32 extraParam)
 {
-	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, (PPObject *)ExtraPtr, reinterpret_cast<void *>(extraParam)));
+	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, static_cast<PPObject *>(ExtraPtr), reinterpret_cast<void *>(extraParam)));
 	SetAppError(BIN(p));
 	return p;
 }
@@ -3118,7 +3118,7 @@ DL6_IC_CONSTRUCTION_EXTRA(PPObjStyloPalm, DL6ICLS_PPObjStyloPalm_VTab, PPObjStyl
 int32 DL6ICLS_PPObjStyloPalm::Search(int32 id, PPYOBJREC rec)
 {
 	int    ok = 0;
-	PPObjStyloPalm * p_obj = (PPObjStyloPalm *)ExtraPtr;
+	PPObjStyloPalm * p_obj = static_cast<PPObjStyloPalm *>(ExtraPtr);
 	if(p_obj) {
 		PPStyloPalmPacket pack;
 		ok = p_obj->GetPacket(id, &pack);
@@ -3131,7 +3131,7 @@ int32 DL6ICLS_PPObjStyloPalm::Search(int32 id, PPYOBJREC rec)
 int32 DL6ICLS_PPObjStyloPalm::SearchByName(SString & text, int32 kind, int32 extraParam, PPYOBJREC rec)
 {
 	int    ok = 0;
-	PPObjStyloPalm * p_obj = (PPObjStyloPalm *)ExtraPtr;
+	PPObjStyloPalm * p_obj = static_cast<PPObjStyloPalm *>(ExtraPtr);
 	if(p_obj) {
 		PPStyloPalm stylo_rec;
 		PPStyloPalmPacket pack;
@@ -3148,14 +3148,14 @@ int32 DL6ICLS_PPObjStyloPalm::SearchByName(SString & text, int32 kind, int32 ext
 SString & DL6ICLS_PPObjStyloPalm::GetName(int32 id)
 {
 	char   name_buf[64];
-	PPObjStyloPalm * p_obj = (PPObjStyloPalm *)ExtraPtr;
+	PPObjStyloPalm * p_obj = static_cast<PPObjStyloPalm *>(ExtraPtr);
 	int    ok = p_obj->GetName(id, name_buf, sizeof(name_buf));
 	return (RetStrBuf = name_buf);
 }
 
 IStrAssocList* DL6ICLS_PPObjStyloPalm::GetSelector(int32 extraParam)
 {
-	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, (PPObject *)ExtraPtr, reinterpret_cast<void *>(extraParam)));
+	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, static_cast<PPObject *>(ExtraPtr), reinterpret_cast<void *>(extraParam)));
 	SetAppError(BIN(p));
 	return p;
 }
@@ -3167,14 +3167,14 @@ int32 DL6ICLS_PPObjStyloPalm::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 	SString temp_buf;
 	SPpyO_StyloPalm * p_rec = (SPpyO_StyloPalm *)pRec;
 	PPStyloPalmPacket pack;
-	PPObjStyloPalm * p_obj = (PPObjStyloPalm *)ExtraPtr;
+	PPObjStyloPalm * p_obj = static_cast<PPObjStyloPalm *>(ExtraPtr);
 
 	THROW(p_obj);
 	THROW_PP_S(p_rec->RecTag == ppoStyloPalm, PPERR_INVSTRUCTAG, "ppoStyloPalm");
 	FillStyloPalmPack(p_rec, &pack);
 	pack.Rec.ID = 0;
 	THROW(p_obj->PutPacket(&id, &pack, (flags & 0x0001) ? 0 : 1));
-	ASSIGN_PTR(pID, (int32)id);
+	ASSIGN_PTR(pID, id);
 	CATCH
 		ok = RaiseAppError();
 	ENDCATCH
@@ -3187,7 +3187,7 @@ int32 DL6ICLS_PPObjStyloPalm::Update(int32 id, int32 flags, PPYOBJREC rec)
 	SString temp_buf;
 	SPpyO_StyloPalm * p_rec = (SPpyO_StyloPalm *)rec;
 	PPStyloPalmPacket pack;
-	PPObjStyloPalm * p_obj = (PPObjStyloPalm *)ExtraPtr;
+	PPObjStyloPalm * p_obj = static_cast<PPObjStyloPalm *>(ExtraPtr);
 	THROW(p_obj);
 	THROW_PP_S(p_rec->RecTag == ppoStyloPalm, PPERR_INVSTRUCTAG, "ppoStyloPalm");
 	FillStyloPalmPack(p_rec, &pack);
@@ -3268,7 +3268,7 @@ SString & DL6ICLS_PPObjCurrency::GetName(int32 id)
 
 IStrAssocList* DL6ICLS_PPObjCurrency::GetSelector(int32 extraParam)
 {
-	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, (PPObject *)ExtraPtr, reinterpret_cast<void *>(extraParam)));
+	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, static_cast<PPObject *>(ExtraPtr), reinterpret_cast<void *>(extraParam)));
 	SetAppError(BIN(p));
 	return p;
 }
@@ -3296,7 +3296,7 @@ int32 DL6ICLS_PPObjCurrency::GetConfig(PpyOCurrencyCfg * pCfg)
 
 int32 DL6ICLS_PPObjCurrency::GetRate(int32 curID, double * pRate)
 {
-	int ok = -1;
+	int    ok = -1;
 	CurRateCore cr_core;
 	LDATE dt;
 	ok = cr_core.GetRate(curID, LConfig.BaseRateTypeID, LConfig.BaseCurID, &dt, pRate);
@@ -3403,7 +3403,7 @@ static void FASTCALL Copy_GoodsClassRec(const SPpyO_GoodsClass * pOuter, PPGdsCl
 int32 DL6ICLS_PPObjGoodsClass::Search(int32 id, PPYOBJREC rec)
 {
 	int    ok = 0;
-	PPObjGoodsClass * p_obj = (PPObjGoodsClass *)ExtraPtr;
+	PPObjGoodsClass * p_obj = static_cast<PPObjGoodsClass *>(ExtraPtr);
 	if(p_obj) {
 		PPGdsClsPacket pack;
 		ok = p_obj->Fetch(id, &pack);
@@ -3416,7 +3416,7 @@ int32 DL6ICLS_PPObjGoodsClass::Search(int32 id, PPYOBJREC rec)
 int32 DL6ICLS_PPObjGoodsClass::SearchByName(SString & text, int32 kind, int32 extraParam, PPYOBJREC rec)
 {
 	int    ok = 0;
-	PPObjGoodsClass * p_obj = (PPObjGoodsClass *)ExtraPtr;
+	PPObjGoodsClass * p_obj = static_cast<PPObjGoodsClass *>(ExtraPtr);
 	if(p_obj) {
 		PPGdsClsPacket pack;
 		PPGdsCls gc_rec;
@@ -3432,7 +3432,7 @@ int32 DL6ICLS_PPObjGoodsClass::SearchByName(SString & text, int32 kind, int32 ex
 
 SString & DL6ICLS_PPObjGoodsClass::GetName(int32 id)
 {
-	PPObjGoodsClass * p_obj = (PPObjGoodsClass *)ExtraPtr;
+	PPObjGoodsClass * p_obj = static_cast<PPObjGoodsClass *>(ExtraPtr);
 	if(p_obj)
 		p_obj->GetName(id, &RetStrBuf);
 	else
@@ -3442,7 +3442,7 @@ SString & DL6ICLS_PPObjGoodsClass::GetName(int32 id)
 
 IStrAssocList* DL6ICLS_PPObjGoodsClass::GetSelector(int32 extraParam)
 {
-	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, (PPObject *)ExtraPtr, reinterpret_cast<void *>(extraParam)));
+	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, static_cast<PPObject *>(ExtraPtr), reinterpret_cast<void *>(extraParam)));
 	SetAppError(BIN(p));
 	return p;
 }
@@ -3454,13 +3454,13 @@ int32 DL6ICLS_PPObjGoodsClass::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 	SString temp_buf;
 	SPpyO_GoodsClass * p_rec = (SPpyO_GoodsClass *)pRec;
 	PPGdsClsPacket pack;
-	PPObjGoodsClass * p_obj = (PPObjGoodsClass *)ExtraPtr;
+	PPObjGoodsClass * p_obj = static_cast<PPObjGoodsClass *>(ExtraPtr);
 	THROW(p_obj);
 	THROW_PP_S(p_rec->RecTag == ppoGoodsClass, PPERR_INVSTRUCTAG, "ppoGoodsClass");
 	Copy_GoodsClassRec(p_rec, &pack);
 	pack.Rec.ID = 0;
 	THROW(p_obj->PutPacket(&id, &pack, (flags & 0x0001) ? 0 : 1));
-	ASSIGN_PTR(pID, (int32)id);
+	ASSIGN_PTR(pID, id);
 	CATCH
 		ok = RaiseAppError();
 	ENDCATCH
@@ -3473,7 +3473,7 @@ int32 DL6ICLS_PPObjGoodsClass::Update(int32 id, int32 flags, PPYOBJREC pRec)
 	SString temp_buf;
 	SPpyO_GoodsClass * p_rec = (SPpyO_GoodsClass *)pRec;
 	PPGdsClsPacket pack;
-	PPObjGoodsClass * p_obj = (PPObjGoodsClass *)ExtraPtr;
+	PPObjGoodsClass * p_obj = static_cast<PPObjGoodsClass *>(ExtraPtr);
 	THROW(p_obj);
 	THROW_PP_S(p_rec->RecTag == ppoGoodsClass, PPERR_INVSTRUCTAG, "ppoGoodsClass");
 	Copy_GoodsClassRec(p_rec, &pack);
@@ -3691,7 +3691,7 @@ SString & DL6ICLS_PPObjGoods::GetName(int32 id)
 
 IStrAssocList* DL6ICLS_PPObjGoods::GetSelector(int32 extraParam)
 {
-	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, (PPObject *)ExtraPtr, reinterpret_cast<void *>(extraParam)));
+	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, static_cast<PPObject *>(ExtraPtr), reinterpret_cast<void *>(extraParam)));
 	SetAppError(BIN(p));
 	return p;
 }
@@ -4073,7 +4073,7 @@ SString & DL6ICLS_PPObjGoodsGroup::GetName(int32 id)
 
 IStrAssocList* DL6ICLS_PPObjGoodsGroup::GetSelector(int32 extraParam)
 {
-	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, (PPObject *)ExtraPtr, reinterpret_cast<void *>(extraParam)));
+	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, static_cast<PPObject *>(ExtraPtr), reinterpret_cast<void *>(extraParam)));
 	SetAppError(BIN(p));
 	return p;
 }
@@ -4181,7 +4181,7 @@ IStrAssocList* DL6ICLS_PPObjGoodsGroup::GetHierarchy(int32 grpID)
 		p_list = new StrAssocArray;
 		p_obj->GetHierarchy(grpID, p_list);
 	}
-	return (IStrAssocList *)GetIStrAssocList(this, p_list);
+	return reinterpret_cast<IStrAssocList *>(GetIStrAssocList(this, p_list));
 }
 
 IStrAssocList* DL6ICLS_PPObjGoodsGroup::GetChildList(int32 parentGrpID)
@@ -4189,7 +4189,7 @@ IStrAssocList* DL6ICLS_PPObjGoodsGroup::GetChildList(int32 parentGrpID)
 	StrAssocArray * p_list = 0;
 	PPObjGoodsGroup * p_obj = static_cast<PPObjGoodsGroup *>(ExtraPtr);
 	if(p_obj && parentGrpID)
-		p_list = p_obj->MakeStrAssocList((void *)parentGrpID);
+		p_list = p_obj->MakeStrAssocList(reinterpret_cast<void *>(parentGrpID));
 	SETIFZ(p_list, new StrAssocArray);
 	return (IStrAssocList *)GetIStrAssocList(this, p_list);
 }
@@ -4312,7 +4312,7 @@ IStrAssocList* DL6ICLS_PPObjLocation::GetSelector(int32 extraParam)
 	PPObjPerson * p_obj = static_cast<PPObjPerson *>(ExtraPtr);
 	IStrAssocList * p = p_obj ? reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, (PPObject *)&p_obj->LocObj, reinterpret_cast<void *>(extraParam))) : 0;
 	// } @v9.2.5
-	// @v9.2.5 IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, (PPObject *)ExtraPtr, extraParam);
+	// @v9.2.5 IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, static_cast<PPObject *>(ExtraPtr), extraParam);
 	SetAppError(BIN(p));
 	return p;
 }
@@ -5021,7 +5021,7 @@ IStrAssocList * DL6ICLS_PPObjPerson::GetRegList(int32 psnID, int32 regType)
 		ReleaseUnknObj(&p);
 		AppError = 1;
 	ENDCATCH
-	return (IStrAssocList*)p;
+	return (IStrAssocList *)p;
 }
 //
 // } PPObjPerson
@@ -5334,7 +5334,7 @@ int32 DL6ICLS_PPBillPacket::PutHeader(SPpyO_Bill * pHeader)
 
 int32 DL6ICLS_PPBillPacket::UpdateHeader(SPpyO_Bill * pHeader)
 {
-	int ok = -1;
+	int    ok = -1;
 	PPBillPacket * p_pack = static_cast<PPBillPacket *>(ExtraPtr);
 	if(p_pack && pHeader) {
 		FillBillPacket(pHeader, p_pack);
@@ -5421,7 +5421,7 @@ IStrAssocList * DL6ICLS_PPBillPacket::GetOrderList()
 			assoc_list.Add(list.get(i), 0, 0);
 		}
 	}
-	return (assoc_list.getCount()) ? (IStrAssocList*)GetIStrAssocList(this, &assoc_list, 0) : 0;
+	return (assoc_list.getCount()) ? (IStrAssocList *)GetIStrAssocList(this, &assoc_list, 0) : 0;
 }
 
 IPapyrusAmountList * DL6ICLS_PPBillPacket::GetAmountList()
@@ -5480,7 +5480,7 @@ void FillFreightRec(const PPFreight * pInner, SPpyO_Freight * pOuter)
 
 int32 DL6ICLS_PPBillPacket::GetFreight(SPpyO_Freight * pFreight)
 {
-	int ok = -1;
+	int    ok = -1;
 	PPBillPacket * p_pack = static_cast<PPBillPacket *>(ExtraPtr);
 	if(p_pack && pFreight && p_pack->P_Freight) {
 		FillFreightRec(p_pack->P_Freight, pFreight);
@@ -5585,7 +5585,7 @@ int32 DL6ICLS_CompleteList::GetCount()
 
 int32 DL6ICLS_CompleteList::Get(int32 pos, SCompleteItem * pItem)
 {
-	int ok = -1;
+	int    ok = -1;
 	CompleteArray * p_data = static_cast<CompleteArray *>(ExtraPtr);
 	if(p_data && pos < static_cast<long>(p_data->getCount())) {
 		const CompleteItem & r_item = p_data->at(pos);
@@ -5782,7 +5782,7 @@ void DL6ICLS_PPLotList::Clone(ILotList** ppClone)
 //
 int32 DL6ICLS_PPObjBill::EnumBillRows(long billID, SPpyO_TrfrItem * pRow)
 {
-	int ok = -1;
+	int    ok = -1;
 	InnerBillExtra * p_e = static_cast<InnerBillExtra *>(ExtraPtr);
 	if(p_e->P_BObj) {
 		int inited = 1;
@@ -5817,7 +5817,7 @@ IPapyrusBillPacket* DL6ICLS_PPObjBill::CreatePacket()
 
 int32 DL6ICLS_PPObjBill::SearchAnalog(SPpyO_Bill * pSample, int32 * pID, SPpyO_Bill * pRec)
 {
-	int ok = -1;
+	int    ok = -1;
 	InnerBillExtra * p_e = static_cast<InnerBillExtra *>(ExtraPtr);
 	if(p_e->P_BObj) {
 		PPID id = 0;
@@ -5825,7 +5825,7 @@ int32 DL6ICLS_PPObjBill::SearchAnalog(SPpyO_Bill * pSample, int32 * pID, SPpyO_B
 		FillBillPacket(pSample, &bpack);
 		if(p_e->P_BObj->P_Tbl->SearchAnalog(&bpack.Rec, BillCore::safDefault, &id, 0) > 0 && p_e->P_BObj->ExtractPacket(id, &bpack) > 0) {
 			FillBillRec(&bpack, pRec);
-			ASSIGN_PTR(pID, (int32)id);
+			ASSIGN_PTR(pID, id);
 			ok = 1;
 		}
 	}
@@ -5905,7 +5905,7 @@ int32 DL6ICLS_PPObjBill::GetFreight(int32 billID, SPpyO_Freight * pFreight)
 
 int32 DL6ICLS_PPObjBill::GetClbNumberByLot(int32 lotID, int32 * pIsParentLot, SString * pBuf)
 {
-	int ok = -1;
+	int    ok = -1;
 	InnerBillExtra * p_e = static_cast<InnerBillExtra *>(ExtraPtr);
 	if(p_e && p_e->P_BObj) {
 		int is_parent_lot = 0;
@@ -5979,7 +5979,7 @@ int32 DL6ICLS_PPObjBill::GetGuid(long billID, SString * pGuidStr)
 
 int32 DL6ICLS_PPObjBill::GetLotTagValue(int32 lotID, int32 tagID, SString * pValue)
 {
-	int ok = -1;
+	int    ok = -1;
 	SString val;
 	InnerBillExtra * p_e = static_cast<InnerBillExtra *>(ExtraPtr);
 	if(p_e && p_e->P_BObj) {
@@ -6023,7 +6023,7 @@ int32 DL6ICLS_PPObjBill::GetTagValue(int32 billID, int32 tagID, SString * pValue
 
 int32 DL6ICLS_PPObjBill::PutTagValue(int32 billID, int32 tagID, SString & rValue)
 {
-	int ok = -1;
+	int    ok = -1;
 	SString val;
 	InnerBillExtra * p_e = static_cast<InnerBillExtra *>(ExtraPtr);
 	if(p_e && p_e->P_BObj) {
@@ -6429,7 +6429,7 @@ ICompleteList * DL6ICLS_PPObjBill::GetComplete(int32 lotID)
 
 int32 DL6ICLS_PPObjBill::GetRest(int32 lotID, LDATE dt, double * pRest, double * pPhRest)
 {
-	int ok = -1;
+	int    ok = -1;
 	InnerBillExtra * p_ie = static_cast<InnerBillExtra *>(ExtraPtr);
 	if(p_ie && p_ie->P_BObj && p_ie->P_BObj->trfr)
 		ok = p_ie->P_BObj->trfr->GetRest(lotID, dt, pRest, pPhRest);
@@ -6465,8 +6465,8 @@ int32 DL6ICLS_PPObjBill::GetDebtDim(int32 billID, int32 * pDebtDimID)
 
 LDATE DL6ICLS_PPObjBill::GetLastPayDate(int32 billID)
 {
-	LDATE            dt = ZERODATE;
-	PayPlanTbl       Pays;
+	LDATE  dt = ZERODATE;
+	PayPlanTbl Pays;
 	PayPlanTbl::Key0 k;
 	k.BillID  = billID;
 	k.PayDate = MAXDATE;
@@ -6517,7 +6517,7 @@ IStrAssocList * DL6ICLS_PPObjBill::GetDeletedBillList(SDateRange * pPeriod)
 		ReleaseUnknObj(&p);
 		AppError = 1;
 	ENDCATCH
-	return (IStrAssocList*)p;
+	return (IStrAssocList *)p;
 }
 //
 // }
@@ -6548,7 +6548,7 @@ DL6_IC_CONSTRUCTION_EXTRA(PPObjWorld, DL6ICLS_PPObjWorld_VTab, PPObjWorld);
 int32 DL6ICLS_PPObjWorld::Search(int32 id, PPYOBJREC rec)
 {
 	int    ok = 0;
-	PPObjWorld * p_obj = (PPObjWorld *)ExtraPtr;
+	PPObjWorld * p_obj = static_cast<PPObjWorld *>(ExtraPtr);
 	if(p_obj) {
 		WorldTbl::Rec wrec;
 		MEMSZERO(wrec);
@@ -6562,7 +6562,7 @@ int32 DL6ICLS_PPObjWorld::Search(int32 id, PPYOBJREC rec)
 int32 DL6ICLS_PPObjWorld::SearchByName(SString & text, int32 kind, int32 extraParam, PPYOBJREC rec)
 {
 	int    ok = 0;
-	PPObjWorld * p_obj = (PPObjWorld *)ExtraPtr;
+	PPObjWorld * p_obj = static_cast<PPObjWorld *>(ExtraPtr);
 	if(p_obj) {
 		WorldTbl::Rec wrec;
 		PPID   id = 0;
@@ -6577,14 +6577,14 @@ int32 DL6ICLS_PPObjWorld::SearchByName(SString & text, int32 kind, int32 extraPa
 SString & DL6ICLS_PPObjWorld::GetName(int32 id)
 {
 	char   name_buf[64];
-	PPObjWorld * p_obj = (PPObjWorld *)ExtraPtr;
+	PPObjWorld * p_obj = static_cast<PPObjWorld *>(ExtraPtr);
 	int    ok = p_obj->GetName(id, name_buf, sizeof(name_buf));
 	return (RetStrBuf = name_buf);
 }
 
 IStrAssocList* DL6ICLS_PPObjWorld::GetSelector(int32 extraParam)
 {
-	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, (PPObject *)ExtraPtr, reinterpret_cast<void *>(extraParam)));
+	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, static_cast<PPObject *>(ExtraPtr), reinterpret_cast<void *>(extraParam)));
 	SetAppError(BIN(p));
 	return p;
 }
@@ -6609,7 +6609,7 @@ DL6_IC_CONSTRUCTION_EXTRA(PPObjRegister, DL6ICLS_PPObjRegister_VTab, PPObjRegist
 int32 DL6ICLS_PPObjRegister::Search(int32 id, PPYOBJREC rec)
 {
 	int    ok = 0;
-	PPObjRegister * p_obj = (PPObjRegister *)ExtraPtr;
+	PPObjRegister * p_obj = static_cast<PPObjRegister *>(ExtraPtr);
 	if(p_obj) {
 		RegisterTbl::Rec reg_rec;
 		MEMSZERO(reg_rec);
@@ -6651,7 +6651,7 @@ int32 DL6ICLS_PPObjRegister::Update(int32 id, int32 flags, PPYOBJREC rec)
 int32 DL6ICLS_PPObjRegister::SearchByNumber(long regTypeID, SString & rSn, SString & rNmbr, SPpyO_Register * pRegister)
 {
 	int    ok = 0;
-	PPObjRegister * p_obj = (PPObjRegister*)ExtraPtr;
+	PPObjRegister * p_obj = static_cast<PPObjRegister *>(ExtraPtr);
 	if(p_obj) {
 		RegisterTbl::Rec reg_rec;
 		MEMSZERO(reg_rec);
@@ -6665,7 +6665,7 @@ int32 DL6ICLS_PPObjRegister::SearchByNumber(long regTypeID, SString & rSn, SStri
 int32 DL6ICLS_PPObjRegister::Fetch(int32 id, SPpyO_Register * pRegister)
 {
 	int    ok = 0;
-	PPObjRegister * p_obj = (PPObjRegister *)ExtraPtr;
+	PPObjRegister * p_obj = static_cast<PPObjRegister *>(ExtraPtr);
 	if(p_obj) {
 		RegisterTbl::Rec reg_rec;
 		MEMSZERO(reg_rec);
@@ -6773,7 +6773,7 @@ SString & DL6ICLS_PPObjPersonRelType::GetName(int32 id)
 
 IStrAssocList * DL6ICLS_PPObjPersonRelType::GetSelector(int32 extraParam)
 {
-	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, (PPObject *)ExtraPtr, reinterpret_cast<void *>(extraParam)));
+	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, static_cast<PPObject *>(ExtraPtr), reinterpret_cast<void *>(extraParam)));
 	SetAppError(BIN(p));
 	return p;
 }
@@ -6793,8 +6793,8 @@ int32 DL6ICLS_PPPersonRelTypePacket::Init()
 
 int32 DL6ICLS_PPPersonRelTypePacket::Put(SPpyO_PersonRelType * pRec)
 {
-	int ok = -1;
-	PPPersonRelTypePacket * p_pack = (PPPersonRelTypePacket*)ExtraPtr;
+	int    ok = -1;
+	PPPersonRelTypePacket * p_pack = static_cast<PPPersonRelTypePacket *>(ExtraPtr);
 	if(p_pack && pRec) {
 		p_pack->Init();
 		FillPersonRelTypeRec(pRec, &p_pack->Rec);
@@ -6805,8 +6805,8 @@ int32 DL6ICLS_PPPersonRelTypePacket::Put(SPpyO_PersonRelType * pRec)
 
 int32 DL6ICLS_PPPersonRelTypePacket::Get(SPpyO_PersonRelType * pRec)
 {
-	int ok = -1;
-	PPPersonRelTypePacket * p_pack = (PPPersonRelTypePacket*)ExtraPtr;
+	int    ok = -1;
+	PPPersonRelTypePacket * p_pack = static_cast<PPPersonRelTypePacket *>(ExtraPtr);
 	if(p_pack && pRec) {
 		FillPersonRelTypeRec(&p_pack->Rec, pRec);
 		ok = 1;
@@ -6817,19 +6817,19 @@ int32 DL6ICLS_PPPersonRelTypePacket::Get(SPpyO_PersonRelType * pRec)
 IStrAssocList * DL6ICLS_PPPersonRelTypePacket::GetInhRegTypeList()
 {
 	// @v10.3.0 (never used) IStrAssocList * p_list = 0;
-	PPPersonRelTypePacket * p_pack = (PPPersonRelTypePacket*)ExtraPtr;
+	PPPersonRelTypePacket * p_pack = static_cast<PPPersonRelTypePacket *>(ExtraPtr);
 	StrAssocArray assoc_list;
 	if(p_pack) {
 		PPIDArray & list = p_pack->InhRegTypeList;
 		for(uint i = 0; i < list.getCount(); i++)
 			 assoc_list.Add(list.at(i), 0, 0);
 	}
-	return (assoc_list.getCount()) ? (IStrAssocList*)GetIStrAssocList(this, &assoc_list, 0) : 0;
+	return (assoc_list.getCount()) ? (IStrAssocList *)GetIStrAssocList(this, &assoc_list, 0) : 0;
 }
 
 int32 DL6ICLS_PPPersonRelTypePacket::PutInhRegTypeList(IStrAssocList * pList)
 {
-	int ok = -1;
+	int    ok = -1;
 	PPPersonRelTypePacket * p_pack = static_cast<PPPersonRelTypePacket *>(ExtraPtr);
 	StrAssocArray         * p_list = static_cast<StrAssocArray *>(SCoClass::GetExtraPtrByInterface(pList));
 	if(p_pack && pList) {
@@ -6850,14 +6850,14 @@ IPapyrusPersonRelTypePacket * DL6ICLS_PPObjPersonRelType::CreatePacket()
 	CATCH
 		p_ifc = RaiseAppErrorPtr();
 	ENDCATCH
-	return (IPapyrusPersonRelTypePacket*)p_ifc;
+	return (IPapyrusPersonRelTypePacket *)p_ifc;
 }
 
 int32 DL6ICLS_PPObjPersonRelType::PutPacket(long * pID, IPapyrusPersonRelTypePacket * pPack, int32 useTa)
 {
-	int ok = -1;
+	int    ok = -1;
 	PPPersonRelTypePacket * p_pack = (PPPersonRelTypePacket *)SCoClass::GetExtraPtrByInterface(pPack);
-	PPObjPersonRelType    * p_obj  = (PPObjPersonRelType*)ExtraPtr;
+	PPObjPersonRelType    * p_obj  = (PPObjPersonRelType *)ExtraPtr;
 	if(p_pack && p_obj)
 		ok = p_obj->PutPacket(pID, p_pack, 1);
 	return ok;
@@ -6865,9 +6865,9 @@ int32 DL6ICLS_PPObjPersonRelType::PutPacket(long * pID, IPapyrusPersonRelTypePac
 
 int32 DL6ICLS_PPObjPersonRelType::GetPacket(int32 id, IPapyrusPersonRelTypePacket * pPack)
 {
-	int ok = -1;
-	PPPersonRelTypePacket * p_pack = (PPPersonRelTypePacket*)SCoClass::GetExtraPtrByInterface(pPack);
-	PPObjPersonRelType    * p_obj  = (PPObjPersonRelType*)ExtraPtr;
+	int    ok = -1;
+	PPPersonRelTypePacket * p_pack = (PPPersonRelTypePacket *)SCoClass::GetExtraPtrByInterface(pPack);
+	PPObjPersonRelType    * p_obj  = (PPObjPersonRelType *)ExtraPtr;
 	if(p_pack && p_obj)
 		ok = p_obj->GetPacket(id, p_pack);
 	return ok;
@@ -6957,7 +6957,7 @@ static void FASTCALL FillPrjTaskRec(const SPpyO_PrjTask * pInner, PrjTaskTbl::Re
 int32 DL6ICLS_PPObjPrjTask::Search(int32 id, PPYOBJREC pRec)
 {
 	int    ok = 0;
-	PPObjPrjTask * p_obj = (PPObjPrjTask *)ExtraPtr;
+	PPObjPrjTask * p_obj = static_cast<PPObjPrjTask *>(ExtraPtr);
 	if(p_obj) {
 		PrjTaskTbl::Rec rec;
 		MEMSZERO(rec);
@@ -6978,7 +6978,7 @@ SString & DL6ICLS_PPObjPrjTask::GetName(int32 id)
 
 IStrAssocList* DL6ICLS_PPObjPrjTask::GetSelector(int32 extraParam)
 {
-	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, (PPObject *)ExtraPtr, reinterpret_cast<void *>(extraParam)));
+	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, static_cast<PPObject *>(ExtraPtr), reinterpret_cast<void *>(extraParam)));
 	SetAppError(BIN(p));
 	return p;
 }
@@ -6986,8 +6986,8 @@ IStrAssocList* DL6ICLS_PPObjPrjTask::GetSelector(int32 extraParam)
 int32 DL6ICLS_PPObjPrjTask::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 {
 	int    ok = 0;
-	PPObjPrjTask * p_obj = (PPObjPrjTask *)ExtraPtr;
-	SPpyO_PrjTask * p_rec = (SPpyO_PrjTask*)pRec;
+	PPObjPrjTask * p_obj = static_cast<PPObjPrjTask *>(ExtraPtr);
+	SPpyO_PrjTask * p_rec = (SPpyO_PrjTask *)pRec;
 	THROW_PP_S(p_rec->RecTag == ppoPrjTask, PPERR_INVSTRUCTAG, "ppoPrjTask");
 	if(p_obj) {
 		PrjTaskTbl::Rec init_rec, rec;
@@ -7009,8 +7009,8 @@ int32 DL6ICLS_PPObjPrjTask::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 int32 DL6ICLS_PPObjPrjTask::Update(int32 id, int32 flags, PPYOBJREC pRec)
 {
 	int    ok = 0;
-	PPObjPrjTask * p_obj = (PPObjPrjTask *)ExtraPtr;
-	SPpyO_PrjTask * p_rec = (SPpyO_PrjTask*)pRec;
+	PPObjPrjTask * p_obj = static_cast<PPObjPrjTask *>(ExtraPtr);
+	SPpyO_PrjTask * p_rec = (SPpyO_PrjTask *)pRec;
 	PrjTaskTbl::Rec rec;
 	THROW_PP_S(p_rec->RecTag == ppoPrjTask, PPERR_INVSTRUCTAG, "ppoPrjTask");
 	if(p_obj) {
@@ -7086,12 +7086,12 @@ static void FASTCALL FillProjectRec(const SPpyO_Project * pInner, ProjectTbl::Re
 int32 DL6ICLS_PPObjProject::Search(int32 id, PPYOBJREC pRec)
 {
 	int    ok = 0;
-	PPObjProject * p_obj = (PPObjProject *)ExtraPtr;
+	PPObjProject * p_obj = static_cast<PPObjProject *>(ExtraPtr);
 	if(p_obj) {
 		ProjectTbl::Rec rec;
 		MEMSZERO(rec);
 		ok = p_obj->Search(id, &rec);
-		FillProjectRec(&rec, (SPpyO_Project*)pRec);
+		FillProjectRec(&rec, (SPpyO_Project *)pRec);
 	}
 	SetAppError(ok);
 	return ok;
@@ -7105,7 +7105,7 @@ int32 DL6ICLS_PPObjProject::SearchByName(SString & text, int32 kind, int32 extra
 SString & DL6ICLS_PPObjProject::GetName(int32 id)
 {
 	int    ok = 0;
-	PPObjProject * p_obj = (PPObjProject *)ExtraPtr;
+	PPObjProject * p_obj = static_cast<PPObjProject *>(ExtraPtr);
 	RetStrBuf.Z();
 	if(p_obj)
 		ok = p_obj->GetFullName(id, RetStrBuf);
@@ -7114,7 +7114,7 @@ SString & DL6ICLS_PPObjProject::GetName(int32 id)
 
 IStrAssocList* DL6ICLS_PPObjProject::GetSelector(int32 extraParam)
 {
-	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, (PPObject *)ExtraPtr, reinterpret_cast<void *>(extraParam)));
+	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, static_cast<PPObject *>(ExtraPtr), reinterpret_cast<void *>(extraParam)));
 	if(!p)
 		AppError = 1;
 	return p;
@@ -7123,8 +7123,8 @@ IStrAssocList* DL6ICLS_PPObjProject::GetSelector(int32 extraParam)
 int32 DL6ICLS_PPObjProject::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 {
 	int    ok = 0;
-	PPObjProject * p_obj = (PPObjProject *)ExtraPtr;
-	SPpyO_Project * p_rec = (SPpyO_Project*)pRec;
+	PPObjProject * p_obj = static_cast<PPObjProject *>(ExtraPtr);
+	SPpyO_Project * p_rec = (SPpyO_Project *)pRec;
 	THROW_PP_S(p_rec->RecTag == ppoProject, PPERR_INVSTRUCTAG, "ppoProject");
 	if(p_obj) {
 		ProjectTbl::Rec init_rec, rec;
@@ -7150,8 +7150,8 @@ int32 DL6ICLS_PPObjProject::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 int32 DL6ICLS_PPObjProject::Update(int32 id, int32 flags, PPYOBJREC pRec)
 {
 	int    ok = 0;
-	PPObjProject * p_obj = (PPObjProject *)ExtraPtr;
-	SPpyO_Project * p_rec = (SPpyO_Project*)pRec;
+	PPObjProject * p_obj = static_cast<PPObjProject *>(ExtraPtr);
+	SPpyO_Project * p_rec = (SPpyO_Project *)pRec;
 	ProjectTbl::Rec rec;
 	THROW_PP_S(p_rec->RecTag == ppoProject, PPERR_INVSTRUCTAG, "ppoProject");
 	if(p_obj) {
@@ -7217,7 +7217,7 @@ SString & DL6ICLS_PPObjBrand::GetName(int32 id)
 
 IStrAssocList* DL6ICLS_PPObjBrand::GetSelector(int32 extraParam)
 {
-	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, (PPObject *)ExtraPtr, reinterpret_cast<void *>(extraParam)));
+	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, static_cast<PPObject *>(ExtraPtr), reinterpret_cast<void *>(extraParam)));
 	SetAppError(BIN(p));
 	return p;
 }
@@ -7298,7 +7298,7 @@ SString & DL6ICLS_PPObjQCert::GetName(int32 id)
 
 IStrAssocList* DL6ICLS_PPObjQCert::GetSelector(int32 extraParam)
 {
-	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, (PPObject *)ExtraPtr, reinterpret_cast<void *>(extraParam)));
+	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, static_cast<PPObject *>(ExtraPtr), reinterpret_cast<void *>(extraParam)));
 	SetAppError(BIN(p));
 	return p;
 }
@@ -9177,7 +9177,7 @@ SString & DL6ICLS_PPObjTransport::GetName(int32 id)
 
 IStrAssocList* DL6ICLS_PPObjTransport::GetSelector(int32 extraParam)
 {
-	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, (PPObject *)ExtraPtr, reinterpret_cast<void *>(extraParam)));
+	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, static_cast<PPObject *>(ExtraPtr), reinterpret_cast<void *>(extraParam)));
 	SetAppError(BIN(p));
 	return p;
 }
@@ -9331,7 +9331,7 @@ SString & DL6ICLS_PPObjProcessor::GetName(int32 id)
 
 IStrAssocList* DL6ICLS_PPObjProcessor::GetSelector(int32 extraParam)
 {
-	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, (PPObject *)ExtraPtr, reinterpret_cast<void *>(extraParam)));
+	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, static_cast<PPObject *>(ExtraPtr), reinterpret_cast<void *>(extraParam)));
 	SetAppError(BIN(p));
 	return p;
 }
@@ -9476,7 +9476,7 @@ SString & DL6ICLS_PPObjTSession::GetName(int32 id)
 
 IStrAssocList* DL6ICLS_PPObjTSession::GetSelector(int32 extraParam)
 {
-	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, (PPObject *)ExtraPtr, reinterpret_cast<void *>(extraParam)));
+	IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, static_cast<PPObject *>(ExtraPtr), reinterpret_cast<void *>(extraParam)));
 	if(!p)
 		AppError = 1;
 	return p;
@@ -9654,20 +9654,20 @@ DL6_IC_CONSTRUCTION_EXTRA(PPFiltProject, DL6ICLS_PPFiltProject_VTab, ProjectFilt
 //
 // Interface IPpyFilt_Project implementation
 //
-void DL6ICLS_PPFiltProject::SetStartPeriod(LDATE low, LDATE upp) { ((ProjectFilt *)ExtraPtr)->StartPeriod.Set(low, upp); }
-void DL6ICLS_PPFiltProject::SetEstFinishPeriod(LDATE low, LDATE upp) { ((ProjectFilt *)ExtraPtr)->EstFinishPeriod.Set(low, upp); }
-int32 DL6ICLS_PPFiltProject::get_ParentID() { return ((ProjectFilt*)ExtraPtr)->ParentID; }
+void DL6ICLS_PPFiltProject::SetStartPeriod(LDATE low, LDATE upp) { static_cast<ProjectFilt *>(ExtraPtr)->StartPeriod.Set(low, upp); }
+void DL6ICLS_PPFiltProject::SetEstFinishPeriod(LDATE low, LDATE upp) { static_cast<ProjectFilt *>(ExtraPtr)->EstFinishPeriod.Set(low, upp); }
+int32 DL6ICLS_PPFiltProject::get_ParentID() { return static_cast<ProjectFilt *>(ExtraPtr)->ParentID; }
 void DL6ICLS_PPFiltProject::put_ParentID(int32 value) { IMPL_PPIFC_PUTPROP(ProjectFilt, ParentID); }
-int32 DL6ICLS_PPFiltProject::get_ClientID() { return ((ProjectFilt*)ExtraPtr)->ClientID; }
+int32 DL6ICLS_PPFiltProject::get_ClientID() { return static_cast<ProjectFilt *>(ExtraPtr)->ClientID; }
 void DL6ICLS_PPFiltProject::put_ClientID(int32 value) { IMPL_PPIFC_PUTPROP(ProjectFilt, ClientID); }
-int32 DL6ICLS_PPFiltProject::get_MngrID() { return ((ProjectFilt*)ExtraPtr)->MngrID; }
+int32 DL6ICLS_PPFiltProject::get_MngrID() { return static_cast<ProjectFilt *>(ExtraPtr)->MngrID; }
 void DL6ICLS_PPFiltProject::put_MngrID(int32 value) { IMPL_PPIFC_PUTPROP(ProjectFilt, MngrID); }
-PpyVProjectFlags DL6ICLS_PPFiltProject::get_Flags() { return (PpyVProjectFlags)((ProjectFilt*)ExtraPtr)->Flags; }
+PpyVProjectFlags DL6ICLS_PPFiltProject::get_Flags() { return (PpyVProjectFlags)static_cast<ProjectFilt *>(ExtraPtr)->Flags; }
 void DL6ICLS_PPFiltProject::put_Flags(PpyVProjectFlags value) { IMPL_PPIFC_PUTPROP(ProjectFilt, Flags); }
-PpyVProjectSortOrder DL6ICLS_PPFiltProject::get_SortOrd() { return (PpyVProjectSortOrder)((ProjectFilt*)ExtraPtr)->SortOrd; }
+PpyVProjectSortOrder DL6ICLS_PPFiltProject::get_SortOrd() { return (PpyVProjectSortOrder)static_cast<ProjectFilt *>(ExtraPtr)->SortOrd; }
 void DL6ICLS_PPFiltProject::put_SortOrd(PpyVProjectSortOrder value) { IMPL_PPIFC_PUTPROP(ProjectFilt, SortOrd); }
-SDateRange DL6ICLS_PPFiltProject::get_StartPeriod() { return DateRangeToOleDateRange(((ProjectFilt *)ExtraPtr)->StartPeriod); }
-SDateRange DL6ICLS_PPFiltProject::get_EstFinishPeriod() { return DateRangeToOleDateRange(((ProjectFilt *)ExtraPtr)->EstFinishPeriod); }
+SDateRange DL6ICLS_PPFiltProject::get_StartPeriod() { return DateRangeToOleDateRange(static_cast<ProjectFilt *>(ExtraPtr)->StartPeriod); }
+SDateRange DL6ICLS_PPFiltProject::get_EstFinishPeriod() { return DateRangeToOleDateRange(static_cast<ProjectFilt *>(ExtraPtr)->EstFinishPeriod); }
 //
 //
 //
@@ -10667,7 +10667,7 @@ DL6_IC_CONSTRUCTOR(PPObjCCheck, DL6ICLS_PPObjCCheck_VTab)
 
 DL6_IC_DESTRUCTOR(PPObjCCheck)
 {
-	InnerCCheckExtra * p_e = (InnerCCheckExtra*)ExtraPtr;
+	InnerCCheckExtra * p_e = static_cast<InnerCCheckExtra *>(ExtraPtr);
 	ZDELETE(p_e);
 }
 //
@@ -10676,7 +10676,7 @@ DL6_IC_DESTRUCTOR(PPObjCCheck)
 int32 DL6ICLS_PPObjCCheck::Search(int32 id, SPpyO_CCheck* pRec)
 {
 	int    ok = 0;
-	InnerCCheckExtra * p_e = (InnerCCheckExtra *)ExtraPtr;
+	InnerCCheckExtra * p_e = static_cast<InnerCCheckExtra *>(ExtraPtr);
 	if(p_e) {
 		CCheckPacket pack;
 		ok = p_e->ScObj.P_CcTbl->LoadPacket(id, 0, &pack);
@@ -10700,7 +10700,7 @@ ICCheckPacket* DL6ICLS_PPObjCCheck::CreatePacket()
 int32 DL6ICLS_PPObjCCheck::GetPacket(int32 id, ICCheckPacket* pPack)
 {
 	int    ok = 0;
-	InnerCCheckExtra * p_e = (InnerCCheckExtra *)ExtraPtr;
+	InnerCCheckExtra * p_e = static_cast<InnerCCheckExtra *>(ExtraPtr);
 	if(p_e) {
 		CCheckPacket * p_pack = (CCheckPacket *)SCoClass::GetExtraPtrByInterface(pPack);
 		if(p_pack)

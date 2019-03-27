@@ -1232,7 +1232,7 @@ int Lst2LstObjDialog::setup()
 
 int Lst2LstObjDialog::addNewItem()
 {
-	int ok = -1;
+	int    ok = -1;
 	if(Data.Flags & ListToListData::fCanInsertNewItem && P_Object ) {
 		SmartListBox * p_view = GetLeftList();
 		PPID   obj_id = 0;
@@ -4674,7 +4674,7 @@ int SpinCtrlGroup::setData(TDialog * pDlg, void * pData)
 // virtual
 int SpinCtrlGroup::getData(TDialog * pDlg, void * pData)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(pDlg && pData) {
 		Data.Value = pDlg->getCtrlLong(CtlEdit);
 		Data.Value = (Data.Value > MaxVal) ? MaxVal : Data.Value;
@@ -5387,7 +5387,7 @@ int EditMemosDialog::addItem(long * pPos, long * pID)
 // virtual
 int EditMemosDialog::editItem(long pos, long id)
 {
-	int ok = -1;
+	int    ok = -1;
 	SString buf;
 	if(Memos.GetText(id, buf) > 0) {
 		if(InputStringDialog(0, 0, 0, 1, buf) > 0) {

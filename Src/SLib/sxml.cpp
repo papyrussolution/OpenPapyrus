@@ -650,7 +650,7 @@ XmlWriter::~XmlWriter()
 
 int XmlWriter::Open(const char * pFileName)
 {
-	int ok = -1;
+	int    ok = -1;
 	Close();
 	if(pFileName) {
 		Stream = fopen(pFileName, "wt");
@@ -670,7 +670,7 @@ int XmlWriter::Close()
 
 int XmlWriter::PutLine(const char * pStr, int newLine)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(!Stream)
 		return 0;
 	if(pStr)
@@ -704,7 +704,7 @@ int XmlWriter::PutDtdElementHdr(const char * pName)
 
 int XmlWriter::PutDtdList(const XmlList * pList)
 {
-	int ok = 1;
+	int    ok = 1;
 	for(uint i = 0; i < pList->getCount(); i++) {
 		const XmlEntry * p = pList->GetItem(i);
 		if(p->Type == XmlEntry::tPcdata) {

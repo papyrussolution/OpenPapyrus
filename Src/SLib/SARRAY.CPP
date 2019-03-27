@@ -993,7 +993,7 @@ int SLAPI SVector::Read(SFile & rFile, long)
 	{
 		STempBuffer temp_buf(item_size);
 		for(uint i = 0; i < c; i++) {
-			THROW(rFile.Read((char *)temp_buf, item_size));
+			THROW(rFile.Read(temp_buf.vptr(), item_size));
 			THROW(insert(temp_buf));
 		}
 	}

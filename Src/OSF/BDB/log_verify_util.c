@@ -100,7 +100,7 @@ int __create_log_vrfy_info(const DB_LOG_VERIFY_CONFIG * cfg, DB_LOG_VRFY_INFO **
 	lvinfop->ip = ip;
 	__lv_setup_logtype_names(lvinfop);
 	/* Avoid the VERIFY_PARTIAL bit being cleared if no ckp_lsn exists. */
-	lvinfop->valid_lsn.file = lvinfop->valid_lsn.Offset_ = (uint32)-1;
+	lvinfop->valid_lsn.file = lvinfop->valid_lsn.Offset_ = static_cast<uint32>(-1);
 	/*
 	 * The envhome parameter determines if we will use an in-memory
 	 * environment and databases.
@@ -1263,7 +1263,7 @@ int __find_lsnrg_by_timerg(DB_LOG_VRFY_INFO * lvinfo, __time64_t begin, __time64
 	if((ret = __dbc_get(csr, &key, &data, DB_SET_RANGE)) != 0 && ret != DB_NOTFOUND)
 		goto err;
 	if(ret == DB_NOTFOUND) {
-		endlsn->file = endlsn->Offset_ = (uint32)-1; /* Biggest lsn. */
+		endlsn->file = endlsn->Offset_ = static_cast<uint32>(-1); /* Biggest lsn. */
 		ret = 0;
 		goto err; /* We are done. */
 	}

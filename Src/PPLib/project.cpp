@@ -2340,7 +2340,7 @@ int RestoreLostPrjTPersonDlg::getDTS(LostPrjTPersonArray * pData)
 
 int SLAPI PPObjPrjTask::ResolveAbsencePersonHelper_(PPID newID, PPID prevID, int todoPerson)
 {
-	int ok = -1;
+	int    ok = -1;
 	BExtQuery * p_q = 0;
 	if(newID) {
 		PrjTaskTbl::Key0 k0;

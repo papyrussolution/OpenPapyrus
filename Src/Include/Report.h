@@ -313,8 +313,7 @@ public:
 
 	static int defaultIterator(int);
 	static SArray * FillRptArray();
-
-	SLAPI  SReport(const char *);
+	explicit SLAPI SReport(const char *);
 	SLAPI  SReport(uint rezID, long flags /* INIREPF_XXX */);
 	SLAPI ~SReport();
 	int    SLAPI IsValid() const;

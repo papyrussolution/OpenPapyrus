@@ -633,7 +633,7 @@ void * FASTCALL PPObjTSession::MakeExtraParam(PPID superSessID, PPID prcID, int 
 		else if(prcID)
 			param = (prcID | PRCFLAG);
 	}
-	return (void *)param;
+	return reinterpret_cast<void *>(param);
 }
 
 #undef PRCFLAG

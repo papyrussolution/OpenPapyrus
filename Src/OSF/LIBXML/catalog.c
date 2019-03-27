@@ -545,7 +545,7 @@ static int xmlDumpXMLCatalog(FILE * out, xmlCatalogEntryPtr catal)
 {
 	int ret;
 	xmlNs * ns;
-	xmlDtdPtr dtd;
+	xmlDtd * dtd;
 	xmlNodePtr catalog;
 	xmlOutputBuffer * buf;
 	/*
@@ -862,7 +862,7 @@ static xmlChar * xmlLoadFileContent(const char * filename)
  */
 static xmlChar * xmlCatalogNormalizePublic(const xmlChar * pubID)
 {
-	int ok = 1;
+	int    ok = 1;
 	int white;
 	const xmlChar * p;
 	xmlChar * ret;
@@ -963,7 +963,7 @@ static xmlCatalogEntryType xmlGetXMLCatalogEntryType(const xmlChar * name)
 static xmlCatalogEntryPtr xmlParseXMLCatalogOneNode(xmlNode * cur, xmlCatalogEntryType type, const xmlChar * name, 
 	const xmlChar * attrName, const xmlChar * uriAttrName, xmlCatalogPrefer prefer, xmlCatalogEntryPtr cgroup) 
 {
-	int ok = 1;
+	int    ok = 1;
 	xmlChar * uriValue;
 	xmlChar * nameValue = NULL;
 	xmlChar * base = NULL;
@@ -2665,7 +2665,7 @@ void xmlInitializeCatalog()
 			const char * cur, * paths;
 			xmlCatalogPtr catal;
 			xmlCatalogEntryPtr * nextent;
-			const char * catalogs = (const char *)getenv("XML_CATALOG_FILES");
+			const char * catalogs = static_cast<const char *>(getenv("XML_CATALOG_FILES"));
 			if(catalogs == NULL)
 #if defined(_WIN32) && defined(_MSC_VER)
 			{
@@ -2674,13 +2674,19 @@ void xmlInitializeCatalog()
 					hmodule = GetModuleHandle(NULL);
 				if(hmodule != NULL) {
 					char buf[256];
-					unsigned long len = GetModuleFileName((HMODULE)hmodule, buf, 255); // @unicodeproblem
+					// @v10.3.11 {
+					SString module_file_name;
+					int    mfn_len = SSystem::SGetModuleFileName(static_cast<HMODULE>(hmodule), module_file_name);
+					STRNSCPY(buf, module_file_name);
+					ulong len = sstrlen(buf);
+					// } @v10.3.11 
+					// @v10.3.11 ulong len = GetModuleFileName((HMODULE)hmodule, buf, 255); // @unicodeproblem
 					if(len != 0) {
-						char* p = &(buf[len]);
+						char * p = &(buf[len]);
 						while(*p != '\\' && p > buf)
 							p--;
 						if(p != buf) {
-							xmlChar* uri;
+							xmlChar * uri;
 							strncpy(p, "\\..\\etc\\catalog", 255 - (p - buf));
 							uri = xmlCanonicPath((const xmlChar *)buf);
 							if(uri) {

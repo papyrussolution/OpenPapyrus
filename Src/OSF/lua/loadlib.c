@@ -159,21 +159,23 @@ static void setprogdir(lua_State * L) {
 	}
 }
 
-static void pusherror(lua_State * L) {
+static void pusherror(lua_State * L) 
+{
 	int error = GetLastError();
 	char buffer[128];
-	if(FormatMessageA(FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM,
-	    NULL, error, 0, buffer, sizeof(buffer)/sizeof(char), NULL))
+	if(::FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, NULL, error, 0, buffer, sizeof(buffer)/sizeof(char), NULL))
 		lua_pushstring(L, buffer);
 	else
 		lua_pushfstring(L, "system error %d\n", error);
 }
 
-static void lsys_unloadlib(void * lib) {
+static void lsys_unloadlib(void * lib) 
+{
 	FreeLibrary((HMODULE)lib);
 }
 
-static void * lsys_load(lua_State * L, const char * path, int seeglb) {
+static void * lsys_load(lua_State * L, const char * path, int seeglb) 
+{
 	HMODULE lib = LoadLibraryExA(path, NULL, LUA_LLE_FLAGS);
 	(void)(seeglb); /* not used: symbols are 'global' by default */
 	if(lib == NULL) pusherror(L);

@@ -601,7 +601,7 @@ void ExportCls::CreateFileName(uint num)
 //
 int ExportCls::OrderHeader()
 {
-	int ok = 1;
+	int    ok = 1;
 	SString str, fmt;
 	THROWERR(P_XmlWriter, IEERR_NULLWRIEXMLPTR);
 	BillSumWithoutVat = 0.0;
@@ -653,7 +653,7 @@ int ExportCls::OrderHeader()
 //
 int ExportCls::RecadvHeader()
 {
-	int ok = 1;
+	int    ok = 1;
 	SString str, fmt;
 	THROWERR(P_XmlWriter, IEERR_NULLWRIEXMLPTR);
 	BillSumWithoutVat = 0.0;
@@ -1176,7 +1176,7 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 	SETIFZ(P_ExportCls, new ExportCls);
 	if(P_ExportCls && !P_ExportCls->Inited) {
 		if(pExpHeader)
-			P_ExportCls->Header = *(Sdr_ImpExpHeader*)pExpHeader;
+			P_ExportCls->Header = *static_cast<const Sdr_ImpExpHeader *>(pExpHeader);
 		if(!isempty(pOutFileName)) {
 			P_ExportCls->PathStruct.Split(pOutFileName);
 			P_ExportCls->PathStruct.Nam.SetIfEmpty("edisoft_export_");
@@ -1434,7 +1434,7 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 	SETIFZ(P_ImportCls, new ImportCls);
 	if(P_ImportCls && !P_ImportCls->Inited) {
 		if(pImpHeader)
-			P_ImportCls->Header = *(Sdr_ImpExpHeader*)pImpHeader;
+			P_ImportCls->Header = *static_cast<const Sdr_ImpExpHeader *>(pImpHeader);
 		if(!isempty(pInputFileName)) {
 			P_ImportCls->PathStruct.Split(pInputFileName);
 			if(P_ImportCls->PathStruct.Nam.Empty())
@@ -1442,9 +1442,11 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 			P_ImportCls->PathStruct.Ext.SetIfEmpty("xml");
 		}
 		else {
-			char fname[256];
-			GetModuleFileName(NULL, fname, sizeof(fname));
-			P_ImportCls->PathStruct.Split(fname);
+			//char fname[256];
+			//GetModuleFileName(NULL, fname, sizeof(fname));
+			SString module_file_name;
+			SSystem::SGetModuleFileName(0, module_file_name);
+			P_ImportCls->PathStruct.Split(module_file_name);
 			P_ImportCls->PathStruct.Dir.ReplaceStr("\\bin", "\\in", 1);
 			(P_ImportCls->PathStruct.Nam = "edisoft_import_").Cat(P_ImportCls->ObjId);
 			P_ImportCls->PathStruct.Ext = "xml";
@@ -1520,7 +1522,7 @@ EXPORT int GetImportObj(uint idSess, const char * pObjTypeSymb, void * pObjData,
 
 EXPORT int InitImportObjIter(uint idSess, uint objId)
 {
-	int ok = 1;
+	int    ok = 1;
 	SString str;
 
 	THROWERR(P_ImportCls, IEERR_IMPEXPCLSNOTINTD);
@@ -1569,7 +1571,7 @@ EXPORT int NextImportObjIter(uint idSess, uint objId, void * pRow)
 // Вызывается Papyrus'ом после каждого GetImportObj. Возможность Papyrus'а сказать свое слово при импорте
 EXPORT int ReplyImportObjStatus(uint idSess, uint objId, void * pObjStatus)
 {
-	int ok = 1;
+	int    ok = 1;
 	size_t pos = 0;
 	SString str;
 	// Если в Papyrus есть заказ, на который получено подтверждение или статус

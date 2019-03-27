@@ -549,12 +549,12 @@ void SLAPI ComDispInterface::SetErrCode()
 		HRESULT hr = HRes;
     	if(HRESULT_FACILITY(hr) == FACILITY_WINDOWS)
     	    hr = HRESULT_CODE(hr);
-    	char * p_err_msg = 0;
-    	if(FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM, NULL, hr,
-			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&p_err_msg, 0, NULL) != 0) {
-    	    sys_err_buf = p_err_msg;
-    	    LocalFree(p_err_msg);
-		}
+    	//char * p_err_msg = 0;
+    	//if(::FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM, NULL, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&p_err_msg, 0, 0) != 0) {
+    	    //sys_err_buf = p_err_msg;
+    	    //LocalFree(p_err_msg);
+		//}
+		SSystem::SFormatMessage(hr, sys_err_buf); // @v10.3.11
 	}
 	if(sys_err_buf.Empty()) {
 		//PPLoadTextWin(PPTXT_RETCODE, temp_buf);

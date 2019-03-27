@@ -561,7 +561,7 @@ XMLPUBFUN int XMLCALL xmlBufferLength(const xmlBuffer * buf);
  * Creating/freeing new structures.
  */
 XMLPUBFUN xmlDtd * XMLCALL xmlCreateIntSubset(xmlDoc * doc, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID);
-XMLPUBFUN xmlDtdPtr XMLCALL xmlNewDtd(xmlDoc * doc, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID);
+XMLPUBFUN xmlDtd * XMLCALL xmlNewDtd(xmlDoc * doc, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID);
 XMLPUBFUN xmlDtd * /*XMLCALL*/FASTCALL xmlGetIntSubset(const xmlDoc * doc);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeDtd(xmlDtd * pCur);
 #ifdef LIBXML_LEGACY_ENABLED
@@ -583,7 +583,7 @@ XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeProp(xmlAttr * cur);
 XMLPUBFUN xmlAttr * XMLCALL xmlCopyProp(xmlNode * target, xmlAttr * cur);
 XMLPUBFUN xmlAttr * XMLCALL xmlCopyPropList(xmlNode * target, xmlAttr * cur);
 #ifdef LIBXML_TREE_ENABLED
-XMLPUBFUN xmlDtdPtr XMLCALL xmlCopyDtd(xmlDtdPtr dtd);
+XMLPUBFUN xmlDtd * XMLCALL xmlCopyDtd(xmlDtd * dtd);
 #endif /* LIBXML_TREE_ENABLED */
 #if defined(LIBXML_TREE_ENABLED) || defined(LIBXML_SCHEMAS_ENABLED)
 XMLPUBFUN xmlDoc * XMLCALL xmlCopyDoc(xmlDoc * doc, int recursive);

@@ -64,7 +64,7 @@ static int win_crypto_Update(Digest_CTX * ctx, const uchar * buf, size_t len)
 {
 	if(!ctx->valid)
 		return ARCHIVE_FAILED;
-	CryptHashData(ctx->hash, (uchar*)(uintptr_t)buf, (DWORD)len, 0);
+	CryptHashData(ctx->hash, (uchar *)(uintptr_t)buf, (DWORD)len, 0);
 	return ARCHIVE_OK;
 }
 

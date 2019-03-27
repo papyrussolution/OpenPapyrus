@@ -289,7 +289,7 @@ err:
  * Utilities
  */
 
-#define DD_INVALID_ID   ((uint32)-1)
+#define DD_INVALID_ID   (static_cast<uint32>(-1))
 
 /*
  * __dd_build --

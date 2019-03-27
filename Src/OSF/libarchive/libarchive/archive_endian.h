@@ -116,14 +116,14 @@ static inline uint64_t archive_le64dec(const void * pp)
 
 static inline void archive_be16enc(void * pp, uint16_t u)
 {
-	uchar * p = (uchar*)pp;
+	uchar * p = (uchar *)pp;
 	p[0] = (u >> 8) & 0xff;
 	p[1] = u & 0xff;
 }
 
 static inline void archive_be32enc(void * pp, uint32_t u)
 {
-	uchar * p = (uchar*)pp;
+	uchar * p = (uchar *)pp;
 	p[0] = (u >> 24) & 0xff;
 	p[1] = (u >> 16) & 0xff;
 	p[2] = (u >> 8) & 0xff;
@@ -132,21 +132,21 @@ static inline void archive_be32enc(void * pp, uint32_t u)
 
 static inline void archive_be64enc(void * pp, uint64_t u)
 {
-	uchar * p = (uchar*)pp;
+	uchar * p = (uchar *)pp;
 	archive_be32enc(p, (uint32_t)(u >> 32));
 	archive_be32enc(p + 4, (uint32_t)(u & 0xffffffff));
 }
 
 static inline void archive_le16enc(void * pp, uint16_t u)
 {
-	uchar * p = (uchar*)pp;
+	uchar * p = (uchar *)pp;
 	p[0] = u & 0xff;
 	p[1] = (u >> 8) & 0xff;
 }
 
 static inline void archive_le32enc(void * pp, uint32_t u)
 {
-	uchar * p = (uchar*)pp;
+	uchar * p = (uchar *)pp;
 	p[0] = u & 0xff;
 	p[1] = (u >> 8) & 0xff;
 	p[2] = (u >> 16) & 0xff;
@@ -155,7 +155,7 @@ static inline void archive_le32enc(void * pp, uint32_t u)
 
 static inline void archive_le64enc(void * pp, uint64_t u)
 {
-	uchar * p = (uchar*)pp;
+	uchar * p = (uchar *)pp;
 	archive_le32enc(p, (uint32_t)(u & 0xffffffff));
 	archive_le32enc(p + 4, (uint32_t)(u >> 32));
 }

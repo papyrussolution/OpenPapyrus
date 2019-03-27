@@ -269,7 +269,7 @@ int dsa_builtin_paramgen2(DSA * ret, size_t L, size_t N,
     int * counter_ret, ulong * h_ret,
     BN_GENCB * cb)
 {
-	int ok = -1;
+	int    ok = -1;
 	uchar * seed = NULL, * seed_tmp = NULL;
 	uchar md[EVP_MAX_MD_SIZE];
 	int mdsize;

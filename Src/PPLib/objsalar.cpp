@@ -21,7 +21,7 @@ int SLAPI PPSalChargePacket::Init()
 static int SalChargeFilt(void * pRec, void * extraPtr)
 {
 	const long extra_param = reinterpret_cast<long>(extraPtr);
-	if(((PPSalCharge *)pRec)->Flags & PPSalCharge::fGroup)
+	if(static_cast<const PPSalCharge *>(pRec)->Flags & PPSalCharge::fGroup)
 		return (extra_param == -10000) ? 0 : 1;
 	else
 		return (extra_param == -1000) ? 0 : 1;
@@ -157,7 +157,7 @@ int SalChargeDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = -1;
 	PPID   id = 0;
-	if(ListBoxSelDialog(PPOBJ_SALCHARGE, &id, (void *)-10000) > 0 && Data.GrpList.lsearch(id) <= 0) {
+	if(ListBoxSelDialog(PPOBJ_SALCHARGE, &id, reinterpret_cast<void *>(-10000)) > 0 && Data.GrpList.lsearch(id) <= 0) {
 		Data.GrpList.addUnique(id);
 		ASSIGN_PTR(pPos, Data.GrpList.getCount()-1);
 		ASSIGN_PTR(pID, id);
@@ -239,7 +239,7 @@ int SLAPI PPObjSalCharge::Browse(void * extraPtr)
 			PPObjSalCharge * p_obj = (PPObjSalCharge *)P_Obj;
 			if(p_obj) {
 				PPID   new_id = 0;
-				if(p_obj->Edit(&new_id, (void *)-1000) == cmOK)
+				if(p_obj->Edit(&new_id, reinterpret_cast<void *>(-1000)) == cmOK)
 					updateList(new_id);
 			}
 		}
@@ -369,7 +369,7 @@ int SLAPI PPObjSalCharge::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPSalChargePacket * p_pack = (PPSalChargePacket *)p->Data;
+		PPSalChargePacket * p_pack = static_cast<PPSalChargePacket *>(p->Data);
 		if(stream == 0) {
 			if(*pID == 0) {
 				PPID   same_id = 0;
@@ -404,7 +404,7 @@ int SLAPI PPObjSalCharge::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int 
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPSalChargePacket * p_pack = (PPSalChargePacket *)p->Data;
+		PPSalChargePacket * p_pack = static_cast<PPSalChargePacket *>(p->Data);
 		PPIDArray temp_list;
 		THROW(ProcessObjRefInArray(PPOBJ_AMOUNTTYPE, &p_pack->Rec.AmtID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_STAFFCAL,   &p_pack->Rec.CalID, ary, replace));
@@ -473,7 +473,7 @@ int SLAPI SalChargeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void SLAPI SalChargeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPSalChargePacket * p_data_rec = (PPSalChargePacket *)pDataRec;
+	PPSalChargePacket * p_data_rec = static_cast<PPSalChargePacket *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	#define FLD(f) p_data_rec->Rec.f = p_cache_rec->f
@@ -563,7 +563,7 @@ static void FillSalChargeRec(const PPSalChargePacket * pInner, SPpyO_SalCharge *
 int32 DL6ICLS_PPObjSalCharge::Search(int32 id, PPYOBJREC rec)
 {
 	int    ok = 0;
-	PPObjSalCharge * p_obj = (PPObjSalCharge *)ExtraPtr;
+	PPObjSalCharge * p_obj = static_cast<PPObjSalCharge *>(ExtraPtr);
 	if(p_obj) {
 		PPSalChargePacket pack;
 		ok = p_obj->GetPacket(id, &pack);
@@ -577,7 +577,7 @@ int32 DL6ICLS_PPObjSalCharge::Search(int32 id, PPYOBJREC rec)
 int32 DL6ICLS_PPObjSalCharge::SearchByName(SString & text, int32 kind, int32 extraParam, PPYOBJREC rec)
 {
 	int    ok = 0;
-	PPObjSalCharge * p_obj = (PPObjSalCharge *)ExtraPtr;
+	PPObjSalCharge * p_obj = static_cast<PPObjSalCharge *>(ExtraPtr);
 	if(p_obj) {
 		PPSalChargePacket pack;
 		PPID   id = 0;
@@ -600,7 +600,7 @@ int32 DL6ICLS_PPObjSalCharge::SearchByName(SString & text, int32 kind, int32 ext
 
 SString & DL6ICLS_PPObjSalCharge::GetName(int32 id)
 {
-	PPObjSalCharge * p_obj = (PPObjSalCharge *)ExtraPtr;
+	PPObjSalCharge * p_obj = static_cast<PPObjSalCharge *>(ExtraPtr);
 	if(p_obj) {
 		PPSalChargePacket pack;
 		if(p_obj->Fetch(id, &pack) > 0)
@@ -630,7 +630,7 @@ int32 DL6ICLS_PPObjSalCharge::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 	PPSalChargePacket pack;
 	SString temp_buf;
 	SPpyO_SalCharge * p_outer_rec = (SPpyO_SalCharge *)pRec;
-	PPObjSalCharge  * p_obj = (PPObjSalCharge *)ExtraPtr;
+	PPObjSalCharge  * p_obj = static_cast<PPObjSalCharge *>(ExtraPtr);
 	THROW(p_obj);
 	THROW_PP_S(p_outer_rec->RecTag == ppoSalCharge, PPERR_INVSTRUCTAG, "ppoSalCharge");
 	pack.Rec.AmtID = p_outer_rec->AmtID;
@@ -653,7 +653,7 @@ int32 DL6ICLS_PPObjSalCharge::Update(int32 id, long flags, PPYOBJREC rec)
 	PPSalChargePacket pack;
 	SString temp_buf;
 	SPpyO_SalCharge * p_outer_rec = (SPpyO_SalCharge *)rec;
-	PPObjSalCharge  * p_obj = (PPObjSalCharge *)ExtraPtr;
+	PPObjSalCharge  * p_obj = static_cast<PPObjSalCharge *>(ExtraPtr);
 	THROW(p_obj);
 	THROW_PP_S(p_outer_rec->RecTag == ppoSalCharge, PPERR_INVSTRUCTAG, "ppoSalCharge");
 	THROW(p_obj->GetPacket(id, &pack) > 0);

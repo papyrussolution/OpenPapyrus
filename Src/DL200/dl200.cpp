@@ -461,7 +461,7 @@ int SLAPI DL2_Row::Write(DL2_Storage * pStrg) const
 
 int SLAPI DL2_Row::Read(FILE * pStream)
 {
-	int ok = 1;
+	int    ok = 1;
 	DL2_Formula f;
 	THROW(DL2_Entry::Read(pStream));
 	THROW(f.Read(pStream));
@@ -1839,7 +1839,7 @@ int SLAPI DL2_Storage::WriteIndex()
 
 int SLAPI DL2_Storage::ReadIndex()
 {
-	int ok = 1;
+	int    ok = 1;
 	THROW_PP(P_Stream, PPERR_DL200_FILENOPENED);
 	ZDELETE(P_Index);
 	THROW_MEM(P_Index = new SArray(sizeof(IndexItem)));
@@ -1994,7 +1994,7 @@ int SLAPI DL2_Formula::PushExpression(const DL2_Formula * pF)
 
 int SLAPI DL2_Formula::AddExpression(const DL2_Formula * pF)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(pF)
 		if(Size <= sizeof(dl2_exprsize))
 			ok = Copy(pF);

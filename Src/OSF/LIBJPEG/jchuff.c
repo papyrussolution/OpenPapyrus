@@ -1209,7 +1209,7 @@ METHODDEF(void) start_pass_huff(j_compress_ptr cinfo, boolean gather_statistics)
 				/* Allocate and zero the statistics tables */
 				/* Note that jpeg_gen_optimal_table expects 257 entries in each table! */
 				if(entropy->dc_count_ptrs[tbl] == NULL)
-					entropy->dc_count_ptrs[tbl] = (long*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, 257 * SIZEOF(long));
+					entropy->dc_count_ptrs[tbl] = (long *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, 257 * SIZEOF(long));
 				memzero(entropy->dc_count_ptrs[tbl], 257 * SIZEOF(long));
 			}
 			else {
@@ -1226,7 +1226,7 @@ METHODDEF(void) start_pass_huff(j_compress_ptr cinfo, boolean gather_statistics)
 				if(tbl < 0 || tbl >= NUM_HUFF_TBLS)
 					ERREXIT1(cinfo, JERR_NO_HUFF_TABLE, tbl);
 				if(entropy->ac_count_ptrs[tbl] == NULL)
-					entropy->ac_count_ptrs[tbl] = (long*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, 257 * SIZEOF(long));
+					entropy->ac_count_ptrs[tbl] = (long *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, 257 * SIZEOF(long));
 				memzero(entropy->ac_count_ptrs[tbl], 257 * SIZEOF(long));
 			}
 			else {

@@ -311,7 +311,7 @@ static int archive_compressor_xz_open(struct archive_write_filter * f)
 				bs -= bs % bpb;
 		}
 		data->compressed_buffer_size = bs;
-		data->compressed = (uchar*)SAlloc::M(data->compressed_buffer_size);
+		data->compressed = (uchar *)SAlloc::M(data->compressed_buffer_size);
 		if(data->compressed == NULL) {
 			archive_set_error(f->archive, ENOMEM,
 			    "Can't allocate data for compression buffer");

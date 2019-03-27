@@ -178,7 +178,7 @@ int ListBoxDef::TransmitData(int dir, void * pData)
 				if(Options & lbtWordID)
 					*(short*)pData = (short)i;
 				else
-					*(long*)pData = i;
+					*(long *)pData = i;
 			}
 		s = 1;
 	}
@@ -237,7 +237,7 @@ HIMAGELIST SLAPI ListBoxDef::CreateImageList(HINSTANCE hInst)
 								//canv.PopTransform();
 								//canv.ResetColorReplacement();
 							}
-							HICON h_icon = (HICON)ib.TransformToIcon();
+							HICON h_icon = static_cast<HICON>(ib.TransformToIcon());
 							if(h_icon) {
 								image_idx = ImageList_AddIcon(himl, h_icon);
 								added_list.Add(image_id, image_idx, 0);

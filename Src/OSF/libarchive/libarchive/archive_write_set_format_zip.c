@@ -1057,7 +1057,7 @@ static ssize_t archive_write_zip_data(struct archive_write * a, const void * buf
 		    break;
 #if HAVE_ZLIB_H
 		case COMPRESSION_DEFLATE:
-		    zip->stream.next_in = (uchar*)(uintptr_t)buff;
+		    zip->stream.next_in = (uchar *)(uintptr_t)buff;
 		    zip->stream.avail_in = (uInt)s;
 		    do {
 			    ret = deflate(&zip->stream, Z_NO_FLUSH);

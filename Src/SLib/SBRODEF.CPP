@@ -26,7 +26,7 @@ uint SLAPI BroGroup::NextColumn() const { return (First+Count); }
 //
 SLAPI BrowserDef::BrowserDef(int captionHight, unsigned aOptions, void * extraPtr /*=0*/) : SArray(sizeof(BroColumn), aryDataOwner|aryEachItem),
 	capHight(captionHight), options(aOptions), NumGroups(0), P_Groups(0), viewHight(1), topItem(0), curItem(0), scrollDelta(0), P_CtList(0),
-	ExtraPtr(extraPtr), UserProc(0)
+	ExtraPtr(extraPtr), UserProc(0), isBOQ(0), isEOQ(0)
 {
 }
 
@@ -151,13 +151,13 @@ int SLAPI BrowserDef::AddCrosstab(BroCrosstab * pCt)
 uint  SLAPI BrowserDef::GetCrosstabCount() const
 	{ return SVectorBase::GetCount(P_CtList); }
 const BroCrosstab * SLAPI BrowserDef::GetCrosstab(uint ctN) const
-	{ return (P_CtList && ctN < P_CtList->getCount()) ? (const BroCrosstab *)P_CtList->at(ctN) : 0; }
+	{ return (P_CtList && ctN < P_CtList->getCount()) ? static_cast<const BroCrosstab *>(P_CtList->at(ctN)) : 0; }
 
 int SLAPI BrowserDef::FreeAllCrosstab()
 {
 	if(P_CtList) {
 		for(uint i = 0; i < P_CtList->getCount(); i++)
-			delete ((BroCrosstab *)P_CtList->at(i))->P_Text;
+			delete static_cast<BroCrosstab *>(P_CtList->at(i))->P_Text;
 		P_CtList->freeAll();
 		return 1;
 	}
@@ -463,7 +463,7 @@ int SLAPI BrowserDef::setText(long row, int column, const char * b)
 		if(c.Options & BCO_USERPROC)
 			ok = 0;
 		else {
-			char * ptr = (char *)getRow(row);
+			char * ptr = static_cast<char *>(getRow(row));
 			ok = ptr ? stfromstr(c.T, ptr + c.Offs, c.format, b) : 0;
 		}
 	}
@@ -513,7 +513,7 @@ int SLAPI BrowserDef::search2(const void * data, CompFunc cmpFunc, int srchMode,
 		int    r = (srchMode == srchFirst) ? top() : step(1);
 		if(r)
 			do {
-				const char * p = (char *)getRow(_curItem());
+				const char * p = static_cast<const char *>(getRow(_curItem()));
 				if(p && cmpFunc(p + offs, data, 0) == 0)
 					found = 1;
 			} while(!found && step(1) > 0);
@@ -630,11 +630,11 @@ void * FASTCALL AryBrowserDef::getRow(long row)
 
 int FASTCALL AryBrowserDef::getData(void * pData)
 {
-	*(SArray **)pData = P_Array;
+	*static_cast<SArray **>(pData) = P_Array;
 	return 1;
 }
 
 int FASTCALL AryBrowserDef::setData(void * pNewData)
 {
-	return setArray((SArray *)pNewData, 0, 1);
+	return setArray(static_cast<SArray *>(pNewData), 0, 1);
 }

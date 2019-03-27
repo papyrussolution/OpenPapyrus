@@ -445,7 +445,7 @@ int SLAPI PPViewSalary::TempRecToViewItem(const TempSalaryTbl::Rec * pTempRec, S
 // @v5.6.14 AHTOXA {
 int SLAPI PPViewSalary::GetSalChargeGroupItems(PPID salChargeGrpID, PPIDArray * pItems) const
 {
-	int ok = -1;
+	int    ok = -1;
 	PPSalChargePacket pack;
 	PPObjSalCharge sc_obj;
 	if(sc_obj.GetPacket(salChargeGrpID, &pack) > 0 && (pack.Rec.Flags & PPSalCharge::fGroup)) {

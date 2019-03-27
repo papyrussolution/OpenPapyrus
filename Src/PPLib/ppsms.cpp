@@ -592,7 +592,6 @@ void SendSmsDialog::CalcText()
 	SString src_msg, dest_msg, prsn_id_str;
 	SString text;
 	long   msg_len = 0, sms_count = 0;
-	//char   temp_buf[256];
 	getCtrlString(CTL_SENDSMS_TEXT, text);
 	text.Strip();
 	msg_len = text.Len();
@@ -603,12 +602,9 @@ void SendSmsDialog::CalcText()
 	src_msg.Z().Cat(send_sms.ExtStr.Excise(0, 3));
 	PrsnIdArr.GetText(0, prsn_id_str);
 	{
-		// @v8.5.4 {
 		PPSmsSender::FormatMessageBlock fmb;
 		fmb.PersonID = prsn_id_str.ToLong();
-		PPSmsSender::FormatMessage(src_msg, dest_msg, &fmb);
-		// } @v8.5.4
-		// @v8.5.4 FormatText(src_msg, dest_msg = 0, prsn_id);
+		PPSmsSender::FormatMessage_(src_msg, dest_msg, &fmb);
 	}
 	setCtrlString(CTL_SENDSMS_PREVTEXT, dest_msg);
 	msg_len = dest_msg.Len();
@@ -824,14 +820,9 @@ int SendSmsDialog::SendSmsText()
 				client.SendingSms_(prsn_id, phone, dest_msg);
 			}
 			else { // Иначе если интерактивно
-				// @v8.5.4 {
                 PPSmsSender::FormatMessageBlock fmb;
 				fmb.PersonID = prsn_id;
-				PPSmsSender::FormatMessage(src_msg, dest_msg, &fmb);
-				// } @v8.5.4
-				// @v8.5.4 FormatText(src_msg, dest_msg = 0, prsn_id);
-				/*if(!SendingSms(client, prsn_id, phone, dest_msg, &logger))
-					PPError();*/
+				PPSmsSender::FormatMessage_(src_msg, dest_msg, &fmb);
 				client.SendingSms_(prsn_id, phone, dest_msg);
 			}
 		}
@@ -2592,7 +2583,7 @@ int SLAPI PPSmsSender::GetSubstVar(long p, SString & rBuf)
 }
 
 //static
-int SLAPI PPSmsSender::FormatMessage(const char * pTemplate, SString & rResult, PPSmsSender::FormatMessageBlock * pFmBlk)
+int SLAPI PPSmsSender::FormatMessage_(const char * pTemplate, SString & rResult, PPSmsSender::FormatMessageBlock * pFmBlk)
 {
 	rResult.Z();
 	int    ok = 1;
@@ -2601,7 +2592,6 @@ int SLAPI PPSmsSender::FormatMessage(const char * pTemplate, SString & rResult, 
 	PPObjPerson psn_obj;
 	PersonTbl::Rec psn_rec;
 	PPPersonPacket psn_pack;
-
 	PPLoadText(PPTXT_SMSFIELDS_VARS, sub_str);
 	for(const char * p = pTemplate; *p;) {
 		if(*p == '@') {

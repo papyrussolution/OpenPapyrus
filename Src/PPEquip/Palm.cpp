@@ -39,7 +39,7 @@ IMPL_CMPFUNC(PalmBillPacket, i1, i2)
 
 int SLAPI PalmBillQueue::PushUnique(PalmBillPacket * pPack)
 {
-	int ok = -1;
+	int    ok = -1;
 	uint pos = 0;
 	if(lsearch(pPack, &pos, PTR_CMPFUNC(PalmBillPacket)) > 0) {
 		PalmBillPacket * p_pack = static_cast<PalmBillPacket *>(at(pos));

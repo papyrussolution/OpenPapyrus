@@ -10363,9 +10363,9 @@ SOAP_FMAC1 long * SOAP_FMAC2 soap_inlong(struct soap * soap, const char * tag, l
 		return NULL;
 	}
  #endif
-	p = (long*)soap_id_enter(soap, soap->id, p, t, sizeof(long), 0, 0, 0, 0);
+	p = (long *)soap_id_enter(soap, soap->id, p, t, sizeof(long), 0, 0, 0, 0);
 	if(*soap->href)
-		p = (long*)soap_id_forward(soap, soap->href, p, 0, t, 0, sizeof(long), 0, 0);
+		p = (long *)soap_id_forward(soap, soap->href, p, 0, t, 0, sizeof(long), 0, 0);
 	else if(p) {
 		if(soap_s2long(soap, soap_value(soap), p))
 			return NULL;
@@ -13889,11 +13889,11 @@ static const char * soap_strerror(struct soap * soap)
    #ifndef UNDER_CE
 		DWORD len;
 		*soap->msgbuf = '\0';
-		len = FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)soap->msgbuf, (DWORD)sizeof(soap->msgbuf), 0);
+		len = ::FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)soap->msgbuf, (DWORD)sizeof(soap->msgbuf), 0);
    #else
 		DWORD i, len;
 		*soap->msgbuf = '\0';
-		len = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, NULL, err, 0, (LPTSTR)soap->msgbuf, (DWORD)(sizeof(soap->msgbuf)/sizeof(TCHAR)), 0);
+		len = ::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, NULL, err, 0, (LPTSTR)soap->msgbuf, (DWORD)(sizeof(soap->msgbuf)/sizeof(TCHAR)), 0);
 		for(i = 0; i <= len; i++) {
 			if(((TCHAR*)soap->msgbuf)[i] < 0x80)
 				soap->msgbuf[i] = (char)((TCHAR*)soap->msgbuf)[i];

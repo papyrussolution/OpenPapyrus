@@ -1725,7 +1725,7 @@ static int TrioParse(int type, const char * format, trio_parameter_t * parameter
 				    else if(parameters[i].flags & FLAGS_LONG)
 					    parameters[i].data.number.as_unsigned = (argarray == NULL)
 					    ? (trio_uintmax_t)va_arg(TRIO_VA_LIST_DEREF(arglist), long)
-					    : (trio_uintmax_t)(*((long*)argarray[num]));
+					    : (trio_uintmax_t)(*((long *)argarray[num]));
 				    else {
 					    if(argarray == NULL)
 						    parameters[i].data.number.as_unsigned =

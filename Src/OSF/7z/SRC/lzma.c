@@ -906,7 +906,7 @@ static uint32 GetOptimum(CLzmaEnc * p, uint32 position, uint32 * backRes)
 		curByte = *data;
 		matchByte = *(data - (reps[0] + 1));
 		if(mainLen < 2 && curByte != matchByte && repLens[repMaxIndex] < 2) {
-			*backRes = (uint32)-1;
+			*backRes = static_cast<uint32>(-1);
 			return 1;
 		}
 		p->opt[0].state = (CState)p->state;
@@ -1319,7 +1319,7 @@ static uint32 GetOptimumFast(CLzmaEnc * p, uint32 * backRes)
 		numPairs = p->numPairs;
 	}
 	numAvail = p->numAvail;
-	*backRes = (uint32)-1;
+	*backRes = static_cast<uint32>(-1);
 	if(numAvail < 2)
 		return 1;
 	SETMIN(numAvail, LZMA_MATCH_LEN_MAX);
@@ -1550,7 +1550,7 @@ static SRes LzmaEnc_CodeOneBlock(CLzmaEnc * p, Bool useLimits, uint32 maxPackSiz
 			printf("\n pos = %4X,   len = %u   pos = %u", nowPos32, len, pos);
     #endif
 			posState = nowPos32 & p->pbMask;
-			if(len == 1 && pos == (uint32)-1) {
+			if(len == 1 && pos == static_cast<uint32>(-1)) {
 				Byte curByte;
 				CLzmaProb * probs;
 				const Byte * data;

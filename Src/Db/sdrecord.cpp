@@ -251,7 +251,7 @@ int SdbField::Helper_TranslateString(SStrScan & rScan, void * pData)
 int SdbField::TranslateString(SStrScan & rScan)
 {
 	ReList rl;
-	return Helper_TranslateString(rScan, (void *)&rl);
+	return Helper_TranslateString(rScan, &rl);
 }
 //
 // style:

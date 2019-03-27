@@ -296,7 +296,7 @@ SLTEST_R(TestMd5)
 	uint num_of_rows = 0;
 	uint num_of_col = 0;
 	int length = 0;
-	int ok = 1;
+	int    ok = 1;
 	int j = 0;
 	ulong crc = 0L;
 	S_MD5 md_obj;

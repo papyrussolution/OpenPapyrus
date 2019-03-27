@@ -766,9 +766,9 @@ XMLPUBFUN int XMLCALL xmlParseExtParsedEnt(xmlParserCtxt * ctxt);
 	XMLPUBFUN xmlDoc * XMLCALL xmlParseEntity(const char * filename);
 #endif /* LIBXML_SAX1_ENABLED */
 #ifdef LIBXML_VALID_ENABLED
-	XMLPUBFUN xmlDtdPtr XMLCALL xmlSAXParseDTD(xmlSAXHandler * sax, const xmlChar * ExternalID, const xmlChar * SystemID);
-	XMLPUBFUN xmlDtdPtr XMLCALL xmlParseDTD(const xmlChar * ExternalID, const xmlChar * SystemID);
-	XMLPUBFUN xmlDtdPtr XMLCALL xmlIOParseDTD(xmlSAXHandler * sax, xmlParserInputBuffer * input, xmlCharEncoding enc);
+	XMLPUBFUN xmlDtd * XMLCALL xmlSAXParseDTD(xmlSAXHandler * sax, const xmlChar * ExternalID, const xmlChar * SystemID);
+	XMLPUBFUN xmlDtd * XMLCALL xmlParseDTD(const xmlChar * ExternalID, const xmlChar * SystemID);
+	XMLPUBFUN xmlDtd * XMLCALL xmlIOParseDTD(xmlSAXHandler * sax, xmlParserInputBuffer * input, xmlCharEncoding enc);
 #endif /* LIBXML_VALID_ENABLE */
 #ifdef LIBXML_SAX1_ENABLED
 	XMLPUBFUN int XMLCALL xmlParseBalancedChunkMemory(xmlDoc * doc, xmlSAXHandler * sax, void * user_data, int depth, const xmlChar * string, xmlNode ** lst);

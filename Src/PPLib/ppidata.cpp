@@ -22,19 +22,23 @@ static void SLAPI SetInetError(HMODULE handle)
 	const  int os_err_code = GetLastError();
 	const  int err_code = PPErrCode;
 	if(oneof2(err_code, PPERR_RCVFROMINET, PPERR_INETCONN) && handle != 0) {
-		TCHAR  buf[256];
 		SString msg_buf;
-		uint32 iec = 0;
-		uint32 buf_len = sizeof(buf);
-		PTR32(buf)[0] = 0;
-		if(os_err_code == ERROR_INTERNET_EXTENDED_ERROR) {
-			InternetGetLastResponseInfo(&iec, buf, &buf_len); // @unicodeproblem
-		}
-		else {
-			FormatMessage(FORMAT_MESSAGE_FROM_HMODULE|FORMAT_MESSAGE_IGNORE_INSERTS, handle, os_err_code, 
-				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buf, buf_len, 0); // @unicodeproblem
-		}
-		PPSetAddedMsgString((msg_buf = SUcSwitch(buf)).Chomp().ToOem());
+		//TCHAR  buf[256];
+		//uint32 iec = 0;
+		//uint32 buf_len = sizeof(buf);
+		//PTR32(buf)[0] = 0;
+		//if(os_err_code == ERROR_INTERNET_EXTENDED_ERROR) {
+			//::InternetGetLastResponseInfo(&iec, buf, &buf_len); // @unicodeproblem
+		//}
+		//else {
+			//::FormatMessage(FORMAT_MESSAGE_FROM_HMODULE|FORMAT_MESSAGE_IGNORE_INSERTS, handle, os_err_code, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buf, buf_len, 0); // @unicodeproblem
+		//}
+		//(msg_buf = SUcSwitch(buf)).Chomp().ToOem();
+		// @v10.3.11 {
+		SSystem::SFormatMessage(os_err_code, msg_buf);
+		msg_buf.Chomp().Transf(CTRANSF_OUTER_TO_INNER);
+		// } @v10.3.11 
+		PPSetAddedMsgString(msg_buf);
 	}
 }
 
@@ -940,7 +944,7 @@ private:
 
 int InetConnConfigDialog::setDTS(const PPInetConnConfig * pCfg)
 {
-	int ok = 1;
+	int    ok = 1;
 	int v = 0;
 	if(!RVALUEPTR(Data, pCfg))
 		MEMSZERO(Data);

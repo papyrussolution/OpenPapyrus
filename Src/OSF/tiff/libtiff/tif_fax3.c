@@ -395,7 +395,7 @@ void _TIFFFax3fillruns(uchar* buf, uint32* runs, uint32* erun, uint32 lastx)
 						 */
 						for(; n && !isAligned(cp, long); n--)
 							*cp++ = 0x00;
-						lp = (long*)cp;
+						lp = (long *)cp;
 						nw = (int32)(n / sizeof(long));
 						n -= nw * sizeof(long);
 						do {
@@ -431,7 +431,7 @@ void _TIFFFax3fillruns(uchar* buf, uint32* runs, uint32* erun, uint32 lastx)
 						 */
 						for(; n && !isAligned(cp, long); n--)
 							*cp++ = 0xff;
-						lp = (long*)cp;
+						lp = (long *)cp;
 						nw = (int32)(n / sizeof(long));
 						n -= nw * sizeof(long);
 						do {
@@ -809,7 +809,7 @@ inline static int32 find0span(uchar* bp, int32 bs, int32 be)
 			bits -= 8;
 			bp++;
 		}
-		lp = (long*)bp;
+		lp = (long *)bp;
 		while((bits >= (int32)(8 * sizeof(long))) && (0 == *lp)) {
 			span += 8*sizeof(long);
 			bits -= 8*sizeof(long);
@@ -871,7 +871,7 @@ inline static int32 find1span(uchar* bp, int32 bs, int32 be)
 			bits -= 8;
 			bp++;
 		}
-		lp = (long*)bp;
+		lp = (long *)bp;
 		while((bits >= (int32)(8 * sizeof(long))) && (~0 == *lp)) {
 			span += 8*sizeof(long);
 			bits -= 8*sizeof(long);

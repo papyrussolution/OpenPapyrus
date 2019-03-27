@@ -129,7 +129,7 @@ ssize_t ngx_write_fd(ngx_fd_t fd, const void * buf, size_t size)
 ssize_t ngx_write_console(ngx_fd_t fd, const void * buf, size_t size)
 {
 	u_long n;
-	(void)CharToOemBuff((LPCSTR)buf, (LPSTR)buf, size);
+	(void)CharToOemBuffA((LPCSTR)buf, (LPSTR)buf, size); // @v10.3.11 CharToOemBuff-->CharToOemBuffA
 	if(WriteFile(fd, buf, size, &n, NULL) != 0) {
 		return (size_t)n;
 	}

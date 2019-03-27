@@ -2941,7 +2941,7 @@ char ZLIB_INTERNAL * gz_strwinerror(DWORD error)
 	static char buf[1024];
 	wchar_t * msgbuf;
 	DWORD lasterr = GetLastError();
-	DWORD chars = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, error, 0/* Default language */, (LPVOID)&msgbuf, 0, 0);
+	DWORD chars = ::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, error, 0/* Default language */, (LPVOID)&msgbuf, 0, 0);
 	if(chars != 0) {
 		/* If there is an \r\n appended, zap it.  */
 		if(chars >= 2 && msgbuf[chars - 2] == '\r' && msgbuf[chars - 1] == '\n') {
@@ -2997,7 +2997,7 @@ static gzFile gz_open(const void * path, int fd, const char * mode)
 	if(path == NULL)
 		return NULL;
 	/* allocate gzFile structure to return */
-	state = (gz_state *)SAlloc::M(sizeof(gz_state));
+	state = static_cast<gz_state *>(SAlloc::M(sizeof(gz_state)));
 	if(state == NULL)
 		return NULL;
 	state->size = 0;        /* no buffers allocated yet */
@@ -3057,14 +3057,14 @@ static gzFile gz_open(const void * path, int fd, const char * mode)
 	/* save the path name for error messages */
 #ifdef WIDECHAR
 	if(fd == -2) {
-		len = wcstombs(NULL, path, 0);
+		len = wcstombs(NULL, static_cast<const wchar_t *>(path), 0);
 		if(len == (size_t)-1)
 			len = 0;
 	}
 	else
 #endif
 	len = strlen((const char *)path);
-	state->path = (char *)SAlloc::M(len + 1);
+	state->path = static_cast<char *>(SAlloc::M(len + 1));
 	if(state->path == NULL) {
 		SAlloc::F(state);
 		return NULL;
@@ -3072,7 +3072,7 @@ static gzFile gz_open(const void * path, int fd, const char * mode)
 #ifdef WIDECHAR
 	if(fd == -2)
 		if(len)
-			wcstombs(state->path, path, len + 1);
+			wcstombs(state->path, static_cast<const wchar_t *>(path), len + 1);
 		else
 			*(state->path) = 0;
 	else
@@ -3102,9 +3102,9 @@ static gzFile gz_open(const void * path, int fd, const char * mode)
 	/* open the file with the appropriate flags (or just use fd) */
 	state->fd = fd > -1 ? fd : (
 #ifdef WIDECHAR
-	    fd == -2 ? _wopen(path, oflag, 0666) :
+	    fd == -2 ? _wopen(static_cast<const wchar_t *>(path), oflag, 0666) :
 #endif
-	    open((const char *)path, oflag, 0666));
+	    open(static_cast<const char *>(path), oflag, 0666));
 	if(state->fd == -1) {
 		SAlloc::F(state->path);
 		SAlloc::F(state);

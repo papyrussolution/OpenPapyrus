@@ -12664,7 +12664,7 @@ static int xmlSchemaCheckCOSSTRestricts(xmlSchemaParserCtxtPtr pctxt, xmlSchemaT
 		 */
 		if(type->facets) {
 			xmlSchemaFacetPtr facet;
-			int ok = 1;
+			int    ok = 1;
 			primitive = xmlSchemaGetPrimitiveType(type);
 			if(primitive == NULL) {
 				PERROR_INT("xmlSchemaCheckCOSSTRestricts", "failed to get primitive type");
@@ -12814,7 +12814,7 @@ static int xmlSchemaCheckCOSSTRestricts(xmlSchemaParserCtxtPtr pctxt, xmlSchemaT
 				}
 			}
 			if(type->facets) {
-				int ok = 1;
+				int    ok = 1;
 				/*
 				 * 2.3.2.4 Only length, minLength, maxLength, whiteSpace, pattern
 				 * and enumeration facet components are allowed among the {facets}.
@@ -12972,7 +12972,7 @@ static int xmlSchemaCheckCOSSTRestricts(xmlSchemaParserCtxtPtr pctxt, xmlSchemaT
 			 * allowed among the {facets}.
 			 */
 			if(type->facets) {
-				int ok = 1;
+				int    ok = 1;
 				xmlSchemaFacet * facet = type->facets;
 				do {
 					if((facet->type != XML_SCHEMA_FACET_PATTERN) && (facet->type != XML_SCHEMA_FACET_ENUMERATION)) {

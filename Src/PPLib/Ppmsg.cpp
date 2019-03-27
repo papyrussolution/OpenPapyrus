@@ -395,14 +395,15 @@ int FASTCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int 
 	}
 	{
 		SString base_msg_buf;
-		char * p_tmp_buf  = 0;
-		char * p_tmp_buf2 = 0;
-		if(!(p_tmp_buf = new char[PP_MSGLEN+1])) {
+		temp_buf.Z();
+		//char * p_tmp_buf  = 0;
+		//char * p_tmp_buf2 = 0;
+		/*if(!(p_tmp_buf = new char[PP_MSGLEN+1])) {
 			pAddInfo = "Not enough memory";
 			msgcode = 0;
 		}
 		else
-			*p_tmp_buf = 3; // Сообщение будет центрироваться //
+			*p_tmp_buf = 3; // Сообщение будет центрироваться // */
 		if(!pAddInfo) {
 			if(oneof2(group, PPSTR_DBENGINE, PPERR_DBLIB))
 				pAddInfo = DBS.GetConstTLA().AddedMsgString;
@@ -412,9 +413,13 @@ int FASTCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int 
 				pAddInfo = DS.GetConstTLA().AddedMsgString;
 		}
 		if(is_win_msg) {
-			int c = (is_win_msg == 2) ? SLS.GetConstTLA().LastSockErr : SLS.GetOsError();
-			FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, c, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)p_tmp_buf, PP_MSGLEN, 0);
-			chomp(SCharToOem(p_tmp_buf));
+			const int c = (is_win_msg == 2) ? SLS.GetConstTLA().LastSockErr : SLS.GetOsError();
+			//::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, c, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)p_tmp_buf, PP_MSGLEN, 0);
+			//chomp(SCharToOem(p_tmp_buf));
+			// @v10.3.11 {
+			SSystem::SFormatMessage(c, temp_buf);
+			temp_buf.Chomp().Transf(CTRANSF_OUTER_TO_INNER); 
+			// } @v10.3.11 
 			/* @todo
 			if(pAddInfo) {
 				p_tmp_buf
@@ -425,8 +430,23 @@ int FASTCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int 
 	__loadstring:
 			//if(!PPLoadString(group, msgcode, p_tmp_buf+1, PP_MSGLEN)) {
 			const int lsr = PPLoadString(group, msgcode, base_msg_buf);
-			strnzcpy(p_tmp_buf+1, base_msg_buf, PP_MSGLEN);
-			if(!lsr) {
+			// @v10.3.11 strnzcpy(p_tmp_buf+1, base_msg_buf, PP_MSGLEN);
+			if(lsr) {
+				// @v10.3.11 {
+				if(pAddInfo)
+					temp_buf.Printf(base_msg_buf, pAddInfo);
+				else
+					temp_buf = base_msg_buf;
+				// } @v10.3.11 
+				/*@v10.3.11 
+				const size_t tmp_buf_size = 1024;
+				if(pAddInfo && (p_tmp_buf2 = new char[tmp_buf_size]) != 0) {
+					_snprintf(p_tmp_buf2, tmp_buf_size-1, p_tmp_buf, pAddInfo);
+					delete [] p_tmp_buf;
+					p_tmp_buf = p_tmp_buf2;
+				}*/
+			}
+			else {
 				if(SLibError == SLERR_NOFOUND && addcode) {
 					if(addcode == PPERR_DBENGINE) {
 						group   = PPMSG_ERROR;
@@ -445,7 +465,8 @@ int FASTCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int 
 				else if(addcode == PPSTR_CRYSTAL_REPORT) {
 					PPLoadString("err_crpe", base_msg_buf);
 					base_msg_buf.Space().CatParStr(msgcode);
-					strnzcpy(p_tmp_buf+1, base_msg_buf, PP_MSGLEN);
+					// @v10.3.11 strnzcpy(p_tmp_buf+1, base_msg_buf, PP_MSGLEN);
+					temp_buf.CatN(base_msg_buf, PP_MSGLEN); // @v10.3.11
 				}
 				// } @v9.7.10
 				else {
@@ -453,25 +474,19 @@ int FASTCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int 
 					// @v9.0.4 {
 					PPLoadString(PPMSG_ERROR, PPERR_TEXTLOADINGFAULT, temp_buf);
 					temp_buf.CatDiv(':', 2).CatParStr(group).Space().Cat(msgcode);
-					temp_buf.CopyTo(p_tmp_buf+1, PP_MSGLEN-1);
+					// @v10.3.11 temp_buf.CopyTo(p_tmp_buf+1, PP_MSGLEN-1);
 					// } @v9.0.4
-					pAddInfo = p_tmp_buf;
+					// @v10.3.11 pAddInfo = p_tmp_buf;
+					pAddInfo = temp_buf;
 					msgcode = 0;
 				}
 			}
-			else {
-				const size_t tmp_buf_size = 1024;
-				if(pAddInfo && (p_tmp_buf2 = new char[tmp_buf_size]) != 0) {
-					_snprintf(p_tmp_buf2, tmp_buf_size-1, p_tmp_buf, pAddInfo);
-					delete [] p_tmp_buf;
-					p_tmp_buf = p_tmp_buf2;
-				}
-			}
 		}
-		rBuf = msgcode ? p_tmp_buf : pAddInfo;
+		//@v10.3.11 rBuf = msgcode ? p_tmp_buf : pAddInfo;
+		rBuf = msgcode ? temp_buf : pAddInfo; // @v10.3.11
 		if(rmvSpcChrs)
 			rBuf.ReplaceChar('\003', ' ').ReplaceChar('\n', ' ');
-		delete [] p_tmp_buf;
+		// @v10.3.11 delete [] p_tmp_buf;
 	}
 	return 1;
 }

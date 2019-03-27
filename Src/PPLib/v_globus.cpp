@@ -204,6 +204,6 @@ int SLAPI PPViewGlobalUserAcc::ProcessCommand(uint ppvCmd, const void * pHdr, PP
 
 int SLAPI PPViewGlobalUserAcc::CheckForFilt(const PPGlobalUserAcc * pRec) const
 {
-	int ok = 1;
+	int    ok = 1;
 	return ok;
 }

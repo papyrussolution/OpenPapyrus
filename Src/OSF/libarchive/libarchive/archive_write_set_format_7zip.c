@@ -1789,7 +1789,7 @@ static int compression_code_bzip2(struct archive * a,
 	lastrm->total_in =
 	    (((uint64_t)(uint32_t)strm->total_in_hi32) << 32)
 	    + (uint64_t)(uint32_t)strm->total_in_lo32;
-	lastrm->next_out = (uchar*)strm->next_out;
+	lastrm->next_out = (uchar *)strm->next_out;
 	lastrm->avail_out = strm->avail_out;
 	lastrm->total_out =
 	    (((uint64_t)(uint32_t)strm->total_out_hi32) << 32)

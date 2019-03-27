@@ -2114,11 +2114,11 @@ int SLAPI DateRepeating::Format(int fmt, SString & rBuf) const
 long SLAPI DateRepeating::DtlToLong()
 {
 	switch(Prd) {
-		case PRD_DAY:    return *(long*)&Dtl.D;
-		case PRD_WEEK:   return *(long*)&Dtl.W;
-		case PRD_MONTH:  return (RepeatKind == 1) ? *(long*)&Dtl.ME : *(long*)&Dtl.MY;
-		case PRD_ANNUAL: return (RepeatKind == 1) ? *(long*)&Dtl.AE : *(long*)&Dtl.AY;
-		case PRD_REPEATAFTERPRD: return *(long*)&Dtl.RA;
+		case PRD_DAY:    return *reinterpret_cast<const long *>(&Dtl.D);
+		case PRD_WEEK:   return *reinterpret_cast<const long *>(&Dtl.W);
+		case PRD_MONTH:  return (RepeatKind == 1) ? *reinterpret_cast<const long *>(&Dtl.ME) : *reinterpret_cast<const long *>(&Dtl.MY);
+		case PRD_ANNUAL: return (RepeatKind == 1) ? *reinterpret_cast<const long *>(&Dtl.AE) : *reinterpret_cast<const long *>(&Dtl.AY);
+		case PRD_REPEATAFTERPRD: return *reinterpret_cast<const long *>(&Dtl.RA);
 	}
 	return 0;
 }
@@ -2704,13 +2704,13 @@ static void FASTCALL __TimeToTimeFields(uint64 Time, SUniTime_Inner * TimeFields
 	//
 	//  As our final step we put everything into the time fields output variable
 	//
-	TimeFields->Y   = (int)(years + 1601);
-	TimeFields->M   = (int)(month + 1);
-	TimeFields->D   = (int)(days + 1);
-	TimeFields->Hr  = (int)hours;
-	TimeFields->Mn  = (int)minutes;
-	TimeFields->Sc  = (int)seconds;
-	TimeFields->MSc = (int)milliseconds;
+	TimeFields->Y   = static_cast<int>(years + 1601);
+	TimeFields->M   = static_cast<int>(month + 1);
+	TimeFields->D   = static_cast<int>(days + 1);
+	TimeFields->Hr  = static_cast<int>(hours);
+	TimeFields->Mn  = static_cast<int>(minutes);
+	TimeFields->Sc  = static_cast<int>(seconds);
+	TimeFields->MSc = static_cast<int>(milliseconds);
 }
 //
 // Descr: This routine converts an input Time Field variable to a 64-bit NT time

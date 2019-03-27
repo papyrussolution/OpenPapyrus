@@ -1822,7 +1822,7 @@ int SLAPI PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 //
 int SLAPI PPViewPerson::CreateLikenessTable()
 {
-	int ok = -1;
+	int    ok = -1;
 	return ok;
 }
 
@@ -2381,8 +2381,8 @@ int SLAPI PPViewPerson::SendMail(PPID mailAccId, const StrAssocArray * pMailList
 				if(i && data.Delay > 0 && data.Delay <= (24 * 3600 * 1000)) {
 					SDelay(data.Delay);
 				}
-				PPSmsSender::FormatMessage(data.Text, text, &fmb);
-				PPSmsSender::FormatMessage(data.Subj, subj, &fmb);
+				PPSmsSender::FormatMessage_(data.Text, text, &fmb);
+				PPSmsSender::FormatMessage_(data.Subj, subj, &fmb);
 				subj.Transf(CTRANSF_INNER_TO_UTF8);
 				text.Transf(CTRANSF_INNER_TO_UTF8);
 				THROW(::SendMail(subj, text, pMailList->Get(i).Txt, data.MailAccID, &data.FilesList, pLogger));

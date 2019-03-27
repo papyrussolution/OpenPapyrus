@@ -40,7 +40,7 @@ int SLAPI PPBudgetPacket::EnumItems(uint * pIdx, BudgetItemTbl::Rec * pRec)
 
 int SLAPI PPBudgetPacket::AddItem(BudgetItemTbl::Rec * pRec)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(pRec && Items.lsearch(&pRec->ID, 0, PTR_CMPFUNC(long)) <= 0)
 		ok = Items.insert(pRec);
 	return ok;
@@ -48,7 +48,7 @@ int SLAPI PPBudgetPacket::AddItem(BudgetItemTbl::Rec * pRec)
 
 int SLAPI PPBudgetPacket::UpdateItem(uint pos, BudgetItemTbl::Rec * pRec)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(pRec && pos < Items.getCount()) {
 		Items.at(pos) = *pRec;
 		ok = 1;
@@ -86,7 +86,7 @@ int SLAPI BudgetItemCore::Search(PPID id, void * pRec /*=0*/)
 
 int SLAPI BudgetItemCore::Search(PPID budgetID, PPID acc, PPID kind, LDATE dt, void * pRec)
 {
-	int ok = -1;
+	int    ok = -1;
 	BudgetItemTbl::Key1 k1;
 	MEMSZERO(k1);
 	k1.BudgetID = budgetID;
@@ -182,7 +182,7 @@ int SLAPI BudgetItemCore::PutItem(PPID * pID, BudgetItemTbl::Rec * pRec, int use
 
 int SLAPI BudgetItemCore::GetItemsByBudget(PPID budgetID, PPID accID, long kind, BudgetItemsList * pItems)
 {
-	int ok = 1;
+	int    ok = 1;
 	DBQ * dbq = 0;
 	BExtQuery q(this, 1);
 	BudgetItemTbl::Key1 k1;
@@ -244,7 +244,7 @@ SLAPI PPObjBudget::~PPObjBudget()
 
 int SLAPI PPObjBudget::GetPacket(PPID id, PPBudgetPacket * pPack)
 {
-	int ok = -1;
+	int    ok = -1;
 	THROW_INVARG(pPack);
 	pPack->Init();
 	if(Search(id, &pPack->Rec) > 0) {
@@ -346,7 +346,7 @@ int SLAPI PPObjBudget::PutPacket(PPID * pID, PPBudgetPacket * pPack, int use_ta)
 
 int SLAPI PPObjBudget::GetChildBudgets(PPID parentID, PPIDArray * pChildList)
 {
-	int ok = -1;
+	int    ok = -1;
 	long h = 0;
 	PPBudget budget;
 	for(ref->InitEnum(PPOBJ_BUDGET, 0, &h); ref->NextEnum(h, &budget) > 0;) {
@@ -432,7 +432,7 @@ int BudgetScenDialog::delItem(long pos, long id)
 
 int BudgetScenDialog::setupList()
 {
-	int ok = -1;
+	int    ok = -1;
 	for(uint i = 0; i < Data.ScenList.getCount();i++)
 		if(!addStringToList(i + 1, Data.ScenList.at(i).Name))
 			ok = PPErrorZ();
@@ -762,7 +762,7 @@ int BudgetItemsDialog::setupList()
 // virtual
 int BudgetItemsDialog::delItem(long pos, long id)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(pos >= 0 && pos < (long)Data.getCount()) {
 		Data.at(pos).Amount = 0;
 		memzero(Data.at(pos).Memo, sizeof(Data.at(pos).Memo));
@@ -861,7 +861,7 @@ int BudgetItemsDialog::getDTS(BudgetItemsList * pData)
 
 int SLAPI PPObjBudget::Helper_EditLine(BudgetItemTbl::Rec * pRec)
 {
-	int ok = -1;
+	int    ok = -1;
 	uint cm = 0;
 	BudgetItemDialog * p_dlg = 0;
 
@@ -883,7 +883,7 @@ int SLAPI PPObjBudget::Helper_EditLine(BudgetItemTbl::Rec * pRec)
 
 int SLAPI PPObjBudget::Helper_EditLines(PPID initID, BudgetItemsList * pList)
 {
-	int ok = -1;
+	int    ok = -1;
 	uint cm = 0;
 	BudgetItemsDialog * p_dlg = 0;
 
@@ -905,7 +905,7 @@ int SLAPI PPObjBudget::Helper_EditLines(PPID initID, BudgetItemsList * pList)
 
 int SLAPI PPObjBudget::InitItemsCycleList(const BudgetItemTbl::Rec * pRec, BudgetItemsList * pList)
 {
-	int ok = -1;
+	int    ok = -1;
 	BudgetItemTbl::Rec rec;
 	PPBudget budg_rec;
 	THROW_INVARG(pRec && pList);
@@ -1205,7 +1205,7 @@ void SLAPI PPViewBudget::MakeTempRec(void * pRec, void * pTempRec)
 
 int SLAPI PPViewBudget::CheckForFilt(void * pRec)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(Filt.Kind == BudgetFilt::kBudget) {
 		PPBudget * p_rec = static_cast<PPBudget *>(pRec);
 		if(p_rec->ParentID != 0)
@@ -1329,7 +1329,7 @@ int SLAPI PPViewBudget::GetTabTitle(long tabID, SString & rBuf)
 // virtual
 int SLAPI PPViewBudget::Init_(const PPBaseFilt * pFilt)
 {
-	int ok = 1;
+	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pFilt));
 	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_TempBudgTbl);
@@ -1579,7 +1579,7 @@ IMPL_HANDLE_EVENT(BudgetTotalDialog)
 
 int SLAPI PPViewBudget::ViewTotal()
 {
-	int ok = 1;
+	int    ok = 1;
 	BudgetTotalDialog * p_dlg = 0;
 	if(Filt.Kind == BudgetFilt::kBudgetItems) {
 		RPair data;

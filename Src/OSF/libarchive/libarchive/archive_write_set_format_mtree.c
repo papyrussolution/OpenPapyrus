@@ -1657,7 +1657,7 @@ static int cleanup_backslash_1(char * p)
 
 	mb = dos = 0;
 	while(*p) {
-		if(*(uchar*)p > 127)
+		if(*(uchar *)p > 127)
 			mb = 1;
 		if(*p == '\\') {
 			/* If we have not met any multi-byte characters,

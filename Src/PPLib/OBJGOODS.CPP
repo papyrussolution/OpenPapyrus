@@ -2401,7 +2401,7 @@ int SLAPI PPObjGoods::Unite(PPID destID, PPID srcID)
 				THROW(PutPacket(&srcID, &src_pack, 0));
 			}
 		}
-		THROW(BroadcastObjMessage(DBMSG_OBJREPLACE, Obj, destID, (void *)srcID));
+		THROW(BroadcastObjMessage(DBMSG_OBJREPLACE, Obj, destID, reinterpret_cast<void *>(srcID)));
 	}
 	CATCHZOK
 	return ok;

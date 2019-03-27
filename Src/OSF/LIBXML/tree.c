@@ -739,7 +739,7 @@ void FASTCALL xmlFreeNsList(xmlNs * cur)
  *
  * Returns a pointer to the new DTD structure
  */
-xmlDtdPtr xmlNewDtd(xmlDoc * doc, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID) 
+xmlDtd * xmlNewDtd(xmlDoc * doc, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID) 
 {
 	xmlDtd * cur = 0;
 	if(doc && doc->extSubset) {
@@ -1568,30 +1568,30 @@ xmlChar * xmlNodeListGetRawString(const xmlDoc * doc, const xmlNode * list, int 
 
 #endif /* LIBXML_TREE_ENABLED */
 
-static xmlAttr * xmlNewPropInternal(xmlNode * P_Node, xmlNs * ns, const xmlChar * name, const xmlChar * value, int eatname)
+static xmlAttr * FASTCALL xmlNewPropInternal(xmlNode * pNode, xmlNs * ns, const xmlChar * name, const xmlChar * value, int eatname)
 {
 	xmlAttr * cur;
 	xmlDoc * doc = NULL;
-	if(P_Node && P_Node->type != XML_ELEMENT_NODE) {
-		if((eatname == 1) && ((P_Node->doc == NULL) || (!(xmlDictOwns(P_Node->doc->dict, name)))))
+	if(pNode && pNode->type != XML_ELEMENT_NODE) {
+		if((eatname == 1) && (!pNode->doc || (!(xmlDictOwns(pNode->doc->dict, name)))))
 			SAlloc::F((xmlChar *)name);
 		return 0;
 	}
 	/*
 	 * Allocate a new property and fill the fields.
 	 */
-	cur = (xmlAttr *)SAlloc::M(sizeof(xmlAttr));
+	cur = static_cast<xmlAttr *>(SAlloc::M(sizeof(xmlAttr)));
 	if(!cur) {
-		if((eatname == 1) && (!P_Node || !P_Node->doc || (!(xmlDictOwns(P_Node->doc->dict, name)))))
+		if((eatname == 1) && (!pNode || !pNode->doc || (!(xmlDictOwns(pNode->doc->dict, name)))))
 			SAlloc::F((xmlChar *)name);
 		xmlTreeErrMemory("building attribute");
 		return 0;
 	}
 	memzero(cur, sizeof(xmlAttr));
 	cur->type = XML_ATTRIBUTE_NODE;
-	cur->parent = P_Node;
-	if(P_Node) {
-		doc = P_Node->doc;
+	cur->parent = pNode;
+	if(pNode) {
+		doc = pNode->doc;
 		cur->doc = doc;
 	}
 	cur->ns = ns;
@@ -1617,20 +1617,20 @@ static xmlAttr * xmlNewPropInternal(xmlNode * P_Node, xmlNs * ns, const xmlChar 
 	/*
 	 * Add it at the end to preserve parsing order ...
 	 */
-	if(P_Node) {
-		if(P_Node->properties == NULL) {
-			P_Node->properties = cur;
+	if(pNode) {
+		if(pNode->properties == NULL) {
+			pNode->properties = cur;
 		}
 		else {
-			xmlAttr * prev = P_Node->properties;
+			xmlAttr * prev = pNode->properties;
 			while(prev->next)
 				prev = prev->next;
 			prev->next = cur;
 			cur->prev = prev;
 		}
 	}
-	if(value && P_Node && xmlIsID(P_Node->doc, P_Node, cur) == 1)
-		xmlAddID(NULL, P_Node->doc, value, cur);
+	if(value && pNode && xmlIsID(pNode->doc, pNode, cur) == 1)
+		xmlAddID(NULL, pNode->doc, value, cur);
 	if((__xmlRegisterCallbacks) && (xmlRegisterNodeDefaultValue))
 		xmlRegisterNodeDefaultValue((xmlNode *)cur);
 	return (cur);
@@ -1646,7 +1646,7 @@ static xmlAttr * xmlNewPropInternal(xmlNode * P_Node, xmlNs * ns, const xmlChar 
  * Create a new property carried by a node.
  * Returns a pointer to the attribute
  */
-xmlAttr * xmlNewProp(xmlNode * P_Node, const xmlChar * name, const xmlChar * value)
+xmlAttr * xmlNewProp(xmlNode * pNode, const xmlChar * name, const xmlChar * value)
 {
 	if(!name) {
 #ifdef DEBUG_TREE
@@ -1654,7 +1654,7 @@ xmlAttr * xmlNewProp(xmlNode * P_Node, const xmlChar * name, const xmlChar * val
 #endif
 		return 0;
 	}
-	return xmlNewPropInternal(P_Node, NULL, name, value, 0);
+	return xmlNewPropInternal(pNode, NULL, name, value, 0);
 }
 
 #endif /* LIBXML_TREE_ENABLED */
@@ -1668,7 +1668,7 @@ xmlAttr * xmlNewProp(xmlNode * P_Node, const xmlChar * name, const xmlChar * val
  * Create a new property tagged with a namespace and carried by a node.
  * Returns a pointer to the attribute
  */
-xmlAttr * xmlNewNsProp(xmlNode * P_Node, xmlNs * ns, const xmlChar * name, const xmlChar * value)
+xmlAttr * xmlNewNsProp(xmlNode * pNode, xmlNs * ns, const xmlChar * name, const xmlChar * value)
 {
 	if(!name) {
 #ifdef DEBUG_TREE
@@ -1676,7 +1676,7 @@ xmlAttr * xmlNewNsProp(xmlNode * P_Node, xmlNs * ns, const xmlChar * name, const
 #endif
 		return 0;
 	}
-	return xmlNewPropInternal(P_Node, ns, name, value, 0);
+	return xmlNewPropInternal(pNode, ns, name, value, 0);
 }
 /**
  * xmlNewNsPropEatName:
@@ -1688,7 +1688,7 @@ xmlAttr * xmlNewNsProp(xmlNode * P_Node, xmlNs * ns, const xmlChar * name, const
  * Create a new property tagged with a namespace and carried by a node.
  * Returns a pointer to the attribute
  */
-xmlAttr * xmlNewNsPropEatName(xmlNode * P_Node, xmlNs * ns, xmlChar * name, const xmlChar * value)
+xmlAttr * xmlNewNsPropEatName(xmlNode * pNode, xmlNs * ns, xmlChar * name, const xmlChar * value)
 {
 	if(!name) {
 #ifdef DEBUG_TREE
@@ -1696,7 +1696,7 @@ xmlAttr * xmlNewNsPropEatName(xmlNode * P_Node, xmlNs * ns, xmlChar * name, cons
 #endif
 		return 0;
 	}
-	return xmlNewPropInternal(P_Node, ns, name, value, 1);
+	return xmlNewPropInternal(pNode, ns, name, value, 1);
 }
 /**
  * xmlNewDocProp:
@@ -1719,7 +1719,7 @@ xmlAttr * FASTCALL xmlNewDocProp(xmlDoc * doc, const xmlChar * name, const xmlCh
 		// 
 		// Allocate a new property and fill the fields.
 		// 
-		cur = (xmlAttr *)SAlloc::M(sizeof(xmlAttr));
+		cur = static_cast<xmlAttr *>(SAlloc::M(sizeof(xmlAttr)));
 		if(!cur) {
 			xmlTreeErrMemory("building attribute");
 		}
@@ -3559,13 +3559,12 @@ xmlAttr * xmlCopyPropList(xmlNode * target, xmlAttr * cur)
  * however, we allow a value of 2 to indicate copy properties and
  * namespace info, but don't recurse on children.
  */
-
-static xmlNode * xmlStaticCopyNode(xmlNode * P_Node, xmlDoc * doc, xmlNode * parent, int extended)
+static xmlNode * xmlStaticCopyNode(xmlNode * pNode, xmlDoc * doc, xmlNode * parent, int extended)
 {
 	xmlNode * ret;
-	if(!P_Node)
+	if(!pNode)
 		return 0;
-	switch(P_Node->type) {
+	switch(pNode->type) {
 		case XML_TEXT_NODE:
 		case XML_CDATA_SECTION_NODE:
 		case XML_ELEMENT_NODE:
@@ -3578,9 +3577,9 @@ static xmlNode * xmlStaticCopyNode(xmlNode * P_Node, xmlDoc * doc, xmlNode * par
 		case XML_XINCLUDE_END:
 		    break;
 		case XML_ATTRIBUTE_NODE:
-		    return ((xmlNode *)xmlCopyPropInternal(doc, parent, (xmlAttr *)P_Node));
+		    return ((xmlNode *)xmlCopyPropInternal(doc, parent, (xmlAttr *)pNode));
 		case XML_NAMESPACE_DECL:
-		    return ((xmlNode *)xmlCopyNamespaceList((xmlNs *)P_Node));
+		    return ((xmlNode *)xmlCopyNamespaceList((xmlNs *)pNode));
 
 		case XML_DOCUMENT_NODE:
 		case XML_HTML_DOCUMENT_NODE:
@@ -3588,7 +3587,7 @@ static xmlNode * xmlStaticCopyNode(xmlNode * P_Node, xmlDoc * doc, xmlNode * par
 		case XML_DOCB_DOCUMENT_NODE:
 #endif
 #ifdef LIBXML_TREE_ENABLED
-		    return ((xmlNode *)xmlCopyDoc((xmlDoc *)P_Node, extended));
+		    return ((xmlNode *)xmlCopyDoc((xmlDoc *)pNode, extended));
 #endif /* LIBXML_TREE_ENABLED */
 		case XML_DOCUMENT_TYPE_NODE:
 		case XML_NOTATION_NODE:
@@ -3598,7 +3597,6 @@ static xmlNode * xmlStaticCopyNode(xmlNode * P_Node, xmlDoc * doc, xmlNode * par
 		case XML_ENTITY_DECL:
 		    return 0;
 	}
-
 	/*
 	 * Allocate a new node and fill the fields.
 	 */
@@ -3608,29 +3606,25 @@ static xmlNode * xmlStaticCopyNode(xmlNode * P_Node, xmlDoc * doc, xmlNode * par
 		return 0;
 	}
 	memzero(ret, sizeof(xmlNode));
-	ret->type = P_Node->type;
-
+	ret->type = pNode->type;
 	ret->doc = doc;
 	ret->parent = parent;
-	if(P_Node->name == xmlStringText)
+	if(pNode->name == xmlStringText)
 		ret->name = xmlStringText;
-	else if(P_Node->name == xmlStringTextNoenc)
+	else if(pNode->name == xmlStringTextNoenc)
 		ret->name = xmlStringTextNoenc;
-	else if(P_Node->name == xmlStringComment)
+	else if(pNode->name == xmlStringComment)
 		ret->name = xmlStringComment;
-	else if(P_Node->name) {
+	else if(pNode->name) {
 		if(doc && doc->dict)
-			ret->name = xmlDictLookupSL(doc->dict, P_Node->name);
+			ret->name = xmlDictLookupSL(doc->dict, pNode->name);
 		else
-			ret->name = sstrdup(P_Node->name);
+			ret->name = sstrdup(pNode->name);
 	}
-	if((P_Node->type != XML_ELEMENT_NODE) && P_Node->content && !oneof3(P_Node->type, XML_ENTITY_REF_NODE, XML_XINCLUDE_END, XML_XINCLUDE_START)) {
-		ret->content = sstrdup(P_Node->content);
-	}
-	else {
-		if(P_Node->type == XML_ELEMENT_NODE)
-			ret->line = P_Node->line;
-	}
+	if((pNode->type != XML_ELEMENT_NODE) && pNode->content && !oneof3(pNode->type, XML_ENTITY_REF_NODE, XML_XINCLUDE_END, XML_XINCLUDE_START))
+		ret->content = sstrdup(pNode->content);
+	else if(pNode->type == XML_ELEMENT_NODE)
+		ret->line = pNode->line;
 	if(parent) {
 		xmlNode * tmp;
 		/*
@@ -3647,17 +3641,17 @@ static xmlNode * xmlStaticCopyNode(xmlNode * P_Node, xmlDoc * doc, xmlNode * par
 	}
 	if(!extended)
 		goto out;
-	if(((P_Node->type == XML_ELEMENT_NODE) || (P_Node->type == XML_XINCLUDE_START)) && P_Node->nsDef)
-		ret->nsDef = xmlCopyNamespaceList(P_Node->nsDef);
-	if(P_Node->ns) {
-		xmlNs * ns = xmlSearchNs(doc, ret, P_Node->ns->prefix);
+	if(((pNode->type == XML_ELEMENT_NODE) || (pNode->type == XML_XINCLUDE_START)) && pNode->nsDef)
+		ret->nsDef = xmlCopyNamespaceList(pNode->nsDef);
+	if(pNode->ns) {
+		xmlNs * ns = xmlSearchNs(doc, ret, pNode->ns->prefix);
 		if(ns == NULL) {
 			/*
 			 * Humm, we are copying an element whose namespace is defined
 			 * out of the new tree scope. Search it in the original tree
 			 * and add it at the top of the new tree
 			 */
-			ns = xmlSearchNs(P_Node->doc, P_Node, P_Node->ns->prefix);
+			ns = xmlSearchNs(pNode->doc, pNode, pNode->ns->prefix);
 			if(ns) {
 				xmlNode * root = ret;
 				while(root->parent)
@@ -3665,7 +3659,7 @@ static xmlNode * xmlStaticCopyNode(xmlNode * P_Node, xmlDoc * doc, xmlNode * par
 				ret->ns = xmlNewNs(root, ns->href, ns->prefix);
 			}
 			else {
-				ret->ns = xmlNewReconciliedNs(doc, ret, P_Node->ns);
+				ret->ns = xmlNewReconciliedNs(doc, ret, pNode->ns);
 			}
 		}
 		else {
@@ -3675,10 +3669,10 @@ static xmlNode * xmlStaticCopyNode(xmlNode * P_Node, xmlDoc * doc, xmlNode * par
 			ret->ns = ns;
 		}
 	}
-	if(oneof2(P_Node->type, XML_ELEMENT_NODE, XML_XINCLUDE_START) && P_Node->properties)
-		ret->properties = xmlCopyPropList(ret, P_Node->properties);
-	if(P_Node->type == XML_ENTITY_REF_NODE) {
-		if(!doc || (P_Node->doc != doc)) {
+	if(oneof2(pNode->type, XML_ELEMENT_NODE, XML_XINCLUDE_START) && pNode->properties)
+		ret->properties = xmlCopyPropList(ret, pNode->properties);
+	if(pNode->type == XML_ENTITY_REF_NODE) {
+		if(!doc || (pNode->doc != doc)) {
 			/*
 			 * The copied node will go into a separate document, so
 			 * to avoid dangling references to the ENTITY_DECL node
@@ -3688,12 +3682,12 @@ static xmlNode * xmlStaticCopyNode(xmlNode * P_Node, xmlDoc * doc, xmlNode * par
 			ret->children = (xmlNode *)xmlGetDocEntity(doc, ret->name);
 		}
 		else {
-			ret->children = P_Node->children;
+			ret->children = pNode->children;
 		}
 		ret->last = ret->children;
 	}
-	else if(P_Node->children && (extended != 2)) {
-		ret->children = xmlStaticCopyNodeList(P_Node->children, doc, ret);
+	else if(pNode->children && (extended != 2)) {
+		ret->children = xmlStaticCopyNodeList(pNode->children, doc, ret);
 		UPDATE_LAST_CHILD_AND_PARENT(ret)
 	}
 out:
@@ -3703,20 +3697,20 @@ out:
 	return ret;
 }
 
-static xmlNode * xmlStaticCopyNodeList(xmlNode * P_Node, xmlDoc * doc, xmlNode * parent)
+static xmlNode * xmlStaticCopyNodeList(xmlNode * pNode, xmlDoc * doc, xmlNode * parent)
 {
 	xmlNode * ret = NULL;
 	xmlNode * p = NULL;
 	xmlNode * q;
-	while(P_Node) {
+	while(pNode) {
 #ifdef LIBXML_TREE_ENABLED
-		if(P_Node->type == XML_DTD_NODE) {
+		if(pNode->type == XML_DTD_NODE) {
 			if(!doc) {
-				P_Node = P_Node->next;
+				pNode = pNode->next;
 				continue;
 			}
 			if(doc->intSubset == NULL) {
-				q = (xmlNode *)xmlCopyDtd((xmlDtd *)P_Node);
+				q = (xmlNode *)xmlCopyDtd((xmlDtd *)pNode);
 				if(q == NULL)
 					return 0;
 				q->doc = doc;
@@ -3731,7 +3725,7 @@ static xmlNode * xmlStaticCopyNodeList(xmlNode * P_Node, xmlDoc * doc, xmlNode *
 		}
 		else
 #endif /* LIBXML_TREE_ENABLED */
-		q = xmlStaticCopyNode(P_Node, doc, parent, 1);
+		q = xmlStaticCopyNode(pNode, doc, parent, 1);
 		if(q == NULL)
 			return 0;
 		if(!ret) {
@@ -3744,11 +3738,10 @@ static xmlNode * xmlStaticCopyNodeList(xmlNode * P_Node, xmlDoc * doc, xmlNode *
 			q->prev = p;
 			p = q;
 		}
-		P_Node = P_Node->next;
+		pNode = pNode->next;
 	}
 	return ret;
 }
-
 /**
  * xmlCopyNode:
  * @node:  the node
@@ -3790,11 +3783,10 @@ xmlNode * xmlDocCopyNode(xmlNode * P_Node, xmlDoc * doc, int extended)
  *
  * Returns: a new #xmlNodePtr, or NULL in case of error.
  */
-xmlNode * xmlDocCopyNodeList(xmlDoc * doc, xmlNode * P_Node)
+xmlNode * xmlDocCopyNodeList(xmlDoc * doc, xmlNode * pNode)
 {
-	return xmlStaticCopyNodeList(P_Node, doc, 0);
+	return xmlStaticCopyNodeList(pNode, doc, 0);
 }
-
 /**
  * xmlCopyNodeList:
  * @node:  the first node in the list.
@@ -3804,9 +3796,9 @@ xmlNode * xmlDocCopyNodeList(xmlDoc * doc, xmlNode * P_Node)
  *
  * Returns: a new #xmlNodePtr, or NULL in case of error.
  */
-xmlNode * xmlCopyNodeList(xmlNode * P_Node)
+xmlNode * xmlCopyNodeList(xmlNode * pNode)
 {
-	return xmlStaticCopyNodeList(P_Node, 0, 0);
+	return xmlStaticCopyNodeList(pNode, 0, 0);
 }
 
 #if defined(LIBXML_TREE_ENABLED)
@@ -3818,7 +3810,7 @@ xmlNode * xmlCopyNodeList(xmlNode * P_Node)
  *
  * Returns: a new #xmlDtdPtr, or NULL in case of error.
  */
-xmlDtdPtr xmlCopyDtd(xmlDtdPtr dtd)
+xmlDtd * xmlCopyDtd(xmlDtd * dtd)
 {
 	xmlDtd * ret;
 	xmlNode * cur;
@@ -5983,11 +5975,11 @@ int xmlUnsetNsProp(xmlNode * pNode, xmlNs * ns, const xmlChar * name)
  * Returns the attribute pointer.
  *
  */
-xmlAttr * xmlSetProp(xmlNode * P_Node, const xmlChar * name, const xmlChar * value) 
+xmlAttr * xmlSetProp(xmlNode * pNode, const xmlChar * name, const xmlChar * value) 
 {
 	int len;
 	const xmlChar * nqname;
-	if(!P_Node || (name == NULL) || (P_Node->type != XML_ELEMENT_NODE))
+	if(!pNode || (name == NULL) || (pNode->type != XML_ELEMENT_NODE))
 		return 0;
 	/*
 	 * handle QNames
@@ -5995,12 +5987,12 @@ xmlAttr * xmlSetProp(xmlNode * P_Node, const xmlChar * name, const xmlChar * val
 	nqname = xmlSplitQName3(name, &len);
 	if(nqname) {
 		xmlChar * prefix = xmlStrndup(name, len);
-		xmlNs * ns = xmlSearchNs(P_Node->doc, P_Node, prefix);
+		xmlNs * ns = xmlSearchNs(pNode->doc, pNode, prefix);
 		SAlloc::F(prefix);
 		if(ns)
-			return (xmlSetNsProp(P_Node, ns, nqname, value));
+			return (xmlSetNsProp(pNode, ns, nqname, value));
 	}
-	return (xmlSetNsProp(P_Node, NULL, name, value));
+	return (xmlSetNsProp(pNode, NULL, name, value));
 }
 /**
  * xmlSetNsProp:

@@ -4,6 +4,7 @@
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
+#include <wininet.h>
 
 //static
 int SSystem::BigEndian()
@@ -35,6 +36,38 @@ int SSystem::SGetModuleFileName(void * hModule, SString & rFileName)
 	rFileName = buf;
 #endif
 	return BIN(size > 0);
+}
+
+//static 
+uint SSystem::SFormatMessage(int sysErrCode, SString & rMsg)
+{
+	rMsg.Z();
+	DWORD ret = 0;
+	//DWORD code = GetLastError();
+	STempBuffer temp_buf(2048 * sizeof(TCHAR));
+	DWORD buf_len = temp_buf.GetSize()/sizeof(TCHAR);
+	int   intr_result = 0;
+	if(sysErrCode == ERROR_INTERNET_EXTENDED_ERROR) {
+		DWORD iec;
+		intr_result = ::InternetGetLastResponseInfo(&iec, static_cast<LPTSTR>(temp_buf.vptr()), &buf_len);
+		if(intr_result)
+			ret = sstrlen(static_cast<LPTSTR>(temp_buf.vptr()));
+	}
+	if(!intr_result) {
+		ret = ::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, NULL, sysErrCode, 
+			MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT), static_cast<LPTSTR>(temp_buf.vptr()), buf_len, 0);
+	}
+	if(ret) {
+		static_cast<LPTSTR>(temp_buf.vptr())[ret] = 0;
+		rMsg = SUcSwitch(static_cast<LPTSTR>(temp_buf.vptr()));
+	}
+	return ret;
+}
+
+//static 
+uint SSystem::SFormatMessage(SString & rMsg)
+{
+	return SFormatMessage(::GetLastError(), rMsg);
 }
 
 SSystem::SSystem(int imm) : Flags(0)

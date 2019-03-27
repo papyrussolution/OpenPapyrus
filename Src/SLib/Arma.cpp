@@ -102,7 +102,7 @@ int SLAPI ARMA::Step(double val)
 {
 	IterCount++;
 
-	int ok = 1;
+	int    ok = 1;
 	LMIDX i;
 	LVect gain_factor, vec_temp;
 	double ape = ComputePredictError(val);

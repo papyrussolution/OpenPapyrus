@@ -427,7 +427,7 @@ static int xz_lzma_bidder_init(struct archive_read_filter * self)
 	void * out_block;
 	int ret;
 	struct private_data * state = (struct private_data *)SAlloc::C(sizeof(*state), 1);
-	out_block = (uchar*)SAlloc::M(out_block_size);
+	out_block = (uchar *)SAlloc::M(out_block_size);
 	if(state == NULL || out_block == NULL) {
 		archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for xz decompression");
 		SAlloc::F(out_block);

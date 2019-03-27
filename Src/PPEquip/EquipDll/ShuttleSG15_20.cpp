@@ -187,39 +187,41 @@ int PriceChecker::FillStIniParam()
 {
 	SPathStruc ps;
 	SString temp_buf, storage_str;
-	char fname[MAX_PATH];
-	char ret_buf[BUF_SIZE];
-	GetModuleFileName(NULL, fname, MAX_PATH);
-	ps.Split(fname);
+	TCHAR ret_buf[BUF_SIZE];
+	//char fname[MAX_PATH];
+	//GetModuleFileName(NULL, fname, MAX_PATH);
+	SString module_file_name;
+	SSystem::SGetModuleFileName(0, module_file_name);
+	ps.Split(module_file_name);
 	ps.Nam.Z().Cat("PP");
 	ps.Ext.Z().Cat("ini");
 	ps.Merge(temp_buf);
-
-	if(GetPrivateProfileString("ShuttleSG1520", "Port", NULL, ret_buf, BUF_SIZE, temp_buf.cptr()) > 0)
-		IniParam.Port = atoi(ret_buf);
-	if(GetPrivateProfileString("ShuttleSG1520", "HideWindow", NULL, ret_buf, BUF_SIZE, temp_buf.cptr()) > 0)
-		IniParam.HideWindow = atoi(ret_buf);
-	if(GetPrivateProfileString("ShuttleSG1520", "DbSymb", NULL, ret_buf, BUF_SIZE, temp_buf.cptr()) > 0)
-		IniParam.DataBaseName = ret_buf;
-	if(GetPrivateProfileString("ShuttleSG1520", "UserName", NULL, ret_buf, BUF_SIZE, temp_buf.cptr()) > 0)
-		IniParam.UserName = ret_buf;
-	if(GetPrivateProfileString("ShuttleSG1520", "Password", NULL, ret_buf, BUF_SIZE, temp_buf.cptr()) > 0)
-		IniParam.Password = ret_buf;
-	if(GetPrivateProfileString("ShuttleSG1520", "Storage", NULL, ret_buf, BUF_SIZE, temp_buf.cptr()) > 0) {
+	const TCHAR * p_file_name = SUcSwitch(temp_buf);
+	if(GetPrivateProfileString(_T("ShuttleSG1520"), _T("Port"), NULL, ret_buf, SIZEOFARRAY(ret_buf), p_file_name) > 0)
+		IniParam.Port = satoi(ret_buf);
+	if(GetPrivateProfileString(_T("ShuttleSG1520"), _T("HideWindow"), NULL, ret_buf, SIZEOFARRAY(ret_buf), p_file_name) > 0)
+		IniParam.HideWindow = satoi(ret_buf);
+	if(GetPrivateProfileString(_T("ShuttleSG1520"), _T("DbSymb"), NULL, ret_buf, SIZEOFARRAY(ret_buf), p_file_name) > 0)
+		IniParam.DataBaseName = SUcSwitch(ret_buf);
+	if(GetPrivateProfileString(_T("ShuttleSG1520"), _T("UserName"), NULL, ret_buf, SIZEOFARRAY(ret_buf), p_file_name) > 0)
+		IniParam.UserName = SUcSwitch(ret_buf);
+	if(GetPrivateProfileString(_T("ShuttleSG1520"), _T("Password"), NULL, ret_buf, SIZEOFARRAY(ret_buf), p_file_name) > 0)
+		IniParam.Password = SUcSwitch(ret_buf);
+	if(GetPrivateProfileString(_T("ShuttleSG1520"), _T("Storage"), NULL, ret_buf, SIZEOFARRAY(ret_buf), p_file_name) > 0) {
 		SString left, right;
 		size_t i = 0;
-		storage_str = ret_buf;
+		storage_str = SUcSwitch(ret_buf);
 		while(storage_str.Divide(';', left, right) && left.NotEmpty()) {
 			IniParam.ArrStorage.Add(i++, left);
 			storage_str.Z().Cat(right);
 		}
 	}
-	if(GetPrivateProfileString("ShuttleSG1520", "sg15string", NULL, ret_buf, BUF_SIZE, temp_buf.cptr()) > 0) {
-		IniParam.SG15Format = ret_buf;
+	if(GetPrivateProfileString(_T("ShuttleSG1520"), _T("sg15string"), NULL, ret_buf, SIZEOFARRAY(ret_buf), p_file_name) > 0) {
+		IniParam.SG15Format = SUcSwitch(ret_buf);
 		ExpandAll(IniParam.SG15Format);
 	}
-	if(GetPrivateProfileString("ShuttleSG1520", "sg20string", NULL, ret_buf , BUF_SIZE, temp_buf.cptr()) > 0) {
-		IniParam.SG20Format = ret_buf;
+	if(GetPrivateProfileString(_T("ShuttleSG1520"), _T("sg20string"), NULL, ret_buf , SIZEOFARRAY(ret_buf), p_file_name) > 0) {
+		IniParam.SG20Format = SUcSwitch(ret_buf);
 		ExpandAll(IniParam.SG20Format);
 	}
 	if(!IniParam.IsValid()) {
@@ -233,9 +235,11 @@ int PriceChecker::InitLogFile()
 {
 	SPathStruc ps;
 	SString temp_buf;
-	char fname[MAX_PATH];
-	GetModuleFileName(NULL, fname, MAX_PATH);
-	ps.Split(fname);
+	//char fname[MAX_PATH];
+	//GetModuleFileName(NULL, fname, MAX_PATH);
+	SString module_file_name;
+	SSystem::SGetModuleFileName(0, module_file_name);
+	ps.Split(module_file_name);
 	size_t start = 0, end = 0;
 	while(ps.Dir.Search("\\", start, 1, &end)) {
 		if(end == ps.Dir.Len() - 1) { // -1 потому что отсчет позиций начинается с нуля
@@ -480,7 +484,7 @@ int PriceChecker::GetFirstTag(const char * pInputStr, TagType & rTag)
 
 int PriceChecker::GetOption(const char * pOptionType, SString & rOptionVal) 
 {
-	int ok = 1;
+	int    ok = 1;
 	size_t start = 0, end = 0;
 	SString str;
 	str.Cat(pOptionType).CatChar('=');
@@ -642,7 +646,7 @@ int PriceChecker::GetGoodInfo(const char * pRequest, StGoodInfo & rGoodInfo)
 
 int PriceChecker::Connect(const char * pAddr)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(IniParam.Port <= 0) {
 		ConcoleMessage(ERROROCCURED, "");
 		LogMessage(NOPORT, "");
@@ -683,7 +687,7 @@ int PriceChecker::GetRequest(SString & rRequest)
 
 int PriceChecker::PutAnswer(StGoodInfo & goodInfo)
 {
-	int ok = 1;
+	int    ok = 1;
 	SString dev_type, formated_info;
 	GetOption("type", dev_type);
 	if(dev_type.CmpNC("sg15") == 0)
@@ -701,7 +705,7 @@ int PriceChecker::PutAnswer(StGoodInfo & goodInfo)
 
 int main()
 {
-	int ok = 1;
+	int    ok = 1;
 	char c = 0;
 	PriceChecker price_chkr;
 	SString cmd = "";

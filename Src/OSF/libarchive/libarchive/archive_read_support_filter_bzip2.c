@@ -189,7 +189,7 @@ static int bzip2_reader_init(struct archive_read_filter * self)
 	self->code = ARCHIVE_FILTER_BZIP2;
 	self->name = "bzip2";
 	state = (struct private_data *)SAlloc::C(sizeof(*state), 1);
-	out_block = (uchar*)SAlloc::M(out_block_size);
+	out_block = (uchar *)SAlloc::M(out_block_size);
 	if(state == NULL || out_block == NULL) {
 		archive_set_error(&self->archive->archive, ENOMEM,
 		    "Can't allocate data for bzip2 decompression");

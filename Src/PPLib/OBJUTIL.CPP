@@ -350,7 +350,7 @@ int SLAPI PPObject::ReplaceObj(PPID objType, PPID dest, PPID src, uint options)
 	{
 		PPTransaction tra(BIN(options & use_transaction)); // @v9.8.6 1-->BIN(options & use_transaction)
 		THROW(tra);
-		THROW(SendObjMessage(DBMSG_OBJREPLACE, objType, objType, dest, (void *)src, 0) == DBRPL_OK);
+		THROW(SendObjMessage(DBMSG_OBJREPLACE, objType, objType, dest, reinterpret_cast<void *>(src), 0) == DBRPL_OK);
 		PPWait(0);
 		// @v8.0.0 THROW(o = GetPPObject(objType, 0)); // #1
 		if(!(options & not_repl_remove))

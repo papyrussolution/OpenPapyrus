@@ -14,7 +14,8 @@ ngx_process_t ngx_processes[NGX_MAX_PROCESSES];
 
 ngx_pid_t ngx_spawn_process(ngx_cycle_t * cycle, char * name, ngx_int_t respawn)
 {
-	u_long rc, n, code;
+	u_long rc;
+	u_long code;
 	ngx_int_t s;
 	ngx_pid_t pid;
 	ngx_exec_ctx_t ctx;
@@ -45,7 +46,7 @@ ngx_pid_t ngx_spawn_process(ngx_cycle_t * cycle, char * name, ngx_int_t respawn)
 		}
 		// } @sobolev 
 		/* @sobolev
-		n = GetModuleFileName(NULL, file, MAX_PATH);
+		u_long n = GetModuleFileName(NULL, file, MAX_PATH);
 		if(n == 0) {
 			ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "GetModuleFileName() failed");
 			return NGX_INVALID_PID;
@@ -56,7 +57,7 @@ ngx_pid_t ngx_spawn_process(ngx_cycle_t * cycle, char * name, ngx_int_t respawn)
 	ngx_log_debug1(NGX_LOG_DEBUG_CORE, cycle->log, 0, "GetModuleFileName: \"%s\"", file);
 	ctx.path = file;
 	ctx.name = name;
-	ctx.args = GetCommandLine();
+	ctx.args = SUcSwitch(GetCommandLine());
 	ctx.argv = NULL;
 	ctx.envp = NULL;
 	pid = ngx_execute(cycle, &ctx);
@@ -142,7 +143,10 @@ ngx_pid_t ngx_execute(ngx_cycle_t * cycle, ngx_exec_ctx_t * ctx)
 	memzero(&si, sizeof(STARTUPINFO));
 	si.cb = sizeof(STARTUPINFO);
 	memzero(&pi, sizeof(PROCESS_INFORMATION));
-	if(CreateProcess(ctx->path, ctx->args, NULL, NULL, 0, CREATE_NO_WINDOW, NULL, NULL, &si, &pi) == 0) {
+
+	STempBuffer cmd_line((sstrlen(ctx->args)+16) * sizeof(TCHAR));
+	strnzcpy(static_cast<TCHAR *>(cmd_line.vptr()), SUcSwitch(ctx->args), cmd_line.GetSize());
+	if(::CreateProcess(SUcSwitch(ctx->path), static_cast<TCHAR *>(cmd_line.vptr()), NULL, NULL, 0, CREATE_NO_WINDOW, NULL, NULL, &si, &pi) == 0) {
 		SString exe_path = SLS.GetExePath();
 		ngx_log_error(NGX_LOG_CRIT, cycle->log, ngx_errno, "CreateProcess(\"%s\") failed", /*ngx_argv[0]*/exe_path.cptr());
 		return 0;

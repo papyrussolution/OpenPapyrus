@@ -260,12 +260,12 @@ int __db_sort_multiple(DB * db, DBT * key, DBT * data, uint32 flags)
 		else
 			dstart = kstart;
 		// Find the end 
-		for(kend = kstart, dend = dstart; *kend != (uint32)-1 && *dend != (uint32)-1; kend -= 2, dend -= 2)
+		for(kend = kstart, dend = dstart; *kend != static_cast<uint32>(-1) && *dend != static_cast<uint32>(-1); kend -= 2, dend -= 2)
 			;
 		return __db_quicksort(db, key, data, kstart, kend, dstart, dend, 2);
 	    case DB_MULTIPLE_KEY:
 		/* Find the end */
-		for(kend = kstart; *kend != (uint32)-1; kend -= 4)
+		for(kend = kstart; *kend != static_cast<uint32>(-1); kend -= 4)
 			;
 		return __db_quicksort(db, key, key, kstart, kend, kstart-2, kend-2, 4);
 	    default:

@@ -93,7 +93,6 @@
 
 #define UNIT_NAME_KG			"КГ"
 #define UNIT_NAME_PIECE			"Штука"
-#define SERVERADDR				"ftp-edi.kontur.ru"
 #define INBOX					"Inbox"
 #define OUTBOX					"Outbox"
 #define REPORTSBOX				"Reports"
@@ -412,7 +411,8 @@ int FtpClient::Connect()
 	int    ok = 1;
 	if(Status == stDisconnected) {
 		THROW(HInternet = InternetOpen(NULL, INTERNET_OPEN_TYPE_DIRECT, NULL,NULL, 0));
-		THROW(HFtpSession = InternetConnect(HInternet, SERVERADDR, INTERNET_DEFAULT_FTP_PORT, Login, Password, INTERNET_SERVICE_FTP, INTERNET_FLAG_PASSIVE, 0));
+		THROW(HFtpSession = InternetConnect(HInternet, _T("ftp-edi.kontur.ru"), INTERNET_DEFAULT_FTP_PORT, 
+			SUcSwitch(Login), SUcSwitch(Password), INTERNET_SERVICE_FTP, INTERNET_FLAG_PASSIVE, 0));
 		Status = stConnected;
 	}
     CATCHZOK
@@ -436,7 +436,7 @@ int FtpClient::PutFile(const char * pLocSrc, const char * pFtpDst)
 	int    ok = 1;
 	if(Status == stDisconnected)
 		THROW(Connect());
-	THROW(FtpPutFile(HFtpSession, pLocSrc, pFtpDst, FTP_TRANSFER_TYPE_BINARY, 0));
+	THROW(FtpPutFile(HFtpSession, SUcSwitch(pLocSrc), SUcSwitch(pFtpDst), FTP_TRANSFER_TYPE_BINARY, 0));
 	CATCHZOK
 	return ok;
 }
@@ -446,7 +446,7 @@ int FtpClient::GetFile(const char * pFtpSrc, const char * pLocDst)
 	int    ok = 1;
 	if(Status == stDisconnected)
 		THROW(Connect());
-	THROW(FtpGetFile(HFtpSession, pFtpSrc, pLocDst, 0, 0, 0, NULL));
+	THROW(FtpGetFile(HFtpSession, SUcSwitch(pFtpSrc), SUcSwitch(pLocDst), 0, 0, 0, NULL));
 	CATCHZOK
     return ok;
 }
@@ -467,11 +467,11 @@ int FtpClient::NextFileName(const char * pFtpSrc, SString & rFileName)
 		THROW(Connect());
 	memzero(&find_data, sizeof(WIN32_FIND_DATA));
 	if(!HFtpFind)
-		THROW(HFtpFind = FtpFindFirstFile(HFtpSession, pFtpSrc, &find_data, 0, NULL))
+		THROW(HFtpFind = FtpFindFirstFile(HFtpSession, SUcSwitch(pFtpSrc), &find_data, 0, NULL))
 	else
 		InternetFindNextFile(HFtpFind, &find_data);
 	if(!isempty(find_data.cFileName))
-		rFileName.CopyFrom(find_data.cFileName);
+		rFileName.CopyFrom(SUcSwitch(find_data.cFileName));
 	else
 		ok = -1;
 	CATCHZOK
@@ -492,7 +492,7 @@ SEnumImp * FtpClient::Enum(const char * pWildcard)
 			MEMSZERO(entry);
 			WIN32_FIND_DATA find_data;
 			if(!H) {
-				H = FtpFindFirstFile(HSess, Wildcard, &find_data, 0, 0);
+				H = FtpFindFirstFile(HSess, SUcSwitch(Wildcard), &find_data, 0, 0);
 				if(H)
 					ok = 1;
 			}
@@ -523,7 +523,7 @@ int FtpClient::DeleteFile(const char * pFtpFile)
 	int    ok = 1;
 	if(Status == stDisconnected)
 		THROW(Connect());
-	THROW(FtpDeleteFile(HFtpSession, pFtpFile));
+	THROW(FtpDeleteFile(HFtpSession, SUcSwitch(pFtpFile)));
 	CATCHZOK
     return ok;
 }
@@ -1221,7 +1221,7 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 	SETIFZ(P_ExportCls, new ExportCls);
 	if(P_ExportCls && !P_ExportCls->Inited) {
 		if(pExpHeader) {
-			P_ExportCls->Header = *(Sdr_ImpExpHeader*)pExpHeader;
+			P_ExportCls->Header = *static_cast<const Sdr_ImpExpHeader *>(pExpHeader);
 			FormatLoginToLogin(P_ExportCls->Header.EdiLogin, temp_buf.Z());
 			temp_buf.CopyTo(P_ExportCls->Header.EdiLogin, sizeof(P_ExportCls->Header.EdiLogin));
 		}
@@ -2170,7 +2170,7 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 	if(P_ImportCls && !(P_ImportCls->State & ImportCls::stInit)) {
 		SPathStruc inp_ps;
 		if(pImpHeader) {
-			P_ImportCls->Header = *(Sdr_ImpExpHeader*)pImpHeader;
+			P_ImportCls->Header = *static_cast<const Sdr_ImpExpHeader *>(pImpHeader);
 			FormatLoginToLogin(P_ImportCls->Header.EdiLogin, temp_buf.Z());
 			temp_buf.CopyTo(P_ImportCls->Header.EdiLogin, sizeof(P_ImportCls->Header.EdiLogin));
 		}
@@ -2182,9 +2182,11 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 				inp_ps.Ext = "xml";
 		}
 		else {
-			char   fname[256];
-			GetModuleFileName(NULL, fname, sizeof(fname));
-			inp_ps.Split(fname);
+			//char   fname[256];
+			//GetModuleFileName(NULL, fname, sizeof(fname));
+			SString module_file_name;
+			SSystem::SGetModuleFileName(0, module_file_name);
+			inp_ps.Split(module_file_name);
 			inp_ps.Dir.ReplaceStr("\\bin", "\\in", 1);
 			(inp_ps.Nam = "kontur_import");
 			inp_ps.Ext = "xml";
@@ -2436,21 +2438,47 @@ EXPORT int GetErrorMessage(char * pMsg, uint bufLen)
 	return 1;
 }
 
-void ProcessError(const char * pProcess)
+/*void ProcessError(const char * pProcess)
 {
 	char   temp_err_buf[256];
 	SString temp_buf;
 	ErrorCode = IEERR_FTP;
 	DWORD code = GetLastError();
-	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT), temp_err_buf, 256, 0);
+	::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT), temp_err_buf, 256, 0);
 	(temp_buf = pProcess).CatDiv(':', 2).Cat(temp_err_buf);
 	// Смотрим дополнительное описание ошибки
 	if(code == ERROR_INTERNET_EXTENDED_ERROR) {
 		DWORD  size = 256;
 		MEMSZERO(temp_err_buf);
 		code = 0;
-		InternetGetLastResponseInfo(&code, temp_err_buf, &size);
+		::InternetGetLastResponseInfo(&code, temp_err_buf, &size);
 		temp_buf.CatDiv(':', 2).Cat(temp_err_buf);
 	}
 	StrError = temp_buf;
+}*/
+void ProcessError(const char * pProcess)
+{
+	StrError.Z();
+	//char   temp_err_buf[256];
+	//SString temp_buf;
+	SString sys_err_msg;
+	ErrorCode = IEERR_FTP;
+	DWORD code = GetLastError();
+	//::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT), temp_err_buf, 256, 0);
+	//(temp_buf = pProcess).CatDiv(':', 2).Cat(temp_err_buf);
+	// @v10.3.11 {
+	SSystem::SFormatMessage(code, sys_err_msg);
+	(StrError = pProcess).CatDiv(':', 2).Cat(sys_err_msg);
+	// } @v10.3.11 
+	/* @v10.3.11 (SSystem::SFormatMessage has done it)
+	// Смотрим дополнительное описание ошибки
+	if(code == ERROR_INTERNET_EXTENDED_ERROR) {
+		DWORD size = 256;
+		MEMSZERO(temp_err_buf);
+		code = 0;
+		::InternetGetLastResponseInfo(&code, temp_err_buf, &size);
+		temp_buf.CatDiv(':', 2).Cat(temp_err_buf);
+	}
+	StrError = temp_buf;
+	*/
 }

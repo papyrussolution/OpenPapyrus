@@ -386,7 +386,7 @@ int SelQCertDialog::updateView(PPID id)
 {
 	if(P_List) {
 		long   extra_param = IsSelByGoods ? GoodsID : 0;
-		QcObj.UpdateSelector(P_List->def, (void *)extra_param);
+		QcObj.UpdateSelector(P_List->def, reinterpret_cast<void *>(extra_param));
 		if(id >= 0)
 			P_List->search(&id, 0, srchFirst | lbSrchByID);
 		P_List->Draw_();
@@ -398,7 +398,7 @@ int SelQCertDialog::updateList(int)
 {
 	if(P_List) {
 		long   extra_param = IsSelByGoods ? GoodsID : 0;
-		ListBoxDef * p_def = QcObj.Selector((void *)extra_param);
+		ListBoxDef * p_def = QcObj.Selector(reinterpret_cast<void *>(extra_param));
 		if(p_def) {
 			P_List->setDef(p_def);
 			P_List->Draw_();
@@ -420,7 +420,7 @@ void SelQCertDialog::addBySample()
 {
 	if(P_List) {
 		PPID id = 0, sample_id = 0;
-		if(P_List->getCurID(&sample_id) && sample_id && QcObj.Edit(&id, (void *)sample_id) == cmOK)
+		if(P_List->getCurID(&sample_id) && sample_id && QcObj.Edit(&id, reinterpret_cast<void *>(sample_id)) == cmOK)
 			updateView(id);
 	}
 }

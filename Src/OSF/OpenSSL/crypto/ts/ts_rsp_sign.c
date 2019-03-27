@@ -535,7 +535,7 @@ end:
 static int ts_RESP_process_extensions(TS_RESP_CTX * ctx)
 {
 	STACK_OF(X509_EXTENSION) * exts = ctx->request->extensions;
-	int ok = 1;
+	int    ok = 1;
 	for(int i = 0; ok && i < sk_X509_EXTENSION_num(exts); ++i) {
 		X509_EXTENSION * ext = sk_X509_EXTENSION_value(exts, i);
 		/*

@@ -3966,7 +3966,7 @@ int SLAPI PPObjBHT::AcceptBill(PPObjBHT::BillRec * pRec, PPBasketPacket * pGBPac
 
 int SLAPI PPObjBHT::AcceptBillLine(PPID billID, PPObjBHT::BillLineRec * pRec, PPBasketPacket * pGBPack, PPID * pAltGrpID)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(pRec && billID == pRec->BillID) {
 		if(pGBPack) {
 			if(pRec->Quantity > 0 && GObj.Search(pRec->GoodsID) > 0) {

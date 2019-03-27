@@ -333,7 +333,7 @@ public:
 
 int SLAPI Convert229()
 {
-	int ok = 1;
+	int    ok = 1;
 	PPWait(1);
 	ZDELETE(BillObj);
 	PPCvtReceipt229 cvt;
@@ -369,7 +369,7 @@ public:
 
 int SLAPI Convert253()
 {
-	int ok = 1;
+	int    ok = 1;
 	PPWait(1);
 	PPCvtVATBook253 cvt;
 	ok = cvt.Convert() ? 1 : PPErrorZ();
@@ -412,7 +412,7 @@ int SLAPI GoodsConvertion270::CheckDupName(PPID gknd, char * name, size_t buflen
 
 int SLAPI GoodsConvertion270::ConvertGroups()
 {
-	int ok = 1;
+	int    ok = 1;
 	RECORDNUMBER num_recs = 0, count = 0;
 	GGTbl.getNumRecs(&num_recs);
 	if(GGTbl.step(spFirst))
@@ -471,7 +471,7 @@ int SLAPI GoodsConvertion270::ConvertGroups()
 
 int SLAPI GoodsConvertion270::ConvertGoods()
 {
-	int ok = 1;
+	int    ok = 1;
 	RECORDNUMBER num_recs = 0, count = 0;
 	GTbl.getNumRecs(&num_recs);
 	if(GTbl.step(spFirst)) do {
@@ -835,7 +835,7 @@ int SLAPI PPObjFormula::GetBefore290(PPID id, char * pName, char * pBuf, size_t 
 		long TailSize;
 		// char [PROPRECFIXSIZE - 16 + TailSize]
 	};
-	int ok = 1;
+	int    ok = 1;
 	union {
 		_Formula * form;
 		char     * bform;
@@ -866,7 +866,7 @@ int SLAPI PPObjFormula::GetBefore290(PPID id, char * pName, char * pBuf, size_t 
 
 static int SLAPI ConvertFormula290()
 {
-	int ok = 1;
+	int    ok = 1;
 	PPObjFormula frmobj;
 	for(PPID id = 0; frmobj.EnumItems(&id) > 0;) {
 		char name[48], form[256];
@@ -943,7 +943,7 @@ int SLAPI PPObjDBDiv::GetBefore290(PPID id, DBDivPack * pack)
 
 static int SLAPI ConvertDBDiv290()
 {
-	int ok = 1;
+	int    ok = 1;
 	PPObjDBDiv dbdivobj;
 	for(PPID id = 0; dbdivobj.EnumItems(&id) > 0;) {
 		DBDivPack pack;
@@ -958,7 +958,7 @@ static int SLAPI ConvertDBDiv290()
 //
 int SLAPI Convert300()
 {
-	int ok = 1;
+	int    ok = 1;
 	PPWait(1);
 	if(BillObj) {
 		ZDELETE(BillObj);
@@ -1077,7 +1077,7 @@ int SLAPI CounterGrpList::Load()
 	count = 0;
 	while(PPRef->EnumProps(PPOBJ_COUNTGRP, PPCNT_ONE, &p, &clu, sizeof(clu)) > 0 && p <= 1)
 		if(p == 1 && clu.Count)
-			if((ptr = (long*)SAlloc::R(ptr, sizeof(long) * (count + (uint)clu.Count))) != 0) {
+			if((ptr = (long *)SAlloc::R(ptr, sizeof(long) * (count + (uint)clu.Count))) != 0) {
 				memcpy(ptr + count, clu.Items, sizeof(long) * (uint)clu.Count);
 				count += (int)clu.Count;
 			}
@@ -3122,7 +3122,7 @@ int SLAPI PPCvtProperty5506::ConvertRec(DBTable * /*tbl*/, void * /*rec*/, int *
 
 int SLAPI Convert5506()
 {
-	int ok = 1;
+	int    ok = 1;
 	PPWait(1);
 	PPCvtProperty5506 cvt;
 	ok = cvt.Convert() ? 1 : PPErrorZ();

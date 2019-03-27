@@ -5328,6 +5328,8 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBi
 													emrfInitBillFound     = 0x0002
 												};
 												int    ex_mark_results = 0;
+												double ref_cost = 0.0;  // @v10.3.11 Цена поступления из строки приходного (драфт) документа
+												double ref_price = 0.0; // @v10.3.11 Цена реализации из строки приходного (драфт) документа
 												for(uint mridx = 0; mridx < lec_rec_list.getCount(); mridx++) {
 													const LotExtCodeTbl::Rec & r_lec_rec = lec_rec_list.at(mridx);
 													BillTbl::Rec lec_bill_rec;
@@ -5350,6 +5352,8 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBi
 																	P_BObj->LoadRowTagListForDraft(lec_bill_rec.ID, ltc);
 																	ltc.GetTagStr(ln-1, PPTAG_LOT_FSRARINFB, ref_b);
 																	ltc.GetTagStr(ln-1, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code_by_mark);
+																	ref_cost = lec_ti.Cost; // @v10.3.11
+																	ref_price = lec_ti.Price; // @v10.3.11
 																}
 																ex_mark_results |= emrfInitBillFound;
 															}
@@ -5405,6 +5409,8 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBi
 																THROW(ti.Init(&p_wroff_bp->Rec, 1));
 																THROW(ti.SetupGoods(goods_id, 0));
 																ti.Quantity_ = -wroff_qtty;
+																ti.Cost = ref_cost; // @v10.3.11
+																ti.Price = ref_price; // @v10.3.11
 																THROW(p_wroff_bp->LoadTItem(&ti, 0, 0));
 																{
 																	ObjTagList tag_list;

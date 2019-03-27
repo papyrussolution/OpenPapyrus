@@ -363,7 +363,7 @@ int PPALDD_JobPool::InitIteration(long iterId, int sortId, long rsrv)
 
 int PPALDD_JobPool::NextIteration(long iterId)
 {
-	int ok = -1;
+	int    ok = -1;
 	IterProlog(iterId, 0);
 	long n = static_cast<uint>(I.nn);
 	PPJob item;
@@ -463,7 +463,7 @@ public:
 	}
 	int getDTS(JobFilt * pData)
 	{
-		int ok = 1;
+		int    ok = 1;
 		uint sel = 0;
 		getCtrlData(sel = CTLSEL_JOBFILT_CMD, &Data.CmdId);
 		if(Data.CmdId)

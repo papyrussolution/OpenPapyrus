@@ -315,7 +315,7 @@ static int setup_mac_metadata(struct archive_read_disk * a,
 	(void)fd; /* UNUSED */
 
 	name = archive_read_disk_entry_setup_path(a, entry, NULL);
-	if(name == NULL)
+	if(!name)
 		return (ARCHIVE_WARN);
 
 	/* Short-circuit if there's nothing to do. */

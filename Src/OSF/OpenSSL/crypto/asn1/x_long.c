@@ -37,13 +37,13 @@ ASN1_ITEM_end(ZLONG)
 
 static int long_new(ASN1_VALUE ** pval, const ASN1_ITEM * it)
 {
-	*(long*)pval = it->size;
+	*(long *)pval = it->size;
 	return 1;
 }
 
 static void long_free(ASN1_VALUE ** pval, const ASN1_ITEM * it)
 {
-	*(long*)pval = it->size;
+	*(long *)pval = it->size;
 }
 
 static int long_i2c(ASN1_VALUE ** pval, uchar * cont, int * putype, const ASN1_ITEM * it)
@@ -124,6 +124,6 @@ static int long_c2i(ASN1_VALUE ** pval, const uchar * cont, int len, int utype, 
 
 static int long_print(BIO * out, ASN1_VALUE ** pval, const ASN1_ITEM * it, int indent, const ASN1_PCTX * pctx)
 {
-	return BIO_printf(out, "%ld\n", *(long*)pval);
+	return BIO_printf(out, "%ld\n", *(long *)pval);
 }
 

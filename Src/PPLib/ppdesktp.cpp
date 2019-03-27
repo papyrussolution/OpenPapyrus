@@ -470,7 +470,7 @@ int PPBizScoreWindow::Update()
 
 int PPBizScoreWindow::Destroy()
 {
-	TView::SetWindowUserData(H(), (void *)0);
+	TView::SetWindowUserData(H(), 0);
 	HW = 0;
 	ZDeleteWinGdiObject(&Brush);
 	return 1;
@@ -511,19 +511,19 @@ int PPBizScoreWindow::DoCommand(TPoint p)
 // static
 BOOL CALLBACK PPBizScoreWindow::Proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	PPBizScoreWindow * p_win = (PPBizScoreWindow *)TView::GetWindowUserData(hWnd);
+	PPBizScoreWindow * p_win = static_cast<PPBizScoreWindow *>(TView::GetWindowUserData(hWnd));
 	switch(message) {
 		case WM_INITDIALOG:
 			{
 				HWND ctl_hwnd = GetDlgItem(hWnd, CTL_BUSPARAMS_TEXT);
 				WNDPROC prev_window_proc = static_cast<WNDPROC>(TView::SetWindowProp(ctl_hwnd, GWLP_WNDPROC, EditDlgProc));
 				TView::SetWindowUserData(ctl_hwnd,  prev_window_proc);
-				TView::SetWindowUserData(hWnd, (void *)lParam);
+				TView::SetWindowUserData(hWnd, reinterpret_cast<void *>(lParam));
 				TView::SetWindowProp(hWnd, DWLP_USER, DLG_TOOLTIP);
 			}
 			break;
 		case WM_DESTROY:
-			TView::SetWindowUserData(hWnd, (void *)0);
+			TView::SetWindowUserData(hWnd, 0);
 			ZDELETE(p_win);
 			break;
 		case WM_LBUTTONUP:
@@ -1643,7 +1643,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 				{
 					POINT coord;
 					MEMSZERO(coord);
-					TView::messageCommand(this, cmaInsert, (void *)&coord);
+					TView::messageCommand(this, cmaInsert, &coord);
 				}
 				break;
 			case kbF11:
@@ -1691,7 +1691,7 @@ LRESULT CALLBACK PPDesktop::DesktopWndProc(HWND hWnd, UINT message, WPARAM wPara
 				p_desk->ResetOwnerCurrent();
 				APPL->P_DeskTop->remove(p_desk);
 				delete p_desk;
-				TView::SetWindowUserData(hWnd, (void *)0);
+				TView::SetWindowUserData(hWnd, 0);
 			}
 			SRawInputData::Register(0);
 			APPL->NotifyFrame(1);
@@ -1736,7 +1736,7 @@ LRESULT CALLBACK PPDesktop::DesktopWndProc(HWND hWnd, UINT message, WPARAM wPara
 						}
 						int    cmd = menu.Execute(hWnd, TMenuPopup::efRet);
 						if(cmd > 0)
-							TView::messageCommand(p_desk, cmd, (void *)&coord);
+							TView::messageCommand(p_desk, cmd, &coord);
 					}
 				}
 			}

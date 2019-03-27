@@ -209,7 +209,7 @@ int PosiflexEquip::UsbConnect()
 
 int PosiflexEquip::UsbDisconnect()
 {
-	int ok = 1;
+	int    ok = 1;
 	if(Closeu)
 		ok = Closeu();
 	return ok;

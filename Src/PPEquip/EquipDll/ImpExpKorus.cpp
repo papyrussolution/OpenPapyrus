@@ -1460,7 +1460,7 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 	}
 	if(P_ExportCls && !P_ExportCls->Inited) {
 		if(pExpHeader)
-			P_ExportCls->Header = *(Sdr_ImpExpHeader*)pExpHeader;
+			P_ExportCls->Header = *static_cast<const Sdr_ImpExpHeader *>(pExpHeader);
 		if(!isempty(pOutFileName)) {
 			P_ExportCls->PathStruct.Split(pOutFileName);
 			P_ExportCls->PathStruct.Ext = "xml";
@@ -1742,7 +1742,7 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 	P_ImportCls = new ImportCls;
 	if(P_ImportCls && !P_ImportCls->Inited) {
 		if(pImpHeader)
-			P_ImportCls->Header = *(Sdr_ImpExpHeader*)pImpHeader;
+			P_ImportCls->Header = *static_cast<const Sdr_ImpExpHeader *>(pImpHeader);
 		if(!isempty(pInputFileName)) {
 			P_ImportCls->PathStruct.Split(pInputFileName);
 			if(P_ImportCls->PathStruct.Nam.Empty())
@@ -1751,9 +1751,11 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 				P_ImportCls->PathStruct.Ext = "xml";
 		}
 		else {
-			char   fname[256];
-			GetModuleFileName(NULL, fname, sizeof(fname));
-			P_ImportCls->PathStruct.Split(fname);
+			//char   fname[256];
+			//GetModuleFileName(NULL, fname, sizeof(fname));
+			SString module_file_name;
+			SSystem::SGetModuleFileName(0, module_file_name);
+			P_ImportCls->PathStruct.Split(module_file_name);
 			P_ImportCls->PathStruct.Dir.ReplaceStr("\\bin", "\\in", 1);
 			(P_ImportCls->PathStruct.Nam = "import_").Cat(P_ImportCls->ObjId);
 			P_ImportCls->PathStruct.Ext = "xml";

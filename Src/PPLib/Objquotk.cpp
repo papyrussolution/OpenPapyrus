@@ -10,15 +10,8 @@ PPQuotKind2::PPQuotKind2()
 	THISZERO();
 }
 
-int SLAPI PPQuotKind2::HasWeekDayRestriction() const
-{
-	return BIN(DaysOfWeek && ((DaysOfWeek & 0x7f) != 0x7f));
-}
-
-int SLAPI PPQuotKind2::CheckWeekDay(LDATE dt) const
-{
-	return (!DaysOfWeek || !dt || (DaysOfWeek & (1 << (dayofweek(&dt, 1)-1))));
-}
+int SLAPI PPQuotKind2::HasWeekDayRestriction() const { return BIN(DaysOfWeek && ((DaysOfWeek & 0x7f) != 0x7f)); }
+int SLAPI PPQuotKind2::CheckWeekDay(LDATE dt) const { return (!DaysOfWeek || !dt || (DaysOfWeek & (1 << (dayofweek(&dt, 1)-1)))); }
 
 void SLAPI PPQuotKind2::SetTimeRange(const TimeRange & rRange)
 {
@@ -267,42 +260,40 @@ int SLAPI PPObjQuotKind::MakeReserved(long flags)
 
 int SLAPI PPObjQuotKind::GetListByOp(PPID opID, LDATE dt, PPIDArray * pList)
 {
-	int    intrexpnd = IsIntrExpndOp(opID);
 	PPObjGoods goods_obj;
+	const  int  intrexpnd = IsIntrExpndOp(opID);
 	const  PPID matrix_qk_id = goods_obj.GetConfig().MtxQkID;
-	{
-		SArray list(sizeof(PPQuotKind));
-		ref->LoadItems(Obj, &list);
-		PPQuotKind * p_item;
-		for(uint i = 0; list.enumItems(&i, (void **)&p_item);) {
-			const PPID id = p_item->ID;
-			if(ObjRts.CheckQuotKindID(id, 0)) { // @v8.9.7
+	SArray list(sizeof(PPQuotKind));
+	ref->LoadItems(Obj, &list);
+	for(uint qkidx = 0; qkidx < list.getCount(); qkidx++) {
+		const PPQuotKind * p_item = static_cast<const PPQuotKind *>(list.at(qkidx));
+		const PPID id = p_item->ID;
+		if(ObjRts.CheckQuotKindID(id, 0)) {
+			//
+			// Если котировка не матричная И ("не для документов" либо нам это безразлично)
+			//
+			if(id != matrix_qk_id && !(p_item->Flags & QUOTKF_NOTFORBILL) && p_item->Period.CheckDate(dt)) {
 				//
-				// Если котировка не матричная И ("не для документов" либо нам это безразлично)
+				// Если для вида котировки определен вид операции, то безусловно проверяем
+				// соответствие нашей операции этому виду.
 				//
-				if(id != matrix_qk_id && !(p_item->Flags & QUOTKF_NOTFORBILL) && p_item->Period.CheckDate(dt)) {
+				if(p_item->OpID) {
+					if(IsOpBelongTo(opID, p_item->OpID) > 0)
+						pList->addUnique(id);
+				}
+				else {
 					//
-					// Если для вида котировки определен вид операции, то безусловно проверяем
-					// соответствие нашей операции этому виду.
+					// В противном случае, для внутренней передачи используется только базовая котировка
 					//
-					if(p_item->OpID) {
-						if(IsOpBelongTo(opID, p_item->OpID) > 0)
+					if(intrexpnd) {
+						if(id == PPQUOTK_BASE)
 							pList->addUnique(id);
 					}
 					else {
 						//
-						// В противном случае, для внутренней передачи используется только базовая котировка
+						// Остальные виды операций безусловно могут использовать этот вид котировки
 						//
-						if(intrexpnd) {
-							if(id == PPQUOTK_BASE)
-								pList->addUnique(id);
-						}
-						else {
-							//
-							// Остальные виды операций безусловно могут использовать этот вид котировки
-							//
-							pList->addUnique(id);
-						}
+						pList->addUnique(id);
 					}
 				}
 			}
@@ -945,15 +936,13 @@ int QuotKindDialog::EditRestr()
 int QuotKindDialog::setDTS(const PPQuotKindPacket * pPack)
 {
 	PPIDArray  op_type_list;
-
 	Data = *pPack;
 	setCtrlData(CTL_QUOTKIND_NAME, Data.Rec.Name);
 	setCtrlData(CTL_QUOTKIND_SYMB, Data.Rec.Symb);
 	setCtrlData(CTL_QUOTKIND_ID,   &Data.Rec.ID);
 	disableCtrl(CTL_QUOTKIND_ID, (int)Data.Rec.ID || !PPMaster);
-
 	op_type_list.addzlist(PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, PPOPT_GOODSORDER,
-		PPOPT_DRAFTEXPEND, PPOPT_GENERIC, 0);
+		PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_GENERIC, 0); // @v10.3.11 PPOPT_DRAFTRECEIPT
 	SetupOprKindCombo(this, CTLSEL_QUOTKIND_OP, Data.Rec.OpID, 0, &op_type_list, 0);
 	SetupPPObjCombo(this, CTLSEL_QUOTKIND_ACCSHEET, PPOBJ_ACCSHEET, Data.Rec.AccSheetID, OLW_CANINSERT, 0);
 	setCtrlData(CTL_QUOTKIND_RANK, &Data.Rec.Rank);

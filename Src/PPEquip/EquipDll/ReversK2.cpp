@@ -429,7 +429,7 @@ int K2Controller::OpenPort(int portNum)
 	SString port_num;
 	ClosePort();
 	(port_num = "\\\\.\\COM").Cat(portNum /*+ 1*/);
-	Handle = CreateFile(port_num, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
+	Handle = ::CreateFile(SUcSwitch(port_num), GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
 	THROWERR(Handle != INVALID_HANDLE_VALUE, K2ERR_OPENPORTFAILED);
 	//
 	MEMSZERO(dcb);

@@ -2796,7 +2796,34 @@ struct Sdr_SupplBillLine {
 	LDATE  ActionDate;
 };
 
-#define PPREC_SUPPLGOODS                    26
+#define PPREC_BALTIKABILLPRICEPROMO         26
+	#define PPFLD_BALTIKABILLPRICEPROMO_COMPANYID                      1
+	#define PPFLD_BALTIKABILLPRICEPROMO_ADDRESSID                      2
+	#define PPFLD_BALTIKABILLPRICEPROMO_WAREHOUSEID                    3
+	#define PPFLD_BALTIKABILLPRICEPROMO_DOCUMENTDATE                   4
+	#define PPFLD_BALTIKABILLPRICEPROMO_DOCUMENTNUMBER                 5
+	#define PPFLD_BALTIKABILLPRICEPROMO_DOCUMENTTYPEID                 6
+	#define PPFLD_BALTIKABILLPRICEPROMO_WAREID                         7
+	#define PPFLD_BALTIKABILLPRICEPROMO_SHAREID                        8
+	#define PPFLD_BALTIKABILLPRICEPROMO_SHAREDATE                      9
+	#define PPFLD_BALTIKABILLPRICEPROMO_DISCOUNTPERCENT               10
+	#define PPFLD_BALTIKABILLPRICEPROMO_DISCOUNTSUM                   11
+
+struct Sdr_BaltikaBillPricePromo {
+	char   CompanyId[24];
+	char   AddressId[24];
+	char   WareHouseId[24];
+	LDATE  DocumentDate;
+	char   DocumentNumber[24];
+	char   DocumentTypeId[32];
+	char   WareId[24];
+	char   ShareId[24];
+	char   ShareDate[24];
+	double DiscountPercent;
+	double DiscountSum;
+};
+
+#define PPREC_SUPPLGOODS                    27
 	#define PPFLD_SUPPLGOODS_WAREID                         1
 	#define PPFLD_SUPPLGOODS_WARENAME                       2
 	#define PPFLD_SUPPLGOODS_UNITID                         3
@@ -2811,7 +2838,7 @@ struct Sdr_SupplGoods {
 	double Quantity;
 };
 
-#define PPREC_SUPPLDLVRADDR                 27
+#define PPREC_SUPPLDLVRADDR                 28
 	#define PPFLD_SUPPLDLVRADDR_CRMCLIENTID                    1
 	#define PPFLD_SUPPLDLVRADDR_COMPANYID                      2
 	#define PPFLD_SUPPLDLVRADDR_COMPANYNAME                    3
@@ -2828,7 +2855,7 @@ struct Sdr_SupplDlvrAddr {
 	char   Location[180];
 };
 
-#define PPREC_INVENTORYITEM                 28
+#define PPREC_INVENTORYITEM                 29
 	#define PPFLD_INVENTORYITEM_GOODSID                        1
 	#define PPFLD_INVENTORYITEM_BARCODE                        2
 	#define PPFLD_INVENTORYITEM_GOODSNAME                      3
@@ -2849,7 +2876,7 @@ struct Sdr_InventoryItem {
 	char   Empty[24];
 };
 
-#define PPREC_RBCBNKSEEK                    29
+#define PPREC_RBCBNKSEEK                    30
 	#define PPFLD_RBCBNKSEEK_CODE                           1
 	#define PPFLD_RBCBNKSEEK_CITY                           2
 	#define PPFLD_RBCBNKSEEK_SYMB                           3
@@ -2868,7 +2895,7 @@ struct Sdr_RbcBnkSeek {
 	char   CorrAcc[48];
 };
 
-#define PPREC_RBCBNKREG                     30
+#define PPREC_RBCBNKREG                     31
 	#define PPFLD_RBCBNKREG_ID                             1
 	#define PPFLD_RBCBNKREG_NAME                           2
 	#define PPFLD_RBCBNKREG_CITY                           3
@@ -2879,7 +2906,7 @@ struct Sdr_RbcBnkReg {
 	char   City[48];
 };
 
-#define PPREC_WORLDOBJSTATUS                31
+#define PPREC_WORLDOBJSTATUS                32
 	#define PPFLD_WORLDOBJSTATUS_NAME                           1
 	#define PPFLD_WORLDOBJSTATUS_ABBR                           2
 	#define PPFLD_WORLDOBJSTATUS_CODE                           3
@@ -2892,7 +2919,7 @@ struct Sdr_WorldObjStatus {
 	int32  Kind;
 };
 
-#define PPREC_WORLDOBJ                      32
+#define PPREC_WORLDOBJ                      33
 	#define PPFLD_WORLDOBJ_NAME                           1
 	#define PPFLD_WORLDOBJ_ABBR                           2
 	#define PPFLD_WORLDOBJ_STATUSTEXT                     3
@@ -2913,7 +2940,7 @@ struct Sdr_WorldObj {
 	char   ZIP[12];
 };
 
-#define PPREC_PRICELIST                     33
+#define PPREC_PRICELIST                     34
 	#define PPFLD_PRICELIST_GOODSID                        1
 	#define PPFLD_PRICELIST_ALTGRPPLU                      2
 	#define PPFLD_PRICELIST_PRICE                          3
@@ -2952,7 +2979,7 @@ struct Sdr_PriceList {
 	char   Memo[256];
 };
 
-#define PPREC_BIZSCOREVAL                   34
+#define PPREC_BIZSCOREVAL                   35
 	#define PPFLD_BIZSCOREVAL_ACTUALDATE                     1
 	#define PPFLD_BIZSCOREVAL_DT                             2
 	#define PPFLD_BIZSCOREVAL_TM                             3
@@ -2985,7 +3012,7 @@ struct Sdr_BizScoreVal {
 	char   Str[252];
 };
 
-#define PPREC_PHONELIST                     35
+#define PPREC_PHONELIST                     36
 	#define PPFLD_PHONELIST_PHONE                          1
 	#define PPFLD_PHONELIST_ADDRESS                        2
 	#define PPFLD_PHONELIST_CONTACT                        3
@@ -2996,7 +3023,7 @@ struct Sdr_PhoneList {
 	char   Contact[128];
 };
 
-#define PPREC_SBIIGOODS                     36
+#define PPREC_SBIIGOODS                     37
 	#define PPFLD_SBIIGOODS_ID                             1
 	#define PPFLD_SBIIGOODS_CODE                           2
 	#define PPFLD_SBIIGOODS_NAME                           3
@@ -3013,7 +3040,7 @@ struct Sdr_SBIIGoods {
 	double Rest;
 };
 
-#define PPREC_SBIISUPPL                     37
+#define PPREC_SBIISUPPL                     38
 	#define PPFLD_SBIISUPPL_ID                             1
 	#define PPFLD_SBIISUPPL_NAME                           2
 	#define PPFLD_SBIISUPPL_ACCSHEET                       3
@@ -3024,7 +3051,7 @@ struct Sdr_SBIISuppl {
 	int32  AccSheet;
 };
 
-#define PPREC_SBIIOPRESTR                   38
+#define PPREC_SBIIOPRESTR                   39
 	#define PPFLD_SBIIOPRESTR_OPID                           1
 	#define PPFLD_SBIIOPRESTR_ACCSHEET                       2
 	#define PPFLD_SBIIOPRESTR_TOBHTOP                        3
@@ -3039,7 +3066,7 @@ struct Sdr_SBIIOpRestr {
 	int32  BhtCfmA;
 };
 
-#define PPREC_SBIISAMPLEBILL                39
+#define PPREC_SBIISAMPLEBILL                40
 	#define PPFLD_SBIISAMPLEBILL_ID                             1
 	#define PPFLD_SBIISAMPLEBILL_DATE                           2
 	#define PPFLD_SBIISAMPLEBILL_ARTICLE                        3
@@ -3054,7 +3081,7 @@ struct Sdr_SBIISampleBill {
 	char   Code[16];
 };
 
-#define PPREC_SBIISAMPLEBILLROW             40
+#define PPREC_SBIISAMPLEBILLROW             41
 	#define PPFLD_SBIISAMPLEBILLROW_BILLID                         1
 	#define PPFLD_SBIISAMPLEBILLROW_GOODSID                        2
 	#define PPFLD_SBIISAMPLEBILLROW_SERIAL                         3
@@ -3075,7 +3102,7 @@ struct Sdr_SBIISampleBillRow {
 	int32  SuplDUp;
 };
 
-#define PPREC_SBIIBILL                      41
+#define PPREC_SBIIBILL                      42
 	#define PPFLD_SBIIBILL_ID                             1
 	#define PPFLD_SBIIBILL_SAMPLEID                       2
 	#define PPFLD_SBIIBILL_DATE                           3
@@ -3096,7 +3123,7 @@ struct Sdr_SBIIBill {
 	char   Guid[38];
 };
 
-#define PPREC_SBIIBILLROW                   42
+#define PPREC_SBIIBILLROW                   43
 	#define PPFLD_SBIIBILLROW_BILLID                         1
 	#define PPFLD_SBIIBILLROW_GOODSID                        2
 	#define PPFLD_SBIIBILLROW_STORAGEP                       3
@@ -3119,7 +3146,7 @@ struct Sdr_SBIIBillRow {
 	double Cost;
 };
 
-#define PPREC_QUOTVAL                       43
+#define PPREC_QUOTVAL                       44
 	#define PPFLD_QUOTVAL_QUOTKINDID                     1
 	#define PPFLD_QUOTVAL_QUOTKINDSYMB                   2
 	#define PPFLD_QUOTVAL_GOODSID                        3
@@ -3156,7 +3183,7 @@ struct Sdr_QuotVal {
 	char   ValueText[32];
 };
 
-#define PPREC_GOODS2                        44
+#define PPREC_GOODS2                        45
 	#define PPFLD_GOODS2_CODE                           1
 	#define PPFLD_GOODS2_CODECD                         2
 	#define PPFLD_GOODS2_ADDEDCODE                      3
@@ -3317,7 +3344,7 @@ struct Sdr_Goods2 {
 	char   FlgWantVetisCert[8];
 };
 
-#define PPREC_PERSON                        45
+#define PPREC_PERSON                        46
 	#define PPFLD_PERSON_CODE                           1
 	#define PPFLD_PERSON_DBLGISCODE                     2
 	#define PPFLD_PERSON_NAME                           3
@@ -3406,7 +3433,7 @@ struct Sdr_Person {
 	char   Memo[128];
 };
 
-#define PPREC_SPIIBRAND                     46
+#define PPREC_SPIIBRAND                     47
 	#define PPFLD_SPIIBRAND_ID                             1
 	#define PPFLD_SPIIBRAND_OWNID                          2
 	#define PPFLD_SPIIBRAND_NAME                           3
@@ -3419,7 +3446,7 @@ struct Sdr_SPIIBrand {
 	char   OwnName[64];
 };
 
-#define PPREC_SBIILOCCELL                   47
+#define PPREC_SBIILOCCELL                   48
 	#define PPFLD_SBIILOCCELL_ID                             1
 	#define PPFLD_SBIILOCCELL_CODE                           2
 	#define PPFLD_SBIILOCCELL_NAME                           3
@@ -3432,7 +3459,7 @@ struct Sdr_SBIILocCell {
 	double Qtty;
 };
 
-#define PPREC_SPIILOC                       48
+#define PPREC_SPIILOC                       49
 	#define PPFLD_SPIILOC_ID                             1
 	#define PPFLD_SPIILOC_NAME                           2
 
@@ -3441,7 +3468,7 @@ struct Sdr_SPIILoc {
 	char   Name[48];
 };
 
-#define PPREC_CSESS_FRONT                   49
+#define PPREC_CSESS_FRONT                   50
 	#define PPFLD_CSESS_FRONT_SESSDATE                       1
 	#define PPFLD_CSESS_FRONT_SESSTIME                       2
 	#define PPFLD_CSESS_FRONT_CASHNUMBER                     3
@@ -3472,7 +3499,7 @@ struct Sdr_CSess_Front {
 	double BnkRetAmt;
 };
 
-#define PPREC_CCHECK_FRONT                  50
+#define PPREC_CCHECK_FRONT                  51
 	#define PPFLD_CCHECK_FRONT_CHECKNUMBER                    1
 	#define PPFLD_CCHECK_FRONT_CASHIERNO                      2
 	#define PPFLD_CCHECK_FRONT_OPERDATE                       3
@@ -3527,7 +3554,7 @@ struct Sdr_CCheck_Front {
 	double BnkRetAmt;
 };
 
-#define PPREC_PALMGOODS                     51
+#define PPREC_PALMGOODS                     52
 	#define PPFLD_PALMGOODS_ID                             1
 	#define PPFLD_PALMGOODS_NAME                           2
 	#define PPFLD_PALMGOODS_BARCODE                        3
@@ -3556,7 +3583,7 @@ struct Sdr_PalmGoods {
 	int32  MultMinOrd;
 };
 
-#define PPREC_PALMGOODSGRP                  52
+#define PPREC_PALMGOODSGRP                  53
 	#define PPFLD_PALMGOODSGRP_ID                             1
 	#define PPFLD_PALMGOODSGRP_PARENTID                       2
 	#define PPFLD_PALMGOODSGRP_NAME                           3
@@ -3567,7 +3594,7 @@ struct Sdr_PalmGoodsGrp {
 	char   Name[64];
 };
 
-#define PPREC_PALMCLIENT                    53
+#define PPREC_PALMCLIENT                    54
 	#define PPFLD_PALMCLIENT_ID                             1
 	#define PPFLD_PALMCLIENT_NAME                           2
 	#define PPFLD_PALMCLIENT_CODE                           3
@@ -3586,7 +3613,7 @@ struct Sdr_PalmClient {
 	int16  Stop;
 };
 
-#define PPREC_PALMDLVRADDR                  54
+#define PPREC_PALMDLVRADDR                  55
 	#define PPFLD_PALMDLVRADDR_ID                             1
 	#define PPFLD_PALMDLVRADDR_CLIENTID                       2
 	#define PPFLD_PALMDLVRADDR_ADDRSTRING                     3
@@ -3597,7 +3624,7 @@ struct Sdr_PalmDlvrAddr {
 	char   AddrString[128];
 };
 
-#define PPREC_PALMQUOTKIND                  55
+#define PPREC_PALMQUOTKIND                  56
 	#define PPFLD_PALMQUOTKIND_ID                             1
 	#define PPFLD_PALMQUOTKIND_NAME                           2
 
@@ -3606,7 +3633,7 @@ struct Sdr_PalmQuotKind {
 	char   Name[48];
 };
 
-#define PPREC_PALMBRAND                     56
+#define PPREC_PALMBRAND                     57
 	#define PPFLD_PALMBRAND_BRANDID                        1
 	#define PPFLD_PALMBRAND_BRANDNAME                      2
 	#define PPFLD_PALMBRAND_BRANDOWNERID                   3
@@ -3619,7 +3646,7 @@ struct Sdr_PalmBrand {
 	char   BrandOwnerName[64];
 };
 
-#define PPREC_PALMWAREHOUSE                 57
+#define PPREC_PALMWAREHOUSE                 58
 	#define PPFLD_PALMWAREHOUSE_ID                             1
 	#define PPFLD_PALMWAREHOUSE_NAME                           2
 	#define PPFLD_PALMWAREHOUSE_LATITUDE                       3
@@ -3634,7 +3661,7 @@ struct Sdr_PalmWarehouse {
 	char   AddrString[256];
 };
 
-#define PPREC_PALMQUOT                      58
+#define PPREC_PALMQUOT                      59
 	#define PPFLD_PALMQUOT_GOODSID                        1
 	#define PPFLD_PALMQUOT_QUOTKINDID                     2
 	#define PPFLD_PALMQUOT_CLIENTID                       3
@@ -3647,7 +3674,7 @@ struct Sdr_PalmQuot {
 	double Price;
 };
 
-#define PPREC_PALMCLIDEBT                   59
+#define PPREC_PALMCLIDEBT                   60
 	#define PPFLD_PALMCLIDEBT_CLIENTID                       1
 	#define PPFLD_PALMCLIDEBT_AGENTID                        2
 	#define PPFLD_PALMCLIDEBT_BILLID                         3
@@ -3666,7 +3693,7 @@ struct Sdr_PalmCliDebt {
 	double BillDebt;
 };
 
-#define PPREC_SBIIBILLROWWITHCELLS          60
+#define PPREC_SBIIBILLROWWITHCELLS          61
 	#define PPFLD_SBIIBILLROWWITHCELLS_BILLID                         1
 	#define PPFLD_SBIIBILLROWWITHCELLS_GOODSID                        2
 	#define PPFLD_SBIIBILLROWWITHCELLS_SERIAL                         3
@@ -3689,7 +3716,7 @@ struct Sdr_SBIIBillRowWithCells {
 	int32  LocID;
 };
 
-#define PPREC_LOT                           61
+#define PPREC_LOT                           62
 	#define PPFLD_LOT_ID                             1
 	#define PPFLD_LOT_BILLID                         2
 	#define PPFLD_LOT_LOCID                          3
@@ -3750,7 +3777,7 @@ struct Sdr_Lot {
 	char   UhttArCode[32];
 };
 
-#define PPREC_WORKBOOK                      62
+#define PPREC_WORKBOOK                      63
 	#define PPFLD_WORKBOOK_ID                             1
 	#define PPFLD_WORKBOOK_NAME                           2
 	#define PPFLD_WORKBOOK_SYMB                           3
@@ -3795,7 +3822,7 @@ struct Sdr_Workbook {
 	char   KeywordTag[128];
 };
 
-#define PPREC_BALTIKASALDOWARE              63
+#define PPREC_BALTIKASALDOWARE              64
 	#define PPFLD_BALTIKASALDOWARE_DATE                           1
 	#define PPFLD_BALTIKASALDOWARE_COMPANYID                      2
 	#define PPFLD_BALTIKASALDOWARE_ADDRESSID                      3
@@ -3814,7 +3841,7 @@ struct Sdr_BaltikaSaldoWare {
 	double Summ;
 };
 
-#define PPREC_BALTIKASALDOAGGREGATE         64
+#define PPREC_BALTIKASALDOAGGREGATE         65
 	#define PPFLD_BALTIKASALDOAGGREGATE_SALDODATE                      1
 	#define PPFLD_BALTIKASALDOAGGREGATE_COMPANYID                      2
 	#define PPFLD_BALTIKASALDOAGGREGATE_ADDRESSID                      3
@@ -3855,7 +3882,7 @@ struct Sdr_BaltikaSaldoAggregate {
 	double mTotalBalance;
 };
 
-#define PPREC_BALTIKASALDODOC               65
+#define PPREC_BALTIKASALDODOC               66
 	#define PPFLD_BALTIKASALDODOC_COMPANYID                      1
 	#define PPFLD_BALTIKASALDODOC_ADDRESSID                      2
 	#define PPFLD_BALTIKASALDODOC_PRODUCTID                      3
@@ -3884,7 +3911,7 @@ struct Sdr_BaltikaSaldoDoc {
 	double PayDocSumm;
 };
 
-#define PPREC_BALTIKABILLITEMATTRS          66
+#define PPREC_BALTIKABILLITEMATTRS          67
 	#define PPFLD_BALTIKABILLITEMATTRS_DOCUMENTDATE                   1
 	#define PPFLD_BALTIKABILLITEMATTRS_DOCUMENTNUMBER                 2
 	#define PPFLD_BALTIKABILLITEMATTRS_DOCUMENTTYPEID                 3
@@ -3905,7 +3932,7 @@ struct Sdr_BaltikaBillItemAttrs {
 	double Quantity;
 };
 
-#define PPREC_DLLIMPEXPRECEIPT              67
+#define PPREC_DLLIMPEXPRECEIPT              68
 	#define PPFLD_DLLIMPEXPRECEIPT_ID                             1
 	#define PPFLD_DLLIMPEXPRECEIPT_RECEIPTNUMBER                  2
 
@@ -3914,14 +3941,14 @@ struct Sdr_DllImpExpReceipt {
 	char   ReceiptNumber[64];
 };
 
-#define PPREC_DLLIMPOBJSTATUS               68
+#define PPREC_DLLIMPOBJSTATUS               69
 	#define PPFLD_DLLIMPOBJSTATUS_DOCSTATUS                      1
 
 struct Sdr_DllImpObjStatus {
 	int32  DocStatus;
 };
 
-#define PPREC_TESTREC                       69
+#define PPREC_TESTREC                       70
 	#define PPFLD_TESTREC_FLD1                           1
 	#define PPFLD_TESTREC_FLD2                           2
 
@@ -3930,7 +3957,7 @@ struct Sdr_TestRec {
 	char   fld2[128];
 };
 
-#define PPREC_CPOSHEADER                    70
+#define PPREC_CPOSHEADER                    71
 	#define PPFLD_CPOSHEADER_FORMATVERSION                  1
 	#define PPFLD_CPOSHEADER_PRODUCTNAME                    2
 	#define PPFLD_CPOSHEADER_PRODUCTVERSION                 3
@@ -3943,7 +3970,7 @@ struct Sdr_CPosHeader {
 	char   TableName[32];
 };
 
-#define PPREC_CPOSTABLE                     71
+#define PPREC_CPOSTABLE                     72
 	#define PPFLD_CPOSTABLE__ID                            1
 	#define PPFLD_CPOSTABLE_NAME                           2
 	#define PPFLD_CPOSTABLE_GUESTCOUNT                     3
@@ -3958,7 +3985,7 @@ struct Sdr_CPosTable {
 	double Amount;
 };
 
-#define PPREC_CPOSGOODS                     72
+#define PPREC_CPOSGOODS                     73
 	#define PPFLD_CPOSGOODS_NAME                           1
 	#define PPFLD_CPOSGOODS_BARCODE                        2
 	#define PPFLD_CPOSGOODS_PARENTID                       3
@@ -3971,7 +3998,7 @@ struct Sdr_CPosGoods {
 	double Price;
 };
 
-#define PPREC_CPOSGOODSGROUP                73
+#define PPREC_CPOSGOODSGROUP                74
 	#define PPFLD_CPOSGOODSGROUP_ID                             1
 	#define PPFLD_CPOSGOODSGROUP_PARENTID                       2
 	#define PPFLD_CPOSGOODSGROUP_NAME                           3
@@ -3984,7 +4011,7 @@ struct Sdr_CPosGoodsGroup {
 	int32  Code;
 };
 
-#define PPREC_CPOSCHECK                     74
+#define PPREC_CPOSCHECK                     75
 	#define PPFLD_CPOSCHECK__ID                            1
 	#define PPFLD_CPOSCHECK_TABLEID                        2
 	#define PPFLD_CPOSCHECK_GUESTCOUNT                     3
@@ -4001,7 +4028,7 @@ struct Sdr_CPosCheck {
 	double Amount;
 };
 
-#define PPREC_CPOSCHECKROW                  75
+#define PPREC_CPOSCHECKROW                  76
 	#define PPFLD_CPOSCHECKROW__ID                            1
 	#define PPFLD_CPOSCHECKROW_CHECKID                        2
 	#define PPFLD_CPOSCHECKROW_GOODSID                        3
@@ -4020,14 +4047,14 @@ struct Sdr_CPosCheckRow {
 	double Discount;
 };
 
-#define PPREC_BALTIKA_RESTPART              76
+#define PPREC_BALTIKA_RESTPART              77
 	#define PPFLD_BALTIKA_RESTPART_SKIPDELETE                     1
 
 struct Sdr_Baltika_RestPart {
 	int32  SkipDelete;
 };
 
-#define PPREC_BALTIKA_RESTPARTLINE          77
+#define PPREC_BALTIKA_RESTPARTLINE          78
 	#define PPFLD_BALTIKA_RESTPARTLINE_WAREHOUSEID                    1
 	#define PPFLD_BALTIKA_RESTPARTLINE_DOCUMENTDATE                   2
 	#define PPFLD_BALTIKA_RESTPARTLINE_PARTNUMBER                     3
@@ -4048,7 +4075,7 @@ struct Sdr_Baltika_RestPartLine {
 	double Quantity;
 };
 
-#define PPREC_CPOSAUTH                      78
+#define PPREC_CPOSAUTH                      79
 	#define PPFLD_CPOSAUTH__ID                            1
 	#define PPFLD_CPOSAUTH_AGENTID                        2
 	#define PPFLD_CPOSAUTH_AGENTNAME                      3
@@ -4067,7 +4094,7 @@ struct Sdr_CPosAuth {
 	char   Password[128];
 };
 
-#define PPREC_FIASRAWHOUSEOBJ               79
+#define PPREC_FIASRAWHOUSEOBJ               80
 	#define PPFLD_FIASRAWHOUSEOBJ_POSTALCODE                     1
 	#define PPFLD_FIASRAWHOUSEOBJ_IFNSFL                         2
 	#define PPFLD_FIASRAWHOUSEOBJ_TERRIFNSFL                     3
@@ -4114,7 +4141,7 @@ struct Sdr_FiasRawHouseObj {
 	int32  COUNTER;
 };
 
-#define PPREC_FIASRAWHOUSEINTOBJ            80
+#define PPREC_FIASRAWHOUSEINTOBJ            81
 	#define PPFLD_FIASRAWHOUSEINTOBJ_POSTALCODE                     1
 	#define PPFLD_FIASRAWHOUSEINTOBJ_IFNSFL                         2
 	#define PPFLD_FIASRAWHOUSEINTOBJ_TERRIFNSFL                     3
@@ -4155,7 +4182,7 @@ struct Sdr_FiasRawHouseIntObj {
 	int32  COUNTER;
 };
 
-#define PPREC_FIASRAWADDROBJ                81
+#define PPREC_FIASRAWADDROBJ                82
 	#define PPFLD_FIASRAWADDROBJ_AOGUID                         1
 	#define PPFLD_FIASRAWADDROBJ_FORMALNAME                     2
 	#define PPFLD_FIASRAWADDROBJ_REGIONCODE                     3

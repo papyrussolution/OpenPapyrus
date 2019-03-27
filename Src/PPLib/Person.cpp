@@ -97,7 +97,7 @@ int SLAPI PPPerson::RemoveRelations(PPIDArray * pPersonList, PPID relTypeID)
 
 int SLAPI PPPerson::GetRelList(PPID relTypeID, PPIDArray * pList) const
 {
-	int ok = 1;
+	int    ok = 1;
 	for(uint i = 0; i < RelList.getCount(); i++)
 		if(RelList.at(i).Val == relTypeID && pList)
 			pList->add(RelList.at(i).Key);

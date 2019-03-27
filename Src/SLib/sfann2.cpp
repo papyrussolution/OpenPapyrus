@@ -3638,7 +3638,7 @@ void fann_update_weights_quickprop(Fann2 * ann, uint num_data, uint first_weight
 	float epsilon = ann->learning_rate / num_data;
 	float decay = ann->quickprop_decay;     /*-0.0001;*/
 	float mu = ann->quickprop_mu;   /*1.75; */
-	float shrink_factor = (float)(mu / (1.0 + mu));
+	float shrink_factor = (mu / (1.0f + mu));
 	uint i = first_weight;
 	for(; i != past_end; i++) {
 		w = weights[i];
@@ -4699,7 +4699,7 @@ FANN_EXTERNAL void FANN_API fann_scale_output(Fann2 * ann, float * output_vector
 			    (
 				( output_vector[ cur_neuron ] - ann->scale_mean_out[ cur_neuron ] )
 				/ ann->scale_deviation_out[ cur_neuron ]
-				- ( (float)-1.0 )         /* This is old_min */
+				- (-1.0f) /* This is old_min */
 			    )
 			    * ann->scale_factor_out[ cur_neuron ]
 			    + ann->scale_new_min_out[ cur_neuron ];
@@ -4718,7 +4718,7 @@ FANN_EXTERNAL void FANN_API fann_descale_input(Fann2 * ann, float * input_vector
 		if(ann->scale_deviation_in[ cur_neuron ] != 0.0)
 			input_vector[cur_neuron] = ((input_vector[cur_neuron] - ann->scale_new_min_in[cur_neuron])
 				/ ann->scale_factor_in[cur_neuron]
-				+ ( (float)-1.0 )         /* This is old_min */
+				+ (-1.0f) /* This is old_min */
 			    ) * ann->scale_deviation_in[cur_neuron] + ann->scale_mean_in[cur_neuron];
 }
 // 
@@ -4734,7 +4734,7 @@ FANN_EXTERNAL void FANN_API fann_descale_output(Fann2 * ann, float * output_vect
 	for(cur_neuron = 0; cur_neuron < ann->num_output; cur_neuron++)
 		if(ann->scale_deviation_out[ cur_neuron ] != 0.0)
 			output_vector[cur_neuron] =((output_vector[cur_neuron] - ann->scale_new_min_out[cur_neuron])
-				/ ann->scale_factor_out[cur_neuron] + ((float)-1.0) /* This is old_min */
+				/ ann->scale_factor_out[cur_neuron] + (-1.0f) /* This is old_min */
 			    ) * ann->scale_deviation_out[cur_neuron] + ann->scale_mean_out[cur_neuron];
 }
 // 

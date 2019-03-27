@@ -884,7 +884,7 @@ number:
 			    else
 #endif
 			    if(p->flags & FLAGS_LONG)
-				    *(long*)p->data.ptr = (long)done;
+				    *(long *)p->data.ptr = (long)done;
 			    else if(!(p->flags & FLAGS_SHORT))
 				    *(int *)p->data.ptr = (int)done;
 			    else

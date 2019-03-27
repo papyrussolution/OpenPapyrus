@@ -1160,7 +1160,7 @@ static int hfs_decompress(struct archive_write_disk * a)
 				return (ARCHIVE_WARN);
 			}
 			bytes_to_write = dest_len;
-			b = (uchar*)a->uncompressed_buffer;
+			b = (uchar *)a->uncompressed_buffer;
 		}
 		do {
 			bytes_written = write(a->fd, b, bytes_to_write);
@@ -2814,7 +2814,7 @@ static void cleanup_pathname_win(char * path)
 			else
 				complete = 0; /* uncompleted. */
 		}
-		else if(*(uchar*)p > 127)
+		else if(*(uchar *)p > 127)
 			mb = 1;
 		else
 			mb = 0;
@@ -4107,7 +4107,7 @@ static int set_xattrs(struct archive_write_disk * a)
 
 		archive_entry_xattr_next(entry, &name, &value, &size);
 
-		if(name == NULL)
+		if(!name)
 			continue;
 #if ARCHIVE_XATTR_LINUX
 		/* Linux: quietly skip POSIX.1e ACL extended attributes */

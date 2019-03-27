@@ -2127,7 +2127,7 @@ static int parse_codes(struct archive_read * a)
 			archive_set_error(&a->archive, ENOMEM, "Unable to allocate memory for uncompressed data.");
 			return ARCHIVE_FATAL;
 		}
-		rar->lzss.window = (uchar*)new_window;
+		rar->lzss.window = (uchar *)new_window;
 		rar->dictionary_size = new_size;
 		memzero(rar->lzss.window, rar->dictionary_size);
 		rar->lzss.mask = rar->dictionary_size - 1;

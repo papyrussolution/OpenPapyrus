@@ -1238,7 +1238,7 @@ int PalmTcpExchange::TblPurgeAllRecs(SpiiDbHandler h)
 
 int PalmTcpExchange::GetDeviceInfo(SpiiDeviceInfoParams * pParams)
 {
-	int ok = 1;
+	int    ok = 1;
 	SpiiCmdBuf in_buf, out_buf;
 	SpiiDeviceInfoParams dev_info;
 	in_buf.Cmd = SpiiCmdBuf::cmGetDevInfo;
@@ -1251,7 +1251,7 @@ int PalmTcpExchange::GetDeviceInfo(SpiiDeviceInfoParams * pParams)
 
 int PalmTcpExchange::GetProgramVer(uint32 * pVer)
 {
-	int ok = 1;
+	int    ok = 1;
 	SpiiCmdBuf in_buf, out_buf;
 	SpiiProgramVerParams pgm_ver;
 	in_buf.Cmd = SpiiCmdBuf::cmGetProgramVer;

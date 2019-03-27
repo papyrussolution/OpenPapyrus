@@ -15,10 +15,16 @@ void ngx_cdecl ngx_event_log(ngx_err_t err, const char * fmt, ...)
 	HANDLE ev;
 	va_list args;
 	u_char text[NGX_MAX_ERROR_STR];
-	const char   * msgarg[9];
+	const TCHAR * msgarg[9];
 	static u_char netmsg[] = "%SystemRoot%\\System32\\netmsg.dll";
 	u_char * last = text + NGX_MAX_ERROR_STR;
-	u_char * p = text + GetModuleFileName(NULL, reinterpret_cast<char *>(text), NGX_MAX_ERROR_STR - 50);
+	// @v10.3.11 u_char * p = text + GetModuleFileName(NULL, reinterpret_cast<char *>(text), NGX_MAX_ERROR_STR - 50);
+	// @v10.3.11 {
+	SString module_file_name;
+	int mfn_len = SSystem::SGetModuleFileName(0, module_file_name);
+	module_file_name.CopyTo(reinterpret_cast<char *>(text), SIZEOFARRAY(text));
+	u_char * p = text + sstrlen(text);
+	// } @v10.3.11
 	*p++ = ':';
 	ngx_linefeed(p);
 	va_start(args, fmt);
@@ -49,7 +55,7 @@ void ngx_cdecl ngx_event_log(ngx_err_t err, const char * fmt, ...)
 	}
 	RegCloseKey(key);
 	ev = RegisterEventSource(NULL, _T("nginx"));
-	msgarg[0] = (char *)text;
+	msgarg[0] = SUcSwitch(reinterpret_cast<const char *>(text));
 	msgarg[1] = NULL;
 	msgarg[2] = NULL;
 	msgarg[3] = NULL;

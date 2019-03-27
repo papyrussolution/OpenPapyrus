@@ -8338,31 +8338,31 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID goodsID, PPID locID, PgsBlock
 	}
 	if(ok) {
 		SaComplex complex;
-		if(LoadComplex(goodsID, complex) > 0) {
-			if(InputComplexDinner(complex) > 0 && complex.IsComplete()) {
-				if(complex.getCount()) {
-					AcceptRow(0);
-					for(uint i = 0; i < complex.getCount(); i++) {
-						SaComplexEntry & r_entry = complex.at(i);
-						CCheckItem chk_item;
-						chk_item.GoodsID = NZOR(r_entry.FinalGoodsID, r_entry.GoodsID);
-						GetGoodsName(chk_item.GoodsID, temp_buf);
-						temp_buf.CopyTo(chk_item.GoodsName, sizeof(chk_item.GoodsName));
-						GObj.FetchSingleBarcode(chk_item.GoodsID, temp_buf);
-						temp_buf.CopyTo(chk_item.BarCode, sizeof(chk_item.BarCode));
-						chk_item.Quantity = r_entry.Qtty;
-						chk_item.Price = r_entry.FinalPrice;
-						chk_item.Flags |= cifPartOfComplex;
-						P.insert(&chk_item);
-						SetupState(sLIST_EMPTYBUF);
-					}
-					OnUpdateList(1);
-					ClearInput(0);
-				}
+		if(LoadComplex(goodsID, complex) > 0 && InputComplexDinner(complex) > 0 && complex.IsComplete() && complex.getCount()) {
+			//
+			// @todo ¬ этом блоке осуществл€етс€ агрегированна€ автоматическа€ вставка нескольких позиций из комплекса.
+			// Ќеобходимо дл€ каждой из этих позиций проверить валидность параметров (что-то вроде рекурсивного вызова PreprocessGoodsSelection()
+			//
+			AcceptRow(0);
+			for(uint i = 0; i < complex.getCount(); i++) {
+				SaComplexEntry & r_entry = complex.at(i);
+				CCheckItem chk_item;
+				chk_item.GoodsID = NZOR(r_entry.FinalGoodsID, r_entry.GoodsID);
+				GetGoodsName(chk_item.GoodsID, temp_buf);
+				temp_buf.CopyTo(chk_item.GoodsName, sizeof(chk_item.GoodsName));
+				GObj.FetchSingleBarcode(chk_item.GoodsID, temp_buf);
+				temp_buf.CopyTo(chk_item.BarCode, sizeof(chk_item.BarCode));
+				chk_item.Quantity = r_entry.Qtty;
+				chk_item.Price = r_entry.FinalPrice;
+				chk_item.Flags |= cifPartOfComplex;
+				P.insert(&chk_item);
+				SetupState(sLIST_EMPTYBUF);
 			}
+			OnUpdateList(1);
+			ClearInput(0);
 			ok = -1;
 		}
-		if(GObj.CheckFlag(goodsID, GF_GENERIC)) {
+		else if(GObj.CheckFlag(goodsID, GF_GENERIC)) {
 			PPObject::SetLastErrObj(PPOBJ_GOODS, labs(goodsID));
 			ok = MessageError(PPERR_INVGENGOODSCCOP, 0, eomBeep | eomStatusLine);
 		}

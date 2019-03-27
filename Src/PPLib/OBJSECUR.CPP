@@ -499,7 +499,7 @@ void Grp_n_UsrDialog::addItem()
 				parent_id = (cur_id & ~PPObjSecur::maskUserGroup);
 			else if(P_UsrObj->Fetch(cur_id, &cur_rec) > 0)
 				parent_id = cur_rec.ParentID;
-			if(P_UsrObj->Edit(&new_id, (void *)parent_id) == cmOK) {
+			if(P_UsrObj->Edit(&new_id, reinterpret_cast<void *>(parent_id)) == cmOK) {
 				ok = 1;
 			}
 		}

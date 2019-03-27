@@ -5350,6 +5350,7 @@ private:
 #define PPSCMD_GETREQQUOTES          10113 // @v10.2.4
 #define PPSCMD_SETTIMESERIESPROP     10114 // @v10.2.5
 #define PPSCMD_SETTIMESERIESSTKENV   10115 // @v10.2.10
+#define PPSCMD_TIMESERIESTANOTIFY    10116 // @v10.3.11
 
 #define PPSCMD_TEST                  11000 // Сеанс тестирования //
 //
@@ -15654,6 +15655,19 @@ public:
 		ordttSpecifiedDay = 3  // ORDER_TIME_SPECIFIED_DAY Ордер будет действовать до 23:59:59 указанного дня.
 			// Если это время не попадает на торговую сессию, истечение наступит в ближайшее торговое время.
 	};
+	enum { // ENUM_TRADE_TRANSACTION_TYPE
+		ttratOrderAdd      =  0, // TRADE_TRANSACTION_ORDER_ADD – добавление нового действующего ордера 
+		ttratOrderUpdate   =  1, // TRADE_TRANSACTION_ORDER_UPDATE – изменение действующего ордера
+		ttratOrderDelete   =  2, // TRADE_TRANSACTION_ORDER_DELETE – удаление ордера из списка действующих
+		ttratHistoryAdd    =  3, // TRADE_TRANSACTION_HISTORY_ADD – добавление ордера в историю в результате исполнения или отмены
+		ttratHistoryUpdate =  4, // TRADE_TRANSACTION_HISTORY_UPDATE – изменение ордера, находящегося в истории ордеров
+		ttratHistoryDelete =  5, // TRADE_TRANSACTION_HISTORY_DELETE – удаление ордера из истории ордеров
+		ttratDealAdd       =  6, // TRADE_TRANSACTION_DEAL_ADD – добавление сделки в историю
+		ttratDealUpdate    =  7, // TRADE_TRANSACTION_DEAL_UPDATE – изменение сделки в истории
+		ttratDealDelete    =  8, // TRADE_TRANSACTION_DEAL_DELETE – удаление сделки из истории
+		ttratPosition      =  9, // TRADE_TRANSACTION_POSITION – изменение позиции, не связанное с исполнением сделки
+		ttratRequest       = 10  // TRADE_TRANSACTION_REQUEST – уведомление о том, что торговый запрос обработан сервером и результат его обработки получен.
+	};
 	struct Tick { // @flat
 		PPID   TsID;    // ->Ref(PPOBJ_TIMESERIES)
 		uint   SymbP;   //
@@ -15750,11 +15764,32 @@ public:
 			uint   RetCodeExternal; // Код ответа внешней торговой системы
 		};
 
-		//TsStakeEnvironment & R_Env;
 		TSVector <Req> L;
 		TSVector <Result> RL;
 	private:
 		long   Ver;
+	};
+	class TransactionNotification : public SStrGroup {
+		SLAPI  TransactionNotification();
+		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+		struct Ta {
+			uint   Deal;          // Тикет сделки 
+			uint   Order;         // Тикет ордера 
+			uint   SymbP;         // Символ инструмента 
+			long   TaType;        // Информация о типе транзакции содержится в поле type переменной trans.
+			long   OrdType;       // Тип ордера 
+			long   OrdState;      // Состояние ордера 
+			long   DealType;      // Тип сделки 
+			long   OrdTypeTime;   // Тип ордера по времени действия 
+			LDATETIME Expiration; // Срок истечения ордера 
+			double Price;         // Цена  
+			double PriceTrigger;  // Цена срабатывания стоп-лимитного ордера 
+			double PriceSL;       // Уровень Stop Loss 
+			double PriceTP;       // Уровень Take Profit 
+			double Volume;        // Объем в лотах 
+			uint   Position;      // Тикет позиции 
+			uint   PositionBy;    // Тикет встречной позиции 
+		};
 	};
 
 	const Tick * FASTCALL SearchTickBySymb(const char * pSymb) const;
@@ -20460,7 +20495,7 @@ public:
 		}
 		PPID   PersonID;
 	};
-	static int SLAPI FormatMessage(const char * pTemplate, SString & rResult, FormatMessageBlock * pFmBlk);
+	static int SLAPI FormatMessage_(const char * pTemplate, SString & rResult, FormatMessageBlock * pFmBlk);
 	static int SLAPI GetSubstVar(long p, SString & rBuf);
 	SLAPI  PPSmsSender();
 	SLAPI ~PPSmsSender();
@@ -51773,7 +51808,7 @@ template <typename Dlg, typename D> int PPDialogProcBody(uint dlgId, D * pData)
 }
 
 #define DIALOG_PROC_BODY(dlg_class, data_param)          \
-int ok = -1;                                             \
+int    ok = -1;                                             \
 dlg_class * dlg = new dlg_class;                         \
 if(CheckDialogPtrErr(&dlg) && dlg->setDTS(data_param)) { \
 	while(ok <= 0 && ExecView(dlg) == cmOK)              \
@@ -51783,7 +51818,7 @@ else ok = 0;                                             \
 delete dlg; return ok;
 
 #define DIALOG_PROC_BODYERR(dlg_class, data_param)        \
-int ok = -1;                                             \
+int    ok = -1;                                             \
 dlg_class * dlg = new dlg_class;                         \
 if(CheckDialogPtrErr(&dlg) && dlg->setDTS(data_param)) { \
 	while(ok <= 0 && ExecView(dlg) == cmOK)              \
@@ -51794,7 +51829,7 @@ else ok = 0;                                             \
 delete dlg; return ok;
 
 #define DIALOG_PROC_BODY_P1(dlg_class, param1, data_param) \
-int ok = -1;                                             \
+int    ok = -1;                                             \
 dlg_class * dlg = new dlg_class(param1);                 \
 if(CheckDialogPtrErr(&dlg) && dlg->setDTS(data_param)) { \
 	while(ok <= 0 && ExecView(dlg) == cmOK)              \
@@ -51804,7 +51839,7 @@ else ok = 0;                                             \
 delete dlg; return ok;
 
 #define DIALOG_PROC_BODY_P2(dlg_class, param1, param2, data_param) \
-int ok = -1;                                             \
+int    ok = -1;                                             \
 dlg_class * dlg = new dlg_class(param1, param2);         \
 if(CheckDialogPtrErr(&dlg) && dlg->setDTS(data_param)) { \
 	while(ok <= 0 && ExecView(dlg) == cmOK)              \
@@ -51814,7 +51849,7 @@ else ok = 0;                                             \
 delete dlg; return ok;
 
 #define DIALOG_PROC_BODY_P1ERR(dlg_class, param1, data_param) \
-int ok = -1;                                             \
+int    ok = -1;                                             \
 dlg_class * dlg = new dlg_class(param1);                 \
 if(CheckDialogPtrErr(&dlg) && dlg->setDTS(data_param)) { \
 	while(ok <= 0 && ExecView(dlg) == cmOK)              \
@@ -51825,7 +51860,7 @@ else ok = 0;                                             \
 delete dlg; return ok;
 
 #define DIALOG_PROC_BODY_P2ERR(dlg_class, param1, param2, data_param) \
-int ok = -1;                                             \
+int    ok = -1;                                             \
 dlg_class * dlg = new dlg_class(param1, param2);         \
 if(CheckDialogPtrErr(&dlg) && dlg->setDTS(data_param)) { \
 	while(ok <= 0 && ExecView(dlg) == cmOK)              \

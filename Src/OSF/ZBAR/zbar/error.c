@@ -56,10 +56,8 @@ static const char * const err_str[] = {
 
 int zbar_version(uint * major, uint * minor)
 {
-	if(major)
-		*major = ZBAR_VERSION_MAJOR;
-	if(minor)
-		*minor = ZBAR_VERSION_MINOR;
+	ASSIGN_PTR(major, ZBAR_VERSION_MAJOR);
+	ASSIGN_PTR(minor, ZBAR_VERSION_MINOR);
 	return 0;
 }
 
@@ -78,7 +76,7 @@ void zbar_increase_verbosity()
 
 int _zbar_error_spew(const void * container, int verbosity)
 {
-	const errinfo_t * err = (const errinfo_t *)container;
+	const errinfo_t * err = static_cast<const errinfo_t *>(container);
 	assert(err->magic == ERRINFO_MAGIC);
 	fprintf(stderr, "%s", _zbar_error_string(err, verbosity));
 	return (-err->sev);
@@ -86,7 +84,7 @@ int _zbar_error_spew(const void * container, int verbosity)
 
 zbar_error_t _zbar_get_error_code(const void * container)
 {
-	const errinfo_t * err = (const errinfo_t *)container;
+	const errinfo_t * err = static_cast<const errinfo_t *>(container);
 	assert(err->magic == ERRINFO_MAGIC);
 	return err->type;
 }
@@ -116,7 +114,7 @@ const char * _zbar_error_string(const void * container, int verbosity)
 	else
 		type = err_str[ZBAR_ERR_NUM];
 	len = SEV_MAX + MOD_MAX + ERR_MAX + strlen(func) + sizeof(basefmt);
-	err->buf = (char *)SAlloc::R(err->buf, len);
+	err->buf = static_cast<char *>(SAlloc::R(err->buf, len));
 	len = sprintf(err->buf, basefmt, sev, mod, func, type);
 	if(len <= 0)
 		return ("<unknown>");
@@ -151,8 +149,7 @@ const char * _zbar_error_string(const void * container, int verbosity)
 #ifdef _WIN32
 	else if(err->type == ZBAR_ERR_WINAPI) {
 		char * syserr = NULL;
-		if(FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_IGNORE_INSERTS, 
-			NULL, err->errnum, 0, reinterpret_cast<LPTSTR>(&syserr), 1, NULL) && syserr) {
+		if(::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_IGNORE_INSERTS, NULL, err->errnum, 0, reinterpret_cast<LPTSTR>(&syserr), 1, NULL) && syserr) {
 			char sysfmt[] = ": %s (%d)\n";
 			err->buf = static_cast<char *>(SAlloc::R(err->buf, len + strlen(sysfmt) + strlen(syserr)));
 			len += sprintf(err->buf + len, sysfmt, syserr, err->errnum);
@@ -161,7 +158,7 @@ const char * _zbar_error_string(const void * container, int verbosity)
 	}
 #endif
 	else {
-		err->buf = (char *)SAlloc::R(err->buf, len + 2);
+		err->buf = static_cast<char *>(SAlloc::R(err->buf, len + 2));
 		len += sprintf(err->buf + len, "\n");
 	}
 	return (err->buf);

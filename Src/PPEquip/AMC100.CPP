@@ -309,7 +309,7 @@ int SLAPI SCS_AMC200::PutLine(char * b, FILE * f)
 
 int SLAPI SCS_AMC200::MakeHeader(char * fn, CCheckPacket * /*pack*/, uint)
 {
-	int ok = 1;
+	int    ok = 1;
 	PPObjPerson pobj;
 	PPID mainOrgID = 0;
 	PPPersonPacket mainOrgPack;
@@ -338,7 +338,7 @@ int SLAPI SCS_AMC200::MakeHeader(char * fn, CCheckPacket * /*pack*/, uint)
 
 int SLAPI SCS_AMC200::MakeFooter(char * fn, CCheckPacket *, uint)
 {
-	int ok = 1;
+	int    ok = 1;
 	FILE * f = opentemp('F', fn);
 	char buf[20];
 	buf[0] = '1';

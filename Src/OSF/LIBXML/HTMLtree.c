@@ -516,7 +516,7 @@ void xmlNsListDumpOutput(xmlOutputBuffer * buf, xmlNs * cur);
  */
 static void htmlDtdDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, const char * encoding ATTRIBUTE_UNUSED) 
 {
-	xmlDtdPtr cur = doc->intSubset;
+	xmlDtd * cur = doc->intSubset;
 	if(!cur) {
 		htmlSaveErr(XML_SAVE_NO_DOCTYPE, (xmlNode *)doc, 0);
 	}

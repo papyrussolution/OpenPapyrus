@@ -1410,7 +1410,7 @@ extern ngx_uint_t ngx_dump_config__;
 #define NGX_RESOLVE_REFUSED   5
 #define NGX_RESOLVE_TIMEDOUT  NGX_ETIMEDOUT
 
-#define NGX_NO_RESOLVER       (void *)-1
+#define NGX_NO_RESOLVER       (reinterpret_cast<void *>(-1))
 #define NGX_RESOLVER_MAX_RECURSION    50
 
 //typedef struct ngx_resolver_s ngx_resolver_t;
@@ -1785,12 +1785,12 @@ char * ngx_resolver_strerror(ngx_int_t err);
 
 #define NGX_CONF_UNSET       -1
 #define NGX_CONF_UNSET_UINT  (ngx_uint_t)-1
-#define NGX_CONF_UNSET_PTR   (void *)-1
+#define NGX_CONF_UNSET_PTR   (reinterpret_cast<void *>(-1))
 #define NGX_CONF_UNSET_SIZE  (size_t)-1
 #define NGX_CONF_UNSET_MSEC  (ngx_msec_t)-1
 
 #define NGX_CONF_OK          NULL
-#define NGX_CONF_ERROR       (char *)-1  // @sobolev (void *)-->(char *)
+#define NGX_CONF_ERROR       (reinterpret_cast<char *>(-1))  // @sobolev (void *)-->(char *)
 
 #define NGX_CONF_BLOCK_START 1
 #define NGX_CONF_BLOCK_DONE  2

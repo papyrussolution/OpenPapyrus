@@ -4659,79 +4659,85 @@ int SLAPI TiIter::OrderRows_Mem(const PPBillPacket * pPack, Order o)
 							}
 						}
 					}
-					else if(o == ordByGrpGoods)
-						goods_obj.P_Tbl->MakeFullName(goods_rec.ParentID, 0, grp_name);
-					else if(o == ordByBarcode)
-						goods_obj.GetSingleBarcode(goods_rec.ID, goods_name);
-					else if(o == ordBySuppl)
-						GetArticleName(suppl_id, grp_name);
-					else if(o == ordByLocation) {
-						PPID   loc_id = 0;
-						if(p_gto_assc && p_gto_assc->Get(goods_rec.ID, &loc_id) > 0)
-							GetLocationName(loc_id, grp_name);
-					}
-					else if(o == ordByPLU) {
-						Goods2Tbl::Rec grp_rec;
-						ObjAssocTbl::Rec assc_rec;
-						for(SEnum en = PPRef->Assc.Enum(PPASS_ALTGOODSGRP, goods_rec.ID, 1); en.Next(&assc_rec) > 0;) {
-							const PPID grp_id = assc_rec.PrmrObjID;
-							if(scale_alt_grp_list.lsearch(grp_id) && goods_obj.Fetch(grp_id, &grp_rec) > 0) {
-								ord_list.Add(++uniq_counter, temp_buf.Z().Cat(grp_rec.Name).Cat(goods_name), 1);
-								ext.Uc = uniq_counter;
-								ext.Pos = i-1;
-								ext.Extra = assc_rec.ID;
-								ext.DispPos = -1;
-								ext_list.insert(&ext);
-								to_add_entry = 0;
-							}
+					/* @v10.3.11 else*/ {
+						if(o == ordDefault) {
+							grp_name.Z().Cat(i);
+							goods_name.Z();
 						}
-					}
-					else if(o == ordByQCert) {
-						if(p_qcert_obj) {
-							ReceiptTbl::Rec lot_rec;
-							PPIDArray qcert_list;
-							QualityCertTbl::Rec qcert_rec;
-							for(DateIter di; BillObj->trfr->Rcpt.EnumByGoods(goods_rec.ID, &di, &lot_rec) > 0;) {
-								if(lot_rec.QCertID && p_qcert_obj->Search(lot_rec.QCertID, &qcert_rec) > 0) {
-									if(!qcert_rec.Passive && !qcert_list.lsearch(qcert_rec.ID)) {
-										ord_list.Add(++uniq_counter, temp_buf.Z().Cat(qcert_rec.Code).Cat(goods_name), 1);
-										ext.Uc = uniq_counter;
-										ext.Pos = i-1;
-										ext.Extra = qcert_rec.ID;
-										ext.DispPos = -1;
-										ext_list.insert(&ext);
-										qcert_list.addUnique(qcert_rec.ID);
-										to_add_entry = 0;
-									}
-								}
-							}
+						else if(o == ordByGrpGoods)
+							goods_obj.P_Tbl->MakeFullName(goods_rec.ParentID, 0, grp_name);
+						else if(o == ordByBarcode)
+							goods_obj.GetSingleBarcode(goods_rec.ID, goods_name);
+						else if(o == ordBySuppl)
+							GetArticleName(suppl_id, grp_name);
+						else if(o == ordByLocation) {
+							PPID   loc_id = 0;
+							if(p_gto_assc && p_gto_assc->Get(goods_rec.ID, &loc_id) > 0)
+								GetLocationName(loc_id, grp_name);
 						}
-					}
-					else if(o == ordByStorePlaceGrpGoods) {
-						PPID   loc_id = 0;
-						PPIDArray loc_list;
-						LocationTbl::Rec wp_rec;
-						if(p_loc_obj && p_gto_assc && p_gto_assc->GetListByGoods(goods_rec.ID, loc_list) > 0) {
-							for(uint j = 0; to_add_entry && j < loc_list.getCount(); j++) {
-								const PPID _loc_id = loc_list.get(j);
-								PPID  _wh_id = 0;
-								if(p_loc_obj->Fetch(_loc_id, &wp_rec) > 0 && p_loc_obj->GetParentWarehouse(_loc_id, &_wh_id) > 0 && _wh_id == pPack->Rec.LocID) {
-									goods_obj.P_Tbl->MakeFullName(goods_rec.ParentID, 0, grp_name);
-									temp_buf.Z().Cat(wp_rec.Name).Cat(grp_name).Cat(goods_name);
-									ord_list.Add(++uniq_counter, temp_buf, 1);
+						else if(o == ordByPLU) {
+							Goods2Tbl::Rec grp_rec;
+							ObjAssocTbl::Rec assc_rec;
+							for(SEnum en = PPRef->Assc.Enum(PPASS_ALTGOODSGRP, goods_rec.ID, 1); en.Next(&assc_rec) > 0;) {
+								const PPID grp_id = assc_rec.PrmrObjID;
+								if(scale_alt_grp_list.lsearch(grp_id) && goods_obj.Fetch(grp_id, &grp_rec) > 0) {
+									ord_list.Add(++uniq_counter, temp_buf.Z().Cat(grp_rec.Name).Cat(goods_name), 1);
 									ext.Uc = uniq_counter;
 									ext.Pos = i-1;
-									ext.Extra = loc_list.get(j);
+									ext.Extra = assc_rec.ID;
 									ext.DispPos = -1;
 									ext_list.insert(&ext);
 									to_add_entry = 0;
 								}
 							}
 						}
-						if(to_add_entry) {
-							goods_obj.P_Tbl->MakeFullName(goods_rec.ParentID, 0, grp_name);
-							temp_buf.Z().CatCharN('0', 20).Cat(grp_name);
-							grp_name = temp_buf;
+						else if(o == ordByQCert) {
+							if(p_qcert_obj) {
+								ReceiptTbl::Rec lot_rec;
+								PPIDArray qcert_list;
+								QualityCertTbl::Rec qcert_rec;
+								for(DateIter di; BillObj->trfr->Rcpt.EnumByGoods(goods_rec.ID, &di, &lot_rec) > 0;) {
+									if(lot_rec.QCertID && p_qcert_obj->Search(lot_rec.QCertID, &qcert_rec) > 0) {
+										if(!qcert_rec.Passive && !qcert_list.lsearch(qcert_rec.ID)) {
+											ord_list.Add(++uniq_counter, temp_buf.Z().Cat(qcert_rec.Code).Cat(goods_name), 1);
+											ext.Uc = uniq_counter;
+											ext.Pos = i-1;
+											ext.Extra = qcert_rec.ID;
+											ext.DispPos = -1;
+											ext_list.insert(&ext);
+											qcert_list.addUnique(qcert_rec.ID);
+											to_add_entry = 0;
+										}
+									}
+								}
+							}
+						}
+						else if(o == ordByStorePlaceGrpGoods) {
+							PPID   loc_id = 0;
+							PPIDArray loc_list;
+							LocationTbl::Rec wp_rec;
+							if(p_loc_obj && p_gto_assc && p_gto_assc->GetListByGoods(goods_rec.ID, loc_list) > 0) {
+								for(uint j = 0; to_add_entry && j < loc_list.getCount(); j++) {
+									const PPID _loc_id = loc_list.get(j);
+									PPID  _wh_id = 0;
+									if(p_loc_obj->Fetch(_loc_id, &wp_rec) > 0 && p_loc_obj->GetParentWarehouse(_loc_id, &_wh_id) > 0 && _wh_id == pPack->Rec.LocID) {
+										goods_obj.P_Tbl->MakeFullName(goods_rec.ParentID, 0, grp_name);
+										temp_buf.Z().Cat(wp_rec.Name).Cat(grp_name).Cat(goods_name);
+										ord_list.Add(++uniq_counter, temp_buf, 1);
+										ext.Uc = uniq_counter;
+										ext.Pos = i-1;
+										ext.Extra = loc_list.get(j);
+										ext.DispPos = -1;
+										ext_list.insert(&ext);
+										to_add_entry = 0;
+									}
+								}
+							}
+							if(to_add_entry) {
+								goods_obj.P_Tbl->MakeFullName(goods_rec.ParentID, 0, grp_name);
+								temp_buf.Z().CatCharN('0', 20).Cat(grp_name);
+								grp_name = temp_buf;
+							}
 						}
 					}
 				}

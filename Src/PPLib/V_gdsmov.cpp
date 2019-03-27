@@ -37,7 +37,7 @@ int SLAPI GoodsMovTotal::IsEmpty() const
 
 int SLAPI GoodsMovTotal::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
-	int ok = 1;
+	int    ok = 1;
 	THROW_SL(pCtx->Serialize(dir, InRestQtty,    rBuf));
 	THROW_SL(pCtx->Serialize(dir, InRestPhQtty,  rBuf));
 	THROW_SL(pCtx->Serialize(dir, InRestCost,    rBuf));
@@ -532,7 +532,7 @@ int SLAPI PPViewGoodsMov::Detail(const void * pHdr, PPViewBrowser * pBrw)
 
 int SLAPI PPViewGoodsMov::EditGoods(PPID goodsID)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(goodsID > 0) {
 		PPObjGoods gobj;
 		if((ok = gobj.Edit(&goodsID, 0)) == cmOK)

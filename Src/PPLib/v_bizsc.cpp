@@ -62,7 +62,7 @@ void SLAPI PPBizScTemplPacket::Init()
 
 int SLAPI PPBizScTemplPacket::AddCol(uint * pPos, PPBizScTemplCol * pCol)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(pCol) {
 		uint cols_count = Cols.getCount();
 		PPID new_id = 0L;
@@ -90,7 +90,7 @@ int SLAPI PPBizScTemplPacket::GetCol(PPID colId, uint * pPos, PPBizScTemplCol * 
 
 int SLAPI PPBizScTemplPacket::RemoveCol(uint pos)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(pos >= 0 && pos < Cols.getCount()) {
 		PPID col_id = Cols.at(pos).Id;
 		Cols.atFree(pos);
@@ -105,7 +105,7 @@ int SLAPI PPBizScTemplPacket::RemoveCol(uint pos)
 
 int SLAPI PPBizScTemplPacket::GetCellListInclEmpty(long colId, long rowId, TSArray <PPBizScTemplCell> * pCells)
 {
-	int ok = -1;
+	int    ok = -1;
 	uint count = Cols.getCount();
 	TSArray <PPBizScTemplCol> cols;
 	PPBizScTemplRow row;
@@ -144,7 +144,7 @@ int SLAPI PPBizScTemplPacket::GetCellListInclEmpty(long colId, long rowId, TSArr
 
 int SLAPI PPBizScTemplPacket::GetCellList(PPID colId, PPID rowId, TSArray <PPBizScTemplCell> * pCells)
 {
-	int ok = -1;
+	int    ok = -1;
 	uint count = Cells.getCount();
 	if(pCells)
 		pCells->freeAll();
@@ -173,7 +173,7 @@ int SLAPI PPBizScTemplPacket::GetRow(PPID rowId, uint * pPos, PPBizScTemplRow * 
 
 int SLAPI PPBizScTemplPacket::AddRow(uint * pPos, PPBizScTemplRow * pRow)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(pRow) {
 		uint rows_count = Rows.getCount();
 		PPID new_id = 0L;
@@ -205,7 +205,7 @@ int SLAPI PPBizScTemplPacket::RemoveRow(PPID rowId)
 
 int SLAPI PPBizScTemplPacket::AddCell(uint * pPos, PPBizScTemplCell * pCell)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(pCell) {
 		uint count = Cells.getCount();
 		PPID new_id = 0L;
@@ -221,7 +221,7 @@ int SLAPI PPBizScTemplPacket::AddCell(uint * pPos, PPBizScTemplCell * pCell)
 
 int SLAPI PPBizScTemplPacket::UpdateCell(uint * pPos, PPBizScTemplCell * pCell)
 {
-	int ok = -1;
+	int    ok = -1;
 	uint pos = 0;
 	if(pCell) {
 		if(pCell->Id == 0)
@@ -576,7 +576,7 @@ int BizScTemplDialog::UpdateList(uint ctlList)
 
 int BizScTemplDialog::moveItem(long pos, long id, int up)
 {
-	int ok = -1;
+	int    ok = -1;
 	SArray * p_list = 0;
 	if(GetSelList() == CTL_BIZSCT_LIST)
 		p_list = &Data.Cols;
@@ -698,7 +698,7 @@ int BizScTemplDialog::GetCurItem(uint ctlList, long * pPos, long * pID)
 
 int BizScTemplDialog::setupList()
 {
-	int ok = 1;
+	int    ok = 1;
 	long row_id = 0L;
 	SArray * p_list = 0;
 	TSArray <PPBizScTemplCell> cell_list;
@@ -792,7 +792,7 @@ TDialog * BizScTemplDialog::GetItemDialog(long itemPos, int edit)
 
 int BizScTemplDialog::SetItemDTS(TDialog * pDlg)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(GetSelList() == CTL_BIZSCT_LIST)
 		ok = ((BizScTemplColDialog*)pDlg)->setDTS(&Item_.Col);
 	else if(GetSelList() == CTL_BIZSCT_ROWS)
@@ -802,7 +802,7 @@ int BizScTemplDialog::SetItemDTS(TDialog * pDlg)
 
 int BizScTemplDialog::GetItemDTS(TDialog * pDlg)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(GetSelList() == CTL_BIZSCT_LIST)
 		ok = ((BizScTemplColDialog*)pDlg)->getDTS(&Item_.Col);
 	else if(GetSelList() == CTL_BIZSCT_ROWS)
@@ -812,7 +812,7 @@ int BizScTemplDialog::GetItemDTS(TDialog * pDlg)
 
 int BizScTemplDialog::UpdateItem(long * pPos, long * pID)
 {
-	int ok = 1;
+	int    ok = 1;
 	long pos = (pPos) ? *pPos : -1;
 	long id = 0;
 	uint p = (pos >= 0) ? pos : 0;
@@ -839,7 +839,7 @@ int BizScTemplDialog::UpdateItem(long * pPos, long * pID)
 
 int BizScTemplDialog::addItem(long * pPos, long * pID)
 {
-	int ok = -1;
+	int    ok = -1;
 	long pos = -1, id = -1;
 	TDialog * p_dlg = GetItemDialog(-1, 0);
 	if(CheckDialogPtrErr(&p_dlg) > 0) {
@@ -861,7 +861,7 @@ int BizScTemplDialog::addItem(long * pPos, long * pID)
 
 int BizScTemplDialog::editItem(long pos, long id)
 {
-	int ok = -1;
+	int    ok = -1;
 	TDialog * p_dlg = 0;
 	if((p_dlg = GetItemDialog(pos, 1))) {
 		if(CheckDialogPtrErr(&p_dlg) > 0) {
@@ -882,7 +882,7 @@ int BizScTemplDialog::editItem(long pos, long id)
 
 int BizScTemplDialog::delItem(long pos, long id)
 {
-	int ok = -1;
+	int    ok = -1;
 	SArray * p_list = 0;
 	if(GetSelList() == CTL_BIZSCT_LIST)
 		p_list = &Data.Cols;
@@ -1052,7 +1052,7 @@ int SLAPI PPViewBizScTempl::InitIteration()
 
 int FASTCALL PPViewBizScTempl::NextIteration(BizScTemplViewItem * pItem)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(P_IterQuery && P_IterQuery->nextIteration()) {
 		PPBizScTempl rec;
 		if(Obj.Search(P_TempTbl->data.ID, &rec) > 0) {

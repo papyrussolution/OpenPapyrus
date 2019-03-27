@@ -4998,7 +4998,8 @@ int SLAPI ExecVDos(const ExecVDosParam & rParam);
 //
 struct SDirEntry {
 	SDirEntry & FASTCALL operator = (const _finddatai64_t & rS);
-	SDirEntry & FASTCALL operator = (const WIN32_FIND_DATA & rS);
+	SDirEntry & FASTCALL operator = (const WIN32_FIND_DATAA & rS);
+	SDirEntry & FASTCALL operator = (const WIN32_FIND_DATAW & rS);
 	//
 	// Descr: Возвращает !0 если является каталогом
 	//
@@ -8065,8 +8066,10 @@ public:
 		fBigEndian = 0x0001 // Процессор имеет архитектуру BIG ENDIAN (на текущий момент флаг всегда сброшен)
 	};
 
-	static int BigEndian();
-	static int SGetModuleFileName(void * hModule, SString & rFileName);
+	static int     BigEndian();
+	static int     SGetModuleFileName(void * hModule, SString & rFileName);
+	static uint    SFormatMessage(int sysErrCode, SString & rMsg);
+	static uint    SFormatMessage(SString & rMsg);
 	explicit SSystem(int imm);
 	int    FASTCALL GetCpuInfo();
 	int    CpuId(int feature, uint32 * pA, uint32 * pB, uint32 * pC, uint32 * pD) const;

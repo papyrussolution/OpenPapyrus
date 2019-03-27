@@ -282,7 +282,7 @@ static ssize_t compress_filter_read(struct archive_read_filter * self, const voi
 		*pblock = NULL;
 		return 0;
 	}
-	p = start = (uchar*)state->out_block;
+	p = start = (uchar *)state->out_block;
 	end = start + state->out_block_size;
 
 	while(p < end && !state->end_of_stream) {

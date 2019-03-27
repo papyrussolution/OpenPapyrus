@@ -126,7 +126,7 @@ int SLAPI PPDS_CrrBnkAcct::TransferField(long fldID, Tfd dir, uint * pIter, SStr
 //
 int SLAPI PPDS_ELinkAddr::InitData(Ido op, void * dataPtr, long /*addedParam*/)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(op == idoAlloc) {
 		KindID = 0;
 		KindName[0] = 0;
@@ -1619,7 +1619,7 @@ int SLAPI PPDS_CrrDbDiv::TransferField(long fldID, Tfd dir, uint * pIter, SStrin
 //
 int SLAPI PPDS_CrrBarcodeStruc::InitData(Ido op, void * dataPtr, long addedParam)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(op == idoAlloc) {
 		MEMSZERO(Data);
 	}
@@ -1670,7 +1670,7 @@ int SLAPI PPDS_CrrBarcodeStruc::InitData(Ido op, void * dataPtr, long addedParam
 
 int SLAPI PPDS_CrrBarcodeStruc::TransferField(long fldID, Tfd dir, uint * pIter, SString & rBuf)
 {
-	int ok = -1;
+	int    ok = -1;
 	switch(fldID) {
 		case DSF_CRRBARCODESTRUC_ID:
 			{
@@ -1696,7 +1696,7 @@ int SLAPI PPDS_CrrBarcodeStruc::TransferField(long fldID, Tfd dir, uint * pIter,
 //
 int SLAPI PPDS_CrrGoodsType::InitData(Ido op, void * dataPtr, long addedParam)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(op == idoAlloc) {
 		MEMSZERO(Data);
 	}
@@ -1778,7 +1778,7 @@ int SLAPI PPDS_CrrGoodsType::InitData(Ido op, void * dataPtr, long addedParam)
 
 int SLAPI PPDS_CrrGoodsType::TransferAmtType(PPID * pAmttID, Tfd dir, SString & rBuf)
 {
-	int ok = -1;
+	int    ok = -1;
 	SString buf;
 	PPAmountType amtt_rec;
 	MEMSZERO(amtt_rec);
@@ -1794,7 +1794,7 @@ int SLAPI PPDS_CrrGoodsType::TransferAmtType(PPID * pAmttID, Tfd dir, SString & 
 
 int SLAPI PPDS_CrrGoodsType::TransferField(long fldID, Tfd dir, uint * pIter, SString & rBuf)
 {
-	int ok = -1;
+	int    ok = -1;
 	switch(fldID) {
 		case DSF_CRRGOODSTYPE_ID:
 			{
@@ -1861,7 +1861,7 @@ int SLAPI PPDS_CrrGoodsType::TransferField(long fldID, Tfd dir, uint * pIter, SS
 //
 int SLAPI PPDS_CrrFormula::InitData(Ido op, void * dataPtr, long addedParam)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(op == idoAlloc) {
 		Data.ID   = 0;
 		Data.Name = 0;
@@ -1915,7 +1915,7 @@ int SLAPI PPDS_CrrFormula::InitData(Ido op, void * dataPtr, long addedParam)
 
 int SLAPI PPDS_CrrFormula::TransferField(long fldID, Tfd dir, uint * pIter, SString & rBuf)
 {
-	int ok = -1;
+	int    ok = -1;
 	switch(fldID) {
 		case DSF_CRRFORMULA_ID:
 			{
@@ -1941,7 +1941,7 @@ int SLAPI PPDS_CrrFormula::TransferField(long fldID, Tfd dir, uint * pIter, SStr
 //
 int SLAPI PPDS_CrrPersonKind::InitData(Ido op, void * dataPtr, long addedParam)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(op == idoAlloc) {
 		MEMSZERO(Data);
 	}
@@ -1999,7 +1999,7 @@ int SLAPI PPDS_CrrPersonKind::InitData(Ido op, void * dataPtr, long addedParam)
 
 int SLAPI PPDS_CrrPersonKind::TransferField(long fldID, Tfd dir, uint * pIter, SString & rBuf)
 {
-	int ok = -1;
+	int    ok = -1;
 	switch(fldID) {
 		case DSF_CRRPERSONKIND_ID:
 			{
@@ -2037,7 +2037,7 @@ int SLAPI PPDS_CrrPersonKind::TransferField(long fldID, Tfd dir, uint * pIter, S
 //
 int SLAPI PPDS_CrrCurrency::InitData(Ido op, void * dataPtr, long addedParam)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(op == idoAlloc) {
 		MEMSZERO(Data);
 	}
@@ -2095,7 +2095,7 @@ int SLAPI PPDS_CrrCurrency::InitData(Ido op, void * dataPtr, long addedParam)
 
 int SLAPI PPDS_CrrCurrency::TransferField(long fldID, Tfd dir, uint * pIter, SString & rBuf)
 {
-	int ok = -1;
+	int    ok = -1;
 	switch(fldID) {
 		case DSF_CRRCURRENCY_ID:
 			{
@@ -2124,7 +2124,7 @@ int SLAPI PPDS_CrrCurrency::TransferField(long fldID, Tfd dir, uint * pIter, SSt
 //
 int SLAPI PPDS_CrrCurRateType::InitData(Ido op, void * dataPtr, long addedParam)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(op == idoAlloc) {
 		MEMSZERO(Data);
 	}
@@ -2172,7 +2172,7 @@ int SLAPI PPDS_CrrCurRateType::InitData(Ido op, void * dataPtr, long addedParam)
 
 int SLAPI PPDS_CrrCurRateType::TransferField(long fldID, Tfd dir, uint * pIter, SString & rBuf)
 {
-	int ok = -1;
+	int    ok = -1;
 	switch(fldID) {
 		case DSF_CRRCURRATETYPE_ID:
 			{
@@ -2195,7 +2195,7 @@ int SLAPI PPDS_CrrCurRateType::TransferField(long fldID, Tfd dir, uint * pIter, 
 //
 int SLAPI PPDS_CrrScale::InitData(Ido op, void * dataPtr, long addedParam)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(op == idoAlloc) {
 		MEMSZERO(Data);
 	}
@@ -2290,7 +2290,7 @@ int SLAPI PPDS_CrrScale::InitData(Ido op, void * dataPtr, long addedParam)
 
 int SLAPI PPDS_CrrScale::TransferField(long fldID, Tfd dir, uint * pIter, SString & rBuf)
 {
-	int ok = -1;
+	int    ok = -1;
 	switch(fldID) {
 		case DSF_CRRSCALE_ID:
 			if(dir == tfdDataToBuf) {
@@ -2410,7 +2410,7 @@ int SLAPI PPDS_CrrScale::TransferField(long fldID, Tfd dir, uint * pIter, SStrin
 //
 int SLAPI PPDS_CrrRegisterType::InitData(Ido op, void * dataPtr, long addedParam)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(op == idoAlloc) {
 		MEMSZERO(Data);
 	}
@@ -2488,7 +2488,7 @@ int SLAPI PPDS_CrrRegisterType::InitData(Ido op, void * dataPtr, long addedParam
 
 int SLAPI PPDS_CrrRegisterType::TransferField(long fldID, Tfd dir, uint * pIter, SString & rBuf)
 {
-	int ok = -1;
+	int    ok = -1;
 	switch(fldID) {
 		case DSF_CRRREGISTERTYPE_ID:
 			if(dir == tfdDataToBuf) {
@@ -2556,7 +2556,7 @@ int SLAPI PPDS_CrrRegisterType::TransferField(long fldID, Tfd dir, uint * pIter,
 //
 int SLAPI PPDS_CrrQuotKind::InitData(Ido op, void * dataPtr, long addedParam)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(op == idoAlloc) {
 		MEMSZERO(Data);
 	}
@@ -2646,7 +2646,7 @@ int SLAPI PPDS_CrrQuotKind::InitData(Ido op, void * dataPtr, long addedParam)
 
 int SLAPI PPDS_CrrQuotKind::TransferField(long fldID, Tfd dir, uint * pIter, SString & rBuf)
 {
-	int ok = -1;
+	int    ok = -1;
 	switch(fldID) {
 		case DSF_CRRQUOTKIND_ID:
 			if(dir == tfdDataToBuf) {
@@ -2749,7 +2749,7 @@ int SLAPI PPDS_CrrQuotKind::TransferField(long fldID, Tfd dir, uint * pIter, SSt
 //
 int SLAPI PPDS_CrrAssetWrOffGrp::InitData(Ido op, void * dataPtr, long addedParam)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(op == idoAlloc) {
 		MEMSZERO(Data);
 	}
@@ -2809,7 +2809,7 @@ int SLAPI PPDS_CrrAssetWrOffGrp::InitData(Ido op, void * dataPtr, long addedPara
 
 int SLAPI PPDS_CrrAssetWrOffGrp::TransferField(long fldID, Tfd dir, uint * pIter, SString & rBuf)
 {
-	int ok = -1;
+	int    ok = -1;
 	switch(fldID) {
 		case DSF_CRRASSETWROFFGRP_ID:
 			if(dir == tfdDataToBuf) {
@@ -2949,7 +2949,7 @@ int SLAPI PPDS_CrrMailAccount::InitData(Ido op, void * dataPtr, long addedParam)
 
 int SLAPI PPDS_CrrMailAccount::TransferMailField(int mailFldID, Tfd dir, SString & rBuf)
 {
-	int ok = -1;
+	int    ok = -1;
 	SString buf;
 	if(dir == tfdDataToBuf) {
 		Data.GetExtField(mailFldID, buf);
@@ -3051,12 +3051,12 @@ int SLAPI PPDS_CrrMailAccount::TransferField(long fldID, Tfd dir, uint * pIter, 
 //
 int SLAPI PPDS_CrrPersonRelType::InitData(Ido op, void * dataPtr, long addedParam)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(op == idoAlloc)
 		Data.Init();
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *(PPPersonRelTypePacket*)dataPtr;
+			Data = *(PPPersonRelTypePacket *)dataPtr;
 		else if(addedParam) {
 			if(Obj.GetPacket(addedParam, &Data) > 0)
 				ok = 1;
@@ -3115,7 +3115,7 @@ int SLAPI PPDS_CrrPersonRelType::InitData(Ido op, void * dataPtr, long addedPara
 
 int SLAPI PPDS_CrrPersonRelType::TransferField(long fldID, Tfd dir, uint * pIter, SString & rBuf)
 {
-	int ok = -1;
+	int    ok = -1;
 	switch(fldID) {
 		case DSF_CRRPERSONRELTYPE_ID:
 			if(dir == tfdDataToBuf) {
@@ -3280,7 +3280,7 @@ int SLAPI PPDS_CrrObjTag::InitData(Ido op, void * dataPtr, long addedParam)
 
 int SLAPI PPDS_CrrObjTag::TransferField(long fldID, Tfd dir, uint * pIter, SString & rBuf)
 {
-	int ok = -1;
+	int    ok = -1;
 	switch(fldID) {
 		case DSF_CRROBJTAG_ID:
 			if(dir == tfdDataToBuf) {
@@ -3404,7 +3404,7 @@ int SLAPI PPDS_CrrDraftWrOffEntry::TransferField(long fldID, Tfd dir, uint * pIt
 //
 int SLAPI PPDS_CrrDraftWrOff::InitData(Ido op, void * dataPtr, long addedParam)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(op == idoAlloc)
 		Data.Init();
 	else if(op == idoExtract) {
@@ -3469,7 +3469,7 @@ int SLAPI PPDS_CrrDraftWrOff::InitData(Ido op, void * dataPtr, long addedParam)
 
 int SLAPI PPDS_CrrDraftWrOff::TransferField(long fldID, Tfd dir, uint * pIter, SString & rBuf)
 {
-	int ok = -1;
+	int    ok = -1;
 	switch(fldID) {
 		case DSF_CRRDRAFTWROFF_ID:
 			if(dir == tfdDataToBuf) {
@@ -3783,7 +3783,7 @@ int SLAPI PPDS_CrrLocation::CreateListItem(long fldID, uint * pIter, PPDeclStruc
 //
 int SLAPI PPDS_CrrArticle::InitData(Ido op, void * dataPtr, long addedParam)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(op == idoAlloc)
 		MEMSZERO(Data);
 	else if(op == idoExtract) {
@@ -3859,7 +3859,7 @@ int SLAPI PPDS_CrrArticle::InitData(Ido op, void * dataPtr, long addedParam)
 
 int SLAPI PPDS_CrrArticle::TransferField(long fldID, Tfd dir, uint * pIter, SString & rBuf)
 {
-	int ok = -1;
+	int    ok = -1;
 	switch(fldID) {
 		case DSF_CRRARTICLE_ID:
 			if(dir == tfdDataToBuf) {
@@ -3961,7 +3961,7 @@ int SLAPI PPDS_CrrArticle::CreateListItem(long fldID, uint * pIter, PPDeclStruc 
 //
 int SLAPI PPDS_CrrAccSheet::InitData(Ido op, void * dataPtr, long addedParam)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(op == idoAlloc)
 		MEMSZERO(Data);
 	else if(op == idoExtract) {
@@ -4034,7 +4034,7 @@ int SLAPI PPDS_CrrAccSheet::InitData(Ido op, void * dataPtr, long addedParam)
 
 int SLAPI PPDS_CrrAccSheet::TransferField(long fldID, Tfd dir, uint * pIter, SString & rBuf)
 {
-	int ok = -1;
+	int    ok = -1;
 	switch(fldID) {
 		case DSF_CRRACCSHEET_ID:
 			if(dir == tfdDataToBuf) {
@@ -4123,7 +4123,7 @@ int SLAPI PPDS_CrrAccSheet::CreateListItem(long fldID, uint * pIter, PPDeclStruc
 //
 int SLAPI PPDS_CrrAccount::InitData(Ido op, void * dataPtr, long addedParam)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(op == idoAlloc)
 		Data.Init();
 	else if(op == idoExtract) {
@@ -4279,7 +4279,7 @@ int SLAPI PPDS_CrrAccount::CreateListItem(long fldID, uint * pIter, PPDeclStruc 
 
 int SLAPI PPDS_CrrAccount::TransferField(long fldID, Tfd dir, uint * pIter, SString & rBuf)
 {
-	int ok = -1;
+	int    ok = -1;
 	switch(fldID) {
 		case DSF_CRRACCOUNT_ID:
 			if(dir == tfdDataToBuf) {
@@ -4533,7 +4533,7 @@ int SLAPI PPDS_CrrAccturnTempl::CreateListItem(long fldID, uint * pIter, PPDeclS
 //
 int SLAPI PPDS_CrrOprKindEntry::InitData(Ido op, void * dataPtr, long addedParam)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(op == idoAlloc) {
 		MEMSZERO(Data);
 		Pack.Init();
@@ -4929,7 +4929,7 @@ int SLAPI PPDS_CrrOprKindEntry::CreateListItem(long fldID, uint * pIter, PPDeclS
 //
 int SLAPI PPDS_CrrInvOpExEntry::InitData(Ido op, void * dataPtr, long addedParam)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(op == idoAlloc) {
 		MEMSZERO(Data);
 		Pack.Init();
@@ -5021,7 +5021,7 @@ int SLAPI PPDS_CrrInvOpExEntry::InitData(Ido op, void * dataPtr, long addedParam
 
 int SLAPI PPDS_CrrInvOpExEntry::TransferField(long fldID, Tfd dir, uint * pIter, SString & rBuf)
 {
-	int ok = -1;
+	int    ok = -1;
 	switch(fldID) {
 		case DSF_CRRINVOPEXENTRY_ID:
 			if(dir == tfdDataToBuf) {
@@ -5147,7 +5147,7 @@ int SLAPI PPDS_CrrInvOpExEntry::CreateListItem(long fldID, uint * pIter, PPDeclS
 //
 int SLAPI PPDS_CrrReckonOpExEntry::InitData(Ido op, void * dataPtr, long addedParam)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(op == idoAlloc)
 		Data.Init();
 	else if(op == idoExtract) {
@@ -5230,7 +5230,7 @@ int SLAPI PPDS_CrrReckonOpExEntry::InitData(Ido op, void * dataPtr, long addedPa
 
 int SLAPI PPDS_CrrReckonOpExEntry::TransferField(long fldID, Tfd dir, uint * pIter, SString & rBuf)
 {
-	int ok = -1;
+	int    ok = -1;
 	switch(fldID) {
 		case DSF_CRRRECKONOPEXENTRY_BEG:
 			ok = TransferData(&Data.Beg, dir, rBuf); break;
@@ -5297,7 +5297,7 @@ int SLAPI PPDS_CrrReckonOpExEntry::CreateListItem(long fldID, uint * pIter, PPDe
 //
 int SLAPI PPDS_CrrDraftOpExEntry::InitData(Ido op, void * dataPtr, long addedParam)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(op == idoAlloc)
 		Data.Init();
 	else if(op == idoExtract) {
@@ -5366,7 +5366,7 @@ int SLAPI PPDS_CrrDraftOpExEntry::InitData(Ido op, void * dataPtr, long addedPar
 
 int SLAPI PPDS_CrrDraftOpExEntry::TransferField(long fldID, Tfd dir, uint * pIter, SString & rBuf)
 {
-	int ok = -1;
+	int    ok = -1;
 	switch(fldID) {
 		case DSF_CRRDRAFTOPEXENTRY_WROFFOP:
 			{
@@ -5437,7 +5437,7 @@ int SLAPI PPDS_CrrDraftOpExEntry::CreateListItem(long fldID, uint * pIter, PPDec
 //
 int SLAPI PPDS_CrrBillPoolOpExEntry::InitData(Ido op, void * dataPtr, long addedParam)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(op == idoAlloc)
 		Data.Init();
 	else if(op == idoExtract) {
@@ -5501,7 +5501,7 @@ int SLAPI PPDS_CrrBillPoolOpExEntry::InitData(Ido op, void * dataPtr, long added
 
 int SLAPI PPDS_CrrBillPoolOpExEntry::TransferField(long fldID, Tfd dir, uint * pIter, SString & rBuf)
 {
-	int ok = -1;
+	int    ok = -1;
 	switch(fldID) {
 		case DSF_CRRBILLPOOLOPEXENTRY_OPLIST:
 			break;
@@ -5620,7 +5620,7 @@ int SLAPI PPDS_CrrOprKind::InitData(Ido op, void * dataPtr, long addedParam)
 
 int SLAPI PPDS_CrrOprKind::TransferField(long fldID, Tfd dir, uint * pIter, SString & rBuf)
 {
-	int ok = -1;
+	int    ok = -1;
 	switch(fldID) {
 		case DSF_CRROPRKIND_EXTSTRING:
 			ok = TransferData(Data.ExtString, dir, rBuf);
@@ -5633,7 +5633,7 @@ int SLAPI PPDS_CrrOprKind::TransferField(long fldID, Tfd dir, uint * pIter, SStr
 
 int SLAPI PPDS_CrrOprKind::AcceptListItem(long fldID, PPDeclStruc * pData, ObjTransmContext * pCtx)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(pData) {
 		if(fldID == DSF_CRROPRKIND_REC) {
 			Data.Rec = ((PPDS_CrrOprKindEntry*)pData)->Data;
@@ -5740,7 +5740,7 @@ int SLAPI PPDS_CrrOprKind::CreateListItem(long fldID, uint * pIter, PPDeclStruc 
 //
 int SLAPI PPDS_CrrBillStatus::InitData(Ido op, void * dataPtr, long addedParam)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(op == idoAlloc) {
 		MEMSZERO(Data);
 	}

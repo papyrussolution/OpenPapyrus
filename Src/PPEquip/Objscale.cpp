@@ -367,14 +367,14 @@ int SLAPI PPScaleDevice::PutChr(uint8 c, int direct, int special)
 
 static SString & __GetLastSystemErr(SString & rBuf)
 {
-	const  DWORD last_err = GetLastError();
-	LPVOID p_msg_buf = 0;
-	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, NULL, last_err,
-		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&p_msg_buf, 0, 0);
-	rBuf = SUcSwitch(static_cast<const TCHAR *>(p_msg_buf));
-	rBuf.Chomp().Transf(CTRANSF_OUTER_TO_INNER);
+	//const  DWORD last_err = GetLastError();
+	//LPVOID p_msg_buf = 0;
+	//::FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, NULL, last_err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&p_msg_buf, 0, 0);
+	//rBuf = SUcSwitch(static_cast<const TCHAR *>(p_msg_buf));
 	//MessageBox(NULL, (LPCTSTR)lpMsgBuf, "Error", MB_OK | MB_ICONINFORMATION);
-	LocalFree(p_msg_buf);
+	//LocalFree(p_msg_buf);
+	SSystem::SFormatMessage(rBuf); // @v10.3.11
+	rBuf.Chomp().Transf(CTRANSF_OUTER_TO_INNER);
 	return rBuf;
 }
 
@@ -383,7 +383,6 @@ int SLAPI PPScaleDevice::InitPort(int portNo)
 	PortNo = portNo;
 	NumGetColl = 0;
 	MaxGetCollIters = 0;
-
 	int    ok = 1;
 	SString read_cycling_param;
 	SString cycle_count, cycle_delay;
@@ -1314,7 +1313,7 @@ int SLAPI CasCL5000J::CloseConnection()
 
 int SLAPI CasCL5000J::CheckAck()
 {
-	int ok = -1;
+	int    ok = -1;
 	if(Data.Flags & SCALF_TCPIP) {
 		char recv_buf[1024];
 		memzero(recv_buf, sizeof(recv_buf));
@@ -1377,7 +1376,7 @@ void SLAPI CasCL5000J::PutLong(long s_data)
 
 int SLAPI CasCL5000J::SendData(const char * pBuf, size_t bufLen)
 {
-	int ok = 1;
+	int    ok = 1;
 	size_t data_size = bufLen + 3;
 	uint32 check_sum = 0;
 	uchar * p_buf = new uchar[data_size];
@@ -4619,7 +4618,7 @@ int SLAPI PPObjScale::IsPassive(PPID id, const PPScale * pScale)
 // static
 void * FASTCALL PPObjScale::MakeExtraParam(long onlyGroups, long groupID)
 {
-	return (void *)((onlyGroups << 24) | groupID);
+	return reinterpret_cast<void *>((onlyGroups << 24) | groupID);
 }
 
 StrAssocArray * SLAPI PPObjScale::MakeStrAssocList(void * extraPtr)

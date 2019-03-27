@@ -214,7 +214,7 @@ PPDRV_INSTANCE_ERRTAB(InpasTrmnl, 1, 0, PPDrvINPASTrmnl, _ErrMsgTab_DC);
 
 int PPDrvINPASTrmnl::Init(SString & rCheck)
 {
-	int ok = 1;
+	int    ok = 1;
 	SString msg_ok, buf_ok;    // переменные, необходимые для вывода инф-ии в логи в случае успеха
 	int result_dc = 0;         // принимает код ошибки из p_dclink
 	int result_sar = 1;        // принимает значение свойства Status из p_res
@@ -469,7 +469,7 @@ int PPDrvINPASTrmnl::Refund(double amount, SString & rSlip)
 
 int PPDrvINPASTrmnl::GetSessReport(SString & rCheck)
 {
-	int ok = 1;
+	int    ok = 1;
 	SString msg_ok, buf_ok;    // переменные, необходимые для вывода инф-ии в логи в случае успеха
 	int result_dc = 0;         // принимает код ошибки из p_dclink
 	int result_sar = 1001;     // принимает значение свойства Status из p_res

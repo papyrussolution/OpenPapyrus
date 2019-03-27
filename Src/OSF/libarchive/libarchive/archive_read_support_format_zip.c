@@ -1990,7 +1990,7 @@ static int zip_read_data_deflate(struct archive_read * a, const void ** buff, si
 	/* If the buffer hasn't been allocated, allocate it now. */
 	if(zip->uncompressed_buffer == NULL) {
 		zip->uncompressed_buffer_size = 256 * 1024;
-		zip->uncompressed_buffer = (uchar*)SAlloc::M(zip->uncompressed_buffer_size);
+		zip->uncompressed_buffer = (uchar *)SAlloc::M(zip->uncompressed_buffer_size);
 		if(zip->uncompressed_buffer == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "No memory for ZIP decompression");
 			return ARCHIVE_FATAL;

@@ -1204,7 +1204,8 @@ error:
 static int xmlXIncludeMergeEntities(xmlXIncludeCtxtPtr ctxt, xmlDoc * doc, xmlDoc * from) 
 {
 	xmlNode * cur;
-	xmlDtdPtr target, source;
+	xmlDtd * target;
+	xmlDtd * source;
 	if(!ctxt)
 		return -1;
 	if((from == NULL) || (from->intSubset == NULL))

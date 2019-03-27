@@ -4476,7 +4476,7 @@ static int cleanup_backslash_1(char * p)
 
 	mb = dos = 0;
 	while(*p) {
-		if(*(uchar*)p > 127)
+		if(*(uchar *)p > 127)
 			mb = 1;
 		if(*p == '\\') {
 			/* If we have not met any multi-byte characters,
@@ -5653,7 +5653,7 @@ static void idr_extend_identifier(struct idr::idrent * wnp, int numsize, int nul
 	int wnp_ext_off;
 	wnp_ext_off = wnp->isoent->ext_off;
 	if(wnp->noff + numsize != wnp_ext_off) {
-		p = (uchar*)wnp->isoent->identifier;
+		p = (uchar *)wnp->isoent->identifier;
 		/* Extend the filename; foo.c --> foo___.c */
 		memmove(p + wnp->noff + numsize, p + wnp_ext_off,
 		    wnp->isoent->ext_len + nullsize);
@@ -5668,7 +5668,7 @@ static void idr_resolve(struct idr * idr, void (*fsetnum)(uchar * p, int num))
 	uchar * p;
 	for(n = idr->wait_list.first; n != NULL; n = n->wnext) {
 		idr_extend_identifier(n, idr->num_size, idr->null_size);
-		p = (uchar*)n->isoent->identifier + n->noff;
+		p = (uchar *)n->isoent->identifier + n->noff;
 		do {
 			fsetnum(p, n->avail->rename_num++);
 		} while(!__archive_rb_tree_insert_node(
@@ -6035,7 +6035,7 @@ static int isoent_gen_joliet_identifier(struct archive_write * a, struct isoent 
 			p += 2;
 			lt -= 2;
 		}
-		ext_off = (int)(dot - (uchar*)np->identifier);
+		ext_off = (int)(dot - (uchar *)np->identifier);
 		np->ext_off = ext_off;
 		np->ext_len = (int)l - ext_off;
 		np->id_len = (int)l;
@@ -6225,8 +6225,8 @@ static int isoent_cmp_joliet_identifier(const struct isoent * p1, const struct i
 	l = p1->ext_len;
 	if(l > p2->ext_len)
 		l = p2->ext_len;
-	s1 = (uchar*)(p1->identifier + p1->ext_off);
-	s2 = (uchar*)(p2->identifier + p2->ext_off);
+	s1 = (uchar *)(p1->identifier + p1->ext_off);
+	s2 = (uchar *)(p2->identifier + p2->ext_off);
 	if(l > 1) {
 		cmp = memcmp(s1, s2, l);
 		if(cmp != 0)

@@ -76,9 +76,7 @@ INT_PTR CALLBACK TreeWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 			if(hWnd == GetCapture())
 				ReleaseCapture();
 			break;
-		case WM_SHOWWINDOW:
-			PostMessage(APPL->H_MainWnd, WM_SIZE, 0, 0);
-			break;
+		case WM_SHOWWINDOW: ::PostMessage(APPL->H_MainWnd, WM_SIZE, 0, 0); break;
 		case WM_SIZE:
 			if(!IsIconic(APPL->H_MainWnd)) {
 				APPL->SizeMainWnd(hWnd);
@@ -98,12 +96,8 @@ INT_PTR CALLBACK TreeWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 			}
 			else
 				break;
-		case WM_USER_SHOWTREEWNDITEM:
-			CALLPTRMEMB(p_view, SelItem(reinterpret_cast<HWND>(wParam)));
-			break;
-		case WM_USER_CLOSETREEWNDITEM:
-			CALLPTRMEMB(p_view, CloseItem(reinterpret_cast<HWND>(wParam)));
-			break;
+		case WM_USER_SHOWTREEWNDITEM: CALLPTRMEMB(p_view, SelItem(reinterpret_cast<HWND>(wParam))); break;
+		case WM_USER_CLOSETREEWNDITEM: CALLPTRMEMB(p_view, CloseItem(reinterpret_cast<HWND>(wParam))); break;
 		case WM_SYSCOMMAND:
 			if(wParam != SC_CLOSE)
 				return 0;
@@ -426,7 +420,4 @@ void TreeWindow::DelItemCmdList(void * ptr)
 int  TreeWindow::IsVisible() {return IsWindowVisible(Hwnd);}
 void TreeWindow::MoveWindow(const RECT &rRect) {::MoveWindow(Hwnd, rRect.left, rRect.top, rRect.right, rRect.bottom, 1);}
 void TreeWindow::GetRect(RECT &rRect) {GetWindowRect(Hwnd, &rRect);}
-void TreeWindow::Show(int show) 
-{
-	ShowWindow(Hwnd, (show) ? SW_SHOW : SW_HIDE);
-}
+void TreeWindow::Show(int show) { ShowWindow(Hwnd, (show) ? SW_SHOW : SW_HIDE); }

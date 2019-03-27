@@ -674,10 +674,16 @@ int SmartListBox::SetupTreeWnd2(uint32 parentP)
 							SetupTreeWnd2(t_iter.GetCurrentPos()); // @recursion
 					}
 					else {
-						TCHAR temp_buf[256];
-						FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(),
-							MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), temp_buf, SIZEOFARRAY(temp_buf), 0);
-						(err_msg = SUcSwitch(temp_buf)).Chomp();
+						//
+						// @? Здесь программа получает сообщение от системы, которое нигде ни используется!
+						//
+						//TCHAR temp_buf[256];
+						//::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), temp_buf, SIZEOFARRAY(temp_buf), 0);
+						//(err_msg = SUcSwitch(temp_buf)).Chomp();
+						// @v10.3.11 {
+						SSystem::SFormatMessage(err_msg); 
+						err_msg.Chomp();
+						// } @v10.3.11
 					}
 					ok = 1;
 				}

@@ -167,11 +167,11 @@ static void fallbackQSort3(uint32* fmap, uint32* eclass, int32 loSt, int32 hiSt)
 /* Pre:
       nblock > 0
       eclass exists for [0 .. nblock-1]
-      ((uchar*)eclass) [0 .. nblock-1] holds block
+      ((uchar *)eclass) [0 .. nblock-1] holds block
       ptr exists for [0 .. nblock-1]
 
    Post:
-      ((uchar*)eclass) [0 .. nblock-1] holds block
+      ((uchar *)eclass) [0 .. nblock-1] holds block
       All other areas of eclass destroyed
       fmap [0 .. nblock-1] holds sorted order
       bhtab [ 0 .. 2+(nblock/32) ] destroyed
@@ -190,7 +190,7 @@ static void fallbackSort(uint32* fmap, uint32* eclass, uint32* bhtab, int32 nblo
 	int32 H, i, j, k, l, r, cc, cc1;
 	int32 nNotDone;
 	int32 nBhtab;
-	uchar* eclass8 = (uchar*)eclass;
+	uchar* eclass8 = (uchar *)eclass;
 	/*--
 	   Initial 1-char radix sort to generate
 	   initial fmap and initial BH bits.
@@ -661,11 +661,11 @@ static void mainQSort3(uint32* ptr, uchar*  block, uint16* quadrant, int32 nbloc
 /* Pre:
       nblock > N_OVERSHOOT
       block32 exists for [0 .. nblock-1 +N_OVERSHOOT]
-      ((uchar*)block32) [0 .. nblock-1] holds block
+      ((uchar *)block32) [0 .. nblock-1] holds block
       ptr exists for [0 .. nblock-1]
 
    Post:
-      ((uchar*)block32) [0 .. nblock-1] holds block
+      ((uchar *)block32) [0 .. nblock-1] holds block
       All other areas of block32 destroyed
       ftab [0 .. 65536 ] destroyed
       ptr [0 .. nblock-1] holds sorted order
@@ -936,11 +936,11 @@ zero:
 /* Pre:
       nblock > 0
       arr2 exists for [0 .. nblock-1 +N_OVERSHOOT]
-      ((uchar*)arr2)  [0 .. nblock-1] holds block
+      ((uchar *)arr2)  [0 .. nblock-1] holds block
       arr1 exists for [0 .. nblock-1]
 
    Post:
-      ((uchar*)arr2) [0 .. nblock-1] holds block
+      ((uchar *)arr2) [0 .. nblock-1] holds block
       All other areas of block destroyed
       ftab [ 0 .. 65536 ] destroyed
       arr1 [0 .. nblock-1] holds sorted order
@@ -968,7 +968,7 @@ void BZ2_blockSort(EState* s)
 		 */
 		i = nblock+BZ_N_OVERSHOOT;
 		if(i & 1) i++;
-		quadrant = (uint16*)(&(block[i]));
+		quadrant = (uint16 *)(&(block[i]));
 
 		/* (wfact-1) / 3 puts the default-factor-30
 		   transition point at very roughly the same place as

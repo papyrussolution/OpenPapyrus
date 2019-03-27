@@ -6783,11 +6783,9 @@ int PPALDD_GoodsBillDispose::NextIteration(long iterId)
 	if(upp <= 0.0 && p_pack->IsDraft()) {
 		PPObjBill * p_bobj = BillObj;
 		ReceiptCore * p_rcpt = (p_bobj && p_bobj->trfr) ? &p_bobj->trfr->Rcpt : 0;
-		if(p_rcpt) {
-			ReceiptTbl::Rec lot_rec;
-			if(p_rcpt->GetLastLot(p_ti->GoodsID, p_pack->Rec.LocID, p_pack->Rec.Dt, &lot_rec) > 0)
-				upp = lot_rec.UnitPerPack;
-		}
+		ReceiptTbl::Rec lot_rec;
+		if(p_rcpt && p_rcpt->GetLastLot(p_ti->GoodsID, p_pack->Rec.LocID, p_pack->Rec.Dt, &lot_rec) > 0)
+			upp = lot_rec.UnitPerPack;
 	}
 	I.UnitsPerPack = upp;
 	I.FullPack = 0;

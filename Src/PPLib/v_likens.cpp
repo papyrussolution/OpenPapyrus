@@ -213,7 +213,7 @@ int SLAPI PPViewObjLikeness::ProcessCommand(uint ppvCmd, const void * pHdr, PPVi
 
 int SLAPI PPViewObjLikeness::Print(const void *)
 {
-	int ok = -1;
+	int    ok = -1;
 	return ok;
 }
 

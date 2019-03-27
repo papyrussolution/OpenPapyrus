@@ -22,25 +22,10 @@ SLAPI SDirec::SDirec(const char * pPath, int enumDir) : InitFlag(0), lPosData(-1
 
 #define FFIND_DATA struct _finddatai64_t
 
-int SLAPI SDirEntry::IsFolder() const
-{
-	return BIN(Attr & 0x10);
-}
-
-int SLAPI SDirEntry::IsUpFolder() const
-{
-	return BIN(FileName[0] == '.' && FileName[1] == '.' && FileName[2] == 0);
-}
-
-int SLAPI SDirEntry::IsSelf() const
-{
-	return BIN(FileName[0] == '.' && FileName[1] == 0);
-}
-
-int SLAPI SDirEntry::IsFile() const
-{
-	return !(IsSelf() || IsUpFolder() || IsFolder());
-}
+int SLAPI SDirEntry::IsFolder() const { return BIN(Attr & 0x10); }
+int SLAPI SDirEntry::IsUpFolder() const { return BIN(FileName[0] == '.' && FileName[1] == '.' && FileName[2] == 0); }
+int SLAPI SDirEntry::IsSelf() const { return BIN(FileName[0] == '.' && FileName[1] == 0); }
+int SLAPI SDirEntry::IsFile() const { return !(IsSelf() || IsUpFolder() || IsFolder()); }
 
 SDirEntry & FASTCALL SDirEntry::operator = (const _finddatai64_t & rS)
 {
@@ -92,14 +77,29 @@ SDirEntry & FASTCALL SDirEntry::operator = (const _finddatai64_t & rS)
 	return *this;
 }
 
-SDirEntry & FASTCALL SDirEntry::operator = (const WIN32_FIND_DATA & rS)
+SDirEntry & FASTCALL SDirEntry::operator = (const WIN32_FIND_DATAA & rS)
 {
 	THISZERO();
-	STRNSCPY(FileName, SUcSwitch(rS.cFileName)); // @unicodeproblem
+	STRNSCPY(FileName, rS.cFileName);
 	Attr = rS.dwFileAttributes;
 	{
-		const int64 _mult = (int64)MAXDWORD+1;
-		Size = ((int64)rS.nFileSizeHigh * _mult) + rS.nFileSizeLow;
+		const int64 _mult = static_cast<int64>(MAXDWORD)+1;
+		Size = (static_cast<int64>(rS.nFileSizeHigh) * _mult) + rS.nFileSizeLow;
+	}
+	WriteTime = rS.ftLastWriteTime;
+	CreateTime = rS.ftCreationTime;
+	AccessTime = rS.ftLastAccessTime;
+	return *this;
+}
+
+SDirEntry & FASTCALL SDirEntry::operator = (const WIN32_FIND_DATAW & rS)
+{
+	THISZERO();
+	STRNSCPY(FileName, SUcSwitchW(rS.cFileName)); // @unicodeproblem
+	Attr = rS.dwFileAttributes;
+	{
+		const int64 _mult = static_cast<int64>(MAXDWORD)+1;
+		Size = (static_cast<int64>(rS.nFileSizeHigh) * _mult) + rS.nFileSizeLow;
 	}
 	WriteTime = rS.ftLastWriteTime;
 	CreateTime = rS.ftCreationTime;

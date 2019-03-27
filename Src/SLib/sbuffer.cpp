@@ -594,9 +594,9 @@ int FASTCALL SBaseBuffer::Alloc(size_t sz)
 {
 	int    ok = -1;
 	if(sz > Size) {
-		void * p_temp = SAlloc::R(P_Buf, sz);
+		char * p_temp = static_cast<char *>(SAlloc::R(P_Buf, sz));
 		if(p_temp) {
-			P_Buf = (char *)p_temp;
+			P_Buf = p_temp;
 			Size = sz;
 		}
 		else

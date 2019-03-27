@@ -525,20 +525,15 @@ const char * Curl_strerror(struct connectdata * conn, int err)
 
 	DEBUGASSERT(conn);
 	DEBUGASSERT(err >= 0);
-
 	buf = conn->syserr_buf;
 	max = sizeof(conn->syserr_buf)-1;
 	*buf = '\0';
-
 #ifdef USE_WINSOCK
-
 #ifdef _WIN32_WCE
 	{
 		wchar_t wbuf[256];
 		wbuf[0] = L'\0';
-
-		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err,
-		    LANG_NEUTRAL, wbuf, sizeof(wbuf)/sizeof(wchar_t), 0);
+		::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, LANG_NEUTRAL, wbuf, sizeof(wbuf)/sizeof(wchar_t), 0);
 		wcstombs(buf, wbuf, max);
 	}
 #else
@@ -546,9 +541,7 @@ const char * Curl_strerror(struct connectdata * conn, int err)
 	if(err >= 0 && err < sys_nerr)
 		strncpy(buf, strerror(err), max);
 	else {
-		if(!get_winsock_error(err, buf, max) &&
-		    !FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err,
-			    LANG_NEUTRAL, buf, (DWORD)max, NULL))
+		if(!get_winsock_error(err, buf, max) && !::FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, LANG_NEUTRAL, buf, (DWORD)max, NULL))
 			snprintf(buf, max, "Unknown error %d (%#x)", err, err);
 	}
 #endif
@@ -908,20 +901,13 @@ const char * Curl_sspi_strerror(struct connectdata * conn, int err)
 		{
 			wchar_t wbuf[256];
 			wbuf[0] = L'\0';
-
-			if(FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM |
-				    FORMAT_MESSAGE_IGNORE_INSERTS,
-				    NULL, err, LANG_NEUTRAL,
-				    wbuf, sizeof(wbuf)/sizeof(wchar_t), NULL)) {
+			if(::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, NULL, err, LANG_NEUTRAL, wbuf, sizeof(wbuf)/sizeof(wchar_t), NULL)) {
 				wcstombs(msgbuf, wbuf, sizeof(msgbuf)-1);
 				msg_formatted = TRUE;
 			}
 		}
 #else
-		if(FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM |
-			    FORMAT_MESSAGE_IGNORE_INSERTS,
-			    NULL, err, LANG_NEUTRAL,
-			    msgbuf, sizeof(msgbuf)-1, NULL)) {
+		if(::FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, NULL, err, LANG_NEUTRAL, msgbuf, sizeof(msgbuf)-1, NULL)) {
 			msg_formatted = TRUE;
 		}
 #endif

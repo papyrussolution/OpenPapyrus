@@ -1183,7 +1183,7 @@ get_space:
 	if(is_key == 1)
 		*offp = RECNO_OOB;
 	else
-		*offp = (uint32)-1;
+		*offp = static_cast<uint32>(-1);
 done:
 	/* Release the meta page. */
 	if((t_ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority)) != 0 && ret == 0)

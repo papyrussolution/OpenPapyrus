@@ -398,7 +398,7 @@ LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wPara
 				if(!p_view->IsInState(sfModal)) {
 					APPL->P_DeskTop->remove(p_view);
 					delete p_view;
-					TView::SetWindowProp(hWnd, GWLP_USERDATA, (void *)0);
+					TView::SetWindowProp(hWnd, GWLP_USERDATA, reinterpret_cast<void *>(0));
 				}
 				if(!IsIconic(APPL->H_MainWnd))
 					APPL->SizeMainWnd(hWnd);
@@ -732,7 +732,7 @@ long SLAPI PPMsgLog::EnumMessages(long nmsg, void * buff, int16 bsize, int16 * r
 	if(CurMsg > AllCount)
 		return 0;
 	lseek(Stream, GetLogIdx(CurMsg-1).address, SEEK_SET);
-	_read(Stream, (void *)hsize, sizeof(int16));
+	_read(Stream, hsize, sizeof(int16));
 	int    len = (int)(GetLogIdx(CurMsg).address - GetLogIdx(CurMsg-1).address) - sizeof(int16);
 	*rsize = _read(Stream, buff, len > bsize ? bsize : len); // exception was here!
 	char * bb = (char *)buff;
@@ -755,7 +755,7 @@ int SLAPI PPMsgLog::SaveLogFile(const char * pFileName, long options)
 				path = pFileName;
 		}
 		CurMsg = 0;
-		while((rr = EnumMessages(0l, (void *)TmpText, LF_BUFFSIZE, &r, &h)) != 0)
+		while((rr = EnumMessages(0l, TmpText, LF_BUFFSIZE, &r, &h)) != 0)
 			if(!(GetLogIdx(rr).flags & LF_DONTWRITE))
 				PPLogMessage(path, TmpText+h, options);
 	}
@@ -787,7 +787,7 @@ int FASTCALL PPMsgLog::NextIteration(MsgLogItem * pItem)
 	int    ok = 1;
 	int16  r, h;
 	int    max_str_len = LOGLIST_MAXSTRLEN;
-	if(EnumMessages(NextStrOffset ? CurMsg : 0L, (void *)TmpText, LF_BUFFSIZE, &r, &h) > 0) {
+	if(EnumMessages(NextStrOffset ? CurMsg : 0L, TmpText, LF_BUFFSIZE, &r, &h) > 0) {
 		int    len = r - h - NextStrOffset;
 		char * p_str = TmpText + h + NextStrOffset;
 		char * p_next_str = 0;

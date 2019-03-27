@@ -175,7 +175,7 @@ int SLAPI PPObjSCard::EditConfig()
 			if(event.isCbSelected(CTLSEL_SCARDCFG_PSNKND)) {
 				PPID   psn_kind_id = getCtrlLong(CTLSEL_SCARDCFG_PSNKND);
 				if(psn_kind_id != Data.PersonKindID) {
-					SetupPPObjCombo(this, CTLSEL_SCARDCFG_DEFPSN, PPOBJ_PERSON, 0, OLW_LOADDEFONOPEN, (void *)NZOR(psn_kind_id, PPPRK_CLIENT));
+					SetupPPObjCombo(this, CTLSEL_SCARDCFG_DEFPSN, PPOBJ_PERSON, 0, OLW_LOADDEFONOPEN, reinterpret_cast<void *>(NZOR(psn_kind_id, PPPRK_CLIENT)));
 					Data.PersonKindID = psn_kind_id;
 				}
 				clearEvent(event);
@@ -1654,7 +1654,7 @@ SCardSeriesView::SCardSeriesView(PPObjSCardSeries * _ppobj) : ObjViewDialog(DLG_
 void SCardSeriesView::extraProc(long id)
 {
 	if(id)
-		ShowObjects(PPOBJ_SCARD, (void *)id);
+		ShowObjects(PPOBJ_SCARD, reinterpret_cast<void *>(id));
 }
 
 int SCardSeriesView::InitIteration()

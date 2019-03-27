@@ -173,7 +173,7 @@ static int archive_compressor_compress_open(struct archive_write_filter * f)
 			bs -= bs % bpb;
 	}
 	state->compressed_buffer_size = bs;
-	state->compressed = (uchar*)SAlloc::M(state->compressed_buffer_size);
+	state->compressed = (uchar *)SAlloc::M(state->compressed_buffer_size);
 
 	if(state->compressed == NULL) {
 		archive_set_error(f->archive, ENOMEM,

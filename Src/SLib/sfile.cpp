@@ -1993,7 +1993,7 @@ int FileFormatRegBase::GetExt(int id, SString & rExt) const
 			if(p_entry->ExtIdx && GetS(p_entry->ExtIdx, temp_buf)) {
 				// ¬ регистрационной записи может быть несколько расширений, разделенных ';' - берем первое
 				StringSet ss(';', temp_buf);
-				if(ss.get((uint)0, temp_buf)) {
+				if(ss.get(0U, temp_buf)) {
 					rExt = temp_buf;
 					ok = 1;
 				}
@@ -2272,7 +2272,7 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 										const size_t item_len = sstrlen(bcl_item.Txt) / 2;
 										const size_t offs = bcl_item.Id;
 										for(size_t j = 0; r && j < item_len; j++) {
-											const uint8 file_byte = PTR8((char *)sign_buf)[offs+j];
+											const uint8 file_byte = PTR8C(sign_buf.vcptr())[offs+j];
 											const uint8 sign_byte = (uint8)(hex(bcl_item.Txt[j*2]) * 16 + hex(bcl_item.Txt[j*2+1]));
 											if(file_byte != sign_byte)
 												r = 0;
@@ -2360,7 +2360,7 @@ int FASTCALL SFileFormat::Register(int id, int mimeType, const char * pMimeSubty
 		LEAVE_CRITICAL_SECTION
 	}
 	if(GloBaseIdx) {
-		FileFormatRegBase * p_reg = (FileFormatRegBase *)SLS.GetGlobalObject(GloBaseIdx);
+		FileFormatRegBase * p_reg = static_cast<FileFormatRegBase *>(SLS.GetGlobalObject(GloBaseIdx));
 		if(p_reg)
 			ok = p_reg->Register(id, mimeType, pMimeSubtype, pExt, pSign);
 	}
@@ -2431,7 +2431,7 @@ int SFileFormat::GetMime(int id, SString & rMime)
 		ok = 2; // @v9.8.12 -1-->2
 	}
 	else if(GloBaseIdx) {
-		const FileFormatRegBase * p_reg = (FileFormatRegBase *)SLS.GetGlobalObject(GloBaseIdx);
+		const FileFormatRegBase * p_reg = static_cast<const FileFormatRegBase *>(SLS.GetGlobalObject(GloBaseIdx));
 		if(p_reg)
 			ok = p_reg->GetMime(id, rMime);
 	}
@@ -2444,7 +2444,7 @@ int SFileFormat::GetExt(int id, SString & rExt)
 	rExt.Z();
 	int    ok = 0;
 	if(GloBaseIdx) {
-		const FileFormatRegBase * p_reg = (FileFormatRegBase *)SLS.GetGlobalObject(GloBaseIdx);
+		const FileFormatRegBase * p_reg = static_cast<const FileFormatRegBase *>(SLS.GetGlobalObject(GloBaseIdx));
 		if(p_reg)
 			ok = p_reg->GetExt(id, rExt);
 	}
@@ -2467,7 +2467,7 @@ int SFileFormat::Identify(const char * pFileName, SString * pExt)
 	int    ok = 0;
 	Id = Unkn;
 	if(!isempty(pFileName) && GloBaseIdx) {
-		const FileFormatRegBase * p_reg = (FileFormatRegBase *)SLS.GetGlobalObject(GloBaseIdx);
+		const FileFormatRegBase * p_reg = static_cast<const FileFormatRegBase *>(SLS.GetGlobalObject(GloBaseIdx));
 		if(p_reg)
 			ok = p_reg->Identify(pFileName, &Id, pExt);
 	}
@@ -2478,7 +2478,7 @@ int SFileFormat::IdentifyMime(const char * pMime)
 {
 	int    ok = 0;
 	if(GloBaseIdx) {
-		const FileFormatRegBase * p_reg = (FileFormatRegBase *)SLS.GetGlobalObject(GloBaseIdx);
+		const FileFormatRegBase * p_reg = static_cast<const FileFormatRegBase *>(SLS.GetGlobalObject(GloBaseIdx));
 		if(p_reg)
 			ok = p_reg->IdentifyMime(pMime, &Id);
 	}

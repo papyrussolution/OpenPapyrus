@@ -261,7 +261,7 @@ static int archive_write_lzop_open(struct archive_write_filter * f)
 	if(data->compressed == NULL) {
 		data->compressed_buffer_size = sizeof(header) +
 		    BLOCK_SIZE + (BLOCK_SIZE >> 4) + 64 + 3;
-		data->compressed = (uchar*)
+		data->compressed = (uchar *)
 		    SAlloc::M(data->compressed_buffer_size);
 		if(data->compressed == NULL) {
 			archive_set_error(f->archive, ENOMEM,
@@ -271,7 +271,7 @@ static int archive_write_lzop_open(struct archive_write_filter * f)
 	}
 	if(data->uncompressed == NULL) {
 		data->uncompressed_buffer_size = BLOCK_SIZE;
-		data->uncompressed = (uchar*)
+		data->uncompressed = (uchar *)
 		    SAlloc::M(data->uncompressed_buffer_size);
 		if(data->uncompressed == NULL) {
 			archive_set_error(f->archive, ENOMEM,

@@ -108,19 +108,19 @@ static void generateMTFValues(EState* s)
 	   After sorting (eg, here),
 	      s->arr1 [ 0 .. s->nblock-1 ] holds sorted order,
 	      and
-	      ((uchar*)s->arr2) [ 0 .. s->nblock-1 ]
+	      ((uchar *)s->arr2) [ 0 .. s->nblock-1 ]
 	      holds the original block data.
 
 	   The first thing to do is generate the MTF values,
 	   and put them in
-	      ((uint16*)s->arr1) [ 0 .. s->nblock-1 ].
+	      ((uint16 *)s->arr1) [ 0 .. s->nblock-1 ].
 	   Because there are strictly fewer or equal MTF values
 	   than block values, ptr values in this area are overwritten
 	   with MTF values only when they are no longer needed.
 
 	   The final compressed bitstream is generated into the
 	   area starting at
-	      (uchar*) (&((uchar*)s->arr2)[s->nblock])
+	      (uchar *) (&((uchar *)s->arr2)[s->nblock])
 
 	   These storage aliases are set up in bzCompressInit(),
 	   except for the last one, which is arranged in
@@ -579,7 +579,7 @@ void BZ2_compressBlock(EState* s, bool is_last_block)
 			VPrintf4("    block %d: crc = 0x%08x, combined CRC = 0x%08x, size = %d\n", s->blockNo, s->blockCRC, s->combinedCRC, s->nblock);
 		BZ2_blockSort(s);
 	}
-	s->zbits = (uchar*)(&((uchar*)s->arr2)[s->nblock]);
+	s->zbits = (uchar *)(&((uchar *)s->arr2)[s->nblock]);
 	/*-- If this is the first block, create the stream header. --*/
 	if(s->blockNo == 1) {
 		BZ2_bsInitWrite(s);

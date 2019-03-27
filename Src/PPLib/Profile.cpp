@@ -1130,7 +1130,7 @@ int SLAPI PPUserProfileCore::OpenInputFile(const char * pFileName, int64 offset,
 
 int SLAPI PPUserProfileCore::AddAggrRecs(BExtInsert * pBei, const UserFuncPrfTbl::Rec & rRec, const UfpLine & rLine)
 {
-	int ok = 1;
+	int    ok = 1;
 	/* Не закончено
 	SString avg_ids;
 	UfpLine ufp_line = rLine;

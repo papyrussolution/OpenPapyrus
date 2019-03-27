@@ -3023,8 +3023,8 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 				}
 				for(i = 0; i < pPack->Kinds.getCount(); i++) {
 					const PPID kind_id = pPack->Kinds.at(i);
-					THROW(SendObjMessage(DBMSG_PERSONACQUIREKIND, PPOBJ_ARTICLE,   PPOBJ_PERSON, id, (void *)kind_id, 0));
-					THROW(SendObjMessage(DBMSG_PERSONACQUIREKIND, PPOBJ_PROCESSOR, PPOBJ_PERSON, id, (void *)kind_id, 0));
+					THROW(SendObjMessage(DBMSG_PERSONACQUIREKIND, PPOBJ_ARTICLE,   PPOBJ_PERSON, id, reinterpret_cast<void *>(kind_id), 0));
+					THROW(SendObjMessage(DBMSG_PERSONACQUIREKIND, PPOBJ_PROCESSOR, PPOBJ_PERSON, id, reinterpret_cast<void *>(kind_id), 0));
 				}
 				THROW(p_ref->Ot.PutList(Obj, pPack->Rec.ID, &pPack->TagL, 0));
 				DS.LogAction(action, Obj, id, 0, 0);
@@ -5351,7 +5351,7 @@ int SLAPI SelectPerson(SelPersonIdent * pData)
 			TDialog::handleEvent(event);
 			if(event.isCbSelected(CTLSEL_SELPERSON_KIND)) {
 				PPID   kind_id = getCtrlLong(CTLSEL_SELPERSON_KIND);
-				SetupPPObjCombo(this, CTLSEL_SELPERSON_PRSN, PPOBJ_PERSON, 0, 0, (void *)kind_id);
+				SetupPPObjCombo(this, CTLSEL_SELPERSON_PRSN, PPOBJ_PERSON, 0, 0, reinterpret_cast<void *>(kind_id));
 				clearEvent(event);
 			}
 		}

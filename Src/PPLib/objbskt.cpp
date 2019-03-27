@@ -1925,7 +1925,7 @@ int SLAPI AddGoodsToBasket(PPID goodsID, PPID defLocID, double qtty, double pric
 	PPID   gb_id = 0;
 	GBItemDialog * dlg = 0;
 	if(goodsID) {
-		PPObjGoodsBasket gb_obj((void *)labs(goodsID));
+		PPObjGoodsBasket gb_obj(reinterpret_cast<void *>(labs(goodsID)));
 		PPID   suppl_id = 0;
 		ILTI   item;
 		long   basket_dlg_flags = GBItemDialog::fEnableChangeBasket;

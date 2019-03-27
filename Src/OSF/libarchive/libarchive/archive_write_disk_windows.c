@@ -422,7 +422,7 @@ static int permissive_name_w(struct archive_write_disk * a)
 	l = GetCurrentDirectoryW(0, NULL);
 	if(l == 0)
 		return -1;
-	ws = (wchar_t *)SAlloc::M(l * sizeof(wchar_t));
+	ws = static_cast<wchar_t *>(SAlloc::M(l * sizeof(wchar_t)));
 	l = GetCurrentDirectoryW(l, ws);
 	if(l == 0) {
 		SAlloc::F(ws);

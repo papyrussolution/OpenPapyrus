@@ -110,8 +110,8 @@ TIFF * TIFFClientOpen(const char * name, const char * mode, thandle_t clientdata
 	tif->tif_mode = m &~(O_CREAT|O_TRUNC);
 	tif->tif_curdir = (uint16)-1;          /* non-existent directory */
 	tif->tif_curoff = 0;
-	tif->tif_curstrip = (uint32)-1;        /* invalid strip */
-	tif->tif_row = (uint32)-1;             /* read/write pre-increment */
+	tif->tif_curstrip = static_cast<uint32>(-1);        /* invalid strip */
+	tif->tif_row = static_cast<uint32>(-1);             /* read/write pre-increment */
 	tif->tif_clientdata = clientdata;
 	if(!readproc || !writeproc || !seekproc || !closeproc || !sizeproc) {
 		TIFFErrorExt(clientdata, module, "One of the client procedures is NULL pointer.");

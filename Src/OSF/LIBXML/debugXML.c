@@ -344,7 +344,7 @@ static void FASTCALL xmlCtxtDumpString(xmlDebugCtxt * ctxt, const xmlChar * str)
 	}
 }
 
-static void xmlCtxtDumpDtdNode(xmlDebugCtxt * ctxt, xmlDtdPtr dtd)
+static void xmlCtxtDumpDtdNode(xmlDebugCtxt * ctxt, xmlDtd * dtd)
 {
 	xmlCtxtDumpSpaces(ctxt);
 	if(dtd == NULL) {
@@ -1043,7 +1043,7 @@ static void xmlCtxtDumpEntities(xmlDebugCtxt * ctxt, xmlDoc * doc)
  *
  * Dumps debug information for the DTD
  */
-static void xmlCtxtDumpDTD(xmlDebugCtxt * ctxt, xmlDtdPtr dtd)
+static void xmlCtxtDumpDTD(xmlDebugCtxt * ctxt, xmlDtd * dtd)
 {
 	if(dtd == NULL) {
 		if(!ctxt->check)
@@ -1231,7 +1231,7 @@ void xmlDebugDumpDocument(FILE * output, xmlDoc * doc)
  *
  * Dumps debug information for the DTD
  */
-void xmlDebugDumpDTD(FILE * output, xmlDtdPtr dtd)
+void xmlDebugDumpDTD(FILE * output, xmlDtd * dtd)
 {
 	SETIFZ(output, stdout);
 	xmlDebugCtxt ctxt(output);
@@ -2150,7 +2150,7 @@ int xmlShellValidate(xmlShellCtxtPtr ctxt, char * dtd, xmlNode * P_Node ATTRIBUT
 	if(isempty(dtd))
 		res = xmlValidateDocument(&vctxt, ctxt->doc);
 	else {
-		xmlDtdPtr subset = xmlParseDTD(NULL, (xmlChar *)dtd);
+		xmlDtd * subset = xmlParseDTD(NULL, (xmlChar *)dtd);
 		if(subset) {
 			res = xmlValidateDtd(&vctxt, ctxt->doc, subset);
 			xmlFreeDtd(subset);

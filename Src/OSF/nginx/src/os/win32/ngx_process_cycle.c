@@ -69,7 +69,7 @@ int ngx_master_process_cycle(ngx_cycle_t * pCycle, const NgxStartUpOptions & rO)
 	else {
 		ngx_log_debug0(NGX_LOG_DEBUG_CORE, pCycle->log, 0, "master started");
 		ngx_console_init(pCycle);
-		SetEnvironmentVariable(_T("ngx_unique"), ngx_unique);
+		SetEnvironmentVariable(_T("ngx_unique"), SUcSwitch(ngx_unique));
 		ngx_master_process_event = CreateEvent(NULL, 1, 0, SUcSwitch(ngx_master_process_event_name));
 		if(ngx_master_process_event == NULL) {
 			ngx_log_error(NGX_LOG_ALERT, pCycle->log, ngx_errno, "CreateEvent(\"%s\") failed", ngx_master_process_event_name);

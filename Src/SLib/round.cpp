@@ -97,7 +97,7 @@ double FASTCALL roundnev(double n, int prec)
 		else if(diff > 0.5)
 			n = ceil(n);
 		else // diff == 0.5
-			if(!(((long)p) & 1))
+			if(!(static_cast<long>(p) & 1))
 				n = p;
 			else
 				n = ceil(n);
@@ -116,7 +116,7 @@ double FASTCALL roundnev(double n, int prec)
 		else if(diff > 0.5)
 			n = (ceil(t) / p);
 		else { // diff == 0.5
-			if(!(((long)f) & 1))
+			if(!(static_cast<long>(f) & 1))
 				n = f / p;
 			else
 				n = (ceil(t) / p);
@@ -150,7 +150,7 @@ double FASTCALL inttodbl2(long v)
 
 long   FASTCALL dbltoint2(double r)
 {
-	return (long)implement_round(r * 100.0, 0);
+	return static_cast<long>(implement_round(r * 100.0, 0));
 }
 
 double FASTCALL intmnytodbl(long m)
@@ -160,7 +160,7 @@ double FASTCALL intmnytodbl(long m)
 
 long FASTCALL dbltointmny(double r)
 {
-	return (long)implement_round(r * 100.0, 0);
+	return static_cast<long>(implement_round(r * 100.0, 0));
 }
 //
 //

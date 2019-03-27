@@ -1463,7 +1463,7 @@ static void adjust_bulk_response(ENV*env, DBT * response)
 	 * need to shuffle, below.
 	 */
 	p = (uint32 *)((uint8 *)response->data+response->size-sizeof(uint32));
-	for(n = 1; *p != (uint32)-1; p -= 2) {
+	for(n = 1; *p != static_cast<uint32>(-1); p -= 2) {
 		DB_ASSERT(env, p > (uint32 *)response->data);
 		p[0] = ntohl(p[0]);
 		p[-1] = ntohl(p[-1]);
@@ -1720,7 +1720,7 @@ static int __repmgr_build_data_out(ENV * env, DBT * msg, uint32 nmsg, __repmgr_m
 			offset += sz;
 		}
 	}
-	*--bulk_ptr = (uint32)-1;
+	*--bulk_ptr = static_cast<uint32>(-1);
 	__repmgr_add_buffer(iovecs, bulk_ptr, bulk_area_sz);
 	if(meta != NULL) {
 		__repmgr_msg_metadata_marshal(env, meta, meta_buf);

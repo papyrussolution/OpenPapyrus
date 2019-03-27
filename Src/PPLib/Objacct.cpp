@@ -1012,7 +1012,7 @@ int AccountDialog::delItem(long, long id)
 // static
 int SLAPI PPObjAccount::CheckRecursion(PPID id, PPID parentID)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(id) {
 		PPObjAccount obj;
 		do {

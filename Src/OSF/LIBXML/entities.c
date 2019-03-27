@@ -119,7 +119,7 @@ static xmlEntity * xmlCreateEntity(xmlDict * dict, const xmlChar * name, int typ
 /*
  * xmlAddEntity : register a new entity for an entities table.
  */
-static xmlEntity * xmlAddEntity(xmlDtdPtr dtd, const xmlChar * name, int type,
+static xmlEntity * xmlAddEntity(xmlDtd * dtd, const xmlChar * name, int type,
     const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content)
 {
 	xmlEntity * ret = 0;
@@ -249,7 +249,7 @@ xmlEntity * xmlAddDocEntity(xmlDoc * doc, const xmlChar * name, int type,
 		xmlEntitiesErr(XML_DTD_NO_DTD, "xmlAddDocEntity: document without internal subset");
 	}
 	else {
-		xmlDtdPtr dtd = doc->intSubset;
+		xmlDtd * dtd = doc->intSubset;
 		ret = xmlAddEntity(dtd, name, type, ExternalID, SystemID, content);
 		if(ret) {
 			// Link it to the DTD

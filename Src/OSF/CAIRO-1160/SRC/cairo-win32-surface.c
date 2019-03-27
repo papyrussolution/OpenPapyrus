@@ -101,12 +101,11 @@ cairo_status_t _cairo_win32_print_gdi_error(const char * context)
 {
 	void * lpMsgBuf;
 	DWORD last_error = GetLastError();
-	if(!FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM, NULL, last_error,
-	    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&lpMsgBuf, 0, NULL)) {
+	if(!::FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM, NULL, last_error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&lpMsgBuf, 0, 0)) {
 		fprintf(stderr, "%s: Unknown GDI error", context);
 	}
 	else {
-		fprintf(stderr, "%s: %S", context, (wchar_t*)lpMsgBuf);
+		fprintf(stderr, "%s: %S", context, static_cast<wchar_t *>(lpMsgBuf));
 		LocalFree(lpMsgBuf);
 	}
 	fflush(stderr);
@@ -115,7 +114,7 @@ cairo_status_t _cairo_win32_print_gdi_error(const char * context)
 
 cairo_bool_t _cairo_win32_surface_get_extents(void * abstract_surface, cairo_rectangle_int_t * rectangle)
 {
-	cairo_win32_surface_t * surface = (cairo_win32_surface_t *)abstract_surface;
+	cairo_win32_surface_t * surface = static_cast<cairo_win32_surface_t *>(abstract_surface);
 	*rectangle = surface->extents;
 	return TRUE;
 }

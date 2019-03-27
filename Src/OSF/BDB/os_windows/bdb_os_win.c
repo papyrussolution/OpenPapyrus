@@ -630,16 +630,15 @@ char * __os_strerror(int error, char * buf, size_t len)
 	DB_ASSERT(NULL, error != 0);
 	memzero(tbuf, sizeof(_TCHAR)*MAX_TMPBUF_LEN);
 	maxlen = (len > MAX_TMPBUF_LEN ? MAX_TMPBUF_LEN : len);
-	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0, (DWORD)error, 0, tbuf, maxlen-1, 0);
+	::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0, (DWORD)error, 0, tbuf, maxlen-1, 0);
 	if(WideCharToMultiByte(CP_UTF8, 0, tbuf, -1, buf, len, 0, NULL) == 0)
 		strncpy(buf, DB_STR("0035", "Error message translation failed."), len);
 #else
 	DB_ASSERT(NULL, error != 0);
-	/*
-	 * Explicitly call FormatMessageA, since we want to receive a char
-	 * string back, not a tchar string.
-	 */
-	FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, 0, (DWORD)error, 0, buf, (DWORD)(len-1), 0);
+	//
+	// Explicitly call FormatMessageA, since we want to receive a char string back, not a tchar string.
+	//
+	::FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, 0, (DWORD)error, 0, buf, (DWORD)(len-1), 0);
 	buf[len-1] = '\0';
 #endif
 	return buf;

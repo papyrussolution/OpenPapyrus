@@ -53,7 +53,7 @@ int SLAPI PPViewScale::CheckForFilt(const PPScale * pRec) const
 
 int SLAPI PPViewScale::MakeTempEntry(const PPScale * pRec, TempScaleTbl::Rec * pTempRec)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(pRec && pTempRec) {
 		pTempRec->ID = pRec->ID;
 		STRNSCPY(pTempRec->Name, pRec->Name);

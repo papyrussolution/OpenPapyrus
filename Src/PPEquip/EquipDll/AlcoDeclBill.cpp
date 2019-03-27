@@ -832,21 +832,21 @@ int GetObjTypeBySymb(const char * pSymb, uint & rType)
 //
 EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 {
-	int ok = 1;
-	if(!P_ExportCls) {
-		P_ExportCls = new ExportCls;
-	}
+	int    ok = 1;
+	SETIFZ(P_ExportCls, new ExportCls);
 	if(P_ExportCls && !P_ExportCls->Inited) {
 		if(pExpHeader)
-			P_ExportCls->Header = *(Sdr_ImpExpHeader*)pExpHeader;
+			P_ExportCls->Header = *static_cast<const Sdr_ImpExpHeader *>(pExpHeader);
 		if(!isempty(pOutFileName)) {
 			P_ExportCls->PathStruct.Split(pOutFileName);
 			P_ExportCls->PathStruct.Ext = "xml";
 		}
 		else {
-			char fname[256];
-			GetModuleFileName(NULL, fname, sizeof(fname));
-			P_ExportCls->PathStruct.Split(fname);
+			//char fname[256];
+			//GetModuleFileName(NULL, fname, sizeof(fname));
+			SString module_file_name;
+			SSystem::SGetModuleFileName(0, module_file_name);
+			P_ExportCls->PathStruct.Split(module_file_name);
 			P_ExportCls->PathStruct.Dir.ReplaceStr("\\bin", "\\out", 1);
 			P_ExportCls->PathStruct.Ext = "xml";
 		}

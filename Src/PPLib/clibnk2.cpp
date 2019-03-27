@@ -395,14 +395,14 @@ IMPL_HANDLE_EVENT(ResolveAssocCollisionDialog)
 	}
 }
 
-int ResolveAssocCollisionDialog::setDTS(SArray *pA)
+int ResolveAssocCollisionDialog::setDTS(SArray * pA)
 {
 	P_A = pA;
 	PPIDArray op_list;
-	Assoc *p_a;
+	Assoc * p_a;
 	for(uint i = 0; pA->enumItems(&i, (void **)&p_a);)
 		op_list.add(p_a->P_Item->OpID);
-	p_a = (Assoc *)pA->at(0);
+	p_a = static_cast<Assoc *>(pA->at(0));
 	SetupOprKindCombo(this, CTLSEL_ASCRES_OPRKIND, p_a->P_Item->OpID, 0, &op_list, OPKLF_OPLIST);
 	SetupPersonsListByOprKind(p_a->P_Item->OpID);
 	return 1;

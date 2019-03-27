@@ -426,36 +426,43 @@ int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SData
 	EXCEPTVAR(SLibError);
 	int   ok = 1, reply;
 	int   quite = 0, cancel = 0;
-	HANDLE srchdl  = 0;
 	HANDLE desthdl = 0;
 	void  * p_buf  = 0;
 	uint32 flen;
-	
-	uint32 buflen = SMEGABYTE(4); // @v7.2.2 (32*KB)-->(4*1024*KB)
+	uint32 buflen = SMEGABYTE(4);
 	uint32 len, bytes_read_write;
 	SDataMoveProgressInfo scfd;
 	SString added_msg;
+	SString sys_err_buf; // @v10.3.11
 	FILETIME creation_time, last_access_time, last_modif_time;
-
-	srchdl = ::CreateFile(SUcSwitch(pSrcFileName), GENERIC_READ, shareMode, 0, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, 0); // @unicodeproblem
+	HANDLE srchdl = ::CreateFile(SUcSwitch(pSrcFileName), GENERIC_READ, shareMode, 0, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, 0); // @unicodeproblem
 	if(srchdl == INVALID_HANDLE_VALUE) {
-		char   tmp_msg_buf[256];
-		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0, ::GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)tmp_msg_buf, sizeof(tmp_msg_buf), 0);
-		chomp(SCharToOem(tmp_msg_buf));
-		(added_msg = pSrcFileName).CR().CatQStr(tmp_msg_buf);
+		added_msg = pSrcFileName;
+		//char   tmp_msg_buf[256];
+		//::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0, ::GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)tmp_msg_buf, sizeof(tmp_msg_buf), 0);
+		//chomp(SCharToOem(tmp_msg_buf));
+		//added_msg.CR().CatQStr(tmp_msg_buf);
+		// @v10.3.11 {
+		if(SSystem::SFormatMessage(sys_err_buf))
+			added_msg.CR().CatQStr(sys_err_buf.Chomp().Transf(CTRANSF_OUTER_TO_INNER));
+		// } @v10.3.11
 		SLS.SetError(SLERR_OPENFAULT, added_msg);
 		CALLEXCEPT();
 	}
 	//SLS.SetAddedMsgString(pSrcFileName);
 	//THROW_V(srchdl != INVALID_HANDLE_VALUE, SLERR_OPENFAULT);
 	GetFileTime(srchdl, &creation_time, &last_access_time, &last_modif_time);
-
 	desthdl = ::CreateFile(SUcSwitch(pDestFileName), GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0); // @unicodeproblem
 	if(desthdl == INVALID_HANDLE_VALUE) {
-		char   tmp_msg_buf[256];
-		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0, ::GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)tmp_msg_buf, sizeof(tmp_msg_buf), 0);
-		chomp(SCharToOem(tmp_msg_buf));
-		(added_msg = pDestFileName).CR().CatQStr(tmp_msg_buf);
+		added_msg = pDestFileName;
+		//char   tmp_msg_buf[256];
+		//::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0, ::GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)tmp_msg_buf, sizeof(tmp_msg_buf), 0);
+		//chomp(SCharToOem(tmp_msg_buf));
+		//added_msg.CR().CatQStr(tmp_msg_buf);
+		// @v10.3.11 {
+		if(SSystem::SFormatMessage(sys_err_buf))
+			added_msg.CR().CatQStr(sys_err_buf.Chomp().Transf(CTRANSF_OUTER_TO_INNER));
+		// } @v10.3.11
 		SLS.SetError(SLERR_OPENFAULT, added_msg);
 		CALLEXCEPT();
 	}
@@ -486,7 +493,7 @@ int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SData
 		do {
 			THROW_V(ReadFile(srchdl, p_buf, (flen < buflen) ? flen : buflen, &bytes_read_write, NULL), SLERR_READFAULT);
 			len = bytes_read_write;
-			if(!WriteFile(desthdl, p_buf, len, &bytes_read_write, NULL)) {
+			if(!::WriteFile(desthdl, p_buf, len, &bytes_read_write, NULL)) {
 				DWORD err = GetLastError();
 				if(err == ERROR_DISK_FULL) {
 					CALLEXCEPTV(SLERR_DISKFULL);

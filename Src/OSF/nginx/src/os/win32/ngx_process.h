@@ -31,7 +31,7 @@ typedef struct {
 typedef struct {
 	char * path;
 	char * name;
-	char * args;
+	const  char * args; // @v10.3.11 const
 	char * const * argv;
 	char * const * envp;
 	HANDLE child;

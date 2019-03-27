@@ -32,7 +32,7 @@ XMLPUBFUN void XMLCALL xmlDebugDumpNode(FILE * output, xmlNode * P_Node, int dep
 XMLPUBFUN void XMLCALL xmlDebugDumpNodeList(FILE * output, xmlNode * P_Node, int depth);
 XMLPUBFUN void XMLCALL xmlDebugDumpDocumentHead(FILE * output, xmlDoc * doc);
 XMLPUBFUN void XMLCALL xmlDebugDumpDocument(FILE * output, xmlDoc * doc);
-XMLPUBFUN void XMLCALL xmlDebugDumpDTD(FILE * output, xmlDtdPtr dtd);
+XMLPUBFUN void XMLCALL xmlDebugDumpDTD(FILE * output, xmlDtd * dtd);
 XMLPUBFUN void XMLCALL xmlDebugDumpEntities(FILE * output, xmlDoc * doc);
 
 /****************************************************************

@@ -183,7 +183,7 @@ int SLAPI SArchive::Close()
 	int    ok = 1;
 	if(Type == tZip) {
 		if(H) {
-			THROW(zip_close((zip_t *)H) == 0);
+			THROW(zip_close(static_cast<zip_t *>(H)) == 0);
 		}
 	}
 	CATCHZOK
@@ -226,7 +226,7 @@ int64 SLAPI SArchive::GetEntriesCount() const
 	int64 c = 0;
 	if(H) {
 		if(Type == tZip) {
-			c = zip_get_num_entries((const zip_t *)H, 0 /*zip_flags_t*/);
+			c = zip_get_num_entries(static_cast<const zip_t *>(H), 0 /*zip_flags_t*/);
 			if(c < 0)
 				c = 0;
 		}
@@ -240,7 +240,7 @@ int FASTCALL SArchive::GetEntryName(int64 idx, SString & rBuf)
 	int    ok = 1;
 	if(H) {
 		if(Type == tZip) {
-			const char * p = zip_get_name((zip_t *)H, (uint64)idx, 0);
+			const char * p = zip_get_name(static_cast<zip_t *>(H), (uint64)idx, 0);
 			if(p)
 				rBuf = p;
 			else
@@ -271,7 +271,7 @@ int SLAPI SArchive::ExtractEntry(int64 idx, const char * pDestName)
 				temp_buf = pDestName;
 			SPathStruc::NormalizePath(temp_buf, 0, dest_file_name);
         }
-		THROW(p_zf = zip_fopen_index((zip_t *)H, idx, 0 /*flags*/));
+		THROW(p_zf = zip_fopen_index(static_cast<zip_t *>(H), idx, 0 /*flags*/));
 		{
 			int64  actual_rd_size = 0;
 			STempBuffer buffer(1024*1024);
@@ -303,7 +303,7 @@ int SLAPI SArchive::AddEntry(const char * pSrcFileName, const char * pName, int 
 			int64   new_entry_idx = 0;
 			if(flags & aefDirectory) {
 				(temp_buf = pName).Transf(CTRANSF_OUTER_TO_UTF8);
-				new_entry_idx = zip_dir_add((zip_t *)H, temp_buf, 0);
+				new_entry_idx = zip_dir_add(static_cast<zip_t *>(H), temp_buf, 0);
 				THROW(new_entry_idx >= 0);
 			}
 			else {
@@ -317,8 +317,8 @@ int SLAPI SArchive::AddEntry(const char * pSrcFileName, const char * pName, int 
 				{
 					SString src_file_name = pSrcFileName;
 					src_file_name.Transf(CTRANSF_OUTER_TO_UTF8);
-					THROW(p_zsrc = zip_source_file((zip_t *)H, src_file_name, 0, -1));
-					new_entry_idx = zip_file_add((zip_t *)H, temp_buf.Transf(CTRANSF_OUTER_TO_UTF8), p_zsrc, ZIP_FL_OVERWRITE);
+					THROW(p_zsrc = zip_source_file(static_cast<zip_t *>(H), src_file_name, 0, -1));
+					new_entry_idx = zip_file_add(static_cast<zip_t *>(H), temp_buf.Transf(CTRANSF_OUTER_TO_UTF8), p_zsrc, ZIP_FL_OVERWRITE);
 					THROW(new_entry_idx >= 0);
 					p_zsrc = 0;
 				}

@@ -386,7 +386,7 @@ void SpBrandStruc::ToHostRec()
 
 int SpBrandStruc::FromBuf(const void * pBuf)
 {
-	int ok = 1;
+	int    ok = 1;
 	const char * p_buf = static_cast<const char *>(pBuf);
 	size_t bytes = 0;
 	memcpy(&ID,       p_buf,                              sizeof(ID));
@@ -415,7 +415,7 @@ void SpLocStruc::ToHostRec()
 
 int SpLocStruc::FromBuf(const void * pBuf)
 {
-	int ok = 1;
+	int    ok = 1;
 	const char * p_buf = static_cast<const char *>(pBuf);
 	size_t bytes = 0;
 	memcpy(&ID,       p_buf,                         sizeof(ID));
@@ -479,7 +479,7 @@ void SpClientStruc::ToHostRec()
 
 int SpClientStruc::FromBuf(const void * pBuf)
 {
-	int ok = 1;
+	int    ok = 1;
 	const char * p_buf = static_cast<const char *>(pBuf);
 	size_t bytes = 0;
 	memcpy(&ID,         p_buf,                                 sizeof(ID));

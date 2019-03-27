@@ -2184,7 +2184,7 @@ int SLAPI PPSession::GetMachineID(MACAddr * pMachineID, int forceUpdate)
 			PPSetAddedMsgString(fname);
 			THROW_PP(f = fopen(fname, "r"), PPERR_CANTOPENFILE);
 			fread(buf, sizeof(signature), 1, f);
-			if(*(long*)buf == signature) {
+			if(*(long *)buf == signature) {
 				LTIME t = getcurtime_();
 				if(!forceUpdate || (t % 17) != 1) {
 					fread(&machine_id, sizeof(machine_id), 1, f);
@@ -3616,7 +3616,8 @@ int SLAPI PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAd
 						0L);
 					p_comm_dirty_cache_ev_list->sort();
 					p_addendum_ev_list = new PPIDArray;
-					p_addendum_ev_list->addzlist(PPACN_OBJTAGUPD, PPACN_OBJTAGRMV, PPACN_OBJTAGADD, PPACN_CONFIGUPDATED, 0L); // @v10.3.2 PPACN_CONFIGUPDATED
+					p_addendum_ev_list->addzlist(PPACN_OBJTAGUPD, PPACN_OBJTAGRMV, PPACN_OBJTAGADD, 
+						PPACN_CONFIGUPDATED, PPACN_TSSTRATEGYUPD, 0L); // @v10.3.2 PPACN_CONFIGUPDATED // @v10.3.11 PPACN_TSSTRATEGYUPD
 					p_addendum_ev_list->sort();
 					p_ev_list = new PPIDArray;
 					p_ev_list->addUnique(p_comm_dirty_cache_ev_list);

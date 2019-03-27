@@ -66,7 +66,7 @@ int X509V3_EXT_print(BIO * out, X509_EXTENSION * ext, ulong flag, int indent)
 	char * value = NULL;
 	const X509V3_EXT_METHOD * method;
 	STACK_OF(CONF_VALUE) *nval = NULL;
-	int ok = 1;
+	int    ok = 1;
 	ASN1_OCTET_STRING * extoct = X509_EXTENSION_get_data(ext);
 	const uchar * p = ASN1_STRING_get0_data(extoct);
 	int extlen = ASN1_STRING_length(extoct);

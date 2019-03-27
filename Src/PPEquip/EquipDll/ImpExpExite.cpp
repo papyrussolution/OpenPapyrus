@@ -18,7 +18,6 @@
 
 #define UNIT_NAME_KG			"КГ"
 #define UNIT_NAME_PIECE			"Штука"
-#define SERVERADDR				"ruftpex.edi.su"
 #define INBOX					"cinbox"
 #define OUTBOX					"coutbox"
 //#define REPORTSBOX				"Reports"
@@ -469,14 +468,8 @@ public:
 		stDisconnected = 0,
 		stConnected
 	};
-	FtpClient(const char * pLogin, const char * pPass)
+	FtpClient(const char * pLogin, const char * pPass) : Status(stDisconnected), Login(pLogin), Password(pPass), HInternet(0), HFtpSession(0), HFtpFind(0)
 	{
-		Status = stDisconnected;
-		Login = pLogin;
-		Password = pPass;
-		HInternet = 0;
-		HFtpSession = 0;
-		HFtpFind = 0;
 	}
 	~FtpClient()
 	{
@@ -499,16 +492,14 @@ private:
 
 int FtpClient::Connect()
 {
-	int ok = 1;
-
+	int    ok = 1;
 	if(Status == stDisconnected) {
 		THROW(HInternet = InternetOpen(NULL, INTERNET_OPEN_TYPE_DIRECT, NULL,NULL, 0));
-		THROW(HFtpSession = InternetConnect(HInternet, SERVERADDR, INTERNET_DEFAULT_FTP_PORT, Login, Password, INTERNET_SERVICE_FTP, INTERNET_FLAG_PASSIVE, 0));
+		THROW(HFtpSession = InternetConnect(HInternet, _T("ruftpex.edi.su"), INTERNET_DEFAULT_FTP_PORT, 
+			SUcSwitch(Login), SUcSwitch(Password), INTERNET_SERVICE_FTP, INTERNET_FLAG_PASSIVE, 0));
 		Status = stConnected;
 	}
-    CATCH
-		ok = 0;
-	ENDCATCH;
+    CATCHZOK
 	return ok;
 }
 
@@ -529,7 +520,7 @@ int FtpClient::PutFile(const char * pLocSrc, const char * pFtpDst)
 	int    ok = 1;
 	if(Status == stDisconnected)
 		THROW(Connect());
-	THROW(FtpPutFile(HFtpSession, pLocSrc, pFtpDst, FTP_TRANSFER_TYPE_BINARY, 0));
+	THROW(FtpPutFile(HFtpSession, SUcSwitch(pLocSrc), SUcSwitch(pFtpDst), FTP_TRANSFER_TYPE_BINARY, 0));
 	CATCHZOK;
 	return ok;
 }
@@ -539,7 +530,7 @@ int FtpClient::GetFile(const char * pFtpSrc, const char * pLocDst)
 	int    ok = 1;
 	if(Status == stDisconnected)
 		THROW(Connect());
-	THROW(FtpGetFile(HFtpSession, pFtpSrc, pLocDst, 0, 0, 0, NULL));
+	THROW(FtpGetFile(HFtpSession, SUcSwitch(pFtpSrc), SUcSwitch(pLocDst), 0, 0, 0, NULL));
 	CATCHZOK;
     return ok;
 }
@@ -557,13 +548,13 @@ int FtpClient::NextFileName(const char * pFtpSrc, SString & rFileName)
 	WIN32_FIND_DATA find_data;
 	if(Status == stDisconnected)
 		THROW(Connect());
-	memzero(&find_data, sizeof(WIN32_FIND_DATA));
+	MEMSZERO(find_data);
 	if(!HFtpFind)
-		THROW(HFtpFind = FtpFindFirstFile(HFtpSession, pFtpSrc, &find_data, 0, NULL))
+		THROW(HFtpFind = FtpFindFirstFile(HFtpSession, SUcSwitch(pFtpSrc), &find_data, 0, NULL))
 	else
 		InternetFindNextFile(HFtpFind, &find_data);
 	if(!isempty(find_data.cFileName))
-		rFileName.CopyFrom(find_data.cFileName);
+		rFileName.CopyFrom(SUcSwitch(find_data.cFileName));
 	else
 		ok = -1;
 	CATCHZOK;
@@ -575,7 +566,7 @@ int FtpClient::DeleteFile(const char * pFtpFile)
 	int    ok = 1;
 	if(Status == stDisconnected)
 		THROW(Connect());
-	THROW(FtpDeleteFile(HFtpSession, pFtpFile));
+	THROW(FtpDeleteFile(HFtpSession, SUcSwitch(pFtpFile)));
 	CATCHZOK;
     return ok;
 }
@@ -911,7 +902,7 @@ int ExportCls::RecadvHeader()
 
 int ExportCls::DocPartiesAndCurrency()
 {
-	int ok = 1;
+	int    ok = 1;
 	SString str, sender_gln, login;
 	THROWERR(P_XmlWriter, IEERR_NULLWRIEXMLPTR);
 
@@ -1331,7 +1322,7 @@ int ExportCls::EndDoc()
 // Отправляем документ
 int ExportCls::SendDoc()
 {
-	int ok = 1;
+	int    ok = 1;
 	SString	inbox_filename;
 	SPathStruc path_struct(ExpFileName);
 	(inbox_filename = OUTBOX).CatChar('/').Cat(path_struct.Nam).Dot().Cat(path_struct.Ext);
@@ -1367,7 +1358,7 @@ int ExportCls::SendDoc()
 //
 EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 {
-	int ok = 1;
+	int    ok = 1;
 	SFile log_file;
 	SPathStruc log_path;
 	SString str;
@@ -1377,7 +1368,7 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 	}
 	if(P_ExportCls && !P_ExportCls->Inited) {
 		if(pExpHeader) {
-			P_ExportCls->Header = *(Sdr_ImpExpHeader*)pExpHeader;
+			P_ExportCls->Header = *static_cast<const Sdr_ImpExpHeader *>(pExpHeader);
 			SString str;
 			//FormatLoginToLogin(P_ExportCls->Header.EdiLogin, str);
 			//str.CopyTo(P_ExportCls->Header.EdiLogin, sizeof(P_ExportCls->Header.EdiLogin));
@@ -1418,7 +1409,7 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 
 EXPORT int SetExportObj(uint idSess, const char * pObjTypeSymb, void * pObjData, int * pObjId, const char * pMsgType = 0)
 {
-	int ok = 1;
+	int    ok = 1;
 	SString str;
 
 	THROWERR(P_ExportCls, IEERR_IMPEXPCLSNOTINTD);
@@ -1471,7 +1462,7 @@ EXPORT int SetExportObj(uint idSess, const char * pObjTypeSymb, void * pObjData,
 
 EXPORT int InitExportObjIter(uint idSess, uint objId)
 {
-	int ok = 1;
+	int    ok = 1;
 	SString str;
 
 	THROWERR(P_ExportCls, IEERR_IMPEXPCLSNOTINTD);
@@ -1635,7 +1626,7 @@ void ImportCls::CreateFileName(uint num)
 //		 1 - сообщение получено
 int ImportCls::ReceiveDoc()
 {
-	int ok = 1;
+	int    ok = 1;
 	size_t pos = 0;
 	SString read_filename, file_type, box_name, str;
 	SSrchParam srch_param(0, 0, SSPF_WORDS);
@@ -2257,16 +2248,13 @@ int ImportCls::ParseForGoodsData(Sdr_BRow * pBRow)
 
 EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 {
-	int ok = 1;
+	int    ok = 1;
 	SPathStruc log_path;
 	SString str;
-
-	if(!P_ImportCls) {
-		P_ImportCls = new ImportCls;
-	}
+	SETIFZ(P_ImportCls, new ImportCls);
 	if(P_ImportCls && !P_ImportCls->Inited) {
 		if(pImpHeader) {
-			P_ImportCls->Header = *(Sdr_ImpExpHeader*)pImpHeader;
+			P_ImportCls->Header = *static_cast<const Sdr_ImpExpHeader *>(pImpHeader);
 			SString str;
 			//FormatLoginToLogin(P_ImportCls->Header.EdiLogin, str);
 			//str.CopyTo(P_ImportCls->Header.EdiLogin, sizeof(P_ImportCls->Header.EdiLogin));
@@ -2279,9 +2267,11 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 				P_ImportCls->PathStruct.Ext = "xml";
 		}
 		else {
-			char fname[256];
-			GetModuleFileName(NULL, fname, sizeof(fname));
-			P_ImportCls->PathStruct.Split(fname);
+			//char fname[256];
+			//GetModuleFileName(NULL, fname, sizeof(fname));
+			SString module_file_name;
+			SSystem::SGetModuleFileName(0, module_file_name);
+			P_ImportCls->PathStruct.Split(module_file_name);
 			P_ImportCls->PathStruct.Dir.ReplaceStr("\\bin", "\\in", 1);
 			(P_ImportCls->PathStruct.Nam = "edisoft_import_").Cat(P_ImportCls->ObjId);
 			P_ImportCls->PathStruct.Ext = "xml";
@@ -2358,7 +2348,7 @@ EXPORT int GetImportObj(uint idSess, const char * pObjTypeSymb, void * pObjData,
 
 EXPORT int InitImportObjIter(uint idSess, uint objId)
 {
-	int ok = 1;
+	int    ok = 1;
 	SString str;
 
 	THROWERR(P_ImportCls, IEERR_IMPEXPCLSNOTINTD);
@@ -2524,20 +2514,27 @@ EXPORT int GetErrorMessage(char * pMsg, uint bufLen)
 
 void ProcessError(const char * pProcess)
 {
-	char   temp_err_buf[256];
-	SString temp_buf;
+	StrError.Z();
+	//char   temp_err_buf[256];
+	//SString temp_buf;
+	SString sys_err_msg;
 	ErrorCode = IEERR_FTP;
 	DWORD code = GetLastError();
-	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),
-		temp_err_buf, 256, 0);
-	(temp_buf = pProcess).CatDiv(':', 2).Cat(temp_err_buf);
+	//::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT), temp_err_buf, 256, 0);
+	//(temp_buf = pProcess).CatDiv(':', 2).Cat(temp_err_buf);
+	// @v10.3.11 {
+	SSystem::SFormatMessage(code, sys_err_msg);
+	(StrError = pProcess).CatDiv(':', 2).Cat(sys_err_msg);
+	// } @v10.3.11 
+	/* @v10.3.11 (SSystem::SFormatMessage has done it)
 	// Смотрим дополнительное описание ошибки
 	if(code == ERROR_INTERNET_EXTENDED_ERROR) {
 		DWORD size = 256;
 		MEMSZERO(temp_err_buf);
 		code = 0;
-		InternetGetLastResponseInfo(&code, temp_err_buf, &size);
+		::InternetGetLastResponseInfo(&code, temp_err_buf, &size);
 		temp_buf.CatDiv(':', 2).Cat(temp_err_buf);
 	}
 	StrError = temp_buf;
+	*/
 }

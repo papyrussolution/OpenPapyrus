@@ -67,7 +67,7 @@ int PPEds::GetCert(HCERTSTORE & rCertSore, PCCERT_CONTEXT & rCert, const char * 
 // Запрашивает контейнер с ключами (носитель, где лежат ключи)
 int PPEds::GetCert(PCCERT_CONTEXT & rCert)
 {
-	int ok = 1;
+	int    ok = 1;
 	// Получение дескриптора контекста криптографического провайдера.
 	HCRYPTPROV prov = 0;
     THROW_PP(CryptAcquireContext(&prov, NULL, NULL, MY_PROV_TYPE, NULL), PPERR_EDS_GETPROVIDER);
@@ -98,7 +98,7 @@ int PPEds::GetCert(PCCERT_CONTEXT & rCert)
 
 int PPEds::GetCryptoProv(PCCERT_CONTEXT & cert, HCRYPTPROV & rCryptoProv, DWORD & rKeySpec)
 {
-	int ok = 1;
+	int    ok = 1;
 	THROW_PP(CryptAcquireCertificatePrivateKey(cert, 0, NULL, &rCryptoProv,
 		&rKeySpec, NULL), PPERR_EDS_GETPROVIDER);
 	CATCHZOK;
@@ -107,7 +107,7 @@ int PPEds::GetCryptoProv(PCCERT_CONTEXT & cert, HCRYPTPROV & rCryptoProv, DWORD 
 
 int PPEds::CheckCertChain(PCCERT_CONTEXT & cert)
 {
-	int ok = 1;
+	int    ok = 1;
 	SString status_msg;
 	HCERTCHAINENGINE h_chain_engine = NULL;
 	CERT_CHAIN_ENGINE_CONFIG chain_config;
@@ -581,7 +581,7 @@ int PPEds::CoSignData(const char * pCosignerName, const char * pFileName, const 
 
 int PPEds::CountersignData(const char * pCountersignerName, int signerNumber, const char * pFileName, const char * pSignFileName)
 {
-	int ok = 1;
+	int    ok = 1;
 	HCERTSTORE cert_sore = 0;
 	PCCERT_CONTEXT p_cntr_sig_cert = 0;
     HCRYPTPROV prov = NULL;
@@ -774,7 +774,7 @@ int PPEds::DeleteSign(const char * pSignFileName, int signNumber)
 
 int PPEds::DeleteCountersign(char * pSignFileName, const int signerNumber)
 {
-	int ok = 1;
+	int    ok = 1;
     HCRYPTMSG h_msg = NULL;
 	BYTE * pb_indata = NULL; // Данные файла с подписями до удаления заверяющей
     BYTE * pb_unsigned_message_blob = NULL;
@@ -853,7 +853,7 @@ int PPEds::DeleteCountersign(char * pSignFileName, const int signerNumber)
 
 int PPEds::GetSignsCount(const char * pSignFileName, int & rCount)
 {
-	int ok = 1;
+	int    ok = 1;
 	BYTE * pb_indata = NULL;
 	DWORD cb_indata = 0;
 	SFile file;
@@ -894,7 +894,7 @@ int PPEds::SignData(const char * pSignerName, const char * pFileName, SString & 
 
 int PPEds::GetSignerNameByNumber(const char * pSignFileName, int signNumber, SString & rSignerName)
 {
-	int ok = 1;
+	int    ok = 1;
 	int64 file_size = 0;
 	HCRYPTMSG h_msg = 0;
 	PCERT_INFO pb_signer_cert_info = NULL;
@@ -1024,7 +1024,7 @@ int PPEds::GetCertIndexBySignerName(const char * pSignFileName, const char * pSi
 
 int PPEds::CashOn(PCCERT_CONTEXT & cert)
 {
-	int ok = 1;
+	int    ok = 1;
 	DWORD c_data;
 	CRYPT_KEY_PROV_INFO * p_crypt_key_prov_info  = NULL;
 
@@ -1044,7 +1044,7 @@ int PPEds::CashOn(PCCERT_CONTEXT & cert)
 
 int PPEds::CashOff(PCCERT_CONTEXT & cert)
 {
-	int ok = 1;
+	int    ok = 1;
 	DWORD c_data;
 	CRYPT_KEY_PROV_INFO * p_crypt_key_prov_info  = NULL;
 
@@ -1197,7 +1197,7 @@ int PPEds::GetSignerNamesInStore(StrAssocArray & rStrArray)
 
 int PPEds::VerifySign(const char * pFileName, const char * pSignFileName, int signerNumber)
 {
-	int ok = 1;
+	int    ok = 1;
 	int64 file_size = 0;
 	HCRYPTPROV prov = 0;
 	PCCERT_CONTEXT p_cert = 0;
@@ -1373,7 +1373,7 @@ int PPEds::VerifyCountersign(const char * pSignFileName, const int signerNumber)
 
 int PPEds::GetHash(void * pData, DWORD dataSize, int signNumber, BYTE * pHashedData, DWORD & rSizeHashedData)
 {
-	int ok = 1;
+	int    ok = 1;
 	HCRYPTMSG h_msg;
 	THROW_PP(h_msg = CryptMsgOpenToDecode(MY_ENCODING_TYPE, 0, 0, NULL, NULL, NULL), PPERR_EDS_MSGOPENFAILED);
 	THROW_PP(CryptMsgUpdate(h_msg, (BYTE*)pData, dataSize, true), PPERR_EDS_MSGUPDATEFAILED);
@@ -1549,7 +1549,7 @@ struct StTspResponse {
 };
 
 int PPEds::ParseTSAResponse(const char * pResponse, StTspResponse & rResponseFmtd) {
-	int ok = 1;
+	int    ok = 1;
 	char c = 0;
 	int block_len = 0;
 	int byte_count = 0;

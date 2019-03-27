@@ -7311,7 +7311,23 @@ record SupplBillLine {
 	Price             double format(10.2) "@{price}";
 	Quantity          double format(10.2) "@{qtty}";
 	ActionDate        date                "Дата реальной отгрузки клиенту"; // @v9.4.12
-};
+}
+//
+// @v10.3.11 Baltika
+//
+record BaltikaBillPricePromo {
+	CompanyId         zstring(24)         "Код организации";
+	AddressId         zstring(24)         "@{clientcode}";
+	WareHouseId       zstring(24)         "@{warehouse}";
+	DocumentDate      date                "@{billdate}";
+	DocumentNumber    zstring(24)         "@{billno}";
+	DocumentTypeId    zstring(32)         "@{typeofdocument}";
+	WareId            zstring(24)         "@{goodscode}";
+	ShareId           zstring(24)         "Код скидки: [Cooler, Contract, Sellin, PricePromo]";
+	ShareDate         zstring(24)         "Год/Месяц Скидки  в формате ГГГГ_ММ  (2018-01)";
+	DiscountPercent   double format(10.2) "Процент скидки";
+	DiscountSum       double format(10.2) "Сумма скидки";
+}
 
 record SupplGoods {
 	WareId          zstring(24)         "@{goodscode}";

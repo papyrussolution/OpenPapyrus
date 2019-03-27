@@ -229,7 +229,7 @@ int SLAPI VCalendar::ReadProp(TodoProperty * pProp, SString & rVal, SString & rA
 
 int SLAPI VCalendar::GetTodo(VCalendar::Todo * pData)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(pData && P_Stream && P_Stream->IsValid() && Export == 0) {
 		int read_todo = 0, end_todo = 0;
 		SString val, attrs;
@@ -1932,7 +1932,7 @@ int SLAPI ViewPrjTask_ByStatus()
 
 int SLAPI ViewPrjTask_ByReminder()
 {
-	int ok = -1;
+	int    ok = -1;
 	PPProjectConfig cfg;
 	if(PPObjProject::ReadConfig(&cfg) > 0 && cfg.Flags & PRJCFGF_INCOMPLETETASKREMIND) {
 		PrjTaskFilt filt;

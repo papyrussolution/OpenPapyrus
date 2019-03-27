@@ -138,7 +138,7 @@ static const char * findlocal(lua_State * L, CallInfo * ci, int n,
 	}
 	else
 		base = ci->func + 1;
-	if(name == NULL) { /* no 'standard' name? */
+	if(!name) { /* no 'standard' name? */
 		StkId limit = (ci == L->ci) ? L->top : ci->next->func;
 		if(limit - base >= n && n > 0) /* is 'n' inside 'ci' stack? */
 			name = "(*temporary)"; /* generic name for any valid slot */

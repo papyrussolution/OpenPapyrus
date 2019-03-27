@@ -614,7 +614,7 @@ void xmlNsListDumpOutput(xmlOutputBuffer * buf, xmlNs * cur)
  *
  * Dump the XML document DTD, if any.
  */
-static void xmlDtdDumpOutput(xmlSaveCtxtPtr ctxt, xmlDtdPtr dtd)
+static void xmlDtdDumpOutput(xmlSaveCtxtPtr ctxt, xmlDtd * dtd)
 {
 	xmlOutputBuffer * buf;
 	int format, level;

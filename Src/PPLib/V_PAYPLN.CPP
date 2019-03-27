@@ -392,7 +392,7 @@ void SLAPI PPViewPaymPlan::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 
 int SLAPI PPViewPaymPlan::GetTabTitle(long tabID, SString & rBuf) const
 {
-	int ok = -1;
+	int    ok = -1;
 	if(tabID && P_TempTbl) {
 		char buf[64];
 		LDATE dt;

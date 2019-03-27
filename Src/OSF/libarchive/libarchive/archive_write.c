@@ -122,7 +122,7 @@ struct archive * archive_write_new(void)                 {
 
 	/* Initialize a block of nulls for padding purposes. */
 	a->null_length = 1024;
-	nulls = (uchar*)SAlloc::C(1, a->null_length);
+	nulls = (uchar *)SAlloc::C(1, a->null_length);
 	if(nulls == NULL) {
 		SAlloc::F(a);
 		return NULL;

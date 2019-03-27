@@ -1469,7 +1469,7 @@ static int decompress(struct archive_read * a, struct _7zip * zip, void * buff, 
 		zip->odd_bcj_size = *outbytes - l;
 		if(zip->odd_bcj_size > 0 && zip->odd_bcj_size <= 4 &&
 		    o_avail_in && ret != ARCHIVE_EOF) {
-			memcpy(zip->odd_bcj, ((uchar*)buff) + l,
+			memcpy(zip->odd_bcj, ((uchar *)buff) + l,
 			    zip->odd_bcj_size);
 			*outbytes = l;
 		}
@@ -2932,7 +2932,7 @@ static ssize_t extract_pack_stream(struct archive_read * a, size_t minimum)
 				    "No memory for 7-Zip decompression");
 				return ARCHIVE_FATAL;
 			}
-			zip->uncompressed_buffer = (uchar*)p;
+			zip->uncompressed_buffer = (uchar *)p;
 			zip->uncompressed_buffer_size = new_size;
 		}
 		/*

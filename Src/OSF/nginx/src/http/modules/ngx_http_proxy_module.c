@@ -2340,7 +2340,7 @@ next:
 		}
 		hk->key = src[i].key;
 		hk->key_hash = ngx_hash_key_lc(src[i].key.data, src[i].key.len);
-		hk->value = (void *)1;
+		hk->value = reinterpret_cast<void *>(1);
 		if(src[i].value.len == 0) {
 			continue;
 		}

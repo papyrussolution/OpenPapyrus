@@ -1849,7 +1849,7 @@ private:
 			getCtrlData(CTLSEL_SELTAG_TAG, &Data.Id);
 			getCtrlString(CTL_SELTAG_RESTRICT, restrict_buf);
 			GetTagRec(Data.Id, &tag);
-			void * extra_ptr = (void *)((tag.TagDataType == OTTYP_OBJLINK) ? tag.LinkObjGrp : 0);
+			void * extra_ptr = reinterpret_cast<void *>((tag.TagDataType == OTTYP_OBJLINK) ? tag.LinkObjGrp : 0);
 			// @v9.4.9 {
 			{
 				PPIDArray id_list;
@@ -2132,7 +2132,7 @@ int SLAPI TagDlgParam::SetDlgData(TDialog * dlg, const ObjTagItem * pItem)
 		dlg->selectCtrl(ValNmbCtl); // @v9.0.0
 	}
 	else if(oneof2(typ, OTTYP_OBJLINK, OTTYP_ENUM)) {
-		SetupPPObjCombo(dlg, ValLnkCtl, tag.TagEnumID, pItem->Val.IntVal, OLW_CANINSERT, (void *)tag.LinkObjGrp);
+		SetupPPObjCombo(dlg, ValLnkCtl, tag.TagEnumID, pItem->Val.IntVal, OLW_CANINSERT, reinterpret_cast<void *>(tag.LinkObjGrp));
 	}
 	else if(typ == OTTYP_DATE) {
 		dlg->SetupCalDate(CTLCAL_TAGV_DATE, ValDateCtl);

@@ -4042,7 +4042,7 @@ int htmlParseDocument(htmlParserCtxt * ctxt)
 {
 	xmlChar start[4];
 	xmlCharEncoding enc;
-	xmlDtdPtr dtd;
+	xmlDtd * dtd;
 	xmlInitParser();
 	htmlDefaultSAXHandlerInit();
 	if(!ctxt || !ctxt->input) {
@@ -5159,7 +5159,7 @@ done:
 		}
 	}
 	if((!(ctxt->options & HTML_PARSE_NODEFDTD)) && ctxt->myDoc && ((terminate) || (ctxt->instate == XML_PARSER_EOF) || (ctxt->instate == XML_PARSER_EPILOG))) {
-		xmlDtdPtr dtd = xmlGetIntSubset(ctxt->myDoc);
+		xmlDtd * dtd = xmlGetIntSubset(ctxt->myDoc);
 		if(dtd == NULL)
 			ctxt->myDoc->intSubset = xmlCreateIntSubset(ctxt->myDoc, reinterpret_cast<const xmlChar *>("html"), reinterpret_cast<const xmlChar *>("-//W3C//DTD HTML 4.0 Transitional//EN"), reinterpret_cast<const xmlChar *>("http://www.w3.org/TR/REC-html40/loose.dtd"));
 	}

@@ -698,10 +698,15 @@ const TSCollection <UsbBasicDescrSt> & SUsbDevice::GetChildren() const
 SString & GetErrorStr()
 {
 	static SString err_msg;
-	TCHAR  buf[256];
-	ulong  code = GetLastError();
-	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT), buf, SIZEOFARRAY(buf), 0); // @unicodeproblem
-	return (err_msg = SUcSwitch(buf)).ToOem();
+	//TCHAR  buf[256];
+	//ulong  code = GetLastError();
+	//::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT), buf, SIZEOFARRAY(buf), 0); // @unicodeproblem
+	//(err_msg = SUcSwitch(buf)).ToOem();
+	// @v10.3.11 {
+	SSystem::SFormatMessage(err_msg); 
+	err_msg.Chomp().Transf(CTRANSF_OUTER_TO_INNER);
+	// } @v10.3.11 
+	return err_msg;
 }
 
 int SUsbDevice::GetInputReportDataLength()

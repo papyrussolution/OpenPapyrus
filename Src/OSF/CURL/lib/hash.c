@@ -27,8 +27,8 @@
 
 static void hash_element_dtor(void * user, void * element)
 {
-	struct curl_hash * h = (struct curl_hash*)user;
-	struct curl_hash_element * e = (struct curl_hash_element*)element;
+	struct curl_hash * h = static_cast<struct curl_hash *>(user);
+	struct curl_hash_element * e = static_cast<struct curl_hash_element *>(element);
 	if(e->ptr) {
 		h->dtor(e->ptr);
 		e->ptr = NULL;
@@ -54,7 +54,7 @@ int Curl_hash_init(struct curl_hash * h, int slots, hash_function hfunc, comp_fu
 	h->dtor = dtor;
 	h->size = 0;
 	h->slots = slots;
-	h->table = (struct curl_llist *)SAlloc::M(slots * sizeof(struct curl_llist));
+	h->table = static_cast<struct curl_llist *>(SAlloc::M(slots * sizeof(struct curl_llist)));
 	if(h->table) {
 		for(i = 0; i < slots; ++i)
 			Curl_llist_init(&h->table[i], (curl_llist_dtor)hash_element_dtor);
@@ -67,7 +67,7 @@ int Curl_hash_init(struct curl_hash * h, int slots, hash_function hfunc, comp_fu
 static struct curl_hash_element * mk_hash_element(const void * key, size_t key_len, const void * p)
 {
 	/* allocate the struct plus memory after it to store the key */
-	struct curl_hash_element * he = (struct curl_hash_element *)SAlloc::M(sizeof(struct curl_hash_element) + key_len);
+	struct curl_hash_element * he = static_cast<struct curl_hash_element *>(SAlloc::M(sizeof(struct curl_hash_element) + key_len));
 	if(he) {
 		/* copy the key */
 		memcpy(he->key, key, key_len);
@@ -92,7 +92,7 @@ void * Curl_hash_add(struct curl_hash * h, void * key, size_t key_len, void * p)
 	struct curl_llist_element * le;
 	struct curl_llist * l = FETCH_LIST(h, key, key_len);
 	for(le = l->head; le; le = le->next) {
-		he = (struct curl_hash_element*)le->ptr;
+		he = static_cast<struct curl_hash_element *>(le->ptr);
 		if(h->comp_func(he->key, he->key_len, key, key_len)) {
 			Curl_llist_remove(l, le, (void *)h);
 			--h->size;
@@ -127,9 +127,9 @@ int Curl_hash_delete(struct curl_hash * h, void * key, size_t key_len)
 	struct curl_hash_element  * he;
 	struct curl_llist * l = FETCH_LIST(h, key, key_len);
 	for(le = l->head; le; le = le->next) {
-		he = (struct curl_hash_element *)le->ptr;
+		he = static_cast<struct curl_hash_element *>(le->ptr);
 		if(h->comp_func(he->key, he->key_len, key, key_len)) {
-			Curl_llist_remove(l, le, (void *)h);
+			Curl_llist_remove(l, le, h);
 			--h->size;
 			return 0;
 		}
@@ -149,7 +149,7 @@ void * Curl_hash_pick(struct curl_hash * h, void * key, size_t key_len)
 	if(h) {
 		l = FETCH_LIST(h, key, key_len);
 		for(le = l->head; le; le = le->next) {
-			he = (struct curl_hash_element *)le->ptr;
+			he = static_cast<struct curl_hash_element *>(le->ptr);
 			if(h->comp_func(he->key, he->key_len, key, key_len)) {
 				return he->ptr;
 			}
@@ -183,7 +183,7 @@ void Curl_hash_apply(curl_hash * h, void * user, void (* cb)(void * user, void *
 void FASTCALL Curl_hash_destroy(struct curl_hash * h)
 {
 	for(int i = 0; i < h->slots; ++i) {
-		Curl_llist_destroy(&h->table[i], (void *)h);
+		Curl_llist_destroy(&h->table[i], h);
 	}
 	ZFREE(h->table);
 	h->size = 0;
@@ -212,11 +212,11 @@ void Curl_hash_clean_with_criterium(struct curl_hash * h, void * user, int (* co
 		list = &h->table[i];
 		le = list->head; /* get first list entry */
 		while(le) {
-			struct curl_hash_element * he = (struct curl_hash_element *)le->ptr;
+			struct curl_hash_element * he = static_cast<struct curl_hash_element *>(le->ptr);
 			lnext = le->next;
 			/* ask the callback function if we shall remove this entry or not */
 			if(comp == NULL || comp(user, he->ptr)) {
-				Curl_llist_remove(list, le, (void *)h);
+				Curl_llist_remove(list, le, h);
 				--h->size; /* one less entry in the hash now */
 			}
 			le = lnext;
@@ -226,7 +226,7 @@ void Curl_hash_clean_with_criterium(struct curl_hash * h, void * user, int (* co
 
 size_t Curl_hash_str(void * key, size_t key_length, size_t slots_num)
 {
-	const char * key_str = (const char *)key;
+	const char * key_str = static_cast<const char *>(key);
 	const char * end = key_str + key_length;
 	ulong h = 5381;
 	while(key_str < end) {
@@ -267,7 +267,7 @@ struct curl_hash_element * FASTCALL Curl_hash_next_element(struct curl_hash_iter
 		}
 	}
 	if(iter->current_element) {
-		struct curl_hash_element * he = (struct curl_hash_element *)iter->current_element->ptr;
+		struct curl_hash_element * he = static_cast<struct curl_hash_element *>(iter->current_element->ptr);
 		return he;
 	}
 	iter->current_element = NULL;

@@ -1403,22 +1403,18 @@ int SSL_write(SSL * s, const void * buf, int num)
 		SSLerr(SSL_F_SSL_WRITE, SSL_R_UNINITIALIZED);
 		return -1;
 	}
-
 	if(s->shutdown & SSL_SENT_SHUTDOWN) {
 		s->rwstate = SSL_NOTHING;
 		SSLerr(SSL_F_SSL_WRITE, SSL_R_PROTOCOL_IS_SHUTDOWN);
 		return -1;
 	}
-
 	if((s->mode & SSL_MODE_ASYNC) && ASYNC_get_current_job() == NULL) {
 		struct ssl_async_args args;
-
 		args.s = s;
 		args.buf = (void *)buf;
 		args.num = num;
 		args.type = ssl_async_args::WRITEFUNC;
 		args.f.func_write = s->method->ssl_write;
-
 		return ssl_start_async_job(s, &args, ssl_io_intern);
 	}
 	else {

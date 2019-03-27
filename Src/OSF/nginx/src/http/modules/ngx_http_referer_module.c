@@ -7,7 +7,7 @@
 #include <ngx_core.h>
 #pragma hdrstop
 
-#define NGX_HTTP_REFERER_NO_URI_PART  ((void *)4)
+#define NGX_HTTP_REFERER_NO_URI_PART  (reinterpret_cast<void *>(4))
 
 typedef struct {
 	ngx_hash_combined_t hash;

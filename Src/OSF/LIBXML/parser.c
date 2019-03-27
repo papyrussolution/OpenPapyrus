@@ -10909,12 +10909,9 @@ xmlParserCtxt * xmlCreateIOParserCtxt(xmlSAXHandler * sax, void * user_data, xml
 }
 
 #ifdef LIBXML_VALID_ENABLED
-/************************************************************************
-*									*
-*		Front ends when parsing a DTD				*
-*									*
-************************************************************************/
-
+//
+// Front ends when parsing a DTD
+//
 /**
  * xmlIOParseDTD:
  * @sax:  the SAX handler block or NULL
@@ -10926,8 +10923,7 @@ xmlParserCtxt * xmlCreateIOParserCtxt(xmlSAXHandler * sax, void * user_data, xml
  * Returns the resulting xmlDtdPtr or NULL in case of error.
  * @input will be freed by the function in any case.
  */
-
-xmlDtdPtr xmlIOParseDTD(xmlSAXHandler * sax, xmlParserInputBuffer * input, xmlCharEncoding enc)
+xmlDtd * xmlIOParseDTD(xmlSAXHandler * sax, xmlParserInputBuffer * input, xmlCharEncoding enc)
 {
 	xmlDtd * ret = NULL;
 	xmlParserCtxt * ctxt;
@@ -11037,15 +11033,14 @@ xmlDtdPtr xmlIOParseDTD(xmlSAXHandler * sax, xmlParserInputBuffer * input, xmlCh
  *
  * Returns the resulting xmlDtdPtr or NULL in case of error.
  */
-
-xmlDtdPtr xmlSAXParseDTD(xmlSAXHandler * sax, const xmlChar * ExternalID, const xmlChar * SystemID)
+xmlDtd * xmlSAXParseDTD(xmlSAXHandler * sax, const xmlChar * ExternalID, const xmlChar * SystemID)
 {
 	xmlDtd * ret = NULL;
 	xmlParserCtxt * ctxt;
 	xmlParserInput * input = NULL;
 	xmlCharEncoding enc;
 	xmlChar* systemIdCanonic;
-	if((ExternalID == NULL) && (SystemID == NULL))
+	if(!ExternalID && !SystemID)
 		return 0;
 	ctxt = xmlNewParserCtxt();
 	if(!ctxt) {
@@ -11065,7 +11060,7 @@ xmlDtdPtr xmlSAXParseDTD(xmlSAXHandler * sax, const xmlChar * ExternalID, const 
 	 * Canonicalise the system ID
 	 */
 	systemIdCanonic = xmlCanonicPath(SystemID);
-	if((SystemID != NULL) && (systemIdCanonic == NULL)) {
+	if(SystemID && !systemIdCanonic) {
 		xmlFreeParserCtxt(ctxt);
 		return 0;
 	}
@@ -11111,7 +11106,8 @@ xmlDtdPtr xmlSAXParseDTD(xmlSAXHandler * sax, const xmlChar * ExternalID, const 
 	ctxt->myDoc = xmlNewDoc(reinterpret_cast<const xmlChar *>("1.0"));
 	if(ctxt->myDoc == NULL) {
 		xmlErrMemory(ctxt, "New Doc failed");
-		if(sax) ctxt->sax = NULL;
+		if(sax) 
+			ctxt->sax = NULL;
 		xmlFreeParserCtxt(ctxt);
 		return 0;
 	}
@@ -11123,13 +11119,9 @@ xmlDtdPtr xmlSAXParseDTD(xmlSAXHandler * sax, const xmlChar * ExternalID, const 
 			ret = ctxt->myDoc->extSubset;
 			ctxt->myDoc->extSubset = NULL;
 			if(ret) {
-				xmlNode * tmp;
 				ret->doc = NULL;
-				tmp = ret->children;
-				while(tmp) {
+				for(xmlNode * tmp = ret->children; tmp; tmp = tmp->next)
 					tmp->doc = NULL;
-					tmp = tmp->next;
-				}
 			}
 		}
 		else {
@@ -11138,12 +11130,11 @@ xmlDtdPtr xmlSAXParseDTD(xmlSAXHandler * sax, const xmlChar * ExternalID, const 
 		xmlFreeDoc(ctxt->myDoc);
 		ctxt->myDoc = NULL;
 	}
-	if(sax) ctxt->sax = NULL;
+	if(sax) 
+		ctxt->sax = NULL;
 	xmlFreeParserCtxt(ctxt);
-
 	return ret;
 }
-
 /**
  * xmlParseDTD:
  * @ExternalID:  a NAME* containing the External ID of the DTD
@@ -11153,20 +11144,15 @@ xmlDtdPtr xmlSAXParseDTD(xmlSAXHandler * sax, const xmlChar * ExternalID, const 
  *
  * Returns the resulting xmlDtdPtr or NULL in case of error.
  */
-
-xmlDtdPtr xmlParseDTD(const xmlChar * ExternalID, const xmlChar * SystemID) 
+xmlDtd * xmlParseDTD(const xmlChar * ExternalID, const xmlChar * SystemID) 
 {
 	return xmlSAXParseDTD(NULL, ExternalID, SystemID);
 }
 
 #endif /* LIBXML_VALID_ENABLED */
-
-/************************************************************************
-*									*
-*		Front ends when parsing an Entity			*
-*									*
-************************************************************************/
-
+//
+// Front ends when parsing an Entity
+//
 /**
  * xmlParseCtxtExternalEntity:
  * @ctx:  the existing parsing context

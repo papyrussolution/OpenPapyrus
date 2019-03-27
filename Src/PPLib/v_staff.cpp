@@ -826,7 +826,7 @@ PPID GetRealDivID(PPObjPerson * pObjPsn, PPID divID, DivType * pDivT)
 
 int GetAmountList(PPID realDivID, DivType divt, StaffAmtList * pAmtList)
 {
-	int ok = 1;
+	int    ok = 1;
 	StaffAmtList amt_list;
 	PPObjPerson    obj_psn;
 	PPObjStaffList obj_staff;
@@ -850,7 +850,7 @@ int GetAmountList(PPID realDivID, DivType divt, StaffAmtList * pAmtList)
 
 int PutAmountList(PPID realDivID, DivType divt, StaffAmtList * pAmtList)
 {
-	int ok = 1;
+	int    ok = 1;
 	StaffAmtList amt_list;
 	PPObjPerson    obj_psn;
 	PPObjStaffList obj_staff;
@@ -1081,7 +1081,7 @@ int FastEditSumByDivDlg::SetupDivList()
 
 int FastEditSumByDivDlg::EditAmount(long * pPos)
 {
-	int ok = -1;
+	int    ok = -1;
 	long pos = (pPos) ? *pPos : -1;
 	DivType divt;
 	PPID real_div_id = GetRealDivID(&ObjPsn, CurDivID, &divt);
@@ -1138,7 +1138,7 @@ int FastEditSumByDivDlg::addItem(long * pPos, long * pID)
 //virtual
 int FastEditSumByDivDlg::editItem(long pos, long id)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(id < AMOUNTTYPE_OFFS) {
 		THROW(ObjStaffCal.CheckRights(PPR_MOD));
 		THROW(ok = ObjStaffCal.Edit(&id, 0));
@@ -1155,7 +1155,7 @@ int FastEditSumByDivDlg::editItem(long pos, long id)
 //virtual
 int FastEditSumByDivDlg::delItem(long pos, long id)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(id < AMOUNTTYPE_OFFS) {
 		THROW(ObjStaffCal.CheckRights(PPR_MOD));
 		if(CONFIRM(PPCFM_DELSTAFFCAL))
@@ -1180,7 +1180,7 @@ int FastEditSumByDivDlg::delItem(long pos, long id)
 // virtual
 int FastEditSumByDivDlg::setupList()
 {
-	int ok = 1;
+	int    ok = 1;
 	StrAssocArray * p_list = MakeSumList(CurDivID);
 	SmartListBox * p_lb = static_cast<SmartListBox *>(getCtrlView(CTL_EDDIVSUM_SUM));
 	if(p_list && p_lb) {
@@ -1402,7 +1402,7 @@ int FastEditDivBySumDlg::SetupSumList()
 
 int FastEditDivBySumDlg::EditAmount(PPID divID, PPID amtID)
 {
-	int ok = -1;
+	int    ok = -1;
 	long pos = -1;
 	DivType divt;
 	PPID real_div_id = GetRealDivID(&ObjPsn, divID, &divt);
@@ -1474,7 +1474,7 @@ int FastEditDivBySumDlg::EditCalendar(PPID divID, PPID parentCalID)
 //virtual
 int FastEditDivBySumDlg::editItem(long pos, long id)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(CurAmtID < AMOUNTTYPE_OFFS) {
 		THROW(ok = EditCalendar(id, CurAmtID));
 	}
@@ -1488,7 +1488,7 @@ int FastEditDivBySumDlg::editItem(long pos, long id)
 // virtual
 int FastEditDivBySumDlg::setupList()
 {
-	int ok = 1;
+	int    ok = 1;
 	StrAssocArray * p_list = MakeDivList(CurAmtID);
 	SmartListBox * p_lb = static_cast<SmartListBox *>(getCtrlView(CTL_VIEWSUMDIV_DIV));
 	if(p_list && p_lb) {

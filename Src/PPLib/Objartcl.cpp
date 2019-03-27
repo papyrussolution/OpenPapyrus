@@ -1720,7 +1720,7 @@ int SLAPI PPObjArticle::ReplyArticleReplace(PPID dest, PPID src)
 	THROW(Search(src) > 0);
 	src_sheet = P_Tbl->data.AccSheetID;
 	THROW_PP(dst_sheet == src_sheet, PPERR_REPLARTNEQSHEET);
-	THROW(BroadcastObjMessage(DBMSG_OBJREPLACE, Obj, dest, (void *)src));
+	THROW(BroadcastObjMessage(DBMSG_OBJREPLACE, Obj, dest, reinterpret_cast<void *>(src)));
 	THROW(RemoveByID(P_Tbl, dest, 0));
 	CATCHZOK
 	return ok;

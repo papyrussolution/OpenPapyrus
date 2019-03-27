@@ -63,7 +63,7 @@ int __log_verify(DB_ENV * dbenv, const DB_LOG_VERIFY_CONFIG * lvconfig, DB_THREA
 
 	okmsg = NULL;
 	fwdscroll = 1;
-	max_fileno = (uint32)-1;
+	max_fileno = static_cast<uint32>(-1);
 	goprev = 0;
 	env = dbenv->env;
 	logc = NULL;

@@ -796,12 +796,17 @@ int STestSuite::Run(const char * pIniFileName)
 				}
 			}
 			else { // @v5.7 ANDREW сообщение о том, что функция теста не найдена {
-				LPVOID msg_buff;
-				FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, 
-					NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&msg_buff, 0, 0);
-				ffn.CatDiv(':', 2).Cat(SUcSwitch(static_cast<LPCTSTR>(msg_buff)));
-				MessageBox(NULL, SUcSwitch(ffn), _T("Error"), MB_OK); // @unicodeproblem
-				LocalFree(msg_buff);
+				//LPVOID msg_buff;
+				//::FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, 0, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&msg_buff, 0, 0);
+				//ffn.CatDiv(':', 2).Cat(SUcSwitch(static_cast<LPCTSTR>(msg_buff)));
+				//LocalFree(msg_buff);
+				// @v10.3.11 {
+				SString sys_err_buf;
+				if(SSystem::SFormatMessage(sys_err_buf))
+					ffn.CatDiv(':', 2).Cat(sys_err_buf.Chomp());
+				// } @v10.3.11 
+				::MessageBox(NULL, SUcSwitch(ffn), _T("Error"), MB_OK); // @unicodeproblem
+
 			} // } @v5.7 ANDREW
 			ReportTestEntry(0, p_entry);
 		}

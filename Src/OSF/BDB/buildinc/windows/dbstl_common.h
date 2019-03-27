@@ -143,7 +143,7 @@
 #define THROW0(exception_type)	do { exception_type ex; throw ex; } while (0)
 
 #define INVALID_INDEX ((index_type)-1)
-#define INVALID_DLEN  ((uint32)-1)
+#define INVALID_DLEN  (static_cast<uint32>(-1))
 
 #define DBSTL_MAX_DATA_BUF_LEN  SMEGABYTE(4)
 #define DBSTL_MAX_KEY_BUF_LEN   SMEGABYTE(4)

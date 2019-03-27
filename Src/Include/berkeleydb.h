@@ -1761,7 +1761,7 @@ struct __db {
 
  #define DB_MULTIPLE_NEXT(pointer, dbt, retdata, retdlen) do { \
 		uint32 * __p = (uint32 *)(pointer);                \
-		if(*__p == (uint32)-1) {                            \
+		if(*__p == static_cast<uint32>(-1)) {                            \
 			retdata = NULL;                                 \
 			pointer = NULL;                                 \
 			break;                                          \
@@ -1775,7 +1775,7 @@ struct __db {
 
  #define DB_MULTIPLE_KEY_NEXT(pointer, dbt, retkey, retklen, retdata, retdlen) do { \
 		uint32 * __p = (uint32 *)(pointer);                \
-		if(*__p == (uint32)-1) {                            \
+		if(*__p == static_cast<uint32>(-1)) {                            \
 			retdata = NULL;                                 \
 			retkey = NULL;                                  \
 			pointer = NULL;                                 \
@@ -1805,7 +1805,7 @@ struct __db {
  #define DB_MULTIPLE_WRITE_INIT(pointer, dbt) do { \
 		(dbt)->flags |= DB_DBT_BULK;                            \
 		pointer = (uint8 *)(dbt)->data+(dbt)->ulen-sizeof(uint32); \
-		*(uint32 *)(pointer) = (uint32)-1;                \
+		*(uint32 *)(pointer) = static_cast<uint32>(-1);                \
 	} while(0)
 
  #define DB_MULTIPLE_RESERVE_NEXT(pointer, dbt, writedata, writedlen)    \
@@ -1818,7 +1818,7 @@ struct __db {
 			writedata = (uint8 *)(dbt)->data+__off;    \
 			__p[0] = __off;                                 \
 			__p[-1] = (uint32)(writedlen);               \
-			__p[-2] = (uint32)-1;                        \
+			__p[-2] = static_cast<uint32>(-1);                        \
 			pointer = __p-2;                              \
 		}                                                       \
 	} while(0)
@@ -1848,7 +1848,7 @@ struct __db {
 			writedata = (uint8 *)(dbt)->data+__off;    \
 			__p[0] = __off;                                 \
 			__p[-1] = (uint32)(writedlen);               \
-			__p[-2] = (uint32)-1;                        \
+			__p[-2] = static_cast<uint32>(-1);                        \
 			pointer = __p-2;                              \
 		}                                                       \
 	} while(0)

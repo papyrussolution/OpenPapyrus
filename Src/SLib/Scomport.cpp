@@ -143,12 +143,16 @@ void FASTCALL SCommPort::SetTimeouts(const CommPortTimeouts * pParam) { CPT = *p
 
 static void __OutLastErr()
 {
-	const  DWORD last_err = GetLastError();
-	LPVOID p_msg_buf;
-	::FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(),
-		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &p_msg_buf, 0, 0);
-	::MessageBox(NULL, (LPCTSTR)p_msg_buf, _T("Error"), MB_OK | MB_ICONINFORMATION); 
-	LocalFree(p_msg_buf);
+	//const  DWORD last_err = GetLastError();
+	//LPVOID p_msg_buf;
+	//::FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &p_msg_buf, 0, 0);
+	//::MessageBox(NULL, (LPCTSTR)p_msg_buf, _T("Error"), MB_OK | MB_ICONINFORMATION); 
+	//LocalFree(p_msg_buf);
+	// @v10.3.11 {
+	SString sys_err_buf;
+	SSystem::SFormatMessage(sys_err_buf);
+	::MessageBox(NULL, SUcSwitch(sys_err_buf), _T("Error"), MB_OK | MB_ICONINFORMATION); 
+	// } @v10.3.11
 }
 
 int SLAPI SCommPort::ClosePort()

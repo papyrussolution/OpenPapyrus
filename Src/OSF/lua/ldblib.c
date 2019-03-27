@@ -226,7 +226,7 @@ static int db_setlocal(lua_State * L)
 	checkstack(L, L1, 1);
 	lua_xmove(L, L1, 1);
 	name = lua_setlocal(L1, &ar, nvar);
-	if(name == NULL)
+	if(!name)
 		lua_pop(L1, 1); /* pop value (if not popped by 'lua_setlocal') */
 	lua_pushstring(L, name);
 	return 1;
@@ -240,7 +240,7 @@ static int auxupvalue(lua_State * L, int get)
 	int n = (int)luaL_checkinteger(L, 2); /* upvalue index */
 	luaL_checktype(L, 1, LUA_TFUNCTION); /* closure */
 	name = get ? lua_getupvalue(L, 1, n) : lua_setupvalue(L, 1, n);
-	if(name == NULL) return 0;
+	if(!name) return 0;
 	lua_pushstring(L, name);
 	lua_insert(L, -(get+1)); /* no-op if get is false */
 	return get + 1;

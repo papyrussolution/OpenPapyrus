@@ -193,9 +193,7 @@ int ENGINE_ctrl_cmd(ENGINE * e, const char * cmd_name, long i, void * p, void (*
 		ENGINEerr(ENGINE_F_ENGINE_CTRL_CMD, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
-	if(e->ctrl == NULL
-	    || (num = ENGINE_ctrl(e, ENGINE_CTRL_GET_CMD_FROM_NAME,
-			    0, (void *)cmd_name, NULL)) <= 0) {
+	if(e->ctrl == NULL || (num = ENGINE_ctrl(e, ENGINE_CTRL_GET_CMD_FROM_NAME, 0, (void *)cmd_name, NULL)) <= 0) {
 		/*
 		 * If the command didn't *have* to be supported, we fake success.
 		 * This allows certain settings to be specified for multiple ENGINEs

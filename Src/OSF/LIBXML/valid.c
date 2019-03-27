@@ -10,7 +10,7 @@
 #include "libxml.h"
 #pragma hdrstop
 
-static xmlElement * xmlGetDtdElementDesc2(xmlDtdPtr dtd, const xmlChar * name, int create);
+static xmlElement * xmlGetDtdElementDesc2(xmlDtd * dtd, const xmlChar * name, int create);
 /* #define DEBUG_VALID_ALGO */
 /* #define DEBUG_REGEXP_ALGO */
 
@@ -1124,7 +1124,7 @@ static void xmlFreeElement(xmlElement * pElem)
  *
  * Returns NULL if not, otherwise the entity
  */
-xmlElement * xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlChar * name, xmlElementTypeVal type, xmlElementContent * content)
+xmlElement * xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtd * dtd, const xmlChar * name, xmlElementTypeVal type, xmlElementContent * content)
 {
 	xmlElement * ret;
 	xmlElementTablePtr table;
@@ -1571,7 +1571,7 @@ static void xmlFreeAttribute(xmlAttribute * pAttr)
  *
  * Returns NULL if not new, otherwise the attribute decl
  */
-xmlAttribute * xmlAddAttributeDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlChar * elem,
+xmlAttribute * xmlAddAttributeDecl(xmlValidCtxtPtr ctxt, xmlDtd * dtd, const xmlChar * elem,
     const xmlChar * name, const xmlChar * ns, xmlAttributeType type, xmlAttributeDefault def, const xmlChar * defaultValue, xmlEnumeration * tree) 
 {
 	xmlAttribute * ret;
@@ -1921,7 +1921,7 @@ static void xmlFreeNotation(xmlNotation * nota)
  *
  * Returns NULL if not, otherwise the entity
  */
-xmlNotation * xmlAddNotationDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlChar * name, const xmlChar * PublicID, const xmlChar * SystemID) 
+xmlNotation * xmlAddNotationDecl(xmlValidCtxtPtr ctxt, xmlDtd * dtd, const xmlChar * name, const xmlChar * PublicID, const xmlChar * SystemID) 
 {
 	xmlNotation * ret;
 	xmlNotationTablePtr table;
@@ -2608,7 +2608,7 @@ xmlElement * FASTCALL xmlGetDtdElementDesc(xmlDtd * dtd, const xmlChar * name)
  *
  * returns the xmlElementPtr if found or NULL
  */
-static xmlElement * xmlGetDtdElementDesc2(xmlDtdPtr dtd, const xmlChar * name, int create)
+static xmlElement * xmlGetDtdElementDesc2(xmlDtd * dtd, const xmlChar * name, int create)
 {
 	xmlElement * cur = 0;
 	xmlChar * uqname = NULL;
@@ -2670,7 +2670,7 @@ static xmlElement * xmlGetDtdElementDesc2(xmlDtdPtr dtd, const xmlChar * name, i
  *
  * returns the xmlElementPtr if found or NULL
  */
-xmlElement * xmlGetDtdQElementDesc(xmlDtdPtr dtd, const xmlChar * name, const xmlChar * prefix)
+xmlElement * xmlGetDtdQElementDesc(xmlDtd * dtd, const xmlChar * name, const xmlChar * prefix)
 {
 	xmlElementTablePtr table;
 	if(dtd == NULL) return 0;
@@ -2689,7 +2689,7 @@ xmlElement * xmlGetDtdQElementDesc(xmlDtdPtr dtd, const xmlChar * name, const xm
  *
  * returns the xmlAttribute * if found or NULL
  */
-xmlAttribute * xmlGetDtdAttrDesc(xmlDtdPtr dtd, const xmlChar * elem, const xmlChar * name)
+xmlAttribute * xmlGetDtdAttrDesc(xmlDtd * dtd, const xmlChar * elem, const xmlChar * name)
 {
 	xmlAttributeTablePtr table;
 	xmlAttribute * cur;
@@ -2723,7 +2723,7 @@ xmlAttribute * xmlGetDtdAttrDesc(xmlDtdPtr dtd, const xmlChar * elem, const xmlC
  *
  * returns the xmlAttribute * if found or NULL
  */
-xmlAttribute * xmlGetDtdQAttrDesc(xmlDtdPtr dtd, const xmlChar * elem, const xmlChar * name, const xmlChar * prefix)
+xmlAttribute * xmlGetDtdQAttrDesc(xmlDtd * dtd, const xmlChar * elem, const xmlChar * name, const xmlChar * prefix)
 {
 	xmlAttributeTablePtr table;
 	if(dtd == NULL) return 0;
@@ -2741,7 +2741,7 @@ xmlAttribute * xmlGetDtdQAttrDesc(xmlDtdPtr dtd, const xmlChar * elem, const xml
  *
  * returns the xmlNotation * if found or NULL
  */
-xmlNotation * xmlGetDtdNotationDesc(xmlDtdPtr dtd, const xmlChar * name)
+xmlNotation * xmlGetDtdNotationDesc(xmlDtd * dtd, const xmlChar * name)
 {
 	xmlNotationTablePtr table;
 	if(dtd == NULL) return 0;
@@ -5701,10 +5701,11 @@ int xmlValidateDocumentFinal(xmlValidCtxtPtr ctxt, xmlDoc * doc)
  * returns 1 if valid or 0 otherwise
  */
 
-int xmlValidateDtd(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlDtdPtr dtd)
+int xmlValidateDtd(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlDtd * dtd)
 {
 	int ret;
-	xmlDtdPtr oldExt, oldInt;
+	xmlDtd * oldExt;
+	xmlDtd * oldInt;
 	xmlNode * root;
 	if(dtd == NULL) 
 		return 0;
@@ -5825,7 +5826,7 @@ static void xmlValidateAttributeCallback(xmlAttribute * cur, xmlValidCtxtPtr ctx
 
 int xmlValidateDtdFinal(xmlValidCtxtPtr ctxt, xmlDoc * doc) 
 {
-	xmlDtdPtr dtd;
+	xmlDtd * dtd;
 	xmlAttributeTablePtr table;
 	xmlEntitiesTablePtr entities;
 	if(!doc || !ctxt) 

@@ -152,7 +152,7 @@ static const char * lookup_name(struct name_cache * cache,
 	}
 
 	name = (lookup_fn)(cache, id);
-	if(name == NULL) {
+	if(!name) {
 		/* Cache and return the negative response. */
 		cache->cache[slot].name = NO_NAME;
 		cache->cache[slot].id = id;

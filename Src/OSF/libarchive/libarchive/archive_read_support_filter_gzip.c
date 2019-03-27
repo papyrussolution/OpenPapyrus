@@ -244,7 +244,7 @@ static int gzip_bidder_init(struct archive_read_filter * self)
 	self->code = ARCHIVE_FILTER_GZIP;
 	self->name = "gzip";
 	state = (struct private_data *)SAlloc::C(sizeof(*state), 1);
-	out_block = (uchar*)SAlloc::M(out_block_size);
+	out_block = (uchar *)SAlloc::M(out_block_size);
 	if(state == NULL || out_block == NULL) {
 		SAlloc::F(out_block);
 		SAlloc::F(state);
@@ -278,7 +278,7 @@ static int consume_header(struct archive_read_filter * self)
 	state->crc = crc32(0L, NULL, 0);
 
 	/* Initialize compression library. */
-	state->stream.next_in = (uchar*)(uintptr_t)
+	state->stream.next_in = (uchar *)(uintptr_t)
 	    __archive_read_filter_ahead(self->upstream, 1, &avail);
 	state->stream.avail_in = (uInt)avail;
 	ret = inflateInit2(&(state->stream),
@@ -374,7 +374,7 @@ static ssize_t gzip_filter_read(struct archive_read_filter * self, const void **
 		/* Peek at the next available data. */
 		/* ZLib treats stream.next_in as const but doesn't declare
 		 * it so, hence this ugly cast. */
-		state->stream.next_in = (uchar*)(uintptr_t)
+		state->stream.next_in = (uchar *)(uintptr_t)
 		    __archive_read_filter_ahead(self->upstream, 1, &avail_in);
 		if(state->stream.next_in == NULL) {
 			archive_set_error(&self->archive->archive,

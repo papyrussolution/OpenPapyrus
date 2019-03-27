@@ -1359,7 +1359,7 @@ int SLAPI PrcssrDL200::EditParam(Param * pData)
 
 int SLAPI PrcssrDL200::Init(const Param * pParam)
 {
-	int ok = 1;
+	int    ok = 1;
 	P = *pParam;
 	D.destroy();
 	GStack.freeAll();

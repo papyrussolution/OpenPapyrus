@@ -747,7 +747,7 @@ EXTERN_C_BEGIN
 		#define GetUi16(p) (*(const uint16*)(const void*)(p))
 		#define GetUi32(p) (*(const uint32*)(const void*)(p))
 		#define GetUi64(p) (*(const uint64*)(const void*)(p))
-		#define SetUi16(p, v) { *(uint16*)(p) = (v); }
+		#define SetUi16(p, v) { *(uint16 *)(p) = (v); }
 		#define SetUi32(p, v) { *(uint32 *)(p) = (v); }
 		#define SetUi64(p, v) { *(uint64 *)(p) = (v); }
 	#else
