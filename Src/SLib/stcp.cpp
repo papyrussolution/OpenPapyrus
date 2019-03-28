@@ -623,16 +623,16 @@ int SLAPI TcpSocket::RecvUntil(SBuffer & rBuf, const char * pTerminator, size_t 
 				recv_sz = (term_len - match_len);
 				rd_len = 0;
 				{
-					int    local_len = Helper_Recv((char *)InBuf, recv_sz);
+					int    local_len = Helper_Recv(InBuf.vptr(), recv_sz);
 					THROW_S(local_len != SOCKET_ERROR, SLERR_SOCK_WINSOCK);
 					rd_len = (size_t)local_len;
 					StatData.RdCount += local_len;
 				}
 				if(rd_len) {
-					THROW(rBuf.Write((char *)InBuf, rd_len));
+					THROW(rBuf.Write(InBuf.vcptr(), rd_len));
 					total_sz += rd_len;
 					assert(rBuf.GetWrOffs() >= term_len);
-					const char * p_buf = (const char *)rBuf.GetBuf(rBuf.GetWrOffs()-term_len);
+					const char * p_buf = static_cast<const char *>(rBuf.GetBuf(rBuf.GetWrOffs()-term_len));
 					match_len = 0;
 					for(uint i = 0; !match_len && i < term_len; i++)
 						if(memcmp(p_buf+i, pTerminator, term_len-i) == 0)
@@ -660,12 +660,12 @@ int SLAPI TcpSocket::RecvBuf(SBuffer & rBuf, size_t size, size_t * pRcvdSize)
 			size_t recv_sz = MIN(InBuf.GetSize(), sz);
 			size_t rd_len = 0;
 			{
-				int    local_len = Helper_Recv((char *)InBuf, recv_sz);
+				int    local_len = Helper_Recv(InBuf.vptr(), recv_sz);
 				THROW_S(local_len != SOCKET_ERROR, SLERR_SOCK_WINSOCK);
 				rd_len = (size_t)local_len;
 				StatData.RdCount += local_len;
 			}
-			THROW(rBuf.Write((char *)InBuf, rd_len));
+			THROW(rBuf.Write(InBuf.vcptr(), rd_len));
 			total_sz += rd_len;
 			if(size) {
 				if(total_sz < size)
@@ -710,7 +710,7 @@ int SLAPI TcpSocket::Send(const void * pBuf, size_t size, size_t * pSendedSize)
 	THROW(Select(mWrite));
 	THROW(CheckErrorStatus());
 	if(P_Ssl == 0) {
-		len = ::send(S, (const char *)pBuf, size, 0);
+		len = ::send(S, static_cast<const char *>(pBuf), size, 0);
 	}
 	else {
 		len = P_Ssl->Write(pBuf, size);
@@ -732,8 +732,8 @@ int SLAPI TcpSocket::SendBuf(SBuffer & rBuf, size_t * pSendedSize)
 	while((sz = rBuf.GetAvailableSize()) != 0) {
 		size_t sended_sz = 0;
 		SETMIN(sz, OutBuf.GetSize());
-		rBuf.Read((char *)OutBuf, sz);
-		THROW(Send((char *)OutBuf, sz, &sended_sz));
+		rBuf.Read(OutBuf.vptr(), sz);
+		THROW(Send(OutBuf.vcptr(), sz, &sended_sz));
 		THROW_S(sended_sz != 0, SLERR_SOCK_SEND);
 		total_sz += sended_sz;
 		ok = 1;
@@ -3099,7 +3099,7 @@ size_t ScURL::CbWrite(char * pBuffer, size_t size, size_t nmemb, void * pExtra)
 	return ret;
 }
 
-#define _CURLH ((CURL *)H)
+#define _CURLH (static_cast<CURL *>(H))
 
 ScURL::ScURL() : NullWrF(0, SFile::mNullWrite), P_LogF(0)
 {

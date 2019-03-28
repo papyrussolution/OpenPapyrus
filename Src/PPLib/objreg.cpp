@@ -767,7 +767,7 @@ private:
 			ba_rec.AccType = PPBAC_CURRENT;
 			while(ok < 0 && RObj.EditBankAccount(&ba_rec, 0) > 0) {
 				if(P_Data->CheckDuplicateBankAccount(&ba_rec, -1)) {
-					if(P_Data->SetBankAccount(&ba_rec, (uint)-1)) {
+					if(P_Data->SetBankAccount(&ba_rec, static_cast<uint>(-1))) {
 						ASSIGN_PTR(pID, P_Data->getCount());
 						ok = 1;
 					}

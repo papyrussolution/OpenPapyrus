@@ -462,7 +462,7 @@ const void * SLAPI SlSession::InitThread()
 
 void SLAPI SlSession::ReleaseThread()
 {
-	SlThreadLocalArea * p_tla = (SlThreadLocalArea *)TlsGetValue(TlsIdx);
+	SlThreadLocalArea * p_tla = static_cast<SlThreadLocalArea *>(TlsGetValue(TlsIdx));
 	if(p_tla) {
 		TlsSetValue(TlsIdx, 0);
 		delete p_tla;

@@ -1017,7 +1017,7 @@ FPoint SLAPI FPoint::AddY(float y) const { return FPoint(X, Y + y); }
 float  SLAPI FPoint::Sub()  const { return X - Y; }
 float  SLAPI FPoint::Sq()   const { return (X * X + Y * Y); }
 double SLAPI FPoint::Hypot() const { return _hypot(X, Y); }
-float  SLAPI FPoint::Hypotf() const { return (float)_hypot(X, Y); }
+float  SLAPI FPoint::Hypotf() const { return static_cast<float>(_hypot(X, Y)); }
 FPoint SLAPI FPoint::Swap() const { return FPoint(Y, X); }
 FPoint SLAPI FPoint::Combine(FPoint a, FPoint b) const { return FPoint(a.X*X + a.Y*Y, b.X*X + b.Y*Y); }
 
@@ -1110,16 +1110,11 @@ static RPoint3 & Push_RPoint3(double x, double y, double z)
 	return PushRecycledObject <RPoint3, 64> (p);
 }
 
-RPoint & FASTCALL operator - (const RPoint & one, const RPoint & two)
-	{ return Push_RPoint(one.x - two.x, one.y - two.y); }
-RPoint & FASTCALL operator + (const RPoint & one, const RPoint & two)
-	{ return Push_RPoint(one.x + two.x, one.y + two.y); }
-RPoint & FASTCALL operator + (const RPoint & p, double a)
-	{ return Push_RPoint(p.x + a, p.y + a); }
-RPoint & FASTCALL operator * (const RPoint & p, double m)
-	{ return Push_RPoint(p.x * m, p.y * m); }
-RPoint & FASTCALL operator / (const RPoint & p, double d)
-	{ return (d != 0.0) ? Push_RPoint(p.x / d, p.y / d) : Push_RPoint(0.0, 0.0); }
+RPoint & FASTCALL operator - (const RPoint & one, const RPoint & two) { return Push_RPoint(one.x - two.x, one.y - two.y); }
+RPoint & FASTCALL operator + (const RPoint & one, const RPoint & two) { return Push_RPoint(one.x + two.x, one.y + two.y); }
+RPoint & FASTCALL operator + (const RPoint & p, double a) { return Push_RPoint(p.x + a, p.y + a); }
+RPoint & FASTCALL operator * (const RPoint & p, double m) { return Push_RPoint(p.x * m, p.y * m); }
+RPoint & FASTCALL operator / (const RPoint & p, double d) { return (d != 0.0) ? Push_RPoint(p.x / d, p.y / d) : Push_RPoint(0.0, 0.0); }
 //
 //
 //

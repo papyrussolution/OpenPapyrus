@@ -593,7 +593,7 @@ void TDateCalendar::OnPaint(HWND hWnd)
 		::SelectObject(hdc, gray_pen);
 		{
 			br = ::CreateSolidBrush(RGB(212, 208, 200));
-			oldbr = (HBRUSH)::SelectObject(hdc, br);
+			oldbr = static_cast<HBRUSH>(::SelectObject(hdc, br));
 			::Rectangle(hdc, Left - 2, Top - m_diff_y - 3, Left + (y_br - y_bl), Top - m_diff_y + m_cell_h * 2 + 3);
 			::SelectObject(hdc, oldbr);
 			ZDeleteWinGdiObject(&br);
@@ -1028,7 +1028,7 @@ int  TDateCalendar::SelectWeek(HWND hWnd, int x, int y)
 		HPEN   pen = ::CreatePen(PS_SOLID, 3, C_BACKCOL);
 		HPEN   oldpen = (HPEN)::SelectObject(hdc, pen);
 		HBRUSH br = ::CreateSolidBrush(C_BACKCOL);
-		HBRUSH oldbr = (HBRUSH)::SelectObject(hdc, br);
+		HBRUSH oldbr = static_cast<HBRUSH>(::SelectObject(hdc, br));
 		::Rectangle(hdc, x + 1, y, c_j < 6 ? x + c_cell_w - 1 : x + c_cell_w - 2, y + c_cell_h - 2);
 		::SelectObject(hdc, oldpen);
 		::SelectObject(hdc, oldbr);
@@ -1094,7 +1094,7 @@ int  TDateCalendar::SelectWeek(HWND hWnd, int x, int y)
 					br  = ::CreateSolidBrush(is_sel ? C_SELPCOL : C_BACKCOL);
 					::SetTextColor(hdc, is_sel ? C_TEXT2COL : 0);
 					oldpen = (HPEN)::SelectObject(hdc, pen);
-					oldbr  = (HBRUSH)::SelectObject(hdc, br);
+					oldbr  = static_cast<HBRUSH>(::SelectObject(hdc, br));
 					::Rectangle(hdc, xx + 1, yy, (jj < 6) ? (xx + c_cell_w - 1) : (xx + c_cell_w - 2), yy + c_cell_h - 2);
 					::SelectObject(hdc, oldpen);
 					::SelectObject(hdc, oldbr);
@@ -1119,7 +1119,7 @@ int  TDateCalendar::SelectWeek(HWND hWnd, int x, int y)
 		pen = ::CreatePen(PS_SOLID, 3, C_SELCOL);
 		oldpen = (HPEN)SelectObject(hdc, pen);
 		br = ::CreateSolidBrush(C_SELCOL);
-		oldbr = (HBRUSH)::SelectObject(hdc, br);
+		oldbr = static_cast<HBRUSH>(::SelectObject(hdc, br));
 		::Rectangle(hdc, x + 1, y, (c_j < 6) ? (x + c_cell_w - 1) : (x + c_cell_w - 2), y + c_cell_h - 2);
 		::SelectObject(hdc, oldpen);
 		::SelectObject(hdc, oldbr);

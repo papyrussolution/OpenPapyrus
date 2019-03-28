@@ -19,7 +19,7 @@ TMenuPopup::TMenuPopup() : State(0), Count(0), H(::CreatePopupMenu())
 TMenuPopup::~TMenuPopup()
 {
 	if(H) {
-		::DestroyMenu((HMENU)H);
+		::DestroyMenu(static_cast<HMENU>(H));
 		H = 0;
 	}
 }
@@ -65,7 +65,7 @@ int TMenuPopup::AddSeparator()
 		if(State & MPST_PREVSEPARATOR)
 			ok = -1;
 		else {
-			ok = BIN(::AppendMenu((HMENU)H, MF_SEPARATOR, 0, 0));
+			ok = BIN(::AppendMenu(static_cast<HMENU>(H), MF_SEPARATOR, 0, 0));
 			State |= MPST_PREVSEPARATOR;
 		}
 	}
@@ -81,7 +81,7 @@ int TMenuPopup::Execute(HWND hWnd, long flags)
 		uint f = TPM_LEFTALIGN|TPM_LEFTBUTTON;
 		if(flags & efRet)
 			f |= TPM_RETURNCMD;
-		cmd = ::TrackPopupMenu((HMENU)H, f, p.x, p.y, 0, hWnd, 0);
+		cmd = ::TrackPopupMenu(static_cast<HMENU>(H), f, p.x, p.y, 0, hWnd, 0);
 	}
 	return cmd;
 }
@@ -112,7 +112,7 @@ int TWindow::LocalMenuPool::GetCtrlIdByButtonId(uint buttonId, uint * pCtrlId) c
 	int    ok = 0;
 	if(buttonId) {
 		for(uint i = 0; !ok && i < List.getCount(); i++) {
-			const Item * p_item = (const Item *)List.at(i);
+			const Item * p_item = static_cast<const Item *>(List.at(i));
 			if(p_item->ButtonId == buttonId && p_item->CtrlId) {
 				ASSIGN_PTR(pCtrlId, p_item->CtrlId);
 				ok = 1;
@@ -127,7 +127,7 @@ int TWindow::LocalMenuPool::GetButtonIdByCtrlId(uint ctrlId, uint * pButtonId) c
 	int    ok = 0;
 	if(ctrlId) {
 		for(uint i = 0; !ok && i < List.getCount(); i++) {
-			const Item * p_item = (const Item *)List.at(i);
+			const Item * p_item = static_cast<const Item *>(List.at(i));
 			if(p_item->CtrlId == ctrlId && p_item->ButtonId) {
 				ASSIGN_PTR(pButtonId, p_item->ButtonId);
 				ok = 1;
@@ -145,7 +145,7 @@ int TWindow::LocalMenuPool::ShowMenu(uint buttonId)
 		SString text;
 		TMenuPopup menu;
 		for(uint i = 0; ok > 0 && i < List.getCount(); i++) {
-			const Item * p_item = (const Item *)List.at(i);
+			const Item * p_item = static_cast<const Item *>(List.at(i));
 			if(p_item->ButtonId == buttonId && p_item->StrPos) {
 				if(p_item->CtrlId) {
 					TView * p_view = P_Win->getCtrlView(p_item->CtrlId);
@@ -414,8 +414,8 @@ void FASTCALL TWindow::selectCtrl(ushort ctlID)
 
 TButton * FASTCALL TWindow::SearchButton(uint cmd)
 {
-	TView * p_view = (TView *)TView::messageBroadcast(this, cmSearchButton, (void *)cmd);
-	return (p_view && p_view->IsSubSign(TV_SUBSIGN_BUTTON)) ? (TButton *)p_view : 0;
+	TView * p_view = static_cast<TView *>(TView::messageBroadcast(this, cmSearchButton, reinterpret_cast<void *>(cmd)));
+	return (p_view && p_view->IsSubSign(TV_SUBSIGN_BUTTON)) ? static_cast<TButton *>(p_view) : 0;
 }
 
 int SLAPI TWindow::selectButton(ushort cmd)

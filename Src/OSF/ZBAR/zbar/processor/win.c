@@ -89,9 +89,10 @@ int _zbar_thread_stop(zbar_thread_t * thr, zbar_mutex_t * lock)
 	if(thr->started) {
 		thr->started = 0;
 		_zbar_event_trigger(&thr->notify);
-		while(thr->running)
+		while(thr->running) {
 			/* FIXME time out and abandon? */
 			_zbar_event_wait(&thr->activity, lock, 0);
+		}
 		_zbar_event_destroy(&thr->notify);
 		_zbar_event_destroy(&thr->activity);
 	}
@@ -125,42 +126,28 @@ static LRESULT CALLBACK win_handle_event(HWND hwnd, UINT message, WPARAM wparam,
 		    PAINTSTRUCT ps;
 		    BeginPaint(hwnd, &ps);
 		    if(zbar_window_redraw(proc->window)) {
-			    HDC hdc = GetDC(hwnd);
+			    HDC hdc = ::GetDC(hwnd);
 			    RECT r;
-			    GetClientRect(hwnd, &r);
-			    FillRect(hdc, &r, (HBRUSH)GetStockObject(BLACK_BRUSH));
+			    ::GetClientRect(hwnd, &r);
+			    ::FillRect(hdc, &r, static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH)));
 			    ReleaseDC(hwnd, hdc);
 		    }
 		    EndPaint(hwnd, &ps);
 		    return 0;
 	    }
-		case WM_CHAR: {
-		    _zbar_processor_handle_input(proc, wparam);
-		    return 0;
-	    }
-		case WM_LBUTTONDOWN: {
-		    _zbar_processor_handle_input(proc, 1);
-		    return 0;
-	    }
-		case WM_MBUTTONDOWN: {
-		    _zbar_processor_handle_input(proc, 2);
-		    return 0;
-	    }
-		case WM_RBUTTONDOWN: {
-		    _zbar_processor_handle_input(proc, 3);
-		    return 0;
-	    }
-		case WM_CLOSE: {
+		case WM_CHAR: _zbar_processor_handle_input(proc, wparam); return 0;
+		case WM_LBUTTONDOWN: _zbar_processor_handle_input(proc, 1); return 0;
+		case WM_MBUTTONDOWN: _zbar_processor_handle_input(proc, 2); return 0;
+		case WM_RBUTTONDOWN: _zbar_processor_handle_input(proc, 3); return 0;
+		case WM_CLOSE:
 		    zprintf(3, "WM_CLOSE\n");
 		    _zbar_processor_handle_input(proc, -1);
 		    return 1;
-	    }
-		case WM_DESTROY: {
+		case WM_DESTROY:
 		    zprintf(3, "WM_DESTROY\n");
 		    proc->display = NULL;
 		    zbar_window_attach(proc->window, NULL, 0);
 		    return 0;
-	    }
 	}
 	return (DefWindowProc(hwnd, message, wparam, lparam));
 }

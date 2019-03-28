@@ -548,7 +548,7 @@ int FASTCALL TDialog::addGroup(ushort grpID, CtrlGroup * pGroup)
 		ok = 1;
 	}
 	else if(pGroup) {
-		PP_Groups = (CtrlGroup**)SAlloc::R(PP_Groups, sizeof(CtrlGroup*) * (GrpCount+1));
+		PP_Groups = static_cast<CtrlGroup **>(SAlloc::R(PP_Groups, sizeof(CtrlGroup*) * (GrpCount+1)));
 		pGroup->Id = grpID;
 		ok = PP_Groups ? (PP_Groups[GrpCount++] = pGroup, 1) : (GrpCount = 0, 0);
 	}
@@ -756,7 +756,7 @@ int TDialog::TransmitData(int dir, void * pData)
 TLabel * SLAPI TDialog::getCtlLabel(uint ctlID)
 {
 	TView  * v = getCtrlView(ctlID);
-	return v ? (TLabel *)TView::messageBroadcast(this, cmSearchLabel, v) : 0;
+	return v ? static_cast<TLabel *>(TView::messageBroadcast(this, cmSearchLabel, v)) : 0;
 }
 
 int SLAPI TDialog::getLabelText(uint ctlID, SString & rText)
@@ -774,7 +774,7 @@ int SLAPI TDialog::setLabelText(uint ctlID, const char * pText)
 long TDialog::getVirtButtonID(uint ctlID)
 {
 	TView * v = getCtrlView(ctlID);
-	return v ? (long)TView::messageBroadcast(this, cmSearchVirtButton, v) : 0;
+	return v ? reinterpret_cast<long>(TView::messageBroadcast(this, cmSearchVirtButton, v)) : 0;
 }
 
 int FASTCALL TDialog::AddClusterAssoc(uint ctlID, long pos, long val)
@@ -826,7 +826,7 @@ int FASTCALL TDialog::GetClusterData(uint ctlID, int16 * pVal)
 	long   temp_long = *pVal;
 	int    r = GetClusterData(ctlID, &temp_long);
 	if(r)
-		*pVal = (int16)temp_long;
+		*pVal = static_cast<int16>(temp_long);
 	return r;
 }
 
@@ -844,7 +844,7 @@ int TDialog::SetClusterItemText(uint ctlID, int itemNo /* 0.. */, const char * p
 
 int TDialog::SetDefaultButton(uint ctlID, int setDefault)
 {
-	TButton * p_ctl = (TButton *)getCtrlView(ctlID);
+	TButton * p_ctl = static_cast<TButton *>(getCtrlView(ctlID));
 	return p_ctl ? p_ctl->makeDefault(LOGIC(setDefault), 1) : 0;
 }
 

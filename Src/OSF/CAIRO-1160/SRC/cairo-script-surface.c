@@ -210,7 +210,7 @@ static cairo_status_t _bitmap_next_id(struct _cairo_script_context::_bitmap * b,
 		if(b->count < sizeof(b->map) * CHAR_BIT) {
 			uint n, m, bit;
 			for(n = 0; n < ARRAY_LENGTH(b->map); n++) {
-				if(b->map[n] == (uint)-1)
+				if(b->map[n] == static_cast<uint>(-1))
 					continue;
 				for(m = 0, bit = 1; m<sizeof(b->map[0])*CHAR_BIT; m++, bit <<= 1) {
 					if((b->map[n] & bit) == 0) {

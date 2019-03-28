@@ -3236,6 +3236,7 @@ private:
 
 struct DBConst : public DBItem {
 	void   FASTCALL init(long l);
+	void   FASTCALL init(size_t l);
 	void   FASTCALL init(double d);
 	void   FASTCALL init(const char * s);
 	void   FASTCALL init(LDATE d);

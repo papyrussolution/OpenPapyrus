@@ -5039,7 +5039,7 @@ int MainOrg2Dialog::getDTS()
 					}
 				}
 				THROW(P_Pack->Regs.CheckDuplicateBankAccount(&bnk_rec, bnk_pos));
-				THROW(P_Pack->Regs.SetBankAccount(&bnk_rec, (uint)-1));
+				THROW(P_Pack->Regs.SetBankAccount(&bnk_rec, static_cast<uint>(-1)));
 			}
 		}
 		else if(PrefPos > -1) {

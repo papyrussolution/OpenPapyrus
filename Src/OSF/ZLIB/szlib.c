@@ -1876,7 +1876,7 @@ static int gz_init(gz_state * state)
 // 
 static int FASTCALL gz_comp(gz_state * state, int flush)
 {
-	const uint max_ = ((uint)-1 >> 2) + 1;
+	const uint max_ = (static_cast<uint>(-1) >> 2) + 1;
 	z_stream * p_strm = &(state->strm);
 	// allocate memory if this is the first time through 
 	if(state->size == 0 && gz_init(state) == -1)
@@ -2006,7 +2006,7 @@ static size_t FASTCALL gz_write(gz_state * state, voidpc buf, size_t len)
 		// directly compress user buffer to file 
 		state->strm.next_in = static_cast<const Bytef *>(buf);
 		do {
-			uint n = (uint)-1;
+			uint n = static_cast<uint>(-1);
 			SETMIN(n, len);
 			state->strm.avail_in = n;
 			state->x.pos += n;
@@ -2372,7 +2372,7 @@ int ZEXPORT gzclose_w(gzFile file)
 static int FASTCALL gz_load(gz_state * state, uchar * buf, uint len, uint * have)
 {
 	int ret;
-	const uint _max = ((uint)-1 >> 2) + 1;
+	const uint _max = (static_cast<uint>(-1) >> 2) + 1;
 	*have = 0;
 	do {
 		uint get = len - *have;
@@ -2622,7 +2622,7 @@ static size_t FASTCALL gz_read(gz_state * state, void * buf, size_t len)
 		// get len bytes to buf, or less than len if at the end 
 		do {
 			// set n to the maximum amount of len that fits in an unsigned int 
-			uint   n = (uint)-1;
+			uint   n = static_cast<uint>(-1);
 			if(n > len)
 				n = len;
 			// first just try copying data from the output buffer 
@@ -3379,7 +3379,7 @@ void ZLIB_INTERNAL FASTCALL gz_error(gz_state * state, int err, const char * msg
 // portably return maximum value for an int (when limits.h presumed not
 // available) -- we need to do this to cover cases where 2's complement not
 // used, since C standard permits 1's complement and sign-bit representations,
-// otherwise we could just use ((uint)-1) >> 1 
+// otherwise we could just use (static_cast<uint>(-1)) >> 1 
 //
 uint ZLIB_INTERNAL gz_intmax()
 {

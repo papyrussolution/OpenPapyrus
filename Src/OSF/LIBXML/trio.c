@@ -1848,7 +1848,7 @@ static void TrioWriteNumber(trio_class_t * self, trio_uintmax_t number, trio_fla
 	else if(flags & FLAGS_LONG)
 		number &= (ulong)-1;
 	else
-		number &= (uint)-1;
+		number &= static_cast<uint>(-1);
 	/* Build number */
 	pointer = bufferend = &buffer[sizeof(buffer) - 1];
 	*pointer-- = NIL;

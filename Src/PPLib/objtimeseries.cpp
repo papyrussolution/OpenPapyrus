@@ -949,9 +949,10 @@ static int SLAPI FindOptimalFactorRange(const TSVector <StrategyOptEntry> & rLis
 	rR.Z();
 	rRangeCount = 0;
 	rResult = 0.0;
+	const  int interval_exp_direction = 1; // 0 - не раздвигать интервалы, 1 - только расширять, 2 - только сжимать, 3 - расширять и сжимать
+	const  uint maxprobe = 50; // @v10.3.5 20-->30 // @v10.3.6 30-->100 // @v10.3.8 100-->200 // @v10.3.9 200-->50
 	int    do_break = 0; // Сигнал для выхода из функции из-за того, что приемлемых значений больше нет
 	if(_c > 1) {
-		const uint maxprobe = 50; // @v10.3.5 20-->30 // @v10.3.6 30-->100 // @v10.3.8 100-->200 // @v10.3.9 200-->50
 		// (must be done by caller) rList.sort(PTR_CMPFUNC(double));
 		const  double total_sum = CalcFactorRangeResultSum(rList, 0, _c-1);
 		double prev_result = total_sum;
@@ -1027,57 +1028,65 @@ static int SLAPI FindOptimalFactorRange(const TSVector <StrategyOptEntry> & rLis
 			}
 		}
 		if(!do_break) {
-			while(lo_idx > 0) {
-				int done = 0;
-				for(uint probedeep = 1; !done && probedeep <= maxprobe && probedeep > lo_idx; probedeep++) {
-					const double temp_result = CalcFactorRangeResultSum(rList, lo_idx-probedeep, up_idx);
-					if(prev_result < temp_result) {
-						prev_result = temp_result;
-						lo_idx -= probedeep;
-						done = 1;
+			if(interval_exp_direction & 1) { // расширять интервал
+				while(lo_idx > 0) {
+					int done = 0;
+					for(uint probedeep = 1; !done && probedeep <= maxprobe && probedeep > lo_idx; probedeep++) {
+						const double temp_result = CalcFactorRangeResultSum(rList, lo_idx-probedeep, up_idx);
+						if(prev_result < temp_result) {
+							prev_result = temp_result;
+							lo_idx -= probedeep;
+							done = 1;
+						}
 					}
+					if(!done)
+						break;
 				}
-				if(!done)
-					break;
 			}
-			while((up_idx+1) < _c) {
-				int done = 0;
-				for(uint probedeep = 1; !done && probedeep <= maxprobe && (up_idx+probedeep) < _c; probedeep++) {
-					const double temp_result = CalcFactorRangeResultSum(rList, lo_idx, up_idx+probedeep);
-					if(prev_result < temp_result) {
-						prev_result = temp_result;
-						up_idx += probedeep;
-						done = 1;
+			if(interval_exp_direction & 1) { // расширять интервал
+				while((up_idx+1) < _c) {
+					int done = 0;
+					for(uint probedeep = 1; !done && probedeep <= maxprobe && (up_idx+probedeep) < _c; probedeep++) {
+						const double temp_result = CalcFactorRangeResultSum(rList, lo_idx, up_idx+probedeep);
+						if(prev_result < temp_result) {
+							prev_result = temp_result;
+							up_idx += probedeep;
+							done = 1;
+						}
 					}
+					if(!done)
+						break;
 				}
-				if(!done)
-					break;
 			}
-			while(lo_idx < up_idx) { // Сдвигаем нижнюю границу вверх
-				int done = 0;
-				for(uint probedeep = 1; !done && probedeep <= maxprobe && (lo_idx+probedeep) <= up_idx; probedeep++) {
-					const double temp_result = CalcFactorRangeResultSum(rList, lo_idx+probedeep, up_idx);
-					if(prev_result < temp_result) {
-						prev_result = temp_result;
-						lo_idx += probedeep;
-						done = 1;
+			if(interval_exp_direction & 2) { // сжимать интервал
+				while(lo_idx < up_idx) { // Сдвигаем нижнюю границу вверх
+					int done = 0;
+					for(uint probedeep = 1; !done && probedeep <= maxprobe && (lo_idx+probedeep) <= up_idx; probedeep++) {
+						const double temp_result = CalcFactorRangeResultSum(rList, lo_idx+probedeep, up_idx);
+						if(prev_result < temp_result) {
+							prev_result = temp_result;
+							lo_idx += probedeep;
+							done = 1;
+						}
 					}
+					if(!done)
+						break;
 				}
-				if(!done)
-					break;
 			}
-			while(lo_idx < up_idx) { // Сдвигаем верхнюю границу вниз
-				int done = 0;
-				for(uint probedeep = 1; !done && probedeep <= maxprobe && (up_idx-probedeep) >= lo_idx; probedeep++) {
-					const double temp_result = CalcFactorRangeResultSum(rList, lo_idx, up_idx-probedeep);
-					if(prev_result < temp_result) {
-						prev_result = temp_result;
-						up_idx -= probedeep;
-						done = 1;
+			if(interval_exp_direction & 2) { // сжимать интервал
+				while(lo_idx < up_idx) { // Сдвигаем верхнюю границу вниз
+					int done = 0;
+					for(uint probedeep = 1; !done && probedeep <= maxprobe && (up_idx-probedeep) >= lo_idx; probedeep++) {
+						const double temp_result = CalcFactorRangeResultSum(rList, lo_idx, up_idx-probedeep);
+						if(prev_result < temp_result) {
+							prev_result = temp_result;
+							up_idx -= probedeep;
+							done = 1;
+						}
 					}
+					if(!done)
+						break;
 				}
-				if(!done)
-					break;
 			}
 			rR.Set(rList.at(lo_idx).Factor, rList.at(up_idx).Factor);
 			rResult = prev_result;
@@ -1320,7 +1329,8 @@ static int SLAPI TsCalcStrategyResult2(const DateTimeArray & rTmList, const Real
 		const  int is_short = BIN(rS.BaseFlags & rS.bfShort);
 		const  int prec = rS.Prec;
 		{
-			const double spread = (rS.Prec > 0 && rS.SpreadAvg > 0.0) ? (rS.SpreadAvg * fpow10i(-rS.Prec)) : 0.0;
+			const double spread_adjustment = 1.1; // Поправка запаса прочности для размера комиссии
+			const double spread = (rS.Prec > 0 && rS.SpreadAvg > 0.0) ? (rS.SpreadAvg * fpow10i(-rS.Prec) * spread_adjustment) : 0.0;
 			const double margin = rS.Margin;
 			uint k = valueIdx+1;
 			if(is_short) {
@@ -1650,25 +1660,7 @@ static int SLAPI TsTestStrategy2(const DateTimeArray & rTmList, const RealArray 
 			}
 		}
 		else if(rSre.StakeMode == 1) {
-			/* @v10.3.9 for(uint i = 0; i < tsc; i++) {
-				PPObjTimeSeries::StrategyResultValueEx rv_ex;
-				int    is_signal = 0;
-				if(i >= (ifs+1) && rS.OptDeltaRange.Check(rTrendList.at(i))) {
-					const  int csr = TsCalcStrategyResult2(rTmList, rValList, rS, i, rv_ex);
-					THROW(csr);
-					if(csr == 2)
-						rSre.LastResultIdx = i;
-					is_signal = BIN(csr == 2);
-				}
-				if(is_signal) {
-					signal_count++;
-					result_list.add(rv_ex.Result);
-					rSre.SetValue(rv_ex);
-				}
-				else
-					result_list.add(0.0);
-			}*/
-			THROW(Helper_TsTestStrategy2_Mode1(rTmList, rValList, rTrendList, rS, result_list, rSre, signal_count)); // @v10.3.9
+			THROW(Helper_TsTestStrategy2_Mode1(rTmList, rValList, rTrendList, rS, result_list, rSre, signal_count));
 		}
 		else if(rSre.StakeMode == 2) {
 			for(uint i = 0; i < tsc; i++) {
@@ -1803,13 +1795,14 @@ static int SLAPI TsTestStrategy2(const DateTimeArray & rTmList, const RealArray 
 						}
 					}
 					so_list.sort(PTR_CMPFUNC(double));
+					// @v10.3.12 Все-таки снова попробуем разбивать интервал только в соответствии со знаком тренда (initial_splitting 0-->(3:2))
 					//const int initial_splitting = 1;
-					//const int initial_splitting = (rSre.BaseFlags & rSre.bfShort) ? 3 : 2;
-					const int initial_splitting = 0;
+					const int initial_splitting = (rSre.BaseFlags & rSre.bfShort) ? 3 : 2;
+					//const int initial_splitting = 0;
 					FindOptimalFactorRange(so_list, initial_splitting, rSre.OptDeltaRange, rSre.OptDeltaCount, rSre.OptDeltaResult);
 					PROFILE_END
 				}
-				if(oneof2(rSre.StakeMode, 0, 1)) {
+				if(oneof2(rSre.StakeMode, 0, 1) && doFindOptimalFactorRange == 2) {
 					THROW(FindOptimalFactorRange_SecondKind(rTrendList, result_list, rSre));
 				}
 			}
@@ -2692,10 +2685,9 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 					//static const uint input_frame_size_list[] = { 120*2, 120*3, 120*4, 120*8 }; // @v10.3.8
 					//static const uint input_frame_size_list[] = { 30, 60, 90, 120, 150, 180, 210, 240, 270, 300 }; // @v10.3.8
 					//static const uint input_frame_size_list[] = { 15, 20, 25, 30, 35, 40, 45, 50, 55, 60 }; // @v10.3.9
-					
 					//static const uint input_frame_size_list[] = { 120, 120*4, 120*8, 120*16 };
 					//static const uint input_frame_size_list[] = { 120, 120*2, 120*4, 120*6, 120*8 };
-					static const uint input_frame_size_list[] = { 120, 280, 440, 600, 760, 920 };
+					static const uint input_frame_size_list[] = { 30, 60, 120, 280, 440, 600, 760, 920 }; // @v10.3.12 {30, 60}
 
 					STimeSeries::Stat st(0);
 					uint   vec_idx = 0;
@@ -2861,8 +2853,10 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 												}
 												else {
 													stake_mode_list[0] = 1;
+													/* @v10.3.12 все плохо! попытаемся ограничиться только 1-м режимом с совпадающим знаком тренда
 													stake_mode_list[1] = 2;
 													stake_mode_list[2] = 3;
+													*/
 												}
 												PPObjTimeSeries::StrategyResultEntry sre(tnnp, 0);
 												THROW(TsTestStrategy2(ts_tm_list, ts_val_list, r_trend_list, tnnp, (use_optrangese_mode_4 ? 4 : 1), sre));

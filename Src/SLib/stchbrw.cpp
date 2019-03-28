@@ -2087,7 +2087,7 @@ long STimeChunkBrowser::DiffTime(const LDATETIME & rEnd, const LDATETIME & rStar
 		STimeChunk chunk(rStart, rEnd);
 		if(p_collapse_list->Intersect(chunk, &intsect)) {
 			for(uint i = 0; i < intsect.getCount(); i++) {
-				const STimeChunk * p_intsect_item = (const STimeChunk *)intsect.at(i);
+				const STimeChunk * p_intsect_item = static_cast<const STimeChunk *>(intsect.at(i));
 				diff -= p_intsect_item->GetDuration();
 			}
 		}
@@ -2114,7 +2114,7 @@ LDATETIME STimeChunkBrowser::AddTime(const LDATETIME & rStart, long sec) const
 			temp_list.Add(&chunk, 0);
 			if(p_collapse_list->Intersect(&temp_list, &intsect)) {
 				for(uint i = 0; i < intsect.getCount(); i++) {
-					const STimeChunk * p_intsect_item = (const STimeChunk *)intsect.at(i);
+					const STimeChunk * p_intsect_item = static_cast<const STimeChunk *>(intsect.at(i));
 					adjusted_sec += p_intsect_item->GetDuration();
 					more = 1;
 				}
@@ -2147,7 +2147,7 @@ void STimeChunkBrowser::CalcHdTimeBounds(const Area & rArea, DateRange & rPeriod
 			if(p_collapse_list->Intersect(chunk, &intersect)) {
 				uint   i;
 				for(i = 0; !skip_date && i < intersect.getCount(); i++) {
-					const STimeChunk * p_ic = (const STimeChunk *)intersect.at(i);
+					const STimeChunk * p_ic = static_cast<const STimeChunk *>(intersect.at(i));
 					if(*p_ic == chunk) {
 						if(dt == rPeriod.low)
 							rPeriod.low = plusdate(rPeriod.low, 1);
@@ -2159,7 +2159,7 @@ void STimeChunkBrowser::CalcHdTimeBounds(const Area & rArea, DateRange & rPeriod
 					int    r = free_list.Intersect(chunk, &intersect);
 					assert(r);
 					for(i = 0; i < intersect.getCount(); i++) {
-						const STimeChunk * p_ic = (const STimeChunk *)intersect.at(i);
+						const STimeChunk * p_ic = static_cast<const STimeChunk *>(intersect.at(i));
 						SETMIN(rMinHour, (uint)p_ic->Start.t.hour());
 						SETMAX(rMaxHour, (uint)p_ic->Finish.t.hour());
 					}
@@ -2206,7 +2206,7 @@ STimeChunk FASTCALL STimeChunkBrowser::GetBoundsTime(const Area & rArea) const
 			uint   pix_width = 0;
 			LDATETIME start_tm = view_time_bounds.Start;
 			for(uint i = 0; i < cc; i++) {
-				const STimeChunk * p_chunk = (const STimeChunk *)p_collapse_list->at(i);
+				const STimeChunk * p_chunk = static_cast<const STimeChunk *>(p_collapse_list->at(i));
 				if(cmp(p_chunk->Start, view_time_bounds.Start) >= 0) {
 					long   dur = p_chunk->GetDuration();
 					if(dur > 0) {
@@ -2788,7 +2788,7 @@ void STimeChunkBrowser::Paint()
 				canv.SelectObjectAndPush(Ptb.Get((i % 2) ? brushHoliday : brushHolidayInterleave));
 				rect.setheightrel(upp_edge, row_full_height);
 				for(k = 0; k < p_holidays->getCount(); k++) {
-					const  STimeChunk * p_chunk = (const STimeChunk *)p_holidays->at(k);
+					const  STimeChunk * p_chunk = static_cast<const STimeChunk *>(p_holidays->at(k));
 					STimeChunk sect;
 					if(p_chunk->Intersect(view_time_bounds, &sect) > 0) {
 						ChunkToRectX(left_edge, sect, view_time_bounds.Start, rect);

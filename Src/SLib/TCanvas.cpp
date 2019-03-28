@@ -2894,7 +2894,7 @@ float SPaintObj::Gradient::GetRadialCoord(int coord, int * pPct) const
 
 int SPaintObj::Gradient::GetUnits() const
 {
-	return (int)Unit;
+	return static_cast<int>(Unit);
 }
 
 int SPaintObj::Gradient::AddStop(float offs, SColor c)
@@ -2908,7 +2908,7 @@ int SPaintObj::Gradient::AddStop(float offs, SColor c)
 uint SPaintObj::Gradient::GetStopCount() const
 	{ return StopList.getCount(); }
 const SPaintObj::Gradient::Stop * SPaintObj::Gradient::GetStop(uint idx) const
-	{ return (idx < StopList.getCount()) ? (Stop *)&StopList.at(idx) : 0; }
+	{ return (idx < StopList.getCount()) ? static_cast<const Stop *>(&StopList.at(idx)) : 0; }
 //
 //
 //
@@ -2939,12 +2939,7 @@ int FASTCALL SParaDescr::IsEqual(const SParaDescr & rS) const
 
 int SParaDescr::GetJustif() const
 {
-	if(Flags & fJustRight)
-		return ADJ_RIGHT;
-	else if(Flags & fJustCenter)
-		return ADJ_CENTER;
-	else
-		return ADJ_LEFT;
+	return (Flags & fJustRight) ? ADJ_RIGHT : ((Flags & fJustCenter) ? ADJ_CENTER : ADJ_LEFT);
 }
 
 SPaintObj::Para::Para() : Base(), SParaDescr()

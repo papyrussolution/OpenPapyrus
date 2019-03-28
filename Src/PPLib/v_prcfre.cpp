@@ -132,8 +132,8 @@ int SLAPI PPViewPrcBusy::ProcessPrc(PPID prcID, BExtInsert * pBei)
 	{
 		p_tch_list = new STimeChunkAssocArray(prcID);
 		for(uint i = 0; i < busy_list.getCount(); i++) {
-			const PrcBusy * p_item = (const PrcBusy *)busy_list.at(i);
-			p_tch_list->Add(p_item->TSessID, p_item->Status, (const STimeChunk *)p_item, 0);
+			const PrcBusy * p_item = static_cast<const PrcBusy *>(busy_list.at(i));
+			p_tch_list->Add(p_item->TSessID, p_item->Status, static_cast<const STimeChunk *>(p_item), 0);
 		}
 		Grid.SetRow(p_tch_list, (TSesObj.GetPrc(prcID, &prc_rec, 1, 1) > 0) ? prc_rec.Name : 0);
 		if(worktime_list.getCount()) {
@@ -158,10 +158,10 @@ int SLAPI PPViewPrcBusy::ProcessPrc(PPID prcID, BExtInsert * pBei)
 			temp_list.Sort();
 			free_list.freeAll();
 			for(uint i = 0; i < busy_list.getCount(); i++) {
-				const PrcBusy * p_item1 = (const PrcBusy *)busy_list.at(i);
+				const PrcBusy * p_item1 = static_cast<const PrcBusy *>(busy_list.at(i));
 				for(uint j = 0; j < temp_list.getCount(); j++) {
 					STimeChunk sect;
-					if(p_item1->STimeChunk::Intersect(*(const STimeChunk *)temp_list.at(j), &sect) > 0) {
+					if(p_item1->STimeChunk::Intersect(*static_cast<const STimeChunk *>(temp_list.at(j)), &sect) > 0) {
 						PrcBusy temp_entry = *p_item1;
 						temp_entry.Start  = sect.Start;
 						temp_entry.Finish = sect.Finish;
@@ -174,7 +174,7 @@ int SLAPI PPViewPrcBusy::ProcessPrc(PPID prcID, BExtInsert * pBei)
 		}
 	}
 	for(uint i = 0; i < busy_list.getCount(); i++) {
-		const PrcBusy & entry = *(PrcBusy *)busy_list.at(i);
+		const PrcBusy & entry = *static_cast<const PrcBusy *>(busy_list.at(i));
 		TempPrcBusyTbl::Rec rec;
 		MEMSZERO(rec);
 		rec.PrcID = prcID;

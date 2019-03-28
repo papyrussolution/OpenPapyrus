@@ -774,7 +774,7 @@ extern "C" __declspec(dllexport) SString * iSalesPutPrices(PPSoapClientSession &
 	return p_result;
 }
 
-static const long PepsiMoneyFormat = MKSFMTD(0, 13, NMBF_DECCOMMA|NMBF_NOTRAILZ|NMBF_OMITEPS); // @v9.8.0 NMBF_OMITEPS
+static const long PepsiMoneyFormat = MKSFMTD(0, 8, NMBF_DECCOMMA|NMBF_NOTRAILZ|NMBF_OMITEPS); // @v9.8.0 NMBF_OMITEPS // @v10.3.12 (0, 13)-->(0, 8)
 
 extern "C" __declspec(dllexport) SString * iSalesPutBills(PPSoapClientSession & rSess, const char * pUser, const char * pPassw,
 	const TSCollection <iSalesBillPacket> * pItems, uint maxItems)

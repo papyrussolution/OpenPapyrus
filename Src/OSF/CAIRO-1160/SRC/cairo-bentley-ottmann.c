@@ -1092,7 +1092,7 @@ static cairo_status_t _cairo_bentley_ottmann_tessellate_bo_edges(cairo_bo_event_
 
 	/* convert the fill_rule into a winding mask */
 	if(fill_rule == CAIRO_FILL_RULE_WINDING)
-		fill_rule = (uint)-1;
+		fill_rule = static_cast<uint>(-1);
 	else
 		fill_rule = 1;
 

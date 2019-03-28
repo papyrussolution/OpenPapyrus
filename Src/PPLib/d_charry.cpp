@@ -273,7 +273,7 @@ int SLAPI PPDS_CrrPerson::AcceptListItem(long fldID, PPDeclStruc * pData, ObjTra
 		else if(fldID == DSF_CRRPERSON_BNKACC) {
 			PPDS_CrrBnkAcct * p_data = (PPDS_CrrBnkAcct *)pData;
 			// @v9.0.4 ok = Data.BAA.insert(&p_data->Data) ? 1 : PPSetErrorSLib();
-			ok = Data.Regs.SetBankAccount(&p_data->Data, (uint)-1); // @v9.0.4
+			ok = Data.Regs.SetBankAccount(&p_data->Data, static_cast<uint>(-1)); // @v9.0.4
 		}
 	}
 	return ok;

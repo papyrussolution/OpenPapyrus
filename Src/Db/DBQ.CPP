@@ -147,6 +147,14 @@ void FASTCALL DBConst::init(long l)
 	lval = l;
 }
 
+void FASTCALL DBConst::init(size_t v)
+{
+	Id = DBConst_ID;
+	Flags = 0;
+	Tag = lv;
+	lval = static_cast<long>(v);
+}
+
 void FASTCALL DBConst::init(double d)
 {
 	Id = DBConst_ID;

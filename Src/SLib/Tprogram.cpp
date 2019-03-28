@@ -1569,14 +1569,14 @@ int DrawButton(HWND hwnd, DRAWITEMSTRUCT * pDi)
 	const int draw_text = BIN(text_buf.Len());
 	int    erase_text = 0;
 	{
-		TButton * p_btn = (TButton *)TView::GetWindowUserData(pDi->hwndItem);
+		TButton * p_btn = static_cast<TButton *>(TView::GetWindowUserData(pDi->hwndItem));
 		if(disabled)
 			text_color = GetColorRef(SClrWhite);
 		else if(selected) {
 			out_r.top  += (style & BS_BITMAP) ? 1 : 2;
 			out_r.left += (style & BS_BITMAP) ? 1 : 2;
 			brush_color = RGB(0xBA, 0xBA, 0xC9);
-			pen_color = _GetAssetColor(_assetCtrlFocusedBorderColor); // @v8.7.0
+			pen_color = _GetAssetColor(_assetCtrlFocusedBorderColor);
 		}
 		else if(focused)
 			pen_color = _GetAssetColor(_assetCtrlFocusedBorderColor);//RGB(0x66, 0x33, 0xFF);
@@ -1701,7 +1701,7 @@ int TProgram::DrawButton2(HWND hwnd, DRAWITEMSTRUCT * pDi)
 	const int draw_text = BIN(text_buf.Len());
 	int    erase_text = 0;
 	{
-		TButton * p_btn = (TButton *)TView::GetWindowUserData(pDi->hwndItem);
+		TButton * p_btn = static_cast<TButton *>(TView::GetWindowUserData(pDi->hwndItem));
 		if(item_state == tbisSelect) {
 			out_r.top  += (style & BS_BITMAP) ? 1 : 2;
 			out_r.left += (style & BS_BITMAP) ? 1 : 2;
@@ -1880,7 +1880,7 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			hbmp = (HBITMAP)SendMessage(pDi->hwndItem, BM_GETIMAGE, IMAGE_BITMAP, 0);
 		else */
 		if(p_user_data) {
-			TButton * p_btn = (TButton *)p_user_data;
+			TButton * p_btn = static_cast<TButton *>(p_user_data);
 			if(p_btn->IsConsistent()) {
 				if(item_state == 0 && p_btn->IsDefault())
 					item_state = tbisDefault;

@@ -4229,7 +4229,7 @@ class ScaleDialog : public TDialog {
 public:
 	ScaleDialog() : TDialog(DLG_SCALE)
 	{
-		TButton * p_sys_btn = (TButton*)getCtrlView(CTL_SCALE_SYSBTN);
+		TButton * p_sys_btn = static_cast<TButton *>(getCtrlView(CTL_SCALE_SYSBTN));
 		if(p_sys_btn)
 			DefSysBtnText = p_sys_btn->Title;
 	}
@@ -4352,7 +4352,7 @@ void ScaleDialog::ReplyScaleTypeSelection(PPID scaleTypeID)
 	if(scaleTypeID == PPSCLT_SCALEGROUP)
 		SetupPPObjCombo(this, CTLSEL_SCALE_PARENT, PPOBJ_SCALE, 0, 0, PPObjScale::MakeExtraParam(PPSCLT_SCALEGROUP, 0));
 
-	TButton * p_sys_btn = (TButton*)getCtrlView(CTL_SCALE_SYSBTN);
+	TButton * p_sys_btn = static_cast<TButton *>(getCtrlView(CTL_SCALE_SYSBTN));
 	if(p_sys_btn) {
 		SString sys_btn_text;
 		if(scaleTypeID == PPSCLT_EXPORTTOFILE)

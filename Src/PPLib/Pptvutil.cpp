@@ -1460,7 +1460,7 @@ int SLAPI SetupStringComboDevice(TDialog * dlg, uint ctlID, uint dvcClass, long 
 			for(int i = /*(idx + 1)*/PPCMT_FIRST_DYN_DVC; GetStrFromDrvIni(ini_file, ini_sect_id, i, /*list_count*/PPCMT_FIRST_DYN_DVC, line_buf) > 0; i++) {
 				int    drv_impl = 0;
 				if(PPAbstractDevice::ParseRegEntry(line_buf, symbol, drv_name, path, &drv_impl)) {
-					THROW_SL(p_list->Add((int)i, drv_name.Transf(CTRANSF_OUTER_TO_INNER)));
+					THROW_SL(p_list->Add((int)i, drv_name/* @v10.3.12 .Transf(CTRANSF_OUTER_TO_INNER)*/));
 				}
 			}
 			p_cb->setListWindow(CreateListWindow(p_list, lbtDisposeData | lbtDblClkNotify), initID);
@@ -1929,7 +1929,7 @@ int SLAPI FileBrowseCtrlGroup::Setup(TDialog * dlg, uint btnCtlID, uint inputCtl
 			dlg->addGroup(grpID, p_fbb);
 			// @v9.2.5 {
 			if(btnCtlID) {
-				TButton * p_btn = (TButton*)dlg->getCtrlView(btnCtlID);
+				TButton * p_btn = static_cast<TButton *>(dlg->getCtrlView(btnCtlID));
 				CALLPTRMEMB(p_btn, SetBitmap(IDB_FILEBROWSE));
 			}
 			// } @v9.2.5
@@ -1975,11 +1975,11 @@ void FileBrowseCtrlGroup::setInitPath(const char * pInitPath)
 		if(not_exist) {
 			SplitPath(pInitPath, dir, fname);
 			not_exist = access(dir, 0);
-			fname = 0;
+			fname.Z();
 		}
 		else if(Flags & fbcgfPath) {
 			dir = pInitPath;
-			fname = 0;
+			fname.Z();
 		}
 		else
 			SplitPath(pInitPath, dir, fname);
@@ -1989,11 +1989,11 @@ void FileBrowseCtrlGroup::setInitPath(const char * pInitPath)
 		if(not_exist) {
 			SplitPath(Data.FilePath, dir, fname);
 			not_exist = access(dir, 0);
-			fname = 0;
+			fname.Z();
 		}
 		else if(Flags & fbcgfPath) {
 			dir = Data.FilePath;
-			fname = 0;
+			fname.Z();
 		}
 		else
 			SplitPath(Data.FilePath, dir, fname);
@@ -2002,7 +2002,7 @@ void FileBrowseCtrlGroup::setInitPath(const char * pInitPath)
 		if(Flags)
 			PPGetPath((Flags & fbcgfLogFile) ? PPPATH_LOG : PPPATH_SYSROOT, dir);
 		else
-			dir = 0;
+			dir.Z();
 	InitDir  = dir;
 	fname.ShiftLeftChr('\\').ShiftLeftChr('\\');
 	InitFile = (Flags & fbcgfPath) ? "*.*" : fname;
@@ -6723,7 +6723,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 								else if(oneof2(bt, BS_PUSHBUTTON, BS_DEFPUSHBUTTON)) {
 									//T_BUTTON T_IDENT T_CONST_STR uirectopt T_IDENT uictrl_properties ';'
 									if(p_view && p_view->IsSubSign(TV_SUBSIGN_BUTTON)) {
-										TButton * p_button = (TButton *)p_view;
+										TButton * p_button = static_cast<TButton *>(p_view);
 										uint   cmd_id = p_button->GetCommand();
 										temp_buf.Z();
 										if(cmd_id)

@@ -1641,7 +1641,7 @@ int SLAPI PPObjPerson::Import(int specKind, int use_ta)
 								ba.BankID = bnk_id;
 								ba.AccType = PPBAC_CURRENT;
 								STRNSCPY(ba.Acct, accno);
-								THROW(pack.Regs.SetBankAccount(&ba, (uint)-1));
+								THROW(pack.Regs.SetBankAccount(&ba, static_cast<uint>(-1)));
 								// } @v9.0.4
 							}
 						}
@@ -3542,7 +3542,7 @@ int SLAPI PrcssrPersonImport::Run()
 							ba.BankID = bnk_id;
 							ba.AccType = PPBAC_CURRENT;
 							STRNSCPY(ba.Acct, accno);
-							THROW(pack.Regs.SetBankAccount(&ba, (uint)-1));
+							THROW(pack.Regs.SetBankAccount(&ba, static_cast<uint>(-1)));
 						}
 					}
 				}

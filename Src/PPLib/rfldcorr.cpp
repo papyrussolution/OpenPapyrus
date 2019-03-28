@@ -505,7 +505,7 @@ PPImpExpParam * FASTCALL PPImpExpParam::CreateInstance(const char * pSymb, long 
 	return p_param;
 }
 
-ImpExpParamDllStruct::ImpExpParamDllStruct() : BeerGrpID(0), AlcoGrpID(0), AlcoLicenseRegID(0), TTNTagID(0), ManufTagID(0), 
+ImpExpParamDllStruct::ImpExpParamDllStruct() : BeerGrpID(0), AlcoGrpID(0), AlcoLicenseRegID(0), TTNTagID(0), ManufTagID(0),
 	ManufKPPRegTagID(0), RcptTagID(0), ManufRegionCode(0), IsManufTagID(0), GoodsKindTagID(0), ManufINNID(0)
 {
 }
@@ -898,7 +898,7 @@ int PPImpExpParam::DistributeFile(PPLogger * pLogger)
 					memzero(pwd, sizeof(pwd));
 					THROW_SL(param.Run(0, 0));
 				}
-				// } @v10.3.9 
+				// } @v10.3.9
 				ok = 1;
 			}
 		}
@@ -1232,7 +1232,9 @@ int PPImpExpParam::ParseFormula(int hdr, const SString & rPar, const SString & r
 		while(*p && *(p + 1) != 0) // ѕропускаем последний символ ')'
 			outer_fld.Formula.CatChar(*p++);
 	}
-	SStrScan scan(rVal);
+	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v10.3.12
+	(r_temp_buf = rVal).Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.12
+	SStrScan scan(r_temp_buf);
 	outer_fld.ID = 0;
 	outer_fld.T.Flags = (STypEx::fFormula | STypEx::fZeroID);
 	THROW_SL(outer_fld.TranslateString(scan));
@@ -1259,7 +1261,13 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 {
 	int    ok = 1;
 	const  int preserve_win_coding = BIN(pFile->GetFlags() & SIniFile::fWinCoding);
-	SString ini_param, par, val, fld_div, msg_buf, footer_line;
+	SString ini_param;
+	SString par;
+	SString val;
+	SString fld_div;
+	SString msg_buf;
+	SString footer_line;
+	SString temp_buf;
 	StringSet param_list;
 	SStrScan scan;
 	SdbField outer_fld, fld;
@@ -1325,8 +1333,8 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 				case iefFieldEqVal: SETFLAG(TdfParam.Flags, TextDbFile::fFldEqVal, val.ToLong()); break;
 				case iefFooterLine: footer_line = val; break;
 				case iefFormula: THROW(ParseFormula(0, par, val)); break;
-				case iefHdrFormula: 
-					THROW(ParseFormula(1, par, val)); 
+				case iefHdrFormula:
+					THROW(ParseFormula(1, par, val));
 					break;
 				case iefRootTag: XdfParam.RootTag = val; break;
 				case iefRecTag: XdfParam.RecTag = val; break;
@@ -1408,7 +1416,8 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 					else if(InrRec.GetFieldByName(par, &fld) > 0) {
 						/* @v10.3.11 if(pFile->GetFlags() & SIniFile::fWinCoding)
 							val.Transf(CTRANSF_INNER_TO_OUTER);*/
-						scan.Set(val, 0);
+						(temp_buf = val).Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.12 TranslateString() умеет работать только с ANSI-строками
+						scan.Set(temp_buf, 0);
 						outer_fld.Init();
 						outer_fld.ID = fld.ID;
 						THROW_SL(outer_fld.TranslateString(scan));
@@ -1425,7 +1434,8 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 					else if(HdrInrRec.GetFieldByName(par, &fld) > 0) {
 						/* @v10.3.11 if(pFile->GetFlags() & SIniFile::fWinCoding)
 							val.Transf(CTRANSF_INNER_TO_OUTER);*/
-						scan.Set(val, 0);
+						(temp_buf = val).Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.12 TranslateString() умеет работать только с ANSI-строками
+						scan.Set(temp_buf, 0);
 						outer_fld.Init();
 						outer_fld.ID = fld.ID;
 						THROW_SL(outer_fld.TranslateString(scan));
@@ -1609,7 +1619,7 @@ PPImpExp::StateBlock::StateBlock() : Busy(0), RecNo(0)
 {
 }
 
-PPImpExp::PPImpExp(const PPImpExpParam * pParam, const void * extraPtr) : P_DbfT(0), P_TxtT(0), P_XmlT(0), P_SoapT(0), 
+PPImpExp::PPImpExp(const PPImpExpParam * pParam, const void * extraPtr) : P_DbfT(0), P_TxtT(0), P_XmlT(0), P_SoapT(0),
 	P_XlsT(0), State(0), R_RecNo(0), W_RecNo(0), P_ExprContext(0), P_HdrData(0), R_SaveRecNo(0), ExtractSubChild(0)
 {
 	RVALUEPTR(P, pParam);
@@ -2083,7 +2093,8 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 	else {
 		SString temp_buf, reg_type_symb;
 		PPSymbTranslator st(PPSSYM_IMPEXPFORMULA);
-		for(SStrScan scan(pFormula); *scan != 0;) {
+		(temp_buf = pFormula).Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.12
+		for(SStrScan scan(temp_buf); *scan != 0;) {
 			if(scan.GetQuotedString(temp_buf)) {
 				rResult.Cat(temp_buf);
 			}
@@ -2151,7 +2162,6 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 								}
 							}
 							break;
-						// @v8.1.1 {
 						case iefrmArRegDate:
 							scan.IncrLen();
 							do_incr_len = 0;
@@ -2170,7 +2180,6 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 								}
 							}
 							break;
-						// } @v8.1.1
 						case iefrmObjTag:
 							scan.IncrLen();
 							do_incr_len = 0;

@@ -1444,13 +1444,11 @@ int SLAPI GenerateCliBnkImpData()
 	double mean = 0.0;
 	double stddev = 0.0;
 	ClientBankExportDef cbed(0);
-
 	// CliBnkGenParam=cfg_name[,max_items[,mean[,stddev]]]
 	// cfg_name - наименование конфигурации импорта клиент-банка
 	// max_items - @def=10 максимальное количество генерируемых платежей
 	// mean - @def = 25 среднее значение задержки платежа (для генерации статистической задержки от даты документа до сегодня)
 	// stddev - @def = 50 стандартное отклонение значений задержки платежа (для генерации статистической задержки от даты документа до сегодня)
-
 	PPObjOprKind op_obj;
 	PPObjArticle ar_obj;
 	ArticleTbl::Rec ar_rec;
@@ -1458,7 +1456,6 @@ int SLAPI GenerateCliBnkImpData()
 	SArray bill_list(sizeof(BillEntry));
 	op_obj.GetPayableOpList(-1, &op_list);
 	PPViewBill bill_view;
-
 	PPIniFile ini_file;
 	int    enbl = 0;
 	THROW_PP(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ENABLEBILLGENERATOR, &enbl) && enbl, PPERR_BILLGEN_NOTALLOWED);
@@ -1517,9 +1514,7 @@ int SLAPI GenerateCliBnkImpData()
 	//
 	{
 		uint   _count = bill_list.getCount(); // Количество оставшихся не обработанных долговых документов
-
 		PPGPaymentOrderList order_list;
-
 		PPIDArray in_paym_list;
 		PPIDArray out_paym_list;
 		const  PPID sell_acs_id = GetSellAccSheet();
@@ -1533,7 +1528,7 @@ int SLAPI GenerateCliBnkImpData()
 			_count = 0;
 			int checked = 0;
 			for(uint j = 0; j < bill_list.getCount(); j++) {
-				BillEntry * p_entry = (BillEntry *)bill_list.at(j);
+				BillEntry * p_entry = static_cast<BillEntry *>(bill_list.at(j));
 				if(!(p_entry->Flags & BillEntry::fDirty)) {
 					_count++;
 					if(!checked && diffdate(cd, p_entry->Dt) <= d) {

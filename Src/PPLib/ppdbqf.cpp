@@ -22,7 +22,7 @@ template <class objcls, class objrec> inline void dbqf_objname_i(int option, DBC
 {
 	objrec rec;
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(rec.Name));
+		result->init(sizeof(rec.Name));
 	else {
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, rec.Name);
 		if(id) {
@@ -41,7 +41,7 @@ static IMPL_DBE_PROC(dbqf_oidtext_ii)
 {
     char   name_buf[128+48];
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(name_buf));
+		result->init(sizeof(name_buf));
 	else {
 		name_buf[0] = 0;
 		PPID   obj_type = params[0].lval;
@@ -64,7 +64,7 @@ static IMPL_DBE_PROC(dbqf_scardextstring_ii)
 {
     char   name_buf[256];
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(name_buf));
+		result->init(sizeof(name_buf));
 	else {
 		name_buf[0] = 0;
 		PPID   id = params[0].lval;
@@ -82,7 +82,7 @@ template <class objcls, class objrec> inline void dbqf_objsymb_i(int option, DBC
 {
 	objrec rec;
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(rec.Symb));
+		result->init(sizeof(rec.Symb));
 	else {
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, rec.Symb);
 		if(id) {
@@ -181,7 +181,7 @@ static IMPL_DBE_PROC(dbqf_billfrghtstrgloc_i)
 {
 	char   ret_buf[48];
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(ret_buf));
+		result->init(sizeof(ret_buf));
 	else {
 		PPFreight freight;
 		SString temp_buf;
@@ -202,7 +202,7 @@ static IMPL_DBE_PROC(dbqf_billfrghtdlvraddr_i)
 {
 	char   ret_buf[128];
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(ret_buf));
+		result->init(sizeof(ret_buf));
 	else {
 		PPFreight freight;
 		SString temp_buf;
@@ -247,7 +247,7 @@ static IMPL_DBE_PROC(dbqf_billfrghtdlvraddr_i)
 static IMPL_DBE_PROC(dbqf_billagentname_i)
 {
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(((ArticleTbl::Rec *)0)->Name));
+		result->init(sizeof(((ArticleTbl::Rec *)0)->Name));
 	else {
 		PPBillExt ext_rec;
 		ArticleTbl::Rec ar_rec;
@@ -266,7 +266,7 @@ static IMPL_DBE_PROC(dbqf_registertext_i)
 {
 	const  size_t buffer_size = 64;
 	if(option == CALC_SIZE)
-		result->init((long)buffer_size);
+		result->init(buffer_size);
 	else {
 		SString temp_buf;
 		const PPID reg_id = params[0].lval;
@@ -285,7 +285,7 @@ static IMPL_DBE_PROC(dbqf_objtagtextnocache_ii)
 {
 	const  size_t buffer_size = 128;
 	if(option == CALC_SIZE)
-		result->init((long)buffer_size);
+		result->init(buffer_size);
 	else {
 		SString temp_buf;
 		const PPID tag_id = params[0].lval;
@@ -307,7 +307,7 @@ static IMPL_DBE_PROC(dbqf_objtagtext_ii)
 {
 	const  size_t buffer_size = 128;
 	if(option == CALC_SIZE)
-		result->init((long)buffer_size);
+		result->init(buffer_size);
 	else {
 		SString temp_buf;
 		const PPID tag_id = params[0].lval;
@@ -326,7 +326,7 @@ static IMPL_DBE_PROC(dbqf_objtagtext_ii)
 static IMPL_DBE_PROC(dbqf_cqtty_rrii)
 {
 	if(option == CALC_SIZE)
-		result->init((long)24);
+		result->init(24U);
 	else {
 		double rest = 0.0;
 		if(params[0].Tag == DBConst::lv)
@@ -378,7 +378,7 @@ static IMPL_DBE_PROC(dbqf_datetime_dt)
 {
 	const size_t field_len = 20;
 	if(option == CALC_SIZE)
-		result->init((long)field_len);
+		result->init(field_len);
 	else {
 		LDATETIME dtm;
 		dtm.Set(params[0].dval, params[1].tval);
@@ -391,7 +391,7 @@ static IMPL_DBE_PROC(dbqf_durationtotime_dt)
 {
 	const size_t field_len = 20;
 	if(option == CALC_SIZE)
-		result->init((long)field_len);
+		result->init(field_len);
 	else {
 		LDATETIME dtm = ZERODATETIME;
 		long days = dtm.settotalsec(params[0].lval);
@@ -449,7 +449,7 @@ static IMPL_DBE_PROC(dbqf_strbystrgrouppos_ip)
 {
 	char   text_buf[256];
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(text_buf));
+		result->init(sizeof(text_buf));
 	else {
 		const SStrGroup * p_pool = static_cast<const SStrGroup *>(params[1].ptrval);
 		if(p_pool) {
@@ -510,7 +510,7 @@ static IMPL_DBE_PROC(dbqf_getagrmntsymbol_i)
 {
 	const size_t result_size = 32;
 	if(option == CALC_SIZE) {
-		result->init((long)result_size);
+		result->init(result_size);
 	}
 	else {
 		SString edi_prvdr_symb;
@@ -526,7 +526,7 @@ static IMPL_DBE_PROC(dbqf_objname_user_i)
 {
 	PPSecur rec;
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(rec.Name));
+		result->init(sizeof(rec.Name));
 	else {
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, rec.Name);
 		if(id) {
@@ -541,7 +541,7 @@ static IMPL_DBE_PROC(dbqf_objname_globaluser_i)
 {
 	PPGlobalUserAcc rec;
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(rec.Name));
+		result->init(sizeof(rec.Name));
 	else {
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, rec.Name);
 		if(id) {
@@ -556,7 +556,7 @@ static IMPL_DBE_PROC(dbqf_objname_tech_i)
 {
 	TechTbl::Rec rec;
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(rec.Code));
+		result->init(sizeof(rec.Code));
 	else {
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, rec.Code);
 		if(id) {
@@ -572,7 +572,7 @@ static IMPL_DBE_PROC(dbqf_objname_goodsbytech_i)
 	TechTbl::Rec rec;
 	Goods2Tbl::Rec goods_rec;
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(goods_rec.Name));
+		result->init(sizeof(goods_rec.Name));
 	else {
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, goods_rec.Name);
 		if(id) {
@@ -590,7 +590,7 @@ static IMPL_DBE_PROC(dbqf_objname_oprkind_i)
 {
 	PPOprKind rec;
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(rec.Name));
+		result->init(sizeof(rec.Name));
 	else {
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, rec.Name);
 		if(id)
@@ -603,7 +603,7 @@ static IMPL_DBE_PROC(dbqf_objname_salcharge_i)
 {
 	PPSalChargePacket pack;
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(pack.Rec.Name));
+		result->init(sizeof(pack.Rec.Name));
 	else {
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, pack.Rec.Name);
 		if(id) {
@@ -618,7 +618,7 @@ static IMPL_DBE_PROC(dbqf_objname_bizscore_i)
 {
 	PPBizScorePacket pack;
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(pack.Rec.Name));
+		result->init(sizeof(pack.Rec.Name));
 	else {
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, pack.Rec.Name);
 		if(id) {
@@ -645,7 +645,7 @@ static IMPL_DBE_PROC(dbqf_objname_loc_i)
 	//dbqf_objname_i <PPObjLocation, LocationTbl::Rec> (option, result, params);
 	LocationTbl::Rec rec;
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(rec.Name));
+		result->init(sizeof(rec.Name));
 	else {
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, rec.Name);
 		if(id) {
@@ -670,56 +670,34 @@ static IMPL_DBE_PROC(dbqf_objname_loc_i)
 	}
 }
 
-static IMPL_DBE_PROC(dbqf_objname_billstatus_i)
-	{ dbqf_objname_i <PPObjBillStatus, PPBillStatus> (option, result, params); }
-static IMPL_DBE_PROC(dbqf_objname_ar_i)
-	{ dbqf_objname_i <PPObjArticle, ArticleTbl::Rec> (option, result, params); }
-static IMPL_DBE_PROC(dbqf_objname_unit_i)
-	{ dbqf_objname_i <PPObjUnit, PPUnit> (option, result, params); }
-static IMPL_DBE_PROC(dbqf_objname_prc_i)
-	{ dbqf_objname_i <PPObjProcessor, ProcessorTbl::Rec> (option, result, params); }
-static IMPL_DBE_PROC(dbqf_objname_goods_i)
-	{ dbqf_objname_i <PPObjGoods, Goods2Tbl::Rec> (option, result, params); }
-static IMPL_DBE_PROC(dbqf_objname_person_i)
-	{ dbqf_objname_i <PPObjPerson, PersonTbl::Rec> (option, result, params); }
-static IMPL_DBE_PROC(dbqf_objname_staff_i)
-	{ dbqf_objname_i <PPObjStaffList, PPStaffEntry> (option, result, params); }
-static IMPL_DBE_PROC(dbqf_objname_staffcal_i)
-	{ dbqf_objname_i <PPObjStaffCal, PPStaffCal> (option, result, params); }
-static IMPL_DBE_PROC(dbqf_objname_accsheet_i)
-	{ dbqf_objname_i <PPObjAccSheet, PPAccSheet> (option, result, params); }
-static IMPL_DBE_PROC(dbqf_objname_quotkind_i)
-	{ dbqf_objname_i <PPObjQuotKind, PPQuotKind> (option, result, params); }
-static IMPL_DBE_PROC(dbqf_objname_cashnode_i)
-	{ dbqf_objname_i <PPObjCashNode, PPCashNode> (option, result, params); }
-static IMPL_DBE_PROC(dbqf_objname_scale_i)
-	{ dbqf_objname_i <PPObjScale, PPScale> (option, result, params); }
-static IMPL_DBE_PROC(dbqf_objname_psnopkind_i)
-	{ dbqf_objname_i <PPObjPsnOpKind, PPPsnOpKind> (option, result, params); }
-static IMPL_DBE_PROC(dbqf_objname_brand_i)
-	{ dbqf_objname_i <PPObjBrand, PPBrand> (option, result, params); }
-static IMPL_DBE_PROC(dbqf_objsymb_currency_i)
-	{ dbqf_objsymb_i <PPObjCurrency, PPCurrency> (option, result, params); }
-static IMPL_DBE_PROC(dbqf_objname_world_i)
-	{ dbqf_objname_i <PPObjWorld, WorldTbl::Rec> (option, result, params); }
-static IMPL_DBE_PROC(dbqf_objname_personstatus_i)
-	{ dbqf_objname_i <PPObjPersonStatus, PPPersonStatus> (option, result, params); }
-static IMPL_DBE_PROC(dbqf_objname_personcat_i)
-	{ dbqf_objname_i <PPObjPersonCat, PPPersonCat> (option, result, params); }
-static IMPL_DBE_PROC(dbqf_objname_amttype_i)
-	{ dbqf_objname_i <PPObjAmountType, PPAmountType> (option, result, params); }
-static IMPL_DBE_PROC(dbqf_objname_psnkind_i)
-	{ dbqf_objname_i <PPObjPersonKind, PPPersonKind> (option, result, params); }
-static IMPL_DBE_PROC(dbqf_objname_scardser_i)
-	{ dbqf_objname_i <PPObjSCardSeries, PPSCardSeries> (option, result, params); }
-static IMPL_DBE_PROC(dbqf_objname_debtdim_i)
-	{ dbqf_objname_i <PPObjDebtDim, PPDebtDim> (option, result, params); }
+static IMPL_DBE_PROC(dbqf_objname_billstatus_i) { dbqf_objname_i <PPObjBillStatus, PPBillStatus> (option, result, params); }
+static IMPL_DBE_PROC(dbqf_objname_ar_i) { dbqf_objname_i <PPObjArticle, ArticleTbl::Rec> (option, result, params); }
+static IMPL_DBE_PROC(dbqf_objname_unit_i) { dbqf_objname_i <PPObjUnit, PPUnit> (option, result, params); }
+static IMPL_DBE_PROC(dbqf_objname_prc_i) { dbqf_objname_i <PPObjProcessor, ProcessorTbl::Rec> (option, result, params); }
+static IMPL_DBE_PROC(dbqf_objname_goods_i) { dbqf_objname_i <PPObjGoods, Goods2Tbl::Rec> (option, result, params); }
+static IMPL_DBE_PROC(dbqf_objname_person_i) { dbqf_objname_i <PPObjPerson, PersonTbl::Rec> (option, result, params); }
+static IMPL_DBE_PROC(dbqf_objname_staff_i) { dbqf_objname_i <PPObjStaffList, PPStaffEntry> (option, result, params); }
+static IMPL_DBE_PROC(dbqf_objname_staffcal_i) { dbqf_objname_i <PPObjStaffCal, PPStaffCal> (option, result, params); }
+static IMPL_DBE_PROC(dbqf_objname_accsheet_i) { dbqf_objname_i <PPObjAccSheet, PPAccSheet> (option, result, params); }
+static IMPL_DBE_PROC(dbqf_objname_quotkind_i) { dbqf_objname_i <PPObjQuotKind, PPQuotKind> (option, result, params); }
+static IMPL_DBE_PROC(dbqf_objname_cashnode_i) { dbqf_objname_i <PPObjCashNode, PPCashNode> (option, result, params); }
+static IMPL_DBE_PROC(dbqf_objname_scale_i) { dbqf_objname_i <PPObjScale, PPScale> (option, result, params); }
+static IMPL_DBE_PROC(dbqf_objname_psnopkind_i) { dbqf_objname_i <PPObjPsnOpKind, PPPsnOpKind> (option, result, params); }
+static IMPL_DBE_PROC(dbqf_objname_brand_i) { dbqf_objname_i <PPObjBrand, PPBrand> (option, result, params); }
+static IMPL_DBE_PROC(dbqf_objsymb_currency_i) { dbqf_objsymb_i <PPObjCurrency, PPCurrency> (option, result, params); }
+static IMPL_DBE_PROC(dbqf_objname_world_i) { dbqf_objname_i <PPObjWorld, WorldTbl::Rec> (option, result, params); }
+static IMPL_DBE_PROC(dbqf_objname_personstatus_i) { dbqf_objname_i <PPObjPersonStatus, PPPersonStatus> (option, result, params); }
+static IMPL_DBE_PROC(dbqf_objname_personcat_i) { dbqf_objname_i <PPObjPersonCat, PPPersonCat> (option, result, params); }
+static IMPL_DBE_PROC(dbqf_objname_amttype_i) { dbqf_objname_i <PPObjAmountType, PPAmountType> (option, result, params); }
+static IMPL_DBE_PROC(dbqf_objname_psnkind_i) { dbqf_objname_i <PPObjPersonKind, PPPersonKind> (option, result, params); }
+static IMPL_DBE_PROC(dbqf_objname_scardser_i) { dbqf_objname_i <PPObjSCardSeries, PPSCardSeries> (option, result, params); }
+static IMPL_DBE_PROC(dbqf_objname_debtdim_i) { dbqf_objname_i <PPObjDebtDim, PPDebtDim> (option, result, params); }
 
 static IMPL_DBE_PROC(dbqf_objcode_scard_i)
 {
 	SCardTbl::Rec rec;
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(rec.Code));
+		result->init(sizeof(rec.Code));
 	else {
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, rec.Code);
 		if(id) {
@@ -737,7 +715,7 @@ static IMPL_DBE_PROC(dbqf_scardownername_i)
 {
 	char   psn_name[128];
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(psn_name));
+		result->init(sizeof(psn_name));
 	else {
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, psn_name);
 		if(id) {
@@ -757,7 +735,7 @@ static IMPL_DBE_PROC(dbqf_locownername_i)
 {
 	char   psn_name[128];
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(psn_name));
+		result->init(sizeof(psn_name));
 	else {
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, psn_name);
 		if(id) {
@@ -777,7 +755,7 @@ static IMPL_DBE_PROC(dbqf_usrpersonname_i)
 {
 	char   psn_name[128];
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(psn_name));
+		result->init(sizeof(psn_name));
 	else {
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, psn_name);
 		if(id) {
@@ -797,7 +775,7 @@ static IMPL_DBE_PROC(dbqf_ufpfuncname_i)
 {
 	char   name[128];
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(name));
+		result->init(sizeof(name));
 	else {
 		long   id = PPDbqFuncPool::helper_dbq_name(params, name);
 		if(id) {
@@ -815,7 +793,7 @@ static IMPL_DBE_PROC(dbqf_versionname_i)
 {
 	char   name[32];
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(name));
+		result->init(sizeof(name));
 	else {
 		long   id = PPDbqFuncPool::helper_dbq_name(params, name);
 		if(id) {
@@ -834,7 +812,7 @@ static IMPL_DBE_PROC(dbqf_ufpfuncid_i)
 	long func_id = 0L;
 	char   name[128];
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(name));
+		result->init(sizeof(name));
 	else {
 		long   id = PPDbqFuncPool::helper_dbq_name(params, name);
 		if(id) {
@@ -850,7 +828,7 @@ static IMPL_DBE_PROC(dbqf_objname_personpost_i)
 	char   name_buf[64];
 	PersonPostTbl::Rec rec;
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(name_buf));
+		result->init(sizeof(name_buf));
 	else {
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
 		if(id) {
@@ -868,7 +846,7 @@ static IMPL_DBE_PROC(dbqf_stafforgname_i)
 {
 	char   name_buf[128];
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(name_buf));
+		result->init(sizeof(name_buf));
 	else {
 		name_buf[0] = 0;
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
@@ -890,7 +868,7 @@ static IMPL_DBE_PROC(dbqf_staffdivname_i)
 {
 	char   name_buf[128];
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(name_buf));
+		result->init(sizeof(name_buf));
 	else {
 		name_buf[0] = 0;
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
@@ -913,7 +891,7 @@ static IMPL_DBE_PROC(dbqf_objcodecmplx_bill_i)
 	char   name_buf[48];
 	BillTbl::Rec rec;
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(name_buf));
+		result->init(sizeof(name_buf));
 	else {
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
 		if(id) {
@@ -932,7 +910,7 @@ static IMPL_DBE_PROC(dbqf_objcode_bill_i)
 	char   name_buf[24];
 	BillTbl::Rec rec;
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(name_buf));
+		result->init(sizeof(name_buf));
 	else {
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
 		if(id) {
@@ -948,7 +926,7 @@ static IMPL_DBE_PROC(dbqf_objmemo_bill_i)
 	char   name_buf[512];
 	BillTbl::Rec rec;
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(name_buf));
+		result->init(sizeof(name_buf));
 	else {
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
 		if(id) {
@@ -964,14 +942,14 @@ static IMPL_DBE_PROC(dbqf_objname_acctrel_i)
 	char   name_buf[32];
 	AcctRelTbl::Rec rec;
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(name_buf));
+		result->init(sizeof(name_buf));
 	else {
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
 		if(id) {
 			AcctRel * p_tbl = &BillObj->atobj->P_Tbl->AccRel;
 			if(p_tbl->Fetch(id, &rec) > 0) {
 				if(ObjRts.CheckAccID(rec.AccID, PPR_READ))
-					((Acct *)&rec.Ac)->ToStr(ACCF_DEFAULT, name_buf);
+					reinterpret_cast<const Acct *>(&rec.Ac)->ToStr(ACCF_DEFAULT, name_buf);
 				else
 					STRNSCPY(name_buf, "ACCS DENIED");
 			}
@@ -1021,7 +999,7 @@ static IMPL_DBE_PROC(dbqf_idcommsyncid_ii)
 {
 	char   buf[20];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(buf));
+		result->init(sizeof(buf));
 	}
 	else {
 		PPCommSyncID comm_id;
@@ -1037,7 +1015,7 @@ static IMPL_DBE_PROC(dbqf_idobjtitle_i)
 {
 	char   buf[64];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(buf));
+		result->init(sizeof(buf));
 	}
 	else {
 		SString temp_buf;
@@ -1051,7 +1029,7 @@ static IMPL_DBE_PROC(dbqf_sysjaction_i)
 {
 	char   buf[64];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(buf));
+		result->init(sizeof(buf));
 	}
 	else {
 		SString temp_buf;
@@ -1065,7 +1043,7 @@ static IMPL_DBE_PROC(dbqf_gtajaction_i)
 {
 	char   buf[64];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(buf));
+		result->init(sizeof(buf));
 	}
 	else {
 		SString temp_buf;
@@ -1079,7 +1057,7 @@ static IMPL_DBE_PROC(dbqf_yeswordbyflag_i)
 {
 	char buf[12];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(buf));
+		result->init(sizeof(buf));
 	}
 	else {
 		long flags = params[0].lval;
@@ -1112,7 +1090,7 @@ static IMPL_DBE_PROC(dbqf_chkopjaction_i)
 {
 	char   buf[64];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(buf));
+		result->init(sizeof(buf));
 	}
 	else {
 		SString temp_buf;
@@ -1126,7 +1104,7 @@ static IMPL_DBE_PROC(dbqf_addr_city_name_i)
 {
 	char   buf[48];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(buf));
+		result->init(sizeof(buf));
 	}
 	else {
 		buf[0] = 0;
@@ -1145,7 +1123,7 @@ static IMPL_DBE_PROC(dbqf_addr_ex_field_ii)
 {
 	char   buf[128];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(buf));
+		result->init(sizeof(buf));
 	}
 	else {
 		buf[0] = 0;
@@ -1273,7 +1251,7 @@ static IMPL_DBE_PROC(dbqf_goodsstockdim_i)
 {
 	char   buf[32];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(buf));
+		result->init(sizeof(buf));
 	}
 	else {
 		SString temp_buf;
@@ -1293,7 +1271,7 @@ static IMPL_DBE_PROC(dbqf_goodsstockbrutto_i)
 {
 	char   buf[32];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(buf));
+		result->init(sizeof(buf));
 	}
 	else {
 		SString temp_buf;
@@ -1310,7 +1288,7 @@ static IMPL_DBE_PROC(dbqf_goodsstockmin_i)
 {
 	char   buf[32];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(buf));
+		result->init(sizeof(buf));
 	}
 	else {
 		SString temp_buf;
@@ -1327,7 +1305,7 @@ static IMPL_DBE_PROC(dbqf_goodsstockpack_i)
 {
 	char   buf[32];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(buf));
+		result->init(sizeof(buf));
 	}
 	else {
 		SString temp_buf;
@@ -1344,7 +1322,7 @@ static IMPL_DBE_PROC(dbqf_goodssinglebarcode_i)
 {
 	char   buf[24];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(buf));
+		result->init(sizeof(buf));
 	}
 	else {
 		PPObjGoods goods_obj;
@@ -1359,7 +1337,7 @@ static IMPL_DBE_PROC(dbqf_rpttypename_i)
 {
 	char   buf[32];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(buf));
+		result->init(sizeof(buf));
 	}
 	else {
 		SString temp_buf;
@@ -1375,7 +1353,7 @@ static IMPL_DBE_PROC(dbqf_rpttypename_i)
 static IMPL_DBE_PROC(dbqf_logfilename_i)
 {
 	if(option == CALC_SIZE) {
-		result->init((long)32);
+		result->init(32U);
 	}
 	else {
 		SString logs_buff, log_descr_buff, buff;
@@ -1406,7 +1384,7 @@ static IMPL_DBE_PROC(dbqf_counter_i)
 static IMPL_DBE_PROC(dbqf_propsubstr_iiii)
 {
 	if(option == CALC_SIZE) {
-		result->init((long)252);
+		result->init(252U);
 	}
 	else {
 		long   obj_type = params[0].lval;
@@ -1424,7 +1402,7 @@ static IMPL_DBE_PROC(dbqf_transptypename_i)
 {
 	char   buf[32];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(buf));
+		result->init(sizeof(buf));
 	}
 	else {
 		SString temp_buf;
@@ -1441,7 +1419,7 @@ static IMPL_DBE_PROC(dbqf_formatcycle_di)
 {
 	char   buf[64];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(buf));
+		result->init(sizeof(buf));
 	}
 	else {
 		LDATE dt = params[0].dval;
@@ -1459,7 +1437,7 @@ static IMPL_DBE_PROC(dbqf_daterange_dd)
 {
 	char   buf[32];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(buf));
+		result->init(sizeof(buf));
 	}
 	else {
 		DateRange period;
@@ -1484,11 +1462,11 @@ int SLAPI PPDbqFuncPool::Register()
 	int    ok = 1;
 	THROW(DbqFuncTab::RegisterDyn(&IdEmpty,               BTS_STRING, dbqf_empty, 0));
 	THROW(DbqFuncTab::RegisterDyn(&IdBillDebt,            BTS_REAL,   dbqf_debt_rrii,  4, BTS_REAL, BTS_REAL, BTS_INT, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdBillFrghtIssueDt,    BTS_DATE,   dbqf_billfrghtissuedt_i, 1, BTS_INT)); // @v8.2.9
-	THROW(DbqFuncTab::RegisterDyn(&IdBillFrghtArrvlDt,    BTS_DATE,   dbqf_billfrghtarrvldt_i, 1, BTS_INT)); // @v8.2.9
-	THROW(DbqFuncTab::RegisterDyn(&IdBillFrghtDlvrAddr,   BTS_STRING, dbqf_billfrghtdlvraddr_i, 1, BTS_INT)); // @v8.7.9
-	THROW(DbqFuncTab::RegisterDyn(&IdBillFrghtStrgLoc,    BTS_STRING, dbqf_billfrghtstrgloc_i, 1, BTS_INT)); // @v8.8.6
-	THROW(DbqFuncTab::RegisterDyn(&IdBillAgentName,       BTS_STRING, dbqf_billagentname_i,  1, BTS_INT)); // @v8.3.6
+	THROW(DbqFuncTab::RegisterDyn(&IdBillFrghtIssueDt,    BTS_DATE,   dbqf_billfrghtissuedt_i, 1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdBillFrghtArrvlDt,    BTS_DATE,   dbqf_billfrghtarrvldt_i, 1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdBillFrghtDlvrAddr,   BTS_STRING, dbqf_billfrghtdlvraddr_i, 1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdBillFrghtStrgLoc,    BTS_STRING, dbqf_billfrghtstrgloc_i, 1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdBillAgentName,       BTS_STRING, dbqf_billagentname_i,  1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdBillDate,            BTS_DATE,   dbqf_billdate_i, 1, BTS_INT)); // @v10.0.03
 	THROW(DbqFuncTab::RegisterDyn(&IdCQtty,               BTS_STRING, dbqf_cqtty_rrii, 4, BTS_REAL, BTS_REAL, BTS_INT, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjNameBillStatus,   BTS_STRING, dbqf_objname_billstatus_i,  1, BTS_INT));
@@ -1536,7 +1514,6 @@ int SLAPI PPDbqFuncPool::Register()
 	THROW(DbqFuncTab::RegisterDyn(&IdUfpFuncName,         BTS_STRING, dbqf_ufpfuncname_i,         1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdVersionText,         BTS_STRING, dbqf_versionname_i,         1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdUfpFuncId,           BTS_INT,    dbqf_ufpfuncid_i,           1, BTS_INT));
-
 	THROW(DbqFuncTab::RegisterDyn(&IdTrfrPrice,           BTS_REAL,   dbqf_trfrprice_irrr, 7, BTS_INT, BTS_INT, BTS_DATE, BTS_INT, BTS_REAL, BTS_REAL, BTS_REAL));
 	THROW(DbqFuncTab::RegisterDyn(&IdDateTime,            BTS_STRING, dbqf_datetime_dt, 2, BTS_DATE, BTS_TIME));
 	THROW(DbqFuncTab::RegisterDyn(&IdInventDiffQtty,      BTS_REAL,   dbqf_invent_diffqtty_i,  2, BTS_INT, BTS_REAL));
@@ -1551,7 +1528,6 @@ int SLAPI PPDbqFuncPool::Register()
 	THROW(DbqFuncTab::RegisterDyn(&IdDurationToTime,      BTS_STRING, dbqf_durationtotime_dt,  1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdCommSyncId,          BTS_STRING, dbqf_idcommsyncid_ii,    2, BTS_INT, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjTitle,            BTS_STRING, dbqf_idobjtitle_i,       1, BTS_INT));
-
 	THROW(DbqFuncTab::RegisterDyn(&IdGoodsStockDim,       BTS_STRING, dbqf_goodsstockdim_i,    1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdGoodsStockBrutto,    BTS_STRING, dbqf_goodsstockbrutto_i, 1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdGoodsStockMin,       BTS_STRING, dbqf_goodsstockmin_i,    1, BTS_INT));

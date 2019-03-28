@@ -418,7 +418,7 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, lon
 		qtty = fabs(rTi.Quantity_);
 		const double q_diff = (qtty - q_pre);
 		//const double cq = R2(rTi.Cost * qtty - rTi.RevalCost * q_pre);
-		const double pq = R2(rTi.Price * qtty - rTi.RevalCost * q_pre);
+		const double pq = R2(rTi.NetPrice() * qtty - rTi.RevalCost * q_pre); // @v10.3.12 rTi.Price-->rTi.NetPrice
 		if(q_diff != 0.0)
 			qtty = q_diff;
 		amount = pq / qtty;

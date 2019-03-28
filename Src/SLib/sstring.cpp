@@ -6200,7 +6200,7 @@ int SLAPI STokenizer::ProcessSearchToken(TSVector <uint16> & rBuf, int tokType, 
 							if(r_tok.RP) {
 								ResourceToken idx_item;
 								idx_item.RP = r_tok.RP;
-								idx_item.PosInRText = (uint)-1;
+								idx_item.PosInRText = static_cast<uint>(-1);
 								p_new_entry->RL.insert(&idx_item);
 							}
 						}

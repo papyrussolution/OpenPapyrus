@@ -676,7 +676,7 @@ int FASTCALL GetLinguaCode(int ident, SString & rCode)
 	int    ok = 0;
 	rCode.Z();
 	for(uint i = 0; !ok && i < SIZEOFARRAY(P_LinguaIdentList); i++) {
-		if(ident == (int)P_LinguaIdentList[i].Id) {
+		if(ident == P_LinguaIdentList[i].Id) {
 			rCode = P_LinguaIdentList[i].P_Code;
 			ok = 1;
 		}
@@ -688,7 +688,7 @@ uint32 FASTCALL GetLinguaWinIdent(int ident)
 {
 	uint32 result = 0;
 	for(uint i = 0; i < SIZEOFARRAY(P_LinguaIdentList); i++) {
-		if(ident == (int)P_LinguaIdentList[i].Id) {
+		if(ident == P_LinguaIdentList[i].Id) {
 			result = P_LinguaIdentList[i].WinLangId;
 			break;
 		}
@@ -810,7 +810,7 @@ int FASTCALL GetSNScriptCode(int ident, SString & rCode)
 	int    ok = 0;
 	rCode.Z();
 	for(uint i = 0; !ok && i < SIZEOFARRAY(P_SNScriptIdentList); i++) {
-		if(ident == (int)P_SNScriptIdentList[i].Id) {
+		if(ident == P_SNScriptIdentList[i].Id) {
 			rCode = P_SNScriptIdentList[i].P_Code;
 			ok = 1;
 		}
@@ -1351,14 +1351,14 @@ SCodepageIdent::SCodepageIdent(int cp) : Cp(cp)
 {
 }
 
-SCodepageIdent::operator int() const { return (int)Cp; }
-SCodepageIdent::operator SCodepage() const { return (SCodepage)Cp; }
+SCodepageIdent::operator int() const { return static_cast<int>(Cp); }
+SCodepageIdent::operator SCodepage() const { return static_cast<SCodepage>(Cp); }
 int FASTCALL SCodepageIdent::operator == (SCodepage cp) const { return BIN(Cp == cp); }
 int FASTCALL SCodepageIdent::operator != (SCodepage cp) const { return BIN(Cp != cp); }
 
 SCodepageIdent & FASTCALL SCodepageIdent::operator = (SCodepage cp)
 {
-	Cp = (SCodepage)cp;
+	Cp = static_cast<SCodepage>(cp);
 	return *this;
 }
 
@@ -1520,11 +1520,11 @@ int FASTCALL ToUpper866(int alpha)
 {
 	unsigned ch = (alpha & 0x00ff);
 	if(IsLetter866(ch)) {
-		if(ch >= (uint)0xa0 && ch < (uint)0xb0)
+		if(ch >= 0xa0U && ch < 0xb0U)
 			ch -= 0x20;
-		else if(ch >= (uint)0xe0 && ch < (uint)0xf0)
+		else if(ch >= 0xe0U && ch < 0xf0U)
 			ch -= 0x50;
-		else if(ch == (uint)0xf0) // 0xf1
+		else if(ch == 0xf0U) // 0xf1
 			ch -= 0x01;
 	}
 	else if(isalpha(ch) && islower(ch))
@@ -1537,7 +1537,7 @@ char * FASTCALL stristr866(const char * s1, const char * s2)
 {
 	for(size_t p = 0, i = sstrlen(s1), len = sstrlen(s2); (i-p) >= len; p++)
 		if(strnicmp866(s1+p, s2, len) == 0)
-			return (char *)(s1+p);
+			return const_cast<char *>(s1+p); // @badcast
 	return 0;
 }
 
@@ -2122,16 +2122,16 @@ char * FASTCALL newStr(const char * s)
 }*/
 
 char * FASTCALL sstrcpy(char * pDest, const char * pSrc) { return strcpy(pDest, pSrc); }
-uchar * FASTCALL sstrcpy(uchar * pDest, const uchar * pSrc) { return (uchar *)strcpy((char *)pDest, (const char *)pSrc); }
+uchar * FASTCALL sstrcpy(uchar * pDest, const uchar * pSrc) { return reinterpret_cast<uchar *>(strcpy(reinterpret_cast<char *>(pDest), reinterpret_cast<const char *>(pSrc))); }
 wchar_t * FASTCALL sstrcpy(wchar_t * pDest, const wchar_t * pSrc) { return wcscpy(pDest, pSrc); }
-char * FASTCALL strnzcpy(char * dest, const uchar * src, size_t maxlen) { return strnzcpy(dest, (const char *)src, maxlen); }
+char * FASTCALL strnzcpy(char * dest, const uchar * src, size_t maxlen) { return strnzcpy(dest, reinterpret_cast<const char *>(src), maxlen); }
 
 char * FASTCALL strnzcpy(char * dest, const char * src, size_t maxlen)
 {
 	if(dest) {
 		if(src) {
 			if(maxlen) {
-				const char * p = (const char *)/*xeos_*/memchr(src, 0, maxlen);
+				const char * p = static_cast<const char *>(/*xeos_*/memchr(src, 0, maxlen));
 				if(p)
 					memcpy(dest, src, (size_t)(p - src)+1);
 				else {
@@ -2159,7 +2159,7 @@ wchar_t * FASTCALL strnzcpy(wchar_t * dest, const wchar_t * src, size_t maxlen)
 	if(dest) {
 		if(src) {
 			if(maxlen) {
-				const wchar_t * p = (const wchar_t *)wmemchr(src, 0, maxlen);
+				const wchar_t * p = static_cast<const wchar_t *>(wmemchr(src, 0, maxlen));
 				if(p) {
 					memcpy(dest, src, (size_t)(((p - src)+1) << 1));
 				}

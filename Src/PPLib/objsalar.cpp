@@ -2100,7 +2100,6 @@ int SLAPI PPObjStaffCal::Helper_CheckInEntry(LDATE dt, int proj_r, int inverse,
 		else
 			cal_chunk_list.Add(&chunk, 0);
 	}
-	// @v8.4.11 {
 	for(i = 0; i < skip_chunk_list.getCount(); i++) {
 		if(cal_chunk_list.getCount() == 0) {
 			STimeChunk chunk;
@@ -2109,10 +2108,9 @@ int SLAPI PPObjStaffCal::Helper_CheckInEntry(LDATE dt, int proj_r, int inverse,
 			chunk.Finish.t = encodetime(24, 0, 0, 0);
 			cal_chunk_list.insert(&chunk);
 		}
-		cal_chunk_list.Excise((const STimeChunk *)skip_chunk_list.at(i));
+		cal_chunk_list.Excise(static_cast<const STimeChunk *>(skip_chunk_list.at(i)));
 	}
 	skip_chunk_list.clear();
-	// } @v8.4.11
 	for(uint j = 0; j < rProjCalList.getCount(); j++) {
 		const StaffCalendarTbl::Rec & r_proj_rec = rProjCalList.at(j);
 		STimeChunk chunk;
@@ -2128,23 +2126,21 @@ int SLAPI PPObjStaffCal::Helper_CheckInEntry(LDATE dt, int proj_r, int inverse,
 		else
 			proj_chunk_list.Add(&chunk, 0);
 	}
-	// @v8.4.11 {
 	for(i = 0; i < skip_chunk_list.getCount(); i++) {
-		proj_chunk_list.Excise((const STimeChunk *)skip_chunk_list.at(i));
+		proj_chunk_list.Excise(static_cast<const STimeChunk *>(skip_chunk_list.at(i)));
 	}
 	skip_chunk_list.clear();
-	// } @v8.4.11
-	if(inverse && proj_r > 0) { // @v8.4.11 (proj_r==1)-->(proj_r>0)
+	if(inverse && proj_r > 0) {
 		STimeChunkArray inverse_chunk_list;
 		proj_chunk_list.Sort();
 		proj_chunk_list.GetFreeList(&inverse_chunk_list);
 		const uint ic = inverse_chunk_list.getCount();
 		if(ic) {
-			STimeChunk * p_first = (STimeChunk *)inverse_chunk_list.at(0);
+			STimeChunk * p_first = static_cast<STimeChunk *>(inverse_chunk_list.at(0));
 			if(!p_first->Start) {
 				p_first->Start.Set(dt, ZEROTIME);
 			}
-			STimeChunk * p_last = (STimeChunk *)inverse_chunk_list.at(ic-1);
+			STimeChunk * p_last = static_cast<STimeChunk *>(inverse_chunk_list.at(ic-1));
 			if(p_last->Finish.IsFar()) {
 				p_last->Finish.Set(dt, encodetime(23, 59, 59, 99));
 			}
@@ -2160,7 +2156,7 @@ int SLAPI PPObjStaffCal::Helper_CheckInEntry(LDATE dt, int proj_r, int inverse,
 	if(list.getCount()) {
 		long   sec = 0;
 		for(uint k = 0; k < list.getCount(); k++) {
-			const STimeChunk & r_chunk = *(const STimeChunk *)list.at(k);
+			const STimeChunk & r_chunk = *static_cast<const STimeChunk *>(list.at(k));
 			sec += r_chunk.GetDuration();
 			if(pList)
 				pList->Add(&r_chunk, 0);

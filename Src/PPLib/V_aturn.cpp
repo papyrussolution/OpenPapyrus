@@ -703,7 +703,7 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 	char   name_buf[48];
 	PPCurrency rec;
 	if(option == CALC_SIZE)
-		result->init((long)sizeof(name_buf));
+		result->init(sizeof(name_buf));
 	else {
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
 		if(id) {

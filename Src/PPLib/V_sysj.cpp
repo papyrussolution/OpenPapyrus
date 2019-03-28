@@ -561,7 +561,7 @@ static IMPL_DBE_PROC(dbqf_objnamefromlist_ppvsj_iip)
 {
 	char   buf[256];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(buf));
+		result->init(sizeof(buf));
 	}
 	else {
 		PPObjID oid;
@@ -593,7 +593,7 @@ static IMPL_DBE_PROC(dbqf_evvertextfromlist_ppvsj_iidtp)
 {
 	char   buf[256];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(buf));
+		result->init(sizeof(buf));
 	}
 	else {
 		PPViewSysJournal::EvVerEntry key;
@@ -1548,7 +1548,7 @@ static IMPL_DBE_PROC(dbqf_objnamefromlist_ppvgtaj_iip)
 {
 	char   buf[256];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(buf));
+		result->init(sizeof(buf));
 	}
 	else {
 		PPObjID oid;

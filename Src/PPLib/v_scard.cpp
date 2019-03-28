@@ -2855,7 +2855,7 @@ static IMPL_DBE_PROC(dbqf_scardop_extobj_ii)
 {
 	char   buf[64];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(buf));
+		result->init(sizeof(buf));
 	}
 	else {
 		PPID   obj_type = params[0].lval;

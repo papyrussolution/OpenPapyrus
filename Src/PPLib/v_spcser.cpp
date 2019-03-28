@@ -130,7 +130,7 @@ static IMPL_DBE_PROC(dbqf_spcsn_textfld_iisi)
 {
 	char   result_buf[128];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(result_buf));
+		result->init(sizeof(result_buf));
 	}
 	else {
 		SString temp_buf;

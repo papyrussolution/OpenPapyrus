@@ -1133,11 +1133,10 @@ sptr_t ScintillaWin::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 			    GetIntelliMouseParameters();
 			    ::RegisterDragDrop(MainHWND(), reinterpret_cast<IDropTarget *>(&dt));
 			    break;
-			case WM_COMMAND:
-			    Command(_LoWord(wParam));
-			    break;
-			case WM_PAINT:
-			    return WndPaint(wParam);
+			case WM_COMMAND: Command(_LoWord(wParam)); break;
+			case WM_VSCROLL: ScrollMessage(wParam); break;
+			case WM_HSCROLL: HorizontalScrollMessage(wParam); break;
+			case WM_PAINT: return WndPaint(wParam);
 			case WM_PRINTCLIENT: 
 				{
 					HDC hdc = reinterpret_cast<HDC>(wParam);
@@ -1147,12 +1146,6 @@ sptr_t ScintillaWin::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 					FullPaintDC(hdc);
 				}
 				break;
-			case WM_VSCROLL:
-			    ScrollMessage(wParam);
-			    break;
-			case WM_HSCROLL:
-			    HorizontalScrollMessage(wParam);
-			    break;
 			case WM_SIZE: 
 				{
 #if defined(USE_D2D)
@@ -1210,12 +1203,7 @@ sptr_t ScintillaWin::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 				    if(wParam & MK_CONTROL) {
 					    // Zoom! We play with the font sizes in the styles.
 					    // Number of steps/line is ignored, we just care if sizing up or down
-					    if(linesToScroll < 0) {
-						    KeyCommand(SCI_ZOOMIN);
-					    }
-					    else {
-						    KeyCommand(SCI_ZOOMOUT);
-					    }
+					    KeyCommand((linesToScroll < 0) ? SCI_ZOOMIN : SCI_ZOOMOUT);
 				    }
 				    else {
 					    // Scroll
@@ -1294,8 +1282,7 @@ sptr_t ScintillaWin::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 			    MouseLeave();
 			    return ::DefWindowProc(MainHWND(), iMessage, wParam, lParam);
 			case WM_LBUTTONUP:
-			    ButtonUp(Point::FromLong(static_cast<long>(lParam)), ::GetMessageTime(),
-			    (wParam & MK_CONTROL) != 0);
+			    ButtonUp(Point::FromLong(static_cast<long>(lParam)), ::GetMessageTime(), (wParam & MK_CONTROL) != 0);
 			    break;
 			case WM_RBUTTONDOWN: 
 				{
@@ -1305,34 +1292,30 @@ sptr_t ScintillaWin::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 						CancelModes();
 						SetEmptySelection(PositionFromLocation(Point::FromLong(static_cast<long>(lParam))));
 					}
-					RightButtonDownWithModifiers(pt, ::GetMessageTime(), ModifierFlags((wParam & MK_SHIFT) != 0,
-							(wParam & MK_CONTROL) != 0, Platform::IsKeyDown(VK_MENU)));
+					RightButtonDownWithModifiers(pt, ::GetMessageTime(), ModifierFlags((wParam & MK_SHIFT) != 0, (wParam & MK_CONTROL) != 0, Platform::IsKeyDown(VK_MENU)));
 				}
 				break;
 			case WM_SETCURSOR:
 			    if(_LoWord(lParam) == HTCLIENT) {
-				    if(inDragDrop == ddDragging) {
-					    DisplayCursor(Window::cursorUp);
-				    }
+					Window::Cursor cur = Window::cursorText;
+				    if(inDragDrop == ddDragging)
+						cur = Window::cursorUp;
 				    else {
 					    // Display regular (drag) cursor over selection
 					    POINT pt;
-					    if(0 != ::GetCursorPos(&pt)) {
+					    if(::GetCursorPos(&pt)) {
 						    ::ScreenToClient(MainHWND(), &pt);
-						    if(PointInSelMargin(PointFromPOINT(pt))) {
-							    DisplayCursor(GetMarginCursor(PointFromPOINT(pt)));
-						    }
-						    else if(PointInSelection(PointFromPOINT(pt)) && !SelectionEmpty()) {
-							    DisplayCursor(Window::cursorArrow);
-						    }
-						    else if(PointIsHotspot(PointFromPOINT(pt))) {
-							    DisplayCursor(Window::cursorHand);
-						    }
-						    else {
-							    DisplayCursor(Window::cursorText);
-						    }
+						    if(PointInSelMargin(PointFromPOINT(pt)))
+								cur = GetMarginCursor(PointFromPOINT(pt));
+						    else if(PointInSelection(PointFromPOINT(pt)) && !SelectionEmpty())
+								cur = Window::cursorArrow;
+						    else if(PointIsHotspot(PointFromPOINT(pt)))
+								cur = Window::cursorHand;
+						    else
+								cur = Window::cursorText;
 					    }
 				    }
+					DisplayCursor(cur);
 				    return TRUE;
 			    }
 			    else {
@@ -1340,7 +1323,7 @@ sptr_t ScintillaWin::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 			    }
 			case WM_CHAR:
 			    if(((wParam >= 128) || !iscntrl(static_cast<int>(wParam))) || !lastKeyDownConsumed) {
-				    wchar_t wcs[3] = {static_cast<wchar_t>(wParam), 0};
+				    wchar_t wcs[3] = { static_cast<wchar_t>(wParam), 0 };
 				    uint wclen = 1;
 				    if(IS_HIGH_SURROGATE(wcs[0])) {
 					    // If this is a high surrogate character, we need a second one
@@ -2207,13 +2190,13 @@ STDMETHODIMP FormatEnumerator_Clone(FormatEnumerator * fe, IEnumFORMATETC ** ppe
 }
 
 static VFunction * vtFormatEnumerator[] = {
-	(VFunction*)(FormatEnumerator_QueryInterface),
-	(VFunction*)(FormatEnumerator_AddRef),
-	(VFunction*)(FormatEnumerator_Release),
-	(VFunction*)(FormatEnumerator_Next),
-	(VFunction*)(FormatEnumerator_Skip),
-	(VFunction*)(FormatEnumerator_Reset),
-	(VFunction*)(FormatEnumerator_Clone)
+	reinterpret_cast<VFunction *>(FormatEnumerator_QueryInterface),
+	reinterpret_cast<VFunction *>(FormatEnumerator_AddRef),
+	reinterpret_cast<VFunction *>(FormatEnumerator_Release),
+	reinterpret_cast<VFunction *>(FormatEnumerator_Next),
+	reinterpret_cast<VFunction *>(FormatEnumerator_Skip),
+	reinterpret_cast<VFunction *>(FormatEnumerator_Reset),
+	reinterpret_cast<VFunction *>(FormatEnumerator_Clone)
 };
 
 FormatEnumerator::FormatEnumerator(int pos_, CLIPFORMAT formats_[], size_t formatsLen_) :
@@ -2254,11 +2237,11 @@ STDMETHODIMP DropSource_GiveFeedback(DropSource *, DWORD)
 }
 
 static VFunction * vtDropSource[] = {
-	(VFunction*)(DropSource_QueryInterface),
-	(VFunction*)(DropSource_AddRef),
-	(VFunction*)(DropSource_Release),
-	(VFunction*)(DropSource_QueryContinueDrag),
-	(VFunction*)(DropSource_GiveFeedback)
+	reinterpret_cast<VFunction *>(DropSource_QueryInterface),
+	reinterpret_cast<VFunction *>(DropSource_AddRef),
+	reinterpret_cast<VFunction *>(DropSource_Release),
+	reinterpret_cast<VFunction *>(DropSource_QueryContinueDrag),
+	reinterpret_cast<VFunction *>(DropSource_GiveFeedback)
 };
 
 DropSource::DropSource() : vtbl(vtDropSource), sci(0)
@@ -2544,8 +2527,8 @@ LRESULT ScintillaWin::ImeOnReconvert(LPARAM lParam)
 	rc->dwVersion = 0; // It should be absolutely 0.
 	rc->dwStrLen = (DWORD) static_cast<int>(rcFeed.length());
 	rc->dwStrOffset = sizeof(RECONVERTSTRING);
-	rc->dwCompStrLen = (DWORD) static_cast<int>(rcCompWstring.length());
-	rc->dwCompStrOffset = (DWORD) static_cast<int>(rcCompWstart.length()) * sizeof(wchar_t);
+	rc->dwCompStrLen = (DWORD)static_cast<int>(rcCompWstring.length());
+	rc->dwCompStrOffset = (DWORD)static_cast<int>(rcCompWstart.length()) * sizeof(wchar_t);
 	rc->dwTargetStrLen = rc->dwCompStrLen;
 	rc->dwTargetStrOffset = rc->dwCompStrOffset;
 	IMContext imc(MainHWND());

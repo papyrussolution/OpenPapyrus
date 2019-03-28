@@ -310,10 +310,8 @@ int TY_(EncodeCharToUTF8Bytes)(uint c, tmbstr encodebuf, TidyOutputSink* outp, i
 	byte* buf = &tempbuf[0];
 	int bytes = 0;
 	bool hasError = false;
-
 	if(encodebuf)
 		buf = (byte*)encodebuf;
-
 	if(c <= 0x7F) { /* 0XXX XXXX one byte */
 		buf[0] = (tmbchar)c;
 		bytes = 1;
@@ -366,19 +364,15 @@ int TY_(EncodeCharToUTF8Bytes)(uint c, tmbstr encodebuf, TidyOutputSink* outp, i
 	}
 	else
 		hasError = true;
-
 	/* don't output invalid UTF-8 byte sequence to a stream */
 	if(!hasError && outp != NULL) {
-		int ix;
-		for(ix = 0; ix < bytes; ++ix)
+		for(int ix = 0; ix < bytes; ++ix)
 			outp->putByte(outp->sinkData, buf[ix]);
 	}
-
 #if 1 && defined(_DEBUG)
 	if(hasError) {
-		int i;
 		fprintf(stderr, "UTF-8 encoding error for U+%x : ", c);
-		for(i = 0; i < bytes; i++)
+		for(int i = 0; i < bytes; i++)
 			fprintf(stderr, "0x%02x ", buf[i]);
 		fprintf(stderr, "\n");
 	}
@@ -397,11 +391,8 @@ uint TY_(GetUTF8) (ctmbstr str, uint *ch)
 {
 	uint n;
 	int bytes;
-
 	int err;
-
 	bytes = 0;
-
 	/* first byte "str[0]" is passed in separately from the */
 	/* rest of the UTF-8 byte sequence starting at "str[1]" */
 	err = TY_(DecodeUTF8BytesToChar) (&n, str[0], str+1, NULL, &bytes);
@@ -411,7 +402,6 @@ uint TY_(GetUTF8) (ctmbstr str, uint *ch)
 #endif
 		n = 0xFFFD; /* replacement char */
 	}
-
 	*ch = n;
 	return bytes - 1;
 }
@@ -419,9 +409,8 @@ uint TY_(GetUTF8) (ctmbstr str, uint *ch)
 /* store char c as UTF-8 encoded byte stream */
 tmbstr TY_(PutUTF8) (tmbstr buf, uint c)
 {
-	int err, count = 0;
-
-	err = TY_(EncodeCharToUTF8Bytes) (c, buf, NULL, &count);
+	int count = 0;
+	int err = TY_(EncodeCharToUTF8Bytes) (c, buf, NULL, &count);
 	if(err) {
 #if 1 && defined(_DEBUG)
 		fprintf(stderr, "pprint UTF-8 encoding error for U+%x : ", c);
@@ -454,8 +443,7 @@ bool    TY_(IsLowSurrogate) (tchar ch)
 tchar   TY_(CombineSurrogatePair) (tchar high, tchar low)
 {
 	assert(TY_(IsHighSurrogate) (high) && TY_(IsLowSurrogate) (low));
-	return ( ((low - kUTF16LowSurrogateBegin) * 0x400) +
-	    high - kUTF16HighSurrogateBegin + 0x10000 );
+	return ( ((low - kUTF16LowSurrogateBegin) * 0x400) + high - kUTF16HighSurrogateBegin + 0x10000 );
 }
 
 bool   TY_(SplitSurrogatePair) (tchar utf16, tchar* low, tchar* high)
@@ -470,9 +458,7 @@ bool   TY_(SplitSurrogatePair) (tchar utf16, tchar* low, tchar* high)
 
 bool    TY_(IsValidCombinedChar) (tchar ch)
 {
-	return ( ch >= kUTF16SurrogatesBegin &&
-	    (ch & 0x0000FFFE) != 0x0000FFFE &&
-	    (ch & 0x0000FFFF) != 0x0000FFFF );
+	return ( ch >= kUTF16SurrogatesBegin && (ch & 0x0000FFFE) != 0x0000FFFE && (ch & 0x0000FFFF) != 0x0000FFFF );
 }
 
 bool    TY_(IsCombinedChar) (tchar ch)

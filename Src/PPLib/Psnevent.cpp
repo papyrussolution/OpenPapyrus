@@ -1240,14 +1240,14 @@ int SLAPI PPObjPersonEvent::CheckRestrictions(const PPPsnEventPacket * pPack, co
 				LDATETIME moment;
 				moment.Set(pPack->Rec.Dt, pPack->Rec.Tm);
 				for(uint i = 0; !slot_pos && i < worktime_list.getCount(); i++) {
-					const STimeChunk & r_chunk = *(const STimeChunk *)worktime_list.at(i);
+					const STimeChunk & r_chunk = *static_cast<const STimeChunk *>(worktime_list.at(i));
 					if(r_chunk.Has(moment)) {
 						slot_pos = i+1;
 					}
 				}
 				THROW_PP_S(slot_pos, PPERR_PSNEV_MISSCALENTRY, stc_rec.Name);
 				if(pPack->Rec.ID == 0 && pPokPack->Rec.RscMaxTimes > 0) {
-					const STimeChunk & r_chunk = *(const STimeChunk *)worktime_list.at(slot_pos-1);
+					const STimeChunk & r_chunk = *static_cast<const STimeChunk *>(worktime_list.at(slot_pos-1));
 					uint   _c = 0;
 					SString temp_buf;
 					P_Tbl->CalcCountForPeriod(pPack->Rec.OpID, pPack->Rec.PersonID, r_chunk, &_c);

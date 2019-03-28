@@ -6933,7 +6933,7 @@ static IMPL_DBE_PROC(dbqf_vetis_clsftextfld_iisi)
 {
 	char   result_buf[32];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(result_buf));
+		result->init(sizeof(result_buf));
 	}
 	else {
 		PPID   _id = params[0].lval;
@@ -7079,7 +7079,7 @@ static IMPL_DBE_PROC(dbqf_vetis_productitemtextfld_iiiiip)
 	*/
 	char   result_buf[128];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(result_buf));
+		result->init(sizeof(result_buf));
 	}
 	else {
 		PPID   product_item_id = params[0].lval;
@@ -7103,7 +7103,7 @@ static IMPL_DBE_PROC(dbqf_vetis_vetdstatus_i)
 {
 	char   buf[32];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(buf));
+		result->init(sizeof(buf));
 	}
 	else {
 		SString temp_buf;
@@ -7117,7 +7117,7 @@ static IMPL_DBE_PROC(dbqf_vetis_vetdform_i)
 {
 	char   buf[32];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(buf));
+		result->init(sizeof(buf));
 	}
 	else {
 		SString temp_buf;
@@ -7131,7 +7131,7 @@ static IMPL_DBE_PROC(dbqf_vetis_vetdtype_i)
 {
 	char   buf[32];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(buf));
+		result->init(sizeof(buf));
 	}
 	else {
 		SString temp_buf;

@@ -1400,7 +1400,7 @@ static IMPL_DBE_PROC(dbqf_quotperiod_i)
 {
 	char   buf[32];
 	if(option == CALC_SIZE) {
-		result->init((long)sizeof(buf));
+		result->init(sizeof(buf));
 	}
 	else {
 		SString temp_buf;

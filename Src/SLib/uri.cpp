@@ -2041,7 +2041,7 @@ static int UriToStringEngine(char * dest, const UriUri * uri, int maxChars, int 
 
 int FASTCALL UriToStringCharsRequired(const UriUri * uri, int * charsRequired)
 {
-	const int MAX_CHARS =((uint)-1)>>1;
+	const int MAX_CHARS =(static_cast<uint>(-1))>>1;
 	return UriToStringEngine(NULL, uri, MAX_CHARS, NULL, charsRequired);
 }
 

@@ -879,6 +879,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rB
 				const  double avg_spread = rBlk.GetAverageSpread() * 1.08;
 				rBlk.T_.GetValue(rBlk.T_.GetCount()-1, vec_idx, &last_value);
 				// @v10.3.11 {
+				/* плохо работает
 				int    use_extremal_tp = 0;
 				if(rStk.Profit > 0.0) {
 					//
@@ -898,6 +899,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rB
 						}
 					}
 				}
+				*/
 				// } @v10.3.11 
 				const double external_sl = (external_max_duck_quant > 0 && external_spike_quant > 0.0) ?
 					PPObjTimeSeries::Strategy::CalcSL_withExternalFactors(last_value, is_short, prec, external_max_duck_quant, external_spike_quant, avg_spread) : 0.0;
@@ -911,11 +913,11 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rB
 				const double eff_sl = (external_sl > 0.0) ? external_sl : ((__sl > 0.0) ? __sl : rStk.SL);
 				//const double eff_tp = (__tp > 0.0 && external_tp > 0.0) ? (is_short ? MAX(__tp, external_tp) : MIN(__tp, external_tp)) : ((__tp > 0.0) ? __tp : external_tp);
 				const double eff_tp = (rStk.TP > 0.0) ? rStk.TP : ((__tp > 0.0) ? __tp : 0.0); // Установленный TP менять не будем
-				if(eff_sl > 0.0 || (eff_tp > 0.0 || (eff_tp > 0.0 && use_extremal_tp))) {
+				if(eff_sl > 0.0 || eff_tp > 0.0) {
 					const bool external_sl_used = LOGIC(eff_sl == external_sl);
 					const bool external_tp_used = LOGIC(eff_tp == external_tp);
 					const bool do_update_sl = (rStk.SL <= 0.0 && eff_sl > 0.0) ? true : (is_short ? (eff_sl < rStk.SL) : (eff_sl > rStk.SL));
-					const bool do_update_tp = ((rStk.TP <= 0.0 && eff_tp > 0.0) || (rStk.TP > 0.0 && use_extremal_tp)) ? true : (is_short ? (eff_tp > rStk.TP) : (eff_tp < rStk.TP));
+					const bool do_update_tp = (rStk.TP <= 0.0 && eff_tp > 0.0) ? true : (is_short ? (eff_tp > rStk.TP) : (eff_tp < rStk.TP));
 					if(do_update_sl || do_update_tp) {
 						{
 							SString log_msg;
@@ -928,18 +930,12 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rB
 								Cat(rStk.SL, MKSFMTD(0, 7, NMBF_NOTRAILZ)).CatChar(':').Cat(rStk.TP, MKSFMTD(0, 7, NMBF_NOTRAILZ)).
 								Cat(" >> ").
 								Cat(eff_sl, MKSFMTD(0, 7, NMBF_NOTRAILZ));
-								if(use_extremal_tp)
-									log_msg.Cat("[!]");
-								else if(external_sl_used)
+								if(external_sl_used)
 									log_msg.Cat("[*]");
 								log_msg.CatChar(':');
-								if(use_extremal_tp)
-									log_msg.Cat("0[!]");
-								else {
-									log_msg.Cat(eff_tp, MKSFMTD(0, 7, NMBF_NOTRAILZ));
-									if(external_tp_used)
-										log_msg.Cat("[*]");
-								}
+								log_msg.Cat(eff_tp, MKSFMTD(0, 7, NMBF_NOTRAILZ));
+								if(external_tp_used)
+									log_msg.Cat("[*]");
 							if(p_st && (!external_sl_used || !external_tp_used)) {
 								log_msg.Space().Cat(PPObjTimeSeries::StrategyToString(*p_st, &_best_result, temp_buf));
 							}
@@ -954,7 +950,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rB
 						rResult.AddS(stk_symb, &req.SymbolP);
 						req.Volume = 0;
 						req.SL = do_update_sl ? eff_sl : rStk.SL;
-						req.TP = use_extremal_tp ? 0.0 : (do_update_tp ? eff_tp : rStk.TP);
+						req.TP = do_update_tp ? eff_tp : rStk.TP;
 						THROW_SL(rResult.L.insert(&req));
 						ok = 1;
 					}
